@@ -2,7 +2,7 @@
  * Routines for BACnet/IP (BVLL, BVLC) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bvlc.c,v 1.9 2002/01/21 07:36:32 guy Exp $
+ * $Id: packet-bvlc.c,v 1.10 2002/06/05 00:03:06 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,38 +71,32 @@ static dissector_handle_t data_handle;
 
 static dissector_table_t bvlc_dissector_table;
 
-static const char*
-bvlc_function_name (guint8 bvlc_function){
-  static const char *type_names[] = {
-	"BVLC-Result",
-	"Write-Broadcast-Distribution-Table",
-	"Read-Broadcast-Distribution-Table",
-	"Read-Broadcast-Distribution-Table-Ack",
-	"Forwarded-NPDU",
-	"Register-Foreign-Device",
-	"Read-Foreign-Device-Table",
-	"Read-Foreign-Device-Table-Ack",
-	"Delete-Foreign-Device-Table-Entry",
-	"Distribute-Broadcast-To-Network",
-	"Original-Unicast-NPDU",
-	"Original-Broadcast-NPDU"
-  };
-  return (bvlc_function > 0xb)? "unknown" : type_names[bvlc_function];
-}
+static const value_string bvlc_function_names[] = {
+	{ 0x00, "BVLC-Result", },
+	{ 0x01, "Write-Broadcast-Distribution-Table", },
+	{ 0x02, "Read-Broadcast-Distribution-Table", },
+	{ 0x03, "Read-Broadcast-Distribution-Table-Ack", },
+	{ 0x04, "Forwarded-NPDU", },
+	{ 0x05, "Register-Foreign-Device", },
+	{ 0x06, "Read-Foreign-Device-Table", },
+	{ 0x07, "Read-Foreign-Device-Table-Ack", },
+	{ 0x08, "Delete-Foreign-Device-Table-Entry", },
+	{ 0x09, "Distribute-Broadcast-To-Network", },
+	{ 0x0a, "Original-Unicast-NPDU", },
+	{ 0x0b, "Original-Broadcast-NPDU" },
+	{ 0,    NULL }
+};
 
-static const char*
-bvlc_result_name (guint16 bvlc_result){
-  static const char *result_names[] = {
-	"Successful completion",
-	"Write-Broadcast-Distribution-Table NAK",
-	"Read-Broadcast-Distribution-Table NAK",
-	"Register-Foreign-Device NAK",
-	"Read-Foreign-Device-Table NAK",
-	"Delete-Foreign-Device-Table-Entry NAK",
-	"Distribute-Broadcast-To-Network NAK"
-  };
-  return (bvlc_result > 0x0060)? "unknown" : result_names[bvlc_result];
-}
+static const value_string bvlc_result_names[] = {
+	{ 0x00, "Successful completion" },
+	{ 0x10, "Write-Broadcast-Distribution-Table NAK" },
+	{ 0x20, "Read-Broadcast-Distribution-Table NAK" },
+	{ 0x30, "Register-Foreign-Device NAK" },
+	{ 0x40, "Read-Foreign-Device-Table NAK" },
+	{ 0x50, "Delete-Foreign-Device-Table-Entry NAK" },
+	{ 0x60, "Distribute-Broadcast-To-Network NAK" },
+	{ 0,    NULL }
+};
 
 static gint ett_bvlc = -1;
 static gint ett_bdt = -1;
@@ -169,7 +163,8 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset ++;
 		proto_tree_add_uint_format(bvlc_tree, hf_bvlc_function, tvb, 
 			offset, 1, bvlc_function,"Function: 0x%02x (%s)", 
-			bvlc_function, bvlc_function_name(bvlc_function));
+			bvlc_function, val_to_str (bvlc_function,
+				bvlc_function_names, "Unknown"));
 		offset ++;
 		proto_tree_add_uint_format(bvlc_tree, hf_bvlc_length, tvb, offset, 
 			2, bvlc_length, "BVLC-Length: %d of %d bytes BACnet packet length", 
@@ -185,7 +180,8 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 	* packet to dissect, see README.developer, 1.6.2, FID */
 			proto_tree_add_uint_format(bvlc_tree, hf_bvlc_result, tvb, 
 				offset, 2, bvlc_result,"Result: 0x%04x (%s)", 
-				bvlc_result, bvlc_result_name(bvlc_result << 4));
+				bvlc_result, val_to_str(bvlc_result << 4, 
+					bvlc_result_names, "Unknown"));
 			offset += 2;
 			break;
 		case 0x01: /* Write-Broadcast-Distribution-Table */
