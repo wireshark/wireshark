@@ -2,7 +2,7 @@
  * Helpers for ASN.1/BER dissection
  * Ronnie Sahlberg (C) 2004
  *
- * $Id: packet-ber.c,v 1.12 2004/06/24 05:31:21 sahlberg Exp $
+ * $Id: packet-ber.c,v 1.13 2004/06/25 09:24:17 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -504,11 +504,33 @@ dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, i
 	proto_item *item=NULL;
 	int end_offset;
 	int hoffset = offset;
+	header_field_info	*hfinfo;
+
 
 	/* read header and len for choice field */
 	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
 	offset=get_ber_length(tvb, offset, &len, NULL);
 	end_offset=offset+len;
+
+	/* Some sanity checks.  
+	 * The hf field passed to us MUST be an integer type 
+	 */
+	if(hf_id!=-1){
+		hfinfo=proto_registrar_get_nth(hf_id);
+		switch(hfinfo->type) {
+			case FT_UINT8:
+			case FT_UINT16:
+			case FT_UINT24:
+			case FT_UINT32:
+				break;
+		default:
+			proto_tree_add_text(tree, tvb, offset, len,"dissect_ber_choice(): Was passed a HF field that was not integer type : %s",hfinfo->abbrev);
+			fprintf(stderr,"dissect_ber_choice(): frame:%d offset:%d Was passed a HF field that was not integer type : %s\n",pinfo->fd->num,offset,hfinfo->abbrev);
+			return end_offset;
+		}
+	}
+
+	
 
 	/* loop over all entries until we find the right choice or 
 	   run out of entries */
