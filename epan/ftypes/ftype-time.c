@@ -1,8 +1,8 @@
 /*
- * $Id: ftype-time.c,v 1.5 2001/05/31 06:20:10 guy Exp $
+ * $Id: ftype-time.c,v 1.6 2001/05/31 06:48:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
  *
  * 
@@ -24,6 +24,8 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+#include <ctype.h>
 
 #include <time.h>
 
@@ -107,11 +109,8 @@ relative_val_from_string(fvalue_t *fv, char *s, LogFunc log)
 		 * Get the seconds value.
 		 */
 		fv->value.time.tv_sec = strtoul(curptr, &endptr, 10);
-		if (endptr == curptr || (*endptr != '\0' && *endptr != '.')) {
-			if (log != NULL)
-				log("\"%s\" is not a valid time.", s);
-			return FALSE;
-		}
+		if (endptr == curptr || (*endptr != '\0' && *endptr != '.'))
+			goto fail;
 		curptr = endptr;
 		if (*curptr == '.')
 			curptr++;	/* skip the decimal point */
@@ -132,11 +131,8 @@ relative_val_from_string(fvalue_t *fv, char *s, LogFunc log)
 		 * Get the microseconds value.
 		 */
 		fv->value.time.tv_usec = strtoul(curptr, &endptr, 10);
-		if (endptr == curptr || *endptr != '\0') {
-			if (log != NULL)
-				log("\"%s\" is not a valid time.", s);
-			return FALSE;
-		}
+		if (endptr == curptr || *endptr != '\0')
+			goto fail;
 	} else {
 		/*
 		 * No microseconds value - it's 0.
@@ -148,6 +144,11 @@ relative_val_from_string(fvalue_t *fv, char *s, LogFunc log)
 	 * XXX - what about negative values?
 	 */
 	return TRUE;
+
+fail:
+	if (log != NULL)
+		log("\"%s\" is not a valid time.", s);
+	return FALSE;
 }
 
 
@@ -155,15 +156,54 @@ static gboolean
 absolute_val_from_string(fvalue_t *fv, char *s, LogFunc log)
 {
 	struct tm tm;
-	char *str;
-	str=strptime(s,"%b %d, %Y %H:%M:%S.",&tm);
-	if (!str) {
-		log("\"%s\" is not a valid absolute time. Example: \"Nov 12, 1999 08:55:44.123\"",s);
-		return FALSE;
-	}
+	char    *curptr, *endptr;
+
+	curptr = strptime(s,"%b %d, %Y %H:%M:%S", &tm);
+	if (curptr == NULL)
+		goto fail;
+	tm.tm_isdst = -1;	/* let the computer figure out if it's DST */
 	fv->value.time.tv_sec = mktime(&tm);
-	sscanf(str,"%lu",&fv->value.time.tv_usec);
+	if (*curptr != '\0') {
+		/*
+		 * Something came after the seconds field; it must be
+		 * a microseconds field.
+		 */
+		if (*curptr != '.')
+			goto fail;	/* it's not */
+		curptr++;	/* skip the "." */
+		if (!isdigit((unsigned char)*curptr))
+			goto fail;	/* not a digit, so not valid */
+		fv->value.time.tv_usec = strtoul(curptr, &endptr, 10);
+		if (endptr == curptr || *endptr != '\0')
+			goto fail;
+	} else {
+		/*
+		 * No microseconds value - it's 0.
+		 */
+		fv->value.time.tv_usec = 0;
+	}
+
+	if (fv->value.time.tv_sec == -1) {
+		/*
+		 * XXX - should we supply an error message that mentions
+		 * that the time specified might be syntactically valid
+		 * but might not actually have occurred, e.g. a time in
+		 * the non-existent time range after the clocks are
+		 * set forward during daylight savings time (or possibly
+		 * that it's in the time range after the clocks are set
+		 * backward, so that there are two different times that
+		 * it could be)?
+		 */
+		goto fail;
+	}
+
 	return TRUE;
+
+fail:
+	if (log != NULL)
+		log("\"%s\" is not a valid absolute time. Example: \"Nov 12, 1999 08:55:44.123\"",
+		    s);
+	return FALSE;
 }
 
 static void
