@@ -477,7 +477,7 @@ proto_registrar_get_nth(guint hfindex)
 /* Finds a record in the hf_info_records array by name.
  */
 header_field_info*
-proto_registrar_get_byname(char *field_name)
+proto_registrar_get_byname(const char *field_name)
 {
 	g_assert(field_name != NULL);
 	return g_tree_lookup(gpa_name_tree, field_name);

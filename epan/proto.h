@@ -902,7 +902,7 @@ extern header_field_info* proto_registrar_get_nth(guint hfindex);
 /** Get the header_field information based upon a field name.
  @param field_name the field name to search for
  @return the registered item */
-extern header_field_info* proto_registrar_get_byname(char *field_name);
+extern header_field_info* proto_registrar_get_byname(const char *field_name);
 
 /** Get enum ftenum FT_ of registered header_field number n.
  @param n item # n (0-indexed)
