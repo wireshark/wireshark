@@ -1067,7 +1067,7 @@ static void calculate_roundtrip_delay(tvbuff_t *tvb, packet_info *pinfo,
 	/* of this packet                                                   */
 	p_conv = find_conversation(&pinfo->net_src, &pinfo->net_dst,
 	                           pinfo->ptype,
-	                           pinfo->destport, pinfo->srcport, NO_ADDR_B);
+	                           pinfo->srcport, pinfo->destport, NO_ADDR_B);
 	if (!p_conv)
 	{
 		return;
@@ -1978,7 +1978,7 @@ proto_register_rtcp(void)
 		&global_rtcp_heur);
 
 	prefs_register_bool_preference(rtcp_module, "show_roundtrip_calculation",
-		"Show SR roundtrip calculations",
+		"Show relative roundtrip calculations",
 		"Try to work out network delay by comparing time between packets "
 		"as captured and delays as seen by endpoint",
 		&global_rtcp_show_roundtrip_calculation);
