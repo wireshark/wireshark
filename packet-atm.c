@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.44 2002/04/30 21:52:15 guy Exp $
+ * $Id: packet-atm.c,v 1.45 2002/05/24 09:31:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,6 +86,8 @@ static dissector_handle_t data_handle;
 #define LE_FLUSH_RESPONSE	0x0107
 #define LE_NARP_REQUEST		0x0008
 #define LE_TOPOLOGY_REQUEST	0x0009
+#define LE_VERIFY_REQUEST	0x000A
+#define LE_VERIFY_RESPONSE	0x010A
 
 static const value_string le_control_opcode_vals[] = {
 	{ LE_CONFIGURE_REQUEST,   "LE_CONFIGURE_REQUEST" },
@@ -104,6 +106,8 @@ static const value_string le_control_opcode_vals[] = {
 	{ LE_FLUSH_RESPONSE,      "LE_FLUSH_RESPONSE" },
 	{ LE_NARP_REQUEST,        "LE_NARP_REQUEST" },
 	{ LE_TOPOLOGY_REQUEST,    "LE_TOPOLOGY_REQUEST" },
+	{ LE_VERIFY_REQUEST,      "LE_VERIFY_REQUEST" },
+	{ LE_VERIFY_RESPONSE,     "LE_VERIFY_RESPONSE" },
 	{ 0,                      NULL }
 };
 
@@ -122,6 +126,7 @@ static const value_string le_control_status_vals[] = {
 	{ 20, "No configuraton" },
 	{ 21, "LE_CONFIGURE error" },
 	{ 22, "Insufficient information" },
+	{ 24, "TLV not found" },
 	{ 0,  NULL }
 };
 
@@ -147,6 +152,15 @@ static const value_string le_control_lan_type_vals[] = {
 	{ LANT_802_3,  "Ethernet/802.3" },
 	{ LANT_802_5,  "802.5" },
 	{ 0,           NULL }
+};
+
+static const value_string le_control_frame_size_vals[] = {
+	{ 0x00, "Unspecified" },
+	{ 0x01, "1516/1528/1580/1592" },
+	{ 0x02, "4544/4556/1580/1592" },
+	{ 0x03, "9234/9246" },
+	{ 0x04, "18190/18202" },
+	{ 0,    NULL }
 };
 
 static void
@@ -226,6 +240,13 @@ dissect_lan_destination(tvbuff_t *tvb, int offset, const char *type, proto_tree 
 #define	LE_MCAST_SEND_VCC_AVGRATE	TLV_TYPE(OUI_ATM_FORUM, 0x0D)
 #define	LE_MCAST_SEND_VCC_PEAKRATE	TLV_TYPE(OUI_ATM_FORUM, 0x0E)
 #define	LE_CONN_COMPLETION_TIMER	TLV_TYPE(OUI_ATM_FORUM, 0x0F)
+#define	LE_CONFIG_FRAG_INFO		TLV_TYPE(OUI_ATM_FORUM, 0x10)
+#define	LE_LAYER_3_ADDRESS		TLV_TYPE(OUI_ATM_FORUM, 0x11)
+#define	LE_ELAN_ID			TLV_TYPE(OUI_ATM_FORUM, 0x12)
+#define	LE_SERVICE_CATEGORY		TLV_TYPE(OUI_ATM_FORUM, 0x13)
+#define	LE_LLC_MUXED_ATM_ADDRESS	TLV_TYPE(OUI_ATM_FORUM, 0x2B)
+#define	LE_X5_ADJUSTMENT		TLV_TYPE(OUI_ATM_FORUM, 0x2C)
+#define	LE_PREFERRED_LES		TLV_TYPE(OUI_ATM_FORUM, 0x2D)
 
 static const value_string le_tlv_type_vals[] = {
 	{ LE_CONTROL_TIMEOUT,		"Control Time-out" },
@@ -243,8 +264,206 @@ static const value_string le_tlv_type_vals[] = {
 	{ LE_MCAST_SEND_VCC_AVGRATE,	"Mcast Send VCC AvgRate" },
 	{ LE_MCAST_SEND_VCC_PEAKRATE,	"Mcast Send VCC PeakRate" },
 	{ LE_CONN_COMPLETION_TIMER,	"Connection Completion Timer" },
+	{ LE_CONFIG_FRAG_INFO,		"Config Frag Info" },
+	{ LE_LAYER_3_ADDRESS,		"Layer 3 Address" },
+	{ LE_ELAN_ID,			"ELAN ID" },
+	{ LE_SERVICE_CATEGORY,		"Service Category" },
+	{ LE_LLC_MUXED_ATM_ADDRESS,	"LLC-muxed ATM Address" },
+	{ LE_X5_ADJUSTMENT,		"X5 Adjustment" },
+	{ LE_PREFERRED_LES,		"Preferred LES" },
 	{ 0,				NULL },
 };
+
+static void
+dissect_le_control_tlvs(tvbuff_t *tvb, int offset, guint num_tlvs,
+			proto_tree *tree)
+{
+  guint32 tlv_type;
+  guint8 tlv_length;
+  proto_item *ttlv;
+  proto_tree *tlv_tree;
+
+  while (num_tlvs != 0) {
+    tlv_type = tvb_get_ntohl(tvb, offset);
+    tlv_length = tvb_get_guint8(tvb, offset+4);
+    ttlv = proto_tree_add_text(tree, tvb, offset, 5+tlv_length, "TLV type: %s",
+	val_to_str(tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
+    tlv_tree = proto_item_add_subtree(ttlv, ett_atm_lane_lc_tlv);
+    proto_tree_add_text(tlv_tree, tvb, offset, 4, "TLV Type: %s",
+	val_to_str(tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
+    proto_tree_add_text(tlv_tree, tvb, offset+4, 1, "TLV Length: %u", tlv_length);
+    offset += 5+tlv_length;
+    num_tlvs--;
+  }
+}
+
+static void
+dissect_le_configure_join_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+  guint8 num_tlvs;
+  guint8 name_size;
+
+  dissect_lan_destination(tvb, offset, "Source", tree);
+  offset += 8;
+
+  dissect_lan_destination(tvb, offset, "Target", tree);
+  offset += 8;
+
+  proto_tree_add_text(tree, tvb, offset, 20, "Source ATM Address: %s",
+		      tvb_bytes_to_str(tvb, offset, 20));
+  offset += 20;
+
+  proto_tree_add_text(tree, tvb, offset, 1, "LAN type: %s",
+	val_to_str(tvb_get_guint8(tvb, offset), le_control_lan_type_vals,
+				"Unknown (0x%02X)"));
+  offset += 1;
+
+  proto_tree_add_text(tree, tvb, offset, 1, "Maximum frame size: %s",
+	val_to_str(tvb_get_guint8(tvb, offset), le_control_frame_size_vals,
+				"Unknown (0x%02X)"));
+  offset += 1;
+
+  num_tlvs = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1, "Number of TLVs: %u", num_tlvs);
+  offset += 1;
+
+  name_size = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1, "ELAN name size: %u", name_size);
+  offset += 1;
+
+  proto_tree_add_text(tree, tvb, offset, 20, "Target ATM Address: %s",
+		      tvb_bytes_to_str(tvb, offset, 20));
+  offset += 20;
+
+  if (name_size > 32)
+    name_size = 32;
+  if (name_size != 0) {
+    proto_tree_add_text(tree, tvb, offset, name_size, "ELAN name: %s",
+			tvb_bytes_to_str(tvb, offset, name_size));
+  }
+  offset += 32;
+
+  dissect_le_control_tlvs(tvb, offset, num_tlvs, tree);
+}
+
+static void
+dissect_le_registration_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+  guint8 num_tlvs;
+
+  dissect_lan_destination(tvb, offset, "Source", tree);
+  offset += 8;
+
+  dissect_lan_destination(tvb, offset, "Target", tree);
+  offset += 8;
+
+  proto_tree_add_text(tree, tvb, offset, 20, "Source ATM Address: %s",
+		      tvb_bytes_to_str(tvb, offset, 20));
+  offset += 20;
+
+  /* Reserved */
+  offset += 2;
+
+  num_tlvs = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1, "Number of TLVs: %u", num_tlvs);
+  offset += 1;
+
+  /* Reserved */
+  offset += 53;
+
+  dissect_le_control_tlvs(tvb, offset, num_tlvs, tree);
+}
+
+static void
+dissect_le_arp_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+  guint8 num_tlvs;
+
+  dissect_lan_destination(tvb, offset, "Source", tree);
+  offset += 8;
+
+  dissect_lan_destination(tvb, offset, "Target", tree);
+  offset += 8;
+
+  proto_tree_add_text(tree, tvb, offset, 20, "Source ATM Address: %s",
+		      tvb_bytes_to_str(tvb, offset, 20));
+  offset += 20;
+
+  /* Reserved */
+  offset += 2;
+
+  num_tlvs = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1, "Number of TLVs: %u", num_tlvs);
+  offset += 1;
+
+  /* Reserved */
+  offset += 1;
+
+  proto_tree_add_text(tree, tvb, offset, 20, "Target ATM Address: %s",
+		      tvb_bytes_to_str(tvb, offset, 20));
+  offset += 20;
+
+  /* Reserved */
+  offset += 32;
+
+  dissect_le_control_tlvs(tvb, offset, num_tlvs, tree);
+}
+
+static void
+dissect_le_topology_change_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+  /* Reserved */
+  offset += 92;
+}
+
+static void
+dissect_le_verify_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+  guint8 num_tlvs;
+
+  /* Reserved */
+  offset += 38;
+
+  num_tlvs = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1, "Number of TLVs: %u", num_tlvs);
+  offset += 1;
+
+  /* Reserved */
+  offset += 1;
+
+  proto_tree_add_text(tree, tvb, offset, 20, "Target ATM Address: %s",
+		      tvb_bytes_to_str(tvb, offset, 20));
+  offset += 20;
+
+  /* Reserved */
+  offset += 32;
+
+  dissect_le_control_tlvs(tvb, offset, num_tlvs, tree);
+}
+
+static void
+dissect_le_flush_frame(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+  dissect_lan_destination(tvb, offset, "Source", tree);
+  offset += 8;
+
+  dissect_lan_destination(tvb, offset, "Target", tree);
+  offset += 8;
+
+  proto_tree_add_text(tree, tvb, offset, 20, "Source ATM Address: %s",
+		      tvb_bytes_to_str(tvb, offset, 20));
+  offset += 20;
+
+  /* Reserved */
+  offset += 4;
+
+  proto_tree_add_text(tree, tvb, offset, 20, "Target ATM Address: %s",
+		      tvb_bytes_to_str(tvb, offset, 20));
+  offset += 20;
+
+  /* Reserved */
+  offset += 32;
+}
 
 static void
 dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -254,13 +473,8 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int offset = 0;
   proto_item *tf;
   proto_tree *flags_tree;
-  proto_item *ttlv;
-  proto_tree *tlv_tree;
   guint16 opcode;
   guint16 flags;
-  guint8 num_tlvs;
-  guint32 tlv_type;
-  guint8 tlv_length;
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "LE Control");
@@ -325,64 +539,82 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tf = proto_tree_add_text(lane_tree, tvb, offset, 2, "Flags: 0x%04X",
 			flags);
     flags_tree = proto_item_add_subtree(tf, ett_atm_lane_lc_flags);
-    proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
-	decode_boolean_bitfield(flags, 0x0001, 8*2,
-				"Remote address", "Local address"));
-    proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
+
+    switch (opcode) {
+
+    case LE_CONFIGURE_REQUEST:
+    case LE_CONFIGURE_RESPONSE:
+      proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
+	decode_boolean_bitfield(flags, 0x0002, 8*2,
+				"V2 capable", "Not V2 capable"));
+      offset += 2;
+      dissect_le_configure_join_frame(tvb, offset, lane_tree);
+      break;
+
+    case LE_JOIN_REQUEST:
+    case LE_JOIN_RESPONSE:
+      proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
+	decode_boolean_bitfield(flags, 0x0002, 8*2,
+				"V2 capable", "Not V2 capable"));
+      if (opcode == LE_JOIN_REQUEST) {
+        proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
+		decode_boolean_bitfield(flags, 0x0004, 8*2,
+				"Selective multicast", "No selective multicast"));
+      } else {
+        proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
+		decode_boolean_bitfield(flags, 0x0008, 8*2,
+				"V2 required", "V2 not required"));
+      }
+      proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
 	decode_boolean_bitfield(flags, 0x0080, 8*2,
 				"Proxy", "Not proxy"));
-    proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
+      proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
+	decode_boolean_bitfield(flags, 0x0200, 8*2,
+				"Exclude explorer frames",
+				"Don't exclude explorer frames"));
+      offset += 2;
+      dissect_le_configure_join_frame(tvb, offset, lane_tree);
+      break;
+
+    case LE_REGISTER_REQUEST:
+    case LE_REGISTER_RESPONSE:
+    case LE_UNREGISTER_REQUEST:
+    case LE_UNREGISTER_RESPONSE:
+      offset += 2;
+      dissect_le_registration_frame(tvb, offset, lane_tree);
+      break;
+
+    case LE_ARP_REQUEST:
+    case LE_ARP_RESPONSE:
+    case LE_NARP_REQUEST:
+      if (opcode != LE_NARP_REQUEST) {
+        proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
+		decode_boolean_bitfield(flags, 0x0001, 8*2,
+				"Remote address", "Local address"));
+      }
+      offset += 2;
+      dissect_le_arp_frame(tvb, offset, lane_tree);
+      break;
+
+    case LE_TOPOLOGY_REQUEST:
+      proto_tree_add_text(flags_tree, tvb, offset, 2, "%s",
 	decode_boolean_bitfield(flags, 0x0100, 8*2,
 				"Topology change", "No topology change"));
-    offset += 2;
+      offset += 2;
+      dissect_le_topology_change_frame(tvb, offset, lane_tree);
+      break;
 
-    dissect_lan_destination(tvb, offset, "Source", lane_tree);
-    offset += 8;
+    case LE_VERIFY_REQUEST:
+    case LE_VERIFY_RESPONSE:
+      offset += 2;
+      dissect_le_verify_frame(tvb, offset, lane_tree);
+      break;
 
-    dissect_lan_destination(tvb, offset, "Target", lane_tree);
-    offset += 8;
-
-    proto_tree_add_text(lane_tree, tvb, offset, 20, "Source ATM Address: %s",
-			tvb_bytes_to_str(tvb, offset, 20));
-    offset += 20;
-
-    proto_tree_add_text(lane_tree, tvb, offset, 1, "LAN type: %s",
-	val_to_str(tvb_get_guint8(tvb, offset), le_control_lan_type_vals,
-				"Unknown (0x%02X)"));
-    offset += 1;
-
-    proto_tree_add_text(lane_tree, tvb, offset, 1, "Maximum frame size: %u",
-			tvb_get_guint8(tvb, offset));
-    offset += 1;
-
-    num_tlvs = tvb_get_guint8(tvb, offset);
-    proto_tree_add_text(lane_tree, tvb, offset, 1, "Number of TLVs: %u",
-			num_tlvs);
-    offset += 1;
-
-    proto_tree_add_text(lane_tree, tvb, offset, 1, "ELAN name size: %u",
-			tvb_get_guint8(tvb, offset));
-    offset += 1;
-
-    proto_tree_add_text(lane_tree, tvb, offset, 20, "Target ATM Address: %s",
-			tvb_bytes_to_str(tvb, offset, 20));
-    offset += 20;
-
-    proto_tree_add_text(lane_tree, tvb, offset, 32, "ELAN name: %s",
-			tvb_bytes_to_str(tvb, offset, 32));
-    offset += 32;
-
-    while (num_tlvs != 0) {
-      tlv_type = tvb_get_ntohl(tvb, offset);
-      tlv_length = tvb_get_guint8(tvb, offset+4);
-      ttlv = proto_tree_add_text(lane_tree, tvb, offset, 5+tlv_length, "TLV type: %s",
-	val_to_str(tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
-      tlv_tree = proto_item_add_subtree(ttlv, ett_atm_lane_lc_tlv);
-      proto_tree_add_text(tlv_tree, tvb, offset, 4, "TLV Type: %s",
-	val_to_str(tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
-      proto_tree_add_text(tlv_tree, tvb, offset+4, 1, "TLV Length: %u", tlv_length);
-      offset += 5+tlv_length;
-      num_tlvs--;
+    case LE_FLUSH_REQUEST:
+    case LE_FLUSH_RESPONSE:
+      offset += 2;
+      dissect_le_flush_frame(tvb, offset, lane_tree);
+      break;
     }
   }
 }
