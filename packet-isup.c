@@ -2,7 +2,7 @@
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
  *
- * $Id: packet-isup.c,v 1.18 2003/04/10 18:40:38 guy Exp $
+ * $Id: packet-isup.c,v 1.19 2003/04/11 20:19:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,6 +139,56 @@ static const value_string isup_message_type_value[] = {
   { MESSAGE_TYPE_IDENT_RSP,             "Identification response"},
   { MESSAGE_TYPE_SEGMENTATION,          "Segmentation"},
   { MESSAGE_TYPE_LOOP_PREVENTION,       "Loop prevention"},
+  { 0,                                  NULL}};
+
+/* Same as above but in acronym form (for the Info column) */
+static const value_string isup_message_type_value_acro[] = {
+  { MESSAGE_TYPE_INITIAL_ADDR,          "IAM"},
+  { MESSAGE_TYPE_SUBSEQ_ADDR,           "SAM"},
+  { MESSAGE_TYPE_INFO_REQ,              "INR"},
+  { MESSAGE_TYPE_INFO,                  "INF"},
+  { MESSAGE_TYPE_CONTINUITY,            "COT"},
+  { MESSAGE_TYPE_ADDR_CMPL,             "ACM"},
+  { MESSAGE_TYPE_CONNECT,               "CON"},
+  { MESSAGE_TYPE_FORW_TRANS,            "FOT"},
+  { MESSAGE_TYPE_ANSWER,                "ANM"},
+  { MESSAGE_TYPE_RELEASE,               "REL"},
+  { MESSAGE_TYPE_SUSPEND,               "SUS"},
+  { MESSAGE_TYPE_RESUME,                "RES"},
+  { MESSAGE_TYPE_REL_CMPL,              "RLC"},
+  { MESSAGE_TYPE_CONT_CHECK_REQ,        "CCR"},
+  { MESSAGE_TYPE_RESET_CIRCUIT,         "RSC"},
+  { MESSAGE_TYPE_BLOCKING,              "BLO"},
+  { MESSAGE_TYPE_UNBLOCKING,            "UBL"},
+  { MESSAGE_TYPE_BLOCK_ACK,             "BLA"},
+  { MESSAGE_TYPE_UNBLOCK_ACK,           "UBLA"},
+  { MESSAGE_TYPE_CIRC_GRP_RST,          "GRS"},
+  { MESSAGE_TYPE_CIRC_GRP_BLCK,         "CGB"},
+  { MESSAGE_TYPE_CIRC_GRP_UNBL,         "CGU"},
+  { MESSAGE_TYPE_CIRC_GRP_BL_ACK,       "CGBA"},
+  { MESSAGE_TYPE_CIRC_GRP_UNBL_ACK,     "CGUA"},
+  { MESSAGE_TYPE_FACILITY_REQ,          "FAR"},
+  { MESSAGE_TYPE_FACILITY_ACC,          "FAA"},
+  { MESSAGE_TYPE_FACILITY_REJ,          "FRJ"},
+  { MESSAGE_TYPE_LOOP_BACK_ACK,         "LPA"},
+  { MESSAGE_TYPE_PASS_ALONG,            "PAM"},
+  { MESSAGE_TYPE_CIRC_GRP_RST_ACK,      "GRA"},
+  { MESSAGE_TYPE_CIRC_GRP_QRY,          "CQM"},
+  { MESSAGE_TYPE_CIRC_GRP_QRY_RSP,      "CQR"},
+  { MESSAGE_TYPE_CALL_PROGRSS,          "CPG"},
+  { MESSAGE_TYPE_USER2USER_INFO,        "UUI"},
+  { MESSAGE_TYPE_UNEQUIPPED_CIC,        "UCIC"},
+  { MESSAGE_TYPE_CONFUSION,             "CFN"},
+  { MESSAGE_TYPE_OVERLOAD,              "OLM"},
+  { MESSAGE_TYPE_CHARGE_INFO,           "CRG"},
+  { MESSAGE_TYPE_NETW_RESRC_MGMT,       "NRM"},
+  { MESSAGE_TYPE_FACILITY,              "FAC"},
+  { MESSAGE_TYPE_USER_PART_TEST,        "UPT"},
+  { MESSAGE_TYPE_USER_PART_AVAIL,       "UPA"},
+  { MESSAGE_TYPE_IDENT_REQ,             "IDR"},
+  { MESSAGE_TYPE_IDENT_RSP,             "IDS"},
+  { MESSAGE_TYPE_SEGMENTATION,          "SGM"},
+  { MESSAGE_TYPE_LOOP_PREVENTION,       "LOP"},
   { 0,                                  NULL}};
 
 /* Definition of Parameter Types */
@@ -3876,7 +3926,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
       /* call dissect_isup_message recursively */
       {	guint8 pa_message_type;
 	pa_message_type = tvb_get_guint8(parameter_tvb, 0);
-	pass_along_item = proto_tree_add_text(isup_tree, parameter_tvb, offset, -1, "Pass-along: %s Message (%u)", val_to_str(pa_message_type, isup_message_type_value, "reserved"), pa_message_type);
+	pass_along_item = proto_tree_add_text(isup_tree, parameter_tvb, offset, -1, "Pass-along: %s Message (%u)", val_to_str(pa_message_type, isup_message_type_value_acro, "reserved"), pa_message_type);
 	pass_along_tree = proto_item_add_subtree(pass_along_item, ett_isup_pass_along_message);
 	dissect_isup_message(parameter_tvb, pinfo, pass_along_tree);
 	break;
@@ -3982,14 +4032,11 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO, "ISUP message: ");
-
 /* Extract message type field */
 	message_type = tvb_get_guint8(tvb, CIC_OFFSET + CIC_LENGTH);
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
-		col_append_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, isup_message_type_value, "reserved"));
+		col_append_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, isup_message_type_value_acro, "reserved"));
 		col_append_str(pinfo->cinfo, COL_INFO, " ");
 	}
 

@@ -833,6 +833,7 @@ Jeff Morriss <jeff.morriss[AT]ulticom.com> {
 	Fix M3UA to dissect other protocols even when not building a
 	    protocol tree
 	Support for Chinese ITU SS7 variant
+	ISUP tweaks
 }
 
 Aamer Akhter <aakhter[AT]cisco.com> {
