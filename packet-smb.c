@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.191 2002/01/08 05:52:04 guy Exp $
+ * $Id: packet-smb.c,v 1.192 2002/01/08 20:11:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8605,7 +8605,8 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* ooops there were data we didnt know how to process */
 	if((offset-old_offset) < bc){
-		proto_tree_add_bytes(tree, hf_smb_unknown, tvb, offset, bc - (offset-old_offset), tvb_get_ptr(tvb, offset, 1));
+		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset,
+		    bc - (offset-old_offset), TRUE);
 		offset += bc - (offset-old_offset);
 	}
 
