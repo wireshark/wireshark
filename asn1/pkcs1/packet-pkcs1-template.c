@@ -1,7 +1,7 @@
 /* packet-pkcs1.c
  * Routines for PKCS#1/RFC2313 packet dissection
  *
- * $Id: packet-pkcs1-template.c,v 1.2 2004/05/25 21:07:43 guy Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

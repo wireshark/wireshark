@@ -2,7 +2,7 @@
  * Routines for H.248/MEGACO packet dissection
  * Ronnie Sahlberg 2004
  *
- * $Id: packet-h248-template.h,v 1.1 2004/05/24 08:42:29 sahlberg Exp $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
