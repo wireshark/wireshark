@@ -3,7 +3,7 @@
  *
  * Huagang XIE <huagang@intruvert.com>
  *
- * $Id: packet-ssh.c,v 1.1 2003/01/25 00:22:50 guy Exp $
+ * $Id: packet-ssh.c,v 1.2 2003/01/27 19:40:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,6 +69,10 @@
 #define SSH2_MSG_KEX_DH_GEX_REPLY			33
 #define SSH2_MSG_KEX_DH_GEX_REQUEST			34
 
+#define SSH_VERSION_UNKNOWN 	0
+#define SSH_VERSION_1		1
+#define SSH_VERSION_2		2
+
 /* proto data */
 
 struct ssh_pdu_data{
@@ -79,7 +83,7 @@ struct ssh_pdu_data{
 struct ssh_flow_data {
 	guint 	req_counter;
 	guint	rsp_counter;
-	gboolean is_ssh2;
+	guint 	version;
 };
 static GMemChunk *ssh_this_data=NULL;
 static GMemChunk *ssh_global_data = NULL;
@@ -151,7 +155,7 @@ static int ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 		int offset, proto_tree *tree,int is_response,
 		int number, gboolean *need_desegmentation );
 static int ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo, 
-		int offset, proto_tree *tree,int is_response,int *is_ssh2,
+		int offset, proto_tree *tree,int is_response,int *version,
 		gboolean *need_desegmentation);
 static int ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 		int offset, proto_tree *tree,int is_response);
@@ -189,7 +193,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean	is_response;
 	gboolean 	is_newdata;
 	gboolean 	need_desegmentation;
-	gboolean	is_ssh2 ;
+	guint		version;
 
 	struct ssh_pdu_data *this_data=NULL;
 	struct ssh_flow_data *global_data=NULL;
@@ -211,7 +215,7 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		global_data = g_mem_chunk_alloc(ssh_global_data);
 		global_data->req_counter=0;
 		global_data->rsp_counter=0;
-		global_data->is_ssh2=TRUE;
+		global_data->version=SSH_VERSION_UNKNOWN;
 		conversation_add_proto_data(conversation,proto_ssh,global_data);
 	}
 
@@ -241,22 +245,25 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	number = 0;
 	
-	is_ssh2 = global_data->is_ssh2;
+	version = global_data->version;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-		if(this_data->counter == 0 ) {
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSH");
-		}else {
-			if(is_ssh2) {
-				col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSHv2");
-			}else {
+		switch(version) {
+			case SSH_VERSION_UNKNOWN:
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSH");
+				break;
+			case SSH_VERSION_1:
 				col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSHv1");
-			}
+				break;
+			case SSH_VERSION_2:
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSHv2");
+				break;
+			
 		}
 	}
 
 	/* we will not decode SSH1 now */
-	if(!is_ssh2) {
+	if(this_data->counter != 0 && version != SSH_VERSION_2) {
 		offset = ssh_dissect_encrypted_packet(tvb, pinfo,
 			offset,ssh_tree,is_response);
 		return;
@@ -280,11 +287,11 @@ dissect_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	
 		if(this_number == 0)  {
 			offset = ssh_dissect_protocol(tvb, pinfo,offset,ssh_tree,
-					is_response,&is_ssh2, &need_desegmentation);
+					is_response,&version, &need_desegmentation);
 			if(!is_response) {
-				global_data->is_ssh2 = is_ssh2;
+				global_data->version= version;
 			}
-		} else { 
+		} else {
 			/* response, 1, 2 is key_exchange */
 			/* request, 1,2,3,4 is key_exchange */
 			if((is_response && this_number > 3) || (!is_response && this_number>4)) {
@@ -426,11 +433,29 @@ ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 	
 static int
 ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
-	       	int offset, proto_tree *tree, int is_response, int * is_ssh2,
+	       	int offset, proto_tree *tree, int is_response, int * version,
 		gboolean *need_desegmentation)
 {
 	guint	linelen,next_offset;
 	guint	remain_length;
+	
+	/* 
+	 *  If the first packet do not contain the banner, 
+	 *  it is dump in the middle of a flow or not a ssh at all 
+	 */
+	if(tvb_strncaseeql(tvb,offset,"SSH-",4) != 0 ) {
+		offset = ssh_dissect_encrypted_packet(tvb, pinfo,
+			offset,tree,is_response);
+		return offset;
+	}
+
+	if(!is_response) {
+	       if(tvb_strncaseeql(tvb,offset,"SSH-2.",6) == 0 ) {
+			*(version) = SSH_VERSION_2;
+	       }else if(tvb_strncaseeql(tvb,offset,"SSH-1.",6) == 0 ) {
+			*(version) = SSH_VERSION_1;
+	       }
+	}
 	
 	remain_length = tvb_reported_length_remaining(tvb,offset);
 	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
@@ -453,9 +478,6 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_item(tree, hf_ssh_protocol,
 		    		tvb, offset, linelen+1, FALSE);
   	}
-	if(!is_response && tvb_strncaseeql(tvb,offset,"SSH-2.0-",8)) {
-		*(is_ssh2) = FALSE;
-	}
 	offset+=linelen+1;
 	return offset;
 }
