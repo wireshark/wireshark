@@ -5,7 +5,7 @@
  *
  * Copyright 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-sua.c,v 1.18 2003/08/08 18:05:03 guy Exp $
+ * $Id: packet-sua.c,v 1.19 2003/09/02 11:05:55 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1634,7 +1634,7 @@ proto_register_sua(void)
     { &hf_info_string,                           { "Info string",                  "sua.info_string",                               FT_STRING,  BASE_NONE, NULL,                               0x0,                      "", HFILL } },
     { &hf_routing_context,                       { "Routing context",              "sua.routing_context",                           FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      "", HFILL } },
     { &hf_diagnostic_information_info,           { "Diagnostic Information",       "sua.diagnostic_information",                    FT_BYTES,   BASE_NONE, NULL,                               0x0,                      "", HFILL } },
-    { &hf_heartbeat_data,                        { "Heratbeat Data",               "sua.heartbeat_data",                            FT_BYTES,   BASE_NONE, NULL,                               0x0,                      "", HFILL } },
+    { &hf_heartbeat_data,                        { "Heartbeat Data",               "sua.heartbeat_data",                            FT_BYTES,   BASE_NONE, NULL,                               0x0,                      "", HFILL } },
     { &hf_traffic_mode_type,                     { "Traffic mode Type",            "sua.traffic_mode_type",                         FT_UINT32,  BASE_DEC,  VALS(traffic_mode_type_values),     0x0,                      "", HFILL } },
     { &hf_error_code,                            { "Error code",                   "sua.error_code",                                FT_UINT32,  BASE_DEC,  VALS(error_code_values),            0x0,                      "", HFILL } },
     { &hf_status_type,                           { "Status type",                  "sua.status_type",                               FT_UINT16,  BASE_DEC,  VALS(status_type_values),           0x0,                      "", HFILL } },
