@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.172 2003/02/18 21:37:53 guy Exp $
+ * $Id: packet-tcp.c,v 1.173 2003/02/21 00:22:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1382,6 +1382,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 void (*dissect_pdu)(tvbuff_t *, packet_info *, proto_tree *))
 {
   volatile int offset = 0;
+  int offset_before;
   guint length_remaining;
   guint plen;
   guint length;
@@ -1497,8 +1498,12 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /*
      * Step to the next PDU.
+     * Make sure we don't overflow.
      */
+    offset_before = offset;
     offset += plen;
+    if (offset <= offset_before)
+      break;
   }
 }
 
