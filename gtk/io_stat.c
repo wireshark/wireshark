@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.66 2004/02/23 20:28:30 ulfl Exp $
+ * $Id: io_stat.c,v 1.67 2004/02/23 22:26:07 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,7 +85,7 @@ static char *plot_style_name[MAX_PLOT_STYLES] = {
 #define COUNT_TYPE_BYTES    1
 #define COUNT_TYPE_ADVANCED 2
 #define MAX_COUNT_TYPES 3
-static char *count_type_names[MAX_COUNT_TYPES] = {"frames/tick", "bytes/tick", "advanced..."};
+static char *count_type_names[MAX_COUNT_TYPES] = {"Frames/Tick", "Bytes/Tick", "Advanced..."};
 
 /* unit is in ms */
 #define MAX_TICK_VALUES 5
@@ -176,7 +176,7 @@ io_stat_set_title(io_stat_t *io)
 	if(!io->window){
 		return;
 	}
-	title = g_strdup_printf("Ethereal Throughput: %s", cf_get_display_name(&cfile));
+	title = g_strdup_printf("Ethereal IO Graphs: %s", cf_get_display_name(&cfile));
 	gtk_window_set_title(GTK_WINDOW(io->window), title);
 	g_free(title);
 }
@@ -1377,10 +1377,10 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 	gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
 	gtk_widget_show(vbox);
 
-	create_ctrl_menu(io, vbox, "Unit:", create_frames_or_bytes_menu_items);
-	create_ctrl_menu(io, vbox, "Tick Interval:", create_tick_interval_menu_items);
-	create_ctrl_menu(io, vbox, "Pixels Per Tick:", create_pixels_per_tick_menu_items);
-	create_ctrl_menu(io, vbox, "Y-scale:", create_yscale_max_menu_items);
+	create_ctrl_menu(io, vbox, "X-Tick Interval:", create_tick_interval_menu_items);
+	create_ctrl_menu(io, vbox, "X-Pixels per Tick:", create_pixels_per_tick_menu_items);
+	create_ctrl_menu(io, vbox, "Y-Unit:", create_frames_or_bytes_menu_items);
+	create_ctrl_menu(io, vbox, "Y-Scale:", create_yscale_max_menu_items);
 
 	return;
 }
@@ -1792,6 +1792,6 @@ register_tap_listener_gtk_iostat(void)
 {
 	register_ethereal_tap("io,stat", gtk_iostat_init);
 
-	register_tap_menu_item("Throughput Graph", REGISTER_TAP_GROUP_GENERIC,
+	register_tap_menu_item("IO Graphs", REGISTER_TAP_GROUP_GENERIC,
         gtk_iostat_cb, NULL, NULL, NULL);
 }
