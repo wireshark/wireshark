@@ -6,7 +6,14 @@ Gerald Combs  <gerald@zing.org>
 Contributors
 ------------
 Gilbert Ramirez Jr.  <gram@verdict.uthscsa.edu> {
-    /* add your info here */
+	http://verdict.uthscsa.edu/gram/
+
+	Printing
+	Token-Ring, TR MAC
+	802.2 LLC
+	IPX, SPX, NCP
+	BOOTP/DHCP
+	LPD
 }
 
 Hannes R. Boehm      <hannes@boehm.org> {

@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.2 1998/09/16 03:22:11 gerald Exp $
+ * $Id: packet-tr.c,v 1.3 1998/09/17 03:29:27 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -81,6 +81,7 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 	int			offset = 14;
 	int			source_routed = 0;
 	int			rif_bytes = 0;
+	int			true_rif_bytes = 0;	/* because of silly_linux */
 	guint8		nonsr_hwaddr[8];
 	int			frame_type = (pd[1] & 192) >> 6; /* I use this value a lot */
 	#ifdef linux
@@ -104,13 +105,14 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 	/* sometimes we have a RCF but no RIF... half source-routed? */
 	/* I'll check for 2 bytes of RIF and the 0x70 byte */
 	if (!source_routed) {
-		if ((pd[14] & 31) == 2 && pd[15] == 0x70) {
+		if ((pd[14] & 31) == 2) {
 			source_routed = 1;
 		}
 	}
 
 	if (source_routed) {
 		rif_bytes = pd[14] & 31;
+		true_rif_bytes = rif_bytes;
 	}
 	/* this is a silly hack for Linux 2.0.x. Read the comment below,
 	in front of the other #ifdef linux */
@@ -163,8 +165,7 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 			ether_to_str((guint8 *) &pd[8]));
 
 		if (source_routed) {
-			add_item_to_tree(fh_tree, 14, 1, "RIF length: %d bytes",
-				pd[14] & 31); /* not rif_bytes because of silly_linux */
+			add_item_to_tree(fh_tree, 14, 1, "RIF length: %d bytes", true_rif_bytes);
 
 			add_item_to_tree(fh_tree, 15, 1,
 				"%s, up to %d bytes in frame (LF=%d)",
@@ -179,7 +180,7 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 
 			/* if we have more than 2 bytes of RIF, then we have
 				ring/bridge pairs */
-			if ((pd[14] & 31) > 2) { /* not rif_bytes because of silly_linux */
+			if (true_rif_bytes > 2) {
 				add_ring_bridge_pairs(rif_bytes, pd, fh_tree);
 			}
 		}
@@ -194,8 +195,12 @@ dissect_tr(const u_char *pd, frame_data *fd, GtkTree *tree) {
 		tcpdump. W/o that, however, I'm guessing that DSAP == SSAP if the
 		frame type is LLC.  It's very much a hack. -- Gilbert Ramirez */
 		#ifdef linux
-		if ( (source_routed && ((pd[14] & 31) == 2) && silly_linux) ||
-			(!source_routed) && silly_linux ) {
+		if (source_routed && (true_rif_bytes == 2) && silly_linux) {
+			add_item_to_tree(fh_tree, 14 + true_rif_bytes, 18 - true_rif_bytes,
+				"Empty RIF from Linux 2.0.x driver. The sniffing NIC "
+				"is also running a protocol stack.");
+		}
+		else if ((!source_routed) && silly_linux ) {
 			add_item_to_tree(fh_tree, 14, 18,
 				"Empty RIF from Linux 2.0.x driver. The sniffing NIC "
 				"is also running a protocol stack.");

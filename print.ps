@@ -30,10 +30,16 @@ pop pop		% junk
 /lmargin 72 def
 /tmargin vmax 72 sub def
 /bmargin 72 def
+/pagenumtab hmax 72 sub def
 
 % Counters
-/vpos vmax 70 sub def
+/vpos vmax 40 sub def
+/thispagenum 1 def
 
+% Strings
+/pagenostr 7 string def
+
+% Prints text with possible indenting
 /putline {
 	exch 10 mul lmargin add		% X
 	vpos 						% Y
@@ -43,11 +49,14 @@ pop pop		% junk
 	/vpos vpos 10 sub def
 
 	vpos bmargin le 			% is vpos <= bottom margin?
-	{showpage
-		/vpos tmargin def}
+	{
+		printpagenum showpage
+		/vpos tmargin def
+	}
 	if							% then formfeed and start at top
 } def
 
+% A putline with no indenting
 /hexdump {
 	lmargin						% X
 	vpos 						% Y
@@ -57,16 +66,54 @@ pop pop		% junk
 	/vpos vpos 10 sub def
 
 	vpos bmargin le 			% is vpos <= bottom margin?
-	{showpage
-		/vpos tmargin def}
+	{
+		printpagenum showpage
+		/vpos tmargin def
+	}
 	if							% then formfeed and start at top
 } def
 
+% A put line with smaller spacing and no formfeed
+/titleline {
+	lmargin						% X
+	vpos						% Y
+	moveto
+	show
+
+	/vpos vpos 8 sub def
+} def
+
+% Prints the page number at the top right
+/printpagenum {
+	gsave
+		% Set the font to 8 point
+		/Helvetica findfont 8 scalefont setfont
+
+		pagenumtab					% X
+		vmax 40 sub					% Y
+		moveto
+		(Page ) show
+		thispagenum pagenostr cvs show
+
+		% thispagenum++
+		/thispagenum thispagenum 1 add def
+	grestore
+} def
+	
+% Set the font to 8 point
+/Helvetica findfont 8 scalefont setfont
+
+% Create the title
+(Ethereal) titleline
+
+% Reset the vertical position
+/vpos tmargin def
+
 % Set the font to 10 point
 /Helvetica findfont 10 scalefont setfont
+% ---- ethereal preamble end ---- %
 
 % Display our output lines.
-% ---- ethereal preamble end ---- %
 0 (Ethernet II \(98 on wire, 68 captured\)) putline
 1 (Destination: 00:00:0c:36:00:2a) putline
 1 (Source: 00:c0:4f:c7:eb:c0) putline
@@ -96,5 +143,12 @@ pop pop		% junk
 (  b0  0000 0000 0000                            ......           ) hexdump
 
 % ---- ethereal finale start ---- %
+% If this is not the first page, then print the page number
+thispagenum 1 gt				% is thispagenum > 1 ?
+{
+	printpagenum
+}
+if
+
 showpage
 % ---- ethereal finale end ---- %
