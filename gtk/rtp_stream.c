@@ -245,9 +245,33 @@ static int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _
 			tmp_strinfo.tag_vlan_error = 0;
 			tmp_strinfo.tag_diffserv_error = 0;
 			tmp_strinfo.vlan_id = 0;
-			
-            /* Get the Setup frame number who set this RTP stream */
+			tmp_strinfo.problem = FALSE;
 
+			/* reset RTP stats */
+			tmp_strinfo.rtp_stats.first_packet = TRUE;
+			tmp_strinfo.rtp_stats.max_delta = 0;
+			tmp_strinfo.rtp_stats.max_jitter = 0;
+			tmp_strinfo.rtp_stats.mean_jitter = 0;
+			tmp_strinfo.rtp_stats.delta = 0;
+			tmp_strinfo.rtp_stats.diff = 0;
+			tmp_strinfo.rtp_stats.jitter = 0;
+			tmp_strinfo.rtp_stats.bandwidth = 0;
+			tmp_strinfo.rtp_stats.total_bytes = 0;
+			tmp_strinfo.rtp_stats.bw_start_index = 0;
+			tmp_strinfo.rtp_stats.bw_index = 0;
+			tmp_strinfo.rtp_stats.timestamp = 0;
+			tmp_strinfo.rtp_stats.max_nr = 0;
+			tmp_strinfo.rtp_stats.total_nr = 0;
+			tmp_strinfo.rtp_stats.sequence = 0;
+			tmp_strinfo.rtp_stats.start_seq_nr = 0;
+			tmp_strinfo.rtp_stats.stop_seq_nr = 0;
+			tmp_strinfo.rtp_stats.cycles = 0;
+			tmp_strinfo.rtp_stats.under = FALSE;
+			tmp_strinfo.rtp_stats.start_time = 0;
+			tmp_strinfo.rtp_stats.time = 0;
+			tmp_strinfo.rtp_stats.reg_pt = PT_UNDEFINED;
+
+            /* Get the Setup frame number who set this RTP stream */
             p_conv_data = p_get_proto_data(pinfo->fd, proto_get_id_by_filter_name("rtp"));
             if (p_conv_data)
 				tmp_strinfo.setup_frame_number = p_conv_data->frame_number;
@@ -258,6 +282,13 @@ static int rtpstream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _
 			*strinfo = tmp_strinfo;  /* memberwise copy of struct */
 			tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);
 		}
+
+		/* get RTP stats for the packet */
+		rtp_packet_analyse(&(strinfo->rtp_stats), pinfo, rtpinfo);
+		if (strinfo->rtp_stats.flags & STAT_FLAG_WRONG_TIMESTAMP
+			|| strinfo->rtp_stats.flags & STAT_FLAG_WRONG_SEQ)
+			strinfo->problem = TRUE;
+
 
 		/* increment the packets counter for this stream */
 		++(strinfo->npackets);

@@ -72,14 +72,19 @@ static GList *last_list = NULL;
 
 static guint32 streams_nb = 0;     /* number of displayed streams */
 
+#define NUM_COLS 12
+
 /****************************************************************************/
 /* append a line to clist */
 static void add_to_clist(rtp_stream_info_t* strinfo)
 {
 	gchar label_text[256];
 	gint added_row;
-	gchar *data[8];
-	gchar field[8][30];
+	gchar *data[NUM_COLS];
+	gchar field[NUM_COLS][30];
+	guint32 expected;
+	gint32 lost;
+	double perc;
 
 	data[0]=&field[0][0];
 	data[1]=&field[1][0];
@@ -89,6 +94,10 @@ static void add_to_clist(rtp_stream_info_t* strinfo)
 	data[5]=&field[5][0];
 	data[6]=&field[6][0];
 	data[7]=&field[7][0];
+	data[8]=&field[8][0];
+	data[9]=&field[9][0];
+	data[10]=&field[10][0];
+	data[11]=&field[11][0];
 
 	g_snprintf(field[0], 20, "%s", address_to_str_w_none(&(strinfo->src_addr)));
 	g_snprintf(field[1], 20, "%u", strinfo->src_port);
@@ -98,8 +107,23 @@ static void add_to_clist(rtp_stream_info_t* strinfo)
 	g_snprintf(field[5], 30, "%s", val_to_str(strinfo->pt, rtp_payload_type_vals,
 		"Unknown (%u)"));
 	g_snprintf(field[6], 20, "%u", strinfo->npackets);
-	/* XXX: Comment field is not used for the moment */
-/*	g_snprintf(field[7], 20, "%s", "");*/
+
+	expected = (strinfo->rtp_stats.stop_seq_nr + strinfo->rtp_stats.cycles*65536)
+		- strinfo->rtp_stats.start_seq_nr + 1;
+	lost = expected - strinfo->rtp_stats.total_nr;
+	if (expected){
+		perc = (double)(lost*100)/(double)expected;
+	} else {
+		perc = 0;
+	}
+	g_snprintf(field[7], 20, "%d (%.1f%%)", lost, perc);
+	g_snprintf(field[8], 20, "%.2f", strinfo->rtp_stats.max_delta*1000);
+	g_snprintf(field[9], 20, "%.2f", strinfo->rtp_stats.max_jitter*1000);
+	g_snprintf(field[10], 20, "%.2f", strinfo->rtp_stats.mean_jitter*1000);
+	if (strinfo->problem)
+		g_snprintf(field[11], 20, "X");
+	else
+		g_snprintf(field[11], 20, "");
 
 	added_row = gtk_clist_append(GTK_CLIST(clist), data);
 
@@ -491,8 +515,6 @@ rtpstream_on_select_row(GtkCList *clist,
 
 
 /****************************************************************************/
-#define NUM_COLS 7
-
 typedef struct column_arrows {
 	GtkWidget *table;
 	GtkWidget *ascend_pm;
@@ -551,12 +573,16 @@ rtpstream_sort_column(GtkCList *clist, gconstpointer ptr1, gconstpointer ptr2)
 	case 0:
 	case 2:
 	case 5:
-	case 7:
+	case 11:
 		return strcmp (text1, text2);
 	case 1:
 	case 3:
 	case 4:
 	case 6:
+	case 7:
+	case 8:
+	case 9:
+	case 10:
 		i1=atoi(text1);
 		i2=atoi(text2);
 		return i1-i2;
@@ -586,7 +612,7 @@ static void rtpstream_dlg_create (void)
 	GtkWidget *bt_close;
     GtkTooltips *tooltips = gtk_tooltips_new();
 
-	gchar *titles[8] =  {"Src IP addr", "Src port",  "Dest IP addr", "Dest port", "SSRC", "Payload", "Packets", "Comment"};
+	gchar *titles[NUM_COLS] =  {"Src IP addr", "Src port",  "Dest IP addr", "Dest port", "SSRC", "Payload", "Packets", "Lost", "Max Delta (ms)", "Max Jitter (ms)", "Mean Jitter (ms)", "Pb?"};
 	column_arrows *col_arrows;
 	GtkWidget *column_lb;
 	int i;
@@ -607,14 +633,18 @@ static void rtpstream_dlg_create (void)
 	clist = gtk_clist_new (NUM_COLS);
 	gtk_container_add (GTK_CONTAINER (scrolledwindow), clist);
 
-	gtk_clist_set_column_width (GTK_CLIST (clist), 0, 100);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 1, 50);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 2, 100);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 3, 50);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 4, 80);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 5, 118);
-	gtk_clist_set_column_width (GTK_CLIST (clist), 6, 40);
-/*	gtk_clist_set_column_width (GTK_CLIST (clist), 7, 51);*/
+	gtk_clist_set_column_width (GTK_CLIST (clist), 0, 88);
+	gtk_clist_set_column_width (GTK_CLIST (clist), 1, 44);
+	gtk_clist_set_column_width (GTK_CLIST (clist), 2, 88);
+	gtk_clist_set_column_width (GTK_CLIST (clist), 3, 44);
+	gtk_clist_set_column_width (GTK_CLIST (clist), 4, 64);
+	gtk_clist_set_column_width (GTK_CLIST (clist), 5, 96);
+	gtk_clist_set_column_width (GTK_CLIST (clist), 6, 50);
+	gtk_clist_set_column_width (GTK_CLIST (clist), 7, 50);
+	gtk_clist_set_column_width (GTK_CLIST (clist), 8, 80);
+	gtk_clist_set_column_width (GTK_CLIST (clist), 9, 80);
+	gtk_clist_set_column_width (GTK_CLIST (clist), 10, 80);
+	gtk_clist_set_column_width (GTK_CLIST (clist), 11, 40);
 
 	gtk_clist_set_column_justification(GTK_CLIST(clist), 0, GTK_JUSTIFY_CENTER);
 	gtk_clist_set_column_justification(GTK_CLIST(clist), 1, GTK_JUSTIFY_CENTER);
@@ -623,7 +653,11 @@ static void rtpstream_dlg_create (void)
 	gtk_clist_set_column_justification(GTK_CLIST(clist), 4, GTK_JUSTIFY_CENTER);
 	gtk_clist_set_column_justification(GTK_CLIST(clist), 5, GTK_JUSTIFY_LEFT);
 	gtk_clist_set_column_justification(GTK_CLIST(clist), 6, GTK_JUSTIFY_RIGHT);
-/*	gtk_clist_set_column_justification(GTK_CLIST(clist), 7, GTK_JUSTIFY_CENTER);*/
+	gtk_clist_set_column_justification(GTK_CLIST(clist), 7, GTK_JUSTIFY_RIGHT);
+	gtk_clist_set_column_justification(GTK_CLIST(clist), 8, GTK_JUSTIFY_RIGHT);
+	gtk_clist_set_column_justification(GTK_CLIST(clist), 9, GTK_JUSTIFY_RIGHT);
+	gtk_clist_set_column_justification(GTK_CLIST(clist), 10, GTK_JUSTIFY_RIGHT);
+	gtk_clist_set_column_justification(GTK_CLIST(clist), 11, GTK_JUSTIFY_LEFT);
 
 	gtk_clist_column_titles_show (GTK_CLIST (clist));
 

@@ -28,6 +28,7 @@
 #ifndef RTP_STREAM_H_INCLUDED
 #define RTP_STREAM_H_INCLUDED
 
+#include "rtp_analysis.h"
 #include <glib.h>
 #include <stdio.h>
 #include <epan/address.h>
@@ -77,6 +78,8 @@ typedef struct _rtp_stream_info {
 	gboolean tag_diffserv_error;
 	guint16 vlan_id;
 
+	tap_rtp_stat_t rtp_stats;  /* here goes the RTP statistics info */
+	gboolean problem; /* if the streams had wrong sequence numbers or wrong timerstamps */
 } rtp_stream_info_t;
 
 
