@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.13 1999/07/29 05:47:01 gram Exp $
+ * $Id: packet-ppp.c,v 1.14 1999/08/24 06:14:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -334,14 +334,14 @@ dissect_ppp( const u_char *pd, frame_data *fd, proto_tree *tree ) {
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
 
-	 if(check_col(fd, COL_RES_DL_SRC))
-	   col_add_str(fd, COL_RES_DL_SRC, "N/A" );
-	 if(check_col(fd, COL_RES_DL_DST))
-	   col_add_str(fd, COL_RES_DL_DST, "N/A" );
-	 if(check_col(fd, COL_PROTOCOL))
-	   col_add_str(fd, COL_PROTOCOL, "N/A" );
-	 if(check_col(fd, COL_INFO))
-	   col_add_str(fd, COL_INFO, "PPP" );
+  if(check_col(fd, COL_RES_DL_SRC))
+    col_add_str(fd, COL_RES_DL_SRC, "N/A" );
+  if(check_col(fd, COL_RES_DL_DST))
+    col_add_str(fd, COL_RES_DL_DST, "N/A" );
+  if(check_col(fd, COL_PROTOCOL))
+    col_add_str(fd, COL_PROTOCOL, "PPP" );
+  if(check_col(fd, COL_INFO))
+    col_add_str(fd, COL_INFO, "PPP" );
 
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
