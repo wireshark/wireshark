@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.4 1999/01/07 16:15:36 gram Exp $
+ * $Id: wtap.c,v 1.5 1999/01/08 17:24:01 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -47,15 +47,15 @@ void wtap_close(wtap *wth)
 	 * But for now this will work. */
 	switch(wth->file_type) {
 		case WTAP_FILE_PCAP:
-			free(wth->capture.pcap);
+			g_free(wth->capture.pcap);
 			break;
 
 		case WTAP_FILE_LANALYZER:
-			free(wth->capture.lanalyzer);
+			g_free(wth->capture.lanalyzer);
 			break;
 
 		case WTAP_FILE_NGSNIFFER:
-			free(wth->capture.ngsniffer);
+			g_free(wth->capture.ngsniffer);
 			break;
 
 		default:
