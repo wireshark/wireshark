@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.24 2004/02/04 01:10:37 guy Exp $
+ * $Id: simple_dialog.c,v 1.25 2004/02/11 03:40:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,27 +77,57 @@ simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...) {
   switch (type & ~ESD_TYPE_MODAL) {
   case ESD_TYPE_WARN :
     icon = stock_dialog_warning_48_xpm;
-    win = dlg_window_new("Ethereal: Warning");
     break;
   case ESD_TYPE_QUESTION:
     icon = stock_dialog_question_48_xpm;
-    win = dlg_window_new("Ethereal: Question");
     break;
   case ESD_TYPE_ERROR:
     icon = stock_dialog_error_48_xpm;
-    win = dlg_window_new("Ethereal: Error");
     break;
   case ESD_TYPE_INFO :
   default :
     icon = stock_dialog_info_48_xpm;
-    win = dlg_window_new("Ethereal: Information");
     break;
   }
 
-#if GTK_MAJOR_VERSION >= 2
-  /* the GNOME HIG suggest to keep the title empty for simple dialogs */
-  /* at least on win32 systems, this isn't possible, so use the programs name */
-  gtk_window_set_title(GTK_WINDOW(win), "Ethereal");
+  /*
+   * The GNOME HIG:
+   *
+   *	http://developer.gnome.org/projects/gup/hig/1.0/windows.html#alert-windows
+   *
+   * says that the title should be empty for alert boxes, so there's "less
+   * visual noise and confounding text."
+   *
+   * The Windows HIG:
+   *
+   *	http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnwue/html/ch09f.asp
+   *
+   * says it should
+   *
+   *	...appropriately identify the source of the message -- usually
+   *	the name of the object.  For example, if the message results
+   *	from editing a document, the title text is the name of the
+   *	document, optionally followed by the application name.  If the
+   *	message results from a non-document object, then use the
+   *	application name."
+   *
+   * and notes that the title is important "because message boxes might
+   * not always the the result of current user interaction" (e.g., some
+   * app might randomly pop something up, e.g. some browser letting you
+   * know that it couldn't fetch something because of a timeout).
+   *
+   * It also says not to use "warning" or "caution", as there's already
+   * an icon that tells you what type of alert it is, and that you
+   * shouldn't say "error", as that provides no useful information.
+   *
+   * So we give it a title on Win32, and don't give it one on UN*X.
+   * For now, we give it a Win32 title of just "Ethereal"; we should
+   * arguably take an argument for the title.
+   */
+#ifdef _WIN32
+  win = dlg_window_new("Ethereal");
+#else
+  win = dlg_window_new("");
 #endif
 
   if (type & ESD_TYPE_MODAL)
