@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-x25.c,v 1.15 2000/01/24 03:51:35 guy Exp $
+ * $Id: packet-x25.c,v 1.16 2000/01/29 09:19:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "packet.h"
+#include "nlpid.h"
 
 #define FROM_DCE			0x80
 
@@ -1413,7 +1414,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (IS_DATA_IN_FRAME(localoffset)) /* user data */
 	{
-	    if (pd[localoffset] == 0xCC)
+	    if (pd[localoffset] == NLPID_IP)
 	    {
 		x25_hash_add_proto_start(vc, fd->abs_secs,
 					 fd->abs_usecs, dissect_ip);
@@ -1427,6 +1428,8 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		     pd[localoffset+2] == 0x01 &&
 		     pd[localoffset+3] == 0x00)
 	    {
+	    	/* XXX - is there an NLPID for COTP and, if so, is it
+		   any of those octets? */
 		x25_hash_add_proto_start(vc, fd->abs_secs,
 					 fd->abs_usecs, dissect_cotp);
 		if (x25_tree)
@@ -1435,6 +1438,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		localoffset += 4;
 	    }
 	    else {
+	    	/* XXX - handle the other NLPIDs, e.g. NLPID_PPP? */
 		if (x25_tree)
 		    proto_tree_add_text(x25_tree, localoffset,
 					pi.captured_len-localoffset, "Data");
