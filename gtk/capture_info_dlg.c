@@ -1,7 +1,7 @@
 /* capture_info_dlg.c
  * Routines for packet capture info dialog
  *
- * $Id: capture_info_dlg.c,v 1.16 2004/05/26 03:49:21 ulfl Exp $
+ * $Id: capture_info_dlg.c,v 1.17 2004/05/27 17:26:46 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -264,6 +264,7 @@ capture_info    *cinfo)
 {
   capture_info_ui_t *info = cinfo->ui;
 
+  /* called from capture engine, so it's ok to destroy the dialog here */
   gtk_grab_remove(GTK_WIDGET(info->cap_w));
   window_destroy(GTK_WIDGET(info->cap_w));
   g_free(info);
