@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.26 2002/12/02 23:34:38 guy Exp $
+ * $Id: column-utils.c,v 1.27 2002/12/03 02:38:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -267,14 +267,14 @@ col_set_abs_date_time(frame_data *fd, column_info *cinfo, int col)
   tmp = localtime(&then);
   if (tmp != NULL) {
     snprintf(cinfo->col_buf[col], COL_MAX_LEN,
-             "%04d-%02d-%02d %02d:%02d:%02d.%04ld",
+             "%04d-%02d-%02d %02d:%02d:%02d.%06ld",
              tmp->tm_year + 1900,
              tmp->tm_mon + 1,
              tmp->tm_mday,
              tmp->tm_hour,
              tmp->tm_min,
              tmp->tm_sec,
-             (long)fd->abs_usecs/100);
+             (long)fd->abs_usecs);
   } else {
     cinfo->col_buf[col][0] = '\0';
   }
@@ -314,11 +314,11 @@ col_set_abs_time(frame_data *fd, column_info *cinfo, int col)
   then = fd->abs_secs;
   tmp = localtime(&then);
   if (tmp != NULL) {
-    snprintf(cinfo->col_buf[col], COL_MAX_LEN, "%02d:%02d:%02d.%04ld",
+    snprintf(cinfo->col_buf[col], COL_MAX_LEN, "%02d:%02d:%02d.%06ld",
              tmp->tm_hour,
              tmp->tm_min,
              tmp->tm_sec,
-             (long)fd->abs_usecs/100);
+             (long)fd->abs_usecs);
   } else {
     cinfo->col_buf[col][0] = '\0';
   }
