@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.161 2002/02/17 00:51:19 guy Exp $
+ * $Id: packet-ip.c,v 1.162 2002/02/18 01:08:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1054,7 +1054,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Allocate a new tvbuff, referring to the reassembled payload. */
       next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen,
-	ipfd_head->datalen, "Reassembled");
+	ipfd_head->datalen);
 
       /* Add the tvbuff to the list of tvbuffs to which the tvbuff we
          were handed refers, so it'll get cleaned up when that tvbuff
@@ -1062,7 +1062,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
       /* Add the defragmented data to the data source list. */
-      pinfo->fd->data_src = g_slist_append(pinfo->fd->data_src, next_tvb);
+      add_new_data_source(pinfo->fd, next_tvb, "Reassembled");
 
       /* It's not fragmented. */
       pinfo->fragmented = FALSE;

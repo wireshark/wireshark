@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.51 2002/02/17 00:51:21 guy Exp $
+ * $Id: packet.h,v 1.52 2002/02/18 01:08:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -227,6 +227,17 @@ extern void register_postseq_cleanup_routine(void (*func)(void));
 
 /* Call all the registered "postseq_cleanup" routines. */
 extern void postseq_cleanup_all_protocols(void);
+
+/*
+ * Add a new data source to the list of data sources for a frame, given
+ * the tvbuff for the data source and its name.
+ */
+extern void add_new_data_source(frame_data *fd, tvbuff_t *tvb, char *name);
+
+/*
+ * Free up a frame's list of data sources.
+ */
+extern void free_data_sources(frame_data *fd);
 
 /*
  * Dissectors should never modify the packet data.

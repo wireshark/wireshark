@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.260 2002/02/08 10:07:34 guy Exp $
+ * $Id: file.c,v 1.261 2002/02/18 01:08:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1014,12 +1014,9 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
       fdata->flags.visited = 0;
       if (fdata->pfd) {
 	g_slist_free(fdata->pfd);
+        fdata->pfd = NULL;
       }
-      fdata->pfd = NULL;
-      if (fdata->data_src) {	/* release data source list */
-	g_slist_free(fdata->data_src);
-      }
-      fdata->data_src = NULL;
+      free_data_sources(fdata);	/* release data source list */
     }
 
     wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
@@ -1045,12 +1042,9 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
       fdata->flags.visited = 0;
       if (fdata->pfd) {
 	g_slist_free(fdata->pfd);
+        fdata->pfd = NULL;
       }
-      fdata->pfd = NULL;
-      if (fdata->data_src) {
-	g_slist_free(fdata->data_src);
-      }
-      fdata->data_src = NULL;
+      free_data_sources(fdata);	/* release data source list */
     }
   }
 
@@ -1583,7 +1577,6 @@ select_packet(capture_file *cf, int row)
   /* Display the GUI protocol tree and hex dump.
      XXX - why does the protocol tree not show up if we call
      "proto_tree_draw()" before calling "add_byte_views()"? */
-  clear_tree_and_hex_views();
   add_byte_views(cf->current_frame, cf->edt->tree, tree_view,
       byte_nb_ptr);
   proto_tree_draw(cf->edt->tree, tree_view);

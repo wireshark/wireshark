@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.55 2002/01/24 09:20:47 guy Exp $
+ * $Id: packet-giop.c,v 1.56 2002/02/18 01:08:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1310,7 +1310,7 @@ static void read_IOR_strings_from_file(gchar *name, int max_iorlen) {
          it - or "get_CDR_octet()", or "decode_IOR()" - to throw an
          exception. */
 
-      tvb =  tvb_new_real_data(out,ior_val_len,ior_val_len, "GIOP FILE IOR");
+      tvb =  tvb_new_real_data(out, ior_val_len, ior_val_len);
 
       stream_is_big_endian = !get_CDR_octet(tvb,&my_offset);
       decode_IOR(tvb, NULL, NULL, &my_offset, 0, stream_is_big_endian);

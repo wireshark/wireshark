@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.40 2002/02/15 11:56:10 guy Exp $
+ * $Id: print.c,v 1.41 2002/02/18 01:08:38 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -121,18 +121,20 @@ void proto_tree_print(gboolean print_one_packet, print_args_t *print_args,
 }
 
 /*
- * Find the data source tvbuff with a specified name, and return a
- * pointer to the data in it.
+ * Find the data source for a specified field, and return a pointer
+ * to the data in it.
  */
 static const guint8 *
 get_field_data(GSList *src_list, field_info *fi)
 {
-	GSList *src;
+	GSList *src_le;
+	data_source *src;
 	tvbuff_t *src_tvb;
 
-	for (src = src_list; src != NULL; src = g_slist_next(src)) {
-		src_tvb = src->data;
-		if (strcmp(fi->ds_name, tvb_get_name(src_tvb)) == 0) {
+	for (src_le = src_list; src_le != NULL; src_le = src_le->next) {
+		src = src_le->data;
+		src_tvb = src->tvb;
+		if (fi->ds_tvb == src_tvb) {
 			/*
 			 * Found it.
 			 */
@@ -208,7 +210,8 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 void print_hex_data(FILE *fh, gint format, frame_data *fd)
 {
 	gboolean multiple_sources;
-	GSList *src;
+	GSList *src_le;
+	data_source *src;
 	tvbuff_t *tvb;
 	char *name;
 	char *line;
@@ -223,10 +226,11 @@ void print_hex_data(FILE *fh, gint format, frame_data *fd)
 	 */
 	multiple_sources = (fd->data_src->next != NULL);
 
-	for (src = fd->data_src; src != NULL; src = src->next) {
-		tvb = src->data;
+	for (src_le = fd->data_src; src_le != NULL; src_le = src_le->next) {
+		src = src_le->data;
+		tvb = src->tvb;
 		if (multiple_sources) {
-			name = tvb_get_name(tvb);
+			name = src->name;
 			print_line(fh, format, "\n");
 			line = g_malloc(strlen(name) + 3);	/* <name>:\n\0 */
 			strcpy(line, name);

@@ -1,7 +1,7 @@
 /* packet-vj.c
  * Routines for Van Jacobson header decompression. 
  *
- * $Id: packet-vj.c,v 1.5 2002/01/21 07:36:44 guy Exp $
+ * $Id: packet-vj.c,v 1.6 2002/02/18 01:08:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -170,8 +170,7 @@ typedef struct {
 static int proto_vj = -1;
 
 /* Protocol handles */
-static dissector_handle_t vjc_handle;
-static dissector_handle_t vjuc_handle;
+static dissector_handle_t ip_handle;
 static dissector_handle_t data_handle;
 
 /* State repository (Full Duplex) */
@@ -191,12 +190,10 @@ static void decodel(tvbuff_t *tvb, guint32 *offset, gint32 *val);
 static guint16 ip_csum(const guint8 *ptr, guint32 len);
 static slcompress *slhc_init(gint rslots);
 static void vj_init(void);
-static void vj_display_pkt(tvbuff_t *parent_tvb, tvbuff_t *child_tvb, 
-                           packet_info *pinfo, proto_tree *tree);
 static gint vjuc_check(tvbuff_t *tvb, slcompress *comp);
 static void vjuc_update_state(tvbuff_t *tvb, slcompress *comp, guint8 index);
 static gint vjuc_tvb_setup(tvbuff_t *tvb, tvbuff_t **dst_tvb, 
-                           slcompress *comp);
+                           slcompress *comp, frame_data *fd);
 static gint vjc_check(tvbuff_t *src_tvb, slcompress *comp);
 static gint vjc_update_state(tvbuff_t *src_tvb, slcompress *comp, 
                              frame_data *fd);
@@ -208,7 +205,6 @@ static void
 dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
 {
   tvbuff_t   *next_tvb    = NULL;
-  tvbuff_t   *data_tvb    = NULL;
   slcompress *comp        = NULL;
   gint        conn_index  = ZERO;
   gint        err         = VJ_OK;
@@ -226,7 +222,7 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
 
   /* Set up tvb containing decompressed packet */
   if(err != VJ_ERROR)
-    err = vjuc_tvb_setup(tvb, &next_tvb, comp); 
+    err = vjuc_tvb_setup(tvb, &next_tvb, comp, pinfo->fd);
 
   /* If packet seen for first time update state */
   if(pinfo->fd->flags.visited != 1 && err == VJ_OK) 
@@ -234,11 +230,9 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
 
   /* If no errors call IP dissector else dissect as data. */
   if(err == VJ_OK)
-    vj_display_pkt(tvb, next_tvb, pinfo, tree);
-  else {
-    data_tvb = tvb_new_subset(tvb, 0, -1, -1);
-    call_dissector(data_handle, data_tvb, pinfo, tree);
-  }
+    call_dissector(ip_handle, next_tvb, pinfo, tree);
+  else
+    call_dissector(data_handle, tvb, pinfo, tree);
 }
 
 /* Dissector for VJ Compressed packets */
@@ -246,7 +240,6 @@ static void
 dissect_vjc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   tvbuff_t   *next_tvb = NULL;
-  tvbuff_t   *data_tvb = NULL;
   slcompress *comp     = NULL;
   gint        err      = VJ_OK;
   
@@ -272,11 +265,9 @@ dissect_vjc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* If no errors call IP dissector else dissect as data */
   if(err == VJ_OK)
-    vj_display_pkt(tvb, next_tvb, pinfo, tree);
-  else {
-    data_tvb = tvb_new_subset(tvb, 0, -1, -1);
-    call_dissector(data_handle, data_tvb, pinfo, tree);
-  }
+    call_dissector(ip_handle, next_tvb, pinfo, tree);
+  else
+    call_dissector(data_handle, tvb, pinfo, tree);
 }
 
 /* Registeration functions for dissectors */
@@ -285,46 +276,22 @@ proto_register_vj(void)
 {
   proto_vj = proto_register_protocol("PPP VJ Compression", "PPP VJ", "vj");
   register_init_routine(&vj_init);
-
-  vjc_handle = create_dissector_handle(dissect_vjc, proto_vj);
-  vjuc_handle = create_dissector_handle(dissect_vjuc, proto_vj);
-
 }
 
 void
 proto_reg_handoff_vj(void)
 {
+  dissector_handle_t vjc_handle;
+  dissector_handle_t vjuc_handle;
+
+  vjc_handle = create_dissector_handle(dissect_vjc, proto_vj);
   dissector_add("ppp.protocol", PPP_VJC_COMP, vjc_handle);
+
+  vjuc_handle = create_dissector_handle(dissect_vjuc, proto_vj);
   dissector_add("ppp.protocol", PPP_VJC_UNCOMP, vjuc_handle);
 
+  ip_handle = find_dissector("ip");
   data_handle = find_dissector("data");
-}
-
-/* Function to setup decompressed packet display */
-static void 
-vj_display_pkt(tvbuff_t *parent_tvb, 
-               tvbuff_t *child_tvb, 
-               packet_info *pinfo, 
-               proto_tree *tree)
-{
-  dissector_handle_t ip_handle = find_dissector("ip");
-  frame_data *fd               = pinfo->fd;
-  tvbuff_t   *data_tvb         = NULL;
-  
-  g_assert(parent_tvb);
-  g_assert(child_tvb);
-  g_assert(fd);
-
-  if (ip_handle == NULL) {
-    data_tvb = tvb_new_subset(child_tvb, 0, -1, -1);
-    call_dissector(data_handle, data_tvb, pinfo, tree);
-  }
-  else {
-    tvb_set_child_real_data_tvbuff(parent_tvb, child_tvb);
-    fd->data_src = g_slist_append(fd->data_src, child_tvb);
-    call_dissector(ip_handle, child_tvb, pinfo, tree);
-  }
-  return;
 }
 
 /* Initialization function */
@@ -409,7 +376,9 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
   pbuf     = g_malloc(buf_len); 
   memcpy(pbuf, data_ptr, hdr_len);
   tvb_memcpy(src_tvb, pbuf + hdr_len, offset, buf_len - hdr_len);
-  *dst_tvb = tvb_new_real_data(pbuf, buf_len, buf_len, "VJ Decompressed");
+  *dst_tvb = tvb_new_real_data(pbuf, buf_len, buf_len);
+  tvb_set_child_real_data_tvbuff(src_tvb, *dst_tvb);
+  add_new_data_source(fd, *dst_tvb, "VJ Decompressed");
   return VJ_OK;
 } 
 
@@ -605,7 +574,8 @@ vjuc_check(tvbuff_t *tvb, slcompress *comp)
 static gint 
 vjuc_tvb_setup(tvbuff_t *tvb, 
                tvbuff_t **dst_tvb, 
-               slcompress *comp)
+               slcompress *comp,
+               frame_data *fd)
 {
   guint8     ihl         = ZERO;
   guint8     index       = ZERO;
@@ -637,7 +607,9 @@ vjuc_tvb_setup(tvbuff_t *tvb,
    * Form the new tvbuff. 
    * Neither header checksum is recalculated
    */
-  *dst_tvb = tvb_new_real_data(buffer, isize, isize, "VJ Uncompressed");
+  *dst_tvb = tvb_new_real_data(buffer, isize, isize);
+  tvb_set_child_real_data_tvbuff(tvb, *dst_tvb);
+  add_new_data_source(fd, *dst_tvb, "VJ Uncompressed");
   return VJ_OK;
 } 
 

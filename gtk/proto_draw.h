@@ -1,7 +1,7 @@
 /* proto_draw.h
  * Definitions for GTK+ packet display structures and routines
  *
- * $Id: proto_draw.h,v 1.15 2002/01/11 06:43:18 guy Exp $
+ * $Id: proto_draw.h,v 1.16 2002/02/18 01:08:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,36 +22,38 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
 #ifndef __GTKPACKET_H__
 #define __GTKPACKET_H__
-#define E_BYTE_VIEW_TREE_PTR      "byte_view_tree_ptr"
-#define E_BYTE_VIEW_TREE_VIEW_PTR "byte_view_tree_view_ptr"
-#define E_BYTE_VIEW_TEXT_INFO_KEY "byte_view_win"
-#define E_BYTE_VIEW_DATA_PTR_KEY  "byte_view_data"
-#define E_BYTE_VIEW_DATA_LEN_KEY  "byte_view_len"
-#define E_BYTE_VIEW_START_KEY     "byte_view_start"
-#define E_BYTE_VIEW_END_KEY       "byte_view_end"
-#define E_BYTE_VIEW_ENCODE_KEY    "byte_view_encode"
-#define E_BYTE_VIEW_NAME_KEY  	  "byte_view_name"
 
-void add_byte_views(frame_data *frame, proto_tree *tree, GtkWidget *tree_view,
-    GtkWidget *byte_nb_ptr);
+/* Get the current text window for the notebook. */
+extern GtkWidget *get_notebook_bv_ptr(GtkWidget *nb_ptr);
 
-void set_notebook_page( GtkWidget *nb_ptr, int num);
-int find_notebook_page( GtkWidget *nb_ptr, gchar *label);
+/*
+ * Get the data and length for a byte view, given the byte view page.
+ * Return the pointer, or NULL on error, and set "*data_len" to the length.
+ */
+extern const guint8 *get_byte_view_data_and_length(GtkWidget *byte_view,
+						   guint *data_len);
 
+/*
+ * Set the current text window for the notebook to the window that
+ * refers to a particular tvbuff.
+ */
+extern void set_notebook_page(GtkWidget *nb_ptr, tvbuff_t *tvb);
 
-GtkWidget *get_byte_view( GtkWidget *byte_view_notebook);
-int get_byte_view_data( GtkWidget *byte_view_notebook, guint8 **data_ptr);
-int get_byte_view_and_data( GtkWidget *byte_view_notebook, GtkWidget **byte_view, guint8 **data_ptr);
+/* Redraw a given byte view window. */
+extern void redraw_hex_dump(GtkWidget *nb, frame_data *fd, field_info *finfo);
 
-void redraw_hex_dump(GtkWidget *nb, frame_data *fd, field_info *finfo);
+/* Redraw all byte view windows. */
+extern void redraw_hex_dump_all(void);
 
-void redraw_hex_dump_all(void);
-void create_byte_view(gint bv_size, GtkWidget *pane, GtkWidget **byte_view_p,
-		GtkWidget **bv_scrollw_p, int pos);
-void packet_hex_print(GtkText *, guint8 *, frame_data *, field_info *, int);
+extern GtkWidget *create_byte_view(gint bv_size, GtkWidget *pane, int pos);
+
+extern void add_byte_views(frame_data *frame, proto_tree *tree,
+    GtkWidget *tree_view, GtkWidget *byte_nb_ptr);
+
+void packet_hex_print(GtkText *, const guint8 *, frame_data *, field_info *,
+		      guint);
 void packet_hex_reprint(GtkText *);
 
 void create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,

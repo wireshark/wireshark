@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.16 2002/01/04 08:57:09 guy Exp $
+ * $Id: epan.c,v 1.17 2002/02/18 01:08:41 guy Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -95,10 +95,7 @@ epan_dissect_run(epan_dissect_t *edt, void* pseudo_header,
         const guint8* data, frame_data *fd, column_info *cinfo)
 {
 	/* start with empty data source list */
-	if (fd->data_src) {
-		g_slist_free(fd->data_src);
-	}
-	fd->data_src = NULL;
+	free_data_sources(fd);
 
 	dissect_packet(edt, pseudo_header, data, fd, cinfo);
 }

@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.20 2002/01/21 07:36:45 guy Exp $
+ * $Id: packet-wcp.c,v 1.21 2002/02/18 01:08:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -584,17 +584,17 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 
 
         TRY {
-                tvb = tvb_new_real_data( pdata_ptr->buffer, pdata_ptr->len, pdata_ptr->len, "uncompressed");
+                tvb = tvb_new_real_data( pdata_ptr->buffer, pdata_ptr->len, pdata_ptr->len);
 
         }
         CATCH(BoundsError) {
-                g_assert_not_reached();
+		g_assert_not_reached();
 		g_free(buf);
 		return NULL;
         }
         CATCH(ReportedBoundsError) {
- 		g_free(buf);
-               return NULL;
+		g_free(buf);
+		return NULL;
         }
         ENDTRY; 
 
@@ -602,7 +602,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
         tvb_set_child_real_data_tvbuff( src_tvb, tvb);
 
 	/* Add new data to the data source list */
-	pinfo->fd->data_src = g_slist_append( pinfo->fd->data_src, tvb);
+	add_new_data_source( pinfo->fd, tvb, "Uncompressed");
 	return tvb;
 
 }

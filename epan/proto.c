@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.51 2002/02/01 04:34:17 gram Exp $
+ * $Id: proto.c,v 1.52 2002/02/18 01:08:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1647,11 +1647,11 @@ alloc_field_info(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint 
 
 	fi->value = fvalue_new(fi->hfinfo->type);
 
-	/* add the data source name */
+	/* add the data source tvbuff */
 	if (tvb) {
-		fi->ds_name = tvb_get_name(tvb);
+		fi->ds_tvb = tvb_get_ds_tvb(tvb);
 	} else {
-		fi->ds_name = NULL;
+		fi->ds_tvb = NULL;
 	}
 
 	return fi;
@@ -2789,7 +2789,7 @@ proto_get_finfo_ptr_array(proto_tree *tree, int id)
 typedef struct {
 	guint		offset;
 	field_info	*finfo;
-	gchar 		*name;
+	tvbuff_t	*tvb;
 } offset_search_t;
 
 static gboolean
@@ -2799,8 +2799,7 @@ check_for_offset(GNode *node, gpointer data)
 	offset_search_t		*offsearch = data;
 
 	/* !fi == the top most container node which holds nothing */
-	if (fi && fi->visible && fi->ds_name &&
-	    strcmp(offsearch->name, fi->ds_name) == 0) {
+	if (fi && fi->visible && fi->ds_tvb && offsearch->tvb == fi->ds_tvb) {
 		if (offsearch->offset >= (guint) fi->start &&
 				offsearch->offset < (guint) (fi->start + fi->length)) {
 
@@ -2820,13 +2819,13 @@ check_for_offset(GNode *node, gpointer data)
  * siblings of each node myself. When I have more time I'll do that.
  * (yeah right) */
 field_info*
-proto_find_field_from_offset(proto_tree *tree, guint offset, char* ds_name)
+proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb)
 {
 	offset_search_t		offsearch;
 
 	offsearch.offset = offset;
 	offsearch.finfo = NULL;
-	offsearch.name = ds_name;
+	offsearch.tvb = tvb;
 
 	g_node_traverse((GNode*)tree, G_PRE_ORDER, G_TRAVERSE_ALL, -1,
 			check_for_offset, &offsearch);

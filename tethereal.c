@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.121 2002/02/08 10:07:34 guy Exp $
+ * $Id: tethereal.c,v 1.122 2002/02/18 01:08:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1207,7 +1207,7 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
   fdata->next = NULL;
   fdata->prev = NULL;
   fdata->pfd = NULL;
-  fdata->data_src = NULL;
+  fdata->data_src	 = NULL;
   fdata->num = cf->count;
   fdata->pkt_len = phdr->len;
   fdata->cap_len = phdr->caplen;
@@ -1264,8 +1264,7 @@ clear_fdata(frame_data *fdata)
 {
   if (fdata->pfd)
     g_slist_free(fdata->pfd);
-  if (fdata->data_src)
-    g_slist_free(fdata->data_src);
+  free_data_sources(fdata);	/* release data source list */
 }
 
 static void

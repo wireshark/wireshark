@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.232 2002/02/08 10:07:38 guy Exp $
+ * $Id: main.c,v 1.233 2002/02/18 01:08:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,7 +164,7 @@ typedef struct column_arrows {
 capture_file cfile;
 GtkWidget   *top_level, *packet_list, *tree_view, *byte_nb_ptr,
             *tv_scrollw, *pkt_scrollw;
-static GtkWidget	*info_bar, *bv_scrollw;
+static GtkWidget	*info_bar;
 GdkFont     *m_r_font, *m_b_font;
 guint		m_font_height, m_font_width;
 static guint    main_ctx, file_ctx, help_ctx;
@@ -759,20 +759,18 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 	gboolean        has_blurb = FALSE;
 	guint           length = 0, byte_len;
 	GtkWidget	*byte_view;
-	guint8		*byte_data;
+	tvbuff_t	*byte_tvb;
+	const guint8	*byte_data;
 
 	g_assert(node);
 	finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
 	if (!finfo) return;
 
-	if (finfo->ds_name != NULL)
-		set_notebook_page(  byte_nb_ptr, find_notebook_page( byte_nb_ptr, finfo->ds_name));
+	set_notebook_page(byte_nb_ptr, finfo->ds_tvb);
 
-        byte_view = gtk_object_get_data(GTK_OBJECT(byte_nb_ptr), E_BYTE_VIEW_TEXT_INFO_KEY);
-        byte_data = gtk_object_get_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_DATA_PTR_KEY);
-        byte_len = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_DATA_LEN_KEY));
-
-	g_assert(byte_data);
+	byte_view = get_notebook_bv_ptr(byte_nb_ptr);
+	byte_data = get_byte_view_data_and_length(byte_view, &byte_len);
+	g_assert(byte_data != NULL);
 
 	finfo_selected = finfo;
 	set_menus_for_selected_tree_row(TRUE);
@@ -826,15 +824,19 @@ static void
 tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user_data)
 {
 	GtkWidget	*byte_view;
-	guint8	*data;
-	gint	len;	
+	const guint8	*data;
+	guint		len;	
 
 	/*
 	 * Which byte view is displaying the current protocol tree
 	 * row's data?
 	 */
-	len = get_byte_view_and_data( byte_nb_ptr, &byte_view, &data);
-	if ( len < 0)
+	byte_view = get_notebook_bv_ptr(byte_nb_ptr);
+	if (byte_view == NULL)
+		return;	/* none */
+
+	data = get_byte_view_data_and_length(byte_view, &len);
+	if (data == NULL)
 		return;	/* none */
 
 	unselect_field();
@@ -856,7 +858,6 @@ void resolve_name_cb(GtkWidget *widget, gpointer data) {
   if (cfile.edt->tree) {
     guint32 tmp = g_resolv_flags;
     g_resolv_flags = RESOLV_ALL;
-    gtk_clist_clear ( GTK_CLIST(tree_view) );
     proto_tree_draw(cfile.edt->tree, tree_view);
     g_resolv_flags = tmp;
   }
@@ -2286,8 +2287,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_widget_show(tree_view);
 
   /* Byte view. */
-  create_byte_view(bv_size, l_pane, &byte_nb_ptr, &bv_scrollw,
-			prefs->gui_scrollbar_on_right);
+  byte_nb_ptr = create_byte_view(bv_size, l_pane, prefs->gui_scrollbar_on_right);
 
   gtk_signal_connect(GTK_OBJECT(byte_nb_ptr), "button_press_event",
 		     GTK_SIGNAL_FUNC(popup_menu_handler),

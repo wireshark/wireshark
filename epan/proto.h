@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.27 2002/02/05 22:10:20 guy Exp $
+ * $Id: proto.h,v 1.28 2002/02/18 01:08:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,7 +113,7 @@ typedef struct field_info {
 	char				*representation; /* for GUI tree */
 	int				visible;
 	fvalue_t			*value;
-	gchar				*ds_name;  /* data source name */
+	tvbuff_t			*ds_tvb;  /* data source tvbuff */
 } field_info;
 
 /* One of these exists for the entire protocol tree. Each proto_node
@@ -584,6 +584,6 @@ extern char*
 proto_alloc_dfilter_string(field_info *finfo, guint8 *pd);
 
 extern field_info*
-proto_find_field_from_offset(proto_tree *tree, guint offset, gchar *ds_name);
+proto_find_field_from_offset(proto_tree *tree, guint offset, tvbuff_t *tvb);
 
 #endif /* proto.h */

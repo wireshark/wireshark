@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.59 2002/02/17 00:51:21 guy Exp $
+ * $Id: packet.c,v 1.60 2002/02/18 01:08:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -180,6 +180,46 @@ postseq_cleanup_all_protocols(void)
 			&call_postseq_cleanup_routine, NULL);
 }
 
+/* Contains information about data sources. */
+static GMemChunk *data_source_chunk = NULL;
+
+/*
+ * Add a new data source to the list of data sources for a frame, given
+ * the tvbuff for the data source and its name.
+ */
+void
+add_new_data_source(frame_data *fd, tvbuff_t *tvb, char *name)
+{
+	data_source *src;
+
+	if (data_source_chunk == NULL) {
+		data_source_chunk = g_mem_chunk_new("data_source_chunk",
+		    sizeof (data_source), 10 * sizeof (data_source),
+		    G_ALLOC_AND_FREE);
+	}
+	src = g_mem_chunk_alloc(data_source_chunk);
+	src->tvb = tvb;
+	src->name = g_strdup(name);
+	fd->data_src = g_slist_append(fd->data_src, src);
+}
+
+/*
+ * Free up a frame's list of data sources.
+ */
+void
+free_data_sources(frame_data *fd)
+{
+	GSList *src_le;
+	data_source *src;
+
+	for (src_le = fd->data_src; src_le != NULL; src_le = src_le->next) {
+	    	src = src_le->data;
+	    	g_free(src->name);
+	    	g_mem_chunk_free(data_source_chunk, src);
+	}
+	g_slist_free(fd->data_src);
+	fd->data_src = NULL;
+}
 
 /* Creates the top-most tvbuff and calls dissect_frame() */
 void
@@ -220,9 +260,9 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	}
 
 	TRY {
-		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len, "Frame");
+		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len);
 		/* Add this tvbuffer into the data_src list */
-                fd->data_src = g_slist_append( fd->data_src, edt->tvb);
+		add_new_data_source(fd, edt->tvb, "Frame");
 
 		/* Even though dissect_frame() catches all the exceptions a
 		 * sub-dissector can throw, dissect_frame() itself may throw

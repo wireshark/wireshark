@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.32 2002/01/21 07:37:41 guy Exp $
+ * $Id: packet_win.c,v 1.33 2002/02/18 01:08:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,7 +73,6 @@ struct PacketWinData {
 	GtkWidget  *main;
 	GtkWidget  *tv_scrollw;
 	GtkWidget  *tree_view;
- 	GtkWidget  *bv_scrollw;
 	GtkWidget  *bv_nb_ptr;
  	field_info *finfo_selected;
 	epan_dissect_t	*edt;
@@ -130,7 +129,6 @@ create_new_window(char *Title, gint tv_size, gint bv_size)
 {
   GtkWidget *main_w, *main_vbox, *pane,
                       *tree_view, *tv_scrollw,
-                      *bv_scrollw,
                       *bv_nb_ptr;
   struct PacketWinData *DataPtr;
 	
@@ -157,8 +155,7 @@ create_new_window(char *Title, gint tv_size, gint bv_size)
   gtk_widget_show(tree_view);
 
   /* Byte view */
-  create_byte_view(bv_size, pane, &bv_nb_ptr, &bv_scrollw,
-			prefs.gui_scrollbar_on_right);
+  bv_nb_ptr = create_byte_view(bv_size, pane, prefs.gui_scrollbar_on_right);
 
   /* Allocate data structure to represent this window. */
   DataPtr = (struct PacketWinData *) g_malloc(sizeof(struct PacketWinData));
@@ -174,7 +171,6 @@ create_new_window(char *Title, gint tv_size, gint bv_size)
   DataPtr->tv_scrollw = tv_scrollw;
   DataPtr->tree_view = tree_view;
   DataPtr->bv_nb_ptr = bv_nb_ptr;
-  DataPtr->bv_scrollw = bv_scrollw;
   detail_windows = g_list_append(detail_windows, DataPtr);
 
   /* load callback handlers */
@@ -207,16 +203,17 @@ destroy_new_window(GtkObject *object, gpointer user_data)
   g_free(DataPtr);
 }
 
-static void
-new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column,
-	gpointer user_data){
 	
 /* called when a tree row is selected in the popup packet window */	
-
-	field_info	*finfo;
+static void
+new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column,
+	gpointer user_data)
+{
+	field_info *finfo;
+	int i;
 	GtkWidget *byte_view;
-	guint8 *data;
-	int len, i;
+	const guint8 *data;
+	guint len;
 
 	struct PacketWinData *DataPtr = (struct PacketWinData*)user_data;
 
@@ -224,15 +221,13 @@ new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column,
 	finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
 	if (!finfo) return;
 
-	if (finfo->ds_name != NULL) {
-		i = find_notebook_page( DataPtr->bv_nb_ptr, finfo->ds_name);
-		set_notebook_page ( DataPtr->bv_nb_ptr, i);
-	}
-	len = get_byte_view_and_data( DataPtr->bv_nb_ptr, &byte_view, &data);
-
+	set_notebook_page(DataPtr->bv_nb_ptr, finfo->ds_tvb);
+	byte_view = get_notebook_bv_ptr(DataPtr->bv_nb_ptr);
 	if ( !byte_view)	/* exit if no hex window to write in */
 		return;
-        if ( len < 0){
+
+	data = get_byte_view_data_and_length(byte_view, &len);
+	if (data == NULL) {
                 data = DataPtr->pd;
                 len =  DataPtr->frame->cap_len;
         }
@@ -240,31 +235,28 @@ new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column,
 	DataPtr->finfo_selected = finfo;
 	packet_hex_print(GTK_TEXT(byte_view), data,
 		DataPtr->frame, finfo, len);
-
 }
 
+/* called when a tree row is unselected in the popup packet window */	
 static void
 new_tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column,
-	gpointer user_data){
-
-/* called when a tree row is unselected in the popup packet window */	
-	
-	guint8* data;
-	int len;
-	GtkWidget* byte_view;	
+	gpointer user_data)
+{
+	GtkWidget* byte_view;
+	const guint8* data;
+	guint len;
 	
 	struct PacketWinData *DataPtr = (struct PacketWinData*)user_data;
 
 	DataPtr->finfo_selected = NULL;
 
-        len = get_byte_view_and_data( DataPtr->bv_nb_ptr, &byte_view, &data);
-
+	byte_view = get_notebook_bv_ptr(DataPtr->bv_nb_ptr);
 	if ( !byte_view)	/* exit if no hex window to write in */
 		return;
 
-	g_assert( len >= 0);
+	data = get_byte_view_data_and_length(byte_view, &len);
+	g_assert(data != NULL);
 	packet_hex_reprint(GTK_TEXT(byte_view));
-
 }
 
 /* Functions called from elsewhere to act on all popup packet windows. */

@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.48 2002/01/30 22:58:54 guy Exp $
+ * $Id: packet-clnp.c,v 1.49 2002/02/18 01:08:35 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1902,7 +1902,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       /* Allocate a new tvbuff, referring to the reassembled payload. */
       next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen,
-	fd_head->datalen, "Reassembled");
+	fd_head->datalen);
 
       /* Add the tvbuff to the list of tvbuffs to which the tvbuff we
          were handed refers, so it'll get cleaned up when that tvbuff
@@ -1910,7 +1910,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
       /* Add the defragmented data to the data source list. */
-      pinfo->fd->data_src = g_slist_append(pinfo->fd->data_src, next_tvb);
+      add_new_data_source(pinfo->fd, next_tvb, "Reassembled");
 
       /* It's not fragmented. */
       pinfo->fragmented = FALSE;

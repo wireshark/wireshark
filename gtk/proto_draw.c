@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.45 2002/01/21 07:37:42 guy Exp $
+ * $Id: proto_draw.c,v 1.46 2002/02/18 01:08:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,108 +59,104 @@
 #include "ui_util.h"
 #include "gtkglobals.h"
 
-
 #define BYTE_VIEW_WIDTH    16
 #define BYTE_VIEW_SEP      8
+
+#define E_BYTE_VIEW_TREE_PTR      "byte_view_tree_ptr"
+#define E_BYTE_VIEW_TREE_VIEW_PTR "byte_view_tree_view_ptr"
+#define E_BYTE_VIEW_TVBUFF_KEY    "byte_view_tvbuff"
+#define E_BYTE_VIEW_START_KEY     "byte_view_start"
+#define E_BYTE_VIEW_END_KEY       "byte_view_end"
+#define E_BYTE_VIEW_ENCODE_KEY    "byte_view_encode"
+
+static GtkWidget *
+add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
+    proto_tree *tree, GtkWidget *tree_view);
 
 static void
 proto_tree_draw_node(GNode *node, gpointer data);
 
+/* Get the current text window for the notebook. */
+GtkWidget *
+get_notebook_bv_ptr(GtkWidget *nb_ptr)
+{
+  int num;
+  GtkWidget *bv_page, *bv;
 
-GtkWidget*
-get_notebook_bv_ptr(  GtkWidget *nb_ptr){
-
-/* Get the current text window for the notebook */
-  return gtk_object_get_data(GTK_OBJECT(nb_ptr), E_BYTE_VIEW_TEXT_INFO_KEY);
+  num = gtk_notebook_get_current_page(GTK_NOTEBOOK(nb_ptr));
+  bv_page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(nb_ptr), num);
+  return GTK_BIN(bv_page)->child;
 }
 
+/*
+ * Get the data and length for a byte view, given the byte view page.
+ * Return the pointer, or NULL on error, and set "*data_len" to the length.
+ */
+const guint8 *
+get_byte_view_data_and_length(GtkWidget *byte_view, guint *data_len)
+{
+  tvbuff_t *byte_view_tvb;
+  const guint8 *data_ptr;
 
-int get_byte_view_data( GtkWidget *byte_view_notebook, guint8 **data_ptr) {
+  byte_view_tvb = gtk_object_get_data(GTK_OBJECT(byte_view),
+				      E_BYTE_VIEW_TVBUFF_KEY);
+  if (byte_view_tvb == NULL)
+    return NULL;
 
-/* get the data pointer and data length for a hex window */
-/* return the length of the data or -1 on error		 */
-
-	GtkWidget *byte_view = get_notebook_bv_ptr( byte_view_notebook);
-
-	if ( !byte_view)
-		return -1;	
-        if ((*data_ptr = gtk_object_get_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_DATA_PTR_KEY)))
-        	return GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(byte_view),
-			E_BYTE_VIEW_DATA_LEN_KEY));
-	return -1;
+  data_ptr = tvb_get_ptr(byte_view_tvb, 0, -1);
+  *data_len = tvb_length(byte_view_tvb);
+  return data_ptr;
 }
 
-
-int get_byte_view_and_data( GtkWidget *byte_view_notebook, GtkWidget **byte_view, guint8 **data_ptr) {
-
-/* Get both byte_view widget pointer and the data pointer */
-/* return the data length or -1 if error 		  */
-
-	*byte_view = get_notebook_bv_ptr( byte_view_notebook);
-	if ( *byte_view)
-		return get_byte_view_data( byte_view_notebook, data_ptr);
-	return -1;
-}
-
-
+/*
+ * Set the current text window for the notebook to the window that
+ * refers to a particular tvbuff.
+ */
 void
-set_notebook_page(  GtkWidget *nb_ptr, int num){
+set_notebook_page(GtkWidget *nb_ptr, tvbuff_t *tvb)
+{
+  int num;
+  GtkWidget *bv_page, *bv;
+  tvbuff_t *bv_tvb;
 
-/* Set the current text window for the notebook and set the */
-/* text window pointer storage */
-
-  GtkWidget* child;
-
-  gtk_notebook_set_page ( GTK_NOTEBOOK( nb_ptr), num);
-
-  child = gtk_notebook_get_nth_page( GTK_NOTEBOOK(nb_ptr), num);
-  child = gtk_object_get_data(GTK_OBJECT(child), E_BYTE_VIEW_TEXT_INFO_KEY);
-  gtk_object_set_data(GTK_OBJECT(nb_ptr), E_BYTE_VIEW_TEXT_INFO_KEY, child);
+  for (num = 0;
+       (bv_page = gtk_notebook_get_nth_page(GTK_NOTEBOOK(nb_ptr), num)) != NULL;
+       num++) {
+    bv = GTK_BIN(bv_page)->child;
+    bv_tvb = gtk_object_get_data(GTK_OBJECT(bv), E_BYTE_VIEW_TVBUFF_KEY);
+    if (bv_tvb == tvb) {
+      /* Found it. */
+      gtk_notebook_set_page(GTK_NOTEBOOK(nb_ptr), num);
+      break;
+    }
+  }
 }
-
-
-int find_notebook_page( GtkWidget *nb_ptr, gchar *label){
-
-/* find the notebook page number for this label */
-
-        int i = -1;
-        gchar *ptr;
-        GtkWidget* child;
-
-        while(( child = gtk_notebook_get_nth_page(GTK_NOTEBOOK(nb_ptr), ++i))){
-                child = gtk_notebook_get_tab_label(GTK_NOTEBOOK(nb_ptr), child);
-                gtk_notebook_get_tab_label(GTK_NOTEBOOK(nb_ptr), child);
-                gtk_label_get(GTK_LABEL(child), &ptr);
-                if (!strcmp( label, ptr))
-                        return i;
-        }
-        return -1;
-}
-
 
 /* Redraw a given byte view window. */
 void
 redraw_hex_dump(GtkWidget *nb, frame_data *fd, field_info *finfo)
 {
-  GtkWidget* bv;
-  guint8* data;
-  int len;
+  GtkWidget *bv;
+  const guint8 *data;
+  guint len;
  
-  len = get_byte_view_and_data( byte_nb_ptr, &bv, &data);
-  if ( bv) 
-    packet_hex_print(GTK_TEXT(bv), data, fd, finfo, len);
+  bv = get_notebook_bv_ptr(byte_nb_ptr);
+  if (bv != NULL) {
+    data = get_byte_view_data_and_length(bv, &len);
+    if (data != NULL)
+      packet_hex_print(GTK_TEXT(bv), data, fd, finfo, len);
+  }
 }
 
+/* Redraw all byte view windows. */
 void
 redraw_hex_dump_all(void)
 {
- 
   if (cfile.current_frame != NULL)
-      redraw_hex_dump( byte_nb_ptr, cfile.current_frame, finfo_selected);
+    redraw_hex_dump( byte_nb_ptr, cfile.current_frame, finfo_selected);
   
   redraw_hex_dump_packet_wins();
 }
-
 
 static void
 expand_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data)
@@ -211,18 +207,14 @@ byte_num(int offset, int start_point)
 static gint
 byte_view_select(GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
-	proto_tree	*tree = gtk_object_get_data(GTK_OBJECT(widget),
-			   E_BYTE_VIEW_TREE_PTR);
-	GtkWidget	*tree_view =
-			 gtk_object_get_data(GTK_OBJECT(widget),
-			   E_BYTE_VIEW_TREE_VIEW_PTR);
-	GtkCTree	*ctree = GTK_CTREE(tree_view);
+	proto_tree	*tree;
+	GtkCTree	*ctree;
 	GtkCTreeNode	*node, *parent;
 	field_info	*finfo;
 	GtkText		*bv = GTK_TEXT(widget);
 	int		row, column;
 	int		byte;
-	gchar 		*name;
+	tvbuff_t	*tvb;
 
 	/* The column of the first hex digit in the first half */
 	const int	digits_start_1 = 6;
@@ -243,6 +235,16 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event, gpointer data)
 	const int	text_start_2 = 66;
 	/* The column of the last "text dump" character in second half. */
 	const int	text_end_2 = 73;
+
+	tree = gtk_object_get_data(GTK_OBJECT(widget), E_BYTE_VIEW_TREE_PTR);
+	if (tree == NULL) {
+		/*
+		 * Somebody clicked on the dummy byte view; do nothing.
+		 */
+		return FALSE;
+	}
+	ctree = GTK_CTREE(gtk_object_get_data(GTK_OBJECT(widget),
+					      E_BYTE_VIEW_TREE_VIEW_PTR));
 
 	/* Given the mouse (x,y) and the current GtkText (h,v)
 	 * adjustments, and the size of the font, figure out
@@ -282,11 +284,11 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event, gpointer data)
 	/* Add the number of bytes from the previous rows. */
 	byte += row * 16;
 
-	/* Get the data source name */
-	name = gtk_object_get_data(GTK_OBJECT(widget), E_BYTE_VIEW_NAME_KEY);
+	/* Get the data source tvbuff */
+	tvb = gtk_object_get_data(GTK_OBJECT(widget), E_BYTE_VIEW_TVBUFF_KEY);
 
 	/* Find the finfo that corresponds to our byte. */
-	finfo = proto_find_field_from_offset(tree, byte, name);
+	finfo = proto_find_field_from_offset(tree, byte, tvb);
 
 	if (!finfo) {
 		return FALSE;
@@ -343,49 +345,50 @@ byte_view_button_press_cb(GtkWidget *widget, GdkEvent *event, gpointer data)
 	return FALSE;
 }
 
-
-void
-create_byte_view(gint bv_size, GtkWidget *pane, GtkWidget **byte_nb_p,
-		GtkWidget **bv_scrollw_p, int pos)
+GtkWidget *
+create_byte_view(gint bv_size, GtkWidget *pane, int pos)
 {
-  GtkWidget *byte_scrollw, *byte_nb;
+  GtkWidget *byte_nb;
 
   byte_nb = gtk_notebook_new();
-  gtk_notebook_set_tab_pos ( GTK_NOTEBOOK(byte_nb), GTK_POS_BOTTOM);
+  gtk_notebook_set_tab_pos(GTK_NOTEBOOK(byte_nb), GTK_POS_BOTTOM);
 
   gtk_paned_pack2(GTK_PANED(pane), byte_nb, FALSE, FALSE);
   gtk_widget_show(byte_nb);
 
-  /* Byte view.  Create a scrolled window for the text. */
-  byte_scrollw = gtk_scrolled_window_new(NULL, NULL);
-  *byte_nb_p = byte_nb;
-  *bv_scrollw_p = byte_scrollw;
+  /* Add a placeholder byte view so that there's at least something
+     displayed in the byte view notebook. */
+  add_byte_tab(byte_nb, "", NULL, NULL, NULL);
+
+  return byte_nb;
 }
 
+static void
+byte_view_realize_cb(GtkWidget *bv, gpointer data)
+{
+ const guint8 *byte_data;
+ guint byte_len;
 
-void
-byte_view_realize_cb( GtkWidget *bv, gpointer data){
-
-   guint8* byte_data = gtk_object_get_data(GTK_OBJECT(bv), E_BYTE_VIEW_DATA_PTR_KEY);
-   int     byte_len = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(bv), E_BYTE_VIEW_DATA_LEN_KEY));
-
-   packet_hex_print(GTK_TEXT(bv), byte_data, cfile.current_frame, NULL, byte_len);
-
+ byte_data = get_byte_view_data_and_length(bv, &byte_len);
+ if (byte_data == NULL) {
+   /* This must be the dummy byte view if no packet is selected. */
+   return;
+ }
+ packet_hex_print(GTK_TEXT(bv), byte_data, cfile.current_frame, NULL, byte_len);
 }
-
 
 static GtkWidget *
-add_byte_tab(GtkWidget *byte_nb, const char *name, const guint8 *data, int len,
+add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
     proto_tree *tree, GtkWidget *tree_view)
 {
   GtkWidget *byte_view, *byte_scrollw, *label;
-  gchar *name_ptr;
 
   /* Byte view.  Create a scrolled window for the text. */
   byte_scrollw = scrolled_window_new(NULL, NULL);
+
   /* Add scrolled pane to tabbed window */
-  label = gtk_label_new (name);
-  gtk_notebook_append_page (GTK_NOTEBOOK(byte_nb), byte_scrollw, label);
+  label = gtk_label_new(name);
+  gtk_notebook_append_page(GTK_NOTEBOOK(byte_nb), byte_scrollw, label);
 
   /* The horizontal scrollbar of the scroll-window doesn't seem
    * to affect the GtkText widget at all, even when line wrapping
@@ -400,12 +403,8 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, const guint8 *data, int len,
   gtk_text_set_editable(GTK_TEXT(byte_view), FALSE);
   gtk_text_set_word_wrap(GTK_TEXT(byte_view), FALSE);
   gtk_text_set_line_wrap(GTK_TEXT(byte_view), FALSE);
-  gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_DATA_PTR_KEY,
-		      (gpointer)data);
-  gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_DATA_LEN_KEY,
-		      GINT_TO_POINTER(len));
-  gtk_label_get(GTK_LABEL(label), &name_ptr);
-  gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_NAME_KEY, name_ptr);
+  gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_TVBUFF_KEY,
+		      (gpointer)tvb);
   gtk_container_add(GTK_CONTAINER(byte_scrollw), byte_view);
 
   gtk_signal_connect(GTK_OBJECT(byte_view), "show",
@@ -422,14 +421,11 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, const guint8 *data, int len,
 
   gtk_widget_show(byte_view);
 
-  gtk_object_set_data(GTK_OBJECT(byte_scrollw), E_BYTE_VIEW_TEXT_INFO_KEY,
-            byte_view);
-
-/* no tabs if this is the first page */
-  if ( !(gtk_notebook_page_num(GTK_NOTEBOOK(byte_nb), byte_scrollw)))
-        gtk_notebook_set_show_tabs ( GTK_NOTEBOOK(byte_nb), FALSE);
+  /* no tabs if this is the first page */
+  if (!(gtk_notebook_page_num(GTK_NOTEBOOK(byte_nb), byte_scrollw)))
+        gtk_notebook_set_show_tabs(GTK_NOTEBOOK(byte_nb), FALSE);
   else
-        gtk_notebook_set_show_tabs ( GTK_NOTEBOOK(byte_nb), TRUE);
+        gtk_notebook_set_show_tabs(GTK_NOTEBOOK(byte_nb), TRUE);
 
   return byte_view;
 }
@@ -438,30 +434,36 @@ void
 add_byte_views(frame_data *frame, proto_tree *tree, GtkWidget *tree_view,
     GtkWidget *byte_nb_ptr)
 {
-	int i;
-	tvbuff_t *bv_tvb;
+	GSList *src_le;
+	data_source *src;
+
+	/*
+	 * Get rid of all the old notebook tabs.
+	 */
+	while (gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr), 0) != NULL)
+		gtk_notebook_remove_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
 
 	/*
 	 * Add to the specified byte view notebook tabs for hex dumps
 	 * of all the data sources for the specified frame.
 	 */
-	for (i = 0;
-	    (bv_tvb = g_slist_nth_data(frame->data_src, i)) != NULL; i++) {
-		add_byte_tab(byte_nb_ptr, tvb_get_name(bv_tvb),
-		    tvb_get_ptr(bv_tvb, 0, -1), tvb_length(bv_tvb),
-		    tree, tree_view);
+	for (src_le = frame->data_src; src_le != NULL; src_le = src_le->next) {
+		src = src_le->data;
+		add_byte_tab(byte_nb_ptr, src->name, src->tvb, tree,
+		    tree_view);
 	}
 
 	/*
 	 * Initially select the first byte view.
 	 */
-	set_notebook_page(byte_nb_ptr, 0);
+	gtk_notebook_set_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
 }
 
-void
-packet_hex_print_common(GtkText *bv, guint8 *pd, int len, int bstart, int bend, int encoding)
+static void
+packet_hex_print_common(GtkText *bv, const guint8 *pd, int len, int bstart,
+			int bend, int encoding)
 {
-  gint     i = 0, j, k, cur;
+  int    i = 0, j, k, cur;
   guchar   line[128], hexchars[] = "0123456789abcdef", c = '\0';
   GdkFont *cur_font, *new_font;
   GdkColor *fg, *bg;
@@ -668,8 +670,9 @@ packet_hex_print_common(GtkText *bv, guint8 *pd, int len, int bstart, int bend, 
 }
 
 void
-packet_hex_print(GtkText *bv, guint8 *pd, frame_data *fd, field_info *finfo, int len){
-
+packet_hex_print(GtkText *bv, const guint8 *pd, frame_data *fd,
+		 field_info *finfo, guint len)
+{
   /* do the initial printing and save the information needed 	*/
   /* to redraw the display if preferences change.		*/
 
@@ -692,28 +695,32 @@ packet_hex_print(GtkText *bv, guint8 *pd, frame_data *fd, field_info *finfo, int
   gtk_object_set_data(GTK_OBJECT(bv),  E_BYTE_VIEW_END_KEY, GINT_TO_POINTER(bstart));
   gtk_object_set_data(GTK_OBJECT(bv),  E_BYTE_VIEW_ENCODE_KEY, GINT_TO_POINTER(fd->flags.encoding));
 
-  packet_hex_print_common( bv, pd, len, bstart, bend, fd->flags.encoding);
+  packet_hex_print_common(bv, pd, len, bstart, bend, fd->flags.encoding);
 
 }
 
+/*
+ * Redraw the text using the saved information; usually called if
+ * the preferences have changed.
+ */
 void
-packet_hex_reprint(GtkText *bv){
+packet_hex_reprint(GtkText *bv)
+{
+  int start, end, encoding;
+  const guint8 *data;
+  guint len;
 
-  /* redraw the text using the saved information, 	*/
-  /* usually called if the preferences haved changed.	*/
+  start = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(bv),
+			  E_BYTE_VIEW_START_KEY));
+  end = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(bv),
+			E_BYTE_VIEW_END_KEY));
+  data = get_byte_view_data_and_length(GTK_WIDGET(bv), &len);
+  g_assert(data != NULL);
+  encoding = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(bv),
+			     E_BYTE_VIEW_ENCODE_KEY));
 
-  int start, end, len, encoding;
-  guint8 *data;
-
-  start = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(bv), E_BYTE_VIEW_START_KEY));
-  end = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(bv), E_BYTE_VIEW_END_KEY));
-  len = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(bv), E_BYTE_VIEW_DATA_LEN_KEY));
-  data =  gtk_object_get_data(GTK_OBJECT(bv), E_BYTE_VIEW_DATA_PTR_KEY);
-  encoding =  GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(bv), E_BYTE_VIEW_ENCODE_KEY));
-
-  packet_hex_print_common( bv, data, len, start, end, encoding);
+  packet_hex_print_common(bv, data, len, start, end, encoding);
 }
-
 
 /* List of all protocol tree widgets, so we can globally set the selection
    mode and font of all of them. */
@@ -831,7 +838,6 @@ void expand_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view) {
   for(i=0; i < num_tree_types; i++) {
     tree_is_expanded[i] = TRUE;
   }
-  gtk_clist_clear ( GTK_CLIST(tree_view) );
   proto_tree_draw(protocol_tree, tree_view);
   gtk_ctree_expand_recursive(GTK_CTREE(tree_view), NULL);
 }
@@ -841,7 +847,6 @@ void collapse_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view) {
   for(i=0; i < num_tree_types; i++) {
     tree_is_expanded[i] = FALSE;
   }
-  gtk_clist_clear ( GTK_CLIST(tree_view) );
   proto_tree_draw(protocol_tree, tree_view);
 }
 
@@ -859,12 +864,19 @@ proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view)
 	info.ctree = GTK_CTREE(tree_view);
 	info.ctree_node = NULL;
 
-	gtk_clist_freeze ( GTK_CLIST(tree_view) );
+	gtk_clist_freeze(GTK_CLIST(tree_view));
+
+	/*
+	 * Clear out any crud left over in the display of the protocol
+	 * tree, by removing all nodes from the ctree.
+	 * This is how it's done in testgtk.c in GTK+.
+	 */
+	gtk_clist_clear(GTK_CLIST(tree_view));
 
 	g_node_children_foreach((GNode*) protocol_tree, G_TRAVERSE_ALL,
 		proto_tree_draw_node, &info);
 
-	gtk_clist_thaw ( GTK_CLIST(tree_view) );
+	gtk_clist_thaw(GTK_CLIST(tree_view));
 }
 
 static void
@@ -882,18 +894,6 @@ proto_tree_draw_node(GNode *node, gpointer data)
 
 	if (!fi->visible)
 		return;
-	/*
-	 * XXX - why are we doing this?  This is done when we consruct
-	 * the protocol tree display, but, as far as I can tell, it only
-	 * needs to be done when a particular field in the tree is
-	 * selected.
-	 */
-	if (fi->ds_name != NULL) {
-		i = find_notebook_page(byte_nb_ptr, fi->ds_name);
-		if (i < 0)
-			return; 	/* no notebook pages ?? */
-		set_notebook_page(byte_nb_ptr, i);
-	}
 
 	/* was a free format label produced? */
 	if (fi->representation) {
@@ -938,27 +938,15 @@ proto_tree_draw_node(GNode *node, gpointer data)
 void
 clear_tree_and_hex_views(void)
 {
-  /* Clear the hex dump. */
+  /* Clear the hex dump by getting rid of all the byte views. */
+  while (gtk_notebook_get_nth_page(GTK_NOTEBOOK(byte_nb_ptr), 0) != NULL)
+    gtk_notebook_remove_page(GTK_NOTEBOOK(byte_nb_ptr), 0);
 
-  GtkWidget *byte_view;
-  int i;
+  /* Add a placeholder byte view so that there's at least something
+     displayed in the byte view notebook. */
+  add_byte_tab(byte_nb_ptr, "", NULL, NULL, tree_view);
 
-/* Get the current tab scroll window, then get the text widget  */
-/* from the E_BYTE_VIEW_TEXT_INFO_KEY data field 		*/
-
-  i = gtk_notebook_get_current_page( GTK_NOTEBOOK(byte_nb_ptr));
-
-  if ( i >= 0){
-    byte_view = gtk_notebook_get_nth_page( GTK_NOTEBOOK(byte_nb_ptr), i);
-    byte_view = gtk_object_get_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_TEXT_INFO_KEY);
-
-    gtk_text_freeze(GTK_TEXT(byte_view));
-    gtk_text_set_point(GTK_TEXT(byte_view), 0);
-    gtk_text_forward_delete(GTK_TEXT(byte_view),
-      gtk_text_get_length(GTK_TEXT(byte_view)));
-    gtk_text_thaw(GTK_TEXT(byte_view));
-  }
-  /* Remove all nodes in ctree. This is how it's done in testgtk.c in GTK+ */
-  gtk_clist_clear ( GTK_CLIST(tree_view) );
-
+  /* Clear the protocol tree by removing all nodes in the ctree.
+     This is how it's done in testgtk.c in GTK+ */
+  gtk_clist_clear(GTK_CLIST(tree_view));
 }

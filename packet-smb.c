@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.206 2002/02/14 05:53:59 guy Exp $
+ * $Id: packet-smb.c,v 1.207 2002/02/18 01:08:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7712,9 +7712,9 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		}
 		
 		pd_tvb = tvb_new_real_data(r_fd->data, r_fd->datalen,
-					     r_fd->datalen, "Reassembled SMB");
+					     r_fd->datalen);
 		tvb_set_child_real_data_tvbuff(tvb, pd_tvb);
-		pinfo->fd->data_src = g_slist_append(pinfo->fd->data_src, pd_tvb);
+		add_new_data_source(pinfo->fd, pd_tvb, "Reassembled SMB");
 		pinfo->fragmented = FALSE;
 	}
 
@@ -11517,9 +11517,9 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		}
 		
 		pd_tvb = tvb_new_real_data(r_fd->data, r_fd->datalen,
-					     r_fd->datalen, "Reassembled SMB");
+					     r_fd->datalen);
 		tvb_set_child_real_data_tvbuff(tvb, pd_tvb);
-		pinfo->fd->data_src = g_slist_append(pinfo->fd->data_src, pd_tvb);
+		add_new_data_source(pinfo->fd, pd_tvb, "Reassembled SMB");
 		pinfo->fragmented = FALSE;
 	}
 

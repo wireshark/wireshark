@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.21 2002/02/01 04:34:17 gram Exp $
+ * $Id: tvbuff.h,v 1.22 2002/02/18 01:08:42 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -140,7 +140,7 @@ extern void tvb_set_real_data(tvbuff_t*, const guint8* data, guint length,
 
 /* Combination of tvb_new() and tvb_set_real_data(). Can throw ReportedBoundsError. */
 extern tvbuff_t* tvb_new_real_data(const guint8* data, guint length,
-    gint reported_length, const gchar *name);
+    gint reported_length);
 
 
 /* Define the subset of the backing buffer to use.
@@ -379,7 +379,7 @@ extern gint tvb_memeql(tvbuff_t *tvb, gint offset, const guint8 *str,
  */
 extern gchar *tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len);
 
-extern gchar *tvb_get_name(tvbuff_t *tvb);
+extern tvbuff_t *tvb_get_ds_tvb(tvbuff_t *tvb);
 
 /************** END OF ACCESSORS ****************/
 

@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.38 2002/01/21 07:36:35 guy Exp $
+ * $Id: packet-icq.c,v 1.39 2002/02/18 01:08:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1731,8 +1731,7 @@ dissect_icqv5Client(tvbuff_t *tvb,
     decrypt_v5(decr_pd, rounded_size, key);
     
     /* Allocate a new tvbuff, referring to the decrypted data. */
-    decr_tvb = tvb_new_real_data(decr_pd, pktsize, tvb_reported_length(tvb),
-	"Decrypted");
+    decr_tvb = tvb_new_real_data(decr_pd, pktsize, tvb_reported_length(tvb));
 
     /* Arrange that the allocated packet data copy be freed when the
        tvbuff is freed. */
@@ -1744,7 +1743,7 @@ dissect_icqv5Client(tvbuff_t *tvb,
     tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
 
     /* Add the decrypted data to the data source list. */
-    pinfo->fd->data_src = g_slist_append(pinfo->fd->data_src, decr_tvb);
+    add_new_data_source(pinfo->fd, decr_tvb, "Decrypted");
 
     cmd = tvb_get_letohs(decr_tvb, ICQ5_CL_CMD);
 

@@ -1,7 +1,7 @@
 /* frame_data.h
  * Definitions for frame_data structures and routines
  *
- * $Id: frame_data.h,v 1.3 2001/12/10 02:16:59 guy Exp $
+ * $Id: frame_data.h,v 1.4 2002/02/18 01:08:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,6 +26,7 @@
 #define __FRAME_DATA_H__
 
 #include "column_info.h"
+#include "tvbuff.h"
 
 /* XXX - some of this stuff is used only while a packet is being dissected;
    should we keep that stuff in the "packet_info" structure, instead, to
@@ -53,6 +54,15 @@ typedef struct _frame_data {
 	unsigned int marked             : 1; /* 1 = marked by user, 0 = normal */
   } flags;
 } frame_data;
+
+/*
+ * A data source.
+ * Has a tvbuff and a name.
+ */
+typedef struct {
+  tvbuff_t *tvb;
+  char *name;
+} data_source;
 
 /* Utility routines used by packet*.c */
 

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.130 2002/02/03 23:28:38 guy Exp $
+ * $Id: packet-tcp.c,v 1.131 2002/02/18 01:08:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -382,14 +382,14 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 			/* create a new TVB structure for desegmented data */
 			next_tvb = tvb_new_real_data(ipfd_head->data,
-					ipfd_head->datalen, ipfd_head->datalen,
-					"Desegmented");
+					ipfd_head->datalen, ipfd_head->datalen);
 
 			/* add this tvb as a child to the original one */
 			tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 
 			/* add desegmented data to the data source list */
-			pinfo->fd->data_src = g_slist_append(pinfo->fd->data_src, next_tvb);
+			add_new_data_source(pinfo->fd, next_tvb,
+					"Desegmented");
 
 			/* indicate that this is reassembled data */
 			tcpinfo->is_reassembled = TRUE;

@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.29 2002/02/01 07:03:32 guy Exp $
+ * $Id: tvbuff.c,v 1.30 2002/02/18 01:08:42 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -68,7 +68,7 @@ struct tvbuff {
 	tvbuff_type		type;
 	gboolean		initialized;
 	guint			usage_count;
-	gchar*			ds_name;	  /* data source name */
+	tvbuff_t*		ds_tvb;	  /* data source top-level tvbuff */
 
 	/* The tvbuffs in which this tvbuff is a member
 	 * (that is, a backing tvbuff for a TVBUFF_SUBSET
@@ -143,7 +143,7 @@ tvb_init(tvbuff_t *tvb, tvbuff_type type)
 	tvb->real_data		= NULL;
 	tvb->raw_offset		= -1;
 	tvb->used_in		= NULL;
-	tvb->ds_name		= NULL;
+	tvb->ds_tvb		= NULL;
 
 	switch(type) {
 		case TVBUFF_REAL_DATA:
@@ -204,8 +204,6 @@ tvb_free(tvbuff_t* tvb)
 			if (tvb->free_cb) {
 				tvb->free_cb(tvb->real_data);
 			}
-			if (tvb->ds_name)
-				g_free(tvb->ds_name);
 			break;
 
 		case TVBUFF_SUBSET:
@@ -214,12 +212,6 @@ tvb_free(tvbuff_t* tvb)
 			if (tvb->tvbuffs.subset.tvb) {
 				tvb_decrement_usage_count(tvb->tvbuffs.subset.tvb, 1);
 			}
-
-			/*
-			 * TVBUFF_SUBSET tvbuffs share a "ds_name" with
-			 * the parent tvbuff, so this tvbuff's "ds_name"
-			 * shouldn't be freed.
-			 */
 			break;
 
 		case TVBUFF_COMPOSITE:
@@ -237,8 +229,6 @@ tvb_free(tvbuff_t* tvb)
 				g_free(composite->end_offsets);
 			if (tvb->real_data)
 				g_free(tvb->real_data);
-			if (tvb->ds_name)
-				g_free(tvb->ds_name);
 
 			break;
 		}
@@ -330,7 +320,7 @@ tvb_set_real_data(tvbuff_t* tvb, const guint8* data, guint length, gint reported
 }
 
 tvbuff_t*
-tvb_new_real_data(const guint8* data, guint length, gint reported_length, const gchar* ds_name)
+tvb_new_real_data(const guint8* data, guint length, gint reported_length)
 {
 	tvbuff_t	*tvb;
 
@@ -340,8 +330,11 @@ tvb_new_real_data(const guint8* data, guint length, gint reported_length, const 
 
 	tvb_set_real_data(tvb, data, length, reported_length);
 
-	/* set the data source name */
-	tvb->ds_name = g_strdup( ds_name);
+	/*
+	 * This is the top-level real tvbuff for this data source,
+	 * so its data source tvbuff is itself.
+	 */
+	tvb->ds_tvb = tvb;
 
 	CLEANUP_POP;
 
@@ -517,7 +510,12 @@ tvb_new_subset(tvbuff_t *backing, gint backing_offset, gint backing_length, gint
 
 	tvb_set_subset(tvb, backing, backing_offset, backing_length, reported_length);
 
-	tvb->ds_name = backing->ds_name;
+	/*
+	 * The top-level data source of this tvbuff is the top-level
+	 * data source of its parent.
+	 */
+	tvb->ds_tvb = backing->ds_tvb;
+
 	CLEANUP_POP;
 
 	return tvb;
@@ -1615,8 +1613,8 @@ tvb_bytes_to_str(tvbuff_t *tvb, gint offset, gint len)
 	return bytes_to_str(tvb_get_ptr(tvb, offset, len), len);
 }
 
-gchar*
-tvb_get_name(tvbuff_t* tvb)
+tvbuff_t *
+tvb_get_ds_tvb(tvbuff_t *tvb)
 {
-	return tvb->ds_name;
+	return tvb->ds_tvb;
 }
