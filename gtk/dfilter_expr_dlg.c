@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.59 2004/06/10 10:09:58 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.60 2004/06/10 20:16:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1019,15 +1019,6 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
 #endif
 }
 
-/* Treat this as a cancel, by calling "prefs_main_cancel_cb()" */
-static gboolean
-dfilter_expr_dlg_delete_event_cb(GtkWidget *w _U_, GdkEvent *event _U_,
-                                 gpointer parent_w)
-{
-	dfilter_expr_dlg_cancel_cb(NULL, parent_w);
-	return FALSE;
-}
-
 static void
 dfilter_expr_dlg_cancel_cb(GtkWidget *w _U_, gpointer parent_w)
 {
@@ -1035,6 +1026,15 @@ dfilter_expr_dlg_cancel_cb(GtkWidget *w _U_, gpointer parent_w)
 	 * User pressed the cancel button; close the dialog box.
 	 */
 	window_destroy(GTK_WIDGET(parent_w));
+}
+
+/* Treat this as a cancel, by calling "prefs_main_cancel_cb()" */
+static gboolean
+dfilter_expr_dlg_delete_event_cb(GtkWidget *w _U_, GdkEvent *event _U_,
+                                 gpointer parent_w)
+{
+	dfilter_expr_dlg_cancel_cb(NULL, parent_w);
+	return FALSE;
 }
 
 static void
