@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.93 2004/02/04 01:10:36 guy Exp $
+ * $Id: file_dlg.c,v 1.94 2004/02/11 00:55:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@
 #include "keys.h"
 #include "filter_prefs.h"
 #include "ui_util.h"
+#include "alert_box.h"
 #include "simple_dialog.h"
 #include "menu.h"
 #include "file_dlg.h"
@@ -385,8 +386,8 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   filter_te = OBJECT_GET_DATA(w, E_RFILTER_TE_KEY);
   rfilter = (gchar *)gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (!dfilter_compile(rfilter, &rfcode)) {
+    bad_dfilter_alert_box(rfilter);
     g_free(cf_name);
-    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
     return;
   }
 

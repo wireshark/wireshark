@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.391 2004/02/06 14:59:52 jmayer Exp $
+ * $Id: main.c,v 1.392 2004/02/11 00:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -101,6 +101,7 @@
 #include "pcap-util.h"
 #endif
 #include "statusbar.h"
+#include "alert_box.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "proto_draw.h"
@@ -2701,7 +2702,7 @@ main(int argc, char *argv[])
     if (cf_name) {
       if (rfilter != NULL) {
         if (!dfilter_compile(rfilter, &rfcode)) {
-          simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
+          bad_dfilter_alert_box(rfilter);
           rfilter_parse_failed = TRUE;
         }
       }

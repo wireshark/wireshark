@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.11 2004/02/10 23:38:34 guy Exp $
+# $Id: Makefile.common,v 1.12 2004/02/11 00:55:26 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -734,6 +734,8 @@ ethereal_SOURCES =	\
 	$(DISSECTOR_SRC)	\
 	$(ETHEREAL_COMMON_SRC)	\
 	register.c	\
+	alert_box.c	\
+	alert_box.h	\
 	capture.c	\
 	capture.h	\
 	file.c	\

@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.59 2004/01/31 03:22:41 guy Exp $
+ * $Id: io_stat.c,v 1.60 2004/02/11 00:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@
 #include "menu.h"
 #include "../tap.h"
 #include "../register.h"
+#include "alert_box.h"
 #include "simple_dialog.h"
 #include "../globals.h"
 #include "../color.h"
@@ -1488,8 +1489,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	/* first check if the filter string is valid. */
 	filter=(char *)gtk_entry_get_text(GTK_ENTRY(gio->filter_field));
 	if(!dfilter_compile(filter, &dfilter)) {
-		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-		    "Filter \"%s\" is invalid - %s", filter, dfilter_error_msg);
+		bad_dfilter_alert_box(filter);
 		disable_graph(gio);
 		io_stat_redraw(gio->io);
 		return 0;

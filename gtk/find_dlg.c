@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.45 2004/01/31 03:22:40 guy Exp $
+ * $Id: find_dlg.c,v 1.46 2004/02/11 00:55:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,7 @@
 #include "ui_util.h"
 #include "find_dlg.h"
 #include "filter_prefs.h"
+#include "alert_box.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "compat_macros.h"
@@ -574,7 +575,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
      */
     if (!dfilter_compile(filter_text, &sfcode)) {
       /* The attempt failed; report an error. */
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, dfilter_error_msg);
+      bad_dfilter_alert_box(filter_text);
       return;
     }
 
@@ -582,7 +583,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     if (sfcode == NULL) {
       /* Yes - complain. */
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-         "You didn't specify a valid filter expression.");
+         "You specified a filter that doesn't test anything.");
       return;
     }
   }
