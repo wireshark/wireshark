@@ -1,12 +1,13 @@
 # Makefile.am
 # Automake file for Ethereal/Gryphon
-#
-# $Id: Makefile.am,v 1.11 2003/09/05 07:44:46 jmayer Exp $
-#
-# Ethereal - Network traffic analyzer
 # By Steve Limkemann <stevelim@dgtech.com>
 # Copyright 1998 Steve Limkemann
 #
+# $Id: Makefile.am,v 1.12 2003/11/17 22:34:23 guy Exp $
+#
+# Ethereal - Network traffic analyzer
+# By Gerald Combs <gerald@ethereal.com>
+# Copyright 1998 Gerald Combs
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License

@@ -1,12 +1,11 @@
 # Makefile.am
 # Automake file for Ethereal/ArtNET
 #
-# $Id: Makefile.am,v 1.2 2003/09/05 07:44:44 jmayer Exp $
+# $Id: Makefile.am,v 1.3 2003/11/17 22:34:22 guy Exp $
 #
 # Ethereal - Network traffic analyzer
-# By Steve Limkemann <stevelim@dgtech.com>
-# Copyright 1998 Steve Limkemann
-#
+# By Gerald Combs <gerald@ethereal.com>
+# Copyright 1998 Gerald Combs
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
