@@ -1,7 +1,7 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.18 2003/01/11 10:16:22 guy Exp $
+ * $Id: packet-chdlc.c,v 1.19 2003/01/27 19:28:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,17 +87,19 @@ static const value_string chdlc_address_vals[] = {
 };
 
 const value_string chdlc_vals[] = {
-	{0x2000,              "Cisco Discovery Protocol"},
-	{ETHERTYPE_IP,        "IP"},
-	{CISCO_SLARP,         "SLARP"},
-	{ETHERTYPE_DEC_LB,    "DEC LanBridge"},
-	{CHDLCTYPE_BPDU,      "Spanning Tree BPDU"},
-	{ETHERTYPE_ATALK,     "Appletalk"},
-	{ETHERTYPE_AARP,      "AARP"},
-	{ETHERTYPE_IPX,       "Netware IPX/SPX"},
-	{ETHERTYPE_ETHBRIDGE, "Transparent Ethernet bridging" },
-	{CHDLCTYPE_OSI,       "OSI" },
-	{0,                   NULL}
+	{0x2000,               "Cisco Discovery Protocol"},
+	{ETHERTYPE_IP,         "IP"},
+	{CISCO_SLARP,          "SLARP"},
+	{ETHERTYPE_DEC_LB,     "DEC LanBridge"},
+	{CHDLCTYPE_BPDU,       "Spanning Tree BPDU"},
+	{ETHERTYPE_ATALK,      "Appletalk"},
+	{ETHERTYPE_AARP,       "AARP"},
+	{ETHERTYPE_IPX,        "Netware IPX/SPX"},
+	{ETHERTYPE_ETHBRIDGE,  "Transparent Ethernet bridging" },
+	{CHDLCTYPE_OSI,        "OSI" },
+	{ETHERTYPE_MPLS,       "MPLS unicast"},
+	{ETHERTYPE_MPLS_MULTI, "MPLS multicast"},
+	{0,                     NULL}
 };
 
 void

@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.28 2002/08/28 21:00:22 jmayer Exp $
+ * $Id: packet-mpls.c,v 1.29 2003/01/27 19:28:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -217,4 +217,6 @@ proto_reg_handoff_mpls(void)
 	mpls_handle = create_dissector_handle(dissect_mpls, proto_mpls);
 	dissector_add("ethertype", ETHERTYPE_MPLS, mpls_handle);
 	dissector_add("ppp.protocol", PPP_MPLS_UNI, mpls_handle);
+	dissector_add("chdlctype", ETHERTYPE_MPLS, mpls_handle);
+	dissector_add("chdlctype", ETHERTYPE_MPLS_MULTI, mpls_handle);
 }
