@@ -58,7 +58,7 @@
 static void sctpstat_init(char *optarg);
 
 static tap_dfilter_dlg sctp_stat_dlg = {
-	"SCTP Statisctics",
+	"SCTP Statistics",
 	"sctp,stat",
 	sctpstat_init,
 	-1
@@ -264,9 +264,9 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 
 static gchar *titles[]={"Source IP",
-			"Sourse port",
+			"Source Port",
 			"Dest IP",
-			"Dest port",
+			"Dest Port",
 			"DATA",
 			"SACK",
 			"HBEAT",
@@ -300,13 +300,13 @@ sctpstat_init(char *optarg)
 	hs->number_of_packets = 0;
 	sctpstat_reset(hs);
 
-	hs->win=window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: SCTP chunk statistics");
-	gtk_window_set_default_size(GTK_WINDOW(hs->win), 400, 200);
+	hs->win=window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: SCTP Chunk Statistics");
+	gtk_window_set_default_size(GTK_WINDOW(hs->win), 600, 200);
 
 	hs->vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_set_border_width(GTK_CONTAINER(hs->vbox), 12);
 
-	init_main_stat_window(hs->win, hs->vbox, "SCTP chunk counter", filter);
+	init_main_stat_window(hs->win, hs->vbox, "SCTP Chunk Counter", filter);
 
 	/* init a scrolled window*/
 	hs->scrolled_window = scrolled_window_new(NULL, NULL);
@@ -346,6 +346,6 @@ register_tap_listener_sctpstat(void)
 {
 	register_ethereal_tap("sctp,stat", sctpstat_init);
 
-	register_tap_menu_item("SCTP Chunk", REGISTER_TAP_GROUP_NONE,
+	register_tap_menu_item("SCTP/Chunk Counter", REGISTER_TAP_GROUP_NONE,
 	                       gtk_tap_dfilter_dlg_cb, NULL, NULL, &(sctp_stat_dlg));
 }
