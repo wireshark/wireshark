@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.48 2003/01/06 02:13:01 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.49 2003/01/22 00:45:30 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -558,6 +558,7 @@ typedef struct {
         const ncp_record	*ncp_rec;
         gboolean		*req_cond_results;
         guint32			req_frame_num;
+	nstime_t		req_frame_time;
         guint32                 req_nds_flags;
         guint8                  nds_request_verb;
         guint8                  nds_version;
@@ -4045,6 +4046,8 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		}
 		request_value = ncp_hash_insert(conversation, sequence, ncp_rec);
 		request_value->req_frame_num = pinfo->fd->num;
+		request_value->req_frame_time.secs=pinfo->fd->abs_secs;
+		request_value->req_frame_time.nsecs=pinfo->fd->abs_usecs*1000;
 
 		/* If this is the first time we're examining the packet,
 		 * check to see if this NCP type uses a "request condition".
@@ -4371,8 +4374,18 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 	if (ncp_tree) {
 		if (request_value) {
+			nstime_t ns;
+
 			proto_tree_add_uint(ncp_tree, hf_ncp_req_frame_num, tvb, 0, 0,
 				request_value->req_frame_num);
+			ns.secs=pinfo->fd->abs_secs-request_value->req_frame_time.secs;
+			ns.nsecs=pinfo->fd->abs_usecs*1000-request_value->req_frame_time.nsecs;
+			if(ns.nsecs<0){
+				ns.nsecs+=1000000000;
+				ns.secs--;
+			}
+			proto_tree_add_time(ncp_tree, hf_ncp_req_frame_time, tvb, 0, 0, &ns);
+
 		}
 
 		/* Put the func (and maybe subfunc) from the request packet
@@ -7722,6 +7735,8 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                         
         	request_value = ncp_hash_insert(conversation, sequence, ncp_rec);
         	request_value->req_frame_num = pinfo->fd->num;
+		request_value->req_frame_time.secs=pinfo->fd->abs_secs;
+		request_value->req_frame_time.nsecs=pinfo->fd->abs_usecs*1000;
                 
         	/* If this is the first time we're examining the packet,
         	 * check to see if this NCP type uses a "request condition".
@@ -7977,6 +7992,8 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
                 
        		request_value = ncp_hash_insert(conversation, sequence, ncp_rec);
        		request_value->req_frame_num = pinfo->fd->num;
+		request_value->req_frame_time.secs=pinfo->fd->abs_secs;
+		request_value->req_frame_time.nsecs=pinfo->fd->abs_usecs*1000;
         
        		/* If this is the first time we're examining the packet,
        		 * check to see if this NCP type uses a "request condition".

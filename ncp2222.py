@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.41 2003/01/06 02:10:54 guy Exp $
+$Id: ncp2222.py,v 1.42 2003/01/22 00:45:29 sahlberg Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -5545,6 +5545,7 @@ static int hf_ncp_fragment_handle = -1;
 static int hf_ncp_completion_code = -1;
 static int hf_ncp_connection_status = -1;
 static int hf_ncp_req_frame_num = -1;
+static int hf_ncp_req_frame_time = -1;
 static int hf_ncp_fragment_size = -1;
 static int hf_ncp_message_size = -1;
 static int hf_ncp_nds_flag = -1;
@@ -6419,6 +6420,10 @@ proto_register_ncp2222(void)
 	{ &hf_ncp_req_frame_num,
 	{ "Response to Request in Frame Number", "ncp.req_frame_num", FT_UINT32, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
+	
+	{ &hf_ncp_req_frame_time,
+	{ "Time from Request", "ncp.time", FT_RELATIVE_TIME, BASE_NONE,
+		NULL, 0x0, "Time between request and response in seconds", HFILL }},
 	
         { &hf_nds_flags, 
         { "NDS Return Flags", "ncp.nds_flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
