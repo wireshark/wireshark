@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.66 2003/12/01 02:01:55 guy Exp $
+ * $Id: file_dlg.c,v 1.67 2003/12/29 20:05:59 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,7 @@
 
 #include <gtk/gtk.h>
 
+#include "range.h"
 #include <epan/filesystem.h>
 
 #include "globals.h"
@@ -65,6 +66,14 @@ static void file_select_destroy_cb(GtkWidget *win, GtkWidget* file_te);
 #define E_FILE_T_RESOLVE_KEY	  "file_dlg_transport_resolve_key"
 
 #define ARGUMENT_CL "argument_cl"
+
+/*
+ * Keep a static pointer to the current "Save Capture File As" window, if
+ * any, so that if somebody tries to do "File:Save" or "File:Save As"
+ * while there's already a "Save Capture File As" window up, we just pop
+ * up the existing one, rather than creating a new one.
+ */
+static GtkWidget *file_save_as_w;
 
 /*
  * A generic select_file_cb routine that is intended to be connected to
@@ -450,12 +459,16 @@ file_save_cmd_cb(GtkWidget *w, gpointer data) {
 }
 
 /* XXX - can we make these not be static? */
-static gboolean filtered;
-static gboolean marked;
+static packet_range_t range;
 static gboolean color_marked;
 static int filetype;
 static GtkWidget *filter_cb;
-static GtkWidget *mark_cb;
+static GtkWidget *select_all;
+static GtkWidget *select_curr;
+static GtkWidget *select_marked_only;
+static GtkWidget *select_marked_range;
+static GtkWidget *select_manual_range;
+static GtkWidget *range_specs;
 static GtkWidget *cfmark_cb;
 static GtkWidget *ft_om;
 
@@ -480,8 +493,7 @@ can_save_with_wiretap(int ft)
    and FALSE if we're to save the entire file (in which case, if we're
    saving it in the type it has already, we can just copy it).
 
-   "marked" is TRUE if we have to save only the marked packets,
-   the same remark as "filtered" applies.
+   The same applies for sel_curr, sel_all, sel_m_only, sel_m_range and sel_man_range
 */
 static void
 set_file_type_list(GtkWidget *option_menu)
@@ -500,8 +512,8 @@ set_file_type_list(GtkWidget *option_menu)
   /* Check all file types. */
   index = 0;
   for (ft = 0; ft < WTAP_NUM_FILE_TYPES; ft++) {
-    if (filtered || marked || ft != cfile.cd_t) {
-      /* Filtered, marked or a different file type.  We have to use Wiretap. */
+    if (!packet_range_process_all(&range) || ft != cfile.cd_t) {
+      /* not all unfiltered packets or a different file type.  We have to use Wiretap. */
       if (!can_save_with_wiretap(ft))
         continue;	/* We can't. */
     }
@@ -541,43 +553,114 @@ static void
 toggle_filtered_cb(GtkWidget *widget, gpointer data _U_)
 {
   gboolean new_filtered;
-
+	
   new_filtered = GTK_TOGGLE_BUTTON (widget)->active;
-
-  if (filtered != new_filtered) {
+	  
+  if (range.process_filtered != new_filtered) {
     /* They changed the state of the "filtered" button. */
-    filtered = new_filtered;
+    range.process_filtered = new_filtered;
     set_file_type_list(ft_om);
   }
 }
 
 static void
-toggle_marked_cb(GtkWidget *widget, gpointer data _U_)
+toggle_select_all(GtkWidget *widget, gpointer data _U_)
+{
+  gboolean new_all;
+
+  new_all = GTK_TOGGLE_BUTTON (widget)->active;
+
+  if (range.process_all != new_all) {
+    /* They changed the state of the "select-all" button. */
+    range.process_all = new_all;
+    set_file_type_list(ft_om);
+  }
+}
+
+static void
+toggle_select_curr(GtkWidget *widget, gpointer data _U_)
+{
+  gboolean new_curr;
+
+  new_curr = GTK_TOGGLE_BUTTON (widget)->active;
+
+  if (range.process_curr != new_curr) {
+    /* They changed the state of the "select-current" button. */
+    range.process_curr = new_curr;
+    set_file_type_list(ft_om);
+  }
+}
+
+static void
+toggle_select_marked_only(GtkWidget *widget, gpointer data _U_)
 {
   gboolean new_marked;
 
   new_marked = GTK_TOGGLE_BUTTON (widget)->active;
 
-  if (marked != new_marked) {
-    /* They changed the state of the "marked" button. */
-    marked = new_marked;
+  if (range.process_marked != new_marked) {
+    /* They changed the state of the "marked-only" button. */
+    range.process_marked = new_marked;
     set_file_type_list(ft_om);
   }
 }
 
-/*
- * Keep a static pointer to the current "Save Capture File As" window, if
- * any, so that if somebody tries to do "File:Save" or "File:Save As"
- * while there's already a "Save Capture File As" window up, we just pop
- * up the existing one, rather than creating a new one.
- */
-static GtkWidget *file_save_as_w;
+static void
+toggle_select_marked_range(GtkWidget *widget, gpointer data _U_)
+{
+  gboolean new_marked_range;
+
+  new_marked_range = GTK_TOGGLE_BUTTON (widget)->active;
+	
+  if (range.process_marked_range != new_marked_range) {
+    /* They changed the state of the "marked-range" button. */
+    range.process_marked_range = new_marked_range;
+    set_file_type_list(ft_om);
+  }
+}
+
+static void
+toggle_select_manual_range(GtkWidget *widget, gpointer data _U_)
+{
+  gboolean new_manual_range;
+
+  new_manual_range = GTK_TOGGLE_BUTTON (widget)->active;
+	
+  if (range.process_manual_range != new_manual_range) {
+    /* They changed the state of the "manual-range" button. */
+    range.process_manual_range = new_manual_range;
+    set_file_type_list(ft_om);
+  }
+	
+  /* Make the entry widget sensitive or insensitive */
+  gtk_widget_set_sensitive(range_specs, range.process_manual_range);	  
+
+  /* When selecting manual range, then focus on the entry */
+  if (range.process_manual_range)
+      gtk_widget_grab_focus(range_specs);
+
+}
+
+static void
+range_entry(GtkWidget *entry)
+{
+  gchar *entry_text;
+  entry_text = gtk_entry_get_text (GTK_ENTRY (entry));
+  packet_range_convert_str(entry_text);
+}
 
 void
 file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-  GtkWidget *ok_bt, *main_vb, *ft_hb, *ft_lb;
-
+  GtkWidget     *ok_bt, *main_vb, *ft_hb, *ft_lb, *range_fr, *range_vb, *range_tb;
+  GtkTooltips   *tooltips;
+  gchar         label_text[100];
+  frame_data    *packet;
+	
+#if GTK_MAJOR_VERSION < 2
+  GtkAccelGroup *accel_group;
+#endif
+	  
   if (file_save_as_w != NULL) {
     /* There's already an "Save Capture File As" dialog box; reactivate it. */
     reactivate_window(file_save_as_w);
@@ -585,13 +668,28 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   }
 
   /* Default to saving all packets, in the file's current format. */
-  filtered = FALSE;
-  marked   = FALSE;
-  filetype = cfile.cd_t;
+  range.process_all             = TRUE;
+  range.process_curr            = FALSE;			
+  range.process_marked          = FALSE;
+  range.process_marked_range    = FALSE;	
+  range.process_manual_range    = FALSE;		
+  range.process_filtered        = FALSE;
+  filetype                      = cfile.cd_t;
 
+  /* init the packet range */
+  packet_range_init(&range);
+
+  /* Enable tooltips */
+  tooltips = gtk_tooltips_new();
+	  
   file_save_as_w = file_selection_new ("Ethereal: Save Capture File As");
   SIGNAL_CONNECT(file_save_as_w, "destroy", file_save_as_destroy_cb, NULL);
 
+#if GTK_MAJOR_VERSION < 2
+  accel_group = gtk_accel_group_new();
+  gtk_window_add_accel_group(GTK_WINDOW(file_save_as_w), accel_group);
+#endif
+	
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */
   if (last_open_dir)
@@ -603,11 +701,123 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   SIGNAL_CONNECT(ok_bt, "clicked", file_save_as_ok_cb, file_save_as_w);
 
   /* Container for each row of widgets */
-  main_vb = gtk_vbox_new(FALSE, 3);
+       
+  main_vb = gtk_vbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_save_as_w)->action_area),
     main_vb, FALSE, FALSE, 0);
-  gtk_widget_show(main_vb);
+  gtk_widget_show(main_vb);	
+		
+  /*** Save Range frame ***/
+  range_fr = gtk_frame_new("Save Range");
+  gtk_box_pack_start(GTK_BOX(main_vb), range_fr, FALSE, FALSE, 0);
+  gtk_widget_show(range_fr);
+  range_vb = gtk_vbox_new(FALSE,6);
+  gtk_container_border_width(GTK_CONTAINER(range_vb), 5);
+  gtk_container_add(GTK_CONTAINER(range_fr), range_vb);
+  gtk_widget_show(range_vb);
+
+	
+  /*
+   * The argument above could, I guess, be applied to the marked packets,
+   * except that you can't easily tell whether there are any marked
+   * packets, so I could imagine users doing "Save only marked packets"
+   * when there aren't any marked packets, not knowing that they'd
+   * failed to mark them, so I'm more inclined to have the "Save only
+   * marked packets" toggle button enabled only if there are marked
+   * packets to save.
+   */
+
+  /* Save all packets */
+  g_snprintf(label_text, sizeof(label_text), "All _captured %s (%u %s)", 
+    plurality(cfile.count, "packet", "packets"), cfile.count, plurality(cfile.count, "packet", "packets"));
+#if GTK_MAJOR_VERSION < 2
+  select_all = dlg_radio_button_new_with_label_with_mnemonic(NULL, label_text ,accel_group);
+#else
+  select_all = gtk_radio_button_new_with_mnemonic(NULL, label_text);
+#endif
+  gtk_container_add(GTK_CONTAINER(range_vb), select_all);
+  gtk_tooltips_set_tip (tooltips,select_all,("Save all captured packets"), NULL);	
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(select_all),  FALSE);
+  SIGNAL_CONNECT(select_all, "toggled", toggle_select_all, NULL);
+  gtk_widget_show(select_all);
+	
+  /* Save currently selected */
+  g_snprintf(label_text, sizeof(label_text), "_Selected packet #%u only", cfile.current_frame->num);
+#if GTK_MAJOR_VERSION < 2
+  select_curr = dlg_radio_button_new_with_label_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all)),
+	   label_text,accel_group);
+#else
+  select_curr = gtk_radio_button_new_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all)), 
+	   label_text);
+#endif
+  gtk_container_add(GTK_CONTAINER(range_vb), select_curr);
+  gtk_tooltips_set_tip (tooltips,select_curr,("Save the currently selected packet only"), NULL);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(select_curr),  FALSE);
+  SIGNAL_CONNECT(select_curr, "toggled", toggle_select_curr, NULL);
+  gtk_widget_show(select_curr);
+	
+  /* Save marked packets */
+  g_snprintf(label_text, sizeof(label_text), "_Marked %s only (%u %s)", 
+    plurality(cfile.marked_count, "packet", "packets"), cfile.marked_count, plurality(cfile.marked_count, "packet", "packets"));
+#if GTK_MAJOR_VERSION < 2
+  select_marked_only = dlg_radio_button_new_with_label_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all)),
+	   label_text,accel_group);
+#else
+  select_marked_only = gtk_radio_button_new_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all)), 
+	   label_text);
+#endif
+  gtk_container_add(GTK_CONTAINER(range_vb), select_marked_only);
+  gtk_tooltips_set_tip (tooltips,select_marked_only,("Save marked packets only"), NULL);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(select_marked_only),  FALSE);
+  SIGNAL_CONNECT(select_marked_only, "toggled", toggle_select_marked_only, NULL);
+  gtk_widget_show(select_marked_only);
+
+  /* Save packet range between first and last packet */
+  g_snprintf(label_text, sizeof(label_text), "From first _to last marked packet (%u %s)", 
+    range.mark_range, plurality(range.mark_range, "packet", "packets"));
+#if GTK_MAJOR_VERSION < 2
+  select_marked_range = dlg_radio_button_new_with_label_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all)),
+	   label_text,accel_group);
+#else
+  select_marked_range = gtk_radio_button_new_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all)), 
+	   label_text);
+#endif	
+  gtk_container_add(GTK_CONTAINER(range_vb), select_marked_range);
+  gtk_tooltips_set_tip (tooltips,select_marked_range,("Save all packets between the first and last marker"), NULL);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(select_marked_range), FALSE);
+  SIGNAL_CONNECT(select_marked_range, "toggled", toggle_select_marked_range, NULL);
+  gtk_widget_show(select_marked_range);
+
+  /* Range table */
+  range_tb = gtk_table_new(2, 2, FALSE);
+  gtk_box_pack_start(GTK_BOX(range_vb), range_tb, FALSE, FALSE, 0);
+  gtk_widget_show(range_tb);
+	
+  /* Save a manually provided packet range : -10,30,40-70,80- */
+  g_snprintf(label_text, sizeof(label_text), "Specify a packet _range :");
+#if GTK_MAJOR_VERSION < 2
+  select_manual_range = dlg_radio_button_new_with_label_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all)),
+	   label_text,accel_group);
+#else
+  select_manual_range = gtk_radio_button_new_with_mnemonic(gtk_radio_button_group (GTK_RADIO_BUTTON (select_all)), 
+	   label_text);
+#endif		
+  gtk_table_attach_defaults(GTK_TABLE(range_tb), select_manual_range, 0, 1, 1, 2);
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(select_manual_range), FALSE);
+  gtk_tooltips_set_tip (tooltips,select_manual_range,("Save a specified packet range"), NULL);
+  SIGNAL_CONNECT(select_manual_range, "toggled", toggle_select_manual_range, NULL);
+  gtk_widget_show(select_manual_range);
+
+  /* The entry part */
+  range_specs = gtk_entry_new();
+  gtk_entry_set_max_length (GTK_ENTRY (range_specs), 254);
+  gtk_table_attach_defaults(GTK_TABLE(range_tb), range_specs, 1, 2, 1, 2);
+  gtk_tooltips_set_tip (tooltips,range_specs, 
+	("Specify a range of packet numbers :     \nExample :  1-10,18,25-100,332-"), NULL);
+  SIGNAL_CONNECT(range_specs,"activate", range_entry, range_specs);	
+  gtk_widget_set_sensitive(range_specs, FALSE);
+  gtk_widget_show(range_specs);
 
   /*
    * XXX - should this be sensitive only if the current display filter
@@ -619,29 +829,18 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
    * I guess, argue that the user may want to "save all the displayed
    * packets" even if there aren't any, i.e. save an empty file.
    */
-  filter_cb = gtk_check_button_new_with_label("Save only packets currently being displayed");
-  gtk_container_add(GTK_CONTAINER(main_vb), filter_cb);
+#if GTK_MAJOR_VERSION < 2
+  filter_cb = dlg_check_button_new_with_label_with_mnemonic("Apply _display filter",accel_group);
+#else
+  filter_cb = gtk_check_button_new_with_mnemonic("Apply _display filter");
+#endif		
+  gtk_container_add(GTK_CONTAINER(range_vb), filter_cb);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
   SIGNAL_CONNECT(filter_cb, "toggled", toggle_filtered_cb, NULL);
   gtk_widget_set_sensitive(filter_cb, can_save_with_wiretap(filetype));
-  gtk_widget_show(filter_cb);
+  gtk_widget_show(filter_cb);	
 
-  /*
-   * The argument above could, I guess, be applied to the marked packets,
-   * except that you can't easily tell whether there are any marked
-   * packets, so I could imagine users doing "Save only marked packets"
-   * when there aren't any marked packets, not knowing that they'd
-   * failed to mark them, so I'm more inclined to have the "Save only
-   * marked packets" toggle button enabled only if there are marked
-   * packets to save.
-   */
-  mark_cb = gtk_check_button_new_with_label("Save only marked packets");
-  gtk_container_add(GTK_CONTAINER(main_vb), mark_cb);
-  marked = FALSE;
-  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(mark_cb), FALSE);
-  SIGNAL_CONNECT(mark_cb, "toggled", toggle_marked_cb, NULL);
-  gtk_widget_show(mark_cb);
-
+	
   /* File type row */
   ft_hb = gtk_hbox_new(FALSE, 3);
   gtk_container_add(GTK_CONTAINER(main_vb), ft_hb);
@@ -666,7 +865,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
    * as the routine that sets it also sets that menu.
    */
   file_set_save_marked_sensitive();
-
+	
   /* Connect the cancel_button to destroy the widget */
   SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(file_save_as_w)->cancel_button,
                         "clicked", (GtkSignalFunc)gtk_widget_destroy,
@@ -696,19 +895,23 @@ file_set_save_marked_sensitive(void)
     /* We don't currently have a "Save As..." dialog box up. */
     return;
   }
-
+	
   /* We can request that only the marked packets be saved only if we
      can use Wiretap to save the file and if there *are* marked packets. */
-  if (can_save_with_wiretap(filetype) && cfile.marked_count != 0)
-    gtk_widget_set_sensitive(mark_cb, TRUE);
+  if (can_save_with_wiretap(filetype) && cfile.marked_count != 0) {
+    gtk_widget_set_sensitive(select_marked_only, TRUE);
+    gtk_widget_set_sensitive(select_marked_range, TRUE);	  
+  }
   else {
     /* Force the "Save only marked packets" toggle to "false", turn
        off the flag it controls, and update the list of types we can
        save the file as. */
-    marked = FALSE;
-    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(mark_cb), FALSE);
+    range.process_marked = FALSE;
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(select_marked_only), FALSE);
+    gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(select_marked_range), FALSE);	  
     set_file_type_list(ft_om);
-    gtk_widget_set_sensitive(mark_cb, FALSE);
+    gtk_widget_set_sensitive(select_marked_only,  FALSE);
+    gtk_widget_set_sensitive(select_marked_range, FALSE);	  
   }
 }
 
@@ -717,6 +920,11 @@ file_save_as_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
   gchar	*cf_name;
   gchar	*dirname;
 
+  /* obtain the range specifications in case we selected manual range */
+  if (range.process_manual_range) {	
+     range_entry(range_specs);
+  }
+	  
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
 
   /* Perhaps the user specified a directory instead of a file.
@@ -733,7 +941,7 @@ file_save_as_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
   /* Write out the packets (all, or only the ones that are currently
      displayed or marked) to the file with the specified name. */
 
-  if (! cf_save(cf_name, &cfile, filtered, marked, filetype)) {
+  if (! cf_save(cf_name, &cfile, &range, filetype)) {
     /* The write failed; don't dismiss the open dialog box,
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the error, try again. */
@@ -1002,7 +1210,6 @@ file_color_export_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   }
 
   /* Default to saving all packets, in the file's current format. */
-  filtered = FALSE;
   color_marked   = FALSE;
   filetype = cfile.cd_t;
 

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.346 2003/12/21 12:17:59 ulfl Exp $
+ * $Id: main.c,v 1.347 2003/12/29 20:05:59 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1022,6 +1022,8 @@ void mark_frame_cb(GtkWidget *w _U_, gpointer data _U_) {
 
 static void mark_all_frames(gboolean set) {
   frame_data *fdata;
+  
+  cfile.marked_count = 0;	
   for (fdata = cfile.plist; fdata != NULL; fdata = fdata->next) {
     set_frame_mark(set,
 		   fdata,

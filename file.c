@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.331 2003/12/19 23:39:53 guy Exp $
+ * $Id: file.c,v 1.332 2003/12/29 20:03:38 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,7 +116,7 @@ static gboolean find_packet(capture_file *cf,
 
 static char *file_rename_error_message(int err);
 static char *file_close_error_message(int err);
-static gboolean copy_binary_file(char *from_filename, char *to_filename);
+static   gboolean copy_binary_file(char *from_filename, char *to_filename);
 
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES	100
@@ -2242,8 +2242,7 @@ unmark_frame(capture_file *cf, frame_data *frame)
  * up a message box for the failure.
  */
 gboolean
-cf_save(char *fname, capture_file *cf, gboolean save_filtered,
-		gboolean save_marked, guint save_format)
+cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
 {
   gchar        *from_filename;
   gchar        *name_ptr, *save_msg, *save_fmt = " Saving: %s...";
@@ -2256,6 +2255,7 @@ cf_save(char *fname, capture_file *cf, gboolean save_filtered,
   union wtap_pseudo_header pseudo_header;
   guint8        pd[65536];
   struct stat   infile, outfile;
+  range_process_e process_this;
 
   name_ptr = get_basename(fname);
   msg_len = strlen(name_ptr) + strlen(save_fmt) + 2;
@@ -2282,7 +2282,12 @@ cf_save(char *fname, capture_file *cf, gboolean save_filtered,
     goto fail;
   }
 
-  if (!save_filtered && !save_marked && save_format == cf->cd_t) {
+  /* Used to be :
+   * if (!save_filtered && !save_marked && !save_manual_range && 
+   *     !save_marked_range && !save_curr && save_format == cf->cd_t) {
+   */ 
+	
+  if (packet_range_process_all(range) && save_format == cf->cd_t) {
     /* We're not filtering packets, and we're saving it in the format
        it's already in, so we can just move or copy the raw data. */
 
@@ -2349,49 +2354,53 @@ cf_save(char *fname, capture_file *cf, gboolean save_filtered,
        NetMon do? */
     for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
       /* XXX - do a progress bar */
-      if ((!save_filtered && !save_marked) ||
-	  (save_filtered && fdata->flags.passed_dfilter && !save_marked) ||
-	  (save_marked && fdata->flags.marked && !save_filtered) ||
-	  (save_filtered && save_marked && fdata->flags.passed_dfilter &&
-	   fdata->flags.marked)) {
-      	/* Either :
-	   - we're saving all frames, or
-	   - we're saving filtered frames and this one passed the display filter or
-	   - we're saving marked frames (and it has been marked) or
-	   - we're saving filtered _and_ marked frames,
-	   save it. */
-        hdr.ts.tv_sec = fdata->abs_secs;
-        hdr.ts.tv_usec = fdata->abs_usecs;
-        hdr.caplen = fdata->cap_len;
-        hdr.len = fdata->pkt_len;
-        hdr.pkt_encap = fdata->lnk_t;
-	if (!wtap_seek_read(cf->wth, fdata->file_off, &pseudo_header,
-		pd, fdata->cap_len, &err)) {
-	  simple_dialog(ESD_TYPE_CRIT, NULL,
-				file_read_error_message(err), cf->filename);
-	  wtap_dump_close(pdh, &err);
-          goto fail;
-	}
+        process_this = packet_range_process(range, fdata);
 
-        if (!wtap_dump(pdh, &hdr, &pseudo_header, pd, &err)) {
-	  simple_dialog(ESD_TYPE_CRIT, NULL,
-				file_write_error_message(err), fname);
-	  wtap_dump_close(pdh, &err);
-          goto fail;
-	}
-      }
-    }
+        if (process_this == range_process_next) {
+            continue;
+        } else if (process_this == range_processing_finished) {
+            break;
+        } else {
+
+            /* init the wtap header for saving */
+            hdr.ts.tv_sec  = fdata->abs_secs;
+            hdr.ts.tv_usec = fdata->abs_usecs;
+            hdr.caplen     = fdata->cap_len;
+            hdr.len        = fdata->pkt_len;
+            hdr.pkt_encap  = fdata->lnk_t;
+
+	        /* Get the packet */
+	        if (!wtap_seek_read(cf->wth, fdata->file_off, &pseudo_header,
+		        pd, fdata->cap_len, &err)) {
+	          simple_dialog(ESD_TYPE_CRIT, NULL,
+				        file_read_error_message(err), cf->filename);
+	          wtap_dump_close(pdh, &err);
+                  goto fail;
+	        } 
+	              
+	        /* and save the packet */
+            if (!wtap_dump(pdh, &hdr, &pseudo_header, pd, &err)) {
+	          simple_dialog(ESD_TYPE_CRIT, NULL,
+				        file_write_error_message(err), fname);
+	          wtap_dump_close(pdh, &err);
+                  goto fail;
+	        }
+          }
+    } /* for */
 
     if (!wtap_dump_close(pdh, &err)) {
       simple_dialog(ESD_TYPE_WARN, NULL,
 		file_close_error_message(err), fname);
       goto fail;
     }
-  }
+  } /* save_all */
 
   /* Pop the "Saving:" message off the status bar. */
   statusbar_pop_file_msg();
-  if (!save_filtered && !save_marked) {
+
+  /* XXX: I'm not sure how this should look like! */
+  if (packet_range_process_all(range)) {
+  /*if (!save_filtered && !save_marked) {*/
     /* We saved the entire capture, not just some packets from it.
        Open and read the file we saved it to.
 

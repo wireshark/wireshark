@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.108 2003/09/24 00:47:36 guy Exp $
+ * $Id: file.h,v 1.109 2003/12/29 20:03:38 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,7 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
+#include "range.h"
 #include "wiretap/wtap.h"
 #include <epan/dfilter/dfilter.h>
 #include "print.h"
@@ -48,7 +49,7 @@ int  cf_start_tail(char *, gboolean, capture_file *);
 read_status_t cf_continue_tail(capture_file *, int, int *);
 read_status_t cf_finish_tail(capture_file *, int *);
 /* size_t read_frame_header(capture_file *); */
-gboolean cf_save(char *, capture_file *, gboolean, gboolean, guint);
+gboolean cf_save(char *fname, capture_file * cf, packet_range_t *range, guint save_format);
 gchar *cf_get_display_name(capture_file *);
 
 int filter_packets(capture_file *cf, gchar *dfilter);
