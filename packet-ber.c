@@ -2,7 +2,7 @@
  * Helpers for ASN.1/BER dissection
  * Ronnie Sahlberg (C) 2004
  *
- * $Id: packet-ber.c,v 1.11 2004/06/05 09:59:45 sahlberg Exp $
+ * $Id: packet-ber.c,v 1.12 2004/06/24 05:31:21 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,7 @@
 #include <epan/packet.h>
 
 #include <epan/strutil.h>
+#include <epan/int-64bit.h>
 #include "prefs.h"
 #include "packet-ber.h"
 
@@ -315,6 +316,21 @@ dissect_ber_integer(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 	offset=dissect_ber_length(pinfo, tree, tvb, offset, &len, NULL);
 
 /*	if(class!=BER_CLASS_UNI)*/
+
+	/* ok,  we cant handle >4 byte integers so lets fake them */
+	if(len>8){
+		proto_tree_add_text(tree, tvb, offset, len, "BER: Can not parse %d byte integers", len);
+		return 0xdeadbeef;
+	}
+	if(len>4){
+		header_field_info *hfinfo;
+		char buf[8]={0,0,0,0,0,0,0,0};
+
+		tvb_memcpy(tvb, buf+8-len, offset, len);
+		hfinfo = proto_registrar_get_nth(hf_id);
+		proto_tree_add_text(tree, tvb, offset, len, "%s: %s", hfinfo->name, u64toa(buf));
+		return 0xdeadbeef;
+	}
 	
 	val=0;
 	if (len > 0) {
