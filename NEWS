@@ -1,4 +1,4 @@
-Overview of changes in Ethereal 0.9.0:
+Overview of changes in Ethereal 0.8.13:
 * Macro movement to pint.h (Gilbert)
 * Keep TVBUFF_SUBSET constructor from dying after a
 	ReportedBoundsError (Gilbert)
