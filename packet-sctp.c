@@ -11,7 +11,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.45 2002/12/05 10:19:13 tuexen Exp $
+ * $Id: packet-sctp.c,v 1.46 2003/01/13 14:04:31 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2293,7 +2293,7 @@ proto_register_sctp(void)
 	"", HFILL }
     },
     { &hf_sctp_init_chunk_adv_rec_window_credit,
-      { "Advertised reciever window credit (a_rwnd)", "sctp.init.chunk.credit",
+      { "Advertised receiver window credit (a_rwnd)", "sctp.init.chunk.credit",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"", HFILL }
     },
