@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.58 2001/01/30 02:13:43 guy Exp $
+ * $Id: packet-snmp.c,v 1.59 2001/01/30 07:16:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -695,7 +695,8 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 
 static int
 snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
-    guint variable_oid_length, ASN1_SCK *asn1, int offset, guint *lengthp)
+    guint variable_oid_length, ASN1_SCK *asn1, int offset, guint *lengthp,
+    gboolean unsafe)
 {
 	const guchar *start;
 	guint length;
@@ -721,11 +722,10 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 #if defined(HAVE_UCD_SNMP_SNMP_H)
 	long value;
 #endif
-#else	/* HAVE_SPRINT_VALUE */
+#endif	/* HAVE_SPRINT_VALUE */
 	int i;
 	gchar *buf;
 	int len;
-#endif	/* HAVE_SPRINT_VALUE */
 
 	/* parse the type of the object */
 	start = asn1->pointer;
@@ -757,23 +757,26 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 		length = asn1->pointer - start;
 		if (snmp_tree) {
 #ifdef HAVE_SPRINT_VALUE
+			if (!unsafe) {
 #if defined(HAVE_UCD_SNMP_SNMP_H)
-			value = vb_integer_value;
-			variable.val.integer = &value;
+				value = vb_integer_value;
+				variable.val.integer = &value;
 #elif defined(HAVE_SNMP_SNMP_H)
-			variable.val.integer = &vb_integer_value;
+				variable.val.integer = &vb_integer_value;
 #endif
-			vb_display_string = format_var(&variable,
-			    variable_oid, variable_oid_length, vb_type,
-			    vb_length);
-			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
-			    "Value: %s", vb_display_string);
-			g_free(vb_display_string);
-#else
+				vb_display_string = format_var(&variable,
+				    variable_oid, variable_oid_length, vb_type,
+				    vb_length);
+				proto_tree_add_text(snmp_tree, NullTVB, offset,
+				    length,
+				    "Value: %s", vb_display_string);
+				g_free(vb_display_string);
+				break;	/* we added formatted version to the tree */
+			}
+#endif /* HAVE_SPRINT_VALUE */
 			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s: %d (%#x)", vb_type_name,
 			    vb_integer_value, vb_integer_value);
-#endif
 		}
 		break;
 
@@ -787,23 +790,26 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 		length = asn1->pointer - start;
 		if (snmp_tree) {
 #ifdef HAVE_SPRINT_VALUE
+			if (!unsafe) {
 #if defined(HAVE_UCD_SNMP_SNMP_H)
-			value = vb_uinteger_value;
-			variable.val.integer = &value;
+				value = vb_uinteger_value;
+				variable.val.integer = &value;
 #elif defined(HAVE_SNMP_SNMP_H)
-			variable.val.integer = &vb_uinteger_value;
+				variable.val.integer = &vb_uinteger_value;
 #endif
-			vb_display_string = format_var(&variable,
-			    variable_oid, variable_oid_length, vb_type,
-			    vb_length);
-			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
-			    "Value: %s", vb_display_string);
-			g_free(vb_display_string);
-#else
+				vb_display_string = format_var(&variable,
+				    variable_oid, variable_oid_length, vb_type,
+				    vb_length);
+				proto_tree_add_text(snmp_tree, NullTVB, offset,
+				    length,
+				    "Value: %s", vb_display_string);
+				g_free(vb_display_string);
+				break;	/* we added formatted version to the tree */
+			}
+#endif /* HAVE_SPRINT_VALUE */
 			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s: %u (%#x)", vb_type_name,
 			    vb_uinteger_value, vb_uinteger_value);
-#endif
 		}
 		break;
 
@@ -820,14 +826,18 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 		length = asn1->pointer - start;
 		if (snmp_tree) {
 #ifdef HAVE_SPRINT_VALUE
-			variable.val.string = vb_octet_string;
-			vb_display_string = format_var(&variable,
-			    variable_oid, variable_oid_length, vb_type,
-			    vb_length);
-			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
-			    "Value: %s", vb_display_string);
-			g_free(vb_display_string);
-#else
+			if (!unsafe) {
+				variable.val.string = vb_octet_string;
+				vb_display_string = format_var(&variable,
+				    variable_oid, variable_oid_length, vb_type,
+				    vb_length);
+				proto_tree_add_text(snmp_tree, NullTVB, offset,
+				    length,
+				    "Value: %s", vb_display_string);
+				g_free(vb_display_string);
+				break;	/* we added formatted version to the tree */
+			}
+#endif /* HAVE_SPRINT_VALUE */
 			/*
 			 * If some characters are not printable, display
 			 * the string as bytes.
@@ -861,7 +871,6 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 				    "Value: %s: %.*s", vb_type_name,
 				    (int)vb_length, vb_octet_string);
 			}
-#endif
 		}
 		g_free(vb_octet_string);
 		break;
@@ -885,17 +894,20 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 		length = asn1->pointer - start;
 		if (snmp_tree) {
 #ifdef HAVE_SPRINT_VALUE
-			variable.val.objid = vb_oid;
-			vb_display_string = format_var(&variable,
-			    variable_oid, variable_oid_length, vb_type,
-			    vb_length);
-			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
-			    "Value: %s", vb_display_string);
-#else
+			if (!unsafe) {
+				variable.val.objid = vb_oid;
+				vb_display_string = format_var(&variable,
+				    variable_oid, variable_oid_length, vb_type,
+				    vb_length);
+				proto_tree_add_text(snmp_tree, NullTVB, offset,
+				    length,
+				    "Value: %s", vb_display_string);
+				break;	/* we added formatted version to the tree */
+			}
+#endif /* HAVE_SPRINT_VALUE */
 			vb_display_string = format_oid(vb_oid, vb_oid_length);
 			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s: %s", vb_type_name, vb_display_string);
-#endif
 			g_free(vb_display_string);
 		}
 		g_free(vb_oid);
@@ -973,6 +985,7 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
 	gchar vb_oid_string[MAX_STRING_LEN]; /* TBC */
 #endif
+	gboolean unsafe;
 
 	int ret;
 	guint cls, con, tag;
@@ -1204,6 +1217,7 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 		}
 		sequence_length += length;
 
+		unsafe = FALSE;
 		if (tree) {
 			oid_string = format_oid(variable_oid,
 			    variable_oid_length);
@@ -1214,12 +1228,38 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 			proto_tree_add_text(tree, NullTVB, offset, sequence_length,
 			    "Object identifier %d: %s (%s)", vb_index,
 			    oid_string, vb_oid_string);
-#else
-			
+#ifdef HAVE_SNMP_SNMP_H
+			/*
+			 * CMU SNMP has a bug wherein "sprint_value()"
+			 * calls "get_symbol()", passing it the
+			 * OID supplied, to get an information about the
+			 * variable, and blithely assumes that it will
+			 * never get a null pointer back and dereferences
+			 * the resulting pointer.
+			 *
+			 * Not true.  If there's nothing in the MIB
+			 * about *any* of the components of the OID,
+			 * it'll return a null pointer.
+			 *
+			 * So we have to check for that, and pass
+			 * down to "snmp_variable_decode" a flag
+			 * saying "don't pass this to 'sprint_value()'.
+			 *
+			 * We check for that by looking for a decoded
+			 * OID string beginning with "." followed by a
+			 * digit, meaning it couldn't even find any
+			 * symbolic representation for the very
+			 * beginning of the OID string.
+			 */
+			if (vb_oid_string[0] == '.' &&
+			    isdigit((guchar)vb_oid_string[1]))
+				unsafe = TRUE;
+#endif /* HAVE_SNMP_SNMP_H */
+#else /* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
 			proto_tree_add_text(tree, NullTVB, offset, sequence_length,
 			    "Object identifier %d: %s", vb_index,
 			    oid_string);
-#endif
+#endif /* defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H) */
 			g_free(oid_string);
 		}
 		offset += sequence_length;
@@ -1227,7 +1267,8 @@ dissect_common_pdu(const u_char *pd, int offset, frame_data *fd,
 				
 		/* Parse the variable's value */
 		ret = snmp_variable_decode(tree, variable_oid,
-		    variable_oid_length, &asn1, offset, &length);
+		    variable_oid_length, &asn1, offset, &length,
+		    unsafe);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(pd, offset, fd, tree,
 			    "variable", ret);
