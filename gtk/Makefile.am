@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.45 2002/11/06 10:53:36 sahlberg Exp $
+# $Id: Makefile.am,v 1.46 2002/11/07 05:29:07 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,7 @@ ETHEREAL_TAP_SRC = \
 	rpc_progs.h	
 
 ethereal-tap-register.c: $(ETHEREAL_TAP_SRC)
-	@echo Making tethereal-tap-register.c
+	@echo Making ethereal-tap-register.c
 	../make-tapreg-dotc ethereal-tap-register.c . $(ETHEREAL_TAP_SRC)
 	
 
