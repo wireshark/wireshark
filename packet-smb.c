@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.297 2002/11/08 05:51:33 guy Exp $
+ * $Id: packet-smb.c,v 1.298 2002/11/14 23:14:14 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -15686,7 +15686,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			 * The status is an NT status code; was there
 			 * an error?
 			 */
-			if (nt_status != 0) {
+			if ((nt_status & 0xC0000000) == 0xC0000000) {
 				/*
 				 * Yes.
 				 */
