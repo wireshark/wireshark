@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.133 2004/05/24 02:25:20 guy Exp $
+ * $Id: prefs.c,v 1.134 2004/05/24 18:14:58 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1110,6 +1110,7 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
   int       got_c, state = START;
   gboolean  got_val = FALSE;
   gint      var_len = 0, val_len = 0, fline = 1, pline = 1;
+  gchar     hint[] = "(saving your preferences once should remove this warning)";
 
 
   while ((got_c = getc(pf)) != EOF) {
@@ -1119,13 +1120,13 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
       continue;
     }
     if (var_len >= MAX_VAR_LEN) {
-      g_warning ("%s line %d: Variable too long", pf_path, fline);
+      g_warning ("%s line %d: Variable too long %s", pf_path, fline, hint);
       state = IN_SKIP;
       var_len = 0;
       continue;
     }
     if (val_len >= MAX_VAL_LEN) {
-      g_warning ("%s line %d: Value too long", pf_path, fline);
+      g_warning ("%s line %d: Value too long %s", pf_path, fline, hint);
       state = IN_SKIP;
       var_len = 0;
       continue;
@@ -1141,12 +1142,12 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
               switch (pref_set_pair_fct(cur_var, cur_val)) {
 
 	      case PREFS_SET_SYNTAX_ERR:
-                g_warning ("%s line %d: Syntax error", pf_path, pline);
+                g_warning ("%s line %d: Syntax error %s", pf_path, pline, hint);
                 break;
 
 	      case PREFS_SET_NO_SUCH_PREF:
-                g_warning ("%s line %d: No such preference \"%s\"", pf_path,
-				pline, cur_var);
+                g_warning ("%s line %d: No such preference \"%s\" %s", pf_path,
+				pline, cur_var, hint);
                 break;
 
 	      case PREFS_SET_OBSOLETE:
@@ -1157,7 +1158,7 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
                 break;
               }
             } else {
-              g_warning ("%s line %d: Incomplete preference", pf_path, pline);
+              g_warning ("%s line %d: Incomplete preference %s", pf_path, pline, hint);
             }
           }
           state      = IN_VAR;
@@ -1170,7 +1171,7 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
         } else if (got_c == '#') {
           state = IN_SKIP;
         } else {
-          g_warning ("%s line %d: Malformed line", pf_path, fline);
+          g_warning ("%s line %d: Malformed line %s", pf_path, fline, hint);
         }
         break;
       case IN_VAR:
@@ -1209,12 +1210,12 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
       switch (pref_set_pair_fct(cur_var, cur_val)) {
 
       case PREFS_SET_SYNTAX_ERR:
-        g_warning ("%s line %d: Syntax error", pf_path, pline);
+        g_warning ("%s line %d: Syntax error %s", pf_path, pline, hint);
         break;
 
       case PREFS_SET_NO_SUCH_PREF:
-        g_warning ("%s line %d: No such preference \"%s\"", pf_path,
-			pline, cur_var);
+        g_warning ("%s line %d: No such preference \"%s\" %s", pf_path,
+			pline, cur_var, hint);
         break;
 
       case PREFS_SET_OBSOLETE:
@@ -1224,7 +1225,7 @@ read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fc
         break;
       }
     } else {
-      g_warning ("%s line %d: Incomplete preference", pf_path, pline);
+      g_warning ("%s line %d: Incomplete preference %s", pf_path, pline, hint);
     }
   }
   if (ferror(pf))
