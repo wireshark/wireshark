@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.9 2000/09/07 13:00:12 sharpe Exp $
+ * $Id: tvbuff.c,v 1.10 2000/09/07 15:29:39 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -981,7 +981,8 @@ tvb_find_guint8(tvbuff_t *tvb, gint offset, guint maxlength, guint8 needle)
 /* Find length of string by looking for end of string ('\0'), up to
  * 'max_length' characters'. Returns -1 if 'max_length' reached
  * before finding EOS. */
-gint tvb_strnlen(tvbuff_t *tvb, gint offset, guint maxlength)
+gint
+tvb_strnlen(tvbuff_t *tvb, gint offset, guint maxlength)
 {
 	gint	result_offset;
 	guint	abs_offset, junk_length;
@@ -1003,7 +1004,7 @@ gint tvb_strnlen(tvbuff_t *tvb, gint offset, guint maxlength)
  */
 
 /* Call strncmp after checking if enough chars left, otherwise return -1 */
-
+gint
 tvb_strneql(tvbuff_t *tvb, gint offset, guint8 *str, gint size)
 {
   guint8 *ptr;

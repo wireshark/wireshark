@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.9 2000/08/30 02:50:05 gram Exp $
+ * $Id: tvbuff.h,v 1.10 2000/09/07 15:29:40 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -268,6 +268,10 @@ gint tvb_get_nstringz(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffe
  * a NUL is placed at the end of buffer to terminate it.
  */
 gint tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer);
+
+
+/* Call strncmp after checking if enough chars left, otherwise return -1 */
+gint tvb_strneql(tvbuff_t *tvb, gint offset, guint8 *str, gint size);
 
 /************** END OF ACCESSORS ****************/
 
