@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.8 2000/08/07 03:20:20 guy Exp $
+ * $Id: conversation.c,v 1.9 2000/08/07 11:48:40 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -245,7 +245,7 @@ conversation_new(address *src, address *dst, port_type ptype,
 	conversation->data = data;
 
 /* clear dissector pointer */
-	conversation->dissector = NULL;
+	conversation->dissector.new = NULL;
 
 	new_index++;
 
