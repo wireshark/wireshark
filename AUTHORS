@@ -301,6 +301,10 @@ Ralf Schneider <ralf.schneider@alcatel.se> {
 	OSI ESIS support
 }
 
+Yaniv Kaul <ykaul@checkpoint.com> {
+	ISAKMP Configuration Method support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

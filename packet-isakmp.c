@@ -2,7 +2,7 @@
  * Routines for the Internet Security Association and Key Management Protocol (ISAKMP)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.15 2000/05/11 08:15:15 gram Exp $
+ * $Id: packet-isakmp.c,v 1.16 2000/05/11 18:55:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -286,6 +286,15 @@ struct vid_hdr {
   guint16	length;
 };
 
+struct cfg_hdr {
+  guint8	next_payload;
+  guint8	reserved;
+  guint8	length;
+  guint8	type;
+  guint8	reserved2;
+  guint16	identifier;
+};
+
 static void dissect_none(const u_char *, int, frame_data *, proto_tree *);
 static void dissect_sa(const u_char *, int, frame_data *, proto_tree *);
 static void dissect_proposal(const u_char *, int, frame_data *, proto_tree *);
@@ -301,6 +310,7 @@ static void dissect_nonce(const u_char *, int, frame_data *, proto_tree *);
 static void dissect_notif(const u_char *, int, frame_data *, proto_tree *);
 static void dissect_delete(const u_char *, int, frame_data *, proto_tree *);
 static void dissect_vid(const u_char *, int, frame_data *, proto_tree *);
+static void dissect_config(const u_char *, int, frame_data *, proto_tree *);
 
 static const char *payloadtype2str(guint8);
 static const char *exchtype2str(guint8);
@@ -309,8 +319,10 @@ static const char *msgtype2str(guint16);
 static const char *situation2str(guint32);
 static const char *value2str(int, guint16, guint16);
 static const char *num2str(const guint8 *, guint16);
+static const char *attrtype2str(guint8);
+static const char *cfgattrident2str(guint16);
 
-#define NUM_LOAD_TYPES		14
+#define NUM_LOAD_TYPES		15
 #define loadtype2str(t)	\
   ((t < NUM_LOAD_TYPES) ? strfuncs[t].str : "Unknown payload type")
 #define	LOAD_TYPE_TRANSFORM	3
@@ -332,7 +344,8 @@ static struct strfunc {
   {"Nonce",			dissect_nonce     },
   {"Notification",		dissect_notif     },
   {"Delete",			dissect_delete    },
-  {"Vendor ID",			dissect_vid       }
+  {"Vendor ID",			dissect_vid       },
+  {"Attrib",			dissect_config	  }
 };
 
 static void
@@ -1021,6 +1034,44 @@ dissect_vid(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     dissect_data(pd, offset, fd, tree);
 }
 
+static void
+dissect_config(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
+
+  struct cfg_hdr * 	hdr	 = (struct cfg_hdr *)(pd + offset);
+  guint16		length	 = pntohs(&hdr->length);
+  proto_item *		ti	 = proto_tree_add_text(tree, NullTVB, offset, length, "Attribute payload");
+  proto_tree *		ntree;
+
+  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
+
+  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->next_payload),
+		      "Next payload: %s (%u)",
+		      payloadtype2str(hdr->next_payload), hdr->next_payload);
+  offset += sizeof(hdr->next_payload) *2;
+  
+  proto_tree_add_text(ntree, NullTVB, offset, sizeof(length),
+		     "Length: %u", length);
+  offset += sizeof(length);
+  
+  proto_tree_add_text(ntree,NullTVB, offset, sizeof(hdr->type),
+		      "Type %s (%u)",attrtype2str(hdr->type),hdr->type);
+  
+  offset += (sizeof(hdr->type) + sizeof(hdr->reserved2));
+  
+  proto_tree_add_text(ntree, NullTVB, offset, sizeof(hdr->identifier),
+                      "Identifier: %u",hdr->identifier);
+   
+  if (hdr->next_payload < NUM_LOAD_TYPES) {
+    if (hdr->next_payload == LOAD_TYPE_TRANSFORM)
+      dissect_transform(pd, offset, fd, tree, 0);       /* XXX - protocol ID? */
+    else
+      (*strfuncs[hdr->next_payload].func)(pd, offset, fd, tree);
+  }
+  else
+    dissect_data(pd, offset, fd, tree);
+ 
+}
+
 static const char *
 payloadtype2str(guint8 type) {
 
@@ -1034,14 +1085,15 @@ payloadtype2str(guint8 type) {
 static const char *
 exchtype2str(guint8 type) {
 
-#define NUM_EXCHSTRS	6
+#define NUM_EXCHSTRS	7
   static const char * exchstrs[NUM_EXCHSTRS] = {
     "NONE",
     "Base",
     "Identity Protection (Main Mode)",
     "Authentication Only",
     "Aggressive",
-    "Informational"
+    "Informational",
+    "Transaction (Config Mode)"
   };
   
   if (type < NUM_EXCHSTRS) return exchstrs[type];
@@ -1245,6 +1297,45 @@ value2str(int ike_p1, guint16 att_type, guint16 value) {
       default: return "UNKNOWN-ATTRIBUTE-TYPE";
     }
   }
+}
+
+static const char * 
+attrtype2str(guint8 type) {
+  switch (type) {
+  case 0: return "Reserved";
+  case 1: return "ISAKMP_CFG_REQUEST";
+  case 2: return "ISAKMP_CFG_REPLY";
+  case 3: return "ISAKMP_CFG_SET";
+  case 4: return "ISAKMP_CFG_ACK";
+  }
+  if(type < 127)
+    return "Future use";
+  return "Private use";
+}
+
+static const char * 
+cfgattrident2str(guint16 ident) {
+#define NUM_ATTR_DEFINED	12
+  static const char *msgs[NUM_PREDEFINED] = {
+    "RESERVED",
+    "INTERNAL_IP4_ADDRESS",
+    "INTERNAL_IP4_NETMASK",
+    "INTERNAL_IP4_DNS",
+    "INTERNAL_IP4_NBNS",
+    "INTERNAL_ADDRESS_EXPIREY",
+    "INTERNAL_IP4_DHCP",
+    "APPLICATION_VERSION"
+    "INTERNAL_IP6_ADDRESS",
+    "INTERNAL_IP6_NETMASK",
+    "INTERNAL_IP6_DNS",
+    "INTERNAL_IP6_NBNS",
+    "INTERNAL_IP6_DHCP",
+  }; 
+  if(ident < NUM_ATTR_DEFINED)
+    return msgs[ident];
+  if(ident < 16383)
+    return "Future use";
+  return "Private use";
 }
 
 static const char *
