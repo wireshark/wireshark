@@ -697,7 +697,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 		if ((!pc)
 		||(!implicit_tag&&((class!=BER_CLASS_UNI)
 							||(tag!=BER_UNI_TAG_SEQUENCE)))) {
-			proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: Sequence expected but Class:%d PC:%d Tag:%d was unexpected", class, pc, tag);
+			proto_tree_add_text(tree, tvb, offset-2, 2, "BER Error: Sequence expected but Class:%d(%s) PC:%d Tag:%d was unexpected", class,val_to_str(class,ber_class_codes,"Unknown"), pc, tag);
 			return end_offset;
 		}
 	} else {
@@ -765,8 +765,11 @@ ber_sequence_try_again:
 				seq++;
 				goto ber_sequence_try_again;
 			}
-
-			proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in SEQUENCE  expected class:%d tag:%d but found class:%d tag:%d",seq->class,seq->tag,class,tag);
+			if ( seq->class == BER_CLASS_UNI){
+				proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in SEQUENCE  expected class:%d (%s) tag:%d but found class:%d tag:%d",seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),seq->tag,val_to_str(seq->tag,ber_uni_tag_codes,"Unknown"),class,tag);
+			}else{
+				proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in SEQUENCE  expected class:%d (%s) tag:%d(%s) but found class:%d tag:%d",seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),seq->tag,class,tag);
+			}
 			seq++;
 			offset=eoffset;
 			continue;
@@ -783,7 +786,11 @@ ber_sequence_try_again:
 				goto ber_sequence_try_again;
 			}
 
-			proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in sequence  expected class:%d tag:%d but found class:%d tag:%d",seq->class,seq->tag,class,tag);
+			if ( seq->class == BER_CLASS_UNI){
+				proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in sequence  expected class:%d (%s) tag:%d(%s) but found class:%d(%s) tag:%d",seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),seq->tag,val_to_str(seq->tag,ber_uni_tag_codes,"Unknown"),class,val_to_str(class,ber_class_codes,"Unknown"),tag);
+			}else{
+				proto_tree_add_text(tree, tvb, offset, len, "BER Error: Wrong field in sequence  expected class:%d (%s) tag:%d but found class:%d(%s) tag:%d",seq->class,val_to_str(seq->class,ber_class_codes,"Unknown"),seq->tag,class,val_to_str(class,ber_class_codes,"Unknown"),tag);
+			}
 			seq++;
 			offset=eoffset;
 			continue;
