@@ -72,7 +72,7 @@ libethereal.dll: ..\config.h $(LIBETHEREAL_OBJECTS) libethereal.def ftypes dfilt
 		dissectors\register.obj $(DISSECTOR_SUPPORT_OBJECTS) \
 		$(EXTRA_OBJECTS)
 
-ethereal.lib	: ..\config.h $(LIBETHEREAL_OBJECTS)
+ethereal.lib	: ..\config.h $(LIBETHEREAL_OBJECTS) $(EXTRA_OBJECTS) 
 	link /lib /out:ethereal.lib $(LIBETHEREAL_OBJECTS) \
 		$(EXTRA_OBJECTS) $(DISSECTOR_SUPPORT_OBJECTS)
 
