@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.23 2002/04/19 22:23:37 guy Exp $
+# $Id: ethereal_gen.py,v 1.24 2002/05/04 10:29:25 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -1609,7 +1609,7 @@ class ethereal_gen_C:
 
 
     template_helper_function_start = """\
-static void decode_@sname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation) {
+static void decode_@sname@(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header, gchar *operation _U_) {
 
     gboolean stream_is_big_endian;          /* big endianess */
 """
@@ -1710,7 +1710,11 @@ plugin_reg_handoff(void){
 }
 
 G_MODULE_EXPORT void
-plugin_init(plugin_address_table_t *pat){
+plugin_init(plugin_address_table_t *pat
+#ifndef PLUGINS_NEED_ADDRESS_TABLE
+_U_
+#endif
+){
    /* initialise the table of pointers needed in Win32 DLLs */
    plugin_address_table_init(pat);
    if (proto_@dissector_name@ == -1) {
@@ -2212,7 +2216,7 @@ G_MODULE_EXPORT const gchar version[] = "0.0.1";
 #
 
     template_main_dissector_start = """\
-static gboolean dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname) {
+static gboolean dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset, MessageHeader *header, gchar *operation, gchar *idlname _U_) {
 
     proto_item *ti = NULL;
     proto_tree *tree = NULL;            /* init later, inside if(tree) */
@@ -2380,9 +2384,9 @@ default:
  *
  */
  
-static gboolean decode_user_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset, MessageHeader *header, gchar *operation ) {
+static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_ ) {
     
-    gboolean be;                        /* big endianess */
+    gboolean be _U_;                        /* big endianess */
 
     
 """
