@@ -2,7 +2,7 @@
  * Routines for DCERPC NDR dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-ndr.c,v 1.9 2002/09/03 08:39:16 sahlberg Exp $
+ * $Id: packet-dcerpc-ndr.c,v 1.10 2002/09/26 06:13:07 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -165,6 +165,27 @@ dissect_ndr_double(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                   tree, drep, hfindex, pdata);
 }
 
+/* handles unix 32 bit time_t */
+int
+dissect_ndr_time_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                    proto_tree *tree, char *drep,
+                    int hfindex, guint32 *pdata)
+{
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+
+    if (offset % 4) {
+        offset += 4 - (offset % 4);
+    }
+    return dissect_dcerpc_time_t (tvb, offset, pinfo,
+                                  tree, drep, hfindex, pdata);
+}
 
 int
 dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,

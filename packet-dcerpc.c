@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.78 2002/09/09 22:11:33 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.79 2002/09/26 06:13:07 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -642,6 +642,30 @@ dissect_dcerpc_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     }
     if (pdata)
         *pdata = data;
+    return offset+4;
+}
+
+/* handles 32 bit unix time_t */
+int
+dissect_dcerpc_time_t (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+                       proto_tree *tree, char *drep,
+                       int hfindex, guint32 *pdata)
+{
+    guint32 data;
+    nstime_t tv;
+
+    data = ((drep[0] & 0x10)
+            ? tvb_get_letohl (tvb, offset)
+            : tvb_get_ntohl (tvb, offset));
+
+    tv.secs=data;
+    tv.nsecs=0;
+    if (tree) {
+        proto_tree_add_time (tree, hfindex, tvb, offset, 4, &tv);
+    }
+    if (pdata)
+        *pdata = data;
+
     return offset+4;
 }
 

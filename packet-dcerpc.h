@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.20 2002/09/03 08:39:16 sahlberg Exp $
+ * $Id: packet-dcerpc.h,v 1.21 2002/09/26 06:13:08 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -121,6 +121,9 @@ int dissect_dcerpc_float  (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int dissect_dcerpc_double (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                            proto_tree *tree, char *drep, 
                            int hfindex, gdouble *pdata);
+int dissect_dcerpc_time_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                           proto_tree *tree, char *drep, 
+                           int hfindex, guint32 *pdata);
 
 
 /*
@@ -144,6 +147,9 @@ int dissect_ndr_float (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 int dissect_ndr_double (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, char *drep, 
                         int hfindex, gdouble *pdata);
+int dissect_ndr_time_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                        proto_tree *tree, char *drep, 
+                        int hfindex, guint32 *pdata);
 int dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *tree, char *drep,
                         int hfindex, e_uuid_t *pdata);
