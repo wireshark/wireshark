@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.58 2002/11/11 05:39:51 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.59 2002/11/19 03:01:18 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -248,6 +248,13 @@ static int hf_spoolss_rrpcn_unk1 = -1;
 
 static int hf_spoolss_replyopenprinter_unk0 = -1;
 static int hf_spoolss_replyopenprinter_unk1 = -1;
+
+static const value_string devmode_orientation_vals[] =
+{
+	{ DEVMODE_ORIENTATION_PORTRAIT, "Portrait" },
+	{ DEVMODE_ORIENTATION_LANDSCAPE, "Landscape" },
+	{ 0, NULL }
+};
 
 static const value_string printer_status_vals[] =
 {
@@ -581,6 +588,35 @@ static int hf_spoolss_devmode_panning_width = -1;
 static int hf_spoolss_devmode_panning_height = -1;
 static int hf_spoolss_devmode_driver_extra = -1;
 
+static int hf_devmode_fields_orientation = -1;
+static int hf_devmode_fields_papersize = -1;
+static int hf_devmode_fields_paperlength = -1;
+static int hf_devmode_fields_paperwidth = -1;
+static int hf_devmode_fields_scale = -1;
+static int hf_devmode_fields_position = -1;
+static int hf_devmode_fields_nup = -1;
+static int hf_devmode_fields_copies = -1;
+static int hf_devmode_fields_defaultsource = -1;
+static int hf_devmode_fields_printquality = -1;
+static int hf_devmode_fields_color = -1;
+static int hf_devmode_fields_duplex = -1;
+static int hf_devmode_fields_yresolution = -1;
+static int hf_devmode_fields_ttoption = -1;
+static int hf_devmode_fields_collate = -1;
+static int hf_devmode_fields_formname = -1;
+static int hf_devmode_fields_logpixels = -1;
+static int hf_devmode_fields_bitsperpel = -1;
+static int hf_devmode_fields_pelswidth = -1;
+static int hf_devmode_fields_pelsheight = -1;
+static int hf_devmode_fields_displayflags = -1;
+static int hf_devmode_fields_displayfrequency = -1;
+static int hf_devmode_fields_icmmethod = -1;
+static int hf_devmode_fields_icmintent = -1;
+static int hf_devmode_fields_mediatype = -1;
+static int hf_devmode_fields_dithertype = -1;
+static int hf_devmode_fields_panningwidth = -1;
+static int hf_devmode_fields_panningheight = -1;
+
 static void
 spoolss_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 			guint32 access)
@@ -610,14 +646,13 @@ spoolss_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
  * Routines to dissect a spoolss BUFFER
  */
 
-/* TODO: it would be very cool to break the buffer into a child tvb */
-
 typedef struct {
-	guint32 size;		/* Size of buffer */
-	guint8 *data;		/* Contents of buffer */
-	int offset;		/* Offset to start of buffer */
+	tvbuff_t *tvb;
 	proto_item *tree;	/* Proto tree buffer located in */
+	proto_item *item;
 } BUFFER;
+
+static gint ett_BUFFER = -1;
 
 static int
 dissect_spoolss_buffer_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -625,6 +660,7 @@ dissect_spoolss_buffer_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = pinfo->private_data;
 	BUFFER *b = (BUFFER *)di->private_data;
+	proto_item *item;
 	guint32 size;
 	guint8 *data;
 
@@ -636,16 +672,31 @@ dissect_spoolss_buffer_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_buffer_size, &size);
 
-	offset = dissect_ndr_uint8s(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_uint8s(tvb, offset, pinfo, NULL, drep,
 				    hf_spoolss_buffer_data, size, &data);
 
+	item = proto_tree_add_item(
+		tree, hf_spoolss_buffer_data, tvb, offset - size,
+		size, drep[0] & 0x10);
+		
 	/* Return buffer info */
 
 	if (b) {
-		b->size = size;
-		b->data = data;
-		b->offset = offset - size;
-		b->tree = tree;
+
+		/* I'm not sure about this.  Putting the buffer into
+		   it's own tvb makes sense and the dissection code is
+                   much clearer, but the data is a proper subset of
+		   the actual tvb.  Not adding the new data source
+		   makes the hex display confusing as it switches
+		   between the 'DCERPC over SMB' tvb and the buffer
+		   tvb with no visual cues as to what is going on. */
+
+		b->tvb = tvb_new_real_data(data, size, size);
+		tvb_set_child_real_data_tvbuff(tvb, b->tvb);
+		add_new_data_source(pinfo, b->tvb, "SPOOLSS buffer");
+
+		b->item = item;
+		b->tree = proto_item_add_subtree(item, ett_BUFFER);
 	}
 
 	return offset;
@@ -664,10 +715,10 @@ dissect_spoolss_buffer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	di->private_data = b;
 
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-				     dissect_spoolss_buffer_data,
-				     NDR_POINTER_UNIQUE, "Buffer",
-				     -1, 0);
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_spoolss_buffer_data, NDR_POINTER_UNIQUE, 
+		"Buffer", -1, 0);
 
 	return offset;
 }
@@ -1355,6 +1406,142 @@ static int prs_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
  * DEVMODE
  */
 
+static gint ett_DEVMODE_fields;
+
+static int
+dissect_DEVMODE_fields(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		       proto_tree *tree, char *drep _U_, guint32 *pdata)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	guint32 fields;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
+				    hf_spoolss_devmode_fields, &fields);
+
+	item = proto_tree_add_text(tree, tvb, offset - 4, 4,
+				   "Fields: 0x%08x", fields);
+
+	subtree = proto_item_add_subtree(item, ett_DEVMODE_fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_orientation, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_papersize, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_paperlength, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_paperwidth, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_scale, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_position, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_nup, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_copies, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_defaultsource, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_printquality, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_color, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_duplex, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_yresolution, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_ttoption, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_collate, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_formname, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_logpixels, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_bitsperpel, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_pelswidth, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_pelsheight, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_displayflags, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_displayfrequency, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_icmmethod, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_icmintent, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_mediatype, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_dithertype, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_panningwidth, 
+		tvb, offset - 4, 4, fields);
+
+	proto_tree_add_boolean(
+		subtree, hf_devmode_fields_panningheight, 
+		tvb, offset - 4, 4, fields);
+
+	if (pdata)
+		*pdata = fields;
+
+	return offset;
+}
+
 static gint ett_DEVMODE = -1;
 
 static int dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo, 
@@ -1363,6 +1550,7 @@ static int dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item *item;
 	proto_tree *subtree;
 	guint16 driver_extra;
+	guint32 fields;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "DEVMODE");
 	subtree = proto_item_add_subtree(item, ett_DEVMODE);
@@ -1392,9 +1580,8 @@ static int dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, subtree, drep, 
 		hf_spoolss_devmode_driver_extra_len, &driver_extra);
 
-	offset = dissect_ndr_uint32(
-		tvb, offset, pinfo, subtree, drep, 
-		hf_spoolss_devmode_fields, NULL);
+	offset = dissect_DEVMODE_fields(
+		tvb, offset, pinfo, subtree, drep, &fields);
 
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, subtree, drep, 
@@ -1475,6 +1662,9 @@ static int dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		tvb, offset, pinfo, subtree, drep, 
 		hf_spoolss_devmode_display_freq, NULL);
 	
+	/* TODO: Some of the remaining fields are optional.  See
+	   rpc_parse/parse_spoolss.c in the Samba source for details. */
+
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
 		hf_spoolss_devmode_icm_method, NULL);
@@ -1482,7 +1672,7 @@ static int dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
 		hf_spoolss_devmode_icm_intent, NULL);
-	
+
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
 		hf_spoolss_devmode_media_type, NULL);
@@ -1494,7 +1684,7 @@ static int dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
 		hf_spoolss_devmode_reserved1, NULL);
-
+	
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep, 
 		hf_spoolss_devmode_reserved2, NULL);
@@ -1686,15 +1876,13 @@ static int dissect_PRINTER_INFO_0(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree, 
 				  char *drep)
 {
-	int struct_start = offset;
-
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_printername,
-		struct_start, NULL);
+		0, NULL);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_servername,
-		struct_start, NULL);
+		0, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
@@ -1831,23 +2019,21 @@ static int dissect_PRINTER_INFO_1(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree, 
 				  char *drep)
 {
-	int struct_start = offset;
-
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep,
 		hf_spoolss_getprinter_flags, NULL);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdesc,
-		struct_start, NULL);
+		0, NULL);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_printername,
-		struct_start, NULL);
+		0, NULL);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_printercomment,
-		struct_start, NULL);
+		0, NULL);
 
 	return offset;
 }
@@ -2009,59 +2195,58 @@ static int dissect_PRINTER_INFO_2(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree, 
 				  char *drep)
 {
-	int struct_start = offset;
 	guint32 devmode_offset, secdesc_offset;
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_servername,
-		struct_start, NULL);
+		0, NULL);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_printername,
-		struct_start, NULL);
+		0, NULL);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_sharename,
-		struct_start, NULL);
+		0, NULL);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_portname,
-		struct_start, NULL);
+		0, NULL);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_drivername,
-		struct_start, NULL);
+		0, NULL);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_printercomment,
-		struct_start, NULL);
+		0, NULL);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_printerlocation,
-		struct_start, NULL);
+		0, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, NULL, drep, hf_spoolss_offset, 
 		&devmode_offset);
 
-	dissect_DEVMODE(tvb, struct_start + devmode_offset - 4, 
+	dissect_DEVMODE(tvb, devmode_offset - 4, 
 			pinfo, tree, drep);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_sepfile,
-		struct_start, NULL);
+		0, NULL);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_printprocessor,
-		struct_start, NULL);
+		0, NULL);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_datatype,
-		struct_start, NULL);
+		0, NULL);
 
 	offset = dissect_spoolss_relstr(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_parameters,
-		struct_start, NULL);
+		0, NULL);
 
 	/*
 	 * XXX - what *is* the length of this security descriptor?
@@ -2080,8 +2265,8 @@ static int dissect_PRINTER_INFO_2(tvbuff_t *tvb, int offset,
 		&secdesc_offset);
 
 	dissect_nt_sec_desc(
-		tvb, struct_start + secdesc_offset, tree, 
-		tvb_length_remaining(tvb, struct_start + secdesc_offset));
+		tvb, secdesc_offset, tree, 
+		tvb_length_remaining(tvb, secdesc_offset));
 
 	offset = dissect_printer_attributes(tvb, offset, pinfo, tree, drep);
 
@@ -3051,8 +3236,6 @@ static int prs_BUFFER_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * BUFFER
  */
 
-static gint ett_BUFFER = -1;
-
 static int prs_BUFFER(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		      proto_tree *tree, GList **dp_list, void **data _U_)
 {
@@ -3135,7 +3318,7 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_spoolss_buffer(
 		tvb, offset, pinfo, tree, drep, &buffer);
 
-	if (!buffer.size)
+	if (!buffer.tvb || !tvb_length(buffer.tvb))
 		goto done;
 
 	switch(level) {
@@ -3144,8 +3327,8 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case 2:
 	case 3:
 		item = proto_tree_add_text(
-			buffer.tree, tvb, buffer.offset, 
-			offset - buffer.offset, "PRINTER_INFO_%d", level);
+			buffer.tree, buffer.tvb, 0, 
+			tvb_length(buffer.tvb), "PRINTER_INFO_%d", level);
 
 		/* XXX: is the ett value correct here? */
 		
@@ -3156,22 +3339,22 @@ static int SpoolssGetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	switch(level) {
 	case 0:
 		dissect_PRINTER_INFO_0(
-			tvb, buffer.offset, pinfo, subtree, drep);
+			buffer.tvb, 0, pinfo, subtree, drep);
 		break;
 	case 1:
 		dissect_PRINTER_INFO_1(
-			tvb, buffer.offset, pinfo, subtree, drep);
+			buffer.tvb, 0, pinfo, subtree, drep);
 		break;
 	case 2:
 		dissect_PRINTER_INFO_2(
-			tvb, buffer.offset, pinfo, subtree, drep);
+			buffer.tvb, 0, pinfo, subtree, drep);
 		break;
 	case 3:
 		dissect_PRINTER_INFO_3(
-			tvb, buffer.offset, pinfo, subtree, drep);
+			buffer.tvb, 0, pinfo, subtree, drep);
 		break;
 	default:
-		proto_tree_add_text(buffer.tree, tvb, offset, 0,
+		proto_tree_add_text(buffer.tree, buffer.tvb, 0, 0,
 				    "[Unknown info level %d]", level);
 		break;
 	}
@@ -3479,10 +3662,10 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   struct_start being inside the loop rather than outside.
 	   Very strange. */
 
-	buffer_offset = buffer.offset;
+	buffer_offset = 0;
 
 	for (i = 0; i < count; i++) {
-		int struct_start = buffer.offset;
+		int struct_start = buffer_offset;
 
 		buffer_offset = dissect_FORM_REL(
 			tvb, buffer_offset, pinfo, buffer.tree, drep,
@@ -4275,14 +4458,14 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
-	if (!buffer.size)
+	if (!buffer.tvb || !tvb_length(buffer.tvb))
 		goto done;
 
-	buffer_offset = buffer.offset;
+	buffer_offset = 0;
 
 	switch(level) {
 	case 1: {
-		int struct_start = buffer.offset;
+		int struct_start = buffer_offset;
 
 		buffer_offset = dissect_FORM_REL(
 			tvb, buffer_offset, pinfo, tree, drep, struct_start);
@@ -4291,8 +4474,9 @@ static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	default:
 		proto_tree_add_text(
-			buffer.tree, tvb, buffer_offset, buffer.size,
-			"[Unknown info level %d]", level);
+			buffer.tree, tvb, buffer_offset, 
+			tvb_length(buffer.tvb), "[Unknown info level %d]", 
+			level);
 		goto done;
 	}
 
@@ -4554,7 +4738,7 @@ static int SpoolssEnumJobs_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_enumjobs_numjobs, &num_jobs);
 
-	buffer_offset = buffer.offset;
+	buffer_offset = 0;
 
 	for (i = 0; i < num_jobs; i++) {
 		switch(level) {
@@ -4565,7 +4749,8 @@ static int SpoolssEnumJobs_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case 2:
 		default:
 			proto_tree_add_text(
-				buffer.tree, tvb, buffer_offset, buffer.size,
+				buffer.tree, tvb, buffer_offset, 
+				tvb_length(buffer.tvb),
 				"[Unknown info level %d]", level);
 			goto done;
 		}
@@ -4721,10 +4906,10 @@ static int SpoolssGetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_spoolss_buffer(tvb, offset, pinfo, tree, drep,
 					&buffer);
 
-	if (!buffer.size)
+	if (!buffer.tvb || !tvb_length(buffer.tvb))
 		goto done;
 
-	buffer_offset = buffer.offset;
+	buffer_offset = 0;
 
 	switch(level) {
 	case 1:
@@ -4734,8 +4919,9 @@ static int SpoolssGetJob_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case 2:
 	default:
 		proto_tree_add_text(
-			buffer.tree, tvb, buffer_offset, buffer.size,
-			"[Unknown info level %d]", level);
+			buffer.tree, tvb, buffer_offset, 
+			tvb_length(buffer.tvb), "[Unknown info level %d]", 
+			level);
 		goto done;
 	}
 
@@ -5388,7 +5574,7 @@ static int SpoolssEnumPrinterDrivers_r(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_returned, 
 		&num_drivers);
 
-	buffer_offset = buffer.offset;
+	buffer_offset = 0;
 
 	for (i = 0; i < num_drivers; i++) {
 		switch(level) {
@@ -5402,7 +5588,8 @@ static int SpoolssEnumPrinterDrivers_r(tvbuff_t *tvb, int offset,
 			break;
 		default:
 			proto_tree_add_text(
-				buffer.tree, tvb, buffer_offset, buffer.size,
+				buffer.tree, tvb, buffer_offset, 
+				tvb_length(buffer.tvb),
 				"[Unknown info level %d]", level);
 			goto done;
 		}
@@ -5498,15 +5685,15 @@ static int SpoolssGetPrinterDriver2_r(tvbuff_t *tvb, int offset,
 	switch(level) {
 	case 1:
 		dissect_DRIVER_INFO_1(
-			tvb, buffer.offset, pinfo, buffer.tree, drep);
+			buffer.tvb, 0, pinfo, buffer.tree, drep);
 		break;
 	case 3:
 		dissect_DRIVER_INFO_3(
-			tvb, buffer.offset, pinfo, buffer.tree, drep);
+			buffer.tvb, 0, pinfo, buffer.tree, drep);
 		break;
 	default:
 		proto_tree_add_text(
-			buffer.tree, tvb, buffer.offset, buffer.size,
+			buffer.tree, buffer.tvb, 0, tvb_length(buffer.tvb),
 			"[Unknown info level %d]", level);
 		break;
 	}
@@ -7455,7 +7642,8 @@ proto_register_dcerpc_spoolss(void)
 
 		{ &hf_spoolss_devmode_orientation,
 		  { "Orientation", "spoolss.devicemode.orientation",
-		    FT_UINT16, BASE_DEC, NULL, 0, "Orientation", HFILL }},
+		    FT_UINT16, BASE_DEC, VALS(devmode_orientation_vals), 
+		    0, "Orientation", HFILL }},
 
 		{ &hf_spoolss_devmode_paper_size,
 		  { "Paper size", "spoolss.devicemode.paper_size",
@@ -7571,6 +7759,149 @@ proto_register_dcerpc_spoolss(void)
 		{ &hf_spoolss_devmode_driver_extra,
 		  { "Driver extra", "spoolss.devicemode.driver_extra",
 		    FT_BYTES, BASE_HEX, NULL, 0, "Driver extra", HFILL }},
+
+		/* Devicemode fields */
+
+		{ &hf_devmode_fields_orientation,
+		  { "Orientation", "spoolss.devmode.fields.orientation",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_ORIENTATION, "Orientation", HFILL }},
+
+		{ &hf_devmode_fields_papersize,
+		  { "Paper size", "spoolss.devmode.fields.paper_size",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_PAPERSIZE, "Paper size", HFILL }},
+
+		{ &hf_devmode_fields_paperlength,
+		  { "Paper length", "spoolss.devmode.fields.paper_length",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_PAPERLENGTH, "Paper length", HFILL }},
+
+		{ &hf_devmode_fields_paperwidth,
+		  { "Paper width", "spoolss.devmode.fields.paper_width",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_PAPERWIDTH, "Paper width", HFILL }},
+
+		{ &hf_devmode_fields_scale,
+		  { "Scale", "spoolss.devmode.fields.scale",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_SCALE, "Scale", HFILL }},
+
+		{ &hf_devmode_fields_position,
+		  { "Position", "spoolss.devmode.fields.position",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_POSITION, "Position", HFILL }},
+
+		{ &hf_devmode_fields_nup,
+		  { "N-up", "spoolss.devmode.fields.nup",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_NUP, "N-up", HFILL }},
+
+		{ &hf_devmode_fields_copies,
+		  { "Copies", "spoolss.devmode.fields.copies",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_COPIES, "Copies", HFILL }},
+
+		{ &hf_devmode_fields_defaultsource,
+		  { "Default source", "spoolss.devmode.fields.default_source",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_DEFAULTSOURCE, "Default source", HFILL }},
+
+		{ &hf_devmode_fields_printquality,
+		  { "Print quality", "spoolss.devmode.fields.print_quality",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_PRINTQUALITY, "Print quality", HFILL }},
+
+		{ &hf_devmode_fields_color,
+		  { "Color", "spoolss.devmode.fields.color",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_COLOR, "Color", HFILL }},
+
+		{ &hf_devmode_fields_duplex,
+		  { "Duplex", "spoolss.devmode.fields.duplex",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_DUPLEX, "Duplex", HFILL }},
+
+		{ &hf_devmode_fields_yresolution,
+		  { "Y resolution", "spoolss.devmode.fields.y_resolution",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_YRESOLUTION, "Y resolution", HFILL }},
+
+		{ &hf_devmode_fields_ttoption,
+		  { "TT option", "spoolss.devmode.fields.tt_option",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_TTOPTION, "TT option", HFILL }},
+
+		{ &hf_devmode_fields_collate,
+		  { "Collate", "spoolss.devmode.fields.collate",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_COLLATE, "Collate", HFILL }},
+
+		{ &hf_devmode_fields_formname,
+		  { "Form name", "spoolss.devmode.fields.form_name",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_FORMNAME, "Form name", HFILL }},
+
+		{ &hf_devmode_fields_logpixels,
+		  { "Log pixels", "spoolss.devmode.fields.log_pixels",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_LOGPIXELS, "Log pixels", HFILL }},
+
+		{ &hf_devmode_fields_bitsperpel,
+		  { "Bits per pel", "spoolss.devmode.fields.bits_per_pel",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_BITSPERPEL, "Bits per pel", HFILL }},
+
+		{ &hf_devmode_fields_pelswidth,
+		  { "Pels width", "spoolss.devmode.fields.pels_width",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_PELSWIDTH, "Pels width", HFILL }},
+
+		{ &hf_devmode_fields_pelsheight,
+		  { "Pels height", "spoolss.devmode.fields.pels_height",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_PELSHEIGHT, "Pels height", HFILL }},
+
+		{ &hf_devmode_fields_displayflags,
+		  { "Display flags", "spoolss.devmode.fields.display_flags",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_DISPLAYFLAGS, "Display flags", HFILL }},
+
+		{ &hf_devmode_fields_displayfrequency,
+		  { "Display frequency", 
+		    "spoolss.devmode.fields.display_frequency",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_DISPLAYFREQUENCY, "Display frequency", HFILL }},
+
+		{ &hf_devmode_fields_icmmethod,
+		  { "ICM method", "spoolss.devmode.fields.icm_method",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_ICMMETHOD, "ICM method", HFILL }},
+
+		{ &hf_devmode_fields_icmintent,
+		  { "ICM intent", "spoolss.devmode.fields.icm_intent",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_ICMINTENT, "ICM intent", HFILL }},
+
+		{ &hf_devmode_fields_mediatype,
+		  { "Media type", "spoolss.devmode.fields.media_type",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_MEDIATYPE, "Media type", HFILL }},
+
+		{ &hf_devmode_fields_dithertype,
+		  { "Dither type", "spoolss.devmode.fields.dither_type",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_DITHERTYPE, "Dither type", HFILL }},
+
+		{ &hf_devmode_fields_panningwidth,
+		  { "Panning width", "spoolss.devmode.fields.panning_width",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_PANNINGWIDTH, "Panning width", HFILL }},
+
+		{ &hf_devmode_fields_panningheight,
+		  { "Panning height", "spoolss.devmode.fields.panning_height",
+		    FT_BOOLEAN, 32, TFS(&flags_set_truth),
+		    DEVMODE_PANNINGHEIGHT, "Panning height", HFILL }},
 	};
 
         static gint *ett[] = {
@@ -7578,6 +7909,7 @@ proto_register_dcerpc_spoolss(void)
 		&ett_PRINTER_DEFAULT,
 		&ett_DEVMODE_CTR,
 		&ett_DEVMODE,
+		&ett_DEVMODE_fields,
 		&ett_USER_LEVEL,
 		&ett_USER_LEVEL_1,
 		&ett_BUFFER,
