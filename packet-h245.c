@@ -92,7 +92,7 @@ proper helper routines
  * Routines for H.245 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-h245.c,v 1.8 2003/07/08 10:35:17 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.9 2003/07/08 11:03:12 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2248,7 +2248,7 @@ DEBUG_ENTRY("dissect_per_choice");
 		if(display_internal_per_fields){
 			etr=choicetree;
 		}
-		dissect_per_boolean(tvb, old_offset, pinfo, etr, hf_h245_extension_bit, NULL, NULL);
+
 		/* find and call the appropriate callback */
 		for(i=0;choice[i].name;i++){
 			if(choice[i].value==(int)choice_index){
@@ -2257,6 +2257,7 @@ DEBUG_ENTRY("dissect_per_choice");
 					break;
 				} else {
 					NOT_DECODED_YET(choice[i].name);
+					break;
 				}
 			}
 		}
