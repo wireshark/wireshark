@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.5 2000/02/07 17:08:27 gram Exp $
+ * $Id: packet-gryphon.c,v 1.6 2000/02/07 17:23:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -651,7 +651,7 @@ resp_time (int src, const u_char **data, const u_char *dataend, int *offset, int
     int     hours, minutes, seconds, fraction;
     union {
     	unsigned int		lng[2];
-	unsigned gint64		lnglng;
+	guint64			lnglng;
     } ts;
     unsigned int    timestamp;
     unsigned char   date[45];
