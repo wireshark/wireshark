@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.49 2002/04/07 21:29:01 guy Exp $
+ * $Id: netxray.c,v 1.50 2002/04/07 21:44:55 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -222,6 +222,10 @@ int netxray_open(wtap *wth, int *err)
 	 * bytes of it; is this the FCS, rather than padding?  I think
 	 * we've seen padding at the end of some Ethernet captures; is
 	 * that an FCS as well?
+	 *
+	 * Gerald indicates that the padding has values that don't look
+	 * as if they're FCS values, so perhaps it's just padding
+	 * junk.
 	 */
 	wth->capture.netxray->padding = 0;
 	if (netxray_encap[hdr.network] == WTAP_ENCAP_IEEE_802_11) {
