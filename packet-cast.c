@@ -3,6 +3,8 @@
  * Dissector for the CAST Client Control Protocol
  *   (The "D-Channel"-Protocol for Cisco Systems' IP-Phones)
  *
+ * $Id: packet-cast.c,v 1.2 2004/02/20 22:34:59 guy Exp $
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -333,8 +335,6 @@ static int hf_cast_annexNandWFutureUse = -1;
 static int hf_cast_modelNumber = -1;
 static int hf_cast_bandwidth = -1;
 static int hf_cast_protocolDependentData = -1;
-static int hf_cast_remoteIpAddr = -1;
-static int hf_cast_remotePortNumber = -1;
 static int hf_cast_DSCPValue = -1;
 static int hf_cast_serviceNum = -1;
 static int hf_cast_precedenceValue = -1;
@@ -405,18 +405,10 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   gchar   *messageid_str;
   /*  guint32 data_size; */
 
-  guint32 unknownLong = 0;
-
   guint i = 0;
   guint t = 0;
-  int j = 0;
   int count;
   int val;
-
-  guint32 capCount;
-  guint32 softKeyCount;
-  guint32 softKeySetCount;
-  guint16 validKeyMask;
 
   /* Set up structures we will need to add the protocol subtree and manage it */
   proto_item *ti;
@@ -425,9 +417,6 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   proto_tree *cast_sub_tree;
   proto_tree *cast_sub_tree_sav;
   proto_tree *cast_sub_tree_sav_sav;
-
-  proto_item *skm = NULL;
-  proto_item *skm_tree = NULL;
 
   hdr_data_length = tvb_get_letohl(tvb, offset);
   hdr_marker      = tvb_get_letohl(tvb, offset+4);
@@ -475,7 +464,7 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       proto_tree_add_item(cast_tree, hf_cast_RTPPayloadFormat, tvb, offset+20, 4, TRUE);
       proto_tree_add_item(cast_tree, hf_cast_customPictureFormatCount, tvb, offset+24, 4, TRUE);
       count = offset+28;
-      // total of 120 bytes
+      /* total of 120 bytes */
       for ( i = 0; i < MAX_CUSTOM_PICTURES; i++ ) {
 		    ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 20, "customPictureFormat[%d]", i);
 		    cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
@@ -490,8 +479,8 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         proto_tree_add_item(cast_sub_tree, hf_cast_clockDivisor, tvb, count, 4, TRUE);
         count+= 4;
       }
-		  ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "confResources");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "confResources");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
       proto_tree_add_item(cast_sub_tree, hf_cast_activeStreamsOnRegistration, tvb, count, 4, TRUE);
       count+= 4;
       proto_tree_add_item(cast_sub_tree, hf_cast_maxBW, tvb, count, 4, TRUE);
@@ -499,10 +488,10 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       proto_tree_add_item(cast_sub_tree, hf_cast_serviceResourceCount, tvb, count, 4, TRUE);
       count+= 4;
       cast_sub_tree_sav = cast_sub_tree;
-      // total of 160 bytes
+      /* total of 160 bytes */
       for ( i = 0; i < MAX_SERVICE_TYPE; i++ ) {
-		    ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 20, "serviceResource[%d]", i);
-		    cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+        ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 20, "serviceResource[%d]", i);
+        cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
         proto_tree_add_item(cast_sub_tree, hf_cast_layoutCount, tvb, count, 4, TRUE);
         count+= 4;
         cast_sub_tree_sav_sav = cast_sub_tree_sav;
@@ -522,65 +511,65 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         proto_tree_add_item(cast_sub_tree, hf_cast_activeConferenceOnRegistration, tvb, count, 4, TRUE);
         count+= 4;
       }
-      // total of 176 bytes
+      /* total of 176 bytes */
       for ( i = 0; i < StationMaxVideoCapabilities; i++ ) {
-		    ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 20, "vidCaps[%d]", i);
-		    cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
-	      proto_tree_add_item(cast_sub_tree, hf_cast_payloadCapability, tvb, count, 4, TRUE);
+        ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 20, "vidCaps[%d]", i);
+        cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+        proto_tree_add_item(cast_sub_tree, hf_cast_payloadCapability, tvb, count, 4, TRUE);
         count+= 4;
-	      proto_tree_add_item(cast_sub_tree, hf_cast_transmitOrReceive, tvb, count, 4, TRUE);
+        proto_tree_add_item(cast_sub_tree, hf_cast_transmitOrReceive, tvb, count, 4, TRUE);
         count+= 4;
-	      proto_tree_add_item(cast_sub_tree, hf_cast_levelPreferenceCount, tvb, count, 4, TRUE);
+        proto_tree_add_item(cast_sub_tree, hf_cast_levelPreferenceCount, tvb, count, 4, TRUE);
         count+= 4;
         cast_sub_tree_sav = cast_sub_tree;
         for ( t = 0; t < MAX_LEVEL_PREFERENCE; t++ ) {
-		      ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 20, "levelPreference[%d]", t);
-		      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
-	        proto_tree_add_item(cast_sub_tree, hf_cast_transmitPreference, tvb, count, 4, TRUE);
+          ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 20, "levelPreference[%d]", t);
+          cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+          proto_tree_add_item(cast_sub_tree, hf_cast_transmitPreference, tvb, count, 4, TRUE);
           count+= 4;
-	        proto_tree_add_item(cast_sub_tree, hf_cast_format, tvb, count, 4, TRUE);
+          proto_tree_add_item(cast_sub_tree, hf_cast_format, tvb, count, 4, TRUE);
           count+= 4;
-	        proto_tree_add_item(cast_sub_tree, hf_cast_maxBitRate, tvb, count, 4, TRUE);
+          proto_tree_add_item(cast_sub_tree, hf_cast_maxBitRate, tvb, count, 4, TRUE);
           count+= 4;
-	        proto_tree_add_item(cast_sub_tree, hf_cast_minBitRate, tvb, count, 4, TRUE);
+          proto_tree_add_item(cast_sub_tree, hf_cast_minBitRate, tvb, count, 4, TRUE);
           count+= 4;
-	        proto_tree_add_item(cast_sub_tree, hf_cast_MPI, tvb, count, 4, TRUE);
+          proto_tree_add_item(cast_sub_tree, hf_cast_MPI, tvb, count, 4, TRUE);
           count+= 4;
-	        proto_tree_add_item(cast_sub_tree, hf_cast_serviceNumber, tvb, count, 4, TRUE);
+          proto_tree_add_item(cast_sub_tree, hf_cast_serviceNumber, tvb, count, 4, TRUE);
           count+= 4;
         }
 
-        // H.261
-		    ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "h261VideoCapability");
-		    cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
-	      proto_tree_add_item(cast_sub_tree, hf_cast_temporalSpatialTradeOffCapability, tvb, count, 4, TRUE);
-	      proto_tree_add_item(cast_sub_tree, hf_cast_stillImageTransmission, tvb, count+4, 4, TRUE);
+        /* H.261 */
+        ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "h261VideoCapability");
+        cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+        proto_tree_add_item(cast_sub_tree, hf_cast_temporalSpatialTradeOffCapability, tvb, count, 4, TRUE);
+        proto_tree_add_item(cast_sub_tree, hf_cast_stillImageTransmission, tvb, count+4, 4, TRUE);
 
-        // H.263
-		    ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "h263VideoCapability");
-		    cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
-	      proto_tree_add_item(cast_sub_tree, hf_cast_h263_capability_bitfield, tvb, count, 4, TRUE);
-	      proto_tree_add_item(cast_sub_tree, hf_cast_annexNandWFutureUse, tvb, count+4, 4, TRUE);
+        /* H.263 */
+        ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "h263VideoCapability");
+        cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+        proto_tree_add_item(cast_sub_tree, hf_cast_h263_capability_bitfield, tvb, count, 4, TRUE);
+        proto_tree_add_item(cast_sub_tree, hf_cast_annexNandWFutureUse, tvb, count+4, 4, TRUE);
 
-        // Vieo
-		    ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "vieoVideoCapability");
-		    cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
-	      proto_tree_add_item(cast_sub_tree, hf_cast_modelNumber, tvb, count, 4, TRUE);
+        /* Vieo */
+        ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "vieoVideoCapability");
+        cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+        proto_tree_add_item(cast_sub_tree, hf_cast_modelNumber, tvb, count, 4, TRUE);
         count+= 4;
-	      proto_tree_add_item(cast_sub_tree, hf_cast_bandwidth, tvb, count, 4, TRUE);
+        proto_tree_add_item(cast_sub_tree, hf_cast_bandwidth, tvb, count, 4, TRUE);
         count+= 4;
       }
-      // total 80 bytes
+      /* total 80 bytes */
       for ( i = 0; i < StationMaxDataCapabilities; i++ ) {
-		    ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 20, "dataCaps[%d]", i);
-		    cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
-	      proto_tree_add_item(cast_sub_tree, hf_cast_payloadCapability, tvb, count, 4, TRUE);
+        ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 20, "dataCaps[%d]", i);
+        cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+        proto_tree_add_item(cast_sub_tree, hf_cast_payloadCapability, tvb, count, 4, TRUE);
         count+= 4;
-	      proto_tree_add_item(cast_sub_tree, hf_cast_transmitOrReceive, tvb, count, 4, TRUE);
+        proto_tree_add_item(cast_sub_tree, hf_cast_transmitOrReceive, tvb, count, 4, TRUE);
         count+= 4;
-	      proto_tree_add_item(cast_sub_tree, hf_cast_protocolDependentData, tvb, count, 4, TRUE);
+        proto_tree_add_item(cast_sub_tree, hf_cast_protocolDependentData, tvb, count, 4, TRUE);
         count+= 4;
-	      proto_tree_add_item(cast_sub_tree, hf_cast_maxBitRate, tvb, count, 4, TRUE);
+        proto_tree_add_item(cast_sub_tree, hf_cast_maxBitRate, tvb, count, 4, TRUE);
         count+= 4;
       }
       break;
@@ -599,22 +588,22 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       proto_tree_add_item(cast_tree, hf_cast_isConferenceCreator, tvb, offset+40, 4, TRUE);
 
       /* add audio part of union */
-		  ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 12, "audioParameters");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 12, "audioParameters");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
       proto_tree_add_item(cast_sub_tree, hf_cast_millisecondPacketSize, tvb, offset+44, 4, TRUE);
       proto_tree_add_item(cast_sub_tree, hf_cast_echoCancelType, tvb, offset+48, 4, TRUE);
       proto_tree_add_item(cast_sub_tree, hf_cast_g723BitRate, tvb, offset+52, 4, TRUE);
 
       /* add video part of union */
-		  ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 30, "videoParameters");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 30, "videoParameters");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
       proto_tree_add_item(cast_sub_tree, hf_cast_bitRate, tvb, offset+44, 4, TRUE);
       proto_tree_add_item(cast_sub_tree, hf_cast_pictureFormatCount, tvb, offset+48, 4, TRUE);
       cast_sub_tree_sav = cast_sub_tree;
       count = offset+52;
       for ( i = 0; i < MAX_PICTURE_FORMAT; i++ ) {
-		    ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8 * MAX_PICTURE_FORMAT, "pictureFormat[%d]", i);
-		    cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+        ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8 * MAX_PICTURE_FORMAT, "pictureFormat[%d]", i);
+        cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
         proto_tree_add_item(cast_sub_tree, hf_cast_format, tvb, count, 4, TRUE);
         count += 4;
         proto_tree_add_item(cast_sub_tree, hf_cast_MPI, tvb, count, 4, TRUE);
@@ -625,29 +614,29 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       count += 4;
 
       /* add H261 part of union */
-		  ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "h261VideoCapability");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
-	    proto_tree_add_item(cast_sub_tree, hf_cast_temporalSpatialTradeOffCapability, tvb, count, 4, TRUE);
-	    proto_tree_add_item(cast_sub_tree, hf_cast_stillImageTransmission, tvb, count+4, 4, TRUE);
+      ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "h261VideoCapability");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      proto_tree_add_item(cast_sub_tree, hf_cast_temporalSpatialTradeOffCapability, tvb, count, 4, TRUE);
+      proto_tree_add_item(cast_sub_tree, hf_cast_stillImageTransmission, tvb, count+4, 4, TRUE);
 
       /* add H263 part of union */
-		  ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "h263VideoCapability");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
-	    proto_tree_add_item(cast_sub_tree, hf_cast_h263_capability_bitfield, tvb, count, 4, TRUE);
-	    proto_tree_add_item(cast_sub_tree, hf_cast_annexNandWFutureUse, tvb, count+4, 4, TRUE);
+      ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "h263VideoCapability");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      proto_tree_add_item(cast_sub_tree, hf_cast_h263_capability_bitfield, tvb, count, 4, TRUE);
+      proto_tree_add_item(cast_sub_tree, hf_cast_annexNandWFutureUse, tvb, count+4, 4, TRUE);
 
       /* add Vieo part of union */
-		  ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "vieoVideoCapability");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
-	    proto_tree_add_item(cast_sub_tree, hf_cast_modelNumber, tvb, count, 4, TRUE);
+      ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "vieoVideoCapability");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      proto_tree_add_item(cast_sub_tree, hf_cast_modelNumber, tvb, count, 4, TRUE);
       count += 4;
-	    proto_tree_add_item(cast_sub_tree, hf_cast_bandwidth, tvb, count, 4, TRUE);
+      proto_tree_add_item(cast_sub_tree, hf_cast_bandwidth, tvb, count, 4, TRUE);
 
       /* add data part of union */
-		  ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "dataParameters");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
-	    proto_tree_add_item(cast_sub_tree, hf_cast_protocolDependentData, tvb, offset+44, 4, TRUE);
-	    proto_tree_add_item(cast_sub_tree, hf_cast_maxBitRate, tvb, offset+48, 4, TRUE);
+      ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "dataParameters");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      proto_tree_add_item(cast_sub_tree, hf_cast_protocolDependentData, tvb, offset+44, 4, TRUE);
+      proto_tree_add_item(cast_sub_tree, hf_cast_maxBitRate, tvb, offset+48, 4, TRUE);
       break;
 
     case 0x6 :    /* OpenMultiMediaReceiveChannelACK */
@@ -683,8 +672,8 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       cast_sub_tree_sav = cast_sub_tree;
       count = offset+56;
       for ( i = 0; i < MAX_PICTURE_FORMAT; i++ ) {
-		    ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8 * MAX_PICTURE_FORMAT, "pictureFormat[%d]", i);
-		    cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+        ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8 * MAX_PICTURE_FORMAT, "pictureFormat[%d]", i);
+        cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
         proto_tree_add_item(cast_sub_tree, hf_cast_format, tvb, count, 4, TRUE);
         count += 4;
         proto_tree_add_item(cast_sub_tree, hf_cast_MPI, tvb, count, 4, TRUE);
@@ -696,33 +685,33 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
       val = count;
       /* add H261 part of union */
-		  ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "h261VideoCapability");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
-	    proto_tree_add_item(cast_sub_tree, hf_cast_temporalSpatialTradeOffCapability, tvb, count, 4, TRUE);
+      ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "h261VideoCapability");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      proto_tree_add_item(cast_sub_tree, hf_cast_temporalSpatialTradeOffCapability, tvb, count, 4, TRUE);
       count += 4;
-	    proto_tree_add_item(cast_sub_tree, hf_cast_stillImageTransmission, tvb, count, 4, TRUE);
+      proto_tree_add_item(cast_sub_tree, hf_cast_stillImageTransmission, tvb, count, 4, TRUE);
 
       /* add H263 part of union */
       count = val;
-		  ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "h263VideoCapability");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
-	    proto_tree_add_item(cast_sub_tree, hf_cast_h263_capability_bitfield, tvb, count, 4, TRUE);
+      ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "h263VideoCapability");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      proto_tree_add_item(cast_sub_tree, hf_cast_h263_capability_bitfield, tvb, count, 4, TRUE);
       count += 4;
-	    proto_tree_add_item(cast_sub_tree, hf_cast_annexNandWFutureUse, tvb, count, 4, TRUE);
+      proto_tree_add_item(cast_sub_tree, hf_cast_annexNandWFutureUse, tvb, count, 4, TRUE);
 
       /* add Vieo part of union */
       count = val;
-		  ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "vieoVideoCapability");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
-	    proto_tree_add_item(cast_sub_tree, hf_cast_modelNumber, tvb, count, 4, TRUE);
+      ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "vieoVideoCapability");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      proto_tree_add_item(cast_sub_tree, hf_cast_modelNumber, tvb, count, 4, TRUE);
       count += 4;
-	    proto_tree_add_item(cast_sub_tree, hf_cast_bandwidth, tvb, count, 4, TRUE);
+      proto_tree_add_item(cast_sub_tree, hf_cast_bandwidth, tvb, count, 4, TRUE);
 
       /* add data part of union */
-		  ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "dataParameters");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
-	    proto_tree_add_item(cast_sub_tree, hf_cast_protocolDependentData, tvb, offset+48, 4, TRUE);
-	    proto_tree_add_item(cast_sub_tree, hf_cast_maxBitRate, tvb, offset+52, 4, TRUE);
+      ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "dataParameters");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      proto_tree_add_item(cast_sub_tree, hf_cast_protocolDependentData, tvb, offset+48, 4, TRUE);
+      proto_tree_add_item(cast_sub_tree, hf_cast_maxBitRate, tvb, offset+52, 4, TRUE);
       break;
 
     case 0x9 :    /* StopMultiMediaTransmission */
@@ -744,47 +733,47 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       /* not sure of format */
 
       /* show videoFastUpdateGOB */
-		  ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "videoFastUpdateGOB");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "videoFastUpdateGOB");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
       proto_tree_add_item(cast_sub_tree, hf_cast_firstGOB, tvb, offset+28, 4, TRUE);
       proto_tree_add_item(cast_sub_tree, hf_cast_numberOfGOBs, tvb, offset+32, 4, TRUE);
 
       /* show videoFastUpdateMB */
-		  ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "videoFastUpdateGOB");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "videoFastUpdateGOB");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
       proto_tree_add_item(cast_sub_tree, hf_cast_firstGOB, tvb, offset+28, 4, TRUE);
       proto_tree_add_item(cast_sub_tree, hf_cast_firstMB, tvb, offset+32, 4, TRUE);
       proto_tree_add_item(cast_sub_tree, hf_cast_numberOfMBs, tvb, offset+36, 4, TRUE);
 
       /* show lostPicture */
-		  ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "lostPicture");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "lostPicture");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
       proto_tree_add_item(cast_sub_tree, hf_cast_pictureNumber, tvb, offset+28, 4, TRUE);
       proto_tree_add_item(cast_sub_tree, hf_cast_longTermPictureIndex, tvb, offset+32, 4, TRUE);
 
       /* show lostPartialPicture */
-		  ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "lostPartialPicture");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "lostPartialPicture");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
       proto_tree_add_item(cast_sub_tree, hf_cast_pictureNumber, tvb, offset+28, 4, TRUE);
       proto_tree_add_item(cast_sub_tree, hf_cast_longTermPictureIndex, tvb, offset+32, 4, TRUE);
       proto_tree_add_item(cast_sub_tree, hf_cast_firstMB, tvb, offset+36, 4, TRUE);
       proto_tree_add_item(cast_sub_tree, hf_cast_numberOfMBs, tvb, offset+40, 4, TRUE);
 
       /* show recoveryReferencePicture */
-		  ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "recoveryReferencePicture");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "recoveryReferencePicture");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
       proto_tree_add_item(cast_sub_tree, hf_cast_recoveryReferencePictureCount, tvb, offset+28, 4, TRUE);
       cast_sub_tree_sav = cast_sub_tree;
       for ( i = 0; i < MAX_REFERENCE_PICTURE; i++ ) {
-		    ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "recoveryReferencePicture[%d]", i);
-		    cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+        ti_sub = proto_tree_add_text(cast_sub_tree_sav, tvb, offset, 8, "recoveryReferencePicture[%d]", i);
+        cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
         proto_tree_add_item(cast_sub_tree, hf_cast_pictureNumber, tvb, offset+32+(i*8), 4, TRUE);
         proto_tree_add_item(cast_sub_tree, hf_cast_longTermPictureIndex, tvb, offset+36+(i*8), 4, TRUE);
       }
 
       /* show temporalSpatialTradeOff */
-		  ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 4, "temporalSpatialTradeOff");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 4, "temporalSpatialTradeOff");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
       proto_tree_add_item(cast_sub_tree, hf_cast_temporalSpatialTradeOff, tvb, offset+28, 4, TRUE);
       break;
 
@@ -858,24 +847,24 @@ static void dissect_cast_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       proto_tree_add_item(cast_tree, hf_cast_callSecurityStatus, tvb, i, 4, TRUE);
       i += 4;
       val = tvb_get_letohl( tvb, i);
-		  ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "partyPIRestrictionBits");
-		  cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
+      ti_sub = proto_tree_add_text(cast_tree, tvb, offset, 8, "partyPIRestrictionBits");
+      cast_sub_tree = proto_item_add_subtree(ti_sub, ett_cast_tree);
       proto_tree_add_text(cast_sub_tree, tvb, i, 4,
-	      decode_boolean_bitfield( val, 0x01, 4*8, "Does RestrictCallingPartyName", "Doesn't RestrictCallingPartyName"));
+        decode_boolean_bitfield( val, 0x01, 4*8, "Does RestrictCallingPartyName", "Doesn't RestrictCallingPartyName"));
       proto_tree_add_text(cast_sub_tree, tvb, i, 4,
-	      decode_boolean_bitfield( val, 0x02, 4*8, "Does RestrictCallingPartyNumber", "Doesn't RestrictCallingPartyNumber"));
+        decode_boolean_bitfield( val, 0x02, 4*8, "Does RestrictCallingPartyNumber", "Doesn't RestrictCallingPartyNumber"));
       proto_tree_add_text(cast_sub_tree, tvb, i, 4,
-	      decode_boolean_bitfield( val, 0x04, 4*8, "Does RestrictCalledPartyName", "Doesn't RestrictCalledPartyName"));
+        decode_boolean_bitfield( val, 0x04, 4*8, "Does RestrictCalledPartyName", "Doesn't RestrictCalledPartyName"));
       proto_tree_add_text(cast_sub_tree, tvb, i, 4,
-	      decode_boolean_bitfield( val, 0x08, 4*8, "Does RestrictCalledPartyNumber", "Doesn't RestrictCalledPartyNumber"));
+        decode_boolean_bitfield( val, 0x08, 4*8, "Does RestrictCalledPartyNumber", "Doesn't RestrictCalledPartyNumber"));
       proto_tree_add_text(cast_sub_tree, tvb, i, 4,
-	      decode_boolean_bitfield( val, 0x10, 4*8, "Does RestrictOriginalCalledPartyName", "Doesn't RestrictOriginalCalledPartyName"));
+        decode_boolean_bitfield( val, 0x10, 4*8, "Does RestrictOriginalCalledPartyName", "Doesn't RestrictOriginalCalledPartyName"));
       proto_tree_add_text(cast_sub_tree, tvb, i, 4,
-	      decode_boolean_bitfield( val, 0x20, 4*8, "Does RestrictOriginalCalledPartyNumber", "Doesn't RestrictOriginalCalledPartyNumber"));
+        decode_boolean_bitfield( val, 0x20, 4*8, "Does RestrictOriginalCalledPartyNumber", "Doesn't RestrictOriginalCalledPartyNumber"));
       proto_tree_add_text(cast_sub_tree, tvb, i, 4,
-	      decode_boolean_bitfield( val, 0x40, 4*8, "Does RestrictLastRedirectPartyName", "Doesn't RestrictLastRedirectPartyName"));
+        decode_boolean_bitfield( val, 0x40, 4*8, "Does RestrictLastRedirectPartyName", "Doesn't RestrictLastRedirectPartyName"));
       proto_tree_add_text(cast_sub_tree, tvb, i, 4,
-	      decode_boolean_bitfield( val, 0x80, 4*8, "Does RestrictLastRedirectPartyNumber", "Doesn't RestrictLastRedirectPartyNumber"));
+        decode_boolean_bitfield( val, 0x80, 4*8, "Does RestrictLastRedirectPartyNumber", "Doesn't RestrictLastRedirectPartyNumber"));
       break;
 
     case 0x11 :    /* RequestCallInfo */
@@ -1769,7 +1758,7 @@ proto_register_cast(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   cast_module = prefs_register_protocol(proto_cast, NULL);
-  prefs_register_bool_preference(cast_module, "reassembly", //"desegment",
+  prefs_register_bool_preference(cast_module, "reassembly", /*"desegment",*/
     "Desegment all CAST messages spanning multiple TCP segments",
     "Whether the CAST dissector should desegment all messages spanning multiple TCP segments",
     &cast_desegment);
