@@ -2,7 +2,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.18 2003/12/08 20:37:15 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.19 2003/12/12 23:35:22 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2012,15 +2012,17 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 version;
 	guint offset = 0;
 	guint32 len;
-	guint32 charset=0;
-	guint32 charset_len;
+	guint32 charset = 0;
+	guint32 charset_len = 0;
 	guint32 publicid;
 	guint32 publicid_index = 0;
 	guint32 publicid_len;
 	guint32 str_tbl;
 	guint32 str_tbl_len;
+	guint32 str_tbl_len_len = 0;
 	guint8 level = 0; /* WBXML recursion level */
 	const wbxml_token_map *content_map = NULL;
+	gchar *summary = NULL;
 
 	DebugLog(("dissect_wbxml: Dissecting packet %u\n", pinfo->fd->num));
 	/* WBXML format
@@ -2043,15 +2045,70 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return;
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, " (WBXML %s:",
-				match_strval (version, vals_wbxml_versions));
+	/* In order to properly construct the packet summary,
+	 * I need to read the entire WBXML header
+	 * up to the string table length.
+	 */
 
-	/* In the interest of speed, if "tree" is NULL, don't do any work not
-	   necessary to generate protocol tree items. */
+	/* Public ID */
+	publicid = tvb_get_guintvar(tvb, 1, &publicid_len);
+	if (! publicid) {
+		/* Public identifier in string table */
+		publicid_index = tvb_get_guintvar (tvb, 1+publicid_len, &len);
+		publicid_len += len;
+	}
+	offset = 1 + publicid_len;
+
+	/* Version-specific handling of Charset */
+	switch ( version ) {
+		case 0x00: /* WBXML/1.0 */
+			/* No charset */
+			break;
+
+		case 0x01: /* WBXML/1.1 */
+		case 0x02: /* WBXML/1.2 */
+		case 0x03: /* WBXML/1.3 */
+			/* Get charset */
+			charset = tvb_get_guintvar (tvb, offset, &charset_len);
+			offset += charset_len;
+			break;
+
+		default: /* Impossible since we returned already earlier */
+			g_error("%s:%u: WBXML version octet 0x%02X only partly supported!\n"
+					"Please report this as a bug.\n", __FILE__, __LINE__, version);
+			g_assert_not_reached();
+			break;
+	}
+
+	/* String table: read string table length in bytes */
+	str_tbl_len = tvb_get_guintvar (tvb, offset, &str_tbl_len_len);
+	str_tbl = offset + str_tbl_len_len; /* Start of 1st string in string table */
+
+	/* Compose the summary line */
+	if ( publicid ) {
+		summary = g_strdup_printf("%s, Public ID: \"%s\"",
+				match_strval (version, vals_wbxml_versions),
+				match_strval (publicid, vals_wbxml_public_ids));
+	} else {
+		/* Read length of Public ID from string table */
+		len = tvb_strsize (tvb, str_tbl + publicid_index);
+		summary = g_strdup_printf("%s, Public ID: \"%s\"",
+				match_strval (version, vals_wbxml_versions),
+				tvb_format_text (tvb, str_tbl + publicid_index, len - 1));
+	}
+
+	/* Add summary to INFO column if it is enabled */
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (WBXML %s)", summary);
+
+	/*
+	 * Now show the protocol subtree, if tree is set.
+	 */
 	if ( tree ) {
 		/* create display subtree for the protocol */
 		ti = proto_tree_add_item (tree, proto_wbxml, tvb, 0, -1, FALSE);
+		proto_item_append_text(ti, ", Version: %s", summary);
+		g_free(summary);
 		wbxml_tree = proto_item_add_subtree(ti, ett_wbxml);
 
 		/* WBXML Version */
@@ -2059,57 +2116,24 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tvb, 0, 1, version);
 
 		/* Public ID */
-		publicid = tvb_get_guintvar(tvb, 1, &publicid_len);
 		if (publicid) { /* Known Public ID */
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " Public ID \"%s\")",
-						match_strval (publicid, vals_wbxml_public_ids));
 			proto_tree_add_uint(wbxml_tree, hf_wbxml_public_id_known,
 					tvb, 1, publicid_len, publicid);
 		} else { /* Public identifier in string table */
-			publicid_index = tvb_get_guintvar (tvb, 1+publicid_len, &len);
-			publicid_len += len;
-		}
-		offset = 1 + publicid_len;
-
-		/* Version-specific handling of Charset */
-		switch ( version ) {
-			case 0x00: /* WBXML/1.0 */
-				/* No charset */
-				break;
-
-			case 0x01: /* WBXML/1.1 */
-			case 0x02: /* WBXML/1.2 */
-			case 0x03: /* WBXML/1.3 */
-				/* Get charset */
-				charset = tvb_get_guintvar (tvb, offset, &charset_len);
-				offset += charset_len;
-				break;
-
-			default: /* Impossible since return already earlier */
-				break;
-		}
-
-		/* String table: read string table length in bytes */
-		str_tbl_len = tvb_get_guintvar (tvb, offset, &len);
-		str_tbl = offset + len; /* Start of 1st string in string table */
-
-		/* Now we can add public ID, charset (if available),
-		 * and string table */
-		if ( ! publicid ) { /* Read Public ID from string table */
-			len = tvb_strsize (tvb, str_tbl+publicid_index);
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " Public ID \"%s\")",
-						tvb_format_text (tvb,
-						    str_tbl+publicid_index,
-						    len-1));
 			proto_tree_add_item (wbxml_tree, hf_wbxml_public_id_literal,
 					tvb, 1, publicid_len, FALSE);
 		}
+		offset = 1 + publicid_len;
+
 		if ( version ) { /* Charset */
 			proto_tree_add_uint (wbxml_tree, hf_wbxml_charset,
-					tvb, 1+publicid_len, charset_len, charset);
+					tvb, 1 + publicid_len, charset_len, charset);
+			offset += charset_len;
 		}
+
+		str_tbl_len = tvb_get_guintvar (tvb, offset, &len);
+		str_tbl = offset + len; /* Start of 1st string in string table */
+
 		/* String Table */
 		ti = proto_tree_add_text(wbxml_tree,
 				tvb, offset, len + str_tbl_len, "String table: %u bytes",
@@ -2172,6 +2196,7 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		return;
 	}
+	g_free(summary);
 }
 
 
