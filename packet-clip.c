@@ -1,7 +1,7 @@
 /* packet-clip.c
  * Routines for clip packet disassembly
  *
- * $Id: packet-clip.c,v 1.7 2000/05/19 05:29:42 guy Exp $
+ * $Id: packet-clip.c,v 1.8 2000/05/25 14:55:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,20 +47,23 @@ capture_clip( const u_char *pd, packet_counts *ld ) {
 }
 
 void
-dissect_clip( const u_char *pd, frame_data *fd, proto_tree *tree ) {
-  proto_tree *fh_tree;
-  proto_item *ti;
+dissect_clip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  proto_tree	*fh_tree;
+  proto_item	*ti;
+  const guint8	*this_pd;
+  int		this_offset;
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
-  if(check_col(fd, COL_RES_DL_SRC))
-    col_add_str(fd, COL_RES_DL_SRC, "N/A" );
-  if(check_col(fd, COL_RES_DL_DST))
-    col_add_str(fd, COL_RES_DL_DST, "N/A" );
-  if(check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "CLIP" );
-  if(check_col(fd, COL_INFO))
-    col_add_str(fd, COL_INFO, "Classical IP frame" );
+  if(check_col(pinfo->fd, COL_RES_DL_SRC))
+    col_add_str(pinfo->fd, COL_RES_DL_SRC, "N/A" );
+  if(check_col(pinfo->fd, COL_RES_DL_DST))
+    col_add_str(pinfo->fd, COL_RES_DL_DST, "N/A" );
+  if(check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "CLIP" );
+  if(check_col(pinfo->fd, COL_INFO))
+    col_add_str(pinfo->fd, COL_INFO, "Classical IP frame" );
 
   /* populate a tree in the second pane with the status of the link
      layer (ie none)
@@ -73,11 +76,12 @@ dissect_clip( const u_char *pd, frame_data *fd, proto_tree *tree ) {
      it treats the packet as being raw IP with no link-level
      header. */
   if(tree) {
-    ti = proto_tree_add_text(tree, NullTVB, 0, 0, "Classical IP frame" );
+    ti = proto_tree_add_text(tree, tvb, 0, 0, "Classical IP frame" );
     fh_tree = proto_item_add_subtree(ti, ett_clip);
-    proto_tree_add_text(fh_tree, NullTVB, 0, 0, "No link information available");
+    proto_tree_add_text(fh_tree, tvb, 0, 0, "No link information available");
   }
-  dissect_ip(pd, 0, fd, tree);
+  tvb_compat(tvb, &this_pd, &this_offset);
+  dissect_ip(this_pd, this_offset, pinfo->fd, tree);
 }
 
 void

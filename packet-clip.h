@@ -1,6 +1,6 @@
 /* packet-clip.h
  *
- * $Id: packet-clip.h,v 1.1 2000/02/15 21:02:06 gram Exp $
+ * $Id: packet-clip.h,v 1.2 2000/05/25 14:55:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,4 +23,4 @@
  */
 
 void capture_clip(const u_char *, packet_counts *);
-void dissect_clip(const u_char *, frame_data *, proto_tree *);
+void dissect_clip(tvbuff_t *, packet_info *, proto_tree *);
