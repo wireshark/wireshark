@@ -1,4 +1,6 @@
 /*
+ * $Id: g711.c,v 1.2 2003/03/06 21:57:17 guy Exp $
+ *
  * This source code is a product of Sun Microsystems, Inc. and is provided
  * for unrestricted use.  Users may copy or modify this source code without
  * charge.

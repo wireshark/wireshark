@@ -3,6 +3,8 @@
  *
  * Definitions for routines for u-law, A-law and linear PCM conversions
  *
+ * $Id: g711.h,v 1.2 2003/03/06 21:57:17 guy Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
@@ -25,4 +27,4 @@
 unsigned char linear2alaw( int );
 int alaw2linear( unsigned char );
 unsigned char linear2ulaw( int );
-int ulaw2linear( unsigned char ); 
+int ulaw2linear( unsigned char );
