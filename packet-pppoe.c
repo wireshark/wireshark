@@ -1,7 +1,7 @@
 /* packet-pppoe.c
  * Routines for PPP Over Ethernet (PPPoE) packet disassembly (RFC2516)
  *
- * $Id: packet-pppoe.c,v 1.15 2001/01/09 06:31:40 guy Exp $
+ * $Id: packet-pppoe.c,v 1.16 2001/01/21 22:51:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -163,10 +163,6 @@ dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	proto_tree  *pppoe_tree;
 	proto_item  *ti;
 
-	CHECK_DISPLAY_AS_DATA(proto_pppoed, tvb, pinfo, tree);
-
-	pinfo->current_proto = "PPPoED";
-
 	if (check_col(pinfo->fd, COL_PROTOCOL)) {
 		col_set_str(pinfo->fd,COL_PROTOCOL, "PPPoED");
 	}
@@ -238,10 +234,6 @@ dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	proto_tree  *pppoe_tree;
 	proto_item  *ti;
 	tvbuff_t    *next_tvb;
-
-	CHECK_DISPLAY_AS_DATA(proto_pppoes, tvb, pinfo, tree);
-
-	pinfo->current_proto = "PPPoES";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL)) {
 		col_set_str(pinfo->fd,COL_PROTOCOL, "PPPoES");

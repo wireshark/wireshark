@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.10 2001/01/10 23:28:46 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.11 2001/01/21 22:51:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -173,12 +173,6 @@ col_add_str(fd,COL_INFO,info);
 #define TAG_TIM            0x05
 #define TAG_IBSS_PARAMETER 0x06
 #define TAG_CHALLENGE_TEXT 0x10
-
-
-/* ************************************************************************* */
-/*                Various constants used in this module                      */
-/* ************************************************************************* */
-static const char *capture_proto_name = "IEEE 802.11";
 
 
 static int proto_wlan = -1;
@@ -728,7 +722,7 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 /* ************************************************************************* */
 /*                          Dissect 802.11 frame                             */
 /* ************************************************************************* */
-void
+static void
 dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   guint16 fcf, flags;
@@ -748,10 +742,6 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
   cap_len = pinfo->captured_len;
   fcf = tvb_get_letohs (tvb, 0);
-
-  CHECK_DISPLAY_AS_DATA(proto_wlan, tvb, pinfo, tree);
-
-  pinfo->current_proto = capture_proto_name;
 
   if (check_col (pinfo->fd, COL_PROTOCOL))
     col_set_str (pinfo->fd, COL_PROTOCOL, "IEEE 802.11");

@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.30 2001/01/18 07:44:39 guy Exp $
+ * $Id: packet-vlan.c,v 1.31 2001/01/21 22:51:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,15 +83,12 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t *volatile trailer_tvb;
   proto_tree *volatile vlan_tree;
 
-  CHECK_DISPLAY_AS_DATA(proto_vlan, tvb, pinfo, tree);
-
-  pinfo->current_proto = "VLAN";
-
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "VLAN");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
 
   tci = tvb_get_ntohs( tvb, 0 );
-  encap_proto = tvb_get_ntohs( tvb, 2 );
 
   if (check_col(pinfo->fd, COL_INFO)) {
     col_add_fstr(pinfo->fd, COL_INFO, "PRI: %d  CFI: %d  ID: %d",
@@ -109,6 +106,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(vlan_tree, hf_vlan_id, tvb, 0, 2, tci);
   }
 
+  encap_proto = tvb_get_ntohs( tvb, 2 );
   if ( encap_proto <= IEEE_802_3_MAX_LEN) {
     /* Give the next dissector only 'encap_proto' number of bytes */
     proto_tree_add_uint(vlan_tree, hf_vlan_len, tvb, 2, 2, encap_proto);
