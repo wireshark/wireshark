@@ -316,7 +316,7 @@
 	".DMP" for Tcpdump/libpcap
 	</para>
 	<para>
-	".CAP" for Network Assosciates Sniffer Windows
+	".CAP" for Network Associates Sniffer Windows
 	</para>
 	</note>
   </section>	
@@ -579,7 +579,7 @@
 		</listitem>
 		<listitem>
 		  <para>
-		    <command>PostScipt</command> specifies that 
+		    <command>PostScript</command> specifies that 
 		    the packet print process should use PostScript to 
 		    generate a better print output on PostScript aware printers.
 		  </para>

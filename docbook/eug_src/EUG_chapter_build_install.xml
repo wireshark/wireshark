@@ -234,7 +234,7 @@ mkdir /usr/local/include/net
     <para>
       Under RedHat 6.x and beyond (and distributions based on it, like 
       Mandrake) you can simply install each of the packages you need from 
-      RPMs. Most Linux systems will install GTK+ and Glib in anycase, 
+      RPMs. Most Linux systems will install GTK+ and GLib in anycase, 
       however, you will probably need to install the devel versions of 
       each of these packages. The commands shown in <xref linkend="Ch02Ex4"/> 
 	will install all the needed RPMs if they are not already installed.

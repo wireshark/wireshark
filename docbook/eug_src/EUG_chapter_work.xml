@@ -819,7 +819,7 @@ ip.len le 0x436
 		    <command>Substring Operator</command></para><para>
 		    Ethereal allows you to select subsequences of a 
 		    sequence in rather elaborate ways.  After a label you 
-		    can place a pair of brackes [] containing a comma 
+		    can place a pair of brackets [] containing a comma 
 		    separated list of range specifiers. </para><para>
 		    <programlisting>eth.src[0:3] == 00:00:83</programlisting></para><para>
 		    The example above uses the n:m format to specify a 

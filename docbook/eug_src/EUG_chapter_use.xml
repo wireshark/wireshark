@@ -153,7 +153,7 @@
 	<varlistentry><term><command>File</command></term>
 	  <listitem>
 	    <para>
-	      This menu contains tems to open and merge capture files, 
+	      This menu contains items to open and merge capture files, 
 		  save / print / export capture files in whole or in part, 
 		  and to quit from Ethereal. See <xref linkend="ChUseFileMenuSection"/>.
 	    </para>
@@ -230,7 +230,7 @@
 	<para>
 	You can access menu items directly or by pressing the corresponding 
 	accelerator keys, which are shown at the right side of the 
-	menu. For example, you can press the Control (or Strg in german) and the K 
+	menu. For example, you can press the Control (or Strg in German) and the K 
 	keys together to open the capture dialog. 
 	</para>
 	</tip>
@@ -1649,7 +1649,7 @@
       <title>The "Packet List" pane</title>
       <graphic entityref="EtherealListPane" format="PNG"/>
     </figure>
-	Each line in the packet list corrresponds to one packet in the capture 
+	Each line in the packet list corresponds to one packet in the capture 
 	file. If you select a line in this pane, more details will be displayed in 
 	the "Packet Details" and "Packet Bytes" panes.
     </para>
