@@ -34,3 +34,6 @@ stamp-h
 stamp-h.in
 tethereal
 tethereal.1
+.*.swp
+etherXXXX*
+*.tgz
