@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.338 2004/01/09 21:38:21 guy Exp $
+ * $Id: file.c,v 1.339 2004/01/09 22:56:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1258,89 +1258,34 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   }
 }
 
-int
-print_packets(capture_file *cf, print_args_t *print_args)
+typedef enum {
+  PSP_FINISHED,
+  PSP_STOPPED,
+  PSP_FAILED
+} psp_return_t;
+
+psp_return_t
+process_specified_packets(capture_file *cf, packet_range_t *range,
+    const char *string1, const char *string2, const char *stop_button_title,
+    gboolean (*callback)(capture_file *, frame_data *,
+                         union wtap_pseudo_header *, const guint8 *, void *),
+    void *callback_args)
 {
-  int         i;
   frame_data *fdata;
-  progdlg_t  *progbar = NULL;
-  gboolean    stop_flag;
-  int         count;
   int         err;
-  gint       *col_widths = NULL;
-  gint        data_width;
-  gboolean    print_separator;
-  char       *line_buf = NULL;
-  int         line_buf_len = 256;
-  char        *cp;
-  int         cp_off;
-  int         column_len;
-  int         line_len;
-  epan_dissect_t *edt = NULL;
-  float       prog_val;
-  GTimeVal    start_time;
-  gchar       status_str[100];
+  union wtap_pseudo_header pseudo_header;
+  guint8      pd[WTAP_MAX_PACKET_SIZE+1];
+  psp_return_t ret = PSP_FINISHED;
+
+  progdlg_t  *progbar = NULL;
+  int         progbar_count;
+  float       progbar_val;
+  gboolean    progbar_stop_flag;
+  GTimeVal    progbar_start_time;
+  gchar       progbar_status_str[100];
   int         progbar_nextstep;
   int         progbar_quantum;
   range_process_e process_this;
-
-  cf->print_fh = open_print_dest(print_args->to_file, print_args->dest);
-  if (cf->print_fh == NULL)
-    return FALSE;	/* attempt to open destination failed */
-
-  print_preamble(cf->print_fh, print_args->format);
-
-  if (print_args->print_summary) {
-    /* We're printing packet summaries.  Allocate the line buffer at
-       its initial length. */
-    line_buf = g_malloc(line_buf_len + 1);
-
-    /* Find the widths for each of the columns - maximum of the
-       width of the title and the width of the data - and print
-       the column titles. */
-    col_widths = (gint *) g_malloc(sizeof(gint) * cf->cinfo.num_cols);
-    cp = &line_buf[0];
-    line_len = 0;
-    for (i = 0; i < cf->cinfo.num_cols; i++) {
-      /* Don't pad the last column. */
-      if (i == cf->cinfo.num_cols - 1)
-        col_widths[i] = 0;
-      else {
-        col_widths[i] = strlen(cf->cinfo.col_title[i]);
-        data_width = get_column_char_width(get_column_format(i));
-        if (data_width > col_widths[i])
-          col_widths[i] = data_width;
-      }
-
-      /* Find the length of the string for this column. */
-      column_len = strlen(cf->cinfo.col_title[i]);
-      if (col_widths[i] > column_len)
-        column_len = col_widths[i];
-
-      /* Make sure there's room in the line buffer for the column; if not,
-         double its length. */
-      line_len += column_len + 1;	/* "+1" for space */
-      if (line_len > line_buf_len) {
-        cp_off = cp - line_buf;
-        line_buf_len = 2 * line_len;
-        line_buf = g_realloc(line_buf, line_buf_len + 1);
-        cp = line_buf + cp_off;
-      }
-
-      /* Right-justify the packet number column. */
-      if (cf->cinfo.col_fmt[i] == COL_NUMBER)
-        sprintf(cp, "%*s", col_widths[i], cf->cinfo.col_title[i]);
-      else
-        sprintf(cp, "%-*s", col_widths[i], cf->cinfo.col_title[i]);
-      cp += column_len;
-      if (i != cf->cinfo.num_cols - 1)
-        *cp++ = ' ';
-    }
-    *cp = '\0';
-    print_line(cf->print_fh, 0, print_args->format, line_buf);
-  } /* if (print_summary) */
-
-  print_separator = FALSE;
 
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;
@@ -1348,12 +1293,12 @@ print_packets(capture_file *cf, print_args_t *print_args)
      bump that value by this amount. */
   progbar_quantum = cf->count/N_PROGBAR_UPDATES;
   /* Count of packets at which we've looked. */
-  count = 0;
+  progbar_count = 0;
 
-  stop_flag = FALSE;
-  g_get_current_time(&start_time);
+  progbar_stop_flag = FALSE;
+  g_get_current_time(&progbar_start_time);
 
-  packet_range_process_init(&print_args->range);
+  packet_range_process_init(range);
 
   /* Iterate through the list of packets, printing the packets that
      were selected by the current display filter.  */
@@ -1363,41 +1308,42 @@ print_packets(capture_file *cf, print_args_t *print_args)
        to repaint what's pending, and doing so may involve an "ioctl()"
        to see if there's any pending input from an X server, and doing
        that for every packet can be costly, especially on a big file. */
-    if (count >= progbar_nextstep) {
+    if (progbar_count >= progbar_nextstep) {
       /* let's not divide by zero. I should never be started
        * with count == 0, so let's assert that
        */
       g_assert(cf->count > 0);
-      prog_val = (gfloat) count / cf->count;
+      progbar_val = (gfloat) progbar_count / cf->count;
 
       if (progbar == NULL)
         /* Create the progress bar if necessary */
-        progbar = delayed_create_progress_dlg("Printing", "selected packets", "Stop", &stop_flag,
-          &start_time, prog_val);
+        progbar = delayed_create_progress_dlg(string1, string2,
+                                              stop_button_title,
+                                              &progbar_stop_flag,
+                                              &progbar_start_time,
+                                              progbar_val);
 
       if (progbar != NULL) {
-        g_snprintf(status_str, sizeof(status_str),
-                   "%4u of %u packets", count, cf->count);
-        update_progress_dlg(progbar, prog_val, status_str);
+        g_snprintf(progbar_status_str, sizeof(progbar_status_str),
+                   "%4u of %u packets", progbar_count, cf->count);
+        update_progress_dlg(progbar, progbar_val, progbar_status_str);
       }
 
       progbar_nextstep += progbar_quantum;
     }
 
-    if (stop_flag) {
-      /* Well, the user decided to abort the printing.  Just stop.
-
-         XXX - note that what got generated before they did that
-	 will get printed, as we're piping to a print program; we'd
-	 have to write to a file and then hand that to the print
-	 program to make it actually not print anything. */
+    if (progbar_stop_flag) {
+      /* Well, the user decided to abort the operation.  Just stop,
+         and arrange to return TRUE to our caller, so they know it
+         was stopped explicitly. */
+      ret = PSP_STOPPED;
       break;
     }
 
-    count++;
+    progbar_count++;
 
     /* do we have to process this packet? */
-    process_this = packet_range_process_packet(&print_args->range, fdata);
+    process_this = packet_range_process_packet(range, fdata);
     if (process_this == range_process_next) {
         /* this packet uninteresting, continue with next one */
         continue;
@@ -1406,80 +1352,212 @@ print_packets(capture_file *cf, print_args_t *print_args)
         break;
     }
 
-    if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
-      	       cf->pd, fdata->cap_len, &err)) {
-        simple_dialog(ESD_TYPE_CRIT, NULL,
-	      file_read_error_message(err), cf->filename);
-        break;
+    /* Get the packet */
+    if (!wtap_seek_read(cf->wth, fdata->file_off, &pseudo_header,
+                        pd, fdata->cap_len, &err)) {
+      /* Attempt to get the packet failed. */
+      simple_dialog(ESD_TYPE_CRIT, NULL, file_read_error_message(err),
+                    cf->filename);
+      ret = PSP_FAILED;
+      break;
     }
-    if (print_args->print_summary) {
-        /* Fill in the column information, but don't bother creating
-           the logical protocol tree. */
-        edt = epan_dissect_new(FALSE, FALSE);
-        epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, &cf->cinfo);
-        epan_dissect_fill_in_columns(edt);
-        cp = &line_buf[0];
-        line_len = 0;
-        for (i = 0; i < cf->cinfo.num_cols; i++) {
-          /* Find the length of the string for this column. */
-          column_len = strlen(cf->cinfo.col_data[i]);
-          if (col_widths[i] > column_len)
-            column_len = col_widths[i];
-
-          /* Make sure there's room in the line buffer for the column; if not,
-             double its length. */
-          line_len += column_len + 1;	/* "+1" for space */
-          if (line_len > line_buf_len) {
-            cp_off = cp - line_buf;
-            line_buf_len = 2 * line_len;
-            line_buf = g_realloc(line_buf, line_buf_len + 1);
-            cp = line_buf + cp_off;
-          }
-
-          /* Right-justify the packet number column. */
-          if (cf->cinfo.col_fmt[i] == COL_NUMBER)
-            sprintf(cp, "%*s", col_widths[i], cf->cinfo.col_data[i]);
-          else
-            sprintf(cp, "%-*s", col_widths[i], cf->cinfo.col_data[i]);
-          cp += column_len;
-          if (i != cf->cinfo.num_cols - 1)
-            *cp++ = ' ';
-        }
-        *cp = '\0';
-        print_line(cf->print_fh, 0, print_args->format, line_buf);
-      } else {
-        if (print_separator)
-          print_line(cf->print_fh, 0, print_args->format, "");
-
-        /* Create the logical protocol tree, complete with the display
-           representation of the items; we don't need the columns here,
-           however. */
-        edt = epan_dissect_new(TRUE, TRUE);
-        epan_dissect_run(edt, &cf->pseudo_header, cf->pd, fdata, NULL);
-
-        /* Print the information in that tree. */
-        proto_tree_print(print_args, edt, cf->print_fh);
-
-	if (print_args->print_hex) {
-	  /* Print the full packet data as hex. */
-	  print_hex_data(cf->print_fh, print_args->format, edt);
-	}
-
-        /* Print a blank line if we print anything after this. */
-    print_separator = TRUE;
-      } /* if (print_summary) */
-      epan_dissect_free(edt);
-  } /* for (fdata) */
+    if (!callback(cf, fdata, &pseudo_header, pd, callback_args)) {
+      /* Callback failed.  We assume it reported the error appropriately. */
+      ret = PSP_FAILED;
+      break;
+    }
+  }
 
   /* We're done printing the packets; destroy the progress bar if
      it was created. */
   if (progbar != NULL)
     destroy_progress_dlg(progbar);
 
-  if (col_widths != NULL)
-    g_free(col_widths);
-  if (line_buf != NULL)
-    g_free(line_buf);
+  return ret;
+}
+
+typedef struct {
+  print_args_t *print_args;
+  gboolean      print_separator;
+  char         *line_buf;
+  int           line_buf_len;
+  gint         *col_widths;
+} print_callback_args_t;
+
+static gboolean
+print_packet(capture_file *cf, frame_data *fdata,
+             union wtap_pseudo_header *pseudo_header, const guint8 *pd,
+             void *argsp)
+{
+  print_callback_args_t *args = argsp;
+  epan_dissect_t *edt;
+  int             i;
+  char           *cp;
+  int             line_len;
+  int             column_len;
+  int             cp_off;
+
+  if (args->print_args->print_summary) {
+    /* Fill in the column information, but don't bother creating
+       the logical protocol tree. */
+    edt = epan_dissect_new(FALSE, FALSE);
+    epan_dissect_run(edt, pseudo_header, pd, fdata, &cf->cinfo);
+    epan_dissect_fill_in_columns(edt);
+    cp = &args->line_buf[0];
+    line_len = 0;
+    for (i = 0; i < cf->cinfo.num_cols; i++) {
+      /* Find the length of the string for this column. */
+      column_len = strlen(cf->cinfo.col_data[i]);
+      if (args->col_widths[i] > column_len)
+         column_len = args->col_widths[i];
+
+      /* Make sure there's room in the line buffer for the column; if not,
+         double its length. */
+      line_len += column_len + 1;	/* "+1" for space */
+      if (line_len > args->line_buf_len) {
+        cp_off = cp - args->line_buf;
+        args->line_buf_len = 2 * line_len;
+        args->line_buf = g_realloc(args->line_buf, args->line_buf_len + 1);
+        cp = args->line_buf + cp_off;
+      }
+
+      /* Right-justify the packet number column. */
+      if (cf->cinfo.col_fmt[i] == COL_NUMBER)
+        sprintf(cp, "%*s", args->col_widths[i], cf->cinfo.col_data[i]);
+      else
+        sprintf(cp, "%-*s", args->col_widths[i], cf->cinfo.col_data[i]);
+      cp += column_len;
+      if (i != cf->cinfo.num_cols - 1)
+        *cp++ = ' ';
+    }
+    *cp = '\0';
+    print_line(cf->print_fh, 0, args->print_args->format, args->line_buf);
+  } else {
+    if (args->print_separator)
+      print_line(cf->print_fh, 0, args->print_args->format, "");
+
+    /* Create the logical protocol tree, complete with the display
+       representation of the items; we don't need the columns here,
+       however. */
+    edt = epan_dissect_new(TRUE, TRUE);
+    epan_dissect_run(edt, pseudo_header, pd, fdata, NULL);
+
+    /* Print the information in that tree. */
+    proto_tree_print(args->print_args, edt, cf->print_fh);
+
+    if (args->print_args->print_hex) {
+      /* Print the full packet data as hex. */
+      print_hex_data(cf->print_fh, args->print_args->format, edt);
+    }
+
+    /* Print a blank line if we print anything after this. */
+    args->print_separator = TRUE;
+  } /* if (print_summary) */
+  epan_dissect_free(edt);
+
+  return TRUE;
+}
+
+int
+print_packets(capture_file *cf, print_args_t *print_args)
+{
+  int         i;
+  print_callback_args_t callback_args;
+  gint        data_width;
+  char        *cp;
+  int         cp_off;
+  int         column_len;
+  int         line_len;
+
+  cf->print_fh = open_print_dest(print_args->to_file, print_args->dest);
+  if (cf->print_fh == NULL)
+    return FALSE;	/* attempt to open destination failed */
+
+  print_preamble(cf->print_fh, print_args->format);
+
+  callback_args.print_args = print_args;
+  callback_args.print_separator = FALSE;
+  callback_args.line_buf = NULL;
+  callback_args.line_buf_len = 256;
+  callback_args.col_widths = NULL;
+  if (print_args->print_summary) {
+    /* We're printing packet summaries.  Allocate the line buffer at
+       its initial length. */
+    callback_args.line_buf = g_malloc(callback_args.line_buf_len + 1);
+
+    /* Find the widths for each of the columns - maximum of the
+       width of the title and the width of the data - and print
+       the column titles. */
+    callback_args.col_widths = (gint *) g_malloc(sizeof(gint) * cf->cinfo.num_cols);
+    cp = &callback_args.line_buf[0];
+    line_len = 0;
+    for (i = 0; i < cf->cinfo.num_cols; i++) {
+      /* Don't pad the last column. */
+      if (i == cf->cinfo.num_cols - 1)
+        callback_args.col_widths[i] = 0;
+      else {
+        callback_args.col_widths[i] = strlen(cf->cinfo.col_title[i]);
+        data_width = get_column_char_width(get_column_format(i));
+        if (data_width > callback_args.col_widths[i])
+          callback_args.col_widths[i] = data_width;
+      }
+
+      /* Find the length of the string for this column. */
+      column_len = strlen(cf->cinfo.col_title[i]);
+      if (callback_args.col_widths[i] > column_len)
+        column_len = callback_args.col_widths[i];
+
+      /* Make sure there's room in the line buffer for the column; if not,
+         double its length. */
+      line_len += column_len + 1;	/* "+1" for space */
+      if (line_len > callback_args.line_buf_len) {
+        cp_off = cp - callback_args.line_buf;
+        callback_args.line_buf_len = 2 * line_len;
+        callback_args.line_buf = g_realloc(callback_args.line_buf,
+                                           callback_args.line_buf_len + 1);
+        cp = callback_args.line_buf + cp_off;
+      }
+
+      /* Right-justify the packet number column. */
+      if (cf->cinfo.col_fmt[i] == COL_NUMBER)
+        sprintf(cp, "%*s", callback_args.col_widths[i], cf->cinfo.col_title[i]);
+      else
+        sprintf(cp, "%-*s", callback_args.col_widths[i], cf->cinfo.col_title[i]);
+      cp += column_len;
+      if (i != cf->cinfo.num_cols - 1)
+        *cp++ = ' ';
+    }
+    *cp = '\0';
+    print_line(cf->print_fh, 0, print_args->format, callback_args.line_buf);
+  } /* if (print_summary) */
+
+  /* Iterate through the list of packets, printing the packets we were
+     told to print. */
+  switch (process_specified_packets(cf, &print_args->range, "Printing",
+                                    "selected packets", "Stop", print_packet,
+                                    &callback_args)) {
+  case PSP_FINISHED:
+    /* Completed successfully. */
+    break;
+
+  case PSP_STOPPED:
+    /* Well, the user decided to abort the printing.
+
+       XXX - note that what got generated before they did that
+       will get printed, as we're piping to a print program; we'd
+       have to write to a file and then hand that to the print
+       program to make it actually not print anything. */
+    break;
+
+  case PSP_FAILED:
+    /* Error while saving. */
+    break;
+  }
+
+  if (callback_args.col_widths != NULL)
+    g_free(callback_args.col_widths);
+  if (callback_args.line_buf != NULL)
+    g_free(callback_args.line_buf);
 
   print_finale(cf->print_fh, print_args->format);
 
@@ -2260,6 +2338,11 @@ unmark_frame(capture_file *cf, frame_data *frame)
   cf->marked_count--;
 }
 
+typedef struct {
+  wtap_dumper *pdh;
+  const char  *fname;
+} save_callback_args_t;
+
 /*
  * Save a capture to a file, in a particular format, saving either
  * all packets, all currently-displayed packets, or all marked packets.
@@ -2267,6 +2350,31 @@ unmark_frame(capture_file *cf, frame_data *frame)
  * Returns TRUE if it succeeds, FALSE otherwise; if it fails, it pops
  * up a message box for the failure.
  */
+static gboolean
+save_packet(capture_file *cf _U_, frame_data *fdata,
+            union wtap_pseudo_header *pseudo_header, const guint8 *pd,
+            void *argsp)
+{
+  save_callback_args_t *args = argsp;
+  struct wtap_pkthdr hdr;
+  int           err;
+
+  /* init the wtap header for saving */
+  hdr.ts.tv_sec  = fdata->abs_secs;
+  hdr.ts.tv_usec = fdata->abs_usecs;
+  hdr.caplen     = fdata->cap_len;
+  hdr.len        = fdata->pkt_len;
+  hdr.pkt_encap  = fdata->lnk_t;
+
+  /* and save the packet */
+  if (!wtap_dump(args->pdh, &hdr, pseudo_header, pd, &err)) {
+    simple_dialog(ESD_TYPE_CRIT, NULL, file_write_error_message(err),
+                  args->fname);
+    return FALSE;
+  }
+  return TRUE;
+}
+
 gboolean
 cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
 {
@@ -2276,21 +2384,8 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
   int           err;
   gboolean      do_copy;
   wtap_dumper  *pdh;
-  frame_data   *fdata;
-  struct wtap_pkthdr hdr;
-  union wtap_pseudo_header pseudo_header;
-  guint8        pd[65536];
   struct stat   infile, outfile;
-  range_process_e process_this;
-
-  progdlg_t    *progbar = NULL;
-  int           progbar_count;
-  float         progbar_val;
-  gboolean      progbar_stop_flag;
-  GTimeVal      progbar_start_time;
-  gchar         progbar_status_str[100];
-  int           progbar_nextstep;
-  int           progbar_quantum;
+  save_callback_args_t callback_args;
 
   name_ptr = get_basename(fname);
   msg_len = strlen(name_ptr) + strlen(save_fmt) + 2;
@@ -2383,102 +2478,45 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
       goto fail;
     }
 
-    /* Update the progress bar when it gets to this value. */
-    progbar_nextstep = 0;
-    /* When we reach the value that triggers a progress bar update,
-     bump that value by this amount. */
-    progbar_quantum = cf->count/N_PROGBAR_UPDATES;
-    /* Count of packets at which we've looked. */
-    progbar_count = 0;
-
-    progbar_stop_flag = FALSE;
-    g_get_current_time(&progbar_start_time);
-
-    /* XXX - have a way to save only the packets currently selected by
-       the display filter or the marked ones.
+    /* XXX - we let the user save a subset of the packets.
 
        If we do that, should we make that file the current file?  If so,
        it means we can no longer get at the other packets.  What does
        NetMon do? */
-    for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
-        /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-           when we update it, we have to run the GTK+ main loop to get it
-           to repaint what's pending, and doing so may involve an "ioctl()"
-           to see if there's any pending input from an X server, and doing
-           that for every packet can be costly, especially on a big file. */
-        if (progbar_count >= progbar_nextstep) {
-          /* let's not divide by zero. I should never be started
-           * with count == 0, so let's assert that
-           */
-          g_assert(cf->count > 0);
-          progbar_val = (gfloat) progbar_count / cf->count;
 
-          if (progbar == NULL)
-            /* Create the progress bar if necessary */
-            progbar = delayed_create_progress_dlg("Saving", "selected packets", "Stop", 
-              &progbar_stop_flag, &progbar_start_time, progbar_val);
+    /* Iterate through the list of packets, printing the packets we were
+       told to print.
 
-          if (progbar != NULL) {
-            g_snprintf(progbar_status_str, sizeof(progbar_status_str),
-                       "%4u of %u packets", progbar_count, cf->count);
-            update_progress_dlg(progbar, progbar_val, progbar_status_str);
-          }
+       XXX - we've already called "packet_range_process_init(range)", but
+       "process_specified_packets()" will do it again.  Fortunately,
+       that's harmless in this case, as we haven't done anything to
+       "range" since we initialized it. */
+    callback_args.pdh = pdh;
+    callback_args.fname = fname;
+    switch (process_specified_packets(cf, range, "Saving",
+                                      "selected packets", "Stop", save_packet,
+                                      &callback_args)) {
 
-          progbar_nextstep += progbar_quantum;
-        }
-        if (progbar_stop_flag) {
-          /* Well, the user decided to abort the saving. Just stop the loop. */
-          break;
-        }
+    case PSP_FINISHED:
+      /* Completed successfully. */
+      break;
 
-        progbar_count++;
+    case PSP_STOPPED:
+      /* The user decided to abort the saving.
+         XXX - remove the output file? */
+      break;
 
-        /* do we have to process this packet? */
-        process_this = packet_range_process_packet(range, fdata);
-        if (process_this == range_process_next) {
-            /* this packet uninteresting, continue with next one */
-            continue;
-        } else if (process_this == range_processing_finished) {
-            /* all interesting packets saved, stop the loop */
-            break;
-        }
-
-        /* init the wtap header for saving */
-        hdr.ts.tv_sec  = fdata->abs_secs;
-        hdr.ts.tv_usec = fdata->abs_usecs;
-        hdr.caplen     = fdata->cap_len;
-        hdr.len        = fdata->pkt_len;
-        hdr.pkt_encap  = fdata->lnk_t;
-
-        /* Get the packet */
-        if (!wtap_seek_read(cf->wth, fdata->file_off, &pseudo_header,
-	        pd, fdata->cap_len, &err)) {
-          simple_dialog(ESD_TYPE_CRIT, NULL,
-			        file_read_error_message(err), cf->filename);
-          wtap_dump_close(pdh, &err);
-              goto fail;
-        } 
-	          
-        /* and save the packet */
-        if (!wtap_dump(pdh, &hdr, &pseudo_header, pd, &err)) {
-          simple_dialog(ESD_TYPE_CRIT, NULL,
-			        file_write_error_message(err), fname);
-          wtap_dump_close(pdh, &err);
-              goto fail;
-        }
-    } /* for */
-
-    if (!wtap_dump_close(pdh, &err)) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
-		file_close_error_message(err), fname);
+    case PSP_FAILED:
+      /* Error while saving. */
+      wtap_dump_close(pdh, &err);
       goto fail;
     }
-  } /* save_all */
 
-  /* We're done filtering the packets; destroy the progress bar if it
-     was created. */
-  if (progbar != NULL)
-    destroy_progress_dlg(progbar);
+    if (!wtap_dump_close(pdh, &err)) {
+      simple_dialog(ESD_TYPE_WARN, NULL, file_close_error_message(err), fname);
+      goto fail;
+    }
+  }
 
   /* Pop the "Saving:" message off the status bar. */
   statusbar_pop_file_msg();
@@ -2523,11 +2561,6 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
   return TRUE;
 
 fail:
-  /* We're done filtering the packets; destroy the progress bar if it
-     was created. */
-  if (progbar != NULL)
-    destroy_progress_dlg(progbar);
-
   /* Pop the "Saving:" message off the status bar. */
   statusbar_pop_file_msg();
   return FALSE;
