@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.19 2001/04/02 00:38:34 hagbard Exp $
+ * $Id: proto.c,v 1.20 2001/04/05 19:25:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -220,8 +220,10 @@ proto_init(const char *plugin_dir,void (register_all_protocols)(void),
 	   they need. */
 	register_all_protocol_handoffs();
 
+#ifdef HAVE_PLUGINS
 	/* Now do the same with plugins. */
 	register_all_plugin_handoffs();
+#endif
 
 	/* Register one special-case FT_TEXT_ONLY field for use when
 	   converting ethereal to new-style proto_tree. These fields
