@@ -3,10 +3,11 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
+ * Copyright 2004, Jerry Talkington <jtalkington@users.sourceforge.net>
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.97 2004/04/26 17:10:40 obiot Exp $
+ * $Id: packet-http.c,v 1.98 2004/04/29 20:26:54 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -622,7 +623,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    == 0) {
 
 				chunks_decoded = chunked_encoding_dissector(
-				    &next_tvb, pinfo, tree, 0);
+				    &next_tvb, pinfo, http_tree, 0);
 
 				if (chunks_decoded <= 0) {
 					/* 
@@ -657,28 +658,18 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * "compress", or "deflate"; just handle them as
 			 * data for now.
 			 */
-			if (chunks_decoded != 0) {
-				/*
-				 * There is a chunked response tree, so put
-				 * the entity body below it.
-				 */
-				proto_item *e_ti = NULL;
-				proto_tree *e_tree = NULL;
+			proto_item *e_ti = NULL;
+			proto_tree *e_tree = NULL;
 
-				e_ti = proto_tree_add_text(tree, next_tvb,
-				    0, tvb_length(next_tvb),
-				    "Encoded entity-body (%s)",
-				    headers.content_encoding);
+			e_ti = proto_tree_add_text(http_tree, next_tvb, 0,
+			    tvb_length(next_tvb), "Encoded entity-body (%s)",
+			    headers.content_encoding);
 
-				e_tree = proto_item_add_subtree(e_ti,
-				    ett_http_encoded_entity);
+			e_tree = proto_item_add_subtree(e_ti,
+			    ett_http_encoded_entity);
 
-				call_dissector(data_handle, next_tvb, pinfo,
-				    e_tree);
-			} else {
-				call_dissector(data_handle, next_tvb, pinfo,
-				    http_tree);
-			}
+			call_dissector(data_handle, next_tvb, pinfo, e_tree);
+			
 			goto body_dissected;
 		}
 
