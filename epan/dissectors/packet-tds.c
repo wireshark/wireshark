@@ -628,7 +628,9 @@ static int tds_get_fixed_token_size(guint8 token)
      }
 }
 
-static guint tds_get_variable_token_size(tvbuff_t *tvb, gint offset, guint8 token, guint *len_field_size_p)
+static guint
+tds_get_variable_token_size(tvbuff_t *tvb, gint offset, guint8 token,
+                            guint *len_field_size_p, guint *len_field_val_p)
 {
     switch(token) {
         /* some tokens have a 4 byte length field */
@@ -639,16 +641,20 @@ static guint tds_get_variable_token_size(tvbuff_t *tvb, gint offset, guint8 toke
         case TDS5_ROWFMT2_TOKEN:
         case TDS5_DYNAMIC2_TOKEN:
             *len_field_size_p = 4;
-            return tds_tvb_get_xxtohl(tvb, offset, tds_little_endian) + 5;
+            *len_field_val_p = tds_tvb_get_xxtohl(tvb, offset, tds_little_endian);
+            break;
         /* some have a 1 byte length field */
         case TDS5_MSG_TOKEN:
             *len_field_size_p = 1;
-            return tvb_get_guint8(tvb, offset) +2;
+            *len_field_val_p = tvb_get_guint8(tvb, offset);
+            break;
         /* and most have a 2 byte length field */
         default:
             *len_field_size_p = 2;
-            return tds_tvb_get_xxtohs(tvb, offset, tds_little_endian) + 3;
+            *len_field_val_p = tds_tvb_get_xxtohs(tvb, offset, tds_little_endian);
+            break;
     }
+    return *len_field_val_p + *len_field_size_p + 1;
 }
 
 
@@ -707,6 +713,7 @@ dissect_tds_query5_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     guint offset;
     guint pos;
     guint token_len_field_size = 2;
+    guint token_len_field_val;
     guint8 token;
     guint token_sz;
     proto_item *query_hdr;
@@ -729,7 +736,8 @@ dissect_tds_query5_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         if (tds_token_is_fixed_size(token))
             token_sz = tds_get_fixed_token_size(token) + 1;
         else
-            token_sz = tds_get_variable_token_size(tvb, pos+1, token, &token_len_field_size);
+            token_sz = tds_get_variable_token_size(tvb, pos+1, token, &token_len_field_size,
+                                                   &token_len_field_val);
 
         token_item = proto_tree_add_text(tree, tvb, pos, token_sz,
                     "Token 0x%02x %s", token,
@@ -741,7 +749,7 @@ dissect_tds_query5_packet(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
          * instead of replicating this for each token subdissector.
          */
         if (!tds_token_is_fixed_size(token))
-            proto_tree_add_text(token_tree, tvb, pos+1, token_len_field_size, "Length: %u", token_sz);
+            proto_tree_add_text(token_tree, tvb, pos+1, token_len_field_size, "Length: %u", token_len_field_val);
 
         switch (token) {
             case TDS_LANG_TOKEN:
@@ -1432,6 +1440,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *token_tree;
 	guint pos, token_sz = 0;
 	guint token_len_field_size = 2;
+	guint token_len_field_val;
 	guint8 token;
 	struct _netlib_data nl_data;
 	gint length_remaining;
@@ -1458,7 +1467,8 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			token_sz = tds_get_row_size(tvb, &nl_data, pos + 1);
 		} else
-			token_sz = tds_get_variable_token_size(tvb, pos+1, token, &token_len_field_size);
+			token_sz = tds_get_variable_token_size(tvb, pos + 1,
+			    token, &token_len_field_size, &token_len_field_val);
 
 		length_remaining = tvb_ensure_length_remaining(tvb, pos);
 
@@ -1472,7 +1482,9 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * instead of replicating this for each token subdissector.
 		 */
 		if (!tds_token_is_fixed_size(token) && token != TDS_ROW_TOKEN) {
-			proto_tree_add_text(token_tree, tvb, pos+1, token_len_field_size, "Length: %u", token_sz);
+			proto_tree_add_text(token_tree, tvb, pos + 1,
+			    token_len_field_size, "Length: %u",
+			    token_len_field_val);
 		}
 
 		if (token_sz > (guint)length_remaining)
