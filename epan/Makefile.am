@@ -42,7 +42,9 @@ libethereal_la_SOURCES = \
 	$(DISSECTOR_SUPPORT_SRC)
 
 EXTRA_libethereal_la_SOURCES =	\
-        inet_aton.c		\
+	g_ascii_strtoull.c	\
+	g_ascii_strtoull.h	\
+	inet_aton.c		\
 	inet_pton.c		\
 	inet_ntop.c		\
 	inet_aton.h		\
@@ -67,8 +69,8 @@ MAINTAINERCLEANFILES =	\
 #
 # Add the object files for missing routines, if any.
 #
-libethereal_la_LIBADD = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la dissectors/libdissectors.la
-libethereal_la_DEPENDENCIES = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la dissectors/libdissectors.la
+libethereal_la_LIBADD = @G_ASCII_STRTOULL_O@ @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la dissectors/libdissectors.la
+libethereal_la_DEPENDENCIES = @G_ASCII_STRTOULL_O@ @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la dissectors/libdissectors.la
 
 tvbtest: tvbtest.o tvbuff.o except.o strutil.o
 	$(LINK) -o tvbtest tvbtest.o tvbuff.o except.o strutil.o `glib-config --libs`
