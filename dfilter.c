@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.2 1999/07/07 23:54:13 guy Exp $
+ * $Id: dfilter.c,v 1.3 1999/07/08 03:35:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -280,9 +280,7 @@ yylex(void)
 		token = T_VAL_ID;
 		yylval.id = g_strdup(scanner->value.v_identifier);
 	}
-	else {
-		printf("(unknown) token = %d\n", token);
-	}
+	/* else it's punctuation */
 
 	return token;
 }
@@ -364,15 +362,19 @@ dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8* pd)
 static gboolean
 check_logical(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 *pd)
 {
+	gboolean val_a = dfilter_apply_node(a, ptree, pd);
+	gboolean val_b;
+
 	switch(operand) {
 	case TOK_AND:
-		return (dfilter_apply_node(a, ptree, pd) && dfilter_apply_node(b, ptree, pd));
+		return (val_a && dfilter_apply_node(b, ptree, pd));
 	case TOK_OR:
-		return (dfilter_apply_node(a, ptree, pd) || dfilter_apply_node(b, ptree, pd));
+		return (val_a || dfilter_apply_node(b, ptree, pd));
 	case TOK_XOR:
-		return (dfilter_apply_node(a, ptree, pd) || dfilter_apply_node(b, ptree, pd));
+		val_b = dfilter_apply_node(b, ptree, pd);
+		return ( ( val_a || val_b ) && ! ( val_a && val_b ) );
 	case TOK_NOT:
-		return (!dfilter_apply_node(a, ptree, pd));
+		return (!val_a);
 	default:
 		g_assert_not_reached();
 	}	
