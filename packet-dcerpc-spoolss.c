@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.42 2002/06/24 04:36:56 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.43 2002/06/25 03:01:05 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -102,7 +102,7 @@ static const value_string spoolss_opnum_vals[] = {
         { SPOOLSS_FCPN, "FCPN" },
 	{ SPOOLSS_ROUTERFINDFIRSTPRINTERNOTIFICATIONOLD, "RouterFindFirstPrinterNotificationOld" },
         { SPOOLSS_REPLYOPENPRINTER, "ReplyOpenPrinter" },
-	{ SPOOLSS_ROUTERREPLYPRINTER, "RouterREplyPrinter" },
+	{ SPOOLSS_ROUTERREPLYPRINTER, "RouterReplyPrinter" },
         { SPOOLSS_REPLYCLOSEPRINTER, "ReplyClosePrinter" },
 	{ SPOOLSS_ADDPORTEX, "AddPortEx" },
 	{ SPOOLSS_REMOTEFINDFIRSTPRINTERCHANGENOTIFICATION, "RemoteFindFirstPrinterChangeNotification" },
@@ -439,6 +439,12 @@ static const value_string setprinter_cmd_vals[] = {
 	{ PRINTER_CONTROL_SET_STATUS, "Set status" },
 	{ 0, NULL }
 };
+
+/* RouterReplyPrinter RPC */
+
+static int hf_spoolss_routerreplyprinter_condition = -1;
+static int hf_spoolss_routerreplyprinter_unknown1 = -1;
+static int hf_spoolss_routerreplyprinter_changeid = -1;
 
 /* 
  * Routines to dissect a spoolss BUFFER 
@@ -2104,7 +2110,7 @@ dissect_NOTIFY_OPTION(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    hf_spoolss_notify_option_type, &type);
 
 	proto_item_append_text(item, ": %s", 
-			       val_to_str(type, printer_notify_types, "%s"));
+			       val_to_str(type, printer_notify_types, "Unknown (%d)"));
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, subtree, drep,
 				    hf_spoolss_notify_option_reserved1, NULL);
@@ -2751,7 +2757,7 @@ static int prs_FORM_REL(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = prs_uint32(tvb, offset, pinfo, subtree, &flags, NULL);
 
 	proto_tree_add_text(subtree, tvb, offset - 4, 4, "Flags: %s",
-			    val_to_str(flags, form_type_vals, "Unknown type"));
+			    val_to_str(flags, form_type_vals, "Unknown (%d)"));
 
 	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list,
 			    struct_start, NULL, "Name");
@@ -3266,7 +3272,7 @@ static int prs_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = prs_uint32(tvb, offset, pinfo, subtree, &flags, NULL);
 
 	proto_tree_add_text(subtree, tvb, offset - 4, 4, "Flags: %s",
-			    val_to_str(flags, form_type_vals, "Unknown type"));
+			    val_to_str(flags, form_type_vals, "Unknown (%d)"));
 
 	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Unknown");
 
@@ -3980,7 +3986,7 @@ static int SpoolssSetJob_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(
 			pinfo->cinfo, COL_INFO, ", %s jobid %d",
-			val_to_str(cmd, setjob_commands, "Unknown command"),
+			val_to_str(cmd, setjob_commands, "Unknown (%d)"),
 			jobid);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
@@ -5097,11 +5103,11 @@ dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	switch(type) {
 	case PRINTER_NOTIFY_TYPE:
 		field_string = val_to_str(
-			field, printer_notify_option_data_vals, "%s");
+			field, printer_notify_option_data_vals, "Unknown (%d)");
 		break;
 	case JOB_NOTIFY_TYPE:
 		field_string = val_to_str(
-			field, job_notify_option_data_vals, "%s");
+			field, job_notify_option_data_vals, "Unknown (%d)");
 		break;
 	default:
 		field_string = "Unknown field";
@@ -5110,7 +5116,8 @@ dissect_NOTIFY_INFO_DATA(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	proto_item_append_text(
 		item, ": %s, %s", 
-		val_to_str(type, printer_notify_types, "%s"), field_string);
+		val_to_str(type, printer_notify_types, "Unknown (%d)"), 
+		field_string);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, subtree, drep,
@@ -5388,6 +5395,63 @@ static int SpoolssFCPN_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }	
 
+/*
+ * RouterReplyPrinter
+ */
+
+static int SpoolssRouterReplyPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+				       proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->rep_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Reply in frame %u", dcv->rep_frame);
+
+	/* Parse packet */
+
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
+				       hf_spoolss_hnd, NULL,
+				       FALSE, FALSE);	
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_routerreplyprinter_condition, NULL);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_routerreplyprinter_unknown1, NULL);
+
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, tree, drep,
+		hf_spoolss_routerreplyprinter_changeid, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int SpoolssRouterReplyPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+				       proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+
+	if (dcv->req_frame != 0)
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Request in frame %u", dcv->req_frame);
+
+	/* Parse packet */
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
 #if 0
 
 /* Templates for new subdissectors */
@@ -5561,8 +5625,8 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
 	  NULL, SpoolssGeneric_r },
         { SPOOLSS_REPLYOPENPRINTER, "ReplyOpenPrinter", 
 	  SpoolssReplyOpenPrinter_q, SpoolssReplyOpenPrinter_r },
-	{ SPOOLSS_ROUTERREPLYPRINTER, "RouterREplyPrinter", 
-	  NULL, SpoolssGeneric_r },
+	{ SPOOLSS_ROUTERREPLYPRINTER, "RouterReplyPrinter", 
+	  SpoolssRouterReplyPrinter_q, SpoolssRouterReplyPrinter_r },
         { SPOOLSS_REPLYCLOSEPRINTER, "ReplyClosePrinter", 
 	  SpoolssReplyClosePrinter_q, SpoolssReplyClosePrinter_r },
 	{ SPOOLSS_ADDPORTEX, "AddPortEx", 
@@ -6082,9 +6146,27 @@ proto_register_dcerpc_spoolss(void)
 		    32, TFS(&tfs_printer_attributes_published), 
 		    PRINTER_ATTRIBUTE_PUBLISHED, "Published", HFILL }},
 
+		/* Setprinter RPC */
+
 		{ &hf_spoolss_setprinter_cmd,
 		  { "Command", "spoolss.setprinter_cmd", FT_UINT32, BASE_DEC,
 		   VALS(setprinter_cmd_vals), 0, "Command", HFILL }},
+
+		/* RouterReplyPrinter RPC */
+
+		{ &hf_spoolss_routerreplyprinter_condition,
+		  { "Condition", "spoolss.routerreplyprinter.condition", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Condition", HFILL }},
+
+		{ &hf_spoolss_routerreplyprinter_unknown1,
+		  { "Unknown1", "spoolss.routerreplyprinter.unknown1", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Unknown1", HFILL }},
+
+		{ &hf_spoolss_routerreplyprinter_changeid,
+		  { "Change id", "spoolss.routerreplyprinter.changeid", FT_UINT32, 
+		    BASE_DEC, NULL, 0, "Change id", HFILL }},
+
+
 	};
 
         static gint *ett[] = {
