@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.51 2003/12/17 21:03:15 guy Exp $
+ * $Id: packet-rtsp.c,v 1.52 2003/12/22 08:58:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include "rreh.h"
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 #include <epan/conversation.h>
@@ -57,6 +58,19 @@ void proto_reg_handoff_rtsp(void);
 
 static GMemChunk *rtsp_vals = NULL;
 #define rtsp_hash_init_count 20
+
+/*
+ * desegmentation of RTSP headers
+ * (when we are over TCP or another protocol providing the desegmentation API)
+ */
+static gboolean rtsp_desegment_headers = FALSE;
+
+/*
+ * desegmentation of RTSP bodies
+ * (when we are over TCP or another protocol providing the desegmentation API)
+ * TODO let the user filter on content-type the bodies he wants desegmented
+ */
+static gboolean rtsp_desegment_body = FALSE;
 
 #define TCP_PORT_RTSP			554
 static guint global_rtsp_tcp_port = TCP_PORT_RTSP;
@@ -197,8 +211,8 @@ static const char *rtsp_methods[] = {
 
 #define RTSP_NMETHODS	(sizeof rtsp_methods / sizeof rtsp_methods[0])
 
-static rtsp_type_t
-is_rtsp_request_or_reply(const guchar *line, size_t linelen)
+static gboolean
+is_rtsp_request_or_reply(const guchar *line, size_t linelen, rtsp_type_t *type)
 {
 	unsigned	ii;
 
@@ -207,7 +221,8 @@ is_rtsp_request_or_reply(const guchar *line, size_t linelen)
 		/*
 		 * Yes.
 		 */
-		return RTSP_REPLY;
+		*type = RTSP_REPLY;
+		return TRUE;
 	}
 
 	/*
@@ -218,10 +233,13 @@ is_rtsp_request_or_reply(const guchar *line, size_t linelen)
 	for (ii = 0; ii < RTSP_NMETHODS; ii++) {
 		size_t len = strlen(rtsp_methods[ii]);
 		if (linelen >= len &&
-		    strncasecmp(rtsp_methods[ii], line, len) == 0)
-			return RTSP_REQUEST;
+		    strncasecmp(rtsp_methods[ii], line, len) == 0) {
+			*type = RTSP_REQUEST;
+			return TRUE;
+		}
 	}
-	return NOT_RTSP;
+	*type = NOT_RTSP;
+	return FALSE;
 }
 
 static const char rtsp_content_type[] = "Content-Type:";
@@ -408,13 +426,43 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	gint		next_offset;
 	const guchar	*linep, *lineend;
 	int		orig_offset;
-	size_t		linelen;
+	int		first_linelen, linelen;
+	gboolean	is_request_or_reply;
 	guchar		c;
+	rtsp_type_t	rtsp_type;
 	gboolean	is_mime_header;
 	int		is_sdp = FALSE;
 	int		datalen;
 	int		content_length;
 	int		reported_datalen;
+
+	/*
+	 * Is this a request or response?
+	 *
+	 * Note that "tvb_find_line_end()" will return a value that
+	 * is not longer than what's in the buffer, so the
+	 * "tvb_get_ptr()" call won't throw an exception.
+	 */
+	first_linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
+	    FALSE);
+	line = tvb_get_ptr(tvb, offset, first_linelen);
+	is_request_or_reply = is_rtsp_request_or_reply(line, first_linelen,
+	    &rtsp_type);
+	if (is_request_or_reply) {
+                /*
+		 * Yes, it's a request or response.
+		 * Do header desegmentation if we've been told to,
+		 * and do body desegmentation if we've been told to and
+		 * we find a Content-Length header.
+		 */
+		if (!rreh_do_reassembly(tvb, pinfo, rtsp_desegment_headers,
+		    rtsp_desegment_body)) {
+			/*
+			 * More data needed for desegmentation.
+			 */
+			return -1;
+		}
+	}
 
 	orig_offset = offset;
 	rtsp_tree = NULL;
@@ -427,25 +475,18 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/*
 		 * Put the first line from the buffer into the summary
-		 * if it's an RTSP request or reply (but leave out the
+ 		 * if it's an RTSP request or reply (but leave out the
 		 * line terminator).
 		 * Otherwise, just call it a continuation.
 		 */
 		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset,
 		    FALSE);
 		line = tvb_get_ptr(tvb, offset, linelen);
-		switch (is_rtsp_request_or_reply(line, linelen)) {
-
-		case RTSP_REQUEST:
-		case RTSP_REPLY:
+		if (is_request_or_reply)
 			col_add_str(pinfo->cinfo, COL_INFO,
 			    format_text(line, linelen));
-			break;
-
-		default:
+		else
 			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
-			break;
-		}
 	}
 
 	/*
@@ -478,23 +519,10 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * OK, does it look like an RTSP request or
 		 * response?
 		 */
-		switch (is_rtsp_request_or_reply(line, linelen)) {
-
-		case RTSP_REQUEST:
-			if (rtsp_tree != NULL)
-				process_rtsp_request(tvb, offset, line, linelen,
-				    rtsp_tree);
+		is_request_or_reply = is_rtsp_request_or_reply(line, linelen,
+		    &rtsp_type);
+		if (is_request_or_reply)
 			goto is_rtsp;
-
-		case RTSP_REPLY:
-			if (rtsp_tree != NULL)
-				process_rtsp_reply(tvb, offset, line, linelen,
-				    rtsp_tree);
-			goto is_rtsp;
-
-		case NOT_RTSP:
-			break;
-		}
 
 		/*
 		 * No.  Does it look like a blank line (as would
@@ -564,9 +592,24 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	is_rtsp:
 		/*
-		 * Put this line.
+		 * Process this line.
 		 */
 		if (rtsp_tree) {
+			switch (rtsp_type) {
+
+			case RTSP_REQUEST:
+				process_rtsp_request(tvb, offset, line, linelen,
+				    rtsp_tree);
+				break;
+
+			case RTSP_REPLY:
+				process_rtsp_reply(tvb, offset, line, linelen,
+				    rtsp_tree);
+				break;
+
+			case NOT_RTSP:
+				break;
+			}
 			proto_tree_add_text(rtsp_tree, tvb, offset,
 			    next_offset - offset, "%s",
 			    tvb_format_text(tvb, offset, next_offset - offset));
@@ -838,6 +881,18 @@ proto_register_rtsp(void)
 		"RTSP TCP Port",
 		"Set the TCP port for RTSP messages",
 		10, &global_rtsp_tcp_port);
+	prefs_register_bool_preference(rtsp_module, "desegment_rtsp_headers",
+	    "Desegment all RTSP headers spanning multiple TCP segments",
+	    "Whether the RTSP dissector should desegment all headers "
+	    "of a request spanning multiple TCP segments",
+	    &rtsp_desegment_headers);
+	prefs_register_bool_preference(rtsp_module, "desegment_rtsp_body",
+	    "Trust the \"Content-length:\" header and desegment RTSP "
+	    "bodies spanning multiple TCP segments",
+	    "Whether the RTSP dissector should use the "
+	    "\"Content-length:\" value to desegment the body "
+	    "of a request spanning multiple TCP segments",
+	    &rtsp_desegment_body);
 
 	register_init_routine(rtsp_init);	/* register re-init routine */
 }
