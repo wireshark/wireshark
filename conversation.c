@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.2 1999/10/24 07:27:17 guy Exp $
+ * $Id: conversation.c,v 1.3 1999/11/11 20:44:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,60 +84,43 @@ conversation_equal(gconstpointer v, gconstpointer w)
 	if (v1->ptype != v2->ptype)
 		return 0;	/* different types of port */
 
+	/*
+	 * Are the first and second source addresses the same, the
+	 * first and second destination addresses the same, the
+	 * first and second source ports the same, and the first and
+	 * second destination ports the same?
+	 */
 	if (v1->src.len == v2->src.len &&
-	    memcmp(v1->src.data, v2->src.data, v1->src.len) == 0) {
+	    memcmp(v1->src.data, v2->src.data, v1->src.len) == 0 &&
+	    v1->dst.len == v2->dst.len &&
+	    memcmp(v1->dst.data, v2->dst.data, v1->dst.len) == 0 &&
+	    v1->port_src == v2->port_src &&
+	    v1->port_dst == v2->port_dst) {
 		/*
-		 * The first and second source addresses are the same.
+		 * Yes.  It's the same conversation, and the two
+		 * address/port pairs are going in the same direction.
 		 */
-		if (v1->dst.len == v2->dst.len &&
-		    memcmp(v1->dst.data, v2->dst.data, v1->dst.len) == 0) {
-			/*
-			 * The first and second destination addresses
-			 * are the same, so they're both going from
-			 * the same machine and they're both going to
-			 * the same machine.
-			 */
-			if (v1->port_src == v2->port_src &&
-			    v1->port_dst == v2->port_dst) {
-			    	/*
-				 * The first and second source ports
-				 * are the same, and the first and second
-				 * destination ports are the same, so
-				 * it's the same conversation, and the two
-				 * address/port pairs are going in the same
-				 * direction.
-				 */
-				return 1;
-			}
-		}
-	} else if (v1->src.len == v2->dst.len &&
-	    memcmp(v1->src.data, v2->dst.data, v1->src.len) == 0) {
+		return 1;
+	}
+
+	/*
+	 * Is the first source address the same as the second destination
+	 * address, the first destination address the same as the second
+	 * source address, the first source port the same as the second
+	 * destination port, and the first destination port the same
+	 * as the second source port?
+	 */
+	if (v1->src.len == v2->dst.len &&
+	    memcmp(v1->src.data, v2->dst.data, v1->src.len) == 0 &&
+	    v1->dst.len == v2->src.len &&
+	    memcmp(v1->dst.data, v2->src.data, v1->dst.len) == 0 &&
+	    v1->port_src == v2->port_dst &&
+	    v1->port_dst == v2->port_src) {
 		/*
-		 * The first source address is the same as the second
-		 * destination address.
+		 * Yes.  It's the same conversation, and the two
+		 * address/port pairs are going in opposite directions.
 		 */
-		if (v1->dst.len == v2->src.len &&
-		    memcmp(v1->dst.data, v2->src.data, v1->dst.len) == 0) {
-			/*
-			 * The first destination address is the same as
-			 * the second source address, so they're going
-			 * between the same machines, but in opposite
-			 * directions.
-			 */
-			if (v1->port_src == v2->port_dst &&
-			    v1->port_dst == v2->port_src) {
-			    	/*
-				 * The first source port is the same as
-				 * the second destination port, and the
-				 * first destination port is the same as
-				 * the second source port, so it's
-				 * the same conversation, and the two
-				 * address/port pairs are going in
-				 * opposite directions.
-				 */
-				return 1;
-			}
-		}
+		return 1;
 	}
 
 	/*
