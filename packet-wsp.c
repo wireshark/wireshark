@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.106 2004/01/23 09:40:37 jmayer Exp $
+ * $Id: packet-wsp.c,v 1.107 2004/01/27 00:20:36 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7107,9 +7107,9 @@ proto_reg_handoff_wsp(void)
 	dissector_add("udp.port", UDP_PORT_WSP, wsp_fromudp_handle);
 	dissector_add("udp.port", UDP_PORT_WSP_PUSH, wsp_fromudp_handle);
 
-	/* SMPP dissector can also carry WSP */
-	dissector_add("smpp.gsm-sms.udh.port", UDP_PORT_WSP, wsp_fromudp_handle);
-	dissector_add("smpp.gsm-sms.udh.port", UDP_PORT_WSP_PUSH, wsp_fromudp_handle);
+	/* GSM SMS UD dissector can also carry WSP */
+	dissector_add("gsm-sms-ud.udh.port", UDP_PORT_WSP, wsp_fromudp_handle);
+	dissector_add("gsm-sms-ud.udh.port", UDP_PORT_WSP_PUSH, wsp_fromudp_handle);
 
 	/* This dissector is also called from the WTP and WTLS dissectors */
 }

@@ -2,40 +2,14 @@
  * Routines for Short Message Peer to Peer dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * UDH and WSP dissection of SMS message, Short Message reassembly,
- * "Decode Short Message with Port Number UDH as CL-WSP" preference,
- * "Always try subdissection of 1st fragment" preference,
  * Data Coding Scheme decoding for GSM (SMS and CBS),
  * provided by Olivier Biot.
  *
  * Dissection of multiple SMPP PDUs within one packet
  * provided by Chris Wilson.
  *
- * $Id: packet-smpp.c,v 1.27 2004/01/20 17:58:37 obiot Exp $
+ * $Id: packet-smpp.c,v 1.28 2004/01/27 00:20:36 obiot Exp $
  *
- * Note on SMS Message reassembly
- * ------------------------------
- *   The current Short Message reassembly is possible thanks to the
- *   message identifier (8 or 16 bit identifier). It is able to reassemble
- *   short messages that are sent over either the same SMPP connection or
- *   distinct SMPP connections. Normally the reassembly code is able to deal
- *   with duplicate message identifiers since the fragment_add_seq_check()
- *   call is used.
- *
- *   The SMPP preference "always try subdissection of 1st fragment" allows
- *   a subdissector to be called for the first Short Message fragment,
- *   even if reassembly is not possible. This way partial dissection
- *   is still possible. This preference is switched off by default.
- *
- * Note on Short Message decoding as CL-WSP
- * ----------------------------------------
- *    The SMPP preference "port_number_udh_means_wsp" is switched off
- *    by default. If it is enabled, then any Short Message with a Port Number
- *    UDH will be decoded as CL-WSP if:
- *    -  The Short Message is not segmented
- *    -  The entire segmented Short Message is reassembled
- *    -  It is the 1st segment of an unreassembled Short Message (if the
- *       "always try subdissection of 1st fragment" preference is enabled)
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +49,6 @@
 #include <epan/packet.h>
 
 #include "prefs.h"
-#include "reassemble.h"
 #include "packet-tcp.h"
 
 /* General-purpose debug logger.
@@ -98,15 +71,12 @@ static void dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static guint get_smpp_pdu_len(tvbuff_t *tvb, int offset);
 static void dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static void dissect_smpp_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 /*
  * Initialize the protocol and registered fields
  *
  * Fixed header section
  */
 static int proto_smpp				= -1;
-static int proto_smpp_gsm_sms		= -1;
 
 static int hf_smpp_command_id			= -1;
 static int hf_smpp_command_length		= -1;
@@ -231,86 +201,15 @@ static int hf_smpp_dcs_wap_charset = -1;
 static int hf_smpp_dcs_wap_class = -1;
 static int hf_smpp_dcs_cbs_class = -1;
 
-/*
- * User Data Header section
- */
-static int hf_smpp_udh_length	= -1;
-static int hf_smpp_udh_iei		= -1;
-static int hf_smpp_udh_multiple_messages			= -1;
-static int hf_smpp_udh_multiple_messages_msg_id		= -1;
-static int hf_smpp_udh_multiple_messages_msg_parts	= -1;
-static int hf_smpp_udh_multiple_messages_msg_part	= -1;
-static int hf_smpp_udh_ports		= -1;
-static int hf_smpp_udh_ports_src	= -1;
-static int hf_smpp_udh_ports_dst	= -1;
-
-/*
- * Short Message fragment handling
- */
-static int hf_sm_fragments					= -1;
-static int hf_sm_fragment					= -1;
-static int hf_sm_fragment_overlap			= -1;
-static int hf_sm_fragment_overlap_conflicts	= -1;
-static int hf_sm_fragment_multiple_tails	= -1;
-static int hf_sm_fragment_too_long_fragment	= -1;
-static int hf_sm_fragment_error				= -1;
-static int hf_sm_reassembled_in				= -1;
-
 /* Initialize the subtree pointers */
 static gint ett_smpp		= -1;
 static gint ett_dlist		= -1;
 static gint ett_dlist_resp	= -1;
 static gint ett_opt_param	= -1;
 static gint ett_dcs		= -1;
-static gint ett_gsm_sms		= -1;
-static gint ett_udh		= -1;
-static gint ett_udh_ie		= -1;
-static gint ett_sm_fragment	= -1;
-static gint ett_sm_fragments	= -1;
-
-/* Subdissector declarations */
-static dissector_table_t gsm_sms_dissector_table;
-
-/* Short Message reassembly */
-static GHashTable *sm_fragment_table = NULL;
-static GHashTable *sm_reassembled_table = NULL;
-
-static const fragment_items sm_frag_items = {
-	/* Fragment subtrees */
-	&ett_sm_fragment,
-	&ett_sm_fragments,
-	/* Fragment fields */
-	&hf_sm_fragments,
-	&hf_sm_fragment,
-	&hf_sm_fragment_overlap,
-	&hf_sm_fragment_overlap_conflicts,
-	&hf_sm_fragment_multiple_tails,
-	&hf_sm_fragment_too_long_fragment,
-	&hf_sm_fragment_error,
-	/* Reassembled in field */
-	&hf_sm_reassembled_in,
-	/* Tag */
-	"Short Message fragments"
-};
 
 /* Reassemble SMPP TCP segments */
 static gboolean reassemble_over_tcp = FALSE;
-/* Dissect all SM data as WSP if the UDH contains a Port Number IE */
-static gboolean port_number_udh_means_wsp = FALSE;
-/* Always try dissecting the 1st fragment of a SM,
- * even if it is not reassembled */
-static gboolean try_dissect_1st_frag = FALSE;
-
-/* For SMPP */
-static dissector_handle_t wsp_handle;
-static dissector_handle_t gsm_sms_handle;
-
-static void
-sm_defragment_init (void)
-{
-	fragment_table_init (&sm_fragment_table);
-	reassembled_table_init(&sm_reassembled_table);
-}
 
 /*
  * Value-arrays for field-contents
@@ -825,41 +724,7 @@ static const value_string vals_dcs_wap_charset[] = {
 	{ 0x00, NULL }
 };
 
-
-/* 3GPP TS 23.040 V6.1.0 (2003-06) */
-static const value_string vals_udh_iei[] = {
-	{ 0x00, "SMS - Concatenated short messages, 8-bit reference number" },
-	{ 0x01, "SMS - Special SMS Message Indication" },
-	{ 0x02, "Reserved" },
-	{ 0x03, "Value not used to avoid misinterpretation as <LF> character" },
-	{ 0x04, "SMS - Application port addressing scheme, 8 bit address" },
-	{ 0x05, "SMS - Application port addressing scheme, 16 bit address" },
-	{ 0x06, "SMS - SMSC Control Parameters" },
-	{ 0x07, "SMS - UDH Source Indicator" },
-	{ 0x08, "SMS - Concatenated short message, 16-bit reference number" },
-	{ 0x09, "SMS - Wireless Control Message Protocol" },
-	{ 0x0A, "EMS - Text Formatting" },
-	{ 0x0B, "EMS - Predefined Sound" },
-	{ 0x0C, "EMS - User Defined Sound (iMelody max 128 bytes)" },
-	{ 0x0D, "EMS - Predefined Animation" },
-	{ 0x0E, "EMS - Large Animation (16*16 times 4 = 32*4 =128 bytes)" },
-	{ 0x0F, "EMS - Small Animation (8*8 times 4 = 8*4 =32 bytes)" },
-	{ 0x10, "EMS - Large Picture (32*32 = 128 bytes)" },
-	{ 0x11, "EMS - Small Picture (16*16 = 32 bytes)" },
-	{ 0x12, "EMS - Variable Picture" },
-	{ 0x13, "EMS - User prompt indicator" },
-	{ 0x14, "EMS - Extended Object" },
-	{ 0x15, "EMS - Reused Extended Object" },
-	{ 0x16, "EMS - Compression Control" },
-	{ 0x17, "EMS - Object Distribution Indicator" },
-	{ 0x18, "EMS - Standard WVG object" },
-	{ 0x19, "EMS - Character Size WVG object" },
-	{ 0x1A, "EMS - Extended Object Data Request Command" },
-	{ 0x20, "SMS - RFC 822 E-Mail Header" },
-	{ 0x21, "SMS - Hyperlink format element" },
-	{ 0x22, "SMS - Reply Address Element" },
-	{ 0x00, NULL }
-};	
+static dissector_handle_t gsm_sms_handle;
 
 /*!
  * SMPP equivalent of mktime() (3). Convert date to standard 'time_t' format
@@ -1465,234 +1330,6 @@ outbind(proto_tree *tree, tvbuff_t *tvb)
 
     smpp_handle_string(tree, tvb, hf_smpp_system_id, &offset);
     smpp_handle_string(tree, tvb, hf_smpp_password, &offset);
-}
-
-/* Parse Short Message, only if UDH present
- * (otherwise this function is not called).
- * Call WSP dissector if port matches WSP traffic.
- */
-static void
-parse_sm_message(proto_tree *sm_tree, tvbuff_t *tvb, packet_info *pinfo,
-		proto_tree *top_tree)
-{
-	tvbuff_t *sm_tvb = NULL;
-	proto_item *subtree, *tree;
-	guint8 udh_len, udh, len;
-	guint sm_len = tvb_reported_length (tvb);
-	guint sm_data_len;
-	guint32 i = 0;
-	/* Multiple Messages UDH */
-	gboolean is_fragmented = FALSE;
-	fragment_data *fd_sm = NULL;
-	guint16 sm_id = 0, frags = 0, frag = 0;
-	gboolean save_fragmented = FALSE, try_sm_reassemble = FALSE;
-	/* SMS Message reassembly */
-	gboolean reassembled = FALSE;
-	guint32 reassembled_in = 0;
-	/* Port Number UDH */
-	guint16 p_src = 0, p_dst = 0;
-	gboolean ports_available = FALSE;
-
-	udh_len = tvb_get_guint8(tvb, i++);
-	tree = proto_tree_add_uint(sm_tree, hf_smpp_udh_length, tvb, 0, 1, udh_len);
-	tree = proto_item_add_subtree(tree, ett_udh);
-	while (i < udh_len) {
-		udh = tvb_get_guint8(tvb, i++);
-		len = tvb_get_guint8(tvb, i++);
-		subtree = proto_tree_add_uint(tree, hf_smpp_udh_iei,
-				tvb, i-2, 2+len, udh);
-		switch (udh) {
-			case 0x00: /* Multiple messages - 8-bit message ID */
-				if (len == 3) {
-					is_fragmented = TRUE;
-					sm_id = tvb_get_guint8(tvb, i++);
-					frags = tvb_get_guint8(tvb, i++);
-					frag  = tvb_get_guint8(tvb, i++);
-					proto_item_append_text(subtree,
-							": message %u, part %u of %u", sm_id, frag, frags);
-					subtree = proto_item_add_subtree(subtree,
-							ett_udh_ie);
-					proto_tree_add_uint (subtree,
-							hf_smpp_udh_multiple_messages_msg_id,
-							tvb, i-3, 1, sm_id);
-					proto_tree_add_uint (subtree,
-							hf_smpp_udh_multiple_messages_msg_parts,
-							tvb, i-2, 1, frags);
-					proto_tree_add_uint (subtree,
-							hf_smpp_udh_multiple_messages_msg_part,
-							tvb, i-1, 1, frag);
-				} else {
-					proto_item_append_text(subtree, " - Invalid format!");
-					i += len;
-				}
-				break;
-
-			case 0x08: /* Multiple messages - 16-bit message ID */
-				if (len == 4) {
-					is_fragmented = TRUE;
-					sm_id = tvb_get_ntohs(tvb, i); i += 2;
-					frags = tvb_get_guint8(tvb, i++);
-					frag  = tvb_get_guint8(tvb, i++);
-					proto_item_append_text(subtree,
-							": message %u, part %u of %u", sm_id, frag, frags);
-					subtree = proto_item_add_subtree(subtree,
-							ett_udh_ie);
-					proto_tree_add_uint (subtree,
-							hf_smpp_udh_multiple_messages_msg_id,
-							tvb, i-4, 2, sm_id);
-					proto_tree_add_uint (subtree,
-							hf_smpp_udh_multiple_messages_msg_parts,
-							tvb, i-2, 1, frags);
-					proto_tree_add_uint (subtree,
-							hf_smpp_udh_multiple_messages_msg_part,
-							tvb, i-1, 1, frag);
-				} else {
-					proto_item_append_text(subtree, " - Invalid format!");
-					i += len;
-				}
-				break;
-
-			case 0x04: /* Port Number UDH - 8-bit address */
-				if (len == 2) { /* Port fields */
-					p_dst = tvb_get_guint8(tvb, i++);
-					p_src = tvb_get_guint8(tvb, i++);
-					proto_item_append_text(subtree,
-							": source port %u, destination port %u",
-							p_src, p_dst);
-					subtree = proto_item_add_subtree(subtree, ett_udh_ie);
-					proto_tree_add_uint (subtree, hf_smpp_udh_ports_dst,
-							tvb, i-2, 1, p_dst);
-					proto_tree_add_uint (subtree, hf_smpp_udh_ports_src,
-							tvb, i-1, 1, p_src);
-					ports_available = TRUE;
-				} else {
-					proto_item_append_text(subtree, " - Invalid format!");
-					i += len;
-				}
-				break;
-
-			case 0x05: /* Port Number UDH - 16-bit address */
-				if (len == 4) { /* Port fields */
-					p_dst = tvb_get_ntohs(tvb, i); i += 2;
-					p_src = tvb_get_ntohs(tvb, i); i += 2;
-					proto_item_append_text(subtree,
-							": source port %u, destination port %u",
-							p_src, p_dst);
-					subtree = proto_item_add_subtree(subtree, ett_udh_ie);
-					proto_tree_add_uint (subtree, hf_smpp_udh_ports_dst,
-							tvb, i-4, 2, p_dst);
-					proto_tree_add_uint (subtree, hf_smpp_udh_ports_src,
-							tvb, i-2, 2, p_src);
-					ports_available = TRUE;
-				} else {
-					proto_item_append_text(subtree, " - Invalid format!");
-					i += len;
-				}
-				break;
-
-			default:
-				i += len;
-				break;
-		}
-	}
-	if (tvb_reported_length_remaining(tvb, i) <= 0)
-		return; /* No more data */
-
-	/*
-	 * XXX - where does the "1" come from?  If it weren't there,
-	 * "sm_data_len" would, I think, be the same as
-	 * "tvb_reported_length_remaining(tvb, i)".
-	 *
-	 * I think that the above check ensures that "sm_len" won't
-	 * be less than or equal to "udh_len", so it ensures that
-	 * "sm_len" won't be less than "1 + udh_len", so we don't
-	 * have to worry about "sm_data_len" being negative.
-	 */
-	sm_data_len = sm_len - (1 + udh_len);
-	if (sm_data_len == 0)
-		return;	/* no more data */
-
-	/*
-	 * Try reassembling the packets.
-	 * XXX - fragment numbers are 1-origin, but the fragment number
-	 * field could be 0.
-	 * Should we flag a fragmented message with a fragment number field
-	 * of 0?
-	 * What if the fragment count is 0?  Should we flag that as well?
-	 */
-	if ( is_fragmented && frag != 0 && frags != 0 &&
-	    tvb_bytes_exist (tvb, i, sm_data_len) ) {
-		try_sm_reassemble = TRUE;
-		save_fragmented = pinfo->fragmented;
-		pinfo->fragmented = TRUE;
-		fd_sm = fragment_add_seq_check (tvb, i, pinfo,
-				sm_id, /* guint32 ID for fragments belonging together */
-				sm_fragment_table, /* list of message fragments */
-				sm_reassembled_table, /* list of reassembled messages */
-				frag-1, /* guint32 fragment sequence number */
-				sm_data_len, /* guint32 fragment length */
-				(frag != frags)); /* More fragments? */
-		if (fd_sm) {
-			reassembled = TRUE;
-			reassembled_in = fd_sm->reassembled_in;
-		}
-		sm_tvb = process_reassembled_data(tvb, i, pinfo,
-		    "Reassembled Short Message", fd_sm, &sm_frag_items,
-		    NULL, sm_tree);
-		if (reassembled) { /* Reassembled */
-			if (check_col (pinfo->cinfo, COL_INFO))
-				col_append_str (pinfo->cinfo, COL_INFO,
-						" (Short Message Reassembled)");
-		} else {
-			/* Not last packet of reassembled Short Message */
-			if (check_col (pinfo->cinfo, COL_INFO))
-				col_append_fstr (pinfo->cinfo, COL_INFO,
-						" (Short Message fragment %u of %u)", frag, frags);
-		}
-	} /* Else: not fragmented */
-
-	if (! sm_tvb) /* One single Short Message, or not reassembled */
-		sm_tvb = tvb_new_subset (tvb, i, -1, -1);
-	/* Try calling a subdissector */
-	if (sm_tvb) {
-		if ((reassembled && pinfo->fd->num == reassembled_in)
-			|| frag==0 || (frag==1 && try_dissect_1st_frag)) {
-			/* Try calling a subdissector only if:
-			 *  - the Short Message is reassembled in this very packet,
-			 *  - the Short Message consists of only one "fragment",
-			 *  - the preference "Always Try Dissection for 1st SM fragment"
-			 *    is switched on, and this is the SM's 1st fragment. */
-			if ( ports_available ) {
-				if ( port_number_udh_means_wsp ) {
-					call_dissector (wsp_handle, sm_tvb, pinfo, top_tree);
-				} else {
-					if (! dissector_try_port(gsm_sms_dissector_table, p_src,
-								sm_tvb, pinfo, top_tree)) {
-						if (! dissector_try_port(gsm_sms_dissector_table, p_dst,
-									sm_tvb, pinfo, top_tree)) {
-							if (sm_tree) { /* Only display if needed */
-								proto_tree_add_text (sm_tree, sm_tvb, 0, -1,
-										"Short Message body");
-							}
-						}
-					}
-				}
-			} else { /* No ports IE */
-				proto_tree_add_text (sm_tree, sm_tvb, 0, -1,
-						"Short Message body");
-			}
-		} else {
-			/* The packet is not reassembled,
-			 * or it is reassembled in another packet */
-			proto_tree_add_text (sm_tree, sm_tvb, 0, -1,
-					"Unreassembled Short Message fragment %u of %u",
-					frag, frags);
-		}
-	}
-
-	if (try_sm_reassemble) /* Clean up defragmentation */
-		pinfo->fragmented = save_fragmented;
-	return;
 }
 
 static void
@@ -2316,216 +1953,6 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     return;
 }
-
-
-/*
- * GSM SMS dissection
- */
-static void
-dissect_smpp_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	proto_item *ti;
-	proto_tree *subtree;
-	DebugLog(("dissect_smpp_gsm_sms() - START\n"));
-	ti = proto_tree_add_item(tree, proto_smpp_gsm_sms, tvb, 0, -1, TRUE);
-	subtree = proto_item_add_subtree(ti, ett_gsm_sms);
-	parse_sm_message(subtree, tvb, pinfo, tree);
-	DebugLog(("dissect_smpp_gsm_sms() - END\n"));
-}
-
-/* Register the protocol with Ethereal */
-void
-proto_register_smpp_gsm_sms(void)
-{
-	module_t *smpp_gsm_sms_module; /* Preferences for SMPP */
-
-    /* Setup list of header fields	*/
-    static hf_register_info hf[] = {
-	/*
-	 * User Data Header
-	 */
-	{   &hf_smpp_udh_iei,
-		{	"IE Id", "smpp.gsm-sms.udh.iei",
-		FT_UINT8, BASE_HEX, VALS(vals_udh_iei), 0x00,
-		"Name of the User Data Header Information Element.",
-		HFILL
-		}
-	},
-	{   &hf_smpp_udh_length,
-	    {	"UDH Length", "smpp.gsm-sms.udh.len",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		"Length of the User Data Header (bytes)",
-		HFILL
-	    }
-	},
-	{   &hf_smpp_udh_multiple_messages,
-	    {	"Multiple messages UDH", "smpp.gsm-sms.udh.mm",
-		FT_NONE, BASE_NONE, NULL, 0x00,
-		"Multiple messages User Data Header",
-		HFILL
-	    }
-	},
-	{   &hf_smpp_udh_multiple_messages_msg_id,
-	    {	"Message identifier", "smpp.gsm-sms.udh.mm.msg_id",
-		FT_UINT16, BASE_DEC, NULL, 0x00,
-		"Identification of the message",
-		HFILL
-	    }
-	},
-	{   &hf_smpp_udh_multiple_messages_msg_parts,
-	    {	"Message parts", "smpp.gsm-sms.udh.mm.msg_parts",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		"Total number of message parts (fragments)",
-		HFILL
-	    }
-	},
-	{   &hf_smpp_udh_multiple_messages_msg_part,
-	    {	"Message part number", "smpp.gsm-sms.udh.mm.msg_part",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		"Message part (fragment) sequence number",
-		HFILL
-	    }
-	},
-	{   &hf_smpp_udh_ports,
-	    {	"Port number UDH", "smpp.gsm-sms.udh.ports",
-		FT_NONE, BASE_NONE, NULL, 0x00,
-		"Port number User Data Header",
-		HFILL
-	    }
-	},
-	{   &hf_smpp_udh_ports_src,
-	    {	"Source port", "smpp.gsm-sms.udh.ports.src",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		"Source port",
-		HFILL
-	    }
-	},
-	{   &hf_smpp_udh_ports_dst,
-	    {	"Destination port", "smpp.gsm-sms.udh.ports.dst",
-		FT_UINT8, BASE_DEC, NULL, 0x00,
-		"Destination port",
-		HFILL
-	    }
-	},
-	/*
-	 * Short Message fragment reassembly
-	 */
-	{	&hf_sm_fragments,
-		{	"Short Message fragments", "smpp.gsm-sms.fragments",
-			FT_NONE, BASE_NONE, NULL, 0x00,
-			"SMPP Short Message fragments",
-			HFILL
-		}
-	},
-	{	&hf_sm_fragment,
-		{	"Short Message fragment", "smpp.gsm-sms.fragment",
-			FT_FRAMENUM, BASE_NONE, NULL, 0x00,
-			"SMPP Short Message fragment",
-			HFILL
-		}
-	},
-	{	&hf_sm_fragment_overlap,
-		{	"Short Message fragment overlap", "smpp.gsm-sms.fragment.overlap",
-			FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-			"SMPP Short Message fragment overlaps with other fragment(s)",
-			HFILL
-		}
-	},
-	{	&hf_sm_fragment_overlap_conflicts,
-		{	"Short Message fragment overlapping with conflicting data",
-			"smpp.gsm-sms.fragment.overlap.conflicts",
-			FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-			"SMPP Short Message fragment overlaps with conflicting data",
-			HFILL
-		}
-	},
-	{	&hf_sm_fragment_multiple_tails,
-		{	"Short Message has multiple tail fragments",
-			"smpp.gsm-sms.fragment.multiple_tails",
-			FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-			"SMPP Short Message fragment has multiple tail fragments",
-			HFILL
-		}
-	},
-	{	&hf_sm_fragment_too_long_fragment,
-		{	"Short Message fragment too long",
-			"smpp.gsm-sms.fragment.too_long_fragment",
-			FT_BOOLEAN, BASE_NONE, NULL, 0x00,
-			"SMPP Short Message fragment data goes beyond the packet end",
-			HFILL
-		}
-	},
-	{	&hf_sm_fragment_error,
-		{	"Short Message defragmentation error", "smpp.gsm-sms.fragment.error",
-			FT_FRAMENUM, BASE_NONE, NULL, 0x00,
-			"SMPP Short Message defragmentation error due to illegal fragments",
-			HFILL
-		}
-	},
-	{	&hf_sm_reassembled_in,
-		{	"Reassembled in",
-			"smpp.gsm-sms.reassembled.in",
-			FT_FRAMENUM, BASE_NONE, NULL, 0x00,
-			"SMPP Short Message has been reassembled in this packet.", HFILL
-		}
-	},
-	};
-
-    static gint *ett[] = {
-	&ett_gsm_sms,
-	&ett_udh,
-	&ett_udh_ie,
-	&ett_sm_fragment,
-	&ett_sm_fragments,
-    };
-    DebugLog(("Registering SMPP GSM SMS dissector\n"));
-    /* Register the protocol name and description */
-    proto_smpp_gsm_sms = proto_register_protocol(
-	    "SMPP - GSM Short Message Service",	/* Name */
-	    "SMPP GSM SMS",			/* Short name */
-	    "smpp-gsm-sms");			/* Filter name */
-
-    /* Required function calls to register header fields and subtrees used */
-    proto_register_field_array(proto_smpp, hf, array_length(hf));
-    proto_register_subtree_array(ett, array_length(ett));
-
-    /* Subdissector code */
-    gsm_sms_dissector_table = register_dissector_table("smpp.gsm-sms.udh.port",
-	    "GSM SMS port IE in UDH", FT_UINT16, BASE_DEC);
-
-    /* Preferences for SMPP */
-    smpp_gsm_sms_module = prefs_register_protocol (proto_smpp_gsm_sms, NULL);
-    prefs_register_bool_preference (smpp_gsm_sms_module,
-	    "port_number_udh_means_wsp",
-	    "Port Number IE in UDH always triggers CL-WSP dissection",
-	    "Always decode a GSM Short Message as Connectionless WSP "
-	    "if a Port Number Information Element is present "
-	    "in the SMS User Data Header.",
-	    &port_number_udh_means_wsp);
-    prefs_register_bool_preference (smpp_gsm_sms_module, "try_dissect_1st_fragment",
-	    "Always try subdissection of 1st Short Message fragment",
-	    "Always try subdissection of the 1st fragment of a fragmented "
-	    "GSM Short Message. If reassembly is possible, the Short Message "
-	    "may be dissected twice (once as a short frame, once in its "
-	    "entirety).",
-	    &try_dissect_1st_frag);
-
-    register_dissector("smpp-gsm-sms", dissect_smpp_gsm_sms, proto_smpp_gsm_sms);
-
-    /* SMPP dissector initialization routines */
-    register_init_routine (sm_defragment_init);
-}
-
-void
-proto_reg_handoff_smpp_gsm_sms(void)
-{
-	dissector_handle_t smpp_gsm_sms_handle;
-	DebugLog(("Creating SMPP GSM SMS dissector handle\n"));
-	smpp_gsm_sms_handle = create_dissector_handle(dissect_smpp_gsm_sms,
-			proto_smpp_gsm_sms);
-}
-
-
 
 
 /* Register the protocol with Ethereal */
@@ -3330,9 +2757,7 @@ proto_reg_handoff_smpp(void)
     heur_dissector_add("x.25", dissect_smpp_heur, proto_smpp);
 
 	/* Required for call_dissector() */
-	wsp_handle = find_dissector ("wsp-cl");
-	g_assert (wsp_handle);
-	DebugLog(("Finding smpp-gsm-sms subdissector\n"));
-	gsm_sms_handle = find_dissector("smpp-gsm-sms");
+	DebugLog(("Finding gsm-sms-ud subdissector\n"));
+	gsm_sms_handle = find_dissector("gsm-sms-ud");
 	g_assert (gsm_sms_handle);
 }

@@ -1996,6 +1996,7 @@ Aaron Woo <woo [AT] itd.nrl.navy.mil> {
 
 Chris Wilson <chris [AT] mxtelecom.com> {
 	SMPP dissection of concatenated PDUs
+	Separate GSM SMS User Data dissector from the SMPP dissector
 }
 
 Rolf Fiedler <Rolf.Fiedler [AT] Innoventif.com> {
