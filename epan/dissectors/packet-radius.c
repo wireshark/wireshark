@@ -258,16 +258,9 @@ enum {
 
     COSINE_VPI_VCI,
 
-    THE3GPP_IMSI,
     THE3GPP_QOS,
-    THE3GPP_IMSI_MCC_MNC,
-    THE3GPP_GGSN_MCC_MNC,
-    THE3GPP_NSAPI,
     THE3GPP_SESSION_STOP_INDICATOR,
-    THE3GPP_SELECTION_MODE,
-    THE3GPP_CHARGING_CHARACTERISTICS,
     THE3GPP_IPV6_DNS_SERVERS,
-    THE3GPP_SGSN_MCC_MNC,
 
     PACKETCABLE_EM_HEADER,
     PACKETCABLE_CALL_TERMINATION_CAUSE,
@@ -3131,26 +3124,37 @@ static const value_string the3gpp_pdp_type_vals[] = {
 
 static const radius_attr_info radius_vendor_3gpp_attrib[] =
 {
-   /* According to 3GPP TS 29.061 V4.8.0 (2003-06) */
-   {1,  THE3GPP_IMSI,		"IMSI", NULL, NULL},
-   {2,  RADIUS_INTEGER4,	"Charging ID", NULL, NULL},
-   {3,  RADIUS_INTEGER4,	"PDP Type", the3gpp_pdp_type_vals, NULL},
-   {4,  RADIUS_IP_ADDRESS,	"Charging Gateway Address", NULL, NULL},
-   {5,  THE3GPP_QOS,		"QoS Profile", NULL, NULL},
-   {6,  RADIUS_IP_ADDRESS,	"SGSN Address", NULL, &hf_radius_3gpp_SgsnIpAddr},
-   {7,  RADIUS_IP_ADDRESS,	"GGSN Address", NULL, &hf_radius_3gpp_GgsnIpAddr},
-   {8,  THE3GPP_IMSI_MCC_MNC,	"IMSI MCC-MNC", NULL, NULL},
-   {9,  THE3GPP_GGSN_MCC_MNC,	"GGSN MCC-MNC", NULL, NULL},
-   {10, THE3GPP_NSAPI,		"NSAPI", NULL, NULL},
+   /* According to 3GPP TS 29.061 V6.3.1 (2005-01 */
+   {1,  RADIUS_STRING,			"IMSI", NULL, NULL},
+   {2,  RADIUS_INTEGER4,		"Charging ID", NULL, NULL},
+   {3,  RADIUS_INTEGER4,		"PDP Type", the3gpp_pdp_type_vals, NULL},
+   {4,  RADIUS_IP_ADDRESS,		"Charging Gateway Address", NULL, NULL},
+   {5,  THE3GPP_QOS,			"QoS Profile", NULL, NULL},
+   {6,  RADIUS_IP_ADDRESS,		"SGSN Address", NULL, &hf_radius_3gpp_SgsnIpAddr},
+   {7,  RADIUS_IP_ADDRESS,		"GGSN Address", NULL, &hf_radius_3gpp_GgsnIpAddr},
+   {8,  RADIUS_STRING,			"IMSI MCC-MNC", NULL, NULL},
+   {9,  RADIUS_STRING,			"GGSN MCC-MNC", NULL, NULL},
+   {10, RADIUS_STRING,			"NSAPI", NULL, NULL},
    {11, THE3GPP_SESSION_STOP_INDICATOR, "Session Stop Indicator", NULL, NULL},
-   {12, THE3GPP_SELECTION_MODE,	"Selection Mode", NULL, NULL},
-   {13, THE3GPP_CHARGING_CHARACTERISTICS, "Charging Characteristics", NULL, NULL},
-   {14, RADIUS_IP6_ADDRESS,	"Charging Gateway IPv6 Address", NULL, NULL},
-   {15, RADIUS_IP6_ADDRESS,	"SGSN IPv6 Address", NULL, NULL},
-   {16, RADIUS_IP6_ADDRESS,	"GGSN IPv6 Address", NULL, NULL},
+   {12, RADIUS_STRING,			"Selection Mode", NULL, NULL},
+   {13, RADIUS_STRING,			"Charging Characteristics", NULL, NULL},
+   {14, RADIUS_IP6_ADDRESS,		"Charging Gateway IPv6 Address", NULL, NULL},
+   {15, RADIUS_IP6_ADDRESS,		"SGSN IPv6 Address", NULL, NULL},
+   {16, RADIUS_IP6_ADDRESS,		"GGSN IPv6 Address", NULL, NULL},
    {17, THE3GPP_IPV6_DNS_SERVERS, "IPv6 DNS Servers", NULL, NULL},
-   {18, THE3GPP_SGSN_MCC_MNC,	"SGSN MCC-MNC", NULL, NULL},
-   {0, 0, NULL, NULL, NULL},
+   {18, RADIUS_STRING,			"SGSN MCC-MNC", NULL, NULL},
+/* Below set to RADIUS_BINSTRING untill "proper" decoding is added */ 
+   {19, RADIUS_BINSTRING,		"Teardown Indicator", NULL, NULL},
+   {20, RADIUS_BINSTRING,		"IMEISV", NULL, NULL},
+   {21, RADIUS_BINSTRING,		"RAT-Type", NULL, NULL},
+   {22, RADIUS_BINSTRING,		"User-Location-Info", NULL, NULL},
+   {23, RADIUS_BINSTRING,		"MS-TimeZone", NULL, NULL},
+   {24, RADIUS_BINSTRING,		"Camel-Charging-Info", NULL, NULL},
+   {25, RADIUS_BINSTRING,		"Packet-Filter", NULL, NULL},
+   {26, RADIUS_BINSTRING,		"Negotiated-DSCP", NULL, NULL},
+   {27, RADIUS_BINSTRING,		"MS-TimeZone", NULL, NULL},
+
+  {0, 0, NULL, NULL, NULL},
 };
 
 static const value_string the3gpp2_security_level_vals[] = {
@@ -3813,16 +3817,6 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 			tvb_get_ntohs(tvb,offset+4));
  		break;
 
-	case( THE3GPP_IMSI ):
-	case( THE3GPP_IMSI_MCC_MNC ):
-	case( THE3GPP_GGSN_MCC_MNC ):
-	case( THE3GPP_SGSN_MCC_MNC ):
-	case( THE3GPP_SELECTION_MODE ):
-	case( THE3GPP_CHARGING_CHARACTERISTICS ):
-		sprintf(cont,"(encoded in UTF-8 format)");
-		break;
-
-	case( THE3GPP_NSAPI ):
 	case( THE3GPP_SESSION_STOP_INDICATOR ):
 		sprintf(cont,"(not parsed)");
 		break;
