@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.85 2002/05/05 00:16:32 guy Exp $
+ * $Id: packet-dns.c,v 1.86 2002/05/11 18:46:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -442,6 +442,11 @@ get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
   int component_len;
   int indir_offset;
 
+  const int min_len = 1;	/* Minimum length of encoded name (for root) */
+	/* If we're about to return a value (probably negative) which is less
+	 * than the minimum length, we're looking at bad data and we're liable
+	 * to put the dissector into a loop.  Instead we throw an exception */
+
   maxname--;	/* reserve space for the trailing '\0' */
   for (;;) {
     component_len = tvb_get_guint8(tvb, offset);
@@ -498,12 +503,15 @@ get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
 	strcpy(name, "<Unknown extended label>");
 	/* Parsing will propably fail from here on, since the */
 	/* label length is unknown... */
-	return offset - start_offset;
+	len = offset - start_offset;
+        if (len < min_len)
+          THROW(ReportedBoundsError);
+        return len;
       }
       break;
 
     case 0x80:
-      goto error;	/* error */
+      THROW(ReportedBoundsError);
 
     case 0xc0:
       /* Pointer. */
@@ -523,6 +531,8 @@ get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
 	 looping. */
       if (chars_processed >= data_size) {
         strcpy(name, "<Name contains a pointer that loops>");
+        if (len < min_len)
+          THROW(ReportedBoundsError);
         return len;
       }
 
@@ -531,7 +541,6 @@ get_dns_name(tvbuff_t *tvb, int offset, int dns_data_offset,
     }
   }
         
-error:
   *np = '\0';
   /* If "len" is negative, we haven't seen a pointer, and thus haven't
      set the length, so set it. */
@@ -540,6 +549,8 @@ error:
   /* Zero-length name means "root server" */
   if (*name == '\0')
     strcpy(name, "<Root>");
+  if (len < min_len)
+    THROW(ReportedBoundsError);
   return len;
 }
 

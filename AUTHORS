@@ -892,6 +892,7 @@ Graeme Hewson <graeme.hewson[AT]oracle.com> {
 	Additional Ascend codes, and IETF codes, for Radius
 	Handle errors from "pcap_dispatch()"
 	Fix Tethereal so signals break it out of the capture loop
+	Add some sanity checks to DNS dissector to avoid loops
 }
 
 Pasi Eronen <pasi.eronen[at]nixu.com> {
