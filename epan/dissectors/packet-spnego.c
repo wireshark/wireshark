@@ -25,7 +25,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
+/* The heimdal code for decryption of GSSAPI wrappers using heimdal comes from
+   Heimdal 1.6 and has been modified for ethereal's requirements.
+*/
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -34,6 +36,7 @@
 # include <sys/types.h>
 #endif
 
+#include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
 
@@ -399,13 +402,358 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return;
 }
 
+#ifdef HAVE_KERBEROS
+
+#ifdef HAVE_HEIMDAL_KERBEROS
+#include "krb5.h"
+#include "gssapi.h"
+#include "rc4.h"
+#define GSS_ARCFOUR_WRAP_TOKEN_SIZE 32
+krb5_context gssapi_krb5_context;
+
+static krb5_error_code
+arcfour_mic_key(krb5_context context, krb5_keyblock *key,
+		void *cksum_data, size_t cksum_size,
+		void *key6_data, size_t key6_size)
+{
+    krb5_error_code ret;
+    
+    Checksum cksum_k5;
+    krb5_keyblock key5;
+    char k5_data[16];
+    
+    Checksum cksum_k6;
+    
+    char T[4];
+
+    memset(T, 0, 4);
+    cksum_k5.checksum.data = k5_data;
+    cksum_k5.checksum.length = sizeof(k5_data);
+
+    if (key->keytype == KEYTYPE_ARCFOUR_56) {
+	char L40[14] = "fortybits";
+
+	memcpy(L40 + 10, T, sizeof(T));
+	ret = krb5_hmac(context, CKSUMTYPE_RSA_MD5,
+			L40, 14, 0, key, &cksum_k5);
+	memset(&k5_data[7], 0xAB, 9);
+    } else {
+	ret = krb5_hmac(context, CKSUMTYPE_RSA_MD5,
+			T, 4, 0, key, &cksum_k5);
+    }
+    if (ret)
+	return ret;
+
+    key5.keytype = KEYTYPE_ARCFOUR;
+    key5.keyvalue = cksum_k5.checksum;
+
+    cksum_k6.checksum.data = key6_data;
+    cksum_k6.checksum.length = key6_size;
+
+    return krb5_hmac(context, CKSUMTYPE_RSA_MD5,
+		     cksum_data, cksum_size, 0, &key5, &cksum_k6);
+}
+
+static krb5_error_code
+arcfour_mic_cksum(krb5_keyblock *key, unsigned usage,
+		  u_char *sgn_cksum, size_t sgn_cksum_sz,
+		  const char *v1, size_t l1,
+		  const void *v2, size_t l2,
+		  const void *v3, size_t l3)
+{
+    Checksum CKSUM;
+    u_char *ptr;
+    size_t len;
+    krb5_crypto crypto;
+    krb5_error_code ret;
+    
+    if(sgn_cksum_sz != 8){
+	fprintf(stderr," wrong checksum size :%d should be 8\n",sgn_cksum_sz);
+	exit(10);
+    }
+
+    len = l1 + l2 + l3;
+
+    ptr = g_malloc(len);
+    if (ptr == NULL)
+	return 238;
+
+    memcpy(ptr, v1, l1);
+    memcpy(ptr + l1, v2, l2);
+    memcpy(ptr + l1 + l2, v3, l3);
+    
+    ret = krb5_crypto_init(gssapi_krb5_context, key, 0, &crypto);
+    if (ret) {
+	g_free(ptr);
+	return ret;
+    }
+    
+    ret = krb5_create_checksum(gssapi_krb5_context,
+			       crypto,
+			       usage,
+			       0,
+			       ptr, len,
+			       &CKSUM);
+    g_free(ptr);
+    if (ret == 0) {
+	memcpy(sgn_cksum, CKSUM.checksum.data, sgn_cksum_sz);
+	free_Checksum(&CKSUM);
+    }
+    krb5_crypto_destroy(gssapi_krb5_context, crypto);
+
+    return ret;
+}
+
+static int
+heimdal_decrypt_arcfour(packet_info *pinfo,
+	 OM_uint32 *minor_status,
+	 const gss_buffer_t input_message_buffer,
+	 gss_buffer_t output_message_buffer,
+	 krb5_keyblock *key)
+{
+    u_char Klocaldata[16];
+    krb5_keyblock Klocal;
+    krb5_error_code ret;
+    int32_t seq_number;
+    size_t datalen;
+    char k6_data[16], SND_SEQ[8], Confounder[8];
+    char cksum_data[8];
+    int cmp;
+    int conf_flag;
+    size_t padlen;
+
+    datalen = tvb_length(pinfo->gssapi_encrypted_tvb);
+
+    if(tvb_get_ntohs(pinfo->gssapi_wrap_tvb, 2)!=0x1100){ 
+	/* SGN_ALG = HMAC MD5 ARCFOUR   redundant  is checked in caller! */
+	return 2;
+    }
+
+    if(tvb_get_ntohs(pinfo->gssapi_wrap_tvb, 4)==0x1000){
+	conf_flag=1;
+    } else if (tvb_get_ntohs(pinfo->gssapi_wrap_tvb, 4)==0xffff){
+	conf_flag=0;
+    } else {
+	return 3;
+    }
+
+    if(tvb_get_ntohs(pinfo->gssapi_wrap_tvb, 6)!=0xffff){
+	return 4;
+    }
+
+    ret = arcfour_mic_key(gssapi_krb5_context, key,
+			  (void *)tvb_get_ptr(pinfo->gssapi_wrap_tvb, 16, 8),
+			  8, /* SGN_CKSUM */
+			  k6_data, sizeof(k6_data));
+    if (ret) {
+	return 5;
+    }
+
+    {
+	RC4_KEY rc4_key;
+	
+	RC4_set_key (&rc4_key, sizeof(k6_data), k6_data);
+	RC4 (&rc4_key, 8, 
+		(void *)tvb_get_ptr(pinfo->gssapi_wrap_tvb, 8, 8), 
+		SND_SEQ); /* SND_SEQ */
+	memset(&rc4_key, 0, sizeof(rc4_key));
+	memset(k6_data, 0, sizeof(k6_data));
+    }
+
+    gssapi_decode_be_om_uint32(SND_SEQ, &seq_number);
+
+    cmp = memcmp(&SND_SEQ[4], "\xff\xff\xff\xff", 4);
+    if(cmp){
+	cmp = memcmp(&SND_SEQ[4], "\x00\x00\x00\x00", 4);
+    }
+
+    if (cmp != 0) {
+	return 6;
+    }
+
+    {
+	int i;
+
+	Klocal.keytype = key->keytype;
+	Klocal.keyvalue.data = Klocaldata;
+	Klocal.keyvalue.length = sizeof(Klocaldata);
+
+	for (i = 0; i < 16; i++)
+	    Klocaldata[i] = ((u_char *)key->keyvalue.data)[i] ^ 0xF0;
+    }
+    ret = arcfour_mic_key(gssapi_krb5_context, &Klocal,
+			  SND_SEQ, 4,
+			  k6_data, sizeof(k6_data));
+    memset(Klocaldata, 0, sizeof(Klocaldata));
+    if (ret) {
+	return 7;
+    }
+
+    output_message_buffer->value = g_malloc(datalen);
+    if (output_message_buffer->value == NULL) {
+	return 8;
+    }
+    output_message_buffer->length = datalen;
+
+    if(conf_flag) {
+	RC4_KEY rc4_key;
+
+	RC4_set_key (&rc4_key, sizeof(k6_data), k6_data);
+	RC4 (&rc4_key, 8, 
+		(void *)tvb_get_ptr(pinfo->gssapi_wrap_tvb, 24, 8), 
+		Confounder); /* Confounder */
+	RC4 (&rc4_key, datalen, 
+	     input_message_buffer->value, 
+	     output_message_buffer->value);
+	memset(&rc4_key, 0, sizeof(rc4_key));
+    } else {
+	memcpy(Confounder, 
+		tvb_get_ptr(pinfo->gssapi_wrap_tvb, 24, 8), 
+		8); /* Confounder */
+	memcpy(output_message_buffer->value, 
+		input_message_buffer->value, 
+	        datalen);
+    }
+    memset(k6_data, 0, sizeof(k6_data));
+
+    ret = _gssapi_verify_pad(output_message_buffer, datalen, &padlen);
+    if (ret) {
+	gss_release_buffer(minor_status, output_message_buffer);
+	return 9;
+    }
+    output_message_buffer->length -= padlen;
+
+    ret = arcfour_mic_cksum(key, KRB5_KU_USAGE_SEAL,
+			    cksum_data, sizeof(cksum_data),
+			    tvb_get_ptr(pinfo->gssapi_wrap_tvb, 0, 8), 8,
+			    Confounder, sizeof(Confounder),
+			    output_message_buffer->value, 
+			    output_message_buffer->length + padlen);
+    if (ret) {
+	gss_release_buffer(minor_status, output_message_buffer);
+	return 10;
+    }
+
+    cmp = memcmp(cksum_data, 
+	tvb_get_ptr(pinfo->gssapi_wrap_tvb, 16, 8),
+	8); /* SGN_CKSUM */
+    if (cmp) {
+	gss_release_buffer(minor_status, output_message_buffer);
+	return 11;
+    }
+
+    return 0;
+}
+
+static void
+decrypt_heimdal_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int keytype)
+{
+	static int first_time=1;
+	static krb5_context context;
+	krb5_error_code ret;
+	enc_key_t *ek;
+	int length;
+	const guint8 *original_data;
+	OM_uint32 minor_status;
+
+	gss_buffer_desc *output_message_buffer;
+	static int omb_index=0;
+	static gss_buffer_desc omb_arr[4]={{0, NULL},{0, NULL},{0, NULL},{0, NULL}};
+	gss_buffer_desc input_message_buffer;
+	static guint8 *cryptocopy=NULL; /* workaround for pre-0.6.1 heimdal bug */
+
+	omb_index++;
+	if(omb_index>=4){
+		omb_index=0;
+	}
+	output_message_buffer=omb_arr+omb_index;
+	output_message_buffer->length=0;
+	if(output_message_buffer->value){
+		g_free(output_message_buffer->value);
+		output_message_buffer->value=NULL;
+	}
+
+	length=tvb_length(pinfo->gssapi_encrypted_tvb);
+	original_data=tvb_get_ptr(pinfo->gssapi_encrypted_tvb, 0, length);
+
+	/* dont do anything if we are not attempting to decrypt data */
+/*
+	if(!krb_decrypt){
+		return;
+	}
+*/
+	/* XXX we should only do this for first time, then store somewhere */
+	/* XXX We also need to re-read the keytab when the preference changes */
+
+	/* should this have a destroy context ?  Heimdal people would know */
+	if(first_time){
+		first_time=0;
+		ret = krb5_init_context(&context);
+		if(ret){
+			return;
+		}
+	}
+
+	if(cryptocopy){
+		g_free(cryptocopy);
+		cryptocopy=NULL;
+	}		
+	cryptocopy=g_malloc(length);
+
+	for(ek=enc_key_list;ek;ek=ek->next){
+		krb5_crypto crypto;
+
+		/* shortcircuit and bail out if enctypes are not matching */
+		if(ek->key.keyblock.keytype!=keytype){
+			continue;
+		}
+
+		ret = krb5_crypto_init(context, &(ek->key.keyblock), 0, &crypto);
+		if(ret){
+			return;
+		}
+
+		/* pre-0.6.1 versions of Heimdal would sometimes change
+		  the cryptotext data even when the decryption failed.
+		  This would obviously not work since we iterate over the
+		  keys. So just give it a copy of the crypto data instead.
+		  This has been seen for RC4-HMAC blobs.
+		*/
+		memcpy(cryptocopy, original_data, length);
+		input_message_buffer.length=length;
+		input_message_buffer.value=cryptocopy;
+		ret=heimdal_decrypt_arcfour(pinfo,
+				 &minor_status,
+				 &input_message_buffer,
+				  output_message_buffer,
+				 &(ek->key.keyblock));
+		if (ret == 0) {
+			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
+			krb5_crypto_destroy(context, crypto);
+			pinfo->gssapi_decrypted_tvb=tvb_new_real_data(
+				output_message_buffer->value,
+				length, length);
+			tvb_set_child_real_data_tvbuff(tvb, pinfo->gssapi_decrypted_tvb);
+			add_new_data_source(pinfo, pinfo->gssapi_decrypted_tvb, "Decrypted GSS-Krb5");
+			return;
+		}
+		krb5_crypto_destroy(context, crypto);
+	}
+	return;
+}
+#endif /* HAVE_HEIMDAL_KERBEROS */
+
+
+#endif
+
 /*
  * XXX - This is for GSSAPI Wrap tokens ...
  */
 static int
-dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 _U_ token_id)
+dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 token_id)
 {
-	guint16 sgn_alg;
+	guint16 sgn_alg, seal_alg;
+	int start_offset=offset;
 
 	/*
 	 * The KRB5 blob conforms to RFC1964:
@@ -421,6 +769,7 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	offset += 2;
 
+	seal_alg = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_spnego_krb5_seal_alg, tvb, offset, 2,
 			    TRUE);
 
@@ -454,10 +803,49 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	if (sgn_alg == KRB_SGN_ALG_HMAC) {
 	  proto_tree_add_item(tree, hf_spnego_krb5_confounder, tvb, offset, 8,
 			      TRUE);
-
 	  offset += 8;
 	}
 
+#ifdef HAVE_KERBEROS
+	if(pinfo->decrypt_gssapi_tvb){
+		/* if the caller did not provide a tvb, then we just use
+		   whatever is left of our current tvb.
+		*/
+		if(!pinfo->gssapi_encrypted_tvb){
+			int len;
+			len=tvb_reported_length_remaining(tvb,offset);
+			if(len>tvb_length_remaining(tvb, offset)){
+				/* no point in trying to decrypt, 
+				   we dont have the full pdu.
+				*/
+				return offset;
+			}
+			pinfo->gssapi_encrypted_tvb = tvb_new_subset(
+					tvb, offset, len, len);
+		}
+			
+		/* if this is KRB5 wrapped rc4-hmac */
+		if((token_id==KRB_TOKEN_WRAP)
+		 &&(sgn_alg==KRB_SGN_ALG_HMAC)
+		 &&(seal_alg==KRB_SEAL_ALG_RC4)){
+			/* do we need to create a tvb for the wrapper
+			   as well ?
+			*/
+			if(!pinfo->gssapi_wrap_tvb){
+				pinfo->gssapi_wrap_tvb = tvb_new_subset(
+					tvb, start_offset-2,
+					GSS_ARCFOUR_WRAP_TOKEN_SIZE,
+					GSS_ARCFOUR_WRAP_TOKEN_SIZE);
+			}
+#ifdef HAVE_HEIMDAL_KERBEROS
+			decrypt_heimdal_gssapi_krb_arcfour_wrap(tree,
+				pinfo,
+				tvb,
+				23 /* rc4-hmac */);
+#endif
+		}
+	}	
+#endif
 	/*
 	 * Return the offset past the checksum, so that we know where
 	 * the data we're wrapped around starts.  Also, set the length

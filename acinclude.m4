@@ -977,7 +977,7 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	  ac_mit_version=`grep 'Massachusetts Institute of Technology' $krb5_dir/include/krb5.h | head -n 1 | sed 's/^.*Massachusetts Institute of Technology.*$/MIT/'`
 	  ac_krb5_version="$ac_heimdal_version$ac_mit_version"
 	  if test "x$ac_krb5_version" = "xHEIMDAL"
-	      KRB5_LIBS="-L$krb5_dir/lib -lkrb5 -lasn1 $SSL_LIBS -lroken -lcrypt"
+	      KRB5_LIBS="-L$krb5_dir/lib -lkrb5 -lasn1 $SSL_LIBS -lroken -lcrypt -lgssapi"
 	  then
 	      KRB5_LIBS="-L$krb5_dir/lib -lkrb5 -lk5crypto -lcom_err"
 	  fi
@@ -1018,6 +1018,10 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		;;
 	    esac
 	    ac_krb5_version=`"$KRB5_CONFIG" --version | head -n 1 | sed -e 's/^.*heimdal.*$/HEIMDAL/' -e 's/^Kerberos .*$/MIT/'`
+	    # linking with HEIMDAL now requires -lgssapi for gssapi decryption
+	    if test "${ac_krb5_version}" = "HEIMDAL"; then
+		KRB5_LIBS="$KRB5_LIBS -lgssapi"
+	    fi
  	  fi
 	fi
 
