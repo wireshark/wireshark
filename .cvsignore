@@ -1,4 +1,5 @@
 .deps
+.libs
 Makefile
 Makefile.in
 aclocal.m4
@@ -11,9 +12,11 @@ configure
 dfilter-grammar.c
 dfilter-grammar.h
 dfilter-scanner.c
+editcap
 ethereal
 ethereal.1
 ethereal.spec
+libtool
 ps.c
 randpkt
 rdps
