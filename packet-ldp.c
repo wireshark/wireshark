@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for ldp packet disassembly
  *
- * $Id: packet-ldp.c,v 1.5 2000/12/01 09:40:12 sharpe Exp $
+ * $Id: packet-ldp.c,v 1.6 2000/12/02 08:41:07 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -366,6 +366,8 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16        ldp_message = 0;
 
   CHECK_DISPLAY_AS_DATA(proto_ldp, tvb, pinfo, tree);
+
+  pinfo->current_proto = "LDP";
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
 

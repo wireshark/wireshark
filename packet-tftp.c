@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.18 2000/11/19 08:54:09 guy Exp $
+ * $Id: packet-tftp.c,v 1.19 2000/12/02 08:41:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -99,6 +99,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	u_int           i1;
 
 	CHECK_DISPLAY_AS_DATA(proto_tftp, tvb, pinfo, tree);
+
+	pinfo->current_proto = "TFTP";
 
 	/*
 	 * The first TFTP packet goes to the TFTP port; the second one

@@ -3,7 +3,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.4 2000/11/19 08:54:10 guy Exp $
+ * $Id: packet-wsp.c,v 1.5 2000/12/02 08:41:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -399,6 +399,8 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *wsp_capabilities;
 	
 	CHECK_DISPLAY_AS_DATA(proto_wsp, tvb, pinfo, tree);
+
+	pinfo->current_proto = "WSP";
 
 /* This field shows up as the "Info" column in the display; you should make
    it, if possible, summarize what's in the packet, so that a user looking

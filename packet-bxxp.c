@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.11 2000/11/19 08:53:56 guy Exp $
+ * $Id: packet-bxxp.c,v 1.12 2000/12/02 08:41:07 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -987,6 +987,8 @@ dissect_bxxp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   struct bxxp_request_val *request_val = NULL;
 
   CHECK_DISPLAY_AS_DATA(proto_bxxp, tvb, pinfo, tree);
+
+  pinfo->current_proto = "BXXP";
 
   offset = 0;
 
