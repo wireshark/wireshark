@@ -3,7 +3,7 @@
  *
  * Jason Lango <jal@netapp.com>
  *
- * $Id: packet-rtp.c,v 1.1 2000/04/21 01:45:56 guy Exp $
+ * $Id: packet-rtp.c,v 1.2 2000/05/09 06:28:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,11 +97,11 @@ dissect_rtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "RTP");
 	if (check_col(fd, COL_INFO)) {
-		col_add_fstr(fd, COL_INFO, "SSRC: %lu  %sPayload: %u  Seq: %u",
+		col_add_fstr(fd, COL_INFO, "SSRC=%lu, Seq=%u, Time=%lu%s",
 			(u_long) hdr.rtp_ssrc,
-			RTP_MARKER(&hdr) ? "*Mark*  " : "",
-			(u_int) RTP_PAYLOAD_TYPE(&hdr),
-			(u_int) hdr.rtp_seq);
+			(u_int) hdr.rtp_seq,
+			(u_long) hdr.rtp_timestamp,
+			RTP_MARKER(&hdr) ? ", Mark" : "");
 	}
 
 	rtp_tree = NULL;
