@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.70 2002/03/07 21:46:06 guy Exp $
+ * $Id: libpcap.c,v 1.71 2002/03/09 23:07:26 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1072,7 +1072,19 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 	file_hdr.version_minor = 4;
 	file_hdr.thiszone = 0;	/* XXX - current offset? */
 	file_hdr.sigfigs = 0;	/* unknown, but also apparently unused */
-	file_hdr.snaplen = wdh->snaplen;
+	/*
+	 * Tcpdump cannot handle capture files with a snapshot length of 0,
+	 * as BPF filters return either 0 if they fail or the snapshot length
+	 * if they succeed, and a snapshot length of 0 means success is
+	 * indistinguishable from failure and the filter expression would
+	 * reject all packets.
+	 *
+	 * A snapshot length of 0, inside Wiretap, means "snapshot length
+	 * unknown"; if the snapshot length supplied to us is 0, we make
+	 * the snapshot length in the header file WTAP_MAX_PACKET_SIZE.
+	 */
+	file_hdr.snaplen = (wdh->snaplen != 0) ? wdh->snaplen :
+						 WTAP_MAX_PACKET_SIZE;
 	file_hdr.network = wtap_wtap_encap_to_pcap_encap(wdh->encap);
 	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
 	if (nwritten != sizeof file_hdr) {
