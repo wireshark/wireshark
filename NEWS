@@ -12,6 +12,7 @@ Overview of changes in Ethereal 0.8.17:
 * Wiretap support for Cisco HDLC (Guy)
 * New dissector: Cisco HDLC (guy)
 * Tvbuffication of MOUNT dissector (Ronnie Sahlberg)
+* Tvbuffication of HCLNFSD dissector (Ronnie Sahlberg)
 * Memory double-free fix (Guy)
 * Change tvb_get_ptr() to return 'const guint8*' (Gilbert, Guy)
 * Fix for IEEE 802.11 trying to modify result of tvb_get_ptr() (Guy)
