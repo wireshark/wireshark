@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.57 2002/02/27 00:30:22 guy Exp $
+ * $Id: packet-giop.c,v 1.58 2002/04/24 21:28:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1992,63 +1992,18 @@ guint8 get_CDR_char(tvbuff_t *tvb, int *offset) {
 
 gdouble get_CDR_double(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian, int boundary) {
 
-  guint8 sign;
-  guint8 e1,e2,f1,f2,f3,f4,f5,f6,f7;
   gdouble val;
-  guint16 exp;
-  guint32 fract0, fract1;
-  gdouble d_fract;		
-  
 
   /* double values must be aligned on a 8 byte boundary */
 
   while( ( (*offset + boundary) % 8) != 0)
 	  ++(*offset);
 
+  val = (stream_is_big_endian) ? tvb_get_ntohieee_double (tvb, *offset) :
+                                 tvb_get_letohieee_double (tvb, *offset);
 
-  if(stream_is_big_endian) {    
-    e1  = get_CDR_octet(tvb,offset);
-    sign = e1 >> 7;			/* sign value */
-    e1 &= 0x7f;		/* bottom 7 bits */
-    f1  = get_CDR_octet(tvb,offset);
-    e2 = f1 >> 4;
-    f1 &= 0x0f;		/* bottom 4 bits */
-    f2  = get_CDR_octet(tvb,offset);
-    f3  = get_CDR_octet(tvb,offset);
-    f4  = get_CDR_octet(tvb,offset);
-    f5  = get_CDR_octet(tvb,offset);
-    f6  = get_CDR_octet(tvb,offset);
-    f7  = get_CDR_octet(tvb,offset);
-
-  } else {
-
-    f7  = get_CDR_octet(tvb,offset);
-    f6  = get_CDR_octet(tvb,offset);
-    f5  = get_CDR_octet(tvb,offset);
-    f4  = get_CDR_octet(tvb,offset);
-    f3  = get_CDR_octet(tvb,offset);
-    f2  = get_CDR_octet(tvb,offset);
-    f1  = get_CDR_octet(tvb,offset);
-    e2 = f1 >> 4;
-    f1 &= 0x0f;		/* bottom 4 bits */
-    e1  = get_CDR_octet(tvb,offset);
-    sign = e1 >> 7;			/* sign value */
-    e1 &= 0x7f;		/* bottom 7 bits */
-
-  }
-
-  exp = (e1 << 4) + e2;
-
-  /* Now lets do some 52 bit math with 32 bit constraint */
-
-  fract0 = f7 + (f6 << 8) + (f5 << 16) + (f4 << 24); /* lower 32 bits of fractional part */
-  fract1 = f3 + (f2 << 8) + (f1 << 16);              /* top 20 bits of fractional part   */
-
-  d_fract = (fract1 / (pow(2,20))) + (fract0 / (pow(2,52))); /* 52 bits represent a fraction */
-
-  val = pow(-1,sign) * pow(2,(exp - 1023)) * (1 + d_fract);
-
-  return val;		/* FIX rounding ?? */
+  *offset += 8;
+  return val;
 
 }
 
@@ -2285,50 +2240,18 @@ void get_CDR_fixed(tvbuff_t *tvb, gchar **seq, gint *offset, guint32 digits, gin
 
 gfloat get_CDR_float(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian, int boundary) {
   
-  guint8 sign;
-  guint8 e1,e2,f1,f2,f3;
   gfloat val;
-  guint8 exp;
-  guint32 fract;
-  gdouble d_fract;		
   
   /* float values must be aligned on a 4 byte boundary */
 
   while( ( (*offset + boundary) % 4) != 0)
     ++(*offset);
 
-  if(stream_is_big_endian) {    
-    e1  = get_CDR_octet(tvb,offset);
-    sign = e1 >> 7;			/* sign value */
-    e1 &= 0x7f;		/* bottom 7 bits */
-    f1  = get_CDR_octet(tvb,offset);
-    e2 = f1 >> 7;
-    f1 &= 0x7f;		/* bottom 7 bits */
-    f2  = get_CDR_octet(tvb,offset);
-    f3  = get_CDR_octet(tvb,offset);
+  val = (stream_is_big_endian) ? tvb_get_ntohieee_float (tvb, *offset) :
+                                 tvb_get_letohieee_float (tvb, *offset);
 
-  } else {
-
-    f3  = get_CDR_octet(tvb,offset);
-    f2  = get_CDR_octet(tvb,offset);
-    f1  = get_CDR_octet(tvb,offset);
-    e2 = f1 >> 7;
-    f1 &= 0x7f;		/* bottom 7 bits */
-    e1  = get_CDR_octet(tvb,offset);
-    sign = e1 >> 7;			/* sign value */
-    e1 &= 0x7f;		/* bottom 7 bits */
-
-  }
-
-
-  exp = (e1 << 1) + e2;
-  fract = f3 + (f2 << 8) + (f1 << 16);
-
-  d_fract = fract / (pow(2,23)); /* 23 bits represent a fraction */
-
-  val = pow(-1,sign) * pow(2,(exp - 127)) * (1 + d_fract);
-
-  return val;		/* FIX rounding ?? */
+  *offset += 4;
+  return val;
 
 }
 
