@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.46 2002/10/25 03:13:07 guy Exp $
+dnl $Id: acinclude.m4,v 1.47 2002/12/28 23:15:52 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -306,7 +306,10 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 
 	# Pcap header checks
 	AC_CHECK_HEADER(net/bpf.h,,
-	    AC_MSG_ERROR([[Header file net/bpf.h not found; if you installed libpcap from source, did you also do \"make install-incl\"?]]))
+	    AC_MSG_ERROR([[Header file net/bpf.h not found; if you installed libpcap
+from source, did you also do \"make install-incl\", and if you installed a
+binary package of libpcap, is there also a developer's package of libpcap,
+and did you also install that package?]]))
 	AC_CHECK_HEADER(pcap.h,, AC_MSG_ERROR(Header file pcap.h not found.))
 
 	#
