@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.31 1999/11/26 17:57:14 gram Exp $
+ * $Id: wtap.c,v 1.32 1999/12/04 08:32:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -55,66 +55,6 @@ int wtap_snapshot_length(wtap *wth)
 int wtap_file_encap(wtap *wth)
 {
 	return wth->file_encap;
-}
-
-const char *wtap_file_type_string(wtap *wth)
-{
-	switch (wth->file_type) {
-		case WTAP_FILE_WTAP:
-			return "wiretap";
-
-		case WTAP_FILE_PCAP:
-			return "pcap";
-
-		case WTAP_FILE_PCAP_MODIFIED:
-			return "pcap-modified";
-
-		case WTAP_FILE_LANALYZER:
-			return "Novell LANalyzer";
-
-		case WTAP_FILE_NGSNIFFER:
-			return "Network Associates Sniffer (DOS-based)";
-
-		case WTAP_FILE_SNOOP:
-			return "snoop";
-
-		case WTAP_FILE_IPTRACE_1_0:
-			return "AIX iptrace 1.0";
-
-		case WTAP_FILE_IPTRACE_2_0:
-			return "AIX iptrace 2.0";
-
-		case WTAP_FILE_NETMON_1_x:
-			return "Microsoft Network Monitor 1.x";
-
-		case WTAP_FILE_NETMON_2_x:
-			return "Microsoft Network Monitor 2.x";
-
-		case WTAP_FILE_NETXRAY_1_0:
-			return "Cinco Networks NetXRay";
-
-		case WTAP_FILE_NETXRAY_1_1:
-			return "Network Associates Sniffer (Windows-based) 1.1";
-
-		case WTAP_FILE_NETXRAY_2_001:
-			return "Network Associates Sniffer (Windows-based) 2.001";
-
-		case WTAP_FILE_RADCOM:
-			return "RADCOM WAN/LAN analyzer";
-
-		case WTAP_FILE_ASCEND:
-			return "Lucent/Ascend access server trace";
-
-		case WTAP_FILE_NETTL:
-			return "HP-UX nettl trace";
-
-		case WTAP_FILE_TOSHIBA:
-			return "Toshiba Compact ISDN Router snoop trace";
-
-		default:
-			g_error("Unknown capture file type %d", wth->file_type);
-			return NULL;
-	}
 }
 
 static const char *wtap_errlist[] = {

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.24 1999/12/04 05:14:38 guy Exp $
+ * $Id: libpcap.c,v 1.25 1999/12/04 08:32:13 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -100,7 +100,6 @@ static int libpcap_read(wtap *wth, int *err);
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
 static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const u_char *pd, int *err);
-static gboolean libpcap_dump_close(wtap_dumper *wdh, int *err);
 
 /*
  * XXX - this is a bit of a mess.  OpenBSD, and perhaps NetBSD, and
@@ -460,46 +459,49 @@ int wtap_pcap_encap_to_wtap_encap(int encap)
 	return pcap_encap[encap];
 }
 
+static const int wtap_encap[] = {
+	-1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
+	1,		/* WTAP_ENCAP_ETHERNET -> DLT_EN10MB */
+	6,		/* WTAP_ENCAP_TR -> DLT_IEEE802 */
+	8,		/* WTAP_ENCAP_SLIP -> DLT_SLIP */
+	9,		/* WTAP_ENCAP_PPP -> DLT_PPP */
+	10,		/* WTAP_ENCAP_FDDI -> DLT_FDDI */
+	10,		/* WTAP_ENCAP_FDDI_BITSWAPPED -> DLT_FDDI */
+	12,		/* WTAP_ENCAP_RAW_IP -> DLT_RAW */
+	7,		/* WTAP_ENCAP_ARCNET -> DLT_ARCNET */
+	11,		/* WTAP_ENCAP_ATM_RFC1483 -> DLT_ATM_RFC1483 */
+	19,		/* WTAP_ENCAP_LINUX_ATM_CLIP */
+	-1,		/* WTAP_ENCAP_LAPB -> unsupported*/
+	-1,		/* WTAP_ENCAP_ATM_SNIFFER -> unsupported */
+	0		/* WTAP_ENCAP_NULL -> DLT_NULL */
+};
+#define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
+
+/* Returns 0 if we could write the specified encapsulation type,
+   an error indication otherwise. */
+int libpcap_dump_can_dump_encap(int filetype, int encap)
+{
+	/* Per-packet encapsulations aren't supported. */
+	if (encap == WTAP_ENCAP_PER_PACKET)
+		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+
+	if (encap < 0 || encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
+		return WTAP_ERR_UNSUPPORTED_ENCAP;
+
+	return 0;
+}
+
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
 gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 {
 	static const guint32 pcap_magic = PCAP_MAGIC;
 	struct pcap_hdr file_hdr;
-	static const int wtap_encap[] = {
-		-1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
-		1,		/* WTAP_ENCAP_ETHERNET -> DLT_EN10MB */
-		6,		/* WTAP_ENCAP_TR -> DLT_IEEE802 */
-		8,		/* WTAP_ENCAP_SLIP -> DLT_SLIP */
-		9,		/* WTAP_ENCAP_PPP -> DLT_PPP */
-		10,		/* WTAP_ENCAP_FDDI -> DLT_FDDI */
-		10,		/* WTAP_ENCAP_FDDI_BITSWAPPED -> DLT_FDDI */
-		12,		/* WTAP_ENCAP_RAW_IP -> DLT_RAW */
-		7,		/* WTAP_ENCAP_ARCNET -> DLT_ARCNET */
-		11,		/* WTAP_ENCAP_ATM_RFC1483 -> DLT_ATM_RFC1483 */
-		19,		/* WTAP_ENCAP_LINUX_ATM_CLIP */
-		-1,		/* WTAP_ENCAP_LAPB -> unsupported*/
-		-1,		/* WTAP_ENCAP_ATM_SNIFFER -> unsupported */
-		0		/* WTAP_ENCAP_NULL -> DLT_NULL */
-	};
-	#define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
 	int nwritten;
-
-	/* Per-packet encapsulations aren't supported. */
-	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
-		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
-		return FALSE;
-	}
-
-	if (wdh->encap < 0 || wdh->encap >= NUM_WTAP_ENCAPS
-	    || wtap_encap[wdh->encap] == -1) {
-		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-		return FALSE;
-	}
 
 	/* This is a libpcap file */
 	wdh->subtype_write = libpcap_dump;
-	wdh->subtype_close = libpcap_dump_close;
+	wdh->subtype_close = NULL;
 
 	/* Write the file header. */
 	nwritten = fwrite(&pcap_magic, 1, sizeof pcap_magic, wdh->fh);
@@ -558,13 +560,5 @@ static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			*err = WTAP_ERR_SHORT_WRITE;
 		return FALSE;
 	}
-	return TRUE;
-}
-
-/* Finish writing to a dump file.
-   Returns TRUE on success, FALSE on failure. */
-static gboolean libpcap_dump_close(wtap_dumper *wdh, int *err)
-{
-	/* Nothing to do here. */
 	return TRUE;
 }

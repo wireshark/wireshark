@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.19 1999/12/04 06:21:45 guy Exp $
+ * $Id: netmon.c,v 1.20 1999/12/04 08:32:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -388,22 +388,24 @@ static const int wtap_encap[] = {
 };
 #define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
 
+/* Returns 0 if we could write the specified encapsulation type,
+   an error indication otherwise. */
+int netmon_dump_can_dump_encap(int filetype, int encap)
+{
+	/* Per-packet encapsulations aren't supported. */
+	if (encap == WTAP_ENCAP_PER_PACKET)
+		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+
+	if (encap < 0 || encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
+		return WTAP_ERR_UNSUPPORTED_ENCAP;
+
+	return 0;
+}
+
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
 gboolean netmon_dump_open(wtap_dumper *wdh, int *err)
 {
-	/* Per-packet encapsulations aren't supported. */
-	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
-		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
-		return FALSE;
-	}
-
-	if (wdh->encap < 0 || wdh->encap >= NUM_WTAP_ENCAPS
-	    || wtap_encap[wdh->encap] == -1) {
-		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-		return FALSE;
-	}
-
 	/* This is a netmon file */
 	wdh->subtype_write = netmon_dump;
 	wdh->subtype_close = netmon_dump_close;

@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.32 1999/12/04 05:37:36 guy Exp $
+ * $Id: file.c,v 1.33 1999/12/04 08:32:11 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -171,6 +171,114 @@ success:
 	return wth;
 }
 
+/* Table of the file types we know about. */
+const static struct file_type_info {
+	const char *name;
+	int	(*can_dump_encap)(int, int);
+	int	(*dump_open)(wtap_dumper *, int *);
+} dump_open_table[WTAP_NUM_FILE_TYPES] = {
+	/* WTAP_FILE_UNKNOWN */
+	{ NULL,
+	  NULL, NULL },
+
+	/* WTAP_FILE_WTAP */
+	{ "Wiretap (Ethereal)",
+	  NULL, NULL },
+
+	/* WTAP_FILE_PCAP */
+	{ "libpcap (tcpdump)",
+	  libpcap_dump_can_dump_encap, libpcap_dump_open },
+
+	/* WTAP_FILE_PCAP_MODIFIED */
+	{ "modified libpcap (tcpdump)",
+	  NULL, NULL },
+
+	/* WTAP_FILE_LANALYZER */
+	{ "Novell LANalyzer",
+	  NULL, NULL },
+
+	/* WTAP_FILE_NGSNIFFER */
+	{ "Network Associates Sniffer (DOS-based)",
+	  NULL, NULL },
+
+	/* WTAP_FILE_SNOOP */
+	{ "snoop",
+	  snoop_dump_can_dump_encap, snoop_dump_open },
+
+	/* WTAP_FILE_IPTRACE_1_0 */
+	{ "AIX iptrace 1.0",
+	  NULL, NULL },
+
+	/* WTAP_FILE_IPTRACE_2_0 */
+	{ "AIX iptrace 2.0",
+	  NULL, NULL },
+
+	/* WTAP_FILE_NETMON_1_x */
+	{ "Microsoft Network Monitor 1.x",
+	  netmon_dump_can_dump_encap, netmon_dump_open },
+
+	/* WTAP_FILE_NETMON_2_x */
+	{ "Microsoft Network Monitor 2.x",
+	  NULL, NULL },
+
+	/* WTAP_FILE_NETXRAY_1_0 */
+	{ "Cinco Networks NetXRay",
+	  NULL, NULL },
+
+	/* WTAP_FILE_NETXRAY_1_1 */
+	{ "Network Associates Sniffer (Windows-based) 1.1",
+	  NULL, NULL },
+
+	/* WTAP_FILE_NETXRAY_2_001 */
+	{ "Network Associates Sniffer (Windows-based) 2.001",
+	  NULL, NULL },
+
+	/* WTAP_FILE_RADCOM */
+	{ "RADCOM WAN/LAN analyzer",
+	  NULL, NULL },
+
+	/* WTAP_FILE_ASCEND */
+	{ "Lucent/Ascend access server trace",
+	  NULL, NULL },
+
+	/* WTAP_FILE_NETTL */
+	{ "HP-UX nettl trace",
+	  NULL, NULL },
+
+	/* WTAP_FILE_TOSHIBA */
+	{ "Toshiba Compact ISDN Router snoop trace",
+	  NULL, NULL }
+};
+
+const char *wtap_file_type_string(wtap *wth)
+{
+	if (wth->file_type < 0 || wth->file_type >= WTAP_NUM_ENCAP_TYPES) {
+		g_error("Unknown capture file type %d", wth->file_type);
+		return NULL;
+	} else
+		return dump_open_table[wth->file_type].name;
+}
+
+gboolean wtap_can_open(int filetype)
+{
+	if (filetype < 0 || filetype >= WTAP_NUM_ENCAP_TYPES
+	    || dump_open_table[filetype].dump_open == NULL)
+		return FALSE;
+
+	return TRUE;
+}
+
+gboolean wtap_can_dump_encap(int filetype, int encap)
+{
+	if (filetype < 0 || filetype >= WTAP_NUM_ENCAP_TYPES
+	    || dump_open_table[filetype].can_dump_encap == NULL)
+		return FALSE;
+
+	if ((*dump_open_table[filetype].can_dump_encap)(filetype, encap) != 0)
+		return FALSE;
+
+	return TRUE;
+}
 
 static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype,
     int encap, int snaplen, int *err);
@@ -207,22 +315,33 @@ wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 	return wtap_dump_open_common(fh, filetype, encap, snaplen, err);
 }
 
-const static struct dump_type {
-	guint	type;
-	int	(*dump_open)(wtap_dumper *, int *);
-} dump_open_table[] = {
-	{ WTAP_FILE_PCAP,		libpcap_dump_open },
-	{ WTAP_FILE_SNOOP,		snoop_dump_open },
-	{ WTAP_FILE_NETMON_1_x,		netmon_dump_open },
-	{ 0,				NULL }
-};
-
 static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype, int encap,
 					int snaplen, int *err)
 {
 	wtap_dumper *wdh;
-	const struct dump_type *dtp;
 
+	if (filetype < 0 || filetype >= WTAP_NUM_ENCAP_TYPES
+	    || dump_open_table[filetype].dump_open == NULL) {
+		/* Invalid type, or type we don't know how to write. */
+		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+		/* NOTE: this means the FD handed to "wtap_dump_fdopen()"
+		   will be closed if we can't write that file type. */
+		fclose(fh);
+		return NULL;
+	}
+
+	/* OK, we know how to write that type; can we write the specified
+	   encapsulation type? */
+	*err = (*dump_open_table[filetype].can_dump_encap)(filetype, encap);
+	if (*err != 0) {
+		/* NOTE: this means the FD handed to "wtap_dump_fdopen()"
+		   will be closed if we can't write that encapsulation type. */
+		fclose(fh);
+		return NULL;
+	}
+
+	/* OK, we can write the specified encapsulation type.  Allocate
+	   a data structure for the output stream. */
 	wdh = g_malloc(sizeof (wtap_dumper));
 	if (wdh == NULL) {
 		*err = errno;
@@ -235,24 +354,21 @@ static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype, int encap,
 	wdh->file_type = filetype;
 	wdh->snaplen = snaplen;
 	wdh->encap = encap;
-
 	wdh->private.opaque = NULL;
-	for (dtp = &dump_open_table[0]; dtp->dump_open != NULL; dtp++) {
-		if (filetype == dtp->type) {
-			if (!(*dtp->dump_open)(wdh, err)) {
-				/* The attempt failed. */
-				g_free(wdh);
-				fclose(fh);
-				return NULL;
-			}
-			return wdh;	/* success! */
-		}
+	wdh->subtype_write = NULL;
+	wdh->subtype_close = NULL;
+
+	/* Now try to open the file for writing. */
+	if (!(*dump_open_table[filetype].dump_open)(wdh, err)) {
+		/* The attempt failed. */
+		g_free(wdh);
+		/* NOTE: this means the FD handed to "wtap_dump_fdopen()"
+		   will be closed if the open fails. */
+		fclose(fh);
+		return NULL;
 	}
 
-	*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
-	g_free(wdh);
-	fclose(fh);
-	return NULL;
+	return wdh;	/* success! */
 }
 
 FILE* wtap_dump_file(wtap_dumper *wdh)
@@ -270,8 +386,11 @@ gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
 {
 	gboolean ret = TRUE;
 
-	if (!(wdh->subtype_close)(wdh, err))
-		ret = FALSE;
+	if (wdh->subtype_close != NULL) {
+		/* There's a close routine for this dump stream. */
+		if (!(wdh->subtype_close)(wdh, err))
+			ret = FALSE;
+	}
 	errno = WTAP_ERR_CANT_CLOSE;
 	if (fclose(wdh->fh) == EOF) {
 		if (ret) {

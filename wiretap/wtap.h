@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.51 1999/12/04 05:22:21 guy Exp $
+ * $Id: wtap.h,v 1.52 1999/12/04 08:32:14 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -117,6 +117,9 @@
 #define WTAP_FILE_ASCEND			15
 #define WTAP_FILE_NETTL				16
 #define WTAP_FILE_TOSHIBA			17
+
+/* last WTAP_FILE_ value + 1 */
+#define WTAP_NUM_FILE_TYPES			18
 
 /*
  * Maximum packet size we'll support.
@@ -385,6 +388,8 @@ void wtap_close(wtap *wth);
 int wtap_seek_read (int file_type, FILE *fh, int seek_off, guint8 *pd, int len);
 int wtap_def_seek_read (FILE *fh, int seek_off, guint8 *pd, int len);
 
+gboolean wtap_dump_can_open(int filetype);
+gboolean wtap_dump_can_write_encap(int filetype, int encap);
 wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 	int snaplen, int *err);
 wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,

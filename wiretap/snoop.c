@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.19 1999/12/04 05:14:39 guy Exp $
+ * $Id: snoop.c,v 1.20 1999/12/04 08:32:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -58,7 +58,6 @@ struct snooprec_hdr {
 static int snoop_read(wtap *wth, int *err);
 static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const u_char *pd, int *err);
-static gboolean snoop_dump_close(wtap_dumper *wdh, int *err);
 
 /*
  * See
@@ -350,45 +349,48 @@ static int snoop_read(wtap *wth, int *err)
 	return data_offset;
 }
 
+static const int wtap_encap[] = {
+	-1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
+	0x04,		/* WTAP_ENCAP_ETHERNET -> DL_ETHER */
+	0x02,		/* WTAP_ENCAP_TR -> DL_TPR */
+	-1,		/* WTAP_ENCAP_SLIP -> unsupported */
+	-1,		/* WTAP_ENCAP_PPP -> unsupported */
+	0x08,		/* WTAP_ENCAP_FDDI -> DL_FDDI */
+	0x08,		/* WTAP_ENCAP_FDDI_BITSWAPPED -> DL_FDDI */
+	-1,		/* WTAP_ENCAP_RAW_IP -> unsupported */
+	-1,		/* WTAP_ENCAP_ARCNET -> unsupported */
+	-1,		/* WTAP_ENCAP_ATM_RFC1483 -> unsupported */
+	-1,		/* WTAP_ENCAP_LINUX_ATM_CLIP -> unsupported */
+	-1,		/* WTAP_ENCAP_LAPB -> unsupported*/
+	-1,		/* WTAP_ENCAP_ATM_SNIFFER -> unsupported */
+	0		/* WTAP_ENCAP_NULL -> DLT_NULL */
+};
+#define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
+
+/* Returns 0 if we could write the specified encapsulation type,
+   an error indication otherwise. */
+int snoop_dump_can_dump_encap(int filetype, int encap)
+{
+	/* Per-packet encapsulations aren't supported. */
+	if (encap == WTAP_ENCAP_PER_PACKET)
+		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+
+	if (encap < 0 || encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
+		return WTAP_ERR_UNSUPPORTED_ENCAP;
+
+	return 0;
+}
+
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
 gboolean snoop_dump_open(wtap_dumper *wdh, int *err)
 {
 	struct snoop_hdr file_hdr;
-	static const int wtap_encap[] = {
-		-1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
-		0x04,		/* WTAP_ENCAP_ETHERNET -> DL_ETHER */
-		0x02,		/* WTAP_ENCAP_TR -> DL_TPR */
-		-1,		/* WTAP_ENCAP_SLIP -> unsupported */
-		-1,		/* WTAP_ENCAP_PPP -> unsupported */
-		0x08,		/* WTAP_ENCAP_FDDI -> DL_FDDI */
-		0x08,		/* WTAP_ENCAP_FDDI_BITSWAPPED -> DL_FDDI */
-		-1,		/* WTAP_ENCAP_RAW_IP -> unsupported */
-		-1,		/* WTAP_ENCAP_ARCNET -> unsupported */
-		-1,		/* WTAP_ENCAP_ATM_RFC1483 -> unsupported */
-		-1,		/* WTAP_ENCAP_LINUX_ATM_CLIP -> unsupported */
-		-1,		/* WTAP_ENCAP_LAPB -> unsupported*/
-		-1,		/* WTAP_ENCAP_ATM_SNIFFER -> unsupported */
-		0		/* WTAP_ENCAP_NULL -> DLT_NULL */
-	};
-	#define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
 	int nwritten;
-
-	/* Per-packet encapsulations aren't supported. */
-	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
-		*err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
-		return FALSE;
-	}
-
-	if (wdh->encap < 0 || wdh->encap >= NUM_WTAP_ENCAPS
-	    || wtap_encap[wdh->encap] == -1) {
-		*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-		return FALSE;
-	}
 
 	/* This is a snoop file */
 	wdh->subtype_write = snoop_dump;
-	wdh->subtype_close = snoop_dump_close;
+	wdh->subtype_close = NULL;
 
 	/* Write the file header. */
 	nwritten = fwrite(&snoop_magic, 1, sizeof snoop_magic, wdh->fh);
@@ -465,13 +467,5 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			*err = WTAP_ERR_SHORT_WRITE;
 		return FALSE;
 	}
-	return TRUE;
-}
-
-/* Finish writing to a dump file.
-   Returns TRUE on success, FALSE on failure. */
-static gboolean snoop_dump_close(wtap_dumper *wdh, int *err)
-{
-	/* Nothing to do here. */
 	return TRUE;
 }
