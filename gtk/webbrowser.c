@@ -42,6 +42,8 @@
 #if defined(G_OS_WIN32)
 /* Win32 - use Windows shell services to start a browser */
 #include <windows.h>
+/* if WIN32_LEAN_AND_MEAN is defined, shellapi.h is needed too */
+#include <shellapi.h>
 #elif defined (HAVE_OS_X_FRAMEWORKS)
 /* Mac OS X - use Launch Services to start a browser */
 #include <CoreFoundation/CFBase.h>
