@@ -33,6 +33,7 @@ AliasAddress			NO_PROT_PREFIX
 PartyNumber
 PresentationIndicator
 ScreeningIndicator
+CallIdentifier
 #----------------------------------------------------------------------------------------
 #.TYPE_RENAME
 CallCreditServiceControl/callStartingPoint CallCreditServiceControl_callStartingPoint
@@ -42,6 +43,7 @@ RasUsageSpecification/callStartingPoint RasUsageSpecificationcallStartingPoint
 CapacityReportingSpecification/when CapacityReportingSpecification_when
 RasUsageSpecification/when RasUsageSpecification_when
 TransportAddress/ipAddress/ip IpV4
+NonStandardIdentifier NonStandardIdentifier
 #----------------------------------------------------------------------------------------
 #.FIELD_RENAME
 RasUsageSpecification/callStartingPoint/alerting alerting_flg 
@@ -130,7 +132,6 @@ GatekeeperRejectReason/securityError gkRej_securityError
 RegistrationRejectReason/securityError reg_securityError
 
 CallIdentifier/guid guid
-
 #----------------------------------------------------------------------------------------
 #.FN_BODY H323-UU-PDU/h323-message-body
 	guint32 message_body_val;
@@ -206,6 +207,7 @@ CallIdentifier/guid guid
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY H221NonStandard/t35CountryCode
+  guint32 value;
 
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                            0U, 255U, &value, NULL, FALSE);
@@ -213,6 +215,7 @@ CallIdentifier/guid guid
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY H221NonStandard/t35Extension
+  guint32 value;
 
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                            0U, 255U, &value, NULL, FALSE);
@@ -220,6 +223,7 @@ CallIdentifier/guid guid
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY H221NonStandard/manufacturerCode
+  guint32 value;
 
   offset = dissect_per_constrained_integer(tvb, offset, pinfo, tree, hf_index,
                                            0U, 65535U, &value, NULL, FALSE);
@@ -448,6 +452,49 @@ guint32 value_len;
 		h4501_tvb = tvb_new_subset(tvb, h4501_offset, h4501_len, h4501_len);
 		call_dissector(h4501_handle, h4501_tvb, pinfo, tree);
 	}
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY NonStandardIdentifier/object
+
+  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
+                                         object);
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY NonStandardIdentifier
+	guint32 value;
+
+	*object = '\0';
+	T38_manufacturer_code = 0;
+
+  offset = dissect_per_choice(tvb, offset, pinfo, tree, hf_index,
+                              ett_h225_NonStandardIdentifier, NonStandardIdentifier_choice, "NonStandardIdentifier",
+                              &value);
+	switch (value) {
+		case 0 :  /* object */
+			nsp_handle = dissector_get_string_handle(nsp_object_dissector_table, object);
+			break;
+		case 1 :  /* h221NonStandard */
+			nsp_handle = dissector_get_port_handle(nsp_h221_dissector_table, T38_manufacturer_code);
+			break;
+		default :
+			nsp_handle = NULL;
+    }
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY TunnelledProtocol/id/tunnelledProtocolObjectID
+  offset = dissect_per_object_identifier(tvb, offset, pinfo, tree, hf_index,
+                                         tpID);
+
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_HDR TunnelledProtocol
+	tpID[0] = '\0';
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_FTR TunnelledProtocol
+	tp_handle = dissector_get_string_handle(tp_dissector_table, tpID);
 #.END
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
