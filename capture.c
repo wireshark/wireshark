@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.215 2003/11/15 08:47:27 ulfl Exp $
+ * $Id: capture.c,v 1.216 2003/11/17 00:26:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1391,7 +1391,6 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   condition  *cnd_stop_capturesize = NULL;
   condition  *cnd_stop_timeout = NULL;
   condition  *cnd_ring_timeout = NULL;
-  unsigned int i;
   static const char capstart_msg = SP_CAPSTART;
   char        errmsg[4096+1];
   gboolean    write_ok;
