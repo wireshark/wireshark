@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.78 2004/05/27 21:52:07 ulfl Exp $
+ * $Id: print_dlg.c,v 1.79 2004/06/25 07:04:02 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -768,7 +768,7 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
     win_printer = TRUE;
     /*XXX should use temp file stuff in util routines */
     g_free(args->file);
-    args->file = g_strdup(tmpnam(NULL));
+    args->file = g_strdup(mkstemp("etherealXXXXXX"));
     args->to_file = TRUE;
 #else
     g_free(args->cmd);

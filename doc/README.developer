@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.96 2004/06/19 00:07:23 guy Exp $
+$Id: README.developer,v 1.97 2004/06/25 07:04:03 jmayer Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -222,6 +222,11 @@ snprintf() -> g_snprintf()
 snprintf() is not available on all platforms, so it's a good idea to use the 
 g_snprintf() function declared by <glib.h> instead.
 
+tmpnam() -> mkstemp()
+tmpnam is insecure and should not be used any more. Ethereal brings its
+own mkstemp implementation for use on platforms that lack mkstemp.
+Note: mkstemp does not accept NULL as a parameter.
+
 The pointer retured by a call to "tvb_get_ptr()" is not guaranteed to be
 aligned on any particular byte boundary; this means that you cannot
 safely cast it to any data type other than a pointer to "char",
@@ -368,12 +373,12 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.96 2004/06/19 00:07:23 guy Exp $"
+The "$Id: README.developer,v 1.97 2004/06/25 07:04:03 jmayer Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
-When creating a new file, it is fine to just write "$Id: README.developer,v 1.96 2004/06/19 00:07:23 guy Exp $" as RCS will
+When creating a new file, it is fine to just write "$Id: README.developer,v 1.97 2004/06/25 07:04:03 jmayer Exp $" as RCS will
 automatically fill in the identifier at the time the file will be added to the
 CVS repository (checked in).
 
@@ -382,7 +387,7 @@ CVS repository (checked in).
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.96 2004/06/19 00:07:23 guy Exp $
+ * $Id: README.developer,v 1.97 2004/06/25 07:04:03 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.121 2004/06/21 16:45:07 ulfl Exp $
+ * $Id: file_dlg.c,v 1.122 2004/06/25 07:04:02 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -957,7 +957,7 @@ file_merge_ok_cb(GtkWidget *w, gpointer fs) {
   }
 
   /*XXX should use temp file stuff in util routines? */
-  cf_merged_name = g_strdup(tmpnam(NULL));
+  cf_merged_name = g_strdup(mkstemp("etherealXXXXXX"));
 
   /* merge or append the two files */
   rb = OBJECT_GET_DATA(w, E_MERGE_CHRONO_KEY);
