@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.21 2000/04/01 12:03:38 guy Exp $
+ * $Id: file_dlg.c,v 1.22 2000/04/10 18:40:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,6 +69,7 @@ static void file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_open_destroy_cb(GtkWidget *win, gpointer user_data);
 static void select_file_type_cb(GtkWidget *w, gpointer data);
 static void file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs);
+static void file_save_as_destroy_cb(GtkWidget *win, gpointer user_data);
 
 /*
  * Keep a static pointer to the current "Open Capture File" window, if
@@ -76,16 +77,16 @@ static void file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs);
  * an "Open Capture File" window up, we just pop up the existing one,
  * rather than creating a new one.
  */
-static GtkWidget *file_sel;
+static GtkWidget *file_open_w;
 
 /* Open a file */
 void
 file_open_cmd_cb(GtkWidget *w, gpointer data) {
   GtkWidget *filter_hbox, *filter_bt, *filter_te;
 
-  if (file_sel != NULL) {
+  if (file_open_w != NULL) {
     /* There's already an "Open Capture File" dialog box; reactivate it. */
-    reactivate_window(file_sel);
+    reactivate_window(file_open_w);
     return;
   }
 
@@ -104,21 +105,21 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
   if (last_open_dir)
 	  chdir(last_open_dir);
 
-  file_sel = gtk_file_selection_new ("Ethereal: Open Capture File");
-  gtk_signal_connect(GTK_OBJECT(file_sel), "destroy",
+  file_open_w = gtk_file_selection_new ("Ethereal: Open Capture File");
+  gtk_signal_connect(GTK_OBJECT(file_open_w), "destroy",
 	GTK_SIGNAL_FUNC(file_open_destroy_cb), NULL);
   
   /* Connect the ok_button to file_open_ok_cb function and pass along a
      pointer to the file selection box widget */
-  gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (file_sel)->ok_button),
-    "clicked", (GtkSignalFunc) file_open_ok_cb, file_sel );
+  gtk_signal_connect(GTK_OBJECT (GTK_FILE_SELECTION (file_open_w)->ok_button),
+    "clicked", (GtkSignalFunc) file_open_ok_cb, file_open_w);
 
-  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_sel)->ok_button),
+  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
       E_DFILTER_TE_KEY, gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY));
 
   filter_hbox = gtk_hbox_new(FALSE, 1);
   gtk_container_border_width(GTK_CONTAINER(filter_hbox), 0);
-  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_sel)->action_area),
+  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_open_w)->action_area),
     filter_hbox, FALSE, FALSE, 0);
   gtk_widget_show(filter_hbox);
 
@@ -133,15 +134,15 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
   gtk_widget_show(filter_te);
 
-  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_sel)->ok_button),
+  gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_open_w)->ok_button),
     E_RFILTER_TE_KEY, filter_te);
 
   /* Connect the cancel_button to destroy the widget */
   gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
-    (file_sel)->cancel_button), "clicked", (GtkSignalFunc)
-    gtk_widget_destroy, GTK_OBJECT (file_sel));
+    (file_open_w)->cancel_button), "clicked", (GtkSignalFunc)
+    gtk_widget_destroy, GTK_OBJECT (file_open_w));
 
-  gtk_widget_show(file_sel);
+  gtk_widget_show(file_open_w);
 }
 
 static void
@@ -238,7 +239,7 @@ file_open_destroy_cb(GtkWidget *win, gpointer user_data)
   }
 
   /* Note that we no longer have a "Open Capture File" dialog box. */
-  file_sel = NULL;
+  file_open_w = NULL;
 }
 
 /* Close a file */
@@ -249,8 +250,6 @@ file_close_cmd_cb(GtkWidget *widget, gpointer data) {
 
 void
 file_save_cmd_cb(GtkWidget *w, gpointer data) {
-  file_sel = gtk_file_selection_new ("Ethereal: Save Capture File");
-
   /* If the file's already been saved, do nothing.  */
   if (cf.user_saved)
     return;
@@ -352,27 +351,43 @@ toggle_filtered_cb(GtkWidget *widget, gpointer data)
   }
 }
 
+/*
+ * Keep a static pointer to the current "Save Capture File As" window, if
+ * any, so that if somebody tries to do "File:Save" or "File:Save As"
+ * while there's already a "Save Capture File As" window up, we just pop
+ * up the existing one, rather than creating a new one.
+ */
+static GtkWidget *file_save_as_w;
+
 void
 file_save_as_cmd_cb(GtkWidget *w, gpointer data)
 {
   GtkWidget *ok_bt, *main_vb, *ft_hb, *ft_lb;
 
+  if (file_save_as_w != NULL) {
+    /* There's already an "Save Capture File As" dialog box; reactivate it. */
+    reactivate_window(file_save_as_w);
+    return;
+  }
+
   /* Default to saving all packets, in the file's current format. */
   filtered = FALSE;
   filetype = cf.cd_t;
 
-  file_sel = gtk_file_selection_new ("Ethereal: Save Capture File As");
+  file_save_as_w = gtk_file_selection_new ("Ethereal: Save Capture File As");
+  gtk_signal_connect(GTK_OBJECT(file_save_as_w), "destroy",
+	GTK_SIGNAL_FUNC(file_save_as_destroy_cb), NULL);
 
   /* Connect the ok_button to file_save_as_ok_cb function and pass along a
      pointer to the file selection box widget */
-  ok_bt = GTK_FILE_SELECTION (file_sel)->ok_button;
-  gtk_signal_connect (GTK_OBJECT (ok_bt), "clicked",
-    (GtkSignalFunc) file_save_as_ok_cb, file_sel );
+  ok_bt = GTK_FILE_SELECTION (file_save_as_w)->ok_button;
+  gtk_signal_connect(GTK_OBJECT (ok_bt), "clicked",
+    (GtkSignalFunc) file_save_as_ok_cb, file_save_as_w);
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
-  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_sel)->action_area),
+  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(file_save_as_w)->action_area),
     main_vb, FALSE, FALSE, 0);
   gtk_widget_show(main_vb);
   
@@ -402,11 +417,11 @@ file_save_as_cmd_cb(GtkWidget *w, gpointer data)
 
   /* Connect the cancel_button to destroy the widget */
   gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
-    (file_sel)->cancel_button), "clicked", (GtkSignalFunc)
-    gtk_widget_destroy, GTK_OBJECT (file_sel));
+    (file_save_as_w)->cancel_button), "clicked", (GtkSignalFunc)
+    gtk_widget_destroy, GTK_OBJECT (file_save_as_w));
 
-  gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_sel), "");
-  gtk_widget_show(file_sel);
+  gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_save_as_w), "");
+  gtk_widget_show(file_save_as_w);
 }
 
 static void
@@ -424,6 +439,13 @@ file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   /* If "save_cap_file()" saved the file name we handed it, it saved
      a copy, so we should free up our copy. */
   g_free(cf_name);
+}
+
+static void
+file_save_as_destroy_cb(GtkWidget *win, gpointer user_data)
+{
+  /* Note that we no longer have a "Save Capture File As" dialog box. */
+  file_save_as_w = NULL;
 }
 
 /* Reload a file using the current read and display filters */
