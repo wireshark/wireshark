@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.37 2001/10/23 04:11:56 guy Exp $
+ * $Id: packet-radius.c,v 1.38 2001/11/14 23:10:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -858,17 +858,24 @@ void dissect_attribute_value_pairs(tvbuff_t *tvb, int offset, proto_tree *tree,
   {
 
      tvb_memcpy(tvb,(guint8 *)&avph,offset,sizeof(e_avphdr));
-     avplength=avplength-avph.avp_length;
      avptpstrval=match_strval(avph.avp_type, radius_attrib_type_vals);
      if (avptpstrval == NULL) avptpstrval="Unknown Type";
+     if (avph.avp_length < 2) {
+	/*
+	 * This AVP is bogus - the length includes the type and length
+	 * fields, so it must be >= 2.
+	 */
+	proto_tree_add_text(tree, tvb, offset, avph.avp_length,
+	  "t:%s(%u) l:%u (length not >= 2)",
+	   avptpstrval,avph.avp_type,avph.avp_length);
+	break;
+     }
      valstr=rd_value_to_str(&avph, tvb, offset);
      proto_tree_add_text(tree, tvb,offset,avph.avp_length,
         "t:%s(%u) l:%u, %s",
         avptpstrval,avph.avp_type,avph.avp_length,valstr);
      offset=offset+avph.avp_length;
-     if (avph.avp_length == 0) {
-	break;
-     }
+     avplength=avplength-avph.avp_length;
   }
 }
 
