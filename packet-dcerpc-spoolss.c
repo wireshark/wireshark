@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.12 2002/04/03 23:32:23 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.13 2002/04/04 00:56:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 #include "packet-dcerpc-spoolss.h"
 #include "packet-dcerpc-reg.h"
 #include "smb.h"
+#include "packet-smb-common.h"
 
 /* 
  * New system for handling pointers and buffers.  We act more like the NDR
