@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.2 1999/11/11 05:36:15 gram Exp $
+ * $Id: toshiba.c,v 1.3 1999/11/11 06:29:59 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -123,7 +123,7 @@ static int toshiba_seek_next_packet(wtap *wth)
     if (byte == toshiba_rec_magic[level]) {
       level++;
       if (level >= TOSHIBA_REC_MAGIC_SIZE) {
-        file_seek(wth->fh, -(TOSHIBA_REC_MAGIC_SIZE), SEEK_CUR);
+	      /* note: we're leaving file pointer right after the magic characters */
         return file_tell(wth->fh) + 1;
       }
     } else {
@@ -271,7 +271,8 @@ parse_toshiba_rec_hdr(wtap *wth, FILE *fh, int *err)
 		return -1;
 	}
 
-	num_items_scanned = sscanf(line, "[No.%d] %d:%d:%d.%d %s %s",
+	/* Find text in line after "[No." */
+	num_items_scanned = sscanf(line, "%d] %d:%d:%d.%d %s %s",
 			&pktnum, &hr, &min, &sec, &csec, channel, direction);
 
 	if (num_items_scanned != 7) {
