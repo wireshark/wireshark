@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.100 2003/05/05 08:14:31 guy Exp $
+ * $Id: packet-dns.c,v 1.101 2003/05/07 03:00:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,7 @@ static int hf_dns_flags_authoritative = -1;
 static int hf_dns_flags_truncated = -1;
 static int hf_dns_flags_recdesired = -1;
 static int hf_dns_flags_recavail = -1;
+static int hf_dns_flags_z = -1;
 static int hf_dns_flags_authenticated = -1;
 static int hf_dns_flags_checkdisable = -1;
 static int hf_dns_flags_rcode = -1;
@@ -157,6 +158,7 @@ static dissector_handle_t gssapi_handle;
 #define F_TRUNCATED     (1<<9)          /* response is truncated */
 #define F_RECDESIRED    (1<<8)          /* recursion desired */
 #define F_RECAVAIL      (1<<7)          /* recursion available */
+#define F_Z		(1<<6)		/* Z */
 #define F_AUTHENTIC     (1<<5)          /* authentic data (RFC2535) */
 #define F_CHECKDISABLE  (1<<4)          /* checking disabled (RFC2535) */
 #define F_RCODE         (0xF<<0)        /* reply code */
@@ -184,6 +186,11 @@ static const true_false_string tfs_flags_recdesired = {
 static const true_false_string tfs_flags_recavail = {
 	"Server can do recursive queries",
 	"Server can't do recursive queries"
+};
+
+static const true_false_string tfs_flags_z = {
+	"reserved - incorrect!",
+	"reserved (0)"
 };
 
 static const true_false_string tfs_flags_authenticated = {
@@ -2001,11 +2008,15 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (flags & F_RESPONSE) {
       proto_tree_add_item(field_tree, hf_dns_flags_recavail,
 			  tvb, offset + DNS_FLAGS, 2, FALSE);
+      proto_tree_add_item(field_tree, hf_dns_flags_z,
+			 tvb, offset + DNS_FLAGS, 2, FALSE);
       proto_tree_add_item(field_tree, hf_dns_flags_authenticated,
 			  tvb, offset + DNS_FLAGS, 2, FALSE);
       proto_tree_add_item(field_tree, hf_dns_flags_rcode,
 			  tvb, offset + DNS_FLAGS, 2, FALSE);
     } else {
+      proto_tree_add_item(field_tree, hf_dns_flags_z,
+                           tvb, offset + DNS_FLAGS, 2, FALSE);
       proto_tree_add_item(field_tree, hf_dns_flags_checkdisable,
 			  tvb, offset + DNS_FLAGS, 2, FALSE);
     }
@@ -2155,6 +2166,10 @@ proto_register_dns(void)
       { "Recursion available",	"dns.flags.recavail",
 	FT_BOOLEAN, 16, TFS(&tfs_flags_recavail), F_RECAVAIL,
 	"Can the server do recursive queries?", HFILL }},
+    { &hf_dns_flags_z,
+      { "Z", "dns.flags.z",
+	FT_BOOLEAN, 16, TFS(&tfs_flags_z), F_Z,
+	"Z flag", HFILL }},
     { &hf_dns_flags_authenticated,
       { "Answer authenticated",	"dns.flags.authenticated",
 	FT_BOOLEAN, 16, TFS(&tfs_flags_authenticated), F_AUTHENTIC,
