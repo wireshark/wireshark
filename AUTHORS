@@ -816,6 +816,7 @@ Jeff Morriss <jeff.morriss[AT]ulticom.com> {
 	Support for ANSI flavor of MTP3
 	SCCP support
 	SCCP Management support
+	MTP3 Management support
 }
 
 Aamer Akhter <aakhter[AT]cisco.com> {
