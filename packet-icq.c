@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.8 1999/12/01 23:58:44 guy Exp $
+ * $Id: packet-icq.c,v 1.9 1999/12/05 22:59:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -145,7 +145,7 @@ typedef struct _cmdcode {
 #define SRV_USER_ONL_PORT	0x0008
 #define SRV_USER_ONL_REALIP	0x000c
 #define SRV_USER_ONL_X1		0x0010
-#define SRV_USER_ONL_STATUS	0x0011
+#define SRV_USER_ONL_STATUS	0x0013
 #define SRV_USER_ONL_X2		0x0015
 
 #define SRV_USER_OFFLINE	0x0078
@@ -166,6 +166,7 @@ typedef struct _cmdcode {
 /*
  * ICQv5 SRV_META_USER subcommands
  */
+#define META_EX_USER_FOUND	0x0190
 #define META_USER_FOUND		0x019a
 #define META_ABOUT		0x00e6
 #define META_USER_INFO		0x00c8
@@ -179,8 +180,22 @@ typedef struct _cmdcode {
 #define SRV_RECV_MSG_MINUTE	0x0009
 #define SRV_RECV_MSG_MSG_TYPE	0x000a
 
+#define SRV_RAND_USER		0x024e
+#define SRV_RAND_USER_UIN	0x0000
+#define SRV_RAND_USER_IP	0x0004
+#define SRV_RAND_USER_PORT	0x0008
+#define SRV_RAND_USER_REAL_IP	0x000c
+#define SRV_RAND_USER_CLASS	0x0010
+#define SRV_RAND_USER_X1	0x0011
+#define SRV_RAND_USER_STATUS	0x0015
+#define SRV_RAND_USER_TCP_VER	0x0019
+
+/* This message has the same structure as cmd_send_msg */
+#define SRV_SYS_DELIVERED_MESS	0x0104
+
 cmdcode serverMetaSubCmdCode[] = {
     { "META_USER_FOUND", META_USER_FOUND },
+    { "META_EX_USER_FOUND", META_EX_USER_FOUND },
     { "META_ABOUT", META_ABOUT },
     { "META_USER_INFO", META_USER_INFO },
     { NULL, -1 }
@@ -203,7 +218,7 @@ cmdcode serverCmdCode[] = {
     { "SRV_X2", 230 },
     { "SRV_NOT_CONNECTED", 240 },
     { "SRV_TRY_AGAIN", 250 },
-    { "SRV_SYS_DELIVERED_MESS", 260 },
+    { "SRV_SYS_DELIVERED_MESS", SRV_SYS_DELIVERED_MESS },
     { "SRV_INFO_REPLY", 280 },
     { "SRV_EXT_INFO_REPLY", 290 },
     { "SRV_STATUS_UPDATE", 420 },
@@ -213,7 +228,7 @@ cmdcode serverCmdCode[] = {
     { "SRV_AUTH_UPDATE", 500 },
     { "SRV_MULTI_PACKET", SRV_MULTI },
     { "SRV_X1", 540 },
-    { "SRV_RAND_USER", 590 },
+    { "SRV_RAND_USER", SRV_RAND_USER },
     { "SRV_META_USER", SRV_META_USER },
     { NULL, -1 }
 };
@@ -275,6 +290,8 @@ cmdcode serverCmdCode[] = {
 #define CMD_SEND_TEXT_CODE_LEN	0x0000
 #define CMD_SEND_TEXT_CODE_TEXT	0x0002
 
+#define CMD_MSG_TO_NEW_USER     0x0456
+
 #define CMD_QUERY_SERVERS	0x04ba
 
 #define CMD_QUERY_ADDONS	0x04c4
@@ -324,7 +341,7 @@ cmdcode clientCmdCode[] = {
     { "CMD_SEND_TEXT_CODE", CMD_SEND_TEXT_CODE },
     { "CMD_ACK_MESSAGES", CMD_ACK_MESSAGES },
     { "CMD_LOGIN_1", 1100 },
-    { "CMD_MSG_TO_NEW_USER", 1110 },
+    { "CMD_MSG_TO_NEW_USER", CMD_MSG_TO_NEW_USER },
     { "CMD_INFO_REQ", 1120 },
     { "CMD_EXT_INFO_REQ", 1130 },
     { "CMD_CHANGE_PW", 1180 },
@@ -567,6 +584,50 @@ strnchr(const u_char* buf, u_char ch, int size)
     return p;
 }
 
+/*
+ * The packet at pd has a (len, string) pair.
+ * Copy the string to a buffer, and display it in the tree.
+ * Observe any limits you might cross.
+ *
+ * If anything is wrong, return -1, since -1 is not a valid string
+ * length. Else, return the number of chars processed.
+ */
+static guint16
+proto_add_icq_attr(proto_tree* tree, /* The tree to add to */
+		   const char* pd, /* Pointer to the field */
+		   const int offset, /* Offset from the start of packet */
+		   const int size, /* The number of bytes left in pd */
+		   char* descr)	/* The description to use in the tree */
+{
+    guint16 len;
+    char* data;
+    int left = size;
+    
+    if (size<sizeof(guint16))
+	return -1;
+    len = pletohs(pd);
+    left -= sizeof(guint16);
+    if (left<len) {
+	proto_tree_add_text(tree,
+			    offset,
+			    sizeof(guint16),
+			    "Length: %d", len);
+	return -1;
+    }
+			    
+    data = g_malloc(len);
+
+    strncpy(data, pd + sizeof(guint16), len);
+    data[len - 1] = '\0';
+
+    proto_tree_add_text(tree,
+			offset,
+			sizeof(guint16) + len,
+			"%s[%d]: %s", descr, len, data);
+    g_free(data);
+
+    return len + sizeof(guint16);
+}
 
 static void
 icqv5_decode_msgType(proto_tree* tree,
@@ -586,6 +647,7 @@ icqv5_decode_msgType(proto_tree* tree,
 	"First name",
 	"Last name",
 	"Email address",
+	"Unknown",
 	"Reason"};
     static char* emain_field_descr[] = {
 	"Nickname",
@@ -706,24 +768,35 @@ icqv5_decode_msgType(proto_tree* tree,
 	break;
     }
     case MSG_AUTH_REQ:
-	/* Five parts, separated by FE */
+	/* Six parts, separated by FE */
 	i = 0;
 	j = 0;
-	msgText = NULL;
-	for (n = 0; n < 5; n++) {
-	    for (;
-		 (i<left) && (pd[OFF_MSG_TEXT+i]!=0xfe);
-		 i++)
-		;
-	    msgText = g_realloc(msgText, i-j);
-	    strncpy(msgText, pd + OFF_MSG_TEXT + j, i - j - 1);
-	    msgText[i-j-1] = '\0';
-	    proto_tree_add_text(subtree,
-				offset + OFF_MSG_TEXT + j,
-				i - j - 1,
-				"%s: %s", auth_req_field_descr[n], msgText);
-	    j = ++i;
-	}
+	msgText = g_malloc(64);
+	for (n = 0; n < 6 && i<left; n++) {
+            while (i<left && pd[OFF_MSG_TEXT+i]!=0xfe)
+                i++;
+            if (i<=left) {
+                /* pd[OFF_MSG_TEXT+i] == 0xfe */
+                if (i!=j) {   
+                    /* Otherwise, it'd be a null string */
+                    msgText = g_realloc(msgText, i - j);
+                    strncpy(msgText, pd + OFF_MSG_TEXT + j, i-j);
+		    msgText[i-j] = '\0';
+                    proto_tree_add_text(subtree,
+                                        offset + OFF_MSG_TEXT + j,
+                                        i - j,
+                                        "%s: %s", auth_req_field_descr[n], msgText);
+                } else {
+                    proto_tree_add_text(subtree,
+                                        offset + OFF_MSG_TEXT + j,
+                                        i - j,
+                                        "%s: %s", auth_req_field_descr[n], "(null)");
+                }
+                j = ++i;
+                /* i and j point after the 0xfe character */
+            }
+        }    
+
 	if (msgText != NULL)
 	    g_free(msgText);
 	break;
@@ -734,20 +807,30 @@ icqv5_decode_msgType(proto_tree* tree,
 	/* This is necessary, because g_realloc does not behave like
 	     * g_malloc if the first parameter == NULL */
 	msgText = g_malloc(64);
-	for (n = 0; n < 4; n++) {
-	    for (;
-		 (i<left) && (pd[OFF_MSG_TEXT+i]!=0xfe);
-		 i++)
-		;
-	    msgText = g_realloc(msgText, i-j+1);
-	    strncpy(msgText, pd + OFF_MSG_TEXT + j, i - j);
-	    msgText[i-j] = '\0';
-	    proto_tree_add_text(subtree,
-				offset + OFF_MSG_TEXT + j,
-				i - j,
-				"%s: %s", auth_req_field_descr[n], msgText);
-	    j = ++i;
-	}
+        for (n = 0; n < 4 && i<left; n++) {
+            while (i<left && pd[OFF_MSG_TEXT+i]!=0xfe)
+                i++;
+            if (i<=left) {
+                /* pd[OFF_MSG_TEXT+i] == 0xfe */
+                if (i!=j) {   
+                    /* Otherwise, it'd be a null string */
+                    msgText = g_realloc(msgText, i - j);
+                    strncpy(msgText, pd + OFF_MSG_TEXT + j, i-j);
+		    msgText[i-j] = '\0';
+                    proto_tree_add_text(subtree,
+                                        offset + OFF_MSG_TEXT + j,
+                                        i - j,
+                                        "%s: %s", auth_req_field_descr[n], msgText);
+                } else {
+                    proto_tree_add_text(subtree,
+                                        offset + OFF_MSG_TEXT + j,
+                                        i - j,
+                                        "%s: %s", auth_req_field_descr[n], "(null)");
+                }
+                j = ++i;
+                /* i and j point after the 0xfe character */
+            }
+        }    
 	if (msgText != NULL)
 	    g_free(msgText);
 	break;
@@ -1046,7 +1129,8 @@ static void
 icqv5_cmd_send_msg(proto_tree* tree,
 		   const u_char* pd,
 		   int offset,
-		   int size)
+		   int size,
+		   int cmd)
 {
     proto_tree* subtree;
     proto_item* ti;
@@ -1055,24 +1139,25 @@ icqv5_cmd_send_msg(proto_tree* tree,
     guint16 msgLen = 0xffff;
     int left = size;		/* left chars to do */
     
-    if (left >= 4) {
-	receiverUIN = pletohl(pd + CMD_SEND_MSG_RECV_UIN);
-	left -= 4;
-    }
-    if (left >= 2) {
-	msgType = pletohs(pd + CMD_SEND_MSG_MSG_TYPE);
-	left -= 2;
-    }
-    if (left >= 2) {
-	msgLen = pletohs(pd + CMD_SEND_MSG_MSG_LEN);
-	left -= 2;
-    }
+    if (left < 4)
+	return;
+    receiverUIN = pletohl(pd + CMD_SEND_MSG_RECV_UIN);
+    left -= 4;
+    if (left < 2) 
+	return;
+    msgType = pletohs(pd + CMD_SEND_MSG_MSG_TYPE);
+    left -= 2;
+    if (left < 2) 
+	return;
+    msgLen = pletohs(pd + CMD_SEND_MSG_MSG_LEN);
+    left -= 2;
+
     if (tree) {
 	ti = proto_tree_add_item_format(tree,
 					hf_icq_cmd,
 					offset,
 					size,
-					CMD_SEND_MSG,
+					cmd,
 					"Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree,
@@ -1326,8 +1411,8 @@ icqv5_srv_user_online(proto_tree* tree,/* Tree to put the data in */
     if (size >= SRV_USER_ONL_REALIP + 4)
 	realipAddrp = &pd[SRV_USER_ONL_REALIP];
 
-    if (size >= SRV_USER_ONL_STATUS + 4)
-	status = pletohl(pd + SRV_USER_ONL_STATUS);
+    if (size >= SRV_USER_ONL_STATUS + 2)
+	status = pletohs(pd + SRV_USER_ONL_STATUS);
 
     /*
      * Kojak: Hypothesis is that this field might be an encoding for the
@@ -1363,7 +1448,7 @@ icqv5_srv_user_online(proto_tree* tree,/* Tree to put the data in */
 			    "RealIP: %s", ip_to_str(realipAddrp));
 	proto_tree_add_text(subtree,
 			    offset + SRV_USER_ONL_STATUS,
-			    4,
+			    2,
 			    "Status: %s", findStatus(status));
 	proto_tree_add_text(subtree,
 			    offset + SRV_USER_ONL_X2,
@@ -1458,7 +1543,10 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 		    int offset,            /* Offset from the start of the packet to the content */
 		    int size)              /* Number of chars left to do */
 {
+#if 0
     proto_tree* subtree = NULL;
+#endif
+    proto_tree* sstree = NULL;
     proto_item* ti = NULL;
     int left = size;
     const char* p = pd;
@@ -1472,6 +1560,7 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	result = pd[SRV_META_USER_RESULT];
 
     if (tree) {
+#if 0
 	ti = proto_tree_add_item_format(tree,
 					hf_icq_cmd,
 					offset,
@@ -1487,7 +1576,40 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 			    offset + SRV_META_USER_RESULT,
 			    1,
 			    "%s", (result==0x0a)?"Success":"Failure");
+	sstree = proto_item_add_subtree(ti, ett_icq_body_parts);
+#else
+	ti = proto_tree_add_text(tree,
+				 offset + SRV_META_USER_SUBCMD,
+				 2,
+				 "%s", findSubCmd(subcmd));
+	sstree = proto_item_add_subtree(ti, ett_icq_body_parts);
+	proto_tree_add_text(sstree,
+			    offset + SRV_META_USER_RESULT,
+			    1,
+			    "%s", (result==0x0a)?"Success":"Failure");
+#endif
+
+	/* Skip the META_USER header */
+	left -= 3;
+	p += 3;
+
 	switch(subcmd) {
+	case META_EX_USER_FOUND:
+	{
+	    /* This is almost the same as META_USER_FOUND,
+	     * however, there's an extra length field
+	     */
+	    guint16 pktLen = -1;
+
+	    /* Read the lenght field */
+	    pktLen = pletohs(p);
+	    proto_tree_add_text(sstree,
+				offset + size - left,
+				sizeof(guint16),
+				"Length: %d", pktLen);
+	    
+	    p += sizeof(guint16); left -= sizeof(guint16);
+	}
 	case META_USER_FOUND:
 	{
 	    /* The goto mentioned in this block should be local to this
@@ -1496,92 +1618,51 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	     * They are used to "implement" a poorman's exception handling
 	     */
 	    guint32 uin = -1;
-	    char* nick = NULL;	/* Nick */
-	    char* first = NULL;	/* First name */
-	    char* last = NULL;	/* Last name */
-	    char* email = NULL;
-	    unsigned char auth = -1;
 	    int len = 0;
+	    char *descr[] = {
+		"Nick",
+		"First name",
+		"Last name",
+		"Email",
+		NULL};
+	    char** d = descr;
 	    guint16 x2 = -1;
 	    guint32 x3 = -1;
-	    proto_tree* sstree = proto_item_add_subtree(ti, ett_icq_body_parts);
-
-	    /* Skip over META_USER header */
-	    left -= 3;
-	    p += 3;
-	    /* Get the uin */
+	    unsigned char auth;
+	    /*
+	     * Read UIN
+	     */
 	    if (left<sizeof(guint32))
-		goto stopMetaUser;
+		break;
 	    uin = pletohl(p);
 	    proto_tree_add_text(sstree,
 				offset + size - left,
 				sizeof(guint32),
 				"UIN: %ld", uin);
 	    p+=sizeof(guint32);left-=sizeof(guint32);
-	    /* Get the nickname */
-	    if (left<sizeof(guint16))
-		goto stopMetaUser;
-	    len = pletohs(p);
-	    p+=sizeof(guint16);left-=sizeof(guint16);
-	    if ((len<=0) || (left<len))
-		goto stopMetaUser;
-	    nick = g_malloc(len);
-	    strncpy(nick, p, len);
-	    proto_tree_add_text(sstree,
-				offset + size - left,
-				sizeof(guint16)+len,
-				"Nick(%d): %s", len, nick);
-	    p+=len;left-=len;
-	    /* Get the first name */
-	    if (left<sizeof(guint16))
-		goto stopMetaUser;
-	    len = pletohs(p);
-	    p+=sizeof(guint16);left-=sizeof(guint16);
-	    if ((len<=0) || (left<len))
-		goto stopMetaUser;
-	    first = g_malloc(len);
-	    strncpy(first, p, len);
-	    proto_tree_add_text(sstree,
-				offset + size - left,
-				sizeof(guint16)+len,
-				"First(%d): %s", len, first);
-	    p+=len;left-=len;
-	    /* Get last name */
-	    if (left<sizeof(guint16))
-		goto stopMetaUser;
-	    len = pletohs(p);
-	    p+=sizeof(guint16);left-=sizeof(guint16);
-	    if ((len<=0) || (left<len))
-		goto stopMetaUser;
-	    last = g_malloc(len);
-	    strncpy(last, p, len);
-	    proto_tree_add_text(sstree,
-				offset + size - left,
-				sizeof(guint16)+len,
-				"Last(%d): %s", len, last);
-	    p+=len;left-=len;
-	    /* Get email address */
-	    if (left<sizeof(guint16))
-		goto stopMetaUser;
-	    len = pletohs(p);
-	    p+=sizeof(guint16);left-=sizeof(guint16);
-	    if ((len<=0) || (left<len))
-		goto stopMetaUser;
-	    email = g_malloc(len);
-	    strncpy(email, p, len);
-	    proto_tree_add_text(sstree,
-				offset + size - left,
-				sizeof(guint16)+len,
-				"Email(%d): %s", len, email);
-	    p+=len;left-=len;
+
+	    for ( ; *d!=NULL; d++) {
+		len = proto_add_icq_attr(sstree,
+					 p,
+					 offset + size - left,
+					 left,
+					 *d);
+		if (len == -1)
+		    return;
+		p += len; left -= len;
+	    }
 	    /* Get the authorize setting */
 	    if (left<sizeof(unsigned char))
-		goto stopMetaUser;
+		break;
 	    auth = *p;
+	    proto_tree_add_text(sstree,
+				offset + size - left,
+				sizeof(guint16),
+				"authorization: %s", (auth==0x01)?"Neccessary":"Who needs it");
 	    p++; left--;
 	    /* Get x2 */
 	    if (left<sizeof(guint16))
-		goto stopMetaUser;
+		break;
 	    x2 = pletohs(p);
 	    proto_tree_add_text(sstree,
 				offset + size - left,
@@ -1590,34 +1671,19 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	    p+=sizeof(guint16);left-=sizeof(guint16);
 	    /* Get x3 */
 	    if (left<sizeof(guint32))
-		goto stopMetaUser;
+		break;
 	    x3 = pletohl(p);
 	    proto_tree_add_text(sstree,
 				offset + size - left,
 				sizeof(guint32),
 				"x3: %08x", x3);
 	    p+=sizeof(guint32);left-=sizeof(guint32);
-
-	stopMetaUser:
-	    if (nick!=NULL)
-		g_free(nick);
-	    if (first!=NULL)
-		g_free(first);
-	    if (last!=NULL)
-		g_free(last);
-	    if (email!=NULL)
-		g_free(last);
 	    break;
 	}
 	case META_ABOUT:
 	{
 	    int len;
 	    char* about = NULL;
-	    proto_tree* sstree = proto_item_add_subtree(ti, ett_icq_body_parts);
-
-	    /* Skip over META_USER header */
-	    left -= 3;
-	    p += 3;
 	    /* Get the about information */
 	    if (left<sizeof(guint16))
 		break;
@@ -1664,11 +1730,6 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	    unsigned char user_timezone = -1;
 	    unsigned char auth = -1;
 	    int len = 0;
-	    proto_tree* sstree = proto_item_add_subtree(ti, ett_icq_body_parts);
-
-	    /* Skip over META_USER header */
-	    left -= 3;
-	    p += 3;
 #if 0
 	    /* Get the uin */
 	    if (left<sizeof(guint32))
@@ -1819,6 +1880,96 @@ icqv5_srv_recv_message(proto_tree* tree,      /* Tree to put the data in */
     }
 }
 
+static void
+icqv5_srv_rand_user(proto_tree* tree,      /* Tree to put the data in */
+		       const u_char* pd,      /* Packet content */
+		       int offset,            /* Offset from the start of the packet to the content */
+		       int size)              /* Number of chars left to do */
+{
+    proto_tree* subtree = NULL;
+    proto_item* ti = NULL;
+    guint32 uin = -1;
+    const unsigned char* IP = NULL;
+    guint32 port = -1;
+    const unsigned char* realIP = NULL;
+    unsigned char commClass = -1;
+    guint32 status;
+    guint16 tcpVer;
+    int left = size;
+    
+    if (tree) {
+	ti = proto_tree_add_item_format(tree,
+					hf_icq_cmd,
+					offset,
+					SRV_RAND_USER_TCP_VER + 2,
+					SRV_RAND_USER,
+					"Body");
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
+	/* guint32 UIN */
+	if (left<sizeof(guint32))
+	    return;
+	uin = pletohl(pd + SRV_RAND_USER_UIN);
+	proto_tree_add_text(subtree,
+			    offset + SRV_RAND_USER_UIN,
+			    sizeof(guint32),
+			    "UIN: %ld", uin);
+	left -= sizeof(guint32);
+	/* guint32 IP */
+	if (left<sizeof(guint32))
+	    return;
+	IP = pd + SRV_RAND_USER_IP;
+	proto_tree_add_text(subtree,
+			    offset + SRV_RAND_USER_IP,
+			    sizeof(guint32),
+			    "IP: %s", ip_to_str(IP));
+	left -= sizeof(guint32);
+	/* guint32 portNum */
+	if (left<sizeof(guint32))
+	    return;
+	port = pletohs(pd + SRV_RAND_USER_PORT);
+	proto_tree_add_text(subtree,
+			    offset + SRV_RAND_USER_UIN,
+			    sizeof(guint32),
+			    "Port: %ld", port);
+	left -= sizeof(guint32);
+	/* guint32 realIP */			    
+	if (left<sizeof(guint32))
+	    return;
+	realIP = pd + SRV_RAND_USER_REAL_IP;
+	proto_tree_add_text(subtree,
+			    offset + SRV_RAND_USER_REAL_IP,
+			    sizeof(guint32),
+			    "RealIP: %s", ip_to_str(realIP));
+	left -= sizeof(guint32);
+	/* guit16 Communication Class */
+	if (left<sizeof(unsigned char))
+	    return;
+	commClass = pd[SRV_RAND_USER_CLASS];
+	proto_tree_add_text(subtree,
+			    offset + SRV_RAND_USER_CLASS,
+			    sizeof(unsigned char),
+			    "Class: %s", (commClass!=4)?"User to User":"Through Server");
+	left -= sizeof(unsigned char);
+	/* guint32 status */
+	if (left<sizeof(guint32))
+	    return;
+	status = pletohs(pd + SRV_RAND_USER_STATUS);
+	proto_tree_add_text(subtree,
+			    offset + SRV_RAND_USER_STATUS,
+			    sizeof(guint32),
+			    "Status: (%ld) %s", status, findStatus(status));
+	/* guint16 tcpVersion */
+	if (left<sizeof(guint16))
+	    return;
+	tcpVer = pletohs(pd + SRV_RAND_USER_TCP_VER);
+	proto_tree_add_text(subtree,
+			    offset + SRV_RAND_USER_TCP_VER,
+			    sizeof(guint16),
+			    "TCPVersion: %d", tcpVer);
+	left -= sizeof(guint16);
+    }
+}
+
 /*
  * Dissect all the v5 client traffic. This is encrypted, so be careful.
  */
@@ -1916,10 +2067,12 @@ dissect_icqv5Client(const u_char *pd,
 			  pktsize - ICQ5_CL_HDRSIZE);
 	    break;
 	case CMD_SEND_MSG:
+	case CMD_MSG_TO_NEW_USER:
 	    icqv5_cmd_send_msg(icq_tree,
 			       decr_pd + ICQ5_CL_HDRSIZE,
 			       offset + ICQ5_CL_HDRSIZE,
-			       pktsize - ICQ5_CL_HDRSIZE);
+			       pktsize - ICQ5_CL_HDRSIZE,
+			       cmd);
 	    break;
 	case CMD_RAND_SEARCH:
 	    icqv5_cmd_rand_search(icq_tree,
@@ -2086,6 +2239,21 @@ dissect_icqv5Server(const u_char *pd,
 				   "Checkcode: 0x%08x",
 				   checkcode);
 	switch (cmd) {
+	case SRV_RAND_USER:
+	    icqv5_srv_rand_user(icq_tree,
+			       decr_pd + ICQ5_SRV_HDRSIZE,
+			       offset + ICQ5_SRV_HDRSIZE,
+			       pktsize - ICQ5_SRV_HDRSIZE);
+	    break;
+	case SRV_SYS_DELIVERED_MESS:
+	    /* The message structures are all the same. Why not run
+	     * the same routine? */
+	    icqv5_cmd_send_msg(icq_tree,
+			       decr_pd + ICQ5_SRV_HDRSIZE,
+			       offset + ICQ5_SRV_HDRSIZE,
+			       pktsize - ICQ5_SRV_HDRSIZE,
+			       cmd);
+	    break;
 	case SRV_USER_ONLINE:
 	    icqv5_srv_user_online(icq_tree,
 			       decr_pd + ICQ5_SRV_HDRSIZE,
