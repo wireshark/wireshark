@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.22 1999/09/23 04:39:00 ashokn Exp $
+ * $Id: file.c,v 1.23 1999/09/23 05:00:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -165,10 +165,10 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 {
 	FILE *fh;
 
-	/* In case "file_open()" fails but doesn't set "errno", set "errno"
+	/* In case "fopen()" fails but doesn't set "errno", set "errno"
 	   to a generic "the open failed" error. */
 	errno = WTAP_ERR_CANT_OPEN;
-	fh = file_open(filename, "w");
+	fh = fopen(filename, "w");
 	if (fh == NULL) {
 		*err = errno;
 		return NULL;	/* can't create file */
@@ -181,10 +181,10 @@ wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 {
 	FILE *fh;
 
-	/* In case "file_open()" fails but doesn't set "errno", set "errno"
+	/* In case "fopen()" fails but doesn't set "errno", set "errno"
 	   to a generic "the open failed" error. */
 	errno = WTAP_ERR_CANT_OPEN;
-	fh = filed_open(fd, "w");
+	fh = fdopen(fd, "w");
 	if (fh == NULL) {
 		*err = errno;
 		return NULL;	/* can't create standard I/O stream */
@@ -202,7 +202,7 @@ static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype, int encap,
 		*err = errno;
 		/* NOTE: this means the FD handed to "wtap_dump_fdopen()"
 		   will be closed if the malloc fails. */
-		file_close(fh);
+		fclose(fh);
 		return NULL;
 	}
 	wdh->fh = fh;
@@ -226,7 +226,7 @@ static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype, int encap,
 
 fail:
 	free(wdh);
-	file_close(fh);
+	fclose(fh);
 	return NULL;	/* XXX - provide a reason why we failed */
 }
 
@@ -248,10 +248,10 @@ int wtap_dump_close(wtap_dumper *wdh, int *err)
 	if (!(wdh->subtype_close)(wdh, err))
 		ret = 0;
 	errno = WTAP_ERR_CANT_CLOSE;
-	if (file_close(wdh->fh) == EOF) {
+	if (fclose(wdh->fh) == EOF) {
 		if (ret) {
 			/* The per-format close function succeeded,
-			   but the file_close didn't.  Save the reason
+			   but the fclose didn't.  Save the reason
 			   why, if our caller asked for it. */
 			if (err != NULL)
 				*err = errno;

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.18 1999/09/22 01:26:47 ashokn Exp $
+ * $Id: libpcap.c,v 1.19 1999/09/23 05:00:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -351,7 +351,7 @@ int libpcap_dump_open(wtap_dumper *wdh, int *err)
 	wdh->subtype_close = libpcap_dump_close;
 
 	/* Write the file header. */
-	nwritten = file_write(&pcap_magic, 1, sizeof pcap_magic, wdh->fh);
+	nwritten = fwrite(&pcap_magic, 1, sizeof pcap_magic, wdh->fh);
 	if (nwritten != sizeof pcap_magic) {
 		if (nwritten < 0)
 			*err = errno;
@@ -367,7 +367,7 @@ int libpcap_dump_open(wtap_dumper *wdh, int *err)
 	file_hdr.sigfigs = 0;	/* unknown, but also apparently unused */
 	file_hdr.snaplen = wdh->snaplen;
 	file_hdr.network = wtap_encap[wdh->encap];
-	nwritten = file_write(&file_hdr, 1, sizeof file_hdr, wdh->fh);
+	nwritten = fwrite(&file_hdr, 1, sizeof file_hdr, wdh->fh);
 	if (nwritten != sizeof file_hdr) {
 		if (nwritten < 0)
 			*err = errno;
@@ -391,7 +391,7 @@ static int libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	rec_hdr.ts_usec = phdr->ts.tv_usec;
 	rec_hdr.incl_len = phdr->caplen;
 	rec_hdr.orig_len = phdr->len;
-	nwritten = file_write(&rec_hdr, 1, sizeof rec_hdr, wdh->fh);
+	nwritten = fwrite(&rec_hdr, 1, sizeof rec_hdr, wdh->fh);
 	if (nwritten != sizeof rec_hdr) {
 		if (nwritten < 0)
 			*err = errno;
@@ -399,7 +399,7 @@ static int libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 			*err = WTAP_ERR_SHORT_WRITE;
 		return 0;
 	}
-	nwritten = file_write(pd, 1, phdr->caplen, wdh->fh);
+	nwritten = fwrite(pd, 1, phdr->caplen, wdh->fh);
 	if (nwritten != phdr->caplen) {
 		if (nwritten < 0)
 			*err = errno;
