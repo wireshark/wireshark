@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.2 1998/09/16 03:22:11 gerald Exp $
+ * $Id: packet-tcp.c,v 1.3 1998/09/17 03:12:28 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,9 @@
 
 #include "ethereal.h"
 #include "packet.h"
+
+extern FILE* data_out_file;
+extern packet_info pi;
 
 void
 dissect_tcp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
@@ -115,4 +118,17 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 				dissect_data(pd, offset, fd, tree);
 		}
 	}
+ 
+	pi.srcport = th.th_sport;
+	pi.destport = th.th_dport;
+	
+	if( data_out_file ) {
+	  reassemble_tcp( th.th_seq, /* sequence number */
+			  ( pi.iplen -( pi.iphdrlen * 4 )-( th.th_off * 4 ) ), /* length */
+			  ( pd+offset ), /* data */
+			  ( th.th_flags & 0x02 ), /* is syn set? */
+			  pi.ip_src ); /* src ip */
+	}
+
+
 }

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.2 1998/09/16 03:22:04 gerald Exp $
+ * $Id: packet-ip.c,v 1.3 1998/09/17 03:12:27 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,6 +44,8 @@
 #include "packet.h"
 #include "etypes.h"
 #include "resolv.h"
+
+extern packet_info pi;
 
 void
 dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
@@ -125,6 +127,13 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
     add_item_to_tree(ip_tree, offset + 16, 4, "Destination address: %s",
 		     get_hostname(iph.ip_dst));
   }
+
+  pi.srcip = ip_to_str( (guint8 *) &iph.ip_src);
+  pi.destip = ip_to_str( (guint8 *) &iph.ip_dst);
+  pi.ipproto = iph.ip_p;
+  pi.iplen = iph.ip_len;
+  pi.iphdrlen = iph.ip_hl;
+  pi.ip_src = iph.ip_src;
 
   offset += iph.ip_hl * 4;
   switch (iph.ip_p) {

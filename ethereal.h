@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: ethereal.h,v 1.2 1998/09/16 03:21:55 gerald Exp $
+ * $Id: ethereal.h,v 1.3 1998/09/17 03:12:24 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,7 @@
 #define DEF_WIDTH 750
 #define DEF_HEIGHT 550
 #define DEF_READY_MESSAGE " Ready to load or capture"
+#define EXTERNAL_FILTER "/usr/local/bin/ethereal_tcp_filter -f" 
 
 /* Byte swapping routines */
 #define SWAP16(x) \
@@ -71,7 +72,9 @@ typedef struct _selection_info {
 } selection_info;
 
 void file_sel_ok_cb(GtkWidget *, GtkFileSelection *);
+void blank_packetinfo();
 gint file_progress_cb(gpointer);
+void follow_stream_cb( GtkWidget *, gpointer);
 void file_open_cmd_cb(GtkWidget *, gpointer);
 void file_close_cmd_cb(GtkWidget *, gpointer);
 void file_quit_cmd_cb(GtkWidget *, gpointer);

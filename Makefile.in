@@ -77,6 +77,7 @@ ethereal_SOURCES = \
 	ethertype.c    \
 	file.c         \
 	filter.c       \
+	follow.c       \
 	menu.c         \
 	packet.c       \
 	packet-arp.c   \
@@ -109,6 +110,7 @@ ethereal_SOURCES = \
 	etypes.h       \
 	file.h         \
 	filter.h       \
+	follow.h       \
 	menu.h         \
 	packet.h       \
 	packet-ipv6.h  \
@@ -145,11 +147,11 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 ethereal_OBJECTS =  capture.o ethereal.o ethertype.o file.o filter.o \
-menu.o packet.o packet-arp.o packet-bootp.o packet-data.o packet-dns.o \
-packet-eth.o packet-llc.o packet-lpd.o packet-ip.o packet-ipv6.o \
-packet-ipx.o packet-osi.o packet-ospf.o packet-ppp.o packet-raw.o \
-packet-rip.o packet-tcp.o packet-tr.o packet-trmac.o packet-udp.o \
-packet-vines.o print.o ps.o resolv.o util.o
+follow.o menu.o packet.o packet-arp.o packet-bootp.o packet-data.o \
+packet-dns.o packet-eth.o packet-llc.o packet-lpd.o packet-ip.o \
+packet-ipv6.o packet-ipx.o packet-osi.o packet-ospf.o packet-ppp.o \
+packet-raw.o packet-rip.o packet-tcp.o packet-tr.o packet-trmac.o \
+packet-udp.o packet-vines.o print.o ps.o resolv.o util.o
 ethereal_LDADD = $(LDADD)
 ethereal_LDFLAGS = 
 CFLAGS = @CFLAGS@
@@ -169,15 +171,15 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP = --best
 DEP_FILES =  .deps/capture.P .deps/ethereal.P .deps/ethertype.P \
-.deps/file.P .deps/filter.P .deps/menu.P .deps/packet-arp.P \
-.deps/packet-bootp.P .deps/packet-data.P .deps/packet-dns.P \
-.deps/packet-eth.P .deps/packet-ip.P .deps/packet-ipv6.P \
-.deps/packet-ipx.P .deps/packet-llc.P .deps/packet-lpd.P \
-.deps/packet-osi.P .deps/packet-ospf.P .deps/packet-ppp.P \
-.deps/packet-raw.P .deps/packet-rip.P .deps/packet-tcp.P \
-.deps/packet-tr.P .deps/packet-trmac.P .deps/packet-udp.P \
-.deps/packet-vines.P .deps/packet.P .deps/print.P .deps/ps.P \
-.deps/resolv.P .deps/util.P
+.deps/file.P .deps/filter.P .deps/follow.P .deps/menu.P \
+.deps/packet-arp.P .deps/packet-bootp.P .deps/packet-data.P \
+.deps/packet-dns.P .deps/packet-eth.P .deps/packet-ip.P \
+.deps/packet-ipv6.P .deps/packet-ipx.P .deps/packet-llc.P \
+.deps/packet-lpd.P .deps/packet-osi.P .deps/packet-ospf.P \
+.deps/packet-ppp.P .deps/packet-raw.P .deps/packet-rip.P \
+.deps/packet-tcp.P .deps/packet-tr.P .deps/packet-trmac.P \
+.deps/packet-udp.P .deps/packet-vines.P .deps/packet.P .deps/print.P \
+.deps/ps.P .deps/resolv.P .deps/util.P
 SOURCES = $(ethereal_SOURCES) $(EXTRA_ethereal_SOURCES)
 OBJECTS = $(ethereal_OBJECTS)
 

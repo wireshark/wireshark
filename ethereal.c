@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.2 1998/09/16 03:21:54 gerald Exp $
+ * $Id: ethereal.c,v 1.3 1998/09/17 03:12:23 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,7 +63,11 @@
 #include "etypes.h"
 #include "print.h"
 #include "resolv.h"
+#include "follow.h"
+#include "util.h"
 
+FILE        *data_out_file = NULL;
+packet_info  pi;
 capture_file cf;
 GtkWidget   *file_sel, *packet_list, *tree_view, *byte_view, *prog_bar,
   *info_bar;
@@ -97,6 +101,97 @@ file_progress_cb(gpointer p) {
   gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
     (gfloat) ftell(cf.fh) / (gfloat) cf.f_len);
   return TRUE;
+}
+
+/* Follow a TCP stream */
+void
+follow_stream_cb( GtkWidget *widget, gpointer data ) {
+  char filename1[128];
+  char buf[128];
+  GtkWidget *streamwindow, *box, *text, *vscrollbar, *table;
+  if( pi.ipproto == 6 ) {
+    /* we got tcp so we can follow */
+    /* check to see if we are using a filter */
+    if( cf.filter != NULL ) {
+      /* get rid of this one */
+      g_free( cf.filter );
+      cf.filter = NULL;
+    }
+    /* create a new one */
+    cf.filter = build_follow_filter( &pi );
+    /* reload so it goes in effect. Also we set data_out_file which 
+       tells the tcp code to output the data */
+    close_cap_file( &cf, info_bar, file_ctx);
+    strcpy( filename1, tmpnam(NULL) );
+    data_out_file = fopen( filename1, "a" );
+    if( data_out_file == NULL ) {
+      fprintf( stderr, "Could not open tmp file %s\n", filename1 );
+    }
+    reset_tcp_reassembly();
+    load_cap_file( cf.filename, &cf );
+    /* the data_out_file should now be full of the streams information */
+    fclose( data_out_file );
+    /* the filename1 file now has all the text that was in the session */
+    streamwindow = gtk_window_new( GTK_WINDOW_TOPLEVEL);
+    gtk_widget_set_name( streamwindow, "TCP stream window" );
+    gtk_signal_connect( GTK_OBJECT(streamwindow), "delete_event",
+			NULL, "WM destroy" );
+    gtk_signal_connect( GTK_OBJECT(streamwindow), "destroy",
+			NULL, "WM destroy" );
+    gtk_window_set_title( GTK_WINDOW(streamwindow), "Contents of TCP stream" );
+    gtk_widget_set_usize( GTK_WIDGET(streamwindow), DEF_WIDTH, DEF_HEIGHT );
+    gtk_container_border_width( GTK_CONTAINER(streamwindow), 2 );
+    /* setup the container */
+    box = gtk_vbox_new( FALSE, 0 );
+    gtk_container_add( GTK_CONTAINER(streamwindow), box );
+    gtk_widget_show( box );
+    /* set up the table we attach to */
+    table = gtk_table_new( 1, 2, FALSE );
+    gtk_table_set_col_spacing( GTK_TABLE(table), 0, 2);
+    gtk_box_pack_start( GTK_BOX(box), table, TRUE, TRUE, 0 );
+    gtk_widget_show( table );
+    /* create a text box */
+    text = gtk_text_new( NULL, NULL );
+    gtk_text_set_editable( GTK_TEXT(text), FALSE);
+    gtk_table_attach( GTK_TABLE(table), text, 0, 1, 0, 1,
+		      GTK_EXPAND | GTK_SHRINK | GTK_FILL,
+		      GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0 );
+    gtk_widget_show(text);
+    /* create the scrollbar */
+    vscrollbar = gtk_vscrollbar_new( GTK_TEXT(text)->vadj );
+    gtk_table_attach( GTK_TABLE(table), vscrollbar, 1, 2, 0, 1,
+		      GTK_FILL, GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0 );
+    gtk_widget_show( vscrollbar );
+    gtk_widget_realize( text );
+    /* stop the updates while we fill the text box */
+    gtk_text_freeze( GTK_TEXT(text) );
+    data_out_file = NULL;
+    data_out_file = fopen( filename1, "r" );
+    if( data_out_file ) {
+      char buffer[1024];
+      int nchars;
+      while( 1 ) {
+	nchars = fread( buffer, 1, 1024, data_out_file );
+	gtk_text_insert( GTK_TEXT(text), m_r_font, NULL, NULL, buffer, nchars );
+	if( nchars < 1024 ) {
+	  break;
+	}
+      }
+      fclose( data_out_file );
+      unlink( filename1 );
+    }
+    gtk_text_thaw( GTK_TEXT(text) );
+    data_out_file = NULL;
+    gtk_widget_show( streamwindow );
+    if( cf.filter != NULL ) {
+      g_free( cf.filter );
+      cf.filter = NULL;
+    }
+  } else {
+    simple_dialog(ESD_TYPE_WARN, NULL,
+      "Error following stream.  Please make\n"
+      "sure you have a TCP packet selected.");
+  }
 }
 
 /* Open a file */
@@ -136,6 +231,7 @@ void
 packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
   GList      *l;
   
+  blank_packetinfo();
   gtk_text_freeze(GTK_TEXT(byte_view));
   gtk_text_set_point(GTK_TEXT(byte_view), 0);
   gtk_text_forward_delete(GTK_TEXT(byte_view),
@@ -184,6 +280,14 @@ tree_view_cb(GtkWidget *w) {
 void
 file_quit_cmd_cb (GtkWidget *widget, gpointer data) {
   gtk_exit(0);
+}
+
+void blank_packetinfo() {
+  pi.srcip    = 0;
+  pi.destip   = 0;
+  pi.ipproto  = 0;
+  pi.srcport  = 0;
+  pi.destport = 0;
 }
 
 /* Things to do when the OK button is pressed */

@@ -8,6 +8,7 @@ ethereal_SOURCES = \
 	ethertype.c    \
 	file.c         \
 	filter.c       \
+	follow.c       \
 	menu.c         \
 	packet.c       \
 	packet-arp.c   \
@@ -40,6 +41,7 @@ ethereal_SOURCES = \
 	etypes.h       \
 	file.h         \
 	filter.h       \
+	follow.h       \
 	menu.h         \
 	packet.h       \
 	packet-ipv6.h  \

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.4 1998/09/17 02:37:47 gerald Exp $
+ * $Id: packet.h,v 1.5 1998/09/17 03:12:28 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,6 +63,17 @@ typedef struct _frame_data {
   long     file_off;        /* File offset */
   gchar   *win_info[5];        /* Packet list text */
 } frame_data;
+
+typedef struct _packet_info {
+  char *srcip;
+  int ip_src;
+  char *destip;
+  int ipproto;
+  int srcport;
+  int destport;
+  int iplen;
+  int iphdrlen;
+} packet_info;
 
 /* Many of the structs and definitions below were taken from include files
  * in the Linux distribution. */

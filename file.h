@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.2 1998/09/16 03:21:57 gerald Exp $
+ * $Id: file.h,v 1.3 1998/09/17 03:12:25 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,6 +54,7 @@ typedef struct bpf_program bpf_prog;
 
 typedef struct _capture_file {
   FILE       *fh;        /* Capture file */
+  gchar      *filename;  /* filename */
   long        f_len;     /* File length */
   int         swap;      /* Swap data bytes? */
   guint16     cd_t;      /* Capture data type */
