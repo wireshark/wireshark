@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.14 2002/05/03 21:25:43 guy Exp $
+ * $Id: packet-afp.c,v 1.15 2002/05/11 22:40:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1744,7 +1744,7 @@ dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	proto_tree_add_item(tree, hf_afp_UAM, tvb, offset, 1,FALSE);
 	offset += len +1;
 
-	if (!strncmp(uam, "Cleartxt passwrd", len)) {
+	if (!strncasecmp(uam, "Cleartxt passwrd", len)) {
 		/* clear text */
 		len = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(tree, hf_afp_user, tvb, offset, 1,FALSE);
@@ -1754,7 +1754,7 @@ dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		proto_tree_add_item(tree, hf_afp_passwd, tvb, offset, len,FALSE);
 		offset += len;
 	}
-	else if (!strncmp(uam, "No User Authent", len)) {
+	else if (!strncasecmp(uam, "No User Authent", len)) {
 	}
 	return(offset);
 }
@@ -2098,6 +2098,22 @@ dissect_query_afp_move(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
 	return offset;
 }
 
+/* ************************** */
+static gint
+dissect_query_afp_exchange_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+		
+	PAD(1);
+	offset = decode_vol_did(tree, tvb, offset);
+
+	proto_tree_add_item(tree, hf_afp_did, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	offset = decode_name_label(tree, pinfo, tvb, offset, "Source path: %s");
+	offset = decode_name_label(tree, NULL, tvb, offset,  "Dest path:   %s");
+
+	return offset;
+}
 /* ************************** */
 static gint
 dissect_query_afp_copy_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
@@ -2557,7 +2573,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case AFP_RESOLVEID:
 			offset = dissect_query_afp_resolve_id(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_EXCHANGEFILE:
-			break;
+			offset = dissect_query_afp_exchange_file(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_CATSEARCH:
 			offset = dissect_query_afp_cat_search(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_GETICON:	
