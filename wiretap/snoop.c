@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.66 2003/12/19 22:23:05 guy Exp $
+ * $Id: snoop.c,v 1.67 2004/01/05 17:33:28 ulfl Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -849,7 +849,7 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 			}
 			break;
 		}
-		atm_hdr.vpi = pseudo_header->atm.vpi;
+		atm_hdr.vpi = (guint8) pseudo_header->atm.vpi;
 		atm_hdr.vci = g_htons(pseudo_header->atm.vci);
 		nwritten = fwrite(&atm_hdr, 1, sizeof atm_hdr, wdh->fh);
 		if (nwritten != sizeof atm_hdr) {

@@ -1,5 +1,5 @@
 /*
- * $Id: network_instruments.c,v 1.5 2003/11/25 05:56:16 guy Exp $
+ * $Id: network_instruments.c,v 1.6 2004/01/05 17:33:28 ulfl Exp $
  */
 
 /***************************************************************************
@@ -327,7 +327,7 @@ gboolean fill_time_struct(guint64 ns_since2000, observer_time* time_conversion)
 	time_conversion->us_since2000 = ns_since2000/1000;
 	time_conversion->sec_since2000 = ns_since2000/1000000000;
 
-	time_conversion->seconds_from_1970 = seconds1970to2000 + time_conversion->sec_since2000;
+	time_conversion->seconds_from_1970 = (time_t) (seconds1970to2000 + time_conversion->sec_since2000);
 	time_conversion->useconds_from_1970 = ((guint64)seconds1970to2000*1000000)+time_conversion->us_since2000;
 
 	return TRUE;

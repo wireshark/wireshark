@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.105 2003/12/21 12:17:05 ulfl Exp $
+ * $Id: libpcap.c,v 1.106 2004/01/05 17:33:27 ulfl Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1759,7 +1759,7 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 			}
 			break;
 		}
-		atm_hdr.vpi = pseudo_header->atm.vpi;
+		atm_hdr.vpi = (guint8) pseudo_header->atm.vpi;
 		atm_hdr.vci = phtons(&pseudo_header->atm.vci);
 		nwritten = fwrite(&atm_hdr, 1, sizeof atm_hdr, wdh->fh);
 		if (nwritten != sizeof atm_hdr) {

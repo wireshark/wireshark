@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.42 2003/11/06 22:45:28 guy Exp $
+ * $Id: wtap-int.h,v 1.43 2004/01/05 17:33:28 ulfl Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -338,7 +338,7 @@ struct wtap_dumper {
 	{ \
 		int _bytes_read; \
 		_bytes_read = file_read((target), 1, (num_bytes), (fh)); \
-		if (_bytes_read != (num_bytes)) { \
+		if (_bytes_read != (int) (num_bytes)) { \
 			*(err) = file_error((fh)); \
 			return FALSE; \
 		} \
@@ -350,7 +350,7 @@ struct wtap_dumper {
 	{ \
 		int _bytes_read; \
 		_bytes_read = file_read((target), 1, (num_bytes), (fh)); \
-		if (_bytes_read != (num_bytes)) { \
+		if (_bytes_read != (int) (num_bytes)) { \
 			*(err) = file_error((fh)); \
 			if (*(err) == 0 && _bytes_read > 0) { \
 				*(err) = WTAP_ERR_SHORT_READ; \

@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.84 2003/10/01 07:11:48 guy Exp $
+ * $Id: netxray.c,v 1.85 2004/01/05 17:33:28 ulfl Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1176,7 +1176,7 @@ static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
     file_hdr.nframes = htolel(netxray->nframes);
     file_hdr.start_offset = htolel(CAPTUREFILE_HEADER_SIZE);
     file_hdr.end_offset = htolel(filelen);
-    file_hdr.network = htoles(wtap_encap_to_netxray_1_1_encap(wdh->encap));
+    file_hdr.network = (guint8) htoles(wtap_encap_to_netxray_1_1_encap(wdh->encap));
     file_hdr.timelo = htolel(0);
     file_hdr.timehi = htolel(0);
 
@@ -1383,7 +1383,7 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
     file_hdr.nframes = htolel(netxray->nframes);
     file_hdr.start_offset = htolel(CAPTUREFILE_HEADER_SIZE);
     file_hdr.end_offset = htolel(filelen);
-    file_hdr.network = htoles(wtap_encap_to_netxray_2_0_encap(wdh->encap));
+    file_hdr.network = (guint8) htoles(wtap_encap_to_netxray_2_0_encap(wdh->encap));
     file_hdr.timelo = htolel(0);
     file_hdr.timehi = htolel(0);
     switch (wdh->encap) {

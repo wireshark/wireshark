@@ -32,7 +32,7 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 * POSSIBILITY OF SUCH DAMAGE.
 *
-* $Id: erf.c,v 1.5 2003/12/11 21:23:37 ulfl Exp $
+* $Id: erf.c,v 1.6 2004/01/05 17:33:27 ulfl Exp $
 */
 
 /* 
@@ -320,10 +320,10 @@ static int erf_read_header(
 #ifdef G_HAVE_GINT64
 		guint64 ts = pletohll(&erf_header->ts);
 
-		phdr->ts.tv_sec = ts >> 32;
+		phdr->ts.tv_sec = (long) (ts >> 32);
 		ts = ((ts & 0xffffffff) * 1000 * 1000);
 		ts += (ts & 0x80000000) << 1; /* rounding */
-		phdr->ts.tv_usec = ts >> 32;		
+		phdr->ts.tv_usec = (long) (ts >> 32);		
 		if (phdr->ts.tv_usec >= 1000000) {
 			phdr->ts.tv_usec -= 1000000;
 			phdr->ts.tv_sec += 1;

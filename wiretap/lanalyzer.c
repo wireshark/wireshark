@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.43 2003/12/29 00:25:39 guy Exp $
+ * $Id: lanalyzer.c,v 1.44 2004/01/05 17:33:27 ulfl Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -211,7 +211,7 @@ int lanalyzer_open(wtap *wth, int *err)
 				 */
 				cr_day = summary[0];
 				cr_month = summary[1];
-				cr_year = pletohs(&summary[2]);
+				cr_year = (guint8) pletohs(&summary[2]);
 				/*g_message("Day %d Month %d Year %d (%04X)", cr_day, cr_month,
 						cr_year, cr_year);*/
 
