@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.315 2001/04/24 19:29:12 guy Exp $
+# $Id: Makefile.am,v 1.316 2001/05/07 20:49:48 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -161,6 +161,7 @@ DISSECTOR_SOURCES = \
 	packet-ncp2222.c   \
 	packet-netbios.c \
 	packet-nfs.c   \
+	packet-nisplus.c \
 	packet-nlm.c   \
 	packet-nntp.c  \
 	packet-ntp.c  \
@@ -289,6 +290,7 @@ noinst_HEADERS = \
 	packet-ncp-int.h \
 	packet-netbios.h \
 	packet-nfs.h   \
+	packet-nisplus.h \
 	packet-nlm.h   \
 	packet-ntp.h  \
 	packet-null.h  \
