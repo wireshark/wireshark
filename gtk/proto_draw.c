@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.40 2001/11/20 10:10:45 guy Exp $
+ * $Id: proto_draw.c,v 1.41 2001/11/20 10:37:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -373,7 +373,7 @@ byte_view_realize_cb( GtkWidget *bv, gpointer data){
 }
 
 
-GtkWidget *
+static GtkWidget *
 add_byte_tab(GtkWidget *byte_nb, const char *name, const guint8 *data, int len,
     proto_tree *tree, GtkWidget *tree_view)
 {
@@ -435,14 +435,28 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, const guint8 *data, int len,
   return byte_view;
 }
 
-
-int
-add_byte_view(const char *name, const guint8 *data, int len)
+void
+add_byte_views(frame_data *frame, proto_tree *tree, GtkWidget *tree_view,
+    GtkWidget *byte_nb_ptr)
 {
-	add_byte_tab(byte_nb_ptr, name, data, len, cfile.protocol_tree,
-	    tree_view);
+	int i;
+	tvbuff_t *bv_tvb;
 
-	return 0;
+	/*
+	 * Add to the specified byte view notebook tabs for hex dumps
+	 * of all the data sources for the specified frame.
+	 */
+	for (i = 0;
+	    (bv_tvb = g_slist_nth_data(frame->data_src, i)) != NULL; i++) {
+		add_byte_tab(byte_nb_ptr, tvb_get_name(bv_tvb),
+		    tvb_get_ptr(bv_tvb, 0, -1), tvb_length(bv_tvb),
+		    tree, tree_view);
+	}
+
+	/*
+	 * Initially select the first byte view.
+	 */
+	set_notebook_page(byte_nb_ptr, 0);
 }
 
 void

@@ -1,7 +1,7 @@
 /* proto_draw.h
  * Definitions for GTK+ packet display structures and routines
  *
- * $Id: proto_draw.h,v 1.13 2001/11/20 10:10:45 guy Exp $
+ * $Id: proto_draw.h,v 1.14 2001/11/20 10:37:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,9 +35,8 @@
 #define E_BYTE_VIEW_ENCODE_KEY    "byte_view_encode"
 #define E_BYTE_VIEW_NAME_KEY  	  "byte_view_name"
 
-GtkWidget *add_byte_tab(GtkWidget *byte_nb, const char *name,
-    const guint8 *data, int len, proto_tree *tree, GtkWidget *tree_view);
-int add_byte_view( const char *name, const guint8 *data, int len);
+void add_byte_views(frame_data *frame, proto_tree *tree, GtkWidget *tree_view,
+    GtkWidget *byte_nb_ptr);
 
 void set_notebook_page( GtkWidget *nb_ptr, int num);
 int find_notebook_page( GtkWidget *nb_ptr, gchar *label);

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.246 2001/10/26 18:28:15 gram Exp $
+ * $Id: file.c,v 1.247 2001/11/20 10:37:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1521,8 +1521,6 @@ void
 select_packet(capture_file *cf, int row)
 {
   frame_data *fdata;
-  tvbuff_t *bv_tvb;
-  int i;
 
   /* Get the frame data struct pointer for this frame */
   fdata = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(packet_list), row);
@@ -1578,17 +1576,13 @@ select_packet(capture_file *cf, int row)
 		cf->protocol_tree);
   proto_tree_is_visible = FALSE;
 
-  /* Display the GUI protocol tree and hex dump. */
+  /* Display the GUI protocol tree and hex dump.
+     XXX - why does the protocol tree not show up if we call
+     "proto_tree_draw()" before calling "add_byte_views()"? */
   clear_tree_and_hex_views();
-
-  i = 0; 
-  while((bv_tvb = g_slist_nth_data ( cf->current_frame->data_src, i++))){
-  	add_byte_view( tvb_get_name( bv_tvb), tvb_get_ptr(bv_tvb, 0, -1), tvb_length(bv_tvb));
-  }
-
+  add_byte_views(cf->current_frame, cfile.protocol_tree, tree_view,
+      byte_nb_ptr);
   proto_tree_draw(cf->protocol_tree, tree_view);
-
-  set_notebook_page( byte_nb_ptr, 0);
 
   /* A packet is selected. */
   set_menus_for_selected_packet(TRUE);
