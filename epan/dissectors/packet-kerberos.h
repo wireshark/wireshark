@@ -53,4 +53,8 @@ dissect_krb5_ctime(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 int dissect_krb5_cname(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 int dissect_krb5_realm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 
+#ifdef HAVE_KERBEROS
+guint8 * decrypt_krb5_data(proto_tree *tree, packet_info *pinfo, int usage, int length, const char *cryptotext, int keytype);
+#endif
+
 #endif /* __PACKET_KERBEROS_H */

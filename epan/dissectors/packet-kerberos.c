@@ -411,7 +411,7 @@ read_keytab_file(char *filename, krb5_context *context)
 }
 
 
-static guint8 *
+guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			krb5_keyusage usage,
 			int length,
@@ -558,7 +558,7 @@ read_keytab_file(char *filename, krb5_context *context)
 }
 
 
-static guint8 *
+guint8 *
 decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			krb5_keyusage usage,
 			int length,
@@ -726,7 +726,7 @@ g_warning("added key: %s", sk->origin);
 
 #define CONFOUNDER_PLUS_CHECKSUM 24
 
-static guint8 *
+guint8 *
 decrypt_krb5_data(proto_tree _U_ *tree, packet_info *pinfo,
 			int _U_ usage,
 			int length,
