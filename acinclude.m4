@@ -198,6 +198,10 @@ AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 [
         AC_CHECK_HEADER(zlib.h,,enable_zlib=no)
         AC_CHECK_LIB(z, gzopen,,enable_zlib=no)
+        AC_CHECK_LIB(z, gzseek,,enable_zlib=no)
+        AC_CHECK_LIB(z, gztell,,enable_zlib=no)
+        AC_CHECK_LIB(z, gzgets,,enable_zlib=no)
+        AC_CHECK_LIB(z, zError,,enable_zlib=no)
 ])
 
 #
