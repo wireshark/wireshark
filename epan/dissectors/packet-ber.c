@@ -565,8 +565,23 @@ ber_sequence_try_again:
 			next_tvb = tvb_new_subset(tvb, hoffset, eoffset-hoffset, eoffset-hoffset);
 		}
 
-
 		count=seq->func(pinfo, tree, next_tvb, 0);
+		seq++;
+		offset = hoffset+count;
+/* XXX this whole ifdef block should be removed after a while  when I
+ * see that there isnt too many other things that broke.
+ * ifdef added after release 0.10.7.
+ *
+ * From now on we do trust the subdissector blindly since
+ * othervise we will fail horribly on a CHOICE that is OPTIONAL
+ */
+#ifdef REMOVED
+		/* Since people might comment out stuff in the ASN
+		 * we do try as hard as possible to avoid
+		 * trusting what the dissector returned to us.
+		 * Maybe we should change this and be more trusty
+		 * in the future ?
+		 */
 		if(ind_field){
 			/* previous field was of indefinite length so we have
 			 * no choice but use whatever the subdissector told us
@@ -578,6 +593,7 @@ ber_sequence_try_again:
 			seq++;
 			offset = eoffset;
 		}
+#endif
 	}
 
 	/* if we didnt end up at exactly offset, then we ate too many bytes */
@@ -591,6 +607,8 @@ ber_sequence_try_again:
 
 
 /* this function dissects a BER choice 
+ * If we did not find a matching choice,  just return offset unchanged
+ * in case it was a CHOICE { } OPTIONAL
  */
 int
 dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice *choice, gint hf_id, gint ett_id)
@@ -602,9 +620,11 @@ dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, i
 	const ber_choice *ch;
 	proto_tree *tree=parent_tree;
 	proto_item *item=NULL;
-	int end_offset;
+	int end_offset, start_offset;
 	int hoffset = offset;
 	header_field_info	*hfinfo;
+
+	start_offset=offset;
 
 	/* read header and len for choice field */
 	offset=get_ber_identifier(tvb, offset, &class, &pc, &tag);
@@ -670,12 +690,19 @@ dissect_ber_choice(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, i
 		}
 		ch++;
 	}
+#ifdef REMOVED
+	/*XXX here we should have another flag to the CHOICE to distinguish
+	 * between teh case when we know it is a mandatory   or if the CHOICE is optional == no arm matched */
+
 	/* oops no more entries and we still havent found
 	 * our guy :-(
 	 */
 	proto_tree_add_text(tree, tvb, offset, len, "BER Error: This choice field was not found.");
 
 	return end_offset;
+#endif
+
+	return start_offset;
 }
 
 #if 0
