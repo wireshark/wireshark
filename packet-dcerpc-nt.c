@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.44 2002/08/22 01:13:12 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.45 2002/08/22 18:24:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -921,8 +921,7 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
 				    hfindex, &access);
 
-	item = proto_tree_add_text(tree, tvb, offset - 4, 4, 
-				   "Access Mask: 0x%08x", access);
+	item = proto_tree_add_uint(tree, hfindex, tvb, offset - 4, 4, access);
 
 	subtree = proto_item_add_subtree(item, ett_nt_access_mask);
 
