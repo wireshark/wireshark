@@ -3,7 +3,7 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.4 2000/04/13 18:18:48 gram Exp $
+ * $Id: packet-mpls.c,v 1.5 2000/04/16 22:59:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,7 +45,6 @@
 #include <glib.h>
 #include "etypes.h"
 #include "packet.h"
-#include "packet-mpls.h"
 #include "packet-ip.h"
 
 static gint proto_mpls = -1;
@@ -124,7 +123,7 @@ void decode_mpls_label(const unsigned char *start,
     *ttl = start[3];
 }
 
-void
+static void
 dissect_mpls(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 {
     guint32 label;

@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-pppoe.c,v 1.6 2000/04/13 18:18:48 gram Exp $
+ * $Id: packet-pppoe.c,v 1.7 2000/04/16 22:59:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -59,7 +59,7 @@ static gint ett_pppoed_tags = -1;
 #define PPPOE_TAG_AC_ERR 0x0202 
 #define PPPOE_TAG_GENERIC_ERR 0x0203
 
-gchar *
+static gchar *
 pppoecode_to_str(guint8 codetype, const char *fmt) {
 	static const value_string code_vals[] = {
 		{PPPOE_CODE_SESSION, "Session Data"                             },
@@ -73,7 +73,7 @@ pppoecode_to_str(guint8 codetype, const char *fmt) {
 		return val_to_str(codetype, code_vals, fmt);
 }
 
-gchar *
+static gchar *
 pppoetag_to_str(guint16 tag_type, const char *fmt) {
 	static const value_string code_vals[] = {
 		{PPPOE_TAG_EOL,        "End-Of-List"       },
@@ -92,7 +92,7 @@ pppoetag_to_str(guint16 tag_type, const char *fmt) {
 }
 
 
-void
+static void
 dissect_pppoe_tags(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int payload_length) {
 
 	guint16 poe_tag;
@@ -144,7 +144,7 @@ dissect_pppoe_tags(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 	}
 }
 
-void
+static void
 dissect_pppoed(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	guint8 pppoe_ver;
 	guint8 pppoe_type;
@@ -188,7 +188,7 @@ dissect_pppoed(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 }
 
-void
+static void
 dissect_pppoes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	guint8 pppoe_ver;
 	guint8 pppoe_type;

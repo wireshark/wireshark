@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.27 2000/04/13 18:18:43 gram Exp $
+ * $Id: packet-arp.c,v 1.28 2000/04/16 22:59:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -548,7 +548,7 @@ dissect_atmarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   }
 }
 
-void
+static void
 dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
   guint16     ar_hrd;
