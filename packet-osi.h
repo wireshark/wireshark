@@ -1,6 +1,6 @@
 /* packet-osi.h
  *
- * $Id: packet-osi.h,v 1.9 2002/01/21 07:36:38 guy Exp $
+ * $Id: packet-osi.h,v 1.10 2002/02/28 19:24:24 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,7 +78,7 @@
  * Dissector table for NLPIDs for protocols whose packets begin with
  * the NLPID.
  */
-dissector_table_t osinl_subdissector_table;
+extern dissector_table_t osinl_subdissector_table;
 
 /*
  * published API functions
