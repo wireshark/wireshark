@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.55 1999/05/12 05:56:42 gram Exp $
+ * $Id: packet.h,v 1.56 1999/05/13 16:42:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -166,6 +166,8 @@ enum {
 	ETT_IPX,
 	ETT_SPX,
 	ETT_NCP,
+	ETT_NCP_REQUEST_FIELDS,
+	ETT_NCP_REPLY_FIELDS,
 	ETT_DNS,
 	ETT_DNS_FLAGS,
 	ETT_DNS_QRY,

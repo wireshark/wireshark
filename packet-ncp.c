@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.11 1999/05/10 20:51:36 gram Exp $
+ * $Id: packet-ncp.c,v 1.12 1999/05/13 16:42:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -24,6 +24,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+#undef DEBUG_NCP_HASH
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
@@ -41,6 +43,8 @@
 #include "packet-ipx.h"
 #include "packet-ncp.h"
 
+struct svc_record;
+
 static void
 dissect_ncp_request(const u_char *pd, int offset, frame_data *fd, proto_tree *ncp_tree, proto_tree *tree);
 
@@ -50,7 +54,9 @@ dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *ncp_
 static struct ncp2222_record *
 ncp2222_find(guint8 func, guint8 subfunc);
 
-struct svc_record;
+static void
+parse_ncp_svc_fields(const u_char *pd, proto_tree *ncp_tree, int offset,
+	struct svc_record *svc);
 
 static int
 svc_record_byte_count(struct svc_record *sr);
@@ -78,6 +84,7 @@ guint ncp_hash  (const gpointer v);
 
 */
 
+/* Every NCP packet has this common header */
 struct ncp_common_header {
 	guint16	type;
 	guint8	sequence;
@@ -85,6 +92,8 @@ struct ncp_common_header {
 	guint8	task;
 	guint8	conn_high;
 };
+
+/* NCP request packets */
 struct ncp_request_header {
 	guint16	type;
 	guint8	sequence;
@@ -96,6 +105,7 @@ struct ncp_request_header {
 	guint8	subfunc;
 };
 
+/* NCP reply packets */
 struct ncp_reply_header {
 	guint16	type;
 	guint8	sequence;
@@ -117,9 +127,20 @@ static value_string request_reply_values[] = {
 	{ 0x0000, NULL }
 };
 
-enum ntype { nend, nbyte, nhex, nbelong, nbeshort, ndata, nbytevar,
-	ndatetime, nasciiz };
+/* These are the field types in an NCP packet */
+enum ntype {
+	nend,		/* end of the NCP field list */
+	nbyte,		/* one byte of data */
+	nhex,
+	nbelong,	/* 4-byte big-endian long int */
+	nbeshort,	/* 2-byte big-endian short int */
+	ndata,		/* unstructured data */
+	nbytevar,	/* a variable number of bytes */
+	ndatetime,	/* date-time stamp */
+	nasciiz		/* null-terminated string of ASCII characters */
+};
 
+/* Information on the NCP field */
 typedef struct svc_record {
 	enum ntype	type;
 	guint8		length;
@@ -133,16 +154,9 @@ typedef struct ncp2222_record {
 	gchar		*funcname;
 
 	svc_record	*req;
-	gchar		*req_summ;
-	guint8		req_summ_var1;
-	guint8		req_summ_var2;
-	guint8		req_summ_var3;
-
 	svc_record	*rep;
-	gchar		*rep_summ;
-	guint8		rep_summ_var1;
-	guint8		rep_summ_var2;
-	guint8		rep_summ_var3;
+	void*		special_handler;
+
 } ncp2222_record;
 
 /* Service Queue Job REQUEST */
@@ -157,8 +171,8 @@ static svc_record ncp_17_7C_R[] = {
 		{ nbelong,	4,	"Task Number" },
 		{ nbelong,	4,	"User" },
 		{ nbelong,	4,	"Server specifed to service queue entry" },
-		{ ndatetime,6,	"Earliest time to execute" },
-		{ ndatetime,6,	"When job entered queue" },
+		{ ndatetime,	6,	"Earliest time to execute" },
+		{ ndatetime,	6,	"When job entered queue" },
 		{ nbelong,	4,	"Job Number" },
 		{ nbeshort,	2,	"Job Type" },
 		{ nbeshort,	2,	"Job Position" },
@@ -168,6 +182,17 @@ static svc_record ncp_17_7C_R[] = {
 		{ nbelong,	4,	"Client station number" },
 		{ nbelong,	4,	"Task number" },
 		{ nbelong,	4,	"Job server" },
+		{ nend,		0,	NULL }
+};
+
+/* Negotiate Buffer Size REQUEST */
+static svc_record ncp_21_00_C[] = {
+		{ nbeshort,	2,	"Caller's maximum packet size: %d bytes" },
+		{ nend,		0,	NULL }
+};
+/* RESPONSE */
+static svc_record ncp_21_00_R[] = {
+		{ nbeshort,	2,	"Packet size decided upon by file server: %d" },
 		{ nend,		0,	NULL }
 };
 
@@ -192,18 +217,19 @@ static svc_record ncp_48_00_R[] = {
 static ncp2222_record ncp2222[] = {
 
 { 0x17, 0x7C, SUBFUNC, "Service Queue Job",
-	ncp_17_7C_C, "", -1, -1, -1, 
-	ncp_17_7C_R, "", -1, -1, -1
+	ncp_17_7C_C, ncp_17_7C_R, NULL
+},
+
+{ 0x21, 0x00, NOSUB, "Negotiate Buffer Size",
+	ncp_21_00_C, ncp_21_00_R, NULL
 },
 
 { 0x48, 0x00, NOSUB, "Read from a file",
-	ncp_48_00_C, "F=%s Read %d at %d", 1, 2, 3, 
-	ncp_48_00_R, "%d bytes read", 0, -1, -1
+	ncp_48_00_C, ncp_48_00_R, NULL
 },
 
 { 0x00, 0x00, NOSUB, NULL,
-	NULL, NULL, -1, -1, -1,
-	NULL, NULL, -1, -1, -1
+	NULL, NULL, NULL
 }
 
 };
@@ -250,35 +276,64 @@ struct ncp_request_val {
 };
 
 GHashTable *ncp_request_hash = NULL;
+GMemChunk *ncp_request_keys = NULL;
 GMemChunk *ncp_request_records = NULL;
 
 /* Hash Functions */
 gint  ncp_equal (const gpointer v, const gpointer v2)
 {
-	return memcmp(v, v2, 7);
+	struct ncp_request_key	*val1 = (struct ncp_request_key*)v;
+	struct ncp_request_key	*val2 = (struct ncp_request_key*)v2;
+
+	#if defined(DEBUG_NCP_HASH)
+	printf("Comparing %08X:%d:%d and %08X:%d:%d\n",
+		val1->nw_server_address, val1->nw_connection, val1->nw_sequence,
+		val2->nw_server_address, val2->nw_connection, val2->nw_sequence);
+	#endif
+
+	if (val1->nw_server_address == val2->nw_server_address &&
+		val1->nw_connection == val2->nw_connection &&
+		val1->nw_sequence   == val2->nw_sequence ) {
+		return 1;
+	}
+	return 0;
 }
 
 guint ncp_hash  (const gpointer v)
 {
 	struct ncp_request_key	*ncp_key = (struct ncp_request_key*)v;
-
+#if defined(DEBUG_NCP_HASH)
+	printf("hash calculated as %d\n", ncp_key->nw_server_address +
+			((guint32) ncp_key->nw_connection << 16) +
+			ncp_key->nw_sequence);
+#endif
 	return ncp_key->nw_server_address +
 			((guint32) ncp_key->nw_connection << 16) +
 			ncp_key->nw_sequence;
 }
 
+/* Initializes the hash table and the mem_chunk area each time a new
+ * file is loaded or re-loaded in ethereal */
 void
 ncp_init_protocol(void)
 {
+	#if defined(DEBUG_NCP_HASH)
+	printf("Initializing NCP hashtable and mem_chunk area\n");
+	#endif
 	if (ncp_request_hash)
 		g_hash_table_destroy(ncp_request_hash);
+	if (ncp_request_keys)
+		g_mem_chunk_destroy(ncp_request_keys);
 	if (ncp_request_records)
 		g_mem_chunk_destroy(ncp_request_records);
 
 	ncp_request_hash = g_hash_table_new(ncp_hash, ncp_equal);
+	ncp_request_keys = g_mem_chunk_new("ncp_request_keys",
+			sizeof(struct ncp_request_key),
+			100 * sizeof(struct ncp_request_key), G_ALLOC_AND_FREE);
 	ncp_request_records = g_mem_chunk_new("ncp_request_records",
-			sizeof(struct ncp_request_val), 50 * sizeof(struct ncp_request_val),
-			G_ALLOC_AND_FREE);
+			sizeof(struct ncp_request_val),
+			100 * sizeof(struct ncp_request_val), G_ALLOC_AND_FREE);
 }
 
 static struct ncp2222_record *
@@ -300,6 +355,7 @@ ncp2222_find(guint8 func, guint8 subfunc)
 	return retval;
 }
 
+/* How many bytes of NCP data to expect in the packet */
 static int
 svc_record_byte_count(svc_record *sr)
 {
@@ -338,6 +394,7 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "NCP");
+
 	nw_connection = (header.conn_high << 16) + header.conn_low;
 	nw_sequence = header.sequence;
 	nw_ncp_type = header.type;
@@ -372,13 +429,17 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 }
 
 void
-dissect_ncp_request(const u_char *pd, int offset, frame_data *fd, proto_tree *ncp_tree, proto_tree *tree) {
+dissect_ncp_request(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *ncp_tree, proto_tree *tree) {
 
 	struct ncp_request_header	request;
 	struct ncp2222_record		*ncp_request;
-	gchar						*description = "Unknown";
+	gchar				*description = "";
 	struct ncp_request_val		*request_val;
-	struct ncp_request_key		request_key;
+	struct ncp_request_key		*request_key;
+	proto_tree			*field_tree = NULL;
+	proto_item			*ti = NULL;
+	int				max_data;
 
 	/*memcpy(&request, &pd[offset], sizeof(request));*/
 	request.function = pd[offset+6];
@@ -389,37 +450,65 @@ dissect_ncp_request(const u_char *pd, int offset, frame_data *fd, proto_tree *nc
 	if (ncp_request)
 		description = ncp_request->funcname;
 
-	if (check_col(fd, COL_INFO))
-		col_add_fstr(fd, COL_INFO, "C %s", description);
+	if (check_col(fd, COL_INFO)) {
+		if (description[0]) {
+			col_add_fstr(fd, COL_INFO, "C %s", description);
+		}
+		else {
+			col_add_fstr(fd, COL_INFO, "C 2222/%02X%02X",
+				request.function, request.subfunc);
+		}
+	}
 
 	if (ncp_tree) {
-		proto_tree_add_item(ncp_tree, offset+6, 1, "Function Code: 0x%02X (%s)",
+		proto_tree_add_item(ncp_tree, offset+6, 1,
+			"Function Code: 0x%02X (%s)",
 			request.function, description);
-		if (ncp_request) {
-			offset += 10 + svc_record_byte_count(ncp_request->req);
-			dissect_data(pd, offset, fd, tree);
+
+	 	if (ncp_request) {
+			max_data = svc_record_byte_count(ncp_request->req);
+
+			if (max_data > 0) {
+				ti = proto_tree_add_item(ncp_tree, offset+7, END_OF_FRAME,
+				"NCP Request Packet");
+				field_tree = proto_tree_new();
+				proto_item_add_subtree(ti, field_tree, ETT_NCP_REQUEST_FIELDS);
+
+				parse_ncp_svc_fields(pd, field_tree, offset+7, ncp_request->req);
+			}
 		}
 	}
 	else { /* ! tree */
+		request_key = g_mem_chunk_alloc(ncp_request_keys);
+		request_key->nw_server_address = nw_server_address;
+		request_key->nw_connection = nw_connection;
+		request_key->nw_sequence = nw_sequence;
+
 		request_val = g_mem_chunk_alloc(ncp_request_records);
 		request_val->ncp_type = nw_ncp_type;
 		request_val->ncp_record = ncp2222_find(request.function, request.subfunc);
-		request_key.nw_server_address = nw_server_address;
-		request_key.nw_connection = nw_connection;
-		request_key.nw_sequence = nw_sequence;
 
-		g_hash_table_insert(ncp_request_hash, &request_key, request_val);
+		g_hash_table_insert(ncp_request_hash, request_key, request_val);
+		#if defined(DEBUG_NCP_HASH)
+		printf("Inserted server %08X connection %d sequence %d (val=%08X)\n",
+			nw_server_address, nw_connection, nw_sequence, request_val);
+		#endif
 	}
 
 }
 
 void
-dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *ncp_tree, proto_tree *tree) {
+dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd,
+	proto_tree *ncp_tree, proto_tree *tree) {
+
 	struct ncp_reply_header		reply;
 	struct ncp2222_record		*ncp_request = NULL;
 	struct ncp_request_val		*request_val;
 	struct ncp_request_key		request_key;
-	gchar						*description = "Unknown";
+	gchar				*description = "Unknown";
+	proto_tree			*field_tree = NULL;
+	proto_item			*ti = NULL;
+	int				max_data;
 
 	memcpy(&reply, &pd[offset], sizeof(reply));
 
@@ -429,7 +518,12 @@ dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *ncp_
 	request_key.nw_sequence = nw_sequence;
 
 	request_val = (struct ncp_request_val*)
-	g_hash_table_lookup(ncp_request_hash, &request_key);
+		g_hash_table_lookup(ncp_request_hash, &request_key);
+
+	#if defined(DEBUG_NCP_HASH)
+	printf("Looking for server %08X connection %d sequence %d (retval=%08X)\n",
+		nw_server_address, nw_connection, nw_sequence, request_val);
+	#endif
 
 	if (request_val)
 		ncp_request = request_val->ncp_record;
@@ -446,8 +540,42 @@ dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *ncp_
 
 		proto_tree_add_item(ncp_tree, offset+7,    1,
 			"Connection Status: %d", reply.connection_state);
-		offset += 8;
-		dissect_data(pd, offset, fd, tree);
+
+		if (ncp_request) {
+			max_data = svc_record_byte_count(ncp_request->req);
+
+			if (max_data > 0) {
+				ti = proto_tree_add_item(ncp_tree, offset+8, END_OF_FRAME,
+				"NCP Reply Packet");
+				field_tree = proto_tree_new();
+				proto_item_add_subtree(ti, field_tree, ETT_NCP_REPLY_FIELDS);
+
+				parse_ncp_svc_fields(pd, field_tree, offset+8, ncp_request->req);
+			}
+		}
 	}
 
+}
+
+/* Populates the protocol tree with information about the svc_record fields */
+static void
+parse_ncp_svc_fields(const u_char *pd, proto_tree *ncp_tree, int offset,
+	struct svc_record *svc)
+{
+	struct svc_record *rec = svc;
+	int field_offset = offset;
+
+	while (rec->type != nend) {
+		switch(rec->type) {
+			case nbeshort:
+				proto_tree_add_item(ncp_tree, field_offset,
+					rec->length, rec->description, pntohs(&pd[field_offset]));
+				break;
+
+			/* default:
+				nothing */
+		}
+		field_offset += rec->length;
+		rec++;
+	}	
 }
