@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.456 2002/08/20 22:42:16 guy Exp $
+# $Id: Makefile.am,v 1.457 2002/08/21 21:00:32 tpot Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -157,6 +157,7 @@ DISSECTOR_SRC = \
 	packet-gmrp.c \
 	packet-gnutella.c \
 	packet-gre.c   \
+	packet-gssapi.c \
 	packet-gtp.c   \
 	packet-gvrp.c  \
 	packet-h1.c    \
@@ -291,6 +292,7 @@ DISSECTOR_SRC = \
 	packet-smtp.c \
 	packet-sna.c   \
 	packet-snaeth.c \
+	packet-snego.c \
 	packet-snmp.c	\
 	packet-socks.c \
 	packet-spray.c \
@@ -461,6 +463,7 @@ noinst_HEADERS = \
 	packet-frame.h  \
 	packet-giop.h  \
 	packet-gnutella.h \
+	packet-gssapi.h \
 	packet-hclnfsd.h  \
 	packet-http.h  \
 	packet-ieee80211.h \
