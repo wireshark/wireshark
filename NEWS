@@ -1,18 +1,27 @@
-$Id: NEWS,v 1.120 2003/01/21 02:12:16 gerald Exp $
+$Id: NEWS,v 1.121 2003/01/24 00:51:55 gerald Exp $
 
-== January ??, 2003
+== January 23, 2003
 
 Ethereal 0.9.9 has been released.
 
   Please note the next release will NOT be 1.0.  There are still more
   features to be added before a 1.0 release will be ready.
   
+
+New and Updated Features
+
   Plugin search behavior was improved under Unix, allowing more than one
   version of Ethereal to be installed at one time.
   
-New and Updated Features
-
-  The statistics graphs have been enhanced.
+  The statistics graphs have been enhanced.  More statistics have been
+  added:
+  
+    Round-trip-time statistics are now computed for SMB traffic. 
+    
+    NCP Call and Reply times are now tracked.
+    
+    Top talker statistics for Ethernet, IP and Token Ring are now
+    available (tethereal only).
   
   Color allocation and handling was improved.
   
@@ -22,7 +31,11 @@ New and Updated Features
   
   The ATM code received major improvements.
   
-  The DOS Sniffer code received major improvements as well.
+  The DOS Sniffer code also received major improvements.
+  
+  For those that compile Ethereal from source, some fixes and updates
+  have been made to the configuration and build environment.
+    
 
 Bug Fixes
 
@@ -31,56 +44,24 @@ Bug Fixes
   
   A potential infinite loop in the TCP graphing code has been fixed.
 
+
 New Protocols
 
-MEGACO, 
-MySQL, 
-SDLC, 
-X.29, 
+ MDSHDR, MEGACO, MySQL, SDLC, X.29
+
 
 Updated Protocols
 
-AFP, 
-AFS, 
-AIM, 
-ASAP, 
-ATM, 
-BPDU, 
-Cisco HDLC, 
-CLNP, 
-DCE RPC, 
-DDTP, 
-H.261, 
-IMSI, 
-IP, 
-IP-over-FC, 
-L2TP, 
-LMI, 
-MTP3, 
-NCP, 
-NetBIOS, 
-NETLOGON, 
-ONC RPC, 
-PIM, 
-PPP, 
-RADIUS, 
-RANAP, 
-RPC, 
-SAMR, 
-SCTP, 
-SPNEGO,
-SRVSVC,  
-SPOOLSS, 
-TNS, 
-X.25, 
-Wellfleet HDLC, 
-
+  802.11, AFP, AFS, AIM, ARCNET, ASAP, ATM, BPDU, Cisco HDLC,  CLNP, DCE
+  RPC, DDTP, Ethernet, FC-ELS, FCIP, H.261, IMSI, IP,  IP-over-FC, L2TP,
+  LMI, M3UA, MTP3, NCP, NetBIOS, NETLOGON, ONC RPC, OSPF, PIM, PPP,
+  RADIUS, RANAP, RPC, SAMR, SCTP, SMB,  SPNEGO, SPOOLSS, SRVLOC, SRVSVC,
+  SUA, TNS, Token Ring, Wellfleet HDLC, X.25
 
 
 Updated Capture File Support
   
-Firewall-1, Netmon, NetXRay, Radcom, Sniffer, 
-
+  Firewall-1, Netmon, NetXRay, Radcom, Sniffer
 
 
 == December 7, 2002

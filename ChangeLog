@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.15 2003/01/21 02:12:16 gerald Exp $
+$Id: ChangeLog,v 1.16 2003/01/24 00:51:54 gerald Exp $
 
 Overview of changes in Ethereal 0.9.9:
 * Get rid of unneeded comments and includes, fix registration in IPFC (Guy)
@@ -239,12 +239,49 @@ Overview of changes in Ethereal 0.9.9:
 * Update ASAP to support latest versions of the Internet Drafts (Michael)
 * Add packet-ntlmssp.h to Makefile.am (Gerald)
 * Use "tcp_dissect_pdus()" in XOT, improve packet rejection (Guy)
-
-Left off at: http://www.ethereal.com/lists/ethereal-cvs/200301/msg00131.html
-
-
-
-
+* Improve MySQL command parameter display (Huagang Xie)
+* Add symbolic names for Fibre Channel Network Address Authority
+  identifiers (Brian Ginsbach)
+* Add a small fixme about --enable-usr-local to configure.in (Joerg)
+* Don't replace spaces by '_' in make-manuf, remove them (Joerg)
+* Update manuf file to revised format (Joerg)
+* Update FAQ (Joerg)
+* Reorder OSPF defines numerically within version (Joerg)
+* Improve pcap check in acinclude.m4's (Joerg)
+* Fix configure check to compile with IBM Visual Age C compiler (cjs 2895)
+* Changed the fix for the nested functions to use the mechanisms provided
+  by autoconf (Joerg)
+* Fix for the problem that the aclocal-missing directory was not included
+  in make dist-gzip (Joerg)
+* More fixes for aclocal-flags and autogen.sh
+* Add SMB RTT statistics to tethereal and ethereal (Ronnie)
+* Keep track of and display the time between Call and Reply in NCP packets
+  (Ronnie)
+* Patch for packet-ip to make it TAPable (Ronnie)
+* Create a TAP for TokenRing (Ronnie)
+* Create a TAP for Ethernet (Ronnie)
+* Portably strip carriage returns and newlines in aclocal-flags (Guy)
+* Add MDSHDR support, more FC columns, FC-related fixes (Dinesh)
+* Include <epan/resolv.h> to declare "get_hostname()" in tap-iousers.c
+ (Guy)
+* Added support for version 05 of the (expired) ID describing M3UA, update
+  to support RFC 3332, better padding handling (Michael)
+* Put a "-I" before "$gtk_aclocal_dir" in aclocal-flags (Gerald)
+* Support for two new 802.11 elements used in the latest IEEE
+  802.11g draft version (Guy)
+* Update SUA to support new draft (Michael)
+* Make all the stuff in the 802.11 capability fixed field in a management
+  frame 2-byte bitfields (Guy)
+* Add a Linux-specific ARCNET DLT, other ARCNET enhancements (Guy)
+* Add a capture_arcnet() and fix a protocol ID offset (Guy)
+* Updates to the Boardwalk and MDS header dissectors (Dinesh)
+* Handle ARCNET exception frames (Guy)
+* More ARCNET updates (Guy)
+* Support Appletalk, IPv6, and Banyan Vines over ARCNET (Guy)
+* Support BACNET and "Novell EC" over ARCNET (Guy)
+* Put an entry for the BACnet protocol ID in ARCNET (Guy)
+* Handle a Naming Authority special case in SRVLOC (Brad Hards)
+* Register "sua.sua_version" as an obsolete preference (Guy)
 
 
 Overview of changes in Ethereal 0.9.8:
