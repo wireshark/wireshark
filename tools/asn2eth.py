@@ -1970,10 +1970,12 @@ class SequenceOfType (SqType):
     self.val.eth_reg(itmnm, ectx, idx='[##]', parent=ident)
 
   def eth_tname(self):
+    if self.val.type != 'Type_Ref':
+      return '#' + self.type + '_' + str(id(self))
     if not self.HasConstraint():
-      return "SEQUNCE_OF_" + self.val.eth_tname()
+      return "SEQUENCE_OF_" + self.val.eth_tname()
     elif self.constr.IsSize():
-      return 'SEQUNCE_' + self.constr.eth_constrname() + '_OF_' + self.val.eth_tname()
+      return 'SEQUENCE_' + self.constr.eth_constrname() + '_OF_' + self.val.eth_tname()
     else:
       return '#' + self.type + '_' + str(id(self))
 
@@ -2045,6 +2047,8 @@ class SetOfType (SqType):
     self.val.eth_reg(itmnm, ectx, idx='(##)', parent=ident)
 
   def eth_tname(self):
+    if self.val.type != 'Type_Ref':
+      return '#' + self.type + '_' + str(id(self))
     if not self.HasConstraint():
       return "SET_OF_" + self.val.eth_tname()
     elif self.constr.IsSize():
