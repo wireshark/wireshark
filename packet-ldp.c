@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.38 2002/04/29 08:20:08 guy Exp $
+ * $Id: packet-ldp.c,v 1.39 2002/05/01 08:26:57 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -1045,7 +1045,11 @@ dissect_tlv_returned_message(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 /* Dissect the common hello params */
 
 static void 
+#if 0
 dissect_tlv_common_hello_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+#else
+dissect_tlv_common_hello_parms(tvbuff_t *tvb, guint offset, proto_tree *tree)
+#endif
 {
 #if 0
 	proto_tree *ti = NULL;
@@ -1692,7 +1696,11 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 			break;
 
 		case TLV_COMMON_HELLO_PARMS:
+#if 0
 			dissect_tlv_common_hello_parms(tvb, offset + 4, tlv_tree, length);
+#else
+			dissect_tlv_common_hello_parms(tvb, offset + 4, tlv_tree);
+#endif
 			break;
 
 		case TLV_IPV4_TRANSPORT_ADDRESS:
