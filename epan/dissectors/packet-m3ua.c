@@ -856,7 +856,7 @@ dissect_concerned_destination_parameter(tvbuff_t *parameter_tvb, proto_tree *par
   item = proto_tree_add_item(parameter_tree, hf_concerned_dest_pc,       parameter_tvb, CON_DEST_PC_OFFSET,       CON_DEST_PC_LENGTH,       NETWORK_BYTE_ORDER);
   if (mtp3_pc_structured())
     proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, CON_DEST_PC_OFFSET)));
-  proto_item_append_text(parameter_item, " (%u)", tvb_get_ntoh24(parameter_tvb, CON_DEST_PC_OFFSET));
+  proto_item_append_text(parameter_item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, CON_DEST_PC_OFFSET)));
 }
 
 static void
@@ -973,7 +973,7 @@ dissect_destination_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
   item = proto_tree_add_item(parameter_tree, hf_dpc_pc,   parameter_tvb, DPC_PC_OFFSET,   DPC_PC_LENGTH,   NETWORK_BYTE_ORDER);
   if (mtp3_pc_structured())
     proto_item_append_text(item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, DPC_PC_OFFSET)));
-  proto_item_append_text(parameter_item, " (%u)", tvb_get_ntoh24(parameter_tvb, DPC_PC_OFFSET));
+  proto_item_append_text(parameter_item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, DPC_PC_OFFSET)));
 }
 
 #define SI_LENGTH 1
@@ -1057,6 +1057,7 @@ dissect_circuit_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
 {
   guint16 length, number_of_point_codes, point_code_number;
   gint point_code_offset;
+  proto_item *pc_item;
 
   length                = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   number_of_point_codes = (length - PARAMETER_HEADER_LENGTH) / CIC_RANGE_LENGTH;
@@ -1064,7 +1065,9 @@ dissect_circuit_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
   point_code_offset = PARAMETER_VALUE_OFFSET;
   for(point_code_number = 1; point_code_number <= number_of_point_codes; point_code_number++) {
     proto_tree_add_item(parameter_tree, hf_cic_range_mask,  parameter_tvb, point_code_offset + CIC_RANGE_MASK_OFFSET,  CIC_RANGE_MASK_LENGTH,  NETWORK_BYTE_ORDER);
-    proto_tree_add_item(parameter_tree, hf_cic_range_pc,    parameter_tvb, point_code_offset + CIC_RANGE_PC_OFFSET,    CIC_RANGE_PC_LENGTH,    NETWORK_BYTE_ORDER);
+    pc_item = proto_tree_add_item(parameter_tree, hf_cic_range_pc,    parameter_tvb, point_code_offset + CIC_RANGE_PC_OFFSET,    CIC_RANGE_PC_LENGTH,    NETWORK_BYTE_ORDER);
+    if (mtp3_pc_structured())
+      proto_item_append_text(pc_item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, point_code_offset + CIC_RANGE_PC_OFFSET)));
     proto_tree_add_item(parameter_tree, hf_cic_range_lower, parameter_tvb, point_code_offset + CIC_RANGE_LOWER_OFFSET, CIC_RANGE_LOWER_LENGTH, NETWORK_BYTE_ORDER);
     proto_tree_add_item(parameter_tree, hf_cic_range_upper, parameter_tvb, point_code_offset + CIC_RANGE_UPPER_OFFSET, CIC_RANGE_UPPER_LENGTH, NETWORK_BYTE_ORDER);
     point_code_offset += CIC_RANGE_LENGTH;

@@ -36,6 +36,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include "sctpppids.h"
+#include <packet-mtp3.h>
 
 #define NETWORK_BYTE_ORDER     FALSE
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
@@ -563,12 +564,15 @@ dissect_affected_destinations_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 {
   guint16 number_of_destinations, destination_number;
   gint destination_offset;
+  proto_item *dpc_item;
 
   number_of_destinations= (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) / 4;
   destination_offset = PARAMETER_VALUE_OFFSET;
   for(destination_number=1; destination_number <= number_of_destinations; destination_number++) {
     proto_tree_add_item(parameter_tree, hf_mask, parameter_tvb, destination_offset + AFFECTED_MASK_OFFSET, AFFECTED_MASK_LENGTH, NETWORK_BYTE_ORDER);
-    proto_tree_add_item(parameter_tree, hf_dpc,  parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET,  AFFECTED_DPC_LENGTH,  NETWORK_BYTE_ORDER);
+    dpc_item = proto_tree_add_item(parameter_tree, hf_dpc,  parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET,  AFFECTED_DPC_LENGTH,  NETWORK_BYTE_ORDER);
+    if (mtp3_pc_structured())
+      proto_item_append_text(dpc_item, " (%s)", mtp3_pc_to_str(tvb_get_ntoh24(parameter_tvb, destination_offset + AFFECTED_DPC_OFFSET)));
     destination_offset += AFFECTED_DESTINATION_LENGTH;
   }
   proto_item_append_text(parameter_item, " (%u destination%s)", number_of_destinations, plurality(number_of_destinations, "", "s"));
@@ -1157,7 +1161,7 @@ static void
 dissect_point_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   proto_tree_add_item(parameter_tree, hf_point_code_dpc, parameter_tvb, POINT_CODE_OFFSET, POINT_CODE_LENGTH, NETWORK_BYTE_ORDER);
-  proto_item_append_text(parameter_item, " (%u)", tvb_get_ntohl(parameter_tvb, POINT_CODE_OFFSET));
+  proto_item_append_text(parameter_item, " (%s)", mtp3_pc_to_str(tvb_get_ntohl(parameter_tvb, POINT_CODE_OFFSET)));
 }
 
 #define SSN_LENGTH 1
