@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.98 1999/10/27 01:46:14 guy Exp $
+# $Id: Makefile.am,v 1.99 1999/10/27 02:41:11 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -214,7 +214,7 @@ wiretap/libwiretap.a gtk/libui.a \
 #
 register.c: packet.c $(DISSECTOR_SOURCES) @SNMP_C@
 	@echo Making register.c
-	@./make-reg-dotc $(srcdir) packet.c $(DISSECTOR_SOURCES) @SNMP_C@
+	@$(srcdir)/make-reg-dotc $(srcdir) packet.c $(DISSECTOR_SOURCES) @SNMP_C@
 
 ps.c: print.ps rdps
 	./rdps $(srcdir)/print.ps ps.c
@@ -245,6 +245,7 @@ EXTRA_DIST = \
 	image/icon-excl.xpm     \
 	image/icon-ethereal.xpm \
 	Makefile.nmake		\
+	make-reg-dotc		\
 	manuf                   \
 	print.ps                \
 	README.irix		\
