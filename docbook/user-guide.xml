@@ -59,18 +59,18 @@ DOCUMENT SECTION
   <!ENTITY DocumentCopyrightHolder1 "Richard Sharpe">
   <!ENTITY DocumentCopyrightHolder2 "Ed Warnicke">
   <!ENTITY DocumentCopyrightHolder3 "Ulf Lamping">
-  <!ENTITY DocumentCopyrightYear "2004">
+  <!ENTITY DocumentCopyrightYear "2004-2005">
 
   <!ENTITY DocumentEdition "Third ">
-  <!ENTITY DocumentVersion "V2.01">
-  <!ENTITY DocumentPubDate "2004">
+  <!ENTITY DocumentVersion "V2.0.2">
+  <!ENTITY DocumentPubDate "2005">
 
 <!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU General Public License, Version 2 or any later version published by the Free Software Foundation.</para><para>All logos and trademarks in this document are property of their respective owner.</para>">
 
 <!--
 Ethereal Info
 -->
-  <!ENTITY EtherealCurrentVersion "0.10.6">
+  <!ENTITY EtherealCurrentVersion "0.10.9">
   <!ENTITY EtherealWebSite "http://www.ethereal.com">
   <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs/#usersguide">
   <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
@@ -81,6 +81,10 @@ Ethereal Info
   <!ENTITY EtherealFAQPromiscPage "&EtherealWebSite;/faq#promiscsniff">
   <!ENTITY EtherealMediaPage "&EtherealWebSite;/media.html">
   <!ENTITY EtherealWikiPage "http://wiki.ethereal.com">
+  <!ENTITY EtherealWikiCaptureFiltersPage "&EtherealWikiPage;/CaptureFilters">
+  <!ENTITY EtherealWikiDisplayFiltersPage "&EtherealWikiPage;/DisplayFilters">
+  <!ENTITY EtherealWikiPreferencesPage "&EtherealWikiPage;/Preferences">
+  <!ENTITY EtherealWikiColoringRulesPage "&EtherealWikiPage;/ColoringRules">
   <!ENTITY EtherealWikiPreferencesPage "&EtherealWikiPage;/Preferences">
 
   <!ENTITY EtherealDevMailList "ethereal-dev[AT]ethereal.com">

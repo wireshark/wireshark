@@ -421,6 +421,14 @@ ethereal [ -vh ] [ -klLnpQS ] [ -a &lt;capture autostop condition> ] ...
       You can set Ethereal up so that it colorizes packets according to a 
       filter. This allows you to emphasize the packets you are interested in.
     </para>
+    <note>
+      <title>Note!</title>
+      <para>
+	  You will find a lot of Coloring Rule examples at the <command>Ethereal 
+	  Wiki Coloring Rules page</command> at <ulink 
+	  url="&EtherealWikiColoringRulesPage;">&EtherealWikiColoringRulesPage;</ulink>.
+      </para>
+    </note>
     <para>
       To colorize packets, select the Coloring Rules... menu item from 
       the View menu, and Ethereal will pop up the "Coloring Rules" 

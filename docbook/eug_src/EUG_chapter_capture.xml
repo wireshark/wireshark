@@ -710,6 +710,14 @@ ethereal -i eth0 -k
       This is explained in the tcpdump man page, which can be hard to 
 	  understand, so it's explained here to some extent.
     </para>
+    <note>
+      <title>Note!</title>
+      <para>
+	  You will find a lot of Capture Filter examples at the <command>Ethereal 
+	  Wiki Capture Filters page</command> at <ulink 
+	  url="&EtherealWikiCaptureFiltersPage;">&EtherealWikiCaptureFiltersPage;</ulink>.
+      </para>
+    </note>
     <para>
       You enter the capture filter into the Filter field of the Ethereal 
       Capture Options dialog box, as shown in 

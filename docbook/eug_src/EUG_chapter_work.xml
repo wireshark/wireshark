@@ -584,6 +584,14 @@
 	specific expressions.  The following sections provide more 
 	information on doing this.
       </para>
+    <note>
+      <title>Note!</title>
+      <para>
+	  You will find a lot of Display Filter examples at the <command>Ethereal 
+	  Wiki Display Filter page</command> at <ulink 
+	  url="&EtherealWikiDisplayFiltersPage;">&EtherealWikiDisplayFiltersPage;</ulink>.
+      </para>
+    </note>
       <section>
 	<title>Display filter fields</title>
 	<para>
