@@ -3,7 +3,7 @@
  * Proto Tree TVBuff cursor
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: ptvcursor.h,v 1.5 2002/01/21 07:36:48 guy Exp $
+ * $Id: ptvcursor.h,v 1.5.2.3 2002/03/04 05:35:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,8 +36,6 @@
 
 typedef struct ptvcursor ptvcursor_t;
 
-#define PTVC_VARIABLE_LENGTH	-1
-
 /* Allocates an initializes a ptvcursor_t with 3 variables:
  * 	proto_tree, tvbuff, and offset. */
 ptvcursor_t*
@@ -54,6 +52,11 @@ ptvcursor_add(ptvcursor_t*, int hf, gint length, gboolean endianness);
 proto_item*
 ptvcursor_add_no_advance(ptvcursor_t*, int hf, gint length, gboolean endianness);
 
+/* Advance the ptvcursor's offset within its tvbuff without
+ * adding anything to the proto_tree. */
+void
+ptvcursor_advance(ptvcursor_t* ptvc, gint length);
+
 /* Frees memory for ptvcursor_t, but nothing deeper than that. */
 void
 ptvcursor_free(ptvcursor_t*);
@@ -65,5 +68,13 @@ ptvcursor_tvbuff(ptvcursor_t*);
 /* Returns current offset. */
 gint
 ptvcursor_current_offset(ptvcursor_t*);
+
+/* Returns the proto_tree* */
+proto_tree*
+ptvcursor_tree(ptvcursor_t* ptvc);
+
+/* Sets a new proto_tree* for the ptvcursor_t */
+void
+ptvcursor_set_tree(ptvcursor_t* ptvc, proto_tree *tree);
 
 #endif /* __PTVCURSOR_H__ */

@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.170 2002/02/02 12:04:22 guy Exp $
+# $Id: Makefile.nmake,v 1.170.2.1 2002/02/16 16:28:57 gram Exp $
 
 include config.nmake
 include <win32.mak>
@@ -404,7 +404,7 @@ x11-declarations.h x11-register-info.h: x11-fields process-x11-fields.pl
 
 packet-ncp2222.c : ncp2222.py
 	@echo Making packet-ncp2222.c
-	$(PYTHON) ncp2222.py > packet-ncp2222.c
+	$(PYTHON) ncp2222.py -o packet-ncp2222.c
 
 register.c: $(DISSECTOR_SRC)
 	@echo Making register.c

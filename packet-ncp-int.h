@@ -2,7 +2,7 @@
  * Structures and functions for NetWare Core Protocol.
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp-int.h,v 1.6 2002/01/10 04:44:34 gram Exp $
+ * $Id: packet-ncp-int.h,v 1.6.2.8 2002/03/04 05:35:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,14 +33,28 @@ typedef struct _sub_ptvc_record sub_ptvc_record;
 struct _ptvc_record {
 	int			*hf_ptr;
 	gint			length;
-	gboolean		endianness;
 	const sub_ptvc_record	*sub_ptvc_rec;
+	unsigned int	endianness	: 1; /* 0=BE, 1=LE */
+	unsigned int	var_index	: 2;
+	unsigned int	repeat_index	: 2;
+	unsigned int	req_cond_index	: 6;
+	unsigned int	special_fmt	: 2;
 };
+
+#define NCP_FMT_NONE			0
+#define NCP_FMT_NW_DATE			1
+#define NCP_FMT_NW_TIME			2
 
 struct _sub_ptvc_record {
 	gint			*ett;
+	const char		*descr;
 	const ptvc_record	*ptvc_rec;
 };
+
+typedef struct {
+	const char		*dfilter_text;
+	dfilter_t		*dfilter;
+} conditional_record;
 
 typedef struct {
 	guint8		error_in_packet;
@@ -54,10 +68,10 @@ typedef struct {
 	gchar*			name;
 	gint			group;
 	const ptvc_record	*request_ptvc;
-	void			*requst_func;
 	const ptvc_record	*reply_ptvc;
-	void			*reply_func;
 	const error_equivalency	*errors;
+	const int		*req_cond_indexes;
+	unsigned int		req_cond_size_type;
 } ncp_record;
 
 
@@ -67,12 +81,7 @@ void dissect_ncp_request(tvbuff_t*, packet_info*, guint16,
 void dissect_ncp_reply(tvbuff_t *, packet_info*, guint16,
 		guint8, proto_tree*, proto_tree*);
 
-void ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
-		const ncp_record *ncp_rec);
-
-const ncp_record* ncp_hash_lookup(conversation_t*, guint8 nw_sequence);
-
-
 extern int proto_ncp;
+extern gint ett_ncp;
 
 #endif
