@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.182 2002/06/13 21:23:02 guy Exp $
+ * $Id: capture.c,v 1.183 2002/06/22 10:21:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1076,10 +1076,9 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld,
   fd_set      rfds;
   struct timeval timeout;
 
-/*
- * XXX Ethereal blocks until we return
- */
-
+  /*
+   * XXX Ethereal blocks until we return
+   */
   if (strcmp(pipename, "-") == 0)
     fd = 0; /* read from stdin */
   else {
@@ -1295,7 +1294,6 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
   /*
    * We've now read as much data as we were expecting, so process it.
    */
-
   switch (result) {
 
   case PD_REC_HDR_READ:
@@ -1925,16 +1923,16 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
       popup_errmsg(errmsg);
     }
   }
+
 #ifndef _WIN32
-
-/* XXX We exhibit different behaviour between normal mode and sync mode
- * when the pipe is stdin and not already at EOF.  If we're a child, the
- * parent's stdin isn't closed, so if the user starts another capture,
- * pipe_open_live() will very likely not see the expected magic bytes and
- * will say "Unrecognized libpcap format".  On the other hand, in normal
- * mode, pipe_open_live() will say "End of file on pipe during open".
- */
-
+  /*
+   * XXX We exhibit different behaviour between normal mode and sync mode
+   * when the pipe is stdin and not already at EOF.  If we're a child, the
+   * parent's stdin isn't closed, so if the user starts another capture,
+   * pipe_open_live() will very likely not see the expected magic bytes and
+   * will say "Unrecognized libpcap format".  On the other hand, in normal
+   * mode, pipe_open_live() will say "End of file on pipe during open".
+   */
   if (ld.from_pipe && pipe_fd >= 0)
     close(pipe_fd);
   else
@@ -1986,11 +1984,16 @@ error:
   cfile.save_file = NULL;
   popup_errmsg(errmsg);
 
+#ifndef WIN32
   if (ld.from_pipe) {
     if (pipe_fd >= 0)
       close(pipe_fd);
-  } else if (pch != NULL)
-    pcap_close(pch);
+  } else
+#endif
+  {
+    if (pch != NULL)
+      pcap_close(pch);
+  }
 
   return FALSE;
 }
