@@ -285,6 +285,7 @@ get_plugins_pers_dir
 get_parent_id_by_name
 get_st_abbr
 get_stats_tree_by_abbr
+get_strings_from_node
 get_systemfile_dir
 get_tcp_port
 get_tempfile_path
