@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.37 2004/01/25 00:58:12 guy Exp $
+ * $Id: follow_dlg.c,v 1.38 2004/01/25 01:53:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -494,7 +494,15 @@ follow_charset_toggle_cb(GtkWidget * w _U_, gpointer data)
 }
 
 #define FLT_BUF_SIZE 1024
-static void
+
+typedef enum {
+	FRS_OK,
+	FRS_OPEN_ERROR,
+	FRS_READ_ERROR,
+	FRS_PRINT_ERROR
+} frs_return_t;
+
+static frs_return_t
 follow_read_stream(follow_info_t *follow_info,
 		   gboolean (*print_line) (char *, int, gboolean, void *),
 		   void *arg)
@@ -510,176 +518,184 @@ follow_read_stream(follow_info_t *follow_info,
     gchar               initbuf[256];
     guint32             server_packet_count = 0;
     guint32             client_packet_count = 0;
+    char                buffer[FLT_BUF_SIZE];
+    int                 nchars;
 
     iplen = (follow_info->is_ipv6) ? 16 : 4;
 
     data_out_file = fopen(follow_info->data_out_filename, "rb");
-    if (data_out_file) {
-	char buffer[FLT_BUF_SIZE];
-	int nchars;
-	while (fread(&sc, 1, sizeof(sc), data_out_file)) {
-	    if (client_port == 0) {
-		memcpy(client_addr, sc.src_addr, iplen);
-		client_port = sc.src_port;
-	    }
-	    skip = FALSE;
-	    if (memcmp(client_addr, sc.src_addr, iplen) == 0 &&
-		client_port == sc.src_port) {
-		is_server = FALSE;
-		global_pos = &global_client_pos;
-		if (follow_info->show_stream == FROM_SERVER) {
-			skip = TRUE;
-		}
-	    }
-	    else {
-		is_server = TRUE;
-		global_pos = &global_server_pos;
-		if (follow_info->show_stream == FROM_CLIENT) {
-			skip = TRUE;
-		}
-	    }
-
-	    while (sc.dlen > 0) {
-		bcount = (sc.dlen < FLT_BUF_SIZE) ? sc.dlen : FLT_BUF_SIZE;
-		nchars = fread(buffer, 1, bcount, data_out_file);
-		if (nchars == 0)
-		    break;
-		sc.dlen -= bcount;
-		if (!skip) {
-		    switch (follow_info->show_type) {
-			case SHOW_EBCDIC:
-			    /* If our native arch is ASCII, call: */
-			    EBCDIC_to_ASCII(buffer, nchars);
-			    if (!(*print_line) (buffer, nchars, is_server, arg))
-				goto fail;
-			    break;
-			case SHOW_ASCII:
-			    /* If our native arch is EBCDIC, call:
-			     * ASCII_TO_EBCDIC(buffer, nchars);
-			     */
-			    if (!(*print_line) (buffer, nchars, is_server, arg))
-				goto fail;
-			    break;
-			case SHOW_HEXDUMP:
-			    current_pos = 0;
-			    while (current_pos < nchars) {
-				gchar hexbuf[256];
-				gchar hexchars[] = "0123456789abcdef";
-				int i, cur;
-				/* is_server indentation : put 63 spaces at the begenning
-				 * of the string */
-				sprintf(hexbuf, (is_server &&
-					follow_info->show_stream == BOTH_HOSTS) ?
-					"                                 "
-					"                                             %08X  " :
-					"%08X  ", *global_pos);
-				cur = strlen(hexbuf);
-				for (i = 0; i < 16 && current_pos + i < nchars;
-				     i++) {
-				    hexbuf[cur++] =
-					hexchars[(buffer[current_pos + i] & 0xf0)
-						 >> 4];
-				    hexbuf[cur++] =
-					hexchars[buffer[current_pos + i] & 0x0f];
-				    if (i == 7) {
-					hexbuf[cur++] = ' ';
-					hexbuf[cur++] = ' ';
-				    } else if (i != 15)
-					hexbuf[cur++] = ' ';
-				}
-				/* Fill it up if column isn't complete */
-				if (i < 16) {
-				    int j;
-
-				    for (j = i; j < 16; j++) {
-					if (j == 7)
-					    hexbuf[cur++] = ' ';
-					hexbuf[cur++] = ' ';
-					hexbuf[cur++] = ' ';
-					hexbuf[cur++] = ' ';
-				    }
-				} else
-				    hexbuf[cur++] = ' ';
-
-				/* Now dump bytes as text */
-				for (i = 0; i < 16 && current_pos + i < nchars;
-				     i++) {
-				    hexbuf[cur++] =
-				        (isprint((guchar)buffer[current_pos + i]) ?
-				        buffer[current_pos + i] : '.' );
-				    if (i == 7) {
-					hexbuf[cur++] = ' ';
-				    }
-				}
-				current_pos += i;
-				(*global_pos) += i;
-				hexbuf[cur++] = '\n';
-				hexbuf[cur] = 0;
-				if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg))
-				    goto fail;
-			    }
-			    break;
-			case SHOW_CARRAY:
-			    current_pos = 0;
-			    sprintf(initbuf, "char peer%d_%d[] = {\n", is_server ? 1 : 0,
-				    is_server ? server_packet_count++ : client_packet_count++);
-			    if (!(*print_line) (initbuf, strlen(initbuf), is_server, arg))
-				goto fail;
-			    while (current_pos < nchars) {
-				gchar hexbuf[256];
-				gchar hexchars[] = "0123456789abcdef";
-				int i, cur;
-
-				cur = 0;
-				for (i = 0; i < 8 && current_pos + i < nchars;
-				     i++) {
-				  /* Prepend entries with "0x" */
-				  hexbuf[cur++] = '0';
-				  hexbuf[cur++] = 'x';
-				    hexbuf[cur++] =
-					hexchars[(buffer[current_pos + i] & 0xf0)
-						 >> 4];
-				    hexbuf[cur++] =
-					hexchars[buffer[current_pos + i] & 0x0f];
-
-				    /* Delimit array entries with a comma */
-				    if (current_pos + i + 1 < nchars)
-				      hexbuf[cur++] = ',';
-
-				    hexbuf[cur++] = ' ';
-				}
-
-				/* Terminate the array if we are at the end */
-				if (current_pos + i == nchars) {
-				  hexbuf[cur++] = '}';
-				  hexbuf[cur++] = ';';
-				}
-
-				current_pos += i;
-				(*global_pos) += i;
-				hexbuf[cur++] = '\n';
-				hexbuf[cur] = 0;
-				if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg))
-				    goto fail;
-			    }
-			    break;
-		    }
-		}
-	    }
-	}
-	if (ferror(data_out_file)) {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
-			  "Error reading temporary file %s: %s", follow_info->data_out_filename,
-			  strerror(errno));
-	}
-    fail:
-	fclose(data_out_file);
-	data_out_file = NULL;
-    } else {
+    if (data_out_file == NULL) {
 	simple_dialog(ESD_TYPE_WARN, NULL,
 		      "Could not open temporary file %s: %s", follow_info->data_out_filename,
 		      strerror(errno));
+	return FRS_OPEN_ERROR;
     }
+
+    while (fread(&sc, 1, sizeof(sc), data_out_file)) {
+	if (client_port == 0) {
+	    memcpy(client_addr, sc.src_addr, iplen);
+	    client_port = sc.src_port;
+	}
+	skip = FALSE;
+	if (memcmp(client_addr, sc.src_addr, iplen) == 0 &&
+	    client_port == sc.src_port) {
+	    is_server = FALSE;
+	    global_pos = &global_client_pos;
+	    if (follow_info->show_stream == FROM_SERVER) {
+		skip = TRUE;
+	    }
+	}
+	else {
+	    is_server = TRUE;
+	    global_pos = &global_server_pos;
+	    if (follow_info->show_stream == FROM_CLIENT) {
+		skip = TRUE;
+	    }
+	}
+
+	while (sc.dlen > 0) {
+	    bcount = (sc.dlen < FLT_BUF_SIZE) ? sc.dlen : FLT_BUF_SIZE;
+	    nchars = fread(buffer, 1, bcount, data_out_file);
+	    if (nchars == 0)
+		break;
+	    sc.dlen -= bcount;
+	    if (!skip) {
+		switch (follow_info->show_type) {
+
+		case SHOW_EBCDIC:
+		    /* If our native arch is ASCII, call: */
+		    EBCDIC_to_ASCII(buffer, nchars);
+		    if (!(*print_line) (buffer, nchars, is_server, arg))
+			goto print_error;
+		    break;
+
+		case SHOW_ASCII:
+		    /* If our native arch is EBCDIC, call:
+		     * ASCII_TO_EBCDIC(buffer, nchars);
+		     */
+		    if (!(*print_line) (buffer, nchars, is_server, arg))
+			goto print_error;
+		    break;
+
+		case SHOW_HEXDUMP:
+		    current_pos = 0;
+		    while (current_pos < nchars) {
+			gchar hexbuf[256];
+			gchar hexchars[] = "0123456789abcdef";
+			int i, cur;
+
+			/* is_server indentation : put 63 spaces at the
+			 * beginning of the string */
+			sprintf(hexbuf, (is_server &&
+				follow_info->show_stream == BOTH_HOSTS) ?
+				"                                 "
+				"                                             %08X  " :
+				"%08X  ", *global_pos);
+			cur = strlen(hexbuf);
+			for (i = 0; i < 16 && current_pos + i < nchars; i++) {
+			    hexbuf[cur++] =
+				hexchars[(buffer[current_pos + i] & 0xf0) >> 4];
+			    hexbuf[cur++] =
+				hexchars[buffer[current_pos + i] & 0x0f];
+			    if (i == 7) {
+				hexbuf[cur++] = ' ';
+				hexbuf[cur++] = ' ';
+			    } else if (i != 15)
+				hexbuf[cur++] = ' ';
+			}
+			/* Fill it up if column isn't complete */
+			if (i < 16) {
+			    int j;
+
+			    for (j = i; j < 16; j++) {
+				if (j == 7)
+				    hexbuf[cur++] = ' ';
+				hexbuf[cur++] = ' ';
+				hexbuf[cur++] = ' ';
+				hexbuf[cur++] = ' ';
+			    }
+			} else
+			    hexbuf[cur++] = ' ';
+
+			/* Now dump bytes as text */
+			for (i = 0; i < 16 && current_pos + i < nchars; i++) {
+			    hexbuf[cur++] =
+			        (isprint((guchar)buffer[current_pos + i]) ?
+			        buffer[current_pos + i] : '.' );
+			    if (i == 7) {
+				hexbuf[cur++] = ' ';
+			    }
+			}
+			current_pos += i;
+			(*global_pos) += i;
+			hexbuf[cur++] = '\n';
+			hexbuf[cur] = 0;
+			if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg))
+			    goto print_error;
+		    }
+		    break;
+
+		case SHOW_CARRAY:
+		    current_pos = 0;
+		    sprintf(initbuf, "char peer%d_%d[] = {\n", is_server ? 1 : 0,
+			    is_server ? server_packet_count++ : client_packet_count++);
+		    if (!(*print_line) (initbuf, strlen(initbuf), is_server, arg))
+			goto print_error;
+		    while (current_pos < nchars) {
+			gchar hexbuf[256];
+			gchar hexchars[] = "0123456789abcdef";
+			int i, cur;
+
+			cur = 0;
+			for (i = 0; i < 8 && current_pos + i < nchars; i++) {
+			  /* Prepend entries with "0x" */
+			  hexbuf[cur++] = '0';
+			  hexbuf[cur++] = 'x';
+			    hexbuf[cur++] =
+				hexchars[(buffer[current_pos + i] & 0xf0) >> 4];
+			    hexbuf[cur++] =
+				hexchars[buffer[current_pos + i] & 0x0f];
+
+			    /* Delimit array entries with a comma */
+			    if (current_pos + i + 1 < nchars)
+			      hexbuf[cur++] = ',';
+
+			    hexbuf[cur++] = ' ';
+			}
+
+			/* Terminate the array if we are at the end */
+			if (current_pos + i == nchars) {
+			    hexbuf[cur++] = '}';
+			    hexbuf[cur++] = ';';
+			}
+
+			current_pos += i;
+			(*global_pos) += i;
+			hexbuf[cur++] = '\n';
+			hexbuf[cur] = 0;
+			if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg))
+			    goto print_error;
+		    }
+		    break;
+		}
+	    }
+	}
+    }
+    if (ferror(data_out_file)) {
+	simple_dialog(ESD_TYPE_WARN, NULL,
+		      "Error reading temporary file %s: %s", follow_info->data_out_filename,
+		      strerror(errno));
+	fclose(data_out_file);
+	data_out_file = NULL;
+	return FRS_READ_ERROR;
+    }
+
+    return FRS_OK;
+
+print_error:
+    fclose(data_out_file);
+    data_out_file = NULL;
+    return FRS_PRINT_ERROR;
 }
 
 /*
@@ -691,28 +707,13 @@ follow_read_stream(follow_info_t *follow_info,
  *
  * For now, we support only text printing.
  */
-typedef struct {
-    gboolean to_file;
-    const char *filename;
-    FILE *fh;
-} print_text_args_t;
-
 static gboolean
 follow_print_text(char *buffer, int nchars, gboolean is_server _U_, void *arg)
 {
-    print_text_args_t *print_args = arg;
+    FILE *fh = arg;
 
-    if (fwrite(buffer, nchars, 1, print_args->fh) != 1) {
-      if (print_args->to_file) {
-        simple_dialog(ESD_TYPE_CRIT, NULL,
-		      file_write_error_message(errno), print_args->filename);
-      } else {
-        simple_dialog(ESD_TYPE_CRIT, NULL,
-		      "Error writing to print command: %s",
-		      strerror(errno));
-      }
+    if (fwrite(buffer, nchars, 1, fh) != 1)
       return FALSE;
-    }
     return TRUE;
 }
 
@@ -743,7 +744,6 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
     gboolean		to_file;
     char		*print_dest;
     follow_info_t	*follow_info = data;
-    print_text_args_t	args;
 
     switch (prefs.pr_dest) {
     case PR_DEST_CMD:
@@ -765,56 +765,56 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
     fh = open_print_dest(to_file, print_dest);
     if (fh == NULL) {
 	if (to_file) {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
-			  file_write_error_message(errno), prefs.pr_file);
+	    simple_dialog(ESD_TYPE_CRIT, NULL,
+			  file_open_error_message(errno, TRUE), prefs.pr_file);
 	} else {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
+	    simple_dialog(ESD_TYPE_CRIT, NULL,
 			  "Couldn't run print command %s.", prefs.pr_cmd);
 	}
 	return;
     }
 
     print_preamble(fh, PR_FMT_TEXT);
-    if (ferror(fh)) {
-	if (to_file) {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
-			  file_write_error_message(errno), prefs.pr_file);
-	} else {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
-			  "Error writing to print command: %s",
-			  strerror(errno));
-	}
+    if (ferror(fh))
+	goto print_error;
+    switch (follow_read_stream(follow_info, follow_print_text, fh)) {
+
+    case FRS_OK:
+	break;
+
+    case FRS_OPEN_ERROR:
+    case FRS_READ_ERROR:
 	/* XXX - cancel printing? */
 	close_print_dest(to_file, fh);
 	return;
+
+    case FRS_PRINT_ERROR:
+	goto print_error;
     }
-    args.to_file = to_file;
-    args.filename = prefs.pr_file;
-    args.fh = fh;
-    follow_read_stream(follow_info, follow_print_text, &args);
     print_finale(fh, PR_FMT_TEXT);
-    if (ferror(fh)) {
-	if (to_file) {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
-			  file_write_error_message(errno), prefs.pr_file);
-	} else {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
-			  "Error writing to print command: %s",
-			  strerror(errno));
-	}
-	/* XXX - cancel printing? */
-	close_print_dest(to_file, fh);
-	return;
-    }
+    if (ferror(fh))
+	goto print_error;
     if (!close_print_dest(to_file, fh)) {
 	if (to_file) {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
+	    simple_dialog(ESD_TYPE_CRIT, NULL,
 			  file_write_error_message(errno), prefs.pr_file);
 	} else {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
+	    simple_dialog(ESD_TYPE_CRIT, NULL,
 			  "Error closing print destination.");
 	}
     }
+    return;
+
+print_error:
+    if (to_file) {
+	simple_dialog(ESD_TYPE_CRIT, NULL,
+		      file_write_error_message(errno), prefs.pr_file);
+    } else {
+	simple_dialog(ESD_TYPE_CRIT, NULL,
+		      "Error writing to print command: %s", strerror(errno));
+    }
+    /* XXX - cancel printing? */
+    close_print_dest(to_file, fh);
 }
 
 static gboolean
@@ -959,7 +959,6 @@ follow_save_as_ok_cb(GtkWidget * w _U_, GtkFileSelection * fs)
 	follow_info_t	*follow_info;
 	FILE		*fh;
 	gchar		*dirname;
-	print_text_args_t args;
 
 	to_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
 
@@ -987,13 +986,25 @@ follow_save_as_ok_cb(GtkWidget * w _U_, GtkFileSelection * fs)
 	follow_info = OBJECT_GET_DATA(fs, E_FOLLOW_INFO_KEY);
 	gtk_widget_destroy(GTK_WIDGET(fs));
 
-	args.to_file = TRUE;
-	args.filename = to_name;
-	args.fh = fh;
-	follow_read_stream(follow_info, follow_print_text, &args);
-	if (fclose(fh) == EOF) {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
-			  file_write_error_message(errno), to_name);
+	switch (follow_read_stream(follow_info, follow_print_text, fh)) {
+
+	case FRS_OK:
+		if (fclose(fh) == EOF) {
+			simple_dialog(ESD_TYPE_WARN, NULL,
+			    file_write_error_message(errno), to_name);
+		}
+		break;
+
+	case FRS_OPEN_ERROR:
+	case FRS_READ_ERROR:
+		fclose(fh);
+		break;
+
+	case FRS_PRINT_ERROR:
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    file_write_error_message(errno), to_name);
+		fclose(fh);
+		break;
 	}
 
 	/* Save the directory name for future file dialogs. */
