@@ -157,6 +157,9 @@
 #endif /* _MSC_EXTENSIONS */
 #endif /* PRIx64 */   
 
+/* Map "_strtoui64()" to "strtoll()" */
+#define	strtoll	_strtoui64
+
 /* Define if you have the z library (-lz).  */
 @HAVE_LIBZ@
 

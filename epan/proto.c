@@ -42,7 +42,6 @@
 #include "plugins.h"
 #include "ipv6-utils.h"
 #include "proto.h"
-#include "int-64bit.h"
 #include "epan_dissect.h"
 #include "slab.h"
 #include "tvbuff.h"
@@ -55,18 +54,20 @@ proto_tree_free_node(proto_node *node, gpointer data);
 static void fill_label_boolean(field_info *fi, gchar *label_str);
 static void fill_label_uint(field_info *fi, gchar *label_str);
 static void fill_label_uint64(field_info *fi, gchar *label_str);
-static void fill_label_int64(field_info *fi, gchar *label_str);
 static void fill_label_enumerated_uint(field_info *fi, gchar *label_str);
 static void fill_label_enumerated_bitfield(field_info *fi, gchar *label_str);
 static void fill_label_numeric_bitfield(field_info *fi, gchar *label_str);
 static void fill_label_int(field_info *fi, gchar *label_str);
+static void fill_label_int64(field_info *fi, gchar *label_str);
 static void fill_label_enumerated_int(field_info *fi, gchar *label_str);
 
 int hfinfo_bitwidth(header_field_info *hfinfo);
 static char* hfinfo_uint_vals_format(header_field_info *hfinfo);
 static char* hfinfo_uint_format(header_field_info *hfinfo);
+static char* hfinfo_uint64_format(header_field_info *hfinfo);
 static char* hfinfo_int_vals_format(header_field_info *hfinfo);
 static char* hfinfo_int_format(header_field_info *hfinfo);
+static char* hfinfo_int64_format(header_field_info *hfinfo);
 
 static proto_item*
 proto_tree_add_node(proto_tree *tree, field_info *fi);
@@ -84,10 +85,6 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap);
 
 static void
 proto_tree_set_protocol_tvb(field_info *fi, tvbuff_t *tvb);
-static void
-proto_tree_set_uint64(field_info *fi, const guint8 *value_ptr, gboolean little_endian);
-static void
-proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, gboolean little_endian);
 static void
 proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length);
 static void
@@ -120,6 +117,10 @@ static void
 proto_tree_set_uint(field_info *fi, guint32 value);
 static void
 proto_tree_set_int(field_info *fi, gint32 value);
+static void
+proto_tree_set_uint64(field_info *fi, guint64 value);
+static void
+proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, gboolean little_endian);
 
 static int proto_register_field_init(header_field_info *hfinfo, int parent);
 
@@ -1281,25 +1282,20 @@ proto_tree_set_ipv6_tvb(field_info *fi, tvbuff_t *tvb, gint start)
 }
 
 static void
-proto_tree_set_uint64(field_info *fi, const guint8 *value_ptr, gboolean little_endian)
+proto_tree_set_uint64(field_info *fi, guint64 value)
 {
-	if(little_endian){
-		unsigned char buffer[8];
-		int i;
-
-		for(i=0;i<8;i++){
-			buffer[i]=value_ptr[7-i];
-		}
-		fvalue_set(&fi->value, (gpointer)buffer, FALSE);
-	} else {
-		fvalue_set(&fi->value, (gpointer)value_ptr, FALSE);
-	}
+	fvalue_set_integer64(&fi->value, value);
 }
 
 static void
 proto_tree_set_uint64_tvb(field_info *fi, tvbuff_t *tvb, gint start, gboolean little_endian)
 {
-	proto_tree_set_uint64(fi, tvb_get_ptr(tvb, start, 8), little_endian);
+	guint64 value;
+
+	value = little_endian ? tvb_get_letoh64(tvb, start)
+			      : tvb_get_ntoh64(tvb, start);
+
+	proto_tree_set_uint64(fi, value);
 }
 
 /* Add a FT_STRING or FT_STRINGZ to a proto_tree. Creates own copy of string,
@@ -1654,7 +1650,7 @@ proto_tree_set_double(field_info *fi, double value)
 	fvalue_set_floating(&fi->value, value);
 }
 
-/* Add any FT_UINT* to a proto_tree */
+/* Add FT_UINT{8,16,24,32} to a proto_tree */
 proto_item *
 proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		guint32 value)
@@ -1718,7 +1714,7 @@ proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 	return pi;
 }
 
-/* Set the FT_UINT* value */
+/* Set the FT_UINT{8,16,24,32} value */
 static void
 proto_tree_set_uint(field_info *fi, guint32 value)
 {
@@ -1740,7 +1736,46 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 	fvalue_set_integer(&fi->value, integer);
 }
 
-/* Add any FT_INT* to a proto_tree */
+/* Add FT_UINT64 to a proto_tree */
+proto_item *
+proto_tree_add_uint64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
+		guint64 value)
+{
+	proto_item		*pi = NULL;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
+	g_assert(hfinfo->type == FT_UINT64);
+
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
+	proto_tree_set_uint64(new_fi, value);
+
+	return pi;
+}
+
+proto_item *
+proto_tree_add_uint64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
+		guint64 value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_uint64(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation(pi, format, ap);
+	va_end(ap);
+
+	return pi;
+}
+
+/* Add FT_INT{8,16,24,32} to a proto_tree */
 proto_item *
 proto_tree_add_int(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		gint32 value)
@@ -1803,7 +1838,7 @@ proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint sta
 	return pi;
 }
 
-/* Set the FT_INT* value */
+/* Set the FT_INT{8,16,24,32} value */
 static void
 proto_tree_set_int(field_info *fi, gint32 value)
 {
@@ -1823,6 +1858,45 @@ proto_tree_set_int(field_info *fi, gint32 value)
 		}
 	}
 	fvalue_set_integer(&fi->value, integer);
+}
+
+/* Add FT_INT64 to a proto_tree */
+proto_item *
+proto_tree_add_int64(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
+		gint64 value)
+{
+	proto_item		*pi = NULL;
+	field_info		*new_fi;
+	header_field_info	*hfinfo;
+
+	if (!tree)
+		return (NULL);
+
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
+	g_assert(hfinfo->type == FT_INT64);
+
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, &length, &new_fi);
+	proto_tree_set_uint64(new_fi, (guint64)value);
+
+	return pi;
+}
+
+proto_item *
+proto_tree_add_int64_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
+		gint64 value, const char *format, ...)
+{
+	proto_item		*pi;
+	va_list			ap;
+
+	pi = proto_tree_add_int64(tree, hfindex, tvb, start, length, value);
+	if (pi == NULL)
+		return (NULL);
+
+	va_start(ap, format);
+	proto_tree_set_representation(pi, format, ap);
+	va_end(ap);
+
+	return pi;
 }
 
 
@@ -2826,64 +2900,6 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 }
 
 static void
-fill_label_uint64(field_info *fi, gchar *label_str)
-{
-	unsigned char *bytes;
-	header_field_info *hfinfo = fi->hfinfo;
-	int					ret;	/*tmp return value */
-
-	bytes=fvalue_get(&fi->value);
-	switch(hfinfo->display){
-	case BASE_DEC:
-		ret = snprintf(label_str, ITEM_LABEL_LENGTH,
-			"%s: %s", hfinfo->name,
-			u64toa(bytes));
-		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-			label_str[ITEM_LABEL_LENGTH - 1] = '\0';
-		break;
-	case BASE_HEX:
-		ret = snprintf(label_str, ITEM_LABEL_LENGTH,
-			"%s: %s", hfinfo->name,
-			u64toh(bytes));
-		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-			label_str[ITEM_LABEL_LENGTH - 1] = '\0';
-		break;
-	default:
-		g_assert_not_reached();
-		;
-	}
-}
-
-static void
-fill_label_int64(field_info *fi, gchar *label_str)
-{
-	unsigned char *bytes;
-	header_field_info *hfinfo = fi->hfinfo;
-	int					ret;	/*tmp return value */
-
-	bytes=fvalue_get(&fi->value);
-	switch(hfinfo->display){
-	case BASE_DEC:
-		ret = snprintf(label_str, ITEM_LABEL_LENGTH,
-			"%s: %s", hfinfo->name,
-			i64toa(bytes));
-		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-			label_str[ITEM_LABEL_LENGTH - 1] = '\0';
-		break;
-	case BASE_HEX:
-		ret = snprintf(label_str, ITEM_LABEL_LENGTH,
-			"%s: %s", hfinfo->name,
-			u64toh(bytes));
-		if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
-			label_str[ITEM_LABEL_LENGTH - 1] = '\0';
-		break;
-	default:
-		g_assert_not_reached();
-		;
-	}
-}
-
-static void
 fill_label_boolean(field_info *fi, gchar *label_str)
 {
 	char	*p = label_str;
@@ -3039,6 +3055,25 @@ fill_label_uint(field_info *fi, gchar *label_str)
 }
 
 static void
+fill_label_uint64(field_info *fi, gchar *label_str)
+{
+	char *format = NULL;
+	header_field_info	*hfinfo = fi->hfinfo;
+	guint64 value;
+	int					ret;	/*tmp return value */
+
+	/* Pick the proper format string */
+	format = hfinfo_uint64_format(hfinfo);
+	value = fvalue_get_integer64(&fi->value);
+
+	/* Fill in the textual info */
+	ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+			format,  hfinfo->name, value);
+	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
+}
+
+static void
 fill_label_enumerated_int(field_info *fi, gchar *label_str)
 {
 	char *format = NULL;
@@ -3069,6 +3104,25 @@ fill_label_int(field_info *fi, gchar *label_str)
 	/* Pick the proper format string */
 	format = hfinfo_int_format(hfinfo);
 	value = fvalue_get_integer(&fi->value);
+
+	/* Fill in the textual info */
+	ret = snprintf(label_str, ITEM_LABEL_LENGTH,
+			format,  hfinfo->name, value);
+	if ((ret == -1) || (ret >= ITEM_LABEL_LENGTH))
+		label_str[ITEM_LABEL_LENGTH - 1] = '\0';
+}
+
+static void
+fill_label_int64(field_info *fi, gchar *label_str)
+{
+	char *format = NULL;
+	header_field_info	*hfinfo = fi->hfinfo;
+	guint64 value;
+	int					ret;	/*tmp return value */
+
+	/* Pick the proper format string */
+	format = hfinfo_int64_format(hfinfo);
+	value = fvalue_get_integer64(&fi->value);
 
 	/* Fill in the textual info */
 	ret = snprintf(label_str, ITEM_LABEL_LENGTH,
@@ -3236,6 +3290,29 @@ hfinfo_int_vals_format(header_field_info *hfinfo)
 }
 
 static char*
+hfinfo_uint64_format(header_field_info *hfinfo)
+{
+	char *format = NULL;
+
+	/* Pick the proper format string */
+	switch(hfinfo->display) {
+		case BASE_DEC:
+			format = "%s: %" PRIu64;
+			break;
+		case BASE_OCT: /* I'm lazy */
+			format = "%s: %" PRIo64;
+			break;
+		case BASE_HEX:
+			format = "%s: 0x%016" PRIx64;
+			break;
+		default:
+			g_assert_not_reached();
+			;
+	}
+	return format;
+}
+
+static char*
 hfinfo_int_format(header_field_info *hfinfo)
 {
 	char *format = NULL;
@@ -3266,6 +3343,29 @@ hfinfo_int_format(header_field_info *hfinfo)
 					g_assert_not_reached();
 					;
 			}
+			break;
+		default:
+			g_assert_not_reached();
+			;
+	}
+	return format;
+}
+
+static char*
+hfinfo_int64_format(header_field_info *hfinfo)
+{
+	char *format = NULL;
+
+	/* Pick the proper format string */
+	switch(hfinfo->display) {
+		case BASE_DEC:
+			format = "%s: %" PRId64;
+			break;
+		case BASE_OCT: /* I'm lazy */
+			format = "%s: %" PRIo64;
+			break;
+		case BASE_HEX:
+			format = "%s: 0x%016" PRIx64;
 			break;
 		default:
 			g_assert_not_reached();
@@ -3589,11 +3689,17 @@ hfinfo_numeric_format(header_field_info *hfinfo)
 					case FT_UINT32:
 						format = "%s == %u";
 						break;
+					case FT_UINT64:
+						format = "%s == %" PRIu64;
+						break;
 					case FT_INT8:
 					case FT_INT16:
 					case FT_INT24:
 					case FT_INT32:
 						format = "%s == %d";
+						break;
+					case FT_INT64:
+						format = "%s == %" PRId64;
 						break;
 					default:
 						g_assert_not_reached();
@@ -3613,6 +3719,9 @@ hfinfo_numeric_format(header_field_info *hfinfo)
 						break;
 					case FT_UINT32:
 						format = "%s == 0x%08x";
+						break;
+					case FT_UINT64:
+						format = "%s == 0x%016" PRIx64;
 						break;
 					default:
 						g_assert_not_reached();
@@ -3789,30 +3898,28 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 			snprintf(buf, dfilter_len, format, hfinfo->abbrev, fvalue_get_integer(&finfo->value));
 			break;
 
+		case FT_INT64:
 		case FT_UINT64:
 			/*
 			 * 4 bytes for " == ".
-			 * N bytes for the string for the number.
+			 * 22 bytes for:
+			 *
+			 *	a sign + up to 20 digits of 32-bit integer,
+			 *	in decimal;
+			 *
+			 *	"0x" + 16 digits of 32-bit integer, in hex;
+			 *
+			 *	22 digits of 32-bit integer, in octal.
+			 *	(No, we don't do octal, but this way,
+			 *	we know that if we do, this will still
+			 *	work.)
+			 *
 			 * 1 byte for the trailing '\0'.
 			 */
-			stringified = u64toa(fvalue_get(&finfo->value));
-			dfilter_len = abbrev_len + 4 + strlen(stringified) +1;
+			dfilter_len = abbrev_len + 4 + 22 + 1;
 			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,
-					stringified);
-			break;
-
-		case FT_INT64:
-			/*
-			 * 4 bytes for " == ".
-			 * N bytes for the string for the number.
-			 * 1 byte for the trailing '\0'.
-			 */
-			stringified = i64toa(fvalue_get(&finfo->value));
-			dfilter_len = abbrev_len + 4 + strlen(stringified) +1;
-			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,
-					stringified);
+			format = hfinfo_numeric_format(hfinfo);
+			snprintf(buf, dfilter_len, format, hfinfo->abbrev, fvalue_get_integer64(&finfo->value));
 			break;
 
 		case FT_IPXNET:

@@ -338,23 +338,25 @@ ftype_register_time(void)
 {
 
 	static ftype_t abstime_type = {
-		"FT_ABSOLUTE_TIME",
-		"date/time",
-		0,
-		time_fvalue_new,
-		NULL,
+		"FT_ABSOLUTE_TIME",		/* name */
+		"date/time",			/* pretty_name */
+		0,				/* wire_size */
+		time_fvalue_new,		/* new_value */
+		NULL,				/* free_value */
 		absolute_val_from_unparsed,	/* val_from_unparsed */
 		absolute_val_from_string,	/* val_from_string */
 		absolute_val_to_repr,		/* val_to_string_repr */
 		absolute_val_repr_len,		/* len_string_repr */
 
-		time_fvalue_set,
-		NULL,
-		NULL,
+		time_fvalue_set,		/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_floating */
 
-		value_get,
-		NULL,
-		NULL,
+		value_get,			/* get_value */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -370,23 +372,25 @@ ftype_register_time(void)
 		NULL
 	};
 	static ftype_t reltime_type = {
-		"FT_RELATIVE_TIME",
-		"time offset",
-		0,
-		time_fvalue_new,
-		NULL,
+		"FT_RELATIVE_TIME",		/* name */
+		"time offset",			/* pretty_name */
+		0,				/* wire_size */
+		time_fvalue_new,		/* new_value */
+		NULL,				/* free_value */
 		relative_val_from_unparsed,	/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		relative_val_to_repr,		/* val_to_string_repr */
 		relative_val_repr_len,		/* len_string_repr */
 
-		time_fvalue_set,
-		NULL,
-		NULL,
+		time_fvalue_set,		/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_floating */
 
-		value_get,
-		NULL,
-		NULL,
+		value_get,			/* get_value */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,

@@ -46,7 +46,6 @@
 
 #include <string.h>
 #include <glib.h>
-#include <epan/int-64bit.h>
 #include <epan/packet.h>
 #include "packet-arp.h"
 #include "packet-dns.h"				/* for get_dns_name() */
@@ -850,8 +849,8 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 		case AUTHEN_RDM_MONOTONIC_COUNTER:
 			proto_tree_add_text(v_tree, tvb, voff+5, 8,
-				    "Replay Detection Value: %s",
-				    u64toh(tvb_get_ptr(tvb, voff+5, 8)));
+				    "Replay Detection Value: %" PRIx64,
+				    tvb_get_ntoh64(tvb, voff+5));
 			break;
 
 		default:

@@ -37,7 +37,6 @@
 #include "packet-rpc.h"
 #include "packet-nfs.h"
 #include "prefs.h"
-#include "epan/int-64bit.h"
 
 static int proto_nfs = -1;
 
@@ -4288,13 +4287,13 @@ static int
 dissect_nfs3_read_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree* tree)
 {
-	unsigned char *off;
+	guint64 off;
 	guint32 len;
 	guint32 hash;
 
 	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "file", &hash);
 
-	off=u64toa(tvb_get_ptr(tvb, offset, 8));
+	off=tvb_get_ntoh64(tvb, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_nfs_offset3, offset);
 
 	len=tvb_get_ntohl(tvb, offset);
@@ -4302,9 +4301,9 @@ dissect_nfs3_read_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x Offset:%s Len:%d", hash, off, len);
+		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x Offset:%" PRIu64 " Len:%u", hash, off, len);
 	}
-	proto_item_append_text(tree, ", READ Call FH:0x%08x Offset:%s Len:%d", hash, off, len);
+	proto_item_append_text(tree, ", READ Call FH:0x%08x Offset:%" PRIu64 " Len:%u", hash, off, len);
 
 	return offset;
 }
@@ -4382,14 +4381,14 @@ static int
 dissect_nfs3_write_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree* tree)
 {
-	unsigned char *off;
+	guint64 off;
 	guint32 len;
 	guint32 stable;
 	guint32 hash;
 
 	offset = dissect_nfs_fh3   (tvb, offset, pinfo, tree, "file", &hash);
 
-	off=u64toa(tvb_get_ptr(tvb, offset, 8));
+	off=tvb_get_ntoh64(tvb, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_nfs_offset3, offset);
 
 	len=tvb_get_ntohl(tvb, offset);
@@ -4399,9 +4398,9 @@ dissect_nfs3_write_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_stable_how(tvb, offset, tree, hf_nfs_write_stable);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x Offset:%s Len:%d %s", hash, off, len, val_to_str(stable, names_stable_how, "Stable:%u"));
+		col_append_fstr(pinfo->cinfo, COL_INFO,", FH:0x%08x Offset:%" PRIu64 " Len:%u %s", hash, off, len, val_to_str(stable, names_stable_how, "Stable:%u"));
 	}
-	proto_item_append_text(tree, ", WRITE Call FH:0x%08x Offset:%s Len:%d %s", hash, off, len, val_to_str(stable, names_stable_how, "Stable:%u"));
+	proto_item_append_text(tree, ", WRITE Call FH:0x%08x Offset:%" PRIu64 " Len:%u %s", hash, off, len, val_to_str(stable, names_stable_how, "Stable:%u"));
 
 	offset = dissect_nfsdata   (tvb, offset, tree, hf_nfs_data);
 

@@ -298,12 +298,14 @@ extern guint8  tvb_get_guint8(tvbuff_t*, gint offset);
 extern guint16 tvb_get_ntohs(tvbuff_t*, gint offset);
 extern guint32 tvb_get_ntoh24(tvbuff_t*, gint offset);
 extern guint32 tvb_get_ntohl(tvbuff_t*, gint offset);
+extern guint64 tvb_get_ntoh64(tvbuff_t*, gint offset);
 extern gfloat tvb_get_ntohieee_float(tvbuff_t*, gint offset);
 extern gdouble tvb_get_ntohieee_double(tvbuff_t*, gint offset);
 
 extern guint16 tvb_get_letohs(tvbuff_t*, gint offset);
 extern guint32 tvb_get_letoh24(tvbuff_t*, gint offset);
 extern guint32 tvb_get_letohl(tvbuff_t*, gint offset);
+extern guint64 tvb_get_letoh64(tvbuff_t*, gint offset);
 extern gfloat tvb_get_letohieee_float(tvbuff_t*, gint offset);
 extern gdouble tvb_get_letohieee_double(tvbuff_t*, gint offset);
 

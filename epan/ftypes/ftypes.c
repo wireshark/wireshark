@@ -428,6 +428,13 @@ fvalue_set_integer(fvalue_t *fv, guint32 value)
 }
 
 void
+fvalue_set_integer64(fvalue_t *fv, guint64 value)
+{
+	g_assert(fv->ftype->set_value_integer64);
+	fv->ftype->set_value_integer64(fv, value);
+}
+
+void
 fvalue_set_floating(fvalue_t *fv, gdouble value)
 {
 	g_assert(fv->ftype->set_value_floating);
@@ -447,6 +454,13 @@ fvalue_get_integer(fvalue_t *fv)
 {
 	g_assert(fv->ftype->get_value_integer);
 	return fv->ftype->get_value_integer(fv);
+}
+
+guint64
+fvalue_get_integer64(fvalue_t *fv)
+{
+	g_assert(fv->ftype->get_value_integer64);
+	return fv->ftype->get_value_integer64(fv);
 }
 
 double

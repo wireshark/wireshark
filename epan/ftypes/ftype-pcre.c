@@ -160,36 +160,38 @@ void
 ftype_register_pcre(void)
 {
 	static ftype_t pcre_type = {
-		"FT_PCRE",
-		"Compiled Perl-Compatible Regular Expression object",
-		0,					/* wire_size */
+		"FT_PCRE",		/* name */
+		"Compiled Perl-Compatible Regular Expression object", /* pretty_name */
+		0,			/* wire_size */
 		pcre_fvalue_new,	/* new_value */
 		pcre_fvalue_free,	/* free_value */
 		val_from_unparsed,	/* val_from_unparsed */
 		val_from_string,	/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		NULL,			/* val_to_string_repr */
+		NULL,			/* len_string_repr */
 
 		pcre_fvalue_set,	/* set_value */
-		NULL,				/* set_value_integer */
-		NULL,				/* set_value_floating */
+		NULL,			/* set_value_integer */
+		NULL,			/* set_value_integer64 */
+		NULL,			/* set_value_floating */
 
 		pcre_fvalue_get,	/* get_value */
-		NULL,				/* get_value_integer */
-		NULL,				/* get_value_floating */
+		NULL,			/* get_value_integer */
+		NULL,			/* get_value_integer64 */
+		NULL,			/* get_value_floating */
 
-		NULL,				/* cmp_eq */
-		NULL,				/* cmp_ne */
-		NULL,				/* cmp_gt */
-		NULL,				/* cmp_ge */
-		NULL,				/* cmp_lt */
-		NULL,				/* cmp_le */
-		NULL,				/* cmp_bitwise_and */
-		NULL,				/* cmp_contains */
-		NULL,				/* cmp_matches */
+		NULL,			/* cmp_eq */
+		NULL,			/* cmp_ne */
+		NULL,			/* cmp_gt */
+		NULL,			/* cmp_ge */
+		NULL,			/* cmp_lt */
+		NULL,			/* cmp_le */
+		NULL,			/* cmp_bitwise_and */
+		NULL,			/* cmp_contains */
+		NULL,			/* cmp_matches */
 
-		NULL,				/* len */
-		NULL,				/* slice */
+		NULL,			/* len */
+		NULL,			/* slice */
 	};
 	ftype_register(FT_PCRE, &pcre_type);
 }
@@ -200,9 +202,9 @@ void
 ftype_register_pcre(void)
 {
 	static ftype_t pcre_type = {
-		"FT_PCRE",
-		"Compiled Perl-Compatible Regular Expression object",
-		0,					/* wire_size */
+		"FT_PCRE",			/* name */
+		"Compiled Perl-Compatible Regular Expression object", /* pretty_name */
+		0,				/* wire_size */
 		NULL,				/* new_value */
 		NULL,				/* free_value */
 		NULL,				/* val_from_unparsed */
@@ -212,10 +214,12 @@ ftype_register_pcre(void)
 
 		NULL,				/* set_value */
 		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */ 
 
 		NULL,				/* cmp_eq */

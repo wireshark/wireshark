@@ -199,23 +199,25 @@ ftype_register_ipv4(void)
 {
 
 	static ftype_t ipv4_type = {
-		"FT_IPv4",
-		"IPv4 address",
-		4,
-		NULL,
-		NULL,
+		"FT_IPv4",			/* name */
+		"IPv4 address",			/* pretty_name */
+		4,				/* wire_size */
+		NULL,				/* new_value */
+		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		val_to_repr,			/* val_to_string_repr */
 		val_repr_len,			/* len_string_repr */
 
-		NULL,
-		set_integer,
-		NULL,
+		NULL,				/* set_value */
+		set_integer,			/* set_value_integer */
+		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_floating */
 
-		value_get,
-		NULL,
-		NULL,
+		value_get,			/* get_value */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,

@@ -29,7 +29,6 @@
 #include <ctype.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
-#include <epan/int-64bit.h>
 
 #ifdef HAVE_LIBPCRE
 #include <pcre.h>
@@ -40,7 +39,6 @@
 
 #define ETHER_LEN	6
 #define IPv6_LEN	16
-#define U64_LEN		8
 
 static void
 bytes_fvalue_new(fvalue_t *fv)
@@ -121,13 +119,6 @@ ipv6_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
 	g_assert(!already_copied);
 	common_fvalue_set(fv, value, IPv6_LEN);
-}
-
-static void
-u64_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
-{
-	g_assert(!already_copied);
-	common_fvalue_set(fv, value, U64_LEN);
 }
 
 static gpointer
@@ -224,34 +215,6 @@ ipv6_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogF
 	}
 
 	ipv6_fvalue_set(fv, buffer, FALSE);
-	return TRUE;
-}
-
-static gboolean
-u64_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
-{
-	guint8	buffer[8];
-
-	if (atou64(s, buffer) == NULL) {
-		logfunc("\"%s\" is not a valid integer", s);
-		return FALSE;
-	}
-
-	u64_fvalue_set(fv, buffer, FALSE);
-	return TRUE;
-}
-
-static gboolean
-i64_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
-{
-	guint8	buffer[8];
-
-	if (atoi64(s, buffer) == NULL) {
-		logfunc("\"%s\" is not a valid integer", s);
-		return FALSE;
-	}
-
-	u64_fvalue_set(fv, buffer, FALSE);
 	return TRUE;
 }
 
@@ -368,178 +331,6 @@ cmp_le(fvalue_t *fv_a, fvalue_t *fv_b)
 	return (memcmp(a->data, b->data, a->len) <= 0);
 }
 
-static gboolean
-cmp_gt_i64(fvalue_t *fv_a, fvalue_t *fv_b)
-{
-	GByteArray	*a = fv_a->value.bytes;
-	GByteArray	*b = fv_b->value.bytes;
-
-	if (a->len > b->len) {
-		return TRUE;
-	}
-
-	if (a->len < b->len) {
-		return FALSE;
-	}
-
-	if ((a->data[0] & 0x80) == 0) {
-		/*
-		 * "a" is positive.
-		 */
-		if (b->data[0] & 0x80) {
-			/*
-			 * "b" is negative, so a > b.
-			 */
-			return TRUE;
-		}
-	} else {
-		/*
-		 * "a" is negative.
-		 */
-		if ((b->data[0] & 0x80) == 0) {
-			/*
-			 * "b" is positive, so a < b.
-			 */
-			return FALSE;
-		}
-	}
-
-	/*
-	 * "a" and "b" have the same sign, so "memcmp()" should
-	 * give the right answer.
-	 */
-	return (memcmp(a->data, b->data, a->len) > 0);
-}
-
-static gboolean
-cmp_ge_i64(fvalue_t *fv_a, fvalue_t *fv_b)
-{
-	GByteArray	*a = fv_a->value.bytes;
-	GByteArray	*b = fv_b->value.bytes;
-
-	if (a->len > b->len) {
-		return TRUE;
-	}
-
-	if (a->len < b->len) {
-		return FALSE;
-	}
-
-	if ((a->data[0] & 0x80) == 0) {
-		/*
-		 * "a" is positive.
-		 */
-		if (b->data[0] & 0x80) {
-			/*
-			 * "b" is negative, so a > b.
-			 */
-			return TRUE;
-		}
-	} else {
-		/*
-		 * "a" is negative.
-		 */
-		if ((b->data[0] & 0x80) == 0) {
-			/*
-			 * "b" is positive, so a < b.
-			 */
-			return FALSE;
-		}
-	}
-
-	/*
-	 * "a" and "b" have the same sign, so "memcmp()" should
-	 * give the right answer.
-	 */
-	return (memcmp(a->data, b->data, a->len) >= 0);
-}
-
-static gboolean
-cmp_lt_i64(fvalue_t *fv_a, fvalue_t *fv_b)
-{
-	GByteArray	*a = fv_a->value.bytes;
-	GByteArray	*b = fv_b->value.bytes;
-
-	if (a->len < b->len) {
-		return TRUE;
-	}
-
-	if (a->len > b->len) {
-		return FALSE;
-	}
-
-	if (a->data[0] & 0x80) {
-		/*
-		 * "a" is negative.
-		 */
-		if ((b->data[0] & 0x80) == 0) {
-			/*
-			 * "b" is positive, so a < b.
-			 */
-			return TRUE;
-		}
-	} else {
-		/*
-		 * "a" is positive.
-		 */
-		if (b->data[0] & 0x80) {
-			/*
-			 * "b" is negative, so a > b.
-			 */
-			return FALSE;
-		}
-	}
-
-	/*
-	 * "a" and "b" have the same sign, so "memcmp()" should
-	 * give the right answer.
-	 */
-	return (memcmp(a->data, b->data, a->len) < 0);
-}
-
-static gboolean
-cmp_le_i64(fvalue_t *fv_a, fvalue_t *fv_b)
-{
-	GByteArray	*a = fv_a->value.bytes;
-	GByteArray	*b = fv_b->value.bytes;
-
-	if (a->len < b->len) {
-		return TRUE;
-	}
-
-	if (a->len > b->len) {
-		return FALSE;
-	}
-
-	if (a->data[0] & 0x80) {
-		/*
-		 * "a" is negative.
-		 */
-		if ((b->data[0] & 0x80) == 0) {
-			/*
-			 * "b" is positive, so a < b.
-			 */
-			return TRUE;
-		}
-	} else {
-		/*
-		 * "a" is positive.
-		 */
-		if (b->data[0] & 0x80) {
-			/*
-			 * "b" is negative, so a > b.
-			 */
-			return FALSE;
-		}
-	}
-
-	/*
-	 * "a" and "b" have the same sign, so "memcmp()" should
-	 * give the right answer.
-	 */
-	return (memcmp(a->data, b->data, a->len) <= 0);
-}
-
 static gboolean cmp_bytes_bitwise_and(fvalue_t *fv_a, fvalue_t *fv_b)
 {
 	GByteArray	*a = fv_a->value.bytes;
@@ -629,10 +420,12 @@ ftype_register_bytes(void)
 
 		bytes_fvalue_set,		/* set_value */
 		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
 		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -662,10 +455,12 @@ ftype_register_bytes(void)
 
 		bytes_fvalue_set,		/* set_value */
 		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
 		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -695,10 +490,12 @@ ftype_register_bytes(void)
 
 		ether_fvalue_set,		/* set_value */
 		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
 		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -728,10 +525,12 @@ ftype_register_bytes(void)
 
 		ipv6_fvalue_set,		/* set_value */
 		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		value_get,			/* get_value */
 		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq,
@@ -748,76 +547,8 @@ ftype_register_bytes(void)
 		slice,
 	};
 
-	static ftype_t u64_type = {
-		"FT_UINT64",			/* name */
-		"Unsigned 64-bit integer",	/* pretty_name */
-		U64_LEN,			/* wire_size */
-		bytes_fvalue_new,		/* new_value */
-		bytes_fvalue_free,		/* free_value */
-		u64_from_unparsed,		/* val_from_unparsed */
-		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
-
-		u64_fvalue_set,			/* set_value */
-		NULL,				/* set_value_integer */
-		NULL,				/* set_value_floating */
-
-		value_get,			/* get_value */
-		NULL,				/* get_value_integer */
-		NULL,				/* get_value_floating */
-
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
-		cmp_bytes_bitwise_and,
-		NULL,				/* cmp_contains */
-		NULL,				/* cmp_matches */
-
-		len,
-		slice,
-	};
-
-	static ftype_t i64_type = {
-		"FT_INT64",			/* name */
-		"Signed 64-bit integer",	/* pretty_name */
-		U64_LEN,			/* wire_size */
-		bytes_fvalue_new,		/* new_value */
-		bytes_fvalue_free,		/* free_value */
-		i64_from_unparsed,		/* val_from_unparsed */
-		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
-
-		u64_fvalue_set,			/* set_value */
-		NULL,				/* set_value_integer */
-		NULL,				/* set_value_floating */
-
-		value_get,			/* get_value */
-		NULL,				/* get_value_integer */
-		NULL,				/* get_value_floating */
-
-		cmp_eq,
-		cmp_ne,
-		cmp_gt_i64,
-		cmp_ge_i64,
-		cmp_lt_i64,
-		cmp_le_i64,
-		cmp_bytes_bitwise_and,
-		NULL,				/* cmp_contains */
-		NULL,				/* cmp_matches */
-
-		len,
-		slice,
-	};
-
 	ftype_register(FT_BYTES, &bytes_type);
 	ftype_register(FT_UINT_BYTES, &uint_bytes_type);
 	ftype_register(FT_ETHER, &ether_type);
 	ftype_register(FT_IPv6, &ipv6_type);
-	ftype_register(FT_UINT64, &u64_type);
-	ftype_register(FT_INT64, &i64_type);
 }

@@ -157,23 +157,25 @@ ftype_register_double(void)
 {
 
 	static ftype_t float_type = {
-		"FT_FLOAT",
-		"floating point (single-precision)",
-		0,
-		double_fvalue_new,
-		NULL,
+		"FT_FLOAT",			/* name */
+		"floating point (single-precision)", /* pretty_name */
+		0,				/* wire_size */
+		double_fvalue_new,		/* new_value */
+		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		float_val_to_repr,		/* val_to_string_repr */
 		float_val_repr_len,		/* len_string_repr */
 
-		NULL,
-		NULL,
-		double_fvalue_set_floating,
+		NULL,				/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
+		double_fvalue_set_floating,	/* set_value_floating */
 
-		NULL,
-		NULL,
-		value_get_floating,
+		NULL,				/* get_value */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
+		value_get_floating,		/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -190,23 +192,25 @@ ftype_register_double(void)
 	};
 
 	static ftype_t double_type = {
-		"FT_DOUBLE",
-		"floating point (double-precision)",
-		0,
-		double_fvalue_new,
-		NULL,
+		"FT_DOUBLE",			/* name */
+		"floating point (double-precision)", /* pretty_name */
+		0,				/* wire_size */
+		double_fvalue_new,		/* new_value */
+		NULL,				/* free_value */
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		double_val_to_repr,		/* val_to_string_repr */
 		double_val_repr_len,		/* len_string_repr */
 
-		NULL,
-		NULL,
-		double_fvalue_set_floating,
+		NULL,				/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
+		double_fvalue_set_floating,	/* set_value_floating */
 
-		NULL,
-		NULL,
-		value_get_floating,
+		NULL,				/* get_value */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
+		value_get_floating,		/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,

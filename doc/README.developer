@@ -1443,6 +1443,13 @@ protocol or field labels to the proto_tree:
 	    format, ...);
 
 	proto_item *
+	proto_tree_add_uint64(tree, id, tvb, start, length, value);
+
+	proto_item *
+	proto_tree_add_uint64_format(tree, id, tvb, start, length, value,
+	    format, ...);
+
+	proto_item *
 	proto_tree_add_int(tree, id, tvb, start, length, value);
 
 	proto_item *
@@ -1450,6 +1457,13 @@ protocol or field labels to the proto_tree:
 
 	proto_item *
 	proto_tree_add_int_format(tree, id, tvb, start, length, value,
+	    format, ...);
+
+	proto_item *
+	proto_tree_add_int64(tree, id, tvb, start, length, value);
+
+	proto_item *
+	proto_tree_add_int64_format(tree, id, tvb, start, length, value,
 	    format, ...);
 
 	proto_item*
@@ -1605,7 +1619,9 @@ proto_tree_add_boolean()
 proto_tree_add_float()
 proto_tree_add_double()
 proto_tree_add_uint()
+proto_tree_add_uint64()
 proto_tree_add_int()
+proto_tree_add_int64()
 ----------------------------
 These routines are used to add items to the protocol tree if either:
 
@@ -1658,11 +1674,17 @@ host's floating-point format.
 
 For proto_tree_add_uint(), the 'value' argument is a 32-bit unsigned
 integer value, in host byte order.  (This routine cannot be used to add
-64-bit integers; they can only be added with proto_tree_add_item().)
+64-bit integers.)
+
+For proto_tree_add_uint64(), the 'value' argument is a 64-bit unsigned
+integer value, in host byte order.
 
 For proto_tree_add_int(), the 'value' argument is a 32-bit signed
 integer value, in host byte order.  (This routine cannot be used to add
-64-bit integers; they can only be added with proto_tree_add_item().)
+64-bit integers.)
+
+For proto_tree_add_int64(), the 'value' argument is a 64-bit signed
+integer value, in host byte order.
 
 proto_tree_add_bytes_hidden()
 proto_tree_add_time_hidden()
@@ -1692,7 +1714,9 @@ proto_tree_add_boolean_format()
 proto_tree_add_float_format()
 proto_tree_add_double_format()
 proto_tree_add_uint_format()
+proto_tree_add_uint64_format()
 proto_tree_add_int_format()
+proto_tree_add_int64_format()
 ----------------------------
 These routines are used to add items to the protocol tree when the
 dissector routines wants complete control over how the field and value

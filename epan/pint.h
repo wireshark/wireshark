@@ -46,6 +46,14 @@
                      (guint32)*((const guint8 *)(p)+1)<<16|  \
                      (guint32)*((const guint8 *)(p)+2)<<8|   \
                      (guint32)*((const guint8 *)(p)+3)<<0)
+#define pntoh64(p)  ((guint64)*((const guint8 *)(p)+0)<<56|  \
+                     (guint64)*((const guint8 *)(p)+1)<<48|  \
+                     (guint64)*((const guint8 *)(p)+2)<<40|  \
+                     (guint64)*((const guint8 *)(p)+3)<<32|  \
+                     (guint64)*((const guint8 *)(p)+4)<<24|  \
+                     (guint64)*((const guint8 *)(p)+5)<<16|  \
+                     (guint64)*((const guint8 *)(p)+6)<<8|   \
+                     (guint64)*((const guint8 *)(p)+7)<<0)
 
 
 #define pletohs(p)  ((guint16)                       \
@@ -60,6 +68,14 @@
                      (guint32)*((const guint8 *)(p)+2)<<16|  \
                      (guint32)*((const guint8 *)(p)+1)<<8|   \
                      (guint32)*((const guint8 *)(p)+0)<<0)
+#define pletoh64(p) ((guint64)*((const guint8 *)(p)+7)<<56|  \
+                     (guint64)*((const guint8 *)(p)+6)<<48|  \
+                     (guint64)*((const guint8 *)(p)+5)<<40|  \
+                     (guint64)*((const guint8 *)(p)+4)<<32|  \
+                     (guint64)*((const guint8 *)(p)+3)<<24|  \
+                     (guint64)*((const guint8 *)(p)+2)<<16|  \
+                     (guint64)*((const guint8 *)(p)+1)<<8|   \
+                     (guint64)*((const guint8 *)(p)+0)<<0)
 
 
 

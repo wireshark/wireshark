@@ -34,7 +34,6 @@
 
 #include <glib.h>
 
-#include <epan/int-64bit.h>
 #include <epan/packet.h>
 #include <epan/ipv6-utils.h>
 

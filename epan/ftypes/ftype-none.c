@@ -2,9 +2,8 @@
  * $Id$
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2001 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,23 +32,25 @@ ftype_register_none(void)
 {
 
 	static ftype_t none_type = {
-		"FT_NONE",
-		"label",
-		0,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
+		"FT_NONE",			/* name */
+		"label",			/* pretty_name */
+		0,				/* wire_size */
+		NULL,				/* new_value */
+		NULL,				/* free_value */
+		NULL,				/* val_from_unparsed */
+		NULL,				/* val_from_string */
 		NULL,				/* val_to_string_repr */
 		NULL,				/* len_string_repr */
 
-		NULL,
-		NULL,
-		NULL,
+		NULL,				/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_floating */
 
-		NULL,
-		NULL,
-		NULL,
+		NULL,				/* get_value */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_floating */
 
 		NULL,				/* cmp_eq */
 		NULL,				/* cmp_ne */

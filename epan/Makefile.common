@@ -35,7 +35,6 @@ LIBETHEREAL_SRC = 		\
 	except.c		\
 	filesystem.c		\
 	frame_data.c		\
-	int-64bit.c		\
 	ipv4.c			\
 	osi-utils.c		\
 	packet.c		\
@@ -65,7 +64,6 @@ LIBETHEREAL_INCLUDES = 		\
 	filesystem.h		\
 	frame_data.h		\
 	gdebug.h		\
-	int-64bit.h		\
 	ipv4.h			\
 	ipv6-utils.h		\
 	nstime.h		\
