@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.386 2004/02/25 06:22:35 guy Exp $
+ * $Id: packet-smb.c,v 1.387 2004/03/01 08:34:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5570,16 +5570,30 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	BYTE_COUNT;
 
 	/* if both the MessageStart and the  WriteRawNamedPipe flags are set
-	   the first two bytes of the payload is the length of the data
-	   also this tells us that this is indeed the IPC$ share
-	   (if we didnt already know that 
+	   the first two bytes of the payload is the length of the data.
+	   Assume that all WriteAndX PDUs that have MESSAGE_START set to
+	   be over the IPC$ share and thus they all transport DCERPC.
+	   (if we didnt already know that from the TreeConnect call)
 	*/
-	if((mode&(WRITE_MODE_MESSAGE_START|WRITE_MODE_RAW))==(WRITE_MODE_MESSAGE_START|WRITE_MODE_RAW)){
-		proto_tree_add_item(tree, hf_smb_pipe_write_len, tvb, offset, 2, TRUE);
-		offset += 2;
-		dataoffset += 2;
-		bc -= 2;
-		datalen -= 2;
+	if(mode&WRITE_MODE_MESSAGE_START){
+		if(mode&WRITE_MODE_RAW){
+			proto_tree_add_item(tree, hf_smb_pipe_write_len, tvb, offset, 2, TRUE);
+			offset += 2;
+			dataoffset += 2;
+			bc -= 2;
+			datalen -= 2;
+		}
+		if(!pinfo->fd->flags.visited){
+			/* In case we did not see the TreeConnect call,
+			   store this TID here as well as a IPC TID 
+			   so we know that future Read/Writes to this 
+			   TID is (probably) DCERPC.
+			*/
+			if(g_hash_table_lookup(si->ct->tid_service, (void *)si->tid)){
+				g_hash_table_remove(si->ct->tid_service, (void *)si->tid);
+			}
+			g_hash_table_insert(si->ct->tid_service, (void *)si->tid, (void *)TID_IPC);
+		}
 		if(si->sip){
 			si->sip->flags|=SMB_SIF_TID_IS_IPC;
 		}
