@@ -2,7 +2,7 @@
  * Common routines for smb packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-common.c,v 1.14 2002/08/28 21:00:31 jmayer Exp $
+ * $Id: packet-smb-common.c,v 1.15 2003/04/03 02:22:30 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,7 +49,7 @@ const value_string share_type_vals[] = {
 	{0, NULL}
 };
 
-int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index)
+int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index, char **data)
 {
 	char *str;
 	int len;
@@ -69,13 +69,12 @@ int display_ms_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index)
 
 	proto_tree_add_string(tree, hf_index, tvb, offset, len+1, str);
 
-	/*
-	 * XXX - "proto_tree_add_string()" mallocates a copy; it'd
-	 * be nice not to have it copy the string, but just to
-	 * make it the value, avoiding both the copy and the free
-	 * on the next line.
-	 */
-	g_free(str);
+	/* Return a copy of the string if requested */
+
+	if (data)
+		*data = str;
+	else
+		g_free(str);
 
 	return 	offset+len+1;
 }
