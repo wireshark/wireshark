@@ -8,7 +8,7 @@
  * Data Coding Scheme decoding for GSM (SMS and CBS),
  * provided by Olivier Biot.
  *
- * $Id: packet-smpp.c,v 1.23 2003/12/21 22:56:13 obiot Exp $
+ * $Id: packet-smpp.c,v 1.24 2003/12/22 02:06:27 guy Exp $
  *
  * Note on SMS Message reassembly
  * ------------------------------
@@ -3008,7 +3008,7 @@ proto_register_smpp(void)
 		{	"Reassembled in",
 			"smpp.reassembled.in",
 			FT_FRAMENUM, BASE_NONE, NULL, 0x00,
-			"SMPP Short Message has been reassmbled in this packet.", HFILL
+			"SMPP Short Message has been reassembled in this packet.", HFILL
 		}
 	},
     };
