@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.99 2002/01/21 07:36:35 guy Exp $
+ * $Id: packet-ipx.c,v 1.100 2002/01/21 23:35:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -416,7 +416,7 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		cursor;
 	int		available_length;
 
-	char		*rip_type[3] = { "Request", "Response", "Unknown" };
+	static char	*rip_type[3] = { "Request", "Response", "Unknown" };
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX RIP");
@@ -427,7 +427,7 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/* rip_types 0 and 1 are valid, anything else becomes 2 or "Unknown" */
-		col_add_str(pinfo->cinfo, COL_INFO, rip_type[MIN(operation, 2)]);
+		col_set_str(pinfo->cinfo, COL_INFO, rip_type[MIN(operation, 2)]);
 	}
 
 	if (tree) {
@@ -741,7 +741,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	struct sap_query query;
 	struct sap_server_ident server;
 
-	char		*sap_type[4] = { "General Query", "General Response",
+	static char	*sap_type[4] = { "General Query", "General Response",
 		"Nearest Query", "Nearest Response" };
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -754,7 +754,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if (query.query_type >= 1 && query.query_type <= 4) {
-			col_add_str(pinfo->cinfo, COL_INFO, sap_type[query.query_type - 1]);
+			col_set_str(pinfo->cinfo, COL_INFO, sap_type[query.query_type - 1]);
 		}
 		else {
 			col_set_str(pinfo->cinfo, COL_INFO, "Unknown Packet Type");

@@ -7,7 +7,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.8 2002/01/21 07:36:42 guy Exp $
+ * $Id: packet-skinny.c,v 1.9 2002/01/21 23:35:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -215,7 +215,7 @@ static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SKINNY");
     
   if (check_col(pinfo->cinfo, COL_INFO)) 
-    col_add_str(pinfo->cinfo, COL_INFO, "Skinny Client Control Protocol");
+    col_set_str(pinfo->cinfo, COL_INFO, "Skinny Client Control Protocol");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
    * necessary to generate protocol tree items. */

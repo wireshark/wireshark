@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-lpd.c,v 1.33 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-lpd.c,v 1.34 2002/01/21 23:35:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,7 +61,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* This information comes from the LPRng HOWTO, which also describes
 		RFC 1179. http://www.astart.com/lprng/LPRng-HOWTO.html */
-	char		*lpd_client_code[] = {
+	static char	*lpd_client_code[] = {
 		"Unknown command",
 		"LPC: start print / jobcmd: abort",
 		"LPR: transfer a printer job / jobcmd: receive control file",
@@ -73,7 +73,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		"LPRng lpc: secure command transfer",
 		"LPRng lpq: verbose status information"
 	};
-	char		*lpd_server_code[] = {
+	static char	*lpd_server_code[] = {
 		"Success: accepted, proceed",
 		"Queue not accepting jobs",
 		"Queue temporarily full, retry later",
@@ -99,7 +99,7 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if (lpr_packet_type == request) {
-			col_add_str(pinfo->cinfo, COL_INFO, lpd_client_code[code]);
+			col_set_str(pinfo->cinfo, COL_INFO, lpd_client_code[code]);
 		}
 		else if (lpr_packet_type == response) {
 			col_set_str(pinfo->cinfo, COL_INFO, "LPD response");

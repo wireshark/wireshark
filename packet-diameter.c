@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.41 2002/01/21 07:36:33 guy Exp $
+ * $Id: packet-diameter.c,v 1.42 2002/01/21 23:35:31 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -1059,7 +1059,7 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
 	
   /* Make entries in Protocol column and Info column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-	col_add_str(pinfo->cinfo, COL_PROTOCOL, "Diameter");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Diameter");
   if (check_col(pinfo->cinfo, COL_INFO)) 
 	col_clear(pinfo->cinfo, COL_INFO);
 	

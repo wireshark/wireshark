@@ -12,7 +12,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.10 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-ndmp.c,v 1.11 2002/01/21 23:35:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2392,7 +2392,7 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 		if (first) {
 			if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-				col_add_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "NDMP");
 			if (check_col(pinfo->cinfo, COL_INFO)) 
 				col_clear(pinfo->cinfo, COL_INFO);
 			first = FALSE;

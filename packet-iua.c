@@ -8,7 +8,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-iua.c,v 1.11 2002/01/21 07:36:36 guy Exp $
+ * $Id: packet-iua.c,v 1.12 2002/01/21 23:35:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -845,7 +845,7 @@ dissect_iua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 
   /* make entry in the Protocol column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-    col_add_str(pinfo->cinfo, COL_PROTOCOL, "IUA");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IUA");
   
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
