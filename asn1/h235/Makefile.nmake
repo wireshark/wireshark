@@ -4,20 +4,38 @@
 
 include ../../config.nmake
 
-DISSECTOR_FILES=packet-h235.c packet-h235.h
+UNIX2DOS=$(PERL) ../../tools/unix2dos.pl
+
+PROTOCOL_NAME=h235
+DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).h
 
 all: generate_dissector
 
 generate_dissector: $(DISSECTOR_FILES)
 
-$(DISSECTOR_FILES): ../../tools/asn2eth.py packet-h235-template.c packet-h235-template.h h235.cnf
+$(DISSECTOR_FILES): ../../tools/asn2eth.py H235-SECURITY-MESSAGES.asn packet-$(PROTOCOL_NAME)-template.c packet-$(PROTOCOL_NAME)-template.h $(PROTOCOL_NAME).cnf
 !IFDEF PYTHON
-	$(PYTHON) ../../tools/asn2eth.py -X -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn
+	$(PYTHON) ../../tools/asn2eth.py -X -p $(PROTOCOL_NAME) -c $(PROTOCOL_NAME).cnf -s packet-$(PROTOCOL_NAME)-template H235-SECURITY-MESSAGES.asn
+!ELSE
+	@echo Error: You need Python to use asn2eth.py
+	@exit 1
 !ENDIF
 
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)
 
-copy_files: generate_dissector
-	xcopy packet-h235.c ..\..\epan\dissectors /d /y
-	xcopy packet-h235.h ..\..\epan\dissectors /d /y
+# Fix EOL in generated dissectors. Cygwin's python generates files with 
+# mixed EOL styles, which can't be commited to the SVN repository.
+# Stuff included from template and "cnf" files has "\r\n" on windows, while 
+# the generated stuff has "\n".
+
+fix_eol: generate_dissector
+	move packet-$(PROTOCOL_NAME).c packet-$(PROTOCOL_NAME).c.tmp
+	move packet-$(PROTOCOL_NAME).h packet-$(PROTOCOL_NAME).h.tmp
+	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).c.tmp > packet-$(PROTOCOL_NAME).c
+	$(UNIX2DOS) < packet-$(PROTOCOL_NAME).h.tmp > packet-$(PROTOCOL_NAME).h
+	del /f packet-$(PROTOCOL_NAME).c.tmp packet-$(PROTOCOL_NAME).h.tmp
+
+copy_files: generate_dissector fix_eol
+	xcopy packet-$(PROTOCOL_NAME).c ..\..\epan\dissectors /d /y
+	xcopy packet-$(PROTOCOL_NAME).h ..\..\epan\dissectors /d /y
