@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.23 1999/10/05 07:06:07 guy Exp $
+ * $Id: wtap.c,v 1.24 1999/10/05 07:22:53 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -121,17 +121,17 @@ const char *wtap_strerror(int err)
 	int wtap_errlist_index;
 
 	if (err < 0) {
+#ifdef HAVE_LIBZ
+		if (err >= WTAP_ERR_ZLIB_MIN && err <= WTAP_ERR_ZLIB_MAX) {
+			/* Assume it's a zlib error. */
+			sprintf(errbuf, "Uncompression error: %s",
+			    zError(err - WTAP_ERR_ZLIB));
+			return errbuf;
+		}
+#endif
 		wtap_errlist_index = -1 - err;
 		if (wtap_errlist_index >= WTAP_ERRLIST_SIZE) {
-#ifdef HAVE_ZLIB
-			if (err >= WTAP_ERR_ZLIB_MIN
-			    && err <= WTAP_ERR_ZLIB_MAX) {
-				/* Assume it's a zlib error. */
-				sprintf(errbuf, "Zlib error: %s",
-				    zError(err));
-			} else
-#endif
-				sprintf(errbuf, "Error %d", err);
+			sprintf(errbuf, "Error %d", err);
 			return errbuf;
 		}
 		if (wtap_errlist[wtap_errlist_index] == NULL)
