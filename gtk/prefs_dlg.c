@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.68 2003/12/04 00:45:39 guy Exp $
+ * $Id: prefs_dlg.c,v 1.69 2004/01/01 13:29:16 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,14 +70,14 @@ static void	prefs_tree_select_cb(GtkCTree *, GtkCTreeNode *, gint,
 static void	prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 #endif
 
-#define E_PRINT_PAGE_KEY   "printer_options_page"
-#define E_COLUMN_PAGE_KEY  "column_options_page"
-#define E_STREAM_PAGE_KEY  "tcp_stream_options_page"
-#define E_GUI_PAGE_KEY	   "gui_options_page"
-#define E_CAPTURE_PAGE_KEY "capture_options_page"
-#define E_NAMERES_PAGE_KEY "nameres_options_page"
-#define E_TOOLTIPS_KEY     "tooltips"
-#define E_PAGE_MODULE_KEY  "page_module"
+#define E_GUI_PAGE_KEY	        "gui_options_page"
+#define E_GUI_COLUMN_PAGE_KEY   "gui_column_options_page"
+#define E_GUI_STREAM_PAGE_KEY   "gui_tcp_stream_options_page"
+#define E_CAPTURE_PAGE_KEY      "capture_options_page"
+#define E_PRINT_PAGE_KEY        "printer_options_page"
+#define E_NAMERES_PAGE_KEY      "nameres_options_page"
+#define E_TOOLTIPS_KEY          "tooltips"
+#define E_PAGE_MODULE_KEY       "page_module"
 
 /*
  * Keep a static pointer to the notebook to be able to choose the
@@ -337,16 +337,17 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 {
   GtkWidget         *top_hb, *bbox, *prefs_nb, *ct_sb, *frame,
                     *ok_bt, *apply_bt, *save_bt, *cancel_bt;
-  GtkWidget         *print_pg, *column_pg, *stream_pg, *gui_pg;
+  GtkWidget         *gui_pg, *gui_column_pg, *gui_stream_pg;
 #ifdef HAVE_LIBPCAP
   GtkWidget         *capture_pg;
 #endif
-  GtkWidget         *nameres_pg;
+  GtkWidget         *print_pg, *nameres_pg;
   gchar             label_str[MAX_TREE_NODE_NAME_LEN];
   struct ct_struct  cts;
 #if GTK_MAJOR_VERSION < 2
   gchar             *label_ptr = label_str;
   GtkCTreeNode      *ct_node;
+  GtkCTreeNode      *ct_base_node;
 #else
   GtkTreeStore      *store;
   GtkTreeSelection  *selection;
@@ -432,63 +433,6 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   gtk_container_add(GTK_CONTAINER(top_hb), prefs_nb);
   gtk_widget_show(prefs_nb);
 
-  /* Printing prefs */
-  frame = gtk_frame_new("Printing");
-  gtk_widget_show(GTK_WIDGET(frame));
-  print_pg = printer_prefs_show();
-  gtk_container_add(GTK_CONTAINER(frame), print_pg);
-  OBJECT_SET_DATA(prefs_w, E_PRINT_PAGE_KEY, print_pg);
-  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
-  strcpy(label_str, "Printing");
-#if GTK_MAJOR_VERSION < 2
-  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.tree), NULL, NULL,
-  		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
-  gtk_ctree_node_set_row_data(GTK_CTREE(cts.tree), ct_node,
-  		GINT_TO_POINTER(cts.page));
-#else
-  gtk_tree_store_append(store, &iter, NULL);
-  gtk_tree_store_set(store, &iter, 0, label_str, 1, cts.page, -1);
-#endif
-  cts.page++;
-
-  /* Column prefs */
-  frame = gtk_frame_new("Columns");
-  gtk_widget_show(GTK_WIDGET(frame));
-  column_pg = column_prefs_show();
-  gtk_container_add(GTK_CONTAINER(frame), column_pg);
-  OBJECT_SET_DATA(prefs_w, E_COLUMN_PAGE_KEY, column_pg);
-  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
-  strcpy(label_str, "Columns");
-#if GTK_MAJOR_VERSION < 2
-  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.tree), NULL, NULL,
-  		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
-  gtk_ctree_node_set_row_data(GTK_CTREE(cts.tree), ct_node,
-  		GINT_TO_POINTER(cts.page));
-#else
-  gtk_tree_store_append(store, &iter, NULL);
-  gtk_tree_store_set(store, &iter, 0, label_str, 1, cts.page, -1);
-#endif
-  cts.page++;
-
-  /* TCP Streams prefs */
-  frame = gtk_frame_new("TCP Streams");
-  gtk_widget_show(GTK_WIDGET(frame));
-  stream_pg = stream_prefs_show();
-  gtk_container_add(GTK_CONTAINER(frame), stream_pg);
-  OBJECT_SET_DATA(prefs_w, E_STREAM_PAGE_KEY, stream_pg);
-  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
-  strcpy(label_str, "TCP Streams");
-#if GTK_MAJOR_VERSION < 2
-  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.tree), NULL, NULL,
-  		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
-  gtk_ctree_node_set_row_data(GTK_CTREE(cts.tree), ct_node,
-  		GINT_TO_POINTER(cts.page));
-#else
-  gtk_tree_store_append(store, &iter, NULL);
-  gtk_tree_store_set(store, &iter, 0, label_str, 1, cts.page, -1);
-#endif
-  cts.page++;
-
   /* GUI prefs */
   frame = gtk_frame_new("User Interface");
   gtk_widget_show(GTK_WIDGET(frame));
@@ -499,6 +443,45 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   strcpy(label_str, "User Interface");
 #if GTK_MAJOR_VERSION < 2
   ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.tree), NULL, NULL,
+  		&label_ptr, 5, NULL, NULL, NULL, NULL, FALSE /*TRUE*/, TRUE);
+  gtk_ctree_node_set_row_data(GTK_CTREE(cts.tree), ct_node,
+  		GINT_TO_POINTER(cts.page));
+  ct_base_node = ct_node;
+#else
+  gtk_tree_store_append(store, &iter, NULL);
+  gtk_tree_store_set(store, &iter, 0, label_str, 1, cts.page, -1);
+#endif
+  cts.page++;
+
+  /* GUI Column prefs */
+  frame = gtk_frame_new("Columns");
+  gtk_widget_show(GTK_WIDGET(frame));
+  gui_column_pg = column_prefs_show();
+  gtk_container_add(GTK_CONTAINER(frame), gui_column_pg);
+  OBJECT_SET_DATA(prefs_w, E_GUI_COLUMN_PAGE_KEY, gui_column_pg);
+  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
+  strcpy(label_str, "Columns");
+#if GTK_MAJOR_VERSION < 2
+  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.tree), ct_base_node, NULL,
+  		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
+  gtk_ctree_node_set_row_data(GTK_CTREE(cts.tree), ct_node,
+  		GINT_TO_POINTER(cts.page));
+#else
+  gtk_tree_store_append(store, &iter, NULL);
+  gtk_tree_store_set(store, &iter, 0, label_str, 1, cts.page, -1);
+#endif
+  cts.page++;
+
+  /* GUI TCP Streams prefs */
+  frame = gtk_frame_new("TCP Streams");
+  gtk_widget_show(GTK_WIDGET(frame));
+  gui_stream_pg = stream_prefs_show();
+  gtk_container_add(GTK_CONTAINER(frame), gui_stream_pg);
+  OBJECT_SET_DATA(prefs_w, E_GUI_STREAM_PAGE_KEY, gui_stream_pg);
+  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
+  strcpy(label_str, "TCP Streams");
+#if GTK_MAJOR_VERSION < 2
+  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.tree), ct_base_node, NULL,
   		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
   gtk_ctree_node_set_row_data(GTK_CTREE(cts.tree), ct_node,
   		GINT_TO_POINTER(cts.page));
@@ -535,6 +518,25 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
   }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
+
+  /* Printing prefs */
+  frame = gtk_frame_new("Printing");
+  gtk_widget_show(GTK_WIDGET(frame));
+  print_pg = printer_prefs_show();
+  gtk_container_add(GTK_CONTAINER(frame), print_pg);
+  OBJECT_SET_DATA(prefs_w, E_PRINT_PAGE_KEY, print_pg);
+  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
+  strcpy(label_str, "Printing");
+#if GTK_MAJOR_VERSION < 2
+  ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.tree), NULL, NULL,
+  		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
+  gtk_ctree_node_set_row_data(GTK_CTREE(cts.tree), ct_node,
+  		GINT_TO_POINTER(cts.page));
+#else
+  gtk_tree_store_append(store, &iter, NULL);
+  gtk_tree_store_set(store, &iter, 0, label_str, 1, cts.page, -1);
+#endif
+  cts.page++;
 
   /* Name resolution prefs */
   frame = gtk_frame_new("Name Resolution");
@@ -971,8 +973,8 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
      the preferences panes have been copied to "prefs" and the registered
      preferences). */
   printer_prefs_fetch(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
-  column_prefs_fetch(OBJECT_GET_DATA(parent_w, E_COLUMN_PAGE_KEY));
-  stream_prefs_fetch(OBJECT_GET_DATA(parent_w, E_STREAM_PAGE_KEY));
+  column_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_COLUMN_PAGE_KEY));
+  stream_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_STREAM_PAGE_KEY));
   gui_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -989,8 +991,8 @@ prefs_main_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 
   /* Now apply those preferences. */
   printer_prefs_apply(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
-  column_prefs_apply(OBJECT_GET_DATA(parent_w, E_COLUMN_PAGE_KEY));
-  stream_prefs_apply(OBJECT_GET_DATA(parent_w, E_STREAM_PAGE_KEY));
+  column_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_COLUMN_PAGE_KEY));
+  stream_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_STREAM_PAGE_KEY));
   gui_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -1023,8 +1025,8 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
      the preferences panes have been copied to "prefs" and the registered
      preferences). */
   printer_prefs_fetch(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
-  column_prefs_fetch(OBJECT_GET_DATA(parent_w, E_COLUMN_PAGE_KEY));
-  stream_prefs_fetch(OBJECT_GET_DATA(parent_w, E_STREAM_PAGE_KEY));
+  column_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_COLUMN_PAGE_KEY));
+  stream_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_STREAM_PAGE_KEY));
   gui_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -1041,8 +1043,8 @@ prefs_main_apply_cb(GtkWidget *apply_bt _U_, gpointer parent_w)
 
   /* Now apply those preferences. */
   printer_prefs_apply(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
-  column_prefs_apply(OBJECT_GET_DATA(parent_w, E_COLUMN_PAGE_KEY));
-  stream_prefs_apply(OBJECT_GET_DATA(parent_w, E_STREAM_PAGE_KEY));
+  column_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_COLUMN_PAGE_KEY));
+  stream_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_STREAM_PAGE_KEY));
   gui_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -1075,8 +1077,8 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
      the preferences panes have been copied to "prefs" and the registered
      preferences). */
   printer_prefs_fetch(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
-  column_prefs_fetch(OBJECT_GET_DATA(parent_w, E_COLUMN_PAGE_KEY));
-  stream_prefs_fetch(OBJECT_GET_DATA(parent_w, E_STREAM_PAGE_KEY));
+  column_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_COLUMN_PAGE_KEY));
+  stream_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_STREAM_PAGE_KEY));
   gui_prefs_fetch(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -1124,8 +1126,8 @@ prefs_main_save_cb(GtkWidget *save_bt _U_, gpointer parent_w)
 
 	4) we did apply the protocol preferences, at least, in the past. */
   printer_prefs_apply(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
-  column_prefs_apply(OBJECT_GET_DATA(parent_w, E_COLUMN_PAGE_KEY));
-  stream_prefs_apply(OBJECT_GET_DATA(parent_w, E_STREAM_PAGE_KEY));
+  column_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_COLUMN_PAGE_KEY));
+  stream_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_STREAM_PAGE_KEY));
   gui_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -1223,8 +1225,8 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
 
   /* Now apply the reverted-to preferences. */
   printer_prefs_apply(OBJECT_GET_DATA(parent_w, E_PRINT_PAGE_KEY));
-  column_prefs_apply(OBJECT_GET_DATA(parent_w, E_COLUMN_PAGE_KEY));
-  stream_prefs_apply(OBJECT_GET_DATA(parent_w, E_STREAM_PAGE_KEY));
+  column_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_COLUMN_PAGE_KEY));
+  stream_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_STREAM_PAGE_KEY));
   gui_prefs_apply(OBJECT_GET_DATA(parent_w, E_GUI_PAGE_KEY));
   nameres_prefs_apply(OBJECT_GET_DATA(parent_w, E_NAMERES_PAGE_KEY));
   prefs_apply_all();
@@ -1253,8 +1255,8 @@ prefs_main_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
   /* Let the preference tabs clean up anything they've done. */
   printer_prefs_destroy(OBJECT_GET_DATA(prefs_w, E_PRINT_PAGE_KEY));
-  column_prefs_destroy(OBJECT_GET_DATA(prefs_w, E_COLUMN_PAGE_KEY));
-  stream_prefs_destroy(OBJECT_GET_DATA(prefs_w, E_STREAM_PAGE_KEY));
+  column_prefs_destroy(OBJECT_GET_DATA(prefs_w, E_GUI_COLUMN_PAGE_KEY));
+  stream_prefs_destroy(OBJECT_GET_DATA(prefs_w, E_GUI_STREAM_PAGE_KEY));
   gui_prefs_destroy(OBJECT_GET_DATA(prefs_w, E_GUI_PAGE_KEY));
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
