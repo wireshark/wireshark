@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, adjust timestamps, or
  * simply convert from one format to another format.
  *
- * $Id: editcap.c,v 1.30 2004/02/23 04:16:37 sharpe Exp $
+ * $Id: editcap.c,v 1.31 2004/02/23 05:44:34 sharpe Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -230,7 +230,7 @@ set_time_adjustment(char *optarg)
   } else {
       val = strtol(optarg, &frac, 10);
       if (frac == NULL || frac == optarg || val == LONG_MIN || val == LONG_MAX) {
-          fprintf(stderr, "editcap: \"%s\" is not a valid time adjustment\n",
+          fprintf(stderr, "editcap: \"%s\" is not a valid ime adjustment\n",
                   optarg);
           exit(1);
       }
@@ -274,7 +274,7 @@ static void usage(void)
   const char *string;
 
   fprintf(stderr, "Usage: editcap [-r] [-h] [-v] [-T <encap type>] [-F <capture type>]\n");
-  fprintf(stderr, "               [-s <snaplen>] [-t <time adjustment]\n");
+  fprintf(stderr, "               [-s <snaplen>] [-t <time adjustment>]\n");
   fprintf(stderr, "               <infile> <outfile> [ <record#>[-<record#>] ... ]\n");
   fprintf(stderr, "  where\t-r specifies that the records specified should be kept, not deleted, \n");
   fprintf(stderr, "                           default is to delete\n");
