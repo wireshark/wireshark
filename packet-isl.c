@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.26 2001/11/20 21:59:13 guy Exp $
+ * $Id: packet-isl.c,v 1.27 2001/11/20 22:29:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -150,8 +150,6 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint crc_offset;
   gint captured_length;
   tvbuff_t *next_tvb;
-  const guint8 *compat_pd;
-  int compat_offset;
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "ISL");
@@ -240,15 +238,6 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           captured_length = length;
 
         next_tvb = tvb_new_subset(tvb, ISL_HEADER_SIZE, captured_length, length);
-
-        /* Set "pinfo"'s payload and captured-payload lengths to the values
-           we calculated.
-
-           XXX - when all dissectors are tvbuffified we shouldn't have to
-           do this any more. */
-        tvb_compat(next_tvb, &compat_pd, &compat_offset);
-        pinfo->len = compat_offset + length;
-        pinfo->captured_len = compat_offset + captured_length;
 
         call_dissector(eth_handle, next_tvb, pinfo, tree);
       }

@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.14 2001/11/15 10:58:48 guy Exp $
+ * $Id: packet-gtp.c,v 1.15 2001/11/20 22:29:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3684,12 +3684,11 @@ decode_gtp_proto_conf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 				
 			next_tvb = tvb_new_subset(tvb, offset + 5, proto_len + 2, proto_len + 2); 
 
-			/* Save the current value of "pi", and adjust
-			   certain fields to reflect the new top-level
-			   tvbuff. */
+			/* XXX - is this still necessary?  Do we have to
+			   worry about subdissectors changing "pi", or,
+			   given that we're no longer doing so, is that
+			   no longer an issue? */
 			save_pi = pi;
-			pi.len = tvb_reported_length(next_tvb);
-			pi.captured_len = tvb_length(next_tvb);
 
 			call_dissector(ppp_handle, next_tvb, pinfo, ext_tree_proto); 
 

@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.65 2001/11/15 10:58:48 guy Exp $
+ * $Id: packet-ipv6.c,v 1.66 2001/11/20 22:29:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -909,11 +909,10 @@ again:
       /* It's not fragmented. */
       pinfo->fragmented = FALSE;
 
-      /* Save the current value of "pi", and adjust certain fields to
-         reflect the new tvbuff. */
+      /* XXX - is this still necessary?  Do we have to worry about
+         subdissectors changing "pi", or, given that we're no longer
+         doing so, is that no longer an issue? */
       save_pi = pi;
-      pi.len = tvb_reported_length(next_tvb);
-      pi.captured_len = tvb_length(next_tvb);
       must_restore_pi = TRUE;
     } else {
       /* We don't have the complete reassembled payload. */

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.38 2001/11/15 10:58:50 guy Exp $
+ * $Id: packet.c,v 1.39 2001/11/20 22:29:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,9 +98,7 @@ packet_cleanup(void)
 
 /*
  * Given a tvbuff, a packet_info *, and a length from a packet header,
- * adjust the length of the tvbuff, and the "len" and "captured_len"
- * members of the "packet_info" structure, to reflect the specified
- * length.
+ * adjust the length of the tvbuff to reflect the specified length.
  */
 void
 set_actual_length(tvbuff_t *tvb, packet_info *pinfo, guint specified_len)
@@ -120,23 +118,6 @@ set_actual_length(tvbuff_t *tvb, packet_info *pinfo, guint specified_len)
        probably us) may use that to determine how much of its packet
        was padding. */
     tvb_set_reported_length(tvb, specified_len);
-
-    /* XXX - can we get rid of "pinfo->len" and "pinfo->captured_len"
-       when the last dissector is tvbuffified? */
-
-    /* Shrink the total payload by the amount of padding. */
-    padding = reported_payload_len - specified_len;
-    if (pinfo->len >= padding)
-      pinfo->len -= padding;
-
-    /* Shrink the captured payload by the amount of padding in the
-       captured payload (which may be less than the amount of padding,
-       as the padding may not have been captured). */
-    if (specified_len < payload_len) {
-      padding = payload_len - specified_len;
-      if (pinfo->captured_len >= padding)
-        pinfo->captured_len -= padding;
-    }
   }
 }
 
@@ -173,12 +154,6 @@ dissect_packet(tvbuff_t **p_tvb, union wtap_pseudo_header *pseudo_header,
 		const u_char *pd, frame_data *fd, proto_tree *tree)
 {
 	blank_packetinfo();
-
-	/* Set the initial payload to the packet length, and the initial
-	   captured payload to the capture length (other protocols may
-	   reduce them if their headers say they're less). */
-	pi.len = fd->pkt_len;
-	pi.captured_len = fd->cap_len;
 
 	pi.fd = fd;
 	pi.pseudo_header = pseudo_header;

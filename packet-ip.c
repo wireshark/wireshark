@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.145 2001/11/20 21:59:12 guy Exp $
+ * $Id: packet-ip.c,v 1.146 2001/11/20 22:29:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1071,11 +1071,10 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* It's not fragmented. */
       pinfo->fragmented = FALSE;
 
-      /* Save the current value of "pi", and adjust certain fields to
-         reflect the new tvbuff. */
+      /* XXX - is this still necessary?  Do we have to worry about
+         subdissectors changing "pi", or, given that we're no longer
+         doing so, is that no longer an issue? */
       save_pi = pi;
-      pi.len = tvb_reported_length(next_tvb);
-      pi.captured_len = tvb_length(next_tvb);
       must_restore_pi = TRUE;
     } else {
       /* We don't have the complete reassembled payload. */

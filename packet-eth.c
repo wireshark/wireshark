@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.67 2001/11/20 21:59:12 guy Exp $
+ * $Id: packet-eth.c,v 1.68 2001/11/20 22:29:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,10 +116,8 @@ capture_eth(const u_char *pd, int offset, int len, packet_counts *ld)
        and set the payload and captured-payload lengths to the minima
        of the total length and the frame lengths. */
     length += offset + ETH_HEADER_SIZE;
-    if (pi.len > length)
-      pi.len = length;
-    if (pi.captured_len > length)
-      pi.captured_len = length;
+    if (len > length)
+      len = length;
   } else {
     ethhdr_type = ETHERNET_II;
   }
@@ -141,7 +139,6 @@ capture_eth(const u_char *pd, int offset, int len, packet_counts *ld)
 static void
 dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  int        		orig_captured_len;
   proto_item		*ti;
   const guint8		*dst, *src;
   const guint8		*pd;
@@ -149,12 +146,9 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16		etype;
   volatile gboolean	is_802_2;
   int			eth_offset;
-  volatile guint16  	length;
   proto_tree		*volatile fh_tree = NULL;
 
   tvb_compat(tvb, &pd, (int*)&eth_offset);
-
-  orig_captured_len = pinfo->captured_len;
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "Ethernet");
@@ -170,8 +164,6 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* either ethernet802.3 or ethernet802.2 */
   if (etype <= IEEE_802_3_MAX_LEN) {
-    length = etype;
-
     /* Oh, yuck.  Cisco ISL frames require special interpretation of the
        destination address field; fortunately, they can be recognized by
        checking the first 5 octets of the destination address, which are
@@ -220,20 +212,6 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, dst);
       proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src);
     }
-
-    /* Convert the LLC length from the 802.3 header to a total
-       frame length, by adding in the size of any data that preceded
-       the Ethernet header, and adding in the Ethernet header size,
-       and set the payload and captured-payload lengths to the minima
-       of the total length and the frame lengths.
-
-       XXX - when all dissectors are tvbuffified we shouldn't have to
-       do this any more. */
-    length += eth_offset + ETH_HEADER_SIZE;
-    if (pinfo->len > length)
-      pinfo->len = length;
-    if (pinfo->captured_len > length)
-      pinfo->captured_len = length;
 
     dissect_802_3(etype, is_802_2, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree,
 		  hf_eth_len, hf_eth_trailer);

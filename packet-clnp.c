@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.37 2001/11/15 10:58:48 guy Exp $
+ * $Id: packet-clnp.c,v 1.38 2001/11/20 22:29:04 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -1812,14 +1812,6 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Length of CLNP datagram plus headers above it. */
   len = segment_length;
 
-  /* Set the payload and captured-payload lengths to the minima of (the
-     datagram length plus the length of the headers above it) and the
-     frame lengths. */
-  if (pinfo->len > len)
-    pinfo->len = len;
-  if (pinfo->captured_len > len)
-    pinfo->captured_len = len;
-
   offset = cnf_hdr_len;
 
   /* For now, dissect the payload of segments other than the initial
@@ -1933,11 +1925,10 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* It's not fragmented. */
       pinfo->fragmented = FALSE;
 
-      /* Save the current value of "pi", and adjust certain fields to
-         reflect the new tvbuff. */
+      /* XXX - is this still necessary?  Do we have to worry about
+         subdissectors changing "pi", or, given that we're no longer
+         doing so, is that no longer an issue? */
       save_pi = pi;
-      pi.len = tvb_reported_length(next_tvb);
-      pi.captured_len = tvb_length(next_tvb);
       must_restore_pi = TRUE;
     } else {
       /* We don't have the complete reassembled payload. */

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.158 2001/11/20 21:59:12 guy Exp $
+ * $Id: capture.c,v 1.159 2001/11/20 22:29:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1148,12 +1148,6 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
   whdr.pkt_encap = ld->linktype;
   wtap_dump(ld->pdh, &whdr, NULL, pd, &err);
 
-  /* Set the initial payload to the packet length, and the initial
-     captured payload to the capture length (other protocols may
-     reduce them if their headers say they're less). */
-  pi.len = whdr.len;
-  pi.captured_len = whdr.caplen;
-    
   /* update capture statistics */
   switch (ld->linktype) {
     case WTAP_ENCAP_ETHERNET:
@@ -1873,12 +1867,6 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
      }
   }
 
-  /* Set the initial payload to the packet length, and the initial
-     captured payload to the capture length (other protocols may
-     reduce them if their headers say they're less). */
-  pi.len = phdr->len;
-  pi.captured_len = phdr->caplen;
-    
   switch (ld->linktype) {
     case WTAP_ENCAP_ETHERNET:
       capture_eth(pd, 0, phdr->len, &ld->counts);

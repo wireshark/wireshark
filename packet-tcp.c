@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.114 2001/11/15 10:58:48 guy Exp $
+ * $Id: packet-tcp.c,v 1.115 2001/11/20 22:29:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -392,11 +392,11 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			/* indicate that this is reassembled data */
 			tcpinfo->is_reassembled = TRUE;
 
-			/* save current value of *pinfo across call to
-			   dissector */
+			/* XXX - is this still necessary?  Do we have to
+			   worry about subdissectors changing "*pinfo", or,
+			   given that we're no longer doing so, is that no
+			   longer an issue? */
 			save_pi = *pinfo;
-			pinfo->len = tvb_reported_length(next_tvb);
-			pinfo->captured_len = tvb_length(next_tvb);
 
 			/* call subdissector */
 			decode_tcp_ports(next_tvb, 0, pinfo, tree,

@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.12 2001/11/15 10:58:49 guy Exp $
+ * $Id: packet-wcp.c,v 1.13 2001/11/20 22:29:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -396,11 +396,10 @@ void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			return;
 		}
 
-		/* Save the current value of "pi", and adjust certain fields to
-		   reflect the new tvbuff. */
+		/* XXX - is this still necessary?  Do we have to worry
+		   about subdissectors changing "pi", or, given that
+		   we're no longer doing so, is that no longer an issue? */
 		save_pi = pi;
-		pi.len = tvb_reported_length(next_tvb);
-		pi.captured_len = tvb_length(next_tvb);
 		must_restore_pi = TRUE;
 	}
 
