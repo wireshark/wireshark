@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.44 1999/09/24 03:28:59 gram Exp $
+# $Id: configure.in,v 1.45 1999/09/24 04:59:45 gram Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -29,7 +29,7 @@ else
   AC_MSG_RESULT(no)
 fi
 
-CFLAGS="$CFLAGS -Iwiretap"
+CFLAGS="$CFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap"
 
 # Create DATAFILE_DIR #define for config.h
 DATAFILE_DIR=$sysconfdir
@@ -165,7 +165,7 @@ AC_SUBST(STRERROR_C)
 AC_SUBST(STRERROR_O)
 
 dnl blank for now, but will be used in future
-AC_SUBST(SUBDIRS)
+AC_SUBST(ethereal_SUBDIRS)
 
 AM_CONFIG_HEADER(config.h)
 AC_CONFIG_SUBDIRS(wiretap)

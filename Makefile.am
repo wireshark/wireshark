@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.75 1999/09/24 03:43:03 gram Exp $
+# $Id: Makefile.am,v 1.76 1999/09/24 04:59:45 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -159,7 +159,7 @@ rdps: rdps.c
 	$(CC) -o rdps $(srcdir)/rdps.c
 
 randpkt.o: randpkt.c
-	$(CC) -DHAVE_CONFIG_H `glib-config --cflags` -c $(srcdir)/randpkt.c
+	$(CC) -DHAVE_CONFIG_H -I. `glib-config --cflags` -c $(srcdir)/randpkt.c
 
 randpkt: randpkt.o wiretap/libwiretap.a
 	$(LINK) -o randpkt randpkt.o wiretap/libwiretap.a `glib-config --libs` -lz
@@ -175,18 +175,21 @@ EXTRA_DIST = \
 	doc/Makefile.am         \
 	doc/dfilter2pod.in      \
 	doc/ethereal.pod.template \
+	doc/randpkt.txt		\
 	ethereal.spec.in         \
 	image/icon-excl.xpm     \
 	image/icon-ethereal.xpm \
 	Makefile.nmake		\
 	manuf                   \
 	print.ps                \
+	README.irix		\
 	README.linux		\
 	README.tru64		\
 	README.win32		\
+	randpkt.c		\
 	rdps.c
 
-SUBDIRS = wiretap gtk @SUBDIRS@
+SUBDIRS = wiretap gtk @ethereal_SUBDIRS@
 
 ethereal.1: ethereal doc/ethereal.pod.template
 	(cd doc ; \
