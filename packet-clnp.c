@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.73 2003/04/20 11:36:13 guy Exp $
+ * $Id: packet-clnp.c,v 1.74 2003/04/22 22:03:45 deniel Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -27,7 +27,6 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-#include <signal.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -1656,8 +1655,6 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t   *next_tvb;
   gboolean    update_col_info = TRUE;
   gboolean    save_fragmented;
-
-  signal(SIGSEGV, SIG_DFL);
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CLNP");
