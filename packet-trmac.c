@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-trmac.c,v 1.35 2002/01/21 07:36:44 guy Exp $
+ * $Id: packet-trmac.c,v 1.36 2002/06/02 17:51:00 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include "packet-frame.h"
 
 static int proto_trmac = -1;
 static int hf_trmac_mv = -1;
@@ -114,6 +115,15 @@ sv_text(tvbuff_t *tvb, int svoff, proto_tree *tree)
 	proto_item	*ti;
 
 	u_char		errors[6];	/* isolating or non-isolating */
+
+	/* Check the SV length. 
+	   XXX - Should we do this in each case statement below, e.g. to force
+	   an SV length of 6 for the NAUN address? */
+	if (sv_length < 1) {
+		proto_tree_add_protocol_format(tree, proto_malformed, tvb, svoff+0, 1,
+			"Invalid subvector length: %d bytes", sv_length);
+		return sv_length;
+	}
 
 	/* this just adds to the clutter on the screen...
 	proto_tree_add_text(tree, tvb, svoff, 1,
