@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.91 1999/08/16 23:58:30 guy Exp $
+ * $Id: ethereal.c,v 1.92 1999/08/17 00:10:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -186,7 +186,9 @@ file_progress_cb(gpointer p) {
   return TRUE;
 }
 
-/* Follow a TCP stream */
+/* Follow the TCP stream, if any, to which the last packet that we called
+   a dissection routine on belongs (this might be the most recently
+   selected packet, or it might be the last packet in the file). */
 void
 follow_stream_cb( GtkWidget *w, gpointer data ) {
   char filename1[128];
@@ -201,7 +203,12 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     /* we got tcp so we can follow */
     /* Create a temporary file into which to dump the reassembled data
        from the TCP stream, and set "data_out_file" to refer to it, so
-       that the TCP code will write to it. */
+       that the TCP code will write to it.
+
+       XXX - it might be nicer to just have the TCP code directly
+       append stuff to the text widget for the TCP stream window,
+       if we can arrange that said window not pop up until we're
+       done. */
     snprintf( filename1, sizeof filename1, "%sXXXXXXXXXX", P_tmpdir );
     tmp_fd = mkstemp( filename1 );
     if (tmp_fd == -1) {
@@ -287,13 +294,17 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
 	  break;
 	}
       }
+      if( ferror( data_out_file ) ) {
+        simple_dialog(ESD_TYPE_WARN, NULL,
+          "Error reading temporary file %s: %s", filename1, strerror(errno));
+      }
       fclose( data_out_file );
-      unlink( filename1 );
     } else {
       simple_dialog(ESD_TYPE_WARN, NULL,
         "Could not open temporary file %s: %s", filename1, strerror(errno));
     }
     gtk_text_thaw( GTK_TEXT(text) );
+    unlink( filename1 );
     data_out_file = NULL;
     gtk_widget_show( streamwindow );
     if( cf.dfilter != NULL ) {
