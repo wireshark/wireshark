@@ -84,8 +84,8 @@ static guint pgsql_port = 5432;
 static gboolean pgsql_desegment = TRUE;
 static gboolean first_message = TRUE;
 
-static void dissect_pgsql_fe_msg(guchar, guint32, guint32, tvbuff_t *, proto_tree *);
-static void dissect_pgsql_be_msg(guchar, guint32, guint32, tvbuff_t *, proto_tree *);
+static void dissect_pgsql_fe_msg(guchar, guint, tvbuff_t *, gint, proto_tree *);
+static void dissect_pgsql_be_msg(guchar, guint, tvbuff_t *, gint, proto_tree *);
 static void dissect_pgsql_msg(tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_pgsql(tvbuff_t *, packet_info *, proto_tree *);
 static char *identify(gboolean, guchar);
@@ -348,7 +348,7 @@ pgsql_length(tvbuff_t *tvb, int offset)
 {
     gint n = 0;
     guchar type;
-    guint32 length;
+    guint length;
 
     /* The length is either the four bytes after the type, or, if the
        type is 0, the first four bytes. */
@@ -371,7 +371,7 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint n;
     guchar type;
     char *typestr;
-    guint32 length;
+    guint length;
     gboolean info = check_col(pinfo->cinfo, COL_INFO);
     gboolean fe = (pinfo->match_port == pinfo->destport);
 
@@ -385,7 +385,7 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        We identify them by the fact that the first byte of their length
        must be zero, and that the next four bytes are a unique tag. */
     if (fe && type == '\0') {
-        guint32 tag = tvb_get_ntohl(tvb, 4);
+        guint tag = tvb_get_ntohl(tvb, 4);
 
         if (length == 16 && tag == 80877102)
             typestr = "Cancel request";
@@ -423,9 +423,9 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         n += 4;
 
         if (fe)
-            dissect_pgsql_fe_msg(type, n, length, tvb, ptree);
+            dissect_pgsql_fe_msg(type, length, tvb, n, ptree);
         else
-            dissect_pgsql_be_msg(type, n, length, tvb, ptree);
+            dissect_pgsql_be_msg(type, length, tvb, n, ptree);
     }
 }
 
@@ -449,12 +449,12 @@ static const value_string fe_messages[] = {
 };
 
 
-static void dissect_pgsql_fe_msg(guchar type, guint32 n, guint32 length,
-                          tvbuff_t *tvb, proto_tree *tree)
+static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
+                                 gint n, proto_tree *tree)
 {
     guchar c;
+    gint i, l;
     char *s, *t;
-    guint32 i, l;
     proto_item *ti;
     proto_tree *shrub;
 
@@ -525,13 +525,9 @@ static void dissect_pgsql_fe_msg(guchar type, guint32 n, guint32 length,
             proto_tree_add_int(shrub, hf_val_length, tvb, n, 4, l);
             n += 4;
             if (l > 0) {
-                /* Use tvb_ensure_bytes_exist() to handle the case where l
-                   is > 2^32-1, so we don't have a problem with negative
-                   values. */
-                tvb_ensure_bytes_exist(tvb, n, l);
                 proto_tree_add_item(shrub, hf_val_data, tvb, n, l, FALSE);
+                n += l;
             }
-            n += l;
         }
 
         i = tvb_get_ntohs(tvb, n);
@@ -656,9 +652,10 @@ static void dissect_pgsql_fe_msg(guchar type, guint32 n, guint32 length,
             l = tvb_get_ntohl(tvb, n);
             proto_tree_add_item(shrub, hf_val_length, tvb, n, 4, FALSE);
             n += 4;
-            if (l > 0)
+            if (l > 0) {
                 proto_tree_add_item(shrub, hf_val_data, tvb, n, l, FALSE);
-            n += l;
+                n += l;
+            }
         }
 
         proto_tree_add_item(tree, hf_format, tvb, n, 2, FALSE);
@@ -694,12 +691,12 @@ static const value_string be_messages[] = {
 };
 
 
-static void dissect_pgsql_be_msg(guchar type, guint32 n, guint32 length,
-                          tvbuff_t *tvb, proto_tree *tree)
+static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
+                                 gint n, proto_tree *tree)
 {
     guchar c;
+    gint i, l;
     char *s, *t;
-    guint32 i, l;
     proto_item *ti;
     proto_tree *shrub;
 
@@ -784,13 +781,9 @@ static void dissect_pgsql_be_msg(guchar type, guint32 n, guint32 length,
             proto_tree_add_int(shrub, hf_val_length, tvb, n, 4, l);
             n += 4;
             if (l > 0) {
-              /* Use tvb_ensure_bytes_exist() to handle the case where l
-                 is > 2^32-1, so we don't have a problem with negative
-                 values. */
-                tvb_ensure_bytes_exist(tvb, n, l);
                 proto_tree_add_item(shrub, hf_val_data, tvb, n, l, FALSE);
+                n += l;
             }
-            n += l;
         }
         break;
 
