@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.57 2001/11/28 09:44:27 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.58 2001/11/28 11:33:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2614,6 +2614,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 	proto_item *pipe_item = NULL;
 	proto_tree *pipe_tree = NULL;
 	int offset;
+	int trans_subcmd;
 	int function;
 	int fid = -1;
 	guint16 info_level;
@@ -2747,12 +2748,16 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 
 	if(smb_info->request){
 		if(strncmp(pipe,"LANMAN",6) == 0){
-			tri->trans_subcmd=PIPE_LANMAN;
+			trans_subcmd=PIPE_LANMAN;
 		} else {
 			/* assume it is MSRPC*/
-			tri->trans_subcmd=PIPE_MSRPC;
+			trans_subcmd=PIPE_MSRPC;
 		}
-	}
+		
+		if (!pinfo->fd->flags.visited)
+			tri->trans_subcmd = trans_subcmd;
+	} else
+		trans_subcmd = tri->trans_subcmd;
 
 	if (tri == NULL) {
 		/*
@@ -2766,7 +2771,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 
 	case CALL_NAMED_PIPE:
 	case TRANSACT_NM_PIPE:
-		switch(tri->trans_subcmd){
+		switch(trans_subcmd){
 
 		case PIPE_LANMAN:
 			return dissect_pipe_lanman(pd_tvb, p_tvb, d_tvb, pinfo,
@@ -2792,7 +2797,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		 * We don't know the function; we dissect only LANMAN
 		 * pipe messages, not RPC pipe messages, in that case.
 		 */
-		switch(tri->trans_subcmd){
+		switch(trans_subcmd){
 		case PIPE_LANMAN:
 			return dissect_pipe_lanman(pd_tvb, p_tvb, d_tvb, pinfo,
 			    tree);
@@ -2860,7 +2865,8 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			proto_tree_add_uint(pipe_tree, hf_pipe_getinfo_info_level,
 			    p_tvb, offset, 2, info_level);
 			offset += 2;
-			tri->info_level = info_level;
+			if (!pinfo->fd->flags.visited)
+				tri->info_level = info_level;
 		} else {
 			guint8 pipe_namelen;
 

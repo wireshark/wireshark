@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.172 2001/11/28 09:44:27 guy Exp $
+ * $Id: packet-smb.c,v 1.173 2001/11/28 11:33:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5747,6 +5747,7 @@ static const value_string is_directory_vals[] = {
 };
 
 typedef struct _nt_trans_data {
+	int subcmd;
 	guint32 sd_len;
 	guint32 ea_len;
 } nt_trans_data;
@@ -6143,19 +6144,17 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
-	smb_nt_transact_info_t *nti;
 
 	si = (smb_info_t *)pinfo->private_data;
-	nti = si->sip->extra_info;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, len,
 				"%s Data",
-				val_to_str(nti->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
+				val_to_str(ntd->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
 		tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
 	}
 
-	switch(nti->subcmd){
+	switch(ntd->subcmd){
 	case NT_TRANS_CREATE:
 		/* security descriptor */
 		if(ntd->sd_len){
@@ -6198,21 +6197,19 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
-	smb_nt_transact_info_t *nti;
 	guint32 fn_len;
 	const char *fn;
 
 	si = (smb_info_t *)pinfo->private_data;
-	nti = si->sip->extra_info;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, len,
 				"%s Parameters",
-				val_to_str(nti->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
+				val_to_str(ntd->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
 		tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
 	}
 
-	switch(nti->subcmd){
+	switch(ntd->subcmd){
 	case NT_TRANS_CREATE:
 		/* Create flags */
 		offset = dissect_nt_create_bits(tvb, pinfo, tree, offset);
@@ -6320,20 +6317,18 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
-	smb_nt_transact_info_t *nti;
 	int old_offset = offset;
 
 	si = (smb_info_t *)pinfo->private_data;
-	nti = si->sip->extra_info;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, len,
 				"%s Setup",
-				val_to_str(nti->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
+				val_to_str(ntd->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
 		tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
 	}
  
-	switch(nti->subcmd){
+	switch(ntd->subcmd){
 	case NT_TRANS_CREATE:
 		break;
 	case NT_TRANS_IOCTL:
@@ -6390,6 +6385,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	guint32 pc=0, po=0, pd, dc=0, od=0, dd;
 	smb_info_t *si;
 	smb_saved_info_t *sip;
+	int subcmd;
 	nt_trans_data ntd;
 	guint16 bc;
 	int padcnt;
@@ -6492,6 +6488,13 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	/* function */
 	if(wc>=19){
 		/* primary request */
+		subcmd = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_nt_trans_subcmd, tvb, offset, 2, subcmd);
+		if(check_col(pinfo->fd, COL_INFO)){
+			col_append_fstr(pinfo->fd, COL_INFO, ", %s",
+				val_to_str(subcmd, nt_cmd_vals, "<unknown>"));
+		}
+		ntd.subcmd = subcmd;
 		if (!si->unidir) {
 			if(!pinfo->fd->flags.visited){
 				/* 
@@ -6499,24 +6502,9 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				 * structure.
 				 */
 				nti = g_mem_chunk_alloc(smb_nt_transact_info_chunk);
-				nti->subcmd = -1;
+				nti->subcmd = subcmd;
 				sip->extra_info = nti;
-			} else
-				nti = sip->extra_info;
-		} else {
-			/*
-			 * This is a unidirectional message, for
-			 * which there will be no reply; don't
-			 * bother allocating an "smb_nt_transact_info_t"
-			 * structure for it.
-			 */
-			nti = NULL;
-		}
-		nti->subcmd = tvb_get_letohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_nt_trans_subcmd, tvb, offset, 2, nti->subcmd);
-		if(check_col(pinfo->fd, COL_INFO)){
-			col_append_fstr(pinfo->fd, COL_INFO, ", %s",
-				val_to_str(nti->subcmd, nt_cmd_vals, "<unknown>"));
+			}
 		}
 	} else {
 		/* secondary request */
@@ -7643,7 +7631,7 @@ dissect_ff2_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 
 static int
 dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *parent_tree, int offset, guint16 bc)
+    proto_tree *parent_tree, int offset, int subcmd, guint16 bc)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7654,17 +7642,20 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 	int old_offset = offset;
 
 	si = (smb_info_t *)pinfo->private_data;
-	t2i = si->sip->extra_info;
+	if (si->sip != NULL)
+		t2i = si->sip->extra_info;
+	else
+		t2i = NULL;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, bc,
 				"%s Parameters",
-				val_to_str(t2i->subcmd, trans2_cmd_vals, 
+				val_to_str(subcmd, trans2_cmd_vals, 
 					   "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_transaction_params);
 	}
 
-	switch(t2i->subcmd){
+	switch(subcmd){
 	case 0x00:	/*TRANS2_OPEN2*/
 		/* open flags */
 		CHECK_BYTE_COUNT_TRANS(2);
@@ -7741,8 +7732,10 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* Find First2 information level */
 		CHECK_BYTE_COUNT_TRANS(2);
-		t2i->info_level = tvb_get_letohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, offset, 2, t2i->info_level);
+		si->info_level = tvb_get_letohs(tvb, offset);
+		if (!pinfo->fd->flags.visited)
+			t2i->info_level = si->info_level;
+		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 
 		/* storage type */
@@ -7778,8 +7771,10 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* Find First2 information level */
 		CHECK_BYTE_COUNT_TRANS(2);
-		t2i->info_level = tvb_get_letohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, offset, 2, t2i->info_level);
+		si->info_level = tvb_get_letohs(tvb, offset);
+		if (!pinfo->fd->flags.visited)
+			t2i->info_level = si->info_level;
+		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 
 		/* resume key */
@@ -7808,16 +7803,20 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 	case 0x03:	/*TRANS2_QUERY_FS_INFORMATION*/
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
-		t2i->info_level = tvb_get_letohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_qfsi_information_level, tvb, offset, 2, t2i->info_level);
+		si->info_level = tvb_get_letohs(tvb, offset);
+		if (!pinfo->fd->flags.visited)
+			t2i->info_level = si->info_level;
+		proto_tree_add_uint(tree, hf_smb_qfsi_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 
 		break;
 	case 0x05:	/*TRANS2_QUERY_PATH_INFORMATION*/
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
-		t2i->info_level = tvb_get_letohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, t2i->info_level);
+		si->info_level = tvb_get_letohs(tvb, offset);
+		if (!pinfo->fd->flags.visited)
+			t2i->info_level = si->info_level;
+		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 		
 		/* 4 reserved bytes */
@@ -7841,8 +7840,10 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 	case 0x06:	/*TRANS2_SET_PATH_INFORMATION*/
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
-		t2i->info_level = tvb_get_letohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, t2i->info_level);
+		si->info_level = tvb_get_letohs(tvb, offset);
+		if (!pinfo->fd->flags.visited)
+			t2i->info_level = si->info_level;
+		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 		
 		/* 4 reserved bytes */
@@ -7871,8 +7872,10 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
-		t2i->info_level = tvb_get_letohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, t2i->info_level);
+		si->info_level = tvb_get_letohs(tvb, offset);
+		if (!pinfo->fd->flags.visited)
+			t2i->info_level = si->info_level;
+		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 		
 		break;
@@ -7884,8 +7887,10 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
-		t2i->info_level = tvb_get_letohs(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, t2i->info_level);
+		si->info_level = tvb_get_letohs(tvb, offset);
+		if (!pinfo->fd->flags.visited)
+			t2i->info_level = si->info_level;
+		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 		
 		/* 2 reserved bytes */
@@ -8711,7 +8716,6 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     int offset, guint16 *bcp)
 {
 	smb_info_t *si;
-	smb_transact2_info_t *t2i;
 	gboolean trunc;
 
 	if(!*bcp){
@@ -8719,8 +8723,7 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	}
 	
 	si = (smb_info_t *)pinfo->private_data;
-	t2i = si->sip->extra_info;
-	switch(t2i->info_level){
+	switch(si->info_level){
 	case 1:		/*Info Standard*/
 	case 2:		/*Info Query EA Size*/
 		offset = dissect_4_2_14_1(tvb, pinfo, tree, offset, bcp,
@@ -8784,25 +8787,23 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 static int
 dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *parent_tree, int offset, guint16 dc)
+    proto_tree *parent_tree, int offset, int subcmd, guint16 dc)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
-	smb_transact2_info_t *t2i;
 
 	si = (smb_info_t *)pinfo->private_data;
-	t2i = si->sip->extra_info;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, dc,
 				"%s Data",
-				val_to_str(t2i->subcmd, trans2_cmd_vals, 
+				val_to_str(subcmd, trans2_cmd_vals, 
 						"Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_transaction_data);
 	}
 
-	switch(t2i->subcmd){
+	switch(subcmd){
 	case 0x00:	/*TRANS2_OPEN2*/
 		/* XXX FAEList here?*/
 		break;
@@ -8926,7 +8927,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int spo=offset;
 	int spc=0;
 	guint16 od=0, tf, po=0, pc=0, dc=0, pd, dd=0;
-	guint16 subcmd;
+	int subcmd = -1;
 	guint32 to;
 	int an_len;
 	const char *an = NULL;
@@ -9081,6 +9082,16 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			switch(si->cmd){
 
 			case SMB_COM_TRANSACTION2:
+				/* TRANSACTION2 only has one setup word and
+				   that is the subcommand code. */
+				subcmd = tvb_get_letohs(tvb, offset);
+				proto_tree_add_uint(tree, hf_smb_trans2_subcmd,
+				    tvb, offset, 2, subcmd);
+				if (check_col(pinfo->fd, COL_INFO)) {
+					col_append_fstr(pinfo->fd, COL_INFO, " %s",
+ 					    val_to_str(subcmd, trans2_cmd_vals, 
+						"Unknown (0x%02x)"));
+				}
 				if (!si->unidir) {
 					if(!pinfo->fd->flags.visited){
 						/* 
@@ -9089,34 +9100,11 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						 * structure.
 						 */
 						t2i = g_mem_chunk_alloc(smb_transact2_info_chunk);
-						t2i->subcmd = -1;
+						t2i->subcmd = subcmd;
 						t2i->info_level = -1;
 						si->sip->extra_info = t2i;
-					} else
-						t2i = si->sip->extra_info;
-				} else {
-					/*
-					 * This is a unidirectional message,
-					 * for which there will be no reply;
-					 * don't bother allocating an
-					 * "smb_transact2_info_t"
-					 * structure for it.
-					 */
-					t2i = NULL;
-				}
-				/* TRANSACTION2 only has one setup word and
-				   that is the subcommand code. */
-				subcmd = tvb_get_letohs(tvb, offset);
-				if (!si->unidir)
-					t2i->subcmd = subcmd;
-				proto_tree_add_uint(tree, hf_smb_trans2_subcmd,
-				    tvb, offset, 2, subcmd);
-
-				if (check_col(pinfo->fd, COL_INFO)) {
-					col_append_fstr(pinfo->fd, COL_INFO, " %s",
- 					    val_to_str(subcmd, trans2_cmd_vals, 
-						"Unknown (0x%02x)"));
-				}
+					}
+				}     
 				break;
 
 			case SMB_COM_TRANSACTION:
@@ -9171,7 +9159,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		case SMB_COM_TRANSACTION2:
 			/* TRANSACTION2 parameters*/
 			offset = dissect_transaction2_request_parameters(tvb,
-			    pinfo, tree, offset, pc);
+			    pinfo, tree, offset, subcmd, pc);
 			bc -= pc;
 			break;
 
@@ -9199,7 +9187,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		case SMB_COM_TRANSACTION2:
 			/* TRANSACTION2 data*/
 			offset = dissect_transaction2_request_data(tvb, pinfo,
-			    tree, offset, dc);
+			    tree, offset, subcmd, dc);
 			bc -= dc;
 			break;
 
@@ -9263,8 +9251,13 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					tri->aux_data_descrip = NULL;
 					tri->info_level = -1;
 					si->sip->extra_info = tri;
-				} else
-					tri = si->sip->extra_info;
+				} else {
+					/*
+					 * We already filled the structure
+					 * in; don't bother doing so again.
+					 */
+					tri = NULL;
+				}
 			} else {
 				/*
 				 * This is a unidirectional message, for
@@ -9276,7 +9269,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			dissected_trans = FALSE;
 			if(strncmp("\\PIPE\\", an, 6) == 0){
-				if (!si->unidir)
+				if (tri != NULL)
 					tri->subcmd=TRANSACTION_PIPE;
 
 				/*
@@ -9295,7 +9288,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    s_tvb, pd_tvb, p_tvb, d_tvb, an+6, pinfo,
 				    top_tree);
 			} else if(strncmp("\\MAILSLOT\\", an, 10) == 0){
-				if (!si->unidir)
+				if (tri != NULL)
 					tri->subcmd=TRANSACTION_MAILSLOT;
 
 				/*
@@ -9335,14 +9328,12 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
-	smb_transact2_info_t *t2i;
 
 	si = (smb_info_t *)pinfo->private_data;
-	t2i = si->sip->extra_info;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
-		    val_to_str(t2i->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
 	}
 
@@ -9417,14 +9408,12 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
-	smb_transact2_info_t *t2i;
 
 	si = (smb_info_t *)pinfo->private_data;
-	t2i = si->sip->extra_info;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
-		    val_to_str(t2i->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
 	}
  
@@ -9504,16 +9493,14 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
-	smb_transact2_info_t *t2i;
 	guint32 neo;
 	int padcnt;
 
 	si = (smb_info_t *)pinfo->private_data;
-	t2i = si->sip->extra_info;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
-		    val_to_str(t2i->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
 	}
 
@@ -9617,16 +9604,14 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
-	smb_transact2_info_t *t2i;
 	guint32 neo;
 	int padcnt;
 
 	si = (smb_info_t *)pinfo->private_data;
-	t2i = si->sip->extra_info;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
-		    val_to_str(t2i->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
 	}
 
@@ -9735,16 +9720,14 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
-	smb_transact2_info_t *t2i;
 	guint32 neo;
 	int padcnt;
 
 	si = (smb_info_t *)pinfo->private_data;
-	t2i = si->sip->extra_info;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
-		    val_to_str(t2i->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
 	}
 
@@ -9871,16 +9854,14 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
-	smb_transact2_info_t *t2i;
 	guint32 neo;
 	int padcnt;
 
 	si = (smb_info_t *)pinfo->private_data;
-	t2i = si->sip->extra_info;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, *bcp, "%s",
-		    val_to_str(t2i->info_level, ff2_il_vals, "Unknown (0x%02x)"));
+		    val_to_str(si->info_level, ff2_il_vals, "Unknown (0x%02x)"));
 		tree = proto_item_add_subtree(item, ett_smb_ff2_data);
 	}
  
@@ -9952,15 +9933,13 @@ dissect_ff2_response_data(tvbuff_t * tvb, packet_info * pinfo,
     proto_tree * tree, int offset, guint16 *bcp, gboolean *trunc)
 {
 	smb_info_t *si;
-	smb_transact2_info_t *t2i;
 
 	if(!*bcp){
 		return offset;
 	}
 	
 	si = (smb_info_t *)pinfo->private_data;
-	t2i = si->sip->extra_info;
-	switch(t2i->info_level){
+	switch(si->info_level){
 	case 1:		/*Info Standard*/
 		offset = dissect_4_3_4_1(tvb, pinfo, tree, offset, bcp,
 		    trunc);
@@ -10078,7 +10057,6 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     int offset, guint16 *bcp)
 {
 	smb_info_t *si;
-	smb_transact2_info_t *t2i;
 	int fn_len, vll, fnl;
 	const char *fn;
 
@@ -10087,8 +10065,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	}
 	
 	si = (smb_info_t *)pinfo->private_data;
-	t2i = si->sip->extra_info;
-	switch(t2i->info_level){
+	switch(si->info_level){
 	case 1:		/* SMB_INFO_ALLOCATION */
 		/* filesystem id */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
@@ -10450,7 +10427,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		break;
 	case 0x01:	/*TRANS2_FIND_FIRST2*/
 		/* Find First2 information level */
-		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, 0, 0, t2i->info_level);
+		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, 0, 0, si->info_level);
 
 		/* sid */
 		proto_tree_add_item(tree, hf_smb_sid, tvb, offset, 2, TRUE);
@@ -10574,9 +10551,10 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	switch(si->cmd){
 	case SMB_COM_TRANSACTION2:
 		/* transaction2 */
-		if (si->sip != NULL)
+		if (si->sip != NULL) {
 			t2i = si->sip->extra_info;
-		else
+			si->info_level = t2i->info_level;
+		} else
 			t2i = NULL;
 		if (t2i == NULL) {
 			/*
@@ -12761,6 +12739,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	flags = tvb_get_guint8(tvb, offset+9);
 	si.request = !(flags&SMB_FLAGS_DIRN);
 	si.cmd = tvb_get_guint8(tvb, offset+4);
+	si.info_level = -1;
 	si.info_count = -1;
 
 	if (parent_tree) {
@@ -12957,24 +12936,14 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			}
 		} else {
 			/* we have seen this packet before; check the
-			   matching table
+			   matching table.
+			   If we haven't yet seen the reply, we won't
+			   find the info for it; we don't need it, as
+			   we only use it to save information, and, as
+			   we've seen this packet before, we've already
+			   saved the information.
 			*/
 			sip=g_hash_table_lookup(ct->matched, (void *)pinfo->fd->num);
-			if (sip == NULL) {
-				/*
-				 * We didn't find it.
-				 * If that's a request, it's because we haven't
-				 * yet seen the reply (either because we
-				 * don't have it, or because we haven't
-				 * dissected it yet - yes, that can happen
-				 * if, for example, we're rebuilding the
-				 * packet list, and we've added the packet
-				 * to the list, and it's made the selected
-				 * entry), so check the unmatched table.
-				 */
-				if (si.request)
-					sip=g_hash_table_lookup(ct->unmatched, (void *)si.mid);
-			}
 		}
 	}
 

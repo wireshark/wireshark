@@ -2,7 +2,7 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.27 2001/11/28 09:44:27 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.28 2001/11/28 11:33:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -123,9 +123,12 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 		} else if(strncmp(mailslot,"MSSP",4) == 0){
 			trans_subcmd=MAILSLOT_MSSP;
 		}
-	}
-	if (tri != NULL)
-		tri->trans_subcmd = trans_subcmd;
+		if (!pinfo->fd->flags.visited) {
+			if (tri != NULL)
+				tri->trans_subcmd = trans_subcmd;
+		}
+	} else
+		trans_subcmd = tri->trans_subcmd;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_smb_msp, mshdr_tvb,
