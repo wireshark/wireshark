@@ -46,7 +46,10 @@ versions of the B<Sniffer> software.
 A list of packet numbers can be specified on the command line; the
 packets with those numbers will I<not> be written to the capture file,
 unless the B<-r> flag is specified, in which case I<only> those packets
-will be written to the capture file.
+will be written to the capture file.  Ranges of packet numbers can be
+specified as I<start>-I<end>, referring to all packets from I<start> to
+I<end> (removing them all if B<-r> isn't specified, including them all
+if B<-r> is specified).
 
 If the B<-s> flag is used to specify a snapshot length, frames in the
 input file with more captured data than the specified snapshot length
