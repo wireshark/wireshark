@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.13 2000/08/18 12:05:27 itojun Exp $
+ * $Id: packet-ipv6.h,v 1.14 2000/11/09 14:09:41 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -460,33 +460,13 @@ struct ni_reply_fqdn {
 /*
  * Router Renumbering. as router-renum-05.txt
  */
-#if BYTE_ORDER == BIG_ENDIAN /* net byte order */
 struct icmp6_router_renum {	/* router renumbering header */
 	struct icmp6_hdr	rr_hdr;
 	guint8		rr_segnum;
-	guint32		rr_test : 1;
-	guint32		rr_reqresult : 1;
-	guint32		rr_forceapply : 1;
-	guint32		rr_specsite : 1;
-	guint32		rr_prevdone : 1;
-	guint32		rr_flags_reserved : 3;
+	guint8		rr_flags;
 	guint16		rr_maxdelay;
 	guint32		rr_reserved;
 };
-#elif BYTE_ORDER == LITTLE_ENDIAN
-struct icmp6_router_renum {	/* router renumbering header */
-	struct icmp6_hdr	rr_hdr;
-	guint8		rr_segnum;
-	guint32		rr_flags_reserved : 3;
-	guint32		rr_prevdone : 1;
-	guint32		rr_specsite : 1;
-	guint32		rr_forceapply : 1;
-	guint32		rr_reqresult : 1;
-	guint32		rr_test : 1;
-	guint16		rr_maxdelay;
-	guint32		rr_reserved;
-};
-#endif /* BYTE_ORDER */
 
 #define rr_type			rr_hdr.icmp6_type
 #define rr_code			rr_hdr.icmp6_code

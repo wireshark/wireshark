@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.26 2000/10/12 14:58:02 gram Exp $
+ * $Id: packet-icmpv6.c,v 1.27 2000/11/09 14:09:41 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -946,9 +946,9 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		offset + offsetof(struct icmp6_router_renum, rr_segnum), 1,
 		"Segment number: 0x%02x", rr->rr_segnum);
 
-	    flagoff = offset + offsetof(struct icmp6_router_renum, rr_segnum) + 1;
-	    tf = proto_tree_add_text(icmp6_tree, NullTVB, flagoff, 4, "Flags: 0x%08x",
-		pd[flagoff]);
+	    flagoff = offset + offsetof(struct icmp6_router_renum, rr_flags);
+	    tf = proto_tree_add_text(icmp6_tree, NullTVB, flagoff, 1,
+	        "Flags: 0x%02x", pd[flagoff]);
 	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
 	    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
 		decode_boolean_bitfield(pd[flagoff], 0x80, 8,
@@ -967,9 +967,10 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    "Processed previously", "Complete result"));
 
 	    proto_tree_add_text(icmp6_tree, NullTVB,
-		offset + offsetof(struct icmp6_router_renum, rr_segnum), 2,
+		offset + offsetof(struct icmp6_router_renum, rr_maxdelay), 2,
 		"Max delay: 0x%04x", pntohs(&rr->rr_maxdelay));
 	    old_dissect_data(pd, offset + sizeof(*rr), fd, tree);	/*XXX*/
+	    break;
 	  }
 	case ICMP6_NI_QUERY:
 	case ICMP6_NI_REPLY:
