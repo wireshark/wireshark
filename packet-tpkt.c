@@ -7,7 +7,7 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.15 2002/02/23 02:30:15 guy Exp $
+ * $Id: packet-tpkt.c,v 1.16 2002/02/23 21:07:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,13 +141,38 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		/*
+		 * Get the length from the TPKT header.
+		 */
+		data_len = tvb_get_ntohs(tvb, offset + 2);
+
+		/*
+		 * Can we do reassembly?
+		 */
+		if (desegment && pinfo->can_desegment) {
+			/*
+			 * Yes - is the payload split across segment
+			 * boundaries?
+			 */
+			if (length_remaining < data_len + 4) {
+				/*
+				 * Yes.  Tell the TCP dissector where
+				 * the data for this message starts in
+				 * the data it handed us, and how many
+				 * more bytes we need, and return.
+				 */
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len =
+				    (data_len + 4) - length_remaining;
+				return;
+			}
+		}
+
+		/*
 		 * Dissect the TPKT header.
 		 * Save and restore "pinfo->current_proto".
 		 */
 		saved_proto = pinfo->current_proto;
 		pinfo->current_proto = "TPKT";
-
-		data_len = tvb_get_ntohs(tvb, offset + 2);
 
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
@@ -174,28 +199,6 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    offset + 2, 2, data_len);
 		}
 		pinfo->current_proto = saved_proto;
-
-		/*
-		 * Can we do reassembly?
-		 */
-		if (desegment && pinfo->can_desegment) {
-			/*
-			 * Yes - is the payload split across segment
-			 * boundaries?
-			 */
-			if (length_remaining < data_len + 4) {
-				/*
-				 * Yes.  Tell the TCP dissector where
-				 * the data for this message starts in
-				 * the data it handed us, and how many
-				 * more bytes we need, and return.
-				 */
-				pinfo->desegment_offset = offset;
-				pinfo->desegment_len =
-				    (data_len + 4) - length_remaining;
-				return;
-			}
-		}
 
 		/* Skip the TPKT header. */
 		offset += 4;

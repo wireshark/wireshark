@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.39 2002/02/23 02:30:15 guy Exp $
+ * $Id: packet-q931.c,v 1.40 2002/02/23 21:07:47 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -2518,8 +2518,15 @@ dissect_q931_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * is one, and that the code put a TPKT header in one
 	 * segment and the rest of the PDU in another.
 	 */
-	if (tvb_length(tvb) == 4)
+	if (tvb_length(tvb) == 4) {
+		/*
+		 * It is - call the "dissect TPKT over a TCP stream"
+		 * routine.
+		 */
+		dissect_tpkt_encap(tvb, pinfo, tree, q931_desegment,
+		    q931_tpkt_pdu_handle);
 		return TRUE;
+	}
 
 	/*
 	 * Well, we have more data than just the TPKT header;
