@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.54 2002/11/14 18:54:53 guy Exp $
+ * $Id: plugin_table.h,v 1.55 2002/11/28 22:13:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -247,7 +247,7 @@ typedef void (*addr_p_add_proto_data)(frame_data *, int, void *);
 typedef void *(*addr_p_get_proto_data)(frame_data *, int);
 
 typedef gchar*	(*addr_ip_to_str)(const guint8 *);
-typedef char*	(*addr_ip6_to_str)(struct e_in6_addr *);
+typedef char*	(*addr_ip6_to_str)(const struct e_in6_addr *);
 typedef gchar*	(*addr_time_secs_to_str)(guint32);
 typedef gchar*	(*addr_time_msecs_to_str)(guint32);
 typedef gchar*	(*addr_abs_time_to_str)(nstime_t*);
