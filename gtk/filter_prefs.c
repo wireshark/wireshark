@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.44 2003/03/02 13:46:01 deniel Exp $
+ * $Id: filter_prefs.c,v 1.45 2003/04/21 19:43:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1126,11 +1126,17 @@ filter_new_bt_clicked_cb(GtkWidget *w, gpointer data)
     g_list_foreach(get_filter_dialog_list(list), new_filter_cb, &args);
   } else {
     /* Give the user some basic directions on how to use the 'new' button */
-    simple_dialog(ESD_TYPE_WARN, NULL,
-     "You have left either the 'Filter name' or 'Filter string' field empty.\n"
-     "To add a new filter, enter a name for the filter, and enter the expression\n"
-     "for the filter or use the 'Add Expression...' button to construct an\n"
-     "expression, then click 'New'.");
+    if (CFILTER_LIST == list) 
+      simple_dialog(ESD_TYPE_WARN, NULL,
+		    "You have left either the 'Filter name' or 'Filter string' field empty.\n"
+		    "To add a new filter, enter a name for the filter, and enter the expression\n"
+		    "for the filter.");
+    else /* DFILTER */
+      simple_dialog(ESD_TYPE_WARN, NULL,
+		    "You have left either the 'Filter name' or 'Filter string' field empty.\n"
+		    "To add a new filter, enter a name for the filter, and enter the expression\n"
+		    "for the filter or use the 'Add Expression...' button to construct an\n"
+		    "expression, then click 'New'.");
   }
 }
 
