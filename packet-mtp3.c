@@ -9,7 +9,7 @@
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Updated for ANSI and Chinese ITU support by Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3.c,v 1.30 2004/07/01 09:35:32 jmayer Exp $
+ * $Id: packet-mtp3.c,v 1.31 2004/07/03 12:58:41 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -346,7 +346,6 @@ static void
 dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_tree)
 {
   guint32 label, dpc = 0, opc = 0;
-  guint8 sls;
   proto_item *label_item, *label_dpc_item, *label_opc_item;
   proto_tree *label_tree, *label_dpc_tree, *label_opc_tree;
   int *hf_dpc_string;
@@ -359,7 +358,6 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
     label_tree = proto_item_add_subtree(label_item, ett_mtp3_label);
 
     label = tvb_get_letohl(tvb, ITU_ROUTING_LABEL_OFFSET);
-    sls   = tvb_get_guint8(tvb, ITU_SLS_OFFSET);
 
     opc = (label & ITU_OPC_MASK) >> 14;
     dpc =  label & ITU_DPC_MASK;
@@ -372,7 +370,7 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
     if (mtp3_pc_structured())
       proto_item_append_text(label_opc_item, " (%s)", mtp3_pc_to_str(opc));
 
-    proto_tree_add_uint(label_tree, hf_mtp3_itu_sls, tvb, ITU_SLS_OFFSET, ITU_SLS_LENGTH, sls);
+    proto_tree_add_uint(label_tree, hf_mtp3_itu_sls, tvb, ITU_ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
     break;
 
   case ANSI_STANDARD:
