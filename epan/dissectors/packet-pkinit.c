@@ -42,6 +42,8 @@
 
 #include "packet-ber.h"
 #include "packet-pkinit.h"
+#include "packet-cms.h"
+#include "packet-pkix1explicit.h"
 
 #define PNAME  "PKINIT"
 #define PSNAME "PKInit"
