@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.5 1999/11/16 11:42:49 guy Exp $
+ * $Id: packet-radius.c,v 1.6 1999/12/02 23:25:29 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -529,10 +529,16 @@ void dissect_attribute_value_pairs(const u_char *pd, int offset, frame_data
      avptpstrval=match_strval(avph.avp_type, radius_attrib_type_vals);
      if (avptpstrval == NULL) avptpstrval="Unknown Type";
      valstr=rd_value_to_str(&avph, pd, offset);
+     if (!BYTES_ARE_IN_FRAME(offset, avph.avp_length)) {
+	break;
+     }
      proto_tree_add_text(tree,offset,avph.avp_length,
         "t:%s(%d) l:%d, value:%s",
         avptpstrval,avph.avp_type,avph.avp_length,valstr);
      offset=offset+avph.avp_length;
+     if (avph.avp_length == 0) {
+	break;
+     }
   }
 }
 
