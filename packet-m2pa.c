@@ -1,12 +1,12 @@
 /* packet-m2pa.c
  * Routines for MTP2 Peer Adaptation Layer dissection
  * It is hopefully (needs testing) compliant to
- * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-05.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-06.txt
  *
  * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>,
  * updated by Michael Tuexen <michael.tuexen[AT]siemens.com>
  *
- * $Id: packet-m2pa.c,v 1.12 2002/08/28 21:00:20 jmayer Exp $
+ * $Id: packet-m2pa.c,v 1.13 2002/09/20 06:35:15 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -163,7 +163,6 @@ dissect_m2pa_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, p
 #define STATUS_BUSY                   7
 #define STATUS_BUSY_ENDED             8
 #define STATUS_OUT_OF_SERVICE         9
-#define STATUS_IN_SERVICE            10
 
 static const value_string link_status_values[] = {
   { STATUS_ALIGNMENT,                "Alignment" },
@@ -175,7 +174,6 @@ static const value_string link_status_values[] = {
   { STATUS_BUSY,                     "Busy" },
   { STATUS_BUSY_ENDED,               "Busy Ended" },
   { STATUS_OUT_OF_SERVICE,           "Out of Service" },
-  { STATUS_IN_SERVICE,               "In Service" },
   { 0,                               NULL } };
 
 static void
@@ -283,7 +281,7 @@ proto_register_m2pa(void)
     &ett_m2pa_li
   };
 
-  proto_m2pa = proto_register_protocol("MTP2 Peer Adaptation Layer (draft-ietf-sigtran-m2pa-05.txt)", "M2PA", "m2pa");
+  proto_m2pa = proto_register_protocol("MTP2 Peer Adaptation Layer", "M2PA", "m2pa");
 
   proto_register_field_array(proto_m2pa, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
