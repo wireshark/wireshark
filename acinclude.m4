@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.27 2001/06/27 07:47:48 guy Exp $
+dnl $Id: acinclude.m4,v 1.28 2001/07/09 23:42:39 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -103,7 +103,7 @@ AC_DEFUN(AC_ETHEREAL_IPV6_STACK,
 	v6lib=none
 
 	AC_MSG_CHECKING([ipv6 stack type])
-	for i in v6d toshiba kame inria zeta linux; do
+	for i in v6d toshiba kame inria zeta linux linux-glibc; do
 		case $i in
 		v6d)
 			AC_EGREP_CPP(yes, [
@@ -160,6 +160,16 @@ yes
 				v6libdir=/usr/inet6
 				CFLAGS="-DINET6 $CFLAGS"
 			fi
+			;;
+		linux-glibc)
+			AC_EGREP_CPP(yes, [
+#include <features.h>
+#if defined(__GLIBC__) && defined(__GLIBC_MINOR__)
+#if (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 1) || __GLIBC__ > 2
+yes
+#endif
+#endif],
+			[v6type=$i; v6lib=inet6; CFLAGS="-DINET6 $CFLAGS"])
 			;;
 		esac
 		if test "$v6type" != "unknown"; then
