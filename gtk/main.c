@@ -1581,8 +1581,8 @@ main(int argc, char *argv[])
 
      Otherwise, set promiscuous mode from the preferences setting. */
   /* the same applies to other preferences settings as well. */
-  if (!capture_opts->capture_child) {
-    auto_scroll_live            = FALSE;
+  if (capture_opts->capture_child) {
+    auto_scroll_live             = FALSE;
   } else {
     capture_opts->promisc_mode   = prefs->capture_prom_mode;
     capture_opts->show_info      = prefs->capture_show_info;

@@ -90,7 +90,7 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
   capture_opts->snaplen                 = MIN_PACKET_SIZE;
   capture_opts->promisc_mode            = TRUE;
   capture_opts->linktype                = -1;               /* the default linktype */
-  capture_opts->capture_child           = FALSE;
+/*  capture_opts->capture_child           = FALSE;*/
   capture_opts->save_file               = NULL;
   capture_opts->save_file_fd            = -1;
   capture_opts->sync_mode               = TRUE;
