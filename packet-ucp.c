@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.1 2001/10/08 17:30:23 guy Exp $
+ * $Id: packet-ucp.c,v 1.2 2001/10/08 17:37:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -647,10 +647,6 @@ check_ucp(tvbuff_t *tvb, int *endpkt)
 	return UCP_SHORTENED;
     }
     if (length > (int) tvb_reported_length(tvb)) {
-	*endpkt = 0;
-	return UCP_MALFORMED;
-    }
-    if (length > (int) tvb_length(tvb)) {
 	*endpkt = 0;
 	return UCP_MALFORMED;
     }
