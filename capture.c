@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.198 2002/12/29 01:19:08 guy Exp $
+ * $Id: capture.c,v 1.199 2002/12/29 01:25:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1033,7 +1033,7 @@ signame(int sig)
 #define	CAP_READ_TIMEOUT	250
 
 #ifndef _WIN32
-/* Take carre of byte order in the libpcap headers read from pipes.
+/* Take care of byte order in the libpcap headers read from pipes.
  * (function taken from wiretap/libpcap.c) */
 static void
 adjust_header(loop_data *ld, struct pcap_hdr *hdr, struct pcaprec_hdr *rechdr)
