@@ -2,7 +2,7 @@
  * Routines for X.25 packet disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id: packet-x25.c,v 1.84 2003/04/20 11:36:16 guy Exp $
+ * $Id: packet-x25.c,v 1.85 2003/10/07 18:19:59 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1717,11 +1717,11 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 		prt_id = tvb_get_guint8(tvb, localoffset+2);
 		if (userdata_tree) {
-		    proto_tree_add_text(x25_tree, tvb, localoffset+2, 1,
+		    proto_tree_add_text(userdata_tree, tvb, localoffset+2, 1,
 					"X.264 protocol identifier: %s",
 					val_to_str(prt_id, prt_id_vals,
 					       "Unknown (0x%02X)"));
-		    proto_tree_add_text(x25_tree, tvb, localoffset+3, 1,
+		    proto_tree_add_text(userdata_tree, tvb, localoffset+3, 1,
 					"X.264 sharing strategy: %s",
 					val_to_str(tvb_get_guint8(tvb, localoffset+3),
 					sharing_strategy_vals, "Unknown (0x%02X)"));
