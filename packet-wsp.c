@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.91 2003/11/21 22:00:25 guy Exp $
+ * $Id: packet-wsp.c,v 1.92 2003/12/04 06:02:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -438,6 +438,8 @@ const value_string vals_wsp_reason_codes[] = {
 	{ 0xEC, "Push message cannot be delivered" },
 	{ 0xED, "Push message discarded" },
 	{ 0xEE, "Content type cannot be processed" },
+
+	{ 0x00, NULL }
 };
 
 /*
