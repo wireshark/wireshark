@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
 #
-# $Id: manuf,v 1.19 2002/09/09 19:38:09 guy Exp $
+# $Id: manuf,v 1.20 2002/10/23 00:11:08 jmayer Exp $
 #
 # Laurent Deniel <deniel@worldnet.fr>
 #
@@ -2821,7 +2821,7 @@
 00:0A:FA	Traverse Technologies Australia
 00:0A:FB	Ambri Limited
 00:0A:FC	Core Tec Communications, LLC
-00:0A:FD	VIking Electronic Services
+00:0A:FD	Viking Electronic Services
 00:0A:FE	NovaPal Ltd
 00:0A:FF	Kilchherr Elektronik AG
 00:0B:00	FUJIAN START COMPUTER EQUIPMENT CO.,LTD
@@ -2888,6 +2888,102 @@
 00:0B:3D	CONTAL OK Ltd.
 00:0B:3E	BittWare, Inc
 00:0B:3F	Anthology Solutions Inc.
+00:0B:40	OpNext Inc.
+00:0B:41	Ing. Buero Dr. Beutlhauser
+00:0B:42	commax Co., Ltd.
+00:0B:43	Microscan Systems, Inc.
+00:0B:44	Concord IDea Corp.
+00:0B:45	Cisco
+00:0B:46	Cisco
+00:0B:47	Advanced Energy
+00:0B:48	sofrel
+00:0B:49	RF-Link System Inc.
+00:0B:4A	Visimetrics (UK) Ltd
+00:0B:4B	VISIOWAVE SA
+00:0B:4C	Clarion (M) Sdn Bhd
+00:0B:4D	Emuzed
+00:0B:4E	VertexRSI Antenna Products Division
+00:0B:4F	Verifone, INC.
+00:0B:50	Oxygnet
+00:0B:51	Micetek International Inc.
+00:0B:52	JOYMAX ELECTRONICS CORP.
+00:0B:53	INITIUM Co., Ltd.
+00:0B:54	BiTMICRO Networks, Inc.
+00:0B:55	ADInstruments
+00:0B:56	Cybernetics
+00:0B:57	Silicon Laboratories
+00:0B:58	Astronautics C.A  LTD
+00:0B:59	ScriptPro, LLC
+00:0B:5A	HyperEdge
+00:0B:5B	Rincon Research Corporation
+00:0B:5C	Newtech Co.,Ltd
+00:0B:5D	FUJITSU LIMITED
+00:0B:5E	ATMAVA Ltd
+00:0B:5F	Cisco Systems
+00:0B:60	Cisco Systems
+00:0B:61	Friedrich Lütze GmbH &Co.
+00:0B:62	Ingenieurbüro Ingo Mohnen
+00:0B:63	PRIVATE
+00:0B:64	Kieback & Peter GmbH & Co KG
+00:0B:65	Sy.A.C. srl
+00:0B:66	Teralink Communications
+00:0B:67	Topview Technology Corporation
+00:0B:68	Addvalue Communications Pte Ltd
+00:0B:69	Franke Finland Oy
+00:0B:6A	Asiarock Incorporation
+00:0B:6B	Wistron Neweb Corp.
+00:0B:6C	Sychip Inc.
+00:0B:6D	SOLECTRON JAPAN NAKANIIDA
+00:0B:6E	Neff Instrument Corp.
+00:0B:6F	Media Streaming Networks Inc
+00:0B:70	Load Technology, Inc.
+00:0B:71	Litchfield Communications Inc.
+00:0B:72	Lawo AG
+00:0B:73	Kodeos Communications
+00:0B:74	Kingwave Technology Co., Ltd.
+00:0B:75	Iosoft Ltd.
+00:0B:76	ET&T Co. Ltd.
+00:0B:77	Cogent Systems, Inc.
+00:0B:78	TAIFATECH INC.
+00:0B:79	X-COM, Inc.
+00:0B:7A	PRIVATE
+00:0B:7B	Test-Um Inc.
+00:0B:7C	Telex Communications
+00:0B:7D	SOLOMON EXTREME INTERNATIONAL LTD.
+00:0B:7E	SAGINOMIYA Seisakusho Inc.
+00:0B:7F	OmniWerks
+00:0B:80	PRIVATE
+00:0B:81	Kaparel Corporation
+00:0B:82	Grandstream Networks, Inc.
+00:0B:83	DATAWATT B.V.
+00:0B:84	BODET
+00:0B:85	Black Storm Networks
+00:0B:86	Aruba Networks
+00:0B:87	American Reliance Inc.
+00:0B:88	Vidisco ltd.
+00:0B:89	Top Global Technology, Ltd.
+00:0B:8A	MITEQ Inc.
+00:0B:8B	KERAJET, S.A.
+00:0B:8C	flextronics israel
+00:0B:8D	Avvio Networks
+00:0B:8E	Ascent Corporation
+00:0B:8F	AKITA ELECTRONICS SYSTEMS CO.,LTD.
+00:0B:90	Covaro Networks, Inc.
+00:0B:91	Aglaia Gesellschaft für Bildverarbeitung und Kommunikation m
+00:0B:92	Ascom Danmark A/S
+00:0B:93	Barmag Electronic
+00:0B:94	Digital Monitoring Products, Inc.
+00:0B:95	eBet Gaming Systems Pty Ltd
+00:0B:96	Innotrac Diagnostics Oy
+00:0B:97	Matsushita Electric Industrial Co.,Ltd.
+00:0B:98	NiceTechVision
+00:0B:99	SensAble Technologies, Inc.
+00:0B:9A	Shanghai Ulink Telecom Equipment Co. Ltd.
+00:0B:9B	Sirius System Co, Ltd.
+00:0B:9C	TriBeam Technologies, Inc.
+00:0B:9D	TwinMOS Technologies Inc.
+00:0B:9E	Yasing Technology Corp.
+00:0B:9F	Neue ELSA GmbH
 00:10:00	CABLE TELEVISION LABORATIES, INC.
 00:10:01	MCK COMMUNICATIONS
 00:10:02	ACTIA
@@ -4182,7 +4278,7 @@
 00:60:16	CLARIION
 00:60:17	TOKIMEC INC.
 00:60:18	STELLAR ONE CORPORATION
-00:60:19	BOEHRINGER MANNHEIM CORP.
+00:60:19	Roche Diagnostics
 00:60:1A	KEITHLEY INSTRUMENTS
 00:60:1B	MESA ELECTRONICS
 00:60:1C	TELXON CORPORATION
@@ -4927,6 +5023,7 @@
 00:90:FD	CopperCom, Inc.
 00:90:FE	ELECOM CO., LTD.  (LANEED DIV.)
 00:90:FF	TELLUS TECHNOLOGY INC.
+00:91:D6	Crystal Group, Inc.
 00:9D:8E	CARDIAC RECORDERS, INC.
 00:A0:00	CENTILLION NETWORKS, INC.
 00:A0:01	WATKINS-JOHNSON COMPANY
@@ -5032,7 +5129,7 @@
 00:A0:65	NEXLAND, INC.
 00:A0:66	ISA CO., LTD.
 00:A0:67	NETWORK SERVICES GROUP
-00:A0:68	PRIVATE
+00:A0:68	BHP LIMITED
 00:A0:69	TrueTime
 00:A0:6A	VERILINK CORP.
 00:A0:6B	DMS DORSCH MIKROSYSTEM GMBH
@@ -6215,7 +6312,7 @@ EC:10:00	Enance Source Co., Ltd.	PC clones(?)
 #
 # Well-known addresses.
 #
-# $Id: manuf,v 1.19 2002/09/09 19:38:09 guy Exp $
+# $Id: manuf,v 1.20 2002/10/23 00:11:08 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
