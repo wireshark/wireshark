@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  *
- * $Id: packet-ftp.c,v 1.53 2003/10/07 03:35:42 guy Exp $
+ * $Id: packet-ftp.c,v 1.54 2003/10/08 11:33:19 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -206,7 +206,7 @@ parse_port_pasv(const guchar *line, int linelen, guint32 *ftp_ip,
 			 * We have a winner!
 			 */
 			*ftp_port = ((port[0] & 0xFF)<<8) | (port[1] & 0xFF);
-			*ftp_ip = htonl((address[0] << 24) | (address[1] <<16) | (address[2] <<8) | address[3]);
+			*ftp_ip = g_htonl((address[0] << 24) | (address[1] <<16) | (address[2] <<8) | address[3]);
 			ret = TRUE;
 			break;
 		}
