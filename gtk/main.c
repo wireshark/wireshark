@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.454 2004/07/07 16:31:30 ulfl Exp $
+ * $Id: main.c,v 1.455 2004/07/09 18:43:04 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1605,7 +1605,7 @@ main(int argc, char *argv[])
   capture_child = (strcmp(command_name, CHILD_NAME) == 0);
   if (capture_child) {
     strcat(optstring, OPTSTRING_CHILD);
-  } else {
+  } else if (argc < 2 || strcmp(argv[1], "-G") != 0) {
     /* We want a splash screen only if we're not a child process */
     splash_win = splash_new("Loading Ethereal ...");
   }
