@@ -5,7 +5,7 @@
 # ASN.1 to Ethereal dissector compiler
 # 2004 Tomas Kukosa 
 #
-# $Id: asn2eth.py,v 1.9 2004/06/12 02:08:34 sahlberg Exp $
+# $Id: asn2eth.py,v 1.10 2004/06/24 05:13:59 sahlberg Exp $
 #
 
 """ASN.1 to Ethereal dissector compiler"""
@@ -34,6 +34,37 @@
 from __future__ import nested_scopes
 
 import warnings
+
+# OID name -> number conversion table
+oid_names = {
+  '/itu-t' : 0,
+  '0/recommendation' : 0,
+  '0.0/h' : 8,
+  '0.0/q' : 17,
+  '0.0/x' : 24,
+  '0/question' : 1,
+  '0/administration' : 2,
+  '0/network-operator' : 3,
+  '0/identified-organization' : 4,
+  '0/r-recommendation' : 5,
+  '0/data' : 9,
+  '/iso' : 1,
+  '1/standard' : 0,
+  '1/registration-authority' : 1,
+  '1/member-body' : 2,
+  '1/identified-organization' : 3,
+  '/joint-iso-itu-t' : 2,
+  '2/presentation' : 0,
+  '2/asn1' : 1,
+  '2/association-control' : 2,
+  '2/reliable-transfer' : 3,
+  '2/remote-operations' : 4,
+  '2/ds' : 5,
+  '2/mhs' : 6,
+  '2/ccr' : 7,
+  '2/oda' : 8,
+  '2/ms' : 9,
+}
 
 class LexError(Exception): pass
 class ParseError(Exception): pass
@@ -329,6 +360,11 @@ class EthCtx:
     self.type_ord = []
     self.type_imp = []
     self.type_dep = {}
+    self.vassign = {}
+    self.vassign_ord = []
+    self.value = {}
+    self.value_ord = []
+    self.value_imp = []
 
   def pvp(self):  # PER dissector version postfix
     if (self.new):
@@ -360,6 +396,15 @@ class EthCtx:
     self.assign[ident] = val
     self.assign_ord.append(ident)
 
+  #--- eth_reg_vassign --------------------------------------------------------
+  def eth_reg_vassign(self, vassign):
+    ident = vassign.ident
+    #print "eth_reg_vassign(ident='%s')" % (ident)
+    if self.vassign.has_key(ident):
+      raise "Duplicate value assignment for " + ident
+    self.vassign[ident] = vassign
+    self.vassign_ord.append(ident)
+
   #--- eth_import_type --------------------------------------------------------
   def eth_import_type(self, ident, mod, proto):
     #print "eth_import_type(ident='%s', mod='%s', prot='%s')" % (ident, mod, prot)
@@ -370,6 +415,15 @@ class EthCtx:
                         'ftype'   : 'FT_NONE', 'display' : 'BASE_NONE',
                         'strings' : 'NULL'}
     self.type_imp.append(ident)
+
+  #--- eth_import_value -------------------------------------------------------
+  def eth_import_value(self, ident, mod, proto):
+    #print "eth_import_value(ident='%s', mod='%s', prot='%s')" % (ident, mod, prot)
+    if self.type.has_key(ident):
+      raise "Duplicate value for " + ident
+    self.value[ident] = {'import'  : mod, 'proto' : proto,
+                         'ethname' : ''}
+    self.value_imp.append(ident)
 
   #--- eth_dep_add ------------------------------------------------------------
   def eth_dep_add(self, type, dep):
@@ -394,6 +448,16 @@ class EthCtx:
     self.type[ident]['tname'] = self.conform.use_item('TYPE_RENAME', ident, val_dflt=self.type[ident]['tname'])
     self.type[ident]['ethname'] = ''
     self.type_ord.append(ident)
+
+  #--- eth_reg_value ----------------------------------------------------------
+  def eth_reg_value(self, ident, type, value):
+    #print "eth_reg_value(ident='%s')" % (ident)
+    if self.value.has_key(ident):
+      raise "Duplicate value for " + ident
+    self.value[ident] = { 'type' : type, 'value' : value, 'import' : None }
+    self.value[ident]['export'] = self.conform.use_item('EXPORTS', ident)
+    self.value[ident]['ethname'] = ''
+    self.value_ord.append(ident)
 
   #--- eth_reg_field ----------------------------------------------------------
   def eth_reg_field(self, ident, type, idx='', parent=None, impl=False):
@@ -455,11 +519,60 @@ class EthCtx:
                                  'ethname' : 'hf_%s_%s_%s' % (self.proto, t, id),
                                  'ftype'   : 'FT_BOOLEAN', 'display' : '8',
                                  'strings' : 'NULL',
-                                 'bitmask' : '0x'+('80','40','20','10','08','04','02','01')[val]})
+                                 'bitmask' : '0x'+('80','40','20','10','08','04','02','01')[val%8]})
       if self.eth_type[t]['val'].eth_need_tree():
         self.eth_type[t]['tree'] = "ett_%s_%s" % (self.proto, t)
       else:
         self.eth_type[t]['tree'] = None
+
+    #--- value dependencies -------------------
+    self.value_dep = {}
+    for v in self.value_ord:
+      if isinstance (self.value[v]['value'], Value):
+        dep = self.value[v]['value'].get_dep()
+      else:
+        dep = self.value[v]['value']
+      if dep and self.value.has_key(dep):
+        if self.value_dep.has_key(v):
+          self.value_dep[v].append(dep)
+        else:
+          self.value_dep[v] = [dep]
+    
+    for v in self.value_ord:
+      if not self.value[v]['export']: continue
+      deparr = self.value_dep.get(v, [])
+      while deparr:
+        d = deparr.pop()
+        if not self.value[d]['import']:
+          if not self.value[d]['export']:
+            self.value[d]['export'] = 0x01
+            deparr.extend(self.value_dep.get(d, []))
+
+    #--- values -------------------
+    self.eth_value = {}
+    self.eth_value_ord = []
+
+    for v in self.value_imp:
+      nm = v.replace('-', '_')
+      self.eth_value[nm] = { 'import' : self.value[v]['import'], 'proto' : self.value[v]['proto'], 'ref' : []}
+      self.value[v]['ethname'] = nm
+    for v in self.value_ord:
+      nm = v.replace('-', '_')
+      self.eth_value[nm] = { 'import' : None, 'proto' : self.proto, 
+                             'export' : self.value[v]['export'], 'ref' : [v] }
+      if isinstance (self.value[v]['value'], Value):
+        self.eth_value[nm]['value'] = self.value[v]['value'].to_str()
+        dep = self.value[v]['value'].get_dep()
+      else:
+        self.eth_value[nm]['value'] = self.value[v]['value']
+        dep = self.value[v]['value']
+      if dep and self.value.has_key(dep):
+        if self.value_dep.has_key(v):
+          self.value_dep[v].append(dep)
+        else:
+          self.value_dep[v] = [dep]
+      self.eth_value_ord.append(nm)
+      self.value[v]['ethname'] = nm
 
     #--- fields -------------------------
     self.eth_hf = {}
@@ -531,7 +644,7 @@ class EthCtx:
                          'strings' : strings, 
                          'bitmask' : '0'}
       self.field[f]['ethname'] = nm
-    #--- dependencies -------------------
+    #--- type dependencies -------------------
     self.eth_type_ord1 = []
     self.eth_dep_cycle = []
     x = {}  # already emitted
@@ -564,6 +677,14 @@ class EthCtx:
           e = self.type[stack.pop()]['ethname']
           self.eth_type_ord1.append(e)
           x[e] = True
+    #--- value dependencies and export -------------------
+    self.eth_value_ord1 = []
+    self.eth_vexport_ord = []
+    for v in self.eth_value_ord:
+      if self.eth_value[v]['export']:
+        self.eth_vexport_ord.append(v)
+      else:
+        self.eth_value_ord1.append(v)
 
   #--- eth_vals ---------------------------------------------------------------
   def eth_vals(self, tname, vals):
@@ -663,6 +784,7 @@ class EthCtx:
 
   #--- eth_output_hf ----------------------------------------------------------
   def eth_output_hf (self):
+    if not len(self.eth_hf_ord) and not len(self.named_bit): return
     fn = self.eth_output_fname('hf')
     fx = file(fn, 'w')
     fx.write(eth_fhdr(fn))
@@ -676,6 +798,7 @@ class EthCtx:
     
   #--- eth_output_hf_arr ------------------------------------------------------
   def eth_output_hf_arr (self):
+    if not len(self.eth_hf_ord) and not len(self.named_bit): return
     fn = self.eth_output_fname('hfarr')
     fx = file(fn, 'w')
     fx.write(eth_fhdr(fn))
@@ -701,22 +824,28 @@ class EthCtx:
     fn = self.eth_output_fname('ett')
     fx = file(fn, 'w')
     fx.write(eth_fhdr(fn))
+    fempty = True
     #fx.write("static gint ett_%s = -1;\n" % (self.proto))
     for t in self.eth_type_ord:
       if self.eth_type[t]['tree']:
         fx.write("static gint %s = -1;\n" % (self.eth_type[t]['tree']))
+        fempty = False
     fx.close()
+    if fempty: os.unlink(fn)
 
   #--- eth_output_ett_arr -----------------------------------------------------
   def eth_output_ett_arr(self):
     fn = self.eth_output_fname('ettarr')
     fx = file(fn, 'w')
     fx.write(eth_fhdr(fn))
+    fempty = True
     #fx.write("    &ett_%s,\n" % (self.proto))
     for t in self.eth_type_ord:
       if self.eth_type[t]['tree']:
         fx.write("    &%s,\n" % (self.eth_type[t]['tree']))
+        fempty = False
     fx.close()
+    if fempty: os.unlink(fn)
 
   #--- eth_output_export ------------------------------------------------------
   def eth_output_export(self):
@@ -730,6 +859,26 @@ class EthCtx:
     for t in self.eth_export_ord:  # functions
       if (self.eth_type[t]['export'] & 0x01):
         fx.write(self.eth_type_fn_h(t))
+    fx.close()
+
+  #--- eth_output_val ------------------------------------------------------
+  def eth_output_val(self):
+    if (not len(self.eth_value_ord1)): return
+    fn = self.eth_output_fname('val', ext='h')
+    fx = file(fn, 'w')
+    fx.write(eth_fhdr(fn))
+    for v in self.eth_value_ord1:
+      fx.write("#define %-30s %s\n" % (v, self.eth_value[v]['value']))
+    fx.close()
+
+  #--- eth_output_valexp ------------------------------------------------------
+  def eth_output_valexp(self):
+    if (not len(self.eth_vexport_ord)): return
+    fn = self.eth_output_fname('valexp', ext='h')
+    fx = file(fn, 'w')
+    fx.write(eth_fhdr(fn))
+    for v in self.eth_vexport_ord:
+      fx.write("#define %-30s %s\n" % (v, self.eth_value[v]['value']))
     fx.close()
 
   #--- eth_output_types -------------------------------------------------------
@@ -767,6 +916,7 @@ class EthCtx:
     fn = self.eth_output_fname('fn')
     fx = file(fn, 'w')
     fx.write(eth_fhdr(fn))
+    pos = fx.tell()
     if self.eth_dep_cycle:
       fx.write('/* Cyclic dependencies */\n')
       for c in self.eth_dep_cycle:
@@ -798,7 +948,9 @@ class EthCtx:
           if (self.eth_hf[f]['ethtype'] == t):
             fx.write(out_field(f))
       fx.write('\n')
+    fempty = pos == fx.tell()
     fx.close()
+    if fempty: os.unlink(fn)
 
   def dupl_report(self):
     # types
@@ -910,20 +1062,34 @@ class EthCnf:
     lineno = 0
     ctx = ''
     name = ''
+    stack = []
     while 1:
       line = f.readline()
-      if not line: break
       lineno += 1
+      if not line:
+        f.close()
+        if stack:
+          frec = stack.pop()
+          fn, f, lineno = frec['fn'], frec['f'], frec['lineno']
+          continue
+        else: 
+          break
       if comment.search(line): continue
       result = directive.search(line)
       if result:  # directive
-        if result.group('name') in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT', 'MODULE_IMPORT', 'OMIT_ASSIGNMENT', 'TYPE_RENAME', 'FIELD_RENAME'):
+        if result.group('name') in ('EXPORTS', 'USER_DEFINED', 'NO_EMIT', 'MODULE_IMPORT', 'OMIT_ASSIGNMENT', 'TYPE_RENAME', 'FIELD_RENAME', 'IMPORT_TAG'):
           ctx = result.group('name')
         elif result.group('name') in ('FN_HDR', 'FN_FTR', 'FN_BODY'):
           par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
           if not par: continue
           ctx = result.group('name')
           name = par[0]
+        elif result.group('name') == 'INCLUDE':
+          par = get_par(line[result.end():], 1, 1, fn=fn, lineno=lineno)
+          if not par: continue
+          fnew = open(par[0], "r")
+          stack.append({'fn' : fn, 'f' : f, 'lineno' : lineno})
+          fn, f, lineno = par[0], fnew, 0
         elif result.group('name') == 'END':
           ctx = ''
         else:
@@ -952,6 +1118,11 @@ class EthCnf:
         par = get_par(line, 2, 2, fn=fn, lineno=lineno)
         if not par: continue
         self.add_item('MODULE_IMPORT', par[0], proto=par[1], fn=fn, lineno=lineno)
+      elif ctx == 'IMPORT_TAG':
+        if empty.search(line): continue
+        par = get_par(line, 3, 3, fn=fn, lineno=lineno)
+        if not par: continue
+        self.add_item('IMPORT_TAG', par[0], ttag=(par[1], par[2]), fn=fn, lineno=lineno)
       elif ctx == 'OMIT_ASSIGNMENT':
         if empty.search(line): continue
         par = get_par(line, 1, 1, fn=fn, lineno=lineno)
@@ -969,12 +1140,12 @@ class EthCnf:
         self.add_item('FIELD_RENAME', par[0], eth_name=par[1], fn=fn, lineno=lineno)
       elif ctx in ('FN_HDR', 'FN_FTR', 'FN_BODY'):
         self.add_fn_line(name, ctx, line, fn=fn, lineno=lineno)
-    f.close()
 
   def unused_report(self):
     tbls = self.table.keys()
     tbls.sort()
     for t in tbls:
+      if not self.tblcfg[t]['chk_use']: continue
       keys = self.table[t].keys()
       keys.sort()
       for k in keys:
@@ -1022,6 +1193,15 @@ class Node:
 
     def eth_reg(self, ident, ectx):
         pass
+
+#--- value_assign -------------------------------------------------------------
+class value_assign (Node):
+  def __init__(self,*args, **kw) :
+    Node.__init__ (self,*args, **kw)
+
+  def eth_reg(self, ident, ectx):
+    ectx.eth_reg_vassign(self)
+    ectx.eth_reg_value(self.ident, self.typ, self.val)
 
 
 #--- Type ---------------------------------------------------------------------
@@ -1156,6 +1336,21 @@ class Type (Node):
     print self.str_depth(1)
     return ''
 
+#--- Value --------------------------------------------------------------------
+class Value (Node):
+  def __init__(self,*args, **kw) :
+    self.name = None
+    Node.__init__ (self,*args, **kw)
+
+  def SetName(self, name) :
+    self.name = name
+
+  def to_str(self):
+    return str(self)
+
+  def get_dep(self):
+    return None
+
 #--- Constraint ---------------------------------------------------------------
 class Constraint (Node):
   def to_python (self, ctx):
@@ -1201,6 +1396,8 @@ class Module_Body (Node):
           for s in i.symbol_list:
             if isinstance(s, Type_Ref):
               ectx.eth_import_type(s.val, mod, proto)
+            else:
+              ectx.eth_import_value(s, mod, proto)
         for a in self.assign_list:
           a.eth_reg('', ectx)
 
@@ -2166,6 +2363,49 @@ class ObjectIdentifierType (Type):
     out += ectx.eth_type_fn_ftr(tname)
     return out
 
+#--- ObjectIdentifierValue ----------------------------------------------------
+class ObjectIdentifierValue (Value):
+  def get_num(self, path, val):
+    return str(oid_names.get(path + '/' + val, val))
+
+  def to_str(self):
+    out = ''
+    path = ''
+    first = True
+    sep = ''
+    for v in self.comp_list:
+      if isinstance(v, Node) and (v.type == 'name_and_number'):
+        vstr = v.number
+      elif v.isdigit():
+        vstr = v
+      else:
+        vstr = self.get_num(path, v)
+      if first:
+        if vstr.isdigit():
+          out += '"' + vstr
+        else:
+          out += vstr + '"'
+      else:
+       out += sep + vstr
+      path += sep + vstr
+      first = False
+      sep = '.'
+    out += '"'
+    return out
+
+  def get_dep(self):
+    v = self.comp_list[0]
+    if isinstance(v, Node) and (v.type == 'name_and_number'):
+      return None
+    elif v.isdigit():
+      return None
+    else:
+      vstr = self.get_num('', v)
+    if vstr.isdigit():
+      return None
+    else:
+      return vstr
+
 class NamedNumber (Node):
     def to_python (self, ctx):
         return "('%s',%s)" % (self.ident, self.val)
@@ -2311,14 +2551,14 @@ class BitStringType (Type):
       bitsp = tname + '_bits'
     out += ectx.eth_type_fn_hdr(tname)
     (minv, maxv, ext) = self.eth_get_size_constr()
-    tree = 'NULL'
+    tree = '-1'
     if (ectx.eth_type[tname]['tree']):
       tree = ectx.eth_type[tname]['tree']
     if (ectx.OBer()):
       body = ectx.eth_fn_call('dissect_ber_bitstring' + ectx.pvp(), ret='offset',
                               par=(('implicit_tag', 'pinfo', 'tree', 'tvb', 'offset'),
-                                   (bitsp, 'hf_index', '-1'),
-                                   (tree,)))
+                                   (bitsp, 'hf_index', tree),
+                                   ('NULL',)))
     elif (ectx.NPer()):
       body = ectx.eth_fn_call('dissect_per_bit_string' + ectx.pvp(), ret='offset',
                               par=(('tvb', 'offset', 'pinfo', 'tree'),
@@ -2383,7 +2623,7 @@ def p_module_ident (t):
 #    t[0] = t[1]
 
 def p_assigned_ident_1 (t):
-    'assigned_ident : oid_val'
+    'assigned_ident : ObjectIdentifierValue'
     t[0] = t[1]
 
 def p_assigned_ident_2 (t):
@@ -2395,7 +2635,7 @@ def p_assigned_ident_3 (t):
     pass
 
 def p_module_body_1 (t):
-    'module_body : exports Imports assign_list'
+    'module_body : exports Imports AssignmentList'
     t[0] = Module_Body (exports = t[1], imports = t[2], assign_list = t[3])
 
 def p_module_body_2 (t):
@@ -2470,24 +2710,24 @@ def p_Symbol (t):
               | identifier''' # XXX omit DefinedMacroName
     t[0] = t[1]
 
-def p_assign_list_1 (t):
-    'assign_list : assign_list assign'
+def p_AssignmentList_1 (t):
+    'AssignmentList : AssignmentList Assignment'
     t[0] = t[1] + [t[2]]
 
-def p_assign_list_2 (t):
-    'assign_list : assign SEMICOLON'
+def p_AssignmentList_2 (t):
+    'AssignmentList : Assignment SEMICOLON'
     t[0] = [t[1]]
 
-def p_assign_list_3 (t):
-    'assign_list : assign'
+def p_AssignmentList_3 (t):
+    'AssignmentList : Assignment'
     t[0] = [t[1]]
 
-def p_assign (t):
-      '''assign : TypeAssignment
-      | value_assign
-      | pyquote
-      | ParameterizedTypeAssignment'''
-      t[0] = t[1]
+def p_Assignment (t):
+    '''Assignment : TypeAssignment
+                  | ValueAssignment
+                  | pyquote
+                  | ParameterizedTypeAssignment'''
+    t[0] = t[1]
 
 def p_pyquote (t):
     '''pyquote : PYQUOTE'''
@@ -2498,10 +2738,15 @@ def p_pyquote (t):
 
 # 13.1
 def p_DefinedType (t): 
-    '''DefinedType : ext_type_ref
-    | type_ref
-    | ParameterizedType'''
-    t[0] = t[1]
+  '''DefinedType : ext_type_ref
+  | type_ref
+  | ParameterizedType'''
+  t[0] = t[1]
+
+def p_DefinedValue(t):
+  '''DefinedValue : ext_val_ref
+                  | identifier'''
+  t[0] = t[1]
 
 
 # 15 Assigning types and values -----------------------------------------------
@@ -2512,15 +2757,20 @@ def p_TypeAssignment (t):
   t[0] = t[3]
   t[0].SetName(t[1])
 
+# 15.2
+def p_ValueAssignment (t):
+  'ValueAssignment : identifier Type ASSIGNMENT Value'
+  t[0] = value_assign (ident = t[1], typ = t[2], val = t[4])
+
 
 # 16 Definition of types and values -------------------------------------------
 
 # 16.1
 def p_Type (t):
-    '''Type : BuiltinType
-    | ReferencedType
-    | ConstrainedType'''
-    t[0] = t[1]
+  '''Type : BuiltinType
+  | ReferencedType
+  | ConstrainedType'''
+  t[0] = t[1]
 
 # 16.2
 def p_BuiltinType (t):
@@ -2560,6 +2810,29 @@ def p_NamedType (t):
   t[0] = t[2]
   t[0].SetName (t[1]) 
 
+# 16.7
+def p_Value (t):
+    '''Value : BuiltinValue
+             | ReferencedValue'''
+    t[0] = t[1]
+
+# 16.9
+def p_BuiltinValue (t):
+    '''BuiltinValue : BooleanValue
+    | NullValue
+    | ObjectIdentifierValue
+    | special_real_val
+    | SignedNumber
+    | hex_string
+    | binary_string
+    | char_string''' # XXX we don't support {data} here
+    t[0] = t[1]
+
+# 16.11
+def p_ReferencedValue (t):
+    '''ReferencedValue : DefinedValue'''
+    t[0] = t[1]
+
 
 # 17 Notation for the boolean type --------------------------------------------
 
@@ -2596,7 +2869,7 @@ def p_NamedNumberList_2 (t):
 
 def p_NamedNumber (t):
   '''NamedNumber : identifier LPAREN SignedNumber RPAREN
-                 | identifier LPAREN defined_value RPAREN'''
+                 | identifier LPAREN DefinedValue RPAREN'''
   t[0] = NamedNumber (ident = t[1], val = t[3])
 
 def p_SignedNumber_1 (t):
@@ -2673,7 +2946,7 @@ def p_NamedBitList_2 (t):
 
 def p_NamedBit (t):
     '''NamedBit : identifier LPAREN NUMBER RPAREN
-                | identifier LPAREN defined_value RPAREN'''
+                | identifier LPAREN DefinedValue RPAREN'''
     t[0] = NamedNumber (ident = t[1], val = t[3])
 
 
@@ -2892,7 +3165,7 @@ def p_ClassNumber_1 (t):
     t[0] = t[1]
 
 def p_ClassNumber_2 (t):
-    'ClassNumber : defined_value'
+    'ClassNumber : DefinedValue'
     t[0] = t[1]
 
 def p_Class_1 (t):
@@ -2919,9 +3192,31 @@ def p_any_type_2 (t):
 
 # 31.1
 def p_ObjectIdentifierType (t):
-    'ObjectIdentifierType : OBJECT IDENTIFIER'
-    t[0] = ObjectIdentifierType () # XXX
+  'ObjectIdentifierType : OBJECT IDENTIFIER'
+  t[0] = ObjectIdentifierType ()
 
+# 31.3
+def p_ObjectIdentifierValue (t):
+    'ObjectIdentifierValue : LBRACE oid_comp_list RBRACE'
+    t[0] = ObjectIdentifierValue (comp_list=t[2])
+
+def p_oid_comp_list_1 (t):
+    'oid_comp_list : oid_comp_list oid_component'
+    t[0] = t[1] + [t[2]]
+
+def p_oid_comp_list_2 (t):
+    'oid_comp_list : oid_component'
+    t[0] = [t[1]]
+
+def p_oid_component (t):
+    '''oid_component : number_form
+    | name_form
+    | name_and_number_form'''
+    t[0] = t[1]
+
+def p_number_form (t):
+    'number_form : NUMBER'
+    t [0] = t[1]
 
 # 36 Notation for character string types --------------------------------------
 
@@ -3083,7 +3378,7 @@ def p_SubtypeElements (t):
 # 47.2 Single value
 # 47.2.1
 def p_SingleValue (t):
-    'SingleValue : value'
+    'SingleValue : Value'
     t[0] = Constraint(type = 'SingleValue', subtype = t[1]) 
 
 # 47.3 Contained subtype
@@ -3120,12 +3415,12 @@ def p_upper_end_point_2 (t):
     t[0] = t[1] # but not inclusive range
 
 def p_lower_end_value (t):
-    '''lower_end_value : value
+    '''lower_end_value : Value
                        | MIN'''
     t[0] = t[1] # XXX
 
 def p_upper_end_value (t):
-    '''upper_end_value : value
+    '''upper_end_value : Value
                        | MAX'''
     t[0] = t[1]
 
@@ -3214,7 +3509,7 @@ def p_presence_constraint_2 (t):
 # 47.9 Pattern constraint
 # 47.9.1
 def p_PatternConstraint (t):
-    'PatternConstraint : PATTERN value'
+    'PatternConstraint : PATTERN Value'
     t[0] = Constraint (type = 'Pattern', subtype = t[2])
 
 # 49 The exception identifier
@@ -3229,34 +3524,12 @@ def p_ExceptionSpec (t):
 #  /*-----------------------------------------------------------------------*/
 
 
-def p_value_assign (t):
-    'value_assign : identifier Type ASSIGNMENT value'
-    t[0] = Node('value_assign', ident = t[1], typ = t[2], val = t[4])
 
-def p_value (t):
-    '''value : builtin_value
-    | defined_value'''
-    t[0] = t[1]
-
-def p_defined_value(t):
-    '''defined_value : ext_val_ref
-    | identifier'''
-    t[0] = t[1]
 
 def p_ext_val_ref (t):
     'ext_val_ref : type_ref DOT identifier'
     # XXX coerce type_ref to module_ref
     return Node ('ext_val_ref', module = t[1], ident = t[3])
-
-def p_builtin_value_1 (t):
-    '''builtin_value : BooleanValue
-    | NullValue
-    | special_real_val
-    | SignedNumber
-    | hex_string
-    | binary_string
-    | char_string''' # XXX we don't support {data} here
-    t[0] = t[1]
 
 def p_special_real_val (t):
     '''special_real_val : PLUS_INFINITY
@@ -3264,34 +3537,13 @@ def p_special_real_val (t):
     t[0] = t[1]
 
 def p_named_value_1 (t):
-    'named_value : value'
+    'named_value : Value'
     t[0] = t[1]
 
 def p_named_value_2 (t):
-    'named_value : identifier value'
+    'named_value : identifier Value'
     t[0] = Node ('named_value', ident = t[1], value = t[2])
 
-def p_oid_val (t):
-    'oid_val : LBRACE oid_comp_list RBRACE'
-    t[0] = t[2]
-
-def p_oid_comp_list_1 (t):
-    'oid_comp_list : oid_comp_list oid_component'
-    t[0] = t[1] + [t[2]]
-
-def p_oid_comp_list_2 (t):
-    'oid_comp_list : oid_component'
-    t[0] = [t[1]]
-
-def p_oid_component (t):
-    '''oid_component : number_form
-    | name_form
-    | name_and_number_form'''
-    t[0] = t[1]
-
-def p_number_form (t):
-    'number_form : NUMBER'
-    t [0] = t[1]
 
 # Note that Z39.50 v3 spec has upper-case here for, e.g., SUTRS.
 # I've hacked the grammar to be liberal about what it accepts.
@@ -3308,7 +3560,7 @@ def p_name_and_number_form_1 (t):
     t[0] = Node ('name_and_number', ident = t[1], number = t[3])
 
 def p_name_and_number_form_2 (t):
-    'name_and_number_form : identifier LPAREN defined_value RPAREN'
+    'name_and_number_form : identifier LPAREN DefinedValue RPAREN'
     t[0] = Node ('name_and_number', ident = t[1], val = t[3])
 
 # see X.208 if you are dubious about lcase only for identifier 
@@ -3466,16 +3718,28 @@ def eth_do_module (ast, ectx):
     if ectx.dbg('t'):
       print "\n# Assignments"
       print "\n".join(ectx.assign_ord)
+      print "\n# Value assignments"
+      print "\n".join(ectx.vassign_ord)
       print "\n# Imported Types"
-      print "%-49s %-24s %-24s" % ("ASN.1 name", "Module", "Protocol")
+      print "%-40s %-24s %-24s" % ("ASN.1 name", "Module", "Protocol")
       print "-" * 100
       for t in ectx.type_imp:
-        print "%-49s %-24s %-24s" % (t, ectx.type[t]['import'], ectx.type[t]['proto'])
+        print "%-40s %-24s %-24s" % (t, ectx.type[t]['import'], ectx.type[t]['proto'])
+      print "\n# Imported Values"
+      print "%-40s %-24s %-24s" % ("ASN.1 name", "Module", "Protocol")
+      print "-" * 100
+      for t in ectx.value_imp:
+        print "%-40s %-24s %-24s" % (t, ectx.value[t]['import'], ectx.value[t]['proto'])
       print "\n# Exported Types"
-      print "Ethereal type                   Export Flag"
+      print "%-31s %s" % ("Ethereal type", "Export Flag")
       print "-" * 100
       for t in ectx.eth_export_ord:
-        print "%-31s %d" % (t, ectx.eth_type[t]['export'])
+        print "%-31s 0x%02X" % (t, ectx.eth_type[t]['export'])
+      print "\n# Exported Values"
+      print "%-40s %s" % ("Ethereal name", "Value")
+      print "-" * 100
+      for v in ectx.eth_vexport_ord:
+        print "%-40s %s" % (v, ectx.eth_value[v]['value'])
       print "\n# ASN.1 Types"
       print "%-49s %-24s %-24s" % ("ASN.1 unique name", "'tname'", "Ethereal type")
       print "-" * 100
@@ -3487,6 +3751,19 @@ def eth_do_module (ast, ectx):
       for t in ectx.eth_type_ord:
         print "%-31s %d" % (t, len(ectx.eth_type[t]['ref'])),
         print ', '.join(ectx.eth_type[t]['ref'])
+      print "\n# ASN.1 Values"
+      print "%-40s %-18s %s" % ("ASN.1 unique name", "Type", "Value")
+      print "-" * 100
+      for v in ectx.value_ord:
+        if isinstance (ectx.value[v]['value'], Value):
+          print "%-40s %-18s %s" % (v, ectx.value[v]['type'].eth_tname(), ectx.value[v]['value'].to_str())
+        else:
+          print "%-40s %-18s %s" % (v, ectx.value[v]['type'].eth_tname(), ectx.value[v]['value'])
+      print "\n# Ethereal Values"
+      print "%-40s %s" % ("Ethereal name", "Value")
+      print "-" * 100
+      for v in ectx.eth_value_ord:
+        print "%-40s %s" % (v, ectx.eth_value[v]['value'])
       print "\n# ASN.1 Fields"
       print "ASN.1 unique name                        Ethereal name        ASN.1 type"
       print "-" * 100
@@ -3503,13 +3780,15 @@ def eth_do_module (ast, ectx):
       for c in ectx.eth_dep_cycle:
         print ' -> '.join(c)
     ectx.dupl_report()
-    ectx.conform.unused_report()
     ectx.eth_output_hf()
     ectx.eth_output_ett()
     ectx.eth_output_types()
     ectx.eth_output_hf_arr()
     ectx.eth_output_ett_arr()
     ectx.eth_output_export()
+    ectx.eth_output_val()
+    ectx.eth_output_valexp()
+    ectx.conform.unused_report()
 
 import time
 def testyacc (s, fn, defined_dict):
@@ -3640,11 +3919,12 @@ def eth_main():
     in_nm = single_file + '.c'
     out_nm = ectx.eth_output_fname('')
     inc_nms = map (lambda x: ectx.eth_output_fname(x), ('hf', 'ett', 'fn', 'hfarr', 'ettarr'))
+    inc_nms.extend(map (lambda x: ectx.eth_output_fname(x, ext='h'), ('val',)))
     make_include(out_nm, in_nm, inc_nms, remove_inc=True)
     in_nm = single_file + '.h'
     if (os.path.exists(in_nm)):
       out_nm = ectx.eth_output_fname('', ext='h')
-      inc_nms = map (lambda x: ectx.eth_output_fname(x, ext='h'), ('exp',))
+      inc_nms = map (lambda x: ectx.eth_output_fname(x, ext='h'), ('exp', 'valexp'))
       make_include(out_nm, in_nm, inc_nms, remove_inc=True)
     
 
