@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.24 2002/03/11 00:28:21 sahlberg Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.25 2002/03/14 10:04:02 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3756,7 +3756,7 @@ proto_register_dcerpc_samr(void)
 		NULL, 0, "Resume handle", HFILL }},
 	{ &hf_samr_country, {
 		"Country", "samr.country", FT_UINT16, BASE_DEC,
-		NULL, 0, "Country setting for this user", HFILL }},
+		VALS(ms_country_codes), 0, "Country setting for this user", HFILL }},
 	{ &hf_samr_codepage, {
 		"Codepage", "samr.codepage", FT_UINT16, BASE_DEC,
 		NULL, 0, "Codepage setting for this user", HFILL }},

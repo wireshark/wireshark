@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.9 2002/03/14 09:19:17 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.10 2002/03/14 10:04:02 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5455,7 +5455,7 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_country,
 		{ "Country", "netlogon.country", FT_UINT16, BASE_DEC, 
-		NULL, 0x0, "Country setting for this account", HFILL }},
+		VALS(ms_country_codes), 0x0, "Country setting for this account", HFILL }},
 
 	{ &hf_netlogon_codepage,
 		{ "Codepage", "netlogon.codepage", FT_UINT16, BASE_DEC, 
