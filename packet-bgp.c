@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.68 2002/10/10 01:36:53 gerald Exp $
+ * $Id: packet-bgp.c,v 1.69 2002/10/15 02:29:54 gerald Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -286,7 +286,7 @@ static int
 decode_prefix4(tvbuff_t *tvb, gint offset, char *buf, int buflen)
 {
     guint8 addr[4];   /* IP address                         */
-    int    plen;      /* prefix length                      */
+    guint8 plen;      /* prefix length                      */
     int    length;    /* number of octets needed for prefix */
 
     /* snarf length */
@@ -302,7 +302,7 @@ decode_prefix4(tvbuff_t *tvb, gint offset, char *buf, int buflen)
 	addr[length - 1] &= ((0xff00 >> (plen % 8)) & 0xff);
 
     /* hand back a formatted string */
-    snprintf(buf, buflen, "%s/%d", ip_to_str(addr), plen);
+    snprintf(buf, buflen, "%s/%u", ip_to_str(addr), plen);
     return(1 + length);
 }
 
@@ -481,7 +481,7 @@ static int
 decode_prefix_MP(guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, char *buf, int buflen)
 {
     int                 length;                         /* length of the prefix in byte */
-    int                 plen;                           /* length of the prefix in bit  */
+    guint8              plen;                           /* length of the prefix in bit  */
     int                 labnum;                         /* number of labels             */
     int                 ce_id,labblk_off;
     guint8              ip4addr[4],ip4addr2[4];         /* IPv4 address                 */
@@ -925,12 +925,12 @@ static void
 dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
  {
     struct bgp_attr bgpa;                       /* path attributes          */
-    int             hlen;                       /* message length           */
+    guint16         hlen;                       /* message length           */
     gint            o;                          /* packet offset            */
     gint            q;                          /* tmp                      */
     gint            end;                        /* message end              */
-    gint            ext_com;                    /* EXTENDED COMMUNITY type  */
-    int             len;                        /* tmp                      */
+    guint16         ext_com;                    /* EXTENDED COMMUNITY type  */
+    guint16         len;                        /* tmp                      */
     int             advance;                    /* tmp                      */
     proto_item      *ti;                        /* tree item                */
     proto_tree      *subtree;                   /* subtree for attributes   */
@@ -981,9 +981,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
             o += i;
         }
     }
-    else {
-        o += len;
-    }
+
     /* check for advertisements */
     len = tvb_get_ntohs(tvb, o);
     proto_tree_add_text(tree, tvb, o, 2, "Total path attribute length: %u %s",
@@ -995,12 +993,12 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 	subtree = proto_item_add_subtree(ti, ett_bgp_attrs);
 	i = 2;
 	while (i < len) {
-	    int alen, tlen, aoff;
+	    guint16 alen, tlen, aoff; 
 	    char *msg;
 	    guint16 af;
-            guint8 saf;
-	    int off, snpa;
-	    int nexthop_len;
+            guint8 saf, snpa;
+	    int off;
+	    guint8 nexthop_len;
 
 	    tvb_memcpy(tvb, (guint8 *)&bgpa, o + i, sizeof(bgpa));
             /* check for the Extended Length bit */
@@ -1101,7 +1099,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 		if (tlen != 4)
 		    goto default_attribute_top;
 		ti = proto_tree_add_text(subtree, tvb, o + i, tlen + aoff,
-			"%s: %u (%u %s)",
+			"%s: %u (%lu %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
 			tvb_get_ntohl(tvb, o + i + aoff), tlen + aoff,
                         (tlen + aoff == 1) ? "byte" : "bytes");
@@ -1110,7 +1108,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 		if (tlen != 4)
 		    goto default_attribute_top;
 		ti = proto_tree_add_text(subtree, tvb, o + i, tlen + aoff,
-			"%s: %u (%u %s)",
+			"%s: %u (%lu %s)",
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
 			tvb_get_ntohl(tvb, o + i + aoff), tlen + aoff,
                         (tlen + aoff == 1) ? "byte" : "bytes");
@@ -1418,7 +1416,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 			    tlen, (tlen == 1) ? "byte" : "bytes");
 		} else {
 		    proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
-			    "Multiple exit discriminator: %u",
+			    "Multiple exit discriminator: %lu",
 			    tvb_get_ntohl(tvb, o + i + aoff));
 		}
 		break;
@@ -1429,7 +1427,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                              (tlen == 1) ? "byte" : "bytes");
 		} else {
 		    proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
-			    "Local preference: %u", tvb_get_ntohl(tvb, o + i + aoff));
+			    "Local preference: %lu", tvb_get_ntohl(tvb, o + i + aoff));
 		}
 		break;
 	    case BGPTYPE_ATOMIC_AGGREGATE:
@@ -1844,19 +1842,19 @@ dissect_bgp_notification(tvbuff_t *tvb, int offset, proto_tree *tree)
 static void
 dissect_bgp_route_refresh(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    guint        i;    /* tmp            */
+    guint16         i;    /* tmp            */
     int             p;         /* tvb offset counter    */
     int		    pend; 	/* end of list of entries for one orf type */
-    int 	    hlen; 	/* tvb RR msg length */
+    guint16	    hlen; 	/* tvb RR msg length */
     proto_item      *ti;       /* tree item             */
     proto_item      *ti1;       /* tree item             */
     proto_tree      *subtree;  /* tree for orf   */
     proto_tree      *subtree1; /* tree for orf entry */
     guint8          orftype;        /* ORF Type */
     guint8	    orfwhen;	    /* ORF flag: immediate, defer */
-    int		    orflen;	    /* ORF len */
+    guint16	    orflen;	    /* ORF len */
     guint8          entryflag;	    /* ORF Entry flag: action(add,del,delall) match(permit,deny) */
-    int		    entryseq;       /* ORF Entry sequence number */
+    guint32	    entryseq;       /* ORF Entry sequence number */
     int 	    entrylen;       /* ORF Entry length */
     guint8	    pfx_ge;	    /* ORF PrefixList mask lower bound */
     guint8          pfx_le;         /* ORF PrefixList mask upper bound */
