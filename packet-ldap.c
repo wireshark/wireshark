@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.46 2002/08/28 21:00:19 jmayer Exp $
+ * $Id: packet-ldap.c,v 1.47 2002/09/09 23:41:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,7 @@
 #include "packet-ldap.h"
 #include "asn1.h"
 #include "prefs.h"
+#include <epan/conversation.h>
 
 static int proto_ldap = -1;
 static int hf_ldap_length = -1;
@@ -113,6 +114,24 @@ static gboolean ldap_desegment = TRUE;
 #define UDP_PORT_CLDAP			389
 
 static dissector_handle_t gssapi_handle;
+
+/*
+ * Data structure attached to a conversation, giving authentication
+ * information from a bind request.
+ * We keep a linked list of them, so that we can free up all the
+ * authentication mechanism strings.
+ */
+typedef struct ldap_auth_info_t {
+  guint auth_type;	/* authentication type */
+  char *auth_mech;	/* authentication mechanism */
+  struct ldap_auth_info_t *next;
+} ldap_auth_info_t;
+
+static GMemChunk *ldap_auth_info_chunk = NULL;
+
+static guint ldap_auth_info_chunk_count = 200;
+
+static ldap_auth_info_t *auth_info_items;
 
 static value_string msgTypes [] = {
   {LDAP_REQ_BIND, "Bind Request"},
@@ -801,6 +820,8 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
   int start;
   int end;
   int ret;
+  conversation_t *conversation;
+  ldap_auth_info_t *auth_info;
   char *mechanism;
   int token_offset;
   gint available_length, reported_length;
@@ -842,11 +863,61 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
     /* For Kerberos V4, dissect it as a ticket. */
 
    case LDAP_AUTH_SASL:
+    mechanism = NULL;
     if (read_string(a, tree, hf_ldap_message_bind_auth_mechanism, NULL,
                     &mechanism, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
       return;
+
+    /*
+     * We need to remember the authentication type and mechanism for this
+     * conversation.
+     *
+     * XXX - actually, we might need to remember more than one
+     * type and mechanism, if you can unbind and rebind with a
+     * different type and/or mechanism.
+     */
+    conversation = find_conversation(&pinfo->src, &pinfo->dst,
+                                     pinfo->ptype, pinfo->srcport,
+                                     pinfo->destport, 0);
+    if (conversation == NULL) {
+      /* We don't yet have a conversation, so create one. */
+      conversation = conversation_new(&pinfo->src, &pinfo->dst,
+                                      pinfo->ptype, pinfo->srcport,
+                                      pinfo->destport, 0);
+    }
+
+    /*
+     * Do we already have a type and mechanism?
+     */
+    auth_info = conversation_get_proto_data(conversation, proto_ldap);
+    if (auth_info == NULL) {
+      /* No.  Attach that information to the conversation, and add
+         it to the list of information structures. */
+      auth_info = g_mem_chunk_alloc(ldap_auth_info_chunk);
+      auth_info->auth_type = tag;
+      auth_info->auth_mech = mechanism;
+      conversation_add_proto_data(conversation, proto_ldap, auth_info);
+      auth_info->next = auth_info_items;
+      auth_info_items = auth_info;
+    } else {
+      /*
+       * Yes.
+       *
+       * If the mechanism in this request is an empty string (which is
+       * returned as a null pointer), use the saved mechanism instead.
+       * Otherwise, if the saved mechanism is an empty string (null),
+       * save this mechanism.
+       */
+      if (mechanism == NULL)
+      	mechanism = auth_info->auth_mech;
+      else {
+        if (auth_info->auth_mech == NULL)
+          auth_info->auth_mech = mechanism;
+      }
+    }
+
     if (a->offset < end) {
-      if (strcmp(mechanism, "GSS-SPNEGO") == 0) {
+      if (mechanism != NULL && strcmp(mechanism, "GSS-SPNEGO") == 0) {
         /*
          * This is a GSS-API token.
          * Find out how big it is by parsing the ASN.1 header for the
@@ -890,16 +961,93 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
 }
 
 static void dissect_ldap_response_bind(ASN1_SCK *a, proto_tree *tree,
-		int start, guint length)
+		int start, guint length, tvbuff_t *tvb, packet_info *pinfo)
 {
+  guint cls, con, tag;
+  gboolean def;
+  guint cred_length;
   int end;
+  int ret;
+  conversation_t *conversation;
+  ldap_auth_info_t *auth_info;
+  int token_offset;
+  gint available_length, reported_length;
+  tvbuff_t *new_tvb;
+  proto_item *gitem;
+  proto_tree *gtree = NULL;
 
   end = start + length;
   dissect_ldap_result(a, tree);
   if (a->offset < end) {
-    if (read_bytestring(a, tree, hf_ldap_message_bind_server_credentials,
-                        NULL, NULL, ASN1_CTX, 7) != ASN1_ERR_NOERROR)
-      return;
+    conversation = find_conversation(&pinfo->src, &pinfo->dst,
+                                     pinfo->ptype, pinfo->srcport,
+                                     pinfo->destport, 0);
+    if (conversation != NULL) {
+      auth_info = conversation_get_proto_data(conversation, proto_ldap);
+      if (auth_info != NULL) {
+        switch (auth_info->auth_type) {
+
+          /* For Kerberos V4, dissect it as a ticket. */
+          /* XXX - what about LDAP_AUTH_SIMPLE? */
+
+        case LDAP_AUTH_SASL:
+          if (auth_info->auth_mech != NULL &&
+              strcmp(auth_info->auth_mech, "GSS-SPNEGO") == 0) {
+            /*
+             * This is a GSS-API token.
+             * Find out how big it is by parsing the ASN.1 header for the
+             * OCTET STREAM that contains it.
+             */
+            token_offset = a->offset;
+            ret = asn1_header_decode(a, &cls, &con, &tag, &def, &cred_length);
+            if (ret != ASN1_ERR_NOERROR) {
+              proto_tree_add_text(tree, a->tvb, token_offset, 0,
+                "%s: ERROR: Couldn't parse header: %s",
+                proto_registrar_get_name(hf_ldap_message_bind_auth_credentials),
+                asn1_err_to_str(ret));
+              return;
+            }
+            if (tree) {
+              gitem = proto_tree_add_text(tree, tvb, token_offset,
+                (a->offset + cred_length) - token_offset, "GSS-API Token");
+              gtree = proto_item_add_subtree(gitem, ett_ldap_gssapi_token);
+            }
+            available_length = tvb_length_remaining(tvb, token_offset);
+            reported_length = tvb_reported_length_remaining(tvb, token_offset);
+            g_assert(available_length >= 0);
+            g_assert(reported_length >= 0);
+            if (available_length > reported_length)
+              available_length = reported_length;
+            if ((guint)available_length > cred_length)
+              available_length = cred_length;
+            if ((guint)reported_length > cred_length)
+              reported_length = cred_length;
+            new_tvb = tvb_new_subset(tvb, a->offset, available_length, reported_length);
+            call_dissector(gssapi_handle, new_tvb, pinfo, gtree);
+            a->offset += cred_length;
+          } else {
+            if (read_bytestring(a, tree, hf_ldap_message_bind_server_credentials,
+                                NULL, NULL, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+              return;
+          }
+          break;
+
+        default:
+          if (read_bytestring(a, tree, hf_ldap_message_bind_server_credentials,
+                              NULL, NULL, ASN1_CTX, 7) != ASN1_ERR_NOERROR)
+            return;
+          break;
+        }
+      } else {
+        if (read_bytestring(a, tree, hf_ldap_message_bind_server_credentials,
+                            NULL, NULL, ASN1_CTX, 7) != ASN1_ERR_NOERROR)
+          return;
+      }
+    } else {
+      if (read_bytestring(a, tree, hf_ldap_message_bind_server_credentials,
+                          NULL, NULL, ASN1_CTX, 7) != ASN1_ERR_NOERROR)
+        return;
+    }
   }
 }
 
@@ -1084,8 +1232,9 @@ static void dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
 {
   int start;
   int length;
-  char *string1 = 0;
-  char *string2 = 0;
+  char *string1 = NULL;
+  char *string2 = NULL;
+  char *s1, *s2;
   char *compare;
   int ret;
 
@@ -1119,9 +1268,11 @@ static void dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
     return;
   }
 
-  length = 2 + strlen(string1) + strlen(string2);
+  s1 = (string1 == NULL) ? "(null)" : string1;
+  s2 = (string2 == NULL) ? "(null)" : string2;
+  length = 2 + strlen(s1) + strlen(s2);
   compare = g_malloc0(length);
-  snprintf(compare, length, "%s=%s", string1, string2);
+  snprintf(compare, length, "%s=%s", s1, s2);
   proto_tree_add_string(tree, hf_ldap_message_compare, a->tvb, start,
       a->offset-start, compare);
 
@@ -1241,7 +1392,7 @@ static void dissect_ldap_request_abandon(ASN1_SCK *a, proto_tree *tree,
 static void
 dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *ldap_tree = 0, *ti, *msg_tree;
+  proto_tree *ldap_tree = NULL, *ti, *msg_tree = NULL;
   guint messageLength;
   guint messageId;
   int next_offset;
@@ -1366,65 +1517,80 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			         start, a.offset - start, protocolOpTag);
       ti = proto_tree_add_text(ldap_tree, tvb, message_id_start, messageLength, "Message: Id=%u  %s", messageId, typestr);
       msg_tree = proto_item_add_subtree(ti, ett_ldap_message);
-      start = a.offset;
-      if (read_length(&a, msg_tree, hf_ldap_message_length, &opLen) != ASN1_ERR_NOERROR)
-        return;
+    }
+    start = a.offset;
+    if (read_length(&a, msg_tree, hf_ldap_message_length, &opLen) != ASN1_ERR_NOERROR)
+      return;
 
-      if (protocolOpCls != ASN1_APL)
+    if (protocolOpCls != ASN1_APL)
+    {
+      if (ldap_tree)
       {
         proto_tree_add_text(msg_tree, a.tvb, a.offset, opLen,
 			    "%s", typestr);
       }
-      else
+    }
+    else
+    {
+      switch (protocolOpTag)
       {
-        switch (protocolOpTag)
-        {
-         case LDAP_REQ_BIND:
-          dissect_ldap_request_bind(&a, msg_tree, tvb, pinfo);
-          break;
-         case LDAP_REQ_UNBIND:
-          /* Nothing to dissect */
-          break;
-         case LDAP_REQ_SEARCH:
+       case LDAP_REQ_BIND:
+        dissect_ldap_request_bind(&a, msg_tree, tvb, pinfo);
+        break;
+       case LDAP_REQ_UNBIND:
+        /* Nothing to dissect */
+        break;
+       case LDAP_REQ_SEARCH:
+        if (ldap_tree)
           dissect_ldap_request_search(&a, msg_tree);
-          break;
-         case LDAP_REQ_MODIFY:
+        break;
+       case LDAP_REQ_MODIFY:
+        if (ldap_tree)
           dissect_ldap_request_modify(&a, msg_tree);
-          break;
-         case LDAP_REQ_ADD:
+        break;
+       case LDAP_REQ_ADD:
+        if (ldap_tree)
           dissect_ldap_request_add(&a, msg_tree);
-          break;
-         case LDAP_REQ_DELETE:
+        break;
+       case LDAP_REQ_DELETE:
+        if (ldap_tree)
           dissect_ldap_request_delete(&a, msg_tree, start, opLen);
-          break;
-         case LDAP_REQ_MODRDN:
+        break;
+       case LDAP_REQ_MODRDN:
+        if (ldap_tree)
           dissect_ldap_request_modifyrdn(&a, msg_tree, opLen);
-          break;
-         case LDAP_REQ_COMPARE:
+        break;
+       case LDAP_REQ_COMPARE:
+        if (ldap_tree)
           dissect_ldap_request_compare(&a, msg_tree);
-          break;
-         case LDAP_REQ_ABANDON:
+        break;
+       case LDAP_REQ_ABANDON:
+        if (ldap_tree)
           dissect_ldap_request_abandon(&a, msg_tree, start, opLen);
-          break;
-         case LDAP_RES_BIND:
-          dissect_ldap_response_bind(&a, msg_tree, start, opLen);
-          break;
-         case LDAP_RES_SEARCH_ENTRY:
+        break;
+       case LDAP_RES_BIND:
+        dissect_ldap_response_bind(&a, msg_tree, start, opLen, tvb, pinfo);
+        break;
+       case LDAP_RES_SEARCH_ENTRY:
+        if (ldap_tree)
           dissect_ldap_response_search_entry(&a, msg_tree);
-          break;
-         case LDAP_RES_SEARCH_RESULT:
-         case LDAP_RES_MODIFY:
-         case LDAP_RES_ADD:
-         case LDAP_RES_DELETE:
-         case LDAP_RES_MODRDN:
-         case LDAP_RES_COMPARE:
+        break;
+       case LDAP_RES_SEARCH_RESULT:
+       case LDAP_RES_MODIFY:
+       case LDAP_RES_ADD:
+       case LDAP_RES_DELETE:
+       case LDAP_RES_MODRDN:
+       case LDAP_RES_COMPARE:
+        if (ldap_tree)
           dissect_ldap_result(&a, msg_tree);
-          break;
-         default:
+        break;
+       default:
+        if (ldap_tree)
+        {
           proto_tree_add_text(msg_tree, a.tvb, a.offset, opLen,
-			      "Unknown LDAP operation (%u)", protocolOpTag);
-          break;
+                              "Unknown LDAP operation (%u)", protocolOpTag);
         }
+        break;
       }
     }
 
@@ -1434,6 +1600,27 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     a.offset = next_offset;
   }
+}
+
+static void
+ldap_reinit(void)
+{
+  ldap_auth_info_t *auth_info;
+
+  /* Free up saved authentication mechanism strings */
+  for (auth_info = auth_info_items; auth_info != NULL;
+       auth_info = auth_info->next) {
+    if (auth_info->auth_mech != NULL)
+      g_free(auth_info->auth_mech);
+  }
+
+  if (ldap_auth_info_chunk != NULL)
+    g_mem_chunk_destroy(ldap_auth_info_chunk);
+
+  ldap_auth_info_chunk = g_mem_chunk_new("ldap_auth_info_chunk",
+		sizeof(ldap_auth_info_t),
+		ldap_auth_info_chunk_count * sizeof(ldap_auth_info_t),
+		G_ALLOC_ONLY);
 }
 
 void
@@ -1679,6 +1866,8 @@ proto_register_ldap(void)
     "Desegment all LDAP messages spanning multiple TCP segments",
     "Whether the LDAP dissector should desegment all messages spanning multiple TCP segments",
     &ldap_desegment);
+
+  register_init_routine(ldap_reinit);
 }
 
 void
