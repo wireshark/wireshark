@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.71 2003/06/03 02:32:54 gerald Exp $
+ * $Id: plugins.c,v 1.72 2003/06/04 00:11:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -163,19 +163,14 @@ plugins_scan_dir(const char *dirname)
     gchar         *dot;
     int            cr;
 
+#if GLIB_MAJOR_VERSION < 2
     /*
      * We find the extension used on this platform for loadable modules
      * by the sneaky hack of calling "g_module_build_path" to build
      * the pathname for a module with an empty directory name and
      * empty module name, and then search for the last "." and use
      * everything from the last "." on.
-     *
-     * GLib 2.0 will probably define G_MODULE_SUFFIX as the extension
-     * to use, but that's not checked into the GLib CVS tree yet,
-     * and we can't use it on systems that don't have GLib 2.0.
      */
-
-#if GLIB_MAJOR_VERSION < 2
     hack_path = g_module_build_path("", "");
     lt_lib_ext = strrchr(hack_path, '.');
     if (lt_lib_ext == NULL)
@@ -203,14 +198,12 @@ plugins_scan_dir(const char *dirname)
 
 	    snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
 	        dirname, file->d_name);
-	    if ((handle = g_module_open(filename, 0)) == NULL)
-	    {
-		g_warning("Couldn't load module %s: %s", filename,
-			  g_module_error());
-		continue;
-	    }
 	    name = (gchar *)file->d_name;
 #else /* GLIB 2 */
+    /*
+     * GLib 2.x defines G_MODULE_SUFFIX as the extension used on this
+     * platform for loadable modules.
+     */
     dummy = g_malloc(sizeof(GError *));
     *dummy = NULL;
     if ((dir = g_dir_open(dirname, 0, dummy)) != NULL)
@@ -223,14 +216,13 @@ plugins_scan_dir(const char *dirname)
 
 	    snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
 	        dirname, name);
-
+#endif
 	    if ((handle = g_module_open(filename, 0)) == NULL)
 	    {
 		g_warning("Couldn't load module %s: %s", filename,
 			  g_module_error());
 		continue;
 	    }
-#endif
 	    if (g_module_symbol(handle, "version", (gpointer*)&version) == FALSE)
 	    {
 	        g_warning("The plugin %s has no version symbol", name);
