@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.21 2002/04/11 09:20:33 guy Exp $
+ * $Id: packet-ssl.c,v 1.22 2002/04/11 09:43:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,6 +89,7 @@ static int hf_ssl2_record                    = -1;
 static int hf_ssl2_record_is_escape          = -1;
 static int hf_ssl2_record_padding_length     = -1;
 static int hf_ssl2_msg_type                  = -1;
+static int hf_pct_msg_type                   = -1;
 static int hf_ssl_change_cipher_spec         = -1;
 static int hf_ssl_alert_message              = -1;
 static int hf_ssl_alert_message_level        = -1;
@@ -160,6 +161,7 @@ static gint ett_ssl_dnames            = -1;
 #define SSL_VER_SSLv2                     1
 #define SSL_VER_SSLv3                     2
 #define SSL_VER_TLS                       3
+#define SSL_VER_PCT                       4
 
 /* corresponds to the #defines above */
 static gchar* ssl_version_short_names[] = {
@@ -167,6 +169,7 @@ static gchar* ssl_version_short_names[] = {
     "SSLv2",
     "SSLv3",
     "TLS",
+    "PCT"
 };
 
 /* other defines */
@@ -195,6 +198,14 @@ static gchar* ssl_version_short_names[] = {
 #define SSL2_HND_SERVER_FINISHED       0x06
 #define SSL2_HND_REQUEST_CERTIFICATE   0x07
 #define SSL2_HND_CLIENT_CERTIFICATE    0x08
+
+#define PCT_VERSION_1		       0x8001
+
+#define PCT_MSG_CLIENT_HELLO           0x01
+#define PCT_MSG_SERVER_HELLO           0x02
+#define PCT_MSG_CLIENT_MASTER_KEY      0x03
+#define PCT_MSG_SERVER_VERIFY          0x04
+#define PCT_MSG_ERROR                  0x05
 
 /*
  * Lookup tables
@@ -436,6 +447,16 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x00, NULL }
 };
 
+static const value_string pct_msg_types[] = {
+    { PCT_MSG_CLIENT_HELLO,         "Client Hello" },
+    { PCT_MSG_SERVER_HELLO,         "Server Hello" },
+    { PCT_MSG_CLIENT_MASTER_KEY,    "Client Master Key" },
+    { PCT_MSG_SERVER_VERIFY,        "Server Verify" },
+    { PCT_MSG_ERROR,                "Error" },
+    { 0x00, NULL },
+};
+
+
 /*********************************************************************
  *
  * Forward Declarations
@@ -533,6 +554,9 @@ static int  ssl_looks_like_sslv3(tvbuff_t *tvb, guint32 offset);
 static int  ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb,
                                               guint32 offset,
                                               guint32 record_length);
+static int  ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb,
+                                               guint32 offset,
+                                               guint32 record_length);
 
 /*********************************************************************
  *
@@ -636,6 +660,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          */
         switch(conv_version) {
         case SSL_VER_SSLv2:
+        case SSL_VER_PCT:
             offset = dissect_ssl2_record(tvb, pinfo, ssl_tree,
                                          offset, &conv_version,
                                          &need_desegmentation);
@@ -669,7 +694,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         default:
             if (ssl_looks_like_sslv2(tvb, offset))
             {
-                /* looks like sslv2 client hello */
+                /* looks like sslv2 or pct client hello */
                 offset = dissect_ssl2_record(tvb, pinfo, ssl_tree,
                                              offset, &conv_version,
                                              &need_desegmentation);
@@ -1604,7 +1629,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * length is three bytes due to padding; otherwise
      * record length is two bytes
      */
-    byte = tvb_get_guint8(tvb, offset++);
+    byte = tvb_get_guint8(tvb, offset);
     record_length_length = (byte & 0x80) ? 2 : 3;
 
     /*
@@ -1633,15 +1658,15 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch(record_length_length) {
     case 2:                     /* two-byte record length */
         record_length = (byte & 0x7f) << 8;
-        byte = tvb_get_guint8(tvb, offset++);
+        byte = tvb_get_guint8(tvb, offset + 1);
         record_length += byte;
         break;
     case 3:                     /* three-byte record length */
         is_escape = (byte & 0x40) ? TRUE : FALSE;
         record_length = (byte & 0x3f) << 8;
-        byte = tvb_get_guint8(tvb, offset++);
+        byte = tvb_get_guint8(tvb, offset + 1);
         record_length += byte;
-        byte = tvb_get_guint8(tvb, offset++);
+        byte = tvb_get_guint8(tvb, offset + 2);
         padding_length = byte;
     }
 
@@ -1652,27 +1677,20 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /*
          * Yes - is the record split across segment boundaries?
          */
-        if (available_bytes < record_length) {
+        if (available_bytes < (record_length_length + record_length)) {
             /*
              * Yes.  Tell the TCP dissector where the data for this
              * message starts in the data it handed us, and how many
              * more bytes we need, and return.
              */
             pinfo->desegment_offset = offset;
-            pinfo->desegment_len = record_length - available_bytes;
+            pinfo->desegment_len = (record_length_length + record_length)
+		                   - available_bytes;
             *need_desegmentation = TRUE;
             return offset;
         }
     }
-
-    /* if we get here, but don't have a version set for the
-     * conversation, then set a version for just this frame
-     * (e.g., on a client hello)
-     */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSLv2");
-    }
+    offset += record_length_length;
 
     /* add the record layer subtree header */
     ti = proto_tree_add_item(tree, hf_ssl2_record, tvb, initial_offset,
@@ -1685,25 +1703,53 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* if we get a server_hello or later handshake in v2, then set
      * this to sslv2
      */
-    if (*conv_version == SSL_VER_UNKNOWN
-        && msg_type >= 2 && msg_type <= 8)
+    if (*conv_version == SSL_VER_UNKNOWN)
     {
-        *conv_version = SSL_VER_SSLv2;
-        ssl_set_conv_version(pinfo, *conv_version);
+        if (ssl_looks_like_valid_pct_handshake(tvb,
+                                               (initial_offset +
+                                                record_length_length),
+                                               record_length)) {
+            *conv_version = SSL_VER_PCT;
+            ssl_set_conv_version(pinfo, *conv_version);
+        }
+        else if (msg_type >= 2 && msg_type <= 8)
+        {
+            *conv_version = SSL_VER_SSLv2;
+            ssl_set_conv_version(pinfo, *conv_version);
+        }
+    }
+    
+    /* if we get here, but don't have a version set for the
+     * conversation, then set a version for just this frame
+     * (e.g., on a client hello)
+     */
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL,
+                    (*conv_version == SSL_VER_PCT) ? "PCT" : "SSLv2");
     }
 
     /* see if the msg_type is valid; if not the payload is
      * probably encrypted, so note that fact and bail
      */
-    msg_type_str = match_strval(msg_type, ssl_20_msg_types);
+    msg_type_str = match_strval(msg_type,
+                                (*conv_version == SSL_VER_PCT)
+				? pct_msg_types : ssl_20_msg_types);
     if (!msg_type_str
-        || !ssl_looks_like_valid_v2_handshake(tvb, initial_offset
-                                              + record_length_length,
-                                              record_length))
+        || ((*conv_version != SSL_VER_PCT) &&
+	    !ssl_looks_like_valid_v2_handshake(tvb, initial_offset
+					       + record_length_length,
+					       record_length))
+	|| ((*conv_version == SSL_VER_PCT) &&
+	    !ssl_looks_like_valid_pct_handshake(tvb, initial_offset
+						+ record_length_length,
+						record_length)))
     {
         if (ssl_record_tree)
         {
-            proto_item_set_text(ssl_record_tree, "SSLv2 Record Layer: %s",
+            proto_item_set_text(ssl_record_tree, "%s Record Layer: %s",
+                                (*conv_version == SSL_VER_PCT)
+                                ? "PCT" : "SSLv2",
                                 "Encrypted Data");
         }
         if (check_col(pinfo->cinfo, COL_INFO))
@@ -1717,7 +1763,9 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if (ssl_record_tree)
         {
-            proto_item_set_text(ssl_record_tree, "SSLv2 Record Layer: %s",
+            proto_item_set_text(ssl_record_tree, "%s Record Layer: %s",
+                                (*conv_version == SSL_VER_PCT)
+                                ? "PCT" : "SSLv2",
                                 msg_type_str);
         }
     }
@@ -1757,40 +1805,58 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* add the message type */
     if (ssl_record_tree)
     {
-        proto_tree_add_item(ssl_record_tree, hf_ssl2_msg_type, tvb,
-                            offset, 1, 0);
+        proto_tree_add_item(ssl_record_tree,
+                            (*conv_version == SSL_VER_PCT)
+                            ? hf_pct_msg_type : hf_ssl2_msg_type,
+                            tvb, offset, 1, 0);
     }
     offset++;                   /* move past msg_type byte */
 
+    if (*conv_version != SSL_VER_PCT)
+    {
+        /* dissect the message (only handle client hello right now) */
+        switch (msg_type) {
+        case SSL2_HND_CLIENT_HELLO:
+            dissect_ssl2_hnd_client_hello(tvb, ssl_record_tree, offset);
+            break;
 
-    /* dissect the message (only handle client hello right now) */
-    switch (msg_type) {
-    case SSL2_HND_CLIENT_HELLO:
-        dissect_ssl2_hnd_client_hello(tvb, ssl_record_tree, offset);
-        break;
+        case SSL2_HND_CLIENT_MASTER_KEY:
+            dissect_ssl2_hnd_client_master_key(tvb, ssl_record_tree, offset);
+            break;
 
-    case SSL2_HND_CLIENT_MASTER_KEY:
-        dissect_ssl2_hnd_client_master_key(tvb, ssl_record_tree, offset);
-        break;
+        case SSL2_HND_SERVER_HELLO:
+            dissect_ssl2_hnd_server_hello(tvb, ssl_record_tree, offset);
+            break;
 
-    case SSL2_HND_SERVER_HELLO:
-        dissect_ssl2_hnd_server_hello(tvb, ssl_record_tree, offset);
-        break;
+        case SSL2_HND_ERROR:
+        case SSL2_HND_CLIENT_FINISHED:
+        case SSL2_HND_SERVER_VERIFY:
+        case SSL2_HND_SERVER_FINISHED:
+        case SSL2_HND_REQUEST_CERTIFICATE:
+        case SSL2_HND_CLIENT_CERTIFICATE:
+            /* unimplemented */
+            break;
 
-    case SSL2_HND_ERROR:
-    case SSL2_HND_CLIENT_FINISHED:
-    case SSL2_HND_SERVER_VERIFY:
-    case SSL2_HND_SERVER_FINISHED:
-    case SSL2_HND_REQUEST_CERTIFICATE:
-    case SSL2_HND_CLIENT_CERTIFICATE:
-        /* unimplemented */
-        break;
-
-    default:                    /* unknown */
-        break;
+        default:                    /* unknown */
+            break;
+        }
     }
+    else
+    {
+        /* dissect the message */ 
+        switch (msg_type) {
+        case PCT_MSG_CLIENT_HELLO:
+        case PCT_MSG_SERVER_HELLO:
+        case PCT_MSG_CLIENT_MASTER_KEY:
+        case PCT_MSG_SERVER_VERIFY:
+        case PCT_MSG_ERROR:
+            /* unimplemented */
+            break;
 
-
+        default:                    /* unknown */
+            break;
+        }
+    }
     return (initial_offset + record_length_length + record_length);
 }
 
@@ -2237,6 +2303,8 @@ ssl_looks_like_sslv2(tvbuff_t *tvb, guint32 offset)
     case SSL2_HND_CLIENT_HELLO:
     case SSL2_HND_CLIENT_MASTER_KEY:
     case SSL2_HND_SERVER_HELLO:
+    case PCT_MSG_CLIENT_MASTER_KEY:
+    case PCT_MSG_ERROR:
         return 1;
     }
     return 0;
@@ -2334,6 +2402,78 @@ ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb, guint32 offset,
     return 0;
 }
 
+/* applies a heuristic to determine whether
+ * or not the data beginning at offset looks
+ * like a valid, unencrypted v2 handshake message.
+ * since it isn't possible to completely tell random
+ * data apart from a valid message without state,
+ * we try to help the odds.
+ */
+static int
+ssl_looks_like_valid_pct_handshake(tvbuff_t *tvb, guint32 offset,
+				   guint32 record_length)
+{
+    /* first byte should be a msg_type.
+     *
+     *   - we know we only see client_hello, client_master_key,
+     *     and server_hello in the clear, so check to see if
+     *     msg_type is one of those (this gives us a 3 in 2^8
+     *     chance of saying yes with random payload)
+     *
+     *   - for those three types that we know about, do some
+     *     further validation to reduce the chance of an error
+     */
+    guint8 msg_type;
+    guint16 version;
+    guint32 sum;
+
+    /* fetch the msg_type */
+    msg_type = tvb_get_guint8(tvb, offset);
+
+    switch (msg_type) {
+    case PCT_MSG_CLIENT_HELLO:
+        /* version follows msg byte, so verify that this is valid */
+        version = tvb_get_ntohs(tvb, offset+1);
+        return version == PCT_VERSION_1;
+        break;
+
+    case PCT_MSG_SERVER_HELLO:
+        /* version is one byte after msg_type */
+        version = tvb_get_ntohs(tvb, offset+2);
+        return version == PCT_VERSION_1;
+        break;
+
+    case PCT_MSG_CLIENT_MASTER_KEY:
+        /* sum of various length fields must be less than record length */
+        sum  = tvb_get_ntohs(tvb, offset + 6); /* clear_key_length */
+        sum += tvb_get_ntohs(tvb, offset + 8); /* encrypted_key_length */
+        sum += tvb_get_ntohs(tvb, offset + 10); /* key_arg_length */
+        sum += tvb_get_ntohs(tvb, offset + 12); /* verify_prelude_length */
+        sum += tvb_get_ntohs(tvb, offset + 14); /* client_cert_length */
+        sum += tvb_get_ntohs(tvb, offset + 16); /* response_length */
+        if (sum > record_length)
+        {
+            return 0;
+        }
+        return 1;
+        break;
+
+    case PCT_MSG_SERVER_VERIFY:
+	/* record is 36 bytes longer than response_length */
+	sum = tvb_get_ntohs(tvb, offset + 34); /* response_length */
+	if ((sum + 36) == record_length)
+	    return 1;
+	else
+	    return 0;
+	break;
+
+    default:
+        return 0;
+    }
+    return 0;
+}
+
+
 /*********************************************************************
  *
  * Standard Ethereal Protocol Registration and housekeeping
@@ -2360,6 +2500,11 @@ proto_register_ssl(void)
             FT_UINT8, BASE_DEC, VALS(ssl_20_msg_types), 0x0,
             "SSLv2 handshake message type", HFILL}
         },
+        { &hf_pct_msg_type,
+          { "Handshake Message Type", "ssl.pct_handshake.type",
+            FT_UINT8, BASE_DEC, VALS(pct_msg_types), 0x0,
+            "PCT handshake message type", HFILL}
+        },
         { &hf_ssl_record_version,
           { "Version", "ssl.record.version",
             FT_UINT16, BASE_HEX, VALS(ssl_versions), 0x0,
@@ -2376,9 +2521,9 @@ proto_register_ssl(void)
             "Payload is application data", HFILL }
         },
         { & hf_ssl2_record,
-          { "SSLv2 Record Header", "ssl.record",
+          { "SSLv2/PCT Record Header", "ssl.record",
             FT_NONE, BASE_DEC, NULL, 0x0,
-            "SSLv2 record data", HFILL }
+            "SSLv2/PCT record data", HFILL }
         },
         { &hf_ssl2_record_is_escape,
           { "Is Escape", "ssl.record.is_escape",
