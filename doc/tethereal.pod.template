@@ -29,7 +29,7 @@ S<[ B<-v> ]>
 S<[ B<-V> ]>
 S<[ B<-w> savefile ]>
 S<[ B<-x> ]>
-S<[ B<-Z> statistics-string ]>
+S<[ B<-z> statistics-string ]>
 S<[ filter expression ]>
 
 =head1 DESCRIPTION
@@ -303,17 +303,17 @@ I<savefile> is "-".
 Cause B<Tethereal> to print a hex and ASCII dump of the packet data
 after printing the summary or protocol tree.
 
-=item -Z
+=item -z
 
 Get B<Tethereal> to collect various types of statistics and display the result
 after finishing reading the capture file.
 Currently implemented statistics are:
 
-B<-Z> rpc,rtt,I<program>,I<version>
+B<-z> rpc,rtt,I<program>,I<version>
 
 Collect call/reply RTT data for I<program>/I<version>.  Data collected
 is number of calls for each procedure, MinRTT, MaxRTT and AvgRTT. 
-Example: use B<-Z rpc,rtt,100003,3> to collect data for NFS v3.  This
+Example: use B<-z rpc,rtt,100003,3> to collect data for NFS v3.  This
 option can be used multiple times on the command line. 
 
 =back

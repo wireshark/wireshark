@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.154 2002/09/04 09:40:24 sahlberg Exp $
+ * $Id: tethereal.c,v 1.155 2002/09/05 06:46:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -456,7 +456,7 @@ main(int argc, char *argv[])
 #endif
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "a:b:c:Df:F:hi:lnN:o:pqr:R:s:St:vw:VxZ:")) != -1) {
+  while ((opt = getopt(argc, argv, "a:b:c:Df:F:hi:lnN:o:pqr:R:s:St:vw:Vxz:")) != -1) {
     switch (opt) {
       case 'a':        /* autostop criteria */
 #ifdef HAVE_LIBPCAP
@@ -647,22 +647,22 @@ main(int argc, char *argv[])
       case 'x':        /* Print packet data in hex (and ASCII) */
         print_hex = TRUE;
         break;
-      case 'Z':
+      case 'z':
         if(!strncmp(optarg,"rpc,",4)){
           if(!strncmp(optarg,"rpc,rtt,",8)){
             int rpcprogram, rpcversion;
             if(sscanf(optarg,"rpc,rtt,%d,%d",&rpcprogram,&rpcversion)==2){
               rpcstat_init(rpcprogram,rpcversion);
             } else {
-              fprintf(stderr, "tethereal: invalid \"-Z rpc,rtt,<program>,<version>\" argument\n");
+              fprintf(stderr, "tethereal: invalid \"-z rpc,rtt,<program>,<version>\" argument\n");
               exit(1);
             }
           } else {
-            fprintf(stderr, "tethereal: invalid -Z argument. Argument must be \"-Z rpc,rtt,...\"\n");
+            fprintf(stderr, "tethereal: invalid -z argument. Argument must be \"-z rpc,rtt,...\"\n");
             exit(1);
           }
         } else {
-          fprintf(stderr, "tethereal: invalid -Z argument. Argument must be \"-Z rpc,...\"\n");
+          fprintf(stderr, "tethereal: invalid -z argument. Argument must be \"-z rpc,...\"\n");
           exit(1);
         }
         break;

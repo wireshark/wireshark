@@ -1,7 +1,7 @@
 /* gtk2-rpcstat.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: gtk2-rpcstat.c,v 1.1 2002/09/04 22:18:12 sahlberg Exp $
+ * $Id: gtk2-rpcstat.c,v 1.2 2002/09/05 06:46:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,7 @@
 #include "tap-rpcstat.h"
 #include "packet-rpc.h"
 
+extern GStaticMutex update_thread_mutex;
 
 /* used to keep track of statistics for a specific procedure */
 typedef struct _rpc_procedure_t {
@@ -254,20 +255,29 @@ rpcstat_find_vers(gpointer *key, gpointer *value _U_, gpointer *user_data _U_)
 	return NULL;
 }
 
+/* since the gtk2 implementation of tap is multithreaded we must protect
+ * remove_tap_listener() from modifying the list while draw_tap_listener()
+ * is running.  the other protected block is in main.c
+ *
+ * there should not be any other critical regions in gtk2
+ */
 static void
 win_destroy_cb(GtkWindow *win _U_, gpointer data)
 {
 	rpcstat_t *rs=(rpcstat_t *)data;
 
+	g_static_mutex_lock(&update_thread_mutex);
 	remove_tap_listener(rs);
+	g_static_mutex_unlock(&update_thread_mutex);
+
 	g_free(rs->procedures);
 	g_free(rs);
 }
 
 /* When called, this function will create a new instance of gtk2-rpcstat.
  */
-static void
-rpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
+void
+gtk2_rpcstat_init(guint32 program, guint32 version)
 {
 	rpcstat_t *rs;
 	guint32 i;
@@ -276,6 +286,8 @@ rpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 	GtkWidget *stat_label;
 	GtkWidget *tmp;
 
+	rpc_program=program;
+	rpc_version=version;
 	rs=g_malloc(sizeof(rpcstat_t));
 	rs->prog=rpc_prog_name(rpc_program);
 	rs->program=rpc_program;
@@ -379,6 +391,12 @@ rpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 
 
 	gtk_widget_show_all(rs->win);
+}
+
+static void
+rpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
+{
+	gtk2_rpcstat_init(rpc_program, rpc_version);
 }
 
 

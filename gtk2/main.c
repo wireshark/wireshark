@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.2 2002/09/04 22:19:42 sahlberg Exp $
+ * $Id: main.c,v 1.3 2002/09/05 06:46:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -135,6 +135,7 @@
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 #include "../tap.h"
+#include "gtk2-rpcstat.h"
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -1211,13 +1212,18 @@ set_autostop_criterion(const char *autostoparg)
 }
 #endif
 
+
+GStaticMutex update_thread_mutex = G_STATIC_MUTEX_INIT;
+
 gpointer
 update_thread(gpointer data _U_)
 {
 	while(1){
 		struct timeval tv1, tv2;
 		gettimeofday(&tv1, NULL);
+		g_static_mutex_lock(&update_thread_mutex);
 		draw_tap_listeners(FALSE);
+		g_static_mutex_unlock(&update_thread_mutex);
 		do{
 			g_thread_yield();
 			gettimeofday(&tv2, NULL);
@@ -1272,7 +1278,7 @@ main(int argc, char *argv[])
     gboolean         prefs_write_needed = FALSE;
 
 
-#define OPTSTRING_INIT "a:b:B:c:f:hi:klm:nN:o:pP:Qr:R:Ss:t:T:w:v"
+#define OPTSTRING_INIT "a:b:B:c:f:hi:klm:nN:o:pP:Qr:R:Ss:t:T:w:vz:"
 
 #ifdef HAVE_LIBPCAP
 #ifdef WIN32
@@ -1707,6 +1713,26 @@ main(int argc, char *argv[])
             cfile.save_file_fd = atoi(optarg);
             break;
 #endif
+
+        case 'z':
+            if(!strncmp(optarg,"rpc,",4)){
+              if(!strncmp(optarg,"rpc,rtt,",8)){
+                int rpcprogram, rpcversion;
+                if(sscanf(optarg,"rpc,rtt,%d,%d",&rpcprogram,&rpcversion)==2){
+                  gtk2_rpcstat_init(rpcprogram,rpcversion);
+                } else {
+                  fprintf(stderr, "ethereal: invalid \"-z rpc,rtt,<program>,<version>\" argument\n");
+                  exit(1);
+                }
+              } else {
+                fprintf(stderr, "ethereal: invalid -z argument. Argument must be \"-z rpc,rtt,...\"\n");
+                exit(1);
+              }
+            } else {
+              fprintf(stderr, "ethereal: invalid -z argument. Argument must be \"-z rpc,...\"\n");
+              exit(1);
+            }
+            break;
 
 #ifdef _WIN32
 #ifdef HAVE_LIBPCAP

@@ -1,7 +1,7 @@
 /* tap.c
  * packet tap interface   2002 Ronnie Sahlberg
  *
- * $Id: tap.c,v 1.1 2002/09/04 09:40:24 sahlberg Exp $
+ * $Id: tap.c,v 1.2 2002/09/05 06:46:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,12 +77,11 @@ typedef struct _tap_listener_t {
 	int  (*packet)(void *tapdata, packet_info *pinfo, void *data);
 	void (*draw)(void *tapdata);
 } tap_listener_t;
-static tap_listener_t *tap_listener_queue=NULL;
+static volatile tap_listener_t *tap_listener_queue=NULL;
 
 static union wtap_pseudo_header *l_pseudo_header=NULL; 
 static const u_char *l_buf=NULL;
 static frame_data *l_fdata;
-
 
 /* **********************************************************************
  * Init routine only called from epan at application startup
@@ -180,7 +179,6 @@ tap_queue_packet(int tap_id, packet_info *pinfo, void *tap_specific_data)
 		return;
 	}
 
-/*printf("tap_queue_packet %d   %d\n",pinfo->fd->num,tapping_is_active);*/
 	/* get a free tap_packet structure, this is CHEAP */
 	tpt=tap_packet_list_free;
 	tap_packet_list_free=tpt->next;
@@ -190,6 +188,7 @@ tap_queue_packet(int tap_id, packet_info *pinfo, void *tap_specific_data)
 	tpt->tap_id=tap_id;
 	tpt->pinfo=pinfo;
 	tpt->tap_specific_data=tap_specific_data;
+
 }
 
 
@@ -211,7 +210,6 @@ tap_queue_init(union wtap_pseudo_header *pseudo_header, const u_char *buf, frame
 	l_buf=buf;
 	l_fdata=fdata;
 
-/*printf("tap_queue_init\n");*/
 	tapping_is_active=1;
 
 	tpt=tap_packet_list_queue;
@@ -239,9 +237,8 @@ tap_push_tapped_queue(void)
 	epan_dissect_t *edt;
 
 	tapping_is_active=0;
-/*printf("tap_push_tapped_queue\n");*/
 	for(tp=tap_packet_list_queue;tp;tp=tp->next){
-		for(tl=tap_listener_queue;tl;tl=tl->next){
+		for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
 			if(tp->tap_id==tl->tap_id){
 				int passed=TRUE;
 				if(tl->code){
@@ -262,7 +259,6 @@ tap_push_tapped_queue(void)
 		}
 	}
 
-	/*draw_tap_listeners();*/   /*XXX until we have a thread for this */
 }
 
 /* This function is called when we need to reset all tap listeners, for example
@@ -273,14 +269,15 @@ reset_tap_listeners(void)
 {
 	tap_listener_t *tl;
 
-/*printf("reset_tap_listeners\n");*/
-	for(tl=tap_listener_queue;tl;tl=tl->next){
+	for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
 		if(tl->reset){
 			tl->reset(tl->tapdata);
 		}
 		tl->needs_redraw=1;
 	}
+
 }
+
 
 /* This function is called when we need to redraw all tap listeners, for example
    when we open/start a new capture or if we need to rescan the packet list.
@@ -294,8 +291,7 @@ draw_tap_listeners(gboolean draw_all)
 {
 	tap_listener_t *tl;
 
-/*printf("draw_tap_listeners\n");*/
-	for(tl=tap_listener_queue;tl;tl=tl->next){
+	for(tl=(tap_listener_t *)tap_listener_queue;tl;tl=tl->next){
 		if(tl->needs_redraw || draw_all){
 			if(tl->draw){
 				tl->draw(tl->tapdata);
@@ -364,7 +360,7 @@ register_tap_listener(char *tapname, void *tapdata, char *fstring, void (*reset)
 	tl->reset=reset;
 	tl->packet=packet;
 	tl->draw=draw;
-	tl->next=tap_listener_queue;
+	tl->next=(tap_listener_t *)tap_listener_queue;
 
 	tap_listener_queue=tl;
 
@@ -372,7 +368,7 @@ register_tap_listener(char *tapname, void *tapdata, char *fstring, void (*reset)
 }
 
 /* this function removes a tap listener
-*/
+ */
 void
 remove_tap_listener(void *tapdata)
 {
@@ -383,10 +379,10 @@ remove_tap_listener(void *tapdata)
 	}
 
 	if(tap_listener_queue->tapdata==tapdata){
-		tl=tap_listener_queue;
+		tl=(tap_listener_t *)tap_listener_queue;
 		tap_listener_queue=tap_listener_queue->next;
 	} else {
-		for(tl2=tap_listener_queue;tl2->next;tl=tl2->next){
+		for(tl2=(tap_listener_t *)tap_listener_queue;tl2->next;tl2=tl2->next){
 			if(tl2->next->tapdata==tapdata){
 				tl=tl2->next;
 				tl2->next=tl2->next->next;
@@ -396,11 +392,15 @@ remove_tap_listener(void *tapdata)
 		}
 	}
 
-	if(tl->code){
-		dfilter_free(tl->code);
+	if(tl){
+		if(tl->code){
+			dfilter_free(tl->code);
+		}
+		g_free(tl);
 	}
-	g_free(tl);
+
 	return;
 }
+
 
 
