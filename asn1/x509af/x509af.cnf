@@ -14,11 +14,14 @@ SelectedAttributeTypes x509sat
 
 #.EXPORTS
 
+AttributeCertificate
+AttributeCertificateAssertion
+AttributeCertificationPath
 Certificate
 Certificates
 CertificateList
 CertificateSerialNumber
-AttributeCertificate
+CertificationPath
 
 #.NO_EMIT
 

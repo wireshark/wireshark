@@ -625,7 +625,7 @@ static ber_sequence CertificationPath_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x509af_CertificationPath(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 CertificationPath_sequence, hf_index, ett_x509af_CertificationPath);
@@ -857,7 +857,7 @@ static ber_sequence AttributeCertificationPath_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x509af_AttributeCertificationPath(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 AttributeCertificationPath_sequence, hf_index, ett_x509af_AttributeCertificationPath);
@@ -912,7 +912,7 @@ static ber_sequence AttributeCertificateAssertion_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_x509af_AttributeCertificateAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 AttributeCertificateAssertion_sequence, hf_index, ett_x509af_AttributeCertificateAssertion);
