@@ -2,7 +2,7 @@
  * Common routines for smb packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-common.c,v 1.10 2002/05/24 10:57:38 guy Exp $
+ * $Id: packet-smb-common.c,v 1.11 2002/05/27 04:11:06 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,10 @@ const value_string share_type_vals[] = {
 	{1, "Printer queue"},
 	{2, "Communications device"},
 	{3, "IPC"},
+	{0x80000000, "Hidden Directory tree"},
+	{0x80000001, "Hidden Printer queue"},
+	{0x80000002, "Hidden Communications device"},
+	{0x80000003, "Hidden IPC"},
 	{0, NULL}
 };
 
