@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.570 2003/03/25 22:30:19 guy Exp $
+# $Id: Makefile.am,v 1.571 2003/03/25 23:33:38 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -69,17 +69,16 @@ EXTRA_PROGRAMS = ethereal tethereal editcap mergecap dftest text2pcap
 EXTRA_SCRIPTS = idl2eth
 
 #
-# Directory for Ethereal configuration files.  Currently contains 
-# "manuf" file and diamter directory.
+# Ethereal configuration files are put in $(pkgdatadir).  It currently
+# contains the "manuf" file and a "diameter" directory.
 #
-etherealconfdir = $(prefix)/share/ethereal
-etherealconf_DATA = manuf
+pkgdata_DATA = manuf
 
 #
 # Install the Diameter DTD and XML files in the "diameter" subdirectory
 # of that directory.
 #
-diameterdir = $(etherealconfdir)/diameter
+diameterdir = $(pkgdatadir)/diameter
 diameter_DATA = dictionary.dtd dictionary.xml mobileipv4.xml \
 	nasreq.xml sunping.xml
 
