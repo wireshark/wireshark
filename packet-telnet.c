@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.24 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-telnet.c,v 1.25 2001/10/26 02:55:20 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -152,17 +152,19 @@ telnet_sub_option(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
 
   subneg_len = offset - start_offset;
 
-  ti = proto_tree_add_text(telnet_tree, tvb, start_offset, subneg_len,
-			"Suboption Begin: %s", opt);
+  if (subneg_len > 0) {
+      ti = proto_tree_add_text(telnet_tree, tvb, start_offset, subneg_len,
+                "Suboption Begin: %s", opt);
 
-  option_tree = proto_item_add_subtree(ti, ett_telnet_subopt);
+      option_tree = proto_item_add_subtree(ti, ett_telnet_subopt);
 
-  proto_tree_add_text(option_tree, tvb, start_offset + 2, 2,
-			"%s %s", (req ? "Send your" : "Here's my"), opt);
+      proto_tree_add_text(option_tree, tvb, start_offset + 2, 2,
+                "%s %s", (req ? "Send your" : "Here's my"), opt);
 
-  if (req == 0) {  /* Add the value */
-    proto_tree_add_text(option_tree, tvb, start_offset + 4, subneg_len - 4,
-	"Value: %s", tvb_format_text(tvb, start_offset + 4, subneg_len - 4));
+      if (req == 0) {  /* Add the value */
+        proto_tree_add_text(option_tree, tvb, start_offset + 4, subneg_len - 4,
+        "Value: %s", tvb_format_text(tvb, start_offset + 4, subneg_len - 4));
+      }
   }
   return offset;
 }
