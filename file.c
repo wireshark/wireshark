@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.174 2000/03/31 21:42:23 oabad Exp $
+ * $Id: file.c,v 1.175 2000/04/03 08:42:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -177,8 +177,6 @@ fail:
 void
 close_cap_file(capture_file *cf, void *w)
 {
-  frame_data *fd, *fd_next;
-
   /* Destroy all popup packet windows, as they refer to packets in the
      capture file we're closing. */
   destroy_packet_wins();
@@ -202,10 +200,8 @@ close_cap_file(capture_file *cf, void *w)
   /* ...which means we have nothing to save. */
   cf->user_saved = FALSE;
 
-  for (fd = cf->plist; fd != NULL; fd = fd_next) {
-    fd_next = fd->next;
-    g_free(fd);
-  }
+  if (cf->plist_chunk != NULL)
+    g_mem_chunk_destroy(cf->plist_chunk);
   if (cf->rfcode != NULL) {
     dfilter_destroy(cf->rfcode);
     cf->rfcode = NULL;
@@ -304,6 +300,10 @@ read_cap_file(capture_file *cf)
 
   freeze_clist(cf);
   proto_tree_is_visible = FALSE;
+  cf->plist_chunk = g_mem_chunk_new("frame_data_chunk",
+	sizeof(frame_data),
+	1024 * sizeof(frame_data),	/* XXX - magic number */
+	G_ALLOC_AND_FREE);
   success = wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
   /* Set the file encapsulation type now; we don't know what it is until
      we've looked at all the packets, as we don't know until then whether
@@ -661,7 +661,7 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   }
 
   /* Allocate the next list entry, and add it to the list. */
-  fdata = (frame_data *) g_malloc(sizeof(frame_data));
+  fdata = g_mem_chunk_alloc(cf->plist_chunk);
 
   fdata->next = NULL;
   fdata->prev = NULL;
@@ -695,8 +695,13 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     cf->count++;
     fdata->num = cf->count;
     add_packet_to_packet_list(fdata, cf, buf);
-  } else
-    g_free(fdata);
+  } else {
+    /* XXX - if we didn't have read filters, or if we could avoid
+       allocating the "frame_data" structure until we knew whether
+       the frame passed the read filter, we could use a G_ALLOC_ONLY
+       memory chunk, probably saving time and space. */
+    g_mem_chunk_free(cf->plist_chunk, fdata);
+  }
 }
 
 int
