@@ -17,7 +17,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.45 2003/10/14 21:24:57 jmayer Exp $
+ * $Id: packet-sip.c,v 1.46 2003/10/24 00:50:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,12 +63,16 @@ static gint proto_raw_sip = -1;
 static gint hf_msg_hdr = -1;
 static gint hf_Method = -1;
 static gint hf_Status_Code = -1;
+static gint hf_sip_to_addr = -1;
+static gint hf_sip_from_addr = -1;
+static gint hf_sip_tag = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sip = -1;
 static gint ett_sip_reqresp = -1;
 static gint ett_sip_hdr = -1;
 static gint ett_raw_text = -1;
+static gint ett_sip_element = -1;
 
 static const char *sip_methods[] = {
         "<Invalid method>",      /* Pad so that the real methods start at index 1 */
@@ -312,8 +316,8 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         gboolean is_known_request;
         char *descr;
         guint token_1_len;
-        proto_item *ts = NULL, *ti, *th = NULL;
-        proto_tree *sip_tree, *reqresp_tree, *hdr_tree = NULL;
+        proto_item *ts = NULL, *ti, *th = NULL, *sip_element_item;
+        proto_tree *sip_tree, *reqresp_tree, *hdr_tree = NULL, *sip_element_tree;
 
         /*
          * Note that "tvb_find_line_end()" will return a value that
@@ -415,7 +419,7 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 gint colon_offset;
                 gint header_len;
                 gint hf_index;
-                gint value_offset;
+                gint value_offset,tag_offset;
                 guchar c;
 		size_t value_len;
                 char *value;
@@ -471,17 +475,98 @@ dissect_sip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					 * Add it to the protocol tree,
 					 * but display the line as is.
 					 */
-					proto_tree_add_string_format(hdr_tree,
-					    hf_header_array[hf_index], tvb,
-					    offset, next_offset - offset,
-					    value, "%s",
-					    tvb_format_text(tvb, offset, linelen));
+
+					switch ( hf_index ) {
+					case POS_TO :
+						sip_element_item = proto_tree_add_string_format(hdr_tree,
+						    hf_header_array[hf_index], tvb,
+					    	offset, next_offset - offset,
+					    	value, "%s",
+					    	tvb_format_text(tvb, offset, linelen));
+						sip_element_tree = proto_item_add_subtree( sip_element_item, ett_sip_element);
+						tag_offset = tvb_find_guint8(tvb, offset,linelen, ';');
+						if ( tag_offset != -1){
+							tag_offset = tag_offset + 1;
+							c = tvb_get_guint8(tvb,tag_offset);
+							if ( c == 't' ){/* tag found */
+								proto_tree_add_string(sip_element_tree,
+								    hf_sip_to_addr, tvb,
+								    	value_offset, (tag_offset - value_offset - 1),
+					    			tvb_format_text(tvb, value_offset, ( tag_offset - value_offset - 1)));
+								tag_offset = tvb_find_guint8(tvb, tag_offset,linelen, '=') + 1;
+								proto_tree_add_string(sip_element_tree,
+								    hf_sip_tag, tvb,
+								    	tag_offset, (line_end_offset - tag_offset),
+					    			tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
+							
+							}
+							else {
+								proto_tree_add_string_format(sip_element_tree,
+								    hf_sip_to_addr, tvb,
+							    	offset, line_end_offset - offset,
+					    			value, "%s",
+					    			tvb_format_text(tvb, offset, linelen));
+							}/* if c= t */
+						} /* if tag offset */
+					break;	
+					case POS_FROM :
+						sip_element_item = proto_tree_add_string_format(hdr_tree,
+						    hf_header_array[hf_index], tvb,
+					    	offset, next_offset - offset,
+					    	value, "%s",
+					    	tvb_format_text(tvb, offset, linelen));
+						sip_element_tree = proto_item_add_subtree( sip_element_item, ett_sip_element);
+						tag_offset = tvb_find_guint8(tvb, offset,linelen, ';');
+						if ( tag_offset != -1){
+							tag_offset = tag_offset + 1;
+							c = tvb_get_guint8(tvb,tag_offset);
+							if ( c == 't' ){/* tag found */
+								proto_tree_add_string(sip_element_tree,
+								    hf_sip_from_addr, tvb,
+								    	value_offset, (tag_offset - value_offset - 1),
+					    			tvb_format_text(tvb, value_offset, ( tag_offset - value_offset - 1)));
+								tag_offset = tvb_find_guint8(tvb, offset,linelen, '=') + 1;
+								proto_tree_add_string(sip_element_tree,
+								    hf_sip_tag, tvb,
+								    	tag_offset, (line_end_offset - tag_offset),
+					    			tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
+							
+							}
+							else {
+								tag_offset = tvb_find_guint8(tvb, tag_offset,linelen, ';');
+								if ( tag_offset != -1){
+									tag_offset = tag_offset + 1;
+									c = tvb_get_guint8(tvb,tag_offset);
+									if ( c == 't' ){/* tag found */
+										proto_tree_add_string(sip_element_tree,
+								 		   hf_sip_from_addr, tvb,
+								   		   value_offset, (tag_offset - value_offset - 1),
+					    					   tvb_format_text(tvb, value_offset, ( tag_offset - value_offset - 1)));
+										tag_offset = tvb_find_guint8(tvb, tag_offset,linelen, '=') + 1;
+										proto_tree_add_string(sip_element_tree,
+								  		  hf_sip_tag, tvb,
+								    		  tag_offset, (line_end_offset - tag_offset),
+					    					  tvb_format_text(tvb, tag_offset, (line_end_offset - tag_offset)));
+									}
+								}
+							}/* if c= t */
+						} /* if tag offset */
+
+					break;
+					default :	
+						proto_tree_add_string_format(hdr_tree,
+						    hf_header_array[hf_index], tvb,
+					    	offset, next_offset - offset,
+					    	value, "%s",
+					    	tvb_format_text(tvb, offset, linelen));
+					break;
+					}/* end switch */
 					g_free(value);
-				}
-			} 
-                }
+				}/*if HF_index */
+			}/* if colon_offset */ 
+                }/* if tree */
                 offset = next_offset;
-        }
+        }/* End while */
 
         if (tvb_offset_exists(tvb, next_offset)) {
                 /*
@@ -721,6 +806,21 @@ void proto_register_sip(void)
 		       { "Status-Code", 		"sip.Status-Code", 
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"SIP Status Code", HFILL }
+		},
+                { &hf_sip_to_addr,
+		       { "SIP to address", 		"sip.from_addr", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: from addr", HFILL }
+		},
+                { &hf_sip_from_addr,
+		       { "SIP from address", 		"sip.to_addr", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: to addr", HFILL }
+		},
+                { &hf_sip_tag,
+		       { "SIP tag", 		"sip.tag", 
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"RFC 3261: tag", HFILL }
 		},
                 { &hf_header_array[POS_ACCEPT],
 		       { "Accept", 		"sip.Accept", 
@@ -967,7 +1067,6 @@ void proto_register_sip(void)
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 3261: WWW-Authenticate Header", HFILL }
 		},
-		
         };
 
         /* Setup protocol subtree array */
@@ -975,6 +1074,7 @@ void proto_register_sip(void)
                 &ett_sip,
                 &ett_sip_reqresp,
                 &ett_sip_hdr,
+		&ett_sip_element,
         };
 
         static gint *ett_raw[] = {
