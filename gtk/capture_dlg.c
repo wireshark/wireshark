@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.129 2004/04/28 19:13:15 gram Exp $
+ * $Id: capture_dlg.c,v 1.130 2004/04/28 20:47:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -603,8 +603,23 @@ capture_prep(void)
   /* Default to "use the default" */
   OBJECT_SET_DATA(linktype_om, E_CAP_OM_LT_VALUE_KEY, GINT_TO_POINTER(-1));
   set_link_type_list(linktype_om, GTK_COMBO(if_cb)->entry);
+  /*
+   * XXX - in some cases, this is "multiple link-layer header types", e.g.
+   * some 802.11 interfaces on FreeBSD 5.2 and later, where you can request
+   * fake Ethernet, 802.11, or 802.11-plus-radio-information headers.
+   *
+   * In other cases, it's "multiple link-layer types", e.g., with recent
+   * versions of libpcap, a DAG card on an "HDLC" WAN, where you can
+   * request Cisco HDLC or PPP depending on what type of traffic is going
+   * over the WAN, or an Ethernet interface, where you can request Ethernet
+   * or DOCSIS, the latter being for some Cisco cable modem equipment that
+   * can be configured to send raw DOCSIS frames over an Ethernet inside
+   * Ethernet low-level framing, for traffic capture purposes.
+   *
+   * We leave it as "multiple link-layer types" for now.
+   */
   gtk_tooltips_set_tip(tooltips, linktype_om, 
-    "The selected interface supports multiple link-layer types, select the desired one.", NULL);
+    "The selected interface supports multiple link-layer types; select the desired one.", NULL);
   gtk_box_pack_start (GTK_BOX(linktype_hb), linktype_om, FALSE, FALSE, 0);
   SIGNAL_CONNECT(GTK_ENTRY(GTK_COMBO(if_cb)->entry), "changed",
                  capture_prep_interface_changed_cb, linktype_om);
