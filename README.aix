@@ -1,10 +1,17 @@
-$Id: README.aix,v 1.5 2002/05/31 10:22:51 guy Exp $
+$Id: README.aix,v 1.6 2002/10/08 07:30:08 guy Exp $
 
 libpcap 0.7.1 and later appear to work on AIX when using AIX's native
 BPF; that appears to work better than DLPI does.  Note that you may have
 to run AIX's tcpdump, as root, before configuring, building, and
 installing libpcap, in order to create the "/dev/bpf" devices and load
 the BPF driver.
+
+However, libpcap 0.7.1 doesn't work perfectly with AIX's BPF - it
+appears that AIX's BPF devices inform their user that packets were
+dropped since the last successful read by returning -1 and setting
+"errno" to EFAULT, which libpcap 0.7.1 treats as an error.  The current
+CVS version of libpcap ignores EFAULT on AIX; it appears that this fixes
+the problem.
 
 Some earlier notes: the notes about libpcap may not apply, with libpcap
 0.7.1, but they're preserved here for historical reasons.
