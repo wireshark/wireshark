@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.218 2003/11/18 19:46:41 guy Exp $
+ * $Id: packet-tcp.c,v 1.219 2003/11/19 09:32:04 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -597,7 +597,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 {
 struct tcp_unacked *u=NULL;
 printf("\n");
-printf("analyze_sequence_number(frame:%d seq:%d nextseq:%d ack:%d)\n",pinfo->fd->num,seq,seq+seglen,ack);
+printf("analyze_sequence_number(frame:%d seq:%d nextseq:%d ack:%d  baseseq:0x%08x baseack:0x%08x)\n",pinfo->fd->num,seq,seq+seglen,ack,base_seq,base_ack);
 printf("UAL1:\n");
 for(u=ual1;u;u=u->next){
 printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->nextseq,u->ts.secs,u->ts.nsecs,ack1,ack2);
@@ -633,7 +633,7 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 		ack2=0;
 		num1_acks=0;
 		num2_acks=0;
-		ual1->seq=seq+1;
+		ual1->seq=seq;
 		ual1->nextseq=seq+1;
 		ual1->ts.secs=pinfo->fd->abs_secs;
 		ual1->ts.nsecs=pinfo->fd->abs_usecs*1000;
@@ -641,7 +641,14 @@ printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->n
 		ual1->flags=0;
 		if(tcp_relative_seq){
 			base_seq=seq;
-			base_ack=ack;
+			/* if this was an SYN|ACK packet then set base_ack
+			 * reflect the start of the sequence, i.e. one less 
+			 */
+			if(flags&TH_ACK){
+				base_ack=ack-1;
+			} else {
+				base_ack=ack;
+			}
 		}
 		goto seq_finished;
 	}
