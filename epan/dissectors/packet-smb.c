@@ -9980,7 +9980,7 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
-/* this dissects the SMB_INFO_STANDARD and SMB_INFO_QUERY_EA_SIZE
+/* this dissects the SMB_INFO_STANDARD
    as described in 4.2.16.1
 */
 static int
@@ -10649,9 +10649,12 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	si = (smb_info_t *)pinfo->private_data;
 	switch(si->info_level){
 	case 1:		/*Info Standard*/
+		offset = dissect_4_2_16_1(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
 		
 	case 2:		/*Info Query EA Size*/
-		offset = dissect_4_2_16_1(tvb, pinfo, tree, offset, bcp,
+		offset = dissect_4_2_16_2(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 3:		/*Info Query EAs From List*/
@@ -10736,9 +10739,11 @@ dissect_spi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	si = (smb_info_t *)pinfo->private_data;
 	switch(si->info_level){
 	case 1:		/*Info Standard*/
-		
-	case 2:		/*Info Query EA Size*/
 		offset = dissect_4_2_16_1(tvb, pinfo, tree, offset, bcp,
+		    &trunc);
+		break;
+	case 2:		/*Info Query EA Size*/
+		offset = dissect_4_2_16_2(tvb, pinfo, tree, offset, bcp,
 		    &trunc);
 		break;
 	case 4:		/*Info Query All EAs*/
