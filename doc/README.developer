@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.9 2000/03/10 08:57:05 guy Exp $
+$Id: README.developer,v 1.10 2000/04/06 06:38:24 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a protocol dissector and the use some of the important functions and variables 
@@ -57,7 +57,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.9 2000/03/10 08:57:05 guy Exp $" in the comment will be updated by CVS when the file is
+The "$Id: README.developer,v 1.10 2000/04/06 06:38:24 guy Exp $" in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
@@ -66,7 +66,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.9 2000/03/10 08:57:05 guy Exp $
+ * $Id: README.developer,v 1.10 2000/04/06 06:38:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -185,7 +185,7 @@ proto_register_PROTOABBREV(void)
 	};
 
 /* Register the protocol name and description */
-	proto_srvloc = proto_register_protocol("PROTONAME", "PROTOABBREV");
+	proto_PROTOABBREV = proto_register_protocol("PROTONAME", "PROTOABBREV");
 
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_PROTOABBREV, hf, array_length(hf));
@@ -669,12 +669,16 @@ to have the compiler compute the array length for you at compile time.
 1.6.2 Adding Items and Values to the Protocol Tree.
 
 A protocol item is added to an existing protocol tree with one of a
-handful of proto_tree_add_item*() funtions.
+handful of proto_tree_add_XXX() funtions.
 
 Subtrees can be made with the proto_item_add_subtree() function:
 
 	item = proto_tree_add_item(....);
 	new_tree = proto_item_add_subtree(item, tree_type);
+
+This will add a subtree under the item in question; a subtree can be
+created under an item made by any of the "proto_tree_add_XXX" functions,
+so that the tree can be given an arbitrary depth.
 
 Subtree types are integers, assigned by
 "proto_register_subtree_array()".  To register subtree types, pass an
@@ -694,18 +698,53 @@ array of pointers to "gint" variables to hold the subtree type values to
 in your "register" routine, just as you register the protocol and the
 fields for that protocol.
 
-There are 5 functions that the programmer can use to add either protocol
-or field labels to the proto_tree:
+There are several functions that the programmer can use to add either
+protocol or field labels to the proto_tree:
 
 	proto_item*
 	proto_tree_add_item(tree, id, start, length, value);
 
 	proto_item*
-	proto_tree_add_item_format(tree, id, start, length,
-		value, format, ...);
+	proto_tree_add_item_hidden(tree, id, start, length, value);
 
 	proto_item*
-	proto_tree_add_item_hidden(tree, id, start, length, value);
+	proto_tree_add_protocol_format(tree, id, start, length, format, ...);
+
+	proto_item *
+	proto_tree_add_bytes_format(tree, id, start, length, start_ptr,
+	    format, ...);
+
+	proto_item *
+	proto_tree_add_time_format(tree, id, start, length, value_ptr,
+	    format, ...);
+
+	proto_item *
+	proto_tree_add_ipxnet_format(tree, id, start, length, value,
+	    format, ...);
+
+	proto_item *
+	proto_tree_add_ipv4_format(tree, id, start, length, value,
+	    format, ...);
+
+	proto_item *
+	proto_tree_add_ipv6_format(tree, id, start, length, value_ptr,
+	    format, ...);
+
+	proto_item *
+	proto_tree_add_ether_format(tree, id, start, length, value_ptr,
+	    format, ...);
+
+	proto_item *
+	proto_tree_add_string_format(tree, id, start, length, value_ptr,
+	    format, ...);
+
+	proto_item *
+	proto_tree_add_boolean_format(tree, id, start, length, value,
+	    format, ...);
+
+	proto_item *
+	proto_tree_add_uint_format(tree, id, start, length, value,
+	    format, ...);
 
 	proto_item*
 	proto_tree_add_text(tree, start, length, format, ...);
@@ -733,11 +772,11 @@ to the tree, and the "length" argument is the length of the item.
 
 proto_tree_add_item()
 ---------------------
-The first function, proto_tree_add_item, is used when you wish to do no
-special formatting. The item added to the GUI tree will contain the name
-(as passed in the proto_register_*() function) and any value. If your
-field does have a value, it is passed after the length variable (notice
-the ellipsis in the function prototype).
+proto_tree_add_item is used when you wish to do no special formatting. 
+The item added to the GUI tree will contain the name (as passed in the
+proto_register_*() function) and any value.  If your field does have a
+value, it is passed after the length variable (notice the ellipsis in
+the function prototype).
 
 Now that the proto_tree has detailed information about bitfield fields,
 you can use proto_tree_add_item() with no extra processing to add bitfield
@@ -788,23 +827,15 @@ Subarea Nodes. The user does not have to shift the value of the FID to
 the high nibble of the byte ("sna.th.fid == 0xf0") as was necessary
 before Ethereal 0.7.6.
 
-proto_tree_add_item_format()
-----------------------------
-The second function, proto_tree_add_item_format(), is used when the
-dissector routines wants complete control over how the field and value
-will be represented on the GUI tree. The caller must pass include the
-name of the protocol or field; it is not added automatically as in
-proto_tree_add_item().
-
 proto_tree_add_item_hidden()
 ----------------------------
-The third function is used to add fields and values to a tree, but not
-show them on a GUI tree. The caller may want a value to be included in a
-tree so that the packet can be filtered on this field, but the
-representation of that field in the tree is not appropriate. An example
-is the token-ring routing information field (RIF). The best way to show the
-RIF in a GUI is by a sequence of ring and bridge numbers. Rings are
-3-digit hex numbers, and bridges are single hex digits:
+proto_tree_add_item_hidden is used to add fields and values to a tree,
+but not show them on a GUI tree.  The caller may want a value to be
+included in a tree so that the packet can be filtered on this field, but
+the representation of that field in the tree is not appropriate.  An
+example is the token-ring routing information field (RIF).  The best way
+to show the RIF in a GUI is by a sequence of ring and bridge numbers. 
+Rings are 3-digit hex numbers, and bridges are single hex digits:
 
 	RIF: 001-A-013-9-C0F-B-555
 
@@ -843,6 +874,43 @@ filter or "packet grep" routine will still see the values. The possible
 filter is then possible:
 
 	tr.rif_ring eq 0x013
+
+proto_tree_add_protocol_format()
+----------------------------
+proto_tree_add_protocol_format is used to add the top-level item for the
+protocol when the dissector routines wants complete control over how the
+field and value will be represented on the GUI tree.  The ID value for
+the protocol is passed in as the "id" argument; the rest of the
+arguments are a "printf"-style format and any arguments for that format. 
+The caller must include the name of the protocol in the format; it is
+not added automatically as in proto_tree_add_item().
+
+proto_tree_add_bytes_format()
+proto_tree_add_time_format()
+proto_tree_add_ipxnet_format()
+proto_tree_add_ipv4_format()
+proto_tree_add_ipv6_format()
+proto_tree_add_ether_format()
+proto_tree_add_string_format()
+proto_tree_add_boolean_format()
+proto_tree_add_uint_format()
+----------------------------
+
+The other "proto_tree_add_XXX_format" routines are used to add items to
+the protocol tree when the dissector routines wants complete control
+over how the field and value will be represented on the GUI tree.
+
+For "proto_tree_add_time_format", the "value_ptr" argument is a pointer
+to a "struct timeval" containing the time to be added; for those other
+functions that take a "value_ptr" argument, that argument is a pointer
+to the first byte of the value to be added.
+
+For the other functions, the "value" argument is a 32-bit integral value
+to be added.
+
+The rest of the arguments are a "printf"-style format and any arguments
+for that format.  The caller must include the name of the field in the
+format; it is not added automatically as in proto_tree_add_item().
 
 proto_tree_add_text()
 ---------------------
