@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.6 2000/08/11 13:33:08 deniel Exp $
+ * $Id: summary_dlg.c,v 1.7 2000/08/19 21:36:51 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -148,6 +148,10 @@ summary_open_cb(GtkWidget *w, gpointer d)
   /* Bytes per second */
   if (seconds > 0){
     snprintf(string_buff, SUM_STR_MAX, "Avg. bytes/sec: %.3f", summary.bytes/seconds);
+    add_string_to_box(string_buff, data_box);
+
+    /* MBit per second */
+    snprintf(string_buff, SUM_STR_MAX, "Avg. Mbit/sec: %.3f", summary.bytes*8/(seconds*1000*1000));
     add_string_to_box(string_buff, data_box);
   }
 
