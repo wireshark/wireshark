@@ -265,6 +265,13 @@ GLib 2.x or GTK+ 2.x and the new name should be used, disregard that and
 use the old name - it'll still work with GLib 2.x or GTK+ 2.x, but will
 also work with GLib 1.2[.x] and GTK+ 1.2[.x].
 
+When different code must be used on UN*X and Win32, use a #if or #ifdef
+that tests _WIN32, not WIN32.  Try to write code portably whenever
+possible, however; note that there are some routines in Ethereal with
+platform-dependent implementations and platform-independent APIs, such
+as the routines in epan/filesystem.c, allowing the code that calls it to
+be written portably without #ifdefs.
+
 1.1.2 Robustness.
 
 Ethereal is not guaranteed to read only network traces that contain
