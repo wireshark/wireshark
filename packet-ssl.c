@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.27 2003/07/19 07:06:01 guy Exp $
+ * $Id: packet-ssl.c,v 1.28 2003/12/07 02:26:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -274,6 +274,18 @@ static const value_string ssl_20_cipher_suites[] = {
     { 0x00001c, "SSL_FORTEZZA_KEA_WITH_NULL_SHA" },
     { 0x00001d, "SSL_FORTEZZA_KEA_WITH_FORTEZZA_CBC_SHA" },
     { 0x00001e, "SSL_FORTEZZA_KEA_WITH_RC4_128_SHA" },
+    { 0x00002f, "TLS_RSA_WITH_AES_128_CBC_SHA" },
+    { 0x000030, "TLS_DH_DSS_WITH_AES_128_CBC_SHA" },
+    { 0x000031, "TLS_DH_RSA_WITH_AES_128_CBC_SHA" },
+    { 0x000032, "TLS_DHE_DSS_WITH_AES_128_CBC_SHA" },
+    { 0x000033, "TLS_DHE_RSA_WITH_AES_128_CBC_SHA" },
+    { 0x000034, "TLS_DH_anon_WITH_AES_128_CBC_SHA" },
+    { 0x000035, "TLS_RSA_WITH_AES_256_CBC_SHA" },
+    { 0x000036, "TLS_DH_DSS_WITH_AES_256_CBC_SHA" },
+    { 0x000037, "TLS_DH_RSA_WITH_AES_256_CBC_SHA" },
+    { 0x000038, "TLS_DHE_DSS_WITH_AES_256_CBC_SHA" },
+    { 0x000039, "TLS_DHE_RSA_WITH_AES_256_CBC_SHA" },
+    { 0x00003A, "TLS_DH_anon_WITH_AES_256_CBC_SHA" },
     { 0x000060, "TLS_RSA_EXPORT1024_WITH_RC4_56_MD5" },
     { 0x000061, "TLS_RSA_EXPORT1024_WITH_RC2_CBC_56_MD5" },
     { 0x000062, "TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA" },
