@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.165 2002/11/07 08:51:07 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.166 2002/11/07 09:10:06 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -666,49 +666,49 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 		flags_item = proto_tree_add_item(tree, hf_tcp_analysis_flags, tvb, 0, -1, FALSE);
 		flags_tree=proto_item_add_subtree(flags_item, ett_tcp_analysis);
 		if( ta->flags&TCP_A_RETRANSMISSION ){
-			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_retransmission, tvb, 0, 0, TRUE, "This frame is a (suspected) retransmission");
+			proto_tree_add_none_format(flags_tree, hf_tcp_analysis_retransmission, tvb, 0, 0, "This frame is a (suspected) retransmission");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Retransmission] ");
 			}
 		}
 		if( ta->flags&TCP_A_LOST_PACKET ){
-			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_lost_packet, tvb, 0, 0, TRUE, "A segment before this frame was lost");
+			proto_tree_add_none_format(flags_tree, hf_tcp_analysis_lost_packet, tvb, 0, 0, "A segment before this frame was lost");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Previous segment lost] ");
 			}
 		}
 		if( ta->flags&TCP_A_ACK_LOST_PACKET ){
-			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_ack_lost_packet, tvb, 0, 0, TRUE, "This frame ACKs a segment we have not seen (lost?)");
+			proto_tree_add_none_format(flags_tree, hf_tcp_analysis_ack_lost_packet, tvb, 0, 0, "This frame ACKs a segment we have not seen (lost?)");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP ACKed lost segment] ");
 			}
 		}
 		if( ta->flags&TCP_A_KEEP_ALIVE ){
-			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_keep_alive, tvb, 0, 0, TRUE, "This is a TCP keep-alive segment");
+			proto_tree_add_none_format(flags_tree, hf_tcp_analysis_keep_alive, tvb, 0, 0, "This is a TCP keep-alive segment");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Keep-Alive] ");
 			}
 		}
 		if( ta->flags&TCP_A_DUPLICATE_ACK ){
-			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_duplicate_ack, tvb, 0, 0, TRUE, "This is a TCP duplicate ack");
+			proto_tree_add_none_format(flags_tree, hf_tcp_analysis_duplicate_ack, tvb, 0, 0, "This is a TCP duplicate ack");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Duplicate ACK] ");
 			}
 		}
 		if( ta->flags&TCP_A_ZERO_WINDOW_PROBE ){
-			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_zero_window_probe, tvb, 0, 0, TRUE, "This is a TCP zero-window-probe");
+			proto_tree_add_none_format(flags_tree, hf_tcp_analysis_zero_window_probe, tvb, 0, 0, "This is a TCP zero-window-probe");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindowProbe] ");
 			}
 		}
 		if( ta->flags&TCP_A_ZERO_WINDOW ){
-			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_zero_window, tvb, 0, 0, TRUE, "This is a ZeroWindow segment");
+			proto_tree_add_none_format(flags_tree, hf_tcp_analysis_zero_window, tvb, 0, 0, "This is a ZeroWindow segment");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindow] ");
 			}
 		}
 		if( ta->flags&TCP_A_ZERO_WINDOW_VIOLATION ){
-			proto_tree_add_boolean_format(flags_tree, hf_tcp_analysis_zero_window_violation, tvb, 0, 0, TRUE, "This is a ZeroWindow violation, attempts to write >1 byte of data to a zero-window");
+			proto_tree_add_none_format(flags_tree, hf_tcp_analysis_zero_window_violation, tvb, 0, 0, "This is a ZeroWindow violation, attempts to write >1 byte of data to a zero-window");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP ZeroWindowViolation] ");
 			}
