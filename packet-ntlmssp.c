@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.19 2002/09/11 02:23:14 sharpe Exp $
+ * $Id: packet-ntlmssp.c,v 1.20 2002/09/11 16:45:07 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -190,10 +190,10 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
     return offset+8;
   }
 
-  bc = string_length;
+  bc = result_length = string_length;
   string_text = get_unicode_or_ascii_string(tvb, &string_offset,
 					    unicode_strings, &result_length,
-					    FALSE, FALSE, &bc);
+					    FALSE, TRUE, &bc);
 
   if (ntlmssp_tree) {
     tf = proto_tree_add_string(ntlmssp_tree, string_hf, tvb,
