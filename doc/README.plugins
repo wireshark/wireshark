@@ -74,8 +74,9 @@ Here is a sample code for the function:
 
   proto_reg_handoff_xxx();
 
-As you can see the plugin_reg_handoff and plugin_register are just 
-wrappers for the proto_reg_handoff_xxx and proto_register_xxx functions.
+As you can see, the plugin_reg_handoff and plugin_register functions are
+just wrappers for the proto_reg_handoff_xxx and proto_register_xxx
+functions.
 
 4 Directory structure and other file changes
 
