@@ -1,7 +1,7 @@
 /* packet_list.c
  * packet list related functions   2002 Olivier Abad
  *
- * $Id: packet_list.c,v 1.19 2004/03/18 19:04:33 obiot Exp $
+ * $Id: packet_list.c,v 1.20 2004/06/05 10:27:38 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -598,7 +598,7 @@ packet_list_thaw(void)
 void
 packet_list_select_row(gint row)
 {
-    SIGNAL_EMIT_BY_NAME1(packet_list, "select_row", row);
+    SIGNAL_EMIT_BY_NAME(packet_list, "select_row", row);
 }
 
 void

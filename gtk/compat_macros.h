@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.18 2004/06/05 10:13:37 ulfl Exp $
+ * $Id: compat_macros.h,v 1.19 2004/06/05 10:27:38 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,19 +111,10 @@ gtk_widget_set_usize(GTK_WIDGET(widget), width, height)
  *  handlers to be run.
  *
  * @param widget the object that emits the signal
- * @param name 	the name of the signal
- */
-#define SIGNAL_EMIT_BY_NAME(widget, name) \
-gtk_signal_emit_by_name(GTK_OBJECT(widget), name)
-
-/** Like SIGNAL_EMIT_BY_NAME(), but with one argument.
- *
- * @param widget the object that emits the signal
  * @param name the name of the signal
- * @param arg value to pass to the handlers
- * @todo function only rarely used, think about removing it
+ * @param arg value to pass to the handlers or NULL
  */
-#define SIGNAL_EMIT_BY_NAME1(widget, name, arg) \
+#define SIGNAL_EMIT_BY_NAME(widget, name, arg) \
 gtk_signal_emit_by_name(GTK_OBJECT(widget), name, arg)
 
 /** This function aborts a signal's current emission. It will prevent the 
@@ -276,10 +267,7 @@ g_object_get_data(G_OBJECT(widget), key)
 #define WIDGET_SET_SIZE(widget, width, height) \
 gtk_widget_set_size_request(GTK_WIDGET(widget), width, height)
 
-#define SIGNAL_EMIT_BY_NAME(widget, name) \
-g_signal_emit_by_name(G_OBJECT(widget), name)
-
-#define SIGNAL_EMIT_BY_NAME1(widget, name, arg) \
+#define SIGNAL_EMIT_BY_NAME(widget, name, arg) \
 g_signal_emit_by_name(G_OBJECT(widget), name, arg)
 
 #define SIGNAL_EMIT_STOP_BY_NAME(widget, name) \
