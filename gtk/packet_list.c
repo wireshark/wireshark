@@ -614,7 +614,7 @@ packet_list_append(const gchar *text[], gpointer data)
 {
     gint row;
 
-    row = eth_clist_append(ETH_CLIST(packet_list), text);
+    row = eth_clist_append(ETH_CLIST(packet_list), (gchar **)text);
     eth_clist_set_row_data(ETH_CLIST(packet_list), row, data);
     return row;
 }
