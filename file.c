@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.288 2002/08/31 09:55:18 oabad Exp $
+ * $Id: file.c,v 1.289 2002/09/04 22:15:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -101,6 +101,7 @@
 #include "gtk2/colors.h"
 #endif
 #include <epan/epan_dissect.h>
+#include "tap.h"
 
 extern GtkWidget *packet_list, *byte_nb_ptr, *tree_view;
 
@@ -340,6 +341,7 @@ read_cap_file(capture_file *cf, int *err)
   GTimeVal    start_time;
   gchar       status_str[100];
 
+  reset_tap_listeners();
   name_ptr = get_basename(cf->filename);
 
   msg_len = strlen(name_ptr) + strlen(load_fmt) + 2;
@@ -685,6 +687,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     firstusec = fdata->abs_usecs;
   }
 
+  tap_queue_init(pseudo_header, buf, fdata);
   /* If either
 
 	we have a display filter and are re-applying it;
@@ -707,7 +710,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
       filter_list_prime_edt(edt);
   }
   epan_dissect_run(edt, pseudo_header, buf, fdata, &cf->cinfo);
-
+  tap_push_tapped_queue();
 
   /* If we have a display filter, apply it if we're refiltering, otherwise
      leave the "passed_dfilter" flag alone.
@@ -958,6 +961,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
   GTimeVal    start_time;
   gchar       status_str[100];
 
+  reset_tap_listeners();
   /* Which frame, if any, is the currently selected frame?
      XXX - should the selected frame or the focus frame be the "current"
      frame, that frame being the one from which "Find Frame" searches
