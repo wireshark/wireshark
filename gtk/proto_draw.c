@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.82 2004/01/27 19:46:52 ulfl Exp $
+ * $Id: proto_draw.c,v 1.83 2004/01/27 20:36:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -329,9 +329,11 @@ lookup_finfo(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
 #endif
 
 /* If the user selected a certain byte in the byte view, try to find
- * the item in the GUI proto_tree that corresponds to that byte, and
- * select it. */
-gint
+ * the item in the GUI proto_tree that corresponds to that byte, and:
+ *
+ *	if we succeed, select it, and return TRUE;
+ *	if we fail, return FALSE. */
+gboolean
 byte_view_select(GtkWidget *widget, GdkEventButton *event)
 {
     proto_tree   *tree;
@@ -1561,7 +1563,7 @@ main_proto_tree_draw(proto_tree *protocol_tree)
 /* If the user selected a position in the tree view, try to find
  * the item in the GUI proto_tree that corresponds to that byte, and
  * select it. */
-gint
+gboolean
 tree_view_select(GtkWidget *widget, GdkEventButton *event)
 {
 #if GTK_MAJOR_VERSION < 2
@@ -1583,7 +1585,7 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
 
             gtk_ctree_select(ctree, node);
         } else {
-            return TRUE;
+            return TRUE;	/* XXX - FALSE? */
         }
 #else
         GtkTreeSelection    *sel;
@@ -1597,7 +1599,7 @@ tree_view_select(GtkWidget *widget, GdkEventButton *event)
             sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(widget));
             gtk_tree_selection_select_path(sel, path);
         } else {
-            return TRUE;
+            return TRUE;	/* XXX - FALSE? */
         }
 #endif
     return TRUE;

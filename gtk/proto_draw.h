@@ -1,7 +1,7 @@
 /* proto_draw.h
  * Definitions for GTK+ packet display structures and routines
  *
- * $Id: proto_draw.h,v 1.23 2004/01/27 19:46:52 ulfl Exp $
+ * $Id: proto_draw.h,v 1.24 2004/01/27 20:36:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,7 +52,7 @@ extern GtkWidget *byte_view_new(void);
 extern void add_byte_views(epan_dissect_t *edt, GtkWidget *tree_view,
                            GtkWidget *byte_nb_ptr);
 
-extern gint byte_view_select(GtkWidget *widget, GdkEventButton *event);
+extern gboolean byte_view_select(GtkWidget *widget, GdkEventButton *event);
 
 #if GTK_MAJOR_VERSION < 2
 void packet_hex_print(GtkText *, const guint8 *, frame_data *, field_info *,
@@ -71,7 +71,7 @@ void proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view);
 void expand_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view);
 void collapse_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view);
 
-extern gint tree_view_select(GtkWidget *widget, GdkEventButton *event);
+extern gboolean tree_view_select(GtkWidget *widget, GdkEventButton *event);
 
 void set_ptree_sel_browse_all(gboolean);
 
