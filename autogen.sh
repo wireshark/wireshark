@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.31 2004/03/08 22:44:19 jmayer Exp $
+# $Id: autogen.sh,v 1.32 2004/03/08 23:37:51 jmayer Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -38,7 +38,7 @@ esac
 
 AMVER=`automake --version | grep '^automake' | sed 's/.*) *//'`
 case "$AMVER" in
-0.* | 1\.[0-5] | 1\.[0-5]\..* )
+0.* | 1\.[0-5].* )
 
   cat >&2 <<_EOF_
 
