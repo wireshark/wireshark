@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.55 2000/04/04 05:37:36 guy Exp $
+ * $Id: packet-udp.c,v 1.56 2000/04/04 05:54:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -99,12 +99,12 @@ typedef struct _e_udphdr {
 #define UDP_PORT_DNS     53
 #define UDP_PORT_BOOTPS  67
 #define UDP_PORT_TFTP    69
-#define UDP_PORT_IPX    213
 #define UDP_PORT_NTP	123
 #define UDP_PORT_NBNS	137
 #define UDP_PORT_NBDGM	138
 #define UDP_PORT_SNMP   161
 #define UDP_PORT_SNMP_TRAP 162
+#define UDP_PORT_IPX    213		/* RFC 1234 */
 #define UDP_PORT_SRVLOC 427
 #define UDP_PORT_PIM_RP_DISC 496
 #define UDP_PORT_ISAKMP	500
@@ -206,37 +206,15 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   /* XXX - we should do all of this through the table of ports. */
 #define PORT_IS(port)	(uh_sport == port || uh_dport == port)
-  if (PORT_IS(UDP_PORT_BOOTPS))
-      dissect_bootp(pd, offset, fd, tree);
-  else if (PORT_IS(UDP_PORT_DNS))
-      dissect_dns(pd, offset, fd, tree);
-  else if (PORT_IS(UDP_PORT_SRVLOC))
-      dissect_srvloc(pd, offset, fd, tree);
-  else if (PORT_IS(UDP_PORT_ISAKMP))
-      dissect_isakmp(pd, offset, fd, tree);
-  else if (PORT_IS(UDP_PORT_RIP)) {
+  if (PORT_IS(UDP_PORT_RIP)) {
       /* we should check the source port too (RIP: UDP src and dst port 520) */
       dissect_rip(pd, offset, fd, tree);
-  } else if (PORT_IS(UDP_PORT_RIPNG))
-      dissect_ripng(pd, offset, fd, tree);
-  else if (PORT_IS(UDP_PORT_NCP))
+  } else if (PORT_IS(UDP_PORT_NCP))
       dissect_ncp(pd, offset, fd, tree); /* XXX -- need to handle nw_server_address */
-  else if (PORT_IS(UDP_PORT_NBNS))
-      dissect_nbns(pd, offset, fd, tree);
-  else if (PORT_IS(UDP_PORT_NBDGM))
-      dissect_nbdgm(pd, offset, fd, tree);
-  else if (PORT_IS(UDP_PORT_NTP))
-      dissect_ntp(pd, offset, fd, tree);
-  else if (PORT_IS(UDP_PORT_WHO))
-      dissect_who(pd, offset, fd, tree);
-  else if (PORT_IS(UDP_PORT_IPX)) /* RFC 1234 */
-      dissect_ipx(pd, offset, fd, tree);
   else if ((uh_sport >= UDP_PORT_RX_LOW && uh_sport <= UDP_PORT_RX_HIGH) ||
 	(uh_dport >= UDP_PORT_RX_LOW && uh_dport <= UDP_PORT_RX_HIGH) ||
 	PORT_IS(UDP_PORT_RX_AFS_BACKUPS)) 
       dissect_rx(pd, offset, fd, tree); /* transarc AFS's RX protocol */
-  else if (PORT_IS(UDP_PORT_SNMP) || PORT_IS(UDP_PORT_SNMP_TRAP))
-      dissect_snmp(pd, offset, fd, tree);
   else if (PORT_IS(UDP_PORT_VINES)) {
       /* FIXME: AFAIK, src and dst port must be the same */
       dissect_vines_frp(pd, offset, fd, tree);
@@ -244,21 +222,6 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       /* This is the first point of call, but it adds a dynamic call */
       dissector_add("udp.port", MAX(uh_sport, uh_dport), dissect_tftp);  /* Add to table */
       dissect_tftp(pd, offset, fd, tree);
-  } else if (PORT_IS(UDP_PORT_TIME)) {
-      dissect_time(pd, offset, fd, tree);
-  } else if (PORT_IS(UDP_PORT_RADIUS) ||
-		PORT_IS(UDP_PORT_RADACCT) ||
-		PORT_IS(UDP_PORT_RADIUS_NEW) ||
-		PORT_IS(UDP_PORT_RADACCT_NEW) ) {
-      dissect_radius(pd, offset, fd, tree);
-   } else if ( PORT_IS(UDP_PORT_L2TP)) {
-      dissect_l2tp(pd,offset,fd,tree);
-  } else if ( PORT_IS(UDP_PORT_ICP)) {
-	dissect_icp(pd,offset,fd,tree);
- } else if ( PORT_IS(UDP_PORT_ICQ)) {
-        dissect_icq(pd,offset,fd,tree);
- } else if (PORT_IS(UDP_PORT_WCCP) ) {
- 	dissect_wccp(pd, offset, fd, tree);
  } else {
       /* OK, find a routine in the table, else use the default */
 
@@ -310,11 +273,31 @@ proto_register_udp(void)
 	   than having the giant "if", just as is now done in
 	   "packet-tcp.c". */
 
-	dissector_add("udp.port", UDP_PORT_BOOTPS, dissect_bootp);
-	dissector_add("udp.port", UDP_PORT_SAP, dissect_sap);
-	dissector_add("udp.port", UDP_PORT_HSRP, dissect_hsrp);
-	dissector_add("udp.port", UDP_PORT_PIM_RP_DISC, dissect_auto_rp);
+	dissector_add("udp.port", UDP_PORT_TIME, dissect_time);
 	dissector_add("udp.port", UDP_PORT_TACACS, dissect_tacacs);
+	dissector_add("udp.port", UDP_PORT_DNS, dissect_dns);
+	dissector_add("udp.port", UDP_PORT_BOOTPS, dissect_bootp);
+	dissector_add("udp.port", UDP_PORT_NTP, dissect_ntp);
+	dissector_add("udp.port", UDP_PORT_NBNS, dissect_nbns);
+	dissector_add("udp.port", UDP_PORT_NBDGM, dissect_nbdgm);
+	dissector_add("udp.port", UDP_PORT_SNMP, dissect_snmp);
+	dissector_add("udp.port", UDP_PORT_SNMP_TRAP, dissect_snmp);
+	dissector_add("udp.port", UDP_PORT_IPX, dissect_ipx);
+	dissector_add("udp.port", UDP_PORT_SRVLOC, dissect_srvloc);
+	dissector_add("udp.port", UDP_PORT_PIM_RP_DISC, dissect_auto_rp);
+	dissector_add("udp.port", UDP_PORT_ISAKMP, dissect_isakmp);
+	dissector_add("udp.port", UDP_PORT_WHO, dissect_who);
+	dissector_add("udp.port", UDP_PORT_RIPNG, dissect_ripng);
+	dissector_add("udp.port", UDP_PORT_RADIUS, dissect_radius);
+	dissector_add("udp.port", UDP_PORT_L2TP, dissect_l2tp);
+	dissector_add("udp.port", UDP_PORT_RADIUS_NEW, dissect_radius);
+	dissector_add("udp.port", UDP_PORT_RADACCT, dissect_radius);
+	dissector_add("udp.port", UDP_PORT_RADACCT_NEW, dissect_radius);
+	dissector_add("udp.port", UDP_PORT_HSRP, dissect_hsrp);
+	dissector_add("udp.port", UDP_PORT_ICP, dissect_icp);
+	dissector_add("udp.port", UDP_PORT_ICQ, dissect_icq);
+	dissector_add("udp.port", UDP_PORT_SAP, dissect_sap);
+	dissector_add("udp.port", UDP_PORT_WCCP, dissect_wccp);
 	dissector_add("udp.port", UDP_PORT_DHIS1, dissect_dhis);
 	dissector_add("udp.port", UDP_PORT_DHIS2, dissect_dhis);
 }
