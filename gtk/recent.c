@@ -2,7 +2,7 @@
  * Recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.c,v 1.17 2004/06/01 17:33:37 ulfl Exp $
+ * $Id: recent.c,v 1.18 2004/07/09 21:13:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -234,6 +234,8 @@ write_recent_geom(gpointer key _U_, gpointer value, gpointer rf)
 static int
 read_set_recent_pair(gchar *key, gchar *value)
 {
+  long num;
+  char *p;
 
   if (strcmp(key, RECENT_KEY_CAPTURE_FILE) == 0) {
 	add_menu_recent_capture_file(value);
@@ -285,8 +287,10 @@ read_set_recent_pair(gchar *key, gchar *value)
     recent.gui_time_format =
 	find_index_from_string_array(value, ts_type_text, TS_RELATIVE);
   } else if (strcmp(key, RECENT_GUI_ZOOM_LEVEL) == 0) {
-    recent.gui_zoom_level = strtol(value, NULL, 0);
-
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    recent.gui_zoom_level = num;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED) == 0) {
     if (strcasecmp(value, "true") == 0) {
         recent.gui_geometry_main_maximized = TRUE;
@@ -296,21 +300,50 @@ read_set_recent_pair(gchar *key, gchar *value)
     }
 
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_X) == 0) {
-    recent.gui_geometry_main_x = strtol(value, NULL, 10);
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    recent.gui_geometry_main_x = num;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_Y) == 0) {
-    recent.gui_geometry_main_y = strtol(value, NULL, 10);
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    recent.gui_geometry_main_y = num;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_WIDTH) == 0) {
-    recent.gui_geometry_main_width = strtol(value, NULL, 10);
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    if (num <= 0)
+      return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
+    recent.gui_geometry_main_width = num;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_HEIGHT) == 0) {
-    recent.gui_geometry_main_height = strtol(value, NULL, 10);
-
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    if (num <= 0)
+      return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
+    recent.gui_geometry_main_height = num;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE) == 0) {
-    recent.gui_geometry_main_upper_pane = strtol(value, NULL, 10);
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    if (num <= 0)
+      return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
+    recent.gui_geometry_main_upper_pane = num;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE) == 0) {
-    recent.gui_geometry_main_lower_pane = strtol(value, NULL, 10);
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    if (num <= 0)
+      return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
+    recent.gui_geometry_main_lower_pane = num;
   } else if (strcmp(key, RECENT_GUI_GEOMETRY_STATUS_PANE) == 0) {
-    recent.gui_geometry_status_pane = strtol(value, NULL, 10);
-
+    num = strtol(value, &p, 0);
+    if (p == value || *p != '\0')
+      return PREFS_SET_SYNTAX_ERR;	/* number was bad */
+    if (num <= 0)
+      return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
+    recent.gui_geometry_status_pane = num;
   } else if (strcmp(key, RECENT_GUI_FILEOPEN_REMEMBERED_DIR) == 0) {
     set_last_open_dir(value);
   } else if (strncmp(key, RECENT_GUI_GEOMETRY, sizeof(RECENT_GUI_GEOMETRY)-1) == 0) {
@@ -349,7 +382,7 @@ read_recent(char **rf_path_return, int *rf_errno_return)
   recent.gui_geometry_main_x        =        20;
   recent.gui_geometry_main_y        =        20;
   recent.gui_geometry_main_width    = DEF_WIDTH;
-  recent.gui_geometry_main_height   =        -1;
+  recent.gui_geometry_main_height   = DEF_HEIGHT;
   recent.gui_geometry_main_maximized=     FALSE;
 
   /* pane size of zero will autodetect */

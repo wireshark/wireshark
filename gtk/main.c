@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.455 2004/07/09 18:43:04 gerald Exp $
+ * $Id: main.c,v 1.456 2004/07/09 21:13:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -855,9 +855,19 @@ main_load_window_geometry(GtkWidget *widget)
     geom.x              = recent.gui_geometry_main_x;
     geom.y              = recent.gui_geometry_main_y;
     geom.set_size       = prefs.gui_geometry_save_size;
-    geom.width          = recent.gui_geometry_main_width;
-    geom.height         = recent.gui_geometry_main_height;
-    geom.set_maximized  = prefs.gui_geometry_save_maximized;
+    if (recent.gui_geometry_main_width > 0 &&
+        recent.gui_geometry_main_height > 0) {
+        geom.width          = recent.gui_geometry_main_width;
+        geom.height         = recent.gui_geometry_main_height;
+        geom.set_maximized  = prefs.gui_geometry_save_maximized;
+    } else {
+        /* We assume this means the width and height weren't set in
+           the "recent" file (or that there is no "recent" file),
+           and weren't set to a default value, so we don't set the
+           size.  (The "recent" file code rejects non-positive width
+           and height values.) */
+       geom.set_size = FALSE;
+    }
     geom.maximized      = recent.gui_geometry_main_maximized;
 
     window_set_geometry(widget, &geom);
