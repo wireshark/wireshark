@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.19 2001/08/18 09:27:06 guy Exp $
+ * $Id: packet-rtcp.c,v 1.20 2001/09/03 08:10:46 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -369,7 +369,7 @@ dissect_rtcp_app( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
 
 static int
 dissect_rtcp_bye( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
-    int count )
+    unsigned int count )
 {
 	unsigned int chunk          = 1;
 	unsigned int reason_length  = 0;
@@ -401,7 +401,7 @@ dissect_rtcp_bye( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
 
 static int
 dissect_rtcp_sdes( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
-    int count )
+    unsigned int count )
 {
 	unsigned int chunk          = 1;
 	proto_item *sdes_item;
@@ -506,7 +506,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
 
 static int
 dissect_rtcp_rr( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
-    int count )
+    unsigned int count )
 {
 	unsigned int counter = 1;
 	proto_tree *ssrc_tree = (proto_tree*) NULL;
@@ -579,7 +579,7 @@ dissect_rtcp_rr( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
 
 static int
 dissect_rtcp_sr( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
-    int count )
+    unsigned int count )
 {
 #if 0
 	gchar buff[ NTP_TS_SIZE ];
@@ -613,7 +613,7 @@ dissect_rtcp_sr( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
 	offset += 4;
 
 	/* The rest of the packet is equal to the RR packet */
-	if ( count > 0 )
+	if ( count != 0 )
 		offset = dissect_rtcp_rr( tvb, offset, fd, tree, count );
 
 	return offset;
