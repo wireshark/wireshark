@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary window
  *
- * $Id: summary.c,v 1.1 1999/06/22 22:02:12 gram Exp $
+ * $Id: summary.c,v 1.2 1999/07/04 06:41:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -295,7 +295,11 @@ traffic_bytes/seconds);
     sprintf(string_buff, "Capture filter: none");
   }
   add_string_to_box(string_buff, capture_box);
+#if (GTK_MINOR_VERSION > 1) || ((GTK_MICRO_VERSION > 1) &&  (GTK_MINOR_VERSION > 0))
   gtk_window_set_position(GTK_WINDOW(sum_open_w), GTK_WIN_POS_MOUSE);
+#else
+  gtk_window_position(GTK_WINDOW(sum_open_w), GTK_WIN_POS_MOUSE);
+#endif
   gtk_widget_show(sum_open_w);
 }
 
