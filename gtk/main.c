@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.356 2004/01/18 01:41:14 obiot Exp $
+ * $Id: main.c,v 1.357 2004/01/18 02:19:07 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1203,32 +1203,37 @@ file_quit_cmd_cb (GtkWidget *widget _U_, gpointer data _U_)
 static void
 print_usage(gboolean print_ver) {
 
+  FILE *output;
+
   if (print_ver) {
-    fprintf(stderr, "This is GNU " PACKAGE " " VERSION
+    output = stdout;
+    fprintf(output, "This is GNU " PACKAGE " " VERSION
 #ifdef CVSVERSION
 	" (cvs " CVSVERSION ")"
 #endif
 	"\n%s\n%s\n",
 	comp_info_str->str, runtime_info_str->str);
+  } else {
+    output = stderr;
   }
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "\n%s [ -vh ] [ -klLnpQS ] [ -a <capture autostop condition> ] ...\n",
+  fprintf(output, "\n%s [ -vh ] [ -klLnpQS ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
-  fprintf(stderr, "\t[ -b <number of ringbuffer files>[:<duration>] ]\n");
-  fprintf(stderr, "\t[ -B <byte view height> ] [ -c <count> ] [ -f <capture filter> ]\n");
-  fprintf(stderr, "\t[ -i <interface> ] [ -m <medium font> ] [ -N <resolving> ]\n");
-  fprintf(stderr, "\t[ -o <preference setting> ] ... [ -P <packet list height> ]\n");
-  fprintf(stderr, "\t[ -r <infile> ] [ -R <read filter> ] [ -s <snaplen> ] \n");
-  fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ]\n");
-  fprintf(stderr, "\t[ -w <savefile> ] [ -y <link type> ] [ -z <statistics string> ]\n");
-  fprintf(stderr, "\t[ <infile> ]\n");
+  fprintf(output, "\t[ -b <number of ringbuffer files>[:<duration>] ]\n");
+  fprintf(output, "\t[ -B <byte view height> ] [ -c <count> ] [ -f <capture filter> ]\n");
+  fprintf(output, "\t[ -i <interface> ] [ -m <medium font> ] [ -N <resolving> ]\n");
+  fprintf(output, "\t[ -o <preference setting> ] ... [ -P <packet list height> ]\n");
+  fprintf(output, "\t[ -r <infile> ] [ -R <read filter> ] [ -s <snaplen> ] \n");
+  fprintf(output, "\t[ -t <time stamp format> ] [ -T <tree view height> ]\n");
+  fprintf(output, "\t[ -w <savefile> ] [ -y <link type> ] [ -z <statistics string> ]\n");
+  fprintf(output, "\t[ <infile> ]\n");
 #else
-  fprintf(stderr, "\n%s [ -vh ] [ -n ] [ -B <byte view height> ] [ -m <medium font> ]\n",
+  fprintf(output, "\n%s [ -vh ] [ -n ] [ -B <byte view height> ] [ -m <medium font> ]\n",
 	  PACKAGE);
-  fprintf(stderr, "\t[ -N <resolving> ] [ -o <preference setting> ...\n");
-  fprintf(stderr, "\t[ -P <packet list height> ] [ -r <infile> ] [ -R <read filter> ]\n");
-  fprintf(stderr, "\t[ -t <time stamp format> ] [ -T <tree view height> ]\n");
-  fprintf(stderr, "\t[ -z <statistics string> ] [ <infile> ]\n");
+  fprintf(output, "\t[ -N <resolving> ] [ -o <preference setting> ...\n");
+  fprintf(output, "\t[ -P <packet list height> ] [ -r <infile> ] [ -R <read filter> ]\n");
+  fprintf(output, "\t[ -t <time stamp format> ] [ -T <tree view height> ]\n");
+  fprintf(output, "\t[ -z <statistics string> ] [ <infile> ]\n");
 #endif
 }
 
