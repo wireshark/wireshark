@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.115 2000/07/30 16:59:07 oabad Exp $
+ * $Id: capture.c,v 1.116 2000/07/31 04:03:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -947,15 +947,17 @@ capture(void)
   GtkWidget  *cap_w, *main_vb, *count_lb, *sctp_lb, *tcp_lb, *udp_lb, *icmp_lb,
              *ospf_lb, *gre_lb, *netbios_lb, *ipx_lb, *vines_lb, *other_lb, *stop_bt;
   pcap_t     *pch;
+  int         pcap_encap;
+  int         snaplen;
   gchar       err_str[PCAP_ERRBUF_SIZE], label_str[32];
   loop_data   ld;
   bpf_u_int32 netnum, netmask;
   time_t      upd_time, cur_time;
   int         err, inpkts;
   char        errmsg[1024+1];
-#ifdef linux
   fd_set      set1;
   struct timeval timeout;
+#ifdef linux
   int         pcap_fd = 0;
 #endif
 #ifdef _WIN32 
@@ -1059,15 +1061,24 @@ capture(void)
   }
 
   /* Set up to write to the capture file. */
-  ld.linktype = wtap_pcap_encap_to_wtap_encap(ld.from_pipe ? hdr.network
-	                                                   : pcap_datalink(pch));
+#ifndef _WIN32
+  if (ld.from_pipe) {
+    pcap_encap = hdr.network;
+    snaplen = hdr.snaplen;
+  } else
+#endif
+  {
+    pcap_encap = pcap_datalink(pch);
+    snaplen = pcap_snapshot(pch);
+  }
+  ld.linktype = wtap_pcap_encap_to_wtap_encap(pcap_encap);
   if (ld.linktype == WTAP_ENCAP_UNKNOWN) {
     strcpy(errmsg, "The network you're capturing from is of a type"
              " that Ethereal doesn't support.");
     goto error;
   }
   ld.pdh = wtap_dump_fdopen(cfile.save_file_fd, WTAP_FILE_PCAP,
-      ld.linktype, ld.from_pipe ? hdr.snaplen : pcap_snapshot(pch), &err);
+      ld.linktype, snaplen, &err);
 
   if (ld.pdh == NULL) {
     /* We couldn't set up to write to the capture file. */
@@ -1194,6 +1205,7 @@ capture(void)
   while (ld.go) {
     while (gtk_events_pending()) gtk_main_iteration();
 
+#ifndef _WIN32
     if (ld.from_pipe) {
       FD_ZERO(&set1);
       FD_SET(pipe_fd, &set1);
@@ -1210,7 +1222,9 @@ capture(void)
       } else
 	inpkts = 0;
     }
-    else {
+    else
+#endif
+    {
 #ifdef linux
       /*
        * Sigh.  The semantics of the read timeout argument to
@@ -1336,9 +1350,11 @@ capture(void)
       break;
     }
   }
+#ifndef _WIN32
   if (ld.from_pipe)
     close(pipe_fd);
   else
+#endif
     pcap_close(pch);
 
   gtk_grab_remove(GTK_WIDGET(cap_w));
