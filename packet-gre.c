@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.7 1999/11/16 11:42:31 guy Exp $
+ * $Id: packet-gre.c,v 1.8 1999/12/08 21:38:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -247,6 +247,7 @@ proto_register_gre(void)
         };*/
 	static gint *ett[] = {
 		&ett_gre,
+		&ett_gre_flags,
 	};
 
         proto_gre = proto_register_protocol("Generic Routing Encapsulation", "gre");
