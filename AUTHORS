@@ -1737,6 +1737,10 @@ Joakim Wiberg <jow [AT] hms-networks.com> {
 	Support for Common Industrial Protocol over IP
 }
 
+Jeff Rizzo <riz [AT] boogers.sf.ca.us> {
+	sFlow support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
