@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.140 2001/11/09 06:43:38 guy Exp $
+ * $Id: packet-smb.c,v 1.141 2001/11/09 22:45:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -387,6 +387,7 @@ static int hf_smb_print_spool_file_number = -1;
 static int hf_smb_print_spool_file_size = -1;
 static int hf_smb_print_spool_file_name = -1;
 static int hf_smb_start_index = -1;
+static int hf_smb_cancel_to = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_hdr = -1;
@@ -1126,6 +1127,15 @@ dissect_file_ext_attr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree
 		tree = proto_item_add_subtree(item, ett_smb_file_attributes);
 	}
 
+	/*
+	 * XXX - Network Monitor disagrees on some of the
+	 * bits, e.g. the bits above temporary are "atomic write"
+	 * and "transaction write", and it says nothing about the
+	 * bits above that.
+	 *
+	 * Does the Win32 API documentation, or the NT Native API book,
+	 * suggest anything?
+	 */
 	proto_tree_add_boolean(tree, hf_smb_file_eattr_write_through,
 		tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_file_eattr_no_buffering,
@@ -1240,6 +1250,13 @@ dissect_search_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
 	return offset;
 }
 
+#if 0
+/*
+ * XXX - this isn't used.
+ * Is this used for anything?  NT Create AndX doesn't use it.
+ * Is there some 16-bit attribute field with more bits than Read Only,
+ * Hidden, System, Volume ID, Directory, and Archive?
+ */
 static int
 dissect_extended_file_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
 {
@@ -1289,6 +1306,7 @@ dissect_extended_file_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	return offset;
 }
+#endif
 
 
 #define SERVER_CAP_RAW_MODE            0x00000001
@@ -5153,8 +5171,8 @@ static const true_false_string tfs_nt_security_flags_context_tracking = {
 };
 
 static const true_false_string tfs_nt_security_flags_effective_only = {
-	"ONLY ENABLED aspects of the clients security context are available",
-	"ALL aspects of the clients security context are available",
+	"ONLY ENABLED aspects of the client's security context are available",
+	"ALL aspects of the client's security context are available",
 };
 
 static const true_false_string tfs_nt_create_bits_oplock = {
@@ -5167,6 +5185,10 @@ static const true_false_string tfs_nt_create_bits_boplock = {
 	"Does NOT request batch oplock"
 };
 
+/*
+ * XXX - must be a directory, and can be a file, or can be a directory,
+ * and must be a file?
+ */
 static const true_false_string tfs_nt_create_bits_dir = {
 	"Target of open MUST be a DIRECTORY",
 	"Target of open can be a file"
@@ -5174,7 +5196,7 @@ static const true_false_string tfs_nt_create_bits_dir = {
 
 static const true_false_string tfs_nt_access_mask_generic_read = {
 	"GENERIC READ is set",
-	"Generic read in NOT set"
+	"Generic read is NOT set"
 };
 static const true_false_string tfs_nt_access_mask_generic_write = {
 	"GENERIC WRITE is set",
@@ -5367,6 +5389,25 @@ dissect_nt_access_mask(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 		tree = proto_item_add_subtree(item, ett_smb_nt_access_mask);
 	}
 
+	/*
+	 * XXX - Microsoft Network Monitor says the bottom 9 bits
+	 * are, going down to the bottommost bit:
+	 *
+	 *	write attributes permission
+	 *	read attributes permission
+	 *	delete permission
+	 *	execute permission
+	 *	write extended attributes permission
+	 *	read extended attributes permission
+	 *	append permission
+	 *	write permission
+	 *	read permission
+	 *
+	 * and says nothing about the bits above it.
+	 *
+	 * Does the Win32 API documentation, or the NT Native API book,
+	 * suggest anything?
+	 */
 	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_read,
 		tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_write,
@@ -5410,6 +5451,12 @@ dissect_nt_create_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
 		tree = proto_item_add_subtree(item, ett_smb_nt_create_bits);
 	}
 
+	/*
+	 * XXX - it's 0x00000016 in at least one capture, but
+	 * Network Monitor doesn't say what the 0x00000010 bit is.
+	 * Does the Win32 API documentation, or NT Native API book,
+	 * suggest anything?
+	 */
 	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_dir,
 		tvb, offset, 4, mask);
 	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_boplock,
@@ -6572,7 +6619,228 @@ dissect_get_print_queue_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	return offset;
 }
 
+
+static int
+dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
+{
+	guint8	wc, cmd=0xff;
+	guint16 andxoffset=0;
+	guint16 bc;
+	int fn_len;
+	const char *fn;
+
+	WORD_COUNT;
+
+	/* next smb command */
+	cmd = tvb_get_guint8(tvb, offset);
+	if(cmd!=0xff){
+		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+	} else {
+		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands (0xff)");
+	}
+	offset += 1;
+
+	/* reserved byte */
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	offset += 1;
+
+	/* andxoffset */
+	andxoffset = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_andxoffset, tvb, offset, 2, andxoffset);
+	offset += 2;
+
+	/* reserved byte */
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	offset += 1;
+
+	/* file name len */
+	fn_len = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 2, fn_len);
+	offset += 2;
+
+	/* Create flags */
+	offset = dissect_nt_create_bits(tvb, pinfo, tree, offset);
+
+	/* root directory fid */
+	proto_tree_add_item(tree, hf_smb_root_dir_fid, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* nt access mask */
+	offset = dissect_nt_access_mask(tvb, pinfo, tree, offset);
+
+	/* allocation size */
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	offset += 8;
+
+	/* Extended File Attributes */
+	offset = dissect_file_ext_attr(tvb, pinfo, tree, offset);
+
+	/* share access */
+	offset = dissect_nt_share_access(tvb, pinfo, tree, offset);
+
+	/* create disposition */
+	proto_tree_add_item(tree, hf_smb_nt_create_disposition, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* create options */
+	/*
+	 * XXX - Network Monitor dissects this as a pile of bits,
+	 * including "directory, "write through", "sequential",
+	 * etc..
+	 *
+	 * Does the Win32 API documentation or the NT Native API
+	 * book suggest anything?
+	 */
+	proto_tree_add_item(tree, hf_smb_nt_create_options, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* impersonation level */
+	proto_tree_add_item(tree, hf_smb_nt_impersonation_level, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* security flags */
+	offset = dissect_nt_security_flags(tvb, pinfo, tree, offset);
+
+	BYTE_COUNT;
+
+	/* file name */
+	fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, FALSE, FALSE, &bc);
+	if (fn == NULL)
+		goto endofcommand;
+	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES(fn_len);
+
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_append_fstr(pinfo->fd, COL_INFO, ", Path: %s", fn);
+	}
+
+	END_OF_SMB
+
+	/* call AndXCommand (if there are any) */
+	dissect_smb_command(tvb, pinfo, tree, andxoffset, smb_tree, cmd);
+
+	return offset;
+}
  
+
+static int
+dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
+{
+	guint8	wc, cmd=0xff;
+	guint16 andxoffset=0;
+	guint16 bc;
+
+	WORD_COUNT;
+
+	/* next smb command */
+	cmd = tvb_get_guint8(tvb, offset);
+	if(cmd!=0xff){
+		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: %s (0x%02x)", decode_smb_name(cmd), cmd);
+	} else {
+		proto_tree_add_uint_format(tree, hf_smb_cmd, tvb, offset, 1, cmd, "AndXCommand: No further commands");
+	}
+	offset += 1;
+
+	/* reserved byte */
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	offset += 1;
+
+	/* andxoffset */
+	andxoffset = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_andxoffset, tvb, offset, 2, andxoffset);
+	offset += 2;
+
+	/* oplock level */
+	proto_tree_add_item(tree, hf_smb_oplock_level, tvb, offset, 1, TRUE);
+	offset += 1;
+
+	/* fid */
+	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* create action */
+	/*XXX is this really the same as create disposition in the request? it looks so*/
+	proto_tree_add_item(tree, hf_smb_create_action, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* create time */
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Create Time", hf_smb_create_time);
+	
+	/* access time */
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Access Time", hf_smb_access_time);
+	
+	/* last write time */
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Write Time", hf_smb_last_write_time);
+	
+	/* last change time */
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		"Change Time", hf_smb_change_time);
+	
+	/* Extended File Attributes */
+	offset = dissect_file_ext_attr(tvb, pinfo, tree, offset);
+
+	/* allocation size */
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	offset += 8;
+
+	/* end of file */
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	offset += 8;
+
+	/* File Type */
+	proto_tree_add_item(tree, hf_smb_file_type, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* IPC State */
+	offset = dissect_ipc_state(tvb, pinfo, tree, offset);
+
+	/* is directory */
+	proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, TRUE);
+	offset += 1;
+
+	BYTE_COUNT;
+
+	END_OF_SMB
+
+	/* call AndXCommand (if there are any) */
+	dissect_smb_command(tvb, pinfo, tree, andxoffset, smb_tree, cmd);
+
+	return offset;
+}
+
+
+static int
+dissect_nt_cancel_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
+{
+	smb_info_t	*sip;
+	guint8 wc;
+	guint16 bc;
+
+	/* XXX I think this correct to find the matching request, must test */
+	sip = pinfo->private_data;
+	sip->src = &pinfo->src;
+	sip->dst = &pinfo->dst;
+	sip = g_hash_table_lookup(smb_info_table, sip);
+	if(sip){
+		proto_tree_add_uint(tree, hf_smb_cancel_to, tvb, 0, 0, sip->frame_req);
+	} else {
+		proto_tree_add_text(tree, tvb, 0, 0,
+			"Cancelation to: <unknown frame>");
+	}
+
+	WORD_COUNT;
+ 
+	BYTE_COUNT;
+
+	END_OF_SMB
+
+	return offset;
+}
+
 
 
 
@@ -6753,9 +7021,9 @@ smb_function smb_dissector[256] = {
   /* 0x9f */  {NULL, NULL},
   /* 0xa0 NT Transaction*/  	{dissect_nt_transaction_request, dissect_nt_transaction_response},
   /* 0xa1 NT Trans secondary*/	{dissect_nt_transaction_request, dissect_nt_transaction_response},
-  /* 0xa2 */  {NULL, NULL},
+  /* 0xa2 NT CreateAndX*/		{dissect_nt_create_andx_request, dissect_nt_create_andx_response},
   /* 0xa3 */  {NULL, NULL},
-  /* 0xa4 */  {NULL, NULL},
+  /* 0xa4 NT Cancel*/		{dissect_nt_cancel_request, NULL}, /*no response to this one*/
   /* 0xa5 */  {NULL, NULL},
   /* 0xa6 */  {NULL, NULL},
   /* 0xa7 */  {NULL, NULL},
@@ -11902,7 +12170,7 @@ proto_register_smb(void)
 		VALS(create_disposition_vals), 0, "Create disposition, what to do if the file does/does not exist", HFILL }},
 
 	{ &hf_smb_nt_create_options,
-		{ "Options", "smb.create.options", FT_UINT32, BASE_DEC,
+		{ "Options", "smb.create.options", FT_UINT32, BASE_HEX,
 		NULL, 0, "What to do if creating a file", HFILL }},
 
 	{ &hf_smb_sd_length,
@@ -12192,6 +12460,11 @@ proto_register_smb(void)
 	{ &hf_smb_start_index,
 		{ "Start Index", "smb.print.start_index", FT_UINT16, BASE_DEC,
 		NULL, 0, "First queue entry to return", HFILL }},
+
+	{ &hf_smb_cancel_to,
+		{ "Cancel to", "smb.cancel_to", FT_UINT32, BASE_DEC,
+		NULL, 0, "This packet is a cancellation of the packet in this frame", HFILL }},
+
 
 
 	};
