@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.10 2000/12/25 06:59:33 guy Exp $
+ * $Id: packet-kerberos.c,v 1.11 2000/12/26 16:44:43 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,11 +93,27 @@ static gint proto_kerberos = -1;
 #define KRB5_BODY_TILL                   5
 #define KRB5_BODY_RTIME                  6
 #define KRB5_BODY_NONCE                  7
-#define KRB5_BODY_ENCTYPE                  8
+#define KRB5_BODY_ENCTYPE                8
 #define KRB5_BODY_ADDRESSES              9
 #define KRB5_BODY_ENC_AUTHORIZATION_DATA 10
 #define KRB5_BODY_ADDITIONAL_TICKETS     11
 
+/* Type tags within KRB-ERROR */
+#define KRB5_ERROR_PVNO       0
+#define KRB5_ERROR_MSG_TYPE   1
+#define KRB5_ERROR_CTIME      2
+#define KRB5_ERROR_CUSEC      3
+#define KRB5_ERROR_STIME      4
+#define KRB5_ERROR_SUSEC      5
+#define KRB5_ERROR_ERROR_CODE 6
+#define KRB5_ERROR_CREALM     7
+#define KRB5_ERROR_CNAME      8
+#define KRB5_ERROR_REALM      9
+#define KRB5_ERROR_SNAME      10
+#define KRB5_ERROR_ETEXT      11
+#define KRB5_ERROR_EDATA      12
+
+/* address type constants */
 #define KRB5_ADDR_IPv4       0x02
 #define KRB5_ADDR_CHAOS      0x05
 #define KRB5_ADDR_XEROX      0x06
@@ -105,6 +121,7 @@ static gint proto_kerberos = -1;
 #define KRB5_ADDR_DECNET     0x0c
 #define KRB5_ADDR_APPLETALK  0x10
 
+/* encryption type constants */
 #define KRB5_ENCTYPE_NULL                0
 #define KRB5_ENCTYPE_DES_CBC_CRC         1
 #define KRB5_ENCTYPE_DES_CBC_MD4         2
@@ -117,6 +134,7 @@ static gint proto_kerberos = -1;
 #define KRB5_ENCTYPE_UNKNOWN                0x1ff
 #define KRB5_ENCTYPE_LOCAL_DES3_HMAC_SHA1   0x7007
 
+/* pre-authentication type constants */
 #define KRB5_PA_TGS_REQ                1
 #define KRB5_PA_ENC_TIMESTAMP          2
 #define KRB5_PA_PW_SALT                3
@@ -145,6 +163,111 @@ static gint proto_kerberos = -1;
 #define KRB5_NT_SRV_HST     3
 #define KRB5_NT_SRV_XHST    4
 #define KRB5_NT_UID     5
+
+/* error table constants */
+/* I prefixed the krb5_err.et constant names with KRB5_ET_ for these */
+#define KRB5_ET_KRB5KDC_ERR_NONE                         0
+#define KRB5_ET_KRB5KDC_ERR_NAME_EXP                     1
+#define KRB5_ET_KRB5KDC_ERR_SERVICE_EXP                  2
+#define KRB5_ET_KRB5KDC_ERR_BAD_PVNO                     3
+#define KRB5_ET_KRB5KDC_ERR_C_OLD_MAST_KVNO              4
+#define KRB5_ET_KRB5KDC_ERR_S_OLD_MAST_KVNO              5
+#define KRB5_ET_KRB5KDC_ERR_C_PRINCIPAL_UNKNOWN          6
+#define KRB5_ET_KRB5KDC_ERR_S_PRINCIPAL_UNKNOWN          7
+#define KRB5_ET_KRB5KDC_ERR_PRINCIPAL_NOT_UNIQUE         8
+#define KRB5_ET_KRB5KDC_ERR_NULL_KEY                     9
+#define KRB5_ET_KRB5KDC_ERR_CANNOT_POSTDATE              10
+#define KRB5_ET_KRB5KDC_ERR_NEVER_VALID                  11
+#define KRB5_ET_KRB5KDC_ERR_POLICY                       12
+#define KRB5_ET_KRB5KDC_ERR_BADOPTION                    13
+#define KRB5_ET_KRB5KDC_ERR_ETYPE_NOSUPP                 14
+#define KRB5_ET_KRB5KDC_ERR_SUMTYPE_NOSUPP               15
+#define KRB5_ET_KRB5KDC_ERR_PADATA_TYPE_NOSUPP           16
+#define KRB5_ET_KRB5KDC_ERR_TRTYPE_NOSUPP                17
+#define KRB5_ET_KRB5KDC_ERR_CLIENT_REVOKED               18
+#define KRB5_ET_KRB5KDC_ERR_SERVICE_REVOKED              19
+#define KRB5_ET_KRB5KDC_ERR_TGT_REVOKED                  20
+#define KRB5_ET_KRB5KDC_ERR_CLIENT_NOTYET                21
+#define KRB5_ET_KRB5KDC_ERR_SERVICE_NOTYET               22
+#define KRB5_ET_KRB5KDC_ERR_KEY_EXP                      23
+#define KRB5_ET_KRB5KDC_ERR_PREAUTH_FAILED               24
+#define KRB5_ET_KRB5KDC_ERR_PREAUTH_REQUIRED             25
+#define KRB5_ET_KRB5KDC_ERR_SERVER_NOMATCH               26
+#define KRB5_ET_KRB5KRB_AP_ERR_BAD_INTEGRITY             31
+#define KRB5_ET_KRB5KRB_AP_ERR_TKT_EXPIRED               32
+#define KRB5_ET_KRB5KRB_AP_ERR_TKT_NYV                   33
+#define KRB5_ET_KRB5KRB_AP_ERR_REPEAT                    34
+#define KRB5_ET_KRB5KRB_AP_ERR_NOT_US                    35
+#define KRB5_ET_KRB5KRB_AP_ERR_BADMATCH                  36
+#define KRB5_ET_KRB5KRB_AP_ERR_SKEW                      37
+#define KRB5_ET_KRB5KRB_AP_ERR_BADADDR                   38
+#define KRB5_ET_KRB5KRB_AP_ERR_BADVERSION                39
+#define KRB5_ET_KRB5KRB_AP_ERR_MSG_TYPE                  40
+#define KRB5_ET_KRB5KRB_AP_ERR_MODIFIED                  41
+#define KRB5_ET_KRB5KRB_AP_ERR_BADORDER                  42
+#define KRB5_ET_KRB5KRB_AP_ERR_ILL_CR_TKT                43
+#define KRB5_ET_KRB5KRB_AP_ERR_BADKEYVER                 44
+#define KRB5_ET_KRB5KRB_AP_ERR_NOKEY                     45
+#define KRB5_ET_KRB5KRB_AP_ERR_MUT_FAIL                  46
+#define KRB5_ET_KRB5KRB_AP_ERR_BADDIRECTION              47
+#define KRB5_ET_KRB5KRB_AP_ERR_METHOD                    48
+#define KRB5_ET_KRB5KRB_AP_ERR_BADSEQ                    49
+#define KRB5_ET_KRB5KRB_AP_ERR_INAPP_CKSUM               50
+#define KRB5_ET_KRB5KRB_ERR_GENERIC                      60
+#define KRB5_ET_KRB5KRB_ERR_FIELD_TOOLONG                61
+
+static const value_string krb5_error_codes[] = {
+	{ KRB5_ET_KRB5KDC_ERR_NONE, "KRB5KDC_ERR_NONE" },
+	{ KRB5_ET_KRB5KDC_ERR_NAME_EXP, "KRB5KDC_ERR_NAME_EXP" },
+	{ KRB5_ET_KRB5KDC_ERR_SERVICE_EXP, "KRB5KDC_ERR_SERVICE_EXP" },
+	{ KRB5_ET_KRB5KDC_ERR_BAD_PVNO, "KRB5KDC_ERR_BAD_PVNO" },
+	{ KRB5_ET_KRB5KDC_ERR_C_OLD_MAST_KVNO, "KRB5KDC_ERR_C_OLD_MAST_KVNO" },
+	{ KRB5_ET_KRB5KDC_ERR_S_OLD_MAST_KVNO, "KRB5KDC_ERR_S_OLD_MAST_KVNO" },
+	{ KRB5_ET_KRB5KDC_ERR_C_PRINCIPAL_UNKNOWN, "KRB5KDC_ERR_C_PRINCIPAL_UNKNOWN" },
+	{ KRB5_ET_KRB5KDC_ERR_S_PRINCIPAL_UNKNOWN, "KRB5KDC_ERR_S_PRINCIPAL_UNKNOWN" },
+	{ KRB5_ET_KRB5KDC_ERR_PRINCIPAL_NOT_UNIQUE, "KRB5KDC_ERR_PRINCIPAL_NOT_UNIQUE" },
+	{ KRB5_ET_KRB5KDC_ERR_NULL_KEY, "KRB5KDC_ERR_NULL_KEY" },
+	{ KRB5_ET_KRB5KDC_ERR_CANNOT_POSTDATE, "KRB5KDC_ERR_CANNOT_POSTDATE" },
+	{ KRB5_ET_KRB5KDC_ERR_NEVER_VALID, "KRB5KDC_ERR_NEVER_VALID" },
+	{ KRB5_ET_KRB5KDC_ERR_POLICY, "KRB5KDC_ERR_POLICY" },
+	{ KRB5_ET_KRB5KDC_ERR_BADOPTION, "KRB5KDC_ERR_BADOPTION" },
+	{ KRB5_ET_KRB5KDC_ERR_ETYPE_NOSUPP, "KRB5KDC_ERR_ETYPE_NOSUPP" },
+	{ KRB5_ET_KRB5KDC_ERR_SUMTYPE_NOSUPP, "KRB5KDC_ERR_SUMTYPE_NOSUPP" },
+	{ KRB5_ET_KRB5KDC_ERR_PADATA_TYPE_NOSUPP, "KRB5KDC_ERR_PADATA_TYPE_NOSUPP" },
+	{ KRB5_ET_KRB5KDC_ERR_TRTYPE_NOSUPP, "KRB5KDC_ERR_TRTYPE_NOSUPP" },
+	{ KRB5_ET_KRB5KDC_ERR_CLIENT_REVOKED, "KRB5KDC_ERR_CLIENT_REVOKED" },
+	{ KRB5_ET_KRB5KDC_ERR_SERVICE_REVOKED, "KRB5KDC_ERR_SERVICE_REVOKED" },
+	{ KRB5_ET_KRB5KDC_ERR_TGT_REVOKED, "KRB5KDC_ERR_TGT_REVOKED" },
+	{ KRB5_ET_KRB5KDC_ERR_CLIENT_NOTYET, "KRB5KDC_ERR_CLIENT_NOTYET" },
+	{ KRB5_ET_KRB5KDC_ERR_SERVICE_NOTYET, "KRB5KDC_ERR_SERVICE_NOTYET" },
+	{ KRB5_ET_KRB5KDC_ERR_KEY_EXP, "KRB5KDC_ERR_KEY_EXP" },
+	{ KRB5_ET_KRB5KDC_ERR_PREAUTH_FAILED, "KRB5KDC_ERR_PREAUTH_FAILED" },
+	{ KRB5_ET_KRB5KDC_ERR_PREAUTH_REQUIRED, "KRB5KDC_ERR_PREAUTH_REQUIRED" },
+	{ KRB5_ET_KRB5KDC_ERR_SERVER_NOMATCH, "KRB5KDC_ERR_SERVER_NOMATCH" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_BAD_INTEGRITY, "KRB5KRB_AP_ERR_BAD_INTEGRITY" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_TKT_EXPIRED, "KRB5KRB_AP_ERR_TKT_EXPIRED" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_TKT_NYV, "KRB5KRB_AP_ERR_TKT_NYV" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_REPEAT, "KRB5KRB_AP_ERR_REPEAT" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_NOT_US, "KRB5KRB_AP_ERR_NOT_US" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_BADMATCH, "KRB5KRB_AP_ERR_BADMATCH" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_SKEW, "KRB5KRB_AP_ERR_SKEW" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_BADADDR, "KRB5KRB_AP_ERR_BADADDR" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_BADVERSION, "KRB5KRB_AP_ERR_BADVERSION" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_MSG_TYPE, "KRB5KRB_AP_ERR_MSG_TYPE" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_MODIFIED, "KRB5KRB_AP_ERR_MODIFIED" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_BADORDER, "KRB5KRB_AP_ERR_BADORDER" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_ILL_CR_TKT, "KRB5KRB_AP_ERR_ILL_CR_TKT" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_BADKEYVER, "KRB5KRB_AP_ERR_BADKEYVER" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_NOKEY, "KRB5KRB_AP_ERR_NOKEY" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_MUT_FAIL, "KRB5KRB_AP_ERR_MUT_FAIL" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_BADDIRECTION, "KRB5KRB_AP_ERR_BADDIRECTION" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_METHOD, "KRB5KRB_AP_ERR_METHOD" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_BADSEQ, "KRB5KRB_AP_ERR_BADSEQ" },
+	{ KRB5_ET_KRB5KRB_AP_ERR_INAPP_CKSUM, "KRB5KRB_AP_ERR_INAPP_CKSUM" },
+	{ KRB5_ET_KRB5KRB_ERR_GENERIC, "KRB5KRB_ERR_GENERIC" },
+	{ KRB5_ET_KRB5KRB_ERR_FIELD_TOOLONG, "KRB5KRB_ERR_FIELD_TOOLONG" }
+};
+
 
 static const value_string krb5_princ_types[] = {
     { KRB5_NT_UNKNOWN              , "Unknown" },
@@ -283,20 +406,20 @@ krb_proto_tree_add_time(proto_tree *tree, int offset, int str_len,
 
 #define DIE_IF_NOT_APPLICATION_TYPE(token, expected_tag) \
     if (!CHECK_APPLICATION_TYPE(expected_tag)) \
-        DIE_WITH_BAD_TYPE(token);
+        DIE_WITH_BAD_TYPE(token, expected_tag);
 
 #define CHECK_CONTEXT_TYPE(expected_tag) \
     (cls == ASN1_CTX && con == ASN1_CON && tag == expected_tag)
 
 #define DIE_IF_NOT_CONTEXT_TYPE(token, expected_tag) \
     if (!CHECK_CONTEXT_TYPE(expected_tag)) \
-        DIE_WITH_BAD_TYPE(token);
+        DIE_WITH_BAD_TYPE(token, expected_tag);
 
-#define DIE_WITH_BAD_TYPE(token) \
+#define DIE_WITH_BAD_TYPE(token, expected_tag) \
     { \
       if (check_col(fd, COL_INFO)) \
-         col_add_fstr(fd, COL_INFO, "ERROR: Problem at %s: %s", \
-                      token, to_error_str(ASN1_ERR_WRONG_TYPE)); \
+         col_add_fstr(fd, COL_INFO, "ERROR: Problem at %s: %s (tag=%d exp=%d)", \
+                      token, to_error_str(ASN1_ERR_WRONG_TYPE), tag, expected_tag); \
       return -1; \
     }
 
@@ -685,16 +808,13 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
    }
 */
 
-        if (tag == KRB5_KDC_REP_CREALM) {
-            KRB_DECODE_GENERAL_STRING_OR_DIE("realm name", str, str_len, item_len);
-            if (kerberos_tree) {
-                proto_tree_add_text(kerberos_tree, NullTVB, offset, item_len,
-                                    "Realm: %.*s", str_len, str);
-            }
-            offset += item_len;
-        } else {
-            DIE_WITH_BAD_TYPE("crealm");
+		DIE_IF_NOT_CONTEXT_TYPE("crealm", KRB5_KDC_REP_CREALM);
+        KRB_DECODE_GENERAL_STRING_OR_DIE("realm name", str, str_len, item_len);
+        if (kerberos_tree) {
+            proto_tree_add_text(kerberos_tree, NullTVB, offset, item_len,
+                                "Realm: %.*s", str_len, str);
         }
+        offset += item_len;
 
         KRB_DECODE_CONTEXT_HEAD_OR_DIE("cname", KRB5_KDC_REP_CNAME);
         item_len = dissect_PrincipalName("Client Name", asn1p, fd,
@@ -714,6 +834,139 @@ dissect_kerberos_main(const u_char *pd, int offset, frame_data *fd,
                                        kerberos_tree, offset);
         if (offset == -1)
             return -1;
+        break;
+
+    case KRB5_MSG_ERROR:
+/*
+  KRB-ERROR ::=   [APPLICATION 30] SEQUENCE {
+                   pvno[0]               INTEGER,
+                   msg-type[1]           INTEGER,
+                   ctime[2]              KerberosTime OPTIONAL,
+                   cusec[3]              INTEGER OPTIONAL,
+                   stime[4]              KerberosTime,
+                   susec[5]              INTEGER,
+                   error-code[6]         INTEGER,
+                   crealm[7]             Realm OPTIONAL,
+                   cname[8]              PrincipalName OPTIONAL,
+                   realm[9]              Realm, -- Correct realm
+                   sname[10]             PrincipalName, -- Correct name
+                   e-text[11]            GeneralString OPTIONAL,
+                   e-data[12]            OCTET STRING OPTIONAL
+   }
+  }
+
+*/
+
+		/* ctime */
+        if (CHECK_CONTEXT_TYPE(KRB5_ERROR_CTIME)) {
+            KRB_DECODE_GENERAL_TIME_OR_DIE("ctime", str, str_len, item_len);
+            krb_proto_tree_add_time(kerberos_tree, offset, item_len,
+                                    "ctime", str);
+            offset += item_len;
+			KRB_HEAD_DECODE_OR_DIE("cusec");
+        }
+
+		/* cusec */
+        if (CHECK_CONTEXT_TYPE(KRB5_ERROR_CUSEC)) {
+			KRB_DECODE_UINT32_OR_DIE("cusec", tmp_int);
+	        if (kerberos_tree) {
+	            proto_tree_add_text(kerberos_tree, NullTVB, offset, length,
+	                                "cusec: %u",
+	                                tmp_int);
+	        }
+
+            offset += item_len;
+			KRB_HEAD_DECODE_OR_DIE("sutime");
+        }
+
+		DIE_IF_NOT_CONTEXT_TYPE("sutime", KRB5_ERROR_STIME);
+	    KRB_DECODE_GENERAL_TIME_OR_DIE("stime", str, str_len, item_len);
+	    krb_proto_tree_add_time(kerberos_tree, offset, item_len,
+	                            "stime", str);
+    	offset += item_len;
+
+		KRB_HEAD_DECODE_OR_DIE("susec");
+		DIE_IF_NOT_CONTEXT_TYPE("susec", KRB5_ERROR_SUSEC);		
+		KRB_DECODE_UINT32_OR_DIE("susec", tmp_int);
+		if (kerberos_tree) {
+		    proto_tree_add_text(kerberos_tree, NullTVB, offset, length,
+		                        "susec: %u",
+		                        tmp_int);
+		}
+	    offset += item_len;
+
+		KRB_HEAD_DECODE_OR_DIE("errcode");
+		DIE_IF_NOT_CONTEXT_TYPE("errcode", KRB5_ERROR_ERROR_CODE);		
+		KRB_DECODE_UINT32_OR_DIE("errcode", tmp_int);
+	    if (kerberos_tree) {
+	        proto_tree_add_text(kerberos_tree, NullTVB, offset, length,
+	                            "Error Code: %s",
+								val_to_str(tmp_int,
+                                               krb5_error_codes,
+                                               "Unknown error code %#x"));
+	    }
+        offset += item_len;
+		KRB_HEAD_DECODE_OR_DIE("crealm");
+
+        if (CHECK_CONTEXT_TYPE(KRB5_ERROR_CREALM)) {
+        	KRB_DECODE_GENERAL_STRING_OR_DIE("crealm", str, str_len, item_len);
+        	if (kerberos_tree) {
+            	proto_tree_add_text(kerberos_tree, NullTVB, offset, item_len,
+                                	"crealm: %.*s", str_len, str);
+        	}
+        	offset += item_len;
+			KRB_HEAD_DECODE_OR_DIE("cname");
+		}
+
+		if (CHECK_CONTEXT_TYPE(KRB5_ERROR_CNAME)) {
+	        item_len = dissect_PrincipalName("cname", asn1p, fd,
+                                         kerberos_tree, offset);
+	        if (item_len == -1)
+	            return -1;
+	        offset += item_len;
+			KRB_HEAD_DECODE_OR_DIE("realm");
+		}
+
+		DIE_IF_NOT_CONTEXT_TYPE("realm", KRB5_ERROR_REALM);
+        KRB_DECODE_GENERAL_STRING_OR_DIE("realm", str, str_len, item_len);
+        if (kerberos_tree) {
+            proto_tree_add_text(kerberos_tree, NullTVB, offset, item_len,
+                                "realm: %.*s", str_len, str);
+        }
+        offset += item_len;
+		KRB_HEAD_DECODE_OR_DIE("sname");
+
+		DIE_IF_NOT_CONTEXT_TYPE("sname", KRB5_ERROR_SNAME);
+	    item_len = dissect_PrincipalName("sname", asn1p, fd,
+                                     kerberos_tree, offset);
+	    if (item_len == -1)
+	        return -1;
+	    offset += item_len;
+		KRB_HEAD_DECODE_OR_DIE("e-text");
+
+		if ( CHECK_CONTEXT_TYPE(KRB5_ERROR_ETEXT) ) {
+        	KRB_DECODE_GENERAL_STRING_OR_DIE("etext", str, str_len, item_len);
+        	if (kerberos_tree) {
+            	proto_tree_add_text(kerberos_tree, NullTVB, offset, item_len,
+                                	"etext: %.*s", str_len, str);
+        	}
+        	offset += item_len;
+			KRB_HEAD_DECODE_OR_DIE("e-data");
+		}
+
+		if ( CHECK_CONTEXT_TYPE(KRB5_ERROR_EDATA) ) {
+		   guchar *data;
+		   guint data_len;
+
+ 		   KRB_DECODE_OCTET_STRING_OR_DIE("e-data", data, data_len, item_len);
+
+	       if (kerberos_tree) {
+               proto_tree_add_text(kerberos_tree, NullTVB, offset, data_len,
+                            "Error Data: %s", bytes_to_str(data, item_len));
+           }
+           offset += data_len;
+		}
+
         break;
     }
     return offset;
