@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.178 2002/06/07 10:36:57 guy Exp $
+ * $Id: capture.c,v 1.179 2002/06/07 10:54:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -228,6 +228,7 @@ static void adjust_header(loop_data *, struct pcap_hdr *, struct pcaprec_hdr *);
 static int pipe_open_live(char *, struct pcap_hdr *, loop_data *);
 static int pipe_dispatch(int, loop_data *, struct pcap_hdr *);
 #endif
+static void capture_frame(const u_char *, guint32 len, loop_data *);
 
 /* Win32 needs the O_BINARY flag for open() */
 #ifndef O_BINARY
@@ -1197,46 +1198,8 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
   wtap_dump(ld->pdh, &whdr, NULL, pd, &err);
 
   /* update capture statistics */
-  switch (ld->linktype) {
-    case WTAP_ENCAP_ETHERNET:
-      capture_eth(pd, 0, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_FDDI:
-    case WTAP_ENCAP_FDDI_BITSWAPPED:
-      capture_fddi(pd, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_PRISM_HEADER:
-      capture_prism(pd, 0, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_TOKEN_RING:
-      capture_tr(pd, 0, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_NULL:
-      capture_null(pd, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_PPP:
-      capture_ppp_hdlc(pd, 0, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_RAW_IP:
-      capture_raw(pd, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_LINUX_ATM_CLIP:
-      capture_clip(pd, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_IEEE_802_11:
-    case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-      capture_ieee80211(pd, 0, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_CHDLC:
-      capture_chdlc(pd, 0, whdr.caplen, &ld->counts);
-      break;
-    case WTAP_ENCAP_LOCALTALK:
-      capture_llap(&ld->counts);
-      break;
-    /* XXX - FreeBSD may append 4-byte ATM pseudo-header to DLT_ATM_RFC1483,
-       with LLC header following; we should implement it at some
-       point. */
-  }
+  ++ld->counts.total;
+  capture_frame(pd, whdr.caplen, ld);
 
   return 1;
 }
@@ -2005,59 +1968,65 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
      ld->go = FALSE;
   }
   if (ld->pdh) {
-     /* "phdr->ts" may not necessarily be a "struct timeval" - it may
-        be a "struct bpf_timeval", with member sizes wired to 32
-	bits - and we may go that way ourselves in the future, so
-	copy the members individually. */
-     whdr.ts.tv_sec = phdr->ts.tv_sec;
-     whdr.ts.tv_usec = phdr->ts.tv_usec;
-     whdr.caplen = phdr->caplen;
-     whdr.len = phdr->len;
-     whdr.pkt_encap = ld->linktype;
+    /* "phdr->ts" may not necessarily be a "struct timeval" - it may
+       be a "struct bpf_timeval", with member sizes wired to 32
+       bits - and we may go that way ourselves in the future, so
+       copy the members individually. */
+    whdr.ts.tv_sec = phdr->ts.tv_sec;
+    whdr.ts.tv_usec = phdr->ts.tv_usec;
+    whdr.caplen = phdr->caplen;
+    whdr.len = phdr->len;
+    whdr.pkt_encap = ld->linktype;
 
-     /* If this fails, set "ld->go" to FALSE, to stop the capture, and set
-        "ld->err" to the error. */
-     if (!wtap_dump(ld->pdh, &whdr, NULL, pd, &err)) {
-       ld->go = FALSE;
-       ld->err = err;
-     }
+    /* If this fails, set "ld->go" to FALSE, to stop the capture, and set
+       "ld->err" to the error. */
+    if (!wtap_dump(ld->pdh, &whdr, NULL, pd, &err)) {
+      ld->go = FALSE;
+      ld->err = err;
+    }
   }
 
+  capture_frame(pd, phdr->caplen, ld);
+}
+
+static void
+capture_frame(const u_char *pd, guint32 caplen, loop_data *ld)
+{
   switch (ld->linktype) {
     case WTAP_ENCAP_ETHERNET:
-      capture_eth(pd, 0, phdr->caplen, &ld->counts);
+      capture_eth(pd, 0, caplen, &ld->counts);
       break;
     case WTAP_ENCAP_FDDI:
     case WTAP_ENCAP_FDDI_BITSWAPPED:
-      capture_fddi(pd, phdr->caplen, &ld->counts);
+      capture_fddi(pd, caplen, &ld->counts);
       break;
     case WTAP_ENCAP_PRISM_HEADER:
-      capture_prism(pd, 0, phdr->caplen, &ld->counts);
+      capture_prism(pd, 0, caplen, &ld->counts);
       break;
     case WTAP_ENCAP_TOKEN_RING:
-      capture_tr(pd, 0, phdr->caplen, &ld->counts);
+      capture_tr(pd, 0, caplen, &ld->counts);
       break;
     case WTAP_ENCAP_NULL:
-      capture_null(pd, phdr->caplen, &ld->counts);
+      capture_null(pd, caplen, &ld->counts);
       break;
     case WTAP_ENCAP_PPP:
-      capture_ppp_hdlc(pd, 0, phdr->caplen, &ld->counts);
+      capture_ppp_hdlc(pd, 0, caplen, &ld->counts);
       break;
     case WTAP_ENCAP_RAW_IP:
-      capture_raw(pd, phdr->caplen, &ld->counts);
+      capture_raw(pd, caplen, &ld->counts);
       break;
     case WTAP_ENCAP_SLL:
-      capture_sll(pd, phdr->caplen, &ld->counts);
+      capture_sll(pd, caplen, &ld->counts);
       break;
     case WTAP_ENCAP_LINUX_ATM_CLIP:
-      capture_clip(pd, phdr->caplen, &ld->counts);
+      capture_clip(pd, caplen, &ld->counts);
       break;
     case WTAP_ENCAP_IEEE_802_11:
     case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-      capture_ieee80211(pd, 0, phdr->caplen, &ld->counts);
+      capture_ieee80211(pd, 0, caplen, &ld->counts);
       break;
     case WTAP_ENCAP_CHDLC:
-      capture_chdlc(pd, 0, phdr->caplen, &ld->counts);
+      capture_chdlc(pd, 0, caplen, &ld->counts);
       break;
     case WTAP_ENCAP_LOCALTALK:
       capture_llap(&ld->counts);
