@@ -201,13 +201,14 @@ void rtcp_add_address( const unsigned char* ip_addr, int prt )
 	 * Check if the ip address and port combination is not 
 	 * already registered
 	 */
-	pconv = find_conversation( &src_addr, &fake_addr, PT_UDP, prt, 0 );
+	pconv = find_conversation( &src_addr, &fake_addr, PT_UDP, prt, 0, 0 );
 
 	/*
 	 * If not, add
 	 */
 	if ( ! pconv ) {
-		conversation_new( &src_addr, &fake_addr, PT_UDP, (guint32) prt, (guint32) 0, (void*) rtcp_proto );
+		conversation_new( &src_addr, &fake_addr, PT_UDP, (guint32) prt,
+		    (guint32) 0, (void*) rtcp_proto, 0 );
 	}
 
 }
@@ -239,11 +240,14 @@ dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	 * So we first check if the frame is really meant for us.
 	 */
 	conversation_t* pconv;
-	if ( ( pconv = find_conversation( &pi.src, &fake_addr, pi.ptype, pi.srcport, 0 ) ) == NULL ) {
+	if ( ( pconv = find_conversation( &pi.src, &fake_addr, pi.ptype,
+	    pi.srcport, 0, 0 ) ) == NULL ) {
 		/*
-		 * The source ip:port combination was not what we were looking for, check the destination
+		 * The source ip:port combination was not what we were
+		 * looking for, check the destination
 		 */
-		if ( ( pconv = find_conversation( &pi.dst, &fake_addr, pi.ptype, pi.destport, 0 ) ) == NULL ) {
+		if ( ( pconv = find_conversation( &pi.dst, &fake_addr,
+		    pi.ptype, pi.destport, 0, 0 ) ) == NULL ) {
 			return FALSE;
 		}
 	}

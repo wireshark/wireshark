@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.11 2000/08/21 18:36:34 guy Exp $
+ * $Id: packet-msproxy.c,v 1.12 2000/10/21 05:52:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -222,7 +222,7 @@ static void msproxy_sub_dissector( const u_char *pd, int offset, frame_data *fd,
 	proto_item      *ti;
 	
 	conversation = find_conversation( &pi.src, &pi.dst, pi.ptype,
-		pi.srcport, pi.destport);
+		pi.srcport, pi.destport, 0);
 
 	g_assert( conversation);	/* should always find a conversation */
 
@@ -286,14 +286,15 @@ static void add_msproxy_conversation( hash_entry_t *hash_info){
 	
 	conversation_t *conversation = find_conversation( &pi.src, &pi.dst, 
 		hash_info->proto, hash_info->server_int_port,
-		hash_info->clnt_port);
+		hash_info->clnt_port, 0);
 
 	if ( conversation)
 		return;
 
 	new_conv_info = g_mem_chunk_alloc(redirect_vals);
 	conversation = conversation_new( &pi.src, &pi.dst, hash_info->proto,
-		hash_info->server_int_port, hash_info->clnt_port, new_conv_info);
+		hash_info->server_int_port, hash_info->clnt_port,
+		new_conv_info, 0);
 
 	g_assert( new_conv_info);
 	g_assert( conversation);
@@ -1166,7 +1167,7 @@ static void dissect_msproxy(const u_char *pd, int offset, frame_data *fd, proto_
 	OLD_CHECK_DISPLAY_AS_DATA(proto_msproxy, pd, offset, fd, tree);
 
 	conversation = find_conversation( &pi.src, &pi.dst, pi.ptype,
-		pi.srcport, pi.destport);
+		pi.srcport, pi.destport, 0);
 
 	if ( conversation)			/* conversation found */
 		hash_info = conversation->data;
@@ -1176,7 +1177,7 @@ static void dissect_msproxy(const u_char *pd, int offset, frame_data *fd, proto_
     		hash_info = g_mem_chunk_alloc(vals);
 
 		conversation_new( &pi.src, &pi.dst, pi.ptype,
-			pi.srcport, pi.destport, hash_info);
+			pi.srcport, pi.destport, hash_info, 0);
 	}
 
 	if (check_col(fd, COL_PROTOCOL))

@@ -156,6 +156,8 @@ Jeff Foster <jfoste@woodward.com> {
 	    use of that dissector by TCP and UDP
 	SOCKS support
 	Microsoft Proxy protocol support
+	Support for conversations with "wildcard" destination addresses
+	   and/or ports
 }
 
 Peter Torvals <petertv@xoommail.com> {

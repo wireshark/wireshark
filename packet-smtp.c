@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.6 2000/09/11 16:16:07 gram Exp $
+ * $Id: packet-smtp.c,v 1.7 2000/10/21 05:52:23 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -231,10 +231,11 @@ dissect_smtp(const u_char *pd, int offset, frame_data *fd,
     if (!frame_data) {
 
       conversation = find_conversation(&pinfo->src, &pinfo->dst, pi.ptype,
-				       pinfo->srcport, pinfo->destport);
+				       pinfo->srcport, pinfo->destport, 0);
       if (conversation == NULL) { /* No conversation, create one */
 	conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
-					pinfo->srcport, pinfo->destport, NULL);
+					pinfo->srcport, pinfo->destport, NULL,
+					0);
 
       }
 

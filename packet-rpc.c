@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.41 2000/08/24 23:09:37 guy Exp $
+ * $Id: packet-rpc.c,v 1.42 2000/10/21 05:52:21 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1133,7 +1133,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		   no guarantee that the reply will come from the address
 		   to which the call was sent.) */
 		conversation = find_conversation(&null_address, &pi.dst,
-		    pi.ptype, pi.srcport, pi.destport);
+		    pi.ptype, pi.srcport, pi.destport, 0);
 		if (conversation == NULL) {
 			/* We haven't seen an RPC call for that conversation,
 			   so we can't check for a reply to that call. */
@@ -1273,11 +1273,11 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		   guarantee that the reply will come from the address
 		   to which the call was sent.) */
 		conversation = find_conversation(&pi.src, &null_address,
-		    pi.ptype, pi.srcport, pi.destport);
+		    pi.ptype, pi.srcport, pi.destport, 0);
 		if (conversation == NULL) {
 			/* It's not part of any conversation - create a new one. */
 			conversation = conversation_new(&pi.src, &null_address,
-			    pi.ptype, pi.srcport, pi.destport, NULL);
+			    pi.ptype, pi.srcport, pi.destport, NULL, 0);
 		}
 
 		/* prepare the key data */

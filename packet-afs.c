@@ -6,7 +6,7 @@
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  *
- * $Id: packet-afs.c,v 1.13 2000/08/13 14:07:56 deniel Exp $
+ * $Id: packet-afs.c,v 1.14 2000/10/21 05:52:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -758,11 +758,11 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	 * packets from B:Y to A:X.
 	 */
 	conversation = find_conversation(&pi.src, &pi.dst, pi.ptype,
-	    pi.srcport, pi.destport);
+	    pi.srcport, pi.destport, 0);
 	if (conversation == NULL) {
 		/* It's not part of any conversation - create a new one. */
 		conversation = conversation_new(&pi.src, &pi.dst, pi.ptype,
-		    pi.srcport, pi.destport, NULL);
+		    pi.srcport, pi.destport, NULL, 0);
 	}
 
 	request_key.conversation = conversation->index;	

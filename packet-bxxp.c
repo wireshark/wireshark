@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.8 2000/10/09 03:36:15 sharpe Exp $
+ * $Id: packet-bxxp.c,v 1.9 2000/10/21 05:52:21 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -1017,10 +1017,11 @@ dissect_bxxp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (!frame_data) {
 
     conversation = find_conversation(&pinfo->src, &pinfo->dst, pi.ptype,
-				       pinfo->srcport, pinfo->destport);
+				       pinfo->srcport, pinfo->destport, 0);
     if (conversation == NULL) { /* No conversation, create one */
 	conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
-					pinfo->srcport, pinfo->destport, NULL);
+					pinfo->srcport, pinfo->destport, NULL,
+					0);
 
       }
 

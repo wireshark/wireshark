@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.12 2000/09/11 16:16:07 gram Exp $
+ * $Id: packet-socks.c,v 1.13 2000/10/21 05:52:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -368,7 +368,7 @@ static void socks_udp_dissector( const u_char *pd, int offset, frame_data *fd,
 	proto_item      *ti;
 	
 	conversation = find_conversation( &pi.src, &pi.dst, pi.ptype,
-		pi.srcport, pi.destport);
+		pi.srcport, pi.destport, 0);
 
 	g_assert( conversation);	/* should always find a conversation */
 
@@ -430,7 +430,7 @@ static void socks_udp_dissector( const u_char *pd, int offset, frame_data *fd,
 void new_udp_conversation( socks_hash_entry_t *hash_info){
 
 	conversation_t *conversation = conversation_new( &pi.src, &pi.dst,  PT_UDP,
-			hash_info->udp_port, hash_info->port, hash_info);
+			hash_info->udp_port, hash_info->port, hash_info, 0);
 			
 	g_assert( conversation);
 	
@@ -957,7 +957,7 @@ dissect_socks(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	OLD_CHECK_DISPLAY_AS_DATA(proto_socks, pd, offset, fd, tree);
 
 	conversation = find_conversation( &pi.src, &pi.dst, pi.ptype,
-		pi.srcport, pi.destport);
+		pi.srcport, pi.destport, 0);
 
 	if ( conversation)			/* conversation found */
 		hash_info = conversation->data;
@@ -975,7 +975,7 @@ dissect_socks(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     			hash_info->state = Done;
 
 		conversation_new( &pi.src, &pi.dst, pi.ptype,
-			pi.srcport, pi.destport, hash_info);
+			pi.srcport, pi.destport, hash_info, 0);
 	}
 
 /* display summary window information  */

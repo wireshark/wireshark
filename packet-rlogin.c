@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.9 2000/08/13 14:08:37 deniel Exp $
+ * $Id: packet-rlogin.c,v 1.10 2000/10/21 05:52:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -369,7 +369,7 @@ dissect_rlogin(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 						/* Lookup this connection*/
 	conversation = find_conversation( &pi.src, &pi.dst, pi.ptype,
-		pi.srcport, pi.destport);
+		pi.srcport, pi.destport, 0);
 
 	if ( conversation)			/* conversation found */
 		hash_info = conversation->data;
@@ -382,7 +382,7 @@ dissect_rlogin(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		hash_info->name[ 0] = 0;
 
 		conversation_new( &pi.src, &pi.dst, pi.ptype,
-			pi.srcport, pi.destport, hash_info);
+			pi.srcport, pi.destport, hash_info, 0);
 	}
 	
 	if (check_col(fd, COL_PROTOCOL))		/* update protocol  */

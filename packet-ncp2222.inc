@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ncp2222.inc,v 1.1 2000/09/22 16:37:50 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.2 2000/10/21 05:52:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -135,11 +135,11 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		   as being part of a single conversation so that we can
 		   let the user select that conversation to be displayed.) */
 		conversation = find_conversation(&pi.src, &pi.dst,
-		    PT_NCP, nw_connection, nw_connection);
+		    PT_NCP, nw_connection, nw_connection, 0);
 		if (conversation == NULL) {
 			/* It's not part of any conversation - create a new one. */
 			conversation = conversation_new(&pi.src, &pi.dst,
-			    PT_NCP, nw_connection, nw_connection, NULL);
+			    PT_NCP, nw_connection, nw_connection, NULL, 0);
 		}
 		ncp_hash_insert(conversation, sequence, 0x2222, ncp_rec);
 	}
@@ -191,7 +191,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* Find the conversation whence the request would have come. */
 	conversation = find_conversation(&pi.src, &pi.dst,
-		    PT_NCP, nw_connection, nw_connection);
+		    PT_NCP, nw_connection, nw_connection, 0);
 	if (conversation != NULL) {
 		/* find the record telling us the request made that caused
 		   this reply */
