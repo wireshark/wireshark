@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.55 1999/12/14 23:16:59 sharpe Exp $
+ * $Id: packet-smb.c,v 1.56 1999/12/18 13:39:03 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -104,6 +104,7 @@ struct smb_request_val {
   guint16 last_lanman_cmd;
   gchar *last_param_descrip;   /* Keep these descriptors around */
   gchar *last_data_descrip;
+  guint16 trans_response_seen;
   guint16 last_level;          /* Last level in request */
 };
 
@@ -8245,7 +8246,7 @@ char *decode_trans2_name(int code)
 
 }
 
-guint32 dissect_mailslot_smb(const u_char *, int, frame_data *, proto_tree *, proto_tree *, struct smb_info, int, int, int, int, const u_char *, int, int);
+guint32 dissect_mailslot_smb(const u_char *, int, frame_data *, proto_tree *, proto_tree *, struct smb_info, int, int, int, int, const u_char *, int, int, int, int);
 
 guint32 dissect_pipe_smb(const u_char *, int, frame_data *, proto_tree *, proto_tree *, struct smb_info, int, int, int, int, const u_char *, int, int, int, int);
 
@@ -9246,7 +9247,7 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree
 
   if ((trans_cmd == NULL) ||
       (((strcmp(trans_type, "MAILSLOT") != 0) ||
-       !dissect_mailslot_smb(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, trans_cmd, SMB_offset + DataOffset, DataCount)) &&
+       !dissect_mailslot_smb(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, trans_cmd, SMB_offset + DataOffset, DataCount, SMB_offset + ParameterOffset, ParameterCount)) &&
       ((strcmp(trans_type, "PIPE") != 0) ||
        !dissect_pipe_smb(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, trans_cmd, DataOffset, DataCount, ParameterOffset, ParameterCount)))) {
     
@@ -10046,7 +10047,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
     switch (FunctionCode) {
 
-    case NETSHAREENUM + 10000:   /* Never decode this at the moment ... */
+    case NETSHAREENUM:   /* Never decode this at the moment ... */
 
       if (check_col(fd, COL_INFO)) {
 
@@ -10066,6 +10067,8 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
       loc_offset += 2;
 
       ParameterDescriptor = pd + loc_offset;
+
+      si.request_val -> trans_response_seen = 0; 
 
       if (si.request_val -> last_param_descrip) g_free(si.request_val -> last_param_descrip);
       si.request_val -> last_param_descrip = g_malloc(strlen(ParameterDescriptor) + 1);
@@ -10117,7 +10120,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
       
       break;
 
-    case NETSERVERENUM2 + 10000:  /* Process a NetServerEnum2 */
+    case NETSERVERENUM2:  /* Process a NetServerEnum2 */
 
       if (check_col(fd, COL_INFO)) {
 
@@ -10139,6 +10142,8 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
       ParameterDescriptor = pd + loc_offset;
 
       /* Now, save these for later */
+
+      si.request_val -> trans_response_seen = 0; 
 
       if (si.request_val -> last_param_descrip) g_free(si.request_val -> last_param_descrip);
       si.request_val -> last_param_descrip = g_malloc(strlen(ParameterDescriptor) + 1);
@@ -10237,6 +10242,8 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
       ParameterDescriptor = pd + loc_offset;
 
+      si.request_val -> trans_response_seen = 0; 
+
       if (si.request_val -> last_param_descrip) g_free(si.request_val -> last_param_descrip);
       si.request_val -> last_param_descrip = g_malloc(strlen(ParameterDescriptor) + 1);
       if (si.request_val -> last_param_descrip)
@@ -10293,6 +10300,36 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
     FunctionCode = si.request_val -> last_lanman_cmd;
 
+    /*
+     * If we have already seen the response to this transact, simply
+     * record it as a continuation ...
+     */
+
+    printf("TransResponseSeen = %u\n", si.request_val -> trans_response_seen);
+
+    if (si.request_val -> trans_response_seen == 1) {
+
+      if (check_col(fd, COL_INFO)) {
+	  col_add_fstr(fd, COL_INFO, "Transact Continuation");
+      }
+      
+      if (tree) {
+
+	ti = proto_tree_add_item(parent, proto_lanman, SMB_offset + DataOffset, END_OF_FRAME, NULL);
+
+	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
+
+	proto_tree_add_text(lanman_tree, loc_offset, END_OF_FRAME, "Payload: %s", format_text(pd + SMB_offset + DataOffset, END_OF_FRAME));
+
+      }
+
+      return 1;
+
+
+    } 
+
+    si.request_val -> trans_response_seen = 1; 
+
     switch (FunctionCode) {
 
     case NETSHAREENUM:
@@ -10311,6 +10348,8 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 	proto_tree_add_text(lanman_tree, loc_offset, 0, "Function Code: NetShareEnum");
 
       }
+
+      si.request_val -> trans_response_seen = 1; 
 
       loc_offset = SMB_offset + ParameterOffset;
 
@@ -10472,7 +10511,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
       if (tree) {
 
-	ti = proto_tree_add_text(lanman_tree, loc_offset, 26 * EntCount, "Servers");
+	ti = proto_tree_add_text(lanman_tree, loc_offset, 26 * AvailCount, "Servers");
 	if (ti == NULL) { 
 
 	  printf("Null value returned from proto_tree_add_text\n");
@@ -10484,7 +10523,9 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
       }
 
-      for (i = 1; i <= EntCount; i++) {
+      /* Make sure we don't go past the end of the capture buffer */
+
+      for (i = 1; (i <= EntCount) && ((pi.captured_len - loc_offset) > 16); i++) {
 	const gchar *Server = pd + loc_offset;
 	gint8       ServerMajor;
 	guint       ServerMinor;
@@ -10557,72 +10598,70 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
 	}
 
-	break;
+      }
 
-      default:
+      break;
 
-	lanman = find_lanman(si.request_val -> last_lanman_cmd);
+    default:
 
-	if (check_col(fd, COL_INFO)) {
+      lanman = find_lanman(si.request_val -> last_lanman_cmd);
 
-	  if (lanman) {
-	    col_add_fstr(fd, COL_INFO, "%s Response", lanman -> lanman_name);
-	  }
-	  else {
-	    col_add_fstr(fd, COL_INFO, "Unknown LANMAN Response: %u", FunctionCode);
-	  }
+      if (check_col(fd, COL_INFO)) {
+
+	if (lanman) {
+	  col_add_fstr(fd, COL_INFO, "%s Response", lanman -> lanman_name);
 	}
-
-	if (tree) {
-
-	  ti = proto_tree_add_item(parent, proto_lanman, SMB_offset + ParameterOffset, END_OF_FRAME, NULL);
-	  lanman_tree = proto_item_add_subtree(ti, ett_lanman);
-	  if (lanman) {
-	    proto_tree_add_text(lanman_tree, 0, 0, "%s Response", lanman -> lanman_name);
-	  }
-	  else {
-	    proto_tree_add_text(lanman_tree, loc_offset, 0, "Function Code: Unknown LANMAN Response: %u", FunctionCode);
-	  }
+	else {
+	  col_add_fstr(fd, COL_INFO, "Unknown LANMAN Response: %u", FunctionCode);
 	}
+      }
 
-	loc_offset = SMB_offset + ParameterOffset;
+      if (tree) {
 
-	Status = GSHORT(pd, loc_offset);
-
-	if (tree) {
-
-	  proto_tree_add_text(lanman_tree, loc_offset, 2, "Status: %u", Status);
-
+	ti = proto_tree_add_item(parent, proto_lanman, SMB_offset + ParameterOffset, END_OF_FRAME, NULL);
+	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
+	if (lanman) {
+	  proto_tree_add_text(lanman_tree, 0, 0, "%s Response", lanman -> lanman_name);
 	}
+	else {
+	  proto_tree_add_text(lanman_tree, loc_offset, 0, "Function Code: Unknown LANMAN Response: %u", FunctionCode);
+	}
+      }
 
-	loc_offset += 2;
+      loc_offset = SMB_offset + ParameterOffset;
 
-	Convert = GSHORT(pd, loc_offset);
+      Status = GSHORT(pd, loc_offset);
 
-	if (tree) {
+      if (tree) {
+
+	proto_tree_add_text(lanman_tree, loc_offset, 2, "Status: %u", Status);
+
+      }
+
+      loc_offset += 2;
+
+      Convert = GSHORT(pd, loc_offset);
+
+      if (tree) {
 
 	proto_tree_add_text(lanman_tree, loc_offset, 2, "Convert: %u", Convert);
 
-	}
+      }
 
-	loc_offset += 2;
+      loc_offset += 2;
 
-	if (tree) {
+      if (tree) {
 
-	  int i = 0;
-	  char *name = NULL;
+	int i = 0;
+	char *name = NULL;
 
-	  dissect_transact_engine_init(pd, si.request_val -> last_param_descrip, si.request_val -> last_data_descrip, SMB_offset, loc_offset, ParameterCount, DataOffset, DataCount);
+	dissect_transact_engine_init(pd, si.request_val -> last_param_descrip, si.request_val -> last_data_descrip, SMB_offset, loc_offset, ParameterCount, DataOffset, DataCount);
 
-	  if (lanman) name = lanman -> resp[i];
+	if (lanman) name = lanman -> resp[i];
 	  
-	  while (dissect_transact_next(pd, name, dirn, lanman_tree))
-	    if (name) name = lanman -> resp[++i];
+	while (dissect_transact_next(pd, name, dirn, lanman_tree))
+	  if (name) name = lanman -> resp[++i];
 	  
-	}
-
-	break;
-
       }
 
       return 1;
@@ -11164,12 +11203,17 @@ dissect_mailslot_net(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 }
 
 guint32
-dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, const u_char *command, int DataOffset, int DataCount)
+dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, const u_char *command, int DataOffset, int DataCount, int ParameterOffset, int ParameterCount)
 {
 
   if (strcmp(command, "BROWSE") == 0) { /* Decode a browse */
 
     return dissect_mailslot_browse(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, command, DataOffset, DataCount);
+
+  }
+  else if (strcmp(command, "LANMAN") == 0) {
+
+    return dissect_pipe_lanman(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, command, DataOffset, DataCount, ParameterOffset, ParameterCount);
 
   }
 
