@@ -1,3 +1,6 @@
+/* TODO:
+    dissect_ndr_nt_SID_with_options    see comment.
+*/
 /* packet-dcerpc-nt.c
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
@@ -1144,7 +1147,7 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	char *sid_str;
+	char *sid_str=NULL;
 	char *name;
 
 	if(di->hf_index!=-1){
@@ -1171,6 +1174,56 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 */
 	if(dcv){
 		dcv->private_data = sid_str;
+	}
+
+	return offset;
+}
+
+/* same as dissect_ndr_nt_SID() but takes the same options as counted strings
+   do to prettify the dissect pane and the COL_INFO summary line
+*/
+int
+dissect_ndr_nt_SID_with_options(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, guint32 options)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	gint levels = CB_STR_ITEM_LEVELS(options);
+	offset=dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
+
+	if(dcv && dcv->private_data){
+		char *s=dcv->private_data;
+		proto_item *item=(proto_item *)tree;
+
+		if ((options & CB_STR_COL_INFO)&&(!di->conformant_run)) {
+			/* kludge, ugly,   but this is called twice for all 
+			   dcerpc interfaces due to how we chase pointers 
+			   and putting the sid twice on the summary line
+			   looks even worse.
+			   Real solution would be to block updates to col_info
+			   while we just do a conformance run,   this might
+			   have sideeffects so it needs some more thoughts first.
+			*/
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
+		}
+
+		/* Append string to upper-level proto_items */
+
+		if (levels > 0 && item && s && s[0]) {
+			proto_item_append_text(item, ": %s", s);
+			item = item->parent;
+			levels--;
+			if (levels > 0) {
+				proto_item_append_text(item, ": %s", s);
+				item = item->parent;
+				levels--;
+				while (levels > 0) {
+					proto_item_append_text(item, " %s", s);
+					item = item->parent;
+					levels--;
+				}
+			}
+		}
 	}
 
 	return offset;
