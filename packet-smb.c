@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.326 2003/04/14 17:31:42 guy Exp $
+ * $Id: packet-smb.c,v 1.327 2003/04/14 17:38:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3370,6 +3370,31 @@ dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return offset;
 }
 
+/*
+ * transporting DCERPC over SMB seems to be implemented in various
+ * ways. We might just assume it can be done by an almost random
+ * mix of Trans/Read/Write calls
+ *
+ * if we suspect dcerpc, just send them all down to packet-smb-pipe.c
+ * and let him sort them out
+ */
+static int
+dissect_file_data_maybe_dcerpc(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree, proto_tree *top_tree, int offset, guint16 bc,
+    guint16 datalen, guint32 ofs, guint16 fid)
+{
+	smb_info_t *si = (smb_info_t *)pinfo->private_data;
+
+	if( (si->sip && si->sip->flags&SMB_SIF_TID_IS_IPC) && (ofs==0) ){
+		/* dcerpc call */
+		return dissect_file_data_dcerpc(tvb, pinfo, tree,
+		    top_tree, offset, bc, datalen, fid);
+	} else {
+		/* ordinary file data */
+		return dissect_file_data(tvb, tree, offset, bc, datalen);
+	}
+}
+
 static int
 dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, proto_tree *smb_tree _U_)
 {
@@ -3408,25 +3433,10 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, TRUE);
 	COUNT_BYTES(2);
 
-	/* file data */
-	/* transporting DCERPC over SMB seems to be implemented in various
-	   ways. We might just assume it can be done by an almost random
-	   mix of Trans/Read/Write calls
-
-	   if we suspect dcerpc, just send them all down to packet-smb-pipe.c
-	   and let him sort them out
-	*/
+	/* file data, might be DCERPC on a pipe */
 	if(bc){
-		if(si->sip != NULL && si->sip->flags&SMB_SIF_TID_IS_IPC){
-			/* dcerpc call */
-			offset = dissect_file_data_dcerpc(tvb, pinfo, tree,
-			    top_tree, offset, bc, bc, fid);
-		} else {
-			/* ordinary file data, or we didn't see the request,
-			   so we don't know whether this is a DCERPC call
-			   or not */
-			offset = dissect_file_data(tvb, tree, offset, bc, bc);
-		}
+		offset = dissect_file_data_maybe_dcerpc(tvb, pinfo, tree,
+		    top_tree, offset, bc, bc, 0, fid);
 		bc = 0;
 	}
 
@@ -3476,7 +3486,6 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	guint32 ofs=0;
 	guint16 cnt=0, bc, fid=0;
 	guint8 wc;
-	smb_info_t *si = (smb_info_t *)pinfo->private_data;
 
 	WORD_COUNT;
 
@@ -3516,23 +3525,10 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, TRUE);
 	COUNT_BYTES(2);
 
-	/* file data */
-	/* transporting DCERPC over SMB seems to be implemented in various
-	   ways. We might just assume it can be done by an almost random
-	   mix of Trans/Read/Write calls
-
-	   if we suspect dcerpc, just send them all down to packet-smb-pipe.c
-	   and let him sort them out
-	*/
+	/* file data, might be DCERPC on a pipe */
 	if (bc != 0) {
-		if( (si->sip && si->sip->flags&SMB_SIF_TID_IS_IPC) && (ofs==0) ){
-			/* dcerpc call */
-			offset = dissect_file_data_dcerpc(tvb, pinfo, tree,
-			    top_tree, offset, bc, bc, fid);
-		} else {
-			/* ordinary file data */
-			offset = dissect_file_data(tvb, tree, offset, bc, bc);
-		}
+		offset = dissect_file_data_maybe_dcerpc(tvb, pinfo, tree,
+		    top_tree, offset, bc, bc, ofs, fid);
 		bc = 0;
 	}
 
@@ -5321,25 +5317,10 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	BYTE_COUNT;
 
-	/* file data */
-	/* transporting DCERPC over SMB seems to be implemented in various
-	   ways. We might just assume it can be done by an almost random
-	   mix of Trans/Read/Write calls
-
-	   if we suspect dcerpc, just send them all down to packet-smb-pipe.c
-	   and let him sort them out
-	*/
+	/* file data, might be DCERPC on a pipe */
 	if(bc){
-		if(si->sip != NULL && si->sip->flags&SMB_SIF_TID_IS_IPC){
-			/* dcerpc call */
-			offset = dissect_file_data_dcerpc(tvb, pinfo, tree,
-			    top_tree, offset, bc, datalen, fid);
-		} else {
-			/* ordinary file data, or we didn't see the request,
-			   so we don't know whether this is a DCERPC call
-			   or not */
-			offset = dissect_file_data(tvb, tree, offset, bc, datalen);
-		}
+		offset = dissect_file_data_maybe_dcerpc(tvb, pinfo, tree,
+		    top_tree, offset, bc, datalen, 0, fid);
 		bc = 0;
 	}
 
@@ -5452,24 +5433,10 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 		}
 	}
 
-	/* file data */
-	/* transporting DCERPC over SMB seems to be implemented in various
-	   ways. We might just assume it can be done by an almost random
-	   mix of Trans/Read/Write calls
-
-	   if we suspect dcerpc, just send them all down to packet-smb-pipe.c
-	   and let him sort them out
-	*/
+	/* file data, might be DCERPC on a pipe */
 	if (bc != 0) {
-		if( si->sip && (si->sip->flags&SMB_SIF_TID_IS_IPC) ){
-			/* dcerpc call */
-			offset = dissect_file_data_dcerpc(tvb, pinfo, tree,
-			    top_tree, offset, bc, datalen, fid);
-		} else {
-			/* ordinary file data */
-			offset = dissect_file_data(tvb, tree, offset,
-			    bc, datalen);
-		}
+		offset = dissect_file_data_maybe_dcerpc(tvb, pinfo, tree,
+		    top_tree, offset, bc, datalen, 0, fid);
 		bc = 0;
 	}
 
