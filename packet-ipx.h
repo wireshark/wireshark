@@ -6,7 +6,7 @@
  * Portions Copyright (c) by Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.h,v 1.27 2003/04/09 22:33:19 guy Exp $
+ * $Id: packet-ipx.h,v 1.28 2003/08/24 05:17:51 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -159,5 +159,20 @@ typedef struct {
 	gboolean eom;			/* end-of-message flag in SPX header */
 	guint8	datastream_type;	/* datastream type from SPX header */
 } spx_info;
+
+
+
+/* handed off to tap listeners,  expand it as is required by what any
+   tap listeners needs */
+typedef struct _ipxhdr_t
+{
+	guint16 ipx_ssocket;
+	guint16 ipx_dsocket;
+	guint16 ipx_length;
+	guint8  ipx_type;
+	address ipx_src;
+	address ipx_dst;
+} ipxhdr_t;
+
 
 #endif

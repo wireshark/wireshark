@@ -6,7 +6,7 @@
  * Portions Copyright (c) 2000-2002 by Gilbert Ramirez.
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.c,v 1.133 2003/08/05 05:45:04 guy Exp $
+ * $Id: packet-ipx.c,v 1.134 2003/08/24 05:17:50 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,9 @@
 #include "aftypes.h"
 #include "arcnet_pids.h"
 #include <epan/conversation.h>
+#include "tap.h"
+
+static int ipx_tap = -1;
 
 #define SPX_PACKET_INIT_COUNT	200
 
@@ -226,18 +229,26 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	tvbuff_t	*next_tvb;
 
-	proto_tree	*ipx_tree;
-	proto_item	*ti;
+	proto_tree	*ipx_tree = NULL;
+	proto_item	*ti = NULL;
 
 	const guint8	*src_net_node, *dst_net_node;
 
-	guint8		ipx_type, ipx_hops;
-	guint16		ipx_length;
+	guint8		ipx_hops;
 
-	guint16		ipx_dsocket, ipx_ssocket;
 	guint16		first_socket, second_socket;
 	guint32		ipx_snet, ipx_dnet;
 	const guint8	*ipx_snode, *ipx_dnode;
+	static ipxhdr_t ipxh_arr[4];
+	static int ipx_current=0;
+	ipxhdr_t *ipxh;
+
+	ipx_current++;
+	if(ipx_current==4){
+		ipx_current=0;
+	}
+	ipxh=&ipxh_arr[ipx_current];
+
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX");
@@ -245,29 +256,31 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Calculate here for use in pinfo and in tree */
-	ipx_dsocket	= tvb_get_ntohs(tvb, 16);
-	ipx_ssocket	= tvb_get_ntohs(tvb, 28);
-	ipx_type	= tvb_get_guint8(tvb, 5);
-	ipx_length	= tvb_get_ntohs(tvb, 2);
+	ipxh->ipx_dsocket = tvb_get_ntohs(tvb, 16);
+	ipxh->ipx_ssocket = tvb_get_ntohs(tvb, 28);
+	ipxh->ipx_type    = tvb_get_guint8(tvb, 5);
+	ipxh->ipx_length  = tvb_get_ntohs(tvb, 2);
 
 	pinfo->ptype = PT_IPX;
-	pinfo->srcport = ipx_ssocket;
-	pinfo->destport = ipx_dsocket;
+	pinfo->srcport = ipxh->ipx_ssocket;
+	pinfo->destport = ipxh->ipx_dsocket;
 
 	/* Adjust the tvbuff length to include only the IPX datagram. */
-	set_actual_length(tvb, ipx_length);
+	set_actual_length(tvb, ipxh->ipx_length);
 
 	src_net_node = tvb_get_ptr(tvb, 18, 10);
 	dst_net_node = tvb_get_ptr(tvb, 6,  10);
 
 	SET_ADDRESS(&pinfo->net_src,	AT_IPX, 10, src_net_node);
 	SET_ADDRESS(&pinfo->src,	AT_IPX, 10, src_net_node);
+	SET_ADDRESS(&ipxh->ipx_src,	AT_IPX, 10, src_net_node);
 	SET_ADDRESS(&pinfo->net_dst,	AT_IPX, 10, dst_net_node);
 	SET_ADDRESS(&pinfo->dst,	AT_IPX, 10, dst_net_node);
+	SET_ADDRESS(&ipxh->ipx_dst,	AT_IPX, 10, src_net_node);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%04x)",
-				socket_text(ipx_dsocket), ipx_dsocket);
+				socket_text(ipxh->ipx_dsocket), ipxh->ipx_dsocket);
 
 	if (tree) {
 
@@ -275,12 +288,12 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ipx_tree = proto_item_add_subtree(ti, ett_ipx);
 
 		proto_tree_add_item(ipx_tree, hf_ipx_checksum, tvb, 0, 2, FALSE);
-		proto_tree_add_uint_format(ipx_tree, hf_ipx_len, tvb, 2, 2, ipx_length,
-			"Length: %d bytes", ipx_length);
+		proto_tree_add_uint_format(ipx_tree, hf_ipx_len, tvb, 2, 2, ipxh->ipx_length,
+			"Length: %d bytes", ipxh->ipx_length);
 		ipx_hops = tvb_get_guint8(tvb, 4);
 		proto_tree_add_uint_format(ipx_tree, hf_ipx_hops, tvb, 4, 1, ipx_hops,
 			"Transport Control: %d hops", ipx_hops);
-		proto_tree_add_uint(ipx_tree, hf_ipx_packet_type, tvb, 5, 1, ipx_type);
+		proto_tree_add_uint(ipx_tree, hf_ipx_packet_type, tvb, 5, 1, ipxh->ipx_type);
 
 		/* Destination */
 		ipx_dnet = tvb_get_ntohl(tvb, 6);
@@ -294,9 +307,9 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_ether_hidden(ipx_tree, hf_ipx_node, tvb, 10, 6,
 			ipx_dnode);
 		proto_tree_add_uint(ipx_tree, hf_ipx_dsocket, tvb, 16, 2,
-			ipx_dsocket);
+			ipxh->ipx_dsocket);
 		proto_tree_add_uint_hidden(ipx_tree, hf_ipx_socket, tvb, 16, 2,
-			ipx_dsocket);
+			ipxh->ipx_dsocket);
 
 		/* Source */
 		ipx_snet = tvb_get_ntohl(tvb, 18);
@@ -310,9 +323,9 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_ether_hidden(ipx_tree, hf_ipx_node, tvb, 22, 6,
 			ipx_snode);
 		proto_tree_add_uint(ipx_tree, hf_ipx_ssocket, tvb, 28, 2,
-			ipx_ssocket);
+			ipxh->ipx_ssocket);
 		proto_tree_add_uint_hidden(ipx_tree, hf_ipx_socket, tvb, 28, 2,
-			ipx_ssocket);
+			ipxh->ipx_ssocket);
 	}
 
 	/* Make the next tvbuff */
@@ -321,7 +334,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * Let the subdissector know what type of IPX packet this is.
 	 */
-	pinfo->ipxptype = ipx_type;
+	pinfo->ipxptype = ipxh->ipx_type;
 
 	/*
 	 * Check the socket numbers before we check the packet type;
@@ -350,13 +363,16 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * IPX_SOCKET_NWLINK_SMB_NAMEQUERY, we assume that it's a
 	 * NMPI query, and test only that socket.
 	 */
-	if (ipx_ssocket > ipx_dsocket) {
-		first_socket = ipx_dsocket;
-		second_socket = ipx_ssocket;
+	if (ipxh->ipx_ssocket > ipxh->ipx_dsocket) {
+		first_socket = ipxh->ipx_dsocket;
+		second_socket = ipxh->ipx_ssocket;
 	} else {
-		first_socket = ipx_ssocket;
-		second_socket = ipx_dsocket;
+		first_socket = ipxh->ipx_ssocket;
+		second_socket = ipxh->ipx_dsocket;
 	}
+
+	tap_queue_packet(ipx_tap, pinfo, ipxh);
+
 	if (second_socket != IPX_SOCKET_NWLINK_SMB_NAMEQUERY) {
 		if (dissector_try_port(ipx_socket_dissector_table, first_socket,
 		    next_tvb, pinfo, tree))
@@ -370,7 +386,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * Neither of them are known; try the packet type, which will
 	 * at least let us, for example, dissect SPX packets as SPX.
 	 */
-	if (dissector_try_port(ipx_type_dissector_table, ipx_type, next_tvb,
+	if (dissector_try_port(ipx_type_dissector_table, ipxh->ipx_type, next_tvb,
 	    pinfo, tree))
 		return;
 
@@ -1457,6 +1473,7 @@ proto_register_ipx(void)
 	
 	register_init_routine(&spx_init_protocol);
 	register_postseq_cleanup_routine(&spx_postseq_cleanup);
+        ipx_tap=register_tap("ipx");
 }
 
 void
