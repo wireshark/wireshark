@@ -2731,7 +2731,8 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch (op) {
 
 		case BOOTREQUEST:
-			if ((htype == ARPHRD_ETHER || htype == ARPHRD_IEEE802) && hlen == 6)
+			if ((htype == ARPHRD_ETHER || htype == ARPHRD_IEEE802)
+			    && hlen == 6)
 				col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s (%s)",
 				    arphrdaddr_to_str(tvb_get_ptr(tvb, 28, hlen),
 				        hlen, htype),
@@ -2795,12 +2796,13 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (hlen > 0 && hlen <= 16) {
 			haddr = tvb_get_ptr(tvb, 28, hlen);
-			if((htype == 1 || htype == 6) && hlen == 6)
+			if ((htype == ARPHRD_ETHER || htype == ARPHRD_IEEE802)
+			    && hlen == 6)
 				proto_tree_add_ether(bp_tree, hf_bootp_hw_ether_addr, tvb, 28, 6, haddr);
 			else
-			proto_tree_add_bytes_format(bp_tree, hf_bootp_hw_addr, tvb,
-				/* The chaddr element is 16 bytes in length, although
-				   only the first hlen bytes are used */
+				/* The chaddr element is 16 bytes in length,
+				   although only the first hlen bytes are used */
+				proto_tree_add_bytes_format(bp_tree, hf_bootp_hw_addr, tvb,
 						   28, 16,
 						   haddr,
 						   "Client hardware address: %s",
