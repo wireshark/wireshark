@@ -1894,6 +1894,7 @@ Jean-Michel Fayard <jean-michel.fayard [AT] moufrei.de> {
 Josef Korelus <jkor [AT] quick.cz> {
 	GPRS Network Service-over-Frame-Relay support
 	GPRS BSSGP support
+	GPRS LLC support
 }
 
 Brian K. Teravskis <Brian_Teravskis [AT] Cargill.com> {

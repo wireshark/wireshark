@@ -2,7 +2,7 @@
  * Routines for BSSGP (BSS GPRS Protocol ETSI GSM 08.18 version 6.7.1 TS 101 343 ) dissection
  * Copyright 2000, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-bssgp.c,v 1.8 2003/12/28 12:43:38 ulfl Exp $
+ * $Id: packet-bssgp.c,v 1.9 2004/04/13 04:21:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -316,9 +316,10 @@ static int hf_bssgp_frdsc = -1;
 static int hf_bssgp_noaff = -1;
 /*static int hf_bssgp_FIELDABBREV = -1;*/
 
-static dissector_handle_t data_handle;
-/*static dissector_handle_t llcgprs_handle;
+/*static dissector_handle_t data_handle;
 */
+static dissector_handle_t llcgprs_handle;
+
 /* Initialize the subtree pointers */
 static gint ett_bssgp = -1;
 static gint ett_bssgp_tlli = -1;
@@ -1090,7 +1091,7 @@ static int dcd_bssgp_llc_pdu(tvbuff_t *tvb, int offset, dec_fu_param_stru_t *dpr
  	
 	if (dprm_p->tree){
 		code = tvb_get_guint8(tvb,offset);
-		ti = proto_tree_add_text(dprm_p->tree,tvb,offset,llen ,"LLC PDU %u bytes", llen);
+		ti = proto_tree_add_text(dprm_p->tree,tvb,offset,llen+2 ,"LLC PDU %u bytes", llen);
 		b_llc_tree = proto_item_add_subtree(ti, ett_b_llc_tree);
 		proto_tree_add_uint_format(b_llc_tree,hf_bssgp_ietype,tvb,offset,1,code,"IE type: %s %#.2x",match_strval(code,bssgp_iei),code);
 		proto_tree_add_text(b_llc_tree,tvb,offset+1,k-1,"Length:%u",llen);
@@ -1524,9 +1525,9 @@ tvbuff_t *next_tvb;
 				      offset=offset+( *bssgp_pdu[i].infe[j].decode)(tvb, offset, decodeparam );     
 				      if (iele == 0x0e ){
 					      next_tvb = tvb_new_subset(tvb, decodeparam->k, -1, -1);
-/*					      call_dissector(llcgprs_handle, next_tvb, pinfo, tree);
-*/
-					      call_dissector(data_handle, next_tvb, pinfo, tree);
+					      call_dissector(llcgprs_handle, next_tvb, pinfo, tree);
+/*					      call_dissector(data_handle, next_tvb, pinfo, tree);
+*/					      
 				      }
 				      j++;
 				  }
@@ -1679,9 +1680,7 @@ proto_reg_handoff_bssgp(void)
 */	
 /*        dissector_add("fr.ietf", 0x0, bssgp_handle);
 */	  
-        data_handle = find_dissector("data");
-
-/*
+/*        data_handle = find_dissector("data");
+*/
     	  llcgprs_handle = find_dissector ("llcgprs");
-*/	  
 }
