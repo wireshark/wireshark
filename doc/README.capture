@@ -1,4 +1,4 @@
-$Id: README.capture,v 1.2 2004/01/18 03:48:19 guy Exp $
+$Id: README.capture,v 1.3 2004/02/02 23:55:41 ulfl Exp $
 
 This document is an attempt, to bring some light to the things done, when 
 packet capturing is performed. There might be things missing, and others 
@@ -20,7 +20,7 @@ capture-wpcap.h
 
 Capture related source files:
 -----------------------------
-capture.c (XXX: parts of this should be seperated and moved to the gtk dir)
+capture.c
 capture.h
 capture-stop-conditions.c
 capture-stop-conditions.h
@@ -49,7 +49,7 @@ There are some kind of targets to put the capture data into:
 
 Which kind of file is used depends on the user settings. In principle there 
 is no difference in handling these files, so if not otherwise notified, 
-I will call it the capture file.
+it will be called the capture file.
 
 The capture file is stored, using the wiretap library.
 
@@ -98,8 +98,8 @@ to the old instance. It will not open a main screen to show packets.
 When the capture is finished (using the close button in the dialog), 
 the new instance closes it's side of the pipe and exits completely.
 
-In the old instance, the cap_file_input_cb() function is called cyclically 
-(unix:pipe, win32:timer,1000ms) to read data from the pipe and show it 
+In the old instance, the cap_pipe_input_cb() function is called "cyclically" 
+(unix:waiting for pipe, win32:timer,1000ms) to read data from the pipe and show it 
 on the main screen. While this capture is in progress, no other capture file 
 can be opened. The closing of the pipe indicates the old instance that 
 the capturing is finished.
