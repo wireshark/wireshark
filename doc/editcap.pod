@@ -109,7 +109,7 @@ L<tcpdump(8)>, L<pcap(3)>, L<ethereal(1)>
 =head1 NOTES
 
 B<Editcap> is part of the B<Ethereal> distribution.  The latest version
-of B<Ethereal> can be found at B<http://ethereal.zing.org>.
+of B<Ethereal> can be found at B<http://www.ethereal.com>.
 
 =head1 AUTHORS
 

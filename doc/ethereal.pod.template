@@ -909,7 +909,7 @@ For example, these four lines are valid lines of an ipxnets file.
 
 =head1 SEE ALSO
 
-L<tcpdump(8)>, L<pcap(3)>
+L<tethereal(1)>, L<editcap(1)>, L<tcpdump(8)>, L<pcap(3)>
 
 =head1 NOTES
 
@@ -920,7 +920,7 @@ B<http://www.ethereal.com>.
 
   Original Author
   -------- ------
-  Gerald Combs  <gerald@zing.org>
+  Gerald Combs  <gerald@ethereal.com>
 
 
   Contributors
