@@ -11,7 +11,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.23 2004/02/20 23:03:16 jmayer Exp $
+ * $Id: packet-skinny.c,v 1.24 2004/02/20 23:09:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1059,7 +1059,6 @@ static int hf_skinny_numberOfInServiceStreams = -1;
 static int hf_skinny_maxStreamsPerConf = -1;
 static int hf_skinny_numberOfOutOfServiceStreams = -1;
 static int hf_skinny_applicationID = -1;
-static int hf_skinny_tansactionID = -1;
 static int hf_skinny_serviceNum = -1;
 static int hf_skinny_serviceURLIndex = -1;
 static int hf_skinny_featureIndex = -1;
@@ -1198,12 +1197,10 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   gchar   *messageid_str;
   /*  guint32 data_size; */
 
-  guint32 unknownLong = 0;
-
   guint i = 0;
   guint t = 0;
   int j = 0;
-  int count;
+  guint count;
   int val;
 
   guint32 capCount;
