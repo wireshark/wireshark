@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-trmac.c,v 1.8 1998/11/17 04:29:06 gerald Exp $
+ * $Id: packet-trmac.c,v 1.9 1999/01/12 17:44:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -258,7 +258,7 @@ void
 dissect_trmac(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
 	GtkWidget	*mac_tree = NULL, *ti;
-	int			mv_length, sv_length, sv_offset;
+	int			mv_length, sv_length, sv_offset, sv_additional;
 	char		*class[] = { "Ring Station", "LLC Manager", "", "",
 		"Configuration Report Server", "Ring Parameter Server",
 		"Ring Error Monitor" };
@@ -301,8 +301,15 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 		offset += 4;
 		sv_length = mv_length - 4;
 		while (sv_offset < sv_length) {
-			sv_offset += sv_text(&pd[offset + sv_offset], offset + sv_offset,
+			sv_additional = sv_text(&pd[offset + sv_offset], offset + sv_offset,
 								mac_tree);
+
+			/* if this is a bad packet, we could get a 0-length added here,
+			 * looping forever */
+			if (sv_additional)
+				sv_offset += sv_additional;
+			else
+				break;
 		}
 	}
 }
