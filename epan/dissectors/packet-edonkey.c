@@ -1280,8 +1280,9 @@ static void dissect_edonkey_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 static void dissect_edonkey_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, edonkey_desegment, 5,
-                     get_edonkey_tcp_pdu_len, dissect_edonkey_tcp_pdu);
+    tcp_dissect_pdus(tvb, pinfo, tree, edonkey_desegment,
+                     EDONKEY_TCP_HEADER_LENGTH, get_edonkey_tcp_pdu_len,
+                     dissect_edonkey_tcp_pdu);
 }
 
 static void dissect_edonkey_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) 
