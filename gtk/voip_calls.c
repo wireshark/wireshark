@@ -512,6 +512,7 @@ remove_tap_listener_sip_calls(void)
 static gchar		isup_called_number[255], isup_calling_number[255];
 static guint16		isup_cic;
 static guint8		isup_message_type;
+static guint8		isup_cause_value;
 
 /****************************************************************************/
 /* whenever a isup_ packet is seen by the tap listener */
@@ -528,6 +529,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		strcpy(isup_called_number, pi->called_number);
 	}
 	isup_message_type = pi->message_type;
+	isup_cause_value = pi->cause_value;
 	isup_cic = pinfo->circuit_id;
 
 	return 0;
@@ -593,6 +595,9 @@ mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	gboolean forward;
 	gboolean right_pair = TRUE;
 	GList* list;
+	gchar *frame_label = NULL;
+	gchar *comment = NULL;
+	int i;
 
 	const mtp3_tap_rec_t *pi = mtp3_info;
 
@@ -671,6 +676,35 @@ mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
 		/* Let's analyze the call state */
 
+
+		for (i=0;(isup_message_type_value[i].strptr!=NULL)&& (isup_message_type_value[i].value!=isup_message_type);i++);
+
+		if (isup_message_type_value[i].value==isup_message_type){
+			frame_label = g_strdup(isup_message_type_value_acro[i].strptr);
+		}
+		else{
+			frame_label = g_strdup_printf("Unknown");
+		}
+
+		if (strinfo->npackets == 1){ /* this is the first packet, that must be an IAM */
+			comment = g_strdup_printf("Call from %s to %s",
+			 isup_calling_number, isup_called_number);
+		}
+		else if (strinfo->npackets == 2){ /* in the second packet we show the SPs */
+			if (forward){
+				comment = g_strdup_printf("%i-%i -> %i-%i. Cic:%i",
+				 pi->addr_opc.ni, pi->addr_opc.pc,
+				 pi->addr_opc.ni, pi->addr_dpc.pc, pinfo->circuit_id);
+
+			}
+			else{
+				comment = g_strdup_printf("%i-%i -> %i-%i. Cic:%i",
+				 pi->addr_opc.ni, pi->addr_dpc.pc,
+				 pi->addr_opc.ni, pi->addr_opc.pc, pinfo->circuit_id);
+
+			}
+		}
+
 		switch(isup_message_type){
 			case 1: /* IAM */
 				strinfo->call_state=VOIP_CALL_SETUP;
@@ -693,11 +727,23 @@ mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 					strinfo->call_state = VOIP_COMPLETED;
 					tapinfo->completed_calls++;
 				}
+				for (i=0;(q931_cause_code_vals[i].strptr!=NULL)&& (q931_cause_code_vals[i].value!=isup_cause_value);i++);
+				if (q931_cause_code_vals[i].value==isup_cause_value){
+					comment = g_strdup_printf("Cause %i - %s",isup_cause_value, q931_cause_code_vals[i].strptr);
+				}
+				else{
+					comment = g_strdup_printf("Cause %i",isup_cause_value);
+				}
 				break;
 		}
 
 		/* increment the packets counter of all calls */
 		++(tapinfo->npackets);
+
+		/* add to the graph */
+		add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num);  
+		g_free(comment);
+		g_free(frame_label);
 	}
 
 
