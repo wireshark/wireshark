@@ -2083,6 +2083,7 @@ B<http://www.ethereal.com>.
   Eric Wedel               <ewedel [AT] bluearc.com>
   Reinhard Speyerer        <rspmn [AT] arcor.de>
   Patrick Kursawe          <phosphan [AT] gentoo.org>
+  Arsen Chaloyan           <achaloyan [AT] yahoo.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
