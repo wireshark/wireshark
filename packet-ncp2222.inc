@@ -11,7 +11,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp2222.inc,v 1.60 2003/09/20 04:25:11 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.61 2003/09/23 18:22:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4590,26 +4590,26 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                                         if (info_type == 1) {   /* Is this bytes? */
                                                 byte_string = bytes_to_str(fvalue_get(finfo->value), fvalue_length(finfo->value));
                                                 sprintf(col_str, ncp_rec->req_info_str->first_string, byte_string);
-                                                strcat(request_value->info_string, col_str);
+                                                strcpy(request_value->info_string, col_str);
                                         }
                                         else
                                         {
                                                 if (info_type == 2) {   /* Is this a String? */
                                                         uni_to_string(fvalue_get(finfo->value), fvalue_length(finfo->value), non_uni_string);
                                                         sprintf(col_str, ncp_rec->req_info_str->first_string, non_uni_string);
-                                                        strcat(request_value->info_string, col_str);
+                                                        strcpy(request_value->info_string, col_str);
                                                 }
                                                 else
                                                 {
                                                         sprintf(col_str, ncp_rec->req_info_str->first_string, fvalue_get(finfo->value));
-                                                        strcat(request_value->info_string, col_str);
+                                                        strcpy(request_value->info_string, col_str);
                                                 }
                                         }
                                 }
                                 else
                                 {
                                          sprintf(col_str, ncp_rec->req_info_str->first_string, fvalue_get_integer(finfo->value));
-                                         strcat(request_value->info_string, col_str);
+                                         strcpy(request_value->info_string, col_str);
                                 }
                         }
 			if (len > 1) {
