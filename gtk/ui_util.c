@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.16 2004/01/22 20:47:37 guy Exp $
+ * $Id: ui_util.c,v 1.17 2004/01/30 06:43:16 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,7 +128,7 @@ pipe_timer_cb(gpointer data)
     /* And call the real handler */
     if (pipe_input->input_cb(pipe_input->source, pipe_input->user_data)) {
         /* restore pipe handler */
-        pipe_input->pipe_input_id = gtk_timeout_add(1000, pipe_timer_cb, data);
+        pipe_input->pipe_input_id = gtk_timeout_add(200, pipe_timer_cb, data);
     }
 
     /* Return false so that this timer is not run again */
@@ -182,7 +182,7 @@ void pipe_input_set_handler(gint source, gpointer user_data, int *child_process,
        this but doesn't seem to work over processes.  Attempt to do
        something similar here, start a timer and check for data on every
        timeout. */
-    pipe_input.pipe_input_id = gtk_timeout_add(1000, pipe_timer_cb, &pipe_input);
+    pipe_input.pipe_input_id = gtk_timeout_add(200, pipe_timer_cb, &pipe_input);
 #else
     pipe_input.pipe_input_id = gtk_input_add_full(source,
 				      GDK_INPUT_READ|GDK_INPUT_EXCEPTION,
