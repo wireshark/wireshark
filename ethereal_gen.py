@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.22 2002/01/23 23:15:32 guy Exp $
+# $Id: ethereal_gen.py,v 1.23 2002/04/19 22:23:37 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -996,7 +996,7 @@ class ethereal_gen_C:
         elif pt ==  idltype.tk_struct:
             self.get_CDR_struct(type,pn)
         elif pt ==  idltype.tk_TypeCode: # will I ever get here ?
-            self.get_CDR_TypeCode(type,pn)
+            self.get_CDR_TypeCode(pn)
         elif pt == idltype.tk_sequence:
             self.get_CDR_sequence(type,pn)
         elif pt == idltype.tk_objref:
