@@ -2745,7 +2745,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	hdr_item = proto_tree_add_text(ndmp_tree, tvb, 0, 4, 
 		"Fragment header: %s%u %s", 
 		(ndmp_rm & NDMP_RM_LASTFRAG) ? "Last fragment, " : "", 
-		ndmp_rm & NDMP_RM_LASTFRAG, plurality(ndmp_rm & NDMP_RM_LASTFRAG, "byte", "bytes"));
+		ndmp_rm & NDMP_RM_LENGTH, plurality(ndmp_rm & NDMP_RM_LENGTH, "byte", "bytes"));
 	hdr_tree = proto_item_add_subtree(hdr_item, ett_ndmp_fraghdr);
 	proto_tree_add_boolean(hdr_tree, hf_ndmp_lastfrag, tvb, 0, 4, ndmp_rm);
 	proto_tree_add_uint(hdr_tree, hf_ndmp_fraglen, tvb, 0, 4, ndmp_rm);
