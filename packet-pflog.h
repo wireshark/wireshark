@@ -1,6 +1,6 @@
 /* packet-pflog.h
  *
- * $Id: packet-pflog.h,v 1.1 2002/01/29 08:44:46 guy Exp $
+ * $Id: packet-pflog.h,v 1.2 2002/01/29 10:44:43 guy Exp $
  *
  * Copyright 2001 Mike Frantzen
  * All rights reserved.
@@ -68,7 +68,7 @@ struct pfloghdr {
 # define NTOHL(x)       x = ntohl(x)
 #endif
 #ifndef NTOHS
-# define NTONS(x)       x = ntohs(x)
+# define NTOHS(x)       x = ntohs(x)
 #endif
 #ifndef HTONL
 # define HTONL(x)       x = htonl(x)
