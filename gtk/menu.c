@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.122 2003/12/08 19:25:01 ulfl Exp $
+ * $Id: menu.c,v 1.123 2003/12/09 22:41:07 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,8 +120,6 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Print...", "<control>P", file_print_cmd_cb,
                              0, GTK_STOCK_PRINT),
-    ITEM_FACTORY_ENTRY("/File/Print Pac_ket", NULL,
-                       file_print_packet_cmd_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/File/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Quit", "<control>Q", file_quit_cmd_cb,
                              0, GTK_STOCK_QUIT),
@@ -327,8 +325,6 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
     ITEM_FACTORY_ENTRY("/Coloring Rules...", NULL, color_display_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Print...", NULL, file_print_cmd_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Print Packet", NULL, file_print_packet_cmd_cb,
-                       0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Show Packet In New Window", NULL, new_window_cb,
                        0, NULL, NULL),
 };
