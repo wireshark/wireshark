@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.292 2002/10/14 19:59:51 oabad Exp $
+ * $Id: file.c,v 1.293 2002/10/17 02:11:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -657,17 +657,19 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     firstusec = fdata->abs_usecs;
   }
 
-  tap_queue_init(pseudo_header, buf, fdata);
   /* If either
 
 	we have a display filter and are re-applying it;
 
 	we have a list of color filters;
 
+	we have tap listeners;
+
      allocate a protocol tree root node, so that we'll construct
      a protocol tree against which a filter expression can be
      evaluated. */
-  if ((cf->dfcode != NULL && refilter) || filter_list != NULL)
+  if ((cf->dfcode != NULL && refilter) || filter_list != NULL
+        || num_tap_filters != 0)
 	  create_proto_tree = TRUE;
 
   /* Dissect the frame. */
@@ -679,8 +681,9 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   if (filter_list) {
       filter_list_prime_edt(edt);
   }
+  tap_queue_init(edt);
   epan_dissect_run(edt, pseudo_header, buf, fdata, &cf->cinfo);
-  tap_push_tapped_queue();
+  tap_push_tapped_queue(edt);
 
   /* If we have a display filter, apply it if we're refiltering, otherwise
      leave the "passed_dfilter" flag alone.

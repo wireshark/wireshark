@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.160 2002/10/09 03:07:27 gerald Exp $
+ * $Id: tethereal.c,v 1.161 2002/10/17 02:11:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1675,9 +1675,9 @@ wtap_dispatch_cb_print(guchar *user, const struct wtap_pkthdr *phdr,
     epan_dissect_prime_dfilter(edt, cf->rfcode);
   }
 
-  tap_queue_init(pseudo_header, buf, &fdata);
+  tap_queue_init(edt);
   epan_dissect_run(edt, pseudo_header, buf, &fdata, verbose ? NULL : &cf->cinfo);
-  tap_push_tapped_queue();
+  tap_push_tapped_queue(edt);
 
   if (cf->rfcode) {
     passed = dfilter_apply_edt(cf->rfcode, edt);

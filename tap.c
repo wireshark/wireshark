@@ -1,7 +1,7 @@
 /* tap.c
  * packet tap interface   2002 Ronnie Sahlberg
  *
- * $Id: tap.c,v 1.4 2002/10/14 19:45:08 oabad Exp $
+ * $Id: tap.c,v 1.5 2002/10/17 02:11:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,8 @@
 #include "epan/dfilter/dfilter.h"
 #include "tap.h"
 
-int tapping_is_active=0;
+static gboolean tapping_is_active=FALSE;
+int num_tap_filters=0;
 
 typedef struct _tap_dissector_t {
 	struct _tap_dissector_t *next;
@@ -78,10 +79,6 @@ typedef struct _tap_listener_t {
 	void (*draw)(void *tapdata);
 } tap_listener_t;
 static volatile tap_listener_t *tap_listener_queue=NULL;
-
-static union wtap_pseudo_header *l_pseudo_header=NULL; 
-static const u_char *l_buf=NULL;
-static frame_data *l_fdata;
 
 /* **********************************************************************
  * Init routine only called from epan at application startup
@@ -197,46 +194,31 @@ tap_queue_packet(int tap_id, packet_info *pinfo, void *tap_specific_data)
 /* **********************************************************************
  * Functions used by file.c to drive the tap subsystem
  * ********************************************************************** */
-/* This function is used to delete/initialize the tap queue.
-   This is very cheap since we just prepend the used queue to the free queue.
+/* This function is used to delete/initialize the tap queue and prime an
+   epan_dissect_t with all the filters for tap listeners.
+   To free the tap queue, we just prepend the used queue to the free queue.
 */
 void
-tap_queue_init(union wtap_pseudo_header *pseudo_header, const u_char *buf, frame_data *fdata)
+tap_queue_init(epan_dissect_t *edt)
 {
 	tap_packet_t *tpt;
+	tap_listener_t *tl;
 
-	l_pseudo_header=pseudo_header;
-	l_buf=buf;
-	l_fdata=fdata;
-
-	tapping_is_active=1;
-
-	tpt=tap_packet_list_queue;
-	if(!tpt){
+	/* nothing to do, just return */
+	if(!tap_listener_queue){
 		return;
 	}
 
-	for(;tpt->next;tpt=tpt->next)
-		;
+	tapping_is_active=TRUE;
+	tpt=tap_packet_list_queue;
+	if(tpt){
+		for(;tpt->next;tpt=tpt->next)
+			;
 
-	tpt->next=tap_packet_list_free;
-	tap_packet_list_free=tap_packet_list_queue;
-	tap_packet_list_queue=NULL;
-
-}
-
-/* this function is called after a packet has been fully dissected to push the tapped
-   data to all extensions that has callbacks registered.
-*/
-void 
-tap_push_tapped_queue(void)
-{
-	tap_packet_t *tp;
-	tap_listener_t *tl;
-	epan_dissect_t *edt;
-
-	tapping_is_active=0;
-	edt=epan_dissect_new(TRUE, FALSE);
+		tpt->next=tap_packet_list_free;
+		tap_packet_list_free=tap_packet_list_queue;
+		tap_packet_list_queue=NULL;
+	}
 
 	/* loop over all tap listeners and build the list of all
 	   interesting hf_fields */
@@ -245,8 +227,28 @@ tap_push_tapped_queue(void)
 			epan_dissect_prime_dfilter(edt, tl->code);
 		}
 	}
+}
 
-	epan_dissect_run(edt, l_pseudo_header, l_buf, l_fdata, NULL);
+/* this function is called after a packet has been fully dissected to push the tapped
+   data to all extensions that has callbacks registered.
+*/
+void 
+tap_push_tapped_queue(epan_dissect_t *edt)
+{
+	tap_packet_t *tp;
+	tap_listener_t *tl;
+
+	/* nothing to do, just return */
+	if(!tapping_is_active){
+		return;
+	}
+
+	tapping_is_active=FALSE;
+
+	/* nothing to do, just return */
+	if(!tap_packet_list_queue){
+		return;
+ 	}
 
 	/* loop over all tap listeners and call the listener callback
 	   for all packets that match the filter. */
@@ -263,8 +265,6 @@ tap_push_tapped_queue(void)
 			}
 		}
 	}
-
-	epan_dissect_free(edt);
 }
 
 /* This function is called when we need to reset all tap listeners, for example
@@ -310,7 +310,7 @@ draw_tap_listeners(gboolean draw_all)
 
 
 /* **********************************************************************
- * Functions used by the RS (Really Simple api) extension to 
+ * Functions used by tap to
  * 1, register that a really simple extension is available for use by
  *    ethereal. 
  * 2, start tapping from a subdissector 
@@ -358,6 +358,8 @@ register_tap_listener(char *tapname, void *tapdata, char *fstring, void (*reset)
 			g_free(tl);
 			fprintf(stderr,"register_tap_listener(): %s\n", dfilter_error_msg);
 			return 1;
+		} else {
+			num_tap_filters++;
 		}
 	}
 
@@ -401,6 +403,7 @@ remove_tap_listener(void *tapdata)
 	if(tl){
 		if(tl->code){
 			dfilter_free(tl->code);
+			num_tap_filters--;
 		}
 		g_free(tl);
 	}

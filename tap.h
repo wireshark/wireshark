@@ -1,7 +1,7 @@
 /* tap.h
  * packet tap interface   2002 Ronnie Sahlberg
  *
- * $Id: tap.h,v 1.2 2002/09/07 00:41:26 jmayer Exp $
+ * $Id: tap.h,v 1.3 2002/10/17 02:11:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,14 +22,16 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#include "wiretap/wtap.h"
+#include "epan/epan.h"
+
+extern int num_tap_filters;
 
 void tap_init(void);
 int register_tap(char *name);
 int find_tap_id(char *name);
 void tap_queue_packet(int tap_id, packet_info *pinfo, void *tap_specific_data);
-void tap_queue_init(union wtap_pseudo_header *pseudo_header, const u_char *buf, frame_data *fdata);
-void tap_push_tapped_queue(void);
+void tap_queue_init(epan_dissect_t *edt);
+void tap_push_tapped_queue(epan_dissect_t *edt);
 extern int tapping_is_active;
 void reset_tap_listeners(void);
 void draw_tap_listeners(gboolean draw_all);
