@@ -6,10 +6,10 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.22 2001/03/09 04:35:22 guy Exp $
+ * $Id: packet-srvloc.c,v 1.23 2001/04/23 18:19:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Service Location Protocol is RFC 2165
@@ -53,7 +53,6 @@
 #endif
 
 #include "packet.h"
-#include "packet-ipv6.h"
 #include "strutil.h"
 
 static int proto_srvloc = -1;

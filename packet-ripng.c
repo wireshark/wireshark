@@ -3,10 +3,10 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.18 2001/01/22 08:03:45 guy Exp $
+ * $Id: packet-ripng.c,v 1.19 2001/04/23 18:19:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  * 
  * 
@@ -38,7 +38,6 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
-#include "packet-ipv6.h"
 #include "packet-ripng.h"
 
 #ifndef offsetof

@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.39 2001/04/23 17:51:33 guy Exp $
+ * $Id: packet-rsvp.c,v 1.40 2001/04/23 18:19:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,7 +69,6 @@
 
 #include "packet.h"
 #include "in_cksum.h"
-#include "packet-ipv6.h"
 #include "ieee-float.h"
 #include "etypes.h"
 #include "ipproto.h"
