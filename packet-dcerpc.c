@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.74 2002/08/28 21:00:12 jmayer Exp $
+ * $Id: packet-dcerpc.c,v 1.75 2002/08/30 05:13:45 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,13 +86,13 @@ static const value_string drep_fp_vals[] = {
  */
 #define DCE_C_RPC_AUTHN_PROTOCOL_NONE		0
 #define DCE_C_RPC_AUTHN_PROTOCOL_KRB5		1
-#define DCE_C_RPC_AUTHN_PROTOCOL_SNEGO          9
+#define DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO          9
 #define DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP	10
 
 static const value_string authn_protocol_vals[] = {
 	{ DCE_C_RPC_AUTHN_PROTOCOL_NONE,    "None" },
 	{ DCE_C_RPC_AUTHN_PROTOCOL_KRB5,    "Kerberos 5" },
-	{ DCE_C_RPC_AUTHN_PROTOCOL_SNEGO,   "Snego" },
+	{ DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO,  "SPNEGO" },
 	{ DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP, "NTLMSSP" },
 	{ 0, NULL }
 };
@@ -1358,9 +1358,9 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 		break;
 	}
 
-		/* Snego (rfc2478) */
+		/* SPNEGO (rfc2478) */
 
-	case DCE_C_RPC_AUTHN_PROTOCOL_SNEGO: {
+	case DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO: {
 		tvbuff_t *gssapi_tvb;
 
 		gssapi_tvb = tvb_new_subset(tvb, offset, hdr->auth_len,
