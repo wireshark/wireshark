@@ -2,17 +2,11 @@
  * Routines for Logical Link Control GPRS dissection ETSI 4.64
  * Copyright 2000, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-gprs-llc.c,v 1.4 2004/04/25 20:23:07 guy Exp $
+ * $Id: packet-gprs-llc.c,v 1.5 2004/05/04 09:03:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -141,8 +135,8 @@ static const true_false_string e_bit = {
 	" non encrypted frame"	
 };
 static const true_false_string pm_bit = {
-	"FCS covers the frame header and informations fields",
-	"FCS covers only the frame header and first N202 octets of the information fileld"
+	"FCS covers the frame header and information fields",
+	"FCS covers only the frame header and first N202 octets of the information field"
 };
 static const true_false_string cr_bit = {
 	"DownLink/UpLink = Command/Response",
@@ -196,7 +190,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
  	sapi = addr_fld & 0xF;
 	if (check_col(pinfo->cinfo, COL_INFO)) 
-		col_add_fstr(pinfo->cinfo, COL_INFO, "SAPI: %s,", match_strval(sapi,sapi_abrv));
+		col_add_fstr(pinfo->cinfo, COL_INFO, "SAPI: %s", match_strval(sapi,sapi_abrv));
 	
 	  		  
         
@@ -204,14 +198,14 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    necessary to generate protocol tree items. */
 	if (tree) {
 
-		ti = proto_tree_add_protocol_format(tree, proto_llcgprs, tvb, 0, -1,"MS-SGSN LLC (Mobile Station - Serving GPRS Support Node Logical Link Control)  SAPI: %s, ", match_strval(sapi,sapi_t));
+		ti = proto_tree_add_protocol_format(tree, proto_llcgprs, tvb, 0, -1,"MS-SGSN LLC (Mobile Station - Serving GPRS Support Node Logical Link Control)  SAPI: %s", match_strval(sapi,sapi_t));
 
 		llcgprs_tree = proto_item_add_subtree(ti, ett_llcgprs);
 
 /* add an item to the subtree, see section 1.6 for more information */
 		proto_tree_add_text( llcgprs_tree, tvb, crc_start,3, "CRC of LLC layer" );
 		addres_field_item = proto_tree_add_uint_format(llcgprs_tree,hf_llcgprs_sapi,
-		     tvb, 0,1, sapi, "Address field  SAPI: %d, ", sapi );
+		     tvb, 0,1, sapi, "Address field  SAPI: %s", match_strval(sapi,sapi_abrv));
 		ad_f_tree = proto_item_add_subtree(addres_field_item, ett_llcgprs_adf);
                 proto_tree_add_boolean(ad_f_tree, hf_llcgprs_pd, tvb,0,1, addr_fld );
                 proto_tree_add_boolean(ad_f_tree, hf_llcgprs_cr, tvb,0,1, addr_fld );
@@ -228,7 +222,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (frame_format){
 		case I_FORMAT:
 			if (check_col(pinfo->cinfo,COL_INFO)){
-				col_append_str(pinfo->cinfo,COL_INFO, "I, ");
+				col_append_str(pinfo->cinfo,COL_INFO, ", I");
 			}
 				
 			break;
@@ -240,9 +234,9 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			nu = (nu >>2)&0x01FF;
 			if (frame_format == S_FORMAT){
 			  if (check_col(pinfo->cinfo, COL_INFO)){
-				col_append_str(pinfo->cinfo, COL_INFO, "S, ");
+				col_append_str(pinfo->cinfo, COL_INFO, ", S, ");
 				col_append_str(pinfo->cinfo, COL_INFO, match_strval(epm,cr_formats_ipluss));
-				col_append_fstr(pinfo->cinfo, COL_INFO, ", N(R) = %u, ", nu);
+				col_append_fstr(pinfo->cinfo, COL_INFO, ", N(R) = %u", nu);
 			  }
 			  if (tree){
 				ctrl_field_item = proto_tree_add_text(llcgprs_tree, tvb, offset-2,2,"Supervisory format: %s: N(R) = %u",match_strval(epm,cr_formats_ipluss), nu);
@@ -255,9 +249,9 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}else{
 /*UI format*/
 			  if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_str(pinfo->cinfo, COL_INFO, " UI, ");
+				col_append_str(pinfo->cinfo, COL_INFO, ", UI, ");
 				col_append_str(pinfo->cinfo, COL_INFO, match_strval(epm, pme ));
-				col_append_fstr(pinfo->cinfo,COL_INFO, ", N(U) = %u, ", nu);
+				col_append_fstr(pinfo->cinfo,COL_INFO, ", N(U) = %u", nu);
 			  }
 		          if (tree){	
 				ctrl_field_item = proto_tree_add_text(llcgprs_tree, tvb, offset-2, 2, "Unnumbered Information format - UI, N(U) = %u", nu);
@@ -282,7 +276,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		     tmp = 0;
 		     tmp =  ctrl_fld_fb & 0xf;
 			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_str(pinfo->cinfo, COL_INFO, " U, ");
+				col_append_str(pinfo->cinfo, COL_INFO, ", U, ");
 				col_append_str(pinfo->cinfo, COL_INFO, val_to_str(tmp, cr_formats_unnumb,"Unknown/invalid code:%X"));
 			}
 			if(tree){
