@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.77 2000/01/15 13:25:13 gram Exp $
+# $Id: configure.in,v 1.78 2000/01/16 00:13:24 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -119,11 +119,7 @@ fi
 
 dnl zlib check
 AC_ARG_ENABLE(zlib,
-[  --enable-zlib           use zlib to read compressed data.  [default=yes]],, [dnl
-case "$host_os" in
-netbsd*)	enable_zlib=no;;
-*)		enable_zlib=yes;;
-esac])
+[  --enable-zlib           use zlib to read compressed data.  [default=yes]],,enable_zlib=yes)
 
 AC_MSG_CHECKING(whether to use zlib for reading compressed capture files)
 if test "x$enable_zlib" = "xno" ; then
