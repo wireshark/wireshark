@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.35 1999/08/28 01:19:45 guy Exp $
+ * $Id: wtap.h,v 1.36 1999/09/11 04:50:44 gerald Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -88,9 +88,10 @@
 #define WTAP_ENCAP_LAPB				11
 #define WTAP_ENCAP_ATM_SNIFFER			12
 #define WTAP_ENCAP_NULL				13
+#define WTAP_ENCAP_ASCEND				14
 
 /* last WTAP_ENCAP_ value + 1 */
-#define WTAP_NUM_ENCAP_TYPES			13
+#define WTAP_NUM_ENCAP_TYPES			15
 
 /* File types that can be read by wiretap.
    We may eventually support writing some or all of these file types,
@@ -108,6 +109,7 @@
 #define WTAP_FILE_NETXRAY_1_1			11
 #define WTAP_FILE_NETXRAY_2_001			12
 #define WTAP_FILE_RADCOM			13
+#define WTAP_FILE_ASCEND			14
 
 /*
  * Maximum packet size we'll support.
@@ -162,6 +164,12 @@ typedef struct {
 	int	end_offset;
 	int	version_major;
 } netxray_t;
+
+typedef struct {
+	time_t inittime;
+	int adjusted;
+	int seek_add;
+} ascend_t;
 
 /* Packet "pseudo-header" information for X.25 capture files. */
 struct x25_phdr {
@@ -270,6 +278,7 @@ typedef struct wtap {
 		radcom_t		*radcom;
 		netmon_t		*netmon;
 		netxray_t		*netxray;
+		ascend_t		*ascend;
 	} capture;
 
 	subtype_read_func	subtype_read;
@@ -311,6 +320,8 @@ int wtap_file_type(wtap *wth);
 const char *wtap_file_type_string(wtap *wth);
 const char *wtap_strerror(int err);
 void wtap_close(wtap *wth);
+int wtap_seek_read (int encaps, FILE *fh, int seek_off, guint8 *pd, int len);
+int wtap_def_seek_read (FILE *fh, int seek_off, guint8 *pd, int len);
 
 wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 	int snaplen, int *err);

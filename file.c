@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.87 1999/09/09 02:42:24 gram Exp $
+ * $Id: file.c,v 1.88 1999/09/11 04:50:34 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -708,8 +708,7 @@ filter_packets(capture_file *cf)
 
     cf->count++;
 
-    fseek(cf->fh, fd->file_off, SEEK_SET);
-    fread(cf->pd, sizeof(guint8), fd->cap_len, cf->fh);
+    wtap_seek_read (cf-> cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
 
     add_packet_to_packet_list(fd, cf, cf->pd);
   }
@@ -754,8 +753,7 @@ print_packets(capture_file *cf, int to_file, const char *dest)
   for (fd = cf->plist; fd != NULL; fd = fd->next) {
     cf->count++;
 
-    fseek(cf->fh, fd->file_off, SEEK_SET);
-    fread(cf->pd, sizeof(guint8), fd->cap_len, cf->fh);
+    wtap_seek_read (cf-> cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
 
     /* create the logical protocol tree */
     protocol_tree = proto_tree_create_root();
@@ -896,8 +894,7 @@ select_packet(capture_file *cf, int row)
   cf->selected_packet = i;
 
   /* Get the data in that frame. */
-  fseek(cf->fh, cf->fd->file_off, SEEK_SET);
-  fread(cf->pd, sizeof(guint8), cf->fd->cap_len, cf->fh);
+  wtap_seek_read (cf-> cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
 
   /* Create the logical protocol tree. */
   if (cf->protocol_tree)

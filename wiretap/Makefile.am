@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Wiretap
 #
-# $Id: Makefile.am,v 1.19 1999/09/09 03:54:38 guy Exp $
+# $Id: Makefile.am,v 1.20 1999/09/11 04:50:43 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -31,6 +31,10 @@ CLEANFILES = \
 	*~
 
 libwiretap_a_SOURCES = \
+	ascend-grammar.y	\
+	ascend-scanner.l	\
+	ascend.c		\
+	ascend.h		\
 	buffer.c		\
 	buffer.h		\
 	file.c			\
@@ -56,3 +60,9 @@ libwiretap_a_SOURCES = \
 EXTRA_DIST = \
 	config.h.win32		\
 	Makefile.nmake
+
+# Any POSIX-compatible YACC should honor the -p flag
+YFLAGS=-d -p ascend
+
+ascend-scanner.c : ascend-scanner.l
+	$(LEX) -Pascend -t $(srcdir)/ascend-scanner.l > ascend-scanner.c

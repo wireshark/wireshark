@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.17 1999/08/22 03:50:31 guy Exp $
+ * $Id: wtap.c,v 1.18 1999/09/11 04:50:44 gerald Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -82,6 +82,9 @@ const char *wtap_file_type_string(wtap *wth)
 		case WTAP_FILE_RADCOM:
 			return "RADCOM WAN/LAN analyzer";
 
+		case WTAP_FILE_ASCEND:
+			return "Lucent/Ascend access server trace";
+
 		default:
 			g_error("Unknown capture file type %d", wth->file_type);
 			return NULL;
@@ -156,6 +159,10 @@ void wtap_close(wtap *wth)
 			g_free(wth->capture.netxray);
 			break;
 
+		case WTAP_FILE_ASCEND:
+			g_free(wth->capture.ascend);
+			break;
+
 		/* default:
 			 nothing */
 	}
@@ -178,4 +185,15 @@ int wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user,
 		return FALSE;	/* failure */
 	else
 		return TRUE;	/* success */
+}
+
+int wtap_seek_read (int encaps, FILE *fh, int seek_off, guint8 *pd, int len) {
+	switch (encaps) {
+		case WTAP_ENCAP_ASCEND:
+			ascend_seek_read(fh, seek_off, pd, len);
+			break;
+		default:
+			wtap_def_seek_read(fh, seek_off, pd, len);
+			break;
+	}
 }
