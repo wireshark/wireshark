@@ -49,9 +49,11 @@ typedef struct _summary_tally {
     int		snap;		/* Maximum captured packet length */
     gboolean    drops_known;	/* TRUE if number of packet drops is known */
     guint32     drops;		/* number of packet drops */
-    const char	*iface;		/* interface name */
     const char	*dfilter;	/* display filter */
+
+    /* capture related, use summary_fill_in_capture() to get values */
     const char	*cfilter;	/* capture filter */
+    const char	*iface;		/* interface name */
     const char	*iface_descr;/* descriptive interface name */
 } summary_tally;
 
