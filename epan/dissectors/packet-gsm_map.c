@@ -1100,15 +1100,10 @@ static dissector_table_t	sms_dissector_table;	/* SMS TPDU */
 static dissector_handle_t data_handle;
 
 /* Preferenc settings default */
-static guint tcap_itu_ssn1 = 6;
-static guint tcap_itu_ssn2 = 7;
-static guint tcap_itu_ssn3 = 8;
-static guint tcap_itu_ssn4 = 9;
-
-static guint global_tcap_itu_ssn1 = 6;
-static guint global_tcap_itu_ssn2 = 7;
-static guint global_tcap_itu_ssn3 = 8;
-static guint global_tcap_itu_ssn4 = 9;
+#define MAX_SSN 254
+static range_t *global_ssn_range;
+static range_t *ssn_range;
+dissector_handle_t	map_handle;
 
 /* Global variables */
 
@@ -11383,33 +11378,40 @@ static const value_string Teleservice_vals[] = {
 {0xdf, "plmn-specificTS-F" },
   { 0, NULL }
 };
+
 /*--- proto_reg_handoff_gsm_map ---------------------------------------*/
+static void range_delete_callback(guint32 ssn)
+{
+    if (ssn) {
+	dissector_delete("tcap.itu_ssn", ssn, map_handle);
+    }
+}
+
+static void range_add_callback(guint32 ssn)
+{
+    if (ssn) {
+	dissector_add("tcap.itu_ssn", ssn, map_handle);
+    }
+}
+
 void proto_reg_handoff_gsm_map(void) {
-    dissector_handle_t	map_handle;
-	static int map_prefs_initialized = FALSE;
 
-    map_handle = create_dissector_handle(dissect_gsm_map, proto_gsm_map);
-	data_handle = find_dissector("data");
+    static int map_prefs_initialized = FALSE;
+    data_handle = find_dissector("data");
 
-	if (!map_prefs_initialized) {
-		map_prefs_initialized = TRUE;
-	}
-	else {
-		dissector_delete("tcap.itu_ssn", tcap_itu_ssn1, map_handle);
-		dissector_delete("tcap.itu_ssn", tcap_itu_ssn2, map_handle);
-		dissector_delete("tcap.itu_ssn", tcap_itu_ssn3, map_handle);
-		dissector_delete("tcap.itu_ssn", tcap_itu_ssn4, map_handle);
-	}
-		/* Set our sub system number for future use */
-	tcap_itu_ssn1 = global_tcap_itu_ssn1;
-	tcap_itu_ssn2 = global_tcap_itu_ssn2;
-	tcap_itu_ssn3 = global_tcap_itu_ssn3;
-	tcap_itu_ssn4 = global_tcap_itu_ssn4;
+    if (!map_prefs_initialized) {
+	map_prefs_initialized = TRUE;
+	map_handle = create_dissector_handle(dissect_gsm_map, proto_gsm_map);
+    }
+    else {
+	range_foreach(ssn_range, range_delete_callback);
+    }
 
-    dissector_add("tcap.itu_ssn", tcap_itu_ssn1, map_handle);
-    dissector_add("tcap.itu_ssn", tcap_itu_ssn2, map_handle);
-    dissector_add("tcap.itu_ssn", tcap_itu_ssn3, map_handle);
-    dissector_add("tcap.itu_ssn", tcap_itu_ssn4, map_handle);
+    g_free(ssn_range);
+    ssn_range = range_copy(global_ssn_range);
+
+    range_foreach(ssn_range, range_add_callback);
+
 }
 
 /*--- proto_register_gsm_map -------------------------------------------*/
@@ -14508,73 +14510,64 @@ void proto_register_gsm_map(void) {
   proto_register_field_array(proto_gsm_map, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-	sms_dissector_table = register_dissector_table("gsm_map.sms_tpdu", 
-		"GSM SMS TPDU",FT_UINT8, BASE_DEC);
+  sms_dissector_table = register_dissector_table("gsm_map.sms_tpdu", 
+						 "GSM SMS TPDU", FT_UINT8,
+						 BASE_DEC);
 
-	gsm_map_tap = register_tap("gsm_map");
-	register_ber_oid_name("0.4.0.0.1.0.1.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkLocUp(1) version3(3)" );
-	register_ber_oid_name("0.4.0.0.1.0.1.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkLocUp(1) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.2.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locationCancel(2) version3(3)" );
-	register_ber_oid_name("0.4.0.0.1.0.2.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locationCancel(2) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.2.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locationCancel(2) version1(1)" );
-	register_ber_oid_name("0.4.0.0.1.0.3.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version3(3)" );
-	register_ber_oid_name("0.4.0.0.1.0.3.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.3.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version1(1)" );
-	register_ber_oid_name("0.4.0.0.1.0.5.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locInfoRetrieval(5) version3(3)" );
-	register_ber_oid_name("0.4.0.0.1.0.5.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locInfoRetrieval(5) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.5.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locInfoRetrieval(5) version1(1)" );
-	register_ber_oid_name("0.4.0.0.1.0.10.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) reset(10) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.10.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) reset(10) version1(1)" );
-	register_ber_oid_name("0.4.0.0.1.0.11.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) handoverControl(11) version3(3)" );
-	register_ber_oid_name("0.4.0.0.1.0.11.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) handoverControl(11) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.11.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) handoverControl(11) version1(1)" );
-	register_ber_oid_name("0.4.0.0.1.0.26.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) imsiRetrieval(26) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.13.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) equipmentMngt(13) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.13.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) equipmentMngt(13) version1(1)" );
-	register_ber_oid_name("0.4.0.0.1.0.14.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) infoRetrieval(14) version3(3)" );
-	register_ber_oid_name("0.4.0.0.1.0.14.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) infoRetrieval(14) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.14.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) infoRetrieval(14) version1(1)" );
-	register_ber_oid_name("0.4.0.0.1.0.15.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) interVlrInfoRetrieval(15) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.16.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) subscriberDataMngt(16) version3(3)" );
-	register_ber_oid_name("0.4.0.0.1.0.16.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) subscriberDataMngt(16) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.16.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) subscriberDataMngt(16) version1(1)" );
-	register_ber_oid_name("0.4.0.0.1.0.17.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) tracing(17) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.17.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) tracing(17) version1(1)" );
-	register_ber_oid_name("0.4.0.0.1.0.18.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkFunctionalSs(18) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.18.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkFunctionalSs(18) version1(1)" );
-	register_ber_oid_name("0.4.0.0.1.0.19.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkUnstructuredSs(19) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.20.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgGateway(20) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.20.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgGateway(20) version1(1)" );
-	register_ber_oid_name("0.4.0.0.1.0.21.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgMO-Relay(21) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.21.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) --shortMsgRelay--21 version1(1)" );
-	register_ber_oid_name("0.4.0.0.1.0.23.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgAlert(23) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.23.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgAlert(23) version1(1)" );
-	register_ber_oid_name("0.4.0.0.1.0.24.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) mwdMngt(24) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.24.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) mwdMngt(24) version1(1)" );
-	register_ber_oid_name("0.4.0.0.1.0.25.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgMT-Relay(25) version2(2)" );
-	register_ber_oid_name("0.4.0.0.1.0.25.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) msPurging(27) version2(2)" );
+  gsm_map_tap = register_tap("gsm_map");
+  register_ber_oid_name("0.4.0.0.1.0.1.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkLocUp(1) version3(3)" );
+  register_ber_oid_name("0.4.0.0.1.0.1.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkLocUp(1) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.2.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locationCancel(2) version3(3)" );
+  register_ber_oid_name("0.4.0.0.1.0.2.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locationCancel(2) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.2.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locationCancel(2) version1(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.3.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version3(3)" );
+  register_ber_oid_name("0.4.0.0.1.0.3.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.3.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) roamingNbEnquiry(3) version1(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.5.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locInfoRetrieval(5) version3(3)" );
+  register_ber_oid_name("0.4.0.0.1.0.5.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locInfoRetrieval(5) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.5.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) locInfoRetrieval(5) version1(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.10.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) reset(10) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.10.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) reset(10) version1(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.11.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) handoverControl(11) version3(3)" );
+  register_ber_oid_name("0.4.0.0.1.0.11.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) handoverControl(11) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.11.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) handoverControl(11) version1(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.26.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) imsiRetrieval(26) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.13.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) equipmentMngt(13) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.13.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) equipmentMngt(13) version1(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.14.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) infoRetrieval(14) version3(3)" );
+  register_ber_oid_name("0.4.0.0.1.0.14.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) infoRetrieval(14) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.14.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) infoRetrieval(14) version1(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.15.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) interVlrInfoRetrieval(15) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.16.3","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) subscriberDataMngt(16) version3(3)" );
+  register_ber_oid_name("0.4.0.0.1.0.16.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) subscriberDataMngt(16) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.16.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) subscriberDataMngt(16) version1(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.17.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) tracing(17) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.17.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) tracing(17) version1(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.18.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkFunctionalSs(18) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.18.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkFunctionalSs(18) version1(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.19.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) networkUnstructuredSs(19) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.20.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgGateway(20) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.20.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgGateway(20) version1(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.21.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgMO-Relay(21) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.21.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) --shortMsgRelay--21 version1(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.23.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgAlert(23) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.23.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgAlert(23) version1(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.24.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) mwdMngt(24) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.24.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) mwdMngt(24) version1(1)" );
+  register_ber_oid_name("0.4.0.0.1.0.25.2","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) shortMsgMT-Relay(25) version2(2)" );
+  register_ber_oid_name("0.4.0.0.1.0.25.1","itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) gsm-Network(1) map-ac(0) msPurging(27) version2(2)" );
 
-	/* Register our configuration options, particularly our ssn:s */
-
-	gsm_map_module = prefs_register_protocol(proto_gsm_map, proto_reg_handoff_gsm_map);
-	prefs_register_uint_preference(gsm_map_module, "tcap.itu_ssn1",
-		"Subsystem number used for GSM MAP 1",
-		"Set Subsystem number used for GSM MAP",
-		10, &global_tcap_itu_ssn1);
-	prefs_register_uint_preference(gsm_map_module, "tcap.itu_ssn2",
-		"Subsystem number used for GSM MAP 2",
-		"Set Subsystem number used for GSM MAP",
-		10, &global_tcap_itu_ssn2);
-	prefs_register_uint_preference(gsm_map_module, "tcap.itu_ssn3",
-		"Subsystem number used for GSM MAP 3",
-		"Set Subsystem number used for GSM MAP",
-		10, &global_tcap_itu_ssn3);
-	prefs_register_uint_preference(gsm_map_module, "tcap.itu_ssn4",
-		"Subsystem number used for GSM MAP 4",
-		"Set Subsystem number used for GSM MAP",
-		10, &global_tcap_itu_ssn4);
+  /* Register our configuration options, particularly our ssn:s */
+  /* Set default SSNs */
+  range_convert_str(&global_ssn_range, "6-9", MAX_SSN);
+  ssn_range = range_empty();
 
 
+  gsm_map_module = prefs_register_protocol(proto_gsm_map, proto_reg_handoff_gsm_map);
+
+  prefs_register_range_preference(gsm_map_module, "tcap.ssn", "TCAP SSNs",
+				  "TCAP Subsystem numbers used for GSM MAP",
+				  &global_ssn_range, MAX_SSN);
 }
 
 
