@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.1 1999/10/15 17:00:46 itojun Exp $
+ * $Id: packet-bgp.c,v 1.2 1999/10/16 00:21:07 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -156,6 +156,8 @@ static const value_string bgpattr_origin[] = {
 #define BGPTYPE_LOCAL_PREF	5
 #define BGPTYPE_ATOMIC_AGGREGATE	6
 #define BGPTYPE_AGGREGATOR	7
+#define BGPTYPE_MP_REACH_NLRI	14	/* RFC2283 */
+#define BGPTYPE_MP_UNREACH_NLRI	15	/* RFC2283 */
 
 static const value_string bgpattr_type[] = {
     { BGPTYPE_ORIGIN, "ORIGIN" },
@@ -165,6 +167,16 @@ static const value_string bgpattr_type[] = {
     { BGPTYPE_LOCAL_PREF, "LOCAL_PREF" },
     { BGPTYPE_ATOMIC_AGGREGATE, "ATOMIC_AGGREGATE" },
     { BGPTYPE_AGGREGATOR, "AGGREGATOR" },
+    { BGPTYPE_MP_REACH_NLRI, "MP_REACH_NLRI" },
+    { BGPTYPE_MP_UNREACH_NLRI, "MP_UNREACH_NLRI" },
+    { 0, NULL },
+};
+
+/* Subsequent address family identifier, RFC2283 section 7 */
+static const value_string bgpattr_nlri_safi[] = {
+    { 1, "Unicast" },
+    { 2, "Multicast" },
+    { 3, "Unicast+Multicast" },
     { 0, NULL },
 };
 
@@ -284,6 +296,16 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		    val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
 		    bgpa.bgpa_type);
 
+	    if (bgpa.bgpa_flags & 0x10) {
+		proto_tree_add_text(subtree2,
+			p - pd + i + sizeof(bgpa), aoff - sizeof(bgpa),
+			"Attribute length: %d", alen);
+	    } else {
+		proto_tree_add_text(subtree2,
+			p - pd + i + sizeof(bgpa), aoff - sizeof(bgpa),
+			"Attribute length: %d", alen);
+	    }
+
 	    switch (bgpa.bgpa_type) {
 	    case BGPTYPE_ORIGIN:
 		if (alen != 1) {
@@ -371,6 +393,10 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 			    "Aggregator origin: %s",
 			    ip_to_str(&p[i + aoff + 2]));
 		}
+		break;
+	    default:
+		proto_tree_add_text(subtree2, p - pd + i + aoff, alen,
+			"Unknown (%d bytes)", alen);
 		break;
 	    }
 
