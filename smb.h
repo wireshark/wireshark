@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.18 2001/11/15 10:41:53 guy Exp $
+ * $Id: smb.h,v 1.19 2001/11/16 07:56:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -635,26 +635,11 @@
  * request.
  */
 struct smb_request_val {
-  int frame;                   /* Frame in which this request appeared */
-  int last_transact2_command;
-  gchar *last_transact_command;
   guint16 last_lanman_cmd;
   guchar *last_param_descrip;  /* Keep these descriptors around */
   guchar *last_data_descrip;
   guchar *last_aux_data_descrip;
-  guint16 trans_response_seen;
-  int last_level;              /* Last level in request */
-};
-
-/*
- * One of these data structures is allocated for a transaction reply
- * that's continued in a later reply; it keeps track of the pathname
- * from the request that generated the reply, as well as the frame
- * number of the continued message.
- */
-struct smb_continuation_val {
-  int frame;                   /* Frame in which this reply appeared */
-  const gchar *transact_name;
+  int last_level;
 };
 
 #define TRANSACTION_PIPE	0x01
@@ -662,23 +647,17 @@ struct smb_continuation_val {
 
 
 typedef struct smb_info {
-  /* this will be cleaned up when all smb is tvbuffified */
-  int cmd, tid, uid, mid, pid;	/* Any more? */
-  address *src, *dst;
-  int frame_req, frame_res;
+  int cmd, mid;
+  guint32 frame_req, frame_res;
   gboolean unidir;
   int subcmd;
   int trans_subcmd;
   int info_level;
   int info_count;
 
-
-  conversation_t *conversation;
   struct smb_request_val *request_val;
-  struct smb_continuation_val *continuation_val;
   gboolean unicode;		/* Are strings in this SMB Unicode? */
   gboolean request;		/* Is this a request? */
-  guint16 ddisp;		/* Data displacement for transaction commands */
 } smb_info_t;
 
 #endif

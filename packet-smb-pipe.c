@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.40 2001/11/15 10:41:51 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.41 2001/11/16 07:56:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,7 +63,6 @@ static int hf_aux_data_desc = -1;
 static int hf_detail_level = -1;
 static int hf_recv_buf_len = -1;
 static int hf_send_buf_len = -1;
-static int hf_response_to = -1;
 static int hf_continuation_from = -1;
 static int hf_status = -1;
 static int hf_convert = -1;
@@ -148,6 +147,21 @@ static gint ett_lanman_server = -1;
  *
  * among other documents.
  */
+
+static GMemChunk *lanman_request_val_chunk = NULL;
+static gint lanman_request_val_init_count = 50;
+
+static void
+lanman_init_protocol(void)
+{
+	if(lanman_request_val_chunk)
+		g_mem_chunk_destroy(lanman_request_val_chunk);
+
+	lanman_request_val_chunk = g_mem_chunk_new("lanman_request_val_chunk", sizeof(struct smb_request_val),
+						  lanman_request_val_init_count*sizeof(struct smb_request_val),
+						  G_ALLOC_ONLY);
+}
+
 
 static const value_string status_vals[] = {
 	{0,	"Success"},
@@ -1978,6 +1992,11 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		tree = proto_item_add_subtree(item, ett_lanman);
 	}
 
+	if(request_val==NULL){
+		request_val = g_mem_chunk_alloc(lanman_request_val_chunk);
+		smb_info->request_val=request_val;
+	}
+
 	if (smb_info->request) { /* this is a request */
 		/* function code */
 		cmd = tvb_get_letohs(p_tvb, offset);
@@ -1997,6 +2016,9 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		if (!pinfo->fd->flags.visited) {
 			request_val->last_lanman_cmd = cmd;
 			request_val->last_level = -1;
+			request_val->last_param_descrip=NULL;
+			request_val->last_data_descrip=NULL;
+			request_val->last_aux_data_descrip=NULL;
 		}
 
 		/* parameter descriptor */
@@ -2113,10 +2135,6 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			return FALSE;	/* no - can't dissect it */
 
 		/* ok we have seen this one before */
-
-		/* response to the request in frame xx */
-		proto_tree_add_uint(tree, hf_response_to, p_tvb, 0, 0,
-				    request_val->frame);
 
 		/* if it looks like an interim response, update COL_INFO and return */
 		if( ( (p_tvb==NULL) || (tvb_reported_length(p_tvb)==0) )
@@ -2264,10 +2282,6 @@ register_proto_smb_pipe(void)
 		{ &hf_send_buf_len,
 			{ "Send Buffer Length", "lanman.send_buf_len", FT_UINT16, BASE_DEC,
 			NULL, 0, "LANMAN Send Buffer Length", HFILL }},
-
-		{ &hf_response_to,
-			{ "Response to request in frame", "lanman.response_to", FT_UINT32, BASE_DEC,
-			NULL, 0, "This is a LANMAN response to the request in the frame in question", HFILL }},
 
 		{ &hf_continuation_from,
 			{ "Continuation from message in frame", "lanman.continuation_from", FT_UINT32, BASE_DEC,
@@ -2566,4 +2580,5 @@ register_proto_smb_pipe(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
         register_heur_dissector_list("msrpc", &msrpc_heur_subdissector_list);
+	register_init_routine(&lanman_init_protocol);
 }

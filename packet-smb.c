@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.150 2001/11/16 02:53:11 guy Exp $
+ * $Id: packet-smb.c,v 1.151 2001/11/16 07:56:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -660,475 +660,44 @@ static const gchar *get_unicode_or_ascii_string(tvbuff_t *tvb,
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 static GMemChunk *smb_info_chunk = NULL;
 static int smb_info_init_count = 200;
-static GHashTable *smb_info_table = NULL;
 
-/*
- * XXX - MID/PID/UID/TID/command/source/destination are *NOT* unique;
- * I have at least one capture with multiple Transaction2 SMB exchanges
- * in a row, all with the *same* MID, PID, UID, and TID, and all between
- * the *same* machines on the *same* connection.  The MID is merely
- * intended to distinguish between replies to multiple *in-flight*
- * requests; once the reply comes back, an SMB client can reused the
- * MID of the request, and, apparently, some clients *do*.
- *
- * To make this work correctly, you have to include the frame number
- * of the matching packet in the hash key, just as is done for the
- * transaction hash table.
- */
+
+/* matched smb_info structures.
+  For matched smb_info structures we store the smb_info structure twice in the table
+  using the frame number as the key.
+  The frame number is guaranteed to be unique but if ever someone makes some change
+  that will renumber the frames in a capture we are in BIG trouble.
+  This is not likely though since that would break (among other things) all the
+  reassembly routines as well.
+
+  Oh, yes, the key is really a pointer, but we use it as if it was an integer.
+  Ugly, yes. Not portable to DEC-20 Yes. But it saves a few bytes.
+*/
 static gint
-smb_info_equal(gconstpointer k1, gconstpointer k2)
+smb_info_equal_matched(gconstpointer k1, gconstpointer k2)
 {
-	smb_info_t *key1 = (smb_info_t *)k1;
-	smb_info_t *key2 = (smb_info_t *)k2;
-	gint res;
-
-	/* make sure to always compare mid first since this is most
-	   likely to differ ==> shortcircuiting the expression */
-	res= (	(key1->mid==key2->mid)
-		&&	(key1->pid==key2->pid)
-		&&	(key1->uid==key2->uid)
-		&&	(key1->cmd==key2->cmd)
-		&&	(key1->tid==key2->tid)
-		&&	(ADDRESSES_EQUAL(key1->src, key2->src))
-		&&	(ADDRESSES_EQUAL(key1->dst, key2->dst)) );
-
-	return res;
+	register int key1 = (int)k1;
+	register int key2 = (int)k2;
+	return key1==key2;
 }
-
 static guint
-smb_info_hash(gconstpointer k)
+smb_info_hash_matched(gconstpointer k)
 {
-	smb_info_t *key = (smb_info_t *)k;
-
-	/* multiplex id is very likely to differ between calls
-	   it should be sufficient for a good distribution of hash
-	   values.
-	*/
-	return key->mid;
+	register int key = (int)k;
+	return key;
 }
- 
 static gboolean
-free_all_smb_info(gpointer key_arg, gpointer value, gpointer user_data)
+free_all_smb_info_matched(gpointer key_arg, gpointer value, gpointer user_data)
 {
-	smb_info_t *key = (smb_info_t *)key_arg;
-
-	if((key->src)&&(key->src->data)){
-		g_free((gpointer)key->src->data);
-		key->src->data = NULL;
-		g_free((gpointer)key->src);
-		key->src = NULL;
-	}
-
-	if((key->dst)&&(key->dst->data)){
-		g_free((gpointer)key->dst->data);
-		key->dst->data = NULL;
-		g_free((gpointer)key->dst);
-		key->dst = NULL;
-	}
- 
 	return TRUE;
 }
+typedef struct conv_tables {
+	GHashTable *unmatched;
+	GHashTable *matched;
+} conv_tables_t;
+static GMemChunk *conv_tables_chunk = NULL;
+static int conv_tables_count = 10;
 
-int smb_packet_init_count = 200;
-
-/*
- * This is a hash table matching transaction requests and replies.
- *
- * Unfortunately, the MID is not a transaction ID in, say, the ONC RPC
- * sense; instead, it's a "multiplex ID" used when there's more than one
- * request *currently* in flight, to distinguish replies.
- *
- * This means that the MID and PID don't uniquely identify a request in
- * a conversation.
- *
- * Therefore, we have to use some other value to distinguish between
- * requests with the same MID and PID.
- *
- * On the first pass through the capture, when we first see a request,
- * we hash it by conversation, MID, and PID.
- *
- * When we first see a reply to it, we add it to a new hash table,
- * hashing it by conversation, MID, PID, and frame number of the reply.
- *
- * This works as long as
- *
- *	1) a client doesn't screw up and have multiple requests outstanding
- *	   with the same MID and PID
- *
- * and
- *
- *	2) we don't have, within the same frame, replies to multiple
- *	   requests with the same MID and PID.
- *
- * 2) should happen only if the server screws up and puts the wrong MID or
- * PID into a reply (in which case not only can we not handle this, the
- * client can't handle it either) or if the client has screwed up as per
- * 1) and the server's dutifully replied to both of the requests with the
- * same MID and PID (in which case, again, neither we nor the client can
- * handle this).
- *
- * We don't have to correctly dissect screwups; we just have to keep from
- * dumping core on them.
- *
- * XXX - in addition, we need to keep a hash table of replies, so that we
- * can associate continuations with the reply to which they're a continuation.
- */
-struct smb_request_key {
-  guint32 conversation;
-  guint16 mid;
-  guint16 pid;
-  guint32 frame_num;
-};
-
-static GHashTable *smb_request_hash = NULL;
-static GMemChunk *smb_request_keys = NULL;
-static GMemChunk *smb_request_vals = NULL;
-
-/*
- * This is a hash table matching continued transation replies and their
- * continuations.
- *
- * It works similarly to the request/reply hash table.
- */
-static GHashTable *smb_continuation_hash = NULL;
-
-static GMemChunk *smb_continuation_vals = NULL;
-
-/* Hash Functions */
-static gint
-smb_equal(gconstpointer v, gconstpointer w)
-{
-  struct smb_request_key *v1 = (struct smb_request_key *)v;
-  struct smb_request_key *v2 = (struct smb_request_key *)w;
-
-#if defined(DEBUG_SMB_HASH)
-  printf("Comparing %08X:%u:%u:%u\n      and %08X:%u:%u:%u\n",
-	 v1 -> conversation, v1 -> mid, v1 -> pid, v1 -> frame_num,
-	 v2 -> conversation, v2 -> mid, v2 -> pid, v2 -> frame_num);
-#endif
-
-  if (v1 -> conversation == v2 -> conversation &&
-      v1 -> mid          == v2 -> mid &&
-      v1 -> pid          == v2 -> pid &&
-      v1 -> frame_num    == v2 -> frame_num) {
-
-    return 1;
-
-  }
-
-  return 0;
-}
-
-static guint
-smb_hash (gconstpointer v)
-{
-  struct smb_request_key *key = (struct smb_request_key *)v;
-  guint val;
-
-  val = (key -> conversation) + (key -> mid) + (key -> pid) +
-	(key -> frame_num);
-
-#if defined(DEBUG_SMB_HASH)
-  printf("SMB Hash calculated as %u\n", val);
-#endif
-
-  return val;
-
-}
-
-/*
- * Free up any state information we've saved, and re-initialize the
- * tables of state information.
- */
-
-/*
- * For a hash table entry, free the address data to which the key refers
- * and the fragment data to which the value refers.
- * (The actual key and value structures get freed by "reassemble_init()".)
- */
-static gboolean
-free_request_val_data(gpointer key, gpointer value, gpointer user_data)
-{
-  struct smb_request_val *request_val = value;
-
-  if (request_val->last_transact_command != NULL)
-    g_free(request_val->last_transact_command);
-  if (request_val->last_param_descrip != NULL)
-    g_free(request_val->last_param_descrip);
-  if (request_val->last_data_descrip != NULL)
-    g_free(request_val->last_data_descrip);
-  if (request_val->last_aux_data_descrip != NULL)
-    g_free(request_val->last_aux_data_descrip);
-  return TRUE;
-}
-
-static struct smb_request_val *
-do_transaction_hashing(conversation_t *conversation, struct smb_info si,
-		       frame_data *fd)
-{
-  struct smb_request_key request_key, *new_request_key;
-  struct smb_request_val *request_val = NULL;
-  gpointer               new_request_key_ret, request_val_ret;
-
-  if (si.request) {
-    /*
-     * This is a request.
-     *
-     * If this is the first time the frame has been seen, check for
-     * an entry for the request in the hash table.  If it's not found,
-     * insert an entry for it.
-     *
-     * If it's the first time it's been seen, then we can't have seen
-     * the reply yet, so the reply frame number should be 0, for
-     * "unknown".
-     */
-    if (!fd->flags.visited) {
-      request_key.conversation = conversation->index;
-      request_key.mid          = si.mid;
-      request_key.pid          = si.pid;
-      request_key.frame_num    = 0;
-
-      request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
-
-      if (request_val == NULL) {
-	/*
-	 * Not found.
-	 */
-	new_request_key = g_mem_chunk_alloc(smb_request_keys);
-	new_request_key -> conversation = conversation->index;
-	new_request_key -> mid          = si.mid;
-	new_request_key -> pid          = si.pid;
-	new_request_key -> frame_num    = 0;
-
-	request_val = g_mem_chunk_alloc(smb_request_vals);
-	request_val -> frame = fd->num;
-	request_val -> last_transact2_command = -1;		/* unknown */
-	request_val -> last_transact_command = NULL;
-	request_val -> last_param_descrip = NULL;
-	request_val -> last_data_descrip = NULL;
-	request_val -> last_aux_data_descrip = NULL;
-
-	g_hash_table_insert(smb_request_hash, new_request_key, request_val);
-      } else {
-	/*
-	 * This means that we've seen another request in this conversation
-	 * with the same request and reply, and without an intervening
-	 * reply to that first request, and thus won't be using this
-	 * "request_val" structure for that request (as we'd use it only
-	 * for the reply).
-	 *
-	 * Clean out the structure, and set it to refer to this frame.
-	 */
-	request_val -> frame = fd->num;
-	request_val -> last_transact2_command = -1;		/* unknown */
-	if (request_val -> last_transact_command)
-	  g_free(request_val -> last_transact_command);
-	request_val -> last_transact_command = NULL;
-	if (request_val -> last_param_descrip)
-	  g_free(request_val -> last_param_descrip);
-	request_val -> last_param_descrip = NULL;
-	if (request_val -> last_data_descrip)
-	  g_free(request_val -> last_data_descrip);
-	request_val -> last_data_descrip = NULL;
-	if (request_val -> last_aux_data_descrip)
-	  g_free(request_val -> last_aux_data_descrip);
-	request_val -> last_aux_data_descrip = NULL;
-      }
-    }
-  } else {
-    /*
-     * This is a reply.
-     */
-    if (!fd->flags.visited) {
-      /*
-       * This is the first time the frame has been seen; check for
-       * an entry for a matching request, with an unknown reply frame
-       * number, in the hash table.
-       *
-       * If we find it, re-hash it with this frame's number as the
-       * reply frame number.
-       */
-      request_key.conversation = conversation->index;
-      request_key.mid          = si.mid;
-      request_key.pid          = si.pid;
-      request_key.frame_num    = 0;
-
-      /*
-       * Look it up - and, if we find it, get pointers to the key and
-       * value structures for it.
-       */
-      if (g_hash_table_lookup_extended(smb_request_hash, &request_key,
-				       &new_request_key_ret,
-				       &request_val_ret)) {
-	new_request_key = new_request_key_ret;
-	request_val = request_val_ret;
-
-	/*
-	 * We found it.
-	 * Remove the old entry.
-	 */
-	g_hash_table_remove(smb_request_hash, &request_key);
-
-	/*
-	 * Now update the key, and put it back into the hash table with
-	 * the new key.
-	 */
-	new_request_key->frame_num = fd->num;
-	g_hash_table_insert(smb_request_hash, new_request_key, request_val);
-      }
-    } else {
-      /*
-       * This is not the first time the frame has been seen; check for
-       * an entry for a matching request, with this frame's frame
-       * number as the reply frame number, in the hash table.
-       */
-      request_key.conversation = conversation->index;
-      request_key.mid          = si.mid;
-      request_key.pid          = si.pid;
-      request_key.frame_num    = fd->num;
-
-      request_val = (struct smb_request_val *) g_hash_table_lookup(smb_request_hash, &request_key);
-    }
-  }
-
-  return request_val;
-}
-
-static struct smb_continuation_val *
-do_continuation_hashing(conversation_t *conversation, struct smb_info si,
-		       frame_data *fd, guint16 TotalDataCount,
-		       guint16 DataCount, const char **TransactName)
-{
-  struct smb_request_key request_key, *new_request_key;
-  struct smb_continuation_val *continuation_val, *new_continuation_val;
-  gpointer               new_request_key_ret, continuation_val_ret;
-
-  continuation_val = NULL;
-  if (si.ddisp != 0) {
-    /*
-     * This reply isn't the first in the series; there should be a
-     * reply of which it is a continuation.
-     */
-    if (!fd->flags.visited) {
-      /*
-       * This is the first time the frame has been seen; check for
-       * an entry for a matching continued message, with an unknown
-       * continuation frame number, in the hash table.
-       *
-       * If we find it, re-hash it with this frame's number as the
-       * continuation frame number.
-       */
-      request_key.conversation = conversation->index;
-      request_key.mid          = si.mid;
-      request_key.pid          = si.pid;
-      request_key.frame_num    = 0;
-
-      /*
-       * Look it up - and, if we find it, get pointers to the key and
-       * value structures for it.
-       */
-      if (g_hash_table_lookup_extended(smb_continuation_hash, &request_key,
-				       &new_request_key_ret,
-				       &continuation_val_ret)) {
-	new_request_key = new_request_key_ret;
-	continuation_val = continuation_val_ret;
-
-	/*
-	 * We found it.
-	 * Remove the old entry.
-	 */
-	g_hash_table_remove(smb_continuation_hash, &request_key);
-
-	/*
-	 * Now update the key, and put it back into the hash table with
-	 * the new key.
-	 */
-	new_request_key->frame_num = fd->num;
-	g_hash_table_insert(smb_continuation_hash, new_request_key,
-			    continuation_val);
-      }
-    } else {
-      /*
-       * This is not the first time the frame has been seen; check for
-       * an entry for a matching request, with this frame's frame
-       * number as the continuation frame number, in the hash table.
-       */
-      request_key.conversation = conversation->index;
-      request_key.mid          = si.mid;
-      request_key.pid          = si.pid;
-      request_key.frame_num    = fd->num;
-
-      continuation_val = (struct smb_continuation_val *)
-		g_hash_table_lookup(smb_continuation_hash, &request_key);
-    }
-  }
-
-  /*
-   * If we found the entry for the message of which this is a continuation,
-   * and our caller cares, get the transaction name for that message, as
-   * it's the transaction name for this message as well.
-   */
-  if (continuation_val != NULL && TransactName != NULL)
-    *TransactName = continuation_val -> transact_name;
-
-  if (TotalDataCount > DataCount + si.ddisp) {
-    /*
-     * This reply isn't the last in the series; there should be a
-     * continuation for it later in the capture.
-     *
-     * If this is the first time the frame has been seen, check for
-     * an entry for the reply in the hash table.  If it's not found,
-     * insert an entry for it.
-     *
-     * If it's the first time it's been seen, then we can't have seen
-     * the continuation yet, so the continuation frame number should
-     * be 0, for "unknown".
-     */
-    if (!fd->flags.visited) {
-      request_key.conversation = conversation->index;
-      request_key.mid          = si.mid;
-      request_key.pid          = si.pid;
-      request_key.frame_num    = 0;
-
-      new_continuation_val = (struct smb_continuation_val *)
-		g_hash_table_lookup(smb_continuation_hash, &request_key);
-
-      if (new_continuation_val == NULL) {
-	/*
-	 * Not found.
-	 */
-	new_request_key = g_mem_chunk_alloc(smb_request_keys);
-	new_request_key -> conversation = conversation->index;
-	new_request_key -> mid          = si.mid;
-	new_request_key -> pid          = si.pid;
-	new_request_key -> frame_num    = 0;
-
-	new_continuation_val = g_mem_chunk_alloc(smb_continuation_vals);
-	new_continuation_val -> frame = fd->num;
-	if (TransactName != NULL)
-	  new_continuation_val -> transact_name = *TransactName;
-	else
-	  new_continuation_val -> transact_name = NULL;
-
-	g_hash_table_insert(smb_continuation_hash, new_request_key,
-			    new_continuation_val);
-      } else {
-	/*
-	 * This presumably means we never saw the continuation of
-	 * the message we found, and this is a reply to a different
-	 * request; as we never saw the continuation of that message,
-	 * we won't be using this "request_val" structure for that
-	 * message (as we'd use it only for the continuation).
-	 *
-	 * Clean out the structure, and set it to refer to this frame.
-	 */
-	new_continuation_val -> frame = fd->num;
-      }
-    }
-  }
-
-  return continuation_val;
-}
 
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
    End of request/response matching functions
@@ -7630,17 +7199,24 @@ dissect_nt_cancel_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	smb_info_t	*sip;
 	guint8 wc;
 	guint16 bc;
+	conversation_t *conversation;
+	conv_tables_t *ct;
+	smb_info_t *old_si;
 
-	/* XXX I think this correct to find the matching request, must test */
 	sip = pinfo->private_data;
-	sip->src = &pinfo->src;
-	sip->dst = &pinfo->dst;
-	sip = g_hash_table_lookup(smb_info_table, sip);
-	if(sip){
-		proto_tree_add_uint(tree, hf_smb_cancel_to, tvb, 0, 0, sip->frame_req);
-	} else {
-		proto_tree_add_text(tree, tvb, 0, 0,
-			"Cancelation to: <unknown frame>");
+	conversation = find_conversation(&pinfo->src, &pinfo->dst,
+			  pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
+	if(conversation){
+		ct=conversation_get_proto_data(conversation, proto_smb);
+		if(ct){
+			old_si=g_hash_table_lookup(ct->unmatched, (void *)sip->mid);
+			if(old_si){
+				proto_tree_add_uint(tree, hf_smb_cancel_to, tvb, 0, 0, old_si->frame_req);
+			} else {
+				proto_tree_add_text(tree, tvb, 0, 0,
+						    "Cancellation to: <unknown frame>");
+			}
+		}
 	}
 
 	WORD_COUNT;
@@ -7899,13 +7475,11 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	smb_info_t *si;
-	struct smb_request_val *request_val;
 	int fn_len;
 	const char *fn;
 	int old_offset = offset;
 
 	si = (smb_info_t *)pinfo->private_data;
-	request_val = si->request_val;
 
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, bc,
@@ -7993,8 +7567,6 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* Find First2 information level */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if (!pinfo->fd->flags.visited)
-			request_val->last_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 
@@ -8032,8 +7604,6 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* Find First2 information level */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if (!pinfo->fd->flags.visited)
-			request_val->last_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 
@@ -8064,8 +7634,6 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if (!pinfo->fd->flags.visited)
-			request_val->last_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_qfsi_information_level, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 
@@ -8074,8 +7642,6 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if (!pinfo->fd->flags.visited)
-			request_val->last_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 		
@@ -8101,8 +7667,6 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if (!pinfo->fd->flags.visited)
-			request_val->last_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 		
@@ -8133,8 +7697,6 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if (!pinfo->fd->flags.visited)
-			request_val->last_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 		
@@ -8148,8 +7710,6 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* level of interest */
 		CHECK_BYTE_COUNT_TRANS(2);
 		si->info_level = tvb_get_letohs(tvb, offset);
-		if (!pinfo->fd->flags.visited)
-			request_val->last_level = si->info_level;
 		proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, offset, 2, si->info_level);
 		COUNT_BYTES_TRANS(2);
 		
@@ -9130,8 +8690,6 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 static int
 dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
-	conversation_t *conversation;
-	struct smb_request_val *request_val;
 	guint8 wc, sc=0;
 	int so=0;
 	guint16 od=0, tf, po=0, pc=0, dc=0, pd, dd=0;
@@ -9143,26 +8701,6 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int padcnt;
 
 	si = (smb_info_t *)pinfo->private_data;
-
-	/*
-	 * Find out what conversation this packet is part of.
-	 */
-	conversation = find_conversation(&pinfo->src, &pinfo->dst,
-	    pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
-
-	if (conversation == NULL) {
-		/*
-		 * There isn't one yet; create it.
-		 */
-		conversation = conversation_new(&pinfo->src, &pinfo->dst,
-		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
-
-	si->conversation = conversation;  /* Save this */
-
-	request_val = do_transaction_hashing(conversation, *si, pinfo->fd);
-
-	si->request_val = request_val;  /* Save this for later */
 
 	WORD_COUNT;
 
@@ -9306,8 +8844,6 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  					    val_to_str(si->subcmd, trans2_cmd_vals, 
 						"Unknown (0x%02x)"));
 				}
-				if (!pinfo->fd->flags.visited)
-					request_val->last_transact2_command = si->subcmd;
 				break;
 
 			case 0x25:
@@ -10647,8 +10183,6 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 static int
 dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
-	conversation_t *conversation;
-	struct smb_request_val *request_val;
 	guint8 sc=0, wc;
 	guint16 od=0, tf, po=0, pc=0, pd, dc=0, dd=0;
 	int so=0;
@@ -10659,66 +10193,33 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	si = (smb_info_t *)pinfo->private_data;
 
-	/*
-	 * Find out what conversation this packet is part of.
-	 */
-	conversation = find_conversation(&pinfo->src, &pinfo->dst,
-	    pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
-
-	if (conversation == NULL) {
-		/*
-		 * There isn't one yet; create it.
-		 */
-		conversation = conversation_new(&pinfo->src, &pinfo->dst,
-		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-	}
-
-	si->conversation = conversation;  /* Save this */
-
-	request_val = do_transaction_hashing(conversation, *si, pinfo->fd);
-
-	si->request_val = request_val;  /* Save this for later */
-
-	if(request_val != NULL){
-		switch(si->cmd){
-
-		case 0x32:
-			/* transaction2 */
-			si->subcmd = request_val->last_transact2_command;
-			if (si->subcmd != -1) {
-				proto_tree_add_uint(tree, hf_smb_trans2_subcmd, tvb, 0, 0, si->subcmd);
-				if (check_col(pinfo->fd, COL_INFO)) {
-					col_append_fstr(pinfo->fd, COL_INFO, " %s",
-						val_to_str(si->subcmd,
-							trans2_cmd_vals, 
-							"<unknown (0x%02x)> "));
-				}
-			} else {
-				/*
-				 * We didn't manage to extract the subcommand
-				 * from the matching request (perhaps because
-				 * the frame was short), so we don't know what
-				 * type of transaction this is.
-				 */
-				proto_tree_add_text(tree, tvb, 0, 0,
-					"Subcommand: <UNKNOWN> since transaction code wasn't found in request packet");
-				if (check_col(pinfo->fd, COL_INFO)) {
-					col_append_fstr(pinfo->fd, COL_INFO, "<unknown> ");
-				}
+	switch(si->cmd){
+	case 0x32:
+		/* transaction2 */
+		if (si->subcmd != -1) {
+			proto_tree_add_uint(tree, hf_smb_trans2_subcmd, tvb, 0, 0, si->subcmd);
+			if (check_col(pinfo->fd, COL_INFO)) {
+				col_append_fstr(pinfo->fd, COL_INFO, " %s",
+					val_to_str(si->subcmd,
+						trans2_cmd_vals, 
+						"<unknown (0x%02x)>"));
 			}
-			break;
+		} else {
+			/*
+			 * We didn't manage to extract the subcommand
+			 * from the matching request (perhaps because
+			 * the frame was short), so we don't know what
+			 * type of transaction this is.
+			 * (XXX - Or we didn't even see the matching request
+			 * in the first place.)
+			 */
+			proto_tree_add_text(tree, tvb, 0, 0,
+				"Subcommand: <UNKNOWN> since transaction code wasn't found in request packet");
+			if (check_col(pinfo->fd, COL_INFO)) {
+				col_append_fstr(pinfo->fd, COL_INFO, "<unknown>");
+			}
 		}
-		si->info_level = request_val->last_level;
-	} else {
-		/* we have not seen the request yet so we don't know what 
-		   subcommand it was */
-		proto_tree_add_text(tree, tvb, 0, 0,
-			"Subcommand: <UNKNOWN> since request packet was not captured");
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_append_fstr(pinfo->fd, COL_INFO, "<unknown> ");
-		}
-		si->subcmd = -1;
-		si->info_level = -1;
+		break;
 	}
 
 	WORD_COUNT;
@@ -10906,6 +10407,27 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
 
+static int
+dissect_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
+{
+	guint8 wc;
+	guint16 bc;
+
+	WORD_COUNT;
+ 
+	if (wc != 0)
+		proto_tree_add_text(tree, tvb, offset, wc*2, "Word parameters");
+
+	BYTE_COUNT;
+
+	if (bc != 0)
+		proto_tree_add_text(tree, tvb, offset, bc, "Byte parameters");
+
+	END_OF_SMB
+
+	return offset;
+}
+
 typedef struct _smb_function {
        int (*request)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree);
        int (*response)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree);
@@ -10934,28 +10456,28 @@ smb_function smb_dissector[256] = {
   /* 0x12 Seek File*/  {dissect_seek_file_request, dissect_seek_file_response},
   /* 0x13 Lock And Read*/  {dissect_read_file_request, dissect_lock_and_read_response},
   /* 0x14 Write And Unlock*/  {dissect_write_file_request, dissect_write_file_response},
-  /* 0x15 */  {NULL, NULL},
-  /* 0x16 */  {NULL, NULL},
-  /* 0x17 */  {NULL, NULL},
-  /* 0x18 */  {NULL, NULL},
-  /* 0x19 */  {NULL, NULL},
-  /* 0x1a Read Raw*/  {dissect_read_raw_request, NULL},
+  /* 0x15 */  {dissect_unknown, dissect_unknown},
+  /* 0x16 */  {dissect_unknown, dissect_unknown},
+  /* 0x17 */  {dissect_unknown, dissect_unknown},
+  /* 0x18 */  {dissect_unknown, dissect_unknown},
+  /* 0x19 */  {dissect_unknown, dissect_unknown},
+  /* 0x1a Read Raw*/  {dissect_read_raw_request, dissect_unknown},
   /* 0x1b Read MPX*/  {dissect_read_mpx_request, dissect_read_mpx_response},
-  /* 0x1c */  {NULL, NULL},
+  /* 0x1c */  {dissect_unknown, dissect_unknown},
   /* 0x1d Write Raw*/  {dissect_write_raw_request, dissect_write_raw_response},
   /* 0x1e Write MPX*/  {dissect_write_mpx_request, dissect_write_mpx_response},
-  /* 0x1f */  {NULL, NULL},
+  /* 0x1f */  {dissect_unknown, dissect_unknown},
 
-  /* 0x20 Write Complete*/  {NULL, dissect_write_and_close_response},
-  /* 0x21 */  {NULL, NULL},
+  /* 0x20 Write Complete*/  {dissect_unknown, dissect_write_and_close_response},
+  /* 0x21 */  {dissect_unknown, dissect_unknown},
   /* 0x22 Set Info2*/  {dissect_set_information2_request, dissect_empty},
   /* 0x23 Query Info2*/  {dissect_fid, dissect_query_information2_response},
   /* 0x24 Locking And X*/  {dissect_locking_andx_request, dissect_locking_andx_response},
   /* 0x25 Transaction*/		{dissect_transaction_request, dissect_transaction_response},
-  /* 0x26 */  {NULL, NULL},
-  /* 0x27 */  {NULL, NULL},
-  /* 0x28 */  {NULL, NULL},
-  /* 0x29 */  {NULL, NULL},
+  /* 0x26 */  {dissect_unknown, dissect_unknown},
+  /* 0x27 */  {dissect_unknown, dissect_unknown},
+  /* 0x28 */  {dissect_unknown, dissect_unknown},
+  /* 0x29 */  {dissect_unknown, dissect_unknown},
   /* 0x2a Move File*/  {dissect_move_request, dissect_move_response},
   /* 0x2b Echo*/  {dissect_echo_request, dissect_echo_response},
   /* 0x2c Write And Close*/  {dissect_write_and_close_request, dissect_write_and_close_response},
@@ -10963,73 +10485,73 @@ smb_function smb_dissector[256] = {
   /* 0x2e Read And X*/  {dissect_read_andx_request, dissect_read_andx_response},
   /* 0x2f Write And X*/  {dissect_write_andx_request, dissect_write_andx_response},
 
-  /* 0x30 */  {NULL, NULL},
-  /* 0x31 */  {NULL, NULL},
+  /* 0x30 */  {dissect_unknown, dissect_unknown},
+  /* 0x31 */  {dissect_unknown, dissect_unknown},
   /* 0x32 Transaction2*/		{dissect_transaction_request, dissect_transaction_response},
-  /* 0x33 */  {NULL, NULL},
+  /* 0x33 */  {dissect_unknown, dissect_unknown},
   /* 0x34 Find Close2*/  {dissect_sid, dissect_empty},
-  /* 0x35 */  {NULL, NULL},
-  /* 0x36 */  {NULL, NULL},
-  /* 0x37 */  {NULL, NULL},
-  /* 0x38 */  {NULL, NULL},
-  /* 0x39 */  {NULL, NULL},
-  /* 0x3a */  {NULL, NULL},
-  /* 0x3b */  {NULL, NULL},
-  /* 0x3c */  {NULL, NULL},
-  /* 0x3d */  {NULL, NULL},
-  /* 0x3e */  {NULL, NULL},
-  /* 0x3f */  {NULL, NULL},
+  /* 0x35 */  {dissect_unknown, dissect_unknown},
+  /* 0x36 */  {dissect_unknown, dissect_unknown},
+  /* 0x37 */  {dissect_unknown, dissect_unknown},
+  /* 0x38 */  {dissect_unknown, dissect_unknown},
+  /* 0x39 */  {dissect_unknown, dissect_unknown},
+  /* 0x3a */  {dissect_unknown, dissect_unknown},
+  /* 0x3b */  {dissect_unknown, dissect_unknown},
+  /* 0x3c */  {dissect_unknown, dissect_unknown},
+  /* 0x3d */  {dissect_unknown, dissect_unknown},
+  /* 0x3e */  {dissect_unknown, dissect_unknown},
+  /* 0x3f */  {dissect_unknown, dissect_unknown},
 
-  /* 0x40 */  {NULL, NULL},
-  /* 0x41 */  {NULL, NULL},
-  /* 0x42 */  {NULL, NULL},
-  /* 0x43 */  {NULL, NULL},
-  /* 0x44 */  {NULL, NULL},
-  /* 0x45 */  {NULL, NULL},
-  /* 0x46 */  {NULL, NULL},
-  /* 0x47 */  {NULL, NULL},
-  /* 0x48 */  {NULL, NULL},
-  /* 0x49 */  {NULL, NULL},
-  /* 0x4a */  {NULL, NULL},
-  /* 0x4b */  {NULL, NULL},
-  /* 0x4c */  {NULL, NULL},
-  /* 0x4d */  {NULL, NULL},
-  /* 0x4e */  {NULL, NULL},
-  /* 0x4f */  {NULL, NULL},
+  /* 0x40 */  {dissect_unknown, dissect_unknown},
+  /* 0x41 */  {dissect_unknown, dissect_unknown},
+  /* 0x42 */  {dissect_unknown, dissect_unknown},
+  /* 0x43 */  {dissect_unknown, dissect_unknown},
+  /* 0x44 */  {dissect_unknown, dissect_unknown},
+  /* 0x45 */  {dissect_unknown, dissect_unknown},
+  /* 0x46 */  {dissect_unknown, dissect_unknown},
+  /* 0x47 */  {dissect_unknown, dissect_unknown},
+  /* 0x48 */  {dissect_unknown, dissect_unknown},
+  /* 0x49 */  {dissect_unknown, dissect_unknown},
+  /* 0x4a */  {dissect_unknown, dissect_unknown},
+  /* 0x4b */  {dissect_unknown, dissect_unknown},
+  /* 0x4c */  {dissect_unknown, dissect_unknown},
+  /* 0x4d */  {dissect_unknown, dissect_unknown},
+  /* 0x4e */  {dissect_unknown, dissect_unknown},
+  /* 0x4f */  {dissect_unknown, dissect_unknown},
 
-  /* 0x50 */  {NULL, NULL},
-  /* 0x51 */  {NULL, NULL},
-  /* 0x52 */  {NULL, NULL},
-  /* 0x53 */  {NULL, NULL},
-  /* 0x54 */  {NULL, NULL},
-  /* 0x55 */  {NULL, NULL},
-  /* 0x56 */  {NULL, NULL},
-  /* 0x57 */  {NULL, NULL},
-  /* 0x58 */  {NULL, NULL},
-  /* 0x59 */  {NULL, NULL},
-  /* 0x5a */  {NULL, NULL},
-  /* 0x5b */  {NULL, NULL},
-  /* 0x5c */  {NULL, NULL},
-  /* 0x5d */  {NULL, NULL},
-  /* 0x5e */  {NULL, NULL},
-  /* 0x5f */  {NULL, NULL},
+  /* 0x50 */  {dissect_unknown, dissect_unknown},
+  /* 0x51 */  {dissect_unknown, dissect_unknown},
+  /* 0x52 */  {dissect_unknown, dissect_unknown},
+  /* 0x53 */  {dissect_unknown, dissect_unknown},
+  /* 0x54 */  {dissect_unknown, dissect_unknown},
+  /* 0x55 */  {dissect_unknown, dissect_unknown},
+  /* 0x56 */  {dissect_unknown, dissect_unknown},
+  /* 0x57 */  {dissect_unknown, dissect_unknown},
+  /* 0x58 */  {dissect_unknown, dissect_unknown},
+  /* 0x59 */  {dissect_unknown, dissect_unknown},
+  /* 0x5a */  {dissect_unknown, dissect_unknown},
+  /* 0x5b */  {dissect_unknown, dissect_unknown},
+  /* 0x5c */  {dissect_unknown, dissect_unknown},
+  /* 0x5d */  {dissect_unknown, dissect_unknown},
+  /* 0x5e */  {dissect_unknown, dissect_unknown},
+  /* 0x5f */  {dissect_unknown, dissect_unknown},
 
-  /* 0x60 */  {NULL, NULL},
-  /* 0x61 */  {NULL, NULL},
-  /* 0x62 */  {NULL, NULL},
-  /* 0x63 */  {NULL, NULL},
-  /* 0x64 */  {NULL, NULL},
-  /* 0x65 */  {NULL, NULL},
-  /* 0x66 */  {NULL, NULL},
-  /* 0x67 */  {NULL, NULL},
-  /* 0x68 */  {NULL, NULL},
-  /* 0x69 */  {NULL, NULL},
-  /* 0x6a */  {NULL, NULL},
-  /* 0x6b */  {NULL, NULL},
-  /* 0x6c */  {NULL, NULL},
-  /* 0x6d */  {NULL, NULL},
-  /* 0x6e */  {NULL, NULL},
-  /* 0x6f */  {NULL, NULL},
+  /* 0x60 */  {dissect_unknown, dissect_unknown},
+  /* 0x61 */  {dissect_unknown, dissect_unknown},
+  /* 0x62 */  {dissect_unknown, dissect_unknown},
+  /* 0x63 */  {dissect_unknown, dissect_unknown},
+  /* 0x64 */  {dissect_unknown, dissect_unknown},
+  /* 0x65 */  {dissect_unknown, dissect_unknown},
+  /* 0x66 */  {dissect_unknown, dissect_unknown},
+  /* 0x67 */  {dissect_unknown, dissect_unknown},
+  /* 0x68 */  {dissect_unknown, dissect_unknown},
+  /* 0x69 */  {dissect_unknown, dissect_unknown},
+  /* 0x6a */  {dissect_unknown, dissect_unknown},
+  /* 0x6b */  {dissect_unknown, dissect_unknown},
+  /* 0x6c */  {dissect_unknown, dissect_unknown},
+  /* 0x6d */  {dissect_unknown, dissect_unknown},
+  /* 0x6e */  {dissect_unknown, dissect_unknown},
+  /* 0x6f */  {dissect_unknown, dissect_unknown},
 
   /* 0x70 Tree Connect*/  {dissect_tree_connect_request, dissect_tree_connect_response},
   /* 0x71 Tree Disconnect*/  {dissect_empty, dissect_empty},
@@ -11037,150 +10559,150 @@ smb_function smb_dissector[256] = {
   /* 0x73 Session Setup And X*/  {dissect_session_setup_andx_request, dissect_session_setup_andx_response},
   /* 0x74 Logoff And X*/  {dissect_empty_andx, dissect_empty_andx},
   /* 0x75 Tree Connect And X*/  {dissect_tree_connect_andx_request, dissect_tree_connect_andx_response},
-  /* 0x76 */  {NULL, NULL},
-  /* 0x77 */  {NULL, NULL},
-  /* 0x78 */  {NULL, NULL},
-  /* 0x79 */  {NULL, NULL},
-  /* 0x7a */  {NULL, NULL},
-  /* 0x7b */  {NULL, NULL},
-  /* 0x7c */  {NULL, NULL},
-  /* 0x7d */  {NULL, NULL},
-  /* 0x7e */  {NULL, NULL},
-  /* 0x7f */  {NULL, NULL},
+  /* 0x76 */  {dissect_unknown, dissect_unknown},
+  /* 0x77 */  {dissect_unknown, dissect_unknown},
+  /* 0x78 */  {dissect_unknown, dissect_unknown},
+  /* 0x79 */  {dissect_unknown, dissect_unknown},
+  /* 0x7a */  {dissect_unknown, dissect_unknown},
+  /* 0x7b */  {dissect_unknown, dissect_unknown},
+  /* 0x7c */  {dissect_unknown, dissect_unknown},
+  /* 0x7d */  {dissect_unknown, dissect_unknown},
+  /* 0x7e */  {dissect_unknown, dissect_unknown},
+  /* 0x7f */  {dissect_unknown, dissect_unknown},
 
   /* 0x80 Query Info Disk*/  {dissect_empty, dissect_query_information_disk_response},
   /* 0x81 Search Dir*/  {dissect_search_dir_request, dissect_search_dir_response},
-  /* 0x82 */  {NULL, NULL},
-  /* 0x83 */  {NULL, NULL},
-  /* 0x84 */  {NULL, NULL},
-  /* 0x85 */  {NULL, NULL},
-  /* 0x86 */  {NULL, NULL},
-  /* 0x87 */  {NULL, NULL},
-  /* 0x88 */  {NULL, NULL},
-  /* 0x89 */  {NULL, NULL},
-  /* 0x8a */  {NULL, NULL},
-  /* 0x8b */  {NULL, NULL},
-  /* 0x8c */  {NULL, NULL},
-  /* 0x8d */  {NULL, NULL},
-  /* 0x8e */  {NULL, NULL},
-  /* 0x8f */  {NULL, NULL},
+  /* 0x82 */  {dissect_unknown, dissect_unknown},
+  /* 0x83 */  {dissect_unknown, dissect_unknown},
+  /* 0x84 */  {dissect_unknown, dissect_unknown},
+  /* 0x85 */  {dissect_unknown, dissect_unknown},
+  /* 0x86 */  {dissect_unknown, dissect_unknown},
+  /* 0x87 */  {dissect_unknown, dissect_unknown},
+  /* 0x88 */  {dissect_unknown, dissect_unknown},
+  /* 0x89 */  {dissect_unknown, dissect_unknown},
+  /* 0x8a */  {dissect_unknown, dissect_unknown},
+  /* 0x8b */  {dissect_unknown, dissect_unknown},
+  /* 0x8c */  {dissect_unknown, dissect_unknown},
+  /* 0x8d */  {dissect_unknown, dissect_unknown},
+  /* 0x8e */  {dissect_unknown, dissect_unknown},
+  /* 0x8f */  {dissect_unknown, dissect_unknown},
 
-  /* 0x90 */  {NULL, NULL},
-  /* 0x91 */  {NULL, NULL},
-  /* 0x92 */  {NULL, NULL},
-  /* 0x93 */  {NULL, NULL},
-  /* 0x94 */  {NULL, NULL},
-  /* 0x95 */  {NULL, NULL},
-  /* 0x96 */  {NULL, NULL},
-  /* 0x97 */  {NULL, NULL},
-  /* 0x98 */  {NULL, NULL},
-  /* 0x99 */  {NULL, NULL},
-  /* 0x9a */  {NULL, NULL},
-  /* 0x9b */  {NULL, NULL},
-  /* 0x9c */  {NULL, NULL},
-  /* 0x9d */  {NULL, NULL},
-  /* 0x9e */  {NULL, NULL},
-  /* 0x9f */  {NULL, NULL},
+  /* 0x90 */  {dissect_unknown, dissect_unknown},
+  /* 0x91 */  {dissect_unknown, dissect_unknown},
+  /* 0x92 */  {dissect_unknown, dissect_unknown},
+  /* 0x93 */  {dissect_unknown, dissect_unknown},
+  /* 0x94 */  {dissect_unknown, dissect_unknown},
+  /* 0x95 */  {dissect_unknown, dissect_unknown},
+  /* 0x96 */  {dissect_unknown, dissect_unknown},
+  /* 0x97 */  {dissect_unknown, dissect_unknown},
+  /* 0x98 */  {dissect_unknown, dissect_unknown},
+  /* 0x99 */  {dissect_unknown, dissect_unknown},
+  /* 0x9a */  {dissect_unknown, dissect_unknown},
+  /* 0x9b */  {dissect_unknown, dissect_unknown},
+  /* 0x9c */  {dissect_unknown, dissect_unknown},
+  /* 0x9d */  {dissect_unknown, dissect_unknown},
+  /* 0x9e */  {dissect_unknown, dissect_unknown},
+  /* 0x9f */  {dissect_unknown, dissect_unknown},
   /* 0xa0 NT Transaction*/  	{dissect_nt_transaction_request, dissect_nt_transaction_response},
   /* 0xa1 NT Trans secondary*/	{dissect_nt_transaction_request, dissect_nt_transaction_response},
   /* 0xa2 NT CreateAndX*/		{dissect_nt_create_andx_request, dissect_nt_create_andx_response},
-  /* 0xa3 */  {NULL, NULL},
-  /* 0xa4 NT Cancel*/		{dissect_nt_cancel_request, NULL}, /*no response to this one*/
-  /* 0xa5 */  {NULL, NULL},
-  /* 0xa6 */  {NULL, NULL},
-  /* 0xa7 */  {NULL, NULL},
-  /* 0xa8 */  {NULL, NULL},
-  /* 0xa9 */  {NULL, NULL},
-  /* 0xaa */  {NULL, NULL},
-  /* 0xab */  {NULL, NULL},
-  /* 0xac */  {NULL, NULL},
-  /* 0xad */  {NULL, NULL},
-  /* 0xae */  {NULL, NULL},
-  /* 0xaf */  {NULL, NULL},
+  /* 0xa3 */  {dissect_unknown, dissect_unknown},
+  /* 0xa4 NT Cancel*/		{dissect_nt_cancel_request, dissect_unknown}, /*no response to this one*/
+  /* 0xa5 */  {dissect_unknown, dissect_unknown},
+  /* 0xa6 */  {dissect_unknown, dissect_unknown},
+  /* 0xa7 */  {dissect_unknown, dissect_unknown},
+  /* 0xa8 */  {dissect_unknown, dissect_unknown},
+  /* 0xa9 */  {dissect_unknown, dissect_unknown},
+  /* 0xaa */  {dissect_unknown, dissect_unknown},
+  /* 0xab */  {dissect_unknown, dissect_unknown},
+  /* 0xac */  {dissect_unknown, dissect_unknown},
+  /* 0xad */  {dissect_unknown, dissect_unknown},
+  /* 0xae */  {dissect_unknown, dissect_unknown},
+  /* 0xaf */  {dissect_unknown, dissect_unknown},
 
-  /* 0xb0 */  {NULL, NULL},
-  /* 0xb1 */  {NULL, NULL},
-  /* 0xb2 */  {NULL, NULL},
-  /* 0xb3 */  {NULL, NULL},
-  /* 0xb4 */  {NULL, NULL},
-  /* 0xb5 */  {NULL, NULL},
-  /* 0xb6 */  {NULL, NULL},
-  /* 0xb7 */  {NULL, NULL},
-  /* 0xb8 */  {NULL, NULL},
-  /* 0xb9 */  {NULL, NULL},
-  /* 0xba */  {NULL, NULL},
-  /* 0xbb */  {NULL, NULL},
-  /* 0xbc */  {NULL, NULL},
-  /* 0xbd */  {NULL, NULL},
-  /* 0xbe */  {NULL, NULL},
-  /* 0xbf */  {NULL, NULL},
+  /* 0xb0 */  {dissect_unknown, dissect_unknown},
+  /* 0xb1 */  {dissect_unknown, dissect_unknown},
+  /* 0xb2 */  {dissect_unknown, dissect_unknown},
+  /* 0xb3 */  {dissect_unknown, dissect_unknown},
+  /* 0xb4 */  {dissect_unknown, dissect_unknown},
+  /* 0xb5 */  {dissect_unknown, dissect_unknown},
+  /* 0xb6 */  {dissect_unknown, dissect_unknown},
+  /* 0xb7 */  {dissect_unknown, dissect_unknown},
+  /* 0xb8 */  {dissect_unknown, dissect_unknown},
+  /* 0xb9 */  {dissect_unknown, dissect_unknown},
+  /* 0xba */  {dissect_unknown, dissect_unknown},
+  /* 0xbb */  {dissect_unknown, dissect_unknown},
+  /* 0xbc */  {dissect_unknown, dissect_unknown},
+  /* 0xbd */  {dissect_unknown, dissect_unknown},
+  /* 0xbe */  {dissect_unknown, dissect_unknown},
+  /* 0xbf */  {dissect_unknown, dissect_unknown},
   /* 0xc0 Open Print File*/	{dissect_open_print_file_request, dissect_fid},
   /* 0xc1 Write Print File*/	{dissect_write_print_file_request, dissect_empty},
   /* 0xc2 Close Print File*/  {dissect_fid, dissect_empty},
   /* 0xc3 Get Print Queue*/	{dissect_get_print_queue_request, dissect_get_print_queue_response},
-  /* 0xc4 */  {NULL, NULL},
-  /* 0xc5 */  {NULL, NULL},
-  /* 0xc6 */  {NULL, NULL},
-  /* 0xc7 */  {NULL, NULL},
-  /* 0xc8 */  {NULL, NULL},
-  /* 0xc9 */  {NULL, NULL},
-  /* 0xca */  {NULL, NULL},
-  /* 0xcb */  {NULL, NULL},
-  /* 0xcc */  {NULL, NULL},
-  /* 0xcd */  {NULL, NULL},
-  /* 0xce */  {NULL, NULL},
-  /* 0xcf */  {NULL, NULL},
+  /* 0xc4 */  {dissect_unknown, dissect_unknown},
+  /* 0xc5 */  {dissect_unknown, dissect_unknown},
+  /* 0xc6 */  {dissect_unknown, dissect_unknown},
+  /* 0xc7 */  {dissect_unknown, dissect_unknown},
+  /* 0xc8 */  {dissect_unknown, dissect_unknown},
+  /* 0xc9 */  {dissect_unknown, dissect_unknown},
+  /* 0xca */  {dissect_unknown, dissect_unknown},
+  /* 0xcb */  {dissect_unknown, dissect_unknown},
+  /* 0xcc */  {dissect_unknown, dissect_unknown},
+  /* 0xcd */  {dissect_unknown, dissect_unknown},
+  /* 0xce */  {dissect_unknown, dissect_unknown},
+  /* 0xcf */  {dissect_unknown, dissect_unknown},
 
-  /* 0xd0 */  {NULL, NULL},
-  /* 0xd1 */  {NULL, NULL},
-  /* 0xd2 */  {NULL, NULL},
-  /* 0xd3 */  {NULL, NULL},
-  /* 0xd4 */  {NULL, NULL},
-  /* 0xd5 */  {NULL, NULL},
-  /* 0xd6 */  {NULL, NULL},
-  /* 0xd7 */  {NULL, NULL},
-  /* 0xd8 */  {NULL, NULL},
-  /* 0xd9 */  {NULL, NULL},
-  /* 0xda */  {NULL, NULL},
-  /* 0xdb */  {NULL, NULL},
-  /* 0xdc */  {NULL, NULL},
-  /* 0xdd */  {NULL, NULL},
-  /* 0xde */  {NULL, NULL},
-  /* 0xdf */  {NULL, NULL},
+  /* 0xd0 */  {dissect_unknown, dissect_unknown},
+  /* 0xd1 */  {dissect_unknown, dissect_unknown},
+  /* 0xd2 */  {dissect_unknown, dissect_unknown},
+  /* 0xd3 */  {dissect_unknown, dissect_unknown},
+  /* 0xd4 */  {dissect_unknown, dissect_unknown},
+  /* 0xd5 */  {dissect_unknown, dissect_unknown},
+  /* 0xd6 */  {dissect_unknown, dissect_unknown},
+  /* 0xd7 */  {dissect_unknown, dissect_unknown},
+  /* 0xd8 */  {dissect_unknown, dissect_unknown},
+  /* 0xd9 */  {dissect_unknown, dissect_unknown},
+  /* 0xda */  {dissect_unknown, dissect_unknown},
+  /* 0xdb */  {dissect_unknown, dissect_unknown},
+  /* 0xdc */  {dissect_unknown, dissect_unknown},
+  /* 0xdd */  {dissect_unknown, dissect_unknown},
+  /* 0xde */  {dissect_unknown, dissect_unknown},
+  /* 0xdf */  {dissect_unknown, dissect_unknown},
 
-  /* 0xe0 */  {NULL, NULL},
-  /* 0xe1 */  {NULL, NULL},
-  /* 0xe2 */  {NULL, NULL},
-  /* 0xe3 */  {NULL, NULL},
-  /* 0xe4 */  {NULL, NULL},
-  /* 0xe5 */  {NULL, NULL},
-  /* 0xe6 */  {NULL, NULL},
-  /* 0xe7 */  {NULL, NULL},
-  /* 0xe8 */  {NULL, NULL},
-  /* 0xe9 */  {NULL, NULL},
-  /* 0xea */  {NULL, NULL},
-  /* 0xeb */  {NULL, NULL},
-  /* 0xec */  {NULL, NULL},
-  /* 0xed */  {NULL, NULL},
-  /* 0xee */  {NULL, NULL},
-  /* 0xef */  {NULL, NULL},
+  /* 0xe0 */  {dissect_unknown, dissect_unknown},
+  /* 0xe1 */  {dissect_unknown, dissect_unknown},
+  /* 0xe2 */  {dissect_unknown, dissect_unknown},
+  /* 0xe3 */  {dissect_unknown, dissect_unknown},
+  /* 0xe4 */  {dissect_unknown, dissect_unknown},
+  /* 0xe5 */  {dissect_unknown, dissect_unknown},
+  /* 0xe6 */  {dissect_unknown, dissect_unknown},
+  /* 0xe7 */  {dissect_unknown, dissect_unknown},
+  /* 0xe8 */  {dissect_unknown, dissect_unknown},
+  /* 0xe9 */  {dissect_unknown, dissect_unknown},
+  /* 0xea */  {dissect_unknown, dissect_unknown},
+  /* 0xeb */  {dissect_unknown, dissect_unknown},
+  /* 0xec */  {dissect_unknown, dissect_unknown},
+  /* 0xed */  {dissect_unknown, dissect_unknown},
+  /* 0xee */  {dissect_unknown, dissect_unknown},
+  /* 0xef */  {dissect_unknown, dissect_unknown},
 
-  /* 0xf0 */  {NULL, NULL},
-  /* 0xf1 */  {NULL, NULL},
-  /* 0xf2 */  {NULL, NULL},
-  /* 0xf3 */  {NULL, NULL},
-  /* 0xf4 */  {NULL, NULL},
-  /* 0xf5 */  {NULL, NULL},
-  /* 0xf6 */  {NULL, NULL},
-  /* 0xf7 */  {NULL, NULL},
-  /* 0xf8 */  {NULL, NULL},
-  /* 0xf9 */  {NULL, NULL},
-  /* 0xfa */  {NULL, NULL},
-  /* 0xfb */  {NULL, NULL},
-  /* 0xfc */  {NULL, NULL},
-  /* 0xfd */  {NULL, NULL},
-  /* 0xfe */  {NULL, NULL},
-  /* 0xff */  {NULL, NULL},
+  /* 0xf0 */  {dissect_unknown, dissect_unknown},
+  /* 0xf1 */  {dissect_unknown, dissect_unknown},
+  /* 0xf2 */  {dissect_unknown, dissect_unknown},
+  /* 0xf3 */  {dissect_unknown, dissect_unknown},
+  /* 0xf4 */  {dissect_unknown, dissect_unknown},
+  /* 0xf5 */  {dissect_unknown, dissect_unknown},
+  /* 0xf6 */  {dissect_unknown, dissect_unknown},
+  /* 0xf7 */  {dissect_unknown, dissect_unknown},
+  /* 0xf8 */  {dissect_unknown, dissect_unknown},
+  /* 0xf9 */  {dissect_unknown, dissect_unknown},
+  /* 0xfa */  {dissect_unknown, dissect_unknown},
+  /* 0xfb */  {dissect_unknown, dissect_unknown},
+  /* 0xfc */  {dissect_unknown, dissect_unknown},
+  /* 0xfd */  {dissect_unknown, dissect_unknown},
+  /* 0xfe */  {dissect_unknown, dissect_unknown},
+  /* 0xff */  {dissect_unknown, dissect_unknown},
 };
 
 static int
@@ -11212,15 +10734,7 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, int
 		dissector = (si->request)?
 			smb_dissector[cmd].request:smb_dissector[cmd].response;
 
-		if(dissector){
-			offset = (*dissector)(tvb, pinfo, cmd_tree, offset, smb_tree);
-		} else {
-			int len = tvb_length_remaining(tvb, offset);
-
-			proto_tree_add_text(cmd_tree, tvb, offset, len,
-			    "Data (%u bytes)", len);
-			offset += len;
-		}
+		offset = (*dissector)(tvb, pinfo, cmd_tree, offset, smb_tree);
 		proto_item_set_len(cmd_item, offset-old_offset);
 	}
 	return offset;
@@ -11514,51 +11028,18 @@ static char *decode_smb_name(unsigned char cmd)
 static void
 smb_init_protocol(void)
 {
-	if (smb_info_table) {
-		g_hash_table_foreach_remove(smb_info_table,
-		    free_all_smb_info, NULL);
-		g_hash_table_destroy(smb_info_table);
-	}
-	if (smb_request_hash) {
-		/*
-		 * Remove all entries from the hash table and free all
-		 * strings attached to the keys and values.  (The keys
-		 * and values themselves are freed with
-		 * "g_mem_chunk_destroy()" calls below.)
-		 */
-		g_hash_table_foreach_remove(smb_request_hash,
-		    free_request_val_data, NULL);
-		g_hash_table_destroy(smb_request_hash);
-	}
-	if (smb_continuation_hash)
-		g_hash_table_destroy(smb_continuation_hash);
-	if (smb_request_keys)
-		g_mem_chunk_destroy(smb_request_keys);
-	if (smb_request_vals)
-		g_mem_chunk_destroy(smb_request_vals);
-	if (smb_continuation_vals)
-		g_mem_chunk_destroy(smb_continuation_vals);
 	if (smb_info_chunk)
 		g_mem_chunk_destroy(smb_info_chunk);
+	if (conv_tables_chunk)
+		g_mem_chunk_destroy(conv_tables_chunk);
 
-	smb_info_table = g_hash_table_new(smb_info_hash, smb_info_equal);
-	smb_request_hash = g_hash_table_new(smb_hash, smb_equal);
-	smb_continuation_hash = g_hash_table_new(smb_hash, smb_equal);
-	smb_request_keys = g_mem_chunk_new("smb_request_keys",
-	    sizeof(struct smb_request_key),
-	    smb_packet_init_count * sizeof(struct smb_request_key),
-	    G_ALLOC_AND_FREE);
-	smb_request_vals = g_mem_chunk_new("smb_request_vals",
-	    sizeof(struct smb_request_val),
-	    smb_packet_init_count * sizeof(struct smb_request_val),
-	    G_ALLOC_AND_FREE);
-	smb_continuation_vals = g_mem_chunk_new("smb_continuation_vals",
-	    sizeof(struct smb_continuation_val),
-	    smb_packet_init_count * sizeof(struct smb_continuation_val),
-	    G_ALLOC_AND_FREE);
 	smb_info_chunk = g_mem_chunk_new("smb_info_chunk",
 	    sizeof(smb_info_t),
 	    smb_info_init_count * sizeof(smb_info_t),
+	    G_ALLOC_ONLY);
+	conv_tables_chunk = g_mem_chunk_new("conv_tables_chunk",
+	    sizeof(conv_tables_t),
+	    conv_tables_count * sizeof(conv_tables_t),
 	    G_ALLOC_ONLY);
 }
 
@@ -12752,17 +12233,18 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         guint32 nt_status = 0;
         guint8 errclass = 0;
         guint16 errcode = 0;
-
+	guint16 uid, pid, tid;
 
 	top_tree=parent_tree;
 
 	/* must check that this really is a smb packet */
 	if (!tvb_bytes_exist(tvb, 0, 4))
-	  return FALSE;
+		return FALSE;
+
 	if( (tvb_get_guint8(tvb, 0) != 0xff)
-	 || (tvb_get_guint8(tvb, 1) != 'S')
-	 || (tvb_get_guint8(tvb, 2) != 'M')
-	 || (tvb_get_guint8(tvb, 3) != 'B') ){
+	    || (tvb_get_guint8(tvb, 1) != 'S')
+	    || (tvb_get_guint8(tvb, 2) != 'M')
+	    || (tvb_get_guint8(tvb, 3) != 'B') ){
 		return FALSE;
 	}
 	 
@@ -12782,9 +12264,9 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	sip->trans_subcmd = -1;
 	sip->info_level = -1;
 	sip->mid = tvb_get_letohs(tvb, offset+30);
-	sip->uid = tvb_get_letohs(tvb, offset+28);
-	sip->pid = tvb_get_letohs(tvb, offset+26);
-	sip->tid = tvb_get_letohs(tvb, offset+24);
+	uid = tvb_get_letohs(tvb, offset+28);
+	pid = tvb_get_letohs(tvb, offset+26);
+	tid = tvb_get_letohs(tvb, offset+24);
 	flags2 = tvb_get_letohs(tvb, offset+10);
 	if(flags2 & 0x8000){
 		sip->unicode = TRUE; /* Mark them as Unicode */
@@ -12794,7 +12276,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	flags = tvb_get_guint8(tvb, offset+9);
 	sip->request = !(flags&SMB_FLAGS_DIRN);
 	sip->cmd = tvb_get_guint8(tvb, offset+4);
-	sip->ddisp = 0;
+	sip->request_val=NULL;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_smb, tvb, offset, 
@@ -12810,39 +12292,115 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_tree_add_text(htree, tvb, offset, 4, "Server Component: SMB");
 	offset += 4;  /* Skip the marker */
 
-	/* store smb_info structure so we can retreive it from the reply */
-	if(sip->request){
-		sip->src = &pinfo->src;
-		sip->dst = &pinfo->dst;
+
+	if( (sip->request)
+	    &&  (sip->mid==0)
+	    &&  (uid==0)
+	    &&  (pid==0)
+	    &&  (tid==0) ){
+		/* this is a broadcast SMB packet, there will not be a reply.
+		   We dont need to do anything 
+		*/
+		sip->unidir=FALSE;
+	} else {
+		conversation_t *conversation;
+		conv_tables_t *ct;
+		smb_info_t *old_si;
+		gboolean request;
+		
+		sip->unidir=TRUE;
+		request=sip->request;
+		
+		/* first we try to find which conversation this packet is 
+		   part of 
+		*/
+		conversation = find_conversation(&pinfo->src, &pinfo->dst,
+			 pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
+		if(conversation==NULL){
+			/* OK this is a new conversation, we must create it
+			   and attach appropriate data (matched and unmatched 
+			   table for this conversation)
+			*/
+			conversation = conversation_new(&pinfo->src, &pinfo->dst, 
+				pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+			ct = g_mem_chunk_alloc(conv_tables_chunk);
+			ct->matched= g_hash_table_new(smb_info_hash_matched, 
+				smb_info_equal_matched);		
+			ct->unmatched= g_hash_table_new(smb_info_hash_matched, 
+				smb_info_equal_matched);		
+			conversation_add_proto_data(conversation, proto_smb, ct);
+		} else {
+			/* this is an old conversation, just get the tables */
+			ct=conversation_get_proto_data(conversation, proto_smb);
+		}
 		if(!pinfo->fd->flags.visited){
-			if( (sip->mid==0)
-			&&  (sip->uid==0)
-			&&  (sip->pid==0)
-			&&  (sip->tid==0) ){
-				/* this is a broadcast SMB packet,
-				   there will not be a reply.
-				   We dont need to do anything */
-				sip->unidir=FALSE;
-			} else {
-				sip->unidir=TRUE;
+			/* first see if we find an unmatched smb "equal" to 
+			   the current one 
+			*/
+			old_si=g_hash_table_lookup(ct->unmatched, 
+				(void *)sip->mid);
+			if(old_si!=NULL){
+				if(request){
+					/* ok, we are processing an SMB
+					   request but there was already
+					   another "identical" smb resuest
+					   we had not matched yet.
+					   This must mean that either we have
+					   a retransmission or that the
+					   response to the previous one was
+					   lost and the client has reused
+					   the MID for this conversation.
+					   In either case it's not much more
+					   we can do than forget the old
+					   request and concentrate on the 
+					   present one instead.
+
+					   XXX - not true for NT Cancel,
+					   where the Cancel request has
+					   the same TID/PID/MID/UID as
+					   the request to be cancelled;
+					   in that case, we should leave
+					   the old request in place.
+					   I'm not sure we can set "sip"
+					   to point to "old_si", however.
+					*/
+					g_hash_table_remove(ct->unmatched, (void *)sip->mid);
+				} else {
+					/* we have found a response to some request we have seen earlier.
+					   What we do now depends on whether this is the first response
+					   to that request we see (id frame_res==0) or not. 
+					*/
+					sip=old_si;
+					
+					if(sip->frame_res==0){
+						/* ok it is the first response we have seen to this packet */
+						sip->frame_res = pinfo->fd->num;
+						g_hash_table_insert(ct->matched, (void *)sip->frame_req, sip);
+						g_hash_table_insert(ct->matched, (void *)sip->frame_res, sip);
+					} else {
+						/* we have already seen another response to this one, but
+						   register it anyway so we see which request it matches 
+						*/
+						g_hash_table_insert(ct->matched, (void *)pinfo->fd->num, sip);
+					}
+				}
+			}
+			if(request){
 				sip = g_mem_chunk_alloc(smb_info_chunk);
 				memcpy(sip, &si, sizeof(smb_info_t));
 				sip->frame_req = pinfo->fd->num;
 				sip->frame_res = 0;
-				sip->src=g_malloc(sizeof(address));
-				COPY_ADDRESS(sip->src, &pinfo->src);
-				sip->dst=g_malloc(sizeof(address));
-				COPY_ADDRESS(sip->dst, &pinfo->dst);
-				g_hash_table_insert(smb_info_table, sip, sip);
+				g_hash_table_insert(ct->unmatched, (void *)sip->mid, sip);
+			}
+		} else {
+			/* we have seen this packet before, just check matching table and if that
+			   fails, just continue using si
+			*/
+			old_si=g_hash_table_lookup(ct->matched, (void *)pinfo->fd->num);
+			if(old_si){
+				sip=old_si;
 			}
 		}
-	} else {
-		sip->src = &pinfo->dst;
-		sip->dst = &pinfo->src;
-	}
-	sip = g_hash_table_lookup(smb_info_table, sip);
-	if(!sip){
-		sip = &si;
 	}
 	/* need to redo these ones, might have changed if we got a new sip */
 	sip->request = !(flags&SMB_FLAGS_DIRN);
@@ -12857,9 +12415,6 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			proto_tree_add_uint(htree, hf_smb_response_in, tvb, 0, 0, sip->frame_res);
 		}
 	} else {
-		if(!pinfo->fd->flags.visited){
-			sip->frame_res=pinfo->fd->num;
-		}
 		if(sip->frame_req){
 			proto_tree_add_uint(htree, hf_smb_response_to, tvb, 0, 0, sip->frame_req);
 		}
@@ -12941,18 +12496,15 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 12;
 
 	/* TID */
-	proto_tree_add_uint(htree, hf_smb_tid, tvb, offset, 2,
-		sip->tid);
+	proto_tree_add_uint(htree, hf_smb_tid, tvb, offset, 2, tid);
 	offset += 2;
 
 	/* PID */
-	proto_tree_add_uint(htree, hf_smb_pid, tvb, offset, 2,
-		sip->pid);
+	proto_tree_add_uint(htree, hf_smb_pid, tvb, offset, 2, pid);
 	offset += 2;
 
 	/* UID */
-	proto_tree_add_uint(htree, hf_smb_uid, tvb, offset, 2,
-		sip->uid);
+	proto_tree_add_uint(htree, hf_smb_uid, tvb, offset, 2, uid);
 	offset += 2;
 
 	/* MID */
@@ -12994,6 +12546,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 	}
 
+	g_assert(si.request_val==NULL);
 	return TRUE;
 }
 
