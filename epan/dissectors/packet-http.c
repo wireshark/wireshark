@@ -64,7 +64,7 @@ static int hf_http_request = -1;
 static int hf_http_basic = -1;
 static int hf_http_request_method = -1;
 static int hf_http_request_uri = -1;
-static int hf_http_request_version = -1;
+static int hf_http_version = -1;
 static int hf_http_response_code = -1;
 static int hf_http_authorization = -1;
 static int hf_http_proxy_authenticate = -1;
@@ -572,10 +572,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    tvb_format_text(tvb, offset,
 				      next_offset - offset));
 				if (req_dissector) {
-					req_tree = proto_item_add_subtree(
-					    hdr_item, ett_http_request);
-					req_dissector(tvb, req_tree,
-					    req_strlen);
+					req_tree = proto_item_add_subtree(hdr_item, ett_http_request);
+					req_dissector(tvb, req_tree, offset);
 				}
 			}
 		} else {
@@ -948,52 +946,49 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * This simple dissectory only puts http.request_method into a sub-tree.
  */
 static void
-basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int req_strlen)
+basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int start)
 {
-	gint start, end;
-	proto_tree_add_item(tree, hf_http_request_method, tvb, 0, req_strlen, FALSE);
-
-	start = end = req_strlen + 1;
+	gint end;
 	
-	while (tvb_length_remaining(tvb, end) > 0) {
-		if (tvb_get_guint8(tvb, end) == ' ' && end > start) {
-			proto_tree_add_item(tree, hf_http_request_uri, tvb, start, end - start, FALSE);
-			stat_info->request_uri = tvb_get_string(tvb, start, end - start);
+	/* find the first space to determine the end of the method */
+	end = tvb_find_guint8(tvb,start,-1,' ');
+		
+	proto_tree_add_item(tree, hf_http_request_method, tvb, start, end - start , FALSE);
 
-			break;
-		}
-		end++;
-	}
-	
-	if (end > start) {
-		start = end;
-		while (tvb_length_remaining(tvb, end) > 0) {
-			if (tvb_get_guint8(tvb, end) == '\r' && end > start) {
-				proto_tree_add_item(tree, hf_http_request_version, tvb, start, end - start, FALSE);
-				break;
-			}
-			end++;
-		}
-	}				
+	/* find the second space to determine the end of the uri */
+	start = end + 1;
+	end = tvb_find_guint8(tvb,start,-1,' ');
+
+	proto_tree_add_item(tree, hf_http_request_uri, tvb, start, end - start, FALSE);
+    stat_info->request_uri = tvb_get_string(tvb, start, end - start);
+
+	/* find the line end to determine the end of the protocol */
+	start = end + 1;
+	end = tvb_find_guint8(tvb,start,-1,'\r');
+
+	proto_tree_add_item(tree, hf_http_version, tvb, start, end - start , FALSE);
 }
 
 static void
-basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int resp_strlen)
+basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int start)
 {
-	gchar *data;
-	int minor, major, status_code;
-
-	/* BEWARE - sscanf() only operates on C strings.
-	 * The pointer returned by tvb_get_ptr points into the real data,
-	 * which is not necessarily NULL terminated. For this reason,
-	 * the sscanf() call is only applied to a buffer guaranteed to
-	 * only contain a NULL terminated string. */
-	data = g_strndup((const gchar *)tvb_get_ptr(tvb, 5, resp_strlen), resp_strlen);
-	if (sscanf((const gchar *)data, "%d.%d %d", &minor, &major, &status_code) == 3) {
-		proto_tree_add_uint(tree, hf_http_response_code, tvb, 9, 3, status_code);
-		stat_info->response_code = status_code;
-	}
-	g_free(data);
+	gchar response_chars[4];
+	gint end;
+	
+	/* find the first space to determine the end of the version */
+	end = tvb_find_guint8(tvb,start,-1,' ');
+	
+	proto_tree_add_item(tree, hf_http_version, tvb, start, end - start, FALSE);
+	
+	start = end + 1;
+	
+	tvb_memcpy(tvb,response_chars,start,3);
+	response_chars[3] = '\0';
+	
+	stat_info->response_code = strtoul(response_chars,NULL,10);
+	
+	proto_tree_add_uint(tree,hf_http_response_code,tvb,start,3,stat_info->response_code);
+	
 }
 
 /*
@@ -1723,7 +1718,7 @@ proto_register_http(void)
 	      { "Request URI",	"http.request.uri",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Request-URI", HFILL }},
-	    { &hf_http_request_version,
+	    { &hf_http_version,
 	      { "Request Version",	"http.request.version",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Request HTTP-Version", HFILL }},
