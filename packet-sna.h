@@ -1,7 +1,7 @@
 /* packet-sna.h
  * Definitions for SNA dissection.
  *
- * $Id: packet-sna.h,v 1.5 2002/08/28 21:00:34 jmayer Exp $
+ * $Id: packet-sna.h,v 1.6 2003/08/26 01:00:28 guy Exp $
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -31,10 +31,5 @@ struct sna_fid_type_4_addr {
 	guint32	saf;
 	guint16	ef;
 };
-
-/*
- * Routine to take an SNA FID Type 4 address and generate a string.
- */
-extern gchar *sna_fid_type_4_addr_to_str(const struct sna_fid_type_4_addr *addrp);
 
 #endif

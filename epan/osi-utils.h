@@ -1,11 +1,10 @@
 /* osi-utils.h
  *
- * $Id: osi-utils.h,v 1.4 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: osi-utils.h,v 1.5 2003/08/26 01:00:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -49,8 +48,10 @@
 #define NSAP_IDI_GOSIP2       0x47
 
 gchar*     print_nsap_net ( const guint8 *, int );
+void       print_nsap_net_buf( const guint8 *, int, gchar * );
 gchar*     print_area     ( const guint8 *, int );
+void       print_area_buf ( const guint8 *, int, gchar * );
 gchar*     print_system_id( const guint8 *, int );
-
+void       print_system_id_buf( const guint8 *, int, gchar * );
 
 #endif /* __OSI_UTILS_H__ */

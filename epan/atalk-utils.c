@@ -1,7 +1,7 @@
 /* atalk-utils.c
  * Routines for Appletalk utilities (DDP, currently).
  *
- * $Id: atalk-utils.c,v 1.3 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: atalk-utils.c,v 1.4 2003/08/26 01:00:29 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -39,8 +39,12 @@ atalk_addr_to_str(const struct atalk_ddp_addr *addrp)
   } else {
     cur = &str[0][0];
   }
-
-  sprintf(cur, "%u.%u", addrp->net, addrp->node );
+  atalk_addr_to_str_buf(addrp, cur);
   return cur;
 }
 
+void
+atalk_addr_to_str_buf(const struct atalk_ddp_addr *addrp, gchar *buf)
+{
+  sprintf(buf, "%u.%u", addrp->net, addrp->node );
+}

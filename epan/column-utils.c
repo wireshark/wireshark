@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.34 2003/04/16 05:55:39 guy Exp $
+ * $Id: column-utils.c,v 1.35 2003/08/26 01:00:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -484,7 +484,6 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
   guint32 ipv4_addr;
   struct e_in6_addr ipv6_addr;
   struct atalk_ddp_addr ddp_addr;
-  struct sna_fid_type_4_addr sna_fid_type_4_addr;
   guint8 fcid[3];
 
   pinfo->cinfo->col_expr[col][0] = '\0';
@@ -546,23 +545,7 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
     break;
 
   case AT_SNA:
-    switch (addr->len) {
-
-    case 1:
-      snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%04X", addr->data[0]);
-      break;
-
-    case 2:
-      snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%04X",
-        pntohs(&addr->data[0]));
-      break;
-
-    case SNA_FID_TYPE_4_ADDR_LEN:
-      memcpy(&sna_fid_type_4_addr, addr->data, SNA_FID_TYPE_4_ADDR_LEN);
-      strncpy(pinfo->cinfo->col_buf[col],
-        sna_fid_type_4_addr_to_str(&sna_fid_type_4_addr), COL_MAX_LEN);
-      break;
-    }
+    strncpy(pinfo->cinfo->col_buf[col], sna_fid_to_str(addr), COL_MAX_LEN);
     pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
     pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
     break;

@@ -1,7 +1,7 @@
 /* sna-utils.h
  * Definitions for SNA dissection.
  *
- * $Id: sna-utils.h,v 1.3 2002/08/28 20:40:45 jmayer Exp $
+ * $Id: sna-utils.h,v 1.4 2003/08/26 01:00:30 guy Exp $
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,9 +35,7 @@ struct sna_fid_type_4_addr {
 	guint16	ef;
 };
 
-/*
- * Routine to take an SNA FID Type 4 address and generate a string.
- */
-extern gchar *sna_fid_type_4_addr_to_str(const struct sna_fid_type_4_addr *addrp);
+extern gchar *sna_fid_to_str(const address *addr);
+extern void sna_fid_to_str_buf(const address *addr, gchar *buf);
 
 #endif

@@ -1,7 +1,7 @@
 /* atalk-utils.h
  * Definitions for Appletalk utilities (DDP, currently).
  *
- * $Id: atalk-utils.h,v 1.3 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: atalk-utils.h,v 1.4 2003/08/26 01:00:29 guy Exp $
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -45,8 +45,10 @@ struct atalk_ddp_addr {
 #define DDP_EIGRP	0x58
 
 /*
- * Routine to take a DDP address and generate a string.
+ * Routines to take a DDP address and generate a string.
  */
 extern gchar *atalk_addr_to_str(const struct atalk_ddp_addr *addrp);
+extern void atalk_addr_to_str_buf(const struct atalk_ddp_addr *addrp,
+				  gchar *buf);
 
 #endif

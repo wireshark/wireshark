@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.35 2003/08/24 20:30:46 guy Exp $
+ * $Id: to_str.c,v 1.36 2003/08/26 01:00:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,6 +60,8 @@
 #include "to_str.h"
 #include "resolv.h"
 #include "pint.h"
+#include "atalk-utils.h"
+#include "sna-utils.h"
 #include <stdio.h>
 #include <time.h>
 
@@ -296,9 +298,14 @@ vines_addr_to_str(const guint8 *addrp)
   } else {
     cur = &str[0][0];
   }
-
-  sprintf(cur, "%08x.%04x", pntohl(&addrp[0]), pntohs(&addrp[4]));
+  vines_addr_to_str_buf(addrp, cur);
   return cur;
+}
+
+void
+vines_addr_to_str_buf(const guint8 *addrp, gchar *buf)
+{
+  sprintf(buf, "%08x.%04x", pntohl(&addrp[0]), pntohs(&addrp[4]));
 }
 
 #define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
@@ -757,35 +764,48 @@ address_to_str(address *addr)
   }
   strp=str[i];
 
-  switch(addr->type){
-  case AT_NONE:	/* nothing to print - or should it just return a null string? */
-    break;
-  case AT_ETHER:
-    sprintf(strp, "%02x:%02x:%02x:%02x:%02x:%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5]);
-    return strp;
-  case AT_IPv4:
-    ip_to_str_buf(addr->data, strp);	
-    return strp;
-  case AT_IPv6:
-    inet_ntop(AF_INET6, addr->data, strp, INET6_ADDRSTRLEN);
-    return strp;
-  case AT_IPX:
-    sprintf(strp, "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5], addr->data[6], addr->data[7], addr->data[8], addr->data[9]);
-    return strp;
-  case AT_SNA:
-  case AT_ATALK:
-  case AT_VINES:
-  case AT_OSI:
-    break;	/* XXX - implement me */
-  case AT_ARCNET:
-    sprintf(strp, "0x%02X", addr->data[0]);
-    return strp;
-  case AT_FC:
-    sprintf(strp, "%02x.%02x.%02x", addr->data[0], addr->data[1], addr->data[2]);
-    return strp;
-  }
+  address_to_str_buf(addr, strp);
+  return strp;
+}
 
-  /* unknown type of address */
-  g_assert_not_reached();
-  return NULL;
+void
+address_to_str_buf(address *addr, gchar *buf)
+{
+  struct atalk_ddp_addr ddp_addr;
+
+  switch(addr->type){
+  case AT_ETHER:
+    sprintf(buf, "%02x:%02x:%02x:%02x:%02x:%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5]);
+    break;
+  case AT_IPv4:
+    ip_to_str_buf(addr->data, buf);
+    break;
+  case AT_IPv6:
+    inet_ntop(AF_INET6, addr->data, buf, INET6_ADDRSTRLEN);
+    break;
+  case AT_IPX:
+    sprintf(buf, "%02x%02x%02x%02x.%02x%02x%02x%02x%02x%02x", addr->data[0], addr->data[1], addr->data[2], addr->data[3], addr->data[4], addr->data[5], addr->data[6], addr->data[7], addr->data[8], addr->data[9]);
+    break;
+  case AT_SNA:
+    sna_fid_to_str_buf(addr, buf);
+    break;
+  case AT_ATALK:
+    memcpy(&ddp_addr, addr->data, sizeof ddp_addr);
+    atalk_addr_to_str_buf(&ddp_addr, buf);
+    break;
+  case AT_VINES:
+    vines_addr_to_str_buf(addr->data, buf);
+    break;
+  case AT_OSI:
+    print_nsap_net_buf(addr->data, addr->len, buf);
+    break;
+  case AT_ARCNET:
+    sprintf(buf, "0x%02X", addr->data[0]);
+    break;
+  case AT_FC:
+    sprintf(buf, "%02x.%02x.%02x", addr->data[0], addr->data[1], addr->data[2]);
+    break;
+  default:
+    g_assert_not_reached();
+  }
 }
