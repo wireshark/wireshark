@@ -7,7 +7,7 @@
  *
  * Copyright 2000, 2001, 2002, 2003 Michael Tuexen <Michael.Tuexen [AT] siemens.com>
  *
- * $Id: packet-m3ua.c,v 1.26 2003/01/27 23:17:39 guy Exp $
+ * $Id: packet-m3ua.c,v 1.27 2003/01/28 20:08:36 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -763,11 +763,10 @@ dissect_asp_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
 static void
 dissect_protocol_data_1_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_item *parameter_item)
 {
-  guint16 length, protocol_data_length;
+  guint16 protocol_data_length;
   tvbuff_t *payload_tvb;
 
-  length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  protocol_data_length = length - PARAMETER_HEADER_LENGTH;
+  protocol_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   payload_tvb          = tvb_new_subset(parameter_tvb, PROTOCOL_DATA_OFFSET, protocol_data_length, protocol_data_length);
   proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
   proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH);
@@ -782,14 +781,13 @@ static void
 dissect_protocol_data_2_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree, proto_item *parameter_item)
 {
   guint8 li;
-  guint16 length, protocol_data_length;
+  guint16 protocol_data_length;
   tvbuff_t *payload_tvb;
 
-  length               = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   li                   = tvb_get_guint8(parameter_tvb, LI_OCTETT_OFFSET);
-  protocol_data_length = length - PARAMETER_HEADER_LENGTH - LI_OCTETT_LENGTH;
+  protocol_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH - LI_OCTETT_LENGTH;
   payload_tvb          = tvb_new_subset(parameter_tvb, PROTOCOL_DATA_OFFSET + LI_OCTETT_LENGTH, protocol_data_length, protocol_data_length);
-  proto_tree_add_uint(parameter_tree, hf_li, parameter_tvb, LI_OCTETT_OFFSET, LI_OCTETT_LENGTH, li);
+  proto_tree_add_item(parameter_tree, hf_li, parameter_tvb, LI_OCTETT_OFFSET, LI_OCTETT_LENGTH, NETWORK_BYTE_ORDER);
   proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", protocol_data_length, plurality(protocol_data_length, "", "s"));
   proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH + LI_OCTETT_LENGTH);
   call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
@@ -1028,35 +1026,34 @@ dissect_circuit_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
 #define DATA_OPC_OFFSET   PARAMETER_VALUE_OFFSET
 #define DATA_DPC_OFFSET   (DATA_OPC_OFFSET + DATA_OPC_LENGTH)
 #define DATA_SI_OFFSET    (DATA_DPC_OFFSET + DATA_DPC_LENGTH)
-#define DATA_NI_OFFSET    (DATA_SI_OFFSET + DATA_SI_LENGTH)
-#define DATA_MP_OFFSET    (DATA_NI_OFFSET + DATA_NI_LENGTH)
-#define DATA_SLS_OFFSET   (DATA_MP_OFFSET + DATA_MP_LENGTH)
+#define DATA_NI_OFFSET    (DATA_SI_OFFSET  + DATA_SI_LENGTH)
+#define DATA_MP_OFFSET    (DATA_NI_OFFSET  + DATA_NI_LENGTH)
+#define DATA_SLS_OFFSET   (DATA_MP_OFFSET  + DATA_MP_LENGTH)
 #define DATA_ULP_OFFSET   (DATA_SLS_OFFSET + DATA_SLS_LENGTH)
 
 static void
 dissect_protocol_data_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 length, ulp_length;
-  guint8 si;
+  guint16 ulp_length;
   tvbuff_t *payload_tvb;
 
-  length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  ulp_length = length - PARAMETER_HEADER_LENGTH - DATA_HDR_LENGTH;
-  payload_tvb          = tvb_new_subset(parameter_tvb, DATA_ULP_OFFSET, ulp_length, ulp_length);
-  si  = tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET);
-  proto_tree_add_item(parameter_tree, hf_protocol_data_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_protocol_data_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_DPC_LENGTH, NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_protocol_data_si,  parameter_tvb, DATA_SI_OFFSET,  DATA_SI_LENGTH,  NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_protocol_data_ni,  parameter_tvb, DATA_NI_OFFSET,  DATA_NI_LENGTH,  NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_protocol_data_mp,  parameter_tvb, DATA_MP_OFFSET,  DATA_MP_LENGTH,  NETWORK_BYTE_ORDER);
-  proto_tree_add_item(parameter_tree, hf_protocol_data_sls, parameter_tvb, DATA_SLS_OFFSET, DATA_SLS_LENGTH, NETWORK_BYTE_ORDER);
+  ulp_length  = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH - DATA_HDR_LENGTH;
 
-  proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", ulp_length, plurality(ulp_length, "", "s"));
-  proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH + DATA_HDR_LENGTH);
+  if (parameter_tree) {
+    proto_tree_add_item(parameter_tree, hf_protocol_data_opc, parameter_tvb, DATA_OPC_OFFSET, DATA_OPC_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(parameter_tree, hf_protocol_data_dpc, parameter_tvb, DATA_DPC_OFFSET, DATA_DPC_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(parameter_tree, hf_protocol_data_si,  parameter_tvb, DATA_SI_OFFSET,  DATA_SI_LENGTH,  NETWORK_BYTE_ORDER);
+    proto_tree_add_item(parameter_tree, hf_protocol_data_ni,  parameter_tvb, DATA_NI_OFFSET,  DATA_NI_LENGTH,  NETWORK_BYTE_ORDER);
+    proto_tree_add_item(parameter_tree, hf_protocol_data_mp,  parameter_tvb, DATA_MP_OFFSET,  DATA_MP_LENGTH,  NETWORK_BYTE_ORDER);
+    proto_tree_add_item(parameter_tree, hf_protocol_data_sls, parameter_tvb, DATA_SLS_OFFSET, DATA_SLS_LENGTH, NETWORK_BYTE_ORDER);
 
-  if (!dissector_try_port(si_dissector_table, si, payload_tvb, pinfo, tree)) {
-    call_dissector(data_handle, payload_tvb, pinfo, tree);
+    proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", ulp_length, plurality(ulp_length, "", "s"));
+    proto_item_set_len(parameter_item, PARAMETER_HEADER_LENGTH + DATA_HDR_LENGTH);
   }
+  
+  payload_tvb = tvb_new_subset(parameter_tvb, DATA_ULP_OFFSET, ulp_length, ulp_length);
+  if (!dissector_try_port(si_dissector_table, tvb_get_guint8(parameter_tvb, DATA_SI_OFFSET), payload_tvb, pinfo, tree))
+    call_dissector(data_handle, payload_tvb, pinfo, tree);
 }
 
 #define CORR_ID_OFFSET PARAMETER_VALUE_OFFSET
@@ -1116,10 +1113,9 @@ static void
 dissect_registration_results_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
-  guint16 length, parameters_length;
+  guint16 parameters_length;
 
-  length            = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  parameters_length = length - PARAMETER_HEADER_LENGTH;
+  parameters_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   parameters_tvb    = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length, parameters_length);
   dissect_parameters(parameters_tvb, pinfo, tree, parameter_tree);
 }
@@ -1128,10 +1124,9 @@ static void
 dissect_deregistration_results_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *parameter_tree)
 {
   tvbuff_t *parameters_tvb;
-  guint16 length, parameters_length;
+  guint16 parameters_length;
 
-  length            = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  parameters_length = length - PARAMETER_HEADER_LENGTH;
+  parameters_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   parameters_tvb    = tvb_new_subset(parameter_tvb, PARAMETER_VALUE_OFFSET, parameters_length, parameters_length);
   dissect_parameters(parameters_tvb, pinfo, tree, parameter_tree);
 }
@@ -1196,9 +1191,10 @@ dissect_v5_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), val_to_str(tag, v5_parameter_tag_values, "Unknown parameter"));
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
 
-  /* add tag and length to the sua tree */
+  /* add tag and length to the parameter tree */
   proto_tree_add_item(parameter_tree, hf_v5_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
+
   switch(tag) {
   case V5_NETWORK_APPEARANCE_PARAMETER_TAG:
     dissect_network_appearance_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1302,6 +1298,7 @@ static const value_string v6_parameter_tag_values[] = {
   { V6_REGISTRATION_RESULTS_PARAMETER_TAG,         "Registration results" },
   { V6_DEREGISTRATION_RESULTS_PARAMETER_TAG,       "De-registration results" },
   { 0,                           NULL } };
+  
 static void
 dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *m3ua_tree)
 {
@@ -1321,8 +1318,8 @@ dissect_v6_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tr
   parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), val_to_str(tag, v6_parameter_tag_values, "Unknown parameter"));
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
 
-  /* add tag and length to the sua tree */
-  proto_tree_add_item(parameter_tree, hf_v5_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    NETWORK_BYTE_ORDER);
+  /* add tag and length to the parameter tree */
+  proto_tree_add_item(parameter_tree, hf_v6_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
 
   switch(tag) {
@@ -1480,6 +1477,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
   length         = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
   padding_length = tvb_length(parameter_tvb) - length;
 
+
   if (!tree && tag != PROTOCOL_DATA_PARAMETER_TAG)
     return;	/* Nothing to do here */
 
@@ -1487,8 +1485,8 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *tree,
   parameter_item   = proto_tree_add_text(m3ua_tree, parameter_tvb, PARAMETER_HEADER_OFFSET, tvb_length(parameter_tvb), val_to_str(tag, parameter_tag_values, "Unknown parameter"));
   parameter_tree   = proto_item_add_subtree(parameter_item, ett_parameter);
 
-  /* add tag and length to the sua tree */
-  proto_tree_add_item(parameter_tree, hf_v5_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    NETWORK_BYTE_ORDER);
+  /* add tag and length to the parameter tree */
+  proto_tree_add_item(parameter_tree, hf_parameter_tag,    parameter_tvb, PARAMETER_TAG_OFFSET,    PARAMETER_TAG_LENGTH,    NETWORK_BYTE_ORDER);
   proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, NETWORK_BYTE_ORDER);
 
   switch(tag) {
