@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.86 2001/06/08 08:50:49 guy Exp $
+ * $Id: tethereal.c,v 1.87 2001/07/05 00:34:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,6 +56,10 @@
 
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>
+#endif
+
+#ifdef HAVE_LIBZ
+#include <zlib.h>	/* to get the libz version number */
 #endif
 
 #ifdef NEED_SNPRINTF_H
@@ -1482,7 +1486,6 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 {
   wtap       *wth;
   int         err;
-  FILE_T      fh;
   int         fd;
   struct stat cf_stat;
   char        err_msg[2048+1];
@@ -1492,7 +1495,6 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
     goto fail;
 
   /* Find the size of the file. */
-  fh = wtap_file(wth);
   fd = wtap_fd(wth);
   if (fstat(fd, &cf_stat) < 0) {
     err = errno;

@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.83 2001/06/05 07:38:33 guy Exp $
+ * $Id: file.h,v 1.84 2001/07/05 00:34:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,19 +34,6 @@
 #include "print.h"
 #include <errno.h>
 #include <epan.h>
-
-#ifdef HAVE_LIBZ
-#include "zlib.h"
-#define FILE_T gzFile
-#define file_open gzopen
-#define filed_open gzdopen
-#define file_close gzclose
-#else /* No zLib */
-#define FILE_T FILE *
-#define file_open fopen
-#define filed_open fdopen
-#define file_close fclose
-#endif /* HAVE_LIBZ */
 
 /* Current state of file. */
 typedef enum {

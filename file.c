@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.241 2001/06/19 23:08:55 guy Exp $
+ * $Id: file.c,v 1.242 2001/07/05 00:34:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -123,7 +123,6 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
 {
   wtap       *wth;
   int         err;
-  FILE_T      fh;
   int         fd;
   struct stat cf_stat;
 
@@ -132,7 +131,6 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
     goto fail;
 
   /* Find the size of the file. */
-  fh = wtap_file(wth);
   fd = wtap_fd(wth);
   if (fstat(fd, &cf_stat) < 0) {
     err = errno;

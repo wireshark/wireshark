@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.52 2001/03/15 09:11:03 guy Exp $
+ * $Id: wtap.c,v 1.53 2001/07/05 00:34:42 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -29,12 +29,6 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
-
-FILE*
-wtap_file(wtap *wth)
-{
-	return wth->fh;
-}
 
 int
 wtap_fd(wtap *wth)

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.86 2001/03/15 09:11:03 guy Exp $
+ * $Id: wtap.h,v 1.87 2001/07/05 00:34:42 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -302,7 +302,6 @@ struct wtap_pkthdr *wtap_phdr(wtap *wth);
 union wtap_pseudo_header *wtap_pseudoheader(wtap *wth);
 guint8 *wtap_buf_ptr(wtap *wth);
 
-FILE* wtap_file(wtap *wth);
 int wtap_fd(wtap *wth);
 int wtap_snapshot_length(wtap *wth); /* per file */
 int wtap_file_type(wtap *wth);

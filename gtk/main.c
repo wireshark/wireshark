@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.202 2001/06/27 08:36:08 guy Exp $
+ * $Id: main.c,v 1.203 2001/07/05 00:34:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,6 +77,10 @@
 
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>
+#endif
+
+#ifdef HAVE_LIBZ
+#include <zlib.h>	/* to get the libz version number */
 #endif
 
 #ifdef NEED_SNPRINTF_H
