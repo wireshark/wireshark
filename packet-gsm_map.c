@@ -7,7 +7,7 @@
  * Changed to run on new version of TCAP, many changes for
  * EOC matching, and parameter separation.  (2003)
  *
- * $Id: packet-gsm_map.c,v 1.7 2004/03/05 10:08:13 guy Exp $
+ * $Id: packet-gsm_map.c,v 1.8 2004/03/17 08:46:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1192,7 +1192,7 @@ static int *param_1_hf[] = {
  \
 	if (_len > 0) \
 	{ \
-	    if (_param_fcn == NULL) \
+	    if (Ga1 == GSM_MAP_P_NONE || _param_fcn == NULL) \
 	    { \
 		proto_tree_add_text(_subtree, asn1->tvb, \
 		    asn1->offset, _len, "Parameter Data"); \
