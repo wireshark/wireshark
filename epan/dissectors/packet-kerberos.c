@@ -306,15 +306,17 @@ static char *keytab_filename = "insert filename here";
 #ifdef HAVE_HEIMDAL_KERBEROS
 #include <krb5.h>
 
+#define MAX_ORIG_LEN	256
 typedef struct _enc_key_t {
 	struct _enc_key_t	*next;
 	krb5_keytab_entry	key;
+	char 			key_origin[MAX_ORIG_LEN+1];
 } enc_key_t;
 static enc_key_t *enc_key_list=NULL;
 
 
 static void
-add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *keyvalue)
+add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *keyvalue, char *origin)
 {
 	enc_key_t *new_key;
 
@@ -324,6 +326,7 @@ add_encryption_key(packet_info *pinfo, int keytype, int keylength, const char *k
 printf("added key in %d\n",pinfo->fd->num);
 
 	new_key=g_malloc(sizeof(enc_key_t));
+	sprintf(new_key->key_origin, "%s learnt from frame %d",origin,pinfo->fd->num);
 	new_key->next=enc_key_list;
 	enc_key_list=new_key;
 	new_key->key.principal=NULL;
@@ -362,6 +365,18 @@ read_keytab_file(char *filename, krb5_context *context)
 		new_key->next=enc_key_list;
 		ret = krb5_kt_next_entry(*context, keytab, &(new_key->key), &cursor);
 		if(ret==0){
+			unsigned int i;
+			char *pos;
+
+			/* generate origin string, describing where this key came from */
+			pos=new_key->key_origin;
+			pos+=sprintf(pos, "keytab principal ");
+			for(i=0;i<new_key->key.principal->name.name_string.len;i++){
+				pos+=sprintf(pos,"%s%s",(i?"/":""),new_key->key.principal->name.name_string.val[i]);
+			}
+			pos+=sprintf(pos,"@%s",new_key->key.principal->realm);
+			*pos=0;
+
 			enc_key_list=new_key;
 		}
 	}while(ret==0);
@@ -375,7 +390,7 @@ read_keytab_file(char *filename, krb5_context *context)
 
 
 static guint8 *
-decrypt_krb5_data(packet_info *pinfo,
+decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 			krb5_keyusage usage,
 			int length,
 			const char *cryptotext,
@@ -433,6 +448,7 @@ decrypt_krb5_data(packet_info *pinfo,
 		g_free(cryptocopy);
 		if (ret == 0) {
 printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
+			proto_tree_add_text(tree, NULL, 0, 0, "[Decrypted using: %s]", ek->key_origin);
 			krb5_crypto_destroy(context, crypto);
 			return data.data;
 		}
@@ -1608,7 +1624,7 @@ dissect_krb5_decrypt_PA_ENC_TIMESTAMP (packet_info *pinfo, proto_tree *tree, tvb
 	 * == 1
 	 */
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(pinfo, 1, length, tvb_get_ptr(tvb, offset, length), PA_ENC_TIMESTAMP_etype);
+		plaintext=decrypt_krb5_data(tree, pinfo, 1, length, tvb_get_ptr(tvb, offset, length), PA_ENC_TIMESTAMP_etype);
 	}
 
 	if(plaintext){
@@ -1908,7 +1924,7 @@ dissect_krb5_key(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, EncryptionKey_sequence, hf_krb_key, ett_krb_key);
 
 #ifdef HAVE_KERBEROS
-	add_encryption_key(pinfo, keytype, keylength, keyvalue);
+	add_encryption_key(pinfo, keytype, keylength, keyvalue, "key");
 #endif
 	return offset;
 }
@@ -1917,7 +1933,7 @@ dissect_krb5_subkey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 {
 	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, EncryptionKey_sequence, hf_krb_subkey, ett_krb_subkey);
 #ifdef HAVE_KERBEROS
-	add_encryption_key(pinfo, keytype, keylength, keyvalue);
+	add_encryption_key(pinfo, keytype, keylength, keyvalue, "subkey");
 #endif
 	return offset;
 }
@@ -2782,10 +2798,10 @@ dissect_krb5_decrypt_authenticator_data (packet_info *pinfo, proto_tree *tree, t
 	 * == 11
 	 */
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(pinfo, 7, length, tvb_get_ptr(tvb, offset, length), authenticator_etype);
+		plaintext=decrypt_krb5_data(tree, pinfo, 7, length, tvb_get_ptr(tvb, offset, length), authenticator_etype);
 	}
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(pinfo, 11, length, tvb_get_ptr(tvb, offset, length), authenticator_etype);
+		plaintext=decrypt_krb5_data(tree, pinfo, 11, length, tvb_get_ptr(tvb, offset, length), authenticator_etype);
 	}
 
 	if(plaintext){
@@ -2865,7 +2881,7 @@ dissect_krb5_decrypt_Ticket_data (packet_info *pinfo, proto_tree *tree, tvbuff_t
 	 * 7.5.1
 	 * All Ticket encrypted parts use usage == 2 
 	 */
-	if( (plaintext=decrypt_krb5_data(pinfo, 2, length, tvb_get_ptr(tvb, offset, length), Ticket_etype)) ){
+	if( (plaintext=decrypt_krb5_data(tree, pinfo, 2, length, tvb_get_ptr(tvb, offset, length), Ticket_etype)) ){
 		tvbuff_t *next_tvb;
 		next_tvb = tvb_new_real_data (plaintext,
                                           length,
@@ -2996,7 +3012,7 @@ dissect_krb5_decrypt_AP_REP_data(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 	 * == 11
 	 */
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(pinfo, 12, length, tvb_get_ptr(tvb, offset, length), AP_REP_etype);
+		plaintext=decrypt_krb5_data(tree, pinfo, 12, length, tvb_get_ptr(tvb, offset, length), AP_REP_etype);
 	}
 
 	if(plaintext){
@@ -3103,13 +3119,13 @@ dissect_krb5_decrypt_KDC_REP_data (packet_info *pinfo, proto_tree *tree, tvbuff_
          * == 9
 	 */
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(pinfo, 3, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype);
+		plaintext=decrypt_krb5_data(tree, pinfo, 3, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype);
 	}
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(pinfo, 8, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype);
+		plaintext=decrypt_krb5_data(tree, pinfo, 8, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype);
 	}
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(pinfo, 9, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype);
+		plaintext=decrypt_krb5_data(tree, pinfo, 9, length, tvb_get_ptr(tvb, offset, length), KDC_REP_etype);
 	}
 
 	if(plaintext){
