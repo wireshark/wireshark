@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.61 2002/04/18 00:50:45 guy Exp $
+ * $Id: proto.c,v 1.62 2002/04/18 20:19:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -328,18 +328,18 @@ proto_tree_free_node(GNode *node, gpointer data _U_)
 {
 	field_info *finfo = PITEM_FINFO(node);
 
-    if (finfo == NULL) {
-        /* This is the root GNode. Destroy the per-tree data.
-         * There is no field_info to destroy. */
-        free_node_tree_data(PTREE_DATA(node));
-    }
-    else {
-        /* This is a child GNode. Don't free the per-tree data, but
-         * do free the field_info data. */
-        free_node_field_info(finfo);
+	if (finfo == NULL) {
+		/* This is the root GNode. Destroy the per-tree data.
+		 * There is no field_info to destroy. */
+		free_node_tree_data(PTREE_DATA(node));
+	}
+	else {
+		/* This is a child GNode. Don't free the per-tree data, but
+		 * do free the field_info data. */
+		free_node_field_info(finfo);
 	}
 
-    /* Free the proto_node. */
+	/* Free the proto_node. */
 	g_mem_chunk_free(gmc_proto_node, GNODE_PNODE(node));
 
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
@@ -352,7 +352,7 @@ proto_tree_free_node(GNode *node, gpointer data _U_)
 void
 proto_tree_set_visible(proto_tree *tree, gboolean visible)
 {
-    PTREE_DATA(tree)->visible = visible;
+	PTREE_DATA(tree)->visible = visible;
 }
 
 /* Finds a record in the hf_info_records array by id. */
@@ -363,6 +363,28 @@ proto_registrar_get_nth(int hfindex)
 	return g_ptr_array_index(gpa_hfinfo, hfindex);
 }
 
+/* Finds a record in the hf_info_records array by name.
+ * XXX - have a hash table so this lookup can go faster?
+ */
+header_field_info*
+proto_registrar_get_byname(const char *field_name)
+{
+	header_field_info	*hfinfo;
+	int			i, len;
+
+	len = gpa_hfinfo->len;
+
+	for (i = 0; i < len ; i++) {
+		hfinfo = proto_registrar_get_nth(i);
+
+		if (strcmp(hfinfo->abbrev, field_name) == 0) {
+			/* Found it. */
+			return proto_registrar_get_nth(hfinfo->id);
+		}
+	}
+	/* Not found. */
+	return NULL;
+}
 
 /* Add a text-only node, leaving it to our caller to fill the text in */
 static proto_item *
