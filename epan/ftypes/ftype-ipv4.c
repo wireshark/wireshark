@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-ipv4.c,v 1.3 2001/03/02 17:17:56 gram Exp $
+ * $Id: ftype-ipv4.c,v 1.4 2001/06/22 16:29:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,6 +25,8 @@
 #include "config.h"
 #endif
 
+#include <string.h>
+
 #include <ftypes-int.h>
 #include "ipv4.h"
 #include "resolv.h"
@@ -47,14 +49,73 @@ static gboolean
 val_from_string(fvalue_t *fv, char *s, LogFunc log)
 {
 	guint32	addr;
+	unsigned int nmask_bits;
 
-	if (!get_host_ipaddr(s, &addr)) {
-		log("\"%s\" is not a valid hostname or IPv4 address.", s);
+	char *has_slash, *s_copy = NULL;
+	char *net_str, *addr_str;
+	fvalue_t *nmask_fvalue;
+
+	/* Look for CIDR: Is there a single slash in the string? */
+	has_slash = index(s, '/');
+	if (has_slash) {
+		/* Make a copy of the string and use strtok() to
+		 * get the address portion. */
+		s_copy = g_strdup(s);
+		addr_str = strtok(s_copy, "/");
+
+		/* I just checked for slash! I shouldn't get NULL here.
+		 * Double check just in case. */
+		if (!addr_str) {
+			log("Unexpected strtok() error parsing IP address: %s", s_copy);
+			g_free(s_copy);
+			return FALSE;
+		}
+	}
+	else {
+		addr_str = s;
+	}
+
+	if (!get_host_ipaddr(addr_str, &addr)) {
+		log("\"%s\" is not a valid hostname or IPv4 address.", addr_str);
+		if (has_slash) {
+			g_free(s_copy);
+		}
 		return FALSE;
 	}
+
 	ipv4_addr_set_host_order_addr(&(fv->value.ipv4), addr);
-        /*ipv4_addr_set_netmask_bits(&node->value.ipv4, nmask_bits);*/
-	ipv4_addr_set_netmask_bits(&(fv->value.ipv4), 32);
+
+	/* If CIDR, get netmask bits. */
+	if (has_slash) {
+		net_str = strtok(NULL, "/");
+		/* I checked for slash! I shouldn't get NULL here.
+		 * Double check just in case. */
+		if (!net_str) {
+			log("Unexpected strtok() error parsing netmask: %s", s_copy);
+			g_free(s_copy);
+			return FALSE;
+		}
+
+		nmask_fvalue = fvalue_from_string(FT_UINT32, net_str, log);
+		g_free(s_copy);
+		if (!nmask_fvalue) {
+			return FALSE;
+		}
+		nmask_bits = fvalue_get_integer(nmask_fvalue);
+		fvalue_free(nmask_fvalue);
+
+		if (nmask_bits > 32) {
+			log("Netmask bits in a CIDR IPv4 address should be <= 32, not %u",
+					nmask_bits);
+			return FALSE;
+		}
+		ipv4_addr_set_netmask_bits(&fv->value.ipv4, nmask_bits);
+	}
+	else {
+		/* Not CIDR; mask covers entire address. */
+		ipv4_addr_set_netmask_bits(&(fv->value.ipv4), 32);
+	}
+
 	return TRUE;
 }
 

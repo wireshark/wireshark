@@ -1,6 +1,6 @@
 %{
 /*
- * $Id: scanner.l,v 1.4 2001/03/02 17:04:23 gram Exp $
+ * $Id: scanner.l,v 1.5 2001/06/22 16:29:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,10 +53,6 @@ static gboolean str_to_guint32(char *s, guint32* pint);
 %x RANGE_INT
 %x RANGE_PUNCT
 
-BWCHARS		[[:alnum:]\[\]\-_.+!@#%^&*=/:]
-INITVAR		[_A-Za-z]
-VARCHARS	[[:alnum:]_]
-
 
 %%
 
@@ -66,6 +62,7 @@ VARCHARS	[[:alnum:]_]
 
 "("				return simple(TOKEN_LPAREN);
 ")"				return simple(TOKEN_RPAREN);
+"/"				return simple(TOKEN_SLASH);
 
 "=="				return simple(TOKEN_TEST_EQ);
 "eq"				return simple(TOKEN_TEST_EQ);
@@ -86,6 +83,7 @@ VARCHARS	[[:alnum:]_]
 "and"				return simple(TOKEN_TEST_AND);
 "||"				return simple(TOKEN_TEST_OR);
 "or"				return simple(TOKEN_TEST_OR);
+
 
 
 "["					{
@@ -144,6 +142,10 @@ VARCHARS	[[:alnum:]_]
 	}
 }
 
+. {
+	/* Default */
+	return set_lval(TOKEN_STRING, g_strdup(yytext));
+}
 
 
 %%
@@ -159,6 +161,7 @@ simple(int token)
 		case TOKEN_COLON:
 		case TOKEN_COMMA:
 		case TOKEN_HYPHEN:
+		case TOKEN_SLASH:
 		case TOKEN_TEST_EQ:
 		case TOKEN_TEST_NE:
 		case TOKEN_TEST_GT:
