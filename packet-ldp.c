@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for ldp packet disassembly
  *
- * $Id: packet-ldp.c,v 1.19 2001/07/21 10:27:12 guy Exp $
+ * $Id: packet-ldp.c,v 1.20 2001/11/27 04:59:01 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -546,55 +546,73 @@ dissect_ldp_label_abort_request(tvbuff_t *tvb, guint offset, packet_info *pinfo,
 
 }
 
-static void
-dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_ldp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree     *ldp_tree = NULL, 
-                 *ti = NULL,
-                 *hdr_tree = NULL, *ldpid_tree = NULL;
-  int	         offset = 0, msg_cnt = 0;
+  proto_tree     *ldp_tree = NULL, *hdr_tree = NULL, *ldpid_tree = NULL;
+  proto_item     *ldp_item = NULL, *hdr_item = NULL, *ldpid_item = NULL;
+  int	         msg_cnt = 0;
   guint16        ldp_message = 0;
+  guint          pdu_len;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "LDP");
   if (check_col(pinfo->fd, COL_INFO))
     col_clear(pinfo->fd, COL_INFO);
 
   if (tree) {  /* Build the tree info ..., this is wrong! FIXME */
 
-    ti = proto_tree_add_item(tree, proto_ldp, tvb, offset,
-			     tvb_length_remaining(tvb, offset), FALSE);
-    ldp_tree = proto_item_add_subtree(ti, ett_ldp);
-
-    ti = proto_tree_add_text(ldp_tree, tvb, 0, 10, "Header");
-
-    hdr_tree = proto_item_add_subtree(ti, ett_ldp_header);
-
-    proto_tree_add_item(hdr_tree, hf_ldp_version, tvb, offset, 2, FALSE);
-
-    offset += 2;
-
-    proto_tree_add_item(hdr_tree, hf_ldp_pdu_len, tvb, offset, 2, FALSE);
-
-    offset += 2;
-
-    ti = proto_tree_add_text(hdr_tree, tvb, offset, 6, "LDP Identifier");
-
-    ldpid_tree = proto_item_add_subtree(ti, ett_ldp_ldpid);
-
-    proto_tree_add_item(ldpid_tree, hf_ldp_lsr, tvb, offset, 4, FALSE);
-
-    offset += 4;
-
-    proto_tree_add_item(ldpid_tree, hf_ldp_ls_id, tvb, offset, 2, FALSE);
-
-    offset += 2;
+    ldp_item = proto_tree_add_item(tree, proto_ldp, tvb, offset,
+				   tvb_length_remaining(tvb, offset), FALSE);
+    ldp_tree = proto_item_add_subtree(ldp_item, ett_ldp);
 
   }
 
-  offset = 10;
+  /* Dissect LDP Header */
 
-  while (tvb_length_remaining(tvb, offset) > 0) { /* Dissect a message */
+  hdr_item = proto_tree_add_text(ldp_tree, tvb, offset, 10, "Header");
+
+  hdr_tree = proto_item_add_subtree(hdr_item, ett_ldp_header);
+
+  proto_tree_add_item(hdr_tree, hf_ldp_version, tvb, offset, 2, FALSE);
+
+  offset += 2;
+
+  proto_tree_add_item(hdr_tree, hf_ldp_pdu_len, tvb, offset, 2, FALSE);
+  pdu_len = tvb_get_ntohs(tvb, offset);
+  proto_item_set_len(ldp_item, pdu_len + 2);
+
+  /*
+   * XXX - do TCP reassembly, to handle LDP PDUs that cross TCP segment
+   * boundaries.
+   */
+
+  offset += 2;
+
+  if (pdu_len < 6) {
+    /*
+     * PDU is too short to hold the LDP identifier.
+     */
+    proto_tree_add_text(hdr_tree, tvb, offset, pdu_len,
+        "PDU too short (%u bytes, should be at least 6) for LDP Identifier",
+        pdu_len);
+    offset += pdu_len;
+    return offset;
+  }
+
+  ldpid_item = proto_tree_add_text(hdr_tree, tvb, offset, 6, "LDP Identifier");
+
+  ldpid_tree = proto_item_add_subtree(ldpid_item, ett_ldp_ldpid);
+
+  proto_tree_add_item(ldpid_tree, hf_ldp_lsr, tvb, offset, 4, FALSE);
+
+  offset += 4;
+  pdu_len -= 4;
+
+  proto_tree_add_item(ldpid_tree, hf_ldp_ls_id, tvb, offset, 2, FALSE);
+
+  offset += 2;
+  pdu_len -= 2;
+
+  while (pdu_len > 0) { /* Dissect LDP TLV */
 
     guint msg_len;
 
@@ -610,7 +628,7 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       else
 	col_add_fstr(pinfo->fd, COL_INFO, "%s", 
 		     val_to_str(ldp_message, ldp_message_types, "Unknown Message (0x%04X)"));
-
+	
     }
 
     msg_cnt++;
@@ -625,12 +643,24 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			       val_to_str(ldp_message, ldp_message_types, "Unknown Message (0x%04X)"));
 
       msg_tree = proto_item_add_subtree(ti, ett_ldp_message);
-
+	
       proto_tree_add_item(msg_tree, hf_ldp_msg_type, tvb, offset, 2, FALSE);
 
       proto_tree_add_item(msg_tree, hf_ldp_msg_len, tvb, offset + 2, 2, FALSE);
 
+      if (msg_len < 4) {
+	proto_tree_add_text(msg_tree, tvb, offset + 4, msg_len,
+	    "Message too short (%u bytes, should be at least 4) for Message ID",
+	    msg_len);
+	goto next;
+      }
+
       proto_tree_add_item(msg_tree, hf_ldp_msg_id, tvb, offset + 4, 4, FALSE);
+
+      if (msg_len == 4) {
+      	/* Nothing past the message ID */
+      	goto next;
+      }
 
       switch (ldp_message) {
 
@@ -655,7 +685,7 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case LDP_KEEPALIVE:
 
 	dissect_ldp_keepalive(tvb, offset + 8, pinfo, msg_tree, msg_len - 4);
-
+	  
 	break;
 
       case LDP_ADDRESS:
@@ -703,6 +733,8 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       default:
 
 	/* Some sort of unknown message, treat as undissected data */
+	proto_tree_add_text(msg_tree, tvb, offset + 8, msg_len - 4,
+			    "Message data"); 
 
 	break;
 
@@ -710,9 +742,33 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     
     }
 
+next:
     offset += msg_len + 4;
+    pdu_len -= msg_len + 4;
 
   }
+  return offset;
+}
+
+static void
+dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "LDP");
+
+  dissect_ldp_pdu(tvb, 0, pinfo, tree);
+}
+
+static void
+dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  int	         offset = 0;
+
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "LDP");
+
+  while (tvb_reported_length_remaining(tvb, offset) > 0) /* Dissect LDP PDUs */
+    offset = dissect_ldp_pdu(tvb, offset, pinfo, tree);
 }
 
 /* Register all the bits needed with the filtering engine */
@@ -845,7 +901,7 @@ proto_reg_handoff_ldp(void)
   tcp_port = global_ldp_tcp_port;
   udp_port = global_ldp_udp_port;
 
-  dissector_add("tcp.port", global_ldp_tcp_port, dissect_ldp, proto_ldp);
+  dissector_add("tcp.port", global_ldp_tcp_port, dissect_ldp_tcp, proto_ldp);
   dissector_add("udp.port", global_ldp_udp_port, dissect_ldp, proto_ldp);
 
 }
