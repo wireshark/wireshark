@@ -278,11 +278,35 @@ match_selected_ptree_cb(GtkWidget *w, gpointer data, MATCH_SELECTED_E action)
 }
 
 
+static void selected_ptree_info_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
+{
+    gchar *selected_proto_url;
+    gchar *proto_abbrev = data;
+
+
+    switch(btn) {
+    case(ESD_BTN_OK):
+        if (cfile.finfo_selected) {
+            /* open wiki page using the protocol abbreviation */
+            selected_proto_url = g_strdup_printf("http://wiki.ethereal.com/Protocols/%s", proto_abbrev);
+            browser_open_url(selected_proto_url);
+            g_free(selected_proto_url);
+        }
+        break;
+    case(ESD_BTN_CANCEL):
+        break;
+    default:
+        g_assert_not_reached();
+    }
+}
+
+
 void 
 selected_ptree_info_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
     int field_id;
-    gchar *selected_proto_url;
+    gchar *proto_abbrev;
+    gpointer  dialog;
 
 
     if (cfile.finfo_selected) {
@@ -294,10 +318,29 @@ selected_ptree_info_cb(GtkWidget *widget _U_, gpointer data _U_)
             field_id = proto_registrar_get_parent(cfile.finfo_selected->hfinfo->id);
         }
 
-        /* open wiki page with protocol abbreviation */
-        selected_proto_url = g_strdup_printf("http://wiki.ethereal.com/%s", proto_registrar_get_abbrev(field_id));
-        browser_open_url(selected_proto_url);
-        g_free(selected_proto_url);
+        proto_abbrev = proto_registrar_get_abbrev(field_id);
+
+        /* ask the user if the wiki page really should be opened */
+        dialog = simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTNS_OK_CANCEL,
+                    PRIMARY_TEXT_START "Open Ethereal Wiki page of protocol \"%s\"?" PRIMARY_TEXT_END "\n"
+                    "\n"
+                    "This will open the \"%s\" related Ethereal Wiki page in your Web browser.\n"
+                    "\n"
+                    "The Ethereal Wiki is a collaborative approach to provide information\n"
+                    "about Ethereal in several ways (not limited to protocol specifics).\n"
+                    "\n"
+                    "This Wiki is new, so the page of the selected protocol\n"
+                    "may not exist and/or may not contain valuable information.\n"
+                    "\n"
+                    "As everyone can edit the Wiki and add new content (or extend existing),\n"
+                    "you are encouraged to add information if you can.\n"
+                    "\n"
+                    "Hint 1: If you are new to wiki editing, try out editing the Sandbox first!\n"
+                    "\n"
+                    "Hint 2: If you want to add a new protocol page, you should use the ProtocolTemplate,\n"
+                    "which will save you a lot of editing and will give a consistent look over the pages.",
+                    proto_abbrev, proto_abbrev);
+        simple_dialog_set_cb(dialog, selected_ptree_info_answered_cb, proto_abbrev);
     }
 }
 

@@ -427,9 +427,9 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 
 static GtkItemFactoryEntry tree_view_menu_items[] =
 {
-/*    ITEM_FACTORY_STOCK_ENTRY("/Online Protocol Info", NULL, selected_ptree_info_cb,
+    ITEM_FACTORY_STOCK_ENTRY("/Online Protocol Info", NULL, selected_ptree_info_cb,
                        0, GTK_STOCK_DIALOG_QUESTION),
-    ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),*/
+    ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Follow TCP Stream", NULL, follow_stream_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Decode As...", NULL, decode_as_cb, 0, NULL, NULL),
