@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.6 1999/01/17 09:33:15 guy Exp $
+ * $Id: file.c,v 1.7 1999/01/21 05:03:56 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -38,7 +38,7 @@
  * WTAP_FILE_UNKNOWN */
 
 /* Opens a file and prepares a wtap struct */
-wtap* wtap_open_offline(char *filename, int filetype)
+wtap* wtap_open_offline(char *filename)
 {
 	wtap	*wth;
 
@@ -49,79 +49,35 @@ wtap* wtap_open_offline(char *filename, int filetype)
 		return NULL;
 	}
 
-	/* If the filetype is unknown, try all my file types */
-	if (filetype == WTAP_FILE_UNKNOWN) {
-		/* WTAP_FILE_PCAP */
-		if ((wth->file_type = libpcap_open(wth)) != WTAP_FILE_UNKNOWN) {
-			goto success;
-		}
-		/* WTAP_FILE_NGSNIFFER */
-		if ((wth->file_type = ngsniffer_open(wth)) != WTAP_FILE_UNKNOWN) {
-			goto success;
-		}
-		/* WTAP_FILE_LANALYZER */
-		if ((wth->file_type = lanalyzer_open(wth)) != WTAP_FILE_UNKNOWN) {
-			goto success;
-		}
-		/* WTAP_FILE_SNOOP */
-		if ((wth->file_type = snoop_open(wth)) != WTAP_FILE_UNKNOWN) {
-			goto success;
-		}
-		/* WTAP_FILE_IPTRACE */
-		if ((wth->file_type = iptrace_open(wth)) != WTAP_FILE_UNKNOWN) {
-			goto success;
-		}
-		/* WTAP_FILE_NETMON */
-		if ((wth->file_type = netmon_open(wth)) != WTAP_FILE_UNKNOWN) {
-			goto success;
-		}
+	/* Try all my file types */
 
-		printf("failed\n");
-		/* WTAP_FILE_UNKNOWN */
-		goto failure;
+	/* WTAP_FILE_PCAP */
+	if ((wth->file_type = libpcap_open(wth)) != WTAP_FILE_UNKNOWN) {
+		goto success;
+	}
+	/* WTAP_FILE_NGSNIFFER */
+	if ((wth->file_type = ngsniffer_open(wth)) != WTAP_FILE_UNKNOWN) {
+		goto success;
+	}
+	/* WTAP_FILE_LANALYZER */
+	if ((wth->file_type = lanalyzer_open(wth)) != WTAP_FILE_UNKNOWN) {
+		goto success;
+	}
+	/* WTAP_FILE_SNOOP */
+	if ((wth->file_type = snoop_open(wth)) != WTAP_FILE_UNKNOWN) {
+		goto success;
+	}
+	/* WTAP_FILE_IPTRACE */
+	if ((wth->file_type = iptrace_open(wth)) != WTAP_FILE_UNKNOWN) {
+		goto success;
+	}
+	/* WTAP_FILE_NETMON */
+	if ((wth->file_type = netmon_open(wth)) != WTAP_FILE_UNKNOWN) {
+		goto success;
 	}
 
-	/* If the user tells us what the file is supposed to be, check it */
-	switch (filetype) {
-		case WTAP_FILE_PCAP:
-			if ((wth->file_type = libpcap_open(wth)) != WTAP_FILE_UNKNOWN) {
-				goto success;
-			}
-			break;
-		case WTAP_FILE_NGSNIFFER:
-			if ((wth->file_type = ngsniffer_open(wth)) != WTAP_FILE_UNKNOWN) {
-				goto success;
-			}
-			break;
-		case WTAP_FILE_LANALYZER:
-			if ((wth->file_type = lanalyzer_open(wth)) != WTAP_FILE_UNKNOWN) {
-				goto success;
-			}
-			break;
-		case WTAP_FILE_SNOOP:
-			if ((wth->file_type = snoop_open(wth)) != WTAP_FILE_UNKNOWN) {
-				goto success;
-			}
-			break;
-		case WTAP_FILE_IPTRACE:
-			if ((wth->file_type = iptrace_open(wth)) != WTAP_FILE_UNKNOWN) {
-				goto success;
-			}
-			break;
-		case WTAP_FILE_NETMON:
-			if ((wth->file_type = netmon_open(wth)) != WTAP_FILE_UNKNOWN) {
-				goto success;
-			}
-			break;
-		default:
-			goto failure;
-	}
 
-	/* If we made it through the switch() statement w/o going to "success",
-	 * then we failed. */
-	goto failure;
-
-failure:
+/* failure: */
 	fclose(wth->fh);
 	free(wth);
 	wth = NULL;

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.18 1999/01/07 16:15:34 gram Exp $
+ * $Id: file.c,v 1.19 1999/01/21 05:03:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -140,7 +140,7 @@ open_cap_file(char *fname, capture_file *cf) {
     cf->pfh = pcap_open_offline(fname, err_str);
     if (cf->pfh == NULL) {
 #else
-	cf->wth = wtap_open_offline(fname, WTAP_FILE_UNKNOWN);
+	cf->wth = wtap_open_offline(fname);
 	if (cf->wth == NULL) {
 #endif
 
