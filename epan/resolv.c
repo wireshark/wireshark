@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.34 2003/07/22 03:14:30 gerald Exp $
+ * $Id: resolv.c,v 1.35 2003/08/18 18:40:10 guy Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -80,6 +80,10 @@
 #ifdef HAVE_GNU_ADNS
 # include <errno.h>
 # include <adns.h>
+#endif
+
+#if defined(WIN32) && defined(INET6)
+# include <ws2tcpip.h>
 #endif
 
 #include "packet.h"
