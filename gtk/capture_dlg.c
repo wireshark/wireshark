@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.7 1999/10/02 07:13:20 guy Exp $
+ * $Id: capture_dlg.c,v 1.8 1999/10/02 19:33:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,6 +27,8 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+
+#ifdef HAVE_LIBPCAP
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -525,4 +527,4 @@ free_if_cb(gpointer data, gpointer user_data)
 	g_free(data);
 }
 
-
+#endif /* HAVE_LIBPCAP */

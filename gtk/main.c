@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.15 1999/10/02 06:26:52 guy Exp $
+ * $Id: main.c,v 1.16 1999/10/02 19:33:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -497,9 +497,11 @@ main(int argc, char *argv[])
     exit(0);
   }
 
+#ifdef HAVE_LIBPCAP
   /* Set "capture_child" to indicate whether this is going to be a child
      process for a "-S" or "-F" capture? */
   capture_child = (strcmp(command_name, CHILD_NAME) == 0);
+#endif
 
   /* Let GTK get its args */
   gtk_init (&argc, &argv);
@@ -648,13 +650,13 @@ main(int argc, char *argv[])
   }
 #endif
 
+#ifdef HAVE_LIBPCAP
   if (start_capture) {
     if (cf.iface == NULL) {
       fprintf(stderr, "ethereal: \"-k\" flag was specified without \"-i\" flag\n");
       exit(1);
     }
   }
-#ifdef HAVE_LIBPCAP
   if (capture_child) {
     if (cf.save_file_fd == -1) {
       /* XXX - send this to the standard output as something our parent
@@ -852,10 +854,12 @@ main(int argc, char *argv[])
 
   ethereal_proto_init();   /* Init anything that needs initializing */
 
+#ifdef HAVE_LIBPCAP
   /* Is this a "child" ethereal, which is only supposed to pop up a
      capture box to let us stop the capture, and run a capture
      to a file that our parent will read? */
   if (!capture_child) {
+#endif
     /* No.  Pop up the main window, and read in a capture file if
        we were told to. */
 
@@ -891,7 +895,9 @@ main(int argc, char *argv[])
         }
       }
     }
+#ifdef HAVE_LIBPCAP
   }
+#endif
 
   /* If we failed to open the preferences file, pop up an alert box;
      we defer it until now, so that the alert box is more likely to
