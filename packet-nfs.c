@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.48 2001/03/02 21:54:02 guy Exp $
+ * $Id: packet-nfs.c,v 1.49 2001/03/06 18:27:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -5288,8 +5288,14 @@ dissect_nfs_resop4(const u_char *pd, int offset, frame_data *fd,
 
 		offset = dissect_nfs_nfsstat4(pd, offset, fd, newftree, &status);
 
-		if (status != NFS4_OK && 
-			(opcode != NFS4_OP_LOCK || opcode != NFS4_OP_LOCKT))
+		/*
+		 * With the exception of NFS4_OP_LOCK, NFS4_OP_LOCKT, and 
+		 * NFS4_OP_SETATTR, all other ops do *not* return data with the
+		 * failed status code.
+		 */
+		if ((status != NFS4_OK) &&
+			((opcode != NFS4_OP_LOCK) && (opcode != NFS4_OP_LOCKT) &&
+			(opcode != NFS4_OP_SETATTR)))
 			continue;
 
 		/* These parsing routines are only executed if the status is NFS4_OK */
