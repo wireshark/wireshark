@@ -950,49 +950,49 @@ static const value_string cmd_GetSensorReading_data_ResponseDataByte2_Bit5_vals[
 };
 
 static const value_string cmd_GetSensorReading_data_ResponseDataByte3_Bit7_vals[] = {
-	{ 0x00,	"state 7 has not be asserted" },
+	{ 0x00,	"state 7 has not been asserted" },
 	{ 0x01,	"state 7 asserted" },
 	{ 0x00,	NULL },
 };
 
 static const value_string cmd_GetSensorReading_data_ResponseDataByte3_Bit6_vals[] = {
-	{ 0x00,	"state 6 has not be asserted" },
+	{ 0x00,	"state 6 has not been asserted" },
 	{ 0x01,	"state 6 asserted" },
 	{ 0x00,	NULL },
 };
 
 static const value_string cmd_GetSensorReading_data_ResponseDataByte3_Bit5_vals[] = {
-	{ 0x00,	"state 5 has not be asserted" },
+	{ 0x00,	"state 5 has not been asserted" },
 	{ 0x01,	"state 5 asserted" },
 	{ 0x00,	NULL },
 };
 
 static const value_string cmd_GetSensorReading_data_ResponseDataByte3_Bit4_vals[] = {
-	{ 0x00,	"state 4 has not be asserted" },
+	{ 0x00,	"state 4 has not been asserted" },
 	{ 0x01,	"state 4 asserted" },
 	{ 0x00,	NULL },
 };
 
 static const value_string cmd_GetSensorReading_data_ResponseDataByte3_Bit3_vals[] = {
-	{ 0x00,	"state 3 has not be asserted" },
+	{ 0x00,	"state 3 has not been asserted" },
 	{ 0x01,	"state 3 asserted" },
 	{ 0x00,	NULL },
 };
 
 static const value_string cmd_GetSensorReading_data_ResponseDataByte3_Bit2_vals[] = {
-	{ 0x00,	"state 2 has not be asserted" },
+	{ 0x00,	"state 2 has not been asserted" },
 	{ 0x01,	"state 2 asserted" },
 	{ 0x00,	NULL },
 };
 
 static const value_string cmd_GetSensorReading_data_ResponseDataByte3_Bit1_vals[] = {
-	{ 0x00,	"state 1 has not be asserted" },
+	{ 0x00,	"state 1 has not been asserted" },
 	{ 0x01,	"state 1 asserted" },
 	{ 0x00,	NULL },
 };
 
 static const value_string cmd_GetSensorReading_data_ResponseDataByte3_Bit0_vals[] = {
-	{ 0x00,	"state 0 has not be asserted" },
+	{ 0x00,	"state 0 has not been asserted" },
 	{ 0x01,	"state 0 asserted" },
 	{ 0x00,	NULL },
 };
@@ -1004,43 +1004,43 @@ static const value_string cmd_GetSensorReading_data_ResponseDataByte4_Bit7_vals[
 };
 
 static const value_string cmd_GetSensorReading_data_ResponseDataByte4_Bit6_vals[] = {
-	{ 0x00,	"state 14 has not be asserted" },
+	{ 0x00,	"state 14 has not been asserted" },
 	{ 0x01,	"state 14 asserted" },
 	{ 0x00,	NULL },
 };
 
 static const value_string cmd_GetSensorReading_data_ResponseDataByte4_Bit5_vals[] = {
-	{ 0x00,	"state 13 has not be asserted" },
+	{ 0x00,	"state 13 has not been asserted" },
 	{ 0x01,	"state 13 asserted" },
 	{ 0x00,	NULL },
 };
 
 static const value_string cmd_GetSensorReading_data_ResponseDataByte4_Bit4_vals[] = {
-	{ 0x00,	"state 12 has not be asserted" },
+	{ 0x00,	"state 12 has not been asserted" },
 	{ 0x01,	"state 12 asserted" },
 	{ 0x00,	NULL },
 };
 
 static const value_string cmd_GetSensorReading_data_ResponseDataByte4_Bit3_vals[] = {
-	{ 0x00,	"state 11 has not be asserted" },
+	{ 0x00,	"state 11 has not been asserted" },
 	{ 0x01,	"state 11 asserted" },
 	{ 0x00,	NULL },
 };
 
 static const value_string cmd_GetSensorReading_data_ResponseDataByte4_Bit2_vals[] = {
-	{ 0x00,	"state 10 has not be asserted" },
+	{ 0x00,	"state 10 has not been asserted" },
 	{ 0x01,	"state 10 asserted" },
 	{ 0x00,	NULL },
 };
 
 static const value_string cmd_GetSensorReading_data_ResponseDataByte4_Bit1_vals[] = {
-	{ 0x00,	"state 9 has not be asserted" },
+	{ 0x00,	"state 9 has not been asserted" },
 	{ 0x01,	"state 9 asserted" },
 	{ 0x00,	NULL },
 };
 
 static const value_string cmd_GetSensorReading_data_ResponseDataByte4_Bit0_vals[] = {
-	{ 0x00,	"state 8 has not be asserted" },
+	{ 0x00,	"state 8 has not been asserted" },
 	{ 0x01,	"state 8 asserted" },
 	{ 0x00,	NULL },
 };
