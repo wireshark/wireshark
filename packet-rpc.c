@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.121 2003/04/23 10:31:38 sahlberg Exp $
+ * $Id: packet-rpc.c,v 1.122 2003/05/02 21:58:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,6 +89,7 @@ const value_string rpc_auth_flavor[] = {
 	{ AUTH_SHORT, "AUTH_SHORT" },
 	{ AUTH_DES, "AUTH_DES" },
 	{ RPCSEC_GSS, "RPCSEC_GSS" },
+	{ AUTH_GSSAPI, "AUTH_GSSAPI" },
 	{ 0, NULL }
 };
 
@@ -97,6 +98,15 @@ static const value_string rpc_authgss_proc[] = {
 	{ RPCSEC_GSS_INIT, "RPCSEC_GSS_INIT" },
 	{ RPCSEC_GSS_CONTINUE_INIT, "RPCSEC_GSS_CONTINUE_INIT" },
 	{ RPCSEC_GSS_DESTROY, "RPCSEC_GSS_DESTROY" },
+	{ 0, NULL }
+};
+
+static const value_string rpc_authgssapi_proc[] = {
+	{ AUTH_GSSAPI_EXIT, "AUTH_GSSAPI_EXIT" },
+	{ AUTH_GSSAPI_INIT, "AUTH_GSSAPI_INIT" },
+	{ AUTH_GSSAPI_CONTINUE_INIT, "AUTH_GSSAPI_CONTINUE_INIT" },
+	{ AUTH_GSSAPI_MSG, "AUTH_GSSAPI_MSG" },
+	{ AUTH_GSSAPI_DESTROY, "AUTH_GSSAPI_DESTROY" },
 	{ 0, NULL }
 };
 
@@ -173,6 +183,11 @@ static int hf_rpc_authgss_token_length = -1;
 static int hf_rpc_authgss_data_length = -1;
 static int hf_rpc_authgss_data = -1;
 static int hf_rpc_authgss_checksum = -1;
+static int hf_rpc_authgssapi_v = -1;
+static int hf_rpc_authgssapi_msg = -1;
+static int hf_rpc_authgssapi_msgv = -1;
+static int hf_rpc_authgssapi_handle = -1;
+static int hf_rpc_authgssapi_isn = -1;
 static int hf_rpc_authdes_namekind = -1;
 static int hf_rpc_authdes_netname = -1;
 static int hf_rpc_authdes_convkey = -1;
@@ -210,6 +225,7 @@ static gint ett_rpc_gids = -1;
 static gint ett_rpc_gss_token = -1;
 static gint ett_rpc_gss_data = -1;
 static gint ett_rpc_array = -1;
+static gint ett_rpc_authgssapi_msg = -1;
 
 static dissector_handle_t rpc_tcp_handle;
 static dissector_handle_t rpc_handle;
@@ -486,7 +502,6 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 {
 	proto_item *string_item = NULL;
 	proto_tree *string_tree = NULL;
-	int old_offset = offset;
 
 	guint32 string_length;
 	guint32 string_length_full;
@@ -654,7 +669,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 	}
 
 	if (string_item) {
-		proto_item_set_len(string_item, offset - old_offset);
+		proto_item_set_end(string_item, tvb, offset);
 	}
 
 	if (string_buffer       != NULL) g_free (string_buffer      );
@@ -736,7 +751,6 @@ dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_item* lock_item;
 	proto_tree* lock_tree;
 	guint32	num;
-	int old_offset = offset;
 
 	num = tvb_get_ntohl(tvb, offset);
 
@@ -759,7 +773,7 @@ dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset = rpc_array_dissector(tvb, offset, pinfo, lock_tree);
 	}
 
-	proto_item_set_len(lock_item, offset-old_offset);
+	proto_item_set_end(lock_item, tvb, offset);
 	return offset;
 }
 
@@ -912,6 +926,30 @@ dissect_rpc_authdes_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 }
 
 static int
+dissect_rpc_authgssapi_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
+{
+	guint agc_v;
+	guint agc_msg;
+
+	agc_v = tvb_get_ntohl(tvb, offset+0);
+	if (tree)
+		proto_tree_add_uint(tree, hf_rpc_authgssapi_v,
+				    tvb, offset+0, 4, agc_v);
+	offset += 4;
+
+	agc_msg = tvb_get_ntohl(tvb, offset+0);
+	if (tree)
+		proto_tree_add_boolean(tree, hf_rpc_authgssapi_msg,
+				    tvb, offset+0, 4, agc_msg);
+	offset += 4;
+
+	offset = dissect_rpc_data(tvb, tree, hf_rpc_authgssapi_handle,
+			offset);
+
+	return offset;
+}
+
+static int
 dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 {
 	guint flavor;
@@ -949,6 +987,11 @@ dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, int offset)
 		case RPCSEC_GSS:
 			dissect_rpc_authgss_cred(tvb, ctree, offset+8);
 			break;
+
+		case AUTH_GSSAPI:
+			dissect_rpc_authgssapi_cred(tvb, ctree, offset+8);
+			break;
+
 		default:
 			if (length)
 				proto_tree_add_text(ctree, tvb, offset+8,
@@ -1115,6 +1158,84 @@ dissect_rpc_authgss_initres(tvbuff_t* tvb, proto_tree* tree, int offset,
 	return offset;
 }
 
+static int
+dissect_rpc_authgssapi_initarg(tvbuff_t* tvb, proto_tree* tree, int offset,
+    packet_info *pinfo)
+{
+	guint version;
+	proto_item *mitem;
+	proto_tree *mtree = NULL;
+
+	if (tree) {
+	    mitem = proto_tree_add_text(tree, tvb, offset, -1,
+		"AUTH_GSSAPI Msg");
+	    mtree = proto_item_add_subtree(mitem, ett_rpc_authgssapi_msg);
+	}
+	version = tvb_get_ntohl(tvb, offset+0);
+	if (mtree) {
+		proto_tree_add_uint(mtree, hf_rpc_authgssapi_msgv, tvb,
+		    offset+0, 4, version);
+	}
+	offset += 4;
+
+	offset = dissect_rpc_authgss_token(tvb, mtree, offset, pinfo);
+
+	return offset;
+}
+
+static int
+dissect_rpc_authgssapi_initres(tvbuff_t* tvb, proto_tree* tree, int offset,
+    packet_info *pinfo)
+{
+	guint version;
+	guint major, minor;
+	proto_item *mitem;
+	proto_tree *mtree = NULL;
+
+	if (tree) {
+	    mitem = proto_tree_add_text(tree, tvb, offset, -1,
+		"AUTH_GSSAPI Msg");
+	    mtree = proto_item_add_subtree(mitem, ett_rpc_authgssapi_msg);
+	}
+
+	version = tvb_get_ntohl(tvb,offset+0);
+	if (mtree) {
+		proto_tree_add_uint(mtree, hf_rpc_authgssapi_msgv, tvb,
+				    offset+0, 4, version);
+	}
+	offset += 4;
+
+	offset = dissect_rpc_data(tvb, mtree, hf_rpc_authgssapi_handle,
+			offset);
+
+	major = tvb_get_ntohl(tvb,offset+0);
+	if (mtree) {
+		proto_tree_add_uint(mtree, hf_rpc_authgss_major, tvb,
+				    offset+0, 4, major);
+	}
+	offset += 4;
+
+	minor = tvb_get_ntohl(tvb,offset+0);
+	if (mtree) {
+		proto_tree_add_uint(mtree, hf_rpc_authgss_minor, tvb,
+				    offset+0, 4, minor);
+	}
+	offset += 4;
+
+	offset = dissect_rpc_authgss_token(tvb, mtree, offset, pinfo);
+
+	offset = dissect_rpc_data(tvb, mtree, hf_rpc_authgssapi_isn, offset);
+
+	return offset;
+}
+
+static int
+dissect_auth_gssapi_data(tvbuff_t *tvb, proto_tree *tree, int offset)
+{
+	offset = dissect_rpc_data(tvb, tree, hf_rpc_authgss_data,
+			offset);
+	return offset;
+}
 
 static int
 call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -1514,7 +1635,6 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_item *pitem = NULL;
 	proto_tree *ptree = NULL;
 	int offset = (is_tcp && tvb == frag_tvb) ? 4 : 0;
-	int offset_old = offset;
 
 	rpc_call_info_key	*new_rpc_call_key;
 	rpc_proc_info_key	key;
@@ -1722,25 +1842,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			procname = procname_static;
 		}
 
-		if (rpc_tree) {
-			proto_tree_add_uint_format(rpc_tree,
-				hf_rpc_procedure, tvb, offset+12, 4, proc,
-				"Procedure: %s (%u)", procname, proc);
-		}
-
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			if (first_pdu)
-				col_clear(pinfo->cinfo, COL_INFO);
-			else
-				col_append_fstr(pinfo->cinfo, COL_INFO, "  ; ");
-			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s XID 0x%x",
-				vers,
-				procname,
-				msg_type_name,
-				xid);
-		}
-
-		/* Check for RPCSEC_GSS */
+		/* Check for RPCSEC_GSS and AUTH_GSSAPI */
 		if (tvb_bytes_exist(tvb, offset+16, 4)) {
 			switch (tvb_get_ntohl(tvb, offset+16)) {
 
@@ -1765,6 +1867,25 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				}
 				break;
 
+			case AUTH_GSSAPI:
+				/*
+				 * AUTH_GSSAPI flavor.  If auth_msg is TRUE,
+				 * then this is an AUTH_GSSAPI message and
+				 * not an application level message.
+				 */
+				if (tvb_bytes_exist(tvb, offset+28, 4)) {
+					if (tvb_get_ntohl(tvb, offset+28)) {
+						flavor = FLAVOR_AUTHGSSAPI_MSG;
+						gss_proc = proc;
+						procname =
+						    match_strval(gss_proc,
+						    rpc_authgssapi_proc);
+					} else {
+						flavor = FLAVOR_AUTHGSSAPI;
+					}
+				}
+				break;
+
 			default:
 				/*
 				 * It's not GSS-API authentication.
@@ -1772,6 +1893,24 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				flavor = FLAVOR_NOT_GSSAPI;
 				break;
 			}
+		}
+
+		if (rpc_tree) {
+			proto_tree_add_uint_format(rpc_tree,
+				hf_rpc_procedure, tvb, offset+12, 4, proc,
+				"Procedure: %s (%u)", procname, proc);
+		}
+
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			if (first_pdu)
+				col_clear(pinfo->cinfo, COL_INFO);
+			else
+				col_append_fstr(pinfo->cinfo, COL_INFO, "  ; ");
+			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s XID 0x%x",
+				vers,
+				procname,
+				msg_type_name,
+				xid);
 		}
 
 		/* Keep track of the address and port whence the call came,
@@ -1923,6 +2062,17 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #endif
 			sprintf(procname_static, "proc-%u", proc);
 			procname = procname_static;
+		}
+
+		/*
+		 * If this is an AUTH_GSSAPI message, then the RPC procedure
+		 * is not an application procedure, but rather an auth level
+		 * procedure, so it would be misleading to print the RPC
+		 * procname.  Replace the RPC procname with the corresponding
+		 * AUTH_GSSAPI procname.
+		 */
+		if (flavor == FLAVOR_AUTHGSSAPI_MSG) {
+			procname = match_strval(gss_proc, rpc_authgssapi_proc);
 		}
 
 		rpc_prog_key.prog = prog;
@@ -2119,7 +2269,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* now we know, that RPC was shorter */
 	if (rpc_item) {
-		proto_item_set_len(rpc_item, offset - offset_old);
+		proto_item_set_end(rpc_item, tvb, offset);
 	}
 
 	if (!dissect_rpc) {
@@ -2133,7 +2283,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/* create here the program specific sub-tree */
-	if (tree) {
+	if (tree && (flavor != FLAVOR_AUTHGSSAPI_MSG)) {
 		pitem = proto_tree_add_item(tree, proto, tvb, offset, -1,
 		    FALSE);
 		if (pitem) {
@@ -2174,7 +2324,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		dissect_function = NULL;
 
 	/*
-	 * Handle RPCSEC_GSS specially.
+	 * Handle RPCSEC_GSS and AUTH_GSSAPI specially.
 	 */
 	switch (flavor) {
 
@@ -2248,6 +2398,63 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		default:
 			break;
 		}
+		break;
+
+	case FLAVOR_AUTHGSSAPI_MSG:
+		/*
+		 * This is an AUTH_GSSAPI message.  It contains data
+		 * only for the authentication procedure and not for the
+		 * application level RPC procedure.  Reset the column
+		 * protocol and info fields to indicate that this is
+		 * an RPC auth level message, then process the args.
+		 */
+		if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
+		}
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_clear(pinfo->cinfo, COL_INFO);
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+			    "%s %s XID 0x%x",
+			    match_strval(gss_proc, rpc_authgssapi_proc),
+			    msg_type_name, xid);
+		}
+
+		switch (gss_proc) {
+
+		case AUTH_GSSAPI_INIT:
+		case AUTH_GSSAPI_CONTINUE_INIT:
+		case AUTH_GSSAPI_MSG:
+			if (msg_type == RPC_CALL) {
+			    offset = dissect_rpc_authgssapi_initarg(tvb, 
+				rpc_tree, offset, pinfo);
+			} else {
+			    offset = dissect_rpc_authgssapi_initres(tvb, 
+				rpc_tree, offset, pinfo);
+			}
+			break;
+
+		case AUTH_GSSAPI_DESTROY:
+			offset = dissect_rpc_data(tvb, rpc_tree,
+			    hf_rpc_authgss_data, offset);
+			break;
+
+		case AUTH_GSSAPI_EXIT:
+			break;
+		}
+
+		/* Adjust the length to account for the auth message. */
+		if (rpc_item) {
+			proto_item_set_end(rpc_item, tvb, offset);
+		}
+		break;
+
+	case FLAVOR_AUTHGSSAPI:
+		/*
+		 * An RPC with AUTH_GSSAPI authentication.  The data
+		 * portion is always private, so don't call the dissector.
+		 */
+		offset = dissect_auth_gssapi_data(tvb, ptree, offset);
+		break;
 	}
 
 	/* dissect any remaining bytes (incomplete dissection) as pure data in
@@ -3053,6 +3260,24 @@ proto_register_rpc(void)
 		{ &hf_rpc_authgss_checksum, {
 			"GSS Checksum", "rpc.authgss.checksum", FT_BYTES,
 			BASE_HEX, NULL, 0, "GSS Checksum", HFILL }},
+		{ &hf_rpc_authgssapi_v, {
+			"AUTH_GSSAPI Version", "rpc.authgssapi.version",
+			FT_UINT32, BASE_DEC, NULL, 0, "AUTH_GSSAPI Version",
+			HFILL }},
+		{ &hf_rpc_authgssapi_msg, {
+			"AUTH_GSSAPI Message", "rpc.authgssapi.message",
+			FT_BOOLEAN, BASE_NONE, &yesno, 0, "AUTH_GSSAPI Message",
+			HFILL }},
+		{ &hf_rpc_authgssapi_msgv, {
+			"Msg Version", "rpc.authgssapi.msgversion",
+			FT_UINT32, BASE_DEC, NULL, 0, "Msg Version",
+			HFILL }},
+		{ &hf_rpc_authgssapi_handle, {
+			"Client Handle", "rpc.authgssapi.handle",
+			FT_BYTES, BASE_HEX, NULL, 0, "Client Handle", HFILL }},
+		{ &hf_rpc_authgssapi_isn, {
+			"Signed ISN", "rpc.authgssapi.isn",
+			FT_BYTES, BASE_HEX, NULL, 0, "Signed ISN", HFILL }},
 		{ &hf_rpc_authdes_namekind, {
 			"Namekind", "rpc.authdes.namekind", FT_UINT32, BASE_DEC,
 			VALS(rpc_authdes_namekind), 0, "Namekind", HFILL }},
@@ -3140,6 +3365,7 @@ proto_register_rpc(void)
 		&ett_rpc_gss_token,
 		&ett_rpc_gss_data,
 		&ett_rpc_array,
+		&ett_rpc_authgssapi_msg,
 	};
 	module_t *rpc_module;
 

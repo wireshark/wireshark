@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.40 2002/11/13 21:45:57 guy Exp $
+ * $Id: packet-rpc.h,v 1.41 2003/05/02 21:58:23 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -38,6 +38,7 @@
 #define AUTH_SHORT 2
 #define AUTH_DES 3
 #define RPCSEC_GSS 6
+#define AUTH_GSSAPI 300001
 
 #define MSG_ACCEPTED 0
 #define MSG_DENIED 1
@@ -64,6 +65,12 @@
 #define RPCSEC_GSS_CONTINUE_INIT 2
 #define RPCSEC_GSS_DESTROY 3
 
+#define	AUTH_GSSAPI_EXIT 0
+#define	AUTH_GSSAPI_INIT 1
+#define	AUTH_GSSAPI_CONTINUE_INIT 2
+#define	AUTH_GSSAPI_MSG 3
+#define	AUTH_GSSAPI_DESTROY 4
+
 #define RPCSEC_GSS_SVC_NONE 1
 #define RPCSEC_GSS_SVC_INTEGRITY 2
 #define RPCSEC_GSS_SVC_PRIVACY 3
@@ -76,7 +83,9 @@ typedef enum {
 	FLAVOR_UNKNOWN,		/* authentication flavor unknown */
 	FLAVOR_NOT_GSSAPI,	/* flavor isn't GSSAPI */
 	FLAVOR_GSSAPI_NO_INFO,	/* flavor is GSSAPI, procedure & service unknown */
-	FLAVOR_GSSAPI		/* flavor is GSSAPI, procedure & service known */
+	FLAVOR_GSSAPI,		/* flavor is GSSAPI, procedure & service known */
+	FLAVOR_AUTHGSSAPI,	/* AUTH_GSSAPI flavor */
+	FLAVOR_AUTHGSSAPI_MSG	/* AUTH_GSSAPI flavor, AUTH_GSSAPI message */
 } flavor_t;
 
 typedef struct _rpc_call_info_value {

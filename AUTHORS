@@ -1681,6 +1681,7 @@ Duncan Laurie <duncan [AT] sun.com> {
 Tony Schene <Schene_Tony [AT] emc.com> {
 	Initial stub Kerberos kadmin support
 	Kerberos-over-TCP support
+	AUTH_GSSAPI support
 }
 
 Matthijs Melchior <mmelchior [AT] xs4all.nl> {
