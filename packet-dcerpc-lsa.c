@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.41 2002/05/02 06:21:52 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.42 2002/05/02 06:33:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3378,6 +3378,36 @@ lsa_dissect_lsaretrieveprivatedata_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_lsaclosetrusteddomainex_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+
+	/* [in, out] LSA_HANDLE *tdHnd */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
+		"LSA_HANDLE pointer: tdHnd", -1, 0);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaclosetrusteddomainex_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+
+	/* [in, out] LSA_HANDLE *tdHnd */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
+		"LSA_HANDLE pointer: tdHnd", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
 
 
 
@@ -3548,11 +3578,8 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsacreatetrusteddomainex_reply },
 #endif
 	{ LSA_LSACLOSETRUSTEDDOMAINEX, "LSACLOSETRUSTEDDOMAINEX",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsaclosetrusteddomainex_rqst,
 		lsa_dissect_lsaclosetrusteddomainex_reply },
-#endif
 	{ LSA_LSAQUERYDOMAININFORMATIONPOLICY, "LSAQUERYDOMAININFORMATIONPOLICY",
 		lsa_dissect_lsaquerydomaininformationpolicy_rqst,
 		lsa_dissect_lsaquerydomaininformationpolicy_reply },
