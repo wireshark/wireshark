@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.41 2002/01/24 09:20:47 guy Exp $
+ * $Id: packet-ftp.c,v 1.42 2002/04/03 22:35:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -371,14 +371,14 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "FTP Data: %u bytes",
-		    tvb_length(tvb));
+		    tvb_reported_length(tvb));
 	}
 
 	if (tree) {
 		data_length = tvb_length(tvb);
 
-		ti = proto_tree_add_item(tree, proto_ftp_data, tvb, 0,
-		    data_length, FALSE);
+		ti = proto_tree_add_item(tree, proto_ftp_data, tvb, 0, -1,
+		    FALSE);
 		ftp_data_tree = proto_item_add_subtree(ti, ett_ftp_data);
 
 		/*
