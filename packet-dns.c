@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.42 2000/04/12 06:59:28 guy Exp $
+ * $Id: packet-dns.c,v 1.43 2000/04/26 12:01:50 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -111,6 +111,7 @@ static gint ett_t_key_flags = -1;
 #define T_SRV           33              /* service location (RFC 2052) */
 #define T_ATMA          34              /* ??? */
 #define T_NAPTR         35              /* naming authority pointer (RFC 2168) */
+#define T_A6		38              /* IPv6 address with indirection (draft-ietf-ipngwg-dns-lookups-07) */
 #define T_OPT		41		/* OPT pseudo-RR (RFC 2671) */
 
 /* Bit fields in the flags */
@@ -120,6 +121,8 @@ static gint ett_t_key_flags = -1;
 #define F_TRUNCATED     (1<<9)          /* response is truncated */
 #define F_RECDESIRED    (1<<8)          /* recursion desired */
 #define F_RECAVAIL      (1<<7)          /* recursion available */
+#define F_AUTHENTIC     (1<<5)          /* authentic data (RFC2535) */
+#define F_CHECKDISABLE  (1<<4)          /* checking disabled (RFC2535) */
 #define F_RCODE         (0xF<<0)        /* reply code */
 
 /* Opcodes */
@@ -178,7 +181,7 @@ dns_type_name (u_int type)
     "NAPTR",				/* RFC 2168 */
     NULL,
     NULL,
-    NULL,
+    "A6",				/* draft-ietf-ipngwg-dns-lookups-07 */
     NULL,
     NULL,
     "OPT"				/* RFC 2671 */
@@ -259,7 +262,7 @@ dns_long_type_name (u_int type)
     "Naming authority pointer",		/* RFC 2168 */
     NULL,
     NULL,
-    NULL,
+    "IPv6 address with indirection",	/* draft-ietf-ipngwg-dns-lookups-07 */
     NULL,
     NULL,
     "EDNS0 option"			/* RFC 2671 */
@@ -1619,6 +1622,20 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
               2*8,
               "Server can do recursive queries",
               "Server can't do recursive queries"));
+      proto_tree_add_text(field_tree, offset + DNS_FLAGS, 2, "%s",
+	 decode_boolean_bitfield(flags, F_AUTHENTIC,
+            2*8,
+            "Answer/authority portion was autenticated by the server",
+            "Answer/authority portion was not autenticated by the server"));
+    }
+    if ((flags & F_RESPONSE) == 0) {
+      proto_tree_add_text(field_tree, offset + DNS_FLAGS, 2, "%s",
+	 decode_boolean_bitfield(flags, F_CHECKDISABLE,
+            2*8,
+            "Non-authenticated data is acceptable",
+            "Non-authenticated data is unacceptable"));
+    }
+    if (flags & F_RESPONSE) {
       proto_tree_add_text(field_tree, offset + DNS_FLAGS, 2, "%s",
          decode_enumerated_bitfield(flags, F_RCODE,
               2*8, rcode_vals, "%s"));
