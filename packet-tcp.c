@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.177 2003/03/01 07:07:07 sharpe Exp $
+ * $Id: packet-tcp.c,v 1.178 2003/03/01 07:15:04 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1616,6 +1616,8 @@ dissect_tcpopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
   tsv = tvb_get_ntohl(tvb, offset + 2);
   tser = tvb_get_ntohl(tvb, offset + 6);
+  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_time_stamp, tvb, 
+				offset, optlen, TRUE);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
     "%s: tsval %u, tsecr %u", optp->name, tsv, tser);
   tcp_info_append_uint(pinfo, "TSV", tsv);
@@ -1629,6 +1631,8 @@ dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
   guint32 cc;
 
   cc = tvb_get_ntohl(tvb, offset + 2);
+  proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_cc, tvb, offset,
+				optlen, TRUE);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: %u", optp->name, cc);
   tcp_info_append_uint(pinfo, "CC", cc);
