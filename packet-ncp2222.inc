@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.25 2002/10/10 03:25:47 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.26 2002/10/10 03:58:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4281,22 +4281,22 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                 {                        
                         nds_offset = 16; 
                         nds_error_code = tvb_get_letohl(tvb, nds_offset);
-                        error_string = match_strval(nds_error_code, nds_reply_errors);
-                        if (error_string == NULL)
+                        nds_error_string = match_strval(nds_error_code, nds_reply_errors);
+                        if (nds_error_string == NULL)
                         {
                                 nds_offset = 19;
                                 nds_error_code = tvb_get_letohl(tvb, nds_offset);
-                                error_string = match_strval(nds_error_code, nds_reply_errors);
+                                nds_error_string = match_strval(nds_error_code, nds_reply_errors);
                         }
-                        if (error_string == NULL || nds_error_code == 0x00000000)
+                        if (nds_error_string == NULL || nds_error_code == 0x00000000)
                         {
                                 if (nds_frag != 0xffffffff)
                                 {
-                                        error_string = "NDS Fragment";
+                                        nds_error_string = "NDS Fragment";
                                 }
                                 else
                                 {        
-                                        error_string = "Ok";
+                                        nds_error_string = "Ok";
                                 }
                         }        
                 }
@@ -4311,7 +4311,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                 }
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 		    type == NCP_SERVICE_REPLY ? "R" : "ACK",
-		    error_string);
+		    nds_error_string ? nds_error_string : error_string);
 	}
 
 	if (ncp_tree) {
@@ -4394,31 +4394,9 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
         			        nds_frag);
                                 if (nds_reply_buffer > 7)
                                 {                        
-                                        nds_offset = 16; 
-                                        nds_error_code = tvb_get_letohl(tvb, nds_offset);
-                                        nds_error_string = match_strval(nds_error_code, nds_reply_errors);
-                                        if (nds_error_string == NULL)
-                                        {
-                                                nds_offset = 19;
-                                                nds_error_code = tvb_get_letohl(tvb, nds_offset);
-                                                error_string = match_strval(nds_error_code, nds_reply_errors);
-                                        }
-                                        if (nds_error_string == NULL || nds_error_code == 0x00000000)
-                                        {
-                                                if (nds_frag != 0xffffffff)
-                                                {
-                                                        nds_error_string = "NDS Fragment";
-                                                }
-                                                else
-                                                {        
-                                                        nds_error_string = "Ok";
-                                                }
-                                                nds_error_code = 0x00000000;
-                                        }        
                                         proto_tree_add_uint_format(ncp_tree, hf_nds_reply_error, tvb, nds_offset,
                                                 4, nds_error_code, "NDS Completion Code: 0x%08x, %s",
         				        nds_error_code, nds_error_string);
-                                                            
                                 }
                                 if (request_value && nds_error_code == 0x00000000 && nds_frag == 0xffffffff)
                                 {
