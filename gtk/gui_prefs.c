@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.58 2004/01/23 01:10:24 ulfl Exp $
+ * $Id: gui_prefs.c,v 1.59 2004/01/23 20:13:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -457,13 +457,15 @@ void
 gui_prefs_apply(GtkWidget *w _U_)
 {
 
-    if (font_changed) {
-        font_apply();
+	if (font_changed) {
+		/* This redraws the hex dump windows. */
+		font_apply();
+	} else {
+		/* Redraw the hex dump windows, in case the
+		   highlight style changed.
+		   XXX - do it only if the highlight style *did* change. */
+		redraw_hex_dump_all();
 	}
-
-	/* Redraw the hex dump windows, in case the
-	   highlight style changed. */
-	redraw_hex_dump_all();
 
 	/* Redraw the help window(s). */
 	supported_redraw();
