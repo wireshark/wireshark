@@ -735,6 +735,10 @@ Scott Renfro <scott@renfro.org> {
 	SSL/TLS support
 }
 
+David Eisner <cradle@Glue.umd.edu> {
+	NCP-over-IP bug fix
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

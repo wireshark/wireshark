@@ -1131,6 +1131,7 @@ B<http://www.ethereal.com>.
   Aamer Akhter             <aakhter@cisco.com>
   Pekka Savola             <pekkas@netcore.fi>
   Scott Renfro             <scott@renfro.org>
+  David Eisner             <cradle@Glue.umd.edu>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

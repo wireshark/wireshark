@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.48 2001/06/18 02:17:49 guy Exp $
+ * $Id: packet-ncp.c,v 1.49 2001/07/12 01:48:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -259,6 +259,7 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16				nw_connection;
 	int				hdr_offset = 0;
 	int				commhdr;
+	tvbuff_t       			*next_tvb;
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "NCP");
@@ -307,11 +308,13 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	if (header.type == 0x1111 || header.type == 0x2222) {
-		dissect_ncp_request(tvb, pinfo, nw_connection,
+		next_tvb = tvb_new_subset( tvb, hdr_offset, -1, -1 );
+		dissect_ncp_request(next_tvb, pinfo, nw_connection,
 			header.sequence, header.type, ncp_tree, tree);
 	}
 	else if (header.type == 0x3333) {
-		dissect_ncp_reply(tvb, pinfo, nw_connection,
+		next_tvb = tvb_new_subset( tvb, hdr_offset, -1, -1 );
+		dissect_ncp_reply(next_tvb, pinfo, nw_connection,
 			header.sequence, ncp_tree, tree);
 	}
 	else if (	header.type == 0x5555 ||
