@@ -984,10 +984,14 @@ file:
   c0-00-ff-ff-ff-ff          TR_broadcast
   00.00.00.00.00.00          Zero_broadcast
 
-F</usr/local/etc/manuf> matches the 3-byte vendor portion of a 6-byte
-hardware address with the manufacturer's name.  The format of the file
-is the same as the F</etc/ethers> file, except that each address is
-three bytes instead of six.
+The F<manuf> file, which is installed in the F<etc> directory under the
+main installation directory (for example, F</usr/local/etc>) on
+UNIX-compatible systems, and in the main installation directory (for
+example, F<C:\Program Files\Ethereal> on Windows systems, matches the
+3-byte vendor portion of a 6-byte hardware address with the
+manufacturer's name.  The format of the file is the same as the
+F</etc/ethers> file, except that each address is three bytes instead of
+six.
 
 F</etc/ipxnets> and F<$HOME/.ethereal/ipxnets> correlate 4-byte IPX
 network numbers to names.  The format is the same as the F</etc/ethers>
