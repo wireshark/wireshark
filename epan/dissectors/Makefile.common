@@ -23,12 +23,27 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-#
-# Generated header files that we want in the distribution.
-#
-GENERATED_HEADER_FILES = \
+# "BUILT_SOURCES" are built before any "make all" or "make check" targets.
+BUILT_HEADER_FILES = \
 	x11-declarations.h	\
 	x11-register-info.h
+
+BUILT_C_FILES = \
+	register.c
+
+BUILT_SOURCES =	$(BUILT_C_FILES) $(BUILT_HEADER_FILES)
+
+# Header files generated from source files.
+GENERATED_HEADER_FILES = \
+	$(BUILT_HEADER_FILES)
+
+# C source files generated from source files.
+GENERATED_C_FILES = \
+	$(BUILT_C_FILES)	\
+	packet-ncp2222.c
+
+# All the generated files.
+GENERATED_FILES = $(GENERATED_HEADER_FILES) $(GENERATED_C_FILES)
 
 # the dissector sources (without any helpers)
 DISSECTOR_SRC =	\
@@ -791,16 +806,12 @@ DISSECTOR_INCLUDES =	\
 	packet-ypxfr.h	\
 	$(GENERATED_HEADER_FILES)
 
-# dissector helpers (needed from the dissectors, but not a dissector itself)
+# Dissector helpers.  They're included in the source files in this
+# directory, but they're not dissectors themselves, i.e. they're not
+# used to generate "register.c").
 DISSECTOR_SUPPORT_SRC =	\
 	packet-dcerpc-nt.c	\
 	register.c
-
-# "BUILT_SOURCES" are built before any "make all" or "make check" targets.
-BUILT_SOURCES =		\
-	register.c	\
-	x11-declarations.h	\
-	x11-register-info.h
 
 # this target needed for distribution only
 noinst_HEADERS =	\

@@ -47,10 +47,12 @@ ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) ../make-tapreg-dotc Makefile.common
 
 clean:
 	rm -f $(ETHEREAL_WIN32_GTK_OBJECTS) $(ETHEREAL_TAP_OBJECTS) libui.lib $(PDB_FILE) doxygen.cfg html/*.*
-    if exist html rmdir html
+	if exist html rmdir html
 
 distclean: clean
-	rm -f ethereal-tap-register.c
+
+maintainer-clean: distclean
+	rm -f $(GENERATED_FILES)
 
 # convert doxygen.cfg.in to doxygen.cfg with stamped version info
 doxygen.cfg: ..\config.nmake doxygen.cfg.in

@@ -28,3 +28,5 @@ clean:
 	rm -f $(OBJECTS) rlm.dll rlm.exp rlm.lib *.pdb
 
 distclean: clean
+
+maintainer-clean: distclean

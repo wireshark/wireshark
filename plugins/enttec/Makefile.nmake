@@ -28,3 +28,5 @@ clean:
 	rm -f $(OBJECTS) enttec.dll enttec.exp enttec.lib *.pdb
 
 distclean: clean
+
+maintainer-clean: distclean

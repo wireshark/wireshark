@@ -28,3 +28,5 @@ clean:
 	rm -f $(OBJECTS) gryphon.dll gryphon.exp gryphon.lib *.pdb
 
 distclean: clean
+
+maintainer-clean: distclean

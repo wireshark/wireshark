@@ -28,3 +28,5 @@ clean:
 	rm -f $(OBJECTS) lwres.dll lwres.exp lwres.lib *.pdb
 
 distclean: clean
+
+maintainer-clean: distclean

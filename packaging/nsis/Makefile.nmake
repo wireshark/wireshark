@@ -137,6 +137,8 @@ clean:
 
 distclean: clean
 
+maintainer-clean: distclean
+
 $(DOC):
 	cd ../../doc
 	$(MAKE) -f makefile.nmake

@@ -51,3 +51,5 @@ clean :
 	rm -f $(ALL_RC)
 
 distclean: clean
+
+maintainer-clean: distclean

@@ -93,6 +93,15 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 
+maintainer-clean: distclean
+	cd ftypes
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../dfilter
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../dissectors
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ..
+
 ftypes:: ..\config.h
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake

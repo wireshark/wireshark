@@ -61,10 +61,6 @@ CLEANFILES = \
 	libethereal.la		\
 	*~
 
-MAINTAINERCLEANFILES =	\
-	register.c	\
-	../packet-ncp2222.c
-
 #
 # Add the object files for missing routines, if any.
 #

@@ -28,3 +28,5 @@ clean:
 	rm -f $(OBJECTS) ciscosm.dll ciscosm.exp ciscosm.lib *.pdb
 
 distclean: clean
+
+maintainer-clean: distclean

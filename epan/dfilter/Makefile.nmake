@@ -47,8 +47,19 @@ $(OBJECTS): ..\..\config.h
 clean:
 	rm -f $(OBJECTS) dfilter.lib $(PDB_FILE)
 
+#
+# We remove the generated files with "distclean" because one of them,
+# "scanner.c", needs different #includes for UN*X and Windows
+# (UN*X versions of Flex make it include <unistd.h>, but that's a
+# UN*X-only header), so if you're going to build from source, you need
+# to build "scanner.c" from "scanner.l" with Flex.
+# This might not be necessary for "grammar.{c,h}", but we handle them
+# the same for now.
+#
 distclean: clean
 	rm -f scanner.c grammar.c grammar.h grammar.out
+
+maintainer-clean: distclean
 
 scanner.c : scanner.l
 	$(LEX) -Pdf_ -oscanner.c scanner.l

@@ -16,3 +16,5 @@ clean:
 	rm -f lemon.obj lemon.exe lemon.ilk $(PDB_FILE) lemon.pdb
 
 distclean: clean
+
+maintainer-clean: distclean

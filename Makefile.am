@@ -381,17 +381,27 @@ dftest_LDADD = \
 
 dftest_LDFLAGS = -export-dynamic
 
-CLEANFILES =	\
-	svnversion.h \
-	@rdps_bin@ \
-	idl2eth
-
-DISTCLEANFILES = \
-	ps.c \
+#
+# XXX - "svnversion.h" is distributed in the release tarball; should
+# we be deleting it with "make clean", or should we only do that with
+# "make maintainer-clean"?
+#
+CLEANFILES =		\
+	svnversion.h	\
+	@rdps_bin@	\
+	idl2eth		\
 	*~
 
-MAINTAINERCLEANFILES =		\
+#
+# XXX - "ps.c" is distributed in the source tarballs; why is it in the
+# list of files removed by "make distclean"?  (It's deliberately
+# included in that list.)
+#
+DISTCLEANFILES = \
 	ps.c
+
+MAINTAINERCLEANFILES =		\
+	$(GENERATED_FILES)
 
 EXTRA_DIST = \
 	AUTHORS-SHORT		\

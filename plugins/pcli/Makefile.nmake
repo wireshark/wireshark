@@ -28,3 +28,5 @@ clean:
 	rm -f $(OBJECTS) pcli.dll pcli.exp pcli.lib *.pdb
 
 distclean: clean
+
+maintainer-clean: distclean

@@ -28,3 +28,5 @@ clean:
 	rm -f $(OBJECTS) rtnet.dll rtnet.exp rtnet.lib *.pdb
 
 distclean: clean
+
+maintainer-clean: distclean

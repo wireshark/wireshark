@@ -27,9 +27,6 @@ PLATFORM_SRC = capture-wpcap.c
 
 include Makefile.common
 
-BUILT_SOURCES =	$(BUILT_SOURCES) \
-	svnversion.h
-
 ethereal_OBJECTS = $(ethereal_SOURCES:.c=.obj)
 tethereal_OBJECTS = $(tethereal_SOURCES:.c=.obj)
 dftest_OBJECTS = $(dftest_SOURCES:.c=.obj)
@@ -290,11 +287,10 @@ clean: gtk2_distclean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../..
 
-# Call distclean only, if you would like to remove ALL generated files.
-# Be sure to have python and perl installed to regenerate them.
+# "distclean" removes all files not part of the distribution.
+# It does not remove generated files that are part of the distribution.
 distclean: clean gtk2_distclean
-	rm -f $(BUILT_SOURCES) \
-		tethereal-tap-register.c 
+	rm -f config.h $(BUILT_SOURCES)
 	cd wiretap
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../gtk
@@ -313,6 +309,31 @@ distclean: clean gtk2_distclean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../packaging/nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../..
+
+# Make "maintainer-clean" only if you would like to remove ALL generated
+# files.
+# Be sure to have python and perl installed to regenerate them.
+maintainer-clean: distclean
+	rm -f $(GENERATED_FILES)
+	cd wiretap
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../gtk
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../epan
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../plugins
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../tools
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../image
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../doc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../help
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../packaging/nsis
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../..
 
 tools::
@@ -490,4 +511,3 @@ update_plugin_api: config.h
 	cd plugins
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake xyzzy
 	cd ..
-

@@ -29,6 +29,9 @@ CLEANFILES = \
 	libui.a		\
 	*~
 
+MAINTAINERCLEANFILES =		\
+	$(GENERATED_FILES)
+
 ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) $(top_srcdir)/make-tapreg-dotc
 	@echo Making ethereal-tap-register.c
 	@$(top_srcdir)/make-tapreg-dotc ethereal-tap-register.c $(srcdir) $(ETHEREAL_TAP_SRC)

@@ -28,3 +28,5 @@ clean:
 	rm -f $(OBJECTS) irda.dll irda.exp irda.lib *.pdb
 
 distclean: clean
+
+maintainer-clean: distclean

@@ -28,3 +28,5 @@ clean:
 	rm -f $(OBJECTS) rudp.dll rudp.exp rudp.lib *.pdb
 
 distclean: clean
+
+maintainer-clean: distclean

@@ -48,9 +48,25 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	x264_prt_id.h
 
 # "BUILT_SOURCES" are built before any "make all" or "make check" targets.
-BUILT_SOURCES =		\
-	svnversion.h \
+BUILT_HEADER_FILES =	\
+	svnversion.h
+
+BUILT_C_FILES =		\
 	ps.c
+
+BUILT_SOURCES =	$(BUILT_C_FILES) $(BUILT_HEADER_FILES)
+
+# Header files generated from source files.
+GENERATED_HEADER_FILES = \
+	$(BUILT_HEADER_FILES)
+
+# C source files generated from source files.
+GENERATED_C_FILES = \
+	$(BUILT_C_FILES)	\
+	tethereal-tap-register.c
+
+# All the generated files.
+GENERATED_FILES = $(GENERATED_C_FILES) $(GENERATED_HEADER_FILES)
 
 # sources common for ethereal and tethereal
 ETHEREAL_COMMON_SRC =	\

@@ -15,6 +15,11 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ..
 
+maintainer-clean: distclean
+	cd lemon
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ..
+
 lemon::
 	cd lemon
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake

@@ -35,3 +35,5 @@ clean:
 		coseventcomm.dll coseventcomm.exp coseventcomm.lib *.pdb
 
 distclean: clean
+
+maintainer-clean: distclean

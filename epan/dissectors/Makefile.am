@@ -105,13 +105,11 @@ register.c: $(plugin_src) $(DISSECTOR_SRC) $(srcdir)/make-reg-dotc $(srcdir)/mak
 #dist-hook:
 #	@rm -f $(distdir)/register.c
 
-
-MAINTAINERCLEANFILES =	\
-	register.c	\
-	packet-ncp2222.c
-
 CLEANFILES = \
 	libdissectors.a		\
 	libdissectors.la	\
 	$(GENERATED_HEADER_FILES)	\
 	*~
+
+MAINTAINERCLEANFILES =	\
+	$(GENERATED_FILES)

@@ -28,3 +28,5 @@ clean:
 	rm -f $(OBJECTS) v5ua.dll v5ua.exp v5ua.lib *.pdb
 
 distclean: clean
+
+maintainer-clean: distclean

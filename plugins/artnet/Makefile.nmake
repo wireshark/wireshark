@@ -28,3 +28,5 @@ clean:
 	rm -f $(OBJECTS) artnet.dll artnet.exp artnet.lib *.pdb
 
 distclean: clean
+
+maintainer-clean: distclean

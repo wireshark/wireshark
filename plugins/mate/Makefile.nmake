@@ -32,3 +32,5 @@ clean:
 	rm -f $(OBJECTS) mate.dll mate.exp mate.lib *.pdb
 
 distclean: clean
+
+maintainer-clean: distclean

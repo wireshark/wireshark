@@ -23,6 +23,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
+# Generated header files that we want in the distribution.
+# (None, so far.)
+GENERATED_HEADER_FILES =
+
+# Generated C source files that we want in the distribution.
+GENERATED_C_FILES = \
+	ethereal-tap-register.c
+
+# All the generated files we want in the distribution.
+GENERATED_FILES = $(GENERATED_HEADER_FILES) $(GENERATED_C_FILES)
 
 #
 # ethclist.obj is not in here because it is currently gtk+-1.2-only

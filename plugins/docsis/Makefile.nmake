@@ -40,3 +40,5 @@ clean:
 	rm -f $(OBJECTS) docsis.dll docsis.exp docsis.lib *.pdb
 
 distclean: clean
+
+maintainer-clean: distclean
