@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.72 2004/02/21 04:19:12 guy Exp $
+ * $Id: packet-q931.c,v 1.73 2004/03/06 10:11:54 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -36,6 +36,7 @@
 #include <epan/strutil.h>
 #include "nlpid.h"
 #include "packet-q931.h"
+#include "packet-e164.h"
 #include "prefs.h"
 #include "reassemble.h"
 
@@ -66,6 +67,7 @@ static int hf_q931_call_ref_flag 			= -1;
 static int hf_q931_call_ref 				= -1;
 static int hf_q931_message_type 			= -1;
 static int hf_q931_segment_type 			= -1;
+static int hf_q931_cause_location			= -1;
 static int hf_q931_cause_value 				= -1;
 static int hf_q931_number_type				= -1;
 static int hf_q931_numbering_plan			= -1;
@@ -74,6 +76,8 @@ static int hf_q931_calling_party_number 		= -1;
 static int hf_q931_called_party_number 			= -1;
 static int hf_q931_connected_number 			= -1;
 static int hf_q931_redirecting_number 			= -1;
+static int hf_q931_screening_ind				= -1;
+static int hf_q931_presentation_ind				= -1;
 
 static int hf_q931_segments = -1;
 static int hf_q931_segment = -1;
@@ -1169,21 +1173,19 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		return;
 	octet = tvb_get_guint8(tvb, offset);
 	coding_standard = octet & 0x60;
-	proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
 	if (coding_standard != Q931_ITU_STANDARDIZED_CODING) {
 		/*
 		 * We don't know how the cause is encoded,
 		 * so just dump it as data and be done with it.
 		 */
+		proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
 		proto_tree_add_text(tree, tvb, offset,
 		    len, "Data: %s",
 		    tvb_bytes_to_str(tvb, offset, len));
 		return;
 	}
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Location: %s",
-	    val_to_str(octet & 0x0F, q931_cause_location_vals,
-	      "Unknown (0x%X)"));
+	proto_tree_add_uint(tree, hf_q931_cause_location, tvb, offset, 1, octet);
+	proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
 	proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
 	offset += 1;
 	len -= 1;
@@ -1196,6 +1198,7 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 		    "Recommendation: %s",
 		    val_to_str(octet & 0x7F, q931_cause_recommendation_vals,
 		      "Unknown (0x%02X)"));
+		proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
 		offset += 1;
 		len -= 1;
 	}
@@ -1205,6 +1208,7 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 	octet = tvb_get_guint8(tvb, offset);
 	cause_value = octet & 0x7F;
 	proto_tree_add_uint(tree, hf_cause_value, tvb, offset, 1, cause_value);
+	proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
 	offset += 1;
 	len -= 1;
 
@@ -2020,8 +2024,8 @@ static const value_string q931_numbering_plan_vals[] = {
 
 static const value_string q931_presentation_indicator_vals[] = {
 	{ 0x00, "Presentation allowed" },
-	{ 0x20, "Presentation restricted" },
-	{ 0x40, "Number not available due to interworking" },
+	{ 0x01, "Presentation restricted" },
+	{ 0x02, "Number not available due to interworking" },
 	{ 0,    NULL }
 };
 
@@ -2046,13 +2050,16 @@ static const value_string q931_redirection_reason_vals[] = {
 
 static void
 dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree, int hfindex)
+    proto_tree *tree, int hfindex, e164_info_t e164_info)
 {
 	guint8 octet;
+	gint number_plan;
 
 	if (len == 0)
 		return;
 	octet = tvb_get_guint8(tvb, offset);
+	number_plan = octet & 0x0f;
+	e164_info.nature_of_address = ( octet & 0x70 ) >> 4;
 	proto_tree_add_uint(tree, hf_q931_numbering_plan, tvb, offset, 1, octet);
 	proto_tree_add_uint(tree, hf_q931_number_type, tvb, offset, 1, octet);
 	proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
@@ -2064,14 +2071,9 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
 		if (len == 0)
 			return;
 		octet = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Presentation indicator: %s",
-		    val_to_str(octet & 0x60, q931_presentation_indicator_vals,
-		      "Unknown (0x%X)"));
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Screening indicator: %s",
-		    val_to_str(octet & 0x03, q931_screening_indicator_vals,
-		      "Unknown (0x%X)"));
+		proto_tree_add_uint(tree, hf_q931_screening_ind, tvb, offset, 1, octet);
+		proto_tree_add_uint(tree, hf_q931_presentation_ind, tvb, offset, 1, octet);
+		proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
 		offset += 1;
 		len -= 1;
 	}
@@ -2094,6 +2096,16 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	proto_tree_add_item(tree, hfindex, tvb, offset, len, FALSE);
+
+	if ( number_plan == 1 ) {
+		if ( e164_info.e164_number_type != NONE ){
+
+			e164_info.E164_number_str = tvb_get_string(tvb, offset, len);
+			e164_info.E164_number_length = len;
+			dissect_e164_number(tvb, tree, offset, len, e164_info);
+		}
+	}
+
 }
 
 /*
@@ -2453,6 +2465,8 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int		codeset, locked_codeset;
 	gboolean	non_locking_shift, first_segment;
 	tvbuff_t	*h225_tvb, *next_tvb;
+	e164_info_t e164_info;
+	e164_info.e164_number_type = NONE;
 
 	codeset = locked_codeset = 0;	/* start out in codeset 0 */
 	non_locking_shift = TRUE;
@@ -2789,31 +2803,33 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					break;
 
 				case CS0 | Q931_IE_CALLING_PARTY_NUMBER:
+					e164_info.e164_number_type = CALLING_PARTY_NUMBER;
 					dissect_q931_number_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree,
-					    hf_q931_calling_party_number);
+					    hf_q931_calling_party_number, e164_info);
 					break;
 
 				case CS0 | Q931_IE_CONNECTED_NUMBER_DEFAULT:
 					dissect_q931_number_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree,
-					    hf_q931_connected_number);
+					    hf_q931_connected_number, e164_info);
 					break;
 
 				case CS0 | Q931_IE_CALLED_PARTY_NUMBER:
+					e164_info.e164_number_type = CALLED_PARTY_NUMBER;
 					dissect_q931_number_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree,
-					    hf_q931_called_party_number);
+					    hf_q931_called_party_number, e164_info);
 					break;
 
 				case CS0 | Q931_IE_REDIRECTING_NUMBER:
 					dissect_q931_number_ie(tvb,
 					    offset + 2, info_element_len,
 					    ie_tree,
-					    hf_q931_redirecting_number);
+					    hf_q931_redirecting_number, e164_info);
 					break;
 
 				case CS0 | Q931_IE_CALLING_PARTY_SUBADDR:
@@ -2998,8 +3014,12 @@ proto_register_q931(void)
 		  { "User information layer 1 protocol", "q931.uil1", FT_UINT8, BASE_HEX,
 			 VALS(q931_uil1_vals), 0x1f,"", HFILL }},
 
+		{ &hf_q931_cause_location,
+		  { "Cause location", "q931.cause_location", FT_UINT8, BASE_DEC, VALS(q931_cause_location_vals), 0x0f,
+			"", HFILL }},
+
 		{ &hf_q931_cause_value,
-		  { "Cause value", "q931.cause_value", FT_UINT8, BASE_DEC, VALS(q931_cause_code_vals), 0x0,
+		  { "Cause value", "q931.cause_value", FT_UINT8, BASE_DEC, VALS(q931_cause_code_vals), 0x7f,
 			"", HFILL }},
 
 		{ &hf_q931_number_type,
@@ -3008,6 +3028,14 @@ proto_register_q931(void)
 
 		{ &hf_q931_numbering_plan,
 		  { "Numbering plan", "q931.numbering_plan", FT_UINT8, BASE_HEX, VALS(q931_numbering_plan_vals), 0x0f,
+			"", HFILL }},
+
+		{ &hf_q931_screening_ind,
+		  { "Screening indicator", "q931.screening_ind", FT_UINT8, BASE_HEX, VALS(q931_screening_indicator_vals), 0x03,
+			"", HFILL }},
+
+		{ &hf_q931_presentation_ind,
+		  { "Presentation indicator", "q931.presentation_ind", FT_UINT8, BASE_HEX, VALS(q931_presentation_indicator_vals), 0x60,
 			"", HFILL }},
 
 		{ &hf_q931_extension_ind,
