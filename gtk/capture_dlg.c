@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.4 1999/09/23 07:20:19 guy Exp $
+ * $Id: capture_dlg.c,v 1.5 1999/09/26 14:40:01 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,6 +82,7 @@
 #define E_CAP_OPEN_KEY  "cap_open"
 #define E_CAP_SNAP_KEY  "cap_snap"
 #define E_CAP_SYNC_KEY  "cap_sync"
+#define E_CAP_RESOLVE_KEY "cap_resolve"
 
 /* Capture filter key */
 #define E_CAP_FILT_TE_KEY "cap_filt_te"
@@ -107,7 +108,7 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
                 *count_lb, *count_cb, *main_vb, *if_hb, *count_hb,
                 *filter_hb, *filter_bt, *filter_te, *caplen_hb,
                 *bbox, *ok_bt, *cancel_bt, *snap_lb,
-                *snap_sb, *sync_cb;
+                *snap_sb, *sync_cb, *resolv_cb;
   GtkAdjustment *adj;
   GList         *if_list, *count_list = NULL;
   gchar         *count_item1 = "0 (Infinite)", count_item2[16];
@@ -210,6 +211,11 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb), sync_mode);
   gtk_container_add(GTK_CONTAINER(main_vb), sync_cb);
   gtk_widget_show(sync_cb);
+
+  resolv_cb = gtk_check_button_new_with_label("Enable name resolution");
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(resolv_cb), g_resolving_actif);
+  gtk_container_add(GTK_CONTAINER(main_vb), resolv_cb);
+  gtk_widget_show(resolv_cb);
   
   /* Button row: OK and cancel buttons */
   bbox = gtk_hbutton_box_new();
@@ -239,13 +245,14 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_COUNT_KEY, count_cb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SNAP_KEY,  snap_sb);
   gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_SYNC_KEY,  sync_cb);
+  gtk_object_set_data(GTK_OBJECT(cap_open_w), E_CAP_RESOLVE_KEY,  resolv_cb);
 
   gtk_widget_show(cap_open_w);
 }
 
 static void
 capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
-  GtkWidget *if_cb, *filter_te, *count_cb, *snap_sb, *sync_cb;
+  GtkWidget *if_cb, *filter_te, *count_cb, *snap_sb, *sync_cb, *resolv_cb;
   gchar *filter_text;
 
   if_cb     = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_IFACE_KEY);
@@ -253,6 +260,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   count_cb  = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_COUNT_KEY);
   snap_sb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SNAP_KEY);
   sync_cb   = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_SYNC_KEY);
+  resolv_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_RESOLVE_KEY);
 
   if (cf.iface)
     g_free(cf.iface);
@@ -281,6 +289,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
        captured. */
     sync_mode = FALSE;
   }
+  g_resolving_actif = GTK_TOGGLE_BUTTON (resolv_cb)->active;
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 

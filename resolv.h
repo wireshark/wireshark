@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.5 1999/07/07 22:51:59 gram Exp $
+ * $Id: resolv.h,v 1.6 1999/09/26 14:39:12 deniel Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -41,7 +41,6 @@
 extern gchar *g_ethers_path;
 extern gchar *g_manuf_path;
 extern gchar *g_pethers_path;
-extern int    g_resolving_actif;
 
 /* Functions in resolv.c */
 

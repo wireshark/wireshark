@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.11 1999/09/18 16:01:52 deniel Exp $
+ * $Id: resolv.c,v 1.12 1999/09/26 14:39:12 deniel Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -68,6 +68,7 @@
 
 #include "packet.h"
 #include "packet-ipv6.h"
+#include "globals.h"
 #include "resolv.h"
 
 #ifndef MAXNAMELEN
