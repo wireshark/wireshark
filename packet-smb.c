@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.63 2000/03/20 22:52:45 gram Exp $
+ * $Id: packet-smb.c,v 1.64 2000/03/21 10:15:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -9322,8 +9322,9 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
   if (dirn == 0) { /* Response(s) dissect code */
 
     if (check_col(fd, COL_INFO)) {
-
-      col_add_fstr(fd, COL_INFO, "%s %s", request_val -> last_transact_command, "Response");
+      if ( request_val -> last_transact_command )
+        col_add_fstr(fd, COL_INFO, "%s %s", request_val -> last_transact_command, "Response");
+      else col_add_fstr(fd, COL_INFO, "Response to unknown message");
 
     }
 
