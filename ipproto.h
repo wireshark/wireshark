@@ -2,7 +2,7 @@
  * Declarations of IP protocol numbers, and of routines for converting
  * IP protocol numbers into strings.
  *
- * $Id: ipproto.h,v 1.12 2003/11/24 21:42:13 guy Exp $
+ * $Id: ipproto.h,v 1.13 2003/11/25 00:21:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -103,7 +103,7 @@
  * It appears that 62 used to be used, even though that's assigned to
  * a protocol called CFTP; however, the only reference for CFTP is a
  * Network Message from BBN back in 1982, so, for now, we support 62,
- * aas well as 135, as a protocol number for mobility headers.
+ * as well as 135, as a protocol number for mobility headers.
  */
 #define IP_PROTO_MIPV6_OLD	62		/* Mobile IPv6  */
 /* 63 is reserved by IANA for any local network */
