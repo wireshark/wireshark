@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.1 2000/08/30 12:42:31 sharpe Exp $
+ * $Id: packet-bxxp.c,v 1.2 2000/09/08 06:19:37 sharpe Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -44,6 +44,7 @@
 #include "packet.h"
 #include "resolv.h"
 #include "prefs.h"
+#include "conversation.h"
 
 #define TCP_PORT_BXXP 10288
 void proto_reg_handoff_bxxp(void);
@@ -60,7 +61,6 @@ static int hf_bxxp_serial = -1;
 static int hf_bxxp_seqno = -1;
 static int hf_bxxp_size = -1;
 static int hf_bxxp_channel = -1;
-static int hf_bxxp_status = -1;
 static int hf_bxxp_positive = -1;
 static int hf_bxxp_negative = -1;
 static int hf_bxxp_ackno = -1;
@@ -79,6 +79,97 @@ static int tcp_port = 0;
 #define BXXP_INTERMEDIATE 1
 #define BXXP_COMPLETE     2
 
+/*
+ * Per-frame data
+ */
+struct bxxp_proto_data {
+  guint32 size;
+};
+
+/*
+ * Conversation stuff
+ */
+static int bxxp_packet_init_count = 100;
+
+struct bxxp_request_key {
+  guint32 conversation;
+};
+
+struct bxxp_request_val {
+  guint16 processed;     /* Have we processed this conversation? */
+  guint32 size;          /* Size of the message                  */
+};
+
+GHashTable *bxxp_request_hash = NULL;
+GMemChunk  *bxxp_request_keys = NULL;
+GMemChunk  *bxxp_request_vals = NULL;
+GMemChunk  *bxxp_packet_infos = NULL;
+
+/* Hash Functions */
+gint
+bxxp_equal(gconstpointer v, gconstpointer w)
+{
+  struct bxxp_request_key *v1 = (struct bxxp_request_key *)v;
+  struct bxxp_request_key *v2 = (struct bxxp_request_key *)w;
+
+#if defined(DEBUG_BXXP_HASH)
+  printf("Comparing %08X\n      and %08X\n",
+	 v1->conversation, v2->conversation);
+#endif
+
+  if (v1->conversation == v2->conversation)
+    return 1;
+
+  return 0;
+
+}
+
+static guint
+bxxp_hash(gconstpointer v)
+{
+  struct bxxp_request_key *key = (struct bxxp_request_key *)v;
+  guint val;
+
+  val = key->conversation;
+
+#if defined(DEBUG_BXXP_HASH)
+  printf("BXXP Hash calculated as %u\n", val);
+#endif
+
+  return val;
+
+}
+
+static void
+bxxp_init_protocol(void)
+{
+#if defined(DEBUG_BXXP_HASH)
+  printf("Initializing BXXP hashtable area\n");
+#endif
+
+  if (bxxp_request_hash)
+    g_hash_table_destroy(bxxp_request_hash);
+  if (bxxp_request_keys)
+    g_mem_chunk_destroy(bxxp_request_keys);
+  if (bxxp_request_vals)
+    g_mem_chunk_destroy(bxxp_request_vals);
+  if (bxxp_packet_infos)
+    g_mem_chunk_destroy(bxxp_packet_infos);
+
+  bxxp_request_hash = g_hash_table_new(bxxp_hash, bxxp_equal);
+  bxxp_request_keys = g_mem_chunk_new("bxxp_request_keys",
+				       sizeof(struct bxxp_request_key),
+				       bxxp_packet_init_count * sizeof(struct bxxp_request_key), G_ALLOC_AND_FREE);
+  bxxp_request_vals = g_mem_chunk_new("bxxp_request_vals", 
+				      sizeof(struct bxxp_request_val),
+				      bxxp_packet_init_count * sizeof(struct bxxp_request_val), G_ALLOC_AND_FREE);
+
+}
+
+/*
+ * BXXP routines
+ */
+
 int bxxp_get_more(char more)
 {
 
@@ -91,27 +182,27 @@ int bxxp_get_more(char more)
 }
 
 void
-dissect_bxxp_more(const u_char *pd, int offset, frame_data *fd, 
+dissect_bxxp_more(tvbuff_t *tvb, int offset, frame_data *fd, 
 		  proto_tree *tree)
 {
 
-  switch (bxxp_get_more(pd[offset])) {
+  switch (bxxp_get_more(tvb_get_guint8(tvb, offset))) {
 
   case BXXP_COMPLETE:
 
-    proto_tree_add_boolean_hidden(tree, hf_bxxp_complete, NullTVB, offset, 1, TRUE);
-    proto_tree_add_text(tree, NullTVB, offset, 1, "More: Complete");
+    proto_tree_add_boolean_hidden(tree, hf_bxxp_complete, tvb, offset, 1, TRUE);
+    proto_tree_add_text(tree, tvb, offset, 1, "More: Complete");
 
     break;
 
   case BXXP_INTERMEDIATE:
 	
-    proto_tree_add_boolean_hidden(tree, hf_bxxp_intermediate, NullTVB, offset, 1, TRUE);
-    proto_tree_add_text(tree, NullTVB, offset, 1, "More: Intermediate");
+    proto_tree_add_boolean_hidden(tree, hf_bxxp_intermediate, tvb, offset, 1, TRUE);
+    proto_tree_add_text(tree, tvb, offset, 1, "More: Intermediate");
 
     break;
 
-  default:
+  default:  /* FIXME: Add code for this case ... */
 
     fprintf(stderr, "Error from bxxp_get_more ...\n");
     break;
@@ -119,23 +210,23 @@ dissect_bxxp_more(const u_char *pd, int offset, frame_data *fd,
 
 }
 
-void dissect_bxxp_status(const u_char *pd, int offset, frame_data *fd,
+void dissect_bxxp_status(tvbuff_t *tvb, int offset, frame_data *fd,
 			 proto_tree *tree)
 {
   
-  switch(pd[offset]) {
+  switch(tvb_get_guint8(tvb, offset)) {
 
   case '+':
   
-    proto_tree_add_boolean_hidden(tree, hf_bxxp_positive, NullTVB, offset, 1, TRUE);
-    proto_tree_add_text(tree, NullTVB, offset, 1, "Status: Positive");
+    proto_tree_add_boolean_hidden(tree, hf_bxxp_positive, tvb, offset, 1, TRUE);
+    proto_tree_add_text(tree, tvb, offset, 1, "Status: Positive");
 
     break;
 
   case '-':
 
-    proto_tree_add_boolean_hidden(tree, hf_bxxp_negative, NullTVB, offset, 1, TRUE);
-    proto_tree_add_text(tree, NullTVB, offset, 1, "Status: Negative");
+    proto_tree_add_boolean_hidden(tree, hf_bxxp_negative, tvb, offset, 1, TRUE);
+    proto_tree_add_text(tree, tvb, offset, 1, "Status: Negative");
 
     break;
 
@@ -147,41 +238,41 @@ void dissect_bxxp_status(const u_char *pd, int offset, frame_data *fd,
 
 }
 
-int num_len(const u_char *pd, int offset)
+int num_len(tvbuff_t *tvb, int offset)
 {
   int i = 0;
 
-  /* FIXME: END_OF_FRAME needed here ... */
-  while (isdigit(pd[offset + i])) i++;
+  while (isdigit(tvb_get_guint8(tvb, offset + i))) i++;
 
   return i;
 
 }
 
-/* Get a MIME header ... FIXME: END_OF_DATA */
-int header_len(const u_char *pd, int offset)
+/* Get the MIME header length */
+int header_len(tvbuff_t *tvb, int offset)
 {
   int i = 0;
 
-  while (pd[offset + i] != 0x0d && pd[offset + i + 1] != 0x0a) i++;
+  while (tvb_get_guint8(tvb, offset + i) != 0x0d 
+	 && tvb_get_guint8(tvb, offset + i + 1) != 0x0a) i++;
 
   return i;
 
 }
 
 int
-dissect_bxxp_mime_header(const u_char *pd, int offset, frame_data *fd,
+dissect_bxxp_mime_header(tvbuff_t *tvb, int offset, frame_data *fd,
 			 proto_tree *tree)
 {
   proto_tree    *ti, *mime_tree;
-  int           mime_length = header_len(pd, offset);
+  int           mime_length = header_len(tvb, offset);
 
-  ti = proto_tree_add_text(tree, NullTVB, offset, mime_length + 2, "Mime header: %s", format_text(pd + offset, mime_length + 2));
+  ti = proto_tree_add_text(tree, tvb, offset, mime_length + 2, "Mime header: %s", tvb_format_text(tvb, offset, mime_length + 2));
   mime_tree = proto_item_add_subtree(ti, ett_mime_header);
 
   if (mime_length == 0) { /* Default header */
 
-    proto_tree_add_text(mime_tree, NullTVB, offset, 2, "Default values");
+    proto_tree_add_text(mime_tree, tvb, offset, 2, "Default values");
 
   }
   else {  /* FIXME: Process the headers */
@@ -194,14 +285,19 @@ dissect_bxxp_mime_header(const u_char *pd, int offset, frame_data *fd,
 }
 
 int
-dissect_bxxp_int(const u_char *pd, int offset, frame_data *fd,
+dissect_bxxp_int(tvbuff_t *tvb, int offset, frame_data *fd,
 		    proto_tree *tree, int hf, int *val)
 {
-  int ival, i = num_len(pd, offset);
+  int ival, i = num_len(tvb, offset);
+  guint8 int_buff[100];
 
-  sscanf(pd + offset, "%d", &ival);  /* FIXME: Dangerous */
+  memset(int_buff, '\0', sizeof(int_buff));
 
-  proto_tree_add_uint(tree, hf, NullTVB, offset, i, ival);
+  tvb_memcpy(tvb, int_buff, offset, MIN(sizeof(int_buff), i));
+
+  sscanf(int_buff, "%d", &ival);  /* FIXME: Dangerous */
+
+  proto_tree_add_uint(tree, hf, tvb, offset, i, ival);
 
   *val = ival;  /* Return the value */
 
@@ -210,11 +306,11 @@ dissect_bxxp_int(const u_char *pd, int offset, frame_data *fd,
 }
 
 int 
-check_crlf(const u_char *pd, int offset)
+check_crlf(tvbuff_t *tvb, int offset)
 {
 
-  /* FIXME: Check END_OF_FRAME */
-  return(pd[offset] == 0x0d && pd[offset + 1] == 0x0a);
+  return (tvb_get_guint8(tvb, offset) == 0x0d
+	  && tvb_get_guint8(tvb, offset + 1) == 0x0a);
 
 }
 
@@ -223,38 +319,39 @@ static int global_bxxp_tcp_port = TCP_PORT_BXXP;
 /* Build the tree */
 
 int
-dissect_bxxp_tree(const u_char *pd, int offset, packet_info *pinfo, 
-		  proto_tree *tree)
+dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+		  proto_tree *tree, struct bxxp_request_val *request_val, 
+		  struct bxxp_proto_data *frame_data)
 {
-  proto_tree     *bxxp_tree, *ti, *hdr;
+  proto_tree     *ti, *hdr;
   int            st_offset, serial, seqno, size, channel, ackno, window;
-  char           *cmd = pd + offset;
 
   st_offset = offset;
 
-  if (strncmp(pd+offset, "REQ ", 4) == 0) {
+  if (tvb_strneql(tvb, offset, "REQ ", 4) == 0) {
 
-    /* FIXME: Fix the header length */
-    ti = proto_tree_add_text(tree, NullTVB, offset, header_len(pd, offset) + 2, "Header");
+    ti = proto_tree_add_text(tree, tvb, offset, header_len(tvb, offset) + 2, "Header");
 
     hdr = proto_item_add_subtree(ti, ett_header);
 
-    proto_tree_add_boolean_hidden(hdr, hf_bxxp_req, NullTVB, offset, 3, TRUE);
+    proto_tree_add_boolean_hidden(hdr, hf_bxxp_req, tvb, offset, 3, TRUE);
     proto_tree_add_text(hdr, NullTVB, offset, 3, "Command: REQ");
 
     offset += 3;
 
-    if (pd[offset] != ' ') { /* Protocol violation */
+#if 0
+    if (tvb_get_guint8(tvb, offset) != ' ') { /* Protocol violation */
 
       /* Hmm, FIXME ... Add some code here ... */
 
     }
+#endif
 
-    offset += 1;
+    offset += 1;  /* Skip the space */
 
     /* Insert the more elements ... */
 
-    dissect_bxxp_more(pd, offset, pinfo->fd, hdr);
+    dissect_bxxp_more(tvb, offset, pinfo->fd, hdr);
     offset += 1;
       
     /* Check the space ... */
@@ -263,20 +360,21 @@ dissect_bxxp_tree(const u_char *pd, int offset, packet_info *pinfo,
 
     /* Dissect the serial */
 
-    offset += dissect_bxxp_int(pd, offset, pinfo->fd, hdr, hf_bxxp_serial, &serial);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_serial, &serial);
     /* skip the space */
 
     offset += 1;
 
     /* now for the seqno */
 
-    offset += dissect_bxxp_int(pd, offset, pinfo->fd, hdr, hf_bxxp_seqno, &seqno);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_seqno, &seqno);
 
     /* skip the space */
 
     offset += 1;
 
-    offset += dissect_bxxp_int(pd, offset, pinfo->fd, hdr, hf_bxxp_size, &size);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_size, &size);
+    request_val -> size = size;  /* Stash this away */
 
     /* Check the space */
 
@@ -284,11 +382,11 @@ dissect_bxxp_tree(const u_char *pd, int offset, packet_info *pinfo,
 
     /* Get the channel */
 
-    offset += dissect_bxxp_int(pd, offset, pinfo->fd, hdr, hf_bxxp_channel, &channel);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_channel, &channel);
       
-    if (check_crlf(pd, offset)) {
+    if (check_crlf(tvb, offset)) {
 
-      proto_tree_add_text(hdr, NullTVB, offset, 2, "Terminator: CRLF");
+      proto_tree_add_text(hdr, tvb, offset, 2, "Terminator: CRLF");
 
     }
     else {  /* Protocol violation */
@@ -301,17 +399,17 @@ dissect_bxxp_tree(const u_char *pd, int offset, packet_info *pinfo,
     
     /* Insert MIME header ... */
 
-    offset += dissect_bxxp_mime_header(pd, offset, pinfo->fd, hdr);
+    offset += dissect_bxxp_mime_header(tvb, offset, pinfo->fd, hdr);
 
     /* Now for the payload, if any */
 
-    if (END_OF_FRAME > 0) { /* Dissect what is left as payload */
+    if (tvb_length_remaining(tvb, offset) > 0) { /* Dissect what is left as payload */
 
-      int pl_size = MIN(size, END_OF_FRAME);
+      int pl_size = MIN(size, tvb_length_remaining(tvb, offset));
 
       /* Except, check the payload length, and only dissect that much */
 
-      proto_tree_add_text(tree, NullTVB, offset, pl_size, "Payload: %s", format_text(pd + offset, pl_size));
+      proto_tree_add_text(tree, tvb, offset, pl_size, "Payload: %s", tvb_format_text(tvb, offset, pl_size));
 
       offset += pl_size;
 
@@ -319,19 +417,19 @@ dissect_bxxp_tree(const u_char *pd, int offset, packet_info *pinfo,
       
     /* If anything else left, dissect it ... As what? */
 
-    if (END_OF_FRAME > 0)
-      offset += dissect_bxxp_tree(pd, offset, pinfo->fd, tree);
+    if (tvb_length_remaining(tvb, offset) > 0)
+      offset += dissect_bxxp_tree(tvb, offset, pinfo, tree, request_val, frame_data);
 
-  } else if (strncmp(pd+offset, "RSP ", 4) == 0) {
+  } else if (tvb_strneql(tvb, offset, "RSP ", 4) == 0) {
 
     /* FIXME: Fix the header length */
 
-    ti = proto_tree_add_text(tree, NullTVB, offset, header_len(pd, offset) + 2, "Header");
+    ti = proto_tree_add_text(tree, tvb, offset, header_len(tvb, offset) + 2, "Header");
 
     hdr = proto_item_add_subtree(ti, ett_header);
 
     proto_tree_add_boolean_hidden(hdr, hf_bxxp_rsp, NullTVB, offset, 3, TRUE);
-    proto_tree_add_text(hdr, NullTVB, offset, 3, "Command: RSP");
+    proto_tree_add_text(hdr, tvb, offset, 3, "Command: RSP");
 
     offset += 3;
 
@@ -341,39 +439,40 @@ dissect_bxxp_tree(const u_char *pd, int offset, packet_info *pinfo,
 
     /* Next, the 'more' flag ... */
 
-    dissect_bxxp_more(pd, offset, pinfo->fd, hdr);
+    dissect_bxxp_more(tvb, offset, pinfo->fd, hdr);
     offset += 1;
 
     /* Check the space */
 
     offset += 1;
 
-    offset += dissect_bxxp_int(pd, offset, pinfo->fd, hdr, hf_bxxp_serial, &serial);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_serial, &serial);
     /* skip the space */
 
     offset += 1;
 
     /* now for the seqno */
 
-    offset += dissect_bxxp_int(pd, offset, pinfo->fd, hdr, hf_bxxp_seqno, &seqno);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_seqno, &seqno);
 
     /* skip the space */
 
     offset += 1;
 
-    offset += dissect_bxxp_int(pd, offset, pinfo->fd, hdr, hf_bxxp_size, &size);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_size, &size);
+    request_val -> size = size;
 
     /* Check the space ... */
 
     offset += 1;
 
-    dissect_bxxp_status(pd, offset, pinfo->fd, hdr);
+    dissect_bxxp_status(tvb, offset, pinfo->fd, hdr);
 
     offset += 1;
 
-    if (check_crlf(pd, offset)) {
+    if (check_crlf(tvb, offset)) {
 
-      proto_tree_add_text(hdr, NullTVB, offset, 2, "Terminator: CRLF");
+      proto_tree_add_text(hdr, tvb, offset, 2, "Terminator: CRLF");
 
     }
     else {  /* Protocol violation */
@@ -386,17 +485,17 @@ dissect_bxxp_tree(const u_char *pd, int offset, packet_info *pinfo,
     
     /* Insert MIME header ... */
 
-    offset += dissect_bxxp_mime_header(pd, offset, pinfo->fd, hdr);
+    offset += dissect_bxxp_mime_header(tvb, offset, pinfo->fd, hdr);
 
     /* Now for the payload, if any */
 
-    if (END_OF_FRAME > 0) { /* Dissect what is left as payload */
+    if (tvb_length_remaining(tvb, offset) > 0) { /* Dissect what is left as payload */
 
-      int pl_size = MIN(size, END_OF_FRAME);
+      int pl_size = MIN(size, tvb_length_remaining(tvb, offset));
       
       /* Except, check the payload length, and only dissect that much */
 
-      proto_tree_add_text(tree, NullTVB, offset, pl_size, "Payload: %s", format_text(pd + offset, pl_size));
+      proto_tree_add_text(tree, tvb, offset, pl_size, "Payload: %s", tvb_format_text(tvb, offset, pl_size));
 
       offset += pl_size;
 
@@ -404,13 +503,13 @@ dissect_bxxp_tree(const u_char *pd, int offset, packet_info *pinfo,
 
     /* If anything else left, dissect it ... As what? */
 
-    if (END_OF_FRAME > 0)
-      offset += dissect_bxxp_tree(pd, offset, pinfo->fd, tree);
+    if (tvb_length_remaining(tvb, offset) > 0)
+      offset += dissect_bxxp_tree(tvb, offset, pinfo, tree, request_val, frame_data);
 
-  } else if (strncmp(pd+offset, "SEQ ", 4) == 0) {
+  } else if (tvb_strneql(tvb, offset, "SEQ ", 4) == 0) {
 
     proto_tree_add_boolean_hidden(tree, hf_bxxp_seq, NullTVB, offset, 3, TRUE);
-    proto_tree_add_text(tree, NullTVB, offset, 3, "Command: SEQ");
+    proto_tree_add_text(tree, tvb, offset, 3, "Command: SEQ");
       
     offset += 3;
 
@@ -418,23 +517,23 @@ dissect_bxxp_tree(const u_char *pd, int offset, packet_info *pinfo,
 
     offset += 1;
 
-    offset += dissect_bxxp_int(pd, offset, pinfo->fd, tree, hf_bxxp_channel, &channel);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, tree, hf_bxxp_channel, &channel);
 
     /* Check the space: FIXME */
 
     offset += 1;
 
-    offset += dissect_bxxp_int(pd, offset, pinfo->fd, tree, hf_bxxp_ackno, &ackno);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, tree, hf_bxxp_ackno, &ackno);
 
     /* Check the space: FIXME */
 
     offset += 1;
 
-    offset += dissect_bxxp_int(pd, offset, pinfo->fd, tree, hf_bxxp_window, &window);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, tree, hf_bxxp_window, &window);
 
-    if (check_crlf(pd, offset)) {
+    if (check_crlf(tvb, offset)) {
 
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Terminator: CRLF");
+      proto_tree_add_text(tree, tvb, offset, 2, "Terminator: CRLF");
 
     }
     else {  /* Protocol violation */
@@ -445,22 +544,22 @@ dissect_bxxp_tree(const u_char *pd, int offset, packet_info *pinfo,
 
     offset += 2;
 
-  } else if (strncmp(pd+offset, "END", 3) == 0) {
+  } else if (tvb_strneql(tvb, offset, "END", 3) == 0) {
 
     proto_tree *tr;
 
-    ti = proto_tree_add_text(tree, NullTVB, offset, MIN(5, END_OF_FRAME), "Trailer");
+    ti = proto_tree_add_text(tree, tvb, offset, MIN(5, tvb_length_remaining(tvb, offset)), "Trailer");
 
     tr = proto_item_add_subtree(ti, ett_trailer);
 
     proto_tree_add_boolean_hidden(tr, hf_bxxp_end, NullTVB, offset, 3, TRUE);
-    proto_tree_add_text(tr, NullTVB, offset, 3, "Command: END");
+    proto_tree_add_text(tr, tvb, offset, 3, "Command: END");
 
     offset += 3;
 
-    if (check_crlf(pd, offset)) {
+    if (check_crlf(tvb, offset)) {
 
-      proto_tree_add_text(tr, NullTVB, offset, 2, "Terminator: CRLF");
+      proto_tree_add_text(tr, tvb, offset, 2, "Terminator: CRLF");
 
     }
     else {  /* Protocol violation */
@@ -473,10 +572,10 @@ dissect_bxxp_tree(const u_char *pd, int offset, packet_info *pinfo,
 
   }
 
-  if (END_OF_FRAME > 0) { /* Dissect anything left over as payload */
+  if (tvb_length_remaining(tvb, offset) > 0) { /* Dissect anything left over as payload */
 
-    proto_tree_add_text(tree, NullTVB, offset, END_OF_FRAME, "Payload: %s",
-			format_text(pd + offset, END_OF_FRAME));
+    proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Payload: %s",
+			tvb_format_text(tvb, offset, tvb_length_remaining(tvb, offset)));
 
   }
 
@@ -484,49 +583,98 @@ dissect_bxxp_tree(const u_char *pd, int offset, packet_info *pinfo,
 
 }
 
-#if 0
+#if 1
 static void
 dissect_bxxp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+  int offset;
 #else
 static void
 dissect_bxxp(const u_char *pd, int offset, frame_data *fd,
 		  proto_tree *tree)
 
 {
-  tvbuff_t       *tvb = tvb_create_from_top(offset);
-  packet_info    *pinfo = &pi;
+  tvbuff_t                *tvb = tvb_create_from_top(offset);
+  packet_info             *pinfo = &pi;
 #endif
-  proto_tree     *bxxp_tree, *ti;
-  int            request, serial, seqno, size, channel, ackno, window;
-  char           *cmd = pd + offset;
+  struct bxxp_proto_data  *frame_data;
+  proto_tree              *bxxp_tree, *ti;
+  conversation_t          *conversation = NULL;
+  struct bxxp_request_key request_key, *new_request_key;
+  struct bxxp_request_val *request_val = NULL;
 
-#if 0
+#if 1
   CHECK_DISPLAY_AS_DATA(proto_bxxp, tvb, pinfo, tree);
 #else
   OLD_CHECK_DISPLAY_AS_DATA(proto_bxxp, pd, offset, fd, tree);
 #endif
 
-  /* Dissect this frame a bit ? */
+  offset = 0;
 
-  request = pinfo->destport == tcp_port;
+  /* If we have per frame data, use that, else, we must be on the first 
+   * pass, so we figure it out on the first pass.
+   * 
+   * Since we can't stash info away in a conversation (as they are 
+   * removed during a filter operation, and we can't rely on the visited
+   * flag, as that is set to 0 during a filter, we must save per-frame
+   * data for each frame. However, we only need it for requests. Responses
+   * are easy to manage.
+   */
+
+  /* Find out what conversation this packet is part of ... but only
+   * if we have no information on this packet, so find the per-frame 
+   * info first.
+   */
+
+  frame_data = p_get_proto_data(pinfo->fd, proto_bxxp);
+
+  if (!frame_data) {
+
+    conversation = find_conversation(&pinfo->src, &pinfo->dst, pi.ptype,
+				       pinfo->srcport, pinfo->destport);
+    if (conversation == NULL) { /* No conversation, create one */
+	conversation = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
+					pinfo->srcport, pinfo->destport, NULL);
+
+      }
+
+      /* 
+       * Check for and insert an entry in the request table if does not exist
+       */
+      request_key.conversation = conversation->index;
+
+      request_val = (struct bxxp_request_val *)g_hash_table_lookup(bxxp_request_hash, &request_key);
+      
+      if (!request_val) { /* Create one */
+
+	new_request_key = g_mem_chunk_alloc(bxxp_request_keys);
+	new_request_key->conversation = conversation->index;
+
+	request_val = g_mem_chunk_alloc(bxxp_request_vals);
+	request_val->processed = 0;
+	request_val->size = 0;
+
+	g_hash_table_insert(bxxp_request_hash, new_request_key, request_val);
+
+      }
+    }
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_add_str(pinfo->fd, COL_PROTOCOL, "BXXP");
 
   if (check_col(pinfo->fd, COL_INFO)) {  /* Check the type ... */
 
-    col_add_fstr(pinfo->fd, COL_INFO, "%s", format_text(cmd, END_OF_FRAME));
+    col_add_fstr(pinfo->fd, COL_INFO, "%s", tvb_format_text(tvb, offset, tvb_length_remaining(tvb, offset)));
 
   }
 
   if (tree) {  /* Build the tree info ... */
 
-    ti = proto_tree_add_item(tree, proto_bxxp, NullTVB, offset, END_OF_FRAME, FALSE);
+    ti = proto_tree_add_item(tree, proto_bxxp, tvb, offset, tvb_length(tvb), FALSE);
 
     bxxp_tree = proto_item_add_subtree(ti, ett_bxxp);
 
-    dissect_bxxp_tree(pd, offset, pinfo, bxxp_tree);
+    dissect_bxxp_tree(tvb, offset, pinfo, bxxp_tree, request_val, frame_data);
 
   }
 
@@ -603,6 +751,7 @@ proto_register_bxxp(void)
 
   proto_register_field_array(proto_bxxp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  register_init_routine(&bxxp_init_protocol);
 
 }
 
@@ -614,7 +763,7 @@ proto_reg_handoff_bxxp(void)
 
   if (bxxp_prefs_initialized) {
 
-    old_dissector_delete("tcp.port", tcp_port, dissect_bxxp);
+    dissector_delete("tcp.port", tcp_port, dissect_bxxp);
 
   }
   else {
@@ -627,6 +776,6 @@ proto_reg_handoff_bxxp(void)
 
   tcp_port = global_bxxp_tcp_port;
 
-  old_dissector_add("tcp.port", global_bxxp_tcp_port, dissect_bxxp);
+  dissector_add("tcp.port", global_bxxp_tcp_port, dissect_bxxp);
 
 }
