@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.21 2001/04/06 03:52:44 gram Exp $
+$Id: README.win32,v 1.22 2001/04/09 06:12:51 guy Exp $
 
 Running Ethereal, Tethereal, and Editcap on Win32
 =================================================
@@ -59,7 +59,7 @@ capturing version requires WinPcap 2.1, the non-capturing version does not.
 
 In order to capture with Win32, you need to install the NDIS
 packet capture driver for your particular Win32 OS; drivers for Windows
-9x, Windows NT 4.0, and Windows 2000 can be downlaoded from the
+9x, Windows NT 4.0, and Windows 2000 can be downloaded from the
 WinPcap home page:
 
 	http://netgroup-serv.polito.it/winpcap/
@@ -82,10 +82,15 @@ Those versions are available from the respctive home pages for
 each project (the same URLs as listed above). The development
 packages contain header files and stub libaries to link against.
 
-The use of an SNMP library has not been made to work
-yet in Ethereal/Win32, but an SNMP library can be had from:
+The use of an SNMP library has not been made to work yet in
+Ethereal/Win32, but a binary distribution of the UCD SNMP package,
+including header files and a DLL of the UCD SNMP library, can be had
+from:
 
+	ftp://ftp.revelstone.com/snmp/binaries/
 
+The file will probably be called "ucd-snmp-X.X-x86-win32.zip", where
+"X.X" is the version number of the UCD SNMP library.
 
 Instructions for MS Visual C
 ----------------------------
@@ -99,8 +104,7 @@ a DLL. The pre-compiled zlib which comes with the "extralibs"
 package from Gimp/Win32 is faulty; a working version can be
 downloaded from:
 
-http://www.ethereal.com/distribution/win32/zlib-1.1.3-fixed.zip
-
+	http://www.ethereal.com/distribution/win32/zlib-1.1.3-fixed.zip
 
 Be sure that your command-line environment is set up to compile
 and link with MSVC. When installing MSVC, you can have your
