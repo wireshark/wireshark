@@ -125,6 +125,8 @@ Sets the time adjustment to use on selected frames.
 
 Prints the version and options and exits.
 
+=back
+
 =head1 SEE ALSO
 
 I<tcpdump(8)>, I<pcap(3)>, I<ethereal(1)>, I<mergecap(1)>
@@ -138,9 +140,9 @@ of B<Ethereal> can be found at B<http://www.ethereal.com>.
 
   Original Author
   -------- ------
-  Richard Sharpe           <sharpe@ns.aus.com>
+  Richard Sharpe           <sharpe[AT]ns.aus.com>
 
 
   Contributors
   ------------
-  Guy Harris               <guy@alum.mit.edu>
+  Guy Harris               <guy[AT]alum.mit.edu>

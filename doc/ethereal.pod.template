@@ -554,34 +554,25 @@ displayed.  You can revert to your old view by pressing ENTER in the
 display filter text box, thereby invoking your old display filter (or
 resetting it back to no display filter).
 
-The window in which the data stream is displayed lets you select whether
-to display:
+The window in which the data stream is displayed lets you select:
 
-=over 4
+=over 8
 
-=item
+=item *
 
 whether to display the entire conversation, or one or the other side of
 it;
 
-=item
+=item *
 
 whether the data being displayed is to be treated as ASCII or EBCDIC
 text or as raw hex data;
 
-=back
-
-=back
-
-=over 4
-
-=item
+=back 4
 
 and lets you print what's currently being displayed, using the same
 print options that are used for the I<File:Print Packet> menu item, or
 save it as text to a file.
-
-=back
 
 =item Tools:Decode As
 
@@ -721,7 +712,7 @@ calculation.  So for common SessionSetupAndX + TreeConnectAndX chains,
 only the SessionSetupAndX call will be used in the statistics.
 This is a flaw that might be fixed in the future.
 
-
+=back
 
 =head2 WINDOWS
 
@@ -1141,6 +1132,8 @@ necessarily a one-to-one correspondence between dissector plugin modules
 and protocols.  Protocols supported by a dissector plugin module are
 enabled and disabled using the I<Edit:Protocols> dialog box, just as
 protocols built into Ethereal are.
+
+=back
 
 =head1 CAPTURE FILTER SYNTAX
 
