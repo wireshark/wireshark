@@ -306,6 +306,13 @@ dissect_fcp_cmnd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     */
 
     if (tree) {
+        /* XXX - Should we check for an invalid length using a method
+         * other than a cast? */
+        if ((gint) len <= 0) {
+            proto_tree_add_text(tree, tvb, 0, 0, "Invalid length: %u", len);
+            return;
+        }
+
         ti = proto_tree_add_protocol_format (tree, proto_fcp, tvb, 0, len,
                                              "FCP_CMND");
         fcp_tree = proto_item_add_subtree (ti, ett_fcp);
@@ -441,6 +448,13 @@ dissect_fcp_rsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (flags & 0x1) {
             add_len = tvb_get_ntohl (tvb, offset+16);
             len += add_len;
+        }
+
+        /* XXX - Should we check for an invalid length using a method
+         * other than a cast? */
+        if ((gint) len <= 0) {
+            proto_tree_add_text(tree, tvb, 0, 0, "Invalid length: %u", len);
+            return;
         }
 
         ti = proto_tree_add_protocol_format (tree, proto_fcp, tvb, 0, len,
