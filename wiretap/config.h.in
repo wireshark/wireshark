@@ -3,5 +3,9 @@
 /* Define if you have the ANSI C header files.  */
 #undef STDC_HEADERS
 
+#undef PACKAGE
+
+#undef VERSION
+
 /* Define if you have the <unistd.h> header file.  */
 #undef HAVE_UNISTD_H
