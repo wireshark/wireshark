@@ -186,19 +186,21 @@ static gint pkt_ccc_option = 122;
 
 
 static int dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
-    int optp);
+    int optoff, int optend);
 static int dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
-    int optp);
+    int optoff, int optend);
 static int dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
-    int optp);
+    int optoff, int optend);
 static int bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb,
-    int optp);
+    int optoff, int optend);
 static void dissect_packetcable_mta_cap(proto_tree *v_tree, tvbuff_t *tvb,
        int voff, int len);
 static void dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb,
        int voff, int len);
-static int dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp);
-static int dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp, int revision);
+static int dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb,
+    int optoff, int optend);
+static int dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb,
+    int optoff, int optend, int revision);
 
 
 static const char *
@@ -695,7 +697,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			optend = optoff + optlen;
 			while (optoff < optend) {
 				optoff = dissect_vendor_pxeclient_suboption(v_tree,
-					tvb, optoff);
+					tvb, optoff, optend);
 			}
 		} else if (*vendor_class_id_p != NULL &&
 			   ((strncmp(*vendor_class_id_p, "pktc", strlen("pktc")) == 0) ||
@@ -709,7 +711,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			optend = optoff + optlen;
 			while (optoff < optend) {
 			        optoff = dissect_vendor_cablelabs_suboption(v_tree,
-					tvb, optoff);
+					tvb, optoff, optend);
 			}
 		} else {
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
@@ -860,14 +862,14 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		}
 		break;
 
-	case 63:	/* NetWare/IP options */
+	case 63:	/* NetWare/IP options (RFC 2242) */
 		vti = proto_tree_add_text(bp_tree, tvb, voff,
 		    consumed, "Option %d: %s", code, text);
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 
 		optend = optoff + optlen;
 		while (optoff < optend)
-			optoff = dissect_netware_ip_suboption(v_tree, tvb, optoff);
+			optoff = dissect_netware_ip_suboption(v_tree, tvb, optoff, optend);
 		break;
 
 	case 78:	/* SLP Directory Agent Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
@@ -957,7 +959,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 		optend = optoff + optlen;
 		while (optoff < optend)
-			optoff = bootp_dhcp_decode_agent_info(v_tree, tvb, optoff);
+			optoff = bootp_dhcp_decode_agent_info(v_tree, tvb, optoff, optend);
 		break;
 
 	case 85:        /* Novell Servers (RFC 2241) */
@@ -1109,11 +1111,11 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			while (optoff < optend) {
 				switch (pkt_ccc_protocol_version) {
 					case PACKETCABLE_CCC_I05:
-						optoff = dissect_packetcable_i05_ccc(v_tree, tvb, optoff);
+						optoff = dissect_packetcable_i05_ccc(v_tree, tvb, optoff, optend);
 						break;
 					case PACKETCABLE_CCC_DRAFT5:
 					case PACKETCABLE_CCC_RFC_3495:
-						optoff = dissect_packetcable_ietf_ccc(v_tree, tvb, optoff, pkt_ccc_protocol_version);
+						optoff = dissect_packetcable_ietf_ccc(v_tree, tvb, optoff, optend, pkt_ccc_protocol_version);
 						break;
 					default: /* XXX Should we do something here? */
 						break;
@@ -1284,40 +1286,60 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 }
 
 static int
-bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optp)
+bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
+    int optend)
 {
+	int suboptoff = optoff;
 	guint8 subopt;
 	guint8 subopt_len;
 
-	subopt = tvb_get_guint8(tvb, optp);
-	subopt_len = tvb_get_guint8(tvb, optp+1);
+	subopt = tvb_get_guint8(tvb, optoff);
+	suboptoff++;
+
+	if (suboptoff >= optend) {
+		proto_tree_add_text(v_tree, tvb, optoff, 1,
+			"Suboption %d: no room left in option for suboption length",
+	 		subopt);
+	 	return (optend);
+	}
+	subopt_len = tvb_get_guint8(tvb, suboptoff);
+	suboptoff++;
+
+	if (suboptoff+subopt_len >= optend) {
+		proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+			"Suboption %d: no room left in option for suboption value",
+	 		subopt);
+	 	return (optend);
+	}
 	switch (subopt) {
 	case 1:
-		proto_tree_add_text(v_tree, tvb, optp, subopt_len + 2,
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 				    "Agent Circuit ID: %s",
-				    tvb_bytes_to_str(tvb, optp+2, subopt_len));
+				    tvb_bytes_to_str(tvb, suboptoff, subopt_len));
 		break;
 	case 2:
-		proto_tree_add_text(v_tree, tvb, optp, subopt_len + 2,
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 				    "Agent Remote ID: %s",
-				    tvb_bytes_to_str(tvb, optp+2, subopt_len));
+				    tvb_bytes_to_str(tvb, suboptoff, subopt_len));
 		break;
 	default:
-		proto_tree_add_text(v_tree, tvb, optp, subopt_len + 2,
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 				    "Invalid agent suboption %d (%d bytes)",
 				    subopt, subopt_len);
 		break;
 	}
-	optp += (subopt_len + 2);
-	return optp;
+	optoff += (subopt_len + 2);
+	return optoff;
 }
 
 static int
-dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
+dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
+    int optoff, int optend)
 {
+	int suboptoff = optoff;
 	guint8 subopt;
 	guint8 subopt_len;
-	int slask;
+	int suboptleft;
 	proto_tree *o43pxeclient_v_tree;
 	proto_item *vti;
 
@@ -1350,90 +1372,125 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		/* 255 {"PXE end options", special} */
 	};
 
-	subopt = tvb_get_guint8(tvb, optp);
+	subopt = tvb_get_guint8(tvb, suboptoff);
+	suboptoff++;
 
-	if (subopt == 0 ) {
-		proto_tree_add_text(v_tree, tvb, optp, 1, "Padding");
-                return (optp+1);
+	if (subopt == 0) {
+		proto_tree_add_text(v_tree, tvb, optoff, 1, "Padding");
+                return (suboptoff);
 	} else if (subopt == 255) {	/* End Option */
-		proto_tree_add_text(v_tree, tvb, optp, 1, "End PXEClient option");
+		proto_tree_add_text(v_tree, tvb, optoff, 1, "End PXEClient option");
 		/* Make sure we skip any junk left this option */
-		return (optp+255);
+		return (optend);
 	}
 
-	subopt_len = tvb_get_guint8(tvb, optp+1);
+	if (suboptoff >= optend) {
+		proto_tree_add_text(v_tree, tvb, optoff, 1,
+			"Suboption %d: no room left in option for suboption length",
+	 		subopt);
+	 	return (optend);
+	}
+	subopt_len = tvb_get_guint8(tvb, suboptoff);
+	suboptoff++;
 
+	if (suboptoff+subopt_len >= optend) {
+		proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+			"Suboption %d: no room left in option for suboption value",
+	 		subopt);
+	 	return (optend);
+	}
 	if ( subopt == 71 ) {	/* 71 {"PXE boot item", special} */
 		/* case special */
 		/* I may need to decode that properly one day */
-		proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 			"Suboption %d: %s (%d byte%s)" ,
 	 		subopt, "PXE boot item",
 			subopt_len, plurality(subopt_len, "", "s"));
-	} else if ((subopt < 1 ) || (subopt > array_length(o43pxeclient_opt))) {
-		proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+	} else if ((subopt < 1) || (subopt > array_length(o43pxeclient_opt))) {
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 			"Unknown suboption %d (%d byte%s)", subopt, subopt_len,
 			plurality(subopt_len, "", "s"));
 	} else {
 		switch (o43pxeclient_opt[subopt].ft) {
 
 /* XXX		case string:
-			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 				"Suboption %d: %s", subopt, o43pxeclient_opt[subopt].text);
 			break;
    XXX */
 		case special:
 			/* I may need to decode that properly one day */
-			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
-				"Suboption %d: %s (%d byte%s)" ,
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+				"Suboption %d: %s (%d byte%s)",
 		 		subopt, o43pxeclient_opt[subopt].text,
 				subopt_len, plurality(subopt_len, "", "s"));
 			break;
 
 		case val_u_le_short:
-			proto_tree_add_text(v_tree, tvb, optp, 4, "Suboption %d: %s = %u",
+			if (subopt_len != 2) {
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+					"Suboption %d: suboption length isn't 2", subopt);
+				break;
+			}
+			proto_tree_add_text(v_tree, tvb, optoff, 4, "Suboption %d: %s = %u",
 			    subopt, o43pxeclient_opt[subopt].text,
-			    tvb_get_letohs(tvb, optp+2));
+			    tvb_get_letohs(tvb, suboptoff));
 			break;
 
 		case val_u_byte:
-			proto_tree_add_text(v_tree, tvb, optp, 3, "Suboption %d: %s = %u",
+			if (subopt_len != 1) {
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+					"Suboption %d: suboption length isn't 1", subopt);
+				break;
+			}
+			proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s = %u",
 			    subopt, o43pxeclient_opt[subopt].text,
-			    tvb_get_guint8(tvb, optp+2));
+			    tvb_get_guint8(tvb, suboptoff));
 			break;
 
 		case ipv4:
 			if (subopt_len == 4) {
 				/* one IP address */
-				proto_tree_add_text(v_tree, tvb, optp, 6,
+				proto_tree_add_text(v_tree, tvb, optoff, 6,
 				    "Suboption %d : %s = %s",
 				    subopt, o43pxeclient_opt[subopt].text,
-				    ip_to_str(tvb_get_ptr(tvb, optp+2, 4)));
+				    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
 			} else {
 				/* > 1 IP addresses. Let's make a sub-tree */
-				vti = proto_tree_add_text(v_tree, tvb, optp,
+				vti = proto_tree_add_text(v_tree, tvb, optoff,
 				    subopt_len+2, "Suboption %d: %s",
 				    subopt, o43pxeclient_opt[subopt].text);
 				o43pxeclient_v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				for (slask = optp + 2 ; slask < optp+subopt_len; slask += 4) {
-					proto_tree_add_text(o43pxeclient_v_tree, tvb, slask, 4, "IP Address: %s",
-					    ip_to_str(tvb_get_ptr(tvb, slask, 4)));
+				for (suboptleft = subopt_len; suboptleft > 0;
+				    suboptoff += 4, suboptleft -= 4) {
+					if (suboptleft < 4) {
+						proto_tree_add_text(o43pxeclient_v_tree,
+						    tvb, suboptoff, suboptleft,
+						    "Suboption length isn't a multiple of 4");
+						break;
+					}
+					proto_tree_add_text(o43pxeclient_v_tree,
+					    tvb, suboptoff, 4, "IP Address: %s",
+					    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
 				}
 			}
 			break;
+
 		default:
-			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,"ERROR, please report: Unknown subopt type handler %d", subopt);
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,"ERROR, please report: Unknown subopt type handler %d", subopt);
 			break;
 		}
 	}
-	optp += (subopt_len + 2);
-	return optp;
+	optoff += (subopt_len + 2);
+	return optoff;
 }
 
 
 static int
-dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
+dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
+    int optoff, int optend)
 {
+	int suboptoff = optoff;
 	guint8 subopt, byte_val;
 	guint8 subopt_len;
 
@@ -1492,58 +1549,87 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		{ 0, NULL }
 	};
 
-	subopt = tvb_get_guint8(tvb, optp);
+	subopt = tvb_get_guint8(tvb, suboptoff);
+	suboptoff++;
 
-	if (subopt == 0 ) {
-		proto_tree_add_text(v_tree, tvb, optp, 1, "Padding");
-                return (optp+1);
+	if (subopt == 0) {
+		proto_tree_add_text(v_tree, tvb, optoff, 1, "Padding");
+                return (suboptoff);
 	} else if (subopt == 255) {	/* End Option */
-		proto_tree_add_text(v_tree, tvb, optp, 1, "End CableLabs option");
+		proto_tree_add_text(v_tree, tvb, optoff, 1, "End CableLabs option");
 		/* Make sure we skip any junk left this option */
-		return (optp+255);
+		return (optend);
 	}
 
-	subopt_len = tvb_get_guint8(tvb, optp+1);
+	if (suboptoff >= optend) {
+		proto_tree_add_text(v_tree, tvb, optoff, 1,
+			"Suboption %d: no room left in option for suboption length",
+	 		subopt);
+	 	return (optend);
+	}
+	subopt_len = tvb_get_guint8(tvb, suboptoff);
+	suboptoff++;
 
+	if (suboptoff+subopt_len >= optend) {
+		proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+			"Suboption %d: no room left in option for suboption value",
+	 		subopt);
+	 	return (optend);
+	}
 	if ( (subopt < 1 ) || (subopt > array_length(o43cablelabs_opt)) ) {
-		proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 			"Suboption %d: Unassigned (%d byte%s)", subopt, subopt_len,
 			plurality(subopt_len, "", "s"));
 	} else {
 		switch (o43cablelabs_opt[subopt].ft) {
 
 		case string:
-			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 				"Suboption %d: %s = \"%s\"", subopt,
 				o43cablelabs_opt[subopt].text,
-				tvb_format_stringzpad(tvb, optp+2, subopt_len));
+				tvb_format_stringzpad(tvb, optoff, subopt_len));
 			break;
 
 		case bytes:
-			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 				"Suboption %d: %s = 0x%s", subopt,
 				o43cablelabs_opt[subopt].text,
-				tvb_bytes_to_str(tvb, optp+2, subopt_len));
+				tvb_bytes_to_str(tvb, suboptoff, subopt_len));
 			break;
 
 		case special:
 			if ( subopt == 8 ) {	/* OUI */
-				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
-					"Suboption %d: OUI = %s" ,
-					subopt, bytes_to_str_punct(tvb_get_ptr(tvb, optp+2, 3), 3, ':'));
+				if (subopt_len != 3) {
+					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+						"Suboption %d: suboption length isn't 3", subopt);
+					break;
+				}
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+					"Suboption %d: OUI = %s",
+					subopt, bytes_to_str_punct(tvb_get_ptr(tvb, suboptoff, 3), 3, ':'));
 			} else if ( subopt == 11 ) { /* Address Realm */
-				byte_val = tvb_get_guint8(tvb, optp + 2);
-				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+				if (subopt_len != 1) {
+					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+						"Suboption %d: suboption length isn't 1", subopt);
+					break;
+				}
+				byte_val = tvb_get_guint8(tvb, suboptoff);
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 					"Suboption %d: %s = %s (0x%02x)",
 					subopt, o43cablelabs_opt[subopt].text,
 					val_to_str(byte_val, cablehome_subopt11_vals, "Unknown"), byte_val);
 			} else if ( subopt == 31 ) { /* MTA MAC address */
-				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+				if (subopt_len != 6) {
+					proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
+						"Suboption %d: suboption length isn't 6", subopt);
+					break;
+				}
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 					"Suboption %d: %s = %s",
 					subopt,  o43cablelabs_opt[subopt].text,
-					bytes_to_str_punct(tvb_get_ptr(tvb, optp+2, 6), 6, ':'));
+					bytes_to_str_punct(tvb_get_ptr(tvb, suboptoff, 6), 6, ':'));
 			} else {
-				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,
 					"Suboption %d: %s (%d byte%s)" ,
 					subopt, o43cablelabs_opt[subopt].text,
 					subopt_len, plurality(subopt_len, "", "s"));
@@ -1551,22 +1637,24 @@ dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 			break;
 
 		default:
-			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,"ERROR, please report: Unknown subopt type handler %d", subopt);
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len+2,"ERROR, please report: Unknown subopt type handler %d", subopt);
 			break;
 		}
 	}
-	optp += (subopt_len + 2);
-	return optp;
+	optoff += (subopt_len + 2);
+	return optoff;
 }
 
 
 
 static int
-dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
+dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
+    int optoff, int optend)
 {
+	int suboptoff = optoff;
 	guint8 subopt;
 	guint8 subopt_len;
-	int slask;
+	int suboptleft;
 	proto_tree *o63_v_tree;
 	proto_item *vti;
 
@@ -1585,77 +1673,135 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		/* 5 */ {"Broadcast for nearest Netware server","Do NOT Broadcast for nearest Netware server",yes_no},
 		/* 6 */ {"Preferred DSS server","",ipv4},
 		/* 7 */ {"Nearest NWIP server","",ipv4},
-		/* 8 */ {"Autoretries","",val_u_short},
-		/* 9 */ {"Autoretry delay, secs ","",val_u_short},
+		/* 8 */ {"Autoretries","",val_u_byte},
+		/* 9 */ {"Autoretry delay, secs ","",val_u_byte},
 		/* 10*/ {"Support NetWare/IP v1.1","Do NOT support NetWare/IP v1.1",yes_no},
 		/* 11*/ {"Primary DSS ", "" , special}
 	};
 
-	subopt = tvb_get_guint8(tvb, optp);
+	subopt = tvb_get_guint8(tvb, optoff);
+	suboptoff++;
+
+	if (suboptoff >= optend) {
+		proto_tree_add_text(v_tree, tvb, optoff, 1,
+			"Suboption %d: no room left in option for suboption length",
+	 		subopt);
+	 	return (optend);
+	}
+	subopt_len = tvb_get_guint8(tvb, suboptoff);
+	suboptoff++;
+
 	if (subopt > array_length(o63_opt)) {
-		proto_tree_add_text(v_tree, tvb,optp,1,"Unknown suboption %d", subopt);
-		optp++;
+		proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, "Unknown suboption %d", subopt);
 	} else {
 		switch (o63_opt[subopt].ft) {
 
-		case string:
-			proto_tree_add_text(v_tree, tvb, optp, 2, "Suboption %d: %s", subopt, o63_opt[subopt].truet);
-			optp+=2;
+		case string:	/* XXX - overloads "string" */
+			if (subopt_len != 0) {
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+					"Suboption %d: length isn't 0", subopt);
+				suboptoff += subopt_len;
+				break;
+			}
+			proto_tree_add_text(v_tree, tvb, optoff, 2, "Suboption %d: %s", subopt, o63_opt[subopt].truet);
 			break;
 
 		case yes_no:
-			if (tvb_get_guint8(tvb, optp+2)==1) {
-				proto_tree_add_text(v_tree, tvb, optp, 3, "Suboption %d: %s", subopt, o63_opt[subopt].truet);
-			} else {
-				proto_tree_add_text(v_tree, tvb, optp, 3, "Suboption %d: %s" , subopt, o63_opt[subopt].falset);
+			if (subopt_len != 1) {
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+					"Suboption %d: length isn't 1", subopt);
+				suboptoff += subopt_len;
+				break;
 			}
-			optp+=3;
+			if (suboptoff+1 > optend) {
+				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+				    "Suboption %d: no room left in option for suboption value",
+				    subopt);
+			 	return (optend);
+			}
+			if (tvb_get_guint8(tvb, suboptoff)==1) {
+				proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s", subopt, o63_opt[subopt].truet);
+			} else {
+				proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s" , subopt, o63_opt[subopt].falset);
+			}
+			suboptoff += 3;
 			break;
 
-		case special:
-			proto_tree_add_text(v_tree, tvb, optp, 6,
+		case special:	/* XXX - overloads "special" */
+			if (subopt_len != 4) {
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+					"Suboption %d: length isn't 4", subopt);
+				suboptoff += subopt_len;
+				break;
+			}
+			if (suboptoff+4 > optend) {
+				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+				    "Suboption %d: no room left in option for suboption value",
+				    subopt);
+			 	return (optend);
+			}
+			proto_tree_add_text(v_tree, tvb, optoff, 6,
 			    "Suboption %d: %s = %s" ,
 			    subopt, o63_opt[subopt].truet,
-			    ip_to_str(tvb_get_ptr(tvb, optp+2, 4)));
-			optp=optp+6;
+			    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
+			suboptoff += 6;
 			break;
 
-		case val_u_short:
-			proto_tree_add_text(v_tree, tvb, optp, 3, "Suboption %d: %s = %u",
+		case val_u_byte:
+			if (subopt_len != 1) {
+				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
+					"Suboption %d: length isn't 1", subopt);
+				suboptoff += subopt_len;
+				break;
+			}
+			if (suboptoff+1 > optend) {
+				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+				    "Suboption %d: no room left in option for suboption value",
+				    subopt);
+			 	return (optend);
+			}
+			proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s = %u",
 			    subopt, o63_opt[subopt].truet,
-			    tvb_get_guint8(tvb, optp+2));	/* XXX - 1 byte? */
-			optp+=3;
+			    tvb_get_guint8(tvb, suboptoff));
+			suboptoff += 1;
 			break;
 
 		case ipv4:
-			subopt_len = tvb_get_guint8(tvb, optp+1);
 			if (subopt_len == 4) {
 				/* one IP address */
-				proto_tree_add_text(v_tree, tvb, optp, 6,
+				proto_tree_add_text(v_tree, tvb, optoff, 6,
 				    "Suboption %d : %s = %s",
 				    subopt, o63_opt[subopt].truet,
-				    ip_to_str(tvb_get_ptr(tvb, optp+2, 4)));
-				optp=optp+6;
+				    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
+				suboptoff += 4;
 			} else {
 				/* > 1 IP addresses. Let's make a sub-tree */
-				vti = proto_tree_add_text(v_tree, tvb, optp,
+				vti = proto_tree_add_text(v_tree, tvb, optoff,
 				    subopt_len+2, "Suboption %d: %s",
 				    subopt, o63_opt[subopt].truet);
 				o63_v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				for (slask = optp + 2 ; slask < optp+subopt_len; slask += 4) {
-					proto_tree_add_text(o63_v_tree, tvb, slask, 4, "IP Address: %s",
-					    ip_to_str(tvb_get_ptr(tvb, slask, 4)));
+				for (suboptleft = subopt_len; suboptleft > 0;
+				    suboptoff += 4, suboptleft -= 4) {
+					if (suboptleft < 4) {
+						proto_tree_add_text(o63_v_tree,
+						    tvb, suboptoff, suboptleft,
+						    "Suboption length isn't a multiple of 4");
+						suboptoff += suboptleft;
+						break;
+					}
+					proto_tree_add_text(o63_v_tree, tvb, suboptoff, 4, "IP Address: %s",
+					    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
 				}
-				optp=slask;
 			}
 			break;
+
 		default:
-			proto_tree_add_text(v_tree, tvb,optp,1,"Unknown suboption %d", subopt);
-			optp++;
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,"Unknown suboption %d", subopt);
+			suboptoff += subopt_len;
 			break;
 		}
 	}
-	return optp;
+	return suboptoff;
 }
 
 
@@ -2147,10 +2293,11 @@ static const value_string pkt_i05_ccc_ticket_ctl_vals[] = {
 };
 
 static int
-dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp)
+dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
+    int optend)
 {
+	int suboptoff = optoff;
 	guint8 subopt, subopt_len, fetch_tgt, timer_val, ticket_ctl;
-	guint32 nom_to, max_to, max_ret;
 	proto_tree *pkt_s_tree;
 	proto_item *vti;
 	static GString *opt_str = NULL;
@@ -2158,9 +2305,17 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 	if (! opt_str)
 		opt_str = g_string_new("");
 
-	subopt = tvb_get_guint8(tvb, optp);
-	subopt_len = tvb_get_guint8(tvb, optp + 1);
-	optp += 2;
+	subopt = tvb_get_guint8(tvb, optoff);
+	suboptoff++;
+
+	if (suboptoff >= optend) {
+		proto_tree_add_text(v_tree, tvb, optoff, 1,
+			"Suboption %d: no room left in option for suboption length",
+	 		subopt);
+	 	return (optend);
+	}
+	subopt_len = tvb_get_guint8(tvb, optoff);
+	suboptoff++;
 
 	g_string_sprintf(opt_str, "Suboption %u: %s: ", subopt,
 			val_to_str(subopt, pkt_i05_ccc_opt_vals, "unknown/reserved") );
@@ -2174,89 +2329,124 @@ dissect_packetcable_i05_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		case PKT_CCC_KRB_REALM:
 		case PKT_CCC_CMS_FQDN:
 			g_string_sprintfa(opt_str, "%s (%u byte%s)",
-					tvb_format_stringzpad(tvb, optp, subopt_len),
+					tvb_format_stringzpad(tvb, suboptoff, subopt_len),
 					subopt_len,
 					plurality(subopt_len, "", "s") );
-			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
-			optp += subopt_len;
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
+			suboptoff += subopt_len;
 			break;
 
 		case PKT_CCC_TGT_FLAG:
-			fetch_tgt = tvb_get_guint8(tvb, optp);
+			if (suboptoff+1 > optend) {
+				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+				    "Suboption %d: no room left in option for suboption value",
+				    subopt);
+			 	return (optend);
+			}
+			fetch_tgt = tvb_get_guint8(tvb, suboptoff);
 			g_string_sprintfa(opt_str, "%s (%u byte%s%s)",
 					fetch_tgt ? "Yes" : "No",
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 1 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
-			optp += 1;
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
+			suboptoff += subopt_len;
 			break;
 
 		case PKT_CCC_PROV_TIMER:
-			timer_val = tvb_get_guint8(tvb, optp);
+			if (suboptoff+1 > optend) {
+				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+				    "Suboption %d: no room left in option for suboption value",
+				    subopt);
+			 	return (optend);
+			}
+			timer_val = tvb_get_guint8(tvb, suboptoff);
 			g_string_sprintfa(opt_str, "%u%s (%u byte%s%s)", timer_val,
 					timer_val > 30 ? " [Invalid]" : "",
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 1 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
-			optp += 1;
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
+			suboptoff += subopt_len;
 			break;
 
 		case PKT_CCC_AS_KRB:
-			nom_to = tvb_get_ntohl(tvb, optp);
-			max_to = tvb_get_ntohl(tvb, optp + 4);
-			max_ret = tvb_get_ntohl(tvb, optp + 8);
+			if (suboptoff+12 > optend) {
+				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+				    "Suboption %d: no room left in option for suboption value",
+				    subopt);
+			 	return (optend);
+			}
 			g_string_sprintfa(opt_str, "(%u byte%s%s)", subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 12 ? " [Invalid]" : "");
-			vti = proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
-			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			proto_tree_add_text(pkt_s_tree, tvb, optp, 4,
-					"pktcMtaDevRealmUnsolicitedKeyNomTimeout: %u", nom_to);
-			proto_tree_add_text(pkt_s_tree, tvb, optp + 4, 4,
-					"pktcMtaDevRealmUnsolicitedKeyMaxTimeout: %u", max_to);
-			proto_tree_add_text(pkt_s_tree, tvb, optp + 8, 4,
-					"pktcMtaDevRealmUnsolicitedKeyMaxRetries: %u", max_ret);
-			optp += 12;
+			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
+			if (subopt_len == 12) {
+				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
+						"pktcMtaDevRealmUnsolicitedKeyNomTimeout: %u",
+						tvb_get_ntohl(tvb, suboptoff));
+				proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 4, 4,
+						"pktcMtaDevRealmUnsolicitedKeyMaxTimeout: %u",
+						tvb_get_ntohl(tvb, suboptoff + 4));
+				proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 8, 4,
+						"pktcMtaDevRealmUnsolicitedKeyMaxRetries: %u",
+						tvb_get_ntohl(tvb, suboptoff + 8));
+			}
+			suboptoff += subopt_len;
 			break;
 
 		case PKT_CCC_AP_KRB:
-			nom_to = tvb_get_ntohl(tvb, optp);
-			max_to = tvb_get_ntohl(tvb, optp + 4);
-			max_ret = tvb_get_ntohl(tvb, optp + 8);
+			if (suboptoff+12 > optend) {
+				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+				    "Suboption %d: no room left in option for suboption value",
+				    subopt);
+			 	return (optend);
+			}
 			g_string_sprintfa(opt_str, "(%u byte%s%s)", subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 12 ? " [Invalid]" : "");
-			vti = proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
-			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			proto_tree_add_text(pkt_s_tree, tvb, optp, 4,
-					"pktcMtaDevProvUnsolicitedKeyNomTimeout: %u", nom_to);
-			proto_tree_add_text(pkt_s_tree, tvb, optp + 4, 4,
-					"pktcMtaDevProvUnsolicitedKeyMaxTimeout: %u", max_to);
-			proto_tree_add_text(pkt_s_tree, tvb, optp + 8, 4,
-					"pktcMtaDevProvUnsolicitedKeyMaxRetries: %u", max_ret);
-			optp += 12;
+			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
+			if (subopt_len == 12) {
+				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
+						"pktcMtaDevProvUnsolicitedKeyNomTimeout: %u",
+						tvb_get_ntohl(tvb, suboptoff));
+				proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 4, 4,
+						"pktcMtaDevProvUnsolicitedKeyMaxTimeout: %u",
+						tvb_get_ntohl(tvb, suboptoff + 4));
+				proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 8, 4,
+						"pktcMtaDevProvUnsolicitedKeyMaxRetries: %u",
+						tvb_get_ntohl(tvb, suboptoff + 8));
+			}
+			suboptoff += subopt_len;
 			break;
 
 		case PKT_CCC_MTA_KRB_CLEAR:
-			ticket_ctl = tvb_get_guint8(tvb, optp);
+			if (suboptoff+1 > optend) {
+				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+				    "Suboption %d: no room left in option for suboption value",
+				    subopt);
+			 	return (optend);
+			}
+			ticket_ctl = tvb_get_guint8(tvb, suboptoff);
 			g_string_sprintfa(opt_str, "%s (%u) (%u byte%s%s)",
 					val_to_str (ticket_ctl, pkt_i05_ccc_ticket_ctl_vals, "unknown/invalid"),
 					ticket_ctl,
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 1 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
-			optp += 1;
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
+			suboptoff += subopt_len;
 			break;
 
 		default:
-			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
+			suboptoff += subopt_len;
 			break;
 
 	}
-	return optp;
+	return suboptoff;
 }
 
 
@@ -2267,13 +2457,13 @@ static const value_string sec_tcm_vals[] = {
 };
 
 static int
-dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp,
-	int revision)
+dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optoff,
+    int optend, int revision)
 {
+	int suboptoff = optoff;
 	guint8 subopt, subopt_len, ipv4_addr[4];
 	guint8 prov_type, fetch_tgt, timer_val;
 	guint16 sec_tcm;
-	guint32 nom_to, max_to, max_ret;
 	proto_tree *pkt_s_tree;
 	proto_item *vti;
 	static GString *opt_str = NULL;
@@ -2283,9 +2473,17 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp,
 	if (! opt_str)
 		opt_str = g_string_new("");
 
-	subopt = tvb_get_guint8(tvb, optp);
-	subopt_len = tvb_get_guint8(tvb, optp + 1);
-	optp += 2;
+	subopt = tvb_get_guint8(tvb, suboptoff);
+	suboptoff++;
+
+	if (suboptoff >= optend) {
+		proto_tree_add_text(v_tree, tvb, optoff, 1,
+			"Suboption %d: no room left in option for suboption length",
+	 		subopt);
+	 	return (optend);
+	}
+	subopt_len = tvb_get_guint8(tvb, suboptoff);
+	suboptoff++;
 
 	g_string_sprintf(opt_str, "Suboption %u: %s: ", subopt,
 			val_to_str(subopt, pkt_draft5_ccc_opt_vals, "unknown/reserved") );
@@ -2293,140 +2491,188 @@ dissect_packetcable_ietf_ccc(proto_tree *v_tree, tvbuff_t *tvb, int optp,
 	switch (subopt) {
 		case PKT_CCC_PRI_DHCP:	/* IPv4 values */
 		case PKT_CCC_SEC_DHCP:
-			tvb_memcpy(tvb, ipv4_addr, optp, 4);
+			if (suboptoff+4 > optend) {
+				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+				    "Suboption %d: no room left in option for suboption value",
+				    subopt);
+			 	return (optend);
+			}
+			tvb_memcpy(tvb, ipv4_addr, suboptoff, 4);
 			g_string_sprintfa(opt_str, "%u.%u.%u.%u (%u byte%s%s)",
 					ipv4_addr[0], ipv4_addr[1], ipv4_addr[2], ipv4_addr[3],
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 4 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
-			optp += subopt_len;
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
+			suboptoff += subopt_len;
 			break;
 
 		case PKT_CCC_IETF_PROV_SRV:
-			prov_type = tvb_get_guint8(tvb, optp);
-			optp += 1;
+			if (suboptoff+1 > optend) {
+				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+				    "Suboption %d: no room left in option for suboption value",
+				    subopt);
+			 	return (optend);
+			}
+			prov_type = tvb_get_guint8(tvb, suboptoff);
+			suboptoff += 1;
 			switch (prov_type) {
 				case 0:
-					get_dns_name(tvb, optp, optp + 1, dns_name,
+					/* XXX - check suboption length */
+					get_dns_name(tvb, optoff, suboptoff, dns_name,
 						sizeof(dns_name));
 					g_string_sprintfa(opt_str, "%s (%u byte%s)", dns_name,
 							subopt_len - 1, plurality(subopt_len, "", "s") );
-					proto_tree_add_text(v_tree, tvb, optp - 3, subopt_len + 2, opt_str->str);
-					optp += subopt_len - 1;
+					proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
 					break;
 				case 1:
-					tvb_memcpy(tvb, ipv4_addr, optp, 4);
+					if (suboptoff+4 > optend) {
+						proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+						    "Suboption %d: no room left in option for suboption value",
+						    subopt);
+					 	return (optend);
+					}
+					tvb_memcpy(tvb, ipv4_addr, suboptoff, 4);
 					g_string_sprintfa(opt_str, "%u.%u.%u.%u (%u byte%s%s)",
 							ipv4_addr[0], ipv4_addr[1], ipv4_addr[2], ipv4_addr[3],
 							subopt_len,
 							plurality(subopt_len, "", "s"),
 							subopt_len != 5 ? " [Invalid]" : "");
-					proto_tree_add_text(v_tree, tvb, optp - 3, subopt_len + 2, opt_str->str);
-					optp += subopt_len - 1;
+					proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
 					break;
 				default:
 					g_string_sprintfa(opt_str, "Invalid type: %u (%u byte%s)",
-							tvb_get_guint8(tvb, optp),
+							prov_type,
 							subopt_len,
 							plurality(subopt_len, "", "s") );
-					proto_tree_add_text(v_tree, tvb, optp - 3, subopt_len + 2, opt_str->str);
-					optp += subopt_len - 1;
+					proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
 					break;
 			}
+			suboptoff += subopt_len - 1;
 			break;
 
 		case PKT_CCC_IETF_AS_KRB:
-			nom_to = tvb_get_ntohl(tvb, optp);
-			max_to = tvb_get_ntohl(tvb, optp + 4);
-			max_ret = tvb_get_ntohl(tvb, optp + 8);
+			if (suboptoff+12 > optend) {
+				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+				    "Suboption %d: no room left in option for suboption value",
+				    subopt);
+			 	return (optend);
+			}
 			g_string_sprintfa(opt_str, "(%u byte%s%s)", subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 12 ? " [Invalid]" : "");
-			vti = proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
-			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			proto_tree_add_text(pkt_s_tree, tvb, optp, 4,
-					"pktcMtaDevRealmUnsolicitedKeyNomTimeout: %u", nom_to);
-			proto_tree_add_text(pkt_s_tree, tvb, optp + 4, 4,
-					"pktcMtaDevRealmUnsolicitedKeyMaxTimeout: %u", max_to);
-			proto_tree_add_text(pkt_s_tree, tvb, optp + 8, 4,
-					"pktcMtaDevRealmUnsolicitedKeyMaxRetries: %u", max_ret);
-			optp += 12;
+			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
+			if (subopt_len == 12) {
+				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
+						"pktcMtaDevRealmUnsolicitedKeyNomTimeout: %u",
+						tvb_get_ntohl(tvb, suboptoff));
+				proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 4, 4,
+						"pktcMtaDevRealmUnsolicitedKeyMaxTimeout: %u",
+						tvb_get_ntohl(tvb, suboptoff + 4));
+				proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 8, 4,
+						"pktcMtaDevRealmUnsolicitedKeyMaxRetries: %u",
+						tvb_get_ntohl(tvb, suboptoff + 8));
+			}
+			suboptoff += subopt_len;
 			break;
 
 		case PKT_CCC_IETF_AP_KRB:
-			nom_to = tvb_get_ntohl(tvb, optp);
-			max_to = tvb_get_ntohl(tvb, optp + 4);
-			max_ret = tvb_get_ntohl(tvb, optp + 8);
 			g_string_sprintfa(opt_str, "(%u byte%s%s)", subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 12 ? " [Invalid]" : "");
-			vti = proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
-			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			proto_tree_add_text(pkt_s_tree, tvb, optp, 4,
-					"pktcMtaDevProvUnsolicitedKeyNomTimeout: %u", nom_to);
-			proto_tree_add_text(pkt_s_tree, tvb, optp + 4, 4,
-					"pktcMtaDevProvUnsolicitedKeyMaxTimeout: %u", max_to);
-			proto_tree_add_text(pkt_s_tree, tvb, optp + 8, 4,
-					"pktcMtaDevProvUnsolicitedKeyMaxRetries: %u", max_ret);
-			optp += 12;
+			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
+			if (subopt_len == 12) {
+				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 4,
+					"pktcMtaDevProvUnsolicitedKeyNomTimeout: %u",
+					tvb_get_ntohl(tvb, suboptoff));
+				proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 4, 4,
+						"pktcMtaDevProvUnsolicitedKeyMaxTimeout: %u",
+						tvb_get_ntohl(tvb, suboptoff + 4));
+				proto_tree_add_text(pkt_s_tree, tvb, suboptoff + 8, 4,
+					"pktcMtaDevProvUnsolicitedKeyMaxRetries: %u",
+					tvb_get_ntohl(tvb, suboptoff + 8));
+			}
+			suboptoff += subopt_len;
 			break;
 
 		case PKT_CCC_KRB_REALM: /* String values */
-			get_dns_name(tvb, optp, optp + 1, dns_name, sizeof(dns_name));
+			/* XXX - check suboption length */
+			get_dns_name(tvb, optoff, suboptoff, dns_name, sizeof(dns_name));
 			g_string_sprintfa(opt_str, "%s (%u byte%s)", dns_name,
 					subopt_len, plurality(subopt_len, "", "s") );
-			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
-			optp += subopt_len;
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
+			suboptoff += subopt_len;
 			break;
 
 		case PKT_CCC_TGT_FLAG:
-			fetch_tgt = tvb_get_guint8(tvb, optp);
+			if (suboptoff+1 > optend) {
+				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+				    "Suboption %d: no room left in option for suboption value",
+				    subopt);
+			 	return (optend);
+			}
+			fetch_tgt = tvb_get_guint8(tvb, suboptoff);
 			g_string_sprintfa(opt_str, "%s (%u byte%s%s)",
 					fetch_tgt ? "Yes" : "No",
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 1 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
-			optp += 1;
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
+			suboptoff += 1;
 			break;
 
 		case PKT_CCC_PROV_TIMER:
+			if (suboptoff+1 > optend) {
+				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+				    "Suboption %d: no room left in option for suboption value",
+				    subopt);
+			 	return (optend);
+			}
 			if (revision == PACKETCABLE_CCC_DRAFT5)
 				max_timer_val = 30;
-			timer_val = tvb_get_guint8(tvb, optp);
+			timer_val = tvb_get_guint8(tvb, suboptoff);
 			g_string_sprintfa(opt_str, "%u%s (%u byte%s%s)", timer_val,
 					timer_val > max_timer_val ? " [Invalid]" : "",
 					subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 1 ? " [Invalid]" : "");
-			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
-			optp += 1;
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
+			suboptoff += 1;
 			break;
 
 		case PKT_CCC_IETF_SEC_TKT:
-			sec_tcm = tvb_get_ntohs(tvb, optp);
+			if (suboptoff+2 > optend) {
+				proto_tree_add_text(v_tree, tvb, optoff, optend-optoff,
+				    "Suboption %d: no room left in option for suboption value",
+				    subopt);
+			 	return (optend);
+			}
+			sec_tcm = tvb_get_ntohs(tvb, suboptoff);
 			g_string_sprintfa(opt_str, "0x%04x (%u byte%s%s)", sec_tcm, subopt_len,
 					plurality(subopt_len, "", "s"),
 					subopt_len != 2 ? " [Invalid]" : "");
-			vti = proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
-			pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			for (i = 0 ; i < 2; i++) {
-				if (sec_tcm & sec_tcm_vals[i].value) {
-					decode_bitfield_value(bit_fld, sec_tcm, sec_tcm_vals[i].value, 16);
-					proto_tree_add_text(pkt_s_tree, tvb, optp, 2, "%sInvalidate %s",
-						bit_fld, sec_tcm_vals[i].strptr);
+			vti = proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
+			if (subopt_len == 2) {
+				pkt_s_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				for (i = 0; i < 2; i++) {
+					if (sec_tcm & sec_tcm_vals[i].value) {
+						decode_bitfield_value(bit_fld, sec_tcm, sec_tcm_vals[i].value, 16);
+						proto_tree_add_text(pkt_s_tree, tvb, suboptoff, 2, "%sInvalidate %s",
+							bit_fld, sec_tcm_vals[i].strptr);
+					}
 				}
 			}
-			optp += 2;
+			suboptoff += subopt_len;
 			break;
 
 		default:
-			proto_tree_add_text(v_tree, tvb, optp - 2, subopt_len + 2, opt_str->str);
+			proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2, opt_str->str);
+			suboptoff += subopt_len;
 			break;
-
 	}
-	return optp;
+	return suboptoff;
 }
 
 #define BOOTREQUEST	1
