@@ -1,7 +1,7 @@
 /* resolv.h
  * Definitions for network object lookup
  *
- * $Id: resolv.h,v 1.11 1999/11/21 16:32:16 gram Exp $
+ * $Id: resolv.h,v 1.12 2000/08/10 20:09:29 deniel Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -89,6 +89,9 @@ guint32 get_ipxnet_addr(u_char *name, gboolean *known);
 
 /* adds a hostname/IP in the hash table */
 extern void add_host_name(u_int addr, u_char *name);
+
+/* add ethernet address / name corresponding to IP address  */
+extern void add_ether_byip(u_int ip, const u_char *eth);
 
 /* Translates a string representing the hostname or dotted-decimal IP address
  * into a numeric IP address value, returning TRUE if it succeeds and

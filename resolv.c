@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.25 2000/08/08 16:21:24 deniel Exp $
+ * $Id: resolv.c,v 1.26 2000/08/10 20:09:28 deniel Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -96,6 +96,7 @@
 typedef struct hashname {
   u_int			addr;
   u_char   		name[MAXNAMELEN];
+  gboolean              is_dummy_entry;	/* name is IP address in dot format */
   struct hashname 	*next;
 } hashname_t;
 
@@ -114,7 +115,7 @@ typedef struct hashmanuf {
 typedef struct hashether {
   u_char 		addr[6];
   char 			name[MAXNAMELEN];
-  gboolean		is_name_from_file;
+  gboolean		is_dummy_entry;		/* not a complete entry */
   struct hashether     	*next;
 } hashether_t;
 
@@ -234,12 +235,14 @@ static void abort_network_query(int sig)
 }
 #endif /* AVOID_DNS_TIMEOUT */
 
-static u_char *host_name_lookup(u_int addr)
+static u_char *host_name_lookup(u_int addr, gboolean *found)
 {
 
   hashname_t * volatile tp;
   hashname_t **table = host_table;
   struct hostent *hostp;
+
+  *found = TRUE;
 
   tp = table[ addr & (HASHHOSTSIZE - 1)];
 
@@ -249,6 +252,8 @@ static u_char *host_name_lookup(u_int addr)
   } else {  
     while(1) {
       if( tp->addr == addr ) {
+	if (tp->is_dummy_entry)
+	  *found = FALSE;
 	return tp->name;
       }
       if (tp->next == NULL) {
@@ -279,6 +284,7 @@ static u_char *host_name_lookup(u_int addr)
     if (hostp != NULL) {
       strncpy(tp->name, hostp->h_name, MAXNAMELEN);
       tp->name[MAXNAMELEN-1] = '\0';
+      tp->is_dummy_entry = FALSE;
       return tp->name;
     }
 #ifdef AVOID_DNS_TIMEOUT
@@ -288,17 +294,18 @@ static u_char *host_name_lookup(u_int addr)
   /* unknown host or DNS timeout */
 
   sprintf(tp->name, "%s", ip_to_str((guint8 *)&addr));  
+  tp->is_dummy_entry = TRUE;
+  *found = FALSE;
 
   return (tp->name);
 
 } /* host_name_lookup */
 
-static u_char *host_name_lookup6(struct e_in6_addr *addr)
+static u_char *host_name_lookup6(struct e_in6_addr *addr, gboolean *found)
 {
   static u_char name[MAXNAMELEN];
 #ifdef INET6
   struct hostent *hostp;
-
 #ifdef AVOID_DNS_TIMEOUT
     
   /* Quick hack to avoid DNS/YP timeout */
@@ -314,6 +321,7 @@ static u_char *host_name_lookup6(struct e_in6_addr *addr)
     if (hostp != NULL) {
       strncpy(name, hostp->h_name, MAXNAMELEN);
       name[MAXNAMELEN-1] = '\0';
+      *found = TRUE;
       return name;
     }
 #ifdef AVOID_DNS_TIMEOUT
@@ -322,6 +330,7 @@ static u_char *host_name_lookup6(struct e_in6_addr *addr)
 
   /* unknown host or DNS timeout */
 #endif /* INET6 */
+  *found = FALSE;
   sprintf(name, "%s", ip6_to_str(addr));  
   return (name);
 }
@@ -488,7 +497,7 @@ static ether_t *get_ethent(int six_bytes)
 
 } /* get_ethent */
 
-static ether_t *get_ethbyname(u_char *name)
+static ether_t *get_ethbyname(const u_char *name)
 {
   ether_t *eth;
   
@@ -615,7 +624,7 @@ static void initialize_ethers(void)
 
 } /* initialize_ethers */
 
-static hashether_t *add_eth_name(u_char *addr, u_char *name)
+static hashether_t *add_eth_name(const u_char *addr, const u_char *name)
 {
   hashether_t *tp;
   hashether_t **table = eth_table;
@@ -631,6 +640,15 @@ static hashether_t *add_eth_name(u_char *addr, u_char *name)
       (hashether_t *)g_malloc(sizeof(hashether_t));
   } else {  
     while(1) {
+      if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
+	/* address already known */
+	if (!tp->is_dummy_entry) {
+	  return tp;
+	} else {
+	  /* replace this dummy (manuf) entry with a real name */
+	  break;
+	}
+      }
       if (tp->next == NULL) {
 	tp->next = (hashether_t *)g_malloc(sizeof(hashether_t));
 	tp = tp->next;
@@ -644,6 +662,7 @@ static hashether_t *add_eth_name(u_char *addr, u_char *name)
   strncpy(tp->name, name, MAXNAMELEN);
   tp->name[MAXNAMELEN-1] = '\0';
   tp->next = NULL;
+  tp->is_dummy_entry = FALSE;
 
   return tp;
 
@@ -693,19 +712,19 @@ static u_char *eth_name_lookup(const u_char *addr)
       sprintf(tp->name, "%s_%02x:%02x:%02x", 
 	      manufp->name, addr[3], addr[4], addr[5]);
 
-    tp->is_name_from_file = FALSE;
+    tp->is_dummy_entry = TRUE;
 
   } else {
     strncpy(tp->name, eth->name, MAXNAMELEN);
     tp->name[MAXNAMELEN-1] = '\0';
-    tp->is_name_from_file = TRUE;
+    tp->is_dummy_entry = FALSE;
   }
 
   return (tp->name);
 
 } /* eth_name_lookup */
 
-static u_char *eth_addr_lookup(u_char *name)
+static u_char *eth_addr_lookup(const u_char *name)
 {
   ether_t *eth;
   hashether_t *tp;
@@ -1008,21 +1027,26 @@ static u_int ipxnet_addr_lookup(u_char *name, gboolean *success)
 
 extern u_char *get_hostname(u_int addr) 
 {
+  gboolean found;
+
   if (!g_resolving_actif)
     return ip_to_str((guint8 *)&addr);
 
-  return host_name_lookup(addr);
+  return host_name_lookup(addr, &found);
 }
 
 extern gchar *get_hostname6(struct e_in6_addr *addr) 
 {
+  gboolean found;
+
 #ifdef INET6
   if (!g_resolving_actif)
     return ip6_to_str(addr);
   if (IN6_IS_ADDR_LINKLOCAL(addr) || IN6_IS_ADDR_MULTICAST(addr))
     return ip6_to_str(addr);
 #endif
-  return host_name_lookup6(addr);
+
+  return host_name_lookup6(addr, &found);
 }
 
 extern void add_host_name(u_int addr, u_char *name)
@@ -1038,9 +1062,14 @@ extern void add_host_name(u_int addr, u_char *name)
       (hashname_t *)g_malloc(sizeof(hashname_t));
   } else {  
     while(1) {
-      if (tp->addr == addr && strcmp(tp->name, name) == 0) {
+      if (tp->addr == addr) {
 	/* address already known */
-	return;
+	if (!tp->is_dummy_entry) {
+	  return;
+	} else {
+	  /* replace this dummy entry with the new one */
+	  break;
+	}
       }
       if (tp->next == NULL) {
 	tp->next = (hashname_t *)g_malloc(sizeof(hashname_t));
@@ -1055,6 +1084,7 @@ extern void add_host_name(u_int addr, u_char *name)
   tp->name[MAXNAMELEN-1] = '\0';
   tp->addr = addr;
   tp->next = NULL;
+  tp->is_dummy_entry = FALSE;
 
 } /* add_host_name */
 
@@ -1153,7 +1183,7 @@ u_char *get_ether_name_if_known(const u_char *addr)
   else { 
     while(1) {
       if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
-	      if (tp->is_name_from_file) {
+	      if (!tp->is_dummy_entry) {
 		/* A name was found, and its origin is an ethers file */
 		return tp->name;
 	      }
@@ -1189,6 +1219,23 @@ extern u_char *get_ether_addr(u_char *name)
 
 } /* get_ether_addr */
 
+extern void add_ether_byip(u_int ip, const u_char *eth)
+{
+
+  u_char *host;
+  gboolean found;
+
+  /* first check that IP address can be resolved */
+
+  if ((host = host_name_lookup(ip, &found)) == NULL)
+    return;
+  
+  /* ok, we can add this entry in the ethers hashtable */
+
+  if (found)
+    add_eth_name(eth, host);
+
+} /* add_ether_byip */
 
 extern u_char *get_ipxnet_name(const guint32 addr)
 {

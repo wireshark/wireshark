@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.31 2000/08/07 03:20:21 guy Exp $
+ * $Id: packet-arp.c,v 1.32 2000/08/10 20:09:29 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "resolv.h"
 #include "packet-arp.h"
 #include "etypes.h"
 
@@ -634,6 +635,25 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
       default:
         col_add_fstr(fd, COL_INFO, "Unknown ARP opcode 0x%04x", ar_op);
         break;
+    }
+  }
+
+  if ((ar_op == ARPOP_REPLY || ar_op == ARPOP_REQUEST) &&
+      ar_hln == 6 && ar_pln == 4) {
+
+    /* inform resolv.c module of the new discovered addresses */
+
+    u_int ip;
+
+    /* add sender address in all cases */
+
+    memcpy(&ip, &pd[spa_offset], sizeof(ip));
+    add_ether_byip(ip, &pd[sha_offset]);
+    
+    if (ar_op == ARPOP_REQUEST) {
+      /* add destination address */
+      memcpy(&ip, &pd[tpa_offset], sizeof(ip));
+      add_ether_byip(ip, &pd[tha_offset]);
     }
   }
 
