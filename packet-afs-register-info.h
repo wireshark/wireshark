@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs-register-info.h,v 1.17 2003/03/06 07:39:19 sahlberg Exp $
+ * $Id: packet-afs-register-info.h,v 1.18 2003/03/08 07:27:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -568,7 +568,7 @@
 { &hf_afs_repframe, { "Reply Frame", "afs.repframe", 
 	FT_FRAMENUM, BASE_NONE,	NULL, 0, "Reply Frame", HFILL }},
 { &hf_afs_time, { "Time from request", "afs.time", 
-	FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Reply for ONC-RPC calls", HFILL }},
+	FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Reply for AFS calls", HFILL }},
 
 
 
