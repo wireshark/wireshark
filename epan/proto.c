@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.97 2003/07/31 03:52:40 guy Exp $
+ * $Id: proto.c,v 1.98 2003/07/31 04:18:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3572,18 +3572,6 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 					stringified);
 			break;
 
-		case FT_IPv4:
-			/*
-			 * 4 bytes for " == ".
-			 * 14 bytes for "XXX.XXX.XXX.XXX".
-			 * 1 byte for the trailing '\0'.
-			 */
-			dfilter_len = abbrev_len + 4 + 15 + 1;
-			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,
-					ipv4_addr_str(fvalue_get(finfo->value)));
-			break;
-
 		case FT_IPXNET:
 			/*
 			 * 4 bytes for " == ".
@@ -3620,6 +3608,7 @@ proto_construct_dfilter_string(field_info *finfo, epan_dissect_t *edt)
 		case FT_DOUBLE:
 		case FT_ABSOLUTE_TIME:
 		case FT_RELATIVE_TIME:
+		case FT_IPv4:
 			/* Figure out the string length needed.
 			 * 	The ft_repr length.
 			 * 	4 bytes for " == ".

@@ -1,16 +1,15 @@
-/* ip4.h
+/* ipv4.h
  *
  * IPv4 address class. They understand how to take netmasks into consideration
  * during equivalence testing.
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: ipv4.h,v 1.4 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: ipv4.h,v 1.5 2003/07/31 04:18:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -50,9 +49,9 @@ void ipv4_addr_set_netmask_bits(ipv4_addr *ipv4, guint new_nmask_bits);
 guint32 ipv4_get_net_order_addr(ipv4_addr *ipv4);
 guint32 ipv4_get_host_order_addr(ipv4_addr *ipv4);
 
-/* Returns a string pointer to a dotted-decimal notation representation of an IPv4
- * address. The pointer points to a internal buffer, so don't try to g_free() it */
-gchar* ipv4_addr_str(ipv4_addr *ipv4);
+/* Fills in a buffer with a dotted-decimal notation representation of an IPv4
+ * address. */
+void ipv4_addr_str_buf(const ipv4_addr *ipv4, gchar *buf);
 
 /* Compares two ipv4_addrs, taking into account the less restrictive of the
  * two netmasks, applying that netmask to both addrs.

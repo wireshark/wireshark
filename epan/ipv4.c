@@ -5,12 +5,11 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: ipv4.c,v 1.4 2002/08/28 20:40:44 jmayer Exp $
+ * $Id: ipv4.c,v 1.5 2003/07/31 04:18:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -86,11 +85,11 @@ ipv4_get_host_order_addr(ipv4_addr *ipv4)
 	return ipv4->addr;
 }
 
-gchar*
-ipv4_addr_str(ipv4_addr *ipv4)
+void
+ipv4_addr_str_buf(const ipv4_addr *ipv4, gchar *buf)
 {
 	guint32	ipv4_host_order = g_htonl(ipv4->addr);
-	return ip_to_str((gchar*)&ipv4_host_order);
+	return ip_to_str_buf((gchar*)&ipv4_host_order, buf);
 }
 
 static guint32

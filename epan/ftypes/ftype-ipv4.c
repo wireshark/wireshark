@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-ipv4.c,v 1.11 2003/07/25 03:44:02 gram Exp $
+ * $Id: ftype-ipv4.c,v 1.12 2003/07/31 04:18:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,6 +122,21 @@ val_from_unparsed(fvalue_t *fv, char *s, LogFunc logfunc)
 	return TRUE;
 }
 
+static int
+val_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
+{
+	/*
+	 * 14 characters for "XXX.XXX.XXX.XXX".
+	 */
+	return 14;
+}
+
+static void
+val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
+{
+	ipv4_addr_str_buf(&fv->value.ipv4, buf);
+}
+
 static gboolean
 cmp_eq(fvalue_t *a, fvalue_t *b)
 {
@@ -170,8 +185,8 @@ ftype_register_ipv4(void)
 		NULL,
 		val_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		NULL,				/* val_to_string_repr */
-		NULL,				/* len_string_repr */
+		val_to_repr,			/* val_to_string_repr */
+		val_repr_len,			/* len_string_repr */
 
 		NULL,
 		set_integer,
