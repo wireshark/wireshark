@@ -5,12 +5,13 @@
  * SHIRASAKI Yasuhiro <yasuhiro@gnome.gr.jp>
  * Tony Lindstrom <tony.lindstrom@ericsson.com>
  *
- * $Id: packet-dhcpv6.c,v 1.8 2003/08/18 18:20:11 guy Exp $
+ * $Id: packet-dhcpv6.c,v 1.9 2003/10/17 21:26:56 guy Exp $
  *
  * The information used comes from:
- * draft-ietf-dhc-dhcpv6-28.txt
- * draft-ietf-dhc-dhcpv6-opt-prefix-delegation-04.txt
- * draft-ietf-dhc-dhcpv6-opt-dnsconfig-03.txt
+ * RFC3315.txt
+ * RFC3319.txt
+ * draft-ietf-dhc-dhcpv6-opt-prefix-delegation-05.txt
+ * draft-ietf-dhc-dhcpv6-opt-dnsconfig-04.txt
  * draft-ietf-dhc-dhcpv6-opt-nisconfig-02.txt
  * draft-ietf-dhc-dhcpv6-opt-timeconfig-02.txt
  * Note that protocol constants are still subject to change, based on IANA
@@ -90,18 +91,22 @@ static guint ett_dhcpv6_option = -1;
 #define	OPTION_INTERFACE_ID	18
 #define	OPTION_RECONF_MSG	19
 #define	OPTION_RECONF_ACCEPT	20
+#define	OPTION_SIP_SERVER_D	21
+#define	OPTION_SIP_SERVER_A	22
+#define	OPTION_DNS_SERVERS	23
+#define	OPTION_DOMAIN_LIST      24
 
-#define	OPTION_IA_PD		21
-#define	OPTION_IAPREFIX		22
-#define OPTION_DNS_RESOLVERS	30
-#define OPTION_DOMAIN_LIST      31
+/*
+ * The followings are also unassigned numbers.
+ */
+#define	OPTION_IA_PD		33
+#define	OPTION_IAPREFIX		34
 #define OPTION_NIS_SERVERS	35
 #define OPTION_NISP_SERVERS	36
 #define OPTION_NIS_DOMAIN_NAME  37
 #define OPTION_NISP_DOMAIN_NAME 38
 #define OPTION_NTP_SERVERS	40
 #define OPTION_TIME_ZONE	41
-/* define OPTION_DNS_SERVERS	50 */
 
 #define	DUID_LLT		1
 #define	DUID_EN			2
@@ -146,17 +151,18 @@ static const value_string opttype_vals[] = {
 	{ OPTION_INTERFACE_ID,	"Interface-Id" },
 	{ OPTION_RECONF_MSG,	"Reconfigure Message" },
 	{ OPTION_RECONF_ACCEPT,	"Reconfigure Accept" },
+	{ OPTION_SIP_SERVER_D,	"SIP Server Domain Name List" },
+	{ OPTION_SIP_SERVER_A,	"SIP Servers IPv6 Address List" },
+	{ OPTION_DNS_SERVERS,	"DNS recursive name server" },
+	{ OPTION_DOMAIN_LIST,	"Domain Search List" },
 	{ OPTION_IA_PD,		"Identify Association for Prefix Delegation" },
 	{ OPTION_IAPREFIX,	"IA Prefix" },
-	{ OPTION_DNS_RESOLVERS,	"DNS Resolver" },
-	{ OPTION_DOMAIN_LIST,	"Domain Search List" },
 	{ OPTION_NIS_SERVERS,	"Network Information Server" },
 	{ OPTION_NISP_SERVERS,	"Network Information Server V2" },
 	{ OPTION_NIS_DOMAIN_NAME, "Network Information Server Domain Name" },
 	{ OPTION_NISP_DOMAIN_NAME,"Network Information Server V2 Domain Name" },
 	{ OPTION_NTP_SERVERS,	"Network Time Protocol Server" },
 	{ OPTION_TIME_ZONE,	"Time zone" },
-/*	{ OPTION_DNS_SERVERS,	"Domain Name Server" }, */
 	{ 0,	NULL }
 };
 
@@ -505,7 +511,25 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 					 msgtype_vals,
 					 "Message Type %u"));
 	  break;
-/*	case OPTION_DNS_SERVERS:
+	case OPTION_SIP_SERVER_D:
+		if (optlen > 0) {
+			proto_tree_add_text(subtree, tvb, off, optlen,
+				"SIP Servers Domain Search List");
+		}
+	case OPTION_SIP_SERVER_A:
+		if (optlen % 16) {
+			proto_tree_add_text(subtree, tvb, off, optlen,
+				"SIP servers address: malformed option");
+			break;
+		}
+		for (i = 0; i < optlen; i += 16) {
+			tvb_memcpy(tvb, (guint8 *)&in6, off + i, sizeof(in6));
+			proto_tree_add_text(subtree, tvb, off + i,
+				sizeof(in6), "SIP servers address: %s",
+				ip6_to_str(&in6));
+		}
+		break;
+	case OPTION_DNS_SERVERS:
 		if (optlen % 16) {
 			proto_tree_add_text(subtree, tvb, off, optlen,
 				"DNS servers address: malformed option");
@@ -518,23 +542,9 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 				ip6_to_str(&in6));
 		}
 		break;
-*/
-	case OPTION_DNS_RESOLVERS:
-		if (optlen % 16) {
-			proto_tree_add_text(subtree, tvb, off, optlen,
-				"DNS resolvers address: malformed option");
-			break;
-		}
-		for (i = 0; i < optlen; i += 16) {
-			tvb_memcpy(tvb, (guint8 *)&in6, off + i, sizeof(in6));
-			proto_tree_add_text(subtree, tvb, off + i,
-				sizeof(in6), "DNS resolvers address: %s",
-				ip6_to_str(&in6));
-		}
-		break;
 	case OPTION_DOMAIN_LIST:
 	  if (optlen > 0) {
-	    proto_tree_add_text(subtree, tvb, off, optlen, "Search String");
+	    proto_tree_add_text(subtree, tvb, off, optlen, "DNS Domain Search List");
 	  }
 	  break;
 	case OPTION_NIS_SERVERS:
