@@ -6,7 +6,7 @@
  * Portions Copyright (c) 2000-2002 by Gilbert Ramirez.
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.c,v 1.128 2003/04/12 07:35:52 guy Exp $
+ * $Id: packet-ipx.c,v 1.129 2003/04/12 07:48:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -506,6 +506,7 @@ spx_conn_ctrl(guint8 ctrl)
 	const char *p;
 
 	static const value_string conn_vals[] = {
+		{ 0x00,                        "Data, No Ack Required" },
 		{ SPX_EOM,                     "End-of-Message" },
 		{ SPX_ATTN,                    "Attention" },
 		{ SPX_SEND_ACK,                "Acknowledgment Required"},
