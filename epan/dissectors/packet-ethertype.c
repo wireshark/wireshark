@@ -90,7 +90,7 @@ const value_string etype_vals[] = {
     {ETHERTYPE_RTCFG,		"Real-Time Configuration Protocol" },
     {ETHERTYPE_CDMA2000_A10_UBS,"CDMA2000 A10 Unstructured byte stream" },
     {ETHERTYPE_PROFINET,	"PROFInet"			},
-
+    {ETHERTYPE_AOE,		"ATA over Ethernet"             },
     /*
      * NDISWAN on Windows translates Ethernet frames from higher-level
      * protocols into PPP frames to hand to the PPP driver, and translates

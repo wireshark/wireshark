@@ -32,8 +32,7 @@
 #endif
 
 #include <epan/packet.h>
-
-#define ETHERTYPE_AOE 0x88A2
+#include <etypes.h>
 
 static int proto_aoe;
 static int hf_aoe_version=-1;

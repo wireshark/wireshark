@@ -232,6 +232,10 @@
 #define ETHERTYPE_HYPERSCSI     0x889A  /* HyperSCSI */
 #endif
 
+#ifndef ETHERTYPE_AOE
+#define ETHERTYPE_AOE           0x88A2
+#endif
+
 #ifndef ETHERTYPE_BRDWALK
 #define ETHERTYPE_BRDWALK       0x88AE
 #endif
