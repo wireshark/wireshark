@@ -131,7 +131,7 @@ static void draw_gtk_node(stat_node* node) {
 	static gchar percent[NUM_BUF_SIZE];
 	stat_node* child;
 	
-	get_strings_from_node(node, value, rate, percent);
+	stats_tree_get_strs_from_node(node, value, rate, percent);
 	
 #if GTK_MAJOR_VERSION >= 2
 	if (node->st->pr->store) {
@@ -190,14 +190,14 @@ static void free_gtk_tree(GtkWindow *win _U_, stats_tree *st)
 		st->root.pr->iter = NULL;
 #endif
 	
-	free_stats_tree(st);
+	stats_tree_free(st);
 	
 }
 
 
 /* initializes the stats_tree window */
 static void init_gtk_tree(char* optarg) {
-	guint8* abbr = get_st_abbr(optarg);
+	guint8* abbr = stats_tree_get_abbr(optarg);
 	stats_tree* st = NULL;
 	stats_tree_cfg* cfg = NULL;
 	tree_pres* pr = g_malloc(sizeof(tree_pres));
@@ -221,20 +221,20 @@ static void init_gtk_tree(char* optarg) {
 #endif
 	
 	if (abbr) {
-		cfg = get_stats_tree_by_abbr(abbr);
+		cfg = stats_tree_get_cfg_by_abbr(abbr);
 		
 		if (cfg != NULL) {
 			init_strlen = strlen(cfg->pr->stat_dlg->init_string);
 			
 			if (strncmp (optarg, cfg->pr->stat_dlg->init_string, init_strlen) == 0){
 				if (init_strlen == strlen(optarg)) {
-					st = new_stats_tree(cfg,pr,NULL);
+					st = stats_tree_new(cfg,pr,NULL);
 				} else { 
-					st = new_stats_tree(cfg,pr,((guint8*)optarg)+init_strlen+1);
+					st = stats_tree_new(cfg,pr,((guint8*)optarg)+init_strlen+1);
 				}
 				
 			} else {
-				st = new_stats_tree(cfg,pr,NULL);
+				st = stats_tree_new(cfg,pr,NULL);
 			}
 		} else {
 			g_error("no such stats_tree (%s) found in stats_tree registry",abbr);

@@ -155,50 +155,47 @@ extern void stats_tree_presentation(void (*registry_iterator)(gpointer,gpointer,
 									void (*reset_tree)(stats_tree*),
 									void* data);
 
-extern stats_tree* new_stats_tree(stats_tree_cfg* cfg, tree_pres* pr, char* filter);
+extern stats_tree* stats_tree_new(stats_tree_cfg* cfg, tree_pres* pr, char* filter);
 
 /* callback for taps */
 extern int  stats_tree_packet(void*, packet_info*, epan_dissect_t*, const void *);
 
 /* callback for reset */
-extern void reset_stats_tree(void* p_st);
+extern void stats_tree_reset(void* p_st);
 
 /* callback for clear */
-extern void reinit_stats_tree(void* p_st);
+extern void stats_tree_reinit(void* p_st);
 
 /* callback for destoy */
-extern void free_stats_tree(stats_tree* st);
+extern void stats_tree_free(stats_tree* st);
 
 /* given an optarg splits the abbr part
    and returns a newly allocated buffer containing it */
-extern guint8* get_st_abbr(const guint8* optarg);
+extern guint8* stats_tree_get_abbr(const guint8* optarg);
 
 /* obtains a stats tree from the registry given its abbr */
-extern stats_tree_cfg* get_stats_tree_by_abbr(guint8* abbr);
+extern stats_tree_cfg* stats_tree_get_cfg_by_abbr(guint8* abbr);
 
 /* extracts node data as strings from a stat_node into
    the buffers given by value, rate and precent
    if NULL they are ignored */
-extern void get_strings_from_node(const stat_node* node,
+extern void stats_tree_get_strs_from_node(const stat_node* node,
 								  guint8* value,
 								  guint8* rate,
 								  guint8* percent);
 
 /* populates the given GString with a tree representation of a branch given by node,
    using indent spaces as indentation */
-extern void stat_branch_to_str(const stat_node* node,
+extern void stats_tree_branch_to_str(const stat_node* node,
 							   GString* s,
 							   guint indent);
 
 /* used to calcuate the size of the indentation and the longest string */
-extern guint stats_branch_max_name_len(const stat_node* node, guint indent);
+extern guint stats_tree_branch_max_namelen(const stat_node* node, guint indent);
 
 /* a text representation of a node,
    if buffer is NULL returns a newly allocated string */
-extern guint8* stat_node_to_str(const stat_node* node,
+extern guint8* stats_tree_node_to_str(const stat_node* node,
 								guint8* buffer, guint len);
-
-/* destroys the stats_tree */
-extern void free_stats_tree(stats_tree* st);
 
 #endif /* __STATS_TREE_PRIV_H */

@@ -52,13 +52,13 @@ typedef void  (*stat_tree_init_cb)(stats_tree*);
  * packet: per packet callback
  * init: tree initialization callback
  */
-extern void register_stats_tree(guint8* tapname,
+extern void stats_tree_register(guint8* tapname,
 								guint8* abbr, 
 								guint8* name,
 								stat_tree_packet_cb packet,
 								stat_tree_init_cb init );
 
-extern int get_parent_id_by_name(stats_tree* st, const gchar* parent_name);
+extern int stats_tree_parent_id_by_name(stats_tree* st, const gchar* parent_name);
 
 /* Creates a node in the tree (to be used in the in init_cb)
 * st: the stats_tree in which to create it
@@ -66,50 +66,51 @@ extern int get_parent_id_by_name(stats_tree* st, const gchar* parent_name);
 * parent_name: the name of the parent_node (NULL for root)
 * with_children: TRUE if this node will have "dynamically created" children
 */
-extern int create_node(stats_tree* st,
+extern int stats_tree_create_node(stats_tree* st,
 						const gchar* name,
 						int parent_id,
 						gboolean with_children);
 
-extern int create_node_with_parent_name(stats_tree* st,
+/* creates a node using it's parent's tree name */ 
+extern int stats_tree_create_node_by_pname(stats_tree* st,
 						  const gchar* name,
 						  const gchar* parent_name,
 						  gboolean with_children);
 
 /* creates a node in the tree, that will contain a ranges list.
  example:
- create_range_node(st,name,parent,
+ stats_tree_create_range_node(st,name,parent,
 				   "-99","100-199","200-299","300-399","400-", NULL);
 */
-extern int create_range_node(stats_tree* st,
+extern int stats_tree_create_range_node(stats_tree* st,
 								const gchar* name,
 								int parent_id,
 								...);
 
-extern int create_range_node_with_parent_name(stats_tree* st,
+extern int stats_tree_range_node_with_pname(stats_tree* st,
 											  const gchar* name,
 											  const gchar* parent_name,
 											  ...);
+
+/* increases by one the ranged node and the sub node to whose range the value belongs */
+extern int stats_tree_tick_range(stats_tree* st,
+								 const gchar* name,
+								 int parent_id,
+								 int value_in_range);
+
+#define stats_tree_tick_range_by_pname(st,name,parent_name,value_in_range) \
+     stats_tree_tick_range((st),(name),stats_tree_parent_id_by_name((st),(parent_name),(value_in_range))
+
 /* */
-
-extern int tick_range(stats_tree* st,
-						 const gchar* name,
-						 int parent_id,
-						 int value_in_range);
-
-#define tick_range_with_parent_name(st,name,parent_name,value_in_range) \
-     tick_range((st),(name),get_parent_id_by_name((st),(parent_name),(value_in_range))
-
-/* */
-extern int create_pivot_node(stats_tree* st,
+extern int stats_tree_create_pivot(stats_tree* st,
 							 const gchar* name,
 							 int parent_id);
 
-extern int create_pivot_node_with_parent_name(stats_tree* st,
+extern int stats_tree_create_pivot_by_pname(stats_tree* st,
 											  const gchar* name,
 											  const gchar* parent_name);
 
-extern int tick_pivot(stats_tree* st,
+extern int stats_tree_tick_pivot(stats_tree* st,
 					  int pivot_id,
 					  const gchar* pivot_value);
 
@@ -120,7 +121,7 @@ extern int tick_pivot(stats_tree* st,
  * with_children=TRUE to indicate that the created node will be a parent
  */
 typedef enum _manip_node_mode { MN_INCREASE, MN_SET } manip_node_mode;
-extern int manip_stat_node(manip_node_mode mode,
+extern int stats_tree_manip_node(manip_node_mode mode,
 							   stats_tree* st,
 							   const guint8* name,
 							   int parent_id,
@@ -128,15 +129,15 @@ extern int manip_stat_node(manip_node_mode mode,
 							   gint value);
 
 #define increase_stat_node(st,name,parent_id,with_children,value) \
-(manip_stat_node(MN_INCREASE,(st),(name),(parent_id),(with_children),(value)))
+(stats_tree_manip_node(MN_INCREASE,(st),(name),(parent_id),(with_children),(value)))
 
 #define tick_stat_node(st,name,parent_id,with_children) \
-(manip_stat_node(MN_INCREASE,(st),(name),(parent_id),(with_children),1))
+(stats_tree_manip_node(MN_INCREASE,(st),(name),(parent_id),(with_children),1))
 
 #define set_stat_node(st,name,parent_id,with_children,value) \
-(manip_stat_node(MN_SET,(st),(name),(parent_id),(with_children),value))
+(stats_tree_manip_node(MN_SET,(st),(name),(parent_id),(with_children),value))
 
 #define zero_stat_node(st,name,parent_id,with_children) \
-(manip_stat_node(MN_SET,(st),(name),(parent_id),(with_children),0))
+(stats_tree_manip_node(MN_SET,(st),(name),(parent_id),(with_children),0))
 
 #endif /* __STATS_TREE_H */

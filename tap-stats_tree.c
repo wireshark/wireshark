@@ -52,13 +52,13 @@ static void draw_stats_tree(void *psp) {
 	stat_node* child;
 	
 	s = g_string_new("\n===================================================================\n");
-	fmt = g_strdup_printf(" %%s%%-%us%%12s\t%%12s\t%%12s\n",stats_branch_max_name_len(&st->root,0));
+	fmt = g_strdup_printf(" %%s%%-%us%%12s\t%%12s\t%%12s\n",stats_tree_branch_max_namelen(&st->root,0));
 	g_string_sprintfa(s,fmt,"",st->cfg->name,"value","rate","percent");
 	g_free(fmt);
 	g_string_sprintfa(s,"-------------------------------------------------------------------\n");
 	
 	for (child = st->root.children; child; child = child->next ) {
-		stat_branch_to_str(child,s,0);
+		stats_tree_branch_to_str(child,s,0);
 	}
 	
 	s = g_string_append(s,"\n===================================================================\n");
@@ -68,17 +68,17 @@ static void draw_stats_tree(void *psp) {
 }
 
 static void  init_stats_tree(char *optarg) {
-	guint8* abbr = get_st_abbr(optarg);
+	guint8* abbr = stats_tree_get_abbr(optarg);
 	GString	*error_string;
 	stats_tree_cfg *cfg = NULL;
 	stats_tree* st = NULL;
 	
 	if (abbr) {
-		cfg = get_stats_tree_by_abbr(abbr);
+		cfg = stats_tree_get_cfg_by_abbr(abbr);
 
 		if (cfg != NULL) {
 			if (strncmp (optarg, cfg->pr->init_string, strlen(cfg->pr->init_string)) == 0){
-				st = new_stats_tree(cfg,NULL,((guint8*)optarg)+strlen(cfg->pr->init_string));
+				st = stats_tree_new(cfg,NULL,((guint8*)optarg)+strlen(cfg->pr->init_string));
 			} else {
 				st->filter=NULL;
 			}
@@ -95,7 +95,7 @@ static void  init_stats_tree(char *optarg) {
 	error_string = register_tap_listener( st->cfg->tapname,
 										  st,
 										  st->filter,
-										  reset_stats_tree,
+										  stats_tree_reset,
 										  stats_tree_packet,
 										  draw_stats_tree);
 	

@@ -42,7 +42,7 @@ static GHashTable* registry = NULL;
 
 /* writes into the buffers pointed by value, rate and percent
    the string representations of a node*/
-extern void get_strings_from_node(const stat_node* node, guint8* value, guint8* rate, guint8* percent) {
+extern void stats_tree_get_strs_from_node(const stat_node* node, guint8* value, guint8* rate, guint8* percent) {
 	float f;
 	
 	if (value) g_snprintf(value,NUM_BUF_SIZE,"%u",node->counter);
@@ -67,7 +67,7 @@ extern void get_strings_from_node(const stat_node* node, guint8* value, guint8* 
 
 /* a text representation of a node
 if buffer is NULL returns a newly allocated string */
-extern guint8* stat_node_to_str(const stat_node* node,
+extern guint8* stats_tree_node_to_str(const stat_node* node,
 								guint8* buffer, guint len) {
 	if (buffer) {
 		g_snprintf(buffer,len,"%s: %i",node->name, node->counter);
@@ -77,7 +77,7 @@ extern guint8* stat_node_to_str(const stat_node* node,
 	}
 }
 
-extern guint stats_branch_max_name_len(const stat_node* node, guint indent) {
+extern guint stats_tree_branch_max_namelen(const stat_node* node, guint indent) {
 	stat_node* child;
 	guint maxlen = 0;
 	guint len;
@@ -86,7 +86,7 @@ extern guint stats_branch_max_name_len(const stat_node* node, guint indent) {
 
 	if (node->children) {
 		for (child = node->children; child; child = child->next ) {
-			len = stats_branch_max_name_len(child,indent+1); 
+			len = stats_tree_branch_max_namelen(child,indent+1); 
 			maxlen = len > maxlen ? len : maxlen;
 		}
 	}
@@ -101,7 +101,7 @@ static gchar* format;
 
 /* populates the given GString with a tree representation of a branch given by node,
 using indent spaces as initial indentation */
-extern void stat_branch_to_str(const stat_node* node, GString* s, guint indent) {
+extern void stats_tree_branch_to_str(const stat_node* node, GString* s, guint indent) {
 	stat_node* child;
 	static gchar indentation[INDENT_MAX+1];
 	static gchar value[NUM_BUF_SIZE];
@@ -111,10 +111,10 @@ extern void stat_branch_to_str(const stat_node* node, GString* s, guint indent) 
 	guint i = 0;
 	
 	if (indent == 0) {
-		format = g_strdup_printf(" %%s%%-%us%%12s   %%12s    %%12s\n",stats_branch_max_name_len(node,0));
+		format = g_strdup_printf(" %%s%%-%us%%12s   %%12s    %%12s\n",stats_tree_branch_max_namelen(node,0));
 	}
 	
-	get_strings_from_node(node, value, rate, percent);
+	stats_tree_get_strs_from_node(node, value, rate, percent);
 	
 	indent = indent > INDENT_MAX ? INDENT_MAX : indent;
 	
@@ -131,7 +131,7 @@ extern void stat_branch_to_str(const stat_node* node, GString* s, guint indent) 
 		
 	if (node->children) {
 		for (child = node->children; child; child = child->next ) {
-			stat_branch_to_str(child,s,indent+1);
+			stats_tree_branch_to_str(child,s,indent+1);
 		}
 	}
 	
@@ -166,7 +166,7 @@ static void free_stat_node( stat_node* node ) {
 }
 
 /* destroys the whole tree instance */
-extern void free_stats_tree(stats_tree* st) {
+extern void stats_tree_free(stats_tree* st) {
 	stat_node* child;
 	stat_node* next;
 	
@@ -205,7 +205,7 @@ static void reset_stat_node(stat_node* node) {
 }
 
 /* reset the whole stats_tree */
-extern void reset_stats_tree(void* p) {
+extern void stats_tree_reset(void* p) {
 	stats_tree* st = p;
 	reset_stat_node(&st->root);
 	
@@ -214,7 +214,7 @@ extern void reset_stats_tree(void* p) {
 	}
 }
 
-extern void reinit_stats_tree(void* p) {
+extern void stats_tree_reinit(void* p) {
 	stats_tree* st = p;
 	stat_node* child;
 	stat_node* next;
@@ -234,7 +234,7 @@ extern void reinit_stats_tree(void* p) {
 }
 
 /* register a new stats_tree */
-extern void register_stats_tree(guint8* tapname,
+extern void stats_tree_register(guint8* tapname,
 								guint8* abbr, 
 								guint8* name,
 								stat_tree_packet_cb packet,
@@ -268,7 +268,7 @@ extern void register_stats_tree(guint8* tapname,
 	
 }
 
-extern stats_tree* new_stats_tree(stats_tree_cfg* cfg, tree_pres* pr,char* filter) {
+extern stats_tree* stats_tree_new(stats_tree_cfg* cfg, tree_pres* pr,char* filter) {
 	stats_tree* st = g_malloc(sizeof(stats_tree));
 
 	st->cfg = cfg;
@@ -315,7 +315,7 @@ extern GHashTable* stat_tree_registry(void) {
 	return registry;
 }
 
-extern stats_tree_cfg* get_stats_tree_by_abbr(guint8* abbr) {
+extern stats_tree_cfg* stats_tree_get_cfg_by_abbr(guint8* abbr) {
 	return g_hash_table_lookup(registry,abbr);
 }
 
@@ -437,7 +437,7 @@ static stat_node*  new_stat_node(stats_tree* st,
 }
 /***/
 
-extern int create_node(stats_tree* st, const gchar* name, int parent_id, gboolean with_hash) {
+extern int stats_tree_create_node(stats_tree* st, const gchar* name, int parent_id, gboolean with_hash) {
 	stat_node* node = new_stat_node(st,name,parent_id,with_hash,TRUE);
 	
 	if (node) 
@@ -447,11 +447,11 @@ extern int create_node(stats_tree* st, const gchar* name, int parent_id, gboolea
 }
 
 /* XXX: should this be a macro? */
-extern int create_node_with_parent_name(stats_tree* st,
+extern int stats_tree_create_node_by_pname(stats_tree* st,
 										   const gchar* name,
 										   const gchar* parent_name,
 										   gboolean with_children) {
-	return create_node(st,name,get_parent_id_by_name(st,parent_name),with_children);
+	return stats_tree_create_node(st,name,stats_tree_parent_id_by_name(st,parent_name),with_children);
 }
 
 
@@ -462,7 +462,7 @@ extern int create_node_with_parent_name(stats_tree* st,
  * using parent_name as parent node.
  * with_hash=TRUE to indicate that the created node will have a parent
  */
-extern int manip_stat_node(manip_node_mode mode, stats_tree* st, const guint8* name, int parent_id, gboolean with_hash, gint value) {
+extern int stats_tree_manip_node(manip_node_mode mode, stats_tree* st, const guint8* name, int parent_id, gboolean with_hash, gint value) {
 	stat_node* node = NULL;
 	stat_node* parent = NULL;
 	
@@ -493,7 +493,7 @@ extern int manip_stat_node(manip_node_mode mode, stats_tree* st, const guint8* n
 }
 
 
-extern guint8* get_st_abbr(const guint8* optarg) {
+extern guint8* stats_tree_get_abbr(const guint8* optarg) {
 	guint i;
 
 	/* XXX: this fails when tethereal is given any options
@@ -528,7 +528,7 @@ static range_pair_t* get_range(guint8* rngstr) {
 }
 
 
-extern int create_range_node(stats_tree* st,
+extern int stats_tree_create_range_node(stats_tree* st,
 								const gchar* name,
 								int parent_id,
 								...) {
@@ -548,7 +548,7 @@ extern int create_range_node(stats_tree* st,
 }
 
 /****/
-extern int get_parent_id_by_name(stats_tree* st, const gchar* parent_name) {
+extern int stats_tree_parent_id_by_name(stats_tree* st, const gchar* parent_name) {
 	stat_node* node = g_hash_table_lookup(st->names,parent_name);
 	
 	if (node)
@@ -558,14 +558,14 @@ extern int get_parent_id_by_name(stats_tree* st, const gchar* parent_name) {
 }
 
 
-extern int create_range_node_with_parent_name(stats_tree* st,
+extern int stats_tree_range_node_with_pname(stats_tree* st,
 											  const gchar* name,
 											  const gchar* parent_name,
 											  ...) {
 	va_list list;
 	guint8* curr_range;
 	stat_node* range_node = NULL;
-	int parent_id = get_parent_id_by_name(st,parent_name);
+	int parent_id = stats_tree_parent_id_by_name(st,parent_name);
 	stat_node* rng_root = new_stat_node(st, name, parent_id, FALSE, TRUE);
 
 	va_start( list, parent_name );
@@ -579,7 +579,7 @@ extern int create_range_node_with_parent_name(stats_tree* st,
 }	
 
 
-extern int tick_range(stats_tree* st,
+extern int stats_tree_tick_range(stats_tree* st,
 						 const gchar* name,
 						 int parent_id,
 						 int value_in_range) {
@@ -617,7 +617,7 @@ extern int tick_range(stats_tree* st,
 	return node->id;
 }
 
-extern int create_pivot_node(stats_tree* st,
+extern int stats_tree_create_pivot_node(stats_tree* st,
 							 const gchar* name,
 							 int parent_id) {
 	stat_node* node = new_stat_node(st,name,parent_id,TRUE,TRUE);
@@ -631,7 +631,7 @@ extern int create_pivot_node(stats_tree* st,
 extern int create_pivot_node_with_parent_name(stats_tree* st,
 							 const gchar* name,
 							 const gchar* parent_name) {
-	int parent_id = get_parent_id_by_name(st,parent_name);
+	int parent_id = stats_tree_parent_id_by_name(st,parent_name);
 	stat_node* node;
 	
 	node = new_stat_node(st,name,parent_id,TRUE,TRUE);
@@ -642,14 +642,14 @@ extern int create_pivot_node_with_parent_name(stats_tree* st,
 		return 0;
 }
 
-extern int tick_pivot(stats_tree* st,
+extern int stats_tree_tick_pivot(stats_tree* st,
 					  int pivot_id,
 					  const gchar* pivot_value) {
 	
 	stat_node* parent = g_ptr_array_index(st->parents,pivot_id);
 	
 	parent->counter++;
-	manip_stat_node( MN_INCREASE, st, pivot_value, pivot_id, FALSE, 1);
+	stats_tree_manip_node( MN_INCREASE, st, pivot_value, pivot_id, FALSE, 1);
 	
 	return pivot_id;
 }
