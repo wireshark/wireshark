@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.100 2000/05/06 05:08:39 guy Exp $
+ * $Id: capture.c,v 1.101 2000/05/06 07:07:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -178,7 +178,16 @@ do_capture(char *capfile_name)
     sprintf(scount,"%d",cf.count);
     sprintf(save_file_fd,"%d",cf.save_file_fd);
     signal(SIGCHLD, SIG_IGN);
-    pipe(sync_pipe);
+    if (pipe(sync_pipe) < 0) {
+      /* Couldn't create the pipe between parent and child. */
+      error = errno;
+      unlink(cf.save_file);
+      g_free(cf.save_file);
+      cf.save_file = NULL;
+      simple_dialog(ESD_TYPE_WARN, NULL, "Couldn't create sync pipe: %s",
+			strerror(error));
+      return;
+    }
     if ((fork_child = fork()) == 0) {
       /*
        * Child process - run Ethereal with the right arguments to make
@@ -312,7 +321,7 @@ do_capture(char *capfile_name)
 	  simple_dialog(ESD_TYPE_WARN, NULL,
 		  "Capture child process failed: EOF reading its error message.");
 	} else
-	    simple_dialog(ESD_TYPE_WARN, NULL, msg);
+	  simple_dialog(ESD_TYPE_WARN, NULL, msg);
 	g_free(msg);
 
 	/* Close the sync pipe. */
