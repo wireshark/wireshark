@@ -1,12 +1,12 @@
 /* packet-m2pa.c
  * Routines for MTP2 Peer Adaptation Layer dissection
  * It is hopefully (needs testing) compliant to
- * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-03.txt
+ * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-04.txt
  *
  * Copyright 2001, Jeff Morriss <jeff.morriss[AT]ulticom.com>, 
  * updated by Michael Tuexen <michael.tuexen[AT]icn.siemens.de>
  *
- * $Id: packet-m2pa.c,v 1.6 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-m2pa.c,v 1.7 2002/03/28 21:41:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,16 +64,22 @@
 #define CLASS_LENGTH           1
 #define TYPE_LENGTH            1
 #define LENGTH_LENGTH          4
-#define COMMON_HEADER_LENGTH   (VERSION_LENGTH + SPARE_LENGTH + \
-                                CLASS_LENGTH + TYPE_LENGTH + LENGTH_LENGTH)
+#define BSN_LENGTH             2
+#define FSN_LENGTH             2
+
+#define HEADER_LENGTH          (VERSION_LENGTH + SPARE_LENGTH + \
+                                CLASS_LENGTH + TYPE_LENGTH + LENGTH_LENGTH + \
+                                BSN_LENGTH + FSN_LENGTH)
 
 #define VERSION_OFFSET         0
 #define SPARE_OFFSET           (VERSION_OFFSET + VERSION_LENGTH)
 #define CLASS_OFFSET           (SPARE_OFFSET + SPARE_LENGTH)
 #define TYPE_OFFSET            (CLASS_OFFSET + CLASS_LENGTH)
 #define LENGTH_OFFSET          (TYPE_OFFSET + TYPE_LENGTH)
-#define COMMON_HEADER_OFFSET   VERSION_OFFSET
-#define MESSAGE_DATA_OFFSET    (COMMON_HEADER_OFFSET + COMMON_HEADER_LENGTH)
+#define BSN_OFFSET             (LENGTH_OFFSET + LENGTH_LENGTH)
+#define FSN_OFFSET             (BSN_OFFSET + BSN_LENGTH)
+#define HEADER_OFFSET          VERSION_OFFSET
+#define MESSAGE_DATA_OFFSET    (HEADER_OFFSET + HEADER_LENGTH)
 
 #define PROTOCOL_VERSION_RELEASE_1        1
 static const value_string m2pa_protocol_version_values[] = {
@@ -90,12 +96,10 @@ static const value_string m2pa_message_class_values[] = {
 
 #define MESSAGE_TYPE_USER_DATA            0x1
 #define MESSAGE_TYPE_LINK_STATUS          0x2
-#define MESSAGE_TYPE_PROVING_DATA         0x3
 
 static const value_string m2pa_message_type_values[] = {
   { MESSAGE_TYPE_USER_DATA,     "User Data" },
   { MESSAGE_TYPE_LINK_STATUS,   "Link Status" },
-  { MESSAGE_TYPE_PROVING_DATA,  "Proving Data" },
   { 0,                           NULL } };
 
 
@@ -112,6 +116,7 @@ static const value_string m2pa_message_type_values[] = {
 /* parts of Link Status message */
 #define STATUS_LENGTH    4
 #define STATUS_OFFSET    0
+#define FILLER_OFFSET    (STATUS_OFFSET + STATUS_LENGTH)
 
 #define STATUS_ALIGNMENT              1
 #define STATUS_PROVING_NORMAL         2
@@ -121,6 +126,8 @@ static const value_string m2pa_message_type_values[] = {
 #define STATUS_PROCESSOR_OUTAGE_ENDED 6
 #define STATUS_BUSY                   7
 #define STATUS_BUSY_ENDED             8
+#define STATUS_OUT_OF_SERVICE         9
+#define STATUS_IN_SERVICE            10
 
 static const value_string m2pa_link_status_values[] = {
   { STATUS_ALIGNMENT,                   "Alignment" },
@@ -131,6 +138,8 @@ static const value_string m2pa_link_status_values[] = {
   { STATUS_PROCESSOR_OUTAGE_ENDED,      "Processor Outage Ended" },
   { STATUS_BUSY,                        "Busy" },
   { STATUS_BUSY_ENDED,                  "Busy Ended" },
+  { STATUS_OUT_OF_SERVICE,              "Out of Service" },
+  { STATUS_IN_SERVICE,                  "In Service" },
   { 0,                                  NULL } };
 
 
@@ -141,10 +150,12 @@ static int hf_m2pa_spare = -1;
 static int hf_m2pa_type = -1;
 static int hf_m2pa_class = -1;
 static int hf_m2pa_length = -1;
+static int hf_m2pa_bsn = -1;
+static int hf_m2pa_fsn = -1;
 static int hf_m2pa_status = -1;
 static int hf_m2pa_li_spare = -1;
 static int hf_m2pa_li_prio = -1;
-static int hf_m2pa_proving_data = -1;
+static int hf_m2pa_filler = -1;
 static int hf_m2pa_unknown_data = -1;
 /* Initialize the subtree pointers */
 static gint ett_m2pa = -1;
@@ -171,7 +182,7 @@ dissect_m2pa_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, p
     proto_tree_add_uint(m2pa_li_tree, hf_m2pa_li_prio,  message_data_tvb, LI_OFFSET, LI_LENGTH, li);
 
     /* Re-adjust length of M2PA item since it will be dissected as MTP3 */
-    proto_item_set_len(m2pa_item, COMMON_HEADER_LENGTH + LI_LENGTH);
+    proto_item_set_len(m2pa_item, HEADER_LENGTH + LI_LENGTH);
   };
 
   payload_tvb = tvb_new_subset(message_data_tvb, MTP3_OFFSET, payload_length, payload_length);
@@ -182,24 +193,16 @@ static void
 dissect_m2pa_link_status_message(tvbuff_t *message_data_tvb, proto_tree *m2pa_tree)
 {
   guint32 status;
-
-  if (m2pa_tree) {
-    status = tvb_get_ntohl (message_data_tvb, STATUS_OFFSET);
-    proto_tree_add_uint(m2pa_tree, hf_m2pa_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, status);
-  };
-
-}
-
-static void
-dissect_m2pa_proving_data_message(tvbuff_t *message_data_tvb,  proto_tree *m2pa_tree)
-{
-  guint32 message_data_length;
+  guint16 filler_length;
   
   if (m2pa_tree) {
-    message_data_length = tvb_length(message_data_tvb);
-    proto_tree_add_item(m2pa_tree, hf_m2pa_proving_data, 
-                         message_data_tvb, 0, message_data_length, FALSE);
+    status = tvb_get_ntohl (message_data_tvb, STATUS_OFFSET);
+    filler_length = tvb_length(message_data_tvb) - STATUS_LENGTH;
+    proto_tree_add_uint(m2pa_tree, hf_m2pa_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, status);
+    proto_tree_add_bytes(m2pa_tree, hf_m2pa_filler, message_data_tvb, FILLER_OFFSET, filler_length,
+                         tvb_get_ptr(message_data_tvb, FILLER_OFFSET, filler_length));
   };
+
 }
 
 static void
@@ -209,34 +212,39 @@ dissect_m2pa_unknown_message(tvbuff_t *message_data_tvb, proto_tree *m2pa_tree)
   
   if (m2pa_tree) {
     message_data_length = tvb_length(message_data_tvb);
-    proto_tree_add_item(m2pa_tree, hf_m2pa_unknown_data, 
-                         message_data_tvb, 0, message_data_length, FALSE);
-  };
+    proto_tree_add_bytes(m2pa_tree, hf_m2pa_unknown_data, message_data_tvb, 0, message_data_length,
+                         tvb_get_ptr(message_data_tvb, 0, message_data_length));
+  }
 }
 
 static void
-dissect_m2pa_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
+dissect_m2pa_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
 {
   guint8  version, spare, class, type;
+  guint16 bsn, fsn;
   guint32 length;
 
-  version        = tvb_get_guint8(common_header_tvb, VERSION_OFFSET);
-  spare          = tvb_get_guint8(common_header_tvb, SPARE_OFFSET);
-  class          = tvb_get_guint8(common_header_tvb, CLASS_OFFSET);
-  type           = tvb_get_guint8(common_header_tvb, TYPE_OFFSET);
-  length = tvb_get_ntohl(common_header_tvb,  LENGTH_OFFSET);
-  
+  version        = tvb_get_guint8(header_tvb, VERSION_OFFSET);
+  spare          = tvb_get_guint8(header_tvb, SPARE_OFFSET);
+  class          = tvb_get_guint8(header_tvb, CLASS_OFFSET);
+  type           = tvb_get_guint8(header_tvb, TYPE_OFFSET);
+  length         = tvb_get_ntohl(header_tvb,  LENGTH_OFFSET);
+  bsn            = tvb_get_ntohs(header_tvb,  BSN_OFFSET);
+  fsn            = tvb_get_ntohs(header_tvb,  FSN_OFFSET);
+
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_append_str(pinfo->cinfo, COL_INFO, val_to_str(type, m2pa_message_type_values, "Invalid"));
     col_append_str(pinfo->cinfo, COL_INFO, " ");
   };
 
   if (m2pa_tree) {
-    proto_tree_add_uint(m2pa_tree, hf_m2pa_version, common_header_tvb, VERSION_OFFSET, VERSION_LENGTH, version);
-    proto_tree_add_uint(m2pa_tree, hf_m2pa_spare, common_header_tvb, SPARE_OFFSET, SPARE_LENGTH, spare);
-    proto_tree_add_uint(m2pa_tree, hf_m2pa_type, common_header_tvb, TYPE_OFFSET, TYPE_LENGTH, type);
-    proto_tree_add_uint(m2pa_tree, hf_m2pa_class, common_header_tvb, CLASS_OFFSET, CLASS_LENGTH, class);
-    proto_tree_add_uint(m2pa_tree, hf_m2pa_length, common_header_tvb, LENGTH_OFFSET, LENGTH_LENGTH, length);
+    proto_tree_add_uint(m2pa_tree, hf_m2pa_version, header_tvb, VERSION_OFFSET, VERSION_LENGTH, version);
+    proto_tree_add_uint(m2pa_tree, hf_m2pa_spare, header_tvb, SPARE_OFFSET, SPARE_LENGTH, spare);
+    proto_tree_add_uint(m2pa_tree, hf_m2pa_type, header_tvb, TYPE_OFFSET, TYPE_LENGTH, type);
+    proto_tree_add_uint(m2pa_tree, hf_m2pa_class, header_tvb, CLASS_OFFSET, CLASS_LENGTH, class);
+    proto_tree_add_uint(m2pa_tree, hf_m2pa_length, header_tvb, LENGTH_OFFSET, LENGTH_LENGTH, length);
+    proto_tree_add_uint(m2pa_tree, hf_m2pa_bsn, header_tvb, BSN_OFFSET, BSN_LENGTH, bsn);
+    proto_tree_add_uint(m2pa_tree, hf_m2pa_fsn, header_tvb, FSN_OFFSET, FSN_LENGTH, fsn);
   };
 }
 
@@ -247,7 +255,7 @@ dissect_m2pa_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item 
   guint8 type;
   tvbuff_t *message_data_tvb;
 
-  message_data_length = tvb_get_ntohl(message_tvb,  LENGTH_OFFSET) - COMMON_HEADER_LENGTH;
+  message_data_length = tvb_get_ntohl(message_tvb,  LENGTH_OFFSET) - HEADER_LENGTH;
   message_data_tvb    = tvb_new_subset(message_tvb, MESSAGE_DATA_OFFSET, message_data_length, message_data_length);
   type                = tvb_get_guint8(message_tvb, TYPE_OFFSET);
 
@@ -260,10 +268,6 @@ dissect_m2pa_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item 
     dissect_m2pa_link_status_message(message_data_tvb, m2pa_tree);
     break;
 
-  case MESSAGE_TYPE_PROVING_DATA:
-    dissect_m2pa_proving_data_message(message_data_tvb, m2pa_tree);
-    break;
-    
   default:
     dissect_m2pa_unknown_message(message_data_tvb, m2pa_tree);
   }
@@ -272,10 +276,10 @@ dissect_m2pa_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item 
 static void
 dissect_m2pa_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
 {
-  tvbuff_t *common_header_tvb;
+  tvbuff_t *header_tvb;
 
-  common_header_tvb = tvb_new_subset(message_tvb, COMMON_HEADER_OFFSET, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
-  dissect_m2pa_common_header(common_header_tvb, pinfo, m2pa_tree);
+  header_tvb = tvb_new_subset(message_tvb, HEADER_OFFSET, HEADER_LENGTH, HEADER_LENGTH);
+  dissect_m2pa_header(header_tvb, pinfo, m2pa_tree);
   dissect_m2pa_message_data(message_tvb, pinfo, m2pa_item, m2pa_tree, tree);
 
 }
@@ -337,6 +341,16 @@ proto_register_m2pa(void)
 	      FT_UINT32, BASE_DEC, NULL, 0x0,
 	      "", HFILL}
     },
+    { &hf_m2pa_bsn,
+      { "BSN", "m2pa.bsn",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      "", HFILL}
+    },
+    { &hf_m2pa_fsn,
+      { "FSN", "m2pa.fsn",
+	      FT_UINT16, BASE_DEC, NULL, 0x0,
+	      "", HFILL}
+    },
     { &hf_m2pa_li_spare,
       { "Spare", "m2pa.li_spare",
 	      FT_UINT8, BASE_HEX, NULL, LI_SPARE_MASK,
@@ -352,8 +366,8 @@ proto_register_m2pa(void)
 	      FT_UINT32, BASE_DEC, VALS(m2pa_link_status_values), 0x0,
 	      "", HFILL}
     },
-    { &hf_m2pa_proving_data,
-      { "Proving Data", "m2pa.proving_data",
+    { &hf_m2pa_filler,
+      { "Filler", "m2pa.filler",
 	       FT_BYTES, BASE_NONE, NULL, 0x0,          
 	       "", HFILL }
     },
