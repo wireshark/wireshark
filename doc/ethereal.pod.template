@@ -1443,6 +1443,7 @@ B<http://www.ethereal.com>.
   Kari Heikkila            <kari.o.heikkila[AT]nokia.com>
   Olivier Dreux            <Olivier.Dreux[AT]alcatel.fr>
   Michael Stiller          <ms[AT]2scale.net>
+  Antti Tuominen           <ajtuomin[AT]tml.hut.fi>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
