@@ -3,7 +3,7 @@
  * Copyright Lucent Technologies 2004
  * Josh Bailey <joshbailey@lucent.com> and Ruud Linders <ruud@lucent.com>
  *
- * $Id: packet-ipdc.h,v 1.2 2004/03/20 05:53:40 guy Exp $
+ * $Id: packet-ipdc.h,v 1.3 2004/03/20 10:47:00 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,7 +38,7 @@ typedef enum {
 	IPA,
 	LINESTATUS,
 	CHANNELSTATUS,
-	Q931,
+	Q931
 } ipdc_tag_type; 
 
 static const value_string line_status_vals[] = {
