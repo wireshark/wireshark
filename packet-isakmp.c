@@ -3,7 +3,7 @@
  * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.39 2001/08/29 08:12:32 guy Exp $
+ * $Id: packet-isakmp.c,v 1.40 2001/08/29 09:02:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -257,6 +257,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int			offset = 0;
   struct isakmp_hdr *	hdr;
+  proto_item *		ti;
+  proto_tree *		isakmp_tree = NULL;
   struct udp_encap_esp_hdr * udp_encap_hdr;
   guint32		len;
   guint8		payload, next_payload;
@@ -271,40 +273,41 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->fd, COL_INFO);
 
   hdr = (struct isakmp_hdr *)tvb_get_ptr(tvb, 0, sizeof (struct isakmp_hdr));
-  udp_encap_hdr = (struct udp_encap_esp_hdr *)tvb_get_ptr(tvb, 0, sizeof(struct udp_encap_esp_hdr));
- 
   len = pntohl(&hdr->length);
   
-  if(memcmp(udp_encap_hdr->non_ike_marker,non_ike_marker,8) == 0) {
-    if (udp_encap_hdr->esp_SPI != 0) {
-       if (check_col(pinfo->fd, COL_INFO))
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_isakmp, tvb, offset, len, FALSE);
+    isakmp_tree = proto_item_add_subtree(ti, ett_isakmp);
+  }
+    
+  udp_encap_hdr = (struct udp_encap_esp_hdr *)tvb_get_ptr(tvb, 0, sizeof(struct udp_encap_esp_hdr));
+ 
+  if (memcmp(udp_encap_hdr->non_ike_marker,non_ike_marker,8) == 0) {
+    if (check_col(pinfo->fd, COL_INFO)) {
+      if (udp_encap_hdr->esp_SPI != 0)
           col_add_str(pinfo->fd, COL_INFO, "UDP encapsulated IPSec - ESP");
-    }
-    else {
-      if (check_col(pinfo->fd, COL_INFO))
+      else
          col_add_str(pinfo->fd, COL_INFO, "UDP encapsulated IPSec - AH");
     } 
-    if(tree) {
-      proto_item *	ti;
-      proto_tree *	isakmp_tree;
-     
-      ti = proto_tree_add_item(tree, proto_isakmp, tvb, offset, len, FALSE);
-      isakmp_tree = proto_item_add_subtree(ti, ett_isakmp);
-    
-      proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(udp_encap_hdr->non_ike_marker),"Non-IKE-Marker");
-      offset += sizeof(udp_encap_hdr->non_ike_marker);
+    if (tree)
+      proto_tree_add_text(isakmp_tree, tvb, offset,
+      			  sizeof(udp_encap_hdr->non_ike_marker),
+      			  "Non-IKE-Marker");
+    offset += sizeof(udp_encap_hdr->non_ike_marker);
       
-      if (udp_encap_hdr->esp_SPI != 0) {
-        next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-        call_dissector(esp_handle, next_tvb, pinfo, tree);
-      } else {
-        proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(udp_encap_hdr->esp_SPI),"Non-ESP-Marker");
-        offset += sizeof(udp_encap_hdr->esp_SPI);
+    if (udp_encap_hdr->esp_SPI != 0) {
+      next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+      call_dissector(esp_handle, next_tvb, pinfo, tree);
+    } else {
+      if (tree)
+        proto_tree_add_text(isakmp_tree, tvb, offset,
+			    sizeof(udp_encap_hdr->esp_SPI),
+			    "Non-ESP-Marker");
+      offset += sizeof(udp_encap_hdr->esp_SPI);
 
-        /*
-         * Dissect AH Envelope, and then call AH dissector.
-         */
-      }
+      /*
+       * Dissect AH Envelope, and then call AH dissector.
+       */
     }
     return;
   }
@@ -313,12 +316,6 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_str(pinfo->fd, COL_INFO, exchtype2str(hdr->exch_type));
 
   if (tree) {
-    proto_item *	ti;
-    proto_tree *	isakmp_tree;
-    
-    ti = proto_tree_add_item(tree, proto_isakmp, tvb, offset, len, FALSE);
-    isakmp_tree = proto_item_add_subtree(ti, ett_isakmp);
-    
     proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->icookie),
 			"Initiator cookie");
     offset += sizeof(hdr->icookie);
