@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.111 2002/12/02 23:43:28 guy Exp $
+ * $Id: packet-rpc.c,v 1.112 2002/12/06 21:01:37 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,6 +60,9 @@
  *
  *	although we don't currently dissect AUTH_DES or AUTH_KERB.
  */
+
+/* to keep track of which is the first RPC PDU in a packet */
+static gboolean first_pdu;
 
 /* desegmentation of RPC over TCP */
 static gboolean rpc_desegment = TRUE;
@@ -1638,8 +1641,6 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
 		rpc_item = proto_tree_add_item(tree, proto_rpc, tvb, 0, -1,
@@ -1728,7 +1729,14 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s XID 0x%x",
+			if(!first_pdu){
+				col_append_fstr(pinfo->cinfo, COL_INFO, "  ; ");
+			} else {
+				if (check_col(pinfo->cinfo, COL_INFO))
+					col_clear(pinfo->cinfo, COL_INFO);
+			}
+			first_pdu=FALSE;
+			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s XID 0x%x",
 				vers,
 				procname,
 				msg_type_name,
@@ -1938,7 +1946,14 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s XID 0x%x",
+			if(!first_pdu){
+				col_append_fstr(pinfo->cinfo, COL_INFO, "  ; ");
+			} else {
+				if (check_col(pinfo->cinfo, COL_INFO))
+					col_clear(pinfo->cinfo, COL_INFO);
+			}
+			first_pdu=FALSE;
+			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s XID 0x%x",
 				vers,
 				procname,
 				msg_type_name,
@@ -2273,15 +2288,20 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gboolean
 dissect_rpc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	first_pdu=TRUE;
+
 	return dissect_rpc_message(tvb, pinfo, tree, NULL, NULL, FALSE, 0);
 }
 
 static void
 dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	first_pdu=TRUE;
+
 	if (!dissect_rpc_message(tvb, pinfo, tree, NULL, NULL, FALSE, 0))
 		dissect_rpc_continuation(tvb, pinfo, tree);
 }
+
 
 /* Defragmentation of RPC-over-TCP records */
 /* table to hold defragmented RPC records */
@@ -2832,6 +2852,8 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static gboolean
 dissect_rpc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	first_pdu=TRUE;
+
 	switch (dissect_rpc_tcp_common(tvb, pinfo, tree, TRUE)) {
 
 	case IS_RPC:
@@ -2850,6 +2872,8 @@ dissect_rpc_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	first_pdu=TRUE;
+
 	if (dissect_rpc_tcp_common(tvb, pinfo, tree, FALSE) == IS_NOT_RPC)
 		dissect_rpc_continuation(tvb, pinfo, tree);
 }
