@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.17 2000/01/15 09:46:28 guy Exp $
+dnl $Id: acinclude.m4,v 1.18 2000/01/15 10:25:41 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -269,7 +269,10 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 	# Try various directories to find libpcap
 	#
 	AC_CHECK_LIB(pcap, pcap_open_live,
-	  PCAP_LIBS=-lpcap,
+	  [
+	    PCAP_LIBS=-lpcap
+	    AC_DEFINE(HAVE_LIBPCAP)
+	  ],
 	  [
 	    #
 	    # Throw away the cached "we didn't find it"
@@ -296,6 +299,7 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 		unset ac_cv_lib_pcap_pcap_open_live
 		AC_ETHEREAL_ADD_DASH_L(PCAP_LIBS, /usr/local/lib)
 		PCAP_LIBS="$PCAP_LIBS -lpcap"
+		AC_DEFINE(HAVE_LIBPCAP)
 		LIBS="$save_LIBS"
 	      ],
 	      [
@@ -316,6 +320,7 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 		    unset ac_cv_lib_pcap_pcap_open_live
 		    AC_ETHEREAL_ADD_DASH_L(PCAP_LIBS, $prefix/lib)
 		    PCAP_LIBS="$PCAP_LIBS -lpcap"
+		    AC_DEFINE(HAVE_LIBPCAP)
 		    LIBS="$save_LIBS"
 		  ],
 		  AC_MSG_ERROR(Library libpcap not found.),
