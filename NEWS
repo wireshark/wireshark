@@ -1,4 +1,59 @@
-$Id: NEWS,v 1.137 2003/11/03 02:50:11 gerald Exp $
+$Id: NEWS,v 1.138 2003/12/13 00:55:11 gerald Exp $
+
+
+
+== December 12, 2003
+
+Ethereal 0.10.0 has been released.
+
+  This release fixes issues in the SMB and Q.931 dissectors that could
+  make Ethereal and Tethereal crash.  See 
+
+    http://www.ethereal.com/appnotes/enpa-sa-00012.html
+
+  for more details.
+
+New and updated features
+
+  Many performance improvements have been made to the code.  Most users 
+  should see a 2x to 3x performance increase when loading and working with
+  capture files.
+
+  A "matches" display filter operator has been added.  It is similar to
+  the "contains" operator, but supports Perl-compatible regular
+  expressions.
+
+  Tethereal can now dump packet data in XML (PDML) format.
+
+  The main application menus have been rearranged and the help windows
+  have been revamped, along with a host of other UI enhancements.
+
+  The capture progress window now features bar graphs.
+
+  The GLib, GTK+, Net-SNMP, and zlib libraries that ship with the Windows
+  installer have been updated.
+
+New protocol support
+
+  BFD, CCSDS, CPFI, DCE/RPC {BUDB, EPM4, ICL_RPC, RS_PLCY, RS_PROP_ACCT}
+  IGAP, ISO 8327-1 SES, MS Kpasswd, RTCFG, SEBEK,
+
+Updated protocol support
+
+  ACN, AFP, ANSI A, ANSI MAP, ASN.1, BSMAP, BSSAP, CPFI, DCE/RPC {DCOM,
+  EPM, NDR, SRVSVC, STAT, WKSSVC}, DCE/RPC, DHCP, DNS, DOCSIS, DSI, DTAP,
+  ENTTEC, FC ELS, FC FZS, FC-SP, FC-SWILS, GIOP, GPRS NS, GSM A, GSM MAP,
+  H.225, H.450, HTTP, ICMP, IPv6, IS-IS, ISAKMP, ISUP, Kerberos, LDAP,
+  LDP, MIPv6, MMSE, MS Proxy, MTP3, NCP 2222, NTP, PIM, RADIUS, RANAP,
+  RDM, RSVP, RTCP, RTP, SCCP, SDP, SIP, SMB, SMPP, SOCKS, SONMP, SRVLOC,
+  SSL, TACACS, TCAP, TCP, TPKT, TZSP, UCP, WAP, WBXML, WLAN, WSP, WTP
+
+
+Updated capture file support
+
+  AiroPeek v9 (2.x) support was added.  Network Instruments Observer and
+  Snoop support was updated.
+
 
 == November 2, 2003
 
