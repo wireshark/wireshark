@@ -887,7 +887,7 @@ proto_register_rtp(void)
 				"rtp.p_type",
 				FT_UINT8,
 				BASE_DEC,
-				"",
+				NULL,
 				0x7F,
 				"", HFILL
 			}
