@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.14 2001/11/12 09:04:11 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.15 2001/11/18 22:44:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -234,6 +234,7 @@ static GHashTable *dcerpc_convs;
 typedef struct _dcerpc_conv_key {
     conversation_t *conv;
     guint16 ctx_id;
+    guint16 smb_fid;
 } dcerpc_conv_key;
 
 static GMemChunk *dcerpc_conv_key_chunk;
@@ -251,14 +252,15 @@ dcerpc_conv_equal (gconstpointer k1, gconstpointer k2)
     dcerpc_conv_key *key1 = (dcerpc_conv_key *)k1;
     dcerpc_conv_key *key2 = (dcerpc_conv_key *)k2;
     return (key1->conv == key2->conv
-            && key1->ctx_id == key2->ctx_id);
+            && key1->ctx_id == key2->ctx_id
+	    && key1->smb_fid == key2->smb_fid);
 }
 
 static guint
 dcerpc_conv_hash (gconstpointer k)
 {
     dcerpc_conv_key *key = (dcerpc_conv_key *)k;
-    return ((guint)key->conv) + key->ctx_id;
+    return ((guint)key->conv) + key->ctx_id + key->smb_fid;
 }
 
 
@@ -450,8 +452,10 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     }
 
     if (tree) {
+
         sub_item = proto_tree_add_item (tree, sub_proto->proto, tvb, offset, 
                                         tvb_length (tvb) - offset, FALSE);
+
         if (sub_item) {
             sub_tree = proto_item_add_subtree (sub_item, sub_proto->ett);
         }
@@ -536,6 +540,26 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 }
 
 
+/* We need to hash in the SMB fid number to generate a unique hash table
+   key as DCERPC over SMB allows several pipes over the same TCP/IP
+   socket. */
+
+static guint16 get_smb_fid(void *private_data)
+{
+	dcerpc_private_info *priv = (dcerpc_private_info *)private_data;
+	
+	if (!priv)
+		return 0;	/* Nothing to see here */
+
+	/* DCERPC over smb */
+
+	if (priv->transport_type == DCERPC_TRANSPORT_SMB)
+		return priv->data.smb.fid;
+
+	/* Some other transport... */
+
+	return 0;
+}
 
 /*
  * Connection oriented packet types
@@ -618,6 +642,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
         key = g_mem_chunk_alloc (dcerpc_conv_key_chunk);
         key->conv = conv;
         key->ctx_id = ctx_id;
+	key->smb_fid = get_smb_fid(pinfo->private_data);
 
         value = g_mem_chunk_alloc (dcerpc_conv_value_chunk);
         value->uuid = if_id;
@@ -798,6 +823,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 
         key.conv = conv;
         key.ctx_id = ctx_id;
+	key.smb_fid = get_smb_fid(pinfo->private_data);
 
         value = g_hash_table_lookup (dcerpc_convs, &key);
         if (value) {

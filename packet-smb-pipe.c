@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.43 2001/11/18 02:51:19 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.44 2001/11/18 22:44:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,6 +54,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
 #include "smb.h"
 #include "packet-smb-pipe.h"
 #include "packet-smb-browse.h"
+#include "packet-dcerpc.h"
 
 static int proto_smb_lanman = -1;
 static int hf_function_code = -1;
@@ -2177,10 +2178,19 @@ static heur_dissector_list_t msrpc_heur_subdissector_list;
 static gboolean
 dissect_pipe_msrpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
+	dcerpc_private_info dcerpc_priv;
+	smb_info_t *smb_priv = (smb_info_t *)pinfo->private_data;
         gboolean result;
+
+	dcerpc_priv.transport_type = DCERPC_TRANSPORT_SMB;
+	dcerpc_priv.data.smb.fid = smb_priv->fid;
+
+	pinfo->private_data = &dcerpc_priv;
 
         result = dissector_try_heuristic(msrpc_heur_subdissector_list, tvb,
                                          pinfo, parent_tree);
+
+	pinfo->private_data = smb_priv;
 
         if (!result)
                 dissect_data(tvb, 0, pinfo, parent_tree);
