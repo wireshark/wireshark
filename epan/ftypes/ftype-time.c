@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-time.c,v 1.4 2001/05/31 05:01:06 guy Exp $
+ * $Id: ftype-time.c,v 1.5 2001/05/31 06:20:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,12 +94,59 @@ cmp_le(fvalue_t *a, fvalue_t *b)
 static gboolean
 relative_val_from_string(fvalue_t *fv, char *s, LogFunc log)
 {
+	char    *curptr, *endptr;
 
-	if (sscanf(s,"%lu.%lu",&fv->value.time.tv_sec,&fv->value.time.tv_usec)!=2) {
-		log("\"%s\" is not a valid relative time. Use \"<seconds>.<useconds>\"",s);
-		return FALSE;
+	curptr = s;
+
+	/*
+	 * If it doesn't begin with ".", it should contain a seconds
+	 * value.
+	 */
+	if (*curptr != '.') {
+		/*
+		 * Get the seconds value.
+		 */
+		fv->value.time.tv_sec = strtoul(curptr, &endptr, 10);
+		if (endptr == curptr || (*endptr != '\0' && *endptr != '.')) {
+			if (log != NULL)
+				log("\"%s\" is not a valid time.", s);
+			return FALSE;
+		}
+		curptr = endptr;
+		if (*curptr == '.')
+			curptr++;	/* skip the decimal point */
+	} else {
+		/*
+		 * No seconds value - it's 0.
+		 */
+		fv->value.time.tv_sec = 0;
+		curptr++;		/* skip the decimal point */
 	}
 
+	/*
+	 * If there's more stuff left in the string, it should be the
+	 * microseconds value.
+	 */
+	if (*endptr != '\0') {
+		/*
+		 * Get the microseconds value.
+		 */
+		fv->value.time.tv_usec = strtoul(curptr, &endptr, 10);
+		if (endptr == curptr || *endptr != '\0') {
+			if (log != NULL)
+				log("\"%s\" is not a valid time.", s);
+			return FALSE;
+		}
+	} else {
+		/*
+		 * No microseconds value - it's 0.
+		 */
+		fv->value.time.tv_usec = 0;
+	}
+
+	/*
+	 * XXX - what about negative values?
+	 */
 	return TRUE;
 }
 
