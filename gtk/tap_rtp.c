@@ -1,7 +1,7 @@
 /*
  * tap_rtp.c
  *
- * $Id: tap_rtp.c,v 1.3 2003/03/06 23:09:09 guy Exp $
+ * $Id: tap_rtp.c,v 1.4 2003/03/07 00:03:47 guy Exp $
  *
  * RTP analysing addition for ethereal
  *
@@ -140,11 +140,11 @@ char f_tempname[100], r_tempname[100];
 
 /* type of error when saving voice in a file didn't succeed */
 typedef enum {
-	WRONG_CODEC,
-	WRONG_LENGTH,
-	PADDING_SET,
-	FILE_OPEN_ERROR,
-	NO_DATA
+	TAP_RTP_WRONG_CODEC,
+	TAP_RTP_WRONG_LENGTH,
+	TAP_RTP_PADDING_SET,
+	TAP_RTP_FILE_OPEN_ERROR,
+	TAP_RTP_NO_DATA
 } error_type_t; 
 
 /* structure that holds the information about the forwarding and reversed connection */
@@ -240,10 +240,10 @@ rtp_reset(void *prs)
 	fclose(rs->r_fp); 
   rs->f_fp = fopen(f_tempname, "wb"); 
   if (rs->f_fp == NULL)
-	rs->f_error_type = FILE_OPEN_ERROR;
+	rs->f_error_type = TAP_RTP_FILE_OPEN_ERROR;
   rs->r_fp = fopen(r_tempname, "wb");
   if (rs->r_fp == NULL)
-	rs->r_error_type = FILE_OPEN_ERROR;
+	rs->r_error_type = TAP_RTP_FILE_OPEN_ERROR;
   return;
 }
 
@@ -284,7 +284,7 @@ static void draw_stat(void *prs)
 	/* if this is true, then we don't have any reversed connection, so the error type
 	 * will be no data. This applies only the reversed connection */
 	if (rs->reversed_ip_and_port == 0)
-		rs->r_error_type = NO_DATA;
+		rs->r_error_type = TAP_RTP_NO_DATA;
 
 	return ;
 }
@@ -416,20 +416,20 @@ static int rtp_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, vo
 			/* if we couldn't open the tmp file for writing, then we set the flag */
 			if (rs->f_fp == NULL) {
 				rs->f_saved = FALSE;
-				rs->f_error_type = FILE_OPEN_ERROR;
+				rs->f_error_type = TAP_RTP_FILE_OPEN_ERROR;
 				return 0;
 			}
 			/* if the captured length and packet length aren't equal, we quit 
 			 * because there is some information missing */
 			if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
 				rs->f_saved = FALSE;
-				rs->f_error_type = WRONG_LENGTH;
+				rs->f_error_type = TAP_RTP_WRONG_LENGTH;
 				return 0;
 			}
 			/* if padding bit is set, we don't do it yet */
 			if (pri->info_padding_set != FALSE) {
 				rs->f_saved = FALSE;
-				rs->f_error_type = PADDING_SET;
+				rs->f_error_type = TAP_RTP_PADDING_SET;
 				return 0;
 			}
 			/* is it the ulaw? */
@@ -460,7 +460,7 @@ static int rtp_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, vo
 			/* unsupported codec or other error */
 			else {
 				rs->f_saved = FALSE;
-				rs->f_error_type = WRONG_CODEC;
+				rs->f_error_type = TAP_RTP_WRONG_CODEC;
 				return 0;
 			}
 		}
@@ -560,13 +560,13 @@ static int rtp_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, vo
 			/* if the captured length and packet length aren't equal, we quit */
 			if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
 				rs->f_saved = FALSE;
-				rs->f_error_type = WRONG_LENGTH;
+				rs->f_error_type = TAP_RTP_WRONG_LENGTH;
 				return 0;
 			}
 			/* if padding bit is set, we don't do it yet */
 			if (pri->info_padding_set != FALSE) {
 				rs->f_saved = FALSE;
-				rs->f_error_type = PADDING_SET;
+				rs->f_error_type = TAP_RTP_PADDING_SET;
 				return 0;
 			}
 			/* because the mark bit is set, we have to add some silence in front */
@@ -608,7 +608,7 @@ static int rtp_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, vo
 			/* unsupported codec or other error */
 			else {
 				rs->f_saved = FALSE;
-				rs->f_error_type = WRONG_CODEC;
+				rs->f_error_type = TAP_RTP_WRONG_CODEC;
 				return 0;
 			}
 			return 0;
@@ -676,13 +676,13 @@ static int rtp_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, vo
 		/* if the captured length and packet length aren't equal, we quit */
 		if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
 			rs->f_saved = FALSE;
-			rs->f_error_type = WRONG_LENGTH;
+			rs->f_error_type = TAP_RTP_WRONG_LENGTH;
 			return 0;
 		}
 		/* if padding bit is set, we don't do it yet */
 		if (pri->info_padding_set != FALSE) {
 			rs->f_saved = FALSE;
-			rs->f_error_type = PADDING_SET;
+			rs->f_error_type = TAP_RTP_PADDING_SET;
 			return 0;
 		}
 		/* is it the ulaw? */
@@ -712,7 +712,7 @@ static int rtp_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, vo
 		/* unsupported codec or other error */
 		else {
 			rs->f_saved = FALSE;
-			rs->f_error_type = WRONG_CODEC;
+			rs->f_error_type = TAP_RTP_WRONG_CODEC;
 			return 0;
 		}
 	}				
@@ -743,13 +743,13 @@ static int rtp_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, vo
 			/* if the captured length and packet length aren't equal, we quit */
 			if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
 				rs->r_saved = FALSE;
-				rs->r_error_type = WRONG_LENGTH;
+				rs->r_error_type = TAP_RTP_WRONG_LENGTH;
 				return 0;
 			}
 			/* if padding bit is set, we don't do it yet */
 			if (pri->info_padding_set != FALSE) {
 				rs->r_saved = FALSE;
-				rs->r_error_type = PADDING_SET;
+				rs->r_error_type = TAP_RTP_PADDING_SET;
 				return 0;
 			}
 			/* is it the ulaw? */
@@ -777,7 +777,7 @@ static int rtp_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, vo
 			/* unsupported codec or other error */
 			else {
 				rs->r_saved = FALSE;
-				rs->r_error_type = WRONG_CODEC;
+				rs->r_error_type = TAP_RTP_WRONG_CODEC;
 				return 0;
 			}
 		}
@@ -835,13 +835,13 @@ static int rtp_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, vo
 			/* if the captured length and packet length aren't equal, we quit */
 			if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
 				rs->r_saved = FALSE;
-				rs->r_error_type = WRONG_LENGTH;
+				rs->r_error_type = TAP_RTP_WRONG_LENGTH;
 				return 0;
 			}
 			/* if padding bit is set, we don't do it yet */
 			if (pri->info_padding_set != FALSE) {
 				rs->r_saved = FALSE;
-				rs->r_error_type = PADDING_SET;
+				rs->r_error_type = TAP_RTP_PADDING_SET;
 				return 0;
 			}
 			/* because the mark bit is set, we have to add some silence in front */
@@ -879,7 +879,7 @@ static int rtp_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, vo
 			/* unsupported codec or other error */
 			else {
 				rs->r_saved = FALSE;
-				rs->r_error_type = WRONG_CODEC;
+				rs->r_error_type = TAP_RTP_WRONG_CODEC;
 				return 0;
 			}
 			return 0;
@@ -940,13 +940,13 @@ static int rtp_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, vo
 		/* if the captured length and packet length aren't equal, we quit */
 		if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
 			rs->r_saved = FALSE;
-			rs->r_error_type = WRONG_LENGTH;
+			rs->r_error_type = TAP_RTP_WRONG_LENGTH;
 			return 0;
 		}
 		/* if padding bit is set, we don't do it yet */
 		if (pri->info_padding_set != FALSE) {
 			rs->r_saved = FALSE;
-			rs->r_error_type = PADDING_SET;
+			rs->r_error_type = TAP_RTP_PADDING_SET;
 			return 0;
 		}
 		/* is it the ulaw? */
@@ -972,7 +972,7 @@ static int rtp_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, vo
 		/* unsupported codec or other error */
 		else {
 			rs->r_saved = FALSE;
-			rs->r_error_type = WRONG_CODEC;
+			rs->r_error_type = TAP_RTP_WRONG_CODEC;
 			return 0;
 		}
 	}				
@@ -1134,13 +1134,13 @@ static void ok_button_cb(GtkWidget *ok_bt, gpointer data)
   /* we can not save in both dirctions */
   if ((rs->f_saved == FALSE) && (rs->r_saved == FALSE) && (GTK_TOGGLE_BUTTON (both)->active)) {
 	/* there are many combinations here, we just exit when first matches */
-	if ((rs->f_error_type == WRONG_CODEC) || (rs->r_error_type == WRONG_CODEC))
+	if ((rs->f_error_type == TAP_RTP_WRONG_CODEC) || (rs->r_error_type == TAP_RTP_WRONG_CODEC))
 		simple_dialog(ESD_TYPE_CRIT, NULL, 
 		"Can't save in a file: Unsupported codec!");
-	else if ((rs->f_error_type == WRONG_LENGTH) || (rs->r_error_type == WRONG_LENGTH))
+	else if ((rs->f_error_type == TAP_RTP_WRONG_LENGTH) || (rs->r_error_type == TAP_RTP_WRONG_LENGTH))
 		simple_dialog(ESD_TYPE_CRIT, NULL, 
 		"Can't save in a file: Wrong length of captured packets!");
-	else if ((rs->f_error_type == PADDING_SET) || (rs->r_error_type == PADDING_SET))
+	else if ((rs->f_error_type == TAP_RTP_PADDING_SET) || (rs->r_error_type == TAP_RTP_PADDING_SET))
 		simple_dialog(ESD_TYPE_CRIT, NULL, 
 		"Can't save in a file: RTP data with padding!");
 	else  
@@ -1151,13 +1151,13 @@ static void ok_button_cb(GtkWidget *ok_bt, gpointer data)
   /* we can not save forward direction */
   else if ((rs->f_saved == FALSE) && ((GTK_TOGGLE_BUTTON (forw)->active) ||
 						(GTK_TOGGLE_BUTTON (both)->active))) {  
-	if (rs->f_error_type == WRONG_CODEC)
+	if (rs->f_error_type == TAP_RTP_WRONG_CODEC)
                 simple_dialog(ESD_TYPE_CRIT, NULL, 
 		"Can't save forward direction in a file: Unsupported codec!");
-        else if (rs->f_error_type == WRONG_LENGTH)
+        else if (rs->f_error_type == TAP_RTP_WRONG_LENGTH)
                 simple_dialog(ESD_TYPE_CRIT, NULL,
                 "Can't save forward direction in a file: Wrong length of captured packets!");
-        else if (rs->f_error_type == PADDING_SET)
+        else if (rs->f_error_type == TAP_RTP_PADDING_SET)
                 simple_dialog(ESD_TYPE_CRIT, NULL, 
 		"Can't save forward direction in a file: RTP data with padding!");
         else
@@ -1168,16 +1168,16 @@ static void ok_button_cb(GtkWidget *ok_bt, gpointer data)
   /* we can not save reversed direction */
   else if ((rs->r_saved == FALSE) && ((GTK_TOGGLE_BUTTON (rev)->active) ||
 						(GTK_TOGGLE_BUTTON (both)->active))) {  
-	if (rs->r_error_type == WRONG_CODEC)
+	if (rs->r_error_type == TAP_RTP_WRONG_CODEC)
                 simple_dialog(ESD_TYPE_CRIT, NULL,
                 "Can't save reversed direction in a file: Unsupported codec!");
-        else if (rs->r_error_type == WRONG_LENGTH)
+        else if (rs->r_error_type == TAP_RTP_WRONG_LENGTH)
                 simple_dialog(ESD_TYPE_CRIT, NULL,
                 "Can't save reversed direction in a file: Wrong length of captured packets!");
-        else if (rs->r_error_type == PADDING_SET)
+        else if (rs->r_error_type == TAP_RTP_PADDING_SET)
                 simple_dialog(ESD_TYPE_CRIT, NULL,
                 "Can't save reversed direction in a file: RTP data with padding!");
-        else if (rs->r_error_type == NO_DATA)
+        else if (rs->r_error_type == TAP_RTP_NO_DATA)
                 simple_dialog(ESD_TYPE_CRIT, NULL,
                 "Can't save reversed direction in a file: No RTP data!");
 	else
@@ -1680,7 +1680,7 @@ static void get_reversed_ssrc(void *prs)
 			 * i tried to assign guint32 from ri->ssrc_tmp somehow to gchar **text
 			 * but gave up. So if you can do this, just go ahead */
 			for (i=0; i < ri->reversed_ip_and_port; i++) {
-				gchar *text[0];
+				gchar *text[1];
 				gchar tmp[20];
 				g_snprintf(tmp, 20, "%u", ri->ssrc_tmp[i]);
 				text[0] = (gchar *)&tmp;
