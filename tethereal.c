@@ -661,7 +661,7 @@ main(int argc, char *argv[])
   char                *p;
   gchar                err_str[PCAP_ERRBUF_SIZE];
   gchar               *cant_get_if_list_errstr;
-  gboolean             list_link_layer_types;
+  gboolean             list_link_layer_types = FALSE;
 #else
   gboolean             capture_option_specified = FALSE;
 #endif
