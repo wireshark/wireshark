@@ -2020,6 +2020,21 @@ void parsetypedefbitmap(int pass)
 	}
 }
 
+/* a case tag might be a negative number, i.e. contain a '-' sign which
+   is not valid inside a symbol name in c.
+*/
+char *
+case2str(char *str)
+{
+  char *newstr;
+  if(str[0]!='-'){
+    return str;
+  }
+  newstr=strdup(str);
+  newstr[0]='m';
+  return newstr;
+}
+
 /* this function will parse a
        typedef union {
    construct and generate the appropriate code.
@@ -2242,12 +2257,12 @@ void parsetypedefunion(int pass)
 			alignment=item_alignment;
 		}
 
-		sprintf(hf_index, "hf_%s_%s_%s_%s", ifname, union_name, bi->case_name, ti->str);
+		sprintf(hf_index, "hf_%s_%s_%s_%s", ifname, union_name, case2str(bi->case_name), ti->str);
 		/* pass 0  generate subdissectors */
 		if(pass==0){
 			char filter_name[256];
 			char *hf;
-			sprintf(tmpstr, "%s_dissect_union_%s_%s_%s", ifname, union_name, bi->case_name, ti->str);
+			sprintf(tmpstr, "%s_dissect_union_%s_%s_%s", ifname, union_name, case2str(bi->case_name), ti->str);
 			ptmpstr=strdup(tmpstr);
 
 			sprintf(filter_name, "%s.%s.%s", ifname, union_name, ti->str);
@@ -2280,7 +2295,7 @@ void parsetypedefunion(int pass)
 
 		if(pass==1){
 			/* handle pointers */
-			sprintf(tmpstr, "%s_dissect_union_%s_%s_%s", ifname, union_name, bi->case_name, ti->str);
+			sprintf(tmpstr, "%s_dissect_union_%s_%s_%s", ifname, union_name, case2str(bi->case_name), ti->str);
 			ptmpstr=strdup(tmpstr);
 			while(num_pointers--){
 				sprintf(tmpstr, "%s_%s", ptmpstr, "unique");
