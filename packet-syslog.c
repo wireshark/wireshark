@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Gerald Combs <gerald@ethereal.com>
  *
- * $Id: packet-syslog.c,v 1.16 2002/02/02 03:04:07 guy Exp $
+ * $Id: packet-syslog.c,v 1.17 2002/05/15 06:51:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,7 +124,7 @@ static const value_string long_fac[] = {
 static gint proto_syslog = -1;
 static gint hf_syslog_level = -1;
 static gint hf_syslog_facility = -1;
-static gint hf_syslog_msg_len = -1;
+static gint hf_syslog_msg = -1;
 
 static gint ett_syslog = -1;
 
@@ -201,8 +201,8 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ti = proto_tree_add_uint(syslog_tree, hf_syslog_level, tvb, 0,
         msg_off, pri);
     }
-    proto_tree_add_uint_format(syslog_tree, hf_syslog_msg_len, tvb, msg_off,
-      msg_len, msg_len, "Message (%d byte%s)", msg_len, plurality(msg_len, "", "s"));
+    proto_tree_add_item(syslog_tree, hf_syslog_msg, tvb, msg_off,
+      msg_len, FALSE);
   }
   return;
 }
@@ -223,10 +223,10 @@ void proto_register_syslog(void)
       FT_UINT8, BASE_DEC, VALS(long_lev), PRIORITY_MASK,
       "Message level", HFILL }
     },
-    { &hf_syslog_msg_len,
-      { "Message length",     "syslog.msg_len",
-      FT_UINT32, BASE_DEC, NULL, 0x0,
-      "Message length, excluding priority descriptor", HFILL }
+    { &hf_syslog_msg,
+      { "Message",            "syslog.msg",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      "Message Text", HFILL }
     },
   };
 
