@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.31 2002/05/07 00:35:14 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.32 2002/05/09 02:44:22 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -932,6 +932,28 @@ dissect_ntstatus(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	return offset;
 }
 
+/* Dissect a DOS status code */
+
+int
+dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+	       proto_tree *tree, char *drep, 
+	       int hfindex, guint32 *pdata)
+{
+	guint32 status;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hfindex, &status);
+
+	if (status != 0 && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+				val_to_str(status, DOS_errors, 
+					   "Unknown error"));
+	if (pdata)
+		*pdata = status;
+
+	return offset;
+}
+
 /* Dissect a NT policy handle */
 
 int
@@ -986,4 +1008,46 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		*pdata = hnd;
 
 	return offset;
+}
+
+/* Some helper routines to dissect a range of uint8 characters.  I don't
+   think these are "official" NDR representations and are probably specific
+   to NT so for the moment they're put here instead of in packet-dcerpc.c
+   and packet-dcerpc-ndr.c. */
+
+int
+dissect_dcerpc_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+                      proto_tree *tree, char *drep, int hfindex, 
+		      int length, guint8 **pdata)
+{
+    guint8 *data;
+
+    data = (guint8 *)tvb_get_ptr(tvb, offset, length);
+
+    if (tree) {
+        proto_tree_add_item (tree, hfindex, tvb, offset, length, (drep[0] & 0x10));
+    }
+
+    if (pdata)
+        *pdata = data;
+
+    return offset + length;
+}
+
+int
+dissect_ndr_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                   proto_tree *tree, char *drep, 
+                   int hfindex, int length, guint8 **pdata)
+{
+    dcerpc_info *di;
+
+    di=pinfo->private_data;
+    if(di->conformant_run){
+      /* just a run to handle conformant arrays, no scalars to dissect */
+      return offset;
+    }
+
+    /* no alignment needed */
+    return dissect_dcerpc_uint8s(tvb, offset, pinfo, 
+                                 tree, drep, hfindex, length, pdata);
 }

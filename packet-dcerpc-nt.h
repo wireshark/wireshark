@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.22 2002/04/22 09:43:03 guy Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.23 2002/05/09 02:44:22 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -156,6 +156,11 @@ dissect_ntstatus(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		 int hfindex, guint32 *pdata);
 
 int
+dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+		 proto_tree *tree, char *drep, 
+		 int hfindex, guint32 *pdata);
+
+int
 dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		      proto_tree *tree, char *drep, int hfindex, 
 		      e_ctx_hnd *pdata);
@@ -169,5 +174,16 @@ int
 dissect_nt_LUID(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree, 
 			char *drep);
+
+/* Stored here instead of packet-dcerpc{,-ndr}.c as they are probably not
+   official NDR representations. */
+
+int dissect_dcerpc_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                          proto_tree *tree, char *drep, 
+                          int hfindex, int length, guint8 **pdata);
+
+int dissect_ndr_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                       proto_tree *tree, char *drep, 
+                       int hfindex, int length, guint8 **pdata);
 
 #endif /* packet-dcerpc-nt.h */
