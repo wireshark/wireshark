@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.14 2000/01/03 06:59:19 guy Exp $
+ * $Id: capture_dlg.c,v 1.15 2000/01/05 22:31:45 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -345,9 +345,10 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
   if (cf.cfilter)
     g_free(cf.cfilter);
-  cf.cfilter = NULL; /* ead 06/16/99 */
   if (filter_text && filter_text[0]) {
     cf.cfilter = g_strdup(filter_text); 
+  } else {
+    cf.cfilter = g_strdup(EMPTY_FILTER);
   }
 
   save_file = gtk_entry_get_text(GTK_ENTRY(file_te));

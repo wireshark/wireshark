@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.81 2000/01/04 20:37:16 oabad Exp $
+ * $Id: main.c,v 1.82 2000/01/05 22:31:46 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -983,7 +983,7 @@ main(int argc, char *argv[])
   cf.dfilter		= NULL;
   cf.dfcode		= NULL;
 #ifdef HAVE_LIBPCAP
-  cf.cfilter		= NULL;
+  cf.cfilter		= g_strdup(EMPTY_FILTER);
 #endif
   cf.iface		= NULL;
   cf.save_file		= NULL;
@@ -1060,6 +1060,8 @@ main(int argc, char *argv[])
         break;
       case 'f':
 #ifdef HAVE_LIBPCAP
+	if (cf.cfilter)
+		g_free(cf.cfilter);
 	cf.cfilter = g_strdup(optarg);
 #else
         capture_option_specified = TRUE;
