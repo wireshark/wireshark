@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.22 2002/09/26 02:08:21 jmayer Exp $
+ * $Id: packet-ncp2222.inc,v 1.23 2002/10/08 08:58:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1966,7 +1966,7 @@ return;
 static guint32
 print_es_type(proto_tree *estree, tvbuff_t *tvb, nds_val *values, guint32 vtype, guint32 ioffset)
 { 
-        gint            value1;
+        guint32         value1;
         guint32         value2;
         guint32         value3;
         guint32         value4;
@@ -2394,7 +2394,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
         guint8          i;
         guint8          r;
         guint32         ioffset = 0;
-        gint            value1 = 0;
+        guint32         value1 = 0;
         guint32         value2 = 0;
         guint8          value3 = 0;
         guint32         value4 = 0;
