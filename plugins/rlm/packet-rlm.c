@@ -2,7 +2,7 @@
  * Routines for RLM dissection
  * Copyright 2004, Duncan Sargeant <dunc-ethereal@rcpt.to>
  *
- * $Id: packet-rlm.c,v 1.2 2004/03/25 23:09:18 guy Exp $
+ * $Id: packet-rlm.c,v 1.3 2004/03/30 18:30:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,6 +65,8 @@
 #include "plugins/plugin_api.h"
 #include "plugins/plugin_api_defs.h"
  /* Define version if we are not building ethereal statically */
+
+#include "moduleinfo.h"
 
 #ifndef ENABLE_STATIC
  G_MODULE_EXPORT const gchar version[] = VERSION;
