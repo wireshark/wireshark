@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
 #
-# $Id: manuf,v 1.36 2004/01/23 09:24:38 jmayer Exp $
+# $Id: manuf,v 1.37 2004/02/01 02:26:30 jmayer Exp $
 #
 # Laurent Deniel <laurent.deniel [AT] free.fr>
 #
@@ -817,7 +817,7 @@
 00:02:FF	HandanBroa             # Handan BroadInfoCom
 00:03:00	Netcontinu             # NetContinuum, Inc.
 00:03:01	AvantasNet             # Avantas Networks Corporation
-00:03:02	OasysTelec             # Oasys Telecom, Inc.
+00:03:02	CharlesInd             # Charles Industries, Ltd.
 00:03:03	JamaElectr             # JAMA Electronics Co., Ltd.
 00:03:04	PacificBro             # Pacific Broadband Communications
 00:03:05	SmartNetwo             # Smart Network Devices GmbH
@@ -3937,6 +3937,20 @@
 00:0F:56	ContinuumP             # Continuum Photonics Inc
 00:0F:57	Cablelogic             # CABLELOGIC Co., Ltd.
 00:0F:58	AdderTechn             # Adder Technology Limited
+00:0F:59	PhonakComm             # Phonak Communications AG
+00:0F:5A	PeribitNet             # Peribit Networks
+00:0F:5B	DeltaInfor             # Delta Information Systems, Inc.
+00:0F:5C	DayOneDigi             # Day One Digital Media Limited
+00:0F:5D	42networks             # 42Networks AB
+00:0F:5E	Veo
+00:0F:5F	NicetyTech             # Nicety Technologies Inc. (NTS)
+00:0F:60	Lifetron               # Lifetron Co.,Ltd
+00:0F:61	KiwiNetwor             # Kiwi Networks
+00:0F:62	AlcatelBel             # Alcatel Bell Space N.V.
+00:0F:63	ObzervTech             # Obzerv Technologies
+00:0F:64	D&RElectro             # D&R Electronica Weesp BV
+00:0F:65	Icube                  # icube Corp.
+00:0F:66	Cisco-Link             # Cisco-Linksys
 00:10:00	CableTelev             # CABLE TELEVISION LABORATORIES, INC.
 00:10:01	MckCommuni             # MCK COMMUNICATIONS
 00:10:02	Actia
@@ -7265,7 +7279,7 @@ EC:10:00	EnanceSour             # Enance Source Co., Ltd.	PC clones(?)
 #
 # Well-known addresses.
 #
-# $Id: manuf,v 1.36 2004/01/23 09:24:38 jmayer Exp $
+# $Id: manuf,v 1.37 2004/02/01 02:26:30 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald [AT] ethereal.com>

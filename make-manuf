@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: make-manuf,v 1.12 2003/04/13 13:51:32 jmayer Exp $
+# $Id: make-manuf,v 1.13 2004/02/01 02:26:30 jmayer Exp $
 #
 # Make-manuf - Creates a file containing ethernet OUIs and their
 # company IDs.  It merges the databases at
@@ -130,6 +130,7 @@ foreach $line (split(/\n/, $cb_list)) {
       # printf "$oui - Skipping CaveBear \"$manuf\" in favor of \"$oui_list{$oui}\"\n";
       $cb_skipped++;
     } else {
+      printf "$oui - adding \"$manuf\" from CaveBear\n";
       $oui_list{$oui} = &shorten($manuf);
       $cb_added++;
     }
