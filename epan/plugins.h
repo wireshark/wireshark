@@ -1,7 +1,7 @@
 /* plugins.h
  * definitions for plugins structures
  *
- * $Id: plugins.h,v 1.6 2001/01/28 21:17:28 guy Exp $
+ * $Id: plugins.h,v 1.7 2001/01/31 05:41:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,7 +29,6 @@
 #include <glib.h>
 #include <gmodule.h>
 
-#include "dfilter.h"
 #include "packet.h"
 #include "prefs.h"
 
