@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.c,v 1.2 2003/06/21 05:39:45 sahlberg Exp $
+ * $Id: service_response_time_table.c,v 1.3 2003/06/21 05:57:34 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -173,8 +173,8 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox)
 	gtk_clist_column_titles_show(GTK_CLIST(rst->table));
 
 	gtk_clist_set_compare_func(rst->table, srt_sort_column);
-	gtk_clist_set_sort_column(rst->table, 0);
-	gtk_clist_set_sort_type(rst->table, GTK_SORT_ASCENDING);
+	gtk_clist_set_sort_column(rst->table, 2);
+	gtk_clist_set_sort_type(rst->table, GTK_SORT_DESCENDING);
 
 
 	/*XXX instead of this we should probably have some code to
@@ -228,7 +228,8 @@ init_srt_table_row(srt_stat_table *rst, int index, char *procedure)
 	rst->procedures[index].entries[4]=g_strdup("0");
 	rst->procedures[index].entries[5]=g_strdup("0");
 
-	gtk_clist_append(rst->table, rst->procedures[index].entries);
+	gtk_clist_insert(rst->table, index, rst->procedures[index].entries);
+	gtk_clist_set_row_data(rst->table, index, (gpointer) index);
 }
 
 void
@@ -285,7 +286,7 @@ add_srt_table_data(srt_stat_table *rst, int index, nstime_t *req_time, packet_in
 void
 draw_srt_table_data(srt_stat_table *rst)
 {
-	int i;
+	int i,j;
 #ifdef G_HAVE_UINT64
 	guint64 td;
 #else
@@ -304,29 +305,31 @@ draw_srt_table_data(srt_stat_table *rst)
 			td=0;
 		}
 
+		j=gtk_clist_find_row_from_data(rst->table, (gpointer)i);
+
 		sprintf(str,"%d", rst->procedures[i].num);
 		strp=g_strdup(str);
-		gtk_clist_set_text(rst->table, i, 2, strp);
+		gtk_clist_set_text(rst->table, j, 2, strp);
 		g_free(rst->procedures[i].entries[2]);
 		rst->procedures[i].entries[2]=strp;
 
 
 		sprintf(str,"%3d.%05d", (int)rst->procedures[i].min.secs,rst->procedures[i].min.nsecs/10000);
 		strp=g_strdup(str);
-		gtk_clist_set_text(rst->table, i, 3, strp);
+		gtk_clist_set_text(rst->table, j, 3, strp);
 		g_free(rst->procedures[i].entries[3]);
 		rst->procedures[i].entries[3]=strp;
 
 
 		sprintf(str,"%3d.%05d", (int)rst->procedures[i].max.secs,rst->procedures[i].max.nsecs/10000);
 		strp=g_strdup(str);
-		gtk_clist_set_text(rst->table, i, 4, strp);
+		gtk_clist_set_text(rst->table, j, 4, strp);
 		g_free(rst->procedures[i].entries[4]);
 		rst->procedures[i].entries[4]=strp;
 
 		sprintf(str,"%3d.%05d", td/100000, td%100000);
 		strp=g_strdup(str);
-		gtk_clist_set_text(rst->table, i, 5, strp);
+		gtk_clist_set_text(rst->table, j, 5, strp);
 		g_free(rst->procedures[i].entries[5]);
 		rst->procedures[i].entries[5]=strp;
 	}
