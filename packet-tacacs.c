@@ -1,7 +1,7 @@
 /* packet-tacacs.c
  * Routines for cisco tacacs/tacplus/AAA packet dissection
  *
- * $Id: packet-tacacs.c,v 1.10 2001/01/09 06:31:44 guy Exp $
+ * $Id: packet-tacacs.c,v 1.11 2001/02/28 10:28:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,79 +53,80 @@ static gint ett_tacacs = -1;
 #define TCP_PORT_TACACS	49
 
 static void
-dissect_tacacs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *tacacs_tree, *ti;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_tacacs, pd, offset, fd, tree);
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "TACACS");
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_set_str(fd, COL_PROTOCOL, "TACACS");
-
-	if (check_col(fd, COL_INFO))
+	if (check_col(pinfo->fd, COL_INFO))
 	{
-		col_add_fstr(fd, COL_INFO, "%s", 
-			(pi.match_port == pi.destport) ? "Request" : "Response");	  
+		col_add_str(pinfo->fd, COL_INFO,
+			(pinfo->match_port == pinfo->destport) ? "Request" : "Response");	  
 	}
 
 	if (tree) 
 	{
-		ti = proto_tree_add_item(tree, proto_tacacs, NullTVB, offset, END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_tacacs, tvb, 0,
+		    tvb_length(tvb), FALSE);
 		tacacs_tree = proto_item_add_subtree(ti, ett_tacacs);
 
-		proto_tree_add_string(tacacs_tree, hf_tacacs_version, NullTVB, 0, 0, "XTacacs");
+		proto_tree_add_string(tacacs_tree, hf_tacacs_version, tvb,
+		    0, 0, "XTacacs");
 
-		if (pi.match_port == pi.destport)
+		if (pinfo->match_port == pinfo->destport)
 		{
-		        proto_tree_add_boolean_hidden(tacacs_tree, hf_tacacs_request, NullTVB,
-						   offset, END_OF_FRAME, TRUE);
-			proto_tree_add_text(tacacs_tree, NullTVB, offset, 
-				END_OF_FRAME, "Request: <opaque data>" );
+		        proto_tree_add_boolean_hidden(tacacs_tree, hf_tacacs_request, tvb,
+						   0, tvb_length(tvb), TRUE);
+			proto_tree_add_text(tacacs_tree, tvb, 0, 
+				tvb_length(tvb), "Request: <opaque data>" );
 		}
 		else
 		{
-		        proto_tree_add_boolean_hidden(tacacs_tree, hf_tacacs_response, NullTVB,
-						   offset, END_OF_FRAME, TRUE);
-			proto_tree_add_text(tacacs_tree, NullTVB, offset, 
-				END_OF_FRAME, "Response: <opaque data>");
+		        proto_tree_add_boolean_hidden(tacacs_tree, hf_tacacs_response, tvb,
+						   0, tvb_length(tvb), TRUE);
+			proto_tree_add_text(tacacs_tree, tvb, 0, 
+				tvb_length(tvb), "Response: <opaque data>");
 		}
 	}
 }
 
 static void
-dissect_tacplus(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *tacacs_tree, *ti;
 
-	if (check_col(fd, COL_PROTOCOL))
-	col_set_str(fd, COL_PROTOCOL, "TACACS");
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "TACACS");
 
-	if (check_col(fd, COL_INFO))
+	if (check_col(pinfo->fd, COL_INFO))
 	{
-		col_add_fstr(fd, COL_INFO, "%s", 
-			(pi.match_port == pi.destport) ? "Request" : "Response");	  
+		col_add_str(pinfo->fd, COL_INFO,
+			(pinfo->match_port == pinfo->destport) ? "Request" : "Response");	  
 	}
 
 	if (tree) 
 	{
-		ti = proto_tree_add_item(tree, proto_tacacs, NullTVB, offset, END_OF_FRAME, FALSE);
+		ti = proto_tree_add_item(tree, proto_tacacs, tvb, 0,
+		    tvb_length(tvb), FALSE);
 		tacacs_tree = proto_item_add_subtree(ti, ett_tacacs);
 
-		proto_tree_add_string(tacacs_tree, hf_tacacs_version, NullTVB, 0, 0, "Tacacs+");
+		proto_tree_add_string(tacacs_tree, hf_tacacs_version, tvb, 0, 0, "Tacacs+");
 
-		if (pi.match_port == pi.destport)
+		if (pinfo->match_port == pinfo->destport)
 		{
-		        proto_tree_add_boolean_hidden(tacacs_tree, hf_tacacs_request, NullTVB,
-						   offset, END_OF_FRAME, TRUE);
-			proto_tree_add_text(tacacs_tree, NullTVB, offset, 
-				END_OF_FRAME, "Request: <opaque data>" );
+		        proto_tree_add_boolean_hidden(tacacs_tree, hf_tacacs_request, tvb,
+						   0, tvb_length(tvb), TRUE);
+			proto_tree_add_text(tacacs_tree, tvb, 0, 
+				tvb_length(tvb), "Request: <opaque data>" );
 		}
 		else
 		{
-		        proto_tree_add_boolean_hidden(tacacs_tree, hf_tacacs_response, NullTVB,
-						   offset, END_OF_FRAME, TRUE);
-			proto_tree_add_text(tacacs_tree, NullTVB, offset, 
-				END_OF_FRAME, "Response: <opaque data>");
+		        proto_tree_add_boolean_hidden(tacacs_tree, hf_tacacs_response, tvb,
+						   0, tvb_length(tvb), TRUE);
+			proto_tree_add_text(tacacs_tree, tvb, 0, 
+				tvb_length(tvb), "Response: <opaque data>");
 		}
 	}
 }
@@ -159,8 +160,8 @@ proto_register_tacacs(void)
 void
 proto_reg_handoff_tacacs(void)
 {
-	old_dissector_add("udp.port", UDP_PORT_TACACS, dissect_tacacs,
+	dissector_add("udp.port", UDP_PORT_TACACS, dissect_tacacs,
 	    proto_tacacs);
-	old_dissector_add("tcp.port", TCP_PORT_TACACS, dissect_tacplus,
+	dissector_add("tcp.port", TCP_PORT_TACACS, dissect_tacplus,
 	    proto_tacacs);
 }
