@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.24 1999/12/07 06:09:59 guy Exp $
+ * $Id: packet-ncp.c,v 1.25 1999/12/13 20:20:09 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -296,12 +296,64 @@ static svc_record ncp_48_00_R[] = {
 
 static ncp2222_record ncp2222[] = {
 
+{ 0x00, 0x00, NOSUB, "Create service connection",
+	NULL, NULL, NCP_CONNECTION_SERVICES
+},
+
+{ 0x14, 0x00, NOSUB, "Get server's clock",
+	NULL, NULL, NCP_FILE_SERVICES
+},
+
+{ 0x16, 0x01, SUBFUNC, "Get path of directory handle",
+	NULL, NULL, NCP_FILE_SERVICES
+},
+
+{ 0x16, 0x13, SUBFUNC, "Create temporary directory handle",
+	NULL, NULL, NCP_BINDERY_SERVICES
+},
+
+{ 0x16, 0x0A, SUBFUNC, "Create directory",
+	NULL, NULL, NCP_BINDERY_SERVICES
+},
+
+{ 0x16, 0x0D, SUBFUNC, "Add trustee to directory",
+	NULL, NULL, NCP_BINDERY_SERVICES
+},
+
+{ 0x17, 0x37, SUBFUNC, "Scan bindery object",
+	NULL, NULL, NCP_BINDERY_SERVICES
+},
+
+{ 0x17, 0x36, SUBFUNC, "Get bindery object name",
+	NULL, NULL, NCP_BINDERY_SERVICES
+},
+
+{ 0x17, 0x32, SUBFUNC, "Create bindery object",
+	NULL, NULL, NCP_BINDERY_SERVICES
+},
+
+{ 0x17, 0x39, SUBFUNC, "Create property",
+	NULL, NULL, NCP_BINDERY_SERVICES
+},
+
+{ 0x17, 0x41, SUBFUNC, "Add bindery object to set",
+	NULL, NULL, NCP_BINDERY_SERVICES
+},
+
+{ 0x17, 0x43, SUBFUNC, "Is bindery object in set",
+	NULL, NULL, NCP_BINDERY_SERVICES
+},
+
 { 0x17, 0x35, SUBFUNC, "Get Bindery Object ID",
 	ncp_17_35_C, NULL, NCP_BINDERY_SERVICES
 },
 
 { 0x17, 0x7C, SUBFUNC, "Service Queue Job",
 	ncp_17_7C_C, ncp_17_7C_R, NCP_QUEUE_SERVICES
+},
+
+{ 0x17, 0x3D, SUBFUNC, "Read property value",
+	NULL, NULL, NCP_FILE_SERVICES
 },
 
 { 0x18, 0x00, NOSUB, "End of Job",
@@ -316,12 +368,28 @@ static ncp2222_record ncp2222[] = {
 	ncp_21_00_C, ncp_21_00_R, NCP_CONNECTION_SERVICES
 },
 
+{ 0x24, 0x00, SUBFUNC, "Destroy service connection",
+	NULL, NULL, NCP_CONNECTION_SERVICES
+},
+
+{ 0x3E, 0x53, SUBFUNC, "Get alternate directory search paths",
+	NULL, NULL, NCP_FILE_SERVICES
+},
+
+{ 0x3F, 0x89, SUBFUNC, "File search continue",
+	NULL, NULL, NCP_FILE_SERVICES
+},
+
 { 0x42, 0x00, NOSUB, "Close File",
 	ncp_42_00_C, ncp_42_00_R, NCP_FILE_SERVICES
 },
 
 { 0x48, 0x00, NOSUB, "Read from a file",
 	ncp_48_00_C, ncp_48_00_R, NCP_FILE_SERVICES
+},
+
+{ 0x4C, 0x11, SUBFUNC, "Open file",
+	NULL, NULL, NCP_FILE_SERVICES
 },
 
 { 0x00, 0x00, NOSUB, NULL,
@@ -440,7 +508,8 @@ ncp2222_find(guint8 func, guint8 subfunc)
 
 	ncp_record = ncp2222;
 
-	while(ncp_record->func != 0) {
+	while(ncp_record->func != 0 || ncp_record->subfunc != 0 ||
+		ncp_record->funcname != NULL ) {
 		if (ncp_record->func == func &&
 			ncp_record->subfunc == (subfunc & ncp_record->submask)) {
 			retval = ncp_record;
@@ -546,7 +615,11 @@ dissect_ncp_request(const u_char *pd, int offset, frame_data *fd,
 
 	/*memcpy(&request, &pd[offset], sizeof(request));*/
 	request.function = pd[offset+6];
-	request.subfunc = pd[offset+9];
+	if ( BYTES_ARE_IN_FRAME(offset, 9) ) {
+		request.subfunc = pd[offset+9];
+	} else {
+		request.subfunc = 0;
+	}
 
 	ncp_request = ncp2222_find(request.function, request.subfunc);
 
