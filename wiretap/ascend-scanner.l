@@ -12,7 +12,10 @@
 #include "file.h"
 
 void *yy_fh;
-#define YY_INPUT(buf,result,max_size) { int c = file_getc(yy_fh);  result = (c==EOF) ? YY_NULL : (buf[0] = c, 1); } 
+extern char *ascend_ra_ptr;
+extern char *ascend_ra_last;
+#define YY_INPUT(buf,result,max_size) { int c = file_getc(yy_fh);  \
+result = (c==EOF) ? YY_NULL : (buf[0] = c, 1); } 
 
 struct ascend_phdr *pseudo_header;
 

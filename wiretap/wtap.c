@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.20 1999/09/22 01:26:50 ashokn Exp $
+ * $Id: wtap.c,v 1.21 1999/09/23 04:39:00 ashokn Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -34,6 +34,11 @@
 FILE* wtap_file(wtap *wth)
 {
 	return wth->fh;
+}
+
+int wtap_fd(wtap *wth)
+{
+	return wth->fd;
 }
 
 int wtap_file_type(wtap *wth)

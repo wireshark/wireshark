@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.39 1999/09/22 01:26:50 ashokn Exp $
+ * $Id: wtap.h,v 1.40 1999/09/23 04:39:01 ashokn Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -284,6 +284,7 @@ typedef int (*subtype_read_func)(struct wtap*, int*);
 typedef struct wtap {
     /* FILE_T			fh; */
 	void *			fh;
+        int                     fd;           /* File descriptor for cap file */
 	int			file_type;
 	int			snapshot_length;
 	struct Buffer		*frame_buffer;
@@ -335,6 +336,7 @@ wtap* wtap_open_offline(const char *filename, int *err);
 int wtap_loop(wtap *wth, int, wtap_handler, u_char*, int*);
 
 FILE* wtap_file(wtap *wth);
+int wtap_fd(wtap *wth);
 int wtap_snapshot_length(wtap *wth); /* per file */
 int wtap_file_type(wtap *wth);
 const char *wtap_file_type_string(wtap *wth);

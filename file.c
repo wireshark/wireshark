@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.95 1999/09/23 03:24:01 guy Exp $
+ * $Id: file.c,v 1.96 1999/09/23 04:38:52 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -100,17 +100,13 @@ static void thaw_clist(capture_file *cf);
 /* Update the progress bar this many times when reading a file. */
 #define N_PROGBAR_UPDATES	100
 
-/* Bounce bar constants */
-#define BOUNCEBAR_BLOCK 250
-#define BOUNCEBAR_STEP 0.04
-#define BOUNCEBAR_MAX 1.0
-#define BOUNCEBAR_MIN 0.0
-
 int
 open_cap_file(char *fname, capture_file *cf) {
   wtap       *wth;
   int         err;
   FILE_T      fh;
+  int         fd;
+  struct stat cf_stat;
 
   wth = wtap_open_offline(fname, &err);
   if (wth == NULL)
@@ -118,6 +114,12 @@ open_cap_file(char *fname, capture_file *cf) {
 
   /* Find the size of the file. */
   fh = wtap_file(wth);
+  fd = wtap_fd(wth);
+  if (fstat(fd, &cf_stat) < 0) {
+    err = errno;
+    wtap_close(wth);
+    goto fail;
+  }
 
   /* The open succeeded.  Close whatever capture file we had open,
      and fill in the information for this file. */
@@ -128,6 +130,8 @@ open_cap_file(char *fname, capture_file *cf) {
 
   cf->wth = wth;
   cf->fh = fh;
+  cf->filed = fd;
+  cf->f_len = cf_stat.st_size;
 
   /* set the file name because we need it to set the follow stream filter */
   cf->filename = g_strdup(fname);
@@ -218,21 +222,18 @@ read_cap_file(capture_file *cf) {
   cf->progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
      bump that value by this amount. */
-  cf->progbar_quantum = 0; 
-  cf->bouncebar_pos = 0.01;
-  cf->bouncebar_step = BOUNCEBAR_STEP;
-  cf->bouncebar_reversed = 0;
-  gtk_progress_set_activity_mode(GTK_PROGRESS(prog_bar), TRUE);
+  cf->progbar_quantum = cf->f_len/N_PROGBAR_UPDATES;
 
   freeze_clist(cf);
   proto_tree_is_visible = FALSE;
   success = wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
   wtap_close(cf->wth);
   cf->wth = NULL;
-  cf->fh = file_open(cf->filename, "r");
+  cf->filed = open(cf->filename, O_RDONLY);
+  cf->fh = filed_open(cf->filed, "r");
   cf->unfiltered_count = cf->count;
   thaw_clist(cf);
-  
+
   gtk_progress_set_activity_mode(GTK_PROGRESS(prog_bar), FALSE);
   gtk_progress_set_value(GTK_PROGRESS(prog_bar), 0);
 
@@ -390,7 +391,7 @@ tail_cap_file(char *fname, capture_file *cf) {
       }
     }
 
-    cf->fh = file_open(fname, "r");
+    cf->fh = fopen(fname, "r");
 
     cap_input_id = gtk_input_add_full (sync_pipe[0],
 				       GDK_INPUT_READ,
@@ -594,6 +595,8 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   int           passed;
   proto_tree   *protocol_tree;
   frame_data   *plist_end;
+  int file_pos;
+  float prog_val;
 
   /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
      when we update it, we have to run the GTK+ main loop to get it
@@ -605,28 +608,16 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
      being updated by a live capture, we don't do so (as we're not
      "done" until the capture stops, so we don't know how close to
      "done" we are. */
-  if (cf->update_progbar && !(cf->progbar_quantum%BOUNCEBAR_BLOCK)) {
-      cf->bouncebar_pos += cf->bouncebar_step;
-      if (cf->bouncebar_pos >= BOUNCEBAR_MAX) {
-	  cf->bouncebar_pos = BOUNCEBAR_MAX - BOUNCEBAR_STEP;
-	  cf->bouncebar_step = - BOUNCEBAR_STEP;
-      } else if (cf->bouncebar_pos <= BOUNCEBAR_MIN) {
-	  cf->bouncebar_pos = BOUNCEBAR_MIN + BOUNCEBAR_STEP;
-	  cf->bouncebar_step = BOUNCEBAR_STEP;
-	  if (cf->bouncebar_reversed) {
-	      cf->bouncebar_reversed = 0;
-	      gtk_progress_set_value(GTK_PROGRESS(prog_bar), 0);
 
-	  } else {
-	      cf->bouncebar_reversed = 1;
-	      gtk_progress_set_value(GTK_PROGRESS(prog_bar), 0);
-	  }	      
-      }
-      gtk_progress_set_value(GTK_PROGRESS(prog_bar), cf->bouncebar_pos);
+  if (cf->update_progbar && offset >= cf->progbar_nextstep) {
+      file_pos = lseek(cf->filed, 0, SEEK_CUR);
+      prog_val = (gfloat) file_pos / (gfloat) cf->f_len;
+      gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), prog_val);
+      cf->progbar_nextstep += cf->progbar_quantum;
       while (gtk_events_pending())
-	  gtk_main_iteration();
+      gtk_main_iteration();
   }
-  cf->progbar_quantum++;
+
   /* Allocate the next list entry, and add it to the list. */
   fdata = (frame_data *) g_malloc(sizeof(frame_data));
 
