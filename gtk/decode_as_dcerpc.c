@@ -1,6 +1,6 @@
 /* decode_as_dcerpc.c
  *
- * $Id: decode_as_dcerpc.c 11917 2004-09-06 19:56:36Z ulfl $
+ * $Id$
  *
  * Routines to modify dcerpc bindings on the fly.
  *
@@ -449,4 +449,3 @@ decode_dcerpc_add_page (packet_info *pinfo)
 
     return(page_hb);
 }
-
