@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.15 2000/03/09 18:31:51 ashokn Exp $
+ * $Id: packet-rsvp.c,v 1.16 2000/03/10 08:41:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -919,7 +919,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    proto_tree_add_text(rsvp_object_tree, offset+3, 1, 
 					"C-type: 1 - IPv4");
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_IP], 
-					offset2, 4, *(ulong *)(pd+offset2));
+					offset2, 4, pntohl(pd+offset2));
 
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_PROTO], 
 					offset2+4, 1, *(pd+offset2+4));
@@ -951,12 +951,12 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    proto_tree_add_text(rsvp_object_tree, offset+3, 1, 
 					"C-type: 7 - IPv4 LSP");
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_IP], 
-					offset2, 4, *(ulong *)(pd+offset2));
+					offset2, 4, pntohl(pd+offset2));
 
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_TUNNEL_ID], 
 					offset2+6, 2, pntohs(pd+offset2+6));
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID], 
-					offset2+8, 4, *(ulong *)(pd+offset2+8));
+					offset2+8, 4, pntohl(pd+offset2+8));
 		    break;
 		}
 
@@ -1247,7 +1247,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    proto_tree_add_text(rsvp_object_tree, offset+3, 1, 
 					"C-type: 1 - IPv4");
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SENDER_IP], 
-					offset2, 4, *(ulong *)(pd+offset2));
+					offset2, 4, pntohl(pd+offset2));
 
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SENDER_PORT], 
 					offset2+6, 2, pntohs(pd+offset2+6));
@@ -1270,7 +1270,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    proto_tree_add_text(rsvp_object_tree, offset+3, 1, 
 					"C-type: 7 - IPv4 LSP");
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SENDER_IP], 
-					offset2, 4, *(ulong *)(pd+offset2));
+					offset2, 4, pntohl(pd+offset2));
 
 		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SENDER_LSP_ID], 
 					offset2+6, 2, pntohs(pd+offset2+6));
