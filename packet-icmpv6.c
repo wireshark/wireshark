@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.50 2001/09/05 19:48:53 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.51 2001/09/25 18:27:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -487,7 +487,7 @@ bitrange0(v, s, buf, buflen)
 			l = snprintf(p, ep - p, ",%d-%d", s + off,
 			    s + off + i - 1);
 		}
-		if (l > ep - p) {
+		if (l == -1 || l > ep - p) {
 			buf[0] = '\0';
 			return NULL;
 		}

@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.35 2001/09/14 07:10:06 guy Exp $
+ * $Id: packet-wsp.c,v 1.36 2001/09/25 18:27:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -751,6 +751,9 @@ static void add_warning_header (proto_tree *, tvbuff_t *, int, tvbuff_t *,
 static void add_accept_application_header (proto_tree *, tvbuff_t *, int,
     tvbuff_t *, value_type_t, int);
 static void add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type);
+static void add_capability_vals(tvbuff_t *tvb, gboolean add_string,
+    int offsetStr, guint length, guint capabilitiesStart, char *valString,
+    size_t valStringSize);
 static value_type_t get_value_type_len (tvbuff_t *, int, guint *, int *, int *);
 static guint get_uintvar (tvbuff_t *, guint, guint);
 static gint get_integer (tvbuff_t *, guint, guint, value_type_t, guint *);
@@ -2276,11 +2279,12 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 	guint offset = 0;
 	guint offsetStr = 0;
 	guint capabilitiesLen = tvb_reported_length (tvb);
-	guint8 capabilitiesStart = 0;
+	guint capabilitiesStart = 0;
 	guint peek = 0;
 	guint length = 0;
 	guint value = 0;
 	guint i;
+	int ret;
 	char valString[200];
 
 #ifdef DEBUG
@@ -2336,20 +2340,69 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 				valString[0]=0;
 				if (value & 0x80)
 				{
-					i += snprintf(valString+i,200-1,"%s","(Confirmed push facility) ");
+					ret = snprintf(valString+i,200-i,"%s","(Confirmed push facility) ");
+					if (ret == -1) {
+						/*
+						 * Some versions of snprintf
+						 * return -1 if they'd
+						 * truncate the output.
+						 */
+						goto add_string;
+					}
+					i += ret;
 				}
 				if (value & 0x40)
 				{
-					i += snprintf(valString+i,200-1,"%s","(Push facility) ");
+					if (i >= 200) {
+						/* No more room. */
+						goto add_string;
+					}
+					ret = snprintf(valString+i,200-i,"%s","(Push facility) ");
+					if (ret == -1) {
+						/*
+						 * Some versions of snprintf
+						 * return -1 if they'd
+						 * truncate the output.
+						 */
+						goto add_string;
+					}
+					i += ret;
 				}
 				if (value & 0x20)
 				{
-					i += snprintf(valString+i,200-1,"%s","(Session resume facility) ");
+					if (i >= 200) {
+						/* No more room. */
+						goto add_string;
+					}
+					ret = snprintf(valString+i,200-i,"%s","(Session resume facility) ");
+					if (ret == -1) {
+						/*
+						 * Some versions of snprintf
+						 * return -1 if they'd
+						 * truncate the output.
+						 */
+						goto add_string;
+					}
+					i += ret;
 				}
 				if (value & 0x10)
 				{
-					i += snprintf(valString+i,200-1,"%s","(Acknowledgement headers) ");
+					if (i >= 200) {
+						/* No more room. */
+						goto add_string;
+					}
+					ret = snprintf(valString+i,200-i,"%s","(Acknowledgement headers) ");
+					if (ret == -1) {
+						/*
+						 * Some versions of snprintf
+						 * return -1 if they'd
+						 * truncate the output.
+						 */
+						goto add_string;
+					}
+					i += ret;
 				}
+			add_string:
 				proto_tree_add_string(wsp_capabilities, hf_wsp_capabilities_protocol_opt, tvb, capabilitiesStart, length+1, valString);
 				break;
 			case 0x03 : /* Method-MOR */ 
@@ -2364,49 +2417,17 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 			case 0x05 : /* Extended Methods */ 
 				offsetStr = offset;
 				offset++;
-				if (type == CONNECT)
-				{
-					i = 0;
-					while ((offsetStr-capabilitiesStart) <= length)
-					{
-						value = tvb_get_guint8(tvb, offsetStr);
-						i += snprintf(valString+i,200-i,"(%d - ",value);
-						offsetStr++;
-						for (;(valString[i] = tvb_get_guint8(tvb, offsetStr));i++,offsetStr++);
-						offsetStr++;
-						valString[i++] = ')';
-						valString[i++] = ' ';
-					}
-					valString[i]=0;
-				}
-				else
-				{
-					i = 0;
-					while ((offsetStr-capabilitiesStart) <= length)
-					{
-						value = tvb_get_guint8(tvb, offsetStr);
-						i += snprintf(valString+i,200-i,"(%d) ",value);
-						offsetStr++;
-					}
-					valString[i]=0;
-				}
+				add_capability_vals(tvb, (type == CONNECT),
+				    offsetStr, length, capabilitiesStart,
+				    valString, sizeof valString);
 				proto_tree_add_string(wsp_capabilities, hf_wsp_capabilities_extended_methods, tvb, capabilitiesStart, length+1, valString);
 				break;
 			case 0x06 : /* Header Code Pages */ 
 				offsetStr = offset;
 				offset++;
-				i = 0;
-				while ((offsetStr-capabilitiesStart) <= length)
-				{
-					value = tvb_get_guint8(tvb, offsetStr);
-					i += snprintf(valString+i,200-i,"(%d - ",value);
-					offsetStr++;
-					for (;(valString[i] = tvb_get_guint8(tvb, offsetStr));i++,offsetStr++);
-					offsetStr++;
-					valString[i++] = ')';
-					valString[i++] = ' ';
-				}
-				valString[i]=0;
+				add_capability_vals(tvb, TRUE,
+				    offsetStr, length, capabilitiesStart,
+				    valString, sizeof valString);
 				proto_tree_add_string(wsp_capabilities, hf_wsp_capabilities_header_code_pages, tvb, capabilitiesStart, length+1, valString);
 				break;
 			case 0x07 : /* Aliases */
@@ -2418,6 +2439,58 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 		}
 		offset=capabilitiesStart+length+1;
 	}
+}
+
+static void
+add_capability_vals(tvbuff_t *tvb, gboolean add_string, int offsetStr,
+    guint length, guint capabilitiesStart, char *valString,
+    size_t valStringSize)
+{
+	guint i;
+	int ret;
+	guint value;
+	guint8 c;
+
+	i = 0;
+	while ((offsetStr-capabilitiesStart) <= length)
+	{
+		value = tvb_get_guint8(tvb, offsetStr);
+		if (i >= valStringSize) {
+			/* No more room. */
+			break;
+		}
+		if (add_string)
+		{
+			ret = snprintf(valString+i,valStringSize-i,
+			    "(%d - ",value);
+		}
+		else
+		{
+			ret = snprintf(valString+i,valStringSize-i,"(%d) ",
+			    value);
+		}
+		if (ret == -1) {
+			/*
+			 * Some versions of snprintf return -1
+			 * if they'd truncate the output.
+			 */
+			break;
+		}
+		i += ret;
+		offsetStr++;
+		if (add_string)
+		{
+			for (;(c = tvb_get_guint8(tvb, offsetStr))
+			    && i < valStringSize - 1; i++,offsetStr++)
+				valString[i] = c;
+			offsetStr++;
+			if (i < valStringSize - 2) {
+				valString[i++] = ')';
+				valString[i++] = ' ';
+			}
+		}
+	}
+	valString[i] = '\0';
 }
 
 static value_type_t

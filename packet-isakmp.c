@@ -3,7 +3,7 @@
  * (ISAKMP) (RFC 2408)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.42 2001/08/31 19:47:07 guy Exp $
+ * $Id: packet-isakmp.c,v 1.43 2001/09/25 18:27:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -989,17 +989,41 @@ situation2str(guint32 type) {
   static char	msg[SIT_MSG_NUM];
   int		n = 0;
   char *	sep = "";
+  int		ret;
   
   if (type & SIT_IDENTITY) {
-    n += snprintf(msg, SIT_MSG_NUM-n, "%sIDENTITY", sep);
+    ret = snprintf(msg, SIT_MSG_NUM-n, "%sIDENTITY", sep);
+    if (ret == -1) {
+      /* Some versions of snprintf return -1 if they'd truncate the output. */
+      return msg;
+    }
+    n += ret;
     sep = " & ";
   }
   if (type & SIT_SECRECY) {
-    n += snprintf(msg, SIT_MSG_NUM-n, "%sSECRECY", sep);
+    if (n >= SIT_MSG_NUM) {
+      /* No more room. */
+      return msg;
+    }
+    ret = snprintf(msg, SIT_MSG_NUM-n, "%sSECRECY", sep);
+    if (ret == -1) {
+      /* Some versions of snprintf return -1 if they'd truncate the output. */
+      return msg;
+    }
+    n += ret;
     sep = " & ";
   }
   if (type & SIT_INTEGRITY) {
-    n += snprintf(msg, SIT_MSG_NUM-n, "%sINTEGRITY", sep);
+    if (n >= SIT_MSG_NUM) {
+      /* No more room. */
+      return msg;
+    }
+    ret = snprintf(msg, SIT_MSG_NUM-n, "%sINTEGRITY", sep);
+    if (ret == -1) {
+      /* Some versions of snprintf return -1 if they'd truncate the output. */
+      return msg;
+    }
+    n += ret;
     sep = " & ";
   }
 
