@@ -74,6 +74,21 @@ have to do through the aforementioned song and dance to find the PPA of
 the interface you want to use, and supply the "dlpiN" name by hand (I
 think you can omit the "/dev/" in both "tcpdump" and Ethereal).
 
+It looks as if vanilla "libpcap-0.4" will use various DLPI calls to get
+the PPA on systems such as HP-UX 10.x that have DL_HP_PPA_ACK_OBS
+defined, and will try to dredge it out of the kernel on HP-UX 9.x - but
+if 11.x doesn't define DL_HP_PPA_ACK_OBS, it will do neither on 11.x,
+which may mean you're stuck with the "dlpiN" hack on 11.x, at least
+until somebody indicates how to get the PPA on 11.x.  (Given the comment
+about the PPA:
+
+	You get the PPA by looking at the output of lanscan.  On 10.20,
+	it is the same value as the NMID.  On 11.X, it is the Card
+	Instance number.
+
+in Rick's posting, it may well be that the code has to do something
+different on 11.x.)
+
 The experimental stuff to which the second article refers is a STREAMS
 module that implements BPF-style filtering and buffering, an
 experimental version of "libpcap-0.4" that pushes that STREAMS module,
@@ -97,8 +112,6 @@ modified to push the BPF STREAMS module but not to do anything with it.
 "pcap-dlpi.c" is the same as "pcap-bpfmod.c".
 
 "pcap-bpfmod.c"/"pcap-dlpi.c" appears to have had a pile of stuff
-removed (e.g., the SunOS 5/Solaris support), and stuff added to try to
-do the "find the PPA for the interface and do the right thing" stuff
-alluded to above, and to push the BPF STREAMS module - however, it
-doesn't appear to include anything to hand the BPF filter to the STREAMS
-module or otherwise use it.
+removed (e.g., the SunOS 5/Solaris support), and stuff added to push the
+BPF STREAMS module - however, it doesn't appear to include anything to
+hand the BPF filter to the STREAMS module or otherwise use it.
