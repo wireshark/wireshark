@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.715 2004/03/03 00:07:00 jmayer Exp $
+# $Id: Makefile.am,v 1.716 2004/03/03 00:18:21 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -274,6 +274,8 @@ mergecap_LDADD = wiretap/libwiretap.a @GLIB_LIBS@
 
 # Common headers
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
+
+.PHONY:	cvsversion.h
 
 #
 # Build the version string
