@@ -1,3 +1,6 @@
+; libethereal.def
+; $Id$
+
 EXPORTS
 abs_time_to_str
 address_to_str
