@@ -775,6 +775,7 @@ Motonori Shindo <mshindo[AT]mshindo.net> {
 	Patches to packet-x11-keysym.h to clean up 8-bit chars
 	Fixes to take the Vendor-Specific attribute into consideration
 	    when dissecting L2TP
+	L2TP Dissconnect Cause Information AVP support
 }
 
 Terje Krogdahl <tekr[AT]nextra.com> {

@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.25 2001/10/15 03:27:38 guy Exp $
+ * $Id: packet-l2tp.c,v 1.26 2001/10/19 09:12:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,6 +155,13 @@ static const value_string l2tp_type_vals[] = {
 	{ 0, NULL },
 };
 
+static const value_string cause_code_direction_vals[] = {
+	{ 0, "global error" },
+	{ 1, "at peer" },
+	{ 2, "at local" },
+	{ 0, NULL },
+};
+
 static const true_false_string l2tp_length_bit_truth =
 	{ "Length field is present", "Length field is not present" };
 
@@ -216,6 +223,7 @@ static const value_string authen_type_vals[] = {
 #define  PRIVATE_GROUP_ID 37
 #define  RX_CONNECT_SPEED 38
 #define  SEQUENCING_REQUIRED 39
+#define  PPP_DISCONNECT_CAUSE_CODE 46	/* RFC 3145 */
 
 #define NUM_AVP_TYPES  40
 static const value_string avp_type_vals[] = {
@@ -258,6 +266,7 @@ static const value_string avp_type_vals[] = {
   { PRIVATE_GROUP_ID,          "Private group ID" },
   { RX_CONNECT_SPEED,          "RxConnect Speed" },
   { SEQUENCING_REQUIRED,       "Sequencing Required" },
+  { PPP_DISCONNECT_CAUSE_CODE, "PPP Disconnect Cause Code" },
   { 0,                         NULL }
 };
 
@@ -920,6 +929,40 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
 			  "Rx Connect Speed: %u",
 			  tvb_get_ntohl(tvb, index));
+			break;
+
+		case PPP_DISCONNECT_CAUSE_CODE:
+			if (avp_len < 2)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+			  "Disconnect Code: %u",
+			  tvb_get_ntohs(tvb, index));
+			index += 2;
+			avp_len -= 2;
+
+			if (avp_len < 2)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+			  "Control Protocol Number: %u",
+			  tvb_get_ntohs(tvb, index));
+			index += 2;
+			avp_len -= 2;
+
+			if (avp_len < 1)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, 1,
+			  "Direction: %s",
+			  val_to_str(tvb_get_guint8(tvb, index), 
+				     cause_code_direction_vals, 
+				     "Reserved (%u)"));
+			index += 1;
+			avp_len -= 1;
+
+			if (avp_len == 0)
+				break;
+			proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+			  "Message: %.*s", avp_len,
+			  tvb_get_ptr(tvb, index, avp_len));
 			break;
 
 		default:
