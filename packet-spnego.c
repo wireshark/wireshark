@@ -5,7 +5,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-spnego.c,v 1.54 2004/04/30 22:19:43 guy Exp $
+ * $Id: packet-spnego.c,v 1.55 2004/05/11 02:02:44 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,6 +144,14 @@ static const true_false_string tfs_reqflags_integ = {
 /* Display an ASN1 parse error.  Taken from packet-snmp.c */
 
 static dissector_handle_t data_handle;
+
+static dissector_handle_t
+gssapi_dissector_handle(gssapi_oid_value *next_level_value) {
+	if (next_level_value == NULL) {
+		return NULL;
+	}
+	return next_level_value->handle;
+}
 
 static void
 dissect_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -950,13 +958,13 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  case SPNEGO_mechToken:
 
 	    offset = dissect_spnego_mechToken(tvb, offset, pinfo, subtree, 
-					      hnd, (*next_level_value_p)->handle);
+					      hnd, gssapi_dissector_handle(*next_level_value_p));
 	    break;
 
 	  case SPNEGO_mechListMIC:
 
 	    offset = dissect_spnego_mechListMIC(tvb, offset, pinfo, subtree,
-						hnd, (*next_level_value_p)->handle);
+						hnd, gssapi_dissector_handle(*next_level_value_p));
 	    break;
 
 	  default:
@@ -1237,19 +1245,13 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  case SPNEGO_responseToken:
 
 	    offset = dissect_spnego_responseToken(tvb, offset, pinfo, subtree,
-						  hnd,
-						  (*next_level_value_p != NULL) ?
-						      (*next_level_value_p)->handle :
-						      NULL);
+						  hnd, gssapi_dissector_handle(*next_level_value_p));
 	    break;
 
 	  case SPNEGO_mechListMIC:
 
 	    offset = dissect_spnego_mechListMIC(tvb, offset, pinfo, subtree, 
-						hnd,
-						(*next_level_value_p != NULL) ?
-						    (*next_level_value_p)->handle :
-						    NULL);
+						hnd, gssapi_dissector_handle(*next_level_value_p));
 	    break;
 
 	  default:
