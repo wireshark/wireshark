@@ -3,7 +3,7 @@
  * to many dissectors.
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: packet-e164.c,v 1.1 2004/03/05 10:29:35 guy Exp $
+ * $Id: packet-e164.c,v 1.2 2004/03/19 10:24:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -406,12 +406,12 @@ proto_register_e164(void)
 /* Setup list of header fields  See Section 1.6.1 for details */
 	static hf_register_info hf[] = {
 		{ &hf_E164_calling_party_number,
-		  { "E164 Calling party number digits", "E164.calling_party_number.digits",
+		  { "E.164 Calling party number digits", "e164.calling_party_number.digits",
 		  FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
 
 		{ &hf_E164_called_party_number,
-		  { "E164 Called party number digits", "E164.called_party_number.digits",
+		  { "E.164 Called party number digits", "e164.called_party_number.digits",
 		  FT_STRING, BASE_NONE, NULL, 0x0,
 			"", HFILL }},
 	};
@@ -420,8 +420,8 @@ proto_register_e164(void)
 	 * Register the protocol name and description
 	 */
 	proto_e164 = proto_register_protocol(
-			"ITU-T E164 number",
-			"E164",
+			"ITU-T E.164 number",
+			"E.164",
 			"e164");
 
 	/*
