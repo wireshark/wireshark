@@ -741,6 +741,10 @@ David Eisner <cradle@Glue.umd.edu> {
 	NCP-over-IP bug fix
 }
 
+Steve Dickson <steved@talarian.com> {
+	PGM (Pragmatic General Multicast - RFC 2705) support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
