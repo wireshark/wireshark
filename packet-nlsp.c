@@ -1,7 +1,7 @@
 /* packet-nlsp.c
  * Routines for NetWare Link Services Protocol
  *
- * $Id: packet-nlsp.c,v 1.4 2003/04/02 08:31:37 guy Exp $
+ * $Id: packet-nlsp.c,v 1.5 2003/04/06 02:31:35 guy Exp $
  *
  * Based on ISIS dissector by Stuart Stanley <stuarts@mxmail.net>
  *
@@ -32,7 +32,6 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "nlpid.h"
 #include "packet-ipx.h"
 
 /* NLSP base header */
