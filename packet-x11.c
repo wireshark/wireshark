@@ -3,7 +3,7 @@
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  * Copyright 2003, Michael Shuldman
  *
- * $Id: packet-x11.c,v 1.49 2004/01/03 05:14:08 guy Exp $
+ * $Id: packet-x11.c,v 1.50 2004/01/04 10:57:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1018,7 +1018,7 @@ static const value_string zero_is_none_vals[] = {
 #define CURSOR(name)   FIELD32(name)
 #define DRAWABLE(name) FIELD32(name)
 #define ENUM8(name)    (FIELD8(name))
-#define ENUM16(name)   FIELD16(name)
+#define ENUM16(name)   (FIELD16(name))
 #define FONT(name)     FIELD32(name)
 #define FONTABLE(name) FIELD32(name)
 #define GCONTEXT(name) FIELD32(name)
@@ -1390,6 +1390,110 @@ static GTree *keysymTable = NULL;
 static gint compareGuint32(gconstpointer a, gconstpointer b)
 {
       return GPOINTER_TO_INT(b) - GPOINTER_TO_INT(a);
+}
+
+static void
+XConvertCase(sym, lower, upper)
+    register int sym;
+    int *lower;
+    int *upper;
+{
+    *lower = sym;
+    *upper = sym;
+    switch(sym >> 8) {
+    case 0: /* Latin 1 */
+	if ((sym >= XK_A) && (sym <= XK_Z))
+	    *lower += (XK_a - XK_A);
+	else if ((sym >= XK_a) && (sym <= XK_z))
+	    *upper -= (XK_a - XK_A);
+	else if ((sym >= XK_Agrave) && (sym <= XK_Odiaeresis))
+	    *lower += (XK_agrave - XK_Agrave);
+	else if ((sym >= XK_agrave) && (sym <= XK_odiaeresis))
+	    *upper -= (XK_agrave - XK_Agrave);
+	else if ((sym >= XK_Ooblique) && (sym <= XK_Thorn))
+	    *lower += (XK_oslash - XK_Ooblique);
+	else if ((sym >= XK_oslash) && (sym <= XK_thorn))
+	    *upper -= (XK_oslash - XK_Ooblique);
+	break;
+    case 1: /* Latin 2 */
+	/* Assume the KeySym is a legal value (ignore discontinuities) */
+	if (sym == XK_Aogonek)
+	    *lower = XK_aogonek;
+	else if (sym >= XK_Lstroke && sym <= XK_Sacute)
+	    *lower += (XK_lstroke - XK_Lstroke);
+	else if (sym >= XK_Scaron && sym <= XK_Zacute)
+	    *lower += (XK_scaron - XK_Scaron);
+	else if (sym >= XK_Zcaron && sym <= XK_Zabovedot)
+	    *lower += (XK_zcaron - XK_Zcaron);
+	else if (sym == XK_aogonek)
+	    *upper = XK_Aogonek;
+	else if (sym >= XK_lstroke && sym <= XK_sacute)
+	    *upper -= (XK_lstroke - XK_Lstroke);
+	else if (sym >= XK_scaron && sym <= XK_zacute)
+	    *upper -= (XK_scaron - XK_Scaron);
+	else if (sym >= XK_zcaron && sym <= XK_zabovedot)
+	    *upper -= (XK_zcaron - XK_Zcaron);
+	else if (sym >= XK_Racute && sym <= XK_Tcedilla)
+	    *lower += (XK_racute - XK_Racute);
+	else if (sym >= XK_racute && sym <= XK_tcedilla)
+	    *upper -= (XK_racute - XK_Racute);
+	break;
+    case 2: /* Latin 3 */
+	/* Assume the KeySym is a legal value (ignore discontinuities) */
+	if (sym >= XK_Hstroke && sym <= XK_Hcircumflex)
+	    *lower += (XK_hstroke - XK_Hstroke);
+	else if (sym >= XK_Gbreve && sym <= XK_Jcircumflex)
+	    *lower += (XK_gbreve - XK_Gbreve);
+	else if (sym >= XK_hstroke && sym <= XK_hcircumflex)
+	    *upper -= (XK_hstroke - XK_Hstroke);
+	else if (sym >= XK_gbreve && sym <= XK_jcircumflex)
+	    *upper -= (XK_gbreve - XK_Gbreve);
+	else if (sym >= XK_Cabovedot && sym <= XK_Scircumflex)
+	    *lower += (XK_cabovedot - XK_Cabovedot);
+	else if (sym >= XK_cabovedot && sym <= XK_scircumflex)
+	    *upper -= (XK_cabovedot - XK_Cabovedot);
+	break;
+    case 3: /* Latin 4 */
+	/* Assume the KeySym is a legal value (ignore discontinuities) */
+	if (sym >= XK_Rcedilla && sym <= XK_Tslash)
+	    *lower += (XK_rcedilla - XK_Rcedilla);
+	else if (sym >= XK_rcedilla && sym <= XK_tslash)
+	    *upper -= (XK_rcedilla - XK_Rcedilla);
+	else if (sym == XK_ENG)
+	    *lower = XK_eng;
+	else if (sym == XK_eng)
+	    *upper = XK_ENG;
+	else if (sym >= XK_Amacron && sym <= XK_Umacron)
+	    *lower += (XK_amacron - XK_Amacron);
+	else if (sym >= XK_amacron && sym <= XK_umacron)
+	    *upper -= (XK_amacron - XK_Amacron);
+	break;
+    case 6: /* Cyrillic */
+	/* Assume the KeySym is a legal value (ignore discontinuities) */
+	if (sym >= XK_Serbian_DJE && sym <= XK_Serbian_DZE)
+	    *lower -= (XK_Serbian_DJE - XK_Serbian_dje);
+	else if (sym >= XK_Serbian_dje && sym <= XK_Serbian_dze)
+	    *upper += (XK_Serbian_DJE - XK_Serbian_dje);
+	else if (sym >= XK_Cyrillic_YU && sym <= XK_Cyrillic_HARDSIGN)
+	    *lower -= (XK_Cyrillic_YU - XK_Cyrillic_yu);
+	else if (sym >= XK_Cyrillic_yu && sym <= XK_Cyrillic_hardsign)
+	    *upper += (XK_Cyrillic_YU - XK_Cyrillic_yu);
+        break;
+    case 7: /* Greek */
+	/* Assume the KeySym is a legal value (ignore discontinuities) */
+	if (sym >= XK_Greek_ALPHAaccent && sym <= XK_Greek_OMEGAaccent)
+	    *lower += (XK_Greek_alphaaccent - XK_Greek_ALPHAaccent);
+	else if (sym >= XK_Greek_alphaaccent && sym <= XK_Greek_omegaaccent &&
+		 sym != XK_Greek_iotaaccentdieresis &&
+		 sym != XK_Greek_upsilonaccentdieresis)
+	    *upper -= (XK_Greek_alphaaccent - XK_Greek_ALPHAaccent);
+	else if (sym >= XK_Greek_ALPHA && sym <= XK_Greek_OMEGA)
+	    *lower += (XK_Greek_alpha - XK_Greek_ALPHA);
+	else if (sym >= XK_Greek_alpha && sym <= XK_Greek_omega &&
+		 sym != XK_Greek_finalsmallsigma)
+	    *upper -= (XK_Greek_alpha - XK_Greek_ALPHA);
+        break;
+    }
 }
 
 static const char *
@@ -2717,6 +2821,7 @@ static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
       	int offset = 0, *offsetp = &offset, left;
 	unsigned char success;
 	int length_of_vendor;
+	int length_of_reason;
 	proto_item *ti;
 	proto_tree *t;
 
@@ -2726,32 +2831,37 @@ static void dissect_x11_initial_reply(tvbuff_t *tvb, packet_info *pinfo,
 
 	state->iconn_reply = pinfo->fd->num;
 	success = INT8(success);
-	if (success == 0) {
-		UNDECODED(1);
+	if (success) {
+		UNUSED(1);
+		length_of_reason = 0;
 	}
 	else {
-		UNUSED(1);
+		length_of_reason = INT8(length_of_reason);
 	}
 
 	INT16(protocol_major_version);
 	INT16(protocol_minor_version);
 	INT16(replylength);
-	INT32(release_number);
-	INT32(resource_id_base);
-	INT32(resource_id_mask);
-	INT32(motion_buffer_size);
-	length_of_vendor = INT16(length_of_vendor);
-	INT16(maximum_request_length);
-	INT8(number_of_screens_in_roots);
-	INT8(number_of_formats_in_pixmap_formats);
-	INT8(image_byte_order);
-	INT8(bitmap_format_bit_order);
-	INT8(bitmap_format_scanline_unit);
-	INT8(bitmap_format_scanline_pad);
-	INT8(min_keycode);
-	INT8(max_keycode);
-	UNUSED(4);
-	STRING8(vendor, length_of_vendor);
+	if (success) {
+		INT32(release_number);
+		INT32(resource_id_base);
+		INT32(resource_id_mask);
+		INT32(motion_buffer_size);
+		length_of_vendor = INT16(length_of_vendor);
+		INT16(maximum_request_length);
+		INT8(number_of_screens_in_roots);
+		INT8(number_of_formats_in_pixmap_formats);
+		INT8(image_byte_order);
+		INT8(bitmap_format_bit_order);
+		INT8(bitmap_format_scanline_unit);
+		INT8(bitmap_format_scanline_pad);
+		INT8(min_keycode);
+		INT8(max_keycode);
+		UNUSED(4);
+		STRING8(vendor, length_of_vendor);
+	} else {
+		STRING8(reason, length_of_reason);
+	}
 
       	if ((left = tvb_reported_length_remaining(tvb, offset)) > 0)
 	    UNDECODED(left);
@@ -2772,7 +2882,6 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
       guint16 v16;
       guint32 v32;
       gint left;
-      char *str;
 
       length = VALUE16(tvb, 2) * 4;
 
@@ -2795,12 +2904,9 @@ static void dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo,
 	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s", sep,
 			  val_to_str(opcode, opcode_vals, "<Unknown opcode %d>"));
 
-      str = g_strdup_printf(", Request, opcode: %d (%s)", 
+      proto_item_append_text(ti, ", Request, opcode: %d (%s)", 
                             opcode, val_to_str(opcode, opcode_vals,
                             "<Unknown opcode %d>"));
-
-      proto_item_append_text(ti, str);
-      g_free(str);
 
       /*
        * Does this request expect a reply?
@@ -3849,8 +3955,16 @@ static void dissect_x11_requests(tvbuff_t *tvb, packet_info *pinfo,
       int length;
       tvbuff_t *next_tvb;
 
-      while ((length_remaining = tvb_reported_length_remaining(tvb, offset))
-      > 0) {
+      while (tvb_reported_length_remaining(tvb, offset) != 0) {
+	    /*
+	     * We use "tvb_ensure_length_remaining()" to make sure there
+	     * actually *is* data remaining.
+	     *
+	     * This means we're guaranteed that "length_remaining" is
+	     * positive.
+	     */
+	    length_remaining = tvb_ensure_length_remaining(tvb, offset);
+
 	    /*
 	     * Can we do reassembly?
 	     */
@@ -4173,8 +4287,16 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	little_endian = guess_byte_ordering(tvb, pinfo, state);
 
 	offset = 0;
-	while ((length_remaining = tvb_reported_length_remaining(tvb, offset))
-	> 0) {
+	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		/*
+		 * We use "tvb_ensure_length_remaining()" to make sure there
+		 * actually *is* data remaining.
+		 *
+		 * This means we're guaranteed that "length_remaining" is
+		 * positive.
+		 */
+		length_remaining = tvb_ensure_length_remaining(tvb, offset);
+
 	    	/*
 	     	* Can we do reassembly?
 	     	*/
@@ -4198,53 +4320,61 @@ dissect_x11_replies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/*
 		 * Find out what kind of a reply it is.
-		 * There are three possible:
+		 * There are four possible:
+		 *	- reply to initial connection
 		 *	- errorreply (a request generated an error)
 		 * 	- requestreply (reply to a request)
-		 *	- eventreply (some event occured)
+		 *	- event (some event occured)
 		 */
+		if (g_hash_table_lookup(state->seqtable,
+		    (int *)state->sequencenumber) == (int *)INITIAL_CONN 
+		    || (state->iconn_reply == pinfo->fd->num)) {
+			/*
+			 * Either the connection is in the "initial
+			 * connection" state, or this frame is known
+			 * to have the initial connection reply.
+			 * That means this is the initial connection
+			 * reply.
+			 */
+			plen = 8 + VALUE16(tvb, offset + 6) * 4;
 
-		switch (tvb_get_guint8(tvb, offset)) {
-		       case 0:
-			       	plen = 32;
-			       	HANDLE_REPLY(plen, length_remaining,
-			       	"Error", dissect_x11_error); 
+			HANDLE_REPLY(plen, length_remaining,
+			    "Initial connection reply", 
+			    dissect_x11_initial_reply); 
+		} else {
+			/*
+			 * This isn't an initial connection reply
+			 * (XXX - unless we missed the initial
+			 * connection request).  Look at the first
+			 * byte to determine what it is; errors
+			 * start with a byte of 0, replies start
+			 * with a byte of 1, events start with
+			 * a byte with of 2 or greater.
+			 */
+			switch (tvb_get_guint8(tvb, offset)) {
+
+			case 0:
+				plen = 32;
+				HANDLE_REPLY(plen, length_remaining,
+				    "Error", dissect_x11_error); 
 				break;
 
 			case 1:
 				/* replylength is in units of four. */
-				if (g_hash_table_lookup(state->seqtable,
-				(int *)state->sequencenumber)
-				== (int *)INITIAL_CONN 
-	    			|| (state->iconn_reply == pinfo->fd->num)) {
-					/*
-					 * ref. by A. Nye. says all
-					 * replies are 32 + "additional bytes".
-					 * Initial serverreply seems to be
-					 * the exception, it's 8 + "additional
-					 * bytes".
-					 */
-					plen = 8 + VALUE16(tvb, offset + 6) * 4;
+				plen = 32 + VALUE32(tvb, offset + 4) * 4;
 
-					HANDLE_REPLY(plen, length_remaining,
-					"Initial connection reply", 
-					dissect_x11_initial_reply); 
-				}
-				else {
-					plen
-					= 32 + VALUE32(tvb, offset + 4) * 4;
-
-					HANDLE_REPLY(plen, length_remaining,
-					"Reply", dissect_x11_reply); 
-				}
+				HANDLE_REPLY(plen, length_remaining,
+				    "Reply", dissect_x11_reply); 
 				break;
 
 		       	default:
+		       		/* Event */
 				plen = 32;
 				HANDLE_REPLY(plen, length_remaining,
-				"Event", dissect_x11_event);
+				    "Event", dissect_x11_event);
 				break;
-	       }
+			}
+		}
 
 		offset += plen;
 	}
@@ -4260,7 +4390,6 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int offset = 0, *offsetp = &offset, length, left, opcode;
 	proto_item *ti;
 	proto_tree *t;
-	char *str;
 	
 	ti = proto_tree_add_item(tree, proto_x11, tvb, 0,
 	                         tvb_reported_length_remaining(tvb, offset),
@@ -4281,12 +4410,9 @@ dissect_x11_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				 */
 		  	     	val_to_str(opcode, opcode_vals, "<Unknown opcode %d>"));
 
-        str = g_strdup_printf(", Reply, opcode: %d (%s)", 
+        proto_item_append_text(ti, ", Reply, opcode: %d (%s)", 
                               opcode, val_to_str(opcode, opcode_vals,
                               "<Unknown opcode %d>"));
-
-        proto_item_append_text(ti, str);
-        g_free(str);
 
   	if (tree == NULL)
   	 	return; 
@@ -4391,7 +4517,6 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	int offset = 0, *offsetp = &offset, left;
 	unsigned char eventcode;
-	char *str;
 	proto_item *ti;
 	proto_tree *t;
 
@@ -4413,12 +4538,9 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				   "<Unknown eventcode %u>"));
 	++offset;
 
-	str = g_strdup_printf(", Event, eventcode: %d (%s)", 
+	proto_item_append_text(ti, ", Event, eventcode: %d (%s)", 
 			      eventcode, val_to_str(eventcode, eventcode_vals,
 			      "<Unknown eventcode %u>"));
-
-	proto_item_append_text(ti, str);
-	g_free(str);
 
   	if (tree == NULL)
   	 	return; 
@@ -4510,8 +4632,6 @@ dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	unsigned char errorcode, error;
 	proto_item *ti;
 	proto_tree *t;
-	char *str;
-
 
 	ti = proto_tree_add_item(tree, proto_x11, tvb, 0, -1, FALSE);
 	t = proto_item_add_subtree(ti, ett_x11);
@@ -4532,12 +4652,9 @@ dissect_x11_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				   "<Unknown errocode %u>"));
 	++offset;
 
-        str = g_strdup_printf(", Error, errorcode: %d (%s)", 
+        proto_item_append_text(ti, ", Error, errorcode: %d (%s)", 
                               errorcode, val_to_str(errorcode, errorcode_vals,
                               "<Unknown errorcode %u>"));
-
-        proto_item_append_text(ti, str);
-        g_free(str);
 
   	if (tree == NULL)
   	 	return; 

@@ -3,7 +3,7 @@
 #
 # Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
 #
-# $Id: x11-fields,v 1.10 2004/01/02 12:52:45 obiot Exp $
+# $Id: x11-fields,v 1.11 2004/01/04 10:57:18 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -77,7 +77,7 @@ border-width	UINT16	DEC
 button		UINT8	DEC	VALS
 byte-order	UINT8	HEX	VALS
 
-childwindow	UINT32	DEC	childwindow
+childwindow	UINT32	HEX	childwindow
 cap-style	UINT8	DEC	VALS
 change-host-mode	UINT8	DEC	VALS(insert_delete)
 cid		UINT32	HEX
@@ -149,7 +149,7 @@ event-x	UINT16	DEC	event x
 event-y	UINT16	DEC	event y
 eventbutton	UINT8	DEC	eventbutton
 eventcode	UINT8	DEC	VALS	eventcode
-eventwindow	UINT32	DEC	eventwindow
+eventwindow	UINT32	HEX	eventwindow
 
 gc-dashes	UINT8	DEC
 
@@ -276,6 +276,7 @@ keysyms		NONE	NONE
 		keysym	UINT32	HEX
 
 keysyms-per-keycode	UINT8	DEC
+length-of-reason	UINT8	DEC	length of reason
 length-of-vendor	UINT16	DEC	length of vendor
 led		UINT8	DEC
 led-mode	UINT8	DEC	VALS(on_off)
@@ -299,11 +300,6 @@ min-keycode	UINT8	DEC	min keycode
 minor-opcode	UINT16	DEC	minor opcode
 
 modifiers-mask		UINT16	HEX
-	Button1		BOOLEAN	16	0x0100
-	Button2		BOOLEAN	16	0x0200
-	Button3		BOOLEAN	16	0x0300
-	Button4		BOOLEAN	16	0x0400
-	Button5		BOOLEAN	16	0x0500
 	Shift			BOOLEAN	16	0x0001
 	Lock			BOOLEAN	16	0x0002
 	Control			BOOLEAN	16	0x0004
@@ -312,6 +308,11 @@ modifiers-mask		UINT16	HEX
 	Mod3			BOOLEAN	16	0x0020
 	Mod4			BOOLEAN	16	0x0040
 	Mod5			BOOLEAN	16	0x0080
+	Button1			BOOLEAN	16	0x0100
+	Button2			BOOLEAN	16	0x0200
+	Button3			BOOLEAN	16	0x0400
+	Button4			BOOLEAN	16	0x0800
+	Button5			BOOLEAN	16	0x1000
 	AnyModifier		UINT16	HEX	0x8000
 	erroneous-bits		BOOLEAN	16	0xff00
 
@@ -375,6 +376,7 @@ property	UINT32	HEX
 property-number	UINT16	DEC
 protocol-major-version	UINT16	DEC
 protocol-minor-version	UINT16	DEC
+reason		STRING	HEX	reason
 rectangle-height	UINT16	DEC
 rectangles	NONE	NONE
 rectangle	NONE	NONE
@@ -397,10 +399,10 @@ resource-id-base	UINT32	HEX	resource id base
 resource-id-mask	UINT32	HEX	resource id mask
 root-x	UINT16	DEC	root x
 root-y	UINT16	DEC	root y
-rootwindow	UINT32	DEC	rootwindow
+rootwindow	UINT32	HEX	rootwindow
 
 same-screen	BOOLEAN	NONE	same screen
-success	UINT8	DEC	success
+success		UINT8	DEC	success
 save-set-mode	UINT8	DEC	VALS(insert_delete)
 save-under	BOOLEAN	NONE
 screen-saver-mode	UINT8	DEC	VALS
@@ -456,7 +458,7 @@ type		UINT32	HEX
 undecoded	NONE	NONE		Yet undecoded by dissector
 unused		NONE	NONE
 valuelength	UINT32	DEC	valuelength
-vendor	STRING	HEX	vendor
+vendor		STRING	HEX	vendor
 visual		UINT32	HEX
 visualid	UINT32	HEX
 warp-pointer-dst-window	UINT32	HEX	VALS(zero_is_none)

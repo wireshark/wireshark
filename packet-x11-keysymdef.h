@@ -3,7 +3,7 @@
  * Copyright holders: Digital, The Open Group
  * (see below for their copyright statement)
  *
- * $Id: packet-x11-keysymdef.h,v 1.2 2004/01/03 13:03:02 tuexen Exp $
+ * $Id: packet-x11-keysymdef.h,v 1.3 2004/01/04 10:57:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2061,108 +2061,3 @@ SOFTWARE.
 #define XK_DongSign					0x20ab
 #define XK_EuroSign					0x20ac
 #endif
-
-static void
-XConvertCase(sym, lower, upper)
-    register int sym;
-    int *lower;
-    int *upper;
-{
-    *lower = sym;
-    *upper = sym;
-    switch(sym >> 8) {
-    case 0: /* Latin 1 */
-	if ((sym >= XK_A) && (sym <= XK_Z))
-	    *lower += (XK_a - XK_A);
-	else if ((sym >= XK_a) && (sym <= XK_z))
-	    *upper -= (XK_a - XK_A);
-	else if ((sym >= XK_Agrave) && (sym <= XK_Odiaeresis))
-	    *lower += (XK_agrave - XK_Agrave);
-	else if ((sym >= XK_agrave) && (sym <= XK_odiaeresis))
-	    *upper -= (XK_agrave - XK_Agrave);
-	else if ((sym >= XK_Ooblique) && (sym <= XK_Thorn))
-	    *lower += (XK_oslash - XK_Ooblique);
-	else if ((sym >= XK_oslash) && (sym <= XK_thorn))
-	    *upper -= (XK_oslash - XK_Ooblique);
-	break;
-    case 1: /* Latin 2 */
-	/* Assume the KeySym is a legal value (ignore discontinuities) */
-	if (sym == XK_Aogonek)
-	    *lower = XK_aogonek;
-	else if (sym >= XK_Lstroke && sym <= XK_Sacute)
-	    *lower += (XK_lstroke - XK_Lstroke);
-	else if (sym >= XK_Scaron && sym <= XK_Zacute)
-	    *lower += (XK_scaron - XK_Scaron);
-	else if (sym >= XK_Zcaron && sym <= XK_Zabovedot)
-	    *lower += (XK_zcaron - XK_Zcaron);
-	else if (sym == XK_aogonek)
-	    *upper = XK_Aogonek;
-	else if (sym >= XK_lstroke && sym <= XK_sacute)
-	    *upper -= (XK_lstroke - XK_Lstroke);
-	else if (sym >= XK_scaron && sym <= XK_zacute)
-	    *upper -= (XK_scaron - XK_Scaron);
-	else if (sym >= XK_zcaron && sym <= XK_zabovedot)
-	    *upper -= (XK_zcaron - XK_Zcaron);
-	else if (sym >= XK_Racute && sym <= XK_Tcedilla)
-	    *lower += (XK_racute - XK_Racute);
-	else if (sym >= XK_racute && sym <= XK_tcedilla)
-	    *upper -= (XK_racute - XK_Racute);
-	break;
-    case 2: /* Latin 3 */
-	/* Assume the KeySym is a legal value (ignore discontinuities) */
-	if (sym >= XK_Hstroke && sym <= XK_Hcircumflex)
-	    *lower += (XK_hstroke - XK_Hstroke);
-	else if (sym >= XK_Gbreve && sym <= XK_Jcircumflex)
-	    *lower += (XK_gbreve - XK_Gbreve);
-	else if (sym >= XK_hstroke && sym <= XK_hcircumflex)
-	    *upper -= (XK_hstroke - XK_Hstroke);
-	else if (sym >= XK_gbreve && sym <= XK_jcircumflex)
-	    *upper -= (XK_gbreve - XK_Gbreve);
-	else if (sym >= XK_Cabovedot && sym <= XK_Scircumflex)
-	    *lower += (XK_cabovedot - XK_Cabovedot);
-	else if (sym >= XK_cabovedot && sym <= XK_scircumflex)
-	    *upper -= (XK_cabovedot - XK_Cabovedot);
-	break;
-    case 3: /* Latin 4 */
-	/* Assume the KeySym is a legal value (ignore discontinuities) */
-	if (sym >= XK_Rcedilla && sym <= XK_Tslash)
-	    *lower += (XK_rcedilla - XK_Rcedilla);
-	else if (sym >= XK_rcedilla && sym <= XK_tslash)
-	    *upper -= (XK_rcedilla - XK_Rcedilla);
-	else if (sym == XK_ENG)
-	    *lower = XK_eng;
-	else if (sym == XK_eng)
-	    *upper = XK_ENG;
-	else if (sym >= XK_Amacron && sym <= XK_Umacron)
-	    *lower += (XK_amacron - XK_Amacron);
-	else if (sym >= XK_amacron && sym <= XK_umacron)
-	    *upper -= (XK_amacron - XK_Amacron);
-	break;
-    case 6: /* Cyrillic */
-	/* Assume the KeySym is a legal value (ignore discontinuities) */
-	if (sym >= XK_Serbian_DJE && sym <= XK_Serbian_DZE)
-	    *lower -= (XK_Serbian_DJE - XK_Serbian_dje);
-	else if (sym >= XK_Serbian_dje && sym <= XK_Serbian_dze)
-	    *upper += (XK_Serbian_DJE - XK_Serbian_dje);
-	else if (sym >= XK_Cyrillic_YU && sym <= XK_Cyrillic_HARDSIGN)
-	    *lower -= (XK_Cyrillic_YU - XK_Cyrillic_yu);
-	else if (sym >= XK_Cyrillic_yu && sym <= XK_Cyrillic_hardsign)
-	    *upper += (XK_Cyrillic_YU - XK_Cyrillic_yu);
-        break;
-    case 7: /* Greek */
-	/* Assume the KeySym is a legal value (ignore discontinuities) */
-	if (sym >= XK_Greek_ALPHAaccent && sym <= XK_Greek_OMEGAaccent)
-	    *lower += (XK_Greek_alphaaccent - XK_Greek_ALPHAaccent);
-	else if (sym >= XK_Greek_alphaaccent && sym <= XK_Greek_omegaaccent &&
-		 sym != XK_Greek_iotaaccentdieresis &&
-		 sym != XK_Greek_upsilonaccentdieresis)
-	    *upper -= (XK_Greek_alphaaccent - XK_Greek_ALPHAaccent);
-	else if (sym >= XK_Greek_ALPHA && sym <= XK_Greek_OMEGA)
-	    *lower += (XK_Greek_alpha - XK_Greek_ALPHA);
-	else if (sym >= XK_Greek_alpha && sym <= XK_Greek_omega &&
-		 sym != XK_Greek_finalsmallsigma)
-	    *upper -= (XK_Greek_alpha - XK_Greek_ALPHA);
-        break;
-    }
-}
-
