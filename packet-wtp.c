@@ -1,13 +1,16 @@
-/* packet-wtp.c (c) 2000 Neil Hunter
- * Base on original work by Ben Fowler
+/* packet-wtp.c
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.10 2001/01/22 08:03:46 guy Exp $
+ * $Id: packet-wtp.c,v 1.11 2001/02/13 00:17:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Didier Jorand
+ *
+ * WAP dissector based on original work by Ben Fowler
+ * Updated by Neil Hunter <neil.hunter@energis-squared.com>
+ * WTLS support by Alexandre P. Ferreira (Splice IP)
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -167,6 +170,7 @@ static int hf_wtp_header_missing_packets		= HF_EMPTY;
 static gint ett_wtp 							= ETT_EMPTY;
 static gint ett_header 							= ETT_EMPTY;
 
+/* Handle for WSP dissector */
 static dissector_handle_t wsp_handle;
 
 /* Declarations */
@@ -424,10 +428,12 @@ dissect_wtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 	}
 		
-	/* Any remaining data ought to be WSP data, so hand off to the WSP dissector */
+	/* Any remaining data ought to be WSP data,
+	 * so hand off to the WSP dissector */
 	if (tvb_reported_length (tvb) > cbHeader)
 	{
-		wsp_tvb = tvb_new_subset(tvb, cbHeader, -1, tvb_reported_length (tvb)-cbHeader);
+		wsp_tvb = tvb_new_subset(tvb, cbHeader, -1,
+			tvb_reported_length (tvb)-cbHeader);
 		call_dissector(wsp_handle, wsp_tvb, pinfo, tree);
 	}
 
@@ -471,21 +477,21 @@ proto_register_wtp(void)
 		},
 		{ &hf_wtp_header_flag_continue,
 			{ 	"Continue Flag",           
-				"wtp.continue-flag",
+				"wtp.continue_flag",
 				FT_BOOLEAN, 8, TFS( &continue_truth ), 0x80,          
 				"Continue Flag" 
 			}
 		},
 		{ &hf_wtp_header_pdu_type,
 			{ 	"PDU Type",           
-				"wtp.pdu-type",
+				"wtp.pdu_type",
 				 FT_UINT8, BASE_HEX, VALS( vals_pdu_type ), 0x78,
 				"PDU Type" 
 			}
 		},
 		{ &hf_wtp_header_flag_Trailer,
 			{ 	"Trailer Flags",           
-				"wtp.trailer-flags",
+				"wtp.trailer_flags",
 				 FT_UINT8, BASE_HEX, VALS( vals_transmission_trailer ), 0x06,
 				"PDU Type" 
 			}
@@ -541,7 +547,7 @@ proto_register_wtp(void)
 		},
 		{ &hf_wtp_header_Inv_TransactionClass,
 			{ 	"Transaction Class",           
-				"wtp.inv.transaction-class",
+				"wtp.inv.transaction_class",
 				 FT_UINT8, BASE_HEX, NULL, 0x03,
 				"Transaction Class" 
 			}
@@ -629,10 +635,9 @@ void
 proto_reg_handoff_wtp(void)
 {
 	/*
-	 * Get a handle for the IP WSP dissector.
+	 * Get a handle for the IP WSP dissector - if WTP PDUs have data, it is WSP
 	 */
 	wsp_handle = find_dissector("wsp");
 
 	dissector_add("udp.port", UDP_PORT_WTP_WSP, dissect_wtp, proto_wtp);
-	/* dissector_add("udp.port", UDP_PORT_WTLS_WTP_WSP, dissect_wtp, proto_wtp); */
 }

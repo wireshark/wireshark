@@ -1,14 +1,16 @@
-/* packet-wsp.h (c) 2000 Neil Hunter
- * Based on original work by Ben Fowler
+/* packet-wsp.h
  *
  * Declarations for disassembly of WSP component of WAP traffic.
  *
- * $Id: packet-wsp.h,v 1.2 2001/01/03 08:42:48 guy Exp $
+ * $Id: packet-wsp.h,v 1.3 2001/02/13 00:17:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
+ * WAP dissector based on original work by Ben Fowler
+ * Updated by Neil Hunter <neil.hunter@energis-squared.com>
+ * WTLS support by Alexandre P. Ferreira (Splice IP)
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,8 +25,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #ifndef __PACKET_WSP_H__
@@ -38,11 +38,11 @@
  * TODO:
  *	Capability encoding
  *	Remaining headers (perhaps a place holder for those yet to be implemented)
- *	Decoding of WMLC content
  *	Remaining PDUs
  */
 
-/* Reason codes also used in WTP dissector as we assume WSP is the user */
+/* These reason codes are also used in the WTP dissector as the WTP user is
+ * assumed to be WSP */
 static const value_string vals_wsp_reason_codes[] = {
 	{ 0xE0, "Protocol Error (Illegal PDU)" },
 	{ 0xE1, "Session disconnected" },

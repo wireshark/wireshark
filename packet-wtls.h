@@ -1,8 +1,8 @@
-/* packet-wtp.h
+/* packet-wtls.h
  *
- * Declarations for disassembly of WTP component of WAP traffic.
+ * Declarations for disassembly of WTLS component of WAP traffic.
  *
- * $Id: packet-wtp.h,v 1.3 2001/02/13 00:17:54 guy Exp $
+ * $Id: packet-wtls.h,v 1.1 2001/02/13 00:17:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,37 +27,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PACKET_WTP_H__
-#define __PACKET_WTP_H__
+#ifndef __PACKET_WTLS_H__
+#define __PACKET_WTLS_H__
 
 /* Implementation Status:
  *
- * All fixed headers decoded for non-concatenated PDUs.
+ *
  *
  * TODO:
- *	Support for concatenated PDUs
- *	Support for decoding TPIs in variable header
  */
 
-/* WTP PDU Types
-   See section 9.1 (p. 40) of spec-wtp-19990611.pdf
-*/
-
-enum {
-	ERRONEOUS			= -0x01,
-	NOT_ALLOWED			= 0x00,
-	INVOKE				= 0x01,
-	RESULT				= 0x02,
-	ACK					= 0x03,
-	ABORT				= 0x04,
-	SEGMENTED_INVOKE	= 0x05,
-	SEGMENTED_RESULT	= 0x06,
-	NEGATIVE_ACK		= 0x07
-};
-
-enum {
-	PROVIDER			= 0x00,
-	USER				= 0x01
-};
-
-#endif /* packet-wtp.h */
+#endif /* packet-wtls.h */
