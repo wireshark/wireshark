@@ -3,7 +3,7 @@
  * Helper routines common to all service response time statistics
  * tap.
  *
- * $Id: service_response_time_table.c,v 1.3 2003/06/21 05:57:34 sahlberg Exp $
+ * $Id: service_response_time_table.c,v 1.4 2003/06/21 06:45:49 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,10 +162,10 @@ init_srt_table(srt_stat_table *rst, int num_procs, GtkWidget *vbox)
 
 		col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
 		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
-		if (i == 0) {
-			gtk_widget_show(col_arrows[i].ascend_pm);
-		}
 		col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
+		if (i == 2) {
+			gtk_widget_show(col_arrows[i].descend_pm);
+		}
 		gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm, 1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
 		gtk_clist_set_column_widget(GTK_CLIST(rst->table), i, col_arrows[i].table);
 		gtk_widget_show(col_arrows[i].table);
