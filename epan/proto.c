@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.98 2003/07/31 04:18:00 guy Exp $
+ * $Id: proto.c,v 1.99 2003/08/25 00:15:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,7 +124,7 @@ static int proto_register_field_init(header_field_info *hfinfo, int parent);
 static int g_strcmp(gconstpointer a, gconstpointer b);
 
 /* special-case header field used within proto.c */
-int hf_text_only = 1;
+int hf_text_only = -1;
 
 /* Structure for information about a protocol */
 typedef struct {
@@ -137,6 +137,8 @@ typedef struct {
 	gboolean is_enabled;	/* TRUE if protocol is enabled */
 	gboolean can_disable;	/* TRUE if protocol can be disabled */
 } protocol_t;
+
+static protocol_t *find_protocol_by_id(int proto_id);
 
 /* List of all protocols */
 static GList *protocols;
@@ -185,27 +187,13 @@ proto_init(const char *plugin_dir
 	   void (register_all_protocols)(void),
 	   void (register_all_protocol_handoffs)(void))
 {
-	int			id, num_symbols;
-	char			*abbrev;
-	header_field_info	*hfinfo, *same_name_hfinfo, *same_name_next_hfinfo;
 	static hf_register_info hf[] = {
 		{ &hf_text_only,
 		{ "",	"", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 	};
 
-	if (gmc_hfinfo)
-		g_mem_chunk_destroy(gmc_hfinfo);
-	if (gmc_field_info)
-		g_mem_chunk_destroy(gmc_field_info);
-	if (gmc_proto_node)
-		g_mem_chunk_destroy(gmc_proto_node);
-	if (gmc_item_labels)
-		g_mem_chunk_destroy(gmc_item_labels);
-	if (gpa_hfinfo)
-		g_ptr_array_free(gpa_hfinfo, TRUE);
-	if (tree_is_expanded != NULL)
-		g_free(tree_is_expanded);
+	proto_cleanup();
 
 	gmc_hfinfo = g_mem_chunk_new("gmc_hfinfo",
 		sizeof(header_field_info),
@@ -228,9 +216,15 @@ proto_init(const char *plugin_dir
 		G_ALLOC_AND_FREE);
 
 	gpa_hfinfo = g_ptr_array_new();
+	gpa_name_tree = g_tree_new(g_strcmp);
 
 	/* Initialize the ftype subsystem */
 	ftypes_initialize();
+
+	/* Register one special-case FT_TEXT_ONLY field for use when
+	   converting ethereal to new-style proto_tree. These fields
+	   are merely strings on the GUI tree; they are not filterable */
+	proto_register_field_array(-1, hf, array_length(hf));
 
 	/* Have each built-in dissector register its protocols, fields,
 	   dissector tables, and dissectors to be called through a
@@ -255,72 +249,10 @@ proto_init(const char *plugin_dir
 	register_all_plugin_handoffs();
 #endif
 
-	/* Register one special-case FT_TEXT_ONLY field for use when
-	   converting ethereal to new-style proto_tree. These fields
-	   are merely strings on the GUI tree; they are not filterable */
-	proto_register_field_array(-1, hf, array_length(hf));
-
-	num_symbols = proto_registrar_n();
-
-	if (gpa_name_tree) {
-		/* XXX - needed? */
-		g_message("I expected gpa_name_tree to be NULL\n");
-		g_tree_destroy(gpa_name_tree);
-
-		/* Make sure the hfinfo->same_name links are broken */
-		for (id = 0; id < num_symbols; id++) {
-			hfinfo = proto_registrar_get_nth(id);
-			hfinfo->same_name_next = NULL;
-			hfinfo->same_name_prev = NULL;
-		}
-	}
-	gpa_name_tree = g_tree_new(g_strcmp);
-
-	/* Populate the abbrev/ID GTree (header-field symbol table) */
-
-	for (id = 0; id < num_symbols; id++) {
-		if (id == hf_text_only) {
-			continue;
-		}
-		abbrev = proto_registrar_get_abbrev(id);
-		hfinfo = proto_registrar_get_nth(id);
-
-		g_assert(abbrev);		/* Not Null */
-		g_assert(abbrev[0] != 0);	/* Not empty string */
-
-		/* We allow multiple hfinfo's to be registered under the same
-		 * abbreviation. This was done for X.25, as, depending
-		 * on whether it's modulo-8 or modulo-128 operation,
-		 * some bitfield fields may be in different bits of
-		 * a byte, and we want to be able to refer to that field
-		 * with one name regardless of whether the packets
-		 * are modulo-8 or modulo-128 packets. */
-		same_name_hfinfo = g_tree_lookup(gpa_name_tree, abbrev);
-		if (same_name_hfinfo) {
-			/* There's already a field with this name.
-			 * Put it after that field in the list of
-			 * fields with this name, then allow the code
-			 * after this if{} block to replace the old
-			 * hfinfo with the new hfinfo in the GTree. Thus,
-			 * we end up with a linked-list of same-named hfinfo's,
-			 * with the root of the list being the hfinfo in the GTree */
-			same_name_next_hfinfo =
-			    same_name_hfinfo->same_name_next;
-
-			hfinfo->same_name_next = same_name_next_hfinfo;
-			if (same_name_next_hfinfo)
-				same_name_next_hfinfo->same_name_prev = hfinfo;
-
-			same_name_hfinfo->same_name_next = hfinfo;
-			hfinfo->same_name_prev = same_name_hfinfo;
-		}
-		g_tree_insert(gpa_name_tree, abbrev, hfinfo);
-	}
-
 	/* We've assigned all the subtree type values; allocate the array
 	   for them, and zero it out. */
 	tree_is_expanded = g_malloc(num_tree_types*sizeof (gint *));
-	memset(tree_is_expanded, '\0', num_tree_types*sizeof (gint *));
+	memset(tree_is_expanded, 0, num_tree_types*sizeof (gint *));
 }
 
 /* String comparison func for dfilter_token GTree */
@@ -2200,6 +2132,35 @@ proto_get_next_protocol(void **cookie)
 	return protocol->proto_id;
 }
 
+header_field_info *
+proto_get_first_protocol_field(int proto_id, void **cookie)
+{
+	protocol_t *protocol = find_protocol_by_id(proto_id);
+	hf_register_info *ptr;
+
+	if ((protocol == NULL) || (protocol->fields == NULL))
+		return NULL;
+
+	*cookie = protocol->fields;
+	ptr = protocol->fields->data;
+	return &ptr->hfinfo;
+}
+
+header_field_info *
+proto_get_next_protocol_field(void **cookie)
+{
+	GList *list_item = *cookie;
+	hf_register_info *ptr;
+
+	list_item = g_list_next(list_item);
+	if (list_item == NULL)
+		return NULL;
+
+	*cookie = list_item;
+	ptr = list_item->data;
+	return &ptr->hfinfo;
+}
+
 /*
  * Find the protocol list entry for a protocol given its field ID.
  */
@@ -2339,6 +2300,10 @@ proto_register_field_array(int parent, hf_register_info *hf, int num_records)
 static int
 proto_register_field_init(header_field_info *hfinfo, int parent)
 {
+	/* The field must have names */
+	g_assert(hfinfo->name);
+	g_assert(hfinfo->abbrev);
+
 	/* These types of fields are allowed to have value_strings or true_false_strings */
 	g_assert((hfinfo->strings == NULL) || (
 			(hfinfo->type == FT_UINT8) ||
@@ -2389,6 +2354,41 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 	/* if we always add and never delete, then id == len - 1 is correct */
 	g_ptr_array_add(gpa_hfinfo, hfinfo);
 	hfinfo->id = gpa_hfinfo->len - 1;
+
+	/* if we have real names, enter this field in the name tree */
+	if ((hfinfo->name[0] != 0) && (hfinfo->abbrev[0] != 0 )) {
+
+		header_field_info *same_name_hfinfo, *same_name_next_hfinfo;
+
+		/* We allow multiple hfinfo's to be registered under the same
+		 * abbreviation. This was done for X.25, as, depending
+		 * on whether it's modulo-8 or modulo-128 operation,
+		 * some bitfield fields may be in different bits of
+		 * a byte, and we want to be able to refer to that field
+		 * with one name regardless of whether the packets
+		 * are modulo-8 or modulo-128 packets. */
+		same_name_hfinfo = g_tree_lookup(gpa_name_tree, hfinfo->abbrev);
+		if (same_name_hfinfo) {
+			/* There's already a field with this name.
+			 * Put it after that field in the list of
+			 * fields with this name, then allow the code
+			 * after this if{} block to replace the old
+			 * hfinfo with the new hfinfo in the GTree. Thus,
+			 * we end up with a linked-list of same-named hfinfo's,
+			 * with the root of the list being the hfinfo in the GTree */
+			same_name_next_hfinfo =
+			    same_name_hfinfo->same_name_next;
+
+			hfinfo->same_name_next = same_name_next_hfinfo;
+			if (same_name_next_hfinfo)
+				same_name_next_hfinfo->same_name_prev = hfinfo;
+
+			same_name_hfinfo->same_name_next = hfinfo;
+			hfinfo->same_name_prev = same_name_hfinfo;
+		}
+		g_tree_insert(gpa_name_tree, hfinfo->abbrev, hfinfo);
+	}
+
 	return hfinfo->id;
 }
 
@@ -3289,7 +3289,7 @@ proto_registrar_dump_fields(void)
 		 * with no pseudo-field being used, but that might also
 		 * require special checks for -1 to be added.
 		 */
-		if (strlen(hfinfo->name) == 0 || strlen(hfinfo->abbrev) == 0)
+		if (hfinfo->name[0] == 0 || hfinfo->abbrev[0] == 0)
 			continue;
 
 		/* format for protocols */

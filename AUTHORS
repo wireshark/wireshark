@@ -1710,6 +1710,8 @@ Matthijs Melchior <mmelchior [AT] xs4all.nl> {
 	TCP support in text2pcap
 	Support for automatically generating all declarations and
 	    definitions for plugin ABI from a single file
+	Support for registering fields after all the protocol
+	    registration routines are called
 }
 
 Garth Bushell <gbushell [AT] elipsan.com> {

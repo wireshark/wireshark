@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.34 2003/07/25 03:44:04 gram Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.35 2003/08/25 00:15:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1287,32 +1287,17 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
                                     hfinfo);
         g_hash_table_insert(proto_array, (gpointer)i, protocol_node);
     }
-#endif
 
     len = proto_registrar_n();
     for (i = 0; i < len; i++) {
-#if GTK_MAJOR_VERSION < 2
         /*
          * If this field is a protocol, skip it - we already put
          * it in above.
          */
         if (proto_registrar_is_protocol(i))
             continue;
-#else
-        GtkTreeIter child_iter;
-#endif
 
         hfinfo = proto_registrar_get_nth(i);
-
-#if GTK_MAJOR_VERSION >= 2
-        if (hfinfo->type == FT_PROTOCOL)
-        {
-            /* Create a node for the protocol */
-            gtk_tree_store_append(store, &iter, NULL);
-            gtk_tree_store_set(store, &iter, 0, hfinfo->abbrev, 1, hfinfo, -1);
-            continue;
-        }
-#endif
 
         /*
          * If this field isn't at the head of the list of
@@ -1331,7 +1316,6 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
         /* Create a node for the item, and put it
            under its parent protocol. */
-#if GTK_MAJOR_VERSION < 2
         protocol_node = g_hash_table_lookup(proto_array,
                                             GINT_TO_POINTER(proto_registrar_get_parent(i)));
         item_node = gtk_ctree_insert_node(GTK_CTREE(tree),
@@ -1341,16 +1325,39 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
                                           FALSE, FALSE);
         gtk_ctree_node_set_row_data(GTK_CTREE(tree),
                                     item_node, hfinfo);
-#else
-        gtk_tree_store_append(store, &child_iter, &iter);
-        gtk_tree_store_set(store, &child_iter, 0, hfinfo->name, 1, hfinfo, -1);
-#endif
     }
-#if GTK_MAJOR_VERSION < 2
     g_hash_table_destroy(proto_array);
-#else
+
+#else /* GTK_MAJOR_VERSION < 2 */
+{
+    /* GTK2 code using two levels iterator to enumerate all protocol fields */
+
+    GtkTreeIter iter, child_iter;
+    void *cookie, *cookie2;
+    gchar *name;
+
+    for (i = proto_get_first_protocol(&cookie); i != -1;
+         i = proto_get_next_protocol(&cookie)) {
+
+	hfinfo = proto_registrar_get_nth(i);
+	name = proto_get_protocol_short_name(i); /* name, short_name or filter name ? */
+
+	gtk_tree_store_append(store, &iter, NULL);
+	gtk_tree_store_set(store, &iter, 0, name, 1, hfinfo, -1);
+
+	for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
+	     hfinfo = proto_get_next_protocol_field(&cookie2)) {
+
+		if (hfinfo->same_name_prev != NULL) /* ignore duplicate names */
+			continue;
+
+		gtk_tree_store_append(store, &child_iter, &iter);
+		gtk_tree_store_set(store, &child_iter, 0, hfinfo->name, 1, hfinfo, -1);
+	}
+    }
     g_object_unref(G_OBJECT(store));
-#endif
+}
+#endif /* GTK_MAJOR_VERSION < 2 */
 
     gtk_widget_show_all(tree);
 

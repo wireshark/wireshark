@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.40 2003/05/03 00:48:35 guy Exp $
+ * $Id: proto.h,v 1.41 2003/08/25 00:15:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -541,10 +541,13 @@ extern gboolean proto_is_protocol_enabled(int proto_id);
 /* Can item #n decoding be disabled? */
 extern gboolean proto_can_disable_protocol(int proto_id);
 
-/* Routines to use to iterate over the protocols; they return the item
- * number of the protocol in question, and keep state in "*cookie". */
+/* Routines to use to iterate over the protocols and their fields;
+ * they return the item number of the protocol in question or the
+ * appropriate hfinfo pointer, and keep state in "*cookie". */
 extern int proto_get_first_protocol(void **cookie);
 extern int proto_get_next_protocol(void **cookie);
+extern header_field_info *proto_get_first_protocol_field(int proto_id, void **cookle);
+extern header_field_info *proto_get_next_protocol_field(void **cookle);
 
 /* Given a protocol's filter_name, return it's proto_id */
 extern int proto_get_id_by_filter_name(gchar* filter_name);
