@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.9 2000/07/01 08:55:26 guy Exp $
+ * $Id: packet-clnp.c,v 1.10 2000/07/10 06:52:29 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -281,8 +281,15 @@ static gchar *print_tsap(const u_char *tsap, int length)
   else {    
     allprintable=TRUE;
     for (i=0;i<length;i++) {
-	if (!isprint(tsap[i])) { /* if any byte is not printable */
-	  allprintable=FALSE;    /* switch to hexdump */
+	/* If any byte is not printable ASCII, display the TSAP as a
+	   series of hex byte values rather than as a string; this
+	   means that, for example, accented letters will cause it
+	   to be displayed as hex, but it also means that byte values
+	   such as 0xff and 0xfe, which *are* printable ISO 8859/x
+	   characters, won't be treated as printable - 0xfffffffe
+	   is probably binary, not text. */
+	if (!(isascii(tsap[i]) && isprint(tsap[i]))) {
+	  allprintable=FALSE;
 	  break;
 	  }	 
 	}
