@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.29 2000/02/15 21:01:55 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.30 2000/03/23 05:43:57 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -327,13 +327,14 @@ byte_str_to_guint8_array(const char *s)
 {
 	GByteArray	*barray;
 	guint8		val;
-	char		*byte_str = g_strdup(s); /* local copy of string */
+	char		*byte_str;
 	char		*p, *str;
 
 	barray = g_byte_array_new();
 	/* XXX - don't use global_df, but pass in pointer to GSList* */
 	global_df->list_of_byte_arrays = g_slist_append(global_df->list_of_byte_arrays, barray);
 
+	/* Local copy of string, since strtok will munge it */
 	byte_str = g_strdup(s);
 	str = byte_str;
 	while ((p = strtok(str, "-:."))) {
