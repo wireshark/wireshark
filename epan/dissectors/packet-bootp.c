@@ -148,10 +148,20 @@ static const true_false_string tfs_fqdn_n = {
 
 #define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
 
-enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
+enum field_type {
+	none,
+	presence,
+	ipv4,			/* single IPv4 address */
+	ipv4_list,		/* list of IPv4 addresses */
+	string,
+	toggle,
+	yes_no,
+	special,
+	opaque,
 	time_in_secs,
 	val_u_byte, val_u_short, val_u_le_short, val_u_long,
-	val_s_long, fqdn, ipv4_or_fqdn, bytes };
+	val_s_long, fqdn, ipv4_or_fqdn, bytes
+};
 
 struct opt_info {
 	char	*text;
@@ -312,22 +322,22 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 	static struct opt_info opt[] = {
 		/*   0 */ { "Padding",					none },
-		/*   1 */ { "Subnet Mask",				ipv4 },
+		/*   1 */ { "Subnet Mask",				ipv4_list },
 		/*   2 */ { "Time Offset",				time_in_secs },
-		/*   3 */ { "Router",					ipv4 },
-		/*   4 */ { "Time Server",				ipv4 },
-		/*   5 */ { "Name Server",				ipv4 },
-		/*   6 */ { "Domain Name Server",			ipv4 },
-		/*   7 */ { "Log Server",				ipv4 },
-		/*   8 */ { "Cookie Server",				ipv4 },
-		/*   9 */ { "LPR Server",				ipv4 },
-		/*  10 */ { "Impress Server",				ipv4 },
-		/*  11 */ { "Resource Location Server",			ipv4 },
+		/*   3 */ { "Router",					ipv4_list },
+		/*   4 */ { "Time Server",				ipv4_list },
+		/*   5 */ { "Name Server",				ipv4_list },
+		/*   6 */ { "Domain Name Server",			ipv4_list },
+		/*   7 */ { "Log Server",				ipv4_list },
+		/*   8 */ { "Cookie Server",				ipv4_list },
+		/*   9 */ { "LPR Server",				ipv4_list },
+		/*  10 */ { "Impress Server",				ipv4_list },
+		/*  11 */ { "Resource Location Server",			ipv4_list },
 		/*  12 */ { "Host Name",				string },
 		/*  13 */ { "Boot File Size",				val_u_short },
 		/*  14 */ { "Merit Dump File",				string },
 		/*  15 */ { "Domain Name",				string },
-		/*  16 */ { "Swap Server",				ipv4 },
+		/*  16 */ { "Swap Server",				ipv4_list },
 		/*  17 */ { "Root Path",				string },
 		/*  18 */ { "Extensions Path",				string },
 		/*  19 */ { "IP Forwarding",				toggle },
@@ -339,11 +349,11 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		/*  25 */ { "Path MTU Plateau Table",			val_u_short },
 		/*  26 */ { "Interface MTU",				val_u_short },
 		/*  27 */ { "All Subnets are Local",			yes_no },
-		/*  28 */ { "Broadcast Address",			ipv4 },
+		/*  28 */ { "Broadcast Address",			ipv4_list },
 		/*  29 */ { "Perform Mask Discovery",			toggle },
 		/*  30 */ { "Mask Supplier",				yes_no },
 		/*  31 */ { "Perform Router Discover",			toggle },
-		/*  32 */ { "Router Solicitation Address",		ipv4 },
+		/*  32 */ { "Router Solicitation Address",		ipv4_list },
 		/*  33 */ { "Static Route",				special },
 		/*  34 */ { "Trailer Encapsulation",			toggle },
 		/*  35 */ { "ARP Cache Timeout",			time_in_secs },
@@ -352,20 +362,20 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		/*  38 */ { "TCP Keepalive Interval",			time_in_secs },
 		/*  39 */ { "TCP Keepalive Garbage",			toggle },
 		/*  40 */ { "Network Information Service Domain",	string },
-		/*  41 */ { "Network Information Service Servers",	ipv4 },
-		/*  42 */ { "Network Time Protocol Servers",		ipv4 },
+		/*  41 */ { "Network Information Service Servers",	ipv4_list },
+		/*  42 */ { "Network Time Protocol Servers",		ipv4_list },
 		/*  43 */ { "Vendor-Specific Information",		special },
-		/*  44 */ { "NetBIOS over TCP/IP Name Server",		ipv4 },
-		/*  45 */ { "NetBIOS over TCP/IP Datagram Distribution Name Server", ipv4 },
+		/*  44 */ { "NetBIOS over TCP/IP Name Server",		ipv4_list },
+		/*  45 */ { "NetBIOS over TCP/IP Datagram Distribution Name Server", ipv4_list },
 		/*  46 */ { "NetBIOS over TCP/IP Node Type",		special },
 		/*  47 */ { "NetBIOS over TCP/IP Scope",		string },
-		/*  48 */ { "X Window System Font Server",		ipv4 },
-		/*  49 */ { "X Window System Display Manager",		ipv4 },
-		/*  50 */ { "Requested IP Address",			ipv4 },
+		/*  48 */ { "X Window System Font Server",		ipv4_list },
+		/*  49 */ { "X Window System Display Manager",		ipv4_list },
+		/*  50 */ { "Requested IP Address",			ipv4_list },
 		/*  51 */ { "IP Address Lease Time",			time_in_secs },
 		/*  52 */ { "Option Overload",				special },
 		/*  53 */ { "DHCP Message Type",			special },
-		/*  54 */ { "Server Identifier",			ipv4 },
+		/*  54 */ { "Server Identifier",			ipv4_list },
 		/*  55 */ { "Parameter Request List",			special },
 		/*  56 */ { "Message",					string },
 		/*  57 */ { "Maximum DHCP Message Size",		val_u_short },
@@ -376,18 +386,18 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		/*  62 */ { "Novell/Netware IP domain",			string },
 		/*  63 */ { "Novell Options",				special },
 		/*  64 */ { "Network Information Service+ Domain",	string },
-		/*  65 */ { "Network Information Service+ Servers",	ipv4 },
+		/*  65 */ { "Network Information Service+ Servers",	ipv4_list },
 		/*  66 */ { "TFTP Server Name",				string },
 		/*  67 */ { "Bootfile name",				string },
-		/*  68 */ { "Mobile IP Home Agent",			ipv4 },
-		/*  69 */ { "SMTP Server",				ipv4 },
-		/*  70 */ { "POP3 Server",				ipv4 },
-		/*  71 */ { "NNTP Server",				ipv4 },
-		/*  72 */ { "Default WWW Server",			ipv4 },
-		/*  73 */ { "Default Finger Server",			ipv4 },
-		/*  74 */ { "Default IRC Server",			ipv4 },
-		/*  75 */ { "StreetTalk Server",			ipv4 },
-		/*  76 */ { "StreetTalk Directory Assistance Server",	ipv4 },
+		/*  68 */ { "Mobile IP Home Agent",			ipv4_list },
+		/*  69 */ { "SMTP Server",				ipv4_list },
+		/*  70 */ { "POP3 Server",				ipv4_list },
+		/*  71 */ { "NNTP Server",				ipv4_list },
+		/*  72 */ { "Default WWW Server",			ipv4_list },
+		/*  73 */ { "Default Finger Server",			ipv4_list },
+		/*  74 */ { "Default IRC Server",			ipv4_list },
+		/*  75 */ { "StreetTalk Server",			ipv4_list },
+		/*  76 */ { "StreetTalk Directory Assistance Server",	ipv4_list },
 		/*  77 */ { "User Class Information",			opaque },
 		/*  78 */ { "Directory Agent Information",		special },
 		/*  79 */ { "Service Location Agent Scope",		special },
@@ -423,7 +433,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		/* 109 */ { "Unassigned",				opaque },
 		/* 110 */ { "IPX Compability",				opaque },
 		/* 111 */ { "Unassigned",				opaque },
-		/* 112 */ { "NetInfo Parent Server Address",		ipv4 },
+		/* 112 */ { "NetInfo Parent Server Address",		ipv4_list },
 		/* 113 */ { "NetInfo Parent Server Tag",		string },
 		/* 114 */ { "URL",					opaque },
 		/* 115 */ { "DHCP Failover Protocol",			opaque },
@@ -1136,7 +1146,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		case special:
 			return consumed;
 
-		case ipv4:
+		case ipv4_list:
 			if (optlen == 4) {
 				/* one IP address */
 				proto_tree_add_text(bp_tree, tvb, voff, consumed,
@@ -1350,7 +1360,7 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 
 	static struct o43pxeclient_opt_info o43pxeclient_opt[]= {
 		/* 0 */ {"nop", special},	/* dummy */
-		/* 1 */ {"PXE mtftp IP", ipv4},
+		/* 1 */ {"PXE mtftp IP", ipv4_list},
 		/* 2 */ {"PXE mtftp client port", val_u_le_short},
 		/* 3 */ {"PXE mtftp server port",val_u_le_short},
 		/* 4 */ {"PXE mtftp timeout", val_u_byte},
@@ -1362,7 +1372,7 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			 *	b2: only use/accept servers in boot servers
 			 *	b3: download bootfile without prompt/menu/disc
 			 */
-		/* 7 */ {"PXE multicast address", ipv4},
+		/* 7 */ {"PXE multicast address", ipv4_list},
 		/* 8 */ {"PXE boot servers", special},
 		/* 9 */ {"PXE boot menu", special},
 		/* 10 */ {"PXE menu prompt", special},
@@ -1448,7 +1458,7 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			    tvb_get_guint8(tvb, suboptoff));
 			break;
 
-		case ipv4:
+		case ipv4_list:
 			if (subopt_len == 4) {
 				/* one IP address */
 				proto_tree_add_text(v_tree, tvb, optoff, 6,
@@ -1666,17 +1676,17 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 
 	static struct o63_opt_info o63_opt[]= {
 		/* 0 */ {"","",none},
-		/* 1 */ {"NWIP does not exist on subnet","",string},
-		/* 2 */ {"NWIP exist in options area","",string},
-		/* 3 */ {"NWIP exists in sname/file","",string},
-		/* 4 */ {"NWIP exists, but too big","",string},
+		/* 1 */ {"NWIP does not exist on subnet","",presence},
+		/* 2 */ {"NWIP exist in options area","",presence},
+		/* 3 */ {"NWIP exists in sname/file","",presence},
+		/* 4 */ {"NWIP exists, but too big","",presence},
 		/* 5 */ {"Broadcast for nearest Netware server","Do NOT Broadcast for nearest Netware server",yes_no},
-		/* 6 */ {"Preferred DSS server","",ipv4},
-		/* 7 */ {"Nearest NWIP server","",ipv4},
+		/* 6 */ {"Preferred DSS server","",ipv4_list},
+		/* 7 */ {"Nearest NWIP server","",ipv4_list},
 		/* 8 */ {"Autoretries","",val_u_byte},
 		/* 9 */ {"Autoretry delay, secs ","",val_u_byte},
 		/* 10*/ {"Support NetWare/IP v1.1","Do NOT support NetWare/IP v1.1",yes_no},
-		/* 11*/ {"Primary DSS ", "" , special}
+		/* 11*/ {"Primary DSS ", "" , ipv4}
 	};
 
 	subopt = tvb_get_guint8(tvb, optoff);
@@ -1696,7 +1706,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	} else {
 		switch (o63_opt[subopt].ft) {
 
-		case string:	/* XXX - overloads "string" */
+		case presence:
 			if (subopt_len != 0) {
 				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 					"Suboption %d: length isn't 0", subopt);
@@ -1727,7 +1737,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			suboptoff += 3;
 			break;
 
-		case special:	/* XXX - overloads "special" */
+		case ipv4:
 			if (subopt_len != 4) {
 				proto_tree_add_text(v_tree, tvb, optoff, subopt_len + 2,
 					"Suboption %d: length isn't 4", subopt);
@@ -1766,7 +1776,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			suboptoff += 1;
 			break;
 
-		case ipv4:
+		case ipv4_list:
 			if (subopt_len == 4) {
 				/* one IP address */
 				proto_tree_add_text(v_tree, tvb, optoff, 6,
