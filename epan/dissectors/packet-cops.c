@@ -707,6 +707,7 @@ static gint hf_cops_pc_dfcdc_ip = -1;
 static gint hf_cops_pc_dfccc_ip = -1;
 static gint hf_cops_pc_dfcdc_ip_port = -1;
 static gint hf_cops_pc_dfccc_ip_port = -1;
+static gint hf_cops_pc_dfccc_id = -1;
 
 /* PacketCable Multimedia */
 static gint hf_cops_pcmm_amid = -1;
@@ -2036,6 +2037,11 @@ void proto_register_cops(void)
         FT_UINT16, BASE_HEX, NULL, 0x00,
         "DF IP Port CCC", HFILL }
     },
+    { &hf_cops_pc_dfccc_id,
+      { "CCC ID", "cops.pc_dfccc_id",
+        FT_UINT32, BASE_DEC, NULL, 0x00,
+        "CCC ID", HFILL }
+    },
     { &hf_cops_pc_activity_count,
       { "Count", "cops.pc_activity_count",
         FT_UINT32, BASE_HEX, NULL, 0x00,
@@ -2839,7 +2845,7 @@ cops_surveillance_parameters(tvbuff_t *tvb, proto_tree *st, guint n, guint32 off
      offset += 2;
 
      /* CCCID */
-     info_to_display(tvb,stt,offset,4,"CCCID", NULL,FMT_IPv4,&hf_cops_pc_srks_ip);
+     info_to_display(tvb,stt,offset,4,"CCCID", NULL,FMT_DEC,&hf_cops_pc_dfccc_id);
      offset += 4;
 
      /* BCID Timestamp */
