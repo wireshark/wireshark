@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.38 2000/01/12 19:37:23 guy Exp $
+ * $Id: packet-llc.c,v 1.39 2000/01/12 20:00:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -376,22 +376,23 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				   protocol ID of 0x2000, or
 				   are some of them raw or encapsulated
 				   Ethernet? */
+				if (tree) {
+					proto_tree_add_item(llc_tree,
+					    hf_llc_pid, offset+6, 2, etype);
+				}
 				switch (etype) {
 
 				case 0x2000:
-					if (tree) {
-						proto_tree_add_item(llc_tree,
-						    hf_llc_pid, offset+6,
-						    2, etype);
-					}
 					dissect_cdp(pd, offset+8, fd, tree);
 					break;
 				}
 				break;
 
 			default:
-				proto_tree_add_item(llc_tree, hf_llc_pid,
-				    offset+6, 2, etype);
+				if (tree) {
+					proto_tree_add_item(llc_tree,
+					    hf_llc_pid, offset+6, 2, etype);
+				}
 				dissect_data(pd, offset+8, fd, tree);
 				break;
 			}
