@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/flserver/fldb_proc.idl
  *
- * $Id: packet-dcerpc-fldb.c,v 1.7 2004/02/21 04:55:42 guy Exp $
+ * $Id: packet-dcerpc-fldb.c,v 1.8 2004/03/09 09:24:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -186,8 +186,8 @@ static int hf_fldb_uuid_owner = -1;
 static int hf_fldb_volid_high = -1;
 static int hf_fldb_volid_low = -1;
 static int hf_fldb_voltype = -1;
-guint32 st;
-const guint8 *st_str;
+static guint32 st;
+static const guint8 *st_str;
 
 #define AFS_FLAG_RETURNTOKEN           1
 #define AFS_FLAG_TOKENJUMPQUEUE        2

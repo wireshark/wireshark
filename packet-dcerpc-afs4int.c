@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/fsint/afs4int.idl
  *
- * $Id: packet-dcerpc-afs4int.c,v 1.7 2004/02/01 06:49:22 jmayer Exp $
+ * $Id: packet-dcerpc-afs4int.c,v 1.8 2004/03/09 09:24:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -304,8 +304,9 @@ static gint ett_afs4int_afsbundled_stat = -1;
 
 
 /* vars for our macro(s) */
-guint32 hf_error_st, st;
-char *st_str;
+static int hf_error_st = -1;
+static guint32 st;
+static char *st_str;
 
 
 static e_uuid_t uuid_afs4int =

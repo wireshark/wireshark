@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rs_pgo.idl
  *
- * $Id: packet-dcerpc-rs_pgo.c,v 1.11 2004/02/24 18:23:45 guy Exp $
+ * $Id: packet-dcerpc-rs_pgo.c,v 1.12 2004/03/09 09:24:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,7 +126,7 @@ static gint ett_rs_pgo_id_key_t = -1;
 static gint ett_rs_pgo_unix_num_key_t = -1;
 static gint ett_rs_pgo_query_result_t = -1;
 static gint ett_rs_pgo_result_t = -1;
-guint8 *st_str;
+static guint8 *st_str;
 
 
 #define sec_rgy_acct_admin_valid  0x1
