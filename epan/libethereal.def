@@ -468,6 +468,7 @@ register_stats_tree
 register_tap
 register_tap_listener
 RegistrationRejectReason_vals   DATA
+reinit_stats_tree
 ReleaseCompleteReason_vals      DATA
 remove_tap_listener
 report_failure
