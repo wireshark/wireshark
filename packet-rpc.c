@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.10 1999/11/14 20:44:52 guy Exp $
+ * $Id: packet-rpc.c,v 1.11 1999/11/14 21:16:58 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -635,6 +635,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	rpc_proc_info_key	key;
 	rpc_proc_info_value	*value = NULL;
 	conversation_t* conversation;
+	static address null_address = { AT_NONE, 0, NULL };
 
 	dissect_function_t *dissect_function = NULL;
 
@@ -674,14 +675,23 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		break;
 
 	case RPC_REPLY:
-		/* check for RPC reply */
-		conversation = find_conversation(&pi.src, &pi.dst,
+		/* Check for RPC reply.  A reply must match a call that
+		   we've seen, and the reply must be sent to the same
+		   port and address that the call came from, and must
+		   come from the port to which the call was sent.  (We
+		   don't worry about the address to which the call was
+		   sent and from which the reply was sent, because there's
+		   no guarantee that the reply will come from the address
+		   to which the call was sent.) */
+		conversation = find_conversation(&null_address, &pi.dst,
 		    pi.ptype, pi.srcport, pi.destport);
 		if (conversation == NULL) {
 			/* We haven't seen an RPC call for that conversation,
 			   so we can't check for a reply to that call. */
 			return FALSE;
 		}
+
+		/* The XIDs of the call and reply must match. */
 		rpc_key.xid = EXTRACT_UINT(pd,offset+0);
 		rpc_key.conversation = conversation;
 		if ((rpc_call = rpc_call_lookup(&rpc_key)) == NULL) {
@@ -790,12 +800,19 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				xid);
 		}
 
-		conversation = find_conversation(&pi.src, &pi.dst, pi.ptype,
-			pi.srcport, pi.destport);
+		/* Keep track of the address and port whence the call came,
+		   and the port to which the call is being sent, so that
+		   we can match up calls wityh replies.  (We don't worry
+		   about the address to which the call was sent and from
+		   which the reply was sent, because there's no
+		   guarantee that the reply will come from the address
+		   to which the call was sent.) */
+		conversation = find_conversation(&pi.src, &null_address,
+		    pi.ptype, pi.srcport, pi.destport);
 		if (conversation == NULL) {
 			/* It's not part of any conversation - create a new one. */
-			conversation = conversation_new(&pi.src, &pi.dst, pi.ptype,
-				pi.srcport, pi.destport, NULL);
+			conversation = conversation_new(&pi.src, &null_address,
+			    pi.ptype, pi.srcport, pi.destport, NULL);
 		}
 
 		/* prepare the key data */
