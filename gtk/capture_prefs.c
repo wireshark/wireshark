@@ -1,7 +1,7 @@
 /* capture_prefs.c
  * Dialog box for capture preferences
  *
- * $Id: capture_prefs.c,v 1.10 2002/05/23 15:56:05 gerald Exp $
+ * $Id: capture_prefs.c,v 1.11 2002/05/24 07:05:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,7 +124,6 @@ capture_prefs_fetch(GtkWidget *w)
 {
 	GtkWidget *if_cb, *promisc_cb, *sync_cb, *auto_scroll_cb;
 	gchar	*if_text;
-	gchar	*if_name;
 
 	if_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(w), DEVICE_KEY);
 	promisc_cb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(w),
