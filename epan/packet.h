@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.68 2003/07/31 18:34:50 guy Exp $
+ * $Id: packet.h,v 1.69 2003/09/06 23:37:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -154,32 +154,56 @@ extern ftenum_t get_dissector_table_type(const char *name);
    sub-dissector table, given the table's internal name */
 extern int get_dissector_table_base(const char *name);
 
-/* Add a sub-dissector to a dissector table.  Called by the protocol routine */
-/* that wants to register a sub-dissector.  */
+/* Add an entry to a uint dissector table. */
 extern void dissector_add(const char *abbrev, guint32 pattern,
     dissector_handle_t handle);
 
-/* Add a sub-dissector to a dissector table.  Called by the protocol routine */
-/* that wants to de-register a sub-dissector.  */
+/* Delete the entry for a dissector in a uint dissector table
+   with a particular pattern. */
 extern void dissector_delete(const char *name, guint32 pattern,
     dissector_handle_t handle);
 
+/* Change the entry for a dissector in a uint dissector table
+   with a particular pattern to use a new dissector handle. */
 extern void dissector_change(const char *abbrev, guint32 pattern,
     dissector_handle_t handle);
 
-/* Reset a dissector in a sub-dissector table to its initial value. */
+/* Reset an entry in a uint dissector table to its initial value. */
 extern void dissector_reset(const char *name, guint32 pattern);
 
-/* Look for a given port in a given dissector table and, if found, call
-   the dissector with the arguments supplied, and return TRUE, otherwise
-   return FALSE. */
+/* Look for a given value in a given uint dissector table and, if found,
+   call the dissector with the arguments supplied, and return TRUE,
+   otherwise return FALSE. */
 extern gboolean dissector_try_port(dissector_table_t sub_dissectors,
     guint32 port, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-/* Look for a given port in a given dissector table and, if found, return
-   the dissector handle for that port. */
+/* Look for a given value in a given uint dissector table and, if found,
+   return the dissector handle for that value. */
 extern dissector_handle_t dissector_get_port_handle(
     dissector_table_t sub_dissectors, guint32 port);
+
+/* Add an entry to a string dissector table. */
+extern void dissector_add_string(const char *name, gchar *pattern,
+    dissector_handle_t handle);
+
+/* Delete the entry for a dissector in a string dissector table
+   with a particular pattern. */
+extern void dissector_delete_string(const char *name, const gchar *pattern,
+	dissector_handle_t handle);
+
+/* Change the entry for a dissector in a string dissector table
+   with a particular pattern to use a new dissector handle. */
+extern void dissector_change_string(const char *name, gchar *pattern,
+    dissector_handle_t handle);
+
+/* Reset an entry in a string sub-dissector table to its initial value. */
+extern void dissector_reset_string(const char *name, const gchar *pattern);
+
+/* Look for a given string in a given dissector table and, if found, call
+   the dissector with the arguments supplied, and return TRUE, otherwise
+   return FALSE. */
+extern gboolean dissector_try_string(dissector_table_t sub_dissectors,
+    const gchar *string, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Add a handle to the list of handles that *could* be used with this
    table.  That list is used by code in the UI. */

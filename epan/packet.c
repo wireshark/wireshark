@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.94 2003/08/12 20:09:38 tpot Exp $
+ * $Id: packet.c,v 1.95 2003/09/06 23:37:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -557,14 +557,63 @@ find_dissector_table(const char *name)
 	return g_hash_table_lookup( dissector_tables, name );
 }
 
+/* Find an entry in a uint dissector table. */ 
+static dtbl_entry_t *
+find_uint_dtbl_entry(dissector_table_t sub_dissectors, guint32 pattern)
+{
+	switch (sub_dissectors->type) {
+
+	case FT_UINT8:
+	case FT_UINT16:
+	case FT_UINT24:
+	case FT_UINT32:
+		/*
+		 * You can do a port lookup in these tables.
+		 */
+		break;
+
+	default:
+		/*
+		 * But you can't do a port lookup in any other types
+		 * of tables.
+		 */
+		g_assert_not_reached();
+	}
+
+	/*
+	 * Find the entry.
+	 */
+	return g_hash_table_lookup(sub_dissectors->hash_table,
+	    GUINT_TO_POINTER(pattern));
+}
+
+/* Add an entry to a uint dissector table. */
 void
 dissector_add(const char *name, guint32 pattern, dissector_handle_t handle)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
 
-/* sanity check */
+/* sanity checks */
 	g_assert( sub_dissectors);
+	switch (sub_dissectors->type) {
+
+	case FT_UINT8:
+	case FT_UINT16:
+	case FT_UINT24:
+	case FT_UINT32:
+		/*
+		 * You can do a port lookup in these tables.
+		 */
+		break;
+
+	default:
+		/*
+		 * But you can't do a port lookup in any other types
+		 * of tables.
+		 */
+		g_assert_not_reached();
+	}
 
 	dtbl_entry = g_malloc(sizeof (dtbl_entry_t));
 	dtbl_entry->current = handle;
@@ -581,7 +630,8 @@ dissector_add(const char *name, guint32 pattern, dissector_handle_t handle)
 	dissector_add_handle(name, handle);
 }
 
-/* delete the entry for this dissector at this pattern */
+/* Delete the entry for a dissector in a uint dissector table
+   with a particular pattern. */
 
 /* NOTE: this doesn't use the dissector call variable. It is included to */
 /*	be consistant with the dissector_add and more importantly to be used */
@@ -601,8 +651,7 @@ dissector_delete(const char *name, guint32 pattern,
 	/*
 	 * Find the entry.
 	 */
-	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table,
-	    GUINT_TO_POINTER(pattern));
+	dtbl_entry = find_uint_dtbl_entry(sub_dissectors, pattern);
 
 	if (dtbl_entry != NULL) {
 		/*
@@ -618,6 +667,8 @@ dissector_delete(const char *name, guint32 pattern,
 	}
 }
 
+/* Change the entry for a dissector in a uint dissector table
+   with a particular pattern to use a new dissector handle. */
 void
 dissector_change(const char *name, guint32 pattern, dissector_handle_t handle)
 {
@@ -630,8 +681,7 @@ dissector_change(const char *name, guint32 pattern, dissector_handle_t handle)
 	/*
 	 * See if the entry already exists. If so, reuse it.
 	 */
-	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table,
-	    GUINT_TO_POINTER(pattern));
+	dtbl_entry = find_uint_dtbl_entry(sub_dissectors, pattern);
 	if (dtbl_entry != NULL) {
 	  dtbl_entry->current = handle;
 	  return;
@@ -654,7 +704,7 @@ dissector_change(const char *name, guint32 pattern, dissector_handle_t handle)
     	    GUINT_TO_POINTER( pattern), (gpointer)dtbl_entry);
 }
 
-/* Reset a dissector in a sub-dissector table to its initial value. */
+/* Reset an entry in a uint dissector table to its initial value. */
 void
 dissector_reset(const char *name, guint32 pattern)
 {
@@ -667,8 +717,7 @@ dissector_reset(const char *name, guint32 pattern)
 	/*
 	 * Find the entry.
 	 */
-	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table,
-	    GUINT_TO_POINTER(pattern));
+	dtbl_entry = find_uint_dtbl_entry(sub_dissectors, pattern);
 
 	if (dtbl_entry == NULL)
 		return;
@@ -685,9 +734,9 @@ dissector_reset(const char *name, guint32 pattern)
 	}
 }
 
-/* Look for a given port in a given dissector table and, if found, call
-   the dissector with the arguments supplied, and return TRUE, otherwise
-   return FALSE. */
+/* Look for a given value in a given uint dissector table and, if found,
+   call the dissector with the arguments supplied, and return TRUE,
+   otherwise return FALSE. */
 gboolean
 dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -697,8 +746,7 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 	guint32 saved_match_port;
 	int ret;
 
-	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table,
-	    GUINT_TO_POINTER(port));
+	dtbl_entry = find_uint_dtbl_entry(sub_dissectors, port);
 	if (dtbl_entry != NULL) {
 		/*
 		 * Is there currently a dissector handle for this entry?
@@ -741,19 +789,238 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 	return FALSE;
 }
 
-/* Look for a given port in a given dissector table and, if found, return
-   the dissector handle for that port. */
+/* Look for a given value in a given uint dissector table and, if found,
+   return the dissector handle for that value. */
 dissector_handle_t
 dissector_get_port_handle(dissector_table_t sub_dissectors, guint32 port)
 {
 	dtbl_entry_t *dtbl_entry;
 
-	dtbl_entry = g_hash_table_lookup(sub_dissectors->hash_table,
-	    GUINT_TO_POINTER(port));
+	dtbl_entry = find_uint_dtbl_entry(sub_dissectors, port);
 	if (dtbl_entry != NULL)
 		return dtbl_entry->current;
 	else
 		return NULL;
+}
+
+/* Find an entry in a string dissector table. */ 
+static dtbl_entry_t *
+find_string_dtbl_entry(dissector_table_t sub_dissectors, const gchar *pattern)
+{
+	switch (sub_dissectors->type) {
+
+	case FT_STRING:
+	case FT_STRINGZ:
+		/*
+		 * You can do a string lookup in these tables.
+		 */
+		break;
+
+	default:
+		/*
+		 * But you can't do a string lookup in any other types
+		 * of tables.
+		 */
+		g_assert_not_reached();
+	}
+
+	/*
+	 * Find the entry.
+	 */
+	return g_hash_table_lookup(sub_dissectors->hash_table, pattern);
+}
+
+/* Add an entry to a string dissector table. */
+void
+dissector_add_string(const char *name, gchar *pattern,
+    dissector_handle_t handle)
+{
+	dissector_table_t sub_dissectors = find_dissector_table( name);
+	dtbl_entry_t *dtbl_entry;
+
+/* sanity check */
+	g_assert( sub_dissectors);
+
+	switch (sub_dissectors->type) {
+
+	case FT_STRING:
+	case FT_STRINGZ:
+		/*
+		 * You can do a string lookup in these tables.
+		 */
+		break;
+
+	default:
+		/*
+		 * But you can't do a string lookup in any other types
+		 * of tables.
+		 */
+		g_assert_not_reached();
+	}
+
+	dtbl_entry = g_malloc(sizeof (dtbl_entry_t));
+	dtbl_entry->current = handle;
+	dtbl_entry->initial = dtbl_entry->current;
+
+/* do the table insertion */
+    	g_hash_table_insert( sub_dissectors->hash_table, pattern,
+    	    (gpointer)dtbl_entry);
+
+	/*
+	 * Now add it to the list of handles that could be used with this
+	 * table, because it *is* being used with this table.
+	 */
+	dissector_add_handle(name, handle);
+}
+
+/* Delete the entry for a dissector in a string dissector table
+   with a particular pattern. */
+
+/* NOTE: this doesn't use the dissector call variable. It is included to */
+/*	be consistant with the dissector_add_string and more importantly to */
+/*      be used if the technique of adding a temporary dissector is */
+/*      implemented.  */
+/*	If temporary dissectors are deleted, then the original dissector must */
+/*	be available. */
+void
+dissector_delete_string(const char *name, const gchar *pattern,
+	dissector_handle_t handle _U_)
+{
+	dissector_table_t sub_dissectors = find_dissector_table( name);
+	dtbl_entry_t *dtbl_entry;
+
+/* sanity check */
+	g_assert( sub_dissectors);
+
+	/*
+	 * Find the entry.
+	 */
+	dtbl_entry = find_string_dtbl_entry(sub_dissectors, pattern);
+
+	if (dtbl_entry != NULL) {
+		/*
+		 * Found - remove it.
+		 */
+		g_hash_table_remove(sub_dissectors->hash_table, pattern);
+
+		/*
+		 * Now free up the entry.
+		 */
+		g_free(dtbl_entry);
+	}
+}
+
+/* Change the entry for a dissector in a string dissector table
+   with a particular pattern to use a new dissector handle. */
+void
+dissector_change_string(const char *name, gchar *pattern,
+    dissector_handle_t handle)
+{
+	dissector_table_t sub_dissectors = find_dissector_table( name);
+	dtbl_entry_t *dtbl_entry;
+
+/* sanity check */
+	g_assert( sub_dissectors);
+
+	/*
+	 * See if the entry already exists. If so, reuse it.
+	 */
+	dtbl_entry = find_string_dtbl_entry(sub_dissectors, pattern);
+	if (dtbl_entry != NULL) {
+	  dtbl_entry->current = handle;
+	  return;
+	}
+
+	/*
+	 * Don't create an entry if there is no dissector handle - I.E. the
+	 * user said not to decode something that wasn't being decoded
+	 * in the first place.
+	 */
+	if (handle == NULL)
+	  return;
+
+	dtbl_entry = g_malloc(sizeof (dtbl_entry_t));
+	dtbl_entry->initial = NULL;
+	dtbl_entry->current = handle;
+
+/* do the table insertion */
+    	g_hash_table_insert( sub_dissectors->hash_table, pattern,
+    	    (gpointer)dtbl_entry);
+}
+
+/* Reset an entry in a string sub-dissector table to its initial value. */
+void
+dissector_reset_string(const char *name, const gchar *pattern)
+{
+	dissector_table_t sub_dissectors = find_dissector_table( name);
+	dtbl_entry_t *dtbl_entry;
+
+/* sanity check */
+	g_assert( sub_dissectors);
+
+	/*
+	 * Find the entry.
+	 */
+	dtbl_entry = find_string_dtbl_entry(sub_dissectors, pattern);
+
+	if (dtbl_entry == NULL)
+		return;
+
+	/*
+	 * Found - is there an initial value?
+	 */
+	if (dtbl_entry->initial != NULL) {
+		dtbl_entry->current = dtbl_entry->initial;
+	} else {
+		g_hash_table_remove(sub_dissectors->hash_table, pattern);
+		g_free(dtbl_entry);
+	}
+}
+
+/* Look for a given string in a given dissector table and, if found, call
+   the dissector with the arguments supplied, and return TRUE, otherwise
+   return FALSE. */
+gboolean
+dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
+    tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dtbl_entry_t *dtbl_entry;
+	struct dissector_handle *handle;
+	int ret;
+
+	dtbl_entry = find_string_dtbl_entry(sub_dissectors, string);
+	if (dtbl_entry != NULL) {
+		/*
+		 * Is there currently a dissector handle for this entry?
+		 */
+		handle = dtbl_entry->current;
+		if (handle == NULL) {
+			/*
+			 * No - pretend this dissector didn't exist,
+			 * so that other dissectors might have a chance
+			 * to dissect this packet.
+			 */
+			return FALSE;
+		}
+
+		ret = call_dissector_work(handle, tvb, pinfo, tree);
+
+		/*
+		 * If a new-style dissector returned 0, it means that
+		 * it didn't think this tvbuff represented a packet for
+		 * its protocol, and didn't dissect anything.
+		 *
+		 * Old-style dissectors can't reject the packet.
+		 *
+		 * 0 is also returned if the protocol wasn't enabled.
+		 *
+		 * If the packet was rejected, we return FALSE, so that
+		 * other dissectors might have a chance to dissect this
+		 * packet, otherwise we return TRUE.
+		 */
+		return ret != 0;
+	}
+	return FALSE;
 }
 
 dissector_handle_t
@@ -1015,8 +1282,29 @@ register_dissector_table(const char *name, char *ui_name, ftenum_t type,
 	/* Create and register the dissector table for this name; returns */
 	/* a pointer to the dissector table. */
 	sub_dissectors = g_malloc(sizeof (struct dissector_table));
-	sub_dissectors->hash_table = g_hash_table_new( g_direct_hash,
-	    g_direct_equal );
+	switch (type) {
+
+	case FT_UINT8:
+	case FT_UINT16:
+	case FT_UINT24:
+	case FT_UINT32:
+		/*
+		 * XXX - there's no "g_uint_hash()" or "g_uint_equal()",
+		 * so we use "g_direct_hash()" and "g_direct_equal()".
+		 */
+		sub_dissectors->hash_table = g_hash_table_new( g_direct_hash,
+		    g_direct_equal );
+		break;
+
+	case FT_STRING:
+	case FT_STRINGZ:
+		sub_dissectors->hash_table = g_hash_table_new( g_str_hash,
+		    g_str_equal );
+		break;
+
+	default:
+		g_assert_not_reached();
+	}
 	sub_dissectors->dissector_handles = NULL;
 	sub_dissectors->ui_name = ui_name;
 	sub_dissectors->type = type;
