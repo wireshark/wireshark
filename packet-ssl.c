@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.20 2002/04/08 10:05:19 guy Exp $
+ * $Id: packet-ssl.c,v 1.21 2002/04/11 09:20:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -266,6 +266,17 @@ static const value_string ssl_20_cipher_suites[] = {
     { 0x00feff, "SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA" },
     { 0x00ffe0, "SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA" },
     { 0x00ffe1, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
+    /* Microsoft's old PCT protocol. These are from Eric Rescorla's
+       book "SSL and TLS" */
+    { 0x8f8001, "PCT_SSL_COMPAT | PCT_VERSION_1" },
+    { 0x800003, "PCT_SSL_CERT_TYPE | PCT1_CERT_X509_CHAIN" },
+    { 0x800001, "PCT_SSL_CERT_TYPE | PCT1_CERT_X509" },
+    { 0x810001, "PCT_SSL_HASH_TYPE | PCT1_HASH_MD5" },
+    { 0x810003, "PCT_SSL_HASH_TYPE | PCT1_HASH_SHA" },
+    { 0x820001, "PCT_SSL_EXCH_TYPE | PCT1_EXCH_RSA_PKCS1" },
+    { 0x830004, "PCT_SSL_CIPHER_TYPE_1ST_HALF | PCT1_CIPHER_RC4" },
+    { 0x848040, "PCT_SSL_CIPHER_TYPE_2ND_HALF | PCT1_ENC_BITS_128 | PCT1_MAC_BITS_128" },
+    { 0x842840, "PCT_SSL_CIPHER_TYPE_2ND_HALF | PCT1_ENC_BITS_40 | PCT1_MAC_BITS_128" },
     /* note that ciphersuites of {0x00????} are TLS cipher suites in
      * a sslv2 client hello message; the ???? above is the two-byte
      * tls cipher suite id

@@ -886,6 +886,7 @@ Graeme Hewson <graeme.hewson[AT]oracle.com> {
 Pasi Eronen <pasi.eronen[at]nixu.com> {
 	Patches to the dcerpc dissector for data representation decoding
 	XDMCP support
+	PCT cipher suites for SSL
 }
 
 Georg von Zezschwitz <gvz[AT]2scale.net> {
