@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.39 2003/09/05 06:59:38 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.40 2003/09/23 18:09:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,7 +63,6 @@
 
 #define E_DFILTER_EXPR_TREE_KEY			"dfilter_expr_tree"
 #define E_DFILTER_EXPR_CURRENT_VAR_KEY		"dfilter_expr_current_var"
-#define E_DFILTER_EXPR_RELATION_LABEL_KEY	"dfilter_expr_relation_label"
 #define E_DFILTER_EXPR_RELATION_LIST_KEY	"dfilter_expr_relation_list"
 #define E_DFILTER_EXPR_RANGE_LABEL_KEY		"dfilter_expr_range_label"
 #define E_DFILTER_EXPR_RANGE_ENTRY_KEY		"dfilter_expr_range_entry"
@@ -79,8 +78,7 @@ typedef struct protocol_data {
   int  	hfinfo_index;
 } protocol_data_t;
 
-static void show_relations(GtkWidget *relation_label, GtkWidget *relation_list,
-                           ftenum_t ftype);
+static void show_relations(GtkWidget *relation_list, ftenum_t ftype);
 static gboolean relation_is_presence_test(const char *string);
 static void add_relation_list(GtkWidget *relation_list, char *relation);
 static void build_boolean_values(GtkWidget *value_list_scrolled_win,
@@ -112,8 +110,6 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
 #endif
 {
     GtkWidget *window = gtk_widget_get_toplevel(tree);
-    GtkWidget *relation_label = OBJECT_GET_DATA(window,
-                                                E_DFILTER_EXPR_RELATION_LABEL_KEY);
     GtkWidget *relation_list = OBJECT_GET_DATA(window,
                                                E_DFILTER_EXPR_RELATION_LIST_KEY);
     GtkWidget *range_label = OBJECT_GET_DATA(window,
@@ -162,7 +158,7 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
      */
     OBJECT_SET_DATA(window, E_DFILTER_EXPR_CURRENT_VAR_KEY, hfinfo);
 
-    show_relations(relation_label, relation_list, hfinfo->type);
+    show_relations(relation_list, hfinfo->type);
 
     /*
      * Set the label for the value to indicate what type of value
@@ -246,8 +242,7 @@ field_select_row_cb(GtkTreeSelection *sel, gpointer tree)
 }
 
 static void
-show_relations(GtkWidget *relation_label, GtkWidget *relation_list,
-               ftenum_t ftype)
+show_relations(GtkWidget *relation_list, ftenum_t ftype)
 {
 	/*
 	 * Clear out the currently displayed list of relations.
@@ -283,12 +278,6 @@ show_relations(GtkWidget *relation_label, GtkWidget *relation_list,
 	if (ftype_can_contains(ftype) ||
 	    (ftype_can_slice(ftype) && ftype_can_contains(FT_BYTES)))
 		add_relation_list(relation_list, "contains");
-
-	/*
-	 * And show the list.
-	 */
-	gtk_widget_show(relation_label);
-	gtk_widget_show(relation_list);
 }
 
 /*
@@ -814,27 +803,23 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
     hfinfo = OBJECT_GET_DATA(window, E_DFILTER_EXPR_CURRENT_VAR_KEY);
 
     /*
-     * Get the relation to use, if any.
+     * Get the relation operator to use.
      */
-    if (GTK_WIDGET_VISIBLE(relation_list)) {
-        /*
-         * The list of relations is visible, so we can get a
-         * relation operator from it.
-         */
 #if GTK_MAJOR_VERSION < 2
-        sl = GTK_LIST(relation_list)->selection;
-        item = GTK_WIDGET(sl->data);
-        item_label = GTK_BIN(item)->child;
-        gtk_label_get(GTK_LABEL(item_label), &item_str);
+    sl = GTK_LIST(relation_list)->selection;
+    item = GTK_WIDGET(sl->data);
+    item_label = GTK_BIN(item)->child;
+    gtk_label_get(GTK_LABEL(item_label), &item_str);
 #else
-        if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(relation_list)),
-                                            &model, &iter))
-            gtk_tree_model_get(model, &iter, 0, &item_str, -1);
-        else
-            item_str = NULL;
+    if (gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(relation_list)),
+                                        &model, &iter))
+        gtk_tree_model_get(model, &iter, 0, &item_str, -1);
+    else {
+    	/* XXX - the relation list is in GTK_SELECTION_BROWSE mode; how
+    	   can this ever be null? */
+        item_str = NULL;
+    }
 #endif
-    } else
-        item_str = NULL;	/* no relation operator */
 
     /*
      * Get the range to use, if any.
@@ -1210,7 +1195,9 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
      * controlled both by the type and by the relational operator
      * selected.
      */
-    show_relations(relation_label, relation_list, FT_UINT8);
+    show_relations(relation_list, FT_UINT8);
+    gtk_widget_show(relation_label);
+    gtk_widget_show(relation_list);
 
     value_vb = gtk_vbox_new(FALSE, 5);
     gtk_container_border_width(GTK_CONTAINER(value_vb), 5);
@@ -1445,7 +1432,6 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
      */
     dlg_set_cancel(window, close_bt);
 
-    OBJECT_SET_DATA(window, E_DFILTER_EXPR_RELATION_LABEL_KEY, relation_label);
     OBJECT_SET_DATA(window, E_DFILTER_EXPR_RELATION_LIST_KEY, relation_list);
     OBJECT_SET_DATA(window, E_DFILTER_EXPR_RANGE_LABEL_KEY, range_label);
     OBJECT_SET_DATA(window, E_DFILTER_EXPR_RANGE_ENTRY_KEY, range_entry);
