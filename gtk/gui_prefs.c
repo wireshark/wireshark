@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.22 2000/10/20 04:26:40 gram Exp $
+ * $Id: gui_prefs.c,v 1.23 2000/11/18 21:41:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,11 +46,11 @@
 
 static void create_option_menu(GtkWidget *main_vb, const gchar *key,
     GtkWidget *main_tb, int table_position,
-    const gchar *label_text, const enum_val *enumvals, gint current_val);
+    const gchar *label_text, const enum_val_t *enumvals, gint current_val);
 static void font_browse_cb(GtkWidget *w, gpointer data);
 static void font_browse_ok_cb(GtkWidget *w, GtkFontSelectionDialog *fs);
 static void font_browse_destroy(GtkWidget *win, gpointer data);
-static gint fetch_enum_value(gpointer control, const enum_val *enumvals);
+static gint fetch_enum_value(gpointer control, const enum_val_t *enumvals);
 static void color_browse_cb(GtkWidget *w, gpointer data);
 static void update_text_color(GtkWidget *w, gpointer data);
 static void update_current_color(GtkWidget *w, gpointer data);
@@ -74,19 +74,19 @@ static void fetch_colors(void);
 #define COLOR_SAMPLE_PTR_KEY	"color_sample_ptr"
 #define COLOR_SELECTION_PTR_KEY	"color_selection_ptr"
 
-static const enum_val scrollbar_placement_vals[] = {
+static const enum_val_t scrollbar_placement_vals[] = {
 	{ "Left",  FALSE },
 	{ "Right", TRUE },
 	{ NULL,    0 }
 };
 
-static const enum_val selection_mode_vals[] = {
+static const enum_val_t selection_mode_vals[] = {
 	{ "Selects", FALSE },
 	{ "Browses", TRUE },
 	{ NULL,      0 }
 };
 
-static const enum_val line_style_vals[] = {
+static const enum_val_t line_style_vals[] = {
 	{ "None",   0 },
 	{ "Solid",  1 },
 	{ "Dotted", 2 },
@@ -94,7 +94,7 @@ static const enum_val line_style_vals[] = {
 	{ NULL,     0 }
 };
 
-static const enum_val expander_style_vals[] = {
+static const enum_val_t expander_style_vals[] = {
 	{ "None",     0 },
 	{ "Square",   1 },
 	{ "Triangle", 2 },
@@ -102,7 +102,7 @@ static const enum_val expander_style_vals[] = {
 	{ NULL,       0 }
 };
 
-static const enum_val highlight_style_vals[] = {
+static const enum_val_t highlight_style_vals[] = {
   	{ "Bold",     0 },
   	{ "Inverse",  1 },
 	{ NULL,       0 }
@@ -194,11 +194,11 @@ gui_prefs_show(void)
 static void
 create_option_menu(GtkWidget *main_vb, const gchar *key,
     GtkWidget *main_tb, int table_position,
-    const gchar *label_text, const enum_val *enumvals, gint current_val)
+    const gchar *label_text, const enum_val_t *enumvals, gint current_val)
 {
 	GtkWidget *label, *menu, *menu_item, *option_menu;
 	int menu_index, index;
-	const enum_val *enum_valp;
+	const enum_val_t *enum_valp;
 
 	label = gtk_label_new(label_text);
 	gtk_misc_set_alignment(GTK_MISC(label), 1.0, 0.5);
@@ -389,7 +389,7 @@ font_browse_destroy(GtkWidget *win, gpointer data)
 }
 
 static gint
-fetch_enum_value(gpointer control, const enum_val *enumvals)
+fetch_enum_value(gpointer control, const enum_val_t *enumvals)
 {
 	GtkWidget *label;
 	char *label_string;

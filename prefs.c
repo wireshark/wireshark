@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.43 2000/10/15 08:46:18 guy Exp $
+ * $Id: prefs.c,v 1.44 2000/11/18 21:41:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -286,7 +286,7 @@ prefs_register_bool_preference(module_t *module, const char *name,
 void
 prefs_register_enum_preference(module_t *module, const char *name,
     const char *title, const char *description, gint *var,
-    const enum_val *enumvals, gboolean radio_buttons)
+    const enum_val_t *enumvals, gboolean radio_buttons)
 {
 	pref_t *preference;
 
@@ -406,7 +406,7 @@ clear_string_list(GList *sl) {
 }
 
 /*
- * Takes a string, a pointer to an array of "enum_val"s, and a default gint
+ * Takes a string, a pointer to an array of "enum_val_t"s, and a default gint
  * value.
  * The array must be terminated by an entry with a null "name" string.
  * If the string matches a "name" strings in an entry, the value from that
@@ -414,7 +414,7 @@ clear_string_list(GList *sl) {
  * third argument is returned.
  */
 gint
-find_val_for_string(const char *needle, const enum_val *haystack,
+find_val_for_string(const char *needle, const enum_val_t *haystack,
     gint default_value)
 {
 	int i = 0;
@@ -1015,7 +1015,7 @@ write_pref(gpointer data, gpointer user_data)
 {
 	pref_t *pref = data;
 	write_pref_arg_t *arg = user_data;
-	const enum_val *enum_valp;
+	const enum_val_t *enum_valp;
 	const char *val_string;
 
 	fprintf(arg->pf, "\n# %s\n", pref->description);

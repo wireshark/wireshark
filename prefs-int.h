@@ -2,7 +2,7 @@
  * Definitions for implementation of preference handling routines;
  * used by "friends" of the preferences type.
  *
- * $Id: prefs-int.h,v 1.2 2000/07/09 03:29:27 guy Exp $
+ * $Id: prefs-int.h,v 1.3 2000/11/18 21:41:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,7 +64,7 @@ struct preference {
 	union {
 	  guint base;			/* input/output base, for PREF_UINT */
 	  struct {
-	    const enum_val *enumvals;	/* list of name & values */
+	    const enum_val_t *enumvals;	/* list of name & values */
 	    gboolean radio_buttons;	/* TRUE if it should be shown as
 					   radio buttons rather than as an
 					   option menu or combo box in
@@ -74,7 +74,7 @@ struct preference {
 	void	*control;	/* handle for GUI control for this preference */
 };
 
-gint find_val_for_string(const char *needle, const enum_val *haystack,
+gint find_val_for_string(const char *needle, const enum_val_t *haystack,
     gint default_value);
 
 #endif /* prefs-int.h */

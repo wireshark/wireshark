@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.22 2000/08/23 06:56:11 guy Exp $
+ * $Id: prefs_dlg.c,v 1.23 2000/11/18 21:41:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -107,7 +107,7 @@ pref_show(pref_t *pref, gpointer user_data)
   GtkWidget *label, *menu, *menu_item, *widget, *button;
   GSList *rb_group;
   char uint_str[10+1];
-  const enum_val *enum_valp;
+  const enum_val_t *enum_valp;
   int menu_index, index;
 
   /* Give this preference a label which is its title, followed by a colon,

@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.24 2000/09/08 09:49:21 guy Exp $
+ * $Id: prefs.h,v 1.25 2000/11/18 21:41:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -123,11 +123,11 @@ void prefs_register_bool_preference(module_t *module, const char *name,
 typedef struct {
 	char	*name;
 	gint	value;
-} enum_val;
+} enum_val_t;
 
 void prefs_register_enum_preference(module_t *module, const char *name,
     const char *title, const char *description, gint *var,
-    const enum_val *enumvals, gboolean radio_buttons);
+    const enum_val_t *enumvals, gboolean radio_buttons);
 
 /*
  * Register a preference with a character-string value.

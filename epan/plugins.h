@@ -1,7 +1,7 @@
 /* plugins.h
  * definitions for plugins structures
  *
- * $Id: plugins.h,v 1.3 2000/11/15 09:37:51 guy Exp $
+ * $Id: plugins.h,v 1.4 2000/11/18 21:41:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,6 +31,7 @@
 
 #include "dfilter.h"
 #include "packet.h"
+#include "prefs.h"
 
 typedef struct _plugin {
     GModule	*handle;          /* handle returned by dlopen */

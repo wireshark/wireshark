@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.10 2000/11/16 07:35:43 guy Exp $
+ * $Id: plugin_table.h,v 1.11 2000/11/18 21:41:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -163,14 +163,15 @@ typedef gint (*addr_tvb_strncaseeql)(tvbuff_t*, gint, const guint8 *, gint);
 
 typedef gchar *(*addr_tvb_bytes_to_str)(tvbuff_t*, gint, gint len);
 
-typedef module_t *(*addr_prefs_register_module)(const char *, const char *,
-    void (*)(void));
-typedef void (*addr_prefs_register_uint_preference)(module_t *, const char *,
-    const char *, const char *, guint, guint *);
-typedef void (*addr_prefs_register_bool_preference)(module_t *, const char *,
-    const char *, const char *, gboolean *);
-typedef void (*addr_prefs_register_enum_preference)(module_t *, const char *,
-    const char *, const char *, gint *, const enum_val *, gboolean);
+typedef struct pref_module *(*addr_prefs_register_module)(const char *,
+    const char *, void (*)(void));
+typedef void (*addr_prefs_register_uint_preference)(struct pref_module *,
+    const char *, const char *, const char *, guint, guint *);
+typedef void (*addr_prefs_register_bool_preference)(struct pref_module *,
+    const char *, const char *, const char *, gboolean *);
+typedef void (*addr_prefs_register_enum_preference)(struct pref_module *,
+    const char *, const char *, const char *, gint *, const enum_val_t *,
+    gboolean);
 
 typedef struct  {
 	addr_check_col				p_check_col;
