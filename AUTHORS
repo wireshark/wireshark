@@ -1601,6 +1601,7 @@ rmkml <rmkml [AT] wanadoo.fr> {
 
 Anders Broman <a.broman [AT] telia.com> {
 	Additional SCTP payload protocol identifiers
+	Assorted ISUP enhancements
 }
 
 Christian Falckenberg <christian.falckenberg [AT] nortelnetworks.com> {

@@ -2,7 +2,7 @@
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
  *
- * $Id: packet-isup.c,v 1.19 2003/04/11 20:19:45 guy Exp $
+ * $Id: packet-isup.c,v 1.20 2003/04/14 18:04:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1701,6 +1701,8 @@ static void
 dissect_isup_user_to_user_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 { guint length = tvb_length(parameter_tvb);
   proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "User-to-user info (-> Q.931)");
+  dissect_q931_user_user_ie(parameter_tvb, 0, length,
+    parameter_tree );
   proto_item_set_text(parameter_item, "User-to-user information, see Q.931 (%u byte%s length)", length , plurality(length, "", "s"));
 }
 /* ------------------------------------------------------------------

@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.52 2003/03/12 00:23:52 guy Exp $
+ * $Id: packet-q931.c,v 1.53 2003/04/14 18:04:13 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -2052,7 +2052,7 @@ static const value_string q931_protocol_discriminator_vals[] = {
 	{ 0,					NULL }
 };
 
-static void
+void
 dissect_q931_user_user_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
