@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.45 2000/08/13 14:08:30 deniel Exp $
+ * $Id: packet-nbns.c,v 1.46 2000/11/14 03:51:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1141,7 +1141,9 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		col_add_str(fd, COL_PROTOCOL, "NBNS");
 
 	if (pi.captured_len < NBNS_HDRLEN) {
-		col_add_str(fd, COL_INFO, "Short NBNS packet");
+		if (check_col(fd, COL_INFO)) {
+			col_add_str(fd, COL_INFO, "Short NBNS packet");
+		}
 		old_dissect_data(pd, offset, fd, tree);
 		return;
 	}
