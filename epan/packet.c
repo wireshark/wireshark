@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.16 2001/01/12 09:25:29 guy Exp $
+ * $Id: packet.c,v 1.17 2001/01/13 04:28:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1301,6 +1301,7 @@ old_dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 	dtbl_entry_t *dtbl_entry;
 	tvbuff_t *tvb;
 	const char *saved_proto;
+	guint32 saved_match_port;
 
 	dtbl_entry = g_hash_table_lookup(sub_dissectors,
 	    GUINT_TO_POINTER(port));
@@ -1321,8 +1322,9 @@ old_dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 		/*
 		 * Yes, it's enabled.
 		 */
-		pi.match_port = port;
 		saved_proto = pi.current_proto;
+		saved_match_port = pi.match_port;
+		pi.match_port = port;
 		if (dtbl_entry->is_old_dissector)
 			(*dtbl_entry->dissector.old)(pd, offset, fd, tree);
 		else {
@@ -1343,6 +1345,7 @@ old_dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 			(*dtbl_entry->dissector.new)(tvb, &pi, tree);
 		}
 		pi.current_proto = saved_proto;
+		pi.match_port = saved_match_port;
 		return TRUE;
 	} else
 		return FALSE;
@@ -1356,6 +1359,7 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 	const guint8 *pd;
 	int offset;
 	const char *saved_proto;
+	guint32 saved_match_port;
 
 	dtbl_entry = g_hash_table_lookup(sub_dissectors,
 	    GUINT_TO_POINTER(port));
@@ -1376,8 +1380,9 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 		/*
 		 * Yes, it's enabled.
 		 */
-		pinfo->match_port = port;
 		saved_proto = pinfo->current_proto;
+		saved_match_port = pinfo->match_port;
+		pinfo->match_port = port;
 		if (dtbl_entry->is_old_dissector) {
 			/*
 			 * New dissector calling old dissector; use
@@ -1394,6 +1399,7 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
 			(*dtbl_entry->dissector.new)(tvb, pinfo, tree);
 		}
 		pinfo->current_proto = saved_proto;
+		pinfo->match_port = saved_match_port;
 		return TRUE;
 	} else
 		return FALSE;
