@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.42 2004/05/31 19:35:53 etxrab Exp $
+ * $Id: packet-rtcp.c,v 1.43 2004/06/01 18:58:04 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -97,7 +97,7 @@ static const value_string rtcp_packet_type_vals[] =
 	{ RTCP_APP,  "Application specific" },
 	{ RTCP_FIR,  "Full Intra-frame Request (H.261)" },
 	{ RTCP_NACK, "Negative Acknowledgement (H.261)" },
-	{ RTCP_XR,	 "Extended report"},
+	{ RTCP_XR,   "Extended report"},
 	{ 0,         NULL },
 };
 
@@ -137,21 +137,21 @@ static const value_string rtcp_app_poc1_floor_cnt_type_vals[] =
 	{  4,   "Floor Release"},
 	{  5,   "Floor Idle"},
 	{  6,   "Floor Revoke"},
-	{  0,               NULL },
+	{  0,   NULL },
 };
 
 static const value_string rtcp_app_poc1_reason_code1_vals[] =
 {
 	{  1,   "Floor already in use"},
 	{  2,   "Internal PoC server error"},
-	{  0,               NULL },
+	{  0,   NULL },
 };
 
 static const value_string rtcp_app_poc1_reason_code2_vals[] =
 {
 	{  1,   "Only one user"},
 	{  2,   "Talk burst too long"},
-	{ 0,               NULL },
+	{  0,   NULL },
 };
 /* RTCP header fields                   */
 static int proto_rtcp                = -1;
@@ -191,9 +191,9 @@ static int hf_rtcp_fsn               = -1;
 static int hf_rtcp_blp               = -1;
 static int hf_rtcp_padding_count     = -1;
 static int hf_rtcp_padding_data      = -1;
-static int hf_rtcp_app_PoC1_subtype			= -1; 
-static int hf_rtcp_app_poc1_sip_uri			= -1;
-static int hf_rtcp_app_poc1_disp_name		= -1;
+static int hf_rtcp_app_PoC1_subtype  = -1; 
+static int hf_rtcp_app_poc1_sip_uri  = -1;
+static int hf_rtcp_app_poc1_disp_name = -1;
 static int hf_rtcp_app_poc1_last_pkt_seq_no = -1;
 static int hf_rtcp_app_poc1_reason_code1	= -1;
 static int hf_rtcp_app_poc1_item_len		= -1;
@@ -205,7 +205,7 @@ static int hf_rtcp_app_poc1_additionalinfo	= -1;
 static gint ett_rtcp			= -1;
 static gint ett_ssrc			= -1;
 static gint ett_ssrc_item		= -1;
-static gint ett_ssrc_ext_high	= -1;
+static gint ett_ssrc_ext_high		= -1;
 static gint ett_sdes			= -1;
 static gint ett_sdes_item		= -1;
 static gint ett_PoC1			= -1;
@@ -485,14 +485,14 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				break;
 			case 4:				
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_last_pkt_seq_no, tvb, offset, 2, FALSE );
-			    proto_tree_add_text(PoC1_tree, tvb, offset + 2, 2, "Padding 2 bytes");
-			    offset += 4;
+				proto_tree_add_text(PoC1_tree, tvb, offset + 2, 2, "Padding 2 bytes");
+				offset += 4;
 				packet_len-=4;
 				break;
 			case 6:				
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason_code2, tvb, offset, 2, FALSE );
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_additionalinfo, tvb, offset + 2, 2, FALSE );
-			    offset += 4;
+				offset += 4;
 				packet_len-=4;
 				break;
 			default:
@@ -1307,10 +1307,9 @@ proto_register_rtcp(void)
 				"", HFILL
 			}
 		},
-
 		{
 			&hf_rtcp_app_poc1_sip_uri,
-		{
+			{
 				"SIP URI",
 				"rtcp.app.poc1.sip.uri",
 				FT_STRING,
@@ -1322,7 +1321,7 @@ proto_register_rtcp(void)
 		},
 		{
 			&hf_rtcp_app_poc1_disp_name,
-		{
+			{
 				"Display Name",
 				"rtcp.app.poc1.disp.name",
 				FT_STRING,
@@ -1334,7 +1333,7 @@ proto_register_rtcp(void)
 		},
 		{
 			&hf_rtcp_app_poc1_last_pkt_seq_no,
-		{
+			{
 				"Seq. no of last RTP packet",
 				"rtcp.app.poc1.last.pkt.seq.no",
 				FT_UINT16,
@@ -1346,19 +1345,19 @@ proto_register_rtcp(void)
 		},
 		{
 			&hf_rtcp_app_poc1_reason_code1,
-		{
+			{
 				"Reason code",
 				"rtcp.app.poc1.reason.code",
 				FT_UINT8,
 				BASE_DEC,
-				VALS(rtcp_app_poc1_reason_code2_vals),
+				VALS(rtcp_app_poc1_reason_code1_vals),
 				0x0,
 				"", HFILL
 			}
 		},
 		{
 			&hf_rtcp_app_poc1_item_len,
-		{
+			{
 				"Item length",
 				"rtcp.app.poc1.item.len",
 				FT_UINT8,
@@ -1370,7 +1369,7 @@ proto_register_rtcp(void)
 		},
 		{
 			&hf_rtcp_app_poc1_reason1_phrase,
-		{
+			{
 				"Reason Phrase",
 				"rtcp.app.poc1.reason.phrase",
 				FT_STRING,
@@ -1382,7 +1381,7 @@ proto_register_rtcp(void)
 		},
 		{
 			&hf_rtcp_app_poc1_reason_code2,
-		{
+			{
 				"Reason code",
 				"rtcp.app.poc1.reason.code",
 				FT_UINT16,
@@ -1394,7 +1393,7 @@ proto_register_rtcp(void)
 		},
 		{
 			&hf_rtcp_app_poc1_additionalinfo,
-		{
+			{
 				"additional information",
 				"rtcp.app.poc1.add.info",
 				FT_UINT16,
@@ -1452,7 +1451,7 @@ proto_register_rtcp(void)
 				"", HFILL
 			}
 		},
-};
+	};
 
 	static gint *ett[] =
 	{
