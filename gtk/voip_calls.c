@@ -1566,7 +1566,7 @@ void mgcpCallerID(gchar *signalStr, gchar **callerId)
 	if (arrayStr[0] == NULL) return;
 
 	/* look for the ci signal */
-	if (g_strrstr(arrayStr[0], "ci(") && (arrayStr[1] != NULL) ) {
+	if (strstr(arrayStr[0], "ci(") && (arrayStr[1] != NULL) ) {
 		/* free the previous "From" field of the call, and assign the new */
 		g_free(*callerId);
 		*callerId = g_strdup(arrayStr[1]);
