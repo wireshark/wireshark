@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.2 2002/11/15 10:55:19 sahlberg Exp $
+ * $Id: io_stat.c,v 1.3 2002/11/15 22:21:15 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,8 +222,7 @@ gtk_iostat_draw(void *g)
 #if GTK_MAJOR_VERSION < 2
 	GdkFont *font;
 #else
-	GdkFont *font;
-	PangoFontDescription *pango_font;
+        PangoLayout  *layout;
 #endif
 	guint32 label_width, label_height;
 	guint32 draw_width, draw_height;
@@ -232,9 +231,6 @@ gtk_iostat_draw(void *g)
 	io=git->io;
 #if GTK_MAJOR_VERSION <2
 	font = io->draw_area->style->font;
-#else
-	pango_font = io->draw_area->style->font_desc;
-	font=gdk_font_from_description(pango_font);
 #endif
 
 	if(!git->io->needs_redraw){
@@ -286,9 +282,13 @@ gtk_iostat_draw(void *g)
 
 	/* just assume that max_y will be the longest string */
 	sprintf(label_string,"%d", max_y);
-	label_width=gdk_string_width(font, label_string);
-	label_height=gdk_string_height(font, label_string);
-
+#if GTK_MAJOR_VERSION < 2
+        label_width=gdk_string_width(font, label_string);
+        label_height=gdk_string_height(font, label_string);
+#else
+        layout = gtk_widget_create_pango_layout(io->draw_area, label_string);
+        pango_layout_get_pixel_size(layout, &label_width, &label_height);
+#endif
 
 	left_x_border=10;
 	right_x_border=label_width+20;
@@ -300,12 +300,12 @@ gtk_iostat_draw(void *g)
 
 
 	/* clear out old plot */
-	gdk_draw_rectangle(io->pixmap,
-			io->draw_area->style->white_gc,
-			TRUE,
-			0, 0,
-			io->draw_area->allocation.width,
-			io->draw_area->allocation.height);
+        gdk_draw_rectangle(io->pixmap,
+                           io->draw_area->style->white_gc,
+                           TRUE,
+                           0, 0,
+                           io->draw_area->allocation.width,
+                           io->draw_area->allocation.height);
 
 	/* plot the y-scale */
 	gdk_draw_line(io->pixmap, io->draw_area->style->black_gc,
@@ -326,13 +326,23 @@ gtk_iostat_draw(void *g)
 			io->pixmap_width-right_x_border+1+xwidth, 
 			io->pixmap_height-bottom_y_border-draw_height*i/10);
 		sprintf(label_string,"%d", max_y*i/10);
-		lwidth=gdk_string_width(font, label_string);
-		gdk_draw_string(io->pixmap,
-			font,
-			io->draw_area->style->black_gc,
-			io->pixmap_width-right_x_border+15+label_width-lwidth,
-			io->pixmap_height-bottom_y_border-draw_height*i/10+label_height/2,
-			label_string);
+#if GTK_MAJOR_VERSION < 2
+                lwidth=gdk_string_width(font, label_string);
+                gdk_draw_string(io->pixmap,
+                                font,
+                                io->draw_area->style->black_gc,
+                                io->pixmap_width-right_x_border+15+label_width-lwidth,
+                                io->pixmap_height-bottom_y_border-draw_height*i/10+label_height/2,
+                                label_string);
+#else
+                pango_layout_set_text(layout, label_string, -1);
+                pango_layout_get_pixel_size(layout, &lwidth, NULL);
+		gdk_draw_layout(io->pixmap,
+                                io->draw_area->style->black_gc,
+                                io->pixmap_width-right_x_border+15+label_width-lwidth,
+                                io->pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
+                                layout);
+#endif
 	}
 
 	/* plot the x-scale */
@@ -378,17 +388,30 @@ gtk_iostat_draw(void *g)
 		if(xlen==10){
 			int lwidth;
 			sprintf(label_string,"%d", current_interval);
-			lwidth=gdk_string_width(font, label_string);
-			gdk_draw_string(io->pixmap,
-				font,
-				io->draw_area->style->black_gc,
-				x-1-io->pixels_per_tick/2-lwidth/2,
-				io->pixmap_height-bottom_y_border+15+label_height,
-				label_string);
+#if GTK_MAJOR_VERSION < 2
+                        sprintf(label_string,"%d", current_interval);
+                        lwidth=gdk_string_width(font, label_string);
+                        gdk_draw_string(io->pixmap,
+                                        font,
+                                        io->draw_area->style->black_gc,
+                                        x-1-io->pixels_per_tick/2-lwidth/2,
+                                        io->pixmap_height-bottom_y_border+15+label_height,
+                                        label_string);
+#else
+                        pango_layout_set_text(layout, label_string, -1);
+                        pango_layout_get_pixel_size(layout, &lwidth, NULL);
+                        gdk_draw_layout(io->pixmap,
+                                        io->draw_area->style->black_gc,
+                                        x-1-io->pixels_per_tick/2-lwidth/2,
+                                        io->pixmap_height-bottom_y_border+15,
+                                        layout);
+#endif
 		}
 
 	}
-
+#if GTK_MAJOR_VERSION >= 2
+        g_object_unref(G_OBJECT(layout));
+#endif
 
 	/* loop over all items */
 	for(i=MAX_GRAPHS-1;i>=0;i--){
@@ -622,6 +645,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 		io->graphs[i].gc=gdk_gc_new(io->pixmap);
 #if GTK_MAJOR_VERSION < 2
 		/* XXX dont have a clue how to do this in gtk1 */
+		gdk_gc_set_foreground(io->graphs[i].gc, &io->graphs[i].color);
 #else
 		gdk_gc_set_rgb_fg_color(io->graphs[i].gc, &io->graphs[i].color);
 #endif

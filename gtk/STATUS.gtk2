@@ -78,3 +78,7 @@ Remaining problems :
   The GTK+ 2.0 signal system merely proxies the GSignal system now. For
   future usage, direct use of the GSignal API is recommended.
   ==> done
+
+- gdk_font_from_description() may return NULL. It would be better to use
+  pango and drop GdkFont (and functions which use it, like
+  gdk_string_width, gdk_draw_string).
