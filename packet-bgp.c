@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.65 2002/08/27 08:41:43 guy Exp $
+ * $Id: packet-bgp.c,v 1.66 2002/08/27 19:12:35 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -272,7 +272,7 @@ static gint ett_bgp_communities = -1;
 static gint ett_bgp_cluster_list = -1;  /* cluster list tree          */
 static gint ett_bgp_options = -1;       /* optional parameters tree   */
 static gint ett_bgp_option = -1;        /* an optional parameter tree */
-static gint ett_bgp_extended_communities = -1 ; /* extended communities list tree */
+static gint ett_bgp_extended_communities = -1 ; /* extended communities list tree */ 
 static gint ett_bgp_orf = -1; 		/* orf (outbound route filter) tree */
 static gint ett_bgp_orf_entry = -1; 		/* orf entry tree */
 
@@ -936,6 +936,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
     proto_tree      *subtree;                   /* subtree for attributes   */
     proto_tree      *subtree2;                  /* subtree for attributes   */
     proto_tree      *subtree3;                  /* subtree for attributes   */
+    proto_tree      *subtree4;                  /* subtree for attributes   */
     proto_tree      *as_paths_tree;             /* subtree for AS_PATHs     */
     proto_tree      *as_path_tree;              /* subtree for AS_PATH      */
     proto_tree      *communities_tree;          /* subtree for COMMUNITIES  */
@@ -1216,24 +1217,10 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 	    case BGPTYPE_EXTENDED_COMMUNITY:
 		if (tlen %8 != 0)
 		    break;
-
-                /* (o + i + aoff) =
-                   (o + current attribute + aoff bytes to first tuple) */
-                q = o + i + aoff;
-                end = q + tlen;
-                junk_buf_len=0;
-                while (q < end) {
-                        ext_com = tvb_get_ntohs(tvb, q);
-                        junk_buf_len=snprintf(junk_buf+junk_buf_len,sizeof(junk_buf),"%s",
-                                              val_to_str(ext_com,bgpext_com_type,"Unknown"));
-                        q = q + 8;
-                        if (q < end) junk_buf_len=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, ", ");
-                }
-                junk_buf[junk_buf_len]='\0';
                 ti = proto_tree_add_text(subtree,tvb,o+i,tlen+aoff,
-                        "%s: %s (%u %s)",
+                        "%s: (%u %s)",
                         val_to_str(bgpa.bgpa_type,bgpattr_type,"Unknown"),
-                        junk_buf, tlen + aoff,
+                        tlen + aoff,
                         (tlen + aoff == 1) ? "byte" : "bytes");
                 break;
 
@@ -1678,8 +1665,8 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                         ti = proto_tree_add_text(subtree2,tvb,q,tlen, "Carried Extended communities");
                         subtree3 = proto_item_add_subtree(ti,ett_bgp_extended_communities) ;
 
-                        junk_buf_len=0;
                         while (q < end) {
+                            junk_buf_len=0;
                             ext_com = tvb_get_ntohs(tvb,q) ;
                             junk_buf_len=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf), "%s",
                                                   val_to_str(ext_com,bgpext_com_type,"Unknown"));
@@ -1688,18 +1675,24 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                             case BGP_EXT_COM_RO_0:
                                 junk_buf_len+=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, ": %u%s%d",
                                                        tvb_get_ntohs(tvb,q+2),":",tvb_get_ntohl(tvb,q+4));
+                                junk_buf[junk_buf_len]='\0';
+                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_buf);
                                 break ;
                             case BGP_EXT_COM_RT_1:
                             case BGP_EXT_COM_RO_1:
                                 tvb_memcpy(tvb,ipaddr,q+2,4);
                                 junk_buf_len+=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, ": %s%s%u",
                                                        ip_to_str(ipaddr),":",tvb_get_ntohs(tvb,q+6));
+                                junk_buf[junk_buf_len]='\0';
+                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_buf);
                                 break;
                             case BGP_EXT_COM_VPN_ORIGIN:
                             case BGP_EXT_COM_OSPF_RID:
                                 tvb_memcpy(tvb,ipaddr,q+2,4);
                                 junk_buf_len+=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, ": %s",
                                                        ip_to_str(ipaddr));
+                                junk_buf[junk_buf_len]='\0';
+                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_buf);
                                 break;
                             case BGP_EXT_COM_OSPF_RTYPE: 
                                 tvb_memcpy(tvb,ipaddr,q+2,4);
@@ -1713,24 +1706,48 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
                                 } else if (tvb_get_guint8(tvb,q+6)==(BGP_OSPF_RTYPE_EXT ||BGP_OSPF_RTYPE_NSSA ) ) {
                                     junk_buf_len+=snprintf(junk_buf+junk_buf_len,sizeof(junk_buf)-junk_buf_len," E1");
                                 }
+                                junk_buf[junk_buf_len]='\0';
+                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_buf);
                                 break;
                             case BGP_EXT_COM_LINKBAND:
                                 tvb_memcpy(tvb,ipaddr,q+2,4); /* need to check on IEEE format on all platforms */
                                 junk_buf_len+=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, ": %.3f Mbps",
                                                        ((double)*ipaddr)*8/1000000);
+                                junk_buf[junk_buf_len]='\0';
+                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_buf);
                                 break;
                             case BGP_EXT_COM_L2INFO:
-                                junk_buf_len+=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, ": %s:Control Flags [0x%02x]:MTU %u",
-                                         val_to_str(tvb_get_guint8(tvb,q+2),bgp_l2vpn_encaps,"Unknown"),
-                                         tvb_get_guint8(tvb,q+3),
-                                         tvb_get_ntohs(tvb,q+4));
-                              break;
+                                junk_buf_len+=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len,
+                                                       ": %s, Control Flags: %s%s%s%s%s, MTU: %u %s",
+                                                       val_to_str(tvb_get_guint8(tvb,q+2),bgp_l2vpn_encaps,"Unknown"),
+                                                       tvb_get_guint8(tvb,q+3) ? "" : "none",
+                                                       tvb_get_ntohs(tvb,q+3)&0x08 ? "Q" : "",
+                                                       tvb_get_ntohs(tvb,q+3)&0x04 ? "F" : "",
+                                                       tvb_get_ntohs(tvb,q+3)&0x02 ? "C" : "",
+                                                       tvb_get_ntohs(tvb,q+3)&0x01 ? "S" : "",
+                                                       tvb_get_ntohs(tvb,q+4),
+                                                       tvb_get_ntohs(tvb,q+4)==1 ? "byte" : "bytes");
+                                junk_buf[junk_buf_len]='\0';
+                                ti = proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_buf);
+  
+                                subtree4 = proto_item_add_subtree(ti,ett_bgp_extended_communities) ;
+                                proto_tree_add_text(subtree4,tvb,q+2,1, "Encapsulation: %s",
+                                                         val_to_str(tvb_get_guint8(tvb,q+2),bgp_l2vpn_encaps,"Unknown"));
+                                proto_tree_add_text(subtree4,tvb,q+3,1, "Control Flags: %s%sControl Word %s required, Sequenced delivery %s required",
+                                                    tvb_get_ntohs(tvb,q+3)&0x08 ? "Q flag (Reserved) set" : "",
+                                                    tvb_get_ntohs(tvb,q+3)&0x04 ? "F flag (reserved) set" : "",
+                                                    tvb_get_ntohs(tvb,q+3)&0x02 ? "is" : "not",
+                                                    tvb_get_ntohs(tvb,q+3)&0x01 ? "is" : "not"); 
+                                proto_tree_add_text(subtree4,tvb,q+4,2, "MTU: %u %s",
+                                                    tvb_get_ntohs(tvb,q+4),
+                                                    tvb_get_ntohs(tvb,q+4)==1 ? "byte" : "bytes");
+                                break;
                             default:
                                 junk_buf_len+=snprintf(junk_buf+junk_buf_len, sizeof(junk_buf)-junk_buf_len, " ");
+                                junk_buf[junk_buf_len]='\0';
+                                proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_buf);
                                 break ;
                             }
-                            junk_buf[junk_buf_len]='\0';
-                            proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_buf);
                             q = q + 8 ;
                         }
                 }
