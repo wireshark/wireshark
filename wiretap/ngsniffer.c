@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.27 1999/11/28 02:08:48 guy Exp $
+ * $Id: ngsniffer.c,v 1.28 1999/11/29 07:54:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -336,7 +336,12 @@ int ngsniffer_open(wtap *wth, int *err)
 	   is to look at the first byte of the packet - if it's 0xFF,
 	   it's PPP, otherwise it's LAPB.
 	   Therefore, we treat it as WTAP_ENCAP_UNKNOWN for now, but
-	   don't treat that as an error. */
+	   don't treat that as an error.
+
+	   In one PPP capture, the two 16-bit words of the "rsvd" field
+	   were 1 and 3, respectively, and in one X.25 capture, they
+	   were both 0.  That's too small a sample from which to
+	   conclude anything, however.... */
 	if (version.network >= NUM_NGSNIFF_ENCAPS
 	    || (sniffer_encap[version.network] == WTAP_ENCAP_UNKNOWN
 	       && version.network != 7)) {
@@ -481,6 +486,12 @@ static int ngsniffer_read(wtap *wth, int *err)
 			 * which probably indicates the packet's
 			 * direction; all other bits were zero.
 			 * All bits in "frame2.flags" were zero.
+			 *
+			 * In one X.25 "Interenetwork analyzer" capture,
+			 * the only bit seen in "fs" is the 0x80 bit,
+			 * which probably indicates the packet's
+			 * direction; all other bits were zero.
+			 * "frame2.flags" was always 0x18.
 			 *
 			 * In one Ethernet capture, "fs" was always 0,
 			 * and "flags" was either 0 or 0x18, with no
