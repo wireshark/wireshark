@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.1 2001/10/18 20:29:56 guy Exp $
+ * $Id: vms.c,v 1.2 2001/12/24 17:00:01 gerald Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -248,7 +248,6 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
     struct tm time;
     char mon[4];
     guchar *p;
-    long mpos;
     static guchar months[] = "JANFEBMARAPRMAYJUNJULAUGSEPOCTNOVDEC";
 
     pkt_len = 0;
@@ -285,7 +284,6 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
 
     /* Skip lines until one starts with a hex number */
     do {
-        mpos = file_tell(fh);
         if (file_gets(line, VMS_LINE_LENGTH, fh) == NULL) {
             *err = file_error(fh);
             if (*err == 0) {
@@ -304,11 +302,10 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
             }
 
             pkt_len = atoi(p);
+	    break;
         }
     } while (! isdumpline(line));
 
-    file_seek(fh, mpos, SEEK_SET);
-   
     if (wth) {
         p = strstr(months, mon);
         if (p)
@@ -346,10 +343,18 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
             }
             return -1;
         }
-        if (i == 0)
+        if (i == 0) {
+	    while (! isdumpline(line)) /* advance to start of hex data */
+	        if (file_gets(line, VMS_LINE_LENGTH, fh) == NULL) {
+		    *err = file_error(fh);
+		    if (*err == 0) {
+		        *err = WTAP_ERR_SHORT_READ;
+		    }
+		    return -1;
+		}
             while (line[offset] && !isxdigit(line[offset]))
                 offset++;
-
+	}
         if (!parse_single_hex_dump_line(line, buf, i * 16,
                         offset)) {
             *err = WTAP_ERR_BAD_RECORD;

@@ -351,6 +351,7 @@ Overview of changes in Ethereal 0.9.0:
     name in "gethostbyaddr()". (Guy)
 * Capture file size test fixes in tethereal, command line argument
     parsing fixes. (Guy)
+* VMS TCPIPtrace efficiency improvements. (Marc)
 
 Overview of changes in Ethereal 0.8.20:
 
