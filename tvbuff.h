@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.10 2000/09/07 15:29:40 gram Exp $
+ * $Id: tvbuff.h,v 1.11 2000/09/08 06:16:58 sharpe Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -254,6 +254,7 @@ gint tvb_find_guint8(tvbuff_t*, gint offset, guint maxlength, guint8 needle);
  * 'max_length' characters'. Returns -1 if 'max_length' reached
  * before finding EOS. */
 gint tvb_strnlen(tvbuff_t*, gint offset, guint maxlength);
+guint8 * tvb_format_text(tvbuff_t *tvb, gint offset, gint size);
 
 /* Looks for a stringz (NUL-terminated string) in tvbuff and copies
  * no more than maxlength number of bytes, including terminating NUL, to buffer.

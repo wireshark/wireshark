@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.10 2000/09/07 15:29:39 gram Exp $
+ * $Id: tvbuff.c,v 1.11 2000/09/08 06:16:57 sharpe Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -1024,6 +1024,29 @@ tvb_strneql(tvbuff_t *tvb, gint offset, guint8 *str, gint size)
 
   }
 
+}
+
+/*
+ * Format the data in the tvb from offset for length ...
+ */
+
+guint8 *
+tvb_format_text(tvbuff_t *tvb, gint offset, gint size)
+{
+  guint8 *ptr;
+  gint len = size;
+
+  fprintf(stderr, "tvb_format_text called: size = %d\n", size);
+
+  if ((ptr = ensure_contiguous(tvb, offset, size)) == NULL) {
+
+    len = tvb_length_remaining(tvb, offset);
+    ptr = ensure_contiguous(tvb, offset, len);
+
+  }
+
+  return format_text(ptr, len);
+ 
 }
 
 /* Looks for a stringz (NUL-terminated string) in tvbuff and copies
