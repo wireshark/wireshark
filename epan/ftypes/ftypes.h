@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.27 2003/12/09 23:02:39 obiot Exp $
+ * $Id: ftypes.h,v 1.28 2003/12/10 21:12:02 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,10 +25,6 @@
 
 #ifndef FTYPES_H
 #define FTYPES_H
-
-#ifdef HAVE_LIBPCRE
-#include <pcre.h>
-#endif /* HAVE_LIBPCRE */
 
 #include <glib.h>
 #include "../slab.h"
@@ -79,12 +75,7 @@ enum ftrepr {
 typedef enum ftrepr ftrepr_t;
 
 #ifdef HAVE_LIBPCRE
-typedef struct _pcre_tuple_t {
-	char *string;
-	pcre *re;
-	pcre_extra *ex;
-	char *error;
-} pcre_tuple_t;
+typedef struct _pcre_tuple_t pcre_tuple_t;
 #endif /* HAVE_LIBPCRE */
 
 /* Initialize the ftypes subsytem. Called once. */

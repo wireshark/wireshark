@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes-int.h,v 1.11 2003/11/25 13:20:36 sahlberg Exp $
+ * $Id: ftypes-int.h,v 1.12 2003/12/10 21:12:02 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,20 @@
 
 #include <epan/packet.h>
 #include "ftypes.h"
+
+#ifdef HAVE_LIBPCRE
+#include <pcre.h>
+#endif /* HAVE_LIBPCRE */
+
+
+#ifdef HAVE_LIBPCRE
+struct _pcre_tuple_t {
+    char *string;
+    pcre *re;
+    pcre_extra *ex;
+    char *error;
+};
+#endif /* HAVE_LIBPCRE */
 
 void
 ftype_register(enum ftenum ftype, ftype_t *ft);
