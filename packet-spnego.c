@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.41 2003/01/10 23:47:30 guy Exp $
+ * $Id: packet-spnego.c,v 1.42 2003/02/17 17:32:59 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1427,6 +1427,14 @@ proto_reg_handoff_spnego(void)
 	    "SPNEGO - Simple Protected Negotiation");
 
 	/* Register both the one MS created and the real one */
+	/*
+	 * Thanks to Jean-Baptiste Marchand and Richard B Ward, the
+	 * mystery of the MS KRB5 OID is cleared up. It was due to a library
+	 * that did not handle OID components greater than 16 bits, and was
+	 * fixed in Win2K SP2 as well as WinXP.
+	 * See the archive of <ietf-krb-wg@anl.gov> for the thread topic
+	 * SPNEGO implementation issues. 3-Dec-2002.
+	 */
 	spnego_krb5_handle = create_dissector_handle(dissect_spnego_krb5,
 						     proto_spnego_krb5);
 	spnego_krb5_wrap_handle = new_create_dissector_handle(dissect_spnego_krb5_wrap,
