@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.360 2003/08/14 00:24:13 tpot Exp $
+ * $Id: packet-smb.c,v 1.361 2003/08/15 03:23:31 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12835,17 +12835,17 @@ dissect_4_3_4_8(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 	/* Last status change */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, tree, offset, hf_smb_unix_file_last_status);
-	COUNT_BYTES_SUBR(8);
+	*bcp -= 8;
 
 	/* Last access time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, tree, offset, hf_smb_unix_file_last_access);
-	COUNT_BYTES_SUBR(8);
+	*bcp -= 8;
 
 	/* Last modification time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, tree, offset, hf_smb_unix_file_last_change);
-	COUNT_BYTES_SUBR(8);
+	*bcp -= 8;
 
 	/* File owner uid */
 	CHECK_BYTE_COUNT_SUBR(8);
@@ -12890,12 +12890,17 @@ dissect_4_3_4_8(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 	/* Name */
 
 	fn = get_unicode_or_ascii_string(
-		tvb, &offset, si->unicode, &fn_len, FALSE, TRUE, bcp);
+		tvb, &offset, si->unicode, &fn_len, FALSE, FALSE, bcp);
 
 	CHECK_STRING_SUBR(fn);
 	proto_tree_add_string(
 		tree, hf_smb_unix_file_link_dest, tvb, offset, fn_len, fn);
 	COUNT_BYTES_SUBR(fn_len);
+
+	/* Pad to 4 bytes */
+
+	if (offset % 4)
+		offset += 4 - (offset % 4);
 
 	*trunc = FALSE;
 	return offset;
@@ -18832,6 +18837,10 @@ proto_register_smb(void)
 	{ &hf_smb_unix_file_nlinks,
 	  { "Num links", "smb.unix.file.num_links", FT_UINT64, BASE_DEC,
 	    NULL, 0, "", HFILL }},
+
+	{ &hf_smb_unix_file_link_dest,
+	  { "Link destination", "smb.unix.file.link_dest", FT_STRING, 
+	    BASE_NONE, NULL, 0, "", HFILL }},
 
 	{ &hf_smb_unix_find_file_nextoffset,
 	  { "Next entry offset", "smb.unix.find_file.next_offset", FT_UINT32, BASE_DEC,
