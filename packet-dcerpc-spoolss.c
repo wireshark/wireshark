@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.9 2002/03/25 05:42:01 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.10 2002/03/26 04:29:17 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1839,6 +1839,47 @@ static int SpoolssSetPrinter_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }	
 
 /*
+ * FORM_REL
+ */
+
+static gint ett_FORM_REL = -1;
+
+static int prs_FORM_REL(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			proto_tree *tree, int struct_start, GList **dp_list, 
+			void **data)
+{
+	proto_item *item;
+	proto_tree *subtree;
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, "FORM_REL");
+
+	subtree = proto_item_add_subtree(item, ett_FORM_REL);
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Flags");
+
+	offset = prs_relstr(tvb, offset, pinfo, subtree, dp_list,
+			    struct_start, NULL, "Name");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Width");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Height");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
+			    "Left margin");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
+			    "Top margin");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
+			    "Horizontal imageable length");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
+			    "Vertical imageable length");
+
+	return offset;
+}
+
+/*
  * SpoolssEnumForms
  */
 
@@ -1870,6 +1911,8 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");
 
+	dcerpc_smb_store_priv(di, SPOOLSS_ENUMFORMS, &level, sizeof(level));
+
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
@@ -1887,8 +1930,10 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
-	guint32 request_num;
+	guint32 request_num, count;
 	GList *dp_list = NULL;
+	struct BUFFER_DATA *bd = NULL;
+	void **data_list;
 
 	/* Update informational fields */
 
@@ -1904,11 +1949,49 @@ static int SpoolssEnumForms_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Parse packet */
 
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
-					   prs_BUFFER, NULL, NULL);
+					   prs_BUFFER, NULL, &data_list);
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Needed");
 
-	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Num entries");
+	offset = prs_uint32(tvb, offset, pinfo, tree, &count, "Num entries");
+
+	if (data_list)
+		bd = (struct BUFFER_DATA *)data_list[0];
+
+	CLEANUP_PUSH(g_free, bd);
+
+	if (bd && bd->tree) {
+		guint32 *level, i;
+		GList *child_dp_list = NULL;
+
+		level = dcerpc_smb_fetch_priv(di, SPOOLSS_ENUMFORMS, NULL);
+
+		if (!level)
+			goto done;
+
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d",
+					*level);
+
+		proto_item_append_text(bd->item, ", FORM_%d", *level);
+
+		/* Unfortunately this array isn't in NDR format so we can't
+		   use prs_array().  The other weird thing is the
+		   struct_start being inside the loop rather than outside.
+		   Very strange. */
+
+		for (i = 0; i < count; i++) {
+			int struct_start = bd->offset;
+
+			bd->offset = prs_FORM_REL(
+				bd->tvb, bd->offset, pinfo, bd->tree, 
+				struct_start, &child_dp_list, NULL);
+		}
+
+	}
+ done:
+
+	CLEANUP_CALL_AND_POP;
 
 	offset = prs_werror(tvb, offset, pinfo, tree, NULL);	
 
@@ -2336,8 +2419,129 @@ static int SpoolssAddPrinterDriver_r(tvbuff_t *tvb, int offset,
 }      
 
 /*
+ * FORM_1
+ */
+
+static gint ett_FORM_1 = -1;
+
+static int prs_FORM_1(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		      proto_tree *tree, GList **dp_list, void **data)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	guint32 ptr = 0;
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, "FORM_1");
+
+	subtree = proto_item_add_subtree(item, ett_FORM_1);
+
+	offset = prs_ptr(tvb, offset, pinfo, subtree, &ptr, "Name");
+
+	if (ptr)
+		defer_ptr(dp_list, prs_UNISTR2_dp, subtree);
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Flags");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Unknown");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Width");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, "Height");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
+			    "Left margin");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
+			    "Top margin");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
+			    "Horizontal imageable length");
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, NULL, 
+			    "Vertical imageable length");
+
+	return offset;
+}
+
+/*
+ * FORM_CTR
+ */
+
+static gint ett_FORM_CTR = -1;
+
+static int prs_FORM_CTR(tvbuff_t *tvb, int offset, packet_info *pinfo,
+		    proto_tree *tree, GList **dp_list, void **data)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	guint32 level;
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, "FORM_CTR");
+
+	subtree = proto_item_add_subtree(item, ett_FORM_CTR);
+
+	offset = prs_uint32(tvb, offset, pinfo, subtree, &level, "Level");
+
+	switch(level) {
+	case 1:
+		offset = prs_struct_and_referents(tvb, offset, pinfo, subtree,
+						  prs_FORM_1, NULL, NULL);
+		break;
+	default:
+		proto_tree_add_text(subtree, tvb, offset, 0,
+				    "[Unimplemented info level %d]", level);
+		break;
+	}
+
+	return offset;
+}
+
+/*
  * AddForm
  */
+
+static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+			    proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	guint32 response_num;
+	const guint8 *policy_hnd;
+	guint32 level;
+
+	/* Update informational fields */
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, 
+			    "AddForm request");
+
+	dcerpc_smb_store_q(di, SPOOLSS_ADDFORM, pinfo->fd->num);
+
+	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_ADDFORM)))
+		proto_tree_add_text(tree, tvb, offset, 0,
+				    "Response in frame %d", response_num);
+
+	/* Parse packet */
+
+	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
+
+	display_pol(tree, tvb, offset - 20, policy_hnd);
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");	
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
+
+	/* Store info level to match with response packet */
+
+	dcerpc_smb_store_priv(di, SPOOLSS_ADDFORM, &level, sizeof(level));
+
+	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
+					  prs_FORM_CTR, NULL, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
 
 static int SpoolssAddForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    proto_tree *tree, char *drep)
@@ -2365,6 +2569,268 @@ static int SpoolssAddForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }      
 
+/*
+ * DeleteForm
+ */
+
+static int SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			       proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	guint32 response_num;
+	const guint8 *policy_hnd;
+	char *form_name;
+
+	/* Update informational fields */
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "DeleteForm request");
+
+	dcerpc_smb_store_q(di, SPOOLSS_DELETEFORM, pinfo->fd->num);
+
+	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_DELETEFORM)))
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", response_num);
+
+	/* Parse packet */
+
+	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
+
+	display_pol(tree, tvb, offset - 20, policy_hnd);
+
+	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
+					  prs_UNISTR2_dp, (void **)&form_name,
+					  NULL);
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", form_name);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int SpoolssDeleteForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			    proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	guint32 request_num;
+
+	/* Update informational fields */
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "DeleteForm response");
+
+	dcerpc_smb_store_r(di, SPOOLSS_DELETEFORM, pinfo->fd->num);
+
+	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_DELETEFORM)))
+		proto_tree_add_text(tree, tvb, offset, 0,
+				    "Request in frame %d", request_num);
+
+	/* Parse packet */
+
+	offset = prs_werror(tvb, offset, pinfo, tree, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+/*
+ * SetForm
+ */
+
+static int SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+			    proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	guint32 response_num;
+	const guint8 *policy_hnd;
+	guint32 level;
+	char *form_name;
+
+	/* Update informational fields */
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, 
+			    "SetForm request");
+
+	dcerpc_smb_store_q(di, SPOOLSS_SETFORM, pinfo->fd->num);
+
+	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_SETFORM)))
+		proto_tree_add_text(tree, tvb, offset, 0,
+				    "Response in frame %d", response_num);
+
+	/* Parse packet */
+
+	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
+
+	display_pol(tree, tvb, offset - 20, policy_hnd);
+
+	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
+					  prs_UNISTR2_dp, (void **)&form_name,
+					  NULL);	
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");	
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, level %d", 
+				form_name, level);
+
+	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
+					  prs_FORM_CTR, NULL, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int SpoolssSetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			    proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	guint32 request_num;
+	proto_item *info_item;
+
+	/* Update informational fields */
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "SetForm response");
+
+	dcerpc_smb_store_r(di, SPOOLSS_SETFORM, pinfo->fd->num);
+
+	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_SETFORM)))
+		proto_tree_add_text(tree, tvb, offset, 0,
+				    "Request in frame %d", request_num);
+
+	/* Parse packet */
+
+	offset = prs_werror(tvb, offset, pinfo, tree, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}      
+
+/*
+ * GetForm
+ */
+
+static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			    proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	guint32 response_num, level;
+	const guint8 *policy_hnd;
+	char *form_name;
+
+	/* Update informational fields */
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "GetForm request");
+
+	dcerpc_smb_store_q(di, SPOOLSS_GETFORM, pinfo->fd->num);
+
+	if ((response_num = dcerpc_smb_fetch_r(di, SPOOLSS_GETFORM)))
+		proto_tree_add_text(tree, tvb, offset, 0, 
+				    "Response in frame %d", response_num);
+
+	/* Parse packet */
+
+	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
+
+	display_pol(tree, tvb, offset - 20, policy_hnd);
+
+	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
+					  prs_UNISTR2_dp, (void **)&form_name,
+					  NULL);	
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");
+
+	dcerpc_smb_store_priv(di, SPOOLSS_GETFORM, &level, sizeof(level));
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, level %d",
+				form_name, level);
+
+	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
+					  prs_BUFFER, NULL, NULL);
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Offered");
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
+static int SpoolssGetForm_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			    proto_tree *tree, char *drep)
+{
+	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	guint32 request_num;
+	void **data_list;
+	struct BUFFER_DATA *bd = NULL;
+
+	/* Update informational fields */
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "GetForm response");
+
+	dcerpc_smb_store_r(di, SPOOLSS_GETFORM, pinfo->fd->num);
+
+	if ((request_num = dcerpc_smb_fetch_q(di, SPOOLSS_GETFORM)))
+		proto_tree_add_text(tree, tvb, offset, 0,
+				    "Request in frame %d", request_num);
+
+	/* Parse packet */
+
+	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
+					  prs_BUFFER, NULL, &data_list);
+
+	offset = prs_uint32(tvb, offset, pinfo, tree, NULL, "Needed");
+
+	if (data_list)
+		bd = (struct BUFFER_DATA *)data_list[0];
+
+	CLEANUP_PUSH(g_free, bd);
+
+	if (bd && bd->tree) {
+		guint32 *level;
+
+		level = dcerpc_smb_fetch_priv(di, SPOOLSS_GETFORM, NULL);
+
+		if (!level)
+			goto done;
+
+		switch(*level) {
+		case 1: {
+			int struct_start = bd->offset;
+			GList *dp_list = NULL;
+
+			bd->offset = prs_FORM_REL(
+				bd->tvb, bd->offset, pinfo, bd->tree, 
+				struct_start, &dp_list, NULL);
+			break;
+		}
+		default:
+			proto_tree_add_text(
+				bd->tree, bd->tvb, bd->offset, 0, 
+				"[Unknown info level %d]", *level);
+			break;
+		}
+
+	}
+ done:
+
+	CLEANUP_CALL_AND_POP;
+
+	offset = prs_werror(tvb, offset, pinfo, tree, NULL);
+
+	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
+
+	return offset;
+}	
+
 /* A generic reply function that just parses the status code.  Useful for
    unimplemented dissectors so the status code can be inserted into the
    INFO column. */
@@ -2381,6 +2847,8 @@ static int SpoolssGeneric_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	return offset;
 }
+
+
 
 #if 0
 
@@ -2498,10 +2966,13 @@ static dcerpc_sub_dissector dcerpc_spoolss_dissectors[] = {
         { SPOOLSS_CLOSEPRINTER, "SPOOLSS_CLOSEPRINTER", 
 	  SpoolssClosePrinter_q, SpoolssClosePrinter_r },
         { SPOOLSS_ADDFORM, "SPOOLSS_ADDFORM", 
-	  NULL, SpoolssAddForm_r },
-        { SPOOLSS_DELETEFORM, "SPOOLSS_DELETEFORM", NULL, SpoolssGeneric_r },
-        { SPOOLSS_GETFORM, "SPOOLSS_GETFORM", NULL, SpoolssGeneric_r },
-        { SPOOLSS_SETFORM, "SPOOLSS_SETFORM", NULL, SpoolssGeneric_r },
+	  SpoolssAddForm_q, SpoolssAddForm_r },
+        { SPOOLSS_DELETEFORM, "SPOOLSS_DELETEFORM", 
+	  SpoolssDeleteForm_q, SpoolssDeleteForm_r },
+        { SPOOLSS_GETFORM, "SPOOLSS_GETFORM", 
+	  SpoolssGetForm_q, SpoolssGetForm_r },
+        { SPOOLSS_SETFORM, "SPOOLSS_SETFORM", 
+	  SpoolssSetForm_q, SpoolssSetForm_r },
         { SPOOLSS_ENUMFORMS, "SPOOLSS_ENUMFORMS", 
 	  SpoolssEnumForms_q, SpoolssEnumForms_r },
         { SPOOLSS_ENUMPORTS, "SPOOLSS_ENUMPORTS", NULL, SpoolssGeneric_r },
@@ -2633,6 +3104,9 @@ proto_register_dcerpc_spoolss(void)
 		&ett_PRINTER_INFO_3,
 		&ett_RELSTR,
 		&ett_POLICY_HND,
+		&ett_FORM_REL,
+		&ett_FORM_CTR,
+		&ett_FORM_1,
         };
 
         proto_dcerpc_spoolss = proto_register_protocol(
