@@ -33,7 +33,8 @@ Overview of changes in Ethereal 0.8.12:
 * Add #defines to DNS dissector (Guy)
 * Fix compilation in non-source directory (Laurent)
 * Add ethertypes (Laurent)
-* Fix for compiling if G_HAVE_GINT64 (Guy)
+* Add routines for fetching little-endian and big-endian 64-bit integral
+	quantities, if G_HAVE_GINT64 is defined (Guy)
 * ISIS CLV fix (Laurent)
 * Add proto_tree_add_text_valist (Laurent)
 * make-reg-dotc fix (Guy)
