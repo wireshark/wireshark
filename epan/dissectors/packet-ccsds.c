@@ -235,7 +235,7 @@ proto_register_ccsds(void)
 	};
 
 /* Register the protocol name and description */
-	proto_ccsds = proto_register_protocol("CCSDS", "CCSDS", "CCSDS");
+	proto_ccsds = proto_register_protocol("CCSDS", "CCSDS", "ccsds");
 
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_ccsds, hf, array_length(hf));

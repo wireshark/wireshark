@@ -58,13 +58,13 @@ proto_register_ISystemActivator (void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_opnum,
-		  { "Operation", "ISystemActivator.opnum", FT_UINT16, BASE_DEC,
+		  { "Operation", "isystemactivator.opnum", FT_UINT16, BASE_DEC,
 		    NULL, 0x0, "", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_ISystemActivator
 	};
-	proto_ISystemActivator = proto_register_protocol ("ISystemActivator ISystemActivator Resolver", "ISystemActivator", "ISystemActivator");
+	proto_ISystemActivator = proto_register_protocol ("ISystemActivator ISystemActivator Resolver", "ISystemActivator", "isystemactivator");
 	proto_register_field_array (proto_ISystemActivator, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
 }

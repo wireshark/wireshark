@@ -897,7 +897,7 @@ proto_register_fcfzs(void)
     };
 
     /* Register the protocol name and description */
-    proto_fcfzs = proto_register_protocol("Fibre Channel Fabric Zone Server", "FC FZS", "FZS");
+    proto_fcfzs = proto_register_protocol("Fibre Channel Fabric Zone Server", "FC FZS", "fcfzs");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_fcfzs, hf, array_length(hf));

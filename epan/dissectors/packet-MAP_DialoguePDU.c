@@ -44,7 +44,7 @@
 
 #define PNAME  "MAP_DialoguePDU"
 #define PSNAME "MAP_DialoguePDU"
-#define PFNAME "MAP_DialoguePDU"
+#define PFNAME "map_dialoguepdu"
 
 /* Initialize the protocol and registered fields */
 int proto_MAP_DialoguePDU = -1;
@@ -170,7 +170,7 @@ static int dissect_map_close_impl(packet_info *pinfo, proto_tree *tree, tvbuff_t
 }
 
 
-static const value_string Reason_vals[] = {
+static const value_string MAP_DialoguePDU_Reason_vals[] = {
   {   0, "noReasonGiven" },
   {   1, "invalidDestinationReference" },
   {   2, "invalidOriginatingReference" },
@@ -222,7 +222,7 @@ static int dissect_userResourceLimitation_impl(packet_info *pinfo, proto_tree *t
 }
 
 
-static const value_string ResourceUnavailable_vals[] = {
+static const value_string MAP_DialoguePDU_ResourceUnavailable_vals[] = {
   {   0, "shortTermResourceLimitation" },
   {   1, "longTermResourceLimitation" },
   { 0, NULL }
@@ -240,7 +240,7 @@ static int dissect_resourceUnavailable_impl(packet_info *pinfo, proto_tree *tree
 }
 
 
-static const value_string ApplicationProcedureCancellation_vals[] = {
+static const value_string MAP_DialoguePDU_ApplicationProcedureCancellation_vals[] = {
   {   0, "handoverCancellation" },
   {   1, "radioChannelRelease" },
   {   2, "networkPathRelease" },
@@ -263,7 +263,7 @@ static int dissect_applicationProcedureCancellation_impl(packet_info *pinfo, pro
 }
 
 
-static const value_string MAP_UserAbortChoice_vals[] = {
+static const value_string MAP_DialoguePDU_MAP_UserAbortChoice_vals[] = {
   {   0, "userSpecificReason" },
   {   1, "userResourceLimitation" },
   {   2, "resourceUnavailable" },
@@ -307,7 +307,7 @@ static int dissect_map_userAbort_impl(packet_info *pinfo, proto_tree *tree, tvbu
 }
 
 
-static const value_string MAP_ProviderAbortReason_vals[] = {
+static const value_string MAP_DialoguePDU_MAP_ProviderAbortReason_vals[] = {
   {   0, "abnormalDialogue" },
   {   1, "invalidPDU" },
   { 0, NULL }
@@ -341,7 +341,7 @@ static int dissect_map_providerAbort_impl(packet_info *pinfo, proto_tree *tree, 
 }
 
 
-static const value_string MAP_DialoguePDU_vals[] = {
+static const value_string MAP_DialoguePDU_MAP_DialoguePDU_vals[] = {
   {   0, "map-open" },
   {   1, "map-accept" },
   {   2, "map-close" },
@@ -434,7 +434,7 @@ dissect_MAP_DialoguePDU_MAP_UserAbortInfo(gboolean implicit_tag _U_, tvbuff_t *t
 }
 
 
-static const value_string ResourceUnavailableReason_vals[] = {
+static const value_string MAP_DialoguePDU_ResourceUnavailableReason_vals[] = {
   {   0, "shortTermResourceLimitation" },
   {   1, "longTermResourceLimitation" },
   { 0, NULL }
@@ -449,7 +449,7 @@ dissect_MAP_DialoguePDU_ResourceUnavailableReason(gboolean implicit_tag _U_, tvb
 }
 
 
-static const value_string ProcedureCancellationReason_vals[] = {
+static const value_string MAP_DialoguePDU_ProcedureCancellationReason_vals[] = {
   {   0, "handoverCancellation" },
   {   1, "radioChannelRelease" },
   {   2, "networkPathRelease" },
@@ -525,7 +525,7 @@ void proto_register_MAP_DialoguePDU(void) {
         "MAP-DialoguePDU/map-refuse", HFILL }},
     { &hf_MAP_DialoguePDU_reason,
       { "reason", "MAP_DialoguePDU.reason",
-        FT_UINT32, BASE_DEC, VALS(Reason_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(MAP_DialoguePDU_Reason_vals), 0,
         "", HFILL }},
     { &hf_MAP_DialoguePDU_map_userAbort,
       { "map-userAbort", "MAP_DialoguePDU.map_userAbort",
@@ -533,7 +533,7 @@ void proto_register_MAP_DialoguePDU(void) {
         "MAP-DialoguePDU/map-userAbort", HFILL }},
     { &hf_MAP_DialoguePDU_map_UserAbortChoice,
       { "map-UserAbortChoice", "MAP_DialoguePDU.map_UserAbortChoice",
-        FT_UINT32, BASE_DEC, VALS(MAP_UserAbortChoice_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(MAP_DialoguePDU_MAP_UserAbortChoice_vals), 0,
         "", HFILL }},
     { &hf_MAP_DialoguePDU_map_providerAbort,
       { "map-providerAbort", "MAP_DialoguePDU.map_providerAbort",
@@ -541,7 +541,7 @@ void proto_register_MAP_DialoguePDU(void) {
         "MAP-DialoguePDU/map-providerAbort", HFILL }},
     { &hf_MAP_DialoguePDU_map_ProviderAbortReason,
       { "map-ProviderAbortReason", "MAP_DialoguePDU.map_ProviderAbortReason",
-        FT_UINT32, BASE_DEC, VALS(MAP_ProviderAbortReason_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(MAP_DialoguePDU_MAP_ProviderAbortReason_vals), 0,
         "", HFILL }},
     { &hf_MAP_DialoguePDU_userSpecificReason,
       { "userSpecificReason", "MAP_DialoguePDU.userSpecificReason",
@@ -553,11 +553,11 @@ void proto_register_MAP_DialoguePDU(void) {
         "MAP-UserAbortChoice/userResourceLimitation", HFILL }},
     { &hf_MAP_DialoguePDU_resourceUnavailable,
       { "resourceUnavailable", "MAP_DialoguePDU.resourceUnavailable",
-        FT_UINT32, BASE_DEC, VALS(ResourceUnavailable_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(MAP_DialoguePDU_ResourceUnavailable_vals), 0,
         "MAP-UserAbortChoice/resourceUnavailable", HFILL }},
     { &hf_MAP_DialoguePDU_applicationProcedureCancellation,
       { "applicationProcedureCancellation", "MAP_DialoguePDU.applicationProcedureCancellation",
-        FT_UINT32, BASE_DEC, VALS(ApplicationProcedureCancellation_vals), 0,
+        FT_UINT32, BASE_DEC, VALS(MAP_DialoguePDU_ApplicationProcedureCancellation_vals), 0,
         "MAP-UserAbortChoice/applicationProcedureCancellation", HFILL }},
 
 /*--- End of included file: packet-MAP_DialoguePDU-hfarr.c ---*/

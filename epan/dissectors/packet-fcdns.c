@@ -1917,7 +1917,7 @@ proto_register_fcdns (void)
     
     /* Register the protocol name and description */
     proto_fcdns = proto_register_protocol("Fibre Channel Name Server",
-                                          "FC-dNS", "FC-dNS");
+                                          "FC-dNS", "fcdns");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_fcdns, hf, array_length(hf));

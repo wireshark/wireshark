@@ -2360,19 +2360,20 @@ proto_tree_get_parent(proto_tree *tree) {
 int
 proto_register_protocol(char *name, char *short_name, char *filter_name)
 {
-	protocol_t *protocol;
-	header_field_info *hfinfo;
-	int proto_id;
+    protocol_t *protocol;
+    header_field_info *hfinfo;
+    int proto_id;
     char *existing_name;
-    gint *key;
+    gint *key, i;
+    gboolean found_invalid;
 
-	/*
-	 * Make sure there's not already a protocol with any of those
-	 * names.  Crash if there is, as that's an error in the code
+    /*
+     * Make sure there's not already a protocol with any of those
+     * names.  Crash if there is, as that's an error in the code
      * or an inappropriate plugin.
      * This situation has to be fixed to not register more than one
-	 * protocol with the same name.
-	 *
+     * protocol with the same name.
+     *
      * This is done by reducing the number of strcmp (and alike) calls as much as possible,
      * as this significally slows down startup time.
      *
@@ -2387,7 +2388,7 @@ proto_register_protocol(char *name, char *short_name, char *filter_name)
     existing_name = g_hash_table_lookup(proto_names, key);
     if (existing_name != NULL) {
         /* g_error will terminate the program */
-        g_error("The protocol name \"%s\" is existing more than one time!"
+        g_error("Duplicate protocol name \"%s\"!"
             " This might be caused by an inappropriate plugin or a development error.", name);
     }
     g_hash_table_insert(proto_names, key, name);
@@ -2396,46 +2397,59 @@ proto_register_protocol(char *name, char *short_name, char *filter_name)
     *key = g_str_hash(short_name);
     existing_name = g_hash_table_lookup(proto_short_names, key);
     if (existing_name != NULL) {
-        g_error("The protocol short_name \"%s\" is existing more than one time!"
+        g_error("Duplicate protocol short_name \"%s\"!"
             " This might be caused by an inappropriate plugin or a development error.", short_name);
     }
     g_hash_table_insert(proto_short_names, key, short_name);
 
+    found_invalid = FALSE;
+    for (i = 0; i < strlen(filter_name); i++) {
+        if (! (islower(filter_name[i]) ||
+               isdigit(filter_name[i]) ||
+               filter_name[i] == '-'   ||
+               filter_name[i] == '_'   ||
+               filter_name[i] == '.'   )) {
+            found_invalid = TRUE;
+        }
+    }
+    if (found_invalid) {
+        g_warning("Protocol filter name \"%s\" has one or more invalid characters.", filter_name);
+    }
     key = g_malloc (sizeof(gint));
     *key = g_str_hash(filter_name);
     existing_name = g_hash_table_lookup(proto_filter_names, key);
     if (existing_name != NULL) {
-        g_error("The protocol filter_name \"%s\" is existing more than one time!"
+        g_error("Duplicate protocol filter_name \"%s\"!"
             " This might be caused by an inappropriate plugin or a development error.", filter_name);
     }
     g_hash_table_insert(proto_filter_names, key, filter_name);
 
-	/* Add this protocol to the list of known protocols; the list
-	   is sorted by protocol short name. */
-	protocol = g_malloc(sizeof (protocol_t));
-	protocol->name = name;
-	protocol->short_name = short_name;
-	protocol->filter_name = filter_name;
-	protocol->fields = NULL;
-	protocol->is_enabled = TRUE; /* protocol is enabled by default */
-	protocol->can_toggle = TRUE;
+    /* Add this protocol to the list of known protocols; the list
+       is sorted by protocol short name. */
+    protocol = g_malloc(sizeof (protocol_t));
+    protocol->name = name;
+    protocol->short_name = short_name;
+    protocol->filter_name = filter_name;
+    protocol->fields = NULL;
+    protocol->is_enabled = TRUE; /* protocol is enabled by default */
+    protocol->can_toggle = TRUE;
     /* list will be sorted later by name, when all protocols completed registering */
     protocols = g_list_append(protocols, protocol);
 
-	/* Here we do allocate a new header_field_info struct */
-	hfinfo = g_mem_chunk_alloc(gmc_hfinfo);
-	hfinfo->name = name;
-	hfinfo->abbrev = filter_name;
-	hfinfo->type = FT_PROTOCOL;
-	hfinfo->strings = NULL;
-	hfinfo->bitmask = 0;
-	hfinfo->bitshift = 0;
-	hfinfo->blurb = "";
-	hfinfo->parent = -1; /* this field differentiates protos and fields */
+    /* Here we do allocate a new header_field_info struct */
+    hfinfo = g_mem_chunk_alloc(gmc_hfinfo);
+    hfinfo->name = name;
+    hfinfo->abbrev = filter_name;
+    hfinfo->type = FT_PROTOCOL;
+    hfinfo->strings = NULL;
+    hfinfo->bitmask = 0;
+    hfinfo->bitshift = 0;
+    hfinfo->blurb = "";
+    hfinfo->parent = -1; /* this field differentiates protos and fields */
 
-	proto_id = proto_register_field_init(hfinfo, hfinfo->parent);
-	protocol->proto_id = proto_id;
-	return proto_id;
+    proto_id = proto_register_field_init(hfinfo, hfinfo->parent);
+    protocol->proto_id = proto_id;
+    return proto_id;
 }
 
 /*

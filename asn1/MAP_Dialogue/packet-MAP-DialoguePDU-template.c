@@ -37,7 +37,7 @@
 
 #define PNAME  "MAP_DialoguePDU"
 #define PSNAME "MAP_DialoguePDU"
-#define PFNAME "MAP_DialoguePDU"
+#define PFNAME "map_dialoguepdu"
 
 /* Initialize the protocol and registered fields */
 int proto_MAP_DialoguePDU = -1;
