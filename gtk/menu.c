@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.107 2003/11/15 11:46:09 ulfl Exp $
+ * $Id: menu.c,v 1.108 2003/11/15 23:48:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -151,7 +151,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Edit/_Unmark All Frames", NULL, unmark_all_frames_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_STOCK_ENTRY("/Edit/_Preferences...", NULL, prefs_cb,
+    ITEM_FACTORY_STOCK_ENTRY("/Edit/_Preferences...", "<shift><control>P", prefs_cb,
                              0, GTK_STOCK_PREFERENCES),
 #ifdef HAVE_LIBPCAP
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Capture Filters...", NULL, cfilter_dialog_cb,
@@ -159,7 +159,7 @@ static GtkItemFactoryEntry menu_items[] =
 #endif /* HAVE_LIBPCAP */
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Display Filters...", NULL, dfilter_dialog_cb,
                        0, ETHEREAL_STOCK_DISPLAY_FILTER),
-    ITEM_FACTORY_ENTRY("/Edit/P_rotocols...", NULL, proto_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Edit/P_rotocols...", "<shift><control>R", proto_cb, 0, NULL, NULL),
 #ifdef HAVE_LIBPCAP
     ITEM_FACTORY_ENTRY("/_Capture", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Capture/_Start...", "<control>K",
