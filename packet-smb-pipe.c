@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.84 2002/11/16 09:37:15 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.85 2002/12/19 11:22:35 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3717,10 +3717,10 @@ proto_register_smb_pipe(void)
 			{ "Fragment too long",	"pipe.fragment.toolongfragment", FT_BOOLEAN,
 			BASE_NONE, NULL, 0x0, "Fragment contained data past end of packet", HFILL }},
 		{ &hf_pipe_fragment_error,
-			{ "Defragmentation error", "pipe.fragment.error", FT_NONE,
+			{ "Defragmentation error", "pipe.fragment.error", FT_FRAMENUM,
 			BASE_NONE, NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
 		{ &hf_pipe_fragment,
-			{ "Fragment", "pipe.fragment", FT_NONE,
+			{ "Fragment", "pipe.fragment", FT_FRAMENUM,
 			BASE_NONE, NULL, 0x0, "Pipe Fragment", HFILL }},
 		{ &hf_pipe_fragments,
 			{ "Fragments", "pipe.fragments", FT_NONE,

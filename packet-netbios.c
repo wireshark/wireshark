@@ -5,7 +5,7 @@
  *
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.54 2002/12/17 08:48:38 guy Exp $
+ * $Id: packet-netbios.c,v 1.55 2002/12/19 11:22:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1388,11 +1388,11 @@ void proto_register_netbios(void)
 			NULL, 0x0, "Fragment contained data past end of packet", HFILL }},
 
 		{ &hf_netb_fragment_error,
-		{"Defragmentation error",	"netbios.fragment.error", FT_NONE, BASE_NONE,
+		{"Defragmentation error",	"netbios.fragment.error", FT_FRAMENUM, BASE_NONE,
 			NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
 
 		{ &hf_netb_fragment,
-		{ "NetBIOS Fragment",		"netbios.fragment", FT_NONE, BASE_NONE,
+		{ "NetBIOS Fragment",		"netbios.fragment", FT_FRAMENUM, BASE_NONE,
 			NULL, 0x0, "NetBIOS Fragment", HFILL }},
 
 		{ &hf_netb_fragments,

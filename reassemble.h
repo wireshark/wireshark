@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.12 2002/11/14 18:54:50 guy Exp $
+ * $Id: reassemble.h,v 1.13 2002/12/19 11:22:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -182,6 +182,9 @@ extern unsigned char *
 fragment_delete(packet_info *pinfo, guint32 id, GHashTable *fragment_table);
 
 
+/* hf_fragment and hf_fragment_error should be FT_FRAMENUM,
+   the others should be FT_BOOLEAN
+*/
 typedef struct _fragment_items {
 	gint	*ett_fragment;
 	gint	*ett_fragments;

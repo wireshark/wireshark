@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.176 2002/10/25 23:23:26 guy Exp $
+ * $Id: packet-ip.c,v 1.177 2002/12/19 11:22:27 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1685,11 +1685,11 @@ proto_register_ip(void)
 			"Fragment contained data past end of packet", HFILL }},
 
 		{ &hf_ip_fragment_error,
-		{ "Defragmentation error", "ip.fragment.error", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ "Defragmentation error", "ip.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"Defragmentation error due to illegal fragments", HFILL }},
 
 		{ &hf_ip_fragment,
-		{ "IP Fragment", "ip.fragment", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ "IP Fragment", "ip.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"IP Fragment", HFILL }},
 
 		{ &hf_ip_fragments,

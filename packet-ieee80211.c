@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.78 2002/11/06 21:49:29 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.79 2002/12/19 11:22:23 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2167,11 +2167,11 @@ proto_register_ieee80211 (void)
 
     {&hf_fragment_error,
       {"Defragmentation error", "wlan.fragment.error",
-       FT_NONE, BASE_NONE, NULL, 0x0,
+       FT_FRAMENUM, BASE_NONE, NULL, 0x0,
        "Defragmentation error due to illegal fragments", HFILL }},
 
     {&hf_fragment,
-      {"802.11 Fragment", "wlan.fragment", FT_NONE, BASE_NONE, NULL, 0x0,
+      {"802.11 Fragment", "wlan.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
        "802.11 Fragment", HFILL }},
 
     {&hf_fragments,

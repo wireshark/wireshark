@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.300 2002/12/19 10:31:38 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.301 2002/12/19 11:22:37 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -17726,11 +17726,11 @@ proto_register_smb(void)
 			"Fragment contained data past end of packet", HFILL }},
 
 	{ &hf_smb_segment_error,
-		{ "Defragmentation error", "smb.segment.error", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ "Defragmentation error", "smb.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"Defragmentation error due to illegal fragments", HFILL }},
 
 	{ &hf_smb_segment,
-		{ "SMB Segment", "smb.segment", FT_NONE, BASE_NONE, NULL, 0x0,
+		{ "SMB Segment", "smb.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"SMB Segment", HFILL }},
 
 	{ &hf_smb_segments,

@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.9 2002/12/07 03:45:34 gerald Exp $
+ * $Id: packet-tds.c,v 1.10 2002/12/19 11:22:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1263,12 +1263,12 @@ proto_register_netlib(void)
 		},
 		{ &hf_tds_fragment_error,
 			{ "Defragmentation error",	"tds.fragment.error",
-			FT_NONE, BASE_NONE, NULL, 0x0,
+			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"Defragmentation error due to illegal fragments", HFILL }
 		},
 		{ &hf_tds_fragment,
 			{ "TDS Fragment",	"tds.fragment",
-			FT_NONE, BASE_NONE, NULL, 0x0,
+			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"TDS Fragment", HFILL }
 		},
 		{ &hf_tds_fragments,

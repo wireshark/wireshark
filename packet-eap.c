@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.31 2002/10/24 06:17:34 guy Exp $
+ * $Id: packet-eap.c,v 1.32 2002/12/19 11:22:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -810,7 +810,7 @@ proto_register_eap(void)
 		VALS(eap_type_vals), 0x0, "", HFILL }},
 	{ &hf_eaptls_fragment,
 	  { "EAP-TLS Fragment", "eaptls.fragment",
-		FT_NONE, BASE_NONE, NULL, 0x0,
+		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		"EAP-TLS Fragment", HFILL }},
 	{ &hf_eaptls_fragments,
 	  { "EAP-TLS Fragments", "eaptls.fragments",
@@ -834,7 +834,7 @@ proto_register_eap(void)
 		"Fragment contained data past end of packet", HFILL }},
 	{ &hf_eaptls_fragment_error,
 	  { "Defragmentation error", "eaptls.fragment.error",
-		FT_NONE, BASE_NONE, NULL, 0x0,
+		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		"Defragmentation error due to illegal fragments", HFILL }},
   };
   static gint *ett[] = {

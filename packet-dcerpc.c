@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.91 2002/12/14 23:44:48 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.92 2002/12/19 11:22:16 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3745,7 +3745,7 @@ proto_register_dcerpc (void)
 	  NULL, 0x0, "DCE/RPC Fragments", HFILL }},
 
 	{ &hf_dcerpc_fragment,
-	  { "DCE/RPC Fragment", "dcerpc.fragment", FT_NONE, BASE_NONE,
+	  { "DCE/RPC Fragment", "dcerpc.fragment", FT_FRAMENUM, BASE_NONE,
 	  NULL, 0x0, "DCE/RPC Fragment", HFILL }},
 
 	{ &hf_dcerpc_fragment_overlap,
@@ -3761,7 +3761,7 @@ proto_register_dcerpc (void)
 	  { "Fragment too long", "dcerpc.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Fragment contained data past end of packet", HFILL }},
 
 	{ &hf_dcerpc_fragment_error,
-	  { "Defragmentation error", "dcerpc.fragment.error", FT_NONE, BASE_NONE, NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
+	  { "Defragmentation error", "dcerpc.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
 
 	{ &hf_dcerpc_time, 
 	  { "Time from request", "dcerpc.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Reply for DCE-RPC calls", HFILL }}

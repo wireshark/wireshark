@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.61 2002/11/01 08:17:03 guy Exp $
+ * $Id: packet-clnp.c,v 1.62 2002/12/19 11:22:13 sahlberg Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -2050,11 +2050,11 @@ void proto_register_clnp(void)
 	"Segment contained data past end of packet", HFILL }},
 
     { &hf_clnp_segment_error,
-      { "Reassembly error", "clnp.segment.error", FT_NONE, BASE_DEC, NULL, 0x0,
+      { "Reassembly error", "clnp.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	"Reassembly error due to illegal segments", HFILL }},
 
     { &hf_clnp_segment,
-      { "CLNP Segment", "clnp.segment", FT_NONE, BASE_DEC, NULL, 0x0,
+      { "CLNP Segment", "clnp.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 	"CLNP Segment", HFILL }},
 
     { &hf_clnp_segments,

@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.41 2002/12/02 20:18:46 guy Exp $
+ * $Id: packet-wtp.c,v 1.42 2002/12/19 11:22:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -891,14 +891,14 @@ proto_register_wtp(void)
 	{ &hf_wtp_fragment_error,
 	    {	"Defragmentation error",
 		"wtp.fragment.error",
-		FT_NONE, BASE_NONE, NULL, 0x0,
+		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		"Defragmentation error due to illegal fragments", HFILL
 	    }
 	},
 	{ &hf_wtp_fragment,
 	    {	"WTP Fragment",
 		"wtp.fragment",
-		FT_NONE, BASE_NONE, NULL, 0x0,
+		FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		"WTP Fragment", HFILL
 	    }
 	},

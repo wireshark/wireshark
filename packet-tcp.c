@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.169 2002/12/17 11:49:31 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.170 2002/12/19 11:22:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,14 +96,39 @@ static int hf_tcp_analysis_duplicate_ack = -1;
 static int hf_tcp_analysis_zero_window = -1;
 static int hf_tcp_analysis_zero_window_probe = -1;
 static int hf_tcp_analysis_zero_window_violation = -1;
+static int hf_tcp_segments = -1;
+static int hf_tcp_segment = -1;
+static int hf_tcp_segment_overlap = -1;
+static int hf_tcp_segment_overlap_conflict = -1;
+static int hf_tcp_segment_multiple_tails = -1;
+static int hf_tcp_segment_too_long_fragment = -1;
+static int hf_tcp_segment_error = -1;
 
 static gint ett_tcp = -1;
 static gint ett_tcp_flags = -1;
 static gint ett_tcp_options = -1;
 static gint ett_tcp_option_sack = -1;
-static gint ett_tcp_segments = -1;
 static gint ett_tcp_analysis = -1;
 static gint ett_tcp_analysis_faults = -1;
+static gint ett_tcp_segments = -1;
+static gint ett_tcp_segment  = -1;
+
+
+/* not all of the hf_fields below make sense for TCP but we have to provide 
+   them anyways to comply with the api (which was aimed for ip fragment 
+   reassembly) */
+static const fragment_items tcp_segment_items = {
+	&ett_tcp_segment,
+	&ett_tcp_segments,
+	&hf_tcp_segments,
+	&hf_tcp_segment,
+	&hf_tcp_segment_overlap,
+	&hf_tcp_segment_overlap_conflict,
+	&hf_tcp_segment_multiple_tails,
+	&hf_tcp_segment_too_long_fragment,
+	&hf_tcp_segment_error,
+	"Segments"
+};
 
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
@@ -1073,8 +1098,6 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	/* is it completely desegmented? */
 	if(ipfd_head){
 		fragment_data *ipfd;
-		proto_tree *st = NULL;
-		proto_item *si = NULL;
 
 		/*
 		 * Yes, we think it is.
@@ -1172,19 +1195,8 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				 * end may, in turn, require desegmentation),
 				 * so we show a tree with all segments.
 				 */
-				si = proto_tree_add_text(tcp_tree, next_tvb,
-						0, -1, "Segments");
-				st = proto_item_add_subtree(si, ett_tcp_segments);
-				for(ipfd=ipfd_head->next; ipfd; ipfd=ipfd->next){
-					proto_tree_add_text(st, next_tvb,
-					ipfd->offset, ipfd->len,
-					"Frame:%u seq#:%u-%u [%u-%u]",
-					ipfd->frame,
-					tsk->start_seq + ipfd->offset,
-					tsk->start_seq + ipfd->offset + ipfd->len-1,
-					ipfd->offset,
-					ipfd->offset + ipfd->len - 1);
-				}
+				show_fragment_tree(ipfd_head, &tcp_segment_items,
+					tcp_tree, pinfo, next_tvb);
 
 				/* Did the subdissector ask us to desegment
 				   some more data?  This means that the data
@@ -2258,15 +2270,44 @@ proto_register_tcp(void)
 		{ &hf_tcp_urgent_pointer,
 		{ "Urgent pointer",		"tcp.urgent_pointer", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"", HFILL }},
+
+		{ &hf_tcp_segment_overlap,
+		{ "Segment overlap",	"tcp.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Segment overlaps with other segments", HFILL }},
+
+		{ &hf_tcp_segment_overlap_conflict,
+		{ "Conflicting data in segment overlap",	"tcp.segment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Overlapping segments contained conflicting data", HFILL }},
+
+		{ &hf_tcp_segment_multiple_tails,
+		{ "Multiple tail segments found",	"tcp.segment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Several tails were found when desegmenting the pdu", HFILL }},
+
+		{ &hf_tcp_segment_too_long_fragment,
+		{ "Segment too long",	"tcp.segment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Segment contained data past end of the pdu", HFILL }},
+
+		{ &hf_tcp_segment_error,
+		{ "Desegmentation error", "tcp.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"Desegmentation error due to illegal segments", HFILL }},
+
+		{ &hf_tcp_segment,
+		{ "TCP Segment", "tcp.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"TCP Segment", HFILL }},
+
+		{ &hf_tcp_segments,
+		{ "TCP Segments", "tcp.segments", FT_NONE, BASE_NONE, NULL, 0x0,
+			"TCP Segments", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_tcp,
 		&ett_tcp_flags,
 		&ett_tcp_options,
 		&ett_tcp_option_sack,
-		&ett_tcp_segments,
 		&ett_tcp_analysis_faults,
-		&ett_tcp_analysis
+		&ett_tcp_analysis,
+		&ett_tcp_segments,
+		&ett_tcp_segment
 	};
 	module_t *tcp_module;
 

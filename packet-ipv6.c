@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.90 2002/10/25 23:23:26 guy Exp $
+ * $Id: packet-ipv6.c,v 1.91 2002/12/19 11:22:29 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1070,12 +1070,12 @@ proto_register_ipv6(void)
 
     { &hf_ipv6_fragment_error,
       { "Defragmentation error", "ipv6.fragment.error",
-				FT_NONE, BASE_NONE, NULL, 0x0,
+				FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 				"Defragmentation error due to illegal fragments", HFILL }},
 
     { &hf_ipv6_fragment,
       { "IPv6 Fragment",	"ipv6.fragment",
-				FT_NONE, BASE_NONE, NULL, 0x0,
+				FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 				"IPv6 Fragment", HFILL }},
 
     { &hf_ipv6_fragments,

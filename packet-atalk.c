@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.84 2002/11/28 03:57:49 guy Exp $
+ * $Id: packet-atalk.c,v 1.85 2002/12/19 11:22:03 sahlberg Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -1954,11 +1954,11 @@ proto_register_atalk(void)
 		NULL, 0x0, "Segment contained data past end of packet", HFILL }},
 
     { &hf_atp_segment_error,
-      {"Desegmentation error",	"atp.segment.error", FT_NONE, BASE_NONE,
+      {"Desegmentation error",	"atp.segment.error", FT_FRAMENUM, BASE_NONE,
 		NULL, 0x0, "Desegmentation error due to illegal segments", HFILL }},
 
     { &hf_atp_segment,
-      { "ATP Fragment",		"atp.fragment", FT_NONE, BASE_NONE,
+      { "ATP Fragment",		"atp.fragment", FT_FRAMENUM, BASE_NONE,
 		NULL, 0x0, "ATP Fragment", HFILL }},
 
     { &hf_atp_segments,
