@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.11 2002/03/10 22:04:25 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.12 2002/03/10 23:24:48 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,7 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 #include "smb.h"
+#include "packet-smb-common.h" /* for dissect_smb_64bit_time() */
 
 /*
  * This file contains helper routines that are used by the DCERPC over SMB
@@ -529,3 +530,29 @@ dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
 	return offset;
 }
 /* UNICODE_STRING  END */
+
+
+/* This function is used to dissect a DCERPC encoded 64 bit time value.
+   XXX it should be fixed both here and in dissect_smb_64bit_time so
+   it can handle both BIG and LITTLE endian encodings 
+ */
+int
+dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset, 
+			packet_info *pinfo, proto_tree *tree, 
+			char *drep, int hf_index)
+{
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	ALIGN_TO_4_BYTES;
+
+	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+		 hf_index);
+	return offset;
+}
+

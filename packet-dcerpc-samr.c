@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.20 2002/03/10 22:04:25 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.21 2002/03/10 23:24:48 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -270,33 +270,6 @@ dissect_ndr_nt_STRING (tvbuff_t *tvb, int offset,
 			name, hf_index, 0);
 
 	proto_item_set_len(item, offset-old_offset);
-	return offset;
-}
-
-/* This should get fixed both here and in dissect_smb_64bit_time so
-   one can handle both BIG and LITTLE endian encodings 
- */
-int dissect_smb_64bit_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, int hf_date);
-int
-dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset, 
-			packet_info *pinfo, proto_tree *tree, 
-			char *drep, int hf_index)
-{
-	dcerpc_info *di;
-
-	di=pinfo->private_data;
-	if(di->conformant_run){
-		/*just a run to handle conformant arrays, nothing to dissect */
-		return offset;
-	}
-
-	/* align to 4 byte boundary */
-	if(offset&0x03){
-		offset = (offset&0xfffffffc)+4;
-	}
-
-	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		 hf_index);
 	return offset;
 }
 

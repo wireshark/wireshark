@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.7 2002/03/10 21:30:10 guy Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.8 2002/03/10 23:24:48 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,5 +87,9 @@ dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
 int 
 dissect_ndr_nt_acct_ctrl(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 			proto_tree *parent_tree, char *drep);
+int
+dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset, 
+			packet_info *pinfo, proto_tree *tree, 
+			char *drep, int hf_index);
 
 #endif /* packet-dcerpc-nt.h */
