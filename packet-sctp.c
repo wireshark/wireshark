@@ -12,7 +12,7 @@
  * - support for reassembly
  * - error checking mode 
  *
- * $Id: packet-sctp.c,v 1.62 2003/09/02 11:03:59 tuexen Exp $
+ * $Id: packet-sctp.c,v 1.63 2003/09/05 11:54:08 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,7 @@
 
 #define NETWORK_BYTE_ORDER     FALSE
 #define ADD_PADDING(x) ((((x) + 3) >> 2) << 2)
+#define UDP_TUNNELING_PORT 9899
 
 /* Initialize the protocol and registered fields */
 static int proto_sctp = -1;
@@ -2233,4 +2234,5 @@ proto_reg_handoff_sctp(void)
   data_handle = find_dissector("data");
   sctp_handle = create_dissector_handle(dissect_sctp, proto_sctp);
   dissector_add("ip.proto", IP_PROTO_SCTP, sctp_handle);
+  dissector_add("udp.port", UDP_TUNNELING_PORT, sctp_handle);
 }
