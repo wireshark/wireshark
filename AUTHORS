@@ -327,10 +327,11 @@ Yaniv Kaul <ykaul@netvision.net.il> {
 	Enhancements to ISAKMP
 }
 
-Paul Ionescu <ipaul@romsys.ro> {
+Paul Ionescu <paul@acorp.ro> {
 	IPX over GRE support
 	EIGRP support
 	Cisco IGRP support
+	X.25 over TCP support
 }
 
 Mark Burton <markb@ordern.com> {
