@@ -34,7 +34,7 @@
  ** are dissected as vendor specific fields.
  **
  ** $Yahoo: //depot/fumerola/packet-netflow/packet-netflow.c#14 $
- ** $Id: packet-netflow.c,v 1.6 2002/10/08 08:50:04 guy Exp $
+ ** $Id: packet-netflow.c,v 1.7 2002/10/08 19:26:35 guy Exp $
  */
 
 #ifdef HAVE_CONFIG_H
@@ -797,7 +797,7 @@ getprefix(const guint32 * address, int prefix)
 {
 	guint32         gprefix;
 
-	gprefix = *address & htonl((0xffffffff << (32 - prefix)));
+	gprefix = *address & g_htonl((0xffffffff << (32 - prefix)));
 
 	return (ip_to_str((const guint8 *)&gprefix));
 }
