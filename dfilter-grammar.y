@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.26 1999/10/12 04:21:09 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.27 1999/10/12 05:13:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -810,6 +810,10 @@ string_to_value(char *s)
 	guint32	val;
 
 	val = strtoul(s, &endptr, 0);
+	if (endptr == s || *endptr != '\0') {
+		/* This isn't a valid number. */
+		dfilter_fail("\"%s\" is not a valid number.", s);
+	}
 	/* I should probably check errno here */
 
 	return (guint32)val;
