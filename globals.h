@@ -47,4 +47,6 @@ extern int sigusr2_received;
 extern int quit_after_cap; /* Makes a "capture only mode". Implies -k */
 #endif
 
+#define PF_DIR ".ethereal"
+
 #endif

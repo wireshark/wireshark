@@ -16,8 +16,8 @@
 #include "print.h"
 #endif
 
-#ifndef __PREFS_H__
-#include "prefs.h"
+#ifndef __PREFS_DLG_H__
+#include "prefs_dlg.h"
 #endif
 
 #ifndef __UTIL_H__

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.2 1999/09/09 02:42:40 gram Exp $
+ * $Id: menu.c,v 1.3 1999/09/09 03:32:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,10 +39,10 @@
 #include "main.h"
 #include "menu.h"
 #include "packet.h"
-#include "capture.h"
+#include "capture_dlg.h"
 #include "summary.h"
 #include "display.h"
-#include "prefs.h"
+#include "prefs_dlg.h"
 #include "print.h"
 #include "follow.h"
 #include "colors.h"

@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.1 1999/09/09 02:42:40 gram Exp $
+ * $Id: main.h,v 1.2 1999/09/09 03:32:02 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,9 +26,14 @@
 #ifndef __ETHEREAL_H__
 #define __ETHEREAL_H__
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
 
-#define PF_DIR ".ethereal"
+#ifndef __GLOBALS_H__
+#include "globals.h"
+#endif
+
 #define RC_FILE PF_DIR "/gtkrc"
 #define MONO_MEDIUM_FONT "-*-lucidatypewriter-medium-r-normal-*-*-120-*-*-*-*-iso8859-1"
 #define MONO_BOLD_FONT "-*-lucidatypewriter-bold-r-normal-*-*-120-*-*-*-*-iso8859-1"

@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.13 1999/08/18 16:28:22 gram Exp $
+ * $Id: capture.h,v 1.14 1999/09/09 03:31:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,8 +48,6 @@
 #define DLT_PPP_BSDOS 14
 #endif
 
-
-void   capture_prep_cb(GtkWidget *, gpointer);
 void   capture(void);
 
 #endif /* HAVE_LIBPCAP */

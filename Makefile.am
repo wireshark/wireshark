@@ -26,8 +26,6 @@ ethereal_SOURCES = \
 	etypes.h       \
 	file.c         \
 	file.h         \
-	filter.c       \
-	filter.h       \
 	follow.c       \
 	follow.h       \
 	globals.h      \

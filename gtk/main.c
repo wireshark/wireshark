@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: main.c,v 1.1 1999/09/09 02:42:39 gram Exp $
+ * $Id: main.c,v 1.2 1999/09/09 03:32:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -86,7 +86,7 @@
 #include "summary.h"
 #include "file.h"
 #include "menu.h"
-#include "prefs.h"
+#include "prefs_dlg.h"
 #include "column.h"
 #include "print.h"
 #include "resolv.h"

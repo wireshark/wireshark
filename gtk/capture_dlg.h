@@ -1,7 +1,7 @@
-/* prefs.h
- * Definitions for preference handling routines
+/* capture_dlg.h
+ * Definitions for packet capture windows
  *
- * $Id: prefs.h,v 1.8 1999/09/09 03:31:50 gram Exp $
+ * $Id: capture_dlg.h,v 1.1 1999/09/09 03:32:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,27 +23,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __PREFS_H__
-#define __PREFS_H__
+#ifndef __CAPTURE_DLG_H__
+#define __CAPTURE_DLG_H__
 
-#define PR_FMT_TEXT 0
-#define PR_FMT_PS   1
+void   capture_prep_cb(GtkWidget *, gpointer);
 
-#define PR_DEST_CMD  0
-#define PR_DEST_FILE 1
-
-typedef struct _e_prefs {
-  gint    pr_format;
-  gint    pr_dest;
-  gchar  *pr_file;
-  gchar  *pr_cmd;
-  GList  *col_list;
-  gint    num_cols;
-} e_prefs;
-
-extern e_prefs prefs;
-
-e_prefs* read_prefs(char **);
-void write_prefs(void);
-
-#endif /* prefs.h */
+#endif /* capture.h */
