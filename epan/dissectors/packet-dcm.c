@@ -263,7 +263,7 @@ dcm_init(void)
 	unsigned int i;
 	dcm_tagTable = g_hash_table_new(NULL, NULL);
 	for (i = 0; i < sizeof(tagData) / sizeof(dcmTag_t); i++) 
-	    g_hash_table_insert(dcm_tagTable, (gpointer)tagData[i].tag,
+	    g_hash_table_insert(dcm_tagTable, GINT_TO_POINTER(tagData[i].tag),
 		(gpointer) (tagData+i));
     }
 }
@@ -504,7 +504,7 @@ dcm_tag2str(guint16 grp, guint16 elm, guint8 syntax, tvbuff_t *tvb, int offset, 
 	return buf;
     }
     tag = (grp << 16) | elm;
-    if (NULL == (dtag = g_hash_table_lookup(dcm_tagTable, (gconstpointer) tag)))
+    if (NULL == (dtag = g_hash_table_lookup(dcm_tagTable, GUINT_TO_POINTER(tag))))
 	dtag = &utag;
 
     strcpy(buf, dtag->desc);

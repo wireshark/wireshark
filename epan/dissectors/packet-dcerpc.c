@@ -860,14 +860,14 @@ static guint
 dcerpc_cn_call_hash (gconstpointer k)
 {
     const dcerpc_cn_call_key *key = (const dcerpc_cn_call_key *)k;
-    return ((guint32)key->conv) + key->call_id + key->smb_fid;
+    return GPOINTER_TO_UINT(key->conv) + key->call_id + key->smb_fid;
 }
 
 static guint
 dcerpc_dg_call_hash (gconstpointer k)
 {
     const dcerpc_dg_call_key *key = (const dcerpc_dg_call_key *)k;
-    return (((guint32)key->conv) + key->seqnum + key->act_id.Data1
+    return (GPOINTER_TO_UINT(key->conv) + key->seqnum + key->act_id.Data1
             + (key->act_id.Data2 << 16) + key->act_id.Data3
             + (key->act_id.Data4[0] << 24) + (key->act_id.Data4[1] << 16)
             + (key->act_id.Data4[2] << 8) + (key->act_id.Data4[3] << 0)
