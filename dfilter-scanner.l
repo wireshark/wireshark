@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.2 1999/08/03 15:04:25 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.3 1999/08/05 16:42:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -98,16 +98,16 @@ hexsep		[-:.]
 [\t\n ]+	/* ignore whitespace */
 
 
-and|\&\&	{ return TOK_AND; }
-or|\|\|		{ return TOK_OR; }
-not|\!		{ return TOK_NOT; }
-xor|\^\^	{ return TOK_XOR; }
-eq|\=\=		{ return TOK_EQ; }
-ne|\!\=		{ return TOK_NE; }
-gt|\>		{ return TOK_GT; }
-ge|\>\=		{ return TOK_GE; }
-lt|\<		{ return TOK_LT; }
-le|\<\=		{ return TOK_LE; }
+and|\&\&	{ yylval.operand = TOK_AND; return TOK_AND; }
+or|\|\|		{ yylval.operand = TOK_OR; return TOK_OR; }
+not|\!		{ yylval.operand = TOK_NOT; return TOK_NOT; }
+xor|\^\^	{ yylval.operand = TOK_XOR; return TOK_XOR; }
+eq|\=\=		{ yylval.operand = TOK_EQ; return TOK_EQ; }
+ne|\!\=		{ yylval.operand = TOK_NE; return TOK_NE; }
+gt|\>		{ yylval.operand = TOK_GT; return TOK_GT; }
+ge|\>\=		{ yylval.operand = TOK_GE; return TOK_GE; }
+lt|\<		{ yylval.operand = TOK_LT; return TOK_LT; }
+le|\<\=		{ yylval.operand = TOK_LE; return TOK_LE; }
 
 true		{ yylval.operand = TOK_TRUE; return TOK_TRUE; }
 false		{ yylval.operand = TOK_FALSE; return TOK_FALSE; }
