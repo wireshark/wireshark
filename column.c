@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.8 1999/01/04 01:31:17 gerald Exp $
+ * $Id: column.c,v 1.9 1999/03/05 06:09:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -220,7 +220,7 @@ get_column_width(gint format, GdkFont *font) {
     case COL_DEF_NET_DST:
     case COL_RES_NET_DST:
     case COL_UNRES_NET_DST:
-      return (gdk_string_width(font, "00:00:00:00:00:00"));
+      return (gdk_string_width(font, "00000000.000000000000")); /* IPX-style */
       break;
     case COL_DEF_SRC_PORT:
     case COL_RES_SRC_PORT:

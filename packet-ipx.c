@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.15 1999/03/05 05:20:12 gram Exp $
+ * $Id: packet-ipx.c,v 1.16 1999/03/05 06:09:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -160,6 +160,25 @@ ipxnet_to_string(const guint8 *ad)
 	return cur;
 }
 
+gchar*
+ipx_addr_to_str(guint32 net, const guint8 *ad)
+{
+	static gchar	str[3][22];
+	static gchar	*cur;
+
+	if (cur == &str[0][0]) {
+		cur = &str[1][0];
+	} else if (cur == &str[1][0]) {
+		cur = &str[2][0];
+	} else {
+		cur = &str[0][0];
+	}
+
+	sprintf(cur, "%X.%02x%02x%02x%02x%02x%02x", net, 
+		ad[0], ad[1], ad[2], ad[3], ad[4], ad[5]);
+	return cur;
+}
+
 void
 dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
@@ -176,6 +195,14 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 	dsocket = pntohs(&pd[offset+16]);
 	ssocket = pntohs(&pd[offset+28]);
 
+	if (check_col(fd, COL_RES_DL_DST))
+		col_add_str(fd, COL_RES_DL_DST,
+				ipx_addr_to_str(pntohl(&pd[offset+6]),
+					(guint8*)&pd[offset+10]));
+	if (check_col(fd, COL_RES_DL_SRC))
+		col_add_str(fd, COL_RES_DL_SRC,
+				ipx_addr_to_str(pntohl(&pd[offset+18]),
+					(guint8*)&pd[offset+22]));
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "IPX");
 	if (check_col(fd, COL_INFO))
@@ -188,7 +215,7 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 			"Internetwork Packet Exchange");
 		ipx_tree = gtk_tree_new();
 		add_subtree(ti, ipx_tree, ETT_IPX);
-		add_item_to_tree(ipx_tree, offset,      2, "Checksum: 0x%04X",
+		add_item_to_tree(ipx_tree, offset,      2, "Checksum: 0x%04x",
 			(pd[offset] << 8) | pd[offset+1]);
 		add_item_to_tree(ipx_tree, offset+2,    2, "Length: %d bytes",
 			(pd[offset+2] << 8) | pd[offset+3]);
@@ -273,7 +300,7 @@ spx_conn_ctrl(u_char ctrl)
 }
 
 static char*
-datastream(u_char type)
+spx_datastream(u_char type)
 {
 	switch (type) {
 		case 0xfe:
@@ -307,7 +334,7 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
 		add_item_to_tree(spx_tree, offset+1,     1,
 			"Datastream Type: %s (0x%02X)",
-			datastream(pd[offset+1]), pd[offset+1]);
+			spx_datastream(pd[offset+1]), pd[offset+1]);
 
 		add_item_to_tree(spx_tree, offset+2,     2,
 			"Source Connection ID: %d", pntohs( &pd[offset+2] ) );
