@@ -1,7 +1,7 @@
 /* column_prefs.c
  * Dialog box for column preferences
  *
- * $Id: column_prefs.c,v 1.19 2004/01/17 12:12:57 ulfl Exp $
+ * $Id: column_prefs.c,v 1.20 2004/01/18 00:53:57 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,8 +71,8 @@ column_prefs_show() {
                     *tb, *lb, *menu, *mitem;
   GtkWidget         *order_fr, *order_vb, *order_lb;
   GtkWidget         *list_fr, *list_vb, *list_lb, *list_sc;
-  GtkWidget         *manage_fr, *manage_vb;
-  GtkWidget         *edit_fr, *edit_hb;
+  GtkWidget         *edit_fr, *edit_vb;
+  GtkWidget         *props_fr, *props_hb;
   GList             *clp = NULL;
   fmt_data          *cfmt;
   gint               i;
@@ -102,33 +102,32 @@ column_prefs_show() {
   gtk_widget_show(top_hb);
 
 
-  /* order frame */
-  order_fr = gtk_frame_new("Order");
-  gtk_box_pack_start (GTK_BOX (top_hb), order_fr, FALSE, FALSE, 0);
-  gtk_widget_show(order_fr);
+  /* edit frame */
+  edit_fr = gtk_frame_new("Edit");
+  gtk_box_pack_start (GTK_BOX (top_hb), edit_fr, FALSE, FALSE, 0);
+  gtk_widget_show(edit_fr);
 
-  order_vb = gtk_vbox_new (TRUE, 0);
-  gtk_container_add(GTK_CONTAINER(order_fr), order_vb);
-  gtk_container_set_border_width  (GTK_CONTAINER (order_vb), 5);
-  gtk_widget_show(order_vb);
+  edit_vb = gtk_vbox_new (TRUE, 0);
+  gtk_container_set_border_width  (GTK_CONTAINER (edit_vb), 5);
+  gtk_container_add(GTK_CONTAINER(edit_fr), edit_vb);
+  gtk_widget_show(edit_vb);
 
-  up_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_UP);
-  gtk_widget_set_sensitive(up_bt, FALSE);
-  SIGNAL_CONNECT(up_bt, "clicked", column_arrow_cb, NULL);
-  gtk_box_pack_start(GTK_BOX(order_vb), up_bt, FALSE, FALSE, 0);
-  WIDGET_SET_SIZE(up_bt, 50, 20);
-  gtk_widget_show(up_bt);
+  new_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
+  SIGNAL_CONNECT(new_bt, "clicked", column_list_new_cb, NULL);
+  gtk_box_pack_start (GTK_BOX (edit_vb), new_bt, FALSE, FALSE, 5);
+#if GTK_MAJOR_VERSION < 2
+  WIDGET_SET_SIZE(new_bt, 50, 20);
+#endif
+  gtk_widget_show(new_bt);
 
-  order_lb = gtk_label_new (("Move\nselected\ncolumn\nup or down"));
-  gtk_widget_show (order_lb);
-  gtk_box_pack_start (GTK_BOX (order_vb), order_lb, FALSE, FALSE, 0);
-
-  dn_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_DOWN);
-  gtk_widget_set_sensitive(dn_bt, FALSE);
-  SIGNAL_CONNECT(dn_bt, "clicked", column_arrow_cb, NULL);
-  gtk_box_pack_start(GTK_BOX(order_vb), dn_bt, FALSE, FALSE, 0);
-  WIDGET_SET_SIZE(dn_bt, 50, 20);
-  gtk_widget_show(dn_bt);
+  del_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
+  gtk_widget_set_sensitive(del_bt, FALSE);
+  SIGNAL_CONNECT(del_bt, "clicked", column_list_delete_cb, NULL);
+#if GTK_MAJOR_VERSION < 2
+  WIDGET_SET_SIZE(del_bt, 50, 20);
+#endif
+  gtk_box_pack_start (GTK_BOX (edit_vb), del_bt, FALSE, FALSE, 5);
+  gtk_widget_show(del_bt);
 
 
   /* columns list frame */
@@ -213,47 +212,49 @@ column_prefs_show() {
 #endif
   
 
-  /* manage frame */
-  manage_fr = gtk_frame_new("Manage");
-  gtk_box_pack_start (GTK_BOX (top_hb), manage_fr, FALSE, FALSE, 0);
-  gtk_widget_show(manage_fr);
+  /* order frame */
+  order_fr = gtk_frame_new("Order");
+  gtk_box_pack_start (GTK_BOX (top_hb), order_fr, FALSE, FALSE, 0);
+  gtk_widget_show(order_fr);
 
-  manage_vb = gtk_vbox_new (TRUE, 0);
-  gtk_container_set_border_width  (GTK_CONTAINER (manage_vb), 5);
-  gtk_container_add(GTK_CONTAINER(manage_fr), manage_vb);
-  gtk_widget_show(manage_vb);
+  order_vb = gtk_vbox_new (TRUE, 0);
+  gtk_container_add(GTK_CONTAINER(order_fr), order_vb);
+  gtk_container_set_border_width  (GTK_CONTAINER (order_vb), 5);
+  gtk_widget_show(order_vb);
 
-  new_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
-  SIGNAL_CONNECT(new_bt, "clicked", column_list_new_cb, NULL);
-  gtk_box_pack_start (GTK_BOX (manage_vb), new_bt, FALSE, FALSE, 5);
-#if GTK_MAJOR_VERSION < 2
-  WIDGET_SET_SIZE(new_bt, 50, 20);
-#endif
-  gtk_widget_show(new_bt);
+  up_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_UP);
+  gtk_widget_set_sensitive(up_bt, FALSE);
+  SIGNAL_CONNECT(up_bt, "clicked", column_arrow_cb, NULL);
+  gtk_box_pack_start(GTK_BOX(order_vb), up_bt, FALSE, FALSE, 0);
+  WIDGET_SET_SIZE(up_bt, 50, 20);
+  gtk_widget_show(up_bt);
 
-  del_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_DELETE);
-  gtk_widget_set_sensitive(del_bt, FALSE);
-  SIGNAL_CONNECT(del_bt, "clicked", column_list_delete_cb, NULL);
-#if GTK_MAJOR_VERSION < 2
-  WIDGET_SET_SIZE(del_bt, 50, 20);
-#endif
-  gtk_box_pack_start (GTK_BOX (manage_vb), del_bt, FALSE, FALSE, 5);
-  gtk_widget_show(del_bt);
+  order_lb = gtk_label_new (("Move\nselected\ncolumn\nup or down"));
+  gtk_widget_show (order_lb);
+  gtk_box_pack_start (GTK_BOX (order_vb), order_lb, FALSE, FALSE, 0);
 
-  /* edit frame */
-  edit_fr = gtk_frame_new("Edit");
-  gtk_box_pack_start (GTK_BOX (main_vb), edit_fr, FALSE, FALSE, 0);
-  gtk_widget_show(edit_fr);
+  dn_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_DOWN);
+  gtk_widget_set_sensitive(dn_bt, FALSE);
+  SIGNAL_CONNECT(dn_bt, "clicked", column_arrow_cb, NULL);
+  gtk_box_pack_start(GTK_BOX(order_vb), dn_bt, FALSE, FALSE, 0);
+  WIDGET_SET_SIZE(dn_bt, 50, 20);
+  gtk_widget_show(dn_bt);
+
+
+  /* properties frame */
+  props_fr = gtk_frame_new("Properties");
+  gtk_box_pack_start (GTK_BOX (main_vb), props_fr, FALSE, FALSE, 0);
+  gtk_widget_show(props_fr);
 
   /* Colunm name entry and format selection */
   tb = gtk_table_new(2, 2, FALSE);
   gtk_container_border_width(GTK_CONTAINER(tb), 5);
-  gtk_container_add(GTK_CONTAINER(edit_fr), tb);
+  gtk_container_add(GTK_CONTAINER(props_fr), tb);
   gtk_table_set_row_spacings(GTK_TABLE(tb), 10);
   gtk_table_set_col_spacings(GTK_TABLE(tb), 15);
   gtk_widget_show(tb);
 
-  lb = gtk_label_new("Column title:");
+  lb = gtk_label_new("Title:");
   gtk_misc_set_alignment(GTK_MISC(lb), 1.0, 0.5);
   gtk_table_attach_defaults(GTK_TABLE(tb), lb, 0, 1, 0, 1);
   gtk_widget_show(lb);
@@ -264,15 +265,15 @@ column_prefs_show() {
   gtk_widget_set_sensitive(title_te, FALSE);
   gtk_widget_show(title_te);
 
-  lb = gtk_label_new("Column format:");
+  lb = gtk_label_new("Format:");
   gtk_misc_set_alignment(GTK_MISC(lb), 1.0, 0.5);
   gtk_table_attach_defaults(GTK_TABLE(tb), lb, 0, 1, 1, 2);
   gtk_widget_show(lb);
 
-  edit_hb = gtk_hbox_new(FALSE, 5);
-  gtk_table_attach(GTK_TABLE(tb), edit_hb, 1, 2, 1, 2, GTK_FILL,
+  props_hb = gtk_hbox_new(FALSE, 5);
+  gtk_table_attach(GTK_TABLE(tb), props_hb, 1, 2, 1, 2, GTK_FILL,
                    GTK_SHRINK, 0, 0);
-  gtk_widget_show(edit_hb);
+  gtk_widget_show(props_hb);
 
   fmt_m = gtk_option_menu_new();
   menu  = gtk_menu_new();
@@ -286,7 +287,7 @@ column_prefs_show() {
   cur_fmt = 0;
   gtk_option_menu_set_history(GTK_OPTION_MENU(fmt_m), cur_fmt);
   gtk_widget_set_sensitive(fmt_m, FALSE);
-  gtk_box_pack_start(GTK_BOX(edit_hb), fmt_m, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(props_hb), fmt_m, FALSE, FALSE, 0);
   gtk_widget_show(fmt_m);
 
   /* select the first row */
