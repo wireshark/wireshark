@@ -1,7 +1,7 @@
 /* column_prefs.c
  * Dialog box for column preferences
  *
- * $Id: column_prefs.c,v 1.14 2002/11/03 17:38:33 oabad Exp $
+ * $Id: column_prefs.c,v 1.15 2002/11/09 20:52:39 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 #include "gtkglobals.h"
 #include "prefs.h"
 #include "column.h"
+#include "compat_macros.h"
 
 #if GTK_MAJOR_VERSION >= 2
 #include "ui_util.h"
@@ -87,7 +88,7 @@ column_prefs_show() {
   main_vb = gtk_vbox_new(FALSE, 5);
   gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_widget_show(main_vb);
-  gtk_object_set_data(GTK_OBJECT(main_vb), E_COL_CM_KEY, (gpointer)FALSE);
+  OBJECT_SET_DATA(GTK_OBJECT(main_vb), E_COL_CM_KEY, (gpointer)FALSE);
 
   /* Top row: Column list and buttons */
   top_hb = gtk_hbox_new(FALSE, 5);
@@ -101,27 +102,20 @@ column_prefs_show() {
 
 #if GTK_MAJOR_VERSION < 2
   new_bt = gtk_button_new_with_label ("Add New");
-  gtk_signal_connect(GTK_OBJECT(new_bt), "clicked",
-                     GTK_SIGNAL_FUNC(column_list_new_cb), NULL);
 #else
   new_bt = gtk_button_new_from_stock(GTK_STOCK_NEW);
-  g_signal_connect(G_OBJECT(new_bt), "clicked",
-                   G_CALLBACK(column_list_new_cb), NULL);
 #endif
+  SIGNAL_CONNECT(new_bt, "clicked", column_list_new_cb, NULL);
   gtk_container_add(GTK_CONTAINER(list_bb), new_bt);
   gtk_widget_show(new_bt);
 
 #if GTK_MAJOR_VERSION < 2
   del_bt = gtk_button_new_with_label ("Delete");
-  gtk_widget_set_sensitive(del_bt, FALSE);
-  gtk_signal_connect(GTK_OBJECT(del_bt), "clicked",
-                     GTK_SIGNAL_FUNC(column_list_delete_cb), NULL);
 #else
   del_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
-  gtk_widget_set_sensitive(del_bt, FALSE);
-  g_signal_connect(G_OBJECT(del_bt), "clicked",
-                   G_CALLBACK(column_list_delete_cb), NULL);
 #endif
+  gtk_widget_set_sensitive(del_bt, FALSE);
+  SIGNAL_CONNECT(del_bt, "clicked", column_list_delete_cb, NULL);
   gtk_container_add(GTK_CONTAINER(list_bb), del_bt);
   gtk_widget_show(del_bt);
 
@@ -131,40 +125,28 @@ column_prefs_show() {
 
 #if GTK_MAJOR_VERSION < 2
   up_bt = gtk_button_new_with_label("Up");
-  gtk_widget_set_sensitive(up_bt, FALSE);
-  gtk_signal_connect(GTK_OBJECT(up_bt), "clicked",
-                     GTK_SIGNAL_FUNC(column_arrow_cb), NULL);
 #else
   up_bt = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
-  gtk_widget_set_sensitive(up_bt, FALSE);
-  g_signal_connect(G_OBJECT(up_bt), "clicked",
-                   G_CALLBACK(column_arrow_cb), NULL);
 #endif
+  gtk_widget_set_sensitive(up_bt, FALSE);
+  SIGNAL_CONNECT(up_bt, "clicked", column_arrow_cb, NULL);
   gtk_box_pack_start(GTK_BOX(arrow_hb), up_bt, TRUE, TRUE, 0);
   gtk_widget_show(up_bt);
 
 #if GTK_MAJOR_VERSION < 2
   dn_bt = gtk_button_new_with_label("Down");
-  gtk_widget_set_sensitive(dn_bt, FALSE);
-  gtk_signal_connect(GTK_OBJECT(dn_bt), "clicked",
-                     GTK_SIGNAL_FUNC(column_arrow_cb), NULL);
 #else
   dn_bt = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
-  gtk_widget_set_sensitive(dn_bt, FALSE);
-  g_signal_connect(G_OBJECT(dn_bt), "clicked",
-                   G_CALLBACK(column_arrow_cb), NULL);
 #endif
+  gtk_widget_set_sensitive(dn_bt, FALSE);
+  SIGNAL_CONNECT(dn_bt, "clicked", column_arrow_cb, NULL);
   gtk_box_pack_start(GTK_BOX(arrow_hb), dn_bt, TRUE, TRUE, 0);
   gtk_widget_show(dn_bt);
 
   column_sc = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(column_sc),
                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-#if GTK_MAJOR_VERSION < 2
-  gtk_widget_set_usize(column_sc, 250, 150);
-#else
-  gtk_widget_set_size_request(column_sc, 250, 150);
-#endif
+  WIDGET_SET_SIZE(column_sc, 250, 150);
   gtk_container_add(GTK_CONTAINER(top_hb), column_sc);
   gtk_widget_show(column_sc);
 
@@ -177,10 +159,8 @@ column_prefs_show() {
   gtk_clist_set_column_auto_resize(GTK_CLIST(column_l), 0, TRUE);
   gtk_clist_set_column_auto_resize(GTK_CLIST(column_l), 1, TRUE);
 
-  gtk_signal_connect(GTK_OBJECT(column_l), "select-row",
-                     GTK_SIGNAL_FUNC(column_list_select_cb), NULL);
-  gtk_signal_connect(GTK_OBJECT(column_l), "unselect-row",
-                     GTK_SIGNAL_FUNC(column_list_unselect_cb), NULL);
+  SIGNAL_CONNECT(column_l, "select-row", column_list_select_cb, NULL);
+  SIGNAL_CONNECT(column_l, "unselect-row", column_list_unselect_cb, NULL);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(column_sc),
                                         column_l);
 #else
@@ -202,8 +182,7 @@ column_prefs_show() {
   sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(column_l));
   gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
 
-  g_signal_connect(G_OBJECT(sel), "changed", G_CALLBACK(column_list_select_cb),
-                   NULL);
+  SIGNAL_CONNECT(sel, "changed", column_list_select_cb, NULL);
   gtk_container_add(GTK_CONTAINER(column_sc), column_l);
 #endif
   gtk_widget_show(column_l);
@@ -241,13 +220,7 @@ column_prefs_show() {
 
   title_te = gtk_entry_new();
   gtk_table_attach_defaults(GTK_TABLE(tb), title_te, 1, 2, 0, 1);
-#if GTK_MAJOR_VERSION < 2
-  gtk_signal_connect(GTK_OBJECT(title_te), "changed",
-                     GTK_SIGNAL_FUNC(column_entry_changed_cb), column_l);
-#else
-  g_signal_connect(G_OBJECT(title_te), "changed",
-                   G_CALLBACK(column_entry_changed_cb), column_l);
-#endif
+  SIGNAL_CONNECT(title_te, "changed", column_entry_changed_cb, column_l);
   gtk_widget_set_sensitive(title_te, FALSE);
   gtk_widget_show(title_te);
 
@@ -266,13 +239,7 @@ column_prefs_show() {
   for (i = 0; i < NUM_COL_FMTS; i++) {
     mitem = gtk_menu_item_new_with_label(col_format_desc(i));
     gtk_menu_append(GTK_MENU(menu), mitem);
-#if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect(GTK_OBJECT(mitem), "activate",
-                       GTK_SIGNAL_FUNC(column_menu_changed_cb), (gpointer) i);
-#else
-    g_signal_connect(G_OBJECT(mitem), "activate",
-                     G_CALLBACK(column_menu_changed_cb), (gpointer) i);
-#endif
+    SIGNAL_CONNECT(mitem, "activate", column_menu_changed_cb, (gpointer) i);
     gtk_widget_show(mitem);
   }
   gtk_option_menu_set_menu(GTK_OPTION_MENU(fmt_m), menu);
@@ -657,6 +624,6 @@ void
 column_prefs_destroy(GtkWidget *w) {
     /* Let the list cb know we're about to destroy the widget tree, so it */
     /* doesn't operate on widgets that don't exist. */
-    gtk_object_set_data(GTK_OBJECT(w), E_COL_CM_KEY, (gpointer)TRUE);
+    OBJECT_SET_DATA(w, E_COL_CM_KEY, (gpointer)TRUE);
     gtk_widget_destroy(GTK_WIDGET(w));
 }

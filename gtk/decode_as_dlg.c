@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.28 2002/11/03 17:38:33 oabad Exp $
+ * $Id: decode_as_dlg.c,v 1.29 2002/11/09 20:52:39 oabad Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -37,6 +37,7 @@
 #include "ipproto.h"
 #include "ui_util.h"
 #include <epan/epan_dissect.h>
+#include "compat_macros.h"
 
 #undef DEBUG
 
@@ -423,17 +424,8 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
     }
 
     decode_show_w = dlg_window_new("Ethereal: Decode As: Show");
-#if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect(GTK_OBJECT(decode_show_w), "delete_event",
-		       GTK_SIGNAL_FUNC(decode_show_delete_cb), NULL);
-    gtk_signal_connect(GTK_OBJECT(decode_show_w), "destroy",
-		       GTK_SIGNAL_FUNC(decode_show_destroy_cb), NULL);
-#else
-    g_signal_connect(G_OBJECT(decode_show_w), "delete_event",
-                     G_CALLBACK(decode_show_delete_cb), NULL);
-    g_signal_connect(G_OBJECT(decode_show_w), "destroy",
-                     G_CALLBACK(decode_show_destroy_cb), NULL);
-#endif
+    SIGNAL_CONNECT(decode_show_w, "delete_event", decode_show_delete_cb, NULL);
+    SIGNAL_CONNECT(decode_show_w, "destroy", decode_show_destroy_cb, NULL);
 
     /* Container for each row of widgets */
     main_vb = gtk_vbox_new(FALSE, 2);
@@ -484,11 +476,7 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
                           GTK_WIDGET(list));
 	gtk_box_pack_start(GTK_BOX(main_vb), scrolled_window, TRUE, TRUE, 0);
 	/* Provide a minimum of a couple of rows worth of data */
-#if GTK_MAJOR_VERSION < 2
-	gtk_widget_set_usize(scrolled_window, -1, E_DECODE_MIN_HEIGHT);
-#else
-	gtk_widget_set_size_request(scrolled_window, -1, E_DECODE_MIN_HEIGHT);
-#endif
+	WIDGET_SET_SIZE(scrolled_window, -1, E_DECODE_MIN_HEIGHT);
     }
 
     /* Button row: OK and reset buttons */
@@ -498,31 +486,20 @@ decode_show_cb (GtkWidget * w _U_, gpointer data _U_)
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 10);
 
     button = gtk_button_new_with_label("Reset Changes");
-#if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-		       GTK_SIGNAL_FUNC(decode_show_reset_cb),
-		       GTK_OBJECT(decode_show_w));
-#else
-    g_signal_connect(G_OBJECT(button), "clicked",
-                     G_CALLBACK(decode_show_reset_cb), G_OBJECT(decode_show_w));
-#endif
+    SIGNAL_CONNECT(button, "clicked", decode_show_reset_cb, decode_show_w);
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
 #if GTK_MAJOR_VERSION < 2
     gtk_widget_set_sensitive(button, (list->rows != 0));
 
     ok_bt = gtk_button_new_with_label("OK");
-    gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-		       GTK_SIGNAL_FUNC(decode_show_ok_cb),
-		       GTK_OBJECT(decode_show_w));
 #else
     gtk_widget_set_sensitive(button,
                              gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter));
 
     ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-    g_signal_connect(G_OBJECT(ok_bt), "clicked",
-                     G_CALLBACK(decode_show_ok_cb), G_OBJECT(decode_show_w));
 #endif
+    SIGNAL_CONNECT(ok_bt, "clicked", decode_show_ok_cb, decode_show_w);
     GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), ok_bt, FALSE, FALSE, 0);
     gtk_widget_grab_default(ok_bt);
@@ -669,30 +646,21 @@ decode_simple (GtkWidget *notebook_pg)
     gchar *table_name;
     gint value;
 
-#if GTK_MAJOR_VERSION < 2
-    list = gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_LIST);
+    list = OBJECT_GET_DATA(notebook_pg, E_PAGE_LIST);
     if (requested_action == E_DECODE_NO)
+#if GTK_MAJOR_VERSION < 2
 	gtk_clist_unselect_all(GTK_CLIST(list));
 #else
-    list = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_LIST);
-    if (requested_action == E_DECODE_NO)
 	gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
 #endif
 
 #ifdef DEBUG
-    string = gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_TITLE);
+    string = OBJECT_GET_DATA(notebook_pg, E_PAGE_TITLE);
     decode_debug(GTK_CLIST(list), string);
 #endif
 
-#if GTK_MAJOR_VERSION < 2
-    table_name = gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_TABLE);
-    value = GPOINTER_TO_INT(gtk_object_get_data(GTK_OBJECT(notebook_pg),
-						E_PAGE_VALUE));
-#else
-    table_name = g_object_get_data(G_OBJECT(notebook_pg), E_PAGE_TABLE);
-    value = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(notebook_pg),
-                                              E_PAGE_VALUE));
-#endif
+    table_name = OBJECT_GET_DATA(notebook_pg, E_PAGE_TABLE);
+    value = GPOINTER_TO_INT(OBJECT_GET_DATA(notebook_pg, E_PAGE_VALUE));
     decode_change_one_dissector(table_name, value, list);
 }
 
@@ -705,46 +673,33 @@ decode_simple (GtkWidget *notebook_pg)
  *
  * @param notebook_pg A pointer to the "transport" notebook page.
  */
-#if GTK_MAJOR_VERSION < 2
 static void
-decode_transport(GtkObject *notebook_pg)
-#else
-static void
-decode_transport(GObject *notebook_pg)
-#endif
+decode_transport(GtkWidget *notebook_pg)
 {
     GtkWidget *menu, *menuitem;
     GtkWidget *list;
     gchar *table_name;
     gint requested_srcdst;
 
+    list = OBJECT_GET_DATA(notebook_pg, E_PAGE_LIST);
+    if (requested_action == E_DECODE_NO)
 #if GTK_MAJOR_VERSION < 2
-    list = gtk_object_get_data(notebook_pg, E_PAGE_LIST);
-    if (requested_action == E_DECODE_NO)
 	gtk_clist_unselect_all(GTK_CLIST(list));
-
-    menu = gtk_object_get_data(notebook_pg, E_MENU_SRCDST);
 #else
-    list = g_object_get_data(notebook_pg, E_PAGE_LIST);
-    if (requested_action == E_DECODE_NO)
 	gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(GTK_TREE_VIEW(list)));
-
-    menu = g_object_get_data(notebook_pg, E_MENU_SRCDST);
 #endif
+
+    menu = OBJECT_GET_DATA(notebook_pg, E_MENU_SRCDST);
 
     menuitem = gtk_menu_get_active(GTK_MENU(menu));
     requested_srcdst = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(menuitem)));
 
 #ifdef DEBUG
-    string = gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_TITLE);
+    string = OBJECT_GET_DATA(notebook_pg, E_PAGE_TITLE);
     decode_debug(GTK_CLIST(list), string);
 #endif
 
-#if GTK_MAJOR_VERSION < 2
-    table_name = gtk_object_get_data(notebook_pg, E_PAGE_TABLE);
-#else
-    table_name = g_object_get_data(notebook_pg, E_PAGE_TABLE);
-#endif
+    table_name = OBJECT_GET_DATA(notebook_pg, E_PAGE_TABLE);
     if (requested_srcdst != E_DECODE_DPORT)
 	decode_change_one_dissector(table_name, cfile.edt->pi.srcport, list);
     if (requested_srcdst != E_DECODE_SPORT)
@@ -776,11 +731,11 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
     gint page_num;
 
     /* Call the right routine for the page that was currently in front. */
-    notebook =  gtk_object_get_data(GTK_OBJECT(parent_w), E_NOTEBOOK);
+    notebook =  OBJECT_GET_DATA(parent_w, E_NOTEBOOK);
     page_num = gtk_notebook_get_current_page(GTK_NOTEBOOK(notebook));
     notebook_pg = gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), page_num);
 
-    func = gtk_object_get_data(GTK_OBJECT(notebook_pg), E_PAGE_ACTION);
+    func = OBJECT_GET_DATA(notebook_pg, E_PAGE_ACTION);
     func(notebook_pg);
 
     /* Now destroy the "Decode As" dialog. */
@@ -893,28 +848,14 @@ decode_add_yes_no (void)
     radio_button = gtk_radio_button_new_with_label(NULL, "Decode");
     format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(radio_button));
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_button), TRUE);
-#if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect(GTK_OBJECT(radio_button), "clicked",
-		       GTK_SIGNAL_FUNC(decode_update_action),
-		       GINT_TO_POINTER(E_DECODE_YES));
-#else
-    g_signal_connect(G_OBJECT(radio_button), "clicked",
-                     G_CALLBACK(decode_update_action),
-                     GINT_TO_POINTER(E_DECODE_YES));
-#endif
+    SIGNAL_CONNECT(radio_button, "clicked", decode_update_action,
+                   GINT_TO_POINTER(E_DECODE_YES));
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
 
     radio_button = gtk_radio_button_new_with_label(format_grp, "Do not decode");
     format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(radio_button));
-#if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect(GTK_OBJECT(radio_button), "clicked",
-		       GTK_SIGNAL_FUNC(decode_update_action),
-		       GINT_TO_POINTER(E_DECODE_NO));
-#else
-    g_signal_connect(G_OBJECT(radio_button), "clicked",
-                     G_CALLBACK(decode_update_action),
-                     GINT_TO_POINTER(E_DECODE_NO));
-#endif
+    SIGNAL_CONNECT(radio_button, "clicked", decode_update_action,
+                   GINT_TO_POINTER(E_DECODE_NO));
     gtk_box_pack_start(GTK_BOX(format_vb), radio_button, TRUE, TRUE, 0);
 
     return(format_vb);
@@ -985,7 +926,7 @@ decode_add_srcdst_menu (GtkWidget *page)
     gtk_menu_append(GTK_MENU(menu), menuitem);
     gtk_widget_show(menuitem);	/* gtk_widget_show_all() doesn't show this */
 
-    gtk_object_set_data(GTK_OBJECT(page), E_MENU_SRCDST, menu);
+    OBJECT_SET_DATA(page, E_MENU_SRCDST, menu);
     gtk_option_menu_set_menu(GTK_OPTION_MENU(optmenu), menu);
 
     alignment = decode_add_pack_menu(optmenu);
@@ -1131,7 +1072,7 @@ decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
 #endif
     for (column = 0; column < E_LIST_S_COLUMNS; column++)
 	gtk_clist_set_column_auto_resize(list, column, TRUE);
-    gtk_object_set_data(GTK_OBJECT(page), E_PAGE_LIST, list);
+    OBJECT_SET_DATA(page, E_PAGE_LIST, list);
 #else
     store = gtk_list_store_new(E_LIST_S_COLUMNS+1, G_TYPE_STRING,
                                G_TYPE_STRING, G_TYPE_POINTER);
@@ -1151,11 +1092,7 @@ decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
 
     *scrolled_win_p = window = gtk_scrolled_window_new(NULL, NULL);
     /* Provide a minimum of a couple of rows worth of data */
-#if GTK_MAJOR_VERSION < 2
-    gtk_widget_set_usize(window, -1, E_DECODE_MIN_HEIGHT);
-#else
-    gtk_widget_set_size_request(window, -1, E_DECODE_MIN_HEIGHT);
-#endif
+    WIDGET_SET_SIZE(window, -1, E_DECODE_MIN_HEIGHT);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(window),
 				   GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
 #if GTK_MAJOR_VERSION < 2
@@ -1265,10 +1202,10 @@ decode_add_simple_page (gchar *prompt, gchar *title, gchar *table_name,
     GtkWidget	*page, *label, *scrolled_window;
 
     page = gtk_hbox_new(FALSE, 5);
-    gtk_object_set_data(GTK_OBJECT(page), E_PAGE_ACTION, decode_simple);
-    gtk_object_set_data(GTK_OBJECT(page), E_PAGE_TABLE, table_name);
-    gtk_object_set_data(GTK_OBJECT(page), E_PAGE_TITLE, title);
-    gtk_object_set_data(GTK_OBJECT(page), E_PAGE_VALUE, GINT_TO_POINTER(value));
+    OBJECT_SET_DATA(page, E_PAGE_ACTION, decode_simple);
+    OBJECT_SET_DATA(page, E_PAGE_TABLE, table_name);
+    OBJECT_SET_DATA(page, E_PAGE_TITLE, title);
+    OBJECT_SET_DATA(page, E_PAGE_VALUE, GINT_TO_POINTER(value));
 
     /* Always enabled */
     label = gtk_label_new(prompt);
@@ -1315,9 +1252,9 @@ decode_add_tcpudp_page (gchar *prompt, gchar *table_name)
     GtkWidget	*page, *label, *scrolled_window, *optmenu;
 
     page = gtk_hbox_new(FALSE, 5);
-    gtk_object_set_data(GTK_OBJECT(page), E_PAGE_ACTION, decode_transport);
-    gtk_object_set_data(GTK_OBJECT(page), E_PAGE_TABLE, table_name);
-    gtk_object_set_data(GTK_OBJECT(page), E_PAGE_TITLE, "Transport");
+    OBJECT_SET_DATA(page, E_PAGE_ACTION, decode_transport);
+    OBJECT_SET_DATA(page, E_PAGE_TABLE, table_name);
+    OBJECT_SET_DATA(page, E_PAGE_TITLE, "Transport");
 
     /* Always enabled */
     label = gtk_label_new(prompt);
@@ -1368,7 +1305,7 @@ decode_add_notebook (GtkWidget *format_hb)
     /* Start a nootbook for flipping between sets of changes */
     notebook = gtk_notebook_new();
     gtk_container_add(GTK_CONTAINER(format_hb), notebook);
-    gtk_object_set_data(GTK_OBJECT(decode_w), E_NOTEBOOK, notebook);
+    OBJECT_SET_DATA(decode_w, E_NOTEBOOK, notebook);
 
     /* Add link level selection page */
     if (cfile.edt->pi.ethertype) {
@@ -1385,7 +1322,7 @@ decode_add_notebook (GtkWidget *format_hb)
 	 */
 	sprintf(buffer, "IP protocol %u", cfile.edt->pi.ipproto);
 	page = decode_add_simple_page(buffer, "Network", "ip.proto", cfile.edt->pi.ipproto);
-	gtk_object_set_data(GTK_OBJECT(page), E_PAGE_ACTION, decode_simple);
+	OBJECT_SET_DATA(page, E_PAGE_ACTION, decode_simple);
 	label = gtk_label_new("Network");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), page, label);
     }
@@ -1445,17 +1382,8 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 
     requested_action = E_DECODE_YES;
     decode_w = dlg_window_new("Ethereal: Decode As");
-#if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect(GTK_OBJECT(decode_w), "delete_event",
-		       GTK_SIGNAL_FUNC(decode_delete_cb), NULL);
-    gtk_signal_connect(GTK_OBJECT(decode_w), "destroy",
-		       GTK_SIGNAL_FUNC(decode_destroy_cb), NULL);
-#else
-    g_signal_connect(G_OBJECT(decode_w), "delete_event",
-                     G_CALLBACK(decode_delete_cb), NULL);
-    g_signal_connect(G_OBJECT(decode_w), "destroy",
-                     G_CALLBACK(decode_destroy_cb), NULL);
-#endif
+    SIGNAL_CONNECT(decode_w, "delete_event", decode_delete_cb, NULL);
+    SIGNAL_CONNECT(decode_w, "destroy", decode_destroy_cb, NULL);
 
     /* Container for each row of widgets */
     main_vb = gtk_vbox_new(FALSE, 2);
@@ -1481,38 +1409,25 @@ decode_as_cb (GtkWidget * w _U_, gpointer data _U_)
 
 #if GTK_MAJOR_VERSION < 2
     ok_bt = gtk_button_new_with_label("OK");
-    gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-		       GTK_SIGNAL_FUNC(decode_ok_cb), GTK_OBJECT(decode_w));
 #else
     ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
-    g_signal_connect(G_OBJECT(ok_bt), "clicked",
-                     G_CALLBACK(decode_ok_cb), G_OBJECT(decode_w));
 #endif
+    SIGNAL_CONNECT(ok_bt, "clicked", decode_ok_cb, decode_w);
     GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), ok_bt, FALSE, FALSE, 0);
     gtk_widget_grab_default(ok_bt);
 
     button = gtk_button_new_with_label("Show Current");
-#if GTK_MAJOR_VERSION < 2
-    gtk_signal_connect(GTK_OBJECT(button), "clicked",
-		       GTK_SIGNAL_FUNC(decode_show_cb),
-		       GTK_OBJECT(decode_w));
-#else
-    g_signal_connect(G_OBJECT(button), "clicked",
-		     G_CALLBACK(decode_show_cb), G_OBJECT(decode_w));
-#endif
+    SIGNAL_CONNECT(button, "clicked", decode_show_cb, decode_w);
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), button, FALSE, FALSE, 0);
 
 #if GTK_MAJOR_VERSION < 2
     cancel_bt = gtk_button_new_with_label("Cancel");
-    gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
-		       GTK_SIGNAL_FUNC(decode_cancel_cb), GTK_OBJECT(decode_w));
 #else
     cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
-    g_signal_connect(G_OBJECT(cancel_bt), "clicked",
-                     G_CALLBACK(decode_cancel_cb), G_OBJECT(decode_w));
 #endif
+    SIGNAL_CONNECT(cancel_bt, "clicked", decode_cancel_cb, decode_w);
     GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
     gtk_box_pack_start(GTK_BOX(bbox), cancel_bt, FALSE, FALSE, 0);
 
