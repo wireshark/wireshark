@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.37 2001/02/28 19:33:49 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.38 2001/03/28 21:24:15 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -988,7 +988,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			cksum,
 			"Checksum: 0x%04x (correct)", cksum);
 	    } else {
-		proto_tree_add_item_hidden(icmp6_tree, hf_icmpv6_checksum_bad,
+		proto_tree_add_boolean_hidden(icmp6_tree, hf_icmpv6_checksum_bad,
 			NullTVB,
 			offset + offsetof(struct icmp6_hdr, icmp6_cksum), 2,
 			TRUE);
