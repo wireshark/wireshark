@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.180 2002/06/07 11:12:43 guy Exp $
+ * $Id: capture.c,v 1.181 2002/06/07 21:11:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -151,8 +151,10 @@
 
 #include "wiretap/libpcap.h"
 #include "wiretap/wtap.h"
+#include "wiretap/wtap-capture.h"
 
 #include "packet-atalk.h"
+#include "packet-atm.h"
 #include "packet-clip.h"
 #include "packet-eth.h"
 #include "packet-fddi.h"
@@ -1956,6 +1958,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *pd)
 {
   struct wtap_pkthdr whdr;
+  union wtap_pseudo_header pseudo_header;
   loop_data *ld = (loop_data *) user;
   int err;
 
@@ -1964,21 +1967,22 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
      ld->go = FALSE;
   }
 
-  /* "phdr->ts" may not necessarily be a "struct timeval" - it may
-     be a "struct bpf_timeval", with member sizes wired to 32
-     bits - and we may go that way ourselves in the future, so
-     copy the members individually. */
-  whdr.ts.tv_sec = phdr->ts.tv_sec;
-  whdr.ts.tv_usec = phdr->ts.tv_usec;
-  whdr.caplen = phdr->caplen;
-  whdr.len = phdr->len;
-  whdr.pkt_encap = ld->linktype;
+  /* Convert from libpcap to Wiretap format.
+     If that fails, set "ld->go" to FALSE, to stop the capture, and set
+     "ld->err" to the error. */
+  pd = wtap_process_pcap_packet(ld->linktype, phdr, pd, &pseudo_header,
+				&whdr, &err);
+  if (pd == NULL) {
+    ld->go = FALSE;
+    ld->err = err;
+    return;
+  }
 
   if (ld->pdh) {
     /* We're supposed to write the packet to a file; do so.
        If this fails, set "ld->go" to FALSE, to stop the capture, and set
        "ld->err" to the error. */
-    if (!wtap_dump(ld->pdh, &whdr, NULL, pd, &err)) {
+    if (!wtap_dump(ld->pdh, &whdr, &pseudo_header, pd, &err)) {
       ld->go = FALSE;
       ld->err = err;
     }
@@ -2022,6 +2026,9 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
       break;
     case WTAP_ENCAP_LOCALTALK:
       capture_llap(&ld->counts);
+      break;
+    case WTAP_ENCAP_ATM_SNIFFER:
+      capture_atm(&pseudo_header, pd, whdr.caplen, &ld->counts);
       break;
     /* XXX - some ATM drivers on FreeBSD might prepend a 4-byte ATM
        pseudo-header to DLT_ATM_RFC1483, with LLC header following;

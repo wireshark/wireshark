@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.139 2002/06/04 07:03:47 guy Exp $
+ * $Id: tethereal.c,v 1.140 2002/06/07 21:11:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -102,6 +102,10 @@
 #include "capture_stop_conditions.h"
 #include "ringbuffer.h"
 #include <epan/epan_dissect.h>
+
+#ifdef HAVE_LIBPCAP
+#include <wiretap/wtap-capture.h>
+#endif
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -1090,26 +1094,31 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *pd)
 {
   struct wtap_pkthdr whdr;
+  union wtap_pseudo_header pseudo_header;
   loop_data *ld = (loop_data *) user;
   cb_args_t args;
+  int err;
 
-  whdr.ts.tv_sec = phdr->ts.tv_sec;
-  whdr.ts.tv_usec = phdr->ts.tv_usec;
-  whdr.caplen = phdr->caplen;
-  whdr.len = phdr->len;
-  whdr.pkt_encap = ld->linktype;
+  /* Convert from libpcap to Wiretap format.
+     If that fails, ignore the packet.
+     XXX - print a message. */
+  pd = wtap_process_pcap_packet(ld->linktype, phdr, pd, &pseudo_header,
+				&whdr, &err);
+  if (pd == NULL) {
+    return;
+  }
 
   args.cf = &cfile;
   args.pdh = ld->pdh;
   if (ld->pdh) {
-    wtap_dispatch_cb_write((u_char *)&args, &whdr, 0, NULL, pd);
+    wtap_dispatch_cb_write((u_char *)&args, &whdr, 0, &pseudo_header, pd);
 /* Report packet capture count if not quiet */
     if (!quiet) {
       fprintf(stderr, "\r%u ", cfile.count);
       fflush(stdout);
     }
   } else {
-    wtap_dispatch_cb_print((u_char *)&args, &whdr, 0, NULL, pd);
+    wtap_dispatch_cb_print((u_char *)&args, &whdr, 0, &pseudo_header, pd);
   }
 }
 

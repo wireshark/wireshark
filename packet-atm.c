@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.46 2002/05/25 07:40:11 guy Exp $
+ * $Id: packet-atm.c,v 1.47 2002/06/07 21:11:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,11 @@
 #include "oui.h"
 #include <epan/resolv.h>
 
+#include "packet-atm.h"
 #include "packet-snmp.h"
+#include "packet-eth.h"
+#include "packet-tr.h"
+#include "packet-llc.h"
 
 static int proto_atm = -1;
 static int hf_atm_vpi = -1;
@@ -613,6 +617,31 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+capture_lane(const union wtap_pseudo_header *pseudo_header, const u_char *pd,
+    int len, packet_counts *ld)
+{
+  /* Is it LE Control, 802.3, 802.5, or "none of the above"? */
+  switch (pseudo_header->atm.subtype) {
+
+  case TRAF_ST_LANE_802_3:
+  case TRAF_ST_LANE_802_3_MC:
+    /* Dissect as Ethernet */
+    capture_eth(pd, 2, len, ld);
+    break;
+
+  case TRAF_ST_LANE_802_5:
+  case TRAF_ST_LANE_802_5_MC:
+    /* Dissect as Token-Ring */
+    capture_tr(pd, 2, len, ld);
+    break;
+
+  default:
+    ld->other++;
+    break;
+  }
+}
+
+static void
 dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   tvbuff_t	*next_tvb;
@@ -729,6 +758,32 @@ static const value_string ipsilon_type_vals[] = {
 	{ TRAF_ST_IPSILON_FT2, "Flow type 2" },
 	{ 0,                NULL }
 };
+
+void
+capture_atm(const union wtap_pseudo_header *pseudo_header, const u_char *pd,
+    int len, packet_counts *ld)
+{
+  if (pseudo_header->atm.aal == AAL_5) {
+    switch (pseudo_header->atm.type) {
+
+    case TRAF_LLCMX:
+      /* Dissect as WTAP_ENCAP_ATM_RFC1483 */
+      /* The ATM iptrace capture that we have shows LLC at this point,
+       * so that's what I'm calling */
+      capture_llc(pd, 0, len, ld);
+      break;
+
+    case TRAF_LANE:
+      capture_lane(pseudo_header, pd, len, ld);
+      break;
+
+    default:
+      ld->other++;
+      break;
+    }
+  } else
+    ld->other++;
+}
 
 static void
 dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)

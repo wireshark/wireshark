@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.75 2002/06/07 07:27:35 guy Exp $
+ * $Id: libpcap.c,v 1.76 2002/06/07 21:11:24 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -29,6 +29,11 @@
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "libpcap.h"
+
+#ifdef HAVE_PCAP_H
+#include <pcap.h>
+#include "wtap-capture.h"
+#endif
 
 /*
  * The link-layer header on ATM packets.
@@ -61,6 +66,8 @@ static gboolean libpcap_seek_read(wtap *wth, long seek_off,
 static int libpcap_read_header(wtap *wth, int *err,
     struct pcaprec_ss990915_hdr *hdr, gboolean silent);
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
+static void libpcap_get_atm_pseudoheader(const struct sunatm_hdr *atm_phdr,
+    union wtap_pseudo_header *pseudo_header);
 static gboolean libpcap_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
 static gboolean libpcap_read_rec_data(FILE_T fh, u_char *pd, int length,
@@ -91,10 +98,6 @@ static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
  * platform they came from; we could, I guess, choose the most likely
  * platform).
  */
-
-#ifdef HAVE_PCAP_H
-#include <pcap.h>
-#endif
 
 static const struct {
 	int	dlt_value;
@@ -1014,33 +1017,22 @@ adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 	}
 }
 
-static gboolean
-libpcap_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
-    int *err)
+static void
+libpcap_get_atm_pseudoheader(const struct sunatm_hdr *atm_phdr,
+    union wtap_pseudo_header *pseudo_header)
 {
-	struct sunatm_hdr atm_phdr;
-	int	bytes_read;
 	guint8	vpi;
 	guint16	vci;
 
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&atm_phdr, 1, sizeof (struct sunatm_hdr), fh);
-	if (bytes_read != sizeof (struct sunatm_hdr)) {
-		*err = file_error(fh);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-
-	vpi = atm_phdr.vpi;
-	vci = pntohs(&atm_phdr.vci);
+	vpi = atm_phdr->vpi;
+	vci = pntohs(&atm_phdr->vci);
 
 	/*
 	 * The lower 4 bits of the first byte of the header indicate
 	 * the type of traffic, as per the "atmioctl.h" header in
 	 * SunATM.
 	 */
-	switch (atm_phdr.flags & 0x0F) {
+	switch (atm_phdr->flags & 0x0F) {
 
 	case 0x01:	/* LANE */
 		pseudo_header->atm.aal = AAL_5;
@@ -1095,13 +1087,32 @@ libpcap_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header
 
 	pseudo_header->atm.vpi = vpi;
 	pseudo_header->atm.vci = vci;
-	pseudo_header->atm.channel = (atm_phdr.flags & 0x80) ? 1 : 0;
+	pseudo_header->atm.channel = (atm_phdr->flags & 0x80) ? 1 : 0;
 
 	/* We don't have this information */
 	pseudo_header->atm.cells = 0;
 	pseudo_header->atm.aal5t_u2u = 0;
 	pseudo_header->atm.aal5t_len = 0;
 	pseudo_header->atm.aal5t_chksum = 0;
+}
+
+static gboolean
+libpcap_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+    int *err)
+{
+	struct sunatm_hdr atm_phdr;
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&atm_phdr, 1, sizeof (struct sunatm_hdr), fh);
+	if (bytes_read != sizeof (struct sunatm_hdr)) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	libpcap_get_atm_pseudoheader(&atm_phdr, pseudo_header);
 
 	return TRUE;
 }
@@ -1159,6 +1170,59 @@ static int wtap_wtap_encap_to_pcap_encap(int encap)
 	}
 	return -1;
 }
+
+#ifdef HAVE_PCAP_H
+/*
+ * Given a Wiretap encapsulation type, and raw packet data and the packet
+ * header from libpcap, process any pseudo-header in the packet,
+ * fill in the Wiretap packet header, and return a pointer to the
+ * beginning of the non-pseudo-header data in the packet.
+ */
+const u_char *
+wtap_process_pcap_packet(gint linktype, const struct pcap_pkthdr *phdr,
+    const u_char *pd, union wtap_pseudo_header *pseudo_header,
+    struct wtap_pkthdr *whdr, int *err)
+{
+	/* "phdr->ts" may not necessarily be a "struct timeval" - it may
+	   be a "struct bpf_timeval", with member sizes wired to 32
+	   bits - and we may go that way ourselves in the future, so
+	   copy the members individually. */
+	whdr->ts.tv_sec = phdr->ts.tv_sec;
+	whdr->ts.tv_usec = phdr->ts.tv_usec;
+	whdr->caplen = phdr->caplen;
+	whdr->len = phdr->len;
+	whdr->pkt_encap = linktype;
+
+	/*
+	 * If this is an ATM packet, the first four bytes are the
+	 * direction of the packet (transmit/receive), the VPI, and
+	 * the VCI; read them and generate the pseudo-header from
+	 * them.
+	 */
+	if (linktype == WTAP_ENCAP_ATM_SNIFFER) {
+		if (whdr->caplen < sizeof (struct sunatm_hdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			g_message("libpcap: SunATM capture has a %u-byte packet, too small to have even an ATM pseudo-header\n",
+			    whdr->caplen);
+			*err = WTAP_ERR_BAD_RECORD;
+			return NULL;
+		}
+		libpcap_get_atm_pseudoheader((struct sunatm_hdr *)pd,
+		    pseudo_header);
+
+		/*
+		 * Don't count the pseudo-header as part of the packet.
+		 */
+		whdr->len -= sizeof (struct sunatm_hdr);
+		whdr->caplen -= sizeof (struct sunatm_hdr);
+		pd += sizeof (struct sunatm_hdr);
+	}
+	return pd;
+}
+#endif
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
