@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.98 2003/09/20 03:20:17 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.99 2003/09/20 03:48:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -711,15 +711,12 @@ wpa_keymgmt_idx2str(guint idx)
 
 void 
 dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
-		guint32 tag_len)
+		guint32 tag_len, const guint8 *tag_val)
 {
-      const guint8 *tag_val;
       guint32 tag_val_off = 0;
       char out_buff[SHORT_STR];
       int i;
 	
-      tag_val = tvb_get_ptr(tvb, offset, tag_len);
-  
       if (tag_val_off + 6 <= tag_len && !memcmp(tag_val, WPA_OUI"\x01", 4)) {
         snprintf(out_buff, SHORT_STR, "WPA IE, type %u, version %u",
                   tag_val[tag_val_off + 3], pletohs(&tag_val[tag_val_off + 4]));
@@ -792,20 +789,21 @@ dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb, int offset,
 /* ************************************************************************* */
 
 static const value_string tag_num_vals[] = {
-	{ TAG_SSID,               "SSID parameter set" },
-	{ TAG_SUPP_RATES,         "Supported Rates" },
-	{ TAG_EXT_SUPP_RATES,     "Extended Supported Rates" },
-	{ TAG_FH_PARAMETER,       "FH Parameter set" },
-	{ TAG_DS_PARAMETER,       "DS Parameter set" },
-	{ TAG_CF_PARAMETER,       "CF Parameter set" },
-	{ TAG_TIM,                "(TIM) Traffic Indication Map" },
-	{ TAG_IBSS_PARAMETER,     "IBSS Parameter set" },
-	{ TAG_COUNTRY_INFO,       "Country Information" },
-	{ TAG_CHALLENGE_TEXT,     "Challenge text" },
-	{ TAG_ERP_INFO,           "ERP Information" },
-	{ TAG_ERP_INFO_OLD,       "ERP Information" },
-	{ TAG_VENDOR_SPECIFIC_IE, "Vendor Specific" },
-	{ 0,                      NULL }
+	{ TAG_SSID,                 "SSID parameter set" },
+	{ TAG_SUPP_RATES,           "Supported Rates" },
+	{ TAG_FH_PARAMETER,         "FH Parameter set" },
+	{ TAG_DS_PARAMETER,         "DS Parameter set" },
+	{ TAG_CF_PARAMETER,         "CF Parameter set" },
+	{ TAG_TIM,                  "(TIM) Traffic Indication Map" },
+	{ TAG_IBSS_PARAMETER,       "IBSS Parameter set" },
+	{ TAG_COUNTRY_INFO,         "Country Information" },
+	{ TAG_FH_HOPPING_PARAMETER, "Hopping Pattern Parameters" },
+	{ TAG_CHALLENGE_TEXT,       "Challenge text" },
+	{ TAG_ERP_INFO,             "ERP Information" },
+	{ TAG_ERP_INFO_OLD,         "ERP Information" },
+	{ TAG_EXT_SUPP_RATES,       "Extended Supported Rates" },
+	{ TAG_VENDOR_SPECIFIC_IE,   "Vendor Specific" },
+	{ 0,                        NULL }
 };
 
 static const value_string environment_vals[] = {
@@ -826,47 +824,18 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
 
   tag_no = tvb_get_guint8(tvb, offset);
-  tag_len = tvb_get_guint8(tvb, offset + 1);
-
-  tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
-
-
-  if ((tag_no >= 17) && (tag_no <= 31))
-    {				/* Reserved for challenge text */
-      proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %u (Reserved for challenge text)",
-				  tag_no);
-
-      proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
-      proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
-			     tag_len, "Not interpreted");
-      return (int) tag_len + 2;
-    }
-
-  /* Next See if tag is reserved - if true, skip it! */
-  if (((tag_no >= 8) && (tag_no <= 15))
-      || ((tag_no >= 32) && (tag_no <= 255) && (tag_no != TAG_ERP_INFO) &&
-	  (tag_no != TAG_EXT_SUPP_RATES) &&
-	  (tag_no != TAG_ERP_INFO_OLD) && (tag_no != TAG_VENDOR_SPECIFIC_IE)))
-    {
-      proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %u (Reserved tag number)",
-				  tag_no);
-
-      proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
-
-      proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
-			     tag_len, "Not interpreted");
-      return (int) tag_len + 2;
-    }
-
-
   proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
 			      "Tag Number: %u (%s)",
 			      tag_no,
-			      val_to_str(tag_no, tag_num_vals, "Unknown"));
+			      val_to_str(tag_no, tag_num_vals,
+					 (tag_no >= 17 && tag_no <= 31) ?
+					 "Reserved for challenge text" :
+					 "Reserved tag number"));
 
+  tag_len = tvb_get_guint8(tvb, offset + 1);
   proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
+
+  tag_data_ptr = tvb_get_ptr (tvb, offset + 2, tag_len);
 
   switch (tag_no)
     {
@@ -972,15 +941,39 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
     case TAG_COUNTRY_INFO:
       memset (out_buff, 0, SHORT_STR);
-      snprintf (out_buff, SHORT_STR,
-                                 "Country Code: %c%c, %s Environment, Start Channel: "
-                                 "%u, Number of Channels: %u, Max TX Power: %u dbi",
-                                 tag_data_ptr[0], tag_data_ptr[1],
-                                 val_to_str(tag_data_ptr[2], environment_vals,
-                                            "Unknown (0x%02x)"),
-                                 tag_data_ptr[3], tag_data_ptr[4],tag_data_ptr[5]);
+
+      snprintf (out_buff, SHORT_STR, "Country Code: %c%c, %s Environment",
+               tag_data_ptr[0], tag_data_ptr[1], 
+               val_to_str(tag_data_ptr[2], environment_vals,"Unknown (0x%02x)"));
+
+      n = strlen (out_buff);
+
+      for (i = 3; (i + 3) <= tag_len && n < SHORT_STR; i += 3)
+      { 
+        ret = snprintf(out_buff + n, SHORT_STR - n,
+                       ", Start Channel: %u, Channels: %u, Max TX Power: %d dBm",
+                       tag_data_ptr[i], tag_data_ptr[i + 1],
+                       (gint)tag_data_ptr[i + 2]);
+
+        if (ret == -1 || ret >= SHORT_STR - n) {
+          /* Some versions of snprintf return -1 if they'd truncate
+             the output. Others return <buf_size> or greater.  */
+          break;
+        }
+        n += ret;
+      }
 
       proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,tag_len, out_buff);
+      break;
+
+
+    case TAG_FH_HOPPING_PARAMETER:
+      memset (out_buff, 0, SHORT_STR);
+      snprintf (out_buff, SHORT_STR, "Prime Radix: %u, Number of Channels: %u", 
+                       tag_data_ptr[0], tag_data_ptr[1]);
+      proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2, tag_len, out_buff);
+			     
+
       break;
 
 
@@ -1010,12 +1003,15 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
       break;
 
     case TAG_VENDOR_SPECIFIC_IE:
-      dissect_vendor_specific_ie(tree, tvb, offset + 2, tag_len);
+      dissect_vendor_specific_ie(tree, tvb, offset + 2, tag_len,
+				 tag_data_ptr);
       break;
 
 
     default:
-      return 0;
+      proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
+			     tag_len, "Not interpreted");
+      break;
     }
 
   return tag_len + 2;
