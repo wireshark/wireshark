@@ -656,6 +656,10 @@ Martin Thomas <martin_a_thomas[AT]yahoo.com> {
 	    102, containing OSI transport layer PDUs)
 }
 
+Martin Thomas <Martin.Thomas[AT]am1.ericsson.se> {
+	Handle address lengths based on TOA bit in X.25
+}
+
 Hartmut Mueller <hartmut[AT]wendolene.ping.de> {
 	BACNET support
 }

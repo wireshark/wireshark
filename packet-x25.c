@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.65 2002/04/09 08:15:02 guy Exp $
+ * $Id: packet-x25.c,v 1.66 2002/05/09 05:49:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1313,6 +1313,13 @@ x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
     byte = tvb_get_guint8(tvb, *offset);
     len1 = (byte >> 4) & 0x0F;
     len2 = (byte >> 0) & 0x0F;
+
+    if (!toa) { /* then switch the length indicators.. */
+      i = len1;
+      len1 = len2;
+      len2 = i;
+    }
+
     if (tree) {
 	proto_tree_add_text(tree, tvb, *offset, 1,
 		decode_numeric_bitfield(byte, 0xF0, 1*8,
