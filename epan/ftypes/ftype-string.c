@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-string.c,v 1.21 2004/04/26 02:09:37 gram Exp $
+ * $Id: ftype-string.c,v 1.22 2004/05/02 07:31:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,7 +85,7 @@ string_repr_len(fvalue_t *fv, ftrepr_t rtype)
 				}
 				/* Values that can't nicely be represented
 				 * in ASCII need to be escaped. */
-				else if (!isprint(c)) {
+				else if (!isprint((unsigned char)c)) {
 					/* c --> \xNN */
 					repr_len += 4;
 				}
@@ -119,9 +119,9 @@ string_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 			}
 			/* Values that can't nicely be represented
 			 * in ASCII need to be escaped. */
-			else if (!isprint(c)) {
+			else if (!isprint((unsigned char)c)) {
 				/* c --> \xNN */
-				sprintf(hex, "%02x", (unsigned int) c);
+				sprintf(hex, "%02x", (unsigned char) c);
 				*bufp++ = '\\';
 				*bufp++ = 'x';
 				*bufp++ = hex[0];
