@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.17 2002/07/31 11:16:19 sahlberg Exp $
+ * $Id: packet_info.h,v 1.18 2002/08/22 18:53:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,8 +57,8 @@ typedef struct _address {
 /*
  * Given two addresses, return
  *  0 if the addresses are equal,
- *  1 if addr1>addr2 in some nondefined metric
- * -1 if addr1<addr2 in some nondefined metric
+ *  a positive number if addr1>addr2 in some nondefined metric,
+ *  a negative number if addr1<addr2 in some nondefined metric
  */
 #define CMP_ADDRESS(addr1, addr2) \
 	(	((addr1)->type > (addr2)->type)?1:	\
