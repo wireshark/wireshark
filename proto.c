@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.35 1999/10/12 06:20:23 gram Exp $
+ * $Id: proto.c,v 1.36 1999/10/12 19:47:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1048,7 +1048,7 @@ proto_registrar_get_length(int n)
 			return 6;
 
 		case FT_IPv6:
-			return 128;
+			return 16;
 	}
 	g_assert_not_reached();
 	return -1;
