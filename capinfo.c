@@ -95,7 +95,7 @@ secs_usecs(guint32 s, guint32 us)
 static void
 print_stats(capture_info *cf_info)
 {
-  gchar			*file_type_string;
+  const gchar		*file_type_string;
   time_t		start_time_t;
   struct tm		*start_time_tm;
   time_t		stop_time_t;
