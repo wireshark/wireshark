@@ -3,7 +3,7 @@
  *
  * Uwe Girlich <uwe@planetquake.com>
  *
- * $Id: packet-quake3.c,v 1.11 2002/04/02 01:32:46 guy Exp $
+ * $Id: packet-quake3.c,v 1.12 2002/04/02 06:28:16 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -145,7 +145,7 @@ static const value_string names_command[] = {
 
 
 static void
-dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
+dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree, int* direction)
 {
 	proto_tree	*cl_tree = NULL;

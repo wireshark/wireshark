@@ -7,7 +7,7 @@
  *	http://www.dgs.monash.edu.au/~timf/bottim/
  *	http://www.opt-sci.Arizona.EDU/Pandora/default.asp
  *
- * $Id: packet-quake2.c,v 1.9 2002/01/24 09:20:50 guy Exp $
+ * $Id: packet-quake2.c,v 1.10 2002/04/02 06:28:16 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -71,8 +71,8 @@ static unsigned int gbl_quake2ServerPort=PORT_MASTER;
 
 
 static void
-dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree, int direction)
+dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
+	proto_tree *tree, int direction _U_)
 {
 	proto_tree	*cl_tree = NULL;
 	proto_item	*cl_item = NULL;

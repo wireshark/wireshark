@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.25 2002/01/24 09:20:50 guy Exp $
+ * $Id: packet-quake.c,v 1.26 2002/04/02 06:28:16 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -161,7 +161,7 @@ static void dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static void
 dissect_quake_CCREQ_CONNECT
-(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+(tvbuff_t *tvb, proto_tree *tree)
 {
 	gint maxbufsize;
 	char game[QUAKE_MAXSTRING];
@@ -183,7 +183,7 @@ dissect_quake_CCREQ_CONNECT
 
 static void
 dissect_quake_CCREQ_SERVER_INFO
-(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+(tvbuff_t *tvb, proto_tree *tree)
 {
 	gint maxbufsize;
 	char game[QUAKE_MAXSTRING];
@@ -205,7 +205,7 @@ dissect_quake_CCREQ_SERVER_INFO
 
 static void
 dissect_quake_CCREQ_PLAYER_INFO
-(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+(tvbuff_t *tvb, proto_tree *tree)
 {
 	guint8 player;
 
@@ -219,7 +219,7 @@ dissect_quake_CCREQ_PLAYER_INFO
 
 static void
 dissect_quake_CCREQ_RULE_INFO
-(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+(tvbuff_t *tvb, proto_tree *tree)
 {
 	char rule[QUAKE_MAXSTRING];
 	gint maxbufsize;
@@ -256,7 +256,7 @@ dissect_quake_CCREP_ACCEPT
 
 static void
 dissect_quake_CCREP_REJECT
-(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+(tvbuff_t *tvb, proto_tree *tree)
 {
 	gint maxbufsize;
 	char reason[QUAKE_MAXSTRING];
@@ -274,7 +274,7 @@ dissect_quake_CCREP_REJECT
 
 static void
 dissect_quake_CCREP_SERVER_INFO
-(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+(tvbuff_t *tvb, proto_tree *tree)
 {
 	gint offset;
 	gint len;
@@ -330,7 +330,7 @@ dissect_quake_CCREP_SERVER_INFO
 
 static void
 dissect_quake_CCREP_PLAYER_INFO
-(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+(tvbuff_t *tvb, proto_tree *tree)
 {
 	gint offset;
 	guint8 player;
@@ -402,7 +402,7 @@ dissect_quake_CCREP_PLAYER_INFO
 
 static void
 dissect_quake_CCREP_RULE_INFO
-(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+(tvbuff_t *tvb, proto_tree *tree)
 {
 	char rule[QUAKE_MAXSTRING];
 	char value[QUAKE_MAXSTRING];
@@ -468,19 +468,19 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (command) {
 		case CCREQ_CONNECT:
 			dissect_quake_CCREQ_CONNECT
-			(next_tvb, pinfo, control_tree);
+			(next_tvb, control_tree);
 		break;
 		case CCREQ_SERVER_INFO:
 			dissect_quake_CCREQ_SERVER_INFO
-			(next_tvb, pinfo, control_tree);
+			(next_tvb, control_tree);
 		break;
 		case CCREQ_PLAYER_INFO:
 			dissect_quake_CCREQ_PLAYER_INFO
-			(next_tvb, pinfo, control_tree);
+			(next_tvb, control_tree);
 		break;
 		case CCREQ_RULE_INFO:
 			dissect_quake_CCREQ_RULE_INFO
-			(next_tvb, pinfo, control_tree);
+			(next_tvb, control_tree);
 		break;
 		case CCREP_ACCEPT:
 			dissect_quake_CCREP_ACCEPT
@@ -488,19 +488,19 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 		case CCREP_REJECT:
 			dissect_quake_CCREP_REJECT
-			(next_tvb, pinfo, control_tree);
+			(next_tvb, control_tree);
 		break;
 		case CCREP_SERVER_INFO:
 			dissect_quake_CCREP_SERVER_INFO
-			(next_tvb, pinfo, control_tree);
+			(next_tvb, control_tree);
 		break;
 		case CCREP_PLAYER_INFO:
 			dissect_quake_CCREP_PLAYER_INFO
-			(next_tvb, pinfo, control_tree);
+			(next_tvb, control_tree);
 		break;
 		case CCREP_RULE_INFO:
 			dissect_quake_CCREP_RULE_INFO
-			(next_tvb, pinfo, control_tree);
+			(next_tvb, control_tree);
 		break;
 		default:
 			call_dissector(data_handle,next_tvb, pinfo, control_tree);
