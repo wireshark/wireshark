@@ -30,11 +30,11 @@ Overview of changes in Ethereal 0.8.8:
 * Doco updates (Guy)
 * Menu fixes (Guy)
 * Dialogue window helper functions (Guy)
-* GUI button-cration functions (Guy)
+* GUI button-creation functions (Guy)
 * Speedups in token-ring dissector (Gilbert)
 * Registration of lists of "heuristic" dissectors (Guy)
 * Ethereal child process error-handling (Guy)
-* Fix problems with dialoge windows popping up multiple times (Guy)
+* Fix problems with dialogue windows popping up multiple times (Guy)
 
 Overview of changes in Ethereal 0.8.7:
 * Small memleak in "Find Frame" plugged (Guy)
