@@ -6,10 +6,10 @@
  *   ITU-T Q.704 7/1996
  *   GF 001-9001 (Chinese ITU variant)
  *
- * Copyright 2001, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
+ * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Updated for ANSI and Chinese ITU support by Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3.c,v 1.15 2003/04/10 18:52:09 guy Exp $
+ * $Id: packet-mtp3.c,v 1.16 2003/04/19 20:13:23 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -315,12 +315,12 @@ dissect_mtp3_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     break;
   }
 
+  if (check_col(pinfo->cinfo, COL_INFO))
+      col_set_str(pinfo->cinfo, COL_INFO, "DATA ");
+
   if (!dissector_try_port(mtp3_sio_dissector_table, service_indicator,
-			  payload_tvb, pinfo, tree)) {
+			  payload_tvb, pinfo, tree))
     call_dissector(data_handle, payload_tvb, pinfo, tree);
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_str(pinfo->cinfo, COL_INFO, "DATA ");
-  }
 }
 
 /* Code to actually dissect the packets */

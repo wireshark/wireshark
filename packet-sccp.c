@@ -8,7 +8,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccp.c,v 1.9 2003/04/10 18:52:11 guy Exp $
+ * $Id: packet-sccp.c,v 1.10 2003/04/19 20:13:22 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1179,8 +1179,7 @@ dissect_sccp_refusal_cause_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
 
 /* This function is used for both data and long data (ITU only) parameters */
 static void
-dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo,
-			proto_tree *sccp_tree, proto_tree *tree)
+dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
   /* Try subdissectors (if we found a valid SSN on the current message) */
@@ -1193,7 +1192,7 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo,
     return;
 
     /* No sub-dissection occured, treat it as raw data */
-    call_dissector(data_handle, tvb, pinfo, sccp_tree);
+    call_dissector(data_handle, tvb, pinfo, tree);
 }
 
 static void
@@ -1388,7 +1387,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       break;
 
     case PARAMETER_DATA:
-      dissect_sccp_data_param(parameter_tvb, pinfo, sccp_tree, tree);
+      dissect_sccp_data_param(parameter_tvb, pinfo, tree);
 
       /* TODO? Re-adjust length of SCCP item since it may be sub-dissected */
       /* sccp_length = proto_item_get_len(sccp_item);
@@ -1415,7 +1414,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 
     case PARAMETER_LONG_DATA:
       if (mtp3_standard != ANSI_STANDARD)
-	dissect_sccp_data_param(parameter_tvb, pinfo, sccp_tree, tree);
+	dissect_sccp_data_param(parameter_tvb, pinfo, tree);
       else
 	dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
 				   parameter_length);
@@ -1543,10 +1542,9 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   message_type   = tvb_get_guint8(tvb, MESSAGE_TYPE_OFFSET);
   offset = MESSAGE_TYPE_LENGTH;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		    val_to_str(message_type, sccp_message_type_acro_values, "Unknown"));
-  };
 
   if (sccp_tree) {
     /* add the message type to the protocol tree */

@@ -3,7 +3,7 @@
  * Based on 3GPP TS 25.413 V3.4.0
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *
- * $Id: packet-ranap.c,v 1.16 2002/12/10 21:41:23 tuexen Exp $
+ * $Id: packet-ranap.c,v 1.17 2003/04/19 20:13:23 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4007,10 +4007,10 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   {
     if (procedure_code <= PC_max)
     {
-       col_append_str(pinfo->cinfo, COL_INFO,
+       col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(pdu_index, ranap_message_names[procedure_code],
                               "unknown message"));
-       col_append_str(pinfo->cinfo, COL_INFO, " ");
+       col_set_fence(pinfo->cinfo, COL_INFO);
     }
   }
 

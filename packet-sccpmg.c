@@ -8,7 +8,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccpmg.c,v 1.3 2003/04/10 18:52:15 guy Exp $
+ * $Id: packet-sccpmg.c,v 1.4 2003/04/19 20:13:22 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -233,12 +233,10 @@ dissect_sccpmg_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccpmg_tre
 	message_type   = tvb_get_guint8(tvb, SCCPMG_MESSAGE_TYPE_OFFSET);
 	offset = SCCPMG_MESSAGE_TYPE_LENGTH;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
-				val_to_str(message_type,
-					   sccpmg_message_type_acro_values,
-					   "Unknown"));
-	}
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+    	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, sccpmg_message_type_acro_values, "Unknown"));
+    	col_set_fence(pinfo->cinfo, COL_INFO);
+	} 
 
 	if (sccpmg_tree) {
 		/* add the message type to the protocol tree */
