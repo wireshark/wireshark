@@ -13,7 +13,7 @@
  *
  * Implemented in ethereal at April 7-8, 2004
  *
- * $Id: packet-cops.c,v 1.46 2004/04/30 06:24:35 ulfl Exp $
+ * $Id: packet-cops.c,v 1.47 2004/04/30 21:11:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1877,12 +1877,12 @@ void proto_register_cops(void)
     },
     { &hf_cops_pc_peak_data_rate,
       { "Peak Data Rate", "cops.pc_peak_data_rate",
-        FT_UINT32, BASE_HEX, NULL, 0x00,
+        FT_FLOAT, BASE_NONE, NULL, 0x00,
         "Peak Data Rate", HFILL }
     },
     { &hf_cops_pc_spec_rate,
       { "Rate", "cops.pc_spec_rate",
-        FT_UINT32, BASE_HEX, NULL, 0x00,
+        FT_FLOAT, BASE_NONE, NULL, 0x00,
         "Rate", HFILL }
     },
     { &hf_cops_pc_remote_gate_id,
@@ -1917,12 +1917,12 @@ void proto_register_cops(void)
     },
     { &hf_cops_pc_token_bucket_rate,
       { "Token Bucket Rate", "cops.pc_token_bucket_rate",
-        FT_UINT32, BASE_HEX, NULL, 0x00,
+        FT_FLOAT, BASE_NONE, NULL, 0x00,
         "Token Bucket Rate", HFILL }
     },
     { &hf_cops_pc_token_bucket_size,
       { "Token Bucket Size", "cops.pc_token_bucket_size",
-        FT_UINT32, BASE_HEX, NULL, 0x00,
+        FT_FLOAT, BASE_NONE, NULL, 0x00,
         "Token Bucket Size", HFILL }
     },
     { &hf_cops_pc_bcid,
@@ -2047,9 +2047,9 @@ void info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, cha
 
      guint8   code8  = 0;
      guint16  code16 = 0;
-     guint32  code32 = 0L;
-     guint32  codeip = 0L;
-     float    codefl = 0L;
+     guint32  code32 = 0;
+     guint32  codeip = 0;
+     float    codefl = 0.0;
 
      /* Print information elements in the specified way */
      switch (octets) {
@@ -2134,9 +2134,8 @@ void info_to_display(tvbuff_t *tvb, proto_item *stt, int offset, int octets, cha
                 }
                 /* Ieee float format */
                 if (mode==FMT_FLT) {
-                    /* XXX - use proto_tree_add_float_format instead? */
-                   proto_tree_add_uint_format(stt, *hf_proto_parameter,tvb, offset, octets,
-                       (guint32) codefl,"%-28s : %.10g",str,codefl);
+                   proto_tree_add_float_format(stt, *hf_proto_parameter,tvb, offset, octets,
+                       codefl,"%-28s : %.10g",str,codefl);
                    break;
                 }
                 /* Print a 32 bits integer */
