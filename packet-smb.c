@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.190 2002/01/03 20:42:40 guy Exp $
+ * $Id: packet-smb.c,v 1.191 2002/01/08 05:52:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -785,53 +785,60 @@ smb_trans_defragment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
  */
 typedef struct  {
 	guint32	frame;
-	guint16 mid;
+	guint32 pid_mid;
 } smb_saved_info_key_t;
 
 static GMemChunk *smb_saved_info_key_chunk = NULL;
 static GMemChunk *smb_saved_info_chunk = NULL;
 static int smb_saved_info_init_count = 200;
 
-/* matched smb_saved_info structures.
-  For matched smb_saved_info structures we store the smb_saved_info
-  structure twice in the table using the frame number and the MID as the key.
-  The frame number is guaranteed to be unique but if ever someone makes
-  some change that will renumber the frames in a capture we are in BIG trouble.
-  This is not likely though since that would break (among other things) all the
-  reassembly routines as well.
+/* unmatched smb_saved_info structures.
+   For unmatched smb_saved_info structures we store the smb_saved_info
+   structure using the MID and the PID as the key.
 
-  We also need the MID as there may be more than one SMB request or reply
-  in a single frame
-
-  Oh, yes, the key is really a pointer, but we use it as if it was an integer.
-  Ugly, yes. Not portable to DEC-20 Yes. But it saves a few bytes.
+   Oh, yes, the key is really a pointer, but we use it as if it was an integer.
+   Ugly, yes. Not portable to DEC-20 Yes. But it saves a few bytes.
+   The key is the PID in the upper 16 bits and the MID in the lower 16 bits.
 */
 static gint
 smb_saved_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
 {
-	register int key1 = (int)k1;
-	register int key2 = (int)k2;
+	register guint32 key1 = (guint32)k1;
+	register guint32 key2 = (guint32)k2;
 	return key1==key2;
 }
 static guint
 smb_saved_info_hash_unmatched(gconstpointer k)
 {
-	register int key = (int)k;
+	register guint32 key = (guint32)k;
 	return key;
 }
 
+/* matched smb_saved_info structures.
+   For matched smb_saved_info structures we store the smb_saved_info
+   structure twice in the table using the frame number, and a combination
+   of the MID and the PID, as the key.
+   The frame number is guaranteed to be unique but if ever someone makes
+   some change that will renumber the frames in a capture we are in BIG trouble.
+   This is not likely though since that would break (among other things) all the
+   reassembly routines as well.
+
+   We also need the MID as there may be more than one SMB request or reply
+   in a single frame, and we also need the PID as there may be more than
+   one outstanding request with the same MID and different PIDs.
+*/
 static gint
 smb_saved_info_equal_matched(gconstpointer k1, gconstpointer k2)
 {
 	const smb_saved_info_key_t *key1 = k1;
 	const smb_saved_info_key_t *key2 = k2;
-	return key1->frame == key2->frame && key1->mid == key2->mid;
+	return key1->frame == key2->frame && key1->pid_mid == key2->pid_mid;
 }
 static guint
 smb_saved_info_hash_matched(gconstpointer k)
 {
 	const smb_saved_info_key_t *key = k;
-	return key->frame + key->mid;
+	return key->frame + key->pid_mid;
 }
 
 /*
@@ -13504,7 +13511,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
         guint32 nt_status = 0;
         guint8 errclass = 0;
         guint16 errcode = 0;
-	guint16 uid, pid, tid;
+	guint16 uid, pid, tid, mid;
+	guint32 pid_mid;
 	conversation_t *conversation;
 
 	top_tree=parent_tree;
@@ -13529,19 +13537,20 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* start off using the local variable, we will allocate a new one if we
 	   need to*/
-	si.mid = tvb_get_letohs(tvb, offset+30);
-	uid = tvb_get_letohs(tvb, offset+28);
-	pid = tvb_get_letohs(tvb, offset+26);
-	tid = tvb_get_letohs(tvb, offset+24);
+	si.cmd = tvb_get_guint8(tvb, offset+4);
+	flags = tvb_get_guint8(tvb, offset+9);
+	si.request = !(flags&SMB_FLAGS_DIRN);
 	flags2 = tvb_get_letohs(tvb, offset+10);
 	if(flags2 & 0x8000){
 		si.unicode = TRUE; /* Mark them as Unicode */
 	} else {
 		si.unicode = FALSE;
 	}
-	flags = tvb_get_guint8(tvb, offset+9);
-	si.request = !(flags&SMB_FLAGS_DIRN);
-	si.cmd = tvb_get_guint8(tvb, offset+4);
+	tid = tvb_get_letohs(tvb, offset+24);
+	pid = tvb_get_letohs(tvb, offset+26);
+	uid = tvb_get_letohs(tvb, offset+28);
+	mid = tvb_get_letohs(tvb, offset+30);
+	pid_mid = (pid << 16) | mid;
 	si.info_level = -1;
 	si.info_count = -1;
 
@@ -13585,7 +13594,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	if( (si.request)
-	    &&  (si.mid==0)
+	    &&  (mid==0)
 	    &&  (uid==0)
 	    &&  (pid==0)
 	    &&  (tid==0) ){
@@ -13629,11 +13638,11 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			   last seen MID matching ours is the right one.
 			   This can fail but is better than nothing
 			*/
-			sip=g_hash_table_lookup(si.ct->unmatched, (void *)si.mid);
+			sip=g_hash_table_lookup(si.ct->unmatched, (void *)pid_mid);
 			if(sip!=NULL){
 				new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
 				new_key->frame = pinfo->fd->num;
-				new_key->mid = si.mid;
+				new_key->pid_mid = pid_mid;
 				g_hash_table_insert(si.ct->matched, new_key,
 				    sip);
 			}
@@ -13642,7 +13651,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			   matching table
 			*/
 			key.frame = pinfo->fd->num;
-			key.mid = si.mid;
+			key.pid_mid = pid_mid;
 			sip=g_hash_table_lookup(si.ct->matched, &key);
 			if(sip==NULL){
 			/*
@@ -13689,7 +13698,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			/* first see if we find an unmatched smb "equal" to 
 			   the current one 
 			*/
-			sip=g_hash_table_lookup(si.ct->unmatched, (void *)si.mid);
+			sip=g_hash_table_lookup(si.ct->unmatched, (void *)pid_mid);
 			if(sip!=NULL){
 				if(si.request){
 					/* ok, we are processing an SMB
@@ -13706,7 +13715,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					   request and concentrate on the 
 					   present one instead.
 					*/
-					g_hash_table_remove(si.ct->unmatched, (void *)si.mid);
+					g_hash_table_remove(si.ct->unmatched, (void *)pid_mid);
 				} else {
 					/* we have found a response to some request we have seen earlier.
 					   What we do now depends on whether this is the first response
@@ -13717,11 +13726,11 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						sip->frame_res = pinfo->fd->num;
 						new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
 						new_key->frame = sip->frame_req;
-						new_key->mid = si.mid;
+						new_key->pid_mid = pid_mid;
 						g_hash_table_insert(si.ct->matched, new_key, sip);
 						new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
 						new_key->frame = sip->frame_res;
-						new_key->mid = si.mid;
+						new_key->pid_mid = pid_mid;
 						g_hash_table_insert(si.ct->matched, new_key, sip);
 					} else {
 						/* we have already seen another response to this one, but
@@ -13729,7 +13738,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						*/
 						new_key = g_mem_chunk_alloc(smb_saved_info_key_chunk);
 						new_key->frame = pinfo->fd->num;
-						new_key->mid = si.mid;
+						new_key->pid_mid = pid_mid;
 						g_hash_table_insert(si.ct->matched, new_key, sip);
 					}
 				}
@@ -13739,7 +13748,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				sip->frame_req = pinfo->fd->num;
 				sip->frame_res = 0;
 				sip->extra_info = NULL;
-				g_hash_table_insert(si.ct->unmatched, (void *)si.mid, sip);
+				g_hash_table_insert(si.ct->unmatched, (void *)pid_mid, sip);
 			}
 		} else {
 			/* we have seen this packet before; check the
@@ -13751,7 +13760,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			   saved the information.
 			*/
 			key.frame = pinfo->fd->num;
-			key.mid = si.mid;
+			key.pid_mid = pid_mid;
 			sip=g_hash_table_lookup(si.ct->matched, &key);
 		}
 	}
@@ -13864,7 +13873,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 2;
 
 	/* MID */
-	proto_tree_add_uint(htree, hf_smb_mid, tvb, offset, 2, si.mid);
+	proto_tree_add_uint(htree, hf_smb_mid, tvb, offset, 2, mid);
 	offset += 2;
 
 	pinfo->private_data = &si;
