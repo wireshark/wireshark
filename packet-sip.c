@@ -15,7 +15,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@clarent.com>
  *
- * $Id: packet-sip.c,v 1.28 2002/05/09 07:42:07 guy Exp $
+ * $Id: packet-sip.c,v 1.29 2002/05/09 08:27:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -188,7 +188,7 @@ dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          */
 
         /*
-         * Check for a request.
+         * Check for a response.
          * First, make sure we have enough data to do the check.
          */
         if (!tvb_bytes_exist(tvb, 0, SIP2_HDR_LEN)) {
@@ -199,17 +199,32 @@ dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         /*
-         * Now see if we have a request header.
+         * Now see if we have a response header; they begin with
+         * "SIP/2.0".
          */
         if (tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) != 0)  {
                 /*
-                 * We don't, so this isn't a request; check for a response.
+                 * We don't, so this isn't a response; check for a request.
+                 * They *end* with "SIP/2.0".
                  */
                 eol = tvb_find_line_end(tvb, 0, -1, &next_offset);
-                if ((eol > (gint)SIP2_HDR_LEN) &&
-                    (tvb_strneql(tvb, eol - SIP2_HDR_LEN + 1, SIP2_HDR , SIP2_HDR_LEN - 1) != 0)) {
+                if (eol <= (gint)SIP2_HDR_LEN) {
                         /*
-                         * Not a response, either.
+                         * The line isn't long enough to end with "SIP/2.0".
+                         */
+                        return FALSE;
+                }
+                if (!tvb_bytes_exist(tvb, eol - SIP2_HDR_LEN + 1, SIP2_HDR_LEN)) {
+                        /*
+                         * We don't have enough of the data in the line
+                         * to check.
+                         */
+                        return FALSE;
+                }
+
+                if (tvb_strneql(tvb, eol - SIP2_HDR_LEN + 1, SIP2_HDR, SIP2_HDR_LEN - 1) != 0) {
+                        /*
+                         * Not a request, either.
                          */
                         return FALSE;
                 }
