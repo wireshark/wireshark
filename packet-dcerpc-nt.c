@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.48 2002/11/28 21:03:36 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.49 2002/12/02 20:01:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1421,10 +1421,6 @@ dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                       proto_tree *tree, char *drep, int hfindex,
 		      int length)
 {
-    const guint16 *data;
-
-    data = (const guint16 *)tvb_get_ptr(tvb, offset, length * 2);
-
     if (tree) {
         proto_tree_add_item (tree, hfindex, tvb, offset, length * 2, (drep[0] & 0x10));
     }
