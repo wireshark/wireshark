@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.27 2000/05/18 08:35:01 guy Exp $
+ * $Id: tethereal.c,v 1.28 2000/05/18 09:06:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -111,9 +111,9 @@ typedef struct {
 
 static int load_cap_file(capture_file *, int);
 static void wtap_dispatch_cb_write(u_char *, const struct wtap_pkthdr *, int,
-    const u_char *);
+    union pseudo_header *, const u_char *);
 static void wtap_dispatch_cb_print(u_char *, const struct wtap_pkthdr *, int,
-    const u_char *);
+    union pseudo_header *, const u_char *);
 static gchar *col_info(frame_data *, gint);
 
 packet_info  pi;
@@ -197,7 +197,6 @@ main(int argc, char *argv[])
   cf.plist		= NULL;
   cf.plist_end		= NULL;
   cf.wth		= NULL;
-  cf.fh			= NULL;
   cf.filename		= NULL;
   cf.user_saved		= FALSE;
   cf.is_tempfile	= FALSE;
@@ -616,12 +615,12 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   args.cf = &cf;
   args.pdh = ld->pdh;
   if (ld->pdh) {
-    wtap_dispatch_cb_write((u_char *)&args, &whdr, 0, pd);
+    wtap_dispatch_cb_write((u_char *)&args, &whdr, 0, NULL, pd);
     cf.count++;
     printf("\r%u ", cf.count);
     fflush(stdout);
   } else {
-    wtap_dispatch_cb_print((u_char *)&args, &whdr, 0, pd);
+    wtap_dispatch_cb_print((u_char *)&args, &whdr, 0, NULL, pd);
   }
 }
 
@@ -747,7 +746,8 @@ out:
 
 static void
 fill_in_fdata(frame_data *fdata, capture_file *cf,
-	const struct wtap_pkthdr *phdr, int offset)
+	const struct wtap_pkthdr *phdr,
+	const union pseudo_header *pseudo_header, int offset)
 {
   int i;
 
@@ -761,7 +761,6 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
   fdata->abs_usecs = phdr->ts.tv_usec;
   fdata->flags.encoding = CHAR_ASCII;
   fdata->flags.visited = 0;
-  fdata->pseudo_header = phdr->pseudo_header;
   fdata->cinfo = NULL;
 
   fdata->num = cf->count;
@@ -816,7 +815,7 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
 
 static void
 wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr, int offset,
-  const u_char *buf)
+  union pseudo_header *pseudo_header, const u_char *buf)
 {
   cb_args_t    *args = (cb_args_t *) user;
   capture_file *cf = args->cf;
@@ -828,9 +827,9 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 
   cf->count++;
   if (cf->rfcode) {
-    fill_in_fdata(&fdata, cf, phdr, offset);
+    fill_in_fdata(&fdata, cf, phdr, pseudo_header, offset);
     protocol_tree = proto_tree_create_root();
-    dissect_packet(buf, &fdata, protocol_tree);
+    dissect_packet(pseudo_header, buf, &fdata, protocol_tree);
     passed = dfilter_apply(cf->rfcode, protocol_tree, buf, fdata.cap_len);
   } else {
     protocol_tree = NULL;
@@ -838,7 +837,7 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   }
   if (passed) {
     /* XXX - do something if this fails */
-    wtap_dump(pdh, phdr, buf, &err);
+    wtap_dump(pdh, phdr, pseudo_header, buf, &err);
   }
   if (protocol_tree != NULL)
     proto_tree_free(protocol_tree);
@@ -846,7 +845,7 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 
 static void
 wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
-  const u_char *buf)
+  union pseudo_header *pseudo_header, const u_char *buf)
 {
   cb_args_t    *args = (cb_args_t *) user;
   capture_file *cf = args->cf;
@@ -861,14 +860,14 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
      not printing a summary. */
   proto_tree_is_visible = verbose;
 
-  fill_in_fdata(&fdata, cf, phdr, offset);
+  fill_in_fdata(&fdata, cf, phdr, pseudo_header, offset);
 
   passed = TRUE;
   if (cf->rfcode || verbose)
     protocol_tree = proto_tree_create_root();
   else
     protocol_tree = NULL;
-  dissect_packet(buf, &fdata, protocol_tree);
+  dissect_packet(pseudo_header, buf, &fdata, protocol_tree);
   if (cf->rfcode)
     passed = dfilter_apply(cf->rfcode, protocol_tree, buf, fdata.cap_len);
   if (passed) {
@@ -1004,7 +1003,7 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   struct stat cf_stat;
   char        err_msg[2048+1];
 
-  wth = wtap_open_offline(fname, &err);
+  wth = wtap_open_offline(fname, &err, FALSE);
   if (wth == NULL)
     goto fail;
 
@@ -1026,7 +1025,6 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   init_all_protocols();
 
   cf->wth = wth;
-  cf->fh = fh;
   cf->filed = fd;
   cf->f_len = cf_stat.st_size;
 

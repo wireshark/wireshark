@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.25 2000/02/19 08:00:04 guy Exp $
+ * $Id: snoop.c,v 1.26 2000/05/18 09:09:44 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -56,8 +56,13 @@ struct snooprec_hdr {
 };
 
 static int snoop_read(wtap *wth, int *err);
+static int snoop_seek_read(wtap *wth, int seek_off,
+    union pseudo_header *pseudo_header, u_char *pd, int length);
+static int snoop_read_atm_pseudoheader(FILE_T *fh,
+    union pseudo_header *pseudo_header, int *err);
+static int snoop_read_rec_data(FILE_T *fh, char *pd, int length, int *err);
 static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const u_char *pd, int *err);
+    const union pseudo_header *pseudo_header, const u_char *pd, int *err);
 
 /*
  * See
@@ -194,6 +199,7 @@ int snoop_open(wtap *wth, int *err)
 	/* This is a snoop file */
 	wth->file_type = WTAP_FILE_SNOOP;
 	wth->subtype_read = snoop_read;
+	wth->subtype_seek_read = snoop_seek_read;
 	wth->file_encap = snoop_encap[hdr.network];
 	wth->snapshot_length = 16384;	/* XXX - not available in header */
 	return 1;
@@ -205,10 +211,9 @@ static int snoop_read(wtap *wth, int *err)
 	guint32 rec_size;
 	guint32	packet_size;
 	guint32 orig_size;
+	int	data_offset;
 	int	bytes_read;
 	struct snooprec_hdr hdr;
-	char	atm_phdr[4];
-	int	data_offset;
 	char	padbuf[4];
 	int	padbytes;
 	int	bytes_to_read;
@@ -242,6 +247,8 @@ static int snoop_read(wtap *wth, int *err)
 		return -1;
 	}
 
+	data_offset = wth->data_offset;
+
 	/*
 	 * If this is an ATM packet, the first four bytes are the
 	 * direction of the packet (transmit/receive), the VPI, and
@@ -259,39 +266,9 @@ static int snoop_read(wtap *wth, int *err)
 			*err = WTAP_ERR_BAD_RECORD;
 			return -1;
 		}
-		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(atm_phdr, 1, 4, wth->fh);
-		if (bytes_read != 4) {
-			*err = file_error(wth->fh);
-			if (*err == 0)
-				*err = WTAP_ERR_SHORT_READ;
-			return -1;
-		}
-
-		wth->phdr.pseudo_header.ngsniffer_atm.channel =
-		    (atm_phdr[0] & 0x80) ? 1 : 0;
-		wth->phdr.pseudo_header.ngsniffer_atm.Vpi = atm_phdr[1];
-		wth->phdr.pseudo_header.ngsniffer_atm.Vci = pntohs(&atm_phdr[2]);
-
-		/* We don't have this information */
-		wth->phdr.pseudo_header.ngsniffer_atm.cells = 0;
-		wth->phdr.pseudo_header.ngsniffer_atm.aal5t_u2u = 0;
-		wth->phdr.pseudo_header.ngsniffer_atm.aal5t_len = 0;
-		wth->phdr.pseudo_header.ngsniffer_atm.aal5t_chksum = 0;
-
-		/*
-		 * Assume it's AAL5; we know nothing more about it.
-		 *
-		 * For what it's worth, in one "atmsnoop" capture,
-		 * the lower 7 bits of the first byte of the header
-		 * were 0x05 for ILMI traffic, 0x06 for Signalling
-		 * AAL traffic, and 0x02 for at least some RFC 1483-style
-		 * LLC multiplexed traffic.
-		 */
-		wth->phdr.pseudo_header.ngsniffer_atm.AppTrafType =
-		    ATT_AAL5|ATT_HL_UNKNOWN;
-		wth->phdr.pseudo_header.ngsniffer_atm.AppHLType =
-		    AHLT_UNKNOWN;
+		if (snoop_read_atm_pseudoheader(wth->fh, &wth->pseudo_header,
+		    err) < 0)
+			return -1;	/* Read error */
 
 		/*
 		 * Don't count the pseudo-header as part of the packet.
@@ -303,17 +280,9 @@ static int snoop_read(wtap *wth, int *err)
 	}
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
-	data_offset = wth->data_offset;
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
-			packet_size, wth->fh);
-
-	if (bytes_read != packet_size) {
-		*err = file_error(wth->fh);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return -1;
-	}
+	if (snoop_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
+	    packet_size, err) < 0)
+		return -1;	/* Read error */
 	wth->data_offset += packet_size;
 
 	wth->phdr.ts.tv_sec = ntohl(hdr.ts_sec);
@@ -347,6 +316,88 @@ static int snoop_read(wtap *wth, int *err)
 	}
 
 	return data_offset;
+}
+
+static int
+snoop_seek_read(wtap *wth, int seek_off,
+    union pseudo_header *pseudo_header, u_char *pd, int length)
+{
+	int	ret;
+	int	err;		/* XXX - return this */
+
+	file_seek(wth->random_fh, seek_off, SEEK_SET);
+
+	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
+		ret = snoop_read_atm_pseudoheader(wth->random_fh, pseudo_header,
+		    &err);
+		if (ret < 0) {
+			/* Read error */
+			return ret;
+		}
+	}
+
+	/*
+	 * Read the packet data.
+	 */
+	return snoop_read_rec_data(wth->random_fh, pd, length, &err);
+}
+
+static int
+snoop_read_atm_pseudoheader(FILE_T *fh, union pseudo_header *pseudo_header,
+    int *err)
+{
+	char	atm_phdr[4];
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(atm_phdr, 1, 4, fh);
+	if (bytes_read != 4) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
+	}
+
+	pseudo_header->ngsniffer_atm.channel = (atm_phdr[0] & 0x80) ? 1 : 0;
+	pseudo_header->ngsniffer_atm.Vpi = atm_phdr[1];
+	pseudo_header->ngsniffer_atm.Vci = pntohs(&atm_phdr[2]);
+
+	/* We don't have this information */
+	pseudo_header->ngsniffer_atm.cells = 0;
+	pseudo_header->ngsniffer_atm.aal5t_u2u = 0;
+	pseudo_header->ngsniffer_atm.aal5t_len = 0;
+	pseudo_header->ngsniffer_atm.aal5t_chksum = 0;
+
+	/*
+	 * Assume it's AAL5; we know nothing more about it.
+	 *
+	 * For what it's worth, in one "atmsnoop" capture,
+	 * the lower 7 bits of the first byte of the header
+	 * were 0x05 for ILMI traffic, 0x06 for Signalling
+	 * AAL traffic, and 0x02 for at least some RFC 1483-style
+	 * LLC multiplexed traffic.
+	 */
+	pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL5|ATT_HL_UNKNOWN;
+	pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
+
+	return 0;
+}
+
+static int
+snoop_read_rec_data(FILE_T *fh, char *pd, int length, int *err)
+{
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(pd, 1, length, fh);
+
+	if (bytes_read != length) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
+	}
+	return 0;
 }
 
 static const int wtap_encap[] = {
@@ -420,7 +471,7 @@ gboolean snoop_dump_open(wtap_dumper *wdh, int *err)
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const u_char *pd, int *err)
+    const union pseudo_header *pseudo_header, const u_char *pd, int *err)
 {
 	struct snooprec_hdr rec_hdr;
 	int nwritten;

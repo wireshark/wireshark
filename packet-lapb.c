@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-lapb.c,v 1.13 2000/05/11 08:15:18 gram Exp $
+ * $Id: packet-lapb.c,v 1.14 2000/05/18 09:05:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <string.h>
 #include "packet.h"
+#include "packet-lapb.h"
 #include "packet-x25.h"
 #include "xdlc.h"
 
@@ -49,7 +50,8 @@ static gint ett_lapb = -1;
 static gint ett_lapb_control = -1;
 
 void
-dissect_lapb(const u_char *pd, frame_data *fd, proto_tree *tree)
+dissect_lapb(const union pseudo_header *pseudo_header, const u_char *pd,
+		frame_data *fd, proto_tree *tree)
 {
     proto_tree *lapb_tree, *ti;
     int is_response;
@@ -69,7 +71,7 @@ dissect_lapb(const u_char *pd, frame_data *fd, proto_tree *tree)
 	return;
     }
 
-    if (fd->pseudo_header.x25.flags & FROM_DCE) {
+    if (pseudo_header->x25.flags & FROM_DCE) {
 	if(check_col(fd, COL_RES_DL_DST))
 	    col_add_str(fd, COL_RES_DL_DST, "DTE");
 	if(check_col(fd, COL_RES_DL_SRC))
@@ -82,8 +84,8 @@ dissect_lapb(const u_char *pd, frame_data *fd, proto_tree *tree)
 	    col_add_str(fd, COL_RES_DL_SRC, "DTE");
     }
 
-    if (((fd->pseudo_header.x25.flags & FROM_DCE) && pd[0] == 0x01) ||
-       (!(fd->pseudo_header.x25.flags & FROM_DCE) && pd[0] == 0x03))
+    if (((pseudo_header->x25.flags & FROM_DCE) && pd[0] == 0x01) ||
+       (!(pseudo_header->x25.flags & FROM_DCE) && pd[0] == 0x03))
 	is_response = TRUE;
     else
 	is_response = FALSE;
@@ -101,7 +103,7 @@ dissect_lapb(const u_char *pd, frame_data *fd, proto_tree *tree)
 	    ett_lapb_control, is_response, FALSE);
 
     /* not end of frame ==> X.25 */
-    if (fd->cap_len > 2) dissect_x25(pd, 2, fd, tree);
+    if (fd->cap_len > 2) dissect_x25(pseudo_header, pd, 2, fd, tree);
 }
 
 void

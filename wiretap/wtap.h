@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.69 2000/05/12 21:27:04 guy Exp $
+ * $Id: wtap.h,v 1.70 2000/05/18 09:09:50 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -304,23 +304,26 @@ struct wtap_pkthdr {
 	guint32	caplen;
 	guint32 len;
 	int pkt_encap;
-	union pseudo_header pseudo_header;
 };
 
 typedef void (*wtap_handler)(u_char*, const struct wtap_pkthdr*,
-		int, const u_char *);
+		int, union pseudo_header *pseudo_header, const u_char *);
 
 struct wtap;
 struct Buffer;
 
 typedef int (*subtype_read_func)(struct wtap*, int*);
+typedef int (*subtype_seek_read_func)(struct wtap*, int, union pseudo_header*,
+					guint8*, int);
 typedef struct wtap {
 	FILE_T			fh;
         int                     fd;           /* File descriptor for cap file */
+	FILE_T			random_fh;    /* Secondary FILE_T for random access */
 	int			file_type;
 	int			snapshot_length;
 	struct Buffer		*frame_buffer;
 	struct wtap_pkthdr	phdr;
+	union pseudo_header	pseudo_header;
 
 	long			data_offset;
 
@@ -336,6 +339,7 @@ typedef struct wtap {
 	} capture;
 
 	subtype_read_func	subtype_read;
+	subtype_seek_read_func	subtype_seek_read;
 	void			(*subtype_close)(struct wtap*);
 	int			file_encap;	/* per-file, for those
 						   file formats that have
@@ -346,7 +350,8 @@ typedef struct wtap {
 struct wtap_dumper;
 
 typedef gboolean (*subtype_write_func)(struct wtap_dumper*,
-		const struct wtap_pkthdr*, const u_char*, int*);
+		const struct wtap_pkthdr*, const union pseudo_header*,
+		const u_char*, int*);
 typedef gboolean (*subtype_close_func)(struct wtap_dumper*, int*);
 
 typedef struct {
@@ -394,7 +399,7 @@ typedef struct wtap_dumper {
  *
  * a negative number, indicating the type of error, on other failures.
  */
-wtap* wtap_open_offline(const char *filename, int *err);
+wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random);
 int wtap_loop(wtap *wth, int, wtap_handler, u_char*, int*);
 int wtap_read(wtap *wth, int *err);
 
@@ -413,9 +418,12 @@ const char *wtap_encap_short_string(int encap);
 int wtap_short_string_to_encap(const char *short_name);
 
 const char *wtap_strerror(int err);
+void wtap_sequential_close(wtap *wth);
 void wtap_close(wtap *wth);
-int wtap_seek_read (int file_type, FILE *fh, int seek_off, guint8 *pd, int len);
-int wtap_def_seek_read (FILE *fh, int seek_off, guint8 *pd, int len);
+int wtap_seek_read (wtap *wth, int seek_off,
+	union pseudo_header *pseudo_header, guint8 *pd, int len);
+int wtap_def_seek_read (wtap *wth, int seek_off,
+	union pseudo_header *pseudo_header, guint8 *pd, int len);
 
 gboolean wtap_dump_can_open(int filetype);
 gboolean wtap_dump_can_write_encap(int filetype, int encap);
@@ -423,8 +431,8 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 	int snaplen, int *err);
 wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 	int *err);
-gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *, const u_char *,
-	int *err);
+gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *,
+	const union pseudo_header *pseudo_header, const u_char *, int *err);
 FILE* wtap_dump_file(wtap_dumper *);
 gboolean wtap_dump_close(wtap_dumper *, int *);
 

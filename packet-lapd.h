@@ -1,6 +1,6 @@
 /* packet-lapd.h
  *
- * $Id: packet-lapd.h,v 1.1 2000/02/15 21:02:32 gram Exp $
+ * $Id: packet-lapd.h,v 1.2 2000/05/18 09:05:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,5 +22,5 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
-void dissect_lapd(const u_char *, frame_data *, proto_tree *);
+void dissect_lapd(const union pseudo_header *, const u_char *, frame_data *,
+    proto_tree *);

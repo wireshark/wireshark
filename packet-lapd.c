@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lapd.c,v 1.6 2000/05/11 08:15:21 gram Exp $
+ * $Id: packet-lapd.c,v 1.7 2000/05/18 09:05:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <string.h>
 #include "packet.h"
+#include "packet-lapd.h"
 #include "packet-q931.h"
 #include "xdlc.h"
 
@@ -83,7 +84,8 @@ static const value_string lapd_sapi_vals[] = {
 };
 
 void
-dissect_lapd(const u_char *pd, frame_data *fd, proto_tree *tree)
+dissect_lapd(const union pseudo_header *pseudo_header, const u_char *pd,
+    frame_data *fd, proto_tree *tree)
 {
 	proto_tree	*lapd_tree, *addr_tree;
 	proto_item	*ti;
@@ -102,7 +104,7 @@ dissect_lapd(const u_char *pd, frame_data *fd, proto_tree *tree)
 	sapi = (address & LAPD_SAPI) >> LAPD_SAPI_SHIFT;
 	lapd_header_len = 2;	/* address */
 
-	if (fd->pseudo_header.lapd.from_network_to_user) {
+	if (pseudo_header->lapd.from_network_to_user) {
 		is_response = cr ? FALSE : TRUE;
 		if(check_col(fd, COL_RES_DL_DST))
 		    col_add_str(fd, COL_RES_DL_DST, "User");

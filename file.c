@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.187 2000/05/18 08:31:50 guy Exp $
+ * $Id: file.c,v 1.188 2000/05/18 09:05:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -94,7 +94,7 @@ static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 
 static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
-    const u_char *);
+    union pseudo_header *, const u_char *);
 
 static void set_selected_row(int row);
 
@@ -120,7 +120,7 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   int         fd;
   struct stat cf_stat;
 
-  wth = wtap_open_offline(fname, &err);
+  wth = wtap_open_offline(fname, &err, TRUE);
   if (wth == NULL)
     goto fail;
 
@@ -144,7 +144,6 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   init_all_protocols();
 
   cf->wth = wth;
-  cf->fh = fh;
   cf->filed = fd;
   cf->f_len = cf_stat.st_size;
 
@@ -192,10 +191,6 @@ close_cap_file(capture_file *cf, void *w)
      capture file we're closing. */
   destroy_packet_wins();
 
-  if (cf->fh) {
-    file_close(cf->fh);
-    cf->fh = NULL;
-  }
   if (cf->wth) {
     wtap_close(cf->wth);
     cf->wth = NULL;
@@ -317,11 +312,12 @@ read_cap_file(capture_file *cf)
      we've looked at all the packets, as we don't know until then whether
      there's more than one type (and thus whether it's
      WTAP_ENCAP_PER_PACKET). */
+
+  /* We're done reading sequentially through the file; close the
+     sequential I/O side, to free up memory it requires. */
+  wtap_sequential_close(cf->wth);
+
   cf->lnk_t = wtap_file_encap(cf->wth);
-  wtap_close(cf->wth);
-  cf->wth = NULL;
-  cf->filed = open(cf->filename, O_RDONLY|O_BINARY);
-  cf->fh = filed_open(cf->filed, "rb");
   cf->current_frame = cf->first_displayed;
   thaw_clist(cf);
 
@@ -409,12 +405,6 @@ start_tail_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
       }
     }
 
-    /* Yes, "open_cap_file()" set this - but it set it to a file handle
-       from Wiretap, which will be closed when we close the file; we
-       want it to remain open even after that, so that we can read
-       packet data from it. */
-    cf->fh = file_open(fname, "rb");
-
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, 
 		       " <live capture in progress>");
   }
@@ -456,15 +446,15 @@ finish_tail_cap_file(capture_file *cf)
     gtk_clist_moveto(GTK_CLIST(packet_list), 
 		       GTK_CLIST(packet_list)->rows - 1, -1, 1.0, 1.0);
 
+  /* We're done reading sequentially through the file; close the
+     sequential I/O side, to free up memory it requires. */
+  wtap_sequential_close(cf->wth);
+
   /* Set the file encapsulation type now; we don't know what it is until
      we've looked at all the packets, as we don't know until then whether
      there's more than one type (and thus whether it's
      WTAP_ENCAP_PER_PACKET). */
   cf->lnk_t = wtap_file_encap(cf->wth);
-
-  /* There's nothing more to read from the capture file - close it. */
-  wtap_close(cf->wth);
-  cf->wth = NULL;
 
   /* Pop the "<live capture in progress>" message off the status bar. */
   gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
@@ -509,7 +499,8 @@ apply_color_filter(gpointer filter_arg, gpointer argp)
 }
 
 static int
-add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf)
+add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
+	union pseudo_header *pseudo_header, const u_char *buf)
 {
   apply_color_filter_args args;
   gint          i, row;
@@ -543,7 +534,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   /* Apply the filters */
   if (cf->dfcode != NULL || filter_list != NULL) {
     protocol_tree = proto_tree_create_root();
-    dissect_packet(buf, fdata, protocol_tree);
+    dissect_packet(pseudo_header, buf, fdata, protocol_tree);
     if (cf->dfcode != NULL)
       fdata->flags.passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, buf, fdata->cap_len) ? 1 : 0;
     else
@@ -563,7 +554,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
 	if (enabled_plugins_number > 0)
 	    protocol_tree = proto_tree_create_root();
 #endif
-	dissect_packet(buf, fdata, protocol_tree);
+	dissect_packet(pseudo_header, buf, fdata, protocol_tree);
 	fdata->flags.passed_dfilter = 1;
 #ifdef HAVE_PLUGINS
 	if (protocol_tree)
@@ -643,7 +634,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
 
 static void
 wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
-  const u_char *buf)
+	union pseudo_header *pseudo_header, const u_char *buf)
 {
   frame_data   *fdata;
   capture_file *cf = (capture_file *) user;
@@ -687,13 +678,12 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   fdata->abs_usecs = phdr->ts.tv_usec;
   fdata->flags.encoding = CHAR_ASCII;
   fdata->flags.visited = 0;
-  fdata->pseudo_header = phdr->pseudo_header;
   fdata->cinfo = NULL;
 
   passed = TRUE;
   if (cf->rfcode) {
     protocol_tree = proto_tree_create_root();
-    dissect_packet(buf, fdata, protocol_tree);
+    dissect_packet(pseudo_header, buf, fdata, protocol_tree);
     passed = dfilter_apply(cf->rfcode, protocol_tree, buf, fdata->cap_len);
     proto_tree_free(protocol_tree);
   }   
@@ -708,7 +698,7 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
 
     cf->count++;
     fdata->num = cf->count;
-    add_packet_to_packet_list(fdata, cf, buf);
+    add_packet_to_packet_list(fdata, cf, pseudo_header, buf);
   } else {
     /* XXX - if we didn't have read filters, or if we could avoid
        allocating the "frame_data" structure until we knew whether
@@ -848,9 +838,10 @@ colorize_packets(capture_file *cf)
 
     count++;
 
-    wtap_seek_read (cf->cd_t, cf->fh, fdata->file_off, cf->pd, fdata->cap_len);
+    wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
+    	cf->pd, fdata->cap_len);
 
-    row = add_packet_to_packet_list(fdata, cf, cf->pd);
+    row = add_packet_to_packet_list(fdata, cf, &cf->pseudo_header, cf->pd);
     if (fdata == selected_frame)
       selected_row = row;
   }
@@ -986,7 +977,8 @@ print_packets(capture_file *cf, print_args_t *print_args)
     count++;
 
     if (fdata->flags.passed_dfilter) {
-      wtap_seek_read (cf->cd_t, cf->fh, fdata->file_off, cf->pd, fdata->cap_len);
+      wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
+      			cf->pd, fdata->cap_len);
       if (print_args->print_summary) {
         /* Fill in the column information, but don't bother creating
            the logical protocol tree. */
@@ -994,7 +986,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
         for (i = 0; i < fdata->cinfo->num_cols; i++) {
           fdata->cinfo->col_data[i][0] = '\0';
         }
-        dissect_packet(cf->pd, fdata, NULL);
+        dissect_packet(&cf->pseudo_header, cf->pd, fdata, NULL);
         fill_in_columns(fdata);
         cp = &line_buf[0];
         line_len = 0;
@@ -1031,7 +1023,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
         /* Create the logical protocol tree. */
         protocol_tree = proto_tree_create_root();
-        dissect_packet(cf->pd, fdata, protocol_tree);
+        dissect_packet(&cf->pseudo_header, cf->pd, fdata, protocol_tree);
 
         /* Print the information in that tree. */
         proto_tree_print(FALSE, print_args, (GNode *)protocol_tree,
@@ -1216,8 +1208,9 @@ find_packet(capture_file *cf, dfilter *sfcode)
       if (fdata->flags.passed_dfilter) {
         /* Yes.  Does it match the search filter? */
         protocol_tree = proto_tree_create_root();
-        wtap_seek_read(cf->cd_t, cf->fh, fdata->file_off, cf->pd, fdata->cap_len);
-        dissect_packet(cf->pd, fdata, protocol_tree);
+        wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
+        		cf->pd, fdata->cap_len);
+        dissect_packet(&cf->pseudo_header, cf->pd, fdata, protocol_tree);
         frame_matched = dfilter_apply(sfcode, protocol_tree, cf->pd, fdata->cap_len);
         proto_tree_free(protocol_tree);
         if (frame_matched) {
@@ -1316,14 +1309,16 @@ select_packet(capture_file *cf, int row)
   cf->current_frame = fdata;
 
   /* Get the data in that frame. */
-  wtap_seek_read (cf->cd_t, cf->fh, fdata->file_off, cf->pd, fdata->cap_len);
+  wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
+  			cf->pd, fdata->cap_len);
 
   /* Create the logical protocol tree. */
   if (cf->protocol_tree)
       proto_tree_free(cf->protocol_tree);
   cf->protocol_tree = proto_tree_create_root();
   proto_tree_is_visible = TRUE;
-  dissect_packet(cf->pd, cf->current_frame, cf->protocol_tree);
+  dissect_packet(&cf->pseudo_header, cf->pd, cf->current_frame,
+		cf->protocol_tree);
   proto_tree_is_visible = FALSE;
 
   /* Display the GUI protocol tree and hex dump. */
@@ -1427,6 +1422,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
   wtap_dumper  *pdh;
   frame_data   *fdata;
   struct wtap_pkthdr hdr;
+  union pseudo_header pseudo_header;
   guint8        pd[65536];
 
   name_ptr = get_basename(fname);
@@ -1564,10 +1560,10 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
         hdr.caplen = fdata->cap_len;
         hdr.len = fdata->pkt_len;
         hdr.pkt_encap = fdata->lnk_t;
-        hdr.pseudo_header = fdata->pseudo_header;
-	wtap_seek_read(cf->cd_t, cf->fh, fdata->file_off, pd, fdata->cap_len);
+	wtap_seek_read(cf->wth, fdata->file_off, &pseudo_header,
+		pd, fdata->cap_len);
 
-        if (!wtap_dump(pdh, &hdr, pd, &err)) {
+        if (!wtap_dump(pdh, &hdr, &pseudo_header, pd, &err)) {
 	    simple_dialog(ESD_TYPE_WARN, NULL,
 				file_write_error_message(err), fname);
 	    wtap_dump_close(pdh, &err);

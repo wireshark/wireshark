@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.8 2000/03/04 14:22:29 gram Exp $
+ * $Id: toshiba.c,v 1.9 2000/05/18 09:09:46 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -105,10 +105,11 @@ static const char toshiba_rec_magic[]  = { '[', 'N', 'o', '.' };
 #define TOSHIBA_REC_MAGIC_SIZE  (sizeof toshiba_rec_magic  / sizeof toshiba_rec_magic[0])
 
 static int toshiba_read(wtap *wth, int *err);
+static int toshiba_seek_read(wtap *wth, int seek_off, union pseudo_header *pseudo_header, guint8 *pd, int len);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf, int byte_offset);
-static int parse_toshiba_hex_dump(FILE *fh, int pkt_len, guint8* buf, int *err);
-static int parse_toshiba_rec_hdr(wtap *wth, FILE *fh, int *err);
-static int parse_toshiba(FILE *fh, guint8 *pd, int len);
+static int parse_toshiba_hex_dump(FILE_T *fh, int pkt_len, guint8* buf, int *err);
+static int parse_toshiba_rec_hdr(wtap *wth, FILE_T *fh,
+    union pseudo_header *pseudo_header, int *err);
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure. */
@@ -192,6 +193,7 @@ int toshiba_open(wtap *wth, int *err)
 	wth->file_type = WTAP_FILE_TOSHIBA;
 	wth->snapshot_length = 16384; /* just guessing */
 	wth->subtype_read = toshiba_read;
+	wth->subtype_seek_read = toshiba_seek_read;
 
 	return 1;
 }
@@ -210,7 +212,8 @@ static int toshiba_read(wtap *wth, int *err)
 	}
 
 	/* Parse the header */
-	pkt_len = parse_toshiba_rec_hdr(wth, wth->fh, err);
+	pkt_len = parse_toshiba_rec_hdr(wth, wth->fh,
+	    &wth->pseudo_header, err);
 
 	/* Make sure we have enough room for the packet */
 	buffer_assure_space(wth->frame_buffer, wth->snapshot_length);
@@ -224,34 +227,31 @@ static int toshiba_read(wtap *wth, int *err)
 }
 
 /* Used to read packets in random-access fashion */
-int
-toshiba_seek_read (FILE *fh, int seek_off, guint8 *pd, int len)
-{
-	file_seek(fh, seek_off - 1, SEEK_SET);
-	return parse_toshiba(fh, pd, len);
-}
-
-/* Used to read packets in random-access fashion */
 static int
-parse_toshiba(FILE *fh, guint8 *pd, int len)
+toshiba_seek_read (wtap *wth, int seek_off, union pseudo_header *pseudo_header,
+	guint8 *pd, int len)
 {
 	int	pkt_len;
 	int	err;
 
-	pkt_len = parse_toshiba_rec_hdr(NULL, fh, &err);
+	file_seek(wth->random_fh, seek_off - 1, SEEK_SET);
+
+	pkt_len = parse_toshiba_rec_hdr(NULL, wth->random_fh, pseudo_header,
+	    &err);
 
 	if (pkt_len != len) {
 		return -1;
 	}
 
-	parse_toshiba_hex_dump(fh, pkt_len, pd, &err);
+	parse_toshiba_hex_dump(wth->random_fh, pkt_len, pd, &err);
 
 	return 0;
 }
 
 /* Parses a packet record header. */
 static int
-parse_toshiba_rec_hdr(wtap *wth, FILE *fh, int *err)
+parse_toshiba_rec_hdr(wtap *wth, FILE_T *fh,
+    union pseudo_header *pseudo_header, int *err)
 {
 	char	line[TOSHIBA_LINE_LENGTH];
 	int	num_items_scanned;
@@ -315,28 +315,31 @@ parse_toshiba_rec_hdr(wtap *wth, FILE *fh, int *err)
 		wth->phdr.ts.tv_usec = csec * 10000;
 		wth->phdr.caplen = pkt_len;
 		wth->phdr.len = pkt_len;
-		switch (channel[0]) {
-			case 'B':
+	}
+	switch (channel[0]) {
+		case 'B':
+			if (wth)
 				wth->phdr.pkt_encap = WTAP_ENCAP_PPP;
-				break;
+			break;
 
-			case 'D':
+		case 'D':
+			if (wth)
 				wth->phdr.pkt_encap = WTAP_ENCAP_LAPD;
-				wth->phdr.pseudo_header.lapd.from_network_to_user = 
-					(direction[0] == 'R' ? TRUE : FALSE );
-				break;
+			pseudo_header->lapd.from_network_to_user = 
+				(direction[0] == 'R' ? TRUE : FALSE );
+			break;
 			
-			default:
+		default:
+			if (wth)
 				wth->phdr.pkt_encap = WTAP_ENCAP_ETHERNET;
-				break;
-		}
+			break;
 	}
 	return pkt_len;
 }
 
 /* Converts ASCII hex dump to binary data */
 static int
-parse_toshiba_hex_dump(FILE *fh, int pkt_len, guint8* buf, int *err)
+parse_toshiba_hex_dump(FILE_T *fh, int pkt_len, guint8* buf, int *err)
 {
 	char	line[TOSHIBA_LINE_LENGTH];
 	int	i, hex_lines;

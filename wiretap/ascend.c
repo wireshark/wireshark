@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.14 2000/05/10 22:20:26 guy Exp $
+ * $Id: ascend.c,v 1.15 2000/05/18 09:09:21 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -98,6 +98,8 @@ static const char ascend_w2magic[] = { 'W', 'D', '_', 'D', 'I', 'A', 'L', 'O', '
 #define ASCEND_W2_SIZE (sizeof ascend_w2magic / sizeof ascend_w2magic[0])
 
 static int ascend_read(wtap *wth, int *err);
+static int ascend_seek_read (wtap *wth, int seek_off,
+	union pseudo_header *pseudo_header, guint8 *pd, int len);
 static void ascend_close(wtap *wth);
 
 /* Seeks to the beginning of the next packet, and returns the
@@ -166,6 +168,7 @@ int ascend_open(wtap *wth, int *err)
   wth->file_type = WTAP_FILE_ASCEND;
   wth->snapshot_length = ASCEND_MAX_PKT_LEN;
   wth->subtype_read = ascend_read;
+  wth->subtype_seek_read = ascend_seek_read;
   wth->subtype_close = ascend_close;
   wth->capture.ascend = g_malloc(sizeof(ascend_t));
 
@@ -204,7 +207,7 @@ static int ascend_read(wtap *wth, int *err)
   if (offset < 1) {
     return 0;
   }
-  if (! parse_ascend(wth->fh, buf, &wth->phdr.pseudo_header.ascend, &header, 0)) {
+  if (! parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header, 0)) {
     *err = WTAP_ERR_BAD_RECORD;
     return -1;
   }
@@ -225,10 +228,11 @@ static int ascend_read(wtap *wth, int *err)
   return offset;
 }
 
-int ascend_seek_read (FILE *fh, int seek_off, guint8 *pd, int len)
+static int ascend_seek_read (wtap *wth, int seek_off,
+	union pseudo_header *pseudo_header, guint8 *pd, int len)
 {
-  file_seek(fh, seek_off - 1, SEEK_SET);
-  return parse_ascend(fh, pd, NULL, NULL, len);
+  file_seek(wth->random_fh, seek_off - 1, SEEK_SET);
+  return parse_ascend(wth->random_fh, pd, &pseudo_header->ascend, NULL, len);
 }
 
 static void ascend_close(wtap *wth)

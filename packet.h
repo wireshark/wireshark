@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.185 2000/05/11 22:04:18 gram Exp $
+ * $Id: packet.h,v 1.186 2000/05/18 09:05:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -150,7 +150,6 @@ typedef struct _frame_data {
   	unsigned int encoding		: 2; /* Character encoding (ASCII, EBCDIC...) */
 	unsigned int visited		: 1; /* Has this packet been visited yet? 1=Yes,0=No*/
   } flags;
-  union pseudo_header pseudo_header; /* "pseudo-header" from wiretap */
 } frame_data;
 
 /* Types of addresses Ethereal knows about. */
@@ -345,7 +344,8 @@ void init_dissect_rpc(void);
  * tree *
  * They should never modify the packet data.
  */
-void dissect_packet(const u_char *, frame_data *, proto_tree *);
+void dissect_packet(union pseudo_header *, const u_char *, frame_data *,
+    proto_tree *);
 void dissect_data(const u_char *, int, frame_data *, proto_tree *);
 void dissect_data_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 

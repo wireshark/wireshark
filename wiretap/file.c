@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.50 2000/05/10 22:16:28 guy Exp $
+ * $Id: file.c,v 1.51 2000/05/18 09:09:25 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -96,16 +96,24 @@ static int (*open_routines[])(wtap *, int *) = {
 	i4btrace_open,
 };
 
-int wtap_def_seek_read (FILE *fh, int seek_off, guint8 *pd, int len)
+int wtap_def_seek_read(wtap *wth, int seek_off,
+	union pseudo_header *pseudo_header, guint8 *pd, int len)
 {
-	file_seek(fh, seek_off, SEEK_SET);
-	return file_read(pd, sizeof(guint8), len, fh);
+	file_seek(wth->random_fh, seek_off, SEEK_SET);
+
+	return file_read(pd, sizeof(guint8), len, wth->random_fh);
 }
 
 #define	N_FILE_TYPES	(sizeof open_routines / sizeof open_routines[0])
 
-/* Opens a file and prepares a wtap struct */
-wtap* wtap_open_offline(const char *filename, int *err)
+/* Opens a file and prepares a wtap struct.
+   If "do_random" is TRUE, it opens the file twice; the second open
+   allows the application to do random-access I/O without moving
+   the seek offset for sequential I/O, which is used by Ethereal
+   so that it can do sequential I/O to a capture file that's being
+   written to as new packets arrive independently of random I/O done
+   to display protocol trees for packets when they're selected. */
+wtap* wtap_open_offline(const char *filename, int *err, gboolean do_random)
 {
 	struct stat statb;
 	wtap	*wth;
@@ -148,6 +156,16 @@ wtap* wtap_open_offline(const char *filename, int *err)
 		return NULL;
 	}
 
+	if (do_random) {
+		if (!(wth->random_fh = file_open(filename, "rb"))) {
+			*err = errno;
+			file_close(wth->fh);
+			g_free(wth);
+			return NULL;
+		}
+	} else
+		wth->random_fh = NULL;
+
 	/* initialization */
 	wth->file_encap = WTAP_ENCAP_UNKNOWN;
 	wth->data_offset = 0;
@@ -174,6 +192,8 @@ wtap* wtap_open_offline(const char *filename, int *err)
 	}
 
 	/* Well, it's not one of the types of file we know about. */
+	if (wth->random_fh != NULL)
+		file_close(wth->random_fh);
 	file_close(wth->fh);
 	g_free(wth);
 	*err = WTAP_ERR_FILE_UNKNOWN_FORMAT;
@@ -424,9 +444,9 @@ FILE* wtap_dump_file(wtap_dumper *wdh)
 }
 
 gboolean wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const u_char *pd, int *err)
+    const union pseudo_header *pseudo_header, const u_char *pd, int *err)
 {
-	return (wdh->subtype_write)(wdh, phdr, pd, err);
+	return (wdh->subtype_write)(wdh, phdr, pseudo_header, pd, err);
 }
 
 gboolean wtap_dump_close(wtap_dumper *wdh, int *err)

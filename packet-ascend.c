@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.12 2000/05/16 06:21:31 gram Exp $
+ * $Id: packet-ascend.c,v 1.13 2000/05/18 09:05:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,6 +32,7 @@
 #include <glib.h>
 #include <string.h>
 #include "packet.h"
+#include "packet-ascend.h"
 #include "packet-eth.h"
 #include "packet-ppp.h"
 
@@ -52,7 +53,8 @@ static const value_string encaps_vals[] = {
   {0,                NULL          } };
 
 void
-dissect_ascend( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ascend( tvbuff_t *tvb, const union pseudo_header *pseudo_header,
+		packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *fh_tree;
   proto_item *ti;
@@ -78,24 +80,24 @@ dissect_ascend( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_text(tree, tvb, 0, 0, "Lucent/Ascend packet trace" );
     fh_tree = proto_item_add_subtree(ti, ett_raw);
     proto_tree_add_item(fh_tree, hf_link_type, tvb, 0, 0, 
-			pinfo->fd->pseudo_header.ascend.type);
-    if (pinfo->fd->pseudo_header.ascend.type == ASCEND_PFX_WDD) {
+			pseudo_header->ascend.type);
+    if (pseudo_header->ascend.type == ASCEND_PFX_WDD) {
       proto_tree_add_item(fh_tree, hf_called_number, tvb, 0, 0, 
-			  pinfo->fd->pseudo_header.ascend.call_num);
+			  pseudo_header->ascend.call_num);
       proto_tree_add_item(fh_tree, hf_chunk, tvb, 0, 0,
-			  pinfo->fd->pseudo_header.ascend.chunk);
+			  pseudo_header->ascend.chunk);
       proto_tree_add_item_hidden(fh_tree, hf_session_id, tvb, 0, 0, 0);
     } else {  /* It's wandsession data */
       proto_tree_add_item(fh_tree, hf_user_name, tvb, 0, 0, 
-			  pinfo->fd->pseudo_header.ascend.user);
+			  pseudo_header->ascend.user);
       proto_tree_add_item(fh_tree, hf_session_id, tvb, 0, 0,
-			  pinfo->fd->pseudo_header.ascend.sess);
+			  pseudo_header->ascend.sess);
       proto_tree_add_item_hidden(fh_tree, hf_chunk, tvb, 0, 0, 0);
     }
-    proto_tree_add_item(fh_tree, hf_task, tvb, 0, 0, pinfo->fd->pseudo_header.ascend.task);
+    proto_tree_add_item(fh_tree, hf_task, tvb, 0, 0, pseudo_header->ascend.task);
   }
 
-  switch (pinfo->fd->pseudo_header.ascend.type) {
+  switch (pseudo_header->ascend.type) {
     case ASCEND_PFX_WDS_X:
     case ASCEND_PFX_WDS_R:
       tvb_compat(tvb, &pd, &offset);

@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.18 2000/05/16 06:21:31 gram Exp $
+ * $Id: packet-atm.c,v 1.19 2000/05/18 09:05:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,7 @@
 #include "oui.h"
 #include "resolv.h"
 
+#include "packet-atm.h"
 #include "packet-eth.h"
 #include "packet-llc.h"
 #include "packet-snmp.h"
@@ -371,7 +372,8 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 }
 
 static void
-dissect_lane(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
+dissect_lane(const union pseudo_header *pseudo_header, const u_char *pd,
+		int offset, frame_data *fd, proto_tree *tree) 
 {
   tvbuff_t	*next_tvb;
   tvbuff_t	*next_tvb_le_client;
@@ -383,7 +385,7 @@ dissect_lane(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     col_add_str(fd, COL_INFO, "ATM LANE");
 
   /* Is it LE Control, 802.3, 802.5, or "none of the above"? */
-  switch (fd->pseudo_header.ngsniffer_atm.AppHLType) {
+  switch (pseudo_header->ngsniffer_atm.AppHLType) {
 
   case AHLT_LANE_LE_CTRL:
     dissect_le_control(pd, offset, fd, tree);
@@ -483,20 +485,21 @@ static const value_string ipsilon_type_vals[] = {
  * We at least know it's AAL5....
  */
 static void
-atm_guess_content(const u_char *pd, frame_data *fd)
+atm_guess_content(union pseudo_header *pseudo_header, const u_char *pd,
+    frame_data *fd)
 {
-	if (fd->pseudo_header.ngsniffer_atm.Vpi == 0) {
+	if (pseudo_header->ngsniffer_atm.Vpi == 0) {
 		/*
 		 * Traffic on some PVCs with a VPI of 0 and certain
 		 * VCIs is of particular types.
 		 */
-		switch (fd->pseudo_header.ngsniffer_atm.Vci) {
+		switch (pseudo_header->ngsniffer_atm.Vci) {
 
 		case 5:
 			/*
 			 * Signalling AAL.
 			 */
-			fd->pseudo_header.ngsniffer_atm.AppTrafType =
+			pseudo_header->ngsniffer_atm.AppTrafType =
 			    ATT_AAL_SIGNALLING;
 			return;
 
@@ -504,7 +507,7 @@ atm_guess_content(const u_char *pd, frame_data *fd)
 			/*
 			 * ILMI.
 			 */
-			fd->pseudo_header.ngsniffer_atm.AppTrafType |=
+			pseudo_header->ngsniffer_atm.AppTrafType |=
 			    ATT_HL_ILMI;
 			return;
 		}
@@ -519,17 +522,17 @@ atm_guess_content(const u_char *pd, frame_data *fd)
 		 * Looks like a SNAP header; assume it's LLC multiplexed
 		 * RFC 1483 traffic.
 		 */
-		fd->pseudo_header.ngsniffer_atm.AppTrafType |= ATT_HL_LLCMX;
+		pseudo_header->ngsniffer_atm.AppTrafType |= ATT_HL_LLCMX;
 	} else {
 		/*
 		 * Assume it's LANE.
 		 */
-		fd->pseudo_header.ngsniffer_atm.AppTrafType |= ATT_HL_LANE;
+		pseudo_header->ngsniffer_atm.AppTrafType |= ATT_HL_LANE;
 		if (pd[0] == 0xff && pd[1] == 0x00) {
 			/*
 			 * Looks like LE Control traffic.
 			 */
-			fd->pseudo_header.ngsniffer_atm.AppHLType =
+			pseudo_header->ngsniffer_atm.AppHLType =
 			    AHLT_LANE_LE_CTRL;
 		} else {
 			/*
@@ -540,14 +543,15 @@ atm_guess_content(const u_char *pd, frame_data *fd)
 			 * still be situations where the user has to
 			 * tell us.
 			 */
-			fd->pseudo_header.ngsniffer_atm.AppHLType =
+			pseudo_header->ngsniffer_atm.AppHLType =
 			    AHLT_LANE_802_3;
 		}
 	}
 }
 
 void
-dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree) 
+dissect_atm(union pseudo_header *pseudo_header, const u_char *pd,
+		frame_data *fd, proto_tree *tree) 
 {
   int        offset = 0;
   proto_tree *atm_tree;
@@ -556,11 +560,11 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
   guint       hl_type;
   tvbuff_t*   next_tvb;
 
-  aal_type = fd->pseudo_header.ngsniffer_atm.AppTrafType & ATT_AALTYPE;
-  hl_type = fd->pseudo_header.ngsniffer_atm.AppTrafType & ATT_HLTYPE;
+  aal_type = pseudo_header->ngsniffer_atm.AppTrafType & ATT_AALTYPE;
+  hl_type = pseudo_header->ngsniffer_atm.AppTrafType & ATT_HLTYPE;
   if (aal_type == ATT_AAL5) {
     if (hl_type == ATT_HL_UNKNOWN ||
-	fd->pseudo_header.ngsniffer_atm.AppHLType == AHLT_UNKNOWN) {
+	pseudo_header->ngsniffer_atm.AppHLType == AHLT_UNKNOWN) {
       /*
        * The joys of a connection-oriented link layer; the type of
        * traffic may be implied by the connection on which it's
@@ -581,20 +585,20 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
        * by which the user can specify what sort of traffic is on a
        * particular circuit.
        */
-      atm_guess_content(pd, fd);
+      atm_guess_content(pseudo_header, pd, fd);
 
       /*
        * OK, now get the AAL type and high-layer type again.
        */
-      aal_type = fd->pseudo_header.ngsniffer_atm.AppTrafType & ATT_AALTYPE;
-      hl_type = fd->pseudo_header.ngsniffer_atm.AppTrafType & ATT_HLTYPE;
+      aal_type = pseudo_header->ngsniffer_atm.AppTrafType & ATT_AALTYPE;
+      hl_type = pseudo_header->ngsniffer_atm.AppTrafType & ATT_HLTYPE;
     }
   }
 
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "ATM");
 
-  switch (fd->pseudo_header.ngsniffer_atm.channel) {
+  switch (pseudo_header->ngsniffer_atm.channel) {
 
   case 0:
     /* Traffic from DCE to DTE. */
@@ -641,28 +645,28 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
 
       case ATT_HL_VCMX:
         proto_tree_add_text(atm_tree, NullTVB, 0, 0, "VC multiplexed traffic type: %s",
-		val_to_str(fd->pseudo_header.ngsniffer_atm.AppHLType,
+		val_to_str(pseudo_header->ngsniffer_atm.AppHLType,
 			vcmx_type_vals, "Unknown VCMX traffic type (%x)"));
         break;
 
       case ATT_HL_LANE:
         proto_tree_add_text(atm_tree, NullTVB, 0, 0, "LANE traffic type: %s",
-		val_to_str(fd->pseudo_header.ngsniffer_atm.AppHLType,
+		val_to_str(pseudo_header->ngsniffer_atm.AppHLType,
 			lane_type_vals, "Unknown LANE traffic type (%x)"));
         break;
 
       case ATT_HL_IPSILON:
         proto_tree_add_text(atm_tree, NullTVB, 0, 0, "Ipsilon traffic type: %s",
-		val_to_str(fd->pseudo_header.ngsniffer_atm.AppHLType,
+		val_to_str(pseudo_header->ngsniffer_atm.AppHLType,
 			ipsilon_type_vals, "Unknown Ipsilon traffic type (%x)"));
         break;
       }
     }
     proto_tree_add_item(atm_tree, hf_atm_vpi, NullTVB, 0, 0,
-		fd->pseudo_header.ngsniffer_atm.Vpi);
+		pseudo_header->ngsniffer_atm.Vpi);
     proto_tree_add_item(atm_tree, hf_atm_vci, NullTVB, 0, 0,
-		fd->pseudo_header.ngsniffer_atm.Vci);
-    switch (fd->pseudo_header.ngsniffer_atm.channel) {
+		pseudo_header->ngsniffer_atm.Vci);
+    switch (pseudo_header->ngsniffer_atm.channel) {
 
     case 0:
       /* Traffic from DCE to DTE. */
@@ -677,10 +681,10 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
     default:
       /* Sniffers shouldn't provide anything other than 0 or 1. */
       proto_tree_add_text(atm_tree, NullTVB, 0, 0, "Channel: %u",
- 		fd->pseudo_header.ngsniffer_atm.channel);
+ 		pseudo_header->ngsniffer_atm.channel);
       break;
     }
-    if (fd->pseudo_header.ngsniffer_atm.cells != 0) {
+    if (pseudo_header->ngsniffer_atm.cells != 0) {
       /*
        * If the cell count is 0, assume it means we don't know how
        * many cells it was.
@@ -693,14 +697,14 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
        * information.
        */
       proto_tree_add_text(atm_tree, NullTVB, 0, 0, "Cells: %u",
-		fd->pseudo_header.ngsniffer_atm.cells);
+		pseudo_header->ngsniffer_atm.cells);
       if (aal_type == ATT_AAL5) {
         proto_tree_add_text(atm_tree, NullTVB, 0, 0, "AAL5 U2U: %u",
-		fd->pseudo_header.ngsniffer_atm.aal5t_u2u);
+		pseudo_header->ngsniffer_atm.aal5t_u2u);
         proto_tree_add_text(atm_tree, NullTVB, 0, 0, "AAL5 len: %u",
-		fd->pseudo_header.ngsniffer_atm.aal5t_len);
+		pseudo_header->ngsniffer_atm.aal5t_len);
         proto_tree_add_text(atm_tree, NullTVB, 0, 0, "AAL5 checksum: 0x%08X",
-		fd->pseudo_header.ngsniffer_atm.aal5t_chksum);
+		pseudo_header->ngsniffer_atm.aal5t_chksum);
       }
     }
   }
@@ -723,7 +727,7 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
       break;
 
     case ATT_HL_LANE:
-      dissect_lane(pd, offset, fd, tree);
+      dissect_lane(pseudo_header, pd, offset, fd, tree);
       break;
 
     case ATT_HL_ILMI:

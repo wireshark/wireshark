@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.40 2000/05/12 05:06:33 gram Exp $
+ * $Id: wtap.c,v 1.41 2000/05/18 09:09:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -187,17 +187,33 @@ const char *wtap_strerror(int err)
 		return strerror(err);
 }
 
-void wtap_close(wtap *wth)
+/* Close only the sequential side, freeing up memory it uses.
+   Note that we do *not* want to call the subtype's close function,
+   as it would free any per-subtype data, and that data may be
+   needed by the random-access side. */
+void wtap_sequential_close(wtap *wth)
 {
-	if (wth->subtype_close != NULL)
-		(*wth->subtype_close)(wth);
-
-	file_close(wth->fh);
+	if (wth->fh != NULL) {
+		file_close(wth->fh);
+		wth->fh = NULL;
+	}
 
 	if (wth->frame_buffer) {
 		buffer_free(wth->frame_buffer);
 		g_free(wth->frame_buffer);
+		wth->frame_buffer = NULL;
 	}
+}
+
+void wtap_close(wtap *wth)
+{
+	wtap_sequential_close(wth);
+
+	if (wth->subtype_close != NULL)
+		(*wth->subtype_close)(wth);
+
+	if (wth->random_fh != NULL)
+		file_close(wth->random_fh);
 
 	g_free(wth);
 }
@@ -217,7 +233,7 @@ int wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user,
 
 	while ((data_offset = wth->subtype_read(wth, err)) > 0) {
 		callback(user, &wth->phdr, data_offset,
-		    buffer_start_ptr(wth->frame_buffer));
+		    &wth->pseudo_header, buffer_start_ptr(wth->frame_buffer));
 		if (count > 0 && ++loop >= count)
 			break;
 	}
@@ -227,17 +243,8 @@ int wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user,
 		return TRUE;	/* success */
 }
 
-int wtap_seek_read(int file_type, FILE *fh, int seek_off, guint8 *pd, int len)
+int wtap_seek_read(wtap *wth, int seek_off,
+	union pseudo_header *pseudo_header, guint8 *pd, int len)
 {
-	switch (file_type) {
-
-	case WTAP_FILE_ASCEND:
-		return ascend_seek_read(fh, seek_off, pd, len);
-
-	case WTAP_FILE_TOSHIBA:
-		return toshiba_seek_read(fh, seek_off, pd, len);
-
-	default:
-		return wtap_def_seek_read(fh, seek_off, pd, len);
-	}
+	return wth->subtype_seek_read(wth, seek_off, pseudo_header, pd, len);
 }

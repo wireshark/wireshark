@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.4 2000/04/15 21:12:37 guy Exp $
+ * $Id: i4btrace.c,v 1.5 2000/05/18 09:09:27 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -33,6 +33,11 @@
 #include "i4b_trace.h"
 
 static int i4btrace_read(wtap *wth, int *err);
+static int i4btrace_seek_read(wtap *wth, int seek_off,
+    union pseudo_header *pseudo_header, u_char *pd, int length);
+static int i4b_read_rec_header(FILE_T *fh, i4b_trace_hdr_t *hdr, int *err);
+static void i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr);
+static int i4b_read_rec_data(FILE_T *fh, char *pd, int length, int *err);
 
 /*
  * Test some fields in the header to see if they make sense.
@@ -91,6 +96,7 @@ int i4btrace_open(wtap *wth, int *err)
 	wth->file_type = WTAP_FILE_I4BTRACE;
 	wth->capture.i4btrace = g_malloc(sizeof(i4btrace_t));
 	wth->subtype_read = i4btrace_read;
+	wth->subtype_seek_read = i4btrace_seek_read;
 	wth->snapshot_length = 2048;	/* actual length set per packet */
 
 	wth->capture.i4btrace->bchannel_prot[0] = -1;
@@ -107,39 +113,21 @@ int i4btrace_open(wtap *wth, int *err)
 /* Read the next packet */
 static int i4btrace_read(wtap *wth, int *err)
 {
-	int	bytes_read;
+	int	record_offset;
+	int	ret;
 	i4b_trace_hdr_t hdr;
 	guint16 length;
-	int	data_offset;
 	void *bufp;
 
 	/* Read record header. */
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
-	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->fh);
-		if (*err != 0)
-			return -1;
-		if (bytes_read != 0) {
-			*err = WTAP_ERR_SHORT_READ;
-			return -1;
-		}
-		return 0;
+	record_offset = wth->data_offset;
+	ret = i4b_read_rec_header(wth->fh, &hdr, err);
+	if (ret <= 0) {
+		/* Read error or EOF */
+		return ret;
 	}
 	wth->data_offset += sizeof hdr;
-	if (wth->capture.i4btrace->byte_swapped) {
-		/*
-		 * Byte-swap the header.
-		 */
-		hdr.length = BSWAP32(hdr.length);
-		hdr.unit = BSWAP32(hdr.unit);
-		hdr.type = BSWAP32(hdr.type);
-		hdr.dir = BSWAP32(hdr.dir);
-		hdr.trunc = BSWAP32(hdr.trunc);
-		hdr.count = BSWAP32(hdr.count);
-		hdr.time.tv_sec = BSWAP32(hdr.time.tv_sec);
-		hdr.time.tv_usec = BSWAP32(hdr.time.tv_usec);
-	}
+	i4b_byte_swap_header(wth, &hdr);
 	length = hdr.length - sizeof(hdr);
 	if (length == 0)
 		return 0;
@@ -150,23 +138,15 @@ static int i4btrace_read(wtap *wth, int *err)
 	wth->phdr.ts.tv_sec = hdr.time.tv_sec;
 	wth->phdr.ts.tv_usec = hdr.time.tv_usec;
 
-	wth->phdr.pseudo_header.x25.flags = (hdr.dir == FROM_TE) ? 0x00 : 0x80;
+	wth->pseudo_header.x25.flags = (hdr.dir == FROM_TE) ? 0x00 : 0x80;
 
 	/*
 	 * Read the packet data.
 	 */
 	buffer_assure_space(wth->frame_buffer, length);
-	data_offset = wth->data_offset;
-	errno = WTAP_ERR_CANT_READ;
 	bufp = buffer_start_ptr(wth->frame_buffer);
-	bytes_read = file_read(bufp, 1, length, wth->fh);
-
-	if (bytes_read != length) {
-		*err = file_error(wth->fh);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return -1;
-	}
+	if (i4b_read_rec_data(wth->fh, bufp, length, err) < 0)
+		return -1;	/* Read error */
 	wth->data_offset += length;
 
 	/*
@@ -200,5 +180,100 @@ static int i4btrace_read(wtap *wth, int *err)
 			wth->phdr.pkt_encap = WTAP_ENCAP_NULL;
 	}
 
-	return data_offset;
+	/*
+	 * XXX - there is no file header for i4btrace files, so the
+	 * first record begins at the beginning of the file, hence
+	 * its offset is 0.
+	 *
+	 * Unfortunately, a return value of 0 means "end of file".
+	 *
+	 * Therefore, we return the record offset + 1, and compensate
+	 * for that in "i4btrace_seek_read()".
+	 */
+	return record_offset + 1;
+}
+
+static int
+i4btrace_seek_read(wtap *wth, int seek_off,
+    union pseudo_header *pseudo_header, u_char *pd, int length)
+{
+	int	ret;
+	int	err;		/* XXX - return this */
+	i4b_trace_hdr_t hdr;
+
+	/*
+	 * We subtract 1 because we added 1 before returning the record
+	 * offset in "i4btrace_read()"; see the comment above.
+	 */
+	file_seek(wth->random_fh, seek_off - 1, SEEK_SET);
+
+	/* Read record header. */
+	ret = i4b_read_rec_header(wth->random_fh, &hdr, &err);
+	if (ret <= 0) {
+		/* Read error or EOF */
+		return ret;
+	}
+	i4b_byte_swap_header(wth, &hdr);
+
+	pseudo_header->x25.flags = (hdr.dir == FROM_TE) ? 0x00 : 0x80;
+
+	/*
+	 * Read the packet data.
+	 */
+	return i4b_read_rec_data(wth->random_fh, pd, length, &err);
+}
+
+static int
+i4b_read_rec_header(FILE_T *fh, i4b_trace_hdr_t *hdr, int *err)
+{
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(hdr, 1, sizeof *hdr, fh);
+	if (bytes_read != sizeof *hdr) {
+		*err = file_error(fh);
+		if (*err != 0)
+			return -1;
+		if (bytes_read != 0) {
+			*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		}
+		return 0;
+	}
+	return 1;
+}
+
+static void
+i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr)
+{
+	if (wth->capture.i4btrace->byte_swapped) {
+		/*
+		 * Byte-swap the header.
+		 */
+		hdr->length = BSWAP32(hdr->length);
+		hdr->unit = BSWAP32(hdr->unit);
+		hdr->type = BSWAP32(hdr->type);
+		hdr->dir = BSWAP32(hdr->dir);
+		hdr->trunc = BSWAP32(hdr->trunc);
+		hdr->count = BSWAP32(hdr->count);
+		hdr->time.tv_sec = BSWAP32(hdr->time.tv_sec);
+		hdr->time.tv_usec = BSWAP32(hdr->time.tv_usec);
+	}
+}
+
+static int
+i4b_read_rec_data(FILE_T *fh, char *pd, int length, int *err)
+{
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(pd, 1, length, fh);
+
+	if (bytes_read != length) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
+	}
+	return 0;
 }

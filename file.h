@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.66 2000/05/15 01:50:16 guy Exp $
+ * $Id: file.h,v 1.67 2000/05/18 09:05:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,7 +70,6 @@
 typedef struct bpf_program bpf_prog;
 
 typedef struct _capture_file {
-  FILE_T       fh;        /* File handle for capture file */
   int          filed;     /* File descriptor of capture file */
   gchar       *filename;  /* Name of capture file */
   gboolean     is_tempfile; /* Is capture file a temporary file? */
@@ -101,6 +100,7 @@ typedef struct _capture_file {
 #endif
   gchar       *sfilter;   /* Search filter string */
   gboolean     sbackward;  /* TRUE if search is backward, FALSE if forward */
+  union pseudo_header pseudo_header;      /* Packet pseudo_header */
   guint8       pd[WTAP_MAX_PACKET_SIZE];  /* Packet data */
   GMemChunk   *plist_chunk; /* Memory chunk for frame_data structures */
   frame_data  *plist;     /* Packet list */

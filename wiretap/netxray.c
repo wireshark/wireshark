@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.26 2000/05/10 22:16:29 guy Exp $
+ * $Id: netxray.c,v 1.27 2000/05/18 09:09:39 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -93,7 +93,7 @@ struct netxrayrec_2_x_hdr {
 static int netxray_read(wtap *wth, int *err);
 static void netxray_close(wtap *wth);
 static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-	const u_char *pd, int *err);
+	const union pseudo_header *pseudo_header, const u_char *pd, int *err);
 static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err);
 
 int netxray_open(wtap *wth, int *err)
@@ -187,6 +187,7 @@ int netxray_open(wtap *wth, int *err)
 	wth->file_type = file_type;
 	wth->capture.netxray = g_malloc(sizeof(netxray_t));
 	wth->subtype_read = netxray_read;
+	wth->subtype_seek_read = wtap_def_seek_read;
 	wth->subtype_close = netxray_close;
 	wth->file_encap = netxray_encap[hdr.network];
 	wth->snapshot_length = 16384;	/* XXX - not available in header */
@@ -361,7 +362,7 @@ gboolean netxray_dump_open_1_1(wtap_dumper *wdh, int *err)
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const u_char *pd, int *err)
+    const union pseudo_header *pseudo_header, const u_char *pd, int *err)
 {
     netxray_dump_t *netxray = wdh->dump.netxray;
     guint32 timestamp;

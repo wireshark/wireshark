@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.6 2000/05/11 08:15:54 gram Exp $
+ * $Id: packet-v120.c,v 1.7 2000/05/18 09:05:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include <glib.h>
 #include <string.h>
 #include "packet.h"
+#include "packet-v120.h"
 #include "xdlc.h"
 
 #define FROM_DCE	0x80
@@ -53,7 +54,8 @@ static gint ett_v120_header = -1;
 static int dissect_v120_header(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
 
 void
-dissect_v120(const u_char *pd, frame_data *fd, proto_tree *tree)
+dissect_v120(const union pseudo_header *pseudo_header, const u_char *pd,
+		frame_data *fd, proto_tree *tree)
 {
     proto_tree *v120_tree, *ti, *tc, *address_tree;
     int is_response;
@@ -77,7 +79,7 @@ dissect_v120(const u_char *pd, frame_data *fd, proto_tree *tree)
 	return;
     }
 
-    if (fd->pseudo_header.x25.flags & FROM_DCE) {
+    if (pseudo_header->x25.flags & FROM_DCE) {
 	if(check_col(fd, COL_RES_DL_DST))
 	    col_add_str(fd, COL_RES_DL_DST, "DTE");
 	if(check_col(fd, COL_RES_DL_SRC))
@@ -90,8 +92,8 @@ dissect_v120(const u_char *pd, frame_data *fd, proto_tree *tree)
 	    col_add_str(fd, COL_RES_DL_SRC, "DTE");
     }
 
-    if (((fd->pseudo_header.x25.flags & FROM_DCE) && pd[0] & 0x02) ||
-       (!(fd->pseudo_header.x25.flags & FROM_DCE) && !(pd[0] & 0x02)))
+    if (((pseudo_header->x25.flags & FROM_DCE) && pd[0] & 0x02) ||
+       (!(pseudo_header->x25.flags & FROM_DCE) && !(pd[0] & 0x02)))
 	is_response = TRUE;
     else
 	is_response = FALSE;

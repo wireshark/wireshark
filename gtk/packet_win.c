@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.6 2000/05/18 08:32:02 guy Exp $
+ * $Id: packet_win.c,v 1.7 2000/05/18 09:08:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,6 +73,7 @@
 struct PacketWinData {
 	gint        cap_len;
 	gint        encoding;
+	union pseudo_header pseudo_header; /* Pseudo-header for packet */
 	guint8     *pd;		   /* Data for packet */
 	proto_tree *protocol_tree; /* Protocol tree for packet */
 	GtkWidget  *main;
@@ -167,11 +168,13 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
 
   DataPtr->cap_len = cf.current_frame->cap_len;
   DataPtr->encoding = cf.current_frame->flags.encoding;
+  memcpy(&DataPtr->pseudo_header, &cf.pseudo_header, sizeof DataPtr->pseudo_header);
   DataPtr->pd = g_malloc(DataPtr->cap_len);
   memcpy(DataPtr->pd, cf.pd, DataPtr->cap_len);
   DataPtr->protocol_tree = proto_tree_create_root();
   proto_tree_is_visible = TRUE;
-  dissect_packet(DataPtr->pd, cf.current_frame, DataPtr->protocol_tree);
+  dissect_packet(&DataPtr->pseudo_header, DataPtr->pd, cf.current_frame,
+		DataPtr->protocol_tree);
   proto_tree_is_visible = FALSE;
   DataPtr->main = main_w;
   DataPtr->tv_scrollw = tv_scrollw;

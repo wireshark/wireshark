@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.26 2000/03/30 21:41:11 gram Exp $
+ * $Id: iptrace.c,v 1.27 2000/05/18 09:09:30 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -33,9 +33,18 @@
 #include "iptrace.h"
 
 static int iptrace_read_1_0(wtap *wth, int *err);
+static int iptrace_seek_read_1_0(wtap *wth, int seek_off,
+    union pseudo_header *pseudo_header, u_char *pd, int packet_size);
 static int iptrace_read_2_0(wtap *wth, int *err);
+static int iptrace_seek_read_2_0(wtap *wth, int seek_off,
+    union pseudo_header *pseudo_header, u_char *pd, int packet_size);
+static int iptrace_read_rec_header(FILE_T *fh, guint8 *header, int header_len,
+    int *err);
+static int iptrace_read_rec_data(FILE_T *fh, guint8 *data_ptr, int packet_size,
+    int *err);
+static void get_atm_pseudo_header(union pseudo_header *pseudo_header,
+    guint8 *header);
 static int wtap_encap_ift(unsigned int  ift);
-static void get_atm_pseudo_header(wtap *wth, guint8 *header, guint8 *pd);
 
 int iptrace_open(wtap *wth, int *err)
 {
@@ -58,10 +67,12 @@ int iptrace_open(wtap *wth, int *err)
 	if (strcmp(name, "iptrace 1.0") == 0) {
 		wth->file_type = WTAP_FILE_IPTRACE_1_0;
 		wth->subtype_read = iptrace_read_1_0;
+		wth->subtype_seek_read = iptrace_seek_read_1_0;
 	}
 	else if (strcmp(name, "iptrace 2.0") == 0) {
 		wth->file_type = WTAP_FILE_IPTRACE_2_0;
 		wth->subtype_read = iptrace_read_2_0;
+		wth->subtype_seek_read = iptrace_seek_read_2_0;
 	}
 	else {
 		return 0;
@@ -88,48 +99,29 @@ typedef struct {
 /* Read the next packet */
 static int iptrace_read_1_0(wtap *wth, int *err)
 {
-	int			bytes_read;
-	int			data_offset;
+	int			record_offset;
+	int			ret;
 	guint32			packet_size;
 	guint8			header[30];
 	guint8			*data_ptr;
 	iptrace_1_0_phdr	pkt_hdr;
 
 	/* Read the descriptor data */
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(header, 1, 30, wth->fh);
-	if (bytes_read != 30) {
-		*err = file_error(wth->fh);
-		if (*err != 0)
-			return -1;
-		if (bytes_read != 0) {
-			*err = WTAP_ERR_SHORT_READ;
-			return -1;
-		}
-		return 0;
+	record_offset = wth->data_offset;
+	ret = iptrace_read_rec_header(wth->fh, header, 30, err);
+	if (ret <= 0) {
+		/* Read error or EOF */
+		return ret;
 	}
 	wth->data_offset += 30;
 
 	/* Read the packet data */
 	packet_size = pntohl(&header[0]) - 0x16;
 	buffer_assure_space( wth->frame_buffer, packet_size );
-	data_offset = wth->data_offset;
-	errno = WTAP_ERR_CANT_READ;
 	data_ptr = buffer_start_ptr( wth->frame_buffer );
-	bytes_read = file_read( data_ptr, 1, packet_size, wth->fh );
-
-	if (bytes_read != packet_size) {
-		*err = file_error(wth->fh);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return -1;
-	}
+	if (iptrace_read_rec_data(wth->fh, data_ptr, packet_size, err) < 0)
+		return -1;	/* Read error */
 	wth->data_offset += packet_size;
-
-
-	/* AIX saves time in nsec, not usec. It's easier to make iptrace
-	 * files more Unix-compliant here than try to get the calling
-	 * program to know when to use nsec or usec */
 
 	wth->phdr.len = packet_size;
 	wth->phdr.caplen = packet_size;
@@ -152,7 +144,7 @@ static int iptrace_read_1_0(wtap *wth, int *err)
 	}
 
 	if ( wth->phdr.pkt_encap == WTAP_ENCAP_ATM_SNIFFER ) {
-		get_atm_pseudo_header(wth, header, data_ptr);
+		get_atm_pseudo_header(&wth->pseudo_header, header);
 	}
 
 	/* If the per-file encapsulation isn't known, set it to this
@@ -168,7 +160,31 @@ static int iptrace_read_1_0(wtap *wth, int *err)
 			wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	}
 
-	return data_offset;
+	return record_offset;
+}
+
+static int iptrace_seek_read_1_0(wtap *wth, int seek_off,
+    union pseudo_header *pseudo_header, u_char *pd, int packet_size)
+{
+	int			ret;
+	int			err;	/* XXX - return this */
+	guint8			header[30];
+
+	file_seek(wth->random_fh, seek_off, SEEK_SET);
+
+	/* Read the descriptor data */
+	ret = iptrace_read_rec_header(wth->random_fh, header, 30, &err);
+	if (ret <= 0) {
+		/* Read error or EOF */
+		return ret;
+	}
+
+	if ( wtap_encap_ift(header[28]) == WTAP_ENCAP_ATM_SNIFFER ) {
+		get_atm_pseudo_header(pseudo_header, header);
+	}
+
+	/* Read the packet data */
+	return iptrace_read_rec_data(wth->random_fh, pd, packet_size, &err);
 }
 
 /***********************************************************
@@ -192,44 +208,29 @@ typedef struct {
 /* Read the next packet */
 static int iptrace_read_2_0(wtap *wth, int *err)
 {
-	int			bytes_read;
-	int			data_offset;
+	int			record_offset;
+	int			ret;
 	guint32			packet_size;
 	guint8			header[40];
 	guint8			*data_ptr;
 	iptrace_2_0_phdr	pkt_hdr;
 
 	/* Read the descriptor data */
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(header, 1, 40, wth->fh);
-	if (bytes_read != 40) {
-		*err = file_error(wth->fh);
-		if (*err != 0)
-			return -1;
-		if (bytes_read != 0) {
-			*err = WTAP_ERR_SHORT_READ;
-			return -1;
-		}
-		return 0;
+	record_offset = wth->data_offset;
+	ret = iptrace_read_rec_header(wth->fh, header, 40, err);
+	if (ret <= 0) {
+		/* Read error or EOF */
+		return ret;
 	}
 	wth->data_offset += 40;
 
 	/* Read the packet data */
 	packet_size = pntohl(&header[0]) - 32;
 	buffer_assure_space( wth->frame_buffer, packet_size );
-	data_offset = wth->data_offset;
-	errno = WTAP_ERR_CANT_READ;
 	data_ptr = buffer_start_ptr( wth->frame_buffer );
-	bytes_read = file_read( data_ptr, 1, packet_size, wth->fh );
-
-	if (bytes_read != packet_size) {
-		*err = file_error(wth->fh);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return -1;
-	}
+	if (iptrace_read_rec_data(wth->fh, data_ptr, packet_size, err) < 0)
+		return -1;	/* Read error */
 	wth->data_offset += packet_size;
-
 
 	/* AIX saves time in nsec, not usec. It's easier to make iptrace
 	 * files more Unix-compliant here than try to get the calling
@@ -256,7 +257,7 @@ static int iptrace_read_2_0(wtap *wth, int *err)
 	}
 
 	if ( wth->phdr.pkt_encap == WTAP_ENCAP_ATM_SNIFFER ) {
-		get_atm_pseudo_header(wth, header, data_ptr);
+		get_atm_pseudo_header(&wth->pseudo_header, header);
 	}
 
 	/* If the per-file encapsulation isn't known, set it to this
@@ -272,7 +273,68 @@ static int iptrace_read_2_0(wtap *wth, int *err)
 			wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	}
 
-	return data_offset;
+	return record_offset;
+}
+
+static int iptrace_seek_read_2_0(wtap *wth, int seek_off,
+    union pseudo_header *pseudo_header, u_char *pd, int packet_size)
+{
+	int			ret;
+	int			err;	/* XXX - return this */
+	guint8			header[40];
+
+	file_seek(wth->random_fh, seek_off, SEEK_SET);
+
+	/* Read the descriptor data */
+	ret = iptrace_read_rec_header(wth->random_fh, header, 40, &err);
+	if (ret <= 0) {
+		/* Read error or EOF */
+		return ret;
+	}
+
+	if ( wtap_encap_ift(header[28]) == WTAP_ENCAP_ATM_SNIFFER ) {
+		get_atm_pseudo_header(pseudo_header, header);
+	}
+
+	/* Read the packet data */
+	return iptrace_read_rec_data(wth->random_fh, pd, packet_size, &err);
+}
+
+static int
+iptrace_read_rec_header(FILE_T *fh, guint8 *header, int header_len, int *err)
+{
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(header, 1, header_len, fh);
+	if (bytes_read != header_len) {
+		*err = file_error(fh);
+		if (*err != 0)
+			return -1;
+		if (bytes_read != 0) {
+			*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		}
+		return 0;
+	}
+	return 1;
+}
+
+static int
+iptrace_read_rec_data(FILE_T *fh, guint8 *data_ptr, int packet_size, int *err)
+{
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read( data_ptr, 1, packet_size, fh );
+
+	if (bytes_read != packet_size) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
+	}
+	return 0;
 }
 
 /*
@@ -292,7 +354,7 @@ static int iptrace_read_2_0(wtap *wth, int *err)
  * in some fashion what sort of traffic it is, or being told by the user.
  */
 static void
-get_atm_pseudo_header(wtap *wth, guint8 *header, guint8 *pd)
+get_atm_pseudo_header(union pseudo_header *pseudo_header, guint8 *header)
 {
 	char	if_text[9];
 	char	*decimal;
@@ -309,26 +371,25 @@ get_atm_pseudo_header(wtap *wth, guint8 *header, guint8 *pd)
 		decimal++;
 		Vci = strtoul(decimal, NULL, 10);
 	}
-	wth->phdr.pseudo_header.ngsniffer_atm.Vpi = Vpi;
-	wth->phdr.pseudo_header.ngsniffer_atm.Vci = Vci;
+	pseudo_header->ngsniffer_atm.Vpi = Vpi;
+	pseudo_header->ngsniffer_atm.Vci = Vci;
 
 	/*
 	 * OK, which value means "DTE->DCE" and which value means
 	 * "DCE->DTE"?
 	 */
-	wth->phdr.pseudo_header.ngsniffer_atm.channel = header[29];
+	pseudo_header->ngsniffer_atm.channel = header[29];
 
 	/* We don't have this information */
-	wth->phdr.pseudo_header.ngsniffer_atm.cells = 0;
-	wth->phdr.pseudo_header.ngsniffer_atm.aal5t_u2u = 0;
-	wth->phdr.pseudo_header.ngsniffer_atm.aal5t_len = 0;
-	wth->phdr.pseudo_header.ngsniffer_atm.aal5t_chksum = 0;
+	pseudo_header->ngsniffer_atm.cells = 0;
+	pseudo_header->ngsniffer_atm.aal5t_u2u = 0;
+	pseudo_header->ngsniffer_atm.aal5t_len = 0;
+	pseudo_header->ngsniffer_atm.aal5t_chksum = 0;
 
 	/* Assume it's AAL5 traffic, but indicate that we don't know what
 	   it is beyond that. */
-	wth->phdr.pseudo_header.ngsniffer_atm.AppTrafType =
-	    ATT_AAL5|ATT_HL_UNKNOWN;
-	wth->phdr.pseudo_header.ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
+	pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL5|ATT_HL_UNKNOWN;
+	pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
 }
 
 /* Given an RFC1573 (SNMP ifType) interface type,

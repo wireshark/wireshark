@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.33 2000/03/22 07:06:58 guy Exp $
+ * $Id: libpcap.c,v 1.34 2000/05/18 09:09:32 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -90,7 +90,7 @@ static int libpcap_read(wtap *wth, int *err);
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
 static void libpcap_close(wtap *wth);
 static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const u_char *pd, int *err);
+    const union pseudo_header *pseudo_header, const u_char *pd, int *err);
 
 /*
  * XXX - this is a bit of a mess.  OpenBSD, and perhaps NetBSD, and
@@ -260,6 +260,7 @@ int libpcap_open(wtap *wth, int *err)
 	wth->capture.pcap->version_major = hdr.version_major;
 	wth->capture.pcap->version_minor = hdr.version_minor;
 	wth->subtype_read = libpcap_read;
+	wth->subtype_seek_read = wtap_def_seek_read;
 	wth->subtype_close = libpcap_close;
 	wth->file_encap = pcap_encap[hdr.network];
 	wth->snapshot_length = hdr.snaplen;
@@ -563,7 +564,7 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const u_char *pd, int *err)
+    const union pseudo_header *pseudo_header, const u_char *pd, int *err)
 {
 	struct pcaprec_modified_hdr rec_hdr;
 	int hdr_size;

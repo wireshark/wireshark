@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.39 2000/05/12 22:12:21 guy Exp $
+ * $Id: ngsniffer.c,v 1.40 2000/05/18 09:09:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -247,9 +247,22 @@ struct frame4_rec {
 static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
 
 static int ngsniffer_read(wtap *wth, int *err);
+static int ngsniffer_seek_read(wtap *wth, int seek_off,
+    union pseudo_header *pseudo_header, u_char *pd, int packet_size);
+static int ngsniffer_read_rec_header(FILE_T *fh, guint16 *typep,
+    guint16 *lengthp, int *err);
+static int ngsniffer_read_frame2(FILE_T *fh, struct frame2_rec *frame2,
+    int *err);
+static void set_pseudo_header_frame2(union pseudo_header *pseudo_header,
+    struct frame2_rec *frame2);
+static int ngsniffer_read_frame4(FILE_T *fh, struct frame4_rec *frame4,
+    int *err);
+static void set_pseudo_header_frame4(union pseudo_header *pseudo_header,
+    struct frame4_rec *frame4);
+static int ngsniffer_read_rec_data(FILE_T *fh, char *pd, int length, int *err);
 static void ngsniffer_close(wtap *wth);
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-	const u_char *pd, int *err);
+	const union pseudo_header *pseudo_header, const u_char *pd, int *err);
 static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err);
 
 int ngsniffer_open(wtap *wth, int *err)
@@ -371,6 +384,7 @@ int ngsniffer_open(wtap *wth, int *err)
 	wth->file_type = WTAP_FILE_NGSNIFFER;
 	wth->capture.ngsniffer = g_malloc(sizeof(ngsniffer_t));
 	wth->subtype_read = ngsniffer_read;
+	wth->subtype_seek_read = ngsniffer_seek_read;
 	wth->subtype_close = ngsniffer_close;
 	wth->snapshot_length = 16384;	/* not available in header, only in frame */
 	wth->capture.ngsniffer->timeunit = Usec[version.timeunit];
@@ -415,46 +429,26 @@ int ngsniffer_open(wtap *wth, int *err)
 /* Read the next packet */
 static int ngsniffer_read(wtap *wth, int *err)
 {
-	int	bytes_read;
-	char	record_type[2];
-	char	record_length[4]; /* only 1st 2 bytes are length */
+	int	record_offset;
+	int	ret;
 	guint16	type, length;
 	struct frame2_rec frame2;
 	struct frame4_rec frame4;
 	double	t;
 	guint16	time_low, time_med, time_high, true_size, size;
-	int	data_offset;
 	u_char	*pd;
 
 	for (;;) {
 		/*
 		 * Read the record header.
 		 */
-		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(record_type, 1, 2, wth->fh);
-		if (bytes_read != 2) {
-			*err = file_error(wth->fh);
-			if (*err != 0)
-				return -1;
-			if (bytes_read != 0) {
-				*err = WTAP_ERR_SHORT_READ;
-				return -1;
-			}
-			return 0;
+		record_offset = wth->data_offset;
+		ret = ngsniffer_read_rec_header(wth->fh, &type, &length, err);
+		if (ret <= 0) {
+			/* Read error or EOF */
+			return ret;
 		}
-		wth->data_offset += 2;
-		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(record_length, 1, 4, wth->fh);
-		if (bytes_read != 4) {
-			*err = file_error(wth->fh);
-			if (*err == 0)
-				*err = WTAP_ERR_SHORT_READ;
-			return -1;
-		}
-		wth->data_offset += 4;
-
-		type = pletohs(record_type);
-		length = pletohs(record_length);
+		wth->data_offset += 6;
 
 		switch (type) {
 
@@ -470,13 +464,10 @@ static int ngsniffer_read(wtap *wth, int *err)
 			}
 
 			/* Read the f_frame2_struct */
-			errno = WTAP_ERR_CANT_READ;
-			bytes_read = file_read(&frame2, 1, sizeof frame2, wth->fh);
-			if (bytes_read != sizeof frame2) {
-				*err = file_error(wth->fh);
-				if (*err == 0)
-					*err = WTAP_ERR_SHORT_READ;
-				return -1;
+			ret = ngsniffer_read_frame2(wth->fh, &frame2, err);
+			if (ret < 0) {
+				/* Read error */
+				return ret;
 			}
 			wth->data_offset += sizeof frame2;
 			time_low = pletohs(&frame2.time_low);
@@ -490,30 +481,7 @@ static int ngsniffer_read(wtap *wth, int *err)
 			t = (double)time_low+(double)(time_med)*65536.0 +
 			    (double)time_high*4294967296.0;
 
-			/*
-			 * In one PPP "Internetwork analyzer" capture,
-			 * the only bit seen in "fs" is the 0x80 bit,
-			 * which probably indicates the packet's
-			 * direction; all other bits were zero.
-			 * All bits in "frame2.flags" were zero.
-			 *
-			 * In one X.25 "Interenetwork analyzer" capture,
-			 * the only bit seen in "fs" is the 0x80 bit,
-			 * which probably indicates the packet's
-			 * direction; all other bits were zero.
-			 * "frame2.flags" was always 0x18.
-			 *
-			 * In one Ethernet capture, "fs" was always 0,
-			 * and "flags" was either 0 or 0x18, with no
-			 * obvious correlation with anything.
-			 *
-			 * In one Token Ring capture, "fs" was either 0
-			 * or 0xcc, and "flags" was either 0 or 0x18,
-			 * with no obvious correlation with anything.
-			 */
-			wth->phdr.pseudo_header.x25.flags =
-			    (frame2.fs & 0x80) ? 0x00 : 0x80;
-
+			set_pseudo_header_frame2(&wth->pseudo_header, &frame2);
 			goto found;
 
 		case REC_FRAME4:
@@ -528,14 +496,7 @@ static int ngsniffer_read(wtap *wth, int *err)
 			}
 
 			/* Read the f_frame4_struct */
-			errno = WTAP_ERR_CANT_READ;
-			bytes_read = file_read(&frame4, 1, sizeof frame4, wth->fh);
-			if (bytes_read != sizeof frame4) {
-				*err = file_error(wth->fh);
-				if (*err == 0)
-					*err = WTAP_ERR_SHORT_READ;
-				return -1;
-			}
+			ret = ngsniffer_read_frame4(wth->fh, &frame4, err);
 			wth->data_offset += sizeof frame4;
 			time_low = pletohs(&frame4.time_low);
 			time_med = pletohs(&frame4.time_med);
@@ -552,24 +513,7 @@ static int ngsniffer_read(wtap *wth, int *err)
 			t = (double)time_low+(double)(time_med)*65536.0 +
 			    (double)time_high*4294967296.0;
 
-			wth->phdr.pseudo_header.ngsniffer_atm.AppTrafType =
-			    frame4.atm_info.AppTrafType;
-			wth->phdr.pseudo_header.ngsniffer_atm.AppHLType =
-			    frame4.atm_info.AppHLType;
-			wth->phdr.pseudo_header.ngsniffer_atm.Vpi =
-			    pletohs(&frame4.atm_info.Vpi);
-			wth->phdr.pseudo_header.ngsniffer_atm.Vci =
-			    pletohs(&frame4.atm_info.Vci);
-			wth->phdr.pseudo_header.ngsniffer_atm.channel =
-			    pletohs(&frame4.atm_info.channel);
-			wth->phdr.pseudo_header.ngsniffer_atm.cells =
-			    pletohs(&frame4.atm_info.cells);
-			wth->phdr.pseudo_header.ngsniffer_atm.aal5t_u2u =
-			    pletohs(&frame4.atm_info.Trailer.aal5t_u2u);
-			wth->phdr.pseudo_header.ngsniffer_atm.aal5t_len =
-			    pletohs(&frame4.atm_info.Trailer.aal5t_len);
-			wth->phdr.pseudo_header.ngsniffer_atm.aal5t_chksum =
-			    pletohl(&frame4.atm_info.Trailer.aal5t_chksum);
+			set_pseudo_header_frame4(&wth->pseudo_header, &frame4);
 			goto found;
 
 		case REC_EOF:
@@ -599,17 +543,9 @@ found:
 	 * Read the packet data.
 	 */
 	buffer_assure_space(wth->frame_buffer, length);
-	data_offset = wth->data_offset;
-	errno = WTAP_ERR_CANT_READ;
 	pd = buffer_start_ptr(wth->frame_buffer);
-	bytes_read = file_read(pd, 1, length, wth->fh);
-
-	if (bytes_read != length) {
-		*err = file_error(wth->fh);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return -1;
-	}
+	if (ngsniffer_read_rec_data(wth->fh, pd, length, err) < 0)
+		return -1;	/* Read error */
 	wth->data_offset += length;
 
 	if (wth->file_encap == WTAP_ENCAP_UNKNOWN) {
@@ -637,11 +573,192 @@ found:
 	wth->phdr.ts.tv_usec = (unsigned long)((t-(double)(wth->phdr.ts.tv_sec))
 			*1.0e6);
 	wth->phdr.pkt_encap = wth->file_encap;
-	return data_offset;
+	return record_offset;
 }
 
-static void
-ngsniffer_close(wtap *wth)
+static int ngsniffer_seek_read(wtap *wth, int seek_off,
+    union pseudo_header *pseudo_header, u_char *pd, int packet_size)
+{
+	int	ret;
+	int	err;	/* XXX - return this */
+	guint16	type, length;
+	struct frame2_rec frame2;
+	struct frame4_rec frame4;
+
+	file_seek(wth->random_fh, seek_off, SEEK_SET);
+
+	ret = ngsniffer_read_rec_header(wth->random_fh, &type, &length, &err);
+	if (ret <= 0) {
+		/* Read error or EOF */
+		return ret;
+	}
+
+	switch (type) {
+
+	case REC_FRAME2:
+		/* Read the f_frame2_struct */
+		ret = ngsniffer_read_frame2(wth->random_fh, &frame2, &err);
+		if (ret < 0) {
+			/* Read error */
+			return ret;
+		}
+
+		length -= sizeof frame2;	/* we already read that much */
+
+		set_pseudo_header_frame2(pseudo_header, &frame2);
+		break;
+
+	case REC_FRAME4:
+		/* Read the f_frame4_struct */
+		ret = ngsniffer_read_frame4(wth->random_fh, &frame4, &err);
+
+		length -= sizeof frame4;	/* we already read that much */
+
+		set_pseudo_header_frame4(pseudo_header, &frame4);
+		break;
+
+	default:
+		/*
+		 * "Can't happen".
+		 */
+		g_assert_not_reached();
+		return -1;
+	}
+
+	/*
+	 * Got the pseudo-header (if any), now get the data.
+	 */
+	return ngsniffer_read_rec_data(wth->random_fh, pd, packet_size, &err);
+}
+
+static int ngsniffer_read_rec_header(FILE_T *fh, guint16 *typep,
+    guint16 *lengthp, int *err)
+{
+	int	bytes_read;
+	char	record_type[2];
+	char	record_length[4]; /* only 1st 2 bytes are length */
+
+	/*
+	 * Read the record header.
+	 */
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(record_type, 1, 2, fh);
+	if (bytes_read != 2) {
+		*err = file_error(fh);
+		if (*err != 0)
+			return -1;
+		if (bytes_read != 0) {
+			*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		}
+		return 0;
+	}
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(record_length, 1, 4, fh);
+	if (bytes_read != 4) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
+	}
+
+	*typep = pletohs(record_type);
+	*lengthp = pletohs(record_length);
+	return 1;	/* success */
+}
+
+static int ngsniffer_read_frame2(FILE_T *fh, struct frame2_rec *frame2,
+    int *err)
+{
+	int bytes_read;
+
+	/* Read the f_frame2_struct */
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(frame2, 1, sizeof *frame2, fh);
+	if (bytes_read != sizeof *frame2) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
+	}
+	return 0;
+}
+
+static void set_pseudo_header_frame2(union pseudo_header *pseudo_header,
+    struct frame2_rec *frame2)
+{
+	/*
+	 * In one PPP "Internetwork analyzer" capture,
+	 * the only bit seen in "fs" is the 0x80 bit,
+	 * which probably indicates the packet's
+	 * direction; all other bits were zero.
+	 * All bits in "frame2.flags" were zero.
+	 *
+	 * In one X.25 "Interenetwork analyzer" capture,
+	 * the only bit seen in "fs" is the 0x80 bit,
+	 * which probably indicates the packet's
+	 * direction; all other bits were zero.
+	 * "frame2.flags" was always 0x18.
+	 *
+	 * In one Ethernet capture, "fs" was always 0,
+	 * and "flags" was either 0 or 0x18, with no
+	 * obvious correlation with anything.
+	 *
+	 * In one Token Ring capture, "fs" was either 0
+	 * or 0xcc, and "flags" was either 0 or 0x18,
+	 * with no obvious correlation with anything.
+	 */
+	pseudo_header->x25.flags = (frame2->fs & 0x80) ? 0x00 : 0x80;
+}
+
+static int ngsniffer_read_frame4(FILE_T *fh, struct frame4_rec *frame4,
+    int *err)
+{
+	int bytes_read;
+
+	/* Read the f_frame4_struct */
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(frame4, 1, sizeof *frame4, fh);
+	if (bytes_read != sizeof *frame4) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
+	}
+	return 0;
+}
+
+static void set_pseudo_header_frame4(union pseudo_header *pseudo_header,
+    struct frame4_rec *frame4)
+{
+	pseudo_header->ngsniffer_atm.AppTrafType = frame4->atm_info.AppTrafType;
+	pseudo_header->ngsniffer_atm.AppHLType = frame4->atm_info.AppHLType;
+	pseudo_header->ngsniffer_atm.Vpi = pletohs(&frame4->atm_info.Vpi);
+	pseudo_header->ngsniffer_atm.Vci = pletohs(&frame4->atm_info.Vci);
+	pseudo_header->ngsniffer_atm.channel = pletohs(&frame4->atm_info.channel);
+	pseudo_header->ngsniffer_atm.cells = pletohs(&frame4->atm_info.cells);
+	pseudo_header->ngsniffer_atm.aal5t_u2u = pletohs(&frame4->atm_info.Trailer.aal5t_u2u);
+	pseudo_header->ngsniffer_atm.aal5t_len = pletohs(&frame4->atm_info.Trailer.aal5t_len);
+	pseudo_header->ngsniffer_atm.aal5t_chksum = pletohl(&frame4->atm_info.Trailer.aal5t_chksum);
+}
+
+static int ngsniffer_read_rec_data(FILE_T *fh, char *pd, int length, int *err)
+{
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(pd, 1, length, fh);
+
+	if (bytes_read != length) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
+	}
+	return 0;
+}
+
+static void ngsniffer_close(wtap *wth)
 {
 	g_free(wth->capture.ngsniffer);
 }
@@ -717,7 +834,7 @@ gboolean ngsniffer_dump_open(wtap_dumper *wdh, int *err)
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const u_char *pd, int *err)
+    const union pseudo_header *pseudo_header, const u_char *pd, int *err)
 {
     ngsniffer_dump_t *priv = wdh->dump.ngsniffer;
     struct frame2_rec rec_hdr;
@@ -792,7 +909,7 @@ static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     rec_hdr.time_high = htoles(t_high);
     rec_hdr.size = htoles(phdr->caplen);
     if (wdh->encap == WTAP_ENCAP_LAPB || wdh->encap == WTAP_ENCAP_PPP)
-	rec_hdr.fs = (phdr->pseudo_header.x25.flags & 0x80) ? 0x00 : 0x80;
+	rec_hdr.fs = (pseudo_header->x25.flags & 0x80) ? 0x00 : 0x80;
     else
 	rec_hdr.fs = 0;
     rec_hdr.flags = 0;

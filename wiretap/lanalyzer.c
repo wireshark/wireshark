@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.21 2000/03/22 07:06:58 guy Exp $
+ * $Id: lanalyzer.c,v 1.22 2000/05/18 09:09:31 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -87,6 +87,7 @@ int lanalyzer_open(wtap *wth, int *err)
 	wth->file_type = WTAP_FILE_LANALYZER;
 	wth->capture.lanalyzer = g_malloc(sizeof(lanalyzer_t));
 	wth->subtype_read = lanalyzer_read;
+	wth->subtype_seek_read = wtap_def_seek_read;
 	wth->subtype_close = lanalyzer_close;
 	wth->snapshot_length = 0;
 

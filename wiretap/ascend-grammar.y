@@ -1,7 +1,7 @@
 %{
 /* ascend-grammar.y
  *
- * $Id: ascend-grammar.y,v 1.10 2000/01/22 06:22:35 guy Exp $
+ * $Id: ascend-grammar.y,v 1.11 2000/05/18 09:09:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -63,7 +63,6 @@ WD_DIALOUT_DISP: chunk 2515EE type IP.
 
 #define NFH_PATH "/dev/null"
 
-extern void ascend_init_lexer(FILE *fh, FILE *nfh);
 extern int at_eof;
 
 int yyparse(void);
@@ -232,7 +231,7 @@ init_parse_ascend()
 /* Parse the capture file.  Return the offset of the next packet, or zero
    if there is none. */
 int
-parse_ascend(FILE *fh, void *pd, struct ascend_phdr *phdr,
+parse_ascend(FILE_T *fh, void *pd, struct ascend_phdr *phdr,
 		ascend_pkthdr *hdr, int len)
 {
   /* yydebug = 1; */

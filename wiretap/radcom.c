@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.20 2000/04/15 21:12:37 guy Exp $
+ * $Id: radcom.c,v 1.21 2000/05/18 09:09:43 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -68,6 +68,11 @@ struct radcomrec_hdr {
 };
 
 static int radcom_read(wtap *wth, int *err);
+static int radcom_seek_read(wtap *wth, int seek_off,
+	union pseudo_header *pseudo_header, u_char *pd, int length);
+static int radcom_read_rec_header(FILE_T *fh, struct radcomrec_hdr *hdr,
+	int *err);
+static int radcom_read_rec_data(FILE_T *fh, char *pd, int length, int *err);
 
 int radcom_open(wtap *wth, int *err)
 {
@@ -134,6 +139,7 @@ int radcom_open(wtap *wth, int *err)
 	/* This is a radcom file */
 	wth->file_type = WTAP_FILE_RADCOM;
 	wth->subtype_read = radcom_read;
+	wth->subtype_seek_read = radcom_seek_read;
 	wth->snapshot_length = 16384;	/* not available in header, only in frame */
 
 	tm.tm_year = pletohs(&start_date.year)-1900;
@@ -218,26 +224,21 @@ read_error:
 /* Read the next packet */
 static int radcom_read(wtap *wth, int *err)
 {
-	int	bytes_read;
+	int	record_offset;
+	int	ret;
 	struct radcomrec_hdr hdr;
 	guint16 length;
 	guint32 sec;
+	int	bytes_read;
 	struct tm tm;
-	int	data_offset;
 	char	fcs[2];
 
 	/* Read record header. */
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, 1, sizeof hdr, wth->fh);
-	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->fh);
-		if (*err != 0)
-			return -1;
-		if (bytes_read != 0) {
-			*err = WTAP_ERR_SHORT_READ;
-			return -1;
-		}
-		return 0;
+	record_offset = wth->data_offset;
+	ret = radcom_read_rec_header(wth->fh, &hdr, err);
+	if (ret <= 0) {
+		/* Read error or EOF */
+		return ret;
 	}
 	wth->data_offset += sizeof hdr;
 	length = pletohs(&hdr.length);
@@ -259,23 +260,15 @@ static int radcom_read(wtap *wth, int *err)
 	tm.tm_isdst = -1;
 	wth->phdr.ts.tv_sec = mktime(&tm);
 	wth->phdr.ts.tv_usec = pletohl(&hdr.date.usec);
-	wth->phdr.pseudo_header.x25.flags = (hdr.dce & 0x1) ? 0x00 : 0x80;
+	wth->pseudo_header.x25.flags = (hdr.dce & 0x1) ? 0x00 : 0x80;
 
 	/*
 	 * Read the packet data.
 	 */
 	buffer_assure_space(wth->frame_buffer, length);
-	data_offset = wth->data_offset;
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
-			length, wth->fh);
-
-	if (bytes_read != length) {
-		*err = file_error(wth->fh);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return -1;
-	}
+	if (radcom_read_rec_data(wth->fh,
+	    buffer_start_ptr(wth->frame_buffer), length, err) < 0)
+		return -1;	/* Read error */
 	wth->data_offset += length;
 
 	wth->phdr.pkt_encap = wth->file_encap;
@@ -294,5 +287,67 @@ static int radcom_read(wtap *wth, int *err)
 		wth->data_offset += sizeof fcs;
 	}
 
-	return data_offset;
+	return record_offset;
+}
+
+static int
+radcom_seek_read(wtap *wth, int seek_off,
+    union pseudo_header *pseudo_header, u_char *pd, int length)
+{
+	int	ret;
+	int	err;		/* XXX - return this */
+	struct radcomrec_hdr hdr;
+
+	file_seek(wth->random_fh, seek_off, SEEK_SET);
+
+	/* Read record header. */
+	ret = radcom_read_rec_header(wth->random_fh, &hdr, &err);
+	if (ret <= 0) {
+		/* Read error or EOF */
+		return ret;
+	}
+
+	pseudo_header->x25.flags = (hdr.dce & 0x1) ? 0x00 : 0x80;
+
+	/*
+	 * Read the packet data.
+	 */
+	return radcom_read_rec_data(wth->random_fh, pd, length, &err);
+}
+
+static int
+radcom_read_rec_header(FILE_T *fh, struct radcomrec_hdr *hdr, int *err)
+{
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(hdr, 1, sizeof *hdr, fh);
+	if (bytes_read != sizeof *hdr) {
+		*err = file_error(fh);
+		if (*err != 0)
+			return -1;
+		if (bytes_read != 0) {
+			*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		}
+		return 0;
+	}
+	return 1;
+}
+
+static int
+radcom_read_rec_data(FILE_T *fh, char *pd, int length, int *err)
+{
+	int	bytes_read;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(pd, 1, length, fh);
+
+	if (bytes_read != length) {
+		*err = file_error(fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return -1;
+	}
+	return 0;
 }

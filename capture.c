@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.101 2000/05/06 07:07:27 guy Exp $
+ * $Id: capture.c,v 1.102 2000/05/18 09:05:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -951,7 +951,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
      whdr.pkt_encap = ld->linktype;
 
      /* XXX - do something if this fails */
-     wtap_dump(ld->pdh, &whdr, pd, &err);
+     wtap_dump(ld->pdh, &whdr, NULL, pd, &err);
   }
 
   /* Set the initial payload to the packet length, and the initial

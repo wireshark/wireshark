@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, or simply convert from one 
  * format to another format.
  *
- * $Id: editcap.c,v 1.9 2000/04/27 00:31:23 guy Exp $
+ * $Id: editcap.c,v 1.10 2000/05/18 09:05:29 guy Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -130,7 +130,7 @@ typedef struct {
 
 static void
 edit_callback(u_char *user, const struct wtap_pkthdr *phdr, int offset,
-    const u_char *buf) 
+    union pseudo_header *pseudo_header, const u_char *buf) 
 {
   callback_arg *argp = (callback_arg *)user;
   int err;
@@ -151,7 +151,7 @@ edit_callback(u_char *user, const struct wtap_pkthdr *phdr, int offset,
       phdr = &snap_phdr;
     }
 
-    if (!wtap_dump(argp->pdh, phdr, buf, &err)) {
+    if (!wtap_dump(argp->pdh, phdr, pseudo_header, buf, &err)) {
 
       fprintf(stderr, "editcap: Error writing to %s: %s\n", argp->filename,
         wtap_strerror(err));
@@ -271,7 +271,7 @@ int main(int argc, char *argv[])
 
   }
 
-  wth = wtap_open_offline(argv[optind], &err);
+  wth = wtap_open_offline(argv[optind], &err, FALSE);
 
   if (!wth) {
 

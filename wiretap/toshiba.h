@@ -1,6 +1,6 @@
 /* toshiba.h
  *
- * $Id: toshiba.h,v 1.1 1999/10/31 17:46:10 gram Exp $
+ * $Id: toshiba.h,v 1.2 2000/05/18 09:09:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -22,4 +22,3 @@
  */
 
 int toshiba_open(wtap *wth, int *err);
-int toshiba_seek_read (FILE *fh, int seek_off, guint8 *pd, int len);

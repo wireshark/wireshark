@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.118 2000/05/10 06:00:22 guy Exp $
+ * $Id: main.c,v 1.119 2000/05/18 09:08:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -897,14 +897,6 @@ packet_list_click_column_cb(GtkCList *clist, gint column, gpointer data)
 static void
 packet_list_select_cb(GtkWidget *w, gint row, gint col, gpointer evt) {
 
-#ifdef HAVE_LIBPCAP
-  if (!sync_mode) {
-#endif
-    if (cf.wth)
-      return; 
-#ifdef HAVE_LIBPCAP
-  }
-#endif
   blank_packetinfo();
   select_packet(&cf, row);
 }
@@ -1237,7 +1229,6 @@ main(int argc, char *argv[])
   cf.plist		= NULL;
   cf.plist_end		= NULL;
   cf.wth		= NULL;
-  cf.fh			= NULL;
   cf.filename		= NULL;
   cf.user_saved		= FALSE;
   cf.is_tempfile	= FALSE;

@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.10 2000/04/15 21:12:37 guy Exp $
+ * $Id: nettl.c,v 1.11 2000/05/18 09:09:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -65,6 +65,12 @@ struct nettlrec_ns_ls_ip_hdr {
 /* header is followed by data and once again the total length (2 bytes) ! */
 
 static int nettl_read(wtap *wth, int *err);
+static int nettl_seek_read(wtap *wth, int seek_off,
+		union pseudo_header *pseudo_header, u_char *pd, int length);
+static int nettl_read_rec_header(wtap *wth, FILE_T *fh,
+		struct wtap_pkthdr *phdr, union pseudo_header *pseudo_header,
+		int *err);
+static int nettl_read_rec_data(FILE_T *fh, char *pd, int length, int *err);
 static void nettl_close(wtap *wth);
 
 int nettl_open(wtap *wth, int *err)
@@ -109,6 +115,7 @@ int nettl_open(wtap *wth, int *err)
     else
 	wth->capture.nettl->is_hpux_11 = FALSE;
     wth->subtype_read = nettl_read;
+    wth->subtype_seek_read = nettl_seek_read;
     wth->subtype_close = nettl_close;
     wth->snapshot_length = 16384;	/* not available in header, only in frame */
 
@@ -118,19 +125,70 @@ int nettl_open(wtap *wth, int *err)
 /* Read the next packet */
 static int nettl_read(wtap *wth, int *err)
 {
-    int	bytes_read;
+    int record_offset;
+    int ret;
+
+    /* Read record header. */
+    record_offset = wth->data_offset;
+    ret = nettl_read_rec_header(wth, wth->fh, &wth->phdr, &wth->pseudo_header,
+        err);
+    if (ret <= 0) {
+	/* Read error or EOF */
+	return ret;
+    }
+    wth->data_offset += ret;
+
+    /*
+     * Read the packet data.
+     */
+    buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
+    if (nettl_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
+		wth->phdr.caplen, err) < 0)
+	return -1;	/* Read error */
+    wth->data_offset += wth->phdr.caplen;
+    return record_offset;
+}
+
+static int
+nettl_seek_read(wtap *wth, int seek_off,
+		union pseudo_header *pseudo_header, u_char *pd, int length)
+{
+    int ret;
+    int err;		/* XXX - return this */
+    struct wtap_pkthdr phdr;
+
+    file_seek(wth->random_fh, seek_off, SEEK_SET);
+
+    /* Read record header. */
+    ret = nettl_read_rec_header(wth, wth->random_fh, &phdr, pseudo_header,
+        &err);
+    if (ret <= 0) {
+	/* Read error or EOF */
+	return ret;
+    }
+
+    /*
+     * Read the packet data.
+     */
+    return nettl_read_rec_data(wth->random_fh, pd, length, &err);
+}
+
+static int
+nettl_read_rec_header(wtap *wth, FILE_T *fh, struct wtap_pkthdr *phdr,
+		union pseudo_header *pseudo_header, int *err)
+{
+    int bytes_read;
     struct nettlrec_sx25l2_hdr lapb_hdr;
     struct nettlrec_ns_ls_ip_hdr ip_hdr;
     guint16 length;
-    int	data_offset;
+    int offset = 0;
     guint8 encap[4];
     guint8 dummy[4];
 
-    /* Read record header. */
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(encap, 1, 4, wth->fh);
+    bytes_read = file_read(encap, 1, 4, fh);
     if (bytes_read != 4) {
-	*err = file_error(wth->fh);
+	*err = file_error(fh);
 	if (*err != 0)
 	    return -1;
 	if (bytes_read != 0) {
@@ -139,13 +197,14 @@ static int nettl_read(wtap *wth, int *err)
 	}
 	return 0;
     }
-    wth->data_offset += 4;
+    offset += 4;
+
     switch (encap[3]) {
     case NETTL_SUBSYS_NS_LS_IP :
-	wth->phdr.pkt_encap = WTAP_ENCAP_RAW_IP;
-	bytes_read = file_read(&ip_hdr, 1, sizeof ip_hdr, wth->fh);
+	phdr->pkt_encap = WTAP_ENCAP_RAW_IP;
+	bytes_read = file_read(&ip_hdr, 1, sizeof ip_hdr, fh);
 	if (bytes_read != sizeof ip_hdr) {
-	    *err = file_error(wth->fh);
+	    *err = file_error(fh);
 	    if (*err != 0)
 		return -1;
 	    if (bytes_read != 0) {
@@ -154,14 +213,14 @@ static int nettl_read(wtap *wth, int *err)
 	    }
 	    return 0;
 	}
-	wth->data_offset += sizeof ip_hdr;
+	offset += sizeof ip_hdr;
 
 	/* The packet header in HP-UX 11 nettl traces is 4 octets longer than
 	 * HP-UX 9 and 10 */
 	if (wth->capture.nettl->is_hpux_11) {
-	    bytes_read = file_read(dummy, 1, 4, wth->fh);
+	    bytes_read = file_read(dummy, 1, 4, fh);
 	    if (bytes_read != 4) {
-		*err = file_error(wth->fh);
+		*err = file_error(fh);
 		if (*err != 0)
 		    return -1;
 		if (bytes_read != 0) {
@@ -170,39 +229,22 @@ static int nettl_read(wtap *wth, int *err)
 		}
 		return 0;
 	    }
-	    wth->data_offset += 4;
+	    offset += 4;
 	}
 
 	length = pntohl(&ip_hdr.length);
 	if (length <= 0) return 0;
-	wth->phdr.len = length;
-	wth->phdr.caplen = length;
+	phdr->len = length;
+	phdr->caplen = length;
 
-	wth->phdr.ts.tv_sec = pntohl(&ip_hdr.sec);
-	wth->phdr.ts.tv_usec = pntohl(&ip_hdr.usec);
-
-	/*
-	 * Read the packet data.
-	 */
-	buffer_assure_space(wth->frame_buffer, length);
-	data_offset = wth->data_offset;
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
-		length, wth->fh);
-
-	if (bytes_read != length) {
-	    *err = file_error(wth->fh);
-	    if (*err == 0)
-		*err = WTAP_ERR_SHORT_READ;
-	    return -1;
-	}
-	wth->data_offset += length;
+	phdr->ts.tv_sec = pntohl(&ip_hdr.sec);
+	phdr->ts.tv_usec = pntohl(&ip_hdr.usec);
 	break;
     case NETTL_SUBSYS_SX25L2 :
-	wth->phdr.pkt_encap = WTAP_ENCAP_LAPB;
-	bytes_read = file_read(&lapb_hdr, 1, sizeof lapb_hdr, wth->fh);
+	phdr->pkt_encap = WTAP_ENCAP_LAPB;
+	bytes_read = file_read(&lapb_hdr, 1, sizeof lapb_hdr, fh);
 	if (bytes_read != sizeof lapb_hdr) {
-	    *err = file_error(wth->fh);
+	    *err = file_error(fh);
 	    if (*err != 0)
 		return -1;
 	    if (bytes_read != 0) {
@@ -211,12 +253,12 @@ static int nettl_read(wtap *wth, int *err)
 	    }
 	    return 0;
 	}
-	wth->data_offset += sizeof lapb_hdr;
+	offset += sizeof lapb_hdr;
 
 	if (wth->capture.nettl->is_hpux_11) {
-	    bytes_read = file_read(dummy, 1, 4, wth->fh);
+	    bytes_read = file_read(dummy, 1, 4, fh);
 	    if (bytes_read != 4) {
-		*err = file_error(wth->fh);
+		*err = file_error(fh);
 		if (*err != 0)
 		    return -1;
 		if (bytes_read != 0) {
@@ -225,34 +267,17 @@ static int nettl_read(wtap *wth, int *err)
 		}
 		return 0;
 	    }
-	    wth->data_offset += 4;
+	    offset += 4;
 	}
 
 	length = pntohs(&lapb_hdr.length);
 	if (length <= 0) return 0;
-	wth->phdr.len = length;
-	wth->phdr.caplen = length;
+	phdr->len = length;
+	phdr->caplen = length;
 
-	wth->phdr.ts.tv_sec = pntohl(&lapb_hdr.sec);
-	wth->phdr.ts.tv_usec = pntohl(&lapb_hdr.usec);
-	wth->phdr.pseudo_header.x25.flags = (lapb_hdr.from_dce & 0x20 ? 0x80 : 0x00);
-
-	/*
-	 * Read the packet data.
-	 */
-	buffer_assure_space(wth->frame_buffer, length);
-	data_offset = wth->data_offset;
-	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
-		length, wth->fh);
-
-	if (bytes_read != length) {
-	    *err = file_error(wth->fh);
-	    if (*err == 0)
-		*err = WTAP_ERR_SHORT_READ;
-	    return -1;
-	}
-	wth->data_offset += length;
+	phdr->ts.tv_sec = pntohl(&lapb_hdr.sec);
+	phdr->ts.tv_usec = pntohl(&lapb_hdr.usec);
+	pseudo_header->x25.flags = (lapb_hdr.from_dce & 0x20 ? 0x80 : 0x00);
 	break;
     default:
 	g_message("nettl: network type %u unknown or unsupported",
@@ -260,7 +285,23 @@ static int nettl_read(wtap *wth, int *err)
 	*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 	return -1;
     }
-    return data_offset;
+    return offset;
+}
+
+static int
+nettl_read_rec_data(FILE_T *fh, char *pd, int length, int *err)
+{
+    int bytes_read;
+
+    bytes_read = file_read(pd, 1, length, fh);
+
+    if (bytes_read != length) {
+	*err = file_error(fh);
+	if (*err == 0)
+	    *err = WTAP_ERR_SHORT_READ;
+	return -1;
+    }
+    return 0;
 }
 
 static void nettl_close(wtap *wth)

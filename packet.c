@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.84 2000/05/16 06:21:33 gram Exp $
+ * $Id: packet.c,v 1.85 2000/05/18 09:05:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1120,7 +1120,8 @@ init_all_protocols(void)
 
 /* this routine checks the frame type from the cf structure */
 void
-dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
+dissect_packet(union pseudo_header *pseudo_header, const u_char *pd,
+    frame_data *fd, proto_tree *tree)
 {
 	proto_tree *fh_tree;
 	proto_item *ti;
@@ -1192,7 +1193,7 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 				dissect_ppp(pd, 0, fd, tree);
 				break;
 			case WTAP_ENCAP_LAPB :
-				dissect_lapb(pd, fd, tree);
+				dissect_lapb(pseudo_header, pd, fd, tree);
 				break;
 			case WTAP_ENCAP_RAW_IP :
 				dissect_raw(pd, fd, tree);
@@ -1201,16 +1202,16 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 				dissect_clip(pd, fd, tree);
 				break;
 			case WTAP_ENCAP_ATM_SNIFFER :
-				dissect_atm(pd, fd, tree);
+				dissect_atm(pseudo_header, pd, fd, tree);
 				break;
 			case WTAP_ENCAP_ASCEND :
-				dissect_ascend(tvb, &pi, tree);
+				dissect_ascend(tvb, pseudo_header, &pi, tree);
 				break;
 			case WTAP_ENCAP_LAPD :
-				dissect_lapd(pd, fd, tree);
+				dissect_lapd(pseudo_header, pd, fd, tree);
 				break;
 			case WTAP_ENCAP_V120 :
-				dissect_v120(pd, fd, tree);
+	 			dissect_v120(pseudo_header, pd, fd, tree);
 				break;
 		}
 	}
