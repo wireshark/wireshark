@@ -4,7 +4,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nfsacl.c,v 1.5 2002/11/01 00:48:38 sahlberg Exp $
+ * $Id: packet-nfsacl.c,v 1.6 2003/04/01 04:38:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,16 +29,29 @@
 #include "config.h"
 #endif
 
-
-
 #include "packet-rpc.h"
+#include "packet-nfs.h"
 
 static int proto_nfsacl = -1;
 static int hf_nfsacl_procedure_v1 = -1;
 static int hf_nfsacl_procedure_v2 = -1;
 static int hf_nfsacl_procedure_v3 = -1;
+static int hf_nfsacl_entry = -1;
+static int hf_nfsacl_aclcnt = -1;
+static int hf_nfsacl_dfaclcnt = -1;
+static int hf_nfsacl2_status = -1;
+static int hf_nfsacl3_status = -1;
+static int hf_nfsacl_aclent = -1;
+static int hf_nfsacl_aclent_type = -1;
+static int hf_nfsacl_aclent_uid = 1;
+static int hf_nfsacl_aclent_perm = -1;
 
 static gint ett_nfsacl = -1;
+static gint ett_nfsacl_mask = -1;
+static gint ett_nfsacl_entry = -1;
+static gint ett_nfsacl_aclent = -1;
+static gint ett_nfsacl_aclent_perm = -1;
+static gint ett_nfsacl_aclent_entries = -1;
 
 #define NFSACL_PROGRAM	100227
 
@@ -52,6 +65,9 @@ static gint ett_nfsacl = -1;
 #define NFSACLPROC3_GETACL	1
 #define NFSACLPROC3_SETACL	2
 
+#define ACL2_OK 0
+#define ACL3_OK 0
+
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: type of arguments is "void". */
 static const vsff nfsacl1_proc[] = {
@@ -63,7 +79,6 @@ static const value_string nfsacl1_proc_vals[] = {
 	{ NFSACLPROC_NULL,	"NULL" },
 	{ 0,	NULL }
 };
-
 
 static const vsff nfsacl2_proc[] = {
 	{ NFSACLPROC_NULL,	"NULL",
@@ -87,14 +102,268 @@ static const value_string nfsacl2_proc_vals[] = {
 	{ 0,	NULL }
 };
 
+static int
+dissect_nfsacl_mask(tvbuff_t *tvb, int offset, proto_tree *tree, 
+		char *name)
+{
+	guint32 mask;
+	proto_item *mask_item = NULL;
+	proto_tree *mask_tree = NULL;
+
+	mask = tvb_get_ntohl(tvb, offset + 0);
+
+	if (tree)
+	{
+		mask_item = proto_tree_add_text(tree, tvb, offset, 4, "%s: 0x%02x",
+				name, mask);
+
+		if (mask_item)
+			mask_tree = proto_item_add_subtree(mask_item, ett_nfsacl_mask);
+	}
+
+	if (mask_tree)
+	{
+		proto_tree_add_text(mask_tree, tvb, offset, 4, "%s",
+				decode_boolean_bitfield(mask, 0x01, 8, "ACL entry", 
+					"(no ACL entry)"));
+		proto_tree_add_text(mask_tree, tvb, offset, 4, "%s",
+				decode_boolean_bitfield(mask, 0x02, 8, "ACL count", 
+					"(no ACL count)"));
+		proto_tree_add_text(mask_tree, tvb, offset, 4, "%s",
+				decode_boolean_bitfield(mask, 0x04, 8, "default ACL entry", 
+					"(no default ACL entry)"));
+		proto_tree_add_text(mask_tree, tvb, offset, 4, "%s",
+				decode_boolean_bitfield(mask, 0x08, 8, "default ACL count", 
+					"(no default ACL count)"));
+	}
+
+	offset += 4;
+	return offset;
+}
+
+static int
+dissect_nfsacl3_getacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree *tree)
+{
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle");
+	offset = dissect_nfsacl_mask(tvb, offset, tree, "mask");
+
+	return offset;
+}
+
+#define NA_READ 0x4
+#define NA_WRITE 0x2
+#define NA_EXEC 0x1
+
+static const value_string names_nfsacl_aclent_type[] = {
+#define NA_USER_OBJ 0x1
+	{ NA_USER_OBJ, "NA_USER_OBJ" },
+#define NA_USER 0x2
+	{ NA_USER, "NA_USER" },
+#define NA_GROUP_OBJ 0x4
+	{ NA_GROUP_OBJ, "NA_GROUP_OBJ" },
+#define NA_GROUP 0x8
+	{ NA_GROUP, "NA_GROUP" },
+#define NA_CLASS_OBJ 0x10
+	{ NA_CLASS_OBJ, "NA_CLASS_OBJ" },
+#define NA_OTHER_OBJ 0x20
+	{ NA_OTHER_OBJ, "NA_OTHER_OBJ" },
+#define NA_ACL_DEFAULT 0x1000
+	{ NA_ACL_DEFAULT, "NA_ACL_DEFAULT" },
+	{ NA_ACL_DEFAULT | NA_USER_OBJ, "Default NA_USER_OBJ" },
+	{ NA_ACL_DEFAULT | NA_USER, "Default NA_USER" },
+	{ NA_ACL_DEFAULT | NA_GROUP_OBJ, "Default NA_GROUP_OBJ" },
+	{ NA_ACL_DEFAULT | NA_GROUP, "Default NA_GROUP" },
+	{ NA_ACL_DEFAULT | NA_CLASS_OBJ, "Default NA_CLASS_OBJ" },
+	{ NA_ACL_DEFAULT | NA_OTHER_OBJ, "Default NA_OTHER_OBJ" },
+	{ 0, NULL },
+};
+
+static int
+dissect_nfsacl_aclent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree* tree)
+{
+	proto_item *entry_item = NULL;
+	proto_tree *entry_tree = NULL;
+	guint32 perm;
+	proto_item *perm_item = NULL;
+	proto_tree *perm_tree = NULL;
+
+	if (tree)
+	{
+		entry_item = proto_tree_add_item(tree, hf_nfsacl_aclent, tvb, 
+				offset + 0, -1, FALSE);
+		entry_tree = proto_item_add_subtree(entry_item, ett_nfsacl_aclent);
+	}
+
+	offset = dissect_rpc_uint32(tvb, entry_tree, hf_nfsacl_aclent_type, offset);
+	offset = dissect_rpc_uint32(tvb, entry_tree, hf_nfsacl_aclent_uid, offset);
+	
+	perm = tvb_get_ntohl(tvb, offset);
+
+	perm_item = proto_tree_add_uint(entry_tree, hf_nfsacl_aclent_perm, 
+			tvb, offset, 4, perm);
+
+	if (perm_item)
+		perm_tree = proto_item_add_subtree(perm_item, ett_nfsacl_aclent_perm);
+
+	if (perm_tree)
+	{
+		proto_tree_add_text(perm_tree, tvb, offset, 4, "%s",
+				decode_boolean_bitfield(perm, NA_READ, 4, "READ", "no READ"));
+
+		proto_tree_add_text(perm_tree, tvb, offset, 4, "%s",
+				decode_boolean_bitfield(perm, NA_WRITE, 4, "WRITE", "no WRITE"));
+
+		proto_tree_add_text(perm_tree, tvb, offset, 4, "%s",
+				decode_boolean_bitfield(perm, NA_EXEC, 4, "EXEC", "no EXEC"));
+	}
+
+	offset += 4;
+
+	return offset;
+}
+
+static int
+dissect_nfsacl_secattr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree *tree)
+{
+	guint32 aclcnt, dfaclcnt;
+	guint32 i;
+	proto_item *entry_item = NULL;
+	proto_tree *entry_tree = NULL;
+
+	offset = dissect_nfsacl_mask(tvb, offset, tree, "mask");
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfsacl_aclcnt, offset);
+
+	aclcnt = tvb_get_ntohl(tvb, offset);
+
+	entry_item = proto_tree_add_text(tree, tvb, offset, 4, 
+			"Total ACL entries: %d", aclcnt);
+
+	if (entry_item)
+		entry_tree = proto_item_add_subtree(entry_item, 
+				ett_nfsacl_aclent_entries);
+
+	offset += 4;
+
+	if (aclcnt > 0)
+	{
+		for (i = 0; i < aclcnt; i++)
+			offset = dissect_nfsacl_aclent(tvb, offset, pinfo, entry_tree);
+	}
+
+	/* */
+
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfsacl_dfaclcnt, offset);
+
+	dfaclcnt = tvb_get_ntohl(tvb, offset);
+
+	entry_item = proto_tree_add_text(tree, tvb, offset, 4, 
+			"Total default ACL entries: %d", dfaclcnt);
+
+	if (entry_item)
+		entry_tree = proto_item_add_subtree(entry_item,
+				ett_nfsacl_aclent_entries);
+
+	offset += 4;
+
+	if (dfaclcnt > 0)
+	{
+		for (i = 0; i < dfaclcnt; i++)
+			offset = dissect_nfsacl_aclent(tvb, offset, pinfo, entry_tree);
+	}
+
+	return offset;
+}
+
+static int
+dissect_nfsacl3_getacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree *tree)
+{
+	guint32 status;
+	proto_item *entry_item = NULL;
+	proto_tree *entry_tree = NULL;
+
+	status = tvb_get_ntohl(tvb, offset + 0);
+
+	if (tree)
+		proto_tree_add_uint(tree, hf_nfsacl3_status, tvb, offset + 0, 4,
+				status);
+
+	offset += 4;
+
+	if (tree)
+	{
+		entry_item = proto_tree_add_item(tree, hf_nfsacl_entry, tvb,
+				offset + 0, -1, FALSE);
+		if (entry_item)
+			entry_tree = proto_item_add_subtree(entry_item, ett_nfsacl_entry);
+	}
+
+	if (entry_tree)
+		offset = dissect_nfs_post_op_attr(tvb, offset, entry_tree, "fattr");
+
+	if (status != ACL3_OK)
+		return offset;
+
+	if (entry_tree)
+		offset = dissect_nfsacl_secattr(tvb, offset, pinfo, entry_tree);
+
+	return offset;
+}
+
+static int
+dissect_nfsacl3_setacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree *tree)
+
+{
+	proto_item *acl_item = NULL;
+	proto_tree *acl_tree = NULL;
+
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle");
+
+	if (tree)
+	{
+		acl_item = proto_tree_add_item(tree, hf_nfsacl_entry, tvb, offset + 0, 
+				-1, FALSE);
+
+		if (acl_item)
+			acl_tree = proto_item_add_subtree(acl_item, ett_nfsacl_entry);
+	}
+
+	if (acl_tree)
+		offset = dissect_nfsacl_secattr(tvb, offset, pinfo, acl_tree);
+
+	return offset;
+}
+
+static int
+dissect_nfsacl3_setacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+		proto_tree *tree)
+{
+	guint32 status = tvb_get_ntohl(tvb, offset + 0);
+
+	if (tree)
+		proto_tree_add_uint(tree, hf_nfsacl3_status, tvb, offset + 0, 4,
+				status);
+
+	offset += 4;
+
+	// if (entry_tree)
+		offset = dissect_nfs_post_op_attr(tvb, offset, tree, "fattr");
+
+
+	return offset;
+}
 
 static const vsff nfsacl3_proc[] = {
 	{ NFSACLPROC_NULL,	"NULL",
 		NULL,	NULL },
 	{ NFSACLPROC3_GETACL,	"GETACL",
-		NULL,	NULL },
+		dissect_nfsacl3_getacl_call,	dissect_nfsacl3_getacl_reply },
 	{ NFSACLPROC3_SETACL,	"SETACL",
-		NULL,	NULL },
+		dissect_nfsacl3_setacl_call,	dissect_nfsacl3_setacl_reply },
 	{ 0,	NULL,	NULL,	NULL }
 };
 static const value_string nfsacl3_proc_vals[] = {
@@ -102,6 +371,16 @@ static const value_string nfsacl3_proc_vals[] = {
 	{ NFSACLPROC3_GETACL,	"GETACL" },
 	{ NFSACLPROC3_SETACL,	"SETACL" },
 	{ 0,	NULL }
+};
+
+static const value_string names_nfsacl2_status[] = {
+	{ ACL2_OK, "ACL2_OK" },
+	{ 0, NULL }
+};
+
+static const value_string names_nfsacl3_status[] = {
+	{ ACL3_OK,	"ACL3_OK" },
+	{ 0, NULL }
 };
 
 void
@@ -116,11 +395,46 @@ proto_register_nfsacl(void)
 			VALS(nfsacl2_proc_vals), 0, "V2 Procedure", HFILL }},
 		{ &hf_nfsacl_procedure_v3, {
 			"V3 Procedure", "nfsacl.procedure_v3", FT_UINT32, BASE_DEC,
-			VALS(nfsacl3_proc_vals), 0, "V3 Procedure", HFILL }}
+			VALS(nfsacl3_proc_vals), 0, "V3 Procedure", HFILL }},
+			/* generic */
+		{ &hf_nfsacl_entry, {
+			"ACL", "nfsacl.acl", FT_NONE, 0,
+			NULL, 0, "ACL", HFILL }},
+		{ &hf_nfsacl_aclcnt, {
+			"ACL count", "nfsacl.aclcnt", FT_UINT32, BASE_DEC,
+			NULL, 0, "ACL count", HFILL }},
+		{ &hf_nfsacl_dfaclcnt, {
+			"Default ACL count", "nfsacl.dfaclcnt", FT_UINT32, BASE_DEC,
+			NULL, 0, "Default ACL count", HFILL }},
+		{ &hf_nfsacl_aclent, {
+			"ACL Entry", "nfsacl.aclent", FT_NONE, 0,
+			NULL, 0, "ACL", HFILL }},
+		{ &hf_nfsacl_aclent_type, {
+			"Type", "nfsacl.aclent.type", FT_UINT32, BASE_DEC,
+			VALS(names_nfsacl_aclent_type), 0, "Type", HFILL }},
+		{ &hf_nfsacl_aclent_uid, {
+			"UID", "nfsacl.aclent.uid", FT_UINT32, BASE_DEC,
+			NULL, 0, "UID", HFILL }},
+		{ &hf_nfsacl_aclent_perm, {
+			"Permissions", "nfsacl.aclent.perm", FT_UINT32, BASE_DEC,
+			NULL, 0, "Permissions", HFILL }},
+			/* V2 */
+		{ &hf_nfsacl2_status, {
+			"Status", "nfsacl.status2", FT_UINT32, BASE_DEC,
+			VALS(names_nfsacl2_status), 0, "Status", HFILL }},
+			/* V3 */
+		{ &hf_nfsacl3_status, {
+			"Status", "nfsacl.status3", FT_UINT32, BASE_DEC,
+			VALS(names_nfsacl3_status), 0, "Status", HFILL }},
 	};
 
 	static gint *ett[] = {
 		&ett_nfsacl,
+		&ett_nfsacl_mask,
+		&ett_nfsacl_entry,
+		&ett_nfsacl_aclent,
+		&ett_nfsacl_aclent_perm,
+		&ett_nfsacl_aclent_entries
 	};
 
 	proto_nfsacl = proto_register_protocol("NFSACL", "NFSACL", "nfsacl");

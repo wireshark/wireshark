@@ -1,5 +1,5 @@
 /* packet-nfs.h (c) 1999 Uwe Girlich */
-/* $Id: packet-nfs.h,v 1.12 2002/12/02 23:43:28 guy Exp $ */
+/* $Id: packet-nfs.h,v 1.13 2003/04/01 04:38:05 guy Exp $ */
 
 #ifndef __PACKET_NFS_H__
 #define __PACKET_NFS_H__
@@ -102,6 +102,9 @@ int dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
     char *name);
 int dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     char *name);
+
+int dissect_nfs_post_op_attr(tvbuff_t *tvb, int offset, proto_tree *tree, 
+		char* name);
 
 void nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, int parent_offset, int parent_len, unsigned char *name);
 

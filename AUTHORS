@@ -558,6 +558,7 @@ Mike Frisch <mfrisch[AT]isurfer.ca> {
 	Tvbuffified NFS dissector
 	RPCSEC_GSS fixes
 	PCNFSD updates
+	NFS_ACL support
 }
 
 Burke Lau <burke_lau[AT]agilent.com> {

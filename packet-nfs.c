@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.85 2003/02/14 19:51:54 guy Exp $
+ * $Id: packet-nfs.c,v 1.86 2003/04/01 04:38:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2831,8 +2831,8 @@ dissect_nfstime3(tvbuff_t *tvb, int offset,
 
 
 /* RFC 1813, Page 22 */
-static int
-dissect_fattr3(tvbuff_t *tvb, int offset, proto_tree *tree, char* name)
+int
+dissect_nfs_fattr3(tvbuff_t *tvb, int offset, proto_tree *tree, char* name)
 {
 	proto_item* fattr3_item = NULL;
 	proto_tree* fattr3_tree = NULL;
@@ -2884,8 +2884,9 @@ static const value_string value_follows[] =
 
 
 /* RFC 1813, Page 23 */
-static int
-dissect_post_op_attr(tvbuff_t *tvb, int offset, proto_tree *tree, char* name)
+int
+dissect_nfs_post_op_attr(tvbuff_t *tvb, int offset, proto_tree *tree, 
+		char* name)
 {
 	proto_item* post_op_attr_item = NULL;
 	proto_tree* post_op_attr_tree = NULL;
@@ -2906,7 +2907,7 @@ dissect_post_op_attr(tvbuff_t *tvb, int offset, proto_tree *tree, char* name)
 	offset += 4;
 	switch (attributes_follow) {
 		case TRUE:
-			offset = dissect_fattr3(tvb, offset, post_op_attr_tree,
+			offset = dissect_nfs_fattr3(tvb, offset, post_op_attr_tree,
 					"attributes");
 		break;
 		case FALSE:
@@ -3007,7 +3008,7 @@ dissect_wcc_data(tvbuff_t *tvb, int offset, proto_tree *tree, char* name)
 	}
 
 	offset = dissect_pre_op_attr (tvb, offset, wcc_data_tree, "before");
-	offset = dissect_post_op_attr(tvb, offset, wcc_data_tree, "after" );
+	offset = dissect_nfs_post_op_attr(tvb, offset, wcc_data_tree, "after" );
 
 	/* now we know, that wcc_data is shorter */
 	if (wcc_data_item) {
@@ -3508,7 +3509,7 @@ dissect_nfs3_getattr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_fattr3(tvb, offset, tree, "obj_attributes");
+			offset = dissect_nfs_fattr3(tvb, offset, tree, "obj_attributes");
 		break;
 		default:
 			/* void */
@@ -3618,13 +3619,13 @@ dissect_nfs3_lookup_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	switch (status) {
 		case 0:
 			offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "object");
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"obj_attributes");
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"dir_attributes");
 		break;
 		default:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"dir_attributes");
 		break;
 	}
@@ -3655,12 +3656,12 @@ dissect_nfs3_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"obj_attributes");
 			offset = dissect_access(tvb, offset, tree, "access");
 		break;
 		default:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"obj_attributes");
 		break;
 	}
@@ -3679,13 +3680,13 @@ dissect_nfs3_readlink_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"symlink_attributes");
 			offset = dissect_nfspath3(tvb, offset, tree,
 				hf_nfs_readlink_data);
 		break;
 		default:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"symlink_attributes");
 		break;
 	}
@@ -3717,7 +3718,7 @@ dissect_nfs3_read_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"file_attributes");
 			offset = dissect_rpc_uint32(tvb, tree, hf_nfs_count3,
 				offset);
@@ -3726,7 +3727,7 @@ dissect_nfs3_read_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset = dissect_nfsdata(tvb, offset, tree, hf_nfs_data);
 		break;
 		default:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"file_attributes");
 		break;
 	}
@@ -3863,7 +3864,7 @@ dissect_nfs3_create_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	switch (status) {
 		case 0:
 			offset = dissect_post_op_fh3 (tvb, offset, pinfo, tree, "obj");
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"obj_attributes");
 			offset = dissect_wcc_data(tvb, offset, tree, "dir_wcc");
 		break;
@@ -4007,12 +4008,12 @@ dissect_nfs3_link_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"file_attributes");
 			offset = dissect_wcc_data(tvb, offset, tree, "linkdir_wcc");
 		break;
 		default:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"file_attributes");
 			offset = dissect_wcc_data(tvb, offset, tree, "linkdir_wcc");
 		break;
@@ -4084,7 +4085,7 @@ dissect_nfs3_readdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"dir_attributes");
 			offset = dissect_cookieverf3(tvb, offset, tree);
 			offset = dissect_rpc_list(tvb, pinfo, tree, offset,
@@ -4096,7 +4097,7 @@ dissect_nfs3_readdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset += 4;
 		break;
 		default:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"dir_attributes");
 		break;
 	}
@@ -4150,7 +4151,7 @@ dissect_entryplus3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_rpc_uint64(tvb, entry_tree, hf_nfs_readdirplus_entry_cookie,
 		offset);
 
-	offset = dissect_post_op_attr(tvb, offset, entry_tree,
+	offset = dissect_nfs_post_op_attr(tvb, offset, entry_tree,
 		"name_attributes");
 	offset = dissect_post_op_fh3(tvb, offset, pinfo, entry_tree, "name_handle");
 
@@ -4174,7 +4175,7 @@ dissect_nfs3_readdirplus_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_stat(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"dir_attributes");
 			offset = dissect_cookieverf3(tvb, offset, tree);
 			offset = dissect_rpc_list(tvb, pinfo, tree, offset,
@@ -4186,7 +4187,7 @@ dissect_nfs3_readdirplus_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset += 4;
 		break;
 		default:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"dir_attributes");
 		break;
 	}
@@ -4206,7 +4207,7 @@ dissect_nfs3_fsstat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"obj_attributes");
 			offset = dissect_rpc_uint64(tvb, tree, hf_nfs_fsstat3_resok_tbytes,
 				offset);
@@ -4227,7 +4228,7 @@ dissect_nfs3_fsstat_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset += 4;
 		break;
 		default:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"obj_attributes");
 		break;
 	}
@@ -4262,7 +4263,7 @@ dissect_nfs3_fsinfo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"obj_attributes");
 			rtmax = tvb_get_ntohl(tvb, offset+0);
 			if (tree)
@@ -4344,7 +4345,7 @@ dissect_nfs3_fsinfo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset += 4;
 		break;
 		default:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"obj_attributes");
 		break;
 	}
@@ -4365,7 +4366,7 @@ dissect_nfs3_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	offset = dissect_nfsstat3(tvb, offset, tree, &status);
 	switch (status) {
 		case 0:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"obj_attributes");
 			linkmax = tvb_get_ntohl(tvb, offset + 0);
 			if (tree)
@@ -4387,7 +4388,7 @@ dissect_nfs3_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 				hf_nfs_pathconf_case_preserving, offset);
 		break;
 		default:
-			offset = dissect_post_op_attr(tvb, offset, tree,
+			offset = dissect_nfs_post_op_attr(tvb, offset, tree,
 				"obj_attributes");
 		break;
 	}
