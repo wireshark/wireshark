@@ -1,4 +1,4 @@
-$Id: README.linux,v 1.3 2000/01/14 08:18:58 guy Exp $
+$Id: README.linux,v 1.4 2000/02/01 21:21:47 guy Exp $
 
 The standard libpcap compiled for Linux has a timeout problem; it
 doesn't support the timeout argument to "pcap_open_live()".
@@ -12,3 +12,10 @@ version of libpcap you're using, to ethereal-dev@zing.org.
 The current version of Ethereal should work with versions of libpcap
 that have been patched to fix the timeout problem, as well as working
 with unpatched versions.
+
+An additional problem, on Linux, with current versions of libpcap is
+that capture filters do not work when snooping loopback devices; if
+you're capturing on a Linux loopback device, do not use a capture
+filter, as it will probably reject most if not all packets, including
+the packets it's intended to accept - instead, capture all packets and
+use a display filter to select the packets you want to see.
