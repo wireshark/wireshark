@@ -1,5 +1,5 @@
 /*
- * $Id: dfilter.c,v 1.7 2002/01/21 07:37:37 guy Exp $
+ * $Id: dfilter.c,v 1.8 2002/04/08 20:11:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,7 +40,7 @@
 
 
 /* Balanced tree of abbreviations and IDs */
-GTree *dfilter_tokens = NULL;
+static GTree *dfilter_tokens = NULL;
 
 #define DFILTER_TOKEN_ID_OFFSET	1
 
@@ -48,7 +48,7 @@ GTree *dfilter_tokens = NULL;
 static int g_strcmp(gconstpointer a, gconstpointer b);
 
 /* Global error message space for dfilter_compile errors */
-gchar dfilter_error_msg_buf[1024];
+static gchar dfilter_error_msg_buf[1024];
 gchar *dfilter_error_msg;	/* NULL when no error resulted */
 
 /* In proto.c */
@@ -61,7 +61,7 @@ void    df_scanner_cleanup(void);
 int     df_lex(void);
 
 /* Holds the singular instance of our Lemon parser object */
-void*		ParserObj = NULL;
+static void*	ParserObj = NULL;
 
 void
 dfilter_fail(char *format, ...)

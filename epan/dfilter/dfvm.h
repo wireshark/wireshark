@@ -1,5 +1,5 @@
 /*
- * $Id: dfvm.h,v 1.4 2002/01/21 07:37:37 guy Exp $
+ * $Id: dfvm.h,v 1.5 2002/04/08 20:11:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,9 +88,6 @@ dfvm_insn_free(dfvm_insn_t *insn);
 
 dfvm_value_t*
 dfvm_value_new(dfvm_value_type_t type);
-
-void
-dfvm_value_free(dfvm_value_t *v);
 
 void
 dfvm_dump(FILE *f, GPtrArray *insns);

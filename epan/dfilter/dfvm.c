@@ -1,5 +1,5 @@
 /*
- * $Id: dfvm.c,v 1.5 2001/12/18 19:09:06 gram Exp $
+ * $Id: dfvm.c,v 1.6 2002/04/08 20:11:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,23 @@ dfvm_insn_new(dfvm_opcode_t op)
 	return insn;
 }
 
+static void
+dfvm_value_free(dfvm_value_t *v)
+{
+	switch (v->type) {
+		case FVALUE:
+			fvalue_free(v->value.fvalue);
+			break;
+		case DRANGE:
+			drange_free(v->value.drange);
+			break;
+		default:
+			/* nothing */
+			;
+	}
+	g_free(v);
+}
+
 void
 dfvm_insn_free(dfvm_insn_t *insn)
 {
@@ -56,7 +73,6 @@ dfvm_insn_free(dfvm_insn_t *insn)
 }
 
 
-
 dfvm_value_t*
 dfvm_value_new(dfvm_value_type_t type)
 {
@@ -65,23 +81,6 @@ dfvm_value_new(dfvm_value_type_t type)
 	v = g_new(dfvm_value_t, 1);
 	v->type = type;
 	return v;
-}
-
-void
-dfvm_value_free(dfvm_value_t *v)
-{
-	switch (v->type) {
-		case FVALUE:
-			fvalue_free(v->value.fvalue);
-			break;
-		case DRANGE:
-			drange_free(v->value.drange);
-			break;
-		default:
-			/* nothing */
-			;
-	}
-	g_free(v);
 }
 
 
