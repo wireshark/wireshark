@@ -11,7 +11,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.13 2002/03/20 21:01:21 guy Exp $
+ * $Id: packet-skinny.c,v 1.14 2002/03/20 23:32:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1343,12 +1343,12 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_uint(skinny_tree, hf_skinny_softKeySetCount, tvb, offset+16, 4, softKeySetCount);
       proto_tree_add_item(skinny_tree, hf_skinny_totalSoftKeySetCount, tvb, offset+20, 4, TRUE);
       for (i = 0; ((i < StationMaxSoftKeySetDefinition) && (i < softKeySetCount)); i++) {
-	proto_tree_add_uint(skinny_tree, hf_skinny_softKeySetDescription, tvb, offset+(i*20)+24+j,1,i);
+	proto_tree_add_uint(skinny_tree, hf_skinny_softKeySetDescription, tvb, offset+24+(i*48) , 1, i);
 	for (j = 0; j < StationMaxSoftKeyIndex; j++) {
-	  proto_tree_add_item(skinny_tree, hf_skinny_softKeyTemplateIndex, tvb, offset+(i*20)+24+j, 1, TRUE);
+	  proto_tree_add_item(skinny_tree, hf_skinny_softKeyTemplateIndex, tvb, offset+24+(i*48)+j, 1, TRUE);
 	}
 	for (j = 0; j < StationMaxSoftKeyIndex; j++) {
-	  proto_tree_add_item(skinny_tree, hf_skinny_softKeyInfoIndex, tvb, offset+(i*20)+25+(j*2), 2, TRUE);
+	  proto_tree_add_item(skinny_tree, hf_skinny_softKeyInfoIndex, tvb, offset+24+(i*48)+StationMaxSoftKeyIndex+(j*2), 2, TRUE);
 	}
       }
       break;
@@ -1384,7 +1384,7 @@ static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, TRUE);
       break;
       
-    case 0x112 :
+    case 0x112 : /* displayPromptStatus */
       proto_tree_add_item(skinny_tree, hf_skinny_messageTimeOutValue, tvb, offset+12, 4, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, StationMaxDisplayPromptStatusSize, TRUE);
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+48, 4, TRUE);
@@ -2334,7 +2334,7 @@ proto_register_skinny(void)
     },
 
     { &hf_skinny_deviceUnregisterStatus,
-      { "Echo Cancel Type", "skinny.deviceUnregisterStatus", 
+      { "Unregister Status", "skinny.deviceUnregisterStatus", 
 	FT_UINT32, BASE_DEC, VALS(skinny_deviceUnregisterStatusTypes), 0x0,
 	"The status of the device unregister request (*CAN* be refused)", 
 	HFILL }
@@ -2487,6 +2487,12 @@ proto_register_skinny(void)
 	HFILL }
     },
 
+    { &hf_skinny_unknown,
+      { "Data", "skinny.unknown", 
+	FT_UINT32, BASE_HEX, NULL, 0x0,
+	"Place holder for unknown data.", 
+	HFILL }
+    },
 
   };
   
