@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.86 2003/11/13 23:44:05 guy Exp $
+ * $Id: packet-wsp.c,v 1.87 2003/11/15 23:58:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3417,7 +3417,7 @@ static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
 		if (val & 0x80) { /* Header Code Page */
 			val_str = g_strdup_printf("code-page=%u", val & 0x7F);
 			ti = proto_tree_add_string(tree, hf_hdr_encoding_version,
-					tvb, hdr_start, off - hdr_start, val_str);
+					tvb, hdr_start, offset - hdr_start, val_str);
 			g_free(val_str);
 			off++;
 			ok = TRUE;
