@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.48 2001/12/18 19:09:04 gram Exp $
+ * $Id: proto.c,v 1.49 2002/01/07 01:05:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1549,29 +1549,30 @@ static proto_item *
 proto_tree_add_node(proto_tree *tree, field_info *fi)
 {
 	GNode *new_gnode;
-    proto_node *pnode;
+	proto_node *pnode;
 
-    pnode = g_mem_chunk_alloc(gmc_proto_node);
-    pnode->finfo = fi;
-    pnode->tree_data = PTREE_DATA(tree);
+	pnode = g_mem_chunk_alloc(gmc_proto_node);
+	pnode->finfo = fi;
+	pnode->tree_data = PTREE_DATA(tree);
 
-    new_gnode = g_node_new(pnode);
-    g_node_append((GNode*)tree, new_gnode);
+	new_gnode = g_node_new(pnode);
+	g_node_append((GNode*)tree, new_gnode);
 
-    return (proto_item*) new_gnode;
+	return (proto_item*) new_gnode;
 }
 
 
 /* Generic way to allocate field_info and add to proto_tree.
- * Sets *pfi to address of newly-allocated field_info struct, if pfi is non-NULL. */
+ * Sets *pfi to address of newly-allocated field_info struct, if pfi is
+ * non-NULL. */
 static proto_item *
 proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		field_info **pfi)
 {
 	proto_item	*pi;
 	field_info	*fi;
-    GHashTable  *hash;
-    GPtrArray   *ptrs;
+	GHashTable	*hash;
+	GPtrArray	*ptrs;
 
 	if (!tree)
 		return(NULL);
@@ -1579,15 +1580,15 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint
 	fi = alloc_field_info(tree, hfindex, tvb, start, length);
 	pi = proto_tree_add_node(tree, fi);
 
-    /* If the proto_tree wants to keep a record of this finfo
-     * for quick lookup, then record it. */
-    hash = PTREE_DATA(tree)->interesting_hfids;
-    ptrs = g_hash_table_lookup(hash, GINT_TO_POINTER(hfindex));
-    if (ptrs) {
-        g_ptr_array_add(ptrs, fi);
-    }
+	/* If the proto_tree wants to keep a record of this finfo
+	 * for quick lookup, then record it. */
+	hash = PTREE_DATA(tree)->interesting_hfids;
+	ptrs = g_hash_table_lookup(hash, GINT_TO_POINTER(hfindex));
+	if (ptrs) {
+		g_ptr_array_add(ptrs, fi);
+	}
 
-    /* Does the caller want to know the fi pointer? */
+	/* Does the caller want to know the fi pointer? */
 	if (pfi) {
 		*pfi = fi;
 	}
