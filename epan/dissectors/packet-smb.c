@@ -9981,10 +9981,10 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 	return offset;
 }
 
-/* This dissects the standard four Windows timestamps ...
+/* This dissects the standard four 8-byte Windows timestamps ...
  */
 static int
-dissect_smb_standard_timestamps(tvbuff_t *tvb,
+dissect_smb_standard_8byte_timestamps(tvbuff_t *tvb,
     packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
@@ -10171,7 +10171,7 @@ dissect_4_2_16_4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 
-	offset = dissect_smb_standard_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
+	offset = dissect_smb_standard_8byte_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
 	if (*trunc) {
 	  return offset;
 	}
@@ -10565,7 +10565,7 @@ dissect_smb_query_file_network_open_info(tvbuff_t *tvb,
     int offset, guint16 *bcp, gboolean *trunc)
 {
 
-	offset = dissect_smb_standard_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
+	offset = dissect_smb_standard_8byte_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
         if (*trunc) {
           return offset;
         }
@@ -11787,7 +11787,7 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
-	offset = dissect_smb_standard_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
+	offset = dissect_smb_standard_8byte_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
         if (*trunc) {
           return offset;
         }
@@ -11884,26 +11884,11 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
-	/* create time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_create_time);
-	*bcp -= 8;
-
-	/* access time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_access_time);
-	*bcp -= 8;
-
-	/* last write time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset,
-		hf_smb_last_write_time);
-	*bcp -= 8;
-
-	/* last change time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_change_time);
-	*bcp -= 8;
+	/* standard 8-byte timestamps */
+	offset = dissect_smb_standard_8byte_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
+        if (*trunc) {
+          return offset;
+        }
 
 	/* end of file */
 	CHECK_BYTE_COUNT_SUBR(8);
@@ -12003,26 +11988,11 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, TRUE);
 	COUNT_BYTES_SUBR(4);
 
-	/* create time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_create_time);
-	*bcp -= 8;
-
-	/* access time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_access_time);
-	*bcp -= 8;
-
-	/* last write time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset,
-		hf_smb_last_write_time);
-	*bcp -= 8;
-
-	/* last change time */
-	CHECK_BYTE_COUNT_SUBR(8);
-	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb_change_time);
-	*bcp -= 8;
+        /* dissect standard 8-byte timestamps */
+	offset = dissect_smb_standard_8byte_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
+	if (*trunc) {
+	  return offset;
+	}
 
 	/* end of file */
 	CHECK_BYTE_COUNT_SUBR(8);
