@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.42 2003/09/05 07:44:49 jmayer Exp $
+ * $Id: packet-mgcp.c,v 1.43 2003/12/05 09:25:41 guy Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -259,42 +259,39 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * but its cheap and its better than nothing.
    */
   if(is_mgcp_verb(tvb,0,tvb_len) || is_mgcp_rspcode(tvb,0,tvb_len)){
-
-    /* Build the info tree if we've been given a root */
-    if (tree || global_mgcp_message_count == TRUE) {
-      /*
-       * Loop through however many mgcp messages may be stuck in
-       * this packet using piggybacking
-       */
-      do{
-	num_messages++;
-	if(tree){
-	  /* Create out mgcp subtree */
-	  ti = proto_tree_add_item(tree,proto_mgcp,tvb,0,0, FALSE);
-	  mgcp_tree = proto_item_add_subtree(ti, ett_mgcp);
-	}
-
-	sectionlen = tvb_find_dot_line(tvb, tvb_sectionbegin, -1,
-				       &tvb_sectionend);
-	if( sectionlen != -1){
-	  dissect_mgcp_message(tvb_new_subset(tvb, tvb_sectionbegin,
-					      sectionlen, -1),
-			       pinfo, tree, mgcp_tree,ti);
-	  tvb_sectionbegin = tvb_sectionend;
-	}
-	else {
-	  break;
-	}
-      } while(tvb_sectionend < tvb_len );
-      if(mgcp_tree){
-	proto_tree_add_uint_hidden(mgcp_tree, hf_mgcp_messagecount, tvb,
-				   0 ,0 , num_messages);
+    /*
+     * Loop through however many mgcp messages may be stuck in
+     * this packet using piggybacking
+     */
+    do{
+      num_messages++;
+      if(tree){
+	/* Create out mgcp subtree */
+	ti = proto_tree_add_item(tree,proto_mgcp,tvb,0,0, FALSE);
+	mgcp_tree = proto_item_add_subtree(ti, ett_mgcp);
       }
+
+      sectionlen = tvb_find_dot_line(tvb, tvb_sectionbegin, -1,
+				     &tvb_sectionend);
+      if( sectionlen != -1){
+	dissect_mgcp_message(tvb_new_subset(tvb, tvb_sectionbegin,
+					    sectionlen, -1),
+			     pinfo, tree, mgcp_tree,ti);
+	tvb_sectionbegin = tvb_sectionend;
+      }
+      else {
+	break;
+      }
+    } while(tvb_sectionend < tvb_len );
+    if(mgcp_tree){
+      proto_tree_add_uint_hidden(mgcp_tree, hf_mgcp_messagecount, tvb,
+				 0 ,0 , num_messages);
     }
 
     /*
      * Add our column information we do this after dissecting SDP
      * in order to prevent the column info changing to reflect the SDP.
+     * XXX - can we do this with a fence?
      */
     tvb_sectionbegin = 0;
     if (check_col(pinfo->cinfo, COL_PROTOCOL)){
@@ -343,49 +340,46 @@ dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    * but its cheap and its better than nothing.
    */
   if(is_mgcp_verb(tvb,0,tvb_len) || is_mgcp_rspcode(tvb,0,tvb_len)){
+    /* dissect first line */
+    tvb_sectionbegin = 0;
+    tvb_current_len = tvb_len;
+    tvb_sectionend = tvb_sectionbegin;
+    sectionlen = tvb_find_line_end(tvb,0,-1,&tvb_sectionend,FALSE);
+    if( sectionlen > 0){
+      dissect_mgcp_firstline(tvb_new_subset(tvb, tvb_sectionbegin,
+					    sectionlen,-1), pinfo,
+			     mgcp_tree, &mi);
+    }
+    tvb_sectionbegin = tvb_sectionend;
 
-    /* Build the info tree if we've been given a root */
-    if (tree && mgcp_tree) {
-
-      /* dissect first line */
-      tvb_sectionbegin = 0;
-      tvb_current_len = tvb_len;
-      tvb_sectionend = tvb_sectionbegin;
-      sectionlen = tvb_find_line_end(tvb,0,-1,&tvb_sectionend,FALSE);
-      if( sectionlen > 0){
-	dissect_mgcp_firstline(tvb_new_subset(tvb, tvb_sectionbegin,
-					      sectionlen,-1), pinfo,
-			       mgcp_tree, &mi);
-      }
+    /* dissect params */
+    if(tvb_sectionbegin < tvb_len){
+      sectionlen = tvb_find_null_line(tvb, tvb_sectionbegin, -1,
+				      &tvb_sectionend);
+      dissect_mgcp_params(tvb_new_subset(tvb, tvb_sectionbegin,
+					 sectionlen, -1),
+			  mgcp_tree);
       tvb_sectionbegin = tvb_sectionend;
+    }
 
-      /* dissect params */
-      if(tvb_sectionbegin < tvb_len){
-	sectionlen = tvb_find_null_line(tvb, tvb_sectionbegin, -1,
-					&tvb_sectionend);
-	dissect_mgcp_params(tvb_new_subset(tvb, tvb_sectionbegin,
-					   sectionlen, -1),
-			    mgcp_tree);
-	tvb_sectionbegin = tvb_sectionend;
-      }
+    /* set the mgcp payload length correctly so we don't include the
+     * encapsulated SDP
+     */
+    sectionlen = tvb_sectionend;
+    proto_item_set_len(ti,sectionlen);
 
-      /* set the mgcp payload length correctly so we don't include the
-       * encapsulated SDP
-       */
-      sectionlen = tvb_sectionend;
-      proto_item_set_len(ti,sectionlen);
+    /* Display the raw text of the mgcp message if desired */
 
-      /* Display the raw text of the mgcp message if desired */
-
-      /* Do we want to display the raw text of our MGCP packet? */
-      if(global_mgcp_raw_text)
+    /* Do we want to display the raw text of our MGCP packet? */
+    if(global_mgcp_raw_text) {
+      if (tree)
 	mgcp_raw_text_add(tvb, mgcp_tree);
+    }
 
-      /* dissect sdp payload */
-      if( tvb_sectionend < tvb_len && global_mgcp_dissect_tree == TRUE){
-	next_tvb = tvb_new_subset(tvb, tvb_sectionend, -1, -1);
-	call_dissector(sdp_handle, next_tvb, pinfo, tree);
-      }
+    /* dissect sdp payload */
+    if( tvb_sectionend < tvb_len){
+      next_tvb = tvb_new_subset(tvb, tvb_sectionend, -1, -1);
+      call_dissector(sdp_handle, next_tvb, pinfo, tree);
     }
   }
 }
