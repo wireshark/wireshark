@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-tr.c,v 1.75 2003/01/31 07:16:11 guy Exp $
+ * $Id: packet-tr.c,v 1.76 2003/02/08 05:31:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 #include <epan/packet.h>
 #include "packet-tr.h"
 #include "packet-llc.h"
+#include "prefs.h"
 #include "tap.h"
 
 static int proto_tr = -1;
@@ -61,6 +62,11 @@ static gint ett_token_ring_ac = -1;
 static gint ett_token_ring_fc = -1;
 
 static int tr_tap = -1;
+
+/*
+ * Check for and attempt to fix Linux link-layer header mangling.
+ */
+static gboolean fix_linux_botches = FALSE;
 
 #define TR_MIN_HEADER_LEN 14
 #define TR_MAX_HEADER_LEN 32
@@ -222,29 +228,31 @@ capture_tr(const guchar *pd, int offset, int len, packet_counts *ld) {
 
 	trn_rif_bytes = pd[offset + 14] & 31;
 
-	/* the Linux 2.0 TR code strips source-route bits in
-	 * order to test for SR. This can be removed from most
-	 * packets with oltr, but not all. So, I try to figure out
-	 * which packets should have been SR here. I'll check to
-	 * see if there's a SNAP or IPX field right after
-	 * my RIF fields.
-	 *
-	 * The Linux 2.4.18 code, at least appears to do the
-	 * same thing, from a capture I got from somebody running
-	 * 2.4.18 (RH 7.1, so perhaps this is a Red Hat
-	 * "improvement").
-	 */
-	if (!source_routed && trn_rif_bytes > 0) {
-		if (pd[offset + 0x0e] != pd[offset + 0x0f]) {
-			first2_sr = pntohs(&pd[offset + 0xe0 + trn_rif_bytes]);
-			if (
-				(first2_sr == 0xaaaa &&
-				pd[offset + 0x10 + trn_rif_bytes] == 0x03) ||
+	if (fix_linux_botches) {
+		/* the Linux 2.0 TR code strips source-route bits in
+		 * order to test for SR. This can be removed from most
+		 * packets with oltr, but not all. So, I try to figure out
+		 * which packets should have been SR here. I'll check to
+		 * see if there's a SNAP or IPX field right after
+		 * my RIF fields.
+		 *
+		 * The Linux 2.4.18 code, at least appears to do the
+		 * same thing, from a capture I got from somebody running
+		 * 2.4.18 (RH 7.1, so perhaps this is a Red Hat
+		 * "improvement").
+		 */
+		if (!source_routed && trn_rif_bytes > 0) {
+			if (pd[offset + 0x0e] != pd[offset + 0x0f]) {
+				first2_sr = pntohs(&pd[offset + 0xe0 + trn_rif_bytes]);
+				if (
+					(first2_sr == 0xaaaa &&
+					pd[offset + 0x10 + trn_rif_bytes] == 0x03) ||
 
-				first2_sr == 0xe0e0 ||
-				first2_sr == 0xe0aa ) {
+					first2_sr == 0xe0e0 ||
+					first2_sr == 0xe0aa ) {
 
-				source_routed = 1;
+					source_routed = 1;
+				}
 			}
 		}
 	}
@@ -257,32 +265,40 @@ capture_tr(const guchar *pd, int offset, int len, packet_counts *ld) {
 		actual_rif_bytes = 0;
 	}
 
-	/* this is a silly hack for Linux 2.0.x. Read the comment below,
-	in front of the other #ifdef linux. If we're sniffing our own NIC,
-	 we get a full RIF, sometimes with garbage */
-	if ((source_routed && trn_rif_bytes == 2 && frame_type == 1) ||
-		(!source_routed && frame_type == 1)) {
-		/* look for SNAP or IPX only */
-		if ( (pd[offset + 0x20] == 0xaa && pd[offset + 0x21] == 0xaa && pd[offset + 0x22] == 03) ||
-			 (pd[offset + 0x20] == 0xe0 && pd[offset + 0x21] == 0xe0) ) {
-			actual_rif_bytes = 18;
-		} else if (
-			pd[offset + 0x23] == 0 &&
-			pd[offset + 0x24] == 0 &&
-			pd[offset + 0x25] == 0 &&
-			pd[offset + 0x26] == 0x00 &&
-			pd[offset + 0x27] == 0x11) {
+	if (fix_linux_botches) {
+		/* this is a silly hack for Linux 2.0.x. Read the comment
+		 * below, in front of the other #ifdef linux.
+		 * If we're sniffing our own NIC, we get a full RIF,
+		 * sometimes with garbage
+		 */
+		if ((source_routed && trn_rif_bytes == 2 && frame_type == 1) ||
+			(!source_routed && frame_type == 1)) {
+			/* look for SNAP or IPX only */
+			if ( (pd[offset + 0x20] == 0xaa && pd[offset + 0x21] == 0xaa && pd[offset + 0x22] == 03) ||
+				 (pd[offset + 0x20] == 0xe0 && pd[offset + 0x21] == 0xe0) ) {
+				actual_rif_bytes = 18;
+			} else if (
+				pd[offset + 0x23] == 0 &&
+				pd[offset + 0x24] == 0 &&
+				pd[offset + 0x25] == 0 &&
+				pd[offset + 0x26] == 0x00 &&
+				pd[offset + 0x27] == 0x11) {
 
-                        actual_rif_bytes = 18;
+				actual_rif_bytes = 18;
 
-                       /* Linux 2.0.x also requires drivers pass up a fake SNAP and LLC header before th
-                          real LLC hdr for all Token Ring frames that arrive with DSAP and SSAP != 0xAA
-                          (i.e. for non SNAP frames e.g. for Netware frames)
-                          the fake SNAP header has the ETH_P_TR_802_2 ether type (0x0011) and the protocol id
-                          bytes as zero frame looks like :-
-                          TR Header | Fake LLC | Fake SNAP | Wire LLC | Rest of data */
-                       offset += 8; /* Skip fake LLC and SNAP */
-                }
+			       /* Linux 2.0.x also requires drivers pass up
+			        * a fake SNAP and LLC header before the
+				* real LLC hdr for all Token Ring frames
+				* that arrive with DSAP and SSAP != 0xAA
+				* (i.e. for non SNAP frames e.g. for Netware
+				* frames) the fake SNAP header has the
+				* ETH_P_TR_802_2 ether type (0x0011) and the protocol id
+				* bytes as zero frame looks like :-
+				* TR Header | Fake LLC | Fake SNAP | Wire LLC | Rest of data
+				*/
+			       offset += 8; /* Skip fake LLC and SNAP */
+			}
+		}
 	}
 
 	offset += actual_rif_bytes + TR_MIN_HEADER_LEN;
@@ -343,7 +359,11 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TR");
 
-	if ((x = check_for_old_linux_tvb((tvbuff_t*) tvb))) {
+	if (fix_linux_botches)
+		x = check_for_old_linux_tvb((tvbuff_t*) tvb);
+	else
+		x = 0;
+	if (x != 0) {
 		/* Actually packet starts x bytes into what we have got but with all
 		   source routing compressed. See comment above */
 		tr_tvb = tvb_new_subset((tvbuff_t*) tvb, x, -1, -1);
@@ -370,44 +390,46 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	trn_rif_bytes = tvb_get_guint8(tr_tvb, 14) & 31;
 
-	/* the Linux 2.0 TR code strips source-route bits in
-	 * order to test for SR. This can be removed from most
-	 * packets with oltr, but not all. So, I try to figure out
-	 * which packets should have been SR here. I'll check to
-	 * see if there's a SNAP or IPX field right after
-	 * my RIF fields.
-	 *
-	 * The Linux 2.4.18 code, at least appears to do the
-	 * same thing, from a capture I got from somebody running
-	 * 2.4.18 (RH 7.1, so perhaps this is a Red Hat
-	 * "improvement").
-	 */
-	if (frame_type == 1 && !source_routed && trn_rif_bytes > 0) {
-		TRY {
+	if (fix_linux_botches) {
+		/* the Linux 2.0 TR code strips source-route bits in
+		 * order to test for SR. This can be removed from most
+		 * packets with oltr, but not all. So, I try to figure out
+		 * which packets should have been SR here. I'll check to
+		 * see if there's a SNAP or IPX field right after
+		 * my RIF fields.
+		 *
+		 * The Linux 2.4.18 code, at least appears to do the
+		 * same thing, from a capture I got from somebody running
+		 * 2.4.18 (RH 7.1, so perhaps this is a Red Hat
+		 * "improvement").
+		 */
+		if (frame_type == 1 && !source_routed && trn_rif_bytes > 0) {
+			TRY {
 
-			c1_nonsr = tvb_get_guint8(tr_tvb, 14);
-			c2_nonsr = tvb_get_guint8(tr_tvb, 15);
+				c1_nonsr = tvb_get_guint8(tr_tvb, 14);
+				c2_nonsr = tvb_get_guint8(tr_tvb, 15);
 
-			if (c1_nonsr != c2_nonsr) {
+				if (c1_nonsr != c2_nonsr) {
 
-				first2_sr = tvb_get_ntohs(tr_tvb, trn_rif_bytes + 0x0e);
+					first2_sr = tvb_get_ntohs(tr_tvb, trn_rif_bytes + 0x0e);
 
-				if ( ( first2_sr == 0xaaaa &&
-					tvb_get_guint8(tr_tvb, trn_rif_bytes + 0x10) == 0x03)   ||
+					if ( ( first2_sr == 0xaaaa &&
+						tvb_get_guint8(tr_tvb, trn_rif_bytes + 0x10) == 0x03)   ||
 
-					first2_sr == 0xe0e0 ||
-					first2_sr == 0xe0aa ) {
+						first2_sr == 0xe0e0 ||
+						first2_sr == 0xe0aa ) {
 
-					source_routed = 1;
+						source_routed = 1;
+					}
 				}
 			}
+			CATCH(BoundsError) {
+				/* We had no information beyond the TR header. Just assume
+				 * this is a normal (non-Linux) TR header. */
+				;
+			}
+			ENDTRY;
 		}
-		CATCH(BoundsError) {
-			/* We had no information beyond the TR header. Just assume
-			 * this is a normal (non-Linux) TR header. */
-			;
-		}
-		ENDTRY;
 	}
 
 	if (source_routed) {
@@ -418,44 +440,53 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		actual_rif_bytes = 0;
 	}
 
-	/* this is a silly hack for Linux 2.0.x. Read the comment below,
-	in front of the other #ifdef linux. If we're sniffing our own NIC,
-	 we get a full RIF, sometimes with garbage */
-	TRY {
-		if (frame_type == 1 && ( (source_routed && trn_rif_bytes == 2) ||
-					 !source_routed) ) {
-			/* look for SNAP or IPX only */
-			if (
-				(tvb_get_ntohs(tr_tvb, 0x20) == 0xaaaa &&
-				tvb_get_guint8(tr_tvb, 0x22) == 0x03)
-			 ||
-				tvb_get_ntohs(tr_tvb, 0x20) == 0xe0e0 ) {
+	if (fix_linux_botches) {
+		/* this is a silly hack for Linux 2.0.x. Read the comment
+		 * below, in front of the other #ifdef linux. If we're
+		 * sniffing our own NIC, we get a full RIF, sometimes with
+		 * garbage
+		 */
+		TRY {
+			if (frame_type == 1 && ( (source_routed && trn_rif_bytes == 2) ||
+						 !source_routed) ) {
+				/* look for SNAP or IPX only */
+				if (
+					(tvb_get_ntohs(tr_tvb, 0x20) == 0xaaaa &&
+					tvb_get_guint8(tr_tvb, 0x22) == 0x03)
+				 ||
+					tvb_get_ntohs(tr_tvb, 0x20) == 0xe0e0 ) {
 
-				actual_rif_bytes = 18;
-		       }
-			else if (
+					actual_rif_bytes = 18;
+				}
+				else if (
 					tvb_get_ntohl(tr_tvb, 0x23) == 0 &&
 					tvb_get_guint8(tr_tvb, 0x27) == 0x11) {
 
-				actual_rif_bytes = 18;
+					actual_rif_bytes = 18;
 
-			       /* Linux 2.0.x also requires drivers pass up a fake SNAP and LLC header before th
-				  real LLC hdr for all Token Ring frames that arrive with DSAP and SSAP != 0xAA
-				  (i.e. for non SNAP frames e.g. for Netware frames)
-				  the fake SNAP header has the ETH_P_TR_802_2 ether type (0x0011) and the protocol id
-				  bytes as zero frame looks like :-
-				  TR Header | Fake LLC | Fake SNAP | Wire LLC | Rest of data */
-			       fixoffset += 8; /* Skip fake LLC and SNAP */
+				       /* Linux 2.0.x also requires drivers
+				        * pass up a fake SNAP and LLC header
+					* before the real LLC hdr for all
+					* Token Ring frames that arrive with
+					* DSAP and SSAP != 0xAA
+					* (i.e. for non SNAP frames e.g. for
+					* Netware frames)
+					* the fake SNAP header has the
+					* ETH_P_TR_802_2 ether type (0x0011)
+					* and the protocol id bytes as zero frame looks like :-
+					* TR Header | Fake LLC | Fake SNAP | Wire LLC | Rest of data
+					*/
+					fixoffset += 8; /* Skip fake LLC and SNAP */
+				}
 			}
 		}
+		CATCH(BoundsError) {
+			/* We had no information beyond the TR header. Just assume
+			 * this is a normal (non-Linux) TR header. */
+			;
+		}
+		ENDTRY;
 	}
-	CATCH(BoundsError) {
-		/* We had no information beyond the TR header. Just assume
-		 * this is a normal (non-Linux) TR header. */
-		;
-	}
-	ENDTRY;
-
 
 	/* XXX - copy it to some buffer associated with "*pinfo", rather than
 	   just making "trn_shost_nonsr" static? */
@@ -684,10 +715,19 @@ proto_register_tr(void)
 		&ett_token_ring_ac,
 		&ett_token_ring_fc,
 	};
+	module_t *tr_module;
 
 	proto_tr = proto_register_protocol("Token-Ring", "Token-Ring", "tr");
 	proto_register_field_array(proto_tr, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* Register configuration options */
+	tr_module = prefs_register_protocol(proto_tr, NULL);
+	prefs_register_bool_preference(tr_module, "fix_linux_botches",
+	    "Attempt to compensate for Linux mangling of the link-layer header",
+	    "Whether Linux mangling of the link-layer header should be checked for and worked around",
+	    &fix_linux_botches);
+
 	register_dissector("tr", dissect_tr, proto_tr);
 	tr_tap=register_tap("tr");
 }
