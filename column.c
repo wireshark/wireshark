@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.22 1999/09/10 06:53:23 guy Exp $
+ * $Id: column.c,v 1.23 1999/09/10 07:09:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,7 +66,7 @@ static void   column_sel_del_cb(GtkWidget *, gpointer);
 static void   column_sel_arrow_cb(GtkWidget *, gpointer);
 static void   column_set_fmt_cb(GtkWidget *, gpointer);
 
-/* Given a format number (as defined in ethereal.h), returns its equivalent
+/* Given a format number (as defined in packet.h), returns its equivalent
    string */
 static gchar *
 col_format_to_string(gint fmt) {
@@ -82,7 +82,7 @@ col_format_to_string(gint fmt) {
   return(slist[fmt]);
 }
 
-/* Given a format number (as defined in ethereal.h), returns its
+/* Given a format number (as defined in packet.h), returns its
   description */
 static gchar *
 col_format_desc(gint fmt) {
