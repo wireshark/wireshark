@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.4 2000/05/03 07:44:12 guy Exp $
+ * $Id: summary_dlg.c,v 1.5 2000/07/05 06:19:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,7 +67,7 @@ summary_open_cb(GtkWidget *w, gpointer d)
   summary_tally summary;
   GtkWidget     *sum_open_w,
                 *main_vb, *file_fr, *data_fr, *capture_fr, *file_box, 
-		*data_box, *capture_box, *close_bt;
+		*data_box, *capture_box, *bbox, *close_bt;
 
   gchar          string_buff[SUM_STR_MAX];
 
@@ -192,13 +192,21 @@ summary_open_cb(GtkWidget *w, gpointer d)
   add_string_to_box(string_buff, capture_box);
 #endif
 
+  /* Button row: close button.
+     (We put it in an HButtonBox, even though there's only one of them,
+     so that it doesn't expand to the width of the window.  */
+  bbox = gtk_hbutton_box_new();
+  gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+  gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+  gtk_widget_show(bbox);
+
   /* Create Close Button */
   close_bt = gtk_button_new_with_label("Close");
   gtk_signal_connect_object(GTK_OBJECT(close_bt), "clicked",
     GTK_SIGNAL_FUNC(gtk_widget_destroy),
     GTK_OBJECT(sum_open_w));
   GTK_WIDGET_SET_FLAGS(close_bt, GTK_CAN_DEFAULT);
-  gtk_box_pack_start(GTK_BOX(main_vb), close_bt, FALSE,FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(bbox), close_bt, FALSE,FALSE, 0);
   gtk_widget_grab_default(close_bt);
   gtk_widget_show(close_bt);
 
