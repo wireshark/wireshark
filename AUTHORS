@@ -1827,6 +1827,7 @@ Jesper Peterson <jesper [AT] endace.com> {
 
 Giles Scott <gscott2 [AT] nortelnetworks.com> {
 	Nortel/SynOptics Network Management Protocol support
+	Alteon/Nortel Transparent Proxy Control Protocol support
 }
 
 Vincent Jardin <vincent.jardin [AT] 6wind.com> {
