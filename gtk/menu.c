@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.97 2003/09/19 07:24:38 guy Exp $
+ * $Id: menu.c,v 1.98 2003/09/22 09:08:42 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,7 +138,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Go To Frame...", "<control>G",
                              goto_frame_cb, 0, GTK_STOCK_JUMP_TO),
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
-    ITEM_FACTORY_ENTRY("/Edit/Set Time Reference", NULL, reftime_frame_cb,
+    ITEM_FACTORY_ENTRY("/Edit/Set _Time Reference (toggle)", "<control>T", reftime_frame_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Edit/_Mark Frame", "<control>M", mark_frame_cb,
                        0, NULL, NULL),
@@ -253,7 +253,7 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Mark Frame", NULL, mark_frame_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Set Time Reference", NULL, reftime_frame_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/Set Time Reference (toggle)", NULL, reftime_frame_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Match", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/Match/_Selected", NULL,
                        match_selected_cb_replace_plist, 0, NULL, NULL),
