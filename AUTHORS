@@ -328,6 +328,7 @@ Yaniv Kaul <ykaul@netvision.net.il> {
 Paul Ionescu <ipaul@romsys.ro> {
 	IPX over GRE support
 	EIGRP over Appletalk and EIGRP over IPX support
+	Cisco IGRP support
 }
 
 Mark Burton <markb@ordern.com> {

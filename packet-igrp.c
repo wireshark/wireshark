@@ -1,0 +1,247 @@
+/* packet-igrp.c
+ * Routines for IGRP dissection
+ * Copyright 2000, Paul Ionescu <paul@acorp.ro>
+ * 
+ * $Id: packet-igrp.c,v 1.1 2000/10/26 09:14:28 guy Exp $
+ *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@zing.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * Copied from packet-syslog.c
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+#include <string.h>
+#include <glib.h>
+#include "packet.h"
+
+#define IP_PROTO_IGRP 9
+#define IGRP_HEADER_LENGTH 12
+#define IGRP_ENTRY_LENGTH 14
+
+static gint proto_igrp = -1;
+static gint hf_igrp_update = -1;
+static gint hf_igrp_as = -1;
+
+static gint ett_igrp = -1;
+static gint ett_igrp_vektor = -1;
+static gint ett_igrp_net = -1;
+
+static void dissect_vektor_igrp (tvbuff_t *tvb, proto_tree *igrp_vektor_tree, guint8 network);
+
+static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  guint8 ver_and_opcode,version,opcode,update,network;
+  gint offset=IGRP_HEADER_LENGTH;
+  guint16 as,net1,net2,net3;
+  proto_item *ti;
+  proto_tree *igrp_tree, *igrp_vektor_tree;
+  tvbuff_t   *next_tvb; 
+  
+  CHECK_DISPLAY_AS_DATA(proto_igrp, tvb, pinfo, tree);
+
+  pinfo->current_proto = "IGRP";
+  
+  ver_and_opcode = tvb_get_guint8(tvb,0);
+  update 	 = tvb_get_guint8(tvb,1);
+  as		 = tvb_get_ntohs(tvb,2);
+  
+  
+  if (check_col(pinfo->fd, COL_PROTOCOL)) 
+    col_add_str(pinfo->fd, COL_PROTOCOL, "IGRP");
+    
+  if (check_col(pinfo->fd, COL_INFO)) {
+    switch (ver_and_opcode) {
+    case 0x11:
+	col_add_fstr(pinfo->fd, COL_INFO, "Response" );
+	break;
+    case 0x12:
+    	col_add_fstr(pinfo->fd, COL_INFO, "Request" );
+        break;
+    default:	        
+        col_add_fstr(pinfo->fd, COL_INFO, "Unknown version or opcode"); 
+    }
+  }
+
+
+
+  
+  if (tree) {
+      ti = proto_tree_add_protocol_format(tree, proto_igrp, tvb, 0,
+        tvb_length(tvb), "Cisco IGRP ");
+        
+      igrp_tree = proto_item_add_subtree(ti, ett_igrp);
+      
+      version = (ver_and_opcode&0xf0)>>4 ; /* version is the fist half of the byte */
+      opcode = ver_and_opcode&0x0f ;       /* opcode is the last half of the byte */
+      
+      proto_tree_add_text(igrp_tree,  tvb, 0,1,"IGRP Version  : %d %s",version,(version==1?" ":" -  Unknown Version, The dissection may be innacurate"));
+      proto_tree_add_text(igrp_tree,  tvb, 0,1,"Command       : %d %s",opcode,(opcode==1?"(Response)":"(Request)"));
+      proto_tree_add_uint(igrp_tree, hf_igrp_update, tvb, 1,1, update);
+      proto_tree_add_uint(igrp_tree, hf_igrp_as, tvb, 2,2,as);
+
+      net1 = tvb_get_ntohs(tvb,4);
+      net2 = tvb_get_ntohs(tvb,6);
+      net3 = tvb_get_ntohs(tvb,8);
+
+      /* this is a ugly hack to find the first byte of the IP source address */
+      network = pinfo->net_src.data[0];
+      
+      ti = proto_tree_add_text(igrp_tree,  tvb, 4,2,"Interior routes : %d",net1);
+	for( ; net1>0 ; net1-- )
+	{
+        	igrp_vektor_tree =  proto_item_add_subtree(ti,ett_igrp_vektor);
+		next_tvb = tvb_new_subset(tvb, offset, IGRP_ENTRY_LENGTH, -1);
+		dissect_vektor_igrp (next_tvb,igrp_vektor_tree,network);
+		offset+=IGRP_ENTRY_LENGTH;
+	}
+
+      ti = proto_tree_add_text(igrp_tree,  tvb, 6,2,"System routes   : %d",net2);
+	for( ; net2>0 ; net2-- )
+	{
+        	igrp_vektor_tree =  proto_item_add_subtree(ti,ett_igrp_vektor);
+		next_tvb = tvb_new_subset(tvb, offset, IGRP_ENTRY_LENGTH, -1);
+		dissect_vektor_igrp (next_tvb,igrp_vektor_tree,0);
+		offset+=IGRP_ENTRY_LENGTH;
+	}
+
+      ti = proto_tree_add_text(igrp_tree,  tvb, 8,2,"Exterior routes : %d",net3);
+	for( ; net3>0 ; net3-- )
+	{
+        	igrp_vektor_tree =  proto_item_add_subtree(ti,ett_igrp_vektor);
+		next_tvb = tvb_new_subset(tvb, offset, IGRP_ENTRY_LENGTH, -1);
+		dissect_vektor_igrp (next_tvb,igrp_vektor_tree,0);
+		offset+=IGRP_ENTRY_LENGTH;
+	}
+
+      proto_tree_add_text(igrp_tree, tvb, 10,2,"Checksum = 0x%4x",tvb_get_ntohs(tvb,10));
+
+  }
+  return;
+}
+
+static void dissect_vektor_igrp (tvbuff_t *tvb, proto_tree *igrp_vektor_tree, guint8 network)
+{
+	proto_item *ti;
+	guint8 *ptr_addr,addr[5];
+
+	addr[0]=network;
+	addr[1]=tvb_get_guint8(tvb,0);
+	addr[2]=tvb_get_guint8(tvb,1);
+	addr[3]=tvb_get_guint8(tvb,2);
+	addr[4]=0;
+
+	ptr_addr=addr;
+	if (network==0) ptr_addr=&addr[1];
+
+	ti = proto_tree_add_text (igrp_vektor_tree, tvb, 0 ,14,
+	  "Entry for network %s", ip_to_str(ptr_addr)) ; 
+	igrp_vektor_tree =  proto_item_add_subtree(ti,ett_igrp_net);
+	proto_tree_add_text (igrp_vektor_tree, tvb, 0 ,3,"Network     = %s",ip_to_str(ptr_addr)) ; 
+	proto_tree_add_text (igrp_vektor_tree, tvb, 3 ,3,"Delay       = %d",tvb_get_ntoh24(tvb,3)) ; 
+	proto_tree_add_text (igrp_vektor_tree, tvb, 6 ,3,"Bandwidth   = %d",tvb_get_ntoh24(tvb,6)) ; 
+	proto_tree_add_text (igrp_vektor_tree, tvb, 9 ,2,"MTU         = %d  bytes",tvb_get_ntohs(tvb,9)) ; 
+	proto_tree_add_text (igrp_vektor_tree, tvb, 11,1,"Reliability = %d",tvb_get_guint8(tvb,11)) ; 
+	proto_tree_add_text (igrp_vektor_tree, tvb, 12,1,"Load        = %d",tvb_get_guint8(tvb,12)) ; 
+	proto_tree_add_text (igrp_vektor_tree, tvb, 13,1,"Hop count   = %d  hops",tvb_get_guint8(tvb,13)) ; 
+}	
+
+ 
+/* Register the protocol with Ethereal */
+void proto_register_igrp(void)
+{                 
+
+  /* Setup list of header fields */
+  static hf_register_info hf[] = {
+
+    { &hf_igrp_update,
+      { "Update Release",           "igrp.update",
+      FT_UINT8, BASE_DEC, NULL, 0x0 ,
+      "Update Release number" },
+    },
+    { &hf_igrp_as,
+      { "Autonomous System",           "igrp.as",
+      FT_UINT16, BASE_DEC, NULL, 0x0 ,
+      "Autonomous System number" }
+    }
+  };
+
+  /* Setup protocol subtree array */
+  static gint *ett[] = {
+    &ett_igrp,
+    &ett_igrp_vektor,
+    &ett_igrp_net
+  };
+
+  /* Register the protocol name and description */
+  proto_igrp = proto_register_protocol("Cisco Interior Gateway Routing Protocol", "igrp");
+
+  /* Required function calls to register the header fields and subtrees used */
+  proto_register_field_array(proto_igrp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
+};
+
+void
+proto_reg_handoff_igrp(void)
+{
+  dissector_add("ip.proto", IP_PROTO_IGRP , dissect_igrp);
+}
+
+/*	IGRP Packet structure:
+
+HEADER structure + k * VECTOR structure
+where: k = (Number of Interior routes) + (Number of System routes) + (Number of Exterior routes)
+
+HEADER structure is 12 bytes as follows :
+
+4  bits		Version (only version 1 is defined)
+4  bits		Opcode (1=Replay, 2=Request)
+8  bits		Update Release 
+16 bits		Autonomous system number
+16 bits		Number of Interior routes
+16 bits		Number of System routes
+16 bits		Number of Exterior routes
+16 bits		Checksum
+-------
+12 bytes in header
+
+VECTOR structure is 14 bytes as follows :
+24 bits		Network
+24 bits		Delay
+24 bits		Bandwidth
+16 bits		MTU
+8  bits		Reliability
+8  bits		Load
+8  bits		Hop count
+-------
+14 bytes in 1 vector
+
+It is interesting how is coded an ip network address in 3 bytes because IGRP is a classful routing protocol:
+If it is a interior route then this 3 bytes are the final bytes, and the first one is taken from the source ip address of the ip packet
+If it is a system route or a exterior route then this 3 bytes are the first three and the last byte is not important
+
+If the Delay is 0xFFFFFF then the network is unreachable
+
+*/
