@@ -8,7 +8,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccp.c,v 1.15 2003/10/22 20:12:02 guy Exp $
+ * $Id: packet-sccp.c,v 1.16 2003/11/06 09:28:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2279,6 +2279,8 @@ proto_register_sccp(void)
   proto_sccp = proto_register_protocol("Signalling Connection Control Part",
 				       "SCCP", "sccp");
 
+  register_dissector("sccp", dissect_sccp, proto_sccp);
+
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sccp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -2293,7 +2295,7 @@ proto_reg_handoff_sccp(void)
 {
   dissector_handle_t sccp_handle;
 
-  sccp_handle = create_dissector_handle(dissect_sccp, proto_sccp);
+  sccp_handle = find_dissector("sccp");
 
   dissector_add("mtp3.service_indicator", SCCP_SI, sccp_handle);
   dissector_add("m3ua.protocol_data_si", SCCP_SI, sccp_handle);
