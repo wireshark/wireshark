@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.197 2003/08/28 04:19:28 guy Exp $
+ * $Id: packet-ip.c,v 1.198 2003/08/29 01:57:37 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -812,6 +812,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_tree *ip_tree = NULL, *field_tree;
   proto_item *ti = NULL, *tf;
+  guint32    addr;
   int        offset = 0;
   guint      hlen, optlen;
   guint16    flags;
@@ -970,11 +971,12 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   SET_ADDRESS(&iph->ip_src, AT_IPv4, 4, tvb_get_ptr(tvb, offset + IPH_SRC, 4));
   if (tree) {
     if (ip_summary_in_tree) {
+      memcpy(&addr, iph->ip_src.data, 4);
       proto_item_append_text(ti, ", Src Addr: %s (%s)",
-		get_hostname((guint)(*((guint *)iph->ip_src.data))), ip_to_str((guint8 *) iph->ip_src.data));
+		get_hostname(addr), ip_to_str((guint8 *) iph->ip_src.data));
     }
-    proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, (guint)(*((guint *)iph->ip_src.data)));
-    proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, tvb, offset + 12, 4, (guint)(*((guint *)iph->ip_src.data)));
+    proto_tree_add_ipv4(ip_tree, hf_ip_src, tvb, offset + 12, 4, addr);
+    proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, tvb, offset + 12, 4, addr);
   }
 
   SET_ADDRESS(&pinfo->net_dst, AT_IPv4, 4, tvb_get_ptr(tvb, offset + IPH_DST, 4));
@@ -983,11 +985,12 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     if (ip_summary_in_tree) {
+      memcpy(&addr, iph->ip_src.data, 4);
       proto_item_append_text(ti, ", Dst Addr: %s (%s)",
-		get_hostname((guint)(*((guint *)iph->ip_dst.data))), ip_to_str((guint8 *) iph->ip_dst.data));
+		get_hostname(addr), ip_to_str((guint8 *) iph->ip_dst.data));
     }
-    proto_tree_add_ipv4(ip_tree, hf_ip_dst, tvb, offset + 16, 4, (guint)(*((guint *)iph->ip_dst.data)));
-    proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, tvb, offset + 16, 4, (guint)(*((guint *)iph->ip_dst.data)));
+    proto_tree_add_ipv4(ip_tree, hf_ip_dst, tvb, offset + 16, 4, addr);
+    proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, tvb, offset + 16, 4, addr);
   }
 
   if (tree) {
