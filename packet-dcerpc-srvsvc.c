@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.8 2002/05/24 19:36:42 sharpe Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.9 2002/05/25 10:26:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,7 +124,6 @@ srvsvc_dissect_SHARE_INFO_struct(tvbuff_t *tvb, int offset,
 				 NDR_POINTER_UNIQUE, "Share",
 				 hf_srvsvc_share, 0);
 
-    /* XXX - two share types in a row? */
     offset = dissect_ndr_uint32(tvb, offset, pinfo, stree, drep, 
 				hf_srvsvc_share_type, NULL);
 
@@ -529,7 +528,6 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_info,
 	    { "Info Structure", "srvsvc.info_struct", FT_BYTES,
 	    BASE_HEX, NULL, 0x0, "Info Structure", HFILL}},
-	  /* XXX - DOS error code, NT status code, or neither? */
 	  { &hf_srvsvc_rc,
 	    { "Return code", "srvsvc.rc", FT_UINT32, 
 	      BASE_HEX, VALS(NT_errors), 0x0, "Return Code", HFILL}},
