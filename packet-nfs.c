@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.36 2000/08/15 21:27:46 guy Exp $
+ * $Id: packet-nfs.c,v 1.37 2000/08/27 02:03:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1211,7 +1211,8 @@ dissect_readdir_entry(const u_char* pd, int offset, frame_data* fd, proto_tree* 
 	}
 
 	if (!BYTES_ARE_IN_FRAME(offset, 4)) {
-		proto_item_set_text(entry_item, "Entry: <TRUNCATED>");
+		if (entry_item)
+			proto_item_set_text(entry_item, "Entry: <TRUNCATED>");
 		return offset;
 	}
 	fileid = EXTRACT_UINT(pd, offset + 0);
