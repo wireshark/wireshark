@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.165 2001/11/21 06:04:39 guy Exp $
+ * $Id: packet-smb.c,v 1.166 2001/11/21 06:25:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8931,7 +8931,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_uint(tree, hf_smb_data_disp16, tvb, offset, 2, dd);
 		offset += 2;
 
-		if(si->cmd==0x32){
+		if(si->cmd==SMB_COM_TRANSACTION2){
 			/* fid */
 			proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
 			offset += 2;
@@ -9029,7 +9029,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if(sc){
 			switch(si->cmd){
 
-			case 0x32:
+			case SMB_COM_TRANSACTION2:
 				if (!si->unidir) {
 					if(!pinfo->fd->flags.visited){
 						/* 
@@ -9068,7 +9068,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				}
 				break;
 
-			case 0x25:
+			case SMB_COM_TRANSACTION:
 				/* TRANSACTION setup words processed below */
 				break;
 			}
@@ -9082,7 +9082,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if(wc!=8){
 		/* primary request */
 		/* name is NULL if transaction2 */
-		if(si->cmd == 0x25){
+		if(si->cmd == SMB_COM_TRANSACTION){
 			/* Transaction Name */
 			an = get_unicode_or_ascii_string(tvb, &offset,
 				pinfo, &an_len, FALSE, FALSE, &bc);
@@ -9117,14 +9117,14 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		CHECK_BYTE_COUNT(pc);
 		switch(si->cmd) {
 
-		case 0x32:
+		case SMB_COM_TRANSACTION2:
 			/* TRANSACTION2 parameters*/
 			offset = dissect_transaction2_request_parameters(tvb,
 			    pinfo, tree, offset, pc);
 			bc -= pc;
 			break;
 
-		case 0x25:
+		case SMB_COM_TRANSACTION:
 			/* TRANSACTION parameters processed below */
 			COUNT_BYTES(pc);
 			break;
@@ -9145,14 +9145,14 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		CHECK_BYTE_COUNT(dc);
 		switch(si->cmd){
 
-		case 0x32:
+		case SMB_COM_TRANSACTION2:
 			/* TRANSACTION2 data*/
 			offset = dissect_transaction2_request_data(tvb, pinfo,
 			    tree, offset, dc);
 			bc -= dc;
 			break;
 
-		case 0x25:
+		case SMB_COM_TRANSACTION:
 			/* TRANSACTION data processed below */
 			COUNT_BYTES(dc);
 			break;
@@ -9160,7 +9160,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/*TRANSACTION request parameters */
-	if(si->cmd==0x25){
+	if(si->cmd==SMB_COM_TRANSACTION){
 		/*XXX replace this block with a function and use that one 
 		     for both requests/responses*/
 		if(dd==0){
@@ -10518,7 +10518,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	si = (smb_info_t *)pinfo->private_data;
 
 	switch(si->cmd){
-	case 0x32:
+	case SMB_COM_TRANSACTION2:
 		/* transaction2 */
 		if (si->sip != NULL)
 			t2i = si->sip->extra_info;
@@ -10646,13 +10646,13 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		CHECK_BYTE_COUNT(pc);
 		switch(si->cmd){
 
-		case 0x32:
+		case SMB_COM_TRANSACTION2:
 			/* TRANSACTION2 parameters*/
 			offset = dissect_transaction2_response_parameters(tvb, pinfo, tree, offset, pc, od);
 			bc -= pc;
 			break;
 
-		case 0x25:
+		case SMB_COM_TRANSACTION:
 			/* TRANSACTION parameters processed below */
 			COUNT_BYTES(pc);
 			break;
@@ -10673,13 +10673,13 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		CHECK_BYTE_COUNT(dc);
 		switch(si->cmd){
 
-		case 0x32:
+		case SMB_COM_TRANSACTION2:
 			/* TRANSACTION2 data*/
 			offset = dissect_transaction2_response_data(tvb, pinfo, tree, offset, dc);
 			bc -= dc;
 			break;
 
-		case 0x25:
+		case SMB_COM_TRANSACTION:
 			/* TRANSACTION information processed below */
 			COUNT_BYTES(dc);
 			break;
@@ -10687,7 +10687,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 
 	/* TRANSACTION response parameters */
-	if(si->cmd==0x25){
+	if(si->cmd==SMB_COM_TRANSACTION){
 		/* only call subdissector for the first packet */
 		if(dd==0){
 			tvbuff_t *p_tvb, *d_tvb, *s_tvb;
@@ -12689,10 +12689,10 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		   We dont need to do anything 
 		*/
 		si.unidir = TRUE;
-	} else if( (si.cmd==0xa4)     /* NT Cancel */
-		   ||(si.cmd==0x26)   /* Transaction Secondary */
-		   ||(si.cmd==0x33)   /* Transaction2 Secondary */
-		   ||(si.cmd==0xa1)){ /* NT Transaction Secondary */
+	} else if( (si.cmd==SMB_COM_NT_CANCEL)     /* NT Cancel */
+		   ||(si.cmd==SMB_COM_TRANSACTION_SECONDARY)   /* Transaction Secondary */
+		   ||(si.cmd==SMB_COM_TRANSACTION2_SECONDARY)   /* Transaction2 Secondary */
+		   ||(si.cmd==SMB_COM_NT_TRANSACT_SECONDARY)){ /* NT Transaction Secondary */
 		/* Ok, we got a special request type. This request is either
 		   an NT Cancel or a continuation relative to a real request
 		   in an earlier packet.  In either case, we don't expect any
@@ -12863,7 +12863,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		 * frame - if we know the frame number (i.e., it's not 0).
 		 */
 		if(si.request){
-			if (si.cmd != 0xa4 && sip->frame_res != 0)
+			if (si.cmd != SMB_COM_NT_CANCEL && sip->frame_res != 0)
 				proto_tree_add_uint(htree, hf_smb_response_in, tvb, 0, 0, sip->frame_res);
 		} else {
 			if (sip->frame_req != 0)
