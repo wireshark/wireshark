@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.118 2000/08/13 08:17:02 guy Exp $
+ * $Id: capture.c,v 1.119 2000/08/14 08:36:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1025,7 +1025,8 @@ capture(void)
 	"Please check that you have the proper interface specified.\n"
 	"\n"
 	"Note that the driver Ethereal uses for packet capture on Windows\n"
-	"doesn't support capturing on Token Ring or PPP/WAN interfaces.\n",
+	"doesn't support capturing on Token Ring interfaces, and doesn't\n"
+	"support capturing on PPP/WAN interfaces in Windows NT/2000.\n",
 	err_str);
     goto error;
 #else

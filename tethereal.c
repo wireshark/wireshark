@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.40 2000/08/13 08:17:03 guy Exp $
+ * $Id: tethereal.c,v 1.41 2000/08/14 08:36:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -542,8 +542,9 @@ capture(int packet_count, int out_file_type)
 	"The capture session could not be initiated (%s).\n"
 	"Please check that you have the proper interface specified.\n"
 	"\n"
-	"Note that the driver Ethereal uses for packet capture on Windows\n"
-	"doesn't support capturing on Token Ring or PPP/WAN interfaces.\n",
+	"Note that the driver Tethereal uses for packet capture on Windows\n"
+	"doesn't support capturing on Token Ring interfaces, and doesn't\n"
+	"support capturing on PPP/WAN interfaces in Windows NT/2000.\n",
 	err_str);
 #else
       /* If we got a "can't find PPA for XXX" message, warn the user (who
@@ -554,17 +555,17 @@ capture(int packet_count, int out_file_type)
       if (strncmp(err_str, ppamsg, sizeof ppamsg - 1) == 0)
 	libpcap_warn =
 	  "\n\n"
-	  "You are running Ethereal with a version of the libpcap library\n"
+	  "You are running Tethereal with a version of the libpcap library\n"
 	  "that doesn't handle HP-UX network devices well; this means that\n"
-	  "Ethereal may not be able to capture packets.\n"
+	  "Tethereal may not be able to capture packets.\n"
 	  "\n"
-	  "To fix this, you will need to download the source to Ethereal\n"
+	  "To fix this, you will need to download the source to Tethereal\n"
 	  "from ethereal.zing.org if you have not already done so, read\n"
 	  "the instructions in the \"README.hpux\" file in the source\n"
 	  "distribution, download the source to libpcap if you have not\n"
 	  "already done so, patch libpcap as per the instructions, rebuild\n"
-	  "and install libpcap, and then build Ethereal (if you have already\n"
-	  "built Ethereal from source, do a \"make distclean\" and re-run\n"
+	  "and install libpcap, and then build Tethereal (if you have already\n"
+	  "built Tethereal from source, do a \"make distclean\" and re-run\n"
 	  "configure before building).";
       else
 	libpcap_warn = "";
