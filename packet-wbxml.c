@@ -2,7 +2,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.10 2003/06/06 20:31:45 guy Exp $
+ * $Id: packet-wbxml.c,v 1.11 2003/06/26 18:28:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -186,36 +186,13 @@ static const value_string vals_wbxml_versions[] = {
 	{ 0x00, NULL }
 };
 
-/* See WAP-104-WBXML */
-static const value_string vals_wbxml10_global_tokens[] = {
-	{ 0x00, "SWITCH_PAGE" },
-	{ 0x01, "END" },
-	{ 0x02, "ENTITY" },
-	{ 0x03, "STR_I" },
-	{ 0x04, "LITERAL" },
+/* WBXML 1.0 global tokens: WAP-104-WBXML
+ * Same token mapping as in vals_wbxml1x_global_tokens, but:
+ *   { 0xC3, "RESERVED_2" }
+ */
 
-	{ 0x40, "EXT_I_0" },
-	{ 0x41, "EXT_I_1" },
-	{ 0x42, "EXT_I_2" },
-	{ 0x43, "PI" },
-	{ 0x44, "LITERAL_C" },
-
-	{ 0x80, "EXT_T_0" },
-	{ 0x81, "EXT_T_1" },
-	{ 0x82, "EXT_T_2" },
-	{ 0x83, "STR_T" },
-	{ 0x84, "LITERAL_A" },
-
-	{ 0xC0, "EXT_0" },
-	{ 0xC1, "EXT_1" },
-	{ 0xC2, "EXT_2" },
-	{ 0xC3, "RESERVED_2" },
-	{ 0xC4, "LITERAL_AC" },
-
-	{ 0x00, NULL }
-};
-
-/* See WAP-135-WBXML, WAP-154-WBXML, WAP-192-WBXML */
+/* WBXML 1.x (x>0) global tokens: WAP-135-WBXML, WAP-154-WBXML, WAP-192-WBXML
+ */
 static const value_string vals_wbxml1x_global_tokens[] = {
 	{ 0x00, "SWITCH_PAGE" },
 	{ 0x01, "END" },
@@ -1644,7 +1621,7 @@ static const wbxml_token_map *wbxml_content_map (guint32 publicid);
  ** Content type map lookup will stop at the 1st entry with 2nd member = FALSE
  **/
 static const wbxml_token_map map[] = {
-#ifdef Test_the_parsers_without_token_mappings
+#ifdef Test_the_WBXML_parser_without_token_mappings
 	{ 0, FALSE, NULL, NULL, NULL, NULL },
 #endif
 	{ 0x02, TRUE, /* WML 1.0 */
@@ -2014,9 +1991,6 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			parse_wbxml_tag (wbxml_content_tree, tvb, offset,
 					str_tbl, &level, &len);
 			return;
-		} else {
-			proto_tree_add_text (wbxml_content_tree, tvb, offset, -1,
-					"WBXML 1.0 decoding not (yet) supported");
 		}
 		return;
 	}
@@ -2323,9 +2297,10 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					off += 1+len+index;
 				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"        Tag   |          "
+							"  %3d | Tag   |          "
 							"| RESERVED_2     (Invalid Token!) "
-							"| WBXML 1.0 parsing stops here.");
+							"| WBXML 1.0 parsing stops here.",
+							*level);
 					/* Stop processing as it is impossible to parse now */
 					off = tvb_len;
 					*parsed_length = off - offset;
@@ -2766,9 +2741,10 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 					off += 1+len+index;
 				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"        Tag   |          "
+							"  %3d | Tag   |          "
 							"| RESERVED_2     (Invalid Token!) "
-							"| WBXML 1.0 parsing stops here.");
+							"| WBXML 1.0 parsing stops here.",
+							*level);
 					/* Stop processing as it is impossible to parse now */
 					off = tvb_len;
 					*parsed_length = off - offset;
@@ -3208,9 +3184,10 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 					off += 1+len+index;
 				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"         Attr |          "
+							"  %3d |  Attr |          "
 							"| RESERVED_2     (Invalid Token!) "
-							"| WBXML 1.0 parsing stops here.");
+							"| WBXML 1.0 parsing stops here.",
+							level);
 					/* Stop processing as it is impossible to parse now */
 					off = tvb_len;
 					*parsed_length = off - offset;
@@ -3450,9 +3427,10 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 					off += 1+len+index;
 				} else { /* WBXML 1.0 - RESERVED_2 token (invalid) */
 					proto_tree_add_text (tree, tvb, off, 1,
-							"         Attr |          "
+							"  %3d |  Attr |          "
 							"| RESERVED_2     (Invalid Token!) "
-							"| WBXML 1.0 parsing stops here.");
+							"| WBXML 1.0 parsing stops here.",
+							level);
 					/* Stop processing as it is impossible to parse now */
 					off = tvb_len;
 					*parsed_length = off - offset;
