@@ -1,7 +1,7 @@
 /* packet-dec-bpdu.c
  * Routines for DEC BPDU (DEC Spanning Tree Protocol) disassembly
  *
- * $Id: packet-dec-bpdu.c,v 1.12 2002/03/19 08:47:11 guy Exp $
+ * $Id: packet-dec-bpdu.c,v 1.13 2002/03/19 09:02:01 guy Exp $
  *
  * Copyright 2001 Paul Ionescu <paul@acorp.ro>
  * 
@@ -137,10 +137,11 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       
       if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_add_str(pinfo->cinfo, COL_INFO,
-			val_to_str(bpdu_type, bpdu_type_vals, "Unknown (%u)"));
+			val_to_str(bpdu_type, bpdu_type_vals,
+				   "Unknown BPDU type (%u)"));
       }
       
-      tvb_set_reported_length(tvb, DEC_BPDU_SIZE);
+      set_actual_length(tvb, DEC_BPDU_SIZE);
 
       if (tree) {
 	    ti = proto_tree_add_item(tree, proto_dec_bpdu, tvb, 0, DEC_BPDU_SIZE,
