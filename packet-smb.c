@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.230 2002/03/19 10:16:40 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.231 2002/03/19 22:12:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4944,10 +4944,11 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static int
 dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
+	guint32 ofs=0;
 	guint8	wc, cmd=0xff;
 	guint16 andxoffset=0, bc, datalen=0, dataoffset=0;
 	smb_info_t *si = (smb_info_t *)pinfo->private_data;
-	unsigned int fid;
+	unsigned int fid=0;
 
 	WORD_COUNT;
 
@@ -4979,6 +4980,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	}
 
 	/* offset */
+	ofs = tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
 	offset += 4;
 
@@ -5057,8 +5059,18 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	}
 
 	/* file data */
-	offset = dissect_file_data(tvb, pinfo, tree, offset, bc, datalen);
-	bc = 0;
+	if (bc != 0) {
+		if( (si->sip->flags&SMB_SIF_TID_IS_IPC) && (ofs==0) ){
+			/* dcerpc call */
+			offset = dissect_file_data_dcerpc(tvb, pinfo, tree,
+			    top_tree, offset, bc, datalen, fid);
+		} else {
+			/* ordinary file data */
+			offset = dissect_file_data(tvb, pinfo, tree, offset,
+			    bc, datalen);
+		}
+		bc = 0;
+	}
 
 	END_OF_SMB
 
@@ -14370,7 +14382,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				sip->frame_res = 0;
 				sip->flags = 0;
 				if(g_hash_table_lookup(si.ct->tid_service, (void *)si.tid)
-				    == TID_IPC) {
+				    == (void *)TID_IPC) {
 					sip->flags |= SMB_SIF_TID_IS_IPC;
 				}
 				sip->cmd = si.cmd;
