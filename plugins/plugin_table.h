@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.1 2000/03/15 19:09:52 guy Exp $
+ * $Id: plugin_table.h,v 1.2 2000/04/04 21:46:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -43,6 +43,8 @@ typedef int (*addr_proto_register_protocol)(char*, char*);
 typedef void (*addr_proto_register_field_array)(int, hf_register_info*, int);
 typedef void (*addr_proto_register_subtree_array)(int**, int);
 
+typedef void (*addr_dissector_add)(char *, guint32, dissector_t);
+
 typedef proto_tree* (*addr_proto_item_add_subtree)(proto_item*, gint);
 typedef proto_item* (*addr_proto_tree_add_item)(proto_tree*, int, gint, gint, ...);
 typedef proto_item* (*addr_proto_tree_add_item_hidden)(proto_tree*, int, gint, gint, ...);
@@ -74,6 +76,8 @@ typedef struct  {
 	addr_proto_register_protocol		p_proto_register_protocol;
 	addr_proto_register_field_array		p_proto_register_field_array;
 	addr_proto_register_subtree_array	p_proto_register_subtree_array;
+
+	addr_dissector_add			p_dissector_add;
 
 	addr_proto_item_add_subtree		p_proto_item_add_subtree;
 	addr_proto_tree_add_item		p_proto_tree_add_item;
