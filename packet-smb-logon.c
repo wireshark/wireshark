@@ -1,8 +1,8 @@
 /* packet-smb-logon.c
- * Routines for smb net logon packet dissection
+ * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.12 2001/01/11 19:40:35 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.13 2001/03/18 03:34:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,6 +26,7 @@
  */
 
 #include "packet-smb-common.h"
+#include "packet-smb-logon.h"
 
 static int proto_smb_logon = -1;
 
@@ -178,7 +179,8 @@ void dissect_smb_logon_2(const u_char *pd, int offset, frame_data *fd,
 
 
 
-void dissect_smb_logon_LM20_resp(const u_char *pd, int offset, frame_data *fd,
+static void
+dissect_smb_logon_LM20_resp(const u_char *pd, int offset, frame_data *fd,
 		proto_tree *tree){
 
 /*** 0x06 (LM2.0 LOGON Response)	***/
@@ -221,7 +223,8 @@ dissect_smb_pdc_query(const u_char *pd, int offset, frame_data *fd,
 
 
 
-void dissect_smb_pdc_startup(const u_char *pd, int offset, frame_data *fd,
+static void
+dissect_smb_pdc_startup(const u_char *pd, int offset, frame_data *fd,
 		proto_tree *tree){
 
 /*** 0x08  Announce startup of PDC ***/
@@ -264,7 +267,8 @@ dissect_smb_pdc_failure( const u_char *pd, int offset, frame_data *fd,
 }
 
 
-void dissect_announce_change( const u_char *pd, int offset,
+static void
+dissect_announce_change( const u_char *pd, int offset,
 	frame_data *fd,proto_tree *tree) {
 	
 /*** 0x0A ( Announce change to UAS or SAM ) ***/
@@ -428,7 +432,8 @@ dissect_smb_inter_resp( const u_char *pd, int offset, frame_data *fd,
 }
 
 
-void dissect_smb_sam_logon_resp(const u_char *pd, int offset, frame_data *fd,
+static void
+dissect_smb_sam_logon_resp(const u_char *pd, int offset, frame_data *fd,
 		proto_tree *tree){
 
 /* Netlogon command 0x13 - decode the SAM logon response from server */
@@ -453,7 +458,7 @@ void dissect_smb_sam_logon_resp(const u_char *pd, int offset, frame_data *fd,
 }
 
 
-guint32 
+gboolean
 dissect_smb_logon(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *parent, proto_tree *tree, struct smb_info si,
 	int max_data, int SMB_offset, int errcode, int dirn,
@@ -528,7 +533,7 @@ static void (*dissect_smb_logon_cmds[])(const u_char *, int, frame_data *,
 
 
 	if (!proto_is_protocol_enabled(proto_smb_logon))
-	  return 0;
+	  return FALSE;
 					   /* get the Command field */
    	cmd = MIN(  GBYTE(pd, offset), array_length(dissect_smb_logon_cmds)-1);
 
@@ -553,7 +558,7 @@ static void (*dissect_smb_logon_cmds[])(const u_char *, int, frame_data *,
 		(dissect_smb_logon_cmds[  cmd]) (pd, offset, fd,smb_logon_tree);
 
 	}
-   return 1;  
+   return TRUE;  
 }
 
 

@@ -1,8 +1,8 @@
 /* packet-smb-browse.c
- * Routines for smb packet dissection
+ * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.7 2001/01/03 06:55:32 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.8 2001/03/18 03:34:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,8 @@
 #include "smb.h"
 #include "alignment.h"
 
+#include "packet-smb-browse.h"
+
 static int proto_smb_browse = -1;
 
 static gint ett_browse = -1;
@@ -58,7 +60,7 @@ static gint ett_browse_election_desire = -1;
 
 
 
-char *browse_commands[] = 
+static char *browse_commands[] = 
 { "Error, No such command!",       /* Value 0 */
   "Host Announcement",             /* Value 1 */
   "Request Announcement",          /* Value 2 */
@@ -87,7 +89,7 @@ char *browse_commands[] =
 #define MASTERANNOUNCEMENT  13
 #define LOCALMASTERANNOUNC  15
 
-char *svr_types[32] = {
+static char *svr_types[32] = {
   "Workstation",
   "Server",
   "SQL Server",
@@ -122,8 +124,11 @@ char *svr_types[32] = {
   "Domain Enum"
 };
 
-guint32 
-dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, const u_char *command, int DataOffset, int DataCount)
+gboolean
+dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd,
+    proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data,
+    int SMB_offset, int errcode, int dirn, const u_char *command,
+    int DataOffset, int DataCount)
 {
   guint8               OpCode;
   guint8               UpdateCount;
@@ -151,7 +156,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
   int                  i;
 
   if (!proto_is_protocol_enabled(proto_smb_browse))
-    return 0;
+    return FALSE;
 
   if (check_col(fd, COL_PROTOCOL))
     col_set_str(fd, COL_PROTOCOL, "BROWSER");
@@ -562,7 +567,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
     break;
   }
   
-  return 1;  /* Success */
+  return TRUE;  /* Success */
 
 }
 

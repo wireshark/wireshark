@@ -2,7 +2,7 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.10 2001/03/18 03:23:30 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.11 2001/03/18 03:34:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,35 +28,13 @@
 
 #include "packet-smb-common.h"
 #include "packet-smb-mailslot.h"
+#include "packet-smb-browse.h"
+#include "packet-smb-logon.h"
 #include "packet-smb-pipe.h"
 
 static int proto_smb_msp = -1;
 
 static int ett_smb_msp = -1;
-
-
-/***  External dissectors called from here	*/
-
-extern guint32 
-dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data,
-	int SMB_offset, int errcode, int dirn, const u_char *command,
-	int DataOffset, int DataCount);
-
-extern guint32 
-dissect_smb_ntlogon(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data,
-	int SMB_offset, int errcode, int dirn, const u_char *command,
-	int DataOffset, int DataCount);
-
-
-extern guint32 
-dissect_smb_logon(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data,
-	int SMB_offset, int errcode, int dirn, const u_char *command,
-	int DataOffset, int DataCount);
-
-
 
 gboolean
 dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
