@@ -3,7 +3,7 @@
  *
  * Duncan Laurie <duncan@sun.com>
  *
- * $Id: packet-asf.c,v 1.1 2003/04/23 00:24:36 guy Exp $
+ * $Id: packet-asf.c,v 1.2 2003/06/04 08:51:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,16 +132,15 @@ proto_register_asf(void)
 
 	proto_register_field_array(proto_asf, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
-	register_dissector("asf", dissect_asf, proto_asf);
 }
 
 void
 proto_reg_handoff_asf(void)
 {
 	dissector_handle_t asf_handle;
-	asf_handle = create_dissector_handle(dissect_asf, proto_asf);
-	dissector_add("rmcp.class", RMCP_CLASS_ASF, asf_handle);
 
 	data_handle = find_dissector("data");
+
+	asf_handle = create_dissector_handle(dissect_asf, proto_asf);
+	dissector_add("rmcp.class", RMCP_CLASS_ASF, asf_handle);
 }

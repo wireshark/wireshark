@@ -3,7 +3,7 @@
  *
  * Duncan Laurie <duncan@sun.com>
  *
- * $Id: packet-ipmi.c,v 1.1 2003/04/23 00:24:36 guy Exp $
+ * $Id: packet-ipmi.c,v 1.2 2003/06/04 08:51:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -633,15 +633,15 @@ proto_register_ipmi(void)
 			   array_length(hf_msg_field));
 
 	proto_register_subtree_array(ett, array_length(ett));
-
-	register_dissector("ipmi", dissect_ipmi, proto_ipmi);
 }
 
 void
 proto_reg_handoff_ipmi(void)
 {
 	dissector_handle_t ipmi_handle;
+
+	data_handle = find_dissector("data");
+
 	ipmi_handle = create_dissector_handle(dissect_ipmi, proto_ipmi);
 	dissector_add("rmcp.class", RMCP_CLASS_IPMI, ipmi_handle);
-	data_handle = find_dissector("data");
 }

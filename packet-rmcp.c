@@ -3,7 +3,7 @@
  *
  * Duncan Laurie <duncan@sun.com>
  *
- * $Id: packet-rmcp.c,v 1.1 2003/04/23 00:24:36 guy Exp $
+ * $Id: packet-rmcp.c,v 1.2 2003/06/04 08:51:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,8 +51,7 @@ static int hf_rmcp_type = -1;
 static gint ett_rmcp = -1;
 static gint ett_rmcp_typeclass = -1;
 
-static dissector_handle_t asf_handle;
-static dissector_handle_t ipmi_handle;
+static dissector_handle_t data_handle;
 static dissector_table_t rmcp_dissector_table;
 
 #define UDP_PORT_RMCP		623
@@ -80,42 +79,51 @@ static const value_string rmcp_class_vals[] = {
 	{ 0,			NULL }
 };
 
-static void
+static int
 dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*rmcp_tree = NULL, *field_tree;
 	proto_item	*ti, *tf;
 	tvbuff_t	*next_tvb;
 	guint8		class;
+	gchar		*class_str;
 	guint8		type;
+
+	/*
+	 * Check whether it's a known class value; if not, assume it's
+	 * not RMCP.
+	 */
+	if (!tvb_bytes_exist(tvb, 3, 1))
+		return 0;	/* class value byte not present */
+	class = tvb_get_guint8(tvb, 3);
+
+	/* Get the normal/ack bit from the RMCP class */
+	type = (class & RMCP_TYPE_MASK) >> 7;
+	class &= RMCP_CLASS_MASK;
+
+	class_str = match_strval(class, rmcp_class_vals);
+	if (class_str == NULL)
+		return 0;	/* unknown class value */
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RMCP");
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
-
-	/* check RMCP class for normal/ack bit */
-	class = tvb_get_guint8(tvb, 3);
-	type = (class & RMCP_TYPE_MASK) >> 7;
-	class &= RMCP_CLASS_MASK;
-
-	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s, Class: %s",
 		     val_to_str(type, rmcp_type_vals, "Unknown (0x%02x)"),
-		     val_to_str(class, rmcp_class_vals, "Unknown (0x%02x)"));
+		     class_str);
 
 	if (tree) {
 		ti = proto_tree_add_protocol_format(tree, proto_rmcp, tvb, 0, 4,
 			 "Remote Management Control Protocol, Class: %s",
-			 val_to_str(class, rmcp_class_vals, "Unknown (0x%02x)"));
+			 class_str);
 		rmcp_tree = proto_item_add_subtree(ti, ett_rmcp);
 
 		proto_tree_add_item(rmcp_tree, hf_rmcp_version, tvb, 0, 1, TRUE);
 		proto_tree_add_item(rmcp_tree, hf_rmcp_sequence, tvb, 2, 1, TRUE);
 
 		tf = proto_tree_add_text(rmcp_tree, tvb, 3, 1, "Type: %s, Class: %s",
-			 val_to_str(type, rmcp_type_vals, "Unknown (0x%02)"),
-			 val_to_str(class, rmcp_class_vals, "Unknown (0x%02)"));
+			 val_to_str(type, rmcp_type_vals, "Unknown (0x%02x)"),
+			 class_str);
 
 		field_tree = proto_item_add_subtree(tf, ett_rmcp_typeclass);
 
@@ -125,16 +133,11 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	next_tvb = tvb_new_subset(tvb, 4, -1, -1);
 
-	switch (class) {
-	case RMCP_CLASS_ASF:
-		call_dissector(asf_handle, next_tvb, pinfo, tree);
-		break;
-	case RMCP_CLASS_IPMI:
-		call_dissector(ipmi_handle, next_tvb, pinfo, tree);
-		break;
-	default:
-		break;
-	}
+	if (!dissector_try_port(rmcp_dissector_table, class, next_tvb, pinfo,
+	    tree))
+		call_dissector(data_handle, next_tvb, pinfo, tree);
+
+	return tvb_length(tvb);
 }
 
 void
@@ -171,8 +174,6 @@ proto_register_rmcp(void)
 	proto_register_field_array(proto_rmcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("rmcp", dissect_rmcp, proto_rmcp);
-
 	rmcp_dissector_table = register_dissector_table(
 		"rmcp.class", "RMCP Class", FT_UINT8, BASE_HEX);
 }
@@ -181,9 +182,10 @@ void
 proto_reg_handoff_rmcp(void)
 {
 	dissector_handle_t rmcp_handle;
-	rmcp_handle = create_dissector_handle(dissect_rmcp, proto_rmcp);
-	ipmi_handle = find_dissector("ipmi");
-	asf_handle  = find_dissector("asf");
+
+	data_handle = find_dissector("data");
+
+	rmcp_handle = new_create_dissector_handle(dissect_rmcp, proto_rmcp);
 	dissector_add("udp.port", UDP_PORT_RMCP, rmcp_handle);
 	dissector_add("udp.port", UDP_PORT_RMCP_SECURE, rmcp_handle);
 }
