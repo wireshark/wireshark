@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.59 1999/10/30 06:10:30 guy Exp $
+ * $Id: packet-ip.c,v 1.60 1999/11/02 05:38:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,12 +60,18 @@ static int hf_ip_version = -1;
 static int hf_ip_hdr_len = -1;
 static int hf_ip_tos = -1;
 static int hf_ip_tos_precedence = -1;
+static int hf_ip_tos_delay = -1;
+static int hf_ip_tos_throughput = -1;
+static int hf_ip_tos_reliability = -1;
+static int hf_ip_tos_cost = -1;
 static int hf_ip_len = -1;
 static int hf_ip_id = -1;
 static int hf_ip_dst = -1;
 static int hf_ip_src = -1;
 static int hf_ip_addr = -1;
 static int hf_ip_flags = -1;
+static int hf_ip_flags_df = -1;
+static int hf_ip_flags_mf = -1;
 static int hf_ip_frag_offset = -1;
 static int hf_ip_ttl = -1;
 static int hf_ip_proto = -1;
@@ -235,15 +241,16 @@ typedef struct _e_ip
 #define IPTOS_SECURITY    0x1E
 
 #define IPTOS_PREC_MASK		0xE0
-#define IPTOS_PREC(tos)		((tos)&IPTOS_PREC_MASK)
-#define IPTOS_PREC_NETCONTROL           0xe0
-#define IPTOS_PREC_INTERNETCONTROL      0xc0
-#define IPTOS_PREC_CRITIC_ECP           0xa0
-#define IPTOS_PREC_FLASHOVERRIDE        0x80
-#define IPTOS_PREC_FLASH                0x60
-#define IPTOS_PREC_IMMEDIATE            0x40
-#define IPTOS_PREC_PRIORITY             0x20
-#define IPTOS_PREC_ROUTINE              0x00
+#define IPTOS_PREC_SHIFT	5
+#define IPTOS_PREC(tos)		(((tos)&IPTOS_PREC_MASK)>>IPTOS_PREC_SHIFT)
+#define IPTOS_PREC_NETCONTROL           7
+#define IPTOS_PREC_INTERNETCONTROL      6
+#define IPTOS_PREC_CRITIC_ECP           5
+#define IPTOS_PREC_FLASHOVERRIDE        4
+#define IPTOS_PREC_FLASH                3
+#define IPTOS_PREC_IMMEDIATE            2
+#define IPTOS_PREC_PRIORITY             1
+#define IPTOS_PREC_ROUTINE              0
 
 /* IP options */
 #define IPOPT_COPY		0x80
@@ -715,6 +722,21 @@ static const value_string iptos_vals[] = {
 	{ 0,			NULL }
 };
 
+static const true_false_string tos_set_low = {
+  "Low",
+  "Normal"
+};
+
+static const true_false_string tos_set_high = {
+  "High",
+  "Normal"
+};
+
+static const true_false_string flags_set_truth = {
+  "Set",
+  "Not set"
+};
+
 void
 dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_ip       iph;
@@ -811,34 +833,19 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	val_to_str( IPTOS_TOS(iph.ip_tos), iptos_vals, "Unknown") );
 
     field_tree = proto_item_add_subtree(tf, ETT_IP_TOS);
-    proto_tree_add_item_format(field_tree, hf_ip_tos_precedence, offset + 1, 1,
-	iph.ip_tos & IPTOS_PREC_MASK, decode_enumerated_bitfield(iph.ip_tos, IPTOS_PREC_MASK,
-			   sizeof (iph.ip_tos)*8, precedence_vals, "%s precedence"));
-
-    proto_tree_add_text(field_tree, offset + 1, 1, "%s",
-       decode_boolean_bitfield(iph.ip_tos, IPTOS_LOWDELAY,
-                sizeof (iph.ip_tos)*8, "low delay", "normal delay"));
-    proto_tree_add_text(field_tree, offset + 1, 1, "%s",
-       decode_boolean_bitfield(iph.ip_tos, IPTOS_THROUGHPUT,
-            sizeof (iph.ip_tos)*8, "high throughput", "normal throughput"));
-    proto_tree_add_text(field_tree, offset + 1, 1, "%s",
-       decode_boolean_bitfield(iph.ip_tos, IPTOS_RELIABILITY,
-            sizeof (iph.ip_tos)*8, "high reliability", "normal reliability"));
-    proto_tree_add_text(field_tree, offset + 1, 1, "%s",
-       decode_boolean_bitfield(iph.ip_tos, IPTOS_LOWCOST,
-            sizeof (iph.ip_tos)*8, "low cost", "normal cost"));
+    proto_tree_add_item(field_tree, hf_ip_tos_precedence, offset + 1, 1, iph.ip_tos);
+    proto_tree_add_item(field_tree, hf_ip_tos_delay, offset + 1, 1, iph.ip_tos);
+    proto_tree_add_item(field_tree, hf_ip_tos_throughput, offset + 1, 1, iph.ip_tos);
+    proto_tree_add_item(field_tree, hf_ip_tos_reliability, offset + 1, 1, iph.ip_tos);
+    proto_tree_add_item(field_tree, hf_ip_tos_cost, offset + 1, 1, iph.ip_tos);
     proto_tree_add_item(ip_tree, hf_ip_len, offset +  2, 2, iph.ip_len);
     proto_tree_add_item(ip_tree, hf_ip_id, offset +  4, 2, iph.ip_id);
 
     flags = (iph.ip_off & (IP_DF|IP_MF)) >> 12;
     tf = proto_tree_add_item(ip_tree, hf_ip_flags, offset +  6, 1, flags);
     field_tree = proto_item_add_subtree(tf, ETT_IP_OFF);
-    proto_tree_add_text(field_tree, offset + 6, 1, "%s",
-      decode_boolean_bitfield(iph.ip_off >> 12, IP_DF >> 12, 4, "don't fragment",
-                                           "may fragment"));
-    proto_tree_add_text(field_tree, offset + 6, 1, "%s",
-      decode_boolean_bitfield(iph.ip_off >> 12, IP_MF >> 12, 4, "more fragments",
-                                           "last fragment"));
+    proto_tree_add_item(field_tree, hf_ip_flags_df, offset + 6, 1, flags),
+    proto_tree_add_item(field_tree, hf_ip_flags_mf, offset + 6, 1, flags),
 
     proto_tree_add_item(ip_tree, hf_ip_frag_offset, offset +  6, 2,
       iph.ip_off & IP_OFFSET);
@@ -1290,7 +1297,27 @@ proto_register_ip(void)
 
 		{ &hf_ip_tos_precedence,
 		{ "Precedence",		"ip.tos.precedence", FT_UINT8, BASE_DEC, VALS(precedence_vals),
-			0x0,
+			IPTOS_PREC_MASK,
+			"" }},
+
+		{ &hf_ip_tos_delay,
+		{ "Delay",		"ip.tos.delay", FT_BOOLEAN, 8, TFS(&tos_set_low),
+			IPTOS_LOWDELAY,
+			"" }},
+
+		{ &hf_ip_tos_throughput,
+		{ "Throughput",		"ip.tos.throughput", FT_BOOLEAN, 8, TFS(&tos_set_high),
+			IPTOS_THROUGHPUT,
+			"" }},
+
+		{ &hf_ip_tos_reliability,
+		{ "Reliability",	"ip.tos.reliability", FT_BOOLEAN, 8, TFS(&tos_set_high),
+			IPTOS_RELIABILITY,
+			"" }},
+
+		{ &hf_ip_tos_cost,
+		{ "Cost",		"ip.tos.cost", FT_BOOLEAN, 8, TFS(&tos_set_low),
+			IPTOS_LOWCOST,
 			"" }},
 
 		{ &hf_ip_len,
@@ -1315,6 +1342,14 @@ proto_register_ip(void)
 
 		{ &hf_ip_flags,
 		{ "Flags",		"ip.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
+			"" }},
+
+		{ &hf_ip_flags_df,
+		{ "Don't fragment",	"ip.flags.df", FT_BOOLEAN, 4, TFS(&flags_set_truth), IP_DF>>12,
+			"" }},
+
+		{ &hf_ip_flags_mf,
+		{ "More fragments",	"ip.flags.mf", FT_BOOLEAN, 4, TFS(&flags_set_truth), IP_MF>>12,
 			"" }},
 
 		{ &hf_ip_frag_offset,
