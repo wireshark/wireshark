@@ -89,7 +89,7 @@ static_tokens = {
   r'\[' : 'LBRACK',
   r'\]' : 'RBRACK',
   r'-'  : 'MINUS',
-  #r':'  : 'COLON',
+  r':'  : 'COLON',
   #r'='  : 'EQ',
   #r'"'  : 'QUOTATION',
   #r"'"  : 'APOSTROPHE',
@@ -117,7 +117,7 @@ reserved_words = {
     'IMPLICIT': 'IMPLICIT',
     'CHOICE'  : 'CHOICE',
     'ANY'     : 'ANY',
-    'EXTERNAL' : 'EXTERNAL', # XXX added over base
+#    'EXTERNAL' : 'EXTERNAL', # XXX added over base
     'OPTIONAL':'OPTIONAL',
     'DEFAULT' : 'DEFAULT',
     'COMPONENTS': 'COMPONENTS',
@@ -668,6 +668,7 @@ class EthCtx:
     #--- type dependencies -------------------
     self.eth_type_ord1 = []
     self.eth_dep_cycle = []
+    self.dep_cycle_eth_type = {}
     x = {}  # already emitted
     #print '# Dependency computation'
     for t in self.type_ord:
@@ -698,6 +699,15 @@ class EthCtx:
           e = self.type[stack.pop()]['ethname']
           self.eth_type_ord1.append(e)
           x[e] = True
+    i = 0
+    while i < len(self.eth_dep_cycle):
+      t = self.type[self.eth_dep_cycle[i][0]]['ethname']
+      if self.dep_cycle_eth_type.has_key(t):
+        self.dep_cycle_eth_type[t].append(i)
+      else:
+        self.dep_cycle_eth_type[t] = [i]
+      i += 1
+
     #--- value dependencies and export -------------------
     self.eth_value_ord1 = []
     self.eth_vexport_ord = []
@@ -968,15 +978,27 @@ class EthCtx:
     fx.write(eth_fhdr(fn))
     pos = fx.tell()
     if self.eth_dep_cycle:
-      fx.write('/* Cyclic dependencies */\n')
-      for c in self.eth_dep_cycle:
-        fx.write('/* %s */\n' % ' -> '.join(c))
+      fx.write('/*--- Cyclic dependencies ---*/\n\n')
+      i = 0
+      while i < len(self.eth_dep_cycle):
+        t = self.type[self.eth_dep_cycle[i][0]]['ethname']
+        if self.dep_cycle_eth_type[t][0] != i: i += 1; continue
+        fx.write(''.join(map(lambda i: '/* %s */\n' % ' -> '.join(self.eth_dep_cycle[i]), self.dep_cycle_eth_type[t])))
+        fx.write(self.eth_type_fn_h(t))
+        if (not self.new):
+          fx.write('\n')
+          for f in self.eth_hf_ord:
+            if (self.eth_hf[f]['ethtype'] == t):
+              fx.write(out_field(f))
         fx.write('\n')
-        fx.write(self.eth_type_fn_h(self.type[c[0]]['ethname']))
-    if (not self.new):  # fields for imported type
+        i += 1
+      fx.write('\n')
+    if (not self.new):  # fields for imported types
+      fx.write('/*--- Fields for imported types ---*/\n\n')
       for f in self.eth_hf_ord:
         if (self.eth_type[self.eth_hf[f]['ethtype']]['import']):
           fx.write(out_field(f))
+      fx.write('\n')
     for t in self.eth_type_ord1:
       if self.eth_type[t]['import']:
         continue
@@ -993,7 +1015,7 @@ class EthCtx:
         fx.write(self.eth_type_fn_h(t))
       else:
         fx.write(self.eth_type[t]['val'].eth_type_fn(self.proto, t, self))
-      if (not self.new):
+      if (not self.new and not self.dep_cycle_eth_type.has_key(t)):
         for f in self.eth_hf_ord:
           if (self.eth_hf[f]['ethtype'] == t):
             fx.write(out_field(f))
@@ -1036,6 +1058,7 @@ class EthCnf:
     self.fn = {}
     #                                   Value name             Default value       Duplicity check   Usage check
     self.tblcfg['EXPORTS']         = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
+    self.tblcfg['PDU']             = { 'val_nm' : 'attr',     'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['USER_DEFINED']    = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['NO_EMIT']         = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
     self.tblcfg['MODULE_IMPORT']   = { 'val_nm' : 'proto',    'val_dflt' : None,  'chk_dup' : True, 'chk_use' : True }
@@ -1100,6 +1123,8 @@ class EthCnf:
     def get_par(line, pmin, pmax, fn, lineno):
       par = line.split(None, pmax)
       for i in range(len(par)):
+        if par[i] == '-':
+          par[i] = None
         if par[i][0] == '#':
           par[i:] = []
           break
@@ -2703,6 +2728,20 @@ def p_module_list_2 (t):
 
 #--- ITU-T Recommendation X.680 -----------------------------------------------
 
+
+# 11 ASN.1 lexical items --------------------------------------------------------
+
+# 11.2 Type references
+def p_type_ref (t):
+    'type_ref : UCASE_IDENT'
+    t[0] = Type_Ref(val=t[1])
+
+# 11.4 Value references
+def p_valuereference (t):
+    'valuereference : LCASE_IDENT'
+    t[0] = t[1]
+
+
 # 12 Module definition --------------------------------------------------------
 
 # 12.1
@@ -2824,6 +2863,11 @@ def p_Symbol (t):
               | identifier''' # XXX omit DefinedMacroName
     t[0] = t[1]
 
+def p_Reference (t):
+    '''Reference : type_ref
+                 | valuereference'''
+    t[0] = t[1]
+
 def p_AssignmentList_1 (t):
     'AssignmentList : AssignmentList Assignment'
     t[0] = t[1] + [t[2]]
@@ -2926,26 +2970,30 @@ def p_NamedType (t):
 
 # 16.7
 def p_Value (t):
-    '''Value : BuiltinValue
-             | ReferencedValue'''
-    t[0] = t[1]
+  '''Value : BuiltinValue
+           | ReferencedValue'''
+  t[0] = t[1]
 
 # 16.9
 def p_BuiltinValue (t):
-    '''BuiltinValue : BooleanValue
-    | NullValue
-    | ObjectIdentifierValue
-    | special_real_val
-    | SignedNumber
-    | hex_string
-    | binary_string
-    | char_string''' # XXX we don't support {data} here
-    t[0] = t[1]
+  '''BuiltinValue : BooleanValue
+                  | ObjectIdentifierValue
+                  | special_real_val
+                  | SignedNumber
+                  | hex_string
+                  | binary_string
+                  | char_string''' # XXX we don't support {data} here
+  t[0] = t[1]
 
 # 16.11
 def p_ReferencedValue (t):
-    '''ReferencedValue : DefinedValue'''
-    t[0] = t[1]
+  '''ReferencedValue : DefinedValue'''
+  t[0] = t[1]
+
+# 16.13
+#def p_NamedValue (t):
+#  'NamedValue : identifier Value'
+#  t[0] = Node ('NamedValue', ident = t[1], value = t[2])
 
 
 # 17 Notation for the boolean type --------------------------------------------
@@ -3080,9 +3128,9 @@ def p_NullType (t):
     t[0] = NullType ()
 
 # 23.3
-def p_NullValue (t):
-    'NullValue : NULL'
-    t[0] = t[1]
+#def p_NullValue (t):
+#    'NullValue : NULL'
+#    t[0] = t[1]
 
 
 # 24 Notation for sequence types ----------------------------------------------
@@ -3160,7 +3208,7 @@ def p_element_type_2 (t):
     t[0] = Node ('elt_type', val = t[1], optional = 1)
 
 def p_element_type_3 (t):
-    'element_type : NamedType DEFAULT named_value'
+    'element_type : NamedType DEFAULT Value'
     t[0] = Node ('elt_type', val = t[1], optional = 1, default = t[3])
 #          /*
 #           * this rules uses NamedValue instead of Value
@@ -3170,6 +3218,25 @@ def p_element_type_3 (t):
 #           */
 
 # XXX get to COMPONENTS later
+
+# 24.17
+#def p_SequenceValue_1 (t):
+#  'SequenceValue : LBRACE RBRACE'
+#  t[0] = []
+
+
+#def p_SequenceValue_2 (t):
+#  'SequenceValue : LBRACE ComponentValueList RBRACE'
+#  t[0] = t[2]
+    
+#def p_ComponentValueList_1 (t):
+#    'ComponentValueList : NamedValue'
+#    t[0] = [t[1]]
+
+#def p_ComponentValueList_2 (t):
+#    'ComponentValueList : ComponentValueList COMMA NamedValue'
+#    t[0] = t[1] + [t[3]]
+
 
 # 25 Notation for sequence-of types -------------------------------------------
 
@@ -3650,14 +3717,6 @@ def p_special_real_val (t):
     | MINUS_INFINITY'''
     t[0] = t[1]
 
-def p_named_value_1 (t):
-    'named_value : Value'
-    t[0] = t[1]
-
-def p_named_value_2 (t):
-    'named_value : identifier Value'
-    t[0] = Node ('named_value', ident = t[1], value = t[2])
-
 
 # Note that Z39.50 v3 spec has upper-case here for, e.g., SUTRS.
 # I've hacked the grammar to be liberal about what it accepts.
@@ -3698,11 +3757,6 @@ def p_char_string (t):
 def p_number (t):
     'number : NUMBER'
     t[0] = t[1]
-
-
-def p_type_ref (t):
-    'type_ref : UCASE_IDENT'
-    t[0] = Type_Ref(val=t[1])
 
 
 #--- ITU-T Recommendation X.682 -----------------------------------------------
@@ -3766,8 +3820,12 @@ def p_Parameters_2 (t):
   'Parameters : Parameters COMMA Parameter'
   t[0] = t[1] + [t[3]]
 
-def p_Parameter (t):
-  'Parameter : type_ref'
+def p_Parameter_1 (t):
+  'Parameter : Type COLON Reference'
+  t[0] = [t[1], t[3]]
+
+def p_Parameter_2 (t):
+  'Parameter : Reference'
   t[0] = t[1]
 
 
@@ -3799,7 +3857,8 @@ def p_ActualParameters_2 (t):
   t[0] = t[1] + [t[3]]
 
 def p_ActualParameter (t):
-  'ActualParameter : Type'
+  '''ActualParameter : Type
+                     | Value'''
   t[0] = t[1]
 
 
