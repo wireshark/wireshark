@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.102 2000/05/18 09:05:25 guy Exp $
+ * $Id: capture.c,v 1.103 2000/05/19 19:53:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -228,6 +228,7 @@ do_capture(char *capfile_name)
       error = errno;
       close(sync_pipe[1]);
       close(sync_pipe[0]);
+      close(cf.save_file_fd);
       unlink(cf.save_file);
       g_free(cf.save_file);
       cf.save_file = NULL;
@@ -235,6 +236,8 @@ do_capture(char *capfile_name)
 			strerror(error));
       return;
     }
+
+    close(cf.save_file_fd);
 
     /* Parent process - read messages from the child process over the
        sync pipe. */
@@ -337,6 +340,7 @@ do_capture(char *capfile_name)
   } else {
     /* Not sync mode. */
     capture_succeeded = capture();
+    close(cf.save_file_fd);
     if (quit_after_cap) {
       /* DON'T unlink the save file.  Presumably someone wants it. */
       gtk_exit(0);
