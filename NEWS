@@ -6,19 +6,20 @@ Ethereal 0.10.9 has been released.
 
 This release fixes the following security-related issues:
 
-  The COPS dissector could go into an infinite loop.
+  The COPS dissector could go into an infinite loop.  (CAN-2005-0006)
 
   The DLSw dissector could cause an assertion, making Ethereal exit
-  prematurely.
+  prematurely.  (CAN-2005-0007)
 
-  The DNP dissector could cause memory corruption.
+  The DNP dissector could cause memory corruption.  (CAN-2005-0008)
 
   The Gnutella dissector could cause an assertion, making Ethereal
-  exit prematurely.
+  exit prematurely.  (CAN-2005-0009)
 
-  The MMSE dissector could free static memory.
+  The MMSE dissector could free static memory.  (CAN-2005-0010)
 
   The X11 protocol dissector is vulnerable to a string buffer overflow.
+  (CAN-2005-0084)
 
 Please see the following advisory for more information:
   
@@ -45,18 +46,18 @@ New and updated features
 
 New protocol support
 
-  AMR, CRMF, JXTA, PKIXCMP, PROFINET CBA
+  AMR, CRMF, JXTA, PKIXCMP, PROFINET CBA, RMT ALC, RMT NORM
 
 Updated protocol support
 
-  AIM, ARP, BGP, BOOTP/DHCP, COPS, DAAP, DCERPC EPM, DCERPC, DCOM, DHCPv6,
-  DLSw, DNP, DNS, EAPOL, eDonkey, FC-dNS, FC-FCS, FC-SWILS, FCIP, FCSB3,
-  FIX, GIOP, Gnutella, GSM A, GSM SMS, GTP, H.225, H.245, HTTP, ICMP,
-  IEEE 802.11, IEEE 802a, image/GIF, image/JFIF, Kerberos, L2TP, LDAP,
-  LLC, LMP, MGCP, MIME Multipart, MMSE, MPLS, MTP2, NBNS, NDMP, NMAS,
-  NSIP, OLSR, PER, pflog, PGM, PostgreSQL, PPP, PRES, Q.931, RADIUS,
-  RMT ALC, RMT NORM, RTCP, RTP, SDP, SEBEK, SIGCOMP, SIP, SLSK, SMB,
-  SMPP, SRVLOC, SSL/TLS, T.38, TACACS, TCAP, TCP, X11
+  AIM, ARP, BGP, BOOTP/DHCP, COPS, DAAP, DCERPC EPM, DCERPC, DCOM,
+  DHCPv6, DLSw, DNP, DNS, EAPOL, eDonkey, FC-dNS, FC-FCS, FC-SWILS,
+  FCIP, FCSB3, FIX, GIOP, Gnutella, GSM A, GSM SMS, GTP, H.225, H.245,
+  HTTP, ICMP, IEEE 802.11, IEEE 802a, image/GIF, image/JFIF, Kerberos,
+  L2TP, LDAP, LLC, LMP, MGCP, MIME Multipart, MMSE, MPLS, MTP2, NBNS,
+  NDMP, NMAS, NSIP, OLSR, PER, pflog, PGM, PostgreSQL, PPP, PRES, Q.931,
+  RADIUS, RTCP, RTP, SDP, SEBEK, SIGCOMP, SIP, SLSK, SMB, SMPP, SRVLOC,
+  SSL/TLS, T.38, TACACS, TCAP, TCP, X11
 
 
 New and updated capture file support
