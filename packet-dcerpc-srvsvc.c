@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.23 2002/06/17 13:04:14 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.24 2002/06/18 10:19:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,12 @@ typedef struct _srvsvc_info {
 
 static int proto_dcerpc_srvsvc = -1;
 static int hf_srvsvc_server = -1;
+static int hf_srvsvc_transport = -1;
+static int hf_srvsvc_session = -1;
+static int hf_srvsvc_session_num_opens = -1;
+static int hf_srvsvc_session_time = -1;
+static int hf_srvsvc_session_idle_time = -1;
+static int hf_srvsvc_session_user_flags = -1;
 static int hf_srvsvc_qualifier = -1;
 static int hf_srvsvc_computer = -1;
 static int hf_srvsvc_user = -1;
@@ -77,6 +83,7 @@ static int hf_srvsvc_platform_id = -1;
 static int hf_srvsvc_ver_major = -1;
 static int hf_srvsvc_ver_minor = -1;
 static int hf_srvsvc_server_type = -1;
+static int hf_srvsvc_client_type = -1;
 static int hf_srvsvc_server_comment = -1;
 static int hf_srvsvc_users = -1;
 static int hf_srvsvc_hidden = -1;
@@ -1290,6 +1297,502 @@ srvsvc_dissect_netrfileclose_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/*
+ * IDL typedef struct {
+ * IDL   [string] [unique] wchar_t *ses;
+ * IDL } SESSION_INFO_0;
+ */
+static int
+srvsvc_dissect_SESSION_INFO_0(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Session",
+		hf_srvsvc_session, 0);
+	
+	return offset;
+}
+static int
+srvsvc_dissect_SESSION_INFO_0_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SESSION_INFO_0);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] SESSION_INFO_0 *ses;
+ * IDL } SESSION_INFO_0_CONTAINER;
+ */
+static int
+srvsvc_dissect_SESSION_INFO_0_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_SESSION_INFO_0_array, NDR_POINTER_UNIQUE,
+		"SESSION_INFO_0 array:", -1, 0);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   [string] [unique] wchar_t *ses;
+ * IDL   [string] [unique] wchar_t *user;
+ * IDL   long num_open;
+ * IDL   long time;
+ * IDL   long idle_time;
+ * IDL   long user_flags
+ * IDL } SESSION_INFO_1;
+ */
+static int
+srvsvc_dissect_SESSION_INFO_1(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Session",
+		hf_srvsvc_session, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "User",
+		hf_srvsvc_user, 0);
+	
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_session_num_opens, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_session_time, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_session_idle_time, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_session_user_flags, NULL);
+
+	return offset;
+}
+static int
+srvsvc_dissect_SESSION_INFO_1_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SESSION_INFO_1);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] SESSION_INFO_1 *ses;
+ * IDL } SESSION_INFO_1_CONTAINER;
+ */
+static int
+srvsvc_dissect_SESSION_INFO_1_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_SESSION_INFO_1_array, NDR_POINTER_UNIQUE,
+		"SESSION_INFO_1 array:", -1, 0);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   [string] [unique] wchar_t *ses;
+ * IDL   [string] [unique] wchar_t *user;
+ * IDL   long num_open;
+ * IDL   long time;
+ * IDL   long idle_time;
+ * IDL   long user_flags
+ * IDL   [string] [unique] wchar_t *clienttype;
+ * IDL } SESSION_INFO_2;
+ */
+static int
+srvsvc_dissect_SESSION_INFO_2(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Session",
+		hf_srvsvc_session, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "User",
+		hf_srvsvc_user, 0);
+	
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_session_num_opens, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_session_time, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_session_idle_time, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_session_user_flags, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Client Type:",
+		hf_srvsvc_client_type, 0);
+
+	return offset;
+}
+static int
+srvsvc_dissect_SESSION_INFO_2_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SESSION_INFO_2);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] SESSION_INFO_2 *ses;
+ * IDL } SESSION_INFO_2_CONTAINER;
+ */
+static int
+srvsvc_dissect_SESSION_INFO_2_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_SESSION_INFO_2_array, NDR_POINTER_UNIQUE,
+		"SESSION_INFO_2 array:", -1, 0);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   [string] [unique] wchar_t *ses;
+ * IDL   [string] [unique] wchar_t *user;
+ * IDL   long time;
+ * IDL   long idle_time;
+ * IDL } SESSION_INFO_10;
+ */
+static int
+srvsvc_dissect_SESSION_INFO_10(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Session",
+		hf_srvsvc_session, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "User",
+		hf_srvsvc_user, 0);
+	
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_session_time, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_session_idle_time, NULL);
+
+	return offset;
+}
+static int
+srvsvc_dissect_SESSION_INFO_10_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SESSION_INFO_10);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] SESSION_INFO_10 *ses;
+ * IDL } SESSION_INFO_10_CONTAINER;
+ */
+static int
+srvsvc_dissect_SESSION_INFO_10_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_SESSION_INFO_10_array, NDR_POINTER_UNIQUE,
+		"SESSION_INFO_10 array:", -1, 0);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   [string] [unique] wchar_t *ses;
+ * IDL   [string] [unique] wchar_t *user;
+ * IDL   long num_open;
+ * IDL   long time;
+ * IDL   long idle_time;
+ * IDL   long user_flags
+ * IDL   [string] [unique] wchar_t *clienttype;
+ * IDL   [string] [unique] wchar_t *transport;
+ * IDL } SESSION_INFO_2;
+ */
+static int
+srvsvc_dissect_SESSION_INFO_502(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Session",
+		hf_srvsvc_session, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "User",
+		hf_srvsvc_user, 0);
+	
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_session_num_opens, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_session_time, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_session_idle_time, NULL);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_srvsvc_session_user_flags, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Client Type:",
+		hf_srvsvc_client_type, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Transport:",
+		hf_srvsvc_transport, 0);
+
+	return offset;
+}
+static int
+srvsvc_dissect_SESSION_INFO_502_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SESSION_INFO_502);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] SESSION_INFO_502 *ses;
+ * IDL } SESSION_INFO_502_CONTAINER;
+ */
+static int
+srvsvc_dissect_SESSION_INFO_502_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_SESSION_INFO_502_array, NDR_POINTER_UNIQUE,
+		"SESSION_INFO_502 array:", -1, 0);
+
+	return offset;
+}
+
+/*
+ * IDL typedef [switch_type(long)] union {
+ * IDL   [case(0)] [unique] SESSION_INFO_0_CONTAINER *ses0;
+ * IDL   [case(1)] [unique] SESSION_INFO_1_CONTAINER *ses1;
+ * IDL   [case(2)] [unique] SESSION_INFO_2_CONTAINER *ses2;
+ * IDL   [case(10)] [unique] SESSION_INFO_10_CONTAINER *ses10;
+ * IDL   [case(502)] [unique] SESSION_INFO_502_CONTAINER *ses502;
+ * IDL } SESSION_ENUM_UNION;
+ */
+static int
+srvsvc_dissect_SESSION_ENUM_UNION(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	guint32 level;
+
+	ALIGN_TO_4_BYTES;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_info_level, &level);
+
+	switch(level){
+	case 0:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SESSION_INFO_0_CONTAINER,
+			NDR_POINTER_UNIQUE, "SESSION_INFO_0_CONTAINER:",
+			-1, 0);
+		break;
+	case 1:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SESSION_INFO_1_CONTAINER,
+			NDR_POINTER_UNIQUE, "SESSION_INFO_1_CONTAINER:",
+			-1, 0);
+		break;
+	case 2:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SESSION_INFO_2_CONTAINER,
+			NDR_POINTER_UNIQUE, "SESSION_INFO_2_CONTAINER:",
+			-1, 0);
+		break;
+	case 10:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SESSION_INFO_10_CONTAINER,
+			NDR_POINTER_UNIQUE, "SESSION_INFO_10_CONTAINER:",
+			-1, 0);
+		break;
+	case 502:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_SESSION_INFO_502_CONTAINER,
+			NDR_POINTER_UNIQUE, "SESSION_INFO_502_CONTAINER:",
+			-1, 0);
+		break;
+	}
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long Level;
+ * IDL   SESSION_ENUM_UNION ses;
+ * IDL } SESSION_ENUM_STRUCT;
+ */
+static int
+srvsvc_dissect_SESSION_ENUM_STRUCT(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_info_level, 0);
+
+	offset = srvsvc_dissect_SESSION_ENUM_UNION(tvb, offset, pinfo, tree, drep);
+
+	return offset;
+}
+
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrSessionEnum(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [unique] wchar_t *ClientName,
+ * IDL      [in] [string] [unique] wchar_t *UserName,
+ * IDL      [in] [ref] SESSION_ENUM_STRUCT *ses,
+ * IDL      [in] long maxlen,
+ * IDL      [in] [unique] long *resumehandle,
+ * IDL );
+*/
+static int
+srvsvc_dissect_netrsessionenum_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Server",
+		hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Computer",
+		hf_srvsvc_computer, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "User",
+		hf_srvsvc_user, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_SESSION_ENUM_STRUCT,
+		NDR_POINTER_REF, "SESSION_ENUM_STRUCT",
+		-1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_preferred_len, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_ENUM_HANDLE,
+		NDR_POINTER_UNIQUE, "Enum Handle", -1, 0);
+
+	return offset;
+}
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrSessionDel(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [ref] wchar_t *ClientName,
+ * IDL      [in] [string] [ref] wchar_t *UserName,
+ * IDL );
+*/
+static int
+srvsvc_dissect_netrsessiondel_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Server",
+		hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_REF, "Computer",
+		hf_srvsvc_computer, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_REF, "User",
+		hf_srvsvc_user, 0);
+
+	return offset;
+}
+
 
 
 
@@ -1937,8 +2440,12 @@ static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
 	{SRV_NETRFILECLOSE,		"NetrFileClose",
 		srvsvc_dissect_netrfileclose_rqst,
 		NULL},
-	{SRV_NETRSESSIONENUM,		"NetrSessionEnum", NULL, NULL},
-	{SRV_NETRSESSIONDEL,		"NetrSessionDel", NULL, NULL},
+	{SRV_NETRSESSIONENUM,		"NetrSessionEnum",
+		srvsvc_dissect_netrsessionenum_rqst,
+		NULL},
+	{SRV_NETRSESSIONDEL,		"NetrSessionDel",
+		srvsvc_dissect_netrsessiondel_rqst,
+		NULL},
 	{SRV_NETRSHAREADD,		"NetrShareAdd", NULL, NULL},
 	{SRV_NETRSHAREENUM,		"NetrShareEnum",
 		srvsvc_dissect_netshareenum_rqst,
@@ -1993,6 +2500,12 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_server,
 	    { "Server", "srvsvc.server", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "Server Name", HFILL}},
+	  { &hf_srvsvc_transport,
+	    { "Transport", "srvsvc.transport", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "Transport Name", HFILL}},
+	  { &hf_srvsvc_session,
+	    { "Session", "srvsvc.session", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "Session Name", HFILL}},
 	  { &hf_srvsvc_qualifier,
 	    { "Qualifier", "srvsvc.qualifier", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "Connection Qualifier", HFILL}},
@@ -2055,6 +2568,9 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_server_type,
 	    { "Server Type", "srvsvc.server.type", FT_UINT32,
 	      BASE_HEX, NULL, 0x0, "Server Type", HFILL}},
+	  { &hf_srvsvc_client_type,
+	    { "Client Type", "srvsvc.Client.type", FT_STRING,
+	      BASE_NONE, NULL, 0x0, "Client Type", HFILL}},
 	  { &hf_srvsvc_server_comment, 
 	    { "Server Comment", "srvsvc.server.comment", FT_STRING,
 	      BASE_NONE, NULL, 0x0, "Server Comment String", HFILL}},
@@ -2106,6 +2622,18 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_con_num_opens,
 	    { "Num Opens", "srvsvc.con_num_opens", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Num Opens", HFILL}},
+	  { &hf_srvsvc_session_num_opens,
+	    { "Num Opens", "srvsvc.session.num_opens", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Num Opens", HFILL}},
+	  { &hf_srvsvc_session_time,
+	    { "Time", "srvsvc.session.time", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Time", HFILL}},
+	  { &hf_srvsvc_session_idle_time,
+	    { "Idle Time", "srvsvc.session.idle_time", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Idle Time", HFILL}},
+	  { &hf_srvsvc_session_user_flags,
+	    { "User Flags", "srvsvc.session.user_flags", FT_UINT32,
+	      BASE_HEX, NULL, 0x0, "User Flags", HFILL}},
 	  { &hf_srvsvc_con_num_users,
 	    { "Num Users", "srvsvc.con_num_users", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Num Users", HFILL}},
