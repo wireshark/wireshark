@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.37 2001/07/21 06:30:21 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.38 2001/07/25 05:53:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -268,6 +268,7 @@ static int hf_addr_ra = -1;	/* Receiver address subfield */
 static int hf_addr_ta = -1;	/* Transmitter address subfield */
 static int hf_addr_bssid = -1;	/* address is bssid */
 
+static int hf_addr = -1;	/* Source or destination address subfield */
 
 
 /* ************************************************************************* */
@@ -1147,6 +1148,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	  proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 10, 6, src);
 
+	  /* add items for wlan.addr filter */
+	  proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 4, 6, dst);
+	  proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 10, 6, src);
+
 	  proto_tree_add_ether (hdr_tree, hf_addr_bssid, tvb, 16, 6,
 				tvb_get_ptr (tvb, 16, 6));
 
@@ -1302,6 +1307,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
 				   COOK_SEQUENCE_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
+
+	      /* add items for wlan.addr filter */
+	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 4, 6, dst);
+	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 10, 6, src);
 	      break;
 	      
 	      
@@ -1316,6 +1325,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
 				   COOK_SEQUENCE_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
+
+	      /* add items for wlan.addr filter */
+	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 4, 6, dst);
+	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 16, 6, src);
 	      break;
    
 
@@ -1324,12 +1337,17 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				    tvb_get_ptr (tvb, 4, 6));
 	      proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 10, 6, src);
 	      proto_tree_add_ether (hdr_tree, hf_addr_da, tvb, 16, 6, dst);
+
 	      proto_tree_add_uint (hdr_tree, hf_frag_number, tvb, 22, 2,
 				   COOK_FRAGMENT_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
 	      proto_tree_add_uint (hdr_tree, hf_seq_number, tvb, 22, 2,
 				   COOK_SEQUENCE_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
+
+	      /* add items for wlan.addr filter */
+	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 10, 6, src);
+	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 16, 6, dst);
 	      break;
 	      
 
@@ -1346,6 +1364,10 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				   COOK_SEQUENCE_NUMBER (tvb_get_letohs
 							 (tvb, 22)));
 	      proto_tree_add_ether (hdr_tree, hf_addr_sa, tvb, 24, 6, src);
+
+	      /* add items for wlan.addr filter */
+	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 16, 6, dst);
+	      proto_tree_add_ether_hidden(hdr_tree, hf_addr, tvb, 24, 6, src);
 	      break;
 	    }
 
@@ -1688,11 +1710,15 @@ proto_register_wlan (void)
 
     {&hf_addr_da,
      {"Destination address", "wlan.da", FT_ETHER, BASE_NONE, NULL, 0,
-      "Destination Hardware address", HFILL }},
+      "Destination Hardware Address", HFILL }},
 
     {&hf_addr_sa,
      {"Source address", "wlan.sa", FT_ETHER, BASE_NONE, NULL, 0,
-      "Source Hardware address", HFILL }},
+      "Source Hardware Address", HFILL }},
+
+    { &hf_addr,
+      {"Source or Destination address", "wlan.addr", FT_ETHER, BASE_NONE, NULL, 0,
+       "Source or Destination Hardware Address", HFILL }},
 
     {&hf_addr_ra,
      {"Receiver address", "wlan.ra", FT_ETHER, BASE_NONE, NULL, 0,
