@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.22 2001/12/03 03:59:39 guy Exp $
+ * $Id: packet-sctp.c,v 1.23 2001/12/08 06:41:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1932,8 +1932,10 @@ proto_register_sctp(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   /* subdissector code */
-  sctp_port_dissector_table = register_dissector_table("sctp.port");
-  sctp_ppi_dissector_table  = register_dissector_table("sctp.ppi");
+  sctp_port_dissector_table = register_dissector_table("sctp.port",
+	"SCTP port", FT_UINT16, BASE_DEC);
+  sctp_ppi_dissector_table  = register_dissector_table("sctp.ppi",
+        "SCTP payload protocol identifier", FT_UINT32, BASE_HEX);
 
 };
 

@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.25 2001/12/03 03:59:34 guy Exp $
+ * $Id: packet-fr.c,v 1.26 2001/12/08 06:41:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -416,7 +416,8 @@ void proto_register_fr(void)
   proto_register_field_array(proto_fr, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  fr_subdissector_table = register_dissector_table("fr.ietf");
+  fr_subdissector_table = register_dissector_table("fr.ietf",
+	"Frame Relay NLPID", FT_UINT8, BASE_HEX);
 
   register_dissector("fr", dissect_fr_uncompressed, proto_fr);
 }

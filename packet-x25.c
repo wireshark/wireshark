@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.60 2001/12/05 08:43:26 guy Exp $
+ * $Id: packet-x25.c,v 1.61 2001/12/08 06:41:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2253,7 +2253,8 @@ proto_register_x25(void)
     proto_register_subtree_array(ett, array_length(ett));
     register_init_routine(&reinit_x25_hashtable);
 
-    x25_subdissector_table = register_dissector_table("x.25.spi");
+    x25_subdissector_table = register_dissector_table("x.25.spi",
+	"X.25 secondary protocol identifier", FT_UINT8, BASE_HEX);
     register_heur_dissector_list("x.25", &x25_heur_subdissector_list);
 
     register_dissector("x.25", dissect_x25, proto_x25);

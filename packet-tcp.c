@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.121 2001/12/05 08:20:30 guy Exp $
+ * $Id: packet-tcp.c,v 1.122 2001/12/08 06:41:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1210,7 +1210,8 @@ proto_register_tcp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* subdissector code */
-	subdissector_table = register_dissector_table("tcp.port");
+	subdissector_table = register_dissector_table("tcp.port",
+	    "TCP port", FT_UINT16, BASE_DEC);
 	register_heur_dissector_list("tcp", &heur_subdissector_list);
 
 	/* Register configuration preferences */

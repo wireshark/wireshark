@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.48 2001/12/07 11:10:52 guy Exp $
+ * $Id: packet-wsp.c,v 1.49 2001/12/08 06:41:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4220,7 +4220,8 @@ proto_register_wsp(void)
 
 	register_dissector("wsp-co", dissect_wsp_fromwap_co, proto_wsp);
 	register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
-	wsp_dissector_table = register_dissector_table("wsp.content_type.type");
+	wsp_dissector_table = register_dissector_table("wsp.content_type.type",
+	    "WSP content type", FT_UINT8, BASE_HEX);
 	register_heur_dissector_list("wsp", &heur_subdissector_list);
 
 	wsp_fromudp_handle = create_dissector_handle(dissect_wsp_fromudp,

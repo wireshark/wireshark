@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.79 2001/12/08 01:03:19 guy Exp $
+ * $Id: packet-ppp.c,v 1.80 2001/12/08 06:41:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2578,7 +2578,8 @@ proto_register_ppp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 /* subdissector code */
-	subdissector_table = register_dissector_table("ppp.protocol");
+	subdissector_table = register_dissector_table("ppp.protocol",
+	    "PPP protocol", FT_UINT16, BASE_HEX);
 
 	register_dissector("ppp_hdlc", dissect_ppp_hdlc, proto_ppp);
 	register_dissector("ppp", dissect_ppp, proto_ppp);

@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.10 2001/12/03 03:59:37 guy Exp $
+ * $Id: packet-pgm.c,v 1.11 2001/12/08 06:41:41 guy Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -1076,7 +1076,8 @@ proto_register_pgm(void)
   proto_register_subtree_array(ett, array_length(ett));
 
 	/* subdissector code */
-  subdissector_table = register_dissector_table("pgm.port");
+  subdissector_table = register_dissector_table("pgm.port",
+		"PGM port", FT_UINT16, BASE_DEC);
   register_heur_dissector_list("pgm", &heur_subdissector_list);
 
   /*

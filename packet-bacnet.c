@@ -2,7 +2,7 @@
  * Routines for BACnet (NPDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bacnet.c,v 1.6 2001/12/03 03:59:33 guy Exp $
+ * $Id: packet-bacnet.c,v 1.7 2001/12/08 06:41:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,7 +49,7 @@
 
 #include "packet.h"
 
-static dissector_table_t bacnet_dissector_table;
+static dissector_handle_t bacapp_handle;
 static dissector_handle_t data_handle;
 
 static const char*
@@ -187,7 +187,6 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint offset;
 	guint8 bacnet_version;
 	guint8 bacnet_control;
-	guint8 bacnet_control_net;
 	guint8 bacnet_dlen;
 	guint8 bacnet_slen;
 	guint8 bacnet_mesgtyp;
@@ -207,7 +206,6 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset = 0;
 	bacnet_version = tvb_get_guint8(tvb, offset);
 	bacnet_control = tvb_get_guint8(tvb, offset+1);
-	bacnet_control_net = tvb_get_guint8(tvb, offset+1) & BAC_CONTROL_NET;
 	bacnet_dlen = 0;
 	bacnet_slen = 0;
 	bacnet_mesgtyp = 0;
@@ -424,11 +422,12 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* dissect BACnet APDU
  */
         next_tvb = tvb_new_subset(tvb,offset,-1,-1);
-        /* Code from Guy Harris */
-        if (!dissector_try_port(bacnet_dissector_table,
-        bacnet_control_net, next_tvb, pinfo, tree)) {
+        if (bacnet_control & BAC_CONTROL_NET) {
                 /* Unknown function - dissect the payload as data */
-                call_dissector(data_handle,next_tvb, pinfo, tree);
+                call_dissector(data_handle, next_tvb, pinfo, tree);
+        } else {
+        	/* APDU - call the APDU dissector */
+        	call_dissector(bacapp_handle, next_tvb, pinfo, tree);
         }
 }
 
@@ -593,7 +592,6 @@ proto_register_bacnet(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("bacnet", dissect_bacnet, proto_bacnet);
-	bacnet_dissector_table = register_dissector_table("bacnet_control_net");
 }
 
 void
@@ -606,5 +604,6 @@ proto_reg_handoff_bacnet(void)
 	dissector_add("bvlc.function", 0x09, bacnet_handle);
 	dissector_add("bvlc.function", 0x0a, bacnet_handle);
 	dissector_add("bvlc.function", 0x0b, bacnet_handle);
+	bacapp_handle = find_dissector("bacapp");
 	data_handle = find_dissector("data");
 }

@@ -1,7 +1,7 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.7 2001/12/03 03:59:33 guy Exp $
+ * $Id: packet-chdlc.c,v 1.8 2001/12/08 06:41:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -189,7 +189,8 @@ proto_register_chdlc(void)
   proto_register_subtree_array(ett, array_length(ett));
 
 /* subdissector code */
-  subdissector_table = register_dissector_table("chdlctype");
+  subdissector_table = register_dissector_table("chdlctype",
+	"Cisco HDLC frame type", FT_UINT16, BASE_HEX);
 
   register_dissector("chdlc", dissect_chdlc, proto_chdlc);
 }

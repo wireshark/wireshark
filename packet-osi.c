@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.50 2001/12/03 03:59:37 guy Exp $
+ * $Id: packet-osi.c,v 1.51 2001/12/08 06:41:41 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -181,7 +181,8 @@ proto_register_osi(void)
 	/* There's no "OSI" protocol *per se*, but we do register a
 	   dissector table so various protocols running at the
 	   network layer can register themselves. */
-	osinl_subdissector_table = register_dissector_table("osinl");
+	osinl_subdissector_table = register_dissector_table("osinl",
+	    "OSI NLPID", FT_UINT8, BASE_HEX);
 }
 
 void

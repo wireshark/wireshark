@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.58 2001/12/03 03:59:33 guy Exp $
+ * $Id: packet-atalk.c,v 1.59 2001/12/08 06:41:41 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -712,7 +712,8 @@ proto_register_atalk(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   /* subdissector code */
-  ddp_dissector_table = register_dissector_table("ddp.type");
+  ddp_dissector_table = register_dissector_table("ddp.type", "DDP packet type",
+						 FT_UINT8, BASE_HEX);
 }
 
 void

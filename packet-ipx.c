@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.96 2001/12/03 03:59:35 guy Exp $
+ * $Id: packet-ipx.c,v 1.97 2001/12/08 06:41:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -974,8 +974,10 @@ proto_register_ipx(void)
 
 	proto_register_subtree_array(ett, array_length(ett));
 
-	ipx_type_dissector_table = register_dissector_table("ipx.packet_type");
-	ipx_socket_dissector_table = register_dissector_table("ipx.socket");
+	ipx_type_dissector_table = register_dissector_table("ipx.packet_type",
+	    "IPX packet type", FT_UINT8, BASE_HEX);
+	ipx_socket_dissector_table = register_dissector_table("ipx.socket",
+	    "IPX socket", FT_UINT16, BASE_HEX);
 }
 
 void

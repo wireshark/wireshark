@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.36 2001/12/03 03:59:40 guy Exp $
+ * $Id: packet-vines.c,v 1.37 2001/12/08 06:41:42 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -336,7 +336,8 @@ proto_register_vines(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* subdissector code */
-	vines_dissector_table = register_dissector_table("vines.proto");
+	vines_dissector_table = register_dissector_table("vines.proto",
+	    "Vines protocol", FT_UINT8, BASE_HEX);
 
 	register_dissector("vines", dissect_vines, proto_vines);
 	vines_handle = find_dissector("vines");

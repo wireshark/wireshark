@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.12 2001/12/06 22:52:18 guy Exp $
+ * $Id: packet-frame.c,v 1.13 2001/12/08 06:41:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -202,7 +202,8 @@ proto_register_frame(void)
 	};
     module_t *frame_module; 
 
-	wtap_encap_dissector_table = register_dissector_table("wtap_encap");
+	wtap_encap_dissector_table = register_dissector_table("wtap_encap",
+	    "Wiretap encapsulation type", FT_UINT32, BASE_DEC);
 
 	proto_frame = proto_register_protocol("Frame", "Frame", "frame");
 	proto_register_field_array(proto_frame, hf, array_length(hf));

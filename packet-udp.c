@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.98 2001/12/03 08:47:28 guy Exp $
+ * $Id: packet-udp.c,v 1.99 2001/12/08 06:41:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -267,7 +267,8 @@ proto_register_udp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 /* subdissector code */
-	udp_dissector_table = register_dissector_table("udp.port");
+	udp_dissector_table = register_dissector_table("udp.port",
+	    "UDP port", FT_UINT16, BASE_DEC);
 	register_heur_dissector_list("udp", &heur_subdissector_list);
 	
 	/* Register configuration preferences */

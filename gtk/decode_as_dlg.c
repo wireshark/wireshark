@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.19 2001/12/06 08:50:14 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.20 2001/12/08 06:41:48 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -90,7 +90,9 @@ enum srcdst_type {
 #define E_PAGE_VALUE  "notebook_page_value"
 
 /*
- * Clist columns for a "Select" clist
+ * Clist columns for a "Select" clist.
+ * Note that most of these columns aren't displayed; they're attached
+ * to the row of the table as additional information.
  */
 #define E_CLIST_S_PROTO_NAME 0
 #define E_CLIST_S_TABLE	     1
@@ -157,7 +159,7 @@ struct dissector_delete_item {
     /* The name of the dissector table */
     const gchar *ddi_table_name;
     /* The port number in the dissector table */
-    gint   ddi_port;
+    guint   ddi_port;
 };
 
 /*
@@ -200,7 +202,7 @@ decode_build_reset_list (gchar *table_name, gpointer key,
 
     item = g_malloc(sizeof(dissector_delete_item_t));
     item->ddi_table_name = table_name;
-    item->ddi_port = GPOINTER_TO_INT(key);
+    item->ddi_port = GPOINTER_TO_UINT(key);
     dissector_reset_list = g_slist_prepend(dissector_reset_list, item);
 }
 
@@ -253,8 +255,42 @@ decode_build_show_list (gchar *table_name, gpointer key,
     else
 	initial_proto_name = dissector_handle_get_short_name(initial);
 
-    text[E_CLIST_D_TABLE] = table_name;
-    sprintf(string1, "%d", GPOINTER_TO_INT(key));
+    text[E_CLIST_D_TABLE] = get_dissector_table_ui_name(table_name);
+    switch (get_dissector_table_base(table_name)) {
+
+    case BASE_DEC:
+	sprintf(string1, "%u", GPOINTER_TO_UINT(key));
+	break;
+
+    case BASE_HEX:
+	switch (get_dissector_table_type(table_name)) {
+
+	case FT_UINT8:
+	    sprintf(string1, "0x%02x", GPOINTER_TO_UINT(key));
+	    break;
+
+	case FT_UINT16:
+	    sprintf(string1, "0x%04x", GPOINTER_TO_UINT(key));
+	    break;
+
+	case FT_UINT24:
+	    sprintf(string1, "0x%06x", GPOINTER_TO_UINT(key));
+	    break;
+
+	case FT_UINT32:
+	    sprintf(string1, "0x%08x", GPOINTER_TO_UINT(key));
+	    break;
+
+	default:
+	    g_assert_not_reached();
+	    break;
+	}
+	break;
+
+    case BASE_OCT:
+	sprintf(string1, "%#o", GPOINTER_TO_UINT(key));
+	break;
+    }
     text[E_CLIST_D_PORT] = string1;
     text[E_CLIST_D_INITIAL] = initial_proto_name;
     text[E_CLIST_D_CURRENT] = current_proto_name;

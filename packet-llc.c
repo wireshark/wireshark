@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.91 2001/12/03 03:59:36 guy Exp $
+ * $Id: packet-llc.c,v 1.92 2001/12/08 06:41:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -550,8 +550,10 @@ proto_register_llc(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 /* subdissector code */
-	subdissector_table = register_dissector_table("llc.dsap");
-	cisco_subdissector_table = register_dissector_table("llc.cisco_pid");
+	subdissector_table = register_dissector_table("llc.dsap",
+	  "LLC SAP", FT_UINT8, BASE_HEX);
+	cisco_subdissector_table = register_dissector_table("llc.cisco_pid",
+	  "Cisco OUI PID", FT_UINT16, BASE_HEX);
 
 	register_dissector("llc", dissect_llc, proto_llc);
 }

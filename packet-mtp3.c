@@ -2,7 +2,7 @@
  * Routines for Message Transfer Part Level 3 dissection
  * Copyright 2001, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-mtp3.c,v 1.5 2001/07/07 09:06:40 guy Exp $
+ * $Id: packet-mtp3.c,v 1.6 2001/12/08 06:41:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -426,7 +426,8 @@ proto_register_mtp3(void)
   /* Register the dissector */
   register_dissector("mtp3", dissect_mtp3, proto_mtp3);
 
-  mtp3_sio_dissector_table = register_dissector_table("mtp3.service_indicator");
+  mtp3_sio_dissector_table = register_dissector_table("mtp3.service_indicator",
+      "MTP3 Service indicator", FT_UINT8, BASE_HEX);
 
   mtp3_module = prefs_register_protocol(proto_mtp3, NULL);
 

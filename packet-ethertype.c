@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.22 2001/11/26 04:52:49 hagbard Exp $
+ * $Id: packet-ethertype.c,v 1.23 2001/12/08 06:41:41 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -263,7 +263,8 @@ void
 proto_register_ethertype(void)
 {
 	/* subdissector code */
-	ethertype_dissector_table = register_dissector_table("ethertype");
+	ethertype_dissector_table = register_dissector_table("ethertype",
+	    "Ethertype", FT_UINT16, BASE_HEX);
 }
 
 void

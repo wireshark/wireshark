@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.49 2001/12/03 03:59:37 guy Exp $
+ * $Id: packet-null.c,v 1.50 2001/12/08 06:41:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -313,7 +313,8 @@ proto_register_null(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* subdissector code */
-	null_dissector_table = register_dissector_table("null.type");
+	null_dissector_table = register_dissector_table("null.type",
+	   "BSD AF_ type", FT_UINT32, BASE_DEC);
 }
 
 void

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.51 2001/12/03 09:00:25 guy Exp $
+ * $Id: packet.c,v 1.52 2001/12/08 06:41:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -230,15 +230,26 @@ struct dtbl_entry {
  * "dissector_handles" is a list of all dissectors that *could* be
  * used in that table; not all of them are necessarily in the table,
  * as they may be for protocols that don't have a fixed port number.
+ *
+ * "ui_name" is the name the dissector table has in the user interface.
+ *
+ * "type" is a field type giving the width of the port number for that
+ * dissector table.
+ *
+ * "base" is the base in which to display the port number for that
+ * dissector table.
  */
 struct dissector_table {
-	GHashTable *hash_table;
-	GSList *dissector_handles;
+	GHashTable	*hash_table;
+	GSList		*dissector_handles;
+	char		*ui_name;
+	ftenum_t	type;
+	int		base;
 };
 
 static GHashTable *dissector_tables = NULL;
 
-/* Finds a dissector table by field name. */
+/* Finds a dissector table by table name. */
 static dissector_table_t
 find_dissector_table(const char *name)
 {
@@ -665,7 +676,8 @@ dissector_table_foreach_changed (char *name,
 }
 
 dissector_table_t
-register_dissector_table(const char *name)
+register_dissector_table(const char *name, char *ui_name, ftenum_t type,
+    int base)
 {
 	dissector_table_t	sub_dissectors;
 
@@ -684,8 +696,35 @@ register_dissector_table(const char *name)
 	sub_dissectors->hash_table = g_hash_table_new( g_direct_hash,
 	    g_direct_equal );
 	sub_dissectors->dissector_handles = NULL;
+	sub_dissectors->ui_name = ui_name;
+	sub_dissectors->type = type;
+	sub_dissectors->base = base;
 	g_hash_table_insert( dissector_tables, (gpointer)name, (gpointer) sub_dissectors );
 	return sub_dissectors;
+}
+
+char *
+get_dissector_table_ui_name(const char *name)
+{
+	dissector_table_t sub_dissectors = find_dissector_table( name);
+
+	return sub_dissectors->ui_name;
+}
+
+ftenum_t
+get_dissector_table_type(const char *name)
+{
+	dissector_table_t sub_dissectors = find_dissector_table( name);
+
+	return sub_dissectors->type;
+}
+
+int
+get_dissector_table_base(const char *name)
+{
+	dissector_table_t sub_dissectors = find_dissector_table( name);
+
+	return sub_dissectors->base;
 }
 
 static GHashTable *heur_dissector_lists = NULL;

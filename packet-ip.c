@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.150 2001/12/03 03:59:35 guy Exp $
+ * $Id: packet-ip.c,v 1.151 2001/12/08 06:41:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1774,7 +1774,8 @@ proto_register_ip(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* subdissector code */
-	ip_dissector_table = register_dissector_table("ip.proto");
+	ip_dissector_table = register_dissector_table("ip.proto",
+	    "IP protocol", FT_UINT8, BASE_DEC);
 
 	/* Register configuration options */
 	ip_module = prefs_register_protocol(proto_ip, NULL);

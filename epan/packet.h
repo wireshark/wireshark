@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.45 2001/12/03 08:47:30 guy Exp $
+ * $Id: packet.h,v 1.46 2001/12/08 06:41:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -112,7 +112,19 @@ extern void dissector_table_foreach_handle(char *name, DATFunc_handle func,
     gpointer user_data);
 
 /* a protocol uses the function to register a sub-dissector table */
-extern dissector_table_t register_dissector_table(const char *name);
+extern dissector_table_t register_dissector_table(const char *name,
+    char *ui_name, ftenum_t type, int base);
+
+/* Get the UI name for a sub-dissector table, given its internal name */
+extern char *get_dissector_table_ui_name(const char *name);
+
+/* Get the field type to use when displaying values of the selector for a
+   sub-dissector table, given the table's internal name */
+ftenum_t get_dissector_table_type(const char *name);
+
+/* Get the base to use when displaying values of the selector for a
+   sub-dissector table, given the table's internal name */
+extern int get_dissector_table_base(const char *name);
 
 /* Add a sub-dissector to a dissector table.  Called by the protocol routine */
 /* that wants to register a sub-dissector.  */

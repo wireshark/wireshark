@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.42 2001/12/03 03:59:35 guy Exp $
+ * $Id: packet-http.c,v 1.43 2001/12/08 06:41:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -414,7 +414,8 @@ proto_register_http(void)
 	 * This only works for protocols such as IPP that run over
 	 * HTTP on a specific non-HTTP port.
 	 */
-	subdissector_table = register_dissector_table("http.port");
+	subdissector_table = register_dissector_table("http.port",
+	    "TCP port for protocols using HTTP", FT_UINT16, BASE_DEC);
 
 	/* 
 	 * Heuristic dissectors SHOULD register themselves in 

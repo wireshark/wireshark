@@ -6,7 +6,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sua.c,v 1.2 2001/12/03 03:59:39 guy Exp $
+ * $Id: packet-sua.c,v 1.3 2001/12/08 06:41:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2744,7 +2744,9 @@ proto_register_sua(void)
   proto_register_subtree_array(ett, array_length(ett));
     
   sua_module = prefs_register_protocol(proto_sua, NULL);
-  sua_light_dissector_table = register_dissector_table("sual.subsystem_number");
+  sua_light_dissector_table = register_dissector_table("sual.subsystem_number",
+				"SUA Light subsystem number", FT_UINT16,
+				BASE_DEC);
 
   prefs_register_enum_preference(sua_module,
 				 "sua_version",

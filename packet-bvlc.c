@@ -2,7 +2,7 @@
  * Routines for BACnet/IP (BVLL, BVLC) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bvlc.c,v 1.6 2001/12/03 03:59:33 guy Exp $
+ * $Id: packet-bvlc.c,v 1.7 2001/12/08 06:41:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -389,7 +389,8 @@ proto_register_bvlc(void)
 
 	register_dissector("bvlc", dissect_bvlc, proto_bvlc);
 
-	bvlc_dissector_table = register_dissector_table("bvlc.function");
+	bvlc_dissector_table = register_dissector_table("bvlc.function",
+	    "BVLC Function", FT_UINT8, BASE_HEX);
 }
 
 void
