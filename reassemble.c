@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.39 2003/06/04 05:41:37 guy Exp $
+ * $Id: reassemble.c,v 1.40 2003/07/31 21:55:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -472,6 +472,7 @@ fragment_reassembled(fragment_data *fd_head, packet_info *pinfo,
 			    fd_head);
 		}
 	}
+	fd_head->flags |= FD_DEFRAGMENTED;
 	fd_head->reassembled_in = pinfo->fd->num;
 }
 
