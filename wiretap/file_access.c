@@ -1,6 +1,6 @@
 /* file_access.c
  *
- * $Id: file_access.c,v 1.11 2004/02/11 20:05:16 guy Exp $
+ * $Id: file_access.c,v 1.12 2004/04/28 05:47:33 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -537,9 +537,12 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 		return NULL;	/* couldn't allocate it */
 
 	/* Empty filename means stdout */
-	if (*filename == '\0')
+	if (*filename == '\0') {
+#ifdef _WIN32
+		setmode(fileno(stdout), O_BINARY);
+#endif
 		wdh->fh = stdout;
-	else {
+	} else {
 		/* In case "fopen()" fails but doesn't set "errno", set "errno"
 		   to a generic "the open failed" error. */
 		errno = WTAP_ERR_CANT_OPEN;
