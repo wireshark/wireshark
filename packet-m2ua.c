@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Michael Tuexen <Michael.Tuexen [AT] siemens.com>
  *
- * $Id: packet-m2ua.c,v 1.6 2002/12/03 09:29:11 tuexen Exp $
+ * $Id: packet-m2ua.c,v 1.7 2002/12/03 09:31:48 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1026,7 +1026,7 @@ dissect_m2ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 
   /* make entry in the Protocol column on summary display */
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2UA");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2UA (RFC 3331)");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
