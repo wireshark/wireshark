@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.93 2001/08/05 00:16:36 guy Exp $
+ * $Id: packet-smb.c,v 1.94 2001/08/05 00:30:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2582,7 +2582,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
         proto_tree_add_text(Capabilities_tree, NullTVB, offset, 4, "%s",
                             decode_boolean_bitfield(Capabilities, 0x80000000, 32, " Extended Security Exchanges supported", " Extended Security Exchanges not supported"));
       
-}
+      }
 
       offset += 4; /* Skip Capabilities */
 
@@ -10864,7 +10864,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	/* Now for the flags: Bit 0 = 0 means cmd, 0 = 1 means resp */
 
 	flags = pd[offset];
-	si.request = !(flags&0x80);
+	si.request = !(flags&SMB_FLAGS_DIRN);
 
 	if (tree) {
 
