@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.208 2003/10/10 22:52:38 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.209 2003/10/25 00:25:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,6 +91,8 @@ static int hf_tcp_analysis_flags = -1;
 static int hf_tcp_analysis_acks_frame = -1;
 static int hf_tcp_analysis_ack_rtt = -1;
 static int hf_tcp_analysis_retransmission = -1;
+static int hf_tcp_analysis_fast_retransmission = -1;
+static int hf_tcp_analysis_out_of_order = -1;
 static int hf_tcp_analysis_lost_packet = -1;
 static int hf_tcp_analysis_ack_lost_packet = -1;
 static int hf_tcp_analysis_keep_alive = -1;
@@ -175,11 +177,6 @@ struct tcp_unacked {
 	guint32 nextseq;
 	nstime_t ts;
 
-	/* these are used for detection of duplicate acks and nothing else */
-	guint32 ack_frame;
-	guint32 ack;
-	guint32 num_acks;
-
 	/* this is to keep track of zero window and zero window probe */
 	guint32 window;
 
@@ -204,6 +201,8 @@ static int tcp_acked_count = 5000;	/* one for almost every other segment in the 
 #define TCP_A_ZERO_WINDOW_PROBE		0x0040
 #define TCP_A_ZERO_WINDOW_VIOLATION	0x0080
 #define TCP_A_KEEP_ALIVE_ACK		0x0100
+#define TCP_A_OUT_OF_ORDER		0x0200
+#define TCP_A_FAST_RETRANSMISSION	0x0400
 struct tcp_acked {
 	guint32 frame_acked;
 	nstime_t ts;
@@ -244,6 +243,10 @@ struct tcp_analysis {
 	guint32 base_seq2;
 	gint16 win_scale1;
 	gint16 win_scale2;
+	guint32 ack1, ack2;
+	guint32 ack1_frame, ack2_frame;
+	nstime_t ack1_time, ack2_time;
+	guint32 num1_acks, num2_acks;
 
 	/* these two lists are used to track when PDUs may start
 	   inside a segment.
@@ -282,9 +285,19 @@ get_tcp_conversation_data(packet_info *pinfo)
 		tcpd->ual1=NULL;
 		tcpd->base_seq1=0;
 		tcpd->win_scale1=-1;
+		tcpd->ack1=0;
+		tcpd->ack1_frame=0;
+		tcpd->ack1_time.secs=0;
+		tcpd->ack1_time.nsecs=0;
+		tcpd->num1_acks=0;
 		tcpd->ual2=NULL;
 		tcpd->base_seq2=0;
 		tcpd->win_scale2=-1;
+		tcpd->ack2=0;
+		tcpd->ack2_frame=0;
+		tcpd->ack2_time.secs=0;
+		tcpd->ack2_time.nsecs=0;
+		tcpd->num2_acks=0;
 
 		tcpd->pdu_seq1=NULL;
 		tcpd->pdu_seq2=NULL;
@@ -507,9 +520,13 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	struct tcp_unacked *ual1=NULL;
 	struct tcp_unacked *ual2=NULL;
 	struct tcp_unacked *ual=NULL;
-	guint32 base_seq=0;
-	guint32 base_ack=0;
-	gint16  win_scale=-1;
+	guint32 base_seq;
+	guint32 base_ack;
+	guint32 ack1, ack2;
+	guint32 ack1_frame, ack2_frame;
+	nstime_t *ack1_time, *ack2_time;
+	guint32 num1_acks, num2_acks;
+	gint16  win_scale;
 	struct tcp_next_pdu **tnp=NULL;
 
 	/* find(or create if needed) the conversation for this tcp session */
@@ -524,6 +541,14 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	if(direction>=0){
 		ual1=tcpd->ual1;
 		ual2=tcpd->ual2;
+		ack1=tcpd->ack1;
+		ack2=tcpd->ack2;
+		ack1_frame=tcpd->ack1_frame;
+		ack2_frame=tcpd->ack2_frame;
+		ack1_time=&tcpd->ack1_time;
+		ack2_time=&tcpd->ack2_time;
+		num1_acks=tcpd->num1_acks;
+		num2_acks=tcpd->num2_acks;
 		tnp=&tcpd->pdu_seq2;
 		base_seq=(tcp_relative_seq && (ual1==NULL))?seq:tcpd->base_seq1;
 		base_ack=(tcp_relative_seq && (ual2==NULL))?seq:tcpd->base_seq2;
@@ -531,11 +556,54 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	} else {
 		ual1=tcpd->ual2;
 		ual2=tcpd->ual1;
+		ack1=tcpd->ack2;
+		ack2=tcpd->ack1;
+		ack1_frame=tcpd->ack2_frame;
+		ack2_frame=tcpd->ack1_frame;
+		ack1_time=&tcpd->ack2_time;
+		ack2_time=&tcpd->ack1_time;
+		num1_acks=tcpd->num2_acks;
+		num2_acks=tcpd->num1_acks;
 		tnp=&tcpd->pdu_seq1;
 		base_seq=(tcp_relative_seq && (ual1==NULL))?seq:tcpd->base_seq2;
 		base_ack=(tcp_relative_seq && (ual2==NULL))?seq:tcpd->base_seq1;
 		win_scale=tcpd->win_scale2;
 	}
+
+	if(!seglen){
+		if(!ack2_frame){
+			ack2_frame=pinfo->fd->num;
+			ack2=ack;
+			ack2_time->secs=pinfo->fd->abs_secs;
+			ack2_time->nsecs=pinfo->fd->abs_usecs*1000;
+			num2_acks=0;
+		} else if(GT_SEQ(ack, ack2)){
+			ack2_frame=pinfo->fd->num;
+			ack2=ack;
+			ack2_time->secs=pinfo->fd->abs_secs;
+			ack2_time->nsecs=pinfo->fd->abs_usecs*1000;
+			num2_acks=0;
+		}
+	}
+
+#ifdef REMOVED
+/* useful debug ouput   
+ * it prints the two lists of the sliding window emulation 
+ */
+{
+struct tcp_unacked *u=NULL;
+printf("\n");
+printf("analyze_sequence_number(frame:%d seq:%d nextseq:%d ack:%d)\n",pinfo->fd->num,seq,seq+seglen,ack);
+printf("UAL1:\n");
+for(u=ual1;u;u=u->next){
+printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->nextseq,u->ts.secs,u->ts.nsecs,ack1,ack2);
+}
+printf("UAL2:\n");
+for(u=ual2;u;u=u->next){
+printf("  Frame:%d seq:%d nseq:%d time:%d.%09d ack:%d:%d\n",u->frame,u->seq,u->nextseq,u->ts.secs,u->ts.nsecs,ack1,ack2);
+}
+}
+#endif
 
 	/* To handle FIN, just add 1 to the length.
 	   else the ACK following the FIN-ACK will look like it was
@@ -555,9 +623,12 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		ual1=g_mem_chunk_alloc(tcp_unacked_chunk);
 		ual1->next=NULL;
 		ual1->frame=pinfo->fd->num;
-		ual1->ack_frame=0;
-		ual1->ack=0;
-		ual1->num_acks=0;
+		ack1_frame=0;
+		ack2_frame=0;
+		ack1=0;
+		ack2=0;
+		num1_acks=0;
+		num2_acks=0;
 		ual1->seq=seq+1;
 		ual1->nextseq=seq+1;
 		ual1->ts.secs=pinfo->fd->abs_secs;
@@ -576,9 +647,6 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		ual1=g_mem_chunk_alloc(tcp_unacked_chunk);
 		ual1->next=NULL;
 		ual1->frame=pinfo->fd->num;
-		ual1->ack_frame=0;
-		ual1->ack=0;
-		ual1->num_acks=0;
 		ual1->seq=seq;
 		ual1->nextseq=seq+seglen;
 		ual1->ts.secs=pinfo->fd->abs_secs;
@@ -606,9 +674,6 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		ual=g_mem_chunk_alloc(tcp_unacked_chunk);
 		ual->next=ual1;
 		ual->frame=pinfo->fd->num;
-		ual->ack_frame=0;
-		ual->ack=0;
-		ual->num_acks=0;
 		ual->seq=seq;
 		ual->nextseq=seq+seglen;
 		ual->ts.secs=pinfo->fd->abs_secs;
@@ -653,21 +718,103 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 		goto seq_finished;
 	}
 
-	/* check if the sequence number is lower than expected, i.e. retransmission */
+	/* check if the sequence number is lower than expected, i.e. either a 
+	 * retransmission a fast retransmission or an out of order segment
+	 */
 	if( LT_SEQ(seq, ual1->nextseq )){
-		struct tcp_acked *ta;
+		gboolean outoforder;
+		gboolean fastretrans;
+		struct tcp_unacked *tu,*ntu;
 
-		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
-		ta->flags|=TCP_A_RETRANSMISSION;
-
-		/* did this segment contain any more data we havent seen yet?
-		 * if so we can just increase nextseq
+		/* assume it is a fast retransmission if
+		 * 1 we have seen >=3 dupacks in the other direction for this 
+		 *   segment (i.e. >=4 acks)
+		 * 2 if this segment is the next unacked segment
+		 * 3 this segment came within 10ms of the last dupack
+		 *   (10ms is arbitrary but should be low enough not to be
+		 *   confused with a retransmission timeout 
 		 */
-		if(GT_SEQ((seq+seglen), ual1->nextseq)){
-			ual1->nextseq=seq+seglen;
-			ual1->frame=pinfo->fd->num;
-			ual1->ts.secs=pinfo->fd->abs_secs;
-			ual1->ts.nsecs=pinfo->fd->abs_usecs*1000;
+		if( (num1_acks>=4) && (seq==ack1) ){
+			guint32 t;
+
+			t=(pinfo->fd->abs_secs-ack1_time->secs)*1000000000;
+			t=t+(pinfo->fd->abs_usecs*1000)-ack1_time->nsecs;
+			if(t<10000000){
+				/* has to be a retransmission then */
+				struct tcp_acked *ta;
+
+				ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+				ta->flags|=TCP_A_FAST_RETRANSMISSION;
+				goto seq_finished;
+			}
+		}
+
+		/* check it is a suspected out of order segment.
+		 * we assume it is an out of order segment if 
+		 * 1 it has not been ACKed yet.
+		 * 2 we have not seen the segment before
+		 * 3 it arrived within (arbitrary value) 4ms of the
+		 *      next semgent in the sequence.
+		 *   4 there were no dupacks in the opposite direction.
+		 */
+		outoforder=TRUE;
+		/* 1 has it already been ACKed ? */
+		if(LT_SEQ(seq,ack1)){
+			outoforder=FALSE;
+		}
+		/* 2 have we seen this segment before ? */
+		for(tu=ual1;tu;tu=tu->next){
+			if((tu->frame)&&(tu->seq==seq)){
+				outoforder=FALSE;
+			}
+		}
+		/* 3 was it received within 4ms of the next segment ?*/
+		ntu=NULL;
+		for(tu=ual1;tu;tu=tu->next){
+			if(LT_SEQ(seq,tu->seq)){
+				if(tu->frame){
+					ntu=tu;
+				}
+			}
+		}
+		if(ntu){
+			if(pinfo->fd->abs_secs>(ntu->ts.secs+2)){
+				outoforder=FALSE;
+			} else if((pinfo->fd->abs_secs+2)<ntu->ts.secs){
+				outoforder=FALSE;
+			} else {
+				guint32 t;
+
+				t=(ntu->ts.secs-pinfo->fd->abs_secs)*1000000000;
+				t=t+ntu->ts.nsecs-(pinfo->fd->abs_usecs*1000);
+				if(t>4000000){
+					outoforder=FALSE;
+				}
+			}
+		}
+
+		
+		if(outoforder) {
+			struct tcp_acked *ta;
+
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+			ta->flags|=TCP_A_OUT_OF_ORDER;
+		} else {
+			/* has to be a retransmission then */
+			struct tcp_acked *ta;
+
+			ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
+			ta->flags|=TCP_A_RETRANSMISSION;
+
+			/* did this segment contain any more data we havent seen yet?
+			 * if so we can just increase nextseq
+			 */
+			if(GT_SEQ((seq+seglen), ual1->nextseq)){
+				ual1->nextseq=seq+seglen;
+				ual1->frame=pinfo->fd->num;
+				ual1->ts.secs=pinfo->fd->abs_secs;
+				ual1->ts.nsecs=pinfo->fd->abs_usecs*1000;
+			}
 		}
 		goto seq_finished;
 	}
@@ -676,9 +823,6 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 	ual=g_mem_chunk_alloc(tcp_unacked_chunk);
 	ual->next=ual1;
 	ual->frame=pinfo->fd->num;
-	ual->ack_frame=0;
-	ual->ack=0;
-	ual->num_acks=0;
 	ual->seq=seq;
 	ual->nextseq=seq+seglen;
 	ual->ts.secs=pinfo->fd->abs_secs;
@@ -795,9 +939,6 @@ ack_finished:
 		ual2=g_mem_chunk_alloc(tcp_unacked_chunk);
 		ual2->next=NULL;
 		ual2->frame=0;
-		ual2->ack_frame=0;
-		ual2->ack=0;
-		ual2->num_acks=0;
 		ual2->seq=ack;
 		ual2->nextseq=ack;
 		ual2->ts.secs=0;
@@ -822,19 +963,19 @@ ack_finished:
 		if((!seglen)&&LE_SEQ(ack,ual->seq)){
 			/* if this is the first ack to keep track of, it is not
 			   a duplicate */
-			if(ual->num_acks==0){
-				ual->ack=ack;
-				ual->ack_frame=pinfo->fd->num;
-				ual->num_acks=1;
+			if(num2_acks==0){
+				ack2=ack;
+				ack2_frame=pinfo->fd->num;
+				num2_acks=1;
 			/* if this ack is different, store this one 
 			   instead and forget the previous one(s) */
-			} else if(ual->ack!=ack){
-				ual->ack=ack;
-				ual->ack_frame=pinfo->fd->num;
-				ual->num_acks=1;
+			} else if(ack2!=ack){
+				ack2=ack;
+				ack2_frame=pinfo->fd->num;
+				num2_acks=1;
 			/* this has to be a duplicate ack */
 			} else {
-				ual->num_acks++;
+				num2_acks++;
 			}	
 			
 			/* is this an ACK to a KeepAlive? */
@@ -844,15 +985,15 @@ ack_finished:
 				ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
 				ta->flags|=TCP_A_KEEP_ALIVE_ACK;
 				ual->flags^=TCP_A_KEEP_ALIVE;
-			} else if(ual->num_acks>1) {
+			} else if(num2_acks>1) {
 			/* ok we have found a potential duplicate ack */
 				struct tcp_acked *ta;
 				ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
 				/* keepalives are not dupacks */
 				if( (!(ta->flags&TCP_A_KEEP_ALIVE)) ){
 					ta->flags|=TCP_A_DUPLICATE_ACK;
-					ta->dupack_num=ual->num_acks-1;
-					ta->dupack_frame=ual->ack_frame;
+					ta->dupack_num=num2_acks-1;
+					ta->dupack_frame=ack2_frame;
 				}
 			}
 		}		
@@ -909,10 +1050,22 @@ ack_finished:
 		 */
 		tcpd->ual1=ual1;
 		tcpd->ual2=ual2;
+		tcpd->ack1=ack1;
+		tcpd->ack2=ack2;
+		tcpd->ack1_frame=ack1_frame;
+		tcpd->ack2_frame=ack2_frame;
+		tcpd->num1_acks=num1_acks;
+		tcpd->num2_acks=num2_acks;
 		tcpd->base_seq1=base_seq;
 	} else {
 		tcpd->ual1=ual2;
 		tcpd->ual2=ual1;
+		tcpd->ack1=ack2;
+		tcpd->ack2=ack1;
+		tcpd->ack1_frame=ack2_frame;
+		tcpd->ack2_frame=ack1_frame;
+		tcpd->num1_acks=num2_acks;
+		tcpd->num2_acks=num1_acks;
 		tcpd->base_seq2=base_seq;
 	}
 
@@ -964,6 +1117,19 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 			proto_tree_add_none_format(flags_tree, hf_tcp_analysis_retransmission, tvb, 0, 0, "This frame is a (suspected) retransmission");
 			if(check_col(pinfo->cinfo, COL_INFO)){
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Retransmission] ");
+			}
+		}
+		if( ta->flags&TCP_A_FAST_RETRANSMISSION ){
+			proto_tree_add_none_format(flags_tree, hf_tcp_analysis_fast_retransmission, tvb, 0, 0, "This frame is a (suspected) fast retransmission");
+			proto_tree_add_none_format(flags_tree, hf_tcp_analysis_retransmission, tvb, 0, 0, "This frame is a (suspected) retransmission");
+			if(check_col(pinfo->cinfo, COL_INFO)){
+				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Fast Retransmission] ");
+			}
+		}
+		if( ta->flags&TCP_A_OUT_OF_ORDER ){
+			proto_tree_add_none_format(flags_tree, hf_tcp_analysis_out_of_order, tvb, 0, 0, "This frame is a (suspected) out-of-order segment");
+			if(check_col(pinfo->cinfo, COL_INFO)){
+				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Out-Of-Order] ");
 			}
 		}
 		if( ta->flags&TCP_A_LOST_PACKET ){
@@ -2635,6 +2801,14 @@ proto_register_tcp(void)
 		{ &hf_tcp_analysis_retransmission,
 		{ "Retransmission",		"tcp.analysis.retransmission", FT_NONE, BASE_NONE, NULL, 0x0,
 			"This frame is a suspected TCP retransmission", HFILL }},
+
+		{ &hf_tcp_analysis_fast_retransmission,
+		{ "Fast Retransmission",		"tcp.analysis.fast_retransmission", FT_NONE, BASE_NONE, NULL, 0x0,
+			"This frame is a suspected TCP fast retransmission", HFILL }},
+
+		{ &hf_tcp_analysis_out_of_order,
+		{ "Out Of Order",		"tcp.analysis.out_of_order", FT_NONE, BASE_NONE, NULL, 0x0,
+			"This frame is a suspected Out-Of-Order segment", HFILL }},
 
 		{ &hf_tcp_analysis_lost_packet,
 		{ "Previous Segment Lost",		"tcp.analysis.lost_segment", FT_NONE, BASE_NONE, NULL, 0x0,
