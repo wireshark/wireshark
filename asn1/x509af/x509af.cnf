@@ -9,7 +9,7 @@ CertificateExtensions x509ce
 SelectedAttributeTypes x509sat
 
 #.INCLUDE ../x509ce/x509ce_exp.cnf
-#.INCLUDE ../x509if/x509if_exp.cnf
+#.INCLUDE ../x509if/x509if-exp.cnf
 #.INCLUDE ../x509sat/x509sat_exp.cnf
 
 #.EXPORTS
