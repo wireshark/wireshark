@@ -193,7 +193,7 @@ update_if(if_dlg_data_t *if_dlg_data)
    */
   if (if_dlg_data->pch) {
     if(pcap_stats(if_dlg_data->pch, &stats) >= 0) {
-#if WIN32
+#ifdef WIN32
       diff = stats.ps_recv - if_dlg_data->last_packets;
       if_dlg_data->last_packets = stats.ps_recv;
 #else
