@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.87 2003/12/19 19:08:00 guy Exp $
+$Id: README.developer,v 1.88 2003/12/30 15:49:12 obiot Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -219,7 +219,7 @@ Ethereal uses the underscore_convention rather than the InterCapConvention for
 function names, so new code should probably use underscores rather than
 intercaps for functions and variable names. This is especially important if you
 are writing code that will be called from outside your code.  We are just
-trying to keep thing consistent for other users.
+trying to keep things consistent for other users.
 
 1.2 Skeleton code.
 
@@ -250,17 +250,21 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.87 2003/12/19 19:08:00 guy Exp $"
+The "$Id: README.developer,v 1.88 2003/12/30 15:49:12 obiot Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
+
+When creating a new file, it is fine to just write "$Id: README.developer,v 1.88 2003/12/30 15:49:12 obiot Exp $" as RCS will
+automatically fill in the identifier at the time the file will be added to the
+CVS repository (checked in).
 
 ------------------------------------Cut here------------------------------------
 /* packet-PROTOABBREV.c
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.87 2003/12/19 19:08:00 guy Exp $
+ * $Id: README.developer,v 1.88 2003/12/30 15:49:12 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -302,6 +306,9 @@ version of the file is currently checked out.
 #endif
 
 #include <epan/packet.h>
+
+/* IF PROTO exposes code to other dissectors, then it must be exported
+   in a header file. If not, a header file is not needed at all. */
 #include "packet-PROTOABBREV.h"
 
 /* Initialize the protocol and registered fields */
@@ -354,7 +361,25 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO)) 
 		col_set_str(pinfo->cinfo, COL_INFO, "XXX Request");
 
-/* In the interest of speed, if "tree" is NULL, avoid building a
+/* A protocol dissector can be called in 2 different ways:
+
+	(a) Operational dissection
+
+		In this mode, Ethereal is only interested in the way protocols
+		interact, protocol conversations are created, packets are reassembled
+		and handed over to higher-level protocol dissectors.
+		This way Ethereal does not build a so-called "protocol tree".
+
+	(b) Detailed dissection
+
+		In this mode, Ethereal is also interested in all details of a given
+		protocol, so a "protocol tree" is created.
+
+   Ethereal distinguishes between the 2 modes with the proto_tree pointer:
+	(a) <=> tree == NULL
+	(b) <=> tree != NULL
+
+   In the interest of speed, if "tree" is NULL, avoid building a
    protocol tree and adding stuff to it if possible.  Note,
    however, that you must call subdissectors regardless of whether
    "tree" is NULL or not. */
@@ -482,7 +507,8 @@ conform with IANA names.
 1.4.1 Header file.
 
 This is only needed if the dissector doesn't use self-registration to
-register itself with the lower level dissector.
+register itself with the lower level dissector, or if the protocol dissector
+wants/needs to expose code to other subdissectors.
 
 The dissector has the following header that must be placed into
 packet-PROTOABBREV.h.
@@ -827,7 +853,7 @@ abbrev
 A string with an abbreviation of the field. We concatenate the
 abbreviation of the parent protocol with an abbreviation for the field,
 using a period as a separator. For example, the "src" field in an IP packet
-would have "ip.addr" as an abbreviation. It is acceptable to have
+would have "ip.src" as an abbreviation. It is acceptable to have
 multiple levels of periods if, for example, you have fields in your
 protocol that are then subdivided into subfields. For example, TRMAC
 has multiple error fields, so the abbreviations follow this pattern:
@@ -1058,10 +1084,33 @@ If you don't have any fields to register, do *NOT* create a zero-length
 Just omit the "hf" array, and the "proto_register_field_array()" call,
 entirely.
 
+It is OK to have header fields with a different format be registered with
+the same abbreviation. For instance, the following is valid:
+
+	static hf_register_info hf[] = {
+
+		{ &hf_field_8bit, /* 8-bit version of proto.field */
+		{ "Field (8 bit)", "proto.field", FT_UINT8, BASE_DEC, NULL,
+			0x00, "Field represents FOO" }},
+
+		{ &hf_field_32bit, /* 32-bit version of proto.field */
+		{ "Field (32 bit)", "proto.field", FT_UINT32, BASE_DEC, NULL,
+			0x00, "Field represents FOO" }}
+	};
+
+This way a filter expression can match a header field, irrespective of the
+representation of it in the specific protocol context. This is interesting
+for protocols with variable-width header fields.
+
 1.6.2 Adding Items and Values to the Protocol Tree.
 
 A protocol item is added to an existing protocol tree with one of a
-handful of proto_tree_add_XXX() functions.
+handful of proto_XXX_DO_YYY() functions.
+
+Remember that it only makes sense to add items to a protocol tree if its
+proto_tree pointer is not null. Should you add an item to a NULL tree, then
+the proto_XXX_DO_YYY() function will immediately return. The cost of this
+function call can be avoided by checking for the tree pointer.
 
 Subtrees can be made with the proto_item_add_subtree() function:
 
