@@ -3,7 +3,7 @@
  * By Jan Kiszka <jan.kiszka@web.de>
  * Copyright 2003 Jan Kiszka
  *
- * $Id: irda-appl.h,v 1.1 2003/12/18 19:07:12 guy Exp $
+ * $Id: irda-appl.h,v 1.2 2004/06/30 07:34:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -87,6 +87,9 @@ extern void proto_register_ircomm(void);
 extern ias_attr_dissector_t ircomm_attr_dissector[];
 extern ias_attr_dissector_t irlpt_attr_dissector[];
 
+/* Serial Infrared (SIR) */
+extern void proto_register_irsir(void);
+
 
 /*
  * Protocol hooks
@@ -102,6 +105,7 @@ extern ias_attr_dissector_t irlpt_attr_dissector[];
 /* Protocol initialisation */
 #define REGISTER_SUB_PROTOCOLS()    do {                    \
         proto_register_ircomm();                            \
+        proto_register_irsir();                             \
     } while (0)
 
 #endif /* __IRDA_APPL_H__ */

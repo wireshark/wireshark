@@ -2149,6 +2149,10 @@ Richard van der Hoff     <richardv [AT] mxtelecom.com> {
 	CRC16 routines
 }
 
+Shaun Jackman		<sjackman [AT] telus.net> {
+	Serial Infrared support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 

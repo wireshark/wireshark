@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/IrDA
 #
-# $Id: Makefile.am,v 1.3 2004/04/25 21:07:21 obiot Exp $
+# $Id: Makefile.am,v 1.4 2004/06/30 07:34:52 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -27,7 +27,8 @@ INCLUDES = -I$(top_srcdir)
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = irda.la
-irda_la_SOURCES = packet-irda.c moduleinfo.h irda-appl.h packet-ircomm.c
+irda_la_SOURCES = packet-irda.c moduleinfo.h irda-appl.h packet-ircomm.c \
+	packet-sir.c
 irda_la_LDFLAGS = -module -avoid-version
 irda_la_LIBADD = @PLUGIN_LIBS@
 
