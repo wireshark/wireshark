@@ -1,7 +1,7 @@
 /* endpoint_talkers_ip.c
  * endpoint_talkers_ip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_ip.c,v 1.15 2003/09/04 23:37:45 sahlberg Exp $
+ * $Id: endpoint_talkers_ip.c,v 1.16 2003/09/15 22:32:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,17 +35,11 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include "menu.h"
-#include "../epan/packet_info.h"
-#include "../epan/filesystem.h"
+#include "epan/packet.h"
 #include "../tap.h"
 #include "../register.h"
-#include "compat_macros.h"
-#include "../simple_dialog.h"
-#include "../file.h"
-#include "../globals.h"
 #include "endpoint_talkers_table.h"
 #include "packet-ip.h"
-
 
 
 static int
