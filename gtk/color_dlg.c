@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.42 2004/02/12 22:24:27 guy Exp $
+ * $Id: color_dlg.c,v 1.43 2004/03/13 11:43:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -220,26 +220,22 @@ colorize_dialog_new (char *filter)
   gtk_widget_ref (dlg_vbox);
   OBJECT_SET_DATA_FULL(color_win, "dlg_vbox", dlg_vbox, gtk_widget_unref);
   gtk_container_set_border_width  (GTK_CONTAINER (dlg_vbox), 5);
-  gtk_widget_show (dlg_vbox);
   gtk_container_add (GTK_CONTAINER (color_win), dlg_vbox);
 
   main_hbox = gtk_hbox_new (FALSE, 0);
   gtk_widget_ref (main_hbox);
   OBJECT_SET_DATA_FULL(color_win, "main_hbox", main_hbox, gtk_widget_unref);
-  gtk_widget_show (main_hbox);
   gtk_box_pack_start (GTK_BOX (dlg_vbox), main_hbox, TRUE, TRUE, 0);
 
   ctrl_vbox = gtk_vbox_new (FALSE, 0);
   gtk_widget_ref (ctrl_vbox);
   OBJECT_SET_DATA_FULL(color_win, "ctrl_vbox", ctrl_vbox, gtk_widget_unref);
-  gtk_widget_show (ctrl_vbox);
   gtk_box_pack_start (GTK_BOX (main_hbox), ctrl_vbox, FALSE, FALSE, 0);
 
 
   /* edit buttons frame */
   edit_fr = gtk_frame_new("Edit");
   gtk_box_pack_start (GTK_BOX (ctrl_vbox), edit_fr, TRUE, TRUE, 0);
-  gtk_widget_show(edit_fr);
 
   /* edit_vbox is first button column (containing: new, edit and such) */
   edit_vbox = gtk_vbutton_box_new();
@@ -247,13 +243,11 @@ colorize_dialog_new (char *filter)
   OBJECT_SET_DATA_FULL(color_win, "edit_vbox", edit_vbox, gtk_widget_unref);
   gtk_button_box_set_child_size(GTK_BUTTON_BOX(edit_vbox), 50, 20);
   gtk_container_set_border_width  (GTK_CONTAINER (edit_vbox), 5);
-  gtk_widget_show (edit_vbox);
   gtk_container_add(GTK_CONTAINER(edit_fr), edit_vbox);
 
   color_new = BUTTON_NEW_FROM_STOCK(GTK_STOCK_NEW);
   gtk_widget_ref (color_new);
   OBJECT_SET_DATA_FULL(color_win, "color_new", color_new, gtk_widget_unref);
-  gtk_widget_show (color_new);
 #if GTK_MAJOR_VERSION < 2
   WIDGET_SET_SIZE(color_new, 50, 20);
 #endif
@@ -263,7 +257,6 @@ colorize_dialog_new (char *filter)
   color_props = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_EDIT);
   gtk_widget_ref (color_props);
   OBJECT_SET_DATA_FULL(color_win, "color_props", color_props, gtk_widget_unref);
-  gtk_widget_show (color_props);
 #if GTK_MAJOR_VERSION < 2
   WIDGET_SET_SIZE(color_props, 50, 20);
 #endif
@@ -278,7 +271,6 @@ colorize_dialog_new (char *filter)
 #if GTK_MAJOR_VERSION < 2
   WIDGET_SET_SIZE(color_delete, 50, 20);
 #endif
-  gtk_widget_show (color_delete);
   gtk_tooltips_set_tip (tooltips, color_delete, ("Delete the selected filter"), NULL);
   gtk_widget_set_sensitive (color_delete, FALSE);
   /* End edit buttons frame */
@@ -287,13 +279,11 @@ colorize_dialog_new (char *filter)
   /* manage buttons frame */
   manage_fr = gtk_frame_new("Manage");
   gtk_box_pack_start (GTK_BOX (ctrl_vbox), manage_fr, FALSE, FALSE, 0);
-  gtk_widget_show(manage_fr);
   
   manage_vbox = gtk_vbox_new (FALSE, 0);
   gtk_widget_ref (manage_vbox);
   OBJECT_SET_DATA_FULL(color_win, "manage_vbox", manage_vbox, gtk_widget_unref);
   gtk_container_set_border_width  (GTK_CONTAINER (manage_vbox), 5);
-  gtk_widget_show (manage_vbox);
   gtk_container_add(GTK_CONTAINER(manage_fr), manage_vbox);
 
   color_export = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_EXPORT);
@@ -302,7 +292,6 @@ colorize_dialog_new (char *filter)
 #if GTK_MAJOR_VERSION < 2
   WIDGET_SET_SIZE(color_export, 50, 20);
 #endif
-  gtk_widget_show(color_export);
   gtk_tooltips_set_tip(tooltips, color_export, ("Save all/marked filters to a file"), NULL);
 
   color_import = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_IMPORT);
@@ -311,7 +300,6 @@ colorize_dialog_new (char *filter)
 #if GTK_MAJOR_VERSION < 2
   WIDGET_SET_SIZE(color_import, 50, 20);
 #endif
-  gtk_widget_show(color_import);
   gtk_tooltips_set_tip(tooltips, color_import, ("Load filters from a file"), NULL);
 
   color_clear = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLEAR);
@@ -321,26 +309,22 @@ colorize_dialog_new (char *filter)
 #if GTK_MAJOR_VERSION < 2
   WIDGET_SET_SIZE(color_clear, 50, 20);
 #endif
-  gtk_widget_show(color_clear);
   gtk_tooltips_set_tip(tooltips, color_clear, ("Clear all filters in the user's colorfilters file and revert to system-wide default filter set"), NULL);
 
 
   /* filter list frame */
   list_fr = gtk_frame_new("Filter");
   gtk_box_pack_start (GTK_BOX (main_hbox), list_fr, TRUE, TRUE, 0);
-  gtk_widget_show(list_fr);
 
   list_vbox = gtk_vbox_new (FALSE, 0);
   gtk_widget_ref (list_vbox);
   OBJECT_SET_DATA_FULL(color_win, "list_vbox", list_vbox, gtk_widget_unref);
   gtk_container_set_border_width  (GTK_CONTAINER (list_vbox), 5);
-  gtk_widget_show (list_vbox);
   gtk_container_add(GTK_CONTAINER(list_fr), list_vbox);
 
   list_label = gtk_label_new (("[List is processed in order until match is found]"));
   gtk_widget_ref (list_label);
   OBJECT_SET_DATA_FULL(color_win, "list_label", list_label, gtk_widget_unref);
-  gtk_widget_show (list_label);
   gtk_box_pack_start (GTK_BOX (list_vbox), list_label, FALSE, FALSE, 0);
 
   /* create the list of filters */
@@ -351,7 +335,6 @@ colorize_dialog_new (char *filter)
 #endif
   gtk_widget_ref (scrolledwindow1);
   OBJECT_SET_DATA_FULL(color_win, "scrolledwindow1", scrolledwindow1, gtk_widget_unref);
-  gtk_widget_show (scrolledwindow1);
   gtk_box_pack_start (GTK_BOX (list_vbox), scrolledwindow1, TRUE, TRUE, 0);
 
 #if GTK_MAJOR_VERSION < 2
@@ -389,7 +372,6 @@ colorize_dialog_new (char *filter)
   gtk_tree_selection_set_mode(selection, GTK_SELECTION_MULTIPLE);
 #endif
 
-  gtk_widget_show (color_filters);
   gtk_container_add (GTK_CONTAINER (scrolledwindow1), color_filters);
 #if GTK_MAJOR_VERSION < 2
   gtk_clist_set_column_width (GTK_CLIST (color_filters), 0, 80);
@@ -401,13 +383,11 @@ colorize_dialog_new (char *filter)
   /* order frame */
   order_fr = gtk_frame_new("Order");
   gtk_box_pack_start (GTK_BOX (main_hbox), order_fr, FALSE, FALSE, 0);
-  gtk_widget_show(order_fr);
 
   order_vbox = gtk_vbox_new (TRUE, 0);
   gtk_widget_ref (order_vbox);
   OBJECT_SET_DATA_FULL(color_win, "order_vbox", order_vbox, gtk_widget_unref);
   gtk_container_set_border_width  (GTK_CONTAINER (order_vbox), 5);
-  gtk_widget_show (order_vbox);
   gtk_container_add(GTK_CONTAINER(order_fr), order_vbox);
 
   color_filter_up = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_UP);
@@ -416,7 +396,6 @@ colorize_dialog_new (char *filter)
 #if GTK_MAJOR_VERSION < 2
   WIDGET_SET_SIZE(color_filter_up, 50, 20);
 #endif
-  gtk_widget_show (color_filter_up);
   gtk_box_pack_start (GTK_BOX (order_vbox), color_filter_up, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, color_filter_up, ("Move filter higher in list"), NULL);
   gtk_widget_set_sensitive (color_filter_up, FALSE);
@@ -424,7 +403,6 @@ colorize_dialog_new (char *filter)
   order_move_label = gtk_label_new (("Move\nselected filter\nup or down"));
   gtk_widget_ref (order_move_label);
   OBJECT_SET_DATA_FULL(color_win, "order_move_label", order_move_label, gtk_widget_unref);
-  gtk_widget_show (order_move_label);
   gtk_box_pack_start (GTK_BOX (order_vbox), order_move_label, FALSE, FALSE, 0);
 
   color_filter_down = BUTTON_NEW_FROM_STOCK(GTK_STOCK_GO_DOWN);
@@ -434,7 +412,6 @@ colorize_dialog_new (char *filter)
 #if GTK_MAJOR_VERSION < 2
   WIDGET_SET_SIZE(color_filter_down, 50, 20);
 #endif
-  gtk_widget_show (color_filter_down);
   gtk_box_pack_start (GTK_BOX (order_vbox), color_filter_down, FALSE, FALSE, 0);
   gtk_tooltips_set_tip (tooltips, color_filter_down, ("Move filter lower in list"), NULL);
   gtk_widget_set_sensitive (color_filter_down, FALSE);
@@ -443,7 +420,6 @@ colorize_dialog_new (char *filter)
   /* Button row: OK and cancel buttons */
   button_ok_hbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_SAVE, GTK_STOCK_CLOSE/*, GTK_STOCK_CANCEL*/, NULL);
   gtk_box_pack_start (GTK_BOX (dlg_vbox), button_ok_hbox, FALSE, FALSE, 5);
-  gtk_widget_show(button_ok_hbox);
 
   color_ok = OBJECT_GET_DATA(button_ok_hbox, GTK_STOCK_OK);
   gtk_widget_grab_default(color_ok);
@@ -494,7 +470,7 @@ colorize_dialog_new (char *filter)
 
   gtk_widget_grab_focus(color_filters);
   OBJECT_SET_DATA(color_win, "tooltips", tooltips);
-  gtk_widget_show (color_win);
+  gtk_widget_show_all(color_win);
 
   dlg_set_cancel(color_win, color_cancel);
 
@@ -1232,19 +1208,16 @@ edit_color_filter_dialog_new(GtkWidget *color_filters,
     gtk_widget_ref (dialog_vbox);
     OBJECT_SET_DATA_FULL(edit_dialog, "dialog_vbox", dialog_vbox, gtk_widget_unref);
     gtk_container_set_border_width  (GTK_CONTAINER (dialog_vbox), 5);
-    gtk_widget_show (dialog_vbox);
     gtk_container_add (GTK_CONTAINER (edit_dialog), dialog_vbox);
 
     /* Filter frame */
     filter_fr = gtk_frame_new("Filter");
     gtk_box_pack_start (GTK_BOX (dialog_vbox), filter_fr, FALSE, FALSE, 0);
-    gtk_widget_show(filter_fr);
 
     filter_fr_vbox = gtk_vbox_new (FALSE, 0);
     gtk_widget_ref (filter_fr_vbox);
     OBJECT_SET_DATA_FULL(edit_dialog, "filter_fr_vbox", filter_fr_vbox, gtk_widget_unref);
     gtk_container_set_border_width  (GTK_CONTAINER (filter_fr_vbox), 5);
-    gtk_widget_show (filter_fr_vbox);
     gtk_container_add(GTK_CONTAINER(filter_fr), filter_fr_vbox);
 
     /* filter name hbox */
@@ -1252,14 +1225,12 @@ edit_color_filter_dialog_new(GtkWidget *color_filters,
     gtk_widget_ref (filter_name_hbox);
     OBJECT_SET_DATA_FULL(edit_dialog, "filter_name_hbox", filter_name_hbox,
                          gtk_widget_unref);
-    gtk_widget_show (filter_name_hbox);
     gtk_box_pack_start (GTK_BOX (filter_fr_vbox), filter_name_hbox, TRUE, FALSE, 3);
 
     color_filter_name = gtk_label_new (("Name: "));
     gtk_widget_ref (color_filter_name);
     OBJECT_SET_DATA_FULL(edit_dialog, "color_filter_name", color_filter_name,
                          gtk_widget_unref);
-    gtk_widget_show (color_filter_name);
     gtk_box_pack_start (GTK_BOX (filter_name_hbox), color_filter_name, FALSE, FALSE, 0);
 
     *colorize_filter_name = gtk_entry_new ();
@@ -1277,7 +1248,6 @@ edit_color_filter_dialog_new(GtkWidget *color_filters,
 #endif
     gtk_widget_set_style(*colorize_filter_name, style);
 
-    gtk_widget_show (*colorize_filter_name);
     gtk_box_pack_start (GTK_BOX (filter_name_hbox), *colorize_filter_name, TRUE, TRUE, 0);
     gtk_tooltips_set_tip (tooltips, *colorize_filter_name, ("This is the editable name of the filter. (No @ characters allowed.)"), NULL);
 
@@ -1287,14 +1257,12 @@ edit_color_filter_dialog_new(GtkWidget *color_filters,
     gtk_widget_ref (filter_string_hbox);
     OBJECT_SET_DATA_FULL(edit_dialog, "filter_string_hbox", filter_string_hbox,
                          gtk_widget_unref);
-    gtk_widget_show (filter_string_hbox);
     gtk_box_pack_start (GTK_BOX (filter_fr_vbox), filter_string_hbox, TRUE, FALSE, 3);
 
     color_filter_text = gtk_label_new (("String: "));
     gtk_widget_ref (color_filter_text);
     OBJECT_SET_DATA_FULL(edit_dialog, "color_filter_text", color_filter_text,
                          gtk_widget_unref);
-    gtk_widget_show (color_filter_text);
     gtk_box_pack_start (GTK_BOX (filter_string_hbox), color_filter_text, FALSE, FALSE, 0);
 
     *colorize_filter_text = gtk_entry_new ();
@@ -1310,7 +1278,6 @@ edit_color_filter_dialog_new(GtkWidget *color_filters,
     style->fg[GTK_STATE_NORMAL]   = colorf->fg_color;
 #endif
     gtk_widget_set_style(*colorize_filter_text, style);
-    gtk_widget_show (*colorize_filter_text);
     gtk_box_pack_start (GTK_BOX (filter_string_hbox), *colorize_filter_text, TRUE, TRUE, 0);
     gtk_tooltips_set_tip (tooltips, *colorize_filter_text, ("This is the editable text of the filter"), NULL);
 
@@ -1319,27 +1286,23 @@ edit_color_filter_dialog_new(GtkWidget *color_filters,
     add_expression_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_ADD_EXPRESSION);
     SIGNAL_CONNECT(add_expression_bt, "clicked", filter_expr_cb, *colorize_filter_text);
     gtk_box_pack_start (GTK_BOX(filter_string_hbox), add_expression_bt, FALSE, FALSE, 3);
-    gtk_widget_show(add_expression_bt);
     gtk_tooltips_set_tip (tooltips, add_expression_bt, ("Add an expression to the filter string"), NULL);
 
 
     /* choose color frame */
     colorize_fr = gtk_frame_new("Display Colors");
     gtk_box_pack_start (GTK_BOX (dialog_vbox), colorize_fr, FALSE, FALSE, 0);
-    gtk_widget_show(colorize_fr);
 
     colorize_hbox = gtk_hbox_new (FALSE, 0);
     gtk_widget_ref (colorize_hbox);
     OBJECT_SET_DATA_FULL(edit_dialog, "colorize_hbox", colorize_hbox, gtk_widget_unref);
     gtk_container_set_border_width  (GTK_CONTAINER (colorize_hbox), 5);
-    gtk_widget_show (colorize_hbox);
     gtk_container_add(GTK_CONTAINER(colorize_fr), colorize_hbox);
 
     colorize_filter_fg = gtk_button_new_with_label (("Foreground Color..."));
     gtk_widget_ref (colorize_filter_fg);
     OBJECT_SET_DATA_FULL(edit_dialog, "colorize_filter_fg", colorize_filter_fg,
                          gtk_widget_unref);
-    gtk_widget_show (colorize_filter_fg);
     gtk_box_pack_start (GTK_BOX (colorize_hbox), colorize_filter_fg, TRUE, FALSE, 0);
     gtk_tooltips_set_tip (tooltips, colorize_filter_fg, ("Select foreground color for data display"), NULL);
 
@@ -1347,7 +1310,6 @@ edit_color_filter_dialog_new(GtkWidget *color_filters,
     gtk_widget_ref (colorize_filter_bg);
     OBJECT_SET_DATA_FULL(edit_dialog, "colorize_filter_bg", colorize_filter_bg,
                          gtk_widget_unref);
-    gtk_widget_show (colorize_filter_bg);
     gtk_box_pack_start (GTK_BOX (colorize_hbox), colorize_filter_bg, TRUE, FALSE, 0);
     gtk_tooltips_set_tip (tooltips, colorize_filter_bg, ("Select background color for data display"), NULL);
 
@@ -1356,7 +1318,6 @@ edit_color_filter_dialog_new(GtkWidget *color_filters,
     bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
 	gtk_box_pack_start(GTK_BOX(dialog_vbox), bbox, FALSE, FALSE, 0);
     gtk_container_set_border_width  (GTK_CONTAINER (bbox), 0);
-    gtk_widget_show(bbox);
 
     edit_color_filter_ok = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
     gtk_widget_grab_default(edit_color_filter_ok);
@@ -1383,7 +1344,7 @@ edit_color_filter_dialog_new(GtkWidget *color_filters,
 
     dlg_set_cancel(edit_dialog, edit_color_filter_cancel);
 
-    gtk_widget_show (edit_dialog);
+    gtk_widget_show_all(edit_dialog);
 }
 
 /* Called when the dialog box is being destroyed; destroy any color
@@ -1562,10 +1523,7 @@ edit_color_filter_cancel_cb(GtkObject *object _U_, gpointer user_data)
 static GtkWidget*
 color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
 {
-  gint title_len;
   gchar *title;
-  static const gchar fg_title_format[] = "Ethereal: Choose foreground color for \"%s\"";
-  static const gchar bg_title_format[] = "Ethereal: Choose background color for \"%s\"";
   GtkWidget *color_sel_win;
   color_t   *color;
 #if GTK_MAJOR_VERSION >= 2
@@ -1577,14 +1535,12 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
 
   if (is_bg) {
     color = &colorf->bg_color;
-    title_len = strlen(bg_title_format) + strlen(colorf->filter_name);
-    title = g_malloc(title_len + 1);
-    sprintf(title, bg_title_format, colorf->filter_name);
+    title = g_strdup_printf("Ethereal: Choose background color for \"%s\"",
+        colorf->filter_name);
   } else {
     color = &colorf->fg_color;
-    title_len = strlen(fg_title_format) + strlen(colorf->filter_name);
-    title = g_malloc(title_len + 1);
-    sprintf(title, fg_title_format, colorf->filter_name);
+    title = g_strdup_printf("Ethereal: Choose foreground color for \"%s\"", 
+        colorf->filter_name);
   }
   color_sel_win = gtk_color_selection_dialog_new(title);
   g_free(title);
@@ -1612,18 +1568,15 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
 
   color_sel_ok = GTK_COLOR_SELECTION_DIALOG (color_sel_win)->ok_button;
   OBJECT_SET_DATA(color_sel_win, "color_sel_ok", color_sel_ok);
-  gtk_widget_show (color_sel_ok);
   GTK_WIDGET_SET_FLAGS (color_sel_ok, GTK_CAN_DEFAULT);
 
   color_sel_cancel = GTK_COLOR_SELECTION_DIALOG (color_sel_win)->cancel_button;
   OBJECT_SET_DATA(color_sel_win, "color_sel_cancel", color_sel_cancel);
-  gtk_widget_show (color_sel_cancel);
   GTK_WIDGET_SET_FLAGS (color_sel_cancel, GTK_CAN_DEFAULT);
 
 
   color_sel_help = GTK_COLOR_SELECTION_DIALOG (color_sel_win)->help_button;
   OBJECT_SET_DATA(color_sel_win, "color_sel_help", color_sel_help);
-  gtk_widget_show (color_sel_help);
 
 
   GTK_WIDGET_SET_FLAGS (color_sel_help, GTK_CAN_DEFAULT);
@@ -1632,7 +1585,7 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
   SIGNAL_CONNECT(color_sel_ok, "clicked", color_sel_ok_cb, color_sel_win);
   SIGNAL_CONNECT(color_sel_cancel, "clicked", color_sel_cancel_cb, color_sel_win);
 
-  gtk_widget_show(color_sel_win);
+  gtk_widget_show_all(color_sel_win);
   return color_sel_win;
 }
 
