@@ -2,7 +2,7 @@
  * Routines for KINK packet disassembly 
  * It is referrenced draft-ietf-kink-kink-jp-04.txt,v 1.14 2003/02/10
  * 
- * Copyright 2004, Taekshi Nakashima <T.Nakashima@jp.yokogawa.com>
+ * Copyright 2004, Takeshi Nakashima <T.Nakashima@jp.yokogawa.com>
  *
  * $Id$
  *
