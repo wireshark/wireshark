@@ -38,6 +38,7 @@ DISSECTOR_OBJECTS = \
 	packet-ftp.obj   \
 	packet-giop.obj  \
 	packet-gre.obj   \
+	packet-h1.obj    \
 	packet-hsrp.obj  \
 	packet-http.obj  \
 	packet-icmpv6.obj\

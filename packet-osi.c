@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.21 2000/02/15 21:02:46 gram Exp $
+ * $Id: packet-osi.c,v 1.22 2000/03/02 07:27:05 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -42,9 +42,11 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include <glib.h>
 #include "packet.h"
 #include "packet-isis.h"
+#include "packet-h1.h"
 #include "nlpid.h"
 
 /* protocols and fields */
@@ -284,7 +286,8 @@ static int osi_decode_DR(const u_char *pd, int offset,
 } /* osi_decode_DR */
 
 static int osi_decode_DT(const u_char *pd, int offset, 
-			 frame_data *fd, proto_tree *tree) 
+			 frame_data *fd, proto_tree *tree,
+			 gboolean uses_inactive_subset)
 {
   proto_tree *cotp_tree;
   proto_item *ti;
@@ -418,7 +421,12 @@ static int osi_decode_DT(const u_char *pd, int offset,
   } /* tree */
 
   offset += li + 1;
-  dissect_data(pd, offset, fd, tree);
+  if (uses_inactive_subset){
+	dissect_h1(pd, offset, fd, tree);
+	}
+  else {
+	dissect_data(pd, offset, fd, tree);
+	}
 
   return 0;
 
@@ -609,6 +617,8 @@ static gchar *print_tsap(const u_char *tsap, int length)
   static gchar  str[3][MAX_TSAP_LEN * 2 + 1];
   static gchar *cur;
   gchar tmp[3];
+  gboolean allprintable;
+  int i;
 
   if (cur == &str[0][0]) {
     cur = &str[1][0];
@@ -618,14 +628,26 @@ static gchar *print_tsap(const u_char *tsap, int length)
     cur = &str[0][0];
   }
 
-  /* to do: test if all bytes are printable */
 
   cur[0] = '\0';
   if (length <= 0 || length > MAX_TSAP_LEN) 
     sprintf(cur, "<unsupported TSAP length>");
   else {    
+    allprintable=TRUE;
+    for (i=0;i<length;i++) {
+	if (!isprint(tsap[i])) { /* if any byte is not printable */
+	  allprintable=FALSE;    /* switch to hexdump */
+	  break;
+	  }	 
+	}
+    if (!allprintable){
+      strcat(cur,"0x");
+      }
     while (length != 0) {
-      sprintf(tmp, "%02x", *tsap ++);
+      if (allprintable)
+	sprintf(tmp, "%c", *tsap ++);
+      else
+	sprintf(tmp, "%02x", *tsap ++);
       strcat(cur, tmp);
       length --;
     }
@@ -707,7 +729,7 @@ static int osi_decode_CC(const u_char *pd, int offset,
 			      "Parameter length: 0x%02x", length);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 2, length, 
-			      "Calling TSAP: 0x%s", 
+			      "Calling TSAP: %s", 
 			      print_tsap(&pd[offset + P_VAR_PART_CC + i + 2],
 					 length));
 	  i += length + 2;
@@ -722,7 +744,7 @@ static int osi_decode_CC(const u_char *pd, int offset,
 			      "Parameter length: 0x%02x", length);
 	  proto_tree_add_text(cotp_tree, 
 			      offset +  P_VAR_PART_CC + i + 2, length, 
-			      "Called TSAP: 0x%s", 
+			      "Called TSAP: %s", 
 			      print_tsap(&pd[offset + P_VAR_PART_CC + i + 2],
 					 length));
 	  i += length + 2;
@@ -867,10 +889,24 @@ static int osi_decode_CC(const u_char *pd, int offset,
 			      "Priority: %d", s);
 	  i += length + 2;
 	  break;
+	
+	case VP_VERSION_NR  :
+	  length = pd[offset + P_VAR_PART_CC + i + 1];
+	  c1 = pd[offset + P_VAR_PART_CC + i + 2];
+	  proto_tree_add_text(cotp_tree, 
+			      offset +  P_VAR_PART_CC + i, 1, 
+			      "Parameter code: 0x%02x (version)", code);
+	  proto_tree_add_text(cotp_tree, 
+			      offset +  P_VAR_PART_CC + i + 1, 1, 
+			      "Parameter length: 0x%02x", length);
+	  proto_tree_add_text(cotp_tree, 
+			      offset +  P_VAR_PART_CC + i + 2, length,
+			      "Version: %d", c1);
+	  i += length + 2;
+	  break;
 
 	case VP_REASSIGNMENT: 	  /* todo */
 	case VP_RES_ERROR   :
-	case VP_VERSION_NR  :
 	case VP_PROTECTION  :
 	case VP_PROTO_CLASS :
 	default             :	  /* no decoding */
@@ -1348,10 +1384,9 @@ static int osi_decode_ER(const u_char *pd, int offset,
 
 } /* osi_decode_ER */
 
-void dissect_cotp(const u_char *pd, int offset, frame_data *fd,
-		  proto_tree *tree) 
+static void dissect_cotp_internal(const u_char *pd, int offset, frame_data *fd,
+		  proto_tree *tree, gboolean uses_inactive_subset) 
 {
-
   int status = -1;
 
   if (((li = pd[offset + P_LI]) == 0) ||
@@ -1373,7 +1408,7 @@ void dissect_cotp(const u_char *pd, int offset, frame_data *fd,
       status = osi_decode_DR(pd, offset, fd, tree);
       break;
     case DT_TPDU :
-      status = osi_decode_DT(pd, offset, fd, tree);
+      status = osi_decode_DT(pd, offset, fd, tree, uses_inactive_subset);
       break;
     case ED_TPDU :
       status = osi_decode_ED(pd, offset, fd, tree);
@@ -1400,7 +1435,13 @@ void dissect_cotp(const u_char *pd, int offset, frame_data *fd,
   if (status == -1) /* incorrect TPDU */
     dissect_data(pd, offset, fd, tree);
 
-} /* dissect_cotp */
+} /* dissect_cotp_internal */
+
+void dissect_cotp(const u_char *pd, int offset, frame_data *fd,
+		  proto_tree *tree) 
+{
+  dissect_cotp_internal(pd, offset, fd, tree, FALSE);
+}
 
 
 /*
@@ -1462,7 +1503,7 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 				 clnp.cnf_proto_id,
 				 "Inactive subset");
     } 
-    dissect_cotp(pd, offset+1, fd, tree);
+    dissect_cotp_internal(pd, offset+1, fd, tree, TRUE);
     return;
   } 
  
@@ -1584,7 +1625,7 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
   /* continue with COTP if any */
 
   if (nsel == NSEL_TP) 	/* just guessing here - valid for DECNet-OSI */
-    dissect_cotp(pd, offset, fd, tree);
+    dissect_cotp_internal(pd, offset, fd, tree, FALSE);
   else
     dissect_data(pd, offset, fd, tree);
 

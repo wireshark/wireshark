@@ -236,6 +236,8 @@ Thomas Parvais <thomas.parvais@advalvas.be> {
 
 Gerrit Gehnen <G.Gehnen@atrie.de> {
 	support for "Inactive Subset" of ISO CLNP
+	Decoding of OSI COTP TSAPs as text when they're plain text
+	Sinec H1 protocol support
 }
 
 Craig Newell <craign@cheque.uq.edu.au> {
