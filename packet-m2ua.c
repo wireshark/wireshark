@@ -8,7 +8,7 @@
  *
  * Copyright 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m2ua.c,v 1.2 2002/05/01 08:23:31 guy Exp $
+ * $Id: packet-m2ua.c,v 1.3 2002/08/17 18:38:41 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,17 +35,11 @@
 # include "config.h"
 #endif
 
-/* #include <stdio.h> */
-/* #include <stdlib.h> */
-
-/* #include <string.h> */
-/* #include <glib.h> */
-
 #include <epan/packet.h>
 
 #define SCTP_PORT_M2UA         2904
 #define M2UA_PAYLOAD_PROTO_ID  2
-
+#define NETWORK_BYTE_ORDER          FALSE
 
 
 
@@ -959,11 +953,11 @@ dissect_m2ua_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
 #define DEREG_STATUS_PARAMETER_TAG                 0x0310
 
 static const value_string m2ua_parameter_tag_values[] = {
-  { INTERFACE_IDENTIFIER_INT_PARAMETER_TAG,        "Interface identifier (interger)" },
+  { INTERFACE_IDENTIFIER_INT_PARAMETER_TAG,        "Interface identifier (integer)" },
   { INTERFACE_IDENTIFIER_TEXT_PARAMETER_TAG,       "Interface identifier (text)" },
   { INFO_STRING_PARAMETER_TAG,                     "Info string" },
   { DIAGNOSTIC_INFORMATION_PARAMETER_TAG,          "Diagnostic information" },
-  { INTERFACE_IDENTIFIER_RANGE_PARAMETER_TAG,      "Interface identifier (interger range)" },
+  { INTERFACE_IDENTIFIER_RANGE_PARAMETER_TAG,      "Interface identifier (integer range)" },
   { HEARTBEAT_DATA_PARAMETER_TAG,                  "Heartbeat data" },
   { TRAFFIC_MODE_TYPE_PARAMETER_TAG,               "Traffic mode type" },
   { ERROR_CODE_PARAMETER_TAG,                      "Error code" },
@@ -1139,8 +1133,7 @@ dissect_m2ua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree
   common_header_tvb = tvb_new_subset(message_tvb, 0, COMMON_HEADER_LENGTH, COMMON_HEADER_LENGTH);
   parameters_tvb    = tvb_new_subset(message_tvb, COMMON_HEADER_LENGTH, -1, -1);
   dissect_m2ua_common_header(common_header_tvb, pinfo, m2ua_tree);  
-  if (m2ua_tree)
-    dissect_m2ua_parameters(parameters_tvb, pinfo, tree, m2ua_tree);
+  dissect_m2ua_parameters(parameters_tvb, pinfo, tree, m2ua_tree);
 }
 
 static void
@@ -1173,191 +1166,43 @@ proto_register_m2ua(void)
 
   /* Setup list of header fields */
   static hf_register_info hf[] = {
-    { &hf_m2ua_version,
-      { "Version", "m2ua.version",
-	      FT_UINT8, BASE_DEC, VALS(m2ua_protocol_version_values), 0x0,          
-        "", HFILL }
-    },
-    { &hf_m2ua_reserved,
-      { "Reserved", "m2ua.reserved",
-	      FT_UINT8, BASE_HEX, NULL, 0x0,          
-	      "", HFILL }
-    }, 
-    { &hf_m2ua_message_class,
-      { "Message class", "m2ua.message_class",
-        FT_UINT8, BASE_DEC, VALS(m2ua_message_class_values), 0x0,          
-	      "", HFILL }
-    },
-    { &hf_m2ua_message_type,
-      { "Message Type", "m2ua.message_type",
-	      FT_UINT8, BASE_DEC, NULL, 0x0,          
-	      "", HFILL }
-    },
-    { &hf_m2ua_message_length,
-      { "Message length", "m2ua.message_length",
-        FT_UINT32, BASE_DEC, NULL, 0x0,          
-	      "", HFILL }
-    }, 
-    { &hf_m2ua_parameter_tag,
-      { "Parameter Tag", "m2ua.parameter_tag",
-        FT_UINT16, BASE_HEX, VALS(m2ua_parameter_tag_values), 0x0,          
-        "", HFILL }
-    },
-    { &hf_m2ua_parameter_length,
-      { "Parameter length", "m2ua.parameter_length",
-        FT_UINT16, BASE_DEC, NULL, 0x0,          
-	      "", HFILL }
-    }, 
-    { &hf_m2ua_parameter_value,
-      { "Parameter value", "m2ua.parameter_value",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
-	      "", HFILL }
-    },    
-    { &hf_m2ua_parameter_padding,
-      { "Padding", "m2ua.parameter_padding",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
-	      "", HFILL }
-    },    
-    { &hf_m2ua_interface_id_int,
-      { "Interface Identifier (integer)", "m2ua.interface_identifier_int",
-        FT_UINT32, BASE_DEC, NULL, 0x0,          
-	      "", HFILL }
-    }, 
-    { &hf_m2ua_interface_id_text,
-      { "Interface identifier (text)", "m2ua.interface_identifier_text",
-	      FT_STRING, BASE_DEC, NULL, 0x0,          
-	      "", HFILL }
-    }, 
-    { &hf_m2ua_info_string,
-      { "Info string", "m2ua.info_string",
-	      FT_STRING, BASE_DEC, NULL, 0x0,          
-	      "", HFILL }
-    }, 
-    { &hf_m2ua_diagnostic_information,
-      { "Diagnostic information", "m2ua.diagnostic_information",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
-	      "", HFILL }
-    },    
-    { &hf_m2ua_interface_id_start,
-      { "Interface Identifier (start)", "m2ua.interface_identifier_start",
-        FT_UINT32, BASE_DEC, NULL, 0x0,          
-	      "", HFILL }
-    }, 
-    { &hf_m2ua_interface_id_stop,
-      { "Interface Identifier (stop)", "m2ua.interface_identifier_stop",
-        FT_UINT32, BASE_DEC, NULL, 0x0,          
-	      "", HFILL }
-    }, 
-    { &hf_m2ua_heartbeat_data,
-      { "Heartbeat data", "m2ua.heartbeat_data",
-	      FT_BYTES, BASE_NONE, NULL, 0x0,          
-	      "", HFILL }
-    },    
-    { &hf_m2ua_traffic_mode_type,
-      { "Traffic mode Type", "m2ua.traffic_mode_type",
-	      FT_UINT32, BASE_DEC, VALS(m2ua_traffic_mode_type_values), 0x0,          
-	      "", HFILL }
-    }, 
-    { &hf_m2ua_error_code,
-      { "Error code", "m2ua.error_code",
-        FT_UINT32, BASE_DEC, VALS(m2ua_error_code_values), 0x0,          
-	      "", HFILL }
-    }, 
-    { &hf_m2ua_status_type,
-      { "Status type", "m2ua.status_type",
-	      FT_UINT16, BASE_DEC, VALS(m2ua_status_type_values), 0x0,          
-	      "", HFILL }
-    }, 
-    { &hf_m2ua_status_info,
-      { "Status info", "m2ua.status_info",
-	      FT_UINT16, BASE_DEC, NULL, 0x0,          
-	      "", HFILL }
-    }, 
-    { &hf_m2ua_asp_id,
-      { "ASP identifier", "m2ua.asp_identifier",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
-	      "", HFILL }
-    },    
-    { &hf_m2ua_correlation_id,
-      { "Correlation identifier", "m2ua.correlation identifier",
-	      FT_UINT32, BASE_DEC, NULL, 0x0,          
-	      "", HFILL }
-    }, 
-    { &hf_m2ua_data_2_li,
-      { "Length indicator", "m2ua.data_2_li",
-        FT_UINT8, BASE_DEC, NULL, 0x0,          
-        "", HFILL }
-    },
-    { &hf_m2ua_state,
-      { "State", "m2ua.state",
-        FT_UINT32, BASE_DEC, VALS(m2ua_state_values), 0x0,          
-        "", HFILL }
-    },
-    { &hf_m2ua_event,
-      { "Event", "m2ua.event",
-        FT_UINT32, BASE_DEC, VALS(m2ua_event_values), 0x0,          
-        "", HFILL }
-    },
-    { &hf_m2ua_congestion_status,
-      { "Congestion status", "m2ua.congestion_status",
-        FT_UINT32, BASE_DEC, VALS(m2ua_level_values), 0x0,          
-        "", HFILL }
-    },
-    { &hf_m2ua_discard_status,
-      { "Discard status", "m2ua.discard_status",
-        FT_UINT32, BASE_DEC, VALS(m2ua_level_values), 0x0,          
-        "", HFILL }
-    },
-    { &hf_m2ua_action,
-      { "Actions", "m2ua.action",
-        FT_UINT32, BASE_DEC, VALS(m2ua_action_values), 0x0,          
-        "", HFILL }
-    },
-    { &hf_m2ua_sequence_number,
-      { "Sequence number", "m2ua.sequence_number",
-        FT_UINT32, BASE_DEC, NULL, 0x0,          
-        "", HFILL }
-    },
-    { &hf_m2ua_retrieval_result,
-      { "Retrieval result", "m2ua.retrieval_result",
-        FT_UINT32, BASE_DEC, VALS(m2ua_retrieval_result_values), 0x0,          
-        "", HFILL }
-    },
-    { &hf_m2ua_local_lk_id,
-      { "Local LK identifier", "m2ua.local_lk_identifier",
-        FT_UINT32, BASE_DEC, NULL, 0x0,          
-        "", HFILL }
-    },
-    { &hf_m2ua_sdt_reserved,
-      { "Reserved", "m2ua.sdt_reserved",
-        FT_UINT16, BASE_HEX, NULL, 0x0,          
-        "", HFILL }
-    },
-    { &hf_m2ua_sdt_id,
-      { "SDT identifier", "m2ua.sdt_identifier",
-        FT_UINT16, BASE_DEC, NULL, 0x0,          
-        "", HFILL }
-    },
-    { &hf_m2ua_sdl_reserved,
-      { "Reserved", "m2ua.sdl_reserved",
-        FT_UINT16, BASE_HEX, NULL, 0x0,          
-        "", HFILL }
-    },
-    { &hf_m2ua_sdl_id,
-      { "SDL identifier", "m2ua.sdl_identifier",
-        FT_UINT16, BASE_DEC, NULL, 0x0,          
-        "", HFILL }
-    },
-    { &hf_m2ua_registration_status,
-      { "Registration status", "m2ua.registration_status",
-        FT_UINT32, BASE_DEC, VALS(m2ua_registration_status_values), 0x0,          
-        "", HFILL }
-    },
-    { &hf_m2ua_deregistration_status,
-      { "Deregistration status", "m2ua.deregistration_status",
-        FT_UINT32, BASE_DEC, VALS(m2ua_deregistration_status_values), 0x0,          
-        "", HFILL }
-    },
+    { &hf_m2ua_version,                { "Version",                        "m2ua.version",                    FT_UINT8,  BASE_DEC,  VALS(m2ua_protocol_version_values),      0x0, "", HFILL } },
+    { &hf_m2ua_reserved,               { "Reserved",                       "m2ua.reserved",                   FT_UINT8,  BASE_HEX,  NULL,                                    0x0, "", HFILL } }, 
+    { &hf_m2ua_message_class,          { "Message class",                  "m2ua.message_class",              FT_UINT8,  BASE_DEC,  VALS(m2ua_message_class_values),         0x0, "", HFILL } },
+    { &hf_m2ua_message_type,           { "Message Type",                   "m2ua.message_type",               FT_UINT8,  BASE_DEC,  NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_message_length,         { "Message length",                 "m2ua.message_length",             FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
+    { &hf_m2ua_parameter_tag,          { "Parameter Tag",                  "m2ua.parameter_tag",              FT_UINT16, BASE_HEX,  VALS(m2ua_parameter_tag_values),         0x0, "", HFILL } },
+    { &hf_m2ua_parameter_length,       { "Parameter length",               "m2ua.parameter_length",           FT_UINT16, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
+    { &hf_m2ua_parameter_value,        { "Parameter value",                "m2ua.parameter_value",            FT_BYTES,  BASE_NONE, NULL,                                    0x0, "", HFILL } },    
+    { &hf_m2ua_parameter_padding,      { "Padding",                        "m2ua.parameter_padding",          FT_BYTES,  BASE_NONE, NULL,                                    0x0, "", HFILL } },    
+    { &hf_m2ua_interface_id_int,       { "Interface Identifier (integer)", "m2ua.interface_identifier_int",   FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
+    { &hf_m2ua_interface_id_text,      { "Interface identifier (text)",    "m2ua.interface_identifier_text",  FT_STRING, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
+    { &hf_m2ua_info_string,            { "Info string",                    "m2ua.info_string",                FT_STRING, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
+    { &hf_m2ua_diagnostic_information, { "Diagnostic information",         "m2ua.diagnostic_information",     FT_BYTES,  BASE_NONE, NULL,                                    0x0, "", HFILL } },    
+    { &hf_m2ua_interface_id_start,     { "Interface Identifier (start)",   "m2ua.interface_identifier_start", FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
+    { &hf_m2ua_interface_id_stop,      { "Interface Identifier (stop)",    "m2ua.interface_identifier_stop",  FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
+    { &hf_m2ua_heartbeat_data,         { "Heartbeat data",                 "m2ua.heartbeat_data",             FT_BYTES,  BASE_NONE, NULL,                                    0x0, "", HFILL } },    
+    { &hf_m2ua_traffic_mode_type,      { "Traffic mode Type",              "m2ua.traffic_mode_type",          FT_UINT32, BASE_DEC,  VALS(m2ua_traffic_mode_type_values),     0x0, "", HFILL } }, 
+    { &hf_m2ua_error_code,             { "Error code",                     "m2ua.error_code",                 FT_UINT32, BASE_DEC,  VALS(m2ua_error_code_values),            0x0, "", HFILL } }, 
+    { &hf_m2ua_status_type,            { "Status type",                    "m2ua.status_type",                FT_UINT16, BASE_DEC,  VALS(m2ua_status_type_values),           0x0, "", HFILL } }, 
+    { &hf_m2ua_status_info,            { "Status info",                    "m2ua.status_info",                FT_UINT16, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
+    { &hf_m2ua_asp_id,                 { "ASP identifier",                 "m2ua.asp_identifier",             FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } },    
+    { &hf_m2ua_correlation_id,         { "Correlation identifier",         "m2ua.correlation identifier",     FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } }, 
+    { &hf_m2ua_data_2_li,              { "Length indicator",               "m2ua.data_2_li",                  FT_UINT8,  BASE_DEC,  NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_state,                  { "State",                          "m2ua.state",                      FT_UINT32, BASE_DEC,  VALS(m2ua_state_values),                 0x0, "", HFILL } },
+    { &hf_m2ua_event,                  { "Event",                          "m2ua.event",                      FT_UINT32, BASE_DEC,  VALS(m2ua_event_values),                 0x0, "", HFILL } },
+    { &hf_m2ua_congestion_status,      { "Congestion status",              "m2ua.congestion_status",          FT_UINT32, BASE_DEC,  VALS(m2ua_level_values),                 0x0, "", HFILL } },
+    { &hf_m2ua_discard_status,         { "Discard status",                 "m2ua.discard_status",             FT_UINT32, BASE_DEC,  VALS(m2ua_level_values),                 0x0, "", HFILL } },
+    { &hf_m2ua_action,                 { "Actions",                        "m2ua.action",                     FT_UINT32, BASE_DEC,  VALS(m2ua_action_values),                0x0, "", HFILL } },
+    { &hf_m2ua_sequence_number,        { "Sequence number",                "m2ua.sequence_number",            FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_retrieval_result,       { "Retrieval result",               "m2ua.retrieval_result",           FT_UINT32, BASE_DEC,  VALS(m2ua_retrieval_result_values),      0x0, "", HFILL } },
+    { &hf_m2ua_local_lk_id,            { "Local LK identifier",            "m2ua.local_lk_identifier",        FT_UINT32, BASE_DEC,  NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_sdt_reserved,           { "Reserved",                       "m2ua.sdt_reserved",               FT_UINT16, BASE_HEX,  NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_sdt_id,                 { "SDT identifier",                 "m2ua.sdt_identifier",             FT_UINT16, BASE_DEC,  NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_sdl_reserved,           { "Reserved",                       "m2ua.sdl_reserved",               FT_UINT16, BASE_HEX,  NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_sdl_id,                 { "SDL identifier",                 "m2ua.sdl_identifier",             FT_UINT16, BASE_DEC,  NULL,                                    0x0, "", HFILL } },
+    { &hf_m2ua_registration_status,    { "Registration status",            "m2ua.registration_status",        FT_UINT32, BASE_DEC,  VALS(m2ua_registration_status_values),   0x0, "", HFILL } },
+    { &hf_m2ua_deregistration_status,  { "Deregistration status",          "m2ua.deregistration_status",      FT_UINT32, BASE_DEC,  VALS(m2ua_deregistration_status_values), 0x0, "", HFILL } },
   };
   
   /* Setup protocol subtree array */
