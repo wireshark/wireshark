@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.62 2002/03/05 05:58:41 guy Exp $
+ * $Id: wtap.c,v 1.63 2002/03/05 08:39:30 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -310,7 +310,7 @@ wtap_loop(wtap *wth, int count, wtap_handler callback, u_char* user, int *err)
 		return FALSE;	/* failure */
 }
 
-int
+gboolean
 wtap_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len,
 	int *err)

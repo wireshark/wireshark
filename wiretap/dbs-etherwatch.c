@@ -1,6 +1,6 @@
 /* dbs-etherwatch.c
  *
- * $Id: dbs-etherwatch.c,v 1.6 2002/03/05 05:58:40 guy Exp $
+ * $Id: dbs-etherwatch.c,v 1.7 2002/03/05 08:39:29 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -76,10 +76,12 @@ static const char dbs_etherwatch_rec_magic[]  =
 #define DBS_ETHERWATCH_MAX_PACKET_LEN	16384
 
 static gboolean dbs_etherwatch_read(wtap *wth, int *err, long *data_offset);
-static int dbs_etherwatch_seek_read(wtap *wth, long seek_off,
+static gboolean dbs_etherwatch_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
-static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset);
-static int parse_dbs_etherwatch_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err);
+static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
+	long byte_offset);
+static gboolean parse_dbs_etherwatch_hex_dump(FILE_T fh, int pkt_len,
+	guint8* buf, int *err);
 static int parse_dbs_etherwatch_rec_hdr(wtap *wth, FILE_T fh, int *err);
 
 /* Seeks to the beginning of the next packet, and returns the
@@ -193,7 +195,7 @@ int dbs_etherwatch_open(wtap *wth, int *err)
 /* Find the next packet and parse it; called from wtap_loop(). */
 static gboolean dbs_etherwatch_read(wtap *wth, int *err, long *data_offset)
 {
-	long	offset = 0;
+	long	offset;
 	guint8	*buf;
 	int	pkt_len;
 
@@ -212,7 +214,7 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, long *data_offset)
 	buf = buffer_start_ptr(wth->frame_buffer);
 
 	/* Convert the ASCII hex dump to binary data */
-	if (parse_dbs_etherwatch_hex_dump(wth->fh, pkt_len, buf, err) == -1)
+	if (!parse_dbs_etherwatch_hex_dump(wth->fh, pkt_len, buf, err))
 		return FALSE;
 
 	wth->data_offset = offset;
@@ -221,7 +223,7 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, long *data_offset)
 }
 
 /* Used to read packets in random-access fashion */
-static int
+static gboolean
 dbs_etherwatch_seek_read (wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header _U_,
 	guint8 *pd, int len, int *err)
@@ -230,7 +232,7 @@ dbs_etherwatch_seek_read (wtap *wth, long seek_off,
 
 	if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET) == -1) {
 		*err = file_error(wth->random_fh);
-		return -1;
+		return FALSE;
 	}
 
 	pkt_len = parse_dbs_etherwatch_rec_hdr(NULL, wth->random_fh, err);
@@ -238,13 +240,10 @@ dbs_etherwatch_seek_read (wtap *wth, long seek_off,
 	if (pkt_len != len) {
 		if (pkt_len != -1)
 			*err = WTAP_ERR_BAD_RECORD;
-		return -1;
+		return FALSE;
 	}
 
-	if (parse_dbs_etherwatch_hex_dump(wth->random_fh, pkt_len, pd, err) == -1)
-		return -1;
-
-	return 0;
+	return parse_dbs_etherwatch_hex_dump(wth->random_fh, pkt_len, pd, err);
 }
 
 /* Parses a packet record header. */
@@ -312,7 +311,7 @@ parse_dbs_etherwatch_rec_hdr(wtap *wth, FILE_T fh, int *err)
 }
 
 /* Converts ASCII hex dump to binary data */
-static int
+static gboolean
 parse_dbs_etherwatch_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
 {
 	guchar	line[DBS_ETHERWATCH_LINE_LENGTH];
@@ -328,14 +327,14 @@ parse_dbs_etherwatch_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
 			if (*err == 0) {
 				*err = WTAP_ERR_SHORT_READ;
 			}
-			return -1;
+			return FALSE;
 		}
 		if (!parse_single_hex_dump_line(line, buf, i * 16)) {
 			*err = WTAP_ERR_BAD_RECORD;
-			return -1;
+			return FALSE;
 		}
 	}
-	return 0;
+	return TRUE;
 }
 
 /*

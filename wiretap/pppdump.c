@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.16 2002/03/05 05:58:40 guy Exp $
+ * $Id: pppdump.c,v 1.17 2002/03/05 08:39:29 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
@@ -94,7 +94,7 @@ typedef enum {
 } direction_enum;
 
 static gboolean pppdump_read(wtap *wth, int *err, long *data_offset);
-static int pppdump_seek_read(wtap *wth, long seek_off,
+static gboolean pppdump_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
 
 typedef struct {
@@ -520,7 +520,7 @@ collate(pppdump_t* state, FILE_T fh, int *err, guint8 *pd, int *num_bytes,
 
 
 /* Used to read packets in random-access fashion */
-static int
+static gboolean
 pppdump_seek_read (wtap *wth,
 		 long seek_off,
 		 union wtap_pseudo_header *pseudo_header,
@@ -541,12 +541,12 @@ pppdump_seek_read (wtap *wth,
 	pid = g_ptr_array_index(state->pids, seek_off);
 	if (!pid) {
 		*err = WTAP_ERR_BAD_RECORD;	/* XXX - better error? */
-		return -1;
+		return FALSE;
 	}
 
 	if (file_seek(wth->random_fh, pid->offset, SEEK_SET) == -1) {
 		*err = file_error(wth->random_fh);
-		return -1;
+		return FALSE;
 	}
 
 	init_state(state->seek_state);
@@ -557,7 +557,7 @@ pppdump_seek_read (wtap *wth,
 				&direction, NULL);
 
 		if (!retval) {
-			return -1;
+			return FALSE;
 		}
 
 		if (direction != pid->dir) {
@@ -567,12 +567,12 @@ pppdump_seek_read (wtap *wth,
 
 	if (len != num_bytes) {
 		*err = WTAP_ERR_BAD_RECORD;	/* XXX - better error? */
-		return -1;
+		return FALSE;
 	}
 
 	pseudo_header->p2p.sent = (pid->dir == DIRECTION_SENT ? TRUE : FALSE);
 
-	return 0;
+	return TRUE;
 }
 
 static void

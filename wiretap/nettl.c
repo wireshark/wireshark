@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.24 2002/03/05 05:58:40 guy Exp $
+ * $Id: nettl.c,v 1.25 2002/03/05 08:39:29 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -67,13 +67,14 @@ struct nettlrec_ns_ls_ip_hdr {
 /* header is followed by data and once again the total length (2 bytes) ! */
 
 static gboolean nettl_read(wtap *wth, int *err, long *data_offset);
-static int nettl_seek_read(wtap *wth, long seek_off,
+static gboolean nettl_seek_read(wtap *wth, long seek_off,
 		union wtap_pseudo_header *pseudo_header, u_char *pd,
 		int length, int *err);
 static int nettl_read_rec_header(wtap *wth, FILE_T fh,
 		struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header,
 		int *err);
-static int nettl_read_rec_data(FILE_T fh, u_char *pd, int length, int *err);
+static gboolean nettl_read_rec_data(FILE_T fh, u_char *pd, int length,
+		int *err);
 static void nettl_close(wtap *wth);
 
 int nettl_open(wtap *wth, int *err)
@@ -149,14 +150,14 @@ static gboolean nettl_read(wtap *wth, int *err, long *data_offset)
      * Read the packet data.
      */
     buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
-    if (nettl_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-		wth->phdr.caplen, err) < 0)
+    if (!nettl_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
+		wth->phdr.caplen, err))
 	return FALSE;	/* Read error */
     wth->data_offset += wth->phdr.caplen;
     return TRUE;
 }
 
-static int
+static gboolean
 nettl_seek_read(wtap *wth, long seek_off,
 		union wtap_pseudo_header *pseudo_header, u_char *pd,
 		int length, int *err)
@@ -166,7 +167,7 @@ nettl_seek_read(wtap *wth, long seek_off,
 
     if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
 	*err = file_error(wth->random_fh);
-	return -1;
+	return FALSE;
     }
 
     /* Read record header. */
@@ -178,7 +179,7 @@ nettl_seek_read(wtap *wth, long seek_off,
 	    /* EOF means "short read" in random-access mode */
 	    *err = WTAP_ERR_SHORT_READ;
 	}
-	return -1;
+	return FALSE;
     }
 
     /*
@@ -310,7 +311,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     return offset;
 }
 
-static int
+static gboolean
 nettl_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
 {
     int bytes_read;
@@ -321,9 +322,9 @@ nettl_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
 	*err = file_error(fh);
 	if (*err == 0)
 	    *err = WTAP_ERR_SHORT_READ;
-	return -1;
+	return FALSE;
     }
-    return 0;
+    return TRUE;
 }
 
 static void nettl_close(wtap *wth)

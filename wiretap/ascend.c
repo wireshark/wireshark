@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.28 2002/03/05 05:58:40 guy Exp $
+ * $Id: ascend.c,v 1.29 2002/03/05 08:39:29 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -102,7 +102,7 @@ static const char ascend_w2magic[] = { 'W', 'D', '_', 'D', 'I', 'A', 'L', 'O', '
 #define ASCEND_W2_SIZE (sizeof ascend_w2magic / sizeof ascend_w2magic[0])
 
 static gboolean ascend_read(wtap *wth, int *err, long *data_offset);
-static int ascend_seek_read (wtap *wth, long seek_off,
+static gboolean ascend_seek_read (wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
 static void ascend_close(wtap *wth);
 
@@ -340,18 +340,18 @@ static gboolean ascend_read(wtap *wth, int *err, long *data_offset)
   return TRUE;
 }
 
-static int ascend_seek_read (wtap *wth, long seek_off,
+static gboolean ascend_seek_read (wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err)
 {
   if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
     *err = file_error(wth->random_fh);
-    return -1;
+    return FALSE;
   }
   if (! parse_ascend(wth->random_fh, pd, &pseudo_header->ascend, NULL, len)) {
     *err = WTAP_ERR_BAD_RECORD;
-    return -1;
+    return FALSE;
   }
-  return 0;
+  return TRUE;
 }
 
 static void ascend_close(wtap *wth)

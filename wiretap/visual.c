@@ -2,7 +2,7 @@
  * File read and write routines for Visual Networks cap files.
  * Copyright (c) 2001, Tom Nisbet  tnisbet@visualnetworks.com
  *
- * $Id: visual.c,v 1.4 2002/03/05 05:58:41 guy Exp $
+ * $Id: visual.c,v 1.5 2002/03/05 08:39:29 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -114,7 +114,7 @@ struct visual_write_info
 /* Local functions to handle file reads and writes */
 static gboolean visual_read(wtap *wth, int *err, long *data_offset);
 static void visual_close(wtap *wth);
-static int visual_seek_read(wtap *wth, long seek_off,
+static gboolean visual_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
     int *err);
 static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -328,7 +328,7 @@ static void visual_close(wtap *wth)
 /* Read packet data for random access.
    This gets the packet data and rebuilds the pseudo header so that
    the direction flag works. */
-static int visual_seek_read (wtap *wth, long seek_off, 
+static gboolean visual_seek_read (wtap *wth, long seek_off, 
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err)
 {
     struct visual_pkt_hdr vpkt_hdr;
@@ -340,7 +340,7 @@ static int visual_seek_read (wtap *wth, long seek_off,
     if (file_seek(wth->random_fh, seek_off - sizeof(struct visual_pkt_hdr),
                   SEEK_SET) == -1) {
         *err = file_error(wth->random_fh);
-        return -1;
+        return FALSE;
     }
 
     /* Read the packet header to get the status flags. */
@@ -350,7 +350,7 @@ static int visual_seek_read (wtap *wth, long seek_off,
     	*err = file_error(wth->random_fh);
     	if (*err == 0)
     	    *err = WTAP_ERR_SHORT_READ;
-        return -1;
+        return FALSE;
     }
 
     /* Read the packet data. */
@@ -359,7 +359,7 @@ static int visual_seek_read (wtap *wth, long seek_off,
     if (bytes_read != len) {
     	if (*err == 0)
     	    *err = WTAP_ERR_SHORT_READ;
-        return -1;
+        return FALSE;
     }
 
     /* Set status flags.  The only status currently supported for all
@@ -380,7 +380,7 @@ static int visual_seek_read (wtap *wth, long seek_off,
         break;
     }
 
-    return 0;
+    return TRUE;
 }
 
 

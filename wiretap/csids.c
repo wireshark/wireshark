@@ -1,6 +1,6 @@
 /* csids.c
  *
- * $Id: csids.c,v 1.12 2002/03/05 05:58:40 guy Exp $
+ * $Id: csids.c,v 1.13 2002/03/05 08:39:29 guy Exp $
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) 2000 by Cisco Systems
@@ -45,7 +45,7 @@
  */
 
 static gboolean csids_read(wtap *wth, int *err, long *data_offset);
-static int csids_seek_read(wtap *wth, long seek_off,
+static gboolean csids_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
 static void csids_close(wtap *wth);
 
@@ -197,7 +197,7 @@ static gboolean csids_read(wtap *wth, int *err, long *data_offset)
 }
 
 /* Used to read packets in random-access fashion */
-static int
+static gboolean
 csids_seek_read (wtap *wth,
 		 long seek_off,
 		 union wtap_pseudo_header *pseudo_header _U_,
@@ -205,12 +205,12 @@ csids_seek_read (wtap *wth,
 		 int len,
 		 int *err)
 {
-  int bytesRead = 0;
+  int bytesRead;
   struct csids_header hdr;
 
   if( file_seek( wth->random_fh, seek_off, SEEK_SET ) == -1 ) {
     *err = file_error( wth->random_fh );
-    return -1;
+    return FALSE;
   }
 
   bytesRead = file_read( &hdr, 1, sizeof( struct csids_header), wth->random_fh );
@@ -219,14 +219,14 @@ csids_seek_read (wtap *wth,
     if( *err == 0 ) {
       *err = WTAP_ERR_SHORT_READ;
     }
-    return -1;
+    return FALSE;
   }
   hdr.seconds = pntohl(&hdr.seconds);
   hdr.caplen = pntohs(&hdr.caplen);
   
   if( len != hdr.caplen ) {
     *err = WTAP_ERR_BAD_RECORD;
-    return -1;
+    return FALSE;
   }
 
   bytesRead = file_read( pd, 1, hdr.caplen, wth->random_fh );
@@ -235,7 +235,7 @@ csids_seek_read (wtap *wth,
     if( *err == 0 ) {
       *err = WTAP_ERR_SHORT_READ;
     }
-    return -1;
+    return FALSE;
   }
 
   if( wth->capture.csids->byteswapped == TRUE ) {
@@ -248,7 +248,7 @@ csids_seek_read (wtap *wth,
     *(swap) = BSWAP16(*swap); /* ip flags and fragoff */
   }
   
-  return 0;
+  return TRUE;
 }
 
 static void

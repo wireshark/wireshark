@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.21 2002/03/05 05:58:41 guy Exp $
+ * $Id: wtap-int.h,v 1.22 2002/03/05 08:39:30 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -119,8 +119,8 @@ typedef struct {
 	struct timeval reference_time;
 } etherpeek_t;
 
-typedef int (*subtype_read_func)(struct wtap*, int*, long*);
-typedef int (*subtype_seek_read_func)(struct wtap*, long, union wtap_pseudo_header*,
+typedef gboolean (*subtype_read_func)(struct wtap*, int*, long*);
+typedef gboolean (*subtype_seek_read_func)(struct wtap*, long, union wtap_pseudo_header*,
 					guint8*, int, int *);
 struct wtap {
 	FILE_T			fh;

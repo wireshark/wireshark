@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.18 2002/03/05 05:58:40 guy Exp $
+ * $Id: i4btrace.c,v 1.19 2002/03/05 08:39:29 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -33,11 +33,11 @@
 #include "i4b_trace.h"
 
 static gboolean i4btrace_read(wtap *wth, int *err, long *data_offset);
-static int i4btrace_seek_read(wtap *wth, long seek_off,
+static gboolean i4btrace_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err);
 static int i4b_read_rec_header(FILE_T fh, i4b_trace_hdr_t *hdr, int *err);
 static void i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr);
-static int i4b_read_rec_data(FILE_T fh, u_char *pd, int length, int *err);
+static gboolean i4b_read_rec_data(FILE_T fh, u_char *pd, int length, int *err);
 static void i4b_set_pseudo_header(wtap *wth, i4b_trace_hdr_t *hdr,
     union wtap_pseudo_header *pseudo_header);
 static void i4btrace_close(wtap *wth);
@@ -151,7 +151,7 @@ static gboolean i4btrace_read(wtap *wth, int *err, long *data_offset)
 	 */
 	buffer_assure_space(wth->frame_buffer, length);
 	bufp = buffer_start_ptr(wth->frame_buffer);
-	if (i4b_read_rec_data(wth->fh, bufp, length, err) < 0)
+	if (!i4b_read_rec_data(wth->fh, bufp, length, err))
 		return FALSE;	/* Read error */
 	wth->data_offset += length;
 
@@ -223,7 +223,7 @@ static gboolean i4btrace_read(wtap *wth, int *err, long *data_offset)
 	return TRUE;
 }
 
-static int
+static gboolean
 i4btrace_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
 {
@@ -232,7 +232,7 @@ i4btrace_seek_read(wtap *wth, long seek_off,
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
 		*err = file_error(wth->random_fh);
-		return -1;
+		return FALSE;
 	}
 
 	/* Read record header. */
@@ -243,7 +243,7 @@ i4btrace_seek_read(wtap *wth, long seek_off,
 			/* EOF means "short read" in random-access mode */
 			*err = WTAP_ERR_SHORT_READ;
 		}
-		return -1;
+		return FALSE;
 	}
 	i4b_byte_swap_header(wth, &hdr);
 
@@ -293,7 +293,7 @@ i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr)
 	}
 }
 
-static int
+static gboolean
 i4b_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
 {
 	int	bytes_read;
@@ -305,9 +305,9 @@ i4b_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
 		*err = file_error(fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
-	return 0;
+	return TRUE;
 }
 
 static void

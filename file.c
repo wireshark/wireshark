@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.265 2002/03/05 05:58:27 guy Exp $
+ * $Id: file.c,v 1.266 2002/03/05 08:40:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1791,8 +1791,8 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered, gboolean sa
         hdr.caplen = fdata->cap_len;
         hdr.len = fdata->pkt_len;
         hdr.pkt_encap = fdata->lnk_t;
-	if (wtap_seek_read(cf->wth, fdata->file_off, &pseudo_header,
-		pd, fdata->cap_len, &err) == -1) {
+	if (!wtap_seek_read(cf->wth, fdata->file_off, &pseudo_header,
+		pd, fdata->cap_len, &err)) {
 	    simple_dialog(ESD_TYPE_CRIT, NULL,
 				file_read_error_message(err), cf->filename);
 	    wtap_dump_close(pdh, &err);

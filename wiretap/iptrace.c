@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.37 2002/03/05 05:58:40 guy Exp $
+ * $Id: iptrace.c,v 1.38 2002/03/05 08:39:29 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -32,19 +32,19 @@
 #include "iptrace.h"
 
 static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset);
-static int iptrace_seek_read_1_0(wtap *wth, long seek_off,
+static gboolean iptrace_seek_read_1_0(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
     int *err);
 
 static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset);
-static int iptrace_seek_read_2_0(wtap *wth, long seek_off,
+static gboolean iptrace_seek_read_2_0(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
     int *err);
 
 static int iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len,
     int *err);
-static int iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr, int packet_size,
-    int *err);
+static gboolean iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr,
+    int packet_size, int *err);
 static void get_atm_pseudo_header(union wtap_pseudo_header *pseudo_header,
     guint8 *header);
 static int wtap_encap_ift(unsigned int  ift);
@@ -119,7 +119,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset)
 	packet_size = pntohl(&header[0]) - 0x16;
 	buffer_assure_space( wth->frame_buffer, packet_size );
 	data_ptr = buffer_start_ptr( wth->frame_buffer );
-	if (iptrace_read_rec_data(wth->fh, data_ptr, packet_size, err) < 0)
+	if (!iptrace_read_rec_data(wth->fh, data_ptr, packet_size, err))
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
@@ -163,7 +163,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset)
 	return TRUE;
 }
 
-static int iptrace_seek_read_1_0(wtap *wth, long seek_off,
+static gboolean iptrace_seek_read_1_0(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
     int *err)
 {
@@ -172,7 +172,7 @@ static int iptrace_seek_read_1_0(wtap *wth, long seek_off,
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
 		*err = file_error(wth->random_fh);
-		return -1;
+		return FALSE;
 	}
 
 	/* Read the descriptor data */
@@ -183,7 +183,7 @@ static int iptrace_seek_read_1_0(wtap *wth, long seek_off,
 			/* EOF means "short read" in random-access mode */
 			*err = WTAP_ERR_SHORT_READ;
 		}
-		return -1;
+		return FALSE;
 	}
 
 	if ( wtap_encap_ift(header[28]) == WTAP_ENCAP_ATM_SNIFFER ) {
@@ -234,7 +234,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset)
 	packet_size = pntohl(&header[0]) - 32;
 	buffer_assure_space( wth->frame_buffer, packet_size );
 	data_ptr = buffer_start_ptr( wth->frame_buffer );
-	if (iptrace_read_rec_data(wth->fh, data_ptr, packet_size, err) < 0)
+	if (!iptrace_read_rec_data(wth->fh, data_ptr, packet_size, err))
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
@@ -282,7 +282,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset)
 	return TRUE;
 }
 
-static int iptrace_seek_read_2_0(wtap *wth, long seek_off,
+static gboolean iptrace_seek_read_2_0(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int packet_size,
     int *err)
 {
@@ -291,7 +291,7 @@ static int iptrace_seek_read_2_0(wtap *wth, long seek_off,
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
 		*err = file_error(wth->random_fh);
-		return -1;
+		return FALSE;
 	}
 
 	/* Read the descriptor data */
@@ -302,7 +302,7 @@ static int iptrace_seek_read_2_0(wtap *wth, long seek_off,
 			/* EOF means "short read" in random-access mode */
 			*err = WTAP_ERR_SHORT_READ;
 		}
-		return -1;
+		return FALSE;
 	}
 
 	if ( wtap_encap_ift(header[28]) == WTAP_ENCAP_ATM_SNIFFER ) {
@@ -333,7 +333,7 @@ iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len, int *err)
 	return 1;
 }
 
-static int
+static gboolean
 iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr, int packet_size, int *err)
 {
 	int	bytes_read;
@@ -345,9 +345,9 @@ iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr, int packet_size, int *err)
 		*err = file_error(fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
-	return 0;
+	return TRUE;
 }
 
 /*

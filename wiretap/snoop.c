@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.43 2002/03/05 05:58:40 guy Exp $
+ * $Id: snoop.c,v 1.44 2002/03/05 08:39:29 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -57,11 +57,12 @@ struct snooprec_hdr {
 };
 
 static gboolean snoop_read(wtap *wth, int *err, long *data_offset);
-static int snoop_seek_read(wtap *wth, long seek_off,
+static gboolean snoop_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err);
-static int snoop_read_atm_pseudoheader(FILE_T fh,
+static gboolean snoop_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
-static int snoop_read_rec_data(FILE_T fh, u_char *pd, int length, int *err);
+static gboolean snoop_read_rec_data(FILE_T fh, u_char *pd, int length,
+    int *err);
 static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err);
 
@@ -350,8 +351,8 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 			*err = WTAP_ERR_BAD_RECORD;
 			return FALSE;
 		}
-		if (snoop_read_atm_pseudoheader(wth->fh, &wth->pseudo_header,
-		    err) < 0)
+		if (!snoop_read_atm_pseudoheader(wth->fh, &wth->pseudo_header,
+		    err))
 			return FALSE;	/* Read error */
 
 		/*
@@ -364,8 +365,8 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 	}
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
-	if (snoop_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
-	    packet_size, err) < 0)
+	if (!snoop_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
+	    packet_size, err))
 		return FALSE;	/* Read error */
 	wth->data_offset += packet_size;
 
@@ -402,23 +403,20 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 	return TRUE;
 }
 
-static int
+static gboolean
 snoop_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
 {
-	int	ret;
-
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
 		*err = file_error(wth->random_fh);
-		return -1;
+		return FALSE;
 	}
 
 	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
-		ret = snoop_read_atm_pseudoheader(wth->random_fh, pseudo_header,
-		    err);
-		if (ret < 0) {
+		if (!snoop_read_atm_pseudoheader(wth->random_fh, pseudo_header,
+		    err)) {
 			/* Read error */
-			return ret;
+			return FALSE;
 		}
 	}
 
@@ -428,7 +426,7 @@ snoop_seek_read(wtap *wth, long seek_off,
 	return snoop_read_rec_data(wth->random_fh, pd, length, err);
 }
 
-static int
+static gboolean
 snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     int *err)
 {
@@ -441,7 +439,7 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 		*err = file_error(fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
 
 	pseudo_header->ngsniffer_atm.channel = (atm_phdr[0] & 0x80) ? 1 : 0;
@@ -466,10 +464,10 @@ snoop_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 	pseudo_header->ngsniffer_atm.AppTrafType = ATT_AAL5|ATT_HL_UNKNOWN;
 	pseudo_header->ngsniffer_atm.AppHLType = AHLT_UNKNOWN;
 
-	return 0;
+	return TRUE;
 }
 
-static int
+static gboolean
 snoop_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
 {
 	int	bytes_read;
@@ -481,9 +479,9 @@ snoop_read_rec_data(FILE_T fh, u_char *pd, int length, int *err)
 		*err = file_error(fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
-	return 0;
+	return TRUE;
 }
 
 static const int wtap_encap[] = {

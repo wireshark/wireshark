@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.9 2002/03/05 05:58:41 guy Exp $
+ * $Id: vms.c,v 1.10 2002/03/05 08:39:29 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -72,10 +72,12 @@ static const char vms_hdr_magic[]  =
 #define VMS_REC_MAGIC_SIZE  (sizeof vms_rec_magic  / sizeof vms_rec_magic[0])
 
 static gboolean vms_read(wtap *wth, int *err, long *data_offset);
-static int vms_seek_read(wtap *wth, long seek_off,
+static gboolean vms_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
-static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset, int in_off, int remaining_bytes);
-static int parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err);
+static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
+    long byte_offset, int in_off, int remaining_bytes);
+static gboolean parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf,
+    int *err);
 static int parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err);
 
 
@@ -227,7 +229,7 @@ static gboolean vms_read(wtap *wth, int *err, long *data_offset)
     buf = buffer_start_ptr(wth->frame_buffer);
 
     /* Convert the ASCII hex dump to binary data */
-    if (parse_vms_hex_dump(wth->fh, pkt_len, buf, err) == -1)
+    if (!parse_vms_hex_dump(wth->fh, pkt_len, buf, err))
         return FALSE;
 
     wth->data_offset = offset;
@@ -236,7 +238,7 @@ static gboolean vms_read(wtap *wth, int *err, long *data_offset)
 }
 
 /* Used to read packets in random-access fashion */
-static int
+static gboolean
 vms_seek_read (wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header _U_,
     guint8 *pd, int len, int *err)
@@ -245,7 +247,7 @@ vms_seek_read (wtap *wth, long seek_off,
 
     if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET) == -1) {
         *err = file_error(wth->random_fh);
-        return -1;
+        return FALSE;
     }
 
     pkt_len = parse_vms_rec_hdr(NULL, wth->random_fh, err);
@@ -253,13 +255,10 @@ vms_seek_read (wtap *wth, long seek_off,
     if (pkt_len != len) {
         if (pkt_len != -1)
             *err = WTAP_ERR_BAD_RECORD;
-        return -1;
+        return FALSE;
     }
 
-    if (parse_vms_hex_dump(wth->random_fh, pkt_len, pd, err) == -1)
-        return -1;
-
-    return 0;
+    return parse_vms_hex_dump(wth->random_fh, pkt_len, pd, err);
 }
 
 /* isdumpline assumes that dump lines start with some spaces followed by a
@@ -358,7 +357,7 @@ parse_vms_rec_hdr(wtap *wth, FILE_T fh, int *err)
 }
 
 /* Converts ASCII hex dump to binary data */
-static int
+static gboolean
 parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
 {
     guchar line[VMS_LINE_LENGTH];
@@ -371,7 +370,7 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
             if (*err == 0) {
                 *err = WTAP_ERR_SHORT_READ;
             }
-            return -1;
+            return FALSE;
         }
         if (i == 0) {
 	    while (! isdumpline(line)) /* advance to start of hex data */
@@ -380,7 +379,7 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
 		    if (*err == 0) {
 		        *err = WTAP_ERR_SHORT_READ;
 		    }
-		    return -1;
+		    return FALSE;
 		}
             while (line[offset] && !isxdigit(line[offset]))
                 offset++;
@@ -388,13 +387,13 @@ parse_vms_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
 	if (!parse_single_hex_dump_line(line, buf, i,
 					offset, pkt_len - i)) {
             *err = WTAP_ERR_BAD_RECORD;
-            return -1;
+            return FALSE;
         }
     }
     /* Avoid TCPIPTRACE-W-BUFFERSFUL, TCPIPtrace could not save n packets.
      * errors. */
     file_gets(line, VMS_LINE_LENGTH, fh);
-    return 0;
+    return TRUE;
 }
 
 /*
