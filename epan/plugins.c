@@ -30,7 +30,6 @@
 # include "snprintf.h"
 #endif
 
-#include "epan.h"
 #include "plugins.h"
 
 #ifdef HAVE_PLUGINS
