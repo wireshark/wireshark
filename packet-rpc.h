@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.32 2002/01/21 07:36:41 guy Exp $
+ * $Id: packet-rpc.h,v 1.33 2002/04/02 00:04:18 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -98,15 +98,7 @@ typedef struct _rpc_call_info_value {
 } rpc_call_info_value;
 
 
-typedef int (old_dissect_function_t)(const u_char* pd, int offset, frame_data* fd, proto_tree* tree);
 typedef int (dissect_function_t)(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree* tree);
-
-typedef struct _old_vsff {
-	guint32	value;
-	gchar   *strptr;
-	old_dissect_function_t *dissect_call;
-	old_dissect_function_t *dissect_reply;
-} old_vsff;
 
 typedef struct _vsff {
 	guint32	value;
@@ -117,7 +109,6 @@ typedef struct _vsff {
 
 extern const value_string rpc_auth_flavor[];
 
-extern void old_rpc_init_proc_table(guint prog, guint vers, const old_vsff *proc_table);
 extern void rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table);
 extern void rpc_init_prog(int proto, guint32 prog, int ett);
 extern char *rpc_prog_name(guint32 prog);
