@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.139 2003/09/11 10:31:01 sahlberg Exp $
+ * $Id: packet-dcerpc.c,v 1.140 2003/09/19 05:30:01 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -389,6 +389,8 @@ static int hf_dcerpc_reassembled_in = -1;
 
 static gint ett_dcerpc = -1;
 static gint ett_dcerpc_cn_flags = -1;
+static gint ett_dcerpc_cn_ctx = -1;
+static gint ett_dcerpc_cn_iface = -1;
 static gint ett_dcerpc_drep = -1;
 static gint ett_dcerpc_dg_flags1 = -1;
 static gint ett_dcerpc_dg_flags2 = -1;
@@ -2065,15 +2067,29 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     offset += 3;
 
     for (i = 0; i < num_ctx_items; i++) {
-      offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+	    proto_tree *ctx_tree = NULL, *iface_tree = NULL;
+
+      offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, NULL, hdr->drep,
                                       hf_dcerpc_cn_ctx_id, &ctx_id);
 
-      offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+      if (dcerpc_tree) {
+	      proto_item *ctx_item;
+
+	      ctx_item = proto_tree_add_item(dcerpc_tree, hf_dcerpc_cn_ctx_id,
+					     tvb, offset - 2, 2, 
+					     hdr->drep[0] & 0x10);
+
+	      ctx_tree = proto_item_add_subtree(ctx_item, ett_dcerpc_cn_ctx);
+      }
+
+      offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, ctx_tree, hdr->drep,
                                       hf_dcerpc_cn_num_trans_items, &num_trans_items);
 
       /* XXX - use "dissect_ndr_uuid_t()"? */
       dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &if_id);
-      if (dcerpc_tree) {
+      if (ctx_tree) {
+	  proto_item *iface_item;
+
 	  uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
 			          "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                                   if_id.Data1, if_id.Data2, if_id.Data3,
@@ -2081,22 +2097,25 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                   if_id.Data4[2], if_id.Data4[3],
                                   if_id.Data4[4], if_id.Data4[5],
                                   if_id.Data4[6], if_id.Data4[7]);
+
 	  if (uuid_str_len >= DCERPC_UUID_STR_LEN)
 		  memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
-          proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_cn_bind_if_id, tvb,
+
+          iface_item = proto_tree_add_string_format (ctx_tree, hf_dcerpc_cn_bind_if_id, tvb,
                                         offset, 16, uuid_str, "Interface UUID: %s", uuid_str);
+	  iface_tree = proto_item_add_subtree(iface_item, ett_dcerpc_cn_iface);
       }
       offset += 16;
 
       if (hdr->drep[0] & 0x10) {
-          offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+          offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, iface_tree, hdr->drep,
                                           hf_dcerpc_cn_bind_if_ver, &if_ver);
-          offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+          offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, iface_tree, hdr->drep,
                                           hf_dcerpc_cn_bind_if_ver_minor, &if_ver_minor);
       } else {
-          offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+          offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, iface_tree, hdr->drep,
                                           hf_dcerpc_cn_bind_if_ver_minor, &if_ver_minor);
-          offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+          offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, iface_tree, hdr->drep,
                                           hf_dcerpc_cn_bind_if_ver, &if_ver);
       }
 
@@ -2159,7 +2178,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
       for (j = 0; j < num_trans_items; j++) {
         /* XXX - use "dissect_ndr_uuid_t()"? */
         dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &trans_id);
-        if (dcerpc_tree) {
+        if (iface_tree) {
 	    uuid_str_len = snprintf(uuid_str, DCERPC_UUID_STR_LEN, 
                                   "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
                                   trans_id.Data1, trans_id.Data2, trans_id.Data3,
@@ -2169,12 +2188,12 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                                   trans_id.Data4[6], trans_id.Data4[7]);
             if (uuid_str_len >= DCERPC_UUID_STR_LEN)
                 memset(uuid_str, 0, DCERPC_UUID_STR_LEN);
-            proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_cn_bind_trans_id, tvb,
+            proto_tree_add_string_format (iface_tree, hf_dcerpc_cn_bind_trans_id, tvb,
                                           offset, 16, uuid_str, "Transfer Syntax: %s", uuid_str);
         }
         offset += 16;
 
-        offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
+        offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, iface_tree, hdr->drep,
                                         hf_dcerpc_cn_bind_trans_ver, &trans_ver);
       }
     }
@@ -4344,6 +4363,8 @@ proto_register_dcerpc (void)
     static gint *ett[] = {
         &ett_dcerpc,
         &ett_dcerpc_cn_flags,
+        &ett_dcerpc_cn_ctx,
+        &ett_dcerpc_cn_iface,
         &ett_dcerpc_drep,
         &ett_dcerpc_dg_flags1,
         &ett_dcerpc_dg_flags2,
