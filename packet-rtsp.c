@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.59 2004/01/01 23:36:50 guy Exp $
+ * $Id: packet-rtsp.c,v 1.60 2004/01/05 03:51:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -480,6 +480,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int		orig_offset;
 	int		first_linelen, linelen;
 	gboolean	is_request_or_reply;
+	gboolean	body_requires_content_len;
 	gboolean	saw_req_resp_or_header;
 	guchar		c;
 	rtsp_type_t	rtsp_type;
@@ -520,6 +521,32 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			return -1;
 		}
 	}
+
+	/*
+	 * RFC 2326 says that a content length must be specified
+	 * in requests that have a body, although section 4.4 speaks
+	 * of a server closing the connection indicating the end of
+	 * a reply body.
+	 *
+	 * We assume that an absent content length in a request means
+	 * that we don't have a body, and that an absent content length
+	 * in a reply means that the reply body runs to the end of
+	 * the connection.  If the first line is neither, we assume
+	 * that whatever follows a blank line should be treated as a
+	 * body; there's not much else we can do, as we're jumping
+	 * into the message in the middle.
+	 *
+	 * XXX - if there was no Content-Length entity header, we should
+	 * accumulate all data until the end of the connection.
+	 * That'd require that the TCP dissector call subdissectors
+	 * for all frames with FIN, even if they contain no data,
+	 * which would require subdissectors to deal intelligently
+	 * with empty segments.
+	 */
+	if (rtsp_type == RTSP_REQUEST)
+		body_requires_content_len = TRUE;
+	else
+		body_requires_content_len = FALSE;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTSP");
@@ -776,21 +803,14 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * If no content length was supplied (or if a bad content length
 	 * was supplied), the amount of data to be processed is the amount
 	 * of data remaining in the frame.
-	 *
-	 * XXX - RFC 2326 says that a content length must be specified
-	 * in requests that have a body, although section 4.4 speaks
-	 * of a server closing the connection indicating the end of
-	 * a reply body.
-	 *
-	 * If there was no Content-Length entity header, we should
-	 * accumulate all data until the end of the connection.
-	 * That'd require that the TCP dissector call subdissectors
-	 * for all frames with FIN, even if they contain no data,
-	 * which would require subdissectors to deal intelligently
-	 * with empty segments.
 	 */
 	datalen = tvb_length_remaining(tvb, offset);
+	reported_datalen = tvb_reported_length_remaining(tvb, offset);
 	if (content_length != -1) {
+		/*
+		 * Content length specified; display only that amount
+		 * as payload.
+		 */
 		if (datalen > content_length)
 			datalen = content_length;
 
@@ -808,11 +828,17 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 * "packet is malformed" (running past the reassembled
 		 * length).
 		 */
-		reported_datalen = tvb_reported_length_remaining(tvb, offset);
 		if (reported_datalen > content_length)
 			reported_datalen = content_length;
-	} else
-		reported_datalen = -1;
+	} else {
+		/*
+		 * No content length specified; if this message doesn't
+		 * have a body if no content length is specified, process
+		 * nothing as payload.
+		 */
+		if (body_requires_content_len)
+			datalen = 0;
+	}
 
 	if (datalen > 0) {
 		/*
@@ -858,7 +884,8 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				datalen = 0;
 			} else {
 				proto_tree_add_text(rtsp_tree, tvb, offset,
-				    datalen, "Data (%d bytes)", datalen);
+				    datalen, "Data (%d bytes)",
+				    reported_datalen);
 			}
 		}
 
