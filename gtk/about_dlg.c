@@ -160,7 +160,7 @@ about_ethereal_page_new(void)
 #ifdef SVNVERSION
        " (" SVNVERSION ")"
 #endif
-       " (C) 1998-2004 Gerald Combs <gerald@ethereal.com>\n\n"
+       " (C) 1998-2005 Gerald Combs <gerald@ethereal.com>\n\n"
        "%s\n\n"
        "%s\n\n"
 
