@@ -48,6 +48,7 @@ int radcom_open(wtap *wth, int *err)
 	int bytes_read;
 	char magic[8];
 	struct frame_date start_date;
+	guint32 sec;
 	struct tm tm;
 	char byte;
 	char encap_magic[7] = {0x54, 0x43, 0x50, 0x00, 0x42, 0x43, 0x09};
@@ -117,9 +118,10 @@ int radcom_open(wtap *wth, int *err)
 	tm.tm_year = pletohs(&start_date.year)-1900;
 	tm.tm_mon = start_date.month-1;
 	tm.tm_mday = start_date.day;
-	tm.tm_hour = start_date.sec/3600;
-	tm.tm_min = (start_date.sec%3600)/60;
-	tm.tm_sec = pletohl(&start_date.sec)%60;
+	sec = pletohl(&start_date.sec);
+	tm.tm_hour = sec/3600;
+	tm.tm_min = (sec%3600)/60;
+	tm.tm_sec = sec%60;
 	tm.tm_isdst = -1;
 	wth->capture.radcom->start = mktime(&tm);
 
@@ -202,6 +204,7 @@ static int radcom_read(wtap *wth, int *err)
 	int	bytes_read;
 	guint16 length;
 	struct frame_date date;
+	guint32 sec;
 	int	data_offset;
 	struct tm tm;
 	char dce;
@@ -250,9 +253,10 @@ static int radcom_read(wtap *wth, int *err)
 	tm.tm_year = pletohs(&date.year)-1900;
 	tm.tm_mon = date.month-1;
 	tm.tm_mday = date.day;
-	tm.tm_hour = date.sec/3600;
-	tm.tm_min = (date.sec%3600)/60;
-	tm.tm_sec = pletohl(&date.sec)%60;
+	sec = pletohl(&date.sec);
+	tm.tm_hour = sec/3600;
+	tm.tm_min = (sec%3600)/60;
+	tm.tm_sec = sec%60;
 	tm.tm_isdst = -1;
 	wth->phdr.ts.tv_sec = mktime(&tm);
 	wth->phdr.ts.tv_usec = pletohl(&date.usec);
