@@ -431,7 +431,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   case 26: /*noteMsPresentForGprs*/
     offset=dissect_gsm_map_NoteMsPresentForGprsRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case 29: /*sendEndSignal
+  case 29: /*sendEndSignal*/
 	  /* Taken from MAP-MobileServiceOperations{ 0 identified-organization (4) etsi (0) mobileDomain 
 	   * (0) gsm-Network (1) modules (3) map-MobileServiceOperations (5) version9 (9) }
 	   */

@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-gsm_map.c                                                         */
+/* ./packet-gsm_map.c                                                         */
 /* ../../tools/asn2eth.py -e -X -b -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn */
 
 /* Input file: packet-gsm_map-template.c */
@@ -7468,7 +7468,7 @@ static int dissect_returnResultData(packet_info *pinfo, proto_tree *tree, tvbuff
   case 26: /*noteMsPresentForGprs*/
     offset=dissect_gsm_map_NoteMsPresentForGprsRes(FALSE, tvb, offset, pinfo, tree, -1);
     break;
-  case 29: /*sendEndSignal
+  case 29: /*sendEndSignal*/
 	  /* Taken from MAP-MobileServiceOperations{ 0 identified-organization (4) etsi (0) mobileDomain 
 	   * (0) gsm-Network (1) modules (3) map-MobileServiceOperations (5) version9 (9) }
 	   */
@@ -9743,4 +9743,3 @@ void proto_reg_handoff_gsm_map(void) {
     dissector_add("tcap.itu_ssn", 8, map_handle);
     dissector_add("tcap.itu_ssn", 9, map_handle);
 }
-
