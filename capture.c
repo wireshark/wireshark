@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.244 2004/03/04 19:31:20 ulfl Exp $
+ * $Id: capture.c,v 1.245 2004/03/04 21:27:55 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1763,7 +1763,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   /* create stop conditions */
   if (capture_opts.has_autostop_filesize)
     cnd_autostop_size =
-        cnd_new(CND_CLASS_CAPTURESIZE,(long)capture_opts.autostop_filesize * 1024);
+        cnd_new(CND_CLASS_CAPTURESIZE,(long)capture_opts.autostop_filesize);
   if (capture_opts.has_autostop_duration)
     cnd_autostop_duration =
         cnd_new(CND_CLASS_TIMEOUT,(gint32)capture_opts.autostop_duration);
