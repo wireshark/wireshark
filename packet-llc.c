@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.29 1999/11/30 23:56:36 gram Exp $
+ * $Id: packet-llc.c,v 1.30 1999/12/05 09:45:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -42,6 +42,7 @@ static int hf_llc_ssap = -1;
 static int hf_llc_ctrl = -1;
 static int hf_llc_type = -1;
 static int hf_llc_oui = -1;
+static int hf_llc_pid = -1;
 
 static gint ett_llc = -1;
 static gint ett_llc_ctrl = -1;
@@ -118,15 +119,17 @@ static const value_string llc_ctrl_vals[] = {
 	{ 0, NULL }
 };
 
+#define	OUI_ENCAP_ETHER	0x000000
+
 static const value_string llc_oui_vals[] = {
-	{ 0x000000, "Encapsulated Ethernet" },
+	{ OUI_ENCAP_ETHER, "Encapsulated Ethernet" },
 /*
 http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r/brprt1/brsrb.htm
 */
-	{ 0x0000f8, "Cisco 90-Compatible" },
-	{ 0x0000c0, "Cisco" },
-	{ 0x0080c2, "Bridged Frame-Relay" }, /* RFC 2427 */
-	{ 0,        NULL }
+	{ 0x0000f8,        "Cisco 90-Compatible" },
+	{ 0x0000c0,        "Cisco" },
+	{ 0x0080c2,        "Bridged Frame-Relay" }, /* RFC 2427 */
+	{ 0,               NULL }
 };
 
 static capture_func_t *
@@ -168,6 +171,7 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 	int		is_snap;
 	guint16		control;
 	int		llc_header_len;
+	guint32		oui;
 	guint16		etype;
 	capture_func_t	*capture;
 
@@ -192,16 +196,26 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 	control = get_xdlc_control(pd, offset+2, pd[offset+1] & 0x01, TRUE);
 	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
 	if (is_snap)
-		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of ethertype */
+		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of protocol ID */
 
 	if (is_snap) {
+		oui = pd[offset+3] << 16 | pd[offset+4] << 8 | pd[offset+5];
 		if (XDLC_HAS_PAYLOAD(control)) {
 			/*
 			 * This frame has a payload to be analyzed.
 			 */
-			etype  = (pd[offset+6] << 8) | pd[offset+7];
-			offset += llc_header_len;
-			capture_ethertype(etype, offset, pd, cap_len, ld);
+			etype = pntohs(&pd[offset+6]);
+			switch (oui) {
+
+			case OUI_ENCAP_ETHER:
+				capture_ethertype(etype, offset+8, pd,
+				    cap_len, ld);
+				break;
+
+			default:
+				ld->other++;
+				break;
+			}
 		}
 	}		
 	else {
@@ -232,6 +246,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	int		is_snap;
 	guint16		control;
 	int		llc_header_len;
+	guint32		oui;
 	guint16		etype;
 	dissect_func_t	*dissect;
 
@@ -270,7 +285,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				pd[offset+1] & 0x01, TRUE);
 	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
 	if (is_snap)
-		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of ethertype */
+		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of protocol ID */
 	if (tree)
 		proto_item_set_len(ti, llc_header_len);
 
@@ -283,19 +298,29 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		if (check_col(fd, COL_INFO)) {
 			col_add_str(fd, COL_INFO, "802.2 LLC (SNAP)");
 		}
+		oui = pd[offset+3] << 16 | pd[offset+4] << 8 | pd[offset+5];
 		if (tree) {
 			proto_tree_add_item(llc_tree, hf_llc_oui, offset+3, 3,
-				pd[offset+3] << 16 | pd[offset+4] << 8 | pd[offset+5]);
+				oui);
 		}
 		if (XDLC_HAS_PAYLOAD(control)) {
 			/*
 			 * This frame has a payload to be analyzed.
 			 */
 			etype = pntohs(&pd[offset+6]);
-			offset += llc_header_len;
-			/* w/o even checking, assume OUI is ethertype */
-			ethertype(etype, offset, pd, fd, tree, llc_tree,
-			    hf_llc_type);
+			switch (oui) {
+
+			case OUI_ENCAP_ETHER:
+				ethertype(etype, offset+8, pd,
+				    fd, tree, llc_tree, hf_llc_type);
+				break;
+
+			default:
+				proto_tree_add_item(llc_tree, hf_llc_pid,
+				    offset+6, 2, etype);
+				dissect_data(pd, offset+8, fd, tree);
+				break;
+			}
 		}
 	}		
 	else {
@@ -346,6 +371,10 @@ proto_register_llc(void)
 
 		{ &hf_llc_oui,
 		{ "Organization Code",	"llc.oui", FT_UINT24, BASE_HEX, VALS(llc_oui_vals), 0x0,
+			""}},
+
+		{ &hf_llc_pid,
+		{ "Protocol ID",	"llc.pid", FT_UINT16, BASE_HEX, NULL, 0x0,
 			""}}
 	};
 	static gint *ett[] = {
