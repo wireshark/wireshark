@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.40 2004/01/05 19:31:43 ulfl Exp $
+ * $Id: packet-cops.c,v 1.41 2004/01/07 05:24:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -908,7 +908,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, guint32 offset, proto_tree *
 
 #ifdef HAVE_NET_SNMP
 static guchar*format_asn_value (struct variable_list *variable, subid_t *variable_oid,
-                                guint variable_oid_length,gushort type_from_packet)
+                                guint variable_oid_length, u_char type_from_packet)
 {
   struct tree *subtree=tree_head;
   
@@ -920,7 +920,7 @@ static guchar*format_asn_value (struct variable_list *variable, subid_t *variabl
   subtree = get_tree(variable_oid,variable_oid_length, subtree);
   
   if (subtree->type == 0)
-    variable->type= (guint8)type_from_packet;
+    variable->type= type_from_packet;
   
   buf_len = SPRINT_MAX_LEN; /*defined in NET-SNMP's snmp-impl.h*/
   buf = g_malloc(buf_len);
