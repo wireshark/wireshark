@@ -45,6 +45,7 @@
 
 #include <epan/packet.h>
 #include "prefs.h"
+#include "strutil.h"
 #include <epan/sigcomp-udvm.h>
 #include <epan/sigcomp_state_hdlr.h>
 
@@ -448,7 +449,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 
 			result_code = udvm_state_access(tvb, sigcomp_tree, buff, p_id_start, partial_state_len, state_begin, &state_length, 
-				&state_address, state_instruction, FALSE);
+				&state_address, state_instruction, FALSE, hf_sigcomp_partial_state);
 
 
 			if ( result_code != 0 ){
@@ -477,7 +478,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			sigcomp_udvm_exe_tree = proto_item_add_subtree( udvm_exe_item, ett_sigcomp_udvm_exe);
 
 			decomp_tvb = decompress_sigcomp_message(udvm2_tvb, msg_tvb, pinfo,
-						   sigcomp_udvm_exe_tree, state_address, udvm_print_detail_level);
+						   sigcomp_udvm_exe_tree, state_address, udvm_print_detail_level, hf_sigcomp_partial_state);
 		
 
 			if ( decomp_tvb ){
@@ -548,7 +549,7 @@ dissect_sigcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				"UDVM execution trace");
 			sigcomp_udvm_exe_tree = proto_item_add_subtree( udvm_exe_item, ett_sigcomp_udvm_exe);
 			decomp_tvb = decompress_sigcomp_message(udvm_tvb, msg_tvb, pinfo,
-						   sigcomp_udvm_exe_tree, destination, udvm_print_detail_level);
+						   sigcomp_udvm_exe_tree, destination, udvm_print_detail_level, hf_sigcomp_partial_state);
 			if ( decomp_tvb ){
 				proto_tree_add_text(sigcomp_tree, decomp_tvb, 0, -1,"SigComp message Decompressed WOHO!!");
 				if ( display_raw_txt )
