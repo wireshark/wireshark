@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.132 2002/02/18 23:51:55 guy Exp $
+ * $Id: packet-tcp.c,v 1.133 2002/02/19 00:14:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -270,6 +270,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	gboolean called_dissector = FALSE;
 	int deseg_offset;
 	guint32 deseg_seq;
+	gint nbytes;
 
 	/*
 	 * Initialize these to assume no desegmentation.
@@ -449,6 +450,16 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 				g_hash_table_insert(tcp_segment_table,new_tsk,new_tsk);
 			} else {
 				/*
+				 * Show the stuff in this TCP segment as
+				 * just raw TCP segment data.
+				 */
+				nbytes =
+				    tvb_reported_length_remaining(tvb, offset);
+				proto_tree_add_text(tcp_tree, tvb, offset, -1,
+				    "TCP segment data (%u byte%s)", nbytes,
+				    plurality(nbytes, "", "s"));
+
+				/*
 				 * The subdissector thought it was completely
 				 * desegmented (although the stuff at the
 				 * end may, in turn, require desegmentation),
@@ -609,11 +620,15 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		}
 
 		/*
-		 * Show what's left in the packet as data.
+		 * Show what's left in the packet as just raw TCP segment
+		 * data.
 		 * XXX - remember what protocol the last subdissector
-		 * was, and report it as a continuation of that, instead.
+		 * was, and report it as a continuation of that, instead?
 		 */
-		call_dissector(data_handle,tvb_new_subset(tvb, deseg_offset,-1,tvb_reported_length_remaining(tvb,deseg_offset)), pinfo, tree);
+		nbytes = tvb_reported_length_remaining(tvb, deseg_offset);
+		proto_tree_add_text(tcp_tree, tvb, deseg_offset, -1,
+		    "TCP segment data (%u byte%s)", nbytes,
+		    plurality(nbytes, "", "s"));
 	}
 	pinfo->can_desegment=0;
 	pinfo->desegment_offset = 0;
