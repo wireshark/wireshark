@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.55 2003/01/15 05:20:18 guy Exp $
+ * $Id: file_dlg.c,v 1.56 2003/07/18 20:55:11 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -269,6 +269,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
      "get_dirname()" does write over its argument. */
   s = get_dirname(cf_name);
   set_last_open_dir(s);
+  gtk_widget_grab_focus(packet_list);
 
   g_free(cf_name);
 }

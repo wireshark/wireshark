@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.38 2002/11/11 15:39:05 oabad Exp $
+ * $Id: gui_prefs.c,v 1.39 2003/07/18 20:55:11 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -178,13 +178,13 @@ gui_prefs_show(void)
 
 	/* Packet list selection browseable */
 	plist_browse_om = create_preference_option_menu(main_tb, pos++,
-	    "Packet list mouse behavior:", NULL, selection_mode_vals,
+	    "Packet list selection mode:", NULL, selection_mode_vals,
 	    prefs.gui_plist_sel_browse);
 	OBJECT_SET_DATA(main_vb, PLIST_SEL_BROWSE_KEY, plist_browse_om);
 
 	/* Proto tree selection browseable */
 	ptree_browse_om = create_preference_option_menu(main_tb, pos++,
-	    "Protocol tree mouse behavior:", NULL, selection_mode_vals,
+	    "Protocol tree selection mode:", NULL, selection_mode_vals,
 	    prefs.gui_ptree_sel_browse);
 	OBJECT_SET_DATA(main_vb, PTREE_SEL_BROWSE_KEY, ptree_browse_om);
 

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.299 2003/07/04 23:50:10 guy Exp $
+ * $Id: main.c,v 1.300 2003/07/18 20:55:11 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -780,6 +780,7 @@ packet_list_select_cb(GtkWidget *w _U_, gint row, gint col _U_, gpointer evt _U_
     gtk_notebook_remove_page( GTK_NOTEBOOK(byte_nb_ptr), 0);
 
   select_packet(&cfile, row);
+  gtk_widget_grab_focus(packet_list);
 }
 
 
@@ -956,12 +957,11 @@ void resolve_name_cb(GtkWidget *widget _U_, gpointer data _U_) {
 void
 set_plist_sel_browse(gboolean val)
 {
-	gboolean old_val;
+        /* initialize with a mode we don't use, so that the following test will
+         * fail the first time */
+        static GtkSelectionMode mode = GTK_SELECTION_MULTIPLE;
 
-	old_val =
-	    (GTK_CLIST(packet_list)->selection_mode == GTK_SELECTION_SINGLE);
-
-	if (val == old_val) {
+	if (val == (mode == GTK_SELECTION_SINGLE)) {
 		/*
 		 * The mode isn't changing, so don't do anything.
 		 * In particular, don't gratuitiously unselect the
@@ -985,11 +985,12 @@ set_plist_sel_browse(gboolean val)
 	/* Yeah, GTK uses "browse" in the case where we do not, but oh well. I think
 	 * "browse" in Ethereal makes more sense than "SINGLE" in GTK+ */
 	if (val) {
-		gtk_clist_set_selection_mode(GTK_CLIST(packet_list), GTK_SELECTION_SINGLE);
+                mode = GTK_SELECTION_SINGLE;
 	}
 	else {
-		gtk_clist_set_selection_mode(GTK_CLIST(packet_list), GTK_SELECTION_BROWSE);
+                mode = GTK_SELECTION_BROWSE;
 	}
+        gtk_clist_set_selection_mode(GTK_CLIST(packet_list), mode);
 }
 
 /* Set the font of the packet list window. */
