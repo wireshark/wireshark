@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.39 2004/01/25 18:51:25 ulfl Exp $
+ * $Id: follow_dlg.c,v 1.40 2004/01/26 22:34:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -224,7 +224,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	/* append the negation */
 	if(strlen(previous_filter)) {
-	    sprintf(follow_info->filter_out_filter, "%s \nand !(%s)", previous_filter, follow_filter);
+	    sprintf(follow_info->filter_out_filter, "%s and !(%s)", previous_filter, follow_filter);
 	} else {
 	    sprintf(follow_info->filter_out_filter, "!(%s)", follow_filter);
 	}
