@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.18 2002/09/10 23:44:17 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.19 2002/09/11 02:23:14 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -443,6 +443,8 @@ dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
     text = get_unicode_or_ascii_string(tvb, &item_offset,
 				       unicode_strings, &result_length,
 				       FALSE, FALSE, &bc);
+
+    if (!text) text = ""; /* Make sure we don't blow up below */
 
     switch(item_type) {
     case 1:
