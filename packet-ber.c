@@ -2,7 +2,7 @@
  * Helpers for ASN.1/BER dissection
  * Ronnie Sahlberg (C) 2004
  *
- * $Id: packet-ber.c,v 1.10 2004/05/26 11:25:20 sahlberg Exp $
+ * $Id: packet-ber.c,v 1.11 2004/06/05 09:59:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,7 +96,7 @@ static const value_string ber_uni_tag_codes[] = {
 	{ BER_UNI_TAG_TeletextString	, "TeletextString, T61String" },
 	{ BER_UNI_TAG_VideotexString	, "VideotexString" },
 	{ BER_UNI_TAG_IA5String		, "IA5String" },
-	{ BER_UNI_TAG_UCTTime			, "UCTTime" },
+	{ BER_UNI_TAG_UTCTime		, "UTCTime" },
 	{ BER_UNI_TAG_GeneralizedTime	, "GeneralizedTime" },
 	{ BER_UNI_TAG_GraphicString	, "GraphicString" },
 	{ BER_UNI_TAG_VisibleString	, "VisibleString, ISO64String" },
@@ -835,7 +835,7 @@ int dissect_ber_bitstring(gboolean implicit_tag, packet_info *pinfo, proto_tree 
 	gboolean pc, ind;
 	guint32 tag;
 	guint32 len;
-	guint8 pad, b0, b1, val;
+	guint8 pad=0, b0, b1, val;
 	int end_offset;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;

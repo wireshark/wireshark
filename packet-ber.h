@@ -2,7 +2,7 @@
  * Helpers for ASN.1/BER dissection
  * Ronnie Sahlberg (C) 2004
  *
- * $Id: packet-ber.h,v 1.7 2004/05/17 20:03:35 sahlberg Exp $
+ * $Id: packet-ber.h,v 1.8 2004/06/05 09:59:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,7 +62,7 @@ typedef int (*ber_callback)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 #define BER_UNI_TAG_TeletextString	    20  /* TeletextString, T61String */
 #define BER_UNI_TAG_VideotexString	    21
 #define BER_UNI_TAG_IA5String		    22
-#define BER_UNI_TAG_UCTTime		    23
+#define BER_UNI_TAG_UTCTime		    23
 #define BER_UNI_TAG_GeneralizedTime	    24
 #define BER_UNI_TAG_GraphicString	    25
 #define BER_UNI_TAG_VisibleString	    26  /* VisibleString, ISO64String */
