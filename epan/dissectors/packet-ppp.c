@@ -2384,8 +2384,7 @@ dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   offset += 3;
   length -= 3;
 
-  /* XXX - Should we check for a maximum length instead of using a cast? */
-  while ((gint) length > 0) {
+  while (length > 0) {
     ta = proto_tree_add_text(field_tree, tvb, offset, length,
 			     "Callback Address");
     addr_type = tvb_get_guint8(tvb, offset);
@@ -2396,11 +2395,16 @@ dissect_cbcp_callback_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     offset++;
     length--;
     addr_len = tvb_strsize(tvb, offset);
+    if (addr_len > length) {
+      proto_tree_add_text(addr_tree, tvb, offset, length,
+			  "Address: (runs past end of option)");
+      break;
+    }
     proto_tree_add_text(addr_tree, tvb, offset, addr_len,
 			"Address: %s",
 			tvb_format_text(tvb, offset, addr_len - 1));
-    offset += (addr_len + 1);
-    length -= (addr_len + 1);
+    offset += addr_len;
+    length -= addr_len;
   }
 }
 
@@ -2457,24 +2461,29 @@ dissect_bap_phone_delta_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   offset += 2;
   length -= 2;
 
-  /* XXX - Should we check for a maximum length instead of using a cast? */
-  while (((gint) length) > 0) {
+  while (length > 0) {
     subopt_type = tvb_get_guint8(tvb, offset);
     subopt_len = tvb_get_guint8(tvb, offset + 1);
     ti = proto_tree_add_text(field_tree, tvb, offset, subopt_len,
-		"Sub-Option (%d byte%s)",
+		"Sub-Option (%u byte%s)",
 		subopt_len, plurality(subopt_len, "", "s"));
     suboption_tree = proto_item_add_subtree(ti, ett_bap_phone_delta_subopt);
-    if (subopt_len < 1) {
-      proto_tree_add_text(suboption_tree, tvb, offset + 1, 1,
-	  "Invalid suboption length: %u", subopt_len);
-      return;
-    }
 
     proto_tree_add_text(suboption_tree, tvb, offset, 1,
 	"Sub-Option Type: %s (%u)",
 	val_to_str(subopt_type, bap_phone_delta_subopt_vals, "Unknown"),
 	subopt_type);
+
+    if (subopt_len < 1) {
+      proto_tree_add_text(suboption_tree, tvb, offset + 1, 1,
+	  "Sub-Option Length: %u (invalid, must be >= 1)", subopt_len);
+      return;
+    }
+    if (subopt_len > length) {
+      proto_tree_add_text(suboption_tree, tvb, offset + 1, 1,
+	  "Sub-Option Length: %u (invalid, must be <= length remaining in option %u)", subopt_len, length);
+      return;
+    }
 
     proto_tree_add_text(suboption_tree, tvb, offset + 1, 1,
 	"Sub-Option Length: %u", subopt_len);
