@@ -1,7 +1,7 @@
 /* endpoint_talkers_tr.c
  * endpoint_talkers_tr   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_tr.c,v 1.1 2003/08/23 09:09:35 sahlberg Exp $
+ * $Id: endpoint_talkers_tr.c,v 1.2 2003/08/23 13:58:54 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -136,7 +136,7 @@ gtk_tr_talkers_init(char *optarg)
 
 	tr_talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(tr_talkers->win), 750, 400);
-	gtk_window_set_title(GTK_WINDOW(tr_talkers->win), "TokenRing Talkers");
+	gtk_window_set_title(GTK_WINDOW(tr_talkers->win), "Token Ring Talkers");
 
 	SIGNAL_CONNECT(tr_talkers->win, "destroy", win_destroy_cb, tr_talkers);
 
@@ -145,7 +145,7 @@ gtk_tr_talkers_init(char *optarg)
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
 	gtk_widget_show(vbox);
 
-	label=gtk_label_new("TokenRing Talkers");
+	label=gtk_label_new("Token Ring Talkers");
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	gtk_widget_show(label);
 
@@ -177,7 +177,7 @@ gtk_tr_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_menu_tr_talkers(void)
 {
-	register_tap_menu_item("Endpoint Talkers/TokenRing", gtk_tr_endpoints_cb);
+	register_tap_menu_item("Endpoint Talkers/Token Ring", gtk_tr_endpoints_cb);
 }
 
 
