@@ -737,7 +737,7 @@ class EthCtx:
   #--- eth_bits ---------------------------------------------------------------
   def eth_bits(self, tname, bits):
     out = ""
-    out += "static "
+    out += "static const "
     out += "asn_namedbit %s_bits[] = {\n" % (tname)
     for (val, id) in bits:
       out += '  { %2d, &hf_%s_%s_%s, -1, -1, NULL, NULL },\n' % (val, self.eproto, tname, id)
