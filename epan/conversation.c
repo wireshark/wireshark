@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.15 2001/11/21 01:00:37 guy Exp $
+ * $Id: conversation.c,v 1.16 2001/11/27 07:13:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -462,8 +462,8 @@ conversation_new(address *addr1, address *addr2, port_type ptype,
 	conversation->index = new_index;
 	conversation->data_list = NULL;
 
-/* clear dissector pointer */
-	conversation->dissector = NULL;
+/* clear dissector handle */
+	conversation->dissector_handle = NULL;
 
 /* set the options and key pointer */
 	conversation->options = options;
@@ -902,9 +902,9 @@ conversation_delete_proto_data(conversation_t *conv, int proto)
 
 void
 conversation_set_dissector(conversation_t *conversation,
-    dissector_t dissector)
+    dissector_handle_t handle)
 {
-	conversation->dissector = dissector;
+	conversation->dissector_handle = handle;
 }
 
 /*
@@ -923,9 +923,10 @@ try_conversation_dissector(address *addr_a, address *addr_b, port_type ptype,
 	    port_b, 0);
 	
 	if (conversation != NULL) {
-		if (conversation->dissector == NULL)
+		if (conversation->dissector_handle == NULL)
 			return FALSE;
-		(*conversation->dissector)(tvb, pinfo, tree);
+		call_dissector(conversation->dissector_handle, tvb, pinfo,
+		    tree);
 		return TRUE;
 	}
 	return FALSE;

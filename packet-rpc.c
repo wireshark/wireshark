@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.75 2001/11/26 04:52:51 hagbard Exp $
+ * $Id: packet-rpc.c,v 1.76 2001/11/27 07:13:26 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -193,6 +193,8 @@ static gint ett_rpc_gids = -1;
 static gint ett_rpc_gss_data = -1;
 static gint ett_rpc_array = -1;
 
+static dissector_handle_t rpc_tcp_handle;
+static dissector_handle_t rpc_handle;
 static dissector_handle_t data_handle;
 
 /* Hash table with info on RPC program numbers */
@@ -1176,7 +1178,7 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* Make the dissector for this conversation the non-heuristic
 		   RPC dissector. */
 		conversation_set_dissector(conversation,
-		    (pinfo->ptype == PT_TCP) ? dissect_rpc_tcp : dissect_rpc);
+		    (pinfo->ptype == PT_TCP) ? rpc_tcp_handle : rpc_handle);
 
 		/* Prepare the key data.
 
@@ -1711,7 +1713,7 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/* Make the dissector for this conversation the non-heuristic
 		   RPC dissector. */
 		conversation_set_dissector(conversation,
-		    (pinfo->ptype == PT_TCP) ? dissect_rpc_tcp : dissect_rpc);
+		    (pinfo->ptype == PT_TCP) ? rpc_tcp_handle : rpc_handle);
 
 		/* prepare the key data */
 		rpc_call_key.xid = xid;
@@ -2381,6 +2383,8 @@ proto_register_rpc(void)
 	proto_register_field_array(proto_rpc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_init_routine(&rpc_init_protocol);
+	rpc_tcp_handle = create_dissector_handle(dissect_rpc_tcp, proto_rpc);
+	rpc_handle = create_dissector_handle(dissect_rpc, proto_rpc);
 	rpc_module = prefs_register_protocol(proto_rpc, NULL);
 	prefs_register_bool_preference(rpc_module, "desegment_rpc_over_tcp",
 		"Desegment all RPC over TCP commands",

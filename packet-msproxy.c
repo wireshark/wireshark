@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.22 2001/09/03 10:33:05 guy Exp $
+ * $Id: packet-msproxy.c,v 1.23 2001/11/27 07:13:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -99,6 +99,8 @@ static int hf_msproxy_server_int_addr = -1;
 static int hf_msproxy_server_int_port = -1;
 static int hf_msproxy_server_ext_addr = -1;
 static int hf_msproxy_server_ext_port = -1;
+
+static dissector_handle_t msproxy_sub_handle;
 
 
 #define UDP_PORT_MSPROXY 1745
@@ -207,7 +209,7 @@ static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree *tree) {
 
 /* Conversation dissector called from TCP or UDP dissector. Decode and	*/
-/* display the socks header, the pass the rest of the data to the tcp	*/
+/* display the msproxy header, the pass the rest of the data to the tcp	*/
 /* or udp port decode routine to  handle the payload.			*/
 
 	guint32 *ptr;
@@ -301,7 +303,7 @@ static void add_msproxy_conversation( packet_info *pinfo,
 			hash_info->proto, hash_info->server_int_port,
 			hash_info->clnt_port, 0);
 	}
-	conversation_set_dissector(conversation, msproxy_sub_dissector);
+	conversation_set_dissector(conversation, msproxy_sub_handle);
 
 	new_conv_info = g_mem_chunk_alloc(redirect_vals);
 
@@ -1288,6 +1290,9 @@ proto_register_msproxy( void){
 	proto_register_subtree_array(ett, array_length(ett));  
 
 	register_init_routine( &msproxy_reinit);	/* register re-init routine */
+
+	msproxy_sub_handle = create_dissector_handle(msproxy_sub_dissector,
+	    proto_msproxy);
 }
 
 
@@ -1295,7 +1300,7 @@ void
 proto_reg_handoff_msproxy(void) {
 
 	/* dissector install routine */ 
- 
+
 	dissector_add("udp.port", UDP_PORT_MSPROXY, dissect_msproxy,
 	    proto_msproxy);
 }

@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.28 2001/11/21 23:16:21 gram Exp $
+ * $Id: packet-socks.c,v 1.29 2001/11/27 07:13:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -121,6 +121,11 @@ static int hf_user_name = -1;
 static int hf_socks_dstport = -1;
 static int hf_socks_command = -1;
 
+
+/************* Dissector handles ***********/
+
+static dissector_handle_t socks_handle;
+static dissector_handle_t socks_udp_handle;
 
 /************* State Machine names ***********/
 
@@ -420,7 +425,7 @@ new_udp_conversation( socks_hash_entry_t *hash_info, packet_info *pinfo){
 	g_assert( conversation);
 	
 	conversation_add_proto_data(conversation, proto_socks, hash_info);
-	conversation_set_dissector(conversation, socks_udp_dissector);
+	conversation_set_dissector(conversation, socks_udp_handle);
 }
 
 
@@ -950,7 +955,7 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			hash_info);
 
 						/* set dissector for now */
-		conversation_set_dissector(conversation, dissect_socks);
+		conversation_set_dissector(conversation, socks_handle);
 	}
 
 /* display summary window information  */
@@ -1115,6 +1120,10 @@ proto_register_socks( void){
 	proto_register_subtree_array(ett, array_length(ett));  
 
 	register_init_routine( &socks_reinit);	/* register re-init routine */
+
+	socks_udp_handle = create_dissector_handle(socks_udp_dissector,
+	    proto_socks);
+	socks_handle = create_dissector_handle(dissect_socks, proto_socks);
 }
 
 

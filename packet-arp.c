@@ -1,12 +1,11 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.45 2001/11/26 05:13:11 hagbard Exp $
+ * $Id: packet-arp.c,v 1.46 2001/11/27 07:13:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -70,7 +69,7 @@ static gint ett_arp = -1;
 static gint ett_atmarp_nsap = -1;
 static gint ett_atmarp_tl = -1;
 
-static dissector_handle_t data_handle;
+static dissector_handle_t atmarp_handle;
 
 /* Definitions taken from Linux "linux/if_arp.h" header file, and from
 
@@ -412,8 +411,6 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree  *tl_tree;
   proto_item  *tl;
 
-  CHECK_DISPLAY_AS_X(data_handle,proto_arp, tvb, pinfo, tree);
-
   /* Override the setting to "ARP/RARP". */
   pinfo->current_proto = "ATMARP";
 
@@ -652,10 +649,6 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   const guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
 
-  CHECK_DISPLAY_AS_X(data_handle,proto_arp, tvb, pinfo, tree);
-
-  pinfo->current_proto = "ARP";
-
   /* Call it ARP, for now, so that if we throw an exception before
      we decide whether it's ARP or RARP or IARP or ATMARP, it shows
      up in the packet list as ARP.
@@ -669,7 +662,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   ar_hrd = tvb_get_ntohs(tvb, AR_HRD);
   if (ar_hrd == ARPHRD_ATM2225) {
-    dissect_atmarp(tvb, pinfo, tree);
+    call_dissector(atmarp_handle, tvb, pinfo, tree);
     return;
   }
   ar_pro = tvb_get_ntohs(tvb, AR_PRO);
@@ -940,12 +933,13 @@ proto_register_arp(void)
 				      "ARP/RARP", "arp");
   proto_register_field_array(proto_arp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  atmarp_handle = create_dissector_handle(dissect_atmarp, proto_arp);
 }
 
 void
 proto_reg_handoff_arp(void)
 {
-  data_handle = find_dissector("data");
   dissector_add("ethertype", ETHERTYPE_ARP, dissect_arp, proto_arp);
   dissector_add("ethertype", ETHERTYPE_REVARP, dissect_arp, proto_arp);
 }

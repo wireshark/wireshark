@@ -1,6 +1,6 @@
 /* packet-rtcp.h
  *
- * $Id: packet-rtcp.h,v 1.6 2001/09/03 10:33:06 guy Exp $
+ * $Id: packet-rtcp.h,v 1.7 2001/11/27 07:13:26 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -28,5 +28,4 @@
  */
 
 void     rtcp_add_address   ( packet_info *pinfo, const unsigned char* ip_addr, int prt );
-void     dissect_rtcp       ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree );
 void     proto_register_rtcp( void );

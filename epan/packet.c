@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.42 2001/11/26 05:41:12 hagbard Exp $
+ * $Id: packet.c,v 1.43 2001/11/27 07:13:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -788,6 +788,20 @@ find_dissector(const char *name)
 {
 	g_assert(registered_dissectors != NULL);
 	return g_hash_table_lookup(registered_dissectors, name);
+}
+
+/* Create an anonymous handle for a dissector. */
+dissector_handle_t
+create_dissector_handle(dissector_t dissector, int proto)
+{
+	struct dissector_handle *handle;
+
+	handle = g_malloc(sizeof (struct dissector_handle));
+	handle->name = NULL;
+	handle->dissector = dissector;
+	handle->proto_index = proto;
+
+	return handle;
 }
 
 /* Register a dissector by name. */

@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.23 2001/11/26 05:13:12 hagbard Exp $
+ * $Id: packet-rtcp.c,v 1.24 2001/11/27 07:13:26 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -178,10 +178,10 @@ static gint ett_sdes_item      = -1;
 static address fake_addr;
 static int heur_init = FALSE;
 
-static dissector_handle_t data_handle;
-
 static gboolean dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree );
+static void dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
+     proto_tree *tree );
 
 void rtcp_add_address( packet_info *pinfo, const unsigned char* ip_addr,
     int prt )
@@ -250,9 +250,6 @@ static gboolean
 dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
 	conversation_t* pconv;
-
-	if (!proto_is_protocol_enabled(proto_rtcp))
-		return FALSE;	/* RTCP has been disabled */
 
 	/* This is a heuristic dissector, which means we get all the UDP
 	 * traffic not sent to a known dissector and not claimed by
@@ -626,7 +623,7 @@ dissect_rtcp_sr( tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree,
 	return offset;
 }
 
-void
+static void
 dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
 	proto_item *ti           = NULL;
@@ -637,10 +634,6 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	unsigned int packet_type = 0;
 	unsigned int offset      = 0;
 	guint16 packet_length    = 0;
-
-	CHECK_DISPLAY_AS_X(data_handle,proto_rtcp, tvb, pinfo, tree);
-
-	pinfo->current_proto = "RTCP";
 
 	if ( check_col( pinfo->fd, COL_PROTOCOL ) )   {
 		col_set_str( pinfo->fd, COL_PROTOCOL, "RTCP" );
@@ -1230,7 +1223,6 @@ proto_register_rtcp(void)
 void
 proto_reg_handoff_rtcp(void)
 {
-        data_handle = find_dissector("data");
 	/*
 	 * Register this dissector as one that can be assigned to a
 	 * UDP conversation.

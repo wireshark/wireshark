@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.41 2001/11/26 05:41:13 hagbard Exp $
+ * $Id: packet.h,v 1.42 2001/11/27 07:13:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -193,6 +193,10 @@ extern void register_dissector(const char *name, dissector_t dissector,
 
 /* Find a dissector by name. */
 extern dissector_handle_t find_dissector(const char *name);
+
+/* Create an anonymous handle for a dissector. */
+extern dissector_handle_t create_dissector_handle(dissector_t dissector,
+    int proto);
 
 /* Call a dissector through a handle. */
 extern void call_dissector(dissector_handle_t handle, tvbuff_t *tvb,

@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.4 2001/11/26 04:52:49 hagbard Exp $
+ * $Id: packet-dsi.c,v 1.5 2001/11/27 07:13:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,6 +75,7 @@ static int hf_dsi_reserved = -1;
 
 static gint ett_dsi = -1;
 
+static dissector_handle_t dsi_handle;
 static dissector_handle_t data_handle;
 
 #define TCP_PORT_DSI			548
@@ -324,7 +325,7 @@ dissect_dsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		conversation = conversation_new(&pinfo->src, &pinfo->dst,
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 	}
-	conversation_set_dissector(conversation, dissect_dsi);
+	conversation_set_dissector(conversation, dsi_handle);
 	hash_info = conversation_get_proto_data(conversation, proto_dsi);
 	if (hash_info == NULL)
 	{
@@ -483,6 +484,8 @@ proto_register_dsi(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   register_init_routine( &dsi_reinit);
+
+  dsi_handle = create_dissector_handle(dissect_dsi, proto_dsi);
 }
 
 void

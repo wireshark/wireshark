@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.27 2001/11/26 05:13:12 hagbard Exp $
+ * $Id: packet-rtp.c,v 1.28 2001/11/27 07:13:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -101,6 +101,11 @@ static gint ett_hdr_ext   = -1;
 static dissector_handle_t h261_handle;
 static dissector_handle_t mpeg1_handle;
 static dissector_handle_t data_handle;
+
+static gboolean dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree );
+static void dissect_rtp( tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree );
 
 /*
  * Fields in the first octet of the RTP header.
@@ -258,13 +263,10 @@ static void rtp_init( void )
 }
 #endif
 
-gboolean
+static gboolean
 dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
 	conversation_t* pconv;
-
-	if (!proto_is_protocol_enabled(proto_rtp))
-		return FALSE;	/* RTP has been disabled */
 
 	/* This is a heuristic dissector, which means we get all the TCP
 	 * traffic not sent to a known dissector and not claimed by
@@ -322,7 +324,7 @@ dissect_rtp_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 }
 
-void
+static void
 dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
 	proto_item *ti            = NULL;
@@ -344,10 +346,6 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	guint32     timestamp;
 	guint32     sync_src;
 	guint32     csrc_item;
-
-	CHECK_DISPLAY_AS_X(data_handle,proto_rtp, tvb, pinfo, tree);
-
-	pinfo->current_proto = "RTP";
 
 	/* Get the fields in the first octet */
 	octet = tvb_get_guint8( tvb, offset );

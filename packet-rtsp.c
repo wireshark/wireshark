@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.42 2001/09/08 00:43:51 guy Exp $
+ * $Id: packet-rtsp.c,v 1.43 2001/11/27 07:13:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -352,14 +352,14 @@ rtsp_create_conversation(packet_info *pinfo, const u_char *line_begin,
 
 	conv = conversation_new(&pinfo->dst, &null_addr, PT_UDP, c_data_port,
 		s_data_port, NO_ADDR2 | (!s_data_port ? NO_PORT2 : 0));
-	conversation_set_dissector(conv, dissect_rtp);
+	conversation_set_dissector(conv, rtp_handle);
 
 	if (!c_mon_port)
 		return;
 
 	conv = conversation_new(&pinfo->dst, &null_addr, PT_UDP, c_mon_port,
 		s_mon_port, NO_ADDR2 | (!s_mon_port ? NO_PORT2 : 0));
-	conversation_set_dissector(conv, dissect_rtcp);
+	conversation_set_dissector(conv, rtcp_handle);
 }
 
 static const char rtsp_content_length[] = "Content-Length:";

@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.31 2001/11/26 05:13:12 hagbard Exp $
+ * $Id: packet-tftp.c,v 1.32 2001/11/27 07:13:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,7 +55,7 @@ static int hf_tftp_error_string = -1;
 
 static gint ett_tftp = -1;
 
-static dissector_handle_t data_handle;
+static dissector_handle_t tftp_handle;
 
 #define UDP_PORT_TFTP    69
 
@@ -101,10 +101,6 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	u_int           i1;
 	guint16         error;
 
-	CHECK_DISPLAY_AS_X(data_handle,proto_tftp, tvb, pinfo, tree);
-
-	pinfo->current_proto = "TFTP";
-
 	/*
 	 * The first TFTP packet goes to the TFTP port; the second one
 	 * comes from some *other* port, but goes back to the same
@@ -129,7 +125,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  if (conversation == NULL) {
 	    conversation = conversation_new(&pinfo->src, &pinfo->dst, PT_UDP,
 					    pinfo->srcport, 0, NO_PORT2);
-	    conversation_set_dissector(conversation, dissect_tftp);
+	    conversation_set_dissector(conversation, tftp_handle);
 	  }
 	}
 
@@ -343,11 +339,12 @@ proto_register_tftp(void)
 				       "TFTP", "tftp");
   proto_register_field_array(proto_tftp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  tftp_handle = create_dissector_handle(dissect_tftp, proto_tftp);
 }
 
 void
 proto_reg_handoff_tftp(void)
 {
-  data_handle = find_dissector("data");
   dissector_add("udp.port", UDP_PORT_TFTP, dissect_tftp, proto_tftp);
 }

@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.44 2001/11/21 01:21:08 guy Exp $
+ * $Id: packet-wsp.c,v 1.45 2001/11/27 07:13:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -167,6 +167,12 @@ static gint ett_capabilities				= ETT_EMPTY;
 static gint ett_content_type				= ETT_EMPTY;
 static gint ett_redirect_flags				= ETT_EMPTY;
 static gint ett_redirect_afl				= ETT_EMPTY;
+
+/* Handle for WSP-over-UDP dissector */
+static dissector_handle_t wsp_fromudp_handle;
+
+/* Handle for WSP-over-WTP-over-UDP dissector */
+static dissector_handle_t wtp_fromudp_handle;
 
 /* Handle for WMLC dissector */
 static dissector_handle_t wmlc_handle;
@@ -799,7 +805,7 @@ static gint get_integer (tvbuff_t *, guint, guint, value_type_t, guint *);
 /* Code to actually dissect the packets */
 static void
 dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, dissector_t dissector)
+    proto_tree *tree, dissector_handle_t dissector_handle)
 {
 	guint8 flags;
 	proto_item *ti;
@@ -924,7 +930,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				conv = conversation_new(&redir_address,
 				    &pinfo->dst, PT_UDP, port_num, 0, NO_PORT2);
 			}
-			conversation_set_dissector(conv, dissector);
+			conversation_set_dissector(conv, dissector_handle);
 			break;
 
 		case BT_IPv6:
@@ -958,7 +964,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				conv = conversation_new(&redir_address,
 				    &pinfo->dst, PT_UDP, port_num, 0, NO_PORT2);
 			}
-			conversation_set_dissector(conv, dissector);
+			conversation_set_dissector(conv, dissector_handle);
 			break;
 
 		unknown_address_type:
@@ -979,7 +985,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static void
 dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    dissector_t dissector, gboolean is_connectionless)
+    dissector_handle_t dissector_handle, gboolean is_connectionless)
 {
 	frame_data *fdata = pinfo->fd;
 	int offset = 0;
@@ -1112,7 +1118,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		case REDIRECT:
 			dissect_redirect(tvb, offset, pinfo, wsp_tree,
-			  dissector);
+			  dissector_handle);
 			break;
 
 		case DISCONNECT:
@@ -1280,7 +1286,7 @@ dissect_wsp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->fd, COL_INFO))
 		col_clear(pinfo->fd, COL_INFO);
 
-	dissect_wsp_common(tvb, pinfo, tree, dissect_wsp_fromudp, TRUE);
+	dissect_wsp_common(tvb, pinfo, tree, wsp_fromudp_handle, TRUE);
 }
 
 /*
@@ -1294,7 +1300,7 @@ dissect_wsp_fromwap_co(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * XXX - what about WTLS->WTP->WSP?
 	 */
-	dissect_wsp_common(tvb, pinfo, tree, dissect_wtp_fromudp, FALSE);
+	dissect_wsp_common(tvb, pinfo, tree, wtp_fromudp_handle, FALSE);
 }
 
 /*
@@ -1312,7 +1318,7 @@ dissect_wsp_fromwap_cl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		col_clear(pinfo->fd, COL_INFO);
 	}
-	dissect_wsp_common(tvb, pinfo, tree, dissect_wtp_fromudp, TRUE);
+	dissect_wsp_common(tvb, pinfo, tree, wtp_fromudp_handle, TRUE);
 }
 
 static void
@@ -4052,6 +4058,11 @@ proto_register_wsp(void)
 	register_dissector("wsp-co", dissect_wsp_fromwap_co, proto_wsp);
 	register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
 	register_heur_dissector_list("wsp", &heur_subdissector_list);
+
+	wsp_fromudp_handle = create_dissector_handle(dissect_wsp_fromudp,
+	    proto_wsp);
+	wtp_fromudp_handle = create_dissector_handle(dissect_wtp_fromudp,
+	    proto_wsp);
 };
 
 void

@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.36 2001/11/21 02:01:06 guy Exp $
+ * $Id: packet-ftp.c,v 1.37 2001/11/27 07:13:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,6 +59,8 @@ static int hf_ftp_response_data = -1;
 
 static gint ett_ftp = -1;
 static gint ett_ftp_data = -1;
+
+static dissector_handle_t ftpdata_handle;
 
 #define TCP_PORT_FTPDATA		20
 #define TCP_PORT_FTP			21
@@ -188,7 +190,7 @@ handle_pasv_response(const u_char *line, int linelen, packet_info *pinfo)
 				    &pinfo->dst, PT_TCP, server_port, 0,
 				    NO_PORT2);
 				conversation_set_dissector(conversation,
-				    dissect_ftpdata);
+				    ftpdata_handle);
 			}
 			break;
 		}
@@ -432,6 +434,8 @@ proto_register_ftp(void)
   proto_ftp_data = proto_register_protocol("FTP Data", "FTP-DATA", "ftp-data");
   proto_register_field_array(proto_ftp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  ftpdata_handle = create_dissector_handle(dissect_ftpdata, proto_ftp_data);
 }
 
 void

@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.20 2001/11/26 05:13:11 hagbard Exp $
+ * $Id: packet-quake.c,v 1.21 2001/11/27 07:13:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,6 +80,7 @@ static gint ett_quake_control = -1;
 static gint ett_quake_control_colors = -1;
 static gint ett_quake_flags = -1;
 
+static dissector_handle_t quake_handle;
 static dissector_handle_t data_handle;
 
 /* I took these names directly out of the Q1 source. */
@@ -244,7 +245,7 @@ dissect_quake_CCREP_ACCEPT
 	c = conversation_new( &pinfo->src, &pinfo->dst, PT_UDP, port,
 	    pinfo->destport, 0);
 	if (c) {
-		conversation_set_dissector(c, dissect_quake);
+		conversation_set_dissector(c, quake_handle);
 	}
 	if (tree) {
 		proto_tree_add_uint(tree, hf_quake_CCREP_ACCEPT_port,
@@ -519,15 +520,6 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint		rest_length;
 	tvbuff_t	*next_tvb;
 
-	/*
-	 * XXX - this is a conversation dissector, and the code to
-	 * call a conversation dissector doesn't check for disabled
-	 * protocols or set "pinfo->current_proto".
-	 */
-	CHECK_DISPLAY_AS_X(data_handle,proto_quake, tvb, pinfo, tree);
-
-	pinfo->current_proto = "QUAKE";
-
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "QUAKE");
 	if (check_col(pinfo->fd, COL_INFO))
@@ -743,6 +735,8 @@ proto_register_quake(void)
 	proto_register_field_array(proto_quake, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	quake_handle = create_dissector_handle(dissect_quake, proto_quake);
+
 	/* Register a configuration option for port */
 	quake_module = prefs_register_protocol(proto_quake,
 		proto_reg_handoff_quake);
@@ -751,5 +745,4 @@ proto_register_quake(void)
 					"Set the UDP port for the Quake Server",
 					10, &gbl_quakeServerPort);
 }
-
 

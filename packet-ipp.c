@@ -3,12 +3,11 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.24 2001/11/26 05:13:11 hagbard Exp $
+ * $Id: packet-ipp.c,v 1.25 2001/11/27 07:13:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -170,10 +169,6 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean is_request = (pinfo->destport == 631);
 	guint16 status_code;
 	gchar *status_fmt;
-
-	CHECK_DISPLAY_AS_X(data_handle,proto_ipp, tvb, pinfo, tree);
-
-	pinfo->current_proto = "IPP";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "IPP");

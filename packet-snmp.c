@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.73 2001/11/26 05:13:12 hagbard Exp $
+ * $Id: packet-snmp.c,v 1.74 2001/11/27 07:13:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -223,6 +223,7 @@ static int hf_snmpv3_flags_auth = -1;
 static int hf_snmpv3_flags_crypt = -1;
 static int hf_snmpv3_flags_report = -1;
 
+static dissector_handle_t snmp_handle;
 static dissector_handle_t data_handle;
 
 #define TH_AUTH   0x01
@@ -2101,15 +2102,6 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation_t  *conversation;
 
 	/*
-	 * XXX - this is a conversation dissector, and the code to
-	 * call a conversation dissector doesn't check for disabled
-	 * protocols or set "pinfo->current_proto".
-	 */
-	CHECK_DISPLAY_AS_X(data_handle,proto_snmp, tvb, pinfo, tree);
-
-	pinfo->current_proto = "SNMP";
-
-	/*
 	 * The first SNMP packet goes to the SNMP port; the second one
 	 * may come from some *other* port, but goes back to the same
 	 * IP address and port as the ones from which the first packet
@@ -2133,7 +2125,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  if (conversation == NULL) {
 	    conversation = conversation_new(&pinfo->src, &pinfo->dst, PT_UDP,
 					    pinfo->srcport, 0, NO_PORT2);
-	    conversation_set_dissector(conversation, dissect_snmp);
+	    conversation_set_dissector(conversation, snmp_handle);
 	  }
 	}
 
@@ -2298,6 +2290,7 @@ proto_register_snmp(void)
 	    "SMUX", "smux");
         proto_register_field_array(proto_snmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	snmp_handle = create_dissector_handle(dissect_snmp, proto_snmp);
 }
 
 void

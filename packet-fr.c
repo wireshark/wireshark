@@ -3,12 +3,11 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.20 2001/11/26 05:13:11 hagbard Exp $
+ * $Id: packet-fr.c,v 1.21 2001/11/27 07:13:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -48,7 +47,6 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
-#include "packet-fr.h"
 #include "packet-osi.h"
 #include "packet-llc.h"
 #include "packet-chdlc.h"
@@ -234,14 +232,12 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 
-void dissect_fr_uncompressed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_fr_uncompressed(tvbuff_t *tvb, packet_info *pinfo,
+				    proto_tree *tree)
 {
   proto_item *ti = NULL;
   proto_tree *fr_tree = NULL;
 
-  CHECK_DISPLAY_AS_X(data_handle,proto_fr, tvb, pinfo, tree);
-
-  pinfo->current_proto = "Frame Relay";
   if (check_col(pinfo->fd, COL_PROTOCOL)) 
       col_set_str(pinfo->fd, COL_PROTOCOL, "FR");
   if (check_col(pinfo->fd, COL_INFO)) 
@@ -422,6 +418,8 @@ void proto_register_fr(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   fr_subdissector_table = register_dissector_table("fr.ietf");
+
+  register_dissector("fr", dissect_fr_uncompressed, proto_fr);
 }
 
 void proto_reg_handoff_fr(void)
