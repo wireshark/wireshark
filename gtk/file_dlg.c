@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.60 2003/09/20 04:59:43 guy Exp $
+ * $Id: file_dlg.c,v 1.61 2003/09/24 08:43:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,11 +94,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data _U_)
     return;
   }
 
-  file_open_w = gtk_file_selection_new ("Ethereal: Open Capture File");
-  gtk_window_set_transient_for(GTK_WINDOW(file_open_w), GTK_WINDOW(top_level));
-#if GTK_MAJOR_VERSION >= 2
-  gtk_window_set_position(GTK_WINDOW(file_open_w), GTK_WIN_POS_CENTER_ON_PARENT);
-#endif
+  file_open_w = file_selection_new ("Ethereal: Open Capture File");
   SIGNAL_CONNECT(file_open_w, "destroy", file_open_destroy_cb, NULL);
 
 #if GTK_MAJOR_VERSION < 2
@@ -451,11 +447,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
   marked   = FALSE;
   filetype = cfile.cd_t;
 
-  file_save_as_w = gtk_file_selection_new ("Ethereal: Save Capture File As");
-  gtk_window_set_transient_for(GTK_WINDOW(file_save_as_w), GTK_WINDOW(top_level));
-#if GTK_MAJOR_VERSION >= 2
-  gtk_window_set_position(GTK_WINDOW(file_save_as_w), GTK_WIN_POS_CENTER_ON_PARENT);
-#endif
+  file_save_as_w = file_selection_new ("Ethereal: Save Capture File As");
   SIGNAL_CONNECT(file_save_as_w, "destroy", file_save_as_destroy_cb, NULL);
 
   /* If we've opened a file, start out by showing the files in the directory

@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.83 2003/09/10 07:02:25 guy Exp $
+ * $Id: capture_dlg.c,v 1.84 2003/09/24 08:43:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -666,7 +666,7 @@ capture_prep_file_cb(GtkWidget *w, gpointer file_te)
     return;
   }
 
-  fs = gtk_file_selection_new ("Ethereal: Capture File");
+  fs = file_selection_new ("Ethereal: Capture File");
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */

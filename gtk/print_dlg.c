@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.42 2003/09/10 22:23:58 guy Exp $
+ * $Id: print_dlg.c,v 1.43 2003/09/24 08:43:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -512,7 +512,7 @@ print_file_cb(GtkWidget *file_bt, gpointer file_te)
     return;
   }
 
-  fs = gtk_file_selection_new ("Ethereal: Print to File");
+  fs = file_selection_new ("Ethereal: Print to File");
 
   /* If we've opened a file, start out by showing the files in the directory
      in which that file resided. */

@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.11 2003/09/20 04:59:43 guy Exp $
+ * $Id: dlg_utils.c,v 1.12 2003/09/24 08:43:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,18 +43,33 @@ dlg_key_press (GtkWidget *widget, GdkEventKey *event, gpointer cancel_button);
 GtkWidget *
 dlg_window_new(const gchar *title)
 {
-	GtkWidget *win;
+  GtkWidget *win;
 
 #if GTK_MAJOR_VERSION < 2
-	win = gtk_window_new(GTK_WINDOW_DIALOG);
+  win = gtk_window_new(GTK_WINDOW_DIALOG);
 #else
-	win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
+  win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
 #endif
-	gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
-	gtk_window_set_title(GTK_WINDOW(win), title);
-	SIGNAL_CONNECT(win, "realize", window_icon_realize_cb, NULL);
-	return win;
+  gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
+  gtk_window_set_title(GTK_WINDOW(win), title);
+  SIGNAL_CONNECT(win, "realize", window_icon_realize_cb, NULL);
+  return win;
+}
+
+/* Create a file selection dialog box window that belongs to Ethereal's
+   main window. */
+GtkWidget *
+file_selection_new(const gchar *title)
+{
+  GtkWidget *win;
+
+  win = gtk_file_selection_new(title);
+#if GTK_MAJOR_VERSION >= 2
+  gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER_ON_PARENT);
+#endif
+  gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
+  return win;
 }
 
 /* Set the "activate" signal for a widget to call a routine to
