@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.56 2003/06/09 07:45:36 guy Exp $
+ * $Id: packet-ldap.c,v 1.57 2003/07/02 04:03:27 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,6 +96,7 @@ static int hf_ldap_message_search_sizeLimit = -1;
 static int hf_ldap_message_search_timeLimit = -1;
 static int hf_ldap_message_search_typesOnly = -1;
 static int hf_ldap_message_search_filter = -1;
+static int hf_ldap_message_search_reference = -1;
 
 static int hf_ldap_message_dn = -1;
 static int hf_ldap_message_attribute = -1;
@@ -1186,6 +1187,11 @@ static void dissect_ldap_response_search_entry(ASN1_SCK *a, proto_tree *tree)
   }
 }
 
+static void dissect_ldap_response_search_ref(ASN1_SCK *a, proto_tree *tree)
+{
+  read_string(a, tree, hf_ldap_message_search_reference, 0, 0, ASN1_UNI, ASN1_OTS);
+}
+
 static void dissect_ldap_request_add(ASN1_SCK *a, proto_tree *tree)
 {
   guint seq_length;
@@ -1561,6 +1567,10 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
      case LDAP_RES_SEARCH_ENTRY:
       if (ldap_tree)
         dissect_ldap_response_search_entry(&a, ldap_tree);
+      break;
+     case LDAP_RES_SEARCH_REF:
+      if (ldap_tree)
+	      dissect_ldap_response_search_ref(&a, ldap_tree);
       break;
      case LDAP_RES_SEARCH_RESULT:
      case LDAP_RES_MODIFY:
@@ -2122,6 +2132,10 @@ proto_register_ldap(void)
       { "Filter",		"ldap.search.filter",
 	FT_STRING, BASE_NONE, NULL, 0x0,
 	"LDAP Search Filter", HFILL }},
+    { &hf_ldap_message_search_reference,
+      { "Reference URL",	"ldap.search.reference",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"LDAP Search Reference URL", HFILL }},
     { &hf_ldap_message_dn,
       { "Distinguished Name",	"ldap.dn",
 	FT_STRING, BASE_NONE, NULL, 0x0,
