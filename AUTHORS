@@ -333,6 +333,7 @@ Paul Ionescu <paul@acorp.ro> {
 	EIGRP support
 	Cisco IGRP support
 	X.25 over TCP support
+	DEC LANBridge Spanning Tree Protocol support
 }
 
 Mark Burton <markb@ordern.com> {
