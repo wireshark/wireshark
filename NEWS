@@ -1,5 +1,138 @@
 $Id$
 
+== January 19, 2005
+
+Ethereal 0.10.9 has been released.
+
+This release fixes the following security-related issues:
+
+  The COPS dissector could go into an infinite loop.
+
+  The DLSw dissector could cause an assertion.
+
+  The DNP dissector could cause memory corruption.
+
+  The Gnutella dissector could cause an assertion.
+  
+  The MMSE dissector could free static memory.
+
+  The X11 protocol dissector is vulnerable to a string buffer overflow.
+
+Please see the following advisory for more information:
+  
+    http://www.ethereal.com/appnotes/enpa-sa-00017.html
+    
+Everyone is encouraged to upgrade.
+
+
+New and updated features
+
+  Ethereal will now detect and flag weak 802.11 WEP IVs.
+  
+  Windows Sniffer timestamp handling has been greatly improved.
+  
+  A bug which made Ethereal crash at startup on Windows 98 and Windows ME
+  systems has been fixed.
+  
+  Ethereal and Tethereal now support a personal "hosts" file.
+  
+  Invalid field length handling has been greatly improved.
+  
+  The capture progress window title now shows the interface name.
+
+
+New protocol support
+
+  AMR, CRMF, JXTA, PKIXCMP, PROFIBUS DCOM,
+
+Updated protocol support
+
+  AIM, ARP, BGP, BOOTP/DHCP, COPS, DAAP, DCERPC EPM, DCERPC, DCOM,
+  DHCPv6, DLSw, DNP, DNS, EAPOL, FC-FCS, FC-SWILS, FC-dNS, FCIP, FCSB3,
+  FIX, GIOP, GSM A, GSM SMS, GTP, Gnutella, H.225, H.245, HTTP, ICMP,
+  IEEE 802.11, IEEE 802a, Kerberos, L2TP, LDAP, LLC, LMP, MGCP, MIME
+  Multipart, MMSE, MPLS, MTP2, NBNS, NDMP, NMAS, NSIP, OLSR, PER, PGM,
+  PPP, PRES, PostgreSQL, Q.931, RADIUS, RMT ALC, RMT NORM, RTCP, RTP,
+  SDP, SEBEK, SIGCOMP, SIP, SLSK, SMB, SMPP, SRVLOC, SSL/TLS, T.38,
+  TACACS, TCAP, TCP, X11, eDonkey, image/GIF, image/JFIF, pflog,
+
+
+New and updated capture file support
+
+  Windows Sniffer
+
+== December 15, 2004
+
+Ethereal 0.10.8 has been released.
+
+This release fixes the following security-related issues:
+
+  Matthew Bing discovered a bug in DICOM dissection that could make
+  Ethereal crash. (CAN-2004-1139)
+
+  An invalid RTP timestamp could make Ethereal hang and create a large
+  temporary file, possibly filling available disk space. (CAN-2004-1140)
+
+  The HTTP dissector could access previously-freed memory, causing a
+  crash. (CAN-2004-1141)
+
+  Brian Caswell discovered that an improperly formatted SMB packet could
+  make Ethereal hang, maximizing CPU utilization. (CAN-2004-1142)
+
+Please see the following advisory for more information:
+  
+    http://www.ethereal.com/appnotes/enpa-sa-00016.html
+    
+Everyone is encouraged to upgrade.
+
+
+New and updated features
+
+  Ethereal now has a packet history, similar to most web browsers.
+
+  Ethereal now supports custom window titles.
+
+  Minor performance enhancements have been added.
+  
+  RTP analysis has been enhanced.
+  
+  Host name resolution has been improved.
+  
+  Ethereal can now track TCP PDU times.  See
+  http://wiki.ethereal.com/TcpPduTime for more details.
+  
+  Ethereal now ships with netscreen2dump.py, a utility which converts
+  netscreen packet-trace hex dumps to hex dumps that can be read by
+  text2pcap.
+
+
+New protocol support
+
+  AoE (ATA over Ethernet), Bittorrent, CMIP, GPRS Mobility Management
+  and Session Management, GSM MAP, Extended Security Services, Logotype
+  Certificate Extensions, MAP Dialogue, Network Service Over IP, Online
+  Certificate Status Protocol, PKIX Certificate, PKIX Qualified, PROFINET
+  DCP, IO, Real-Time, Short Message Relaying Service, SSCF-NNI,
+
+
+Updated protocol support
+
+  3GPP2 A11, ACSE, AIM, AODV, ASN.1 BER, ASN.1 PER, BOOTP, BSSGP, BVLC,
+  CMS, COPS, DCERPC, DCERPC ISystemActivator, DICOM, DHCPv6, DNS, eDonkey,
+  ENTTEC, Etheric, Frame Relay, FTAM, FW1, GIOP, GPRS LLC, GRE, GSM A,
+  GSM SMS, H.225, H.245, H.450, HTTP, IPAddress, IPDC, IPMI, IPsec,
+  ISAKMP, ISUP, JFIF, Kerberos, MQ, MTP3, NMAS, OPSI, PKIX1EXPLICIT,
+  PKIX1IMPLICIT, PKIXProxy, PPP, PRES, Radiotap, RADIUS, ONC RPC, RTnet,
+  RTP, SAP, SDP, SIGCOMP, SIGCOMP UDVM, SIP, SMB, SNMP, SONMP, SSCOP,
+  SSL, Symantec Firewall, T.38, TCP, TDS, TSP, UDP, WSP, WTP, X.25,
+  X.509af, X.509ce, X.509if, X.509sat,
+
+
+New and updated capture file support
+
+  pppdump
+
+
 == October 20, 2004
 
 Ethereal 0.10.7 has been released.
