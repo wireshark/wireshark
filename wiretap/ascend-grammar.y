@@ -162,8 +162,6 @@ init_parse_ascend()
 int
 parse_ascend(FILE *fh, void *pd, int len)
 {
-  int res;
-
   /* yydebug = 1; */
  
   ascend_init_lexer(fh, nfh);
