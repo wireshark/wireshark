@@ -1690,8 +1690,9 @@ decode_iei_cell_identifier(bssgp_ie_t *ie, build_info_t *bi, int ie_start_offset
     
     rai_ci = decode_rai_ci(bi, tf);
     proto_item_append_text(ti, ": %s", rai_ci);
-  }
+  }else{
   bi->offset += ie->value_length;
+  }
 }
 
 static void 
