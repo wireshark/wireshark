@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.57 2002/01/17 06:29:20 guy Exp $
+ * $Id: packet.c,v 1.58 2002/02/11 19:02:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -223,6 +223,14 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len, "Frame");
 		/* Add this tvbuffer into the data_src list */
                 fd->data_src = g_slist_append( fd->data_src, edt->tvb);
+
+		/* Even though dissect_frame() catches all the exceptions a
+		 * sub-dissector can throw, dissect_frame() itself may throw
+		 * a ReportedBoundsError in bizarre cases. Thus, we catch the exception
+		 * in this function. */
+		if(frame_handle != NULL)
+		  call_dissector(frame_handle, edt->tvb, &edt->pi, edt->tree);
+
 	}
 	CATCH(BoundsError) {
 		g_assert_not_reached();
@@ -237,9 +245,6 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	  }
 	}
 	ENDTRY;
-
-	if(frame_handle != NULL)
-	  call_dissector(frame_handle, edt->tvb, &edt->pi, edt->tree);
 
 	fd->flags.visited = 1;
 }
