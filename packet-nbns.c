@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.61 2001/09/30 23:14:43 guy Exp $
+ * $Id: packet-nbns.c,v 1.62 2001/10/12 01:41:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1610,8 +1610,16 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * there should be no compression), and we
 			 * shouldn't have more than 128 bytes (actually,
 			 * we shouldn't have that many).
+			 *
+			 * XXX - actually, MacOS X 10.1 (yes, that's
+			 * redundant, but that's what Apple calls it,
+			 * not MacOS X.1) puts names longer than 16
+			 * characters into session request messages,
+			 * so we can have more than 32 bytes of
+			 * name value, so we can have more than 128
+			 * bytes of data.
 			 */
-			if (length < 2 || length > 128)
+			if (length < 2 || length > 256)
 				goto continuation;
 			break;
 
