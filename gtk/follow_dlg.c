@@ -256,33 +256,33 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	follow_info->streamwindow = streamwindow;
 
 	gtk_widget_set_name(streamwindow, "TCP stream window");
-    gtk_window_set_default_size(GTK_WINDOW(streamwindow), DEF_WIDTH, DEF_HEIGHT);
+	gtk_window_set_default_size(GTK_WINDOW(streamwindow), DEF_WIDTH, DEF_HEIGHT);
 	gtk_container_border_width(GTK_CONTAINER(streamwindow), 6);
 
 	/* setup the container */
-    tooltips = gtk_tooltips_new ();
+	tooltips = gtk_tooltips_new ();
 
 	vbox = gtk_vbox_new(FALSE, 6);
 	gtk_container_add(GTK_CONTAINER(streamwindow), vbox);
 
     /* content frame */
 	if (incomplete_tcp_stream) {
-        stream_fr = gtk_frame_new("Stream Content (incomplete)");
+		stream_fr = gtk_frame_new("Stream Content (incomplete)");
 	} else {
-        stream_fr = gtk_frame_new("Stream Content");
+		stream_fr = gtk_frame_new("Stream Content");
 	}
   	gtk_container_add(GTK_CONTAINER(vbox), stream_fr);
   	gtk_widget_show(stream_fr);
 
-    stream_vb = gtk_vbox_new(FALSE, 6);
+	stream_vb = gtk_vbox_new(FALSE, 6);
 	gtk_container_set_border_width( GTK_CONTAINER(stream_vb) , 6);
 	gtk_container_add(GTK_CONTAINER(stream_fr), stream_vb);
 
 	/* create a scrolled window for the text */
 	txt_scrollw = scrolled_window_new(NULL, NULL);
 #if GTK_MAJOR_VERSION >= 2
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw),
-                                   GTK_SHADOW_IN);
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw),
+					    GTK_SHADOW_IN);
 #endif
 	gtk_box_pack_start(GTK_BOX(stream_vb), txt_scrollw, TRUE, TRUE, 0);
 
@@ -303,15 +303,15 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	gtk_box_pack_start(GTK_BOX(stream_vb), hbox, FALSE, FALSE, 0);
 
 	/* Create Save As Button */
-    button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
+	button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_SAVE_AS);
 	SIGNAL_CONNECT(button, "clicked", follow_save_as_cmd_cb, follow_info);
-    gtk_tooltips_set_tip (tooltips, button, "Save the content as currently displayed ", NULL);
+	gtk_tooltips_set_tip (tooltips, button, "Save the content as currently displayed ", NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 
 	/* Create Print Button */
-    button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_PRINT);
+	button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_PRINT);
 	SIGNAL_CONNECT(button, "clicked", follow_print_stream, follow_info);
-    gtk_tooltips_set_tip (tooltips, button, "Print the content as currently displayed", NULL);
+	gtk_tooltips_set_tip (tooltips, button, "Print the content as currently displayed", NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 
 	/* Stream to show */
@@ -373,8 +373,8 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	gtk_option_menu_set_menu(GTK_OPTION_MENU(stream_om), stream_menu);
 	/* Set history to 0th item, i.e., the first item. */
 	gtk_option_menu_set_history(GTK_OPTION_MENU(stream_om), 0);
-    gtk_tooltips_set_tip (tooltips, stream_om,
-        "Select the stream direction to display", NULL);
+	gtk_tooltips_set_tip (tooltips, stream_om,
+	    "Select the stream direction to display", NULL);
 	gtk_box_pack_start(GTK_BOX(hbox), stream_om, FALSE, FALSE, 0);
 
 	/* ASCII radio button */
@@ -419,24 +419,24 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 	/* button hbox */
 	button_hbox = gtk_hbutton_box_new();
 	gtk_box_pack_start(GTK_BOX(vbox), button_hbox, FALSE, FALSE, 0);
-    gtk_button_box_set_layout (GTK_BUTTON_BOX(button_hbox), GTK_BUTTONBOX_END);
-    gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
+	gtk_button_box_set_layout (GTK_BUTTON_BOX(button_hbox), GTK_BUTTONBOX_END);
+	gtk_button_box_set_spacing(GTK_BUTTON_BOX(button_hbox), 5);
 
 	/* Create exclude stream button */
 	button = gtk_button_new_with_label("Filter out this stream");
 	SIGNAL_CONNECT(button, "clicked", follow_filter_out_stream, follow_info);
-    gtk_tooltips_set_tip (tooltips, button,
+	gtk_tooltips_set_tip (tooltips, button,
         "Build a display filter which cuts this stream from the capture", NULL);
 	gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
 
 	/* Create Close Button */
-    button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
-    gtk_tooltips_set_tip (tooltips, button,
-        "Close the dialog and keep the current display filter", NULL);
+	button = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
+	gtk_tooltips_set_tip (tooltips, button,
+	    "Close the dialog and keep the current display filter", NULL);
 	gtk_box_pack_start(GTK_BOX(button_hbox), button, FALSE, FALSE, 0);
-    GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
+	GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
 
-    window_set_cancel_button(streamwindow, button, window_cancel_button_cb);
+	window_set_cancel_button(streamwindow, button, window_cancel_button_cb);
 
 	/* Tuck away the follow_info object into the window */
 	OBJECT_SET_DATA(streamwindow, E_FOLLOW_INFO_KEY, follow_info);
@@ -446,7 +446,7 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	data_out_file = NULL;
 
-    SIGNAL_CONNECT(streamwindow, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(streamwindow, "delete_event", window_delete_event_cb, NULL);
 	SIGNAL_CONNECT(streamwindow, "destroy", follow_destroy_cb, NULL);
 
 	/* Make sure this widget gets destroyed if we quit the main loop,
@@ -465,14 +465,14 @@ static void
 follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 {
 	follow_info_t	*follow_info;
-    int i;
+	int i;
 
 	follow_info = OBJECT_GET_DATA(w, E_FOLLOW_INFO_KEY);
 	i = unlink(follow_info->data_out_filename);
-    if(i != 0) {
-        g_warning("Follow: Couldn't remove temporary file: \"%s\", errno: %s (%u)", 
-            follow_info->data_out_filename, strerror(errno), errno);        
-    }
+	if(i != 0) {
+		g_warning("Follow: Couldn't remove temporary file: \"%s\", errno: %s (%u)", 
+		    follow_info->data_out_filename, strerror(errno), errno);        
+	}
 	g_free(follow_info->filter_out_filter);
 	forget_follow_info(follow_info);
 	g_free(follow_info);
@@ -536,8 +536,8 @@ typedef enum {
 
 static frs_return_t
 follow_read_stream(follow_info_t *follow_info,
-		   gboolean (*print_line) (char *, int, gboolean, void *, print_format_e),
-		   void *arg, print_format_e format)
+		   gboolean (*print_line) (char *, int, gboolean, void *),
+		   void *arg)
 {
     tcp_stream_chunk	sc;
     int			bcount, iplen;
@@ -597,7 +597,7 @@ follow_read_stream(follow_info_t *follow_info,
 		case SHOW_EBCDIC:
 		    /* If our native arch is ASCII, call: */
 		    EBCDIC_to_ASCII(buffer, nchars);
-		    if (!(*print_line) (buffer, nchars, is_server, arg, format))
+		    if (!(*print_line) (buffer, nchars, is_server, arg))
 			goto print_error;
 		    break;
 
@@ -605,7 +605,7 @@ follow_read_stream(follow_info_t *follow_info,
 		    /* If our native arch is EBCDIC, call:
 		     * ASCII_TO_EBCDIC(buffer, nchars);
 		     */
-		    if (!(*print_line) (buffer, nchars, is_server, arg, format))
+		    if (!(*print_line) (buffer, nchars, is_server, arg))
 			goto print_error;
 		    break;
 
@@ -662,7 +662,7 @@ follow_read_stream(follow_info_t *follow_info,
 			(*global_pos) += i;
 			hexbuf[cur++] = '\n';
 			hexbuf[cur] = 0;
-			if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg, format))
+			if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg))
 			    goto print_error;
 		    }
 		    break;
@@ -671,7 +671,7 @@ follow_read_stream(follow_info_t *follow_info,
 		    current_pos = 0;
 		    g_snprintf(initbuf, 256, "char peer%d_%d[] = {\n", is_server ? 1 : 0,
 			    is_server ? server_packet_count++ : client_packet_count++);
-		    if (!(*print_line) (initbuf, strlen(initbuf), is_server, arg, format))
+		    if (!(*print_line) (initbuf, strlen(initbuf), is_server, arg))
 			goto print_error;
 		    while (current_pos < nchars) {
 			gchar hexbuf[256];
@@ -705,7 +705,7 @@ follow_read_stream(follow_info_t *follow_info,
 			(*global_pos) += i;
 			hexbuf[cur++] = '\n';
 			hexbuf[cur] = 0;
-			if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg, format))
+			if (!(*print_line) (hexbuf, strlen(hexbuf), is_server, arg))
 			    goto print_error;
 		    }
 		    break;
@@ -740,9 +740,9 @@ print_error:
  * suggestion.
  */
 static gboolean
-follow_print_text(char *buffer, int nchars, gboolean is_server _U_, void *arg, print_format_e format)
+follow_print_text(char *buffer, int nchars, gboolean is_server _U_, void *arg)
 {
-    FILE *fh = arg;
+    print_stream_t *stream = arg;
     int i;
     char *str;
 
@@ -759,7 +759,7 @@ follow_print_text(char *buffer, int nchars, gboolean is_server _U_, void *arg, p
     str = g_malloc(nchars + 1);
     memcpy(str, buffer, nchars);
     str[nchars] = 0;
-    print_line(fh, /*indent*/ 0, format, str);
+    print_line(stream, /*indent*/ 0, str);
     g_free(str);
 
     return TRUE;
@@ -788,14 +788,13 @@ follow_filter_out_stream(GtkWidget * w _U_, gpointer data)
 static void
 follow_print_stream(GtkWidget * w _U_, gpointer data)
 {
-    FILE		*fh;
+    print_stream_t	*stream;
     gboolean		to_file;
     char		*print_dest;
     follow_info_t	*follow_info = data;
 #ifdef _WIN32
     gboolean win_printer = FALSE;
 #endif
-
 
     switch (prefs.pr_dest) {
     case PR_DEST_CMD:
@@ -820,8 +819,21 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
         return;
     }
 
-    fh = open_print_dest(to_file, print_dest);
-    if (fh == NULL) {
+    switch (prefs.pr_format) {
+
+    case PR_FMT_TEXT:
+      stream = print_stream_text_new(to_file, print_dest);
+      break;
+
+    case PR_FMT_PS:
+      stream = print_stream_ps_new(to_file, print_dest);
+      break;
+
+    default:
+      g_assert_not_reached();
+      stream = NULL;
+    }
+    if (stream == NULL) {
         if (to_file) {
             open_failure_alert_box(prefs.pr_file, errno, TRUE);
         } else {
@@ -831,31 +843,29 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
         return;
     }
 
-    print_preamble(fh, prefs.pr_format, cfile.filename);
-    if (ferror(fh))
+    if (!print_preamble(stream, cfile.filename))
         goto print_error;
 
-    switch (follow_read_stream(follow_info, follow_print_text, fh, prefs.pr_format)) {
+    switch (follow_read_stream(follow_info, follow_print_text, stream)) {
     case FRS_OK:
     	break;
     case FRS_OPEN_ERROR:
     case FRS_READ_ERROR:
 	    /* XXX - cancel printing? */
-	    close_print_dest(to_file, fh);
+	    destroy_print_stream(stream);
 	    return;
     case FRS_PRINT_ERROR:
 	    goto print_error;
     }
 
-    print_finale(fh, prefs.pr_format);
-    if (ferror(fh))
+    if (!print_finale(stream))
 	    goto print_error;
 
-    if (!close_print_dest(to_file, fh)) {
+    if (!destroy_print_stream(stream)) {
         if (to_file) {
-    	    write_failure_alert_box(prefs.pr_file, errno);
+          write_failure_alert_box(prefs.pr_file, errno);
         } else {
-	        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  "Error closing print destination.");
         }
     }
@@ -877,7 +887,7 @@ print_error:
           "Error writing to print command: %s", strerror(errno));
     }
     /* XXX - cancel printing? */
-    close_print_dest(to_file, fh);
+    destroy_print_stream(stream);
 
 #ifdef _WIN32
     if (win_printer) {
@@ -889,7 +899,7 @@ print_error:
 
 static gboolean
 follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server,
-		       void *arg, print_format_e format _U_)
+		       void *arg)
 {
     GtkWidget *text = arg;
     GdkColor   fg, bg;
@@ -964,7 +974,7 @@ follow_load_text(follow_info_t *follow_info)
 #else
     gtk_text_buffer_set_text(buf, "", -1);
 #endif
-    follow_read_stream(follow_info, follow_add_to_gtk_text, follow_info->text, PR_FMT_TEXT);
+    follow_read_stream(follow_info, follow_add_to_gtk_text, follow_info->text);
 #if GTK_MAJOR_VERSION < 2
     gtk_text_thaw(GTK_TEXT(follow_info->text));
 #endif
@@ -1030,6 +1040,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
     gchar		*to_name;
     follow_info_t	*follow_info;
     FILE		*fh;
+    print_stream_t	*stream;
     gchar		*dirname;
 
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
@@ -1055,26 +1066,27 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
         g_free(to_name);
         return;
     }
+    stream = print_stream_text_stdio_new(fh);
 
     gtk_widget_hide(GTK_WIDGET(fs));
     follow_info = OBJECT_GET_DATA(fs, E_FOLLOW_INFO_KEY);
     window_destroy(GTK_WIDGET(fs));
 
-    switch (follow_read_stream(follow_info, follow_print_text, fh, PR_FMT_TEXT)) {
+    switch (follow_read_stream(follow_info, follow_print_text, stream)) {
 
     case FRS_OK:
-        if (fclose(fh) == EOF)
+        if (!destroy_print_stream(stream))
             write_failure_alert_box(to_name, errno);
         break;
 
     case FRS_OPEN_ERROR:
     case FRS_READ_ERROR:
-        fclose(fh);
+        destroy_print_stream(stream);
         break;
 
     case FRS_PRINT_ERROR:
         write_failure_alert_box(to_name, errno);
-        fclose(fh);
+        destroy_print_stream(stream);
         break;
     }
 

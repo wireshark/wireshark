@@ -52,7 +52,7 @@ typedef enum {
 } print_dissections_e;
 
 typedef struct {
-  print_format_e    format;		/* plain text, PostScript, PDML, ... */
+  print_format_e format;	/* plain text or PostScript */
   gboolean	to_file;	/* TRUE if we're printing to a file */
   char		*file;		/* file output pathname */
   char		*cmd;		/* print command string (not win32) */
@@ -69,21 +69,48 @@ typedef struct {
 
 /* Functions in print.h */
 
-extern FILE *open_print_dest(int to_file, const char *dest);
-extern gboolean close_print_dest(int to_file, FILE *fh);
-extern void print_preamble(FILE *fh, print_format_e format, gchar *filename);
-extern void print_packet_header(FILE *fh, print_format_e format, guint32 number, gchar *summary);
-extern void print_formfeed(FILE *fh, print_format_e format);
-extern void print_finale(FILE *fh, print_format_e format);
-extern void proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
-     FILE *fh);
 extern void write_pdml_preamble(FILE *fh);
 extern void proto_tree_write_pdml(epan_dissect_t *edt, FILE *fh);
 extern void write_pdml_finale(FILE *fh);
+
 extern void write_psml_preamble(FILE *fh);
 extern void proto_tree_write_psml(epan_dissect_t *edt, FILE *fh);
 extern void write_psml_finale(FILE *fh);
-extern void print_hex_data(FILE *fh, print_format_e format, epan_dissect_t *edt);
-extern void print_line(FILE *fh, int indent, print_format_e format, char *line);
+
+struct print_stream;
+
+typedef struct print_stream_ops {
+	gboolean (*print_preamble)(struct print_stream *self, gchar *filename);
+	gboolean (*print_line)(struct print_stream *self, int indent,
+	    const char *line);
+	gboolean (*print_bookmark)(struct print_stream *self,
+	    const gchar *name, const gchar *title);
+	gboolean (*new_page)(struct print_stream *self);
+	gboolean (*print_finale)(struct print_stream *self);
+	gboolean (*destroy)(struct print_stream *self);
+} print_stream_ops_t;
+
+typedef struct print_stream {
+	const print_stream_ops_t *ops;
+	void *data;
+} print_stream_t;
+
+extern gboolean proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
+     print_stream_t *stream);
+extern gboolean print_hex_data(print_stream_t *stream, epan_dissect_t *edt);
+extern void print_packet_header(FILE *fh, print_format_e format, guint32 number, gchar *summary);
+
+extern print_stream_t *print_stream_text_new(int to_file, const char *dest);
+extern print_stream_t *print_stream_text_stdio_new(FILE *fh);
+extern print_stream_t *print_stream_ps_new(int to_file, const char *dest);
+extern print_stream_t *print_stream_ps_stdio_new(FILE *fh);
+
+extern gboolean print_preamble(print_stream_t *self, gchar *filename);
+extern gboolean print_line(print_stream_t *self, int indent, const char *line);
+extern gboolean print_bookmark(print_stream_t *self, const gchar *name,
+    const gchar *title);
+extern gboolean new_page(print_stream_t *self);
+extern gboolean print_finale(print_stream_t *self);
+extern gboolean destroy_print_stream(print_stream_t *self);
 
 #endif /* print.h */

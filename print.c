@@ -48,12 +48,12 @@
 
 typedef struct {
 	int			level;
-	FILE			*fh;
+	print_stream_t		*stream;
+	gboolean		success;
 	GSList		 	*src_list;
 	print_dissections_e	print_dissections;
 	gboolean		print_hex_for_data;
 	char_enc		encoding;
-	gint			format;
 	epan_dissect_t		*edt;
 } print_data;
 
@@ -68,15 +68,16 @@ static void proto_tree_print_node(proto_node *node, gpointer data);
 static void proto_tree_write_node_pdml(proto_node *node, gpointer data);
 static const guint8 *get_field_data(GSList *src_list, field_info *fi);
 static void write_pdml_field_hex_value(write_pdml_data *pdata, field_info *fi);
-static void print_hex_data_buffer(FILE *fh, register const guchar *cp,
-    register guint length, char_enc encoding, print_format_e format);
+static gboolean print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
+    guint length, char_enc encoding);
 static void ps_clean_string(unsigned char *out, const unsigned char *in,
 			int outbuf_size);
 static void print_escaped_xml(FILE *fh, char *unescaped_string);
 
 static void print_pdml_geninfo(proto_tree *tree, FILE *fh);
 
-FILE *open_print_dest(int to_file, const char *dest)
+static FILE *
+open_print_dest(int to_file, const char *dest)
 {
 	FILE	*fh;
 
@@ -89,7 +90,8 @@ FILE *open_print_dest(int to_file, const char *dest)
 	return fh;
 }
 
-gboolean close_print_dest(int to_file, FILE *fh)
+static gboolean
+close_print_dest(int to_file, FILE *fh)
 {
 	/* Close the file or command */
 	if (to_file)
@@ -100,55 +102,26 @@ gboolean close_print_dest(int to_file, FILE *fh)
 
 #define MAX_PS_LINE_LENGTH 256
 
-/* Some formats need stuff at the beginning of the output */
-void
-print_preamble(FILE *fh, print_format_e format, gchar *filename)
-{
-	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
-
-    
-	switch (format) {
-
-	case(PR_FMT_TEXT):
-		/* do nothing */
-		break;
-
-	case(PR_FMT_PS):
-		print_ps_preamble(fh);
-
-		fputs("%% Set the font to 10 point\n", fh);
-		fputs("/Courier findfont 10 scalefont setfont\n", fh);
-		fputs("\n", fh);
-		fputs("%% the page title\n", fh);
-		ps_clean_string(psbuffer, filename, MAX_PS_LINE_LENGTH);
-		fprintf(fh, "/eth_pagetitle (%s - Ethereal) def\n", psbuffer);
-		fputs("\n", fh);
-		break;
-
-	default:
-		g_assert_not_reached();
-	}
-}
-
-void
+gboolean
 proto_tree_print(print_args_t *print_args, epan_dissect_t *edt,
-    FILE *fh)
+    print_stream_t *stream)
 {
 	print_data data;
 
 	/* Create the output */
 	data.level = 0;
-	data.fh = fh;
+	data.stream = stream;
+	data.success = TRUE;
 	data.src_list = edt->pi.data_src;
 	data.encoding = edt->pi.fd->flags.encoding;
 	data.print_dissections = print_args->print_dissections;
 	/* If we're printing the entire packet in hex, don't
 	   print uninterpreted data fields in hex as well. */
 	data.print_hex_for_data = !print_args->print_hex;
-	data.format = print_args->format;
 	data.edt = edt;
 
 	proto_tree_children_foreach(edt->tree, proto_tree_print_node, &data);
+	return data.success;
 }
 
 #define MAX_INDENT	160
@@ -167,6 +140,10 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 	if (PROTO_ITEM_IS_HIDDEN(node))
 		return;
 
+	/* Give up if we've already gotten an error. */
+	if (!pdata->success)
+		return;
+
 	/* was a free format label produced? */
 	if (fi->rep) {
 		label_ptr = fi->rep->representation;
@@ -176,7 +153,10 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 		proto_item_fill_label(fi, label_str);
 	}
 
-	print_line(pdata->fh, pdata->level, pdata->format, label_ptr);
+	if (!print_line(pdata->stream, pdata->level, label_ptr)) {
+		pdata->success = FALSE;
+		return;
+	}
 
 	/* If it's uninterpreted data, dump it (unless our caller will
 	   be printing the entire packet in hex). */
@@ -186,8 +166,11 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 		 */
 		pd = get_field_data(pdata->src_list, fi);
 		if (pd) {
-			print_hex_data_buffer(pdata->fh, pd, fi->length,
-			    pdata->encoding, pdata->format);
+			if (!print_hex_data_buffer(pdata->stream, pd,
+			    fi->length, pdata->encoding)) {
+				pdata->success = FALSE;
+				return;
+			}
 		}
 	}
 
@@ -203,26 +186,9 @@ void proto_tree_print_node(proto_node *node, gpointer data)
 			proto_tree_children_foreach(node,
 				proto_tree_print_node, pdata);
 			pdata->level--;
+			if (!pdata->success)
+				return;
 		}
-	}
-}
-
-/* Some formats need stuff at the end of the output */
-void
-print_finale(FILE *fh, print_format_e format)
-{
-	switch (format) {
-
-	case(PR_FMT_TEXT):
-		/* do nothing */
-		break;
-
-	case(PR_FMT_PS):
-		print_ps_finale(fh);
-		break;
-
-	default:
-		g_assert_not_reached();
 	}
 }
 
@@ -640,8 +606,8 @@ write_pdml_field_hex_value(write_pdml_data *pdata, field_info *fi)
 	}
 }
 
-
-void print_hex_data(FILE *fh, print_format_e format, epan_dissect_t *edt)
+gboolean
+print_hex_data(print_stream_t *stream, epan_dissect_t *edt)
 {
 	gboolean multiple_sources;
 	GSList *src_le;
@@ -666,18 +632,20 @@ void print_hex_data(FILE *fh, print_format_e format, epan_dissect_t *edt)
 		tvb = src->tvb;
 		if (multiple_sources) {
 			name = src->name;
-			print_line(fh, 0, format, "");
+			print_line(stream, 0, "");
 			line = g_malloc(strlen(name) + 2);	/* <name>:\0 */
 			strcpy(line, name);
 			strcat(line, ":");
-			print_line(fh, 0, format, line);
+			print_line(stream, 0, line);
 			g_free(line);
 		}
 		length = tvb_length(tvb);
 		cp = tvb_get_ptr(tvb, 0, length);
-		print_hex_data_buffer(fh, cp, length,
-		    edt->pi.fd->flags.encoding, format);
+		if (!print_hex_data_buffer(stream, cp, length,
+		    edt->pi.fd->flags.encoding))
+			return FALSE;
 	}
+	return TRUE;
 }
 
 /*
@@ -702,9 +670,9 @@ void print_hex_data(FILE *fh, print_format_e format, epan_dissect_t *edt)
 				   offset, 2 blanks separating offset
 				   from data dump, data dump */
 
-static void
-print_hex_data_buffer(FILE *fh, register const guchar *cp,
-    register guint length, char_enc encoding, print_format_e format)
+static gboolean
+print_hex_data_buffer(print_stream_t *stream, const guchar *cp,
+    guint length, char_enc encoding)
 {
 	register unsigned int ad, i, j, k, l;
 	guchar c;
@@ -714,7 +682,8 @@ print_hex_data_buffer(FILE *fh, register const guchar *cp,
 		'0', '1', '2', '3', '4', '5', '6', '7',
 		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
-	print_line(fh, 0, format, "");
+	if (!print_line(stream, 0, ""))
+		return FALSE;
 
 	/*
 	 * How many of the leading digits of the offset will we supply?
@@ -775,10 +744,12 @@ print_hex_data_buffer(FILE *fh, register const guchar *cp,
 			 * and advance the offset.
 			 */
 			line[k] = '\0';
-			print_line(fh, 0, format, line);
+			if (!print_line(stream, 0, line))
+				return FALSE;
 			ad += 16;
 		}
 	}
+	return TRUE;
 }
 
 static
@@ -821,6 +792,17 @@ print_packet_header(FILE *fh, print_format_e format, guint32 number, gchar *summ
 
 	case(PR_FMT_PS):
 		ps_clean_string(psbuffer, summary, MAX_PS_LINE_LENGTH);
+		/*
+		 * See the Adobe "pdfmark reference".  The pdfmark stuff
+		 * tells code that turns PostScript into PDF stuff that
+		 * it should do.
+		 *
+		 * The /OUT stuff creates a bookmark that goes to the
+		 * destination with the name "__frame{N}__", where N is
+		 * the "number" argument, and with "summary" as the title.
+		 *
+		 * The "/DEST" creates the destination.
+		 */
 		fprintf(fh, "[/Dest /__frame%u__ /Title (%s)   /OUT pdfmark\n", number, psbuffer);
 		fputs("[/View [/XYZ -4 currentpoint matrix currentmatrix matrix defaultmatrix\n", fh);
 		fputs("matrix invertmatrix matrix concatmatrix transform exch pop 20 add null]\n", fh);
@@ -832,57 +814,300 @@ print_packet_header(FILE *fh, print_format_e format, guint32 number, gchar *summ
 	}
 }
 
-void
-print_formfeed(FILE *fh, print_format_e format)
+/* Some formats need stuff at the beginning of the output */
+gboolean
+print_preamble(print_stream_t *self, gchar *filename)
 {
-	switch (format) {
-
-	case(PR_FMT_TEXT):
-		fputs("\f", fh);
-		break;
-
-	case(PR_FMT_PS):
-		fputs("formfeed\n", fh);
-		break;
-
-	default:
-		g_assert_not_reached();
-	}
+	return (self->ops->print_preamble)(self, filename);
 }
 
-void
-print_line(FILE *fh, int indent, print_format_e format, char *line)
+gboolean
+print_line(print_stream_t *self, int indent, const char *line)
 {
-	char		space[MAX_INDENT+1];
-	int		i;
-	int		num_spaces;
+	return (self->ops->print_line)(self, indent, line);
+}
+
+/* Insert bookmark */
+gboolean
+print_bookmark(print_stream_t *self, const gchar *name, const gchar *title)
+{
+	return (self->ops->print_bookmark)(self, name, title);
+}
+
+gboolean
+new_page(print_stream_t *self)
+{
+	return (self->ops->new_page)(self);
+}
+
+/* Some formats need stuff at the end of the output */
+gboolean
+print_finale(print_stream_t *self)
+{
+	return (self->ops->print_finale)(self);
+}
+
+gboolean
+destroy_print_stream(print_stream_t *self)
+{
+	return (self->ops->destroy)(self);
+}
+
+typedef struct {
+	int to_file;
+	FILE *fh;
+} output_text;
+
+static gboolean
+print_preamble_text(print_stream_t *self _U_, gchar *filename _U_)
+{
+	/* do nothing */
+	return TRUE;	/* always succeeds */
+}
+
+static gboolean
+print_line_text(print_stream_t *self, int indent, const char *line)
+{
+	output_text *output = self->data;
+	char space[MAX_INDENT+1];
+	int i;
+	int num_spaces;
+
+	/* Prepare the tabs for printing, depending on tree level */
+	num_spaces = indent * 4;
+	if (num_spaces > MAX_INDENT) {
+		num_spaces = MAX_INDENT;
+	}
+	for (i = 0; i < num_spaces; i++) {
+		space[i] = ' ';
+	}
+	/* The string is NUL-terminated */
+	space[num_spaces] = '\0';
+
+	fputs(space, output->fh);
+	fputs(line, output->fh);
+	putc('\n', output->fh);
+	return !ferror(output->fh);
+}
+
+static gboolean
+print_bookmark_text(print_stream_t *self _U_, const gchar *name _U_,
+    const gchar *title _U_)
+{
+	/* do nothing */
+	return TRUE;
+}
+
+static gboolean
+new_page_text(print_stream_t *self)
+{
+	output_text *output = self->data;
+
+	fputs("\f", output->fh);
+	return !ferror(output->fh);
+}
+
+static gboolean
+print_finale_text(print_stream_t *self _U_)
+{
+	/* do nothing */
+	return TRUE;	/* always succeeds */
+}
+
+static gboolean
+destroy_text(print_stream_t *self)
+{
+	output_text *output = self->data;
+	gboolean ret;
+
+	ret = close_print_dest(output->to_file, output->fh);
+	g_free(output);
+	g_free(self);
+	return ret;
+}
+
+static const print_stream_ops_t print_text_ops = {
+	print_preamble_text,
+	print_line_text,
+	print_bookmark_text,
+	new_page_text,
+	print_finale_text,
+	destroy_text
+};
+
+print_stream_t *
+print_stream_text_new(int to_file, const char *dest)
+{
+	FILE *fh;
+	print_stream_t *stream;
+	output_text *output;
+
+	fh = open_print_dest(to_file, dest);
+	if (fh == NULL)
+		return NULL;
+
+	output = g_malloc(sizeof *output);
+	output->to_file = to_file;
+	output->fh = fh;
+	stream = g_malloc(sizeof (print_stream_t));
+	stream->ops = &print_text_ops;
+	stream->data = output;
+
+	return stream;
+}
+
+print_stream_t *
+print_stream_text_stdio_new(FILE *fh)
+{
+	print_stream_t *stream;
+	output_text *output;
+
+	output = g_malloc(sizeof *output);
+	output->to_file = TRUE;
+	output->fh = fh;
+	stream = g_malloc(sizeof (print_stream_t));
+	stream->ops = &print_text_ops;
+	stream->data = output;
+
+	return stream;
+}
+
+typedef struct {
+	int to_file;
+	FILE *fh;
+} output_ps;
+
+static gboolean
+print_preamble_ps(print_stream_t *self, gchar *filename)
+{
+	output_ps *output = self->data;
 	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
 
-	switch (format) {
+	print_ps_preamble(output->fh);
 
-	case(PR_FMT_TEXT):
-		/* Prepare the tabs for printing, depending on tree level */
-		num_spaces = indent * 4;
-		if (num_spaces > MAX_INDENT) {
-			num_spaces = MAX_INDENT;
-		}
-		for (i = 0; i < num_spaces; i++) {
-			space[i] = ' ';
-		}
-		/* The string is NUL-terminated */
-		space[num_spaces] = '\0';
+	fputs("%% Set the font to 10 point\n", output->fh);
+	fputs("/Courier findfont 10 scalefont setfont\n", output->fh);
+	fputs("\n", output->fh);
+	fputs("%% the page title\n", output->fh);
+	ps_clean_string(psbuffer, filename, MAX_PS_LINE_LENGTH);
+	fprintf(output->fh, "/eth_pagetitle (%s - Ethereal) def\n", psbuffer);
+	fputs("\n", output->fh);
+	return !ferror(output->fh);
+}
 
-		fputs(space, fh);
-		fputs(line, fh);
-		putc('\n', fh);
-		break;
+static gboolean
+print_line_ps(print_stream_t *self, int indent, const char *line)
+{
+	output_ps *output = self->data;
+	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
 
-	case(PR_FMT_PS):
-		ps_clean_string(psbuffer, line, MAX_PS_LINE_LENGTH);
-		fprintf(fh, "%d (%s) putline\n", indent, psbuffer);
-		break;
+	ps_clean_string(psbuffer, line, MAX_PS_LINE_LENGTH);
+	fprintf(output->fh, "%d (%s) putline\n", indent, psbuffer);
+	return !ferror(output->fh);
+}
 
-	default:
-		g_assert_not_reached();
-    }
+static gboolean
+print_bookmark_ps(print_stream_t *self, const gchar *name, const gchar *title)
+{
+	output_ps *output = self->data;
+	char		psbuffer[MAX_PS_LINE_LENGTH]; /* static sized buffer! */
+
+	/*
+	 * See the Adobe "pdfmark reference":
+	 *
+	 *	http://partners.adobe.com/asn/acrobat/docs/pdfmark.pdf
+	 *
+	 * The pdfmark stuff tells code that turns PostScript into PDF
+	 * things that it should do.
+	 *
+	 * The /OUT stuff creates a bookmark that goes to the
+	 * destination with "name" as the name and "title" as the title.
+	 *
+	 * The "/DEST" creates the destination.
+	 */
+	ps_clean_string(psbuffer, title, MAX_PS_LINE_LENGTH);
+	fprintf(output->fh, "[/Dest /%s /Title (%s)   /OUT pdfmark\n", name,
+	    psbuffer);
+	fputs("[/View [/XYZ -4 currentpoint matrix currentmatrix matrix defaultmatrix\n",
+	    output->fh);
+	fputs("matrix invertmatrix matrix concatmatrix transform exch pop 20 add null]\n",
+	    output->fh);
+	fprintf(output->fh, "/Dest /%s /DEST pdfmark\n", name);
+	return !ferror(output->fh);
+}
+
+static gboolean
+new_page_ps(print_stream_t *self)
+{
+	output_ps *output = self->data;
+
+	fputs("formfeed\n", output->fh);
+	return !ferror(output->fh);
+}
+
+static gboolean
+print_finale_ps(print_stream_t *self)
+{
+	output_ps *output = self->data;
+
+	print_ps_finale(output->fh);
+	return !ferror(output->fh);
+}
+
+static gboolean
+destroy_ps(print_stream_t *self)
+{
+	output_ps *output = self->data;
+	gboolean ret;
+
+	ret = close_print_dest(output->to_file, output->fh);
+	g_free(output);
+	g_free(self);
+	return ret;
+}
+
+static const print_stream_ops_t print_ps_ops = {
+	print_preamble_ps,
+	print_line_ps,
+	print_bookmark_ps,
+	new_page_ps,
+	print_finale_ps,
+	destroy_ps
+};
+
+print_stream_t *
+print_stream_ps_new(int to_file, const char *dest)
+{
+	FILE *fh;
+	print_stream_t *stream;
+	output_ps *output;
+
+	fh = open_print_dest(to_file, dest);
+	if (fh == NULL)
+		return NULL;
+
+	output = g_malloc(sizeof *output);
+	output->to_file = to_file;
+	output->fh = fh;
+	stream = g_malloc(sizeof (print_stream_t));
+	stream->ops = &print_ps_ops;
+	stream->data = output;
+
+	return stream;
+}
+
+print_stream_t *
+print_stream_ps_stdio_new(FILE *fh)
+{
+	print_stream_t *stream;
+	output_ps *output;
+
+	output = g_malloc(sizeof *output);
+	output->to_file = TRUE;
+	output->fh = fh;
+	stream = g_malloc(sizeof (print_stream_t));
+	stream->ops = &print_ps_ops;
+	stream->data = output;
+
+	return stream;
 }

@@ -137,7 +137,8 @@ static gboolean verbose;
 static gboolean print_hex;
 static gboolean line_buffered;
 static guint32 cum_bytes = 0;
-static print_format_e print_format;
+static print_format_e print_format = PR_FMT_TEXT;
+static print_stream_t *print_stream;
 
 #ifdef HAVE_LIBPCAP
 typedef struct _loop_data {
@@ -184,9 +185,9 @@ static gboolean process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
     const guchar *pd, int *err);
 static void show_capture_file_io_error(const char *, int, gboolean);
 static void show_print_file_io_error(int err);
-static void write_preamble(capture_file *cf);
-static void print_packet(capture_file *cf, epan_dissect_t *edt);
-static void write_finale(void);
+static gboolean write_preamble(capture_file *cf);
+static gboolean print_packet(capture_file *cf, epan_dissect_t *edt);
+static gboolean write_finale(void);
 static char *cf_open_error_message(int err, gchar *err_info,
     gboolean for_writing, int file_type);
 #ifdef HAVE_LIBPCAP
@@ -1223,21 +1224,21 @@ main(int argc, char *argv[])
         break;
       case 'T':        /* printing Type */
         if (strcmp(optarg, "text") == 0) {
-		output_action = WRITE_TEXT;
-		print_format = PR_FMT_TEXT;
+	  output_action = WRITE_TEXT;
+	  print_format = PR_FMT_TEXT;
 	} else if (strcmp(optarg, "ps") == 0) {
-		output_action = WRITE_TEXT;
-		print_format = PR_FMT_PS;
+	  output_action = WRITE_TEXT;
+	  print_format = PR_FMT_PS;
 	} else if (strcmp(optarg, "pdml") == 0) {
-		output_action = WRITE_XML;
-		verbose = TRUE;
+	  output_action = WRITE_XML;
+	  verbose = TRUE;
 	} else if (strcmp(optarg, "psml") == 0) {
-		output_action = WRITE_XML;
-		verbose = FALSE;
+	  output_action = WRITE_XML;
+	  verbose = FALSE;
 	} else {
-		fprintf(stderr, "tethereal: Invalid -T parameter.\n");
-		fprintf(stderr, "It must be \"ps\", \"text\", \"pdml\", or \"psml\".\n");
-		exit(1);
+	  fprintf(stderr, "tethereal: Invalid -T parameter.\n");
+	  fprintf(stderr, "It must be \"ps\", \"text\", \"pdml\", or \"psml\".\n");
+	  exit(1);
 	}
 	break;
       case 'v':        /* Show version and exit */
@@ -1527,6 +1528,26 @@ main(int argc, char *argv[])
     }
   }
   cfile.rfcode = rfcode;
+
+  if (print_packet_info) {
+    /* If we're printing as text or PostScript, we have
+       to create a print stream. */
+    if (output_action == WRITE_TEXT) {
+      switch (print_format) {
+
+      case PR_FMT_TEXT:
+        print_stream = print_stream_text_stdio_new(stdout);
+        break;
+
+      case PR_FMT_PS:
+        print_stream = print_stream_ps_stdio_new(stdout);
+        break;
+
+      default:
+        g_assert_not_reached();
+      }
+    }
+  }
 
   /* We have to dissect each packet if:
 
@@ -2344,8 +2365,7 @@ load_cap_file(capture_file *cf, int out_file_type)
       goto out;
     }
   } else {
-    write_preamble(cf);
-    if (ferror(stdout)) {
+    if (!write_preamble(cf)) {
       err = errno;
       show_print_file_io_error(err);
       goto out;
@@ -2407,8 +2427,7 @@ load_cap_file(capture_file *cf, int out_file_type)
       if (!wtap_dump_close(pdh, &err))
         show_capture_file_io_error(cfile.save_file, err, TRUE);
     } else {
-      write_finale();
-      if (ferror(stdout)) {
+      if (!write_finale()) {
         err = errno;
         show_print_file_io_error(err);
       }
@@ -2671,13 +2690,13 @@ show_capture_file_io_error(const char *fname, int err, gboolean is_close)
   }
 }
 
-static void
+static gboolean
 write_preamble(capture_file *cf)
 {
   switch (output_action) {
 
   case WRITE_TEXT:
-    print_preamble(stdout, print_format, cf->filename);
+    return print_preamble(print_stream, cf->filename);
     break;
 
   case WRITE_XML:
@@ -2685,15 +2704,29 @@ write_preamble(capture_file *cf)
       write_pdml_preamble(stdout);
     else
       write_psml_preamble(stdout);
-    break;
+    return !ferror(stdout);
+
+  default:
+    g_assert_not_reached();
+    return FALSE;
   }
 }
 
-static void
+static gboolean
 print_columns(capture_file *cf)
 {
+  static char *line_bufp = NULL;
+  static size_t line_buf_len = 0;
   int i;
+  size_t buf_offset;
+  size_t column_len;
 
+  if (line_bufp == NULL) {
+    line_buf_len = 256;
+    line_bufp = g_malloc(line_buf_len + 1);
+  }
+  buf_offset = 0;
+  *line_bufp = '\0';
   for (i = 0; i < cf->cinfo.num_cols; i++) {
     switch (cf->cinfo.col_fmt[i]) {
     case COL_NUMBER:
@@ -2710,14 +2743,28 @@ print_columns(capture_file *cf)
        */
       if (cf->iface != NULL)
         continue;
-      printf("%3s", cf->cinfo.col_data[i]);
+      column_len = strlen(cf->cinfo.col_data[i]);
+      if (column_len < 3)
+        column_len = 3;
+      if (buf_offset + column_len > line_buf_len) {
+        line_buf_len *= 2;
+        line_bufp = g_realloc(line_bufp, line_buf_len + 1);
+      }
+      snprintf(line_bufp + buf_offset, COL_MAX_LEN+1, "%3s", cf->cinfo.col_data[i]);
       break;
 
     case COL_CLS_TIME:
     case COL_REL_TIME:
     case COL_ABS_TIME:
     case COL_ABS_DATE_TIME:	/* XXX - wider */
-      printf("%10s", cf->cinfo.col_data[i]);
+      column_len = strlen(cf->cinfo.col_data[i]);
+      if (column_len < 10)
+        column_len = 10;
+      if (buf_offset + column_len > line_buf_len) {
+        line_buf_len *= 2;
+        line_bufp = g_realloc(line_bufp, line_buf_len + 1);
+      }
+      snprintf(line_bufp + buf_offset, COL_MAX_LEN+1, "%10s", cf->cinfo.col_data[i]);
       break;
 
     case COL_DEF_SRC:
@@ -2729,7 +2776,14 @@ print_columns(capture_file *cf)
     case COL_DEF_NET_SRC:
     case COL_RES_NET_SRC:
     case COL_UNRES_NET_SRC:
-      printf("%12s", cf->cinfo.col_data[i]);
+      column_len = strlen(cf->cinfo.col_data[i]);
+      if (column_len < 12)
+        column_len = 12;
+      if (buf_offset + column_len > line_buf_len) {
+        line_buf_len *= 2;
+        line_bufp = g_realloc(line_bufp, line_buf_len + 1);
+      }
+      snprintf(line_bufp + buf_offset, COL_MAX_LEN+1, "%12s", cf->cinfo.col_data[i]);
       break;
 
     case COL_DEF_DST:
@@ -2741,13 +2795,26 @@ print_columns(capture_file *cf)
     case COL_DEF_NET_DST:
     case COL_RES_NET_DST:
     case COL_UNRES_NET_DST:
-      printf("%-12s", cf->cinfo.col_data[i]);
+      column_len = strlen(cf->cinfo.col_data[i]);
+      if (column_len < 12)
+        column_len = 12;
+      if (buf_offset + column_len > line_buf_len) {
+        line_buf_len *= 2;
+        line_bufp = g_realloc(line_bufp, line_buf_len + 1);
+      }
+      snprintf(line_bufp + buf_offset, COL_MAX_LEN+1, "%-12s", cf->cinfo.col_data[i]);
       break;
 
     default:
-      printf("%s", cf->cinfo.col_data[i]);
+      column_len = strlen(cf->cinfo.col_data[i]);
+      if (buf_offset + column_len > line_buf_len) {
+        line_buf_len *= 2;
+        line_bufp = g_realloc(line_bufp, line_buf_len + 1);
+      }
+      strcat(line_bufp + buf_offset, cf->cinfo.col_data[i]);
       break;
     }
+    buf_offset += column_len;
     if (i != cf->cinfo.num_cols - 1) {
       /*
        * This isn't the last column, so we need to print a
@@ -2759,7 +2826,14 @@ print_columns(capture_file *cf)
        * and are printing a network source of the same type
        * next, separate them with "<-"; otherwise separate them
        * with a space.
+       *
+       * We add enough space to the buffer for " <- " or " -> ",
+       * even if we're only adding " ".
        */
+      if (buf_offset + 4 > line_buf_len) {
+        line_buf_len *= 2;
+        line_bufp = g_realloc(line_bufp, line_buf_len + 1);
+      }
       switch (cf->cinfo.col_fmt[i]) {
 
       case COL_DEF_SRC:
@@ -2770,11 +2844,13 @@ print_columns(capture_file *cf)
         case COL_DEF_DST:
         case COL_RES_DST:
         case COL_UNRES_DST:
-          printf(" -> ");
+          strcat(line_bufp + buf_offset, " -> ");
+          buf_offset += 4;
           break;
 
         default:
-          putchar(' ');
+          strcat(line_bufp + buf_offset, " ");
+          buf_offset += 1;
           break;
         }
         break;
@@ -2787,11 +2863,13 @@ print_columns(capture_file *cf)
         case COL_DEF_DL_DST:
         case COL_RES_DL_DST:
         case COL_UNRES_DL_DST:
-          printf(" -> ");
+          strcat(line_bufp + buf_offset, " -> ");
+          buf_offset += 4;
           break;
 
         default:
-          putchar(' ');
+          strcat(line_bufp + buf_offset, " ");
+          buf_offset += 1;
           break;
         }
         break;
@@ -2804,11 +2882,13 @@ print_columns(capture_file *cf)
         case COL_DEF_NET_DST:
         case COL_RES_NET_DST:
         case COL_UNRES_NET_DST:
-          printf(" -> ");
+          strcat(line_bufp + buf_offset, " -> ");
+          buf_offset += 4;
           break;
 
         default:
-          putchar(' ');
+          strcat(line_bufp + buf_offset, " ");
+          buf_offset += 1;
           break;
         }
         break;
@@ -2821,11 +2901,13 @@ print_columns(capture_file *cf)
         case COL_DEF_SRC:
         case COL_RES_SRC:
         case COL_UNRES_SRC:
-          printf(" <- ");
+          strcat(line_bufp + buf_offset, " <- ");
+          buf_offset += 4;
           break;
 
         default:
-          putchar(' ');
+          strcat(line_bufp + buf_offset, " ");
+          buf_offset += 1;
           break;
         }
         break;
@@ -2838,11 +2920,13 @@ print_columns(capture_file *cf)
         case COL_DEF_DL_SRC:
         case COL_RES_DL_SRC:
         case COL_UNRES_DL_SRC:
-          printf(" <- ");
+          strcat(line_bufp + buf_offset, " <- ");
+          buf_offset += 4;
           break;
 
         default:
-          putchar(' ');
+          strcat(line_bufp + buf_offset, " ");
+          buf_offset += 1;
           break;
         }
         break;
@@ -2855,25 +2939,28 @@ print_columns(capture_file *cf)
         case COL_DEF_NET_SRC:
         case COL_RES_NET_SRC:
         case COL_UNRES_NET_SRC:
-          printf(" <- ");
+          strcat(line_bufp + buf_offset, " <- ");
+          buf_offset += 4;
           break;
 
         default:
-          putchar(' ');
+          strcat(line_bufp + buf_offset, " ");
+          buf_offset += 1;
           break;
         }
         break;
 
       default:
-        putchar(' ');
+        strcat(line_bufp + buf_offset, " ");
+        buf_offset += 1;
         break;
       }
     }
   }
-  putchar('\n');
+  return print_line(print_stream, 0, line_bufp);
 }
 
-static void
+static gboolean
 print_packet(capture_file *cf, epan_dissect_t *edt)
 {
   print_args_t  print_args;
@@ -2893,18 +2980,21 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
       /* init the packet range */
       packet_range_init(&print_args.range);
 
-      proto_tree_print(&print_args, edt, stdout);
+      if (!proto_tree_print(&print_args, edt, print_stream))
+        return FALSE;
+      if (!print_hex) {
+        /* "print_hex_data()" will put out a leading blank line, as well
+         as a trailing one; print one here, to separate the packets,
+         only if "print_hex_data()" won't be called. */
+        if (!print_line(print_stream, 0, ""))
+          return FALSE;
+      }
       break;
 
     case WRITE_XML:
       proto_tree_write_pdml(edt, stdout);
-      break;
-    }
-    if (!print_hex) {
-      /* "print_hex_data()" will put out a leading blank line, as well
-       as a trailing one; print one here, to separate the packets,
-       only if "print_hex_data()" won't be called. */
       printf("\n");
+      return !ferror(stdout);
     }
   } else {
     /* Just fill in the columns. */
@@ -2914,27 +3004,31 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
     switch (output_action) {
 
     case WRITE_TEXT:
-        print_columns(cf);
+        if (!print_columns(cf))
+          return FALSE;
         break;
 
     case WRITE_XML:
         proto_tree_write_psml(edt, stdout);
-        break;
+        return !ferror(stdout);
     }
   }
   if (print_hex) {
-    print_hex_data(stdout, print_format, edt);
-    putchar('\n');
+    if (!print_hex_data(print_stream, edt))
+      return FALSE;
+    if (!print_line(print_stream, 0, ""))
+      return FALSE;
   }
+  return TRUE;
 }
 
-static void
+static gboolean
 write_finale(void)
 {
   switch (output_action) {
 
   case WRITE_TEXT:
-    print_finale(stdout, print_format);
+    return print_finale(print_stream);
     break;
 
   case WRITE_XML:
@@ -2942,7 +3036,11 @@ write_finale(void)
       write_pdml_finale(stdout);
     else
       write_psml_finale(stdout);
-    break;
+    return !ferror(stdout);
+
+  default:
+    g_assert_not_reached();
+    return FALSE;
   }
 }
 

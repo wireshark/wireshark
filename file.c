@@ -1495,7 +1495,7 @@ retap_packets(capture_file *cf)
 
 typedef struct {
   print_args_t *print_args;
-  FILE         *print_fh;
+  print_stream_t *stream;
   gboolean      print_header_line;
   char         *header_line_buf;
   int           header_line_buf_len;
@@ -1519,6 +1519,8 @@ print_packet(capture_file *cf, frame_data *fdata,
   int             column_len;
   int             cp_off;
   gboolean        proto_tree_needed;
+  char            bookmark_name[9+10+1];	/* "__frameNNNNNNNNNN__\0" */
+  char            bookmark_title[6+10+1];	/* "Frame NNNNNNNNNN__\0" */
 
   /* Create the protocol tree, and make it visible, if we're printing
      the dissection or the hex data.
@@ -1536,16 +1538,25 @@ print_packet(capture_file *cf, frame_data *fdata,
     epan_dissect_run(edt, pseudo_header, pd, fdata, NULL);
 
   if (args->print_formfeed) {
-    print_formfeed(args->print_fh, args->print_args->format);
+    if (!new_page(args->stream))
+      goto fail;
   } else {
-      if (args->print_separator)
-        print_line(args->print_fh, 0, args->print_args->format, "");
+      if (args->print_separator) {
+        if (!print_line(args->stream, 0, ""))
+          goto fail;
+      }
   }
+
+  /*
+   * We generate bookmarks, if the output format supports them.
+   * The name is "__frameN__".
+   */
+  sprintf(bookmark_name, "__frame%u__", fdata->num);
 
   if (args->print_args->print_summary) {
     if (args->print_header_line) {
-      print_line(args->print_fh, 0, args->print_args->format,
-                 args->header_line_buf);
+      if (!print_line(args->stream, 0, args->header_line_buf))
+        goto fail;
       args->print_header_line = FALSE;	/* we might not need to print any more */
     }
     cp = &args->line_buf[0];
@@ -1577,19 +1588,34 @@ print_packet(capture_file *cf, frame_data *fdata,
     }
     *cp = '\0';
 
-    print_packet_header(args->print_fh, args->print_args->format, fdata->num, args->line_buf);
+    /*
+     * Generate a bookmark, using the summary line as the title.
+     */
+    if (!print_bookmark(args->stream, bookmark_name, args->line_buf))
+      goto fail;
 
-    print_line(args->print_fh, 0, args->print_args->format, args->line_buf);
+    if (!print_line(args->stream, 0, args->line_buf))
+      goto fail;
+  } else {
+    /*
+     * Generate a bookmark, using "Frame N" as the title, as we're not
+     * printing the summary line.
+     */
+    sprintf(bookmark_title, "Frame %u", fdata->num);
+    if (!print_bookmark(args->stream, bookmark_name, bookmark_title))
+      goto fail;
   } /* if (print_summary) */
-  
+
   if (args->print_args->print_dissections != print_dissections_none) {
     if (args->print_args->print_summary) {
       /* Separate the summary line from the tree with a blank line. */
-      print_line(args->print_fh, 0, args->print_args->format, "");
+      if (!print_line(args->stream, 0, ""))
+        goto fail;
     }
 
     /* Print the information in that tree. */
-    proto_tree_print(args->print_args, edt, args->print_fh);
+    if (!proto_tree_print(args->print_args, edt, args->stream))
+      goto fail;
 
     /* Print a blank line if we print anything after this (aka more than one packet). */
     args->print_separator = TRUE;
@@ -1600,14 +1626,15 @@ print_packet(capture_file *cf, frame_data *fdata,
 
   if (args->print_args->print_hex) {
     /* Print the full packet data as hex. */
-    print_hex_data(args->print_fh, args->print_args->format, edt);
+    if (!print_hex_data(args->stream, edt))
+      goto fail;
 
     /* Print a blank line if we print anything after this (aka more than one packet). */
     args->print_separator = TRUE;
 
     /* Print a header line if we print any more packet summaries */
     args->print_header_line = TRUE;
-  } /* if (print_summary) */
+  } /* if (args->print_args->print_dissections != print_dissections_none) */
 
   epan_dissect_free(edt);
 
@@ -1616,7 +1643,11 @@ print_packet(capture_file *cf, frame_data *fdata,
     args->print_formfeed = TRUE;
   }
 
-  return !ferror(args->print_fh);
+  return TRUE;
+
+fail:
+  epan_dissect_free(edt);
+  return FALSE;
 }
 
 pp_return_t
@@ -1631,19 +1662,37 @@ print_packets(capture_file *cf, print_args_t *print_args)
   int         line_len;
   psp_return_t ret;
 
-  if(print_args->to_file) {
-      callback_args.print_fh = open_print_dest(print_args->to_file,
-                                               print_args->file);
-  } else {
-      callback_args.print_fh = open_print_dest(print_args->to_file,
-                                               print_args->cmd);
+  switch (print_args->format) {
+
+  case PR_FMT_TEXT:
+    if (print_args->to_file) {
+      callback_args.stream = print_stream_text_new(print_args->to_file,
+                                                   print_args->file);
+    } else {
+      callback_args.stream = print_stream_text_new(print_args->to_file,
+                                                   print_args->cmd);
+    }
+    break;
+
+  case PR_FMT_PS:
+    if (print_args->to_file) {
+      callback_args.stream = print_stream_ps_new(print_args->to_file,
+                                                   print_args->file);
+    } else {
+      callback_args.stream = print_stream_ps_new(print_args->to_file,
+                                                   print_args->cmd);
+    }
+    break;
+
+  default:
+    g_assert_not_reached();
+    return PP_OPEN_ERROR;
   }
-  if (callback_args.print_fh == NULL)
+  if (callback_args.stream == NULL)
     return PP_OPEN_ERROR;	/* attempt to open destination failed */
 
-  print_preamble(callback_args.print_fh, print_args->format, cf->filename);
-  if (ferror(callback_args.print_fh)) {
-    close_print_dest(print_args->to_file, callback_args.print_fh);
+  if (!print_preamble(callback_args.stream, cf->filename)) {
+    destroy_print_stream(callback_args.stream);
     return PP_WRITE_ERROR;
   }
 
@@ -1746,18 +1795,17 @@ print_packets(capture_file *cf, print_args_t *print_args)
        will get printed if we're piping to a print program; we'd
        have to write to a file and then hand that to the print
        program to make it actually not print anything. */
-    close_print_dest(print_args->to_file, callback_args.print_fh);
+    destroy_print_stream(callback_args.stream);
     return PP_WRITE_ERROR;
   }
 
-  print_finale(callback_args.print_fh, print_args->format);
-  if (ferror(callback_args.print_fh)) {
-    close_print_dest(print_args->to_file, callback_args.print_fh);
+  if (!print_finale(callback_args.stream)) {
+    destroy_print_stream(callback_args.stream);
     return PP_WRITE_ERROR;
   }
 
-  /* XXX - check for an error */
-  close_print_dest(print_args->to_file, callback_args.print_fh);
+  if (!destroy_print_stream(callback_args.stream))
+    return PP_WRITE_ERROR;
 
   return PP_OK;
 }
