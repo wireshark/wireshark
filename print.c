@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.41 2002/02/18 01:08:38 guy Exp $
+ * $Id: print.c,v 1.42 2002/03/14 05:41:59 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -145,6 +145,8 @@ get_field_data(GSList *src_list, field_info *fi)
 	return NULL;	/* not found */
 }
 
+#define MAX_INDENT	160
+
 /* Print a tree's data, and any child nodes, in plain text */
 static
 void proto_tree_print_node_text(GNode *node, gpointer data)
@@ -153,7 +155,7 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 	print_data	*pdata = (print_data*) data;
 	int		i;
 	int		num_spaces;
-	char		space[41];
+	char		space[MAX_INDENT+1];
 	const guint8	*pd;
 	gchar		label_str[ITEM_LABEL_LENGTH];
 	gchar		*label_ptr;
@@ -173,14 +175,14 @@ void proto_tree_print_node_text(GNode *node, gpointer data)
 		
 	/* Prepare the tabs for printing, depending on tree level */
 	num_spaces = pdata->level * 4;
-	if (num_spaces > 40) {
-		num_spaces = 40;
+	if (num_spaces > MAX_INDENT) {
+		num_spaces = MAX_INDENT;
 	}
 	for (i = 0; i < num_spaces; i++) {
 		space[i] = ' ';
 	}
 	/* The string is NUL-terminated */
-	space[num_spaces] = 0;
+	space[num_spaces] = '\0';
 
 	/* Print the text */
 	fprintf(pdata->fh, "%s%s\n", space, label_ptr);
