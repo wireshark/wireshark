@@ -9,7 +9,7 @@
  *       In particular I have not had an opportunity to see how it
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.42 2003/08/18 18:06:06 guy Exp $
+ * $Id: packet-srvloc.c,v 1.43 2003/10/01 21:15:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -962,8 +962,13 @@ get_srvloc_pdu_len(tvbuff_t *tvb, int offset)
 {
     /*
      * Get the length of the SRVLOC packet.
+     * It starts at offset+2, but it's 2 bytes in SLPv1 and 3 bytes
+     * in SLPv2.
      */
-    return tvb_get_ntohs(tvb, offset + 2);
+    if (tvb_get_guint8(tvb, offset) == 2)
+        return tvb_get_ntoh24(tvb, offset + 2);
+    else
+        return tvb_get_ntohs(tvb, offset + 2);
 }
 
 static void
@@ -988,7 +993,15 @@ dissect_srvloc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_srvloc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    tcp_dissect_pdus(tvb, pinfo, tree, srvloc_desegment, 0, get_srvloc_pdu_len,
+    /*
+     * XXX - in SLPv1, the fixed length need only be 4, as the length
+     * is 2 bytes long; however, it must be 5 for SLPv2, as the length
+     * is 3 bytes long, and there's probably no harm in asking for 5
+     * bytes, as even SLPv1 packets start with a 12-byte header,
+     * and if the packet has a length that's 4 or less, it's bogus,
+     * and we can't handle a length < 4 anyway.
+     */
+    tcp_dissect_pdus(tvb, pinfo, tree, srvloc_desegment, 5, get_srvloc_pdu_len,
 	dissect_srvloc_pdu);
 }
 
