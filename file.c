@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.96 1999/09/23 04:38:52 ashokn Exp $
+ * $Id: file.c,v 1.97 1999/09/23 05:55:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -295,7 +295,7 @@ void
 cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
   
   capture_file *cf = (capture_file *)data;
-  char buffer[256], *p = buffer, *q = buffer;
+  char buffer[256+1], *p = buffer, *q = buffer;
   int  nread;
   int  to_read = 0;
   gboolean exit_loop = FALSE;
@@ -391,7 +391,7 @@ tail_cap_file(char *fname, capture_file *cf) {
       }
     }
 
-    cf->fh = fopen(fname, "r");
+    cf->fh = file_open(fname, "r");
 
     cap_input_id = gtk_input_add_full (sync_pipe[0],
 				       GDK_INPUT_READ,
