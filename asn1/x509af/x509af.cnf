@@ -23,6 +23,12 @@ CertificateList
 CertificateSerialNumber
 CertificationPath
 
+#.PDU
+AttributeCertificate
+Certificate
+CertificateList
+CertificatePair
+
 #.NO_EMIT
 
 AlgorithmIdentifier
