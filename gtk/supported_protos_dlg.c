@@ -2,7 +2,7 @@
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
- * $Id: supported_protos_dlg.c,v 1.10 2004/03/13 12:09:27 ulfl Exp $
+ * $Id: supported_protos_dlg.c,v 1.11 2004/05/23 23:24:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,7 +55,6 @@ typedef enum {
   DFILTER_SUPPORTED
 } supported_type_t;
 
-static void supported_close_cb(GtkWidget *w, gpointer data);
 static void supported_destroy_cb(GtkWidget *w, gpointer data);
 static void insert_text(GtkWidget *w, const char *buffer, int nchars);
 static void set_supported_text(GtkWidget *w, supported_type_t type);
@@ -92,9 +91,8 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
     return;
   }
 
-  supported_w = dlg_window_new("Ethereal: Supported Protocols");
-  SIGNAL_CONNECT(supported_w, "destroy", supported_destroy_cb, NULL);
-  WIDGET_SET_SIZE(supported_w, DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
+  supported_w = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Supported Protocols");
+  gtk_window_set_default_size(GTK_WINDOW(supported_w), DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
   gtk_container_border_width(GTK_CONTAINER(supported_w), 2);
 
   /* Container for each row of widgets */
@@ -229,24 +227,16 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(bbox);
 
   ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-  SIGNAL_CONNECT(ok_bt, "clicked", supported_close_cb, supported_w);
-  gtk_widget_grab_default(ok_bt);
+  window_set_cancel_button(supported_w, ok_bt, window_cancel_button_cb);
 
   gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(supported_w));
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Cancel" button had
-     been selected. */
-  dlg_set_cancel(supported_w, ok_bt);
+  SIGNAL_CONNECT(supported_w, "delete_event", window_delete_event_cb, NULL);
+  SIGNAL_CONNECT(supported_w, "destroy", supported_destroy_cb, NULL);
 
   gtk_widget_show(supported_w);
-
+  window_present(supported_w);
 } /* supported_cb */
-
-static void supported_close_cb(GtkWidget *w _U_, gpointer data)
-{
-  gtk_widget_destroy(GTK_WIDGET(data));
-}
 
 static void supported_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
 {

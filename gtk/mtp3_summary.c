@@ -6,7 +6,7 @@
  *
  * Modified from gsm_map_summary.c
  *
- * $Id: mtp3_summary.c,v 1.2 2004/05/22 19:56:19 ulfl Exp $
+ * $Id: mtp3_summary.c,v 1.3 2004/05/23 23:24:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -242,9 +242,6 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
 		*tot_fr, *tot_box,
 		*table, *column_lb, *table_fr;
   column_arrows	*col_arrows;
-  GdkBitmap	*ascend_bm, *descend_bm;
-  GdkPixmap	*ascend_pm, *descend_pm;
-  GtkStyle	*win_style;
 
   gchar         string_buff[SUM_STR_MAX];
   double        seconds;
@@ -258,7 +255,7 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   /* initial compututations */
   seconds = summary.stop_time - summary.start_time;
 
-  sum_open_w = dlg_window_new("MTP3 Statistics: Summary");
+  sum_open_w = window_new(GTK_WINDOW_TOPLEVEL, "MTP3 Statistics: Summary");
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -325,24 +322,6 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   col_arrows =
       (column_arrows *) g_malloc(sizeof(column_arrows) * MTP3_SUM_INIT_TABLE_NUM_COLUMNS);
 
-  win_style =
-      gtk_widget_get_style(sum_open_w);
-
-  /* We must display dialog widget before calling gdk_pixmap_create_from_xpm_d() */
-  gtk_widget_show_all(sum_open_w);
-
-  ascend_pm =
-      gdk_pixmap_create_from_xpm_d(sum_open_w->window,
-	  &ascend_bm,
-	  &win_style->bg[GTK_STATE_NORMAL],
-	  (gchar **) clist_ascend_xpm);
-
-  descend_pm =
-      gdk_pixmap_create_from_xpm_d(sum_open_w->window,
-	  &descend_bm,
-	  &win_style->bg[GTK_STATE_NORMAL],
-	  (gchar **)clist_descend_xpm);
-
   for (i = 0; i < MTP3_SUM_INIT_TABLE_NUM_COLUMNS; i++)
   {
       col_arrows[i].table = gtk_table_new(2, 2, FALSE);
@@ -356,14 +335,12 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
 
       gtk_widget_show(column_lb);
 
-      col_arrows[i].ascend_pm =
-	  gtk_pixmap_new(ascend_pm, ascend_bm);
+      col_arrows[i].ascend_pm = xpm_to_widget(clist_ascend_xpm);
 
       gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm,
 	  1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
 
-      col_arrows[i].descend_pm =
-	  gtk_pixmap_new(descend_pm, descend_bm);
+      col_arrows[i].descend_pm = xpm_to_widget(clist_descend_xpm);
 
       gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm,
 	  1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
@@ -427,15 +404,12 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(bbox);
 
   close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-  SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, sum_open_w);
-  gtk_widget_grab_default(close_bt);
+  window_set_cancel_button(sum_open_w, close_bt, window_cancel_button_cb);
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Close" button had
-     been selected. */
-  dlg_set_cancel(sum_open_w, close_bt);
+  SIGNAL_CONNECT(sum_open_w, "delete_event", window_delete_event_cb, NULL);
 
   gtk_widget_show_all(sum_open_w);
+  window_present(sum_open_w);
 }
 
 

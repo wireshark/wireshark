@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.32 2004/05/22 19:56:19 ulfl Exp $
+ * $Id: summary_dlg.c,v 1.33 2004/05/23 23:24:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,7 +107,7 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   seconds = summary.stop_time - summary.start_time;
   disp_seconds = summary.filtered_stop - summary.filtered_start;
 
-  sum_open_w = dlg_window_new("Ethereal: Summary");
+  sum_open_w = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Summary");
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 12);
@@ -303,14 +303,12 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
 
   close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-  SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, sum_open_w);
-  gtk_widget_grab_default(close_bt);
+  window_set_cancel_button(sum_open_w, close_bt, window_cancel_button_cb);
+
   gtk_widget_grab_focus(close_bt);
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Close" button had
-     been selected. */
-  dlg_set_cancel(sum_open_w, close_bt);
+  SIGNAL_CONNECT(sum_open_w, "delete_event", window_delete_event_cb, NULL);
 
   gtk_widget_show_all(sum_open_w);
+  window_present(sum_open_w);
 }

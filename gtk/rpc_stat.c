@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.45 2004/04/12 08:53:02 ulfl Exp $
+ * $Id: rpc_stat.c,v 1.46 2004/05/23 23:24:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -246,10 +246,9 @@ gtk_rpcstat_init(char *optarg)
 	hf_index=rpc_prog_hf(rpc_program, rpc_version);
 	hfi=proto_registrar_get_nth(hf_index);
 
-	rs->win=dlg_window_new("");
+	rs->win=window_new(GTK_WINDOW_TOPLEVEL, "rpc-stat");
 	gtk_window_set_default_size(GTK_WINDOW(rs->win), 550, 400);
 	rpcstat_set_title(rs);
-	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);
 
 	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(rs->win), vbox);
@@ -293,16 +292,15 @@ gtk_rpcstat_init(char *optarg)
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, rs->win);
-	gtk_widget_grab_default(close_bt);
+    window_set_cancel_button(rs->win, close_bt, window_cancel_button_cb);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(rs->win, close_bt);
+    SIGNAL_CONNECT(rs->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);
 
-	gtk_widget_show_all(rs->win);
-	retap_packets(&cfile);
+    gtk_widget_show_all(rs->win);
+    window_present(rs->win);
+
+    retap_packets(&cfile);
 }
 
 
@@ -399,12 +397,6 @@ dlg_destroy_cb(void)
 }
 
 static void
-dlg_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
-{
-	gtk_widget_destroy(GTK_WIDGET(parent_w));
-}
-
-static void
 gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
 	GtkWidget *dlg_box;
@@ -427,7 +419,6 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	}
 
 	dlg=dlg_window_new("Ethereal: Compute ONC-RPC SRT statistics");
-	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
 
 	dlg_box=gtk_vbox_new(FALSE, 10);
 	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
@@ -516,29 +507,22 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_widget_show(bbox);
 
     start_button = OBJECT_GET_DATA(bbox, ETHEREAL_STOCK_CREATE_STAT);
-    gtk_widget_grab_default(start_button );
     SIGNAL_CONNECT_OBJECT(start_button, "clicked",
                               rpcstat_start_button_clicked, NULL);
 
     cancel_button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-	SIGNAL_CONNECT(cancel_button, "clicked", dlg_cancel_cb, dlg);    
-
-	/* Catch the "activate" signal on the filter text entry, so that
-	   if the user types Return there, we act as if the "Create Stat"
-	   button had been selected, as happens if Return is typed if some
-	   widget that *doesn't* handle the Return key has the input
-	   focus. */
-	dlg_set_activate(filter_entry, start_button);
-
-	/* Catch the "key_press_event" signal in the window, so that we can
-	   catch the ESC key being pressed and act as if the "Cancel" button
-	   had been selected. */
-	dlg_set_cancel(dlg, cancel_button);
+    window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
 
 	/* Give the initial focus to the "Filter" entry box. */
 	gtk_widget_grab_focus(filter_entry);
 
-	gtk_widget_show_all(dlg);
+    gtk_widget_grab_default(start_button );
+
+    SIGNAL_CONNECT(dlg, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
+
+    gtk_widget_show_all(dlg);
+    window_present(dlg);
 }
 
 

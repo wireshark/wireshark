@@ -2,7 +2,7 @@
  * Routines for display filter dialog used by gui taps
  * Copyright 2003 Lars Roland
  *
- * $Id: tap_dfilter_dlg.c,v 1.7 2004/03/13 12:09:27 ulfl Exp $
+ * $Id: tap_dfilter_dlg.c,v 1.8 2004/05/23 23:24:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@
 #include "filter_prefs.h"
 #include "../tap_dfilter_dlg.h"
 #include "tap_dfilter_dlg.h"
+#include "ui_util.h"
 
 extern GtkWidget *main_display_filter_widget;
 
@@ -79,12 +80,6 @@ dlg_destroy_cb(GtkWidget *item _U_, gpointer dialog_data)
 {	
 	tap_dfilter_dlg_list_item *dlg_data = (tap_dfilter_dlg_list_item *) dialog_data;
 	dlg_data->dlg = NULL;
-}
-
-static void
-dlg_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
-{
-	gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
 static void
@@ -164,7 +159,6 @@ gtk_tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 
 	current_dlg->dlg=dlg_window_new(title);
 	g_free(title);
-	SIGNAL_CONNECT(current_dlg->dlg, "destroy", dlg_destroy_cb, current_dlg);
 
 	dlg_box=gtk_vbox_new(FALSE, 10);
 	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
@@ -205,12 +199,11 @@ gtk_tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
     gtk_widget_show(bbox);
 
     start_button = OBJECT_GET_DATA(bbox, ETHEREAL_STOCK_CREATE_STAT);
-    gtk_widget_grab_default(start_button );
     SIGNAL_CONNECT(start_button, "clicked",
                               tap_dfilter_dlg_start_button_clicked, current_dlg);
 
     cancel_button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-	SIGNAL_CONNECT(cancel_button, "clicked", dlg_cancel_cb, current_dlg->dlg);
+    window_set_cancel_button(current_dlg->dlg, cancel_button, window_cancel_button_cb);
 
 	/* Catch the "activate" signal on the filter text entry, so that
 	   if the user types Return there, we act as if the "Create Stat"
@@ -219,13 +212,14 @@ gtk_tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	   focus. */
 	dlg_set_activate(current_dlg->filter_entry, start_button);
 
-	/* Catch the "key_press_event" signal in the window, so that we can
-	   catch the ESC key being pressed and act as if the "Cancel" button
-	   had been selected. */
-	dlg_set_cancel(current_dlg->dlg, cancel_button);
-
 	/* Give the initial focus to the "Filter" entry box. */
 	gtk_widget_grab_focus(current_dlg->filter_entry);
 
-	gtk_widget_show_all(current_dlg->dlg);
+    gtk_widget_grab_default(start_button );
+
+    SIGNAL_CONNECT(current_dlg->dlg, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(current_dlg->dlg, "destroy", dlg_destroy_cb, current_dlg);
+
+    gtk_widget_show_all(current_dlg->dlg);
+    window_present(current_dlg->dlg);
 }

@@ -1,7 +1,7 @@
 /* http_stat.c
  * http_stat   2003 Jean-Michel FAYARD
  *
- * $Id: http_stat.c,v 1.29 2004/05/13 12:19:24 ulfl Exp $
+ * $Id: http_stat.c,v 1.30 2004/05/23 23:24:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -379,17 +379,6 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	g_free(sp);
 }
 
-static void
-httpstat_gtk_dlg_close_cb(
-    GtkButton		*button _U_,
-    gpointer		user_data _U_)
-{
-    httpstat_t *sp = user_data;
-
-    gtk_grab_remove(GTK_WIDGET(sp->win));
-    gtk_widget_destroy(GTK_WIDGET(sp->win));
-}
-
 
 /* When called, this function will create a new instance of gtk_httpstat.
  */
@@ -412,7 +401,10 @@ gtk_httpstat_init(char *optarg)
 		filter=NULL;
 	}
 	
-	sp = g_malloc( sizeof(httpstat_t) );
+	/* top level window */
+    sp = g_malloc( sizeof(httpstat_t) );
+	sp->win = window_new(GTK_WINDOW_TOPLEVEL, "http-stat");
+
 	if(filter){
 		sp->filter=g_strdup(filter);
 		title=g_strdup_printf("HTTP statistics with filter: %s", filter);
@@ -421,10 +413,8 @@ gtk_httpstat_init(char *optarg)
 		title=g_strdup("HTTP statistics");
 	}
 
-	/* top level window */
-	sp->win = dlg_window_new(title);
+    gtk_window_set_title(GTK_WINDOW(sp->win), title);
 	g_free(title);
-	SIGNAL_CONNECT( sp->win, "destroy", win_destroy_cb, sp);
 
 	/* container for each group of status code */
 	main_vb = gtk_vbox_new(FALSE, 12);
@@ -503,15 +493,14 @@ gtk_httpstat_init(char *optarg)
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
     bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    SIGNAL_CONNECT(bt_close, "clicked", httpstat_gtk_dlg_close_cb, sp);
-    gtk_widget_grab_default(bt_close);
+    window_set_cancel_button(sp->win, bt_close, window_cancel_button_cb);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(sp->win, bt_close);
+    SIGNAL_CONNECT(sp->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(sp->win, "destroy", win_destroy_cb, sp);
 
-	gtk_widget_show_all( sp->win );
+    gtk_widget_show_all(sp->win);
+    window_present(sp->win);
+
 	http_init_hash(sp);
 	retap_packets(&cfile);
 }

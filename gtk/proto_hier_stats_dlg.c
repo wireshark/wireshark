@@ -1,6 +1,6 @@
 /* proto_hier_stats_dlg.c
  *
- * $Id: proto_hier_stats_dlg.c,v 1.17 2004/05/01 18:40:20 ulfl Exp $
+ * $Id: proto_hier_stats_dlg.c,v 1.18 2004/05/23 23:24:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -322,7 +322,7 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 		return;
 	}
 
-	dlg = dlg_window_new("Ethereal: Protocol Hierarchy Statistics");
+	dlg = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: Protocol Hierarchy Statistics");
 
 	vbox = gtk_vbox_new(FALSE, 5);
 	gtk_container_border_width(GTK_CONTAINER(vbox), 5);
@@ -339,14 +339,11 @@ proto_hier_stats_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_widget_show(bbox);
 
 	ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-	SIGNAL_CONNECT_OBJECT(ok_bt, "clicked", gtk_widget_destroy, dlg);
-	gtk_widget_grab_default(ok_bt);
+    window_set_cancel_button(dlg, ok_bt, window_cancel_button_cb);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "OK" button had
-	   been selected. */
-	dlg_set_cancel(dlg, ok_bt);
+	SIGNAL_CONNECT(dlg, "delete_event", window_delete_event_cb, NULL);
 
 	gtk_widget_show_all(dlg);
+    window_present(dlg);
 }
 

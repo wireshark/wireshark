@@ -1,7 +1,7 @@
 /* smb_stat.c
  * smb_stat   2003 Ronnie Sahlberg
  *
- * $Id: smb_stat.c,v 1.42 2004/04/12 08:53:02 ulfl Exp $
+ * $Id: smb_stat.c,v 1.43 2004/05/23 23:24:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -170,10 +170,9 @@ gtk_smbstat_init(char *optarg)
 
 	ss=g_malloc(sizeof(smbstat_t));
 
-	ss->win=dlg_window_new("");
+	ss->win=window_new(GTK_WINDOW_TOPLEVEL, "smb-stat");
 	gtk_window_set_default_size(GTK_WINDOW(ss->win), 550, 600);
 	smbstat_set_title(ss);
-	SIGNAL_CONNECT(ss->win, "destroy", win_destroy_cb, ss);
 
 	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(ss->win), vbox);
@@ -227,16 +226,15 @@ gtk_smbstat_init(char *optarg)
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, ss->win);
-	gtk_widget_grab_default(close_bt);
+    window_set_cancel_button(ss->win, close_bt, window_cancel_button_cb);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(ss->win, close_bt);
+    SIGNAL_CONNECT(ss->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(ss->win, "destroy", win_destroy_cb, ss);
 
-	gtk_widget_show_all(ss->win);
-	retap_packets(&cfile);
+    gtk_widget_show_all(ss->win);
+    window_present(ss->win);
+	
+    retap_packets(&cfile);
 }
 
 
@@ -248,12 +246,6 @@ static void
 dlg_destroy_cb(void)
 {
 	dlg=NULL;
-}
-
-static void
-dlg_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
-{
-	gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
 static void
@@ -291,7 +283,6 @@ gtk_smbstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	}
 
 	dlg=dlg_window_new("Ethereal: Compute SMB SRT statistics");
-	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
 
 	dlg_box=gtk_vbox_new(FALSE, 10);
 	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
@@ -332,12 +323,11 @@ gtk_smbstat_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_widget_show(bbox);
 
     start_button = OBJECT_GET_DATA(bbox, ETHEREAL_STOCK_CREATE_STAT);
-    gtk_widget_grab_default(start_button );
     SIGNAL_CONNECT_OBJECT(start_button, "clicked",
                               smbstat_start_button_clicked, NULL);
 
     cancel_button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-	SIGNAL_CONNECT(cancel_button, "clicked", dlg_cancel_cb, dlg);    
+    window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
 
 	/* Catch the "activate" signal on the filter text entry, so that
 	   if the user types Return there, we act as if the "Create Stat"
@@ -346,15 +336,16 @@ gtk_smbstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	   focus. */
 	dlg_set_activate(filter_entry, start_button);
 
-	/* Catch the "key_press_event" signal in the window, so that we can
-	   catch the ESC key being pressed and act as if the "Cancel" button
-	   had been selected. */
-	dlg_set_cancel(dlg, cancel_button);
+    gtk_widget_grab_default(start_button );
 
-	/* Give the initial focus to the "Filter" entry box. */
+    /* Give the initial focus to the "Filter" entry box. */
 	gtk_widget_grab_focus(filter_entry);
 
-	gtk_widget_show_all(dlg);
+    SIGNAL_CONNECT(dlg, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
+
+    gtk_widget_show_all(dlg);
+    window_present(dlg);
 }
 
 void

@@ -1,7 +1,7 @@
 /* wsp_stat.c
  * wsp_stat   2003 Jean-Michel FAYARD
  *
- * $Id: wsp_stat.c,v 1.26 2004/04/12 09:48:19 ulfl Exp $
+ * $Id: wsp_stat.c,v 1.27 2004/05/23 23:24:07 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -251,18 +251,6 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 static void
-wsp_gtk_dlg_close_cb(
-    GtkButton		*button _U_,
-    gpointer		user_data _U_)
-{
-    wspstat_t *sp = user_data;
-
-    gtk_grab_remove(GTK_WIDGET(sp->win));
-    gtk_widget_destroy(GTK_WIDGET(sp->win));
-}
-
-
-static void
 add_table_entry(wspstat_t *sp, char *str, int x, int y, int index)
 {
 	GtkWidget *tmp;
@@ -336,6 +324,7 @@ gtk_wspstat_init(char *optarg)
 	}
 	
 	sp = g_malloc( sizeof(wspstat_t) );
+	sp->win = window_new(GTK_WINDOW_TOPLEVEL, "wsp-stat");
 	sp->hash = g_hash_table_new( g_int_hash, g_int_equal);
 	for (i=0 ; vals_status[i].strptr ; i++ )
 	{
@@ -366,9 +355,8 @@ gtk_wspstat_init(char *optarg)
 		sp->pdu_stats[i].packets=0;
 	}
 
-	sp->win = dlg_window_new(title);
+    gtk_window_set_title(GTK_WINDOW(sp->win), title);
 	g_free(title);
-	SIGNAL_CONNECT( sp->win, "destroy", win_destroy_cb, sp);
 
 	/* container for the two frames */
 	main_vb = gtk_vbox_new(FALSE, 3);
@@ -416,16 +404,15 @@ gtk_wspstat_init(char *optarg)
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
     bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    SIGNAL_CONNECT(bt_close, "clicked", wsp_gtk_dlg_close_cb, sp);
-    gtk_widget_grab_default(bt_close);
+    window_set_cancel_button(sp->win, bt_close, window_cancel_button_cb);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(sp->win, bt_close);
+    SIGNAL_CONNECT(sp->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(sp->win, "destroy", win_destroy_cb, sp);
 
-    gtk_widget_show_all( sp->win );
-	retap_packets(&cfile);
+    gtk_widget_show_all(sp->win);
+    window_present(sp->win);
+	
+    retap_packets(&cfile);
 }
 
 static tap_dfilter_dlg wsp_stat_dlg = {

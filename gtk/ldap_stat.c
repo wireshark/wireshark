@@ -1,7 +1,7 @@
 /* ldap_stat.c
  * ldap_stat   2003 Ronnie Sahlberg
  *
- * $Id: ldap_stat.c,v 1.19 2004/04/12 08:53:02 ulfl Exp $
+ * $Id: ldap_stat.c,v 1.20 2004/05/23 23:24:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,10 +162,9 @@ gtk_ldapstat_init(char *optarg)
 
 	ldap=g_malloc(sizeof(ldapstat_t));
 
-	ldap->win=dlg_window_new("");
+	ldap->win=window_new(GTK_WINDOW_TOPLEVEL, "ldap-stat");
 	gtk_window_set_default_size(GTK_WINDOW(ldap->win), 550, 400);
 	ldapstat_set_title(ldap);
-	SIGNAL_CONNECT(ldap->win, "destroy", win_destroy_cb, ldap);
 
 	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(ldap->win), vbox);
@@ -224,16 +223,15 @@ gtk_ldapstat_init(char *optarg)
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, ldap->win);
-	gtk_widget_grab_default(close_bt);
+    window_set_cancel_button(ldap->win, close_bt, window_cancel_button_cb);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(ldap->win, close_bt);
+    SIGNAL_CONNECT(ldap->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(ldap->win, "destroy", win_destroy_cb, ldap);
 
-	gtk_widget_show_all(ldap->win);
-	retap_packets(&cfile);
+    gtk_widget_show_all(ldap->win);
+    window_present(ldap->win);
+	
+    retap_packets(&cfile);
 }
 
 
@@ -245,12 +243,6 @@ static void
 dlg_destroy_cb(void)
 {
 	dlg=NULL;
-}
-
-static void
-dlg_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
-{
-	gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
 static void
@@ -288,7 +280,6 @@ gtk_ldapstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	}
 
 	dlg=dlg_window_new("Ethereal: Compute LDAP Service Response Time statistics");
-	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
 
 	dlg_box=gtk_vbox_new(FALSE, 10);
 	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
@@ -329,12 +320,11 @@ gtk_ldapstat_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_widget_show(bbox);
 
     start_button = OBJECT_GET_DATA(bbox, ETHEREAL_STOCK_CREATE_STAT);
-    gtk_widget_grab_default(start_button );
     SIGNAL_CONNECT_OBJECT(start_button, "clicked",
                               ldapstat_start_button_clicked, NULL);
 
     cancel_button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-	SIGNAL_CONNECT(cancel_button, "clicked", dlg_cancel_cb, dlg);    
+    window_set_cancel_button(dlg, cancel_button, window_cancel_button_cb);
 
 	/* Catch the "activate" signal on the filter text entry, so that
 	   if the user types Return there, we act as if the "Create Stat"
@@ -343,15 +333,15 @@ gtk_ldapstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	   focus. */
 	dlg_set_activate(filter_entry, start_button);
 
-	/* Catch the "key_press_event" signal in the window, so that we can
-	   catch the ESC key being pressed and act as if the "Cancel" button
-	   had been selected. */
-	dlg_set_cancel(dlg, cancel_button);
+    gtk_widget_grab_default(start_button );
 
-	/* Give the initial focus to the "Filter" entry box. */
+    /* Give the initial focus to the "Filter" entry box. */
 	gtk_widget_grab_focus(filter_entry);
 
-	gtk_widget_show_all(dlg);
+	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
+
+    gtk_widget_show_all(dlg);
+    window_present(dlg);
 }
 
 void

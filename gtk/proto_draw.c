@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.99 2004/05/21 00:18:46 guy Exp $
+ * $Id: proto_draw.c,v 1.100 2004/05/23 23:24:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -792,12 +792,6 @@ savehex_dlg_destroy_cb(void)
         savehex_dlg = NULL;
 }
 
-static void
-savehex_dlg_cancel_cb(GtkWidget *cancel_bt _U_, gpointer parent_w)
-{
-	gtk_widget_destroy(GTK_WIDGET(parent_w));
-}
-
 /* Forward declaration */
 static void
 savehex_save_clicked_cb(GtkWidget * w, gpointer data);
@@ -846,7 +840,6 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 	 */
 
 	savehex_dlg=dlg_window_new("Ethereal: Export Selected Packet Bytes");
-	SIGNAL_CONNECT(savehex_dlg, "destroy", savehex_dlg_destroy_cb, NULL);
 
 	dlg_box=gtk_vbox_new(FALSE, 10);
 	gtk_container_border_width(GTK_CONTAINER(dlg_box), 10);
@@ -895,11 +888,10 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
     save_button = OBJECT_GET_DATA(bbox, GTK_STOCK_SAVE);
     SIGNAL_CONNECT_OBJECT(save_button, "clicked",
                               savehex_save_clicked_cb, NULL);
-	gtk_widget_grab_default(save_button);
 	gtk_tooltips_set_tip (tooltips, save_button, ("Save the data to the specified file"), NULL);
 
 	cancel_button = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-	SIGNAL_CONNECT(cancel_button, "clicked", savehex_dlg_cancel_cb, savehex_dlg);
+    window_set_cancel_button(savehex_dlg, cancel_button, window_cancel_button_cb);
 	gtk_tooltips_set_tip (tooltips, cancel_button, ("Cancel save and quit dialog"), NULL);
 
 	/* Catch the "activate" signal on the filter text entry, so that
@@ -909,15 +901,16 @@ void savehex_cb(GtkWidget * w _U_, gpointer data _U_)
 	   focus. */
 	dlg_set_activate(file_entry, save_button);
 
-	/* Catch the "key_press_event" signal in the window, so that we can
-	   catch the ESC key being pressed and act as if the "Cancel" button
-	   had been selected. */
-	dlg_set_cancel(savehex_dlg, cancel_button);
+	gtk_widget_grab_default(save_button);
 
-	/* Give the initial focus to the "File" entry box. */
+    /* Give the initial focus to the "File" entry box. */
 	gtk_widget_grab_focus(file_entry);
 
-	gtk_widget_show_all(savehex_dlg);
+	SIGNAL_CONNECT(savehex_dlg, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(savehex_dlg, "destroy", savehex_dlg_destroy_cb, NULL);
+
+    gtk_widget_show_all(savehex_dlg);
+    window_present(savehex_dlg);
 }
 
 /* save the current highlighted hex data as hex_raw.dat */

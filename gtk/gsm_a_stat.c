@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: gsm_a_stat.c,v 1.17 2004/04/12 08:53:02 ulfl Exp $
+ * $Id: gsm_a_stat.c,v 1.18 2004/05/23 23:24:05 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -349,18 +349,6 @@ gsm_a_stat_gtk_sort_column(
 
 
 static void
-gsm_a_stat_gtk_dlg_close_cb(
-    GtkButton		*button _U_,
-    gpointer		user_data _U_)
-{
-    gsm_a_stat_dlg_t	*dlg_p = user_data;
-
-    gtk_grab_remove(GTK_WIDGET(dlg_p->win));
-    gtk_widget_destroy(GTK_WIDGET(dlg_p->win));
-}
-
-
-static void
 gsm_a_stat_gtk_win_destroy_cb(
     GtkWindow		*win _U_,
     gpointer		user_data _U_)
@@ -378,18 +366,14 @@ gsm_a_stat_gtk_win_create(
     char		*default_titles[] = { "IEI", "Message Name", "Count" };
     int			i;
     column_arrows	*col_arrows;
-    GdkBitmap		*ascend_bm, *descend_bm;
-    GdkPixmap		*ascend_pm, *descend_pm;
-    GtkStyle		*win_style;
     GtkWidget		*column_lb;
     GtkWidget		*vbox;
     GtkWidget		*bt_close;
     GtkWidget		*bbox;
 
 
-    dlg_p->win = dlg_window_new(title);
+    dlg_p->win = window_new(GTK_WINDOW_TOPLEVEL, title);
     gtk_window_set_default_size(GTK_WINDOW(dlg_p->win), 490, 500);
-    SIGNAL_CONNECT(dlg_p->win, "destroy", gsm_a_stat_gtk_win_destroy_cb, dlg_p);
 
     vbox = gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(dlg_p->win), vbox);
@@ -400,26 +384,8 @@ gsm_a_stat_gtk_win_create(
 
     dlg_p->table = gtk_clist_new(INIT_TABLE_NUM_COLUMNS);
 
-	/* We must display dialog widget before calling gdk_pixmap_create_from_xpm_d() */
-    gtk_widget_show_all(dlg_p->win);
-
     col_arrows =
 	(column_arrows *) g_malloc(sizeof(column_arrows) * INIT_TABLE_NUM_COLUMNS);
-
-    win_style =
-	gtk_widget_get_style(dlg_p->scrolled_win);
-
-    ascend_pm =
-	gdk_pixmap_create_from_xpm_d(dlg_p->scrolled_win->window,
-	    &ascend_bm,
-	    &win_style->bg[GTK_STATE_NORMAL],
-	    (gchar **) clist_ascend_xpm);
-
-    descend_pm =
-	gdk_pixmap_create_from_xpm_d(dlg_p->scrolled_win->window,
-	    &descend_bm,
-	    &win_style->bg[GTK_STATE_NORMAL],
-	    (gchar **)clist_descend_xpm);
 
     for (i = 0; i < INIT_TABLE_NUM_COLUMNS; i++)
     {
@@ -434,14 +400,12 @@ gsm_a_stat_gtk_win_create(
 
 	gtk_widget_show(column_lb);
 
-	col_arrows[i].ascend_pm =
-	    gtk_pixmap_new(ascend_pm, ascend_bm);
+	col_arrows[i].ascend_pm = xpm_to_widget(clist_ascend_xpm);
 
 	gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm,
 	    1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
 
-	col_arrows[i].descend_pm =
-	    gtk_pixmap_new(descend_pm, descend_bm);
+	col_arrows[i].descend_pm = xpm_to_widget(clist_descend_xpm);
 
 	gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm,
 	    1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
@@ -476,15 +440,13 @@ gsm_a_stat_gtk_win_create(
     gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    SIGNAL_CONNECT(bt_close, "clicked", gsm_a_stat_gtk_dlg_close_cb, dlg_p);
-    gtk_widget_grab_default(bt_close);
+    window_set_cancel_button(dlg_p->win, bt_close, window_cancel_button_cb);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(dlg_p->win, bt_close);
+    SIGNAL_CONNECT(dlg_p->win, "delete_event", window_delete_event_cb, NULL);
+    SIGNAL_CONNECT(dlg_p->win, "destroy", gsm_a_stat_gtk_win_destroy_cb, dlg_p);
 
     gtk_widget_show_all(dlg_p->win);
+    window_present(dlg_p->win);
 }
 
 

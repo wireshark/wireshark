@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all host list taps.
  *
- * $Id: hostlist_table.c,v 1.11 2004/05/07 12:15:23 ulfl Exp $
+ * $Id: hostlist_table.c,v 1.12 2004/05/23 23:24:05 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -657,12 +657,10 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
 
 	hosttable->name=table_name;
 	g_snprintf(title, 255, "%s Endpoints: %s", table_name, cf_get_display_name(&cfile));
-	hosttable->win=dlg_window_new(title);
+	hosttable->win=window_new(GTK_WINDOW_TOPLEVEL, title);
 	hosttable->page_lb=NULL;
     hosttable->resolve_names=TRUE;
 	gtk_window_set_default_size(GTK_WINDOW(hosttable->win), 750, 400);
-
-	SIGNAL_CONNECT(hosttable->win, "destroy", hostlist_win_destroy_cb, hosttable);
 
 	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(hosttable->win), vbox);
@@ -679,16 +677,15 @@ init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char 
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, hosttable->win);
-	gtk_widget_grab_default(close_bt);
+    window_set_cancel_button(hosttable->win, close_bt, window_cancel_button_cb);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(hosttable->win, close_bt);
+    SIGNAL_CONNECT(hosttable->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(hosttable->win, "destroy", hostlist_win_destroy_cb, hosttable);
 
 	gtk_widget_show_all(hosttable->win);
-	retap_packets(&cfile);
+    window_present(hosttable->win);
+
+    retap_packets(&cfile);
 
     /* after retapping, redraw table */
     draw_hostlist_table_data(hosttable);
@@ -805,11 +802,10 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     pages = g_malloc(sizeof(void *) * (g_slist_length(registered_hostlist_tables) + 1));
 
+	win=window_new(GTK_WINDOW_TOPLEVEL, "hostlist");
 	g_snprintf(title, 255, "Endpoints: %s", cf_get_display_name(&cfile));
-	win=dlg_window_new(title);
+    gtk_window_set_title(GTK_WINDOW(win), title);
 	gtk_window_set_default_size(GTK_WINDOW(win), 750, 400);
-
-	SIGNAL_CONNECT(win, "destroy", hostlist_win_destroy_notebook_cb, pages);
 
     vbox=gtk_vbox_new(FALSE, 6);
 	gtk_container_add(GTK_CONTAINER(win), vbox);
@@ -852,16 +848,15 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, win);
-	gtk_widget_grab_default(close_bt);
+    window_set_cancel_button(win, close_bt, window_cancel_button_cb);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(win, close_bt);
+    SIGNAL_CONNECT(win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(win, "destroy", hostlist_win_destroy_notebook_cb, pages);
 
 	gtk_widget_show_all(win);
-	retap_packets(&cfile);
+    window_present(win);
+
+    retap_packets(&cfile);
 
     /* after retapping, redraw table */
     for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {

@@ -1,7 +1,7 @@
 /* sip_stat.c
  * sip_stat   2004 Martin Mathieson
  *
- * $Id: sip_stat.c,v 1.5 2004/04/22 20:08:46 etxrab Exp $
+ * $Id: sip_stat.c,v 1.6 2004/05/23 23:24:06 ulfl Exp $
  * Copied from http_stat.c
  *
  * Ethereal - Network traffic analyzer
@@ -495,17 +495,6 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
     g_free(sp);
 }
 
-static void
-sipstat_gtk_dlg_close_cb(
-    GtkButton		*button _U_,
-    gpointer		user_data _U_)
-{
-    sipstat_t *sp = user_data;
-
-    gtk_grab_remove(GTK_WIDGET(sp->win));
-    gtk_widget_destroy(GTK_WIDGET(sp->win));
-}
-
 
 /* Create a new instance of gtk_sipstat. */
 static void
@@ -536,6 +525,7 @@ gtk_sipstat_init(char *optarg)
 
     /* Create sip stats window structure */
     sp = g_malloc(sizeof(sipstat_t));
+    sp->win = window_new(GTK_WINDOW_TOPLEVEL, "sip-stat");
 
     /* Set title to include any filter given */
     if (filter)
@@ -549,12 +539,8 @@ gtk_sipstat_init(char *optarg)
         title = g_strdup("SIP statistics");
     }
 
-    /* Create underlying window */
-    sp->win = dlg_window_new(title);
+    gtk_window_set_title(GTK_WINDOW(sp->win), title);
     g_free(title);
-
-    /* Set destroy callback for underlying window */
-    SIGNAL_CONNECT(sp->win, "destroy", win_destroy_cb, sp);
 
 
     /* Create container for all widgets */
@@ -652,16 +638,15 @@ gtk_sipstat_init(char *optarg)
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
 
     bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    SIGNAL_CONNECT(bt_close, "clicked", sipstat_gtk_dlg_close_cb, sp);
-    gtk_widget_grab_default(bt_close);
+    window_set_cancel_button(sp->win, bt_close, window_cancel_button_cb);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(sp->win, bt_close);
+    SIGNAL_CONNECT(sp->win, "delete_event", window_delete_event_cb, NULL);
+    SIGNAL_CONNECT(sp->win, "destroy", win_destroy_cb, sp);
 
     /* Display up-to-date contents */
     gtk_widget_show_all(sp->win);
+    window_present(sp->win);
+
     sip_init_hash(sp);
     retap_packets(&cfile);
 }

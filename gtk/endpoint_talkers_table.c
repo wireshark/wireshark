@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.39 2004/05/05 20:12:50 ulfl Exp $
+ * $Id: endpoint_talkers_table.c,v 1.40 2004/05/23 23:24:05 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1177,12 +1177,10 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 
 	talkers->name=table_name;
 	g_snprintf(title, 255, "%s Conversations: %s", table_name, cf_get_display_name(&cfile));
-	talkers->win=dlg_window_new(title);
+	talkers->win=window_new(GTK_WINDOW_TOPLEVEL, title);
 	talkers->page_lb=NULL;
     talkers->resolve_names=TRUE;
     gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
-
-	SIGNAL_CONNECT(talkers->win, "destroy", ett_win_destroy_cb, talkers);
 
 	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(talkers->win), vbox);
@@ -1199,15 +1197,14 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, talkers->win);
-	gtk_widget_grab_default(close_bt);
+    window_set_cancel_button(talkers->win, close_bt, window_cancel_button_cb);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(talkers->win, close_bt);
+    SIGNAL_CONNECT(talkers->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(talkers->win, "destroy", ett_win_destroy_cb, talkers);
 
 	gtk_widget_show_all(talkers->win);
+    window_present(talkers->win);
+
 	retap_packets(&cfile);
 
     /* after retapping, redraw table */
@@ -1326,10 +1323,8 @@ init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     pages = g_malloc(sizeof(void *) * (g_slist_length(registered_ett_tables) + 1));
 
 	g_snprintf(title, 255, "Conversations: %s", cf_get_display_name(&cfile));
-	win=dlg_window_new(title);
+	win=window_new(GTK_WINDOW_TOPLEVEL, title);
 	gtk_window_set_default_size(GTK_WINDOW(win), 750, 400);
-
-	SIGNAL_CONNECT(win, "destroy", ett_win_destroy_notebook_cb, pages);
 
     vbox=gtk_vbox_new(FALSE, 6);
 	gtk_container_add(GTK_CONTAINER(win), vbox);
@@ -1372,16 +1367,15 @@ init_ett_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 	gtk_box_pack_end(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, win);
-	gtk_widget_grab_default(close_bt);
+    window_set_cancel_button(win, close_bt, window_cancel_button_cb);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(win, close_bt);
+    SIGNAL_CONNECT(win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(win, "destroy", ett_win_destroy_notebook_cb, pages);
 
 	gtk_widget_show_all(win);
-	retap_packets(&cfile);
+    window_present(win);
+
+    retap_packets(&cfile);
 
     /* after retapping, redraw table */
     for (page=1; page<=GPOINTER_TO_INT(pages[0]); page++) {

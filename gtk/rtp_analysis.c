@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.41 2004/05/22 19:56:19 ulfl Exp $
+ * $Id: rtp_analysis.c,v 1.42 2004/05/23 23:24:06 ulfl Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -914,14 +914,6 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 
 	gtk_clist_sort(user_data->dlg.clist_fwd);
 	gtk_clist_sort(user_data->dlg.clist_rev);
-}
-
-/****************************************************************************/
-/* on_destroy is automatically called after that */
-static void on_close_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
-{
-	gtk_grab_remove(GTK_WIDGET(user_data->dlg.window));
-	gtk_widget_destroy(GTK_WIDGET(user_data->dlg.window));
 }
 
 /****************************************************************************/
@@ -1920,8 +1912,7 @@ void create_rtp_dialog(user_data_t* user_data)
 	column_arrows *col_arrows_rev;
 	
 
-	window = dlg_window_new("Ethereal: RTP Stream Analysis");
-	SIGNAL_CONNECT(window, "destroy", on_destroy, user_data);
+	window = window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: RTP Stream Analysis");
 
 	/* Container for each row of widgets */
 	main_vb = gtk_vbox_new(FALSE, 2);
@@ -2057,9 +2048,13 @@ void create_rtp_dialog(user_data_t* user_data)
 	close_bt = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLOSE);
 	gtk_container_add(GTK_CONTAINER(box4), close_bt);
 	gtk_widget_show(close_bt);
-	SIGNAL_CONNECT(close_bt, "clicked", on_close_bt_clicked, user_data);
+    window_set_cancel_button(window, close_bt, window_cancel_button_cb);
 
-	gtk_widget_show(window);
+    SIGNAL_CONNECT(window, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(window, "destroy", on_destroy, user_data);
+
+    gtk_widget_show(window);
+    window_present(window);
 
 	/* sort by column feature */
 	col_arrows_fwd = add_sort_by_column(window, clist_fwd, user_data);

@@ -1,7 +1,7 @@
 /* rpc_progs.c
  * rpc_progs   2002 Ronnie Sahlberg
  *
- * $Id: rpc_progs.c,v 1.24 2004/05/17 20:06:32 sahlberg Exp $
+ * $Id: rpc_progs.c,v 1.25 2004/05/23 23:24:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -317,16 +317,6 @@ win_destroy_cb(void *dummy _U_, gpointer data _U_)
 }
 
 
-static void
-rpcprogs_gtk_dlg_close_cb(
-    GtkButton		*button _U_,
-    gpointer		user_data _U_)
-{
-    gtk_grab_remove(GTK_WIDGET(user_data));
-    gtk_widget_destroy(GTK_WIDGET(user_data));
-}
-
-
 /* When called, this function will start rpcprogs
  */
 void
@@ -344,8 +334,7 @@ gtk_rpcprogs_init(char *optarg _U_)
 		return;
 	}
 
-	win=dlg_window_new("ONC-RPC Program Statistics");
-	SIGNAL_CONNECT(win, "destroy", win_destroy_cb, win);
+	win=window_new(GTK_WINDOW_TOPLEVEL, "ONC-RPC Program Statistics");
 
 	vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(win), vbox);
@@ -395,16 +384,15 @@ gtk_rpcprogs_init(char *optarg _U_)
     gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    SIGNAL_CONNECT(bt_close, "clicked", rpcprogs_gtk_dlg_close_cb, win);
-    gtk_widget_grab_default(bt_close);
+    window_set_cancel_button(win, bt_close, window_cancel_button_cb);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(win, bt_close);
+    SIGNAL_CONNECT(win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(win, "destroy", win_destroy_cb, win);
 
-	gtk_widget_show_all(win);
-	redissect_packets(&cfile);
+    gtk_widget_show_all(win);
+    window_present(win);
+	
+    redissect_packets(&cfile);
 }
 
 static void

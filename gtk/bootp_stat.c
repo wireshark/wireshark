@@ -1,7 +1,7 @@
 /* bootp_stat.c
  * boop_stat   2003 Jean-Michel FAYARD
  *
- * $Id: bootp_stat.c,v 1.26 2004/04/12 08:53:01 ulfl Exp $
+ * $Id: bootp_stat.c,v 1.27 2004/05/23 23:24:05 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -188,18 +188,6 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 }
 
 
-static void
-dhspstat_gtk_dlg_close_cb(
-    GtkButton		*button _U_,
-    gpointer		user_data _U_)
-{
-    dhcpstat_t *sp = user_data;
-
-    gtk_grab_remove(GTK_WIDGET(sp->win));
-    gtk_widget_destroy(GTK_WIDGET(sp->win));
-}
-
-
 /* When called, this function will create a new instance of gtk2-dhcpstat.
  */
 static void
@@ -231,9 +219,8 @@ dhcpstat_init(char *optarg)
 	}
 
 	/* top level window */
-	sp->win = dlg_window_new(title);
+	sp->win = window_new(GTK_WINDOW_TOPLEVEL, title);
 	g_free(title);
-	SIGNAL_CONNECT( sp->win, "destroy", win_destroy_cb, sp);
 
     vbox = gtk_vbox_new(FALSE, 3);
 	gtk_container_add(GTK_CONTAINER(sp->win), vbox);
@@ -272,16 +259,16 @@ dhcpstat_init(char *optarg)
     gtk_box_pack_start(GTK_BOX(vbox), bbox, FALSE, FALSE, 0);
 
     bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-    SIGNAL_CONNECT(bt_close, "clicked", dhspstat_gtk_dlg_close_cb, sp);
-    gtk_widget_grab_default(bt_close);
+    window_set_cancel_button(sp->win, bt_close, window_cancel_button_cb);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(sp->win, bt_close);
+    SIGNAL_CONNECT(sp->win, "delete_event", window_delete_event_cb, NULL);
+    SIGNAL_CONNECT(sp->win, "destroy", win_destroy_cb, sp);
 
-    gtk_widget_show_all( sp->win );
-	retap_packets(&cfile);
+    gtk_widget_show_all(sp->win);
+
+    window_present(sp->win);
+
+    retap_packets(&cfile);
 }
 
 static tap_dfilter_dlg dhcp_stat_dlg = {

@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.60 2004/04/12 09:48:18 ulfl Exp $
+ * $Id: tcp_graph.c,v 1.61 2004/05/23 23:24:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -423,7 +423,6 @@ static void callback_mag_flags (GtkWidget * , gpointer );
 static void callback_graph_type (GtkWidget * , gpointer );
 static void callback_graph_init_on_typechg (GtkWidget * , gpointer );
 static void callback_create_help (GtkWidget * , gpointer );
-static void callback_close_help (GtkWidget * , gpointer );
 static void update_zoom_spins (struct graph * );
 static int get_headers (frame_data *, char * , struct segment * );
 static int compare_headers (struct segment * , struct segment * , int );
@@ -722,7 +721,8 @@ static void create_drawing_area (struct graph *g)
 					(current.iphdr.daddr>>24)&0xff,
 					g_ntohs(current.tcphdr.dest)
 );
-	g->toplevel = dlg_window_new (window_title);
+	g->toplevel = dlg_window_new ("Tcp Graph");
+    gtk_window_set_title(GTK_WINDOW(g->toplevel), window_title);
 	gtk_widget_set_name (g->toplevel, "Test Graph");
 
 	/* Create the drawing area */
@@ -882,8 +882,8 @@ static void control_panel_create (struct graph *g)
 
 	g_snprintf (window_title, WINDOW_TITLE_LENGTH,
 				"Graph %d - Control - Ethereal", refnum);
-	toplevel = dlg_window_new (window_title);
-	SIGNAL_CONNECT(toplevel, "destroy", callback_toplevel_destroy, g);
+	toplevel = dlg_window_new ("tcp-graph-control");
+    gtk_window_set_title(GTK_WINDOW(toplevel), window_title);
 
 	table = gtk_table_new (2, 1,  FALSE);
 	gtk_container_add (GTK_CONTAINER (toplevel), table);
@@ -908,10 +908,14 @@ static void control_panel_create (struct graph *g)
 	   been selected. */
 	dlg_set_cancel(toplevel, close_bt);
 
+	SIGNAL_CONNECT(toplevel, "destroy", callback_toplevel_destroy, g);
+
 	/* gtk_widget_show_all (table); */
 	/* g->gui.control_panel = table; */
 	gtk_widget_show_all (toplevel);
-	g->gui.control_panel = toplevel;
+    window_present(toplevel);
+
+    g->gui.control_panel = toplevel;
 }
 
 static void control_panel_add_zoom_page (struct graph *g, GtkWidget *n)
@@ -1031,7 +1035,7 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
 #endif
 
 	toplevel = dlg_window_new ("Help for TCP graphing");
-	WIDGET_SET_SIZE(toplevel, 500, 400);
+	gtk_window_set_default_size(GTK_WINDOW(toplevel), 500, 400);
 
 	vbox = gtk_vbox_new (FALSE, 3);
     gtk_container_border_width(GTK_CONTAINER(vbox), 12);
@@ -1063,20 +1067,12 @@ static void callback_create_help(GtkWidget *widget _U_, gpointer data _U_)
     gtk_widget_show(bbox);
 
     close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-	SIGNAL_CONNECT(close_bt, "clicked", callback_close_help, toplevel);
-    gtk_widget_grab_default(close_bt);
+    window_set_cancel_button(toplevel, close_bt, window_cancel_button_cb);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(toplevel, close_bt);
+    SIGNAL_CONNECT(toplevel, "delete_event", window_delete_event_cb, NULL);
 
 	gtk_widget_show_all (toplevel);
-}
-
-static void callback_close_help (GtkWidget *widget _U_, gpointer data)
-{
-	gtk_widget_destroy ((GtkWidget * )data);
+    window_present(toplevel);
 }
 
 static void callback_time_origin (GtkWidget *toggle _U_, gpointer data)
@@ -1763,10 +1759,10 @@ static void graph_destroy (struct graph *g)
 
 	axis_destroy (g->x_axis);
 	axis_destroy (g->y_axis);
-	/* gtk_widget_destroy (g->drawing_area); */
-	gtk_widget_destroy (g->gui.control_panel);
-	gtk_widget_destroy (g->toplevel);
-	/* gtk_widget_destroy (g->text); */
+	/* window_destroy (g->drawing_area); */
+	window_destroy (g->gui.control_panel);
+	window_destroy (g->toplevel);
+	/* window_destroy (g->text); */
 	gdk_gc_unref (g->fg_gc);
 	gdk_gc_unref (g->bg_gc);
 #if GTK_MAJOR_VERSION < 2
@@ -2705,9 +2701,9 @@ static void magnify_create (struct graph *g, int x, int y)
 	mg = g->magnify.g = (struct graph * )malloc (sizeof (struct graph));
 	memcpy ((void * )mg, (void * )g, sizeof (struct graph));
 
-	mg->toplevel = dlg_window_new (NULL);
+	mg->toplevel = dlg_window_new("tcp graph magnify");
 	mg->drawing_area = mg->toplevel;
-	WIDGET_SET_SIZE(mg->toplevel, g->magnify.width, g->magnify.height);
+	gtk_window_set_default_size(GTK_WINDOW(mg->toplevel), g->magnify.width, g->magnify.height);
 	gtk_widget_set_events (mg->drawing_area, GDK_EXPOSURE_MASK
 			/*		| GDK_ENTER_NOTIFY_MASK	*/
 			/*		| GDK_ALL_EVENTS_MASK	*/
@@ -2788,7 +2784,7 @@ static void magnify_destroy (struct graph *g)
 	struct element_list *list;
 	struct graph *mg = g->magnify.g;
 
-	gtk_widget_destroy (GTK_WIDGET (mg->drawing_area));
+	window_destroy (GTK_WIDGET (mg->drawing_area));
 	gdk_pixmap_unref (mg->pixmap[0]);
 	gdk_pixmap_unref (mg->pixmap[1]);
 	for (list=mg->elists; list; list=list->next)

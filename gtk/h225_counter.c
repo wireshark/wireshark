@@ -2,7 +2,7 @@
  * h225 message counter for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: h225_counter.c,v 1.19 2004/05/22 19:56:18 ulfl Exp $
+ * $Id: h225_counter.c,v 1.20 2004/05/23 23:24:05 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -523,8 +523,7 @@ gtk_h225counter_init(char *optarg)
 
 	h225counter_reset(hs);
 
-	hs->win=dlg_window_new("Ethereal: H225 counters");
-	SIGNAL_CONNECT(hs->win, "destroy", win_destroy_cb, hs);
+	hs->win=window_new(GTK_WINDOW_TOPLEVEL, "Ethereal: H225 counters");
 
 	hs->vbox=gtk_vbox_new(FALSE, 3);
 	gtk_container_set_border_width(GTK_CONTAINER(hs->vbox), 12);
@@ -551,15 +550,15 @@ gtk_h225counter_init(char *optarg)
 	gtk_box_pack_end(GTK_BOX(hs->vbox), bbox, FALSE, FALSE, 0);
 
 	close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-	SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, hs->win);
-	gtk_widget_grab_default(close_bt);
+    window_set_cancel_button(hs->win, close_bt, window_cancel_button_cb);
 
-	/* Catch the "key_press_event" signal in the window, so that we can 
-	   catch the ESC key being pressed and act as if the "Close" button had
-	   been selected. */
-	dlg_set_cancel(hs->win, close_bt);
+    SIGNAL_CONNECT(hs->win, "delete_event", window_delete_event_cb, NULL);
+    SIGNAL_CONNECT(hs->win, "destroy", win_destroy_cb, hs);
 
 	gtk_widget_show_all(hs->win);
+    window_present(hs->win);
+
+    /* XXX - shouldn't this be retap_packets? */
 	redissect_packets(&cfile);
 }
 

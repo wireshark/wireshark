@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.75 2004/05/22 19:56:18 ulfl Exp $
+ * $Id: io_stat.c,v 1.76 2004/05/23 23:24:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1868,16 +1868,6 @@ create_filter_area(io_stat_t *io, GtkWidget *box)
 }
 
 
-static void
-io_stat_close_cb(
-    GtkButton		*button _U_,
-    gpointer		parent_w)
-{
-    gtk_grab_remove(GTK_WIDGET(parent_w));
-    gtk_widget_destroy(GTK_WIDGET(parent_w));
-}
-
-
 static void 
 init_io_stat_window(io_stat_t *io)
 {
@@ -1886,7 +1876,7 @@ init_io_stat_window(io_stat_t *io)
     GtkWidget *bt_close;
 
 	/* create the main window */
-	io->window=dlg_window_new("I/O Graphs");
+	io->window=window_new(GTK_WINDOW_TOPLEVEL, "I/O Graphs");
 
 	vbox=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(io->window), vbox);
@@ -1910,15 +1900,12 @@ init_io_stat_window(io_stat_t *io)
     gtk_widget_show(hbox);
 
     bt_close = OBJECT_GET_DATA(hbox, GTK_STOCK_CLOSE);
-    gtk_widget_grab_default(bt_close);
-    SIGNAL_CONNECT(bt_close, "clicked", io_stat_close_cb, io->window);
+    window_set_cancel_button(io->window, bt_close, window_cancel_button_cb);
 
-    /* Catch the "key_press_event" signal in the window, so that we can
-	   catch the ESC key being pressed and act as if the "Cancel" button
-	   had been selected. */
-	dlg_set_cancel(io->window, bt_close);
+    SIGNAL_CONNECT(io->window, "delete_event", window_delete_event_cb, NULL);
 
     gtk_widget_show(io->window);
+    window_present(io->window);
 }
 
 

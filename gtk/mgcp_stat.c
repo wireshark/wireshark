@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.34 2004/05/22 19:56:19 ulfl Exp $
+ * $Id: mgcp_stat.c,v 1.35 2004/05/23 23:24:06 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -263,6 +263,8 @@ gtk_mgcpstat_init(char *optarg)
 	mgcpstat_t *ms;
 	char *filter=NULL;
 	GString *error_string;
+    GtkWidget		*bt_close;
+    GtkWidget		*bbox;
 
 	if(strncmp(optarg,"mgcp,srt,",9) == 0){
 		filter=optarg+9;
@@ -276,10 +278,9 @@ gtk_mgcpstat_init(char *optarg)
 
 	mgcpstat_reset(ms);
 
-	ms->win=dlg_window_new("MGCP SRT");
-	SIGNAL_CONNECT(ms->win, "destroy", win_destroy_cb, ms);
+	ms->win=window_new(GTK_WINDOW_TOPLEVEL, "MGCP SRT");
 
-	ms->vbox=gtk_vbox_new(FALSE, 0);
+	ms->vbox=gtk_vbox_new(FALSE, 3);
 
 	init_main_stat_window(ms->win, ms->vbox, "MGCP Service Response Time (SRT) Statistics", filter);
 
@@ -299,8 +300,20 @@ gtk_mgcpstat_init(char *optarg)
 		return;
 	}
 
-	gtk_widget_show_all(ms->win);
-	retap_packets(&cfile);
+	/* Button row. */
+    bbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+    gtk_box_pack_start(GTK_BOX(ms->vbox), bbox, FALSE, FALSE, 0);
+
+    bt_close = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
+    window_set_cancel_button(ms->win, bt_close, window_cancel_button_cb);
+
+    SIGNAL_CONNECT(ms->win, "delete_event", window_delete_event_cb, NULL);
+	SIGNAL_CONNECT(ms->win, "destroy", win_destroy_cb, ms);
+
+    gtk_widget_show_all(ms->win);
+    window_present(ms->win);
+	
+    retap_packets(&cfile);
 }
 
 static tap_dfilter_dlg mgcp_srt_dlg = {
@@ -316,6 +329,6 @@ register_tap_listener_gtkmgcpstat(void)
 	register_ethereal_tap("mgcp,srt", gtk_mgcpstat_init);
 
 	if (find_tap_id("mgcp"))
-		register_tap_menu_item("MGCP...", REGISTER_TAP_GROUP_NONE,
+		register_tap_menu_item("MGCP...", REGISTER_TAP_GROUP_RESPONSE_TIME,
 		    gtk_tap_dfilter_dlg_cb, NULL, NULL, &(mgcp_srt_dlg));
 }

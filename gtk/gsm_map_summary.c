@@ -6,7 +6,7 @@
  *
  * Modified from summary_dlg.c
  *
- * $Id: gsm_map_summary.c,v 1.2 2004/05/22 19:56:18 ulfl Exp $
+ * $Id: gsm_map_summary.c,v 1.3 2004/05/23 23:24:05 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,7 +85,7 @@ gsm_map_stat_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   /* initial compututations */
   seconds = summary.stop_time - summary.start_time;
 
-  sum_open_w = dlg_window_new("GSM MAP Statistics: Summary");
+  sum_open_w = window_new(GTK_WINDOW_TOPLEVEL, "GSM MAP Statistics: Summary");
 
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -249,15 +249,12 @@ gsm_map_stat_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(bbox);
 
   close_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CLOSE);
-  SIGNAL_CONNECT_OBJECT(close_bt, "clicked", gtk_widget_destroy, sum_open_w);
-  gtk_widget_grab_default(close_bt);
+  window_set_cancel_button(sum_open_w, close_bt, window_cancel_button_cb);
 
-  /* Catch the "key_press_event" signal in the window, so that we can catch
-     the ESC key being pressed and act as if the "Close" button had
-     been selected. */
-  dlg_set_cancel(sum_open_w, close_bt);
+  SIGNAL_CONNECT(sum_open_w, "delete_event", window_delete_event_cb, NULL);
 
   gtk_widget_show(sum_open_w);
+  window_present(sum_open_w);
 }
 
 
