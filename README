@@ -1,4 +1,4 @@
-$Id: README,v 1.65 2004/01/07 19:51:39 guy Exp $
+$Id: README,v 1.66 2004/02/11 20:30:27 guy Exp $
 
 General Information
 ------- -----------
@@ -117,6 +117,7 @@ Output from Accellent's 5Views LAN agents
 Endace Measurement Systems' ERF format
 Linux Bluez Bluetooth stack "hcidump -w" traces
 Network Instruments Observer version 9
+Trace files for the EyeSDN USB S0
 
 In addition, it can read gzipped versions of any of these files
 automatically, if you have the zlib library available when compiling

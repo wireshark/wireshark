@@ -41,12 +41,12 @@ the B<DBS Etherwatch> VMS utility, traffic capture files from Visual
 Networks' Visual UpTime, the output from B<CoSine> L2 debug, the output
 from Accellent's 5Views LAN agents, captures in Endace Measurement
 Systems' ERF format, Linux Bluez Bluetooth stack B<hcidump -w> traces,
-and captures from Network Instruments Observer version 9.  There is no
-need to tell B<Editcap> what type of file you are reading; it will
-determine the file type by itself.  B<Editcap> is also capable of
-reading any of these file formats if they are compressed using gzip. 
-B<Editcap> recognizes this directly from the file; the '.gz' extension
-is not required for this purpose.
+captures from Network Instruments Observer version 9, and traces from
+the EyeSDN USB S0.  There is no need to tell B<Editcap> what type of
+file you are reading; it will determine the file type by itself. 
+B<Editcap> is also capable of reading any of these file formats if they
+are compressed using gzip.  B<Editcap> recognizes this directly from the
+file; the '.gz' extension is not required for this purpose.
 
 By default, it writes the capture file in B<libpcap> format, and writes
 all of the packets in the capture file to the output file.  The B<-F>
