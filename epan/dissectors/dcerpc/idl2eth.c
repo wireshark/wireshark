@@ -159,6 +159,8 @@ typedef struct _dissector_param_value_t {
 } dissector_param_value_t;
 dissector_param_value_t *dissector_param_list=NULL;
 
+static type_item_t *find_type(char *name);
+
 void
 register_dissector_param_value(char *name, char *value)
 {
@@ -2089,7 +2091,7 @@ void parsetypedefunion(int pass)
 
 	FPRINTF(NULL,"\nUNION:%s pass:%d\n-------\n",union_name,pass);
 
-	if(bi->flags&BI_SWITCH_TYPE){
+	if(bi && bi->flags&BI_SWITCH_TYPE){
 		tag_alignment=bi->union_tag_size;
 	} else {
 		tag_alignment=get_union_tag_size(union_name);
