@@ -5,7 +5,7 @@
 # ASN.1 to Ethereal dissector compiler
 # 2004 Tomas Kukosa 
 #
-# $Id: asn2eth.py,v 1.11 2004/06/24 21:50:05 sahlberg Exp $
+# $Id: asn2eth.py,v 1.12 2004/06/26 09:56:22 guy Exp $
 #
 
 """ASN.1 to Ethereal dissector compiler"""
@@ -388,6 +388,19 @@ class EthCtx:
     else:
       return False
 
+  def eth_get_type_attr(self, type):
+    types = [type]
+    while (not self.type[type]['import'] 
+           and self.type[type]['val'].type == 'Type_Ref'):
+      type = self.type[type]['val'].val
+      types.append(type)
+    attr = {}
+    while len(types):
+      t = types.pop()
+      attr.update(self.type[t]['attr'])
+      attr.update(self.eth_type[self.type[t]['ethname']]['attr'])
+    return attr
+
   #--- eth_reg_assign ---------------------------------------------------------
   def eth_reg_assign(self, ident, val):
     #print "eth_reg_assign(ident='%s')" % (ident)
@@ -643,18 +656,7 @@ class EthCtx:
             nm += '1'
       self.eth_hf_ord.append(nm)
       fullname = "hf_%s_%s" % (self.proto, nm)
-      type = self.field[f]['type']
-      types = [type]
-      while (not self.type[type]['import'] 
-             and self.type[type]['val'].type == 'Type_Ref'):
-        type = self.type[type]['val'].val
-        types.append(type)
-      #print self.field[f]['type'], ' -> ', type
-      attr = {}
-      while len(types):
-        t = types.pop()
-        attr.update(self.type[t]['attr'])
-        attr.update(self.eth_type[self.type[t]['ethname']]['attr'])
+      attr = self.eth_get_type_attr(self.field[f]['type']).copy()
       attr.update(self.field[f]['attr'])
       attr['NAME'] = '"%s"' % name
       attr['ABBREV'] = abbrev
@@ -795,7 +797,10 @@ class EthCtx:
 
   #--- eth_output_fname -------------------------------------------------------
   def eth_output_fname (self, ftype, ext='c'):
-    fn = 'packet-' + self.outnm
+    fn = ''
+    if not ext in ('cnf',):
+      fn += 'packet-' 
+    fn += self.outnm
     if (ftype):
       fn += '-' + ftype
     fn += '.' + ext
@@ -892,17 +897,16 @@ class EthCtx:
     fx.write(eth_fhdr(fn, comment = '#'))
     if self.Ber():
       fx.write('#.IMPORT_TAG\n')
-      for t in self.eth_export_ord:  # functions
+      for t in self.eth_export_ord:  # tags
         if (self.eth_type[t]['export'] & 0x01):
           fx.write('%-24s ' % (t))
           fx.write('%s %s\n' % self.eth_type[t]['val'].GetTag(self))
       fx.write('#.END\n\n')
     fx.write('#.TYPE_ATTR\n')
-    for t in self.eth_export_ord:  # functions
+    for t in self.eth_export_ord:  # attributes
       if (self.eth_type[t]['export'] & 0x01):
         fx.write('%-24s ' % (t))
-        attr = self.type[self.eth_type[t]['ref'][0]]['attr'].copy()
-        attr.update(self.eth_type[t]['attr'])
+        attr = self.eth_get_type_attr(self.eth_type[t]['ref'][0]).copy()
         fx.write('TYPE = %(TYPE)-9s  DISPLAY = %(DISPLAY)-9s  STRINGS = %(STRINGS)s  BITMASK = %(BITMASK)s\n' % attr)
     fx.write('#.END\n\n')
     fx.close()
