@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.104 2003/02/07 22:44:54 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.105 2003/02/07 22:49:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -860,7 +860,7 @@ dissect_ndr_ucarray(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		di->conformant_run=1;
 		di->conformant_eaten=offset-old_offset;
 	} else {
-		/* we dont dont remember where  in the bytestream this fields was */
+		/* we don't remember where in the bytestream this field was */
 		proto_tree_add_uint(tree, hf_dcerpc_array_max_count, tvb, di->array_max_count_offset, 4, di->array_max_count);
 
 		/* real run, dissect the elements */
@@ -994,7 +994,7 @@ fake_unicode(tvbuff_t *tvb, int offset, int len)
 	return buffer;
 }
 
-/* Dissect an NDR array of elements, assumed to be a string.
+/* Dissect an NDR conformant varying string of elements.
    The length of each element is given by the 'size_is' parameter;
    the elements are assumed to be characters or wide characters.
 
