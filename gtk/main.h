@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.54 2004/06/21 17:25:19 ulfl Exp $
+ * $Id: main.h,v 1.55 2004/06/21 20:12:45 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -240,7 +240,7 @@ extern gboolean main_filter_packets(capture_file *cf, const gchar *dftext,
 /** Open a new file coming from drag and drop.
  * @param cf_name the new capture filename
  */
-extern void dnd_open_file_cmd(gpointer cf_name);
+extern void dnd_open_file_cmd(GtkSelectionData *selection_data);
 
 /** Update the packets statusbar to the current values. */
 extern void packets_bar_update(void);
