@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.98 2004/04/08 09:17:16 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.99 2004/04/08 09:34:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -171,6 +171,8 @@ static int hf_netlogon_trust_flags_primary = -1;
 static int hf_netlogon_trust_flags_tree_root = -1;
 static int hf_netlogon_trust_parent_index = -1;
 static int hf_netlogon_user_flags = -1;
+static int hf_netlogon_user_flags_extra_sids = -1;
+static int hf_netlogon_user_flags_resource_groups = -1;
 static int hf_netlogon_auth_flags = -1;
 static int hf_netlogon_pwd_expired = -1;
 static int hf_netlogon_nt_pwd_present = -1;
@@ -231,6 +233,7 @@ static int hf_netlogon_dc_flags_dns_forest_flag = -1;
 
 static gint ett_dcerpc_netlogon = -1;
 static gint ett_group_attrs = -1;
+static gint ett_user_flags = -1;
 static gint ett_QUOTA_LIMITS = -1;
 static gint ett_IDENTITY_INFO = -1;
 static gint ett_DELTA_ENUM = -1;
@@ -935,6 +938,48 @@ netlogon_dissect_USER_SESSION_KEY(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+
+
+static const true_false_string user_flags_extra_sids= {
+	"The EXTRA_SIDS bit is SET",
+	"The extra_sids is NOT set",
+};
+static const true_false_string user_flags_resource_groups= {
+	"The RESOURCE_GROUPS bit is SET",
+	"The resource_groups is NOT set",
+};
+static int
+netlogon_dissect_USER_FLAGS(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, guint8 *drep)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
+			hf_netlogon_user_flags, &mask);
+
+	if(parent_tree){
+		item = proto_tree_add_uint(parent_tree, hf_netlogon_user_flags,
+			tvb, offset-4, 4, mask);
+		tree = proto_item_add_subtree(item, ett_user_flags);
+	}
+
+	proto_tree_add_boolean(tree, hf_netlogon_user_flags_resource_groups,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_flags_extra_sids,
+		tvb, offset-4, 4, mask);
+
+	return offset;
+}
+
 /*
  * IDL typedef struct {
  * IDL   uint64 LogonTime;
@@ -1025,8 +1070,8 @@ netlogon_dissect_VALIDATION_SAM_INFO(tvbuff_t *tvb, int offset,
 		netlogon_dissect_GROUP_MEMBERSHIP_ARRAY, NDR_POINTER_UNIQUE,
 		"GROUP_MEMBERSHIP_ARRAY", -1);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_user_flags, NULL);
+	offset = netlogon_dissect_USER_FLAGS(tvb, offset,
+		pinfo, tree, drep);
 
 	offset = netlogon_dissect_USER_SESSION_KEY(tvb, offset,
 		pinfo, tree, drep);
@@ -1142,8 +1187,8 @@ netlogon_dissect_VALIDATION_SAM_INFO2(tvbuff_t *tvb, int offset,
 		netlogon_dissect_GROUP_MEMBERSHIP_ARRAY, NDR_POINTER_UNIQUE,
 		"GROUP_MEMBERSHIP_ARRAY", -1);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_user_flags, NULL);
+	offset = netlogon_dissect_USER_FLAGS(tvb, offset,
+		pinfo, tree, drep);
 
 	offset = netlogon_dissect_USER_SESSION_KEY(tvb, offset,
 		pinfo, tree, drep);
@@ -1272,8 +1317,8 @@ netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, int offset,
 		netlogon_dissect_GROUP_MEMBERSHIP_ARRAY, NDR_POINTER_UNIQUE,
 		"GROUP_MEMBERSHIP_ARRAY", -1);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_user_flags, NULL);
+	offset = netlogon_dissect_USER_FLAGS(tvb, offset,
+		pinfo, tree, drep);
 
 	offset = netlogon_dissect_USER_SESSION_KEY(tvb, offset,
 		pinfo, tree, drep);
@@ -6863,7 +6908,7 @@ static hf_register_info hf[] = {
 
 	{ &hf_netlogon_user_flags,
 		{ "User Flags", "netlogon.user_flags", FT_UINT32, BASE_HEX,
-		NULL, 0x0, "", HFILL }},
+		NULL, 0x0, "User flags", HFILL }},
 
 	{ &hf_netlogon_auth_flags,
 		{ "Auth Flags", "netlogon.auth_flags", FT_UINT32, BASE_HEX,
@@ -7266,6 +7311,16 @@ static hf_register_info hf[] = {
 		  FT_BOOLEAN, 32, TFS(&group_attrs_enabled), 0x00000004,
 		  "The group attributes ENABLED flag", HFILL }},
 
+	{ &hf_netlogon_user_flags_extra_sids,
+	        { "Extra SIDs", "netlogon.user.flags.extra_sids",
+		  FT_BOOLEAN, 32, TFS(&user_flags_extra_sids), 0x00000020,
+		  "The user flags EXTRA_SIDS", HFILL }},
+
+	{ &hf_netlogon_user_flags_resource_groups,
+	        { "Resource Groups", "netlogon.user.flags.resource_groups",
+		  FT_BOOLEAN, 32, TFS(&user_flags_resource_groups), 0x00000200,
+		  "The user flags RESOURCE_GROUPS", HFILL }},
+
 	};
 
         static gint *ett[] = {
@@ -7294,7 +7349,8 @@ static hf_register_info hf[] = {
 		&ett_secchan_bind_creds,
 		&ett_secchan_bind_ack_creds,
 		&ett_secchan_verf,
-		&ett_group_attrs
+		&ett_group_attrs,
+		&ett_user_flags
         };
 
         proto_dcerpc_netlogon = proto_register_protocol(
