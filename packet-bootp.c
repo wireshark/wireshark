@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.48 2001/03/13 21:34:23 gram Exp $
+ * $Id: packet-bootp.c,v 1.49 2001/05/01 03:54:04 ashokn Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -80,7 +80,7 @@ struct opt_info {
 	enum field_type ftype;
 };
 
-#define NUM_OPT_INFOS 128
+#define NUM_OPT_INFOS 211
 #define NUM_O63_SUBOPTS 11
 
 static int dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
@@ -124,6 +124,8 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
 	u_long			time_secs;
 	proto_tree		*v_tree;
 	proto_item		*vti;
+	const char              *md5_ptr;
+	char                    md5_str[50];
 
 	static const value_string nbnt_vals[] = {
 	    {0x1,   "B-node" },
@@ -260,7 +262,90 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
 		/* 124 */ { "Unassigned",							opaque },
 		/* 125 */ { "Unassigned",							opaque },
 		/* 126 */ { "Extension",							opaque },
-		/* 127 */ { "Extension",							opaque }
+		/* 127 */ { "Extension",							opaque },
+		/* 128 */ { "Private",					opaque },
+		/* 129 */ { "Private",					opaque },
+		/* 130 */ { "Private",					opaque },
+		/* 131 */ { "Private",					opaque },
+		/* 132 */ { "Private",					opaque },
+		/* 133 */ { "Private",					opaque },
+		/* 134 */ { "Private",					opaque },
+		/* 135 */ { "Private",					opaque },
+		/* 136 */ { "Private",					opaque },
+		/* 137 */ { "Private",					opaque },
+		/* 138 */ { "Private",					opaque },
+		/* 139 */ { "Private",					opaque },
+		/* 140 */ { "Private",					opaque },
+		/* 141 */ { "Private",					opaque },
+		/* 142 */ { "Private",					opaque },
+		/* 143 */ { "Private",					opaque },
+		/* 144 */ { "Private",					opaque },
+		/* 145 */ { "Private",					opaque },
+		/* 146 */ { "Private",					opaque },
+		/* 147 */ { "Private",					opaque },
+		/* 148 */ { "Private",					opaque },
+		/* 149 */ { "Private",					opaque },
+		/* 150 */ { "Private",					opaque },
+		/* 151 */ { "Private",					opaque },
+		/* 152 */ { "Private",					opaque },
+		/* 153 */ { "Private",					opaque },
+		/* 154 */ { "Private",					opaque },
+		/* 155 */ { "Private",					opaque },
+		/* 156 */ { "Private",					opaque },
+		/* 157 */ { "Private",					opaque },
+		/* 158 */ { "Private",					opaque },
+		/* 159 */ { "Private",					opaque },
+		/* 160 */ { "Private",					opaque },
+		/* 161 */ { "Private",					opaque },
+		/* 162 */ { "Private",					opaque },
+		/* 163 */ { "Private",					opaque },
+		/* 164 */ { "Private",					opaque },
+		/* 165 */ { "Private",					opaque },
+		/* 166 */ { "Private",					opaque },
+		/* 167 */ { "Private",					opaque },
+		/* 168 */ { "Private",					opaque },
+		/* 169 */ { "Private",					opaque },
+		/* 170 */ { "Private",					opaque },
+		/* 171 */ { "Private",					opaque },
+		/* 172 */ { "Private",					opaque },
+		/* 173 */ { "Private",					opaque },
+		/* 174 */ { "Private",					opaque },
+		/* 175 */ { "Private",					opaque },
+		/* 176 */ { "Private",					opaque },
+		/* 177 */ { "Private",					opaque },
+		/* 178 */ { "Private",					opaque },
+		/* 179 */ { "Private",					opaque },
+		/* 180 */ { "Private",					opaque },
+		/* 181 */ { "Private",					opaque },
+		/* 182 */ { "Private",					opaque },
+		/* 183 */ { "Private",					opaque },
+		/* 184 */ { "Private",					opaque },
+		/* 185 */ { "Private",					opaque },
+		/* 186 */ { "Private",					opaque },
+		/* 187 */ { "Private",					opaque },
+		/* 188 */ { "Private",					opaque },
+		/* 189 */ { "Private",					opaque },
+		/* 190 */ { "Private",					opaque },
+		/* 191 */ { "Private",					opaque },
+		/* 192 */ { "Private",					opaque },
+		/* 193 */ { "Private",					opaque },
+		/* 194 */ { "Private",					opaque },
+		/* 195 */ { "Private",					opaque },
+		/* 196 */ { "Private",					opaque },
+		/* 197 */ { "Private",					opaque },
+		/* 198 */ { "Private",					opaque },
+		/* 199 */ { "Private",					opaque },
+		/* 200 */ { "Private",					opaque },
+		/* 201 */ { "Private",					opaque },
+		/* 202 */ { "Private",					opaque },
+		/* 203 */ { "Private",					opaque },
+		/* 204 */ { "Private",					opaque },
+		/* 205 */ { "Private",					opaque },
+		/* 206 */ { "Private",					opaque },
+		/* 207 */ { "Private",					opaque },
+		/* 208 */ { "Private",					opaque },
+		/* 209 */ { "Private",					opaque },
+		/* 210 */ { "Authentication",				special }
 	};
 
 	/* Options whose length isn't "vlen + 2". */
@@ -422,6 +507,29 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff)
 		optp = voff+2;
 		while (optp < voff+consumed) {
 			optp = bootp_dhcp_decode_agent_info(v_tree, tvb, optp);
+		}
+		break;
+
+	case 210:	/* DHCP Authentication */
+		vti = proto_tree_add_text(bp_tree, tvb, voff,
+			vlen + 2, "Option %d: %s", code, text);
+		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+		proto_tree_add_text(v_tree, tvb, voff+2, 1, "Protocol: %d", 
+				    tvb_get_guint8(tvb, voff+2));
+		proto_tree_add_text(v_tree, tvb, voff+3, 1, "Algorithm: %d", 
+				    tvb_get_guint8(tvb, voff+3));
+		proto_tree_add_text(v_tree, tvb, voff+4, 1, "Replay Detection Method: %d", 
+				    tvb_get_guint8(tvb, voff+4));
+		proto_tree_add_text(v_tree, tvb, voff+5, 8, "Replay Detection Value: %0llX", 
+				    tvb_get_ntohll(tvb, voff+5));
+		if (vlen > 11) {
+		    proto_tree_add_text(v_tree, tvb, voff+13, 4, "Secret ID: %0X", 
+					tvb_get_ntohl(tvb, voff+13));
+		    md5_ptr = tvb_get_ptr(tvb, voff+17, 16);
+		    for (i=0; i<16; i++)
+			sprintf(&(md5_str[i*3]), "%02X ", (uint8_t) md5_ptr[i]);
+		    md5_str[48] = 0;
+		    proto_tree_add_text(v_tree, tvb, voff+17, 16, "HMAC MD5 Hash: %s", md5_str);
 		}
 		break;
 
