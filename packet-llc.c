@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.63 2000/05/28 22:02:17 guy Exp $
+ * $Id: packet-llc.c,v 1.64 2000/05/31 03:58:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -313,10 +313,9 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * uses extended operation, so we don't need to determine
 	 * whether it's basic or extended operation; is that the case?
 	 */
-	tvb_compat(tvb, &pd, &offset);
-	control = dissect_xdlc_control(pd, offset+2, pinfo->fd, llc_tree,
+	control = dissect_xdlc_control(tvb, 2, pinfo, llc_tree,
 				hf_llc_ctrl, ett_llc_ctrl,
-				pd[offset+1] & SSAP_CR_BIT, TRUE);
+				tvb_get_guint8(tvb, 1) & SSAP_CR_BIT, TRUE);
 	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
 	if (is_snap)
 		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of protocol ID */

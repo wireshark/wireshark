@@ -2,7 +2,7 @@
  * Routines for use by various SDLC-derived protocols, such as HDLC
  * and its derivatives LAPB, IEEE 802.2 LLC, etc..
  *
- * $Id: xdlc.c,v 1.14 2000/05/11 08:16:00 gram Exp $
+ * $Id: xdlc.c,v 1.15 2000/05/31 03:58:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -195,7 +195,7 @@ get_xdlc_control(const u_char *pd, int offset, int is_response, int is_extended)
 }
 
 int
-dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
+dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
   proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,
   int is_response, int is_extended)
 {
@@ -205,16 +205,16 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
     gchar *frame_type = NULL;
     gchar *modifier;
 
-    switch (pd[offset] & 0x03) {
+    switch (tvb_get_guint8(tvb, offset) & 0x03) {
 
     case XDLC_S:
         /*
 	 * Supervisory frame.
 	 */
 	if (is_extended)
-		control = pletohs(&pd[offset]);
+		control = tvb_get_letohs(tvb, offset);
 	else
-		control = pd[offset];
+		control = tvb_get_guint8(tvb, offset);
 	switch (control & XDLC_S_FTYPE_MASK) {
 	case XDLC_RR:
 	    frame_type = "RR";
@@ -245,49 +245,49 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 		 	    ""),
 			(control & XDLC_N_R_MASK) >> XDLC_N_R_SHIFT);
 	}
-	if (check_col(fd, COL_INFO))
-	    col_add_str(fd, COL_INFO, info);
+	if (check_col(pinfo->fd, COL_INFO))
+	    col_add_str(pinfo->fd, COL_INFO, info);
 	if (xdlc_tree) {
 	    if (is_extended) {
-		tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, NullTVB,
+		tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
 			offset, 2,
 			control,
 			"Control field: %s (0x%04X)", info, control);
 		control_tree = proto_item_add_subtree(tc, ett_xdlc_control);
-		proto_tree_add_text(control_tree, NullTVB, offset, 2,
+		proto_tree_add_text(control_tree, tvb, offset, 2,
 		    decode_numeric_bitfield(control, XDLC_N_R_EXT_MASK, 2*8,
 			"N(R) = %u"));
 		if (control & XDLC_P_F_EXT) {
-		    proto_tree_add_text(control_tree, NullTVB, offset, 2,
+		    proto_tree_add_text(control_tree, tvb, offset, 2,
 			decode_boolean_bitfield(control, XDLC_P_F_EXT, 2*8,
 		  	    (is_response ? "Final" : "Poll"), NULL));
 		}
-		proto_tree_add_text(control_tree, NullTVB, offset, 2,
+		proto_tree_add_text(control_tree, tvb, offset, 2,
 		    decode_enumerated_bitfield(control, XDLC_S_FTYPE_MASK, 2*8,
 			stype_vals, "Supervisory frame - %s"));
 		/* This will always say it's a supervisory frame */
-		proto_tree_add_text(control_tree, NullTVB, offset, 2,
+		proto_tree_add_text(control_tree, tvb, offset, 2,
 		    decode_boolean_bitfield(control, 0x03, 2*8,
 			"Supervisory frame", NULL));
 	    } else {
-		tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, NullTVB,
+		tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
 			offset, 1,
 			control,
 			"Control field: %s (0x%02X)", info, control);
 		control_tree = proto_item_add_subtree(tc, ett_xdlc_control);
-		proto_tree_add_text(control_tree, NullTVB, offset, 1,
+		proto_tree_add_text(control_tree, tvb, offset, 1,
 		    decode_numeric_bitfield(control, XDLC_N_R_MASK, 1*8,
 			"N(R) = %u"));
 		if (control & XDLC_P_F) {
-		    proto_tree_add_text(control_tree, NullTVB, offset, 1,
+		    proto_tree_add_text(control_tree, tvb, offset, 1,
 			decode_boolean_bitfield(control, XDLC_P_F, 1*8,
 		  	    (is_response ? "Final" : "Poll"), NULL));
 		}
-		proto_tree_add_text(control_tree, NullTVB, offset, 1,
+		proto_tree_add_text(control_tree, tvb, offset, 1,
 		    decode_enumerated_bitfield(control, XDLC_S_FTYPE_MASK, 1*8,
 			stype_vals, "%s"));
 		/* This will always say it's a supervisory frame */
-		proto_tree_add_text(control_tree, NullTVB, offset, 1,
+		proto_tree_add_text(control_tree, tvb, offset, 1,
 		    decode_boolean_bitfield(control, 0x03, 1*8,
 			"Supervisory frame", NULL));
 	    }
@@ -305,7 +305,7 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 	 * control field of a U frame, there doesn't appear to be any
 	 * need for it to be 2 bytes in extended operation.
 	 */
-	control = pd[offset];
+	control = tvb_get_guint8(tvb, offset);
 	if (is_response) {
 		modifier = match_strval(control & XDLC_U_MODIFIER_MASK,
 			modifier_short_vals_resp);
@@ -320,25 +320,25 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 		    (is_response ? " F" : " P") :
 		    ""),
 		modifier);
-	if (check_col(fd, COL_INFO))
-	    col_add_str(fd, COL_INFO, info);
+	if (check_col(pinfo->fd, COL_INFO))
+	    col_add_str(pinfo->fd, COL_INFO, info);
 	if (xdlc_tree) {
-	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, NullTVB,
+	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
 			offset, 1,
 			control,
 			"Control field: %s (0x%02X)", info, control);
 	    control_tree = proto_item_add_subtree(tc, ett_xdlc_control);
 	    if (control & XDLC_P_F) {
-		proto_tree_add_text(control_tree, NullTVB, offset, 2,
+		proto_tree_add_text(control_tree, tvb, offset, 2,
 		    decode_boolean_bitfield(control, XDLC_P_F, 1*8,
 			(is_response ? "Final" : "Poll"), NULL));
 	    }
-	    proto_tree_add_text(control_tree, NullTVB, offset, 1,
+	    proto_tree_add_text(control_tree, tvb, offset, 1,
 		decode_enumerated_bitfield(control, XDLC_U_MODIFIER_MASK, 1*8,
 		    (is_response ? modifier_vals_resp : modifier_vals_cmd),
 		    "%s"));
 	    /* This will always say it's an unnumbered frame */
-	    proto_tree_add_text(control_tree, NullTVB, offset, 1,
+	    proto_tree_add_text(control_tree, tvb, offset, 1,
 		decode_boolean_bitfield(control, 0x03, 1*8,
 		    "Unnumbered frame", NULL));
 	}
@@ -349,9 +349,9 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 	 * Information frame.
 	 */
 	if (is_extended)
-		control = pletohs(&pd[offset]);
+		control = tvb_get_letohs(tvb, offset);
 	else
-		control = pd[offset];
+		control = tvb_get_guint8(tvb, offset);
 	if (is_extended) {
 	    sprintf(info, "I%s, N(R) = %u, N(S) = %u",
 			((control & XDLC_P_F_EXT) ? " P" : ""),
@@ -363,10 +363,10 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 			(control & XDLC_N_R_MASK) >> XDLC_N_R_SHIFT,
 			(control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT);
 	}
-	if (check_col(fd, COL_INFO))
-	    col_add_str(fd, COL_INFO, info);
+	if (check_col(pinfo->fd, COL_INFO))
+	    col_add_str(pinfo->fd, COL_INFO, info);
 	if (xdlc_tree) {
-	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, NullTVB,
+	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
 			offset, (is_extended) ? 2 : 1,
 			control,
 			(is_extended) ? "Control field: %s (0x%04X)"
@@ -374,35 +374,35 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 			info, control);
 	    control_tree = proto_item_add_subtree(tc, ett_xdlc_control);
 	    if (is_extended) {
-		proto_tree_add_text(control_tree, NullTVB, offset, 2,
+		proto_tree_add_text(control_tree, tvb, offset, 2,
 		    decode_numeric_bitfield(control, XDLC_N_R_EXT_MASK, 2*8,
 		  		"N(R) = %u"));
-		proto_tree_add_text(control_tree, NullTVB, offset, 2,
+		proto_tree_add_text(control_tree, tvb, offset, 2,
 		    decode_numeric_bitfield(control, XDLC_N_S_EXT_MASK, 2*8,
 		  		"N(S) = %u"));
 		if (control & XDLC_P_F_EXT) {
-		    proto_tree_add_text(control_tree, NullTVB, offset, 2,
+		    proto_tree_add_text(control_tree, tvb, offset, 2,
 			decode_boolean_bitfield(control, XDLC_P_F_EXT, 2*8,
 		  		"Poll", NULL));
 		}
 		/* This will always say it's an information frame */
-		proto_tree_add_text(control_tree, NullTVB, offset, 2,
+		proto_tree_add_text(control_tree, tvb, offset, 2,
 		    decode_boolean_bitfield(control, 0x01, 2*8,
 			NULL, "Information frame"));
 	    } else {
-		proto_tree_add_text(control_tree, NullTVB, offset, 1,
+		proto_tree_add_text(control_tree, tvb, offset, 1,
 		    decode_numeric_bitfield(control, XDLC_N_R_MASK, 1*8,
 		  		"N(R) = %u"));
-		proto_tree_add_text(control_tree, NullTVB, offset, 1,
+		proto_tree_add_text(control_tree, tvb, offset, 1,
 		    decode_numeric_bitfield(control, XDLC_N_S_MASK, 1*8,
 		  		"N(S) = %u"));
 		if (control & XDLC_P_F) {
-		    proto_tree_add_text(control_tree, NullTVB, offset, 1,
+		    proto_tree_add_text(control_tree, tvb, offset, 1,
 			decode_boolean_bitfield(control, XDLC_P_F, 1*8,
 		  		"Poll", NULL));
 		}
 		/* This will always say it's an information frame */
-		proto_tree_add_text(control_tree, NullTVB, offset, 1,
+		proto_tree_add_text(control_tree, tvb, offset, 1,
 		    decode_boolean_bitfield(control, 0x01, 1*8,
 			NULL, "Information frame"));
 	    }

@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lapd.c,v 1.9 2000/05/29 08:57:37 guy Exp $
+ * $Id: packet-lapd.c,v 1.10 2000/05/31 03:58:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,79 +84,78 @@ static const value_string lapd_sapi_vals[] = {
 };
 
 void
-dissect_lapd(const union wtap_pseudo_header *pseudo_header, const u_char *pd,
-    frame_data *fd, proto_tree *tree)
+dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*lapd_tree, *addr_tree;
 	proto_item	*ti;
 	guint16		control;
 	int		lapd_header_len;
-	tvbuff_t	*new_tvb;
+	guint16		address, cr, sapi;
+	gboolean	is_response;
+	tvbuff_t	*next_tvb;
 
-	guint16	address, cr, sapi;
+	pinfo->current_proto = "LAPD";
 
-	gboolean is_response;
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_add_str(pinfo->fd, COL_PROTOCOL, "LAPD");
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "LAPD");
-
-	address = pntohs(&pd[0]);
+	address = tvb_get_ntohs(tvb, 0);
 	cr = address & LAPD_CR;
 	sapi = (address & LAPD_SAPI) >> LAPD_SAPI_SHIFT;
 	lapd_header_len = 2;	/* address */
 
-	if (pseudo_header->lapd.from_network_to_user) {
+	if (pinfo->pseudo_header->lapd.from_network_to_user) {
 		is_response = cr ? FALSE : TRUE;
-		if(check_col(fd, COL_RES_DL_DST))
-		    col_add_str(fd, COL_RES_DL_DST, "User");
-		if(check_col(fd, COL_RES_DL_SRC))
-		    col_add_str(fd, COL_RES_DL_SRC, "Network");
+		if(check_col(pinfo->fd, COL_RES_DL_DST))
+		    col_add_str(pinfo->fd, COL_RES_DL_DST, "User");
+		if(check_col(pinfo->fd, COL_RES_DL_SRC))
+		    col_add_str(pinfo->fd, COL_RES_DL_SRC, "Network");
 	}
 	else {
 		is_response = cr ? TRUE : FALSE;
-		if(check_col(fd, COL_RES_DL_DST))
-			col_add_str(fd, COL_RES_DL_DST, "Network");
-		if(check_col(fd, COL_RES_DL_SRC))
-			col_add_str(fd, COL_RES_DL_SRC, "User");
+		if(check_col(pinfo->fd, COL_RES_DL_DST))
+			col_add_str(pinfo->fd, COL_RES_DL_DST, "Network");
+		if(check_col(pinfo->fd, COL_RES_DL_SRC))
+			col_add_str(pinfo->fd, COL_RES_DL_SRC, "User");
 	}
 
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_lapd, NullTVB, 0, 3, NULL);
+		ti = proto_tree_add_item(tree, proto_lapd, tvb, 0, 3, NULL);
 		lapd_tree = proto_item_add_subtree(ti, ett_lapd);
 
-		ti = proto_tree_add_item(lapd_tree, hf_lapd_address, NullTVB, 0, 2, address);
+		ti = proto_tree_add_item(lapd_tree, hf_lapd_address, tvb, 0, 2, address);
 		addr_tree = proto_item_add_subtree(ti, ett_lapd_address);
 
-		proto_tree_add_item(addr_tree, hf_lapd_sapi, NullTVB,	0, 1, address);
-		proto_tree_add_item(addr_tree, hf_lapd_cr, NullTVB,	0, 1, address);
-		proto_tree_add_item(addr_tree, hf_lapd_ea1, NullTVB,	0, 1, address);
-		proto_tree_add_item(addr_tree, hf_lapd_tei, NullTVB,	1, 1, address);
-		proto_tree_add_item(addr_tree, hf_lapd_ea2, NullTVB,	1, 1, address);
+		proto_tree_add_item(addr_tree, hf_lapd_sapi,tvb, 0, 1, address);
+		proto_tree_add_item(addr_tree, hf_lapd_cr,  tvb, 0, 1, address);
+		proto_tree_add_item(addr_tree, hf_lapd_ea1, tvb, 0, 1, address);
+		proto_tree_add_item(addr_tree, hf_lapd_tei, tvb, 1, 1, address);
+		proto_tree_add_item(addr_tree, hf_lapd_ea2, tvb, 1, 1, address);
 	}
 	else {
 		lapd_tree = NULL;
 	}
 
-	control = dissect_xdlc_control(pd, 2, fd, lapd_tree, hf_lapd_control,
+	control = dissect_xdlc_control(tvb, 2, pinfo, lapd_tree, hf_lapd_control,
 	    ett_lapd_control, is_response, TRUE);
 	lapd_header_len += XDLC_CONTROL_LEN(control, TRUE);
 
-	new_tvb = tvb_new_subset(pi.compat_top_tvb, lapd_header_len, -1, -1);
+	next_tvb = tvb_new_subset(tvb, lapd_header_len, -1, -1);
 	if (XDLC_IS_INFORMATION(control)) {
 		/* call next protocol */
 		switch (sapi) {
 
 		case LAPD_SAPI_Q931:
-			dissect_q931(new_tvb, &pi, tree);
+			dissect_q931(next_tvb, pinfo, tree);
 			break;
 
 		default:
-			dissect_data_tvb(new_tvb, &pi, tree);
+			dissect_data_tvb(next_tvb, pinfo, tree);
 			break;
 		}
 	} else
-		dissect_data_tvb(new_tvb, &pi, tree);
+		dissect_data_tvb(next_tvb, pinfo, tree);
 }
 
 void

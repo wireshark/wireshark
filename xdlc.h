@@ -2,7 +2,7 @@
  * Define *DLC frame types, and routine to dissect the control field of
  * a *DLC frame.
  *
- * $Id: xdlc.h,v 1.12 2000/01/24 02:05:39 guy Exp $
+ * $Id: xdlc.h,v 1.13 2000/05/31 03:58:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -79,6 +79,6 @@
 int get_xdlc_control(const u_char *pd, int offset, int is_response,
   int extended);
 
-int dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
+int dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
   proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,
   int is_response, int extended);
