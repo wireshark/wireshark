@@ -635,6 +635,13 @@ Eran Mann <emann@opticalaccess.com> {
 	Fix to LDP prefix FEC dissection for IPv4
 }
 
+Andy Hood <ahood@westpac.com.au> {
+	"--with-ssl" configuration option, to use if UCD SNMP is
+	   compiled with crypto support and needs -lcrypto
+	On Solaris, with GCC, add flags to reduce warnings from
+	   inadequacies of function declarations in X11 headers
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.125 2001/05/16 21:32:04 ashokn Exp $
+# $Id: configure.in,v 1.126 2001/05/22 06:33:04 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -117,7 +117,16 @@ then
 		;;
 	esac
 else
+	case "$host_os" in
+	solaris*)
+		# the X11 headers don't automatically include prototype info
+		# and a lot don't include the return type
+		CFLAGS="$CFLAGS -Wno-return-type -DFUNCPROTO=15"
+		;;
+	*)
 	AC_MSG_RESULT(none needed)
+		;;
+	esac
 fi
 
 #
