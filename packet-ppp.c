@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.72 2001/10/29 19:48:45 guy Exp $
+ * $Id: packet-ppp.c,v 1.73 2001/10/30 10:16:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -649,8 +649,8 @@ static const ip_tcp_opt ipcp_opts[] = {
 #define MPPC_SUPPORTED_BITS_C	0x00000001	/* MPPC negotiation */
 #define MPPE_SUPPORTED_BITS_D	0x00000010	/* Obsolete */
 #define MPPE_SUPPORTED_BITS_L	0x00000020	/* 40-bit encryption */
-#define MPPE_SUPPORTED_BITS_S	0x00000040	/* 56-bit encryption */
-#define MPPE_SUPPORTED_BITS_M	0x00000080	/* 128-bit encryption */
+#define MPPE_SUPPORTED_BITS_S	0x00000040	/* 128-bit encryption */
+#define MPPE_SUPPORTED_BITS_M	0x00000080	/* 56-bit encryption */
 #define MPPE_SUPPORTED_BITS_H	0x01000000	/* stateless mode */
 
 static void dissect_ccp_stac_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
@@ -1317,10 +1317,10 @@ dissect_ccp_mppc_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
       "40-bit encryption ON", "40-bit encryption OFF"));
   proto_tree_add_text(flags_tree, tvb, offset + 2, 4, "%s",
       decode_boolean_bitfield(supported_bits, MPPE_SUPPORTED_BITS_S, 8*4, 
-      "56-bit encryption ON", "56-bit encryption OFF"));
+      "128-bit encryption ON", "128-bit encryption OFF"));
   proto_tree_add_text(flags_tree, tvb, offset + 2, 4, "%s",
       decode_boolean_bitfield(supported_bits, MPPE_SUPPORTED_BITS_M, 8*4, 
-      "128-bit encryption ON", "128-bit encryption OFF"));
+      "56-bit encryption ON", "56-bit encryption OFF"));
   proto_tree_add_text(flags_tree, tvb, offset + 2, 4, "%s",
       decode_boolean_bitfield(supported_bits, MPPE_SUPPORTED_BITS_H, 8*4, 
       "Stateless mode ON", "Stateless mode OFF"));
