@@ -452,6 +452,7 @@ DISSECTOR_SRC =	\
 	packet-ranap.c	\
 	packet-raw.c	\
 	packet-redback.c \
+	packet-retix-bpdu.c \
 	packet-rip.c	\
 	packet-ripng.c	\
 	packet-rlogin.c	\
