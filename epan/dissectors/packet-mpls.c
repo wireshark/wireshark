@@ -216,19 +216,25 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    if (label <= MAX_RESERVED)
 		proto_tree_add_uint_format(mpls_tree, mpls_filter[MPLSF_LABEL], tvb,
-				    offset, 3, label, "Label: %u (%s)",
+				    offset, 3, label, "MPLS Label: %u (%s)",
 				    label, val_to_str(label, special_labels,
 						      "Reserved - Unknown"));
 	    else
-		proto_tree_add_uint(mpls_tree, mpls_filter[MPLSF_LABEL], tvb,
-				    offset, 3, label);
+		proto_tree_add_uint_format(mpls_tree, mpls_filter[MPLSF_LABEL], tvb,
+				    offset, 3, label, "MPLS Label: %u", label);
+	    proto_item_append_text(ti, ", Label: %u", label);
 
 	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_EXP], tvb,
 				offset+2,1, exp);
+	    proto_item_append_text(ti, ", Exp: %u", exp);
+
 	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_BOTTOM_OF_STACK], tvb,
 				offset+2,1, bos);
+	    proto_item_append_text(ti, ", S: %u", bos);
+
 	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_TTL], tvb,
 				offset+3,1, ttl);
+	    proto_item_append_text(ti, ", TTL: %u", ttl);
 	}
 	offset += 4;
 	if (bos) break;
