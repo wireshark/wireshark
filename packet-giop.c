@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.67 2003/02/13 23:18:59 guy Exp $
+ * $Id: packet-giop.c,v 1.68 2003/02/14 07:14:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -455,7 +455,8 @@ static gint ett_giop_locate_reply = -1;
 static gint ett_giop_fragment = -1;
 
 static gint ett_giop_scl = -1;	/* ServiceContextList */
-static gint ett_giop_scl_st1 = -1; 
+static gint ett_giop_scid = -1;
+static gint ett_giop_scl_st1 = -1;
 static gint ett_giop_ior = -1;	/* IOR  */
 
 static dissector_handle_t data_handle;
@@ -4207,6 +4208,7 @@ proto_register_giop (void)
     &ett_giop_locate_reply,
     &ett_giop_fragment,
     &ett_giop_scl,
+    &ett_giop_scid,
     &ett_giop_scl_st1,
     &ett_giop_ior
 
@@ -4628,8 +4630,8 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
  *
  *  The RT-CORBA priority is a CDR encoded short value in a sequence<octet>
  *  buffer.
- */ 
-static void decode_RTCorbaPriority(tvbuff_t *tvb, proto_tree *tree, int *offset, 
+ */
+static void decode_RTCorbaPriority(tvbuff_t *tvb, proto_tree *tree, int *offset,
 	                           gboolean stream_is_be, guint32 boundary) {
 
   gint16 rtpriority;
@@ -4645,32 +4647,13 @@ static void decode_RTCorbaPriority(tvbuff_t *tvb, proto_tree *tree, int *offset,
 }
 
 static void decode_UnknownServiceContext(tvbuff_t *tvb, proto_tree *tree, int *offset,
-			       gboolean stream_is_be, guint32 boundary,
-			       guint32 vscid, guint32 scid) {
+			       guint32 seqlen_cd) {
 
-  guint32 seqlen_cd;
   gchar *p_context_data;
   gchar *context_data;
 
- if (tree) {
-    proto_tree_add_uint(tree,hf_giop_iop_vscid,tvb,
-	  *offset-sizeof(guint32),4,vscid);
-
-    proto_tree_add_uint(tree,hf_giop_iop_scid,tvb,
-	  *offset-sizeof(guint32),4,scid);
-
-  }
-
-   /* get sequence length, and NO  encapsulation */
-  seqlen_cd = get_CDR_ulong(tvb, offset, stream_is_be,boundary);
-
-
-  /* return if zero length sequence */
-  if(seqlen_cd == 0)
-    return;
-
   /*
-   * Now decode sequence according to vendor ServiceId, but I dont
+   * Decode sequence according to vendor ServiceId, but I don't
    * have that yet, so just dump it as data.
    */
 
@@ -4716,9 +4699,10 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
   guint32 seqlen;		/* sequence length  */
   guint32 seqlen_cd;		/* sequence length, context_data  */
 
-  proto_tree *tree = NULL;	/* ServiceContext tree */
+  proto_tree *tree = NULL;	/* ServiceContextList tree */
+  proto_tree *scid_tree;
   proto_tree *sub_tree1 = NULL;
-  proto_item *tf = NULL, *tf_st1;
+  proto_item *tf = NULL, *tf_scid, *tf_st1 = NULL;
 
   guint32 context_id;
 
@@ -4728,8 +4712,8 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
   const gchar *service_context_name;
   gboolean encapsulation_is_be;
   guint32 encapsulation_boundary;
-  int temp_offset;
   int start_offset = *offset;
+  int encap_start_offset;
 
   /* create a subtree */
 
@@ -4764,38 +4748,28 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
     context_id = get_CDR_ulong(tvb,offset,stream_is_be,boundary);
     vscid = (context_id & 0xffffff00) >> 8; /* vendor info, top 24 bits */
     scid = context_id  & 0x000000ff; /* standard service info, lower 8 bits */
-    service_context_name = match_strval(scid, service_context_ids);
+    service_context_name = match_strval(context_id, service_context_ids);
 
     if ( service_context_name == NULL ) {
        service_context_name = "Unknown";
     }
 
     if(tree) {
-      proto_tree_add_text (tree, tvb, *offset -sizeof(context_id), 4,
-                           "Service Context ID: %s (%u)", service_context_name, 
+      tf_scid = proto_tree_add_text (tree, tvb, *offset-sizeof(context_id), 4,
+                           "Service Context ID: %s (%u)", service_context_name,
 	                                   context_id);
-    }
+      scid_tree = proto_item_add_subtree (tf_scid, ett_giop_scid);
+      proto_tree_add_uint(scid_tree,hf_giop_iop_vscid,tvb,
+	  *offset-sizeof(context_id),4,vscid);
 
-    /* The OMG has vscid of 0 reserved */
-    if( vscid != 0 || scid > max_service_context_id ) {
-        decode_UnknownServiceContext(tvb, tree, offset, stream_is_be, boundary,
-	                             vscid, scid); 
-        continue;
+      proto_tree_add_uint(scid_tree,hf_giop_iop_scid,tvb,
+	  *offset-sizeof(context_id),4,scid);
     }
-
-    temp_offset = *offset;
-    /* get sequence length, new endianness and boundary for encapsulation */
-    seqlen_cd = get_CDR_encap_info(tvb, sub_tree1, offset,
-			       stream_is_be, boundary,
-			       &encapsulation_is_be , &encapsulation_boundary);
 
     if (tree) {
-      tf_st1 = proto_tree_add_text (tree, tvb, temp_offset, sizeof(seqlen_cd) + seqlen_cd , service_context_name);
+      tf_st1 = proto_tree_add_text (tree, tvb, *offset, -1, service_context_name);
       sub_tree1 = proto_item_add_subtree (tf_st1, ett_giop_scl_st1);
     }
-
-    if (seqlen_cd == 0)
-        continue;
 
     /* See CORBA 3.0.2 standard, section Section 15.3.3 "Encapsulation",
      * for how CDR types can be marshalled into a sequence<octet>.
@@ -4803,19 +4777,44 @@ void decode_ServiceContextList(tvbuff_t *tvb, proto_tree *ptree, int *offset,
      * 0 == big-endian, 1 == little-endian
      */
 
-    switch(scid)
-    {
+    /* get sequence length, new endianness and boundary for encapsulation */
+    seqlen_cd = get_CDR_encap_info(tvb, sub_tree1, offset,
+			       stream_is_be, boundary,
+			       &encapsulation_is_be, &encapsulation_boundary);
+    if (tf_st1)
+      proto_item_set_len(tf_st1, sizeof(seqlen_cd) + seqlen_cd);
+
+    if (seqlen_cd == 0)
+      continue;
+
+    /* Skip the byte-order octet */
+    seqlen_cd -= 1;
+
+    if (seqlen_cd == 0)
+      continue;	/* what is the byte order of one hand clapping? */
+
+    /* Save the offset of the start of the encapsulated data */
+    encap_start_offset = *offset;
+
+    /* The OMG has vscid of 0 reserved */
+    if( vscid != 0 || scid > max_service_context_id ) {
+      decode_UnknownServiceContext(tvb, tree, offset, seqlen_cd);
+    } else {
+      switch(scid)
+      {
 	case 0x0a: /* RTCorbaPriority */
-           decode_RTCorbaPriority(tvb, sub_tree1, offset, 
-	                          encapsulation_is_be, seqlen_cd); 
-	   break;
+	  decode_RTCorbaPriority(tvb, sub_tree1, offset,
+				 encapsulation_is_be, seqlen_cd);
+	  break;
 	default:
-           /* Need to fill these in as we learn them */
-	   temp_offset = *offset - sizeof(seqlen_cd) - sizeof(context_id);
-           decode_UnknownServiceContext(tvb, sub_tree1, &temp_offset, stream_is_be, 
-			                boundary, vscid, scid);
-	break;
+	  /* Need to fill these in as we learn them */
+          decode_UnknownServiceContext(tvb, sub_tree1, offset, seqlen_cd);
+          break;
+      }
     }
+
+    /* Skip past the end of the encapsulated data */
+    *offset = encap_start_offset + seqlen_cd;
 
   } /* for seqlen  */
 
