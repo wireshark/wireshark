@@ -1,10 +1,11 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP packet disassembly
  *
+ * $Id: packet-igmp.c,v 1.4 2001/06/12 06:21:55 guy Exp $
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,8 +30,8 @@
 	draft-ietf-idmr-igmp-v3-07	Version 3
 
 	Size in bytes for each packet
-	type	RFC988	RFC1054	RFC2236 RFC????
-	        v0      v1      v2      v3
+	type	RFC988	RFC1054	RFC2236 RFC????  DVMRP
+	        v0      v1      v2      v3       v1/v3
 	0x01      20
 	0x02      20
 	0x03      20
@@ -41,11 +42,21 @@
 	0x08      20
 	0x11               8*     8*     >=12
         0x12               8*     8* 
+	0x13                                     x
 	0x16                      8
 	0x17                      8
 	0x22                            >=8
 
    * Differs in second byte of protocol. Always 0 in V1
+
+
+	DVMRP is defined in the following RFCs
+	RFC1075 Version 1
+	draft-ietf-idmr-dvmrp-v3-10.txt Version 3
+
+	V1 and V3 can be distinguished by looking at bytes 6 and 7 in the 
+	IGMP header.
+	If header[6]==0xff and header[7]==0x03 we have version 3.
 */
 
 #ifdef HAVE_CONFIG_H
@@ -63,6 +74,7 @@
 #include "packet.h"
 #include "ipproto.h"
 #include "in_cksum.h"
+#include "packet-dvmrp.h"
 
 static int proto_igmp = -1;
 static int hf_type = -1;
@@ -104,7 +116,7 @@ static int ett_max_resp = -1;
 #define IGMP_V0_CONFIRM_GROUP_REPLY	0x08
 #define IGMP_V1_HOST_MEMBERSHIP_QUERY	0x11
 #define IGMP_V1_HOST_MEMBERSHIP_REPORT	0x12
-#define IGMP_V1_DVMRP_MESSAGE		0x13
+#define IGMP_DVMRP			0x13
 #define IGMP_V1_PIM_ROUTING_MESSAGE	0x14
 #define IGMP_V2_MEMBERSHIP_REPORT	0x16
 #define IGMP_V2_LEAVE_GROUP		0x17
@@ -123,7 +135,7 @@ static const value_string commands[] = {
 	{IGMP_V0_CONFIRM_GROUP_REPLY,	"Confirm Group Reply"		},
 	{IGMP_V1_HOST_MEMBERSHIP_QUERY,	"Membership Query"		},
 	{IGMP_V1_HOST_MEMBERSHIP_REPORT,"Membership Report"		},
-	{IGMP_V1_DVMRP_MESSAGE,		"DVMRP Message"			},
+	{IGMP_DVMRP,			"DVMRP Protocol"		},
 	{IGMP_V1_PIM_ROUTING_MESSAGE,	"PIM Routing Message"		},
 	{IGMP_V2_MEMBERSHIP_REPORT,	"Membership Report"		},
 	{IGMP_V2_LEAVE_GROUP,		"Leave Group"			},
@@ -185,7 +197,7 @@ static const value_string vs_record_type[] = {
 	{ 0,	NULL}
 };
 
-#define PRINT_VERSION(version) 						\
+#define PRINT_IGMP_VERSION(version) 					\
 	if (check_col(pinfo->fd, COL_INFO)) {				\
 		col_add_fstr(pinfo->fd, COL_INFO,			\
 			"V%d %s",version,val_to_str(type, commands, 	\
@@ -196,7 +208,6 @@ static const value_string vs_record_type[] = {
 	/* type of command */						\
 	proto_tree_add_uint(tree, hf_type, tvb, offset, 1, type);	\
 	offset += 1;
-
 
 static void igmp_checksum(proto_tree *tree,tvbuff_t *tvb, int len)
 {
@@ -243,6 +254,11 @@ dissect_igmp_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int ty
 	return offset;
 }
 
+
+
+/*************************************************************
+ * IGMP Protocol dissectors
+ *************************************************************/
 static int
 dissect_v3_max_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
 {
@@ -359,7 +375,7 @@ dissect_igmp_v3_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 {
 	guint16 num;
 
-	PRINT_VERSION(3);
+	PRINT_IGMP_VERSION(3);
 
 	/* skip reserved field*/
 	offset += 1;
@@ -388,7 +404,7 @@ dissect_igmp_v3_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int t
 {
 	guint16 num;
 
-	PRINT_VERSION(3);
+	PRINT_IGMP_VERSION(3);
 
 	num = tvb_get_ntohs(tvb, offset+9);
 	/* max resp code */
@@ -428,7 +444,7 @@ dissect_igmp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 {
 	guint8 tsecs;
 
-	PRINT_VERSION(2);
+	PRINT_IGMP_VERSION(2);
 
 	/* max resp time */
 	tsecs = tvb_get_guint8(tvb, offset);
@@ -451,7 +467,7 @@ dissect_igmp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 static int
 dissect_igmp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, int offset)
 {
-	PRINT_VERSION(1);
+	PRINT_IGMP_VERSION(1);
 
 	/* skip unused byte */
 	offset += 1;
@@ -502,7 +518,7 @@ dissect_igmp_v1_pim_routing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
 	guint8 pimv1_type;
 
-	PRINT_VERSION(1);
+	PRINT_IGMP_VERSION(1);
 
 	pimv1_type = tvb_get_guint8(tvb, offset);
 	proto_tree_add_text(tree, tvb, offset, 2, "Message type: %s",
@@ -518,7 +534,7 @@ dissect_igmp_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 {
 	unsigned char code;
 
-	PRINT_VERSION(0);
+	PRINT_IGMP_VERSION(0);
 
 	/* Code */
 	code = tvb_get_guint8(tvb, offset);
@@ -606,12 +622,8 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 		break;
 
-	case IGMP_V1_DVMRP_MESSAGE:
-		offset = dissect_igmp_v1(tvb, pinfo, tree, type, offset);
-		/*
-		 * XXX - dissect the rest as DVMRP; see the tcpdump IGMP
-		 * and DVMRP dissectors.
-		 */
+	case IGMP_DVMRP:
+		offset = dissect_dvmrp(tvb, pinfo, parent_tree, offset);
 		break;
 
 	case IGMP_V1_PIM_ROUTING_MESSAGE:
