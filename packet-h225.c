@@ -2,7 +2,7 @@
  * Routines for H.225 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-h225.c,v 1.3 2003/08/01 10:11:54 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.4 2003/08/07 21:31:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/conversation.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -2275,9 +2276,8 @@ dissect_h225_ipAddress_ip(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 	if(offset&0x07){
 		offset=(offset&0xfffffff8)+8;
 	}
-	ipv4_address=tvb_get_letohl(tvb, offset>>3);
+	tvb_memcpy(tvb, (guint8 *)&ipv4_address, offset>>3, 4);
 	proto_tree_add_ipv4(tree, hf_h225_ipAddress_ip, tvb, offset>>3, 4, ipv4_address);
-	
 	offset+=32;
 	return offset;
 }
@@ -2524,14 +2524,19 @@ dissect_h225_h245Address(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_h245Address, ett_h225_TransportAddress, TransportAddress_choice, "h245Address", NULL);
 
-	if(ipv4_address!=0 && ipv4_port!=0 && h245_handle){
-		/* XXX FIXME
-		   This registers h245 for every tcp session to this port.
-		   We should really only register h245 for this port and
-		   only for this specific IP address  not for all ip addresses
-		*/
-		dissector_delete("tcp.port", ipv4_port, h245_handle);
-		dissector_add("tcp.port", ipv4_port, h245_handle);
+	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && h245_handle){
+		address src_addr;
+		conversation_t *conv=NULL;
+
+		src_addr.type=AT_IPv4;
+		src_addr.len=4;
+		src_addr.data=(const guint8 *)&ipv4_address;
+
+		conv=find_conversation(&src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+		if(!conv){
+			conv=conversation_new(&src_addr, &src_addr, PT_TCP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+			conversation_set_dissector(conv, h245_handle);
+		}
 	}
 	return offset;
 }
@@ -8132,7 +8137,9 @@ dissect_h225_H323UserInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_item *it;
 	proto_tree *tr;
 	guint32 offset=0;
+#ifdef REMOVED
 	guint32 value;
+#endif
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "H.323 UserInformation");
