@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.58 2000/11/20 17:08:20 gram Exp $
+ * $Id: tethereal.c,v 1.59 2000/11/21 23:50:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,7 +87,6 @@
 #include "print.h"
 #include "resolv.h"
 #include "util.h"
-#include "ui_util.h"
 #include "conversation.h"
 #include "plugins.h"
 
