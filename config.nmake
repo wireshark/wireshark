@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.71 2003/12/23 11:57:26 ulfl Exp $
+# $Id: config.nmake,v 1.72 2003/12/26 11:37:58 ulfl Exp $
 
 VERSION=0.10.0
 #
@@ -124,6 +124,15 @@ YACC=bison
 
 # To build the installer
 MAKENSIS="C:/program files/nsis/makensis.exe"
+
+# Choose modern style user interface for the installer.
+# When using this, make sure you have a supported NSIS
+# version installed. See "packaging\nsis\ethereal.nsi" for details.
+#
+# If you don't want the modern UI (or don't have a recent NSIS version),
+# comment this line out, so that MAKENSIS_MODERN_UI isn't defined.
+#
+#MAKENSIS_MODERN_UI=USE
 
 #
 # You should not have to change anything below this comment.
