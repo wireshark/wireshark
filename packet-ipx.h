@@ -2,10 +2,10 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.h,v 1.19 2002/09/23 17:14:54 jmayer Exp $
+ * $Id: packet-ipx.h,v 1.20 2002/10/15 04:25:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@etheeal.com>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
