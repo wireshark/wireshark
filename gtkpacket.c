@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: gtkpacket.c,v 1.2 1999/03/23 03:54:46 guy Exp $
+ * $Id: gtkpacket.c,v 1.3 1999/03/23 19:41:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,7 @@
 # include "snprintf.h"
 #endif
 
+#include <stdio.h>
 #include "ethereal.h"
 #include "packet.h"
 
