@@ -2,7 +2,7 @@
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
  *
- * $Id: packet-isup.c,v 1.21 2003/04/19 20:13:22 tuexen Exp $
+ * $Id: packet-isup.c,v 1.22 2003/04/22 13:47:37 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4037,10 +4037,8 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Extract message type field */
 	message_type = tvb_get_guint8(tvb, CIC_OFFSET + CIC_LENGTH);
 
-	if (check_col(pinfo->cinfo, COL_INFO)){
+	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, isup_message_type_value_acro, "reserved"));
-		col_set_fence(pinfo->cinfo, COL_INFO);
-	}
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */

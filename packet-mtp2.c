@@ -5,7 +5,7 @@
  *
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-mtp2.c,v 1.7 2003/04/20 09:21:47 tuexen Exp $
+ * $Id: packet-mtp2.c,v 1.8 2003/04/22 13:47:38 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,10 +87,8 @@ dissect_mtp2_header(tvbuff_t *su_tvb, proto_item *mtp2_tree)
 static void
 dissect_mtp2_fisu(packet_info *pinfo)
 {
-  if (check_col(pinfo->cinfo, COL_INFO)) {
+  if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "FISU ");
-    col_set_fence(pinfo->cinfo, COL_INFO);
-  }
 }
 
 static const value_string status_field_vals[] = {
@@ -112,10 +110,8 @@ dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree)
 {
   guint8  li;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
+  if (check_col(pinfo->cinfo, COL_INFO))
     col_set_str(pinfo->cinfo, COL_INFO, "LSSU ");
-    col_set_fence(pinfo->cinfo, COL_INFO);
-  }
   
   if (mtp2_tree) {
     li = tvb_get_guint8(su_tvb, LI_OFFSET);

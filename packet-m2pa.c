@@ -7,7 +7,7 @@
  * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>,
  * updated by Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m2pa.c,v 1.17 2003/04/19 20:09:00 tuexen Exp $
+ * $Id: packet-m2pa.c,v 1.18 2003/04/22 13:47:37 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,12 +143,8 @@ dissect_v2_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tre
   
   message_type  = tvb_get_guint8(header_tvb, V2_TYPE_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
+  if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, v2_message_type_values, "reserved"));
-    if (!(message_type == V2_USER_DATA_TYPE)){
-      col_set_fence(pinfo->cinfo, COL_INFO);
-    }
-  }
 
   if (m2pa_tree) {
     proto_tree_add_item(m2pa_tree, hf_version, header_tvb, VERSION_OFFSET,       VERSION_LENGTH, NETWORK_BYTE_ORDER);
@@ -165,12 +161,9 @@ dissect_v6_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tre
   
   message_type  = tvb_get_guint8(header_tvb, V6_TYPE_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
+  if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, v6_message_type_values, "Unknown"));
-    if (!(message_type == V6_USER_DATA_TYPE)){
-      col_set_fence(pinfo->cinfo, COL_INFO);
-    }
-  }
+
   if (m2pa_tree) {
     proto_tree_add_item(m2pa_tree, hf_version, header_tvb, VERSION_OFFSET,       VERSION_LENGTH, NETWORK_BYTE_ORDER);
     proto_tree_add_item(m2pa_tree, hf_spare,   header_tvb, SPARE_OFFSET,         SPARE_LENGTH,   NETWORK_BYTE_ORDER);

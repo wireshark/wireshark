@@ -7,7 +7,7 @@
  *
  * Copyright 2000, 2001, 2002, 2003 Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m3ua.c,v 1.30 2003/04/19 20:09:00 tuexen Exp $
+ * $Id: packet-m3ua.c,v 1.31 2003/04/22 13:47:38 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -181,7 +181,7 @@ static const value_string message_class_type_values[] = {
 static const value_string v5_message_class_type_acro_values[] = {
   { MESSAGE_CLASS_MGMT_MESSAGE  * 256 + MESSAGE_TYPE_ERR,           "ERR" },
   { MESSAGE_CLASS_MGMT_MESSAGE  * 256 + MESSAGE_TYPE_NTFY,          "NTFY" },
-  { MESSAGE_CLASS_TFER_MESSAGE  * 256 + MESSAGE_TYPE_DATA,          "DATA1" },
+  { MESSAGE_CLASS_TFER_MESSAGE  * 256 + MESSAGE_TYPE_DATA,          "DATA" },
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DUNA,          "DUNA" },
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DAVA,          "DAVA" },
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DAUD,          "DAUD" },
@@ -319,12 +319,8 @@ dissect_v5_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_
   message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
+  if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_class * 256 + message_type, v5_message_class_type_acro_values, "reserved"));
-    if (!(message_class == MESSAGE_CLASS_TFER_MESSAGE && message_type == MESSAGE_TYPE_DATA)){
-      col_set_fence(pinfo->cinfo, COL_INFO);
-    }
-  }
 
   if (m3ua_tree) {
     /* add the components of the common header to the protocol tree */
@@ -346,11 +342,8 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
   message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
+  if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO,"%s ", val_to_str(message_class * 256 + message_type, message_class_type_acro_values, "reserved"));
-    if (!(message_class == MESSAGE_CLASS_TFER_MESSAGE && message_type == MESSAGE_TYPE_DATA))
-      col_set_fence(pinfo->cinfo, COL_INFO);
-  }
 
   if (m3ua_tree) {
     /* add the components of the common header to the protocol tree */

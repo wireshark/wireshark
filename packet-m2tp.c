@@ -5,7 +5,7 @@
  *
  * Copyright 2001, Heinz Prantner <heinz.prantner[AT]radisys.com>
  *
- * $Id: packet-m2tp.c,v 1.7 2003/04/19 20:09:00 tuexen Exp $
+ * $Id: packet-m2tp.c,v 1.8 2003/04/22 13:47:37 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -272,11 +272,8 @@ dissect_m2tp_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
   message_length = tvb_get_ntohl (common_header_tvb, MESSAGE_LENGTH_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
+  if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_class * 256 + message_type, m2tp_message_class_type_acro_values, "reserved"));
-    if (!(message_class == MESSAGE_CLASS_DATA_MESSAGE && message_type == MESSAGE_TYPE_DATA))
-      col_set_fence(pinfo->cinfo, COL_INFO);
-  };
 
   if (m2tp_tree) {
     /* add the components of the common header to the protocol tree */

@@ -10,7 +10,7 @@
  *
  * Copyright 2003, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3mg.c,v 1.5 2003/04/19 20:13:23 tuexen Exp $
+ * $Id: packet-mtp3mg.c,v 1.6 2003/04/22 13:47:38 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -416,10 +416,8 @@ static void
 dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
-    if (check_col(pinfo->cinfo, COL_INFO)) {
+    if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(h1, chm_h1_message_type_acro_values, "Unknown"));
-		col_set_fence(pinfo->cinfo, COL_INFO);
-	}
 	
     switch (h1)
     {

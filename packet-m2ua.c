@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-m2ua.c,v 1.9 2003/04/19 20:09:00 tuexen Exp $
+ * $Id: packet-m2ua.c,v 1.10 2003/04/22 13:47:37 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -244,11 +244,8 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
   message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
+  if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_class * 256 + message_type, message_class_type_acro_values, "reserved"));
-    if (!(message_class == MESSAGE_CLASS_MAUP_MESSAGE && message_type == MESSAGE_TYPE_DATA))
-      col_set_fence(pinfo->cinfo, COL_INFO);
-  }
 
   if (m2ua_tree) {
     /* add the components of the common header to the protocol tree */
