@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.73 2003/05/28 22:40:18 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.74 2003/12/19 23:20:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,6 +86,7 @@ static gint ett_nodeinfo_node4 = -1;
 static gint ett_nodeinfo_node6 = -1;
 static gint ett_nodeinfo_nodebitmap = -1;
 static gint ett_nodeinfo_nodedns = -1;
+static gint ett_multicastRR = -1;
 
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t data_handle;
@@ -933,6 +934,69 @@ dissect_rrenum(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
     }
 }
 
+/*
+ * See I-D draft-vida-mld-v2-03
+ */
+static const value_string mldrv2ModesNames[] = {
+  { 1, "Include" },
+  { 2, "Exclude" },
+  { 3, "Changed to include" },
+  { 4, "Changed to exclude" },
+  { 5, "Allow new sources" },
+  { 6, "Block old sources" },
+  { 0, NULL }
+};
+
+static void
+dissect_mldrv2( tvbuff_t *tvb, guint32 offset, guint16 count, proto_tree *tree )
+{
+  proto_tree *sub_tree;
+  proto_item *tf;
+
+  guint8 recordType, auxDataLen;
+  guint32 sourceNb, recordSize, localOffset;
+  struct e_in6_addr addr;
+
+  for( ; count; count--, offset += recordSize ) {
+    localOffset = offset;
+    recordType = tvb_get_guint8( tvb, localOffset );
+    localOffset += 1;
+    auxDataLen = tvb_get_guint8( tvb, localOffset );
+    localOffset += 1;
+    sourceNb = tvb_get_ntohs( tvb, localOffset );
+    localOffset += 2;
+    recordSize = 4 + 16 + (16 * sourceNb) + (auxDataLen * 4);
+
+    tvb_memcpy(tvb, (guint8 *)&addr, localOffset, sizeof(addr) );
+    tf = proto_tree_add_text( tree, tvb, offset, recordSize, 
+#ifdef INET6
+			      "%s: %s (%s)", val_to_str(recordType, mldrv2ModesNames,"Unknown mode"),
+			      get_hostname6(&addr), ip6_to_str(&addr) 
+#else
+			      "%s: %s", val_to_str(recordType, mldrv2ModesNames,"Unknown mode"),
+			      ip6_to_str(&addr) 
+#endif
+			      );
+    sub_tree = proto_item_add_subtree(tf, ett_multicastRR);
+
+    proto_tree_add_text( sub_tree, tvb, offset,   1, "Mode: %s", 
+			 val_to_str(recordType, mldrv2ModesNames,"Unknown mode") );
+    proto_tree_add_text( sub_tree, tvb, offset+1, 1, "Aux data len: %u", auxDataLen * 4);
+    proto_tree_add_text( sub_tree, tvb, localOffset, 16, "Multicast Address: %s", ip6_to_str(&addr) );
+    localOffset += 16;
+
+    for( ; sourceNb; sourceNb--, localOffset += 16 ) {
+      tvb_memcpy(tvb, (guint8 *)&addr, localOffset, sizeof(addr) );
+      proto_tree_add_text( sub_tree, tvb, localOffset, 16, 
+#ifdef INET6
+			   "Source Address: %s (%s)", get_hostname6(&addr), ip6_to_str(&addr) );
+#else
+			   "Source Address: %s", ip6_to_str(&addr) );
+#endif
+    }
+  }
+}
+
 static void
 dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1127,6 +1191,11 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	codename = "Should always be zero";
 	colcodename = NULL;
 	break;
+    case ICMP6_MLDV2_REPORT:
+	typename = coltypename = "Multicast Listener Report Message v2";
+	codename = "Should always be zero";
+	colcodename = NULL;
+	break;
     }
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -1258,6 +1327,13 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case ND_ROUTER_SOLICIT:
 	    dissect_icmpv6opt(tvb, offset + sizeof(*dp), pinfo, icmp6_tree);
 	    break;
+	case ICMP6_MLDV2_REPORT: {
+	  guint16 nbRecords;
+	  
+	  nbRecords = tvb_get_ntohs( tvb, offset+4+2 );
+	  dissect_mldrv2( tvb, offset+4+2+2, nbRecords, icmp6_tree );
+	  break;
+	}
 	case ND_ROUTER_ADVERT:
 	  {
 	    struct nd_router_advert nd_router_advert, *ra;
@@ -1480,6 +1556,7 @@ proto_register_icmpv6(void)
     &ett_nodeinfo_node6,
     &ett_nodeinfo_nodebitmap,
     &ett_nodeinfo_nodedns,
+    &ett_multicastRR,
   };
 
   proto_icmpv6 = proto_register_protocol("Internet Control Message Protocol v6",

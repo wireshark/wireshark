@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.h,v 1.31 2003/11/22 08:35:45 guy Exp $
+ * $Id: packet-ipv6.h,v 1.32 2003/12/19 23:20:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -218,6 +218,7 @@ struct icmp6_hdr {
 #define ICMP6_MIP6_MPS			146	/* Mobile IPv6 MPS */
 #define ICMP6_MIP6_MPA			147	/* Mobile IPv6 MPA */
 
+#define ICMP6_MLDV2_REPORT              206     /* MLD v2 report message : draft-vida-mld-v2-03.txt */
 #define ICMP6_MAXTYPE			153
 
 #define ICMP6_DST_UNREACH_NOROUTE	0	/* no route to destination */

@@ -1941,6 +1941,7 @@ Scott Hovis <scott.hovis [AT] ums.msfc.nasa.gov> {
 
 David Fort <david.fort [AT] irisa.fr> {
 	DNS DS RR support
+	MLDv2 report message decoding
 }
 
 Martijn Schipper <mschipper [AT] globespanvirata.com> {
