@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.82 2001/05/20 22:26:14 guy Exp $
+ * $Id: packet-smb.c,v 1.83 2001/06/05 23:40:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2687,7 +2687,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
       if (tree) {
 
 	proto_tree_add_text(tree, NullTVB, offset, 1, "AndXCommand: %s",
-			    (AndXCommand == 0xFF ? "No futher commands" : decode_smb_name(AndXCommand)));
+			    (AndXCommand == 0xFF ? "No further commands" : decode_smb_name(AndXCommand)));
 
       }
 
