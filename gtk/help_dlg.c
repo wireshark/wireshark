@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.4 2000/08/17 07:56:34 guy Exp $
+ * $Id: help_dlg.c,v 1.5 2000/08/17 08:17:38 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -57,9 +57,16 @@ typedef enum {
 } help_type_t;
 
 static void help_close_cb(GtkWidget *w, gpointer data);
+static void help_destroy_cb(GtkWidget *w, gpointer data);
 static void set_text(GtkWidget *w, char *buffer, int nchars);
 static void set_help_text(GtkWidget *w, help_type_t type);
 
+/*
+ * Keep a static pointer to the current "Help" window, if any, so that
+ * if somebody tries to do "Help->Help" while there's already a
+ * "Help" window up, we just pop up the existing one, rather than
+ * creating a new one.
+ */
 static GtkWidget *help_w = NULL;
 
 void help_cb(GtkWidget *w, gpointer data)
@@ -72,6 +79,7 @@ void help_cb(GtkWidget *w, gpointer data)
     *cfilter_vb, *cfilter_text;
   
   if (help_w != NULL) {
+    /* There's already a "Help" dialog box; reactivate it. */
     reactivate_window(help_w);
     return;
   }
@@ -79,10 +87,8 @@ void help_cb(GtkWidget *w, gpointer data)
   help_w = gtk_window_new(GTK_WINDOW_DIALOG);
   gtk_widget_set_name(help_w, "Ethereal Help window" );
   gtk_window_set_title(GTK_WINDOW(help_w), "Ethereal: Help");
-  gtk_signal_connect(GTK_OBJECT(help_w), "delete_event",
-		     GTK_SIGNAL_FUNC(help_close_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(help_w), "destroy",
-		     GTK_SIGNAL_FUNC(help_close_cb), NULL);
+		     GTK_SIGNAL_FUNC(help_destroy_cb), NULL);
   gtk_widget_set_usize(GTK_WIDGET(help_w), DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
   gtk_container_border_width(GTK_CONTAINER(help_w), 2);
   
@@ -217,11 +223,14 @@ void help_cb(GtkWidget *w, gpointer data)
 
 static void help_close_cb(GtkWidget *w, gpointer data)
 {
-  if (help_w)
-    gtk_widget_destroy(help_w);
-  help_w = NULL;
+  gtk_widget_destroy(GTK_WIDGET(data));
 }
 
+static void help_destroy_cb(GtkWidget *w, gpointer data)
+{
+  /* Note that we no longer have a Help window. */
+  help_w = NULL;
+}
 
 static void set_text(GtkWidget *w, char *buffer, int nchars)
 {
