@@ -11,7 +11,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp2222.inc,v 1.57 2003/07/25 04:11:49 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.58 2003/08/25 22:12:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,33 @@
 
 #define NCP_PACKET_INIT_COUNT	200
 #define PROTO_LENGTH_UNTIL_END -1
+
+gboolean        nds_defragment = TRUE;
+
+typedef struct {
+        guint32         nds_frag_verb;
+        guint32         nds_frag_version;
+        guint32         nds_frag_flags;
+        guint32         nds_length;
+        guint32         nds_frag;
+        gboolean        nds_fragmented;
+} frag_info;        
+
+frag_info           frags[100];
+
+const fragment_items nds_frag_items = {
+	&ett_nds_segment,
+	&ett_nds_segments,
+	&hf_nds_segments,
+	&hf_nds_segment,
+	&hf_nds_segment_overlap,
+	&hf_nds_segment_overlap_conflict,
+	&hf_nds_segment_multiple_tails,
+	&hf_nds_segment_too_long_segment,
+	&hf_nds_segment_error,
+	NULL,
+	"segments"
+};
 
 static const value_string nds_tags[] = {
         { 0x00000000, "No Such Entry" },
@@ -698,6 +725,10 @@ ncp_req_eid_hash_cleanup(gpointer key _U_, gpointer value, gpointer user_data _U
 static void
 ncp_init_protocol(void)
 {
+  	/* fragment */
+  	fragment_table_init(&nds_fragment_table);
+  	reassembled_table_init(&nds_reassembled_table);
+        
 	if (ncp_req_hash) {
 		g_hash_table_foreach(ncp_req_hash, ncp_req_hash_cleanup, NULL);
 		g_hash_table_destroy(ncp_req_hash);
@@ -774,6 +805,7 @@ ncp_hash_insert(conversation_t *conversation, guint8 nw_sequence,
 	request_value->nds_request_verb = 0;
 	request_value->nds_version = 0;
 	strcpy(request_value->object_name, " ");
+        request_value->nds_frag = TRUE;
         
         g_hash_table_insert(ncp_req_hash, request_key, request_value);
 
@@ -1406,12 +1438,6 @@ align_4(tvbuff_t *tvb, guint32 aoffset)
        return 0;
 }
        
-/*
- * These routines process both ASCII and Unicode strings, although
- * they handle only Unicode strings that have only ISO 8859-1
- * characters, as they recognize Unicode characters by the 0
- * high-order byte.
- */
 static void
 get_string(tvbuff_t* tvb, guint offset, guint str_length, char *dest_buf)
 {
@@ -4044,6 +4070,256 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, nds_val *values)
         }
 }
 
+
+/*
+ * Defrag logic 
+ *
+ * NDS fragment not being set to 0xffffffff indicates we are inside or at the 
+ * beginning of a fragment. But when the end of the fragment 
+ * is encounterd the flag is set to 0xffffffff. So we must mark what the
+ * frame number is of the end fragment so that we will be
+ * able to redissect if the user clicks on the packet
+ * or resorts/filters the trace. 
+ *
+ * Once we are certain that we are in a fragment sequence
+ * then we can just process each fragment in this conversation
+ * until we reach the fragment == 0xffffffff packet. 
+ *
+ * We will be able to easily determine if a conversation is a fragment
+ * with the exception of the last packet in the fragment. So remember
+ * the last fragment packet number.
+ *
+ * Also the NDS dissection requires the values of NDS Verb, Version, and Flags.
+ * Without this values being remembered from the first request packet then 
+ * we will be unable to dissect the reply packet. For this reason we remember
+ * these values on the first fragment and then populate the values in the final
+ * fragment. We only do this on the first dissection.
+ *
+*/         
+void
+nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequence, guint16 type, proto_tree *tree)
+{
+    int                 i, len=0, frag_count=0;
+    guint32             tid = 1;
+    tvbuff_t            *frag_tvb = NULL;
+    fragment_data       *fd_head;
+    ncp_req_hash_value	*request_value = NULL;
+    conversation_t      *conversation;
+    guint32             nds_frag;
+    
+    for (i = 0; i < 9; i++) {
+        if (!frags[i].nds_fragmented)
+	{
+                frags[i].nds_frag = 0;
+        }
+    }
+    /* Check to see if defragmentation is enabeled in the dissector */
+    if (!nds_defragment || type != NCP_SERVICE_REPLY) {
+        dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree);
+        return;
+    }
+    /* Has this already been dissected? */
+    if (!pinfo->fd->flags.visited) {
+      	/* Find the conversation whence the request would have come. */
+       	conversation = find_conversation(&pinfo->src, &pinfo->dst,
+       		    PT_NCP, nw_connection, nw_connection, 0);
+       	if (conversation != NULL) {
+       		/* find the record telling us the request made that caused
+       		   this reply */
+       		request_value = ncp_hash_lookup(conversation, sequence);
+       		if (!request_value) {
+                        dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree);
+                        return;
+                }
+       		p_add_proto_data(pinfo->fd, proto_ncp, (void*) request_value);
+       	}
+       	/* else... we haven't seen an NCP Request for that conversation and sequence. */
+        else
+        {
+                dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree);
+                return;
+        }
+    }
+    else {
+       	request_value = p_get_proto_data(pinfo->fd, proto_ncp);
+       	if (!request_value) {
+                dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree);
+                return;
+        }
+    }
+    /* Validate that this is an NDS packet */
+    /* If this isn't an NDS packet then just return */
+    if (request_value->ncp_rec->func!=104 || request_value->ncp_rec->subfunc!=2) {
+        dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree);
+        return;
+    }
+    /* Get the fragment flag */
+    nds_frag = tvb_get_letohl(tvb, 12);
+    /* Now we need to find if this is a new fragment or already one defined. */
+    /* We currently limit the maximum number of simultaneous fragments to 100. */
+    for (i=0; i<100; i++)
+    {
+        if (frags[i].nds_frag == nds_frag || frags[i].nds_frag == 0)
+        {
+                if (frags[i].nds_frag == 0)
+                {
+                        frags[i].nds_length = 0;
+                        frags[i].nds_frag = nds_frag;
+                        frags[i].nds_fragmented = TRUE;
+                }
+                break;
+        }
+    }
+    frag_count = i;
+    
+    /* Now we process the fragments */
+    if (request_value->nds_frag || (request_value->nds_end_frag == pinfo->fd->num)) 
+    {
+        /* Check to see of this is a fragment. If so then mark as a fragment. */
+        if (frags[frag_count].nds_frag==0xffffffff) {
+                request_value->nds_frag = FALSE;
+                /* nds_length of 0 means start of fragment */
+                frags[frag_count].nds_length = 0;
+        }
+        else
+        {
+                if (frags[frag_count].nds_length == 0)
+                {
+                        frags[frag_count].nds_length = tvb_get_letohl(tvb, 0);
+                }
+        }
+        /*   
+         * Fragment
+         *
+         */
+        tid = (pinfo->srcport+pinfo->destport);
+        len = tvb_reported_length_remaining(tvb, 0);
+        if (tvb_bytes_exist(tvb, 0, len))
+        {
+            if (frags[frag_count].nds_length > len)
+            {
+                /* This is the first fragment so remember the verb, version, and flags. */
+                frags[frag_count].nds_frag_verb = request_value->nds_request_verb;
+                frags[frag_count].nds_frag_version = request_value->nds_version;
+                frags[frag_count].nds_frag_flags = request_value->req_nds_flags;
+                fd_head = fragment_add_seq_next(tvb, 0, pinfo, tid, nds_fragment_table, nds_reassembled_table, len, request_value->nds_frag);
+                frags[frag_count].nds_length = 1;
+            }
+            else
+            {
+                /* Subsequent fragments should be offset by 16 since we do not need */
+                /* the additional fragment handle and size fields in our composite data */
+                fd_head = fragment_add_seq_next(tvb, 16, pinfo, tid, nds_fragment_table, nds_reassembled_table, len-16, request_value->nds_frag);
+            } 
+            if (fd_head != NULL) 
+            {
+                /* Is this the last fragment? nds_frag will indicate */
+                if (fd_head->next != NULL && !request_value->nds_frag) 
+                {
+                    frag_tvb = tvb_new_real_data(fd_head->data,
+                        fd_head->len, fd_head->len);
+                    tvb_set_child_real_data_tvbuff(tvb,
+                        frag_tvb);
+                    add_new_data_source(pinfo,
+                        frag_tvb,
+                        "Reassembled NDS");
+                    /* Show all fragments. */
+                    if (tree) 
+                    {
+                        show_fragment_seq_tree(fd_head,
+                            &nds_frag_items,
+                            tree, pinfo,
+                            frag_tvb);
+                        tid++;
+                    }
+                    
+                    if (!pinfo->fd->flags.visited) 
+                    {
+                         /* Now we need to find the original fragment number. */
+                         /* Get the fragment flag */
+                         nds_frag = tvb_get_letohl(frag_tvb, 12);
+                         for (i=0; i<100; i++)
+                         {
+                             if (frags[i].nds_frag == nds_frag)
+                             {
+                                     break;
+                             }
+                         }
+                         if (frags[i].nds_frag == 0)
+                         {
+                                 /* Error can't find fragment */
+                                 /*g_assert(0);*/
+                         }
+                         frag_count = i;
+                        /* Remember this fragment information so we can dissect.
+                         * Only do this on the first dissection. After the first 
+                         * dissection we will just read the memory values. 
+                         */
+                        request_value->nds_end_frag = pinfo->fd->num;
+                        request_value->nds_request_verb = frags[frag_count].nds_frag_verb;
+                        request_value->nds_version = frags[frag_count].nds_frag_version;
+                        request_value->req_nds_flags = frags[frag_count].nds_frag_flags;
+                    }
+
+                } 
+                else 
+                {
+                    /* This is either a beggining or middle fragment on second dissection */
+                    frag_tvb = tvb_new_subset(tvb, 0, -1, -1);
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                    {
+                      if (request_value->nds_frag)
+                      {
+                        col_add_fstr(pinfo->cinfo, COL_INFO, "[NDS Fragment %08x]", frags[frag_count].nds_frag);
+                      }
+                    }
+                }
+            }
+            else 
+            {
+                /* Fragment from first pass of dissection */
+                if (check_col(pinfo->cinfo, COL_INFO))
+                {
+                  if (request_value->nds_frag)
+                  {
+                     col_add_fstr(pinfo->cinfo, COL_INFO, "[NDS Fragment %08x]", frags[frag_count].nds_frag);
+                  }
+                }
+                frag_tvb = NULL;
+            }
+        }
+        else 
+        {
+            /*
+             * There are no bytes so Dissect this
+             */
+            frag_tvb = tvb_new_subset(tvb, 0, -1, -1);
+        }
+        if (frag_tvb == NULL)
+        {
+            /* This is a fragment packet */
+                frag_tvb = tvb_new_subset (tvb, 0, -1, -1);
+	        nds_data_handle = find_dissector("data");
+                call_dissector(nds_data_handle, frag_tvb, pinfo, tree);
+        }
+        else
+        {
+            /* This is the end fragment so dissect */
+            if (!request_value->nds_frag) {
+                frags[frag_count].nds_length = 0;
+                dissect_ncp_reply(frag_tvb, pinfo, nw_connection, sequence, type, tree);
+            }
+        }
+    }
+    else
+    {
+        /* This is not any fragment packet */
+        frags[frag_count].nds_length = 0;
+        request_value->nds_frag = FALSE;
+        dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree);
+    }
+}
+
 void
 dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		guint16 nw_connection, guint8 sequence,
@@ -4074,7 +4350,6 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 			subfunc = tvb_get_guint8(tvb, 7);
 		}
 	}
-
 	/* Determine which ncp_record to use. */
 	switch (type) {
 		case NCP_ALLOCATE_SLOT:
@@ -4164,10 +4439,6 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
        			if (ncp_rec->req_cond_indexes) {
         			run_req_cond = TRUE;
        			}
-	        	/* Only create info string if COL_INFO is available. */
-	        	if (ncp_rec->req_info_str && check_col(pinfo->cinfo, COL_INFO)) {
-	        		run_info_str = TRUE;
-	        	}
 	        	/* We also have to use a tree if we have to construct an info_str */
 	        	if ((run_info_str || run_req_cond) && !ncp_tree) {
 	        		proto_item *ti;
@@ -4179,6 +4450,10 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                         }
 		}
 	}
+    	/* Only create info string if COL_INFO is available. */
+    	if (ncp_rec->req_info_str && check_col(pinfo->cinfo, COL_INFO)) {
+    		run_info_str = TRUE;
+    	}
 
 	if (ncp_tree) {
 		/* If the dissection throws an exception, be sure to free
@@ -4459,7 +4734,8 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 	 * value. */
 	completion_code = tvb_get_guint8(tvb, 6);
 	if (completion_code == 0) {
-		if(type == NCP_POSITIVE_ACK)
+		
+                if(type == NCP_POSITIVE_ACK)
                 {
                         error_string = "Server Busy, Request Being Processed";
                 }
@@ -4489,21 +4765,11 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                         nds_error_string = match_strval(nds_error_code, nds_reply_errors);
                         if (nds_error_string == NULL)
                         {
-                                /*nds_offset = 19;
-                                nds_error_code = tvb_get_letohl(tvb, nds_offset);
-                                nds_error_string = match_strval(nds_error_code, nds_reply_errors);*/
                                 nds_error_string = "NDS Error - No Definition Found";
                         }
                         if (nds_error_string == NULL || nds_error_code == 0x00000000)
                         {
-                                if (nds_frag != 0xffffffff)
-                                {
-                                        nds_error_string = "NDS Fragment";
-                                }
-                                else
-                                {        
-                                        nds_error_string = "Ok";
-                                }
+                                nds_error_string = "Ok";
                         }        
                 }
         }
@@ -4888,7 +5154,7 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
                                                 4, nds_error_code, "NDS Completion Code: 0x%08x, %s",
         				        nds_error_code, nds_error_string);
                                 }
-                                if (request_value && nds_error_code == 0x00000000 && nds_frag == 0xffffffff)
+                                if (request_value && nds_error_code == 0x00000000)
                                 {
                                         nds_offset = 20;
 					for (i = 0; i < 9; i++) {
@@ -8073,7 +8339,6 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                                                 col_append_str(pinfo->cinfo, COL_INFO, ", Object Name - ");
                                                                 col_append_str(pinfo->cinfo, COL_INFO, global_object_name);
                                                         }
-                                                        /*resolve_eid = FALSE;*/
                                                 }        
                                         }
                                         if (request_value)
