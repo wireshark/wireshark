@@ -107,7 +107,7 @@ static hf_register_info hf[] = {
       "JXTA Message Framing Header Name Length", HFILL }
   },
   { &hf_jxta_framing_header_name,
-    { "Name", "jxta.framing.header.name", FT_STRING, FT_NONE, NULL, 0x0,
+    { "Name", "jxta.framing.header.name", FT_STRING, BASE_NONE, NULL, 0x0,
       "JXTA Message Framing Header Name", HFILL }
   },
   { &hf_jxta_framing_header_value_length,
