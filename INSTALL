@@ -17,7 +17,15 @@ Installation Checklist
          header files and the like.  For example, Red Hat users will
          need to install a "gtk-devel" .rpm.
 
-  [ ] 2. If you want to capture packets, make sure you have libpcap
+  [ ] 2. Make sure you have GNU libtool installed.  Try running 'libtool
+         --version'.  If you need to install/reinstall GTK, you can find
+         it at
+
+         http://www.profitpress.com/libtool/ .
+
+         Ethereal needs libtool-1.3.4.
+
+  [ ] 3. If you want to capture packets, make sure you have libpcap
          installed.  The latest "official" version can be found at
           
          ftp://ftp.ee.lbl.gov .
@@ -36,7 +44,7 @@ Installation Checklist
          Similarly, Red Hat 5.x users will need to install a "libpcap-devel"
          .rpm to go along with the "libpcap" .rpm.
 
-  [ ] 3. Run './configure' in the Ethereal distribution directory.
+  [ ] 4. Run './configure' in the Ethereal distribution directory.
          Running './configure --help' displays a list of options.
          The file 'INSTALL.configure' contains general instructions for
          using 'configure' and 'make'.
@@ -49,10 +57,10 @@ Installation Checklist
          You won't be able to capture packets, but you can read traces
          that have already been captured to disk by other programs.
 
-  [ ] 4. Run 'make'.  Hopefully, you won't run into any problems.
+  [ ] 5. Run 'make'.  Hopefully, you won't run into any problems.
 
-  [ ] 5. Run './ethereal', and make sure things are working.  You must
+  [ ] 6. Run './ethereal', and make sure things are working.  You must
          have root privileges in order to capture live data.
 
-  [ ] 6. Run 'make install'.  If you wish to install the man page, run
+  [ ] 7. Run 'make install'.  If you wish to install the man page, run
          'make install-man'.  You're done.
