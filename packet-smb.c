@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.272 2002/07/20 23:14:35 guy Exp $
+ * $Id: packet-smb.c,v 1.273 2002/07/27 03:18:29 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -15238,15 +15238,15 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	   conversation*/
 	conversation = find_conversation(&pinfo->src, &pinfo->dst,
 		 pinfo->ptype,  pinfo->srcport, pinfo->destport, 0);
-	if(conversation){
-		si.ct=conversation_get_proto_data(conversation, proto_smb);
-	} else {
-		/* OK this is a new conversation, we must create it
-		   and attach appropriate data (matched and unmatched 
-		   table for this conversation)
-		*/
+	if(!conversation){
+		/* OK this is a new conversation so lets create it */
 		conversation = conversation_new(&pinfo->src, &pinfo->dst, 
 			pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
+	/* see if we already have the smb data for this conversation */
+	si.ct=conversation_get_proto_data(conversation, proto_smb);
+	if(!si.ct){
+		/* No, not yet. create it and attach it to the conversation */
 		si.ct = g_mem_chunk_alloc(conv_tables_chunk);
 		conv_tables = g_slist_prepend(conv_tables, si.ct);
 		si.ct->matched= g_hash_table_new(smb_saved_info_hash_matched, 
