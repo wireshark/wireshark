@@ -2,7 +2,7 @@
  * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.24 2002/01/25 09:42:21 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.25 2002/01/28 00:58:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -469,7 +469,7 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 		offset += 8;
 
 		offset = dissect_smb_64bit_time(tvb, pinfo, info_tree, offset,
-		    "NT Date/Time", hf_nt_date_time);
+		    hf_nt_date_time);
 
 		info_count--;
 	}

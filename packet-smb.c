@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.199 2002/01/25 09:42:21 guy Exp $
+ * $Id: packet-smb.c,v 1.200 2002/01/28 00:58:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -562,7 +562,6 @@ static gint ett_smb_lock_type = -1;
 static gint ett_smb_ssetupandxaction = -1;
 static gint ett_smb_optionsup = -1;
 static gint ett_smb_time_date = -1;
-static gint ett_smb_64bit_time = -1;
 static gint ett_smb_move_flags = -1;
 static gint ett_smb_file_attributes = -1;
 static gint ett_smb_search_resume_key = -1;
@@ -1097,23 +1096,86 @@ dissect_smb_UTIME(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 	return offset;
 }
 
-int
-dissect_smb_64bit_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, char *str, int hf_date)
+#define TIME_FIXUP_CONSTANT (369.0*365.25*24*60*60-(3.0*24*60*60+6.0*60*60))
+
+/*
+ * Translate an 8-byte FILETIME value, given as the upper and lower 32 bits,
+ * to an "nstime_t".
+ * A FILETIME is a 64-bit integer, giving the time since Jan 1, 1601,
+ * midnight "UTC", in 100ns units.
+ * Return TRUE if the conversion succeeds, FALSE otherwise.
+ *
+ * According to the Samba code, it appears to be kludge-GMT (at least for
+ * file listings). This means it's the GMT you get by taking a local time
+ * and adding the server time zone offset.  This is NOT the same as GMT in
+ * some cases.   However, we don't know the server time zone, so we don't
+ * do that adjustment.
+ *
+ * This code is based on the Samba code:
+ *
+ *	Unix SMB/Netbios implementation.
+ *	Version 1.9.
+ *	time handling functions
+ *	Copyright (C) Andrew Tridgell 1992-1998
+ */
+static gboolean
+nt_time_to_nstime(guint32 filetime_high, guint32 filetime_low, nstime_t *tv)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-	nstime_t tv;
+	double d;
+	/* The next two lines are a fix needed for the 
+	    broken SCO compiler. JRA. */
+	time_t l_time_min = TIME_T_MIN;
+	time_t l_time_max = TIME_T_MAX;
 
-	/* XXXX we need some way to represent this as a time
-	   properly. For now we display everything as 8 bytes*/
+	if (filetime_high == 0)
+		return FALSE;
 
-	if(parent_tree){
-		item = proto_tree_add_text(parent_tree, tvb, offset, 8,
-			str);
-		tree = proto_item_add_subtree(item, ett_smb_64bit_time);
+	/*
+	 * Get the time as a double, in seconds and fractional seconds.
+	 */
+	d = ((double)filetime_high)*4.0*(double)(1<<30);
+	d += filetime_low;
+	d *= 1.0e-7;
+ 
+	/* Now adjust by 369 years, to make the seconds since 1970. */
+	d -= TIME_FIXUP_CONSTANT;
+
+	if (!(l_time_min <= d && d <= l_time_max))
+		return FALSE;
+
+	/*
+	 * Get the time as seconds and nanoseconds.
+	 */
+	tv->secs = d;
+	tv->nsecs = (d - tv->secs)*1000000000;
+
+	return TRUE;
+}
+
+int
+dissect_smb_64bit_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hf_date)
+{
+	guint32 filetime_high, filetime_low;
+	nstime_t ts;
+
+	if (tree) {
+		filetime_low = tvb_get_letohl(tvb, offset);
+		filetime_high = tvb_get_letohl(tvb, offset + 4);
+		if (filetime_low == 0 && filetime_high == 0) {
+			proto_tree_add_text(tree, tvb, offset, 8,
+			    "%s: No time specified (0)",
+			    proto_registrar_get_name(hf_date));
+		} else {
+			if (nt_time_to_nstime(filetime_high, filetime_low, &ts)) {
+				proto_tree_add_time(tree, hf_date, tvb,
+				    offset, 8, &ts);
+			} else {
+				proto_tree_add_text(tree, tvb, offset, 8,
+				    "%s: Time can't be converted",
+				    proto_registrar_get_name(hf_date));
+			}
+		}
 	}
-
-	proto_tree_add_bytes_format(tree, hf_smb_unknown, tvb, offset, 8, tvb_get_ptr(tvb, offset, 8), "%s: can't decode this yet", str);
 
 	offset += 8;
 	return offset;
@@ -2073,7 +2135,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 		/* system time */
 		offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-			       	"System Time", hf_smb_system_time);
+			       	hf_smb_system_time);
 
 		/* time zone */
 		tz = tvb_get_letohs(tvb, offset);
@@ -7280,19 +7342,19 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 
 		/* create time */
 		offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-			"Create Time", hf_smb_create_time);
+			hf_smb_create_time);
 	
 		/* access time */
 		offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-			"Access Time", hf_smb_access_time);
+			hf_smb_access_time);
 	
 		/* last write time */
 		offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-			"Write Time", hf_smb_last_write_time);
+			hf_smb_last_write_time);
 	
 		/* last change time */
 		offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-			"Change Time", hf_smb_change_time);
+			hf_smb_change_time);
 	
 		/* Extended File Attributes */
 		offset = dissect_file_ext_attr(tvb, pinfo, tree, offset);
@@ -7977,19 +8039,19 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	/* create time */
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Create Time", hf_smb_create_time);
+		hf_smb_create_time);
 	
 	/* access time */
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Access Time", hf_smb_access_time);
+		hf_smb_access_time);
 	
 	/* last write time */
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Write Time", hf_smb_last_write_time);
-	
+		hf_smb_last_write_time);
+
 	/* last change time */
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Change Time", hf_smb_change_time);
+		hf_smb_change_time);
 	
 	/* Extended File Attributes */
 	offset = dissect_file_ext_attr(tvb, pinfo, tree, offset);
@@ -9075,25 +9137,25 @@ dissect_4_2_14_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* create time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Create", hf_smb_create_time);
+		hf_smb_create_time);
 	*bcp -= 8;
 	
 	/* access time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Access Time", hf_smb_access_time);
+		hf_smb_access_time);
 	*bcp -= 8;
 	
 	/* last write time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Write Time", hf_smb_last_write_time);
+		hf_smb_last_write_time);
 	*bcp -= 8;
 	
 	/* last change time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Change Time", hf_smb_change_time);
+		hf_smb_change_time);
 	*bcp -= 8;
 	
 	/* File Attributes */
@@ -10169,25 +10231,25 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	/* create time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Create Time", hf_smb_create_time);
+		hf_smb_create_time);
 	*bcp -= 8;
 	
 	/* access time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Access Time", hf_smb_access_time);
+		hf_smb_access_time);
 	*bcp -= 8;
 	
 	/* last write time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Write Time", hf_smb_last_write_time);
+		hf_smb_last_write_time);
 	*bcp -= 8;
 	
 	/* last change time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Change Time", hf_smb_change_time);
+		hf_smb_change_time);
 	*bcp -= 8;
 	
 	/* end of file */
@@ -10280,25 +10342,25 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	/* create time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Create Time", hf_smb_create_time);
+		hf_smb_create_time);
 	*bcp -= 8;
 	
 	/* access time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Access Time", hf_smb_access_time);
+		hf_smb_access_time);
 	*bcp -= 8;
 	
 	/* last write time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Write Time", hf_smb_last_write_time);
+		hf_smb_last_write_time);
 	*bcp -= 8;
 	
 	/* last change time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Change Time", hf_smb_change_time);
+		hf_smb_change_time);
 	*bcp -= 8;
 	
 	/* end of file */
@@ -10396,25 +10458,25 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	/* create time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Create Time", hf_smb_create_time);
+		hf_smb_create_time);
 	*bcp -= 8;
 	
 	/* access time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Access Time", hf_smb_access_time);
+		hf_smb_access_time);
 	*bcp -= 8;
 	
 	/* last write time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Write Time", hf_smb_last_write_time);
+		hf_smb_last_write_time);
 	*bcp -= 8;
 	
 	/* last change time */
 	CHECK_BYTE_COUNT_SUBR(8);
 	offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-		"Change Time", hf_smb_change_time);
+		hf_smb_change_time);
 	*bcp -= 8;
 	
 	/* end of file */
@@ -10767,7 +10829,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		/* create time */
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
 		offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
-			"Create Time", hf_smb_create_time);
+			hf_smb_create_time);
 		*bcp -= 8;
 	
 		/* volume serial number */
@@ -14085,7 +14147,7 @@ proto_register_smb(void)
 		NULL, 0, "Unique token identifying this session", HFILL }},
 
 	{ &hf_smb_server_timezone,
-		{ "Time Zone", "smb.server.timezone", FT_INT16, BASE_DEC,
+		{ "Time Zone", "smb.server_timezone", FT_INT16, BASE_DEC,
 		NULL, 0, "Current timezone at server.", HFILL }},
 
 	{ &hf_smb_encryption_key_length,
@@ -14105,7 +14167,7 @@ proto_register_smb(void)
 		NULL, 0, "Maximum raw buffer size", HFILL }},
 
 	{ &hf_smb_server_guid,
-		{ "Server GUID", "smb.server.guid", FT_BYTES, BASE_HEX,
+		{ "Server GUID", "smb.server_guid", FT_BYTES, BASE_HEX,
 		NULL, 0, "Globally unique identifier for this server", HFILL }},
 
 	{ &hf_smb_security_blob_len,
@@ -14161,79 +14223,79 @@ proto_register_smb(void)
 		NULL, 0, "Current time at server, SMB_TIME format", HFILL }},
 
 	{ &hf_smb_server_cap_raw_mode,
-		{ "Raw Mode", "smb.server.cap.raw_mode", FT_BOOLEAN, 32,
+		{ "Raw Mode", "smb.server_cap.raw_mode", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_raw_mode), SERVER_CAP_RAW_MODE, "Are Raw Read and Raw Write supported?", HFILL }},
 
 	{ &hf_smb_server_cap_mpx_mode,
-		{ "MPX Mode", "smb.server.cap.mpx_mode", FT_BOOLEAN, 32,
+		{ "MPX Mode", "smb.server_cap.mpx_mode", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_mpx_mode), SERVER_CAP_MPX_MODE, "Are Read Mpx and Write Mpx supported?", HFILL }},
 
 	{ &hf_smb_server_cap_unicode,
-		{ "Unicode", "smb.server.cap.unicode", FT_BOOLEAN, 32,
+		{ "Unicode", "smb.server_cap.unicode", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_unicode), SERVER_CAP_UNICODE, "Are Unicode strings supported?", HFILL }},
 
 	{ &hf_smb_server_cap_large_files,
-		{ "Large Files", "smb.server.cap.large_files", FT_BOOLEAN, 32,
+		{ "Large Files", "smb.server_cap.large_files", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_large_files), SERVER_CAP_LARGE_FILES, "Are large files (>4GB) supported?", HFILL }},
 
 	{ &hf_smb_server_cap_nt_smbs,
-		{ "NT SMBs", "smb.server.cap.nt_smbs", FT_BOOLEAN, 32,
+		{ "NT SMBs", "smb.server_cap.nt_smbs", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_nt_smbs), SERVER_CAP_NT_SMBS, "Are NT SMBs supported?", HFILL }},
 
 	{ &hf_smb_server_cap_rpc_remote_apis,
-		{ "RPC Remote APIs", "smb.server.cap.rpc_remote_apis", FT_BOOLEAN, 32,
+		{ "RPC Remote APIs", "smb.server_cap.rpc_remote_apis", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_rpc_remote_apis), SERVER_CAP_RPC_REMOTE_APIS, "Are RPC Remote APIs supported?", HFILL }},
 
 	{ &hf_smb_server_cap_nt_status,
-		{ "NT Status Codes", "smb.server.cap.nt_status", FT_BOOLEAN, 32,
+		{ "NT Status Codes", "smb.server_cap.nt_status", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_nt_status), SERVER_CAP_STATUS32, "Are NT Status Codes supported?", HFILL }},
 
 	{ &hf_smb_server_cap_level_ii_oplocks,
-		{ "Level 2 Oplocks", "smb.server.cap.level_2_oplocks", FT_BOOLEAN, 32,
+		{ "Level 2 Oplocks", "smb.server_cap.level_2_oplocks", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_level_ii_oplocks), SERVER_CAP_LEVEL_II_OPLOCKS, "Are Level 2 oplocks supported?", HFILL }},
 
 	{ &hf_smb_server_cap_lock_and_read,
-		{ "Lock and Read", "smb.server.cap.lock_and_read", FT_BOOLEAN, 32,
+		{ "Lock and Read", "smb.server_cap.lock_and_read", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_lock_and_read), SERVER_CAP_LOCK_AND_READ, "Is Lock and Read supported?", HFILL }},
 
 	{ &hf_smb_server_cap_nt_find,
-		{ "NT Find", "smb.server.cap.nt_find", FT_BOOLEAN, 32,
+		{ "NT Find", "smb.server_cap.nt_find", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_nt_find), SERVER_CAP_NT_FIND, "Is NT Find supported?", HFILL }},
 
 	{ &hf_smb_server_cap_dfs,
-		{ "Dfs", "smb.server.cap.dfs", FT_BOOLEAN, 32,
+		{ "Dfs", "smb.server_cap.dfs", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_dfs), SERVER_CAP_DFS, "Is Dfs supported?", HFILL }},
 
 	{ &hf_smb_server_cap_infolevel_passthru,
-		{ "Infolevel Passthru", "smb.server.cap.infolevel_passthru", FT_BOOLEAN, 32,
+		{ "Infolevel Passthru", "smb.server_cap.infolevel_passthru", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_infolevel_passthru), SERVER_CAP_INFOLEVEL_PASSTHRU, "Is NT information level request passthrough supported?", HFILL }},
 
 	{ &hf_smb_server_cap_large_readx,
-		{ "Large ReadX", "smb.server.cap.large_readx", FT_BOOLEAN, 32,
+		{ "Large ReadX", "smb.server_cap.large_readx", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_large_readx), SERVER_CAP_LARGE_READX, "Is Large Read andX supported?", HFILL }},
 
 	{ &hf_smb_server_cap_large_writex,
-		{ "Large WriteX", "smb.server.cap.large_writex", FT_BOOLEAN, 32,
+		{ "Large WriteX", "smb.server_cap.large_writex", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_large_writex), SERVER_CAP_LARGE_WRITEX, "Is Large Write andX supported?", HFILL }},
 
 	{ &hf_smb_server_cap_unix,
-		{ "UNIX", "smb.server.cap.unix", FT_BOOLEAN, 32,
+		{ "UNIX", "smb.server_cap.unix", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_unix), SERVER_CAP_UNIX , "Are UNIX extensions supported?", HFILL }},
 
 	{ &hf_smb_server_cap_reserved,
-		{ "Reserved", "smb.server.cap.reserved", FT_BOOLEAN, 32,
+		{ "Reserved", "smb.server_cap.reserved", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_reserved), SERVER_CAP_RESERVED, "RESERVED", HFILL }},
 
 	{ &hf_smb_server_cap_bulk_transfer,
-		{ "Bulk Transfer", "smb.server.cap.bulk_transfer", FT_BOOLEAN, 32,
+		{ "Bulk Transfer", "smb.server_cap.bulk_transfer", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_bulk_transfer), SERVER_CAP_BULK_TRANSFER, "Are Bulk Read and Bulk Write supported?", HFILL }},
 
 	{ &hf_smb_server_cap_compressed_data,
-		{ "Compressed Data", "smb.server.cap.compressed_data", FT_BOOLEAN, 32,
+		{ "Compressed Data", "smb.server_cap.compressed_data", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_compressed_data), SERVER_CAP_COMPRESSED_DATA, "Is compressed data transfer supported?", HFILL }},
 
 	{ &hf_smb_server_cap_extended_security,
-		{ "Extended Security", "smb.server.cap.extended_security", FT_BOOLEAN, 32,
+		{ "Extended Security", "smb.server_cap.extended_security", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_extended_security), SERVER_CAP_EXTENDED_SECURITY, "Are Extended security exchanges supported?", HFILL }},
 
 	{ &hf_smb_system_time,
@@ -14321,91 +14383,91 @@ proto_register_smb(void)
 		NULL, 0, "FID: File ID", HFILL }},
 
 	{ &hf_smb_file_attr_read_only_16bit,
-		{ "Read Only", "smb.file.attribute.read_only", FT_BOOLEAN, 16,
+		{ "Read Only", "smb.file_attribute.read_only", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_read_only), FILE_ATTRIBUTE_READ_ONLY, "READ ONLY file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_read_only_8bit,
-		{ "Read Only", "smb.file.attribute.read_only", FT_BOOLEAN, 8,
+		{ "Read Only", "smb.file_attribute.read_only", FT_BOOLEAN, 8,
 		TFS(&tfs_file_attribute_read_only), FILE_ATTRIBUTE_READ_ONLY, "READ ONLY file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_hidden_16bit,
-		{ "Hidden", "smb.file.attribute.hidden", FT_BOOLEAN, 16,
+		{ "Hidden", "smb.file_attribute.hidden", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_hidden), FILE_ATTRIBUTE_HIDDEN, "HIDDEN file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_hidden_8bit,
-		{ "Hidden", "smb.file.attribute.hidden", FT_BOOLEAN, 8,
+		{ "Hidden", "smb.file_attribute.hidden", FT_BOOLEAN, 8,
 		TFS(&tfs_file_attribute_hidden), FILE_ATTRIBUTE_HIDDEN, "HIDDEN file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_system_16bit,
-		{ "System", "smb.file.attribute.system", FT_BOOLEAN, 16,
+		{ "System", "smb.file_attribute.system", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_system), FILE_ATTRIBUTE_SYSTEM, "SYSTEM file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_system_8bit,
-		{ "System", "smb.file.attribute.system", FT_BOOLEAN, 8,
+		{ "System", "smb.file_attribute.system", FT_BOOLEAN, 8,
 		TFS(&tfs_file_attribute_system), FILE_ATTRIBUTE_SYSTEM, "SYSTEM file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_volume_16bit,
-		{ "Volume ID", "smb.file.attribute.volume", FT_BOOLEAN, 16,
+		{ "Volume ID", "smb.file_attribute.volume", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_volume), FILE_ATTRIBUTE_VOLUME, "VOLUME file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_volume_8bit,
-		{ "Volume ID", "smb.file.attribute.volume", FT_BOOLEAN, 8,
+		{ "Volume ID", "smb.file_attribute.volume", FT_BOOLEAN, 8,
 		TFS(&tfs_file_attribute_volume), FILE_ATTRIBUTE_VOLUME, "VOLUME ID file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_directory_16bit,
-		{ "Directory", "smb.file.attribute.directory", FT_BOOLEAN, 16,
+		{ "Directory", "smb.file_attribute.directory", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_directory), FILE_ATTRIBUTE_DIRECTORY, "DIRECTORY file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_directory_8bit,
-		{ "Directory", "smb.file.attribute.directory", FT_BOOLEAN, 8,
+		{ "Directory", "smb.file_attribute.directory", FT_BOOLEAN, 8,
 		TFS(&tfs_file_attribute_directory), FILE_ATTRIBUTE_DIRECTORY, "DIRECTORY file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_archive_16bit,
-		{ "Archive", "smb.file.attribute.archive", FT_BOOLEAN, 16,
+		{ "Archive", "smb.file_attribute.archive", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_archive), FILE_ATTRIBUTE_ARCHIVE, "ARCHIVE file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_archive_8bit,
-		{ "Archive", "smb.file.attribute.archive", FT_BOOLEAN, 8,
+		{ "Archive", "smb.file_attribute.archive", FT_BOOLEAN, 8,
 		TFS(&tfs_file_attribute_archive), FILE_ATTRIBUTE_ARCHIVE, "ARCHIVE file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_device,
-		{ "Device", "smb.file.attribute.device", FT_BOOLEAN, 16,
+		{ "Device", "smb.file_attribute.device", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_device), FILE_ATTRIBUTE_DEVICE, "Is this file a device?", HFILL }},
 
 	{ &hf_smb_file_attr_normal,
-		{ "Normal", "smb.file.attribute.normal", FT_BOOLEAN, 16,
+		{ "Normal", "smb.file_attribute.normal", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_normal), FILE_ATTRIBUTE_NORMAL, "Is this a normal file?", HFILL }},
 
 	{ &hf_smb_file_attr_temporary,
-		{ "Temporary", "smb.file.attribute.temporary", FT_BOOLEAN, 16,
+		{ "Temporary", "smb.file_attribute.temporary", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_temporary), FILE_ATTRIBUTE_TEMPORARY, "Is this a temporary file?", HFILL }},
 
 	{ &hf_smb_file_attr_sparse,
-		{ "Sparse", "smb.file.attribute.sparse", FT_BOOLEAN, 16,
+		{ "Sparse", "smb.file_attribute.sparse", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_sparse), FILE_ATTRIBUTE_SPARSE, "Is this a sparse file?", HFILL }},
 
 	{ &hf_smb_file_attr_reparse,
-		{ "Reparse Point", "smb.file.attribute.reparse", FT_BOOLEAN, 16,
+		{ "Reparse Point", "smb.file_attribute.reparse", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_reparse), FILE_ATTRIBUTE_REPARSE, "Does this file have an associated reparse point?", HFILL }},
 
 	{ &hf_smb_file_attr_compressed,
-		{ "Compressed", "smb.file.attribute.compressed", FT_BOOLEAN, 16,
+		{ "Compressed", "smb.file_attribute.compressed", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_compressed), FILE_ATTRIBUTE_COMPRESSED, "Is this file compressed?", HFILL }},
 
 	{ &hf_smb_file_attr_offline,
-		{ "Offline", "smb.file.attribute.offline", FT_BOOLEAN, 16,
+		{ "Offline", "smb.file_attribute.offline", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_offline), FILE_ATTRIBUTE_OFFLINE, "Is this file offline?", HFILL }},
 
 	{ &hf_smb_file_attr_not_content_indexed,
-		{ "Content Indexed", "smb.file.attribute.not_content_indexed", FT_BOOLEAN, 16,
+		{ "Content Indexed", "smb.file_attribute.not_content_indexed", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_not_content_indexed), FILE_ATTRIBUTE_NOT_CONTENT_INDEXED, "May this file be indexed by the content indexing service", HFILL }},
 
 	{ &hf_smb_file_attr_encrypted,
-		{ "Encrypted", "smb.file.attribute.encrypted", FT_BOOLEAN, 16,
+		{ "Encrypted", "smb.file_attribute.encrypted", FT_BOOLEAN, 16,
 		TFS(&tfs_file_attribute_encrypted), FILE_ATTRIBUTE_ENCRYPTED, "Is this file encrypted?", HFILL }},
 
 	{ &hf_smb_file_size,
-		{ "File Size", "smb.file.size", FT_UINT32, BASE_DEC,
+		{ "File Size", "smb.file_size", FT_UINT32, BASE_DEC,
 		NULL, 0, "File Size", HFILL }},
 
 	{ &hf_smb_search_attribute_read_only,
@@ -14493,7 +14555,7 @@ proto_register_smb(void)
 		NULL, 0, "Padding or unknown data", HFILL }},
 
 	{ &hf_smb_file_data,
-		{ "File Data", "smb.file.data", FT_BYTES, BASE_HEX,
+		{ "File Data", "smb.file_data", FT_BYTES, BASE_HEX,
 		NULL, 0, "Data read/written to the file", HFILL }},
 
 	{ &hf_smb_total_data_len,
@@ -15116,91 +15178,91 @@ proto_register_smb(void)
 		TFS(&tfs_nt_share_access_delete), 0x00000004, "", HFILL }},
 
 	{ &hf_smb_file_eattr_read_only,
-		{ "Read Only", "smb.file.attribute.read_only", FT_BOOLEAN, 32,
+		{ "Read Only", "smb.file_attribute.read_only", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_read_only), FILE_ATTRIBUTE_READ_ONLY, "READ ONLY file attribute", HFILL }},
 
 	{ &hf_smb_file_eattr_hidden,
-		{ "Hidden", "smb.file.attribute.hidden", FT_BOOLEAN, 32,
+		{ "Hidden", "smb.file_attribute.hidden", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_hidden), FILE_ATTRIBUTE_HIDDEN, "HIDDEN file attribute", HFILL }},
 
 	{ &hf_smb_file_eattr_system,
-		{ "System", "smb.file.attribute.system", FT_BOOLEAN, 32,
+		{ "System", "smb.file_attribute.system", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_system), FILE_ATTRIBUTE_SYSTEM, "SYSTEM file attribute", HFILL }},
 
 	{ &hf_smb_file_eattr_volume,
-		{ "Volume ID", "smb.file.attribute.volume", FT_BOOLEAN, 32,
+		{ "Volume ID", "smb.file_attribute.volume", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_volume), FILE_ATTRIBUTE_VOLUME, "VOLUME file attribute", HFILL }},
 
 	{ &hf_smb_file_eattr_directory,
-		{ "Directory", "smb.file.attribute.directory", FT_BOOLEAN, 32,
+		{ "Directory", "smb.file_attribute.directory", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_directory), FILE_ATTRIBUTE_DIRECTORY, "DIRECTORY file attribute", HFILL }},
 
 	{ &hf_smb_file_eattr_archive,
-		{ "Archive", "smb.file.attribute.archive", FT_BOOLEAN, 32,
+		{ "Archive", "smb.file_attribute.archive", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_archive), FILE_ATTRIBUTE_ARCHIVE, "ARCHIVE file attribute", HFILL }},
 
 	{ &hf_smb_file_eattr_device,
-		{ "Device", "smb.file.attribute.device", FT_BOOLEAN, 32,
+		{ "Device", "smb.file_attribute.device", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_device), FILE_ATTRIBUTE_DEVICE, "Is this file a device?", HFILL }},
 
 	{ &hf_smb_file_eattr_normal,
-		{ "Normal", "smb.file.attribute.normal", FT_BOOLEAN, 32,
+		{ "Normal", "smb.file_attribute.normal", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_normal), FILE_ATTRIBUTE_NORMAL, "Is this a normal file?", HFILL }},
 
 	{ &hf_smb_file_eattr_temporary,
-		{ "Temporary", "smb.file.attribute.temporary", FT_BOOLEAN, 32,
+		{ "Temporary", "smb.file_attribute.temporary", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_temporary), FILE_ATTRIBUTE_TEMPORARY, "Is this a temporary file?", HFILL }},
 
 	{ &hf_smb_file_eattr_sparse,
-		{ "Sparse", "smb.file.attribute.sparse", FT_BOOLEAN, 32,
+		{ "Sparse", "smb.file_attribute.sparse", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_sparse), FILE_ATTRIBUTE_SPARSE, "Is this a sparse file?", HFILL }},
 
 	{ &hf_smb_file_eattr_reparse,
-		{ "Reparse Point", "smb.file.attribute.reparse", FT_BOOLEAN, 32,
+		{ "Reparse Point", "smb.file_attribute.reparse", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_reparse), FILE_ATTRIBUTE_REPARSE, "Does this file have an associated reparse point?", HFILL }},
 
 	{ &hf_smb_file_eattr_compressed,
-		{ "Compressed", "smb.file.attribute.compressed", FT_BOOLEAN, 32,
+		{ "Compressed", "smb.file_attribute.compressed", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_compressed), FILE_ATTRIBUTE_COMPRESSED, "Is this file compressed?", HFILL }},
 
 	{ &hf_smb_file_eattr_offline,
-		{ "Offline", "smb.file.attribute.offline", FT_BOOLEAN, 32,
+		{ "Offline", "smb.file_attribute.offline", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_offline), FILE_ATTRIBUTE_OFFLINE, "Is this file offline?", HFILL }},
 
 	{ &hf_smb_file_eattr_not_content_indexed,
-		{ "Content Indexed", "smb.file.attribute.not_content_indexed", FT_BOOLEAN, 32,
+		{ "Content Indexed", "smb.file_attribute.not_content_indexed", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_not_content_indexed), FILE_ATTRIBUTE_NOT_CONTENT_INDEXED, "May this file be indexed by the content indexing service", HFILL }},
 
 	{ &hf_smb_file_eattr_encrypted,
-		{ "Encrypted", "smb.file.attribute.encrypted", FT_BOOLEAN, 32,
+		{ "Encrypted", "smb.file_attribute.encrypted", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_encrypted), FILE_ATTRIBUTE_ENCRYPTED, "Is this file encrypted?", HFILL }},
 
 	{ &hf_smb_file_eattr_write_through,
-		{ "Write Through", "smb.file.attribute.write_through", FT_BOOLEAN, 32,
+		{ "Write Through", "smb.file_attribute.write_through", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_write_through), FILE_ATTRIBUTE_WRITE_THROUGH, "Does this object need write through?", HFILL }},
 
 	{ &hf_smb_file_eattr_no_buffering,
-		{ "No Buffering", "smb.file.attribute.no_buffering", FT_BOOLEAN, 32,
+		{ "No Buffering", "smb.file_attribute.no_buffering", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_no_buffering), FILE_ATTRIBUTE_NO_BUFFERING, "May the server buffer this object?", HFILL }},
 
 	{ &hf_smb_file_eattr_random_access,
-		{ "Random Access", "smb.file.attribute.random_access", FT_BOOLEAN, 32,
+		{ "Random Access", "smb.file_attribute.random_access", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_random_access), FILE_ATTRIBUTE_RANDOM_ACCESS, "Optimize for random access", HFILL }},
 
 	{ &hf_smb_file_eattr_sequential_scan,
-		{ "Sequential Scan", "smb.file.attribute.sequential_scan", FT_BOOLEAN, 32,
+		{ "Sequential Scan", "smb.file_attribute.sequential_scan", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_sequential_scan), FILE_ATTRIBUTE_SEQUENTIAL_SCAN, "Optimize for sequential scan", HFILL }},
 
 	{ &hf_smb_file_eattr_delete_on_close,
-		{ "Delete on Close", "smb.file.attribute.delete_on_close", FT_BOOLEAN, 32,
+		{ "Delete on Close", "smb.file_attribute.delete_on_close", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_delete_on_close), FILE_ATTRIBUTE_DELETE_ON_CLOSE, "Should this object be deleted on close?", HFILL }},
 
 	{ &hf_smb_file_eattr_backup_semantics,
-		{ "Backup", "smb.file.attribute.backup_semantics", FT_BOOLEAN, 32,
+		{ "Backup", "smb.file_attribute.backup_semantics", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_backup_semantics), FILE_ATTRIBUTE_BACKUP_SEMANTICS, "Does this object need/support backup semantics", HFILL }},
 
 	{ &hf_smb_file_eattr_posix_semantics,
-		{ "Posix", "smb.file.attribute.posix_semantics", FT_BOOLEAN, 32,
+		{ "Posix", "smb.file_attribute.posix_semantics", FT_BOOLEAN, 32,
 		TFS(&tfs_file_attribute_posix_semantics), FILE_ATTRIBUTE_POSIX_SEMANTICS, "Does this object need/support POSIX semantics?", HFILL }},
 
 	{ &hf_smb_sec_desc_len,
@@ -15524,19 +15586,19 @@ proto_register_smb(void)
 		NULL, 0, "Length of Short (8.3) File Name", HFILL }},
 
 	{ &hf_smb_fs_id,
-		{ "FS Id", "smb.fs.id", FT_UINT32, BASE_DEC,
+		{ "FS Id", "smb.fs_id", FT_UINT32, BASE_DEC,
 		NULL, 0, "File System ID (NT Server always returns 0)", HFILL }},
 
 	{ &hf_smb_sector_unit,
-		{ "Sectors/Unit", "smb.fs.sector_per_unit", FT_UINT32, BASE_DEC,
+		{ "Sectors/Unit", "smb.fs_sector_per_unit", FT_UINT32, BASE_DEC,
 		NULL, 0, "Sectors per allocation unit", HFILL }},
 
 	{ &hf_smb_fs_units,
-		{ "Total Units", "smb.fs.units", FT_UINT32, BASE_DEC,
+		{ "Total Units", "smb.fs_units", FT_UINT32, BASE_DEC,
 		NULL, 0, "Total number of units on this filesystem", HFILL }},
 
 	{ &hf_smb_fs_sector,
-		{ "Bytes per Sector", "smb.fs.bytes_per_sector", FT_UINT32, BASE_DEC,
+		{ "Bytes per Sector", "smb.fs_bytes_per_sector", FT_UINT32, BASE_DEC,
 		NULL, 0, "Bytes per sector", HFILL }},
 
 	{ &hf_smb_avail_units,
@@ -15560,15 +15622,15 @@ proto_register_smb(void)
 		NULL, 0, "Number of free allocation units", HFILL }},
 
 	{ &hf_smb_max_name_len,
-		{ "Max name length", "smb.fs.max_name_len", FT_UINT32, BASE_DEC,
+		{ "Max name length", "smb.fs_max_name_len", FT_UINT32, BASE_DEC,
 		NULL, 0, "Maximum length of each file name component in number of bytes", HFILL }},
 
 	{ &hf_smb_fs_name_len,
-		{ "Label Length", "smb.fs.name.len", FT_UINT32, BASE_DEC,
+		{ "Label Length", "smb.fs_name.len", FT_UINT32, BASE_DEC,
 		NULL, 0, "Length of filesystem name in bytes", HFILL }},
 
 	{ &hf_smb_fs_name,
-		{ "FS Name", "smb.fs.name", FT_STRING, BASE_DEC,
+		{ "FS Name", "smb.fs_name", FT_STRING, BASE_DEC,
 		NULL, 0, "Name of filesystem", HFILL }},
 
 	{ &hf_smb_device_char_removable,
@@ -15600,31 +15662,31 @@ proto_register_smb(void)
 		TFS(&tfs_device_char_virtual), 0x00000040, "Is this a virtual device", HFILL }},
 
 	{ &hf_smb_fs_attr_css,
-		{ "Case Sensitive Search", "smb.fs.attr.css", FT_BOOLEAN, 32,
+		{ "Case Sensitive Search", "smb.fs_attr.css", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_attr_css), 0x00000001, "Does this FS support Case Sensitive Search?", HFILL }},
 
 	{ &hf_smb_fs_attr_cpn,
-		{ "Case Preserving", "smb.fs.attr.cpn", FT_BOOLEAN, 32,
+		{ "Case Preserving", "smb.fs_attr.cpn", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_attr_cpn), 0x00000002, "Will this FS Preserve Name Case?", HFILL }},
 
 	{ &hf_smb_fs_attr_pacls,
-		{ "Persistent ACLs", "smb.fs.attr.pacls", FT_BOOLEAN, 32,
+		{ "Persistent ACLs", "smb.fs_attr.pacls", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_attr_pacls), 0x00000004, "Does this FS support Persistent ACLs?", HFILL }},
 
 	{ &hf_smb_fs_attr_fc,
-		{ "Compression", "smb.fs.attr.fc", FT_BOOLEAN, 32,
+		{ "Compression", "smb.fs_attr.fc", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_attr_fc), 0x00000008, "Does this FS support File Compression?", HFILL }},
 
 	{ &hf_smb_fs_attr_vq,
-		{ "Volume Quotas", "smb.fs.attr.vq", FT_BOOLEAN, 32,
+		{ "Volume Quotas", "smb.fs_attr.vq", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_attr_vq), 0x00000010, "Does this FS support Volume Quotas?", HFILL }},
 
 	{ &hf_smb_fs_attr_dim,
-		{ "Mounted", "smb.fs.attr.dim", FT_BOOLEAN, 32,
+		{ "Mounted", "smb.fs_attr.dim", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_attr_dim), 0x00000020, "Is this FS a Mounted Device?", HFILL }},
 
 	{ &hf_smb_fs_attr_vic,
-		{ "Compressed", "smb.fs.attr.vic", FT_BOOLEAN, 32,
+		{ "Compressed", "smb.fs_attr.vic", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_attr_vic), 0x00008000, "Is this FS Compressed?", HFILL }},
 
 	{ &hf_smb_sec_desc_revision,
@@ -15764,7 +15826,6 @@ proto_register_smb(void)
 		&ett_smb_ssetupandxaction,
 		&ett_smb_optionsup,
 		&ett_smb_time_date,
-		&ett_smb_64bit_time,
 		&ett_smb_move_flags,
 		&ett_smb_file_attributes,
 		&ett_smb_search_resume_key,
