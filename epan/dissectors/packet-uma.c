@@ -539,7 +539,7 @@ static const value_string channel_vals[] = {
 	{ 0,	NULL }
 };
 
-/*RI, Reset Indicator (octet 3)*7
+/*RI, Reset Indicator (octet 3) */
 /*CHANNEL (octet 3) */
 static const value_string RI_vals[] = {
 	{ 0,		"The flow control condition continues to exist"},
@@ -1016,7 +1016,6 @@ static int
 dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int		offset = 0;
-	int		toc_offset = 0;
 	guint8	octet, pd;
 	guint16 msg_len;
 
@@ -1094,7 +1093,6 @@ proto_reg_handoff_uma(void)
 {
 	static int Initialized=FALSE;
 	static int TcpPort1=0;
-	static int uma_prefs_initialized = FALSE;
 	
 	if (!Initialized) {
 		uma_tcp_handle = new_create_dissector_handle(dissect_uma, proto_uma);
