@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.269 2004/06/22 00:40:02 guy Exp $
+# $Id: configure.in,v 1.270 2004/06/22 15:18:45 gerald Exp $
 #
 AC_INIT(etypes.h)
 
@@ -263,6 +263,12 @@ fi
 # We can't just check for <inttypes.h> - some systems have one that
 # doesn't define all the PRI[doxu]64 macros.
 #
+AC_CHECK_TYPE(
+  uint64_t,
+  ac_ethereal_uint64_t_type=uint64_t,
+  ac_ethereal_uint64_t_type=u_int_64_t
+)
+
 AC_CHECK_HEADERS(inttypes.h,
   [
     #
@@ -279,10 +285,10 @@ AC_CHECK_HEADERS(inttypes.h,
 
 	    main()
 	    {
-	      printf("%" PRId64 "\n", (u_int64_t)1);
-	      printf("%" PRIo64 "\n", (u_int64_t)1);
-	      printf("%" PRIx64 "\n", (u_int64_t)1);
-	      printf("%" PRIu64 "\n", (u_int64_t)1);
+	      printf("%" PRId64 "\n", ($ac_ethereal_uint64_t_type)1);
+	      printf("%" PRIo64 "\n", ($ac_ethereal_uint64_t_type)1);
+	      printf("%" PRIx64 "\n", ($ac_ethereal_uint64_t_type)1);
+	      printf("%" PRIu64 "\n", ($ac_ethereal_uint64_t_type)1);
 	    }
 	  ]])
       ],
