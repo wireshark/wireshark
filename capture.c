@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.203 2003/01/03 06:45:42 guy Exp $
+ * $Id: capture.c,v 1.204 2003/01/23 06:57:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -161,6 +161,7 @@
 #include "packet-chdlc.h"
 #include "packet-prism.h"
 #include "packet-ipfc.h"
+#include "packet-arcnet.h"
 
 #ifdef _WIN32
 #include "capture-wpcap.h"
@@ -2250,6 +2251,12 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
       break;
     case WTAP_ENCAP_IP_OVER_FC:
       capture_ipfc(pd, whdr.caplen, &ld->counts);
+      break;
+    case WTAP_ENCAP_ARCNET:
+      capture_arcnet(pd, whdr.caplen, &ld->counts, FALSE);
+      break;
+    case WTAP_ENCAP_ARCNET_LINUX:
+      capture_arcnet(pd, whdr.caplen, &ld->counts, TRUE);
       break;
     /* XXX - some ATM drivers on FreeBSD might prepend a 4-byte ATM
        pseudo-header to DLT_ATM_RFC1483, with LLC header following;
