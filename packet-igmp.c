@@ -1,7 +1,7 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.c,v 1.10 2001/07/11 04:02:51 guy Exp $
+ * $Id: packet-igmp.c,v 1.11 2001/07/11 04:24:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -175,9 +175,7 @@ static int ett_mtrace_block = -1;
 #define IGMP_V1_PIM_ROUTING_MESSAGE	0x14
 #define IGMP_V2_MEMBERSHIP_REPORT	0x16
 #define IGMP_V2_LEAVE_GROUP		0x17
-#define IGMP_V1_TRACEROUTE_RESPONSE	0x1e
 #define IGMP_TRACEROUTE_RESPONSE        0x1e
-#define IGMP_V1_TRACEROUTE_MESSAGE	0x1f
 #define IGMP_TRACEROUTE_QUERY_REQ       0x1f
 #define IGMP_V3_MEMBERSHIP_REPORT	0x22
 #define IGMP_TYPE_0x23			0x23
@@ -203,6 +201,8 @@ static const value_string commands[] = {
 	{IGMP_V1_PIM_ROUTING_MESSAGE,	"PIM Routing Message"		},
 	{IGMP_V2_MEMBERSHIP_REPORT,	"Membership Report"		},
 	{IGMP_V2_LEAVE_GROUP,		"Leave Group"			},
+	{IGMP_TRACEROUTE_RESPONSE,	"Traceroute Response"		},
+	{IGMP_TRACEROUTE_QUERY_REQ,	"Traceroute Query or Request"	},
 	{IGMP_V3_MEMBERSHIP_REPORT,	"Membership Report"		},
 	{0,		NULL}
 };
@@ -305,23 +305,43 @@ static const value_string mtrace_fwd_code_vals[] = {
 	proto_tree_add_uint(tree, hf_type, tvb, offset, 1, type);	\
 	offset += 1;
 
-static void igmp_checksum(proto_tree *tree,tvbuff_t *tvb, int len)
+static void igmp_checksum(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+    guint len)
 {
-	guint16 cksum,hdrcksum;
+	guint16 cksum, hdrcksum;
 	vec_t cksum_vec[1];
 
-	cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, len);
-	cksum_vec[0].len = len;
-
-	hdrcksum = tvb_get_ntohs(tvb, 2);
-	cksum = in_cksum(&cksum_vec[0],1);
-
-	if (cksum==0) {
-		proto_tree_add_uint_format(tree, hf_checksum, tvb, 2, 2, hdrcksum, "Header checksum: 0x%04x (correct)", hdrcksum);
-	} else {
-		proto_tree_add_item_hidden(tree, hf_checksum_bad, tvb, 2, 2, TRUE);
-		proto_tree_add_uint_format(tree, hf_checksum, tvb, 2, 2, hdrcksum, "Header checksum: 0x%04x (incorrect, should be 0x%04x)", hdrcksum,in_cksum_shouldbe(hdrcksum,cksum));
+	if (len == 0) {
+		/*
+		 * Checksum the entire IGMP packet.
+		 */
+		len = tvb_reported_length(tvb);
 	}
+	
+	hdrcksum = tvb_get_ntohs(tvb, 2);
+	if (!pinfo->fragmented && tvb_length(tvb) >= len) {
+		/*
+		 * The packet isn't part of a fragmented datagram and isn't
+		 * truncated, so we can checksum it.
+		 */
+		cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, len);
+		cksum_vec[0].len = len;
+
+		cksum = in_cksum(&cksum_vec[0],1);
+
+		if (cksum == 0) {
+			proto_tree_add_uint_format(tree, hf_checksum,
+			    tvb, 2, 2, hdrcksum,
+			    "Header checksum: 0x%04x (correct)", hdrcksum);
+		} else {
+			proto_tree_add_item_hidden(tree, hf_checksum_bad,
+			    tvb, 2, 2, TRUE);
+			proto_tree_add_uint_format(tree, hf_checksum,
+			    tvb, 2, 2, hdrcksum,
+			    "Header checksum: 0x%04x (incorrect, should be 0x%04x)", hdrcksum,in_cksum_shouldbe(hdrcksum,cksum));
+		}
+	} else
+		proto_tree_add_uint(tree, hf_checksum, tvb, 2, 2, hdrcksum);
 
 	return;
 }
@@ -476,7 +496,7 @@ dissect_igmp_v3_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(tree, tvb, pinfo->iplen-pinfo->iphdrlen*4);
+	igmp_checksum(tree, tvb, pinfo, 0);
 	offset +=2;
 
 	/* skip reserved field */
@@ -506,7 +526,7 @@ dissect_igmp_v3_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int t
 	offset = dissect_v3_max_resp(tvb, pinfo, tree, offset);
 
 	/* checksum */
-	igmp_checksum(tree, tvb, pinfo->iplen-pinfo->iphdrlen*4);
+	igmp_checksum(tree, tvb, pinfo, 0);
 	offset += 2;
 
 	/* group address */
@@ -547,7 +567,7 @@ dissect_igmp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(tree, tvb, 8);
+	igmp_checksum(tree, tvb, pinfo, 8);
 	offset += 2;
 
 	/* group address */
@@ -567,7 +587,7 @@ dissect_igmp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(tree, tvb, 8);
+	igmp_checksum(tree, tvb, pinfo, 8);
 	offset += 2;
 
 	/* group address */
@@ -599,7 +619,7 @@ dissect_igmp_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 	offset += 1;
 
 	/* checksum */
-	igmp_checksum(tree, tvb, 20);
+	igmp_checksum(tree, tvb, pinfo, 20);
 	offset += 2;
 
 	/* identifier */
@@ -637,7 +657,7 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int typ
 		snprintf(buf, sizeof buf, ", %d block%s", i, plurality(i, "", "s"));
 		typestr = "Traceroute Response";
 		blocks = buf;
-	} else if (tvb_length_remaining(tvb, offset) == IGMP_TRACEROUTE_HDR_LEN)
+	} else if (tvb_reported_length_remaining(tvb, offset) == IGMP_TRACEROUTE_HDR_LEN)
 		typestr = "Traceroute Query";
 	else
 		typestr = "Traceroute Request";
@@ -655,8 +675,8 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int typ
 	proto_tree_add_item(tree, hf_mtrace_max_hops, tvb, offset, 1, FALSE);
 	offset += 1;
 
-	/* - 2 since the checksum covers the whole IGMP packet (the entire IP payload) */
-	igmp_checksum(tree, tvb, tvb_length_remaining(tvb, offset - 2));
+	/* checksum */
+	igmp_checksum(tree, tvb, pinfo, 0);
 	offset += 2;
 
 	/* group address to be traced */
