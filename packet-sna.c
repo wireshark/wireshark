@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id: packet-sna.c,v 1.46 2003/03/05 07:17:50 guy Exp $
+ * $Id: packet-sna.c,v 1.47 2003/07/09 04:33:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3214,7 +3214,7 @@ proto_register_sna(void)
 
 		{ &hf_sna_rh_eri,
 		{ "Exception Response Indicator", "sna.rh.eri", FT_BOOLEAN,
-		    8, NULL, 0x10, "", HFILL }},
+		    8, TFS(&sna_rh_eri_truth), 0x10, "", HFILL }},
 
 		{ &hf_sna_rh_rti,
 		{ "Response Type Indicator", "sna.rh.rti", FT_BOOLEAN,
