@@ -66,6 +66,7 @@ typedef struct conversation_key {
 typedef struct conversation {
 	struct conversation *next;	/* pointer to next conversation on hash chain */
 	guint32	index;			/* unique ID for conversation */
+	guint32 setup_frame;	/* frame number that setup this conversation */
 	GSList *data_list;		/* list of data associated with conversation */
 	dissector_handle_t dissector_handle;
 					/* handle for protocol dissector client associated with conversation */
@@ -75,10 +76,10 @@ typedef struct conversation {
 
 extern void conversation_init(void);
 
-extern conversation_t *conversation_new(address *addr1, address *addr2,
+extern conversation_t *conversation_new(guint32 setup_frame, address *addr1, address *addr2,
     port_type ptype, guint32 port1, guint32 port2, guint options);
 
-extern conversation_t *find_conversation(address *addr_a, address *addr_b,
+extern conversation_t *find_conversation(guint32 frame_num, address *addr_a, address *addr_b,
     port_type ptype, guint32 port_a, guint32 port_b, guint options);
 
 extern void conversation_add_proto_data(conversation_t *conv, int proto,

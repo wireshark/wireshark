@@ -130,7 +130,8 @@ conversation_create_from_template(conversation_t *conversation, address *addr2, 
           * conversation with new 2nd address and 2nd port.
           */
          new_conversation_from_template =
-            conversation_new(&conversation->key_ptr->addr1, addr2,
+            conversation_new(conversation->setup_frame,
+                             &conversation->key_ptr->addr1, addr2,
                              conversation->key_ptr->ptype, conversation->key_ptr->port1,
                              port2, options);
       }
@@ -141,7 +142,8 @@ conversation_create_from_template(conversation_t *conversation, address *addr2, 
           * only. Create a new conversation with new 2nd port.
           */
          new_conversation_from_template =
-            conversation_new(&conversation->key_ptr->addr1, &conversation->key_ptr->addr2,
+            conversation_new(conversation->setup_frame,
+                             &conversation->key_ptr->addr1, &conversation->key_ptr->addr2,
                              conversation->key_ptr->ptype, conversation->key_ptr->port1,
                              port2, options);
       }
@@ -152,7 +154,8 @@ conversation_create_from_template(conversation_t *conversation, address *addr2, 
           * 2. Create a new conversation with new 2nd address.
           */
          new_conversation_from_template =
-            conversation_new(&conversation->key_ptr->addr1, addr2,
+            conversation_new(conversation->setup_frame,
+                             &conversation->key_ptr->addr1, addr2,
                              conversation->key_ptr->ptype, conversation->key_ptr->port1,
                              conversation->key_ptr->port2, options);
       }
@@ -528,15 +531,41 @@ conversation_init(void)
  * when searching for this conversation.
  */
 conversation_t *
-conversation_new(address *addr1, address *addr2, port_type ptype,
+conversation_new(guint32 setup_frame, address *addr1, address *addr2, port_type ptype,
     guint32 port1, guint32 port2, guint options)
 {
 /*
 	g_assert(!(options | CONVERSATION_TEMPLATE) || ((options | (NO_ADDR2 | NO_PORT2 | NO_PORT2_FORCE))) &&
 				"A conversation template may not be constructed without wildcard options");
 */
+	GHashTable* hashtable;
 	conversation_t *conversation;
+	conversation_t *tc;
+	conversation_key existing_key;
 	conversation_key *new_key;
+
+	if (options & NO_ADDR2) {
+		if (options & (NO_PORT2|NO_PORT2_FORCE)) {
+			hashtable = conversation_hashtable_no_addr2_or_port2;
+		} else {
+			hashtable = conversation_hashtable_no_addr2;
+		}
+	} else {
+		if (options & (NO_PORT2|NO_PORT2_FORCE)) {
+			hashtable = conversation_hashtable_no_port2;
+		} else {
+			hashtable = conversation_hashtable_exact;
+		}
+	}
+
+	existing_key.addr1 = *addr1;
+	existing_key.addr2 = *addr2;
+	existing_key.ptype = ptype;
+	existing_key.port1 = port1;
+	existing_key.port2 = port2;
+
+	conversation = g_hash_table_lookup(hashtable, &existing_key);
+	tc = conversation; /* Remember if lookup was successful */
 
 	new_key = g_mem_chunk_alloc(conversation_key_chunk);
 	new_key->next = conversation_keys;
@@ -547,8 +576,18 @@ conversation_new(address *addr1, address *addr2, port_type ptype,
 	new_key->port1 = port1;
 	new_key->port2 = port2;
 
-	conversation = g_mem_chunk_alloc(conversation_chunk);
+	if (conversation) {
+		for (; conversation->next; conversation = conversation->next)
+			;
+		conversation->next = g_mem_chunk_alloc(conversation_chunk);
+		conversation = conversation->next;
+	} else {
+		conversation = g_mem_chunk_alloc(conversation_chunk);
+	}
+
+	conversation->next = NULL;
 	conversation->index = new_index;
+	conversation->setup_frame = setup_frame;
 	conversation->data_list = NULL;
 
 	/* clear dissector handle */
@@ -560,23 +599,11 @@ conversation_new(address *addr1, address *addr2, port_type ptype,
 
 	new_index++;
 
-	if (options & NO_ADDR2) {
-		if (options & (NO_PORT2|NO_PORT2_FORCE)) {
-			g_hash_table_insert(conversation_hashtable_no_addr2_or_port2,
-			    new_key, conversation);
-		} else {
-			g_hash_table_insert(conversation_hashtable_no_addr2,
-			    new_key, conversation);
-		}
-	} else {
-		if (options & (NO_PORT2|NO_PORT2_FORCE)) {
-			g_hash_table_insert(conversation_hashtable_no_port2,
-			    new_key, conversation);
-		} else {
-			g_hash_table_insert(conversation_hashtable_exact,
-			    new_key, conversation);
-		}
-	}
+	/* only insert a hash table entry if this
+	 * is the first conversation with this key */
+	if (!tc)
+		g_hash_table_insert(hashtable, new_key, conversation);
+
 	return conversation;
 }
 
@@ -653,9 +680,11 @@ conversation_set_addr2(conversation_t *conv, address *addr)
  * addr1, port1, addr2, and port2.
  */
 static conversation_t *
-conversation_lookup_hashtable(GHashTable *hashtable, address *addr1, address *addr2,
+conversation_lookup_hashtable(GHashTable *hashtable, guint32 frame_num, address *addr1, address *addr2,
     port_type ptype, guint32 port1, guint32 port2)
 {
+	conversation_t* conversation;
+	conversation_t* match;
 	conversation_key key;
 
 	/*
@@ -667,7 +696,18 @@ conversation_lookup_hashtable(GHashTable *hashtable, address *addr1, address *ad
 	key.ptype = ptype;
 	key.port1 = port1;
 	key.port2 = port2;
-	return g_hash_table_lookup(hashtable, &key);
+
+	match = g_hash_table_lookup(hashtable, &key);
+
+	if (match) {
+		for (conversation = match->next; conversation; conversation = conversation->next) {
+			if ((conversation->setup_frame < frame_num)
+				&& (conversation->setup_frame > match->setup_frame))
+				match = conversation;
+		}
+	}
+
+	return match;
 }
 
 
@@ -708,7 +748,7 @@ conversation_lookup_hashtable(GHashTable *hashtable, address *addr1, address *ad
  *	otherwise, we found no matching conversation, and return NULL.
  */
 conversation_t *
-find_conversation(address *addr_a, address *addr_b, port_type ptype,
+find_conversation(guint32 frame_num, address *addr_a, address *addr_b, port_type ptype,
     guint32 port_a, guint32 port_b, guint options)
 {
    conversation_t *conversation;
@@ -724,7 +764,7 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
        */
       conversation =
          conversation_lookup_hashtable(conversation_hashtable_exact,
-         addr_a, addr_b, ptype,
+         frame_num, addr_a, addr_b, ptype,
          port_a, port_b);
       if ((conversation == NULL) && (addr_a->type == AT_FC)) {
          /* In Fibre channel, OXID & RXID are never swapped as
@@ -732,7 +772,7 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
           */
          conversation =
             conversation_lookup_hashtable(conversation_hashtable_exact,
-            addr_b, addr_a, ptype,
+            frame_num, addr_b, addr_a, ptype,
             port_a, port_b);
       }
       if (conversation != NULL)
@@ -755,14 +795,14 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
        */
       conversation =
          conversation_lookup_hashtable(conversation_hashtable_no_addr2,
-         addr_a, addr_b, ptype, port_a, port_b);
+         frame_num, addr_a, addr_b, ptype, port_a, port_b);
       if ((conversation == NULL) && (addr_a->type == AT_FC)) {
          /* In Fibre channel, OXID & RXID are never swapped as
           * TCP/UDP ports are in TCP/IP.
           */
          conversation =
             conversation_lookup_hashtable(conversation_hashtable_no_addr2,
-            addr_b, addr_a, ptype,
+            frame_num, addr_b, addr_a, ptype,
             port_a, port_b);
       }
       if (conversation != NULL) {
@@ -805,7 +845,7 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
       if (!(options & NO_ADDR_B)) {
          conversation =
             conversation_lookup_hashtable(conversation_hashtable_no_addr2,
-            addr_b, addr_a, ptype, port_b, port_a);
+            frame_num, addr_b, addr_a, ptype, port_b, port_a);
          if (conversation != NULL) {
             /*
              * If this is for a connection-oriented
@@ -847,14 +887,14 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
        */
       conversation =
          conversation_lookup_hashtable(conversation_hashtable_no_port2,
-         addr_a, addr_b, ptype, port_a, port_b);
+         frame_num, addr_a, addr_b, ptype, port_a, port_b);
       if ((conversation == NULL) && (addr_a->type == AT_FC)) {
          /* In Fibre channel, OXID & RXID are never swapped as
           * TCP/UDP ports are in TCP/IP
           */
          conversation =
             conversation_lookup_hashtable(conversation_hashtable_no_port2,
-            addr_b, addr_a, ptype, port_a, port_b);
+            frame_num, addr_b, addr_a, ptype, port_a, port_b);
       }
       if (conversation != NULL) {
          /*
@@ -896,7 +936,7 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
       if (!(options & NO_PORT_B)) {
          conversation =
             conversation_lookup_hashtable(conversation_hashtable_no_port2,
-            addr_b, addr_a, ptype, port_b, port_a);
+            frame_num, addr_b, addr_a, ptype, port_b, port_a);
          if (conversation != NULL) {
             /*
              * If this is for a connection-oriented
@@ -933,7 +973,7 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
     */
    conversation =
       conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
-      addr_a, addr_b, ptype, port_a, port_b);
+      frame_num, addr_a, addr_b, ptype, port_a, port_b);
    if (conversation != NULL) {
       /*
        * If this is for a connection-oriented protocol:
@@ -978,11 +1018,11 @@ find_conversation(address *addr_a, address *addr_b, port_type ptype,
    if (addr_a->type == AT_FC)
       conversation =
       conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
-      addr_b, addr_a, ptype, port_a, port_b);
+      frame_num, addr_b, addr_a, ptype, port_a, port_b);
    else 
       conversation =
       conversation_lookup_hashtable(conversation_hashtable_no_addr2_or_port2,
-      addr_b, addr_a, ptype, port_b, port_a);
+      frame_num, addr_b, addr_a, ptype, port_b, port_a);
    if (conversation != NULL) {
       /*
        * If this is for a connection-oriented protocol, set the
@@ -1097,7 +1137,7 @@ try_conversation_dissector(address *addr_a, address *addr_b, port_type ptype,
 {
 	conversation_t *conversation;
 
-	conversation = find_conversation(addr_a, addr_b, ptype, port_a,
+	conversation = find_conversation(pinfo->fd->num, addr_a, addr_b, ptype, port_a,
 	    port_b, 0);
 
 	if (conversation != NULL) {
