@@ -47,7 +47,15 @@ if [ ! -d $stagedir ] ; then
 fi
 
 find $stagedir/$prefix/* -print | \
-  pkgproto $stagedir/$prefix=$prefix >> $prototype
+  pkgproto $stagedir/$prefix=$prefix | \
+  # Mimic file permissions under /usr
+  awk ' \
+    /bin/ { print $1, $2, $3, $4, "root bin"; next }; \
+    /lib/ { print $1, $2, $3, $4, "root bin"; next }; \
+    /man/ { print $1, $2, $3, $4, "root bin"; next }; \
+    { print $1, $2, $3, $4, "root sys" } \
+  ' \
+  >> $prototype
 
 # Make the package installation directory
 pkgmk -o -r / -d /$srcdir -f $prototype
