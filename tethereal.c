@@ -122,7 +122,6 @@ static const gchar decode_as_arg_template[] = "<layer_type>==<selector>,<decode_
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 static GString *comp_info_str, *runtime_info_str;
-static gboolean quiet;
 
 static gboolean print_packet_info;	/* TRUE if we're to print packet information */
 /*
@@ -143,6 +142,11 @@ static print_format_e print_format = PR_FMT_TEXT;
 static print_stream_t *print_stream;
 
 #ifdef HAVE_LIBPCAP
+/*
+ * TRUE if we're to print packet counts to keep track of captured packets.
+ */
+static gboolean print_packet_counts;
+
 typedef struct _loop_data {
   gboolean       go;           /* TRUE as long as we're supposed to keep capturing */
   gint           linktype;
@@ -842,6 +846,7 @@ main(int argc, char *argv[])
 #else
   gboolean             capture_option_specified = FALSE;
 #endif
+  gboolean             quiet = FALSE;
   gchar               *save_file = NULL;
   int                  out_file_type = WTAP_FILE_PCAP;
   gchar               *cf_name = NULL, *rfilter = NULL;
@@ -1189,7 +1194,6 @@ main(int argc, char *argv[])
         break;
       case 'r':        /* Read capture file xxx */
         cf_name = g_strdup(optarg);
-        quiet = TRUE;  /* We're not capturing, so don't print packet counts */
         break;
       case 'R':        /* Read file filter */
         rfilter = optarg;
@@ -1673,6 +1677,14 @@ main(int argc, char *argv[])
       exit(0);
     }
 
+    if (!quiet) {
+      /*
+       * The user didn't ask us not to print a count of packets as
+       * they arrive, so do so.
+       */
+      print_packet_counts = TRUE;
+    }
+
     capture(save_file, out_file_type);
 
     if (capture_opts.ringbuffer_on) {
@@ -2085,9 +2097,8 @@ capture(char *save_file, int out_file_type)
   if (cnd_ring_timeout != NULL)
     cnd_delete(cnd_ring_timeout);
 
-  if ((save_file != NULL) && !quiet) {
-    /* We're saving to a file, which means we're printing packet counts
-       to stderr if we are not running silent and deep.
+  if (print_packet_counts) {
+    /* We're printing packet counts to stderr.
        Send a newline so that we move to the line after the packet count. */
     fprintf(stderr, "\n");
   }
@@ -2221,9 +2232,9 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
 
   if (!process_packet(&cfile, ldat->pdh, 0, &whdr, &pseudo_header, pd, &err)) {
     /* Error writing to a capture file */
-    if (!quiet) {
-      /* We're capturing packets, so (if -q not specified) we're printing
-         a count of packets captured; move to the line after the count. */
+    if (print_packet_counts) {
+      /* We're printing counts of packets captured; move to the line after
+         the count. */
       fprintf(stderr, "\n");
     }
     show_capture_file_io_error(ldat->save_file, err, FALSE);
@@ -2297,7 +2308,7 @@ report_counts(void)
   signal(SIGINFO, report_counts_siginfo);
 #endif /* SIGINFO */
 
-  if (quiet || print_packet_info) {
+  if (!print_packet_counts) {
     /* Report the count only if we aren't printing a packet count
        as packets arrive. */
     fprintf(stderr, "%u packets captured\n", ld.packet_count);
@@ -2611,10 +2622,8 @@ process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
       if (!wtap_dump(pdh, whdr, pseudo_header, pd, err))
         return FALSE;
 #ifdef HAVE_LIBPCAP
-      /* Report packet capture count if not quiet */
-      if (!quiet && !print_packet_info) {
-      	/* Don't print a packet count if we were asked not to with "-q"
-      	   or if we're also printing packet info. */
+      if (print_packet_counts) {
+      	/* We're printing packet counts. */
         if (ld.packet_count != 0) {
           fprintf(stderr, "\r%u ", ld.packet_count);
           /* stderr could be line buffered */
