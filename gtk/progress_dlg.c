@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.21 2004/01/21 22:00:28 ulfl Exp $
+ * $Id: progress_dlg.c,v 1.22 2004/02/01 13:12:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,7 +51,7 @@ struct progdlg {
 	GtkLabel  *elapsed_lb;
 	GtkLabel  *time_left_lb;
 	GtkLabel  *percentage_lb;
-	gchar      title[200];
+	gchar     *title;
 };
 
 /*
@@ -84,12 +84,18 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
 	GtkWidget *dlg_w, *main_vb, *title_lb, *status_lb, *elapsed_lb, *time_left_lb, *percentage_lb;
 	GtkWidget *prog_bar, *bbox, *cancel_bt;
 	GtkWidget *static_vb, *tmp_lb, *main_hb, *dynamic_vb, *percentage_hb;
-	gchar tmp[100];
+	gchar     *task_title_dup;
+    gchar     *item_title_dup;
 
 	dlg = g_malloc(sizeof (progdlg_t));
 
-	g_snprintf(dlg->title, sizeof(dlg->title), "%s: %s",
-                   task_title, item_title);
+    /* limit the item_title to some reasonable length */
+    item_title_dup = g_strdup(item_title);
+    if (strlen(item_title_dup) > 110) {
+        strcpy(&item_title_dup[100], "...");
+    }
+
+    dlg->title = g_strdup_printf("%s: %s", task_title, item_title_dup);
 
 	dlg_w = dlg_window_new(dlg->title);
 	gtk_window_set_modal(GTK_WINDOW(dlg_w), TRUE);
@@ -105,8 +111,8 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
 	 * Static labels (left dialog side, labels aligned to the right)
 	 */
 	static_vb = gtk_vbox_new(FALSE, 1);
-	g_snprintf (tmp, sizeof(tmp), "%s:", task_title);
-	tmp_lb = gtk_label_new(tmp);
+	task_title_dup = g_strdup_printf ("%s:", task_title);
+	tmp_lb = gtk_label_new(task_title_dup);
 	gtk_misc_set_alignment(GTK_MISC(tmp_lb), 1.0, 0.0);
 	gtk_box_pack_start(GTK_BOX(static_vb), tmp_lb, FALSE, TRUE, 3);
 	tmp_lb = gtk_label_new("Status:");
@@ -133,7 +139,7 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
 	 * doing; set its alignment and padding so it's aligned on the
 	 * left.
 	 */
-	title_lb = gtk_label_new(item_title);
+	title_lb = gtk_label_new(item_title_dup);
 	gtk_box_pack_start(GTK_BOX(dynamic_vb), title_lb, FALSE, TRUE, 3);
 	gtk_misc_set_alignment(GTK_MISC(title_lb), 0.0, 0.0);
 	gtk_misc_set_padding(GTK_MISC(title_lb), 0, 0);
@@ -213,6 +219,9 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
 
 	g_get_current_time(&dlg->start_time);
 	memset(&dlg->last_time, 0, sizeof(dlg->last_time));
+
+    g_free(task_title_dup);
+    g_free(item_title_dup);
 
 	return dlg;
 }
@@ -392,5 +401,6 @@ destroy_progress_dlg(progdlg_t *dlg)
 	GtkWidget *dlg_w = dlg->dlg_w;
 
 	gtk_widget_destroy(GTK_WIDGET(dlg_w));
+    g_free(dlg->title);
 	g_free(dlg);
 }
