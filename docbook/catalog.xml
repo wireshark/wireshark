@@ -19,7 +19,7 @@ Please note that if you shift any files in the directory structure you MUST adju
     <!-- Resolve DTD URL system ID to local file -->
     <rewriteSystem
         systemIdStartString="http://www.oasis-open.org/docbook/xml/4.2/"
-        rewritePrefix="/usr/share/docbook-xml42/" />
+        rewritePrefix="/usr/share/xml/docbook/4.2/" />
     <!-- Resolve stylesheet URL to local file -->
     <!-- if you need to change this, don't forget to change it in the Makefile too -->
     <rewriteURI
