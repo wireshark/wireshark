@@ -9,7 +9,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.48 2004/01/18 04:26:20 guy Exp $
+ * $Id: packet-isup.c,v 1.49 2004/01/20 18:30:25 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5752,7 +5752,7 @@ dissect_application_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Make entries in Protocol column and Info column on summary display */
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "application/ISUP (ITU)");
+		col_append_str(pinfo->cinfo, COL_PROTOCOL, "/ISUP(ITU)");
 
 /* Extract message type field */
 	message_type = tvb_get_guint8(tvb, 0);
