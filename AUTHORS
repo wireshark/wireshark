@@ -2035,6 +2035,10 @@ Ian Schorr <ischorr [AT] comcast.net> {
 	"Host list" taps
 }
 
+Rowan McFarland <rmcfarla[AT]cisco.com> {
+	Support for Cisco CallManager 4.x in Skinny, CAST support.
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

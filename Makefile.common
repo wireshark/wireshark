@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.16 2004/02/20 10:04:10 sahlberg Exp $
+# $Id: Makefile.common,v 1.17 2004/02/20 21:25:15 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -61,6 +61,7 @@ DISSECTOR_SRC =	\
 	packet-bssap.c	\
 	packet-bssgp.c	\
 	packet-bvlc.c	\
+	packet-cast.c	\
 	packet-ccsds.c	\
 	packet-cdp.c	\
 	packet-cgmp.c	\
