@@ -295,6 +295,7 @@ Graham Bloice <graham.bloice@trihedral.com> {
 	Win32 icon for Ethereal, and Win32 resource-compiler files to
 	    add version/copyright/etc. information to Win32 executables
 	Support for sorting columns in the summary by clicking on them
+	Win32 Makefile improvements
 }
 
 Ralf Schneider <ralf.schneider@alcatel.se> {
