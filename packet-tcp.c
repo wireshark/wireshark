@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.192 2003/05/16 10:35:19 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.193 2003/05/20 10:14:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2148,6 +2148,19 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   reported_len = tvb_reported_length(tvb);
 
+  /* make nmap happy.  nmap sends out tcp segments that are fragmented at the
+     ip layer with the first fragment only containing the first 16 bytes of
+     the normal 20 byte tcp header.
+     TCP segments should not be fragmented at the ip layer normally so this
+     would probably either be nmap in action fingerprinting someone
+     or a tcp layer bug.
+  */
+  if (reported_len<20 || (reported_len<tcph->th_hlen)){
+    proto_tree_add_text(tcp_tree, tvb, offset, 0,
+        "Short segment. Segment/fragment does not contain a full TCP header (might be NMAP or someone else deliberately sending unusual packets)");
+    return;
+  }
+
   /* Compute the length of data in this segment. */
   tcph->th_seglen = reported_len - tcph->th_hlen;
 
@@ -2192,8 +2205,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (tree) {
-    if (tcp_summary_in_tree)
+    if (tcp_summary_in_tree) {
       proto_item_append_text(ti, ", Seq: %u", tcph->th_seq);
+    }
     proto_tree_add_uint(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq);
   }
 
@@ -2217,8 +2231,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tcp_summary_in_tree)
       proto_item_append_text(ti, ", Ack: %u, Len: %u", tcph->th_ack, tcph->th_seglen);
     proto_item_set_len(ti, tcph->th_hlen);
-    if (nxtseq != tcph->th_seq)
+    if (nxtseq != tcph->th_seq) {
       proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq);
+    }
     if (tcph->th_flags & TH_ACK)
       proto_tree_add_uint(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, tcph->th_ack);
     proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
