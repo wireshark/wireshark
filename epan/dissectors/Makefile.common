@@ -151,7 +151,6 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-ndr.c	\
 	packet-dcerpc-netlogon.c	\
 	packet-dcerpc-nspi.c	\
-
 	packet-dcerpc-pn-io.c	\
 	packet-dcerpc-rdaclif.c	\
 	packet-dcerpc-reg.c	\
