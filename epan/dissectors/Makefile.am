@@ -31,6 +31,7 @@ libdissectors_la_SOURCES = \
 	$(DISSECTOR_SUPPORT_SRC)
 
 EXTRA_DIST = \
+	Makefile.common		\
 	Makefile.nmake		\
 	make-reg-dotc		\
 	make-reg-dotc.py	\
@@ -45,8 +46,8 @@ packet-ncp2222.c : $(srcdir)/ncp2222.py
 #
 # Build various header files for the X11 dissector.
 #
-PROC_X11_FIELDS := $(srcdir)/process-x11-fields.pl
-X11_FIELDS := $(srcdir)/x11-fields
+PROC_X11_FIELDS = $(srcdir)/process-x11-fields.pl
+X11_FIELDS = $(srcdir)/x11-fields
 
 x11-declarations.h x11-register-info.h: $(PROC_X11_FIELDS) $(X11_FIELDS)
 	$(PERL) $(PROC_X11_FIELDS) < $(X11_FIELDS)
