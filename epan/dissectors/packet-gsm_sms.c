@@ -920,6 +920,7 @@ dis_field_vp(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 vp_form)
 		    "%s :  Validity Period Format: relative",
 		    bigbuf);
 
+		offset++;
 		/* go around again */
 		vp_form = 2;
 		break;
@@ -957,12 +958,12 @@ dis_field_vp(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, guint8 vp_form)
 		proto_tree_add_text(subtree,
 		    tvb, offset, 3,
 		    "Hour %d%d, Minutes %d%d, Seconds %d%d",
-		    (oct & 0xf0) >> 4,
 		    oct & 0x0f,
-		    (oct2 & 0xf0) >> 4,
+		    (oct & 0xf0) >> 4,
 		    oct2 & 0x0f,
-		    (oct3 & 0xf0) >> 4,
-		    oct3 & 0x0f);
+		    (oct2 & 0xf0) >> 4,
+		    oct3 & 0x0f,
+		    (oct3 & 0xf0) >> 4);
 
 		done = TRUE;
 		break;
