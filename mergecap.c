@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.19 2004/03/03 22:14:10 jmayer Exp $
+ * $Id: mergecap.c,v 1.20 2004/03/04 08:20:46 jmayer Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -266,7 +266,7 @@ open_outfile(out_file_t *out_file, int snapshot_len)
   }
 
   /* Allow output to stdout by using - */
-  if ((strncmp(out_file->filename, "-", 2) == 0) && (strlen(out_file->filename) == 1))
+  if (strncmp(out_file->filename, "-", 2) == 0)
     out_file->filename = "";
 
 
