@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.63 2002/08/24 10:22:29 guy Exp $
+ * $Id: packet-bgp.c,v 1.64 2002/08/24 21:58:57 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -1460,8 +1460,18 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 		    "Subsequent address family identifier: %s (%u)",
 		    val_to_str(saf, bgpattr_nlri_safi, saf >= 128 ? "Vendor specific" : "Unknown"),
 		    saf);
-                if (af!=(AFNUM_INET||AFNUM_INET6))
+                if (af != AFNUM_INET && af != AFNUM_INET6) {
+                    /*
+                     * The addresses don't contain lengths, so if we
+                     * don't understand the address family type, we
+                     * cannot parse the subsequent addresses as we
+                     * don't know how long they are.
+                     *
+                     * XXX - we should put a protocol tree item in for
+                     * this, as an unknown blob.
+                     */
                     break;
+                }
                 nexthop_len = tvb_get_guint8(tvb, o + i + aoff + 3);
 		ti = proto_tree_add_text(subtree2, tvb, o + i + aoff + 3, 1,
 			"Next hop network address (%d %s)",
@@ -1471,7 +1481,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
 		while (j < nexthop_len) {
                     advance = mp_addr_to_str(af, saf, tvb, o + i + aoff + 4 + j,
 		        junk_buf, sizeof(junk_buf)) ;
-                    if (advance) /* catch if this is a unknown AFI type*/
+                    if (advance == 0) /* catch if this is a unknown AFI type*/
                             break;
                     if (j + advance > nexthop_len)
 			    break;
