@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.33 2002/03/19 09:00:44 guy Exp $
+ * $Id: packet-bpdu.c,v 1.34 2002/03/19 09:17:54 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -60,7 +60,8 @@
 #define BPDU_FORWARD_DELAY      33
 #define BPDU_VERSION_1_LENGTH	35
 
-#define BPDU_SIZE		35
+#define CONF_BPDU_SIZE		35
+#define TC_BPDU_SIZE		4
 #define RST_BPDU_SIZE		36
 
 /* Flag bits */
@@ -270,12 +271,24 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
       }
 
-      bpdu_size =  (bpdu_type == BPDU_TYPE_RST) ? RST_BPDU_SIZE : BPDU_SIZE;
-      set_actual_length(tvb, bpdu_size);
+      switch (bpdu_type) {
+
+      case BPDU_TYPE_CONF:
+        set_actual_length(tvb, CONF_BPDU_SIZE);
+        break;
+
+      case BPDU_TYPE_TOPOLOGY_CHANGE:
+        set_actual_length(tvb, TC_BPDU_SIZE);
+        break;
+
+      case BPDU_TYPE_RST:
+        set_actual_length(tvb, RST_BPDU_SIZE);
+        break;
+      }
 
       if (tree) {
 	    bpdu_item = proto_tree_add_protocol_format(tree, proto_bpdu, tvb,
-				0, bpdu_size, "Spanning Tree Protocol");
+				0, -1, "Spanning Tree Protocol");
 	    bpdu_tree = proto_item_add_subtree(bpdu_item, ett_bpdu);
 
 	    protocol_identifier = tvb_get_ntohs(tvb, BPDU_IDENTIFIER);
