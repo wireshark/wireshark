@@ -1198,6 +1198,7 @@ Didier Gautheron <dgautheron[AT]magic.fr> {
 	Put in hidden fields for AppleTalk source and destination
 	    addresses
 	AppleTalk Zone Information Protocol support
+	Fix to work with automake 1.7
 }
 
 Phil Williams <csypbw[AT]comp.leeds.ac.uk> {
@@ -1445,10 +1446,6 @@ Steve Langasek <vorlon [AT] netexpress.net> {
 
 Brad Hards <bhards[AT]bigpond.net.au> {
 	Support for SRVLOC v2
-}
-
-Didier Gautheron <dgautheron[AT]magic.fr> {
-	Fix to work with automake 1.7
 }
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
