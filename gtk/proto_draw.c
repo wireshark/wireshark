@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.74 2003/12/18 20:36:45 sharpe Exp $
+ * $Id: proto_draw.c,v 1.75 2003/12/28 12:50:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -453,8 +453,8 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
      * which text column/row the user selected. This could be off
      * if the bold version of the font is bigger than the
      * regular version of the font. */
-    column = (bv->hadj->value + event->x) / m_font_width;
-    row = (bv->vadj->value + event->y) / m_font_height;
+    column = (int) ((bv->hadj->value + event->x) / m_font_width);
+    row = (int) ((bv->vadj->value + event->y) / m_font_height);
 #else
     /* get the row/column selected */
     gtk_text_view_window_to_buffer_coords(bv,
