@@ -6,7 +6,7 @@ GtkList and GtkCList ==> GtkTreeView conversion :
 - column_prefs.c
 - decode_as_dlg.c : done
 - dfilter_expr_dialog.c
-- filter_prefs.c
+- filter_prefs.c : done
 - main.c
 - plugins_dlg.c : done
 
