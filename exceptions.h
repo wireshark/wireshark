@@ -133,8 +133,71 @@
 
 #define RETHROW				except_rethrow(exc)
 
-#define CLEANUP_CB_PUSH(x,y)		except_cleanup_push((x),(y)
-#define CLEANUP_CB_POP			except_cleanup_push(0)
-#define CLEANUP_CB_CALL_AND_POP		except_cleanup_push(1)
+/* Register cleanup functions in case an exception is thrown and not caught.
+ * From the Kazlib documentation, with modifications for use with the
+ * Ethereal-specific macros:
+ *
+ * CLEANUP_PUSH(func, arg)
+ *
+ *  The call to CLEANUP_PUSH shall be matched with a call to
+ *  CLEANUP_CALL_AND_POP or CLEANUP_POP which must occur in the same
+ *  statement block at the same level of nesting. This requirement allows
+ *  an implementation to provide a CLEANUP_PUSH macro which opens up a
+ *  statement block and a CLEANUP_POP which closes the statement block.
+ *  The space for the registered pointers can then be efficiently
+ *  allocated from automatic storage.
+ *
+ *  The CLEANUP_PUSH macro registers a cleanup handler that will be
+ *  called if an exception subsequently occurs before the matching
+ *  CLEANUP_[CALL_AND_]POP is executed, and is not intercepted and
+ *  handled by a try-catch region that is nested between the two.
+ *
+ *  The first argument to CLEANUP_PUSH is a pointer to the cleanup
+ *  handler, a function that returns nothing and takes a single
+ *  argument of type void*. The second argument is a void* value that
+ *  is registered along with the handler.  This value is what is passed
+ *  to the registered handler, should it be called.
+ *
+ *  Cleanup handlers are called in the reverse order of their nesting:
+ *  inner handlers are called before outer handlers.
+ *
+ *  The program shall not leave the cleanup region between
+ *  the call to the macro CLEANUP_PUSH and the matching call to
+ *  CLEANUP_[CALL_AND_]POP by means other than throwing an exception,
+ *  or calling CLEANUP_[CALL_AND_]POP.
+ *
+ *  Within the call to the cleanup handler, it is possible that new
+ *  exceptions may happen.  Such exceptions must be handled before the
+ *  cleanup handler terminates. If the call to the cleanup handler is
+ *  terminated by an exception, the behavior is undefined. The exception
+ *  which triggered the cleanup is not yet caught; thus the program
+ *  would be effectively trying to replace an exception with one that
+ *  isn't in a well-defined state.
+ *
+ *
+ * CLEANUP_POP and CLEANUP_CALL_AND_POP
+ *
+ *  A call to the CLEANUP_POP or CLEANUP_CALL_AND_POP macro shall match
+ *  each call to CLEANUP_PUSH which shall be in the same statement block
+ *  at the same nesting level.  It shall match the most recent such a
+ *  call that is not matched by a previous CLEANUP_[CALL_AND_]POP at
+ *  the same level.
+ *
+ *  These macros causes the registered cleanup handler to be removed. If
+ *  CLEANUP_CALL_AND_POP is called, the cleanup handler is called.
+ *  In that case, the registered context pointer is passed to the cleanup
+ *  handler. If CLEANUP_POP is called, the cleanup handler is not called.
+ *
+ *  The program shall not leave the region between the call to the
+ *  macro CLEANUP_PUSH and the matching call to CLEANUP_[CALL_AND_]POP
+ *  other than by throwing an exception, or by executing the
+ *  CLEANUP_CALL_AND_POP.
+ *
+ */
+
+
+#define CLEANUP_PUSH(f,a)		except_cleanup_push((f),(a))
+#define CLEANUP_POP			except_cleanup_pop(0)
+#define CLEANUP_CALL_AND_POP		except_cleanup_pop(1)
 
 #endif /* __EXCEPTIONS_H__ */

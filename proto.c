@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.78 2000/08/22 06:38:18 gram Exp $
+ * $Id: proto.c,v 1.79 2000/08/24 02:55:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -222,6 +222,13 @@ proto_tree_free(proto_tree *tree)
 	g_node_destroy((GNode*)tree);
 }
 
+/* We accept a void* instead of a field_info* to satisfy CLEANUP_POP */
+static void
+free_field_info(void *fi)
+{
+	g_mem_chunk_free(gmc_field_info, (field_info*)fi);
+}
+
 static gboolean
 proto_tree_free_node(GNode *node, gpointer data)
 {
@@ -236,7 +243,7 @@ proto_tree_free_node(GNode *node, gpointer data)
 			g_free(fi->value.string);
 		else if (fi->hfinfo->type == FT_BYTES) 
 			g_free(fi->value.bytes);
-		g_mem_chunk_free(gmc_field_info, fi);
+		free_field_info(fi);
 	}
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
 }	
@@ -403,11 +410,14 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	proto_item	*pi;
 	guint32		value, n;
 
-	/* XXX - need to free this after an exception */
 	new_fi = alloc_field_info(hfindex, tvb, start, length);
 
 	if (new_fi == NULL)
 		return(NULL);
+
+	/* Register a cleanup function in case on of our tvbuff accesses
+	 * throws an exception. We need to clean up new_fi. */
+	CLEANUP_PUSH(free_field_info, new_fi);
 
 	switch(new_fi->hfinfo->type) {
 		case FT_NONE:
@@ -483,6 +493,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			g_assert_not_reached();
 			break;
 	}
+	CLEANUP_POP;
 
 	/* Don't add to proto_item to proto_tree until now so that any exceptions
 	 * raised by a tvbuff access method doesn't leave junk in the proto_tree. */
