@@ -1,7 +1,7 @@
 /* tap-iousers.c
  * iostat   2003 Ronnie Sahlberg
  *
- * $Id: tap-iousers.c,v 1.10 2003/08/24 04:58:31 sahlberg Exp $
+ * $Id: tap-iousers.c,v 1.11 2003/08/24 05:44:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "tap.h"
 #include "register.h"
 #include "packet-ip.h"
+#include "packet-ipx.h"
 #include "packet-tcp.h"
 #include "packet-udp.h"
 #include "packet-eth.h"
@@ -202,6 +203,53 @@ iousers_ip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, v
 	}
 
 	if(!CMP_ADDRESS(&iph->ip_dst, &iui->addr1)){
+		iui->frames1++;
+		iui->bytes1+=pinfo->fd->pkt_len;
+	} else {
+		iui->frames2++;
+		iui->bytes2+=pinfo->fd->pkt_len;
+	}
+
+	return 1;
+}
+
+static int
+iousers_ipx_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *vipx)
+{
+	ipxhdr_t *ipxh=vipx;
+	address *addr1, *addr2;
+	io_users_item_t *iui;
+
+	if(CMP_ADDRESS(&ipxh->ipx_src, &ipxh->ipx_dst)>0){
+		addr1=&ipxh->ipx_src;
+		addr2=&ipxh->ipx_dst;
+	} else {
+		addr2=&ipxh->ipx_src;
+		addr1=&ipxh->ipx_dst;
+	}
+
+	for(iui=iu->items;iui;iui=iui->next){
+		if((!CMP_ADDRESS(&iui->addr1, addr1))
+		&&(!CMP_ADDRESS(&iui->addr2, addr2)) ){
+			break;
+		}
+	}
+
+	if(!iui){
+		iui=g_malloc(sizeof(io_users_item_t));
+		iui->next=iu->items;
+		iu->items=iui;
+		COPY_ADDRESS(&iui->addr1, addr1);
+		iui->name1=strdup(address_to_str(addr1));
+		COPY_ADDRESS(&iui->addr2, addr2);
+		iui->name2=strdup(address_to_str(addr2));
+		iui->frames1=0;
+		iui->frames2=0;
+		iui->bytes1=0;
+		iui->bytes2=0;
+	}
+
+	if(!CMP_ADDRESS(&ipxh->ipx_dst, &iui->addr1)){
 		iui->frames1++;
 		iui->bytes1+=pinfo->fd->pkt_len;
 	} else {
@@ -445,6 +493,14 @@ iousers_init(char *optarg)
 		}
 		tap_type="tr";
 		packet_func=iousers_tr_packet;
+	} else if(!strncmp(optarg,"talkers,ipx",11)){
+		if(optarg[11]==','){
+			filter=optarg+12;
+		} else {
+			filter=NULL;
+		}
+		tap_type="ipx";
+		packet_func=iousers_ipx_packet;
 	} else if(!strncmp(optarg,"talkers,ip",10)){
 		if(optarg[10]==','){
 			filter=optarg+11;
@@ -459,6 +515,7 @@ iousers_init(char *optarg)
 		fprintf(stderr,"      \"eth\"\n");
 		fprintf(stderr,"      \"fc\"\n");
 		fprintf(stderr,"      \"ip\"\n");
+		fprintf(stderr,"      \"ipx\"\n");
 		fprintf(stderr,"      \"tcp\"\n");
 		fprintf(stderr,"      \"tr\"\n");
 		fprintf(stderr,"      \"udp\"\n");

@@ -453,6 +453,7 @@ statistics for, currently the supported ones are
   "eth"   Ethernet
   "fc"    Fibre Channel
   "ip"    IP addresses
+  "ipx"   IPX addresses
   "tcp"   TCP/IP socketpairs   Both IPv4 and IPv6 are supported
   "tr"    TokenRing
   "udp"   UDP/IP socketpairs   Both IPv4 and IPv6 are supported
