@@ -1,7 +1,7 @@
 # Makefile.nmake
 # Nmake file for Ethereal documentation
 #
-# $Id: Makefile.nmake,v 1.15 2004/05/22 13:45:05 ulfl Exp $
+# $Id: Makefile.nmake,v 1.16 2004/05/22 17:14:32 ulfl Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -32,17 +32,20 @@ doc: ethereal.html tethereal.html ethereal-filter.html editcap.html \
 man: ethereal.1 tethereal.1 ethereal-filter.4 editcap.1 \
 	idl2eth.1 mergecap.1 text2pcap.1
 
+ethereal-tmp.pod: ethereal.pod ../AUTHORS-SHORT
+	copy /B ethereal.pod + ..\AUTHORS-SHORT ethereal-tmp.pod
+	
 ethereal.1: ethereal.pod ../config.h
 	$(POD2MAN)                     \
 	--center="The Ethereal Network Analyzer" \
 	--release=$(VERSION)			 \
-	 ethereal.pod > ethereal.1
+	ethereal-tmp.pod > ethereal.1
 
-ethereal.html: ethereal.pod ../config.h
+ethereal.html: ethereal-tmp.pod ../config.h
 	$(POD2HTML)                    \
 	--title="The Ethereal Network Analyzer $(VERSION)" \
 	--noindex                                 \
-	ethereal.pod > ethereal.html
+	ethereal-tmp.pod > ethereal.html
 
 ../tethereal.exe:
 	cd ..
@@ -132,7 +135,7 @@ text2pcap.html: text2pcap.pod ../config.h
 	text2pcap.pod > text2pcap.html
 
 clean:
-	rm -f ethereal.html ethereal.1
+	rm -f ethereal.html ethereal.1 ethereal-tmp.pod
 	rm -f tethereal.html tethereal.1
 	rm -f ethereal-filter.html ethereal-filter.4 ethereal-filter.pod
 	rm -f editcap.html editcap.1
