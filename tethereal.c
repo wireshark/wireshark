@@ -2364,10 +2364,12 @@ load_cap_file(capture_file *cf, int out_file_type)
       goto out;
     }
   } else {
-    if (!write_preamble(cf)) {
-      err = errno;
-      show_print_file_io_error(err);
-      goto out;
+    if (print_packet_info) {
+      if (!write_preamble(cf)) {
+        err = errno;
+        show_print_file_io_error(err);
+        goto out;
+      }
     }
     pdh = NULL;
   }
@@ -2426,9 +2428,11 @@ load_cap_file(capture_file *cf, int out_file_type)
       if (!wtap_dump_close(pdh, &err))
         show_capture_file_io_error(cfile.save_file, err, TRUE);
     } else {
-      if (!write_finale()) {
-        err = errno;
-        show_print_file_io_error(err);
+      if (print_packet_info) {
+        if (!write_finale()) {
+          err = errno;
+          show_print_file_io_error(err);
+        }
       }
     }
   }
