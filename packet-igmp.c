@@ -1,7 +1,7 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.c,v 1.18 2002/02/01 11:01:57 guy Exp $
+ * $Id: packet-igmp.c,v 1.19 2002/05/02 07:54:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -380,7 +380,7 @@ dissect_igmp_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int ty
  * IGMP Protocol dissectors
  *************************************************************/
 static int
-dissect_v3_max_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+dissect_v3_max_resp(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	proto_tree *tree;
 	proto_item *item;
@@ -413,7 +413,7 @@ dissect_v3_max_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 }
 
 static int
-dissect_v3_sqrv_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+dissect_v3_sqrv_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	proto_tree *tree;
 	proto_item *item;
@@ -436,7 +436,7 @@ dissect_v3_sqrv_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 }
 
 static int
-dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+dissect_v3_group_record(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	proto_tree *tree;
 	proto_item *item;
@@ -512,7 +512,7 @@ dissect_igmp_v3_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 	offset += 2;
 	
 	while (num--) {
-		offset = dissect_v3_group_record(tvb,pinfo,tree,offset);
+		offset = dissect_v3_group_record(tvb, tree, offset);
 	}
 
 	return offset;
@@ -527,7 +527,7 @@ dissect_igmp_v3_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int t
 
 	num = tvb_get_ntohs(tvb, offset+9);
 	/* max resp code */
-	offset = dissect_v3_max_resp(tvb, pinfo, tree, offset);
+	offset = dissect_v3_max_resp(tvb, tree, offset);
 
 	/* checksum */
 	igmp_checksum(tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
@@ -538,7 +538,7 @@ dissect_igmp_v3_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int t
 	offset +=4;
 
 	/* bitmask for S and QRV */
-	offset = dissect_v3_sqrv_bits(tvb, pinfo, tree, offset);
+	offset = dissect_v3_sqrv_bits(tvb, tree, offset);
 
 	/* qqic */
 	proto_tree_add_item(tree, hf_qqic, tvb, offset, 1, FALSE);
