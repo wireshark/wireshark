@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rs_pgo.idl
  *
- * $Id: packet-dcerpc-rs_pgo.c,v 1.10 2004/02/24 08:05:16 guy Exp $
+ * $Id: packet-dcerpc-rs_pgo.c,v 1.11 2004/02/24 18:23:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1088,6 +1088,7 @@ rs_pgo_dissect_add_resp (tvbuff_t * tvb, int offset,
 			 guint8 * drep)
 {
   dcerpc_info *di;
+  guint32 buff_remain;
 
   di = pinfo->private_data;
   if (di->conformant_run)
@@ -1099,10 +1100,16 @@ rs_pgo_dissect_add_resp (tvbuff_t * tvb, int offset,
         [out]       rs_cache_data_t     *cache_info,
         [out]       error_status_t      *status
 */
+
+ buff_remain = tvb_length_remaining(tvb, offset);
+
+/* found several add_member responses that had 8 bytes of data. first was 4 0's and last was 3 zeros and a 1 */
+if (buff_remain > 8) {
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
 			 dissect_rs_cache_data_t, NDR_POINTER_REF,
 			 "cache_info: ", -1);
+}
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
 			 dissect_error_status_t, NDR_POINTER_REF, "status: ",
@@ -1139,6 +1146,7 @@ rs_pgo_dissect_delete_resp (tvbuff_t * tvb, int offset,
 			    guint8 * drep)
 {
   dcerpc_info *di;
+  guint32 buff_remain;
 
   di = pinfo->private_data;
   if (di->conformant_run)
@@ -1150,10 +1158,17 @@ rs_pgo_dissect_delete_resp (tvbuff_t * tvb, int offset,
         [out]       rs_cache_data_t     *cache_info,
         [out]       error_status_t      *status
 */
+ buff_remain = tvb_length_remaining(tvb, offset);
+
+/* found several add_member responses that had 8 bytes of data. first was 4 0's and last was 3 zeros and a 1 */
+ 
+  if (buff_remain > 8) {
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
 			 dissect_rs_cache_data_t, NDR_POINTER_REF,
 			 "cache_info:", -1);
+  }
+
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
 			 dissect_error_status_t, NDR_POINTER_REF, "status:",
@@ -1314,6 +1329,7 @@ rs_pgo_dissect_add_member_resp (tvbuff_t * tvb, int offset,
 				guint8 * drep)
 {
   dcerpc_info *di;
+  guint32 buff_remain;
 
   di = pinfo->private_data;
   if (di->conformant_run)
@@ -1326,10 +1342,16 @@ rs_pgo_dissect_add_member_resp (tvbuff_t * tvb, int offset,
         [out]       error_status_t      *status
 */
 
+ buff_remain = tvb_length_remaining(tvb, offset);
+
+/* found several add responses that had 8 bytes of data. first was 4 0's and last was 3 zeros and a 1 */
+if (buff_remain > 8) {
+
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
 			 dissect_rs_cache_data_t, NDR_POINTER_REF,
 			 "cache_info:", -1);
+}
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
 			 dissect_error_status_t, NDR_POINTER_REF, "status:",
@@ -1659,7 +1681,7 @@ static dcerpc_sub_dissector rs_pgo_dissectors[] = {
   {5, "key_transfer", rs_pgo_dissect_key_transfer_rqst,
    rs_pgo_dissect_key_transfer_resp},
   {6, "add_member", rs_pgo_dissect_add_member_rqst,
-   rs_pgo_dissect_add_member_resp},
+   rs_pgo_dissect_add_member_resp}, 
   {7, "delete_member", rs_pgo_dissect_delete_member_rqst,
    rs_pgo_dissect_delete_member_resp},
   {8, "is_member", rs_pgo_dissect_is_member_rqst,
