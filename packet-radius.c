@@ -5,7 +5,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.78 2003/03/11 22:51:52 guy Exp $
+ * $Id: packet-radius.c,v 1.79 2003/07/01 03:59:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,12 +107,15 @@ typedef struct _rd_vsa_buffer {
 #define RADIUS_ACCESS_REJECT			3
 #define RADIUS_ACCOUNTING_REQUEST		4
 #define RADIUS_ACCOUNTING_RESPONSE		5
+#define RADIUS_ACCOUNTING_STATUS		6
 #define RADIUS_ACCESS_PASSWORD_REQUEST		7
 #define RADIUS_ACCESS_PASSWORD_ACK		8
 #define RADIUS_ACCESS_PASSWORD_REJECT		9
+#define RADIUS_ACCOUNTING_MESSAGE		10
 #define RADIUS_ACCESS_CHALLENGE			11
 #define RADIUS_STATUS_SERVER			12
 #define RADIUS_STATUS_CLIENT			13
+
 #define RADIUS_VENDOR_SPECIFIC_CODE		26
 #define RADIUS_ASCEND_ACCESS_NEXT_CODE		29
 #define RADIUS_ASCEND_ACCESS_NEW_PIN		30
@@ -230,9 +233,11 @@ static value_string radius_vals[] =
   {RADIUS_ACCESS_REJECT,		"Access Reject"},
   {RADIUS_ACCOUNTING_REQUEST,		"Accounting Request"},
   {RADIUS_ACCOUNTING_RESPONSE,		"Accounting Response"},
+  {RADIUS_ACCOUNTING_STATUS,		"Accounting Status"},
   {RADIUS_ACCESS_PASSWORD_REQUEST,	"Access Password Request"},
   {RADIUS_ACCESS_PASSWORD_ACK,		"Access Password Ack"},
   {RADIUS_ACCESS_PASSWORD_REJECT,	"Access Password Reject"},
+  {RADIUS_ACCOUNTING_MESSAGE,		"Accounting Message"},
   {RADIUS_ACCESS_CHALLENGE,		"Access challenge"},
   {RADIUS_STATUS_SERVER,		"StatusServer"},
   {RADIUS_STATUS_CLIENT,		"StatusClient"},
