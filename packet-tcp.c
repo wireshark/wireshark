@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.12 1998/12/29 04:05:35 gerald Exp $
+ * $Id: packet-tcp.c,v 1.13 1999/01/04 08:45:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,6 +30,15 @@
 #include <gtk/gtk.h>
 
 #include <stdio.h>
+
+#ifdef NEED_SNPRINTF_H
+# ifdef HAVE_STDARG_H
+#  include <stdarg.h>
+# else
+#  include <varargs.h>
+# endif
+# include "snprintf.h"
+#endif
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
