@@ -779,6 +779,8 @@ Aamer Akhter <aakhter[AT]cisco.com> {
 	Support for additional BGP extended communities
 	LDP support for draft-martini-l2circuit-trans-mpls, LDP status
 	    code updates, and small LDP cleanups
+	LDP support for draft-martini-l2circuit-encap-mpls for
+            Ethernet-over-MPLS
 }
 
 Pekka Savola <pekkas[AT]netcore.fi> {

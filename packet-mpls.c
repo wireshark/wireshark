@@ -3,7 +3,7 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.25 2002/01/21 07:36:37 guy Exp $
+ * $Id: packet-mpls.c,v 1.26 2002/03/18 18:56:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -109,6 +109,7 @@ static hf_register_info mplsf_info[] = {
 
 static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
+static dissector_handle_t eth_handle;
 
 /*
  * Given a 4-byte MPLS label starting at offset "offset", in tvbuff "tvb",
@@ -184,9 +185,11 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     ipvers = (tvb_get_guint8(tvb, offset) >> 4) & 0x0F;
     if (ipvers == 6) {
-	call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+      call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+    } else if (ipvers == 4) {
+      call_dissector(ipv4_handle, next_tvb, pinfo, tree);
     } else {
-        call_dissector(ipv4_handle, next_tvb, pinfo, tree);
+      call_dissector(eth_handle, next_tvb, pinfo, tree);
     }
 }
 
@@ -213,6 +216,7 @@ proto_reg_handoff_mpls(void)
 	 */
 	ipv4_handle = find_dissector("ip");
 	ipv6_handle = find_dissector("ipv6");
+	eth_handle = find_dissector("eth");
 
 	mpls_handle = create_dissector_handle(dissect_mpls, proto_mpls);
 	dissector_add("ethertype", ETHERTYPE_MPLS, mpls_handle);
