@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.14 2002/03/10 03:07:16 guy Exp $
+ * $Id: packet-ucp.c,v 1.15 2002/04/11 09:10:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -199,6 +199,7 @@ static int hf_xser_service	= -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ucp  = -1;
+static gint ett_sub  = -1;
 static gint ett_XSer = -1;
 
 /*
@@ -1584,6 +1585,7 @@ dissect_ucp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item	*ti;
     proto_item	*sub_ti;
     proto_tree	*ucp_tree;
+    proto_tree	*sub_tree;
     tvbuff_t	*tmp_tvb;
 
     O_R = tvb_get_guint8(tvb, UCP_O_R_OFFSET);
@@ -1655,92 +1657,93 @@ dissect_ucp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tmp_tvb = tvb_new_subset(tvb, offset, -1, -1);
 	sub_ti = proto_tree_add_item(ucp_tree, hf_ucp_oper_section, tvb,
 				     offset, endpkt - offset, FALSE);
+	sub_tree = proto_item_add_subtree(sub_ti, ett_sub);
 
 	switch (OT) {
 	    case  1:
-		O_R == 'O' ? add_01O(sub_ti,tmp_tvb) : add_01R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_01O(sub_tree,tmp_tvb) : add_01R(sub_tree,tmp_tvb);
 		break;
 	    case  2:
-		O_R == 'O' ? add_02O(sub_ti,tmp_tvb) : add_02R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_02O(sub_tree,tmp_tvb) : add_02R(sub_tree,tmp_tvb);
 		break;
 	    case  3:
-		O_R == 'O' ? add_03O(sub_ti,tmp_tvb) : add_03R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_03O(sub_tree,tmp_tvb) : add_03R(sub_tree,tmp_tvb);
 		break;
 	    case  4:
-		O_R == 'O' ? add_04O(sub_ti,tmp_tvb) : add_04R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_04O(sub_tree,tmp_tvb) : add_04R(sub_tree,tmp_tvb);
 		break;
 	    case  5:
-		O_R == 'O' ? add_05O(sub_ti,tmp_tvb) : add_05R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_05O(sub_tree,tmp_tvb) : add_05R(sub_tree,tmp_tvb);
 		break;
 	    case  6:
-		O_R == 'O' ? add_06O(sub_ti,tmp_tvb) : add_06R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_06O(sub_tree,tmp_tvb) : add_06R(sub_tree,tmp_tvb);
 		break;
 	    case  7:
-		O_R == 'O' ? add_07O(sub_ti,tmp_tvb) : add_07R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_07O(sub_tree,tmp_tvb) : add_07R(sub_tree,tmp_tvb);
 		break;
 	    case  8:
-		O_R == 'O' ? add_08O(sub_ti,tmp_tvb) : add_08R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_08O(sub_tree,tmp_tvb) : add_08R(sub_tree,tmp_tvb);
 		break;
 	    case  9:
-		O_R == 'O' ? add_09O(sub_ti,tmp_tvb) : add_09R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_09O(sub_tree,tmp_tvb) : add_09R(sub_tree,tmp_tvb);
 		break;
 	    case 10:
-		O_R == 'O' ? add_10O(sub_ti,tmp_tvb) : add_10R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_10O(sub_tree,tmp_tvb) : add_10R(sub_tree,tmp_tvb);
 		break;
 	    case 11:
-		O_R == 'O' ? add_11O(sub_ti,tmp_tvb) : add_11R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_11O(sub_tree,tmp_tvb) : add_11R(sub_tree,tmp_tvb);
 		break;
 	    case 12:
-		O_R == 'O' ? add_12O(sub_ti,tmp_tvb) : add_12R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_12O(sub_tree,tmp_tvb) : add_12R(sub_tree,tmp_tvb);
 		break;
 	    case 13:
-		O_R == 'O' ? add_13O(sub_ti,tmp_tvb) : add_13R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_13O(sub_tree,tmp_tvb) : add_13R(sub_tree,tmp_tvb);
 		break;
 	    case 14:
-		O_R == 'O' ? add_14O(sub_ti,tmp_tvb) : add_14R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_14O(sub_tree,tmp_tvb) : add_14R(sub_tree,tmp_tvb);
 		break;
 	    case 15:
-		O_R == 'O' ? add_15O(sub_ti,tmp_tvb) : add_15R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_15O(sub_tree,tmp_tvb) : add_15R(sub_tree,tmp_tvb);
 		break;
 	    case 16:
-		O_R == 'O' ? add_16O(sub_ti,tmp_tvb) : add_16R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_16O(sub_tree,tmp_tvb) : add_16R(sub_tree,tmp_tvb);
 		break;
 	    case 17:
-		O_R == 'O' ? add_17O(sub_ti,tmp_tvb) : add_17R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_17O(sub_tree,tmp_tvb) : add_17R(sub_tree,tmp_tvb);
 		break;
 	    case 18:
-		O_R == 'O' ? add_18O(sub_ti,tmp_tvb) : add_18R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_18O(sub_tree,tmp_tvb) : add_18R(sub_tree,tmp_tvb);
 		break;
 	    case 19:
-		O_R == 'O' ? add_19O(sub_ti,tmp_tvb) : add_19R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_19O(sub_tree,tmp_tvb) : add_19R(sub_tree,tmp_tvb);
 		break;
 	    case 20:
-		O_R == 'O' ? add_20O(sub_ti,tmp_tvb) : add_20R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_20O(sub_tree,tmp_tvb) : add_20R(sub_tree,tmp_tvb);
 		break;
 	    case 21:
-		O_R == 'O' ? add_21O(sub_ti,tmp_tvb) : add_21R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_21O(sub_tree,tmp_tvb) : add_21R(sub_tree,tmp_tvb);
 		break;
 	    case 22:
-		O_R == 'O' ? add_22O(sub_ti,tmp_tvb) : add_22R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_22O(sub_tree,tmp_tvb) : add_22R(sub_tree,tmp_tvb);
 		break;
 	    case 23:
-		O_R == 'O' ? add_23O(sub_ti,tmp_tvb) : add_23R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_23O(sub_tree,tmp_tvb) : add_23R(sub_tree,tmp_tvb);
 		break;
 	    case 24:
-		O_R == 'O' ? add_24O(sub_ti,tmp_tvb) : add_24R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_24O(sub_tree,tmp_tvb) : add_24R(sub_tree,tmp_tvb);
 		break;
 	    case 30:
-		O_R == 'O' ? add_30O(sub_ti,tmp_tvb) : add_30R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_30O(sub_tree,tmp_tvb) : add_30R(sub_tree,tmp_tvb);
 		break;
 	    case 31:
-		O_R == 'O' ? add_31O(sub_ti,tmp_tvb) : add_31R(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_31O(sub_tree,tmp_tvb) : add_31R(sub_tree,tmp_tvb);
 		break;
 	    case 51: case 52: case 53: case 54: case 55: case 56: case 57:
 	    case 58:
-		O_R == 'O' ? add_5xO(sub_ti,tmp_tvb) : add_5xR(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_5xO(sub_tree,tmp_tvb) : add_5xR(sub_tree,tmp_tvb);
 		break;
 	    case 60: case 61:
-		O_R == 'O' ? add_6xO(sub_ti,tmp_tvb,OT) : add_6xR(sub_ti,tmp_tvb);
+		O_R == 'O' ? add_6xO(sub_tree,tmp_tvb,OT) : add_6xR(sub_tree,tmp_tvb);
 		break;
 	    default:
 		break;
@@ -2481,6 +2484,7 @@ proto_register_ucp(void)
     /* Setup protocol subtree array */
     static gint *ett[] = {
 	&ett_ucp,
+	&ett_sub,
 	&ett_XSer
     };
     /* Register the protocol name and description */
