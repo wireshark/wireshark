@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-oft.c,v 1.4 2004/04/20 04:48:32 guy Exp $
+ * $Id: packet-aim-oft.c,v 1.5 2004/04/20 05:32:46 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,7 +69,7 @@ proto_register_aim_oft(void)
 void
 proto_reg_handoff_aim_oft(void)
 {
-  dissector_handle_t aim_handle;
+/*  dissector_handle_t aim_handle;*/
 
   /* FIXME 
   aim_handle = new_create_dissector_handle(dissect_aim, proto_aim);

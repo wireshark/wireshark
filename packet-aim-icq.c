@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection, SNAC ICQ
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-icq.c,v 1.3 2004/04/20 04:48:32 guy Exp $
+ * $Id: packet-aim-icq.c,v 1.4 2004/04/20 05:32:46 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,8 +95,8 @@ proto_register_aim_icq(void)
 {
 
 /* Setup list of header fields */
-  static hf_register_info hf[] = {
-  };
+/*  static hf_register_info hf[] = {
+  };*/
 
 /* Setup protocol subtree array */
   static gint *ett[] = {
@@ -107,7 +107,7 @@ proto_register_aim_icq(void)
   proto_aim_icq = proto_register_protocol("AIM ICQ", "AIM ICQ", "aim_icq");
 
 /* Required function calls to register the header fields and subtrees used */
-  proto_register_field_array(proto_aim_icq, hf, array_length(hf));
+  /*proto_register_field_array(proto_aim_icq, hf, array_length(hf));*/
   proto_register_subtree_array(ett, array_length(ett));
 }
 
