@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.117 1999/10/22 07:17:47 guy Exp $
+ * $Id: packet.h,v 1.118 1999/10/22 08:11:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -138,7 +138,8 @@ typedef enum {
   AT_IPv4,		/* IPv4 */
   AT_IPv6,		/* IPv6 */
   AT_IPX,		/* IPX */
-  AT_SNA		/* SNA */
+  AT_SNA,		/* SNA */
+  AT_ATALK		/* Appletalk */
 } address_type;
 
 typedef struct _address {

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.110 1999/10/22 07:17:28 guy Exp $
+ * $Id: file.c,v 1.111 1999/10/22 08:11:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -88,6 +88,8 @@
 #ifndef __RESOLV_H__
 #include "resolv.h"
 #endif
+
+#include "packet-atalk.h"
 
 #include "packet-ipv6.h"
 
@@ -587,6 +589,7 @@ col_set_addr(frame_data *fd, int col, address *addr, gboolean is_res)
 {
   u_int ipv4_addr;
   struct e_in6_addr ipv6_addr;
+  struct atalk_ddp_addr ddp_addr;
 
   switch (addr->type) {
 
@@ -630,6 +633,12 @@ col_set_addr(frame_data *fd, int col, address *addr, gboolean is_res)
         pntohs(&addr->data[0]));
       break;
     }
+    break;
+
+  case AT_ATALK:
+    memcpy(&ddp_addr, addr->data, sizeof ddp_addr);
+    strncpy(fd->cinfo->col_data[col], atalk_addr_to_str(&ddp_addr),
+      COL_MAX_LEN);
     break;
 
   default:

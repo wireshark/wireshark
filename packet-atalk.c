@@ -1,7 +1,7 @@
-/* packet-ddp.c
- * Routines for DDP packet disassembly.
+/* packet-atalk.c
+ * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.15 1999/10/12 06:20:02 gram Exp $
+ * $Id: packet-atalk.c,v 1.16 1999/10/22 08:11:40 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -31,6 +31,7 @@
 #include <glib.h>
 #include "globals.h"
 #include "packet.h"
+#include "packet-atalk.h"
 
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
@@ -75,19 +76,41 @@ typedef struct _e_ddp {
 #define DDP_ADSP	0x07
 #define DDP_HEADER_SIZE 13
 
+extern gchar *
+atalk_addr_to_str(const struct atalk_ddp_addr *addrp)
+{
+  static gchar	str[3][22];
+  static gchar	*cur;
+
+  if (cur == &str[0][0]) {
+    cur = &str[1][0];
+  } else if (cur == &str[1][0]) {
+    cur = &str[2][0];
+  } else {
+    cur = &str[0][0];
+  }
+
+  sprintf(cur, "%d.%d:%d", addrp->net, addrp->node, addrp->port);
+  return cur;
+}
+
+static const value_string op_vals[] = {
+  {DDP_RTMPDATA, "AppleTalk Routing Table response or data" },
+  {DDP_NBP, "AppleTalk Name Binding Protocol packet"},
+  {DDP_ATP, "AppleTalk Transaction Protocol packet"},
+  {DDP_AEP, "AppleTalk Echo Protocol packet"},
+  {DDP_RTMPREQ, "AppleTalk Routing Table request"},
+  {DDP_ZIP, "AppleTalk Zone Information Protocol packet"},
+  {DDP_ADSP, "AppleTalk Data Stream Protocol"},
+  {0, NULL}
+};
+
 void
 dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_ddp       ddp;
   proto_tree *ddp_tree;
   proto_item *ti;
-  value_string op_vals[] = { {DDP_RTMPDATA, "AppleTalk Routing Table response or data" },
-  			     {DDP_NBP, "AppleTalk Name Binding Protocol packet"},
-  			     {DDP_ATP, "AppleTalk Transaction Protocol packet"},
-  			     {DDP_AEP, "AppleTalk Echo Protocol packet"},
-  			     {DDP_RTMPREQ, "AppleTalk Routing Table request"},
-  			     {DDP_ZIP, "AppleTalk Zone Information Protocol packet"},
-  			     {DDP_ADSP, "AppleTalk Data Stream Protocol"},
-                             {0, NULL} };
+  static struct atalk_ddp_addr src, dst;
 
   if (!BYTES_ARE_IN_FRAME(offset, DDP_HEADER_SIZE)) {
     dissect_data(pd, offset, fd, tree);
@@ -99,10 +122,17 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   ddp.snet=ntohs(ddp.snet);
   ddp.sum=ntohs(ddp.sum);
   
-  if (check_col(fd, COL_RES_NET_SRC))
-    col_add_fstr(fd, COL_RES_NET_SRC, "%d.%d:%d", ddp.snet, ddp.snode, ddp.sport);
-  if (check_col(fd, COL_RES_NET_DST))
-    col_add_fstr(fd, COL_RES_NET_DST, "%d.%d:%d", ddp.dnet, ddp.dnode, ddp.dport);
+  src.net = ddp.snet;
+  src.node = ddp.snode;
+  src.port = ddp.sport;
+  dst.net = ddp.dnet;
+  dst.node = ddp.dnode;
+  dst.port = ddp.dport;
+  SET_ADDRESS(&pi.net_src, AT_ATALK, sizeof src, (guint8 *)&src);
+  SET_ADDRESS(&pi.src, AT_ATALK, sizeof src, (guint8 *)&src);
+  SET_ADDRESS(&pi.net_dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
+  SET_ADDRESS(&pi.dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
+
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "DDP");
   if (check_col(fd, COL_INFO))
@@ -171,7 +201,7 @@ proto_register_atalk(void)
       	"" }},
 
     { &hf_ddp_type,
-      { "Protocol type",       	"ddp.type",	FT_UINT8,  BASE_DEC, NULL, 0x0,
+      { "Protocol type",       	"ddp.type",	FT_UINT8,  BASE_DEC, VALS(op_vals), 0x0,
       	"" }},
   };
 
