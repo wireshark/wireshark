@@ -32,7 +32,7 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 * POSSIBILITY OF SUCH DAMAGE.
 *
-* $Id: erf.c,v 1.2 2003/08/26 23:07:43 guy Exp $
+* $Id: erf.c,v 1.3 2003/09/19 04:08:11 guy Exp $
 */
 
 /* 
@@ -69,6 +69,12 @@ static gboolean erf_seek_read(wtap *wth, long seek_off,
 		int length, int *err);
 static void erf_close(wtap *wth);
 static int erf_encap_to_wtap_encap(erf_t *erf, guint8 erf_encap);
+static void erf_guess_atm_traffic_type(
+		guint8 type,
+		erf_t *erf,
+		guchar *pd,
+		int length,
+		union wtap_pseudo_header *pseudo_header);
 
 int erf_open(wtap *wth, int *err)
 {
@@ -128,14 +134,20 @@ int erf_open(wtap *wth, int *err)
 
 #ifdef G_HAVE_GINT64
 		if ((ts = pletohll(&header.ts)) < prevts) {
-			return 0;
+			/* reassembled AAL5 records may not be in time order, so allow 1 sec fudge */
+			if (header.type != TYPE_AAL5 || ((prevts-ts)>>32) > 1) {
+				return 0;
+			}
 		}
 #else
 		ts[0] = pletohl(&header.ts[0]); /* frac */
 		ts[1] = pletohl(&header.ts[1]); /* sec */
 		if ((ts[1] < prevts[1]) ||
 				(ts[1] == prevts[1] && ts[0] < prevts[0])) {
-			return 0;
+			/* reassembled AAL5 records may not be in time order, so allow 1 sec fudge */
+			if (header.type != TYPE_AAL5 || (prevts[1]-ts[1]) > 1) {
+				return 0;
+			}
 		}
 #endif
 		memcpy(&prevts, &ts, sizeof(prevts));
@@ -173,9 +185,14 @@ int erf_open(wtap *wth, int *err)
 	wth->file_type = WTAP_FILE_ERF;
 	wth->snapshot_length = 0;	/* not available in header, only in frame */
 	wth->capture.erf = g_malloc(sizeof(erf_t));
-	wth->capture.erf->atm_encap = atm_encap;
-	wth->capture.erf->is_rawatm = is_rawatm;
 	wth->capture.erf->is_ppp = is_ppp;
+	if (common_type == TYPE_AAL5) {
+		wth->capture.erf->atm_encap = WTAP_ENCAP_ATM_PDUS_UNTRUNCATED;
+		wth->capture.erf->is_rawatm = FALSE;
+	} else {
+		wth->capture.erf->atm_encap = atm_encap;
+		wth->capture.erf->is_rawatm = is_rawatm;
+	}
 
 	/*
 	 * Really want WTAP_ENCAP_PER_PACKET here but that severely limits
@@ -228,11 +245,10 @@ static gboolean erf_read(wtap *wth, int *err, long *data_offset)
 	);
 	wth->data_offset += packet_size;
 
-	if (erf_header.type == TYPE_ATM && wth->capture.erf->atm_encap == WTAP_ENCAP_ATM_PDUS && !wth->capture.erf->is_rawatm) {
-		atm_guess_traffic_type(
+	erf_guess_atm_traffic_type(
+			erf_header.type, wth->capture.erf,
 			buffer_start_ptr(wth->frame_buffer), packet_size, &wth->pseudo_header
-		);
-	}
+	);
 
 	return TRUE;
 }
@@ -243,6 +259,7 @@ static gboolean erf_seek_read(wtap *wth, long seek_off,
 {
 	erf_header_t erf_header;
 	guint32 packet_size;
+	int offset = 0;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -251,14 +268,13 @@ static gboolean erf_seek_read(wtap *wth, long seek_off,
 
 	if (wth->capture.erf->is_rawatm) {
 		wtap_file_read_expected_bytes(pd, (int)sizeof(atm_hdr_t), wth->random_fh, err);
-		pd += sizeof(atm_hdr_t)+1;
+		packet_size -= sizeof(atm_hdr_t);
+		offset += sizeof(atm_hdr_t)+1;
 	}
 
-	wtap_file_read_expected_bytes(pd, (int)packet_size, wth->random_fh, err);
+	wtap_file_read_expected_bytes(pd+offset, (int)packet_size, wth->random_fh, err);
 
-	if (erf_header.type == TYPE_ATM && wth->capture.erf->atm_encap == WTAP_ENCAP_ATM_PDUS && !wth->capture.erf->is_rawatm) {
-		atm_guess_traffic_type(pd, length, pseudo_header);
-	}
+	erf_guess_atm_traffic_type(erf_header.type, wth->capture.erf, pd, length, pseudo_header);
 
 	return TRUE;
 }
@@ -322,13 +338,18 @@ static int erf_read_header(
 	switch (erf_header->type) {
 
 	case TYPE_ATM:
+	case TYPE_AAL5:
 
 		if (phdr != NULL) {
-			phdr->caplen = ATM_SLEN(erf_header, NULL);
-			phdr->len = ATM_WLEN(erf_header, NULL);
+			if (erf_header->type == TYPE_AAL5) {
+				phdr->caplen = phdr->len = *packet_size - sizeof(atm_hdr_t);
+			} else {
+				phdr->caplen = ATM_SLEN(erf_header, NULL);
+				phdr->len = ATM_WLEN(erf_header, NULL);
+			}
 		}
 
-		if (erf->atm_encap == WTAP_ENCAP_ATM_PDUS) {
+		if (erf->atm_encap == WTAP_ENCAP_ATM_PDUS || erf->atm_encap == WTAP_ENCAP_ATM_PDUS_UNTRUNCATED) {
 			memset(&pseudo_header->atm, 0, sizeof(pseudo_header->atm));
 			if (erf->is_rawatm) {
 				pseudo_header->atm.flags = ATM_RAW_CELL;
@@ -344,7 +365,7 @@ static int erf_read_header(
 					*bytes_read += sizeof(atm_hdr);
 				}
 				*packet_size -= sizeof(atm_hdr);
-			
+
 				atm_hdr = g_ntohl(atm_hdr);
 
 				pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
@@ -413,3 +434,21 @@ static int erf_encap_to_wtap_encap(erf_t *erf, guint8 erf_encap)
 
 	return wtap_encap;
 }
+
+static void erf_guess_atm_traffic_type(
+	guint8 type, erf_t *erf, guchar *pd, int length, union wtap_pseudo_header *pseudo_header)
+{
+	if (!erf->is_rawatm &&
+			(type == TYPE_ATM || type == TYPE_AAL5) &&
+			(erf->atm_encap == WTAP_ENCAP_ATM_PDUS ||
+			 erf->atm_encap == WTAP_ENCAP_ATM_PDUS_UNTRUNCATED)) { 
+		atm_guess_traffic_type(pd, length, pseudo_header);
+	} else
+	if (type == TYPE_AAL5) {
+		pseudo_header->atm.aal = AAL_5;
+		pseudo_header->atm.type = TRAF_UNKNOWN;
+		pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+	}
+}
+
+
