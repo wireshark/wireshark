@@ -1,8 +1,9 @@
 /* packet-ftp.c
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
- *
- * $Id: packet-ftp.c,v 1.27 2001/01/22 08:03:45 guy Exp $
+ * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
+ * 
+ * $Id: packet-ftp.c,v 1.28 2001/05/11 23:24:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,6 +45,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "strutil.h"
+#include "conversation.h"
 
 static int proto_ftp = -1;
 static int proto_ftp_data = -1;
@@ -61,6 +63,9 @@ static gint ett_ftp_data = -1;
 #define TCP_PORT_FTP			21
 
 static void
+dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+static void
 dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         gboolean        is_request;
@@ -68,6 +73,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti;
 	gint		offset = 0;
 	const u_char	*line;
+	guint16		passive_port = 0;
 	gint		next_offset;
 	int		linelen;
 	int		tokenlen;
@@ -100,6 +106,46 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    is_request ? "Request" : "Response",
 		    format_text(line, linelen));
 	}
+   
+	/*
+	 * Check for passive ftp response. Such response is in the form
+	 * 227 some_text (a,b,c,d,p1,p2) , where a.b.c.d is the IP address
+	 * of the server, and p1, p2 are the hi and low bytes of the tcp
+	 * port the server will open for the client to connect to.
+	 */
+	tokenlen = get_token_len(line, line + linelen, &next_token);
+	if (tokenlen!=0 && !strcmp ("227", format_text (line, tokenlen)))
+	  {
+		u_char          *token;
+		gint		hi_byte;
+		gint		low_byte;
+		guint8 		i;
+		  
+		strtok (format_text(line, linelen), "(,)");
+		for (i = 1; i <= 4; i++)
+	          strtok (NULL, "(,)");
+		  
+		if ( (token = strtok (NULL, "(,)")) && sscanf (token, "%d", &hi_byte)
+		  && (token = strtok (NULL, "(,)")) && sscanf (token, "%d", &low_byte) )
+		  passive_port = hi_byte * 256 + low_byte;
+	  }
+	
+	/*
+	 * If a passive response has been found and a conversation,
+	 * was not registered already, register the new conversation
+	 * and dissector
+	 */
+	if (passive_port && !find_conversation(&pinfo->src, &pinfo->dst, PT_TCP,
+					       passive_port, 0, NO_DST_PORT))
+	  {
+		conversation_t 	*conversation;
+		  
+		conversation = conversation_new(&pinfo->src, &pinfo->dst, PT_TCP,
+						  passive_port, 0, NULL,
+						  NO_DST_PORT);
+		conversation_set_dissector(conversation, dissect_ftpdata);
+
+	  }
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ftp, tvb, offset,
