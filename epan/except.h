@@ -14,7 +14,7 @@
  * into proprietary software; there is no requirement for such software to
  * contain a copyright notice related to this source.
  *
- * $Id: except.h,v 1.1 2000/09/27 04:54:50 gram Exp $
+ * $Id: except.h,v 1.2 2001/07/27 16:20:39 gram Exp $
  * $Name:  $
  */
 
@@ -41,9 +41,9 @@ typedef struct {
 } except_id_t;
 
 typedef struct {
-    except_id_t except_id;
-    const char *except_message;
-    void *except_dyndata;
+    except_id_t volatile except_id;
+    const char *volatile except_message;
+    void *volatile except_dyndata;
 } except_t;
 
 struct except_cleanup {

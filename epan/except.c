@@ -13,7 +13,7 @@
  * This source code may be translated into executable form and incorporated
  * into proprietary software; there is no requirement for such software to
  * contain a copyright notice related to this source.
- * $Id: except.c,v 1.1 2000/09/27 04:54:49 gram Exp $
+ * $Id: except.c,v 1.2 2001/07/27 16:20:39 gram Exp $
  * $Name:  $
  */
 
@@ -27,7 +27,7 @@
 #define XCEPT_BUFFER_SIZE	1024
 
 #ifdef KAZLIB_RCSID
-static const char rcsid[] = "$Id: except.c,v 1.1 2000/09/27 04:54:49 gram Exp $";
+static const char rcsid[] = "$Id: except.c,v 1.2 2001/07/27 16:20:39 gram Exp $";
 #endif
 
 #define group except_group
@@ -166,7 +166,7 @@ void except_deinit(void)
 #endif
 
 
-static int match(const except_id_t *thrown, const except_id_t *caught)
+static int match(const volatile except_id_t *thrown, const except_id_t *caught)
 {
     int group_match = (caught->group == XCEPT_GROUP_ANY || caught->group == thrown->group);
     int code_match = (caught->code == XCEPT_CODE_ANY || caught->code == thrown->code);
@@ -367,7 +367,7 @@ static void bottom_level(void)
     printf("throw exception? "); fflush(stdout);
     fgets(buf, sizeof buf, stdin);
 
-    if (toupper(buf[0]) == 'Y')
+    if (buf[0] >= 0 && toupper(buf[0]) == 'Y')
 	except_throw(1, 1, "nasty exception");
 }
 
