@@ -4,7 +4,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/time.tar.gz time/service/dtsprovider.idl
  *
- * $Id: packet-dcerpc-dtsprovider.c,v 1.1 2002/09/12 08:48:40 sahlberg Exp $
+ * $Id: packet-dcerpc-dtsprovider.c,v 1.2 2002/09/17 09:38:04 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,7 +39,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
-
+#include "packet-dcerpc-dce122.h"
 
 static int proto_dtsprovider = -1;
 static int hf_dtsprovider_opnum = -1;
@@ -53,20 +53,14 @@ static guint16  ver_dtsprovider = 1;
 
 
 static dcerpc_sub_dissector dtsprovider_dissectors[] = {
-    { 0, "TimeResponseType", NULL, NULL},
-    { 1, "TPctlMsg", NULL, NULL},
-    { 2, "TPtimeMsg", NULL, NULL},
-    { 3, "ContactProvider", NULL, NULL},
-    { 4, "ServerRequestProviderTime", NULL, NULL},
+    { 0, "ContactProvider", NULL, NULL},
+    { 1, "ServerRequestProviderTime", NULL, NULL},
     { 0, NULL, NULL, NULL }
 };
 
 static const value_string dtsprovider_opnum_vals[] = {
-    { 0, "TimeResponseType" },
-    { 1, "TPctlMsg" },
-    { 2, "TPtimeMsg" },
-    { 3, "ContactProvider" },
-    { 4, "ServerRequestProviderTime" },
+    { 0, "ContactProvider" },
+    { 1, "ServerRequestProviderTime" },
     { 0, NULL }
 };
 
