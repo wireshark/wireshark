@@ -1772,14 +1772,14 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 			/* Call header value dissector for given header */
 			if (codepage == 1) { /* Default header code page */
 				DebugLog(("add_headers(code page 0): %s\n",
-							match_strval (hdr_id & 0x7f, vals_field_names)));
+							val_to_str (hdr_id & 0x7f, vals_field_names, "Undefined")));
 				offset = WellKnownHeader[hdr_id & 0x7F](wsp_headers, tvb,
 						hdr_start, pinfo);
 			} else { /* Openwave header code page */
 				/* Here I'm delibarately assuming that Openwave is the only
 				 * company that defines a WSP header code page. */
 				DebugLog(("add_headers(code page 0x%02x - assumed to be x-up-1): %s\n",
-							codepage, match_strval (hdr_id & 0x7f, vals_openwave_field_names)));
+							codepage, val_to_str (hdr_id & 0x7f, vals_openwave_field_names, "Undefined")));
 				offset = WellKnownOpenwaveHeader[hdr_id & 0x7F](wsp_headers,
 						tvb, hdr_start, pinfo);
 			}
@@ -4202,7 +4202,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
 				peek &= 0x7F;
 				proto_tree_add_uint (tree, hf_wsp_parameter_sec,
 						tvb, start, 2, peek);
-				str = match_strval(peek, vals_wsp_parameter_sec);
+				str = val_to_str(peek, vals_wsp_parameter_sec, "Undefined");
 				s = g_strdup_printf("; SEC=%s", str);
 				proto_item_append_string (ti, s);
 				g_free(s);

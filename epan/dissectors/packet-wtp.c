@@ -328,7 +328,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree		*wtp_tree = NULL;
 
     char		pdut;
-    char		clsTransaction 	= ' ';
+    char		clsTransaction = 3;
     int			numMissing = 0;		/* Number of missing packets in a negative ack */
     int			i;
     tvbuff_t		*wsp_tvb = NULL;
@@ -396,7 +396,8 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #ifdef DEBUG
 	printf("WTP packet %u: tree = %p, pdu = %s (%u) length: %u\n",
 			pinfo->fd->num, tree,
-			match_strval(pdut, vals_wtp_pdu_type), pdut, tvb_length(tvb));
+			val_to_str(pdut, vals_wtp_pdu_type, "Unknown PDU type 0x%x"),
+			pdut, tvb_length(tvb));
 #endif
 
     /* Develop the string to put in the Info column */
@@ -495,7 +496,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				", PDU: Invoke (%u)"
 				", Transaction Class: %s (%u)",
 				INVOKE,
-				match_strval(clsTransaction, vals_transaction_classes),
+				val_to_str(clsTransaction, vals_transaction_classes, "Undefined"),
 				clsTransaction);
 		break;
 
@@ -532,7 +533,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					", Reason: %s (%u)",
 					ABORT,
 					PROVIDER,
-					match_strval(reason, vals_abort_reason_provider), 
+					val_to_str(reason, vals_abort_reason_provider, "Undefined"),
 					reason);
 		}
 		else if (abortType == USER)
@@ -545,7 +546,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					", Reason: %s (%u)",
 					ABORT,
 					PROVIDER,
-					match_strval(reason, vals_wsp_reason_codes), 
+					val_to_str(reason, vals_wsp_reason_codes, "Undefined"),
 					reason);
 		}
 		break;
