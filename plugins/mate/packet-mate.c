@@ -52,7 +52,7 @@ void attrs_tree(proto_tree* tree, tvbuff_t *tvb,mate_item* item) {
 	avpl_t = proto_item_add_subtree(avpl_i, item->cfg->ett_attr);
 
 	for ( c = item->avpl->null.next; c->avp; c = c->next) {
-		hfi_p = g_hash_table_lookup(item->cfg->my_hfids,c->avp->n);
+		hfi_p = g_hash_table_lookup(item->cfg->my_hfids,(char*)c->avp->n);
 
 		if (hfi_p) {
 			proto_tree_add_string(avpl_t,*hfi_p,tvb,0,0,c->avp->v);
@@ -121,6 +121,7 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 	mate_pdu* gop_pdus;
 	float  rel_time;
 	float  gop_time;
+	float pdu_rel_time;
 	gchar* pdu_str;
 	gchar* type_str;
 	guint32 pdu_item;
@@ -170,10 +171,12 @@ void mate_gop_tree(proto_tree* tree, tvbuff_t *tvb, mate_gop* gop) {
 				pdu_str = "";
 			}
 			
+			pdu_rel_time = gop_pdus->time_in_gop != 0.0 ? gop_pdus->time_in_gop - rel_time : (float) 0.0;
+			
 			proto_tree_add_uint_format(gop_pdu_tree,gop->cfg->hfid_gop_pdu,tvb,0,0,pdu_item,
 									   "%sPDU: %s %i (%f : %f)",pdu_str, type_str,
 									   pdu_item, gop_pdus->time_in_gop,
-									   gop_pdus->time_in_gop - rel_time);
+									   pdu_rel_time);
 			
 			rel_time = gop_pdus->time_in_gop;
 			
@@ -235,11 +238,16 @@ extern void mate_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	}
 }
 
+static int mate_packet(void *prs _U_,  packet_info* tree _U_, epan_dissect_t *edt _U_, const void *dummy _U_) {
+	/* nothing to do yet */
+	return 0;
+}
+
 static void init_mate(void) {
 	GString* tap_error = NULL;
 
 	tap_error = register_tap_listener("frame", &mate_tap_data,
-									  mc->tap_filter,
+									  (char*) mc->tap_filter,
 									  (tap_reset_cb) NULL,
 									  mate_packet,
 									  (tap_draw_cb) NULL);
@@ -269,9 +277,10 @@ proto_reg_handoff_mate(void)
 		} 
 		
 		if (!mc) { 
-			mc = mate_make_config(pref_mate_config_filename);
+			mc = mate_make_config((char*)pref_mate_config_filename);
 			current_mate_config_filename = pref_mate_config_filename;
 			if (mc) {
+				/* XXX: alignment warnings, what do they mean? */
 				proto_register_field_array(proto_mate, (hf_register_info*) mc->hfrs->data, mc->hfrs->len );
 				proto_register_subtree_array((gint**) mc->ett->data, mc->ett->len);
 				register_init_routine(init_mate);

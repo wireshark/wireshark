@@ -307,6 +307,7 @@ struct _mate_item {
 		/* } pdu; */
 		
 		/* struct _gop { */
+			/* membership* gogs; */
 			mate_gog* gog; /* the gog of a gop */
 			mate_pdu* pdus; /* pdus that belong to a gop (NULL in gog) */
 			gboolean released; /* has this gop been released? */
@@ -319,6 +320,7 @@ struct _mate_item {
 		/* } gop; */
 		
 		/* struct _gog { */
+			/* membership* gops; */
 			mate_gop* gops; /* gops that belong to a gog (NULL in gop) */
 			int num_of_gops; /* how many gops a gog has? */
 			int num_of_released_gops;  /* how many of them have already been released */
@@ -333,7 +335,6 @@ struct _mate_item {
 extern void initialize_mate_runtime(void);
 extern mate_pdu* mate_get_pdus(guint32 framenum);
 extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree);
-extern int mate_packet(void*, packet_info*, epan_dissect_t*,const void*);
 
 /* from mate_setup.c */
 extern mate_config* mate_make_config(guint8* filename);

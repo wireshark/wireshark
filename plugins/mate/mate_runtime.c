@@ -732,8 +732,8 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 				
 				dbg_print(dbg_pdu,3,dbg_facility,"new_pdu: transport(%i) range %i-%i\n",hfid,range->start,range->end);
 			} else {
-				/* what to do if we miss a range? */
-				g_warning("mate: missed a range");
+				/* we missed a range  */
+				dbg_print(dbg_pdu,6,dbg_facility,"new_pdu: transport(%i) missed\n",hfid);
 			}
 			
 		}
@@ -746,10 +746,6 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 	return pdu;
 }	
 
-extern int mate_packet(void *prs _U_,  packet_info* tree _U_, epan_dissect_t *edt _U_, const void *dummy _U_) {
-	/* nothing to do yet */
-	return 0;
-}
 
 static void delete_mate_pdu(mate_pdu* pdu) {
 	if (pdu->avpl) delete_avpl(pdu->avpl,TRUE);
@@ -774,7 +770,7 @@ extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 			
 			cfg = g_ptr_array_index(mc->pducfglist,i);
 			
-			dbg_print (dbg_pdu,4,dbg_facility,"mate_packet: tryning to extract: %s\n",cfg->name);
+			dbg_print (dbg_pdu,4,dbg_facility,"mate_analyze_frame: tryning to extract: %s\n",cfg->name);
 			protos = (GPtrArray*) g_hash_table_lookup(tree->tree_data->interesting_hfids,(gpointer) cfg->hfid_proto);
 			
 			if (protos)  {
@@ -782,7 +778,7 @@ extern void mate_analyze_frame(packet_info *pinfo, proto_tree* tree) {
 				
 				for (j = 0; j < protos->len; j++) {
 
-					dbg_print (dbg_pdu,3,dbg_facility,"mate_packet: found matching proto, extracting: %s\n",cfg->name);
+					dbg_print (dbg_pdu,3,dbg_facility,"mate_analyze_frame: found matching proto, extracting: %s\n",cfg->name);
 					
 					proto = (field_info*) g_ptr_array_index(protos,j);
 					pdu = new_pdu(cfg, pinfo->fd->num, proto, tree->tree_data->interesting_hfids);
