@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.8 2003/04/25 05:50:20 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.9 2003/06/21 01:42:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,7 +22,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* This module provides rpc call/reply RTT statistics to ethereal,
+/* This module provides rpc call/reply SRT statistics to ethereal,
  * and displays them graphically.
  * It is only used by ethereal and not tethereal
  *
@@ -44,32 +44,17 @@
 #include "packet-dcerpc.h"
 #include "../globals.h"
 #include "compat_macros.h"
+#include "service_response_time_table.h"
 
-/* used to keep track of statistics for a specific procedure */
-typedef struct _rpc_procedure_t {
-	GtkWidget *wnum;
-	GtkWidget *wmin;
-	GtkWidget *wmax;
-	GtkWidget *wavg;
-	gchar snum[8];
-	gchar smin[16];
-	gchar smax[16];
-	gchar savg[16];
-	int num;
-	nstime_t min;
-	nstime_t max;
-	nstime_t tot;
-} rpc_procedure_t;
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _rpcstat_t {
 	GtkWidget *win;
-	GtkWidget *table;
+	srt_stat_table srt_table;
 	char *prog;
 	e_uuid_t uuid;
 	guint16 ver;
-	guint32 num_procedures;
-	rpc_procedure_t *procedures;
+	int num_procedures;
 } rpcstat_t;
 
 
@@ -96,26 +81,13 @@ uuid_equal(e_uuid_t *uuid1, e_uuid_t *uuid2)
 static void
 dcerpcstat_reset(rpcstat_t *rs)
 {
-	guint32 i;
-
-	for(i=0;i<rs->num_procedures;i++){
-		rs->procedures[i].num=0;	
-		rs->procedures[i].min.secs=0;
-		rs->procedures[i].min.nsecs=0;
-		rs->procedures[i].max.secs=0;
-		rs->procedures[i].max.nsecs=0;
-		rs->procedures[i].tot.secs=0;
-		rs->procedures[i].tot.nsecs=0;
-	}
+	reset_srt_table_data(&rs->srt_table);
 }
 
 
 static int
 dcerpcstat_packet(rpcstat_t *rs, packet_info *pinfo, epan_dissect_t *edt _U_, dcerpc_info *ri)
 {
-	nstime_t delta;
-	rpc_procedure_t *rp;
-
 	if(!ri->call_data){
 		return 0;
 	}
@@ -139,49 +111,9 @@ dcerpcstat_packet(rpcstat_t *rs, packet_info *pinfo, epan_dissect_t *edt _U_, dc
 		return 0;
 	}
 
-	rp=&(rs->procedures[ri->call_data->opnum]);
 
-	/* calculate time delta between request and reply */
-	delta.secs=pinfo->fd->abs_secs-ri->call_data->req_time.secs;
-	delta.nsecs=pinfo->fd->abs_usecs*1000-ri->call_data->req_time.nsecs;
-	if(delta.nsecs<0){
-		delta.nsecs+=1000000000;
-		delta.secs--;
-	}
+	add_srt_table_data(&rs->srt_table, ri->call_data->opnum, &ri->call_data->req_time, pinfo);
 
-	if((rp->max.secs==0)
-	&& (rp->max.nsecs==0) ){
-		rp->max.secs=delta.secs;
-		rp->max.nsecs=delta.nsecs;
-	}
-
-	if((rp->min.secs==0)
-	&& (rp->min.nsecs==0) ){
-		rp->min.secs=delta.secs;
-		rp->min.nsecs=delta.nsecs;
-	}
-
-	if( (delta.secs<rp->min.secs)
-	||( (delta.secs==rp->min.secs)
-	  &&(delta.nsecs<rp->min.nsecs) ) ){
-		rp->min.secs=delta.secs;
-		rp->min.nsecs=delta.nsecs;
-	}
-
-	if( (delta.secs>rp->max.secs)
-	||( (delta.secs==rp->max.secs)
-	  &&(delta.nsecs>rp->max.nsecs) ) ){
-		rp->max.secs=delta.secs;
-		rp->max.nsecs=delta.nsecs;
-	}
-	
-	rp->tot.secs += delta.secs;
-	rp->tot.nsecs += delta.nsecs;
-	if(rp->tot.nsecs>1000000000){
-		rp->tot.nsecs-=1000000000;
-		rp->tot.secs++;
-	}
-	rp->num++;
 
 	return 1;
 }
@@ -189,37 +121,7 @@ dcerpcstat_packet(rpcstat_t *rs, packet_info *pinfo, epan_dissect_t *edt _U_, dc
 static void
 dcerpcstat_draw(rpcstat_t *rs)
 {
-	guint32 i;
-#ifdef G_HAVE_UINT64
-	guint64 td;
-#else
-	guint32 td;
-#endif
-
-	for(i=0;i<rs->num_procedures;i++){
-		/* scale it to units of 10us.*/
-		/* for long captures with a large tot time, this can overflow on 32bit */
-		td=(int)rs->procedures[i].tot.secs;
-		td=td*100000+(int)rs->procedures[i].tot.nsecs/10000;
-		if(rs->procedures[i].num){
-			td/=rs->procedures[i].num;
-		} else {
-			td=0;
-		}
-
-		sprintf(rs->procedures[i].snum,"%d", rs->procedures[i].num);
-		gtk_label_set_text(GTK_LABEL(rs->procedures[i].wnum), rs->procedures[i].snum);
-
-		sprintf(rs->procedures[i].smin,"%3d.%05d", (int)rs->procedures[i].min.secs,rs->procedures[i].min.nsecs/10000);
-		gtk_label_set_text(GTK_LABEL(rs->procedures[i].wmin), rs->procedures[i].smin);
-
-		sprintf(rs->procedures[i].smax,"%3d.%05d", (int)rs->procedures[i].max.secs,rs->procedures[i].max.nsecs/10000);
-		gtk_label_set_text(GTK_LABEL(rs->procedures[i].wmax), rs->procedures[i].smax);
-
-		sprintf(rs->procedures[i].savg,"%3d.%05d", td/100000, td%100000);
-		gtk_label_set_text(GTK_LABEL(rs->procedures[i].wavg), rs->procedures[i].savg);
-
-	}
+	draw_srt_table_data(&rs->srt_table);
 }
 
 
@@ -240,7 +142,7 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 	remove_tap_listener(rs);
 	unprotect_thread_critical_region();
 
-	g_free(rs->procedures);
+	free_srt_table_data(&rs->srt_table);
 	g_free(rs);
 }
 
@@ -258,7 +160,6 @@ gtk_dcerpcstat_init(char *optarg)
 	GtkWidget *vbox;
 	GtkWidget *stat_label;
 	GtkWidget *filter_label;
-	GtkWidget *tmp;
 	dcerpc_sub_dissector *procs;
 	e_uuid_t uuid;
 	int d1,d2,d3,d40,d41,d42,d43,d44,d45,d46,d47;
@@ -267,7 +168,7 @@ gtk_dcerpcstat_init(char *optarg)
         char *filter=NULL;
         GString *error_string;
 
-	if(sscanf(optarg,"dcerpc,rtt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d,%n", &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos)==13){
+	if(sscanf(optarg,"dcerpc,srt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d,%n", &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos)==13){
 		uuid.Data1=d1;
 		uuid.Data2=d2;
 		uuid.Data3=d3;
@@ -285,7 +186,7 @@ gtk_dcerpcstat_init(char *optarg)
 			filter=NULL;
 		}
 	} else {
-		fprintf(stderr, "ethereal: invalid \"-z dcerpc,rtt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
+		fprintf(stderr, "ethereal: invalid \"-z dcerpc,srt,<uuid>,<major version>.<minor version>[,<filter>]\" argument\n");
 		exit(1);
 	}
 
@@ -302,7 +203,8 @@ gtk_dcerpcstat_init(char *optarg)
 	rs->ver=(minor<<8)|(major&0xff);
 
 	rs->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	sprintf(title_string,"DCE-RPC RTT Stat for %s version %d.%d", rs->prog, rs->ver&0xff,rs->ver>>8);
+	gtk_window_set_default_size(rs->win, 550, 400);
+	sprintf(title_string,"DCE-RPC Service Response Time statistics for %s version %d.%d", rs->prog, rs->ver&0xff,rs->ver>>8);
 	gtk_window_set_title(GTK_WINDOW(rs->win), title_string);
 	SIGNAL_CONNECT(rs->win, "destroy", win_destroy_cb, rs);
 
@@ -327,38 +229,9 @@ gtk_dcerpcstat_init(char *optarg)
 		}
 	}
 	rs->num_procedures=max_procs+1;
-	rs->procedures=g_malloc(sizeof(rpc_procedure_t)*(rs->num_procedures+1));
+	init_srt_table(&rs->srt_table, max_procs+1, vbox);
 
-	rs->table=gtk_table_new(rs->num_procedures+1, 5, TRUE);
-	gtk_container_add(GTK_CONTAINER(vbox), rs->table);
-
-	tmp=gtk_label_new("Procedure");
-	gtk_table_attach_defaults(GTK_TABLE(rs->table), tmp, 0,1,0,1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
-	gtk_widget_show(tmp);
-
-	tmp=gtk_label_new("Calls");
-	gtk_table_attach_defaults(GTK_TABLE(rs->table), tmp, 1,2,0,1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-	gtk_widget_show(tmp);
-
-	tmp=gtk_label_new("Min RTT");
-	gtk_table_attach_defaults(GTK_TABLE(rs->table), tmp, 2,3,0,1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-	gtk_widget_show(tmp);
-
-	tmp=gtk_label_new("Max RTT");
-	gtk_table_attach_defaults(GTK_TABLE(rs->table), tmp, 3,4,0,1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-	gtk_widget_show(tmp);
-
-	tmp=gtk_label_new("Avg RTT");
-	gtk_table_attach_defaults(GTK_TABLE(rs->table), tmp, 4,5,0,1);
-	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_RIGHT);
-	gtk_widget_show(tmp);
-
-       	for(i=0;i<rs->num_procedures;i++){
-		GtkWidget *tmp;
+       	for(i=0;i<(max_procs+1);i++){
 		int j;
 		char *proc_name;
 
@@ -369,41 +242,8 @@ gtk_dcerpcstat_init(char *optarg)
 			}
 		}
 
-		tmp=gtk_label_new(proc_name);
-		gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
-		gtk_table_attach_defaults(GTK_TABLE(rs->table), tmp, 0,1,i+1,i+2);
-		gtk_widget_show(tmp);
-
-		rs->procedures[i].wnum=gtk_label_new("0");
-		gtk_table_attach_defaults(GTK_TABLE(rs->table), rs->procedures[i].wnum, 1,2,i+1,i+2);
-		gtk_label_set_justify(GTK_LABEL(rs->procedures[i].wnum), GTK_JUSTIFY_RIGHT);
-		gtk_widget_show(rs->procedures[i].wnum);
-
-		rs->procedures[i].wmin=gtk_label_new("0");
-		gtk_table_attach_defaults(GTK_TABLE(rs->table), rs->procedures[i].wmin, 2,3,i+1,i+2);
-		gtk_label_set_justify(GTK_LABEL(rs->procedures[i].wmin), GTK_JUSTIFY_RIGHT);
-		gtk_widget_show(rs->procedures[i].wmin);
-
-		rs->procedures[i].wmax=gtk_label_new("0");
-		gtk_table_attach_defaults(GTK_TABLE(rs->table), rs->procedures[i].wmax, 3,4,i+1,i+2);
-		gtk_label_set_justify(GTK_LABEL(rs->procedures[i].wmax), GTK_JUSTIFY_RIGHT);
-		gtk_widget_show(rs->procedures[i].wmax);
-
-		rs->procedures[i].wavg=gtk_label_new("0");
-		gtk_table_attach_defaults(GTK_TABLE(rs->table), rs->procedures[i].wavg, 4,5,i+1,i+2);
-		gtk_label_set_justify(GTK_LABEL(rs->procedures[i].wavg), GTK_JUSTIFY_RIGHT);
-		gtk_widget_show(rs->procedures[i].wavg);
-
-		rs->procedures[i].num=0;	
-		rs->procedures[i].min.secs=0;
-		rs->procedures[i].min.nsecs=0;
-		rs->procedures[i].max.secs=0;
-		rs->procedures[i].max.nsecs=0;
-		rs->procedures[i].tot.secs=0;
-		rs->procedures[i].tot.nsecs=0;
+		init_srt_table_row(&rs->srt_table, i, proc_name);
 	}
-
-	gtk_widget_show(rs->table);
 
 
 	error_string=register_tap_listener("dcerpc", rs, filter, (void*)dcerpcstat_reset, (void*)dcerpcstat_packet, (void*)dcerpcstat_draw);
@@ -411,7 +251,7 @@ gtk_dcerpcstat_init(char *optarg)
 		/* error, we failed to attach to the tap. clean up */
 		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
 		g_string_free(error_string, TRUE);
-		g_free(rs->procedures);
+		free_srt_table_data(&rs->srt_table);
 		g_free(rs);
 		return;
 	}
@@ -442,10 +282,10 @@ dcerpcstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 
 	filter=(char *)gtk_entry_get_text(GTK_ENTRY(filter_entry));
 	if(filter[0]==0){
-		sprintf(str, "dcerpc,rtt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d",dcerpc_uuid_program->Data1,dcerpc_uuid_program->Data2,dcerpc_uuid_program->Data3,dcerpc_uuid_program->Data4[0],dcerpc_uuid_program->Data4[1],dcerpc_uuid_program->Data4[2],dcerpc_uuid_program->Data4[3],dcerpc_uuid_program->Data4[4],dcerpc_uuid_program->Data4[5],dcerpc_uuid_program->Data4[6],dcerpc_uuid_program->Data4[7],dcerpc_version&0xff,dcerpc_version>>8);
+		sprintf(str, "dcerpc,srt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d",dcerpc_uuid_program->Data1,dcerpc_uuid_program->Data2,dcerpc_uuid_program->Data3,dcerpc_uuid_program->Data4[0],dcerpc_uuid_program->Data4[1],dcerpc_uuid_program->Data4[2],dcerpc_uuid_program->Data4[3],dcerpc_uuid_program->Data4[4],dcerpc_uuid_program->Data4[5],dcerpc_uuid_program->Data4[6],dcerpc_uuid_program->Data4[7],dcerpc_version&0xff,dcerpc_version>>8);
 
 	} else {
-		sprintf(str, "dcerpc,rtt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d,%s",dcerpc_uuid_program->Data1,dcerpc_uuid_program->Data2,dcerpc_uuid_program->Data3,dcerpc_uuid_program->Data4[0],dcerpc_uuid_program->Data4[1],dcerpc_uuid_program->Data4[2],dcerpc_uuid_program->Data4[3],dcerpc_uuid_program->Data4[4],dcerpc_uuid_program->Data4[5],dcerpc_uuid_program->Data4[6],dcerpc_uuid_program->Data4[7],dcerpc_version&0xff,dcerpc_version>>8, filter);
+		sprintf(str, "dcerpc,srt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d,%s",dcerpc_uuid_program->Data1,dcerpc_uuid_program->Data2,dcerpc_uuid_program->Data3,dcerpc_uuid_program->Data4[0],dcerpc_uuid_program->Data4[1],dcerpc_uuid_program->Data4[2],dcerpc_uuid_program->Data4[3],dcerpc_uuid_program->Data4[4],dcerpc_uuid_program->Data4[5],dcerpc_uuid_program->Data4[6],dcerpc_uuid_program->Data4[7],dcerpc_version&0xff,dcerpc_version>>8, filter);
 	}
 
 	gtk_dcerpcstat_init(str);
@@ -552,7 +392,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 		return;
 	}
 
-	dlg=dlg_window_new("Ethereal: DCE-RPC RTT Statistics");
+	dlg=dlg_window_new("Ethereal: DCE-RPC SRT Statistics");
 	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
 	dlg_box=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
@@ -655,11 +495,11 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkdcerpcstat(void)
 {
-	register_ethereal_tap("dcerpc,rtt,", gtk_dcerpcstat_init);
+	register_ethereal_tap("dcerpc,srt,", gtk_dcerpcstat_init);
 }
 
 void
 register_tap_menu_gtkdcerpcstat(void)
 {
-	register_tap_menu_item("DCE-RPC/RTT", gtk_dcerpcstat_cb);
+	register_tap_menu_item("Service Response Time/DCE-RPC", gtk_dcerpcstat_cb);
 }
