@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.88 2003/12/24 01:12:16 guy Exp $
+ * $Id: packet-radius.c,v 1.89 2004/01/13 03:27:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,7 @@ static int proto_radius = -1;
 static int hf_radius_length = -1;
 static int hf_radius_code = -1;
 static int hf_radius_id =-1;
+
 static char *shared_secret = NULL;
 static gpointer authenticator = NULL;
 
@@ -214,6 +215,7 @@ static const value_string radius_vals[] =
  */
 #define VENDOR_ACC			5
 #define VENDOR_CISCO			9
+#define VENDOR_MERIT			61
 #define VENDOR_SHIVA			166
 #define VENDOR_LIVINGSTON		307
 #define VENDOR_MICROSOFT		311
@@ -228,9 +230,11 @@ static const value_string radius_vals[] =
 #define VENDOR_COSINE			3085
 #define VENDOR_SHASTA			3199
 #define VENDOR_NOMADIX			3309
+#define VENDOR_SIEMENS			4329
 #define VENDOR_UNISPHERE		4874
 #define VENDOR_ISSANNI			5948
 #define VENDOR_QUINTUM			6618
+#define VENDOR_INTERLINK		6728
 #define VENDOR_COLUBRIS			8744
 #define VENDOR_COLUMBIA_UNIVERSITY	11862
 #define VENDOR_THE3GPP			10415
@@ -239,6 +243,7 @@ static const value_string radius_vendor_specific_vendors[] =
 {
   {VENDOR_ACC,			"ACC"},
   {VENDOR_CISCO,		"Cisco"},
+  {VENDOR_MERIT,		"Merit"},
   {VENDOR_SHIVA,		"Shiva"},
   {VENDOR_MICROSOFT,		"Microsoft"},
   {VENDOR_LIVINGSTON,		"Livingston"},
@@ -253,9 +258,11 @@ static const value_string radius_vendor_specific_vendors[] =
   {VENDOR_COSINE,		"CoSine Communications"},
   {VENDOR_SHASTA,		"Shasta"},
   {VENDOR_NOMADIX,		"Nomadix"},
+  {VENDOR_SIEMENS,		"SIEMENS"},
   {VENDOR_UNISPHERE,		"Unisphere Networks"},
   {VENDOR_ISSANNI,		"Issanni Communications"},
   {VENDOR_QUINTUM,		"Quintum"},
+  {VENDOR_INTERLINK,	"Interlink"},
   {VENDOR_COLUBRIS,		"Colubris"},
   {VENDOR_COLUMBIA_UNIVERSITY,	"Columbia University"},
   {VENDOR_THE3GPP,		"3GPP"},
@@ -576,7 +583,10 @@ static const radius_attr_info radius_attrib[] =
   {196,	RADIUS_INTEGER4,	"Ascend Connect Progress", NULL},
   {197,	RADIUS_INTEGER4,	"Ascend Data Rate", NULL},
   {198,	RADIUS_INTEGER4,	"Ascend PreSession Time", NULL},
+  {211,	RADIUS_STRING,		"Merit Proxy-Action", NULL},
   {218,	RADIUS_INTEGER4,	"Ascend Assign IP Pool", NULL},
+  {222,	RADIUS_STRING,		"Merit User-Id", NULL},
+  {223,	RADIUS_STRING,		"Merit User-Realm", NULL},
   {255,	RADIUS_INTEGER4,	"Ascend Xmit Rate", NULL},
   {0, 0, NULL, NULL}
 };
@@ -2752,6 +2762,7 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint rhident;
   guint avplength,hdrlength;
   e_radiushdr rh;
+  gchar *hex_authenticator;
 
   gchar *codestrval;
 
@@ -2809,9 +2820,12 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ( authenticator ) {
 	    memcpy(authenticator,tvb_get_ptr(tvb,4,AUTHENTICATOR_LENGTH),AUTHENTICATOR_LENGTH);
 	}
+	hex_authenticator = g_malloc(AUTHENTICATOR_LENGTH * 2 + 1);
+	rdconvertbufftobinstr(hex_authenticator, tvb, 4, AUTHENTICATOR_LENGTH);
 	proto_tree_add_text(radius_tree, tvb, 4,
 			AUTHENTICATOR_LENGTH,
-                         "Authenticator");
+                         "Authenticator: 0x%s", hex_authenticator);
+	g_free(hex_authenticator);
   }
 
   hdrlength=RD_HDR_LENGTH+AUTHENTICATOR_LENGTH;
