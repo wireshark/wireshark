@@ -1,7 +1,7 @@
 /* acconfig.h
  * #ifdefs to be controlled by "configure"
  *
- * $Id: acconfig.h,v 1.26 2002/10/22 20:06:15 jmayer Exp $
+ * $Id: acconfig.h,v 1.27 2002/10/23 18:24:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.org>
@@ -49,3 +49,8 @@
 #undef HAVE_UCD_SNMP
 
 #undef PLUGIN_DIR
+
+@BOTTOM@
+#if defined(HAVE_NET_SNMP) || defined(HAVE_UCD_SNMP)
+#define HAVE_SOME_SNMP
+#endif

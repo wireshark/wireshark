@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.184 2002/10/23 03:54:04 guy Exp $
+# $Id: configure.in,v 1.185 2002/10/23 18:24:04 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -574,24 +574,33 @@ if test "x$netsnmpconfig" != "xno" ; then
 		dnl search for it
 		AC_PATH_PROG(NETSNMPCONFIG,net-snmp-config)
 	else
-		ac_cv_prog_NETSNMPCONFIG=$netsnmpconfig
-		if test ! -x $ac_cv_prog_NETSNMPCONFIG ; then
-			AC_MSG_ERROR(Invalid net-snmp-config: $ac_cv_prog_NETSNMPCONFIG)
+		NETSNMPCONFIG=$netsnmpconfig
+		if test ! -x $NETSNMPCONFIG ; then
+			AC_MSG_ERROR(Invalid net-snmp-config: $NETSNMPCONFIG)
 		fi
 	fi
 fi
 
-if test "x$ac_cv_prog_NETSNMPCONFIG" != "xno" -a "x$ac_cv_prog_NETSNMPCONFIG" != "x" -a -x "$ac_cv_prog_NETSNMPCONFIG" ; then
+if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCONFIG" ; then
 	dnl other choices for flags to use here: could also use
 	dnl --prefix or --exec-prefix if you don't want the full list.
-	CFLAGS="$CFLAGS `net-snmp-config --cflags`"
-	CPPFLAGS="$CPPLAGS `net-snmp-config --cflags`"
-	SNMP_LIBS=`net-snmp-config --libs`
 
-	# XXX: make sure we can find net-snmp/net-snmp-config.h
-	# XXX: make sure we can find net-snmp/net-snmp-includes.h
-	AC_DEFINE(HAVE_NET_SNMP)
-	AC_MSG_RESULT(yes (net-snmp))
+	AC_CHECK_HEADERS(net-snmp/net-snmp-config.h net-snmp/library/default_store.h)
+	if test "x$ac_cv_header_net_snmp_net_snmp_config_h" = "xyes" -a "x$ac_cv_header_net_snmp_library_default_store_h" = "xyes" ; then
+		CFLAGS="$CFLAGS `net-snmp-config --cflags`"
+		CPPFLAGS="$CPPLAGS `net-snmp-config --cflags`"
+		SNMP_LIBS=`net-snmp-config --libs`
+		AC_DEFINE(HAVE_NET_SNMP)
+		AC_MSG_RESULT(yes (net-snmp))
+	else
+		# technically, we should retry ucd-snmp but it's
+		# unlikely they have installed net-snmp-config and not
+		# the net-snmp headers but do have the ucd-snmp
+		# headers.  This would likely be a broken system to
+		# try and use anyway.
+		NETSNMPCONFIG="no"
+		AC_MSG_RESULT(no)
+	fi	
 else
 	if test "x$want_ucdsnmp" = "xno" ; then
 		AC_MSG_RESULT(no)
@@ -771,7 +780,7 @@ else
 	zlib_message="yes"
 fi
 
-if test "x$ac_cv_prog_NETSNMPCONFIG" != "xno" -a "x$ac_cv_prog_NETSNMPCONFIG" != "x" -a -x "$ac_cv_prog_NETSNMPCONFIG" ; then
+if test "x$NETSNMPCONFIG" != "xno" -a "x$NETSNMPCONFIG" != "x" -a -x "$NETSNMPCONFIG" ; then
 	snmp_libs_message="yes (net-snmp)"
 elif test "x$SNMP_LIBS" = "x" ; then
 	snmp_libs_message="no"

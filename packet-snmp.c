@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.97 2002/10/22 20:06:15 jmayer Exp $
+ * $Id: packet-snmp.c,v 1.98 2002/10/23 18:24:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,11 +53,10 @@
 #include "etypes.h"
 #include "packet-ipx.h"
 
-#if defined(HAVE_UCD_SNMP) || defined(HAVE_NET_SNMP)
-#define HAVE_SOME_SNMP
 #ifdef HAVE_NET_SNMP
 # include <net-snmp/net-snmp-config.h>
-# include <net-snmp/net-snmp-includes.h>
+# include <net-snmp/mib_api.h>
+# include <net-snmp/library/default_store.h>
 #else
 # include <ucd-snmp/ucd-snmp-config.h>
 # include <ucd-snmp/asn1.h>
@@ -73,6 +72,8 @@
 # define NETSNMP_DS_LIB_NO_TOKEN_WARNINGS DS_LIB_NO_TOKEN_WARNINGS
 # define NETSNMP_DS_LIB_PRINT_SUFFIX_ONLY DS_LIB_PRINT_SUFFIX_ONLY
 #endif
+
+#ifdef HAVE_SOME_SNMP
    /*
     * Define values "sprint_realloc_value()" expects.
     */

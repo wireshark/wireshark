@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.162 2002/10/23 03:49:10 guy Exp $
+ * $Id: tethereal.c,v 1.163 2002/10/23 18:24:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -314,7 +314,7 @@ main(int argc, char *argv[])
 #ifdef WIN32
   WSADATA		wsaData;
 
-# ifdef HAVE_UCD_SNMP
+# ifdef HAVE_SOME_SNMP
   char                *mib_path;
 # define MIB_PATH_APPEND "\\snmp\\mibs"
 # endif	/* HAVE_UCD_SNMP */
@@ -433,17 +433,27 @@ main(int argc, char *argv[])
   g_string_append(comp_info_str, ", without libz");
 #endif /* HAVE_LIBZ */
 
-/* Oh, this is pretty */
+/* Oh, this is pretty. */
+/* Oh, ha.  you think that was pretty.  Try this:! --Wes */
+#ifdef HAVE_SOME_SNMP
+
 #ifdef HAVE_UCD_SNMP
-  g_string_append(comp_info_str, ", with UCD SNMP ");
+  g_string_append(comp_info_str, ", with UCD-SNMP ");
 #ifdef HAVE_UCD_SNMP_VERSION_H
   g_string_append(comp_info_str, VersionInfo);
 #else /* HAVE_UCD_SNMP_VERSION_H */
   g_string_append(comp_info_str, "(version unknown)");
 #endif /* HAVE_UCD_SNMP_VERSION_H */
+#endif /* HAVE_UCD_SNMP */
+
+#ifdef HAVE_NET_SNMP
+  g_string_append(comp_info_str, ", with Net-SNMP ");
+  g_string_append(comp_info_str, netsnmp_get_version());
+#endif /* HAVE_NET_SNMP */
+
 #else /* no SNMP library */
-  g_string_append(comp_info_str, ", without UCD SNMP");
-#endif
+  g_string_append(comp_info_str, ", without UCD-SNMP or Net-SNMP");
+#endif /* HAVE_SOME_SNMP */
 
   /* Now get our args */
   while ((opt = getopt(argc, argv, "a:b:c:Df:F:hi:lnN:o:pqr:R:s:St:vw:Vxz:")) != -1) {
@@ -813,7 +823,7 @@ main(int argc, char *argv[])
   /* Start windows sockets */
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
 
-# ifdef HAVE_UCD_SNMP
+# ifdef HAVE_SOME_SNMP
   /* Set MIBDIRS so that the SNMP library can find its mibs. */
   /* XXX - Should we set MIBS or MIBFILES as well? */
 

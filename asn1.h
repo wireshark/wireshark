@@ -1,7 +1,7 @@
 /* asn1.h
  * Definitions for ASN.1 BER dissection
  *
- * $Id: asn1.h,v 1.10 2002/08/28 21:00:05 jmayer Exp $
+ * $Id: asn1.h,v 1.11 2002/10/23 18:24:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,8 +90,8 @@
  * "config.h", to get the right #defines defined, so that we properly
  * typedef "subid_t".
  */
-#if defined(HAVE_UCD_SNMP)
-typedef gulong	subid_t;	/* UCD SNMP */
+#if defined(HAVE_SOME_SNMP)
+typedef gulong	subid_t;	/* Net-SNMP or UCD SNMP */
 #else
 typedef guint	subid_t;	/* CMU SNMP, libsmi, or nothing */
 #endif
