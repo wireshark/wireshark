@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rs_pgo.idl
  *
- * $Id: packet-dcerpc-rs_pgo.c,v 1.9 2004/02/21 10:03:15 guy Exp $
+ * $Id: packet-dcerpc-rs_pgo.c,v 1.10 2004/02/24 08:05:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -99,6 +99,7 @@ static int hf_sec_timeval_sec_t = -1;
 static int hf_rs_pgo_unix_num_key_t = -1;
 
 static gint ett_rs_cache_data_t = -1;
+static gint ett_sec_rgy_domain_t = -1;
 static gint ett_rgy_acct_user_flags_t = -1;
 static gint ett_sec_attr_component_name_t = -1;
 static gint ett_sec_passwd_type_t = -1;
@@ -527,8 +528,8 @@ dissect_sec_rgy_domain_t (tvbuff_t * tvb, int offset,
   if (parent_tree)
     {
       item =
-	proto_tree_add_text (parent_tree, tvb, offset, -1, "sec_rgy_name_t");
-      tree = proto_item_add_subtree (item, ett_sec_rgy_name_t);
+	proto_tree_add_text (parent_tree, tvb, offset, -1, "sec_rgy_domain_t");
+      tree = proto_item_add_subtree (item, ett_sec_rgy_domain_t);
     }
 
 
@@ -580,7 +581,7 @@ dissect_sec_rgy_pgo_item_t (tvbuff_t * tvb, int offset,
     {
       item =
 	proto_tree_add_text (parent_tree, tvb, offset, -1,
-			     "sec_rgy_pgo_item_t ");
+			     " sec_rgy_pgo_item_t ");
       tree = proto_item_add_subtree (item, ett_sec_rgy_pgo_item_t);
     }
 
@@ -598,7 +599,7 @@ dissect_sec_rgy_pgo_item_t (tvbuff_t * tvb, int offset,
 
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO,
-		     "sec_rgy_pgo_item_t - id %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x unix_num:%u quota:%u",
+		     " sec_rgy_pgo_item_t - id %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x unix_num:%u quota:%u",
 		     id.Data1, id.Data2, id.Data3, id.Data4[0],
 		     id.Data4[1], id.Data4[2], id.Data4[3],
 		     id.Data4[4], id.Data4[5], id.Data4[6],
@@ -785,7 +786,7 @@ dissect_rs_pgo_id_key_t (tvbuff_t * tvb, int offset,
 
   if (check_col (pinfo->cinfo, COL_INFO))
     col_append_fstr (pinfo->cinfo, COL_INFO,
-		     "rs_pgo_id_key_t - id %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+		     " rs_pgo_id_key_t - id %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
 		     id.Data1, id.Data2, id.Data3, id.Data4[0],
 		     id.Data4[1], id.Data4[2], id.Data4[3],
 		     id.Data4[4], id.Data4[5], id.Data4[6], id.Data4[7]);
@@ -1072,6 +1073,7 @@ rs_pgo_dissect_add_rqst (tvbuff_t * tvb, int offset,
 */
 
   offset = dissect_sec_rgy_domain_t (tvb, offset, pinfo, tree, drep);
+  offset += 4;
   offset = dissect_sec_rgy_name_t (tvb, offset, pinfo, tree, drep);
   offset =
     dissect_ndr_pointer (tvb, offset, pinfo, tree, drep,
@@ -1851,6 +1853,7 @@ proto_register_rs_pgo (void)
     &ett_sec_rgy_foreign_id_t,
     &ett_sec_rgy_login_name_t,
     &ett_sec_rgy_name_t,
+    &ett_sec_rgy_domain_t,
     &ett_sec_rgy_pgo_flags_t,
     &ett_sec_rgy_pgo_item_t,
     &ett_sec_rgy_pname_t,
