@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi.in,v 1.16 2002/07/12 22:52:38 guy Exp $
+; $Id: ethereal.nsi,v 1.3 2002/08/19 15:48:28 gerald Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -10,7 +10,7 @@
 Name "Ethereal"
 
 ; The file to write
-OutFile "ethereal-setup-@VERSION@.exe"
+OutFile "ethereal-setup-${VERSION}.exe"
 
 ; Icon of installer
 Icon "..\..\image\ethereal.ico"
@@ -52,18 +52,26 @@ InstallDirRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal "InstallDir"
 ShowInstDetails show
 
 
+
 ; ============================================================================
 ; Installation execution commands
 ; ============================================================================
 
 Section "-Required"
 ;-------------------------------------------
+
+;
+; Install for every user
+;
+SetShellVarContext all
+
 SetOutPath $INSTDIR
-File "..\..\wiretap\wiretap-@WTAP_VERSION@.dll"
-File "c:\program files\common files\GNU\iconv-1.3.dll"
-File "c:\program files\common files\GNU\glib-1.3.dll"
-File "c:\program files\common files\GNU\gmodule-1.3.dll"
-File "c:\program files\common files\GNU\gnu-intl.dll"
+File "..\..\wiretap\wiretap-${WTAP_VERSION}.dll"
+File "${COMMON_FILES_GNU}\iconv-1.3.dll"
+File "${COMMON_FILES_GNU}\glib-1.3.dll"
+File "${COMMON_FILES_GNU}\gmodule-1.3.dll"
+File "${COMMON_FILES_GNU}\gnu-intl.dll"
+;File "${COMMON_FILES_GNU}\zlib.dll"
 File "..\..\README"
 File "..\..\README.win32"
 File "..\..\manuf"
@@ -91,8 +99,8 @@ Section "Ethereal"
 SetOutPath $INSTDIR
 File "..\..\ethereal.exe"
 File "..\..\doc\ethereal.html"
-File "c:\program files\common files\GNU\gtk-1.3.dll"
-File "c:\program files\common files\GNU\gdk-1.3.dll"
+File "${COMMON_FILES_GNU}\gtk-1.3.dll"
+File "${COMMON_FILES_GNU}\gdk-1.3.dll"
 SectionEnd
 
 Section "Tethereal"
@@ -126,7 +134,7 @@ SectionEnd
 
 Section "Plugins"
 ;-------------------------------------------
-SetOutPath $INSTDIR\plugins\@VERSION@
+SetOutPath $INSTDIR\plugins\${VERSION}
 File "..\..\plugins\docsis\docsis.dll"
 File "..\..\plugins\giop\coseventcomm.dll"
 File "..\..\plugins\giop\cosnaming.dll"
@@ -166,16 +174,16 @@ Delete "$INSTDIR\sunping.xml"
 Delete "$INSTDIR\*.exe"
 Delete "$INSTDIR\*.html"
 Delete "$INSTDIR\*.dll"
-Delete "$INSTDIR\plugins\@VERSION@\coseventcomm.dll"
-Delete "$INSTDIR\plugins\@VERSION@\cosnaming.dll"
-Delete "$INSTDIR\plugins\@VERSION@\docsis.dll"
-Delete "$INSTDIR\plugins\@VERSION@\gryphon.dll"
-Delete "$INSTDIR\plugins\@VERSION@\mgcp.dll"
+Delete "$INSTDIR\plugins\${VERSION}\coseventcomm.dll"
+Delete "$INSTDIR\plugins\${VERSION}\cosnaming.dll"
+Delete "$INSTDIR\plugins\${VERSION}\docsis.dll"
+Delete "$INSTDIR\plugins\${VERSION}\gryphon.dll"
+Delete "$INSTDIR\plugins\${VERSION}\mgcp.dll"
 Delete "$SMPROGRAMS\Ethereal\*.*"
 Delete "$DESKTOP\Ethereal.lnk"
 
 RMDir "$SMPROGRAMS\Ethereal"
-RMDir "$INSTDIR\plugins\@VERSION@"
+RMDir "$INSTDIR\plugins\${VERSION}"
 RMDir "$INSTDIR\plugins"
 RMDir "$INSTDIR"
 
