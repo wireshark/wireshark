@@ -2,7 +2,7 @@
  * Declarations of routines for SMB named pipe packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.h,v 1.8 2001/11/19 10:23:39 guy Exp $
+ * $Id: packet-smb-pipe.h,v 1.9 2001/11/19 11:41:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,8 +27,8 @@
 #define _PACKET_SMB_PIPE_H_
 
 extern gboolean
-dissect_pipe_smb(tvbuff_t *t_tvb, tvbuff_t *s_tvb, tvbuff_t *p_tvb,
-		 tvbuff_t *d_tvb, const char *pipe, packet_info *pinfo,
-		 proto_tree *tree);
+dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
+		 tvbuff_t *p_tvb, tvbuff_t *d_tvb, const char *pipe,
+		 packet_info *pinfo, proto_tree *tree);
 
 #endif

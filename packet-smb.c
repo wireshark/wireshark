@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.159 2001/11/19 10:23:39 guy Exp $
+ * $Id: packet-smb.c,v 1.160 2001/11/19 11:41:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -8876,8 +8876,8 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8 wc, sc=0;
 	int so=offset;
 	int sl=0;
-	int tpo=offset;
-	int tpc=0;
+	int spo=offset;
+	int spc=0;
 	guint16 od=0, tf, po=0, pc=0, dc=0, pd, dd=0;
 	guint16 subcmd;
 	guint32 to;
@@ -9101,8 +9101,8 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * be if there were any setup words), and run to the current
 	 * offset (which could mean that there aren't any).
 	 */
-	tpo = so;
-	tpc = offset - tpo;
+	spo = so;
+	spc = offset - spo;
 
 	/* parameters */
 	if(po>offset){
@@ -9165,9 +9165,9 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/*XXX replace this block with a function and use that one 
 		     for both requests/responses*/
 		if(dd==0){
-			tvbuff_t *t_tvb, *p_tvb, *d_tvb, *s_tvb;
+			tvbuff_t *p_tvb, *d_tvb, *s_tvb;
+			tvbuff_t *sp_tvb, *pd_tvb;
 
-			t_tvb = tvb_new_subset(tvb, tpo, tpc, tpc);
 			if(pc>0){
 				if(pc>tvb_length_remaining(tvb, po)){
 					p_tvb = tvb_new_subset(tvb, po, tvb_length_remaining(tvb, po), pc);
@@ -9225,12 +9225,32 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if(strncmp("\\PIPE\\", an, 6) == 0){
 				if (!si->unidir)
 					tri->subcmd=TRANSACTION_PIPE;
-				dissected_trans = dissect_pipe_smb(t_tvb,
-				    s_tvb, p_tvb, d_tvb, an+6, pinfo, top_tree);
+
+				/*
+				 * A tvbuff containing the setup words and
+				 * the pipe path.
+				 */
+				sp_tvb = tvb_new_subset(tvb, spo, spc, spc);
+
+				/*
+				 * A tvbuff containing the parameters and the
+				 * data.
+				 */
+				pd_tvb = tvb_new_subset(tvb, po, -1, -1);
+
+				dissected_trans = dissect_pipe_smb(sp_tvb,
+				    s_tvb, pd_tvb, p_tvb, d_tvb, an+6, pinfo,
+				    top_tree);
 			} else if(strncmp("\\MAILSLOT\\", an, 10) == 0){
 				if (!si->unidir)
 					tri->subcmd=TRANSACTION_MAILSLOT;
-				dissected_trans = dissect_mailslot_smb(t_tvb,
+
+				/*
+				 * A tvbuff containing the setup words and
+				 * the mailslot path.
+				 */
+				sp_tvb = tvb_new_subset(tvb, spo, spc, spc);
+				dissected_trans = dissect_mailslot_smb(sp_tvb,
 				    s_tvb, d_tvb, an+10, pinfo, top_tree);
 			}
 			if (!dissected_trans) {
@@ -10488,8 +10508,8 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	guint16 od=0, tf, po=0, pc=0, pd, dc=0, dd=0;
 	int so=offset;
 	int sl=0;
-	int tpo=offset;
-	int tpc=0;
+	int spo=offset;
+	int spc=0;
 	guint32 to;
 	smb_info_t *si;
 	smb_transact2_info_t *t2i = NULL;
@@ -10609,8 +10629,8 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	 * be if there were any setup words), and run to the current
 	 * offset (which could mean that there aren't any).
 	 */
-	tpo = so;
-	tpc = offset - tpo;
+	spo = so;
+	spc = offset - spo;
 
 	BYTE_COUNT;
 	
@@ -10672,10 +10692,10 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	if(si->cmd==0x25){
 		/* only call subdissector for the first packet */
 		if(dd==0){
-			tvbuff_t *t_tvb, *p_tvb, *d_tvb, *s_tvb;
+			tvbuff_t *p_tvb, *d_tvb, *s_tvb;
+			tvbuff_t *sp_tvb, *pd_tvb;
 			smb_transact_info_t *tri;
 
-			t_tvb = tvb_new_subset(tvb, tpo, tpc, tpc);
 			if(pc>0){
 				if(pc>tvb_length_remaining(tvb, po)){
 					p_tvb = tvb_new_subset(tvb, po, tvb_length_remaining(tvb, po), pc);
@@ -10694,7 +10714,6 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			} else {
 				d_tvb = NULL;
 			}
-			/* Convert setup count from words to bytes. */
 			if(sl){
 				if(sl>tvb_length_remaining(tvb, so)){
 					s_tvb = tvb_new_subset(tvb, so, tvb_length_remaining(tvb, so), sl);
@@ -10714,14 +10733,34 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				switch(tri->subcmd){
 
 				case TRANSACTION_PIPE:
+					/*
+					 * A tvbuff containing the setup
+					 * words and the pipe path.
+					 */
+					sp_tvb = tvb_new_subset(tvb, spo, spc,
+					    spc);
+
+					/*
+					 * A tvbuff containing the parameters
+					 * and the data.
+					 */
+					pd_tvb = tvb_new_subset(tvb, po, -1, -1);
+
 					dissected_trans = dissect_pipe_smb(
-					    t_tvb, s_tvb, p_tvb, d_tvb, NULL,
-					    pinfo, top_tree);
+					    sp_tvb, s_tvb, pd_tvb, p_tvb,
+					    d_tvb, NULL, pinfo, top_tree);
 					break;
 
 				case TRANSACTION_MAILSLOT:
+					/*
+					 * A tvbuff containing the setup
+					 * words and the mailslot path.
+					 */
+					sp_tvb = tvb_new_subset(tvb, spo, spc,
+					    spc);
+
 					dissected_trans = dissect_mailslot_smb(
-					    t_tvb, s_tvb, d_tvb, NULL, pinfo,
+					    sp_tvb, s_tvb, d_tvb, NULL, pinfo,
 					    top_tree);
 					break;
 				}

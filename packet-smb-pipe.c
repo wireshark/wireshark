@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.46 2001/11/19 10:23:38 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.47 2001/11/19 11:41:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +55,12 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
 #include "packet-smb-pipe.h"
 #include "packet-smb-browse.h"
 #include "packet-dcerpc.h"
+
+static int proto_smb_pipe = -1;
+static int hf_pipe_function = -1;
+static int hf_pipe_priority = -1;
+
+static gint ett_smb_pipe = -1;
 
 static int proto_smb_lanman = -1;
 static int hf_function_code = -1;
@@ -141,9 +147,6 @@ static gint ett_lanman_share = -1;
 static gint ett_lanman_servers = -1;
 static gint ett_lanman_server = -1;
 
-static int proto_smb_msrpc = -1;
-static gint ett_smbrpc = -1;
-
 /*
  * See
  *
@@ -174,11 +177,11 @@ static const value_string status_vals[] = {
 };
 
 static const value_string share_type_vals[] = {
-        {0, "Directory tree"},
-        {1, "Printer queue"},
-        {2, "Communications device"},
-        {3, "IPC"},
-        {0, NULL}
+	{0, "Directory tree"},
+	{1, "Printer queue"},
+	{2, "Communications device"},
+	{3, "IPC"},
+	{0, NULL}
 };
 
 static const value_string privilege_vals[] = {
@@ -1947,7 +1950,7 @@ dissect_response_data(tvbuff_t *tvb, packet_info *pinfo, int convert,
 }
 
 static gboolean
-dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
+dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		    packet_info *pinfo, proto_tree *parent_tree)
 {
 	smb_info_t *smb_info = pinfo->private_data;
@@ -1980,7 +1983,7 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_smb_lanman,
-			t_tvb, 0, tvb_length(t_tvb), FALSE);
+			pd_tvb, 0, tvb_length(pd_tvb), FALSE);
 		tree = proto_item_add_subtree(item, ett_lanman);
 	}
 
@@ -2180,160 +2183,8 @@ dissect_pipe_lanman(tvbuff_t *t_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	return TRUE;
 }
 
-static heur_dissector_list_t msrpc_heur_subdissector_list;
-
-static gboolean
-dissect_pipe_msrpc(tvbuff_t *t_tvb, tvbuff_t *s_tvb, tvbuff_t *d_tvb,
-		   packet_info *pinfo, proto_tree *parent_tree)
-{
-	guint16 fid;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-	dcerpc_private_info dcerpc_priv;
-	smb_info_t *smb_priv = (smb_info_t *)pinfo->private_data;
-        gboolean result;
-
-	if (!proto_is_protocol_enabled(proto_smb_msrpc))
-		return FALSE;
-
-	/*
-	 * Do we have any setup words at all?
-	 */
-	if (s_tvb == NULL) {
-		/*
-		 * No.  This has to be a response.
-		 */
-		if (smb_priv->request) {
-			/*
-			 * It's not - assume this isn't DCERPC-over-SMB.
-			 */
-			return FALSE;
-		}
-	} else {
-		/*
-		 * Yes.  Do we have at least two of them?
-		 */
-		if (!tvb_bytes_exist(s_tvb, 0, 4)) {
-			/*
-			 * No - assume this isn't DCERPC-over-SMB.
-			 */
-			return FALSE;
-		}
-
-		/*
-		 * Is the first one 0x26?
-		 */
-		if (tvb_get_letohs(s_tvb, 0) != 0x26) {
-			/*
-			 * No - assume this isn't DCERPC-over-SMB.
-			 */
-			return FALSE;
-		}
-	}
-
-	/*
-	 * Create an tree for DCERPC-over-SMB.
-	 */
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, proto_smb_msrpc,
-		    t_tvb, 0, tvb_length(t_tvb), FALSE);
-		tree = proto_item_add_subtree(item, ett_smbrpc);
-	}
-
-	/*
-	 * Set the columns.
-	 */
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_set_str(pinfo->fd, COL_PROTOCOL, "SMBRPC");
-	}
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_set_str(pinfo->fd, COL_INFO,
-		    smb_priv->request ? "Request" : "Response");
-	}
-
-	if (s_tvb == NULL) {
-		/*
-		 * No setup words, so we don't know the FID.
-		 */
-		fid = 0;	/* XXX */
-	} else {
-		/*
-		 * Treat the second setup word as the FID.
-		 */
-		fid = tvb_get_letohs(s_tvb, 2);
-		add_fid(s_tvb, pinfo, tree, 2, fid);
-	}
-
-	dcerpc_priv.transport_type = DCERPC_TRANSPORT_SMB;
-	dcerpc_priv.data.smb.fid = fid;
-
-	pinfo->private_data = &dcerpc_priv;
-
-        result = dissector_try_heuristic(msrpc_heur_subdissector_list, d_tvb,
-                                         pinfo, parent_tree);
-
-	pinfo->private_data = smb_priv;
-
-        if (!result)
-                dissect_data(d_tvb, 0, pinfo, parent_tree);
-
-        return TRUE;
-}
-
-
-#define PIPE_LANMAN     1
-#define PIPE_MSRPC      2
-/* decode the SMB pipe protocol
-   for requests
-    pipe is the name of the pipe, e.g. LANMAN
-    smb_info->trans_subcmd is set to the symbolic constant matching the mailslot name
-  for responses
-    pipe is NULL
-    smb_info->trans_subcmd gives us which pipe this response is for
-*/
-gboolean
-dissect_pipe_smb(tvbuff_t *t_tvb, tvbuff_t *s_tvb, tvbuff_t *p_tvb,
-		 tvbuff_t *d_tvb, const char *pipe, packet_info *pinfo,
-		 proto_tree *tree)
-{
-	smb_info_t *smb_info;
-	smb_transact_info_t *tri;
-
-	smb_info = pinfo->private_data;
-	if (smb_info->sip != NULL)
-		tri = smb_info->sip->extra_info;
-	else
-		tri = NULL;
-	if(smb_info->request){
-		if(strncmp(pipe,"LANMAN",6) == 0){
-			tri->trans_subcmd=PIPE_LANMAN;
-		} else {
-			/* assume it is MSRPC*/
-			tri->trans_subcmd=PIPE_MSRPC;
-		}
-	}
-
-	if (tri == NULL) {
-		/*
-		 * We don't know what type of pipe transaction this
-		 * was, so indicate that we didn't dissect it.
-		 */
-		return FALSE;
-	}
-	switch(tri->trans_subcmd){
-	case PIPE_LANMAN:
-		return dissect_pipe_lanman(t_tvb, p_tvb, d_tvb, pinfo, tree);
-		break;
-	case PIPE_MSRPC:
-                return dissect_pipe_msrpc(t_tvb, s_tvb, d_tvb, pinfo, tree);
-		break;
-	}
-
-	return FALSE;
-}
-
 void
-proto_register_smb_pipe(void)
+proto_register_pipe_lanman(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_function_code,
@@ -2653,15 +2504,272 @@ proto_register_smb_pipe(void)
 		&ett_lanman_server,
 		&ett_lanman_shares,
 		&ett_lanman_share,
-		&ett_smbrpc,
 	};
 
 	proto_smb_lanman = proto_register_protocol(
 		"Microsoft Windows Lanman Remote API Protocol", "LANMAN", "lanman");
 	proto_register_field_array(proto_smb_lanman, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+}
 
-	proto_smb_msrpc = proto_register_protocol(
-		"MSRPC-over-SMB", "SMBRPC", "smbrpc");
-        register_heur_dissector_list("msrpc", &msrpc_heur_subdissector_list);
+static heur_dissector_list_t msrpc_heur_subdissector_list;
+
+static gboolean
+dissect_pipe_msrpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
+    guint16 fid)
+{
+	dcerpc_private_info dcerpc_priv;
+	smb_info_t *smb_priv = (smb_info_t *)pinfo->private_data;
+	gboolean result;
+
+	dcerpc_priv.transport_type = DCERPC_TRANSPORT_SMB;
+	dcerpc_priv.data.smb.fid = fid;
+
+	pinfo->private_data = &dcerpc_priv;
+
+	result = dissector_try_heuristic(msrpc_heur_subdissector_list, d_tvb,
+					 pinfo, parent_tree);
+
+	pinfo->private_data = smb_priv;
+
+	if (!result)
+		dissect_data(d_tvb, 0, pinfo, parent_tree);
+
+	return TRUE;
+}
+
+void
+proto_register_pipe_msrpc(void)
+{
+	register_heur_dissector_list("msrpc", &msrpc_heur_subdissector_list);
+}
+
+#define CALL_NM_PIPE		0x54
+#define WAIT_NM_PIPE		0x53
+#define PEEK_NM_PIPE		0x23
+#define Q_NM_P_HAND_STATE	0x21
+#define SET_NM_P_HAND_STATE	0x01
+#define Q_NM_PIPE_INFO		0x22
+#define TRANSACT_NM_PIPE	0x26
+#define RAW_READ_NM_PIPE	0x11
+#define RAW_WRITE_NM_PIPE	0x31
+
+static const value_string functions[] = {
+	{CALL_NM_PIPE,		"CallNmPipe"},
+	{WAIT_NM_PIPE,		"WaitNmPipe"},
+	{PEEK_NM_PIPE,		"PeekNmPipe"},
+	{Q_NM_P_HAND_STATE,	"QNmPHandState"},
+	{SET_NM_P_HAND_STATE,	"SetNmPHandState"},
+	{Q_NM_PIPE_INFO,	"QNmPipeInfo"},
+	{TRANSACT_NM_PIPE,	"TransactNmPipe"},
+	{RAW_READ_NM_PIPE,	"RawReadNmPipe"},
+	{RAW_WRITE_NM_PIPE,	"RawWriteNmPipe"},
+	{0,			NULL}
+};
+
+#define PIPE_LANMAN     1
+#define PIPE_MSRPC      2
+/* decode the SMB pipe protocol
+   for requests
+    pipe is the name of the pipe, e.g. LANMAN
+    smb_info->trans_subcmd is set to the symbolic constant matching the mailslot name
+  for responses
+    pipe is NULL
+    smb_info->trans_subcmd gives us which pipe this response is for
+*/
+gboolean
+dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
+		 tvbuff_t *p_tvb, tvbuff_t *d_tvb, const char *pipe,
+		 packet_info *pinfo, proto_tree *tree)
+{
+	smb_info_t *smb_info;
+	smb_transact_info_t *tri;
+	proto_item *pipe_item = NULL;
+	proto_tree *pipe_tree = NULL;
+	int offset;
+	int function;
+	guint16 fid = 0;
+	int len;
+
+	if (!proto_is_protocol_enabled(proto_smb_pipe))
+		return FALSE;
+	pinfo->current_proto = "SMB Pipe";
+
+	smb_info = pinfo->private_data;
+
+	/*
+	 * Set the columns.
+	 */
+	if (check_col(pinfo->fd, COL_PROTOCOL)) {
+		col_set_str(pinfo->fd, COL_PROTOCOL, "SMB Pipe");
+	}
+	if (check_col(pinfo->fd, COL_INFO)) {
+		col_set_str(pinfo->fd, COL_INFO,
+		    smb_info->request ? "Request" : "Response");
+	}
+
+	/*
+	 * Set up a subtree for the pipe data, if there is any.
+	 */
+	if (s_tvb != NULL || tvb_length(sp_tvb) != 0) {
+		if (tree) {
+			pipe_item = proto_tree_add_item(tree, proto_smb_pipe,
+			    sp_tvb, 0, tvb_length(sp_tvb), FALSE);
+			pipe_tree = proto_item_add_subtree(pipe_item, ett_smb_pipe);
+		}
+	}
+	offset = 0;
+
+	/*
+	 * Do we have any setup words at all?
+	 */
+	if (s_tvb != NULL && tvb_length(s_tvb) != 0) {
+		/*
+		 * Yes.  The first of them is the function.
+		 */
+		function = tvb_get_letohs(s_tvb, offset);
+		proto_tree_add_uint(pipe_tree, hf_pipe_function, s_tvb,
+		    offset, 2, function);
+		offset += 2;
+
+		/*
+		 * The second of them depends on the function.
+		 */
+		switch (function) {
+
+		case CALL_NM_PIPE:
+		case WAIT_NM_PIPE:
+			/*
+			 * It's a priority.
+			 */
+			proto_tree_add_item(pipe_tree, hf_pipe_priority, s_tvb,
+			    2, 2, TRUE);
+			break;
+
+		case PEEK_NM_PIPE:
+		case Q_NM_P_HAND_STATE:
+		case SET_NM_P_HAND_STATE:
+		case Q_NM_PIPE_INFO:
+		case TRANSACT_NM_PIPE:
+		case RAW_READ_NM_PIPE:
+		case RAW_WRITE_NM_PIPE:
+			/*
+			 * It's a FID.
+			 */
+			fid = tvb_get_letohs(s_tvb, 2);
+			add_fid(s_tvb, pinfo, pipe_tree, 2, fid);
+			break;
+		}
+		offset += 2;
+	} else {
+		/*
+		 * This is either a pipe transaction with no setup
+		 * information or a response.
+		 *
+		 * In the former case, there is no function or FID.
+		 *
+		 * In the latter case, we could get that information from
+		 * the matching request, if we saw it.  (XXX - do that.)
+		 */
+		function = -1;
+		fid = 0;
+	}
+
+	/*
+	 * XXX - put the byte count and the pipe name into the tree as well;
+	 * that requires us to fetch a possibly-Unicode string.
+	 */
+
+	if (smb_info->sip != NULL)
+		tri = smb_info->sip->extra_info;
+	else
+		tri = NULL;
+	if(smb_info->request){
+		if(strncmp(pipe,"LANMAN",6) == 0){
+			tri->trans_subcmd=PIPE_LANMAN;
+		} else {
+			/* assume it is MSRPC*/
+			tri->trans_subcmd=PIPE_MSRPC;
+		}
+	}
+
+	if (tri == NULL) {
+		/*
+		 * We don't know what type of pipe transaction this
+		 * was, so indicate that we didn't dissect it.
+		 */
+		return FALSE;
+	}
+
+	switch (function) {
+
+	case -1:
+	case CALL_NM_PIPE:
+	case TRANSACT_NM_PIPE:
+		switch(tri->trans_subcmd){
+		case PIPE_LANMAN:
+			return dissect_pipe_lanman(pd_tvb, p_tvb, d_tvb, pinfo,
+			    tree);
+			break;
+		case PIPE_MSRPC:
+	                return dissect_pipe_msrpc(d_tvb, pinfo, tree, fid);
+			break;
+		}
+		break;
+
+	/*
+	 * XXX - add support for these.
+	 * XXX - need to remember the request type, so that we know how
+	 * to dissect a response.
+	 */
+	case WAIT_NM_PIPE:
+		break;
+
+	case PEEK_NM_PIPE:
+		break;
+
+	case Q_NM_P_HAND_STATE:
+		break;
+
+	case SET_NM_P_HAND_STATE:
+		break;
+
+	case Q_NM_PIPE_INFO:
+		break;
+
+	case RAW_READ_NM_PIPE:
+		/*
+		 * XXX - just dump the raw data?
+		 */
+		break;
+
+	case RAW_WRITE_NM_PIPE:
+		/*
+		 * XXX - just dump the raw data?
+		 */
+		break;
+	}
+	return TRUE;
+}
+
+void
+proto_register_smb_pipe(void)
+{
+	static hf_register_info hf[] = {
+		{ &hf_pipe_function,
+			{ "Function", "pipe.function", FT_UINT16, BASE_HEX,
+			VALS(functions), 0, "SMB Pipe Function Code", HFILL }},
+		{ &hf_pipe_priority,
+			{ "Priority", "pipe.priority", FT_UINT16, BASE_DEC,
+			NULL, 0, "SMB Pipe Priority", HFILL }},
+	};
+	static gint *ett[] = {
+		&ett_smb_pipe,
+	};
+
+	proto_smb_pipe = proto_register_protocol(
+		"SMB Pipe Protocol", "SMB Pipe", "pipe");
+
+	proto_register_field_array(proto_smb_pipe, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
