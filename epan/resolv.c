@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.27 2002/09/10 10:12:34 guy Exp $
+ * $Id: resolv.c,v 1.28 2002/10/29 00:28:10 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -58,7 +58,11 @@
 #include <signal.h>
 
 #ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
+#include <sys/socket.h>		/* needed to define AF_ values on UNIX */
+#endif
+
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>		/* needed to define AF_ values on Windows */
 #endif
 
 #ifdef AVOID_DNS_TIMEOUT

@@ -20,7 +20,7 @@
 #endif
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$Id: inet_pton.c,v 1.4 2002/08/03 19:37:48 guy Exp $";
+static char rcsid[] = "$Id: inet_pton.c,v 1.5 2002/10/29 00:28:10 guy Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #ifdef HAVE_SYS_PARAM_H
@@ -31,13 +31,13 @@ static char rcsid[] = "$Id: inet_pton.c,v 1.4 2002/08/03 19:37:48 guy Exp $";
 #include <sys/types.h>
 #endif
 
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
-#define EAFNOSUPPORT	WSAEAFNOSUPPORT
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>		/* needed to define AF_ values on UNIX */
 #endif
 
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>		/* needed to define AF_ values on Windows */
+#define EAFNOSUPPORT    WSAEAFNOSUPPORT
 #endif
 
 #ifdef HAVE_NETINET_IN_H

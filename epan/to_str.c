@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.17 2002/08/28 20:40:45 jmayer Exp $
+ * $Id: to_str.c,v 1.18 2002/10/29 00:28:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,7 +46,11 @@
 #endif
 
 #ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
+#include <sys/socket.h>		/* needed to define AF_ values on UNIX */
+#endif
+
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>		/* needed to define AF_ values on Windows */
 #endif
 
 #ifdef NEED_INET_V6DEFS_H
