@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.6 2002/11/23 07:29:10 guy Exp $
+ * $Id: packet-tds.c,v 1.7 2002/11/26 21:45:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,13 +31,19 @@
  *
  *	a one-byte packet type field;
  *
- *	a one-byte "last packet" indicator;
+ *	a one-byte status field;
  *
- *	a two-byte size field giving the size of the packet, including
- *	the header;
+ *	a two-byte big-endian size field giving the size of the packet,
+ *	including the header;
  *
- *	a four-byte field used in RPC communications whose purpose is
- *	unknown;
+ *	a two-byte big-endian channel number, used when multiple sessions
+ *	are being multiplexed on a single connection;
+ *
+ *	a one-byte packet number, giving "the frame number of a multiplexed
+ *	message, modulo 256";
+ *
+ *	a one-byte window, which is the number of frames to be sent
+ *	before an acknowledgment message is received.
  *
  * followed by payload whose size is the value in the size field minus
  * 8.
@@ -64,6 +70,9 @@
  *
  * Some preliminary documentation on the packet format can be found at
  * http://www.freetds.org/tds.html
+ *
+ * Some more information can be found in
+ * http://download.nai.com/products/media/sniffer/support/sdos/sybase.pdf
  *
  * Much of this code was originally developed for the FreeTDS project.
  * http://www.freetds.org
@@ -141,13 +150,26 @@
 
 #include "packet-smb-common.h"
 
-#define TDS_QUERY_PKT  0x01
-#define TDS_LOGIN_PKT  0x02
-#define TDS_RESP_PKT   0x04
-#define TDS_CANCEL_PKT 0x06
-#define TDS_QUERY5_PKT 0x0f
-#define TDS_LOGIN7_PKT 0x10
+#define TDS_QUERY_PKT        1
+#define TDS_LOGIN_PKT        2
+#define TDS_RPC_PKT          3
+#define TDS_RESP_PKT         4
+#define TDS_RAW_PKT          5
+#define TDS_CANCEL_PKT       6
+#define TDS_BULK_DATA_PKT    7
+#define TDS_OPEN_CHN_PKT     8
+#define TDS_CLOSE_CHN_PKT    9
+#define TDS_RES_ERROR_PKT   10
+#define TDS_LOG_CHN_ACK_PKT 11
+#define TDS_ECHO_PKT        12
+#define TDS_LOGOUT_CHN_PKT  13
+#define TDS_QUERY5_PKT      15  /* or "Normal tokenized request or response */
+#define TDS_LOGIN7_PKT      16	/* Or "Urgent tokenized request or response */
 
+/*
+ * XXX - include all of the above?
+ * Most of them came from the document on the NAI site.
+ */
 #define is_valid_tds_type(x) \
 	(x==TDS_QUERY_PKT || \
 	x==TDS_LOGIN_PKT || \
@@ -239,8 +261,11 @@
 /* Initialize the protocol and registered fields */
 static int proto_tds = -1;
 static int hf_netlib_type = -1;
-static int hf_netlib_last = -1;
+static int hf_netlib_status = -1;
 static int hf_netlib_size = -1;
+static int hf_netlib_channel = -1;
+static int hf_netlib_packet_number = -1;
+static int hf_netlib_window = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_netlib = -1;
@@ -255,12 +280,22 @@ static dissector_handle_t ntlmssp_handle = NULL;
 
 /* These correspond to the netlib packet type field */
 static const value_string packet_type_names[] = {
-	{TDS_QUERY_PKT, "Query Packet"},
-	{TDS_LOGIN_PKT, "Login Packet"},
-	{TDS_RESP_PKT, "Response Packet"},
+	{TDS_QUERY_PKT,  "Query Packet"},
+	{TDS_LOGIN_PKT,  "Login Packet"},
+	{TDS_RESP_PKT,   "Response Packet"},
 	{TDS_CANCEL_PKT, "Cancel Packet"},
 	{TDS_QUERY5_PKT, "TDS5 Query Packet"},
 	{TDS_LOGIN7_PKT, "TDS7/8 Login Packet"},
+	{0, NULL},
+};
+
+/* The status field */
+static const value_string status_names[] = {
+	{0x00, "Not last buffer"},
+	{0x01, "Last buffer in request or response"},
+	{0x02, "Acknowledgment of last attention request"},
+	{0x03, "Attention request"},
+	{0x04, "Event notification"},
 	{0, NULL},
 };
 
@@ -1058,10 +1093,16 @@ dissect_netlib_hdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, stru
 		netlib_tree = proto_item_add_subtree(netlib_hdr, ett_netlib);
 		proto_tree_add_uint(netlib_tree, hf_netlib_type, tvb, offset, 1,
 			nl_data->packet_type);
-		proto_tree_add_uint(netlib_tree, hf_netlib_last, tvb, offset+1, 1,
+		proto_tree_add_uint(netlib_tree, hf_netlib_status, tvb, offset+1, 1,
 			nl_data->packet_last);
 		proto_tree_add_uint(netlib_tree, hf_netlib_size, tvb, offset+2, 2,
 			nl_data->packet_size);
+		proto_tree_add_item(netlib_tree, hf_netlib_channel, tvb, offset+4, 2,
+			FALSE);
+		proto_tree_add_item(netlib_tree, hf_netlib_packet_number, tvb, offset+6, 1,
+			FALSE);
+		proto_tree_add_item(netlib_tree, hf_netlib_window, tvb, offset+7, 1,
+			FALSE);
 	}
 }
 
@@ -1194,23 +1235,36 @@ dissect_netlib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_netlib(void)
 {
-
-/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_netlib_type,
 			{ "Type",           "netlib.type",
 			FT_UINT8, BASE_HEX, VALS(packet_type_names), 0x0,
 			"Packet Type", HFILL }
 		},
-		{ &hf_netlib_last,
-			{ "Last Packet",    "netlib.last",
-			FT_UINT8, BASE_DEC, NULL, 0x0,
-			"Last Packet Indicator", HFILL }
+		{ &hf_netlib_status,
+			{ "Status",         "netlib.status",
+			FT_UINT8, BASE_DEC, VALS(status_names), 0x0,
+			"Frame status", HFILL }
 		},
 		{ &hf_netlib_size,
 			{ "Size",           "netlib.size",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Packet Size", HFILL }
+		},
+		{ &hf_netlib_channel,
+			{ "Channel",        "netlib.channel",
+			FT_UINT16, BASE_DEC, NULL, 0x0,
+			"Channel Number", HFILL }
+		},
+		{ &hf_netlib_packet_number,
+			{ "Packet Number",  "netlib.packet_number",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Packet Number", HFILL }
+		},
+		{ &hf_netlib_window,
+			{ "Window",         "netlib.window",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Window", HFILL }
 		},
 	};
 
