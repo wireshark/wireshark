@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.37 2003/03/27 19:42:31 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.38 2003/03/30 22:10:13 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -74,6 +74,7 @@ static gint ett_isis_lsp_clv_auth = -1;
 static gint ett_isis_lsp_clv_ipv4_int_addr = -1;
 static gint ett_isis_lsp_clv_ipv6_int_addr = -1; /* CLV 232 */
 static gint ett_isis_lsp_clv_ip_reachability = -1;
+static gint ett_isis_lsp_clv_ip_reach_subclv = -1;
 static gint ett_isis_lsp_clv_ext_ip_reachability = -1; /* CLV 135 */
 	static gint ett_isis_lsp_part_of_clv_ext_ip_reachability = -1;
 static gint ett_isis_lsp_clv_ipv6_reachability = -1; /* CLV 236 */
@@ -141,7 +142,8 @@ static void dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_lsp_ip_reachability_clv(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length, int length);
-
+static void dissect_ipreach_subclv(tvbuff_t *tvb,
+        proto_tree *tree, int offset, int clv_code, int clv_len);
 
 
 static const isis_clv_handle_t clv_l1_lsp_opts[] = {
@@ -538,6 +540,55 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 }
 
 /*
+ * Name: dissect_ipreach_subclv ()
+ *
+ * Description: parses IP reach subTLVs
+ *              Called by various IP Reachability dissectors.
+ *
+ * Input:
+ *   tvbuff_t * : tvbuffer for packet data
+ *   proto_tree * : protocol display tree to fill out.
+ *   int : offset into packet data where we are (beginning of the sub_clv value).
+ *
+ * Output:
+ *   void
+ */
+static void
+dissect_ipreach_subclv(tvbuff_t *tvb, proto_tree *tree, int offset, int clv_code, int clv_len)
+{
+
+        switch (clv_code) {
+        case 1:
+                while (clv_len >= 4) {
+                        proto_tree_add_text(tree, tvb, offset, 4,
+                                    "32-Bit Administrative tag: 0x%08x (=%u)",
+                                    tvb_get_ntohl(tvb, offset),
+                                    tvb_get_ntohl(tvb, offset));                
+                        offset+=4;
+                        clv_len-=4;
+                }
+                break;
+        case 2:
+                while (clv_len >= 8) {
+                        proto_tree_add_text(tree, tvb, offset, 8,
+                                    "64-Bit Administrative tag: 0x%08x%08x",
+                                    tvb_get_ntohl(tvb, offset),
+                                    tvb_get_ntohl(tvb, offset+4));
+                        offset+=8;
+                        clv_len-=8;
+                }
+                break;
+
+        default :
+                proto_tree_add_text (tree, tvb, offset, clv_len+2,
+                                     "Unknown sub-TLV: code %u, length %u",
+                                     clv_code, clv_len );
+                break;
+        }
+}
+
+
+/*
  * Name: dissect_lsp_ext_ip_reachability_clv()
  *
  * Description: Decode an Extended IP Reachability CLV - code 135.
@@ -563,10 +614,14 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 {
 	proto_item *pi = NULL;
 	proto_tree *subtree = NULL;
+	proto_tree *subtree2 = NULL;
 	guint8     ctrl_info;
 	guint8     bit_length, byte_length;
 	guint8     prefix [4];
-	guint8     len;
+	guint32    metric;
+	guint8     len,i;
+	guint8     subclvs_len;
+	guint8     clv_code, clv_len;
 
 	if (!tree) return;
 
@@ -576,24 +631,59 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 		bit_length = ctrl_info & 0x3f;
 		byte_length = (bit_length + 7) / 8;
 		tvb_memcpy (tvb, prefix, offset+5, byte_length);
-		pi = proto_tree_add_text (tree, tvb, offset, -1,
-			"IPv4 prefix: %s/%d",
-			ip_to_str (prefix),
-			bit_length );
-		subtree = proto_item_add_subtree (pi,
-			ett_isis_lsp_part_of_clv_ext_ip_reachability);
+		metric = tvb_get_ntohl(tvb, offset);
+		subclvs_len = 0;
+		if ((ctrl_info & 0x40) != 0)
+                        subclvs_len = 1+tvb_get_guint8(tvb, offset+5+byte_length);
 
-		proto_tree_add_text (subtree, tvb, offset, 4,
-			"Metric: %d, Distribution: %s", tvb_get_ntohl(tvb, offset), ((ctrl_info & 0x80) == 0) ? "up" : "down" );
+		pi = proto_tree_add_text (tree, tvb, offset, 5+byte_length+subclvs_len,
+                                          "IPv4 prefix: %s/%d, Metric: %u, Distribution: %s, %ssub-TLVs present",
+                                          ip_to_str (prefix),
+                                          bit_length,
+                                          metric,
+                                          ((ctrl_info & 0x80) == 0) ? "up" : "down",
+                                          ((ctrl_info & 0x40) == 0) ? "no " : "" );
 
-		proto_tree_add_text (subtree, tvb, offset+4, 1,
-			"%s sub-TLVs present",
-			((ctrl_info & 0x40) == 0) ? "no" : "" );
+                /* open up a new tree per prefix */
+		subtree = proto_item_add_subtree (pi, ett_isis_lsp_part_of_clv_ext_ip_reachability);
+
+		proto_tree_add_text (subtree, tvb, offset+5, byte_length, "IPv4 prefix: %s/%u",
+                                     ip_to_str (prefix),
+                                     bit_length);
+
+		proto_tree_add_text (subtree, tvb, offset, 4, "Metric: %u", metric);
+
+		proto_tree_add_text (subtree, tvb, offset+4, 1, "Distribution: %s",
+                                     ((ctrl_info & 0x80) == 0) ? "up" : "down");
 
 		len = 5 + byte_length;
-		if ((ctrl_info & 0x40) != 0)
-			len += 1 + tvb_get_guint8(tvb, offset+len) ;
-		proto_item_set_len (pi, len);
+		if ((ctrl_info & 0x40) != 0) {
+                        subclvs_len = tvb_get_guint8(tvb, offset+len);
+                        pi = proto_tree_add_text (subtree, tvb, offset+len, 1, "sub-TLVs present, total length: %u bytes",
+                                             subclvs_len);
+                        proto_item_set_len (pi, subclvs_len+1);
+                        /* open up a new tree for the subTLVs */
+                        subtree2 = proto_item_add_subtree (pi, ett_isis_lsp_clv_ip_reach_subclv);
+
+                        i =0;
+                        while (i < subclvs_len) {
+				clv_code = tvb_get_guint8(tvb, offset+len+1); /* skip the total subtlv len indicator */
+				clv_len  = tvb_get_guint8(tvb, offset+len+2);
+                                
+                                /*
+                                 * we pass on now the raw data to the ipreach_subtlv dissector
+                                 * therefore we need to skip 3 bytes
+                                 * (total subtlv len, subtlv type, subtlv len)
+                                 */
+                                dissect_ipreach_subclv(tvb, subtree2, offset+len+3, clv_code, clv_len);
+                                i += clv_len + 2;
+                        }
+                        len += 1 + subclvs_len;
+                } else {
+                        proto_tree_add_text (subtree, tvb, offset+4, 1, "no sub-TLVs present");
+                        proto_item_set_len (pi, len);
+                }
+
 		offset += len;
 		length -= len;
 	}
@@ -618,49 +708,81 @@ static void
 dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int id_length _U_, int length)
 {
-	proto_item        *ti;
-	proto_tree        *ntree = NULL;
+	proto_item        *pi;
+	proto_tree        *subtree = NULL;
+	proto_tree        *subtree2 = NULL;
+	guint8            ctrl_info;
 	guint8            bit_length, byte_length;
 	struct e_in6_addr prefix;
-	guint8            ctrl_info;
 	guint32           metric;
-	guint8            len;
+	guint8            len,i;
+	guint8            subclvs_len;
+	guint8            clv_code, clv_len;
 
 	if (!tree) return;
 
 	memset (prefix.s6_addr, 0, 16);
 
 	while (length > 0) {
+		ctrl_info = tvb_get_guint8(tvb, offset+4);
 		bit_length = tvb_get_guint8(tvb, offset+5);
 		byte_length = (bit_length + 7) / 8;
 		tvb_memcpy (tvb, prefix.s6_addr, offset+6, byte_length);
-		ti = proto_tree_add_text (tree, tvb, offset, -1,
-			"IP prefix: %s /%d",
-			ip6_to_str (&prefix),
-			bit_length );
-		ntree = proto_item_add_subtree (ti, ett_isis_lsp_part_of_clv_ipv6_reachability);
-
 		metric = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_text (ntree, tvb, offset, 4,
-			"Metric: %d", metric);
+		subclvs_len = 0;
+		if ((ctrl_info & 0x20) != 0)
+                        subclvs_len = 1+tvb_get_guint8(tvb, offset+6+byte_length);
 
-		ctrl_info = tvb_get_guint8(tvb, offset+4);
-		proto_tree_add_text (ntree, tvb, offset+4, 1,
+		pi = proto_tree_add_text (tree, tvb, offset, 6+byte_length+subclvs_len,
+                                          "IPv6 prefix: %s/%u, Metric: %u, Distribution: %s, %s, %ssub-TLVs present",
+                                          ip6_to_str (&prefix),
+                                          bit_length,
+                                          metric,
+                                          ((ctrl_info & 0x80) == 0) ? "up" : "down",
+                                          ((ctrl_info & 0x40) == 0) ? "internal" : "external",
+                                          ((ctrl_info & 0x20) == 0) ? "no " : "" );
+
+		subtree = proto_item_add_subtree (pi, ett_isis_lsp_part_of_clv_ipv6_reachability);
+
+		proto_tree_add_text (subtree, tvb, offset+6, byte_length, "IPv6 prefix: %s/%u",
+                                     ip6_to_str (&prefix),
+                                     bit_length);
+
+		proto_tree_add_text (subtree, tvb, offset, 4,
+			"Metric: %u", metric);
+
+		proto_tree_add_text (subtree, tvb, offset+4, 1,
 			"Distribution: %s, %s",
 			((ctrl_info & 0x80) == 0) ? "up" : "down",
 			((ctrl_info & 0x40) == 0) ? "internal" : "external" );
 
-		proto_tree_add_text (ntree, tvb, offset+4, 1,
-			"Reserved bits: 0x%x",
-			(ctrl_info & 0x1f) );
-		proto_tree_add_text (ntree, tvb, offset+4, 1,
-			"sub-TLVs: %s",
-			((ctrl_info & 0x20) == 0) ? "no" : "yes" );
+		if ((ctrl_info & 0x1f) != 0) {
+			proto_tree_add_text (subtree, tvb, offset+4, 1,
+					     "Reserved bits: 0x%x",
+					     (ctrl_info & 0x1f) );
+                }
 
 		len = 6 + byte_length;
-		if ((ctrl_info & 0x20) != 0)
-			len += 1 + tvb_get_guint8(tvb, offset+len);
-		proto_item_set_len (ti, len);
+		if ((ctrl_info & 0x20) != 0) {
+                        subclvs_len = tvb_get_guint8(tvb, offset+len);
+                        pi = proto_tree_add_text (subtree, tvb, offset+len, 1, "sub-TLVs present, total length: %u bytes",
+                                             subclvs_len);
+                        proto_item_set_len (pi, subclvs_len+1);
+                        /* open up a new tree for the subTLVs */
+                        subtree2 = proto_item_add_subtree (pi, ett_isis_lsp_clv_ip_reach_subclv);
+
+                        i =0;
+                        while (i < subclvs_len) {
+				clv_code = tvb_get_guint8(tvb, offset+len+1); /* skip the total subtlv len indicator */
+				clv_len  = tvb_get_guint8(tvb, offset+len+2);
+                                dissect_ipreach_subclv(tvb, subtree2, offset+len+3, clv_code, clv_len);
+                                i += clv_len + 2;
+                        }
+                        len += 1 + subclvs_len;
+                } else {
+                        proto_tree_add_text (subtree, tvb, offset+4, 1, "no sub-TLVs present");
+                        proto_item_set_len (pi, len);
+                }
 		offset += len;
 		length -= len;
 	}
@@ -1712,6 +1834,7 @@ isis_register_lsp(int proto_isis) {
 		&ett_isis_lsp_clv_ipv6_int_addr, /* CLV 232 */
 		&ett_isis_lsp_clv_te_router_id,
 		&ett_isis_lsp_clv_ip_reachability,
+                &ett_isis_lsp_clv_ip_reach_subclv,
 		&ett_isis_lsp_clv_ext_ip_reachability, /* CLV 135 */
 		&ett_isis_lsp_part_of_clv_ext_ip_reachability,
 		&ett_isis_lsp_clv_ipv6_reachability, /* CLV 236 */
