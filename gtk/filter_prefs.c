@@ -3,12 +3,11 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.30 2001/06/27 10:00:14 guy Exp $
+ * $Id: filter_prefs.c,v 1.31 2001/10/23 05:01:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,7 +32,7 @@
 
 #include <gtk/gtk.h>
 
-#include <epan.h>
+#include <epan/filesystem.h>
 
 #include "filters.h"
 #include "gtk/main.h"
@@ -709,9 +708,19 @@ static void
 filter_dlg_save_cb(GtkWidget *save_bt, gpointer data)
 {
 	filter_list_type_t list = *(filter_list_type_t *)data;
+	const char *pf_dir_path;
 	char *f_path;
 	int f_save_errno;
 	char *filter_type;
+
+	/* Create the directory that holds personal configuration files,
+	   if necessary.  */
+	if (create_persconffile_dir(&pf_dir_path) == -1) {
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Can't create directory\n\"%s\"\nfor filter files: %s.",
+		    pf_dir_path, strerror(errno));
+		return;
+	}
 
 	save_filter_list(list, &f_path, &f_save_errno);
 	if (f_path != NULL) {

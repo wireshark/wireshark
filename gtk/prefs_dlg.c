@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.30 2001/10/22 22:59:26 guy Exp $
+ * $Id: prefs_dlg.c,v 1.31 2001/10/23 05:01:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,8 @@
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
+
+#include <epan/filesystem.h>
 
 #include "main.h"
 #include "gtkglobals.h"
@@ -654,12 +656,20 @@ prefs_main_save_cb(GtkWidget *save_bt, gpointer parent_w)
   gui_prefs_fetch(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
   prefs_module_foreach(module_prefs_fetch, &must_redissect);
 
-  /* Write the preferencs out. */
-  err = write_prefs(&pf_path);
-  if (err != 0) {
+  /* Create the directory that holds personal configuration files, if
+     necessary.  */
+  if (create_persconffile_dir(&pf_path) == -1) {
      simple_dialog(ESD_TYPE_WARN, NULL,
-      "Can't open preferences file\n\"%s\": %s.", pf_path,
-      strerror(err));
+      "Can't create directory\n\"%s\"\nfor preferences file: %s.", pf_path,
+      strerror(errno));
+  } else {
+    /* Write the preferencs out. */
+    err = write_prefs(&pf_path);
+    if (err != 0) {
+       simple_dialog(ESD_TYPE_WARN, NULL,
+        "Can't open preferences file\n\"%s\": %s.", pf_path,
+        strerror(err));
+    }
   }
 
   /* Now apply those preferences.

@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.10 2001/10/23 03:40:39 guy Exp $
+ * $Id: filesystem.c,v 1.11 2001/10/23 05:00:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -385,4 +385,38 @@ get_persconffile_dir(void)
 		g_free(homestring);
 #endif
 	return pf_dir;
+}
+
+/*
+ * Create the directory that holds personal configuration files, if
+ * necessary.  If we attempted to create it, and failed, return -1 and
+ * set "*pf_dir_path_return" to the pathname of the directory; otherwise,
+ * return 0.
+ */
+int
+create_persconffile_dir(const char **pf_dir_path_return)
+{
+	const char *pf_dir_path;
+	struct stat s_buf;
+	int ret;
+
+	pf_dir_path = get_persconffile_dir();
+	if (stat(pf_dir_path, &s_buf) != 0) {
+#ifdef WIN32
+		ret = mkdir(pf_dir_path);
+#else
+		ret = mkdir(pf_dir_path, 0755);
+#endif
+	} else {
+		/*
+		 * Something with that pathname exists; if it's not
+		 * a directory, we'll get an error if we try to put
+		 * something in it, so we don't fail here, we wait
+		 * for that attempt fo fail.
+		 */
+		ret = 0;
+	}
+	if (ret == -1)
+		*pf_dir_path_return = pf_dir_path;
+	return ret;
 }

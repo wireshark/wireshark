@@ -1,7 +1,7 @@
 /* filters.c
  * Code for reading and writing the filters file.
  *
- * $Id: filters.c,v 1.11 2001/10/22 22:59:23 guy Exp $
+ * $Id: filters.c,v 1.12 2001/10/23 05:00:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,16 +31,8 @@
 #include <ctype.h>
 #include <errno.h>
 
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-
-#ifdef HAVE_DIRECT_H
-#include <direct.h>		/* to declare "mkdir()" on Windows */
 #endif
 
 #include <glib.h>
@@ -425,7 +417,6 @@ save_filter_list(filter_list_type_t list, char **pref_path_return,
   GList      *flp;
   filter_def *filt;
   FILE       *ff;
-  struct stat s_buf;
   guchar     *p, c;
   
   *pref_path_return = NULL;	/* assume no error */
@@ -448,13 +439,6 @@ save_filter_list(filter_list_type_t list, char **pref_path_return,
   }
 
   pf_dir_path = get_persconffile_dir();
-  if (stat(pf_dir_path, &s_buf) != 0)
-#ifdef WIN32
-    mkdir(pf_dir_path);
-#else
-    mkdir(pf_dir_path, 0755);
-#endif
-    
   path_length = strlen(pf_dir_path) + strlen(ff_name) + 2;
   ff_path = (gchar *) g_malloc(path_length);
   sprintf(ff_path, "%s" G_DIR_SEPARATOR_S "%s", pf_dir_path, ff_name);

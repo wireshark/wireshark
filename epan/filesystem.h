@@ -1,7 +1,7 @@
 /* filesystem.h
  * Filesystem utility definitions
  *
- * $Id: filesystem.h,v 1.7 2001/10/22 23:16:01 guy Exp $
+ * $Id: filesystem.h,v 1.8 2001/10/23 05:00:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,5 +75,13 @@ const char *get_systemfile_dir(void);
  * Get the directory in which personal configuration files are stored.
  */
 const char *get_persconffile_dir(void);
+
+/*
+ * Create the directory that holds personal configuration files, if
+ * necessary.  If we attempted to create it, and failed, return -1 and
+ * set "*pf_dir_path_return" to the pathname of the directory; otherwise,
+ * return 0.
+ */
+int create_persconffile_dir(const char **pf_dir_path_return);
 
 #endif /* FILESYSTEM_H */

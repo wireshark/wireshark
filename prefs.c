@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.66 2001/10/22 22:59:23 guy Exp $
+ * $Id: prefs.c,v 1.67 2001/10/23 05:00:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,10 +30,6 @@
 #include <sys/types.h>
 #endif
 
-#ifdef HAVE_DIRECT_H
-#include <direct.h>
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -41,10 +37,6 @@
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
-#endif
-
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
 #endif
 
 #include <filesystem.h>
@@ -1463,10 +1455,8 @@ write_module_prefs(gpointer data, gpointer user_data)
 int
 write_prefs(const char **pf_path_return)
 {
-  const char  *pf_dir_path;
   const char  *pf_path;
   FILE        *pf;
-  struct stat  s_buf;
   GList       *clp, *col_l;
   fmt_data    *cfmt;
 
@@ -1475,17 +1465,6 @@ write_prefs(const char **pf_path_return)
    * - Create a function for the preference directory check/creation
    *   so that duplication can be avoided with filter.c
    */
-
-  /*
-   * Create the directory that holds personal configuration files.
-   */
-  pf_dir_path = get_persconffile_dir();
-  if (stat(pf_dir_path, &s_buf) != 0)
-#ifdef WIN32
-    mkdir(pf_dir_path);
-#else
-    mkdir(pf_dir_path, 0755);
-#endif
 
   pf_path = get_preffile_path();
   if ((pf = fopen(pf_path, "w")) == NULL) {

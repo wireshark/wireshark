@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.12 2001/10/22 22:59:26 guy Exp $
+ * $Id: colors.c,v 1.13 2001/10/23 05:01:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #endif
 
 #include <epan/filesystem.h>
+
 #include "gtk/main.h"
 #include "packet.h"
 #include "colors.h"
@@ -287,8 +288,18 @@ write_filter(gpointer filter_arg, gpointer file_arg)
 gboolean
 write_filters(colfilter *filter)
 {
+	const gchar *pf_dir_path;
 	const gchar *path;
 	FILE *f;
+
+	/* Create the directory that holds personal configuration files,
+	   if necessary.  */
+	if (create_persconffile_dir(&pf_dir_path) == -1) {
+	  simple_dialog(ESD_TYPE_WARN, NULL,
+		"Can't create directory\n\"%s\"\nfor color files: %s.",
+		pf_dir_path, strerror(errno));
+	  return FALSE;
+	}
 
 	path = get_colorfilter_file_path();
 	if ((f = fopen(path, "w+")) == NULL) {
