@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.43 2002/02/27 21:26:37 guy Exp $
+ * $Id: plugin_table.h,v 1.44 2002/04/04 05:16:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -71,8 +71,6 @@ typedef dissector_handle_t (*addr_create_dissector_handle)(dissector_t dissector
     int proto);
 typedef int (*addr_call_dissector)(dissector_handle_t, tvbuff_t *,
     packet_info *, proto_tree *);
-
-typedef void (*addr_dissect_data)(tvbuff_t *, int, packet_info *, proto_tree *);
 
 typedef gboolean (*addr_proto_is_protocol_enabled)(int);
 
@@ -260,8 +258,6 @@ typedef struct  {
 	addr_find_dissector			p_find_dissector;
 	addr_create_dissector_handle		p_create_dissector_handle;
 	addr_call_dissector			p_call_dissector;
-
-	addr_dissect_data			p_dissect_data;
 
 	addr_proto_is_protocol_enabled		p_proto_is_protocol_enabled;
 
