@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.25 2001/04/01 02:47:55 hagbard Exp $
+ * $Id: packet.c,v 1.26 2001/04/01 03:18:41 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -125,58 +125,6 @@ void
 packet_cleanup(void)
 {
 	/* nothing */
-}
-
-/* Tries to match val against each element in the value_string array vs.
-   Returns the associated string ptr on a match.
-   Formats val with fmt, and returns the resulting string, on failure. */
-gchar*
-val_to_str(guint32 val, const value_string *vs, const char *fmt) {
-  gchar *ret;
-  static gchar  str[3][64];
-  static gchar *cur;
-
-  ret = match_strval(val, vs);
-  if (ret != NULL)
-    return ret;
-  if (cur == &str[0][0]) {
-    cur = &str[1][0];
-  } else if (cur == &str[1][0]) {  
-    cur = &str[2][0];
-  } else {  
-    cur = &str[0][0];
-  }
-  snprintf(cur, 64, fmt, val);
-  return cur;
-}
-
-/* Tries to match val against each element in the value_string array vs.
-   Returns the associated string ptr on a match, or NULL on failure. */
-gchar*
-match_strval(guint32 val, const value_string *vs) {
-  gint i = 0;
-  
-  while (vs[i].strptr) {
-    if (vs[i].value == val)
-      return(vs[i].strptr);
-    i++;
-  }
-
-  return(NULL);
-}
-
-/* Generate a string describing an enumerated bitfield (an N-bit field
-   with various specific values having particular names). */
-const char *
-decode_enumerated_bitfield(guint32 val, guint32 mask, int width,
-    const value_string *tab, const char *fmt)
-{
-  static char buf[1025];
-  char *p;
-
-  p = decode_bitfield_value(buf, val, mask, width);
-  sprintf(p, fmt, val_to_str(val & mask, tab, "Unknown"));
-  return buf;
 }
 
 /* Allocate all the data structures for constructing column data, given

@@ -36,6 +36,7 @@ OBJECTS=atalk-utils.obj	\
 	strutil.obj      \
 	to_str.obj	\
 	tvbuff.obj       \
+	value_string.obj \
 
 
 all: ftypes dfilter ethereal.lib

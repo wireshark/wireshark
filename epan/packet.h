@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.25 2001/04/01 02:47:55 hagbard Exp $
+ * $Id: packet.h,v 1.26 2001/04/01 03:18:41 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,6 +32,7 @@
 #include "tvbuff.h"
 #include "pint.h"
 #include "to_str.h"
+#include "value_string.h"
 
 #define hi_nibble(b) (((b) & 0xf0) >> 4)
 #define lo_nibble(b) ((b) & 0x0f)
@@ -189,13 +190,6 @@ typedef struct _packet_info {
 
 extern packet_info pi;
 
-/* Struct for the match_strval function */
-
-typedef struct _value_string {
-  guint32  value;
-  gchar   *strptr;
-} value_string;
-
 /* Struct for boolean enumerations */
 typedef struct true_false_string {
 	char	*true_string;
@@ -328,10 +322,6 @@ void call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree);
 
 /* Utility routines used by packet*.c */
-gchar*     val_to_str(guint32, const value_string *, const char *);
-gchar*     match_strval(guint32, const value_string*);
-const char *decode_enumerated_bitfield(guint32 val, guint32 mask, int width,
-  const value_string *tab, const char *fmt);
 
 void	   col_set_writable(frame_data *fd, gboolean writable);
 gint       check_col(frame_data *, gint);
