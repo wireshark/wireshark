@@ -2,7 +2,7 @@
  * Routines for use by various SDLC-derived protocols, such as HDLC
  * and its derivatives LAPB, IEEE 802.2 LLC, etc..
  *
- * $Id: xdlc.c,v 1.4 1999/08/23 22:47:13 guy Exp $
+ * $Id: xdlc.c,v 1.5 1999/08/23 23:24:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -65,6 +65,31 @@
 #define XDLC_RNR		0x04	/* Receiver not ready */
 #define XDLC_REJ		0x08	/* Reject */
 #define XDLC_SREJ		0x0C	/* Selective reject */
+
+/*
+ * U-format modifiers.
+ */
+#define XDLC_U_MODIFIER_MASK	0xEC
+#define XDLC_UI		0x00	/* Unnumbered Information */
+#define XDLC_UP		0x20	/* Unnumbered Poll */
+#define XDLC_DISC	0x40	/* Disconnect (command) */
+#define XDLC_RD		0x40	/* Request Disconnect (response) */
+#define XDLC_UA		0x60	/* Unnumbered Acknowledge */
+#define XDLC_SNRM	0x80	/* Set Normal Response Mode */
+#define XDLC_TEST	0xC0	/* Test */
+#define XDLC_SIM	0x04	/* Set Initialization Mode (command) */
+#define XDLC_RIM	0x04	/* Request Initialization Mode (response) */
+#define XDLC_FRMR	0x84	/* Frame reject */
+#define XDLC_CFGR	0xC4	/* Configure */
+#define XDLC_SARM	0x0C	/* Set Asynchronous Response Mode (command) */
+#define XDLC_DM		0x0C	/* Disconnected mode (response) */
+#define XDLC_SABM	0x2C	/* Set Asynchronous Balanced Mode */
+#define XDLC_SARME	0x4C	/* Set Asynchronous Response Mode Extended */
+#define XDLC_SABME	0x6C	/* Set Asynchronous Balanced Mode Extended */
+#define XDLC_RESET	0x8C	/* Reset */
+#define XDLC_XID	0xAC	/* Exchange identification */
+#define XDLC_SNRME	0xCC	/* Set Normal Response Mode Extended */
+#define XDLC_BCN	0xEC	/* Beacon */
 
 static const value_string stype_vals[] = {
     { XDLC_RR,   "Receiver ready" },
@@ -167,9 +192,9 @@ get_xdlc_control(const u_char *pd, int offset, int is_response, int is_extended)
 
     case XDLC_S:
         /*
-	 * Supervisory frame.
+	 * Supervisory frame - no higher-layer payload.
 	 */
-	return XDLC_S;
+	return FALSE;
 
     case XDLC_U:
 	/*
@@ -185,17 +210,15 @@ get_xdlc_control(const u_char *pd, int offset, int is_response, int is_extended)
 	control = pd[offset];
 
 	/*
-	 * Return the modifier as well as the XDLC_U bits, so that
-	 * our caller knows whether the packet is UI or something
-	 * else.
+	 * This frame has payload only if it's a UI frame.
 	 */
-	return control & (XDLC_U_MODIFIER_MASK|0x03);
+	return (control & XDLC_U_MODIFIER_MASK) == XDLC_UI;
 
     default:
 	/*
-	 * Information frame.
+	 * Information frame - has higher-layer payload.
 	 */
-	return XDLC_I;
+	return TRUE;
     }
 }
 
@@ -297,7 +320,11 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 			"Supervisory frame", NULL));
 	    }
 	}
-	return XDLC_S;
+
+	/*
+	 * Supervisory frames have no higher-layer payload to be analyzed.
+	 */
+	return FALSE;
 
     case XDLC_U:
 	/*
@@ -349,11 +376,9 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 	}
 
 	/*
-	 * Return the modifier as well as the XDLC_U bits, so that
-	 * our caller knows whether the packet is UI or something
-	 * else.
+	 * This frame has payload only if it's a UI frame.
 	 */
-	return control & (XDLC_U_MODIFIER_MASK|0x03);
+	return (control & XDLC_U_MODIFIER_MASK) == XDLC_UI;
 
     default:
 	/*
@@ -415,6 +440,10 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 			NULL, "Information frame"));
 	    }
 	}
-	return XDLC_I;
+
+	/*
+	 * Information frames have higher-layer payload to be analyzed.
+	 */
+	return TRUE;
     }
 }

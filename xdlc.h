@@ -2,7 +2,7 @@
  * Define *DLC frame types, and routine to dissect the control field of
  * a *DLC frame.
  *
- * $Id: xdlc.h,v 1.2 1999/08/23 22:47:13 guy Exp $
+ * $Id: xdlc.h,v 1.3 1999/08/23 23:24:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -31,31 +31,6 @@
 #define XDLC_I		0x00	/* Information frames */
 #define XDLC_S		0x01	/* Supervisory frames */
 #define XDLC_U		0x03	/* Unnumbered frames */
-
-/*
- * U-format modifiers.
- */
-#define XDLC_U_MODIFIER_MASK	0xEC
-#define XDLC_UI		0x00	/* Unnumbered Information */
-#define XDLC_UP		0x20	/* Unnumbered Poll */
-#define XDLC_DISC	0x40	/* Disconnect (command) */
-#define XDLC_RD		0x40	/* Request Disconnect (response) */
-#define XDLC_UA		0x60	/* Unnumbered Acknowledge */
-#define XDLC_SNRM	0x80	/* Set Normal Response Mode */
-#define XDLC_TEST	0xC0	/* Test */
-#define XDLC_SIM	0x04	/* Set Initialization Mode (command) */
-#define XDLC_RIM	0x04	/* Request Initialization Mode (response) */
-#define XDLC_FRMR	0x84	/* Frame reject */
-#define XDLC_CFGR	0xC4	/* Configure */
-#define XDLC_SARM	0x0C	/* Set Asynchronous Response Mode (command) */
-#define XDLC_DM		0x0C	/* Disconnected mode (response) */
-#define XDLC_SABM	0x2C	/* Set Asynchronous Balanced Mode */
-#define XDLC_SARME	0x4C	/* Set Asynchronous Response Mode Extended */
-#define XDLC_SABME	0x6C	/* Set Asynchronous Balanced Mode Extended */
-#define XDLC_RESET	0x8C	/* Reset */
-#define XDLC_XID	0xAC	/* Exchange identification */
-#define XDLC_SNRME	0xCC	/* Set Normal Response Mode Extended */
-#define XDLC_BCN	0xEC	/* Beacon */
 
 int get_xdlc_control(const u_char *pd, int offset, int is_response,
   int extended);

@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.20 1999/08/23 22:47:13 guy Exp $
+ * $Id: packet-llc.c,v 1.21 1999/08/23 23:24:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -163,7 +163,7 @@ void
 capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 
 	int		is_snap;
-	int		control;
+	int		has_payload;
 	guint16		etype;
 	capture_func_t	*capture;
 
@@ -184,13 +184,12 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 	 * extended operation, so we don't need to determine whether
 	 * it's basic or extended operation; is that the case?
 	 */
-	control = get_xdlc_control(pd, offset+2, pd[offset+1] & 0x01, TRUE);
+	has_payload = get_xdlc_control(pd, offset+2, pd[offset+1] & 0x01, TRUE);
 
 	if (is_snap) {
-		if (control == XDLC_I || control == (XDLC_U|XDLC_UI)) {
+		if (has_payload) {
 			/*
-			 * Unnumbered Information - analyze it based on
-			 * the Ethernet packet type.
+			 * This frame has a payload to be analyzed.
 			 */
 			etype  = (pd[offset+6] << 8) | pd[offset+7];
 			offset += 8;
@@ -198,10 +197,9 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 		}
 	}		
 	else {
-		if (control == XDLC_I || control == (XDLC_U|XDLC_UI)) {
+		if (has_payload) {
 			/*
-			 * Unnumbered Information - analyze it based on
-			 * the DSAP.
+			 * This frame has a payload to be analyzed.
 			 */
 			capture = sap_capture_func(pd[offset]);
 
@@ -224,7 +222,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_tree	*llc_tree = NULL;
 	proto_item	*ti;
 	int		is_snap;
-	int		control;
+	int		has_payload;
 	guint16		etype;
 	dissect_func_t	*dissect;
 
@@ -257,8 +255,8 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	 * extended operation, so we don't need to determine whether
 	 * it's basic or extended operation; is that the case?
 	 */
-	control = dissect_xdlc_control(pd, offset+2, fd, llc_tree, hf_llc_ctrl,
-	    pd[offset+1] & 0x01, TRUE);
+	has_payload = dissect_xdlc_control(pd, offset+2, fd, llc_tree,
+				hf_llc_ctrl, pd[offset+1] & 0x01, TRUE);
 
 	/*
 	 * XXX - do we want to append the SAP information to the stuff
@@ -273,10 +271,9 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			proto_tree_add_item(llc_tree, hf_llc_oui, offset+3, 3,
 				pd[offset+3] << 16 | pd[offset+4] << 8 | pd[offset+5]);
 		}
-		if (control == (XDLC_U|XDLC_UI)) {
+		if (has_payload) {
 			/*
-			 * Unnumbered Information - dissect it based on
-			 * the Ethernet packet type.
+			 * This frame has a payload to be analyzed.
 			 */
 			etype = pntohs(&pd[offset+6]);
 			offset += 8;
@@ -291,10 +288,9 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				val_to_str(pd[offset], sap_vals, "%02x"));
 		}
 
-		if (control == (XDLC_U|XDLC_UI)) {
+		if (has_payload) {
 			/*
-			 * Unnumbered Information - dissect it based on
-			 * the DSAP.
+			 * This frame has a payload to be analyzed.
 			 */
 			dissect = sap_dissect_func(pd[offset]);
 
