@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.44 2001/07/08 22:59:50 guy Exp $
+ * $Id: packet-bgp.c,v 1.45 2001/07/09 11:08:39 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -181,8 +181,6 @@ static const value_string bgpext_ospf_rtype[] = {
   { 0, NULL },
 };
 
-static const value_string bgpext_osptf_rtype_metric[] = {
-};
 
 /* MUST be resized if a longer named extended community is added */
 #define MAX_SIZE_OF_EXT_COM_NAMES       20
