@@ -545,6 +545,8 @@ void wtap_set_bytes_dumped(wtap_dumper *wdh, long bytes_dumped);
 	/* Uncompressing Sniffer data would overflow buffer */
 #define	WTAP_ERR_UNC_BAD_OFFSET			-17
 	/* LZ77 compressed data has bad offset to string */
+#define	WTAP_ERR_RANDOM_OPEN_STDIN		-18
+	/* We're trying to open the standard input for random access */
 
 /* Errors from zlib; zlib error Z_xxx turns into Wiretap error
    WTAP_ERR_ZLIB + Z_xxx.

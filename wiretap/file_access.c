@@ -164,11 +164,23 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	struct stat statb;
 	wtap	*wth;
 	unsigned int	i;
+	gboolean use_stdin = FALSE;
+
+	/* open standard input if filename is '-' */
+	if (strcmp(filename, "-") == 0)
+		use_stdin = TRUE;
 
 	/* First, make sure the file is valid */
-	if (stat(filename, &statb) < 0) {
-		*err = errno;
-		return NULL;
+	if (use_stdin) {
+		if (fstat(0, &statb) < 0) {
+			*err = errno;
+			return NULL;
+		}
+	} else {
+		if (stat(filename, &statb) < 0) {
+			*err = errno;
+			return NULL;
+		}
 	}
 	if (S_ISFIFO(statb.st_mode)) {
 		/*
@@ -200,6 +212,18 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 		return NULL;
 	}
 
+	/*
+	 * We need two independent descriptors for random access, so
+	 * they have different file positions.  If we're opening the
+	 * standard input, we can only dup it to get additional
+	 * descriptors, so we can't have two independent descriptors,
+	 * and thus can't do random access.
+	 */
+	if (use_stdin && do_random) {
+		*err = WTAP_ERR_RANDOM_OPEN_STDIN;
+		return NULL;
+	}
+
 	errno = ENOMEM;
 	wth = g_malloc(sizeof(wtap));
 	if (wth == NULL) {
@@ -214,7 +238,18 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 
 	/* Open the file */
 	errno = WTAP_ERR_CANT_OPEN;
-	wth->fd = open(filename, O_RDONLY|O_BINARY);
+	if (use_stdin) {
+		/*
+		 * We dup FD 0, so that we don't have to worry about
+		 * an fclose or gzclose of wth->fh closing the standard
+		 * input of the process.
+		 */
+		wth->fd = dup(0);
+#ifdef _WIN32
+		_setmode(wth->fd, O_BINARY);
+#endif
+	} else
+		wth->fd = open(filename, O_RDONLY|O_BINARY);
 	if (wth->fd < 0) {
 		*err = errno;
 		g_free(wth);
@@ -222,6 +257,7 @@ wtap* wtap_open_offline(const char *filename, int *err, char **err_info,
 	}
 	if (!(wth->fh = filed_open(wth->fd, "rb"))) {
 		*err = errno;
+		close(wth->fd);
 		g_free(wth);
 		return NULL;
 	}

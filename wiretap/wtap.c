@@ -320,6 +320,7 @@ static const char *wtap_errlist[] = {
 	"Uncompression error: data oddly truncated",
 	"Uncompression error: data would overflow buffer",
 	"Uncompression error: bad LZ77 offset",
+	"The standard input cannot be opened for random access",
 };
 #define	WTAP_ERRLIST_SIZE	(sizeof wtap_errlist / sizeof wtap_errlist[0])
 
