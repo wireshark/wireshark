@@ -55,8 +55,6 @@ ETHEREAL_GTK_SRC = \
 	graph_analysis.c \
 	gtk_stat_util.c	\
 	gui_prefs.c	\
-	h323_analysis.c	\
-	h323_conversations.c	\
 	help_dlg.c	\
 	hostlist_table.c \
 	layout_prefs.c	\
@@ -114,7 +112,6 @@ ETHEREAL_TAP_SRC = \
 	gsm_map_summary.c	\
 	h225_counter.c	\
 	h225_ras_srt.c	\
-	h323_conversations_dlg.c	\
 	hostlist_eth.c \
 	hostlist_fc.c \
 	hostlist_fddi.c \
