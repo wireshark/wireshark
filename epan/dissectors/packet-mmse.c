@@ -1168,7 +1168,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			count2 = get_encoded_strval(tvb,
 				offset + count + count1, &strval);
 			/* Now render the fields */
-			ti = proto_tree_add_string_format(tree,
+			ti = proto_tree_add_string_format(mmse_tree,
 				hf_mmse_prev_sent_by,
 				tvb, offset - 1, 1 + count + length,
 				strval, "%s (Forwarded-count=%u)",
@@ -1204,7 +1204,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 pdut,
 			tmptime.nsecs = 0;
 			strval = abs_time_to_str(&tmptime);
 			/* Now render the fields */
-			ti = proto_tree_add_string_format(tree,
+			ti = proto_tree_add_string_format(mmse_tree,
 				hf_mmse_prev_sent_date,
 				tvb, offset - 1, 1 + count + length,
 				strval, "%s (Forwarded-count=%u)",
