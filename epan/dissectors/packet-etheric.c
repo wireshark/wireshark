@@ -455,7 +455,7 @@ static const value_string isup_event_ind_value[] = {
   {  6,	"call forwarded unconditional (national use)"},
   {  0,	NULL}};
 
-static void dissect_etheric_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *etheric_tree, guint8 etheric_version);
+static void dissect_etheric_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *etheric_tree, guint8 etheric_version, guint8 message_length);
 
 /* ------------------------------------------------------------------
   Mapping number to ASCII-character
@@ -477,7 +477,7 @@ dissect_etheric(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *ti;
 	proto_tree *etheric_tree;
 	gint		offset = 0;
-/*	guint8		octet; */
+	guint8		message_length; 
 	guint16		cic;
 	guint8		message_type,etheric_version;
 	
@@ -505,6 +505,7 @@ dissect_etheric(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		etheric_version = tvb_get_guint8(tvb, 0);
 		proto_tree_add_item(etheric_tree, hf_etheric_protocol_version, tvb, offset, 1, FALSE);
 		offset++;
+		message_length = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(etheric_tree, hf_etheric_message_length, tvb, offset, 1, FALSE);
 		offset++;
 
@@ -513,7 +514,7 @@ dissect_etheric(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset = offset + 2;
 	
 		message_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		dissect_etheric_message(message_tvb, pinfo, etheric_tree,etheric_version);
+		dissect_etheric_message(message_tvb, pinfo, etheric_tree,etheric_version, message_length);
 
 
 	}/* end end if tree */
@@ -1131,7 +1132,7 @@ dissect_etheric_optional_parameter(tvbuff_t *optional_parameters_tvb,packet_info
 		
 
 static void
-dissect_etheric_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *etheric_tree, guint8 etheric_version)
+dissect_etheric_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *etheric_tree, guint8 etheric_version, guint8 message_length)
 {
   tvbuff_t *parameter_tvb;
   tvbuff_t *optional_parameter_tvb;
@@ -1219,7 +1220,9 @@ dissect_etheric_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *e
 
    /* extract pointer to start of optional part (if any) */
    if (opt_part_possible == TRUE){
+	   if (message_length > 5 ) 
 		   opt_parameter_pointer = tvb_get_guint8(message_tvb, offset);
+
 	   if (opt_parameter_pointer > 0){
 		   proto_tree_add_uint_format(etheric_tree, hf_etheric_pointer_to_start_of_optional_part,
 				message_tvb, offset, 1, opt_parameter_pointer, "Pointer to start of optional part: %u", opt_parameter_pointer);
