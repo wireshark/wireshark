@@ -386,6 +386,7 @@ REQUIRED_TOOLS=\
 	$(YACC)	\
 	$(LEX)	\
 	grep	\
+	/usr/bin/find	\
 	$(PERL)	\
 	$(PYTHON)	\
 	sed	\

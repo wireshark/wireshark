@@ -71,7 +71,7 @@ case "$1" in
 	unzip -nq "$DEST_PATH/$PACKAGE" || 
 		err_exit "Couldn't unpack $DEST_PATH/$PACKAGE"
 	echo "Verifying that the DLLs in $DEST_PATH/$DEST_SUBDIR are executable."
-	for i in `find $DEST_PATH/$DEST_SUBDIR -name \*\.dll` ; do
+	for i in `/usr/bin/find $DEST_PATH/$DEST_SUBDIR -name \*\.dll` ; do
 		if [ ! -x "$i" ] ; then
 			echo "Changing file permissions (add executable bit) to:"
 			echo "$i"
