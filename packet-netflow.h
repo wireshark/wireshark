@@ -2,7 +2,7 @@
  * Routines for Cisco NetFlow packet disassembly
  * Matthew Smart <smart@monkey.org>
  *
- * $Id: packet-netflow.h,v 1.1 2002/09/04 20:23:54 guy Exp $
+ * $Id: packet-netflow.h,v 1.2 2002/09/06 21:22:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,7 +39,7 @@ struct netflow5_hdr {
 	guint32	flow_sequence;	/* Sequence num of flows seen */
 	guint8	engine_type;	/* Type of flow switching engine */
 	guint8	engine_id;	/* Slot number of switching engine */
-	guint16	reserved;
+	guint16	sample_rate;    /* sample 1/sample_rate packets */
 };
 
 struct netflow5_rec {

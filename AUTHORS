@@ -692,6 +692,7 @@ Hannes Gredler <hannes[AT]juniper.net> {
 	Many BGP enhancements and bug fixes
 	Fix display of OSI system IDs to use a dot rather than a dash
 	    before the PSN byte
+	Decode the sample rate factor in cflowd5 headers
 }
 
 Inoue <inoue[AT]ainet.or.jp> {

@@ -2,7 +2,7 @@
  * Routines for Cisco NetFlow packet disassembly
  * Matthew Smart <smart@monkey.org>
  *
- * $Id: packet-netflow.c,v 1.1 2002/09/04 20:23:53 guy Exp $
+ * $Id: packet-netflow.c,v 1.2 2002/09/06 21:22:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,7 @@ static int hf_netflow_count = -1;
 static int hf_netflow_sys_uptime = -1;
 static int hf_netflow_unix_sec = -1;
 static int hf_netflow_unix_nsec = -1;
+static int hf_netflow_sample_rate = -1; 
 static int hf_netflow_flow_sequence = -1;
 static int hf_netflow_record = -1;
 
@@ -56,7 +57,7 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint offset = 0;
 	struct netflow5_hdr nfh;
 	struct netflow5_rec nfr;
-	guint16 nfh_version, nfh_count;
+	guint16 nfh_version, nfh_count, nfh_sample_rate;
 	guint32 nfh_sys_uptime, nfh_unix_sec, nfh_unix_nsec;
 	guint32 nfh_sequence;
 	int i;
@@ -73,18 +74,19 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	nfh_sys_uptime = ntohl(nfh.sys_uptime);
 	nfh_unix_sec = ntohl(nfh.unix_sec);
 	nfh_unix_nsec = ntohl(nfh.unix_nsec);
+	nfh_sample_rate = ntohs(nfh.sample_rate);
 	nfh_sequence = ntohl(nfh.flow_sequence);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO,
-		    "v%u, %u records, sequence number %u",
+		    "Netflow v%u, %u records, sequence number %u",
 		    nfh_version, nfh_count, nfh_sequence);
 
 	if (tree != NULL) {
 		/* Add NetFlow to to the tree */
 		ti = proto_tree_add_protocol_format(tree, proto_netflow, tvb,
 		    offset, sizeof(nfh.version) + sizeof(nfh.count)*sizeof(nfr),
-		    "Cisco Netflow, v%u, %u records, sequence number %u",
+		    "Netflow v%u, %u records, sequence number %u",
 		    nfh_version, nfh_count, nfh_sequence);
 		netflow_tree = proto_item_add_subtree(ti, ett_netflow);
 
@@ -114,6 +116,11 @@ dissect_netflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint_format(netflow_tree, hf_netflow_unix_nsec,
 		    tvb, offset + 12, sizeof(nfh.unix_nsec), nfh_unix_nsec,
 		    "Residual: %u nanoseconds", nfh_unix_nsec);
+
+		/* On high-speed interfaces often just statistical sample records are produced */
+		proto_tree_add_uint_format(netflow_tree, hf_netflow_sample_rate,
+		    tvb, offset + 22, sizeof(nfh.sample_rate), nfh_sample_rate,
+		    "Sample Rate: 1/%u", nfh_sample_rate);
 
 		for (i = 0; i < nfh_count; i++) {
 			guint rec_offset = sizeof(nfh) + i * sizeof(nfr);
@@ -202,6 +209,9 @@ proto_register_netflow(void)
 		  BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_netflow_unix_nsec,
 		{ "Unix nanonseconds", "netflow.unix_nsec", FT_UINT32,
+		  BASE_DEC, NULL, 0x0, "", HFILL }},
+		{ &hf_netflow_sample_rate,
+		{ "Sample Rate", "netflow.sample_rate", FT_UINT16,
 		  BASE_DEC, NULL, 0x0, "", HFILL }},
 		{ &hf_netflow_flow_sequence,
 		{ "Sequence number", "netflow.flow_sequence", FT_UINT32,
