@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.80 2003/01/22 17:11:20 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.81 2003/01/22 19:39:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -348,10 +348,10 @@ static int ff_status_code = -1;	/* Status code                               */
 /*            Flags found in the capability field (fixed field)              */
 /* ************************************************************************* */
 static int ff_capture = -1;
-static int ff_cf_sta_poll = -1; /* CF pollable status for a STA            */
-static int ff_cf_ap_poll = -1;	/* CF pollable status for an AP            */
 static int ff_cf_ess = -1;
 static int ff_cf_ibss = -1;
+static int ff_cf_sta_poll = -1; /* CF pollable status for a STA            */
+static int ff_cf_ap_poll = -1;	/* CF pollable status for an AP            */
 static int ff_cf_privacy = -1;
 static int ff_cf_preamble = -1;
 static int ff_cf_pbcc = -1;
@@ -608,29 +608,29 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 					     "Capability Information: 0x%04X",
 					     capability);
       cap_tree = proto_item_add_subtree (cap_item, ett_cap_tree);
-      proto_tree_add_boolean (cap_tree, ff_cf_ess, tvb, offset, 1,
+      proto_tree_add_boolean (cap_tree, ff_cf_ess, tvb, offset, 2,
 			      capability);
-      proto_tree_add_boolean (cap_tree, ff_cf_ibss, tvb, offset, 1,
-			      capability);
-      proto_tree_add_boolean (cap_tree, ff_cf_privacy, tvb, offset, 1,
-			      capability);
-      proto_tree_add_boolean (cap_tree, ff_cf_preamble, tvb, offset, 1,
-			      capability);
-      proto_tree_add_boolean (cap_tree, ff_cf_pbcc, tvb, offset, 1,
-			      capability);
-      proto_tree_add_boolean (cap_tree, ff_cf_agility, tvb, offset, 1,
-			      capability);
-      proto_tree_add_boolean (cap_tree, ff_short_slot_time, tvb, offset + 1, 1,
-			      capability);
-      proto_tree_add_boolean (cap_tree, ff_dsss_ofdm, tvb, offset + 1, 1,
+      proto_tree_add_boolean (cap_tree, ff_cf_ibss, tvb, offset, 2,
 			      capability);
       if (ESS_SET (capability) != 0)	/* This is an AP */
 	proto_tree_add_uint (cap_tree, ff_cf_ap_poll, tvb, offset, 2,
-			     ((capability & 0xC) >> 2));
+			     capability);
 
       else			/* This is a STA */
 	proto_tree_add_uint (cap_tree, ff_cf_sta_poll, tvb, offset, 2,
-			     ((capability & 0xC) >> 2));
+			     capability);
+      proto_tree_add_boolean (cap_tree, ff_cf_privacy, tvb, offset, 2,
+			      capability);
+      proto_tree_add_boolean (cap_tree, ff_cf_preamble, tvb, offset, 2,
+			      capability);
+      proto_tree_add_boolean (cap_tree, ff_cf_pbcc, tvb, offset, 2,
+			      capability);
+      proto_tree_add_boolean (cap_tree, ff_cf_agility, tvb, offset, 2,
+			      capability);
+      proto_tree_add_boolean (cap_tree, ff_short_slot_time, tvb, offset, 2,
+			      capability);
+      proto_tree_add_boolean (cap_tree, ff_dsss_ofdm, tvb, offset, 2,
+			      capability);
       break;
 
     case FIELD_AUTH_ALG:
@@ -2260,48 +2260,48 @@ proto_register_ieee80211 (void)
      {"Capabilities", "wlan_mgt.fixed.capabilities", FT_UINT16, BASE_HEX, NULL, 0,
       "Capability information", HFILL }},
 
+    {&ff_cf_ess,
+     {"ESS capabilities", "wlan_mgt.fixed.capabilities.ess",
+      FT_BOOLEAN, 16, TFS (&cf_ess_flags), 0x0001, "ESS capabilities", HFILL }},
+
+    {&ff_cf_ibss,
+     {"IBSS status", "wlan_mgt.fixed.capabilities.ibss",
+      FT_BOOLEAN, 16, TFS (&cf_ibss_flags), 0x0002, "IBSS participation", HFILL }},
+
     {&ff_cf_sta_poll,
      {"CFP participation capabilities", "wlan_mgt.fixed.capabilities.cfpoll.sta",
-      FT_UINT16, BASE_HEX, VALS (&sta_cf_pollable), 0,
+      FT_UINT16, BASE_HEX, VALS (&sta_cf_pollable), 0x000C,
       "CF-Poll capabilities for a STA", HFILL }},
 
     {&ff_cf_ap_poll,
      {"CFP participation capabilities", "wlan_mgt.fixed.capabilities.cfpoll.ap",
-      FT_UINT16, BASE_HEX, VALS (&ap_cf_pollable), 0,
+      FT_UINT16, BASE_HEX, VALS (&ap_cf_pollable), 0x000C,
       "CF-Poll capabilities for an AP", HFILL }},
 
-    {&ff_cf_ess,
-     {"ESS capabilities", "wlan_mgt.fixed.capabilities.ess",
-      FT_BOOLEAN, 8, TFS (&cf_ess_flags), 0x0001, "ESS capabilities", HFILL }},
-
-
-    {&ff_cf_ibss,
-     {"IBSS status", "wlan_mgt.fixed.capabilities.ibss",
-      FT_BOOLEAN, 8, TFS (&cf_ibss_flags), 0x0002, "IBSS participation", HFILL }},
     {&ff_cf_privacy,
      {"Privacy", "wlan_mgt.fixed.capabilities.privacy",
-      FT_BOOLEAN, 8, TFS (&cf_privacy_flags), 0x0010, "WEP support", HFILL }},
+      FT_BOOLEAN, 16, TFS (&cf_privacy_flags), 0x0010, "WEP support", HFILL }},
 
     {&ff_cf_preamble,
      {"Short Preamble", "wlan_mgt.fixed.capabilities.preamble",
-      FT_BOOLEAN, 8, TFS (&cf_preamble_flags), 0x0020, "Short Preamble", HFILL }},
+      FT_BOOLEAN, 16, TFS (&cf_preamble_flags), 0x0020, "Short Preamble", HFILL }},
 
     {&ff_cf_pbcc,
      {"PBCC", "wlan_mgt.fixed.capabilities.pbcc",
-      FT_BOOLEAN, 8, TFS (&cf_pbcc_flags), 0x0040, "PBCC Modulation", HFILL }},
+      FT_BOOLEAN, 16, TFS (&cf_pbcc_flags), 0x0040, "PBCC Modulation", HFILL }},
 
     {&ff_cf_agility,
      {"Channel Agility", "wlan_mgt.fixed.capabilities.agility",
-      FT_BOOLEAN, 8, TFS (&cf_agility_flags), 0x0080, "Channel Agility", HFILL }},
+      FT_BOOLEAN, 16, TFS (&cf_agility_flags), 0x0080, "Channel Agility", HFILL }},
 
     {&ff_short_slot_time,
      {"Short Slot Time", "wlan_mgt.fixed.capabilities.short_slot_time",
-      FT_BOOLEAN, 8, TFS (&short_slot_time_flags), 0x0400, "Short Slot Time",
+      FT_BOOLEAN, 16, TFS (&short_slot_time_flags), 0x0400, "Short Slot Time",
       HFILL }},
 
     {&ff_dsss_ofdm,
      {"DSSS-OFDM", "wlan_mgt.fixed.capabilities.dsss_ofdm",
-      FT_BOOLEAN, 8, TFS (&dsss_ofdm_flags), 0x2000, "DSSS-OFDM Modulation",
+      FT_BOOLEAN, 16, TFS (&dsss_ofdm_flags), 0x2000, "DSSS-OFDM Modulation",
       HFILL }},
 
     {&ff_auth_seq,
