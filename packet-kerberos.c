@@ -16,7 +16,7 @@
  *
  *	http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-03.txt
  *
- * $Id: packet-kerberos.c,v 1.47 2004/02/20 10:04:10 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.48 2004/02/23 08:39:42 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,6 +76,7 @@ static gint hf_krb_e_data = -1;
 static gint hf_krb_PA_PAC_REQUEST_flag = -1;
 static gint hf_krb_encrypted_authenticator_data = -1;
 static gint hf_krb_encrypted_PA_ENC_TIMESTAMP = -1;
+static gint hf_krb_encrypted_PRIV = -1;
 static gint hf_krb_encrypted_Ticket_data = -1;
 static gint hf_krb_encrypted_AP_REP_data = -1;
 static gint hf_krb_encrypted_KDC_REP_data = -1;
@@ -122,6 +123,8 @@ static gint hf_krb_KDCOptions_enc_tkt_in_skey = -1;
 static gint hf_krb_KDCOptions_renew = -1;
 static gint hf_krb_KDCOptions_validate = -1;
 static gint hf_krb_KDC_REQ_BODY = -1;
+static gint hf_krb_PRIV_BODY = -1;
+static gint hf_krb_ENC_PRIV = -1;
 static gint hf_krb_authenticator_enc = -1;
 static gint hf_krb_ticket_enc = -1;
 
@@ -142,6 +145,8 @@ static gint ett_krb_request = -1;
 static gint ett_krb_recordmark = -1;
 static gint ett_krb_ticket = -1;
 static gint ett_krb_ticket_enc = -1;
+static gint ett_krb_PRIV = -1;
+static gint ett_krb_PRIV_enc = -1;
 
 
 guint32 krb5_error_code;
@@ -425,16 +430,18 @@ static int dissect_krb5_KDC_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *
 static int dissect_krb5_KDC_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_AP_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_AP_REP(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
+static int dissect_krb5_PRIV(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 static int dissect_krb5_ERROR(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 
 static const ber_choice kerberos_applications_choice[] = {
-	{ BER_CLASS_APP,	10,	dissect_krb5_KDC_REQ },
-	{ BER_CLASS_APP,	11,	dissect_krb5_KDC_REP },
-	{ BER_CLASS_APP,	12,	dissect_krb5_KDC_REQ },
-	{ BER_CLASS_APP,	13,	dissect_krb5_KDC_REP },
-	{ BER_CLASS_APP,	14,	dissect_krb5_AP_REQ },
-	{ BER_CLASS_APP,	15,	dissect_krb5_AP_REP },
-	{ BER_CLASS_APP,	30,	dissect_krb5_ERROR },
+	{ BER_CLASS_APP,	KRB5_MSG_AS_REQ,	dissect_krb5_KDC_REQ },
+	{ BER_CLASS_APP,	KRB5_MSG_AS_REP,	dissect_krb5_KDC_REP },
+	{ BER_CLASS_APP,	KRB5_MSG_TGS_REQ,	dissect_krb5_KDC_REQ },
+	{ BER_CLASS_APP,	KRB5_MSG_TGS_REP,	dissect_krb5_KDC_REP },
+	{ BER_CLASS_APP,	KRB5_MSG_AP_REQ,	dissect_krb5_AP_REQ },
+	{ BER_CLASS_APP,	KRB5_MSG_AP_REP,	dissect_krb5_AP_REP },
+	{ BER_CLASS_APP,	KRB5_MSG_PRIV,		dissect_krb5_PRIV },
+	{ BER_CLASS_APP,	KRB5_MSG_ERROR,		dissect_krb5_ERROR },
 	{ 0, 0, NULL }
 };
 
@@ -1050,6 +1057,55 @@ dissect_krb5_padata(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 	return offset;
 }
 
+
+
+
+/*
+ * PRIV-BODY ::=   SEQUENCE {
+ *  KRB-PRIV ::=         [APPLICATION 21] SEQUENCE {
+ *               pvno[0]                   INTEGER,
+ *               msg-type[1]               INTEGER,
+ *               enc-part[3]               EncryptedData
+ *  }
+ */
+static int
+dissect_krb5_encrypted_PRIV(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_octet_string(pinfo, tree, tvb, offset, hf_krb_encrypted_PRIV, NULL);
+	return offset;
+}
+static ber_sequence ENC_PRIV_sequence[] = {
+	{ BER_CLASS_CON, 0, 0, 
+		dissect_krb5_etype },
+	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL,
+		dissect_krb5_kvno },
+	{ BER_CLASS_CON, 2, 0,
+		dissect_krb5_encrypted_PRIV },
+	{ 0, 0, 0, NULL }
+};
+static int
+dissect_krb5_ENC_PRIV(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_sequence(pinfo, tree, tvb, offset, ENC_PRIV_sequence, hf_krb_ENC_PRIV, ett_krb_PRIV_enc);
+	return offset;
+}
+static ber_sequence PRIV_BODY_sequence[] = {
+	{ BER_CLASS_CON, 0, 0, 
+		dissect_krb5_pvno },
+	{ BER_CLASS_CON, 1, 0, 
+		dissect_krb5_msg_type },
+	{ BER_CLASS_CON, 3, 0,
+		dissect_krb5_ENC_PRIV },
+	{ 0, 0, 0, NULL }
+};
+static int
+dissect_krb5_PRIV(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+
+	offset=dissect_ber_sequence(pinfo, tree, tvb, offset, PRIV_BODY_sequence, hf_krb_PRIV_BODY, ett_krb_PRIV);
+
+	return offset;
+}
 
 
 /*
@@ -1688,6 +1744,12 @@ proto_register_kerberos(void)
 	{ &hf_krb_KDC_REQ_BODY, {
 	    "KDC_REQ_BODY", "kerberos.kdc_req_body", FT_NONE, BASE_NONE,
 	    NULL, 0, "Kerberos KDC REQuest BODY", HFILL }},
+	{ &hf_krb_PRIV_BODY, {
+	    "PRIV_BODY", "kerberos.priv_body", FT_NONE, BASE_NONE,
+	    NULL, 0, "Kerberos PRIVate BODY", HFILL }},
+	{ &hf_krb_encrypted_PRIV, {
+	    "Encrypted PRIV", "kerberos.enc_priv", FT_NONE, BASE_NONE,
+	    NULL, 0, "Kerberos Encrypted PRIVate blob data", HFILL }},
 	{ &hf_krb_KDCOptions_forwardable, {
 	    "Forwardable", "kerberos.kdcoptions.forwardable", FT_BOOLEAN, 32,
 	    TFS(&krb5_kdcoptions_forwardable), 0x40000000, "Flag controlling whether the tickes are forwardable or not", HFILL }},
@@ -1733,6 +1795,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_encrypted_PA_ENC_TIMESTAMP, {
 	    "enc PA_ENC_TIMESTAMP", "kerberos.PA_ENC_TIMESTAMP.encrypted", FT_BYTES, BASE_HEX,
 	    NULL, 0, "Encrypted PA-ENC-TIMESTAMP blob", HFILL }},
+	{ &hf_krb_ENC_PRIV, {
+	    "enc PRIV", "kerberos.ENC_PRIV", FT_BYTES, BASE_HEX,
+	    NULL, 0, "Encrypted PRIV blob", HFILL }},
 	{ &hf_krb_encrypted_Ticket_data, {
 	    "enc-part", "kerberos.ticket.data", FT_BYTES, BASE_HEX,
 	    NULL, 0, "The encrypted part of a ticket", HFILL }},
@@ -1813,6 +1878,8 @@ proto_register_kerberos(void)
         &ett_krb_recordmark,
         &ett_krb_ticket,
 	&ett_krb_ticket_enc,
+        &ett_krb_PRIV,
+        &ett_krb_PRIV_enc,
     };
     module_t *krb_module;
 
