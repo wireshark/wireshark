@@ -3,7 +3,7 @@
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  * Copyright 2003, Michael Shuldman
  *
- * $Id: packet-x11.c,v 1.58 2004/04/17 03:38:09 guy Exp $
+ * $Id: packet-x11.c,v 1.59 2004/06/23 21:43:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1799,7 +1799,8 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	    int i;
 
 	    p = tvb_get_ptr(tvb, *offsetp, keycodes_per_modifier);
-            modifiermap[m] = g_malloc(keycodes_per_modifier);
+            modifiermap[m] =
+                g_malloc(sizeof(*modifiermap[m]) * keycodes_per_modifier);
 
 	    for(i = 0; i < keycodes_per_modifier; ++i) {
 		guchar c = p[i];
