@@ -8,21 +8,39 @@
 
 export DH_COMPAT=3
 
+DB2MAN=/usr/share/xml/docbook/stylesheet/nwalsh/manpages/docbook.xsl
+
+
+DEB_HOST_GNU_TYPE       ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE      ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+
+# Enable IEEE-conformant floating point math on alphas (not the default)
+ifeq (alpha-linux,$(DEB_HOST_GNU_TYPE))
+  CFLAGS += -mieee
+endif
+
+idl2deb.1: idl2deb.dbk
+	xsltproc --nonet --novalid $(DB2MAN) $<
+
+asn2deb.1: asn2deb.dbk
+	xsltproc --nonet --novalid $(DB2MAN) $<
+
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
 
-	#libtoolize --force --copy
+	cp /usr/share/misc/config.guess /usr/share/misc/config.sub .
+	libtoolize --force --copy
 	-mkdir aclocal-missing
-	(if [ -x ./autogen.sh ]; then \
-	   ./autogen.sh --prefix=/usr --sysconfdir=/usr/share/ethereal --disable-static --disable-ssl --without-ucdsnmp; \
-	else \
-	   ./configure --prefix=/usr --sysconfdir=/usr/share/ethereal --disable-static --disable-ssl --without-ucdsnmp; \
+	(if [ ! -x ./configure ]; then \
+	   ./autogen.sh --prefix=/usr --sysconfdir=/usr/share/ethereal --disable-static --disable-ssl --without-ucdsnmp --enable-gtk2 --libdir=/usr/lib/ethereal --CFLAGS="$(CFLAGS)"; \
 	fi)
+
+	./configure --prefix=/usr --sysconfdir=/usr/share/ethereal --disable-static --disable-ssl --without-ucdsnmp --enable-gtk2 --libdir=/usr/lib/ethereal CFLAGS="$(CFLAGS)"
 
 	touch configure-stamp
 
-build: build-stamp
+build: build-stamp idl2deb.1 asn2deb.1
 build-stamp: configure-stamp
 	$(MAKE)
 
@@ -33,9 +51,11 @@ clean:
 	dh_testroot
 	rm -f build-stamp configure-stamp
 
+	cp /usr/share/misc/config.guess /usr/share/misc/config.sub .
 	-$(MAKE) distclean
-	rm -f rdps ethereal.1 tethereal.1 doc/ethereal.pod doc/tethereal.pod
+	rm -f rdps ethereal.1 tethereal.1 idl2deb.1 ethereal-filter.4 asn2deb.1
 	rm -f conftest conftest.c
+	rm -f config.guess config.sub config.log
 
 	dh_clean
 
@@ -52,19 +72,29 @@ binary-arch: build
 
 	# Add here commands to install the files into debian/tmp
 	$(MAKE) install DESTDIR=`pwd`/debian/tmp
-	mkdir -p `pwd`/debian/tmp/usr/lib/python2.2/site-packages/
+	mkdir -p `pwd`/debian/tmp/usr/share/applications/
+	cp ethereal.desktop `pwd`/debian/tmp/usr/share/applications/
+	cp debian/ethereal-root.desktop `pwd`/debian/tmp/usr/share/applications/
+	mkdir -p `pwd`/debian/tmp/usr/share/pixmaps/
+	cp image/hi48-app-ethereal.png `pwd`/debian/tmp/usr/share/pixmaps/
+	cp image/eicon3d32.xpm `pwd`/debian/tmp/usr/share/pixmaps/
+	mkdir -p `pwd`/debian/tmp/usr/lib/python2.3/site-packages/
+	install -m 755 `pwd`/idl2deb `pwd`/debian/tmp/usr/bin/
+	install -m 755 `pwd`/asn2deb `pwd`/debian/tmp/usr/bin/
 	cp `pwd`/ethereal_be.py `pwd`/ethereal_gen.py \
-			`pwd`/debian/tmp/usr/lib/python2.2/site-packages/
+			`pwd`/debian/tmp/usr/lib/python2.3/site-packages/
 	mkdir -p `pwd`/debian/tmp/usr/include/ethereal/
 	for F in `cat debian/ethereal-dev.header-files`; do \
 		cp --parents $$F `pwd`/debian/tmp/usr/include/ethereal; \
 	done
-	cp `pwd`/wiretap/libwiretap.a `pwd`/debian/tmp/usr/lib/
+	# .a is no longer built; why was is used ?
+	#cp `pwd`/wiretap/libwiretap.a `pwd`/debian/tmp/usr/lib/
 	-rm -rf `pwd`/debian/tmp/usr/man
 	dh_installman
 
 	dh_movefiles
 	dh_installdocs
+	-rm debian/menu   # from upstream debian/ package
 	dh_installmenu
 	dh_installchangelogs NEWS
 	dh_strip
