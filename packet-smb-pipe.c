@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.90 2003/04/12 08:14:48 sahlberg Exp $
+ * $Id: packet-smb-pipe.c,v 1.91 2003/04/13 23:58:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3196,6 +3196,14 @@ proto_register_pipe_lanman(void)
 
 static heur_dissector_list_t smb_transact_heur_subdissector_list;
 
+static GHashTable *dcerpc_fragment_table = NULL;
+
+static void
+smb_dcerpc_reassembly_init(void)
+{
+	fragment_table_init(&dcerpc_fragment_table);
+}
+
 gboolean
 dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_tree *tree, guint32 fid)
@@ -3250,7 +3258,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	*/
 	if((!pinfo->fd->flags.visited) && smb_priv->sip){
 		/* check if we are already reassembling this pdu or not */
-		hash_value = g_hash_table_lookup(smb_priv->ct->dcerpc_fid_to_frame, fid);
+		hash_value = g_hash_table_lookup(smb_priv->ct->dcerpc_fid_to_frame, (void *)fid);
 		if(!hash_value){
 			/* this is a new pdu. check if the dissector wants us
 			   to reassemble it or if we already got the full pdu
@@ -3327,7 +3335,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 
 		/* if we completed reassembly */
 		if(fd_head){
-			g_hash_table_remove(smb_priv->ct->dcerpc_fid_to_frame, fid);
+			g_hash_table_remove(smb_priv->ct->dcerpc_fid_to_frame, (void *)fid);
 			new_tvb = tvb_new_real_data(fd_head->data,
 				  fd_head->datalen, fd_head->datalen);
 			tvb_set_child_real_data_tvbuff(d_tvb, new_tvb);
@@ -3352,7 +3360,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 	   seen this fragment and if so if we were able to reassemble it
 	   or not.
 	*/
-	hash_value = g_hash_table_lookup(smb_priv->ct->dcerpc_frame_to_dcerpc_pdu, pinfo->fd->num);
+	hash_value = g_hash_table_lookup(smb_priv->ct->dcerpc_frame_to_dcerpc_pdu, (void *)pinfo->fd->num);
 	if(!hash_value){
 		/* we didnt find it, try any of the heurisitc dissectors
 		   and bail out 
@@ -3360,7 +3368,7 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 		result = dissector_try_heuristic(smb_transact_heur_subdissector_list, d_tvb, pinfo, parent_tree);
 		goto clean_up_and_exit;
 	}
-	fd_head=fragment_get(pinfo, hash_value, dcerpc_fragment_table);
+	fd_head=fragment_get(pinfo, (guint32)hash_value, dcerpc_fragment_table);
 	if(!fd_head){
 		/* we didnt find it, try any of the heurisitc dissectors
 		   and bail out 
@@ -3418,6 +3426,7 @@ void
 proto_register_pipe_dcerpc(void)
 {
 	register_heur_dissector_list("smb_transact", &smb_transact_heur_subdissector_list);
+	register_init_routine(smb_dcerpc_reassembly_init);
 }
 
 #define CALL_NAMED_PIPE		0x54

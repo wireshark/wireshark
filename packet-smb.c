@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.322 2003/04/12 08:14:01 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.323 2003/04/13 23:58:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -792,19 +792,12 @@ static gboolean smb_trans_reassembly = FALSE;
 gboolean smb_dcerpc_reassembly = FALSE;
 
 static GHashTable *smb_trans_fragment_table = NULL;
-GHashTable *dcerpc_fragment_table = NULL;
 
 static void
 smb_trans_reassembly_init(void)
 {
 	fragment_table_init(&smb_trans_fragment_table);
 }
-static void
-smb_dcerpc_reassembly_init(void)
-{
-	fragment_table_init(&dcerpc_fragment_table);
-}
-
 
 static fragment_data *
 smb_trans_defragment(proto_tree *tree _U_, packet_info *pinfo, tvbuff_t *tvb,
@@ -18318,7 +18311,6 @@ proto_register_smb(void)
 		&sid_name_snooping);
 
 	register_init_routine(smb_trans_reassembly_init);
-	register_init_routine(smb_dcerpc_reassembly_init);
 	smb_tap = register_tap("smb");
 }
 
