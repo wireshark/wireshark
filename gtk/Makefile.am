@@ -77,6 +77,7 @@ noinst_HEADERS = \
 	rtp_stream.h	\
 	rtp_stream_dlg.h \
 	sat.h		\
+	sctp_stat.h	\
 	service_response_time_table.h	\
 	stream_prefs.h	\
 	summary_dlg.h   \
