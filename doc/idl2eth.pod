@@ -54,10 +54,13 @@ Currently there are no options. B<idl2eth> can be invoked as follows.
 
 =head1 ENVIRONMENT
 
-The B<-p ./> option passed to omniidl (inside B<idl2eth>) indicates that
-B<ethereal_be.py> and B<ethereal_gen.py> reside in the current
-directory.  This may need tweaking if you place these files somewhere
-else.
+B<idl2eth> will look for B<ethereal_be.py> and B<ethereal_gen.py> in
+B<$PYTHONPATH/site-packages/> and if not found, will try the current
+directory B<./>
+
+The B<-p> option passed to omniidl (inside B<idl2eth>) indicates where
+B<ethereal_be.py> and B<ethereal_gen.py> will be searched.  This may
+need tweaking if you place these files somewhere else.
 
 If it complains about being unable to find some modules (eg tempfile.py), 
 you may want to check if PYTHONPATH is set correctly.
@@ -90,6 +93,9 @@ Improve Explicit dissection code.
 
 =item *
 Improve command line options.
+
+=item *
+Improve decode algorithm when we have operation name collision.
 
 =back 4
 
