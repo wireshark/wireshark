@@ -1686,28 +1686,23 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 	guint8 subopt;
 	guint8 subopt_len;
 	int suboptleft;
+	int i;
 	proto_tree *o63_v_tree;
 	proto_item *vti;
 
-	struct o63_opt_info {
-		char	*truet;
-		char 	*falset;
-		enum field_type	ftype;
-	};
-
-	static struct o63_opt_info o63_opt[]= {
-		/* 0 */ {"","",none},
-		/* 1 */ {"NWIP does not exist on subnet","",presence},
-		/* 2 */ {"NWIP exist in options area","",presence},
-		/* 3 */ {"NWIP exists in sname/file","",presence},
-		/* 4 */ {"NWIP exists, but too big","",presence},
-		/* 5 */ {"Broadcast for nearest Netware server","Do NOT Broadcast for nearest Netware server",yes_no},
-		/* 6 */ {"Preferred DSS server","",ipv4_list},
-		/* 7 */ {"Nearest NWIP server","",ipv4_list},
-		/* 8 */ {"Autoretries","",val_u_byte},
-		/* 9 */ {"Autoretry delay, secs ","",val_u_byte},
-		/* 10*/ {"Support NetWare/IP v1.1","Do NOT support NetWare/IP v1.1",yes_no},
-		/* 11*/ {"Primary DSS ", "" , ipv4}
+	static struct opt_info o63_opt[]= {
+		/* 0 */ {"",none},
+		/* 1 */ {"NWIP does not exist on subnet",presence},
+		/* 2 */ {"NWIP exist in options area",presence},
+		/* 3 */ {"NWIP exists in sname/file",presence},
+		/* 4 */ {"NWIP exists, but too big",presence},
+		/* 5 */ {"Broadcast for nearest Netware server",yes_no},
+		/* 6 */ {"Preferred DSS server",ipv4_list},
+		/* 7 */ {"Nearest NWIP server",ipv4_list},
+		/* 8 */ {"Autoretries",val_u_byte},
+		/* 9 */ {"Autoretry delay, secs",val_u_byte},
+		/* 10*/ {"Support NetWare/IP v1.1",yes_no},
+		/* 11*/ {"Primary DSS",ipv4}
 	};
 
 	subopt = tvb_get_guint8(tvb, optoff);
@@ -1734,7 +1729,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				suboptoff += subopt_len;
 				break;
 			}
-			proto_tree_add_text(v_tree, tvb, optoff, 2, "Suboption %d: %s", subopt, o63_opt[subopt].truet);
+			proto_tree_add_text(v_tree, tvb, optoff, 2, "Suboption %d: %s", subopt, o63_opt[subopt].text);
 			break;
 
 		case ipv4:
@@ -1752,7 +1747,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			}
 			proto_tree_add_text(v_tree, tvb, optoff, 6,
 			    "Suboption %d: %s = %s" ,
-			    subopt, o63_opt[subopt].truet,
+			    subopt, o63_opt[subopt].text,
 			    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
 			suboptoff += 6;
 			break;
@@ -1762,14 +1757,14 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				/* one IP address */
 				proto_tree_add_text(v_tree, tvb, optoff, 6,
 				    "Suboption %d : %s = %s",
-				    subopt, o63_opt[subopt].truet,
+				    subopt, o63_opt[subopt].text,
 				    ip_to_str(tvb_get_ptr(tvb, suboptoff, 4)));
 				suboptoff += 4;
 			} else {
 				/* > 1 IP addresses. Let's make a sub-tree */
 				vti = proto_tree_add_text(v_tree, tvb, optoff,
 				    subopt_len+2, "Suboption %d: %s",
-				    subopt, o63_opt[subopt].truet);
+				    subopt, o63_opt[subopt].text);
 				o63_v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				for (suboptleft = subopt_len; suboptleft > 0;
 				    suboptoff += 4, suboptleft -= 4) {
@@ -1799,10 +1794,16 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 				    subopt);
 			 	return (optend);
 			}
-			if (tvb_get_guint8(tvb, suboptoff)==1) {
-				proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s", subopt, o63_opt[subopt].truet);
+			i = tvb_get_guint8(tvb, suboptoff);
+			if (i != 0 && i != 1) {
+				proto_tree_add_text(v_tree, tvb, optoff, 3,
+				    "Subption %d: %s = Invalid Value %d",
+				    subopt, o63_opt[subopt].text, i);
 			} else {
-				proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s" , subopt, o63_opt[subopt].falset);
+				proto_tree_add_text(v_tree, tvb, optoff, 3,
+				    "Subption %d: %s = %s", subopt,
+				    o63_opt[subopt].text,
+				    i == 0 ? "No" : "Yes");
 			}
 			suboptoff += 3;
 			break;
@@ -1821,7 +1822,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
 			 	return (optend);
 			}
 			proto_tree_add_text(v_tree, tvb, optoff, 3, "Suboption %d: %s = %u",
-			    subopt, o63_opt[subopt].truet,
+			    subopt, o63_opt[subopt].text,
 			    tvb_get_guint8(tvb, suboptoff));
 			suboptoff += 1;
 			break;
