@@ -1892,14 +1892,14 @@ capture(int out_file_type)
         capture_opts.ringbuffer_num_files);
       if (cfile.save_file_fd != -1) {
         ld.pdh = ringbuf_init_wtap_dump_fdopen(out_file_type, ld.linktype,
-          pcap_snapshot(ld.pch), &err);
+          file_snaplen, &err);
       } else {
       	err = errno;	/* "ringbuf_init()" failed */
         ld.pdh = NULL;
       }
     } else {
       ld.pdh = wtap_dump_open(cfile.save_file, out_file_type,
-		 ld.linktype, pcap_snapshot(ld.pch), &err);
+		 ld.linktype, file_snaplen, &err);
     }
 
     if (ld.pdh == NULL) {
