@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.1 2001/11/09 07:44:48 guy Exp $
+ * $Id: pcap-util.c,v 1.2 2001/11/09 07:51:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,6 +117,12 @@ get_pcap_linktype(pcap_t *pch, char *devname)
 	 * linked with AIX's non-standard libpcap, but so it goes.  They
 	 * *will* be readable by standard versions of tcpdump, Ethereal,
 	 * and so on.)
+	 *
+	 * XXX - if we conclude we're using AIX libpcap, should we also
+	 * set a flag to cause us to assume the time stamps are in
+	 * seconds-and-nanoseconds form, and to convert them to
+	 * seconds-and-microseconds form before processing them and
+	 * writing them out?
 	 */
 
 	/*
