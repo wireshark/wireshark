@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.3 2000/05/31 05:07:20 guy Exp $
+ * $Id: packet-msproxy.c,v 1.4 2000/05/31 16:49:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,7 +27,7 @@
  * This was derived from the dante socks implimentation source code. 
  * Most of the information came from common.h and msproxy_clientprotocol.c
  *
- * See http://www.inet.no.dante for more information 
+ * See http://www.inet.no/dante for more information 
  *
  */
 
