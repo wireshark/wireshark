@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.32 2003/03/02 22:31:25 guy Exp $
+ * $Id: tcp_graph.c,v 1.33 2003/08/18 18:41:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -504,7 +504,7 @@ static void rtt_put_unack_on_list (struct unack ** , struct unack * );
 static void rtt_delete_unack_from_list (struct unack ** , struct unack * );
 static void rtt_make_elmtlist (struct graph * );
 static void rtt_toggle_seq_origin (struct graph * );
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 static int rint (double );	/* compiler template for Windows */
 #endif
 
@@ -3915,7 +3915,7 @@ static void rtt_toggle_seq_origin (struct graph *g)
 		g->x_axis->min = 0;
 }
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 /* replacement of Unix rint() for Windows */
 static int rint (double x)
 {

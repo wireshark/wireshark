@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.67 2003/07/11 06:45:59 guy Exp $
+ * $Id: util.c,v 1.68 2003/08/18 18:41:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,8 +51,10 @@
 
 #ifdef HAVE_IO_H
 #include <io.h>
+#ifndef __MINGW32__
 typedef int mode_t;	/* for win32 */
-#endif
+#endif /* __MINGW32__ */
+#endif /* HAVE_IO_H */
 
 #ifdef HAVE_LIBZ
 #include <zlib.h>	/* to get the libz version number */
