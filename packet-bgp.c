@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.35 2001/04/23 18:19:02 guy Exp $
+ * $Id: packet-bgp.c,v 1.36 2001/05/16 18:52:35 guy Exp $
  * 
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -72,6 +72,7 @@ static const value_string bgptypevals[] = {
     { BGP_NOTIFICATION, "NOTIFICATION Message" },
     { BGP_KEEPALIVE, "KEEPALIVE Message" },
     { BGP_ROUTE_REFRESH, "ROUTE-REFRESH Message" },
+    { BGP_ROUTE_REFRESH_CISCO, "Cisco ROUTE-REFRESH Message" },
     { 0, NULL },
 };
 
@@ -401,6 +402,7 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
                         p++;
                     }
                     break;
+                case BGP_CAPABILITY_ROUTE_REFRESH_CISCO:
                 case BGP_CAPABILITY_ROUTE_REFRESH:
                     ti = proto_tree_add_text(subtree, tvb, p - 4, 
                          2 + plen, "Route refresh capability (%u %s)", 2 + plen,
@@ -1409,6 +1411,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    case BGP_KEEPALIVE:
 	        bgp1_tree = proto_item_add_subtree(ti, ett_bgp);
 		break;
+            case BGP_ROUTE_REFRESH_CISCO:
 	    case BGP_ROUTE_REFRESH:
 	        bgp1_tree = proto_item_add_subtree(ti, ett_bgp_route_refresh);
 		break;
@@ -1450,6 +1453,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    case BGP_KEEPALIVE:
 		/* no data in KEEPALIVE messages */
 		break;
+            case BGP_ROUTE_REFRESH_CISCO:
 	    case BGP_ROUTE_REFRESH:
 		dissect_bgp_route_refresh(tvb, i, bgp1_tree);
 		break;

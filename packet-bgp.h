@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.11 2001/04/17 21:25:13 guy Exp $
+ * $Id: packet-bgp.h,v 1.12 2001/05/16 18:52:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,7 @@
 #define BGP_NOTIFICATION	3
 #define BGP_KEEPALIVE		4
 #define BGP_ROUTE_REFRESH       5
+#define BGP_ROUTE_REFRESH_CISCO 0x80
 
 /* BGP header */
 struct bgp {
@@ -108,6 +109,8 @@ struct bgp_attr {
 #define BGP_CAPABILITY_RESERVED		0   /* RFC2434 */
 #define BGP_CAPABILITY_MULTIPROTOCOL	1   /* RFC2858 */
 #define BGP_CAPABILITY_ROUTE_REFRESH	2   /* RFC2918 */
+#define BGP_CAPABILITY_ROUTE_REFRESH_CISCO      0x80   /* Cisco */
+
 
 /* well-known communities, from RFC1997 */
 #define BGP_COMM_NO_EXPORT           0xFFFFFF01
