@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.138 2002/04/21 02:57:01 sharpe Exp $
+ * $Id: packet-tcp.c,v 1.139 2002/05/04 02:54:48 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1036,7 +1036,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     if (tcp_summary_in_tree)
-      proto_item_append_text(ti, ", Ack: %u", th_ack);
+      proto_item_append_text(ti, ", Ack: %u, Len: %u", th_ack, seglen);
     proto_item_set_len(ti, hlen);
     if (nxtseq != th_seq)
       proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq);
