@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.23 2002/01/31 10:11:32 guy Exp $
+ * $Id: packet-gtp.c,v 1.24 2002/01/31 12:10:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2490,7 +2490,7 @@ decode_gtp_rai(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) 
 	te = proto_tree_add_text(tree, tvb, offset, 1, val_to_str(GTP_EXT_RAI, gtp_val, "Unknown message")); 
 	ext_tree_rai = proto_item_add_subtree(te, ett_gtp_rai);
 	
-//	tvb_memcpy (tvb, (guint8 *)&byte, offset + 1, 3);
+/*	tvb_memcpy (tvb, (guint8 *)&byte, offset + 1, 3); */
 	byte[1] = tvb_get_guint8 (tvb, offset + 1);
 	byte[2] = tvb_get_guint8 (tvb, offset + 2);
 	byte[3] = tvb_get_guint8 (tvb, offset + 3);
