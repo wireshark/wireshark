@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.4 2001/12/10 20:34:52 gram Exp $
+ * $Id: tcp_graph.c,v 1.5 2001/12/10 21:19:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,16 +66,9 @@ struct ppp_header {
 #define PPPTYPE_IP 0x21
 
 
-#undef BITFIELDS
-
 /* from <netinet/ip.h> */
 struct iphdr {
-#ifdef BITFIELDS
-	unsigned int ihl:4;
-	unsigned int version:4;
-#else /* ! BITFIELDS */
 	guint8 version_ihl;
-#endif /* BITFIELDS */
 	guint8 tos;
 	guint16 tot_len;
 	guint16 id;
@@ -87,13 +80,9 @@ struct iphdr {
 	guint32 daddr;
 };
 
-#ifndef BITFIELDS
-
 #define IPHDR_IHL_SHIFT		0
 #define IPHDR_IHL_MASK		(0xf << IPHDR_IHL_SHIFT)
 #define IHL(iphdrptr)		( ((iphdrptr)->version_ihl & IPHDR_IHL_MASK) >> IPHDR_IHL_SHIFT )
-
-#endif /* BITFIELDS */
 
 /* from <netinet/tcp.h> */
 struct tcphdr {
@@ -101,17 +90,6 @@ struct tcphdr {
 	guint16 dest;
 	guint32 seq;
 	guint32 ack_seq;
-#ifdef BITFIELDS
-	guint16 res1:4;
-	guint16 doff:4;
-	guint16 fin:1;
-	guint16 syn:1;
-	guint16 rst:1;
-	guint16 psh:1;
-	guint16 ack:1;
-	guint16 urg:1;
-	guint16 res2:2;
-#else /* ! BITFIELDS */
 	guint16 flags;
 #define TH_FIN    0x01
 #define TH_SYN    0x02
@@ -119,22 +97,16 @@ struct tcphdr {
 #define TH_PUSH   0x08
 #define TH_ACK    0x10
 #define TH_URG    0x20
-#endif /* BITFIELDS */
 	guint16 window;
 	guint16 check;
 	guint16 urg_ptr;
 };
-
-#ifndef BITFIELDS
 
 #define TCP_SYN(tcphdr)		( ntohs ((tcphdr).flags) & TH_SYN )
 #define TCP_ACK(tcphdr)		( ntohs ((tcphdr).flags) & TH_ACK )
 #define TCP_DOFF_SHIFT		12
 #define TCP_DOFF_MASK		(0xf << TCP_DOFF_SHIFT)
 #define DOFF(tcphdr)		( ( ntohs ((tcphdr).flags) & TCP_DOFF_MASK) >> TCP_DOFF_SHIFT )
-
-#endif /* BITFIELDS */
-
 
 #define TXT_WIDTH	850
 #define TXT_HEIGHT	550
@@ -679,13 +651,8 @@ static void display_text (struct graph *g)
 		snprintf ((char *)line, 256, "%10d%15.6f%15.6f%15.6f%15u%15d%15d%10u\n",
 						ptr->num, time, time-first_time, time-prev_time,
 						seq, seq_delta_isn, seq_delta_prev,
-#ifdef BITFIELDS
-						ntohs (ptr->iphdr.tot_len) - 4*ptr->iphdr.ihl -
-						4*ptr->tcphdr.doff);
-#else
 						ntohs (ptr->iphdr.tot_len) - 4*IHL(&(ptr->iphdr)) -
 						4*DOFF(ptr->tcphdr));
-#endif /* BITFIELDS */
 		gtk_text_insert (GTK_TEXT (g->text), g->font, c, NULL,
 						(const char * )line, -1);
 		prev_time = time;
@@ -1788,11 +1755,7 @@ static void graph_segment_list_get (struct graph *g)
 			segment->abs_secs = ptr->abs_secs;
 			segment->abs_usecs = ptr->abs_usecs;
 			segment->data = ntohs (segment->iphdr.tot_len) -
-#ifdef BITFIELDS
-							4*segment->iphdr.ihl - 4*segment->tcphdr.doff;
-#else
 							4*IHL(&(segment->iphdr)) - 4*DOFF(segment->tcphdr);
-#endif /* BITFIELDS */
 			if (g->segments) {
 				last->next = segment;
 			} else {
@@ -1810,34 +1773,29 @@ static int get_headers (char *pd, struct segment *hdrs)
 {
 	struct ether_header *e;
 	struct ppp_header   *p;
-	struct iphdr *ip;
-	struct tcphdr *tcp;
+	void *ip;
+	void *tcp;
 
 	e = (struct ether_header * )pd;
 	p = (struct ppp_header * )pd;
-	if (ntohs (e->ether_type) == ETHERTYPE_IP) {
-		ip = (struct iphdr * )((struct ether_header * )pd + 1);
+	if (pntohs (&e->ether_type) == ETHERTYPE_IP) {
+		ip = e + 1;
 	} else if (((struct iphdr *)e)->protocol == IPPROTO_TCP) {
-		ip = (struct iphdr *)e;
-	} else if ( (p->ppp_type == PPPTYPE_IP) && 							/* IP Protocol over PPP */
-				(((struct iphdr *)(p+1))->protocol == IPPROTO_TCP) ) {  /* TCP Protocol over IP */
-		ip = (struct iphdr *)(p+1);
+		ip = e;
+	} else if (p->ppp_type == PPPTYPE_IP) {
+		ip = p + 1;
 	} else {
 		/* printf ("not IP over Ethernet II or PPP\n"); */
 		return FALSE;
 	}
-	if (ip->protocol != IPPROTO_TCP) {
+	if (((struct iphdr *)ip)->protocol != IPPROTO_TCP) {
 		/* printf ("transport protocol not TCP: %#1x\n", ip->protocol); */
 		return FALSE;
 	}
-#ifdef BITFIELDS
-	tcp = (struct tcphdr * )((char * )ip + 4*ip->ihl);
-#else
-	tcp = (struct tcphdr * )((char * )ip + 4*IHL(ip));
-#endif
+	tcp = (struct tcphdr * )(ip + 4*IHL((struct iphdr *)ip));
 
-	hdrs->iphdr = *ip;
-	hdrs->tcphdr = *tcp;
+	memcpy(&hdrs->iphdr, ip, sizeof (struct iphdr));
+	memcpy(&hdrs->tcphdr, tcp, sizeof (struct tcphdr));
 	return TRUE;
 }
 
@@ -3334,11 +3292,7 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			double y1, y2;
 
 			seqno = ntohl (tmp->tcphdr.seq);
-#ifdef BITFIELDS
-			if (tmp->tcphdr.syn)
-#else
 			if (TCP_SYN (tmp->tcphdr))
-#endif /* BITFIELDS */
 				data = 1;
 			else
 				data = tmp->data;
@@ -3368,11 +3322,7 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			e1++;
 		} else {
 			double ackno, win;
-#ifdef BITFIELDS
-			if (tmp->tcphdr.syn && !tmp->tcphdr.ack)
-#else
 			if (TCP_SYN (tmp->tcphdr) && ! TCP_ACK (tmp->tcphdr))
-#endif
 				/* SYN's have ACK==0 and are useless here */
 				continue;
 			/* backward direction -> we need ackno and window */
