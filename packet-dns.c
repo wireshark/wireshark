@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.39 2000/03/30 01:33:09 itojun Exp $
+ * $Id: packet-dns.c,v 1.40 2000/03/30 01:52:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -559,7 +559,7 @@ add_rr_to_tree(proto_item *trr, int rr_type, int offset, const char *name,
   return rr_tree;
 }
 
-proto_tree *
+static proto_tree *
 add_opt_rr_to_tree(proto_item *trr, int rr_type, int offset, const char *name,
   int namelen, const char *type_name, int class, u_int ttl, u_short data_len)
 {
