@@ -4,7 +4,7 @@
  * Creates random packet traces. Useful for debugging sniffers by testing
  * assumptions about the veracity of the data found in the packet.
  *
- * $Id: randpkt.c,v 1.4 1999/10/06 20:29:26 gram Exp $
+ * $Id: randpkt.c,v 1.5 1999/10/07 07:55:12 guy Exp $
  *
  * Copyright (C) 1999 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -55,6 +55,7 @@ enum {
 	PKT_ICMP,
 	PKT_IP,
 	PKT_LLC,
+	PKT_NBNS,
 	PKT_TCP,
 	PKT_TR,
 	PKT_UDP
@@ -95,7 +96,7 @@ guint8 pkt_dns[] = {
 	0x30
 };
 
-/* Ethernet+IP, indicating ICMPP */
+/* Ethernet+IP, indicating ICMP */
 guint8 pkt_icmp[] = {
 	0xff, 0xff, 0xff, 0xff,
 	0xff, 0xff, 0x01, 0x01,
@@ -123,6 +124,24 @@ guint8 pkt_llc[] = {
 	0x19, 0x69, 0x95, 0x8b,
 	0x00, 0x01, 0xfa, 0x68,
 	0xc4, 0x67
+};
+
+/* Ethernet+IP+UP, indicating NBNS */
+guint8 pkt_nbns[] = {
+	0xff, 0xff, 0xff, 0xff,
+	0xff, 0xff, 0x01, 0x01,
+	0x01, 0x01, 0x01, 0x01,
+	0x08, 0x00,
+
+	0x45, 0x00, 0x00, 0x3c,
+	0xc5, 0x9e, 0x40, 0x00,
+	0xff, 0x11, 0xd7, 0xe0,
+	0xd0, 0x15, 0x02, 0xb8,
+	0x0a, 0x01, 0x01, 0x63,
+
+	0x00, 0x89, 0x00, 0x89,
+	0x00, 0x00, 0x2a, 0xb9,
+	0x30
 };
 
 /* TR+LLC+IP, indicating TCP */
@@ -178,6 +197,9 @@ pkt_example examples[] = {
 
 	{ "llc", "Logical Link Control",
 		PKT_LLC,	pkt_llc,	WTAP_ENCAP_TR,		array_length(pkt_llc) },
+
+	{ "nbns", "NetBIOS-over-TCP Name Service",
+		PKT_NBNS,	pkt_nbns,	WTAP_ENCAP_ETHERNET,	array_length(pkt_nbns) },
 
 	{ "tcp", "Transmission Control Protocol",
 		PKT_TCP,	pkt_tcp,	WTAP_ENCAP_TR,		array_length(pkt_tcp) },
