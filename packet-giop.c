@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.45 2001/07/27 18:31:56 guy Exp $
+ * $Id: packet-giop.c,v 1.46 2001/08/20 09:10:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2897,19 +2897,21 @@ dissect_reply_body (tvbuff_t *tvb, u_int offset, packet_info *pinfo,
 
     case USER_EXCEPTION:
 
-      if (tree)
-        {
-	  sequence_length = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
+      sequence_length = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
 
+      if (tree)
+      {
 	  proto_tree_add_text(tree, tvb, offset-4, 4,
 			   "Exception length: %u", sequence_length);
-
-	  if (sequence_length != 0)
-	    {
+      }
+      if (sequence_length != 0)
+	{
+          if (tree)
+          {
 	      proto_tree_add_text(tree, tvb, offset, sequence_length,
 			   "Exception id: %s",
 			   tvb_format_text(tvb, offset, sequence_length));
-
+          }
 #if 1
 
           header->exception_id = g_new0(gchar,sequence_length ); /* allocate buffer */
@@ -2922,11 +2924,9 @@ dissect_reply_body (tvbuff_t *tvb, u_int offset, packet_info *pinfo,
 #endif          
           
 
-	      offset += sequence_length;
-	    }
+	  offset += sequence_length;
+	}
 
-
-	} /* tree */
 
 
       /*
@@ -3779,6 +3779,7 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
   giop_dump_collection(cd_complete_request_list);
 #endif
 
+  header.exception_id = NULL;
 
   /* check magic number and version */
 
