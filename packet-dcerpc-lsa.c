@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.32 2002/04/29 08:20:06 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.33 2002/04/30 09:35:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2865,6 +2865,80 @@ lsa_dissect_lsaremoveaccountrights_reply(tvbuff_t *tvb, int offset,
 }
 
 
+static int
+lsa_dissect_lsaquerytrusteddomaininfobyname_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE handle */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, ref] LSA_UNICODE_STRING *name */
+	/* domain */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_domain, 0);
+
+	/* [in] TRUSTED_INFORMATION_CLASS level */
+        offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_trusted_info_level, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaquerytrusteddomaininfobyname_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [out, ref] TRUSTED_DOMAIN_INFORMATION *info) */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_TRUSTED_DOMAIN_INFORMATION, NDR_POINTER_REF,
+		"TRUSTED_DOMAIN_INFORMATION pointer: info", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsasettrusteddomaininfobyname_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE handle */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, ref] LSA_UNICODE_STRING *name */
+	/* domain */
+	offset = dissect_ndr_nt_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
+		hf_lsa_domain, 0);
+
+	/* [in] TRUSTED_INFORMATION_CLASS level */
+        offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_trusted_info_level, NULL);
+
+	/* [in, ref] TRUSTED_DOMAIN_INFORMATION *info) */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_TRUSTED_DOMAIN_INFORMATION, NDR_POINTER_REF,
+		"TRUSTED_DOMAIN_INFORMATION pointer: info", -1, 0);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsasettrusteddomaininfobyname_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+
 
 static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{ LSA_LSACLOSE, "LSACLOSE",
@@ -3039,17 +3113,11 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsafunction_2f_reply },
 #endif
 	{ LSA_LSAQUERYTRUSTEDDOMAININFOBYNAME, "LSAQUERYTRUSTEDDOMAININFOBYNAME",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsaquerytrusteddomaininfobyname_rqst,
 		lsa_dissect_lsaquerytrusteddomaininfobyname_reply },
-#endif
 	{ LSA_LSASETTRUSTEDDOMAININFOBYNAME, "LSASETTRUSTEDDOMAININFOBYNAME",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsasettrusteddomaininfobyname_rqst,
 		lsa_dissect_lsasettrusteddomaininfobyname_reply },
-#endif
 	{ LSA_LSAENUMERATETRUSTEDDOMAINSEX, "LSAENUMERATETRUSTEDDOMAINSEX",
 		NULL, NULL },
 #ifdef REMOVED
