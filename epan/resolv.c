@@ -1,14 +1,13 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.10 2001/05/31 08:36:44 guy Exp $
+ * $Id: resolv.c,v 1.11 2001/06/07 22:07:02 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -99,6 +98,10 @@
 
 /* hash table used for host and port lookup */
 
+#define HASH_IPV4_ADDRESS(addr)	((addr) & (HASHHOSTSIZE - 1))
+
+#define HASH_PORT(port)	((port) & (HASHPORTSIZE - 1))
+
 typedef struct hashname {
   guint			addr;
   guchar   		name[MAXNAMELEN];
@@ -108,9 +111,19 @@ typedef struct hashname {
 
 /* hash table used for IPX network lookup */
 
+/* XXX - check goodness of hash function */
+
+#define HASH_IPX_NET(net)	((net) & (HASHIPXNETSIZE - 1))
+
 typedef struct hashname hashipxnet_t;
 
 /* hash tables used for ethernet and manufacturer lookup */
+
+#define HASH_ETH_ADDRESS(addr) \
+	(((((addr)[2] << 8) | (addr)[3]) ^ (((addr)[4] << 8) | (addr)[5])) & \
+	 (HASHETHSIZE - 1))
+
+#define HASH_ETH_MANUF(addr) (((int)(addr)[2]) & (HASHMANUFSIZE - 1))
 
 typedef struct hashmanuf {
   guint8 		addr[3];
@@ -169,12 +182,11 @@ gchar *g_manuf_path   = EPATH_MANUF;	/* may only be changed before the   */
 
 static guchar *serv_name_lookup(guint port, port_type proto)
 {
-
+  int hash_idx;
   hashname_t *tp;
   hashname_t **table;
   char *serv_proto = NULL;
   struct servent *servp;
-  int i;
 
   switch(proto) {
   case PT_UDP:
@@ -196,12 +208,11 @@ static guchar *serv_name_lookup(guint port, port_type proto)
     break;
   } /* proto */
   
-  i = port & (HASHPORTSIZE - 1);
-  tp = table[ i & (HASHPORTSIZE - 1)];
+  hash_idx = HASH_PORT(port);
+  tp = table[hash_idx];
 
   if( tp == NULL ) {
-    tp = table[ i & (HASHPORTSIZE - 1)] = 
-      (hashname_t *)g_malloc(sizeof(hashname_t));
+    tp = table[hash_idx] = (hashname_t *)g_malloc(sizeof(hashname_t));
   } else {  
     while(1) {
       if( tp->addr == port ) {
@@ -247,18 +258,18 @@ static void abort_network_query(int sig)
 
 static guchar *host_name_lookup(guint addr, gboolean *found)
 {
-
+  int hash_idx;
   hashname_t * volatile tp;
-  hashname_t **table = host_table;
   struct hostent *hostp;
 
   *found = TRUE;
 
-  tp = table[ addr & (HASHHOSTSIZE - 1)];
+  hash_idx = HASH_IPV4_ADDRESS(addr);
+
+  tp = host_table[hash_idx];
 
   if( tp == NULL ) {
-    tp = table[ addr & (HASHHOSTSIZE - 1)] = 
-      (hashname_t *)g_malloc(sizeof(hashname_t));
+    tp = host_table[hash_idx] = (hashname_t *)g_malloc(sizeof(hashname_t));
   } else {  
     while(1) {
       if( tp->addr == addr ) {
@@ -563,15 +574,15 @@ static ether_t *get_ethbyaddr(const guint8 *addr)
 
 static void add_manuf_name(guint8 *addr, guchar *name)
 {
-
+  int hash_idx;
   hashmanuf_t *tp;
-  hashmanuf_t **table = manuf_table;
 
-  tp = table[ ((int)addr[2]) & (HASHMANUFSIZE - 1)];
+  hash_idx = HASH_ETH_MANUF(addr);
+
+  tp = manuf_table[hash_idx];
 
   if( tp == NULL ) {
-    tp = table[ ((int)addr[2]) & (HASHMANUFSIZE - 1)] = 
-      (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
+    tp = manuf_table[hash_idx] = (hashmanuf_t *)g_malloc(sizeof(hashmanuf_t));
   } else {  
     while(1) {
       if (tp->next == NULL) {
@@ -592,11 +603,12 @@ static void add_manuf_name(guint8 *addr, guchar *name)
 
 static hashmanuf_t *manuf_name_lookup(const guint8 *addr)
 {
-
+  int hash_idx;
   hashmanuf_t *tp;
-  hashmanuf_t **table = manuf_table;
 
-  tp = table[ ((int)addr[2]) & (HASHMANUFSIZE - 1)];
+  hash_idx = HASH_ETH_MANUF(addr);
+
+  tp = manuf_table[hash_idx];
   
   while(tp != NULL) {
     if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
@@ -637,18 +649,15 @@ static void initialize_ethers(void)
 
 static hashether_t *add_eth_name(const guint8 *addr, const guchar *name)
 {
+  int hash_idx;
   hashether_t *tp;
-  hashether_t **table = eth_table;
-  int i,j;
 
-  j = (addr[2] << 8) | addr[3];
-  i = (addr[4] << 8) | addr[5];
+  hash_idx = HASH_ETH_ADDRESS(addr);
 
-  tp = table[ (i ^ j) & (HASHETHSIZE - 1)];
+  tp = eth_table[hash_idx];
 
   if( tp == NULL ) {
-    tp = table[ (i ^ j) & (HASHETHSIZE - 1)] = 
-      (hashether_t *)g_malloc(sizeof(hashether_t));
+    tp = eth_table[hash_idx] = (hashether_t *)g_malloc(sizeof(hashether_t));
   } else {  
     while(1) {
       if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
@@ -681,20 +690,17 @@ static hashether_t *add_eth_name(const guint8 *addr, const guchar *name)
 
 static guchar *eth_name_lookup(const guint8 *addr)
 {
+  int hash_idx;
   hashmanuf_t *manufp;
   hashether_t *tp;
-  hashether_t **table = eth_table;
   ether_t *eth;
-  int i,j;
 
-  j = (addr[2] << 8) | addr[3];
-  i = (addr[4] << 8) | addr[5];
+  hash_idx = HASH_ETH_ADDRESS(addr);
 
-  tp = table[ (i ^ j) & (HASHETHSIZE - 1)];
+  tp = eth_table[hash_idx];
 
   if( tp == NULL ) {
-    tp = table[ (i ^ j) & (HASHETHSIZE - 1)] = 
-      (hashether_t *)g_malloc(sizeof(hashether_t));
+    tp = eth_table[hash_idx] = (hashether_t *)g_malloc(sizeof(hashether_t));
   } else {  
     while(1) {
       if (memcmp(tp->addr, addr, sizeof(tp->addr)) == 0) {
@@ -921,16 +927,15 @@ static void initialize_ipxnets(void)
 
 static hashipxnet_t *add_ipxnet_name(guint addr, const guchar *name)
 {
+  int hash_idx;
   hashipxnet_t *tp;
-  hashipxnet_t **table = ipxnet_table;
 
-  /* XXX - check goodness of hash function */
+  hash_idx = HASH_IPX_NET(addr);
 
-  tp = table[ addr & (HASHIPXNETSIZE - 1)];
+  tp = ipxnet_table[hash_idx];
 
   if( tp == NULL ) {
-    tp = table[ addr & (HASHIPXNETSIZE - 1)] = 
-      (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
+    tp = ipxnet_table[hash_idx] = (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
   } else {  
     while(1) {
       if (tp->next == NULL) {
@@ -953,15 +958,16 @@ static hashipxnet_t *add_ipxnet_name(guint addr, const guchar *name)
 
 static guchar *ipxnet_name_lookup(const guint addr)
 {
+  int hash_idx;
   hashipxnet_t *tp;
-  hashipxnet_t **table = ipxnet_table;
   ipxnet_t *ipxnet;
 
-  tp = table[ addr & (HASHIPXNETSIZE - 1)];
+  hash_idx = HASH_IPX_NET(addr);
+
+  tp = ipxnet_table[hash_idx];
 
   if( tp == NULL ) {
-    tp = table[ addr & (HASHIPXNETSIZE - 1)] = 
-      (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
+    tp = ipxnet_table[hash_idx] = (hashipxnet_t *)g_malloc(sizeof(hashipxnet_t));
   } else {  
     while(1) {
       if (tp->addr == addr) {
@@ -1058,15 +1064,15 @@ extern const guchar *get_hostname6(struct e_in6_addr *addr)
 
 extern void add_host_name(guint addr, const guchar *name)
 {
-
+  int hash_idx;
   hashname_t *tp;
-  hashname_t **table = host_table;
 
-  tp = table[ addr & (HASHHOSTSIZE - 1)];
+  hash_idx = HASH_IPV4_ADDRESS(addr);
+
+  tp = host_table[hash_idx];
 
   if( tp == NULL ) {
-    tp = table[ addr & (HASHHOSTSIZE - 1)] = 
-      (hashname_t *)g_malloc(sizeof(hashname_t));
+    tp = host_table[hash_idx] = (hashname_t *)g_malloc(sizeof(hashname_t));
   } else {  
     while(1) {
       if (tp->addr == addr) {
@@ -1178,9 +1184,8 @@ extern guchar *get_ether_name(const guint8 *addr)
  */
 guchar *get_ether_name_if_known(const guint8 *addr)
 {
+  int hash_idx;
   hashether_t *tp;
-  hashether_t **table = eth_table;
-  int i,j;
 
   /* Initialize ether structs if we're the first
    * ether-related function called */
@@ -1192,10 +1197,9 @@ guchar *get_ether_name_if_known(const guint8 *addr)
     eth_resolution_initialized = 1;
   }
 
-  j = (addr[2] << 8) | addr[3];
-  i = (addr[4] << 8) | addr[5];
+  hash_idx = HASH_ETH_ADDRESS(addr);
 
-  tp = table[ (i ^ j) & (HASHETHSIZE - 1)];
+  tp = eth_table[hash_idx];
 
   if( tp == NULL ) {
 	  /* Hash key not found in table.
