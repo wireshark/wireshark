@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.134 2003/07/29 07:30:58 sahlberg Exp $
+ * $Id: packet-rpc.c,v 1.135 2003/08/17 21:34:22 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1816,6 +1816,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (rpc_tree) {
 		proto_tree_add_uint(rpc_tree, hf_rpc_msgtype, tvb,
 			offset+4, 4, msg_type);
+		proto_item_append_text(rpc_tree, ", Type:%s XID:0x%08x", msg_type_name, xid);
 	}
 
 	offset += 8;
@@ -1939,11 +1940,10 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				col_clear(pinfo->cinfo, COL_INFO);
 			else
 				col_append_fstr(pinfo->cinfo, COL_INFO, "  ; ");
-			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s XID 0x%x",
+			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s",
 				vers,
 				procname,
-				msg_type_name,
-				xid);
+				msg_type_name);
 		}
 
 		/* Keep track of the address and port whence the call came,
@@ -1989,12 +1989,13 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				    &null_address, pinfo->ptype, pinfo->srcport,
 				    pinfo->destport, 0);
 			}
-		}
 
-		/* Make the dissector for this conversation the non-heuristic
-		   RPC dissector. */
-		conversation_set_dissector(conversation,
-		    (pinfo->ptype == PT_TCP) ? rpc_tcp_handle : rpc_handle);
+			/* Make the dissector for this conversation the non-heuristic
+			   RPC dissector. */
+			conversation_set_dissector(conversation,
+				(pinfo->ptype == PT_TCP) ? rpc_tcp_handle : rpc_handle);
+
+		}
 
 		/* prepare the key data */
 		rpc_call_key.xid = xid;
@@ -2002,7 +2003,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* look up the request */
 		rpc_call = g_hash_table_lookup(rpc_calls, &rpc_call_key);
-		if (rpc_call != NULL) {
+		if (rpc_call) {
 			/* We've seen a request with this XID, with the same
 			   source and destination, before - but was it
 			   *this* request? */
@@ -2010,16 +2011,20 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				/* No, so it's a duplicate request.
 				   Mark it as such. */
 				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO,
-						" dup to #%d", rpc_call->req_num);
+					col_prepend_fstr(pinfo->cinfo, COL_INFO,
+						"[RPC retransmission of #%d]", rpc_call->req_num);
 				}
 				proto_tree_add_item(rpc_tree,
 					hf_rpc_dup, tvb, 0,0, TRUE);
 				proto_tree_add_uint(rpc_tree,
 					hf_rpc_call_dup, tvb, 0,0, rpc_call->req_num);
 			}
-		}
-		else {
+			if(rpc_call->rep_num){
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					col_append_fstr(pinfo->cinfo, COL_INFO," (Reply In %d)", rpc_call->rep_num);
+				}
+			}
+		} else {
 			/* Prepare the value data.
 			   "req_num" and "rep_num" are frame numbers;
 			   frame numbers are 1-origin, so we use 0
@@ -2129,11 +2134,10 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				col_clear(pinfo->cinfo, COL_INFO);
 			else
 				col_append_fstr(pinfo->cinfo, COL_INFO, "  ; ");
-			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s XID 0x%x",
+			col_append_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s",
 				vers,
 				procname,
-				msg_type_name,
-				xid);
+				msg_type_name);
 		}
 
 		if (rpc_tree) {
@@ -2168,10 +2172,14 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			proto_tree_add_time(rpc_tree, hf_rpc_time, tvb, offset, 0,
 				&ns);
+
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO," (Call In %d)", rpc_call->req_num);
+			}
 		}
 
 
-		if (rpc_call->rep_num == 0) {
+		if ((!rpc_call) || (rpc_call->rep_num == 0)) {
 			/* We have not yet seen a reply to that call, so
 			   this must be the first reply; remember its
 			   frame number. */
@@ -2183,8 +2191,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				/* No, so it's a duplicate reply.
 				   Mark it as such. */
 				if (check_col(pinfo->cinfo, COL_INFO)) {
-					col_append_fstr(pinfo->cinfo, COL_INFO,
-						" dup to #%d", rpc_call->rep_num);
+					col_prepend_fstr(pinfo->cinfo, COL_INFO,
+						"[RPC retransmission of #%d]", rpc_call->rep_num);
 				}
 				proto_tree_add_item(rpc_tree,
 					hf_rpc_dup, tvb, 0,0, TRUE);

@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.34 2003/01/28 23:56:39 guy Exp $
+ * $Id: packet-nlm.c,v 1.35 2003/08/17 21:34:22 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -403,7 +403,7 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 
 	offset = dissect_rpc_string(tvb,lock_tree,
 			hf_nlm_lock_caller_name, offset, NULL);
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, lock_tree,"fh");
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, lock_tree, "fh", NULL);
 
 	offset = dissect_rpc_data(tvb, lock_tree, hf_nlm_lock_owner, offset);
 
@@ -650,7 +650,7 @@ dissect_nlm_share(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_rpc_string(tvb,lock_tree,
 			hf_nlm_lock_caller_name, offset, NULL);
 
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, lock_tree, "fh");
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, lock_tree, "fh", NULL);
 
 	offset = dissect_rpc_data(tvb, lock_tree, hf_nlm_lock_owner, offset);
 

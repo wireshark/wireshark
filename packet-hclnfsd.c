@@ -2,7 +2,7 @@
  * Routines for hclnfsd (Hummingbird NFS Daemon) dissection
  * Copyright 2001, Mike Frisch <frisch@hummingbird.com>
  *
- * $Id: packet-hclnfsd.c,v 1.19 2002/11/01 00:48:38 sahlberg Exp $
+ * $Id: packet-hclnfsd.c,v 1.20 2003/08/17 21:34:21 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -119,7 +119,7 @@ dissect_hclnfsd_spool_inquire_call(tvbuff_t *tvb, int offset, packet_info *pinfo
 {
 	offset = dissect_rpc_uint32(tvb, tree, hf_hclnfsd_status, offset);
 
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "spool filehandle");
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "spool filehandle", NULL);
 
 	return offset;
 }
@@ -398,7 +398,7 @@ dissect_hclnfsd_share_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_lockname, offset, NULL);
 
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "Filehandle");
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "Filehandle", NULL);
 
 	offset = dissect_rpc_data(tvb, tree, hf_hclnfsd_unknown_data, offset);
 
@@ -456,7 +456,7 @@ dissect_hclnfsd_lock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_lockname, offset, NULL);
 
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "Filehandle");
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "Filehandle", NULL);
 
 	offset = dissect_rpc_data(tvb, tree, hf_hclnfsd_lockowner, offset);
 
@@ -508,7 +508,7 @@ dissect_hclnfsd_unlock_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 	offset = dissect_rpc_string(tvb, tree, hf_hclnfsd_lockname, offset, NULL);
 
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "Filehandle");
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "Filehandle", NULL);
 
 	offset = dissect_rpc_data(tvb, tree, hf_hclnfsd_unknown_data, offset);
 

@@ -4,7 +4,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nfsacl.c,v 1.8 2003/06/10 17:14:28 guy Exp $
+ * $Id: packet-nfsacl.c,v 1.9 2003/08/17 21:34:22 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -416,7 +416,7 @@ static int
 dissect_nfsacl3_getacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree)
 {
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle");
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle", NULL);
 	offset = dissect_nfsacl_mask(tvb, offset, tree, "mask");
 
 	return offset;
@@ -466,7 +466,7 @@ dissect_nfsacl3_setacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_item *acl_item = NULL;
 	proto_tree *acl_tree = NULL;
 
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle");
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle", NULL);
 
 	if (tree)
 	{
@@ -505,7 +505,7 @@ dissect_nfsacl3_getxattrdir_call(tvbuff_t *tvb, int offset,
 	packet_info *pinfo _U_, proto_tree *tree)
 
 {
-	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle");
+	offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle", NULL);
 	offset = dissect_rpc_bool(tvb, tree, hf_nfsacl_create, offset);
 
 	return offset;
@@ -527,7 +527,7 @@ dissect_nfsacl3_getxattrdir_reply(tvbuff_t *tvb, int offset,
 
 	if (status == ACL3_OK)
 	{
-		offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle");
+		offset = dissect_nfs_fh3(tvb, offset, pinfo, tree, "fhandle", NULL);
 		offset = dissect_nfs_post_op_attr(tvb, offset, tree, "attr");
 	}
 

@@ -1,5 +1,5 @@
 /* packet-nfs.h (c) 1999 Uwe Girlich */
-/* $Id: packet-nfs.h,v 1.15 2003/06/10 17:14:28 guy Exp $ */
+/* $Id: packet-nfs.h,v 1.16 2003/08/17 21:34:22 sahlberg Exp $ */
 
 #ifndef __PACKET_NFS_H__
 #define __PACKET_NFS_H__
@@ -101,7 +101,7 @@ extern gboolean nfs_file_name_snooping;
 int dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     char *name);
 int dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
-    char *name);
+    char *name, guint32 *hash);
 
 int dissect_nfs_post_op_attr(tvbuff_t *tvb, int offset, proto_tree *tree, 
 		char* name);

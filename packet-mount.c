@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.38 2003/04/28 04:03:24 gerald Exp $
+ * $Id: packet-mount.c,v 1.39 2003/08/17 21:34:22 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -545,7 +545,7 @@ dissect_mount3_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 
 	switch (status) {
 		case 0:
-			offset = dissect_nfs_fh3(tvb,offset,pinfo,tree,"fhandle");
+			offset = dissect_nfs_fh3(tvb,offset,pinfo,tree,"fhandle",NULL);
 
 			auth_flavors = tvb_get_ntohl(tvb, offset);
 			proto_tree_add_uint(tree,hf_mount_flavors, tvb,
