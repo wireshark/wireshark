@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.668 2003/12/13 00:38:09 gerald Exp $
+# $Id: Makefile.am,v 1.669 2003/12/13 18:05:48 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -1303,12 +1303,12 @@ endif
 #dist-hook:
 #	@rm -f $(distdir)/register.c
 
-DIST_SUBDIRS = tools wiretap doc epan plugins packaging gtk
+DIST_SUBDIRS = tools wiretap doc epan plugins packaging gtk help
 
 if HAVE_PLUGINS
-SUBDIRS = tools wiretap doc epan plugins packaging @ethereal_SUBDIRS@
+SUBDIRS = tools wiretap doc epan plugins packaging help @ethereal_SUBDIRS@
 else
-SUBDIRS = tools wiretap doc epan packaging @ethereal_SUBDIRS@
+SUBDIRS = tools wiretap doc epan packaging help @ethereal_SUBDIRS@
 endif
 
 ethereal.1: ethereal doc/ethereal.pod

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.235 2003/12/10 21:50:04 gerald Exp $
+# $Id: configure.in,v 1.236 2003/12/13 18:05:48 gerald Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -17,7 +17,7 @@ dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE(ethereal, 0.10.0)
+AM_INIT_AUTOMAKE(ethereal, 0.10.0a)
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -855,6 +855,7 @@ AC_OUTPUT(
   Makefile
   doc/Makefile
   gtk/Makefile
+  help/Makefile
   packaging/Makefile
   packaging/nsis/Makefile
   packaging/rpm/Makefile
