@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.57 2000/11/19 08:54:11 guy Exp $
+ * $Id: tethereal.c,v 1.58 2000/11/20 17:08:20 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -169,6 +169,11 @@ main(int argc, char *argv[])
   extern char          pcap_version[];
 #endif
 #endif
+
+#ifdef WIN32
+  WSADATA		wsaData;
+#endif
+
   char                *gpf_path, *pf_path;
   int                  gpf_open_errno, pf_open_errno;
   int                  err;
@@ -428,6 +433,11 @@ main(int argc, char *argv[])
 #endif
     }
   }
+
+#ifdef WIN32
+  /* Start windows sockets */
+  WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
+#endif
 
   /* Notify all registered modules that have had any of their preferences
      changed either from one of the preferences file or from the command
