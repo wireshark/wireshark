@@ -13,6 +13,7 @@ S<[ B<-l> typenum ]>
 S<[ B<-e> l3pid ]>
 S<[ B<-i> proto ]>
 S<[ B<-u> srcport,destport ]>
+S<[ B<-s> srcport,destport,tag ]>
 S<[ B<-t> timefmt ]>
 I<infile>
 I<outfile>
