@@ -6,7 +6,7 @@
  *
  * (C) Olivier Biot, 2004.
  *
- * $Id: packet-text-media.c,v 1.6 2004/03/08 22:03:59 obiot Exp $
+ * $Id: packet-text-media.c,v 1.7 2004/03/09 02:12:56 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -145,12 +145,13 @@ proto_reg_handoff_text_lines(void)
 	dissector_add_string("media_type", "application/x-javascript", text_lines_handle);
 	dissector_add_string("media_type", "application/x-www-form-urlencoded", text_lines_handle);
 	dissector_add_string("media_type", "application/x-ns-proxy-autoconfig", text_lines_handle);
-	/* WAP line-based textual media */
+	/* WAP and OMA line-based textual media */
 	dissector_add_string("media_type", "text/vnd.wap.wml", text_lines_handle);
 	dissector_add_string("media_type", "text/vnd.wap.si", text_lines_handle);
 	dissector_add_string("media_type", "text/vnd.wap.sl", text_lines_handle);
 	dissector_add_string("media_type", "text/vnd.wap.co", text_lines_handle);
 	dissector_add_string("media_type", "text/vnd.wap.emn", text_lines_handle);
+	dissector_add_string("media_type", "application/vnd.wv.csp+xml", text_lines_handle);
 	/* Other */
 	dissector_add_string("media_type", "text/vnd.sun.j2me.app-descriptor", text_lines_handle);
 	dissector_add_string("media_type", "application/smil", text_lines_handle);

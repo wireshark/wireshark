@@ -3,7 +3,7 @@
  * Routines for WAP Binary XML dissection
  * Copyright 2003, 2004, Olivier Biot.
  *
- * $Id: packet-wbxml.c,v 1.29 2004/03/08 22:03:59 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.30 2004/03/09 02:12:55 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -70,7 +70,7 @@
 
 /* The code in this source file dissects the WAP Binary XML content,
  * and if possible renders it. WBXML mappings are defined in the
- * "wbxml_map[]" array.
+ * "wbxml_decoding" structure.
  *
  * NOTES:
  *
@@ -150,6 +150,59 @@ val_to_valstr(guint32 val, const value_valuestring *vvs)
   return(NULL);
 }
 
+/* Note on Token mapping
+ * ---------------------
+ *
+ * The WBXML dissector will try mapping the token decoding to their textual
+ * representation if the media type has a defined token representation. The
+ * following logic applies:
+ *
+ * a. Inspect the WBXML PublicID
+ *	This means that I need a list { PublicID, decoding }
+ *
+ * b. Inspect the literal media type
+ *	This requires a list { "media/type", discriminator, { decodings } }
+ *
+ *   b.1. Use a discriminator to choose an appropriate token mapping;
+ *	The disciminator needs a small number of bytes from the data tvbuf_t.
+ *
+ * else
+ *   b.2. Provide a list to the end-user with all possible token mappings.
+ *
+ * c. If none match then only show the tokens without mapping.
+ *
+ */
+
+/* ext_t_func_ptr is a pointer to a function handling the EXT_T_i tokens:
+ *
+ * char * ext_t_function(tvbuff_t *tvb, guint32 value, guint32 strtbl);
+ */
+typedef char * (* ext_t_func_ptr)(tvbuff_t *, guint32, guint32);
+
+typedef struct _wbxml_decoding {
+    const char *name;
+    const char *abbrev;
+    ext_t_func_ptr ext_t[3];
+    const value_valuestring *global;
+    const value_valuestring *tags;
+    const value_valuestring *attrStart;
+    const value_valuestring *attrValue;
+} wbxml_decoding;
+
+typedef wbxml_decoding * (* discriminator_func_ptr)(tvbuff_t *);
+
+/* For the decoding lists based on the known WBXML public ID */
+typedef struct _wbxml_integer_list {
+    guint32 public_id;
+    const wbxml_decoding *map;
+} wbxml_integer_list;
+
+/* For the decoding lists on the literal content type */ 
+typedef struct _wbxml_literal_list {
+    const char *content_type;
+    discriminator_func_ptr discriminator; /* TODO */
+    const wbxml_decoding *map;
+} wbxml_literal_list;
 
 /************************** Variable declarations **************************/
 
@@ -171,7 +224,7 @@ static gint ett_wbxml_content = -1;
 
 
 /* WBXML public ID mappings. For an up-to-date list, see
- * http://www.wapforum.org/wina/wbxml-public-docid.htm */
+ * http://www.openmobilealliance.org/tech/omna/ */
 static const value_string vals_wbxml_public_ids[] = {
 	/* 0x00 = literal public identifier */
 	{ 0x01, "Unknown / missing Public Identifier" },
@@ -280,7 +333,32 @@ static const value_string vals_wbxml1x_global_tokens[] = {
  * 
  * Wireless Markup Language
  ***************************************/
+static char *
+ext_t_0_wml_10(tvbuff_t *tvb, guint32 value, guint32 str_tbl)
+{
+    gint str_len = tvb_strsize (tvb, str_tbl + value);
+    char *str = g_strdup_printf("Variable substitution - escaped: '%s'",
+	    tvb_get_ptr(tvb, str_tbl + value, str_len));
+    return str;
+}
 
+static char *
+ext_t_1_wml_10(tvbuff_t *tvb, guint32 value, guint32 str_tbl)
+{
+    gint str_len = tvb_strsize (tvb, str_tbl + value);
+    char *str = g_strdup_printf("Variable substitution - unescaped: '%s'",
+	    tvb_get_ptr(tvb, str_tbl + value, str_len));
+    return str;
+}
+
+static char *
+ext_t_2_wml_10(tvbuff_t *tvb, guint32 value, guint32 str_tbl)
+{
+    gint str_len = tvb_strsize (tvb, str_tbl + value);
+    char *str = g_strdup_printf("Variable substitution - no transformation: '%s'",
+	    tvb_get_ptr(tvb, str_tbl + value, str_len));
+    return str;
+}
 /*****   Global extension tokens   *****/
 static const value_string wbxml_wmlc10_global_cp0[] = {
 	{ 0x40, "Variable substitution - escaped" },
@@ -471,6 +549,15 @@ static const value_valuestring wbxml_wmlc10_attrValue[] = {
 	{ 0, NULL }
 };
 
+static const wbxml_decoding decode_wmlc_10 = {
+    "Wireless Markup Language 1.0",
+    "WML 1.0",
+    { ext_t_0_wml_10, ext_t_1_wml_10, ext_t_2_wml_10 },
+    wbxml_wmlc10_global,
+    wbxml_wmlc10_tags,
+    wbxml_wmlc10_attrStart,
+    wbxml_wmlc10_attrValue
+};
 
 
 
@@ -674,6 +761,16 @@ static const value_valuestring wbxml_wmlc11_attrValue[] = {
 	{ 0, NULL }
 };
 
+static const wbxml_decoding decode_wmlc_11 = {
+    "Wireless Markup Language 1.1",
+    "WML 1.1",
+    { ext_t_0_wml_10, ext_t_1_wml_10, ext_t_2_wml_10 },
+    wbxml_wmlc11_global,
+    wbxml_wmlc11_tags,
+    wbxml_wmlc11_attrStart,
+    wbxml_wmlc11_attrValue
+};
+
 
 
 
@@ -849,6 +946,16 @@ static const value_valuestring wbxml_wmlc12_attrValue[] = {
 	{ 0, NULL }
 };
 
+static const wbxml_decoding decode_wmlc_12 = {
+    "Wireless Markup Language 1.2",
+    "WML 1.2",
+    { ext_t_0_wml_10, ext_t_1_wml_10, ext_t_2_wml_10 },
+    wbxml_wmlc12_global,
+    wbxml_wmlc12_tags,
+    wbxml_wmlc12_attrStart,
+    wbxml_wmlc12_attrValue
+};
+
 
 
 
@@ -985,6 +1092,16 @@ static const value_valuestring wbxml_wmlc13_attrValue[] = {
 	{ 0, NULL }
 };
 
+static const wbxml_decoding decode_wmlc_13 = {
+    "Wireless Markup Language 1.3",
+    "WML 1.3",
+    { ext_t_0_wml_10, ext_t_1_wml_10, ext_t_2_wml_10 },
+    wbxml_wmlc13_global,
+    wbxml_wmlc13_tags,
+    wbxml_wmlc13_attrStart,
+    wbxml_wmlc13_attrValue
+};
+
 
 
 
@@ -1055,6 +1172,16 @@ static const value_valuestring wbxml_sic10_attrValue[] = {
 	{ 0, NULL }
 };
 
+static const wbxml_decoding decode_sic_10 = {
+    "Service Indication 1.0",
+    "SI 1.0",
+    { NULL, NULL, NULL },
+    NULL,
+    wbxml_sic10_tags,
+    wbxml_sic10_attrStart,
+    wbxml_sic10_attrValue
+};
+
 
 
 
@@ -1108,6 +1235,16 @@ static const value_valuestring wbxml_slc10_attrValue[] = {
 	{ 0, NULL }
 };
 
+static const wbxml_decoding decode_slc_10 = {
+    "Service Loading 1.0",
+    "SL 1.0",
+    { NULL, NULL, NULL },
+    NULL,
+    wbxml_slc10_tags,
+    wbxml_slc10_attrStart,
+    wbxml_slc10_attrValue
+};
+
 
 
 
@@ -1158,6 +1295,16 @@ static const value_valuestring wbxml_coc10_attrStart[] = {
 static const value_valuestring wbxml_coc10_attrValue[] = {
 	{ 0, wbxml_sic10_attrValue_cp0 }, /* Same as SI 1.0 */
 	{ 0, NULL }
+};
+
+static const wbxml_decoding decode_coc_10 = {
+    "Cache Operation 1.0",
+    "CO 1.0",
+    { NULL, NULL, NULL },
+    NULL,
+    wbxml_coc10_tags,
+    wbxml_coc10_attrStart,
+    wbxml_coc10_attrValue
 };
 
 
@@ -1433,6 +1580,16 @@ static const value_valuestring wbxml_provc10_attrValue[] = {
 	{ 0, NULL }
 };
 
+static const wbxml_decoding decode_provc_10 = {
+    "WAP Client Provisioning Document 1.0",
+    "WAP ProvisioningDoc 1.0",
+    { NULL, NULL, NULL },
+    NULL,
+    wbxml_provc10_tags,
+    wbxml_provc10_attrStart,
+    wbxml_provc10_attrValue
+};
+
 
 
 
@@ -1485,6 +1642,16 @@ static const value_valuestring wbxml_emnc10_attrStart[] = {
 static const value_valuestring wbxml_emnc10_attrValue[] = {
 	{ 0, wbxml_sic10_attrValue_cp0 }, /* Same as SI 1.0 */
 	{ 0, NULL }
+};
+
+static const wbxml_decoding decode_emnc_10 = {
+    "E-Mail Notification 1.0",
+    "EMN 1.0",
+    { NULL, NULL, NULL },
+    NULL,
+    wbxml_emnc10_tags,
+    wbxml_emnc10_attrStart,
+    wbxml_emnc10_attrValue
 };
 
 
@@ -1582,6 +1749,16 @@ static const value_valuestring wbxml_syncmlc10_tags[] = {
 	{ 0, wbxml_syncmlc10_tags_cp0 }, /* -//SYNCML//DTD SyncML 1.0//EN */
 	{ 1, wbxml_syncmlc10_tags_cp1 }, /* -//SYNCML//DTD MetInf 1.0//EN */
 	{ 0, NULL }
+};
+
+static const wbxml_decoding decode_syncmlc_10 = {
+    "SyncML Representation Protocol 1.0",
+    "SyncML 1.0",
+    { NULL, NULL, NULL },
+    NULL,
+    wbxml_syncmlc10_tags,
+    NULL,
+    NULL
 };
 
 
@@ -1684,6 +1861,16 @@ static const value_valuestring wbxml_syncmlc11_tags[] = {
 	{ 0, NULL }
 };
 
+static const wbxml_decoding decode_syncmlc_11 = {
+    "SyncML Representation Protocol 1.1",
+    "SyncML 1.1",
+    { NULL, NULL, NULL },
+    NULL,
+    wbxml_syncmlc11_tags,
+    NULL,
+    NULL
+};
+
 
 
 
@@ -1739,6 +1926,16 @@ static const value_valuestring wbxml_channelc10_tags[] = {
 static const value_valuestring wbxml_channelc10_attrStart[] = {
 	{ 0, wbxml_channelc10_attrStart_cp0 },
 	{ 0, NULL }
+};
+
+static const wbxml_decoding decode_channelc_10 = {
+    "Wireless Telephony Application (WTA) Channel 1.0",
+    "CHANNEL 1.0",
+    { NULL, NULL, NULL },
+    NULL,
+    wbxml_channelc10_tags,
+    wbxml_channelc10_attrStart,
+    NULL
 };
 
 
@@ -1835,6 +2032,16 @@ static const value_valuestring wbxml_nokiaprovc70_tags[] = {
 static const value_valuestring wbxml_nokiaprovc70_attrStart[] = {
 	{ 0, wbxml_nokiaprovc70_attrStart_cp0 },
 	{ 0, NULL }
+};
+
+static const wbxml_decoding decode_nokiaprovc_70 = {
+    "Nokia Client Provisioning 7.0",
+    "Nokia Client Provisioning 7.0",
+    { NULL, NULL, NULL },
+    NULL,
+    wbxml_nokiaprovc70_tags,
+    wbxml_nokiaprovc70_attrStart,
+    NULL
 };
 
 
@@ -2354,6 +2561,16 @@ static const value_valuestring wbxml_wv_csp_10_attrValue[] = {
 	{ 0, NULL }
 };
 
+static const wbxml_decoding decode_wv_cspc_10 = {
+    "Wireless-Village Client-Server Protocol 1.0",
+    "WV-CSP 1.0",
+    { NULL, NULL, NULL },
+    NULL,
+    wbxml_wv_csp_10_tags,
+    wbxml_wv_csp_10_attrStart,
+    wbxml_wv_csp_10_attrValue
+};
+
 
 
 
@@ -2365,7 +2582,7 @@ static const value_valuestring wbxml_wv_csp_10_attrValue[] = {
 
 /*****   Global extension tokens   *****/
 static const value_string wbxml_wv_csp_11_global_cp0[] = {
-	{ 0x80, "Common value" }, /* EXT_T_0 */
+	{ 0x80, "Common Value" }, /* EXT_T_0 */
 
 	{ 0x00, NULL }
 };
@@ -2711,115 +2928,125 @@ static const value_string vals_wv_csp_11_element_value_tokens[] = {
 	/*
 	 * Common value tokens
 	 */
-	{ 0x00, "'AccessType'" },
-	{ 0x01, "'ActiveUsers'" },
-	{ 0x02, "'Admin'" },
-	{ 0x03, "'application/'" },
-	{ 0x04, "'application/vnd.wap.mms-message'" },
-	{ 0x05, "'application/x-sms'" },
-	{ 0x06, "'AutoJoin'" },
-	{ 0x07, "'BASE64'" },
-	{ 0x08, "'Closed'" },
-	{ 0x09, "'Default'" },
-	{ 0x0A, "'DisplayName'" },
-	{ 0x0B, "'F'" },
-	{ 0x0C, "'G'" },
-	{ 0x0D, "'GR'" },
-	{ 0x0E, "'http://'" },
-	{ 0x0F, "'https://'" },
-	{ 0x10, "'image/'" },
-	{ 0x11, "'Inband'" },
-	{ 0x12, "'IM'" },
-	{ 0x13, "'MaxActiveUsers'" },
-	{ 0x14, "'Mod'" },
-	{ 0x15, "'Name'" },
-	{ 0x16, "'None'" },
-	{ 0x17, "'N'" },
-	{ 0x18, "'Open'" },
-	{ 0x19, "'Outband'" },
-	{ 0x1A, "'PR'" },
-	{ 0x1B, "'Private'" },
-	{ 0x1C, "'PrivateMessaging'" },
-	{ 0x1D, "'PrivilegeLevel'" },
-	{ 0x1E, "'Public'" },
-	{ 0x1F, "'P'" },
-	{ 0x20, "'Request'" },
-	{ 0x21, "'Response'" },
-	{ 0x22, "'Restricted'" },
-	{ 0x23, "'ScreenName'" },
-	{ 0x24, "'Searchable'" },
-	{ 0x25, "'S'" },
-	{ 0x26, "'SC'" },
-	{ 0x27, "'text/'" },
-	{ 0x28, "'text/plain'" },
-	{ 0x29, "'text/x-vCalendar'" },
-	{ 0x2A, "'text/x-vCard'" },
-	{ 0x2B, "'Topic'" },
-	{ 0x2C, "'T'" },
-	{ 0x2D, "'Type'" },
-	{ 0x2E, "'U'" },
-	{ 0x2F, "'US'" },
-	{ 0x30, "'www.wireless-village.org'" },
+	{ 0x00, "AccessType" },
+	{ 0x01, "ActiveUsers" },
+	{ 0x02, "Admin" },
+	{ 0x03, "application/" },
+	{ 0x04, "application/vnd.wap.mms-message" },
+	{ 0x05, "application/x-sms" },
+	{ 0x06, "AutoJoin" },
+	{ 0x07, "BASE64" },
+	{ 0x08, "Closed" },
+	{ 0x09, "Default" },
+	{ 0x0A, "DisplayName" },
+	{ 0x0B, "F" },
+	{ 0x0C, "G" },
+	{ 0x0D, "GR" },
+	{ 0x0E, "http://" },
+	{ 0x0F, "https://" },
+	{ 0x10, "image/" },
+	{ 0x11, "Inband" },
+	{ 0x12, "IM" },
+	{ 0x13, "MaxActiveUsers" },
+	{ 0x14, "Mod" },
+	{ 0x15, "Name" },
+	{ 0x16, "None" },
+	{ 0x17, "N" },
+	{ 0x18, "Open" },
+	{ 0x19, "Outband" },
+	{ 0x1A, "PR" },
+	{ 0x1B, "Private" },
+	{ 0x1C, "PrivateMessaging" },
+	{ 0x1D, "PrivilegeLevel" },
+	{ 0x1E, "Public" },
+	{ 0x1F, "P" },
+	{ 0x20, "Request" },
+	{ 0x21, "Response" },
+	{ 0x22, "Restricted" },
+	{ 0x23, "ScreenName" },
+	{ 0x24, "Searchable" },
+	{ 0x25, "S" },
+	{ 0x26, "SC" },
+	{ 0x27, "text/" },
+	{ 0x28, "text/plain" },
+	{ 0x29, "text/x-vCalendar" },
+	{ 0x2A, "text/x-vCard" },
+	{ 0x2B, "Topic" },
+	{ 0x2C, "T" },
+	{ 0x2D, "Type" },
+	{ 0x2E, "U" },
+	{ 0x2F, "US" },
+	{ 0x30, "www.wireless-village.org" },
 	/*
 	 * Access value tokens
 	 */
-	{ 0x3D, "'GROUP_ID'" },
-	{ 0x3E, "'GROUP_NAME'" },
-	{ 0x3F, "'GROUP_TOPIC'" },
-	{ 0x40, "'GROUP_USER_ID_JOINED'" },
-	{ 0x41, "'GROUP_USER_ID_OWNER'" },
-	{ 0x42, "'HTTP'" },
-	{ 0x43, "'SMS'" },
-	{ 0x44, "'STCP'" },
-	{ 0x45, "'SUDP'" },
-	{ 0x46, "'USER_ALIAS'" },
-	{ 0x47, "'USER_EMAIL_ADDRESS'" },
-	{ 0x48, "'USER_FIRST_NAME'" },
-	{ 0x49, "'USER_ID'" },
-	{ 0x4A, "'USER_LAST_NAME'" },
-	{ 0x4B, "'USER_MOBILE_NUMBER'" },
-	{ 0x4C, "'USER_ONLINE_STATUS'" },
-	{ 0x4D, "'WAPSMS'" },
-	{ 0x4E, "'WAPUDP'" },
-	{ 0x4F, "'WSP'" },
+	{ 0x3D, "GROUP_ID" },
+	{ 0x3E, "GROUP_NAME" },
+	{ 0x3F, "GROUP_TOPIC" },
+	{ 0x40, "GROUP_USER_ID_JOINED" },
+	{ 0x41, "GROUP_USER_ID_OWNER" },
+	{ 0x42, "HTTP" },
+	{ 0x43, "SMS" },
+	{ 0x44, "STCP" },
+	{ 0x45, "SUDP" },
+	{ 0x46, "USER_ALIAS" },
+	{ 0x47, "USER_EMAIL_ADDRESS" },
+	{ 0x48, "USER_FIRST_NAME" },
+	{ 0x49, "USER_ID" },
+	{ 0x4A, "USER_LAST_NAME" },
+	{ 0x4B, "USER_MOBILE_NUMBER" },
+	{ 0x4C, "USER_ONLINE_STATUS" },
+	{ 0x4D, "WAPSMS" },
+	{ 0x4E, "WAPUDP" },
+	{ 0x4F, "WSP" },
 	/*
 	 * Presence value tokens
 	 */
-	{ 0x5B, "'ANGRY'" },
-	{ 0x5C, "'ANXIOUS'" },
-	{ 0x5D, "'ASHAMED'" },
-	{ 0x5E, "'AUDIO_CALL'" },
-	{ 0x5F, "'AVAILABLE'" },
-	{ 0x60, "'BORED'" },
-	{ 0x61, "'CALL'" },
-	{ 0x62, "'CLI'" },
-	{ 0x63, "'COMPUTER'" },
-	{ 0x64, "'DISCREET'" },
-	{ 0x65, "'EMAIL'" },
-	{ 0x66, "'EXCITED'" },
-	{ 0x67, "'HAPPY'" },
-	{ 0x68, "'IM'" },
-	{ 0x69, "'IM_OFFLINE'" },
-	{ 0x6A, "'IM_ONLINE'" },
-	{ 0x6B, "'IN_LOVE'" },
-	{ 0x6C, "'INVINCIBLE'" },
-	{ 0x6D, "'JEALOUS'" },
-	{ 0x6E, "'MMS'" },
-	{ 0x6F, "'MOBILE_PHONE'" },
-	{ 0x70, "'NOT_AVAILABLE'" },
-	{ 0x71, "'OTHER'" },
-	{ 0x72, "'PDA'" },
-	{ 0x73, "'SAD'" },
-	{ 0x74, "'SLEEPY'" },
-	{ 0x75, "'SMS'" },
-	{ 0x76, "'VIDEO_CALL'" },
-	{ 0x77, "'VIDEO_STREAM'" },
+	{ 0x5B, "ANGRY" },
+	{ 0x5C, "ANXIOUS" },
+	{ 0x5D, "ASHAMED" },
+	{ 0x5E, "AUDIO_CALL" },
+	{ 0x5F, "AVAILABLE" },
+	{ 0x60, "BORED" },
+	{ 0x61, "CALL" },
+	{ 0x62, "CLI" },
+	{ 0x63, "COMPUTER" },
+	{ 0x64, "DISCREET" },
+	{ 0x65, "EMAIL" },
+	{ 0x66, "EXCITED" },
+	{ 0x67, "HAPPY" },
+	{ 0x68, "IM" },
+	{ 0x69, "IM_OFFLINE" },
+	{ 0x6A, "IM_ONLINE" },
+	{ 0x6B, "IN_LOVE" },
+	{ 0x6C, "INVINCIBLE" },
+	{ 0x6D, "JEALOUS" },
+	{ 0x6E, "MMS" },
+	{ 0x6F, "MOBILE_PHONE" },
+	{ 0x70, "NOT_AVAILABLE" },
+	{ 0x71, "OTHER" },
+	{ 0x72, "PDA" },
+	{ 0x73, "SAD" },
+	{ 0x74, "SLEEPY" },
+	{ 0x75, "SMS" },
+	{ 0x76, "VIDEO_CALL" },
+	{ 0x77, "VIDEO_STREAM" },
 
 	{ 0x00, NULL }
 };
 
 
 /***** Token code page aggregation *****/
+
+static char *
+ext_t_0_wv_cspc_11(tvbuff_t *tvb _U_, guint32 value, guint32 str_tbl _U_)
+{
+    char *str = g_strdup_printf("Common Value: '%s'",
+	    val_to_str(value, vals_wv_csp_11_element_value_tokens,
+		"<Unknown WV-CSP 1.1 Common Value token 0x%X>"));
+    return str;
+}
+
 static const value_valuestring wbxml_wv_csp_11_global[] = {
 	{ 0, wbxml_wv_csp_11_global_cp0 },
 	{ 0, NULL }
@@ -2840,6 +3067,16 @@ static const value_valuestring wbxml_wv_csp_11_tags[] = {
 static const value_valuestring wbxml_wv_csp_11_attrStart[] = {
 	{ 0, wbxml_wv_csp_11_attrStart_cp0 },
 	{ 0, NULL }
+};
+
+static const wbxml_decoding decode_wv_cspc_11 = {
+    "Wireless-Village Client-Server Protocol 1.1",
+    "WV-CSP 1.1",
+    { ext_t_0_wv_cspc_11, NULL, NULL },
+    wbxml_wv_csp_11_global,
+    wbxml_wv_csp_11_tags,
+    wbxml_wv_csp_11_attrStart,
+    NULL
 };
 
 
@@ -3258,119 +3495,119 @@ static const value_string vals_wv_csp_12_element_value_tokens[] = {
 	/*
 	 * Common value tokens
 	 */
-	{ 0x00, "'AccessType'" },
-	{ 0x01, "'ActiveUsers'" },
-	{ 0x02, "'Admin'" },
-	{ 0x03, "'application/'" },
-	{ 0x04, "'application/vnd.wap.mms-message'" },
-	{ 0x05, "'application/x-sms'" },
-	{ 0x06, "'AutoJoin'" },
-	{ 0x07, "'BASE64'" },
-	{ 0x08, "'Closed'" },
-	{ 0x09, "'Default'" },
-	{ 0x0A, "'DisplayName'" },
-	{ 0x0B, "'F'" },
-	{ 0x0C, "'G'" },
-	{ 0x0D, "'GR'" },
-	{ 0x0E, "'http://'" },
-	{ 0x0F, "'https://'" },
-	{ 0x10, "'image/'" },
-	{ 0x11, "'Inband'" },
-	{ 0x12, "'IM'" },
-	{ 0x13, "'MaxActiveUsers'" },
-	{ 0x14, "'Mod'" },
-	{ 0x15, "'Name'" },
-	{ 0x16, "'None'" },
-	{ 0x17, "'N'" },
-	{ 0x18, "'Open'" },
-	{ 0x19, "'Outband'" },
-	{ 0x1A, "'PR'" },
-	{ 0x1B, "'Private'" },
-	{ 0x1C, "'PrivateMessaging'" },
-	{ 0x1D, "'PrivilegeLevel'" },
-	{ 0x1E, "'Public'" },
-	{ 0x1F, "'P'" },
-	{ 0x20, "'Request'" },
-	{ 0x21, "'Response'" },
-	{ 0x22, "'Restricted'" },
-	{ 0x23, "'ScreenName'" },
-	{ 0x24, "'Searchable'" },
-	{ 0x25, "'S'" },
-	{ 0x26, "'SC'" },
-	{ 0x27, "'text/'" },
-	{ 0x28, "'text/plain'" },
-	{ 0x29, "'text/x-vCalendar'" },
-	{ 0x2A, "'text/x-vCard'" },
-	{ 0x2B, "'Topic'" },
-	{ 0x2C, "'T'" },
-	{ 0x2D, "'Type'" },
-	{ 0x2E, "'U'" },
-	{ 0x2F, "'US'" },
-	{ 0x30, "'www.wireless-village.org'" },
+	{ 0x00, "AccessType" },
+	{ 0x01, "ActiveUsers" },
+	{ 0x02, "Admin" },
+	{ 0x03, "application/" },
+	{ 0x04, "application/vnd.wap.mms-message" },
+	{ 0x05, "application/x-sms" },
+	{ 0x06, "AutoJoin" },
+	{ 0x07, "BASE64" },
+	{ 0x08, "Closed" },
+	{ 0x09, "Default" },
+	{ 0x0A, "DisplayName" },
+	{ 0x0B, "F" },
+	{ 0x0C, "G" },
+	{ 0x0D, "GR" },
+	{ 0x0E, "http://" },
+	{ 0x0F, "https://" },
+	{ 0x10, "image/" },
+	{ 0x11, "Inband" },
+	{ 0x12, "IM" },
+	{ 0x13, "MaxActiveUsers" },
+	{ 0x14, "Mod" },
+	{ 0x15, "Name" },
+	{ 0x16, "None" },
+	{ 0x17, "N" },
+	{ 0x18, "Open" },
+	{ 0x19, "Outband" },
+	{ 0x1A, "PR" },
+	{ 0x1B, "Private" },
+	{ 0x1C, "PrivateMessaging" },
+	{ 0x1D, "PrivilegeLevel" },
+	{ 0x1E, "Public" },
+	{ 0x1F, "P" },
+	{ 0x20, "Request" },
+	{ 0x21, "Response" },
+	{ 0x22, "Restricted" },
+	{ 0x23, "ScreenName" },
+	{ 0x24, "Searchable" },
+	{ 0x25, "S" },
+	{ 0x26, "SC" },
+	{ 0x27, "text/" },
+	{ 0x28, "text/plain" },
+	{ 0x29, "text/x-vCalendar" },
+	{ 0x2A, "text/x-vCard" },
+	{ 0x2B, "Topic" },
+	{ 0x2C, "T" },
+	{ 0x2D, "Type" },
+	{ 0x2E, "U" },
+	{ 0x2F, "US" },
+	{ 0x30, "www.wireless-village.org" },
 	/* New in WV-CSP 1.2 */
-	{ 0x31, "'AutoDelete'" },
-	{ 0x32, "'GM'" },
-	{ 0x33, "'Validity'" },
-	{ 0x34, "'DENIED'" }, /* Duplicate */
-	{ 0x34, "'ShowID'" }, /* Duplicate */
-	{ 0x35, "'GRANTED'" },
-	{ 0x36, "'PENDING'" },
+	{ 0x31, "AutoDelete" },
+	{ 0x32, "GM" },
+	{ 0x33, "Validity" },
+	{ 0x34, "DENIED" }, /* Duplicate */
+	{ 0x34, "ShowID" }, /* Duplicate */
+	{ 0x35, "GRANTED" },
+	{ 0x36, "PENDING" },
 	/*
 	 * Access value tokens
 	 */
-	{ 0x3D, "'GROUP_ID'" },
-	{ 0x3E, "'GROUP_NAME'" },
-	{ 0x3F, "'GROUP_TOPIC'" },
-	{ 0x40, "'GROUP_USER_ID_JOINED'" },
-	{ 0x41, "'GROUP_USER_ID_OWNER'" },
-	{ 0x42, "'HTTP'" },
-	{ 0x43, "'SMS'" },
-	{ 0x44, "'STCP'" },
-	{ 0x45, "'SUDP'" },
-	{ 0x46, "'USER_ALIAS'" },
-	{ 0x47, "'USER_EMAIL_ADDRESS'" },
-	{ 0x48, "'USER_FIRST_NAME'" },
-	{ 0x49, "'USER_ID'" },
-	{ 0x4A, "'USER_LAST_NAME'" },
-	{ 0x4B, "'USER_MOBILE_NUMBER'" },
-	{ 0x4C, "'USER_ONLINE_STATUS'" },
-	{ 0x4D, "'WAPSMS'" },
-	{ 0x4E, "'WAPUDP'" },
-	{ 0x4F, "'WSP'" },
+	{ 0x3D, "GROUP_ID" },
+	{ 0x3E, "GROUP_NAME" },
+	{ 0x3F, "GROUP_TOPIC" },
+	{ 0x40, "GROUP_USER_ID_JOINED" },
+	{ 0x41, "GROUP_USER_ID_OWNER" },
+	{ 0x42, "HTTP" },
+	{ 0x43, "SMS" },
+	{ 0x44, "STCP" },
+	{ 0x45, "SUDP" },
+	{ 0x46, "USER_ALIAS" },
+	{ 0x47, "USER_EMAIL_ADDRESS" },
+	{ 0x48, "USER_FIRST_NAME" },
+	{ 0x49, "USER_ID" },
+	{ 0x4A, "USER_LAST_NAME" },
+	{ 0x4B, "USER_MOBILE_NUMBER" },
+	{ 0x4C, "USER_ONLINE_STATUS" },
+	{ 0x4D, "WAPSMS" },
+	{ 0x4E, "WAPUDP" },
+	{ 0x4F, "WSP" },
 	/* New in WV-CSP 1.2 */
-	{ 0x50, "'GROUP_USER_ID_AUTOJOIN'" },
+	{ 0x50, "GROUP_USER_ID_AUTOJOIN" },
 	/*
 	 * Presence value tokens
 	 */
-	{ 0x5B, "'ANGRY'" },
-	{ 0x5C, "'ANXIOUS'" },
-	{ 0x5D, "'ASHAMED'" },
-	{ 0x5E, "'AUDIO_CALL'" },
-	{ 0x5F, "'AVAILABLE'" },
-	{ 0x60, "'BORED'" },
-	{ 0x61, "'CALL'" },
-	{ 0x62, "'CLI'" },
-	{ 0x63, "'COMPUTER'" },
-	{ 0x64, "'DISCREET'" },
-	{ 0x65, "'EMAIL'" },
-	{ 0x66, "'EXCITED'" },
-	{ 0x67, "'HAPPY'" },
-	{ 0x68, "'IM'" },
-	{ 0x69, "'IM_OFFLINE'" },
-	{ 0x6A, "'IM_ONLINE'" },
-	{ 0x6B, "'IN_LOVE'" },
-	{ 0x6C, "'INVINCIBLE'" },
-	{ 0x6D, "'JEALOUS'" },
-	{ 0x6E, "'MMS'" },
-	{ 0x6F, "'MOBILE_PHONE'" },
-	{ 0x70, "'NOT_AVAILABLE'" },
-	{ 0x71, "'OTHER'" },
-	{ 0x72, "'PDA'" },
-	{ 0x73, "'SAD'" },
-	{ 0x74, "'SLEEPY'" },
-	{ 0x75, "'SMS'" },
-	{ 0x76, "'VIDEO_CALL'" },
-	{ 0x77, "'VIDEO_STREAM'" },
+	{ 0x5B, "ANGRY" },
+	{ 0x5C, "ANXIOUS" },
+	{ 0x5D, "ASHAMED" },
+	{ 0x5E, "AUDIO_CALL" },
+	{ 0x5F, "AVAILABLE" },
+	{ 0x60, "BORED" },
+	{ 0x61, "CALL" },
+	{ 0x62, "CLI" },
+	{ 0x63, "COMPUTER" },
+	{ 0x64, "DISCREET" },
+	{ 0x65, "EMAIL" },
+	{ 0x66, "EXCITED" },
+	{ 0x67, "HAPPY" },
+	{ 0x68, "IM" },
+	{ 0x69, "IM_OFFLINE" },
+	{ 0x6A, "IM_ONLINE" },
+	{ 0x6B, "IN_LOVE" },
+	{ 0x6C, "INVINCIBLE" },
+	{ 0x6D, "JEALOUS" },
+	{ 0x6E, "MMS" },
+	{ 0x6F, "MOBILE_PHONE" },
+	{ 0x70, "NOT_AVAILABLE" },
+	{ 0x71, "OTHER" },
+	{ 0x72, "PDA" },
+	{ 0x73, "SAD" },
+	{ 0x74, "SLEEPY" },
+	{ 0x75, "SMS" },
+	{ 0x76, "VIDEO_CALL" },
+	{ 0x77, "VIDEO_STREAM" },
 
 	{ 0x00, NULL }
 };
@@ -3378,6 +3615,16 @@ static const value_string vals_wv_csp_12_element_value_tokens[] = {
 
 
 /***** Token code page aggregation *****/
+
+static char *
+ext_t_0_wv_cspc_12(tvbuff_t *tvb _U_, guint32 value, guint32 str_tbl _U_)
+{
+    char *str = g_strdup_printf("Common Value: '%s'",
+	    val_to_str(value, vals_wv_csp_12_element_value_tokens,
+		"<Unknown WV-CSP 1.2 Common Value token 0x%X>"));
+    return str;
+}
+
 #define wbxml_wv_csp_12_global wbxml_wv_csp_11_global
 
 static const value_valuestring wbxml_wv_csp_12_tags[] = {
@@ -3400,185 +3647,128 @@ static const value_valuestring wbxml_wv_csp_12_attrStart[] = {
 	{ 0, NULL }
 };
 
+static const wbxml_decoding decode_wv_cspc_12 = {
+    "Wireless-Village Client-Server Protocol 1.2",
+    "WV-CSP 1.2",
+    { ext_t_0_wv_cspc_12, NULL, NULL },
+    wbxml_wv_csp_12_global,
+    wbxml_wv_csp_12_tags,
+    wbxml_wv_csp_12_attrStart,
+    NULL
+};
+
 
 
 
 
 /********************** WBXML token mapping aggregation **********************/
 
+static const wbxml_decoding *get_wbxml_decoding_from_public_id (guint32 publicid);
+static const wbxml_decoding *get_wbxml_decoding_from_content_type (
+	const char *content_type);
 
-/* The following structure links content types to their token mapping and
- * contains arrays of pointers to value_string arrays (one per code page).
- */
-typedef struct _wbxml_token_map {
-	const guint32 publicid;	    /* WBXML DTD number - see WINA (now OMNA) */
-	const gchar *content_type;  /* Content type if no WBXML DTD number */
-	const gboolean defined;     /* Are there mapping tables defined */
-	const value_valuestring *global;     /* Global token map */
-	const value_valuestring *tags;       /* Tag token map */
-	const value_valuestring *attrStart;  /* Attribute Start token map */
-	const value_valuestring *attrValue;  /* Attribute Value token map */
-} wbxml_token_map;
-
-static const wbxml_token_map *wbxml_content_map (guint32 publicid,
-		const char *content_type);
 
 /**
  ** Aggregation of content type and aggregated code pages
  ** Content type map lookup will stop at the 1st entry with 3rd member = FALSE
  **/
-static const wbxml_token_map map[] = {
-#ifdef Test_the_WBXML_parser_without_token_mappings
-	{ 0, NULL, FALSE, NULL, NULL, NULL, NULL },
-#endif
-	{ 0x02, NULL, TRUE, /* WML 1.0 */
-		wbxml_wmlc10_global,
-		wbxml_wmlc10_tags,
-		wbxml_wmlc10_attrStart,
-		wbxml_wmlc10_attrValue
-	},
-#ifdef remove_directive_and_set_TRUE_if_mapping_available
-	{ 0x03, NULL, FALSE, /* WTA 1.0 (deprecated) */
-		NULL, NULL, NULL, NULL
-	},
-#endif
-	{ 0x04, NULL, TRUE, /* WML 1.1 */
-		wbxml_wmlc11_global, /* Same as WML 1.0 */
-		wbxml_wmlc11_tags,
-		wbxml_wmlc11_attrStart,
-		wbxml_wmlc11_attrValue
-	},
-	{ 0x05, NULL, TRUE, /* SI 1.0 */
-		NULL, /* wbxml_sic10_global - does not exist */
-		wbxml_sic10_tags,
-		wbxml_sic10_attrStart,
-		wbxml_sic10_attrValue
-	},
-	{ 0x06, NULL, TRUE, /* SL 1.0 */
-		NULL, /* wbxml_slc10_global - does not exist */
-		wbxml_slc10_tags,
-		wbxml_slc10_attrStart,
-		wbxml_slc10_attrValue
-	},
-	{ 0x07, NULL, TRUE, /* CO 1.0 */
-		NULL, /* wbxml_coc10_global - does not exist */
-		wbxml_coc10_tags,
-		wbxml_coc10_attrStart,
-		wbxml_coc10_attrValue
-	},
-	{ 0x08, NULL, TRUE, /* CHANNEL 1.0 (deprecated) */
-		NULL, /* wbxml_channelc10_global - does not exist */
-		wbxml_channelc10_tags,
-		wbxml_channelc10_attrStart,
-		NULL, /* wbxml_channelc10_attrValue - does not exist */
-	},
-	{ 0x09, NULL, TRUE, /* WML 1.2 */
-		wbxml_wmlc12_global, /* Same as WML 1.0 */
-		wbxml_wmlc12_tags,
-		wbxml_wmlc12_attrStart,
-		wbxml_wmlc12_attrValue
-	},
-	{ 0x0A, NULL, TRUE, /* WML 1.3 */
-		wbxml_wmlc13_global, /* Same as WML 1.0 */
-		wbxml_wmlc13_tags,
-		wbxml_wmlc13_attrStart,
-		wbxml_wmlc13_attrValue
-	},
-	{ 0x0B, NULL, TRUE, /* PROV 1.0 */
-		NULL, /* wbxml_provc10_global - does not exist */
-		wbxml_provc10_tags,
-		wbxml_provc10_attrStart,
-		wbxml_provc10_attrValue
-	},
-#ifdef remove_directive_and_set_TRUE_if_mapping_available
-	{ 0x0C, NULL, FALSE, /* WTA-WML 1.2 */
-		NULL, NULL, NULL, NULL
-	},
-#endif
-	{ 0x0D, NULL, TRUE, /* EMN 1.0 */
-		NULL, /* wbxml_emnc10_global - does not exist */
-		wbxml_emnc10_tags,
-		wbxml_emnc10_attrStart,
-		wbxml_emnc10_attrValue
-	},
-#ifdef remove_directive_and_set_TRUE_if_mapping_available
-	{ 0x0E, NULL, FALSE, /* DRMREL 1.0 */
-		NULL, NULL, NULL, NULL
-	},
-#endif
-	{ 0x0f, NULL, TRUE, /* WV-CSP 1.0 */
-		NULL,
-		wbxml_wv_csp_10_tags,
-		wbxml_wv_csp_10_attrStart,
-		wbxml_wv_csp_10_attrValue,
-	},
-	{ 0x10, NULL, TRUE /* WV-CSP 1.1 */,
-		wbxml_wv_csp_11_global,
-		wbxml_wv_csp_11_tags,
-		wbxml_wv_csp_11_attrStart,
-		NULL, /* wbxml_wv_csp_11_attrValue - does not exist */
-	},
-	{ 0x020B, NULL, TRUE, /* Nokia OTA Provisioning 7.0 */
-		NULL, /* wbxml_nokiaprovc70_global - does not exist */
-		wbxml_nokiaprovc70_tags,
-		wbxml_nokiaprovc70_attrStart,
-		NULL, /* wbxml_nokiaprovc70_attrValue - does not exist */
-	},
-	{ 0x0FD1, NULL, TRUE, /* SyncML 1.0 */
-		NULL, /* wbxml_syncmlc10_global - does not exist */
-		wbxml_syncmlc10_tags,
-		NULL, /* wbxml_syncmlc10_attrStart - does not exist */
-		NULL, /* wbxml_syncmlc10_attrValue - does not exist */
-	},
-	{ 0x0FD3, NULL, TRUE, /* SyncML 1.1 */
-		NULL, /* wbxml_syncmlc11_global - does not exist */
-		wbxml_syncmlc11_tags,
-		NULL, /* wbxml_syncmlc11_attrStart - does not exist */
-		NULL, /* wbxml_syncmlc11_attrValue - does not exist */
-	},
-	{ 0x1108, NULL, TRUE, /* Phone.com - WML+ 1.1 */
-		/* Note: I assumed WML+ 1.1 would be not that different from WML 1.1,
-		 *       the real mapping should come from Phone.com (OpenWave)! */
-		wbxml_wmlc13_global, /* Same as WML 1.0 - Not 100% true */
-		wbxml_wmlc11_tags, /* Not 100% true */
-		wbxml_wmlc11_attrStart, /* Not 100% true */
-		wbxml_wmlc11_attrValue /* Not 100% true */
-	},
-	{ 0x110D, NULL, TRUE, /* Phone.com - WML+ 1.3 */
-		/* Note: I assumed WML+ 1.3 would be not that different from WML 1.3,
-		 *       the real mapping should come from Phone.com (OpenWave)! */
-		wbxml_wmlc13_global, /* Same as WML 1.0 - Not 100% true */
-		wbxml_wmlc13_tags, /* Not 100% true */
-		wbxml_wmlc13_attrStart, /* Not 100% true */
-		wbxml_wmlc13_attrValue /* Not 100% true */
-	},
+
+/*
+ * The following map contains entries registered with a registered WBXML
+ * public ID. See WAP WINA or OMA OMNA for registered values:
+ * http://www.openmobilealliance.org/tech/omna/ */
+static const wbxml_integer_list well_known_public_id_list[] = {
+    /* 0x00 - Unknown or missing Public ID */
+    /* 0x01 - LITERAL PublicID - see String Table */
+    { 0x02,	&decode_wmlc_10 },	/* WML 1.0 */
+    /* 0x03 - WTA 1.0 */
+    { 0x04,	&decode_wmlc_11 },	/* WML 1.1 */
+    { 0x05,	&decode_sic_10 },	/* SI 1.0 */
+    { 0x06,	&decode_slc_10 },	/* SL 1.0 */
+    { 0x07,	&decode_coc_10 },	/* CO 1.0 */
+    { 0x08,	&decode_channelc_10 },	/* CHANNEL 1.0 */
+    { 0x09,	&decode_wmlc_12 },	/* WML 1.2 */
+    { 0x0A,	&decode_wmlc_13 },	/* WML 1.3 */
+    { 0x0B,	&decode_provc_10 },	/* PROV 1.0 */
+    /* 0x0C - WTA-WML 1.2 */
+    { 0x0D,	&decode_emnc_10 },	/* EMN 1.0 */
+    /* 0x0E - DRMREL 1.0 */
+    { 0x0F,	&decode_wv_cspc_10 },	/* WV-CSP 1.0 */
+    { 0x10,	&decode_wv_cspc_11 },	/* WV-CSP 1.1 */
+
+    { 0x020B,	&decode_nokiaprovc_70 },/* Nokia OTA Provisioning 7.0 */
+    { 0x0FD1,	&decode_syncmlc_10 },	/* SyncML 1.0 */
+    { 0x0FD3,	&decode_syncmlc_11 },	/* SyncML 1.1 */
+    /* Note: I assumed WML+ 1.x would be not that different from WML 1.x,
+     *       the real mapping should come from Phone.com (OpenWave)! */
+    { 0x1108,	&decode_wmlc_11 },	/* Phone.com WMLC+ 1.1 - not 100% correct */
+    { 0x110D,	&decode_wmlc_13 },	/* Phone.com WMLC+ 1.3 - not 100% correct */
+
+    { 0x00,	NULL }
+};
+
+/* The following map contains entries only registered with a literal media
+ * type. */
+static const wbxml_literal_list content_type_list[] = {
+    {	"application/x-wap-prov.browser-settings",
+	NULL,
+	&decode_nokiaprovc_70
+    },
+    {	"application/x-wap-prov.browser-bookmarks",
+	NULL,
+	&decode_nokiaprovc_70
+    },
+    {	"application/vnd.wv.csp.wbxml",
+	NULL,
+	&decode_wv_cspc_11
+    },
+    {	NULL, NULL, NULL }
+};
 	
-	{ 0, NULL, FALSE, NULL, NULL, NULL, NULL }
-};
 
-/* The following map contains entries only registered with a media type */
-static const wbxml_token_map textual_map[] = {
-	{ 0x00, "application/x-wap-prov.browser-settings", TRUE,
-		NULL, /* wbxml_nokiaprovc70_global - does not exist */
-		wbxml_nokiaprovc70_tags,
-		wbxml_nokiaprovc70_attrStart,
-		NULL, /* wbxml_nokiaprovc70_attrValue - does not exist */
-	},
-	{ 0x00, "application/x-wap-prov.browser-bookmarks", TRUE,
-		NULL, /* wbxml_nokiaprovc70_global - does not exist */
-		wbxml_nokiaprovc70_tags,
-		wbxml_nokiaprovc70_attrStart,
-		NULL, /* wbxml_nokiaprovc70_attrValue - does not exist */
-	},
-	{ 0x00, "application/vnd.wv.csp.wbxml", TRUE,
-		wbxml_wv_csp_12_global,
-		wbxml_wv_csp_12_tags,
-		wbxml_wv_csp_12_attrStart,
-		NULL, /* wbxml_wv_csp_12_attrValue - does not exist */
-	},
+/* Returns a pointer to the WBXML token map for the given WBXML public
+ * identifier value (see WINA for a table with defined identifiers). */
+static const wbxml_decoding *get_wbxml_decoding_from_public_id (guint32 public_id)
+{
+    const wbxml_decoding *map = NULL;
 
-	{ 0, NULL, FALSE, NULL, NULL, NULL, NULL }
-};
+    DebugLog(("get_wbxml_decoding_from_public_id: public_id = %u\n",
+		public_id));
+    if (public_id >= 2) {
+	const wbxml_integer_list *item = well_known_public_id_list;
+
+	while (item && item->public_id && item->map) {
+	    if (item->public_id == public_id) {
+		map = item->map;
+		break;
+	    }
+	    item++;
+	}
+    }
+    return map;
+}
+
+static const wbxml_decoding *get_wbxml_decoding_from_content_type (
+	const char *content_type)
+{
+    const wbxml_decoding *map = NULL;
+
+    DebugLog(("get_wbxml_decoding_from_content_type: content_type = [%s]\n",
+		content_type));
+    if (content_type && content_type[0]) {
+    	const wbxml_literal_list *item = content_type_list;
+
+	while (item && item->content_type) {
+	    if (strcasecmp(content_type, item->content_type) == 0) {
+		map = item->map;
+		break;
+	    }
+	    item++;
+	}
+    }
+    return map;
+}
+
 
 /* WBXML content token mapping depends on the following parameters:
  *   - Content type (guint32)
@@ -3629,38 +3819,7 @@ map_token (const value_valuestring *token_map, guint8 codepage, guint8 token) {
 }
 
 
-/* Returns a pointer to the WBXML token map for the given WBXML public
- * identifier value (see WINA for a table with defined identifiers). */
-static const wbxml_token_map *wbxml_content_map (guint32 publicid,
-		const char *content_type) {
-	gint i = 0;
 
-	DebugLog(("wbxml_token_map: publicid = %u, content_type = [%s]\n",
-				publicid, content_type));
-	/* First look whether we have a publicid mapping */
-	while (map[i].defined) {
-		if (map[i].publicid == publicid)
-			return &(map[i]);
-		i++;
-	}
-	/* If this fails, then look if the content type string has a mapping */
-	if (content_type && content_type[0]) {
-		DebugLog(("wbxml_token_map(no match for publicid = %u;"
-					" looking up content_type = [%s])\n",
-					publicid, content_type));
-		i = 0;
-		while(textual_map[i].defined) {
-			if (strcasecmp(content_type, textual_map[i].content_type) == 0) {
-				return &(textual_map[i]);
-			}
-			i++;
-		}
-	}
-	DebugLog(("wbxml_token_map(no match for publicid = %u"
-				" or content_type = [%s])\n",
-				publicid, content_type));
-	return NULL;
-}
 
 
 /************************** Function prototypes **************************/
@@ -3687,7 +3846,7 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 static guint32
 parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		guint32 str_tbl, guint8 *level, guint8 *codepage_stag, guint8 *codepage_attr,
-		const wbxml_token_map *map);
+		const wbxml_decoding *map);
 
 /* Parse data while in ATTR state */
 static guint32
@@ -3699,7 +3858,7 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 static guint32
 parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 		guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr,
-		const wbxml_token_map *map);
+		const wbxml_decoding *map);
 
 
 /****************** WBXML protocol dissection functions ******************/
@@ -3726,7 +3885,7 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 str_tbl_len;
 	guint32 str_tbl_len_len = 0;
 	guint8 level = 0; /* WBXML recursion level */
-	const wbxml_token_map *content_map = NULL;
+	const wbxml_decoding *content_map = NULL;
 	gchar *summary = NULL;
 	guint8 codepage_stag = 0;
 	guint8 codepage_attr = 0;
@@ -3866,41 +4025,35 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * means that there is a different processing for the global token
 		 * RESERVED_2 (WBXML 1.0) or OPAQUE (WBXML 1.x with x > 0).  */
 		if (wbxml_tree) { /* Show only if visible */
-			if (publicid) {
-				/* Retrieve the content token mapping if available */
-				content_map = wbxml_content_map (publicid, pinfo->match_string);
-				if (content_map) {
-					/* Is there a defined token mapping for publicid? */
-					if (content_map->defined) {
-						if (content_map->content_type) {
-							proto_item_append_text(ti,
-									" is based on Content-Type: %s",
-									content_map->content_type);
-						}
-						proto_tree_add_text (wbxml_content_tree, tvb,
-								offset, -1,
-								"Level | State | Codepage "
-								"| WBXML Token Description         "
-								"| Rendering");
-						len = parse_wbxml_tag_defined (wbxml_content_tree,
-								tvb, offset, str_tbl, &level, &codepage_stag,
-								&codepage_attr, content_map);
-						return;
-					}
-				}
-				proto_tree_add_text (wbxml_content_tree, tvb,
-						offset, -1,
-						"[Rendering of this content type"
-						" not (yet) supported]");
+		    /* Retrieve the content token mapping if available */
+		    content_map = get_wbxml_decoding_from_public_id (publicid);
+		    if (! content_map) {
+			content_map = get_wbxml_decoding_from_content_type (pinfo->match_string);
+			if (! content_map) {
+			    proto_tree_add_text (wbxml_content_tree, tvb,
+				    offset, -1,
+				    "[Rendering of this content type"
+				    " not (yet) supported]");
+			} else {
+			    proto_item_append_text(ti,
+				    " is based on Content-Type: %s (chosen decoding: %s)",
+				    pinfo->match_string, content_map->name);
 			}
+		    }
+		    proto_tree_add_text (wbxml_content_tree, tvb,
+			    offset, -1,
+			    "Level | State | Codepage "
+			    "| WBXML Token Description         "
+			    "| Rendering");
+		    if (content_map) {
+			len = parse_wbxml_tag_defined (wbxml_content_tree,
+				tvb, offset, str_tbl, &level, &codepage_stag,
+				&codepage_attr, content_map);
+		    } else {
 			/* Default: WBXML only, no interpretation of the content */
-			proto_tree_add_text (wbxml_content_tree, tvb, offset, -1,
-					"Level | State | Codepage "
-					"| WBXML Token Description         "
-					"| Rendering");
 			len = parse_wbxml_tag (wbxml_content_tree, tvb, offset,
-					str_tbl, &level, &codepage_stag, &codepage_attr);
-			return;
+				str_tbl, &level, &codepage_stag, &codepage_attr);
+		    }
 		}
 		return;
 	}
@@ -3988,7 +4141,7 @@ static const char * Indent (guint8 level) {
  *
  * Attribute parsing is done in parse_wbxml_attribute_list_defined().
  *
- * The wbxml_token_map entry *map contains the actual token mapping.
+ * The wbxml_decoding entry *map contains the actual token mapping.
  *
  * NOTE: In order to parse the content, some recursion is required.
  *       However, for performance reasons, recursion has been avoided
@@ -4008,7 +4161,7 @@ static const char * Indent (guint8 level) {
 static guint32
 parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 		guint32 str_tbl, guint8 *level, guint8 *codepage_stag, guint8 *codepage_attr,
-		const wbxml_token_map *map)
+		const wbxml_decoding *map)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
 	guint32 off = offset;
@@ -4130,13 +4283,20 @@ parse_wbxml_tag_defined (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				/* Extension tokens */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
-				proto_tree_add_text (tree, tvb, off, 1+len,
+				{   char *s;
+				    if (map->ext_t[peek & 0x03])
+					s = (map->ext_t[peek & 0x03])(tvb, index, str_tbl);
+				    else
+					s = g_strdup_printf("EXT_T_%1x (%s)", peek & 0x03, 
+						map_token (map->global, 0, peek));
+    				    proto_tree_add_text (tree, tvb, off, 1+len,
 						"  %3d | Tag   | T %3d    "
 						"| EXT_T_%1x    (Extension Token)    "
-						"| %s(%s: \'%s\')",
+						"| %s%s",
 						*level, *codepage_stag, peek & 0x0f, Indent (*level),
-						map_token (map->global, 0, peek),
-						tvb_format_text (tvb, str_tbl+index, str_len-1));
+						s);
+				    g_free(s);
+				}
 				off += 1+len;
 				break;
 			case 0x83: /* STR_T */
@@ -4521,9 +4681,9 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
 				proto_tree_add_text (tree, tvb, off, 1+len,
 						"  %3d | Tag   | T %3d    "
 						"| EXT_T_%1x    (Extension Token)    "
-						"| %s(Tableref string extension: \'%s\')",
+						"| %s(Extension Token, integer value: %u)",
 						*level, *codepage_stag, peek & 0x0f, Indent (*level),
-						tvb_format_text (tvb, str_tbl+index, str_len-1));
+						index);
 				off += 1+len;
 				break;
 			case 0x83: /* STR_T */
@@ -4804,14 +4964,14 @@ parse_wbxml_tag (proto_tree *tree, tvbuff_t *tvb, guint32 offset,
  *
  * This function performs attribute list parsing.
  * 
- * The wbxml_token_map entry *map contains the actual token mapping.
+ * The wbxml_decoding entry *map contains the actual token mapping.
  *
  * NOTE: See above for known token mappings.
  */
 static guint32
 parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 		guint32 offset, guint32 str_tbl, guint8 level, guint8 *codepage_attr,
-		const wbxml_token_map *map)
+		const wbxml_decoding *map)
 {
 	guint32 tvb_len = tvb_reported_length (tvb);
 	guint32 off = offset;
@@ -4900,6 +5060,22 @@ parse_wbxml_attribute_list_defined (proto_tree *tree, tvbuff_t *tvb,
 				/* Extension tokens */
 				index = tvb_get_guintvar (tvb, off+1, &len);
 				str_len = tvb_strsize (tvb, str_tbl+index);
+				{   char *s;
+
+				    if (map->ext_t[peek & 0x03])
+					s = (map->ext_t[peek & 0x03])(tvb, index, str_tbl);
+				    else
+					s = g_strdup_printf("EXT_T_%1x (%s)", peek & 0x03, 
+						map_token (map->global, 0, peek));
+
+    				    proto_tree_add_text (tree, tvb, off, 1+len,
+						"  %3d | Tag   | T %3d    "
+						"| EXT_T_%1x    (Extension Token)    "
+						"| %s%s)",
+						level, *codepage_attr, peek & 0x0f, Indent (level),
+						s);
+				    g_free(s);
+				}
 				proto_tree_add_text (tree, tvb, off, 1+len,
 						"  %3d |  Attr | A %3d    "
 						"| EXT_T_%1x    (Extension Token)    "
@@ -5092,9 +5268,9 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 				proto_tree_add_text (tree, tvb, off, 1+len,
 						"  %3d |  Attr | A %3d    "
 						"| EXT_T_%1x    (Extension Token)    "
-						"|     %s(Tableref string extension: \'%s\')",
+						"|     %s(Extension Token, integer value: %u)",
 						level, *codepage_attr, peek & 0x0f, Indent (level),
-						tvb_format_text (tvb, str_tbl+index, str_len-1));
+						index);
 				off += 1+len;
 				break;
 			case 0x83: /* STR_T */
