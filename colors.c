@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.26 1999/12/20 03:45:02 guy Exp $
+ * $Id: colors.c,v 1.27 1999/12/20 06:05:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -345,11 +345,8 @@ void
 color_display_cb(GtkWidget *w, gpointer d)
 {
   if (colorize_win != NULL) {
-    /* There's already a color dialog box active; raise it.
-       XXX - request that it be given the input focus, too.
-       Alas, GDK has nothing to do that, e.g., in X, by calling
-       "XSetInputFocus()" on a window.... */
-    gdk_window_raise(colorize_win->window);
+    /* There's already a color dialog box active; reactivate it. */
+    reactivate_window(colorize_win);
   } else {
     /* Create a new "Colorize Display" dialog. */
     colorize_win = colorize_dialog_new(cf.colors);
@@ -883,11 +880,8 @@ edit_color_filter_dialog_new (colfilter *filter,
   colorf = gtk_clist_get_row_data(GTK_CLIST(color_filters),
 	   filter->row_selected);
   if (colorf->edit_dialog != NULL) {
-    /* There's already an edit box open for this filter; raise it.
-       XXX - request that it be given the input focus, too.
-       Alas, GDK has nothing to do that, e.g., in X, by calling
-       "XSetInputFocus()" on a window.... */
-    gdk_window_raise(colorf->edit_dialog->window);
+    /* There's already an edit box open for this filter; reactivate it. */
+    reactivate_window(colorf->edit_dialog);
     return;
   }
 
@@ -1082,11 +1076,8 @@ edit_color_filter_fg_cb                (GtkButton       *button,
   color_selection_fg = gtk_object_get_data(GTK_OBJECT (colorf->edit_dialog),
       COLOR_SELECTION_FG);
   if (color_selection_fg != NULL) {
-    /* Yes.  Just raise it.
-       XXX - request that it be given the input focus, too.
-       Alas, GDK has nothing to do that, e.g., in X, by calling
-       "XSetInputFocus()" on a window.... */
-    gdk_window_raise(color_selection_fg->window);
+    /* Yes.  Just reactivate it. */
+    reactivate_window(color_selection_fg);
   } else {
     /* No.  Create a new color selection box, and associate it with
        this dialog. */
@@ -1115,11 +1106,8 @@ edit_color_filter_bg_cb                (GtkButton       *button,
   color_selection_bg = gtk_object_get_data(GTK_OBJECT (colorf->edit_dialog),
       COLOR_SELECTION_BG);
   if (color_selection_bg != NULL) {
-    /* Yes.  Just raise it.
-       XXX - request that it be given the input focus, too.
-       Alas, GDK has nothing to do that, e.g., in X, by calling
-       "XSetInputFocus()" on a window.... */
-    gdk_window_raise(color_selection_bg->window);
+    /* Yes.  Just reactivate it. */
+    reactivate_window(color_selection_bg);
   } else {
     /* No.  Create a new color selection box, and associate it with
        this dialog. */

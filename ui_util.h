@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.1 1999/12/09 07:19:04 guy Exp $
+ * $Id: ui_util.h,v 1.2 1999/12/20 06:05:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,6 +32,13 @@ extern "C" {
 
 /* Set the name of the top-level window and its icon. */
 void set_main_window_name(gchar *);
+
+/* Given a pointer to a GtkWidget for a top-level window, raise it and
+   de-iconify it.  This routine is used if the user has done something to
+   ask that a window of a certain type be popped up when there can be only
+   one such window and such a window has already been popped up - we
+   pop up the existing one rather than creating a new one. */
+void reactivate_window(GtkWidget *);
 
 /* Dialog type. */
 #define ESD_TYPE_INFO 0

@@ -1,7 +1,7 @@
 /* ui_util.c
  * UI utility routines
  *
- * $Id: ui_util.c,v 1.1 1999/12/09 07:19:20 guy Exp $
+ * $Id: ui_util.c,v 1.2 1999/12/20 06:05:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,21 +34,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#if 0
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
-#ifdef HAVE_SYS_STAT_H
-#include <sys/stat.h>
-#endif
-
-#endif
-
 #ifdef NEED_SNPRINTF_H
 # ifdef HAVE_STDARG_H
 #  include <stdarg.h>
@@ -76,6 +61,24 @@ set_main_window_name(gchar *icon_name)
 {
   gtk_window_set_title(GTK_WINDOW(top_level), icon_name);
   gdk_window_set_icon_name(top_level->window, icon_name);
+}
+
+/* Given a pointer to a GtkWidget for a top-level window, raise it and
+   de-iconify it.  This routine is used if the user has done something to
+   ask that a window of a certain type be popped up when there can be only
+   one such window and such a window has already been popped up - we
+   pop up the existing one rather than creating a new one.
+
+   XXX - we should request that it be given the input focus, too.  Alas,
+   GDK has nothing to do that, e.g. by calling "XSetInputFocus()" in a
+   window in X.
+
+   XXX - will this do the right thing on window systems other than X? */
+void
+reactivate_window(GtkWidget *win)
+{
+  gdk_window_show(win->window);
+  gdk_window_raise(win->window);
 }
 
 static void simple_dialog_cancel_cb(GtkWidget *, gpointer);
