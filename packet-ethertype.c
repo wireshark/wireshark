@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.17 2001/06/15 20:23:41 guy Exp $
+ * $Id: packet-ethertype.c,v 1.18 2001/06/16 00:54:33 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -92,6 +92,7 @@ const value_string etype_vals[] = {
     {PPP_IPCP,			"PPP IP Control Protocol" },
     {PPP_LCP,			"PPP Link Control Protocol" },
     {PPP_PAP,			"PPP Password Authentication Protocol" },
+    {PPP_CCP,			"PPP Compression Control Protocol" },
     {0,				NULL				} };
 
 static void add_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
