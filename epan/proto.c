@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.62 2002/04/18 20:19:09 guy Exp $
+ * $Id: proto.c,v 1.63 2002/04/19 10:03:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -379,7 +379,7 @@ proto_registrar_get_byname(const char *field_name)
 
 		if (strcmp(hfinfo->abbrev, field_name) == 0) {
 			/* Found it. */
-			return proto_registrar_get_nth(hfinfo->id);
+			return hfinfo;
 		}
 	}
 	/* Not found. */
