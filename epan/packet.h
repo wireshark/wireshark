@@ -1,12 +1,11 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.33 2001/05/30 06:41:07 guy Exp $
+ * $Id: packet.h,v 1.34 2001/06/02 08:23:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -121,7 +120,6 @@ void dissector_add(const char *abbrev, guint32 pattern,
 
 /* Add a sub-dissector to a dissector table.  Called by the protocol routine */
 /* that wants to de-register a sub-dissector.  */
-void old_dissector_delete(const char *name, guint32 pattern, old_dissector_t dissector);
 void dissector_delete(const char *name, guint32 pattern, dissector_t dissector);
 
 /* Reset a dissector in a sub-dissector table to its initial value. */

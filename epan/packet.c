@@ -1,12 +1,11 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.34 2001/05/30 06:41:07 guy Exp $
+ * $Id: packet.c,v 1.35 2001/06/02 08:23:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -262,34 +261,6 @@ dissector_add(const char *name, guint32 pattern, dissector_t dissector,
 /*	if the technique of adding a temporary dissector is implemented.  */
 /*	If temporary dissectors are deleted, then the original dissector must */
 /*	be available. */
-void
-old_dissector_delete(const char *name, guint32 pattern, old_dissector_t dissector)
-{
-	dissector_table_t sub_dissectors = find_dissector_table( name);
-	dtbl_entry_t *dtbl_entry;
-
-/* sanity check */
-	g_assert( sub_dissectors);
-
-	/*
-	 * Find the entry.
-	 */
-	dtbl_entry = g_hash_table_lookup(sub_dissectors,
-	    GUINT_TO_POINTER(pattern));
-
-	if (dtbl_entry != NULL) {
-		/*
-		 * Found - remove it.
-		 */
-		g_hash_table_remove(sub_dissectors, GUINT_TO_POINTER(pattern));
-
-		/*
-		 * Now free up the entry.
-		 */
-		g_free(dtbl_entry);
-	}
-}
-
 void
 dissector_delete(const char *name, guint32 pattern, dissector_t dissector)
 {
