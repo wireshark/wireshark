@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.44 2001/09/11 06:38:57 guy Exp $
+ * $Id: packet-ospf.c,v 1.45 2001/09/13 20:27:24 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -245,6 +245,8 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     unsigned int ospf_header_length;
     guint8 instance_ID;
     guint8 reserved;
+    guint32 areaid;
+
 
     if (check_col(pinfo->fd, COL_PROTOCOL))
 	col_set_str(pinfo->fd, COL_PROTOCOL, "OSPF");
@@ -289,12 +291,9 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    ospflen);
 	proto_tree_add_text(ospf_header_tree, tvb, 4, 4, "Source OSPF Router ID: %s",
 			    ip_to_str(tvb_get_ptr(tvb, 4, 4)));
-	if (tvb_get_ntohl(tvb, 8) == 0) {
-	   proto_tree_add_text(ospf_header_tree, tvb, 8, 4, "Area ID: Backbone");
-	} else {
-	   proto_tree_add_text(ospf_header_tree, tvb, 8, 4, "Area ID: %s",
-			       ip_to_str(tvb_get_ptr(tvb, 8, 4)));
-	}
+	areaid=tvb_get_ntohl(tvb,8);
+	proto_tree_add_text(ospf_header_tree, tvb, 8, 4, "Area ID: %s %s",
+			       ip_to_str(tvb_get_ptr(tvb, 8, 4)), areaid == 0 ? "(Backbone)" : "");
 	cksum = tvb_get_ntohs(tvb, 12);
 	length = tvb_length(tvb);
 	/* XXX - include only the length from the OSPF header? */
@@ -571,7 +570,6 @@ dissect_ospf_db_desc(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version
 
                 offset += 12;
                 break;
-
 
             default:
                 break;
@@ -1234,7 +1232,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 8, 4, "Advertising Router: %s",
 			ip_to_str(tvb_get_ptr(tvb, offset + 8, 4)));
-    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 12, 4, "LS Sequence Number: 0x%04x",
+    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 12, 4, "LS Sequence Number: %d",
 			tvb_get_ntohl(tvb, offset + 12));
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 16, 2, "LS Checksum: %04x",
 			tvb_get_ntohs(tvb, offset + 16));
@@ -1396,7 +1394,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         offset+=8;
 
         /* address_prefix */
-        dissect_ospf_v3_address_prefix(tvb, offset+8, prefix_length, ospf_lsa_tree);
+        dissect_ospf_v3_address_prefix(tvb, offset, prefix_length, ospf_lsa_tree);
 
         offset+=(prefix_length+31)/32*4;
 
@@ -1426,7 +1424,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         proto_tree_add_text(ospf_lsa_tree, tvb, offset + 8, 4, "Destination Router ID: %s",
 		ip_to_str(tvb_get_ptr(tvb, offset + 8, 4)));
 
-	offset+=12 ;
+	offset+=12;
 	break;
 
 
@@ -1447,7 +1445,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         else
 	    flags_string[2] = '.';
 
-        router_lsa_flags_string[3]=0;
+        flags_string[3]=0;
 
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset, 1, "Flags: 0x%02x (%s)",
 			    flags, flags_string);
@@ -1467,7 +1465,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         /* referenced LS type */
         referenced_ls_type=tvb_get_ntohs(tvb, offset+6);
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset+2, 2,"Referenced LS type  0x%04x (%s)",
-			    referenced_ls_type, val_to_str(referenced_ls_type, ls_type_vals, "Unknown"));
+			    referenced_ls_type, val_to_str(referenced_ls_type, v3_ls_type_vals, "Unknown"));
 
         offset+=8;
 
@@ -1477,7 +1475,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         offset+=(prefix_length+31)/32*4;
 
         /* Forwarding Address (optional - only if F-flag is on) */
-        if ( (offset < end_offset) && (flags == OSPF_V3_AS_EXTERNAL_FLAG_F) ) {
+        if ( (offset < end_offset) && (flags & OSPF_V3_AS_EXTERNAL_FLAG_F) ) {
 	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 16,"Forwarding Address: %s",
               ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset, 16)));
 
@@ -1485,7 +1483,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         }
 
         /* External Route Tag (optional - only if T-flag is on) */
-        if ( (offset < end_offset) && (flags == OSPF_V3_AS_EXTERNAL_FLAG_T) ) {
+        if ( (offset < end_offset) && (flags & OSPF_V3_AS_EXTERNAL_FLAG_T) ) {
 	    external_route_tag=tvb_get_ntohl(tvb, offset);
 	    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4,"External Route Tag: 0x%04x",
 				external_route_tag);
@@ -1556,7 +1554,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         /* referenced LS type */
         referenced_ls_type=tvb_get_ntohs(tvb, offset+2);
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset+2, 2,"Referenced LS type  0x%04x (%s)",
-			    referenced_ls_type, val_to_str(referenced_ls_type, ls_type_vals, "Unknown"));
+			    referenced_ls_type, val_to_str(referenced_ls_type, v3_ls_type_vals, "Unknown"));
 
         /* Referenced Link State ID */
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 4, "Referenced Link State ID: %s", 
