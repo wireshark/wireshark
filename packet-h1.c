@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.15 2001/01/03 06:55:28 guy Exp $
+ * $Id: packet-h1.c,v 1.16 2001/01/05 08:34:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -117,134 +117,137 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (!proto_is_protocol_enabled(proto_h1))
     return FALSE;
 
-  if (!(tvb_get_guint8(tvb,offset) == 'S' && tvb_get_guint8(tvb,offset+1) == '5')) {
-    return FALSE;
+  if (!(tvb_get_guint8(tvb,offset) == 'S' && tvb_get_guint8(tvb,offset+1) == '5'))
+    {
+      return FALSE;
     }
 
-      if (check_col (pinfo->fd, COL_PROTOCOL))
-	col_set_str (pinfo->fd, COL_PROTOCOL, "H1");
-      if (check_col (pinfo->fd, COL_INFO))
-	col_add_str (pinfo->fd, COL_INFO, "S5: ");
-      if (tree)
+  pinfo->current_proto = "H1";
+
+  if (check_col (pinfo->fd, COL_PROTOCOL))
+    col_set_str (pinfo->fd, COL_PROTOCOL, "H1");
+  if (check_col (pinfo->fd, COL_INFO))
+    col_add_str (pinfo->fd, COL_INFO, "S5: ");
+  if (tree)
+    {
+      ti = proto_tree_add_item (tree, proto_h1, tvb, offset, 16, FALSE);
+      h1_tree = proto_item_add_subtree (ti, ett_h1);
+      proto_tree_add_uint (h1_tree, hf_h1_header, tvb, offset, 2,
+			   tvb_get_ntohs(tvb,offset));
+      proto_tree_add_uint (h1_tree, hf_h1_len, tvb, offset + 2, 1,
+			   tvb_get_guint8(tvb,offset+2));
+    }
+
+  while (position < tvb_get_guint8(tvb,offset+2))
+    {
+      switch (tvb_get_guint8(tvb,offset + position))
 	{
-	  ti = proto_tree_add_item (tree, proto_h1, tvb, offset, 16, FALSE);
-	  h1_tree = proto_item_add_subtree (ti, ett_h1);
-	  proto_tree_add_uint (h1_tree, hf_h1_header, tvb, offset, 2,
-			       tvb_get_ntohs(tvb,offset));
-	  proto_tree_add_uint (h1_tree, hf_h1_len, tvb, offset + 2, 1,
-			       tvb_get_guint8(tvb,offset+2));
+	  case OPCODE_BLOCK:
+	    if (h1_tree)
+	      {
+		ti = proto_tree_add_uint (h1_tree, hf_h1_opfield, tvb,
+					  offset + position,
+					  tvb_get_guint8(tvb,offset+position+1),
+					  tvb_get_guint8(tvb,offset+position));
+		opcode_tree = proto_item_add_subtree (ti, ett_opcode);
+		proto_tree_add_uint (opcode_tree, hf_h1_oplen, tvb,
+				     offset + position + 1, 1,
+				     tvb_get_guint8(tvb,offset + position + 1));
+		proto_tree_add_uint (opcode_tree, hf_h1_opcode, tvb,
+				     offset + position + 2, 1,
+				     tvb_get_guint8(tvb,offset + position + 2));
+	      }
+	    if (check_col (pinfo->fd, COL_INFO))
+	      {
+		col_append_str (pinfo->fd, COL_INFO,
+				val_to_str (tvb_get_guint8(tvb,offset + position + 2),
+					    opcode_vals,"Unknown Opcode (0x%2.2x)"));
+	      }
+	    break;
+	  case REQUEST_BLOCK:
+	    if (h1_tree)
+	      {
+		ti = proto_tree_add_uint (h1_tree, hf_h1_requestblock, tvb,
+					  offset + position,
+					  tvb_get_guint8(tvb,offset + position + 1),
+					  tvb_get_guint8(tvb,offset + position));
+		org_tree = proto_item_add_subtree (ti, ett_org);
+		proto_tree_add_uint (org_tree, hf_h1_requestlen, tvb,
+				     offset + position + 1, 1,
+				     tvb_get_guint8(tvb,offset + position+1));
+		proto_tree_add_uint (org_tree, hf_h1_org, tvb,
+				     offset + position + 2, 1,
+				     tvb_get_guint8(tvb,offset + position+2));
+		proto_tree_add_uint (org_tree, hf_h1_dbnr, tvb,
+				     offset + position + 3, 1,
+				     tvb_get_guint8(tvb,offset + position+3));
+		proto_tree_add_uint (org_tree, hf_h1_dwnr, tvb,
+				     offset + position + 4, 2,
+				     tvb_get_ntohs(tvb,offset+position+4));
+		proto_tree_add_int (org_tree, hf_h1_dlen, tvb,
+				    offset + position + 6, 2,
+				    tvb_get_ntohs(tvb,offset+position+6));
+	      }
+	    if (check_col (pinfo->fd, COL_INFO))
+	      {
+		col_append_fstr (pinfo->fd, COL_INFO, " %s %d",
+				 val_to_str (tvb_get_guint8(tvb,offset + position + 2),
+					     org_vals,"Unknown Type (0x%2.2x)"),
+				 tvb_get_guint8(tvb,offset + position + 3));
+		col_append_fstr (pinfo->fd, COL_INFO, " DW %d",
+				 tvb_get_ntohs(tvb,offset+position+4));
+		col_append_fstr (pinfo->fd, COL_INFO, " Count %d",
+				 tvb_get_ntohs(tvb,offset+position+6));
+	      }
+	    break;
+	  case RESPONSE_BLOCK:
+	    if (h1_tree)
+	      {
+		ti = proto_tree_add_uint (h1_tree, hf_h1_response, tvb,
+					  offset + position,
+					  tvb_get_guint8(tvb,offset + position + 1),
+					  tvb_get_guint8(tvb,offset + position));
+		response_tree = proto_item_add_subtree (ti, ett_response);
+		proto_tree_add_uint (response_tree, hf_h1_response_len, tvb,
+				     offset + position + 1, 1,
+				     tvb_get_guint8(tvb,offset + position+1));
+		proto_tree_add_uint (response_tree, hf_h1_response_value, tvb,
+				     offset + position + 2, 1,
+				     tvb_get_guint8(tvb,offset + position+2));
+	      }
+	    if (check_col (pinfo->fd, COL_INFO))
+	      {
+		col_append_fstr (pinfo->fd, COL_INFO, " %s",
+				 val_to_str (tvb_get_guint8(tvb,offset + position + 2),
+					     returncode_vals,"Unknown Returcode (0x%2.2x"));
+	      }
+	    break;
+	  case EMPTY_BLOCK:
+	    if (h1_tree)
+	      {
+		ti = proto_tree_add_uint (h1_tree, hf_h1_empty, tvb,
+					  offset + position,
+					  tvb_get_guint8(tvb,offset + position + 1),
+					  tvb_get_guint8(tvb,offset + position));
+		empty_tree = proto_item_add_subtree (ti, ett_empty);
+
+		proto_tree_add_uint (empty_tree, hf_h1_empty_len, tvb,
+				     offset + position + 1, 1,
+				     tvb_get_guint8(tvb,offset + position+1));
+	      }
+	    break;
+	  default:
+	    /* This is not a valid telegram. So cancel dissection 
+               and try the next dissector */
+            return FALSE; 
+	    break;
 	}
+	position += tvb_get_guint8(tvb,offset + position + 1);	/* Goto next section */
+    }			/* ..while */
+  next_tvb = tvb_new_subset(tvb, offset+tvb_get_guint8(tvb,offset+2), -1, -1);
+  dissect_data(next_tvb, 0, pinfo, tree);
 
-      while (position < tvb_get_guint8(tvb,offset+2))
-	{
-	  switch (tvb_get_guint8(tvb,offset + position))
-	    {
-	    case OPCODE_BLOCK:
-	      if (h1_tree)
-		{
-		  ti = proto_tree_add_uint (h1_tree, hf_h1_opfield, tvb,
-					    offset + position,
-					    tvb_get_guint8(tvb,offset+position+1),
-					    tvb_get_guint8(tvb,offset+position));
-		  opcode_tree = proto_item_add_subtree (ti, ett_opcode);
-		  proto_tree_add_uint (opcode_tree, hf_h1_oplen, tvb,
-				       offset + position + 1, 1,
-				       tvb_get_guint8(tvb,offset + position + 1));
-		  proto_tree_add_uint (opcode_tree, hf_h1_opcode, tvb,
-				       offset + position + 2, 1,
-				       tvb_get_guint8(tvb,offset + position + 2));
-		}
-	      if (check_col (pinfo->fd, COL_INFO))
-		{
-		  col_append_str (pinfo->fd, COL_INFO,
-				  val_to_str (tvb_get_guint8(tvb,offset + position + 2),
-						opcode_vals,"Unknown Opcode (0x%2.2x)"));
-		}
-	      break;
-	    case REQUEST_BLOCK:
-	      if (h1_tree)
-		{
-		  ti = proto_tree_add_uint (h1_tree, hf_h1_requestblock, tvb,
-					    offset + position,
-					    tvb_get_guint8(tvb,offset + position + 1),
-					    tvb_get_guint8(tvb,offset + position));
-		  org_tree = proto_item_add_subtree (ti, ett_org);
-		  proto_tree_add_uint (org_tree, hf_h1_requestlen, tvb,
-				       offset + position + 1, 1,
-				       tvb_get_guint8(tvb,offset + position+1));
-		  proto_tree_add_uint (org_tree, hf_h1_org, tvb,
-				       offset + position + 2, 1,
-				       tvb_get_guint8(tvb,offset + position+2));
-		  proto_tree_add_uint (org_tree, hf_h1_dbnr, tvb,
-				       offset + position + 3, 1,
-				       tvb_get_guint8(tvb,offset + position+3));
-		  proto_tree_add_uint (org_tree, hf_h1_dwnr, tvb,
-				       offset + position + 4, 2,
-				       tvb_get_ntohs(tvb,offset+position+4));
-		  proto_tree_add_int (org_tree, hf_h1_dlen, tvb,
-				       offset + position + 6, 2,
-				       tvb_get_ntohs(tvb,offset+position+6));
-		}
-	      if (check_col (pinfo->fd, COL_INFO))
-		{
-		  col_append_fstr (pinfo->fd, COL_INFO, " %s %d",
-				  val_to_str (tvb_get_guint8(tvb,offset + position + 2),
-						 org_vals,"Unknown Type (0x%2.2x)"),
-				   tvb_get_guint8(tvb,offset + position + 3));
-		  col_append_fstr (pinfo->fd, COL_INFO, " DW %d",
-				       tvb_get_ntohs(tvb,offset+position+4));
-		  col_append_fstr (pinfo->fd, COL_INFO, " Count %d",
-				       tvb_get_ntohs(tvb,offset+position+6));
-		}
-	      break;
-	    case RESPONSE_BLOCK:
-	      if (h1_tree)
-		{
-		  ti = proto_tree_add_uint (h1_tree, hf_h1_response, tvb,
-					    offset + position,
-					    tvb_get_guint8(tvb,offset + position + 1),
-					    tvb_get_guint8(tvb,offset + position));
-		  response_tree = proto_item_add_subtree (ti, ett_response);
-		  proto_tree_add_uint (response_tree, hf_h1_response_len, tvb,
-				       offset + position + 1, 1,
-				       tvb_get_guint8(tvb,offset + position+1));
-		  proto_tree_add_uint (response_tree, hf_h1_response_value, tvb,
-				       offset + position + 2, 1,
-				       tvb_get_guint8(tvb,offset + position+2));
-		}
-	      if (check_col (pinfo->fd, COL_INFO))
-		{
-		  col_append_fstr (pinfo->fd, COL_INFO, " %s",
-				  val_to_str (tvb_get_guint8(tvb,offset + position + 2),
-						 returncode_vals,"Unknown Returcode (0x%2.2x"));
-		}
-	      break;
-	    case EMPTY_BLOCK:
-	      if (h1_tree)
-		{
-		  ti = proto_tree_add_uint (h1_tree, hf_h1_empty, tvb,
-					    offset + position,
-					    tvb_get_guint8(tvb,offset + position + 1),
-					    tvb_get_guint8(tvb,offset + position));
-		  empty_tree = proto_item_add_subtree (ti, ett_empty);
-
-		  proto_tree_add_uint (empty_tree, hf_h1_empty_len, tvb,
-				       offset + position + 1, 1,
-				       tvb_get_guint8(tvb,offset + position+1));
-		}
-	      break;
-	    default:
-	      /* This is not a valid telegram. So cancel dissection 
-                 and try the next dissector */
-                return FALSE; 
-		break;
-	    }
-	  position += tvb_get_guint8(tvb,offset + position + 1);	/* Goto next section */
-	}			/* ..while */
-    next_tvb = tvb_new_subset(tvb, offset+tvb_get_guint8(tvb,offset+2), -1, -1);
-    dissect_data(next_tvb, 0, pinfo, tree);
-
-    return TRUE;
+  return TRUE;
 }
 
 
