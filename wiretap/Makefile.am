@@ -18,6 +18,8 @@ libwiretap_a_SOURCES = \
 	libpcap.h		\
 	netmon.c		\
 	netmon.h		\
+	netxray.c		\
+	netxray.h		\
 	ngsniffer.c		\
 	ngsniffer.h		\
 	snoop.c			\

@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.7 1999/01/21 05:03:56 gram Exp $
+ * $Id: file.c,v 1.8 1999/02/20 06:49:26 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -31,6 +31,7 @@
 #include "snoop.h"
 #include "iptrace.h"
 #include "netmon.h"
+#include "netxray.h"
 
 /* The open_file_* routines should return the WTAP_FILE_* type
  * that they are checking for if the file is successfully recognized
@@ -73,6 +74,10 @@ wtap* wtap_open_offline(char *filename)
 	}
 	/* WTAP_FILE_NETMON */
 	if ((wth->file_type = netmon_open(wth)) != WTAP_FILE_UNKNOWN) {
+		goto success;
+	}
+	/* WTAP_FILE_NETXRAY */
+	if ((wth->file_type = netxray_open(wth)) != WTAP_FILE_UNKNOWN) {
 		goto success;
 	}
 

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.12 1999/01/21 05:03:56 gram Exp $
+ * $Id: wtap.h,v 1.13 1999/02/20 06:49:26 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -42,6 +42,7 @@
 #define WTAP_FILE_SNOOP				6
 #define WTAP_FILE_IPTRACE			7
 #define WTAP_FILE_NETMON			8
+#define WTAP_FILE_NETXRAY			9
 
 #include <sys/types.h>
 #include <sys/time.h>
@@ -77,6 +78,11 @@ typedef struct {
 	int	end_offset;
 } netmon_t;
 
+typedef struct {
+	double	timeunit;
+	double	starttime;
+} netxray_t;
+
 struct wtap_pkthdr {
 	struct timeval ts;
 	guint32	caplen;
@@ -103,6 +109,7 @@ typedef struct wtap {
 		lanalyzer_t		*lanalyzer;
 		ngsniffer_t		*ngsniffer;
 		netmon_t		*netmon;
+		netxray_t		*netxray;
 	} capture;
 
 	subtype_func	subtype_read;	
