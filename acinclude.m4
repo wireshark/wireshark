@@ -1009,18 +1009,28 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 	    KRB5_FLAGS=`"$KRB5_CONFIG" --cflags`
 	    CFLAGS="$CFLAGS $KRB5_FLAGS"
             CPPFLAGS="$CPPFLAGS $KRB5_FLAGS"
-	    KRB5_LIBS=`"$KRB5_CONFIG" --libs | sed 's/-lcrypto//'`
-	    KRB5_LIBS="$KRB5_LIBS $SSL_LIBS"
-	    # Looks like krb5-config is lacking -lresolv on some systems
-	    AC_MSG_CHECKING(whether library list looks OK)
-	    if echo "$KRB5_LIBS" | grep resolv >/dev/null
+	    #
+	    # If we've set SSL_LIBS, use that instead of -lcrypto
+	    # in KRB5_LIBS.
+	    #
+	    if test ! -z "$SSL_LIBS"
 	    then
-		AC_MSG_RESULT(yes)
-	    else
-		KRB5_LIBS="$KRB5_LIBS -lresolv"
-		AC_MSG_RESULT(Adding -lresolv to libs)
+		KRB5_LIBS=`"$KRB5_CONFIG" --libs | sed 's/-lcrypto//'`
+		KRB5_LIBS="$KRB5_LIBS $SSL_LIBS"
 	    fi
-
+	    #
+	    # Looks like krb5-config is lacking -lresolv on some systems.
+	    # At least on some of those systems (such as FreeBSD 4.6),
+	    # this is because it is not required and, in fact, is not
+	    # even present!  This means that just adding -lresolv
+	    # if it's missing is the wrong thing to do.
+	    #
+	    # If there are systems where it's not present, but is
+	    # required, we'd have to add a test that tries to link
+	    # a program using Heimdal with just KRB5_LIBS and, if
+	    # that fails, adds -lresolv to KRB5_LIBS and tries that.
+	    #
+	    # 
 	    #LIBS="$LIBS $KRB5_LIBS"
 	    ac_krb5_version=`"$KRB5_CONFIG" --version | head -n 1 | sed 's/^.*heimdal.*$/HEIMDAL/'`
  	  fi
