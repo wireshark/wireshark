@@ -2,17 +2,11 @@
  * Routines for FC Common Transport Protocol (used by GS3 services)
  * Copyright 2001, Dinesh G Dutt <ddutt@andiamo.com>
  *
- * $Id: packet-fcct.c,v 1.1 2003/01/14 01:17:44 guy Exp $
+ * $Id: packet-fcct.c,v 1.2 2003/06/30 21:50:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -75,6 +69,39 @@ static int hf_fcct_ext_authblk  = -1;
 /* Initialize the subtree pointers */
 static gint ett_fcct = -1;
 static gint ett_fcct_ext = -1;  /* for the extended header */
+
+const value_string fc_ct_rjt_code_vals [] = {
+    {FCCT_RJT_INVCMDCODE, "Invalid Cmd Code"},
+    {FCCT_RJT_INVVERSION, "Invalid Version Level"},
+    {FCCT_RJT_LOGICALERR, "Logical Error"},
+    {FCCT_RJT_INVSIZE,    "Invalid CT_IU Size"},
+    {FCCT_RJT_LOGICALBSY, "Logical Busy"},
+    {FCCT_RJT_PROTOERR,   "Protocol Error"},
+    {FCCT_RJT_GENFAIL,    "Unable to Perform Cmd"},
+    {FCCT_RJT_CMDNOTSUPP, "Cmd Not Supported"},
+    {0, NULL},
+};
+
+static const value_string fc_ct_gstype_vals[] = {
+    {FCCT_GSTYPE_KEYSVC, "Key Service"},
+    {FCCT_GSTYPE_ALIASSVC, "Alias Service"},
+    {FCCT_GSTYPE_MGMTSVC, "Management Service"},
+    {FCCT_GSTYPE_TIMESVC, "Time Service"},
+    {FCCT_GSTYPE_DIRSVC, "Directory Service"},
+    {0, NULL},
+};
+
+static const value_string fc_ct_gsserver_vals[] = {
+    {FCCT_GSRVR_DNS, "dNS"},
+    {FCCT_GSRVR_IP,  "IP"},
+    {FCCT_GSRVR_FCS, "Fabric Config Server"},
+    {FCCT_GSRVR_UNS, "Unzoned Name Server"},
+    {FCCT_GSRVR_FZS, "Fabric Zone Server"},
+    {FCCT_GSRVR_TS,  "Time Server"},
+    {FCCT_GSRVR_KS,  "Key Server"},
+    {FCCT_GSRVR_AS,  "Alias Server"},
+    {0, NULL},
+};
 
 static dissector_table_t fcct_gserver_table;
 static dissector_handle_t data_handle;

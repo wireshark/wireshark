@@ -1,6 +1,6 @@
 /* packet-fcct.h
  *
- * $Id: packet-fcct.h,v 1.2 2003/03/06 21:55:26 guy Exp $
+ * $Id: packet-fcct.h,v 1.3 2003/06/30 21:50:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,38 +69,7 @@
 #define FCCT_PRMBL_SIZE        16
 #define FCCT_EXTPRMBL_SIZE     88
 
-static const value_string fc_ct_rjt_code_vals [] = {
-    {FCCT_RJT_INVCMDCODE, "Invalid Cmd Code"},
-    {FCCT_RJT_INVVERSION, "Invalid Version Level"},
-    {FCCT_RJT_LOGICALERR, "Logical Error"},
-    {FCCT_RJT_INVSIZE,    "Invalid CT_IU Size"},
-    {FCCT_RJT_LOGICALBSY, "Logical Busy"},
-    {FCCT_RJT_PROTOERR,   "Protocol Error"},
-    {FCCT_RJT_GENFAIL,    "Unable to Perform Cmd"},
-    {FCCT_RJT_CMDNOTSUPP, "Cmd Not Supported"},
-    {0, NULL},
-};
-
-static const value_string fc_ct_gstype_vals[] = {
-    {FCCT_GSTYPE_KEYSVC, "Key Service"},
-    {FCCT_GSTYPE_ALIASSVC, "Alias Service"},
-    {FCCT_GSTYPE_MGMTSVC, "Management Service"},
-    {FCCT_GSTYPE_TIMESVC, "Time Service"},
-    {FCCT_GSTYPE_DIRSVC, "Directory Service"},
-    {0, NULL},
-};
-
-static const value_string fc_ct_gsserver_vals[] = {
-    {FCCT_GSRVR_DNS, "dNS"},
-    {FCCT_GSRVR_IP,  "IP"},
-    {FCCT_GSRVR_FCS, "Fabric Config Server"},
-    {FCCT_GSRVR_UNS, "Unzoned Name Server"},
-    {FCCT_GSRVR_FZS, "Fabric Zone Server"},
-    {FCCT_GSRVR_TS,  "Time Server"},
-    {FCCT_GSRVR_KS,  "Key Server"},
-    {FCCT_GSRVR_AS,  "Alias Server"},
-    {0, NULL},
-};
+extern const value_string fc_ct_rjt_code_vals [];
 
 typedef struct _fc_ct_preamble {
     guint32 in_id:24,
