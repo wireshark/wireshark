@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.126 2003/12/16 18:43:34 oabad Exp $
+ * $Id: menu.c,v 1.127 2003/12/17 20:28:49 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -834,8 +834,9 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
     if (widget == OBJECT_GET_DATA(popup_menu_object, E_MPACKET_LIST_KEY)) {
         packet_list=GTK_CLIST(widget);
         if (gtk_clist_get_selection_info(GTK_CLIST(packet_list),
-                                         ((GdkEventButton *)event)->x,
-                                         ((GdkEventButton *)event)->y,&row,&column)) {
+                                         (gint) (((GdkEventButton *)event)->x),
+                                         (gint) (((GdkEventButton *)event)->y),
+                                         &row,&column)) {
             OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_ROW_KEY,
                             GINT_TO_POINTER(row));
             OBJECT_SET_DATA(popup_menu_object, E_MPACKET_LIST_COL_KEY,
@@ -859,8 +860,8 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
         GtkTreePath      *path;
 
         if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(widget),
-                                          ((GdkEventButton *)event)->x,
-                                          ((GdkEventButton *)event)->y,
+                                          (gint) (((GdkEventButton *)event)->x),
+                                          (gint) (((GdkEventButton *)event)->y),
                                           &path, NULL, NULL, NULL))
         {
             if (gtk_tree_view_row_expanded(GTK_TREE_VIEW(widget), path))
