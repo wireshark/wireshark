@@ -2,7 +2,7 @@
  * Routines for DCERPC NDR dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-ndr.c,v 1.10 2002/09/26 06:13:07 sahlberg Exp $
+ * $Id: packet-dcerpc-ndr.c,v 1.11 2002/10/19 03:03:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -208,7 +208,8 @@ dissect_ndr_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     dcerpc_tvb_get_uuid (tvb, offset, drep, &uuid);
     if (tree) {
         proto_tree_add_string_format (tree, hfindex, tvb, offset, 16, "",
-                                      "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                                      "%s: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                                      proto_registrar_get_name(hfindex),
                                       uuid.Data1, uuid.Data2, uuid.Data3,
                                       uuid.Data4[0], uuid.Data4[1],
                                       uuid.Data4[2], uuid.Data4[3],
