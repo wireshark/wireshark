@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.18 1999/10/02 06:00:07 guy Exp $
+ * $Id: capture.h,v 1.19 1999/10/02 06:26:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,13 +51,9 @@
 /* Name we give to the child process when doing a "-S" or "-F" capture. */
 #define	CHILD_NAME	"ethereal-capture"
 
-/* Create a temporary file and start a capture to it. */
-void   do_capture(void);
-
-/* Start a capture to a file we've opened; "cf.save_file" is the
-   pathname of the file, and "cf.save_file_fd" is the file descriptor
-   we got when we opened it. */
-void   run_capture(void);
+/* Open a specified file, or create a temporary file, and start a capture
+   to the file in question. */
+void   do_capture(char *capfile_name);
 
 /* Do the low-level work of a capture. */
 int    capture(void);

@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.5 1999/09/26 14:40:01 deniel Exp $
+ * $Id: capture_dlg.c,v 1.6 1999/10/02 06:26:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -293,7 +293,7 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
-  do_capture();
+  do_capture(NULL);
 }
 
 static void

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.14 1999/10/02 05:59:58 guy Exp $
+ * $Id: main.c,v 1.15 1999/10/02 06:26:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,7 +54,6 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
 
 #ifdef HAVE_DIRECT_H
 #include <direct.h>
@@ -465,6 +464,7 @@ main(int argc, char *argv[])
   int                 err;
 #ifdef HAVE_LIBPCAP
   gboolean            start_capture = FALSE;
+  gchar              *save_file = NULL;
 #endif
   GtkWidget           *window, *main_vbox, *menubar, *u_pane, *l_pane,
                       *bv_table, *bv_hscroll, *bv_vscroll, *stat_hbox, 
@@ -638,8 +638,7 @@ main(int argc, char *argv[])
         break;
 #ifdef HAVE_LIBPCAP
       case 'w':        /* Write to capture file xxx */
-        cf.save_file = g_strdup(optarg);
-        cf.user_saved = TRUE;	/* it's not a temporary file */
+        save_file = g_strdup(optarg);
 	break;
       case 'W':        /* Write to capture file FD xxx */
         cf.save_file_fd = atoi(optarg);
@@ -652,10 +651,6 @@ main(int argc, char *argv[])
   if (start_capture) {
     if (cf.iface == NULL) {
       fprintf(stderr, "ethereal: \"-k\" flag was specified without \"-i\" flag\n");
-      exit(1);
-    }
-    if (cf.save_file == NULL) {
-      fprintf(stderr, "ethereal: \"-k\" flag was specified without \"-w\" flag\n");
       exit(1);
     }
   }
@@ -911,8 +906,8 @@ main(int argc, char *argv[])
   if (capture_child) {
     /* This is the child process for a sync mode or fork mode capture,
        so just do the low-level work of a capture - don't create
-       a temporary file (so don't call "do_capture()"), and don't
-       fork off *another* child process (so don't call "run_capture()"). */
+       a temporary file and fork off *another* child process (so don't
+       call "do_capture()"). */
 
        capture();
 
@@ -921,25 +916,7 @@ main(int argc, char *argv[])
   } else {
     if (start_capture) {
       /* "-k" was specified; start a capture. */
-
-      /* Try to open/create the file specified on the command line with
-         the "-w" flag.  (We already checked in "main()" that "-w" was
-         specified. */
-      cf.save_file_fd = open(cf.save_file, O_RDWR|O_TRUNC|O_CREAT, 0600);
-      if (cf.save_file_fd == -1) {
-        /* XXX - display the error in a message box, or on the command line? */
-        simple_dialog(ESD_TYPE_WARN, NULL,
-		"The file to which the capture would be saved (\"%s\")"
-		"could not be opened: %s.", cf.save_file, strerror(errno));
-      } else {
-        /* XXX - "capture()" used to do this, but we now do it in
-           "do_capture()", before calling "capture()"; will we ever
-           have a capture file open here?
-           Yes, if "-r" was specified - but that's arguably silly, so
-           perhaps we should treate that as an error. */
-        close_cap_file(&cf, info_bar, file_ctx);
-        run_capture();
-      }
+      do_capture(save_file);
     }
   }
 #endif

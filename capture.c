@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.76 1999/10/02 06:00:06 guy Exp $
+ * $Id: capture.c,v 1.77 1999/10/02 06:26:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <fcntl.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -103,14 +104,30 @@ typedef struct _loop_data {
   wtap_dumper   *pdh;
 } loop_data;
 
-/* Create a temporary file and start a capture to it. */
+/* Open a specified file, or create a temporary file, and start a capture
+   to the file in question. */
 void
-do_capture(void)
+do_capture(char *capfile_name)
 {
   char tmpname[128+1];
+  gboolean is_temp_file;
+  u_char c;
+  int i;
+  guint byte_count;
+  char *msg;
+  int err;
+  int capture_succeeded;
 
-  /* Choose a random name for the capture buffer */
-  cf.save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
+  if (capfile_name != NULL) {
+    /* Try to open/create the specified file for use as a capture buffer. */
+    cf.save_file_fd = open(capfile_name, O_RDWR|O_TRUNC|O_CREAT, 0600);
+    is_temp_file = FALSE;
+  } else {
+    /* Choose a random name for the capture buffer */
+    cf.save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
+    capfile_name = g_strdup(tmpname);
+    is_temp_file = TRUE;
+  }
   if (cf.save_file_fd == -1) {
     simple_dialog(ESD_TYPE_WARN, NULL,
 	"The file to which the capture would be saved (\"%s\")"
@@ -124,24 +141,8 @@ do_capture(void)
       unlink(cf.save_file); /* silently ignore error */
     g_free(cf.save_file);
   }
-  cf.save_file = g_strdup(tmpname);
-  cf.user_saved = 0;
-
-  run_capture();
-}
-
-/* Start a capture to a file we've opened; "cf.save_file" is the
-   pathname of the file, and "cf.save_file_fd" is the file descriptor
-   we got when we opened it. */
-void
-run_capture(void)
-{ 
-  u_char c;
-  int i;
-  guint byte_count;
-  char *msg;
-  int err;
-  int capture_succeeded;
+  cf.save_file = capfile_name;
+  cf.user_saved = !is_temp_file;
 
   if (sync_mode || fork_mode) {	/*  use fork() for capture */
     int  fork_child;
