@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@netapp.com>
  *
- * $Id: packet-http.c,v 1.9 1999/09/17 05:56:54 guy Exp $
+ * $Id: packet-http.c,v 1.10 1999/10/16 20:30:14 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,13 +42,16 @@
 #include "packet.h"
 
 static int proto_http = -1;
+static int hf_http_response = -1;
+static int hf_http_request = -1;
+
+static proto_tree *http_tree;
 
 static int is_http_request_or_reply(const u_char *data, int linelen);
 
 void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	gboolean	is_ipp = (pi.srcport == 631 || pi.destport == 631);
-	proto_tree	*http_tree;
 	proto_item	*ti;
 	const u_char	*data, *dataend;
 	const u_char	*linep, *lineend, *eol;
@@ -187,19 +190,28 @@ is_http_request_or_reply(const u_char *data, int linelen)
 {
 	if (linelen >= 3) {
 		if (strncasecmp(data, "GET", 3) == 0 ||
-		    strncasecmp(data, "PUT", 3) == 0)
+		    strncasecmp(data, "PUT", 3) == 0) {
+			proto_tree_add_item_hidden(http_tree, 
+						   hf_http_request, 0, 0, 1);
 			return TRUE;
+		}
 	}
 	if (linelen >= 4) {
 		if (strncasecmp(data, "HEAD", 4) == 0 ||
-		    strncasecmp(data, "POST", 4) == 0)
+		    strncasecmp(data, "POST", 4) == 0) {
+			proto_tree_add_item_hidden(http_tree, 
+						   hf_http_request, 0, 0, 1);
 			return TRUE;
+		}
 	}
 	if (linelen >= 5) {
 		if (strncasecmp(data, "TRACE", 5) == 0)
 			return TRUE;
-		if (strncasecmp(data, "HTTP/", 5) == 0)
+		if (strncasecmp(data, "HTTP/", 5) == 0) {
+			proto_tree_add_item_hidden(http_tree, 
+						   hf_http_response, 0, 0, 1);
 			return TRUE;	/* response */
+		}
 	}
 	if (linelen >= 6) {
 		if (strncasecmp(data, "DELETE", 6) == 0)
@@ -215,11 +227,18 @@ is_http_request_or_reply(const u_char *data, int linelen)
 void
 proto_register_http(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "http.abbreviation", TYPE, VALS_POINTER }},
-        };*/
 
-        proto_http = proto_register_protocol("Hypertext Transfer Protocol", "http");
- /*       proto_register_field_array(proto_http, hf, array_length(hf));*/
+  static hf_register_info hf[] = {
+    { &hf_http_response,
+      { "Response",		"http.response",  
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	"TRUE if HTTP response" }},
+    { &hf_http_request,
+      { "Request",		"http.request",
+	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+	"TRUE if HTTP request (GET, PUT, HEAD, POST)" }},
+  };
+
+  proto_http = proto_register_protocol("Hypertext Transfer Protocol", "http");
+  proto_register_field_array(proto_http, hf, array_length(hf));
 }
