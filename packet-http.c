@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.85 2003/12/27 18:45:48 guy Exp $
+ * $Id: packet-http.c,v 1.86 2003/12/28 08:39:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -198,6 +198,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int		orig_offset;
 	int		first_linelen, linelen;
 	gboolean	is_request_or_reply;
+	gboolean	saw_req_resp_or_header;
 	guchar		c;
 	http_type_t     http_type;
 	proto_item	*hdr_item;
@@ -295,6 +296,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	http_type = HTTP_OTHERS;	/* type not known yet */
 	headers.content_type = NULL;	/* content type not known yet */
 	headers.content_length = -1;	/* content length not known yet */
+	saw_req_resp_or_header = FALSE;	/* haven't seen anything yet */
 	CLEANUP_PUSH(cleanup_headers, &headers);
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		/*
@@ -401,6 +403,32 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			}
 		}
 
+		/*
+		 * We haven't seen the colon, but everything else looks
+		 * OK for a header line.
+		 *
+		 * If we've already seen an HTTP request or response
+		 * line, or a header line, and we're at the end of
+		 * the tvbuff, we assume this is an incomplete header
+		 * line.  (We quit this loop after seeing a blank line,
+		 * so if we've seen a request or response line, or a
+		 * header line, this is probably more of the request
+		 * or response we're presumably seeing.  There is some
+		 * risk of false positives, but the same applies for
+		 * full request or response lines or header lines,
+		 * although that's less likely.)
+		 *
+		 * We throw an exception in that case, by checking for
+		 * the existence of the next byte after the last one
+		 * in the line.  If it exists, "tvb_ensure_bytes_exist()"
+		 * throws no exception, and we fall through to the
+		 * "not HTTP" case.  If it doesn't exist,
+		 * "tvb_ensure_bytes_exist()" will throw the appropriate
+		 * exception.
+		 */
+		if (saw_req_resp_or_header)
+			tvb_ensure_bytes_exist(tvb, offset, linelen + 1);
+
 	not_http:
 		/*
 		 * We don't consider this part of an HTTP request or
@@ -427,12 +455,14 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					    req_strlen);
 				}
 			}
+			saw_req_resp_or_header = TRUE;
 		} else if (linelen != 0) {
 			/*
 			 * Header.
 			 */
 			process_header(tvb, offset, next_offset, line, linelen,
 			    colon_offset, pinfo, http_tree, &headers);
+			saw_req_resp_or_header = TRUE;
 		} else {
 			/*
 			 * Blank line.
@@ -443,6 +473,14 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			      next_offset - offset));
 		}
 		offset = next_offset;
+		if (linelen == 0) {
+			/*
+			 * That was a blank line, which means that
+			 * whatever follows it isn't part of this
+			 * request or reply.
+			 */
+			break;
+		}
 	}
 
 	if (tree) {
