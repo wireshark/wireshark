@@ -1015,7 +1015,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 
 static void
 dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, proto_tree *root_tree, ASN1_SCK asn1, guint pdu_type, int start)
+    proto_tree *tree, proto_tree *root_tree, ASN1_SCK *asn1p, guint pdu_type, int start)
 {
 	gboolean def;
 	guint length;
@@ -1064,7 +1064,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	    "Unknown PDU type %#x");
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
-	length = asn1.offset - start;
+	length = asn1p->offset - start;
 	if (tree) {
 		proto_tree_add_uint(tree, hf_snmp_pdutype, tvb, offset, length,
 		    pdu_type);
@@ -1083,7 +1083,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case SNMP_MSG_TRAP2:
 	case SNMP_MSG_REPORT:
 		/* request id */
-		ret = asn1_uint32_decode (&asn1, &request_id, &length);
+		ret = asn1_uint32_decode (asn1p, &request_id, &length);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "request ID", ret);
@@ -1096,7 +1096,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += length;
 
 		/* error status, or getbulk non-repeaters */
-		ret = asn1_uint32_decode (&asn1, &error_status, &length);
+		ret = asn1_uint32_decode (asn1p, &error_status, &length);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    (pdu_type == SNMP_MSG_GETBULK) ? "non-repeaters"
@@ -1118,7 +1118,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += length;
 
 		/* error index, or getbulk max-repetitions */
-		ret = asn1_uint32_decode (&asn1, &error_index, &length);
+		ret = asn1_uint32_decode (asn1p, &error_index, &length);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    (pdu_type == SNMP_MSG_GETBULK) ? "max repetitions"
@@ -1140,7 +1140,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	case SNMP_MSG_TRAP:
 		/* enterprise */
-		ret = asn1_oid_decode (&asn1, &enterprise, &enterprise_length,
+		ret = asn1_oid_decode (asn1p, &enterprise, &enterprise_length,
 		    &length);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
@@ -1157,8 +1157,8 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += length;
 
 		/* agent address */
-		start = asn1.offset;
-		ret = asn1_header_decode (&asn1, &cls, &con, &tag,
+		start = asn1p->offset;
+		ret = asn1_header_decode (asn1p, &cls, &con, &tag,
 		    &def, &agent_address_length);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
@@ -1178,14 +1178,14 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    "agent_address", ASN1_ERR_WRONG_LENGTH_FOR_TYPE);
 			return;
 		}
-		ret = asn1_string_value_decode (&asn1,
+		ret = asn1_string_value_decode (asn1p,
 		    agent_address_length, &agent_address);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "agent address", ret);
 			return;
 		}
-		length = asn1.offset - start;
+		length = asn1p->offset - start;
 		if (tree) {
 			if (agent_address_length != 4) {
 				proto_tree_add_text(tree, tvb, offset,
@@ -1203,7 +1203,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += length;
 
 	        /* generic trap type */
-		ret = asn1_uint32_decode (&asn1, &trap_type, &length);
+		ret = asn1_uint32_decode (asn1p, &trap_type, &length);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "generic trap type", ret);
@@ -1216,7 +1216,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += length;
 
 	        /* specific trap type */
-		ret = asn1_uint32_decode (&asn1, &specific_type, &length);
+		ret = asn1_uint32_decode (asn1p, &specific_type, &length);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "specific trap type", ret);
@@ -1229,8 +1229,8 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += length;
 
 	        /* timestamp */
-		start = asn1.offset;
-		ret = asn1_header_decode (&asn1, &cls, &con, &tag,
+		start = asn1p->offset;
+		ret = asn1_header_decode (asn1p, &cls, &con, &tag,
 		    &def, &timestamp_length);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
@@ -1243,14 +1243,14 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    "timestamp", ASN1_ERR_WRONG_TYPE);
 			return;
 		}
-		ret = asn1_uint32_value_decode(&asn1, timestamp_length,
+		ret = asn1_uint32_value_decode(asn1p, timestamp_length,
 		    &timestamp);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			    "timestamp", ret);
 			return;
 		}
-		length = asn1.offset - start;
+		length = asn1p->offset - start;
 		if (tree) {
 			proto_tree_add_uint(tree, hf_snmp_timestamp, tvb,
 			    offset, length, timestamp);
@@ -1261,7 +1261,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* variable bindings */
 	/* get header for variable-bindings sequence */
-	ret = asn1_sequence_decode(&asn1, &variable_bindings_length, &length);
+	ret = asn1_sequence_decode(asn1p, &variable_bindings_length, &length);
 	if (ret != ASN1_ERR_NOERROR) {
 		dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 			"variable bindings header", ret);
@@ -1276,7 +1276,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		sequence_length = 0;
 
 		/* parse type */
-		ret = asn1_sequence_decode(&asn1, &variable_length, &length);
+		ret = asn1_sequence_decode(asn1p, &variable_length, &length);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
 				"variable binding header", ret);
@@ -1285,7 +1285,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		sequence_length += length;
 
 		/* parse object identifier */
-		ret = asn1_oid_decode (&asn1, &variable_oid,
+		ret = asn1_oid_decode (asn1p, &variable_oid,
 		    &variable_oid_length, &length);
 		if (ret != ASN1_ERR_NOERROR) {
 			dissect_snmp_parse_error(tvb, offset, pinfo, tree,
@@ -1353,7 +1353,7 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/* Parse the variable's value */
 		next_tvb = NULL;
 		ret = snmp_variable_decode(tree, variable_oid,
-		    variable_oid_length, &asn1, offset, &length, &next_tvb);
+		    variable_oid_length, asn1p, offset, &length, &next_tvb);
 		if (next_tvb) {
 			new_format_oid(variable_oid, variable_oid_length,
 			    &non_decoded_oid, &decoded_oid);
@@ -1631,7 +1631,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * length.
 	 */
 	message_length += length;
-	if (message_length < length) {
+	if (message_length < length || (gint) message_length < 0) {
 		/*
 		 * The message length was probably so large that the
 		 * total length overflowed.
@@ -2021,7 +2021,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    "PDU type", ASN1_ERR_WRONG_TYPE);
 		return message_length;
 	}
-	dissect_common_pdu(tvb, offset, pinfo, snmp_tree, tree, asn1, pdu_type, start);
+	dissect_common_pdu(tvb, offset, pinfo, snmp_tree, tree, &asn1, pdu_type, start);
 	return message_length;
 }
 
@@ -2289,7 +2289,7 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    "PDU type", ASN1_ERR_WRONG_TYPE);
 		return;
 	}
-	dissect_common_pdu(tvb, offset, pinfo, smux_tree, tree, asn1, pdu_type, start);
+	dissect_common_pdu(tvb, offset, pinfo, smux_tree, tree, &asn1, pdu_type, start);
 }
 
 static void

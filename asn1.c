@@ -418,7 +418,17 @@ asn1_eoc_decode (ASN1_SCK *asn1, int eoc)
 int
 asn1_null_decode ( ASN1_SCK *asn1, int enc_len)
 {
+    int start_off = asn1->offset;
+
     asn1->offset += enc_len;
+    /*
+     * Check for integer overflows.  
+     * XXX - ASN1_ERR_LENGTH_MISMATCH seemed like the most appropriate
+     *       error from the ones available.  Should we make a new one?
+     */
+    if (asn1->offset < 0 || asn1->offset < start_off)
+        return ASN1_ERR_LENGTH_MISMATCH;
+
     return ASN1_ERR_NOERROR;
 }
 
