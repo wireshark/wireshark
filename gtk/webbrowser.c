@@ -39,6 +39,12 @@
 #include "compat_macros.h"
 #include "simple_dialog.h"
 
+/*
+ * For GNOME 2.x, we might be able to use "gnome_url_show()" (when we offer
+ * the ability to build a GNOMEified Ethereal as well as a GTK+-only
+ * Ethereal).
+ */
+
 #if defined(G_OS_WIN32)
 /* Win32 - use Windows shell services to start a browser */
 #include <windows.h>
