@@ -1,5 +1,16 @@
+# $Id$
 
-../../epan/dissectors/packet-ocsp.c : ../../tools/asn2eth.py OCSP.asn packet-ocsp-template.c packet-ocsp-template.h ocsp.cnf
+DISSECTOR_FILES=packet-ocsp.c packet-ocsp.h
+
+all: generate_dissector
+
+generate_dissector: $(DISSECTOR_FILES)
+
+$(DISSECTOR_FILES): ../../tools/asn2eth.py OCSP.asn packet-ocsp-template.c packet-ocsp-template.h ocsp.cnf
 	python ../../tools/asn2eth.py -X -b -e -p ocsp -c ocsp.cnf -s packet-ocsp-template OCSP.asn
-	cp packet-ocsp.* ../../epan/dissectors
 
+clean:
+	rm -f parsetab.py $(DISSECTOR_FILES)
+
+copy_files: generate_dissector
+	cp $(DISSECTOR_FILES) ../../epan/dissectors

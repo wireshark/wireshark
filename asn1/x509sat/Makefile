@@ -1,5 +1,16 @@
+# $Id$
 
-../../epan/dissectors/packet-x509sat.c : ../../tools/asn2eth.py SelectedAttributeTypes.asn packet-x509sat-template.c packet-x509sat-template.h x509sat.cnf ../x509if/x509if-exp.cnf
+DISSECTOR_FILES=packet-x509sat.c packet-x509sat.h
+
+all: generate_dissector
+
+generate_dissector: $(DISSECTOR_FILES)
+
+$(DISSECTOR_FILES): ../../tools/asn2eth.py SelectedAttributeTypes.asn packet-x509sat-template.c packet-x509sat-template.h x509sat.cnf ../x509if/x509if-exp.cnf
 	python ../../tools/asn2eth.py -X -b -e -p x509sat -c x509sat.cnf -s packet-x509sat-template SelectedAttributeTypes.asn
-	cp packet-x509sat.* ../../epan/dissectors
 
+clean:
+	rm -f parsetab.py $(DISSECTOR_FILES)
+
+copy_files: generate_dissector
+	cp $(DISSECTOR_FILES) ../../epan/dissectors

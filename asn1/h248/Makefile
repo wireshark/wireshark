@@ -1,5 +1,16 @@
+# $Id$
 
-../../epan/dissectors/packet-h248.c : ../../tools/asn2eth.py MEGACO.asn packet-h248-template.c packet-h248-template.h h248.cnf 
+DISSECTOR_FILES=packet-h248.c packet-h248.h
+
+all: generate_dissector
+
+generate_dissector: $(DISSECTOR_FILES)
+
+$(DISSECTOR_FILES): ../../tools/asn2eth.py MEGACO.asn packet-h248-template.c packet-h248-template.h h248.cnf 
 	python ../../tools/asn2eth.py -X -b -e -p h248 -c h248.cnf -s packet-h248-template MEGACO.asn
-	cp packet-h248.* ../../epan/dissectors
 
+clean:
+	rm -f parsetab.py $(DISSECTOR_FILES)
+
+copy_files: generate_dissector
+	cp $(DISSECTOR_FILES) ../../epan/dissectors

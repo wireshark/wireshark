@@ -1,5 +1,16 @@
+# $Id$
 
-../../epan/dissectors/packet-gsm_map.c : ../../tools/asn2eth.py GSMMAP.asn packet-gsm_map-template.c packet-gsm_map-template.h gsmmap.cnf 
+DISSECTOR_FILES=packet-gsm_map.c packet-gsm_map.h
+
+all: generate_dissector
+
+generate_dissector: $(DISSECTOR_FILES)
+
+$(DISSECTOR_FILES): ../../tools/asn2eth.py GSMMAP.asn packet-gsm_map-template.c packet-gsm_map-template.h gsmmap.cnf 
 	python ../../tools/asn2eth.py -X -b -e -p gsm_map -c gsmmap.cnf -s packet-gsm_map-template GSMMAP.asn
-	cp packet-gsm_map.* ../../epan/dissectors
 
+clean:
+	rm -f parsetab.py $(DISSECTOR_FILES)
+
+copy_files: generate_dissector
+	cp $(DISSECTOR_FILES) ../../epan/dissectors

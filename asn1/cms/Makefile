@@ -1,5 +1,16 @@
+# $Id$
 
-../../epan/dissectors/packet-cms.c : ../../tools/asn2eth.py CryptographicMessageSyntax.asn packet-cms-template.c packet-cms-template.h cms.cnf
+DISSECTOR_FILES=packet-cms.c packet-cms.h
+
+all: generate_dissector
+
+generate_dissector: $(DISSECTOR_FILES)
+
+$(DISSECTOR_FILES): ../../tools/asn2eth.py CryptographicMessageSyntax.asn packet-cms-template.c packet-cms-template.h cms.cnf
 	python ../../tools/asn2eth.py -X -b -e -p cms -c cms.cnf -s packet-cms-template CryptographicMessageSyntax.asn
-	cp packet-cms.* ../../epan/dissectors
 
+clean:
+	rm -f parsetab.py $(DISSECTOR_FILES)
+
+copy_files: generate_dissector
+	cp $(DISSECTOR_FILES) ../../epan/dissectors
