@@ -359,49 +359,44 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Rlogin");
 
 	if (check_col(pinfo->cinfo, COL_INFO)){		/* display packet info*/
-
-		char temp[1000];
-
-		col_clear(pinfo->cinfo, COL_INFO);
 		if ( hash_info->name[0]) {
-			strcpy( temp, "User name: ");
-			strcat( temp, hash_info->name);
-			strcat( temp, ", ");
+			col_add_fstr(pinfo->cinfo, COL_INFO,
+			    "User name: %s, ", hash_info->name);
 		}
 		else
-			temp[0] = 0;
+			col_clear(pinfo->cinfo, COL_INFO);
 
 		length = tvb_length(tvb);
 		if (length != 0) {
-			if ( tvb_get_guint8(tvb, 0) == '\0')
-				strcat( temp, "Start Handshake");
+			if ( tvb_get_guint8(tvb, 0) == '\0') {
+				col_append_str(pinfo->cinfo, COL_INFO,
+				    "Start Handshake");
+			}
 			else if ( tcpinfo->urgent &&
-				  length >= tcpinfo->urgent_pointer )
-				strcat( temp, "Control Message");
-
+				  length >= tcpinfo->urgent_pointer ) {
+				col_append_str(pinfo->cinfo, COL_INFO,
+				    "Control Message");
+			}
 			else {			/* check for terminal info */
 				ti_offset = tvb_find_guint8(tvb, 0, -1, 0xff);
 				if (ti_offset != -1 &&
 				    tvb_bytes_exist(tvb, ti_offset + 1, 1) &&
-				    tvb_get_guint8(tvb, ti_offset + 1) == 0xff)
-					strcat( temp, "Terminal Info");
+				    tvb_get_guint8(tvb, ti_offset + 1) == 0xff) {
+					col_append_str(pinfo->cinfo, COL_INFO,
+					    "Terminal Info");
+				}
 				else {
-					int i;
 					int bytes_to_copy;
 
-					strcat( temp, "Data: ");
-					i = strlen( temp);
 					bytes_to_copy = tvb_length(tvb);
 					if (bytes_to_copy > 128)
 						bytes_to_copy = 128;
-					tvb_memcpy(tvb, (guint8 *)&temp[i], 0,
-					    bytes_to_copy);
-					temp[i + bytes_to_copy] = '\0';
+					col_append_fstr(pinfo->cinfo, COL_INFO,
+					    "Data: %s",
+					    tvb_format_text(tvb, 0, bytes_to_copy));
 				}
 			}
 		}
-
-		col_add_str(pinfo->cinfo, COL_INFO, temp);
 	}
 
 	rlogin_state_machine( hash_info, tvb, pinfo);
