@@ -2,7 +2,7 @@
  * Routines for GTP dissection
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *
- * $Id: packet-gtp.c,v 1.1 2001/04/04 01:00:18 guy Exp $
+ * $Id: packet-gtp.c,v 1.2 2001/04/04 03:29:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1405,7 +1405,8 @@ decode_gtp_user_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 				tvb_memcpy(tvb, (guint8 *)&addr_ipv6, offset+5, sizeof addr_ipv6);
 				proto_tree_add_ipv6(ext_tree, hf_gtp_ext_user_addr, tvb, offset+5, 16, (guint8 *)&addr_ipv6);
 				break;
-			default: 
+			default:
+				; /* nothing */
 		}
 	}
 				
@@ -1528,7 +1529,8 @@ decode_gtp_pdp_cntx(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 				tvb_memcpy(tvb, (guint8 *)&addr_ipv6, offset+25, sizeof addr_ipv6);
 				proto_tree_add_ipv6(ext_tree, hf_gtp_ext_user_addr, tvb, offset+25, 16, (guint8 *)&addr_ipv6);
 				break;
-			default: 
+			default:
+				; /* nothing */
 		}
 	}
 		
