@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.260 2004/05/13 21:56:09 jmayer Exp $
+# $Id: configure.in,v 1.261 2004/05/13 22:25:25 jmayer Exp $
 #
 AC_INIT(etypes.h)
 
@@ -333,7 +333,8 @@ main ()
     return 1;	/* failure */
 }
 ], ac_cv_glib_supports_modules=yes, ac_cv_glib_supports_modules=no,
-   [echo $ac_n "cross compiling; assumed OK... $ac_c"])
+   [echo $ac_n "cross compiling; assumed OK... $ac_c"
+    ac_cv_glib_supports_modules=yes])
 CFLAGS="$ac_save_CFLAGS"
 LIBS="$ac_save_LIBS"
 if test "$ac_cv_glib_supports_modules" = yes ; then
