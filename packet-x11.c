@@ -3,7 +3,7 @@
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  * Copyright 2003, Michael Shuldman
  *
- * $Id: packet-x11.c,v 1.56 2004/03/22 22:53:56 deniel Exp $
+ * $Id: packet-x11.c,v 1.57 2004/03/23 18:03:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1600,7 +1600,9 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 		return "<Unknown>";
 
 	for (kc = first_keycode, groupmodkc = numlockkc = -1; kc < 256; ++kc)
-		for (keysym = 0; keysym < keysyms_per_keycode; ++keysym)
+		for (keysym = 0; keysym < keysyms_per_keycode; ++keysym) {
+			if (keycodemap[kc] == NULL)
+				return "<Unknown>";
 			switch (keycodemap[kc][keysym]) {
 				case 0xff7e:
 					groupmodkc = kc;
@@ -1618,6 +1620,7 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 					lockmod_is_shiftlock = kc;
 					break;
 			}
+		}
 
 
 	/*
@@ -1631,8 +1634,8 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 
 	/* find out what the numlockmodifer and groupmodifier is. */
 	for (modifier = 0, numlockmod = groupmod = -1;
-	modifier < (int)array_length(modifiers) && numlockmod == -1;
-	++modifier)
+	    modifier < (int)array_length(modifiers) && numlockmod == -1;
+	    ++modifier)
 		for (kc = 0; kc < keycodes_per_modifier; ++kc)
 			if (modifiermap[modifier][kc] == numlockkc)
 				numlockmod = modifier;
@@ -1665,65 +1668,64 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 	 */
 
 	if (numlockmod >= 0 && (bitmask & modifiermask[numlockmod])
-	&& ((keycodemap[keycode][1] >= 0xff80
-	 && keycodemap[keycode][1] <= 0xffbd)
-	 || (keycodemap[keycode][1] >= 0x11000000
-	 && keycodemap[keycode][1] <= 0x1100ffff))) {
+	    && ((syms[1] >= 0xff80
+	     && syms[1] <= 0xffbd)
+	     || (syms[1] >= 0x11000000
+	      && syms[1] <= 0x1100ffff))) {
 		if ((bitmask & ShiftMask) || lockmod_is_shiftlock)
-			return keysymString(keycodemap[keycode][groupmod + 0]);
+			return keysymString(syms[groupmod + 0]);
 		else
-			if (keycodemap[keycode][groupmod + 1] == NoSymbol)
-				return keysymString(keycodemap[keycode]
-				[groupmod + 0]);
+			if (syms[groupmod + 1] == NoSymbol)
+				return keysymString(syms[groupmod + 0]);
 			else
-				return keysymString(keycodemap[keycode]
-				[groupmod + 1]);
+				return keysymString(syms[groupmod + 1]);
 	}
 	else if (!(bitmask & ShiftMask) && !(bitmask & LockMask))
-		return keysymString(keycodemap[keycode][groupmod + 0]);
+		return keysymString(syms[groupmod + 0]);
 	else if (!(bitmask & ShiftMask)
-	&& ((bitmask & LockMask) && lockmod_is_capslock))
-		if (islower(keycodemap[keycode][groupmod + 0]))
-/*			return toupper(keysymString(keycodemap[keycode][groupmod + 0])); */
+	    && ((bitmask & LockMask) && lockmod_is_capslock))
+		if (islower(syms[groupmod + 0]))
+/*			return toupper(keysymString(syms[groupmod + 0])); */
 			return "Uppercase"; /* XXX */
 		else
-			return keysymString(keycodemap[keycode][groupmod + 0]);
+			return keysymString(syms[groupmod + 0]);
 
 	else if ((bitmask & ShiftMask) 
-	&& ((bitmask & LockMask) && lockmod_is_capslock))
-		if (islower(keycodemap[keycode][groupmod + 1]))
-/*			return toupper(keysymString(keycodemap[keycode][groupmod + 1])); */
+	    && ((bitmask & LockMask) && lockmod_is_capslock))
+		if (islower(syms[groupmod + 1]))
+/*			return toupper(keysymString(syms[groupmod + 1])); */
 			return "Uppercase"; /* XXX */
 		else
-			return keysymString(keycodemap[keycode][groupmod + 1]);
+			return keysymString(syms[groupmod + 1]);
 
 	else if ((bitmask & ShiftMask) 
-	||  ((bitmask & LockMask) && lockmod_is_shiftlock))
-			return keysymString(keycodemap[keycode][groupmod + 1]);
+	    ||  ((bitmask & LockMask) && lockmod_is_shiftlock))
+			return keysymString(syms[groupmod + 1]);
 #else /* _XTranslateKey() based code. */
 
 	while (keysyms_per_keycode > 2
-	&& keycodemap[keysyms_per_keycode - 1] == NoSymbol)
+	    && keycodemap[keysyms_per_keycode - 1] == NoSymbol)
 		--keysyms_per_keycode;
 	if (keysyms_per_keycode > 2
-	&& (groupmod >= 0 && (modifiermask[groupmod] & bitmask))) {
+	    && (groupmod >= 0 && (modifiermask[groupmod] & bitmask))) {
 		syms += 2;
 		keysyms_per_keycode -= 2;
 	}
 	
 	if (numlockmod >= 0 && (bitmask & modifiermask[numlockmod])
-	&& keysyms_per_keycode > 1 && ((syms[1] >= 0xff80 && syms[1] <= 0xffbd)
-	 || (syms[1] >= 0x11000000 && syms[1] <= 0x1100ffff))) {
+	    && keysyms_per_keycode > 1
+	    && ((syms[1] >= 0xff80 && syms[1] <= 0xffbd)
+	     || (syms[1] >= 0x11000000 && syms[1] <= 0x1100ffff))) {
 		if ((bitmask & ShiftMask)
-		|| (bitmask & LockMask && lockmod_is_shiftlock))
+		    || (bitmask & LockMask && lockmod_is_shiftlock))
 			keysym = syms[0];
 		else
 			keysym = syms[1];
 	}
 	else if (!(bitmask & ShiftMask)
-	&& (!(bitmask & LockMask) || lockmod_is_nosymbol)) {
+	    && (!(bitmask & LockMask) || lockmod_is_nosymbol)) {
 		if (keysyms_per_keycode == 1
-		|| (keysyms_per_keycode > 1 && syms[1] == NoSymbol)) {
+		    || (keysyms_per_keycode > 1 && syms[1] == NoSymbol)) {
 			int usym;
 
 			XConvertCase(syms[0], &keysym, &usym);
@@ -1735,7 +1737,7 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 		int lsym, usym;
 
 		if (keysyms_per_keycode == 1
-		|| (keysyms_per_keycode > 1 && (usym = syms[1]) == NoSymbol))
+		    || (keysyms_per_keycode > 1 && (usym = syms[1]) == NoSymbol))
 			XConvertCase(syms[0], &lsym, &usym);
 		keysym = usym;
 	}
@@ -1743,7 +1745,7 @@ keycode2keysymString(int *keycodemap[256], int first_keycode,
 		int lsym, usym;
 
 		if (keysyms_per_keycode == 1
-		|| (keysyms_per_keycode > 1 && syms[1] == NoSymbol))
+		    || (keysyms_per_keycode > 1 && syms[1] == NoSymbol))
 			keysym = syms[0];
 
 		XConvertCase(keysym, &lsym, &usym);
@@ -1790,7 +1792,7 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
       size_t m;
 
       for (m = 0; m < array_length(modifiers);
-      ++m, *offsetp += keycodes_per_modifier) {
+        ++m, *offsetp += keycodes_per_modifier) {
 	    const guint8 *p;
 	    char *bp = buffer;
 	    int i;
