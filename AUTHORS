@@ -2259,6 +2259,14 @@ Abhijit Menon-Sen	<ams [AT] oryx.com> {
 	Postgresql v3 dissector
 }
 
+James Fields		<jvfields [AT] tds.net> {
+	Correctly handle time stamps in some Windows Sniffer files
+}
+
+Kevin Johnson		<kjohnson [AT] secureideas.net> {
+	Correctly handle time stamps in some Windows Sniffer files
+}
+
 
 And assorted fixes and enhancements by the people listed above
 and by:

@@ -62,11 +62,16 @@ struct netxray_hdr {
 	guint32	timelo;		/* lower 32 bits of time stamp of capture start */
 	guint32	timehi;		/* upper 32 bits of time stamp of capture start */
 	guint32 linespeed;	/* speed of network, in bits/second */
-	guint8	xxb[64];	/* other stuff */
+	guint8	xxb[12];	/* other stuff */
+	guint8	realtick[4];	/* in version 2, units of the timestamps  */
+	guint8	xxc[48];	/* other unknown stuff */
 };
 
 /*
- * Capture type, in xxb[20].
+ * Capture type, in xxc[4].
+ * XXX - S6040-model Sniffers with gigabit blades store 6 here for
+ * Etherneet captures, so perhaps the interpretation of the capture
+ * type depends on the network type.
  */
 #define CAPTYPE_NDIS	0	/* Capture on network interface using NDIS */
 #define CAPTYPE_BROUTER	1	/* Bridge/router captured with pod */
@@ -81,16 +86,34 @@ struct netxray_hdr {
 #define CAPTYPE_SMDS	10	/* SMDS DXI */
 #define CAPTYPE_BROUTER4 11	/* Bridge/router captured with pod */
 #define CAPTYPE_BROUTER5 12	/* Bridge/router captured with pod */
+#define CAPTYPE_ATM	15	/* ATM captured with pod */
 
 /*
- * # of ticks that equal 1 second
+ * # of ticks that equal 1 second, in version 002.xxx files with a zero
+ * hdr.realtick value; the index into this array is hdr.timeunit.
  *
  * XXX - the third item was 1193180.0, presumably because somebody found
  * it gave the right answer for some captures, but 3 times that, i.e.
  * 3579540.0, appears to give the right answer for some other captures.
+ * In at least some captures, 3579540.0 is what's in the hdr.realtick
+ * field, but hdr.timeunit is 0, giving a TpS value of 1000000.0.
  *
- * Is there something else in the file header to indicate which of those
- * is correct?
+ * Which of 1193180.0 or 1193000.0 is right for captures with no
+ * hdr.realtick value (i.e., hdr.realtick is 0) and a hdr.timeunit value
+ * of 1?  In at least one ATM capture, hdr.realtick is 1193180.0
+ * and hdr.timeunit is 0.  However, in at least one Ethernet capture,
+ * hdr.realtick is 1193000.0 and hdr.timeunit is 1, so both of those
+ * values appear in hdr.realtick; perhaps whatever capture provoked
+ * us to change from 1193180.0 to 1193000.0 has a hdr.realtick value
+ * of 1193000.0 - or vice versa.
+ *
+ * XXX - what's the significance of hdr.timeunit if hdr.realticks is
+ * non-zero?  It's different in different captures; does it signify
+ * anything?
+ *
+ * XXX - what's the range of hdr.timeunit in files with hdr.realticks
+ * 0?  Does it ever have a value of 2 in any of those captures, or is
+ * it either 0 or 1?
  */
 static double TpS[] = { 1e6, 1193000.0, 3579540.0 };
 #define NUM_NETXRAY_TIMEUNITS (sizeof TpS / sizeof TpS[0])
@@ -189,12 +212,12 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		WTAP_ENCAP_TOKEN_RING,
 		WTAP_ENCAP_FDDI_BITSWAPPED,
 		/*
-		 * XXX - PPP captures may look like Ethernet, perhaps
-		 * because they're using NDIS to capture on the
+		 * XXX - some PPP captures may look like Ethernet,
+		 * perhaps because they're using NDIS to capture on the
 		 * same machine and it provides simulated-Ethernet
-		 * packets, but at least one ISDN capture uses the
-		 * same network type value but isn't shaped like
-		 * Ethernet.
+		 * packets, but captures taken with various serial
+		 * pods use the same network type value but aren't
+		 * shaped like Ethernet.  We handle that below.
 		 */
 		WTAP_ENCAP_ETHERNET,	/* WAN(PPP), but shaped like Ethernet */
 		WTAP_ENCAP_UNKNOWN,	/* LocalTalk */
@@ -254,12 +277,10 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * It also appears that version 2.00x files have per-packet
 		 * headers with some extra fields. */
 		if (memcmp(hdr.version, vers_1_0, sizeof vers_1_0) == 0) {
-			timeunit = 1000.0;
 			version_major = 1;
 			version_minor = 0;
 			file_type = WTAP_FILE_NETXRAY_1_0;
 		} else if (memcmp(hdr.version, vers_1_1, sizeof vers_1_1) == 0) {
-			timeunit = 1000000.0;
 			version_major = 1;
 			version_minor = 1;
 			file_type = WTAP_FILE_NETXRAY_1_1;
@@ -334,53 +355,24 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		break;
 
 	case WTAP_FILE_NETXRAY_1_1:
+		/*
+		 * In version 1.1 files (as produced by Windows Sniffer
+		 * Pro 2.0.01), the time stamp is in microseconds,
+		 * rather than the milliseconds time stamps in NetXRay
+		 * and older versions of Windows Sniffer.
+		 */
 		timeunit = 1000000.0;
 		break;
 
 	case WTAP_FILE_NETXRAY_2_00x:
 		/*
-		 * It appears that, at least for Ethernet
-		 * captures, if hdr.xxb[20] is 2, that indicates
-		 * that it's a gigabit Ethernet capture, possibly
-		 * from a special whizzo gigabit pod, and also
-		 * indicates that the time stamps have some
-		 * higher resolution than in other captures,
-		 * possibly thanks to a high-resolution
-		 * timer on the pod.
-		 *
-		 * It also appears that the time units might differ
-		 * for gigabit pod captures between version 002.001
-		 * and 002.002.
+		 * In version 2.x files, there appears to be a time stamp
+		 * value in the file header for at least some captures.
+		 * In others, the time stamp value is 0; if that's the case,
+		 * use the hdr.timeunit value.
 		 */
-		if (network_type == 1 && hdr.xxb[20] == CAPTYPE_GIGPOD) {
-			if (version_minor == 1) {
-				/*
-				 * It appears that the time units for
-				 * these captures are nanoseconds, unless
-				 * hdr.timeunit is 2, in which case it's
-				 * 1/31250000.0 of a second.
-				 */
-				if (hdr.timeunit == 2)
-					timeunit = 31250000.0;
-				else
-					timeunit = 1e9;
-			} else {
-				/*
-				 * These just seem to be 1000 times
-				 * the regular time stamp units, unless
-				 * hdr.timeunit is 2, in which case it's
-				 * 1/1125000 of a second.
-				 *
-				 * In addition, the start timestamp
-				 * appears to be 0.
-				 */
-				if (hdr.timeunit == 2)
-					timeunit = 1250000.0;
-				else
-					timeunit = TpS[hdr.timeunit]*1000.0;
-				start_timestamp = 0.0;
-			}
-		} else {
+		timeunit = pletohl(&hdr.realtick);
+		if (timeunit == 0) {
 			if (hdr.timeunit > NUM_NETXRAY_TIMEUNITS) {
 				*err = WTAP_ERR_UNSUPPORTED;
 				*err_info = g_strdup_printf("netxray: Unknown timeunit %u",
@@ -389,6 +381,19 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 			}
 			timeunit = TpS[hdr.timeunit];
 		}
+
+		/*
+		 * For gigabit pod captures, the start timestamp appears
+		 * to be 0.
+		 *
+		 * XXX - is that true for other types of captures, such
+		 * as gigabit pod captures with hdr.xxc[4] = 6, or
+		 * for other pod captures?  Is it true for *all* pod
+		 * captures?
+		 */
+		if (network_type == 1 && hdr.xxc[4] == CAPTYPE_GIGPOD &&
+		    version_minor == 2)
+			start_timestamp = 0.0;
 		break;
 
 	default:
@@ -404,12 +409,12 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * frames (as a result, presumably, of having passed
 		 * through NDISWAN).
 		 *
-		 * In version 2, it looks as if there's stuff in the "xxb"
+		 * In version 2, it looks as if there's stuff in the "xxc"
 		 * words of the file header to specify what particular
 		 * type of WAN capture we have.
 		 */
 		if (version_major == 2) {
-			switch (hdr.xxb[20]) {
+			switch (hdr.xxc[4]) {
 
 			case CAPTYPE_PPP:
 				/*
@@ -430,7 +435,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				/*
 				 * Various HDLC flavors?
 				 */
-				switch (hdr.xxb[28]) {
+				switch (hdr.xxc[12]) {
 
 				case 0:	/* LAPB/X.25 */
 					file_encap = WTAP_ENCAP_LAPB;
@@ -440,13 +445,13 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 				case 2:	/* T1 PRI */
 				case 3:	/* BRI */
 					file_encap = WTAP_ENCAP_ISDN;
-					isdn_type = hdr.xxb[28];
+					isdn_type = hdr.xxc[12];
 					break;
 
 				default:
 					*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 					*err_info = g_strdup_printf("netxray: WAN HDLC capture subsubtype 0x%02x unknown or unsupported",
-					   hdr.xxb[28]);
+					   hdr.xxc[12]);
 					return -1;
 				}
 				break;
@@ -461,7 +466,7 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 			default:
 				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 				*err_info = g_strdup_printf("netxray: WAN capture subtype 0x%02x unknown or unsupported",
-				   hdr.xxb[20]);
+				   hdr.xxc[4]);
 				return -1;
 			}
 		} else
@@ -497,11 +502,15 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 * captures, for frames that have 0xff in hdr_2_x.xxx[2]
 		 * and hdr_2_x.xxx[3] in the per-packet header:
 		 *
-		 *	if, in the file header, hdr.xxb[13] is 0x34 and
-		 *	hdr.xxb[14] is 0x12, the frames have an FCS at
-		 *	the end;
+		 *	if, in the file header, hdr.realtick[1] is 0x34
+		 *	and hdr.realtick[2] is 0x12, the frames have an
+		 *	FCS at the end;
 		 *
 		 *	otherwise, they have 4 bytes of junk at the end.
+		 *
+		 * Yes, it's strange that you have to check the *middle*
+		 * of the time stamp field; you can't check for any
+		 * particular value of the time stamp field.
 		 *
 		 * For now, we assume that to be true for 802.11 captures
 		 * as well; it appears to be the case for at least one
@@ -515,9 +524,17 @@ int netxray_open(wtap *wth, int *err, gchar **err_info)
 		 *
 		 * XXX - is that actually a 2-byte little-endian 0x1234?
 		 * What does that field signify?
+		 *
+		 * XXX - is there some other field that *really* indicates
+		 * whether we have an FCS or not?  The check of the time
+		 * stamp is bizarre, as we're checking the middle.
+		 * Perhaps hdr.realtick[0] is 0x00, in which case time
+		 * stamp units in the range 1192960 through 1193215
+		 * correspond to captures with an FCS, but that's still
+		 * a bit bizarre.
 		 */
 		if (version_major == 2) {
-			if (hdr.xxb[13] == 0x34 && hdr.xxb[14] == 0x12)
+			if (hdr.realtick[1] == 0x34 && hdr.realtick[2] == 0x12)
 				wth->capture.netxray->fcs_valid = TRUE;
 		}
 		break;
@@ -1412,24 +1429,24 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
     switch (wdh->encap) {
 
     case WTAP_ENCAP_PPP_WITH_PHDR:
-	file_hdr.xxb[20] = CAPTYPE_PPP;
+	file_hdr.xxc[4] = CAPTYPE_PPP;
 	break;
 
     case WTAP_ENCAP_FRELAY_WITH_PHDR:
-	file_hdr.xxb[20] = CAPTYPE_FRELAY;
+	file_hdr.xxc[4] = CAPTYPE_FRELAY;
 	break;
 
     case WTAP_ENCAP_LAPB:
-	file_hdr.xxb[20] = CAPTYPE_HDLC;
-	file_hdr.xxb[28] = 0;
+	file_hdr.xxc[4] = CAPTYPE_HDLC;
+	file_hdr.xxc[12] = 0;
 	break;
 
     case WTAP_ENCAP_SDLC:
-	file_hdr.xxb[20] = CAPTYPE_SDLC;
+	file_hdr.xxc[4] = CAPTYPE_SDLC;
 	break;
 
     default:
-	file_hdr.xxb[20] = CAPTYPE_NDIS;
+	file_hdr.xxc[4] = CAPTYPE_NDIS;
 	break;
     }
 
