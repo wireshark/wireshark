@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.172 2004/05/14 17:29:21 ulfl Exp $
+ * $Id: packet-dcerpc.c,v 1.173 2004/05/15 00:48:46 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2887,7 +2887,6 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_response_in,
 				    tvb, 0, 0, value->rep_frame);
         PROTO_ITEM_SET_GENERATED(pi);
-        PROTO_ITEM_SET_LINK(pi);
 	    }
 
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
@@ -2984,7 +2983,6 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
 				    tvb, 0, 0, value->req_frame);
         PROTO_ITEM_SET_GENERATED(pi);
-        PROTO_ITEM_SET_LINK(pi);
 		ns.secs= pinfo->fd->abs_secs-value->req_time.secs;
 		ns.nsecs=pinfo->fd->abs_usecs*1000-value->req_time.nsecs;
 		if(ns.nsecs<0){
@@ -3098,7 +3096,6 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
 				    tvb, 0, 0, value->req_frame);
         PROTO_ITEM_SET_GENERATED(pi);
-        PROTO_ITEM_SET_LINK(pi);
 		ns.secs= pinfo->fd->abs_secs-value->req_time.secs;
 		ns.nsecs=pinfo->fd->abs_usecs*1000-value->req_time.nsecs;
 		if(ns.nsecs<0){
@@ -3890,7 +3887,6 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_response_in,
 			    tvb, 0, 0, value->rep_frame);
     PROTO_ITEM_SET_GENERATED(pi);
-    PROTO_ITEM_SET_LINK(pi);
     }
     dissect_dcerpc_dg_stub (tvb, offset, pinfo, dcerpc_tree, tree, hdr, di);
 }
@@ -3949,7 +3945,6 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	pi = proto_tree_add_uint(dcerpc_tree, hf_dcerpc_request_in,
 			    tvb, 0, 0, value->req_frame);
     PROTO_ITEM_SET_GENERATED(pi);
-    PROTO_ITEM_SET_LINK(pi);
 	ns.secs= pinfo->fd->abs_secs-value->req_time.secs;
 	ns.nsecs=pinfo->fd->abs_usecs*1000-value->req_time.nsecs;
 	if(ns.nsecs<0){
