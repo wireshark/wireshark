@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.42 2000/07/02 07:10:16 guy Exp $
+ * $Id: packet-snmp.c,v 1.43 2000/07/08 08:33:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1417,24 +1417,6 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		}
 		offset += length;
 		switch(msgsec) {
-		case SNMP_SEC_V1:
-		case SNMP_SEC_V2C:
-			ret = asn1_octet_string_decode (&asn1, 
-			    &secparm, &secparm_length, &length);
-			if (ret != ASN1_ERR_NOERROR) {
-				dissect_snmp_parse_error(pd, offset, fd, tree, 
-				    "Message Security Parameters", ret);
-				return;
-			}
-			if (snmp_tree) {
-				proto_tree_add_text(snmp_tree, NullTVB, offset,
-				    length, "Message Security Parameters: %.*s",
-				    secparm_length,
-				    SAFE_STRING(secparm));
-			}
-			g_free(secparm);
-			offset += length;
-			break;
 		case SNMP_SEC_USM:
 			start = asn1.pointer;
 			ret = asn1_header_decode (&asn1, &cls, &con, &tag,
