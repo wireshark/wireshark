@@ -3,7 +3,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.10 2001/01/16 23:02:20 guy Exp $
+ * $Id: packet-wsp.c,v 1.11 2001/01/16 23:10:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -782,198 +782,205 @@ add_header (proto_tree *tree, tvbuff_t *header_buff, tvbuff_t *value_buff)
 		headerType = headerType & 0x7F;
 		switch (headerType)
 		{
-			case 0x00:		/* Accept */
-				if (peek & 0x80)
-				{
-					proto_tree_add_uint (tree, hf_wsp_header_accept, header_buff, offset, headerLen, (peek & 0x7F));
-				}
-				else
-				{
-					proto_tree_add_string (tree, hf_wsp_header_accept_str,header_buff,offset,headerLen,tvb_get_ptr (value_buff, 0, valueLen));
-				}
-				break;
+		case 0x00:		/* Accept */
+			if (peek & 0x80)
+			{
+				proto_tree_add_uint (tree, hf_wsp_header_accept, header_buff, offset, headerLen, (peek & 0x7F));
+			}
+			else
+			{
+				proto_tree_add_string (tree, hf_wsp_header_accept_str,header_buff,offset,headerLen,tvb_get_ptr (value_buff, 0, valueLen));
+			}
+			break;
 
-			case 0x01:		/* Accept-Charset */
-				if (peek < 31)
-				{
-					/* Peek contains the number of octets to follow */
-					switch (peek)
-					{
-						case 1:
-							proto_tree_add_uint (tree, hf_wsp_header_accept_charset, header_buff, offset, headerLen, tvb_get_guint8 (value_buff, 1) );
-							break;
-						case 2:
-							proto_tree_add_uint (tree, hf_wsp_header_accept_charset, header_buff, offset, headerLen, tvb_get_ntohs (value_buff, 1) );
-							break;
-						case 4:
-							proto_tree_add_uint (tree, hf_wsp_header_accept_charset, header_buff, offset, headerLen, tvb_get_ntohl (value_buff, 1) );
-							break;
-						default:
-							fprintf (stderr, "dissect_wsp: accept-charset size %d NYI\n", peek);
-					}
-				}
-				else if (peek & 0x80)
-				{
-					proto_tree_add_uint (tree, hf_wsp_header_accept_charset, header_buff, offset, headerLen, (peek & 0x7F) );
-				}
-				else
-				{
-					fprintf (stderr, "dissect_wsp: Accept-Charset value %d (0x%02X) NYI\n", peek, peek);
-				}
-				break;
-
-			case 0x03:		/* Accept-Language */
-				proto_tree_add_uint (tree, hf_wsp_header_accept_language, header_buff, offset, headerLen, (peek & 0x7F));
-				break;
-
-			case 0x04:		/* Accept-Ranges */
-				if ((peek == 128) || (peek == 129))
-				{
-					proto_tree_add_uint (tree, hf_wsp_header_accept_ranges, header_buff, offset, headerLen, peek);
-				}
-				else
-				{
-					fprintf (stderr, "dissect_wsp: accept-ranges NYI\n");
-				}
-				
-				break;
-
-			case 0x05:		/* Age */
-				switch (valueLen)
+		case 0x01:		/* Accept-Charset */
+			if (peek < 31)
+			{
+				/* Peek contains the number of octets to follow */
+				switch (peek)
 				{
 					case 1:
-						proto_tree_add_uint (tree, hf_wsp_header_age, header_buff, offset, headerLen, tvb_get_guint8 (value_buff, 0));
+						proto_tree_add_uint (tree, hf_wsp_header_accept_charset, header_buff, offset, headerLen, tvb_get_guint8 (value_buff, 1) );
 						break;
 					case 2:
-						proto_tree_add_uint (tree, hf_wsp_header_age, header_buff, offset, headerLen, tvb_get_ntohs (value_buff, 0));
-						break;
-					case 3:
-						proto_tree_add_uint (tree, hf_wsp_header_age, header_buff, offset, headerLen, tvb_get_ntoh24 (value_buff, 0));
+						proto_tree_add_uint (tree, hf_wsp_header_accept_charset, header_buff, offset, headerLen, tvb_get_ntohs (value_buff, 1) );
 						break;
 					case 4:
-						proto_tree_add_uint (tree, hf_wsp_header_age, header_buff, offset, headerLen, tvb_get_ntohl (value_buff, 0));
+						proto_tree_add_uint (tree, hf_wsp_header_accept_charset, header_buff, offset, headerLen, tvb_get_ntohl (value_buff, 1) );
 						break;
-				};
-				break;
+					default:
+						fprintf (stderr, "dissect_wsp: accept-charset size %d NYI\n", peek);
+				}
+			}
+			else if (peek & 0x80)
+			{
+				proto_tree_add_uint (tree, hf_wsp_header_accept_charset, header_buff, offset, headerLen, (peek & 0x7F) );
+			}
+			else
+			{
+				fprintf (stderr, "dissect_wsp: Accept-Charset value %d (0x%02X) NYI\n", peek, peek);
+			}
+			break;
 
-			case 0x08:		/* Cache-Control */
-				if (peek & 0x80)
+		case 0x03:		/* Accept-Language */
+			proto_tree_add_uint (tree, hf_wsp_header_accept_language, header_buff, offset, headerLen, (peek & 0x7F));
+			break;
+
+		case 0x04:		/* Accept-Ranges */
+			if ((peek == 128) || (peek == 129))
+			{
+				proto_tree_add_uint (tree, hf_wsp_header_accept_ranges, header_buff, offset, headerLen, peek);
+			}
+			else
+			{
+				fprintf (stderr, "dissect_wsp: accept-ranges NYI\n");
+			}
+			
+			break;
+
+		case 0x05:		/* Age */
+			switch (valueLen)
+			{
+				case 1:
+					proto_tree_add_uint (tree, hf_wsp_header_age, header_buff, offset, headerLen, tvb_get_guint8 (value_buff, 0));
+					break;
+				case 2:
+					proto_tree_add_uint (tree, hf_wsp_header_age, header_buff, offset, headerLen, tvb_get_ntohs (value_buff, 0));
+					break;
+				case 3:
+					proto_tree_add_uint (tree, hf_wsp_header_age, header_buff, offset, headerLen, tvb_get_ntoh24 (value_buff, 0));
+					break;
+				case 4:
+					proto_tree_add_uint (tree, hf_wsp_header_age, header_buff, offset, headerLen, tvb_get_ntohl (value_buff, 0));
+					break;
+			};
+			break;
+
+		case 0x08:		/* Cache-Control */
+			if (peek & 0x80)
+			{
+				if (valueLen == 1)	/* Well-known value */
 				{
-					if (valueLen == 1)	/* Well-known value */
+					proto_tree_add_uint (tree, hf_wsp_header_cache_control, header_buff, offset, headerLen, peek);
+				}
+				else
+				{
+					if ((peek == 0x82) || (peek == 0x83) || (peek == 0x84))	/* Delta seconds value to follow */
 					{
-						proto_tree_add_uint (tree, hf_wsp_header_cache_control, header_buff, offset, headerLen, peek);
-					}
-					else
-					{
-						if ((peek == 0x82) || (peek == 0x83) || (peek == 0x84))	/* Delta seconds value to follow */
+						value = tvb_get_guint8 (value_buff, 1);
+						if (value & 0x80)
 						{
-							value = tvb_get_guint8 (value_buff, 1);
-							if (value & 0x80)
-							{
-								proto_tree_add_text (tree, header_buff, 0, headerLen, "Cache-Control: %s %d (0x%02X)",
-									match_strval ((int) peek, vals_cache_control), (value & 0x7F), peek);
-							}
-							else
-							{
-								fprintf (stderr, "dissect_wsp: Cache-Control integer value Delta seconds NYI\n");
-							}
-						}
-						else if ((peek == 0x80) || (peek == 0x87))	/* Fields to follow */
-						{
-							fprintf (stderr, "dissect_wsp: Cache-Control field values NYI\n");
+							proto_tree_add_text (tree,
+							    header_buff, 0,
+							    headerLen,
+							    "Cache-Control: %s %d (0x%02X)",
+							    val_to_str (peek,
+							        vals_cache_control,
+							        "Unknown (0x%02x)"),
+							        (value & 0x7F),
+							        peek);
 						}
 						else
 						{
-							fprintf (stderr, "dissect_wsp: Cache-Control cache extension NYI\n");
+							fprintf (stderr, "dissect_wsp: Cache-Control integer value Delta seconds NYI\n");
 						}
 					}
+					else if ((peek == 0x80) || (peek == 0x87))	/* Fields to follow */
+					{
+						fprintf (stderr, "dissect_wsp: Cache-Control field values NYI\n");
+					}
+					else
+					{
+						fprintf (stderr, "dissect_wsp: Cache-Control cache extension NYI\n");
+					}
 				}
-				else
-				{
-					fprintf (stderr, "dissect_wsp: Cache-Control cache extension NYI\n");
-				}
-				break;
+			}
+			else
+			{
+				fprintf (stderr, "dissect_wsp: Cache-Control cache extension NYI\n");
+			}
+			break;
 				
-			case 0x0D:		/* Content-Length */
-				if (peek & 0x80)
-				{
-					proto_tree_add_uint (tree, hf_wsp_header_content_length, header_buff, offset, headerLen, (peek & 0x7F));
-				}
-				else
-				{
-					fprintf (stderr, "dissect_wsp: Content-Length long-integer size NYI\n");
-				}
-				break;
+		case 0x0D:		/* Content-Length */
+			if (peek & 0x80)
+			{
+				proto_tree_add_uint (tree, hf_wsp_header_content_length, header_buff, offset, headerLen, (peek & 0x7F));
+			}
+			else
+			{
+				fprintf (stderr, "dissect_wsp: Content-Length long-integer size NYI\n");
+			}
+			break;
 				
-			case 0x12:		/* Date */
-				timeValue.tv_sec = tvb_get_ntohl (value_buff, 0);
-				ti = proto_tree_add_time (tree, hf_wsp_header_date, header_buff, offset, headerLen, &timeValue);
-				break;
+		case 0x12:		/* Date */
+			timeValue.tv_sec = tvb_get_ntohl (value_buff, 0);
+			ti = proto_tree_add_time (tree, hf_wsp_header_date, header_buff, offset, headerLen, &timeValue);
+			break;
 
-			case 0x13:		/* Etag */
-				ti = proto_tree_add_string (tree, hf_wsp_header_etag,header_buff,offset,headerLen,tvb_get_ptr (value_buff, 0, valueLen));
-				break;
+		case 0x13:		/* Etag */
+			ti = proto_tree_add_string (tree, hf_wsp_header_etag,header_buff,offset,headerLen,tvb_get_ptr (value_buff, 0, valueLen));
+			break;
 
-			case 0x14:		/* Expires */
-				switch (valueLen)
-				{
-					case 1:
-					case 2:
-						fprintf (stderr, "dissect_wsp: Expires value length %d NYI\n", valueLen);
-						break;
-					case 3:
-						timeValue.tv_sec = tvb_get_ntoh24 (value_buff, 0);
-						break;
-					case 4:
-						timeValue.tv_sec = tvb_get_ntohl (value_buff, 0);
-						break;
-				};
-				ti = proto_tree_add_time (tree, hf_wsp_header_expires, header_buff, offset, headerLen, &timeValue);
-				break;
-
-			case 0x17:		/* If-Modified-Since */
-				if (valueLen == 4)
-				{
+		case 0x14:		/* Expires */
+			switch (valueLen)
+			{
+				case 1:
+				case 2:
+					fprintf (stderr, "dissect_wsp: Expires value length %d NYI\n", valueLen);
+					break;
+				case 3:
+					timeValue.tv_sec = tvb_get_ntoh24 (value_buff, 0);
+					break;
+				case 4:
 					timeValue.tv_sec = tvb_get_ntohl (value_buff, 0);
-				}
-				else
-				{
-					timeValue.tv_sec = 0;
-				}
-				ti = proto_tree_add_time (tree, hf_wsp_header_if_modified_since, header_buff, offset, headerLen, &timeValue);
-				break;
-				
-			case 0x1C:		/* Location */
-				ti = proto_tree_add_string (tree, hf_wsp_header_location,header_buff,offset,headerLen,tvb_get_ptr (value_buff, 0, valueLen));
-				break;
+					break;
+			};
+			ti = proto_tree_add_time (tree, hf_wsp_header_expires, header_buff, offset, headerLen, &timeValue);
+			break;
 
-			case 0x1D:		/* Last-Modified */
+		case 0x17:		/* If-Modified-Since */
+			if (valueLen == 4)
+			{
 				timeValue.tv_sec = tvb_get_ntohl (value_buff, 0);
-				ti = proto_tree_add_time (tree, hf_wsp_header_last_modified, header_buff, offset, headerLen, &timeValue);
-				break;
+			}
+			else
+			{
+				timeValue.tv_sec = 0;
+			}
+			ti = proto_tree_add_time (tree, hf_wsp_header_if_modified_since, header_buff, offset, headerLen, &timeValue);
+			break;
 				
-			case 0x1F:		/* Pragma */
-				if (peek == 0x80)
-				{
-					proto_tree_add_text (tree, header_buff, 0, headerLen, "Pragma: No-cache");
-				}
-				else
-				{
-					proto_tree_add_text (tree, header_buff, 0, headerLen, "Unsupported Header (0x%02X)", (tvb_get_guint8 (header_buff, 0) & 0x7F));
-				}
-				break;
+		case 0x1C:		/* Location */
+			ti = proto_tree_add_string (tree, hf_wsp_header_location,header_buff,offset,headerLen,tvb_get_ptr (value_buff, 0, valueLen));
+			break;
+
+		case 0x1D:		/* Last-Modified */
+			timeValue.tv_sec = tvb_get_ntohl (value_buff, 0);
+			ti = proto_tree_add_time (tree, hf_wsp_header_last_modified, header_buff, offset, headerLen, &timeValue);
+			break;
 				
-			case 0x26:		/* Server */
-				ti = proto_tree_add_string (tree, hf_wsp_header_server,header_buff,offset,headerLen,tvb_get_ptr (value_buff, 0, valueLen));
-				break;
+		case 0x1F:		/* Pragma */
+			if (peek == 0x80)
+			{
+				proto_tree_add_text (tree, header_buff, 0, headerLen, "Pragma: No-cache");
+			}
+			else
+			{
+				proto_tree_add_text (tree, header_buff, 0, headerLen, "Unsupported Header (0x%02X)", (tvb_get_guint8 (header_buff, 0) & 0x7F));
+			}
+			break;
+				
+		case 0x26:		/* Server */
+			ti = proto_tree_add_string (tree, hf_wsp_header_server,header_buff,offset,headerLen,tvb_get_ptr (value_buff, 0, valueLen));
+			break;
 
-			case 0x29:		/* User-Agent */
-				ti = proto_tree_add_string (tree, hf_wsp_header_user_agent,header_buff,offset,headerLen,tvb_get_ptr (value_buff, 0, valueLen));
-				break;
+		case 0x29:		/* User-Agent */
+			ti = proto_tree_add_string (tree, hf_wsp_header_user_agent,header_buff,offset,headerLen,tvb_get_ptr (value_buff, 0, valueLen));
+			break;
 
-			default:
-				ti = proto_tree_add_text (tree, header_buff, 0, headerLen, "Unsupported Header (0x%02X)", (tvb_get_guint8 (header_buff, 0) & 0x7F));
-				break;
+		default:
+			ti = proto_tree_add_text (tree, header_buff, 0, headerLen, "Unsupported Header (0x%02X)", (tvb_get_guint8 (header_buff, 0) & 0x7F));
+			break;
 		}
 	}
 	else
