@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.61 2002/08/26 09:36:22 guy Exp $
+$Id: README.developer,v 1.62 2002/10/17 20:05:04 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -45,7 +45,12 @@ defined.  Also, don't assume you can use "%lld", "%llu", "%llx", or
 Don't use "uint", "ulong" or "ushort"; they aren't defined on all
 platforms.  If you want an "int-sized" unsigned quantity, use "uint"; if
 you want a 32-bit unsigned quantity, use "guint32"; and if you want a
-16-bit unsigned quantity, use "guint16". 
+16-bit unsigned quantity, use "guint16".
+
+Don't use "long" to mean "signed 32-bit integer", and don't use
+"unsigned long" to mean "unsigned 32-bit integer"; "long"s are 64 bits
+long on many platforms.  Use "gint32" for signed 32-bit integers and use
+"guint32" for unsigned 32-bit integers.
 
 Don't use a label without a statement following it.  For example,
 something such as
@@ -139,7 +144,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.61 2002/08/26 09:36:22 guy Exp $"
+The "$Id: README.developer,v 1.62 2002/10/17 20:05:04 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -149,7 +154,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.61 2002/08/26 09:36:22 guy Exp $
+ * $Id: README.developer,v 1.62 2002/10/17 20:05:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
