@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.34 2001/09/20 16:36:44 ashokn Exp $
+dnl $Id: acinclude.m4,v 1.35 2001/09/28 05:41:44 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -364,15 +364,14 @@ AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 		#
 		# Well, we at least have the zlib header file.
 		#
-		# Check for "gzgets()" in zlib, because we need it, but
+		# Check for "gzseek()" in zlib, because we need it, but
 		# some older versions of zlib don't have it.  It appears
 		# from the zlib ChangeLog that any released version of zlib
-		# with "gzgets()" should have the other routines we
-		# depend on, such as "gzseek()", "gztell()", and "zError()".
+		# with "gzseek()" should have the other routines we
+		# depend on, such as "gztell()" and "zError()".
 		#
-		AC_CHECK_LIB(z, gzgets,,enable_zlib=no)
+		AC_CHECK_LIB(z, gzseek,,enable_zlib=no)
 	fi
-
 ])
 
 #

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.29 2001/07/26 07:25:49 guy Exp $
+# $Id: configure.in,v 1.30 2001/09/28 05:41:45 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -95,7 +95,7 @@ CPPFLAGS="$CPPFLAGS -I/usr/local/include"
 
 #
 # Arrange that we search for libraries in "/usr/local/lib", as we'll
-# be testing whether zlib has gzgets, and we need to be able to find
+# be testing whether zlib has gzseek, and we need to be able to find
 # zlib even if it's in "/usr/local/lib".
 #
 # We do this after checking for GLib; see above.
