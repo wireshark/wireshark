@@ -47,7 +47,7 @@ Building Ethereal:
      dftest_DEPENDENCIES was already defined in condition TRUE, which
      implies condition HAVE_PLUGINS_TRUE
 
-   when I try to build Ethereal from CVS or a CVS snapshot?
+   when I try to build Ethereal from SVN or a SVN snapshot?
 
    4.3 The link fails with a number of "Output line too long." messages
    followed by linker errors. 
@@ -56,9 +56,6 @@ Building Ethereal:
 
    4.5 The build fails on Windows because of conflicts between winsock.h
    and winsock2.h. 
-
-   4.6 I'm trying to build Ethereal 0.10.0a on Windows; why is the the
-   build failing with an error saying it can't find "Makefile.nmake"?
 
 Using Ethereal:
 
@@ -215,7 +212,7 @@ General Questions
 
    Q 1.2: What protocols are currently supported?
 
-   A: There are currently 512 supported protocols and media, listed
+   A: There are currently 518 supported protocols and media, listed
    below. Descriptions can be found in the ethereal(1) man page.
 
             3GPP2 A11
@@ -367,10 +364,12 @@ cies
             Distance Vector Multicast Routing Protocol
             Distcc Distributed Compiler
             Distributed Checksum Clearinghouse Protocol
+            Distributed Network Protocol 3.0
             Domain Name Service
             Dynamic DNS Tools Protocol
             Echo
             Encapsulating Security Payload
+            Endpoint Name Resolution Protocol
             Enhanced Interior Gateway Routing Protocol
             EtherNet/IP (Industrial Protocol)
             Ethernet
@@ -409,6 +408,7 @@ cies
             Generic Security Service Application Program Interface
             Gnutella Protocol
             H225
+            H235-SECURITY-MESSAGES
             H245
             H4501
             HP Extended Local-Link Control
@@ -416,7 +416,6 @@ cies
             Hummingbird NFS Daemon
             HyperSCSI
             Hypertext Transfer Protocol
-            IAX2
             ICQ Protocol
             IEEE 802.11 Radiotap Capture header
             IEEE 802.11 wireless LAN
@@ -446,6 +445,7 @@ cies
             Intel ANS probe
             Intelligent Platform Management Interface
             Inter-Access-Point Protocol
+            Inter-Asterisk eXchange v2
             InterSwitch Message Protocol
             Interbase
             Internet Cache Protocol
@@ -589,6 +589,7 @@ cies
             PPP-over-Ethernet Session
             PPPMux Control Protocol
             Packed Encoding Rules (ASN.1 X.691)
+            PacketCable
             Point-to-Point Protocol
             Point-to-Point Tunnelling Protocol
             Portmap
@@ -659,6 +660,7 @@ cies
             Session Initiation Protocol
             Session Initiation Protocol (SIP as raw text)
             Short Message Peer to Peer
+            Signaling Compression
             Signalling Connection Control Part
             Signalling Connection Control Part Management
             Simple Mail Transfer Protocol
@@ -729,6 +731,7 @@ cies
             Zebra Protocol
             Zone Information Protocol
             eDonkey Protocol
+            giFT Internet File Transfer
             iSCSI
             iSNS
 
@@ -813,8 +816,8 @@ cies
    According to the book "Computer Networks" by Andrew Tannenbaum,
    Ethernet was named after the "luminiferous ether" which was once
    thought to carry electromagnetic radiation. Taking that into
-   consideration, Ethereal seemed like an appropriate name for an
-   Ethernet analyzer.
+   consideration, Ethereal seemed like an appropriate name for something
+   that started out as an Ethernet analyzer.
 
 Downloading Ethereal
 
@@ -881,7 +884,7 @@ Building Ethereal
      dftest_DEPENDENCIES was already defined in condition TRUE, which
      implies condition HAVE_PLUGINS_TRUE
 
-   when I try to build Ethereal from CVS or a CVS snapshot?
+   when I try to build Ethereal from SVN or a SVN snapshot?
 
    A: You probably have automake 1.5 installed on your machine (the
    command automake --version will report the version of automake on your
@@ -931,16 +934,6 @@ Building Ethereal
 
    Note that the installed version of the developer's pack should be the
    same version as the version of WinPcap you have installed.
-
-   Q 4.6: I'm trying to build Ethereal 0.10.0a on Windows; why is the the
-   build failing with an error saying it can't find "Makefile.nmake"?
-
-   A: There was a bug in the 0.10.0a distribution that caused
-   "tools\Makefile.nmake" not to be in the source code release. You can
-   download it with the URL
-   http://www.ethereal.com/cgi-bin/viewcvs.cgi/*checkout*/ethereal/tools/
-   Makefile.nmake?rev=1.5. Put it into "tools\Makefile.nmake" and try the
-   build again.
 
 Using Ethereal
 
@@ -1159,11 +1152,28 @@ Using Ethereal
 
    If the attempt to capture on it succeeds, the interface is somehow not
    being reported by the mechanism Ethereal uses to get a list of
-   interfaces; please report this to ethereal-dev@ethereal.com giving
-   full details of the problem, including
+   interfaces. Try listing the interfaces with WinDump; see the WinDump
+   Web site or the local mirror of the WinDump Web site for information
+   on using WinDump.
+
+   You would run WinDump with the -D flag; if it lists the interface,
+   please report this to ethereal-dev@ethereal.com giving full details of
+   the problem, including
      * the operating system you're using, and the version of that
        operating system;
-     * the type of network device you're using.
+     * the type of network device you're using;
+     * the output of WinDump.
+
+   If WinDump does not list the interface, this is almost certainly a
+   problem with one or more of:
+     * the operating system you're using;
+     * the device driver for the interface you're using;
+     * the WinPcap library and/or the WinPcap device driver;
+
+   so first check the WinPcap FAQ, the local mirror of that FAQ, or the
+   Wiretapped.net mirror of that FAQ, to see if your problem is mentioned
+   there. If not, then see the WinPcap support page (or the local mirror
+   of that page) - check the "Submitting bugs" section.
 
    If you are having trouble capturing on a particular network interface,
    first try capturing on that device with WinDump; see the WinDump Web
@@ -1476,22 +1486,21 @@ Using Ethereal
    error "** ERROR **: file print.c: line 691 (print_line): should not be
    reached".
 
-   A: This is a bug in Ethereal 0.10.0a, which is fixed in the Ethereal
-   CVS tree and will thus be fixed in the next release. To work around
-   the bug, don't use "-x" unless you're also using "-V"; note that "-V"
-   produces a full dissection of each packet, so you might not want to
-   use it.
+   A: This is a bug in Ethereal 0.10.0a, which is fixed in 0.10.1 and
+   later releases. To work around the bug, don't use "-x" unless you're
+   also using "-V"; note that "-V" produces a full dissection of each
+   packet, so you might not want to use it.
 
-   To get a fixed version, either build the current CVS version from
-   anonymous CVS or a nightly CVS snapshot, or apply to tethereal.c in
+   To get a fixed version, either build the current SVN version from
+   anonymous SVN or a nightly SVN snapshot, or apply to tethereal.c in
    the 0.10.0a source tarball the changes between the broken and the
    fixed versions, which you can download with the URL
    http://www.ethereal.com/cgi-bin/viewcvs.cgi/ethereal/tethereal.c.diff?
    r2=1.211&r1=1.210&diff_format=u and (re-)build from source. It might
-   be easier to get the CVS version than to get the patch and apply it to
+   be easier to get the SVN version than to get the patch and apply it to
    the 0.10.0a source tarball, but it's probably easier to build from the
-   source tarball than from the CVS version, as you'll need to have more
-   tools and make more steps to generate from the CVS version some files
+   source tarball than from the SVN version, as you'll need to have more
+   tools and make more steps to generate from the SVN version some files
    that are bundled with the source tarball.
 
    Note that to build from the 0.10.0a source tarball on Windows with
@@ -1810,7 +1819,7 @@ echo "Mode: y">/proc/driver/aironet/ethN/Config
 echo "Mode: ess">/proc/driver/aironet/ethN/Config
 
    On Linux with the driver in the 2.4.20 or later kernel, or with the
-   CVS drivers from the airo-linux SourceForge site, you will have to
+   SVN drivers from the airo-linux SourceForge site, you will have to
    capture on the wifiN interface if your Aironet card is ethN, after
    running the commands listed above.
 
@@ -2099,4 +2108,4 @@ echo "Mode: ess">/proc/driver/aironet/ethN/Config
    For corrections/additions/suggestions for this web page (and not
    Ethereal support questions), please send email to
    ethereal-web[AT]ethereal.com .
-   Last modified: Thu, May 13 2004.
+   Last modified: Fri, July 16 2004.
