@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.41 2004/06/01 20:28:04 ulfl Exp $
+ * $Id: endpoint_talkers_table.c,v 1.42 2004/06/01 20:37:09 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1068,7 +1068,6 @@ init_ett_table_page(endpoints_table *talkers, GtkWidget *vbox, gboolean hide_por
 	GtkWidget *label;
 	char title[256];
 	char *default_titles[] = { "Address A", "Port A", "Address B", "Port B", "Packets", "Bytes", "-> Packets", "-> Bytes", "<- Packets", "<- Bytes" };
-	GtkWidget *scrolled_window;
 
 
 	g_snprintf(title, 255, "%s Conversations", table_name);
