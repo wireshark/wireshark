@@ -20,7 +20,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.12 2002/01/10 04:44:34 gram Exp $
+$Id: ncp2222.py,v 1.13 2002/01/11 14:33:04 gram Exp $
 
 Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
 
@@ -1433,23 +1433,31 @@ proto_register_ncp2222(void)
 
 	print """
 	};
-
-	static gint *ett[] = {
 	"""
 
-	for ett in ett_list:
-		print "\t\t&%s," % (ett,)
+	# ETT's ?
+	if ett_list:
+		print """
+	static gint *ett[] = {
+		"""
+
+		for ett in ett_list:
+			print "\t\t&%s," % (ett,)
+
+		print """
+	};
+		"""
 
 	print """
-	};
-
 	proto_register_field_array(proto_ncp, hf, array_length(hf));
-	proto_register_subtree_array(ett, array_length(ett));
-}
 	"""
 
+	if ett_list:
+		print """
+	proto_register_subtree_array(ett, array_length(ett));
+	"""
 
-	print ""
+	print "}\n"
 	print '#include "packet-ncp2222.inc"'
 
 
