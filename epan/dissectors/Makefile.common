@@ -557,6 +557,7 @@ DISSECTOR_SRC =	\
 	packet-vines.c	\
 	packet-vj.c	\
 	packet-vlan.c	\
+	packet-vnc.c	\
 	packet-vrrp.c	\
 	packet-vtp.c	\
 	packet-wap.c	\
