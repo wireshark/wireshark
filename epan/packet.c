@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.102 2004/02/24 09:40:38 sahlberg Exp $
+ * $Id: packet.c,v 1.103 2004/02/28 20:59:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1484,17 +1484,37 @@ register_heur_dissector_list(const char *name, heur_dissector_list_t *sub_dissec
  */
 static GHashTable *registered_dissectors = NULL;
 
-/* Get the short name of the protocol for a dissector handle. */
+/* Get the short name of the protocol for a dissector handle, if it has
+   a protocol. */
 char *
 dissector_handle_get_short_name(dissector_handle_t handle)
 {
+	if (handle->protocol == NULL) {
+		/*
+		 * No protocol (see, for example, the handle for
+		 * dissecting the set of protocols where the first
+		 * octet of the payload is an OSI network layer protocol
+		 * ID).
+		 */
+		return NULL;
+	}
 	return proto_get_protocol_short_name(handle->protocol);
 }
 
-/* Get the index of the protocol for a dissector handle. */
+/* Get the index of the protocol for a dissector handle, if it has
+   a protocol. */
 int
 dissector_handle_get_protocol_index(dissector_handle_t handle)
 {
+	if (handle->protocol == NULL) {
+		/*
+		 * No protocol (see, for example, the handle for
+		 * dissecting the set of protocols where the first
+		 * octet of the payload is an OSI network layer protocol
+		 * ID).
+		 */
+		return -1;
+	}
 	return proto_get_id(handle->protocol);
 }
 
