@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-nbipx.c,v 1.9 1999/07/29 05:46:58 gram Exp $
+ * $Id: packet-nbipx.c,v 1.10 1999/08/25 01:36:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,11 +51,14 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
  * NetBIOS over IPX packets. I have had to decode the protocol myself,
  * so there are holes and perhaps errors in this code. (gram)
  */
-static char
-*packet_type[] = {
-		"",
-		"Name Query"
+static char *packet_type[] = {
+	"",
+	"Name Query",
+	"SMB",
+	"NetBIOS Datagram"
 };
+
+#define	N_PACKET_TYPES	(sizeof packet_type / sizeof packet_type[0])
 
 struct nbipx_header {
 	/* Netware & NT NetBIOS over IPX */
@@ -126,26 +129,32 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 	if (check_col(fd, COL_INFO)) {
-			switch (header.packet_type) {
-				case 1:
-					col_add_fstr(fd, COL_INFO, "Name Query for %s", header.name);
-					break;
+		switch (header.packet_type) {
+		case 1:
+			col_add_fstr(fd, COL_INFO, "Name Query for %s", header.name);
+			break;
 
-				case 2:
-					col_add_fstr(fd, COL_INFO, "SMB over NBIPX");
-					break;
+		case 2:
+			/* Session? */
+			col_add_fstr(fd, COL_INFO, "SMB over NBIPX");
+			break;
+
+		case 3:
+			/* Datagram */
+			col_add_fstr(fd, COL_INFO, "NetBIOS datagram over NBIPX");
+			break;
 				
-
-				default:
-					col_add_str(fd, COL_INFO, "NetBIOS over IPX");
-			}
+		default:
+			col_add_str(fd, COL_INFO, "NetBIOS over IPX");
+			break;
+		}
 	}
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nbipx, offset, 68, NULL);
 		nbipx_tree = proto_item_add_subtree(ti, ETT_NBIPX);
 
-		if (header.packet_type <= 1) {
+		if (header.packet_type < N_PACKET_TYPES) {
 			proto_tree_add_text(nbipx_tree, offset+33, 1,
 					"Packet Type: %s (%02X)", packet_type[header.packet_type],
 					header.packet_type);
@@ -184,6 +193,7 @@ nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	if (nbipx == NETBIOS_NWLINK) {
 		switch (header.packet_type) {
 			case 2:
+			case 3:
 				dissect_smb(pd, offset + 68, fd, tree, max_data - 68);
 				break;
 				
