@@ -5,7 +5,7 @@
  *
  * Copyright 2001, Heinz Prantner <heinz.prantner[AT]radisys.com>
  *
- * $Id: packet-m2tp.c,v 1.5 2002/12/02 23:43:26 guy Exp $
+ * $Id: packet-m2tp.c,v 1.6 2003/01/14 23:53:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,9 +36,9 @@
 #include <glib.h>
 
 #include <epan/packet.h>
+#include "sctpppids.h"
 
 #define SCTP_PORT_M2TP        9908  /* unassigned port number (not assigned by IANA) */
-#define M2TP_PAYLOAD_PROTO_ID 99    /* s-link */
 
 #define VERSION_LENGTH         1
 #define RESERVED_LENGTH        1
@@ -678,6 +678,6 @@ proto_reg_handoff_m2tp(void)
   mtp2_handle   = find_dissector("mtp2");
   mtp2_proto_id = proto_get_id_by_filter_name("mtp2");
   m2tp_handle   = create_dissector_handle(dissect_m2tp, proto_m2tp);
-  dissector_add("sctp.ppi",  M2TP_PAYLOAD_PROTO_ID, m2tp_handle);
+  dissector_add("sctp.ppi",  M2TP_PAYLOAD_PROTOCOL_ID, m2tp_handle);
   dissector_add("sctp.port", SCTP_PORT_M2TP, m2tp_handle);
 }

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.537 2003/01/14 01:17:44 guy Exp $
+# $Id: Makefile.am,v 1.538 2003/01/14 23:53:32 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -426,6 +426,7 @@ plugin_src = \
 	plugins/giop/packet-cosnaming.c \
 	plugins/giop/packet-coseventcomm.c \
 	plugins/gryphon/packet-gryphon.c \
+	plugins/megaco/packet-megaco.c \
 	plugins/mgcp/packet-mgcp.c \
 	plugins/pcli/packet-pcli.c
 
@@ -456,6 +457,7 @@ plugin_static_ldadd = \
 	plugins/giop/packet-cosnaming-static.o \
 	plugins/giop/packet-coseventcomm-static.o \
 	plugins/gryphon/packet-gryphon-static.o \
+	plugins/megaco/packet-megaco-static.o \
 	plugins/mgcp/packet-mgcp-static.o \
 	plugins/pcli/packet-pcli-static.o
 
@@ -464,6 +466,7 @@ plugin_libs = \
 	plugins/giop/cosnaming.la \
 	plugins/giop/coseventcomm.la \
 	plugins/gryphon/gryphon.la \
+	plugins/megaco/megaco.la \
 	plugins/mgcp/mgcp.la \
 	plugins/pcli/pcli.la
 
@@ -473,6 +476,7 @@ plugin_ldadd = \
 	"-dlopen" plugins/giop/cosnaming.la \
 	"-dlopen" plugins/giop/coseventcomm.la \
 	"-dlopen" plugins/gryphon/gryphon.la \
+	"-dlopen" plugins/megaco/megaco.la \
 	"-dlopen" plugins/mgcp/mgcp.la \
 	"-dlopen" plugins/pcli/pcli.la
 else
@@ -679,6 +683,7 @@ ETHEREAL_COMMON_SRC = \
 	ringbuffer.c   \
 	ringbuffer.h   \
 	rpc_defrag.h   \
+	sctpppids.h    \
 	smb.h          \
 	tap.c		\
 	tap.h		\

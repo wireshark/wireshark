@@ -9,7 +9,7 @@
  *
  * Copyright 2000, 2001, 2002, Michael Tuexen <Michael.Tuexen [AT] siemens.com>
  *
- * $Id: packet-m3ua.c,v 1.22 2002/12/02 23:43:27 guy Exp $
+ * $Id: packet-m3ua.c,v 1.23 2003/01/14 23:53:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,9 +45,9 @@
 
 #include <epan/packet.h>
 #include "prefs.h"
+#include "sctpppids.h"
 
 #define SCTP_PORT_M3UA         2905
-#define M3UA_PAYLOAD_PROTO_ID  3
 
 #define VERSION_LENGTH         1
 #define RESERVED_LENGTH        1
@@ -1885,6 +1885,6 @@ proto_reg_handoff_m3ua(void)
   mtp3_handle = find_dissector("mtp3");
   data_handle = find_dissector("data");
   m3ua_handle = create_dissector_handle(dissect_m3ua, proto_m3ua);
-  dissector_add("sctp.ppi",  M3UA_PAYLOAD_PROTO_ID, m3ua_handle);
+  dissector_add("sctp.ppi",  M3UA_PAYLOAD_PROTOCOL_ID, m3ua_handle);
   dissector_add("sctp.port", SCTP_PORT_M3UA, m3ua_handle);
 }

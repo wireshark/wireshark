@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Michael Tuexen <Michael.Tuexen [AT] siemens.com>
  *
- * $Id: packet-m2ua.c,v 1.7 2002/12/03 09:31:48 tuexen Exp $
+ * $Id: packet-m2ua.c,v 1.8 2003/01/14 23:53:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,9 +34,9 @@
 #endif
 
 #include <epan/packet.h>
+#include "sctpppids.h"
 
 #define SCTP_PORT_M2UA                  2904
-#define M2UA_PAYLOAD_PROTO_ID           2
 #define NETWORK_BYTE_ORDER              FALSE
 
 
@@ -1109,6 +1109,6 @@ proto_reg_handoff_m2ua(void)
 
   mtp3_handle = find_dissector("mtp3");
   m2ua_handle = create_dissector_handle(dissect_m2ua, proto_m2ua);
-  dissector_add("sctp.ppi",  M2UA_PAYLOAD_PROTO_ID, m2ua_handle);
+  dissector_add("sctp.ppi",  M2UA_PAYLOAD_PROTOCOL_ID, m2ua_handle);
   dissector_add("sctp.port", SCTP_PORT_M2UA, m2ua_handle);
 }

@@ -8,7 +8,7 @@
  *
  * Copyright 2002, Michael Tuexen <Michael.Tuexen[AT]siemens.com>
  *
- * $Id: packet-iua.c,v 1.18 2002/12/02 20:04:44 guy Exp $
+ * $Id: packet-iua.c,v 1.19 2003/01/14 23:53:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@
 
 #include <epan/packet.h>
 #include "prefs.h"
+#include "sctpppids.h"
 
 #define NETWORK_BYTE_ORDER          FALSE
 
@@ -896,7 +897,6 @@ proto_register_iua(void)
 };
 
 #define SCTP_PORT_IUA          9900
-#define IUA_PAYLOAD_PROTO_ID   1
 
 void
 proto_reg_handoff_iua(void)
@@ -906,6 +906,6 @@ proto_reg_handoff_iua(void)
   iua_handle  = create_dissector_handle(dissect_iua, proto_iua);
   q931_handle = find_dissector("q931");
 
-  dissector_add("sctp.port", SCTP_PORT_IUA,        iua_handle);
-  dissector_add("sctp.ppi",  IUA_PAYLOAD_PROTO_ID, iua_handle);
+  dissector_add("sctp.port", SCTP_PORT_IUA,           iua_handle);
+  dissector_add("sctp.ppi",  IUA_PAYLOAD_PROTOCOL_ID, iua_handle);
 }

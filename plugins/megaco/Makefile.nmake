@@ -1,0 +1,21 @@
+#
+# $Id: Makefile.nmake,v 1.1 2003/01/14 23:53:40 guy Exp $
+#
+
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap \
+	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
+	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+
+OBJECTS=packet-megaco.obj 
+
+megaco.dll megaco.exp megaco.lib : packet-megaco.obj ..\plugin_api.obj
+	link -dll /out:megaco.dll packet-megaco.obj ..\plugin_api.obj \
+	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
+
+clean:
+	rm -f $(OBJECTS) megaco.dll megaco.exp megaco.lib $(PDB_FILE)

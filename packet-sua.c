@@ -6,7 +6,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen [AT] siemens.com>
  *
- * $Id: packet-sua.c,v 1.11 2002/12/02 23:43:29 guy Exp $
+ * $Id: packet-sua.c,v 1.12 2003/01/14 23:53:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,9 +42,9 @@
 
 #include <epan/packet.h>
 #include "prefs.h"
+#include "sctpppids.h"
 
 #define SCTP_PORT_SUA          14001
-#define SUA_PAYLOAD_PROTO_ID   4
 
 #define RESERVED_1_LENGTH      1
 #define RESERVED_2_LENGTH      2
@@ -2750,6 +2750,6 @@ proto_reg_handoff_sua(void)
   dissector_handle_t sua_handle;
 
   sua_handle = create_dissector_handle(dissect_sua, proto_sua);
-  dissector_add("sctp.ppi",  SUA_PAYLOAD_PROTO_ID, sua_handle);
-  dissector_add("sctp.port", SCTP_PORT_SUA,        sua_handle);
+  dissector_add("sctp.ppi",  SUA_PAYLOAD_PROTOCOL_ID, sua_handle);
+  dissector_add("sctp.port", SCTP_PORT_SUA,           sua_handle);
 }

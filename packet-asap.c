@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-asap.c,v 1.6 2002/11/28 03:57:49 guy Exp $
+ * $Id: packet-asap.c,v 1.7 2003/01/14 23:53:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,8 +34,7 @@
 #endif
 
 #include <epan/packet.h>
-
-#define ASAP_PAYLOAD_PROTO_ID 4209948113u /* = 0xFAEEB5D1 */
+#include "sctpppids.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_asap = -1;
@@ -844,5 +843,7 @@ proto_reg_handoff_asap(void)
   dissector_handle_t asap_handle;
 
   asap_handle = create_dissector_handle(dissect_asap, proto_asap);
-  dissector_add("sctp.ppi",  ASAP_PAYLOAD_PROTO_ID, asap_handle);
+  dissector_add("sctp.ppi",  ASAP_PAYLOAD_PROTOCOL_ID, asap_handle);
+  /* XXX - is 0xFAEEB5D1 still being used? */
+  dissector_add("sctp.ppi",  ASAP_OLD_PAYLOAD_PROTOCOL_ID, asap_handle);
 }

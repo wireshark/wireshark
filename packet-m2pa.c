@@ -7,7 +7,7 @@
  * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>,
  * updated by Michael Tuexen <michael.tuexen[AT]siemens.com>
  *
- * $Id: packet-m2pa.c,v 1.15 2002/11/09 19:00:09 tuexen Exp $
+ * $Id: packet-m2pa.c,v 1.16 2003/01/14 23:53:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,10 +37,10 @@
 
 #include <epan/packet.h>
 #include "prefs.h"
+#include "sctpppids.h"
 
 #define NETWORK_BYTE_ORDER          FALSE
 #define SCTP_PORT_M2PA              3565
-#define M2PA_PAYLOAD_PROTOCOL_ID    5
 
 static int global_sctp_port       = SCTP_PORT_M2PA;
 static int sctp_port              = 0;

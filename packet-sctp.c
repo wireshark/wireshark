@@ -11,7 +11,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.47 2003/01/14 22:54:18 guy Exp $
+ * $Id: packet-sctp.c,v 1.48 2003/01/14 23:53:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,7 @@
 #include "prefs.h"
 #include <epan/packet.h>
 #include "ipproto.h"
+#include "sctpppids.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_sctp = -1;
@@ -302,21 +303,6 @@ static const value_string sctp_cause_code_values[] = {
   { ABORT_DUE_TO_ILLEGAL_ASCONF,                "Association Aborted due to illegal ASCONF-ACK" },
   { 0,                                          NULL } };
 
-#define NOT_SPECIFIED_PROTOCOL_ID  0
-#define IUA_PAYLOAD_PROTOCOL_ID    1
-#define M2UA_PAYLOAD_PROTOCOL_ID   2
-#define M3UA_PAYLOAD_PROTOCOL_ID   3
-#define SUA_PAYLOAD_PROTOCOL_ID    4
-#define M2PA_PAYLOAD_PROTOCOL_ID   5
-#define V5UA_PAYLOAD_PROTOCOL_ID   6
-#define H248_PAYLOAD_PROTOCOL_ID   7
-#define BICC_PAYLOAD_PROTOCOL_ID   8
-#define TALI_PAYLOAD_PROTOCOL_ID   9
-#define DUA_PAYLOAD_PROTOCOL_ID   10
-#define ASAP_PAYLOAD_PROTOCOL_ID  11
-#define ENRP_PAYLOAD_PROTOCOL_ID  12
-#define H323_PAYLOAD_PROTOCOL_ID  13
-
 static const value_string sctp_payload_proto_id_values[] = {
   { NOT_SPECIFIED_PROTOCOL_ID,           "not specified" },
   { IUA_PAYLOAD_PROTOCOL_ID,             "IUA" },
@@ -332,6 +318,7 @@ static const value_string sctp_payload_proto_id_values[] = {
   { ASAP_PAYLOAD_PROTOCOL_ID,            "ASAP" },
   { ENRP_PAYLOAD_PROTOCOL_ID,            "ENRP" },
   { H323_PAYLOAD_PROTOCOL_ID,            "H.323" },
+  { ASAP_PAYLOAD_PROTOCOL_ID,            "ASAP" },
   { 0,                                   NULL } };
 
 /* The structure of the common header is described by the following constants */
