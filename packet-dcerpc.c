@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.112 2003/03/10 02:06:31 jmayer Exp $
+ * $Id: packet-dcerpc.c,v 1.113 2003/03/17 09:42:12 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1083,8 +1083,11 @@ int
 dissect_ndr_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 			proto_tree *tree, char *drep)
 {
+    dcerpc_info *di;
+    di=pinfo->private_data;
+
     return dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
-				sizeof(guint16), hf_dcerpc_array_buffer,
+				sizeof(guint16), di->hf_index,
 				FALSE, NULL);
 }
 
