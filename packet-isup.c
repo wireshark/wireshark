@@ -8,7 +8,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.43 2004/01/13 22:58:04 guy Exp $
+ * $Id: packet-isup.c,v 1.44 2004/01/13 23:03:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -448,7 +448,7 @@ static const value_string isup_parameter_type_value[] = {
 #define TRANSMISSION_MEDIUM_USED_LENGTH        1
 #define UID_ACTION_IND_LENGTH                  1
 #define UID_CAPABILITY_IND_LENGTH              1
-#define USER_TELESERVICE_INFO_LENGTH           3
+#define USER_TELESERVICE_INFO_LENGTH           2
 #define USER_TO_USER_IND_LENGTH                1
 #define RANGE_LENGTH                           1
 
@@ -3699,8 +3699,8 @@ dissect_isup_service_activation_parameter(tvbuff_t *parameter_tvb, proto_tree *p
  */
 static void
 dissect_isup_user_teleservice_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
-{
-  proto_tree_add_text(parameter_tree, parameter_tvb, 0, USER_TELESERVICE_INFO_LENGTH, "User teleservice information (-> Q.931)");
+{ guint length = tvb_length(parameter_tvb);
+  proto_tree_add_text(parameter_tree, parameter_tvb, 0, length, "User teleservice information (-> Q.931)");
   proto_item_set_text(parameter_item, "User teleservice information, see Q.931");
 }
 /* ------------------------------------------------------------------
