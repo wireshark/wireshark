@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.9 2001/02/01 22:33:58 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.10 2001/02/01 22:40:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,6 +90,7 @@ typedef struct protocol_data {
 
 static void show_relations(GtkWidget *relation_label, GtkWidget *relation_list,
     GtkWidget *range_label, GtkWidget *range_entry, ftenum_t ftype);
+static gboolean relation_is_presence_test(const char *string);
 static void add_relation_list(GtkWidget *relation_list, char *relation);
 static void build_boolean_values(GtkWidget *value_list_scrolled_win,
     GtkWidget *value_list, const true_false_string *values);
@@ -289,6 +290,17 @@ show_relations(GtkWidget *relation_label, GtkWidget *relation_list,
 	}
 }
 
+/*
+ * Given a string that represents a test to be made on a field, returns
+ * TRUE if it tests for the field's presence, FALSE otherwise.
+ */
+static gboolean
+relation_is_presence_test(const char *string)
+{
+	return (strcmp(string, "is present") == 0
+	    || strcmp(string, "has this protocol") == 0);
+}
+
 static void
 add_relation_list(GtkWidget *relation_list, char *relation)
 {
@@ -335,7 +347,7 @@ relation_list_sel_cb(GtkList *relation_list, GtkWidget *child,
 	 * Update the display of various items for the value, as appropriate.
 	 */
 	display_value_fields(hfinfo,
-	    (strcmp(item_str, "is present") != 0),
+	    !relation_is_presence_test(item_str),
 	    value_label, value_entry, value_list, value_list_scrolled_win);
 }
 
@@ -738,7 +750,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
 		gtk_editable_insert_text(GTK_EDITABLE(filter_te), "]", 1, &pos);
 		g_free(range_str);
 	}
-	if (item_str != NULL && strcmp(item_str, "is present") != 0) {
+	if (item_str != NULL && !relation_is_presence_test(item_str)) {
 		gtk_editable_insert_text(GTK_EDITABLE(filter_te), " ", 1, &pos);
 		gtk_editable_insert_text(GTK_EDITABLE(filter_te), item_str,
 		    strlen(item_str), &pos);
