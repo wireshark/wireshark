@@ -2,7 +2,7 @@
  * Routines for display filter dialog used by gui taps
  * Copyright 2003 Lars Roland
  *
- * $Id: tap_dfilter_dlg.c,v 1.1 2003/12/17 22:13:08 guy Exp $
+ * $Id: tap_dfilter_dlg.c,v 1.2 2003/12/19 23:41:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,8 @@
 #include "dlg_utils.h"
 #include "../file.h"
 #include "../globals.h"
-
+#include "filter_prefs.h"
+#include "../tap_dfilter_dlg.h"
 #include "tap_dfilter_dlg.h"
 
 extern GtkWidget *main_display_filter_widget;
@@ -50,12 +51,28 @@ typedef struct _tap_dfilter_dlg_list_item {
 	GtkWidget *dlg;
 	GtkWidget *filter_entry;
 	tap_dfilter_dlg cont;
+	construct_args_t args;
 	struct _tap_dfilter_dlg_list_item *next;
 } tap_dfilter_dlg_list_item;
 
-tap_dfilter_dlg_list_item *start_dlg_list=NULL;
-tap_dfilter_dlg_list_item *end_dlg_list=NULL;
-tap_dfilter_dlg_list_item *current_dlg = NULL;
+static tap_dfilter_dlg_list_item *start_dlg_list=NULL;
+static tap_dfilter_dlg_list_item *end_dlg_list=NULL;
+static tap_dfilter_dlg_list_item *current_dlg = NULL;
+
+void tap_dfilter_dlg_update (void)
+{
+	tap_dfilter_dlg_list_item *dialog = start_dlg_list;
+	char *title;
+	
+	while(dialog != NULL) {
+		if(dialog->dlg) {
+			title = g_strdup_printf("Ethereal: %s: %s", dialog->cont.win_title , cf_get_display_name(&cfile));
+			gtk_window_set_title(GTK_WINDOW(dialog->dlg), title);
+			g_free(title);
+		}
+		dialog = dialog->next;		
+	}
+}
 
 static void
 dlg_destroy_cb(GtkWidget *item _U_, gpointer dialog_data)
@@ -94,7 +111,7 @@ gtk_tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	const char *filter;
 	char *title;
 	GtkWidget *dlg_box;
-	GtkWidget *filter_box, *filter_label;
+	GtkWidget *filter_box, *filter_bt;
 	GtkWidget *bbox, *start_button, *cancel_button;
 	
 	tap_dfilter_dlg *dlg_data = (tap_dfilter_dlg *) data;	
@@ -118,6 +135,9 @@ gtk_tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 		end_dlg_list->cont.win_title = dlg_data->win_title;
 		end_dlg_list->cont.init_string = dlg_data->init_string;
 		end_dlg_list->cont.tap_init_cb = dlg_data->tap_init_cb;
+		end_dlg_list->args.title = g_strdup_printf("%s Filter", dlg_data->win_title);
+		end_dlg_list->args.wants_apply_button = TRUE;
+		end_dlg_list->args.activate_on_ok = FALSE;
 		end_dlg_list->next = NULL;
 		dlg_data->index = end_dlg_list->cont.index;
 		current_dlg = end_dlg_list;
@@ -154,14 +174,20 @@ gtk_tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	/* Filter box */
 	filter_box=gtk_hbox_new(FALSE, 3);
 
-	/* Filter label */
-	filter_label=gtk_label_new("Filter:");
-	gtk_box_pack_start(GTK_BOX(filter_box), filter_label, FALSE, FALSE, 0);
-	gtk_widget_show(filter_label);
+	/* Filter button */
+	filter_bt = gtk_button_new_with_label("Filter:");
+	SIGNAL_CONNECT(filter_bt, "clicked", display_filter_construct_cb, &(current_dlg->args));
+	gtk_box_pack_start(GTK_BOX(filter_box), filter_bt, FALSE, TRUE, 0);
+	gtk_widget_show(filter_bt);
 
 	/* Filter entry */
 	current_dlg->filter_entry=gtk_entry_new();
-	WIDGET_SET_SIZE(current_dlg->filter_entry, 300, -2);
+	WIDGET_SET_SIZE(current_dlg->filter_entry, 300, 25);
+	
+	/* filter prefs dialog */
+	OBJECT_SET_DATA(filter_bt, E_FILT_TE_PTR_KEY, current_dlg->filter_entry);
+	/* filter prefs dialog */
+	
 	gtk_box_pack_start(GTK_BOX(filter_box), current_dlg->filter_entry, TRUE, TRUE, 0);
 	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	if(filter){

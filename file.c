@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.330 2003/12/13 18:01:29 ulfl Exp $
+ * $Id: file.c,v 1.331 2003/12/19 23:39:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,6 +79,7 @@
 #include "globals.h"
 #include <epan/epan_dissect.h>
 #include "tap.h"
+#include "tap_dfilter_dlg.h"
 #include "packet-data.h"
 
 #ifdef HAVE_LIBPCAP
@@ -347,6 +348,7 @@ cf_read(capture_file *cf, int *err)
 
   cul_bytes=0;
   reset_tap_listeners();
+  tap_dfilter_dlg_update();
   name_ptr = get_basename(cf->filename);
 
   msg_len = strlen(name_ptr) + strlen(load_fmt) + 2;

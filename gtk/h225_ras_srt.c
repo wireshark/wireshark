@@ -2,7 +2,7 @@
  * h225 RAS Service Response Time statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: h225_ras_srt.c,v 1.4 2003/12/17 22:13:07 guy Exp $
+ * $Id: h225_ras_srt.c,v 1.5 2003/12/19 23:41:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,7 @@
 #include "dlg_utils.h"
 #include "../file.h"
 #include "../globals.h"
+#include "../tap_dfilter_dlg.h"
 #include "tap_dfilter_dlg.h"
 
 extern GtkWidget *main_display_filter_widget;
