@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.33 2002/09/09 20:38:56 guy Exp $
+ * $Id: capture.h,v 1.34 2003/01/09 19:37:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,7 +53,6 @@ typedef struct {
 
 extern capture_options capture_opts;
 
-extern int sync_pipe[2]; /* used to sync father */
 extern int quit_after_cap; /* Makes a "capture only mode". Implies -k */
 extern gboolean capture_child;	/* if this is the child for "-S" */
 
