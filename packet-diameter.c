@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.38 2002/01/07 20:05:20 guy Exp $
+ * $Id: packet-diameter.c,v 1.39 2002/01/08 07:14:08 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -855,7 +855,7 @@ diameter_command_to_str(guint32 commandCode, guint32 vendorId)
 	}
   }
   
-  g_warning("Diameter: Unable to find name for command code 0x%08x, Vendor \"%d\"!", 
+  g_warning("Diameter: Unable to find name for command code 0x%08x, Vendor \"%u\"!", 
 			commandCode, vendorId);
   snprintf(buffer, sizeof(buffer),
 		   "Cmd-0x%08x", commandCode);
@@ -909,7 +909,7 @@ diameter_avp_get_type(guint32 avpCode, guint32 vendorId){
   }
 	
   /* If we don't find it, assume it's data */
-  g_warning("Diameter: Unable to find type for avpCode %d, Vendor %d!", avpCode,
+  g_warning("Diameter: Unable to find type for avpCode %u, Vendor %u!", avpCode,
 			vendorId);
   return DIAMETER_OCTET_STRING;
 } /* diameter_avp_get_type */
@@ -944,7 +944,7 @@ diameter_avp_get_name(guint32 avpCode, guint32 vendorId)
 	}
   }
 
-  g_warning("Diameter: Unable to find name for AVP 0x%08x, Vendor %d!", 
+  g_warning("Diameter: Unable to find name for AVP 0x%08x, Vendor %u!", 
 			avpCode, vendorId);
 
   /* If we don't find it, build a name string */
@@ -1128,7 +1128,7 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_fstr(pinfo->cinfo, COL_INFO,
-				 "%s%s%s%s%s vendor=%s (hop-id=%d) (end-id=%d) RPE=%d%d%d",
+				 "%s%s%s%s%s vendor=%s (hop-id=%u) (end-id=%u) RPE=%d%d%d",
 				 (BadPacket)?"***** Bad Packet!: ":"",
 				 (flags & DIAM_FLAGS_P)?"Proxyable ":"",
 				 (flags & DIAM_FLAGS_E)?" Error":"",
