@@ -1,4 +1,4 @@
-$Id: README,v 1.45 2000/10/08 17:16:29 gerald Exp $
+$Id: README,v 1.46 2001/01/10 06:23:58 gram Exp $
 
 General Information
 ------- -----------
@@ -121,7 +121,7 @@ daemon causes a graceful shutdown and a complete packet is written
 to the trace file. If a partial packet is saved at the end, Ethereal
 will complain when reading that file, but you will be able to read all
 other packets.  If this occurs, please let the Ethereal developers know
-at ethereal-dev@zing.org, and be sure to send us a copy of that trace
+at ethereal-dev@ethereal.com, and be sure to send us a copy of that trace
 file if it's small and contains non-sensitive data.
 
 Support for Lucent/Ascend products is limited to the debug trace output
@@ -177,7 +177,7 @@ NetWare Core Protocol
 There are over 400 different NCP packet types. The NCP dissector does
 not understand all of these; support is being added little by little. If
 you have some NCP packets that are not dissected by Ethereal, send
-a trace file to ethereal-dev@zing.org and if possible, we will add support
+a trace file to ethereal-dev@ethereal.com and if possible, we will add support
 for those packets types.
 
 
@@ -194,7 +194,7 @@ option.
 How to Report a Bug
 -------------------
 Ethereal is still under constant development, so it is possible that you will
-encounter a bug while using it. Please report bugs to ethereal-dev@zing.org.
+encounter a bug while using it. Please report bugs to ethereal-dev@ethereal.com.
 Be sure you tell us:
 
 	1) Operating System and version (the command 'uname -sr' may
