@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.66 2002/03/01 22:14:22 guy Exp $
+ * $Id: packet-nfs.c,v 1.67 2002/03/06 04:02:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5850,8 +5850,6 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	{
 		opcode = tvb_get_ntohl(tvb, offset);
 
-		printf("Call Opcode: %d\n", opcode);
-		
 		fitem = proto_tree_add_uint(ftree, hf_nfs_argop4, tvb, offset, 4, 
 			opcode);
 		offset += 4;
@@ -6170,8 +6168,6 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	{
 		opcode = tvb_get_ntohl(tvb, offset);
 
-		printf("Reply opcode: %d\n", opcode);
-
 		/* sanity check for bogus packets */
 		if (opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_WRITE)	break;
 
@@ -6301,8 +6297,6 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				guint flavor;
 				proto_item *fitem;
 				proto_tree *secftree;
-
-				printf("here\n");
 
 				while ((data_follows = tvb_get_ntohl(tvb, offset)))
 				{
