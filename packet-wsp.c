@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.76 2003/09/04 19:12:38 guy Exp $
+ * $Id: packet-wsp.c,v 1.77 2003/10/09 18:54:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -983,33 +983,26 @@ static const value_string vals_false_true[] = {
 	{ 0, NULL },
 };
 
-/*
- * Windows appears to define DELETE.
- */
-#ifdef DELETE
-#undef DELETE
-#endif
-
 enum {
-	RESERVED		= 0x00,
-	CONNECT			= 0x01,
-	CONNECTREPLY		= 0x02,
-	REDIRECT		= 0x03,			/* No sample data */
-	REPLY			= 0x04,
-	DISCONNECT		= 0x05,
-	PUSH			= 0x06,			/* No sample data */
-	CONFIRMEDPUSH		= 0x07,			/* No sample data */
-	SUSPEND			= 0x08,			/* No sample data */
-	RESUME			= 0x09,			/* No sample data */
+	WSP_PDU_RESERVED		= 0x00,
+	WSP_PDU_CONNECT			= 0x01,
+	WSP_PDU_CONNECTREPLY		= 0x02,
+	WSP_PDU_REDIRECT		= 0x03,			/* No sample data */
+	WSP_PDU_REPLY			= 0x04,
+	WSP_PDU_DISCONNECT		= 0x05,
+	WSP_PDU_PUSH			= 0x06,			/* No sample data */
+	WSP_PDU_CONFIRMEDPUSH		= 0x07,			/* No sample data */
+	WSP_PDU_SUSPEND			= 0x08,			/* No sample data */
+	WSP_PDU_RESUME			= 0x09,			/* No sample data */
 
-	GET			= 0x40,
-	OPTIONS			= 0x41,			/* No sample data */
-	HEAD			= 0x42,			/* No sample data */
-	DELETE			= 0x43,			/* No sample data */
-	TRACE			= 0x44,			/* No sample data */
+	WSP_PDU_GET			= 0x40,
+	WSP_PDU_OPTIONS			= 0x41,			/* No sample data */
+	WSP_PDU_HEAD			= 0x42,			/* No sample data */
+	WSP_PDU_DELETE			= 0x43,			/* No sample data */
+	WSP_PDU_TRACE			= 0x44,			/* No sample data */
 
-	POST			= 0x60,
-	PUT			= 0x61,			/* No sample data */
+	WSP_PDU_POST			= 0x60,
+	WSP_PDU_PUT			= 0x61,			/* No sample data */
 };
 
 #define VAL_STRING_SIZE 200
@@ -1021,6 +1014,7 @@ typedef enum {
 } value_type_t;
 
 static dissector_table_t wsp_dissector_table;
+static dissector_table_t wsp_dissector_table_text;
 static heur_dissector_list_t heur_subdissector_list;
 
 static void add_uri (proto_tree *, packet_info *, tvbuff_t *, guint, guint);
@@ -1360,17 +1354,17 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* Map extended methods to the main method now the Column info has been written;
 	 * this way we can dissect the extended method PDUs. */
 	if ((pdut >= 0x50) && (pdut <= 0x5F))
-		pdut = GET;
+		pdut = WSP_PDU_GET;
 	else if ((pdut >= 0x70) && (pdut <= 0x7F))
-		pdut = POST;
+		pdut = WSP_PDU_POST;
 
 	switch (pdut)
 	{
-		case CONNECT:
-		case CONNECTREPLY:
-		case RESUME:
+		case WSP_PDU_CONNECT:
+		case WSP_PDU_CONNECTREPLY:
+		case WSP_PDU_RESUME:
 			if (tree) {
-				if (pdut == CONNECT)
+				if (pdut == WSP_PDU_CONNECT)
 				{
 					ti = proto_tree_add_item (wsp_tree, hf_wsp_version_major,tvb,offset,1,bo_little_endian);
 					ti = proto_tree_add_item (wsp_tree, hf_wsp_version_minor,tvb,offset,1,bo_little_endian);
@@ -1387,7 +1381,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				offset += count;
 				ti = proto_tree_add_uint (wsp_tree, hf_wsp_capability_length,tvb,capabilityStart,count,capabilityLength);
 
-				if (pdut != RESUME)
+				if (pdut != WSP_PDU_RESUME)
 				{
 					count = 0;	/* Initialise count */
 					headerLength = tvb_get_guintvar (tvb, offset, &count);
@@ -1417,13 +1411,13 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			break;
 
-		case REDIRECT:
+		case WSP_PDU_REDIRECT:
 			dissect_redirect(tvb, offset, pinfo, wsp_tree,
 			  dissector_handle);
 			break;
 
-		case DISCONNECT:
-		case SUSPEND:
+		case WSP_PDU_DISCONNECT:
+		case WSP_PDU_SUSPEND:
 			if (tree) {
 				count = 0;	/* Initialise count */
 				value = tvb_get_guintvar (tvb, offset, &count);
@@ -1431,7 +1425,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			break;
 
-		case GET:
+		case WSP_PDU_GET:
 			count = 0;	/* Initialise count */
 				/* Length of URI and size of URILen field */
 			value = tvb_get_guintvar (tvb, offset, &count);
@@ -1444,7 +1438,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			break;
 
-		case POST:
+		case WSP_PDU_POST:
 			uriStart = offset;
 			count = 0;	/* Initialise count */
 			uriLength = tvb_get_guintvar (tvb, offset, &count);
@@ -1477,19 +1471,24 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				}
 				offset = nextOffset+headerLength;
 			}
-			/* POST data - First check whether a subdissector exists for the content type */
+			/* WSP_PDU_POST data - First check whether a subdissector exists for the content type */
 			if (tvb_reported_length_remaining(tvb, headerStart + count + uriLength + headersLength) > 0)
 			{
 				tmp_tvb = tvb_new_subset (tvb, headerStart + count + uriLength + headersLength, -1, -1);
 				/* Try finding a dissector for the content first, then fallback */
-				if (!dissector_try_port(wsp_dissector_table, contentType, tmp_tvb, pinfo, tree))
-					if (!dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree))
-						if (tree) /* Only display if needed */
-							add_post_data (wsp_tree, tmp_tvb, contentType, contentTypeStr);
+				if (!dissector_try_port(wsp_dissector_table,
+							contentType, tmp_tvb, pinfo, tree))
+					if (!dissector_try_string(wsp_dissector_table_text,
+								contentTypeStr, tmp_tvb, pinfo, tree))
+						if (!dissector_try_heuristic(heur_subdissector_list,
+									tmp_tvb, pinfo, tree))
+							if (tree) /* Only display if needed */
+								add_post_data (wsp_tree, tmp_tvb,
+										contentType, contentTypeStr);
 			}
 			break;
 
-		case REPLY:
+		case WSP_PDU_REPLY:
 			count = 0;	/* Initialise count */
 			headersLength = tvb_get_guintvar (tvb, offset+1, &count);
 			headerStart = offset + count + 1;
@@ -1523,21 +1522,26 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				}
 				offset += count+headersLength+1;
 			}
-			/* REPLY data - First check whether a subdissector exists for the content type */
+			/* WSP_PDU_REPLY data - First check whether a subdissector exists for the content type */
 			if (tvb_reported_length_remaining(tvb, headerStart + headersLength) > 0)
 			{
 				tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength, -1, -1);
 				/* Try finding a dissector for the content first, then fallback */
-				if (!dissector_try_port(wsp_dissector_table, contentType, tmp_tvb, pinfo, tree))
-					if (!dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree))
-						if (tree) /* Only display if needed */
-							ti = proto_tree_add_item (wsp_tree, hf_wsp_reply_data,
-									tmp_tvb, 0, -1, bo_little_endian);
+				if (!dissector_try_port(wsp_dissector_table,
+							contentType, tmp_tvb, pinfo, tree))
+					if (!dissector_try_string(wsp_dissector_table_text,
+								contentTypeStr, tmp_tvb, pinfo, tree))
+						if (!dissector_try_heuristic(heur_subdissector_list,
+									tmp_tvb, pinfo, tree))
+							if (tree) /* Only display if needed */
+								ti = proto_tree_add_item (wsp_tree,
+										hf_wsp_reply_data,
+										tmp_tvb, 0, -1, bo_little_endian);
 			}
 			break;
 
-		case PUSH:
-		case CONFIRMEDPUSH:
+		case WSP_PDU_PUSH:
+		case WSP_PDU_CONFIRMEDPUSH:
 			count = 0;	/* Initialise count */
 			headersLength = tvb_get_guintvar (tvb, offset, &count);
 			headerStart = offset + count;
@@ -1564,16 +1568,21 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				}
 				offset += headersLength;
 			}
-			/* PUSH data - First check whether a subdissector exists for the content type */
+			/* WSP_PDU_PUSH data - First check whether a subdissector exists for the content type */
 			if (tvb_reported_length_remaining(tvb, headerStart + headersLength) > 0)
 			{
 				tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength, -1, -1);
 				/* Try finding a dissector for the content first, then fallback */
-				if (!dissector_try_port(wsp_dissector_table, contentType, tmp_tvb, pinfo, tree))
-					if (!dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree))
-						if (tree) /* Only display if needed */
-							ti = proto_tree_add_item (wsp_tree, hf_wsp_push_data,
-									tmp_tvb, 0, -1, bo_little_endian);
+				if (!dissector_try_port(wsp_dissector_table,
+							contentType, tmp_tvb, pinfo, tree))
+					if (!dissector_try_string(wsp_dissector_table_text,
+								contentTypeStr, tmp_tvb, pinfo, tree))
+						if (!dissector_try_heuristic(heur_subdissector_list,
+									tmp_tvb, pinfo, tree))
+							if (tree) /* Only display if needed */
+								ti = proto_tree_add_item (wsp_tree,
+										hf_wsp_push_data,
+										tmp_tvb, 0, -1, bo_little_endian);
 			}
 			break;
 
@@ -3299,7 +3308,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 			case 0x05 : /* Extended Methods */
 				offsetStr = offset;
 				offset++;
-				add_capability_vals(tvb, (type == CONNECT),
+				add_capability_vals(tvb, (type == WSP_PDU_CONNECT),
 				    offsetStr, length, capabilitiesStart,
 				    valString, sizeof valString);
 				proto_tree_add_string(wsp_capabilities, hf_wsp_capabilities_extended_methods, tvb, capabilitiesStart, length+1, valString);
@@ -3307,7 +3316,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, int type)
 			case 0x06 : /* Header Code Pages */
 				offsetStr = offset;
 				offset++;
-				add_capability_vals(tvb, (type == CONNECT),
+				add_capability_vals(tvb, (type == WSP_PDU_CONNECT),
 				    offsetStr, length, capabilitiesStart,
 				    valString, sizeof valString);
 				proto_tree_add_string(wsp_capabilities, hf_wsp_capabilities_header_code_pages, tvb, capabilitiesStart, length+1, valString);
@@ -5322,8 +5331,14 @@ proto_register_wsp(void)
 
 	register_dissector("wsp-co", dissect_wsp_fromwap_co, proto_wsp);
 	register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
-	wsp_dissector_table = register_dissector_table("wsp.content_type.type",
-	    "WSP content type", FT_UINT8, BASE_HEX);
+	wsp_dissector_table = register_dissector_table(
+			"wsp.content_type.integer",
+			"WSP content type (well-known integer value)",
+			FT_UINT32, BASE_HEX);
+	wsp_dissector_table_text = register_dissector_table(
+			"wsp.content_type.literal",
+			"WSP content type (textual value)",
+			FT_STRING, BASE_NONE);
 	register_heur_dissector_list("wsp", &heur_subdissector_list);
 
 	wsp_fromudp_handle = create_dissector_handle(dissect_wsp_fromudp,

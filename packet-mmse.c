@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.19 2003/07/07 22:55:54 guy Exp $
+ * $Id: packet-mmse.c,v 1.20 2003/10/09 18:54:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -862,8 +862,12 @@ proto_reg_handoff_mmse(void)
 
     heur_dissector_add("wsp", dissect_mmse_heur, proto_mmse);
     mmse_handle = create_dissector_handle(dissect_mmse, proto_mmse);
-    dissector_add("wsp.content_type.type", MMS_CONTENT_TYPE,
-		  mmse_handle);
+    dissector_add("wsp.content_type.integer",
+			MMS_CONTENT_TYPE,
+  			mmse_handle);
+    dissector_add_string("wsp.content_type.literal",
+			"application/vnd.wap.mms-message",
+  			mmse_handle);
     /*
      * \todo
      * The bearer could also be http (through the content-type field).
