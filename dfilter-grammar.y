@@ -39,7 +39,6 @@
 #endif
 
 void dfilter_yacc_init(void);
-static void dfilter_print_parse_tree(GNode *gnode);
 static GNode* dfilter_mknode_join(GNode *n1, enum node_type ntype, int operand, GNode *n2);
 static GNode* dfilter_mknode_unary(int operand, GNode *n2);
 static GNode* dfilter_mknode_numeric_variable(gint id);
@@ -210,7 +209,11 @@ relation:	numeric_variable numeric_relation numeric_value
 	;
 
 
-numeric_value:	T_VAL_ID		{ $$ = dfilter_mknode_numeric_value(string_to_value($1)); }
+numeric_value:	T_VAL_ID
+	{
+		$$ = dfilter_mknode_numeric_value(string_to_value($1));
+		g_free($1);
+	 }
 	;
 
 ether_value:	T_VAL_ID ':' T_VAL_ID ':' T_VAL_ID ':' T_VAL_ID ':' T_VAL_ID ':' T_VAL_ID
@@ -225,10 +228,25 @@ ether_value:	T_VAL_ID ':' T_VAL_ID ':' T_VAL_ID ':' T_VAL_ID ':' T_VAL_ID ':' T_
 		}
 	;
 
-ipv4_value:	T_VAL_ID		{ $$ = dfilter_mknode_ipv4_value($1); }
+ipv4_value:	T_VAL_ID
+	{
+		$$ = dfilter_mknode_ipv4_value($1);
+		g_free($1);
+	}
 	;
 
-bytes_value:	numeric_variable
+bytes_value:	T_VAL_ID
+		{
+			GByteArray	*barray = g_byte_array_new();
+			guint8		val;
+			char		*endptr;
+
+			dfilter_list_byte_arrays = g_slist_append(dfilter_list_byte_arrays, barray);
+			val = (guint8) strtoul($1, &endptr, 16);
+			g_byte_array_append(barray, &val, 1);
+			$$ = dfilter_mknode_bytes_value(barray);
+			g_free($1);
+		}
 	|	byte_range		{ $$ = dfilter_mknode_bytes_value($1); }
 	;
 
@@ -243,6 +261,8 @@ byte_range:	T_VAL_ID ':' T_VAL_ID
 			g_byte_array_append(barray, &val, 1);
 			val = (guint8) strtoul($3, &endptr, 16);
 			$$ = g_byte_array_append(barray, &val, 1);
+			g_free($1);
+			g_free($3);
 		}
 
 	|	byte_range ':' T_VAL_ID
@@ -252,6 +272,7 @@ byte_range:	T_VAL_ID ':' T_VAL_ID
 
 			val = (guint8) strtoul($3, &endptr, 16);
 			$$ = g_byte_array_append($1, &val, 1);
+			g_free($3);
 		}
 	;
 
@@ -277,10 +298,13 @@ protocol_name:		T_FT_NONE		{ $$ = dfilter_mknode_existence($1); }
 bytes_variable:		any_variable_type '[' T_VAL_ID ':' T_VAL_ID ']'
 		{
 			$$ = dfilter_mknode_bytes_variable($1, string_to_value($3), string_to_value($5));
+			g_free($3);
+			g_free($5);
 		}
 	|		any_variable_type '[' T_VAL_ID ']'
 		{
-			$$ = dfilter_mknode_bytes_variable($1, string_to_value($3), 0);
+			$$ = dfilter_mknode_bytes_variable($1, string_to_value($3), 1);
+			g_free($3);
 		}
 	;
 
@@ -334,19 +358,15 @@ type_ne:		TOK_NE	{ $$ = $1; }
 	;
 
 type_gt:		TOK_GT	{ $$ = $1; }
-	|		'>'	{ $$ = TOK_GT; }
 	;
 
 type_ge:		TOK_GE	{ $$ = $1; }
-	|		'>' '='	{ $$ = TOK_GE; }
 	;
 
 type_lt:		TOK_LT	{ $$ = $1; }
-	|		'<'	{ $$ = TOK_LT; }
 	;
 
 type_le:		TOK_LE	{ $$ = $1; }
-	|		'<' '='	{ $$ = TOK_LE; }
 	;
 
 
