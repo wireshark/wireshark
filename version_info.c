@@ -1,7 +1,7 @@
 /* version_info.c
  * Routines to report version information for stuff used by Ethereal
  *
- * $Id: version_info.c,v 1.2 2004/02/03 22:30:28 guy Exp $
+ * $Id: version_info.c,v 1.3 2004/02/24 01:14:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -342,4 +342,5 @@ get_runtime_version_info(GString *str)
 #else
 	g_string_append(str, "an unknown OS");
 #endif
+	g_string_append(str, ".");
 }
