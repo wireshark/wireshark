@@ -1,8 +1,8 @@
 /* packet-telnet.c
- * Routines for telnet packet dissection
+ * Routines for Telnet packet dissection; see RFC 854 and RFC 855
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.34 2002/10/25 21:13:38 guy Exp $
+ * $Id: packet-telnet.c,v 1.35 2003/02/24 01:04:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,38 @@ static int proto_telnet = -1;
 
 static gint ett_telnet = -1;
 static gint ett_telnet_subopt = -1;
+static gint ett_status_subopt = -1;
+static gint ett_rcte_subopt = -1;
+static gint ett_olw_subopt = -1;
+static gint ett_ops_subopt = -1;
+static gint ett_crdisp_subopt = -1;
+static gint ett_htstops_subopt = -1;
+static gint ett_htdisp_subopt = -1;
+static gint ett_ffdisp_subopt = -1;
+static gint ett_vtstops_subopt = -1;
+static gint ett_vtdisp_subopt = -1;
+static gint ett_lfdisp_subopt = -1;
+static gint ett_extasc_subopt = -1;
+static gint ett_bytemacro_subopt = -1;
+static gint ett_det_subopt = -1;
+static gint ett_supdupout_subopt = -1;
+static gint ett_sendloc_subopt = -1;
+static gint ett_termtype_subopt = -1;
+static gint ett_tacacsui_subopt = -1;
+static gint ett_outmark_subopt = -1;
+static gint ett_tlocnum_subopt = -1;
+static gint ett_tn3270reg_subopt = -1;
+static gint ett_x3pad_subopt = -1;
+static gint ett_naws_subopt = -1;
+static gint ett_tspeed_subopt = -1;
+static gint ett_rfc_subopt = -1;
+static gint ett_linemode_subopt = -1;
+static gint ett_xdpyloc_subopt = -1;
+static gint ett_env_subopt = -1;
+static gint ett_auth_subopt = -1;
+static gint ett_enc_subopt = -1;
+static gint ett_newenv_subopt = -1;
+static gint ett_tn3270e_subopt = -1;
 
 /* Some defines for Telnet */
 
@@ -66,48 +98,512 @@ static gint ett_telnet_subopt = -1;
 #define TN_SUSP  237
 #define TN_EOF   236
 
-static const char *options[] = {
-  "Binary Transmission",
-  "Echo",
-  "Reconnection",
-  "Suppress Go Ahead",
-  "Approx Message Size Negotiation",
-  "Status",
-  "Timing Mark",
-  "Remote Controlled Trans and Echo",
-  "Output Line Width",
-  "Output Page Size",
-  "Output Carriage-Return Disposition",
-  "Output Horizontal Tab Stops",
-  "Output Horizontal Tab Disposition",
-  "Output Formfeed Disposition",
-  "Output Vertical Tabstops",
-  "Output Vertical Tab Disposition",
-  "Output Linefeed Disposition",
-  "Extended ASCII",
-  "Logout",
-  "Byte Macro",
-  "Data Entry Terminal",
-  "SUPDUP",
-  "SUPDUP Output",
-  "Send Location",
-  "Terminal Type",
-  "End of Record",
-  "TACACS User Identification",
-  "Output Marking",
-  "Terminal Location Number",
-  "Telnet 3270 Regime",
-  "X.3 PAD",
-  "Negotiate About Window Size",
-  "Terminal Speed",
-  "Remote Flow Control",
-  "Linemode",
-  "X Display Location",
-  "Environment Option",
-  "Authentication Option",
-  "Encryption Option",
-  "New Environment Option",
-  "TN3270E"
+typedef enum {
+  NO_LENGTH,		/* option has no data, hence no length */
+  FIXED_LENGTH,		/* option always has the same length */
+  VARIABLE_LENGTH	/* option is variable-length - optlen is minimum */
+} tn_opt_len_type;
+
+/* Member of table of IP or TCP options. */
+typedef struct tn_opt {
+  char  *name;			/* name of option */
+  gint  *subtree_index;		/* pointer to subtree index for option */
+  tn_opt_len_type len_type;	/* type of option length field */
+  int	optlen;			/* value length should be (minimum if VARIABLE) */
+  void	(*dissect)(const char *, tvbuff_t *, int, int, proto_tree *);
+				/* routine to dissect option */
+} tn_opt;
+
+static void
+dissect_string_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
+                      proto_tree *tree)
+{
+  guint8 cmd;
+
+  cmd = tvb_get_guint8(tvb, offset);
+  switch (cmd) {
+
+  case 0:	/* IS */
+    proto_tree_add_text(tree, tvb, offset, 1, "Here's my %s", optname);
+    offset++;
+    len--;
+    if (len > 0) {
+      proto_tree_add_text(tree, tvb, offset, len, "Value: %s",
+                          tvb_format_text(tvb, offset, len));
+    }
+    break;
+
+  case 1:	/* SEND */
+    proto_tree_add_text(tree, tvb, offset, 1, "Send your %s", optname);
+    offset++;
+    len--;
+    if (len > 0)
+      proto_tree_add_text(tree, tvb, offset, len, "Extra data");
+    break;
+
+  default:
+    proto_tree_add_text(tree, tvb, offset, 1, "Invalid %s subcommand %u",
+                        optname, cmd);
+    offset++;
+    len--;
+    if (len > 0)
+      proto_tree_add_text(tree, tvb, offset, len, "Subcommand data");
+    break;
+  }
+}
+
+static void
+dissect_outmark_subopt(const char *optname _U_, tvbuff_t *tvb, int offset,
+                       int len, proto_tree *tree)
+{
+  guint8 cmd;
+  int gs_offset, datalen;
+
+  while (len > 0) {
+    cmd = tvb_get_guint8(tvb, offset);
+    switch (cmd) {
+
+    case 6:	/* ACK */
+      proto_tree_add_text(tree, tvb, offset, 1, "ACK");
+      break;
+
+    case 21:	/* NAK */
+      proto_tree_add_text(tree, tvb, offset, 1, "NAK");
+      break;
+
+    case 'D':
+      proto_tree_add_text(tree, tvb, offset, 1, "Default");
+      break;
+
+    case 'T':
+      proto_tree_add_text(tree, tvb, offset, 1, "Top");
+      break;
+
+    case 'B':
+      proto_tree_add_text(tree, tvb, offset, 1, "Bottom");
+      break;
+
+    case 'L':
+      proto_tree_add_text(tree, tvb, offset, 1, "Left");
+      break;
+
+    case 'R':
+      proto_tree_add_text(tree, tvb, offset, 1, "Right");
+      break;
+
+    default:
+      proto_tree_add_text(tree, tvb, offset, 1, "Bogus value: %u", cmd);
+      break;
+    }
+    offset++;
+    len--;
+
+    /* Look for a GS */
+    gs_offset = tvb_find_guint8(tvb, offset, len, 29);
+    if (gs_offset == -1) {
+      /* None found - run to the end of the packet. */
+      gs_offset = offset + len;
+    }
+    datalen = gs_offset - offset;
+    if (datalen > 0) {
+      proto_tree_add_text(tree, tvb, offset, datalen, "Banner: %s",
+                          tvb_format_text(tvb, offset, datalen));
+      offset += datalen;
+      len -= datalen;
+    }
+  }
+}
+
+static void
+dissect_htstops_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
+                       proto_tree *tree)
+{
+  guint8 cmd;
+  guint8 tabval;
+
+  cmd = tvb_get_guint8(tvb, offset);
+  switch (cmd) {
+
+  case 0:	/* IS */
+    proto_tree_add_text(tree, tvb, offset, 1, "Here's my %s", optname);
+    offset++;
+    len--;
+    break;
+
+  case 1:	/* SEND */
+    proto_tree_add_text(tree, tvb, offset, 1, "Send your %s", optname);
+    offset++;
+    len--;
+    break;
+
+  default:
+    proto_tree_add_text(tree, tvb, offset, 1, "Invalid %s subcommand %u",
+                        optname, cmd);
+    offset++;
+    len--;
+    if (len > 0)
+      proto_tree_add_text(tree, tvb, offset, len, "Subcommand data");
+    return;
+  }
+
+  while (len > 0) {
+    tabval = tvb_get_guint8(tvb, offset);
+    switch (tabval) {
+
+    case 0:
+      proto_tree_add_text(tree, tvb, offset, 1,
+                          "Sender wants to handle tab stops");
+      break;
+
+    default:
+      proto_tree_add_text(tree, tvb, offset, 1,
+                          "Sender wants receiver to handle tab stop at %u",
+                          tabval);
+      break;
+
+    case 251:
+    case 252:
+    case 253:
+    case 254:
+      proto_tree_add_text(tree, tvb, offset, 1,
+                          "Invalid value: %u", tabval);
+      break;
+
+    case 255:
+      proto_tree_add_text(tree, tvb, offset, 1,
+                          "Sender wants receiver to handle tab stops");
+      break;
+    }
+    offset++;
+    len--;
+  }
+}
+
+static void
+dissect_naws_subopt(const char *optname _U_, tvbuff_t *tvb, int offset,
+                    int len _U_, proto_tree *tree)
+{
+  proto_tree_add_text(tree, tvb, offset, 2, "Width: %u",
+                      tvb_get_ntohs(tvb, offset));
+  offset += 2;
+  proto_tree_add_text(tree, tvb, offset, 2, "Height: %u",
+                      tvb_get_ntohs(tvb, offset));
+}
+
+static const value_string rfc_opt_vals[] = {
+	{ 0, "OFF" },
+	{ 1, "ON" },
+	{ 2, "RESTART-ANY" },
+	{ 3, "RESTART-XON" },
+	{ 0, NULL }
+};
+
+static void
+dissect_rfc_subopt(const char *optname _U_, tvbuff_t *tvb, int offset,
+                   int len _U_, proto_tree *tree)
+{
+  guint8 cmd;
+
+  cmd = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 2, "%s",
+                      val_to_str(cmd, rfc_opt_vals, "Unknown (%u)"));
+}
+
+static void
+dissect_subopt(const char *optname _U_, tvbuff_t *tvb, int offset, int len,
+                    proto_tree *tree)
+{
+  proto_tree_add_text(tree, tvb, offset, len, "Option data");
+}
+
+static tn_opt options[] = {
+  {
+    "Binary Transmission",			/* RFC 856 */
+    NULL,					/* no suboption negotiation */
+    NO_LENGTH,
+    0,
+    NULL
+  },
+  {
+    "Echo",					/* RFC 857 */
+    NULL,					/* no suboption negotiation */
+    NO_LENGTH,
+    0,
+    NULL
+  },
+  {    
+    "Reconnection",				/* DOD Protocol Handbook */
+    NULL,
+    NO_LENGTH,
+    0,
+    NULL
+  },
+  {
+    "Suppress Go Ahead",			/* RFC 858 */
+    NULL,					/* no suboption negotiation */
+    NO_LENGTH,
+    0,
+    NULL
+  },
+  {
+    "Approx Message Size Negotiation",		/* Ethernet spec(!) */
+    NULL,
+    NO_LENGTH,
+    0,
+    NULL
+  },
+  {
+    "Status",					/* RFC 859 */
+    &ett_status_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Timing Mark",				/* RFC 860 */
+    NULL,					/* no suboption negotiation */
+    NO_LENGTH,
+    0,
+    NULL
+  },
+  {
+    "Remote Controlled Trans and Echo",		/* RFC 726 */
+    &ett_rcte_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Output Line Width",			/* DOD Protocol Handbook */
+    &ett_olw_subopt,
+    VARIABLE_LENGTH,				/* XXX - fill me in */
+    0,						/* XXX - fill me in */
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Output Page Size",				/* DOD Protocol Handbook */
+    &ett_ops_subopt,
+    VARIABLE_LENGTH,				/* XXX - fill me in */
+    0,						/* XXX - fill me in */
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Output Carriage-Return Disposition",	/* RFC 652 */
+    &ett_crdisp_subopt,
+    FIXED_LENGTH,
+    2,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Output Horizontal Tab Stops",		/* RFC 653 */
+    &ett_htstops_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_htstops_subopt
+  },
+  {
+    "Output Horizontal Tab Disposition",	/* RFC 654 */
+    &ett_htdisp_subopt,
+    FIXED_LENGTH,
+    2,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Output Formfeed Disposition",		/* RFC 655 */
+    &ett_ffdisp_subopt,
+    FIXED_LENGTH,
+    2,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Output Vertical Tabstops",			/* RFC 656 */
+    &ett_vtstops_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Output Vertical Tab Disposition",		/* RFC 657 */
+    &ett_vtdisp_subopt,
+    FIXED_LENGTH,
+    2,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Output Linefeed Disposition",		/* RFC 658 */
+    &ett_lfdisp_subopt,
+    FIXED_LENGTH,
+    2,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Extended ASCII",				/* RFC 698 */
+    &ett_extasc_subopt,
+    FIXED_LENGTH,
+    2,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Logout",					/* RFC 727 */
+    NULL,					/* no suboption negotiation */
+    NO_LENGTH,
+    0,
+    NULL
+  },
+  {
+    "Byte Macro",				/* RFC 735 */
+    &ett_bytemacro_subopt,
+    VARIABLE_LENGTH,
+    2,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Data Entry Terminal",			/* RFC 732, RFC 1043 */
+    &ett_det_subopt,
+    VARIABLE_LENGTH,
+    2,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "SUPDUP",					/* RFC 734, RFC 736 */
+    NULL,					/* no suboption negotiation */
+    NO_LENGTH,
+    0,
+    NULL
+  },
+  {
+    "SUPDUP Output",				/* RFC 749 */
+    &ett_supdupout_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Send Location",				/* RFC 779 */
+    &ett_sendloc_subopt,
+    VARIABLE_LENGTH,
+    0,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Terminal Type",				/* RFC 1091 */
+    &ett_termtype_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_string_subopt
+  },
+  {
+    "End of Record",				/* RFC 885 */
+    NULL,					/* no suboption negotiation */
+    NO_LENGTH,
+    0,
+    NULL
+  },
+  {
+    "TACACS User Identification",		/* RFC 927 */
+    &ett_tacacsui_subopt,
+    FIXED_LENGTH,
+    4,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Output Marking",				/* RFC 933 */
+    &ett_outmark_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_outmark_subopt,
+  },
+  {
+    "Terminal Location Number",			/* RFC 946 */
+    &ett_tlocnum_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Telnet 3270 Regime",			/* RFC 1041 */
+    &ett_tn3270reg_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "X.3 PAD",					/* RFC 1053 */
+    &ett_x3pad_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Negotiate About Window Size",		/* RFC 1073, DW183 */
+    &ett_naws_subopt,
+    FIXED_LENGTH,
+    4,
+    dissect_naws_subopt
+  },
+  {
+    "Terminal Speed",				/* RFC 1079 */
+    &ett_tspeed_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Remote Flow Control",			/* RFC 1372 */
+    &ett_rfc_subopt,
+    FIXED_LENGTH,
+    1,
+    dissect_rfc_subopt
+  },
+  {
+    "Linemode",					/* RFC 1184 */
+    &ett_linemode_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "X Display Location",			/* RFC 1096 */
+    &ett_xdpyloc_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_string_subopt
+  },
+  {
+    "Environment Option",			/* RFC 1408, RFC 1571 */
+    &ett_env_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Authentication Option",			/* RFC 2941 */
+    &ett_auth_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "Encryption Option",			/* RFC 2946 */
+    &ett_enc_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "New Environment Option",			/* RFC 1572 */
+    &ett_newenv_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_subopt				/* XXX - fill me in */
+  },
+  {
+    "TN3270E",					/* RFC 1647 */
+    &ett_tn3270e_subopt,
+    VARIABLE_LENGTH,
+    1,
+    dissect_subopt				/* XXX - fill me in */
+  },
 };
 
 #define	NOPTIONS	(sizeof options / sizeof options[0])
@@ -118,21 +614,29 @@ telnet_sub_option(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
   proto_tree *ti, *option_tree;
   int offset = start_offset;
   guint8 opt_byte;
-  int subneg_len, req;
-  const guchar *opt;
+  int subneg_len;
+  const char *opt;
+  gint ett;
   int iac_offset;
   guint len;
+  void (*dissect)(const char *, tvbuff_t *, int, int, proto_tree *);
 
   offset += 2;	/* skip IAC and SB */
 
-  /* Figure out the option and type */
+  /* Get the option code */
   opt_byte = tvb_get_guint8(tvb, offset);
-  if (opt_byte > NOPTIONS)
+  if (opt_byte > NOPTIONS) {
     opt = "<unknown option>";
-  else
-    opt = options[opt_byte];
-  offset++;
-  req = tvb_get_guint8(tvb, offset);
+    ett = ett_telnet_subopt;
+    dissect = NULL;
+  } else {
+    opt = options[opt_byte].name;
+    if (options[opt_byte].subtree_index != NULL)
+      ett = *(options[opt_byte].subtree_index);
+    else
+      ett = ett_telnet_subopt;
+    dissect = options[opt_byte].dissect;
+  }
   offset++;
 
   /* Search for an IAC. */
@@ -146,19 +650,44 @@ telnet_sub_option(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
 
   subneg_len = offset - start_offset;
 
+  ti = proto_tree_add_text(telnet_tree, tvb, start_offset, subneg_len,
+                           "Suboption Begin: %s", opt);
+  option_tree = proto_item_add_subtree(ti, ett);
+  start_offset += 3;	/* skip IAC, SB, and option code */
+  subneg_len -= 3;
+
   if (subneg_len > 0) {
-      ti = proto_tree_add_text(telnet_tree, tvb, start_offset, subneg_len,
-                "Suboption Begin: %s", opt);
+    switch (options[opt_byte].len_type) {
 
-      option_tree = proto_item_add_subtree(ti, ett_telnet_subopt);
+    case NO_LENGTH:
+      /* There isn't supposed to *be* sub-option negotiation for this. */
+      proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
+                          "Bogus suboption data");
+      return offset;
 
-      proto_tree_add_text(option_tree, tvb, start_offset + 2, 2,
-                "%s %s", (req ? "Send your" : "Here's my"), opt);
-
-      if (req == 0) {  /* Add the value */
-        proto_tree_add_text(option_tree, tvb, start_offset + 4, subneg_len - 4,
-        "Value: %s", tvb_format_text(tvb, start_offset + 4, subneg_len - 4));
+    case FIXED_LENGTH:
+      /* Make sure the length is what it's supposed to be. */
+      if (subneg_len != options[opt_byte].optlen) {
+        proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
+                          "Suboption parameter length is %d, should be %d",
+                          subneg_len, options[opt_byte].optlen);
+        return offset;
       }
+      break;
+
+    case VARIABLE_LENGTH:
+      /* Make sure the length is greater than the minimum. */
+      if (subneg_len < options[opt_byte].optlen) {
+        proto_tree_add_text(option_tree, tvb, start_offset, subneg_len,
+                            "Suboption parameter length is %d, should be at least %d",
+                            subneg_len, options[opt_byte].optlen);
+        return offset;
+      }
+      break;
+    }
+
+    /* Now dissect the suboption parameters. */
+    (*dissect)(opt, tvb, start_offset, subneg_len, option_tree);
   }
   return offset;
 }
@@ -176,7 +705,7 @@ telnet_will_wont_do_dont(proto_tree *telnet_tree, tvbuff_t *tvb,
   if (opt_byte > NOPTIONS)
     opt = "<unknown option>";
   else
-    opt = options[opt_byte];
+    opt = options[opt_byte].name;
   offset++;
 
   proto_tree_add_text(telnet_tree, tvb, start_offset, 3,
@@ -422,6 +951,38 @@ proto_register_telnet(void)
 	static gint *ett[] = {
 		&ett_telnet,
 		&ett_telnet_subopt,
+		&ett_status_subopt,
+		&ett_rcte_subopt,
+		&ett_olw_subopt,
+		&ett_ops_subopt,
+		&ett_crdisp_subopt,
+		&ett_htstops_subopt,
+		&ett_htdisp_subopt,
+		&ett_ffdisp_subopt,
+		&ett_vtstops_subopt,
+		&ett_vtdisp_subopt,
+		&ett_lfdisp_subopt,
+		&ett_extasc_subopt,
+		&ett_bytemacro_subopt,
+		&ett_det_subopt,
+		&ett_supdupout_subopt,
+		&ett_sendloc_subopt,
+		&ett_termtype_subopt,
+		&ett_tacacsui_subopt,
+		&ett_outmark_subopt,
+		&ett_tlocnum_subopt,
+		&ett_tn3270reg_subopt,
+		&ett_x3pad_subopt,
+		&ett_naws_subopt,
+		&ett_tspeed_subopt,
+		&ett_rfc_subopt,
+		&ett_linemode_subopt,
+		&ett_xdpyloc_subopt,
+		&ett_env_subopt,
+		&ett_auth_subopt,
+		&ett_enc_subopt,
+		&ett_newenv_subopt,
+		&ett_tn3270e_subopt,
 	};
 
         proto_telnet = proto_register_protocol("Telnet", "TELNET", "telnet");
