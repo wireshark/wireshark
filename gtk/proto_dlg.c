@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.6 2001/01/03 06:56:00 guy Exp $
+ * $Id: proto_dlg.c,v 1.7 2001/01/22 09:33:19 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -46,12 +46,15 @@
 #include "dlg_utils.h"
 #include "proto_dlg.h"
 
+static gboolean proto_delete_cb(GtkWidget *, gpointer);
 static void proto_ok_cb(GtkWidget *, gpointer);
 static void proto_apply_cb(GtkWidget *, gpointer);
-static void proto_close_cb(GtkWidget *, gpointer);
+static void proto_cancel_cb(GtkWidget *, gpointer);
+static void proto_destroy_cb(GtkWidget *, gpointer);
 
 static void show_proto_selection(GtkWidget *main, GtkWidget *container);
 static gboolean set_proto_selection(GtkWidget *);
+static gboolean revert_proto_selection(void);
 
 static GtkWidget *proto_w = NULL;
 
@@ -59,9 +62,10 @@ static GtkWidget *proto_w = NULL;
 static GSList *protocol_list = NULL;
 
 typedef struct protocol_data {
-  char  *name;
-  char 	*abbrev;
-  int  	hfinfo_index;
+  char     *name;
+  char 	   *abbrev;
+  int  	   hfinfo_index;
+  gboolean was_enabled;
 } protocol_data_t;
 
 void proto_cb(GtkWidget *w, gpointer data)
@@ -76,8 +80,10 @@ void proto_cb(GtkWidget *w, gpointer data)
   }
 
   proto_w = dlg_window_new("Ethereal: Protocol");
+  gtk_signal_connect(GTK_OBJECT(proto_w), "delete_event",
+		     GTK_SIGNAL_FUNC(proto_delete_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(proto_w), "destroy",
-		     GTK_SIGNAL_FUNC(proto_close_cb), NULL);
+		     GTK_SIGNAL_FUNC(proto_destroy_cb), NULL);
   gtk_widget_set_usize(GTK_WIDGET(proto_w), DEF_WIDTH * 2/3, DEF_HEIGHT * 2/3);
 
   /* Container for each row of widgets */
@@ -149,7 +155,7 @@ void proto_cb(GtkWidget *w, gpointer data)
 
   cancel_bt = gtk_button_new_with_label ("Cancel");
   gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
-		     GTK_SIGNAL_FUNC(proto_close_cb), GTK_OBJECT(proto_w));
+		     GTK_SIGNAL_FUNC(proto_cancel_cb), GTK_OBJECT(proto_w));
   GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start(GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
   gtk_widget_show(cancel_bt);
@@ -161,7 +167,7 @@ void proto_cb(GtkWidget *w, gpointer data)
 
 } /* proto_cb */
 
-static void proto_close_cb(GtkWidget *w, gpointer data)
+static void proto_destroy_cb(GtkWidget *w, gpointer data)
 {
   GSList *entry;
 
@@ -179,18 +185,39 @@ static void proto_close_cb(GtkWidget *w, gpointer data)
   }
 }
 
+/* Treat this as a cancel, by calling "proto_cancel_cb()".
+   XXX - that'll destroy the Protocols dialog; will that upset
+   a higher-level handler that says "OK, we've been asked to delete
+   this, so destroy it"? */
+static gboolean proto_delete_cb(GtkWidget *proto_w, gpointer dummy)
+{
+  proto_cancel_cb(NULL, proto_w);
+  return FALSE;
+}
+
 static void proto_ok_cb(GtkWidget *ok_bt, gpointer parent_w) 
 {
   gboolean redissect;
+
   redissect = set_proto_selection(GTK_WIDGET(parent_w));
   gtk_widget_destroy(GTK_WIDGET(parent_w));
   if (redissect)
     redissect_packets(&cfile);
 }
 
-static void proto_apply_cb(GtkWidget *ok_bt, gpointer parent_w) 
+static void proto_apply_cb(GtkWidget *apply_bt, gpointer parent_w) 
 {
   if (set_proto_selection(GTK_WIDGET(parent_w)))
+    redissect_packets(&cfile);
+}
+
+static void proto_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w) 
+{
+  gboolean redissect;
+
+  redissect = revert_proto_selection();
+  gtk_widget_destroy(GTK_WIDGET(parent_w));
+  if (redissect)
     redissect_packets(&cfile);
 }
 
@@ -214,6 +241,27 @@ static gboolean set_proto_selection(GtkWidget *parent_w)
   return need_redissect;
 
 } /* set_proto_selection */
+
+static gboolean revert_proto_selection(void)
+{
+  GSList *entry;
+  gboolean need_redissect = FALSE;
+
+  /*
+   * Undo all the changes we've made to protocol enable flags.
+   */
+  for (entry = protocol_list; entry != NULL; entry = g_slist_next(entry)) {
+    protocol_data_t *p = entry->data;
+
+    if (proto_is_protocol_enabled(p->hfinfo_index) != p->was_enabled) {
+      proto_set_decoding(p->hfinfo_index, p->was_enabled);
+      need_redissect = TRUE;
+    }  
+  }
+
+  return need_redissect;
+
+} /* revert_proto_selection */
 
 gint protocol_data_compare(gconstpointer a, gconstpointer b)
 {
@@ -242,6 +290,7 @@ static void show_proto_selection(GtkWidget *main, GtkWidget *container)
         p->name = proto_get_protocol_name(i);
         p->abbrev = proto_get_protocol_filter_name(i);
         p->hfinfo_index = i;
+        p->was_enabled = proto_is_protocol_enabled(i);
         protocol_list = g_slist_insert_sorted(protocol_list, 
 					    p, protocol_data_compare);     
         nb_proto ++;
