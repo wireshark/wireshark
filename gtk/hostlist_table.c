@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table.c   2003 Ronnie Sahlberg
  * Helper routines common to all host list taps.
  *
- * $Id: hostlist_table.c,v 1.1 2004/02/20 09:09:11 guy Exp $
+ * $Id: hostlist_table.c,v 1.2 2004/02/20 09:27:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,12 +79,9 @@ hostlist_port_to_str(int port_type, guint32 port)
 }
 
 
-#define FN_SRC_ADDRESS		0
-#define FN_DST_ADDRESS		1
-#define FN_ANY_ADDRESS		2
-#define FN_SRC_PORT		3
-#define FN_DST_PORT		4
-#define FN_ANY_PORT		5
+#define FN_ANY_ADDRESS		0
+#define FN_ANY_PORT		1
+
 /* given an address (to distinguis between ipv4 and ipv6 for tcp/udp
    a port_type and a name_type (FN_...)
    return a string for the filter name
@@ -97,50 +94,6 @@ static char *
 hostlist_get_filter_name(address *addr, int specific_addr_type, int port_type, int name_type)
 {
 	switch(name_type){
-	case FN_SRC_ADDRESS:
-		switch(addr->type){
-		case AT_ETHER:
-			switch(specific_addr_type){
-			case SAT_ETHER:
-				return "eth.src";
-			case SAT_FDDI:
-				return "fddi.src";
-			case SAT_TOKENRING:
-				return "tr.src";
-			}
-		case AT_IPv4:
-			return "ip.src";
-		case AT_IPv6:
-			return "ipv6.src";
-		case AT_IPX:
-			return "ipx.src";
-		case AT_FC:
-			return "fc.s_id";
-		default:
-			;
-		}
-	case FN_DST_ADDRESS:
-		switch(addr->type){
-		case AT_ETHER:
-			switch(specific_addr_type){
-			case SAT_ETHER:
-				return "eth.dst";
-			case SAT_FDDI:
-				return "fddi.dst";
-			case SAT_TOKENRING:
-				return "tr.dst";
-			}
-		case AT_IPv4:
-			return "ip.dst";
-		case AT_IPv6:
-			return "ipv6.dst";
-		case AT_IPX:
-			return "ipx.dst";
-		case AT_FC:
-			return "fc.d_id";
-		default:
-			;
-		}
 	case FN_ANY_ADDRESS:
 		switch(addr->type){
 		case AT_ETHER:
@@ -163,22 +116,6 @@ hostlist_get_filter_name(address *addr, int specific_addr_type, int port_type, i
 		default:
 			;
 		}
-	case FN_SRC_PORT:
-		switch(port_type){
-		case PT_TCP:
-			return "tcp.srcport";
-		case PT_UDP:
-			return "udp.srcport";
-		}
-		break;
-	case FN_DST_PORT:
-		switch(port_type){
-		case PT_TCP:
-			return "tcp.dstport";
-		case PT_UDP:
-			return "udp.dstport";
-		}
-		break;
 	case FN_ANY_PORT:
 		switch(port_type){
 		case PT_TCP:
@@ -310,6 +247,10 @@ hostlist_click_column_cb(GtkCList *clist, gint column, gpointer data)
    filter_action:
 	0: Match
 	1: Prepare
+	2: Find Frame
+	3:   Find Next
+	4:   Find Previous
+	5: Colorize Host Traffic
    filter_type:
 	0: Selected
 	1: Not Selected
@@ -390,7 +331,22 @@ hostlist_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint c
 		/* prepare */
 		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
 		break;
-
+	case 2:
+		/* find frame */
+		find_frame_with_filter(str);
+		break;
+	case 3:
+		/* find next */
+		find_previous_next_frame_with_filter(str, FALSE);
+		break;
+	case 4:
+		/* find previous */
+		find_previous_next_frame_with_filter(str, TRUE);
+		break;
+	case 5:
+		/* colorize host traffic */
+		color_display_with_filter(str);
+		break;
 	}
 }
 static gint
@@ -437,6 +393,20 @@ static GtkItemFactoryEntry hostlist_list_menu_items[] =
 		hostlist_select_filter_cb, 1*256+4, NULL, NULL),
 	ITEM_FACTORY_ENTRY("/Prepare Display Filter/Or Not Selected", NULL, 
 		hostlist_select_filter_cb, 1*256+5, NULL, NULL),
+
+	/* Find Frame */
+	ITEM_FACTORY_ENTRY("/Find Frame", NULL, NULL, 0, "<Branch>", NULL),
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Frame", NULL,
+		hostlist_select_filter_cb, 2*256+0, NULL, NULL),
+	/* Find Next */
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Next", NULL,
+		hostlist_select_filter_cb, 3*256+0, NULL, NULL),
+	/* Find Previous */
+	ITEM_FACTORY_ENTRY("/Find Frame/Find Previous", NULL,
+		hostlist_select_filter_cb, 4*256+0, NULL, NULL),
+	/* Colorize Host Traffic */
+	ITEM_FACTORY_ENTRY("/Colorize Host Traffic", NULL,
+		hostlist_select_filter_cb, 5*256+0, NULL, NULL),
 
 };
 
