@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.93 1999/08/17 00:26:37 guy Exp $
+ * $Id: ethereal.c,v 1.94 1999/08/18 02:59:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -191,7 +191,7 @@ file_progress_cb(gpointer p) {
    selected packet, or it might be the last packet in the file). */
 void
 follow_stream_cb( GtkWidget *w, gpointer data ) {
-  char filename1[128];
+  char      filename1[128+1];
   GtkWidget *streamwindow, *box, *text, *vscrollbar, *table;
   GtkWidget *filter_te = NULL;
   int        tmp_fd;
@@ -209,12 +209,10 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
        append stuff to the text widget for the TCP stream window,
        if we can arrange that said window not pop up until we're
        done. */
-    snprintf( filename1, sizeof filename1, "%sXXXXXXXXXX", P_tmpdir );
-    tmp_fd = mkstemp( filename1 );
+    tmp_fd = create_tempfile( filename1, sizeof filename1, "follow");
     if (tmp_fd == -1) {
       simple_dialog(ESD_TYPE_WARN, NULL,
         "Could not create temporary file %s: %s", filename1, strerror(errno));
-      unlink(filename1);
       return;
     }
     data_out_file = fdopen( tmp_fd, "w" );

@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.16 1999/07/09 04:18:36 gram Exp $
+ * $Id: util.c,v 1.17 1999/08/18 02:59:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,7 +32,10 @@
 #include <gtk/gtk.h>
 
 #include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
+#include <errno.h>
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
@@ -173,4 +176,87 @@ simple_dialog_cancel_cb(GtkWidget *w, gpointer win) {
   if (btn_mask)
     *btn_mask = ESD_BTN_CANCEL;
   gtk_widget_destroy(GTK_WIDGET(win));
+}
+
+static char *
+setup_tmpdir(char *dir)
+{
+	int len = strlen(dir);
+	char *newdir;
+
+	/* Append slash if necessary */
+	if (dir[len - 1] == '/') {
+		newdir = dir;
+	}
+	else {
+		newdir = g_malloc(len + 2);
+		strcpy(newdir, dir);
+		strcat(newdir, "/");
+	}
+	return newdir;
+}
+
+static int
+try_tempfile(char *namebuf, int namebuflen, const char *dir, const char *pfx)
+{
+	static const char suffix[] = "XXXXXXXXXX";
+	int namelen = strlen(namebuf) + strlen(pfx) + sizeof suffix;
+
+	if (namebuflen < namelen) {
+		errno = ENAMETOOLONG;
+		return -1;
+	}
+	strcpy(namebuf, dir);
+	strcat(namebuf, pfx);
+	strcat(namebuf, suffix);
+	return mkstemp(namebuf);
+}
+
+static char *tmpdir;
+#ifdef WIN32
+static char *temp;
+#endif
+static char *E_tmpdir;
+
+int
+create_tempfile(char *namebuf, int namebuflen, const char *pfx)
+{
+	char *dir;
+	int fd;
+	static gboolean initialized;
+
+	if (!initialized) {
+		if ((dir = getenv("TMPDIR")) != NULL)
+			tmpdir = setup_tmpdir(dir);
+#ifdef WIN32
+		if ((dir = getenv("TEMP")) != NULL)
+			temp = setup_tmpdir(dir);
+#endif
+#ifdef P_tmpdir
+		E_tmpdir = setup_tmpdir(P_tmpdir);
+#else
+		E_tmpdir = setup_tmpdir("/var/tmp/");
+#endif
+		initialized = TRUE;
+	}
+
+	if (tmpdir != NULL) {
+		fd = try_tempfile(namebuf, namebuflen, tmpdir, pfx);
+		if (fd != -1)
+			return fd;
+	}
+
+#ifdef WIN32
+	if (temp != NULL) {
+		fd = try_tempfile(namebuf, namebuflen, temp, pfx);
+		if (fd != -1)
+			return fd;
+	}
+#endif
+
+	fd = try_tempfile(namebuf, namebuflen, E_tmpdir, pfx);
+	if (fd != -1)
+		return fd;
+
+	return try_tempfile(namebuf, namebuflen, "/tmp", pfx);
 }
