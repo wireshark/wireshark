@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.92 2004/02/25 22:45:51 guy Exp $
+$Id: README.developer,v 1.93 2004/03/19 07:49:29 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -352,12 +352,12 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.92 2004/02/25 22:45:51 guy Exp $"
+The "$Id: README.developer,v 1.93 2004/03/19 07:49:29 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
 
-When creating a new file, it is fine to just write "$Id: README.developer,v 1.92 2004/02/25 22:45:51 guy Exp $" as RCS will
+When creating a new file, it is fine to just write "$Id: README.developer,v 1.93 2004/03/19 07:49:29 guy Exp $" as RCS will
 automatically fill in the identifier at the time the file will be added to the
 CVS repository (checked in).
 
@@ -366,7 +366,7 @@ CVS repository (checked in).
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.92 2004/02/25 22:45:51 guy Exp $
+ * $Id: README.developer,v 1.93 2004/03/19 07:49:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -905,7 +905,7 @@ generated automatically; to arrange that a protocol's register routine
 be called at startup:
 
 	the file containing a dissector's "register" routine must be
-	added to "DISSECTOR_SRC" in "Makefile.common";
+	added to "DISSECTOR_SRC" in "epan/Makefile.common";
  
 	the "register" routine must have a name of the form
 	"proto_register_XXX";
@@ -1810,25 +1810,20 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	dissector_next( next_tvb, pinfo, tree);
 
 
-1.9 Editing Makefile.am and Makefile.nmake to add your dissector.
+1.9 Editing Makefile.common to add your dissector.
 
 To arrange that your dissector will be built as part of Ethereal, you
-must add the name of the source file for your dissector, and the header
-file that declares your main dissector routine, to the
-'DISSECTOR_SRC' macro in the 'Makefile.common' file in the top-level
+must add the name of the source file for your dissector to the
+'DISSECTOR_SRC' macro in the 'Makefile.common' file in the 'epan'
 directory.  (Note that this is for modern versions of UNIX, so there
 is no 14-character limitation on file names, and for modern versions of
 Windows, so there is no 8.3-character limitation on file names.)
 
-If your dissector also has its own header files, you must add them to
-the 'noinst_HEADERS' macro in the 'Makefile.am' file in the top-level
-directory, so that it's included when release source tarballs are built
-(otherwise, the source in the release tarballs won't compile).
-
-Please remember to update both files; it may not be necessary to do so
-in order for you to build Ethereal on your machine, but both changes
-will need to be checked in to the Ethereal source code, to allow it to
-build on all platforms.
+If your dissector also has its own header file or files, you must add
+them to the 'DISSECTOR_INCLUDES' macro in the 'Makefile.common' file in
+the top-level directory, so that it's included when release source
+tarballs are built (otherwise, the source in the release tarballs won't
+compile).
 
 1.10 Using the CVS source code tree.
 
