@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.79 1999/08/04 04:37:45 guy Exp $
+ * $Id: packet.h,v 1.80 1999/08/10 04:13:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -102,6 +102,7 @@ typedef struct _packet_counts {
 } packet_counts;
 
 typedef struct _frame_data {
+  struct _frame_data *next; /* Next element in list */
   guint32      pkt_len;   /* Packet length */
   guint32      cap_len;   /* Amount actually captured */
   guint32      rel_secs;  /* Relative seconds */
@@ -112,6 +113,7 @@ typedef struct _frame_data {
   guint32      del_usecs; /* Delta microseconds */
   long         file_off;  /* File offset */
   column_info *cinfo;     /* Column formatting information */
+  gint         row;       /* Row number for this packet in the display */
   int          lnk_t;     /* Per-packet encapsulation/data-link type */
   gboolean     passed_dfilter; /* TRUE = display, FALSE = no display */
   guint8       flags;     /* for ENCAP_LAPB : 1st bit means From DCE */

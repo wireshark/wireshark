@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary window
  *
- * $Id: summary.c,v 1.7 1999/08/02 02:04:27 guy Exp $
+ * $Id: summary.c,v 1.8 1999/08/10 04:13:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -128,10 +128,10 @@ summary_prep_cb(GtkWidget *w, gpointer d) {
 
  guint32        traffic_bytes, i;
  double         seconds;
- GList          *cur_glist;
+ frame_data    *cur_glist;
 
  /* initialize the tally */
-  first_frame = (frame_data *)(cf.plist->data);
+  first_frame = cf.plist;
   st = (summary_tally *)g_malloc(sizeof(summary_tally));
   st->start_time = secs_usecs(first_frame->abs_secs,first_frame->abs_usecs) 
 ;
@@ -142,12 +142,10 @@ summary_prep_cb(GtkWidget *w, gpointer d) {
   cur_glist = cf.plist;
 
   for (i = 0; i < cf.count; i++){
-    cur_frame = (frame_data *)cur_glist->data;
+    cur_frame = cur_glist;
     tally_frame_data(cur_frame, st);
     cur_glist = cur_glist->next;
-    }
-
-  /*  g_list_foreach(cf.plist_first, (GFunc)tally_frame_data, st); */
+  }
 
   /* traffic_bytes will be computed here */
   traffic_bytes = st->bytes;

@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.77 1999/08/08 01:29:15 guy Exp $
+ * $Id: ethereal.c,v 1.78 1999/08/10 04:13:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1012,6 +1012,7 @@ main(int argc, char *argv[])
     
   /* Initialize the capture file struct */
   cf.plist		= NULL;
+  cf.plist_end		= NULL;
   cf.wth		= NULL;
   cf.fh			= NULL;
   cf.dfilter		= NULL;

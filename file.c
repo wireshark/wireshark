@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.58 1999/08/08 01:29:14 guy Exp $
+ * $Id: file.c,v 1.59 1999/08/10 04:13:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -150,15 +150,11 @@ open_cap_file(char *fname, capture_file *cf) {
   return (0);
 }
 
-static void
-free_packets_cb(gpointer data, gpointer user_data)
-{
-  g_free(data);
-}
-
 /* Reset everything to a pristine state */
 void
 close_cap_file(capture_file *cf, void *w, guint context) {
+  frame_data *fd, *fd_next;
+
   if (cf->fh) {
     fclose(cf->fh);
     cf->fh = NULL;
@@ -167,11 +163,12 @@ close_cap_file(capture_file *cf, void *w, guint context) {
     wtap_close(cf->wth);
     cf->wth = NULL;
   }
-  if (cf->plist) {
-    g_list_foreach(cf->plist, free_packets_cb, NULL);
-    g_list_free(cf->plist);
-    cf->plist = NULL;
+  for (fd = cf->plist; fd != NULL; fd = fd_next) {
+    fd_next = fd->next;
+    g_free(fd);
   }
+  cf->plist = NULL;
+  cf->plist_end = NULL;
   unselect_packet(cf);	/* nothing to select */
 
   gtk_clist_freeze(GTK_CLIST(packet_list));
@@ -451,14 +448,15 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   }
   if (fdata->passed_dfilter) {
 	row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
-	gtk_clist_set_row_data(GTK_CLIST(packet_list), row, fdata);
+	fdata->row = row;
 
 	/* If this was the selected packet, remember the row it's in, so
 	   we can re-select it.  ("selected_packet" is 0-origin, as it's
 	   a GList index; "count", however, is 1-origin.) */
 	if (cf->selected_packet == cf->count - 1)
 	  cf->selected_row = row;
-  }
+  } else
+	fdata->row = -1;	/* not in the display */
   fdata->cinfo = NULL;
 }
 
@@ -467,8 +465,9 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   const u_char *buf) {
   frame_data   *fdata;
   capture_file *cf = (capture_file *) user;
-  int passed;
+  int           passed;
   proto_tree   *protocol_tree;
+  frame_data   *plist_end;
 
   while (gtk_events_pending())
     gtk_main_iteration();
@@ -493,35 +492,24 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     proto_tree_free(protocol_tree);
   }
   if (passed) {
-    cf->plist = g_list_append(cf->plist, (gpointer) fdata);
+    plist_end = cf->plist_end;
+    if (plist_end != NULL)
+      plist_end->next = fdata;
+    else
+      cf->plist = fdata;
+    cf->plist_end = fdata;
 
     cf->count++;
     add_packet_to_packet_list(fdata, cf, buf);
-  } else g_free(fdata);
-}
-
-static void
-filter_packets_cb(gpointer data, gpointer user_data)
-{
-  frame_data *fd = data;
-  capture_file *cf = user_data;
-
-  cf->count++;
-
-  fseek(cf->fh, fd->file_off, SEEK_SET);
-  fread(cf->pd, sizeof(guint8), fd->cap_len, cf->fh);
-
-  add_packet_to_packet_list(fd, cf, cf->pd);
-
-  if (cf->count % 20 == 0) {
-	  dfilter_progress_cb(cf);
-  }
+  } else
+    g_free(fdata);
 }
 
 void
 filter_packets(capture_file *cf)
 {
 /*  gint timeout;*/
+  frame_data *fd;
 
   if (cf->dfilter != NULL) {
     /*
@@ -558,7 +546,18 @@ filter_packets(capture_file *cf)
   cf->count = 0;
 
 /*  timeout = gtk_timeout_add(250, dfilter_progress_cb, cf);*/
-  g_list_foreach(cf->plist, filter_packets_cb, cf);
+  for (fd = cf->plist; fd != NULL; fd = fd->next) {
+    cf->count++;
+
+    fseek(cf->fh, fd->file_off, SEEK_SET);
+    fread(cf->pd, sizeof(guint8), fd->cap_len, cf->fh);
+
+    add_packet_to_packet_list(fd, cf, cf->pd);
+
+    if (cf->count % 20 == 0) {
+      dfilter_progress_cb(cf);
+    }
+  }
 /*  gtk_timeout_remove(timeout);*/
  
   gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);
@@ -596,31 +595,12 @@ dfilter_progress_cb(gpointer p) {
 }
 
 
-static void
-print_packets_cb(gpointer data, gpointer user_data)
-{
-  frame_data *fd = data;
-  capture_file *cf = user_data;
-  proto_tree *protocol_tree;
-
-  cf->count++;
-
-  fseek(cf->fh, fd->file_off, SEEK_SET);
-  fread(cf->pd, sizeof(guint8), fd->cap_len, cf->fh);
-
-  /* create the logical protocol tree */
-  protocol_tree = proto_tree_create_root();
-  dissect_packet(cf->pd, fd, protocol_tree);
-
-  /* Print the packet */
-  proto_tree_print(cf->count, (GNode *)protocol_tree, cf->pd, fd, cf->print_fh);
-
-  proto_tree_free(protocol_tree);
-}
-
 int
 print_packets(capture_file *cf, int to_file, const char *dest)
 {
+  frame_data *fd;
+  proto_tree *protocol_tree;
+
   cf->print_fh = open_print_dest(to_file, dest);
   if (cf->print_fh == NULL)
     return FALSE;	/* attempt to open destination failed */
@@ -638,7 +618,21 @@ print_packets(capture_file *cf, int to_file, const char *dest)
    * Iterate through the list of packets, printing each of them.
    */
   cf->count = 0;
-  g_list_foreach(cf->plist, print_packets_cb, cf);
+  for (fd = cf->plist; fd != NULL; fd = fd->next) {
+    cf->count++;
+
+    fseek(cf->fh, fd->file_off, SEEK_SET);
+    fread(cf->pd, sizeof(guint8), fd->cap_len, cf->fh);
+
+    /* create the logical protocol tree */
+    protocol_tree = proto_tree_create_root();
+    dissect_packet(cf->pd, fd, protocol_tree);
+
+    /* Print the packet */
+    proto_tree_print(cf->count, (GNode *)protocol_tree, cf->pd, fd, cf->print_fh);
+
+    proto_tree_free(protocol_tree);
+  }
 
 #if 0
   print_finale(cf->print_fh);
@@ -649,49 +643,13 @@ print_packets(capture_file *cf, int to_file, const char *dest)
   return TRUE;
 }
 
-static void
-change_time_formats_cb(gpointer data, gpointer user_data)
-{
-  frame_data *fd = data;
-  capture_file *cf = user_data;
-  gint          i;
-
-  cf->count++;
-
-  /* XXX - there really should be a way of checking "cf->cinfo" for this;
-     the answer isn't going to change from packet to packet, so we should
-     simply skip all the "change_time_formats()" work if we're not
-     changing anything. */
-  fd->cinfo = &cf->cinfo;
-  if (!check_col(fd, COL_CLS_TIME)) {
-    /* There are no columns that show the time in the "command-line-specified"
-       format, so there's nothing we need to do. */
-    return;
-  }
-
-  compute_time_stamps(fd, cf);
-
-  for (i = 0; i < fd->cinfo->num_cols; i++) {
-    fd->cinfo->col_data[i][0] = '\0';
-  }
-  col_add_cls_time(fd);
-  for (i = 0; i < fd->cinfo->num_cols; i++) {
-    if (fd->cinfo->fmt_matx[i][COL_CLS_TIME]) {
-      /* This is one of the columns that shows the time in
-         "command-line-specified" format; update it. */
-      gtk_clist_set_text(GTK_CLIST(packet_list), cf->count - 1, i,
-			  fd->cinfo->col_data[i]);
-    }
-  }
-  fd->cinfo = NULL;
-}
-
 /* Scan through the packet list and change all columns that use the
    "command-line-specified" time stamp format to use the current
    value of that format. */
 void
 change_time_formats(capture_file *cf)
 {
+  frame_data *fd;
   int i;
   GtkStyle  *pl_style;
 
@@ -709,7 +667,32 @@ change_time_formats(capture_file *cf)
   lastsec = 0;
   lastusec = 0;
   cf->count = 0;
-  g_list_foreach(cf->plist, change_time_formats_cb, cf);
+  for (fd = cf->plist; fd != NULL; fd = fd->next) {
+    cf->count++;
+
+    /* XXX - there really should be a way of checking "cf->cinfo" for this;
+       the answer isn't going to change from packet to packet, so we should
+       simply skip all the "change_time_formats()" work if we're not
+       changing anything. */
+    if (check_col(fd, COL_CLS_TIME)) {
+      /* There are columns that show the time in the "command-line-specified"
+         format; update them. */
+      compute_time_stamps(fd, cf);
+
+      for (i = 0; i < cf->cinfo.num_cols; i++) {
+        cf->cinfo.col_data[i][0] = '\0';
+      }
+      col_add_cls_time(fd);
+      for (i = 0; i < cf->cinfo.num_cols; i++) {
+        if (cf->cinfo.fmt_matx[i][COL_CLS_TIME]) {
+          /* This is one of the columns that shows the time in
+             "command-line-specified" format; update it. */
+          gtk_clist_set_text(GTK_CLIST(packet_list), cf->count - 1, i,
+			  cf->cinfo.col_data[i]);
+        }
+      }
+    }
+  }
 
   /* Set the column widths of those columns that show the time in
      "command-line-specified" format. */
@@ -744,21 +727,29 @@ clear_tree_and_hex_views(void)
 void
 select_packet(capture_file *cf, int row)
 {
+  frame_data *fd;
+  int i;
+
   /* Clear out whatever's currently in the hex dump. */
   gtk_text_freeze(GTK_TEXT(byte_view));
   gtk_text_set_point(GTK_TEXT(byte_view), 0);
   gtk_text_forward_delete(GTK_TEXT(byte_view),
     gtk_text_get_length(GTK_TEXT(byte_view)));
 
-  /* Get the frame data struct pointer for this frame. */
-  cf->fd = (frame_data *) gtk_clist_get_row_data(GTK_CLIST(packet_list), row);
+  /* Search through the list of frames to see which one is in
+     this row. */
+  for (fd = cf->plist, i = 0; fd != NULL; fd = fd->next, i++) {
+    if (fd->row == row)
+      break;
+  }
+  cf->fd = fd;
+
+  /* Remember the ordinal number of that frame. */
+  cf->selected_packet = i;
 
   /* Get the data in that frame. */
   fseek(cf->fh, cf->fd->file_off, SEEK_SET);
   fread(cf->pd, sizeof(guint8), cf->fd->cap_len, cf->fh);
-
-  /* Mark that frame as the selected frame. */
-  cf->selected_packet = g_list_index(cf->plist, (gpointer)cf->fd);
 
   /* Create the logical protocol tree. */
   if (cf->protocol_tree)
