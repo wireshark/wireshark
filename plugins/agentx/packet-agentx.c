@@ -156,6 +156,7 @@ static const value_string type_values [] = {
         { AGENTX_ADD_AGENT_CAPS_PDU, 	"AddAgentCaps-PDU" },
         { AGENTX_REM_AGENT_CAPS_PDU, 	"RemoveAgentCaps-PDU" },
         { AGENTX_RESPONSE_PDU, 		"Response-PDU" },
+        { 0, NULL }
 };
 
 
@@ -189,7 +190,8 @@ static const value_string vtag_values [] = {
  	{ VB_COUNTER64,		"Counter64" },
  	{ VB_NOSUCHOBJ,		"noSuchObject" },
  	{ VB_NOSUCHINST,	"noSuchInstance" },
- 	{ VB_ENDOFMIB,		"endOfMibView" },
+	{ VB_ENDOFMIB,		"endOfMibView" },
+	{ 0, NULL }
 };
 
 
@@ -209,6 +211,7 @@ static const value_string close_reasons[] = {
 	{ CREASON_TIMEOUTS, 		"reasonTimeouts" },
 	{ CREASON_SHUTDOWN , 		"reasonShutdown" },
 	{ CREASON_BY_MANAGER, 		"reasonByManager" },
+	{ 0, NULL }
 };
 
 
