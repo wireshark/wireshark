@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.29 2003/07/22 23:08:48 guy Exp $
+ * $Id: find_dlg.c,v 1.30 2003/08/05 00:01:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,9 @@
 #define E_FIND_ASCIIDATA_KEY "find_ascii"
 #define E_FIND_FILTERDATA_KEY "find_filter"
 #define E_FIND_STRINGTYPE_KEY "find_string_type"
+#define E_CASE_SEARCH_KEY "case_insensitive_search"
+
+static gboolean case_type = TRUE;
 
 static void
 find_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
@@ -74,7 +77,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
                 *direction_hb, *forward_rb, *backward_rb, 
                 *hex_hb, *hex_rb, *ascii_rb, *filter_rb,
                 *combo_hb, *combo_cb, *combo_lb,
-                *bbox, *ok_bt, *cancel_bt;
+                *bbox, *ok_bt, *cancel_bt, *case_cb;
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
 #endif
@@ -208,7 +211,6 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(combo_lb);
   /* Create Combo Box */
   combo_cb = gtk_combo_new();
-  /*gtk_entry_set_text(GTK_ENTRY(GTK_COMBO(combo)->entry), "Find String Type:");*/
 
   glist = g_list_append(glist, "ASCII Unicode & Non-Unicode");
   glist = g_list_append(glist, "ASCII Non-Unicode");
@@ -218,6 +220,18 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_combo_set_popdown_strings(GTK_COMBO(combo_cb), glist);
   gtk_container_add(GTK_CONTAINER(main_vb), combo_cb);
   gtk_widget_show(combo_cb);
+
+#if GTK_MAJOR_VERSION < 2
+  case_cb = dlg_check_button_new_with_label_with_mnemonic(
+		"Case Insensitive Search", accel_group);
+#else
+  case_cb = gtk_check_button_new_with_mnemonic(
+		"Case Insensitive Search");
+#endif
+  gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(case_cb),
+		case_type);
+  gtk_container_add(GTK_CONTAINER(main_vb), case_cb);
+  gtk_widget_show(case_cb);
 
   /* Button row: OK and cancel buttons */
   bbox = gtk_hbutton_box_new();
@@ -254,6 +268,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   OBJECT_SET_DATA(find_frame_w, E_FIND_HEXDATA_KEY, hex_rb);
   OBJECT_SET_DATA(find_frame_w, E_FIND_ASCIIDATA_KEY, ascii_rb);
   OBJECT_SET_DATA(find_frame_w, E_FIND_STRINGTYPE_KEY, combo_cb);
+  OBJECT_SET_DATA(find_frame_w, E_CASE_SEARCH_KEY, case_cb);
   
 
   /* Catch the "activate" signal on the filter text entry, so that
@@ -276,7 +291,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 static void
 find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
-  GtkWidget *filter_te, *backward_rb, *hex_rb, *ascii_rb, *combo_cb;
+  GtkWidget *filter_te, *backward_rb, *hex_rb, *ascii_rb, *combo_cb, *case_cb;
   gchar     *filter_text, *string_type;
   dfilter_t *sfcode;
 
@@ -285,9 +300,12 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   hex_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_HEXDATA_KEY);
   ascii_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_ASCIIDATA_KEY);
   combo_cb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGTYPE_KEY);
+  case_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CASE_SEARCH_KEY);
 
   filter_text = gtk_entry_get_text(GTK_ENTRY(filter_te));
   string_type = gtk_entry_get_text(GTK_ENTRY(GTK_COMBO(combo_cb)->entry));
+
+  case_type = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(case_cb));
 
   /*
    * Try to compile the filter.
@@ -327,7 +345,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
   }
   else
   {
-      if (!find_ascii(&cfile, filter_text, cfile.ascii, string_type)) {
+      if (!find_ascii(&cfile, filter_text, cfile.ascii, string_type, case_type)) {
           /* We didn't find the packet. */
           simple_dialog(ESD_TYPE_CRIT, NULL, "No packet matched search criteria.");
           return;
@@ -364,7 +382,7 @@ find_previous_next(GtkWidget *w, gpointer d, gboolean sens)
      cfile.sbackward = sens;
      if (cfile.hex || cfile.ascii) 
      {
-         find_ascii(&cfile, cfile.sfilter, cfile.ascii, cfile.ftype);
+         find_ascii(&cfile, cfile.sfilter, cfile.ascii, cfile.ftype, case_type);
      }
      else 
      {

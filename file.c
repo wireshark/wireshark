@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.300 2003/07/22 23:08:47 guy Exp $
+ * $Id: file.c,v 1.301 2003/08/05 00:01:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1456,7 +1456,7 @@ get_int_value(char char_val)
 }
 
 gboolean
-find_ascii(capture_file *cf, char *ascii_text, gboolean ascii_search, char *ftype)
+find_ascii(capture_file *cf, char *ascii_text, gboolean ascii_search, char *ftype, gboolean case_type)
 {
     frame_data *start_fd;
     frame_data *fdata;
@@ -1477,6 +1477,7 @@ find_ascii(capture_file *cf, char *ascii_text, gboolean ascii_search, char *ftyp
     guint8      hex_val=0;
     char        char_val;
     guint8      num1, num2;
+    gchar       *uppercase;
 
     start_fd = cf->current_frame;
     if (start_fd != NULL)  {
@@ -1485,6 +1486,10 @@ find_ascii(capture_file *cf, char *ascii_text, gboolean ascii_search, char *ftyp
          it matches, and stop if so.  */
       count = 0;
       fdata = start_fd;
+
+      if (case_type && ascii_search) {
+          g_strup(ascii_text);
+      }
 
       cf->progbar_nextstep = 0;
       /* When we reach the value that triggers a progress bar update,
@@ -1554,7 +1559,13 @@ find_ascii(capture_file *cf, char *ascii_text, gboolean ascii_search, char *ftyp
           frame_matched = FALSE;
           buf_len = fdata->pkt_len;
           for (i=0;i<buf_len;i++) {
-              c_char = cf->pd[i];
+              if (ascii_search && case_type) {
+                  uppercase = &cf->pd[i];
+                  g_strup(uppercase);
+                  c_char = uppercase[0];
+              }
+              else
+                c_char = cf->pd[i];
               /* Check to see if this is an String or Hex search */
               if (ascii_search) {
                   /* Now check the String Type */

@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.101 2003/07/25 17:57:06 guy Exp $
+ * $Id: file.h,v 1.102 2003/08/05 00:01:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,7 +57,7 @@ int print_packets(capture_file *cf, print_args_t *print_args);
 void change_time_formats(capture_file *);
 gboolean find_packet(capture_file *cf, dfilter_t *sfcode);
 guint8 get_int_value(char char_val);
-gboolean find_ascii(capture_file *cf, char *ascii_text, gboolean ascii_search, char *ftype);
+gboolean find_ascii(capture_file *cf, char *ascii_text, gboolean ascii_search, char *ftype, gboolean case_type);
 
 gboolean goto_frame(capture_file *cf, guint fnumber);
 
