@@ -2,7 +2,7 @@
  * Routines for java rmiregistry dissection
  * Copyright 2002, Michael Stiller <ms@2scale.net>
  *
- * $Id: packet-rmi.c,v 1.6 2003/02/05 06:16:32 guy Exp $
+ * $Id: packet-rmi.c,v 1.7 2003/03/09 03:19:03 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,7 +39,7 @@
 #include "packet-rmi.h"
 
 static void
-dissect_ser(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+dissect_ser(tvbuff_t *tvb, proto_tree *tree);
 
 static rmi_type
 get_rmi_type(const guchar *data, int datalen);
@@ -222,7 +222,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(rmi_tree, tvb, offset + 1, -1,
 				    "Serialization Data");
 		next_tvb = tvb_new_subset(tvb, offset + 1, -1, -1);
-		dissect_ser(next_tvb, pinfo, tree);
+		dissect_ser(next_tvb, tree);
 	    }
 	    break;
 	case RMI_OUTPUTMESSAGE:
@@ -234,7 +234,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "Serialization Data");
 		/* XXX */
 		next_tvb = tvb_new_subset(tvb, offset + 1, -1, -1);
-		dissect_ser(next_tvb, pinfo, tree);
+		dissect_ser(next_tvb, tree);
 	    }
 	    if(message == RMI_OUTPUTSTREAM_MESSAGE_DGCACK) {
 		proto_tree_add_text(rmi_tree, tvb, offset + 1, -1,
@@ -242,7 +242,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    }
 	    break;
 	case SERIALIZATION_DATA:
-	    dissect_ser(tvb, pinfo, tree);
+	    dissect_ser(tvb, tree);
 	    break;
 	default:
 	    break;
@@ -251,7 +251,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-dissect_ser(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ser(tvbuff_t *tvb, proto_tree *tree)
 {
     proto_item *ti;
     proto_tree *ser_tree;
