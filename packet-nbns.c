@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.77 2002/08/02 23:35:54 jmayer Exp $
+ * $Id: packet-nbns.c,v 1.78 2002/08/07 00:43:13 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1467,11 +1467,17 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				"Called name", name, name_type);
 	  offset += len;
 
+	  if (check_col(pinfo->cinfo, COL_INFO))
+		  col_append_fstr(pinfo->cinfo, COL_INFO, ", to %s ", name);
+				  
 	  len = get_nbns_name(tvb, offset, offset, name, &name_type);
 	  
 	  if (tree)
 	    add_name_and_type(nbss_tree, tvb, offset, len,
 				"Calling name", name, name_type);
+
+	  if (check_col(pinfo->cinfo, COL_INFO))
+		  col_append_fstr(pinfo->cinfo, COL_INFO, "from %s", name);
 
 	  break;
 
@@ -1481,6 +1487,12 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				"Error code: %s",
 				val_to_str(tvb_get_guint8(tvb, offset),
 					   error_codes, "Unknown (%x)"));
+
+	  if (check_col(pinfo->cinfo, COL_INFO))
+		  col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+				  val_to_str(tvb_get_guint8(tvb, offset),
+					     error_codes, "Unknown (%x)"));
+
 	  break;
 
 	case RETARGET_SESSION_RESPONSE:
