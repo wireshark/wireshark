@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.39 1999/11/30 23:56:35 gram Exp $
+ * $Id: packet-ipx.c,v 1.40 1999/12/03 21:23:50 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -119,6 +119,11 @@ struct server_info {
 /* IPX                                                               */
 /* ================================================================= */
 
+/* info on these sockets can be found in this listing from Novell:
+
+	http://developer.novell.com/engsup/sample/tids/dsoc1b/dsoc1b.htm
+*/
+
 #define IPX_SOCKET_NCP			0x0451
 #define IPX_SOCKET_SAP			0x0452
 #define IPX_SOCKET_IPXRIP		0x0453
@@ -132,6 +137,7 @@ struct server_info {
 #define IPX_SOCKET_ATTACHMATE_GW	0x055d
 #define IPX_SOCKET_IPX_MESSAGE		0x4001
 #define IPX_SOCKET_ADSM                 0x8522 /* www.tivoli.com */
+#define IPX_SOCKET_WIDE_AREA_ROUTER	0x9001
 #define IPX_SOCKET_SNMP_AGENT           0x900F /* RFC 1906 */
 #define IPX_SOCKET_SNMP_SINK            0x9010 /* RFC 1906 */
 #define IPX_SOCKET_TCP_TUNNEL           0x9091 /* RFC 1791 */
@@ -166,6 +172,7 @@ static struct port_info	ports[] = {
 	{ IPX_SOCKET_TCP_TUNNEL, NULL, "TCP Tunnel" },
 	{ IPX_SOCKET_TCP_TUNNEL, NULL, "TCP Tunnel" },
 	{ IPX_SOCKET_ADSM, NULL, "ADSM" },
+	{ IPX_SOCKET_WIDE_AREA_ROUTER, NULL, "Wide Area Router" },
 	{ 0x0000,				NULL,
 				NULL }
 };
