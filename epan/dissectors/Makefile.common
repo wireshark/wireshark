@@ -744,6 +744,7 @@ DISSECTOR_INCLUDES =	\
 	packet-rx.h	\
 	packet-scsi.h	\
 	packet-sctp.h	\
+	packet-sdp.h	\
 	packet-ses.h	\
 	packet-sip.h	\
 	packet-sll.h	\

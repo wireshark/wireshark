@@ -166,7 +166,7 @@ static void dialog_graph_set_title(graph_analysis_data_t* user_data)
 #define HEIGHT_ARROW 6
 
 /****************************************************************************/
-static void draw_arrow(GdkDrawable *pixmap, GdkGC *gc, gint x, gint y, boolean direction)
+static void draw_arrow(GdkDrawable *pixmap, GdkGC *gc, gint x, gint y, gboolean direction)
 {
 	GdkPoint arrow_point[3];
 
