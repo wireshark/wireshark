@@ -1,7 +1,7 @@
 /* capture_info_dlg.c
  * Routines for packet capture info dialog
  *
- * $Id: capture_info_dlg.c,v 1.2 2003/11/17 00:27:33 guy Exp $
+ * $Id: capture_info_dlg.c,v 1.3 2003/11/17 20:00:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -93,25 +93,31 @@ capture_info    *cinfo)
   GtkWidget         *iface_lb, *iface_name_lb, *iface_descr_lb;
   capture_info_ui_t *info;
 
-
-  const capture_info_counts_t counts_init[CAPTURE_PACKET_COUNTS] = {
-      { "Total",    &(cinfo->counts->total),    NULL, NULL, NULL, NULL },
-      { "SCTP",     &(cinfo->counts->sctp),     NULL, NULL, NULL, NULL },
-      { "TCP",      &(cinfo->counts->tcp),      NULL, NULL, NULL, NULL },
-      { "UDP",      &(cinfo->counts->udp),      NULL, NULL, NULL, NULL },
-      { "ICMP",     &(cinfo->counts->icmp),     NULL, NULL, NULL, NULL },
-      { "ARP",      &(cinfo->counts->arp),      NULL, NULL, NULL, NULL },
-      { "OSPF",     &(cinfo->counts->ospf),     NULL, NULL, NULL, NULL },
-      { "GRE",      &(cinfo->counts->gre),      NULL, NULL, NULL, NULL },
-      { "NetBIOS",  &(cinfo->counts->netbios),  NULL, NULL, NULL, NULL },
-      { "IPX",      &(cinfo->counts->ipx),      NULL, NULL, NULL, NULL },
-      { "VINES",    &(cinfo->counts->vines),    NULL, NULL, NULL, NULL },
-      { "Other",    &(cinfo->counts->other),    NULL, NULL, NULL, NULL }
-  };
-
-
-  info = g_malloc(sizeof(capture_info_ui_t));
-  memcpy(info->counts, counts_init, sizeof(counts_init));
+  info = g_malloc0(sizeof(capture_info_ui_t));
+  info->counts[0].title = "Total";
+  info->counts[0].value_ptr = &(cinfo->counts->total);
+  info->counts[1].title = "SCTP";
+  info->counts[1].value_ptr = &(cinfo->counts->sctp);
+  info->counts[2].title = "TCP";
+  info->counts[2].value_ptr = &(cinfo->counts->tcp);
+  info->counts[3].title = "UDP";
+  info->counts[3].value_ptr = &(cinfo->counts->udp);
+  info->counts[4].title = "ICMP";
+  info->counts[4].value_ptr = &(cinfo->counts->icmp);
+  info->counts[5].title = "ARP";
+  info->counts[5].value_ptr = &(cinfo->counts->arp);
+  info->counts[6].title = "OSPF";
+  info->counts[6].value_ptr = &(cinfo->counts->ospf);
+  info->counts[7].title = "GRE";
+  info->counts[7].value_ptr = &(cinfo->counts->gre);
+  info->counts[8].title = "NetBIOS";
+  info->counts[8].value_ptr = &(cinfo->counts->netbios);
+  info->counts[9].title = "IPX";
+  info->counts[9].value_ptr = &(cinfo->counts->ipx);
+  info->counts[10].title = "VINES";
+  info->counts[10].value_ptr = &(cinfo->counts->vines);
+  info->counts[11].title = "Other";
+  info->counts[11].value_ptr = &(cinfo->counts->other);
 
   info->cap_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(info->cap_w), "Ethereal: Capture");
