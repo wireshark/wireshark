@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.3 2000/06/12 09:32:06 guy Exp $
+ * $Id: packet-x11.c,v 1.4 2000/06/12 19:19:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -576,7 +576,7 @@ static const value_string zero_is_none_vals[] = {
  ************************************************************************/
 
 static int cur_offset;         /* The current offset in the frame */
-static int next_offset = NULL; /* Offset of the next request in the frame */    
+static int next_offset = 0; /* Offset of the next request in the frame */    
 static tvbuff_t *tvb = NULL;
 static gboolean little_endian = TRUE;
 static proto_tree *t = NULL;
