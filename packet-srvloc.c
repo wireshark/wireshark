@@ -2,12 +2,14 @@
  * Routines for SRVLOC (Service Location Protocol) packet dissection
  * Copyright 1999, James Coe <jammer@cin.net>
  * Copyright 2002, Brad Hards
+ * Updated for TCP segments by Greg Morris <gmorris@novell.com>
+ * Copyright 2003, Greg Morris
  *
  * NOTE: This is Alpha software not all features have been verified yet.
  *       In particular I have not had an opportunity to see how it
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.41 2003/06/25 23:27:56 guy Exp $
+ * $Id: packet-srvloc.c,v 1.42 2003/08/18 18:06:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,7 +47,11 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include "prefs.h"
+#include "packet-tcp.h"
+#include "reassemble.h"
 
+static gboolean srvloc_desegment = TRUE;
 static int proto_srvloc = -1;
 static int hf_srvloc_version = -1;
 static int hf_srvloc_function = -1;
@@ -951,6 +957,41 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
+static guint
+get_srvloc_pdu_len(tvbuff_t *tvb, int offset)
+{
+    /*
+     * Get the length of the SRVLOC packet.
+     */
+    return tvb_get_ntohs(tvb, offset + 2);
+}
+
+static void
+dissect_srvloc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    proto_tree	    *srvloc_tree = NULL;
+    proto_item	    *ti;
+
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SRVLOC");
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
+	
+    if (tree) {
+        ti = proto_tree_add_item(tree, proto_srvloc, tvb, 0, -1, FALSE);
+        srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
+    }
+    dissect_srvloc(tvb, pinfo, srvloc_tree);
+}
+
+static void
+dissect_srvloc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, srvloc_desegment, 0, get_srvloc_pdu_len,
+	dissect_srvloc_pdu);
+}
+
 /* Register protocol with Ethereal. */
 
 void
@@ -1385,19 +1426,27 @@ proto_register_srvloc(void)
 	&ett_srvloc,
 	&ett_srvloc_flags,
     };
+	module_t *srvloc_module;
 
     proto_srvloc = proto_register_protocol("Service Location Protocol",
 					   "SRVLOC", "srvloc");
     proto_register_field_array(proto_srvloc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+	srvloc_module = prefs_register_protocol(proto_srvloc, NULL);
+	prefs_register_bool_preference(srvloc_module, "desegment_tcp",
+	    "Desegment all SRVLOC messages spanning multiple TCP segments",
+	    "Whether the SRVLOC dissector should desegment all messages spanning multiple TCP segments",
+	    &srvloc_desegment);
 }
 
 void
 proto_reg_handoff_srvloc(void)
 {
-    dissector_handle_t srvloc_handle;
+    dissector_handle_t srvloc_handle, srvloc_tcp_handle;
 
     srvloc_handle = create_dissector_handle(dissect_srvloc, proto_srvloc);
-    dissector_add("tcp.port", TCP_PORT_SRVLOC, srvloc_handle);
     dissector_add("udp.port", UDP_PORT_SRVLOC, srvloc_handle);
+    srvloc_tcp_handle = create_dissector_handle(dissect_srvloc_tcp,
+						proto_srvloc);
+    dissector_add("tcp.port", TCP_PORT_SRVLOC, srvloc_tcp_handle);
 }

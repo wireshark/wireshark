@@ -1310,6 +1310,7 @@ Greg Morris <GMORRIS[AT]novell.com> {
 	NCP - NetWare Core Protocol
 	NDPS - Novell Distributed Print System
 	"Find Frame" code to search for text or binary data
+	SRVLOC-over-TCP support
 }
 
 Dirk Steinberg <dws[AT]dirksteinberg.de> {
