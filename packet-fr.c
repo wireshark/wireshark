@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.43 2003/09/03 22:26:37 guy Exp $
+ * $Id: packet-fr.c,v 1.44 2003/09/06 12:31:32 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,6 +97,7 @@ static gint hf_fr_pid   = -1;
 static gint hf_fr_snaptype = -1;
 static gint hf_fr_chdlctype = -1;
 
+static dissector_handle_t eth_handle;
 static dissector_handle_t gprs_ns_handle;
 static dissector_handle_t data_handle;
 
@@ -108,6 +109,7 @@ static dissector_table_t osinl_subdissector_table;
  */
 #define FRF_3_2		0	/* FRF 3.2 or Cisco HDLC */
 #define GPRS_NS		1	/* GPRS Network Services (3GPP TS 08.16) */
+#define RAW_ETHER	2	/* Raw Ethernet */
 
 static gint fr_encap = FRF_3_2;
 
@@ -374,6 +376,14 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     else
       dissect_lapf(next_tvb, pinfo, tree);
     break;
+
+  case RAW_ETHER:
+    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+    if (address != 0)
+      call_dissector(eth_handle, next_tvb, pinfo, tree);
+    else
+      dissect_lapf(next_tvb, pinfo, tree);
+    break;
   }
 }
 
@@ -601,6 +611,7 @@ void proto_register_fr(void)
   static enum_val_t fr_encap_options[] = {
     {"FRF 3.2/Cisco HDLC", FRF_3_2 },
     {"GPRS Network Service", GPRS_NS },
+    {"Raw Ethernet", RAW_ETHER },
     { NULL, 0 },
   };
   module_t *frencap_module;
@@ -634,6 +645,7 @@ void proto_reg_handoff_fr(void)
   fr_phdr_handle = create_dissector_handle(dissect_fr_phdr, proto_fr);
   dissector_add("wtap_encap", WTAP_ENCAP_FRELAY_WITH_PHDR, fr_phdr_handle);
 
+  eth_handle = find_dissector("eth");
   gprs_ns_handle = find_dissector("gprs_ns");
   data_handle = find_dissector("data");
 
