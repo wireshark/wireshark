@@ -1,7 +1,7 @@
 /* value_string.h
  * Definitions for value_string structures and routines
  *
- * $Id: value_string.h,v 1.5 2004/02/22 22:45:21 guy Exp $
+ * $Id: value_string.h,v 1.6 2004/05/07 11:34:10 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,14 +35,25 @@ typedef struct _value_string {
   gchar   *strptr;
 } value_string;
 
-#define VS_DEF(x) { x, #x }
-#define VS_END    { 0, NULL }
+/* #define VS_DEF(x) { x, #x } */
+/* #define VS_END    { 0, NULL } */
 
-extern gchar*     match_strval(guint32, const value_string*);
+/* Tries to match val against each element in the value_string array vs.
+   Returns the associated string ptr on a match, or NULL on failure. */
+extern gchar*     match_strval(guint32 val, const value_string *vs);
 
-extern gchar*     val_to_str(guint32, const value_string *, const char *);
+/* Tries to match val against each element in the value_string array vs.
+   Returns the associated string ptr on a match.
+   Formats val with fmt, and returns the resulting string, on failure. */
+extern gchar*     val_to_str(guint32 val, const value_string *vs, const char *fmt);
+
+/* Generate a string describing an enumerated bitfield (an N-bit field
+   with various specific values having particular names). */
 extern const char *decode_enumerated_bitfield(guint32 val, guint32 mask,
   int width, const value_string *tab, const char *fmt);
+
+/* Generate a string describing an enumerated bitfield (an N-bit field
+   with various specific values having particular names). */
 extern const char *decode_enumerated_bitfield_shifted(guint32 val, guint32 mask,
   int width, const value_string *tab, const char *fmt);
 
