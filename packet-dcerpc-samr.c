@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.59 2002/11/10 09:49:38 sahlberg Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.60 2002/11/10 20:17:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,6 +81,10 @@ static int hf_samr_mask = -1;
 static int hf_samr_crypt_password = -1;
 static int hf_samr_crypt_hash = -1;
 static int hf_samr_lm_change = -1;
+static int hf_samr_lm_passchange_block = -1;
+static int hf_samr_nt_passchange_block = -1;
+static int hf_samr_lm_verifier = -1;
+static int hf_samr_nt_verifier = -1;
 static int hf_samr_attrib = -1;
 static int hf_samr_max_pwd_age = -1;
 static int hf_samr_min_pwd_age = -1;
@@ -1633,6 +1637,99 @@ samr_dissect_CRYPT_HASH(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+samr_dissect_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
+				 packet_info *pinfo _U_, proto_tree *tree,
+				 char *drep _U_)
+{
+	dcerpc_info *di;
+
+	/* Right now, this just dumps the output.  In the long term, we can use
+	   the algorithm discussed in lkcl -"DCE/RPC over SMB" page 257 to
+	   actually decrypt the block */
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/* just a run to handle conformant arrays, no scalars to dissect */
+		return offset;
+	}
+
+	proto_tree_add_item(tree, hf_samr_nt_passchange_block, tvb, offset,
+			    516, FALSE);
+	offset += 516;
+	return offset;
+}
+
+static int
+samr_dissect_LM_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
+				 packet_info *pinfo _U_, proto_tree *tree,
+				 char *drep _U_)
+{
+	dcerpc_info *di;
+
+	/* Right now, this just dumps the output.  In the long term, we can use
+	   the algorithm discussed in lkcl -"DCE/RPC over SMB" page 257 to
+	   actually decrypt the block */
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/* just a run to handle conformant arrays, no scalars to dissect */
+		return offset;
+	}
+
+	proto_tree_add_item(tree, hf_samr_lm_passchange_block, tvb, offset, 
+			    516, FALSE);
+	offset += 516;
+	return offset;
+}
+
+static int
+samr_dissect_LM_VERIFIER(tvbuff_t *tvb, int offset,
+			 packet_info *pinfo _U_, proto_tree *tree,
+			 char *drep _U_)
+{
+	dcerpc_info *di;
+
+	/* Right now, this just dumps the output.  In the long term, we can use
+	   the algorithm discussed in lkcl -"DCE/RPC over SMB" page 257 to
+	   actually validate the verifier */
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/* just a run to handle conformant arrays, no scalars to dissect */
+		return offset;
+	}
+
+	proto_tree_add_item(tree, hf_samr_lm_verifier, tvb, offset, 16,
+		FALSE);
+	offset += 16;
+	return offset;
+}
+
+
+static int
+samr_dissect_NT_VERIFIER(tvbuff_t *tvb, int offset,
+			 packet_info *pinfo _U_, proto_tree *tree,
+			 char *drep _U_)
+{
+	dcerpc_info *di;
+
+	/* Right now, this just dumps the output.  In the long term, we can use
+	   the algorithm discussed in lkcl -"DCE/RPC over SMB" page 257 to
+	   actually validate the verifier */
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/* just a run to handle conformant arrays, no scalars to dissect */
+		return offset;
+	}
+
+	proto_tree_add_item(tree, hf_samr_nt_verifier, tvb, offset, 16,
+		FALSE);
+	offset += 16;
+	return offset;
+}
+
 
 static int
 samr_dissect_oem_change_password_user2_rqst(tvbuff_t *tvb, int offset,
@@ -1686,19 +1783,19 @@ samr_dissect_unicode_change_password_user2_rqst(tvbuff_t *tvb, int offset,
 			"Account Name:", hf_samr_acct_name, 1);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_CRYPT_PASSWORD, NDR_POINTER_UNIQUE,
-			"Password", -1, 0);
+			samr_dissect_NT_PASSCHANGE_BLOCK, NDR_POINTER_UNIQUE,
+			"New NT Password Encrypted Block", -1, 0);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_CRYPT_HASH, NDR_POINTER_UNIQUE,
-			"Hash", -1, 0);
+			samr_dissect_NT_VERIFIER, NDR_POINTER_UNIQUE,
+			"NT Password Verifier", -1, 0);
         offset = dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_lm_change, NULL);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_CRYPT_PASSWORD, NDR_POINTER_UNIQUE,
-			"Password", -1, 0);
+			samr_dissect_LM_PASSCHANGE_BLOCK, NDR_POINTER_UNIQUE,
+			"New Lan Manager Password Encrypted Block", -1, 0);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_CRYPT_HASH, NDR_POINTER_UNIQUE,
-			"Hash", -1, 0);
+			samr_dissect_LM_VERIFIER, NDR_POINTER_UNIQUE,
+			"Lan Manager Password Verifier", -1, 0);
 	return offset;
 }
 
@@ -4858,6 +4955,22 @@ proto_register_dcerpc_samr(void)
 	{ &hf_samr_crypt_hash, {
 		"Hash", "samr.crypt_hash", FT_BYTES, BASE_HEX,
 		NULL, 0, "Encrypted Hash", HFILL }},
+
+	{ &hf_samr_lm_verifier, {
+		"Verifier", "samr.lm_password_verifier", FT_BYTES, BASE_HEX,
+		NULL, 0, "Lan Manager Password Verifier", HFILL }},
+
+	{ &hf_samr_nt_verifier, {
+		"Verifier", "samr.nt_password_verifier", FT_BYTES, BASE_HEX,
+		NULL, 0, "NT Password Verifier", HFILL }},
+
+	{ &hf_samr_lm_passchange_block, {
+		"Encrypted Block", "samr.lm_passchange_block", FT_BYTES, BASE_HEX,
+		NULL, 0, "Lan Manager Password Change Block", HFILL }},
+
+	{ &hf_samr_nt_passchange_block, {
+		"Encrypted Block", "samr.nt_passchange_block", FT_BYTES, BASE_HEX,
+		NULL, 0, "NT Password Change Block", HFILL }},
 
 	{ &hf_samr_lm_change, {
 		"LM Change", "samr.lm_change", FT_UINT8, BASE_HEX,

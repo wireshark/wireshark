@@ -1223,7 +1223,8 @@ Devin Heitmueller <dheitmueller[AT]netilla.com> {
 	    editing code without having specified a filter name and string
 	Fix to treat the "send buffer length" in SMB RAP messages as
 	    being present in the packet
-	Dissection of NTLMSSP packets for DCERPC
+	Dissection of NTLMSSP authentication for DCERPC
+	Show proper field names for SAMR UnicodeChangePassword2
 }
 
 Chenjiang Hu <chu[AT]chiaro.com> {
