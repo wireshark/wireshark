@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.105 2002/10/23 21:17:03 guy Exp $
+ * $Id: packet-rpc.c,v 1.106 2002/10/24 03:54:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2100,7 +2100,14 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (ptree) {
 			proto_tree_add_uint(ptree,
 				hf_rpc_programversion, tvb, 0, 0, vers);
-			procedure_hf = g_array_index(rpc_prog->procedure_hfs, int, vers);
+			if (rpc_prog->procedure_hfs->len > vers)
+				procedure_hf = g_array_index(rpc_prog->procedure_hfs, int, vers);
+			else {
+				/*
+				 * No such element in the GArray.
+				 */
+				procedure_hf = 0;
+			}
 			if (procedure_hf != 0 && procedure_hf != -1) {
 				proto_tree_add_uint(ptree,
 					procedure_hf, tvb, 0, 0, proc);
