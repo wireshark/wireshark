@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.10 2002/03/11 00:15:20 sahlberg Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.11 2002/03/11 00:28:21 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -103,6 +103,28 @@ int
 dissect_ndr_nt_LOGON_HOURS(tvbuff_t *tvb, int offset, 
 			packet_info *pinfo, proto_tree *parent_tree,
 			char *drep);
+int
+dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, 
+			packet_info *pinfo, proto_tree *tree, 
+			char *drep);
+int
+dissect_ndr_nt_PSID(tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *parent_tree,
+                             char *drep);
+int
+dissect_ndr_nt_PSID_ARRAY(tvbuff_t *tvb, int offset, 
+			packet_info *pinfo, proto_tree *parent_tree,
+			char *drep);
+
+int
+dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY(tvbuff_t *tvb, int offset, 
+			packet_info *pinfo, proto_tree *parent_tree,
+			char *drep);
+int
+dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset, 
+			packet_info *pinfo, proto_tree *parent_tree,
+			char *drep);
+
 
 
 #endif /* packet-dcerpc-nt.h */

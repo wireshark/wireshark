@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.23 2002/03/11 00:15:20 sahlberg Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.24 2002/03/11 00:28:21 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -180,6 +180,8 @@ static gint ett_samr_member_array = -1;
 static gint ett_samr_names = -1;
 static gint ett_samr_rids = -1;
 static gint ett_nt_acct_ctrl = -1;
+static gint ett_samr_sid_and_attributes_array = -1;
+static gint ett_samr_sid_and_attributes = -1;
 
 
 static e_uuid_t uuid_dcerpc_samr = {
@@ -190,8 +192,8 @@ static e_uuid_t uuid_dcerpc_samr = {
 static guint16 ver_dcerpc_samr = 1;
 
 
-static int
-samr_dissect_SID(tvbuff_t *tvb, int offset, 
+int
+dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, 
 			packet_info *pinfo, proto_tree *tree, 
 			char *drep)
 {
@@ -213,12 +215,12 @@ samr_dissect_SID(tvbuff_t *tvb, int offset,
 }
 
 static int
-samr_dissect_SID_ptr(tvbuff_t *tvb, int offset, 
+dissect_ndr_nt_SID_ptr(tvbuff_t *tvb, int offset, 
 			packet_info *pinfo, proto_tree *tree, 
 			char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_SID, NDR_POINTER_UNIQUE,
+			dissect_ndr_nt_SID, NDR_POINTER_UNIQUE,
 			"SID pointer", -1, 1);
 	return offset;
 }
@@ -995,7 +997,7 @@ samr_dissect_open_domain_rqst(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_access, NULL);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_SID, NDR_POINTER_REF,
+			dissect_ndr_nt_SID, NDR_POINTER_REF,
 			"", -1, 0);
 	return offset;
 }
@@ -1022,7 +1024,7 @@ samr_dissect_context_handle_SID(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
                                       hf_samr_hnd, NULL);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_SID, NDR_POINTER_REF,
+			dissect_ndr_nt_SID, NDR_POINTER_REF,
 			"SID", -1, 0);
 	return offset;
 }
@@ -1863,15 +1865,15 @@ samr_dissect_lookup_domain_reply(tvbuff_t *tvb, int offset,
                              char *drep)
 {
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_SID_ptr, NDR_POINTER_REF,
+			dissect_ndr_nt_SID_ptr, NDR_POINTER_REF,
 			"", -1, 0);
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_samr_rc, NULL);
 	return offset;
 }
 
-static int
-samr_dissect_PSID(tvbuff_t *tvb, int offset, 
+int
+dissect_ndr_nt_PSID(tvbuff_t *tvb, int offset, 
                              packet_info *pinfo, proto_tree *parent_tree,
                              char *drep)
 {
@@ -1886,7 +1888,7 @@ samr_dissect_PSID(tvbuff_t *tvb, int offset,
 	}
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_SID, NDR_POINTER_UNIQUE,
+			dissect_ndr_nt_SID, NDR_POINTER_UNIQUE,
 			"SID", -1, 0);
 
 	proto_item_set_len(item, offset-old_offset);
@@ -1895,19 +1897,19 @@ samr_dissect_PSID(tvbuff_t *tvb, int offset,
 
 
 static int
-samr_dissect_PSID_ARRAY_sids (tvbuff_t *tvb, int offset, 
+dissect_ndr_nt_PSID_ARRAY_sids (tvbuff_t *tvb, int offset, 
                              packet_info *pinfo, proto_tree *tree,
                              char *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
-			samr_dissect_PSID);
+			dissect_ndr_nt_PSID);
 
 	return offset;
 }
 
 
-static int
-samr_dissect_PSID_ARRAY(tvbuff_t *tvb, int offset, 
+int
+dissect_ndr_nt_PSID_ARRAY(tvbuff_t *tvb, int offset, 
 			packet_info *pinfo, proto_tree *parent_tree,
 			char *drep)
 {
@@ -1925,12 +1927,62 @@ samr_dissect_PSID_ARRAY(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_count, &count);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_PSID_ARRAY_sids, NDR_POINTER_UNIQUE,
+			dissect_ndr_nt_PSID_ARRAY_sids, NDR_POINTER_UNIQUE,
 			"PSID_ARRAY", -1, 0);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
+
+/* called from NETLOGON but placed here since where are where the hf_fields are defined */
+int
+dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset, 
+			packet_info *pinfo, proto_tree *parent_tree,
+			char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+			"SID_AND_ATTRIBUTES:");
+		tree = proto_item_add_subtree(item, ett_samr_sid_and_attributes);
+	}
+
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
+
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     hf_samr_attrib, NULL);
+
+	return offset;
+}
+
+int
+dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY(tvbuff_t *tvb, int offset, 
+			packet_info *pinfo, proto_tree *parent_tree,
+			char *drep)
+{
+	guint32 count;
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
+			"SID_AND_ATTRIBUTES array:");
+		tree = proto_item_add_subtree(item, ett_samr_sid_and_attributes_array);
+	}
+
+	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+			hf_samr_count, &count);
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			dissect_ndr_nt_SID_AND_ATTRIBUTES);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
 
 static int
 samr_dissect_index(tvbuff_t *tvb, int offset, 
@@ -2018,7 +2070,7 @@ samr_dissect_get_alias_membership_rqst(tvbuff_t *tvb, int offset,
         offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
                                       hf_samr_hnd, NULL);
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_PSID_ARRAY, NDR_POINTER_REF,
+			dissect_ndr_nt_PSID_ARRAY, NDR_POINTER_REF,
 			"", -1, 0);
 	return offset;
 }
@@ -2035,7 +2087,6 @@ samr_dissect_get_alias_membership_reply(tvbuff_t *tvb, int offset,
 			hf_samr_rc, NULL);
 	return offset;
 }
-
 
 static int
 samr_dissect_IDX_AND_NAME(tvbuff_t *tvb, int offset, 
@@ -2230,7 +2281,7 @@ samr_dissect_get_members_in_alias_reply(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_PSID_ARRAY, NDR_POINTER_REF,
+			dissect_ndr_nt_PSID_ARRAY, NDR_POINTER_REF,
 			"", -1, 0);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_samr_rc, NULL);
@@ -3833,6 +3884,8 @@ proto_register_dcerpc_samr(void)
                 &ett_samr_member_array,
                 &ett_samr_names,
                 &ett_samr_rids,
+                &ett_samr_sid_and_attributes_array,
+                &ett_samr_sid_and_attributes,
 
                 &ett_nt_acct_ctrl,
         };
