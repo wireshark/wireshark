@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.159 2004/01/19 20:10:36 jmayer Exp $
+ * $Id: packet-dcerpc.c,v 1.160 2004/02/18 05:55:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -386,6 +386,7 @@ static int hf_dcerpc_fragment_multiple_tails = -1;
 static int hf_dcerpc_fragment_too_long_fragment = -1;
 static int hf_dcerpc_fragment_error = -1;
 static int hf_dcerpc_reassembled_in = -1;
+static int hf_dcerpc_unknown_if_id = -1;
 
 static gint ett_dcerpc = -1;
 static gint ett_dcerpc_cn_flags = -1;
@@ -3663,14 +3664,15 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     if( (!dcerpc_reassemble) || !(hdr->flags1 & PFCL1_FRAG) ||
 		!tvb_bytes_exist(tvb, offset, stub_length) ){
 	if(hdr->frag_num == 0) {
-
-
-    if (check_col (pinfo->cinfo, COL_INFO))
-        col_append_fstr (pinfo->cinfo, COL_INFO, " UNKUUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x rpcver: %u",
+	    proto_tree_add_boolean_hidden(dcerpc_tree, hf_dcerpc_unknown_if_id,
+					  tvb, offset, 0, TRUE);
+	    if (check_col (pinfo->cinfo, COL_INFO)) {
+	        col_append_fstr (pinfo->cinfo, COL_INFO, " UNKUUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x rpcver: %u",
                      di->call_data->uuid.Data1, di->call_data->uuid.Data2, di->call_data->uuid.Data3, di->call_data->uuid.Data4[0],
                      di->call_data->uuid.Data4[1], di->call_data->uuid.Data4[2], di->call_data->uuid.Data4[3],
                      di->call_data->uuid.Data4[4], di->call_data->uuid.Data4[5], di->call_data->uuid.Data4[6],
                      di->call_data->uuid.Data4[7], di->call_data->ver);
+            }
 
 
 	    /* First fragment, possibly the only fragment */
@@ -4513,8 +4515,12 @@ proto_register_dcerpc (void)
 
 	{ &hf_dcerpc_time, 
 	  { "Time from request", "dcerpc.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Reply for DCE-RPC calls", HFILL }},
+
 	{ &hf_dcerpc_reassembled_in,
 	  { "This PDU is reassembled in", "dcerpc.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "The DCE/RPC PDU is completely reassembled in this frame", HFILL }},
+
+	{ &hf_dcerpc_unknown_if_id, 
+	  { "Unknown DCERPC interface id", "dcerpc.unknown_if_id", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
    };
     static gint *ett[] = {
         &ett_dcerpc,
