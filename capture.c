@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.134 2000/12/28 01:44:19 guy Exp $
+ * $Id: capture.c,v 1.135 2001/01/09 00:53:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -121,6 +121,22 @@
 #define BSD
 #endif /* BSD */
 #endif /* defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) */
+
+/*
+ * We don't want to do a "select()" on the pcap_t's file descriptor on
+ * BSD (because "select()" doesn't work correctly on BPF devices on at
+ * least some releases of some flavors of BSD), and we don't want to do
+ * it on Windows (because "select()" is something for sockets, not for
+ * arbitrary handles).
+ *
+ * We *do* want to do it on other platforms, as, on other platforms (with
+ * the possible exception of Ultrix and Digital UNIX), the read timeout
+ * doesn't expire if no packets have arrived, so a "pcap_dispatch()" call
+ * will block until packets arrive, causing the UI to hang.
+ */
+#if !defined(BSD) && !defined(_WIN32)
+# define MUST_DO_SELECT
+#endif
 
 #include "gtk/main.h"
 #include "gtk/gtkglobals.h"
@@ -1111,7 +1127,7 @@ capture(void)
 #endif
   fd_set      set1;
   struct timeval timeout;
-#ifndef BSD
+#ifdef MUST_DO_SELECT
   int         pcap_fd = 0;
 #endif
 #ifdef _WIN32 
@@ -1402,7 +1418,7 @@ capture(void)
   gtk_widget_show(cap_w);
 
   upd_time = time(NULL);
-#ifndef BSD
+#ifdef MUST_DO_SELECT
   if (!ld.from_pipe) pcap_fd = pcap_fileno(pch);
 #endif
 
@@ -1436,7 +1452,7 @@ capture(void)
     else
 #endif
     {
-#ifndef BSD
+#ifdef MUST_DO_SELECT
       /*
        * Sigh.  The semantics of the read timeout argument to
        * "pcap_open_live()" aren't particularly well specified by
