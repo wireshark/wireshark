@@ -2310,6 +2310,10 @@ Takeshi Nakashima <T.Nakashima [AT] jp.yokogawa.com> {
 	Support for the KINK protocol.
 }
 
+Shoichi Sakane <sakane [AT] tanu.org> {
+	IKEv2 support
+}
+
 And assorted fixes and enhancements by the people listed above
 and by:
 

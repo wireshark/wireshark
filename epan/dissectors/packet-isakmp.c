@@ -4,6 +4,10 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
+ * Added routines for the Internet Key Exchange (IKEv2) Protocol
+ * (draft-ietf-ipsec-ikev2-17.txt)
+ * Shoichi Sakane <sakane@tanu.org>
+ *
  * $Id$
  *
  * Ethereal - Network traffic analyzer
@@ -45,167 +49,26 @@
 
 #define isakmp_min(a, b)  ((a<b) ? a : b)
 
+#define ARLEN(a) (sizeof(a)/sizeof(a[0]))
+
 static int proto_isakmp = -1;
 
 static gint ett_isakmp = -1;
 static gint ett_isakmp_flags = -1;
 static gint ett_isakmp_payload = -1;
 
+static int isakmp_version = 0;
+
 #define UDP_PORT_ISAKMP	500
 #define TCP_PORT_ISAKMP 500
 
-#define NUM_PROTO_TYPES	5
-#define proto2str(t)	\
-  ((t < NUM_PROTO_TYPES) ? prototypestr[t] : "UNKNOWN-PROTO-TYPE")
-
-static const char *prototypestr[NUM_PROTO_TYPES] = {
-  "RESERVED",
-  "ISAKMP",
-  "IPSEC_AH",
-  "IPSEC_ESP",
-  "IPCOMP"
-};
-
-#define NUM_P1_ATT_TYPES	17
-#define p1_atttype2str(t)	\
-  ((t < NUM_P1_ATT_TYPES) ? p1_atttypestr[t] : "UNKNOWN-ATTRIBUTE-TYPE")
-
-static const char *p1_atttypestr[NUM_P1_ATT_TYPES] = {
-  "UNKNOWN-ATTRIBUTE-TYPE",
-  "Encryption-Algorithm",
-  "Hash-Algorithm",
-  "Authentication-Method",
-  "Group-Description",
-  "Group-Type",
-  "Group-Prime",
-  "Group-Generator-One",
-  "Group-Generator-Two",
-  "Group-Curve-A",
-  "Group-Curve-B",
-  "Life-Type",
-  "Life-Duration",
-  "PRF",
-  "Key-Length",
-  "Field-Size",
-  "Group-Order"
-};
-
-#define NUM_ATT_TYPES	11
-#define atttype2str(t)	\
-  ((t < NUM_ATT_TYPES) ? atttypestr[t] : "UNKNOWN-ATTRIBUTE-TYPE")
-
-static const char *atttypestr[NUM_ATT_TYPES] = {
-  "UNKNOWN-ATTRIBUTE-TYPE",
-  "SA-Life-Type",
-  "SA-Life-Duration",
-  "Group-Description",
-  "Encapsulation-Mode",
-  "Authentication-Algorithm",
-  "Key-Length",
-  "Key-Rounds",
-  "Compress-Dictinary-Size",
-  "Compress-Private-Algorithm",
-  "ECN Tunnel"
-};
-
-#define NUM_TRANS_TYPES	2
-#define trans2str(t)	\
-  ((t < NUM_TRANS_TYPES) ? transtypestr[t] : "UNKNOWN-TRANS-TYPE")
-
-static const char *transtypestr[NUM_TRANS_TYPES] = {
-  "RESERVED",
-  "KEY_IKE"
-};
-
-#define NUM_AH_TRANS_TYPES	8
-#define ah_trans2str(t)		\
-  ((t < NUM_AH_TRANS_TYPES) ? ah_transtypestr[t] : "UNKNOWN-AH-TRANS-TYPE")
-
-static const char *ah_transtypestr[NUM_AH_TRANS_TYPES] = {
-  "RESERVED",
-  "RESERVED",
-  "MD5",
-  "SHA",
-  "DES",
-  "SHA2-256",
-  "SHA2-384",
-  "SHA2-512"
-};
-
-#define NUM_ESP_TRANS_TYPES	13
-#define esp_trans2str(t)	\
-  ((t < NUM_ESP_TRANS_TYPES) ? esp_transtypestr[t] : "UNKNOWN-ESP-TRANS-TYPE")
-
-static const char *esp_transtypestr[NUM_ESP_TRANS_TYPES] = {
-  "RESERVED",
-  "DES-IV64",
-  "DES",
-  "3DES",
-  "RC5",
-  "IDEA",
-  "CAST",
-  "BLOWFISH",
-  "3IDEA",
-  "DES-IV32",
-  "RC4",
-  "NULL",
-  "AES"
-};
-
-#define NUM_IPCOMP_TRANS_TYPES    5
-#define ipcomp_trans2str(t)  \
-  ((t < NUM_IPCOMP_TRANS_TYPES) ? ipcomp_transtypestr[t] : "UNKNOWN-IPCOMP-TRANS-TYPE")
-
-static const char *ipcomp_transtypestr[NUM_IPCOMP_TRANS_TYPES] = {
-  "RESERVED",
-  "OUI",
-  "DEFLATE",
-  "LZS",
-  "LZJH"
-};
-
-#define NUM_ID_TYPES	12
-#define id2str(t)	\
-  ((t < NUM_ID_TYPES) ? idtypestr[t] : "UNKNOWN-ID-TYPE")
-
-static const char *idtypestr[NUM_ID_TYPES] = {
-  "RESERVED",
-  "IPV4_ADDR",
-  "FQDN",
-  "USER_FQDN",
-  "IPV4_ADDR_SUBNET",
-  "IPV6_ADDR",
-  "IPV6_ADDR_SUBNET",
-  "IPV4_ADDR_RANGE",
-  "IPV6_ADDR_RANGE",
-  "DER_ASN1_DN",
-  "DER_ASN1_GN",
-  "KEY_ID"
-};
-
-#define NUM_GRPDESC_TYPES 19
-#define grpdesc2str(t) ((t < NUM_GRPDESC_TYPES) ? grpdescstr[t] : "UNKNOWN-GROUP-DESCRIPTION")
-
-static const char *grpdescstr[NUM_GRPDESC_TYPES] = {
-  "UNDEFINED - 0",
-  "Default 768-bit MODP group",
-  "Alternate 1024-bit MODP group",
-  "EC2N group on GP[2^155] group",
-  "EC2N group on GP[2^185] group",
-  "1536 bit MODP group",
-  "EC2N group over GF[2^163]",
-  "EC2N group over GF[2^163]",
-  "EC2N group over GF[2^283]",
-  "EC2N group over GF[2^283]",
-  "EC2N group over GF[2^409]",
-  "EC2N group over GF[2^409]",
-  "EC2N group over GF[2^571]",
-  "EC2N group over GF[2^571]",
-  "2048 bit MODP group",
-  "3072 bit MODP group",
-  "4096 bit MODP group",
-  "6144 bit MODP group",
-  "8192 bit MODP group",
+static const value_string vs_proto[] = {
+  { 0,	"RESERVED" },
+  { 1,	"ISAKMP" },
+  { 2,	"IPSEC_AH" },
+  { 3,	"IPSEC_ESP" },
+  { 4,	"IPCOMP" },
+  { 0,	NULL },
 };
 
 struct isakmp_hdr {
@@ -218,6 +81,9 @@ struct isakmp_hdr {
 #define E_FLAG		0x01
 #define C_FLAG		0x02
 #define A_FLAG		0x04
+#define I_FLAG		0x08
+#define V_FLAG		0x10
+#define R_FLAG		0x20
   guint32	message_id;
   guint32	length;
 };
@@ -231,6 +97,8 @@ static void dissect_proposal(tvbuff_t *, int, int, proto_tree *,
     packet_info *, int);
 static void dissect_transform(tvbuff_t *, int, int, proto_tree *,
     packet_info *, int);
+static void dissect_transform2(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
 static void dissect_key_exch(tvbuff_t *, int, int, proto_tree *,
     packet_info *, int);
 static void dissect_id(tvbuff_t *, int, int, proto_tree *,
@@ -240,6 +108,8 @@ static void dissect_cert(tvbuff_t *, int, int, proto_tree *,
 static void dissect_certreq(tvbuff_t *, int, int, proto_tree *,
     packet_info *, int);
 static void dissect_hash(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_auth(tvbuff_t *, int, int, proto_tree *,
     packet_info *, int);
 static void dissect_sig(tvbuff_t *, int, int, proto_tree *,
     packet_info *, int);
@@ -257,15 +127,25 @@ static void dissect_nat_discovery(tvbuff_t *, int, int, proto_tree *,
     packet_info *, int);
 static void dissect_nat_original_address(tvbuff_t *, int, int, proto_tree *,
     packet_info *, int);
+static void dissect_ts(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_enc(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
+static void dissect_eap(tvbuff_t *, int, int, proto_tree *,
+    packet_info *, int);
 
 static const char *payloadtype2str(guint8);
 static const char *exchtype2str(guint8);
 static const char *doitype2str(guint32);
 static const char *msgtype2str(guint16);
 static const char *situation2str(guint32);
-static const char *value2str(int, guint16, guint32);
-static const char *attrtype2str(guint8);
-static const char *cfgattrident2str(guint16);
+static const char *v1_attrval2str(int, guint16, guint32);
+static const char *v2_attrval2str(guint16, guint32);
+static const char *cfgtype2str(guint8);
+static const char *cfgattr2str(guint16);
+static const char *id2str(guint8);
+static const char *v2_tstype2str(guint8);
+static const char *v2_auth2str(guint8);
 static const char *certtype2str(guint8);
 
 static gboolean get_num(tvbuff_t *, int, guint16, guint32 *);
@@ -273,30 +153,57 @@ static gboolean get_num(tvbuff_t *, int, guint16, guint32 *);
 #define LOAD_TYPE_NONE		0	/* payload type for None */
 #define LOAD_TYPE_PROPOSAL	2	/* payload type for Proposal */
 #define	LOAD_TYPE_TRANSFORM	3	/* payload type for Transform */
-#define NUM_LOAD_TYPES		17
 
-static struct strfunc {
+struct payload_func {
+  gint8 type;
   const char *	str;
-  void          (*func)(tvbuff_t *, int, int, proto_tree *, packet_info *, int);
-} strfuncs[NUM_LOAD_TYPES] = {
-  {"NONE",			NULL              },
-  {"Security Association",	dissect_sa        },
-  {"Proposal",			dissect_proposal  },
-  {"Transform",			dissect_transform },
-  {"Key Exchange",		dissect_key_exch  },
-  {"Identification",		dissect_id        },
-  {"Certificate",		dissect_cert      },
-  {"Certificate Request",	dissect_certreq   },
-  {"Hash",			dissect_hash      },
-  {"Signature",			dissect_sig       },
-  {"Nonce",			dissect_nonce     },
-  {"Notification",		dissect_notif     },
-  {"Delete",			dissect_delete    },
-  {"Vendor ID",			dissect_vid       },
-  {"Attrib",			dissect_config	  },
-  {"NAT-Discovery",		dissect_nat_discovery }, /* draft-ietf-ipsec-nat-t-ike-04 */
-  {"NAT-Original Address",	dissect_nat_original_address } /* draft-ietf-ipsec-nat-t-ike */
+  void (*func)(tvbuff_t *, int, int, proto_tree *, packet_info *, int);
 };
+
+static struct payload_func v1_plfunc[] = {
+  {  0, "NONE",			NULL              },
+  {  1, "Security Association",	dissect_sa        },
+  {  2, "Proposal",		dissect_proposal  },
+  {  3, "Transform",		dissect_transform },
+  {  4, "Key Exchange",		dissect_key_exch  },
+  {  5, "Identification",	dissect_id        },
+  {  6, "Certificate",		dissect_cert      },
+  {  7, "Certificate Request",	dissect_certreq   },
+  {  8, "Hash",			dissect_hash      },
+  {  9, "Signature",		dissect_sig       },
+  { 10, "Nonce",		dissect_nonce     },
+  { 11, "Notification",		dissect_notif     },
+  { 12, "Delete",		dissect_delete    },
+  { 13, "Vendor ID",		dissect_vid       },
+  { 14, "Attrib",		dissect_config	  },
+  { 15, "NAT-Discovery",	dissect_nat_discovery }, /* draft-ietf-ipsec-nat-t-ike-04 */
+  { 16, "NAT-Original Address",	dissect_nat_original_address }, /* draft-ietf-ipsec-nat-t-ike */
+  { 130, "NAT-D (draft-ietf-ipsec-nat-t-ike-01 to 03)",		NULL },
+  { 131, "NAT-OA (draft-ietf-ipsec-nat-t-ike-01 to 04)",	NULL },
+};
+
+static struct payload_func v2_plfunc[] = {
+  {  2, "Proposal",		dissect_proposal  },
+  {  3, "Transform",		dissect_transform2 },
+  { 33, "Security Association",	dissect_sa        },
+  { 34, "Key Exchange",		dissect_key_exch  },
+  { 35, "Identification - I",	dissect_id        },
+  { 36, "Identification - R",	dissect_id        },
+  { 37, "Certificate",		dissect_cert      },
+  { 38, "Certificate Request",	dissect_certreq   },
+  { 39, "Authentication",	dissect_auth      },
+  { 40, "Nonce",		dissect_nonce     },
+  { 41, "Notification",		dissect_notif     },
+  { 42, "Delete",		dissect_delete    },
+  { 43, "Vendor ID",		dissect_vid       },
+  { 44, "Traffic Selector - I",	dissect_ts       },
+  { 45, "Traffic Selector - R",	dissect_ts       },
+  { 46, "Encrypted",		dissect_enc       },
+  { 47, "Configuration",	dissect_config	  },
+  { 48, "Extensible Authentication",	dissect_eap	  },
+};
+
+static struct payload_func * getpayload_func(guint8);
 
 #define VID_LEN 16
 #define VID_MS_LEN 20
@@ -423,6 +330,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
   guint8 payload, next_payload;
   guint16		payload_length;
   proto_tree *		ntree;
+  struct payload_func *	f;
 
   for (payload = initial_payload; length != 0; payload = next_payload) {
     if (payload == LOAD_TYPE_NONE) {
@@ -440,10 +348,8 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
     if (ntree == NULL)
       break;
     if (payload_length >= 4) {	/* XXX = > 4? */
-      if (payload < NUM_LOAD_TYPES && strfuncs[payload].func != NULL) {
-        (*strfuncs[payload].func)(tvb, offset + 4, payload_length - 4, ntree,
-				  pinfo, -1);
-      }
+      if ((f = getpayload_func(payload)) != NULL)
+        (*f->func)(tvb, offset + 4, payload_length - 4, ntree, pinfo, -1);
       else {
 	if (payload == 130)
 	  dissect_nat_discovery(tvb, offset + 4, payload_length - 4, ntree,
@@ -473,6 +379,27 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, guint8 initial_payload,
   }
 }
 
+static struct payload_func *
+getpayload_func(guint8 payload)
+{
+  struct payload_func *f = 0;
+  int i, len;
+
+  if (isakmp_version == 1) {
+    f = v1_plfunc;
+    len = ARLEN(v1_plfunc);
+  } else if (isakmp_version == 2) {
+    f = v2_plfunc;
+    len = ARLEN(v2_plfunc);
+  } else
+    return NULL;
+  for (i = 0; i < len; i++) {
+    if (f[i].type == payload)
+      return &f[i];
+  }
+  return NULL;
+}
+
 static void
 dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -493,6 +420,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   hdr.length = tvb_get_ntohl(tvb, offset + sizeof(hdr) - sizeof(hdr.length));
   hdr.exch_type = tvb_get_guint8(tvb, sizeof(hdr.icookie) + sizeof(hdr.rcookie) + sizeof(hdr.next_payload) + sizeof(hdr.version));
+  hdr.version = tvb_get_guint8(tvb, sizeof(hdr.icookie) + sizeof(hdr.rcookie) + sizeof(hdr.next_payload));
+  isakmp_version = hi_nibble(hdr.version);	/* save the version */
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_str(pinfo->cinfo, COL_INFO, exchtype2str(hdr.exch_type));
 
@@ -513,7 +442,6 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			payloadtype2str(hdr.next_payload), hdr.next_payload);
     offset += sizeof(hdr.next_payload);
 
-    hdr.version = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.version),
 			"Version: %u.%u",
 			hi_nibble(hdr.version), lo_nibble(hdr.version));
@@ -533,15 +461,27 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       fti   = proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr.flags), "Flags");
       ftree = proto_item_add_subtree(fti, ett_isakmp_flags);
 
-      proto_tree_add_text(ftree, tvb, offset, 1, "%s",
+      if (isakmp_version == 1) {
+        proto_tree_add_text(ftree, tvb, offset, 1, "%s",
 			  decode_boolean_bitfield(hdr.flags, E_FLAG, sizeof(hdr.flags)*8,
-						  "Encryption", "No encryption"));
-      proto_tree_add_text(ftree, tvb, offset, 1, "%s",
+						  "Encrypted", "Not encrypted"));
+        proto_tree_add_text(ftree, tvb, offset, 1, "%s",
 			  decode_boolean_bitfield(hdr.flags, C_FLAG, sizeof(hdr.flags)*8,
 						  "Commit", "No commit"));
-      proto_tree_add_text(ftree, tvb, offset, 1, "%s",
+        proto_tree_add_text(ftree, tvb, offset, 1, "%s",
 			  decode_boolean_bitfield(hdr.flags, A_FLAG, sizeof(hdr.flags)*8,
 						  "Authentication", "No authentication"));
+      } else if (isakmp_version == 2) {
+        proto_tree_add_text(ftree, tvb, offset, 1, "%s",
+			  decode_boolean_bitfield(hdr.flags, I_FLAG, sizeof(hdr.flags)*8,
+						  "Initiator", "Responder"));
+        proto_tree_add_text(ftree, tvb, offset, 1, "%s",
+			  decode_boolean_bitfield(hdr.flags, V_FLAG, sizeof(hdr.flags)*8,
+						  "A higher version enabled", ""));
+        proto_tree_add_text(ftree, tvb, offset, 1, "%s",
+			  decode_boolean_bitfield(hdr.flags, R_FLAG, sizeof(hdr.flags)*8,
+						  "Response", "Request"));
+      }
       offset += sizeof(hdr.flags);
     }
 
@@ -604,6 +544,11 @@ dissect_payload_header(tvbuff_t *tvb, int offset, int length, guint8 payload,
   proto_tree_add_text(ntree, tvb, offset, 1,
 		      "Next payload: %s (%u)",
 		      payloadtype2str(next_payload), next_payload);
+  if (isakmp_version == 2) {
+    proto_tree_add_text(ntree, tvb, offset, 1, "%s",
+        	decode_boolean_bitfield(tvb_get_guint8(tvb, 1), 0x80, 8, 
+  		"Critical", "Not critical"));
+  }
   proto_tree_add_text(ntree, tvb, offset+2, 2, "Length: %u", payload_length);
 
   *next_payload_p = next_payload;
@@ -624,34 +569,38 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 			tvb_bytes_to_str(tvb, offset, length), length);
     return;
   }
-  doi = tvb_get_ntohl(tvb, offset);
-  proto_tree_add_text(tree, tvb, offset, 4,
+  if (isakmp_version == 1) {
+    doi = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 4,
 		      "Domain of interpretation: %s (%u)",
 		      doitype2str(doi), doi);
-  offset += 4;
-  length -= 4;
-
-  if (doi == 1) {
-    /* IPSEC */
-    if (length < 4) {
-      proto_tree_add_text(tree, tvb, offset, length,
-			  "Situation: %s (length is %u, should be >= 4)",
-			  tvb_bytes_to_str(tvb, offset, length), length);
-      return;
-    }
-    situation = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 4,
-			"Situation: %s (%u)",
-			situation2str(situation), situation);
     offset += 4;
     length -= 4;
 
-    dissect_payloads(tvb, tree, LOAD_TYPE_PROPOSAL, offset, length, pinfo);
-  } else {
-    /* Unknown */
-    proto_tree_add_text(tree, tvb, offset, length,
+    if (doi == 1) {
+      /* IPSEC */
+      if (length < 4) {
+        proto_tree_add_text(tree, tvb, offset, length,
+			  "Situation: %s (length is %u, should be >= 4)",
+			  tvb_bytes_to_str(tvb, offset, length), length);
+        return;
+      }
+      situation = tvb_get_ntohl(tvb, offset);
+      proto_tree_add_text(tree, tvb, offset, 4,
+			"Situation: %s (%u)",
+			situation2str(situation), situation);
+      offset += 4;
+      length -= 4;
+
+      dissect_payloads(tvb, tree, LOAD_TYPE_PROPOSAL, offset, length, pinfo);
+    } else {
+      /* Unknown */
+      proto_tree_add_text(tree, tvb, offset, length,
 			"Situation: %s",
 			tvb_bytes_to_str(tvb, offset, length));
+    }
+  } else if (isakmp_version == 2) {
+    dissect_payloads(tvb, tree, LOAD_TYPE_PROPOSAL, offset, length, pinfo);
   }
 }
 
@@ -678,7 +627,7 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   protocol_id = tvb_get_guint8(tvb, offset);
   proto_tree_add_text(tree, tvb, offset, 1,
 		      "Protocol ID: %s (%u)",
-		      proto2str(protocol_id), protocol_id);
+		      val_to_str(protocol_id, vs_proto, "UNKNOWN-PROTO-TYPE"), protocol_id);
   offset += 1;
   length -= 1;
 
@@ -711,9 +660,14 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
           "Not enough room in payload for all transforms");
       break;
     }
-    if (payload_length >= 4)
-      dissect_transform(tvb, offset + 4, payload_length - 4, ntree,
+    if (payload_length >= 4) {
+      if (isakmp_version == 1)
+        dissect_transform(tvb, offset + 4, payload_length - 4, ntree,
 			pinfo, protocol_id);
+      else if (isakmp_version == 2)
+        dissect_transform2(tvb, offset + 4, payload_length - 4, ntree,
+			pinfo, protocol_id);
+    }
     else
       proto_tree_add_text(ntree, tvb, offset + 4, payload_length - 4, "Payload");
     offset += payload_length;
@@ -726,6 +680,84 @@ static void
 dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     packet_info *pinfo _U_, int protocol_id)
 {
+  static const value_string vs_v1_attr[] = {
+    { 1,	"Encryption-Algorithm" },
+    { 2,	"Hash-Algorithm" },
+    { 3,	"Authentication-Method" },
+    { 4,	"Group-Description" },
+    { 5,	"Group-Type" },
+    { 6,	"Group-Prime" },
+    { 7,	"Group-Generator-One" },
+    { 8,	"Group-Generator-Two" },
+    { 9,	"Group-Curve-A" },
+    { 10,	"Group-Curve-B" },
+    { 11,	"Life-Type" },
+    { 12,	"Life-Duration" },
+    { 13,	"PRF" },
+    { 14,	"Key-Length" },
+    { 15,	"Field-Size" },
+    { 16,	"Group-Order" },
+    { 0,	NULL },
+  };
+
+  static const value_string vs_v2_sttr[] = {
+    { 1,	"SA-Life-Type" },
+    { 2,	"SA-Life-Duration" },
+    { 3,	"Group-Description" },
+    { 4,	"Encapsulation-Mode" },
+    { 5,	"Authentication-Algorithm" },
+    { 6,	"Key-Length" },
+    { 7,	"Key-Rounds" },
+    { 8,	"Compress-Dictinary-Size" },
+    { 9,	"Compress-Private-Algorithm" },
+    { 10,	"ECN Tunnel" },
+    { 0,	NULL },
+  };
+
+  static const value_string vs_v1_trans_isakmp[] = {
+    { 0,	"RESERVED" },
+    { 1,	"KEY_IKE" },
+    { 0,	NULL },
+  };
+
+  static const value_string vs_v1_trans_ah[] = {
+    { 0,	"RESERVED" },
+    { 1,	"RESERVED" },
+    { 2,	"MD5" },
+    { 3,	"SHA" },
+    { 4,	"DES" },
+    { 5,	"SHA2-256" },
+    { 6,	"SHA2-384" },
+    { 7,	"SHA2-512" },
+    { 0,	NULL },
+  };
+
+  static const value_string vs_v1_trans_esp[] = {
+    { 0,	"RESERVED" },
+    { 1,	"DES-IV64" },
+    { 2,	"DES" },
+    { 3,	"3DES" },
+    { 4,	"RC5" },
+    { 5,	"IDEA" },
+    { 6,	"CAST" },
+    { 7,	"BLOWFISH" },
+    { 8,	"3IDEA" },
+    { 9,	"DES-IV32" },
+    { 10,	"RC4" },
+    { 11,	"NULL" },
+    { 12,	"AES" },
+    { 0,	NULL },
+  };
+
+  static const value_string vs_v1_trans_ipcomp[] = {
+    { 0,	"RESERVED" },
+    { 1,	"OUI" },
+    { 2,	"DEFLATE" },
+    { 3,	"LZS" },
+    { 4,	"LZJH" },
+    { 0,	NULL },
+  };
+
   guint8		transform_id;
   guint8		transform_num;
 
@@ -745,22 +777,22 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   case 1:	/* ISAKMP */
     proto_tree_add_text(tree, tvb, offset, 1,
 			"Transform ID: %s (%u)",
-			trans2str(transform_id), transform_id);
+			val_to_str(transform_id, vs_v1_trans_isakmp, "UNKNOWN-TRANS-TYPE"), transform_id);
     break;
   case 2:	/* AH */
     proto_tree_add_text(tree, tvb, offset, 1,
 			"Transform ID: %s (%u)",
-			ah_trans2str(transform_id), transform_id);
+			val_to_str(transform_id, vs_v1_trans_ah, "UNKNOWN-AH-TRANS-TYPE"), transform_id);
     break;
   case 3:	/* ESP */
     proto_tree_add_text(tree, tvb, offset, 1,
 			"Transform ID: %s (%u)",
-			esp_trans2str(transform_id), transform_id);
+			val_to_str(transform_id, vs_v1_trans_esp, "UNKNOWN-ESP-TRANS-TYPE"), transform_id);
     break;
   case 4:	/* IPCOMP */
     proto_tree_add_text(tree, tvb, offset, 1,
 			"Transform ID: %s (%u)",
-			ipcomp_trans2str(transform_id), transform_id);
+			val_to_str(transform_id, vs_v1_trans_ipcomp, "UNKNOWN-IPCOMP-TRANS-TYPE"), transform_id);
     break;
   }
   offset += 3;
@@ -777,10 +809,10 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 
     if (protocol_id == 1 && transform_id == 1) {
       ike_phase1 = 1;
-      str = p1_atttype2str(type);
+      str = val_to_str(type, vs_v1_attr, "UNKNOWN-ATTRIBUTE-TYPE");
     }
     else {
-      str = atttype2str(type);
+      str = val_to_str(type, vs_v2_sttr, "UNKNOWN-ATTRIBUTE-TYPE");
     }
 
     if (aft & 0x8000) {
@@ -788,7 +820,7 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
       proto_tree_add_text(tree, tvb, offset, 4,
 			  "%s (%u): %s (%u)",
 			  str, type,
-			  value2str(ike_phase1, type, val), val);
+			  v1_attrval2str(ike_phase1, type, val), val);
       offset += 4;
       length -= 4;
     }
@@ -803,7 +835,199 @@ dissect_transform(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
         proto_tree_add_text(tree, tvb, offset, pack_len,
 			    "%s (%u): %s (%u)",
 			    str, type,
-			    value2str(ike_phase1, type, val), val);
+			    v1_attrval2str(ike_phase1, type, val), val);
+      }
+      offset += pack_len;
+      length -= pack_len;
+    }
+  }
+}
+
+/* For Transform Type 1 (Encryption Algorithm), defined Transform IDs */
+static const char *
+v2_tid2encstr(guint16 tid)
+{
+  static const value_string vs_v2_trans_enc[] = {
+    { 0,	"RESERVED" },
+    { 1,	"ENCR_DES_IV64" },
+    { 2,	"ENCR_DES" },
+    { 3,	"ENCR_3DE" },
+    { 4,	"ENCR_RC5" },
+    { 5,	"ENCR_IDEA" },
+    { 6,	"ENCR_CAST" },
+    { 7,	"ENCR_BLOWFISH" },
+    { 8,	"ENCR_3IDEA" },
+    { 9,	"ENCR_DES_IV32" },
+    { 10,	"RESERVED" },
+    { 11,	"ENCR_NULL" },
+    { 12,	"ENCR_AES_CBC" },
+    { 13,	"ENCR_AES_CTR" },
+    { 0,	NULL },
+  };
+
+  return val_to_str(tid, vs_v2_trans_enc, "UNKNOWN-ENC-ALG");
+}
+
+/* For Transform Type 2 (Pseudo-random Function), defined Transform IDs */
+static const char *
+v2_tid2prfstr(guint16 tid)
+{
+  static const value_string vs_v2_trans_prf[] = {
+    { 0,	"RESERVED" },
+    { 1,	"PRF_HMAC_MD5" },
+    { 2,	"PRF_HMAC_SHA1" },
+    { 3,	"PRF_HMAC_TIGER" },
+    { 4,	"PRF_AES128_CBC" },
+    { 0,	NULL },
+  };
+  return val_to_str(tid, vs_v2_trans_prf, "UNKNOWN-PRF");
+}
+
+/* For Transform Type 3 (Integrity Algorithm), defined Transform IDs */
+static const char *
+v2_tid2iastr(guint16 tid)
+{
+  static const value_string vs_v2_trans_integrity[] = {
+    { 0,	"NONE" },
+    { 1,	"AUTH_HMAC_MD5_96" },
+    { 2,	"AUTH_HMAC_SHA1_96" },
+    { 3,	"AUTH_DES_MAC" },
+    { 4,	"AUTH_KPDK_MD5" },
+    { 5,	"AUTH_AES_XCBC_96" },
+    { 0,	NULL },
+  };
+  return val_to_str(tid, vs_v2_trans_integrity, "UNKNOWN-INTEGRITY-ALG");
+}
+
+/* For Transform Type 4 (Diffie-Hellman Group), defined Transform IDs */
+static const char *
+v2_tid2dhstr(guint16 tid)
+{
+  static const value_string vs_v2_trans_dhgroup[] = {
+    {  0,	"NONE" },
+    {  1,	"Group 1 - 768 Bit MODP" },
+    {  2,	"Group 2 - 1024 Bit MODP" },
+    {  3,	"RESERVED" },
+    {  4,	"RESERVED" },
+    {  5,	"group 5 - 1536 Bit MODP" },
+    { 14,	"2048-bit MODP Group" },
+    { 15,	"3072-bit MODP Group" },
+    { 16,	"4096-bit MODP Group" },
+    { 17,	"6144-bit MODP Group" },
+    { 18,	"8192-bit MODP Group" },
+    { 0,	NULL },
+  };
+
+  if ((tid >= 6 && tid <= 13) || (tid >= 19 && tid <= 1023))
+    return "RESERVED TO IANA";
+  if (tid >= 1024)
+    return "PRIVATE USE";
+  return val_to_str(tid, vs_v2_trans_dhgroup, "UNKNOWN-DH-GROUP");
+}
+
+/* For Transform Type 5 (Extended Sequence Numbers), defined Transform */
+static const char *
+v2_tid2esnstr(guint16 tid)
+{
+  static const value_string vs_v2_trans_esn[] = {
+    { 0,	"No Extended Sequence Numbers" },
+    { 1,	"Extended Sequence Numbers" },
+    { 0,	NULL },
+  };
+
+  return val_to_str(tid, vs_v2_trans_esn, "UNKNOWN-ESN-TYPE");
+}
+
+static struct {
+  const gint8 type;
+  const char *str;
+  const char *(*func)(guint16);
+} v2_tid_func[] = {
+  { 0,	"RESERVED", NULL, },
+  { 1,	"Encryption Algorithm (ENCR)", v2_tid2encstr },
+  { 2,	"Pseudo-random Function (PRF)", v2_tid2prfstr }, 
+  { 3,	"Integrity Algorithm (INTEG)", v2_tid2iastr },
+  { 4,	"Diffie-Hellman Group (D-H)", v2_tid2dhstr },
+  { 5,	"Extended Sequence Numbers (ESN)", v2_tid2esnstr },
+};
+
+static const char *
+v2_trans2str(guint8 type)
+{
+  if (type < ARLEN(v2_tid_func)) return v2_tid_func[type].str;
+  if (type < 240) return "RESERVED TO IANA";
+  return "PRIVATE USE";
+}
+
+static const char *
+v2_tid2str(guint8 type, guint16 tid)
+{
+  if (type < ARLEN(v2_tid_func) && v2_tid_func[type].func != NULL) {
+    return (v2_tid_func[type].func)(tid);
+  }
+  return "RESERVED";
+}
+
+static const char *
+v2_aft2str(guint16 aft)
+{
+    if (aft < 14 || (aft > 14 && aft < 18)) return "RESERVED";
+    if (aft == 14) return "Key Length (in bits)";
+    if (aft >= 18 && aft < 16384) return "RESERVED TO IANA";
+    return "PRIVATE USE";
+}
+
+static void
+dissect_transform2(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    packet_info *pinfo _U_, int unused _U_)
+{
+  guint8 transform_type;
+  guint16 transform_id;
+
+  transform_type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1,
+    "Transform type: %s (%u)", v2_trans2str(transform_type), transform_type);
+  offset += 2;
+  length -= 2;
+
+  transform_id = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 2,
+    "Transform ID: %s (%u)", v2_tid2str(transform_type, transform_id),
+    transform_id);
+  offset += 2;
+  length -= 2;
+
+  while (length>0) {
+    const char *str;
+    guint16 aft     = tvb_get_ntohs(tvb, offset);
+    guint16 type    = aft & 0x7fff;
+    guint16 len;
+    guint32 val;
+    guint pack_len;
+
+    str = v2_aft2str(aft);
+
+    if (aft & 0x8000) {
+      val = tvb_get_ntohs(tvb, offset + 2);
+      proto_tree_add_text(tree, tvb, offset, 4,
+			  "%s (%u): %s (%u)",
+			  str, type,
+			  v2_attrval2str(type, val), val);
+      offset += 4;
+      length -= 4;
+    }
+    else {
+      len = tvb_get_ntohs(tvb, offset + 2);
+      pack_len = 4 + len;
+      if (!get_num(tvb, offset + 4, len, &val)) {
+        proto_tree_add_text(tree, tvb, offset, pack_len,
+			    "%s (%u): <too big (%u bytes)>",
+			    str, type, len);
+      } else {
+        proto_tree_add_text(tree, tvb, offset, pack_len,
+			    "%s (%u): %s (%u)",
+			    str, type,
+			    v2_attrval2str(type, val), val);
       }
       offset += pack_len;
       length -= pack_len;
@@ -815,6 +1039,16 @@ static void
 dissect_key_exch(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     packet_info *pinfo _U_, int unused _U_)
 {
+  guint16 dhgroup;
+
+  if (isakmp_version == 2) {
+    dhgroup = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 2,
+  		      "DH Group #: %u", dhgroup);
+    offset += 4;
+    length -= 4;
+  }
+
   proto_tree_add_text(tree, tvb, offset, length, "Key Exchange Data");
 }
 
@@ -927,6 +1161,21 @@ dissect_hash(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 }
 
 static void
+dissect_auth(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    packet_info *pinfo _U_, int unused _U_)
+{
+  guint8 auth;
+
+  auth = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1,
+  		      "Auth Method: %s (%u)", v2_auth2str(auth), auth);
+  offset += 4;
+  length -= 4;
+
+  proto_tree_add_text(tree, tvb, offset, length, "Authentication Data");
+}
+
+static void
 dissect_sig(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     packet_info *pinfo _U_, int unused _U_)
 {
@@ -940,6 +1189,25 @@ dissect_nonce(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   proto_tree_add_text(tree, tvb, offset, length, "Nonce Data");
 }
 
+static const char *
+v2_ipcomptype2str(guint8 type)
+{
+  static const value_string vs_v2_ipcomptype[] = {
+    { 0,	"RESERVED" },
+    { 1,	"IPCOMP_OUI" },
+    { 2,	"IPCOMP_DEFLATE" },
+    { 3,	"IPCOMP_LZS" },
+    { 4,	"IPCOMP_LZJH" },
+    { 0,	NULL },
+  };
+
+  if (type >= 5 && type <= 240)
+    return "RESERVED TO IANA";
+  if (type >= 241 && type <= 255)
+    return "PRIVATE USE";
+  return val_to_str(type, vs_v2_ipcomptype, "UNKNOWN-IPCOMP-TYPE");
+}
+
 static void
 dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     packet_info *pinfo _U_, int unused _U_)
@@ -948,18 +1216,21 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   guint8		protocol_id;
   guint8		spi_size;
   guint16		msgtype;
+  guint8		ipcomptype;
 
-  doi = tvb_get_ntohl(tvb, offset);
-  proto_tree_add_text(tree, tvb, offset, 4,
-		      "Domain of Interpretation: %s (%u)",
-		      doitype2str(doi), doi);
-  offset += 4;
-  length -= 4;
+  if (isakmp_version == 1) {
+    doi = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 4,
+  		      "Domain of Interpretation: %s (%u)",
+  		      doitype2str(doi), doi);
+    offset += 4;
+    length -= 4;
+  }
 
   protocol_id = tvb_get_guint8(tvb, offset);
   proto_tree_add_text(tree, tvb, offset, 1,
 		      "Protocol ID: %s (%u)",
-		      proto2str(protocol_id), protocol_id);
+		      val_to_str(protocol_id, vs_proto, "UNKNOWN-PROTO-TYPE"), protocol_id);
   offset += 1;
   length -= 1;
 
@@ -981,8 +1252,22 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     length -= spi_size;
   }
 
-  if (length > 0)
+  if (length > 0) {
     proto_tree_add_text(tree, tvb, offset, length, "Notification Data");
+
+    /* notification data */
+    if (isakmp_version == 2 && msgtype == 16387) {
+      /* IPCOMP_SUPPORTED */
+      proto_tree_add_text(tree, tvb, offset, 2,
+      			"IPComp CPI (%u)", tvb_get_ntohs(tvb, offset));
+      ipcomptype = tvb_get_guint8(tvb, offset + 2);
+      proto_tree_add_text(tree, tvb, offset + 2, 1,
+      			"Transform ID: %s (%u)",
+      			v2_ipcomptype2str(ipcomptype), ipcomptype);
+      offset += 3;
+      length -= 3;
+    }
+  }
 }
 
 static void
@@ -1005,7 +1290,7 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   protocol_id = tvb_get_guint8(tvb, offset);
   proto_tree_add_text(tree, tvb, offset, 1,
 		      "Protocol ID: %s (%u)",
-		      proto2str(protocol_id), protocol_id);
+		      val_to_str(protocol_id, vs_proto, "UNKNOWN-PROTO-TYPE"), protocol_id);
   offset += 1;
   length -= 1;
 
@@ -1250,17 +1535,24 @@ dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
 {
   guint8		type;
 
-  type = tvb_get_guint8(tvb, offset);
-  proto_tree_add_text(tree, tvb, offset, 1,
-		      "Type %s (%u)",attrtype2str(type),type);
+  if (isakmp_version == 1) {
+    type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 1,
+    			"Type %s (%u)", cfgtype2str(type), type);
+    offset += 2;
+    length -= 2;
 
-  offset += 2;
-  length -= 2;
-
-  proto_tree_add_text(tree, tvb, offset, 2,
-                      "Identifier: %u", tvb_get_ntohs(tvb, offset));
-  offset += 2;
-  length -= 2;
+    proto_tree_add_text(tree, tvb, offset, 2,
+    			"Identifier: %u", tvb_get_ntohs(tvb, offset));
+    offset += 2;
+    length -= 2;
+  } else if (isakmp_version == 2) {
+    type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 1,
+    			"CFG Type %s (%u)", cfgtype2str(type), type);
+    offset += 4;
+    length -= 4;
+  }
 
   while(length>0) {
     guint16 aft     = tvb_get_ntohs(tvb, offset);
@@ -1272,7 +1564,7 @@ dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
     if (aft & 0x8000) {
       val = tvb_get_ntohs(tvb, offset + 2);
       proto_tree_add_text(tree, tvb, offset, 4,
-			  "%s (%u)", cfgattrident2str(type), val);
+			  "%s (%u)", cfgattr2str(type), val);
       offset += 4;
       length -= 4;
     }
@@ -1282,10 +1574,10 @@ dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
       if (!get_num(tvb, offset + 4, len, &val)) {
         proto_tree_add_text(tree, tvb, offset, pack_len,
 			    "%s: <too big (%u bytes)>",
-			    cfgattrident2str(type), len);
+			    cfgattr2str(type), len);
       } else {
         proto_tree_add_text(tree, tvb, offset, 4,
-			    "%s (%ue)", cfgattrident2str(type),
+			    "%s (%ue)", cfgattr2str(type),
 			    val);
       }
       offset += pack_len;
@@ -1355,108 +1647,276 @@ dissect_nat_original_address(tvbuff_t *tvb, int offset, int length, proto_tree *
   }
 }
 
-static const char *
-payloadtype2str(guint8 type) {
+static void
+dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    packet_info *pinfo _U_, int unused _U_)
+{
+  guint8	num, tstype, protocol_id, len, addrlen;
+  guint16	port;
 
-  if (type < NUM_LOAD_TYPES)
-    return strfuncs[type].str;
-  if (type < 128)
-    return "RESERVED";
-  if (type == 130)
-    return "NAT-D (draft-ietf-ipsec-nat-t-ike-01 to 03)";
-  if (type == 131)
-    return "NAT-OA (draft-ietf-ipsec-nat-t-ike-01 to 04)";
-  return "Private USE";
+  proto_tree_add_text(tree, tvb, offset, length, "Traffic Selector");
+
+  num = tvb_get_guint8(tvb, offset);
+  proto_item_append_text(tree," # %d", num);
+  proto_tree_add_text(tree, tvb, offset, 1,
+  		      "Number of TSs: %u", num);
+  offset += 4;
+  length -= 4;
+
+  while (length > 0) {
+    tstype = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 1,
+  		      "TS Type: %s (%u)",
+  		      v2_tstype2str(tstype), tstype);
+    switch (tstype) {
+    case 7:
+      addrlen = 4;
+      break;
+    case 8:
+      addrlen = 16;
+      break;
+    default:
+      addrlen = 255;
+    }
+    /*
+     * XXX should the remaining of the length check be done here ?
+     * it seems other routines don't check the length.
+     */
+    if (length < (8 + addrlen * 2)) {
+      proto_tree_add_text(tree, tvb, offset, length,
+			  "Length mismatch (%u)", length);
+      return;
+    }
+    offset += 1;
+    length -= 1;
+
+    protocol_id = tvb_get_guint8(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 1,
+  		      "Protocol ID: (%u)", protocol_id);
+    offset += 1;
+    length -= 1;
+
+    len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 2,
+  		      "Selector Length: %u", len);
+    offset += 2;
+    length -= 2;
+
+    port = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 2,
+  		      "Start Port: (%u)", port);
+    offset += 2;
+    length -= 2;
+
+    port = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_text(tree, tvb, offset, 2,
+  		      "End Port: (%u)", port);
+    offset += 2;
+    length -= 2;
+
+    proto_tree_add_text(tree, tvb, offset, length,
+  			  "Starting Address: %s",
+  			  ip_to_str(tvb_get_ptr(tvb, offset, addrlen)));
+    offset += addrlen;
+    length -= addrlen;
+
+    proto_tree_add_text(tree, tvb, offset, length,
+  			  "Starting Address: %s",
+  			  ip_to_str(tvb_get_ptr(tvb, offset, addrlen)));
+    offset += addrlen;
+    length -= addrlen;
+  }
+}
+
+static void
+dissect_enc(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    packet_info *pinfo _U_, int unused _U_)
+{
+  proto_tree_add_text(tree, tvb, offset, 4, "Initialization Vector: 0x%s",
+                      tvb_bytes_to_str(tvb, 8, 4));
+  proto_tree_add_text(tree, tvb, offset + 4, length, "Encrypted Data");
+}
+
+static void
+dissect_eap(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    packet_info *pinfo _U_, int unused _U_)
+{
+  proto_tree_add_text(tree, tvb, offset, length, "EAP Message");
 }
 
 static const char *
-exchtype2str(guint8 type) {
+payloadtype2str(guint8 type)
+{
+  struct payload_func *f;
 
-#define NUM_EXCHSTRS	7
-  static const char * exchstrs[NUM_EXCHSTRS] = {
-    "NONE",
-    "Base",
-    "Identity Protection (Main Mode)",
-    "Authentication Only",
-    "Aggressive",
-    "Informational",
-    "Transaction (Config Mode)"
+  if ((f = getpayload_func(type)) != NULL)
+      return f->str;
+
+  if (isakmp_version == 1) {
+    if (type < 128)
+      return "RESERVED";
+    return "Private USE";
+  } else if (isakmp_version == 2) {
+    if (type > 127)
+      return "PRIVATE USE";
+    if (type > 48)
+      return "RESERVED TO IANA";
+    return "RESERVED";
+  }
+  return "UNKNOWN-ISAKMP-VERSION";
+}
+
+static const char *
+exchtype2str(guint8 type)
+{
+  static const value_string vs_v1_exchange[] = {
+    { 0,	"NONE" },
+    { 1,	"Base" },
+    { 2,	"Identity Protection (Main Mode)" },
+    { 3,	"Authentication Only" },
+    { 4,	"Aggressive" },
+    { 5,	"Informational" },
+    { 6,	"Transaction (Config Mode)" },
+    { 32,	"Quick Mode" },
+    { 33,	"New Group Mode" },
+    { 0,	NULL },
   };
 
-  if (type < NUM_EXCHSTRS) return exchstrs[type];
-  if (type < 32)           return "ISAKMP Future Use";
-  switch (type) {
-  case 32:
-    return "Quick Mode";
-  case 33:
-    return "New Group Mode";
+  static const value_string vs_v2_exchange[] = {
+    { 34,	"IKE_SA_INIT" },
+    { 35,	"IKE_AUTH " },
+    { 36,	"CREATE_CHILD_SA" },
+    { 0,	NULL },
+  };
+
+  if (isakmp_version == 1) {
+    if (type > 6 && type < 32)
+      return "ISAKMP Future Use";
+    if (type > 33 && type < 240)
+      return "DOI Specific Use";
+    return val_to_str(type, vs_v1_exchange, "Private Use");
+  } else if (isakmp_version == 2) {
+    if (type < 34)
+      return "RESERVED";
+    if (type > 37 && type < 240)
+      return "Reserved for IKEv2+";
+    return val_to_str(type, vs_v2_exchange, "Reserved for private use");
   }
-  if (type < 240)
-    return "DOI Specific Use";
-  return "Private Use";
+  return "UNKNOWN-ISAKMP-VERSION";
 }
 
 static const char *
-doitype2str(guint32 type) {
+doitype2str(guint32 type)
+{
   if (type == 1) return "IPSEC";
   return "Unknown DOI Type";
 }
 
 static const char *
-msgtype2str(guint16 type) {
-
-#define NUM_PREDEFINED	31
-  static const char *msgs[NUM_PREDEFINED] = {
-    "<UNKNOWN>",
-    "INVALID-PAYLOAD-TYPE",
-    "DOI-NOT-SUPPORTED",
-    "SITUATION-NOT-SUPPORTED",
-    "INVALID-COOKIE",
-    "INVALID-MAJOR-VERSION",
-    "INVALID-MINOR-VERSION",
-    "INVALID-EXCHANGE-TYPE",
-    "INVALID-FLAGS",
-    "INVALID-MESSAGE-ID",
-    "INVALID-PROTOCOL-ID",
-    "INVALID-SPI",
-    "INVALID-TRANSFORM-ID",
-    "ATTRIBUTES-NOT-SUPPORTED",
-    "NO-PROPOSAL-CHOSEN",
-    "BAD-PROPOSAL-SYNTAX",
-    "PAYLOAD-MALFORMED",
-    "INVALID-KEY-INFORMATION",
-    "INVALID-ID-INFORMATION",
-    "INVALID-CERT-ENCODING",
-    "INVALID-CERTIFICATE",
-    "CERT-TYPE-UNSUPPORTED",
-    "INVALID-CERT-AUTHORITY",
-    "INVALID-HASH-INFORMATION",
-    "AUTHENTICATION-FAILED",
-    "INVALID-SIGNATURE",
-    "ADDRESS-NOTIFICATION",
-    "NOTIFY-SA-LIFETIME",
-    "CERTIFICATE-UNAVAILABLE",
-    "UNSUPPORTED-EXCHANGE-TYPE",
-    "UNEQUAL-PAYLOAD-LENGTHS"
+msgtype2str(guint16 type)
+{
+  static const value_string vs_v1_notifmsg[] = {
+    { 0,	"<UNKNOWN>" },
+    { 1,	"INVALID-PAYLOAD-TYPE" },
+    { 2,	"DOI-NOT-SUPPORTED" },
+    { 3,	"SITUATION-NOT-SUPPORTED" },
+    { 4,	"INVALID-COOKIE" },
+    { 5,	"INVALID-MAJOR-VERSION" },
+    { 6,	"INVALID-MINOR-VERSION" },
+    { 7,	"INVALID-EXCHANGE-TYPE" },
+    { 8,	"INVALID-FLAGS" },
+    { 9,	"INVALID-MESSAGE-ID" },
+    { 10,	"INVALID-PROTOCOL-ID" },
+    { 11,	"INVALID-SPI" },
+    { 12,	"INVALID-TRANSFORM-ID" },
+    { 13,	"ATTRIBUTES-NOT-SUPPORTED" },
+    { 14,	"NO-PROPOSAL-CHOSEN" },
+    { 15,	"BAD-PROPOSAL-SYNTAX" },
+    { 16,	"PAYLOAD-MALFORMED" },
+    { 17,	"INVALID-KEY-INFORMATION" },
+    { 18,	"INVALID-ID-INFORMATION" },
+    { 19,	"INVALID-CERT-ENCODING" },
+    { 20,	"INVALID-CERTIFICATE" },
+    { 21,	"CERT-TYPE-UNSUPPORTED" },
+    { 22,	"INVALID-CERT-AUTHORITY" },
+    { 23,	"INVALID-HASH-INFORMATION" },
+    { 24,	"AUTHENTICATION-FAILED" },
+    { 25,	"INVALID-SIGNATURE" },
+    { 26,	"ADDRESS-NOTIFICATION" },
+    { 27,	"NOTIFY-SA-LIFETIME" },
+    { 28,	"CERTIFICATE-UNAVAILABLE" },
+    { 29,	"UNSUPPORTED-EXCHANGE-TYPE" },
+    { 30,	"UNEQUAL-PAYLOAD-LENGTHS" },
+    { 8192,	"RESERVED" },
+    { 16384,	"RESPONDER-LIFETIME" },
+    { 24576,	"REPLAY-STATUS" },
+    { 24577,	"DOI-specific codes" },	/* XXX missing number ? */
+    { 24578,	"INITIAL-CONTACT" },
+    { 0,	NULL },
   };
 
-  if (type < NUM_PREDEFINED) return msgs[type];
-  if (type < 8192)           return "RESERVED (Future Use)";
-  if (type < 16384)          return "Private Use";
-  if (type < 16385)          return "CONNECTED";
-  if (type < 24576)          return "RESERVED (Future Use) - status";
-  if (type < 24577)          return "RESPONDER-LIFETIME";
-  if (type < 24578)          return "REPLAY-STATUS";
-  if (type < 24579)          return "INITIAL-CONTACT";
-  if (type < 32768)          return "DOI-specific codes";
-  if (type < 40960)          return "Private Use - status";
-  if (type < 65535)          return "RESERVED (Future Use) - status (2)";
+  static const value_string vs_v2_notifmsg[] = {
+    {     0,	"RESERVED" },
+    {     4,	"INVALID_IKE_SPI" },
+    {     5,	"INVALID_MAJOR_VERSION" },
+    {     7,	"INVALID_SYNTAX" },
+    {     9,	"INVALID_MESSAGE_ID" },
+    {    11,	"INVALID_SPI" },
+    {    14,	"NO_PROPOSAL_CHOSEN" },
+    {    17,	"INVALID_KE_PAYLOAD" },
+    {    24,	"AUTHENTICATION_FAILED" },
+    {    34,	"SINGLE_PAIR_REQUIRED" },
+    {    35,	"NO_ADDITIONAL_SAS" },
+    {    36,	"INTERNAL_ADDRESS_FAILURE" },
+    {    37,	"FAILED_CP_REQUIRED" },
+    {    38,	"TS_UNACCEPTABLE" },
+    {    39,	"INVALID_SELECTORS" },
+    { 16384,	"INITIAL_CONTACT" },
+    { 16385,	"SET_WINDOW_SIZE" },
+    { 16386,	"ADDITIONAL_TS_POSSIBLE" },
+    { 16387,	"IPCOMP_SUPPORTED" },
+    { 16388,	"NAT_DETECTION_SOURCE_IP" },
+    { 16389,	"NAT_DETECTION_DESTINATION_IP" },
+    { 16390,	"COOKIE" },
+    { 16391,	"USE_TRANSPORT_MODE" },
+    { 16392,	"HTTP_CERT_LOOKUP_SUPPORTED" },
+    { 16393,	"REKEY_SA" },
+    { 16394,	"ESP_TFC_PADDING_NOT_SUPPORTED" },
+    { 16395,	"NON_FIRST_FRAGMENTS_ALSO" },
+    { 0,	NULL },
+  };
 
-  return "Huh? You should never see this! Shame on you!";
+  if (isakmp_version == 1) {
+    if (type > 30 && type < 8192)
+      return "RESERVED (Future Use)";
+    if (type > 8192 && type < 16384)
+      return "Private Use";
+    if (type > 16384 && type < 24576)
+      return "RESERVED (Future Use) - status";
+    if (type > 24578 && type < 32768)
+      return "DOI-specific codes";
+    if (type > 32767 && type < 40960)
+      return "Private Use - status";
+    if (type > 40959 && type < 65535)
+      return "RESERVED (Future Use) - status (2)";
+    return val_to_str(type, vs_v1_notifmsg, "UNKNOWN-NOTIFY-MESSAGE-TYPE");
+  } else if (isakmp_version == 2) {
+    if (type >= 40 && type <= 8191)
+      return "RESERVED TO IANA - Error types";
+    if (type >= 16396 && type <= 40959)
+      return "RESERVED TO IANA - STATUS TYPES";
+    if (type >= 8192 && type <= 16383)
+      return "Private Use - Errors";
+    if (type >= 40960 && type <= 65535)
+      return "Private Use - STATUS TYPES";
+    return val_to_str(type, vs_v2_notifmsg, "UNKNOWN-NOTIFY-MESSAGE-TYPE");
+  } 
+  return "UNKNOWN-ISAKMP-VERSION";
 }
 
 static const char *
-situation2str(guint32 type) {
+situation2str(guint32 type)
+{
 
 #define SIT_MSG_NUM	1024
 #define SIT_IDENTITY	0x01
@@ -1511,47 +1971,154 @@ situation2str(guint32 type) {
 }
 
 static const char *
-value2str(int ike_p1, guint16 att_type, guint32 value) {
+v2_attrval2str(guint16 att_type, guint32 value)
+{
+  value = 0;	/* dummy to be less warning in compiling it */
+  switch (att_type) {
+  case 14:
+    return "Key-Length";
+  default:
+    return "UNKNOWN-ATTRIBUTE-TYPE";
+  }
+}
+
+static const char *
+v1_attrval2str(int ike_p1, guint16 att_type, guint32 value)
+{
+  static const value_string vs_v1_attrval_lttype[] = {
+    { 0,	"RESERVED" },
+    { 1,	"Seconds" },
+    { 2,	"Kilobytes" },
+    { 0,	NULL },
+  };
+
+  static const value_string vs_v1_attrval_encap[] = {
+    { 0,	"RESERVED" },
+    { 1,	"Tunnel" },
+    { 2,	"Transport" },
+    { 3,	"UDP-Encapsulated-Tunnel" }, /* http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-05.txt */
+    { 4,	"UDP-Encapsulated-Transport" }, /* http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-05.txt */
+    { 61440,	"Check Point IPSec UDP Encapsulation" },
+    { 61443,	"UDP-Encapsulated-Tunnel (draft)" },
+    { 61444,	"UDP-Encapsulated-Transport (draft)" },
+    { 0,	NULL },
+  };
+
+  static const value_string vs_v1_attrval_auth[] = {
+    { 0,	"RESERVED" },
+    { 1,	"HMAC-MD5" },
+    { 2,	"HMAC-SHA" },
+    { 3,	"DES-MAC" },
+    { 4,	"KPDK" },
+    { 5,	"HMAC-SHA2-256" },
+    { 6,	"HMAC-SHA2-384" },
+    { 7,	"HMAC-SHA2-512" },
+    { 0,	NULL },
+  };
+
+  static const value_string vs_v1_attrval_enc[] = {
+    { 0,	"RESERVED" },
+    { 1,	"DES-CBC" },
+    { 2,	"IDEA-CBC" },
+    { 3,	"BLOWFISH-CBC" },
+    { 4,	"RC5-R16-B64-CBC" },
+    { 5,	"3DES-CBC" },
+    { 6,	"CAST-CBC" },
+    { 7,	"AES-CBC" },
+    { 0,	NULL },
+  };
+
+  static const value_string vs_v1_attrval_hash[] = {
+    { 0,	"RESERVED" },
+    { 1,	"MD5" },
+    { 2,	"SHA" },
+    { 3,	"TIGER" },
+    { 4,	"SHA2-256" },
+    { 5,	"SHA2-384" },
+    { 6,	"SHA2-512" },
+    { 0,	NULL },
+  };
+
+  static const value_string vs_v1_attrval_authmeth[] = {
+    { 0,	"RESERVED" },
+    { 1,	"PSK" },
+    { 2,	"DSS-SIG" },
+    { 3,	"RSA-SIG" },
+    { 4,	"RSA-ENC" },
+    { 5,	"RSA-Revised-ENC" },
+    { 6,	"Encryption with El-Gamal" },
+    { 7,	"Revised encryption with El-Gamal" },
+    { 8,	"ECDSA signatures" },
+    { 9,	"AES-XCBC-MAC" },
+    { 64221,	"HybridInitRSA" },
+    { 64222,	"HybridRespRSA" },
+    { 64223,	"HybridInitDSS" },
+    { 64224,	"HybridRespDSS" },
+    { 65001,	"XAUTHInitPreShared" },
+    { 65002,	"XAUTHRespPreShared" },
+    { 65003,	"XAUTHInitDSS" },
+    { 65004,	"XAUTHRespDSS" },
+    { 65005,	"XAUTHInitRSA" },
+    { 65006,	"XAUTHRespRSA" },
+    { 65007,	"XAUTHInitRSAEncryption" },
+    { 65008,	"XAUTHRespRSAEncryption" },
+    { 65009,	"XAUTHInitRSARevisedEncryption" },
+    { 65010,	"XAUTHRespRSARevisedEncryption" },
+    { 0,	NULL },
+  };
+
+  static const value_string vs_v1_attrval_grpdesc[] = {
+    { 0,	"UNDEFINED - 0" },
+    { 1,	"Default 768-bit MODP group" },
+    { 2,	"Alternate 1024-bit MODP group" },
+    { 3,	"EC2N group on GP[2^155] group" },
+    { 4,	"EC2N group on GP[2^185] group" },
+    { 5,	"1536 bit MODP group" },
+    { 6,	"EC2N group over GF[2^163]" },
+    { 7,	"EC2N group over GF[2^163]" },
+    { 8,	"EC2N group over GF[2^283]" },
+    { 9,	"EC2N group over GF[2^283]" },
+    { 10,	"EC2N group over GF[2^409]" },
+    { 11,	"EC2N group over GF[2^409]" },
+    { 12,	"EC2N group over GF[2^571]" },
+    { 13,	"EC2N group over GF[2^571]" },
+    { 14,	"2048 bit MODP group" },
+    { 15,	"3072 bit MODP group" },
+    { 16,	"4096 bit MODP group" },
+    { 17,	"6144 bit MODP group" },
+    { 18,	"8192 bit MODP group" },
+    { 0,	NULL },
+  };
+
+  static const value_string vs_v1_attrval_grptype[] = {
+    { 0,	"UNDEFINED - 0" },
+    { 1,	"MODP" },
+    { 2,	"ECP" },
+    { 3,	"EC2N" },
+    { 0,	NULL },
+  };
+
+  static const value_string vs_v1_attrval_lifetype[] = {
+    { 0,	"UNDEFINED - 0" },
+    { 1,	"Seconds" },
+    { 2,	"Kilobytes" },
+    { 0,	NULL },
+  };
 
   if (value == 0) return "RESERVED";
 
   if (!ike_p1) {
     switch (att_type) {
       case 1:
-        switch (value) {
-          case 0: return "RESERVED";
-          case 1:  return "Seconds";
-          case 2:  return "Kilobytes";
-          default: return "UNKNOWN-SA-VALUE";
-        }
+        return val_to_str(value, vs_v1_attrval_lttype, "UNKNOWN-LIFETIME-TYPE");
       case 2:
         return "Duration-Value";
       case 3:
         return "Group-Value";
       case 4:
-        switch (value) {
-          case 0:  return "RESERVED";
-          case 1:  return "Tunnel";
-          case 2:  return "Transport";
-          case 3:  return "UDP-Encapsulated-Tunnel"; /* http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-05.txt */
-          case 4:  return "UDP-Encapsulated-Transport"; /* http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-05.txt */
-          case 61440: return "Check Point IPSec UDP Encapsulation";
-          case 61443: return "UDP-Encapsulated-Tunnel (draft)";
-          case 61444: return "UDP-Encapsulated-Transport (draft)";
-          default: return "UNKNOWN-ENCAPSULATION-VALUE";
-        }
+        return val_to_str(value, vs_v1_attrval_encap, "UNKNOWN-ENCAPSULATION-VALUE");
       case 5:
-        switch (value) {
-          case 0:  return "RESERVED";
-          case 1:  return "HMAC-MD5";
-          case 2:  return "HMAC-SHA";
-          case 3:  return "DES-MAC";
-          case 4:  return "KPDK";
-          case 5:  return "HMAC-SHA2-256";
-          case 6:  return "HMAC-SHA2-384";
-          case 7:  return "HMAC-SHA2-512";
-            default: return "UNKNOWN-AUTHENTICATION-VALUE";
-        }
+        return val_to_str(value, vs_v1_attrval_auth, "UNKNOWN-AUTHENTICATION-VALUE");
       case 6:
         return "Key-Length";
       case 7:
@@ -1560,60 +2127,20 @@ value2str(int ike_p1, guint16 att_type, guint32 value) {
         return "Compress-Dictionary-size";
       case 9:
         return "Compress Private Algorithm";
-      default: return "UNKNOWN-ATTRIBUTE-TYPE";
+      default:
+        return "UNKNOWN-ATTRIBUTE-TYPE";
     }
   }
   else {
     switch (att_type) {
       case 1:
-        switch (value) {
-          case 1:  return "DES-CBC";
-          case 2:  return "IDEA-CBC";
-          case 3:  return "BLOWFISH-CBC";
-          case 4:  return "RC5-R16-B64-CBC";
-          case 5:  return "3DES-CBC";
-          case 6:  return "CAST-CBC";
-	  case 7:  return "AES-CBC";
-          default: return "UNKNOWN-ENCRYPTION-ALG";
-        }
+        return val_to_str(value, vs_v1_attrval_enc, "UNKNOWN-ENCRYPTION-ALG");
       case 2:
-        switch (value) {
-          case 1:  return "MD5";
-          case 2:  return "SHA";
-          case 3:  return "TIGER";
-	  case 4:  return "SHA2-256";
-	  case 5:  return "SHA2-384";
-	  case 6:  return "SHA2-512";
-          default: return "UNKNOWN-HASH-ALG";
-        }
+        return val_to_str(value, vs_v1_attrval_hash, "UNKNOWN-HASH-ALG");
       case 3:
-        switch (value) {
-          case 1:  return "PSK";
-          case 2:  return "DSS-SIG";
-          case 3:  return "RSA-SIG";
-          case 4:  return "RSA-ENC";
-          case 5:  return "RSA-Revised-ENC";
-	  case 6:  return "Encryption with El-Gamal";
- 	  case 7:  return "Revised encryption with El-Gamal";
-	  case 8:  return "ECDSA signatures";
-	  case 9:  return "AES-XCBC-MAC";
-	  case 64221: return "HybridInitRSA";
-	  case 64222: return "HybridRespRSA";
-	  case 64223: return "HybridInitDSS";
-	  case 64224: return "HybridRespDSS";
-          case 65001: return "XAUTHInitPreShared";
-          case 65002: return "XAUTHRespPreShared";
-          case 65003: return "XAUTHInitDSS";
-          case 65004: return "XAUTHRespDSS";
-          case 65005: return "XAUTHInitRSA";
-          case 65006: return "XAUTHRespRSA";
-          case 65007: return "XAUTHInitRSAEncryption";
-          case 65008: return "XAUTHRespRSAEncryption";
-          case 65009: return "XAUTHInitRSARevisedEncryption";
-          case 65010: return "XAUTHRespRSARevisedEncryption";
-	  default: return "UNKNOWN-AUTH-METHOD";
-        }
-      case 4: return grpdesc2str(value);
+        return val_to_str(value, vs_v1_attrval_authmeth, "UNKNOWN-AUTH-METHOD");
+      case 4:
+        return val_to_str(value, vs_v1_attrval_grpdesc, "UNKNOWN-GROUP-DESCRIPTION");
       case 6:
       case 7:
       case 8:
@@ -1622,18 +2149,9 @@ value2str(int ike_p1, guint16 att_type, guint32 value) {
       case 16:
         return "Group-Value";
       case 5:
-        switch (value) {
-          case 1:  return "MODP";
-          case 2:  return "ECP";
-          case 3:  return "EC2N";
-          default: return "UNKNOWN-GROUPT-TYPE";
-        }
+        return val_to_str(value, vs_v1_attrval_grptype, "UNKNOWN-GROUP-TYPE");
       case 11:
-        switch (value) {
-          case 1:  return "Seconds";
-          case 2:  return "Kilobytes";
-          default: return "UNKNOWN-SA-VALUE";
-        }
+        return val_to_str(value, vs_v1_attrval_lifetype, "UNKNOWN-LIFE-TYPE");
       case 12:
         return "Duration-Value";
       case 13:
@@ -1642,86 +2160,249 @@ value2str(int ike_p1, guint16 att_type, guint32 value) {
         return "Key-Length";
       case 15:
         return "Field-Size";
-      default: return "UNKNOWN-ATTRIBUTE-TYPE";
+      default:
+        return "UNKNOWN-ATTRIBUTE-TYPE";
     }
   }
 }
 
 static const char *
-attrtype2str(guint8 type) {
-  switch (type) {
-  case 0: return "Reserved";
-  case 1: return "ISAKMP_CFG_REQUEST";
-  case 2: return "ISAKMP_CFG_REPLY";
-  case 3: return "ISAKMP_CFG_SET";
-  case 4: return "ISAKMP_CFG_ACK";
+cfgtype2str(guint8 type)
+{
+  static const value_string vs_v1_cfgtype[] = {
+    { 0,	"Reserved" },
+    { 1,	"ISAKMP_CFG_REQUEST" },
+    { 2,	"ISAKMP_CFG_REPLY" },
+    { 3,	"ISAKMP_CFG_SET" },
+    { 4,	"ISAKMP_CFG_ACK" },
+    { 0,	NULL },
+  };
+
+  static const value_string vs_v2_cfgtype[] = {
+    { 0,	"RESERVED" },
+    { 1,	"CFG_REQUEST" },
+    { 2,	"CFG_REPLY" },
+    { 3,	"CFG_SET" },
+    { 4,	"CFG_ACK" },
+    { 0,	NULL },
+  };
+
+  if (isakmp_version == 1) {
+    if (type >= 5 && type <= 127)
+      return "Future use";
+    if (type >= 128 && type <= 255)
+      return "Private Use";
+    return val_to_str(type, vs_v1_cfgtype, "UNKNOWN-CFG-TYPE");
+  } else if (isakmp_version == 2) {
+    if (type >= 5 && type <= 127)
+      return "RESERVED TO IANA";
+    if (type >= 128 && type <= 255)
+      return "PRIVATE USE";
+    return val_to_str(type, vs_v1_cfgtype, "UNKNOWN-CFG-TYPE");
   }
-  if(type < 127)
-    return "Future use";
-  return "Private use";
+  return "UNKNOWN-ISAKMP-VERSION";
 }
 
 static const char *
-cfgattrident2str(guint16 ident) {
-#define NUM_ATTR_DEFINED	12
-  static const char *msgs[NUM_PREDEFINED] = {
-    "RESERVED",
-    "INTERNAL_IP4_ADDRESS",
-    "INTERNAL_IP4_NETMASK",
-    "INTERNAL_IP4_DNS",
-    "INTERNAL_IP4_NBNS",
-    "INTERNAL_ADDRESS_EXPIREY",
-    "INTERNAL_IP4_DHCP",
-    "APPLICATION_VERSION"
-    "INTERNAL_IP6_ADDRESS",
-    "INTERNAL_IP6_NETMASK",
-    "INTERNAL_IP6_DNS",
-    "INTERNAL_IP6_NBNS",
-    "INTERNAL_IP6_DHCP",
+id2str(guint8 type)
+{
+  static const value_string vs_v1_ident[] = {
+    { 0,	"RESERVED" },
+    { 1,	"IPV4_ADDR" },
+    { 2,	"FQDN" },
+    { 3,	"USER_FQDN" },
+    { 4,	"IPV4_ADDR_SUBNET" },
+    { 5,	"IPV6_ADDR" },
+    { 6,	"IPV6_ADDR_SUBNET" },
+    { 7,	"IPV4_ADDR_RANGE" },
+    { 8,	"IPV6_ADDR_RANGE" },
+    { 9,	"DER_ASN1_DN" },
+    { 10,	"DER_ASN1_GN" },
+    { 11,	"KEY_ID" },
+    { 0,	NULL },
   };
-  if(ident < NUM_ATTR_DEFINED)
-    return msgs[ident];
-  if(ident < 16383)
-    return "Future use";
-  switch(ident) {
-  case 16520: return "XAUTH_TYPE";
-  case 16521: return "XAUTH_USER_NAME";
-  case 16522: return "XAUTH_USER_PASSWORD";
-  case 16523: return "XAUTH_PASSCODE";
-  case 16524: return "XAUTH_MESSAGE";
-  case 16525: return "XAUTH_CHALLANGE";
-  case 16526: return "XAUTH_DOMAIN";
-  case 16527: return "XAUTH_STATUS";
-  case 16528: return "XAUTH_NEXT_PIN";
-  case 16529: return "XAUTH_ANSWER";
-  default: return "Private use";
+  static const value_string vs_v2_ident[] = {
+    { 0,	"RESERVED" },
+    { 1,	"IPV4_ADDR" },
+    { 2,	"FQDN" },
+    { 3,	"USER_FQDN" },
+    { 4,	"IPV4_ADDR_SUBNET" },
+    { 5,	"IPV6_ADDR" },
+    { 9,	"DER_ASN1_DN" },
+    { 10,	"DER_ASN1_GN" },
+    { 11,	"KEY_ID" },
+    { 0,	NULL },
+  };
+
+  if (isakmp_version == 1)
+    return val_to_str(type, vs_v1_ident, "UNKNOWN-ID-TYPE");
+  else if (isakmp_version == 2) {
+    if ((type >= 6 && type <=8) || (type >= 12 && type <= 200))
+      return "Reserved to IANA";
+    if (type >= 201 && type <= 255)
+      return "Reserved for private use";
+    return val_to_str(type, vs_v2_ident, "UNKNOWN-ID-TYPE");
   }
+  return "UNKNOWN-ISAKMP-VERSION";
 }
 
 static const char *
-certtype2str(guint8 type) {
-#define NUM_CERTTYPE 11
-  static const char *msgs[NUM_CERTTYPE] = {
-    "NONE",
-    "PKCS #7 wrapped X.509 certificate",
-    "PGP Certificate",
-    "DNS Signed Key",
-    "X.509 Certificate - Signature",
-    "X.509 Certificate - Key Exchange",
-    "Kerberos Tokens",
-    "Certificate Revocation List (CRL)",
-    "Authority Revocation List (ARL)",
-    "SPKI Certificate",
-    "X.509 Certificate - Attribute",
+v2_tstype2str(guint8 type)
+{
+  static const value_string vs_v2_tstype[] = {
+    { 7,	"TS_IPV4_ADDR_RANGE" },
+    { 8,	"TS_IPV6_ADDR_RANGE" },
+    { 0,	NULL },
   };
-  if(type > NUM_CERTTYPE)
+
+  if (type <= 6)
     return "RESERVED";
-  return msgs[type];
+  if (type >= 9 && type <= 240)
+    return "RESERVED TO IANA";
+  if (type >= 241 && type <= 255)
+    return "PRIVATE USE";
+  return val_to_str(type, vs_v2_tstype, "UNKNOWN-TS-TYPE");
+}
+
+static const char *
+v2_auth2str(guint8 type)
+{
+  static const value_string vs_v2_authmeth[] = {
+    { 0,	"RESERVED TO IANA" },
+    { 1,	"RSA Digital Signature" },
+    { 2,	"Shared Key Message Integrity Code" },
+    { 3,	"DSS Digital Signature" },
+    { 0,	NULL },
+  };
+
+  if (type >= 4 && type <= 200)
+    return "RESERVED TO IANA";
+  if (type >= 201 && type <= 255)
+    return "PRIVATE USE";
+  return val_to_str(type, vs_v2_authmeth, "UNKNOWN-AUTHMETHOD-TYPE");
+}
+
+static const char *
+cfgattr2str(guint16 ident)
+{
+  static const value_string vs_v1_cfgattr[] = {
+    { 0,	"RESERVED" },
+    { 1,	"INTERNAL_IP4_ADDRESS" },
+    { 2,	"INTERNAL_IP4_NETMASK" },
+    { 3,	"INTERNAL_IP4_DNS" },
+    { 4,	"INTERNAL_IP4_NBNS" },
+    { 5,	"INTERNAL_ADDRESS_EXPIREY" },
+    { 6,	"INTERNAL_IP4_DHCP" },
+    { 7,	"APPLICATION_VERSION" },
+    { 8,	"INTERNAL_IP6_ADDRESS" },
+    { 9,	"INTERNAL_IP6_NETMASK" },
+    { 10,	"INTERNAL_IP6_DNS" },
+    { 11,	"INTERNAL_IP6_NBNS" },
+    { 12,	"INTERNAL_IP6_DHCP" },
+    { 13,	"INTERNAL_IP4_SUBNET" },
+    { 14,	"SUPPORTED_ATTRIBUTES" },
+    { 16520,	"XAUTH_TYPE" },
+    { 16521,	"XAUTH_USER_NAME" },
+    { 16522,	"XAUTH_USER_PASSWORD" },
+    { 16523,	"XAUTH_PASSCODE" },
+    { 16524,	"XAUTH_MESSAGE" },
+    { 16525,	"XAUTH_CHALLANGE" },
+    { 16526,	"XAUTH_DOMAIN" },
+    { 16527,	"XAUTH_STATUS" },
+    { 16528,	"XAUTH_NEXT_PIN" },
+    { 16529,	"XAUTH_ANSWER" },
+    { 0,	NULL },
+  };
+
+  static const value_string vs_v2_cfgattr[] = {
+    { 0,	"RESERVED" },
+    { 1,	"INTERNAL_IP4_ADDRESS" },
+    { 2,	"INTERNAL_IP4_NETMASK" },
+    { 3,	"INTERNAL_IP4_DNS" },
+    { 4,	"INTERNAL_IP4_NBNS" },
+    { 5,	"INTERNAL_ADDRESS_EXPIREY" },
+    { 6,	"INTERNAL_IP4_DHCP" },
+    { 7,	"APPLICATION_VERSION" },
+    { 8,	"INTERNAL_IP6_ADDRESS" },
+    { 9,	"RESERVED" },
+    { 10,	"INTERNAL_IP6_DNS" },
+    { 11,	"INTERNAL_IP6_NBNS" },
+    { 12,	"INTERNAL_IP6_DHCP" },
+    { 13,	"INTERNAL_IP4_SUBNET" },
+    { 14,	"SUPPORTED_ATTRIBUTES" },
+    { 15,	"INTERNAL_IP6_SUBNET" },
+    { 0,	NULL },
+  };
+
+  if (isakmp_version == 1) {
+    if (ident >= 15 && ident <= 16383)
+      return "Future use";
+    if (ident >= 16384 && ident <= 16519)
+      return "PRIVATE USE";
+    if (ident >= 16530 && ident <= 32767)
+      return "PRIVATE USE";
+    return val_to_str(ident, vs_v1_cfgattr, "UNKNOWN-CFG-ATTRIBUTE");
+  } else if (isakmp_version == 2) {
+    if (ident >= 16 && ident <= 16383)
+      return "RESERVED TO IANA";
+    if (ident >= 16384 && ident <= 32767)
+      return "PRIVATE USE";
+    return val_to_str(ident, vs_v2_cfgattr, "UNKNOWN-CFG-ATTRIBUTE");
+  }
+  return "UNKNOWN-ISAKMP-VERSION";
+}
+
+static const char *
+certtype2str(guint8 type)
+{
+  static const value_string vs_v1_certtype[] = {
+    { 0,	"NONE" },
+    { 1,	"PKCS #7 wrapped X.509 certificate" },
+    { 2,	"PGP Certificate" },
+    { 3,	"DNS Signed Key" },
+    { 4,	"X.509 Certificate - Signature" },
+    { 5,	"X.509 Certificate - Key Exchange" },
+    { 6,	"Kerberos Tokens" },
+    { 7,	"Certificate Revocation List (CRL)" },
+    { 8,	"Authority Revocation List (ARL)" },
+    { 9,	"SPKI Certificate" },
+    { 10,	"X.509 Certificate - Attribute" },
+    { 0,	NULL },
+  };
+
+  static const value_string vs_v2_certtype[] = {
+    { 0,	"RESERVED" },
+    { 1,	"PKCS #7 wrapped X.509 certificate" },
+    { 2,	"PGP Certificate" },
+    { 3,	"DNS Signed Key" },
+    { 4,	"X.509 Certificate - Signature" },
+    { 5,	"*undefined by any document*" },
+    { 6,	"Kerberos Tokens" },
+    { 7,	"Certificate Revocation List (CRL)" },
+    { 8,	"Authority Revocation List (ARL)" },
+    { 9,	"SPKI Certificate" },
+    { 10,	"X.509 Certificate - Attribute" },
+    { 11,	"Raw RSA Key" },
+    { 12,	"Hash and URL of X.509 certificate" },
+    { 13,	"Hash and URL of X.509 bundle" },
+    { 0,	NULL },
+  };
+
+  if (isakmp_version == 1)
+    return val_to_str(type, vs_v1_certtype, "RESERVED");
+  else if (isakmp_version == 2) {
+    if (type >= 14 && type <= 200)
+      return "RESERVED to IANA";
+    if (type >= 201 && type <= 255)
+      return "PRIVATE USE";
+    return val_to_str(type, vs_v2_certtype, "RESERVED");
+  }
+  return "UNKNOWN-ISAKMP-VERSION";
 }
 
 static gboolean
-get_num(tvbuff_t *tvb, int offset, guint16 len, guint32 *num_p) {
-
+get_num(tvbuff_t *tvb, int offset, guint16 len, guint32 *num_p)
+{
   switch (len) {
   case 1:
     *num_p = tvb_get_guint8(tvb, offset);
