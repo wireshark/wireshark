@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.161 2004/02/18 19:44:51 ulfl Exp $
+ * $Id: packet-dcerpc.c,v 1.162 2004/02/21 09:57:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1782,6 +1782,17 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
          * We don't have a dissector for this UUID, or the protocol
          * for that UUID is disabled.
          */
+
+	proto_tree_add_boolean_hidden(dcerpc_tree, hf_dcerpc_unknown_if_id,
+					  tvb, offset, 0, TRUE);
+	if (check_col (pinfo->cinfo, COL_INFO)) {
+		col_append_fstr (pinfo->cinfo, COL_INFO, " UNKUUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x rpcver: %u",
+			info->call_data->uuid.Data1, info->call_data->uuid.Data2, info->call_data->uuid.Data3, info->call_data->uuid.Data4[0],
+			info->call_data->uuid.Data4[1], info->call_data->uuid.Data4[2], info->call_data->uuid.Data4[3],
+			info->call_data->uuid.Data4[4], info->call_data->uuid.Data4[5], info->call_data->uuid.Data4[6],
+			info->call_data->uuid.Data4[7], info->call_data->ver);
+	}
+
         if (decrypted_tvb != NULL) {
             show_stub_data (decrypted_tvb, 0, dcerpc_tree, auth_info,
                             FALSE);
@@ -3664,15 +3675,6 @@ dissect_dcerpc_dg_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
     if( (!dcerpc_reassemble) || !(hdr->flags1 & PFCL1_FRAG) ||
 		!tvb_bytes_exist(tvb, offset, stub_length) ){
 	if(hdr->frag_num == 0) {
-	    proto_tree_add_boolean_hidden(dcerpc_tree, hf_dcerpc_unknown_if_id,
-					  tvb, offset, 0, TRUE);
-	    if (check_col (pinfo->cinfo, COL_INFO)) {
-	        col_append_fstr (pinfo->cinfo, COL_INFO, " UNKUUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x rpcver: %u",
-                     di->call_data->uuid.Data1, di->call_data->uuid.Data2, di->call_data->uuid.Data3, di->call_data->uuid.Data4[0],
-                     di->call_data->uuid.Data4[1], di->call_data->uuid.Data4[2], di->call_data->uuid.Data4[3],
-                     di->call_data->uuid.Data4[4], di->call_data->uuid.Data4[5], di->call_data->uuid.Data4[6],
-                     di->call_data->uuid.Data4[7], di->call_data->ver);
-            }
 
 
 	    /* First fragment, possibly the only fragment */
