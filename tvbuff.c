@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.1 2000/05/11 08:16:00 gram Exp $
+ * $Id: tvbuff.c,v 1.2 2000/05/15 04:37:27 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -53,6 +53,10 @@
                     (guint32)*((guint8 *)p+2)<<8|   \
                     (guint32)*((guint8 *)p+3)<<0)
 
+#define pntoh24(p) ((guint32)*((guint8 *)p+0)<<16|  \
+                    (guint32)*((guint8 *)p+1)<<8|  \
+                    (guint32)*((guint8 *)p+2)<<0)
+
 #define pletohs(p) ((guint16)                       \
                     ((guint16)*((guint8 *)p+1)<<8|  \
                      (guint16)*((guint8 *)p+0)<<0))
@@ -61,6 +65,10 @@
                     (guint32)*((guint8 *)p+2)<<16|  \
                     (guint32)*((guint8 *)p+1)<<8|   \
                     (guint32)*((guint8 *)p+0)<<0)
+
+#define pletoh24(p) ((guint32)*((guint8 *)p+2)<<16|  \
+                     (guint32)*((guint8 *)p+1)<<8|  \
+                     (guint32)*((guint8 *)p+0)<<0)
 
 
 typedef struct {
@@ -805,6 +813,15 @@ tvb_get_ntohl(tvbuff_t *tvb, gint offset)
 	return pntohl(ptr);
 }
 
+guint32
+tvb_get_ntoh24(tvbuff_t *tvb, gint offset)
+{
+	guint8* ptr;
+
+	ptr = ensure_contiguous(tvb, offset, 3);
+	return pntoh24(ptr);
+}
+
 guint16
 tvb_get_letohs(tvbuff_t *tvb, gint offset)
 {
@@ -821,4 +838,13 @@ tvb_get_letohl(tvbuff_t *tvb, gint offset)
 
 	ptr = ensure_contiguous(tvb, offset, sizeof(guint32));
 	return pletohl(ptr);
+}
+
+guint32
+tvb_get_letoh24(tvbuff_t *tvb, gint offset)
+{
+	guint8* ptr;
+
+	ptr = ensure_contiguous(tvb, offset, 3);
+	return pletoh24(ptr);
 }

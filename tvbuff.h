@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.1 2000/05/11 08:16:00 gram Exp $
+ * $Id: tvbuff.h,v 1.2 2000/05/15 04:37:27 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -187,10 +187,14 @@ gint tvb_raw_offset(tvbuff_t*);
 /* All accessors will throw BoundsError if appropriate */
 
 guint8  tvb_get_guint8(tvbuff_t*, gint offset);
+
 guint16 tvb_get_ntohs(tvbuff_t*, gint offset);
 guint32 tvb_get_ntohl(tvbuff_t*, gint offset);
+guint32 tvb_get_ntoh24(tvbuff_t*, gint offset);
+
 guint16 tvb_get_letohs(tvbuff_t*, gint offset);
 guint32 tvb_get_letohl(tvbuff_t*, gint offset);
+guint32 tvb_get_letoh24(tvbuff_t*, gint offset);
 
 /* Returns target for convenience. Does not suffer from possible
  * expense of tvb_get_ptr(), since this routine is smart enough
