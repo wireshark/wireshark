@@ -8,7 +8,7 @@
  * Data Coding Scheme decoding for GSM (SMS and CBS),
  * provided by Olivier Biot.
  *
- * $Id: packet-smpp.c,v 1.18 2003/09/04 18:59:21 guy Exp $
+ * $Id: packet-smpp.c,v 1.19 2003/09/17 20:24:45 guy Exp $
  *
  * Note on SMS Message reassembly
  * ------------------------------
@@ -1982,12 +1982,19 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    0, 4, command_length);
 	proto_tree_add_uint(smpp_tree, hf_smpp_command_id, tvb,
 			    4, 4, command_id);
+	proto_item_append_text (ti, ", %s",
+			match_strval (command_id, vals_command_id));
 	/* Status is only meaningful with responses	*/
-	if (command_id & 0x80000000)
+	if (command_id & 0x80000000) {
 	    proto_tree_add_uint(smpp_tree, hf_smpp_command_status, tvb,
 				8, 4, command_status);
+		proto_item_append_text (ti, ": \"%s\"",
+				match_strval (command_status, vals_command_status));
+	}
 	proto_tree_add_uint(smpp_tree, hf_smpp_sequence_number, tvb,
 			    12, 4, sequence_number);
+	proto_item_append_text (ti, ", Seq: %u, Len: %u",
+			sequence_number, command_length);
 	/*
 	 * End of header. Don't dissect variable part if it is shortened.
 	 */
