@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.111 2003/08/28 00:11:32 guy Exp $
+ * $Id: packet-llc.c,v 1.112 2003/08/28 01:29:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -171,6 +171,44 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_NORTEL,	"Nortel Networks SONMP" },
 	{ 0,               NULL }
 };
+
+/*
+ * Hash table for translating OUIs to a dissector table/field ID pair;
+ * the dissector table maps PID values to dissectors, and the field
+ * corresponds to the PID for that OUI.
+ */
+typedef struct {
+	dissector_table_t table;
+	int	field_id;
+} oui_info_t;
+
+static GHashTable *oui_dissector_tables = NULL;
+
+/*
+ * Add an entry for a new OID.
+ */
+void
+llc_add_oid(guint32 oid, const char *table_name, char *table_ui_name,
+    int field_id)
+{
+	oui_info_t *new_info;
+
+	new_info = g_malloc(sizeof (oui_info_t));
+	new_info->table = register_dissector_table(table_name,
+	    table_ui_name, FT_UINT16, BASE_HEX);
+	new_info->field_id = field_id;
+
+	/*
+	 * Create the hash table for OUI information, if it doesn't
+	 * already exist.
+	 */
+	if (oui_dissector_tables == NULL) {
+		oui_dissector_tables = g_hash_table_new(g_direct_hash,
+		    g_direct_equal);
+	}
+	g_hash_table_insert(oui_dissector_tables, (gpointer)oid,
+	    new_info->table);
+}
 
 void
 capture_llc(const guchar *pd, int offset, int len, packet_counts *ld) {
@@ -382,6 +420,9 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	guint32		oui;
 	guint16		etype;
 	tvbuff_t	*next_tvb;
+	oui_info_t	*oui_info;
+	dissector_table_t subdissector_table;
+	int		hf;
 
 	oui =	tvb_get_ntoh24(tvb, offset);
 	etype = tvb_get_ntohs(tvb, offset+3);
@@ -520,13 +561,41 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
                 } else
                         call_dissector(data_handle, next_tvb, pinfo, tree);
 		break;
+
 	default:
+		/*
+		 * Do we have information for this OUI?
+		 */
+		oui_info = g_hash_table_lookup(oui_dissector_tables,
+		    (gpointer)oui);
+		if (oui_info != NULL) {
+			/*
+			 * Yes - use it.
+			 */
+			hf = oui_info->field_id;
+			subdissector_table = oui_info->table;
+		} else {
+			/*
+			 * No, use hf_pid for the PID and just dissect
+			 * the payload as data.
+			 */
+			hf = hf_pid;
+			subdissector_table = NULL;
+		}
 		if (tree) {
-			proto_tree_add_uint(snap_tree, hf_pid, tvb, offset+3, 2,
+			proto_tree_add_uint(snap_tree, hf, tvb, offset+3, 2,
 			    etype);
 		}
 		next_tvb = tvb_new_subset(tvb, offset+5, -1, -1);
-		call_dissector(data_handle,next_tvb, pinfo, tree);
+		if (XDLC_IS_INFORMATION(control)) {
+			if (subdissector_table != NULL) {
+				/* do lookup with the subdissector table */
+				if (dissector_try_port(subdissector_table,
+				    etype, next_tvb, pinfo, tree))
+					break;
+			}
+		}
+		call_dissector(data_handle, next_tvb, pinfo, tree);
 		break;
 	}
 }

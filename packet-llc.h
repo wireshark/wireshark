@@ -1,6 +1,6 @@
 /* packet-llc.h
  *
- * $Id: packet-llc.h,v 1.9 2002/11/05 22:50:42 guy Exp $
+ * $Id: packet-llc.h,v 1.10 2003/08/28 01:29:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,11 @@ void capture_llc(const guchar *, int, int, packet_counts *);
 
 void dissect_snap(tvbuff_t *, int, packet_info *, proto_tree *,
     proto_tree *, int, int, int, int, int);
+
+/*
+ * Add an entry for a new OID.
+ */
+void llc_add_oid(guint32, const char *, char *, int);
 
 extern const value_string sap_vals[];
 
