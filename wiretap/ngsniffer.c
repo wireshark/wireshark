@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.109 2003/01/31 01:02:09 guy Exp $
+ * $Id: ngsniffer.c,v 1.110 2003/03/03 23:29:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1251,6 +1251,7 @@ static void set_pseudo_header_frame2(wtap *wth,
 	switch (wth->file_encap) {
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
+	case WTAP_ENCAP_SDLC:
 		pseudo_header->p2p.sent = (frame2->fs & 0x80) ? TRUE : FALSE;
 		break;
 

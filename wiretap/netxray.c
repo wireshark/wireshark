@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.77 2003/03/01 09:42:44 guy Exp $
+ * $Id: netxray.c,v 1.78 2003/03/03 23:29:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -64,6 +64,23 @@ struct netxray_hdr {
 	guint32 linespeed;	/* speed of network, in bits/second */
 	guint8	xxb[64];	/* other stuff */
 };
+
+/*
+ * Capture type, in xxb[20].
+ */
+#define CAPTYPE_NDIS	0	/* Capture on network interface using NDIS */
+#define CAPTYPE_BROUTER	1	/* Bridge/router captured with pod */
+#define CAPTYPE_GIGPOD	2	/* gigabit Ethernet captured with pod */
+#define CAPTYPE_PPP	3	/* PPP captured with pod */
+#define CAPTYPE_FRELAY	4	/* Frame Relay captured with pod */
+#define CAPTYPE_BROUTER2 5	/* Bridge/router captured with pod */
+#define CAPTYPE_HDLC	6	/* HDLC (X.25, ISDN) captured with pod */
+#define CAPTYPE_SDLC	7	/* SDLC captured with pod */
+#define CAPTYPE_HDLC2	8	/* HDLC captured with pod */
+#define CAPTYPE_BROUTER3 9	/* Bridge/router captured with pod */
+#define CAPTYPE_SMDS	10	/* SMDS DXI */
+#define CAPTYPE_BROUTER4 11	/* Bridge/router captured with pod */
+#define CAPTYPE_BROUTER5 12	/* Bridge/router captured with pod */
 
 /*
  * # of ticks that equal 1 second
@@ -255,7 +272,7 @@ int netxray_open(wtap *wth, int *err)
 			 * resolution), possibly thanks to a high-resolution
 			 * timer on the pod.
 			 */
-			if (hdr.xxb[20] == 2)
+			if (hdr.xxb[20] == CAPTYPE_GIGPOD)
 				timeunit = timeunit*1000.0;
 		} else {
 			g_message("netxray: version \"%.8s\" unsupported", hdr.version);
@@ -282,20 +299,27 @@ int netxray_open(wtap *wth, int *err)
 		 *
 		 * In version 2, it looks as if there's stuff in the "xxb"
 		 * words of the file header to specify what particular
-		 * type of WAN capture we have; we handle the ones we've
-		 * seen, and punt on the others.
+		 * type of WAN capture we have.
 		 */
 		if (version_major == 2) {
 			switch (hdr.xxb[20]) {
 
-			case 4:
+			case CAPTYPE_PPP:
+				/*
+				 * PPP.
+				 */
+				file_encap = WTAP_ENCAP_PPP_WITH_PHDR;
+				break;
+
+			case CAPTYPE_FRELAY:
 				/*
 				 * Frame Relay.
 				 */
 				file_encap = WTAP_ENCAP_FRELAY_WITH_PHDR;
 				break;
 
-			case 6:
+			case CAPTYPE_HDLC:
+			case CAPTYPE_HDLC2:
 				/*
 				 * Various HDLC flavors?
 				 */
@@ -318,6 +342,13 @@ int netxray_open(wtap *wth, int *err)
 					*err = WTAP_ERR_UNSUPPORTED_ENCAP;
 					return -1;
 				}
+				break;
+
+			case CAPTYPE_SDLC:
+				/*
+				 * SDLC.
+				 */
+				file_encap = WTAP_ENCAP_SDLC;
 				break;
 
 			default:
@@ -657,6 +688,11 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 			    (hdr->hdr_2_x.xxx[12] & 0x01) ? 0x00 : FROM_DCE;
 			break;
 
+		case WTAP_ENCAP_PPP_WITH_PHDR:
+			pseudo_header->p2p.sent =
+			    (hdr->hdr_2_x.xxx[12] & 0x01) ? TRUE : FALSE;
+			break;
+
 		case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:
 			pseudo_header->atm.flags = 0;
 			/*
@@ -961,7 +997,10 @@ static const struct {
     { WTAP_ENCAP_TOKEN_RING, 1 },		/* -> NDIS Token Ring */
     { WTAP_ENCAP_FDDI, 2 },			/* -> NDIS FDDI */
     { WTAP_ENCAP_FDDI_BITSWAPPED, 2 },		/* -> NDIS FDDI */
-    { WTAP_ENCAP_FRELAY_WITH_PHDR, 3 },		/* -> NDIS WAN(PPP) */
+    { WTAP_ENCAP_PPP_WITH_PHDR, 3 },		/* -> NDIS WAN */
+    { WTAP_ENCAP_FRELAY_WITH_PHDR, 3 },		/* -> NDIS WAN */
+    { WTAP_ENCAP_LAPB, 3 },			/* -> NDIS WAN */
+    { WTAP_ENCAP_SDLC, 3 },			/* -> NDIS WAN */
 };
 #define NUM_WTAP_ENCAPS_2_0 (sizeof wtap_encap_2_0 / sizeof wtap_encap_2_0[0])
 
@@ -1137,8 +1176,21 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
     file_hdr.timehi = htolel(0);
     switch (wdh->encap) {
 
+    case WTAP_ENCAP_PPP_WITH_PHDR:
+	file_hdr.xxb[20] = CAPTYPE_PPP;
+	break;
+
     case WTAP_ENCAP_FRELAY_WITH_PHDR:
-	file_hdr.xxb[20] = 4;
+	file_hdr.xxb[20] = CAPTYPE_FRELAY;
+	break;
+
+    case WTAP_ENCAP_LAPB:
+	file_hdr.xxb[20] = CAPTYPE_HDLC;
+	file_hdr.xxb[28] = 0;
+	break;
+
+    case WTAP_ENCAP_SDLC:
+	file_hdr.xxb[20] = CAPTYPE_SDLC;
 	break;
     }
 
