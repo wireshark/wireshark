@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.5 2000/11/05 09:05:00 guy Exp $
+ * $Id: plugins.c,v 1.6 2000/11/12 21:20:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -615,8 +615,13 @@ init_plugins(const char *plugin_dir)
 	patable.p_proto_register_subtree_array	= proto_register_subtree_array;
 
 	patable.p_dissector_add			= dissector_add;
+	patable.p_old_dissector_add		= old_dissector_add;
 
 	patable.p_heur_dissector_add		= heur_dissector_add;
+
+	patable.p_old_dissect_data		= old_dissect_data;
+
+	patable.p_proto_is_protocol_enabled	= proto_is_protocol_enabled;
 
 	patable.p_proto_item_add_subtree	= proto_item_add_subtree;
 	patable.p_proto_tree_add_item		= proto_tree_add_item;
