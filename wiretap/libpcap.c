@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.73 2002/06/06 18:58:12 guy Exp $
+ * $Id: libpcap.c,v 1.74 2002/06/07 04:48:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -141,7 +141,7 @@ static const struct {
 	 *	   them correctly).
 	 */
 #if defined(DLT_FR) && (DLT_FR == 11)
-	/* Put entry for Frame Relay here */
+	{ 11,		WTAP_ENCAP_FRELAY },
 #else
 	{ 11,		WTAP_ENCAP_ATM_RFC1483 },
 #endif
@@ -354,22 +354,9 @@ static const struct {
 	 * These ones are handled in Ethereal, though.
 	 */
 	{ 104,		WTAP_ENCAP_CHDLC },	/* Cisco HDLC */
+	{ 105,		WTAP_ENCAP_IEEE_802_11 }, /* IEEE 802.11 */
 	{ 106,		WTAP_ENCAP_LINUX_ATM_CLIP },
-
-	/*
-	 * Values not yet used by the current CVS version of libpcap,
-	 * but reserved for future use; the IEEE 802.11 value is
-	 * there for use with a capture program from Axis Communications.
-	 */
-	{ 105,		WTAP_ENCAP_IEEE_802_11 },
-#if 0
-	/*
-	 * Not yet handled in Ethereal; we don't know what encapsulation
-	 * BSD/OS uses, so we don't know whether it can be handed to
-	 * the Frame Relay dissector or not.
-	 */
-	{ 107,		WTAP_ENCAP_FR },	/* Frame Relay */
-#endif
+	{ 107,		WTAP_ENCAP_FRELAY },	/* Frame Relay */
 	{ 108,		WTAP_ENCAP_NULL },	/* OpenBSD loopback */
 #if 0
 	{ 109,		WTAP_ENCAP_ENC },	/* OpenBSD IPSEC enc */
