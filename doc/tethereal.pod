@@ -359,8 +359,8 @@ captured.  The default is relative.
 
 Set the format of the print-out when viewing packet data. The "text"
 format is the default format, and works in summary mode and in verbose
-mode (-V). The postscript (ps) and pdml (XML) formats work only in
-verbose mode; thus, they require the use of the -V option.
+mode (B<-V>). The postscript (ps) and pdml (XML) formats work only in
+verbose mode; thus, they require the use of the B<-V> option.
 
 =item -v
 
