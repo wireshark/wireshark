@@ -1,24 +1,30 @@
-$Id: README.win32,v 1.9 2000/04/29 08:32:50 guy Exp $
+$Id: README.win32,v 1.10 2000/06/08 03:12:52 gram Exp $
 
-Ethereal can be compiled on Win32 platforms. Some libraries are
-needed, however.
+Using and Compiling Ethereal on Win32
+
+(Including Tethereal and Editcap)
+
+
+
+Ethereal can be compiled and used on Win32 platforms. You'll need
+some additional libraries, however.
 
 The glib, gtk, glib-dev, and gtk-dev packages for win32 can be found
 at
 	http://www.gimp.org/~tml/gimp/win32
 
 or
-
 	http://www.iki.fi/tml/gimp/win32/
 
 (the mirror nearer to you may be faster).
 
-You will definitely need these.  Download them and unpack them.  Some
-problems had been seen with versions of those libraries after the
+You need the glib and gtk libraries for running Ethereal. You'll
+need the *-dev packages for compiling Ethereal.
+
+Some problems had been seen with versions of those libraries after the
 1999-08-28 version but before the 2000-04-16 version, but those problems
 don't appear to occur with the 2000-04-16 version.  If you see problems
-(e.g., a mangled hex dump window), the 1999-08-28 version can be found
-at
+(e.g., a mangled hex dump window), the 1999-08-28 version can be found at
 
 	http://www.gimp.org/~tml/gimp/win32/index-19990828.html
 
