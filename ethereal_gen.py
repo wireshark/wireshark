@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.21 2002/01/21 21:59:10 guy Exp $
+# $Id: ethereal_gen.py,v 1.22 2002/01/23 23:15:32 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -37,7 +37,7 @@
 #   
 #   Omniidl Back-end which parses an IDL list of "Operation" nodes
 #   passed from ethereal_be2.py and generates "C" code for compiling
-#   as a dissector in Ethereal IP protocol anlayser.
+#   as a plugin for the  Ethereal IP Protocol Analyser.
 #
 #
 # Strategy (sneaky but ...)
@@ -96,7 +96,7 @@ import tempfile
 # 14. Dont generate code for empty operations (cf: exceptions without members)
 # 15. Generate code to display Enums numerically and symbolically [done]
 # 16. Place structs/unions in subtrees
-# 17. Recursive struct and union handling [started - pass struct and union list to ethereal_gen.py ]
+# 17. Recursive struct and union handling [done ]
 # 18. Improve variable naming for display (eg: structs, unions etc)
 #
 # Also test, Test, TEST
@@ -173,8 +173,6 @@ class ethereal_gen_C:
         
     def genCode(self,oplist, atlist, enlist, stlist, unlist):   # operation,attribute,enums,struct and union lists
 
-        #self.st = self.st_save          # test remove later
-        #self.genDeclares(oplist,atlist,enlist,stlist,unlist) # test remove later
 
         self.genHelpers(oplist,stlist,unlist)  # sneaky .. call it now, to populate the fn_hash
                                         # so when I come to that operation later, I have the variables to
@@ -355,7 +353,6 @@ class ethereal_gen_C:
         self.st.dec_indent()
         self.st.out(self.template_main_dissector_switch_msgtype_all_other_msgtype)             
         self.st.dec_indent()
-        #self.st.out(self.template_main_dissector_switch_msgtype_end)              
         self.st.out(self.template_main_dissector_end)        
         
 
@@ -997,8 +994,7 @@ class ethereal_gen_C:
             #self.get_CDR_enum(pn)
             
         elif pt ==  idltype.tk_struct:
-            ##self.get_CDR_struct(type,pn)
-            self.get_CDR_struct2(type,pn)
+            self.get_CDR_struct(type,pn)
         elif pt ==  idltype.tk_TypeCode: # will I ever get here ?
             self.get_CDR_TypeCode(type,pn)
         elif pt == idltype.tk_sequence:
@@ -1008,7 +1004,7 @@ class ethereal_gen_C:
         elif pt == idltype.tk_array:
             self.get_CDR_array(type,pn)
         elif pt == idltype.tk_union:
-            self.get_CDR_union2(type,pn)            
+            self.get_CDR_union(type,pn)            
         elif pt == idltype.tk_alias:
             if self.DEBUG:
                 print "XXXXX Alias type XXXXX " , type
@@ -1113,142 +1109,9 @@ class ethereal_gen_C:
         self.st.out(self.template_get_CDR_sequence_length, seqname=pn)
         self.addvar(self.c_u_octet4)
 
+
+            
     def get_CDR_union(self,type,pn):
-        if self.DEBUG:
-            print "XXX Union type =" , type, " pn = ",pn
-            print "XXX Union type.decl()" , type.decl()
-            print "XXX Union Scoped Name" , type.scopedName()
-
-       #  If I am a typedef union {..}; node then find the union node
-        
-        if isinstance(type.decl(), idlast.Declarator):
-            ntype = type.decl().alias().aliasType().decl()           
-        else:
-            ntype = type.decl()         # I am a union node
-
-        if self.DEBUG:    
-            print "XXX Union ntype =" , ntype
-
-        if ntype.recursive():
-            sys.stderr.write( "Error: idl2eth does not handle recursive unions yet \n")
-            sys.exit(1)
-            
-        st = ntype.switchType().unalias() # may be typedef switch type, so find real type
-
-        #std = st.decl()
-
-        if self.DEBUG:    
-            print "XXX Union ntype =" , ntype
-            print "XXX Union ntype.switchType =" , st
-            #print "XXX Union ntype.switchType().decl() = " , std
-            #print "XXX Union  std.repoId() = ", std.repoId()
-
-
-        self.st.out(self.template_comment_union_code_start, uname=ntype.repoId() )
-
-        self.getCDR3(st,pn);
-
-        # Depending on what kind of discriminant I come accross (enum,integer,char,
-        # boolean), make sure I cast the return value of the get_XXX accessor
-        # to an appropriate value. Omniidl idlast.CaseLabel.value() accessor will
-        # return an integer, or an Enumerator object that is then converted to its
-        # integer equivalent.
-        #
-        #
-        # NOTE - May be able to skip some of this stuff, but leave it in for now -- FS
-        #
-
-        if (st.kind() == idltype.tk_enum):
-            std = st.decl()            
-            self.st.out(self.template_comment_union_code_discriminant, uname=std.repoId() )
-            self.st.out(self.template_union_code_save_discriminant_enum, discname=pn )
-            self.addvar(self.c_s_disc + pn + ";")            
-
-        elif (st.kind() == idltype.tk_long):
-            self.st.out(self.template_union_code_save_discriminant_long, discname=pn )
-            self.addvar(self.c_s_disc + pn + ";")            
-
-        elif (st.kind() == idltype.tk_short):
-            self.st.out(self.template_union_code_save_discriminant_short, discname=pn )
-            self.addvar(self.c_s_disc + pn + ";")            
-
-        elif (st.kind() == idltype.tk_boolean):
-            self.st.out(self.template_union_code_save_discriminant_boolean, discname=pn )
-            self.addvar(self.c_s_disc + pn + ";")            
-            
-        elif (st.kind() == idltype.tk_char):
-            self.st.out(self.template_union_code_save_discriminant_char, discname=pn )
-            self.addvar(self.c_s_disc + pn + ";")            
-
-        else:
-            print "XXX Unknown st.kind() = ", st.kind()
-            
-        #
-        # Loop over all cases in this union
-        #
-        
-        for uc in ntype.cases():        # for all UnionCase objects in this union
-            for cl in uc.labels():       # for all Caselabel objects in this UnionCase
-
-                # get integer value, even if discriminant is
-                # an Enumerator node
-                
-                if isinstance(cl.value(),idlast.Enumerator):
-                    if self.DEBUG:
-                        print "XXX clv.identifier()", cl.value().identifier()
-                        print "XXX clv.repoId()", cl.value().repoId()
-                        print "XXX clv.scopedName()", cl.value().scopedName()
-                                            
-                    # find index of enumerator in enum declaration
-                    # eg: RED is index 0 in enum Colors { RED, BLUE, GREEN }
-                    
-                    clv = self.valFromEnum(std,cl.value())
-                    
-                else:
-                    clv = cl.value()
-                    
-                #print "XXX clv = ",clv
-
-                #    
-                # if char, dont convert to int, but put inside single quotes so that it is understood by C.
-                # eg: if (disc == 'b')..
-                #
-                # TODO : handle \xxx chars generically from a function or table lookup rather than
-                #        a whole bunch of "if" statements. -- FS
-                
-                                          
-                if (st.kind() == idltype.tk_char):
-                    if (clv == '\n'):          # newline
-                        string_clv = "'\\n'" 
-                    elif (clv == '\t'):        # tab
-                        string_clv = "'\\t'"
-                    else:
-                        string_clv = "'" + clv + "'"
-                else:                    
-                    string_clv = '%i ' % clv
-
-                #
-                # If default case, then skp comparison with discriminator
-                #
-                
-                if not cl.default():
-                    self.st.out(self.template_comment_union_code_label_compare_start, discname=pn,labelval=string_clv )
-                    self.st.inc_indent()       
-                else:
-                    self.st.out(self.template_comment_union_code_label_default_start  )
-                    
-
-                self.getCDR3(uc.caseType(),uc.declarator().identifier())
-
-                if not cl.default():
-                    self.st.dec_indent()       
-                    self.st.out(self.template_comment_union_code_label_compare_end )
-                else:
-                    self.st.out(self.template_comment_union_code_label_default_end  )
-
-
-            
-    def get_CDR_union2(self,type,pn):
         if self.DEBUG:
             print "XXX Union type =" , type, " pn = ",pn
             print "XXX Union type.decl()" , type.decl()
@@ -1272,12 +1135,7 @@ class ethereal_gen_C:
         self.st.out(self.template_decode_union,name=sname)    
 
         self.st.out(self.template_union_end, name=sname )
-
-##         if ntype.recursive():
-##             sys.stderr.write( "Error: idl2eth does not handle recursive unions yet \n")
-##             sys.exit(1)
             
-        st = ntype.switchType().unalias() # may be typedef switch type, so find real type
 
     #
     # Code to generate Union Helper functions
@@ -1309,8 +1167,6 @@ class ethereal_gen_C:
         self.st.out(self.template_union_helper_function_get_endianess)
 
         st = un.switchType().unalias() # may be typedef switch type, so find real type
-
-        #std = st.decl()
 
         self.st.out(self.template_comment_union_code_start, uname=un.repoId() )
 
@@ -1457,45 +1313,11 @@ class ethereal_gen_C:
         
         
 
-    def get_CDR_struct(self,type,pn):       
-        self.st.out(self.template_structure_start, name=type.name() )
-
-        #  If I am a typedef struct {..}; node then find the struct node
-        
-        if isinstance(type.decl(), idlast.Declarator):
-            ntype = type.decl().alias().aliasType().decl()           
-        else:
-            ntype = type.decl()         # I am a struct node
-
-        if ntype.recursive():
-            sys.stderr.write("Error: idl2eth does not handle recursive structs yet \n")
-            sys.exit(1)
-                                    
-        for m in ntype.members():
-            for decl in m.declarators():
-                if decl.sizes():        # an array
-                    indices = self.get_indices_from_sizes(decl.sizes())
-                    string_indices = '%i ' % indices # convert int to string
-                    self.st.out(self.template_get_CDR_array_comment, aname=decl.identifier(), asize=string_indices)     
-                    self.st.out(self.template_get_CDR_array_start, aname=decl.identifier(), aval=string_indices)
-                    self.addvar(self.c_i + decl.identifier() + ";")
-                    
-                    self.st.inc_indent()       
-                    self.getCDR3(m.memberType(), type.name() + "_" + decl.identifier() )                    
-                    self.st.dec_indent()
-                    self.st.out(self.template_get_CDR_array_end)
-                    
-                    
-                else:    
-                    self.getCDR3(m.memberType(), type.name() + "_" + decl.identifier() )
-
-        self.st.out(self.template_structure_end, name=type.name())
-
     #
     # Handle structs, including recursive
     #
     
-    def get_CDR_struct2(self,type,pn):       
+    def get_CDR_struct(self,type,pn):       
 
         #  If I am a typedef struct {..}; node then find the struct node
         
