@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.22 1999/09/26 20:31:50 guy Exp $
+ * $Id: packet-llc.c,v 1.23 1999/09/26 20:40:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -164,6 +164,7 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 
 	int		is_snap;
 	guint16		control;
+	int		control_len;
 	guint16		etype;
 	capture_func_t	*capture;
 
@@ -185,6 +186,9 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 	 * it's basic or extended operation; is that the case?
 	 */
 	control = get_xdlc_control(pd, offset+2, pd[offset+1] & 0x01, TRUE);
+	control_len = XDLC_CONTROL_LEN(control, TRUE);
+	if (is_snap)
+		control_len += 5;	/* 3 bytes of OUI, 2 bytes of ethertype */
 
 	if (is_snap) {
 		if (XDLC_HAS_PAYLOAD(control)) {
@@ -192,7 +196,7 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 			 * This frame has a payload to be analyzed.
 			 */
 			etype  = (pd[offset+6] << 8) | pd[offset+7];
-			offset += 8;
+			offset += control_len;
 			capture_ethertype(etype, offset, pd, cap_len, ld);
 		}
 	}		
@@ -204,7 +208,7 @@ capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
 			capture = sap_capture_func(pd[offset]);
 
 			/* non-SNAP */
-			offset += XDLC_CONTROL_LEN(control, TRUE);
+			offset += control_len;
 
 			if (capture) {
 				capture(pd, offset, cap_len, ld);
@@ -223,6 +227,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	proto_item	*ti = NULL;
 	int		is_snap;
 	guint16		control;
+	int		control_len;
 	guint16		etype;
 	dissect_func_t	*dissect;
 
@@ -257,8 +262,11 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	 */
 	control = dissect_xdlc_control(pd, offset+2, fd, llc_tree,
 				hf_llc_ctrl, pd[offset+1] & 0x01, TRUE);
+	control_len = XDLC_CONTROL_LEN(control, TRUE);
+	if (is_snap)
+		control_len += 5;	/* 3 bytes of OUI, 2 bytes of ethertype */
 	if (tree)
-		proto_item_set_len(ti, XDLC_CONTROL_LEN(control, TRUE));
+		proto_item_set_len(ti, control_len);
 
 	/*
 	 * XXX - do we want to append the SAP information to the stuff
@@ -278,7 +286,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			 * This frame has a payload to be analyzed.
 			 */
 			etype = pntohs(&pd[offset+6]);
-			offset += 8;
+			offset += control_len;
 			/* w/o even checking, assume OUI is ethertype */
 			ethertype(etype, offset, pd, fd, tree, llc_tree,
 			    hf_llc_type);
@@ -297,7 +305,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			dissect = sap_dissect_func(pd[offset]);
 
 			/* non-SNAP */
-			offset += XDLC_CONTROL_LEN(control, TRUE);
+			offset += control_len;
 
 			if (dissect) {
 				dissect(pd, offset, fd, tree);
