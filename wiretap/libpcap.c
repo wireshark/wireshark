@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.83 2002/10/22 09:11:13 guy Exp $
+ * $Id: libpcap.c,v 1.84 2002/11/16 20:20:30 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -843,6 +843,7 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 	guint packet_size;
 	guint orig_size;
 	int bytes_read;
+	char fddi_padding[3];
 
 	bytes_read = libpcap_read_header(wth, err, &hdr, FALSE);
 	if (bytes_read == -1) {
@@ -855,6 +856,28 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 	wth->data_offset += bytes_read;
 	packet_size = hdr.hdr.incl_len;
 	orig_size = hdr.hdr.orig_len;
+
+	/*
+	 * AIX appears to put 3 bytes of padding in front of FDDI
+	 * frames; strip that crap off.
+	 */
+	if (wth->file_type == WTAP_FILE_PCAP_AIX &&
+	    (wth->file_encap == WTAP_ENCAP_FDDI ||
+	     wth->file_encap == WTAP_ENCAP_FDDI_BITSWAPPED)) {
+		/*
+		 * The packet size is really a record size and includes
+		 * the padding.
+		 */
+		packet_size -= 3;
+		orig_size -= 3;
+		wth->data_offset += 3;
+
+		/*
+		 * Read the padding.
+		 */
+		if (!libpcap_read_rec_data(wth->fh, fddi_padding, 3, err))
+			return FALSE;	/* Read error */
+	}
 
 	*data_offset = wth->data_offset;
 
