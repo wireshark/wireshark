@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.29 2004/03/13 15:15:25 ulfl Exp $
+ * $Id: simple_dialog.c,v 1.30 2004/03/13 15:30:08 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -158,7 +158,7 @@ simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...) {
 
   /* Load our vararg list into the message string */
   va_start(ap, msg_format);
-  vsnprintf(message, sizeof(message), msg_format, ap);
+  g_vsnprintf(message, sizeof(message), msg_format, ap);
   va_end(ap);
 
   msg_label = gtk_label_new(message);
