@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.57 2000/05/11 22:04:16 gram Exp $
+ * $Id: packet-llc.c,v 1.58 2000/05/12 04:21:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -357,7 +357,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			   OUI_ENCAP_ETHER and an Ethernet
 			   packet type for AARP packets. */
 			if (XDLC_IS_INFORMATION(control)) {
-				ethertype(etype, offset+8, pd,
+				ethertype(etype, offset, pd,
 				    pinfo->fd, tree, llc_tree, hf_llc_type);
 			} else
 				dissect_data_tvb(next_tvb, pinfo, tree);
@@ -378,20 +378,20 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 #if 0
 				case 0x0102:
-					dissect_drip(pd, offset+8, pinfo->fd, tree);
+					dissect_drip(pd, offset, pinfo->fd, tree);
 					break;
 #endif
 
 				case 0x2000:
-					dissect_cdp(pd, offset+8, pinfo->fd, tree);
+					dissect_cdp(pd, offset, pinfo->fd, tree);
 					break;
 
 				case 0x2001:
-					dissect_cgmp(pd, offset+8, pinfo->fd, tree);
+					dissect_cgmp(pd, offset, pinfo->fd, tree);
 					break;
 
 				case 0x2003:
-					dissect_vtp(pd, offset+8, pinfo->fd, tree);
+					dissect_vtp(pd, offset, pinfo->fd, tree);
 					break;
 
 				default:
@@ -407,7 +407,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(llc_tree,
 				hf_llc_pid, tvb, 6, 2, etype);
 			}
-			dissect_bpdu(pd, offset+8, pinfo->fd, tree);
+			dissect_bpdu(pd, offset, pinfo->fd, tree);
 			break;
 
 		default:
