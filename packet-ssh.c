@@ -3,7 +3,7 @@
  *
  * Huagang XIE <huagang@intruvert.com>
  *
- * $Id: packet-ssh.c,v 1.3 2003/01/28 16:21:26 guy Exp $
+ * $Id: packet-ssh.c,v 1.4 2003/01/29 07:03:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -132,6 +132,7 @@ static gint ett_ssh = -1;
 static gint ett_key_exchange= -1;
 static gint ett_key_init= -1;
 static gint ett_ssh1= -1;
+static gint ett_ssh2= -1;
 
 static gboolean ssh_desegment = TRUE;
 
@@ -183,6 +184,8 @@ static int ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 		gboolean *need_desegmentation);
 static int ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 		int offset, proto_tree *tree,int is_response);
+proto_item * ssh_proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    gint start, gint length, gboolean little_endian);
 
 static void
 ssh_init_protocol(void)
@@ -335,13 +338,20 @@ ssh_dissect_ssh2(tvbuff_t *tvb, packet_info *pinfo,
 	       	int offset, proto_tree *tree,int is_response, int this_number,
 		gboolean *need_desegmentation)
 {
+	proto_item *ti; 
+	proto_item *ssh2_tree=NULL;
+
+	if(tree) {
+		ti=proto_tree_add_text(tree,tvb,offset,-1,"SSH Version 2");
+		ssh2_tree = proto_item_add_subtree(ti ,ett_ssh2);
+	}
 	
 	if((is_response && this_number > 3) || (!is_response && this_number>4)) {
 		offset = ssh_dissect_encrypted_packet(tvb, pinfo,
-				offset,tree,is_response);
+				offset,ssh2_tree,is_response);
 	} else {
 		offset = ssh_dissect_key_exchange(tvb,pinfo,
-			offset,tree,is_response,this_number,
+			offset,ssh2_tree,is_response,this_number,
 			need_desegmentation);
 	}
 
@@ -356,11 +366,16 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 	guint8 	msg_code;
 	guint	remain_length=0;
 
-	proto_item *tf;
+	proto_item *ti; 
 	proto_item *ssh1_tree =NULL;
+
+	if(tree) {
+		ti=proto_tree_add_text(tree,tvb,offset,-1,"SSH Version 1");
+		ssh1_tree = proto_item_add_subtree(ti ,ett_ssh1);
+	}
 	
+	remain_length = tvb_reported_length_remaining(tvb,offset);
 	if (ssh_desegment && pinfo->can_desegment) {
-		remain_length = tvb_reported_length_remaining(tvb,offset);
 		if(remain_length < 4) {
                 	pinfo->desegment_offset = offset;
                 	pinfo->desegment_len = 4-remain_length;
@@ -369,8 +384,9 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 		}
 	}
 	plen = tvb_get_ntohl(tvb, offset) ;
-
 	padding_length  = 8 - plen%8;
+
+
 	if (ssh_desegment && pinfo->can_desegment) {
 		if(plen+4+padding_length >  remain_length ) {
                 	pinfo->desegment_offset = offset;
@@ -385,23 +401,32 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 			is_response?"Server":"Client");
 	}
 
-	if (tree) {
-		  proto_tree_add_uint(tree, hf_ssh_packet_length, tvb,
-		    offset, 4, plen);
+	if(plen >= 0xffff) {
+		if (ssh1_tree && plen > 0) {
+			  proto_tree_add_uint_format(ssh1_tree, hf_ssh_packet_length, tvb,
+			    offset, 4, plen,"Overly large length %x",plen);
+		}
+		plen = remain_length-4-padding_length;
+	} else {
+		if (ssh1_tree && plen > 0) {
+			  proto_tree_add_uint(ssh1_tree, hf_ssh_packet_length, tvb,
+			    offset, 4, plen);
+		}
 	}
 	offset+=4;
 /* padding length */
 
 	if (tree) {
-		  proto_tree_add_uint(tree, hf_ssh_padding_length, tvb,
+		  proto_tree_add_uint(ssh1_tree, hf_ssh_padding_length, tvb,
 		    offset, padding_length, padding_length);
 	}
 	offset += padding_length;
-
+/*
 	if(tree) {
 		tf=proto_tree_add_text(tree,tvb,offset,-1,"SSH Version 1");
 		ssh1_tree = proto_item_add_subtree(tf ,ett_ssh1);
 	}
+*/
 	/* msg_code */
 	if(number == 1 ) {
 		msg_code = tvb_get_guint8(tvb, offset);
@@ -420,12 +445,12 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 	} else {
 		len = plen;
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Encrypted packet len %d", len);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "Encrypted packet len=%d", len);
 		}
 	}
 	/* payload */
-	if (tree) {
-		proto_tree_add_item(ssh1_tree, hf_ssh_payload,
+	if (ssh1_tree ) {
+		ssh_proto_tree_add_item(ssh1_tree, hf_ssh_payload,
 		    tvb, offset, len, FALSE);
 	}
 	offset+=len;
@@ -447,8 +472,8 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	proto_item *tf;
 	proto_item *key_ex_tree =NULL;
 	
+	remain_length = tvb_reported_length_remaining(tvb,offset);
 	if (ssh_desegment && pinfo->can_desegment) {
-		remain_length = tvb_reported_length_remaining(tvb,offset);
 		if(remain_length < 4) {
                 	pinfo->desegment_offset = offset;
                 	pinfo->desegment_len = 4-remain_length;
@@ -466,15 +491,26 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
                 	return offset;
 		}
 	}
+	/*
+	 * Need to check plen > 0x80000000 here 
+	 */ 
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
   		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: ", 
 			is_response?"Server":"Client");
 	}
 
-	if (tree) {
-		  proto_tree_add_uint(tree, hf_ssh_packet_length, tvb,
-		    offset, 4, plen);
+	if(plen >= 0xffff) {
+		if (tree) {
+		  	proto_tree_add_uint_format(tree, hf_ssh_packet_length, tvb,
+		    		offset, 4, plen,"Overly large number 0x%x",plen);
+		}
+		plen = remain_length-4;
+	} else {
+		if (tree) {
+		  	proto_tree_add_uint(tree, hf_ssh_packet_length, tvb,
+		    		offset, 4, plen);
+		}
 	}
 	offset+=4;
 /* padding length */
@@ -504,21 +540,21 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	}
 	offset += 1;
 	
-	/* 16 bytes cookie */
+	/* 16 bytes cookie  */
 	if(number == 1) { 
 		offset = ssh_dissect_key_init(tvb, offset,key_ex_tree);
 	}
 
 	len = plen+4-padding_length-(offset-last_offset);
-	if (tree) {
-		proto_tree_add_item(key_ex_tree, hf_ssh_payload,
+	if (tree ) {
+		ssh_proto_tree_add_item(key_ex_tree, hf_ssh_payload,
 		    tvb, offset, len, FALSE);
 	}
 	offset +=len; 
 
 	/* padding */
 	if(tree) {
-		proto_tree_add_item(key_ex_tree, hf_ssh_padding_string,
+		ssh_proto_tree_add_item(key_ex_tree, hf_ssh_padding_string,
 		    		tvb, offset, padding_length, FALSE);
 	}
 	offset+= padding_length;
@@ -545,11 +581,11 @@ ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 
 	len = tvb_reported_length_remaining(tvb,offset);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-  		col_add_fstr(pinfo->cinfo, COL_INFO, "Encrypted %s packet", 
-			is_response?"response":"request");
+  		col_add_fstr(pinfo->cinfo, COL_INFO, "Encrypted %s packet len=%d", 
+			is_response?"response":"request",len);
 	}
 	if (tree ) {
-		proto_tree_add_item(tree, hf_ssh_encrypted_packet,
+		ssh_proto_tree_add_item(tree, hf_ssh_encrypted_packet,
 		    		tvb, offset, len, FALSE);
   	}
 	offset+=len;
@@ -561,7 +597,7 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 	       	int offset, proto_tree *tree, int is_response, int * version,
 		gboolean *need_desegmentation)
 {
-	guint	linelen,next_offset;
+	gint	linelen;
 	guint	remain_length;
 	
 	/* 
@@ -585,15 +621,22 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 	}
 	
 	remain_length = tvb_reported_length_remaining(tvb,offset);
-	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+	/*linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+	 */
+	linelen = tvb_find_guint8(tvb, offset, -1, '\n');
 
 	if (ssh_desegment && pinfo->can_desegment) {
-		if(remain_length < linelen) {
+		if(remain_length < (guint)(linelen-offset) || linelen == -1 ) {
                 	pinfo->desegment_offset = offset;
                 	pinfo->desegment_len = linelen-remain_length;
                 	*need_desegmentation = TRUE;
                 	return offset;
 		}
+	}
+	if(linelen == -1 ) {
+		linelen = remain_length;
+	} else {
+		linelen = linelen - offset;
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -602,7 +645,7 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 			tvb_format_text(tvb,offset,linelen)); 
 	}
 	if (tree ) {
-		proto_tree_add_item(tree, hf_ssh_protocol,
+		ssh_proto_tree_add_item(tree, hf_ssh_protocol,
 		    		tvb, offset, linelen+1, FALSE);
   	}
 	offset+=linelen+1;
@@ -635,8 +678,8 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree )
 			hf_ssh_kex_algorithms_length ,tvb,offset,4, len);
 	}
 	offset+=4;
-	if (key_init_tree) {
-		proto_tree_add_item(key_init_tree, hf_ssh_kex_algorithms,
+	if (key_init_tree ) {
+		ssh_proto_tree_add_item(key_init_tree, hf_ssh_kex_algorithms,
 			tvb, offset, len , FALSE);
 	}
 	offset+=len;
@@ -649,7 +692,7 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree )
 	}
 	offset+=4;
 	if (key_init_tree) {
-		proto_tree_add_item(key_init_tree, hf_ssh_server_host_key_algorithms,
+		ssh_proto_tree_add_item(key_init_tree, hf_ssh_server_host_key_algorithms,
 			tvb, offset, len , FALSE);
 	}
 	offset+=len;
@@ -661,8 +704,8 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree )
 			hf_ssh_encryption_algorithms_client_to_server_length ,tvb,offset,4, len);
 	}
 	offset+=4;
-	if (key_init_tree) {
-		proto_tree_add_item(key_init_tree, hf_ssh_encryption_algorithms_client_to_server,
+	if (key_init_tree ) {
+		ssh_proto_tree_add_item(key_init_tree, hf_ssh_encryption_algorithms_client_to_server,
 			tvb, offset, len , FALSE);
 	}
 	offset+=len;
@@ -673,8 +716,8 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree )
 			hf_ssh_encryption_algorithms_server_to_client_length ,tvb,offset,4, len);
 	}
 	offset+=4;
-	if (key_init_tree) {
-		proto_tree_add_item(key_init_tree, hf_ssh_encryption_algorithms_server_to_client,
+	if (key_init_tree ) {
+		ssh_proto_tree_add_item(key_init_tree, hf_ssh_encryption_algorithms_server_to_client,
 			tvb, offset, len , FALSE);
 	}
 	offset+=len;
@@ -686,8 +729,8 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree )
 			hf_ssh_mac_algorithms_client_to_server_length ,tvb,offset,4, len);
 	}
 	offset+=4;
-	if (key_init_tree) {
-		proto_tree_add_item(key_init_tree, hf_ssh_mac_algorithms_client_to_server,
+	if (key_init_tree ) {
+		ssh_proto_tree_add_item(key_init_tree, hf_ssh_mac_algorithms_client_to_server,
 			tvb, offset, len , FALSE);
 	}
 	offset+=len;
@@ -699,8 +742,8 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree )
 			hf_ssh_mac_algorithms_server_to_client_length ,tvb,offset,4, len);
 	}
 	offset+=4;
-	if (key_init_tree) {
-		proto_tree_add_item(key_init_tree, hf_ssh_mac_algorithms_server_to_client,
+	if (key_init_tree ) {
+		ssh_proto_tree_add_item(key_init_tree, hf_ssh_mac_algorithms_server_to_client,
 			tvb, offset, len , FALSE);
 	}
 	offset+=len;
@@ -712,8 +755,8 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree )
 			hf_ssh_compression_algorithms_client_to_server_length ,tvb,offset,4, len);
 	}
 	offset+=4;
-	if (key_init_tree) {
-		proto_tree_add_item(key_init_tree, hf_ssh_compression_algorithms_client_to_server,
+	if (key_init_tree ) {
+		ssh_proto_tree_add_item(key_init_tree, hf_ssh_compression_algorithms_client_to_server,
 			tvb, offset, len , FALSE);
 	}
 	offset+=len;
@@ -725,8 +768,8 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree )
 			hf_ssh_compression_algorithms_server_to_client_length ,tvb,offset,4, len);
 	}
 	offset+=4;
-	if (key_init_tree) {
-		proto_tree_add_item(key_init_tree, hf_ssh_compression_algorithms_server_to_client,
+	if (key_init_tree ) {
+		ssh_proto_tree_add_item(key_init_tree, hf_ssh_compression_algorithms_server_to_client,
 			tvb, offset, len , FALSE);
 	}
 	offset+=len;
@@ -738,8 +781,8 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree )
 			hf_ssh_languages_client_to_server_length ,tvb,offset,4, len);
 	}
 	offset+=4;
-	if (key_init_tree && len) {
-		proto_tree_add_item(key_init_tree, hf_ssh_languages_client_to_server,
+	if (key_init_tree ) {
+		ssh_proto_tree_add_item(key_init_tree, hf_ssh_languages_client_to_server,
 			tvb, offset, len , FALSE);
 	}
 	offset+=len;
@@ -751,13 +794,22 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree )
 			hf_ssh_languages_server_to_client_length ,tvb,offset,4, len);
 	}
 	offset+=4;
-	if (tree && len ) {
-		proto_tree_add_item(tree, hf_ssh_languages_server_to_client,
+	if (key_init_tree) {
+		ssh_proto_tree_add_item(key_init_tree, hf_ssh_languages_server_to_client,
 			tvb, offset, len , FALSE);
 	}
 	offset+=len;
 
 	return offset;
+}
+proto_item *
+ssh_proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    gint start, gint length, gboolean little_endian)
+{
+	if (tree && length <0xffff && length > 0) {
+		return proto_tree_add_item(tree, hfindex, tvb, start, length,little_endian);
+	}
+	return NULL;
 }
 
 void
@@ -916,6 +968,7 @@ proto_register_ssh(void)
     		&ett_ssh,
 		&ett_key_exchange,
 		&ett_ssh1,
+		&ett_ssh2,
 		&ett_key_init
   	};
   	module_t *ssh_module;
