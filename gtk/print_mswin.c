@@ -90,6 +90,18 @@ void print_mswin(char *file_name)
    {
        PRINTDLG pdlg;
 
+       /*
+        * XXX - can this be done without a Windows print dialog?
+        *
+        * "CreateDC()" creates a device context, and you can
+        * apparently specify WINSPL16 as the driver name on
+        * Windows OT, or ther name of a "print provider", such as
+        * "WINSPOOL" on Windows NT, to get a context for a printer.
+        *
+        * The device name would be the printer name as shown by the
+        * Print Manager; is there a way to enumerate those?
+        */
+
        /* Initialize the PRINTDLG structure. */
        memset( &pdlg, 0, sizeof( PRINTDLG ) );
        pdlg.lStructSize = sizeof( PRINTDLG );
