@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.18 1999/09/15 06:13:19 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.19 1999/09/29 22:11:50 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -174,6 +174,7 @@ expression:	'(' expression ')' { $$ = $2; }
 	|	TOK_NOT expression { $$ = dfilter_mknode_unary(TOK_NOT, $2); }
 	|	relation { $$ = $1; }
 	|	variable_name { $$ = $1; }
+	|	expression error { YYABORT; }
 	;
 
 relation:	numeric_variable numeric_relation numeric_value

@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.20 1999/09/29 14:41:33 gram Exp $
+ * $Id: dfilter.c,v 1.21 1999/09/29 22:11:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -353,6 +353,7 @@ dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8* pd)
 		g_assert_not_reached();
 
 	case logical:
+		g_assert(gnode_a);
 		return check_logical(dnode->value.logical, gnode_a, gnode_b, ptree, pd);
 
 	case relation:
@@ -394,10 +395,13 @@ check_logical(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 
 
 	switch(operand) {
 	case TOK_AND:
+		g_assert(b);
 		return (val_a && dfilter_apply_node(b, ptree, pd));
 	case TOK_OR:
+		g_assert(b);
 		return (val_a || dfilter_apply_node(b, ptree, pd));
 	case TOK_XOR:
+		g_assert(b);
 		val_b = dfilter_apply_node(b, ptree, pd);
 		return ( ( val_a || val_b ) && ! ( val_a && val_b ) );
 	case TOK_NOT:
