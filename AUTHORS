@@ -395,7 +395,7 @@ Michael Tuexen <Michael.Tuexen[AT]icn.siemens.de> {
 	SCTP support
 	M3UA support
 	ISDN Q.921-User Adaptation Layer (IUA) support
-	SUA Light support
+	SUA and SUA Light support
 	MTP3 support
 	MacOS X support
 }
