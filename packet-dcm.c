@@ -11,7 +11,7 @@
  *        DICOM packets correctly.  
  *        This should probably be documented somewhere besides here.)
  *
- * $Id: packet-dcm.c,v 1.1 2004/05/08 08:49:01 guy Exp $
+ * $Id: packet-dcm.c,v 1.2 2004/05/08 13:39:36 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -860,33 +860,48 @@ static gboolean
 dissect_dcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     conversation_t *conv;
+    guint8 pdu;
+    guint16 vers;
+    guint32 len, tlen;
+    dcmState_t *dcm_data;
 
-    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
-	col_clear(pinfo->cinfo, COL_PROTOCOL);
+    if (10 > (tlen = tvb_reported_length(tvb)))
+	return FALSE;			/* not long enough */
+    if (1 != (pdu = tvb_get_guint8(tvb, 0)))
+	return FALSE;		 /* look for the start */
+    if (1 != (vers = tvb_get_ntohs(tvb, 6)))
+	return FALSE;		/* not version 1 */
+    len = 6 + tvb_get_ntohl(tvb, 2);
+    if (len < tlen)
+	return FALSE;		/* packet is > decl len */
 
-    if (NULL == (conv = find_conversation(&pinfo->src, &pinfo->dst,
-	pinfo->ptype, pinfo->srcport, pinfo->destport, 0))) {
-	guint8 pdu;
-	short vers;
-	long  len, tlen;
-	dcmState_t *dcm_data;
+    conv = find_conversation(&pinfo->src, &pinfo->dst,
+	pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
 
-	if (10 > (tlen = tvb_reported_length(tvb)))
-	    return FALSE;			/* not long enough */
-	if (1 != (pdu = tvb_get_guint8(tvb, 0)))
-	    return FALSE;		 /* look for the start */
-	if (1 != (vers = tvb_get_ntohs(tvb, 6)))
-	    return FALSE;		/* not version 1 */
-	len = 6 + tvb_get_ntohl(tvb, 2);
-	if (len < tlen)
-	    return FALSE;		/* packet is > decl len */
-	conv = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
-	    pinfo->srcport, pinfo->destport, 0);
+    if (NULL == conv) {
+	/*
+	 * No conversation found
+	 */
+    	conv = conversation_new(&pinfo->src, &pinfo->dst, pinfo->ptype,
+		pinfo->srcport, pinfo->destport, 0);
 	if (NULL == (dcm_data = mkds()))
 	    return FALSE;	/* internal error */
 	conversation_add_proto_data(conv, proto_dcm, dcm_data);
-    /* } else { pinfo->fd->num; */
+    } else {
+	/*
+	 * conversation exists
+	 */
+	 dcm_data = conversation_get_proto_data(conv, proto_dcm);
+	 if (NULL == dcm_data) {
+	     /*
+	      * This is not a DICOM conversation
+	      */
+	     return FALSE;
+	 }
     }
+
+    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+	col_clear(pinfo->cinfo, COL_PROTOCOL);
 
     tcp_dissect_pdus(tvb, pinfo, tree, 1, 6, dcm_get_pdu_len, dissect_dcm_pdu);
 
