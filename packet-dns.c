@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.56 2000/10/18 00:37:54 guy Exp $
+ * $Id: packet-dns.c,v 1.57 2000/10/19 23:11:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2331,7 +2331,7 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
          decode_boolean_bitfield(flags, F_AUTHORITATIVE,
               2*8,
               "Server is an authority for domain",
-              "Server isn't an authority for domain"));
+              "Server is not an authority for domain"));
     }
     proto_tree_add_text(field_tree, NullTVB, offset + DNS_FLAGS, 2, "%s",
        decode_boolean_bitfield(flags, F_TRUNCATED,
@@ -2352,8 +2352,8 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
       proto_tree_add_text(field_tree, NullTVB, offset + DNS_FLAGS, 2, "%s",
 	 decode_boolean_bitfield(flags, F_AUTHENTIC,
             2*8,
-            "Answer/authority portion was autenticated by the server",
-            "Answer/authority portion was not autenticated by the server"));
+            "Answer/authority portion was authenticated by the server",
+            "Answer/authority portion was not authenticated by the server"));
     }
     if ((flags & F_RESPONSE) == 0) {
       proto_tree_add_text(field_tree, NullTVB, offset + DNS_FLAGS, 2, "%s",
