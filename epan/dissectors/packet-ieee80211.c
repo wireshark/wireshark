@@ -89,6 +89,7 @@ static int *wep_keylens = NULL;
 static void init_wepkeys(void);
 static int wep_decrypt(guint8 *buf, guint32 len, int key_override);
 static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len);
+static int weak_iv(guchar *iv);
 #define SSWAP(a,b) {guint8 tmp = s[a]; s[a] = s[b]; s[b] = tmp;}
 
 /* #define USE_ENV */
@@ -458,6 +459,7 @@ static int tag_interpretation = -1;
 static int hf_fixed_parameters = -1;	/* Protocol payload for management frames */
 static int hf_tagged_parameters = -1;	/* Fixed payload item */
 static int hf_wep_iv = -1;
+static int hf_wep_iv_weak = -1;
 static int hf_tkip_extiv = -1;
 static int hf_ccmp_extiv = -1;
 static int hf_wep_key = -1;
@@ -1669,6 +1671,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   volatile encap_t encap_type;
   guint8 octet1, octet2;
   char out_buff[SHORT_STR];
+  gint is_iv_bad;
+  guchar iv_buff[4];
 
   if (check_col (pinfo->cinfo, COL_PROTOCOL))
     col_set_str (pinfo->cinfo, COL_PROTOCOL, "IEEE 802.11");
@@ -2244,7 +2248,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
        * Also, just pass the data *following* the WEP parameters as the
        * buffer to decrypt.
        */
-      iv = tvb_get_letoh24(tvb, hdr_len);
+      iv = tvb_get_ntoh24(tvb, hdr_len);
       if (tree) {
 	proto_item *wep_fields;
 
@@ -2253,6 +2257,12 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
 	wep_tree = proto_item_add_subtree (wep_fields, ett_wep_parameters);
 	proto_tree_add_uint (wep_tree, hf_wep_iv, tvb, hdr_len, 3, iv);
+	tvb_memcpy(tvb, iv_buff, hdr_len, 3);
+	is_iv_bad = weak_iv(iv_buff);
+	if (is_iv_bad != -1){
+		proto_tree_add_text(wep_tree,tvb,0,0,"Weak IV for key byte %d", is_iv_bad);
+		proto_tree_add_boolean_hidden(wep_tree,hf_wep_iv_weak,tvb,0,0,1 );
+	}
       }
       if (tree)
         proto_tree_add_uint (wep_tree, hf_wep_key, tvb, hdr_len + 3, 1, key);
@@ -2938,6 +2948,10 @@ proto_register_ieee80211 (void)
      {"Initialization Vector", "wlan.wep.iv", FT_UINT24, BASE_HEX, NULL, 0,
       "Initialization Vector", HFILL }},
 
+    {&hf_wep_iv_weak,
+     {"Weak IV", "wlan.wep.weakiv", FT_BOOLEAN,BASE_NONE, NULL,0x0,
+       "Weak IV",HFILL}},
+
     {&hf_tkip_extiv,
      {"TKIP Ext. Initialization Vector", "wlan.tkip.extiv", FT_STRING,
       BASE_HEX, NULL, 0, "TKIP Extended Initialization Vector", HFILL }},
@@ -3447,4 +3461,41 @@ static void init_wepkeys(void) {
     }
   }
   g_byte_array_free(bytes, TRUE);
+}
+/*
+ * This code had been taken from AirSnort crack.c function classify()
+ * Permission granted by snax <at> shmoo dot com
+ * weak_iv - determine which key byte an iv is useful in resolving
+ * parm     - p, pointer to the first byte of an IV
+ * return   -  n - this IV is weak for byte n of a WEP key
+ *            -1 - this IV is not weak for any key bytes
+ *
+ * This function tests for IVs that are known to satisfy the criteria
+ * for a weak IV as specified in FMS section 7.1
+ *
+ */
+static
+int
+weak_iv(guchar *iv)
+{
+        guchar sum, k;
+
+        if (iv[1] == 255 && iv[0] > 2 && iv[0] < 16) {
+                return iv[0] -3;
+        }
+
+        sum = iv[0] + iv[1];
+        if (sum == 1) {
+                if (iv[2] <= 0x0a) {
+                        return iv[2] +2;
+                }
+                else if (iv[2] == 0xff){
+                        return 0;
+                }
+        }
+        k = 0xfe - iv[2];
+        if (sum == k  && (iv[2] >= 0xf2 && iv[2] <= 0xfe && iv[2] != 0xfd)){
+                return k;
+        }
+        return -1;
 }
