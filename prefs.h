@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.62 2004/05/13 15:28:01 ulfl Exp $
+ * $Id: prefs.h,v 1.63 2004/05/13 16:34:29 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,7 +96,7 @@ typedef enum {
 typedef enum {
     console_open_never,
     console_open_auto,
-    console_open_always,
+    console_open_always
 } console_open_e;
 
 
