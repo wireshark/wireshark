@@ -363,7 +363,6 @@ you to look at the nth byte of a packet regardless of its frame type
     ipx[0:2] == ff:ff
     llc[3:1] eq 0xaa
 
-
 The following syntax governs slices:
 
 	[i:j]	i = start_offset, j = length
@@ -372,19 +371,19 @@ The following syntax governs slices:
 	[:j]	start_offset = 0, length = j
 	[i:]	start_offset = i, end_offset = end_of_field
 
-
-Offsets and lengths can be negative, in which case they indicate the offset from the
-*end* of the field.  Here's how to check the last 4 bytes of a frame:
+Offsets and lengths can be negative, in which case they indicate the
+offset from the B<end> of the field.  Here's how to check the last 4
+bytes of a frame:
 
     frame[-4:4] == 0.1.2.3
-or
-    frame[-4:] == 0.1.2.3
 
+or
+
+    frame[-4:] == 0.1.2.3
 
 You can create complex concatenations of slices using the comma operator:
 
 	field[1,3-5,9:] == 01:03:04:05:09:0a:0b
-
 
 All the above tests can be combined together with logical expressions. 
 These too are expressable in C-like syntax or with English-like
