@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.69 2003/10/04 16:44:34 guy Exp $
+ * $Id: packet-isakmp.c,v 1.70 2003/10/08 05:36:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #endif
 
 #include <epan/packet.h>
+#include <epan/ipv6-utils.h>
 #include "ipproto.h"
 
 #define isakmp_min(a, b)  ((a<b) ? a : b)
@@ -242,6 +243,8 @@ static void dissect_notif(tvbuff_t *, int, int, proto_tree *, int);
 static void dissect_delete(tvbuff_t *, int, int, proto_tree *, int);
 static void dissect_vid(tvbuff_t *, int, int, proto_tree *, int);
 static void dissect_config(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_nat_discovery(tvbuff_t *, int, int, proto_tree *, int);
+static void dissect_nat_original_address(tvbuff_t *, int, int, proto_tree *, int);
 
 static const char *payloadtype2str(guint8);
 static const char *exchtype2str(guint8);
@@ -281,8 +284,8 @@ static struct strfunc {
   {"Delete",			dissect_delete    },
   {"Vendor ID",			dissect_vid       },
   {"Attrib",			dissect_config	  },
-  {"NAT-Discovery",		NULL		  }, /* http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-05.txt */
-  {"NAT-Original Address",	NULL		  }  /* http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-05.txt */
+  {"NAT-Discovery",		dissect_nat_discovery }, /* draft-ietf-ipsec-nat-t-ike */
+  {"NAT-Original Address",	dissect_nat_original_address } /* draft-ietf-ipsec-nat-t-ike */
 };
 
 #define VID_LEN 16
@@ -1016,6 +1019,67 @@ dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
       offset += pack_len;
       length -= pack_len;
     }
+  }
+}
+
+static void
+dissect_nat_discovery(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    int unused _U_)
+{
+  proto_tree_add_text(tree, tvb, offset, length,
+		      "Hash of address and port: %s",
+		      tvb_bytes_to_str(tvb, offset, length));
+}
+
+static void
+dissect_nat_original_address(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
+    int unused _U_)
+{
+  guint8 id_type;
+  guint32 addr_ipv4;
+  struct e_in6_addr addr_ipv6;
+
+  id_type = tvb_get_guint8(tvb, offset);
+  proto_tree_add_text(tree, tvb, offset, 1,
+		      "ID type: %s (%u)", id2str(id_type), id_type);
+  offset += 1;
+  length -= 1;
+
+  offset += 3;		/* reserved */
+  length -= 3;
+
+  switch (id_type) {
+
+  case 1:	/* ID_IPV4_ADDR */
+    if (length == 4) {
+      tvb_memcpy(tvb, (guint8 *)&addr_ipv4, offset, length);
+      proto_tree_add_text(tree, tvb, offset, length,
+			  "Original address: %s",
+			  ip_to_str((guint8 *)&addr_ipv4));
+    } else {
+      proto_tree_add_text(tree, tvb, offset, length,
+			  "Original address: bad length, should be 4, is %u",
+			  length);
+    }
+    break;
+
+  case 5:	/* ID_IPV6_ADDR */
+    if (length == 16) {
+      tvb_memcpy(tvb, (guint8 *)&addr_ipv6, offset, length);
+      proto_tree_add_text(tree, tvb, offset, length,
+			  "Original address: %s",
+			  ip6_to_str(&addr_ipv6));
+    } else {
+      proto_tree_add_text(tree, tvb, offset, length,
+			  "Original address: bad length, should be 16, is %u",
+			  length);
+    }
+    break;
+
+  default:
+    proto_tree_add_text(tree, tvb, offset, length,
+			"Original address: bad address type");
+    break;
   }
 }
 
