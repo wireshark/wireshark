@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.23 2002/10/19 00:40:05 guy Exp $
+ * $Id: column-utils.c,v 1.24 2002/10/23 04:23:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -478,7 +478,7 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
     break;
 
   case AT_ARCNET:
-    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%02X",
+    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "0x%02X",
       addr->data[0]);
     pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
     if (is_src)
