@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for ldp packet disassembly
  *
- * $Id: packet-ldp.c,v 1.8 2000/12/03 02:37:56 sharpe Exp $
+ * $Id: packet-ldp.c,v 1.9 2000/12/04 06:05:49 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -295,6 +295,8 @@ int dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 	  offset += 1;
 
+	  /* XXX - the address family length should be extracted and used to
+	     dissect the prefix field. */
 	  proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_af, tvb, offset, 2, FALSE);
 	  offset += 2;
 
@@ -311,10 +313,21 @@ int dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 	case 3:   /* Host address */
 
+	  /* XXX - write me. */
+
+	  fec_len -= 8;
+
+	  offset += 8;
+
 	  break;
 
 	default:  /* Unknown */
 
+          /* XXX - do all FEC's have a length that's a multiple of 4? */
+
+	  fec_len -= 4;
+
+	  offset += 4;
 
 	  break;
 
@@ -517,6 +530,8 @@ dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16        ldp_message = 0;
 
   CHECK_DISPLAY_AS_DATA(proto_ldp, tvb, pinfo, tree);
+
+  pinfo->current_proto = "LDP";
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
 
