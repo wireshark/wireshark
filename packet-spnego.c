@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.42 2003/02/17 17:32:59 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.43 2003/05/23 17:46:06 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -176,6 +176,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ASN1_SCK hnd;
 	gboolean def;
 	guint len1, cls, con, tag, oid_len, nbytes;
+	guint16 token_id = 0;
 	subid_t *oid;
 	gchar *oid_string;
 	gssapi_oid_value *value;
@@ -269,6 +270,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Next, the token ID ... */
 
+		token_id = tvb_get_letohs(tvb, offset);
 		proto_tree_add_item(subtree, hf_spnego_krb5_tok_id, tvb, offset, 2,
 				    TRUE);
 
@@ -291,6 +293,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} else {
 	    /* Next, the token ID ... */
 
+	    token_id = tvb_get_letohs(tvb, offset);
 	    proto_tree_add_item(subtree, hf_spnego_krb5_tok_id, tvb, offset, 2,
 				TRUE);
 
@@ -299,9 +302,31 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    offset += 2;
 	}
 
-	krb5_tvb = tvb_new_subset(tvb, offset, -1, -1); 
+	switch (token_id) {
 
-	offset = dissect_kerberos_main(krb5_tvb, pinfo, subtree, FALSE);
+	case KRB_TOKEN_AP_REQ:
+	case KRB_TOKEN_AP_REP:
+	case KRB_TOKEN_AP_ERR:
+	  krb5_tvb = tvb_new_subset(tvb, offset, -1, -1); 
+	  offset = dissect_kerberos_main(krb5_tvb, pinfo, subtree, FALSE);
+	  break;
+
+	case KRB_TOKEN_GETMIC:
+
+	  break;
+
+	case KRB_TOKEN_WRAP:
+
+	  break;
+
+	case KRB_TOKEN_DELETE_SEC_CONTEXT:
+
+	  break;
+
+	default:
+
+	  break;
+	}
 
  done:
 	return;

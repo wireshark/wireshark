@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.130 2003/05/22 21:39:44 sharpe Exp $
+ * $Id: packet-rpc.c,v 1.131 2003/05/23 17:46:05 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1062,7 +1062,6 @@ dissect_rpc_authgss_token(tvbuff_t* tvb, proto_tree* tree, int offset,
 	len_consumed = call_dissector(gssapi_handle, new_tvb, pinfo, gtree);
 	offset += len_consumed;
 	offset = rpc_roundup(offset);
-
 	return offset;
 }
 
@@ -2477,11 +2476,15 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 	}
 
-	/* dissect any remaining bytes (incomplete dissection) as pure data in
-	   the ptree */
-	call_dissector(data_handle,
-	    tvb_new_subset(tvb, offset, -1, -1), pinfo, ptree);
+        if (tvb_length_remaining(tvb, offset) > 0) {  
+          /* 
+           * dissect any remaining bytes (incomplete dissection) as pure 
+           * data in the ptree 
+           */
 
+          call_dissector(data_handle,
+              tvb_new_subset(tvb, offset, -1, -1), pinfo, ptree);
+        }
 
 	/* XXX this should really loop over all fhandles registred for the frame */
 	if(nfs_fhandle_reqrep_matching){
