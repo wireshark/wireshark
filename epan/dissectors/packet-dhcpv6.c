@@ -423,7 +423,7 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
           } 
 	  break;
 	case OPTION_AUTH:
-	  if (optlen < 15) {
+	  if (optlen < 11) {
 	    proto_tree_add_text(subtree, tvb, off,
 				optlen, "AUTH: malformed option");
 	    break;
@@ -438,9 +438,10 @@ dhcpv6_option(tvbuff_t *tvb, proto_tree *bp_tree, int off, int eoff,
 			      "RDM: %d",
 			      (guint32)tvb_get_guint8(tvb, off+2));
 	  proto_tree_add_text(subtree, tvb, off+3, 8,
-			      "Reply Detection");
-	  proto_tree_add_text(subtree, tvb, off+11, optlen-11,
-			      "Authentication Information");
+			      "Replay Detection");
+	  if (optlen != 11)
+		proto_tree_add_text(subtree, tvb, off+11, optlen-11,
+							"Authentication Information");
 	  break;
 	case OPTION_UNICAST:
 	  if (optlen != 16) {
