@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.95 2002/06/04 07:03:45 guy Exp $
+ * $Id: packet-rpc.c,v 1.96 2002/06/05 11:32:14 sahlberg Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -191,9 +191,17 @@ static int hf_rpc_reply_dup = -1;
 static int hf_rpc_value_follows = -1;
 static int hf_rpc_array_len = -1;
 static int hf_rpc_time = -1;
+static int hf_rpc_fragments = -1;
+static int hf_rpc_fragment = -1;
+static int hf_rpc_fragment_overlap = -1;
+static int hf_rpc_fragment_overlap_conflict = -1;
+static int hf_rpc_fragment_multiple_tails = -1;
+static int hf_rpc_fragment_too_long_fragment = -1;
+static int hf_rpc_fragment_error = -1;
 
 static gint ett_rpc = -1;
 static gint ett_rpc_fragments = -1;
+static gint ett_rpc_fragment = -1;
 static gint ett_rpc_fraghdr = -1;
 static gint ett_rpc_string = -1;
 static gint ett_rpc_cred = -1;
@@ -205,6 +213,18 @@ static gint ett_rpc_array = -1;
 static dissector_handle_t rpc_tcp_handle;
 static dissector_handle_t rpc_handle;
 static dissector_handle_t data_handle;
+
+fragment_items rpc_frag_items = {
+	&ett_rpc_fragment,
+	&ett_rpc_fragments,
+	&hf_rpc_fragments,
+	&hf_rpc_fragment,
+	&hf_rpc_fragment_overlap,
+	&hf_rpc_fragment_overlap_conflict,
+	&hf_rpc_fragment_multiple_tails,
+	&hf_rpc_fragment_too_long_fragment,
+	&hf_rpc_fragment_error
+};
 
 /* Hash table with info on RPC program numbers */
 static GHashTable *rpc_progs;
@@ -1560,7 +1580,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		if (is_tcp) {
 			show_rpc_fraginfo(tvb, frag_tvb, rpc_tree, rpc_rm,
-			    ipfd_head);
+			    ipfd_head, pinfo);
 		}
 	}
 
@@ -2268,12 +2288,8 @@ make_frag_tree(tvbuff_t *tvb, proto_tree *tree, int proto, gint ett,
 
 void
 show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
-    guint32 rpc_rm, fragment_data *ipfd_head)
+    guint32 rpc_rm, fragment_data *ipfd_head, packet_info *pinfo)
 {
-	proto_tree *st = NULL;
-	proto_item *si = NULL;
-	fragment_data *ipfd;
-
 	if (tree == NULL)
 		return;		/* don't do any work */
 
@@ -2289,15 +2305,7 @@ show_rpc_fraginfo(tvbuff_t *tvb, tvbuff_t *frag_tvb, proto_tree *tree,
 		/*
 		 * Show a tree with information about all fragments.
 		 */
-		si = proto_tree_add_text(tree, tvb, 0, -1, "Fragments");
-		st = proto_item_add_subtree(si, ett_rpc_fragments);
-		for (ipfd = ipfd_head->next; ipfd != NULL; ipfd = ipfd->next) {
-			proto_tree_add_text(st, tvb, ipfd->offset, ipfd->len,
-			    "Frame:%u [%u-%u]",
-			    ipfd->frame,
-			    ipfd->offset,
-			    ipfd->offset + ipfd->len - 1);
-		}
+		show_fragment_tree(ipfd_head, &rpc_frag_items, tree, pinfo, tvb);
 	} else {
 		/*
 		 * This message was all in one fragment, so just show
@@ -2964,10 +2972,38 @@ proto_register_rpc(void)
 			"Time from request", "rpc.time", FT_RELATIVE_TIME, BASE_NONE,
 			NULL, 0, "Time between Request and Reply for ONC-RPC calls", HFILL }},
 
+		{ &hf_rpc_fragment_overlap,
+		{ "Fragment overlap",	"rpc.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Fragment overlaps with other fragments", HFILL }},
+
+		{ &hf_rpc_fragment_overlap_conflict,
+		{ "Conflicting data in fragment overlap",	"rpc.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Overlapping fragments contained conflicting data", HFILL }},
+
+		{ &hf_rpc_fragment_multiple_tails,
+		{ "Multiple tail fragments found",	"rpc.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Several tails were found when defragmenting the packet", HFILL }},
+
+		{ &hf_rpc_fragment_too_long_fragment,
+		{ "Fragment too long",	"rpc.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Fragment contained data past end of packet", HFILL }},
+
+		{ &hf_rpc_fragment_error,
+		{ "Defragmentation error", "rpc.fragment.error", FT_NONE, BASE_NONE, NULL, 0x0,
+			"Defragmentation error due to illegal fragments", HFILL }},
+
+		{ &hf_rpc_fragment,
+		{ "RPC Fragment", "rpc.fragment", FT_NONE, BASE_NONE, NULL, 0x0,
+			"RPC Fragment", HFILL }},
+
+		{ &hf_rpc_fragments,
+		{ "RPC Fragments", "rpc.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
+			"RPC Fragments", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_rpc,
 		&ett_rpc_fragments,
+		&ett_rpc_fragment,
 		&ett_rpc_fraghdr,
 		&ett_rpc_string,
 		&ett_rpc_cred,
