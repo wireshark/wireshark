@@ -1,12 +1,14 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.17 2000/12/14 08:35:07 guy Exp $
+ * $Id: packet-ipv6.h,v 1.18 2001/01/23 02:49:55 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
+ *
  * Copyright 1998 Gerald Combs
  *
+ * MobileIPv6 support added by Tomislav Borosa <tomislav.borosa@siemens.hr>
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -141,6 +143,84 @@ struct ip6_dest {
 
 #define IP6OPT_MUTABLE		0x20
 
+/* BT INSERT BEGIN  */
+/* Mobile IP option types and sub-option types*/
+#define IP6OPT_BINDING_UPDATE 0xC6  /* 11 0 00110 */
+#define IP6OPT_BINDING_ACK 0x07  /* 00 0 00111 */
+#define IP6OPT_BINDING_REQUEST 0x08  /* 00 0 01000 */
+#define IP6OPT_HOME_ADDRESS 0xC9  /* 11 0 01001 */
+#define IP6OPT_MIPv6_UNIQUE_ID_SUB 0x02  /* 00 0 00010 */
+#define IP6OPT_MIPv6_ALTERNATIVE_COA_SUB 0x04  /* 00 0 00100 */
+
+/* MIPv6 Lifetime */
+#define MIP_INFINITY 0xffffffff /* Infinity lifetime */
+
+/*	Binding Update Flags */
+#define IP6_MIPv6_BU_A_FLAG 0x80 /* 1000 0000 - Acknowledge */
+#define IP6_MIPv6_BU_H_FLAG 0x40 /* 0100 0000 - Home Registration */
+#define IP6_MIPv6_BU_R_FLAG 0x20 /* 0010 0000 - Router */
+#define IP6_MIPv6_BU_D_FLAG 0x10 /* 0001 0000 - Duplicate Address Detection */
+#define IP6_MIPv6_BU_M_FLAG 0x8  /* 0000 1000 - MAP Registration */
+#define IP6_MIPv6_BU_B_FLAG 0x4  /* 0000 0100 - Request for bicasting */
+
+#define IP6_MIPv6_OPTION_TYPE_LENGTH	1
+#define IP6_MIPv6_OPTION_LENGTH_LENGTH	1
+#define IP6_MIPv6_FLAGS_LENGTH	1
+#define IP6_MIPv6_PREFIX_LENGTH_LENGTH	1
+#define IP6_MIPv6_SEQUENCE_NUMBER_LENGTH	2
+#define IP6_MIPv6_LIFE_TIME_LENGTH	4
+#define IP6_MIPv6_REFRESH_LENGTH	4
+#define IP6_MIPv6_STATUS_LENGTH	1
+#define IP6_MIPv6_HOME_ADDRESS_LENGTH	16
+#define IP6_MIPv6_SUB_TYPE_LENGTH	1
+#define IP6_MIPv6_SUB_LENGTH_LENGTH	1
+#define IP6_MIPv6_SUB_UNIQUE_ID_LENGTH	2
+#define IP6_MIPv6_SUB_ALTERNATIVE_COA_LENGTH	16
+
+/* Binding Ackonwledgement Status */
+#define BA_OK 0 /* Binding update accepted */
+#define BA_REAS_UNSPEC 128 /*Reason unspecified */
+#define BA_ADMIN_PROH 130 /* Administratively prohibited */
+#define BA_INSUF_RES 131 /* Insufficient resources */
+#define BA_NO_HR 132 /* Home registration not supported */
+#define BA_NO_SUBNET 133 /* Not home subnet */
+#define BA_ERR_ID_LEN 136 /* Incorrect interface identifier length */
+#define BA_NO_HA 137 /* Not home agent for this mobile node */
+#define BA_DUPL_ADDR 138 /* Duplicate Address Detection failed */
+
+/* Binding Update flag description */
+static const true_false_string ipv6_mipv6_bu_a_flag_value =
+{
+	"Binding Acknowledgement requested",
+	"Binding Acknowledgement not requested"
+};
+static const true_false_string ipv6_mipv6_bu_h_flag_value =
+{
+	"Home Registration",
+	"No Home Registration"
+};
+static const true_false_string ipv6_mipv6_bu_r_flag_value =
+{
+	"Router",
+	"Not a Router"
+};
+static const true_false_string ipv6_mipv6_bu_d_flag_value =
+{
+	"Perform Duplicate Address Detection",
+	"Do not perform Duplicate Address Detection"
+};
+static const true_false_string ipv6_mipv6_bu_m_flag_value =
+{
+	"MAP Registration",
+	"No MAP Registration"
+};
+static const true_false_string ipv6_mipv6_bu_b_flag_value =
+{
+	"Request for bicasting",
+	"Do not request for bicasting"
+};
+/* BT INSERT END */
+
 /* Routing header */
 struct ip6_rthdr {
 	guint8  ip6r_nxt;	/* next header */
@@ -172,81 +252,6 @@ struct ip6_frag {
 #define IP6F_OFF_MASK		0xfff8	/* mask out offset from _offlg */
 #define IP6F_RESERVED_MASK	0x0006	/* reserved bits in ip6f_offlg */
 #define IP6F_MORE_FRAG		0x0001	/* more-fragments flag */
-
-/*
- * Mobile IPv6
- */
-#define IP6OPT_BINDING_UPDATE	0xC6	/* 11 0 00110 */
-#define IP6OPT_BINDING_ACK	0x07	/* 00 0 00111 */
-#define IP6OPT_BINDING_REQ	0x08	/* 00 0 01000 */
-#define IP6OPT_HOME_ADDRESS	0xC9	/* 11 0 01001 */
-#define IP6OPT_EID		0x8A	/* 10 0 01010 */
-#define IP6SUBOPT_UNIQUE_ID	0x02	/* Unique Id */
-#define IP6SUBOPT_ALTERNATE_COA	0x04	/* Alternate CoA */
-
-/* Binding Update Option */
-struct ip6_opt_binding_update {
-	guint8	ip6bu_type;
-	guint8	ip6bu_len;
-	guint8	ip6bu_flags;
-#define IP6_BU_ACK	0x80		/* Request a binding ack */
-#define IP6_BU_HOME	0x40		/* Home Registration */
-#define IP6_BU_COA	0x20		/* Care-of-address present in option */
-#define IP6_BU_ROUTER	0x10		/* Sending mobile node is a router */
-	guint8	ip6bu_prefixlen;
-	guint16	ip6bu_seqno;
-	guint32	ip6bu_lifetime;
-	/* followed by sub-options */
-};
-
-/* Binding Ack Option */
-struct ip6_opt_binding_ack {
-	guint8	ip6ba_type;
-	guint8	ip6ba_len;
-	guint8	ip6ba_status;
-#define IP6_BINDING_ACK_OK		0	/* Binding Update accepted */
-#define IP6_BINDING_ACK_EUNKNOWN	128	/* Reason unspecified */
-#define IP6_BINDING_ACK_EPERM		130	/* Administratively prohib. */
-#define IP6_BINDING_ACK_EAGAIN		131	/* Insufficient resources */
-#define IP6_BINDING_ACK_EHOMENOSUPPORT	132	/* Home registration */
-#define IP6_BINDING_ACK_ENOTHOMESUBNET	133	/* Not home subnet */
-#define IP6_BINDING_ACK_EBADIFLEN	136	/* Incorrect interface id len */
-#define IP6_BINDING_ACK_ENOTHOME	137	/* Not home agent for this MN */
-	guint16	ip6ba_seqno;
-	guint32	ip6ba_lifetime;
-	guint32	ip6ba_refresh;
-	/* followed by sub-options */
-};
-
-/* Binding Request Option */
-struct ip6_opt_binding_request {
-	guint8	ip6br_type;
-	guint8	ip6br_len;
-	/* followed by sub-options */
-};
-
-/* Home Address Option */
-struct ip6_opt_home_address {
-	guint8	ip6ha_type;
-	guint8	ip6ha_len;
-	struct e_in6_addr ip6ha_ha;		/* Home Address */
-	/* followed by sub-options */
-};
-
-/* Unique Identifier sub-option */
-struct ip6_subopt_unique_id {
-	guint8	ip6ui_type;
-	guint8	ip6ui_len;
-	guint16	ip6ui_id;			/* Unique Identifier */
-};
-
-/* Alternate CoA sub-option */
-struct ip6_subopt_alternate_coa {
-	guint8	ip6acoa_type;
-	guint8	ip6acoa_len;
-	struct e_in6_addr coa;			/* Alternate CoA */
-};
-
 
 /*
  * Definition for ICMPv6.
@@ -430,6 +435,10 @@ struct nd_opt_hdr {		/* Neighbor discovery option header */
 #define ND_OPT_TARGET_LINKADDR		2
 #define ND_OPT_PREFIX_INFORMATION	3
 #define ND_OPT_REDIRECTED_HEADER	4
+/* BT INSERT BEGIN */
+#define ND_OPT_ADVERTISEMENT_INTERVAL	7
+#define ND_OPT_HOME_AGENT_INFORMATION	8
+/* BT INSERT END */
 #define ND_OPT_MTU			5
 
 struct nd_opt_prefix_info {	/* prefix information */
@@ -460,7 +469,23 @@ struct nd_opt_mtu {		/* MTU option */
 	guint16	nd_opt_mtu_reserved;
 	guint32	nd_opt_mtu_mtu;
 };
+/* BT INSERT BEGIN */
+struct nd_opt_adv_int {		/* Advertisement Interval option */
+	guint8	nd_opt_adv_int_type;
+	guint8	nd_opt_adv_int_len;
+	guint16	nd_opt_adv_int_reserved;
+	guint32	nd_opt_adv_int_advint;
+};
 
+struct nd_opt_ha_info {		/* Home Agent Information option */
+	guint8	nd_opt_ha_info_type;
+	guint8	nd_opt_ha_info_len;
+	guint16	nd_opt_ha_info_reserved;
+	guint16	nd_opt_ha_info_ha_pref;
+	guint16	nd_opt_ha_info_ha_life;
+};
+
+/* BT INSERT END */
 /*
  * icmp6 node information
  */

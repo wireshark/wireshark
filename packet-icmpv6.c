@@ -1,12 +1,13 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.35 2001/01/22 08:54:06 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.36 2001/01/23 02:49:55 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
+ * MobileIPv6 support added by Tomislav Borosa <tomislav.borosa@siemens.hr>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -132,7 +133,14 @@ again:
     case ND_OPT_MTU:
 	typename = "MTU";
 	break;
+    case ND_OPT_ADVERTISEMENT_INTERVAL:
+	typename = "Advertisement Interval";
+	break;
+    case ND_OPT_HOME_AGENT_INFORMATION:
+	typename = "Home Agent Information";
+	break;
     default:
+
 	typename = "Unknown";
 	break;
     }
@@ -183,7 +191,11 @@ again:
 	proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
 	    decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
 		    0x40, 8, "Auto", "Not auto"));
-
+  /* BT INSERT BEGIN */
+	proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
+	    decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
+		    0x20, 8, "Router Address", "Not router address"));
+  /* BT INSERT END */
 	proto_tree_add_text(icmp6opt_tree, NullTVB,
 	    offset + offsetof(struct nd_opt_prefix_info, nd_opt_pi_valid_time),
 	    4, "Valid lifetime: 0x%08x",
@@ -214,6 +226,29 @@ again:
 	    "MTU: %d", pntohl(&pi->nd_opt_mtu_mtu));
 	break;
       }
+	/* BT INSERT BEGIN */
+    case ND_OPT_ADVERTISEMENT_INTERVAL:
+      {
+	struct nd_opt_adv_int *pi = (struct nd_opt_adv_int *)opt;
+	proto_tree_add_text(icmp6opt_tree, NullTVB,
+	    offset + offsetof(struct nd_opt_adv_int, nd_opt_adv_int_advint), 4,
+	    "Advertisement Interval: %d", pntohl(&pi->nd_opt_adv_int_advint));
+	break;
+      }
+    case ND_OPT_HOME_AGENT_INFORMATION:
+      {
+	struct nd_opt_ha_info *pi = (struct nd_opt_ha_info *)opt;
+	proto_tree_add_text(icmp6opt_tree, NullTVB,
+	    offset + offsetof(struct nd_opt_ha_info, nd_opt_ha_info_ha_pref),
+	    2, "Home Agent Preference: %d",
+	    pntohs(&pi->nd_opt_ha_info_ha_pref));
+	proto_tree_add_text(icmp6opt_tree, NullTVB,
+	    offset + offsetof(struct nd_opt_ha_info, nd_opt_ha_info_ha_life),
+	    2, "Home Agent Lifetime: %d",
+	    pntohs(&pi->nd_opt_ha_info_ha_life));
+	break;
+      }
+	/* BT INSERT END */
     }
 
     if (opt->nd_opt_len == 0) {
@@ -1042,7 +1077,11 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    proto_tree_add_text(field_tree, NullTVB, flagoff, 4, "%s",
 		decode_boolean_bitfield(ra_flags,
 			0x40000000, 32, "Other", "Not other"));
-
+    /* BT INSERT BEGIN */
+	    proto_tree_add_text(field_tree, NullTVB, flagoff, 4, "%s",
+		decode_boolean_bitfield(ra_flags,
+			0x20000000, 32, "Home Agent", "Not Home Agent"));		
+    /* BT INSERT END */
 	    proto_tree_add_text(icmp6_tree, NullTVB,
 		offset + offsetof(struct nd_router_advert, nd_ra_router_lifetime),
 		2, "Router lifetime: %d",
