@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.653 2003/11/16 23:17:14 guy Exp $
+# $Id: Makefile.am,v 1.654 2003/11/17 20:57:08 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -473,6 +473,7 @@ plugin_libs = \
 	plugins/artnet/artnet.la \
         plugins/asn1/asn1.la \
 	plugins/docsis/docsis.la \
+	plugins/enttec/enttec.la \
 	plugins/giop/cosnaming.la \
 	plugins/giop/coseventcomm.la \
 	plugins/gryphon/gryphon.la \
@@ -480,6 +481,7 @@ plugin_libs = \
 	plugins/megaco/megaco.la \
 	plugins/mgcp/mgcp.la \
 	plugins/pcli/pcli.la \
+	plugins/rdm/rdm.la \
 	plugins/rtnet/rtnet.la 
 
 if ENABLE_STATIC
@@ -510,6 +512,7 @@ plugin_ldadd = \
 	plugins/docsis/packet-uccreq.o \
 	plugins/docsis/packet-uccrsp.o \
 	plugins/docsis/packet-ucd.o \
+	plugins/enttec/packet-enttec.o \
 	plugins/giop/packet-cosnaming.o \
 	plugins/giop/packet-coseventcomm.o \
 	plugins/gryphon/packet-gryphon.o \
@@ -517,6 +520,7 @@ plugin_ldadd = \
 	plugins/megaco/packet-megaco.o \
 	plugins/mgcp/packet-mgcp.o \
 	plugins/pcli/packet-pcli.o \
+	plugins/rdm/packet-rdm.o \
 	plugins/rtnet/packet-rtnet.o 
 
 plugin_src = \
@@ -546,6 +550,7 @@ plugin_src = \
 	plugins/docsis/packet-uccreq.c \
 	plugins/docsis/packet-uccrsp.c \
 	plugins/docsis/packet-ucd.c \
+	plugins/enttec/packet-enttec.c \
 	plugins/giop/packet-cosnaming.c \
 	plugins/giop/packet-coseventcomm.c \
 	plugins/gryphon/packet-gryphon.c \
@@ -553,6 +558,7 @@ plugin_src = \
 	plugins/megaco/packet-megaco.c \
 	plugins/mgcp/packet-mgcp.c \
 	plugins/pcli/packet-pcli.c \
+	plugins/rdm/packet-rdm.c \
 	plugins/rtnet/packet-rtnet.c 
 
 else		# ENABLE_STATIC
@@ -562,6 +568,7 @@ plugin_ldadd = \
 	"-dlopen" plugins/artnet/artnet.la \
         "-dlopen" plugins/asn1/asn1.la \
 	"-dlopen" plugins/docsis/docsis.la \
+	"-dlopen" plugins/enttec/enttec.la \
 	"-dlopen" plugins/giop/cosnaming.la \
 	"-dlopen" plugins/giop/coseventcomm.la \
 	"-dlopen" plugins/gryphon/gryphon.la \
@@ -569,6 +576,7 @@ plugin_ldadd = \
 	"-dlopen" plugins/megaco/megaco.la \
 	"-dlopen" plugins/mgcp/mgcp.la \
 	"-dlopen" plugins/pcli/pcli.la \
+	"-dlopen" plugins/rdm/rdm.la \
 	"-dlopen" plugins/rtnet/rtnet.la 
 
 plugin_src =

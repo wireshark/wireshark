@@ -1,7 +1,7 @@
 /* packet-artnet.c
  * Routines for Art-Net packet disassembly
  *
- * $Id: packet-artnet.c,v 1.4 2003/09/05 07:44:45 jmayer Exp $
+ * $Id: packet-artnet.c,v 1.5 2003/11/17 20:57:11 guy Exp $
  *
  * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  *
@@ -267,25 +267,15 @@ static const value_string artnet_firmware_reply_type_vals[] = {
   { 0,                          NULL }
 };
 
-
-#define ARTNET_TRC_TOD_FULL 0x00
-
 static const value_string artnet_tod_request_command_vals[] = {
-  { ARTNET_TRC_TOD_FULL, "TodFull" },
   { 0,                   NULL }
 };
 
 #define ARTNET_TDC_TOD_FULL    0x00
-#define ARTNET_TDC_TOD_INVALID 0x01
-#define ARTNET_TDC_TOD_ADD     0x02
-#define ARTNET_TDC_TOD_SUB     0x03
 #define ARTNET_TDC_TOD_NAK     0xFF
 
 static const value_string artnet_tod_data_command_vals[] = {
   { ARTNET_TDC_TOD_FULL,    "TodFull" },
-  { ARTNET_TDC_TOD_INVALID, "Invalid" },
-  { ARTNET_TDC_TOD_ADD,     "TodAdd" },
-  { ARTNET_TDC_TOD_SUB,     "TodSubtract" },
   { ARTNET_TDC_TOD_NAK,     "TodNak" },
   { 0,                      NULL }
 };
@@ -454,6 +444,7 @@ static int hf_artnet_tod_request_address = -1;
 
 /* ArtTodData */
 static int hf_artnet_tod_data = -1;
+static int hf_artnet_tod_data_port = -1;
 static int hf_artnet_tod_data_command_response = -1;
 static int hf_artnet_tod_data_address = -1;
 static int hf_artnet_tod_data_uid_total = -1;
@@ -503,6 +494,7 @@ static guint udp_port_artnet = UDP_PORT_ARTNET;
 
 /* A static handle for the ip dissector */
 static dissector_handle_t ip_handle;
+static dissector_handle_t rdm_handle;
 
 static guint
 dissect_artnet_poll(tvbuff_t *tvb, guint offset, proto_tree *tree)
@@ -1128,8 +1120,12 @@ dissect_artnet_tod_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
   guint8 i,uid_count;
 
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
-		      offset, 2, FALSE);
-  offset += 2;
+		      offset, 1, FALSE);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_artnet_tod_data_port, tvb,
+		      offset, 1, FALSE);
+  offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_spare, tvb,
 		      offset, 8, FALSE);
@@ -1189,8 +1185,12 @@ dissect_artnet_tod_control(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static guint
-dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree)
+dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree,  packet_info *pinfo)
 {
+  guint size;
+  gboolean save_info;
+  tvbuff_t *next_tvb = NULL;
+
   proto_tree_add_item(tree, hf_artnet_filler, tvb,
 		      offset, 2, FALSE);
   offset += 2;
@@ -1207,7 +1207,21 @@ dissect_artnet_rdm(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		      offset, 1, FALSE);
   offset += 1;
 
-  return offset;
+  size = tvb_reported_length_remaining(tvb, offset);
+
+  save_info=col_get_writable(pinfo->cinfo); 
+  col_set_writable(pinfo->cinfo, FALSE);
+
+  if (!next_tvb)
+    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+ 
+  call_dissector(rdm_handle, next_tvb, pinfo, tree);
+
+  col_set_writable(pinfo->cinfo, save_info);
+  
+  size = tvb_reported_length_remaining(tvb, offset) - size;
+
+  return offset + size;
 }
 
 static guint
@@ -1602,7 +1616,7 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 				 FALSE);
 	si = proto_item_add_subtree(hi,ett_artnet);
 
-	size = dissect_artnet_rdm( tvb, offset, si );
+	size = dissect_artnet_rdm( tvb, offset, si, pinfo );
 	size -= offset;
 
 	proto_item_set_len( si, size );
@@ -1667,6 +1681,9 @@ dissect_artnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       }
       break;
   }
+
+
+
 }
 
 void
@@ -2371,6 +2388,12 @@ proto_register_artnet(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "Art-Net ArtTodData packet", HFILL }},
 
+    { &hf_artnet_tod_data_port,
+      { "Port",
+        "artnet.tod_data.port",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "Port", HFILL }},
+
     { &hf_artnet_tod_data_command_response,
       { "Command Response",
         "artnet.tod_data.command_response",
@@ -2576,6 +2599,8 @@ proto_reg_handoff_artnet(void) {
   static dissector_handle_t artnet_handle;
 
   ip_handle = find_dissector("ip");
+  rdm_handle = find_dissector("rdm");
+
 
   if(!artnet_initialized) {
     artnet_handle = create_dissector_handle(dissect_artnet,proto_artnet);

@@ -1,0 +1,21 @@
+#
+# $Id: Makefile.nmake,v 1.1 2003/11/17 20:57:13 guy Exp $
+#
+
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+
+OBJECTS=packet-enttec.obj 
+
+enttec.dll enttec.exp enttec.lib : $(OBJECTS) ..\plugin_api.obj
+	link -dll /out:enttec.dll $(OBJECTS) ..\plugin_api.obj \
+	$(GLIB_LIBS)
+
+clean:
+	rm -f $(OBJECTS) enttec.dll enttec.exp enttec.lib $(PDB_FILE)
+
+distclean: clean

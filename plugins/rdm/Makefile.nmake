@@ -1,0 +1,21 @@
+#
+# $Id: Makefile.nmake,v 1.1 2003/11/17 20:57:14 guy Exp $
+#
+
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
+	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+
+OBJECTS=packet-rtnet.obj 
+
+rtnet.dll rtnet.exp rtnet.lib : $(OBJECTS) ..\plugin_api.obj
+	link -dll /out:rtnet.dll $(OBJECTS) ..\plugin_api.obj \
+	$(GLIB_LIBS)
+
+clean:
+	rm -f $(OBJECTS) rtnet.dll rtnet.exp rtnet.lib $(PDB_FILE)
+
+distclean: clean

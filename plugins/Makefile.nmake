@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.27 2003/10/28 07:02:37 guy Exp $
+# $Id: Makefile.nmake,v 1.28 2003/11/17 20:57:10 guy Exp $
 #
 
 include ..\config.nmake
@@ -11,7 +11,7 @@ CFLAGS=/DHAVE_CONFIG_H /I.. /I../wiretap /I. $(GLIB_CFLAGS) \
 
 OBJECTS=plugin_api.obj 
 
-all: $(OBJECTS) acn artnet asn1 docsis giop gryphon lwres megaco mgcp pcli rtnet
+all: $(OBJECTS) acn artnet asn1 docsis giop gryphon lwres megaco mgcp pcli rdm rtnet
 
 Xplugin_api.c: plugin_gen.py plugin_api_list.c
 	@echo **** Plugin api may be out of date, please generate new files:
@@ -41,6 +41,11 @@ asn1::
 
 docsis::
 	cd docsis
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd .. 
+
+enttec::
+	cd enttec
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd .. 
 
@@ -74,6 +79,11 @@ pcli::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
+rdm:: 
+	cd rdm
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
 rtnet:: 
 	cd rtnet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
@@ -89,6 +99,8 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../docsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../enttec
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../giop
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../gryphon
@@ -100,15 +112,23 @@ clean:
 	cd ../mgcp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../pcli
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../rdm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../rtnet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ..
 
 distclean: clean
-	cd artnet
+	cd acn
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../artnet
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../asn1
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../docsis
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../enttec
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../giop
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
@@ -121,6 +141,8 @@ distclean: clean
 	cd ../mgcp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../pcli
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../rdm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../rtnet
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean

@@ -5,7 +5,7 @@
 #endif
 
 /* Name of package */
-#define PACKAGE "artnet"
+#define PACKAGE "rdm"
 
 
 #ifdef VERSION
@@ -13,5 +13,5 @@
 #endif
 
 /* Version number of package */
-#define VERSION "0.0.3"
+#define VERSION "0.0.1"
 
