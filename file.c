@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.365 2004/02/22 22:22:47 guy Exp $
+ * $Id: file.c,v 1.366 2004/02/22 22:33:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2261,7 +2261,8 @@ find_packet(capture_file *cf,
            * {Verb} and "Cancel".
            */
           simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTN_OK,
-                        "We have reached the beginning of the file\n\n Click OK to continue the search from the end of the file.");
+                        "You have searched up to the beginning of the capture.\n"
+                        "Do you want to continue the search from the end of the capture?");
           fdata = cf->plist_end;	/* wrap around */
         }
       } else {
@@ -2269,7 +2270,8 @@ find_packet(capture_file *cf,
         fdata = fdata->next;
         if (fdata == NULL) {
           simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTN_OK,
-                      "We have reached the end of the file\n\n Click OK to continue the search from the beginning of the file.");
+                        "You have searched up to the end of the capture.\n"
+                        "Do you want to continue the search from the beginning of the capture?");
           fdata = cf->plist;	/* wrap around */
         }
       }
