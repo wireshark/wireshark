@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.64 2003/06/10 22:07:18 gram Exp $
+ * $Id: packet-http.c,v 1.65 2003/06/11 04:25:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -451,6 +451,7 @@ is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type,
 		RequestDissector *req_dissector, int *req_strlen)
 {
 	int isHttpRequestOrReply = FALSE;
+	int prefix_len = 0;
 
 	/*
 	 * From RFC 2774 - An HTTP Extension Framework
@@ -461,6 +462,7 @@ is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type,
 	if (linelen >= 2 && strncmp(data, "M-", 2) == 0) {
 		data += 2;
 		linelen -= 2;
+		prefix_len = 2;
 	}
 
 	/*
@@ -583,7 +585,7 @@ is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type,
 
 		if (isHttpRequestOrReply && req_dissector) {
 			*req_dissector = basic_request_dissector;
-			*req_strlen = index;
+			*req_strlen = index + prefix_len;
 		}
 	}
 
