@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.46 2001/09/29 19:56:08 guy Exp $
+ * $Id: capture_dlg.c,v 1.47 2001/10/31 07:11:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -21,7 +21,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -146,6 +145,10 @@ capture_prep_cb(GtkWidget *w, gpointer d)
 		  "In order to capture packets, WinPcap must be installed; see\n"
 		  "\n"
 		  "        http://netgroup-serv.polito.it/winpcap/\n"
+		  "\n"
+		  "or the mirror at\n"
+		  "\n"
+		  "        http://netgroup-mirror.ethereal.com/winpcap/\n"
 		  "\n"
 		  "or the mirror at\n"
 		  "\n"
