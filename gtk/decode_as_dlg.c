@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.18 2001/12/03 21:05:59 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.19 2001/12/06 08:50:14 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -243,9 +243,15 @@ decode_build_show_list (gchar *table_name, gpointer key,
 
     clist = (GtkCList *)user_data;
     current = dtbl_entry_get_handle(value);
-    current_proto_name = dissector_handle_get_short_name(current);
+    if (current == NULL)
+	current_proto_name = "(none)";
+    else
+	current_proto_name = dissector_handle_get_short_name(current);
     initial = dtbl_entry_get_initial_handle(value);
-    initial_proto_name = dissector_handle_get_short_name(initial);
+    if (initial == NULL)
+	initial_proto_name = "(none)";
+    else
+	initial_proto_name = dissector_handle_get_short_name(initial);
 
     text[E_CLIST_D_TABLE] = table_name;
     sprintf(string1, "%d", GPOINTER_TO_INT(key));
