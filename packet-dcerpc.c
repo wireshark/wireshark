@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.103 2003/02/07 22:31:31 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.104 2003/02/07 22:44:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1001,7 +1001,7 @@ fake_unicode(tvbuff_t *tvb, int offset, int len)
    XXX - does this need to do all the conformant array stuff that
    "dissect_ndr_ucvarray()" does?  */
 int
-dissect_ndr_character_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                             proto_tree *tree, char *drep, int size_is,
                             int hfinfo, gboolean add_subtree)
 {
@@ -1063,26 +1063,38 @@ dissect_ndr_character_array(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return offset;
 }
 
-/* Dissect an string of chars.  This corresponds to
-   IDL of the form '[string] char *foo' */
+/* Dissect an conformant varying string of chars.
+   This corresponds to IDL of the form '[string] char *foo'.
 
+   XXX - at least according to the DCE RPC 1.1 spec, a string has
+   a null terminator, which isn't necessary as a terminator for
+   the transfer language (as there's a length), but is presumably
+   there for the benefit of null-terminated-string languages
+   such as C.  Is this ever used for purely counted strings?
+   (Not that it matters if it is.) */
 int
-dissect_ndr_char_string(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+dissect_ndr_char_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 			proto_tree *tree, char *drep)
 {
-    return dissect_ndr_character_array(tvb, offset, pinfo, tree, drep,
+    return dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
                                        sizeof(guint8), hf_dcerpc_array_buffer,
                                        FALSE);
 }
 
-/* Dissect an string of wchars (wide characters).  This corresponds to
-   IDL of the form '[string] wchar *foo' */
+/* Dissect a conformant varying string of wchars (wide characters).
+   This corresponds to IDL of the form '[string] wchar *foo'
 
+   XXX - at least according to the DCE RPC 1.1 spec, a string has
+   a null terminator, which isn't necessary as a terminator for
+   the transfer language (as there's a length), but is presumably
+   there for the benefit of null-terminated-string languages
+   such as C.  Is this ever used for purely counted strings?
+   (Not that it matters if it is.) */
 int
-dissect_ndr_wchar_string(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+dissect_ndr_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 			proto_tree *tree, char *drep)
 {
-    return dissect_ndr_character_array(tvb, offset, pinfo, tree, drep,
+    return dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
                                        sizeof(guint16), hf_dcerpc_array_buffer,
                                        FALSE);
 }

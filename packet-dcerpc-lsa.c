@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.70 2003/02/07 22:31:30 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.71 2003/02/07 22:44:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -596,7 +596,7 @@ lsa_dissect_lsaopenpolicy2_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, tree, drep,
-		dissect_ndr_wchar_string, NDR_POINTER_UNIQUE, "Server", 
+		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE, "Server", 
 		hf_lsa_server, cb_str_postprocess, 
 		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_SAVE | 1));
 

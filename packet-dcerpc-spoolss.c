@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.84 2003/02/07 22:31:31 guy Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.85 2003/02/07 22:44:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2703,7 +2703,7 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep,
-		dissect_ndr_wchar_string, NDR_POINTER_UNIQUE,
+		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 		"Printer name", hf_spoolss_printername, cb_str_postprocess,
 		GINT_TO_POINTER(CB_STR_COL_INFO | CB_STR_SAVE | 1));
 
@@ -4206,7 +4206,7 @@ static int dissect_FORM_CTR(tvbuff_t *tvb, int offset,
 static int dissect_form_name(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			     proto_tree *tree, char *drep)
 {
-	return dissect_ndr_character_array(tvb, offset, pinfo, tree, drep,
+	return dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
 	                                   sizeof(guint16),
 	                                   hf_spoolss_form_name, TRUE);
 }

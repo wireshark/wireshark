@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.28 2003/02/07 22:31:32 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.29 2003/02/07 22:44:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -193,12 +193,12 @@ int dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 char *fake_unicode(tvbuff_t *tvb, int offset, int len);
 
-int dissect_ndr_character_array(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+int dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                                proto_tree *tree, char *drep, int size_is,
                                int hfinfo, gboolean add_subtree);
-int dissect_ndr_char_string(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+int dissect_ndr_char_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                            proto_tree *tree, char *drep);
-int dissect_ndr_wchar_string(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+int dissect_ndr_wchar_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo, 
                             proto_tree *tree, char *drep);
 
 typedef struct _dcerpc_sub_dissector {

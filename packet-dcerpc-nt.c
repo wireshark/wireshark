@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.65 2003/02/07 22:31:30 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.66 2003/02/07 22:44:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,7 +81,7 @@ dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
 			hf_nt_cs_size, &size);	
 
 	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, tree, drep,
-			dissect_ndr_wchar_string, NDR_POINTER_UNIQUE,
+			dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 			"Character Array", hf_index, callback, callback_args);
 
 	return offset;
@@ -676,7 +676,7 @@ int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset,
 {
 	return dissect_ndr_pointer_cb(
 		tvb, offset, pinfo, tree, drep, 
-		dissect_ndr_wchar_string, type, text, hf_index, 
+		dissect_ndr_wchar_cvstring, type, text, hf_index, 
 		cb_str_postprocess, GINT_TO_POINTER(levels + 1));
 }
 
