@@ -2,7 +2,7 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.3 1999/12/14 01:59:50 guy Exp $
+ * $Id: packet-wccp.c,v 1.4 1999/12/14 02:09:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -214,7 +214,7 @@ dissect_hash_data(const u_char *pd, int offset, proto_tree *wccp_tree)
 	    pntohl(&pd[offset]));
 	offset += 4;
 
-	bucket_item = proto_tree_add_text(wccp_tree, offset, 8*4,
+	bucket_item = proto_tree_add_text(wccp_tree, offset, 32,
 	    "Hash information");
 	bucket_tree = proto_item_add_subtree(bucket_item, ett_buckets);
 
