@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.19 2004/07/04 20:49:38 guy Exp $
+ * $Id: about_dlg.c,v 1.20 2004/07/05 05:32:04 ulfl Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -101,7 +101,7 @@ GtkWidget *splash_new(char *message)
     gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER);
 
     main_vb = gtk_vbox_new(FALSE, 6);
-    gtk_container_border_width(GTK_CONTAINER(main_vb), 12);
+    gtk_container_border_width(GTK_CONTAINER(main_vb), 24);
     gtk_container_add(GTK_CONTAINER(win), main_vb);
 
     /* when calling about_ethereal(), we must have a visible window, */
