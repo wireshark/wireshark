@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.31 2000/04/16 21:37:05 guy Exp $
+ * $Id: packet-ppp.c,v 1.32 2000/04/19 03:28:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1107,10 +1107,19 @@ dissect_ppp( const u_char *pd, int offset, frame_data *fd, proto_tree *tree ) {
   e_ppphdr   ph;
   proto_item *ti;
   proto_tree *fh_tree = NULL;
+  int        proto_offset;
 
-  ph.ppp_addr = pd[offset+0];
-  ph.ppp_ctl  = pd[offset+1];
-  ph.ppp_prot = pntohs(&pd[offset+2]);
+  if (pd[offset] == 0xff) {
+    ph.ppp_addr = pd[offset+0];
+    ph.ppp_ctl  = pd[offset+1];
+    ph.ppp_prot = pntohs(&pd[offset+2]);
+    proto_offset = offset + 2;
+  }
+  else {
+    /* address and control are compressed (NULL) */
+    ph.ppp_prot = pntohs(&pd[offset]);
+    proto_offset = offset;
+  }
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
@@ -1127,11 +1136,13 @@ dissect_ppp( const u_char *pd, int offset, frame_data *fd, proto_tree *tree ) {
   if(tree) {
     ti = proto_tree_add_item(tree, proto_ppp, 0, 4, NULL);
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
-    proto_tree_add_text(fh_tree, 0, 1, "Address: %02x", ph.ppp_addr);
-    proto_tree_add_text(fh_tree, 1, 1, "Control: %02x", ph.ppp_ctl);
+    if (pd[offset] == 0xff) {
+      proto_tree_add_text(fh_tree, 0, 1, "Address: %02x", ph.ppp_addr);
+      proto_tree_add_text(fh_tree, 1, 1, "Control: %02x", ph.ppp_ctl);
+    }
   }
 
-  if (!dissect_ppp_stuff(pd, offset+2, fd, tree, fh_tree)) {
+  if (!dissect_ppp_stuff(pd, proto_offset, fd, tree, fh_tree)) {
     if (check_col(fd, COL_PROTOCOL))
       col_add_fstr(fd, COL_PROTOCOL, "0x%04x", ph.ppp_prot);
   }

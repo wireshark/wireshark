@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.77 2000/04/16 04:56:40 sharpe Exp $
+ * $Id: packet.c,v 1.78 2000/04/19 03:28:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -115,8 +115,6 @@ GMemChunk *frame_proto_data_area = NULL;
 static void
 packet_init_protocol(void)
 {
-
-  printf("Initializing Packet stuff ... \n");
 
   if (frame_proto_data_area)
     g_mem_chunk_destroy(frame_proto_data_area);
