@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.51 2001/12/03 03:59:37 guy Exp $
+ * $Id: packet-ospf.c,v 1.52 2001/12/05 20:16:41 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -91,7 +91,7 @@ static const value_string auth_vals[] = {
 #define OSPF_V2_OPTIONS_EA		0x10
 #define OSPF_V2_OPTIONS_DC		0x20
 #define OSPF_V2_OPTIONS_O		0x40
-#define OSPF_V2_OPTIONS_DN          0x01
+#define OSPF_V2_OPTIONS_DN		0x01
 #define OSPF_V3_OPTIONS_V6              0x01    
 #define OSPF_V3_OPTIONS_E		0x02
 #define OSPF_V3_OPTIONS_MC		0x04
@@ -1476,7 +1476,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 			    flags, flags_string);
         
 	/* 24 bits metric */
-	metric=tvb_get_ntohs(tvb, offset+1);
+	metric=tvb_get_ntoh24(tvb, offset+1);
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset+1, 3,
 				"Metric: %u", metric);
 
@@ -1489,7 +1489,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
         /* referenced LS type */
         referenced_ls_type=tvb_get_ntohs(tvb, offset+6);
-	proto_tree_add_text(ospf_lsa_tree, tvb, offset+2, 2,"Referenced LS type  0x%04x (%s)",
+	proto_tree_add_text(ospf_lsa_tree, tvb, offset+6, 2,"Referenced LS type 0x%04x (%s)",
 			    referenced_ls_type, val_to_str(referenced_ls_type, v3_ls_type_vals, "Unknown"));
 
         offset+=8;
@@ -1578,7 +1578,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
         /* referenced LS type */
         referenced_ls_type=tvb_get_ntohs(tvb, offset+2);
-	proto_tree_add_text(ospf_lsa_tree, tvb, offset+2, 2,"Referenced LS type  0x%04x (%s)",
+	proto_tree_add_text(ospf_lsa_tree, tvb, offset+2, 2,"Referenced LS type 0x%04x (%s)",
 			    referenced_ls_type, val_to_str(referenced_ls_type, v3_ls_type_vals, "Unknown"));
 
         /* Referenced Link State ID */
