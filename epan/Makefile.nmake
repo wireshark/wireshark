@@ -68,11 +68,12 @@ all: ftypes dfilter ethereal.lib
 libethereal.lib: libethereal.dll
 libethereal.exp: libethereal.dll
 
-libethereal.dll: ..\config.h $(OBJECTS) libethereal.def ftypes dfilter doxygen
+libethereal.dll: ..\config.h $(OBJECTS) libethereal.def ftypes dfilter doxygen ..\image\libethereal.res
 	$(link) $(dlllflags) $(conlibsdll) \
 		$(LOCAL_LDFLAGS) \
 		/DEF:libethereal.def /OUT:libethereal.dll \
-		/IMPLIB:libethereal.lib $(OBJECTS) $(libethereal_LIBS)
+		/IMPLIB:libethereal.lib $(OBJECTS) $(libethereal_LIBS) \
+		..\image\libethereal.res \
 		
 
 ethereal.lib	: ..\config.h $(OBJECTS)

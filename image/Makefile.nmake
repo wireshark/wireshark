@@ -4,13 +4,18 @@
 
 include ..\config.nmake
 
-ALL_RC=ethereal.rc tethereal.rc editcap.rc text2pcap.rc mergecap.rc
+ALL_RC=ethereal.rc libethereal.rc tethereal.rc editcap.rc text2pcap.rc mergecap.rc
 all : $(ALL_RC)
 
 ethereal.rc   : ethereal.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \
 		-e s/@RC_VERSION@/$(RC_VERSION)/ \
 		< ethereal.rc.in > $@
+
+libethereal.rc: libethereal.rc.in ..\config.nmake
+	sed -e s/@VERSION@/$(VERSION)/ \
+		-e s/@RC_VERSION@/$(RC_VERSION)/ \
+		< libethereal.rc.in > $@
 
 tethereal.rc  : tethereal.rc.in ..\config.nmake
 	sed -e s/@VERSION@/$(VERSION)/ \

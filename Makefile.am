@@ -465,6 +465,7 @@ EXTRA_DIST = \
 	image/hi48-app-ethereal.png	\
 	image/icon-ethereal.xpm	\
 	image/icon-excl.xpm	\
+	image/libethereal.rc.in	\
 	image/lo16-app-ethereal.png	\
 	image/lo32-app-ethereal.png	\
 	image/lo48-app-ethereal.png	\

@@ -114,7 +114,7 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 
 EXECUTABLES=ethereal.exe ethereal-gtk2.exe tethereal.exe editcap.exe mergecap.exe text2pcap.exe
 
-RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res image\mergecap.res image\text2pcap.res
+RESOURCES=image\ethereal.res image\libethereal.res image\tethereal.res image\editcap.res image\mergecap.res image\text2pcap.res
 
 all: config.h tools wiretap epan image $(EXECUTABLES) $(RESOURCES) doc
 
