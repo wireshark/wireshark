@@ -955,14 +955,17 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
   if (cinfo != NULL)
     col_append_fstr(cinfo, COL_INFO, " %s", type_name);
   if (dns_tree != NULL) {
-    trr = proto_tree_add_text(dns_tree, tvb, offset,
-				(data_offset - data_start) + data_len,
-				"%s: type %s, class %s",
-				name, type_name, class_name);
     if (type != T_OPT) {
+      trr = proto_tree_add_text(dns_tree, tvb, offset,
+		    (data_offset - data_start) + data_len,
+		    "%s: type %s, class %s",
+		    name, type_name, class_name);
       rr_tree = add_rr_to_tree(trr, ett_dns_rr, tvb, offset, name, name_len,
 		     type, class, ttl, data_len);
     } else  {
+      trr = proto_tree_add_text(dns_tree, tvb, offset,
+		    (data_offset - data_start) + data_len,
+		    "%s: type %s", name, type_name);
       rr_tree = add_opt_rr_to_tree(trr, ett_dns_rr, tvb, offset, name, name_len,
 		     type, class, ttl, data_len);
     }
