@@ -1,7 +1,7 @@
 /* packet-pcli.c
  * Routines for Packet Cable Lawful Intercept packet disassembly
  *
- * $Id: packet-pcli.c,v 1.3 2002/10/10 19:06:04 hagbard Exp $
+ * $Id: packet-pcli.c,v 1.4 2002/10/10 20:36:37 guy Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -105,16 +105,19 @@ dissect_pcli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   /* 
    *If we have a non-null tree (ie we are building the proto_tree
    * instead of just filling out the columns ), then add a PLCI
-   * tree node and put a CCCID header element under it.  Then hand
-   * of to the IP dissector.
+   * tree node and put a CCCID header element under it.
    */
   if(tree) {
     ti = proto_tree_add_item(tree,proto_pcli,tvb,0,0,FALSE);
     pcli_tree = proto_item_add_subtree(ti,ett_pcli);
     proto_tree_add_uint(pcli_tree,hf_pcli_cccid,tvb,
 			0,4,cccid);
-    next_tvb = tvb_new_subset(tvb,4,-1,-1);
   }
+
+  /*
+   * Hand off to the IP dissector.
+   */
+  next_tvb = tvb_new_subset(tvb,4,-1,-1);
   call_dissector(ip_handle,next_tvb,pinfo,tree);
 }
 
