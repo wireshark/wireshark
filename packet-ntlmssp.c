@@ -3,7 +3,7 @@
  * Devin Heitmueller <dheitmueller@netilla.com>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-ntlmssp.c,v 1.42 2003/07/18 05:51:21 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.43 2003/08/24 01:29:50 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -161,6 +161,10 @@ static int hf_ntlmssp_address_list_server_nb = -1;
 static int hf_ntlmssp_address_list_domain_nb = -1;
 static int hf_ntlmssp_address_list_server_dns = -1;
 static int hf_ntlmssp_address_list_domain_dns = -1;
+static int hf_ntlmssp_address_list_terminator = -1;
+static int hf_ntlmssp_address_list_item_type = -1;
+static int hf_ntlmssp_address_list_item_len = -1;
+static int hf_ntlmssp_address_list_item_content = -1;
 static int hf_ntlmssp_verf = -1;
 static int hf_ntlmssp_verf_vers = -1;
 static int hf_ntlmssp_verf_body = -1;
@@ -174,6 +178,7 @@ static gint ett_ntlmssp_negotiate_flags = -1;
 static gint ett_ntlmssp_string = -1;
 static gint ett_ntlmssp_blob = -1;
 static gint ett_ntlmssp_address_list = -1;
+static gint ett_ntlmssp_address_list_item = -1;
 static gint ett_ntlmssp_decrypted_tree = -1;
 
 /* Configuration variables */
@@ -582,9 +587,11 @@ dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
   guint16 list_maxlen = tvb_get_letohs(tvb, offset+2);
   guint32 list_offset = tvb_get_letohl(tvb, offset+4);
   guint16 item_type, item_length;
-  int item_offset;
+  guint16 item_offset;
   proto_item *tf = NULL;
   proto_tree *tree = NULL;
+  proto_item *addr_tf = NULL;
+  proto_tree *addr_tree = NULL;
 
   /* the address list is just a blob */
   if (0 == list_length) {
@@ -610,49 +617,79 @@ dissect_ntlmssp_address_list (tvbuff_t *tvb, int offset,
 		      tvb, offset, 4, list_offset);
   offset += 4;
 
+  /* Now enumerate through the individual items in the list */
   item_offset = list_offset;
-  item_type = tvb_get_letohs(tvb, item_offset);
-  item_offset += 2;
-  item_length = tvb_get_letohs(tvb, item_offset);
-  item_offset += 2;
-  while (item_type) {
-    guint16 bc;
-    int result_length;
-    const char *text;
-    bc = item_length;
+
+  while (item_offset < (list_offset + list_length)) {
+    const char *text=NULL;
+    guint16 content_offset;
+    guint16 content_length;
+    guint16 type_offset;
+    guint16 len_offset;
+
+    /* Content type */
+    type_offset = item_offset;
+    item_type = tvb_get_letohs(tvb, type_offset);
+
+    /* Content length */
+    len_offset = type_offset + 2;
+    content_length = tvb_get_letohs(tvb, len_offset);
+
+    /* Content value */
+    content_offset = len_offset + 2;
+    item_length = content_length + 4;
 
     /* Strings are always in unicode regardless of the negotiated
        string type. */
+    if (content_length > 0) {
+      guint16 bc;
+      int result_length;
+      int item_offset_int;
 
-    text = get_unicode_or_ascii_string(tvb, &item_offset,
-				       TRUE, &result_length,
-				       FALSE, FALSE, &bc);
+      item_offset_int = content_offset;
+      bc = content_length;
+      text = get_unicode_or_ascii_string(tvb, &item_offset_int,
+					 TRUE, &result_length,
+					 FALSE, FALSE, &bc);
+    }
 
     if (!text) text = ""; /* Make sure we don't blow up below */
 
     switch(item_type) {
     case NTLM_NAME_NB_HOST:
-      proto_tree_add_string(tree, hf_ntlmssp_address_list_server_nb,
-			    tvb, item_offset, item_length, text);
+      addr_tf = proto_tree_add_string(tree, hf_ntlmssp_address_list_server_nb,
+				      tvb, item_offset, item_length, text);
       break;
     case NTLM_NAME_NB_DOMAIN:
-      proto_tree_add_string(tree, hf_ntlmssp_address_list_domain_nb,
-			    tvb, item_offset, item_length, text);
+      addr_tf = proto_tree_add_string(tree, hf_ntlmssp_address_list_domain_nb,
+				      tvb, item_offset, item_length, text);
       break;
     case NTLM_NAME_DNS_HOST:
-      proto_tree_add_string(tree, hf_ntlmssp_address_list_server_dns,
-			    tvb, item_offset, item_length, text);
+      addr_tf = proto_tree_add_string(tree, hf_ntlmssp_address_list_server_dns,
+				      tvb, item_offset, item_length, text);
       break;
     case NTLM_NAME_DNS_DOMAIN:
-      proto_tree_add_string(tree, hf_ntlmssp_address_list_domain_dns,
-			    tvb, item_offset, item_length, text);
+      addr_tf = proto_tree_add_string(tree, hf_ntlmssp_address_list_domain_dns,
+				      tvb, item_offset, item_length, text);
+      break;
+    case NTLM_NAME_END:
+      addr_tf = proto_tree_add_item(tree, hf_ntlmssp_address_list_terminator,
+				    tvb, item_offset, item_length, TRUE);
+    }
+
+    /* Now show the actual bytes that made up the summary line */
+    addr_tree = proto_item_add_subtree (addr_tf, 
+					ett_ntlmssp_address_list_item);
+    proto_tree_add_item (addr_tree, hf_ntlmssp_address_list_item_type,
+			 tvb, type_offset, 2, TRUE);
+    proto_tree_add_item (addr_tree, hf_ntlmssp_address_list_item_len,
+			 tvb, len_offset, 2, TRUE);
+    if (content_length > 0) {
+      proto_tree_add_string(addr_tree, hf_ntlmssp_address_list_item_content,
+			    tvb, content_offset, content_length, text);
     }
 
     item_offset += item_length;
-    item_type = tvb_get_letohs(tvb, item_offset);
-    item_offset += 2;
-    item_length = tvb_get_letohs(tvb, item_offset);
-    item_offset += 2;
   }
 
   *end = list_offset + list_length;
@@ -1446,6 +1483,12 @@ proto_register_ntlmssp(void)
       { "Maxlen", "ntlmssp.challenge.addresslist.maxlen", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}},
     { &hf_ntlmssp_address_list_offset,
       { "Offset", "ntlmssp.challenge.addresslist.offset", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_ntlmssp_address_list_item_type,
+      { "Target item type", "ntlmssp.targetitemtype", FT_UINT16, BASE_HEX, VALS(ntlm_name_types), 0x0, "", HFILL }},
+    { &hf_ntlmssp_address_list_item_len,
+      { "Target item Length", "ntlmssp.challenge.addresslist.item.length", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL}},
+    { &hf_ntlmssp_address_list_item_content,
+      { "Target item Content", "ntlmssp.challenge.addresslist.item.content", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL}},
     { &hf_ntlmssp_address_list_server_nb,
       { "Server NetBIOS Name", "ntlmssp.challenge.addresslist.servernb", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_address_list_domain_nb,
@@ -1454,7 +1497,8 @@ proto_register_ntlmssp(void)
       { "Server DNS Name", "ntlmssp.challenge.addresslist.serverdns", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_address_list_domain_dns,
       { "Domain DNS Name", "ntlmssp.challenge.addresslist.domaindns", FT_STRING, BASE_NONE, NULL, 0x0, "", HFILL }},
-
+    { &hf_ntlmssp_address_list_terminator,
+      { "List Terminator", "ntlmssp.challenge.addresslist.terminator", FT_NONE, BASE_NONE, NULL, 0x0, "", HFILL }},
     { &hf_ntlmssp_verf,
       { "NTLMSSP Verifier", "ntlmssp.verf", FT_NONE, BASE_NONE, NULL, 0x0, "NTLMSSP Verifier", HFILL }},
     { &hf_ntlmssp_verf_vers,
@@ -1478,6 +1522,7 @@ proto_register_ntlmssp(void)
     &ett_ntlmssp_string,
     &ett_ntlmssp_blob,
     &ett_ntlmssp_address_list,
+    &ett_ntlmssp_address_list_item,
     &ett_ntlmssp_decrypted_tree
   };
   module_t *ntlmssp_module;
