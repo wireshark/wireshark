@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.11 2000/01/13 04:49:54 guy Exp $
+ * $Id: etypes.h,v 1.12 2000/01/13 17:59:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,10 +84,6 @@
 #ifndef ETHERTYPE_TRAIN
 #define ETHERTYPE_TRAIN 0x1984
 /* Created by Netmon as a summary packet */
-#endif
-
-#ifndef ETHERTYPE_CDP
-#define ETHERTYPE_CDP 0x2000	/* Cisco Discovery Protocol */
 #endif
 
 #ifndef ETHERTYPE_LOOP
