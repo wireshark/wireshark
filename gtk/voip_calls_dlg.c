@@ -61,8 +61,6 @@
 #include <string.h>
 #include <ctype.h>
 
-typedef const guint8 * ip_addr_p;
-
 static const gchar FWD_LABEL_TEXT[] = "Select one call.";
 
 /****************************************************************************/

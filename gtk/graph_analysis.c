@@ -89,9 +89,6 @@ GtkRcStyle *rc_style;
 GdkColormap *colormap;
 #endif
 
-typedef const guint8 * ip_addr_p;
-
-
 /****************************************************************************/
 /* Reset the user_data structure */
 static void graph_analysis_reset(graph_analysis_data_t* user_data)

@@ -52,8 +52,6 @@
 #include <string.h>
 
 
-typedef const guint8 * ip_addr_p;
-
 static const gchar FWD_LABEL_TEXT[] = "Select a forward stream with left mouse button";
 static const gchar REV_LABEL_TEXT[] = "Select a reverse stream with SHIFT + left mouse button";
 

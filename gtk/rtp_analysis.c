@@ -362,8 +362,6 @@ static gchar *titles[9] =  {
 };
 
 
-typedef const guint8 * ip_addr_p;
-
 static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_);
 /****************************************************************************/
 static void enable_graph(dialog_graph_graph_t *dgg)
