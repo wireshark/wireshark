@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.52 2003/08/07 18:28:33 guy Exp $
+ * $Id: packet-wtp.c,v 1.53 2003/11/05 04:23:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -198,6 +198,7 @@ static int hf_wtp_fragment_error		= HF_EMPTY;
 
 /* Initialize the subtree pointers */
 static gint ett_wtp 				= ETT_EMPTY;
+static gint ett_wtp_sub_pdu_tree	= ETT_EMPTY;
 static gint ett_header 				= ETT_EMPTY;
 static gint ett_tpilist 			= ETT_EMPTY;
 static gint ett_wsp_fragments			= ETT_EMPTY;
@@ -346,7 +347,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 	    ti = proto_tree_add_item(tree, proto_wtp,
 				    tvb, offCur, 1, bo_little_endian);
-	    wtp_tree = proto_item_add_subtree(ti, ett_wtp);
+	    wtp_tree = proto_item_add_subtree(ti, ett_wtp_sub_pdu_tree);
 	}
 	offCur = 1;
 	i = 1;
@@ -947,6 +948,7 @@ proto_register_wtp(void)
     /* Setup protocol subtree array */
     static gint *ett[] = {
 	&ett_wtp,
+	&ett_wtp_sub_pdu_tree,
 	&ett_header,
 	&ett_tpilist,
 	&ett_wsp_fragments,
