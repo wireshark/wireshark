@@ -1,6 +1,6 @@
 /* packet-rpc.h
  *
- * $Id: packet-rpc.h,v 1.23 2001/01/28 03:39:48 guy Exp $
+ * $Id: packet-rpc.h,v 1.24 2001/02/06 06:46:10 guy Exp $
  *
  * (c) 1999 Uwe Girlich
  *
@@ -88,12 +88,41 @@ typedef struct _vsff {
 	dissect_function_t *dissect_reply;
 } vsff;
 
+/*
+ * These are used by the CALLIT handler for the portmapper dissector.
+ */
+typedef struct _rpc_proc_info_key {
+	guint32	prog;
+	guint32	vers;
+	guint32	proc;
+} rpc_proc_info_key;
+
+typedef struct _rpc_proc_info_value {
+	gchar		*name;
+	gboolean	is_old_dissector;
+	union {
+		old_dissect_function_t *old;
+		dissect_function_t *new;
+	} dissect_call;
+	union {
+		old_dissect_function_t *old;
+		dissect_function_t *new;
+	} dissect_reply;
+} rpc_proc_info_value;
+
+/* Hash table with info on RPC procedure numbers */
+GHashTable *rpc_procs;
+
 extern const value_string rpc_auth_flavor[];
 
 extern void old_rpc_init_proc_table(guint prog, guint vers, const old_vsff *proc_table);
 extern void rpc_init_proc_table(guint prog, guint vers, const vsff *proc_table);
 extern void rpc_init_prog(int proto, guint32 prog, int ett);
 extern char *rpc_prog_name(guint32 prog);
+extern int call_dissect_function(tvbuff_t *tvb, packet_info *pinfo,
+	proto_tree *tree, int offset,
+	old_dissect_function_t *old_dissect_function,
+	dissect_function_t* dissect_function, const char *progname);
 
 extern unsigned int rpc_roundup(unsigned int a);
 extern int dissect_rpc_bool(const u_char *pd, int offset, frame_data *fd,

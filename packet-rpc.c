@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.51 2001/01/28 03:39:48 guy Exp $
+ * $Id: packet-rpc.c,v 1.52 2001/02/06 06:46:10 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -178,26 +178,7 @@ static gint ett_rpc_gss_data = -1;
 static GHashTable *rpc_progs;
 
 /* Hash table with info on RPC procedure numbers */
-static GHashTable *rpc_procs;
-
-typedef struct _rpc_proc_info_key {
-	guint32	prog;
-	guint32	vers;
-	guint32	proc;
-} rpc_proc_info_key;
-
-typedef struct _rpc_proc_info_value {
-	gchar		*name;
-	gboolean	is_old_dissector;
-	union {
-		old_dissect_function_t *old;
-		dissect_function_t *new;
-	} dissect_call;
-	union {
-		old_dissect_function_t *old;
-		dissect_function_t *new;
-	} dissect_reply;
-} rpc_proc_info_value;
+GHashTable *rpc_procs;
 
 typedef struct _rpc_prog_info_key {
 	guint32 prog;
@@ -208,7 +189,6 @@ typedef struct _rpc_prog_info_value {
 	int ett;
 	char* progname;
 } rpc_prog_info_value;
-
 
 /***********************************/
 /* Hash array with procedure names */
@@ -1008,7 +988,7 @@ dissect_rpc_authgss_initres(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
 }
 
 
-static int
+int
 call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int offset, old_dissect_function_t *old_dissect_function,
 	dissect_function_t* dissect_function, const char *progname)
@@ -1018,7 +998,8 @@ call_dissect_function(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (old_dissect_function != NULL || dissect_function != NULL) {
 		/* set the current protocol name */
 		saved_proto = pinfo->current_proto;
-		pinfo->current_proto = progname;
+		if (progname != NULL)
+			pinfo->current_proto = progname;
 
 		/* call the dissector for the next level */
 		if (dissect_function == NULL) {
