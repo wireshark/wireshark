@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.27 2000/03/12 04:47:35 gram Exp $
+ * $Id: packet-bootp.c,v 1.28 2000/03/20 21:39:00 gerald Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -72,6 +72,7 @@ struct opt_info {
 };
 
 #define NUM_OPT_INFOS 77
+#define NUM_O63_SUBOPTS 11
 
 /* returns the number of bytes consumed by this option */
 static int
@@ -82,10 +83,11 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 	u_char			code = pd[voff];
 	int				vlen = pd[voff+1];
 	u_char			byte;
-	int				i, consumed = vlen + 2;
+	int				i,slask,optp, consumed = vlen + 2;
 	u_long			time_secs;
-	proto_tree		*v_tree;
+	proto_tree		*v_tree,*o63_v_tree;
 	proto_item		*vti;
+
 
 	static const char	*opt53_text[] = {
 		"Unknown Message Type",
@@ -104,6 +106,27 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 	    {0x4,   "M-node" },
 	    {0x8,   "H-node" },
 	    {0,     NULL     } };
+
+	struct o63_opt_info { 
+		char	*truet;
+		char 	*falset;
+		enum field_type	ft;
+	};
+
+	static struct o63_opt_info o63_opt[]= {
+		/* 0 */ {"","",none},
+		/* 1 */ {"NWIP does not exist on subnet","",string},
+		/* 2 */ {"NWIP exist in options area","",string},
+		/* 3 */ {"NWIP exists in sname/file","",string},
+		/* 4 */ {"NWIP exists, but too big","",string},
+		/* 5 */ {"Broadcast for nearest Netware server","Do NOT Broadcast for nearest Netware server",yes_no}, 
+		/* 6 */ {"Preferred DSS server","",ipv4},
+		/* 7 */ {"Nearest NWIP server","",ipv4},
+		/* 8 */ {"Autoretries","",val_u_short},
+		/* 9 */ {"Autoretry delay, secs ","",val_u_short},
+		/* 10*/ {"Support NetWare/IP v1.1","Do NOT support NetWare/IP v1.1",yes_no},
+		/* 11*/ {"Primary DSS ", "" , special} };
+		
 
 	static struct opt_info opt[] = {
 		/*   0 */ { "Padding",								none },
@@ -168,8 +191,8 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 		/*  59 */ { "Rebinding Time Value",					time_in_secs },
 		/*  60 */ { "Vendor class identifier",				opaque },
 		/*  61 */ { "Client identifier",					special },
-		/*  62 */ { "undefined",					none },
-		/*  63 */ { "undefined",					none },
+		/*  62 */ { "Novell/Netware IP domain",					string },
+		/*  63 */ { "Novell Options",	special },
 		/*  64 */ { "Network Information Service+ Domain",	string },
 		/*  65 */ { "Network Information Service+ Servers",	ipv4 },
 		/*  66 */ { "TFTP Server Name",						string },
@@ -316,6 +339,82 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 			else {
 				proto_tree_add_text(bp_tree, voff, consumed,
 					"Option %d: %s (%d bytes)", code, text, vlen);
+			}
+			break;
+
+		/* NetWare/IP options */
+		case 63:
+			vti = proto_tree_add_text(bp_tree, voff,
+			consumed, "Option %d: %s", code, text);
+			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+
+			i=1;
+			optp=voff+2;
+			while ( optp < (voff+consumed) ) {
+				if (pd[optp] > NUM_O63_SUBOPTS) {
+						proto_tree_add_text(v_tree,optp,1,"Unknown suboption %d", pd[optp]);
+						optp++;
+				} else {
+			
+				switch (o63_opt[pd[optp]].ft) {
+
+					case string:
+						proto_tree_add_text(v_tree, optp, 2, "Suboption %d: %s", pd[optp], o63_opt[pd[optp]].truet);
+						optp+=2;
+						break;
+
+					case yes_no:
+						if (pd[optp+2]==1) {
+							proto_tree_add_text(v_tree, optp, 3, "Suboption %d: %s", pd[optp], o63_opt[pd[optp]].truet);
+						} else {
+							proto_tree_add_text(v_tree, optp, 3, "Suboption %d: %s" , pd[optp], o63_opt[pd[optp]].falset);
+						}
+						optp+=3;
+						break;
+
+					case special:	
+						proto_tree_add_text(v_tree, optp, 6,
+						"Suboption %d: %s = %s" ,
+						pd[optp], o63_opt[pd[optp]].truet,
+						ip_to_str((guint8*)&pd[optp+2]));
+						optp=optp+6;
+						break;
+
+					case val_u_short:
+						proto_tree_add_text(v_tree, optp, 3, "Suboption %d: %s = %d",pd[optp], o63_opt[pd[optp]].truet, pd[optp+2]);
+						optp+=3;
+						break;
+							
+					case ipv4:
+		/* one IP address */
+		if (pd[optp+1] == 4) {
+			proto_tree_add_text(v_tree, optp, 6,
+			"Suboption %d : %s = %s" ,
+			pd[optp], o63_opt[pd[optp]].truet,
+			ip_to_str((guint8*)&pd[optp+2]));
+			optp=optp+6;
+		}
+		/* > 1 IP addresses. Let's make a sub-tree */
+		else {
+
+			vti = proto_tree_add_text(v_tree, optp,
+			pd[optp+1]+2, "Suboption %d: %s",
+			pd[optp], o63_opt[pd[optp]].truet);
+			o63_v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			for (slask = optp + 2 ; slask < optp+pd[optp+1]; slask += 4) {
+				proto_tree_add_text(o63_v_tree, slask, 4, "IP Address: %s",
+				ip_to_str((guint8*)&pd[slask]));
+			}
+			optp=slask;
+		}
+		break;
+					default:
+						proto_tree_add_text(v_tree,optp,1,"Unknown suboption %d", pd[optp]);
+						optp++;
+						break;
+				}
+				}
+				i++;
 			}
 			break;
 
