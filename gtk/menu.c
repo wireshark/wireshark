@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.96 2003/09/17 19:39:33 guy Exp $
+ * $Id: menu.c,v 1.97 2003/09/19 07:24:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -232,7 +232,6 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Tools/_Summary", NULL, summary_open_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Tools/Protocol Hierarchy Statistics", NULL,
                        proto_hier_stats_cb, 0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Tools/Statistics", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/_Help", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Help/_Help", NULL, help_cb, 0, GTK_STOCK_HELP),
     ITEM_FACTORY_ENTRY("/Help/<separator>", NULL, NULL, 0, "<Separator>", NULL),
@@ -414,21 +413,50 @@ menus_init(void) {
   }
 }
 
+typedef struct _menu_item {
+	char	*name;
+	gboolean enabled;
+	gboolean (*selected_packet_enabled)(gboolean);
+	gboolean (*selected_tree_row_enabled)(gboolean);
+	struct _menu_item *parent;
+	struct _menu_item *children;
+	struct _menu_item *next;
+} menu_item_t;
+
+static menu_item_t tap_menu_tree_root;
+
 /*
- * Add a new menu item for a statistical tap.
+ * Add a new menu item for a tap.
  * This must be called after we've created the main menu, so it can't
  * be called from the routine that registers taps - we have to introduce
  * another per-tap registration routine.
+ *
+ * "callback" gets called when the menu item is selected; it should do
+ * the work of creating the tap window.
+ *
+ * "selected_packet_enabled" gets called by "set_menus_for_selected_packet()";
+ * it's passed a Boolean that's TRUE if a packet is selected and FALSE
+ * otherwise, and should return TRUE if the tap will work now (which
+ * might depend on whether a packet is selected and, if one is, on the
+ * packet) and FALSE if not.
+ *
+ * "selected_tree_row_enabled" gets called by
+ * "set_menus_for_selected_tree_row()"; it's passed a Boolean that's TRUE if
+ * a protocol tree row is selected and FALSE otherwise, and should return
+ * TRUE if the tap will work now (which might depend on whether a tree row
+ * is selected and, if one is, on the tree row) and FALSE if not.
  */
 void
-register_tap_menu_item(char *name, GtkItemFactoryCallback callback)
+register_tap_menu_item(char *name, GtkItemFactoryCallback callback,
+    gboolean (*selected_packet_enabled)(gboolean),
+    gboolean (*selected_tree_row_enabled)(gboolean))
 {
 	static const char toolspath[] = "/Tools/";
 	char *p;
 	char *menupath;
 	size_t menupathlen;
-	GtkWidget *w;
 	GtkItemFactoryEntry *entry;
+	menu_item_t *curnode, *child;
 
 	/*
 	 * The menu path must be relative.
@@ -438,6 +466,7 @@ register_tap_menu_item(char *name, GtkItemFactoryCallback callback)
 	/*
 	 * Create any submenus required.
 	 */
+	curnode = &tap_menu_tree_root;
 	p = name;
 	while ((p = strchr(p, '/')) != NULL) {
 		/*
@@ -453,20 +482,42 @@ register_tap_menu_item(char *name, GtkItemFactoryCallback callback)
 		strncat(menupath, name, p - name);
 
 		/*
-		 * Does there exist an entry with that path in the main
-		 * menu item factory?
+		 * Does there exist an entry with that path at this
+		 * level of the Tools menu tree?
 		 */
-		w = gtk_item_factory_get_widget(main_menu_factory, menupath);
-		if (w == NULL) {
+		for (child = curnode->children; child != NULL;
+		    child = child->next) {
+			if (strcmp(child->name, menupath) == 0)
+				break;
+		}
+		if (child == NULL) {
 			/*
-			 * No.  Create such an item as a subtree.
+			 * No.  Create such an item as a subtree, and
+			 * add it to the Tools menu tree.
 			 */
 			entry = g_malloc0(sizeof (GtkItemFactoryEntry));
 			entry->path = menupath;
 			entry->item_type = "<Branch>";
 			gtk_item_factory_create_item(main_menu_factory, entry,
 			    NULL, 2);
+			set_menu_sensitivity(main_menu_factory, menupath,
+			    FALSE);	/* no children yet */
+			child = g_malloc(sizeof (menu_item_t));
+			child->name = menupath;
+			child->selected_packet_enabled = NULL;
+			child->selected_tree_row_enabled = NULL;
+			child->enabled = FALSE;	/* no children yet */
+			child->parent = curnode;
+			child->children = NULL;
+			child->next = curnode->children;
+			curnode->children = child;
+		} else {
+			/*
+			 * Yes.  We don't need "menupath" any more.
+			 */
+			g_free(menupath);
 		}
+		curnode = child;
 
 		/*
 		 * Skip over the '/' we found.
@@ -494,8 +545,17 @@ register_tap_menu_item(char *name, GtkItemFactoryCallback callback)
 	entry->path = menupath;
 	entry->callback = callback;
 	gtk_item_factory_create_item(main_menu_factory, entry, NULL, 2);
+	set_menu_sensitivity(main_menu_factory, menupath, FALSE); /* no capture file yet */
+	child = g_malloc(sizeof (menu_item_t));
+	child->name = menupath;
+	child->enabled = FALSE;	/* no capture file yet, hence no taps yet */
+	child->selected_packet_enabled = selected_packet_enabled;
+	child->selected_tree_row_enabled = selected_tree_row_enabled;
+	child->parent = curnode;
+	child->children = NULL;
+	child->next = curnode->children;
+	curnode->children = child;
 }
-
 
 /*
  * Enable/disable menu sensitivity.
@@ -661,6 +721,68 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
 
 /* Enable or disable menu items based on whether you have some captured
    packets. */
+static gboolean
+walk_menu_tree_for_captured_packets(menu_item_t *node,
+    gboolean have_captured_packets)
+{
+	gboolean is_enabled;
+	menu_item_t *child;
+
+	/*
+	 * Is this a leaf node or an interior node?
+	 */
+	if (node->children == NULL) {
+		/*
+		 * It's a leaf node.
+		 *
+		 * If it has no "selected_packet_enabled()" or
+		 * "selected_tree_row_enabled()" routines, we enable
+		 * it if we have captured packets and disable it if
+		 * we don't - it doesn't depend on whether we have a
+		 * packet or tree row selected or not or on the selected
+		 * packet or tree row.
+		 *
+		 * If it has either of those routines, we disable it for
+		 * now - as long as, when a capture is first available,
+		 * we don't get called after a packet or tree row is
+		 * selected, that's OK.
+		 * XXX - that should be done better.
+		 */
+		if (node->selected_packet_enabled == NULL)
+			node->enabled = have_captured_packets;
+		else
+			node->enabled = FALSE;
+	} else {
+		/*
+		 * It's an interior node; call
+		 * "walk_menu_tree_for_captured_packets()" on all its
+		 * children and, if any of them are enabled, enable
+		 * this node, otherwise disable it.
+		 *
+		 * XXX - should we just leave all interior nodes enabled?
+		 * Which is a better UI choice?
+		 */
+		is_enabled = FALSE;
+		for (child = node->children; child != NULL; child =
+		    child->next) {
+			if (walk_menu_tree_for_captured_packets(child,
+			    have_captured_packets))
+				is_enabled = TRUE;
+		}
+		node->enabled = is_enabled;
+	}
+
+	/*
+	 * The root node doesn't correspond to a menu tree item; it
+	 * has a null name pointer.
+	 */
+	if (node->name != NULL) {
+		set_menu_sensitivity(main_menu_factory, node->name,
+		    node->enabled);
+	}
+	return node->enabled;
+}
+
 void
 set_menus_for_captured_packets(gboolean have_captured_packets)
 {
@@ -688,11 +810,68 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
       have_captured_packets);
   set_menu_sensitivity(packet_list_menu_factory, "/Prepare",
       have_captured_packets);
-  set_menu_sensitivity(main_menu_factory, "/Tools/Statistics",
+  walk_menu_tree_for_captured_packets(&tap_menu_tree_root,
       have_captured_packets);
 }
 
-/* Enable or disable menu items based on whether a packet is selected. */
+static gboolean
+walk_menu_tree_for_selected_packet(menu_item_t *node,
+    gboolean have_selected_packet)
+{
+	gboolean is_enabled;
+	menu_item_t *child;
+
+	/*
+	 * Is this a leaf node or an interior node?
+	 */
+	if (node->children == NULL) {
+		/*
+		 * It's a leaf node.
+		 *
+		 * If it has no "selected_packet_enabled()" routine,
+		 * leave its enabled/disabled status alone - it
+		 * doesn't depend on whether we have a packet selected
+		 * or not or on the selected packet.
+		 *
+		 * If it has a "selected_packet_enabled()" routine,
+		 * call it and set the item's enabled/disabled status
+		 * based on its return value.
+		 */
+		if (node->selected_packet_enabled != NULL) {
+			node->enabled =
+			    node->selected_packet_enabled(have_selected_packet);
+		}
+	} else {
+		/*
+		 * It's an interior node; call
+		 * "walk_menu_tree_for_selected_packet()" on all its
+		 * children and, if any of them are enabled, enable
+		 * this node, otherwise disable it.
+		 *
+		 * XXX - should we just leave all interior nodes enabled?
+		 * Which is a better UI choice?
+		 */
+		is_enabled = FALSE;
+		for (child = node->children; child != NULL; child =
+		    child->next) {
+			if (walk_menu_tree_for_selected_packet(child,
+			    have_selected_packet))
+				is_enabled = TRUE;
+		}
+		node->enabled = is_enabled;
+	}
+
+	/*
+	 * The root node doesn't correspond to a menu tree item; it
+	 * has a null name pointer.
+	 */
+	if (node->name != NULL) {
+		set_menu_sensitivity(main_menu_factory, node->name,
+		    node->enabled);
+	}
+	return node->enabled;
+}
+
 void
 set_menus_for_selected_packet(gboolean have_selected_packet)
 {
@@ -732,12 +911,71 @@ set_menus_for_selected_packet(gboolean have_selected_packet)
       have_selected_packet && g_resolv_flags == 0);
   set_menu_sensitivity(main_menu_factory, "/Tools/TCP Stream Analysis",
       have_selected_packet ? (cfile.edt->pi.ipproto == 6) : FALSE);
+  walk_menu_tree_for_selected_packet(&tap_menu_tree_root, have_selected_packet);
 }
 
 /* Enable or disable menu items based on whether a tree row is selected
-   and and on whether a "Match" can be done. */
+   and on whether a "Match" can be done. */
+static gboolean
+walk_menu_tree_for_selected_tree_row(menu_item_t *node,
+    gboolean have_selected_tree_row)
+{
+	gboolean is_enabled;
+	menu_item_t *child;
+
+	/*
+	 * Is this a leaf node or an interior node?
+	 */
+	if (node->children == NULL) {
+		/*
+		 * It's a leaf node.
+		 *
+		 * If it has no "selected_tree_row_enabled()" routine,
+		 * leave its enabled/disabled status alone - it
+		 * doesn't depend on whether we have a tree row selected
+		 * or not or on the selected tree row.
+		 *
+		 * If it has a "selected_tree_row_enabled()" routine,
+		 * call it and set the item's enabled/disabled status
+		 * based on its return value.
+		 */
+		if (node->selected_tree_row_enabled != NULL) {
+			node->enabled =
+			    node->selected_tree_row_enabled(have_selected_tree_row);
+		}
+	} else {
+		/*
+		 * It's an interior node; call
+		 * "walk_menu_tree_for_selected_tree_row()" on all its
+		 * children and, if any of them are enabled, enable
+		 * this node, otherwise disable it.
+		 *
+		 * XXX - should we just leave all interior nodes enabled?
+		 * Which is a better UI choice?
+		 */
+		is_enabled = FALSE;
+		for (child = node->children; child != NULL; child =
+		    child->next) {
+			if (walk_menu_tree_for_selected_tree_row(child,
+			    have_selected_tree_row))
+				is_enabled = TRUE;
+		}
+		node->enabled = is_enabled;
+	}
+
+	/*
+	 * The root node doesn't correspond to a menu tree item; it
+	 * has a null name pointer.
+	 */
+	if (node->name != NULL) {
+		set_menu_sensitivity(main_menu_factory, node->name,
+		    node->enabled);
+	}
+	return node->enabled;
+}
+
 void
-set_menus_for_selected_tree_row(gboolean have_selected_tree)
+set_menus_for_selected_tree_row(gboolean have_selected_tree_row)
 {
   gboolean properties = FALSE;
 
@@ -779,5 +1017,8 @@ set_menus_for_selected_tree_row(gboolean have_selected_tree)
   }
 
   set_menu_sensitivity(tree_view_menu_factory, "/Protocol Properties...",
-      have_selected_tree && properties);
+      have_selected_tree_row && properties);
+
+  walk_menu_tree_for_selected_tree_row(&tap_menu_tree_root,
+      have_selected_tree_row);
 }

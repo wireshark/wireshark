@@ -1,12 +1,11 @@
 /* menu.h
  * Menu definitions
  *
- * $Id: menu.h,v 1.9 2003/04/23 05:37:22 guy Exp $
+ * $Id: menu.h,v 1.10 2003/09/19 07:24:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -34,13 +33,31 @@ void get_main_menu (GtkWidget **, GtkAccelGroup **);
 void set_menu_object_data (gchar *path, gchar *key, gpointer data);
 gint popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data);
 
+
 /*
- * Add a new menu item for a statistical tap.
+ * Add a new menu item for a tap.
  * This must be called after we've created the main menu, so it can't
  * be called from the routine that registers taps - we have to introduce
  * another per-tap registration routine.
+ *
+ * "callback" gets called when the menu item is selected; it should do
+ * the work of creating the tap window.
+ *
+ * "selected_packet_enabled" gets called by "set_menus_for_selected_packet()";
+ * it's passed a Boolean that's TRUE if a packet is selected and FALSE
+ * otherwise, and should return TRUE if the tap will work now (which
+ * might depend on whether a packet is selected and, if one is, on the
+ * packet) and FALSE if not.
+ *
+ * "selected_tree_row_enabled" gets called by
+ * "set_menus_for_selected_tree_row()"; it's passed a Boolean that's TRUE if
+ * a protocol tree row is selected and FALSE otherwise, and should return
+ * TRUE if the tap will work now (which might depend on whether a tree row
+ * is selected and, if one is, on the tree row) and FALSE if not.
  */
-extern void register_tap_menu_item(char *name, GtkItemFactoryCallback callback);
+extern void register_tap_menu_item(char *name, GtkItemFactoryCallback callback,
+    gboolean (*selected_packet_enabled)(gboolean),
+    gboolean (*selected_tree_row_enabled)(gboolean));
 
 extern GtkWidget           *popup_menu_object;
 

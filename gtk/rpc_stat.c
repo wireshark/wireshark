@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.20 2003/09/17 19:39:33 guy Exp $
+ * $Id: rpc_stat.c,v 1.21 2003/09/19 07:24:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -465,5 +465,6 @@ register_tap_listener_gtkrpcstat(void)
 void
 register_tap_menu_gtkrpcstat(void)
 {
-	register_tap_menu_item("Statistics/Service Response Time/ONC-RPC", gtk_rpcstat_cb);
+	register_tap_menu_item("Statistics/Service Response Time/ONC-RPC",
+	    gtk_rpcstat_cb, NULL, NULL);
 }
