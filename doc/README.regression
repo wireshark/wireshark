@@ -1,7 +1,7 @@
 #
 # Ethereal/Tethereal Regression Testing
 #
-# $Id: README.regression,v 1.1 2000/05/12 05:47:00 gram Exp $
+# $Id: README.regression,v 1.2 2000/05/13 11:34:12 gram Exp $
 #
 # This is a sample Makefile for regression testing of the
 # Ethereal engine. These tests use that uses 'tethereal -V' to analyze all
@@ -59,7 +59,7 @@ all:	$(TESTS)
 clean:
 	rm -f $(TESTS)
 
-%.tether : $(CAPTURE_DIR)/%
+%.tether : $(CAPTURE_DIR)/% $(TETHEREAL)
 	$(TETHEREAL) -V -n -r $< > $@
 
 accept: $(REFERENCES)
@@ -67,7 +67,7 @@ accept: $(REFERENCES)
 %.ref : %.tether
 	cp $< $@
 
-regress: $(TETHEREAL) $(TESTS)
+regress: $(TESTS)
 	@echo "Regression Report" 			> regress
 	@date						>> regress
 	@echo "BOF------------------------------------"	>> regress
