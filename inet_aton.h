@@ -1,6 +1,6 @@
-/* inet_v6defs.h
+/* inet_aton.h
  *
- * $Id: inet_v6defs.h,v 1.3 2000/07/14 07:11:53 guy Exp $
+ * $Id: inet_aton.h,v 1.1 2000/07/14 07:11:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,26 +22,7 @@
  */
 
 /*
- * Versions of "inet_pton()" and "inet_ntop()", for the benefit of OSes that
- * don't have it.
+ * Version of "inet_aton()", for the benefit of OSes that don't have it.
  */
-extern int inet_pton(int af, const char *src, void *dst);
-extern const char *inet_ntop(int af, const void *src, char *dst,
-    size_t size);
-
-/*
- * Those OSes may also not have AF_INET6, so declare it here if it's not
- * already declared, so that we can pass it to "inet_ntop()" and "inet_pton()".
- */
-#ifndef AF_INET6
-#define	AF_INET6	127	/* pick a value unlikely to duplicate an existing AF_ value */
-#endif
-
-/*
- * And if __P isn't defined, define it here, so we can use it in
- * "inet_ntop.c" and "inet_pton.c" (rather than having to change them
- * not to use it).
- */
-#ifndef __P
-#define __P(args)	args
-#endif
+struct in_addr;
+extern int inet_aton(const char* cp_arg, struct in_addr *addr);

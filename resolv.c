@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.23 2000/01/29 16:41:14 gram Exp $
+ * $Id: resolv.c,v 1.24 2000/07/14 07:11:53 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -67,6 +67,10 @@
 
 #ifdef AVOID_DNS_TIMEOUT
 # include <setjmp.h>
+#endif
+
+#ifdef NEED_INET_ATON_H
+# include "inet_aton.h"
 #endif
 
 #ifdef NEED_INET_V6DEFS_H

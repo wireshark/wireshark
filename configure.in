@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.94 2000/07/06 10:03:43 girlich Exp $
+# $Id: configure.in,v 1.95 2000/07/14 07:11:52 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -313,6 +313,7 @@ AC_CHECK_FUNC(inet_aton, INET_ATON_O="",
 if test "$ac_cv_func_inet_aton" = no ; then
   INET_ATON_C="inet_aton.c"
   INET_ATON_O="inet_aton.o"
+  AC_DEFINE(NEED_INET_ATON_H)
 fi
 AC_SUBST(INET_ATON_C)
 AC_SUBST(INET_ATON_O)

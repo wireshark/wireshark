@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.13 2000/07/05 17:24:29 gram Exp $ */
+/* $Id: config.h.win32,v 1.14 2000/07/14 07:11:52 guy Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -72,6 +72,7 @@
 #define HAVE_WINSOCK_H		1
 #define HAVE_DIRECT_H		1
 #define HAVE_IO_H		1
+#define NEED_INET_ATON_H	1
 #define NEED_INET_V6DEFS_H	1
 #define NEED_GETOPT_H		1
 #define snprintf 		_snprintf

@@ -57,6 +57,8 @@ static char sccsid[] = "@(#)inet_addr.c	8.1 (Berkeley) 6/17/93";
 
 #include <ctype.h>
 
+#include "inet_aton.h"
+
 /* 
  * Check whether "cp" is a valid ascii representation
  * of an Internet address and convert to a binary address.
