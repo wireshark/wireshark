@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.87 2004/01/23 09:40:37 jmayer Exp $
+ * $Id: packet-rsvp.c,v 1.88 2004/03/24 04:26:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2887,9 +2887,8 @@ dissect_rsvp_session_attribute (proto_tree *ti, tvbuff_t *tvb,
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+3, 1,
 			    "Name length: %u", name_len);
 	proto_tree_add_text(rsvp_object_tree, tvb, offset2+4, name_len,
-			    "Name: %.*s",
-			    name_len,
-			    tvb_get_ptr(tvb, offset2+4, name_len));
+			    "Name: %s",
+			    tvb_format_text(tvb, offset2+4, name_len));
 
 	proto_item_set_text(ti, "SESSION ATTRIBUTE: SetupPrio %d, HoldPrio %d, %s%s%s%s%s [%s]",
 			    tvb_get_guint8(tvb, offset2),
