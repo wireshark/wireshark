@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.107 2003/09/15 22:48:41 guy Exp $
+ * $Id: file.h,v 1.108 2003/09/24 00:47:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,7 +72,7 @@ gboolean goto_frame(capture_file *cf, guint fnumber);
 void select_packet(capture_file *, int);
 void unselect_packet(capture_file *);
 
-void unselect_field(void);
+void unselect_field(capture_file *);
 
 /*
  * Mark a particular frame in a particular capture.

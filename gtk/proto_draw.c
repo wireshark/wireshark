@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.61 2002/11/11 15:39:06 oabad Exp $
+ * $Id: proto_draw.c,v 1.62 2003/09/24 00:47:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -151,7 +151,7 @@ void
 redraw_hex_dump_all(void)
 {
   if (cfile.current_frame != NULL)
-    redraw_hex_dump( byte_nb_ptr, cfile.current_frame, finfo_selected);
+    redraw_hex_dump( byte_nb_ptr, cfile.current_frame, cfile.finfo_selected);
 
   redraw_hex_dump_packet_wins();
 }

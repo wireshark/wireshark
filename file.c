@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.315 2003/09/19 04:52:15 guy Exp $
+ * $Id: file.c,v 1.316 2003/09/24 00:47:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -261,6 +261,10 @@ cf_close(capture_file *cf)
   unselect_packet(cf);	/* nothing to select */
   cf->first_displayed = NULL;
   cf->last_displayed = NULL;
+
+  /* No frame selected, no field in that frame selected. */
+  cf->current_frame = NULL;
+  cf->finfo_selected = NULL;
 
   /* Clear the packet list. */
   packet_list_freeze();
@@ -1153,7 +1157,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item,
     /* The frame that was selected passed the filter; select it, make it
        the focus row, and make it visible. */
     packet_list_set_selected_row(selected_row);
-    finfo_selected = NULL;
+
+    /* New dissection, so no field has been selected yet. */
+    cf->finfo_selected = NULL;
   } else {
     /* The selected frame didn't pass the filter; make the first frame
        the current frame, and leave it unselected. */
@@ -2079,15 +2085,15 @@ unselect_packet(capture_file *cf)
   set_menus_for_selected_packet(FALSE);
 
   /* No protocol tree means no selected field. */
-  unselect_field();
+  unselect_field(cf);
 }
 
 /* Unset the selected protocol tree field, if any. */
 void
-unselect_field(void)
+unselect_field(capture_file *cf)
 {
   statusbar_pop_field_msg();
-  finfo_selected = NULL;
+  cf->finfo_selected = NULL;
   set_menus_for_selected_tree_row(FALSE);
 }
 

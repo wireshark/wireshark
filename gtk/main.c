@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.316 2003/09/23 06:25:10 oabad Exp $
+ * $Id: main.c,v 1.317 2003/09/24 00:47:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -152,9 +152,6 @@ ts_type timestamp_type = RELATIVE;
 GtkStyle *item_style;
 #endif
 
-/* Specifies the field currently selected in the GUI protocol tree */
-field_info *finfo_selected = NULL;
-
 #ifdef WIN32
 static gboolean has_no_console;	/* TRUE if app has no console */
 static gboolean console_was_created; /* TRUE if console was created */
@@ -260,14 +257,14 @@ set_fonts(PangoFontDescription *regular, PangoFontDescription *bold)
 void
 goto_framenum_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-    if (finfo_selected) {
+    if (cfile.finfo_selected) {
 	header_field_info	*hfinfo;
 	guint32			framenum;
 
-	hfinfo = finfo_selected->hfinfo;
+	hfinfo = cfile.finfo_selected->hfinfo;
 	g_assert(hfinfo);
 	if (hfinfo->type == FT_FRAMENUM) {
-	    framenum = fvalue_get_integer(finfo_selected->value);
+	    framenum = fvalue_get_integer(cfile.finfo_selected->value);
 	    if (framenum != 0)
 		goto_frame(&cfile, framenum);
 	}
@@ -353,109 +350,109 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
 void
 match_selected_cb_replace_ptree(GtkWidget *w, gpointer data)
 {
-    if (finfo_selected)
+    if (cfile.finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_REPLACE|MATCH_SELECTED_APPLY_NOW,
-	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
+	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
 }
 
 void
 match_selected_cb_and_ptree(GtkWidget *w, gpointer data)
 {
-    if (finfo_selected)
+    if (cfile.finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_AND|MATCH_SELECTED_APPLY_NOW,
-	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
+	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
 }
 
 void
 match_selected_cb_or_ptree(GtkWidget *w, gpointer data)
 {
-    if (finfo_selected)
+    if (cfile.finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_OR|MATCH_SELECTED_APPLY_NOW,
-	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
+	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
 }
 
 void
 match_selected_cb_not_ptree(GtkWidget *w, gpointer data)
 {
-    if (finfo_selected)
+    if (cfile.finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_NOT|MATCH_SELECTED_APPLY_NOW,
-	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
+	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
 }
 
 void
 match_selected_cb_and_ptree_not(GtkWidget *w, gpointer data)
 {
-    if (finfo_selected)
+    if (cfile.finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_AND_NOT|MATCH_SELECTED_APPLY_NOW,
-	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
+	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
 }
 
 void
 match_selected_cb_or_ptree_not(GtkWidget *w, gpointer data)
 {
-    if (finfo_selected)
+    if (cfile.finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_OR_NOT,
-	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
+	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
 }
 
 void
 prepare_selected_cb_replace_ptree(GtkWidget *w, gpointer data)
 {
-    if (finfo_selected)
+    if (cfile.finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_REPLACE,
-	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
+	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
 }
 
 void
 prepare_selected_cb_and_ptree(GtkWidget *w, gpointer data)
 {
-    if (finfo_selected)
+    if (cfile.finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_AND,
-	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
+	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
 }
 
 void
 prepare_selected_cb_or_ptree(GtkWidget *w, gpointer data)
 {
-    if (finfo_selected)
+    if (cfile.finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_OR,
-	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
+	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
 }
 
 void
 prepare_selected_cb_not_ptree(GtkWidget *w, gpointer data)
 {
-    if (finfo_selected)
+    if (cfile.finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_NOT,
-	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
+	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
 }
 
 void
 prepare_selected_cb_and_ptree_not(GtkWidget *w, gpointer data)
 {
-    if (finfo_selected)
+    if (cfile.finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_AND_NOT,
-	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
+	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
 }
 
 void
 prepare_selected_cb_or_ptree_not(GtkWidget *w, gpointer data)
 {
-    if (finfo_selected)
+    if (cfile.finfo_selected)
 	match_selected_cb_do((data ? data : w),
 	    MATCH_SELECTED_OR_NOT,
-	    proto_construct_dfilter_string(finfo_selected, cfile.edt));
+	    proto_construct_dfilter_string(cfile.finfo_selected, cfile.edt));
 }
 
 static gchar *
@@ -905,7 +902,7 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
         if (byte_data == NULL)
             return;	/* none */
 
-        unselect_field();
+        unselect_field(&cfile);
         packet_hex_print(GTK_TEXT_VIEW(byte_view), byte_data,
                          cfile.current_frame, NULL, byte_len);
         return;
@@ -923,7 +920,7 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
     byte_data = get_byte_view_data_and_length(byte_view, &byte_len);
     g_assert(byte_data != NULL);
 
-    finfo_selected = finfo;
+    cfile.finfo_selected = finfo;
     set_menus_for_selected_tree_row(TRUE);
 
     if (finfo->hfinfo) {
@@ -1004,7 +1001,7 @@ tree_view_unselect_row_cb(GtkCTree *ctree _U_, GList *node _U_, gint column _U_,
 	if (data == NULL)
 		return;	/* none */
 
-	unselect_field();
+	unselect_field(&cfile);
 	packet_hex_print(GTK_TEXT(byte_view), data, cfile.current_frame,
 		NULL, len);
 }
@@ -1060,7 +1057,7 @@ set_plist_sel_browse(gboolean val)
 		return;
 	}
 
-	if (finfo_selected)
+	if (cfile.finfo_selected)
 		unselect_packet(&cfile);
 
         mode = new_mode;

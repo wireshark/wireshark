@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.98 2003/09/22 09:08:42 sahlberg Exp $
+ * $Id: menu.c,v 1.99 2003/09/24 00:47:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -979,8 +979,8 @@ set_menus_for_selected_tree_row(gboolean have_selected_tree_row)
 {
   gboolean properties = FALSE;
 
-  if (finfo_selected) {
-	header_field_info *hfinfo = finfo_selected->hfinfo;
+  if (cfile.finfo_selected) {
+	header_field_info *hfinfo = cfile.finfo_selected->hfinfo;
 	if (hfinfo->parent == -1) {
 	  properties = prefs_is_registered_protocol(hfinfo->abbrev);
 	} else {
@@ -998,13 +998,13 @@ set_menus_for_selected_tree_row(gboolean have_selected_tree_row)
 		"/Go To Corresponding Frame", FALSE);
 	}
 	set_menu_sensitivity(main_menu_factory, "/Display/Match",
-	  proto_can_match_selected(finfo_selected, cfile.edt));
+	  proto_can_match_selected(cfile.finfo_selected, cfile.edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Match",
-	  proto_can_match_selected(finfo_selected, cfile.edt));
+	  proto_can_match_selected(cfile.finfo_selected, cfile.edt));
 	set_menu_sensitivity(main_menu_factory, "/Display/Prepare",
-	  proto_can_match_selected(finfo_selected, cfile.edt));
+	  proto_can_match_selected(cfile.finfo_selected, cfile.edt));
 	set_menu_sensitivity(tree_view_menu_factory, "/Prepare",
-	  proto_can_match_selected(finfo_selected, cfile.edt));
+	  proto_can_match_selected(cfile.finfo_selected, cfile.edt));
   } else {
 	set_menu_sensitivity(main_menu_factory, "/Display/Match", FALSE);
 	set_menu_sensitivity(tree_view_menu_factory, "/Match", FALSE);

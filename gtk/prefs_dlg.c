@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.60 2003/09/01 01:49:20 gerald Exp $
+ * $Id: prefs_dlg.c,v 1.61 2003/09/24 00:47:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1279,8 +1279,8 @@ properties_cb(GtkWidget *w, gpointer dummy)
   const gchar *title = NULL;
   struct properties_data p;
 
-  if (finfo_selected) {
-    header_field_info *hfinfo = finfo_selected->hfinfo;
+  if (cfile.finfo_selected) {
+    header_field_info *hfinfo = cfile.finfo_selected->hfinfo;
     if (hfinfo->parent == -1) {
       title = prefs_get_title_by_name(hfinfo->abbrev);
     } else {
