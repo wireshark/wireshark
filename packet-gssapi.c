@@ -2,7 +2,7 @@
  * Dissector for GSS-API tokens as described in rfc2078, section 3.1
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-gssapi.c,v 1.11 2002/08/29 17:58:22 sharpe Exp $
+ * $Id: packet-gssapi.c,v 1.12 2002/08/31 20:09:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@
 #include "asn1.h"
 #include "format-oid.h"
 #include "packet-gssapi.h"
+#include "packet-frame.h"
 #include "epan/conversation.h"
 
 static int proto_gssapi = -1;
@@ -120,10 +121,10 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int len;
 	unsigned int i;
 	gchar *p;
-	dissector_handle_t handle = NULL;
+	volatile dissector_handle_t handle = NULL;
 	/*	proto_item *sub_item;
 		proto_tree *oid_subtree;*/
-	conversation_t *conversation;
+	conversation_t *volatile conversation;
 
 	/*
 	 * We need this later, so lets get it now ...
@@ -138,150 +139,169 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	subtree = proto_item_add_subtree(item, ett_gssapi);
 
-	/* Read header */
-
-	asn1_open(&hnd, tvb, offset);
-
-	ret = asn1_header_decode(&hnd, &cls, &con, &tag, &def, &len1);
-
-	if (ret != ASN1_ERR_NOERROR) {
-		dissect_parse_error(tvb, offset, pinfo, subtree,
-				    "GSS-API header", ret);
-		goto done;
-	}
-
-	if (!(cls == ASN1_APL && con == ASN1_CON && tag == 0)) {
-
-	  /* 
-	   * If we do not recognise an Application class, then
-	   * then we are probably dealing with an inner context
-	   * token, and we should retrieve the dissector from
-	   * the conversation that exists or we created from pinfo
-	   *
-	   * Note! We cheat. Since we only need the dissector handle,
-	   * We store that as the conversation data ... after type casting. 
-	   */
-
-	  if (conversation && 
-	      !(handle = conversation_get_proto_data(conversation, 
-						     proto_gssapi))){
-		proto_tree_add_text(
-			subtree, tvb, offset, 0,
-			"Unknown header (cls=%d, con=%d, tag=%d)",
-			cls, con, tag);
-		goto done;
-	  }
-	  else 
-	  {
-	    tvbuff_t *oid_tvb;
-
-	    /* Naughty ... no way to reset the offset */
-	    /* Account for the fact we have consumed part if the ASN.1 */
-	    /* and we want to get it back */
-
-	    hnd.offset = offset;
-	    oid_tvb = tvb_new_subset(tvb, offset, -1, -1);
-	    call_dissector(handle, oid_tvb, pinfo, subtree);
-	  }
-	}
-
-	offset = hnd.offset;
-
-	/* Read oid */
-
-	ret = asn1_oid_decode(&hnd, &oid, &oid_len, &nbytes);
-
-	if (ret != ASN1_ERR_NOERROR) {
-		dissect_parse_error(tvb, offset, pinfo, subtree,
-				    "GSS-API token", ret);
-		goto done;
-	}
-
-	oid_string = format_oid(oid, oid_len);
-
-	proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s",
-			    oid_string);
-
-	offset += nbytes;
-
-	g_free(oid_string);
-
 	/*
-	 * Hand off to subdissector.
-	 * We can't use "oid_string", as it might contain an
-	 * interpretation of the OID after the raw string, so
-	 * we generate our own string for it.
+	 * Catch the ReportedBoundsError exception; the stuff we've been
+	 * handed doesn't necessarily run to the end of the packet, it's
+	 * an item inside a packet, so if it happens to be malformed (or
+	 * we, or a dissector we call, has a bug), so that an exception
+	 * is thrown, we want to report the error, but return and let
+	 * our caller dissect the rest of the packet.
+	 *
+	 * If it gets a BoundsError, we can stop, as there's nothing more
+	 * in the packet after our blob to see, so we just re-throw the
+	 * exception.
 	 */
-	oid_string = g_malloc(oid_len * 22 + 1);
-	p = oid_string;
-	len = sprintf(p, "%lu", (unsigned long)oid[0]);
-	p += len;
-	for (i = 1; i < oid_len;i++) {
-		len = sprintf(p, ".%lu", (unsigned long)oid[i]);
-		p += len;
-	}
+	TRY {
+		/* Read header */
 
-	if (((value = g_hash_table_lookup(gssapi_oids, oid_string)) == NULL) ||
-	    !proto_is_protocol_enabled(value->proto)) {
+		asn1_open(&hnd, tvb, offset);
+
+		ret = asn1_header_decode(&hnd, &cls, &con, &tag, &def, &len1);
+
+		if (ret != ASN1_ERR_NOERROR) {
+			dissect_parse_error(tvb, offset, pinfo, subtree,
+				    "GSS-API header", ret);
+			goto done;
+		}
+
+		if (!(cls == ASN1_APL && con == ASN1_CON && tag == 0)) {
+		  /* 
+		   * If we do not recognise an Application class, then
+		   * then we are probably dealing with an inner context
+		   * token, and we should retrieve the dissector from
+		   * the conversation that exists or we created from pinfo
+		   *
+		   * Note! We cheat. Since we only need the dissector handle,
+		   * We store that as the conversation data ... after type
+		   * casting. 
+		   */
+
+		  if (conversation && 
+		      !(handle = conversation_get_proto_data(conversation, 
+							     proto_gssapi))){
+			proto_tree_add_text(
+				subtree, tvb, offset, 0,
+				"Unknown header (cls=%d, con=%d, tag=%d)",
+				cls, con, tag);
+			goto done;
+		  }
+		  else 
+		  {
+		    tvbuff_t *oid_tvb;
+
+		    /* Naughty ... no way to reset the offset */
+		    /* Account for the fact we have consumed part of the */
+		    /* ASN.1 and we want to get it back */
+
+		    hnd.offset = offset;
+		    oid_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		    call_dissector(handle, oid_tvb, pinfo, subtree);
+		  }
+		}
+
+		offset = hnd.offset;
+
+		/* Read oid */
+
+		ret = asn1_oid_decode(&hnd, &oid, &oid_len, &nbytes);
+
+		if (ret != ASN1_ERR_NOERROR) {
+			dissect_parse_error(tvb, offset, pinfo, subtree,
+					    "GSS-API token", ret);
+			goto done;
+		}
+
+		oid_string = format_oid(oid, oid_len);
+
+		proto_tree_add_text(subtree, tvb, offset, nbytes, "OID: %s",
+				    oid_string);
+
+		offset += nbytes;
 
 		g_free(oid_string);
 
-		/* No dissector for this oid */
-
-		proto_tree_add_text(
-			subtree, tvb, offset,
-			tvb_length_remaining(tvb, offset), "Token object");
-
-		goto done;
-	}
-
-	g_free(oid_string);
-
-	/*
-	 * This is not needed, as the sub-dissector adds a tree
-	sub_item = proto_tree_add_item(subtree, value->proto, tvb, offset,
-				       -1, FALSE);
-
-	oid_subtree = proto_item_add_subtree(sub_item, value->ett);
-	*/
-
-	handle = find_dissector(value->name);
-
-	if (handle) {
-		tvbuff_t *oid_tvb;
-
-		/* 
-		 * Here we should create a conversation if needed and 
-		 * save the OID and dissector handle in it for the 
-		 * GSSAPI protocol.
+		/*
+		 * Hand off to subdissector.
+		 * We can't use "oid_string", as it might contain an
+		 * interpretation of the OID after the raw string, so
+		 * we generate our own string for it.
 		 */
-
-		if (!conversation) { /* Create one */
-		  conversation = conversation_new(&pinfo->src, &pinfo->dst, 
-						  pinfo->ptype, 
-						  pinfo->srcport, 
-						  pinfo->destport, 0);
+		oid_string = g_malloc(oid_len * 22 + 1);
+		p = oid_string;
+		len = sprintf(p, "%lu", (unsigned long)oid[0]);
+		p += len;
+		for (i = 1; i < oid_len;i++) {
+			len = sprintf(p, ".%lu", (unsigned long)oid[i]);
+			p += len;
 		}
+
+		if (((value = g_hash_table_lookup(gssapi_oids, oid_string)) == NULL) ||
+		    !proto_is_protocol_enabled(value->proto)) {
+
+			g_free(oid_string);
+
+			/* No dissector for this oid */
+
+			proto_tree_add_text(subtree, tvb, offset, -1,
+					    "Token object");
+
+			goto done;
+		}
+
+		g_free(oid_string);
 
 		/*
-		 * Now add the proto data ... 
-		 * but only if it is not already there.
-		 */
+		 * This is not needed, as the sub-dissector adds a tree
+		sub_item = proto_tree_add_item(subtree, value->proto, tvb,
+					       offset, -1, FALSE);
 
-		if (!conversation_get_proto_data(conversation, proto_gssapi)) {
-		  conversation_add_proto_data(conversation, proto_gssapi, 
-					      handle);
+		oid_subtree = proto_item_add_subtree(sub_item, value->ett);
+		*/
+
+		handle = find_dissector(value->name);
+
+		if (handle) {
+			tvbuff_t *oid_tvb;
+
+			/* 
+			 * Here we should create a conversation if needed and 
+			 * save the OID and dissector handle in it for the 
+			 * GSSAPI protocol.
+			 */
+
+			if (!conversation) { /* Create one */
+			  conversation = conversation_new(&pinfo->src,
+							  &pinfo->dst, 
+							  pinfo->ptype, 
+							  pinfo->srcport, 
+							  pinfo->destport, 0);
+			}
+
+			/*
+			 * Now add the proto data ... 
+			 * but only if it is not already there.
+			 */
+
+			if (!conversation_get_proto_data(conversation,
+							 proto_gssapi)) {
+			  conversation_add_proto_data(conversation,
+						      proto_gssapi, handle);
+			}
+
+			oid_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			call_dissector(handle, oid_tvb, pinfo, subtree);
+		}
+		else { /* FIXME, do something if handle not found */
+
 		}
 
-		oid_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		call_dissector(handle, oid_tvb, pinfo, subtree);
-	}
-	else { /* FIXME, do something if handle not found */
-
-	}
-
- done:
-	asn1_close(&hnd, &offset);
+	 done:
+		asn1_close(&hnd, &offset);
+	} CATCH(BoundsError) {
+		RETHROW;
+	} CATCH(ReportedBoundsError) {
+		show_reported_bounds_error(tvb, pinfo, tree);
+	} ENDTRY;
 }
 
 void
