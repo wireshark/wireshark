@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.138 2003/08/04 02:48:59 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.139 2003/09/11 10:31:01 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@
 #include "packet-dcerpc-nt.h"
 
 static int dcerpc_tap = -1;
+
 
 static const value_string pckt_vals[] = {
     { PDU_REQ,        "Request"},
@@ -412,6 +413,22 @@ static const fragment_items dcerpc_frag_items = {
 
 	"fragments"
 };
+
+
+
+static dcerpc_info *
+get_next_di(void)
+{
+	static dcerpc_info di[20];
+	static int di_counter=0;
+
+	di_counter++;
+	if(di_counter>=20){
+		di_counter=0;
+	}
+	return &di[di_counter];
+}
+
 
 typedef struct _dcerpc_auth_info {
   guint8 auth_pad_len;
@@ -2645,15 +2662,16 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	}
 
         if (value) {
-            dcerpc_info di;
+            dcerpc_info *di;
 
+            di=get_next_di();
             /* handoff this call */
-	    di.conv = conv;
-	    di.call_id = hdr->call_id;
-	    di.smb_fid = get_smb_fid(pinfo->private_data);
-	    di.request = TRUE;
-	    di.call_data = value;
-		di.hf_index = -1;
+	    di->conv = conv;
+	    di->call_id = hdr->call_id;
+	    di->smb_fid = get_smb_fid(pinfo->private_data);
+	    di->request = TRUE;
+	    di->call_data = value;
+		di->hf_index = -1;
 
 	    if(value->rep_frame!=0){
 		proto_tree_add_uint(dcerpc_tree, hf_dcerpc_response_in,
@@ -2661,7 +2679,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	    }
 /*qqq request, broken*/
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
-				    hdr, &di, &auth_info, alloc_hint,
+				    hdr, di, &auth_info, alloc_hint,
 				    value->req_frame);
 	} else
 	    show_stub_data (tvb, offset, dcerpc_tree, &auth_info);
@@ -2738,14 +2756,15 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	}
 
         if (value) {
-            dcerpc_info di;
+            dcerpc_info *di;
 
+            di=get_next_di();
             /* handoff this call */
-	    di.conv = conv;
-	    di.call_id = hdr->call_id;
-	    di.smb_fid = get_smb_fid(pinfo->private_data);
-	    di.request = FALSE;
-	    di.call_data = value;
+	    di->conv = conv;
+	    di->call_id = hdr->call_id;
+	    di->smb_fid = get_smb_fid(pinfo->private_data);
+	    di->request = FALSE;
+	    di->call_data = value;
 
 	    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_opnum, tvb, 0, 0, value->opnum);
 	    if(value->req_frame!=0){
@@ -2763,7 +2782,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 /*qqq response ok*/
 	    dissect_dcerpc_cn_stub (tvb, offset, pinfo, dcerpc_tree, tree,
-				    hdr, &di, &auth_info, alloc_hint,
+				    hdr, di, &auth_info, alloc_hint,
 				    value->rep_frame);
         } else
             show_stub_data (tvb, offset, dcerpc_tree, &auth_info);
@@ -2851,14 +2870,15 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         if (value) {
             int length, reported_length, stub_length;
-            dcerpc_info di;
+            dcerpc_info *di;
 
+            di=get_next_di();
             /* handoff this call */
-	    di.conv = conv;
-	    di.call_id = hdr->call_id;
-	    di.smb_fid = get_smb_fid(pinfo->private_data);
-	    di.request = FALSE;
-	    di.call_data = value;
+	    di->conv = conv;
+	    di->call_id = hdr->call_id;
+	    di->smb_fid = get_smb_fid(pinfo->private_data);
+	    di->request = FALSE;
+	    di->call_data = value;
 
 	    proto_tree_add_uint (dcerpc_tree, hf_dcerpc_opnum, tvb, 0, 0, value->opnum);
 	    if(value->req_frame!=0){
@@ -3548,10 +3568,11 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
                         proto_tree *dcerpc_tree, proto_tree *tree,
                         e_dce_dg_common_hdr_t *hdr, conversation_t *conv)
 {
-    dcerpc_info di;
+    dcerpc_info *di;
     dcerpc_call_value *value, v;
     dcerpc_matched_key matched_key, *new_matched_key;
 
+    di=get_next_di();
     if(!(pinfo->fd->flags.visited)){
 	dcerpc_call_value *call_value;
 	dcerpc_call_key *call_key;
@@ -3593,17 +3614,17 @@ dissect_dcerpc_dg_rqst (tvbuff_t *tvb, int offset, packet_info *pinfo,
         value = &v;
     }
 
-    di.conv = conv;
-    di.call_id = hdr->seqnum;
-    di.smb_fid = -1;
-    di.request = TRUE;
-    di.call_data = value;
+    di->conv = conv;
+    di->call_id = hdr->seqnum;
+    di->smb_fid = -1;
+    di->request = TRUE;
+    di->call_data = value;
 
     if(value->rep_frame!=0){
 	proto_tree_add_uint(dcerpc_tree, hf_dcerpc_response_in,
 			    tvb, 0, 0, value->rep_frame);
     }
-    dissect_dcerpc_dg_stub (tvb, offset, pinfo, dcerpc_tree, tree, hdr, &di);
+    dissect_dcerpc_dg_stub (tvb, offset, pinfo, dcerpc_tree, tree, hdr, di);
 }
 
 static void
@@ -3611,10 +3632,11 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
                         proto_tree *dcerpc_tree, proto_tree *tree,
                         e_dce_dg_common_hdr_t *hdr, conversation_t *conv)
 {
-    dcerpc_info di;
+    dcerpc_info *di;
     dcerpc_call_value *value, v;
     dcerpc_matched_key matched_key, *new_matched_key;
 
+    di=get_next_di();
     if(!(pinfo->fd->flags.visited)){
 	dcerpc_call_value *call_value;
 	dcerpc_call_key call_key;
@@ -3647,11 +3669,11 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
         value = &v;
     }
 
-    di.conv = conv;
-    di.call_id = 0;
-    di.smb_fid = -1;
-    di.request = FALSE;
-    di.call_data = value;
+    di->conv = conv;
+    di->call_id = 0;
+    di->smb_fid = -1;
+    di->request = FALSE;
+    di->call_data = value;
 
     if(value->req_frame!=0){
 	nstime_t ns;
@@ -3665,7 +3687,7 @@ dissect_dcerpc_dg_resp (tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	proto_tree_add_time(dcerpc_tree, hf_dcerpc_time, tvb, offset, 0, &ns);
     }
-    dissect_dcerpc_dg_stub (tvb, offset, pinfo, dcerpc_tree, tree, hdr, &di);
+    dissect_dcerpc_dg_stub (tvb, offset, pinfo, dcerpc_tree, tree, hdr, di);
 }
 
 /*
