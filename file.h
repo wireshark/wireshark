@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.47 1999/09/29 22:19:13 guy Exp $
+ * $Id: file.h,v 1.48 1999/10/02 20:23:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,9 +97,6 @@ typedef struct _capture_file {
   gboolean     update_progbar; /* TRUE if we should update the progress bar */
   long         progbar_quantum; /* Number of bytes read per progress bar update */
   long         progbar_nextstep; /* Next point at which to update progress bar */
-  float        bouncebar_pos; /* Position of bounce bar */
-  float        bouncebar_step; /* Step */
-  int          bouncebar_reversed; /* Are we going right-to-left? */
   gchar       *iface;     /* Interface */
   gchar       *save_file; /* File that user saved capture to */
   int          save_file_fd; /* File descriptor for saved file */
