@@ -23,7 +23,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef PACKET_H323_H
+#ifndef PACKET_H225_H
 #define PACKET_H225_H
 
 typedef enum _h225_msg_type {
