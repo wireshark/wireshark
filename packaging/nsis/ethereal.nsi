@@ -438,6 +438,12 @@ File "..\..\plugins\rudp\rudp.dll"
 File "..\..\plugins\v5ua\v5ua.dll"
 SectionEnd
 
+Section "Mate - Meta Analysis and Tracing Engine (Experimental)" SecMate
+;-------------------------------------------
+SetOutPath $INSTDIR\plugins\${VERSION}
+File "..\..\plugins\mate\mate.dll"
+SectionEnd
+
 Section "SNMP MIBs" SecMIBs
 ;-------------------------------------------
 !ifdef GTK1_DIR & GTK2_DIR
@@ -684,6 +690,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Mergecap is a program that combines multiple saved capture files into a single output file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Capinfos is a program that provides information on capture files."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Plugins with some extended dissections."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecMate} "Plugin - Meta Analysis and Tracing Engine (Experimental)."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMIBs} "SNMP MIBs for better SNMP dissection."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecShortcuts} "Start menu shortcuts."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktopIcon} "Ethereal desktop icon."

@@ -73,6 +73,7 @@ PLUGINS=../../plugins/acn/acn.dll \
 	../../plugins/gryphon/gryphon.dll \
 	../../plugins/irda/irda.dll \
 	../../plugins/lwres/lwres.dll \
+	../../plugins/mate/mate.dll \
 	../../plugins/megaco/megaco.dll \
 	../../plugins/mgcp/mgcp.dll \
 	../../plugins/opsi/opsi.dll \
