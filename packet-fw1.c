@@ -2,7 +2,7 @@
  * Routines for Ethernet header disassembly of FW1 "monitor" files
  * Copyright 2002,2003, Alfred Koebler <ako@icon.de>
  *
- * $Id: packet-fw1.c,v 1.9 2003/10/01 07:11:44 guy Exp $
+ * $Id: packet-fw1.c,v 1.10 2004/01/06 21:11:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Alfred Koebler <ako@icon.de>
@@ -128,7 +128,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   char		header[1000];
   char		*p_header;
   int		i;
-  int		found;
+  gboolean	found;
 
   #define	MAX_INTERFACES	20
   static char	*p_interfaces[MAX_INTERFACES];
@@ -171,36 +171,36 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Known interface name - if not, remember it */
-  found=1;
+  found=FALSE;
   for (i=0; i<interface_anzahl && i<MAX_INTERFACES; i++) {
     if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
-      found=0;
+      found=TRUE;
     }
   }
-  if (found == 1 ) {
+  if (!found && interface_anzahl < MAX_INTERFACES) {
     p_interfaces[interface_anzahl] = strdup(interface_name);
     interface_anzahl++;
   }
   /* display all interfaces always in the same order */
   for (i=0; i<interface_anzahl; i++) {
-    found=1;
+    found=FALSE;
     if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
-      found=0;
+      found=TRUE;
     }
     p_header = header + strlen(header);
     if (!fw1_iflist_with_chain) {
       sprintf(p_header, "  %c %s %c",
-	found==0 ? (direction[0]=='i' ? 'i' : (direction[0]=='O' ? 'O' : ' ')) : ' ',
+	found ? (direction[0]=='i' ? 'i' : (direction[0]=='O' ? 'O' : ' ')) : ' ',
 	p_interfaces[i],
-	found==0 ? (direction[0]=='I' ? 'I' : (direction[0]=='o' ? 'o' : ' ')) : ' '
+	found ? (direction[0]=='I' ? 'I' : (direction[0]=='o' ? 'o' : ' ')) : ' '
 	);
     } else {
       sprintf(p_header, "  %c%c %s %c%c",
-	found==0 ? (direction[0]=='i' ? 'i' : (direction[0]=='O' ? 'O' : ' ')) : ' ',
-	found==0 ? (direction[0]=='i' ? chain[0] : (direction[0]=='O' ? chain[0] : ' ')) : ' ',
+	found ? (direction[0]=='i' ? 'i' : (direction[0]=='O' ? 'O' : ' ')) : ' ',
+	found ? (direction[0]=='i' ? chain[0] : (direction[0]=='O' ? chain[0] : ' ')) : ' ',
 	p_interfaces[i],
-	found==0 ? (direction[0]=='I' ? 'I' : (direction[0]=='o' ? 'o' : ' ')) : ' ',
-	found==0 ? (direction[0]=='I' ? chain[0] : (direction[0]=='o' ? chain[0] : ' ')) : ' '
+	found ? (direction[0]=='I' ? 'I' : (direction[0]=='o' ? 'o' : ' ')) : ' ',
+	found ? (direction[0]=='I' ? chain[0] : (direction[0]=='o' ? chain[0] : ' ')) : ' '
 	);
     }
   }
