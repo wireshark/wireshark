@@ -2,7 +2,7 @@
  * Routines for DCERPC Browser packet disassembly
  * Copyright 2001, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-browser.c,v 1.12 2003/08/04 02:49:03 tpot Exp $
+ * $Id: packet-dcerpc-browser.c,v 1.13 2003/10/02 21:48:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -233,7 +233,7 @@ dissect_browser_TYPE_1(tvbuff_t *tvb, int offset,
 
 
 /*
- IDL  long Function_00(
+ IDL  long BrowserrServerEnum(
  IDL        [in] [unique] [string] wchar_t *element_9,
  IDL        [in] [unique] [string] wchar_t *element_10,
  IDL        [in] [unique] [string] wchar_t *element_11,
@@ -246,7 +246,7 @@ dissect_browser_TYPE_1(tvbuff_t *tvb, int offset,
  IDL  );
 */
 static int
-dissect_browser_UNKNOWN_00_rqst(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_server_enum_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -283,7 +283,7 @@ dissect_browser_UNKNOWN_00_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-dissect_browser_UNKNOWN_00_reply(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_server_enum_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -305,14 +305,14 @@ dissect_browser_UNKNOWN_00_reply(tvbuff_t *tvb, int offset,
 }
 
 /*
-  IDL long Function_01(
+  IDL long BrowserrDebugCall(
   IDL       [in] [unique] [string] wchar_t *element_18,
   IDL       [in] long element_19,
   IDL       [in] long element_20
   IDL );
 */
 static int
-dissect_browser_UNKNOWN_01_rqst(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_debug_call_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -329,7 +329,7 @@ dissect_browser_UNKNOWN_01_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-dissect_browser_UNKNOWN_01_reply(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_debug_call_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -341,14 +341,14 @@ dissect_browser_UNKNOWN_01_reply(tvbuff_t *tvb, int offset,
 
 
 /*
-  IDL long Function_02(
+  IDL long BrowserrQueryOtherDomains(
   IDL       [in] [unique] [string] wchar_t *element_21,
   IDL       [in,out] [ref] TYPE_1 *element_22,
   IDL       [out] long element_23
   IDL );
 */
 static int
-dissect_browser_UNKNOWN_02_rqst(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_query_other_domains_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -363,7 +363,7 @@ dissect_browser_UNKNOWN_02_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-dissect_browser_UNKNOWN_02_reply(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_query_other_domains_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -378,12 +378,12 @@ dissect_browser_UNKNOWN_02_reply(tvbuff_t *tvb, int offset,
 
 
 /*
-  IDL long Function_03(
+  IDL long BrowserrResetNetlogonState(
   IDL       [in] [unique] [string] wchar_t *element_24
   IDL );
 */
 static int
-dissect_browser_UNKNOWN_03_rqst(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_reset_netlogon_state_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -394,7 +394,7 @@ dissect_browser_UNKNOWN_03_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-dissect_browser_UNKNOWN_03_reply(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_reset_netlogon_state_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -406,13 +406,13 @@ dissect_browser_UNKNOWN_03_reply(tvbuff_t *tvb, int offset,
 
 
 /*
-  IDL long Function_04(
+  IDL long BrowserrDebugTrace(
   IDL       [in] [unique] [string] wchar_t *element_25,
   IDL       [in] [string] char element_26
   IDL );
 */
 static int
-dissect_browser_UNKNOWN_04_rqst(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_debug_trace_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -427,7 +427,7 @@ dissect_browser_UNKNOWN_04_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-dissect_browser_UNKNOWN_04_reply(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_debug_trace_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -533,13 +533,13 @@ dissect_browser_TYPE_5(tvbuff_t *tvb, int offset,
 
 
 /*
-  IDL long Function_05(
+  IDL long BrowserrQueryStatistics(
   IDL       [in] [unique] [string] wchar_t *element_47,
   IDL       [out] [ref] TYPE_5 **element_48
   IDL );
 */
 static int
-dissect_browser_UNKNOWN_05_rqst(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_query_statistics_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -550,7 +550,7 @@ dissect_browser_UNKNOWN_05_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-dissect_browser_UNKNOWN_05_reply(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_query_statistics_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -566,12 +566,12 @@ dissect_browser_UNKNOWN_05_reply(tvbuff_t *tvb, int offset,
 
 
 /*
-  IDL long Function_06(
+  IDL long BrowserrResetStatistics(
   IDL       [in] [unique] [string] wchar_t *element_49
   IDL );
 */
 static int
-dissect_browser_UNKNOWN_06_rqst(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_reset_statistics_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -582,7 +582,7 @@ dissect_browser_UNKNOWN_06_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-dissect_browser_UNKNOWN_06_reply(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_reset_statistics_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -594,12 +594,12 @@ dissect_browser_UNKNOWN_06_reply(tvbuff_t *tvb, int offset,
 
 
 /*
-  IDL long Function_07(
+  IDL long NetrBrowserStatisticsClear(
   IDL       [in] [unique] [string] wchar_t *element_49
   IDL );
 */
 static int
-dissect_browser_UNKNOWN_07_rqst(tvbuff_t *tvb, int offset,
+dissect_browser_netr_browser_statistics_clear_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -610,7 +610,7 @@ dissect_browser_UNKNOWN_07_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-dissect_browser_UNKNOWN_07_reply(tvbuff_t *tvb, int offset,
+dissect_browser_netr_browser_statistics_clear_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -835,14 +835,14 @@ dissect_browser_TYPE_7(tvbuff_t *tvb, int offset,
 
 
 /*
-  IDL long Function_08(
+  IDL long NetrBrowserStatisticsGet(
   IDL       [in] [unique] [string] wchar_t *element_75,
   IDL       [in] long element_76,
   IDL   [in,out] [ref] TYPE_7 *element_77
   IDL );
 */
 static int
-dissect_browser_UNKNOWN_08_rqst(tvbuff_t *tvb, int offset,
+dissect_browser_netr_browser_statistics_get_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -860,7 +860,7 @@ dissect_browser_UNKNOWN_08_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-dissect_browser_UNKNOWN_08_reply(tvbuff_t *tvb, int offset,
+dissect_browser_netr_browser_statistics_get_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -876,7 +876,7 @@ dissect_browser_UNKNOWN_08_reply(tvbuff_t *tvb, int offset,
 
 
 /*
-  IDL long Function_09(
+  IDL long BrowserrSetNetlogonState(
   IDL       [in] [unique] [string] wchar_t *element_78,
   IDL       [in] [ref] [string] wchar_t *element_79,
   IDL       [in] [unique] [string] wchar_t *element_80,
@@ -884,7 +884,7 @@ dissect_browser_UNKNOWN_08_reply(tvbuff_t *tvb, int offset,
   IDL );
 */
 static int
-dissect_browser_UNKNOWN_09_rqst(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_set_netlogon_state_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -906,7 +906,7 @@ dissect_browser_UNKNOWN_09_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-dissect_browser_UNKNOWN_09_reply(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_set_netlogon_state_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -968,13 +968,13 @@ dissect_browser_TYPE_12(tvbuff_t *tvb, int offset,
 
 
 /*
-  IDL long Function_0a(
+  IDL long BrowserrQueryEmulatedDomains(
   IDL       [in] [unique] [string] wchar_t *element_84,
   IDL       [in,out] [ref] TYPE_12 *element_85
   );
 */
 static int
-dissect_browser_UNKNOWN_0a_rqst(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_query_emulated_domains_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -989,7 +989,7 @@ dissect_browser_UNKNOWN_0a_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-dissect_browser_UNKNOWN_0a_reply(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_query_emulated_domains_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -1005,7 +1005,7 @@ dissect_browser_UNKNOWN_0a_reply(tvbuff_t *tvb, int offset,
 
 
 /*
-  IDL long Function_0b(
+  IDL long BrowserrServerEnumEx(
   IDL       [in] [unique] [string] wchar_t *element_86,
   IDL       [in] [unique] [string] wchar_t *element_87,
   IDL       [in] [unique] [string] wchar_t *element_88,
@@ -1018,7 +1018,7 @@ dissect_browser_UNKNOWN_0a_reply(tvbuff_t *tvb, int offset,
   IDL );
 */
 static int
-dissect_browser_UNKNOWN_0b_rqst(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_server_enum_ex_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -1055,7 +1055,7 @@ dissect_browser_UNKNOWN_0b_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-dissect_browser_UNKNOWN_0b_reply(tvbuff_t *tvb, int offset,
+dissect_browser_browserr_server_enum_ex_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
@@ -1078,42 +1078,52 @@ dissect_browser_UNKNOWN_0b_reply(tvbuff_t *tvb, int offset,
   IDL }
 */
 static dcerpc_sub_dissector dcerpc_browser_dissectors[] = {
-        { BROWSER_UNKNOWN_00, "BROWSER_UNKNOWN_00",
-		dissect_browser_UNKNOWN_00_rqst,
-		dissect_browser_UNKNOWN_00_reply },
-        { BROWSER_UNKNOWN_01, "BROWSER_UNKNOWN_01",
-		dissect_browser_UNKNOWN_01_rqst,
-		dissect_browser_UNKNOWN_01_reply },
-        { BROWSER_UNKNOWN_02, "BROWSER_UNKNOWN_02",
-		dissect_browser_UNKNOWN_02_rqst,
-		dissect_browser_UNKNOWN_02_reply },
-        { BROWSER_UNKNOWN_03, "BROWSER_UNKNOWN_03",
-		dissect_browser_UNKNOWN_03_rqst,
-		dissect_browser_UNKNOWN_03_reply },
-        { BROWSER_UNKNOWN_04, "BROWSER_UNKNOWN_04",
-		dissect_browser_UNKNOWN_04_rqst,
-		dissect_browser_UNKNOWN_04_reply },
-        { BROWSER_UNKNOWN_05, "BROWSER_UNKNOWN_05",
-		dissect_browser_UNKNOWN_05_rqst,
-		dissect_browser_UNKNOWN_05_reply },
-        { BROWSER_UNKNOWN_06, "BROWSER_UNKNOWN_06",
-		dissect_browser_UNKNOWN_06_rqst,
-		dissect_browser_UNKNOWN_06_reply },
-        { BROWSER_UNKNOWN_07, "BROWSER_UNKNOWN_07",
-		dissect_browser_UNKNOWN_07_rqst,
-		dissect_browser_UNKNOWN_07_reply },
-        { BROWSER_UNKNOWN_08, "BROWSER_UNKNOWN_08",
-		dissect_browser_UNKNOWN_08_rqst,
-		dissect_browser_UNKNOWN_08_reply },
-        { BROWSER_UNKNOWN_09, "BROWSER_UNKNOWN_09",
-		dissect_browser_UNKNOWN_09_rqst,
-		dissect_browser_UNKNOWN_09_reply },
-        { BROWSER_UNKNOWN_0a, "BROWSER_UNKNOWN_0a",
-		dissect_browser_UNKNOWN_0a_rqst,
-		dissect_browser_UNKNOWN_0a_reply },
-        { BROWSER_UNKNOWN_0b, "BROWSER_UNKNOWN_0b",
-		dissect_browser_UNKNOWN_0b_rqst,
-		dissect_browser_UNKNOWN_0b_reply },
+        { BROWSER_BROWSERR_SERVER_ENUM, "BrowserrServerEnum",
+		dissect_browser_browserr_server_enum_rqst,
+		dissect_browser_browserr_server_enum_reply },
+        { BROWSER_BROWSERR_DEBUG_CALL, "BrowserrDebugCall",
+		dissect_browser_browserr_debug_call_rqst,
+		dissect_browser_browserr_debug_call_reply },
+        { BROWSER_BROWSERR_QUERY_OTHER_DOMAINS,	 
+	  "BrowserrQueryOtherDomains",
+		dissect_browser_browserr_query_other_domains_rqst,
+		dissect_browser_browserr_query_other_domains_reply },
+        { BROWSER_BROWSERR_RESET_NETLOGON_STATE, 
+	  "BrowserrResetNetlogonState",
+		dissect_browser_browserr_reset_netlogon_state_rqst,
+		dissect_browser_browserr_reset_netlogon_state_reply },
+        { BROWSER_BROWSERR_DEBUG_TRACE, 
+	  "BrowserrDebugTrace",
+		dissect_browser_browserr_debug_trace_rqst,
+		dissect_browser_browserr_debug_trace_reply },
+        { BROWSER_BROWSERR_QUERY_STATISTICS, 
+	  "BrowserrQueryStatistics",
+		dissect_browser_browserr_query_statistics_rqst,
+		dissect_browser_browserr_query_statistics_reply },
+        { BROWSER_BROWSERR_RESET_STATISTICS, 
+	  "BrowserrResetStatistics",
+		dissect_browser_browserr_reset_statistics_rqst,
+		dissect_browser_browserr_reset_statistics_reply },
+        { BROWSER_NETR_BROWSER_STATISTICS_CLEAR, 
+	  "NetrBrowserStatisticsClear",
+		dissect_browser_netr_browser_statistics_clear_rqst,
+		dissect_browser_netr_browser_statistics_clear_reply },
+        { BROWSER_NETR_BROWSER_STATISTICS_GET, 
+	  "NetrBrowserStatisticsGet",
+		dissect_browser_netr_browser_statistics_get_rqst,
+		dissect_browser_netr_browser_statistics_get_reply },
+        { BROWSER_BROWSERR_SET_NETLOGON_STATE, 
+	  "BrowserrSetNetlogonState",
+		dissect_browser_browserr_set_netlogon_state_rqst,
+		dissect_browser_browserr_set_netlogon_state_reply },
+        { BROWSER_BROWSERR_QUERY_EMULATED_DOMAINS, 
+	  "BrowserrQueryEmulatedDomains",
+		dissect_browser_browserr_query_emulated_domains_rqst,
+		dissect_browser_browserr_query_emulated_domains_reply },
+        { BROWSER_BROWSERR_SERVER_ENUM_EX, 
+	  "BrowserrServerEnumEx",
+		dissect_browser_browserr_server_enum_ex_rqst,
+		dissect_browser_browserr_server_enum_ex_reply },
 
         {0, NULL, NULL,  NULL }
 };
