@@ -7,7 +7,7 @@
  *	http://www.dgs.monash.edu.au/~timf/bottim/
  *	http://www.opt-sci.Arizona.EDU/Pandora/default.asp
  *
- * $Id: packet-quake2.c,v 1.14 2003/05/19 03:23:11 gerald Exp $
+ * $Id: packet-quake2.c,v 1.15 2003/06/12 08:29:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,7 +92,7 @@ dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
 	proto_tree	*cl_tree = NULL;
 	proto_item	*cl_item = NULL;
-	guint8		text[2048];
+	guint8		*text;
 	int		len;
 	int		offset;
 
@@ -115,12 +115,16 @@ dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 	/* all the rest of the packet is just text */
         offset = 4;
 
-        len = tvb_get_nstringz0(tvb, offset, sizeof(text), text);
+        len = tvb_length_remaining(tvb, offset);
         if (cl_tree) {
+                text = g_malloc(len + 1);
+                tvb_memcpy(tvb, text, offset, len);
+                text[len] = '\0';
                 proto_tree_add_string(cl_tree, hf_quake2_connectionless_text,
-                        tvb, offset, len + 1, text);
+                        tvb, offset, len, text);
+                g_free(text);
         }
-        offset += len + 1;
+        offset += len;
 
 	/* we should analyse the result 'text' a bit further */
 	/* for this we need the direction parameter */
@@ -344,18 +348,18 @@ static int
 dissect_quake2_client_commands_uinfo(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
+	guint8 *message;
+	guint len;
 	proto_item *userinfo_item;
-	#define MAX_MSGLEN 1400		/* qcommon.h */
-	guint8 message[MAX_MSGLEN];
-	gint len;
 
-	len = tvb_get_nstringz0(tvb, 0, sizeof(message), message);
+	len = tvb_strsize(tvb, 0);
 
-	if (message[len] == '\0')
-		len++;
-
-	if (tree)
+	if (tree) {
+		message = g_malloc(len);
+		tvb_memcpy(tvb, message, 0, len);
 		userinfo_item = proto_tree_add_text(tree, tvb, 0, len, "Userinfo: %s", 				message);
+		g_free(message);
+	}
 
 	return len;
 }
@@ -364,18 +368,19 @@ static int
 dissect_quake2_client_commands_stringcmd(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree *tree)
 {
+	guint len;
+	guint8 *message;
 	proto_item *stringcmd_item;
-	guint8 message[MAX_MSGLEN];
-	gint len;
 
-	len = tvb_get_nstringz0(tvb, 0, sizeof(message), message);
+	len = tvb_strsize(tvb, 0);
 
-	if (message[len] == '\0')
-		len++;
-
-	if (tree)
+	if (tree) {
+		message = g_malloc(len);
+		tvb_memcpy(tvb, message, 0, len);
 		stringcmd_item = proto_tree_add_text(tree, tvb, 0, len, "Command: %s",
 			message);
+		g_free(message);
+	}
 
 	return len;
 }
