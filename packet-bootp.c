@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.31 2000/05/11 08:15:00 gram Exp $
+ * $Id: packet-bootp.c,v 1.32 2000/05/19 02:16:17 gram Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -57,9 +57,12 @@ static int hf_bootp_hw_addr = -1;
 static int hf_bootp_server = -1;
 static int hf_bootp_file = -1;
 static int hf_bootp_cookie = -1;
+static int hf_bootp_dhcp = -1;
 
 static guint ett_bootp = -1;
 static guint ett_bootp_option = -1;
+
+static char * is_dhcp ;
 
 #define UDP_PORT_BOOTPS  67
 
@@ -299,6 +302,7 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 			}
 			proto_tree_add_text(bp_tree, NullTVB, voff, 3, "Option %d: %s = DHCP %s",
 				code, text, opt53_text[i]);
+			is_dhcp = (char *) opt53_text[i];
 			break;
 
 		/* Parameter Request List */
@@ -562,6 +566,8 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	int			voff, eoff; /* vender offset, end offset */
 	guint32		ip_addr;
 
+	is_dhcp = NULL;
+
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "BOOTP");
 
@@ -670,6 +676,13 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		while (voff < eoff) {
 			voff += bootp_option(pd, bp_tree, voff, eoff);
 		}
+		if (is_dhcp != NULL ) {
+			if (check_col(fd, COL_PROTOCOL))
+				col_add_str(fd, COL_PROTOCOL, "DHCP");
+			if (check_col(fd, COL_INFO))
+				col_add_fstr(fd, COL_INFO, "DHCP %-8s - Trans. ID 0x%x", is_dhcp, pntohl(&pd[offset+4]) );
+			proto_tree_add_item_hidden(bp_tree, hf_bootp_dhcp, NullTVB, 0, 0, 1);
+			}
 	}
 }
 
@@ -677,6 +690,10 @@ void
 proto_register_bootp(void)
 {
   static hf_register_info hf[] = {
+    { &hf_bootp_dhcp,
+      { "Frame is DHCP",                "bootp.dhcp",    FT_BOOLEAN,  BASE_NONE, NULL, 0x0,
+        "" }},                            
+                      
     { &hf_bootp_type,
       { "Message type",			"bootp.type",	 FT_UINT8,  BASE_NONE, NULL, 0x0,
       	"" }},
