@@ -2,7 +2,7 @@
  * Routines for FC Inter-switch link services
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcswils.c,v 1.4 2003/06/30 21:50:17 guy Exp $
+ * $Id: packet-fcswils.c,v 1.5 2003/06/30 21:58:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -178,7 +178,6 @@ static gint ett_fcswils_ufc         = -1;
 static gint ett_fcswils_esc         = -1;
 static gint ett_fcswils_esc_pdesc   = -1;
 
-/* Used in filters */
 static const value_string fc_swils_opcode_key_val[] = {
     {FC_SWILS_SWRJT  , "SW_RJT"},
     {FC_SWILS_SWACC  , "SW_ACC"},
@@ -200,32 +199,6 @@ static const value_string fc_swils_opcode_key_val[] = {
     {FC_SWILS_RCA    , "RCA"},
     {FC_SWILS_SFC    , "SFC"},
     {FC_SWILS_UFC    , "UFC"},
-    {FC_SWILS_ESC    , "ESC"},
-    {0, NULL},
-};
-
-/* Used in Info field */
-static const value_string fc_swils_opcode_val[] = {
-    {FC_SWILS_SWRJT  , "SW_RJT"},
-    {FC_SWILS_SWACC  , "SW_ACC"},
-    {FC_SWILS_ELP    , "ELP"},
-    {FC_SWILS_EFP    , "EFP"},
-    {FC_SWILS_DIA    , "Domain ID Assigned"},
-    {FC_SWILS_RDI    , "Request Domain ID"},
-    {FC_SWILS_HLO    , "Hello"},
-    {FC_SWILS_LSU    , "Link State Update"},
-    {FC_SWILS_LSA    , "Link State Ack"},
-    {FC_SWILS_BF     , "Build Fabric"},
-    {FC_SWILS_RCF    , "Reconfigure Fabric"},
-    {FC_SWILS_RSCN   , "Interswitch RSCN"},
-    {FC_SWILS_DRLIR  , "DRLIR"},
-    {FC_SWILS_DSCN   , "SW_RSCN"},
-    {FC_SWILS_LOOPD  , "LOOPD"},
-    {FC_SWILS_MR     , "Merge Req"},
-    {FC_SWILS_ACA    , "Acquire Change Auth"},
-    {FC_SWILS_RCA    , "Release Change Auth"},
-    {FC_SWILS_SFC    , "Stage Fabric Conf"},
-    {FC_SWILS_UFC    , "Update Fabric Conf"},
     {FC_SWILS_ESC    , "ESC"},
     {0, NULL},
 };
