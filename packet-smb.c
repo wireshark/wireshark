@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.374 2003/10/24 00:36:06 guy Exp $
+ * $Id: packet-smb.c,v 1.375 2003/11/10 08:02:33 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -770,8 +770,17 @@ static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 
 #define END_OF_SMB	\
 	if (bc != 0) { \
-		proto_tree_add_text(tree, tvb, offset, bc, \
-		    "Extra byte parameters");		\
+		gint bc_remaining; \
+		bc_remaining=tvb_length_remaining(tvb, offset); \
+		if( ((gint)bc) > bc_remaining){ \
+			bc=0; \
+		} else { \
+			bc=(guint16)bc_remaining; \
+		} \
+		if(bc){ \
+			proto_tree_add_text(tree, tvb, offset, bc, \
+			    "Extra byte parameters");		\
+		} \
 		offset += bc;				\
 	}						\
 	endofcommand:
