@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.19 2001/04/25 08:31:32 guy Exp $
+ * $Id: plugin_table.h,v 1.20 2001/04/25 08:41:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -43,8 +43,6 @@ typedef void (*addr_proto_register_field_array)(int, hf_register_info*, int);
 typedef void (*addr_proto_register_subtree_array)(int**, int);
 
 typedef void (*addr_dissector_add)(const char *, guint32, dissector_t, int);
-typedef void (*addr_old_dissector_add)(const char *, guint32, old_dissector_t,
-    int);
 typedef void (*addr_dissector_delete)(const char *, guint32, dissector_t);
 
 typedef void (*addr_heur_dissector_add)(const char *, heur_dissector_t, int);
@@ -55,7 +53,6 @@ typedef void (*addr_call_dissector)(dissector_handle_t, tvbuff_t *,
     packet_info *, proto_tree *);
 
 typedef void (*addr_dissect_data)(tvbuff_t *, int, packet_info *, proto_tree *);
-typedef void (*addr_old_dissect_data)(const u_char *, int, frame_data *, proto_tree *);
 
 typedef gboolean (*addr_proto_is_protocol_enabled)(int);
 
@@ -188,7 +185,6 @@ typedef struct  {
 	addr_proto_register_subtree_array	p_proto_register_subtree_array;
 
 	addr_dissector_add			p_dissector_add;
-	addr_old_dissector_add			p_old_dissector_add;
 	addr_dissector_delete			p_dissector_delete;
 
 	addr_heur_dissector_add			p_heur_dissector_add;
@@ -198,7 +194,6 @@ typedef struct  {
 	addr_call_dissector			p_call_dissector;
 
 	addr_dissect_data			p_dissect_data;
-	addr_old_dissect_data			p_old_dissect_data;
 
 	addr_proto_is_protocol_enabled		p_proto_is_protocol_enabled;
 
