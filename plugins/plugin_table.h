@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.37 2002/01/29 08:44:51 guy Exp $
+ * $Id: plugin_table.h,v 1.38 2002/02/02 03:42:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -20,6 +20,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+#ifndef PLUGIN_TABLE_H
+#define PLUGIN_TABLE_H
 
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
 
@@ -125,6 +128,10 @@ typedef proto_item* (*addr_proto_tree_add_int_format)(proto_tree*, int, tvbuff_t
 typedef proto_item* (*addr_proto_tree_add_text)(proto_tree*, tvbuff_t*, gint, gint, const char*, ...);
 
 typedef tvbuff_t* (*addr_tvb_new_subset)(tvbuff_t*, gint, gint, gint);
+
+typedef void (*addr_tvb_set_free_cb)(tvbuff_t*, tvbuff_free_cb_t);
+typedef void (*addr_tvb_set_child_real_data_tvbuff)(tvbuff_t*, tvbuff_t*);
+typedef tvbuff_t* (*addr_tvb_new_real_data)(const guint8*, guint, gint, const gchar*);
 
 typedef guint (*addr_tvb_length)(tvbuff_t*);
 typedef gint (*addr_tvb_length_remaining)(tvbuff_t*, gint);
@@ -292,6 +299,10 @@ typedef struct  {
 
 	addr_tvb_new_subset			p_tvb_new_subset;
 
+	addr_tvb_set_free_cb			p_tvb_set_free_cb;
+	addr_tvb_set_child_real_data_tvbuff	p_tvb_set_child_real_data_tvbuff;
+	addr_tvb_new_real_data			p_tvb_new_real_data;
+
 	addr_tvb_length				p_tvb_length;
 	addr_tvb_length_remaining		p_tvb_length_remaining;
 	addr_tvb_bytes_exist			p_tvb_bytes_exist;
@@ -373,4 +384,6 @@ typedef struct  {
 
 typedef void	plugin_address_table_t;
 
-#endif
+#endif /* PLUGINS_NEED_ADDRESS_TABLE */
+
+#endif /* PLUGIN_TABLE_H */

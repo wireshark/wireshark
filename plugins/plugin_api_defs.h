@@ -1,7 +1,7 @@
 /* plugin_api_defs.h
  * Define the variables that hold pointers to plugin API functions
  *
- * $Id: plugin_api_defs.h,v 1.10 2002/01/29 08:44:51 guy Exp $
+ * $Id: plugin_api_defs.h,v 1.11 2002/02/02 03:42:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -20,6 +20,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+#ifndef PLUGIN_API_DEFS_H
+#define PLUGIN_API_DEFS_H
 
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
 
@@ -113,6 +116,10 @@ addr_proto_tree_add_text		p_proto_tree_add_text;
 
 addr_tvb_new_subset			p_tvb_new_subset;
 
+addr_tvb_set_free_cb			p_tvb_set_free_cb;
+addr_tvb_set_child_real_data_tvbuff	p_tvb_set_child_real_data_tvbuff;
+addr_tvb_new_real_data			p_tvb_new_real_data;
+
 addr_tvb_length				p_tvb_length;
 addr_tvb_length_remaining		p_tvb_length_remaining;
 addr_tvb_bytes_exist			p_tvb_bytes_exist;
@@ -183,3 +190,5 @@ addr_get_CDR_wchar			p_get_CDR_wchar;
 addr_get_CDR_wstring			p_get_CDR_wstring;
 
 #endif /* PLUGINS_NEED_ADDRESS_TABLE */
+
+#endif /* PLUGIN_API_DEFS_H */

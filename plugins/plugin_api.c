@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.34 2002/01/29 08:44:51 guy Exp $
+ * $Id: plugin_api.c,v 1.35 2002/02/02 03:42:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -103,6 +103,9 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_proto_tree_add_int_format		= pat->p_proto_tree_add_int_format;
 	p_proto_tree_add_text			= pat->p_proto_tree_add_text;
 	p_tvb_new_subset			= pat->p_tvb_new_subset;
+	p_tvb_set_free_cb			= pat->p_tvb_set_free_cb;
+	p_tvb_set_child_real_data_tvbuff	= pat->p_tvb_set_child_real_data_tvbuff;
+	p_tvb_new_real_data			= pat->p_tvb_new_real_data;
 	p_tvb_length				= pat->p_tvb_length;
 	p_tvb_length_remaining			= pat->p_tvb_length_remaining;
 	p_tvb_bytes_exist			= pat->p_tvb_bytes_exist;

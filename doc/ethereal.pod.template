@@ -1359,6 +1359,7 @@ B<http://www.ethereal.com>.
   Ricardo Barroetaveña     <rbarroetavena[AT]veufort.com>
   Alan Harrison            <alanharrison[AT]mail.com>
   Mike Frantzen            <frantzen[AT]w4g.org>
+  Charlie Duke             <cduke[AT]fvc.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

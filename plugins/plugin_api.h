@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.35 2002/01/29 08:44:51 guy Exp $
+ * $Id: plugin_api.h,v 1.36 2002/02/02 03:42:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -20,6 +20,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+#ifndef PLUGIN_API_H
+#define PLUGIN_API_H
 
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
 
@@ -111,6 +114,10 @@
 #define	proto_tree_add_text		(*p_proto_tree_add_text)
 
 #define tvb_new_subset			(*p_tvb_new_subset)
+
+#define tvb_set_free_cb			(*p_tvb_set_free_cb)
+#define tvb_set_child_real_data_tvbuff	(*p_tvb_set_child_real_data_tvbuff)
+#define tvb_new_real_data		(*p_tvb_new_real_data)
 
 #define tvb_length			(*p_tvb_length)
 #define tvb_length_remaining		(*p_tvb_length_remaining)
@@ -204,3 +211,5 @@ void plugin_address_table_init(plugin_address_table_t*);
 #else
 #define plugin_address_table_init(x)    ;
 #endif
+
+#endif /* PLUGIN_API_H */
