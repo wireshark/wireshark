@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.39 2000/09/07 05:34:11 gram Exp $
+ * $Id: libpcap.c,v 1.40 2000/09/12 18:35:47 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -230,6 +230,60 @@ static const struct {
 	 * purpose - hopefully nobody will do so in the future.
 	 */
 	{ 19,		WTAP_ENCAP_LINUX_ATM_CLIP },
+
+	/*
+	 * 50 is DLT_PPP_SERIAL in NetBSD; it appears that DLT_PPP
+	 * on BSD (at least according to standard tcpdump) has, as
+	 * the first octet, an indication of whether the packet was
+	 * transmitted or received (rather than having the standard
+	 * PPP address value of 0xff), but that DLT_PPP_SERIAL puts
+	 * a real live PPP header there, or perhaps a Cisco PPP header
+	 * as per section 4.3.1 of RFC 1547 (implementations of this
+	 * exist in various BSDs in "sys/net/if_spppsubr.c", and
+	 * I think also exist either in standard Linux or in
+	 * various Linux patches; the implementations show how to handle
+	 * Cisco keepalive packets).
+	 *
+	 * However, I don't see any obvious place in FreeBSD "if_ppp.c"
+	 * where anything other than the standard PPP header would be
+	 * passed up.  I see some stuff that sets the first octet
+	 * to 0 for incoming and 1 for outgoing packets before applying
+	 * a BPF filter to see whether to drop packets whose protocol
+	 * field has the 0x8000 bit set, i.e. network control protocols -
+	 * those are handed up to userland - but that code puts the
+	 * address field back before passing the packet up.
+	 *
+	 * I also don't see anything immediately obvious that munges
+	 * the address field for sync PPP, either.
+	 *
+	 * Ethereal currently assumes that if the first octet of a
+	 * PPP frame is 0xFF, it's the address field and is followed
+	 * by a control field and a 2-byte protocol, otherwise the
+	 * address and control fields are absent and the frame begins
+	 * with a protocol field.  If we ever see a BSD/OS PPP
+	 * capture, we'll have to handle it differently, and we may
+	 * have to handle standard BSD captures differently if, in fact,
+	 * they don't have 0xff 0x03 as the first two bytes - but, as per
+	 * the two paragraphs preceding this, it's not clear that
+	 * the address field *is* munged into an incoming/outgoing
+	 * field when the packet is handed to the BPF device.
+	 *
+	 * For now, we just map DLT_PPP_SERIAL to WTAP_ENCAP_PPP, as
+	 * we treat WTAP_ENCAP_PPP packets as if those beginning with
+	 * 0xff have the standard RFC 1662 "PPP in HDLC-like Framing"
+	 * 0xff 0x03 address/control header, and DLT_PPP_SERIAL frames
+	 * appear to contain that unless they're Cisco frames (if we
+	 * ever see a capture with them, we'd need to implement the
+	 * RFC 1547 stuff, and the keepalive protocol stuff).
+	 *
+	 * We may have to distinguish between "PPP where if it doesn't
+	 * begin with 0xff there's no HDLC encapsulation and the frame
+	 * begins with the protocol field" (which is how we handle
+	 * WTAP_ENCAP_PPP now) and "PPP where there's either HDLC
+	 * encapsulation or Cisco PPP" (which is what DLT_PPP_SERIAL
+	 * is) at some point.
+	 */
+	{ 50,		WTAP_ENCAP_PPP },
 
 	/*
 	 * These are the values that libpcap 0.5 uses, in an attempt
