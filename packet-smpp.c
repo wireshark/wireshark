@@ -2,7 +2,7 @@
  * Routines for Short Message Peer to Peer dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-smpp.c,v 1.5 2002/03/10 01:02:06 guy Exp $
+ * $Id: packet-smpp.c,v 1.6 2002/03/10 03:08:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2203,9 +2203,15 @@ proto_reg_handoff_smpp(void)
 
     /*
      * SMPP can be spoken on any port under TCP or X.25
-     * ...how *do* we do that under x.25?
+     * ...how *do* we do that under X.25?
+     *
+     * We can register the heuristic SMPP dissector with X.25, for one
+     * thing.  We don't currently have any mechanism to allow the user
+     * to specify that a given X.25 circuit is to be dissected as SMPP,
+     * however.
      */
     smpp_handle = create_dissector_handle(dissect_smpp, proto_smpp);
     dissector_add_handle("tcp.port", smpp_handle);
     heur_dissector_add("tcp", dissect_smpp_heur, proto_smpp);
+    heur_dissector_add("x.25", dissect_smpp_heur, proto_smpp);
 }
