@@ -157,13 +157,21 @@ Ethereal is still under constant development, so it is possible that you will
 encounter a bug while using it. Please report bugs to ethereal-dev@zing.org.
 Be sure you tell us:
 
-	1) Operating System and version
+	1) Operating System and version (the command 'uname -sr' may
+	   tell you this, although on Linux systems it will probably
+	   tell you only the version number of the Linux kernel, not of
+	   the distribution as a whole; on Linux systems, please tell us
+	   both the version number of the kernel, and which version of
+	   which distribution you're running)
 	2) Version of GTK+ (the command 'gtk-config --version' will tell you)
-	3) The command you used to invoke Ethereal
+	3) Version of Ethereal (the command 'ethereal -v' will tell you,
+	   unless the bug is so severe as to prevent that from working)
+	4) The command you used to invoke Ethereal, and the sequence of
+	   operations you performed that caused the bug to appear
 
 If the bug is produced by a particular trace file, please be sure to send
 a trace file along with your bug description. Please don't send a trace file
-greather than 1 MB when compressed. If the trace file contains sensitive
+greater than 1 MB when compressed. If the trace file contains sensitive
 information (e.g., passwords), then please do not send it.
 
 If Ethereal died on you with a 'segmentation violation', you can help the
