@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.35 2000/07/08 07:52:11 guy Exp $
+ * $Id: packet-bootp.c,v 1.36 2000/07/09 22:46:53 guy Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -62,8 +62,6 @@ static int hf_bootp_dhcp = -1;
 static guint ett_bootp = -1;
 static guint ett_bootp_option = -1;
 
-static char * is_dhcp ;
-
 #define UDP_PORT_BOOTPS  67
 
 enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
@@ -79,21 +77,12 @@ struct opt_info {
 #define NUM_OPT_INFOS 77
 #define NUM_O63_SUBOPTS 11
 
-/* returns the number of bytes consumed by this option */
-static int
-bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
+static int dissect_netware_ip_suboption(proto_tree *v_tree, const u_char *pd,
+    int optp);
+
+static const char *
+get_dhcp_type(guint8 byte)
 {
-	char			*text;
-	enum field_type	ftype;
-	u_char			code = pd[voff];
-	int				vlen = pd[voff+1];
-	u_char			byte;
-	int				i,slask,optp, consumed = vlen + 2;
-	u_long			time_secs;
-	proto_tree		*v_tree,*o63_v_tree;
-	proto_item		*vti;
-
-
 	static const char	*opt53_text[] = {
 		"Unknown Message Type",
 		"Discover",
@@ -105,33 +94,35 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 		"Release",
 		"Inform"
 	};
+	int i;
+
+	if (byte > 0 && byte < (sizeof opt53_text / sizeof opt53_text[0]))
+		i = byte;
+	else
+		i = 0;
+	return opt53_text[i];
+}
+
+/* Returns the number of bytes consumed by this option. */
+static int
+bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
+{
+	char			*text;
+	enum field_type		ftype;
+	u_char			code = pd[voff];
+	int			vlen = pd[voff+1];
+	u_char			byte;
+	int			i,optp, consumed = vlen + 2;
+	u_long			time_secs;
+	proto_tree		*v_tree;
+	proto_item		*vti;
+
 	static const value_string nbnt_vals[] = {
 	    {0x1,   "B-node" },
 	    {0x2,   "P-node" },
 	    {0x4,   "M-node" },
 	    {0x8,   "H-node" },
 	    {0,     NULL     } };
-
-	struct o63_opt_info { 
-		char	*truet;
-		char 	*falset;
-		enum field_type	ft;
-	};
-
-	static struct o63_opt_info o63_opt[]= {
-		/* 0 */ {"","",none},
-		/* 1 */ {"NWIP does not exist on subnet","",string},
-		/* 2 */ {"NWIP exist in options area","",string},
-		/* 3 */ {"NWIP exists in sname/file","",string},
-		/* 4 */ {"NWIP exists, but too big","",string},
-		/* 5 */ {"Broadcast for nearest Netware server","Do NOT Broadcast for nearest Netware server",yes_no}, 
-		/* 6 */ {"Preferred DSS server","",ipv4},
-		/* 7 */ {"Nearest NWIP server","",ipv4},
-		/* 8 */ {"Autoretries","",val_u_short},
-		/* 9 */ {"Autoretry delay, secs ","",val_u_short},
-		/* 10*/ {"Support NetWare/IP v1.1","Do NOT support NetWare/IP v1.1",yes_no},
-		/* 11*/ {"Primary DSS ", "" , special} };
-		
 
 	static struct opt_info opt[] = {
 		/*   0 */ { "Padding",								none },
@@ -213,226 +204,149 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 		/*  76 */ { "StreetTalk Directory Assistance Server", ipv4 }
 	};
 
+	/* Options whose length isn't "vlen + 2". */
+	switch (code) {
+
+	case 0:		/* Padding */
+		/* check how much padding we have */
+		for (i = voff + 1; i < eoff; i++ ) {
+			if (pd[i] != 0) {
+				break;
+			}
+		}
+		i = i - voff;
+		if (bp_tree != NULL)
+			proto_tree_add_text(bp_tree, NullTVB, voff, i, "Padding");
+		consumed = i;
+		return consumed;
+		break;
+
+	case 255:	/* End Option */
+		if (bp_tree != NULL)
+			proto_tree_add_text(bp_tree, NullTVB, voff, 1, "End Option");
+		consumed = 1;
+		return consumed;
+	}
+
+	if (bp_tree == NULL) {
+		/* Don't put anything in the protocol tree. */
+		return consumed;
+	}
+
 	text = opt[code].text;
 	/* Special cases */
 	switch (code) {
-		/* Padding */
-		case 0:
-			/* check how much padding we have */
-			for (i = voff + 1; i < eoff; i++ ) {
-				if (pd[i] != 0) {
-					break;
-				}
-			}
-			i = i - voff;
-			proto_tree_add_text(bp_tree, NullTVB, voff, i, "Padding");
-			consumed = i;
-			return consumed;
 
-		/* Policy Filter */
-		case 21:
+	case 21:	/* Policy Filter */
+		if (vlen == 8) {
 			/* one IP address pair */
-			if (vlen == 8) {
-				proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
-					"Option %d: %s = %s/%s", code, text,
-					ip_to_str((guint8*)&pd[voff+2]),
-					ip_to_str((guint8*)&pd[voff+6]));
-			}
-			/* > 1 IP address pair. Let's make a sub-tree */
-			else {
-
-				vti = proto_tree_add_text(bp_tree, NullTVB, voff,
-					consumed, "Option %d: %s", code, text);
-				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				for (i = voff + 2; i < voff + consumed; i += 8) {
-					proto_tree_add_text(v_tree, NullTVB, i, 8, "IP Address/Mask: %s/%s",
-						ip_to_str((guint8*)&pd[i]),
-						ip_to_str((guint8*)&pd[i+4]));
-				}
-			}
-			break;
-
-		/* Static Route */
-		case 33:
-			/* one IP address pair */
-			if (vlen == 8) {
-				proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
-					"Option %d: %s = %s/%s", code, text,
-					ip_to_str((guint8*)&pd[voff+2]),
-					ip_to_str((guint8*)&pd[voff+6]));
-			}
-			/* > 1 IP address pair. Let's make a sub-tree */
-			else {
-
-				vti = proto_tree_add_text(bp_tree, NullTVB, voff,
-					consumed, "Option %d: %s", code, text);
-				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				for (i = voff + 2; i < voff + consumed; i += 8) {
-					proto_tree_add_text(v_tree, NullTVB, i, 8,
-						"Destination IP Address/Router: %s/%s",
-						ip_to_str((guint8*)&pd[i]),
-						ip_to_str((guint8*)&pd[i+4]));
-				}
-			}
-			break;
-
-		/* Vendor-Specific Info */
-		case 43:
 			proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
-					"Option %d: %s", code, text);
-			break;
-
-		/* NetBIOS-over-TCP/IP Node Type */
-		case 46:
-			byte = pd[voff+2];
-			proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
-					"Option %d: %s = %s", code, text,
-					val_to_str(byte, nbnt_vals,
-					    "Unknown (0x%02x)"));
-			break;
-				
-		/* DHCP Message Type */
-		case 53:
-			byte = pd[voff+2];
-			if (byte > 0 && byte < 9) {
-				i = byte;
-			}
-			else {
-				i = 0;
-			}
-			proto_tree_add_text(bp_tree, NullTVB, voff, 3, "Option %d: %s = DHCP %s",
-				code, text, opt53_text[i]);
-			is_dhcp = (char *) opt53_text[i];
-			break;
-
-		/* Parameter Request List */
-		case 55:
+				"Option %d: %s = %s/%s", code, text,
+				ip_to_str((guint8*)&pd[voff+2]),
+				ip_to_str((guint8*)&pd[voff+6]));
+		} else {
+			/* > 1 IP address pair. Let's make a sub-tree */
 			vti = proto_tree_add_text(bp_tree, NullTVB, voff,
-				vlen + 2, "Option %d: %s", code, text);
+				consumed, "Option %d: %s", code, text);
 			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			for (i = 0; i < vlen; i++) {
-				byte = pd[voff+2+i];
-				if (byte < NUM_OPT_INFOS) {
-					proto_tree_add_text(v_tree, NullTVB, voff+2+i, 1, "%d = %s",
-							byte, opt[byte].text);
-				}
-				else {
-					proto_tree_add_text(vti, NullTVB, voff+2+i, 1,
-						"Unknown Option Code: %d", byte);
-				}
+			for (i = voff + 2; i < voff + consumed; i += 8) {
+				proto_tree_add_text(v_tree, NullTVB, i, 8, "IP Address/Mask: %s/%s",
+					ip_to_str((guint8*)&pd[i]),
+					ip_to_str((guint8*)&pd[i+4]));
 			}
-			break;
-
-		/* Client Identifier */
-		case 61:
-			/* We *MAY* use hwtype/hwaddr. If we have 7 bytes, I'll
-				guess that the first is the hwtype, and the last 6 are
-				the hw addr */
-			if (vlen == 7) {
-				vti = proto_tree_add_text(bp_tree, NullTVB, voff,
-					consumed, "Option %d: %s", code, text);
-				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				proto_tree_add_text(v_tree, NullTVB, voff+2, 1,
-					"Hardware type: %s",
-					arphrdtype_to_str(pd[voff+2],
-						"Unknown (0x%02x)"));
-				proto_tree_add_text(v_tree, NullTVB, voff+3, 6,
-					"Client hardware address: %s",
-					arphrdaddr_to_str((guint8*)&pd[voff+3],
-						6, pd[voff+2]));
-			}
-			/* otherwise, it's opaque data */
-			else {
-				proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
-					"Option %d: %s (%d bytes)", code, text, vlen);
-			}
-			break;
-
-		/* NetWare/IP options */
-		case 63:
-			vti = proto_tree_add_text(bp_tree, NullTVB, voff,
-			consumed, "Option %d: %s", code, text);
-			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-
-			i=1;
-			optp=voff+2;
-			while ( optp < (voff+consumed) ) {
-				if (pd[optp] > NUM_O63_SUBOPTS) {
-						proto_tree_add_text(v_tree, NullTVB,optp,1,"Unknown suboption %d", pd[optp]);
-						optp++;
-				} else {
-			
-				switch (o63_opt[pd[optp]].ft) {
-
-					case string:
-						proto_tree_add_text(v_tree, NullTVB, optp, 2, "Suboption %d: %s", pd[optp], o63_opt[pd[optp]].truet);
-						optp+=2;
-						break;
-
-					case yes_no:
-						if (pd[optp+2]==1) {
-							proto_tree_add_text(v_tree, NullTVB, optp, 3, "Suboption %d: %s", pd[optp], o63_opt[pd[optp]].truet);
-						} else {
-							proto_tree_add_text(v_tree, NullTVB, optp, 3, "Suboption %d: %s" , pd[optp], o63_opt[pd[optp]].falset);
-						}
-						optp+=3;
-						break;
-
-					case special:	
-						proto_tree_add_text(v_tree, NullTVB, optp, 6,
-						"Suboption %d: %s = %s" ,
-						pd[optp], o63_opt[pd[optp]].truet,
-						ip_to_str((guint8*)&pd[optp+2]));
-						optp=optp+6;
-						break;
-
-					case val_u_short:
-						proto_tree_add_text(v_tree, NullTVB, optp, 3, "Suboption %d: %s = %d",pd[optp], o63_opt[pd[optp]].truet, pd[optp+2]);
-						optp+=3;
-						break;
-							
-					case ipv4:
-		/* one IP address */
-		if (pd[optp+1] == 4) {
-			proto_tree_add_text(v_tree, NullTVB, optp, 6,
-			"Suboption %d : %s = %s" ,
-			pd[optp], o63_opt[pd[optp]].truet,
-			ip_to_str((guint8*)&pd[optp+2]));
-			optp=optp+6;
-		}
-		/* > 1 IP addresses. Let's make a sub-tree */
-		else {
-
-			vti = proto_tree_add_text(v_tree, NullTVB, optp,
-			pd[optp+1]+2, "Suboption %d: %s",
-			pd[optp], o63_opt[pd[optp]].truet);
-			o63_v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-			for (slask = optp + 2 ; slask < optp+pd[optp+1]; slask += 4) {
-				proto_tree_add_text(o63_v_tree, NullTVB, slask, 4, "IP Address: %s",
-				ip_to_str((guint8*)&pd[slask]));
-			}
-			optp=slask;
 		}
 		break;
-					default:
-						proto_tree_add_text(v_tree, NullTVB,optp,1,"Unknown suboption %d", pd[optp]);
-						optp++;
-						break;
-				}
-				}
-				i++;
+
+	case 33:	/* Static Route */
+		if (vlen == 8) {
+			/* one IP address pair */
+			proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
+				"Option %d: %s = %s/%s", code, text,
+				ip_to_str((guint8*)&pd[voff+2]),
+				ip_to_str((guint8*)&pd[voff+6]));
+		} else {
+			/* > 1 IP address pair. Let's make a sub-tree */
+			vti = proto_tree_add_text(bp_tree, NullTVB, voff,
+				consumed, "Option %d: %s", code, text);
+			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			for (i = voff + 2; i < voff + consumed; i += 8) {
+				proto_tree_add_text(v_tree, NullTVB, i, 8,
+					"Destination IP Address/Router: %s/%s",
+					ip_to_str((guint8*)&pd[i]),
+					ip_to_str((guint8*)&pd[i+4]));
 			}
-			break;
+		}
+		break;
 
-		/* End Option */
-		case 255:
-			proto_tree_add_text(bp_tree, NullTVB, voff, 1, "End Option");
-			consumed = 1;
-			return consumed;
+	case 43:	/* Vendor-Specific Info */
+		proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
+				"Option %d: %s", code, text);
+		break;
 
-		default:
-			/* nothing */
-			break;
+	case 46:	/* NetBIOS-over-TCP/IP Node Type */
+		byte = pd[voff+2];
+		proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
+				"Option %d: %s = %s", code, text,
+				val_to_str(byte, nbnt_vals,
+				    "Unknown (0x%02x)"));
+		break;
+				
+	case 53:	/* DHCP Message Type */
+		proto_tree_add_text(bp_tree, NullTVB, voff, 3, "Option %d: %s = DHCP %s",
+			code, text, get_dhcp_type(pd[voff+2]));
+		break;
+
+	case 55:	/* Parameter Request List */
+		vti = proto_tree_add_text(bp_tree, NullTVB, voff,
+			vlen + 2, "Option %d: %s", code, text);
+		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+		for (i = 0; i < vlen; i++) {
+			byte = pd[voff+2+i];
+			if (byte < NUM_OPT_INFOS) {
+				proto_tree_add_text(v_tree, NullTVB, voff+2+i, 1, "%d = %s",
+						byte, opt[byte].text);
+			} else {
+				proto_tree_add_text(vti, NullTVB, voff+2+i, 1,
+					"Unknown Option Code: %d", byte);
+			}
+		}
+		break;
+
+	case 61:	/* Client Identifier */
+		/* We *MAY* use hwtype/hwaddr. If we have 7 bytes, I'll
+		   guess that the first is the hwtype, and the last 6
+		   are the hw addr */
+		if (vlen == 7) {
+			vti = proto_tree_add_text(bp_tree, NullTVB, voff,
+				consumed, "Option %d: %s", code, text);
+			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+			proto_tree_add_text(v_tree, NullTVB, voff+2, 1,
+				"Hardware type: %s",
+				arphrdtype_to_str(pd[voff+2],
+					"Unknown (0x%02x)"));
+			proto_tree_add_text(v_tree, NullTVB, voff+3, 6,
+				"Client hardware address: %s",
+				arphrdaddr_to_str((guint8*)&pd[voff+3],
+					6, pd[voff+2]));
+		} else {
+			/* otherwise, it's opaque data */
+			proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
+				"Option %d: %s (%d bytes)", code, text, vlen);
+		}
+		break;
+
+	case 63:	/* NetWare/IP options */
+		vti = proto_tree_add_text(bp_tree, NullTVB, voff,
+		    consumed, "Option %d: %s", code, text);
+		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+
+		optp = voff+2;
+		while (optp < voff+consumed)
+			optp = dissect_netware_ip_suboption(v_tree, pd, optp);
+		break;
+
+	default:	/* not special */
+		break;
 	}
 
 	/* Normal cases */
@@ -441,116 +355,111 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 		ftype = opt[code].ftype;
 
 		switch (ftype) {
-			case special:
-				return consumed;
 
-			case ipv4:
+		case special:
+			return consumed;
+
+		case ipv4:
+			if (vlen == 4) {
 				/* one IP address */
-				if (vlen == 4) {
-					proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
-						"Option %d: %s = %s", code, text,
-						ip_to_str((guint8*)&pd[voff+2]));
-				}
-				/* > 1 IP addresses. Let's make a sub-tree */
-				else {
-
-					vti = proto_tree_add_text(bp_tree, NullTVB, voff,
-						consumed, "Option %d: %s", code, text);
-					v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-					for (i = voff + 2; i < voff + consumed; i += 4) {
-						proto_tree_add_text(v_tree, NullTVB, i, 4, "IP Address: %s",
-							ip_to_str((guint8*)&pd[i]));
-					}
-				}
-				break;
-
-			case string:
-				/* Fix for non null-terminated string supplied by
-				 * John Lines <John.Lines@aeat.co.uk>
-				 */
-				proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
-						"Option %d: %s = %.*s", code, text, vlen, &pd[voff+2]);
-				break;
-
-			case opaque:
-				proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
-						"Option %d: %s (%d bytes)",
-						code, text, vlen);
-				break;
-
-			case val_u_short:
-				/* one IP address */
-				if (vlen == 2) {
-					proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
-							"Option %d: %s = %d", code, text,
-							pntohs(&pd[voff+2]));
-				}
-				/* > 1 u_short */
-				else {
-					vti = proto_tree_add_text(bp_tree, NullTVB, voff,
-						consumed, "Option %d: %s", code, text);
-					v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-					for (i = voff + 2; i < voff + consumed; i += 2) {
-						proto_tree_add_text(v_tree, NullTVB, i, 4, "Value: %d",
-							pntohs(&pd[i]));
-					}
-				}
-				break;
-
-			case val_u_long:
-				proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
-						"Option %d: %s = %d", code, text,
-						pntohl(&pd[voff+2]));
-				break;
-
-			case val_u_byte:
-				proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
-						"Option %d: %s = %d", code, text, pd[voff+2]);
-				break;
-
-			case toggle:
-				i = pd[voff+2];
-				if (i != 0 && i != 1) {
-					proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
-							"Option %d: %s = Invalid Value %d", code, text,
-							pd[voff+2]);
-				}
-				else {
-					proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
-							"Option %d: %s = %s", code, text,
-							pd[voff+2] == 0 ? "Disabled" : "Enabled");
-				}
-				break;
-
-			case yes_no:
-				i = pd[voff+2];
-				if (i != 0 && i != 1) {
-					proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
-							"Option %d: %s = Invalid Value %d", code, text,
-							pd[voff+2]);
-				}
-				else {
-					proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
-							"Option %d: %s = %s", code, text,
-							pd[voff+2] == 0 ? "No" : "Yes");
-				}
-				break;
-
-			case time_in_secs:
-				time_secs = pntohl(&pd[voff+2]);
 				proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
 					"Option %d: %s = %s", code, text,
-					((time_secs == 0xffffffff) ?
-					    "infinity" :
-					    time_secs_to_str(time_secs)));
-				break;
+					ip_to_str((guint8*)&pd[voff+2]));
+			} else {
+				/* > 1 IP addresses. Let's make a sub-tree */
+				vti = proto_tree_add_text(bp_tree, NullTVB, voff,
+					consumed, "Option %d: %s", code, text);
+				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				for (i = voff + 2; i < voff + consumed; i += 4) {
+					proto_tree_add_text(v_tree, NullTVB, i, 4, "IP Address: %s",
+						ip_to_str((guint8*)&pd[i]));
+				}
+			}
+			break;
 
-			default:
+		case string:
+			/* Fix for non null-terminated string supplied by
+			 * John Lines <John.Lines@aeat.co.uk>
+			 */
+			proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
+					"Option %d: %s = %.*s", code, text, vlen, &pd[voff+2]);
+			break;
+
+		case opaque:
+			proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
+					"Option %d: %s (%d bytes)",
+					code, text, vlen);
+			break;
+
+		case val_u_short:
+			if (vlen == 2) {
+				/* one u_short */
 				proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
-						"Option %d: %s (%d bytes)", code, text, vlen);
+						"Option %d: %s = %d", code, text,
+						pntohs(&pd[voff+2]));
+			} else {
+				/* > 1 u_short */
+				vti = proto_tree_add_text(bp_tree, NullTVB, voff,
+					consumed, "Option %d: %s", code, text);
+				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				for (i = voff + 2; i < voff + consumed; i += 2) {
+					proto_tree_add_text(v_tree, NullTVB, i, 4, "Value: %d",
+						pntohs(&pd[i]));
+				}
+			}
+			break;
+
+		case val_u_long:
+			proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
+					"Option %d: %s = %d", code, text,
+					pntohl(&pd[voff+2]));
+			break;
+
+		case val_u_byte:
+			proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
+					"Option %d: %s = %d", code, text, pd[voff+2]);
+			break;
+
+		case toggle:
+			i = pd[voff+2];
+			if (i != 0 && i != 1) {
+				proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
+						"Option %d: %s = Invalid Value %d", code, text,
+						pd[voff+2]);
+			} else {
+				proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
+						"Option %d: %s = %s", code, text,
+						pd[voff+2] == 0 ? "Disabled" : "Enabled");
+			}
+			break;
+
+		case yes_no:
+			i = pd[voff+2];
+			if (i != 0 && i != 1) {
+				proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
+						"Option %d: %s = Invalid Value %d", code, text,
+						pd[voff+2]);
+			} else {
+				proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
+						"Option %d: %s = %s", code, text,
+						pd[voff+2] == 0 ? "No" : "Yes");
+			}
+			break;
+
+		case time_in_secs:
+			time_secs = pntohl(&pd[voff+2]);
+			proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
+				"Option %d: %s = %s", code, text,
+				((time_secs == 0xffffffff) ?
+				    "infinity" :
+				    time_secs_to_str(time_secs)));
+			break;
+
+		default:
+			proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
+					"Option %d: %s (%d bytes)", code, text, vlen);
 		}
-	}
-	else {
+	} else {
 		proto_tree_add_text(bp_tree, NullTVB, voff, consumed,
 				"Unknown Option Code: %d (%d bytes)", code, vlen);
 	}
@@ -558,15 +467,107 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 	return consumed;
 }
 
+static int
+dissect_netware_ip_suboption(proto_tree *v_tree, const u_char *pd, int optp)
+{
+	int slask;
+	proto_tree *o63_v_tree;
+	proto_item *vti;
+
+	struct o63_opt_info { 
+		char	*truet;
+		char 	*falset;
+		enum field_type	ft;
+	};
+
+	static struct o63_opt_info o63_opt[]= {
+		/* 0 */ {"","",none},
+		/* 1 */ {"NWIP does not exist on subnet","",string},
+		/* 2 */ {"NWIP exist in options area","",string},
+		/* 3 */ {"NWIP exists in sname/file","",string},
+		/* 4 */ {"NWIP exists, but too big","",string},
+		/* 5 */ {"Broadcast for nearest Netware server","Do NOT Broadcast for nearest Netware server",yes_no}, 
+		/* 6 */ {"Preferred DSS server","",ipv4},
+		/* 7 */ {"Nearest NWIP server","",ipv4},
+		/* 8 */ {"Autoretries","",val_u_short},
+		/* 9 */ {"Autoretry delay, secs ","",val_u_short},
+		/* 10*/ {"Support NetWare/IP v1.1","Do NOT support NetWare/IP v1.1",yes_no},
+		/* 11*/ {"Primary DSS ", "" , special}
+	};
+		
+	if (pd[optp] > NUM_O63_SUBOPTS) {
+		proto_tree_add_text(v_tree, NullTVB,optp,1,"Unknown suboption %d", pd[optp]);
+		optp++;
+	} else {
+		switch (o63_opt[pd[optp]].ft) {
+
+		case string:
+			proto_tree_add_text(v_tree, NullTVB, optp, 2, "Suboption %d: %s", pd[optp], o63_opt[pd[optp]].truet);
+			optp+=2;
+			break;
+
+		case yes_no:
+			if (pd[optp+2]==1) {
+				proto_tree_add_text(v_tree, NullTVB, optp, 3, "Suboption %d: %s", pd[optp], o63_opt[pd[optp]].truet);
+			} else {
+				proto_tree_add_text(v_tree, NullTVB, optp, 3, "Suboption %d: %s" , pd[optp], o63_opt[pd[optp]].falset);
+			}
+			optp+=3;
+			break;
+
+		case special:	
+			proto_tree_add_text(v_tree, NullTVB, optp, 6,
+			    "Suboption %d: %s = %s" ,
+			    pd[optp], o63_opt[pd[optp]].truet,
+			    ip_to_str((guint8*)&pd[optp+2]));
+			optp=optp+6;
+			break;
+
+		case val_u_short:
+			proto_tree_add_text(v_tree, NullTVB, optp, 3, "Suboption %d: %s = %d",pd[optp], o63_opt[pd[optp]].truet, pd[optp+2]);
+			optp+=3;
+			break;
+							
+		case ipv4:
+			if (pd[optp+1] == 4) {
+				/* one IP address */
+				proto_tree_add_text(v_tree, NullTVB, optp, 6,
+				    "Suboption %d : %s = %s",
+				    pd[optp], o63_opt[pd[optp]].truet,
+				    ip_to_str((guint8*)&pd[optp+2]));
+				optp=optp+6;
+			} else {
+				/* > 1 IP addresses. Let's make a sub-tree */
+				vti = proto_tree_add_text(v_tree, NullTVB, optp,
+				    pd[optp+1]+2, "Suboption %d: %s",
+				    pd[optp], o63_opt[pd[optp]].truet);
+				o63_v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				for (slask = optp + 2 ; slask < optp+pd[optp+1]; slask += 4) {
+					proto_tree_add_text(o63_v_tree, NullTVB, slask, 4, "IP Address: %s",
+					ip_to_str((guint8*)&pd[slask]));
+				}
+				optp=slask;
+			}
+			break;
+		default:
+			proto_tree_add_text(v_tree, NullTVB,optp,1,"Unknown suboption %d", pd[optp]);
+			optp++;
+			break;
+		}
+	}
+	return optp;
+}
+
 static void
 dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-	proto_tree	*bp_tree;
+	proto_tree	*bp_tree = NULL;
 	proto_item	*ti;
-	int			voff, eoff; /* vender offset, end offset */
+	int		voff, eoff; /* vender offset, end offset */
 	guint32		ip_addr;
+	const char	*dhcp_type;
 
-	is_dhcp = NULL;
+	dhcp_type = NULL;
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "BOOTP");
@@ -674,20 +675,26 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			proto_tree_add_ipv4(bp_tree, hf_bootp_cookie, NullTVB,
 					    offset + 236, 4, ip_addr);
 		}
+	}
 
-		voff = offset+240;
-		eoff = pi.captured_len;
-
-		while (voff < eoff) {
-			voff += bootp_option(pd, bp_tree, voff, eoff);
-		}
-		if (is_dhcp != NULL ) {
-			if (check_col(fd, COL_PROTOCOL))
-				col_add_str(fd, COL_PROTOCOL, "DHCP");
-			if (check_col(fd, COL_INFO))
-				col_add_fstr(fd, COL_INFO, "DHCP %-8s - Trans. ID 0x%x", is_dhcp, pntohl(&pd[offset+4]) );
-			proto_tree_add_boolean_hidden(bp_tree, hf_bootp_dhcp, NullTVB, 0, 0, 1);
-			}
+	voff = offset+240;
+	eoff = pi.captured_len;
+	while (voff < eoff) {
+		/* Handle the DHCP option specially here, so that we
+		   can flag DHCP packets as such. */
+		if (pd[voff] == 53)
+			dhcp_type = get_dhcp_type(pd[voff+2]);
+		voff += bootp_option(pd, bp_tree, voff, eoff);
+	}
+	if (dhcp_type != NULL ) {
+		if (check_col(fd, COL_PROTOCOL))
+			col_add_str(fd, COL_PROTOCOL, "DHCP");
+		if (check_col(fd, COL_INFO))
+			col_add_fstr(fd, COL_INFO, "DHCP %-8s - Transaction ID 0x%x",
+			    dhcp_type, pntohl(&pd[offset+4]));
+		if (tree)
+			proto_tree_add_boolean_hidden(bp_tree, hf_bootp_dhcp,
+			    NullTVB, 0, 0, 1);
 	}
 }
 
