@@ -2,7 +2,7 @@
  * Dissector for GSS-API tokens as described in rfc2078, section 3.1
  * Copyright 2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-gssapi.c,v 1.9 2002/08/29 16:36:16 sharpe Exp $
+ * $Id: packet-gssapi.c,v 1.10 2002/08/29 17:20:31 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,10 +120,18 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int len;
 	unsigned int i;
 	gchar *p;
-	dissector_handle_t handle;
-	proto_item *sub_item;
-	proto_tree *oid_subtree;
+	dissector_handle_t handle = NULL;
+	/*	proto_item *sub_item;
+		proto_tree *oid_subtree;*/
 	conversation_t *conversation;
+
+	/*
+	 * We need this later, so lets get it now ...
+	 */
+
+	conversation = find_conversation(&pinfo->src, &pinfo->dst,
+					 pinfo->ptype, pinfo->srcport,
+					 pinfo->destport, 0);
 
 	item = proto_tree_add_item(
 		tree, hf_gssapi, tvb, offset, length, FALSE);
@@ -154,23 +162,22 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   * We store that as the conversation data ... after type casting. 
 	   */
 
-	  if (!(conversation = find_conversation(&pinfo->src, &pinfo->dst,
-						 pinfo->ptype, pinfo->srcport,
-						 pinfo->destport, 0))) {
-
+	  if (conversation && 
+	      !(handle = conversation_get_proto_data(conversation, 
+						     proto_gssapi))){
 		proto_tree_add_text(
 			subtree, tvb, offset, 0,
 			"Unknown header (cls=%d, con=%d, tag=%d)",
 			cls, con, tag);
 		goto done;
 	  }
-	  else { /* Call the dissector directly, through the conversation */
+	  else 
+	  {
 	    tvbuff_t *oid_tvb;
 
 	    offset = hnd.offset;
 	    oid_tvb = tvb_new_subset(tvb, offset, -1, -1);
-	    call_dissector((dissector_handle_t)handle, 
-			   oid_tvb, pinfo, subtree);
+	    call_dissector(handle, oid_tvb, pinfo, subtree);
 	  }
 	}
 
@@ -185,12 +192,6 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "GSS-API token", ret);
 		goto done;
 	}
-
-	/* FIXME!
-	 * Here we should create a conversation if needed and 
-	 * save the OID and dissector handle in it for the 
-	 * GSSAPI protocol.
-	 */
 
 	oid_string = format_oid(oid, oid_len);
 
@@ -245,8 +246,34 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (handle) {
 		tvbuff_t *oid_tvb;
 
+		/* 
+		 * Here we should create a conversation if needed and 
+		 * save the OID and dissector handle in it for the 
+		 * GSSAPI protocol.
+		 */
+
+		if (!conversation) { /* Create one */
+		  conversation = conversation_new(&pinfo->src, &pinfo->dst, 
+						  pinfo->ptype, 
+						  pinfo->srcport, 
+						  pinfo->destport, 0);
+		}
+
+		/*
+		 * Now add the proto data ... 
+		 * but only if it is not already there.
+		 */
+
+		if (!conversation_get_proto_data(conversation, proto_gssapi)) {
+		  conversation_add_proto_data(conversation, proto_gssapi, 
+					      handle);
+		}
+
 		oid_tvb = tvb_new_subset(tvb, offset, -1, -1);
 		call_dissector(handle, oid_tvb, pinfo, subtree);
+	}
+	else { /* FIXME, do something if handle not found */
+
 	}
 
  done:
