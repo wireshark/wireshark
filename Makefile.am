@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.602 2003/07/19 22:33:54 gerald Exp $
+# $Id: Makefile.am,v 1.603 2003/07/24 20:22:50 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -264,6 +264,7 @@ DISSECTOR_SRC = \
 	packet-lapb.c  \
 	packet-lapbether.c \
 	packet-lapd.c  \
+	packet-laplink.c  \
 	packet-ldap.c  \
 	packet-ldp.c   \
 	packet-llc.c   \

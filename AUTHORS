@@ -1525,6 +1525,7 @@ Brad Hards <bhards[AT]bigpond.net.au> {
 	ACAP support
 	DISTCC support
 	Jabber client-to-server protocol support
+	Initial Laplink support
 }
 
 cjs 2895 <cjs2895[AT]hotmail.com> {
