@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.58 2002/06/18 05:06:44 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.59 2002/06/18 06:11:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -307,15 +307,13 @@ static gboolean dcerpc_cn_desegment = TRUE;
 */
 static gboolean dcerpc_reassemble = FALSE;
 static GHashTable *dcerpc_co_reassemble_table = NULL;
-static GHashTable *dcerpc_cl_req_fragment_table = NULL;
-static GHashTable *dcerpc_cl_resp_fragment_table = NULL;
+static GHashTable *dcerpc_cl_reassemble_table = NULL;
 
 static void
 dcerpc_reassemble_init(void)
 {
   fragment_table_init(&dcerpc_co_reassemble_table);
-  fragment_table_init(&dcerpc_cl_req_fragment_table);
-  fragment_table_init(&dcerpc_cl_resp_fragment_table);
+  fragment_table_init(&dcerpc_cl_reassemble_table);
 }
 
 /*
@@ -1565,8 +1563,6 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 
     } else {
         dcerpc_call_value *value;
-        int length, reported_length, stub_length;
-	dcerpc_info di;
 
 	/* !!! we can NOT check flags.visited here since this will interact
 	   badly with when SMB handles (i.e. calls the subdissector)
@@ -1615,8 +1611,10 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 
 	value=g_hash_table_lookup (dcerpc_matched, (void *)pinfo->fd->num);
 
-
         if (value) {
+            int length, reported_length, stub_length;
+            dcerpc_info di;
+            gboolean save_fragmented;
 
             /* handoff this call */
             length = tvb_length_remaining(tvb, offset);
@@ -1637,15 +1635,18 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 				    tvb, 0, 0, value->rep_frame);
 	    }
 
+            save_fragmented = pinfo->fragmented;
+
 	    /* If we don't have reassembly enabled, or this packet contains
 	       the entire PDU, or if this is a short frame (or a frame
 	       not reassembled at a lower layer) that doesn't include all
-	       the fragment data, just call the handoff directly if this
-	       is the first fragment or the PDU isn't fragmented. */
+	       the data in the fragment, just call the handoff directly if
+	       this is the first fragment or the PDU isn't fragmented. */
 	    if( (!dcerpc_reassemble) || PFC_NOT_FRAGMENTED(hdr) ||
 			stub_length > length ){
 		if(hdr->flags&PFC_FIRST_FRAG){
 		    /* First fragment, possibly the only fragment */
+                    pinfo->fragmented = !PFC_NOT_FRAGMENTED(hdr);
                     dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                        	        tvb_new_subset (tvb, offset, length,
                                	                reported_length),
@@ -1663,10 +1664,18 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 			}
 		    }
 		}
-            } else if(dcerpc_reassemble){
-		/* It's fragmented, so we need to do reassembly;
-		   we have all the fragment data, so we can attempt
-		   reassembly. */
+            } else {
+		/* Reassembly is enabled, the PDU is fragmented, and
+		   we have all the data in the fragment; the first two
+		   of those mean we should attempt reassembly, and the
+		   third means we can attempt reassembly. */
+		if (dcerpc_tree) {
+		    if (length > 0) {
+			proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+					"Fragment data (%d byte%s)", length,
+					plurality(length, "", "s"));
+		    }
+		}
 		if(hdr->flags&PFC_FIRST_FRAG){  /* FIRST fragment */
 		    if( (!pinfo->fd->flags.visited) && value->req_frame ){
 			fragment_add(tvb, offset, pinfo, value->req_frame,
@@ -1680,25 +1689,10 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 		    if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
 		    }
-		    if (dcerpc_tree) {
-			if (length > 0) {
-			    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-					"Fragment data (%d byte%s)", length,
-					plurality(length, "", "s"));
-			}
-		    }
 		} else if(hdr->flags&PFC_LAST_FRAG){  /* LAST fragment */
 		    if( value->req_frame ){
 			fragment_data *fd_head;
 			guint32 tot_len;
-
-			if (dcerpc_tree) {
-			    if (length > 0) {
-				proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-					"Fragment data (%d byte%s)", length,
-					plurality(length, "", "s"));
-			    }
-			}
 
 			tot_len = fragment_get_tot_len(pinfo, value->req_frame,
 			               dcerpc_co_reassemble_table);
@@ -1719,6 +1713,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 			    show_fragment_tree(fd_head, &dcerpc_frag_items,
 				dcerpc_tree, pinfo, next_tvb);
 
+			    pinfo->fragmented = FALSE;
 			    dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                                 next_tvb,
                                 0, opnum, TRUE, hdr->drep, &di,
@@ -1745,15 +1740,9 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 		    if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
 		    }
-		    if (dcerpc_tree) {
-			if (length > 0) {
-			    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-					"Fragment data (%d byte%s)", length,
-					plurality(length, "", "s"));
-			}
-		    }
 		}
 	    }
+            pinfo->fragmented = save_fragmented;
         }
     }
 }
@@ -1824,8 +1813,9 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 	value=g_hash_table_lookup(dcerpc_matched, (void *)pinfo->fd->num);
 
         if (value) {
-	    int length, reported_length, stub_length;
+            int length, reported_length, stub_length;
             dcerpc_info di;
+            gboolean save_fragmented;
 
             /* handoff this call */
             length = tvb_length_remaining(tvb, offset);
@@ -1847,15 +1837,18 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 				    tvb, 0, 0, value->req_frame);
 	    }
 
+            save_fragmented = pinfo->fragmented;
+
 	    /* If we don't have reassembly enabled, or this packet contains
 	       the entire PDU, or if this is a short frame (or a frame
 	       not reassembled at a lower layer) that doesn't include all
-	       the fragment data, just call the handoff directly if this
-	       is the first fragment or the PDU isn't fragmented. */
+	       the data in the fragment, just call the handoff directly if
+	       this is the first fragment or the PDU isn't fragmented. */
 	    if( (!dcerpc_reassemble) || PFC_NOT_FRAGMENTED(hdr) ||
 			stub_length > length ){
 		if(hdr->flags&PFC_FIRST_FRAG){
 		    /* First fragment, possibly the only fragment */
+                    pinfo->fragmented = !PFC_NOT_FRAGMENTED(hdr);
                     dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                                 tvb_new_subset (tvb, offset, length,
                                                 reported_length),
@@ -1874,10 +1867,18 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 			}
 		    }
 		}
-            } else if(dcerpc_reassemble){
-	        /* It's fragmented, so we need to do reassembly;
-	           we have all the fragment data, so we can attempt
-	           reassembly. */
+            } else {
+		/* Reassembly is enabled, the PDU is fragmented, and
+		   we have all the data in the fragment; the first two
+		   of those mean we should attempt reassembly, and the
+		   third means we can attempt reassembly. */
+		if (dcerpc_tree) {
+		    if (length > 0) {
+			proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+					"Fragment data (%d byte%s)", length,
+					plurality(length, "", "s"));
+		    }
+		}
 	        if(hdr->flags&PFC_FIRST_FRAG){  /* FIRST fragment */
 		    if( (!pinfo->fd->flags.visited) && value->rep_frame ){
 			fragment_add(tvb, offset, pinfo, value->rep_frame,
@@ -1891,25 +1892,10 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 		    if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
 		    }
-		    if (dcerpc_tree) {
-			if (length > 0) {
-			    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-					"Fragment data (%d byte%s)", length,
-					plurality(length, "", "s"));
-			}
-		    }
 		} else if(hdr->flags&PFC_LAST_FRAG){  /* LAST fragment */
 		    if( value->rep_frame ){
 			fragment_data *fd_head;
 			guint32 tot_len;
-
-			if (dcerpc_tree) {
-			    if (length > 0) {
-				proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-						"Fragment data (%d byte%s)", length,
-						plurality(length, "", "s"));
-			    }
-			}
 
 			tot_len = fragment_get_tot_len(pinfo, value->rep_frame,
 			               dcerpc_co_reassemble_table);
@@ -1930,6 +1916,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 			    show_fragment_tree(fd_head, &dcerpc_frag_items,
 				dcerpc_tree, pinfo, next_tvb);
 
+			    pinfo->fragmented = FALSE;
 			    dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                                 next_tvb,
                                 0, value->opnum, FALSE, hdr->drep, &di,
@@ -1956,16 +1943,9 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 		    if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
 		    }
-		    if (dcerpc_tree) {
-			if (length > 0) {
-			    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-					"Fragment data (%d byte%s)", length,
-					plurality(length, "", "s"));
-			}
-		    }
 		}
 	    }
-
+            pinfo->fragmented = save_fragmented;
         }
     }
 }
@@ -2284,11 +2264,18 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (ti) {
             dcerpc_tree = proto_item_add_subtree(ti, ett_dcerpc);
         }
-        offset = 0;
-        proto_tree_add_uint (dcerpc_tree, hf_dcerpc_ver, tvb, offset++, 1, hdr.rpc_ver);
+    }
+    offset = 0;
 
-        proto_tree_add_uint (dcerpc_tree, hf_dcerpc_packet_type, tvb, offset++, 1, hdr.ptype);
+    if (tree)
+        proto_tree_add_uint (dcerpc_tree, hf_dcerpc_ver, tvb, offset, 1, hdr.rpc_ver);
+    offset++;
 
+    if (tree)
+        proto_tree_add_uint (dcerpc_tree, hf_dcerpc_packet_type, tvb, offset, 1, hdr.ptype);
+    offset++;
+
+    if (tree) {
         tf = proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_flags1, tvb, offset, 1, hdr.flags1);
         dg_flags1_tree = proto_item_add_subtree (tf, ett_dcerpc_dg_flags1);
         if (dg_flags1_tree) {
@@ -2301,8 +2288,10 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_boolean (dg_flags1_tree, hf_dcerpc_dg_flags1_broadcast, tvb, offset, 1, hdr.flags1);
             proto_tree_add_boolean (dg_flags1_tree, hf_dcerpc_dg_flags1_rsrvd_80, tvb, offset, 1, hdr.flags1);
         }
-        offset++;
+    }
+    offset++;
 
+    if (tree) {
         tf = proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_flags2, tvb, offset, 1, hdr.flags2);
         dg_flags2_tree = proto_item_add_subtree (tf, ett_dcerpc_dg_flags2);
         if (dg_flags2_tree) {
@@ -2315,8 +2304,10 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_boolean (dg_flags2_tree, hf_dcerpc_dg_flags2_rsrvd_40, tvb, offset, 1, hdr.flags2);
             proto_tree_add_boolean (dg_flags2_tree, hf_dcerpc_dg_flags2_rsrvd_80, tvb, offset, 1, hdr.flags2);
         }
-        offset++;
+    }
+    offset++;
 
+    if (tree) {
         tf = proto_tree_add_bytes (dcerpc_tree, hf_dcerpc_drep, tvb, offset, sizeof (hdr.drep), hdr.drep);
         drep_tree = proto_item_add_subtree (tf, ett_dcerpc_drep);
         if (drep_tree) {
@@ -2324,10 +2315,14 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(drep_tree, hf_dcerpc_drep_character, tvb, offset, 1, hdr.drep[0] & 0x0f);
             proto_tree_add_uint(drep_tree, hf_dcerpc_drep_fp, tvb, offset+1, 1, hdr.drep[1]);
         }
-        offset += sizeof (hdr.drep);
+    }
+    offset += sizeof (hdr.drep);
 
-        proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_serial_hi, tvb, offset++, 1, hdr.serial_hi);
+    if (tree)
+        proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_serial_hi, tvb, offset, 1, hdr.serial_hi);
+    offset++;
 
+    if (tree) {
         proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_obj_id, tvb,
                                       offset, 16, "HMMM",
                                       "Object: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
@@ -2340,8 +2335,10 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                       hdr.obj_id.Data4[5],
                                       hdr.obj_id.Data4[6],
                                       hdr.obj_id.Data4[7]);
-        offset += 16;
+    }
+    offset += 16;
 
+    if (tree) {
         proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_dg_if_id, tvb,
                                       offset, 16, "HMMM",
                                       "Interface: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
@@ -2354,8 +2351,10 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                       hdr.if_id.Data4[5],
                                       hdr.if_id.Data4[6],
                                       hdr.if_id.Data4[7]);
-        offset += 16;
+    }
+    offset += 16;
 
+    if (tree) {
         proto_tree_add_string_format (dcerpc_tree, hf_dcerpc_dg_act_id, tvb,
                                       offset, 16, "HMMM",
                                       "Activity: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
@@ -2368,38 +2367,50 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                       hdr.act_id.Data4[5],
                                       hdr.act_id.Data4[6],
                                       hdr.act_id.Data4[7]);
-        offset += 16;
+    }
+    offset += 16;
 
+    if (tree)
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_server_boot, tvb, offset, 4, hdr.server_boot);
-        offset += 4;
+    offset += 4;
 
+    if (tree)
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_if_ver, tvb, offset, 4, hdr.if_ver);
-        offset += 4;
+    offset += 4;
 
+    if (tree)
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_seqnum, tvb, offset, 4, hdr.seqnum);
-        offset += 4;
+    offset += 4;
 
+    if (tree)
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_opnum, tvb, offset, 2, hdr.opnum);
-        offset += 2;
+    offset += 2;
 
+    if (tree)
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_ihint, tvb, offset, 2, hdr.ihint);
-        offset += 2;
+    offset += 2;
 
+    if (tree)
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_ahint, tvb, offset, 2, hdr.ahint);
-        offset += 2;
+    offset += 2;
 
+    if (tree)
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_frag_len, tvb, offset, 2, hdr.frag_len);
-        offset += 2;
+    offset += 2;
 
+    if (tree)
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_frag_num, tvb, offset, 2, hdr.frag_num);
-        offset += 2;
+    offset += 2;
 
+    if (tree)
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_auth_proto, tvb, offset, 1, hdr.auth_proto);
-        offset++;
+    offset++;
 
+    if (tree)
         proto_tree_add_uint (dcerpc_tree, hf_dcerpc_dg_serial_lo, tvb, offset, 1, hdr.serial_lo);
-        offset++;
+    offset++;
 
+    if (tree) {
         /*
          * XXX - for Kerberos, we can get a protection level; if it's
          * DCE_C_AUTHN_LEVEL_PKT_PRIVACY, we can't dissect the
@@ -2407,6 +2418,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          */
         dissect_dcerpc_dg_auth (tvb, offset, dcerpc_tree, &hdr, NULL);
     }
+
     /* 
      * keeping track of the conversation shouldn't really be necessary
      * for connectionless packets, because everything we need to know
@@ -2430,12 +2442,13 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
 
     switch (hdr.ptype) {
-        int length, reported_length, stub_length;
-	dcerpc_info di;
-        dcerpc_call_value *value, v;
+
+    int length, reported_length, stub_length;
+    dcerpc_info di;
+    dcerpc_call_value *value, v;
+    gboolean save_fragmented;
 
     case PDU_REQ:
-
 	if(!(pinfo->fd->flags.visited)){
 	        dcerpc_call_value *call_value;
 		dcerpc_call_key *call_key;
@@ -2484,11 +2497,13 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	di.request = TRUE;
 	di.call_data = value;
 
+        save_fragmented = pinfo->fragmented;
+
 	/* If we don't have reassembly enabled, or this packet contains
 	   the entire PDU, or if this is a short frame (or a frame
 	   not reassembled at a lower layer) that doesn't include all
-	   the fragment data, just call the handoff directly if this
-	   is the first fragment or the PDU isn't fragmented. */
+	   the data in the fragment, just call the handoff directly if
+	   this is the first fragment or the PDU isn't fragmented. */
 	if( (!dcerpc_reassemble) || !(hdr.flags1 & PFCL1_FRAG) ||
 		stub_length > length ) {
 	    if(hdr.frag_num == 0) {
@@ -2497,6 +2512,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * XXX - authentication level?
 		 */
+                pinfo->fragmented = (hdr.flags1 & PFCL1_FRAG);
 		dcerpc_try_handoff (pinfo, tree, dcerpc_tree, 
 				    tvb_new_subset (tvb, offset, length, 
 						    reported_length),
@@ -2514,18 +2530,27 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    }
 		}
 	    }
-	} else if(dcerpc_reassemble){
-	    /* It's fragmented, so we need to do reassembly;
-	       we have all the fragment data, so we can attempt
-	       reassembly. */
+	} else {
+	    /* Reassembly is enabled, the PDU is fragmented, and
+	       we have all the data in the fragment; the first two
+	       of those mean we should attempt reassembly, and the
+	       third means we can attempt reassembly. */
+	    if (dcerpc_tree) {
+		if (length > 0) {
+		    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+					 "Fragment data (%d byte%s)", length,
+					 plurality(length, "", "s"));
+		}
+	    }
+
 	    fd_head = fragment_add_seq(tvb, offset, pinfo,
-			hdr.seqnum, dcerpc_cl_req_fragment_table,
+			hdr.seqnum, dcerpc_cl_reassemble_table,
 			hdr.frag_num, length, !(hdr.flags1 & PFCL1_LASTFRAG));
 	    if (fd_head != NULL) {
 		/* We completed reassembly */
 		tvbuff_t *next_tvb;
 
-		next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
+		next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
 		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 		add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
 		show_fragment_seq_tree(fd_head, &dcerpc_frag_items,
@@ -2534,6 +2559,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * XXX - authentication level?
 		 */
+		pinfo->fragmented = FALSE;
 		dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
 				    0, hdr.opnum, TRUE, hdr.drep, &di, 0);
 	    } else {
@@ -2541,27 +2567,11 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 		    col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
 		}
-		if (dcerpc_tree) {
-		    if (length > 0) {
-			proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-					"Fragment data (%d byte%s)", length,
-					plurality(length, "", "s"));
-		    }
-		}
-	    }
-	} else {
-	    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
-	    }
-	    if (dcerpc_tree) {
-		if (length > 0) {
-		    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-				"Fragment data (%d byte%s)", length,
-				plurality(length, "", "s"));
-		}
 	    }
 	}
+	pinfo->fragmented = save_fragmented;
         break;
+
     case PDU_RESP:
 	if(!(pinfo->fd->flags.visited)){
 	        dcerpc_call_value *call_value;
@@ -2604,11 +2614,13 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	di.request = FALSE;
         di.call_data = value;
 
+        save_fragmented = pinfo->fragmented;
+
 	/* If we don't have reassembly enabled, or this packet contains
 	   the entire PDU, or if this is a short frame (or a frame
 	   not reassembled at a lower layer) that doesn't include all
-	   the fragment data, just call the handoff directly if this
-	   is the first fragment or the PDU isn't fragmented. */
+	   the data in the fragment, just call the handoff directly if
+	   this is the first fragment or the PDU isn't fragmented. */
 	if( (!dcerpc_reassemble) || !(hdr.flags1 & PFCL1_FRAG) ||
 		stub_length > length ) {
 	    if(hdr.frag_num == 0) {
@@ -2617,6 +2629,7 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * XXX - authentication level?
 		 */
+                pinfo->fragmented = (hdr.flags1 & PFCL1_FRAG);
 		dcerpc_try_handoff (pinfo, tree, dcerpc_tree, 
 				    tvb_new_subset (tvb, offset, length,
 						    reported_length),
@@ -2634,18 +2647,27 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    }
 		}
 	    }
-	} else if(dcerpc_reassemble){
-	    /* It's fragmented, so we need to do reassembly;
-	       we have all the fragment data, so we can attempt
-	       reassembly. */
+	} else {
+	    /* Reassembly is enabled, the PDU is fragmented, and
+	       we have all the data in the fragment; the first two
+	       of those mean we should attempt reassembly, and the
+	       third means we can attempt reassembly. */
+	    if (dcerpc_tree) {
+		if (length > 0) {
+		    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
+					 "Fragment data (%d byte%s)", length,
+					 plurality(length, "", "s"));
+		}
+	    }
+
 	    fd_head = fragment_add_seq(tvb, offset, pinfo,
-			hdr.seqnum, dcerpc_cl_resp_fragment_table,
+			hdr.seqnum, dcerpc_cl_reassemble_table,
 			hdr.frag_num, length, !(hdr.flags1 & PFCL1_LASTFRAG));
 	    if (fd_head != NULL) {
 		/* We completed reassembly */
 		tvbuff_t *next_tvb;
 
-		next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen, fd_head->datalen);
+		next_tvb = tvb_new_real_data(fd_head->data, fd_head->len, fd_head->len);
 		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 		add_new_data_source(pinfo, next_tvb, "Reassembled DCE/RPC");
 		show_fragment_seq_tree(fd_head, &dcerpc_frag_items,
@@ -2654,32 +2676,17 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * XXX - authentication level?
 		 */
+		pinfo->fragmented = FALSE;
 		dcerpc_try_handoff (pinfo, tree, dcerpc_tree, next_tvb,
 				    0, value->opnum, FALSE, hdr.drep, &di, 0);
+	    } else {
 		/* Reassembly isn't completed yet */
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 		    col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
-		}
-		if (dcerpc_tree) {
-		    if (length > 0) {
-			proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-					"Fragment data (%d byte%s)", length,
-					plurality(length, "", "s"));
-		    }
-		}
-	    }
-	} else {
-	    if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "[DCE/RPC fragment]");
-	    }
-	    if (dcerpc_tree) {
-		if (length > 0) {
-		    proto_tree_add_text (dcerpc_tree, tvb, offset, length,
-				"Fragment data (%d byte%s)", length,
-				plurality(length, "", "s"));
-		}
+	        }
 	    }
 	}
+	pinfo->fragmented = save_fragmented;
         break;
     }
 
