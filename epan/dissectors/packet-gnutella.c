@@ -488,79 +488,104 @@ static void dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				GNUTELLA_LONG_LENGTH,
 				size);
 
-            if (size > 0) {
-
-                switch(payload_descriptor) {
-                    case GNUTELLA_PONG:
-                        pi = proto_tree_add_item(
-                            gnutella_header_tree,
-                            hf_gnutella_pong_payload,
-                            tvb,
-                            offset + GNUTELLA_HEADER_LENGTH,
-                            size,
-                            FALSE);
-                        gnutella_pong_tree = proto_item_add_subtree(
-                            pi,
-                            ett_gnutella);
-                        dissect_gnutella_pong(
-                            tvb,
-                            offset + GNUTELLA_HEADER_LENGTH,
-                            gnutella_pong_tree,
-                            size);
-                        break;
-                    case GNUTELLA_PUSH:
-                        pi = proto_tree_add_item(
-                            gnutella_header_tree,
-                            hf_gnutella_push_payload,
-                            tvb,
-                            offset + GNUTELLA_HEADER_LENGTH,
-                            size,
-                            FALSE);
-                        gnutella_push_tree = proto_item_add_subtree(
-                            pi,
-                            ett_gnutella);
-                        dissect_gnutella_push(
-                            tvb,
-                            offset + GNUTELLA_HEADER_LENGTH,
-                            gnutella_push_tree,
-                            size);
-                        break;
-                    case GNUTELLA_QUERY:
-                        pi = proto_tree_add_item(
-                            gnutella_header_tree,
-                            hf_gnutella_query_payload,
-                            tvb,
-                            offset + GNUTELLA_HEADER_LENGTH,
-                            size,
-                            FALSE);
-                        gnutella_query_tree = proto_item_add_subtree(
-                            pi,
-                            ett_gnutella);
-                        dissect_gnutella_query(
-                            tvb,
-                            offset + GNUTELLA_HEADER_LENGTH,
-                            gnutella_query_tree,
-                            size);
-                        break;
-                    case GNUTELLA_QUERYHIT:
-                        pi = proto_tree_add_item(
-                            gnutella_header_tree,
-                            hf_gnutella_queryhit_payload,
-                            tvb,
-                            offset + GNUTELLA_HEADER_LENGTH,
-                            size,
-                            FALSE);
-                        gnutella_queryhit_tree = proto_item_add_subtree(
-                            pi,
-                            ett_gnutella);
-                        dissect_gnutella_queryhit(
-                            tvb,
-                            offset + GNUTELLA_HEADER_LENGTH,
-                            gnutella_queryhit_tree,
-                            size);
-                        break;
-                }
-            }
+			if (size > 0) {
+				/*
+				 * XXX - the size argument to
+				 * "proto_tree_add_item()" is signed,
+				 * to allow -1 to be used to mean
+				 * "to the end of the packet.
+				 *
+				 * Unfortunately, this means that
+				 * an unsigned 32-bit value could
+				 * be interpreted as a negative
+				 * number, which causes an
+				 * assertion error if it's not 0xFFFFFFFF
+				 * (-1).
+				 *
+				 * So we use "tvb_ensure_bytes_exist()"
+				 * so that we throw an exception if
+				 * not all the data is available - or if
+				 * it's >= 0x80000000, i.e. if it looks
+				 * like a negative number, as if it's
+				 * >= 0x80000000 it's *definitely past
+				 * the end of the tvbuff, because we
+				 * don't have tvbuffs with >2GB of
+				 * data.
+				 */
+				tvb_ensure_bytes_exist(tvb,
+						offset + GNUTELLA_HEADER_LENGTH,
+						size);
+				switch(payload_descriptor) {
+				case GNUTELLA_PONG:
+					pi = proto_tree_add_item(
+						gnutella_header_tree,
+						hf_gnutella_pong_payload,
+						tvb,
+						offset + GNUTELLA_HEADER_LENGTH,
+						size,
+						FALSE);
+					gnutella_pong_tree = proto_item_add_subtree(
+						pi,
+						ett_gnutella);
+					dissect_gnutella_pong(
+						tvb,
+						offset + GNUTELLA_HEADER_LENGTH,
+						gnutella_pong_tree,
+						size);
+					break;
+				case GNUTELLA_PUSH:
+					pi = proto_tree_add_item(
+						gnutella_header_tree,
+						hf_gnutella_push_payload,
+						tvb,
+						offset + GNUTELLA_HEADER_LENGTH,
+						size,
+						FALSE);
+					gnutella_push_tree = proto_item_add_subtree(
+						pi,
+						ett_gnutella);
+					dissect_gnutella_push(
+						tvb,
+						offset + GNUTELLA_HEADER_LENGTH,
+						gnutella_push_tree,
+						size);
+					break;
+				case GNUTELLA_QUERY:
+					pi = proto_tree_add_item(
+						gnutella_header_tree,
+						hf_gnutella_query_payload,
+						tvb,
+						offset + GNUTELLA_HEADER_LENGTH,
+						size,
+						FALSE);
+					gnutella_query_tree = proto_item_add_subtree(
+						pi,
+						ett_gnutella);
+					dissect_gnutella_query(
+						tvb,
+						offset + GNUTELLA_HEADER_LENGTH,
+						gnutella_query_tree,
+						size);
+					break;
+				case GNUTELLA_QUERYHIT:
+					pi = proto_tree_add_item(
+						gnutella_header_tree,
+						hf_gnutella_queryhit_payload,
+						tvb,
+						offset + GNUTELLA_HEADER_LENGTH,
+						size,
+						FALSE);
+					gnutella_queryhit_tree = proto_item_add_subtree(
+						pi,
+						ett_gnutella);
+					dissect_gnutella_queryhit(
+						tvb,
+						offset + GNUTELLA_HEADER_LENGTH,
+						gnutella_queryhit_tree,
+						size);
+					break;
+				}
+			}
 
 			offset = offset + GNUTELLA_HEADER_LENGTH + size;
 		}
