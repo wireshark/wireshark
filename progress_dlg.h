@@ -1,7 +1,7 @@
 /* progress_dlg.h
  * Definitions for progress dialog box routines
  *
- * $Id: progress_dlg.h,v 1.4 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: progress_dlg.h,v 1.5 2002/08/28 22:28:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,7 +58,7 @@ progdlg_t *create_progress_dlg(const gchar *task_title, const gchar *item_title,
  */
 progdlg_t *
 delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
-    const gchar *stop_title, gboolean *stop_flag, GTimeVal *start_time,
+    const gchar *stop_title, gboolean *stop_flag, const GTimeVal *start_time,
     gfloat progress);
 
 /*

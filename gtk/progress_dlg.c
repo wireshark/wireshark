@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.13 2002/08/28 21:03:49 jmayer Exp $
+ * $Id: progress_dlg.c,v 1.14 2002/08/28 22:28:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -219,15 +219,15 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title, const gcha
 
 progdlg_t *
 delayed_create_progress_dlg(const gchar *task_title, const gchar *item_title,
-							const gchar *stop_title, gboolean *stop_flag,
-							GTimeVal *start_time, gfloat progress)
+			    const gchar *stop_title, gboolean *stop_flag,
+			    const GTimeVal *start_time, gfloat progress)
 {
   GTimeVal    time_now;
   gfloat      delta_time;
   gfloat      min_display;
-  progdlg_t	  *dlg;
+  progdlg_t   *dlg;
 
-#define INIT_DELAY          0.5 * 1e6
+#define INIT_DELAY          0.1 * 1e6
 #define MIN_DISPLAY_DEFAULT 2.0 * 1e6
 
 /* Create a progress dialog, but only if it's not likely to disappear
