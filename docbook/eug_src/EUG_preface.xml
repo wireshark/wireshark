@@ -31,8 +31,9 @@
   </para>
   <para>
   This book is not intended to explain network sniffing in general and it will
-  not provide details about specific network protocols. However, as this book
-  evolves in time (like Ethereal itself), this might change in the future.
+  not provide details about specific network protocols. A lot of useful 
+  information regarding these topics can be found at the Ethereal Wiki at
+  <ulink url="&EtherealWikiPage;">&EtherealWikiPage;</ulink>
   </para>
   <para>
   By reading this book, you will learn how to install Ethereal, how to use the 

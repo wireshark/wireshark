@@ -385,7 +385,30 @@
       places that may be of interest to you (well, beside this guide of 
 	  course).
 	</para>
-	
+
+	<section id="ChIntroHomepage"><title>Website</title>
+    <para>
+	You will find lot's of useful information on the Ethereal homepage at
+	<ulink url="&EtherealWebSite;">&EtherealWebSite;</ulink>.
+	</para>
+	</section>
+
+	<section id="ChIntroWiki"><title>Wiki</title>
+    <para>
+	The Ethereal Wiki at <ulink 
+	url="&EtherealWikiPage;">&EtherealWikiPage;</ulink> provides a wide range 
+	of information related to Ethereal and packet capturing in general.
+	You will find a lot of information not part of this user's guide. For 
+	example, there is an explanation how to capture on a switched network, 
+	an ongoing effort to build a protocol reference and a lot more. 
+	</para>
+	<para>
+	And best of all, if you would like to contribute your knowledge on a 
+	specific topic (maybe a network protocol you know well), you can edit the 
+	wiki pages by simply using your webbrowser.
+	</para>
+	</section>
+
 	<section id="ChIntroFAQ"><title>FAQ</title>
     <para>
 	The "Frequently Asked Questions" will list often asked questions and 
