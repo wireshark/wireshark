@@ -1,8 +1,8 @@
 /* etherpeek.c
- * Routines for opening etherpeek files
+ * Routines for opening EtherPeek (and TokenPeek?) files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.8 2002/01/18 00:25:50 guy Exp $
+ * $Id: etherpeek.c,v 1.9 2002/01/18 00:48:37 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -38,7 +38,7 @@
 /* CREDITS
  *
  * This file decoder could not have been writen without examining how
- * tcptrace (http://www.tcptrace.org/) handles etherpeek files.
+ * tcptrace (http://www.tcptrace.org/) handles EtherPeek files.
  */
 
 /* master header */
@@ -134,14 +134,14 @@ int etherpeek_open(wtap *wth, int *err)
 	etherpeek_header_t ep_hdr;
 	struct timeval start_time;
 
-	/* etherpeek files to not start with a magic value large enough
-	 * to be unique hence we use the following algorithm to determine
-	 * the type of an unknown file
+	/* EtherPeek files do not start with a magic value large enough
+	 * to be unique; hence we use the following algorithm to determine
+	 * the type of an unknown file:
 	 *  - populate the master header and reject file if there is no match
 	 *  - populate the secondary header and check that the reserved space
 	 *      is zero; there is an obvious flaw here so this algorithm will
-	 *      probably need to be revisiting when improving etherpeek
-	 *      support
+	 *      probably need to be revisiting when improving EtherPeek
+	 *      support.
 	 */
 	
 	g_assert(sizeof(ep_hdr.master) == ETHERPEEK_MASTER_HDR_SIZE);

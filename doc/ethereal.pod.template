@@ -41,7 +41,7 @@ is B<libpcap> format, which is also the format used by B<tcpdump> and
 various other tools.  In addition, B<Ethereal> can read capture files
 from B<snoop> (including B<Shomiti>) and B<atmsnoop>, B<LanAlyzer>,
 B<Sniffer> (compressed or uncompressed), Microsoft B<Network Monitor>,
-AIX's B<iptrace>, B<NetXray>, B<Sniffer Pro>, B<Etherpeek> versions 5,
+AIX's B<iptrace>, B<NetXray>, B<Sniffer Pro>, B<EtherPeek> versions 5,
 6, and 7 for Macintosh, B<RADCOM>'s WAN/LAN analyzer, B<Lucent/Ascend>
 router debug output, HP-UX's B<nettl>, the dump output from B<Toshiba's>
 ISDN routers, the output from B<i4btrace> from the ISDN4BSD project, the

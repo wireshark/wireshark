@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.77 2001/12/04 22:28:19 guy Exp $
+ * $Id: file.c,v 1.78 2002/01/18 00:48:37 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -374,11 +374,11 @@ static const struct file_type_info {
           NULL, NULL },
 
 	/* WTAP_FILE_ETHERPEEK_MAC_V56 */
-	{ "Etherpeek trace (Macintosh V5 & V6)", NULL,
+	{ "EtherPeek trace (Macintosh V5 & V6)", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_ETHERPEEK_MAC_V7 */
-	{ "Etherpeek trace (Macintosh V7)", NULL,
+	{ "EtherPeek trace (Macintosh V7)", NULL,
 	  NULL, NULL },
 
 	/* WTAP_FILE_VMS */
