@@ -2,7 +2,7 @@
 * Routines for megaco packet disassembly
 * RFC 3015
 *
-* $Id: packet-megaco.c,v 1.15 2004/04/21 19:58:14 etxrab Exp $
+* $Id: packet-megaco.c,v 1.16 2004/04/23 03:20:58 guy Exp $
 *
 * Christian Falckenberg, 2002/10/17
 * Copyright (c) 2002 by Christian Falckenberg
@@ -505,8 +505,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					if(tree)
 						len = tvb_len - tvb_previous_offset; 
 						proto_tree_add_text(megaco_tree, tvb, tvb_previous_offset, -1,
-							"%s",tvb_format_text(tvb, tvb_previous_offset, len), tvb_len, 
-							tvb_previous_offset);
+							"%s",tvb_format_text(tvb, tvb_previous_offset, len));
 					if(global_megaco_raw_text){
 						tvb_raw_text_add(tvb, megaco_tree);
 						}
