@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.92 2003/05/23 22:09:36 guy Exp $
+ * $Id: packet.c,v 1.93 2003/06/05 04:47:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -881,7 +881,9 @@ dissector_table_foreach (char *name,
  * function on each entry.
  */
 void
-dissector_table_foreach_handle(char *name, DATFunc_handle func, gpointer user_data)
+dissector_table_foreach_handle(char *name,
+			       DATFunc_handle func,
+			       gpointer user_data)
 {
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	GSList *tmp;
@@ -948,6 +950,40 @@ dissector_table_foreach_changed (char *name,
 	info.caller_data = user_data;
 	g_hash_table_foreach(sub_dissectors->hash_table,
 	    dissector_table_foreach_changed_func, &info);
+}
+
+typedef struct dissector_foreach_table_info {
+  gpointer      caller_data;
+  DATFunc_table caller_func;
+} dissector_foreach_table_info_t;
+
+/*
+ * Called for each entry in the table of all dissector tables.
+ */
+static void
+dissector_all_tables_foreach_table_func (gpointer key, gpointer value, gpointer user_data)
+{
+	dissector_table_t table;
+	dissector_foreach_table_info_t *info;
+
+	table = value;
+	info = user_data;
+	(*info->caller_func)((gchar*)key, table->ui_name, info->caller_data);
+}
+
+/*
+ * Walk all dissector tables calling a user supplied function on each
+ * table.
+ */
+void
+dissector_all_tables_foreach_table (DATFunc_table func,
+				    gpointer user_data)
+{
+	dissector_foreach_table_info_t info;
+
+	info.caller_data = user_data;
+	info.caller_func = func;
+	g_hash_table_foreach(dissector_tables, dissector_all_tables_foreach_table_func, &info);
 }
 
 dissector_table_t
@@ -1114,13 +1150,6 @@ char *
 dissector_handle_get_short_name(dissector_handle_t handle)
 {
 	return proto_get_protocol_short_name(handle->proto_index);
-}
-
-/* Get the dissector name for a dissector handle. */
-const char *
-dissector_handle_get_dissector_name(dissector_handle_t handle)
-{
-	return handle->name;
 }
 
 /* Get the index of the protocol for a dissector handle. */

@@ -9,6 +9,7 @@ B<tethereal>
 S<[ B<-a> capture autostop condition ] ...>
 S<[ B<-b> number of ring buffer files [:duration] ]>
 S<[ B<-c> count ]>
+S<[ B<-d> <layer type>==<selector>,<decode-as protocol> ]>
 S<[ B<-D> ]>
 S<[ B<-f> capture filter expression ]>
 S<[ B<-F> file format ]>
@@ -196,6 +197,12 @@ You can only save files in B<libpcap> format when using a ring buffer.
 
 Set the default number of packets to read when capturing live
 data.
+
+=item -d
+
+Specify that if the layer type in question (for example, B<tcp.port> or
+B<udp.port> for a TCP or UDP port number) has the specified selector
+value, packets should be dissected as the specified protocol.
 
 =item -D
 

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.185 2003/05/16 00:48:26 guy Exp $
+ * $Id: tethereal.c,v 1.186 2003/06/05 04:47:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -102,6 +102,11 @@
 #include "capture-wpcap.h"
 #endif
 
+/*
+ * This is the template for the decode as option; it is shared between the
+ * various functions that output the usage for this parameter.
+ */
+static const gchar decode_as_arg_template[] = "<layer_type>==<selector>,<decode_as_protocol>";
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 static GString *comp_info_str, *runtime_info_str;
@@ -222,19 +227,21 @@ print_usage(gboolean print_ver)
 	comp_info_str->str, runtime_info_str->str);
   }
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "\nt%s [ -DvVhqSlp ] [ -a <capture autostop condition> ] ...\n",
+  fprintf(stderr, "\nt%s [ -vh ] [ -DlnpqSVx ] [ -a <capture autostop condition> ] ...\n",
 	  PACKAGE);
   fprintf(stderr, "\t[ -b <number of ring buffer files>[:<duration>] ] [ -c <count> ]\n");
-  fprintf(stderr, "\t[ -f <capture filter> ] [ -F <output file type> ]\n");
-  fprintf(stderr, "\t[ -i <interface> ] [ -n ] [ -N <resolving> ]\n");
-  fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
-  fprintf(stderr, "\t[ -s <snaplen> ] [ -t <time stamp format> ] [ -w <savefile> ] [ -x ]\n");
+  fprintf(stderr, "\t[ -d %s ] ...\n", decode_as_arg_template);
+  fprintf(stderr, "\t[ -f <capture filter> ] [ -F <output file type> ] [ -i <interface> ]\n");
+  fprintf(stderr, "\t[ -N <resolving> ] [ -o <preference setting> ] ... [ -r <infile> ]\n");
+  fprintf(stderr, "\t[ -R <read filter> ] [ -s <snaplen> ] [ -t <time stamp format> ]\n");
+  fprintf(stderr, "\t[ -w <savefile> ] [ -Z <statistics string> ]\n");
 #else
-  fprintf(stderr, "\nt%s [ -vVhl ] [ -F <output file type> ] [ -n ] [ -N <resolving> ]\n", PACKAGE);
+  fprintf(stderr, "\nt%s [ -vh ] [ -lnVx ]\n", PACKAGE);
+  fprintf(stderr, "\t[ -d %s ] ...\n", decode_as_arg_template);
+  fprintf(stderr, "\t[ -F <output file type> ] [ -N <resolving> ]\n");
   fprintf(stderr, "\t[ -o <preference setting> ] ... [ -r <infile> ] [ -R <read filter> ]\n");
-  fprintf(stderr, "\t[ -t <time stamp format> ] [ -w <savefile> ] [ -x ]\n");
+  fprintf(stderr, "\t[ -t <time stamp format> ] [ -w <savefile> ] [ -Z <statistics string> ]\n");
 #endif
-  fprintf(stderr, "\t[ -Z <statistics string> ]\n");
   fprintf(stderr, "Valid file type arguments to the \"-F\" flag:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES; i++) {
     if (wtap_dump_can_open(i))
@@ -394,6 +401,260 @@ register_ethereal_tap(char *cmd, void (*func)(char *arg))
 
 }
 
+/*
+ * For a dissector table, display, on the standard error, its short name
+ * (which is what's used in the "-d" option) and its descriptive name.
+ */
+static void
+display_dissector_table_names(char *table_name, char *ui_name,
+                              gpointer user_data _U_)
+{
+  fprintf(stderr, "\t%s (%s)\n", table_name, ui_name);
+}
+
+/*
+ * For a dissector handle, display, on the standard error, the filter name
+ * (which is what's used in the "-d" option) and the full name for the
+ * protocol for the handle.
+ */
+static void
+display_dissector_names(gchar *table _U_, gpointer handle, gpointer data _U_)
+{
+  int                proto_id;
+
+  proto_id = dissector_handle_get_protocol_index((dissector_handle_t)handle);
+
+  fprintf(stderr, "\t%s (%s)\n", proto_get_protocol_filter_name(proto_id),
+          proto_get_protocol_name(proto_id));
+}
+
+/*
+ * The protocol_name_search structure is used by find_name_shortname_func()
+ * to pass parameters and store results
+ */
+struct protocol_name_search{
+  gchar              *searched_name;  /* Protocol name we are looking for */
+  dissector_handle_t  matched_handle; /* Handle for a dissector whose protocol has the specified filter name */
+  guint               nb_match;       /* How many dissectors matched searched_name */
+};
+typedef struct protocol_name_search *protocol_name_search_t;
+
+/*
+ * This function parses all dissectors associated with a table to find the
+ * one whose protocol has the specified filter name.  It is called
+ * as a reference function in a call to dissector_table_foreach_handle.
+ * The name we are looking for, as well as the results, are stored in the
+ * protocol_name_search struct pointed to by user_data.
+ * If called using dissector_table_foreach_handle, we actually parse the
+ * whole list of dissectors only once here.
+ */
+static void
+find_name_func(gchar *table _U_, gpointer handle, gpointer user_data) {
+
+  int                         proto_id;
+  const gchar                *protocol_filter_name;
+  protocol_name_search_t      search_info;
+
+  g_assert(handle);
+
+  search_info = (protocol_name_search_t)user_data;
+
+  proto_id = dissector_handle_get_protocol_index((dissector_handle_t)handle);
+  protocol_filter_name = proto_get_protocol_filter_name(proto_id);
+  if (strcmp(protocol_filter_name, search_info->searched_name) == 0) {
+    /* Found a match */
+    if (search_info->nb_match == 0) {
+      /* Record this handle only if this is the first match */
+      search_info->matched_handle = (dissector_handle_t)handle; /* Record the handle for this matching dissector */
+    }
+    search_info->nb_match++;
+  }
+}
+
+/*
+ * The function below parses the command-line parameters for the decode as
+ * feature (a string pointer by cl_param).
+ * It checks the format of the command-line, searches for a matching table
+ * and dissector.  If a table/dissector match is not found, we display a
+ * summary of the available tables/dissectors (on stderr) and return FALSE.
+ * If everything is fine, we get the "Decode as" preference activated,
+ * then we return TRUE.
+ */
+static gboolean
+add_decode_as(const gchar *cl_param) {
+
+  gchar                        *table_name;
+  guint32                       selector;
+  gchar                        *decoded_param;
+  gchar                        *remaining_param;
+  gchar                        *selector_str;
+  gchar                        *dissector_str;
+  dissector_handle_t            dissector_matching;
+  dissector_table_t             table_matching;
+  struct protocol_name_search   user_protocol_name;
+
+/* The following code will allocate and copy the command-line options in a string pointed by decoded_param */
+
+  g_assert(cl_param);
+  decoded_param = g_malloc( sizeof(gchar) * strlen(cl_param) + 1 ); /* Allocate enough space to have a working copy of the command-line parameter */
+  g_assert(decoded_param);
+  strcpy(decoded_param, cl_param);
+
+
+  /* The lines below will parse this string (modifying it) to extract all
+    necessary information.  Note that decoded_param is still needed since
+    strings are not copied - we just save pointers. */
+
+  table_name = decoded_param; /* Layer type string starts from beginning */
+
+  remaining_param = strchr(table_name, '=');
+  if (remaining_param == NULL) {
+    fprintf(stderr, "tethereal: Parameter \"%s\" doesn't follow the template \"%s\"\n", cl_param, decode_as_arg_template);
+    g_free(decoded_param);
+    return FALSE;
+  }
+
+  *remaining_param = '\0'; /* Terminate the layer type string (table_name) where '=' was detected */
+  
+  if (*(remaining_param + 1) != '=') { /* Check for "==" and not only '=' */
+    fprintf(stderr, "tethereal: Warning: -d requires \"==\" instead of \"=\". Option will be treated as \"%s==%s\"\n", table_name, remaining_param + 1);
+  }
+  else {
+    remaining_param++; /* Move to the second '=' */
+    *remaining_param = '\0'; /* Remove the second '=' */
+  }
+  remaining_param++; /* Position after the layer type string */
+
+  selector_str = remaining_param; /* Next part starts with the selector number */
+
+  /* Remove leading and trailing spaces from the table name */
+  while ( table_name[0] == ' ' )
+    table_name++; 
+  while ( table_name[strlen(table_name) - 1] == ' ' )
+    table_name[strlen(table_name) - 1] = '\0'; /* Note: if empty string, while loop will eventually exit */
+
+
+  remaining_param = strchr(selector_str, ',');
+  if (remaining_param == NULL) {
+    fprintf(stderr, "tethereal: Parameter \"%s\" doesn't follow the template \"%s\"\n", cl_param, decode_as_arg_template);
+    g_free(decoded_param);
+    return FALSE;
+  }
+
+  *remaining_param = '\0'; /* Terminate the selector number string (selector_str) where ',' was detected */
+  
+  remaining_param++; /* Position after the selector number string */
+
+
+  dissector_str = remaining_param; /* All the rest of the string is the dissector (decode as protocol) name */
+
+/* The following part looks for the layer type part of the parameter */
+  table_matching = NULL;
+
+/* Look for the requested table */
+  if ( !(*(table_name)) ) { /* Is the table name empty, if so, don't even search for anything, display a message */
+    fprintf(stderr, "tethereal: No layer type specified\n"); /* Note, we don't exit here, but table_matching will remain NULL, so we exit below */
+  }
+  else {
+    table_matching = find_dissector_table(table_name);
+    if (!table_matching) {
+      fprintf(stderr, "tethereal: Unknown layer type -- %s\n", table_name); /* Note, we don't exit here, but table_matching will remain NULL, so we exit below */
+    }
+  }
+
+  if (!table_matching) {
+    fprintf(stderr, "tethereal: Valid layer types are:\n");
+    dissector_all_tables_foreach_table(display_dissector_table_names, NULL);
+
+    g_free(decoded_param); 
+    return FALSE;
+  }
+
+  switch (get_dissector_table_type(table_name)) {
+
+  case FT_UINT8:
+  case FT_UINT16:
+  case FT_UINT24:
+  case FT_UINT32:
+    /* The selector for this table is an unsigned number.  Parse it as such.
+       There's no need to remove leading and trailing spaces from the
+       selector number string, because sscanf will do that for us. */
+    if ( sscanf(selector_str, "%u", &selector) != 1 ) {
+      fprintf(stderr, "tethereal: Invalid selector number \"%s\"\n", selector_str);
+      g_free(decoded_param);
+      return FALSE;
+    }
+    break;
+
+  default:
+    /* There are currently no dissector tables with any types other
+       than the ones listed above, but we might, for example, have
+       string-based dissector tables at some point. */
+    g_assert_not_reached();
+  }
+
+  /* Remove leading and trailing spaces from the dissector name */
+  while ( dissector_str[0] == ' ' )
+    dissector_str++; 
+  while ( dissector_str[strlen(dissector_str) - 1] == ' ' )
+    dissector_str[strlen(dissector_str) - 1] = '\0'; /* Note: if empty string, while loop will eventually exit */
+
+
+#ifdef DEBUG
+  fprintf(stderr, "tethereal: Debug info: table=\"%s\", selector=\"%d\", dissector=\"%s\"\n", table_name, selector, dissector_str); // For debug only!
+#endif
+
+/* The is the end of the code that parses the command-line options. All information have now been stored in the structure preference. All strings are still pointing to decoded_parm that needs to be kept in memory as long as preference is needed, and decoded_param needs to be deallocated at each exit point of this function */
+
+
+  dissector_matching = NULL;
+
+/* We now have a pointer to the handle for the requested table inside the variable table_matching */
+  if ( ! (*dissector_str) ) { /* Is the dissector name empty, if so, don't even search for a matching dissector and display all dissectors found for the selected table */
+    fprintf(stderr, "tethereal: No protocol name specified\n"); /* Note, we don't exit here, but dissector_matching will remain NULL, so we exit below */
+  }
+  else {
+    user_protocol_name.nb_match = 0;
+    user_protocol_name.searched_name = dissector_str;
+    user_protocol_name.matched_handle = NULL;
+    dissector_table_foreach_handle(table_name, find_name_func, &user_protocol_name); /* Go and perform the search for this dissector in the this table's dissectors' names and shortnames */
+
+    if (user_protocol_name.nb_match != 0) {
+      dissector_matching = user_protocol_name.matched_handle;
+      if (user_protocol_name.nb_match > 1) {
+        fprintf(stderr, "tethereal: Warning: Protocol \"%s\" matched %u dissectors, first one will be used\n", dissector_str, user_protocol_name.nb_match);
+      }
+    }
+    else {
+      /* OK, check whether the problem is that there isn't any such
+         protocol, or that there is but it's not specified as a protocol
+         that's valid for that dissector table.
+         Note, we don't exit here, but dissector_matching will remain NULL,
+         so we exit below */
+      if (proto_get_id_by_filter_name(dissector_str) == -1) {
+        /* No such protocol */
+        fprintf(stderr, "tethereal: Unknown protocol -- \"%s\"\n", dissector_str);
+      } else {
+        fprintf(stderr, "tethereal: Protocol \"%s\" isn't valid for layer type \"%s\"\n",
+		dissector_str, table_name);
+      }
+    }
+  }
+
+  if (!dissector_matching) {
+    fprintf(stderr, "tethereal: Valid protocols for layer type \"%s\" are:\n", table_name);
+    dissector_table_foreach_handle(table_name, display_dissector_names, NULL);
+    g_free(decoded_param); 
+    return FALSE;
+  }
+
+  /* We now have a pointer to the handle for the requested dissector
+     (requested protocol) inside the variable dissector_matching */
+  dissector_change(table_name, selector, dissector_matching);
+  g_free(decoded_param); /* "Decode As" rule has been succesfully added */
+  return TRUE;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -498,12 +759,12 @@ main(int argc, char *argv[])
   get_runtime_version_info(runtime_info_str);
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "a:b:c:Df:F:hi:lnN:o:pqr:R:s:St:vw:Vxz:")) != -1) {
+  while ((opt = getopt(argc, argv, "a:b:c:d:Df:F:hi:lnN:o:pqr:R:s:St:vw:Vxz:")) != -1) {
     switch (opt) {
       case 'a':        /* autostop criteria */
 #ifdef HAVE_LIBPCAP
         if (set_autostop_criterion(optarg) == FALSE) {
-          fprintf(stderr, "ethereal: Invalid or unknown -a flag \"%s\"\n", optarg);
+          fprintf(stderr, "tethereal: Invalid or unknown -a flag \"%s\"\n", optarg);
           exit(1);
         }
 #else
@@ -515,7 +776,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
         capture_opts.ringbuffer_on = TRUE;
 	if (get_ring_arguments(optarg) == FALSE) {
-          fprintf(stderr, "ethereal: Invalid or unknown -b arg \"%s\"\n", optarg);
+          fprintf(stderr, "tethereal: Invalid or unknown -b arg \"%s\"\n", optarg);
           exit(1);
 	}
 #else
@@ -532,6 +793,10 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
         break;
+      case 'd':        /* Decode as rule */
+        if (!add_decode_as(optarg))
+          exit(1);
+	break;
       case 'D':        /* Print a list of capture devices */
 #ifdef HAVE_LIBPCAP
         if_list = get_interface_list(&err, err_str);

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.66 2003/05/23 22:09:36 guy Exp $
+ * $Id: packet.h,v 1.67 2003/06/05 04:47:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,8 +113,12 @@ typedef void (*dissector_t)(tvbuff_t *, packet_info *, proto_tree *);
  */
 typedef int (*new_dissector_t)(tvbuff_t *, packet_info *, proto_tree *);
 
-typedef void (*DATFunc) (gchar *table_name, gpointer key, gpointer value, gpointer user_data);
-typedef void (*DATFunc_handle) (gchar *table_name, gpointer value, gpointer user_data);
+typedef void (*DATFunc) (gchar *table_name, gpointer key, gpointer value,
+    gpointer user_data);
+typedef void (*DATFunc_handle) (gchar *table_name, gpointer value,
+    gpointer user_data);
+typedef void (*DATFunc_table) (gchar *table_name, gchar *ui_name,
+    gpointer user_data);
 
 /* Opaque structure - provides type checking but no access to components */
 typedef struct dtbl_entry dtbl_entry_t;
@@ -128,6 +132,8 @@ extern void dissector_table_foreach (char *name, DATFunc func,
 extern void dissector_all_tables_foreach_changed (DATFunc func,
     gpointer user_data);
 extern void dissector_table_foreach_handle(char *name, DATFunc_handle func,
+    gpointer user_data);
+extern void dissector_all_tables_foreach_table (DATFunc_table func,
     gpointer user_data);
 
 /* a protocol uses the function to register a sub-dissector table */
@@ -212,9 +218,6 @@ extern void new_register_dissector(const char *name, new_dissector_t dissector,
 
 /* Get the short name of the protocol for a dissector handle. */
 extern char *dissector_handle_get_short_name(dissector_handle_t handle);
-
-/* Get the dissector name for a dissector handle. */
-extern const char *dissector_handle_get_dissector_name(dissector_handle_t handle);
 
 /* Get the index of the protocol for a dissector handle. */
 extern int dissector_handle_get_protocol_index(dissector_handle_t handle);
