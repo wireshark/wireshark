@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.90 2002/08/02 23:35:48 jmayer Exp $
+ * $Id: packet-dns.c,v 1.91 2002/08/19 16:02:45 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,6 +76,8 @@ static gboolean dns_desegment = TRUE;
 /* Ports used for DNS. */
 #define UDP_PORT_DNS     53
 #define TCP_PORT_DNS     53
+#define UDP_PORT_MDNS    5353
+#define TCP_PORT_MDNS    5353
 
 /* Offsets of fields in the DNS header. */
 #define	DNS_ID		0
@@ -2145,4 +2147,6 @@ proto_reg_handoff_dns(void)
   dns_tcp_handle = create_dissector_handle(dissect_dns_tcp, proto_dns);
   dissector_add("udp.port", UDP_PORT_DNS, dns_udp_handle);
   dissector_add("tcp.port", TCP_PORT_DNS, dns_tcp_handle);
+  dissector_add("udp.port", UDP_PORT_MDNS, dns_udp_handle);
+  dissector_add("tcp.port", TCP_PORT_MDNS, dns_tcp_handle);
 }
