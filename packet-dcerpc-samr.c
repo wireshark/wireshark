@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.15 2002/02/26 12:06:32 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.16 2002/02/26 12:22:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2245,12 +2245,27 @@ samr_dissect_INDEX_ARRAY_value (tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static char *
+plural_ending(const char *string)
+{
+	size_t string_len;
+
+	string_len = strlen(string);
+	if (string_len > 0 && string[string_len - 1] == 's') {
+		/* String ends with "s" - pluralize by adding "es" */
+		return "es";
+	} else {
+		/* Field name doesn't end with "s" - pluralize by adding "s" */
+		return "s";
+	}
+}
 
 static int
 samr_dissect_INDEX_ARRAY(tvbuff_t *tvb, int offset, 
 			packet_info *pinfo, proto_tree *parent_tree,
 			char *drep)
 {
+	char *field_name;
 	guint32 count;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -2260,7 +2275,9 @@ samr_dissect_INDEX_ARRAY(tvbuff_t *tvb, int offset,
 
 	di=pinfo->private_data;
 
-	snprintf(str, 255, "INDEX_ARRAY: %ss:", proto_registrar_get_name(di->hf_index));
+	field_name = proto_registrar_get_name(di->hf_index);
+	snprintf(str, 255, "INDEX_ARRAY: %s%s:", field_name,
+	    plural_ending(field_name));
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
 			"%s", str);
@@ -2351,6 +2368,7 @@ samr_dissect_IDX_AND_NAME_ARRAY(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
 			char *drep)
 {
+	char *field_name;
 	guint32 count;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -2360,16 +2378,20 @@ samr_dissect_IDX_AND_NAME_ARRAY(tvbuff_t *tvb, int offset,
 
 	di=pinfo->private_data;
 
+	field_name = proto_registrar_get_name(di->hf_index);
+
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, 0,
-			"IDX_AND_NAME_ARRAY: %ss:",proto_registrar_get_name(di->hf_index));
+			"IDX_AND_NAME_ARRAY: %s%s:", field_name,
+			plural_ending(field_name));
 		tree = proto_item_add_subtree(item, ett_samr_idx_and_name_array);
 	}
 
         
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_samr_count, &count);
-	snprintf(str, 255, "IDX_AND_NAME pointer: %ss:",proto_registrar_get_name(di->hf_index));
+	snprintf(str, 255, "IDX_AND_NAME pointer: %s%s:", field_name,
+	    plural_ending(field_name));
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_IDX_AND_NAME_entry, NDR_POINTER_UNIQUE,
 			str, di->hf_index, 0);
@@ -2383,12 +2405,15 @@ samr_dissect_IDX_AND_NAME_ARRAY_ptr(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep)
 {
+	char *field_name;
 	char str[256];
 	dcerpc_info *di;
 
 	di=pinfo->private_data;
 
-	snprintf(str, 255, "IDX_AND_NAME_ARRAY pointer: %ss:",proto_registrar_get_name(di->hf_index));
+	field_name = proto_registrar_get_name(di->hf_index);
+	snprintf(str, 255, "IDX_AND_NAME_ARRAY pointer: %s%s:", field_name,
+	    plural_ending(field_name));
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_IDX_AND_NAME_ARRAY, NDR_POINTER_UNIQUE,
 			str, di->hf_index, 0);
