@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.166 2002/11/07 09:10:06 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.167 2002/11/27 04:55:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1420,6 +1420,17 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * Get the length of the PDU.
      */
     plen = (*get_pdu_len)(tvb, offset);
+    if (plen < fixed_len) {
+      /*
+       * The PDU length from the fixed-length portion probably didn't
+       * include the fixed-length portion's length, and was probably so
+       * large that the total length overflowed.
+       *
+       * Report this as an error.
+       */
+      show_reported_bounds_error(tvb, pinfo, tree);
+      return;
+    }
 
     /*
      * Can we do reassembly?
@@ -1453,17 +1464,6 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * is within the reported length but beyond that third length, with
      * that exception getting the "Unreassembled Packet" error.
      */
-    if (plen < fixed_len) {
-      /*
-       * The PDU length from the fixed-length portion probably didn't
-       * include the fixed-length portion's length, and was probably so
-       * large that the total length overflowed.
-       *
-       * Report this as an error.
-       */
-      show_reported_bounds_error(tvb, pinfo, tree);
-      return;
-    }
     length = length_remaining;
     if (length > plen)
 	length = plen;
