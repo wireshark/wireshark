@@ -1,7 +1,7 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.c,v 1.5 2001/06/18 02:17:47 guy Exp $
+ * $Id: packet-igmp.c,v 1.6 2001/06/27 20:19:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,7 @@
 	draft-ietf-idmr-igmp-v3-07	Version 3
 
 	Size in bytes for each packet
-	type	RFC988	RFC1054	RFC2236 RFC????  DVMRP
+	type	RFC988	RFC1054	RFC2236 RFC????  DVMRP  MRDISC
 	        v0      v1      v2      v3       v1/v3
 	0x01      20
 	0x02      20
@@ -46,9 +46,14 @@
 	0x16                      8
 	0x17                      8
 	0x22                            >=8
+	0x24                                            a
+	0x25                                            a
+	0x26                                            a
+
 
    * Differs in second byte of protocol. Always 0 in V1
 
+   x DVMRP Protocol  see packet-dvmrp.c
 
 	DVMRP is defined in the following RFCs
 	RFC1075 Version 1
@@ -57,6 +62,13 @@
 	V1 and V3 can be distinguished by looking at bytes 6 and 7 in the 
 	IGMP header.
 	If header[6]==0xff and header[7]==0x03 we have version 3.
+
+   a MRDISC Protocol  see packet-mrdisc.c
+
+	MRDISC : IGMP Multicast Router DISCovery
+	draft-ietf-idmr-igmp-mrdisc-06.txt
+	TTL == 1 and IP.DST==224.0.0.2 for all packets
+
 */
 
 #ifdef HAVE_CONFIG_H
@@ -75,6 +87,7 @@
 #include "ipproto.h"
 #include "in_cksum.h"
 #include "packet-dvmrp.h"
+#include "packet-mrdisc.h"
 
 static int proto_igmp = -1;
 static int hf_type = -1;
@@ -105,6 +118,8 @@ static int ett_group_record = -1;
 static int ett_sqrv_bits = -1;
 static int ett_max_resp = -1;
 
+#define MC_ALL_ROUTERS	0xe0000002
+
 
 #define IGMP_V0_CREATE_GROUP_REQUEST	0x01
 #define IGMP_V0_CREATE_GROUP_REPLY	0x02
@@ -123,6 +138,9 @@ static int ett_max_resp = -1;
 #define IGMP_V1_TRACEROUTE_RESPONSE	0x1e	/* XXX */
 #define IGMP_V1_TRACEROUTE_MESSAGE	0x1f	/* XXX */
 #define IGMP_V3_MEMBERSHIP_REPORT	0x22
+#define IGMP_TYPE_0x24			0x24
+#define IGMP_TYPE_0x25			0x25
+#define IGMP_TYPE_0x26			0x26
 	
 static const value_string commands[] = {
 	{IGMP_V0_CREATE_GROUP_REQUEST,	"Create Group Request"		},
@@ -575,6 +593,7 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	proto_item *item;
 	int offset = 0;
 	unsigned char type;
+	guint32 dst;
 
 	item = proto_tree_add_item(parent_tree, proto_igmp, tvb, offset, 0, FALSE);
 	tree = proto_item_add_subtree(item, ett_igmp);
@@ -655,6 +674,24 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	case IGMP_V3_MEMBERSHIP_REPORT:
 		offset = dissect_igmp_v3_response(tvb, pinfo, tree, type, offset);
+		break;
+	case IGMP_TYPE_0x24:
+		dst = htonl(MC_ALL_ROUTERS);
+		if (!memcmp(pinfo->dst.data, &dst, 4)) {
+			offset = dissect_mrdisc(tvb, pinfo, parent_tree, offset);
+		}
+		break;
+	case IGMP_TYPE_0x25:
+		dst = htonl(MC_ALL_ROUTERS);
+		if (!memcmp(pinfo->dst.data, &dst, 4)) {
+			offset = dissect_mrdisc(tvb, pinfo, parent_tree, offset);
+		}
+		break;
+	case IGMP_TYPE_0x26:
+		dst = htonl(MC_ALL_ROUTERS);
+		if (!memcmp(pinfo->dst.data, &dst, 4)) {
+			offset = dissect_mrdisc(tvb, pinfo, parent_tree, offset);
+		}
 		break;
 
 	default:

@@ -534,6 +534,7 @@ Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	Tvbuffified and bug-fixed RX and AFS dissectors
 	Support for filtering on absolute and relative time fields
 	DVMRP support
+	MRDISC support
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {
