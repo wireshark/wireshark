@@ -1,7 +1,7 @@
 /* packet-sll.c
  * Routines for disassembly of packets from Linux "cooked mode" captures
  *
- * $Id: packet-sll.c,v 1.20 2003/10/01 07:11:44 guy Exp $
+ * $Id: packet-sll.c,v 1.21 2003/12/22 20:26:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -145,6 +145,23 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_clear(pinfo->cinfo, COL_INFO);
 
 	pkttype = tvb_get_ntohs(tvb, 0);
+
+	/*
+	 * Set "pinfo->p2p_dir" if the packet wasn't received
+	 * promiscuously.
+	 */
+	switch (pkttype) {
+
+	case LINUX_SLL_HOST:
+	case LINUX_SLL_BROADCAST:
+	case LINUX_SLL_MULTICAST:
+		pinfo->p2p_dir = P2P_DIR_RECV;
+		break;
+
+	case LINUX_SLL_OUTGOING:
+		pinfo->p2p_dir = P2P_DIR_SENT;
+		break;
+	}
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_str(pinfo->cinfo, COL_INFO,
