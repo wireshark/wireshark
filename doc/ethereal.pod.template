@@ -864,6 +864,7 @@ B<http://ethereal.zing.org>.
   Graham Bloice            <graham.bloice@trihedral.com>
   Ralf Schneider           <ralf.schneider@alcatel.se>
   Yaniv Kaul               <ykaul@checkpoint.com>
+  Paul Ionescu             <ipaul@romsys.ro>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

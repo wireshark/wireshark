@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.19 2000/05/11 08:15:09 gram Exp $
+ * $Id: packet-gre.c,v 1.20 2000/05/18 08:41:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,7 @@
 #include "packet.h"
 #include "packet-ip.h"
 #include "packet-ppp.h"
+#include "packet-ipx.h"
 
 static int proto_gre = -1;
 static int hf_gre_proto = -1;
@@ -61,6 +62,7 @@ static gint ett_gre_flags = -1;
 #define GRE_PPP		0x880B
 #define	GRE_IP		0x0800
 #define GRE_WCCP	0x883E
+#define GRE_IPX		0x8137
 
 static void add_flags_and_ver(proto_tree *, guint16, int, int);
 
@@ -68,6 +70,7 @@ static const value_string typevals[] = {
 	{ GRE_PPP,  "PPP" },
 	{ GRE_IP,   "IP" },
 	{ GRE_WCCP, "WCCP"},
+	{ GRE_IPX,  "IPX"},
 	{ 0,        NULL  }
 };
 
@@ -213,6 +216,9 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
           offset += 4;
         }
         dissect_ip(pd, offset, fd, tree);
+        break;
+      case GRE_IPX:
+        dissect_ipx(pd, offset, fd, tree);
         break;
       default:
 	dissect_data(pd, offset, fd, gre_tree);
