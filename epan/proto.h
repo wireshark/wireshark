@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.47 2003/11/25 14:07:44 sahlberg Exp $
+ * $Id: proto.h,v 1.48 2003/11/26 12:22:22 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -105,7 +105,7 @@ typedef struct hf_register_info {
 
 typedef struct _item_label_t {
 	struct _item_label_t *next;
-	char *representation;
+	char representation[ITEM_LABEL_LENGTH];
 } item_label_t;
 
 /* Contains the field information for the proto_item. */
@@ -136,9 +136,10 @@ typedef struct {
 
 /* Each GNode (proto_tree, proto_item) points to one of
  * these. */
-typedef struct {
-    field_info  *finfo;
-    tree_data_t *tree_data;
+typedef struct _proto_node {
+	struct _proto_node *next;
+	field_info  *finfo;
+	tree_data_t *tree_data;
 } proto_node;
 
 typedef GNode proto_tree;

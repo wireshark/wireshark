@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.115 2003/11/25 20:02:42 guy Exp $
+ * $Id: proto.c,v 1.116 2003/11/26 12:22:22 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,9 +143,6 @@ struct _protocol {
 static GList *protocols;
 
 #define INITIAL_NUM_PROTOCOL_HFINFO     200
-#define INITIAL_NUM_FIELD_INFO          100
-#define INITIAL_NUM_PROTO_NODE          100
-#define INITIAL_NUM_ITEM_LABEL          100
 
 
 /* Contains information about protocols and header fields. Used when
@@ -156,65 +153,52 @@ static GMemChunk *gmc_hfinfo = NULL;
  * proto_tree_add_item.  */
 static field_info *field_info_free_list=NULL;
 static field_info *field_info_tmp=NULL;
-/* Chunk of field_info values */
-typedef struct _field_info_chunk {
-	struct _field_info_chunk *next;
-	field_info field_infos[INITIAL_NUM_FIELD_INFO];
-} field_info_chunk;
-static field_info_chunk *field_info_chunk_list;
-#define FIELD_INFO_FREE(fi) \
-	fi->ptr_u.next=field_info_free_list;	\
-	field_info_free_list=fi;	
 #define FIELD_INFO_NEW(fi)					\
-	if(!field_info_free_list){				\
-		int i;						\
-		field_info_chunk *chunk;			\
-		chunk=g_malloc(sizeof(field_info_chunk));	\
-		chunk->next=field_info_chunk_list;		\
-		for(i=0;i<INITIAL_NUM_FIELD_INFO;i++){		\
-			field_info *tmpfi;			\
-			tmpfi=&chunk->field_infos[i];		\
-			tmpfi->ptr_u.next=field_info_free_list;	\
-			field_info_free_list=tmpfi;		\
-		}						\
-	}							\
-	fi=field_info_free_list;				\
-	field_info_free_list=fi->ptr_u.next;
+	SLAB_ALLOC(fi, fi->ptr_u.next, field_info_free_list)
+#define FIELD_INFO_FREE(fi)					\
+	SLAB_FREE(fi, fi->ptr_u.next, field_info_free_list)
 
 
 
 /* Contains the space for proto_nodes. */
-static GMemChunk *gmc_proto_node = NULL;
+static proto_node *proto_node_free_list=NULL;
+#define PROTO_NODE_NEW(node)				\
+	SLAB_ALLOC(node, node->next, proto_node_free_list)
+#define PROTO_NODE_FREE(node)				\
+	SLAB_FREE(node, node->next, proto_node_free_list)
+
+
 
 /* String space for protocol and field items for the GUI */
 static item_label_t *item_label_free_list = NULL;
-/* Chunk of item_label values */
-typedef struct _item_label_chunk {
-	struct _item_label_chunk *next;
-	item_label_t item_labels[INITIAL_NUM_ITEM_LABEL];
-} item_label_chunk;
-static item_label_chunk *item_label_chunk_list;
-#define ITEM_LABEL_FREE(il)				\
-	if (il) {					\
-		il->next=item_label_free_list;		\
-		item_label_free_list=il;		\
-	}
 #define ITEM_LABEL_NEW(il)				\
-	if(!item_label_free_list){			\
-		int i;					\
-		item_label_chunk *chunk;		\
-		chunk=g_malloc(sizeof(item_label_chunk));\
-		chunk->next=item_label_chunk_list;	\
-		for(i=0;i<INITIAL_NUM_ITEM_LABEL;i++){	\
-			item_label_t *tmpil;		\
-			tmpil=&chunk->item_labels[i];	\
-			tmpil->representation=g_malloc(ITEM_LABEL_LENGTH);\
-			tmpil->next=item_label_free_list;\
-			item_label_free_list=tmpil;	\
-		}					\
-	}						\
-	il=item_label_free_list;			\
-	item_label_free_list=il->next;
+	SLAB_ALLOC(il, il->next, item_label_free_list)
+#define ITEM_LABEL_FREE(il)				\
+	SLAB_FREE(il, il->next, item_label_free_list)
+
+
+
+/* we never free any memory we have allocated, when it is returned to us
+   we just store it in the free list until (hopefully) it gets used again
+*/
+#define SLAB_ALLOC(item, next, list)				\
+	if(!list){						\
+		int i;						\
+		void *tmp;					\
+		tmp=g_malloc(100*sizeof(*item));		\
+		for(i=0;i<100;i++){				\
+			item=tmp;				\
+			item=&item[i];				\
+			next=list;				\
+			list=item;				\
+		}						\
+	}							\
+	item=list;						\
+	list=next;
+
+#define SLAB_FREE(item, next, list)			\
+	next=list;					\
+	list=item;
 
 
 /* List which stores protocols and fields that have been registered */
@@ -258,11 +242,6 @@ proto_init(const char *plugin_dir
 		sizeof(header_field_info),
         INITIAL_NUM_PROTOCOL_HFINFO * sizeof(header_field_info),
         G_ALLOC_ONLY);
-
-	gmc_proto_node = g_mem_chunk_new("gmc_proto_node",
-		sizeof(proto_node),
-        INITIAL_NUM_PROTO_NODE * sizeof(proto_node),
-		G_ALLOC_AND_FREE);
 
 	gpa_hfinfo.len=0;
 	gpa_hfinfo.allocated_len=0;
@@ -325,34 +304,6 @@ proto_cleanup(void)
 	if (gmc_hfinfo)
 		g_mem_chunk_destroy(gmc_hfinfo);
 
-	while (field_info_chunk_list) {
-		field_info_chunk *tmpchunk;
-		tmpchunk=field_info_chunk_list->next;
-		g_free(field_info_chunk_list);
-		field_info_chunk_list=tmpchunk;
-	}
-	field_info_free_list=NULL;
-	if (field_info_tmp) {
-		g_free(field_info_tmp);
-		field_info_tmp=NULL;
-	}
-
-	if (gmc_proto_node)
-		g_mem_chunk_destroy(gmc_proto_node);
-
-	while(item_label_free_list){
-		item_label_t *tmpil;
-		tmpil=item_label_free_list->next;
-		g_free(item_label_free_list->representation);
-		item_label_free_list=tmpil;
-	}
-	while (item_label_chunk_list) {
-		item_label_chunk *tmpchunk;
-		tmpchunk=item_label_chunk_list->next;
-		g_free(item_label_chunk_list);
-		item_label_chunk_list=tmpchunk;
-	}
-
 	if(gpa_hfinfo.allocated_len){
 		gpa_hfinfo.len=0;
 		gpa_hfinfo.allocated_len=0;
@@ -401,7 +352,9 @@ free_node_tree_data(tree_data_t *tree_data)
 }
 
 #define FREE_NODE_FIELD_INFO(finfo)	\
-	ITEM_LABEL_FREE(finfo->rep);	\
+	if(finfo->rep){			\
+		ITEM_LABEL_FREE(finfo->rep);	\
+	}				\
 	FVALUE_FREE(finfo->value);	\
 	FIELD_INFO_FREE(finfo);
 
@@ -422,7 +375,7 @@ proto_tree_free_node(GNode *node, gpointer data _U_)
 	}
 
 	/* Free the proto_node. */
-	g_mem_chunk_free(gmc_proto_node, GNODE_PNODE(node));
+	PROTO_NODE_FREE(GNODE_PNODE(node));
 
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
 }
@@ -1833,7 +1786,7 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 	g_assert(tfi == NULL ||
 	    (tfi->tree_type >= 0 && tfi->tree_type < num_tree_types));
 
-	pnode = g_mem_chunk_alloc(gmc_proto_node);
+	PROTO_NODE_NEW(pnode);
 	pnode->finfo = fi;
 	pnode->tree_data = PTREE_DATA(tree);
 
@@ -2004,7 +1957,9 @@ proto_item_set_text(proto_item *pi, const char *format, ...)
 
 	fi = PITEM_FINFO(pi);
 
-	ITEM_LABEL_FREE(fi->rep);
+	if(fi->rep){
+		ITEM_LABEL_FREE(fi->rep);
+	}
 
 	va_start(ap, format);
 	proto_tree_set_representation(pi, format, ap);
@@ -2092,7 +2047,7 @@ proto_tree_create_root(void)
 	proto_node  *pnode;
 
 	/* Initialize the proto_node */
-	pnode = g_mem_chunk_alloc(gmc_proto_node);
+	PROTO_NODE_NEW(pnode);
 	pnode->finfo = NULL;
 	pnode->tree_data = g_new(tree_data_t, 1);
 
