@@ -1,6 +1,6 @@
 /* eyesdn.c
  *
- * $Id: eyesdn.c,v 1.5 2004/03/03 22:24:51 guy Exp $
+ * $Id: eyesdn.c,v 1.6 2004/03/17 09:24:41 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -57,7 +57,7 @@
  */
 
 
-static int esc_read(guint8 *buf, int len, FILE_T *fh)
+static int esc_read(guint8 *buf, int len, FILE_T fh)
 {
     int i;
     int value;
@@ -141,7 +141,7 @@ static long eyesdn_seek_next_packet(wtap *wth, int *err)
 static gboolean eyesdn_check_file_type(wtap *wth, int *err)
 {
 	char	buf[EYESDN_HDR_MAGIC_SIZE];
-	int	i, reclen;
+	size_t	i, reclen;
 	guint	level;
 	char	byte;
 
