@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.44 2004/02/03 20:13:18 ulfl Exp $
+; $Id: ethereal.nsi,v 1.45 2004/02/06 18:47:44 ulfl Exp $
 
  
 !ifdef MAKENSIS_MODERN_UI
@@ -13,7 +13,13 @@ SetCompressor lzma
 ; Header configuration
 ; ============================================================================
 ; The name of the installer
-Name "Ethereal"
+!ifndef GTK2
+!define PROGRAM_NAME "Ethereal"
+!else
+!define PROGRAM_NAME "Ethereal (GTK2)"
+!endif
+
+Name "${PROGRAM_NAME} ${VERSION}"
 
 ; The file to write
 OutFile "${DEST}-setup-${VERSION}.exe"
@@ -22,8 +28,8 @@ OutFile "${DEST}-setup-${VERSION}.exe"
 Icon "..\..\image\ethereal.ico"
 UninstallIcon "..\..\image\ethereal.ico"
 
-; Uninstall stuff
-UninstallText "This will uninstall Ethereal. Hit 'Next' to continue."
+; Uninstall stuff (this text isn't used with the MODERN_UI!) */
+UninstallText "This will uninstall Ethereal.\r\nBefore starting the uninstallation, make sure Ethereal is not running.\r\nClick 'Next' to continue."
 
 XPStyle on
 
@@ -45,10 +51,10 @@ XPStyle on
 !define MUI_UNICON "..\..\image\ethereal.ico"
 
 !define MUI_COMPONENTSPAGE_SMALLDESC
-!define MUI_WELCOMEPAGE_TEXT "This wizard will guide you through the installation of Ethereal.\r\n\r\nBefore starting the installation, make sure Ethereal is not running.\r\n\r\nClick next to continue."
+!define MUI_WELCOMEPAGE_TEXT "This wizard will guide you through the installation of Ethereal.\r\n\r\nBefore starting the installation, make sure Ethereal is not running.\r\n\r\nClick 'Next' to continue."
 !define MUI_FINISHPAGE_LINK "Install WinPcap to be able to capture packets from a network!"
 !define MUI_FINISHPAGE_LINK_LOCATION "http://winpcap.polito.it"
-; show readme doesn't seem to work with NSIS 2.0b4
+; show readme doesn't seem to work even with NSIS 2.0rc3
 ;!define MUI_FINISHPAGE_SHOWREADME "..\..\README.win32"
 ;!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
 
@@ -160,7 +166,7 @@ SetOutPath $INSTDIR
 
 ; Write the uninstall keys for Windows
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "DisplayVersion" "${VERSION}"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "DisplayName" "Ethereal ${VERSION}"
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "DisplayName" "${PROGRAM_NAME} ${VERSION}"
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "UninstallString" '"$INSTDIR\uninstall.exe"'
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "Publisher" "The Ethereal developer community, http://www.ethereal.com"
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "HelpLink" "mailto:ethereal-users@ethereal.com"
@@ -171,33 +177,33 @@ WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Unin
 WriteUninstaller "uninstall.exe"
 SectionEnd
 
-Section "Ethereal" SecEthereal
+Section "${PROGRAM_NAME}" SecEthereal
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "..\..\${DEST}.exe"
+File /oname=ethereal.exe "..\..\${DEST}.exe"
 File "..\..\doc\ethereal.html"
 File "..\..\doc\ethereal-filter.html"
 !ifndef GTK2
-File "${GTK_DIR}\lib\libgtk-0.dll"
-File "${GTK_DIR}\lib\libgdk-0.dll"
+File "${GTK1_DIR}\lib\libgtk-0.dll"
+File "${GTK1_DIR}\lib\libgdk-0.dll"
 !else
-File "${GTK_DIR}\bin\libgdk-win32-2.0-0.dll"
-File "${GTK_DIR}\bin\libgdk_pixbuf-2.0-0.dll"
-File "${GTK_DIR}\bin\libgtk-win32-2.0-0.dll"
-File "${GTK_DIR}\bin\libatk-1.0-0.dll"
-File "${GTK_DIR}\bin\libpango-1.0-0.dll"
-File "${GTK_DIR}\bin\libpangowin32-1.0-0.dll"
+File "${GTK2_DIR}\bin\libgdk-win32-2.0-0.dll"
+File "${GTK2_DIR}\bin\libgdk_pixbuf-2.0-0.dll"
+File "${GTK2_DIR}\bin\libgtk-win32-2.0-0.dll"
+File "${GTK2_DIR}\bin\libatk-1.0-0.dll"
+File "${GTK2_DIR}\bin\libpango-1.0-0.dll"
+File "${GTK2_DIR}\bin\libpangowin32-1.0-0.dll"
 SetOutPath $INSTDIR\etc\gtk-2.0
-File "${GTK_DIR}\etc\gtk-2.0\gdk-pixbuf.loaders"
-File "${GTK_DIR}\etc\gtk-2.0\gtk.immodules"
+File "${GTK2_DIR}\etc\gtk-2.0\gdk-pixbuf.loaders"
+File "${GTK2_DIR}\etc\gtk-2.0\gtk.immodules"
 SetOutPath $INSTDIR\etc\pango
-File "${GTK_DIR}\etc\pango\pango.modules"
+File "${GTK2_DIR}\etc\pango\pango.modules"
 SetOutPath $INSTDIR\lib\gtk-2.0\2.2.0\loaders
-File "${GTK_DIR}\lib\gtk-2.0\2.2.0\loaders\libpixbufloader-*.dll"
+File "${GTK2_DIR}\lib\gtk-2.0\2.2.0\loaders\libpixbufloader-*.dll"
 SetOutPath $INSTDIR\lib\gtk-2.0\2.2.0\immodules
-File "${GTK_DIR}\lib\gtk-2.0\2.2.0\immodules\im-*.dll"
+File "${GTK2_DIR}\lib\gtk-2.0\2.2.0\immodules\im-*.dll"
 SetOutPath $INSTDIR\lib\pango\1.2.0\modules
-File "${GTK_DIR}\lib\pango\1.2.0\modules\pango-*.dll"
+File "${GTK2_DIR}\lib\pango\1.2.0\modules\pango-*.dll"
 !endif
 SetOutPath $INSTDIR\help
 File "..\..\help\toc"
@@ -278,7 +284,6 @@ WriteINIStr "$SMPROGRAMS\Ethereal\Ethereal Web Site.url" \
 CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal.lnk" "$INSTDIR\${DEST}.exe"
 CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Manual.lnk" "$INSTDIR\ethereal.html"
 CreateShortCut "$SMPROGRAMS\Ethereal\Display Filters Manual.lnk" "$INSTDIR\ethereal-filter.html"
-CreateShortCut "$SMPROGRAMS\Ethereal\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Program Directory.lnk" \
           "$INSTDIR"
 SectionEnd
@@ -302,22 +307,21 @@ IfErrors 0 NoTetherealErrorMsg
 	Abort "Note: tethereal.exe could not be removed! Probably in use! Abort unistall!"
 NoTetherealErrorMsg:
 
-Delete "$INSTDIR\${DEST}.exe"
+Delete "$INSTDIR\ethereal.exe"
 IfErrors 0 NoEtherealErrorMsg
 	MessageBox MB_OK "Note: Ethereal could not be removed! Probably in use!" IDOK 0 ;skipped if ethereal.exe removed
-	Abort "Note: ${DEST}.exe could not be removed! Probably in use! Abort uninstall!"
+	Abort "Note: ethereal.exe could not be removed! Probably in use! Abort uninstall!"
 NoEtherealErrorMsg:
 
 DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal"
 DeleteRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal
 
-!ifdef GTK2
+; regardless if we currently installed GTK1 or 2, try to uninstall GTK2 files too
 Delete "$INSTDIR\etc\gtk-2.0\*.*"
 Delete "$INSTDIR\etc\pango\*.*"
 Delete "$INSTDIR\lib\gtk-2.0\2.2.0\loaders\*.*"
 Delete "$INSTDIR\lib\gtk-2.0\2.2.0\immodules\*.*"
 Delete "$INSTDIR\lib\pango\1.2.0\modules\*.*"
-!endif
 Delete "$INSTDIR\help\*.*"
 Delete "$INSTDIR\plugins\${VERSION}\*.*"
 Delete "$INSTDIR\plugins\*.*"
@@ -328,7 +332,6 @@ Delete "$INSTDIR\*.*"
 Delete "$SMPROGRAMS\Ethereal\*.*"
 Delete "$DESKTOP\Ethereal.lnk"
 
-!ifdef GTK2
 RMDir "$INSTDIR\etc\gtk-2.0"
 RMDir "$INSTDIR\etc\pango"
 RMDir "$INSTDIR\etc"
@@ -340,7 +343,6 @@ RMDir "$INSTDIR\lib\pango\1.2.0\modules"
 RMDir "$INSTDIR\lib\pango\1.2.0"
 RMDir "$INSTDIR\lib\pango"
 RMDir "$INSTDIR\lib"
-!endif
 RMDir "$SMPROGRAMS\Ethereal"
 RMDir "$INSTDIR\help"
 RMDir "$INSTDIR\plugins\${VERSION}"
@@ -359,7 +361,11 @@ SectionEnd
 
 !ifdef MAKENSIS_MODERN_UI
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecEthereal} "Ethereal is a GUI network protocol analyzer."
+!ifndef GTK2
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecEthereal} "${PROGRAM_NAME} is a GUI network protocol analyzer."
+!else
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecEthereal} "${PROGRAM_NAME} is a GUI network protocol analyzer (using the modern GTK2 GUI toolkit)."
+!endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SecTethereal} "Tethereal is a network protocol analyzer."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Editcap is a program that reads a capture file and writes some or all of the packets into another capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Text2pcap is a program that reads in an ASCII hex dump and writes the data into a libpcap-style capture file."

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.35 2004/02/03 20:03:40 ulfl Exp $
+# $Id: Makefile.nmake,v 1.36 2004/02/06 18:47:45 ulfl Exp $
 #
 # NSIS is a free packager/installer/uninstaller program for Win32.
 # It was originally written for the Winamp package, but various
@@ -11,10 +11,8 @@ include ../../config.nmake
 
 !IFDEF GTK1
 DEST=ethereal
-GTK_DIR=$(GTK1_DIR)
 !ELSE
-DEST=ethereal2
-GTK_DIR=$(GTK2_DIR)
+DEST=ethereal-gtk2
 !ENDIF
 
 EXE=../../$(DEST).exe ../../tethereal.exe ../../editcap.exe \
@@ -66,7 +64,8 @@ $(DEST)-setup-$(VERSION).exe : ethereal.nsi $(DELIVERABLES) Makefile.nmake
 	/DGTK2 \
 !ENDIF
 	/DDEST=$(DEST) \
-	/DGTK_DIR=$(GTK_DIR) \
+	/DGTK1_DIR=$(GTK1_DIR) \
+	/DGTK2_DIR=$(GTK2_DIR) \
 	/DGLIB_DIR=$(GLIB_DIR) \
 	/DICONV_DIR=$(ICONV_DIR) \
 	/DGETTEXT_DIR=$(GETTEXT_DIR) \
@@ -86,7 +85,7 @@ $(DEST)-setup-$(VERSION).exe : ethereal.nsi $(DELIVERABLES) Makefile.nmake
 
 clean:
 	rm -f ethereal-setup-$(VERSION).exe
-	rm -f ethereal2-setup-$(VERSION).exe
+	rm -f ethereal-gtk2-setup-$(VERSION).exe
 
 distclean: clean
 
