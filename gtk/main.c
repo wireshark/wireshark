@@ -1630,6 +1630,7 @@ main(int argc, char *argv[])
   /* Register all tap listeners; we do this before we parse the arguments,
      as the "-z" argument can specify a registered tap. */
   register_all_tap_listeners();
+  register_all_plugin_tap_listeners();
 
   splash_update(splash_win, "Loading module preferences ...");
 

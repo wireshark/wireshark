@@ -55,12 +55,30 @@ static void
 plugins_scan(GtkWidget *list)
 {
     plugin     *pt_plug;
+    GString    *type;
+    char       *sep;
 
     pt_plug = plugin_list;
     while (pt_plug)
     {
-    simple_list_append(list, 0, pt_plug->name, 1, pt_plug->version, -1);
-	pt_plug = pt_plug->next;
+        type = g_string_new("");
+        sep = "";
+        if (pt_plug->reg_handoff)
+        {
+            type = g_string_append(type, sep);
+            type = g_string_append(type, "dissector");
+            sep = ",";
+        }
+        if (pt_plug->register_tap_listener)
+        {
+            type = g_string_append(type, sep);
+            type = g_string_append(type, "tap");
+            sep = ",";
+        }
+        simple_list_append(list, 0, pt_plug->name, 1, pt_plug->version,
+                           2, type->str, -1);
+        g_string_free(type, TRUE);
+        pt_plug = pt_plug->next;
     }
 }
 
@@ -70,7 +88,7 @@ about_plugins_page_new(void)
 {
     GtkWidget *scrolledwindow;
     GtkWidget *plugins_list;
-    gchar     *titles[] = {"Name", "Version"};
+    gchar     *titles[] = {"Name", "Version", "Type"};
 
     
     scrolledwindow = scrolled_window_new(NULL, NULL);
@@ -79,7 +97,7 @@ about_plugins_page_new(void)
                                    GTK_SHADOW_IN);
 #endif
 
-    plugins_list = simple_list_new(2, titles);
+    plugins_list = simple_list_new(3 , titles);
     plugins_scan(plugins_list);
 
     gtk_container_add(GTK_CONTAINER(scrolledwindow), plugins_list);

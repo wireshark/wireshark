@@ -35,6 +35,7 @@ typedef struct _plugin {
     gchar       *name;            /* plugin name */
     gchar       *version;         /* plugin version */
     void (*reg_handoff)(void);    /* routine to call to register dissector handoff */
+    void (*register_tap_listener)(void);   /* routine to call to register tap listener */
     struct _plugin *next;         /* forward link */
 } plugin;
 
@@ -42,6 +43,7 @@ ETH_VAR_IMPORT plugin *plugin_list;
 
 extern void init_plugins(const char *);
 extern void register_all_plugin_handoffs(void);
+extern void register_all_plugin_tap_listeners(void);
 
 /* get the global plugin dir */
 /* Return value is g_malloced so the caller should g_free() it. */

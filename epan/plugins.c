@@ -97,7 +97,7 @@ plugin *plugin_list;
  */
 static int
 add_plugin(void *handle, gchar *name, gchar *version,
-	   void (*reg_handoff)(void))
+	   void (*reg_handoff)(void), void (*register_tap_listener)(void))
 {
     plugin *new_plug, *pt_plug;
 
@@ -133,6 +133,7 @@ add_plugin(void *handle, gchar *name, gchar *version,
     new_plug->name = name;
     new_plug->version = version;
     new_plug->reg_handoff = reg_handoff;
+    new_plug->register_tap_listener = register_tap_listener;
     new_plug->next = NULL;
     return 0;
 }
@@ -171,6 +172,7 @@ plugins_scan_dir(const char *dirname)
     gpointer       gp;
     void         (*init)(void *);
     void         (*reg_handoff)(void);
+    void         (*register_tap_listener)(void);
     gchar         *dot;
     int            cr;
 
@@ -243,65 +245,92 @@ plugins_scan_dir(const char *dirname)
 	    version = gp;
 
 	    /*
-	     * Old-style dissectors don't have a "plugin_reg_handoff()"
-	     * routine; we no longer support them.
-	     *
-	     * New-style dissectors have one, because, otherwise, there's
-	     * no way for them to arrange that they ever be called.
+	     * We require the plugin to have a "plugin_init()" routine.
+	     */
+	    if (!g_module_symbol(handle, "plugin_init", &gp))
+	    {
+		g_warning("The plugin %s has no plugin_init routine",
+			  name);
+		g_module_close(handle);
+		continue;
+	    }
+	    init = gp;
+
+	    /*
+	     * Do we have a reg_handoff routine?
 	     */
 	    if (g_module_symbol(handle, "plugin_reg_handoff", &gp))
 	    {
+		/*
+		 * Yes - this plugin includes one or more dissectors.
+		 */
 		reg_handoff = gp;
-
-		/*
-		 * We require it to have a "plugin_init()" routine.
-		 */
-		if (!g_module_symbol(handle, "plugin_init", &gp))
-		{
-		    g_warning("The plugin %s has a plugin_reg_handoff symbol but no plugin_init routine",
-			      name);
-		    g_module_close(handle);
-		    continue;
-		}
-		init = gp;
-
-		/*
-		 * We have a "plugin_reg_handoff()" routine, so we don't
-		 * need the protocol, filter string, or dissector pointer.
-		 */
-		if ((cr = add_plugin(handle, g_strdup(name), version,
-				     reg_handoff)))
-		{
-		    if (cr == EEXIST)
-			fprintf(stderr, "The plugin %s, version %s\n"
-			    "was found in multiple directories\n", name, version);
-		    else
-			fprintf(stderr, "Memory allocation problem\n"
-			    "when processing plugin %s, version %s\n",
-			    name, version);
-		    g_module_close(handle);
-		    continue;
-		}
-
-		/*
-		 * Call its init routine.
-		 */
-#ifdef PLUGINS_NEED_ADDRESS_TABLE
-		init(&patable);
-#else
-		init(NULL);
-#endif
 	    }
 	    else
 	    {
 		/*
-		 * This is an old-style dissector; warn that it won't
-		 * be used, as those aren't supported.
+		 * No - no dissectors here.
 		 */
-		fprintf(stderr,
-		    "The plugin %s, version %s is an old-style plugin;\n"
-		    "Those are no longer supported.\n", name, version);
+		reg_handoff = NULL;
 	    }
+
+	    /*
+	     * Do we have a register_tap_listener routine?
+	     */
+	    if (g_module_symbol(handle, "plugin_register_tap_listener", &gp))
+	    {
+		/*
+		 * Yes - this plugin includes one or more taps.
+		 */
+		register_tap_listener = gp;
+	    }
+	    else
+	    {
+		/*
+		 * No - no taps here.
+		 */
+		register_tap_listener = NULL;
+	    }
+
+	    /*
+	     * Does this dissector do anything useful?
+	     */
+	    if (reg_handoff == NULL && register_tap_listener == NULL)
+	    {
+		/*
+		 * No.
+		 */
+		g_warning("The plugin %s has neither a reg_handoff nor a register_tap_listener routine",
+			  name);
+		g_module_close(handle);
+		continue;
+	    }
+
+	    /*
+	     * OK, attempt to add it to the list of plugins.
+	     */
+	    if ((cr = add_plugin(handle, g_strdup(name), version,
+				 reg_handoff, register_tap_listener)))
+	    {
+		if (cr == EEXIST)
+		    fprintf(stderr, "The plugin %s, version %s\n"
+			    "was found in multiple directories\n", name, version);
+		else
+		    fprintf(stderr, "Memory allocation problem\n"
+			    "when processing plugin %s, version %s\n",
+			    name, version);
+		g_module_close(handle);
+		continue;
+	    }
+
+	    /*
+	     * Call its init routine.
+	     */
+#ifdef PLUGINS_NEED_ADDRESS_TABLE
+	    init(&patable);
+#else
+	    init(NULL);
+#endif
 	}
 #if GLIB_MAJOR_VERSION < 2
 	closedir(dir);
@@ -404,22 +433,37 @@ init_plugins(const char *plugin_dir)
 void
 register_all_plugin_handoffs(void)
 {
-  plugin *pt_plug;
+    plugin *pt_plug;
 
-  /*
-   * For all new-style plugins, call the register-handoff routine.
-   * This is called from "proto_init()"; it must be called after
-   * "register_all_protocols()" and "init_plugins()" are called,
-   * in case one plugin registers itself either with a built-in
-   * dissector or with another plugin; we must first register all
-   * dissectors, whether built-in or plugin, so their dissector tables
-   * are initialized, and only then register all handoffs.
-   *
-   * We treat those protocols as always being enabled; they should
-   * use the standard mechanism for enabling/disabling protocols, not
-   * the plugin-specific mechanism.
-   */
-  for (pt_plug = plugin_list; pt_plug != NULL; pt_plug = pt_plug->next)
-    (pt_plug->reg_handoff)();
+    /*
+     * For all plugins with register-handoff routines, call the routines.
+     * This is called from "proto_init()"; it must be called after
+     * "register_all_protocols()" and "init_plugins()" are called,
+     * in case one plugin registers itself either with a built-in
+     * dissector or with another plugin; we must first register all
+     * dissectors, whether built-in or plugin, so their dissector tables
+     * are initialized, and only then register all handoffs.
+     */
+    for (pt_plug = plugin_list; pt_plug != NULL; pt_plug = pt_plug->next)
+    {
+	if (pt_plug->reg_handoff)
+	    (pt_plug->reg_handoff)();
+    }
+}
+
+void
+register_all_plugin_tap_listeners(void)
+{
+    plugin *pt_plug;
+
+    /*
+     * For all plugins with register-tap-listener routines, call the
+     * routines.
+     */
+    for (pt_plug = plugin_list; pt_plug != NULL; pt_plug = pt_plug->next)
+    {
+	if (pt_plug->register_tap_listener)
+	    (pt_plug->register_tap_listener)();
+    }
 }
 #endif
