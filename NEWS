@@ -352,6 +352,7 @@ Overview of changes in Ethereal 0.9.0:
 * Capture file size test fixes in tethereal, command line argument
     parsing fixes. (Guy)
 * VMS TCPIPtrace efficiency improvements. (Marc)
+* Add Cisco HDLC and frame relay direction reporting. (Tom)
 
 Overview of changes in Ethereal 0.8.20:
 

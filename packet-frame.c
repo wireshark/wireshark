@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.15 2001/12/10 00:25:27 guy Exp $
+ * $Id: packet-frame.c,v 1.16 2001/12/24 17:06:53 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,9 +72,15 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	pinfo->current_proto = "Frame";
 
 	if (pinfo->fd->lnk_t == WTAP_ENCAP_LAPD ||
+			pinfo->fd->lnk_t == WTAP_ENCAP_CHDLC ||
 			pinfo->fd->lnk_t == WTAP_ENCAP_PPP_WITH_PHDR) {
 
 		pinfo->p2p_dir = pinfo->pseudo_header->p2p.sent ? P2P_DIR_SENT : P2P_DIR_RECV;
+	}
+	else if (pinfo->fd->lnk_t == WTAP_ENCAP_LAPB ||
+			pinfo->fd->lnk_t == WTAP_ENCAP_FRELAY) {
+
+		pinfo->p2p_dir = (pinfo->pseudo_header->x25.flags & 0x80) ? P2P_DIR_RECV : P2P_DIR_SENT;
 	}
 
 	/* Put in frame header information. */
