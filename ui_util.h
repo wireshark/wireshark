@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.3 2000/01/03 06:59:10 guy Exp $
+ * $Id: ui_util.h,v 1.4 2000/02/29 06:24:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,9 @@ void set_main_window_name(gchar *);
    one such window and such a window has already been popped up - we
    pop up the existing one rather than creating a new one. */
 void reactivate_window(GtkWidget *);
+
+/* Destroy all popup packet windows. */
+void destroy_packet_wins(void);
 
 #ifdef __cplusplus
 }

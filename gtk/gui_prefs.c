@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.3 1999/12/30 23:02:55 gram Exp $
+ * $Id: gui_prefs.c,v 1.4 2000/02/29 06:24:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -241,7 +241,7 @@ scrollbar_menu_item_cb(GtkWidget *w, gpointer data)
 	gboolean	value = GPOINTER_TO_INT(data);
 
 	temp_gui_scrollbar_on_right = value;
-	set_scrollbar_placement(value);
+	set_scrollbar_placement_all(value);
 }
 
 static void
@@ -259,7 +259,7 @@ ptree_sel_browse_cb(GtkWidget *w, gpointer data)
 	gboolean	value = GPOINTER_TO_INT(data);
 
 	temp_gui_ptree_sel_browse = value;
-	set_ptree_sel_browse(value);
+	set_ptree_sel_browse_all(value);
 }
 
 static void
@@ -268,7 +268,7 @@ ptree_line_style_cb(GtkWidget *w, gpointer data)
 	gint	value = GPOINTER_TO_INT(data);
 
 	temp_gui_ptree_line_style = value;
-	set_ptree_line_style(value);
+	set_ptree_line_style_all(value);
 }
 
 static void
@@ -277,7 +277,7 @@ ptree_expander_style_cb(GtkWidget *w, gpointer data)
 	gint	value = GPOINTER_TO_INT(data);
 
 	temp_gui_ptree_expander_style = value;
-	set_ptree_expander_style(value);
+	set_ptree_expander_style_all(value);
 }
 
 
@@ -302,19 +302,19 @@ gui_prefs_save(GtkWidget *w)
 void
 gui_prefs_cancel(GtkWidget *w)
 {
-	/* Reset scrollbar placement value back to what the
-	 * current preferences says it should be */
+	/* Reset GUI preference values back to what the
+	 * current preferences says they should be */
 	temp_gui_scrollbar_on_right = prefs.gui_scrollbar_on_right;
 	temp_gui_plist_sel_browse = prefs.gui_plist_sel_browse;
 	temp_gui_ptree_sel_browse = prefs.gui_ptree_sel_browse;
 	temp_gui_ptree_line_style = prefs.gui_ptree_line_style;
 	temp_gui_ptree_expander_style = prefs.gui_ptree_expander_style;
 
-	set_scrollbar_placement(prefs.gui_scrollbar_on_right);
+	set_scrollbar_placement_all(prefs.gui_scrollbar_on_right);
 	set_plist_sel_browse(prefs.gui_plist_sel_browse);
-	set_ptree_sel_browse(prefs.gui_ptree_sel_browse);
-	set_ptree_line_style(prefs.gui_ptree_line_style);
-	set_ptree_expander_style(prefs.gui_ptree_expander_style);
+	set_ptree_sel_browse_all(prefs.gui_ptree_sel_browse);
+	set_ptree_line_style_all(prefs.gui_ptree_line_style);
+	set_ptree_expander_style_all(prefs.gui_ptree_expander_style);
 
 	gui_prefs_delete(w);
 }

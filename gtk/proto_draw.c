@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.13 2000/01/25 03:45:45 gerald Exp $
+ * $Id: proto_draw.c,v 1.14 2000/02/29 06:24:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,7 +45,9 @@
 #include "packet.h"
 #include "util.h"
 
+#include "prefs.h"
 #include "proto_draw.h"
+#include "gtkglobals.h"
 
 #define BYTE_VIEW_WIDTH    16
 #define BYTE_VIEW_SEP      8
@@ -54,6 +56,51 @@ extern GdkFont      *m_r_font, *m_b_font;
 
 static void
 proto_tree_draw_node(GNode *node, gpointer data);
+
+void
+create_byte_view(gint bv_size, GtkWidget *pane, GtkWidget **byte_view_p,
+		GtkWidget **bv_vscroll_left_p, GtkWidget **bv_vscroll_right_p)
+{
+  GtkWidget *bv_table, *byte_view, *bv_vscroll_left, *bv_vscroll_right;
+
+  /* Byte view. The table is only one row high, but 3 columns
+   * wide. The middle column contains the GtkText with the hex dump.
+   * The left and right columns contain vertical scrollbars. They both
+   * do the same thing, but only one will be shown at a time, in accordance
+   * with where the user wants the other vertical scrollbars places
+   * (on the left or the right).
+   */
+  bv_table = gtk_table_new (1, 3, FALSE);
+  gtk_paned_pack2(GTK_PANED(pane), bv_table, FALSE, FALSE);
+  gtk_widget_set_usize(bv_table, -1, bv_size);
+  gtk_widget_show(bv_table);
+
+  byte_view = gtk_text_new(NULL, NULL);
+  gtk_text_set_editable(GTK_TEXT(byte_view), FALSE);
+  gtk_text_set_word_wrap(GTK_TEXT(byte_view), FALSE);
+  gtk_table_attach (GTK_TABLE (bv_table), byte_view, 1, 2, 0, 1,
+    GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
+  gtk_widget_show(byte_view);
+
+  /* The gtk_text widget doesn't scroll horizontally (see gtktext.c)
+   * in the GTK+ distribution, so I removed the horizontal scroll bar
+   * that used to be here. I tried the gtk_text widget with a 
+   * gtk_scrolled_window w/ viewport, but the vertical scrolling
+   * did not work well, and sometimes a few pixels were cut off on
+   * the bottom. */
+
+  bv_vscroll_left = gtk_vscrollbar_new(GTK_TEXT(byte_view)->vadj);
+  gtk_table_attach(GTK_TABLE(bv_table), bv_vscroll_left, 0, 1, 0, 1,
+    GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
+
+  bv_vscroll_right = gtk_vscrollbar_new(GTK_TEXT(byte_view)->vadj);
+  gtk_table_attach(GTK_TABLE(bv_table), bv_vscroll_right, 2, 3, 0, 1,
+    GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
+
+  *byte_view_p = byte_view;
+  *bv_vscroll_left_p = bv_vscroll_left;
+  *bv_vscroll_right_p = bv_vscroll_right;
+}
 
 void
 packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
@@ -159,6 +206,33 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
 
     gtk_adjustment_set_value(bv->vadj, scrollval);
   }
+}
+
+void
+create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
+		GtkWidget **tv_scrollw_p, GtkWidget **tree_view_p)
+{
+  GtkWidget *tv_scrollw, *tree_view;
+
+  /* Tree view */
+  tv_scrollw = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(tv_scrollw),
+    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+  gtk_paned_pack1(GTK_PANED(pane), tv_scrollw, TRUE, TRUE);
+  gtk_widget_set_usize(tv_scrollw, -1, tv_size);
+  gtk_widget_show(tv_scrollw);
+  
+  tree_view = gtk_ctree_new(1, 0);
+  /* I need this next line to make the widget work correctly with hidden
+   * column titles and GTK_SELECTION_BROWSE */
+  gtk_clist_set_column_auto_resize( GTK_CLIST(tree_view), 0, TRUE );
+  gtk_container_add( GTK_CONTAINER(tv_scrollw), tree_view );
+  set_ptree_sel_browse(tree_view, prefs->gui_ptree_sel_browse);
+  set_ptree_line_style(tree_view, prefs->gui_ptree_line_style);
+  set_ptree_expander_style(tree_view, prefs->gui_ptree_expander_style);
+
+  *tree_view_p = tree_view;
+  *tv_scrollw_p = tv_scrollw;
 }
 
 void expand_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view) {

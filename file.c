@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.167 2000/02/21 08:18:00 guy Exp $
+ * $Id: file.c,v 1.168 2000/02/29 06:24:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,6 +77,7 @@
 #include "util.h"
 #include "simple_dialog.h"
 #include "ui_util.h"
+#include "prefs.h"
 #include "gtk/proto_draw.h"
 #include "dfilter.h"
 #include "conversation.h"
@@ -177,6 +178,10 @@ void
 close_cap_file(capture_file *cf, void *w)
 {
   frame_data *fd, *fd_next;
+
+  /* Destroy all popup packet windows, as they refer to packets in the
+     capture file we're closing. */
+  destroy_packet_wins();
 
   if (cf->fh) {
     file_close(cf->fh);

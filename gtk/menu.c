@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.25 2000/02/20 14:52:28 deniel Exp $
+ * $Id: menu.c,v 1.26 2000/02/29 06:24:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,6 +51,7 @@
 #include "summary_dlg.h"
 #include "display_opts.h"
 #include "prefs_dlg.h"
+#include "packet_win.h"
 #include "print.h"
 #include "follow.h"
 #include "keys.h"
@@ -120,6 +121,7 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Display/_Go To Frame...", NULL, GTK_MENU_FUNC(goto_frame_cb), 0, NULL},
   {"/Display/Collapse _All", NULL, GTK_MENU_FUNC(collapse_all_cb), 0, NULL},
   {"/Display/_Expand All", NULL, GTK_MENU_FUNC(expand_all_cb), 0, NULL},
+  {"/Display/_Show Packet In New Window", NULL, GTK_MENU_FUNC(new_window_cb), 0, NULL},
   {"/_Tools", NULL, NULL, 0, "<Branch>" },
 #ifdef HAVE_PLUGINS
   {"/Tools/_Plugins...", NULL, GTK_MENU_FUNC(tools_plugins_cmd_cb), 0, NULL},
@@ -144,6 +146,7 @@ static GtkItemFactoryEntry packet_list_menu_items[] =
 	{"/Colorize Display...", NULL, GTK_MENU_FUNC(color_display_cb), 0, NULL},
 	{"/Print...", NULL, GTK_MENU_FUNC(file_print_cmd_cb), 0, NULL},
   	{"/Print Packet", NULL, GTK_MENU_FUNC(file_print_packet_cmd_cb), 0, NULL},
+  	{"/Show Packet In New Window", NULL, GTK_MENU_FUNC(new_window_cb), 0, NULL}, 
 };
 
 static GtkItemFactoryEntry tree_view_menu_items[] =
@@ -328,6 +331,7 @@ set_menus_for_selected_packet(gboolean have_selected_packet)
   set_menu_sensitivity("/File/Print Packet", have_selected_packet);
   set_menu_sensitivity("/Display/Collapse All", have_selected_packet);
   set_menu_sensitivity("/Display/Expand All", have_selected_packet);
+  set_menu_sensitivity("/Display/Show Packet In New Window", have_selected_packet);
   set_menu_sensitivity("/Tools/Follow TCP Stream",
       have_selected_packet ? (pi.ipproto == 6) : FALSE);
   set_menu_sensitivity("/Resolve Name", 

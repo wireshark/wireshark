@@ -23,7 +23,8 @@ OBJECTS=capture_dlg.obj \
 	gui_prefs.obj \
 	main.obj 	\
 	menu.obj 	\
-	plugins_dlg.obj \
+	packet_win.obj	\
+	plugins_dlg.obj	\
 	prefs_dlg.obj \
 	print_dlg.obj \
 	print_prefs.obj  \

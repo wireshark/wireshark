@@ -286,6 +286,17 @@ Collapses the protocol tree branches.
 
 Expands all branches of the protocol tree.
 
+=item Display:Expand All
+
+Expands all branches of the protocol tree.
+
+=item Display:Show Packet In New Window
+
+Creates a new window containing a protocol tree view and a hex dump
+window of the currently selected packet; this window will continue to
+display that packet's protocol tree and data even if another packet is
+selected.
+
 =item Tools:Plugins
 
 Allows you to use and configure dynamically loadable modules (see

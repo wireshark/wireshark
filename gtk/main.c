@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.106 2000/02/20 14:52:27 deniel Exp $
+ * $Id: main.c,v 1.107 2000/02/29 06:24:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -109,6 +109,7 @@
 #include "proto_draw.h"
 #include "dfilter.h"
 #include "keys.h"
+#include "packet_win.h"
 #include "gtkglobals.h"
 #include "plugins.h"
 
@@ -138,6 +139,7 @@ static void follow_charset_toggle_cb(GtkWidget *w, gpointer parent_w);
 static void follow_load_text(GtkWidget *text, char *filename, guint8 show_type);
 static void follow_print_stream(GtkWidget *w, gpointer parent_w);
 static char* hfinfo_numeric_format(header_field_info *hfinfo);
+static void set_scrollbar_placement_main_window(int pos); /* 0=left, 1=right */
 static void create_main_window(gint, gint, gint, e_prefs*);
 
 /* About Ethereal window */
@@ -853,19 +855,15 @@ static void
 tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user_data)
 {
 	field_info	*finfo;
-	int		tree_selected_start = -1;
-	int		tree_selected_len = -1;
 
 	g_assert(node);
 	finfo = gtk_ctree_node_get_row_data( ctree, GTK_CTREE_NODE(node) );
 	if (!finfo) return;
 
 	finfo_selected = finfo;
-	tree_selected_start = finfo->start;
-	tree_selected_len   = finfo->length;
 
 	packet_hex_print(GTK_TEXT(byte_view), cf.pd, cf.current_frame->cap_len, 
-		tree_selected_start, tree_selected_len, cf.current_frame->encoding);
+		finfo->start, finfo->length, cf.current_frame->encoding);
 }
 
 static void
@@ -896,27 +894,55 @@ void resolve_name_cb(GtkWidget *widget, gpointer data) {
   }
 }
 
+/* Set the scrollbar placement of a scrolled window based upon pos value:
+   0 = left, 1 = right */
 void
-set_scrollbar_placement(int pos) /* 0=left, 1=right */
+set_scrollbar_placement_scrollw(GtkWidget *scrollw, int pos) /* 0=left, 1=right */
 {
 	if (pos) {
-		gtk_scrolled_window_set_placement( GTK_SCROLLED_WINDOW(pkt_scrollw),
-				GTK_CORNER_TOP_LEFT );
-		gtk_scrolled_window_set_placement( GTK_SCROLLED_WINDOW(tv_scrollw),
-				GTK_CORNER_TOP_LEFT );
-		gtk_widget_hide(bv_vscroll_left);
-		gtk_widget_show(bv_vscroll_right);
-	}
-	else {
-		gtk_scrolled_window_set_placement( GTK_SCROLLED_WINDOW(pkt_scrollw),
-				GTK_CORNER_TOP_RIGHT );
-		gtk_scrolled_window_set_placement( GTK_SCROLLED_WINDOW(tv_scrollw),
-				GTK_CORNER_TOP_RIGHT );
-		gtk_widget_hide(bv_vscroll_right);
-		gtk_widget_show(bv_vscroll_left);
+		gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scrollw),
+				GTK_CORNER_TOP_LEFT);
+	} else {
+		gtk_scrolled_window_set_placement(GTK_SCROLLED_WINDOW(scrollw),
+				GTK_CORNER_TOP_RIGHT);
 	}
 }
 
+/* Set the scrollbar placement of a 3-box text window (hex display) based
+   upon pos value: 0 = left, 1 = right */
+void
+set_scrollbar_placement_textw(GtkWidget *vscroll_left, GtkWidget *vscroll_right,
+    int pos)
+{
+	if (pos) {
+		gtk_widget_hide(vscroll_left);
+		gtk_widget_show(vscroll_right);
+	} else {
+		gtk_widget_hide(vscroll_right);
+		gtk_widget_show(vscroll_left);
+	}
+}
+
+/* Set the scrollbar placement of all the subwindows of the main window
+   based on pos value: 0 = left, 1 = right */
+static void
+set_scrollbar_placement_main_window(int pos)
+{
+	set_scrollbar_placement_scrollw(pkt_scrollw, pos);
+	set_scrollbar_placement_scrollw(tv_scrollw, pos);
+	set_scrollbar_placement_textw(bv_vscroll_left, bv_vscroll_right, pos);
+}
+
+/* Set the scrollbar placement of all windows based on pos value:
+   0 = left, 1 = right */
+void
+set_scrollbar_placement_all(int pos)
+{
+	set_scrollbar_placement_main_window(pos);
+	set_scrollbar_placement_packet_wins(pos);
+}
+
+/* Set the selection mode of the packet list window. */
 void
 set_plist_sel_browse(gboolean val)
 {
@@ -933,41 +959,66 @@ set_plist_sel_browse(gboolean val)
 	}
 }
 
+/* Set the selection mode of a given packet tree window. */
 void
-set_ptree_sel_browse(gboolean val)
+set_ptree_sel_browse(GtkWidget *tv, gboolean val)
 {
 	/* Yeah, GTK uses "browse" in the case where we do not, but oh well. I think
 	 * "browse" in Ethereal makes more sense than "SINGLE" in GTK+ */
 	if (val) {
-		gtk_clist_set_selection_mode(GTK_CLIST(tree_view), GTK_SELECTION_SINGLE);
+		gtk_clist_set_selection_mode(GTK_CLIST(tv), GTK_SELECTION_SINGLE);
 	}
 	else {
-		gtk_clist_set_selection_mode(GTK_CLIST(tree_view), GTK_SELECTION_BROWSE);
+		gtk_clist_set_selection_mode(GTK_CLIST(tv), GTK_SELECTION_BROWSE);
 	}
 }
 
+/* Set the selection mode of all packet tree windows. */
 void
-set_ptree_line_style(gint style)
+set_ptree_sel_browse_all(gboolean val)
+{
+	set_ptree_sel_browse(tree_view, val);
+	set_ptree_sel_browse_packet_wins(val);
+}
+
+/* Set the line style of a given packet tree window. */
+void
+set_ptree_line_style(GtkWidget *tv, gint style)
 {
 	/* I'm using an assert here since the preferences code limits
 	 * the user input, both in the GUI and when reading the preferences file.
 	 * If the value is incorrect, it's a program error, not a user-initiated error.
 	 */
 	g_assert(style >= GTK_CTREE_LINES_NONE && style <= GTK_CTREE_LINES_TABBED);
-	gtk_ctree_set_line_style( GTK_CTREE(tree_view), style );
+	gtk_ctree_set_line_style( GTK_CTREE(tv), style );
 }
 
+/* Set the line style of all packet tree window. */
 void
-set_ptree_expander_style(gint style)
+set_ptree_line_style_all(gint style)
+{
+	set_ptree_line_style(tree_view, style);
+	set_ptree_line_style_packet_wins(style);
+}
+
+/* Set the expander style of a given packet tree window. */
+void
+set_ptree_expander_style(GtkWidget *tv, gint style)
 {
 	/* I'm using an assert here since the preferences code limits
 	 * the user input, both in the GUI and when reading the preferences file.
 	 * If the value is incorrect, it's a program error, not a user-initiated error.
 	 */
 	g_assert(style >= GTK_CTREE_EXPANDER_NONE && style <= GTK_CTREE_EXPANDER_CIRCULAR);
-	gtk_ctree_set_expander_style( GTK_CTREE(tree_view), style );
+	gtk_ctree_set_expander_style( GTK_CTREE(tv), style );
 }
 	
+void
+set_ptree_expander_style_all(gint style)
+{
+	set_ptree_expander_style(tree_view, style);
+	set_ptree_expander_style_packet_wins(style);
+}
 
 void
 file_quit_cmd_cb (GtkWidget *widget, gpointer data)
@@ -1490,7 +1541,7 @@ static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 {
   GtkWidget           *main_vbox, *menubar, *u_pane, *l_pane,
-                      *bv_table, *stat_hbox,
+                      *stat_hbox,
                       *filter_bt, *filter_cm, *filter_te,
                       *filter_reset;
   GList               *filter_list = NULL;
@@ -1526,10 +1577,10 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_paned_gutter_size(GTK_PANED(u_pane), (GTK_PANED(u_pane))->handle_size);
   l_pane = gtk_vpaned_new();
   gtk_paned_gutter_size(GTK_PANED(l_pane), (GTK_PANED(l_pane))->handle_size);
-  gtk_container_add(GTK_CONTAINER(main_vbox), l_pane);
-  gtk_widget_show(u_pane);
-  gtk_paned_add1 (GTK_PANED(l_pane), u_pane);
+  gtk_container_add(GTK_CONTAINER(main_vbox), u_pane);
   gtk_widget_show(l_pane);
+  gtk_paned_add2(GTK_PANED(u_pane), l_pane);
+  gtk_widget_show(u_pane);
 
   /* Packet list */
   pkt_scrollw = gtk_scrolled_window_new(NULL, NULL);
@@ -1569,24 +1620,9 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_signal_connect_object(GTK_OBJECT(packet_list), "button_press_event",
     GTK_SIGNAL_FUNC(popup_menu_handler), gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
   gtk_widget_show(packet_list);
-  
-  /* Tree view */
-  tv_scrollw = gtk_scrolled_window_new(NULL, NULL);
-  gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(tv_scrollw),
-    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  gtk_paned_add2(GTK_PANED(u_pane), tv_scrollw);
-  gtk_widget_set_usize(tv_scrollw, -1, tv_size);
-  gtk_widget_show(tv_scrollw);
-  
-  tree_view = gtk_ctree_new(1, 0);
-  /* I need this next line to make the widget work correctly with hidden
-   * column titles and GTK_SELECTION_BROWSE */
-  gtk_clist_set_column_auto_resize( GTK_CLIST(tree_view), 0, TRUE );
-  gtk_container_add( GTK_CONTAINER(tv_scrollw), tree_view );
-  set_ptree_sel_browse(prefs->gui_ptree_sel_browse);
-  set_ptree_line_style(prefs->gui_ptree_line_style);
-  set_ptree_expander_style(prefs->gui_ptree_expander_style);
 
+  /* Tree view */
+  create_tree_view(tv_size, prefs, l_pane, &tv_scrollw, &tree_view);
   gtk_signal_connect(GTK_OBJECT(tree_view), "tree-select-row",
     GTK_SIGNAL_FUNC(tree_view_select_row_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(tree_view), "tree-unselect-row",
@@ -1599,43 +1635,13 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gdk_font_unref(item_style->font);
   item_style->font = m_r_font;
 
-  /* Byte view. The table is only one row high, but 3 columns
-   * wide. The middle column contains the GtkText with the hex dump.
-   * The left and right columns contain vertical scrollbars. They both
-   * do the same thing, but only one will be shown at a time, in accordance
-   * with where the user wants the other vertical scrollbars places
-   * (on the left or the right).
-   */
-  bv_table = gtk_table_new (1, 3, FALSE);
-  gtk_paned_pack2(GTK_PANED(l_pane), bv_table, FALSE, FALSE);
-  gtk_widget_set_usize(bv_table, -1, bv_size);
-  gtk_widget_show(bv_table);
+  /* Byte view. */
+  create_byte_view(bv_size, l_pane, &byte_view, &bv_vscroll_left,
+			&bv_vscroll_right);
 
-  byte_view = gtk_text_new(NULL, NULL);
-  gtk_text_set_editable(GTK_TEXT(byte_view), FALSE);
-  gtk_text_set_word_wrap(GTK_TEXT(byte_view), FALSE);
-  gtk_table_attach (GTK_TABLE (bv_table), byte_view, 1, 2, 0, 1,
-    GTK_FILL | GTK_EXPAND, GTK_FILL | GTK_EXPAND | GTK_SHRINK, 0, 0);
-  gtk_widget_show(byte_view);
-
-  /* The gtk_text widget doesn't scroll horizontally (see gtktext.c)
-   * in the GTK+ distribution, so I removed the horizontal scroll bar
-   * that used to be here. I tried the gtk_text widget with a 
-   * gtk_scrolled_window w/ viewport, but the vertical scrollowing
-   * did not work well, and sometimes a few pixels were cut off on
-   * the bottom. */
-
-  bv_vscroll_left = gtk_vscrollbar_new(GTK_TEXT(byte_view)->vadj);
-  gtk_table_attach(GTK_TABLE(bv_table), bv_vscroll_left, 0, 1, 0, 1,
-    GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
-
-  bv_vscroll_right = gtk_vscrollbar_new(GTK_TEXT(byte_view)->vadj);
-  gtk_table_attach(GTK_TABLE(bv_table), bv_vscroll_right, 2, 3, 0, 1,
-    GTK_FILL, GTK_EXPAND | GTK_FILL | GTK_SHRINK, 0, 0);
- 
   /* Now that the 3 panes are created, set the vertical scrollbar
    * on the left or right according to the user's preference */
-  set_scrollbar_placement(prefs->gui_scrollbar_on_right);
+  set_scrollbar_placement_main_window(prefs->gui_scrollbar_on_right);
 
   /* Progress/filter/info box */
   stat_hbox = gtk_hbox_new(FALSE, 1);

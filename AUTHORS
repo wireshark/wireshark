@@ -60,6 +60,7 @@ Guy Harris           <guy@alum.mit.edu> {
     NNTP support
     ATM and LANE decoding
     Q.931 decoding
+    Changes to the popup packet windows
     Miscellaneous enhancements and fixes
 }
 
@@ -141,6 +142,7 @@ Jeff Foster <jfoste@woodward.com> {
 	NetBEUI/NBF support (NetBIOS atop 802.2 LLC, the
 	    original NetBIOS encapsulation)
 	SMB Mailslot and Netlogin protocol support
+	Popup packet windows
 }
 
 Peter Torvals <petertv@xoommail.com> {

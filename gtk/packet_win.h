@@ -1,13 +1,14 @@
-/* gtkpacket.h
- * Definitions for GTK+ packet display structures and routines
+/* packet_win.h
+ * Declarations for popping a window to display current packet
  *
- * $Id: proto_draw.h,v 1.5 2000/02/29 06:24:41 guy Exp $
+ * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
+ *
+ * $Id: packet_win.h,v 1.1 2000/02/29 06:24:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
  * Copyright 1998 Gerald Combs
  *
- * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -23,20 +24,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-
-#ifndef __GTKPACKET_H__
-#define __GTKPACKET_H__
-
-void create_byte_view(gint bv_size, GtkWidget *pane, GtkWidget **byte_view_p,
-		GtkWidget **bv_vscroll_left_p, GtkWidget **bv_vscroll_right_p);
-void packet_hex_print(GtkText *, guint8 *, gint, gint, gint, char_enc);
-
-#define E_TREEINFO_FIELD_INFO_KEY "tree_info_finfo"
-
-void create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
-		GtkWidget **tv_scrollw_p, GtkWidget **tree_view_p);
-void proto_tree_draw(proto_tree *protocol_tree, GtkWidget *tree_view);
-void expand_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view);
-void collapse_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view);
-
-#endif
+extern void new_window_cb(GtkWidget *w);
+void set_scrollbar_placement_packet_wins(int pos);
+void set_ptree_sel_browse_packet_wins(gboolean val);
+void set_ptree_line_style_packet_wins(gint style);
+void set_ptree_expander_style_packet_wins(gint style);
