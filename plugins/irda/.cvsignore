@@ -10,7 +10,9 @@ config.status
 configure
 irda.la
 packet-irda.lo
+packet-ircomm.lo
 packet-irda-static.lo
+packet-ircomm-static.lo
 stamp-h
 *.obj
 *.dll
