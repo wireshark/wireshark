@@ -4,6 +4,10 @@ Overview of changes in Ethereal 0.7.2:
 * -R flag for display filter on command line (Jochen)
 * Updated docs (Guy)
 * Handles ICMP Unreachable|Frag Required (John)
+* NetBEUI support (Jeff, Guy)
+* Fix for Token-Ring RIF display (Gilbert)
+* Dramatically increased file-load time (Guy)
+* Fixed -S option timeout handling (Laurent)
 
 Overview of changes in Ethereal 0.7.1:
 * Fixed big memory leaks in dfilter code (Guy)
