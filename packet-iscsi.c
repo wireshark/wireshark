@@ -7,7 +7,7 @@
  * draft-ietf-ips-iscsi-09.txt by defining DRAFT09
  * draft-ietf-ips-iscsi-08.txt by defining DRAFT08
  *
- * $Id: packet-iscsi.c,v 1.27 2002/03/20 21:28:14 guy Exp $
+ * $Id: packet-iscsi.c,v 1.28 2002/04/04 10:20:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -136,9 +136,9 @@ static int hf_iscsi_VersionActive = -1;
 static int hf_iscsi_CID = -1;
 static int hf_iscsi_ISID = -1;
 #if defined(DRAFT09)
-static int hf_iscsi_ISIDType = -1;
-static int hf_iscsi_ISIDNamingAuthority = -1;
-static int hf_iscsi_ISIDQualifier = -1;
+static int hf_iscsi_ISID_Type = -1;
+static int hf_iscsi_ISID_NamingAuthority = -1;
+static int hf_iscsi_ISID_Qualifier = -1;
 #elif !defined(DRAFT08)
 static int hf_iscsi_ISID_t = -1;
 static int hf_iscsi_ISID_a = -1;
