@@ -4,7 +4,7 @@
  * Laurent Deniel <deniel@worldnet.fr>
  * Craig Rodrigues <rodrigc@mediaone.net>
  *
- * $Id: packet-giop.c,v 1.19 2000/11/07 07:46:20 guy Exp $
+ * $Id: packet-giop.c,v 1.20 2000/11/08 22:18:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -263,7 +263,7 @@ printable_string (gchar *in, guint32 len)
 
   for(i=0; i < len; i++)
   {
-	 if( !isprint( in[i] ) ) 
+	 if( !isprint( (unsigned char)in[i] ) ) 
 		 in[i] = '.';
   }
 }
