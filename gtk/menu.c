@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.188 2004/05/03 23:48:00 guy Exp $
+ * $Id: menu.c,v 1.189 2004/05/04 20:04:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -207,8 +207,6 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_STOCK_ENTRY("/Edit/_Preferences...", "<shift><control>P", prefs_cb,
                              0, GTK_STOCK_PREFERENCES),
-    ITEM_FACTORY_STOCK_ENTRY("/Edit/_Coloring Rules...", NULL, color_display_cb,
-                       0, GTK_STOCK_SELECT_COLOR),
     ITEM_FACTORY_ENTRY("/_View", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/View/_Main Toolbar", NULL, main_toolbar_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/_Filter Toolbar", NULL, filter_toolbar_show_cb, 0, "<CheckItem>", NULL),
@@ -247,6 +245,9 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/View/_Expand All", NULL, expand_all_cb,
                        0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/View/Expand Tree", NULL, expand_tree_cb, 0, NULL, NULL),
+    ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
+    ITEM_FACTORY_STOCK_ENTRY("/View/_Coloring Rules...", NULL, color_display_cb,
+                       0, GTK_STOCK_SELECT_COLOR),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/Show Packet in New _Window", NULL,
                        new_window_cb, 0, NULL, NULL),
