@@ -1,7 +1,7 @@
 /* dialog.c
  * Dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.1 2000/01/03 06:59:25 guy Exp $
+ * $Id: simple_dialog.c,v 1.2 2000/05/03 07:19:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,7 @@
 
 #include "gtkglobals.h"
 #include "simple_dialog.h"
+#include "dlg_utils.h"
 
 #include "image/icon-excl.xpm"
 #include "image/icon-ethereal.xpm"
@@ -151,6 +152,16 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
     gtk_container_add(GTK_CONTAINER(bbox), cancel_btn);
     GTK_WIDGET_SET_FLAGS(cancel_btn, GTK_CAN_DEFAULT);
     gtk_widget_show(cancel_btn);
+
+    /* Catch the "key_press_event" signal in the window, so that we can catch
+       the ESC key being pressed and act as if the "Cancel" button had
+       been selected. */
+    dlg_set_cancel(win, cancel_btn);
+  } else {
+    /* Catch the "key_press_event" signal in the window, so that we can catch
+       the ESC key being pressed and act as if the "OK" button had
+       been selected. */
+    dlg_set_cancel(win, ok_btn);
   }
 
   if (btn_mask)
