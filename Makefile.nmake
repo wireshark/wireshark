@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.309 2003/06/14 20:35:55 guy Exp $
+# $Id: Makefile.nmake,v 1.310 2003/06/14 20:45:23 guy Exp $
 
 include config.nmake
 include <win32.mak>
@@ -449,10 +449,7 @@ ethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	gtk\libui.lib epan\ethereal.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	wsock32.lib user32.lib \
-	$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
-	$(GTK_DIR)\gdk\gdk-$(GTK_VERSION).lib \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib \
+	$(GTK_LIBS) \
 !IFDEF ADNS_DIR
 	$(ADNS_DIR)\adns_win32\lib\adns_dll.lib \
 !ENDIF
@@ -463,8 +460,7 @@ tethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	epan\ethereal.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	wsock32.lib user32.lib \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib \
+	$(GLIB_LIBS) \
 !IFDEF ADNS_DIR
 	$(ADNS_DIR)\adns_win32\lib\adns_dll.lib \
 !ENDIF
@@ -472,24 +468,21 @@ tethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 
 editcap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
+	$(GLIB_LIBS)
 
 mergecap_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
+	$(GLIB_LIBS)
 
 dftest_LIBS=  wiretap\wiretap-$(WTAP_VERSION).lib epan\ethereal.lib \
 	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	wsock32.lib user32.lib \
 	wiretap\wiretap-$(WTAP_VERSION).lib \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
+	$(GLIB_LIBS)
 
 randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	user32.lib \
-	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib \
+	$(GLIB_LIBS) \
 	$(NET_SNMP_DIR)\win32\lib\libsnmp.lib
 
 EXECUTABLES=ethereal.exe tethereal.exe editcap.exe mergecap.exe text2pcap.exe

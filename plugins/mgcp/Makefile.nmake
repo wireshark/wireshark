@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.6 2003/06/14 20:36:03 guy Exp $
+# $Id: Makefile.nmake,v 1.7 2003/06/14 20:45:27 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -13,7 +13,7 @@ OBJECTS=packet-mgcp.obj
 
 mgcp.dll mgcp.exp mgcp.lib : packet-mgcp.obj ..\plugin_api.obj
 	link -dll /out:mgcp.dll packet-mgcp.obj ..\plugin_api.obj \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
+	$(GLIB_LIBS)
 
 clean:
 	rm -f $(OBJECTS) mgcp.dll mgcp.exp mgcp.lib $(PDB_FILE)

@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.44 2003/06/14 20:35:55 guy Exp $
+# $Id: config.nmake,v 1.45 2003/06/14 20:45:23 guy Exp $
 
 VERSION=0.9.13
 #
@@ -69,3 +69,8 @@ MAKENSIS="C:/program files/nsis/makensis.exe"
 #
 GLIB_CFLAGS=/I$(GLIB_DIR) /I$(GLIB_DIR)\gmodule
 GTK_CFLAGS=/I$(GTK_DIR) /I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 $(GLIB_CFLAGS)
+GLIB_LIBS=$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
+	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
+GTK_LIBS=$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
+	$(GTK_DIR)\gdk\gdk-$(GTK_VERSION).lib \
+	$(GLIB_LIBS)

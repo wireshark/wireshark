@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.4 2003/06/14 20:35:59 guy Exp $
+# $Id: Makefile.nmake,v 1.5 2003/06/14 20:45:24 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -36,7 +36,7 @@ docsis.dll docsis.exp docsis.lib : packet-docsis.obj packet-bpkmattr.obj packet-
 		packet-ucd.obj packet-dsareq.obj \
 		packet-dsdrsp.obj packet-rngreq.obj \
 		packet-vendor.obj ..\plugin_api.obj  \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
+	$(GLIB_LIBS)
 
 clean:
 	rm -f $(OBJECTS) docsis.dll docsis.exp docsis.lib $(PDB_FILE)

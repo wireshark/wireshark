@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.29 2003/06/14 20:36:04 guy Exp $
+# $Id: Makefile.nmake,v 1.30 2003/06/14 20:45:29 guy Exp $
 #
 
 include ..\config.nmake
@@ -42,7 +42,7 @@ OBJECTS=ascend-grammar.obj \
 
 
 wiretap_LIBS = \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib	\
+	$(GLIB_LIBS)	\
 	$(ZLIB_DIR)\zlib.lib
 
 all: wiretap-$(WTAP_VERSION).dll

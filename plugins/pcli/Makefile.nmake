@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.2 2003/06/14 20:36:03 guy Exp $
+# $Id: Makefile.nmake,v 1.3 2003/06/14 20:45:28 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -13,7 +13,7 @@ OBJECTS=packet-pcli.obj
 
 pcli.dll pcli.exp pcli.lib : packet-pcli.obj ..\plugin_api.obj
 	link -dll /out:pcli.dll packet-pcli.obj ..\plugin_api.obj \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
+	$(GLIB_LIBS)
 
 clean:
 	rm -f $(OBJECTS) pcli.dll pcli.exp pcli.lib $(PDB_FILE)

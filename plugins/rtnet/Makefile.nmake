@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.3 2003/06/14 20:36:04 guy Exp $
+# $Id: Makefile.nmake,v 1.4 2003/06/14 20:45:29 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -13,7 +13,7 @@ OBJECTS=packet-rtnet.obj
 
 rtnet.dll rtnet.exp rtnet.lib : packet-rtnet.obj ..\plugin_api.obj
 	link -dll /out:rtnet.dll packet-rtnet.obj ..\plugin_api.obj \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
+	$(GLIB_LIBS)
 
 clean:
 	rm -f $(OBJECTS) rtnet.dll rtnet.exp rtnet.lib $(PDB_FILE)

@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.27 2003/06/14 20:35:56 guy Exp $
+# $Id: Makefile.nmake,v 1.28 2003/06/14 20:45:24 guy Exp $
 
 include ..\config.nmake
 
@@ -18,8 +18,7 @@ CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 # For use when making ethereal.dll
 libethereal_LIBS = \
 	wsock32.lib user32.lib \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
-	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib
+	$(GLIB_LIBS)
 
 .c.obj::
    $(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<

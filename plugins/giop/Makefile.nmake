@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.7 2003/06/14 20:36:01 guy Exp $
+# $Id: Makefile.nmake,v 1.8 2003/06/14 20:45:25 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -15,12 +15,11 @@ all : cosnaming.dll coseventcomm.dll
 
 cosnaming.dll cosnaming.exp cosnaming.lib : packet-cosnaming.obj ..\plugin_api.obj
 	link -dll /out:cosnaming.dll packet-cosnaming.obj ..\plugin_api.obj \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
+	$(GLIB_LIBS)
 
 coseventcomm.dll coseventcomm.exp coseventcomm.lib : packet-coseventcomm.obj ..\plugin_api.obj
 	link -dll /out:coseventcomm.dll packet-coseventcomm.obj ..\plugin_api.obj \
-	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
-
+	$(GLIB_LIBS)
 
 clean:
 	rm -f $(OBJECTS) cosnaming.dll cosnaming.exp cosnaming.lib \
