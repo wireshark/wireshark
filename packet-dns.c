@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.41 2000/04/04 06:17:28 guy Exp $
+ * $Id: packet-dns.c,v 1.42 2000/04/12 06:59:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -330,6 +330,8 @@ get_dns_name(const u_char *pd, int offset, int dns_data_offset,
   const u_char *dptr = dp;
   char *np = name;
   int len = -1;
+  int chars_processed = 0;
+  int data_size = pi.len - dns_data_offset;
   u_int component_len;
 
   maxname--;	/* reserve space for the trailing '\0' */
@@ -340,6 +342,7 @@ get_dns_name(const u_char *pd, int offset, int dns_data_offset,
     offset++;
     if (component_len == 0)
       break;
+    chars_processed++;
     switch (component_len & 0xc0) {
 
     case 0x00:
@@ -361,6 +364,7 @@ get_dns_name(const u_char *pd, int offset, int dns_data_offset,
       	component_len--;
       	dp++;
       	offset++;
+        chars_processed++;
       }
       break;
 
@@ -370,18 +374,30 @@ get_dns_name(const u_char *pd, int offset, int dns_data_offset,
 
     case 0xc0:
       /* Pointer. */
-      /* XXX - check to make sure we aren't looping, by keeping track
-         of how many characters are in the DNS packet, and of how many
-         characters we've looked at, and quitting if the latter
-         becomes bigger than the former. */
       if (!BYTES_ARE_IN_FRAME(offset, 1))
         goto overflow;
       offset = dns_data_offset + (((component_len & ~0xc0) << 8) | (*dp++));
+      chars_processed++;
+
       /* If "len" is negative, we are still working on the original name,
          not something pointed to by a pointer, and so we should set "len"
          to the length of the original name. */
       if (len < 0)
         len = dp - dptr;
+
+      if (offset >= pi.len) {
+        strcpy(name, "<Name contains a pointer that goes past the end of the packet>");
+        return len;
+      }
+
+      /* If we've looked at every character in the message, this pointer
+         will make us look at some character again, which means we're
+	 looping. */
+      if (chars_processed >= data_size) {
+        strcpy(name, "<Name contains a pointer that loops>");
+        return len;
+      }
+
       dp = pd + offset;
       break;	/* now continue processing from there */
     }
