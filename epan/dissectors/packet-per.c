@@ -92,8 +92,10 @@ static const true_false_string tfs_optional_field_bit = {
 	""
 };
 
-
-
+#define BYTE_ALIGN_OFFSET(offset)		\
+	if(offset&0x07){			\
+		offset=(offset&0xfffffff8)+8;	\
+	}
 
 /* 10.9 */
 /* this decodes and returns a length determinant according to 10.9 */
@@ -108,9 +110,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, packet_info *pinfo
 	}
 
 	/* byte aligned */
-	if(offset&0x07){
-		offset=(offset&0xfffffff8)+8;
-	}
+	BYTE_ALIGN_OFFSET(offset);
 	byte=tvb_get_guint8(tvb, offset>>3);
 	offset+=8;
 
@@ -359,9 +359,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	}
 
 	if(byte_aligned){
-		if(offset&0x07){
-			offset=(offset&0xfffffff8)+8;
-		}
+		BYTE_ALIGN_OFFSET(offset);
 	}
 
 
@@ -445,9 +443,7 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_t
 
 
 	/* align to byte boundary */
-	if(offset&0x07){
-		offset=(offset&0xfffffff8)+8;
-	}
+	BYTE_ALIGN_OFFSET(offset);
 
 	if(length>=1024){
 		PER_NOT_DECODED_YET("BMPString too long");
@@ -555,9 +551,7 @@ DEBUG_ENTRY("dissect_per_object_identifier");
 	}
 
 	/* first byte is the count and it is byte aligned */
-	if(offset&0x07){
-		offset=(offset&0xfffffff8)+8;
-	}
+	BYTE_ALIGN_OFFSET(offset);
 	count=tvb_get_guint8(tvb, offset>>3);
 
 
@@ -828,9 +822,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		pad=7-(offset&0x07);
 
 		/* in the aligned case, align to byte boundary */
-		if(offset&0x07){
-			offset=(offset&0xfffffff8)+8;
-		}
+		BYTE_ALIGN_OFFSET(offset);
 		val=tvb_get_guint8(tvb, offset>>3);
 		offset+=8;
 
@@ -842,9 +834,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		pad=7-(offset&0x07);
 
 		/* in the aligned case, align to byte boundary */
-		if(offset&0x07){
-			offset=(offset&0xfffffff8)+8;
-		}
+		BYTE_ALIGN_OFFSET(offset);
 		val=tvb_get_guint8(tvb, offset>>3);
 		val<<=8;
 		offset+=8;
@@ -867,9 +857,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 		num_bytes++;  /* lower bound for length determinant is 1 */
 
 		/* byte aligned */
-		if(offset&0x07){
-			offset=(offset&0xfffffff8)+8;
-		}
+		BYTE_ALIGN_OFFSET(offset);
 		val=0;
 		for(i=0;i<num_bytes;i++){
 			val=(val<<8)|tvb_get_guint8(tvb,offset>>3);
@@ -1338,9 +1326,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	/* 15.10 if length is fixed and less than to 64kbits*/
 	if((min_len==max_len)&&(min_len<65536)){
 		/* align to byte */
-		if(offset&0x07){
-			offset=(offset&0xfffffff8)+8;
-		}
+		BYTE_ALIGN_OFFSET(offset);
 		if (hfi) {
 			proto_tree_add_item(tree, hf_index, tvb, offset>>3, (min_len+7)/8, FALSE);
 		}
@@ -1363,9 +1349,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	}
 	if(length){
 		/* align to byte */
-		if(offset&0x07){
-			offset=(offset&0xfffffff8)+8;
-		}
+		BYTE_ALIGN_OFFSET(offset);
 		if (hfi) {
 			proto_tree_add_item(tree, hf_index, tvb, offset>>3, (length+7)/8, FALSE);
 		}
@@ -1437,9 +1421,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 
 	} else if ((min_len==max_len)&&(min_len<65536)) {  /* 16.7 if length is fixed and less than to 64k*/
 		/* align to byte */
-		if(offset&0x07){
-			offset=(offset&0xfffffff8)+8;
-		}
+		BYTE_ALIGN_OFFSET(offset);
 		val_start = offset>>3; 
 		val_length = min_len;
 		offset+=min_len*8;
@@ -1456,9 +1438,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 
 		if(length){
 			/* align to byte */
-			if(offset&0x07){
-				offset=(offset&0xfffffff8)+8;
-			}
+			BYTE_ALIGN_OFFSET(offset);
 		}
 		val_start = offset>>3; 
 		val_length = length;
