@@ -1,0 +1,61 @@
+== June 28, 2002
+
+Ethereal 0.9.5 has been released. This version fixes several potential
+security problems revealed since the release of 0.9.4. See the security
+advisory at http://www.ethereal.com/appnotes/enpa-sa-00005.html for
+more details.
+
+
+New Features:
+
+The ability to read packet data from a pipe was enhanced.  Printing
+under Windows now works.
+
+
+New Protocols
+
+802.3 LACP, Apache JServ, AODV6, DCERPC Browser, Java RMI, TAPI
+
+
+Updated Protocols
+
+ATM, BGP, BOOTP, DCE RPC, EPM, Frame Relay, GTP, L2TP, LMP, MAPI, MIP,
+MMSE, MTP3, NCP, NFS, NSPI, PPP, Q2931, RADIUS, RSVP, SCSI, SMB, SNA,
+SOCKS, SPOOLSS, SRVSVC, SunATM, TFTP, TNS, Token Ring, UCP, VJ TCP/IP,
+WCP, WEP, WSP, WTP
+
+
+Capture File Updates
+
+
+Ethereal can now write LANalyzer files.  The Sniffer, nettl, snoop,
+NetXRay, and libpcap code all received updates.
+
+
+Download Sites
+
+The source code and Windows installer can be downloaded immediately from
+the following locations:
+
+Main site:
+
+Source: 
+
+  http://www.ethereal.com/distribution/ethereal-0.9.5.tar.gz
+
+Windows installer: 
+
+  http://www.ethereal.com/distribution/win32/ethereal-setup-0.9.5.exe
+
+SourceForge:
+
+  http://sourceforge.net/project/showfiles.php?group_id=255  
+
+
+The mirror sites listed at http://www.ethereal.com/download.html#sources
+should be updated shortly.
+
+
+
+
+
