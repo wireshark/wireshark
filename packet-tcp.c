@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.144 2002/06/08 21:54:52 guy Exp $
+ * $Id: packet-tcp.c,v 1.145 2002/07/02 08:18:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1119,6 +1119,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       get_tcp_port(th_sport), get_tcp_port(th_dport));
   }
   
+  /* Set the source and destination port numbers as soon as we get them,
+     so that they're available to the "Follow TCP Stream" code even if
+     we throw an exception dissecting the rest of the TCP header. */
+  pinfo->ptype = PT_TCP;
+  pinfo->srcport = th_sport;
+  pinfo->destport = th_dport;
+  
   if (tree) {
     if (tcp_summary_in_tree) {
 	    ti = proto_tree_add_protocol_format(tree, proto_tcp, tvb, 0, -1,
@@ -1356,10 +1363,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Skip over header + options */
   offset += hlen;
 
-  pinfo->ptype = PT_TCP;
-  pinfo->srcport = th_sport;
-  pinfo->destport = th_dport;
-  
   /* Check the packet length to see if there's more data
      (it could be an ACK-only packet) */
   length_remaining = tvb_length_remaining(tvb, offset);
