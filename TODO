@@ -1,4 +1,4 @@
-$Id: TODO,v 1.15 2004/03/31 01:31:00 jmayer Exp $
+$Id: TODO,v 1.16 2004/04/25 21:54:45 obiot Exp $
 
 Things to do:
 =============
@@ -98,8 +98,6 @@ full GNOME, native Windows, native Aqua, etc.) and text-mode "curses".
 *) Kerberos version 4 dissector - standard krb4 - from tcpdump (nneul);
 we have krb5, but not krb4
 
-*) Display filters: add regexes to strings and byte ranges
-
 *) Build process:
   - Merge epan/configure.in back into toplevel configure.in [DONE]
   - Run make-version.pl only once per make
@@ -111,3 +109,7 @@ we have krb5, but not krb4
   - Move plugins into the epan tree
   - move libs/objects to be linked into LDADD_xxx where appropriate
 
+*) Allow packet summary and packet dissection as valid "fields" in display
+   filter tests:
+  - summary matches "(?i)response"
+  - dissection contains "Unknown"
