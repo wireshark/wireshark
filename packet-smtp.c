@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.32 2002/08/28 21:00:34 jmayer Exp $
+ * $Id: packet-smtp.c,v 1.33 2003/06/10 05:45:33 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -116,6 +116,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     const guchar            *line;
     guint32                 code;
     int                     linelen;
+    gint                    length_remaining;
     gboolean                eom_seen = FALSE;
     gint                    next_offset;
     gboolean                is_continuation_line;
@@ -226,7 +227,9 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	}
 
-	if (tvb_strneql(tvb, offset + tvb_length_remaining(tvb, offset) - 2, "\r\n", 2) == 0) {
+	length_remaining = tvb_length_remaining(tvb, offset);
+	if (length_remaining == tvb_reported_length_remaining(tvb, offset) &&
+	    tvb_strneql(tvb, offset + length_remaining - 2, "\r\n", 2) == 0) {
 
 	  request_val->crlf_seen = 1;
 
