@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.4 2003/09/29 19:20:51 jmayer Exp $
+ * $Id: rtp_analysis.c,v 1.5 2003/10/03 21:19:10 jmayer Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -51,6 +51,7 @@
 #include "packet-rtp.h"
 #include "g711.h"
 #include "rtp_pt.h"
+#include "mkstemp.h"
 
 /* in /gtk ... */
 #include "dlg_utils.h"
