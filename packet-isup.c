@@ -5,7 +5,7 @@
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
- * $Id: packet-isup.c,v 1.32 2003/10/07 17:43:52 guy Exp $
+ * $Id: packet-isup.c,v 1.33 2003/10/10 10:04:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1948,7 +1948,7 @@ static const value_string E164_country_code_value[] = {
 	{ 0x0240,"Equatorial Guinea"},
 	{ 0x0241,"Gabonese Republic"},
 	{ 0x0242,"Republic of Congo"},
-	{ 243,"Democratic Republic of Congo"},
+	{ 0x0243,"Democratic Republic of Congo"},
 	{ 0x0244,"Angola"},
 	{ 0x0245,"Guinea-Bissau"},
 	{ 0x0246,"Diego Garcia"},
