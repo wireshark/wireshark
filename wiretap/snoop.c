@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.30 2000/09/07 05:34:19 gram Exp $
+ * $Id: snoop.c,v 1.31 2000/09/19 05:12:11 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -181,8 +181,14 @@ int snoop_open(wtap *wth, int *err)
 	wth->data_offset += sizeof hdr;
 
 	hdr.version = ntohl(hdr.version);
-	if (hdr.version != 2) {
-		/* We only support version 2. */
+	switch (hdr.version) {
+
+	case 2:		/* Solaris 2.x and later snoop, and Shomiti
+			   Surveyor prior to 3.x */
+	case 4:		/* Shomiti Surveyor 3.x */
+		break;
+
+	default:
 		g_message("snoop: version %u unsupported", hdr.version);
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
