@@ -1,0 +1,87 @@
+/* packet-dcerpc-rsec_login.c
+ *
+ * Routines for dcerpc Remote sec_login preauth interface.
+ * Copyright 2002, Jaime Fournier <jafour1@yahoo.com>
+ * This information is based off the released idl files from opengroup.
+ * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rsec_login.idl
+ *      
+ * $Id: packet-dcerpc-rsec_login.c,v 1.1 2002/09/10 11:33:00 sahlberg Exp $
+ *
+ * Ethereal - Network traffic analyzer
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif
+
+#include <string.h>
+
+#include <glib.h>
+#include <epan/packet.h>
+#include "packet-dcerpc.h"
+
+
+static int proto_rsec_login = -1;
+static int hf_rsec_login_opnum = -1;
+
+static gint ett_rsec_login = -1;
+
+
+static e_uuid_t uuid_rsec_login = { 0xa76e832a, 0x10df, 0x11cd, { 0x90, 0x56, 0x08, 0x00, 0x09, 0x24, 0x24, 0x44 } };
+static guint16  ver_rsec_login = 2;
+
+
+static dcerpc_sub_dissector rsec_login_dissectors[] = {
+    { 0, "rsec_login_get_trusted_preauth", NULL, NULL},
+    { 0, NULL, NULL, NULL }
+};
+
+static const value_string rsec_login_opnum_vals[] = {
+    { 0, "rsec_login_get_trusted_preauth" },
+    { 0, NULL }
+};
+
+
+void
+proto_register_rsec_login (void)
+{
+	static hf_register_info hf[] = {
+	{ &hf_rsec_login_opnum,
+		{ "Operation", "rsec_login.opnum", FT_UINT16, BASE_DEC, VALS(rsec_login_opnum_vals), 0x0, "Operation", HFILL }}
+	};
+
+	static gint *ett[] = {
+		&ett_rsec_login,
+	};
+	proto_rsec_login = proto_register_protocol ("Remote sec_login preauth interface.", "rsec_login", "rsec_login");
+	proto_register_field_array (proto_rsec_login, hf, array_length (hf));
+	proto_register_subtree_array (ett, array_length (ett));
+}
+
+void
+proto_reg_handoff_rsec_login (void)
+{
+	/* Register the protocol as dcerpc */
+	dcerpc_init_uuid (proto_rsec_login, ett_rsec_login, &uuid_rsec_login, ver_rsec_login, rsec_login_dissectors, hf_rsec_login_opnum);
+}
