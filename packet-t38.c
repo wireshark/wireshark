@@ -2,7 +2,7 @@
  * Routines for T.38 packet dissection
  * 2003  Hans Viens
  *
- * $Id: packet-t38.c,v 1.4 2004/01/09 23:24:54 guy Exp $
+ * $Id: packet-t38.c,v 1.5 2004/01/26 22:16:43 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,13 +23,23 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* TO DO:
- * - Currently there is not support for T.38 IFP over TPKT over TCP, 
- *      just T.38 UDPTL over UDP and T.38 IFP packets directly over TCP.  
- * - Currently no TCP desegmentation is done.  
- * - SDP and H.245 dissectors should maybe be updated to start conversations for T.38 similar to RTP.
+
+/* Depending on what ASN.1 specification is used you may have to change
+ * the preference setting regarding Pre-Corrigendum ASN.1 specification:
+ * http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/1998/T38.html  (Pre-Corrigendum=TRUE)
+ * http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/2003/T38(1998).html (Pre-Corrigendum=TRUE)
+ *
+ * http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/2003/T38(2002).html (Pre-Corrigendum=FALSE)
+ * http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/2002/t38.html  (Pre-Corrigendum=FALSE)
+ * http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/2002-Amd1/T38.html (Pre-Corrigendum=FALSE)
+ */
+
+/* TO DO:  
+ * - TCP desegmentation is currently not supported for T.38 IFP directly over TCP. 
+ * - SDP and H.245 dissectors should be updated to start conversations for T.38 similar to RTP.
  * - It would be nice if we could dissect the T.30 data.
  * - Sometimes the last octet is not high-lighted when selecting something in the tree. Bug in PER dissector? 
+ * - Add support for RTP payload audio/t38 (draft-jones-avt-audio-t38-03.txt), i.e. T38 in RTP packets.
  */
 
 
@@ -48,6 +58,7 @@
 #include "ipproto.h"
 #include "packet-per.h"
 #include "prefs.h"
+#include "packet-tpkt.h"
 
 #define PORT_T38 6004  
 static guint global_t38_tcp_port = PORT_T38;
@@ -67,12 +78,34 @@ static gboolean use_pre_corrigendum_asn1_specification = TRUE;
 /* instead of as T.38. This may result in that some T.38 UPTL       */
 /* packets with sequence number values higher than 32767 may be     */
 /* shown as RTP packets.                                            */ 
-/* XXX - this should be handled by having starting and ending       */
-/* frames for conversations and by having H.245 close conversations */
-/* and start new ones when appropriate.                             */
 static gboolean dissect_possible_rtpv2_packets_as_rtp = FALSE;
 
+
+/* Reassembly of T.38 PDUs over TPKT over TCP */
+static gboolean t38_tpkt_reassembly = TRUE;
+
+
+/* Preference setting whether TPKT header is used when sending T.38 over TCP.
+ * The default setting is Maybe where the dissector will look on the first
+ * bytes to try to determine whether TPKT header is used or not. This may not
+ * work so well in some cases. You may want to change the setting to Always or
+ * Newer.
+ */
+#define T38_TPKT_NEVER 0   /* Assume that there is never a TPKT header    */
+#define T38_TPKT_ALWAYS 1  /* Assume that there is always a TPKT header   */
+#define T38_TPKT_MAYBE 2   /* Assume TPKT if first octets are 03-00-xx-xx */
+static gint t38_tpkt_usage = T38_TPKT_MAYBE;
+
+static const enum_val_t t38_tpkt_options[] = {
+  {"Never", T38_TPKT_NEVER},
+  {"Always", T38_TPKT_ALWAYS},
+  {"Maybe", T38_TPKT_MAYBE},
+  {NULL, -1}
+};
+
+
 static dissector_handle_t t38_handle;
+static dissector_handle_t t38_tcp_pdu_handle;
 static dissector_handle_t rtp_handle;
 
 static guint32 Type_of_msg_value;
@@ -351,6 +384,14 @@ static per_choice_t Data_Field_field_type_choice[] = {
 		dissect_t38_NULL},
 	{ 7, "t4-non-ecm-sig-end", ASN1_EXTENSION_ROOT,
 		dissect_t38_NULL},
+	{ 8, "cm-message", ASN1_NOT_EXTENSION_ROOT,
+		dissect_t38_NULL},
+	{ 9, "jm-message", ASN1_NOT_EXTENSION_ROOT,
+		dissect_t38_NULL},
+	{ 10, "ci-message", ASN1_NOT_EXTENSION_ROOT,
+		dissect_t38_NULL},
+	{ 11, "v34-rate", ASN1_NOT_EXTENSION_ROOT,
+		dissect_t38_NULL},
 	{ 0, NULL, 0, NULL }
 };
 
@@ -364,6 +405,10 @@ static const value_string Data_Field_field_type_vals[] = {
 	{ 5, "hdlc-fcs-BAD-sig-end" },
 	{ 6, "t4-non-ecm-data" },
 	{ 7, "t4-non-ecm-sig-end" },
+	{ 8, "cm-message" },
+	{ 9, "jm-message" },
+	{ 10, "ci-message" },
+	{ 11, "v34-rate" },
 	{ 0, NULL },
 };
 
@@ -626,6 +671,19 @@ dissect_t38_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     offset=dissect_t38_UDPTLPacket(tvb, offset, pinfo, tr);
 
+	if(offset&0x07){
+			offset=(offset&0xfffffff8)+8;
+	}
+	if(tvb_length_remaining(tvb,offset>>3)>0){
+		if(tr){
+			proto_tree_add_text(tr, tvb, offset, tvb_reported_length_remaining(tvb, offset),
+				"[MALFORMED PACKET or wrong preference settings]");
+		}
+		if (check_col(pinfo->cinfo, COL_INFO)){
+			col_append_fstr(pinfo->cinfo, COL_INFO, " [Malformed?]");
+		}
+	}
+
 }
 
 static void
@@ -634,6 +692,7 @@ dissect_t38_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *it;
 	proto_tree *tr;
     guint32 offset=0;
+	guint16 ifp_packet_number=1;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL)){
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.38");
@@ -650,7 +709,33 @@ dissect_t38_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_append_fstr(pinfo->cinfo, COL_INFO, "TCP: IFPPacket");
 	}
 
-    offset=dissect_t38_IFPPacket(tvb, offset, pinfo, tr);
+	while(tvb_length_remaining(tvb,offset>>3)>0)
+	{
+		offset=dissect_t38_IFPPacket(tvb, offset, pinfo, tr);
+		ifp_packet_number++;
+
+		if(offset&0x07){
+			offset=(offset&0xfffffff8)+8;
+		}
+
+		if(tvb_length_remaining(tvb,offset>>3)>0){
+			if(t38_tpkt_usage == T38_TPKT_ALWAYS){
+				if(tr){
+					proto_tree_add_text(tr, tvb, offset, tvb_reported_length_remaining(tvb, offset),
+						"[MALFORMED PACKET or wrong preference settings]");
+				}
+				if (check_col(pinfo->cinfo, COL_INFO)){
+					col_append_fstr(pinfo->cinfo, COL_INFO, " [Malformed?]");
+				}
+				break;
+			} 
+			else {
+				if (check_col(pinfo->cinfo, COL_INFO)){
+					col_append_fstr(pinfo->cinfo, COL_INFO, " IFPPacket#%u",ifp_packet_number);
+				}
+			}
+		}
+	}
 
 }
 
@@ -663,7 +748,15 @@ dissect_t38(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if(pinfo->ipproto == IP_PROTO_TCP)
 	{
-		dissect_t38_tcp(tvb, pinfo, tree);
+		if(t38_tpkt_usage == T38_TPKT_ALWAYS){
+			dissect_tpkt_encap(tvb,pinfo,tree,t38_tpkt_reassembly,t38_tcp_pdu_handle);
+		} 
+		else if((t38_tpkt_usage == T38_TPKT_NEVER) || (is_tpkt(tvb,1) == -1)){
+			dissect_t38_tcp(tvb, pinfo, tree);
+		} 
+		else {
+			dissect_tpkt_encap(tvb,pinfo,tree,t38_tpkt_reassembly,t38_tcp_pdu_handle);
+		}
 	}
 	else if(pinfo->ipproto == IP_PROTO_UDP)
 	{   
@@ -789,7 +882,15 @@ proto_register_t38(void)
 		"T.38 UDP Port",
 		"Set the UDP port for T.38 messages",
 		10, &global_t38_udp_port);	
-
+	prefs_register_bool_preference(t38_module, "reassembly",
+		"Reassemble T.38 PDUs over TPKT over TCP",
+		"Whether the dissector should reassemble T.38 PDUs spanning multiple TCP segments "
+		"when TPKT is used over TCP",
+		&t38_tpkt_reassembly);
+	prefs_register_enum_preference(t38_module, "tpkt_usage",
+		"TPKT used over TCP",
+		"Whether T.38 is used with TPKT for TCP",
+		(gint *)&t38_tpkt_usage,t38_tpkt_options,FALSE);
 }
 
 void
@@ -799,6 +900,7 @@ proto_reg_handoff_t38(void)
 
 	if (!t38_prefs_initialized) {
 		t38_handle=create_dissector_handle(dissect_t38, proto_t38);
+		t38_tcp_pdu_handle=create_dissector_handle(dissect_t38_tcp, proto_t38);
 		t38_prefs_initialized = TRUE;
 	}
 	else {
