@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.21 2002/06/16 14:43:17 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.22 2002/06/17 10:39:41 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -48,12 +49,13 @@ typedef struct _srvsvc_info {
 
 static int proto_dcerpc_srvsvc = -1;
 static int hf_srvsvc_server = -1;
+static int hf_srvsvc_computer = -1;
 static int hf_srvsvc_user = -1;
 static int hf_srvsvc_chrqpri = -1;
 static int hf_srvsvc_chrqnumusers = -1;
 static int hf_srvsvc_chrqnumahead = -1;
 static int hf_srvsvc_chrdev = -1;
-static int hf_srvsvc_chrdevs = -1;
+static int hf_srvsvc_chrdevq = -1;
 static int hf_srvsvc_chrdev_time = -1;
 static int hf_srvsvc_chrdev_status = -1;
 static int hf_srvsvc_chrdev_opcode = -1;
@@ -79,6 +81,7 @@ static int hf_srvsvc_switch_value = -1;
 static int hf_srvsvc_num_entries = -1;
 static int hf_srvsvc_num_pointers = -1;
 static int hf_srvsvc_preferred_len = -1;
+static int hf_srvsvc_parm_error = -1;
 static int hf_srvsvc_enum_handle = -1;
 static int hf_srvsvc_unknown_long = -1;
 static int hf_srvsvc_unknown_bytes = -1;
@@ -97,6 +100,19 @@ static e_uuid_t uuid_dcerpc_srvsvc = {
 };
 
 static guint16 ver_dcerpc_srvsvc = 3;
+
+static int
+srvsvc_dissect_pointer_long(tvbuff_t *tvb, int offset, 
+                             packet_info *pinfo, proto_tree *tree, 
+                             char *drep)
+{
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
+                                     di->hf_index, NULL);
+	return offset;
+}
 
 static int
 srvsvc_dissect_ENUM_HANDLE(tvbuff_t *tvb, int offset, 
@@ -467,7 +483,7 @@ srvsvc_dissect_CHARDEVQ_INFO_1(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
 		srvsvc_dissect_pointer_UNICODE_STRING,
 		NDR_POINTER_UNIQUE, "Char Devices",
-		hf_srvsvc_chrdevs, 0);
+		hf_srvsvc_chrdevq, 0);
 	
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_chrqnumusers, 0);
@@ -563,9 +579,45 @@ srvsvc_dissect_CHARDEVQ_ENUM_STRUCT(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/*
+ * IDL typedef [switch_type(long)] union {
+ * IDL   [case(0)] [unique] CHARDEVQ_INFO_0 *dev0;
+ * IDL   [case(1)] [unique] CHARDEVQ_INFO_1 *dev1;
+ * IDL } CHARDEVQ_INFO;
+ */
+static int
+srvsvc_dissect_CHARDEVQ_INFO(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	guint32 level;
+
+	ALIGN_TO_4_BYTES;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_info_level, &level);
+
+	switch(level){
+	case 0:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_CHARDEVQ_INFO_0,
+			NDR_POINTER_UNIQUE, "CHARDEVQ_INFO_0:",
+			-1, 0);
+		break;
+	case 1:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_CHARDEVQ_INFO_1,
+			NDR_POINTER_UNIQUE, "CHARDEVQ_INFO_1:",
+			-1, 0);
+		break;
+	}
+
+	return offset;
+}
+
+
 /* XXX dont know the out parameters. only the in parameters.
  *
- * IDL long NetrCharDevEnum(
+ * IDL long NetrCharDevQEnum(
  * IDL      [in] [string] [unique] wchar_t *ServerName,
  * IDL      [in] [string] [unique] wchar_t *UserName,
  * IDL      [in] [ref] CHARDEVQ_ENUM_STRUCT *devs,
@@ -603,6 +655,136 @@ srvsvc_dissect_netrchardevqenum_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrCharDevQGetInfo(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [ref] wchar_t *QueueName,
+ * IDL      [in] [string] [ref] wchar_t *UserName,
+ * IDL      [in] long Level
+ * IDL );
+*/
+static int
+srvsvc_dissect_netrchardevqgetinfo_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Server",
+		hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_REF, "Device Queue",
+		hf_srvsvc_chrdevq, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_REF, "User",
+		hf_srvsvc_user, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+		hf_srvsvc_info_level, NULL);
+
+	return offset;
+}
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrCharDevQSetInfo(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [ref] wchar_t *QueueName,
+ * IDL      [in] long Level,
+ * IDL      [in] [ref] CHARDEVQ_INFO *dev,
+ * IDL      [in] [unique] long *ParmError
+ * IDL );
+*/
+static int
+srvsvc_dissect_netrchardevqsetinfo_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Server",
+		hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_REF, "Device Queue",
+		hf_srvsvc_chrdevq, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
+		hf_srvsvc_info_level, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_CHARDEVQ_INFO,
+		NDR_POINTER_REF, "CHARDEVQ_INFO",
+		-1, 0);
+
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_pointer_long, NDR_POINTER_UNIQUE,
+			"Parameter Error:", hf_srvsvc_parm_error, 0);
+
+	return offset;
+}
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrCharDevQPurge(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [ref] wchar_t *QueueName
+ * IDL );
+*/
+static int
+srvsvc_dissect_netrchardevqpurge_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Server",
+		hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_REF, "Device Queue",
+		hf_srvsvc_chrdevq, 0);
+
+	return offset;
+}
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrCharDevQPurge(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [string] [ref] wchar_t *QueueName
+ * IDL      [in] [string] [ref] wchar_t *ComputerName
+ * IDL );
+*/
+static int
+srvsvc_dissect_netrchardevqpurgeself_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Server",
+		hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_REF, "Device Queue",
+		hf_srvsvc_chrdevq, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_REF, "Computer",
+		hf_srvsvc_computer, 0);
+
+	return offset;
+}
 
 
 
@@ -1223,10 +1405,18 @@ static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
 	{SRV_NETRCHARDEVQENUM,		"NetrCharDevQEnum",
 		srvsvc_dissect_netrchardevqenum_rqst,
 		NULL},
-	{SRV_NETRCHARDEVQGETINFO,	"NetrCharDevQGetInfo", NULL, NULL},
-	{SRV_NETRCHARDEVQSETINFO,	"NetrCharDevQSetInfo", NULL, NULL},
-	{SRV_NETRCHARDEVQPURGE,		"NetrCharDevQPurge", NULL, NULL},
-	{SRV_NETRCHARDEVQPURGESELF,	"NetrCharDevQPurgeSelf", NULL, NULL},
+	{SRV_NETRCHARDEVQGETINFO,	"NetrCharDevQGetInfo",
+		srvsvc_dissect_netrchardevqgetinfo_rqst,
+		NULL},
+	{SRV_NETRCHARDEVQSETINFO,	"NetrCharDevQSetInfo",
+		srvsvc_dissect_netrchardevqsetinfo_rqst,
+		NULL},
+	{SRV_NETRCHARDEVQPURGE,		"NetrCharDevQPurge",
+		srvsvc_dissect_netrchardevqpurge_rqst,
+		NULL},
+	{SRV_NETRCHARDEVQPURGESELF,	"NetrCharDevQPurgeSelf",
+		srvsvc_dissect_netrchardevqpurgeself_rqst,
+		NULL},
 	{SRV_NETRCONNECTIONENUM,	"NetrConnectionEnum", NULL, NULL},
 	{SRV_NETRFILEENUM,		"NetrFileEnum", NULL, NULL},
 	{SRV_NETRFILEGETINFO,		"NetrFileGetInfo", NULL, NULL},
@@ -1287,12 +1477,15 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_server,
 	    { "Server", "srvsvc.server", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "Server Name", HFILL}},
+	  { &hf_srvsvc_computer,
+	    { "Computer", "srvsvc.computer", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "Computer Name", HFILL}},
 	  { &hf_srvsvc_chrdev,
 	    { "Char Device", "srvsvc.chrdev", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "Char Device Name", HFILL}},
-	  { &hf_srvsvc_chrdevs,
-	    { "Char Devices", "srvsvc.chrdevs", FT_STRING, BASE_NONE,
-	    NULL, 0x0, "Char Device Names", HFILL}},
+	  { &hf_srvsvc_chrdevq,
+	    { "Device Queue", "srvsvc.chrdevq", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "Char Device Queue Name", HFILL}},
 	  { &hf_srvsvc_user,
 	    { "User", "srvsvc.user", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "User Name", HFILL}},
@@ -1382,6 +1575,9 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_preferred_len,
 	    { "Preferred length", "srvsvc.preferred_len", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Preferred Length", HFILL}},
+	  { &hf_srvsvc_parm_error,
+	    { "Parameter Error", "srvsvc.parm_error", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Parameter Error", HFILL}},
 	  { &hf_srvsvc_enum_handle, 
 	    { "Enumeration handle", "srvsvc.enum_hnd", FT_BYTES,
 	      BASE_HEX, NULL, 0x0, "Enumeration Handle", HFILL}},
