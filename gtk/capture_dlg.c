@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.106 2004/02/21 22:28:59 ulfl Exp $
+ * $Id: capture_dlg.c,v 1.107 2004/02/21 22:54:50 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,7 @@
 #include <epan/filesystem.h>
 #include "compat_macros.h"
 #include "file_dlg.h"
+#include "help_dlg.h"
 
 #ifdef _WIN32
 #include "capture-wpcap.h"
@@ -289,7 +290,8 @@ capture_prep(void)
 
                 *resolv_fr, *resolv_vb,
                 *m_resolv_cb, *n_resolv_cb, *t_resolv_cb,
-                *bbox, *ok_bt, *cancel_bt;
+                *bbox, *ok_bt, *cancel_bt,
+                *help_bt;
 #if GTK_MAJOR_VERSION < 2
   GtkAccelGroup *accel_group;
 #endif
@@ -708,7 +710,7 @@ capture_prep(void)
   gtk_widget_show(t_resolv_cb);
 
   /* Button row: OK and cancel buttons */
-  bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
+  bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, GTK_STOCK_HELP, NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 5);
   gtk_widget_show(bbox);
 
@@ -718,6 +720,9 @@ capture_prep(void)
 
   cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
   SIGNAL_CONNECT(cancel_bt, "clicked", capture_prep_close_cb, cap_open_w);
+
+  help_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_HELP);
+  SIGNAL_CONNECT(help_bt, "clicked", help_topic_cb, "Capturing");
 
   /* Attach pointers to needed widgets to the capture prefs window/object */
   OBJECT_SET_DATA(cap_open_w, E_CAP_IFACE_KEY, if_cb);
