@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.133 2000/12/27 22:35:48 guy Exp $
+ * $Id: capture.c,v 1.134 2000/12/28 01:44:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -22,7 +22,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -112,6 +111,16 @@
 #ifdef _WIN32
 #include <process.h>    /* For spawning child process */
 #endif
+
+/*
+ * XXX - the various BSDs appear to define BSD in <sys/param.h>; we don't
+ * want to include it if it's not present on this platform, however.
+ */
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__)
+#ifndef BSD
+#define BSD
+#endif /* BSD */
+#endif /* defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__bsdi__) */
 
 #include "gtk/main.h"
 #include "gtk/gtkglobals.h"
@@ -1102,7 +1111,7 @@ capture(void)
 #endif
   fd_set      set1;
   struct timeval timeout;
-#ifdef linux
+#ifndef BSD
   int         pcap_fd = 0;
 #endif
 #ifdef _WIN32 
@@ -1393,7 +1402,7 @@ capture(void)
   gtk_widget_show(cap_w);
 
   upd_time = time(NULL);
-#ifdef linux
+#ifndef BSD
   if (!ld.from_pipe) pcap_fd = pcap_fileno(pch);
 #endif
 
@@ -1427,7 +1436,7 @@ capture(void)
     else
 #endif
     {
-#ifdef linux
+#ifndef BSD
       /*
        * Sigh.  The semantics of the read timeout argument to
        * "pcap_open_live()" aren't particularly well specified by
@@ -1437,11 +1446,23 @@ capture(void)
        * until the buffer fills or a timer expires - and the Linux
        * libpcap doesn't actually support it, so we can't use it
        * to break out of the "pcap_dispatch()" every 1/4 of a second
-       * or so.
+       * or so.  Linux's libpcap is not the only libpcap that doesn't
+       * support the read timeout.
        *
-       * Thus, on Linux, we do a "select()" on the file descriptor for the
-       * capture, with a timeout of CAP_READ_TIMEOUT milliseconds, or
-       * CAP_READ_TIMEOUT*1000 microseconds.
+       * Furthermore, at least on Solaris, the bufmod STREAMS module's
+       * read timeout won't go off if no data has arrived, i.e. it cannot
+       * be used to guarantee that a read from a DLPI stream will return
+       * within a specified amount of time regardless of whether any
+       * data arrives or not.
+       *
+       * Thus, on all platforms other than BSD, we do a "select()" on the
+       * file descriptor for the capture, with a timeout of CAP_READ_TIMEOUT
+       * milliseconds, or CAP_READ_TIMEOUT*1000 microseconds.
+       *
+       * "select()", on BPF devices, doesn't work as you might expect;
+       * at least on some versions of some flavors of BSD, the timer
+       * doesn't start until a read is done, so it won't expire if
+       * only a "select()" or "poll()" is posted.
        */
       FD_ZERO(&set1);
       FD_SET(pcap_fd, &set1);
