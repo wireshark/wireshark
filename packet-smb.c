@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.11 1999/05/13 01:05:11 sharpe Exp $
+ * $Id: packet-smb.c,v 1.12 1999/06/01 20:39:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -672,7 +672,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     }
 
-    while (END_OF_FRAME > 0) {
+    while (fd->cap_len > offset) {
       const char *str;
 
       if (tree) {
