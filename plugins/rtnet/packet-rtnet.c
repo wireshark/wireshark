@@ -1,7 +1,7 @@
 /* packet-rtnet.c
  * Routines for RTnet packet disassembly
  *
- * $Id: packet-rtnet.c,v 1.6 2003/11/27 21:09:43 guy Exp $
+ * $Id: packet-rtnet.c,v 1.7 2004/02/18 05:33:35 guy Exp $
  *
  * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  *
@@ -62,7 +62,7 @@ G_MODULE_EXPORT const gchar version[] = VERSION;
 #define RTNET_TYPE_TDMA     0x9031
 #define RTNET_TYPE_IP       ETHERTYPE_IP
 #define RTNET_TYPE_ARP      ETHERTYPE_ARP
- 
+
 static const value_string rtnet_type_vals[] = {
   { RTNET_TYPE_TDMA, "TDMA" },
   { RTNET_TYPE_IP,   "IP" },
@@ -74,23 +74,25 @@ static const value_string rtnet_type_vals[] = {
 #define RTCFG_MSG_ANN_NEW      0x1
 #define RTCFG_MSG_ANN_REPLY    0x2
 #define RTCFG_MSG_S2_CONFIG    0x3
-#define RTCFG_MSG_S2_SUBSEQ    0x4
+#define RTCFG_MSG_S2_FRAG      0x4
 #define RTCFG_MSG_ACK          0x5
-#define RTCFG_MSG_HBEAT        0x6
+#define RTCFG_MSG_READY        0x6
+#define RTCFG_MSG_HBEAT        0x7
 
 static const value_string rtcfg_msg_vals[] = {
   { RTCFG_MSG_S1_CONFIG, "Stage 1 Config" },
   { RTCFG_MSG_ANN_NEW,   "New Announce" },
   { RTCFG_MSG_ANN_REPLY, "Reply Announce" },
   { RTCFG_MSG_S2_CONFIG, "Stage 2 Config" },
-  { RTCFG_MSG_S2_SUBSEQ, "Stage 2 Subsequent" },
-  { RTCFG_MSG_ACK,       "Ack" },
+  { RTCFG_MSG_S2_FRAG,   "Stage 2 Fragment" },
+  { RTCFG_MSG_ACK,       "Acknowledge" },
+  { RTCFG_MSG_READY,     "Ready" },
   { RTCFG_MSG_HBEAT,     "Heartbeat" },
   { 0, NULL }
 };
 
 #define RTCFG_ADDRESS_TYPE_MAC  0x00
-#define RTCFG_ADDRESS_TYPE_IP   0x01 
+#define RTCFG_ADDRESS_TYPE_IP   0x01
 
 static const value_string rtcfg_address_type_vals[] = {
   { RTCFG_ADDRESS_TYPE_MAC,    "MAC" },
@@ -138,10 +140,19 @@ static int hf_rtcfg_address_type = -1;
 static int hf_rtcfg_client_ip_address = -1;
 static int hf_rtcfg_server_ip_address = -1;
 static int hf_rtcfg_burst_rate = -1;
+static int hf_rtcfg_padding = -1;
 static int hf_rtcfg_s1_config_length = -1;
 static int hf_rtcfg_config_data = -1;
-static int hf_rtcfg_get_config = -1;
-static int hf_rtcfg_active_clients = -1;
+static int hf_rtcfg_client_flags = -1;
+static int hf_rtcfg_client_flags_available = -1;
+static int hf_rtcfg_client_flags_ready = -1;
+static int hf_rtcfg_client_flags_res = -1;
+static int hf_rtcfg_server_flags = -1;
+static int hf_rtcfg_server_flags_res0 = -1;
+static int hf_rtcfg_server_flags_ready = -1;
+static int hf_rtcfg_server_flags_res2 = -1;
+
+static int hf_rtcfg_active_stations = -1;
 static int hf_rtcfg_heartbeat_period = -1;
 static int hf_rtcfg_s2_config_length = -1;
 static int hf_rtcfg_config_offset = -1;
@@ -356,7 +367,7 @@ dissect_rtnet_tdma_start_of_frame(tvbuff_t *tvb, guint offset, proto_tree *tree)
 }
 
 static guint
-dissect_rtnet_tdma(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree) {
+dissect_rtnet_tdma(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, proto_tree* ti) {
   guint32 msg;
 
   msg = tvb_get_ntohl(tvb, offset);
@@ -370,12 +381,15 @@ dissect_rtnet_tdma(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *
 
   /* set the info column */
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
       val_to_str(msg, rtnet_tdma_msg_vals, "Unknown (0x%04x)"));
   }
 
   if( tree )
   {  
+    proto_item_append_text(ti, ", %s",
+             val_to_str(msg, rtnet_tdma_msg_vals, "Unknown (0x%04x)"));
+    
     switch( msg ) {
       case RTNET_TDMA_MSG_NOTIFY_MASTER:
         return dissect_rtnet_tdma_notify_master( tvb, offset, tree );
@@ -455,6 +469,9 @@ dissect_rtnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   {
     proto_tree_add_uint(rtnet_tree, hf_rtnet_header_ver, tvb,
                         offset, 1, ver);
+
+
+    proto_item_append_text(ti, ", Vers. %d", ver);
   }
   offset += 1;
 
@@ -483,7 +500,7 @@ dissect_rtnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         si = proto_item_add_subtree(hi, ett_rtnet);
       }
 
-      size = dissect_rtnet_tdma( tvb, pinfo, offset, si);
+      size = dissect_rtnet_tdma( tvb, pinfo, offset, si, hi);
       size -= offset;
       
       if( si )
@@ -510,7 +527,7 @@ dissect_rtnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       break;
 
     default:
-      if( tree ) 
+      if( tree )
       {
         proto_tree_add_text(tree, tvb, offset, -1,
           "Data (%d bytes)", tvb_reported_length_remaining(tvb, offset));
@@ -522,7 +539,7 @@ dissect_rtnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 static void
 dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   gint offset = 0;
-  proto_tree *vers_id_tree, *vers_id_item;
+  proto_tree *vers_id_tree, *vers_id_item, *flags_tree, *flags_item;
   guint8 vers_id;
   guint8 address_type;
   guint32 config_length,len;
@@ -530,7 +547,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   /* Set the protocol column */
   if(check_col(pinfo->cinfo,COL_PROTOCOL)){
-    col_set_str(pinfo->cinfo,COL_PROTOCOL,"RTCFG");
+    col_set_str(pinfo->cinfo,COL_PROTOCOL,"RTcfg");
   }
 
   /* Clear out stuff in the info column */
@@ -543,21 +560,26 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     rtcfg_tree = proto_item_add_subtree(ti, ett_rtcfg);
   }
 
-  if( rtcfg_tree ) 
+  vers_id = tvb_get_guint8(tvb, offset);
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+           val_to_str(vers_id, rtcfg_msg_vals, "Unknown (0x%04x)"));
+  }
+
+  if( rtcfg_tree )
   {
-    vers_id = tvb_get_guint8(tvb, offset);
     vers_id_item = proto_tree_add_uint(rtcfg_tree, hf_rtcfg_vers_id, tvb,
                                        offset, 1, vers_id);
- 
+
     vers_id_tree=proto_item_add_subtree(vers_id_item, ett_rtcfg);
     proto_tree_add_item(vers_id_tree, hf_rtcfg_vers, tvb, offset, 1, FALSE);
     proto_tree_add_item(vers_id_tree, hf_rtcfg_id, tvb, offset, 1, FALSE);
     offset += 1;
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
-        val_to_str(vers_id, rtcfg_msg_vals, "Unknown (0x%04x)"));
-    }
+    proto_item_append_text(ti, ", Vers. %d, %s",
+             (vers_id >> 5),
+             val_to_str(vers_id, rtcfg_msg_vals, "Unknown (0x%04x)"));
 
     switch( vers_id & 0x1f )
     {
@@ -565,13 +587,13 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          address_type = tvb_get_guint8(tvb, offset);
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_address_type, tvb, offset, 1, FALSE );
          offset += 1;
-         
+
          switch( address_type )
          {
            case RTCFG_ADDRESS_TYPE_MAC:
              /* nothing */
-             break;  
-           
+             break;
+
            case RTCFG_ADDRESS_TYPE_IP:
              proto_tree_add_item( rtcfg_tree, hf_rtcfg_client_ip_address, tvb, offset, 4, FALSE );
              offset += 4;
@@ -581,88 +603,116 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
              break;
          }
- 
+
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_burst_rate, tvb, offset, 1, FALSE );
          offset += 1;
-             
+
          config_length = tvb_get_ntohs( tvb, offset );
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_s1_config_length, tvb, offset, 2, FALSE );
-         offset += 2;  
-  
+         offset += 2;
+
          if( config_length > 0 ) {
            proto_tree_add_item( rtcfg_tree, hf_rtcfg_config_data, tvb, offset, config_length, FALSE );
            offset += config_length;
          }
-         
+
          break;
 
        case RTCFG_MSG_ANN_NEW:
          address_type = tvb_get_guint8(tvb, offset);
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_address_type, tvb, offset, 1, FALSE );
          offset += 1;
-         
+
          switch( address_type )
          {
            case RTCFG_ADDRESS_TYPE_MAC:
              /* nothing */
-             break;  
-           
+             break;
+
            case RTCFG_ADDRESS_TYPE_IP:
              proto_tree_add_item( rtcfg_tree, hf_rtcfg_client_ip_address, tvb, offset, 4, FALSE );
-             offset += 4; 
+             offset += 4;
              break;
          }
 
-         proto_tree_add_item( rtcfg_tree, hf_rtcfg_get_config, tvb, offset, 1, FALSE );
-         offset += 1;
+         flags_item = proto_tree_add_item(rtcfg_tree, hf_rtcfg_client_flags, tvb,
+                                          offset, 1, FALSE);
 
+         flags_tree=proto_item_add_subtree(flags_item, ett_rtcfg);
+         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_available, tvb, offset, 1, FALSE);
+         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_ready, tvb, offset, 1, FALSE);
+         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_res, tvb, offset, 1, FALSE);
+         offset += 1;
+ 
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_burst_rate, tvb, offset, 1, FALSE );
          offset += 1;
-         
+
          break;
 
        case RTCFG_MSG_ANN_REPLY:
          address_type = tvb_get_guint8(tvb, offset);
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_address_type, tvb, offset, 1, FALSE );
          offset += 1;
-         
+
          switch( address_type )
          {
            case RTCFG_ADDRESS_TYPE_MAC:
              /* nothing */
-             break;  
-           
+             break;
+
            case RTCFG_ADDRESS_TYPE_IP:
              proto_tree_add_item( rtcfg_tree, hf_rtcfg_client_ip_address, tvb, offset, 4, FALSE );
-             offset += 4; 
+             offset += 4;
              break;
          }
+
+         flags_item = proto_tree_add_item(rtcfg_tree, hf_rtcfg_client_flags, tvb,
+                                          offset, 1, FALSE);
+
+         flags_tree=proto_item_add_subtree(flags_item, ett_rtcfg);
+         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_available, tvb, offset, 1, FALSE);
+         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_ready, tvb, offset, 1, FALSE);
+         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_res, tvb, offset, 1, FALSE);
+         offset += 1;
+
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_padding, tvb, offset, 1, FALSE );
+         offset += 1;
+
          break;
 
        case RTCFG_MSG_S2_CONFIG:
-         proto_tree_add_item( rtcfg_tree, hf_rtcfg_active_clients, tvb, offset, 4, FALSE );
+         flags_item = proto_tree_add_item(rtcfg_tree, hf_rtcfg_server_flags, tvb,
+                                          offset, 1, FALSE);
+
+         flags_tree=proto_item_add_subtree(flags_item, ett_rtcfg);
+         proto_tree_add_item(flags_tree, hf_rtcfg_server_flags_res0, tvb, offset, 1, FALSE);
+         proto_tree_add_item(flags_tree, hf_rtcfg_server_flags_ready, tvb, offset, 1, FALSE);
+         proto_tree_add_item(flags_tree, hf_rtcfg_server_flags_res2, tvb, offset, 1, FALSE);
+         offset += 1;
+
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_active_stations, tvb, offset, 4, FALSE );
          offset += 4;
-         
+
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_heartbeat_period, tvb, offset, 2, FALSE );
          offset += 2;
 
          config_length = tvb_get_ntohl( tvb, offset );
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_s2_config_length, tvb, offset, 4, FALSE );
          offset += 4;
-                                                                                                                                                                                                     
+
          if( config_length > 0 ) {
-           len = tvb_reported_length_remaining(tvb, offset);                                                                                                                                                                                                     
+           len = tvb_reported_length_remaining(tvb, offset);
            proto_tree_add_item( rtcfg_tree, hf_rtcfg_config_data, tvb, offset, len, FALSE );
            offset += len;
          }
-                  
+
          break;
 
-       case RTCFG_MSG_S2_SUBSEQ:
+       case RTCFG_MSG_S2_FRAG:
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_config_offset, tvb, offset, 4, FALSE );
          offset += 4;
-                                                                                         
-         len = tvb_reported_length_remaining(tvb, offset);                                                                                                                                                                                                     
+
+         len = tvb_reported_length_remaining(tvb, offset);
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_config_data, tvb, offset, len, FALSE );
          offset += len;
          break;
@@ -670,13 +720,16 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
        case RTCFG_MSG_ACK:
          proto_tree_add_item( rtcfg_tree, hf_rtcfg_ack_length, tvb, offset, 4, FALSE );
          offset += 4;
-         
+
          break;
-             
+
+       case RTCFG_MSG_READY:
+         break;
+
        case RTCFG_MSG_HBEAT:
          break;
-    
-    }	
+
+    }
   }
 }
 
@@ -705,21 +758,21 @@ proto_register_rtnet(void) {
 
     /* TDMA */
     { &hf_rtnet_tdma,
-      { "RTNET TDMA",
+      { "TDMA",
         "rtnet.tdma",
         FT_NONE, BASE_NONE, NULL, 0,
         "RTNET TDMA", HFILL }},
 
     /* IP */
     { &hf_rtnet_ip,
-      { "RTNET IP",
+      { "IP",
         "rtnet.ip",
         FT_NONE, BASE_NONE, NULL, 0,
         "RTNET IP", HFILL }},
 
     /* ARP */
     { &hf_rtnet_arp,
-      { "RTNET ARP",
+      { "ARP",
         "rtnet.arp",
         FT_NONE, BASE_NONE, NULL, 0,
         "RTNET ARP", HFILL }},
@@ -732,13 +785,13 @@ proto_register_rtnet(void) {
         "RTNET TDMA Message", HFILL }},
 
     /* TDMA request conf */
-                    
+
     { &hf_rtnet_tdma_msg_request_conf_station,
       { "Station",
         "rtnet.tdma.msg.request_conf.station",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "TDMA Station", HFILL }},
-        
+
     { &hf_rtnet_tdma_msg_request_conf_padding,
       { "Padding",
         "rtnet.tdma.msg.request_conf.padding",
@@ -758,13 +811,13 @@ proto_register_rtnet(void) {
         "TDMA Cycle", HFILL }},
 
     /* TDMA ack conf */
-                    
+
     { &hf_rtnet_tdma_msg_ack_conf_station,
       { "Station",
         "rtnet.tdma.msg.ack_conf.station",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "TDMA Station", HFILL }},
-        
+
     { &hf_rtnet_tdma_msg_ack_conf_padding,
       { "Padding",
         "rtnet.tdma.msg.ack_conf.padding",
@@ -782,7 +835,7 @@ proto_register_rtnet(void) {
         "rtnet.tdma.msg.ack_conf.cycle",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "TDMA Cycle", HFILL }},
-        
+
     /* TDMA ack ack conf */
 
     { &hf_rtnet_tdma_msg_ack_ack_conf_station,
@@ -790,7 +843,7 @@ proto_register_rtnet(void) {
         "rtnet.tdma.msg.ack_ack_conf.station",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "TDMA Station", HFILL }},
-   
+
     { &hf_rtnet_tdma_msg_ack_ack_conf_padding,
       { "Padding",
         "rtnet.tdma.msg.ack_ack_conf.padding",
@@ -798,7 +851,7 @@ proto_register_rtnet(void) {
         "TDMA Padding", HFILL }},
 
     /* TDMA request test */
-    
+
     { &hf_rtnet_tdma_msg_request_test_counter,
       { "Counter",
         "rtnet.tdma.msg.request_test.counter",
@@ -820,7 +873,7 @@ proto_register_rtnet(void) {
 #endif
 
     /* TDMA ack test */
-    
+
     { &hf_rtnet_tdma_msg_ack_test_counter,
       { "Counter",
         "rtnet.tdma.msg.ack_test.counter",
@@ -850,7 +903,7 @@ proto_register_rtnet(void) {
         "TDMA Offset", HFILL }},
 
     /* TDMA start of frame */
-        
+
 
 #ifdef G_HAVE_GINT64
     { &hf_rtnet_tdma_msg_start_of_frame_timestamp,
@@ -867,31 +920,31 @@ proto_register_rtnet(void) {
 #endif
 
     /* TDMA station list */
-    
+
     { &hf_rtnet_tdma_msg_station_list_nr_stations,
       { "Nr. Stations",
         "rtnet.tdma.msg.station_list.nr_stations",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "TDMA Nr. Stations", HFILL }},
-        
+
     { &hf_rtnet_tdma_msg_station_list_nr,
       { "Nr.",
         "rtnet.tdma.msg.station_list.nr",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         "TDMA Station Number", HFILL }},
-        
+
     { &hf_rtnet_tdma_msg_station_list_ip,
       { "IP",
         "rtnet.tdma.msg.station_list.ip",
         FT_IPv4, BASE_DEC, NULL, 0x0,
         "TDMA Station IP", HFILL }},
-        
+
     { &hf_rtnet_tdma_msg_station_list_padding,
       { "Padding",
         "rtnet.tdma.msg.station_list.padding",
         FT_BYTES, BASE_HEX, NULL, 0x0,
         "TDMA Padding", HFILL }}
-        
+
   };
 
   static gint *ett[] = {
@@ -913,91 +966,139 @@ proto_register_rtcfg(void) {
       { "Version and ID",
         "rtcfg.vers_id",
         FT_UINT8, BASE_HEX, NULL, 0x0,
-        "RTCFG Version and ID", HFILL }},
+        "RTcfg Version and ID", HFILL }},
 
     { &hf_rtcfg_vers,
       { "Version",
         "rtcfg.vers",
         FT_UINT8, BASE_DEC, NULL, 0xe0,
-        "RTCFG Version", HFILL }},
+        "RTcfg Version", HFILL }},
 
     { &hf_rtcfg_id,
       { "ID",
         "rtcfg.id",
         FT_UINT8, BASE_HEX, VALS(rtcfg_msg_vals), 0x1f,
-        "RTCFG ID", HFILL }},
+        "RTcfg ID", HFILL }},
 
     { &hf_rtcfg_address_type,
       { "Address Type",
         "rtcfg.address_type",
         FT_UINT8, BASE_DEC, VALS(rtcfg_address_type_vals), 0x00,
-        "RTCFG Address Type", HFILL }},
-       
+        "RTcfg Address Type", HFILL }},
+
     { &hf_rtcfg_client_ip_address,
       { "Client IP Address",
         "rtcfg.client_ip_address",
         FT_IPv4, BASE_DEC, NULL, 0x0,
-        "RTCFG Client IP Address", HFILL }},
+        "RTcfg Client IP Address", HFILL }},
 
     { &hf_rtcfg_server_ip_address,
       { "Server IP Address",
         "rtcfg.server_ip_address",
         FT_IPv4, BASE_DEC, NULL, 0x0,
-        "RTCFG Server IP Address", HFILL }},
+        "RTcfg Server IP Address", HFILL }},
 
     { &hf_rtcfg_burst_rate,
       { "Stage 2 Burst Rate",
         "rtcfg.burst_rate",
         FT_UINT8, BASE_DEC, NULL, 0x00,
-        "RTCFG Stage 2 Burst Rate", HFILL }},
-        
+        "RTcfg Stage 2 Burst Rate", HFILL }},
+
     { &hf_rtcfg_s1_config_length,
-      { "S1 Config Length",
+      { "Stage 1 Config Length",
         "rtcfg.s1_config_length",
         FT_UINT16, BASE_DEC, NULL, 0x00,
-        "RTCFG S1 Config Length", HFILL }},
-        
+        "RTcfg Stage 1 Config Length", HFILL }},
+
     { &hf_rtcfg_config_data,
       { "Config Data",
         "rtcfg.config_data",
         FT_BYTES, BASE_DEC, NULL, 0x00,
-        "RTCFG Config Data", HFILL }},
-        
-    { &hf_rtcfg_get_config,
-      { "Get Config",
-        "rtcfg.get_config",
-        FT_UINT8, BASE_DEC, NULL, 0x00,
-        "RTCFG Get Config", HFILL }},
+        "RTcfg Config Data", HFILL }},
 
-    { &hf_rtcfg_active_clients,
-      { "Active Clients",
-        "rtcfg.active_clients",
+    { &hf_rtcfg_padding,
+      { "Padding",
+        "rtcfg.padding",
+        FT_UINT8, BASE_DEC, NULL, 0x00,
+        "RTcfg Padding", HFILL }},
+
+    { &hf_rtcfg_client_flags,
+      { "Flags",
+        "rtcfg.client_flags",
+        FT_UINT8, BASE_HEX, NULL, 0x00,
+        "RTcfg Client Flags", HFILL }},
+
+    { &hf_rtcfg_client_flags_available,
+      { "Req. Available",
+        "rtcfg.client_flags.available",
+        FT_UINT8, BASE_DEC, NULL, 0x01,
+        "Request Available", HFILL }},
+
+    { &hf_rtcfg_client_flags_ready,
+      { "Client Ready",
+        "rtcfg.client_flags.ready",
+        FT_UINT8, BASE_DEC, NULL, 0x02,
+        "Client Ready", HFILL }},
+
+    { &hf_rtcfg_client_flags_res,
+      { "Reserved",
+        "rtcfg.client_flags.res",
+        FT_UINT8, BASE_HEX, NULL, 0xfc,
+        "Reserved", HFILL }},
+
+    { &hf_rtcfg_server_flags,
+      { "Flags",
+        "rtcfg.server_flags",
+        FT_UINT8, BASE_HEX, NULL, 0x00,
+        "RTcfg Server Flags", HFILL }},
+
+    { &hf_rtcfg_server_flags_res0,
+      { "Reserved",
+        "rtcfg.server_flags.res0",
+        FT_UINT8, BASE_HEX, NULL, 0x01,
+        "Reserved", HFILL }},
+
+    { &hf_rtcfg_server_flags_ready,
+      { "Server Ready",
+        "rtcfg.server_flags.ready",
+        FT_UINT8, BASE_DEC, NULL, 0x02,
+        "Server Ready", HFILL }},
+
+    { &hf_rtcfg_server_flags_res2,
+      { "Reserved",
+        "rtcfg.server_flags.res2",
+        FT_UINT8, BASE_HEX, NULL, 0xfc,
+        "Reserved", HFILL }},
+        
+    { &hf_rtcfg_active_stations,
+      { "Active Stations",
+        "rtcfg.active_stations",
         FT_UINT32, BASE_DEC, NULL, 0x00,
-        "RTCFG Active Clients", HFILL }},
+        "RTcfg Active Stations", HFILL }},
 
     { &hf_rtcfg_heartbeat_period,
       { "Heartbeat Period",
         "rtcfg.hearbeat_period",
         FT_UINT16, BASE_DEC, NULL, 0x00,
-        "RTCFG Heartbeat Period", HFILL }},
+        "RTcfg Heartbeat Period", HFILL }},
 
     { &hf_rtcfg_s2_config_length,
-      { "S2 Config Length",
+      { "Stage 2 Config Length",
         "rtcfg.s2_config_length",
         FT_UINT32, BASE_DEC, NULL, 0x00,
-        "RTCFG S2 Config Length", HFILL }},
+        "RTcfg Stage 2 Config Length", HFILL }},
 
     { &hf_rtcfg_config_offset,
       { "Config Offset",
         "rtcfg.config_offset",
         FT_UINT32, BASE_DEC, NULL, 0x00,
-        "RTCFG Config Offset", HFILL }},
+        "RTcfg Config Offset", HFILL }},
 
     { &hf_rtcfg_ack_length,
       { "Ack Length",
         "rtcfg.ack_length",
         FT_UINT32, BASE_DEC, NULL, 0x00,
-        "RTCFG Ack Length", HFILL }}
+        "RTcfg Ack Length", HFILL }}
 
   };
 
@@ -1005,7 +1106,7 @@ proto_register_rtcfg(void) {
     &ett_rtcfg,
   };
 
-  proto_rtcfg = proto_register_protocol("RTCFG","RTCFG","rtcfg");
+  proto_rtcfg = proto_register_protocol("RTcfg","RTcfg","rtcfg");
   proto_register_field_array(proto_rtcfg,hf,array_length(hf));
   proto_register_subtree_array(ett,array_length(ett));
 }
@@ -1025,8 +1126,8 @@ proto_reg_handoff_rtnet(void) {
   }
 
   dissector_add("ethertype", ETHERTYPE_RTNET, rtnet_handle);
- 
- 
+
+
   ip_handle = find_dissector("ip");
   arp_handle = find_dissector("arp");
 }
