@@ -28,15 +28,6 @@
 #include "config.h"
 #endif
 
-/* we do not use this dissector as a plugin any longer... */
-#define __ETHEREAL_STATIC__
-
-#ifndef __ETHEREAL_STATIC__
-#include "plugins/plugin_api.h"
-#include "moduleinfo.h"
-#endif
-
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -56,13 +47,6 @@
 #include "prefs.h"
 #include <epan/strutil.h>
 #include <etypes.h>
-
-
-#ifndef __ETHEREAL_STATIC__
-#include "plugins/plugin_api_defs.h"
-
-G_MODULE_EXPORT const gchar version[] = VERSION;
-#endif
 
 void proto_reg_handoff_pn_rt(void);
 
@@ -426,32 +410,3 @@ proto_reg_handoff_pn_rt(void)
   data_handle = find_dissector("data");
 }
 
-
-
-
-/* Start the functions we need for the plugin stuff */
-
-#ifndef __ETHEREAL_STATIC__
-
-G_MODULE_EXPORT void
-plugin_reg_handoff(void){
-  proto_reg_handoff_pn_rt();
-}
-
-G_MODULE_EXPORT void
-plugin_init(plugin_address_table_t *pat
-#ifndef PLUGINS_NEED_ADDRESS_TABLE
-_U_
-#endif
-){
-  /* initialise the table of pointers needed in Win32 DLLs */
-  plugin_address_table_init(pat);
-  /* register the new protocol, protocol fields, and subtrees */
-  if (proto_pn_rt == -1) { /* execute protocol initialization only once */
-    proto_register_pn_rt();
-  }
-}
-
-#endif /* __ETHEREAL_STATIC__ */
-
-/* End the functions we need for plugin stuff */

@@ -33,7 +33,6 @@
 #endif
 
 #ifndef ENABLE_STATIC
-#include "plugins/plugin_api.h"
 #include "moduleinfo.h"
 #include <gmodule.h>
 #else 
@@ -54,8 +53,6 @@
 #include <epan/report_err.h>
 
 #include "mate_util.h"
-#include "plugins/plugin_api_defs.h"
-
 
 /* defaults */
 

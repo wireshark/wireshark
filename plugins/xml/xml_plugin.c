@@ -29,11 +29,12 @@
 #include "config.h"
 #endif
 
-#include "plugins/plugin_api.h"
+#include <glib.h>
+
+#ifndef ENABLE_STATIC
 #include "moduleinfo.h"
 #include <gmodule.h>
-#include "plugins/plugin_api_defs.h"
-
+#endif
 
 /* these two are in packet-mate.c */
 void proto_register_xml(void);

@@ -28,9 +28,8 @@
 #include "config.h"
 #endif
 
-#include "plugins/plugin_api.h"
 #include <gmodule.h>
-#include "plugins/plugin_api_defs.h"
+
 #include <epan/stats_tree.h>
 
 extern void register_pinfo_stat_trees(void);
