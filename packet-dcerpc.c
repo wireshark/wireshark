@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.97 2003/01/24 05:32:54 tpot Exp $
+ * $Id: packet-dcerpc.c,v 1.98 2003/01/24 21:10:40 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "tap.h"
 #include "packet-frame.h"
 #include "packet-ntlmssp.h"
+#include "packet-dcerpc-nt.h"
 
 static int dcerpc_tap = -1;
 
