@@ -1,8 +1,8 @@
 /* packet-dcerpc-spoolss.c
  * Routines for SMB \PIPE\spoolss packet disassembly
- * Copyright 2001-2002, Tim Potter <tpot@samba.org>
+ * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.71 2003/01/11 04:40:21 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.72 2003/01/16 22:44:05 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1316,7 +1316,7 @@ dissect_spoolss_uint16uni(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	len = strlen(text);
 
 	proto_tree_add_text(tree, tvb, offset, len * 2, "%s: %s",
-			    name ? name : "UINT16UNI", text);
+			    name ? name : "String", text);
 
 	if (data)
 		*data = text;
@@ -2431,8 +2431,8 @@ static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, NULL, drep, hf_spoolss_hnd, &policy_hnd,
 		TRUE, FALSE);
 
-	offset = dissect_doserror(tvb, offset, pinfo, NULL, drep,
-				  hf_spoolss_rc, &status);
+	offset = dissect_ndr_uint32(
+		tvb, offset, pinfo, NULL, drep, hf_spoolss_rc, &status);
 
 	if (status == 0) {
 
