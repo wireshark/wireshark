@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.680 2003/12/29 21:13:31 jmayer Exp $
+# $Id: Makefile.am,v 1.681 2003/12/29 22:42:39 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -838,6 +838,7 @@ ETHEREAL_COMMON_SRC = \
 	ps.h           \
 	ptvcursor.c	\
 	ptvcursor.h	\
+	range.c		\
 	range.h		\
 	reassemble.c   \
 	reassemble.h   \

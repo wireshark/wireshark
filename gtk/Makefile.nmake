@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.67 2003/12/29 20:05:59 ulfl Exp $
+# $Id: Makefile.nmake,v 1.68 2003/12/29 22:43:33 guy Exp $
 
 include ..\config.nmake
 
@@ -95,7 +95,6 @@ OBJECTS = \
 	proto_dlg.obj \
 	proto_draw.obj \
 	proto_hier_stats_dlg.obj	\
-	range.obj \
 	rtp_stream.obj    \
 	service_response_time_table.obj	\
 	simple_dialog.obj \
