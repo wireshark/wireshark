@@ -4,7 +4,7 @@
  *
  * Based on CORBAv2.4.2  Chapter 15 GIOP Description.
  *
- * $Id: packet-giop.h,v 1.8 2002/05/12 20:43:29 gerald Exp $
+ * $Id: packet-giop.h,v 1.9 2002/05/13 01:24:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -484,7 +484,7 @@ extern guint16 get_CDR_ushort(tvbuff_t *tvb, int *offset,
  * Wchar is not supported for GIOP 1.0.
  */
 
-extern gint8 get_CDR_wchar(tvbuff_t *tvb, gchar **seq, int *offset,
+extern gint get_CDR_wchar(tvbuff_t *tvb, gchar **seq, int *offset,
     MessageHeader * header);
 
 

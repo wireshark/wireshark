@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.12 2002/03/05 09:18:58 guy Exp $
+ * $Id: asn1.c,v 1.13 2002/05/13 01:24:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -655,27 +655,15 @@ asn1_string_value_decode ( ASN1_SCK *asn1, int enc_len, guchar **octets)
     int          eoc;
     guchar       *ptr;
 
-    eoc = asn1->offset + enc_len;
-
-    /*
-     * Check for an overflow, and clamp "eoc" at the maximum if we
-     * get it.
-     */
-    if (eoc < asn1->offset || eoc < 0)
-	eoc = INT_MAX;
-
     /*
      * First, make sure the entire string is in the tvbuff, and throw
      * an exception if it isn't.  If the length is bogus, this should
      * keep us from trying to allocate an immensely large buffer.
      * (It won't help if the length is *valid* but immensely large,
      * but that's another matter.)
-     *
-     * We do that by attempting to fetch the last byte (if the length
-     * isn't 0).
      */
     if (enc_len != 0) {
-	tvb_get_guint8(asn1->tvb, eoc - 1);
+    	tvb_ensure_bytes_exist(asn1->tvb, asn1->offset, enc_len);
 	*octets = g_malloc (enc_len);
     } else {
 	/*
@@ -686,6 +674,8 @@ asn1_string_value_decode ( ASN1_SCK *asn1, int enc_len, guchar **octets)
 	 */
 	*octets = g_malloc (1);
     }
+
+    eoc = asn1->offset + enc_len;
     ptr = *octets;
     while (asn1->offset < eoc) {
 	ret = asn1_octet_decode (asn1, (guchar *)ptr++);
@@ -832,27 +822,17 @@ asn1_oid_value_decode ( ASN1_SCK *asn1, int enc_len, subid_t **oid, guint *len)
     guint        size;
     subid_t      *optr;
 
-    eoc = asn1->offset + enc_len;
-
-    /*
-     * Check for an overflow, and clamp "eoc" at the maximum if we
-     * get it.
-     */
-    if (eoc < asn1->offset || eoc < 0)
-	eoc = INT_MAX;
-
     /*
      * First, make sure the entire string is in the tvbuff, and throw
      * an exception if it isn't.  If the length is bogus, this should
      * keep us from trying to allocate an immensely large buffer.
      * (It won't help if the length is *valid* but immensely large,
      * but that's another matter.)
-     *
-     * We do that by attempting to fetch the last byte (if the length
-     * isn't 0).
      */
     if (enc_len != 0)
-	tvb_get_guint8(asn1->tvb, eoc - 1);
+    	tvb_ensure_bytes_exist(asn1->tvb, asn1->offset, enc_len);
+
+    eoc = asn1->offset + enc_len;
 
     size = enc_len + 1;
     *oid = g_malloc(size * sizeof(gulong));

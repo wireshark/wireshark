@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.36 2002/05/05 21:07:52 guy Exp $
+ * $Id: tvbuff.c,v 1.37 2002/05/13 01:24:47 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -421,16 +421,38 @@ static gboolean
 check_offset_length_no_exception(tvbuff_t *tvb, gint offset, gint length,
 		guint *offset_ptr, guint *length_ptr, int *exception)
 {
+	guint	end_offset;
+
 	g_assert(tvb->initialized);
 
 	if (!compute_offset_length(tvb, offset, length, offset_ptr, length_ptr, exception)) {
 		return FALSE;
 	}
 
-	if (*offset_ptr + *length_ptr <= tvb->length) {
+	/*
+	 * Compute the offset of the first byte past the length.
+	 */
+	end_offset = *offset_ptr + *length_ptr;
+
+	/*
+	 * Check for an overflow, and clamp "end_offset" at the maximum
+	 * if we got an overflow - that should force us to indicate that
+	 * we're past the end of the tvbuff.
+	 */
+	if (end_offset < *offset_ptr)
+		end_offset = UINT_MAX;
+
+	/*
+	 * Check whether that offset goes more than one byte past the
+	 * end of the buffer.
+	 *
+	 * If not, return TRUE; otherwise, return FALSE and, if "exception"
+	 * is non-null, return the appropriate exception through it.
+	 */
+	if (end_offset <= tvb->length) {
 		return TRUE;
 	}
-	else if (*offset_ptr + *length_ptr <= tvb->reported_length) {
+	else if (end_offset <= tvb->reported_length) {
 		if (exception) {
 			*exception = BoundsError;
 		}
@@ -446,7 +468,7 @@ check_offset_length_no_exception(tvbuff_t *tvb, gint offset, gint length,
 	g_assert_not_reached();
 }
 
-/* Checks (+/-) offset and length and throws BoundsError if
+/* Checks (+/-) offset and length and throws an exception if
  * either is out of bounds. Sets integer ptrs to the new offset
  * and length. */
 static void
@@ -625,7 +647,7 @@ tvb_ensure_length_remaining(tvbuff_t *tvb, gint offset)
 
 
 /* Validates that 'length' bytes are available starting from
- * offset (pos/neg). Does not throw BoundsError exception. */
+ * offset (pos/neg). Does not throw an exception. */
 gboolean
 tvb_bytes_exist(tvbuff_t *tvb, gint offset, gint length)
 {
@@ -642,6 +664,31 @@ tvb_bytes_exist(tvbuff_t *tvb, gint offset, gint length)
 	else {
 		return FALSE;
 	}
+}
+
+/* Validates that 'length' bytes are available starting from
+ * offset (pos/neg). Throws an exception if they aren't. */
+void
+tvb_ensure_bytes_exist(tvbuff_t *tvb, gint offset, gint length)
+{
+	guint		abs_offset, abs_length;
+
+	g_assert(tvb->initialized);
+
+	/*
+	 * -1 doesn't mean "until end of buffer", as that's pointless
+	 * for this routine.  We must treat it as a Really Large Positive
+	 * Number, so that we throw an exception; we throw
+	 * ReportedBoundsError, as if it were past even the end of a
+	 * reassembled packet, and past the end of even the data we
+	 * didn't capture.
+	 *
+	 * We do the same with other negative lengths.
+	 */
+	if (length < 0) {
+		THROW(ReportedBoundsError);
+	}
+	check_offset_length(tvb, offset, length, &abs_offset, &abs_length);
 }
 
 gboolean
@@ -950,6 +997,17 @@ tvb_memcpy(tvbuff_t *tvb, guint8* target, gint offset, gint length)
 }
 
 
+/*
+ * XXX - this doesn't treat a length of -1 as an error.
+ * If it did, this could replace some code that calls
+ * "tvb_ensure_bytes_exist()" and then allocates a buffer and copies
+ * data to it.
+ *
+ * Does anything depend on this routine treating -1 as meaning "to the
+ * end of the buffer"?  If so, perhaps we need two routines, one that
+ * treats -1 as such, and one that checks for -1 and then calls this
+ * routine.
+ */
 guint8*
 tvb_memdup(tvbuff_t *tvb, gint offset, gint length)
 {

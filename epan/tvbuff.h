@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.26 2002/05/05 00:57:59 guy Exp $
+ * $Id: tvbuff.h,v 1.27 2002/05/13 01:24:47 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -192,12 +192,16 @@ extern guint tvb_length(tvbuff_t*);
  * indicate that offset is out of bounds. No exception is thrown. */
 extern gint tvb_length_remaining(tvbuff_t*, gint offset);
 
-/* Same as above, but throws BoundsError if the offset is out of bounds. */
+/* Same as above, but throws an exception if the offset is out of bounds. */
 extern guint tvb_ensure_length_remaining(tvbuff_t*, gint offset);
 
 /* Checks (w/o throwing exception) that the bytes referred to by
  * 'offset'/'length' actually exist in the buffer */
 extern gboolean tvb_bytes_exist(tvbuff_t*, gint offset, gint length);
+
+/* Checks that the bytes referred to by 'offset'/'length' actually exist
+ * in the buffer, and throws an exception if they aren't. */
+extern void tvb_ensure_bytes_exist(tvbuff_t *tvb, gint offset, gint length);
 
 /* Checks (w/o throwing exception) that offset exists in buffer */
 extern gboolean tvb_offset_exists(tvbuff_t*, gint offset);
@@ -223,7 +227,7 @@ extern void tvb_set_reported_length(tvbuff_t*, guint);
 extern gint tvb_raw_offset(tvbuff_t*);
 
 /************** START OF ACCESSORS ****************/
-/* All accessors will throw BoundsError or ReportedBoundsError if appropriate */
+/* All accessors will throw an exception if appropriate */
 
 extern guint8  tvb_get_guint8(tvbuff_t*, gint offset);
 

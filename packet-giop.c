@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.60 2002/05/12 20:43:29 gerald Exp $
+ * $Id: packet-giop.c,v 1.61 2002/05/13 01:24:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2327,17 +2327,15 @@ guint8 get_CDR_octet(tvbuff_t *tvb, int *offset) {
 
 void get_CDR_octet_seq(tvbuff_t *tvb, gchar **seq, int *offset, guint32 len) {
 
-  guint32 remain_len = tvb_length_remaining(tvb, *offset);
-
-  if (remain_len < len) {
-    /*
-     * Generate an exception, and stop processing.
-     * We do that now, rather than after allocating the buffer, so we
-     * don't have to worry about freeing the buffer.
-     * XXX - would we be better off using a cleanup routine?
-     */
-    tvb_ensure_length_remaining(tvb, *offset + remain_len + 1);
-  }
+  /*
+   * Make sure that the entire sequence of octets is in the buffer before
+   * allocating the buffer, so that we don't have to worry about freeing
+   * the buffer, and so that we don't try to allocate a buffer bigger
+   * than the data we'll actually be copying, and thus don't run the risk
+   * of crashing if the buffer is *so* big that we fail to allocate it
+   * and "g_new0()" aborts.
+   */
+  tvb_ensure_bytes_exist(tvb, *offset, len);
 
   /*
    * XXX - should we just allocate "len" bytes, and have "get_CDR_string()"
@@ -2639,9 +2637,9 @@ guint16 get_CDR_ushort(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian
  * Wchar is not supported for GIOP 1.0.
  */
 
-gint8 get_CDR_wchar(tvbuff_t *tvb, gchar **seq, int *offset, MessageHeader * header) {
+gint get_CDR_wchar(tvbuff_t *tvb, gchar **seq, int *offset, MessageHeader * header) {
   
-  guint32 slength;
+  gint slength;
   gchar *raw_wstring;
 
   /* CORBA chapter 15:
