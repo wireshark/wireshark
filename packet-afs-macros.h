@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM.
  *
- * $Id: packet-afs-macros.h,v 1.20 2002/09/30 02:19:37 gerald Exp $
+ * $Id: packet-afs-macros.h,v 1.21 2002/10/11 21:58:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -112,11 +112,13 @@
 #define OUT_RXString(field) \
 	{	int i,len; \
 		char *tmp; \
+		const char *p; \
 		i = tvb_get_ntohl(tvb, offset); \
 		offset += 4; \
+		p = tvb_get_ptr(tvb,offset,i); \
 		len = ((i+4-1)/4)*4; \
 		tmp = g_malloc(i+1); \
-		memcpy(tmp, tvb_get_ptr(tvb,offset,i), i); \
+		memcpy(tmp, p, i); \
 		tmp[i] = '\0'; \
 		proto_tree_add_string(tree, field, tvb, offset-4, len+4, \
 		(void *)tmp); \
