@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.11 2003/08/21 18:00:22 guy Exp $
+ * $Id: packet-per.c,v 1.12 2003/08/25 00:00:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1427,7 +1427,7 @@ proto_register_per(void)
 	};
 	module_t *per_module;
 
-	proto_per = proto_register_protocol("Packet Encoding Rules (ASN.1 X.691)", "PER", "per");
+	proto_per = proto_register_protocol("Packed Encoding Rules (ASN.1 X.691)", "PER", "per");
 	proto_register_field_array(proto_per, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
