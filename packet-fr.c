@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.44 2003/09/06 12:31:32 sahlberg Exp $
+ * $Id: packet-fr.c,v 1.45 2003/10/17 23:43:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -334,13 +334,25 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  			   ett_fr_control, is_response, TRUE, TRUE);
       offset++;
 
+      /*
+       * XXX - treat DLCI 0 specially?  On DLCI 0, an NLPID of 0x08
+       * means Q.933, but on other circuits it could be the "for
+       * protocols which do not have an NLPID assigned or do not
+       * have a SNAP encapsulation" stuff from RFC 2427.
+       */
       dissect_fr_nlpid(tvb, offset, pinfo, tree, ti, fr_tree, fr_ctrl);
     } else {
       if (address == 0) {
-		/* this must be some sort of lapf on DLCI 0 for SVC */
-		/* because DLCI 0 is rezerved for LMI and  SVC signaling encaplulated in lapf */
-		/* and LMI is transmitted in unnumbered information (03) */
-		/* so this must be lapf (guessing) */
+		/*
+		 * This must be some sort of LAPF on DLCI 0 for SVC
+		 * because DLCI 0 is reserved for LMI and SVC signaling
+		 * encapsulated in LAPF, and LMI is transmitted in
+		 * unnumbered information (03), so this must be LAPF
+		 * (guessing).
+		 *
+		 * XXX - but what is it?  Is Q.933 carried inside UI
+		 * frames or other types of frames or both?
+		 */
 		dissect_xdlc_control(tvb, offset, pinfo, fr_tree,
 				     hf_fr_control, ett_fr_control,
 				     is_response, TRUE, TRUE);
@@ -450,33 +462,10 @@ static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
    * the Frame Relay OSI NLPID dissector table - the latter is for
    * NLPID's such as 0x08, which is Q.933 in Frame Relay but
    * other protocols (e.g., Q.931) on other network layers.
-   */
-  next_tvb = tvb_new_subset(tvb,offset,-1,-1);
-  if (dissector_try_port(osinl_subdissector_table, fr_nlpid, next_tvb,
-			 pinfo, tree) ||
-      dissector_try_port(fr_osinl_subdissector_table, fr_nlpid, next_tvb,
-			 pinfo, tree)) {
-	/*
-	 * Yes, we got a match.  Add the NLPID as a hidden item,
-	 * so you can, at least, filter on it.
-	 */
-	if (tree)
-		proto_tree_add_uint_hidden(fr_tree, hf_fr_nlpid,
-		    tvb, offset, 1, fr_nlpid );
-	return;
-  }
-
-  /*
-   * All other protocols don't.
    *
-   * XXX - not true for Q.933 and LMI, but we don't yet have a
-   * Q.933 dissector (it'd be similar to the Q.931 dissector,
-   * but I don't think it'd be identical, although it's less
-   * different than is the Q.2931 dissector), and the LMI
-   * dissector doesn't yet put the protocol discriminator
-   * (NLPID) into the tree.
+   * "OSI network layer protocols" includes Q.933.
    *
-   * Note that an NLPID of 0x08 for Q.933 could either be a
+   * XXX - note that an NLPID of 0x08 for Q.933 could either be a
    * Q.933 signaling message or a message for a protocol
    * identified by a 2-octet layer 2 protocol type and a
    * 2-octet layer 3 protocol type, those protocol type
@@ -498,9 +487,28 @@ static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
    * message and an encapsulated packet by checking whether
    * the upper 4 bits of the octet after the NLPID are zero.
    *
-   * To handle this, we'd handle Q.933's NLPID specially, which
-   * we'd want to do anyway, so that we give it a tvbuff that
-   * includes the NLPID.
+   * Either that, or it's Q.933 iff the DLCI is 0.
+   */
+  next_tvb = tvb_new_subset(tvb,offset,-1,-1);
+  if (dissector_try_port(osinl_subdissector_table, fr_nlpid, next_tvb,
+			 pinfo, tree) ||
+      dissector_try_port(fr_osinl_subdissector_table, fr_nlpid, next_tvb,
+			 pinfo, tree)) {
+	/*
+	 * Yes, we got a match.  Add the NLPID as a hidden item,
+	 * so you can, at least, filter on it.
+	 */
+	if (tree)
+		proto_tree_add_uint_hidden(fr_tree, hf_fr_nlpid,
+		    tvb, offset, 1, fr_nlpid );
+	return;
+  }
+
+  /*
+   * All other protocols don't.
+   *
+   * XXX - what about Cisco/Gang-of-Four LMI?  Is the 0x09 considered
+   * to be part of the LMI PDU?
    */
   if (tree)
 	proto_tree_add_uint(fr_tree, hf_fr_nlpid, tvb, offset, 1, fr_nlpid );
