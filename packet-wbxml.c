@@ -3,7 +3,7 @@
  * Routines for WAP Binary XML dissection
  * Copyright 2003, 2004, Olivier Biot.
  *
- * $Id: packet-wbxml.c,v 1.34 2004/04/17 10:45:58 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.35 2004/04/19 23:26:36 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -506,7 +506,6 @@ wv_csp11_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 		|| (strcmp(token, "MultiTrans") == 0)
 		|| (strcmp(token, "ParserSize") == 0)
 		|| (strcmp(token, "ServerPollMin") == 0)
-		|| (strcmp(token, "TCPAddress") == 0)
 		|| (strcmp(token, "TCPPort") == 0)
 		|| (strcmp(token, "UDPPort") == 0) )
 	{
@@ -567,7 +566,6 @@ wv_csp11_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 				case 0x0C: /* <MultiTrans> */
 				case 0x0D: /* <ParserSize> */
 				case 0x0E: /* <ServerPollMin> */
-				case 0x11: /* <TCPAddress> */
 				case 0x12: /* <TCPPort> */
 				case 0x13: /* <UDPPort> */
 					str = wv_integer_from_opaque(tvb,
@@ -615,7 +613,6 @@ wv_csp12_opaque_literal_tag(tvbuff_t *tvb, guint32 offset,
 		|| (strcmp(token, "MultiTrans") == 0)
 		|| (strcmp(token, "ParserSize") == 0)
 		|| (strcmp(token, "ServerPollMin") == 0)
-		|| (strcmp(token, "TCPAddress") == 0)
 		|| (strcmp(token, "TCPPort") == 0)
 		|| (strcmp(token, "UDPPort") == 0)
 		|| (strcmp(token, "HistoryPeriod") == 0)
@@ -678,7 +675,6 @@ wv_csp12_opaque_binary_tag(tvbuff_t *tvb, guint32 offset,
 				case 0x0C: /* <MultiTrans> */
 				case 0x0D: /* <ParserSize> */
 				case 0x0E: /* <ServerPollMin> */
-				case 0x11: /* <TCPAddress> */
 				case 0x12: /* <TCPPort> */
 				case 0x13: /* <UDPPort> */
 					str = wv_integer_from_opaque(tvb,
@@ -3946,8 +3942,8 @@ static const value_string wbxml_wv_csp_12_tags_cp2[] = {
 /* Note that the table continues in code page 0x08 */
 
 /* Client capability code page (0x03) */
-/* Same as cp3 of WV-CSP 1.0 */
-#define wbxml_wv_csp_12_tags_cp3 wbxml_wv_csp_10_tags_cp3
+/* Same as cp3 of WV-CSP 1.1 */
+#define wbxml_wv_csp_12_tags_cp3 wbxml_wv_csp_11_tags_cp3
 
 /* Presence primitive code page (0x04) */
 static const value_string wbxml_wv_csp_12_tags_cp4[] = {
