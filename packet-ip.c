@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.60 1999/11/02 05:38:51 guy Exp $
+ * $Id: packet-ip.c,v 1.61 1999/11/02 07:06:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -827,7 +827,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     proto_tree_add_item(ip_tree, hf_ip_version, offset, 1, hi_nibble(iph.ip_v_hl));
     proto_tree_add_item_format(ip_tree, hf_ip_hdr_len, offset, 1, hlen,
-	"Header length: %d bytes", hlen); 
+	"Header length: %u bytes", hlen);
     tf = proto_tree_add_item_format(ip_tree, hf_ip_tos, offset + 1, 1, iph.ip_tos,
 	"Type of service: 0x%02x (%s)", iph.ip_tos,
 	val_to_str( IPTOS_TOS(iph.ip_tos), iptos_vals, "Unknown") );
