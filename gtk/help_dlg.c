@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.7 2000/08/30 02:50:18 gram Exp $
+ * $Id: help_dlg.c,v 1.8 2000/09/05 19:07:06 deniel Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -286,7 +286,7 @@ static void set_help_text(GtkWidget *w, help_type_t type)
    * not have any horizontal scrollbar (line wrapping enabled).
    */
 
-  memset(blanks, ' ', B_LEN - 2);
+  memset(blanks, ' ', B_LEN - 1);
   blanks[B_LEN-1] = '\0';
 
   gtk_text_freeze(GTK_TEXT(w));
