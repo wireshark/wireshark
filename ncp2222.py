@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.49 2003/02/08 04:34:38 guy Exp $
+$Id: ncp2222.py,v 1.50 2003/02/08 05:05:17 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -6439,7 +6439,7 @@ proto_register_ncp2222(void)
 	{ "Connection Status", "ncp.connection_status", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
 	{ &hf_ncp_req_frame_num,
-	{ "Response to Request in Frame Number", "ncp.req_frame_num", FT_UINT32, BASE_DEC,
+	{ "Response to Request in Frame Number", "ncp.req_frame_num", FT_FRAMENUM, BASE_NONE,
 		NULL, 0x0, "", HFILL }},
 	
 	{ &hf_ncp_req_frame_time,
@@ -8699,7 +8699,7 @@ def define_ncp2222():
 #		rec( -1, 1, VolumeDataStreams, var="z" ),
 #		rec( -1, 1, IndexNumber, repeat="z" ),
 	])
-	pkt.CompletionCodes([0x0000])
+	pkt.CompletionCodes([0x0000, 0xff00])
 	# 2222/1630, 22/48
 	pkt = NCP(0x1630, "Get Name Space Directory Entry", 'file')
 	pkt.Request( 16, [
