@@ -489,6 +489,7 @@ Kent Engström <kent@unit.liu.se> {
 
 Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	NLM dissector enhancements
+	Mount dissector enhancements
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {

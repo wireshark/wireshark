@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.20 2001/01/28 03:39:48 guy Exp $
+ * $Id: packet-mount.c,v 1.21 2001/03/13 17:36:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,7 +41,8 @@
 
 static int proto_mount = -1;
 static int hf_mount_path = -1;
-static int hf_mount_status = -1;
+static int hf_mount1_status = -1;
+static int hf_mount3_status = -1;
 static int hf_mount_mountlist_hostname = -1;
 static int hf_mount_mountlist_directory = -1;
 static int hf_mount_mountlist = -1;
@@ -76,23 +77,24 @@ static gint ett_mount_groups = -1;
 static gint ett_mount_exportlist = -1;
 static gint ett_mount_pathconf_mask = -1;
 
+#define MAX_GROUP_NAME_LIST 128
+static char group_name_list[MAX_GROUP_NAME_LIST];
+static int  group_names_len;
 
 /* RFC 1094, Page 24 */
 static int
-dissect_fhstatus(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_fhstatus(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	guint32 status;
+	gint32 status;
 
-	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
-	status = EXTRACT_UINT(pd, offset+0);
+	status=tvb_get_ntohl(tvb,offset);
 	if (tree) {
-		proto_tree_add_uint(tree, hf_mount_status, NullTVB, offset, 4, status);
+		offset = dissect_rpc_uint32_tvb(tvb,pinfo,tree,hf_mount1_status,offset);
 	}
-	offset += 4;
 
 	switch (status) {
 		case 0:
-			offset = old_dissect_fhandle(pd,offset,fd,tree,"fhandle");
+			offset = dissect_fhandle(tvb,offset,pinfo,tree,"fhandle");
 		break;
 		default:
 			/* void */
@@ -104,12 +106,11 @@ dissect_fhstatus(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 
 static int
-dissect_mount_dirpath_call(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree)
+dissect_mount_dirpath_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	if ( tree )
 	{
-		offset = dissect_rpc_string(pd,offset,fd,tree,hf_mount_path,NULL);
+		offset = dissect_rpc_string_tvb(tvb,pinfo,tree,hf_mount_path,offset,NULL);
 	}
 	
 	return offset;
@@ -118,41 +119,43 @@ dissect_mount_dirpath_call(const u_char *pd, int offset, frame_data *fd,
 
 /* RFC 1094, Page 25,26 */
 static int
-dissect_mount_mnt_reply(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree)
+dissect_mount1_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_fhstatus(pd, offset, fd, tree);
+	offset = dissect_fhstatus(tvb,offset,pinfo,tree);
 
 	return offset;
 }
 
 
+
 /* RFC 1094, Page 26 */
 /* RFC 1813, Page 110 */
 static int
-dissect_mountlist(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_mountlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item* mountlist_item = NULL;
-	proto_tree* mountlist_tree = NULL;
+	proto_item* lock_item = NULL;
+	proto_tree* lock_tree = NULL;
 	int old_offset = offset;
 	char* hostname;
 	char* directory;
 
 	if (tree) {
-		mountlist_item = proto_tree_add_item(tree, hf_mount_mountlist, NullTVB,
-					offset+0, END_OF_FRAME, FALSE);
-		if (mountlist_item)
-			mountlist_tree = proto_item_add_subtree(mountlist_item, ett_mount_mountlist);
+		lock_item = proto_tree_add_item(tree, hf_mount_mountlist, tvb,
+					offset, tvb_length_remaining(tvb, offset), FALSE);
+		if (lock_item)
+			lock_tree = proto_item_add_subtree(lock_item, ett_mount_mountlist);
 	}
 
-	offset = dissect_rpc_string(pd, offset, fd, mountlist_tree, hf_mount_mountlist_hostname,&hostname);
-	offset = dissect_rpc_string(pd, offset, fd, mountlist_tree, hf_mount_mountlist_directory,&directory);
+	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree, 
+			hf_mount_mountlist_hostname, offset, &hostname);
+	offset = dissect_rpc_string_tvb(tvb, pinfo, lock_tree,
+			hf_mount_mountlist_directory, offset, &directory);
 
-	if (mountlist_item) {
+	if (lock_item) {
 		/* now we have a nicer string */
-		proto_item_set_text(mountlist_item, "Mount List Entry: %s:%s", hostname, directory);
+		proto_item_set_text(lock_item, "Mount List Entry: %s:%s", hostname, directory);
 		/* now we know, that mountlist is shorter */
-		proto_item_set_len(mountlist_item, offset - old_offset);
+		proto_item_set_len(lock_item, offset - old_offset);
 	}
 	g_free(hostname);
 	g_free(directory);
@@ -164,21 +167,36 @@ dissect_mountlist(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 /* RFC 1094, Page 26 */
 /* RFC 1813, Page 110 */
 static int
-dissect_mount_dump_reply(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree)
+dissect_mount_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_rpc_list(pd,offset,fd,tree,dissect_mountlist);
+	offset = dissect_rpc_list_tvb(tvb, pinfo, tree, offset, dissect_mountlist);
 
 	return offset;
 }
 
 
+
 /* RFC 1094, Page 26 */
 /* RFC 1813, Page 110 */
 static int
-dissect_group(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_group(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_rpc_string(pd, offset, fd, tree, hf_mount_groups_group,NULL);
+	int len,strlen;
+	len=tvb_get_ntohl(tvb,offset);
+	strlen=tvb_get_nstringz(tvb,offset+4,
+		MAX_GROUP_NAME_LIST-5-group_names_len,
+		group_name_list+group_names_len);
+	if((group_names_len>=(MAX_GROUP_NAME_LIST-5))||(strlen<0)){
+		strcpy(group_name_list+(MAX_GROUP_NAME_LIST-5),"...");
+		group_names_len=MAX_GROUP_NAME_LIST-1;
+	} else {
+		group_names_len+=strlen;
+		group_name_list[group_names_len++]=' ';
+	}
+	group_name_list[group_names_len]=0;
+
+	offset = dissect_rpc_string_tvb(tvb, pinfo, tree, 
+			hf_mount_groups_group, offset, NULL);
 
 	return offset;
 }
@@ -187,7 +205,7 @@ dissect_group(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 /* RFC 1094, Page 26 */
 /* RFC 1813, Page 113 */
 static int
-dissect_exportlist(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item* exportlist_item = NULL;
 	proto_tree* exportlist_tree = NULL;
@@ -197,22 +215,27 @@ dissect_exportlist(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 	proto_item* groups_tree = NULL;
 	char* directory;
 
+	group_name_list[0]=0;
+	group_names_len=0;
 	if (tree) {
-		exportlist_item = proto_tree_add_item(tree, hf_mount_exportlist, NullTVB,
-					offset+0, END_OF_FRAME, FALSE);
+		exportlist_item = proto_tree_add_item(tree, hf_mount_exportlist, tvb,
+					offset, tvb_length_remaining(tvb, offset), FALSE);
 		if (exportlist_item)
 			exportlist_tree = proto_item_add_subtree(exportlist_item, ett_mount_exportlist);
 	}
 
-	offset = dissect_rpc_string(pd, offset, fd, exportlist_tree, hf_mount_exportlist_directory,&directory);
+	offset = dissect_rpc_string_tvb(tvb, pinfo, exportlist_tree,
+			hf_mount_exportlist_directory, offset, &directory);
 	groups_offset = offset;
+
 	if (tree) {
-		groups_item = proto_tree_add_item(exportlist_tree, hf_mount_groups, NullTVB,
-				offset+0, END_OF_FRAME, FALSE);
+		groups_item = proto_tree_add_item(exportlist_tree, hf_mount_groups, tvb,
+					offset, tvb_length_remaining(tvb, offset), FALSE);
 		if (groups_item)
 			groups_tree = proto_item_add_subtree(groups_item, ett_mount_groups);
 	}
-	offset = dissect_rpc_list(pd,offset,fd,groups_tree,dissect_group);
+
+	offset = dissect_rpc_list_tvb(tvb, pinfo, groups_tree, offset, dissect_group);
 	if (groups_item) {
 		/* mark empty lists */
 		if (offset - groups_offset == 4) {
@@ -225,7 +248,7 @@ dissect_exportlist(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 
 	if (exportlist_item) {
 		/* now we have a nicer string */
-		proto_item_set_text(exportlist_item, "Export List Entry: %s", directory);
+		proto_item_set_text(exportlist_item, "Export List Entry: %s -> %s", directory,group_name_list);
 		/* now we know, that exportlist is shorter */
 		proto_item_set_len(exportlist_item, offset - old_offset);
 	}
@@ -238,10 +261,9 @@ dissect_exportlist(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 /* RFC 1094, Page 26 */
 /* RFC 1813, Page 113 */
 static int
-dissect_mount_export_reply(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree)
+dissect_mount_export_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset = dissect_rpc_list(pd,offset,fd,tree,dissect_exportlist);
+	offset = dissect_rpc_list_tvb(tvb, pinfo, tree, offset, dissect_exportlist);
 
 	return offset;
 }
@@ -310,177 +332,116 @@ static const true_false_string tos_error_vdisable = {
   "VDISABLE valid"
 };
 
-static int
-dissect_mount_pathconf_reply(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree)
-{
-	guint32 pc_mask;
-	proto_item *ti;
-	proto_tree *mask_tree;
 
+static int
+dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	int saved_offset;
+	guint32 pc_mask;
+	proto_item *lock_item;
+	proto_tree *lock_tree;
+
+	saved_offset=offset;
 	/*
 	 * Extract the mask first, so we know which other fields the
 	 * server was able to return to us.
 	 */
-	if (!BYTES_ARE_IN_FRAME(offset + OFFS_MASK, 4))
-		return offset;
-	pc_mask = EXTRACT_UINT(pd, offset+OFFS_MASK) & 0xFFFF;
-
-	if (!BYTES_ARE_IN_FRAME(offset + 0,4))
-		return offset;
+	pc_mask = tvb_get_ntohl(tvb, offset+OFFS_MASK) & 0xffff;
 	if (!(pc_mask & (PC_ERROR_LINK_MAX|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_uint(tree,
-			    hf_mount_pathconf_link_max, NullTVB, offset, 4,
-			    EXTRACT_UINT(pd, offset+0));
+			dissect_rpc_uint32_tvb(tvb,pinfo,tree,hf_mount_pathconf_link_max,offset);
 		}
 	}
 	offset += 4;
 
-	if (!BYTES_ARE_IN_FRAME(offset,4))
-		return offset;
 	if (!(pc_mask & (PC_ERROR_MAX_CANON|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_uint(tree,
-			    hf_mount_pathconf_max_canon, NullTVB, offset + 2, 2,
-			    (EXTRACT_UINT(pd, offset+0)) & 0xFFFF);
+			proto_tree_add_item(tree, 
+				hf_mount_pathconf_max_canon,tvb,offset+2,2,
+				tvb_get_ntohs(tvb,offset)&0xffff);
 		}
 	}
-	
 	offset += 4;
 
-	if (!BYTES_ARE_IN_FRAME(offset,4))
-		return offset;
 	if (!(pc_mask & (PC_ERROR_MAX_INPUT|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_uint(tree,
-			    hf_mount_pathconf_max_input, NullTVB, offset + 2, 2,
-			    (EXTRACT_UINT(pd, offset+0)) & 0xFFFF);
+			proto_tree_add_item(tree, 
+				hf_mount_pathconf_max_input,tvb,offset+2,2,
+				tvb_get_ntohs(tvb,offset)&0xffff);
 		}
 	}
 	offset += 4;
 
-	if (!BYTES_ARE_IN_FRAME(offset,4))
-		return offset;
 	if (!(pc_mask & (PC_ERROR_NAME_MAX|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_uint(tree,
-			    hf_mount_pathconf_name_max, NullTVB, offset + 2, 2,
-			    (EXTRACT_UINT(pd, offset+0)) & 0xFFFF);
+			proto_tree_add_item(tree, 
+				hf_mount_pathconf_name_max,tvb,offset+2,2,
+				tvb_get_ntohs(tvb,offset)&0xffff);
 		}
 	}
 	offset += 4;
 
-	if (!BYTES_ARE_IN_FRAME(offset,4))
-		return offset;
 	if (!(pc_mask & (PC_ERROR_PATH_MAX|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_uint(tree,
-			    hf_mount_pathconf_path_max, NullTVB, offset + 2, 2,
-			    (EXTRACT_UINT(pd, offset+0)) & 0xFFFF);
+			proto_tree_add_item(tree, 
+				hf_mount_pathconf_path_max,tvb,offset+2,2,
+				tvb_get_ntohs(tvb,offset)&0xffff);
 		}
 	}
 	offset += 4;
 
-	if (!BYTES_ARE_IN_FRAME(offset,4))
-		return offset;
 	if (!(pc_mask & (PC_ERROR_PIPE_BUF|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_uint(tree,
-			    hf_mount_pathconf_pipe_buf, NullTVB, offset + 2, 2,
-			    (EXTRACT_UINT(pd, offset+0)) & 0xFFFF);
+			proto_tree_add_item(tree, 
+				hf_mount_pathconf_pipe_buf,tvb,offset+2,2,
+				tvb_get_ntohs(tvb,offset)&0xffff);
 		}
 	}
 	offset += 4;
 
 	offset += 4;	/* skip "pc_xxx" pad field */
 
-	if (!BYTES_ARE_IN_FRAME(offset,4))
-		return offset;
 	if (!(pc_mask & (PC_ERROR_VDISABLE|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_uint(tree,
-			    hf_mount_pathconf_vdisable, NullTVB, offset + 3, 1,
-			    (EXTRACT_UINT(pd, offset+0)) & 0xFF);
+			proto_tree_add_item(tree, 
+				hf_mount_pathconf_vdisable,tvb,offset+3,1,
+				tvb_get_ntohs(tvb,offset)&0xffff);
 		}
 	}
 	offset += 4;
 
+
 	if (tree) {
-		ti = proto_tree_add_uint(tree, hf_mount_pathconf_mask, NullTVB,
+		lock_item = proto_tree_add_item(tree, hf_mount_pathconf_mask, tvb,
+					offset+2, 2, FALSE);
+
+		lock_tree = proto_item_add_subtree(lock_item, ett_mount_pathconf_mask);
+		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_all, tvb,
 		    offset + 2, 2, pc_mask);
-		mask_tree = proto_item_add_subtree(ti, ett_mount_pathconf_mask);
-		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_error_all, NullTVB,
+
+		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_link_max, tvb,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_error_link_max, NullTVB,
+		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_max_canon, tvb,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_error_max_canon, NullTVB,
+		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_max_input, tvb,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_error_max_input, NullTVB,
+		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_name_max, tvb,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_error_name_max, NullTVB,
+		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_path_max, tvb,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_error_path_max, NullTVB,
+		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_pipe_buf, tvb,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_error_pipe_buf, NullTVB,
+		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_chown_restricted, tvb,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_chown_restricted, NullTVB,
+		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_no_trunc, tvb,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_no_trunc, NullTVB,
-		    offset + 2, 2, pc_mask);
-		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_error_vdisable, NullTVB,
+		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_vdisable, tvb,
 		    offset + 2, 2, pc_mask);
 	}
-	offset += 4;
+
+	offset += 8;
 	return offset;
 }
-
-/* proc number, "proc name", dissect_request, dissect_reply */
-/* NULL as function pointer means: type of arguments is "void". */
-
-/* Mount protocol version 1, RFC 1094 */
-static const old_vsff mount1_proc[] = {
-    { 0, "NULL", NULL, NULL },
-    { MOUNTPROC_MNT,        "MNT",      
-		dissect_mount_dirpath_call, dissect_mount_mnt_reply },
-    { MOUNTPROC_DUMP,       "DUMP",
-		NULL, dissect_mount_dump_reply },
-    { MOUNTPROC_UMNT,      "UMNT",        
-		dissect_mount_dirpath_call, NULL },
-    { MOUNTPROC_UMNTALL,   "UMNTALL",
-		NULL, NULL },
-    { MOUNTPROC_EXPORT,    "EXPORT",
-		NULL, dissect_mount_export_reply },
-    { MOUNTPROC_EXPORTALL, "EXPORTALL",
-		NULL, dissect_mount_export_reply },
-    { 0, NULL, NULL, NULL }
-};
-/* end of mount version 1 */
-
-
-/* Mount protocol version 2, private communication from somebody at Sun;
-   mount V2 is V1 plus MOUNTPROC_PATHCONF to fetch information for the
-   POSIX "pathconf()" call. */
-static const old_vsff mount2_proc[] = {
-    { 0, "NULL", NULL, NULL },
-    { MOUNTPROC_MNT,        "MNT",      
-		dissect_mount_dirpath_call, dissect_mount_mnt_reply },
-    { MOUNTPROC_DUMP,       "DUMP",
-		NULL, dissect_mount_dump_reply },
-    { MOUNTPROC_UMNT,      "UMNT",        
-		dissect_mount_dirpath_call, NULL },
-    { MOUNTPROC_UMNTALL,   "UMNTALL",
-		NULL, NULL },
-    { MOUNTPROC_EXPORT,    "EXPORT",
-		NULL, dissect_mount_export_reply },
-    { MOUNTPROC_EXPORTALL, "EXPORTALL",
-		NULL, dissect_mount_export_reply },
-    { MOUNTPROC_PATHCONF,  "PATHCONF",
-		dissect_mount_dirpath_call, dissect_mount_pathconf_reply },
-    { 0, NULL, NULL, NULL }
-};
-/* end of mount version 2 */
-
 
 /* RFC 1813, Page 107 */
 static const value_string mount3_mountstat3[] = 
@@ -501,47 +462,42 @@ static const value_string mount3_mountstat3[] =
 
 /* RFC 1813, Page 107 */
 static int
-dissect_mountstat3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
-	int hfindex, guint32* status)
+dissect_mountstat3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int hfindex, guint32 *status)
 {
 	guint32 mountstat3;
 
-	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
-	mountstat3 = EXTRACT_UINT(pd, offset+0);
+	mountstat3 = tvb_get_ntohl(tvb, offset);
 
 	if (tree) {
-		proto_tree_add_uint(tree, hfindex, NullTVB, offset, 4, mountstat3);
+		offset = dissect_rpc_uint32_tvb(tvb,pinfo,tree,hfindex,offset);
 	}
 	
-	offset += 4;
 	*status = mountstat3;
 	return offset;
 }
 
-
 /* RFC 1831, Page 109 */
 static int
-dissect_mount3_mnt_reply(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree)
+dissect_mount3_mnt_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	guint32 status;
 	guint32 auth_flavors;
 	guint32 auth_flavor;
 	guint32 auth_flavor_i;
 	
-	offset = dissect_mountstat3(pd, offset, fd, tree, hf_mount_status, &status);
+	offset = dissect_mountstat3(tvb,pinfo,tree,offset,hf_mount3_status,&status);
+
 	switch (status) {
 		case 0:
-			offset = old_dissect_nfs_fh3(pd,offset,fd,tree,"fhandle");
-			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
-			auth_flavors = EXTRACT_UINT(pd,offset+0);
-			proto_tree_add_uint(tree,hf_mount_flavors, NullTVB,
+			offset = dissect_nfs_fh3(tvb,offset,pinfo,tree,"fhandle");
+
+			auth_flavors = tvb_get_ntohl(tvb, offset);
+			proto_tree_add_uint(tree,hf_mount_flavors, tvb,
 				offset, 4, auth_flavors);
 			offset += 4;
-			for (auth_flavor_i = 0 ; auth_flavor_i < hf_mount_flavors ; auth_flavor_i++) {
-				if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
-				auth_flavor = EXTRACT_UINT(pd,offset+0);
-				proto_tree_add_uint(tree,hf_mount_flavor, NullTVB,
+			for (auth_flavor_i = 0 ; auth_flavor_i < auth_flavors ; auth_flavor_i++) {
+				auth_flavor = tvb_get_ntohl(tvb, offset);
+				proto_tree_add_uint(tree,hf_mount_flavor, tvb,
 					offset, 4, auth_flavor);
 				offset += 4;
 			}
@@ -554,8 +510,56 @@ dissect_mount3_mnt_reply(const u_char *pd, int offset, frame_data *fd,
 	return offset;
 }
 
+
+/* proc number, "proc name", dissect_request, dissect_reply */
+/* NULL as function pointer means: type of arguments is "void". */
+
+/* Mount protocol version 1, RFC 1094 */
+static const vsff mount1_proc[] = {
+    { 0, "NULL", NULL, NULL },
+    { MOUNTPROC_MNT,        "MNT",      
+		dissect_mount_dirpath_call, dissect_mount1_mnt_reply },
+    { MOUNTPROC_DUMP,       "DUMP",
+		NULL, dissect_mount_dump_reply },
+    { MOUNTPROC_UMNT,      "UMNT",        
+		dissect_mount_dirpath_call, NULL },
+    { MOUNTPROC_UMNTALL,   "UMNTALL",
+		NULL, NULL },
+    { MOUNTPROC_EXPORT,    "EXPORT",
+		NULL, dissect_mount_export_reply },
+    { MOUNTPROC_EXPORTALL, "EXPORTALL",
+		NULL, dissect_mount_export_reply },
+    { 0, NULL, NULL, NULL }
+};
+/* end of mount version 1 */
+
+
+/* Mount protocol version 2, private communication from somebody at Sun;
+   mount V2 is V1 plus MOUNTPROC_PATHCONF to fetch information for the
+   POSIX "pathconf()" call. */
+static const vsff mount2_proc[] = {
+    { 0, "NULL", NULL, NULL },
+    { MOUNTPROC_MNT,        "MNT",      
+		dissect_mount_dirpath_call, dissect_mount1_mnt_reply },
+    { MOUNTPROC_DUMP,       "DUMP",
+		NULL, dissect_mount_dump_reply },
+    { MOUNTPROC_UMNT,      "UMNT",        
+		dissect_mount_dirpath_call, NULL },
+    { MOUNTPROC_UMNTALL,   "UMNTALL",
+		NULL, NULL },
+    { MOUNTPROC_EXPORT,    "EXPORT",
+		NULL, dissect_mount_export_reply },
+    { MOUNTPROC_EXPORTALL, "EXPORTALL",
+		NULL, dissect_mount_export_reply },
+    { MOUNTPROC_PATHCONF,  "PATHCONF",
+		dissect_mount_dirpath_call, dissect_mount_pathconf_reply },
+    { 0, NULL, NULL, NULL }
+};
+/* end of mount version 2 */
+
+
 /* Mount protocol version 3, RFC 1813 */
-static const old_vsff mount3_proc[] = {
+static const vsff mount3_proc[] = {
 	{ 0, "NULL", NULL, NULL },
 	{ MOUNTPROC_MNT, "MNT",
 		dissect_mount_dirpath_call, dissect_mount3_mnt_reply },
@@ -579,7 +583,10 @@ proto_register_mount(void)
 		{ &hf_mount_path, {
 			"Path", "mount.path", FT_STRING, BASE_DEC,
 			NULL, 0, "Path" }},
-		{ &hf_mount_status, {
+		{ &hf_mount1_status, {
+			"Status", "mount.status", FT_UINT32, BASE_DEC,
+			NULL, 0, "Status" }},
+		{ &hf_mount3_status, {
 			"Status", "mount.status", FT_UINT32, BASE_DEC,
 			VALS(mount3_mountstat3), 0, "Status" }},
 		{ &hf_mount_mountlist_hostname, {
@@ -701,7 +708,7 @@ proto_reg_handoff_mount(void)
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_mount, MOUNT_PROGRAM, ett_mount);
 	/* Register the procedure tables */
-	old_rpc_init_proc_table(MOUNT_PROGRAM, 1, mount1_proc);
-	old_rpc_init_proc_table(MOUNT_PROGRAM, 2, mount2_proc);
-	old_rpc_init_proc_table(MOUNT_PROGRAM, 3, mount3_proc);
+	rpc_init_proc_table(MOUNT_PROGRAM, 1, mount1_proc);
+	rpc_init_proc_table(MOUNT_PROGRAM, 2, mount2_proc);
+	rpc_init_proc_table(MOUNT_PROGRAM, 3, mount3_proc);
 }
