@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.111 1999/10/22 08:11:39 guy Exp $
+ * $Id: file.c,v 1.112 1999/10/22 08:30:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -638,6 +638,11 @@ col_set_addr(frame_data *fd, int col, address *addr, gboolean is_res)
   case AT_ATALK:
     memcpy(&ddp_addr, addr->data, sizeof ddp_addr);
     strncpy(fd->cinfo->col_data[col], atalk_addr_to_str(&ddp_addr),
+      COL_MAX_LEN);
+    break;
+
+  case AT_VINES:
+    strncpy(fd->cinfo->col_data[col], vines_addr_to_str(&addr->data[0]),
       COL_MAX_LEN);
     break;
 

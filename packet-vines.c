@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.7 1999/07/07 22:51:57 gram Exp $
+ * $Id: packet-vines.c,v 1.8 1999/10/22 08:30:03 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -97,6 +97,24 @@ dissect_vines_frp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   dissect_vines(pd, offset, fd, tree);
 }
 
+gchar *
+vines_addr_to_str(const guint8 *addrp)
+{
+  static gchar	str[3][22];
+  static gchar	*cur;
+
+  if (cur == &str[0][0]) {
+    cur = &str[1][0];
+  } else if (cur == &str[1][0]) {
+    cur = &str[2][0];
+  } else {
+    cur = &str[0][0];
+  }
+
+  sprintf(cur, "%08x.%04x", pntohl(&addrp[0]), pntohs(&addrp[4]));
+  return cur;
+}
+
 void
 dissect_vines(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 	{
@@ -114,8 +132,8 @@ dissect_vines(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   	viph.vip_chksum = pntohs(&pd[offset]);
   	viph.vip_pktlen = pntohs(&pd[offset+2]);
   	viph.vip_dnet = pntohl(&pd[offset+6]);
-  	viph.vip_snet = pntohl(&pd[offset+12]);
   	viph.vip_dsub = pntohs(&pd[offset+10]);
+  	viph.vip_snet = pntohl(&pd[offset+12]);
   	viph.vip_ssub = pntohs(&pd[offset+16]);
 
     	switch (viph.vip_proto) {
@@ -156,10 +174,10 @@ dissect_vines(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			col_add_fstr(fd, COL_INFO, "Unknown VIP protocol (%02x)", viph.vip_proto);
 	}
 
-			if (check_col(fd, COL_RES_NET_SRC))
-  	  	col_add_fstr(fd, COL_RES_NET_SRC, "%08x.%04x", viph.vip_snet, viph.vip_ssub);
-			if (check_col(fd, COL_RES_NET_DST))
-    		col_add_fstr(fd, COL_RES_NET_DST, "%08x.%04x", viph.vip_dnet, viph.vip_dsub);
+	SET_ADDRESS(&pi.net_src, AT_VINES, 6, &pd[offset+12]);
+	SET_ADDRESS(&pi.src, AT_VINES, 6, &pd[offset+12]);
+	SET_ADDRESS(&pi.net_dst, AT_VINES, 6, &pd[offset+6]);
+	SET_ADDRESS(&pi.dst, AT_VINES, 6, &pd[offset+6]);
 
  	/* helpers to decode flags */
 	/* FIXME: Not used yet */
