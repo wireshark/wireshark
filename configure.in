@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.217 2003/08/21 07:06:48 guy Exp $
+# $Id: configure.in,v 1.218 2003/08/29 04:20:22 sharpe Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -556,9 +556,9 @@ changequote([, ])dnl
 [netsnmpconfig=$withval]
 )
 
-AC_ARG_WITH(ucdsnmp,
+AC_ARG_WITH(ucd-snmp,
 changequote(<<, >>)dnl
-<<  --with-ucdsnmp[=DIR]    use UCD SNMP client library (located in directory DIR, if supplied).  [default=yes, if present]>>,
+<<  --with-ucd-snmp[=DIR]   use UCD SNMP client library (located in directory DIR, if supplied).  [default=yes, if present]>>,
 changequote([, ])dnl
 [
 	if test $withval = no
