@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.15 2000/07/09 03:29:42 guy Exp $
+ * $Id: prefs_dlg.c,v 1.16 2000/07/10 09:18:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -478,6 +478,8 @@ prefs_main_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 static void
 prefs_main_save_cb(GtkWidget *save_bt, gpointer parent_w)
 {
+  gboolean must_redissect = FALSE;
+
   int err;
   char *pf_path;
 
@@ -485,38 +487,61 @@ prefs_main_save_cb(GtkWidget *save_bt, gpointer parent_w)
   column_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
-  prefs_module_foreach(module_prefs_fetch, NULL);
+  prefs_module_foreach(module_prefs_fetch, &must_redissect);
+  prefs_apply_all();
+  prefs_module_foreach(module_prefs_clean, NULL);
   err = write_prefs(&pf_path);
   if (err != 0) {
      simple_dialog(ESD_TYPE_WARN, NULL,
       "Can't open preferences file\n\"%s\": %s.", pf_path,
       strerror(err));
   }
+
+  if (must_redissect) {
+    /* Redissect all the packets, and re-evaluate the display filter. */
+    redissect_packets(&cfile);
+  }
 }
 
 static void
 pref_revert(pref_t *pref, gpointer user_data)
 {
-  /* Fetch the value of the preference, and set the appropriate variable
-     to it. */
+  gboolean *pref_changed_p = user_data;
+
+  /* Revert the preference to its saved value. */
   switch (pref->type) {
 
   case PREF_UINT:
-    *pref->varp.uint = pref->saved_val.uint;
+    if (*pref->varp.uint != pref->saved_val.uint) {
+      *pref_changed_p = TRUE;
+      *pref->varp.uint = pref->saved_val.uint;
+    }
     break;
 
   case PREF_BOOL:
-    *pref->varp.bool = pref->saved_val.bool;
+    if (*pref->varp.bool != pref->saved_val.bool) {
+      *pref_changed_p = TRUE;
+      *pref->varp.bool = pref->saved_val.bool;
+    }
     break;
 
   case PREF_ENUM:
-    *pref->varp.enump = pref->saved_val.enumval;
+    if (*pref->varp.enump != pref->saved_val.enumval) {
+      *pref_changed_p = TRUE;
+      *pref->varp.enump = pref->saved_val.enumval;
+    }
     break;
 
   case PREF_STRING:
-    if (*pref->varp.string != NULL)
-      g_free(*pref->varp.string);
-    *pref->varp.string = g_strdup(pref->saved_val.string);
+    if (*pref->varp.string != pref->saved_val.string &&
+	(*pref->varp.string == NULL ||
+	 pref->saved_val.string == NULL ||
+	 strcmp(*pref->varp.string, pref->saved_val.string) != 0)) {
+      *pref_changed_p = TRUE;
+      if (*pref->varp.string != NULL)
+        g_free(*pref->varp.string);
+      *pref->varp.string = g_strdup(pref->saved_val.string);
+    }
     break;
   }
 }
@@ -524,20 +549,37 @@ pref_revert(pref_t *pref, gpointer user_data)
 static void
 module_prefs_revert(module_t *module, gpointer user_data)
 {
+  gboolean *must_redissect_p = user_data;
+
   /* For all preferences in this module, revert its value to the value
-     it had when we popped up the Preferences dialog. */
-  prefs_pref_foreach(module, pref_revert, NULL);
+     it had when we popped up the Preferences dialog.  Find out whether
+     this changes any of them. */
+  module->prefs_changed = FALSE;	/* assume none of them changed */
+  prefs_pref_foreach(module, pref_revert, &module->prefs_changed);
+
+  /* If any of them changed, indicate that we must redissect and refilter
+     the current capture (if we have one), as the preference change
+     could cause packets to be dissected differently. */
+  if (module->prefs_changed)
+    *must_redissect_p = TRUE;
 }
 
 static void
 prefs_main_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w)
 {
+  gboolean must_redissect = FALSE;
+
   printer_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
   column_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w), E_COLUMN_PAGE_KEY));
   stream_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w), E_STREAM_PAGE_KEY));
   gui_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w), E_GUI_PAGE_KEY));
-  prefs_module_foreach(module_prefs_revert, NULL);
+  prefs_module_foreach(module_prefs_revert, &must_redissect);
   gtk_widget_destroy(GTK_WIDGET(parent_w));
+
+  if (must_redissect) {
+    /* Redissect all the packets, and re-evaluate the display filter. */
+    redissect_packets(&cfile);
+  }
 }
 
 static gboolean
