@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-x25.c,v 1.12 1999/12/09 23:03:49 oabad Exp $
+ * $Id: packet-x25.c,v 1.13 1999/12/10 07:02:29 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -970,13 +970,11 @@ x25_ntoa(proto_tree *tree, int *offset, const guint8 *p,
     len2 = (*p >> 4) & 0x0F;
     if (tree) {
 	proto_tree_add_text(tree, *offset, 1,
-		"%s address length : %d",
-		toa ? "Called" : "Calling",
-		len1);
+		decode_numeric_bitfield(*p, 0xF0, 1*8,
+		    toa ? "Calling address length : %u" : "Called address length : %u"));
 	proto_tree_add_text(tree, *offset, 1,
-		"%s address length : %d",
-		toa ? "Calling" : "Called",
-		len2);
+		decode_numeric_bitfield(*p, 0x0F, 1*8,
+		    toa ? "Called address length : %u" : "Calling address length : %u"));
     }
     (*offset)++;
 
