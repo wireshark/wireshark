@@ -69,6 +69,11 @@
 #include "config.h"
 #endif
 
+#include <string.h>
+
+/*
+ * XXX - are the next two includes necessary?
+ */
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
