@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.18 2002/10/25 01:08:48 guy Exp $
+ * $Id: main.c,v 1.19 2002/10/25 03:13:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,17 +65,15 @@
 #endif
 
 #ifdef HAVE_SOME_SNMP
+
 #ifdef HAVE_NET_SNMP
 #include <net-snmp/version.h>
-#else /* HAVE_NET_SNMP */
-/*
- * XXX - we no longer support old versions of UCD SNMP; do all the
- * versions we support have, and install, this header?
- */
-#ifdef HAVE_UCD_SNMP_VERSION_H
-#include <ucd-snmp/version.h>
-#endif /* HAVE_UCD_SNMP_VERSION_H */
 #endif /* HAVE_NET_SNMP */
+
+#ifdef HAVE_UCD_SNMP
+#include <ucd-snmp/version.h>
+#endif /* HAVE_UCD_SNMP */
+
 #endif /* HAVE_SOME_SNMP */
 
 #ifdef NEED_STRERROR_H
@@ -1540,11 +1538,7 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_UCD_SNMP
     g_string_append(comp_info_str, ", with UCD-SNMP ");
-#ifdef HAVE_UCD_SNMP_VERSION_H
     g_string_append(comp_info_str, VersionInfo);
-#else /* HAVE_UCD_SNMP_VERSION_H */
-    g_string_append(comp_info_str, "(version unknown)");
-#endif /* HAVE_UCD_SNMP_VERSION_H */
 #endif /* HAVE_UCD_SNMP */
 
 #ifdef HAVE_NET_SNMP
