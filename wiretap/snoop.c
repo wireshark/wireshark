@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.50 2002/05/23 08:17:31 guy Exp $
+ * $Id: snoop.c,v 1.51 2002/05/26 21:32:39 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -427,8 +427,6 @@ static gboolean
 snoop_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, u_char *pd, int length, int *err)
 {
-	gboolean ret;
-
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET) == -1) {
 		*err = file_error(wth->random_fh);
 		return FALSE;
