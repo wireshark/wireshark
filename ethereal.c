@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.79 1999/08/10 07:12:51 guy Exp $
+ * $Id: ethereal.c,v 1.80 1999/08/10 07:37:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -391,8 +391,8 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
 
   file_sel = gtk_file_selection_new ("Ethereal: Open Capture File");
   
-  /* Connect the ok_button to file_ok_sel_cb function and pass along the
-     pointer to the filter entry */
+  /* Connect the ok_button to file_sel_ok_cb function and pass along a
+     pointer to the file selection box widget */
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (file_sel)->ok_button),
     "clicked", (GtkSignalFunc) file_sel_ok_cb, file_sel );
 
@@ -450,8 +450,8 @@ void
 file_save_cmd_cb(GtkWidget *w, gpointer data) {
   file_sel = gtk_file_selection_new ("Ethereal: Save Capture File");
   
-  /* Connect the ok_button to file_ok_sel_cb function and pass along the
-     pointer to the filter entry */
+  /* Connect the ok_button to file_save_ok_cb function and pass along a
+     pointer to the file selection box widget */
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (file_sel)->ok_button),
     "clicked", (GtkSignalFunc) file_save_ok_cb, file_sel );
 
@@ -469,8 +469,8 @@ void
 file_save_as_cmd_cb(GtkWidget *w, gpointer data) {
   file_sel = gtk_file_selection_new ("Ethereal: Save Capture File as");
 
-  /* Connect the ok_button to file_ok_sel_cb function and pass along the
-     pointer to the filter entry */
+  /* Connect the ok_button to file_save_as_ok_cb function and pass along a
+     pointer to the file selection box widget */
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (file_sel)->ok_button),
     "clicked", (GtkSignalFunc) file_save_as_ok_cb, file_sel );
 
