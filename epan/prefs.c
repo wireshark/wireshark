@@ -600,13 +600,10 @@ prefs_register_range_preference(module_t *module, const char *name,
 	 * have them be empty ranges) and freeable (as we free them
 	 * if we change them).
 	 *
-	 * If the value is a null pointer, make it an empty range,
-	 * otherwise make it a copy of the value.
+	 * If the value is a null pointer, make it an empty range.
 	 */
 	if (*var == NULL)
 		*var = range_empty();
-	else
-		*var = range_copy(*var);
 	preference->varp.range = var;
 	preference->saved_val.range = NULL;
 }
