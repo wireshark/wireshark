@@ -44,9 +44,11 @@
 
 #include <epan/packet.h>
 #include "prefs.h"
+#include "packet-bssap.h"
 
-static dissector_handle_t uma_tcp_handle=NULL;
-
+static dissector_handle_t uma_tcp_handle = NULL;
+static dissector_handle_t data_handle = NULL;
+static dissector_table_t bssap_pdu_type_table=NULL;
 
 /* Initialize the protocol and registered fields */
 static int proto_uma					= -1;
@@ -111,6 +113,7 @@ static int hf_uma_urr_TU3910_timer		= -1;
 static int hf_uma_urr_TU3902_timer		= -1;
 static int hf_uma_urr_communication_port = -1;
 static int hf_uma_urr_L3_Message		= -1;
+static int hf_uma_urr_L3_protocol_discriminator = -1;
 static int hf_uma_urr_channel_mode		= -1;
 static int hf_uma_urr_MSC2_rev			= -1;
 static int hf_uma_urr_ES_IND			= -1;
@@ -151,6 +154,8 @@ static int hf_uma_urr_LS				= -1;
 static int hf_uma_urr_cipher_res		= -1;
 static int hf_uma_urr_rand_val			= -1;
 static int hf_uma_urr_ciphering_command_mac = -1;
+static int hf_uma_urr_ciphering_key_seq_num = -1;
+static int hf_uma_urr_sapi_id			= -1;
 static int hf_uma_urr_establishment_cause = -1;
 static int hf_uma_urr_channel			= -1;
 static int hf_uma_urr_PDU_in_error		= -1;
@@ -460,6 +465,7 @@ static const value_string MSCR_vals[] = {
 	{ 1,		"MSC is Release '99 onwards"},
 	{ 0,	NULL }
 };
+
 /* SGSNR, SGSN Release (octet 6)*/
 static const value_string SGSNR_vals[] = {
 	{ 0,		"SGSN is Release '98 or older"},
@@ -583,6 +589,24 @@ static const value_string register_reject_cause_vals[] = {
 	{ 0,	NULL }
 };
 	
+/* L3 Protocol discriminator values according to TS 24 007 (640)  */
+static const value_string protocol_discriminator_vals[] = {
+	{0x0,		"group call control"},
+	{0x1,		"broadcast call control"},
+	{0x2,		"Reserved: was allocated in earlier phases of the protocol"},
+	{0x3,		"call control; call related SS messages"},
+	{0x4,		"GPRS Transparent Transport Protocol (GTTP)"},
+	{0x5,		"mobility management messages"},
+	{0x6,		"radio resources management messages"},
+	{0x8,		"GPRS mobility management messages"},
+	{0x9,		"SMS messages"},
+	{0xa,		"GPRS session management messages"},
+	{0xb,		"non call related SS messages"},
+	{0xc,		"Location services specified in 3GPP TS 44.071 [8a]"},
+	{0xe,		"reserved for extension of the PD to one octet length "},
+	{0xf,		"reserved for tests procedures described in 3GPP TS 44.014 [5a] and 3GPP TS 34.109 [17a]."},
+	{ 0,	NULL }
+};
 /* Channel Mode  */
 static const value_string channel_mode_vals[] = {
 { 0x00,		"signalling only"},
@@ -822,6 +846,12 @@ static const value_string CR_vals[] = {
 	{ 0,	NULL }
 };
 
+/* SAPI ID, SAPI Identifier (octet 3) */
+static const value_string sapi_id_vals[] = {
+	{ 0,		"SAPI 0 (all other except SMS)"},
+	{ 3,		"SAPI 3 (SMS)"},
+	{ 0,	NULL }
+};
 /*	Sample Size (octet 3)*/
 static const value_string sample_size_vals[] = {
 	{ 20,		"20 ms of CS payload included in each RTP/UDP packet"},
@@ -919,6 +949,7 @@ dissect_location_area_id(tvbuff_t *tvb, proto_tree *urr_ie_tree, int offset){
 static int
 dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
+	tvbuff_t	*l3_tvb;
 	int			ie_offset;
 	guint8		ie_value;
 	guint8		ie_len;
@@ -1210,7 +1241,11 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 
 	case 26:		/* L3 Message */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_protocol_discriminator, tvb, ie_offset, 1, FALSE);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_Message, tvb, ie_offset, ie_len, FALSE);
+		l3_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
+		if  (!dissector_try_port(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, urr_ie_tree))
+		   		call_dissector(data_handle, l3_tvb, pinfo, urr_ie_tree);
 		break;
 	case 27:		
 		/* Channel Mode 
@@ -1372,7 +1407,10 @@ dissect_urr_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ciphering_command_mac, tvb, ie_offset, ie_len, FALSE);
 		break;
 	case 48:		/* Ciphering Key Sequence Number */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ciphering_key_seq_num, tvb, ie_offset, 1, FALSE);
+		break;
 	case 49:		/* SAPI ID */
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_sapi_id, tvb, ie_offset, 1, FALSE);
 		break;
 	case 50:		/* Establishment Cause */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_establishment_cause, tvb, ie_offset, 1, FALSE);
@@ -1638,6 +1676,7 @@ proto_reg_handoff_uma(void)
 	/* set port for future deletes */
 	TcpPort1=gbl_umaTcpPort1;
 	dissector_add("tcp.port", gbl_umaTcpPort1, uma_tcp_handle);
+	data_handle = find_dissector("data");
 
 }
 
@@ -1960,6 +1999,11 @@ proto_register_uma(void)
 			FT_BYTES,BASE_HEX,  NULL, 0x0,          
 			"L3 message contents", HFILL }
 		},
+		{ &hf_uma_urr_L3_protocol_discriminator,
+			{ "Protocol discriminator","uma.urr.L3_protocol_discriminator",
+			FT_UINT8,BASE_DEC,  VALS(protocol_discriminator_vals), 0x0f,          
+			"Protocol discriminator", HFILL }
+		},
 		{ &hf_uma_urr_channel_mode,
 			{ "Channel Mode","uma.urr.MSC2_rev",
 			FT_UINT8,BASE_DEC,  VALS(channel_mode_vals), 0x0,          
@@ -2155,7 +2199,16 @@ proto_register_uma(void)
 			FT_BYTES,BASE_HEX,  NULL, 0x0,          
 			"Ciphering Command MAC (Message Authentication Code)", HFILL }
 		},
-
+		{ &hf_uma_urr_ciphering_key_seq_num,
+			{ "Values for the ciphering key","uma.ciphering_key_seq_num",
+			FT_UINT8,BASE_DEC,  NULL, 0x7,          
+			"Values for the ciphering key", HFILL }
+		},
+		{ &hf_uma_urr_sapi_id,
+			{ "SAPI ID","uma.sapi_id",
+			FT_UINT8,BASE_DEC,  VALS(sapi_id_vals), 0x7,          
+			"SAPI ID", HFILL }
+		},
 		{ &hf_uma_urr_establishment_cause,
 			{ "Establishment Cause","uma.urr.establishment_cause",
 			FT_UINT8,BASE_DEC,  VALS(establishment_cause_vals), 0x0,          
@@ -2267,6 +2320,7 @@ proto_register_uma(void)
 
 /* Register the protocol name and description */
 	proto_uma = proto_register_protocol("Unlicensed Mobile Access","UMA", "uma");
+	bssap_pdu_type_table = find_dissector_table("bssap.pdu_type");
 
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_uma, hf, array_length(hf));
