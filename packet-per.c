@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.4 2003/07/16 09:23:56 sahlberg Exp $
+ * $Id: packet-per.c,v 1.5 2003/07/16 21:05:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -269,7 +269,8 @@ dissect_per_restricted_character_string(tvbuff_t *tvb, guint32 offset, packet_in
 	guint32 length;
 	gboolean byte_aligned;
 	static char str[1024];
-	int char_pos, bits_per_char;
+	guint char_pos;
+	int bits_per_char;
 	guint32 old_offset;
 	
 DEBUG_ENTRY("dissect_per_restricted_character_string");
@@ -349,7 +350,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 
 	old_offset=offset;
 	for(char_pos=0;char_pos<length;char_pos++){
-		char val;
+		guchar val;
 		int i;
 		gboolean bit;
 
@@ -1026,7 +1027,7 @@ dissect_per_sequence(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tr
 	proto_item *item;
 	proto_tree *tree;
 	guint32 old_offset=offset;
-	int i, num_opts;
+	guint32 i, num_opts;
 	guint32 optional_mask;
 
 
@@ -1133,7 +1134,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 		num_extensions+=1;
 
 		extension_mask=0;
-		for(i=0;i<(int)num_extensions;i++){
+		for(i=0;i<num_extensions;i++){
 			offset=dissect_per_boolean(tvb, offset, pinfo, etr, hf_per_extension_present_bit, &extension_bit, &it);
 			extension_mask=(extension_mask<<1)|extension_bit;
 			if(it){
@@ -1158,7 +1159,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 			guint32 length;
 			guint32 new_offset;
 			guint32 extension_index;
-			int j,k;
+			guint32 j,k;
 
 			if(!((1L<<(num_extensions-1-i))&extension_mask)){
 				/* this extension is not encoded in this PDU */
