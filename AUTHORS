@@ -497,6 +497,7 @@ Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	YPSERV dissector enhancements
 	BOOTPARAM dissector enhancements
 	RWALL support
+	HCLNFSD dissector enhancements
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {
