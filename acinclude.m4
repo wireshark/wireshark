@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.25 2001/05/22 06:43:24 guy Exp $
+dnl $Id: acinclude.m4,v 1.26 2001/05/23 19:38:07 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -348,31 +348,37 @@ AC_DEFUN(AC_ETHEREAL_UCDSNMP_CHECK,
 #
 AC_DEFUN(AC_ETHEREAL_SSL_CHECK,
 [
-	want_ssl=yes
+	want_ssl=defaultyes
 
 	AC_ARG_WITH(ssl,
 	[  --with-ssl=DIR          use SSL crypto library, located in directory DIR.], [
-	if test $withval = no
-	then
+	if   test "x$withval" = "xno";  then
 		want_ssl=no
-	else
+	elif test "x$withval" = "xyes"; then
 		want_ssl=yes
-		ssl_user_dir=$withval
+	elif test -d "$withval"; then
+		want_ssl=yes
+		AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${withval}/lib)
 	fi
 	])
 
-	if test $want_ssl = yes
-	then
+	if test "x$want_ssl" = "xdefaultyes"; then
+		want_ssl=yes
+		withval=/usr/local/ssl
+		if test -d "$withval"; then
+			AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${withval}/lib)
+		fi
+	fi
 
+	if test "x$want_ssl" = "xyes"; then
 		AC_CHECK_LIB(crypto, EVP_md5,
 		  [
 		    SSL_LIBS=-lcrypto
-		    AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${ssl_user_dir}/lib)
 		  ],,
-		  -L${ssl_user_dir}/lib -lcrypto
 		)
 
 	else
+		  -lcrypto
 		AC_MSG_RESULT(not required)
 	fi
 
