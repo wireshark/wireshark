@@ -54,6 +54,7 @@ static int hf_version      = -1;
 static int hf_spare        = -1;
 static int hf_v2_type      = -1;
 static int hf_v8_type      = -1;
+static int hf_v12_type     = -1;
 static int hf_class        = -1;
 static int hf_length       = -1;
 static int hf_unused       = -1;
@@ -61,12 +62,15 @@ static int hf_bsn          = -1;
 static int hf_fsn          = -1;
 static int hf_v2_status    = -1;
 static int hf_v8_status    = -1;
+static int hf_v12_status   = -1;
 static int hf_v2_li_spare  = -1;
 static int hf_v8_li_spare  = -1;
 static int hf_v2_li_prio   = -1;
 static int hf_v8_li_prio   = -1;
 static int hf_filler       = -1;
 static int hf_unknown_data = -1;
+static int hf_pri_prio     = -1;
+static int hf_pri_spare    = -1;
 
 static gint ett_m2pa       = -1;
 static gint ett_m2pa_li    = -1;
@@ -75,17 +79,19 @@ static int mtp3_proto_id;
 static dissector_handle_t mtp3_handle;
 
 typedef enum {
-  M2PA_V2 = 1,
-  M2PA_V11 = 2
+  M2PA_V02 = 1,
+  M2PA_V08 = 2,
+  M2PA_V12 = 3
 } Version_Type;
 
-static Version_Type m2pa_version = M2PA_V11;
+static Version_Type m2pa_version = M2PA_V12;
 
 #define VERSION_LENGTH         1
 #define SPARE_LENGTH           1
 #define CLASS_LENGTH           1
 #define V2_TYPE_LENGTH         2
 #define V8_TYPE_LENGTH         1
+#define V12_TYPE_LENGTH        V8_TYPE_LENGTH
 #define LENGTH_LENGTH          4
 #define UNUSED_LENGTH          1
 #define BSN_LENGTH             3
@@ -98,6 +104,7 @@ static Version_Type m2pa_version = M2PA_V11;
                                 CLASS_LENGTH + V8_TYPE_LENGTH + LENGTH_LENGTH + \
                                 UNUSED_LENGTH + BSN_LENGTH + UNUSED_LENGTH + \
                                 FSN_LENGTH)
+#define V12_HEADER_LENGTH       V8_HEADER_LENGTH
 
 #define HEADER_OFFSET          0
 #define VERSION_OFFSET         HEADER_OFFSET
@@ -105,7 +112,9 @@ static Version_Type m2pa_version = M2PA_V11;
 #define CLASS_OFFSET           (SPARE_OFFSET + SPARE_LENGTH)
 #define V2_TYPE_OFFSET         (SPARE_OFFSET + SPARE_LENGTH)
 #define V8_TYPE_OFFSET         (CLASS_OFFSET + CLASS_LENGTH)
+#define V12_TYPE_OFFSET        V8_TYPE_OFFSET
 #define V8_LENGTH_OFFSET       (V8_TYPE_OFFSET + V8_TYPE_LENGTH)
+#define V12_LENGTH_OFFSET      V8_LENGTH_OFFSET
 #define V2_LENGTH_OFFSET       (V2_TYPE_OFFSET + V2_TYPE_LENGTH)
 #define FIRST_UNUSED_OFFSET    (V8_LENGTH_OFFSET + LENGTH_LENGTH)
 #define BSN_OFFSET             (FIRST_UNUSED_OFFSET + UNUSED_LENGTH)
@@ -134,6 +143,14 @@ static const value_string v2_message_type_values[] = {
 static const value_string v8_message_type_values[] = {
   { V8_USER_DATA_TYPE,   "User Data" },
   { V8_LINK_STATUS_TYPE, "Link Status" },
+  { 0,                   NULL } };
+
+#define V12_USER_DATA_TYPE   V8_USER_DATA_TYPE
+#define V12_LINK_STATUS_TYPE V8_LINK_STATUS_TYPE
+
+static const value_string v12_message_type_values[] = {
+  { V12_USER_DATA_TYPE,   "User Data" },
+  { V12_LINK_STATUS_TYPE, "Link Status" },
   { 0,                   NULL } };
 
 static void
@@ -177,6 +194,29 @@ dissect_v8_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tre
   }
 }
 
+static void
+dissect_v12_header(tvbuff_t *header_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
+{
+  guint8 message_type;
+  
+  message_type  = tvb_get_guint8(header_tvb, V8_TYPE_OFFSET);
+
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, v8_message_type_values, "Unknown"));
+
+  if (m2pa_tree) {
+    proto_tree_add_item(m2pa_tree, hf_version,  header_tvb, VERSION_OFFSET,       VERSION_LENGTH,  NETWORK_BYTE_ORDER);
+    proto_tree_add_item(m2pa_tree, hf_spare,    header_tvb, SPARE_OFFSET,         SPARE_LENGTH,    NETWORK_BYTE_ORDER);
+    proto_tree_add_item(m2pa_tree, hf_class,    header_tvb, CLASS_OFFSET,         CLASS_LENGTH,    NETWORK_BYTE_ORDER);
+    proto_tree_add_item(m2pa_tree, hf_v12_type, header_tvb, V12_TYPE_OFFSET,      V12_TYPE_LENGTH, NETWORK_BYTE_ORDER);
+    proto_tree_add_item(m2pa_tree, hf_length,   header_tvb, V12_LENGTH_OFFSET,    LENGTH_LENGTH,   NETWORK_BYTE_ORDER);
+    proto_tree_add_item(m2pa_tree, hf_unused,   header_tvb, FIRST_UNUSED_OFFSET,  UNUSED_LENGTH,   NETWORK_BYTE_ORDER);
+    proto_tree_add_item(m2pa_tree, hf_bsn,      header_tvb, BSN_OFFSET,           BSN_LENGTH,      NETWORK_BYTE_ORDER);
+    proto_tree_add_item(m2pa_tree, hf_unused,   header_tvb, SECOND_UNUSED_OFFSET, UNUSED_LENGTH,   NETWORK_BYTE_ORDER);
+    proto_tree_add_item(m2pa_tree, hf_fsn,      header_tvb, FSN_OFFSET,           FSN_LENGTH,      NETWORK_BYTE_ORDER);
+  }
+}
+
 #define LI_OFFSET           0
 #define LI_LENGTH           1
 #define MTP3_OFFSET         (LI_OFFSET + LI_LENGTH)
@@ -208,8 +248,8 @@ dissect_v2_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, pro
   call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
 }
 
-#define V8_LI_SPARE_MASK         0x3f
-#define V8_LI_PRIORITY_MASK      0xc0
+#define V8_LI_SPARE_MASK        0x3f
+#define V8_LI_PRIORITY_MASK     0xc0
 
 static void
 dissect_v8_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
@@ -227,6 +267,35 @@ dissect_v8_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, pro
 
         /* Re-adjust length of M2PA item since it will be dissected as MTP3 */
       proto_item_set_len(m2pa_item, V8_HEADER_LENGTH + LI_LENGTH);
+    }
+
+    payload_tvb = tvb_new_subset(message_data_tvb, MTP3_OFFSET, -1, -1);
+    call_dissector(mtp3_handle, payload_tvb, pinfo, tree);
+  }
+}
+
+#define PRIORITY_MASK     0xc0
+#define SPARE_MASK        0x3f
+
+#define PRI_OFFSET           0
+#define PRI_LENGTH           1
+
+static void
+dissect_v12_user_data_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
+{
+  proto_item *m2pa_li_item;
+  proto_tree *m2pa_li_tree;
+  tvbuff_t *payload_tvb;
+
+  if (tvb_length(message_data_tvb) > 0) {
+    if (m2pa_tree) {
+      m2pa_li_item = proto_tree_add_text(m2pa_tree, message_data_tvb, PRI_OFFSET, PRI_LENGTH, "Priority");
+      m2pa_li_tree = proto_item_add_subtree(m2pa_li_item, ett_m2pa_li);
+      proto_tree_add_item(m2pa_li_tree, hf_pri_prio,  message_data_tvb, PRI_OFFSET, PRI_LENGTH, NETWORK_BYTE_ORDER);
+      proto_tree_add_item(m2pa_li_tree, hf_pri_spare, message_data_tvb, PRI_OFFSET, PRI_LENGTH, NETWORK_BYTE_ORDER);
+
+        /* Re-adjust length of M2PA item since it will be dissected as MTP3 */
+      proto_item_set_len(m2pa_item, V12_HEADER_LENGTH + PRI_LENGTH);
     }
 
     payload_tvb = tvb_new_subset(message_data_tvb, MTP3_OFFSET, -1, -1);
@@ -278,6 +347,33 @@ dissect_v8_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, p
   filler_length = tvb_length(message_data_tvb) - STATUS_LENGTH;
   
   proto_tree_add_item(m2pa_tree, hf_v8_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, NETWORK_BYTE_ORDER);
+  if (filler_length > 0)
+      proto_tree_add_item(m2pa_tree, hf_filler, message_data_tvb, FILLER_OFFSET, filler_length, NETWORK_BYTE_ORDER);
+}
+
+static const value_string v12_link_status_values[] = {
+  { 1, "Alignment" },
+  { 2, "Proving Normal" },
+  { 3, "Proving Emergency" },
+  { 4, "Ready" },
+  { 5, "Processor Outage" },
+  { 6, "Processor Outage Ended" },
+  { 7, "Busy" },
+  { 8, "Busy Ended" },
+  { 9, "Out of Service" },
+  { 0, NULL } };
+
+static void
+dissect_v12_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, proto_tree *m2pa_tree)
+{
+  guint16 filler_length;
+  
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str(tvb_get_ntohl(message_data_tvb, STATUS_OFFSET), v12_link_status_values, "Unknown"));
+
+  filler_length = tvb_length(message_data_tvb) - STATUS_LENGTH;
+  
+  proto_tree_add_item(m2pa_tree, hf_v12_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, NETWORK_BYTE_ORDER);
   if (filler_length > 0)
       proto_tree_add_item(m2pa_tree, hf_filler, message_data_tvb, FILLER_OFFSET, filler_length, NETWORK_BYTE_ORDER);
 }
@@ -343,6 +439,32 @@ dissect_v8_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m
   }
 }
 
+#define V12_MESSAGE_DATA_OFFSET (HEADER_OFFSET + V12_HEADER_LENGTH)
+
+static void
+dissect_v12_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
+{
+  guint32 message_data_length;
+  guint8 type;
+  tvbuff_t *message_data_tvb;
+
+  message_data_length = tvb_get_ntohl(message_tvb, V12_LENGTH_OFFSET) - V8_HEADER_LENGTH;
+  message_data_tvb    = tvb_new_subset(message_tvb, V12_MESSAGE_DATA_OFFSET, message_data_length, message_data_length);
+  type                = tvb_get_guint8(message_tvb, V12_TYPE_OFFSET);
+
+
+  switch(type) {
+  case V12_USER_DATA_TYPE:
+    dissect_v12_user_data_message(message_data_tvb, pinfo, m2pa_item, m2pa_tree, tree);
+    break;
+  case V12_LINK_STATUS_TYPE:
+    dissect_v12_link_status_message(message_data_tvb, pinfo, m2pa_tree);
+    break;
+  default:
+    dissect_unknown_message(message_data_tvb, m2pa_tree);
+  }
+}
+
 static void
 dissect_v2_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
 {
@@ -358,6 +480,13 @@ dissect_v8_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa_i
 }
 
 static void
+dissect_v12_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa_item, proto_tree *m2pa_tree, proto_tree *tree)
+{
+  dissect_v12_header(message_tvb, pinfo, m2pa_tree);
+  dissect_v12_message_data(message_tvb, pinfo, m2pa_item, m2pa_tree, tree);
+}
+
+static void
 dissect_m2pa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *m2pa_item;
@@ -365,11 +494,14 @@ dissect_m2pa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     switch(m2pa_version) {
-    case M2PA_V2:
+    case M2PA_V02:
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA (ID 02)");
       break;
-    case M2PA_V11:
-      col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA (ID 11)");
+    case M2PA_V08:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA (ID 08)");
+      break;
+    case M2PA_V12:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA (ID 12)");
       break;
     };      
 
@@ -382,11 +514,14 @@ dissect_m2pa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   switch(m2pa_version) {
-    case M2PA_V2:
+    case M2PA_V02:
       dissect_v2_message(tvb, pinfo, m2pa_item, m2pa_tree, tree);
       break;
-    case M2PA_V11:
+    case M2PA_V08:
       dissect_v8_message(tvb, pinfo, m2pa_item, m2pa_tree, tree);
+      break;
+    case M2PA_V12:
+      dissect_v12_message(tvb, pinfo, m2pa_item, m2pa_tree, tree);
       break;
   };      
 }
@@ -395,23 +530,27 @@ void
 proto_register_m2pa(void)
 {
   static hf_register_info hf[] = 
-  { { &hf_version,      { "Version",        "m2pa.version",      FT_UINT8,  BASE_DEC,  VALS(protocol_version_values), 0x0,                 "", HFILL} },
-    { &hf_spare,        { "Spare",          "m2pa.spare",        FT_UINT8,  BASE_HEX,  NULL,                          0x0,                 "", HFILL} },
-    { &hf_v2_type,      { "Message Type",   "m2pa.type",         FT_UINT16, BASE_HEX,  VALS(v2_message_type_values),  0x0,                 "", HFILL} },
-    { &hf_v8_type,      { "Message Type",   "m2pa.type",         FT_UINT8,  BASE_DEC,  VALS(v8_message_type_values),  0x0,                 "", HFILL} },
-    { &hf_class,        { "Message Class",  "m2pa.class",        FT_UINT8,  BASE_DEC,  VALS(message_class_values),    0x0,                 "", HFILL} },
-    { &hf_length,       { "Message length", "m2pa.length",       FT_UINT32, BASE_DEC,  NULL,                          0x0,                 "", HFILL} },
-    { &hf_unused,       { "Unused",         "m2pa.unused",       FT_UINT8,  BASE_DEC,  NULL,                          0x0,                 "", HFILL} },
-    { &hf_bsn,          { "BSN",            "m2pa.bsn",          FT_UINT24, BASE_DEC,  NULL,                          0x0,                 "", HFILL} },
-    { &hf_fsn,          { "FSN",            "m2pa.fsn",          FT_UINT24, BASE_DEC,  NULL,                          0x0,                 "", HFILL} },
-    { &hf_v2_li_spare,  { "Spare",          "m2pa.li_spare",     FT_UINT8,  BASE_DEC,  NULL,                          V2_LI_SPARE_MASK,    "", HFILL} },
-    { &hf_v8_li_spare,  { "Spare",          "m2pa.li_spare",     FT_UINT8,  BASE_HEX,  NULL,                          V8_LI_SPARE_MASK,    "", HFILL} },
-    { &hf_v2_li_prio,   { "Priority",       "m2pa.li_priority",  FT_UINT8,  BASE_DEC,  NULL,                          V2_LI_PRIORITY_MASK, "", HFILL} },
-    { &hf_v8_li_prio,   { "Priority",       "m2pa.li_priority",  FT_UINT8,  BASE_HEX,  NULL,                          V8_LI_PRIORITY_MASK, "", HFILL} },
-    { &hf_v2_status,    { "Link Status",    "m2pa.status",       FT_UINT32, BASE_DEC,  VALS(v2_link_status_values),   0x0,                 "", HFILL} },
-    { &hf_v8_status,    { "Link Status",    "m2pa.status",       FT_UINT32, BASE_DEC,  VALS(v8_link_status_values),   0x0,                 "", HFILL} },
-    { &hf_filler,       { "Filler",         "m2pa.filler",       FT_BYTES,  BASE_NONE, NULL,                          0x0,                 "", HFILL} },
-    { &hf_unknown_data, { "Unknown Data",   "m2pa.unknown_data", FT_BYTES,  BASE_NONE, NULL,                          0x0,                 "", HFILL} }
+  { { &hf_version,      { "Version",        "m2pa.version",        FT_UINT8,  BASE_DEC,  VALS(protocol_version_values), 0x0,                 "", HFILL} },
+    { &hf_spare,        { "Spare",          "m2pa.spare",          FT_UINT8,  BASE_HEX,  NULL,                          0x0,                 "", HFILL} },
+    { &hf_v2_type,      { "Message Type",   "m2pa.type",           FT_UINT16, BASE_HEX,  VALS(v2_message_type_values),  0x0,                 "", HFILL} },
+    { &hf_v8_type,      { "Message Type",   "m2pa.type",           FT_UINT8,  BASE_DEC,  VALS(v8_message_type_values),  0x0,                 "", HFILL} },
+    { &hf_v12_type,     { "Message Type",   "m2pa.type",           FT_UINT8,  BASE_DEC,  VALS(v12_message_type_values), 0x0,                 "", HFILL} },
+    { &hf_class,        { "Message Class",  "m2pa.class",          FT_UINT8,  BASE_DEC,  VALS(message_class_values),    0x0,                 "", HFILL} },
+    { &hf_length,       { "Message length", "m2pa.length",         FT_UINT32, BASE_DEC,  NULL,                          0x0,                 "", HFILL} },
+    { &hf_unused,       { "Unused",         "m2pa.unused",         FT_UINT8,  BASE_DEC,  NULL,                          0x0,                 "", HFILL} },
+    { &hf_bsn,          { "BSN",            "m2pa.bsn",            FT_UINT24, BASE_DEC,  NULL,                          0x0,                 "", HFILL} },
+    { &hf_fsn,          { "FSN",            "m2pa.fsn",            FT_UINT24, BASE_DEC,  NULL,                          0x0,                 "", HFILL} },
+    { &hf_v2_li_spare,  { "Spare",          "m2pa.li_spare",       FT_UINT8,  BASE_DEC,  NULL,                          V2_LI_SPARE_MASK,    "", HFILL} },
+    { &hf_v8_li_spare,  { "Spare",          "m2pa.li_spare",       FT_UINT8,  BASE_HEX,  NULL,                          V8_LI_SPARE_MASK,    "", HFILL} },
+    { &hf_pri_spare,    { "Spare",          "m2pa.priority_spare", FT_UINT8,  BASE_HEX,  NULL,                          SPARE_MASK,          "", HFILL} },
+    { &hf_v2_li_prio,   { "Priority",       "m2pa.li_priority",    FT_UINT8,  BASE_DEC,  NULL,                          V2_LI_PRIORITY_MASK, "", HFILL} },
+    { &hf_v8_li_prio,   { "Priority",       "m2pa.li_priority",    FT_UINT8,  BASE_HEX,  NULL,                          V8_LI_PRIORITY_MASK, "", HFILL} },
+    { &hf_pri_prio,     { "Priority",       "m2pa.priority",       FT_UINT8,  BASE_HEX,  NULL,                          PRIORITY_MASK,       "", HFILL} },
+    { &hf_v2_status,    { "Link Status",    "m2pa.status",         FT_UINT32, BASE_DEC,  VALS(v2_link_status_values),   0x0,                 "", HFILL} },
+    { &hf_v8_status,    { "Link Status",    "m2pa.status",         FT_UINT32, BASE_DEC,  VALS(v8_link_status_values),   0x0,                 "", HFILL} },
+    { &hf_v12_status,   { "Link Status",    "m2pa.status",         FT_UINT32, BASE_DEC,  VALS(v12_link_status_values),  0x0,                 "", HFILL} },
+    { &hf_filler,       { "Filler",         "m2pa.filler",         FT_BYTES,  BASE_NONE, NULL,                          0x0,                 "", HFILL} },
+    { &hf_unknown_data, { "Unknown Data",   "m2pa.unknown_data",   FT_BYTES,  BASE_NONE, NULL,                          0x0,                 "", HFILL} }
   };
 
   static gint *ett[] = {
@@ -420,8 +559,9 @@ proto_register_m2pa(void)
   };
 
   static enum_val_t m2pa_version_options[] = {
-    { "draft-2", "Internet Draft version 2", M2PA_V2 },
-    { "draft-11", "Internet Draft version 11", M2PA_V11 },
+    { "draft-2",  "Internet Draft version 2",  M2PA_V02 },
+    { "draft-8",  "Internet Draft version 8",  M2PA_V08 },
+    { "draft-12", "Internet Draft version 12", M2PA_V12 },
     { NULL, NULL, 0 }
   };
 
