@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.47 2002/12/02 23:43:27 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.48 2003/01/06 02:13:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6446,7 +6446,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                                 foffset += align_4(tvb, foffset);
                                 pvalues[8].vvalue = tvb_get_letohl(tvb, foffset);
                                 pvalues[8].vtype = VTYPE_MULTIVALUE_UINT32;
-                                pvalues[8].vdesc = "Seconds %u";
+                                pvalues[8].vdesc = "Seconds: %u";
                                 pvalues[8].vlength = 4;
                                 pvalues[8].mvtype = MVTYPE_PRINT_TIMESTAMP;
                                 pvalues[8].hfname= hf_nds_time_filter;
