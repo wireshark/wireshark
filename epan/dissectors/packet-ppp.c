@@ -3528,9 +3528,8 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   proto_tree *value_tree;
 
   guint8 code, id, value_size;
-  gint32 length;
+  guint16 length;
   int offset;
-  int name_length;
 
   code = tvb_get_guint8(tvb, 0);
   id = tvb_get_guint8(tvb, 1);
@@ -3550,6 +3549,15 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
       val_to_str(code, chap_vals, "Unknown"), code);
     proto_tree_add_text(fh_tree, tvb, 1, 1, "Identifier: 0x%02x",
 			id);
+  }
+  if(length < 4) {
+    if(tree) {
+      proto_tree_add_text(fh_tree, tvb, 2, 2, "Length: %u (invalid, must be >= 4)",
+			  length);
+      return;
+    }
+  }
+  if(tree) {
     proto_tree_add_text(fh_tree, tvb, 2, 2, "Length: %u",
 			length);
   }
@@ -3566,23 +3574,29 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
 				   plurality(length, "", "s"));
           field_tree = proto_item_add_subtree(tf, ett_chap_data);
 	  value_size = tvb_get_guint8(tvb, offset);
-	  name_length = length - value_size - 1;
+	  length--;
+	  if (value_size > length) {
+	    proto_tree_add_text(field_tree, tvb, offset, 1,
+				"Value Size: %d byte%s (invalid, must be <= %u)",
+				value_size, plurality(value_size, "", "s"),
+				length);
+	    return;
+	  }
 	  tv = proto_tree_add_text(field_tree, tvb, offset, 1,
-				   "Value Size: %d byte%s",
-				   value_size, plurality(value_size, "", "s"));
-	  if (--length > 0) {
+				  "Value Size: %u byte%s",
+				  value_size, plurality(value_size, "", "s"));
+	  offset++;
+	  if (length > 0) {
 	    value_tree = proto_item_add_subtree(tv, ett_chap_value);
-	    proto_tree_add_text(value_tree, tvb, ++offset,
-				ppp_min(value_size, length),
-				"Value (%d byte%s)",
+	    proto_tree_add_text(value_tree, tvb, offset, value_size,
+				"Value (%u byte%s)",
 				value_size, plurality(value_size, "", "s"));
 	    offset+=value_size;
 	    length-=value_size;
 	    if (length > 0) {
-	      proto_tree_add_text(field_tree, tvb, offset,
-				  ppp_min(name_length, length),
-				  "Name (%d byte%s)", name_length,
-				  plurality(name_length, "", "s"));
+	      proto_tree_add_text(field_tree, tvb, offset, length,
+				  "Name (%u byte%s)", length,
+				  plurality(length, "", "s"));
 	    }
 	  }
         }
@@ -3594,18 +3608,18 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
       if(tree) {
         if (length > 0) {
           tf = proto_tree_add_text(fh_tree, tvb, offset, length,
-				   "Data (%d byte%s)", length,
+				   "Data (%u byte%s)", length,
 				   plurality(length, "", "s"));
           field_tree = proto_item_add_subtree(tf, ett_chap_data);
 	  tv = proto_tree_add_text(field_tree, tvb, offset, length,
-				   "Message: %d byte%s",
+				   "Message: %u byte%s",
 				   length, plurality(length, "", "s"));
 	}
       }
       break;
     default:
       if (length > 0)
-        proto_tree_add_text(fh_tree, tvb, offset, length, "Stuff (%d byte%s)",
+        proto_tree_add_text(fh_tree, tvb, offset, length, "Stuff (%u byte%s)",
 				length, plurality(length, "", "s"));
       break;
   }
