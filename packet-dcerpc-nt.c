@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.55 2003/01/24 05:32:53 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.56 2003/01/28 06:27:00 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -138,30 +138,11 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 	if (tree) {
 		text = fake_unicode(tvb, offset, len);
 		proto_tree_add_string (tree, di->hf_index, tvb, offset, len * 2, text);
-	} else
-		text = NULL;
+		g_free(text);
+	}
 
 	offset += len * 2;
 
-	/* need to test di->levels before doing the proto_item_append_text()
-	   since netlogon has these objects as top level objects in its representation
-	   and trying to append to the tree object in that case will dump core */
-	if(tree && (di->levels>-1)){
-		proto_item_append_text(tree, ": %s", text);
-		di->levels--;
-		if(di->levels>-1){
-			tree=tree->parent;
-			proto_item_append_text(tree, ": %s", text);
-			di->levels--;
-			while(di->levels>-1){
-				tree=tree->parent;
-				proto_item_append_text(tree, " %s", text);
-				di->levels--;
-			}
-		}
-	}
-	if (text != NULL)
-		g_free(text);
   	return offset;
 }
 
@@ -178,9 +159,11 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
   append the string.  If unsure, specify levels as 0.
 */
 int
-dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep, int hf_index, int levels)
+dissect_ndr_nt_UNICODE_STRING_cb(tvbuff_t *tvb, int offset,
+				 packet_info *pinfo, proto_tree *parent_tree,
+				 char *drep, int hf_index, 
+				 dcerpc_callback_fnct_t *callback,
+				 void *callback_args)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -207,16 +190,24 @@ dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
 			hf_nt_string_length, NULL);
 	offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
 			hf_nt_string_size, NULL);
-	di->levels=1;	/* XXX - is this necessary? */
-	/* Add 1 level, for the extra level we added */
-	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
-			name, hf_index, levels + 1);
+			name, hf_index, callback, callback_args);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 /* UNICODE_STRING  END */
+
+int
+dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
+			      packet_info *pinfo, proto_tree *parent_tree,
+			      char *drep, int hf_index)
+{
+	return dissect_ndr_nt_UNICODE_STRING_cb(
+		tvb, offset, pinfo, parent_tree, drep, hf_index,
+		cb_str_postprocess, GINT_TO_POINTER(CB_STR_ITEM));
+}
 
 /* functions to dissect a STRING structure, common to many
    NT services
@@ -227,9 +218,9 @@ dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
    } STRING;
 */
 int
-dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset,
-                             packet_info *pinfo, proto_tree *tree,
-                             char *drep)
+dissect_ndr_nt_STRING_string(tvbuff_t *tvb, int offset,
+			     packet_info *pinfo, proto_tree *tree,
+			     char *drep)
 {
 	guint32 len, off, max_len;
 	const guint8 *text;
@@ -265,25 +256,15 @@ dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset,
 	proto_tree_add_item(tree, di->hf_index, tvb, offset, len, FALSE);
 	offset += len;
 
-	if(tree && text && (di->levels>-1)){
-		proto_item_append_text(tree, ": %s", text);
-		if(di->levels>-1){
-			tree=tree->parent;
-			proto_item_append_text(tree, ": %s", text);
-			while(di->levels>0){
-				tree=tree->parent;
-				proto_item_append_text(tree, " %s", text);
-				di->levels--;
-			}
-		}
-	}
   	return offset;
 }
 
 int
-dissect_ndr_nt_STRING (tvbuff_t *tvb, int offset,
-                             packet_info *pinfo, proto_tree *parent_tree,
-                             char *drep, int hf_index, int levels)
+dissect_ndr_nt_STRING_cb(tvbuff_t *tvb, int offset,
+			 packet_info *pinfo, proto_tree *parent_tree,
+			 char *drep, int hf_index, 
+			 dcerpc_callback_fnct_t *callback, 
+			 void *callback_args)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -310,14 +291,23 @@ dissect_ndr_nt_STRING (tvbuff_t *tvb, int offset,
                                      hf_nt_string_length, NULL);
         offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
                                      hf_nt_string_size, NULL);
-        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+        offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_STRING_string, NDR_POINTER_UNIQUE,
-			name, hf_index, levels);
+			name, hf_index, callback, callback_args);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
 }
 
+int
+dissect_ndr_nt_STRING(tvbuff_t *tvb, int offset,
+		      packet_info *pinfo, proto_tree *parent_tree,
+		      char *drep, int hf_index)
+{
+	return dissect_ndr_nt_STRING_cb(
+		tvb, offset, pinfo, parent_tree, drep, hf_index,
+		cb_str_postprocess, GINT_TO_POINTER(CB_STR_ITEM));
+}
 
 /* This function is used to dissect a DCERPC encoded 64 bit time value.
    XXX it should be fixed both here and in dissect_smb_64bit_time so
@@ -982,6 +972,64 @@ dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     return dissect_dcerpc_uint16s(tvb, offset, pinfo,
                                  tree, drep, hfindex, length);
+}
+
+/*
+ * Helper routines for dissecting NDR strings
+ */
+
+void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
+			proto_item *item, tvbuff_t *tvb, 
+			int start_offset, int end_offset,
+			void *callback_args)
+{
+	gint options = GPOINTER_TO_INT(callback_args);
+	char *s;
+
+	/* Get string value */
+
+	if ((end_offset - start_offset) <= 12)
+		return;		/* XXX: Use unistr2 dissector instead? */
+
+	s = fake_unicode(
+		tvb, start_offset + 12, (end_offset - start_offset - 12) / 2);
+
+	/* Append string to COL_INFO */
+
+	if (options & CB_STR_COL_INFO) {
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
+	}
+
+	/* Append string to top level pointer proto_item */
+
+	if (options & CB_STR_ITEM)
+		proto_item_append_text(item, ": %s", s);
+
+	/* Save string to dcv->private_data */
+
+	if (options & CB_STR_SAVE) {
+		dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+		dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+		
+		dcv->private_data = g_strdup(s);
+	}
+
+	g_free(s);
+}
+
+/* Dissect a pointer to a NDR string and append the string value to the
+   proto_item. */
+
+int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset, 
+				 packet_info *pinfo, proto_tree *tree, 
+				 char *drep, int type, char *text, 
+				 int hf_index)
+{
+	return dissect_ndr_pointer_cb(
+		tvb, offset, pinfo, tree, drep, 
+		dissect_ndr_nt_UNICODE_STRING_str, type, text, hf_index, 
+		cb_str_postprocess, GINT_TO_POINTER(CB_STR_ITEM));
 }
 
 /*

@@ -1,8 +1,8 @@
 /* packet-dcerpc-nt.h
  * Routines for DCERPC over SMB packet disassembly
- * Copyright 2001, Tim Potter <tpot@samba.org>
+ * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.35 2003/01/24 05:32:53 tpot Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.36 2003/01/28 06:27:01 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,17 +52,33 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
 			char *drep);
 int
-dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
-			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep, int hf_index, int levels);
+dissect_ndr_nt_UNICODE_STRING_cb(tvbuff_t *tvb, int offset,
+				 packet_info *pinfo, proto_tree *parent_tree,
+				 char *drep, int hf_index, 
+				 dcerpc_callback_fnct_t *callback,
+				 void *callback_args);
+
 int
-dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset,
+dissect_ndr_nt_UNICODE_STRING(tvbuff_t *tvb, int offset,
+			      packet_info *pinfo, proto_tree *parent_tree,
+			      char *drep, int hf_index);
+
+int
+dissect_ndr_nt_STRING_string(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
                              char *drep);
 int
-dissect_ndr_nt_STRING (tvbuff_t *tvb, int offset,
-                        packet_info *pinfo, proto_tree *parent_tree,
-			char *drep, int hf_index, int levels);
+dissect_ndr_nt_STRING_cb(tvbuff_t *tvb, int offset,
+			 packet_info *pinfo, proto_tree *parent_tree,
+			 char *drep, int hf_index, 
+			 dcerpc_callback_fnct_t *callback, 
+			 void *callback_args);
+
+int
+dissect_ndr_nt_STRING(tvbuff_t *tvb, int offset,
+		      packet_info *pinfo, proto_tree *parent_tree,
+		      char *drep, int hf_index);
+
 int
 dissect_ndr_nt_acct_ctrl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree *parent_tree, char *drep);
@@ -179,6 +195,23 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		       proto_tree *tree, char *drep, int hfindex,
 		       nt_access_mask_fn_t *specific_rights_fn);
 
+int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset, 
+				 packet_info *pinfo, proto_tree *tree, 
+				 char *drep, int type, char *text, 
+				 int hf_index);
+
+/*
+ * Helper routines for dissecting NDR strings
+ */
+
+#define CB_STR_COL_INFO 1	/* Append string to COL_INFO */
+#define CB_STR_ITEM     2	/* Append string to pointer item */
+#define CB_STR_SAVE     4	/* Save string to dcv->private_data */
+
+void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
+			proto_item *item, tvbuff_t *tvb, 
+			int start_offset, int end_offset,
+			void *callback_args);
 
 /* Initialise DCERPC over SMB */
 
