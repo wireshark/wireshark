@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.25 2002/12/18 23:08:20 guy Exp $
+ * $Id: tcp_graph.c,v 1.26 2002/12/18 23:54:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,10 +39,12 @@
 
 #include "ipproto.h"
 #include "globals.h" 		/* cfile */
-#include <epan/packet.h>		/* frame_data */
+#include <epan/packet.h>	/* frame_data */
 #include "gtkglobals.h"		/* packet_list */
 #include "simple_dialog.h"
 #include "ui_util.h"
+#include "color.h"
+#include "../ui_util.h"
 #include "tcp_graph.h"
 #include "compat_macros.h"
 
@@ -450,7 +452,6 @@ static void graph_segment_list_free (struct graph * );
 static void graph_select_segment (struct graph * , int , int );
 static int line_detect_collision (struct element * , int , int );
 static int arc_detect_collision (struct element * , int , int );
-static void update_packet_list (int );
 static void axis_pixmaps_create (struct axis * );
 static void axis_pixmaps_switch (struct axis * );
 static void axis_display (struct axis * );
@@ -2515,13 +2516,13 @@ static void graph_select_segment (struct graph *g, int x, int y)
 			case ELMT_LINE:
 				if (line_detect_collision (e, x, y)) {
 					int row = e->parent->num - 1;
-					update_packet_list (row);
+					packet_list_set_selected_row (row);
 				}
 				break;
 			case ELMT_ARC:
 				if (arc_detect_collision (e, x, y)) {
 					int row = e->parent->num - 1;
-					update_packet_list (row);
+					packet_list_set_selected_row (row);
 				}
 				break;
 			default:
@@ -2572,16 +2573,6 @@ static int arc_detect_collision (struct element *e, int x, int y)
 		return TRUE;
 	else
 		return FALSE;
-}
-
-static void update_packet_list (int row)
-{
-	select_packet (&cfile, row);
-	if (gtk_clist_row_is_visible(GTK_CLIST(packet_list), row) !=
-				GTK_VISIBILITY_FULL)
-		gtk_clist_moveto(GTK_CLIST(packet_list), row, -1, 0.5, 0.5);
-	GTK_CLIST(packet_list)->focus_row = row;
-	gtk_clist_select_row(GTK_CLIST(packet_list), row, -1);
 }
 
 static void cross_xor (struct graph *g, int x, int y)
