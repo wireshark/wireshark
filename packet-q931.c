@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.66 2004/01/26 20:48:38 guy Exp $
+ * $Id: packet-q931.c,v 1.67 2004/02/18 07:14:36 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -1612,19 +1612,24 @@ static void
 dissect_q931_date_time_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
-	if (len != 6) {
+	if (len == 6) {
+		/*
+		 * XXX - what is "year" relative to?  Is "month" 0-origin or
+		 * 1-origin?  Q.931 doesn't say....
+		 */
+		proto_tree_add_text(tree, tvb, offset, 6,
+		    "Date/time: %02u-%02u-%02u %02u:%02u:%02u",
+		    tvb_get_guint8(tvb, offset + 0), tvb_get_guint8(tvb, offset + 1), tvb_get_guint8(tvb, offset + 2),
+		    tvb_get_guint8(tvb, offset + 3), tvb_get_guint8(tvb, offset + 4), tvb_get_guint8(tvb, offset + 5));
+	} else if (len == 5) {
+		proto_tree_add_text(tree, tvb, offset, 5,
+		    "Date/time: %02u-%02u-%02u %02u:%02u:00",
+		    tvb_get_guint8(tvb, offset + 0), tvb_get_guint8(tvb, offset + 1), tvb_get_guint8(tvb, offset + 2),
+		    tvb_get_guint8(tvb, offset + 3), tvb_get_guint8(tvb, offset + 4));
+	} else {
 		proto_tree_add_text(tree, tvb, offset, len,
-		    "Date/time: length is %d, should be 6\n", len);
-		return;
+		    "Date/time: length is %d, should be 5 or 6\n", len);
 	}
-	/*
-	 * XXX - what is "year" relative to?  Is "month" 0-origin or
-	 * 1-origin?  Q.931 doesn't say....
-	 */
-	proto_tree_add_text(tree, tvb, offset, 6,
-	    "Date/time: %02u-%02u-%02u %02u:%02u:%02u",
-	    tvb_get_guint8(tvb, offset + 0), tvb_get_guint8(tvb, offset + 1), tvb_get_guint8(tvb, offset + 2),
-	    tvb_get_guint8(tvb, offset + 3), tvb_get_guint8(tvb, offset + 4), tvb_get_guint8(tvb, offset + 5));
 }
 
 /*

@@ -2006,6 +2006,7 @@ Chris Wilson <chris [AT] mxtelecom.com> {
 
 Rolf Fiedler <Rolf.Fiedler [AT] Innoventif.com> {
 	ISDN TEI management frame support
+	Support for reading EyeSDN USB S0 trace files
 }
 
 Alastair Maw <ethereal [AT] almaw.com> {
@@ -2019,10 +2020,6 @@ Sam Leffler <sam [AT] errno.com> {
 
 Martin Mathieson <martin [AT] arca-technologies.com> {
 	SIP sipfrag support
-}
-
-Rolf Fiedler <Rolf.Fiedler [AT] Innoventif.com> {
-	Support for reading EyeSDN USB S0 trace files
 }
 
 Christian Wagner <Christian.Wagner [AT] stud.uni-karlsruhe.de> {
