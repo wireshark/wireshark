@@ -1,7 +1,7 @@
 /* packet-vj.c
  * Routines for Van Jacobson header decompression. 
  *
- * $Id: packet-vj.c,v 1.13 2002/07/14 08:57:56 guy Exp $
+ * $Id: packet-vj.c,v 1.14 2002/07/15 09:56:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -226,6 +226,7 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
   guint8     *buffer;
   tvbuff_t   *next_tvb;
   gint        isize       = tvb_length(tvb);
+  gint        ipsize;
 
   if(check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_INFO, "PPP VJ");
@@ -380,8 +381,17 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
   /* 
    * Set up tvbuff containing packet with protocol type.
    * Neither header checksum is recalculated.
+   *
+   * Use the length field from the IP header as the reported length;
+   * use the minimum of that and the number of bytes we got from
+   * the tvbuff as the actual length, just in case the tvbuff we were
+   * handed includes part or all of the FCS (because the FCS preference
+   * for the PPP dissector doesn't match the FCS size in this session).
    */
-  next_tvb = tvb_new_real_data(buffer, isize, tvb_reported_length(tvb));
+  ipsize = pntohs(&buffer[IP_FIELD_TOT_LEN]);
+  if (ipsize < isize)
+    isize = ipsize;
+  next_tvb = tvb_new_real_data(buffer, isize, ipsize);
   tvb_set_child_real_data_tvbuff(tvb, next_tvb);
   add_new_data_source(pinfo, next_tvb, "VJ Uncompressed");
 
