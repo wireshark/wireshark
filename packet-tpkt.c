@@ -7,7 +7,7 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.23 2003/11/16 23:17:22 guy Exp $
+ * $Id: packet-tpkt.c,v 1.24 2003/12/02 18:50:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@
 
 /* TPKT header fields             */
 static int proto_tpkt          = -1;
+static protocol_t *proto_tpkt_ptr;
 static int hf_tpkt_version     = -1;
 static int hf_tpkt_reserved    = -1;
 static int hf_tpkt_length      = -1;
@@ -77,7 +78,7 @@ is_tpkt(tvbuff_t *tvb, int min_len)
 	 * If TPKT is disabled, don't dissect it, just return -1, meaning
 	 * "this isn't TPKT".
 	 */
-	if (!proto_is_protocol_enabled(find_protocol_by_id(proto_tpkt)))
+	if (!proto_is_protocol_enabled(proto_tpkt_ptr))
 		return -1;
 
 	/* There should at least be 4 bytes left in the frame */
@@ -372,6 +373,7 @@ proto_register_tpkt(void)
 	module_t *tpkt_module;
 
 	proto_tpkt = proto_register_protocol("TPKT", "TPKT", "tpkt");
+	proto_tpkt_ptr = find_protocol_by_id(proto_tpkt);
 	proto_register_field_array(proto_tpkt, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
