@@ -2,7 +2,7 @@
  * Routines for raw data (default case)
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-data.c,v 1.17 2000/05/11 22:04:15 gram Exp $
+ * $Id: packet-data.c,v 1.18 2000/05/12 06:23:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,9 +58,11 @@ dissect_data_tvb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		bytes = tvb_length(tvb);
-		proto_tree_add_protocol_format(tree, proto_data, tvb, 0,
-			bytes, "Data (%d byte%s)", bytes,
-			plurality(bytes, "", "s"));
+		if (bytes > 0) {
+			proto_tree_add_protocol_format(tree, proto_data, tvb, 0,
+				bytes, "Data (%d byte%s)", bytes,
+				plurality(bytes, "", "s"));
+		}
 	}
 }
 
