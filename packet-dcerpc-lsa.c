@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.66 2003/02/04 05:22:41 tpot Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.67 2003/02/07 06:04:28 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -294,6 +294,58 @@ lsa_dissect_LSA_SECRET_pointer(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/* Dissect LSA specific access rights */
+
+static gint hf_view_local_info = -1;
+static gint hf_view_audit_info = -1;
+static gint hf_get_private_info = -1;
+static gint hf_trust_admin = -1;
+static gint hf_create_account = -1;
+static gint hf_create_secret = -1;
+static gint hf_create_priv = -1;
+static gint hf_set_default_quota_limits = -1;
+static gint hf_set_audit_requirements = -1;
+static gint hf_server_admin = -1;
+static gint hf_lookup_names = -1;
+
+static void
+lsa_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
+		    guint32 access)
+{
+	proto_tree_add_boolean(
+		tree, hf_lookup_names, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_server_admin, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_set_audit_requirements, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_set_default_quota_limits, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_create_priv, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_create_secret, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_create_account, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_trust_admin, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_get_private_info, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_view_audit_info, tvb, offset, 4, access);
+
+	proto_tree_add_boolean(
+		tree, hf_view_local_info, tvb, offset, 4, access);
+}
+
 int
 lsa_dissect_LSA_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
@@ -311,7 +363,9 @@ lsa_dissect_LSA_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 				     hf_lsa_sd_size, &len);
 
-	dissect_nt_sec_desc(tvb, offset, tree, len);
+	dissect_nt_sec_desc(
+		tvb, offset, pinfo, tree, drep, len, lsa_specific_rights);
+
 	offset += len;
 
 	return offset;
@@ -382,69 +436,6 @@ lsa_dissect_SECURITY_QUALITY_OF_SERVICE(tvbuff_t *tvb, int offset,
 			hf_lsa_qos_effective_only, NULL);
 
 	return offset;
-}
-
-/* Dissect LSA specific access rights */
-
-static gint hf_view_local_info = -1;
-static gint hf_view_audit_info = -1;
-static gint hf_get_private_info = -1;
-static gint hf_trust_admin = -1;
-static gint hf_create_account = -1;
-static gint hf_create_secret = -1;
-static gint hf_create_priv = -1;
-static gint hf_set_default_quota_limits = -1;
-static gint hf_set_audit_requirements = -1;
-static gint hf_server_admin = -1;
-static gint hf_lookup_names = -1;
-
-static void
-lsa_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
-		    guint32 access)
-{
-	proto_tree_add_boolean(
-		tree, hf_lookup_names,
-		tvb, offset, 4, access);
-
-	proto_tree_add_boolean(
-		tree, hf_server_admin,
-		tvb, offset, 4, access);
-
-	proto_tree_add_boolean(
-		tree, hf_set_audit_requirements,
-		tvb, offset, 4, access);
-
-	proto_tree_add_boolean(
-		tree, hf_set_default_quota_limits,
-		tvb, offset, 4, access);
-
-	proto_tree_add_boolean(
-		tree, hf_create_priv,
-		tvb, offset, 4, access);
-
-	proto_tree_add_boolean(
-		tree, hf_create_secret,
-		tvb, offset, 4, access);
-
-	proto_tree_add_boolean(
-		tree, hf_create_account,
-		tvb, offset, 4, access);
-
-	proto_tree_add_boolean(
-		tree, hf_trust_admin,
-		tvb, offset, 4, access);
-
-	proto_tree_add_boolean(
-		tree, hf_get_private_info,
-		tvb, offset, 4, access);
-
-	proto_tree_add_boolean(
-		tree, hf_view_audit_info,
-		tvb, offset, 4, access);
-
-	proto_tree_add_boolean(
-		tree, hf_view_local_info,
-		tvb, offset, 4, access);
 }
 
 static int

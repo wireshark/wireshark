@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.81 2003/02/05 06:55:56 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.82 2003/02/07 06:04:28 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2498,8 +2498,9 @@ static int dissect_PRINTER_INFO_2(tvbuff_t *tvb, int offset,
 		&secdesc_offset);
 
 	dissect_nt_sec_desc(
-		tvb, secdesc_offset, tree, 
-		tvb_length_remaining(tvb, secdesc_offset));
+		tvb, secdesc_offset, pinfo, tree, drep, 
+		tvb_length_remaining(tvb, secdesc_offset),
+		spoolss_specific_rights);
 
 	offset = dissect_printer_attributes(tvb, offset, pinfo, tree, drep);
 
@@ -2547,7 +2548,8 @@ static int dissect_PRINTER_INFO_3(tvbuff_t *tvb, int offset,
 		hf_spoolss_getprinter_flags, NULL);
 	
 	offset = dissect_nt_sec_desc(
-		tvb, offset, tree, tvb_length_remaining(tvb, offset));
+		tvb, offset, pinfo, tree, drep, 
+		tvb_length_remaining(tvb, offset), spoolss_specific_rights);
 
 	return offset;
 }
@@ -3493,7 +3495,9 @@ dissect_SEC_DESC_BUF(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 tvb, offset, pinfo, subtree, drep,
                 hf_spoolss_secdescbuf_len, &len);
 	
-	dissect_nt_sec_desc(tvb, offset, subtree, len);
+	dissect_nt_sec_desc(
+		tvb, offset, pinfo, subtree, drep, len, 
+		spoolss_specific_rights);
 
 	offset += len;	
 
@@ -4606,8 +4610,9 @@ dissect_spoolss_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		&secdesc_offset);
 
 	dissect_nt_sec_desc(
-		tvb, secdesc_offset, subtree, 
-		tvb_length_remaining(tvb, secdesc_offset));
+		tvb, secdesc_offset, pinfo, subtree, drep,
+		tvb_length_remaining(tvb, secdesc_offset),
+		spoolss_specific_rights);
 
 	offset = dissect_job_status(tvb, offset, pinfo, subtree, drep);
 
