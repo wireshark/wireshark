@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.85 2002/03/11 01:40:28 guy Exp $
+ * $Id: packet-snmp.c,v 1.86 2002/03/11 01:48:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,6 +91,7 @@
 #include "asn1.h"
 
 #include "packet-snmp.h"
+#include "format-oid.h"
 
 /* Null string of type "guchar[]". */
 static const guchar nullstring[] = "";
@@ -446,7 +447,7 @@ dissect_snmp_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 }
 
-static gchar *
+gchar *
 format_oid(subid_t *oid, guint oid_length)
 {
 	char *result;
@@ -454,8 +455,30 @@ format_oid(subid_t *oid, guint oid_length)
 	int len;
 	unsigned int i;
 	char *buf;
+#ifdef HAVE_UCD_SNMP_SNMP_H
+	u_char *oid_string;
+	size_t oid_string_len;
+	size_t oid_out_len;
+#endif
 
 	result_len = oid_length * 22;
+
+#ifdef HAVE_UCD_SNMP_SNMP_H
+	/*
+	 * Get the decoded form of the OID, and add its length to the
+	 * length of the result string.
+	 *
+	 * XXX - check for "malloc" and "sprint_realloc_objid()" failure.
+	 */
+	oid_string_len = 256;
+	oid_string = malloc(oid_string_len);
+	*oid_string = '\0';
+	oid_out_len = 0;
+	sprint_realloc_objid(&oid_string, &oid_string_len, &oid_out_len, 1,
+	    oid, oid_length);
+	result_len += strlen(oid_string) + 3;
+#endif
+
 	result = g_malloc(result_len + 1);
 	buf = result;
 	len = sprintf(buf, "%lu", (unsigned long)oid[0]);
@@ -464,6 +487,15 @@ format_oid(subid_t *oid, guint oid_length)
 		len = sprintf(buf, ".%lu", (unsigned long)oid[i]);
 		buf += len;
 	}
+
+#ifdef HAVE_UCD_SNMP_SNMP_H
+	/*
+	 * Append the decoded form of the OID.
+	 */
+	sprintf(buf, " (%s)", oid_string);
+	free(oid_string);
+#endif
+
 	return result;
 }
 
@@ -853,11 +885,6 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint variable_length;
 	subid_t *variable_oid;
 	guint variable_oid_length;
-#ifdef HAVE_UCD_SNMP_SNMP_H
-	u_char *vb_oid_string;
-	size_t vb_oid_string_len;
-	size_t vb_oid_out_len;
-#endif
 
 	int ret;
 	guint cls, con, tag;
@@ -951,25 +978,8 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 		if (tree) {
 			oid_string = format_oid(enterprise, enterprise_length);
-#ifdef HAVE_UCD_SNMP_SNMP_H
-			/*
-			 * XXX - check for "malloc" and
-			 * "sprint_realloc_objid()" failure.
-			 */
-			vb_oid_string_len = 256;
-			vb_oid_string = malloc(vb_oid_string_len);
-			*vb_oid_string = '\0';
-			vb_oid_out_len = 0;
-			sprint_realloc_objid(&vb_oid_string, &vb_oid_string_len,
-			    &vb_oid_out_len, 1, enterprise,
-			    enterprise_length);
-			proto_tree_add_text(tree, tvb, offset, length,
-			    "Enterprise: %s (%s)", oid_string, vb_oid_string);
-			free(vb_oid_string);
-#else /* HAVE_UCD_SNMP_SNMP_H */
 			proto_tree_add_text(tree, tvb, offset, length,
 			    "Enterprise: %s", oid_string);
-#endif /* HAVE_UCD_SNMP_SNMP_H */
 			g_free(oid_string);
 		}
 		g_free(enterprise);
@@ -1118,28 +1128,8 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (tree) {
 			oid_string = format_oid(variable_oid,
 			    variable_oid_length);
-			
-#ifdef HAVE_UCD_SNMP_SNMP_H
-			/*
-			 * XXX - check for "malloc" and
-			 * "sprint_realloc_objid()" failure.
-			 */
-			vb_oid_string_len = 256;
-			vb_oid_string = malloc(vb_oid_string_len);
-			*vb_oid_string = '\0';
-			vb_oid_out_len = 0;
-			sprint_realloc_objid(&vb_oid_string, &vb_oid_string_len,
-			    &vb_oid_out_len, 1, variable_oid,
-			    variable_oid_length);
 			proto_tree_add_text(tree, tvb, offset, sequence_length,
-			    "Object identifier %d: %s (%s)", vb_index,
-			    oid_string, vb_oid_string);
-			free(vb_oid_string);
-#else /* HAVE_UCD_SNMP_SNMP_H */
-			proto_tree_add_text(tree, tvb, offset, sequence_length,
-			    "Object identifier %d: %s", vb_index,
-			    oid_string);
-#endif /* HAVE_UCD_SNMP_SNMP_H */
+			    "Object identifier %d: %s", vb_index, oid_string);
 			g_free(oid_string);
 		}
 		offset += sequence_length;
