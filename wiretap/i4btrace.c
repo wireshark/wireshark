@@ -1,6 +1,6 @@
 /* i4btrace.c
  *
- * $Id: i4btrace.c,v 1.24 2004/01/25 21:55:15 guy Exp $
+ * $Id: i4btrace.c,v 1.25 2004/01/26 21:26:52 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
@@ -132,8 +132,8 @@ static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
 	i4b_byte_swap_header(wth, &hdr);
 	if (hdr.length < sizeof(hdr)) {
 		*err = WTAP_ERR_BAD_RECORD;	/* record length < header! */
-		*err_info = g_strdup_printf("i4btrace: record length %u < header length %u",
-		    hdr.length, sizeof(hdr));
+		*err_info = g_strdup_printf("i4btrace: record length %u < header length %lu",
+		    hdr.length, (unsigned long)sizeof(hdr));
 		return FALSE;
 	}
 	length = hdr.length - sizeof(hdr);
