@@ -4,7 +4,7 @@
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  * as per a suggestion by Jim McDonough
  *
- * $Id: packet-dcerpc-initshutdown.c,v 1.1 2003/10/27 23:31:54 guy Exp $
+ * $Id: packet-dcerpc-initshutdown.c,v 1.2 2004/01/19 20:10:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,7 +50,7 @@ static int hf_shutdown_reason = -1;
 /* Reg Shutdown functions */
 static int
 dissect_shutdown_server(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			proto_tree *tree, char *drep)
+			proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, tree, drep, hf_shutdown_server, NULL);
@@ -60,7 +60,7 @@ dissect_shutdown_server(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_shutdown_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			proto_tree *tree, char *drep)
+			proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_counted_string(
 		tvb, offset, pinfo, tree, drep, hf_shutdown_message, 0);
@@ -70,7 +70,7 @@ dissect_shutdown_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 InitshutdownShutdown_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	 proto_tree *tree, char *drep)
+	 proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
@@ -95,7 +95,7 @@ InitshutdownShutdown_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 InitshutdownShutdown_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	 proto_tree *tree, char *drep)
+	 proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
@@ -105,7 +105,7 @@ InitshutdownShutdown_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 InitshutdownAbortShutdown_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		   proto_tree *tree, char *drep)
+		   proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
@@ -117,7 +117,7 @@ InitshutdownAbortShutdown_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 InitshutdownShutdownEx_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, char *drep)
+		proto_tree *tree, guint8 *drep)
 {
 	offset = InitshutdownShutdown_q(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_uint32(

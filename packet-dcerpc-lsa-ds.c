@@ -3,7 +3,7 @@
  * Copyright 2002-2003, Tim Potter <tpot@samba.org>
  * Copyright 2002, Jim McDonough <jmcd@samba.org>
  *
- * $Id: packet-dcerpc-lsa-ds.c,v 1.12 2003/08/04 02:49:02 tpot Exp $
+ * $Id: packet-dcerpc-lsa-ds.c,v 1.13 2004/01/19 20:10:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,7 +64,7 @@ static gint ett_lsa_ds_op_status = -1;
 
 static int
 lsa_ds_dissect_DSROLE_BASIC_INFO(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+	packet_info *pinfo, proto_tree *parent_tree, guint8 *drep)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -106,7 +106,7 @@ lsa_ds_dissect_DSROLE_BASIC_INFO(tvbuff_t *tvb, int offset,
 static int 
 lsa_ds_dissect_DSROLE_UPGRADE_STATUS(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, 
-				     proto_tree *parent_tree, char *drep)
+				     proto_tree *parent_tree, guint8 *drep)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -131,7 +131,7 @@ lsa_ds_dissect_DSROLE_UPGRADE_STATUS(tvbuff_t *tvb, int offset,
 static int
 lsa_ds_dissect_DSROLE_OP_STATUS(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, 
-				     proto_tree *parent_tree, char *drep)
+				     proto_tree *parent_tree, guint8 *drep)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -152,7 +152,7 @@ lsa_ds_dissect_DSROLE_OP_STATUS(tvbuff_t *tvb, int offset,
 	
 static int
 lsa_ds_dissect_DS_DOMINFO_CTR(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+	packet_info *pinfo, proto_tree *parent_tree, guint8 *drep)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -189,7 +189,7 @@ lsa_ds_dissect_DS_DOMINFO_CTR(tvbuff_t *tvb, int offset,
 
 static int
 lsa_ds_dissect_role_get_dom_info_rqst(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	guint16 level;
 
@@ -204,7 +204,7 @@ lsa_ds_dissect_role_get_dom_info_rqst(tvbuff_t *tvb, int offset,
 
 static int
 lsa_ds_dissect_role_get_dom_info_reply(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_ds_dissect_DS_DOMINFO_CTR, NDR_POINTER_UNIQUE,

@@ -2,7 +2,7 @@
  * Routines for DCOM OXID Resolver
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-oxid.c,v 1.10 2003/10/12 16:03:10 sharpe Exp $
+ * $Id: packet-dcerpc-oxid.c,v 1.11 2004/01/19 20:10:35 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -157,7 +157,7 @@ towerid_val2str(unsigned short tower) {
 
 static int
 oxid_server_alive2_dissect_rply(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-				proto_tree *tree, char *drep) {
+				proto_tree *tree, guint8 *drep) {
 	COMVERSION comver;
 	DUALSTRINGARRAY stringarray;
 	STRINGBINDING stringbind;

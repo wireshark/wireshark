@@ -3,7 +3,7 @@
  * Copyright 2003, Tim Potter <tpot@samba.org>
  * Copyright 2003, Ronnie Sahlberg,  added function dissectors
  *
- * $Id: packet-dcerpc-svcctl.c,v 1.13 2003/12/17 21:34:44 ulfl Exp $
+ * $Id: packet-dcerpc-svcctl.c,v 1.14 2004/01/19 20:10:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,7 +73,7 @@ static guint16 ver_dcerpc_svcctl = 2;
 static int
 svcctl_dissect_pointer_long(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
-                             char *drep)
+                             guint8 *drep)
 {
 	dcerpc_info *di;
 
@@ -113,7 +113,7 @@ struct access_mask_info svcctl_scm_access_mask_info = {
 static int
 svcctl_dissect_OpenSCManager_rqst(tvbuff_t *tvb, int offset, 
 				  packet_info *pinfo, proto_tree *tree,
-				  char *drep)
+				  guint8 *drep)
 {
 	/* MachineName */
 	offset = dissect_ndr_pointer_cb(
@@ -140,7 +140,7 @@ svcctl_dissect_OpenSCManager_rqst(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_OpenSCManager_reply(tvbuff_t *tvb, int offset, 
 				  packet_info *pinfo, proto_tree *tree,
-				  char *drep)
+				  guint8 *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -209,7 +209,7 @@ svcctl_dissect_OpenSCManager_reply(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_CloseServiceHandle_rqst(tvbuff_t *tvb, int offset, 
 				  packet_info *pinfo, proto_tree *tree,
-				  char *drep)
+				  guint8 *drep)
 {
 	e_ctx_hnd policy_hnd;
 	char *pol_name;
@@ -233,7 +233,7 @@ svcctl_dissect_CloseServiceHandle_rqst(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_CloseServiceHandle_reply(tvbuff_t *tvb, int offset, 
 				  packet_info *pinfo, proto_tree *tree,
-				  char *drep)
+				  guint8 *drep)
 {
 	offset = dissect_nt_policy_hnd(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_hnd, NULL,
@@ -256,7 +256,7 @@ svcctl_dissect_CloseServiceHandle_reply(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_LockServiceDatabase_rqst(tvbuff_t *tvb, int offset, 
 				  packet_info *pinfo, proto_tree *tree,
-				  char *drep)
+				  guint8 *drep)
 {
 	/* XXX - why is the "is a close" argument TRUE? */
 	offset = dissect_nt_policy_hnd(
@@ -268,7 +268,7 @@ svcctl_dissect_LockServiceDatabase_rqst(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_LockServiceDatabase_reply(tvbuff_t *tvb, int offset, 
 				  packet_info *pinfo, proto_tree *tree,
-				  char *drep)
+				  guint8 *drep)
 {
 	/* XXX - why is the "is an open" argument TRUE? */
 	offset = dissect_nt_policy_hnd(
@@ -291,7 +291,7 @@ svcctl_dissect_LockServiceDatabase_reply(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_UnlockServiceDatabase_rqst(tvbuff_t *tvb, int offset, 
 				  packet_info *pinfo, proto_tree *tree,
-				  char *drep)
+				  guint8 *drep)
 {
 	/* XXX - why is the "is a close" argument TRUE? */
 	offset = dissect_nt_policy_hnd(
@@ -303,7 +303,7 @@ svcctl_dissect_UnlockServiceDatabase_rqst(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_UnlockServiceDatabase_reply(tvbuff_t *tvb, int offset, 
 				  packet_info *pinfo, proto_tree *tree,
-				  char *drep)
+				  guint8 *drep)
 {
 	/* XXX - why is the "is an open" argument TRUE? */
 	offset = dissect_nt_policy_hnd(
@@ -327,7 +327,7 @@ svcctl_dissect_UnlockServiceDatabase_reply(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_QUERY_SERVICE_LOCK_STATUS(tvbuff_t *tvb, int offset, 
 				  packet_info *pinfo, proto_tree *tree,
-				  char *drep)
+				  guint8 *drep)
 {
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_svcctl_is_locked, NULL);
@@ -354,7 +354,7 @@ svcctl_dissect_QUERY_SERVICE_LOCK_STATUS(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_QueryServiceLockStatus_rqst(tvbuff_t *tvb, int offset, 
 				  packet_info *pinfo, proto_tree *tree,
-				  char *drep)
+				  guint8 *drep)
 {
 	/* XXX - why is the "is a close" argument TRUE? */
 	offset = dissect_nt_policy_hnd(
@@ -369,7 +369,7 @@ svcctl_dissect_QueryServiceLockStatus_rqst(tvbuff_t *tvb, int offset,
 static int
 svcctl_dissect_QueryServiceLockStatus_reply(tvbuff_t *tvb, int offset, 
 				  packet_info *pinfo, proto_tree *tree,
-				  char *drep)
+				  guint8 *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		svcctl_dissect_QUERY_SERVICE_LOCK_STATUS, NDR_POINTER_REF,
@@ -416,7 +416,7 @@ static const value_string svcctl_service_status_vals[] = {
 static int
 svcctl_dissect_EnumServicesStatus_rqst(tvbuff_t *tvb, int offset, 
 				  packet_info *pinfo, proto_tree *tree,
-				  char *drep)
+				  guint8 *drep)
 {
 	/* XXX - why is the "is a close" argument TRUE? */
 	offset = dissect_nt_policy_hnd(

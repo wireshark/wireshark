@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\lsarpc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-lsa.h,v 1.12 2003/09/29 00:01:26 tpot Exp $
+ * $Id: packet-dcerpc-lsa.h,v 1.13 2004/01/19 20:10:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -112,20 +112,20 @@
 int
 lsa_dissect_LSA_SECURITY_DESCRIPTOR(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
-                             char *drep);
+                             guint8 *drep);
 int
 lsa_dissect_LSA_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
-			     char *drep);
+			     guint8 *drep);
 int
 lsa_dissect_LSA_SECRET(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep);
+			guint8 *drep);
 
 int
 lsa_dissect_POLICY_DNS_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
-			char *drep);
+			guint8 *drep);
 
 /* Specific access rights */
 

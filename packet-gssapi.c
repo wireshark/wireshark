@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@samba.org> Added a few 
  *		   bits and pieces ...
  *
- * $Id: packet-gssapi.c,v 1.28 2003/11/16 23:17:19 guy Exp $
+ * $Id: packet-gssapi.c,v 1.29 2004/01/19 20:10:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -436,7 +436,7 @@ proto_register_gssapi(void)
 
 static int wrap_dissect_gssapi(tvbuff_t *tvb, int offset, 
 			       packet_info *pinfo, 
-			       proto_tree *tree, char *drep _U_)
+			       proto_tree *tree, guint8 *drep _U_)
 {
 	tvbuff_t *auth_tvb;
 
@@ -451,7 +451,7 @@ static int wrap_dissect_gssapi(tvbuff_t *tvb, int offset,
 
 static int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset, 
 				    packet_info *pinfo, 
-				    proto_tree *tree, char *drep _U_)
+				    proto_tree *tree, guint8 *drep _U_)
 {
 	tvbuff_t *auth_tvb;
 

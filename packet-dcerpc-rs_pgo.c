@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz  security/idl/rs_pgo.idl
  *      
- * $Id: packet-dcerpc-rs_pgo.c,v 1.5 2003/08/04 02:49:01 tpot Exp $
+ * $Id: packet-dcerpc-rs_pgo.c,v 1.6 2004/01/19 20:10:35 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +75,7 @@ static guint16  ver_rs_pgo = 1;
 static int
 rs_pgo_dissect_get_members_rqst (tvbuff_t *tvb, int offset,
                                  packet_info *pinfo, proto_tree *tree,
-		                 char *drep)
+		                 guint8 *drep)
 {
      guint32 name_domain,  sec_rgy_name_max_len, sec_rgy_name_t_size;
      const char *sec_rgy_name_t = NULL;
@@ -102,7 +102,7 @@ rs_pgo_dissect_get_members_rqst (tvbuff_t *tvb, int offset,
 static int
 rs_pgo_dissect_key_transfer_rqst (tvbuff_t *tvb, int offset,
                                  packet_info *pinfo, proto_tree *tree,
-		                 char *drep)
+		                 guint8 *drep)
 {
     guint32 var1, var2, var3;
 
@@ -122,7 +122,7 @@ rs_pgo_dissect_key_transfer_rqst (tvbuff_t *tvb, int offset,
 static int
 rs_pgo_dissect_is_member_rqst (tvbuff_t *tvb, int offset,
                                  packet_info *pinfo, proto_tree *tree,
-		                 char *drep)
+		                 guint8 *drep)
 {
      guint32 var1, var2, key1_size, key2_size, var3;
      const char *key1, *key2; 
@@ -156,7 +156,7 @@ rs_pgo_dissect_is_member_rqst (tvbuff_t *tvb, int offset,
 static int
 rs_pgo_dissect_get_rqst (tvbuff_t *tvb, int offset,
 	                         packet_info *pinfo, proto_tree *tree,
-	                         char *drep)
+	                         guint8 *drep)
 {
 
      guint32 name_domain, key_size, var, var2;

@@ -2,7 +2,7 @@
  * Declaration of routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.h,v 1.7 2003/11/16 23:17:21 guy Exp $
+ * $Id: packet-smb-browse.h,v 1.8 2004/01/19 20:10:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,7 +28,7 @@
 
 int
 dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			      proto_tree *parent_tree, char *drep, 
+			      proto_tree *parent_tree, guint8 *drep, 
 			      gboolean infoflag);
 
 #endif

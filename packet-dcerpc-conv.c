@@ -2,7 +2,7 @@
  * Routines for dcerpc conv dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-conv.c,v 1.8 2003/08/04 02:49:03 tpot Exp $
+ * $Id: packet-dcerpc-conv.c,v 1.9 2004/01/19 20:10:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,7 +61,7 @@ static guint16  ver_conv = 3;
 static int
 conv_dissect_who_are_you_rqst (tvbuff_t *tvb, int offset,
 	                         packet_info *pinfo, proto_tree *tree,
-	                         char *drep)
+	                         guint8 *drep)
 {
 	/*
 	 *         [in]    uuid_t          *actuid,
@@ -85,7 +85,7 @@ conv_dissect_who_are_you_rqst (tvbuff_t *tvb, int offset,
 static int
 conv_dissect_who_are_you_resp (tvbuff_t *tvb, int offset,
 	                         packet_info *pinfo, proto_tree *tree,
-	                         char *drep)
+	                         guint8 *drep)
 {
 	/*
 	 *         [out]   unsigned32      *seq,
@@ -110,7 +110,7 @@ conv_dissect_who_are_you_resp (tvbuff_t *tvb, int offset,
 static int
 conv_dissect_who_are_you2_rqst (tvbuff_t *tvb, int offset,
 	                         packet_info *pinfo, proto_tree *tree,
-	                         char *drep)
+	                         guint8 *drep)
 {
 	/*
 	 *         [in]    uuid_t          *actuid,
@@ -133,7 +133,7 @@ conv_dissect_who_are_you2_rqst (tvbuff_t *tvb, int offset,
 static int
 conv_dissect_who_are_you2_resp (tvbuff_t *tvb, int offset,
 	                         packet_info *pinfo, proto_tree *tree,
-	                         char *drep)
+	                         guint8 *drep)
 {
 	/*
 	 *         [out]   unsigned32      *seq,

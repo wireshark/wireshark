@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.384 2004/01/10 02:43:28 guy Exp $
+ * $Id: packet-smb.c,v 1.385 2004/01/19 20:10:37 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4742,7 +4742,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			proto_item *litem = NULL;
 			proto_tree *ltree = NULL;
 			if(lt&0x10){
-				char buf[8];
+				guint8 buf[8];
 				guint32 val;
 
 				/* large lock format */
@@ -4826,7 +4826,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 			proto_item *litem = NULL;
 			proto_tree *ltree = NULL;
 			if(lt&0x10){
-				char buf[8];
+				guint8 buf[8];
 				guint32 val;
 
 				/* large lock format */
@@ -7460,7 +7460,7 @@ static void map_standard_access(guint32 *access_mask,
 
 int
 dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-		       proto_tree *tree, char *drep, int hfindex,
+		       proto_tree *tree, guint8 *drep, int hfindex,
 		       struct access_mask_info *ami)
 {
 	proto_item *item;
@@ -7670,7 +7670,7 @@ static int hf_smb_access_mask = -1;
 
 static int
 dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		  proto_tree *parent_tree, char *drep,
+		  proto_tree *parent_tree, guint8 *drep,
 		  struct access_mask_info *ami)
 {
 	proto_item *item = NULL;
@@ -7724,7 +7724,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	       proto_tree *parent_tree, char *drep, char *name,
+	       proto_tree *parent_tree, guint8 *drep, char *name,
 	       struct access_mask_info *ami)
 {
 	proto_item *item = NULL;
@@ -7870,7 +7870,7 @@ dissect_nt_sec_desc_type(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 
 int
 dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		    proto_tree *parent_tree, char *drep, int len, 
+		    proto_tree *parent_tree, guint8 *drep, int len, 
 		    struct access_mask_info *ami)
 {
 	proto_item *item = NULL;
@@ -13503,7 +13503,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		e_uuid_t fs_id;
 		char uuid_str[DCERPC_UUID_STR_LEN]; 
 		int uuid_str_len;
-		char drep = 0x10;
+		guint8 drep = 0x10;
 		
 		CHECK_BYTE_COUNT_TRANS_SUBR(16);
 

@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.30 2004/01/18 06:38:14 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.31 2004/01/19 20:10:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -110,7 +110,7 @@ static e_uuid_t uuid_dcerpc_wkssvc = {
 static int
 wkssvc_dissect_ENUM_HANDLE(tvbuff_t *tvb, int offset,
 			   packet_info *pinfo, proto_tree *tree,
-			   char *drep)
+			   guint8 *drep)
 {
 
   offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -133,7 +133,7 @@ static guint16 ver_dcerpc_wkssvc = 1;
 static int
 wkssvc_dissect_WKS_INFO_100(tvbuff_t *tvb, int offset,
 			    packet_info *pinfo, proto_tree *tree,
-			    char *drep)
+			    guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_wkssvc_platform_id, NULL);
@@ -166,7 +166,7 @@ wkssvc_dissect_WKS_INFO_100(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_WKS_INFO_101(tvbuff_t *tvb, int offset,
 			    packet_info *pinfo, proto_tree *tree,
-			    char *drep)
+			    guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_wkssvc_platform_id, NULL);
@@ -203,7 +203,7 @@ wkssvc_dissect_WKS_INFO_101(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_WKS_INFO_102(tvbuff_t *tvb, int offset,
 			    packet_info *pinfo, proto_tree *tree,
-			    char *drep)
+			    guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_wkssvc_platform_id, NULL);
@@ -236,7 +236,7 @@ wkssvc_dissect_WKS_INFO_102(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_WKS_INFO_502(tvbuff_t *tvb, int offset,
 			    packet_info *pinfo, proto_tree *tree,
-			    char *drep)
+			    guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_wkssvc_char_wait, NULL);
@@ -349,7 +349,7 @@ wkssvc_dissect_WKS_INFO_502(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_WKS_INFO_1010(tvbuff_t *tvb, int offset,
 			     packet_info *pinfo, proto_tree *tree,
-			     char *drep)
+			     guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_wkssvc_char_wait, NULL);
@@ -360,7 +360,7 @@ wkssvc_dissect_WKS_INFO_1010(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_WKS_INFO_1011(tvbuff_t *tvb, int offset,
 			     packet_info *pinfo, proto_tree *tree,
-			     char *drep)
+			     guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_wkssvc_collection_time, NULL);
@@ -371,7 +371,7 @@ wkssvc_dissect_WKS_INFO_1011(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_WKS_INFO_1012(tvbuff_t *tvb, int offset,
 			     packet_info *pinfo, proto_tree *tree,
-			     char *drep)
+			     guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_wkssvc_maximum_collection_count, NULL);
@@ -382,7 +382,7 @@ wkssvc_dissect_WKS_INFO_1012(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_WKS_INFO_1013(tvbuff_t *tvb, int offset,
 			     packet_info *pinfo, proto_tree *tree,
-			     char *drep)
+			     guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_wkssvc_keep_conn, NULL);
@@ -393,7 +393,7 @@ wkssvc_dissect_WKS_INFO_1013(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_WKS_INFO_1018(tvbuff_t *tvb, int offset,
 			     packet_info *pinfo, proto_tree *tree,
-			     char *drep)
+			     guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_wkssvc_sess_timeout, NULL);
@@ -404,7 +404,7 @@ wkssvc_dissect_WKS_INFO_1018(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_WKS_INFO_1023(tvbuff_t *tvb, int offset,
 			     packet_info *pinfo, proto_tree *tree,
-			     char *drep)
+			     guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_wkssvc_siz_char_buf, NULL);
@@ -415,7 +415,7 @@ wkssvc_dissect_WKS_INFO_1023(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_WKS_INFO_1027(tvbuff_t *tvb, int offset,
 			     packet_info *pinfo, proto_tree *tree,
-			     char *drep)
+			     guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_wkssvc_errlog_sz, NULL);
@@ -426,7 +426,7 @@ wkssvc_dissect_WKS_INFO_1027(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_WKS_INFO_1033(tvbuff_t *tvb, int offset,
 			     packet_info *pinfo, proto_tree *tree,
-			     char *drep)
+			     guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_wkssvc_max_threads, NULL);
@@ -444,7 +444,7 @@ wkssvc_dissect_WKS_INFO_1033(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_netwkstagetinfo_rqst(tvbuff_t *tvb, int offset, 
 				    packet_info *pinfo, proto_tree *tree,
-				    char *drep)
+				    guint8 *drep)
 {
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 					      NDR_POINTER_UNIQUE, "Server", 
@@ -476,7 +476,7 @@ wkssvc_dissect_netwkstagetinfo_rqst(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_WKS_GETINFO_UNION(tvbuff_t *tvb, int offset,
 				 packet_info *pinfo, proto_tree *tree,
-				 char *drep)
+				 guint8 *drep)
 {
 	guint32 level;
 
@@ -584,7 +584,7 @@ wkssvc_dissect_WKS_GETINFO_UNION(tvbuff_t *tvb, int offset,
 static int wkssvc_dissect_netwkstagetinfo_reply(tvbuff_t *tvb, int offset,
 						packet_info *pinfo, 
 						proto_tree *tree,
-						char *drep)
+						guint8 *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			wkssvc_dissect_WKS_GETINFO_UNION,
@@ -607,7 +607,7 @@ static int wkssvc_dissect_netwkstagetinfo_reply(tvbuff_t *tvb, int offset,
 static int wkssvc_dissect_netwkstasetinfo_rqst(tvbuff_t *tvb, int offset,
 					       packet_info *pinfo, 
 					       proto_tree *tree,
-					       char *drep)
+					       guint8 *drep)
 {
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 					      NDR_POINTER_UNIQUE, "Server", 
@@ -627,7 +627,7 @@ static int wkssvc_dissect_netwkstasetinfo_rqst(tvbuff_t *tvb, int offset,
 static int wkssvc_dissect_netwkstasetinfo_reply(tvbuff_t *tvb, int offset,
 						packet_info *pinfo, 
 						proto_tree *tree,
-						char *drep)
+						guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_wkssvc_parm_err, 0);
@@ -647,7 +647,7 @@ static int wkssvc_dissect_netwkstasetinfo_reply(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_USER_INFO_0(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
-				     char *drep)
+				     guint8 *drep)
 {
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "User Name", 
@@ -659,7 +659,7 @@ wkssvc_dissect_USER_INFO_0(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_USER_INFO_0_array(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
-				     char *drep)
+				     guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
 			wkssvc_dissect_USER_INFO_0);
@@ -676,7 +676,7 @@ wkssvc_dissect_USER_INFO_0_array(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_USER_INFO_0_CONTAINER(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
-				     char *drep)
+				     guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_wkssvc_num_entries, NULL);
@@ -699,7 +699,7 @@ wkssvc_dissect_USER_INFO_0_CONTAINER(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_USER_INFO_1(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
-				     char *drep)
+				     guint8 *drep)
 {
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 					      NDR_POINTER_UNIQUE, "User Name", 
@@ -723,7 +723,7 @@ wkssvc_dissect_USER_INFO_1(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_USER_INFO_1_array(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
-				     char *drep)
+				     guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
 			wkssvc_dissect_USER_INFO_1);
@@ -740,7 +740,7 @@ wkssvc_dissect_USER_INFO_1_array(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_USER_INFO_1_CONTAINER(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
-				     char *drep)
+				     guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_wkssvc_num_entries, NULL);
@@ -761,7 +761,7 @@ wkssvc_dissect_USER_INFO_1_CONTAINER(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_USER_ENUM_UNION(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
-				     char *drep)
+				     guint8 *drep)
 {
 	guint32 level;
 
@@ -799,7 +799,7 @@ wkssvc_dissect_USER_ENUM_UNION(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_netwkstaenumusers_rqst(tvbuff_t *tvb, int offset, 
 				      packet_info *pinfo, proto_tree *tree,
-				      char *drep)
+				      guint8 *drep)
 {
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 					      NDR_POINTER_UNIQUE, "Server", 
@@ -836,7 +836,7 @@ wkssvc_dissect_netwkstaenumusers_rqst(tvbuff_t *tvb, int offset,
 static int wkssvc_dissect_netwkstaenumusers_reply(tvbuff_t *tvb, int offset,
 						  packet_info *pinfo, 
 						  proto_tree *tree,
-						  char *drep)
+						  guint8 *drep)
 {
         /* There seems to be an info level there first */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -873,7 +873,7 @@ static int wkssvc_dissect_netwkstaenumusers_reply(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_TRANSPORT_INFO_0(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
-				     char *drep)
+				     guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_wkssvc_quality_of_service, 0);
@@ -898,7 +898,7 @@ wkssvc_dissect_TRANSPORT_INFO_0(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_TRANSPORT_INFO_0_array(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
-				     char *drep)
+				     guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
 			wkssvc_dissect_TRANSPORT_INFO_0);
@@ -915,7 +915,7 @@ wkssvc_dissect_TRANSPORT_INFO_0_array(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_TRANSPORT_INFO_0_CONTAINER(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
-				     char *drep)
+				     guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_wkssvc_num_entries, NULL);
@@ -935,7 +935,7 @@ wkssvc_dissect_TRANSPORT_INFO_0_CONTAINER(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_TRANSPORT_ENUM_UNION(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
-				     char *drep)
+				     guint8 *drep)
 {
 	guint32 level;
 
@@ -969,7 +969,7 @@ wkssvc_dissect_TRANSPORT_ENUM_UNION(tvbuff_t *tvb, int offset,
 static int
 wkssvc_dissect_netwkstatransportenum_rqst(tvbuff_t *tvb, int offset, 
 				      packet_info *pinfo, proto_tree *tree,
-				      char *drep)
+				      guint8 *drep)
 {
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 					      NDR_POINTER_UNIQUE, "Server", 
@@ -997,7 +997,7 @@ static int wkssvc_dissect_netwkstatransportenum_reply(tvbuff_t *tvb,
 						      int offset,
 						      packet_info *pinfo, 
 						      proto_tree *tree,
-						      char *drep)
+						      guint8 *drep)
 {
         /* There seems to be an info level there first */
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,

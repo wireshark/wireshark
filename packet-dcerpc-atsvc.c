@@ -2,7 +2,7 @@
  * Routines for SMB \pipe\atsvc packet disassembly
  * Copyright 2003 Jean-Baptiste Marchand <jbm@hsc.fr>
  *
- * $Id: packet-dcerpc-atsvc.c,v 1.4 2003/08/04 02:49:04 tpot Exp $
+ * $Id: packet-dcerpc-atsvc.c,v 1.5 2004/01/19 20:10:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,7 +94,7 @@ static guint16 ver_dcerpc_atsvc = 1;
 
 static int
 atsvc_dissect_AT_INFO_fields(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	proto_item *item = NULL;
 	proto_tree *flags_tree = NULL;
@@ -222,7 +222,7 @@ atsvc_dissect_AT_INFO_fields(tvbuff_t *tvb, int offset,
 
 static int
 atsvc_dissect_AT_INFO(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -249,7 +249,7 @@ atsvc_dissect_AT_INFO(tvbuff_t *tvb, int offset,
 
 static int
 atsvc_dissect_add_rqst(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_atsvc_server, 0);
@@ -261,7 +261,7 @@ atsvc_dissect_add_rqst(tvbuff_t *tvb, int offset,
 
 static int
 atsvc_dissect_add_reply(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_atsvc_job_id, NULL);
@@ -283,7 +283,7 @@ atsvc_dissect_add_reply(tvbuff_t *tvb, int offset,
 
 static int
 atsvc_dissect_del_rqst(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_atsvc_server, 0);
@@ -299,7 +299,7 @@ atsvc_dissect_del_rqst(tvbuff_t *tvb, int offset,
 
 static int
 atsvc_dissect_del_reply(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep, 
 			hf_atsvc_rc, NULL);
@@ -320,7 +320,7 @@ atsvc_dissect_del_reply(tvbuff_t *tvb, int offset,
 
 static int
 atsvc_dissect_AT_ENUM(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -346,7 +346,7 @@ atsvc_dissect_AT_ENUM(tvbuff_t *tvb, int offset,
 static int
 atsvc_dissect_ENUM_HANDLE(tvbuff_t *tvb, int offset,
 			   packet_info *pinfo, proto_tree *tree,
-			   char *drep)
+			   guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			      hf_atsvc_enum_handle, 0);
@@ -357,7 +357,7 @@ atsvc_dissect_ENUM_HANDLE(tvbuff_t *tvb, int offset,
 static int
 atsvc_dissect_AT_ENUM_array(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
-				     char *drep)
+				     guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
 			atsvc_dissect_AT_ENUM);
@@ -375,7 +375,7 @@ atsvc_dissect_AT_ENUM_array(tvbuff_t *tvb, int offset,
 static int
 atsvc_dissect_AT_ENUM_CONTAINER(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
-				     char *drep)
+				     guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_atsvc_num_entries, NULL);
@@ -400,7 +400,7 @@ atsvc_dissect_AT_ENUM_CONTAINER(tvbuff_t *tvb, int offset,
 
 static int
 atsvc_dissect_enum_rqst(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_atsvc_server, 0);
@@ -421,7 +421,7 @@ atsvc_dissect_enum_rqst(tvbuff_t *tvb, int offset,
 
 static int
 atsvc_dissect_enum_reply(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
   	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			atsvc_dissect_AT_ENUM_CONTAINER,
@@ -451,7 +451,7 @@ atsvc_dissect_enum_reply(tvbuff_t *tvb, int offset,
 
 static int
 atsvc_dissect_getinfo_rqst(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_atsvc_server, 0);
@@ -464,7 +464,7 @@ atsvc_dissect_getinfo_rqst(tvbuff_t *tvb, int offset,
 
 static int
 atsvc_dissect_getinfo_reply(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			atsvc_dissect_AT_INFO, NDR_POINTER_UNIQUE,

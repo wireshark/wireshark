@@ -3,7 +3,7 @@
  * Devin Heitmueller <dheitmueller@netilla.com>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-ntlmssp.c,v 1.45 2003/09/26 06:30:13 tpot Exp $
+ * $Id: packet-ntlmssp.c,v 1.46 2004/01/19 20:10:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1534,7 +1534,7 @@ proto_register_ntlmssp(void)
 }
 
 static int wrap_dissect_ntlmssp(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-				proto_tree *tree, char *drep _U_)
+				proto_tree *tree, guint8 *drep _U_)
 {
 	tvbuff_t *auth_tvb;
 
@@ -1548,7 +1548,7 @@ static int wrap_dissect_ntlmssp(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int wrap_dissect_ntlmssp_verf(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-				     proto_tree *tree, char *drep _U_)
+				     proto_tree *tree, guint8 *drep _U_)
 {
 	tvbuff_t *auth_tvb;
 

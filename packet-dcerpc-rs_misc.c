@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/rs_misc.idl
  *      
- * $Id: packet-dcerpc-rs_misc.c,v 1.6 2003/12/21 05:51:33 jmayer Exp $
+ * $Id: packet-dcerpc-rs_misc.c,v 1.7 2004/01/19 20:10:35 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,7 +58,7 @@ static guint16  ver_rs_misc = 1;
 
 static int
 rs_misc_dissect_login_get_info_rqst (tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 
 	guint32 key_size;

@@ -2,7 +2,7 @@
  * Routines for SMB packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-common.h,v 1.25 2004/01/10 02:43:28 guy Exp $
+ * $Id: packet-smb-common.h,v 1.26 2004/01/19 20:10:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,12 +91,12 @@ struct access_mask_info {
 
 int
 dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-		       proto_tree *tree, char *drep, int hfindex,
+		       proto_tree *tree, guint8 *drep, int hfindex,
 		       struct access_mask_info *ami);
 
 int
 dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		    proto_tree *parent_tree, char *drep, int len, 
+		    proto_tree *parent_tree, guint8 *drep, int len, 
 		    struct access_mask_info *ami);
 
 extern const value_string share_type_vals[];

@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.25 2003/10/24 00:42:16 guy Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.26 2004/01/19 20:10:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -139,7 +139,7 @@ mapi_decrypt_init(void)
 
 static int
 mapi_decrypt_pdu(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	dcerpc_info *di;
 	mapi_decrypted_data_t *mmd=NULL;
@@ -236,7 +236,7 @@ mapi_decrypt_pdu(tvbuff_t *tvb, int offset,
 
 static int
 mapi_logon_rqst(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
         offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
 			sizeof(guint8), hf_mapi_unknown_string, TRUE, NULL);
@@ -251,7 +251,7 @@ There might be offsets/padding mismatched due to potential pointer expansions
 or padding bytes. Captures where this code breaks will tell us about that */
 static int
 mapi_logon_reply(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_mapi_hnd, NULL, NULL, FALSE, FALSE);
@@ -281,7 +281,7 @@ mapi_logon_reply(tvbuff_t *tvb, int offset,
 
 static int
 mapi_ec_do_rpc_request(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_mapi_hnd, NULL, NULL, FALSE, FALSE);
@@ -307,7 +307,7 @@ mapi_ec_do_rpc_request(tvbuff_t *tvb, int offset,
 }
 static int
 mapi_ec_do_rpc_reply(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_mapi_hnd, NULL, NULL, FALSE, FALSE);
@@ -334,7 +334,7 @@ mapi_ec_do_rpc_reply(tvbuff_t *tvb, int offset,
 
 static int
 mapi_logoff_rqst(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_mapi_hnd, NULL, NULL, FALSE, FALSE);
@@ -344,7 +344,7 @@ mapi_logoff_rqst(tvbuff_t *tvb, int offset,
 
 static int
 mapi_logoff_reply(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, char *drep)
+	packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 				       hf_mapi_hnd, NULL, NULL, FALSE, FALSE);

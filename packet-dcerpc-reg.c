@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\winreg packet disassembly
  * Copyright 2001-2003 Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.23 2003/10/24 00:35:29 guy Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.24 2004/01/19 20:10:35 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,7 +84,7 @@ static int hf_shutdown_reason = -1;
 
 static int
 dissect_open_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		  proto_tree *tree, char *drep)
+		  proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, tree, drep,
@@ -107,7 +107,7 @@ dissect_open_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegOpenHKLM_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	      proto_tree *tree, char *drep)
+	      proto_tree *tree, guint8 *drep)
 {
 	/* Parse packet */
 
@@ -121,7 +121,7 @@ RegOpenHKLM_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegOpenHKLM_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	      proto_tree *tree, char *drep)
+	      proto_tree *tree, guint8 *drep)
 {
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item;
@@ -151,7 +151,7 @@ RegOpenHKLM_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegOpenHKU_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	     proto_tree *tree, char *drep)
+	     proto_tree *tree, guint8 *drep)
 {
 	/* Parse packet */
 
@@ -165,7 +165,7 @@ RegOpenHKU_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegOpenHKU_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	     proto_tree *tree, char *drep)
+	     proto_tree *tree, guint8 *drep)
 {
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item;
@@ -195,7 +195,7 @@ RegOpenHKU_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegOpenHKCR_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	      proto_tree *tree, char *drep)
+	      proto_tree *tree, guint8 *drep)
 {
 	/* Parse packet */
 
@@ -209,7 +209,7 @@ RegOpenHKCR_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegOpenHKCR_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	      proto_tree *tree, char *drep)
+	      proto_tree *tree, guint8 *drep)
 {
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item;
@@ -239,7 +239,7 @@ RegOpenHKCR_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegCloseKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	   proto_tree *tree, char *drep)
+	   proto_tree *tree, guint8 *drep)
 {
 	/* Parse packet */
 
@@ -252,7 +252,7 @@ RegCloseKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegCloseKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	   proto_tree *tree, char *drep)
+	   proto_tree *tree, guint8 *drep)
 {
 	/* Parse packet */
 
@@ -272,7 +272,7 @@ RegCloseKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegQueryInfoKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	      proto_tree *tree, char *drep)
+	      proto_tree *tree, guint8 *drep)
 {
 	/* Parse packet */
 
@@ -288,7 +288,7 @@ RegQueryInfoKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegQueryInfoKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	      proto_tree *tree, char *drep)
+	      proto_tree *tree, guint8 *drep)
 {
 	/* Parse packet */
 
@@ -338,7 +338,7 @@ RegQueryInfoKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegOpenKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	       proto_tree *tree, char *drep)
+	       proto_tree *tree, guint8 *drep)
 {
 	/* Parse packet */
 
@@ -362,7 +362,7 @@ RegOpenKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegOpenKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	       proto_tree *tree, char *drep)
+	       proto_tree *tree, guint8 *drep)
 {
 	e_ctx_hnd policy_hnd;
 	proto_item *hnd_item;
@@ -393,7 +393,7 @@ RegOpenKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegGetVersion_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	       proto_tree *tree, char *drep)
+	       proto_tree *tree, guint8 *drep)
 {
 	/* Parse packet */
 
@@ -406,7 +406,7 @@ RegGetVersion_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegGetVersion_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	       proto_tree *tree, char *drep)
+	       proto_tree *tree, guint8 *drep)
 {
 	/* Parse packet */
 
@@ -426,7 +426,7 @@ RegGetVersion_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegEnumKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	     proto_tree *tree, char *drep)
+	     proto_tree *tree, guint8 *drep)
 {
 	/* Parse packet */
 
@@ -439,7 +439,7 @@ RegEnumKey_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegEnumKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	     proto_tree *tree, char *drep)
+	     proto_tree *tree, guint8 *drep)
 {
 	/* Parse packet */
 
@@ -455,7 +455,7 @@ RegEnumKey_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_reserved(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		 proto_tree *tree, char *drep)
+		 proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_reserved, NULL);
@@ -465,7 +465,7 @@ dissect_reserved(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_offered(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, char *drep)
+		proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_offered, NULL);
@@ -475,7 +475,7 @@ dissect_offered(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_returned(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		 proto_tree *tree, char *drep)
+		 proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_returned, NULL);
@@ -485,7 +485,7 @@ dissect_returned(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, char *drep)
+		proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_unknown, NULL);
@@ -495,7 +495,7 @@ dissect_unknown(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegQueryValue_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, char *drep)
+		proto_tree *tree, guint8 *drep)
 {
 	/* Parse packet */
 
@@ -541,7 +541,7 @@ RegQueryValue_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_key_type(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		 proto_tree *tree, char *drep)
+		 proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_keytype, NULL);
@@ -551,7 +551,7 @@ dissect_key_type(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegQueryValue_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, char *drep)
+		proto_tree *tree, guint8 *drep)
 {
 	/* Parse packet */
 
@@ -584,7 +584,7 @@ RegQueryValue_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* Reg Shutdown functions */
 static int
 dissect_shutdown_server(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			proto_tree *tree, char *drep)
+			proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_uint16(
 		tvb, offset, pinfo, tree, drep, hf_shutdown_server, NULL);
@@ -594,7 +594,7 @@ dissect_shutdown_server(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 dissect_shutdown_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			proto_tree *tree, char *drep)
+			proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_counted_string(
 		tvb, offset, pinfo, tree, drep, hf_shutdown_message, 0);
@@ -604,7 +604,7 @@ dissect_shutdown_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegShutdown_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	 proto_tree *tree, char *drep)
+	 proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
@@ -629,7 +629,7 @@ RegShutdown_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegShutdown_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	 proto_tree *tree, char *drep)
+	 proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ntstatus(
 		tvb, offset, pinfo, tree, drep, hf_rc, NULL);
@@ -639,7 +639,7 @@ RegShutdown_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegAbortShutdown_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		   proto_tree *tree, char *drep)
+		   proto_tree *tree, guint8 *drep)
 {
 	offset = dissect_ndr_pointer(
 		tvb, offset, pinfo, tree, drep,
@@ -651,7 +651,7 @@ RegAbortShutdown_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegShutdownEx_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		proto_tree *tree, char *drep)
+		proto_tree *tree, guint8 *drep)
 {
 	offset = RegShutdown_q(tvb, offset, pinfo, tree, drep);
 	offset = dissect_ndr_uint32(
@@ -670,7 +670,7 @@ RegShutdownEx_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegFoo_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	 proto_tree *tree, char *drep)
+	 proto_tree *tree, guint8 *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 
@@ -681,7 +681,7 @@ RegFoo_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static int
 RegFoo_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	 proto_tree *tree, char *drep)
+	 proto_tree *tree, guint8 *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 

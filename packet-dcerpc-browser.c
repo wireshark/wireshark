@@ -2,7 +2,7 @@
  * Routines for DCERPC Browser packet disassembly
  * Copyright 2001, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-browser.c,v 1.13 2003/10/02 21:48:35 guy Exp $
+ * $Id: packet-dcerpc-browser.c,v 1.14 2004/01/19 20:10:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,7 +53,7 @@ static gint ett_dcerpc_browser = -1;
 static int
 dissect_browser_long_pointer(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
-                             char *drep)
+                             guint8 *drep)
 {
 	dcerpc_info *di;
 
@@ -90,7 +90,7 @@ static guint16 ver_dcerpc_browser = 0;
 static int
 dissect_browser_TYPE_4_data(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	guint32 len;
 	dcerpc_info *di;
@@ -114,7 +114,7 @@ dissect_browser_TYPE_4_data(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_TYPE_4(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
@@ -136,7 +136,7 @@ dissect_browser_TYPE_4(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_TYPE_3_data(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	guint32 len;
 	dcerpc_info *di;
@@ -161,7 +161,7 @@ dissect_browser_TYPE_3_data(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_TYPE_3(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
@@ -184,7 +184,7 @@ dissect_browser_TYPE_3(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_TYPE_2(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	guint32 level;
 
@@ -220,7 +220,7 @@ dissect_browser_TYPE_2(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_TYPE_1(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
@@ -248,7 +248,7 @@ dissect_browser_TYPE_1(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_server_enum_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "unknown string", 
@@ -285,7 +285,7 @@ dissect_browser_browserr_server_enum_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_server_enum_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_1, NDR_POINTER_REF,
@@ -314,7 +314,7 @@ dissect_browser_browserr_server_enum_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_debug_call_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "unknown string", 
@@ -331,7 +331,7 @@ dissect_browser_browserr_debug_call_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_debug_call_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_rc, NULL);
@@ -350,7 +350,7 @@ dissect_browser_browserr_debug_call_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_query_other_domains_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "unknown string", 
@@ -365,7 +365,7 @@ dissect_browser_browserr_query_other_domains_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_query_other_domains_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
@@ -385,7 +385,7 @@ dissect_browser_browserr_query_other_domains_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_reset_netlogon_state_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "unknown string", 
@@ -396,7 +396,7 @@ dissect_browser_browserr_reset_netlogon_state_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_reset_netlogon_state_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_rc, NULL);
@@ -414,7 +414,7 @@ dissect_browser_browserr_reset_netlogon_state_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_debug_trace_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "unknown string", 
@@ -429,7 +429,7 @@ dissect_browser_browserr_debug_trace_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_debug_trace_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_rc, NULL);
@@ -469,7 +469,7 @@ dissect_browser_browserr_debug_trace_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_TYPE_5(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_hyper, NULL);
@@ -541,7 +541,7 @@ dissect_browser_TYPE_5(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_query_statistics_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "unknown string", 
@@ -552,7 +552,7 @@ dissect_browser_browserr_query_statistics_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_query_statistics_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_5, NDR_POINTER_UNIQUE,
@@ -573,7 +573,7 @@ dissect_browser_browserr_query_statistics_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_reset_statistics_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "unknown string", 
@@ -584,7 +584,7 @@ dissect_browser_browserr_reset_statistics_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_reset_statistics_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_rc, NULL);
@@ -601,7 +601,7 @@ dissect_browser_browserr_reset_statistics_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_netr_browser_statistics_clear_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "unknown string", 
@@ -612,7 +612,7 @@ dissect_browser_netr_browser_statistics_clear_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_netr_browser_statistics_clear_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_rc, NULL);
@@ -644,7 +644,7 @@ dissect_browser_netr_browser_statistics_clear_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_TYPE_11(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_hyper, NULL);
@@ -706,7 +706,7 @@ dissect_browser_TYPE_11(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_TYPE_11_array(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
 		dissect_browser_TYPE_11);
@@ -717,7 +717,7 @@ dissect_browser_TYPE_11_array(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_TYPE_10(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
@@ -739,7 +739,7 @@ dissect_browser_TYPE_10(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_TYPE_9_data(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	guint32 len;
 	dcerpc_info *di;
@@ -765,7 +765,7 @@ dissect_browser_TYPE_9_data(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_TYPE_9(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
@@ -787,7 +787,7 @@ dissect_browser_TYPE_9(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_TYPE_8(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	guint32 level;
 
@@ -823,7 +823,7 @@ dissect_browser_TYPE_8(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_TYPE_7(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
@@ -844,7 +844,7 @@ dissect_browser_TYPE_7(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_netr_browser_statistics_get_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "unknown string", 
@@ -862,7 +862,7 @@ dissect_browser_netr_browser_statistics_get_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_netr_browser_statistics_get_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_7, NDR_POINTER_REF,
@@ -886,7 +886,7 @@ dissect_browser_netr_browser_statistics_get_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_set_netlogon_state_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "unknown string", 
@@ -908,7 +908,7 @@ dissect_browser_browserr_set_netlogon_state_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_set_netlogon_state_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_rc, NULL);
@@ -928,7 +928,7 @@ dissect_browser_browserr_set_netlogon_state_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_TYPE_12_data(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	guint32 len;
 	dcerpc_info *di;
@@ -954,7 +954,7 @@ dissect_browser_TYPE_12_data(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_TYPE_12(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, NULL);
@@ -976,7 +976,7 @@ dissect_browser_TYPE_12(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_query_emulated_domains_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "unknown string", 
@@ -991,7 +991,7 @@ dissect_browser_browserr_query_emulated_domains_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_query_emulated_domains_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_12, NDR_POINTER_REF,
@@ -1020,7 +1020,7 @@ dissect_browser_browserr_query_emulated_domains_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_server_enum_ex_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "unknown string", 
@@ -1057,7 +1057,7 @@ dissect_browser_browserr_server_enum_ex_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_browser_browserr_server_enum_ex_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_browser_TYPE_1, NDR_POINTER_REF,

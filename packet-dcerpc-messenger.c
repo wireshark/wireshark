@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\msgsvc packet disassembly
  * Copyright 2003 Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-messenger.c,v 1.5 2003/09/27 23:45:25 sahlberg Exp $
+ * $Id: packet-dcerpc-messenger.c,v 1.6 2004/01/19 20:10:34 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,7 +65,7 @@ static guint16 ver_dcerpc_messenger = 1;
  */
 static int
 messenger_dissect_send_message_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			    proto_tree *tree, char *drep)
+			    proto_tree *tree, guint8 *drep)
 {
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_char_cvstring, NDR_POINTER_REF,
@@ -82,7 +82,7 @@ messenger_dissect_send_message_rqst(tvbuff_t *tvb, int offset, packet_info *pinf
 }
 static int
 messenger_dissect_send_message_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			    proto_tree *tree, char *drep)
+			    proto_tree *tree, guint8 *drep)
 {
         offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
 				  hf_messenger_rc, NULL);

@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.77 2003/07/01 00:59:43 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.78 2004/01/19 20:10:35 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,7 +63,7 @@ static int hf_nt_cs_size = -1;
 int
 dissect_ndr_counted_string_cb(tvbuff_t *tvb, int offset,
 			      packet_info *pinfo, proto_tree *tree,
-			      char *drep, int hf_index,
+			      guint8 *drep, int hf_index,
 			      dcerpc_callback_fnct_t *callback,
 			      void *callback_args)
 {
@@ -104,7 +104,7 @@ static gint ett_nt_counted_string = -1;
 static int
 dissect_ndr_counted_string_helper(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
-				  char *drep, int hf_index, int levels,
+				  guint8 *drep, int hf_index, int levels,
 				  gboolean add_subtree)
 {
 	proto_item *item;
@@ -134,7 +134,7 @@ dissect_ndr_counted_string_helper(tvbuff_t *tvb, int offset,
 int
 dissect_ndr_counted_string(tvbuff_t *tvb, int offset,
 			   packet_info *pinfo, proto_tree *tree,
-			   char *drep, int hf_index, int levels)
+			   guint8 *drep, int hf_index, int levels)
 {
 	return dissect_ndr_counted_string_helper(
 		tvb, offset, pinfo, tree, drep, hf_index, levels, TRUE);
@@ -147,7 +147,7 @@ dissect_ndr_counted_string(tvbuff_t *tvb, int offset,
 int
 dissect_ndr_counted_string_ptr(tvbuff_t *tvb, int offset,
 			       packet_info *pinfo, proto_tree *tree,
-			       char *drep)
+			       guint8 *drep)
 {
 	dcerpc_info *di = pinfo->private_data;
 
@@ -164,7 +164,7 @@ static gint ett_nt_counted_byte_array = -1;
 int
 dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
-				  char *drep, int hf_index,
+				  guint8 *drep, int hf_index,
 				  dcerpc_callback_fnct_t *callback,
 				  void *callback_args)
 {
@@ -210,7 +210,7 @@ dissect_ndr_counted_byte_array_cb(tvbuff_t *tvb, int offset,
 int
 dissect_ndr_counted_byte_array(tvbuff_t *tvb, int offset,
 			       packet_info *pinfo, proto_tree *tree,
-			       char *drep, int hf_index)
+			       guint8 *drep, int hf_index)
 {
 	return dissect_ndr_counted_byte_array_cb(
 		tvb, offset, pinfo, tree, drep, hf_index, NULL, NULL);
@@ -223,7 +223,7 @@ dissect_ndr_counted_byte_array(tvbuff_t *tvb, int offset,
 int
 dissect_ndr_nt_NTTIME (tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep _U_, int hf_index)
+			guint8 *drep _U_, int hf_index)
 {
 	dcerpc_info *di;
 
@@ -659,7 +659,7 @@ static void init_pol_hash(void)
 
 int
 dissect_ntstatus(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-		 proto_tree *tree, char *drep,
+		 proto_tree *tree, guint8 *drep,
 		 int hfindex, guint32 *pdata)
 {
 	guint32 status;
@@ -681,7 +681,7 @@ dissect_ntstatus(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 int
 dissect_doserror(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-	       proto_tree *tree, char *drep,
+	       proto_tree *tree, guint8 *drep,
 	       int hfindex, guint32 *pdata)
 {
 	guint32 status;
@@ -708,7 +708,7 @@ static gint ett_nt_policy_hnd = -1;
 
 int
 dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-		      proto_tree *tree, char *drep, int hfindex,
+		      proto_tree *tree, guint8 *drep, int hfindex,
 		      e_ctx_hnd *pdata, proto_item **pitem,
 		      gboolean is_open, gboolean is_close)
 {
@@ -789,7 +789,7 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 int
 dissect_dcerpc_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                      proto_tree *tree, char *drep, int hfindex,
+                      proto_tree *tree, guint8 *drep, int hfindex,
 		      int length, const guint8 **pdata)
 {
     const guint8 *data;
@@ -808,7 +808,7 @@ dissect_dcerpc_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
 int
 dissect_ndr_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, char *drep,
+                   proto_tree *tree, guint8 *drep,
                    int hfindex, int length, const guint8 **pdata)
 {
     dcerpc_info *di;
@@ -826,7 +826,7 @@ dissect_ndr_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 int
 dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                      proto_tree *tree, char *drep, int hfindex,
+                      proto_tree *tree, guint8 *drep, int hfindex,
 		      int length)
 {
     if (tree) {
@@ -838,7 +838,7 @@ dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
 int
 dissect_ndr_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, char *drep,
+                   proto_tree *tree, guint8 *drep,
                    int hfindex, int length)
 {
     dcerpc_info *di;
@@ -1000,7 +1000,7 @@ void cb_str_postprocess(packet_info *pinfo, proto_tree *tree _U_,
 
 int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset, 
 				 packet_info *pinfo, proto_tree *tree, 
-				 char *drep, int type, char *text, 
+				 guint8 *drep, int type, char *text, 
 				 int hf_index, int levels)
 {
 	return dissect_ndr_pointer_cb(

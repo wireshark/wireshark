@@ -2,7 +2,7 @@
  * Routines for DCERPC TAPI packet disassembly
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-tapi.c,v 1.8 2003/10/22 01:55:04 sahlberg Exp $
+ * $Id: packet-dcerpc-tapi.c,v 1.9 2004/01/19 20:10:36 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,7 +73,7 @@ static guint16 ver_dcerpc_tapi = 1;
 static int
 dissect_tapi_client_attach_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_tapi_unknown_long, NULL);
@@ -91,7 +91,7 @@ dissect_tapi_client_attach_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_tapi_client_attach_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, tree, drep,
 			hf_tapi_hnd, NULL);
@@ -115,7 +115,7 @@ dissect_tapi_client_attach_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_tapi_TYPE_1(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	dcerpc_info *di;
 
@@ -137,7 +137,7 @@ dissect_tapi_TYPE_1(tvbuff_t *tvb, int offset,
 static int
 dissect_tapi_client_request_rqst(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_ctx_hnd(tvb, offset, pinfo, tree, drep,
 			hf_tapi_hnd, NULL);
@@ -154,7 +154,7 @@ dissect_tapi_client_request_rqst(tvbuff_t *tvb, int offset,
 static int
 dissect_tapi_client_request_reply(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *tree,
-			char *drep)
+			guint8 *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_tapi_rc, NULL);
@@ -171,14 +171,14 @@ dissect_tapi_client_request_reply(tvbuff_t *tvb, int offset,
 static int
 dissect_tapi_client_detach_rqst(tvbuff_t *tvb _U_, int offset _U_,
 			packet_info *pinfo _U_, proto_tree *tree _U_,
-			char *drep _U_)
+			guint8 *drep _U_)
 {
 	return offset;
 }
 static int
 dissect_tapi_client_detach_reply(tvbuff_t *tvb _U_, int offset _U_,
 			packet_info *pinfo _U_, proto_tree *tree _U_,
-			char *drep _U_)
+			guint8 *drep _U_)
 {
 	return offset;
 }
