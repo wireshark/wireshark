@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.23 2000/11/28 15:54:18 gram Exp $ */
+/* $Id: config.h.win32,v 1.24 2001/01/12 04:06:22 gram Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -139,8 +139,8 @@
 #define PACKAGE "ethereal"
 
 /* Version number of package */
-#define VERSION "0.8.14.1"
+#define VERSION "0.8.15"
 
 /* Plugin installation directory */
-#define PLUGIN_DIR "/usr/local/lib/ethereal/plugins/0.8.14.1"
+#define PLUGIN_DIR "/usr/local/lib/ethereal/plugins/0.8.15"
 

@@ -3,8 +3,8 @@
 ETHEREAL_ICON		ICON			"ethereal.ico"
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,8,14,0
- PRODUCTVERSION 0,8,14,0
+ FILEVERSION 0,8,15,0
+ PRODUCTVERSION 0,8,15,0
  FILEFLAGSMASK 0x0L
 #ifdef _DEBUG
  FILEFLAGS 0x3L
@@ -21,12 +21,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "The Ethereal developer community, http://www.ethereal.com/\0"
             VALUE "FileDescription", "Ethereal\0"
-            VALUE "FileVersion", "0.8.14\0"
-            VALUE "InternalName", "Ethereal 0.8.14\0"
+            VALUE "FileVersion", "0.8.15\0"
+            VALUE "InternalName", "Ethereal 0.8.15\0"
             VALUE "LegalCopyright", "Copyright © 2000 Gerald Combs <gerald@ethereal.com>, Gilbert Ramirez <gram@xiexie.org> and others\0"
             VALUE "OriginalFilename", "Ethereal.exe\0"
             VALUE "ProductName", "Ethereal\0"
-            VALUE "ProductVersion", "0.8.14\0"
+            VALUE "ProductVersion", "0.8.15\0"
         END
     END
     BLOCK "VarFileInfo"
