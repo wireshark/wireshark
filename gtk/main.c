@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.94 2000/01/24 04:49:45 guy Exp $
+ * $Id: main.c,v 1.95 2000/01/24 05:06:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -989,17 +989,18 @@ print_usage(void) {
   fprintf(stderr, "This is GNU " PACKAGE " " VERSION ", compiled with %s\n",
 	  comp_info_str);
 #ifdef HAVE_LIBPCAP
-  fprintf(stderr, "%s [-vh] [-kQS] [-b <bold font>] [-B <byte view height>] [-c count]\n",
+  fprintf(stderr, "%s [ -vh ] [ -kQS ] [ -b <bold font> ] [ -B <byte view height> ]\n",
 	  PACKAGE);
-  fprintf(stderr, "         [-D] [-f <capture filter>] [-i interface] [-m <medium font>] [-n]\n");
-  fprintf(stderr, "         [-P <packet list height>] [-r infile] [-R <read filter>]\n");
-  fprintf(stderr, "         [-s snaplen] [-t <time stamp format>] [-T <tree view height>]\n");
-  fprintf(stderr, "         [-w savefile]\n");
+  fprintf(stderr, "\t[ -c count ] [ -D ] [ -f <capture filter> ] [ -i interface ]\n");
+  fprintf(stderr, "\t[ -m <medium font> ] [ -n ] [ -P <packet list height> ] [ -r infile ]\n");
+  fprintf(stderr, "\t[ -R <read filter> ] [ -s snaplen ] [ -t <time stamp format> ]\n");
+  fprintf(stderr, "\t[ -T <tree view height> ] [ -w savefile ]\n");
 #else
-  fprintf(stderr, "%s [-vh] [-b <bold font>] [-B <byte view height>] [-m <medium font>]\n",
+  fprintf(stderr, "%s [ -vh ] [ -b <bold font> ] [ -B <byte view height> ]\n",
 	  PACKAGE);
-  fprintf(stderr, "         [-n] [-P <packet list height>] [-r infile] [-R <read filter>]\n");
-  fprintf(stderr, "         [-t <time stamp format>] [-T <tree view height>]\n");
+  fprintf(stderr, "\t[ -m <medium font> ] [ -n ] [ -P <packet list height> ] [ -r infile ]\n");
+  fprintf(stderr, "\t[ -R <read filter> ] [ -t <time stamp format> ]\n");
+  fprintf(stderr, "\t[ -T <tree view height> ]\n");
 #endif
 }
 
