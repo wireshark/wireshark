@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.12 1999/08/20 20:37:46 gram Exp $
+ * $Id: dfilter.c,v 1.13 1999/08/20 20:45:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,15 @@
 
 #ifndef _STRING_H
 #include <string.h>
+#endif
+
+#ifdef NEED_SNPRINTF_H
+# ifdef HAVE_STDARG_H
+#  include <stdarg.h>
+# else
+#  include <varargs.h>
+# endif
+# include "snprintf.h"
 #endif
 
 #ifndef __G_LIB_H__
