@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.319 2003/09/24 06:18:20 oabad Exp $
+ * $Id: main.c,v 1.320 2003/10/07 04:36:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,7 +144,8 @@ static guint    main_ctx, file_ctx, help_ctx;
 static GString *comp_info_str, *runtime_info_str;
 gchar       *ethereal_path = NULL;
 gchar       *last_open_dir = NULL;
-gint   root_x = G_MAXINT, root_y = G_MAXINT, top_width, top_height;
+static gint root_x = G_MAXINT, root_y = G_MAXINT, top_width, top_height;
+static gboolean updated_geometry = FALSE;
 
 ts_type timestamp_type = RELATIVE;
 
@@ -1216,11 +1217,34 @@ do_quit(void)
 static gboolean
 main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer data _U_)
 {
+	/* "do_quit()" indicates whether the main window should be deleted. */
+	return do_quit();
+}
+
+static gboolean
+main_window_configure_event_cb(GtkWidget *widget, GdkEvent *event _U_, gpointer data _U_)
+{
 	gint desk_x, desk_y;
 
-	/* Try to grab our geometry */
-	gdk_window_get_root_origin(top_level->window, &root_x, &root_y);
-	if (gdk_window_get_deskrelative_origin(top_level->window,
+	/* Try to grab our geometry.
+
+	   GTK+ provides two routines to get a window's position relative
+	   to the X root window.  If I understand the documentation correctly,
+	   gdk_window_get_deskrelative_origin applies mainly to Enlightenment
+	   and gdk_window_get_root_origin applies for all other WMs.
+
+	   The code below tries both routines, and picks the one that returns
+	   the upper-left-most coordinates.
+
+	   More info at:
+
+	http://mail.gnome.org/archives/gtk-devel-list/2001-March/msg00289.html
+	http://www.gtk.org/faq/#AEN606
+
+	   XXX - should we get this from the event itself? */
+
+	gdk_window_get_root_origin(widget->window, &root_x, &root_y);
+	if (gdk_window_get_deskrelative_origin(widget->window,
 				&desk_x, &desk_y)) {
 		if (desk_x <= root_x && desk_y <= root_y) {
 			root_x = desk_x;
@@ -1229,10 +1253,11 @@ main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer
 	}
 
 	/* XXX - Is this the "approved" method? */
-	gdk_window_get_size(top_level->window, &top_width, &top_height);
+	gdk_window_get_size(widget->window, &top_width, &top_height);
 
-	/* "do_quit()" indicates whether the main window should be deleted. */
-	return do_quit();
+	updated_geometry = TRUE;
+
+	return TRUE;
 }
 
 void
@@ -1542,7 +1567,6 @@ main(int argc, char *argv[])
 #if GTK_MAJOR_VERSION < 2
   char                *bold_font_name;
 #endif
-  gint                 desk_x, desk_y;
   gboolean             prefs_write_needed = FALSE;
   ethereal_tap_list   *tli = NULL;
   gchar               *tap_opt = NULL;
@@ -2426,68 +2450,54 @@ main(int argc, char *argv[])
 
   gtk_main();
 
-  /* Try to save our geometry.  GTK+ provides two routines to get a
-     window's position relative to the X root window.  If I understand the
-     documentation correctly, gdk_window_get_deskrelative_origin applies
-     mainly to Enlightenment and gdk_window_get_root_origin applies for
-     all other WMs.
+  /* If our geometry has changed, save whatever elements of it we're
+     supposed to change. */
+  if (updated_geometry) {
+    /* We've gotten an update, in the form of a configure_notify event.
+       Re-read our saved preferences, and, if the geometry preferences
+       differ from the current geometry, and we're supposed to save
+       the current values of the changed geometry item (position or
+       size), update the preference value and note that we will have
+       to write the preferences out.
 
-     The code below tries both routines, and picks the one that returns
-     the upper-left-most coordinates.
+       XXX - Move all of this into a separate function?
 
-     More info at:
+       XXX - should GUI stuff such as this be in a separate file? */
+    prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
+		       &pf_open_errno, &pf_read_errno, &pf_path);
 
-	http://mail.gnome.org/archives/gtk-devel-list/2001-March/msg00289.html
-	http://www.gtk.org/faq/#AEN600 */
-
-  /* Re-read our saved preferences. */
-  /* XXX - Move all of this into a separate function? */
-  prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
-	             &pf_open_errno, &pf_read_errno, &pf_path);
-
-  if (pf_path == NULL) {
-    if (prefs->gui_geometry_save_position) {
-      if (top_level->window != NULL) {
-	gdk_window_get_root_origin(top_level->window, &root_x, &root_y);
-	if (gdk_window_get_deskrelative_origin(top_level->window,
-					       &desk_x, &desk_y)) {
-	  if (desk_x <= root_x && desk_y <= root_y) {
-	    root_x = desk_x;
-	    root_y = desk_y;
-	  }
+    if (pf_path == NULL) {
+      /* We succeeded in reading the preferences. */
+      if (prefs->gui_geometry_save_position) {
+	if (prefs->gui_geometry_main_x != root_x) {
+	  prefs->gui_geometry_main_x = root_x;
+	  prefs_write_needed = TRUE;
+	}
+	if (prefs->gui_geometry_main_y != root_y) {
+	  prefs->gui_geometry_main_y = root_y;
+	  prefs_write_needed = TRUE;
 	}
       }
-      if (prefs->gui_geometry_main_x != root_x) {
-	prefs->gui_geometry_main_x = root_x;
-	prefs_write_needed = TRUE;
-      }
-      if (prefs->gui_geometry_main_y != root_y) {
-	prefs->gui_geometry_main_y = root_y;
-	prefs_write_needed = TRUE;
-      }
-    }
 
-    if (prefs->gui_geometry_save_size) {
-      if (top_level->window != NULL) {
-	/* XXX - Is this the "approved" method? */
-	gdk_window_get_size(top_level->window, &top_width, &top_height);
+      if (prefs->gui_geometry_save_size) {
+	if (prefs->gui_geometry_main_width != top_width) {
+	  prefs->gui_geometry_main_width = top_width;
+	  prefs_write_needed = TRUE;
+	}
+	if (prefs->gui_geometry_main_height != top_height) {
+	  prefs->gui_geometry_main_height = top_height;
+	  prefs_write_needed = TRUE;
+	}
       }
-      if (prefs->gui_geometry_main_width != top_width) {
-	prefs->gui_geometry_main_width = top_width;
-	prefs_write_needed = TRUE;
-      }
-      if (prefs->gui_geometry_main_height != top_height) {
-	prefs->gui_geometry_main_height = top_height;
-	prefs_write_needed = TRUE;
-      }
-    }
 
-    if (prefs_write_needed) {
-      write_prefs(&pf_path);
+      if (prefs_write_needed) {
+	write_prefs(&pf_path);
+      }
+    } else {
+      /* We failed to read the preferences - silently ignore the
+         error. */
+      g_free(pf_path);
     }
-  } else {
-    /* Ignore errors silently */
-    g_free(pf_path);
   }
 
   epan_cleanup();
@@ -2714,6 +2724,8 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
         WIDGET_SET_SIZE(top_level, DEF_WIDTH, -1);
     }
     gtk_window_set_policy(GTK_WINDOW(top_level), TRUE, TRUE, FALSE);
+    SIGNAL_CONNECT(top_level, "configure_event", main_window_configure_event_cb,
+                   NULL);
 
     /* Container for menu bar, paned windows and progress/info box */
     main_vbox = gtk_vbox_new(FALSE, 1);
