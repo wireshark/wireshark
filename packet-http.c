@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.82 2003/12/24 09:50:54 guy Exp $
+ * $Id: packet-http.c,v 1.83 2003/12/27 01:42:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -220,9 +220,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 */
 	first_linelen = tvb_find_line_end(tvb, offset,
 	    tvb_ensure_length_remaining(tvb, offset), &next_offset,
-	    TRUE);
-	if (first_linelen < 0)
-		return -1;
+	    FALSE);
+	/*
+	 * Is the first line a request or response?
+	 */
 	line = tvb_get_ptr(tvb, offset, first_linelen);
 	http_type = HTTP_OTHERS;	/* type not known yet */
 	is_request_or_reply = is_http_request_or_reply(line, first_linelen,
