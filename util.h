@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: util.h,v 1.26 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: util.h,v 1.27 2003/03/08 07:00:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+/*
+ * Get various library version and the OS version and append them to
+ * the specified GString.
+ */
+void get_version_info(GString *str);
 
 int create_tempfile(char *, int, const char *);
 

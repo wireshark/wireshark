@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.57 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: util.c,v 1.58 2003/03/08 07:00:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,7 +54,229 @@
 typedef int mode_t;	/* for win32 */
 #endif
 
+#ifdef HAVE_LIBZ
+#include <zlib.h>	/* to get the libz version number */
+#endif
+
+#ifdef HAVE_SOME_SNMP
+
+#ifdef HAVE_NET_SNMP
+#include <net-snmp/version.h>
+#endif /* HAVE_NET_SNMP */
+
+#ifdef HAVE_UCD_SNMP
+#include <ucd-snmp/version.h>
+#endif /* HAVE_UCD_SNMP */
+
+#endif /* HAVE_SOME_SNMP */
+
+#ifdef HAVE_SYS_UTSNAME_H
+#include <sys/utsname.h>
+#endif
+
 #include "util.h"
+
+/*
+ * Get various library version and the OS version and append them to
+ * the specified GString.
+ */
+void
+get_version_info(GString *str)
+{
+#ifdef HAVE_LIBPCAP
+#ifdef HAVE_PCAP_VERSION
+	extern char pcap_version[];
+#endif /* HAVE_PCAP_VERSION */
+#endif /* HAVE_LIBPCAP */
+#if defined(WIN32)
+	OSVERSIONINFO info;
+#elif defined(HAVE_SYS_UTSNAME_H)
+	struct utsname name;
+#endif
+
+	g_string_append(str, "with ");
+	g_string_sprintfa(str,
+#ifdef GLIB_MAJOR_VERSION
+	    "GLib %d.%d.%d", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
+	    GLIB_MICRO_VERSION);
+#else
+	    "GLib (version unknown)");
+#endif
+
+#ifdef HAVE_LIBPCAP
+	g_string_append(str, ", with libpcap ");
+#ifdef HAVE_PCAP_VERSION
+	g_string_append(str, pcap_version);
+#else /* HAVE_PCAP_VERSION */
+	g_string_append(str, "(version unknown)");
+#endif /* HAVE_PCAP_VERSION */
+#else /* HAVE_LIBPCAP */
+	g_string_append(str, "without libpcap");
+#endif /* HAVE_LIBPCAP */
+
+#ifdef HAVE_LIBZ
+	g_string_append(str, ", with libz ");
+#ifdef ZLIB_VERSION
+	g_string_append(str, ZLIB_VERSION);
+#else /* ZLIB_VERSION */
+	g_string_append(str, "(version unknown)");
+#endif /* ZLIB_VERSION */
+#else /* HAVE_LIBZ */
+	g_string_append(str, ", without libz");
+#endif /* HAVE_LIBZ */
+
+/* Oh, this is pretty. */
+/* Oh, ha.  you think that was pretty.  Try this:! --Wes */
+#ifdef HAVE_SOME_SNMP
+
+#ifdef HAVE_UCD_SNMP
+	g_string_append(str, ", with UCD-SNMP ");
+	g_string_append(str, VersionInfo);
+#endif /* HAVE_UCD_SNMP */
+
+#ifdef HAVE_NET_SNMP
+	g_string_append(str, ", with Net-SNMP ");
+	g_string_append(str, netsnmp_get_version());
+#endif /* HAVE_NET_SNMP */
+
+#else /* no SNMP library */
+	g_string_append(str, ", without UCD-SNMP or Net-SNMP");
+#endif /* HAVE_SOME_SNMP */
+
+	g_string_append(str, ", running on ");
+#if defined(WIN32)
+	info.dwOSVersionInfoSize = sizeof info;
+	if (!GetVersionEx(&info)) {
+		/*
+		 * XXX - get the failure reason.
+		 */
+		g_string_append(str, "unknown Windows version");
+		return;
+	}
+	switch (info.dwPlatformId) {
+
+	case VER_PLATFORM_WIN32s:
+		/* Shyeah, right. */
+		g_string_sprintfa(str, "Windows 3.1 with Win32s");
+		break;
+
+	case VER_PLATFORM_WIN32_WINDOWS:
+		/* Windows OT */
+		switch (info.dwMajorVersion) {
+
+		case 4:
+			/* 3 cheers for Microsoft marketing! */
+			switch (info.dwMinorVersion) {
+
+			case 0:
+				g_string_sprintfa(str, "Windows 95");
+				break;
+
+			case 10:
+				g_string_sprintfa(str, "Windows 98");
+				break;
+
+			case 90:
+				g_string_sprintfa(str, "Windows Me");
+				break;
+
+			default:
+				g_string_sprintfa(str, "Windows OT, unknown version %u.%u",
+				    info.dwMajorVersion, info.dwMinorVersion);
+				break;
+			}
+			break;
+
+		default:
+			g_string_sprintfa(str, "Windows OT, unknown version %u.%u",
+			    info.dwMajorVersion, info.dwMinorVersion);
+			break;
+		}
+		break;
+
+	case VER_PLATFORM_WIN32_NT:
+		/* Windows NT */
+		switch (info.dwMajorVersion) {
+
+		case 3:
+		case 4:
+			g_string_sprintfa(str, "Windows NT %u.%u",
+			    dwMajorVersion, info.dwMinorVersion);
+			break;
+
+		case 5:
+			/* 3 cheers for Microsoft marketing! */
+			switch (info.dwMinorVersion) {
+
+			case 0:
+				g_string_sprintfa(str, "Windows 2000");
+				break;
+
+			case 1:
+				g_string_sprintfa(str, "Windows XP");
+				break;
+
+			case 2:
+				g_string_sprintfa(str, "Windows Server 2003");
+				break;
+
+			default:
+				g_string_sprintfa(str, "Windows NT, unknown version %u.%u",
+				    info.dwMajorVersion, info.dwMinorVersion);
+				break;
+			}
+			break;
+
+		default:
+			g_string_sprintfa(str, "Windows NT, unknown version %u.%u",
+			    info.dwMajorVersion, info.dwMinorVersion);
+			break;
+		}
+		break;
+
+	default:
+		g_string_sprintfa(str, "Unknown Windows platform %u version %u.%u",
+		    info.dwPlatformId, info.dwMajorVersion, info.dwMinorVersion);
+		break;
+	}
+	g_string_sprintfa(str, ", build %u", info.dwBuildNumber);
+	if (szCSDVersion[0] != '\0')
+		g_string_sprintfa(str, ", %s", szCSDVersion);
+#elif defined(HAVE_SYS_UTSNAME_H)
+	/*
+	 * We have <sys/utsname.h>, so we assume we have "uname()".
+	 */
+	if (uname(&name) < 0) {
+		g_string_sprintfa(str, "unknown OS version (uname failed - %s)",
+		    strerror(errno));
+		return;
+	}
+
+	if (strcmp(name.sysname, "AIX") == 0) {
+		/*
+		 * Yay, IBM!  Thanks for doing something different
+		 * from most of the other UNIXes out there, and
+		 * making "name.version" apparently be the major
+		 * version number and "name.release" be the minor
+		 * version number.
+		 */
+		g_string_sprintfa(str, "%s %s.%s", name.sysname, name.version,
+		    name.release);
+	} else {
+		/*
+		 * XXX - get "version" on any other platforms?
+		 *
+		 * On Digital/Tru65 UNIX, it's something unknown.
+		 * On Solaris, it's some kind of build information.
+		 * On HP-UX, it appears to be some sort of subrevision
+		 * thing.
+		 */
+		g_string_sprintfa(str, "%s %s", name.sysname, name.release);
+	}
+#else
+	g_string_append("an unknown OS");
+#endif
+}
 
 /*
  * Collect command-line arguments as a string consisting of the arguments,

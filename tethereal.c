@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.176 2003/01/01 03:51:02 guy Exp $
+ * $Id: tethereal.c,v 1.177 2003/03/08 07:00:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,25 +56,9 @@
 # include <sys/stat.h>
 #endif
 
-#ifdef HAVE_LIBZ
-#include <zlib.h>	/* to get the libz version number */
-#endif
-
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
 #endif
-
-#ifdef HAVE_SOME_SNMP
-
-#ifdef HAVE_NET_SNMP
-#include <net-snmp/version.h>
-#endif /* HAVE_NET_SNMP */
-
-#ifdef HAVE_UCD_SNMP
-#include <ucd-snmp/version.h>
-#endif /* HAVE_UCD_SNMP */
-
-#endif /* HAVE_SOME_SNMP */
 
 #ifdef NEED_STRERROR_H
 #include "strerror.h"
@@ -363,11 +347,6 @@ main(int argc, char *argv[])
   int                  opt, i;
   extern char         *optarg;
   gboolean             arg_error = FALSE;
-#ifdef HAVE_LIBPCAP
-#ifdef HAVE_PCAP_VERSION
-  extern char          pcap_version[];
-#endif /* HAVE_PCAP_VERSION */
-#endif /* HAVE_LIBPCAP */
 
 #ifdef _WIN32
   WSADATA		wsaData;
@@ -457,54 +436,7 @@ main(int argc, char *argv[])
   /* Assemble the compile-time options */
   comp_info_str = g_string_new("");
 
-  g_string_append(comp_info_str, "with ");
-  g_string_sprintfa(comp_info_str,
-#ifdef GLIB_MAJOR_VERSION
-    "GLib %d.%d.%d", GLIB_MAJOR_VERSION, GLIB_MINOR_VERSION,
-    GLIB_MICRO_VERSION);
-#else
-    "GLib (version unknown)");
-#endif
-
-#ifdef HAVE_LIBPCAP
-  g_string_append(comp_info_str, ", with libpcap ");
-#ifdef HAVE_PCAP_VERSION
-  g_string_append(comp_info_str, pcap_version);
-#else /* HAVE_PCAP_VERSION */
-  g_string_append(comp_info_str, "(version unknown)");
-#endif /* HAVE_PCAP_VERSION */
-#else /* HAVE_LIBPCAP */
-  g_string_append(comp_info_str, ", without libpcap");
-#endif /* HAVE_LIBPCAP */
-
-#ifdef HAVE_LIBZ
-  g_string_append(comp_info_str, ", with libz ");
-#ifdef ZLIB_VERSION
-  g_string_append(comp_info_str, ZLIB_VERSION);
-#else /* ZLIB_VERSION */
-  g_string_append(comp_info_str, "(version unknown)");
-#endif /* ZLIB_VERSION */
-#else /* HAVE_LIBZ */
-  g_string_append(comp_info_str, ", without libz");
-#endif /* HAVE_LIBZ */
-
-/* Oh, this is pretty. */
-/* Oh, ha.  you think that was pretty.  Try this:! --Wes */
-#ifdef HAVE_SOME_SNMP
-
-#ifdef HAVE_UCD_SNMP
-  g_string_append(comp_info_str, ", with UCD-SNMP ");
-  g_string_append(comp_info_str, VersionInfo);
-#endif /* HAVE_UCD_SNMP */
-
-#ifdef HAVE_NET_SNMP
-  g_string_append(comp_info_str, ", with Net-SNMP ");
-  g_string_append(comp_info_str, netsnmp_get_version());
-#endif /* HAVE_NET_SNMP */
-
-#else /* no SNMP library */
-  g_string_append(comp_info_str, ", without UCD-SNMP or Net-SNMP");
-#endif /* HAVE_SOME_SNMP */
+  get_version_info(comp_info_str);
 
   /* Now get our args */
   while ((opt = getopt(argc, argv, "a:b:c:Df:F:hi:lnN:o:pqr:R:s:St:vw:Vxz:")) != -1) {
