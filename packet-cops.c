@@ -13,7 +13,7 @@
  *
  * Implemented in ethereal at April 7-8, 2004
  *
- * $Id: packet-cops.c,v 1.47 2004/04/30 21:11:25 guy Exp $
+ * $Id: packet-cops.c,v 1.48 2004/05/04 06:01:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2555,6 +2555,12 @@ void cops_analyze_packetcable_obj(tvbuff_t *tvb, proto_tree *tree, guint32 offse
 
        /* In case we have remaining data, then lets try to get this analyzed */
        object_len   = tvb_get_ntohs(tvb, offset);
+       if (object_len < 4) {
+	proto_tree_add_text(tree, tvb, offset, 2,
+	    "Incorrect PacketCable object length %u < 4", object_len);
+	return;
+       }
+	
        s_num        = tvb_get_guint8(tvb, offset + 2);
        s_type       = tvb_get_guint8(tvb, offset + 3);
 
