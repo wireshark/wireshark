@@ -6,7 +6,7 @@
  * Portions Copyright (c) 2000-2002 by Gilbert Ramirez.
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.c,v 1.134 2003/08/24 05:17:50 sahlberg Exp $
+ * $Id: packet-ipx.c,v 1.135 2003/08/24 05:21:01 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -286,47 +286,47 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		ti = proto_tree_add_item(tree, proto_ipx, tvb, 0, IPX_HEADER_LEN, FALSE);
 		ipx_tree = proto_item_add_subtree(ti, ett_ipx);
-
-		proto_tree_add_item(ipx_tree, hf_ipx_checksum, tvb, 0, 2, FALSE);
-		proto_tree_add_uint_format(ipx_tree, hf_ipx_len, tvb, 2, 2, ipxh->ipx_length,
-			"Length: %d bytes", ipxh->ipx_length);
-		ipx_hops = tvb_get_guint8(tvb, 4);
-		proto_tree_add_uint_format(ipx_tree, hf_ipx_hops, tvb, 4, 1, ipx_hops,
-			"Transport Control: %d hops", ipx_hops);
-		proto_tree_add_uint(ipx_tree, hf_ipx_packet_type, tvb, 5, 1, ipxh->ipx_type);
-
-		/* Destination */
-		ipx_dnet = tvb_get_ntohl(tvb, 6);
-		proto_tree_add_ipxnet(ipx_tree, hf_ipx_dnet, tvb, 6, 4,
-			ipx_dnet);
-		proto_tree_add_ipxnet_hidden(ipx_tree, hf_ipx_net, tvb, 6, 4,
-			ipx_dnet);
-		ipx_dnode = tvb_get_ptr(tvb, 10,  6);
-		proto_tree_add_ether(ipx_tree, hf_ipx_dnode, tvb, 10, 6,
-			ipx_dnode);
-		proto_tree_add_ether_hidden(ipx_tree, hf_ipx_node, tvb, 10, 6,
-			ipx_dnode);
-		proto_tree_add_uint(ipx_tree, hf_ipx_dsocket, tvb, 16, 2,
-			ipxh->ipx_dsocket);
-		proto_tree_add_uint_hidden(ipx_tree, hf_ipx_socket, tvb, 16, 2,
-			ipxh->ipx_dsocket);
-
-		/* Source */
-		ipx_snet = tvb_get_ntohl(tvb, 18);
-		proto_tree_add_ipxnet(ipx_tree, hf_ipx_snet, tvb, 18, 4,
-			ipx_snet);
-		proto_tree_add_ipxnet_hidden(ipx_tree, hf_ipx_net, tvb, 18, 4,
-			ipx_snet);
-		ipx_snode = tvb_get_ptr(tvb, 22, 6);
-		proto_tree_add_ether(ipx_tree, hf_ipx_snode, tvb, 22, 6,
-			ipx_snode);
-		proto_tree_add_ether_hidden(ipx_tree, hf_ipx_node, tvb, 22, 6,
-			ipx_snode);
-		proto_tree_add_uint(ipx_tree, hf_ipx_ssocket, tvb, 28, 2,
-			ipxh->ipx_ssocket);
-		proto_tree_add_uint_hidden(ipx_tree, hf_ipx_socket, tvb, 28, 2,
-			ipxh->ipx_ssocket);
 	}
+
+	proto_tree_add_item(ipx_tree, hf_ipx_checksum, tvb, 0, 2, FALSE);
+	proto_tree_add_uint_format(ipx_tree, hf_ipx_len, tvb, 2, 2, ipxh->ipx_length,
+		"Length: %d bytes", ipxh->ipx_length);
+	ipx_hops = tvb_get_guint8(tvb, 4);
+	proto_tree_add_uint_format(ipx_tree, hf_ipx_hops, tvb, 4, 1, ipx_hops,
+		"Transport Control: %d hops", ipx_hops);
+	proto_tree_add_uint(ipx_tree, hf_ipx_packet_type, tvb, 5, 1, ipxh->ipx_type);
+
+	/* Destination */
+	ipx_dnet = tvb_get_ntohl(tvb, 6);
+	proto_tree_add_ipxnet(ipx_tree, hf_ipx_dnet, tvb, 6, 4,
+		ipx_dnet);
+	proto_tree_add_ipxnet_hidden(ipx_tree, hf_ipx_net, tvb, 6, 4,
+		ipx_dnet);
+	ipx_dnode = tvb_get_ptr(tvb, 10,  6);
+	proto_tree_add_ether(ipx_tree, hf_ipx_dnode, tvb, 10, 6,
+		ipx_dnode);
+	proto_tree_add_ether_hidden(ipx_tree, hf_ipx_node, tvb, 10, 6,
+		ipx_dnode);
+	proto_tree_add_uint(ipx_tree, hf_ipx_dsocket, tvb, 16, 2,
+		ipxh->ipx_dsocket);
+	proto_tree_add_uint_hidden(ipx_tree, hf_ipx_socket, tvb, 16, 2,
+		ipxh->ipx_dsocket);
+
+	/* Source */
+	ipx_snet = tvb_get_ntohl(tvb, 18);
+	proto_tree_add_ipxnet(ipx_tree, hf_ipx_snet, tvb, 18, 4,
+		ipx_snet);
+	proto_tree_add_ipxnet_hidden(ipx_tree, hf_ipx_net, tvb, 18, 4,
+		ipx_snet);
+	ipx_snode = tvb_get_ptr(tvb, 22, 6);
+	proto_tree_add_ether(ipx_tree, hf_ipx_snode, tvb, 22, 6,
+		ipx_snode);
+	proto_tree_add_ether_hidden(ipx_tree, hf_ipx_node, tvb, 22, 6,
+		ipx_snode);
+	proto_tree_add_uint(ipx_tree, hf_ipx_ssocket, tvb, 28, 2,
+		ipxh->ipx_ssocket);
+	proto_tree_add_uint_hidden(ipx_tree, hf_ipx_socket, tvb, 28, 2,
+		ipxh->ipx_ssocket);
 
 	/* Make the next tvbuff */
 	next_tvb = tvb_new_subset(tvb, IPX_HEADER_LEN, -1, -1);
