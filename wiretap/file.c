@@ -1,6 +1,6 @@
 /* file.c
  *
- * $Id: file.c,v 1.13 1999/08/15 06:59:13 guy Exp $
+ * $Id: file.c,v 1.14 1999/08/18 04:17:37 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -100,15 +100,14 @@ wtap* wtap_open_offline(const char *filename, int *err)
 	if ((wth->file_type = iptrace_open(wth)) != WTAP_FILE_UNKNOWN) {
 		goto success;
 	}
-	/* WTAP_FILE_NETMON */
+	/* WTAP_FILE_NETMON_xxx */
 	if ((wth->file_type = netmon_open(wth)) != WTAP_FILE_UNKNOWN) {
 		goto success;
 	}
-	/* WTAP_FILE_NETXRAY */
+	/* WTAP_FILE_NETXRAY_xxx */
 	if ((wth->file_type = netxray_open(wth)) != WTAP_FILE_UNKNOWN) {
 		goto success;
 	}
-
 
 /* failure: */
 	fclose(wth->fh);
@@ -121,3 +120,102 @@ success:
 	buffer_init(wth->frame_buffer, 1500);
 	return wth;
 }
+
+
+static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype,
+    int encap, int snaplen, int *err);
+
+wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
+				int snaplen, int *err)
+{
+	FILE *fh;
+
+	/* In case "fopen()" fails but doesn't set "errno", set "errno"
+	   to a generic "the open failed" error. */
+	errno = WTAP_ERR_CANT_OPEN;
+	fh = fopen(filename, "w");
+	if (fh == NULL) {
+		*err = errno;
+		return NULL;	/* can't create file */
+	}
+	return wtap_dump_open_common(fh, filetype, encap, snaplen, err);
+}
+
+wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
+				int *err)
+{
+	FILE *fh;
+
+	/* In case "fopen()" fails but doesn't set "errno", set "errno"
+	   to a generic "the open failed" error. */
+	errno = WTAP_ERR_CANT_OPEN;
+	fh = fdopen(fd, "w");
+	if (fh == NULL) {
+		*err = errno;
+		return NULL;	/* can't create standard I/O stream */
+	}
+	return wtap_dump_open_common(fh, filetype, encap, snaplen, err);
+}
+
+static wtap_dumper* wtap_dump_open_common(FILE *fh, int filetype, int encap,
+					int snaplen, int *err)
+{
+	wtap_dumper *wdh;
+
+	wdh = malloc(sizeof (wtap_dumper));
+	if (wdh == NULL) {
+		*err = errno;
+		/* NOTE: this means the FD handed to "wtap_dump_fdopen()"
+		   will be closed if the malloc fails. */
+		fclose(fh);
+		return NULL;
+	}
+	wdh->fh = fh;
+	wdh->file_type = filetype;
+	wdh->snaplen = snaplen;
+	wdh->encap = encap;
+
+	switch (filetype) {
+
+	case WTAP_FILE_PCAP:
+		if (!libpcap_dump_open(wdh, err))
+			goto fail;
+		break;
+
+	default:
+		/* We currently only support dumping "libpcap" files */
+		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+		goto fail;
+	}
+	return wdh;
+
+fail:
+	free(wdh);
+	fclose(fh);
+	return NULL;	/* XXX - provide a reason why we failed */
+}
+
+FILE* wtap_dump_file(wtap_dumper *wdh)
+{
+	return wdh->fh;
+}
+
+int wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+    const u_char *pd)
+{
+	return (wdh->subtype_write)(wdh, phdr, pd);
+}
+
+int wtap_dump_close(wtap_dumper *wdh)
+{
+	int ret = 1;
+
+	if (!(wdh->subtype_close)(wdh))
+		ret = 0;
+	ret = fclose(wdh->fh);
+	if (ret == EOF)
+		ret = 0;
+	free(wdh);
+	return ret;
+}
+

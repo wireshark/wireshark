@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.36 1999/08/15 19:18:46 guy Exp $
+ * $Id: file.h,v 1.37 1999/08/18 04:17:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,7 +55,7 @@ typedef struct _capture_file {
   gchar       *filename;  /* filename */
   long         f_len;     /* File length */
   guint16      cd_t;      /* Capture data type */
-  const gchar *cd_t_desc;/* Description of that data type */
+  const gchar *cd_t_desc; /* Description of that data type */
   guint32      vers;      /* Version.  For tcpdump minor is appended to major */
   guint32      count;     /* Packet count */
   gfloat       unfiltered_count; /* used for dfilter progress bar */
@@ -65,6 +65,7 @@ typedef struct _capture_file {
   guint32      snap;      /* Captured packet length */
   gchar       *iface;     /* Interface */
   gchar       *save_file; /* File that user saved capture to */
+  int          save_file_fd; /* File descriptor for saved file */
   gint         user_saved;/* Was capture file saved by user yet? */
   wtap        *wth;       /* Wiretap session */
   dfilter     *rfcode;    /* Compiled read filter program */ 
@@ -114,6 +115,3 @@ char *file_read_error_message(int);
 char *file_write_error_message(int);
 
 #endif /* file.h */
-
-
-

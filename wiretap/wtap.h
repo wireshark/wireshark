@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.23 1999/08/15 06:59:13 guy Exp $
+ * $Id: wtap.h,v 1.24 1999/08/18 04:17:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -32,7 +32,13 @@
  * that code adds a DLT_ATM_CLIP DLT_ code of 19, and that
  * encapsulation isn't the same as the DLT_ATM_RFC1483 encapsulation
  * presumably used on some BSD systems, which we turn into
- * WTAP_ENCAP_ATM_RFC1483. */
+ * WTAP_ENCAP_ATM_RFC1483.
+ *
+ * WTAP_ENCAP_PER_PACKET is a value passed to "wtap_dump_open()" or
+ * "wtap_dump_fdopen()" to indicate that there is no single encapsulation
+ * type for all packets in the file; this may cause those routines to
+ * fail if the capture file format being written can't support that. */
+#define WTAP_ENCAP_PER_PACKET			-1
 #define WTAP_ENCAP_NONE				0
 #define WTAP_ENCAP_ETHERNET			1
 #define WTAP_ENCAP_TR				2
@@ -48,7 +54,9 @@
 /* last WTAP_ENCAP_ value + 1 */
 #define WTAP_NUM_ENCAP_TYPES			11
 
-/* File types that can be read by wiretap */
+/* File types that can be read by wiretap.
+   We may eventually support writing some or all of these file types,
+   too, so we distinguish between different versions of them. */
 #define WTAP_FILE_UNKNOWN			0
 #define WTAP_FILE_WTAP				1
 #define WTAP_FILE_PCAP				2
@@ -56,9 +64,12 @@
 #define WTAP_FILE_NGSNIFFER			4
 #define WTAP_FILE_SNOOP				6
 #define WTAP_FILE_IPTRACE			7
-#define WTAP_FILE_NETMON			8
-#define WTAP_FILE_NETXRAY			9
-#define WTAP_FILE_RADCOM			10
+#define WTAP_FILE_NETMON_1_x			8
+#define WTAP_FILE_NETMON_2_x			9
+#define WTAP_FILE_NETXRAY_1_0			10
+#define WTAP_FILE_NETXRAY_1_1			11
+#define WTAP_FILE_NETXRAY_2_001			12
+#define WTAP_FILE_RADCOM			13
 
 /* Filter types that wiretap can create. An 'offline' filter is really
  * a BPF filter, but it is treated specially because wiretap might not know
@@ -162,11 +173,24 @@ typedef struct wtap {
 						   types */
 } wtap;
 
+struct wtap_dumper;
+
+typedef int (*subtype_write_func)(struct wtap_dumper*,
+		const struct wtap_pkthdr*, const u_char*);
+typedef int (*subtype_close_func)(struct wtap_dumper *);
+typedef struct wtap_dumper {
+	FILE*			fh;
+	int			file_type;
+	int			snaplen;
+	int			encap;
+
+	subtype_write_func	subtype_write;
+	subtype_close_func	subtype_close;
+} wtap_dumper;
+
 /*
  * On failure, "wtap_open_offline()" returns NULL, and puts into the
  * "int" pointed to by its second argument:
- *
- * 0 on success;
  *
  * a positive "errno" value if the capture file can't be opened;
  *
@@ -183,6 +207,35 @@ int wtap_snapshot_length(wtap *wth); /* per file */
 int wtap_file_type(wtap *wth);
 const char *wtap_file_type_string(wtap *wth);
 void wtap_close(wtap *wth);
+
+/*
+ * On failure, "wtap_dump_open()" and "wtap_dump_fdopen()" return NULL,
+ * and put into the "int" pointed to by its second argument:
+ *
+ * a positive "errno" value if the capture file can't be created, or
+ * some other failure that sets "errno" occurs;
+ *
+ * a negative number, indicating the type of error, on other failures.
+ */
+#define	WTAP_ERR_CANT_OPEN			-1
+		/* couldn't open, reason unknown */
+#define	WTAP_ERR_UNSUPPORTED_FILE_TYPE		-2
+		/* can't save files in that format */
+#define	WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED	-3
+		/* that format doesn't support per-packet encapsulations */
+#define	WTAP_ERR_SHORT_WRITE			-4
+		/* write wrote less data than it should have */
+
+wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
+	int snaplen, int *err);
+wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
+	int *err);
+int wtap_dump(wtap_dumper *, const struct wtap_pkthdr *, const u_char *);
+FILE* wtap_dump_file(wtap_dumper *);
+int wtap_dump_close(wtap_dumper *);
+
+/* XXX - needed until "wiretap" can do live packet captures */
+int wtap_pcap_encap_to_wtap_encap(int encap);
 
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.

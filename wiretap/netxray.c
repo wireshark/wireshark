@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.8 1999/07/13 02:53:25 gram Exp $
+ * $Id: netxray.c,v 1.9 1999/08/18 04:17:37 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -94,6 +94,7 @@ int netxray_open(wtap *wth)
 	struct netxray_hdr hdr;
 	double timeunit;
 	int version_major;
+	int file_type;
 	double t;
 	static const int netxray_encap[] = {
 		WTAP_ENCAP_ETHERNET,
@@ -139,12 +140,15 @@ int netxray_open(wtap *wth)
 	if (memcmp(hdr.version, vers_1_0, sizeof vers_1_0) == 0) {
 		timeunit = 1000.0;
 		version_major = 1;
+		file_type = WTAP_FILE_NETXRAY_1_0;
 	} else if (memcmp(hdr.version, vers_1_1, sizeof vers_1_1) == 0) {
 		timeunit = 1000000.0;
 		version_major = 1;
+		file_type = WTAP_FILE_NETXRAY_1_1;
 	} else if (memcmp(hdr.version, vers_2_001, sizeof vers_2_001) == 0) {
 		timeunit = 1000000.0;
 		version_major = 2;
+		file_type = WTAP_FILE_NETXRAY_2_001;
 	} else {
 		return WTAP_FILE_UNKNOWN;
 	}
@@ -179,7 +183,7 @@ int netxray_open(wtap *wth)
 	/* Seek to the beginning of the data records. */
 	fseek(wth->fh, pletohl(&hdr.start_offset), SEEK_SET);
 
-	return WTAP_FILE_NETXRAY;
+	return file_type;
 }
 
 /* Read the next packet */

@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.13 1999/08/02 02:35:57 guy Exp $
+ * $Id: wtap.c,v 1.14 1999/08/18 04:17:37 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -62,11 +62,20 @@ const char *wtap_file_type_string(wtap *wth)
 		case WTAP_FILE_IPTRACE:
 			return "iptrace";
 
-		case WTAP_FILE_NETMON:
-			return "Microsoft Network Monitor";
+		case WTAP_FILE_NETMON_1_x:
+			return "Microsoft Network Monitor 1.x";
 
-		case WTAP_FILE_NETXRAY:
-			return "Cinco Networks NetXRay/Network Associates Sniffer (Windows-based)";
+		case WTAP_FILE_NETMON_2_x:
+			return "Microsoft Network Monitor 2.x";
+
+		case WTAP_FILE_NETXRAY_1_0:
+			return "Cinco Networks NetXRay";
+
+		case WTAP_FILE_NETXRAY_1_1:
+			return "Network Associates Sniffer (Windows-based) 1.1";
+
+		case WTAP_FILE_NETXRAY_2_001:
+			return "Network Associates Sniffer (Windows-based) 2.001";
 
 		case WTAP_FILE_RADCOM:
 			return "RADCOM WAN/LAN analyzer";
@@ -100,11 +109,14 @@ void wtap_close(wtap *wth)
 			g_free(wth->capture.radcom);
 			break;
 
-		case WTAP_FILE_NETMON:
+		case WTAP_FILE_NETMON_1_x:
+		case WTAP_FILE_NETMON_2_x:
 			g_free(wth->capture.netmon);
 			break;
 
-		case WTAP_FILE_NETXRAY:
+		case WTAP_FILE_NETXRAY_1_0:
+		case WTAP_FILE_NETXRAY_1_1:
+		case WTAP_FILE_NETXRAY_2_001:
 			g_free(wth->capture.netxray);
 			break;
 

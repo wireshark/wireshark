@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.8 1999/07/13 02:53:24 gram Exp $
+ * $Id: netmon.c,v 1.9 1999/08/18 04:17:38 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -95,6 +95,7 @@ int netmon_open(wtap *wth)
 	int bytes_read;
 	char magic[sizeof netmon_1_x_magic];
 	struct netmon_hdr hdr;
+	int file_type;
 	static const int netmon_encap[] = {
 		WTAP_ENCAP_NONE,
 		WTAP_ENCAP_ETHERNET,
@@ -135,9 +136,11 @@ int netmon_open(wtap *wth)
 	switch (hdr.ver_major) {
 
 	case 1:
+		file_type = WTAP_FILE_NETMON_1_x;
 		break;
 
 	case 2:
+		file_type = WTAP_FILE_NETMON_2_x;
 		break;
 
 	default:
@@ -195,7 +198,7 @@ int netmon_open(wtap *wth)
 	/* Seek to the beginning of the data records. */
 	fseek(wth->fh, CAPTUREFILE_HEADER_SIZE, SEEK_SET);
 
-	return WTAP_FILE_NETMON;
+	return file_type;
 }
 
 /* Read the next packet */

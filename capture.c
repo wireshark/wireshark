@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.52 1999/08/15 22:31:22 guy Exp $
+ * $Id: capture.c,v 1.53 1999/08/18 04:17:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -309,8 +309,8 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
 static void
 capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
   GtkWidget *if_cb, *filter_te, *count_cb, *snap_sb;
-
   gchar *filter_text;
+  char tmpname[128+1];
 
   if_cb     = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_IFACE_KEY);
   filter_te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_CAP_FILT_KEY);
@@ -341,23 +341,27 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
 	unlink(cf.save_file); /* silently ignore error */
 	g_free(cf.save_file);
   }
-  cf.save_file = tempnam(NULL, "ether");
+  cf.save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
+  cf.save_file = strdup(tmpname);
   cf.user_saved = 0;
   
   if( fork_mode ){	/*  use fork() for capture */
     int  fork_child;
     char ssnap[24];
     char scount[24];	/* need a constant for len of numbers */
+    char save_file_fd[24];
     int err;
 
-    sprintf(ssnap,"%d",cf.snap); /* in liu of itoa */
+    sprintf(ssnap,"%d",cf.snap); /* in lieu of itoa */
     sprintf(scount,"%d",cf.count);
+    sprintf(save_file_fd,"%d",cf.save_file_fd);
     signal(SIGCHLD, SIG_IGN);
     if (sync_mode) pipe(sync_pipe);
     if((fork_child = fork()) == 0){
       /* args: -k -- capture
        * -i interface specification
        * -w file to write
+       * -W file descriptor to write
        * -c count to capture
        * -Q quit after capture (forces -k)
        * -s snaplen
@@ -369,18 +373,22 @@ capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
 	 close(1);
 	 dup(sync_pipe[1]);
 	 close(sync_pipe[0]);
-	 execlp(ethereal_path,"ethereal","-k","-Q","-i",cf.iface,"-w",cf.save_file,
+	 execlp(ethereal_path, "ethereal", "-k", "-Q", "-i", cf.iface,
+		"-w", cf.save_file, "-W", save_file_fd,
 		"-c", scount, "-s", ssnap, "-S", 
 		"-m", medium_font, "-b", bold_font,
-		(cf.cfilter == NULL)? 0 : "-f", (cf.cfilter == NULL)? 0 : cf.cfilter, 
-		0);	
+		(cf.cfilter == NULL)? 0 : "-f",
+		(cf.cfilter == NULL)? 0 : cf.cfilter,
+		(const char *)NULL);	
        }
        else {
-	 execlp(ethereal_path,"ethereal","-k","-Q","-i",cf.iface,"-w",cf.save_file,
+	 execlp(ethereal_path, "ethereal", "-k", "-Q", "-i", cf.iface,
+		"-w", cf.save_file, "-W", save_file_fd,
 		"-c", scount, "-s", ssnap,
 		"-m", medium_font, "-b", bold_font,
-		(cf.cfilter == NULL)? 0 : "-f", (cf.cfilter == NULL)? 0 : cf.cfilter,
-		0);
+		(cf.cfilter == NULL)? 0 : "-f",
+		(cf.cfilter == NULL)? 0 : cf.cfilter,
+		(const char *)NULL);
        }
     }
     else {
@@ -419,9 +427,10 @@ typedef struct _loop_data {
   gint           go;
   gint           max;
   gint           linktype;
+  gint           wtap_linktype;
   gint           sync_packets;
   packet_counts  counts;
-  pcap_dumper_t *pdh;
+  wtap_dumper   *pdh;
 } loop_data;
 
 void
@@ -434,6 +443,8 @@ capture(void) {
   bpf_u_int32 netnum, netmask;
   time_t      upd_time, cur_time;
   int         err, inpkts;
+  char       *errmsg;
+  char        errmsg_errno[1024+1];
 
   ld.go             = TRUE;
   ld.counts.total   = 0;
@@ -454,42 +465,60 @@ capture(void) {
   pch = pcap_open_live(cf.iface, cf.snap, 1, 250, err_str);
 
   if (pch) {
-    /* save the old new umask and set the new one to readable only by the user */
-    mode_t old_umask = umask(0066);
-
-    /* Have libpcap create the empty dumpfile */
-    ld.pdh = pcap_dump_open(pch, cf.save_file);
-
-    /* reset the umask to the original value */
-    (void) umask(old_umask); 
+    ld.linktype = pcap_datalink(pch);
+    ld.wtap_linktype = wtap_pcap_encap_to_wtap_encap(ld.linktype);
+    ld.pdh = wtap_dump_fdopen(cf.save_file_fd, WTAP_FILE_PCAP,
+		ld.wtap_linktype, pcap_snapshot(pch), &err);
 
     if (ld.pdh == NULL) {  /* We have an error */
-      snprintf(err_str, PCAP_ERRBUF_SIZE, "Error trying to save capture to "
-        "file:\n%s", pcap_geterr(pch));
+      switch (err) {
+
+      case WTAP_ERR_CANT_OPEN:
+        errmsg = "The file to which the capture would be saved"
+                 " couldn't be created for some unknown reason.";
+        break;
+
+      case WTAP_ERR_SHORT_WRITE:
+        errmsg = "A full header couldn't be written to the file"
+                 " to which the capture would be saved.";
+        break;
+
+      default:
+        if (err < 0) {
+          sprintf(errmsg_errno, "The file to which the capture would be"
+	                      " saved (\"%%s\") could not be opened: Error %d.",
+	  			err);
+        } else {
+          sprintf(errmsg_errno, "The file to which the capture would be"
+	                      " saved (\"%%s\") could not be opened: %s.",
+	  			strerror(err));
+	}
+	errmsg = errmsg_errno;
+	break;
+      }
+      snprintf(err_str, PCAP_ERRBUF_SIZE, errmsg, cf.save_file);
       simple_dialog(ESD_TYPE_WARN, NULL, err_str);
       pcap_close(pch);
       return;
     }
 
-    ld.linktype = pcap_datalink(pch);
-
     if (cf.cfilter) {
       if (pcap_lookupnet (cf.iface, &netnum, &netmask, err_str) < 0) {
         simple_dialog(ESD_TYPE_WARN, NULL,
           "Can't use filter:  Couldn't obtain netmask info.");
-        pcap_dump_close(ld.pdh);
+        wtap_dump_close(ld.pdh);
         unlink(cf.save_file); /* silently ignore error */
         pcap_close(pch);
         return;
       } else if (pcap_compile(pch, &cf.fcode, cf.cfilter, 1, netmask) < 0) {
         simple_dialog(ESD_TYPE_WARN, NULL, "Unable to parse filter string.");
-        pcap_dump_close(ld.pdh);
+        wtap_dump_close(ld.pdh);
         unlink(cf.save_file); /* silently ignore error */
         pcap_close(pch);
         return;
       } else if (pcap_setfilter(pch, &cf.fcode) < 0) {
         simple_dialog(ESD_TYPE_WARN, NULL, "Can't install filter.");
-        pcap_dump_close(ld.pdh);
+        wtap_dump_close(ld.pdh);
         unlink(cf.save_file); /* silently ignore error */
         pcap_close(pch);
         return;
@@ -501,7 +530,7 @@ capture(void) {
          system, and signal our parent so that they'll open the capture
 	 file and update its windows to indicate that we have a live
 	 capture in progress. */
-      fflush((FILE *)ld.pdh);
+      fflush(wtap_dump_file(ld.pdh));
       kill(getppid(), SIGUSR2);
     }
 
@@ -603,7 +632,7 @@ capture(void) {
         gtk_label_set(GTK_LABEL(other_lb), label_str);
 
 	/* do sync here, too */
-	fflush((FILE *)ld.pdh);
+	fflush(wtap_dump_file(ld.pdh));
 	if (sync_mode && ld.sync_packets) {
 	  char tmp[20];
 	  sprintf(tmp, "%d*", ld.sync_packets);
@@ -613,7 +642,7 @@ capture(void) {
       }
     }
     
-    if (ld.pdh) pcap_dump_close(ld.pdh);
+    if (ld.pdh) wtap_dump_close(ld.pdh);
     pcap_close(pch);
 
     gtk_grab_remove(GTK_WIDGET(cap_w));
@@ -664,15 +693,22 @@ capture_stop_cb(GtkWidget *w, gpointer data) {
 static void
 capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *pd) {
-  
+  struct wtap_pkthdr whdr;
   loop_data *ld = (loop_data *) user;
-  
+
   if ((++ld->counts.total >= ld->max) && (ld->max > 0)) 
   {
      ld->go = FALSE;
   }
-  /* Currently, pcap_dumper_t is a FILE *.  Let's hope that doesn't change. */
-  if (ld->pdh) pcap_dump((u_char *) ld->pdh, phdr, pd);
+  if (ld->pdh) {
+     whdr.ts = phdr->ts;
+     whdr.caplen = phdr->caplen;
+     whdr.len = phdr->len;
+     whdr.pkt_encap = ld->wtap_linktype;
+
+     /* XXX - check for errors */
+     wtap_dump(ld->pdh, &whdr, pd);
+  }
     
   switch (ld->linktype) {
     case DLT_EN10MB :

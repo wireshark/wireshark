@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.94 1999/08/18 02:59:04 guy Exp $
+ * $Id: ethereal.c,v 1.95 1999/08/18 04:17:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -536,7 +536,7 @@ file_save_cmd_cb(GtkWidget *w, gpointer data) {
 
 void
 file_save_as_cmd_cb(GtkWidget *w, gpointer data) {
-  file_sel = gtk_file_selection_new ("Ethereal: Save Capture File as");
+  file_sel = gtk_file_selection_new ("Ethereal: Save Capture File As");
 
   /* Connect the ok_button to file_save_as_ok_cb function and pass along a
      pointer to the file selection box widget */
@@ -1122,6 +1122,7 @@ main(int argc, char *argv[])
 #endif
   cf.iface		= NULL;
   cf.save_file		= NULL;
+  cf.save_file_fd	= -1;
   cf.user_saved		= 0;
   cf.snap		= MAX_PACKET_SIZE;
   cf.count		= 0;
@@ -1149,7 +1150,7 @@ main(int argc, char *argv[])
 
 #ifndef WIN32
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "b:B:c:f:Fhi:km:nP:Qr:R:Ss:t:T:w:v")) != EOF) {
+  while ((opt = getopt(argc, argv, "b:B:c:f:Fhi:km:nP:Qr:R:Ss:t:T:w:W:v")) != EOF) {
     switch (opt) {
       case 'b':	       /* Bold font */
 	bold_font = g_strdup(optarg);
@@ -1233,8 +1234,11 @@ main(int argc, char *argv[])
         exit(0);
         break;
 #ifdef HAVE_LIBPCAP
-      case 'w':        /* Write capture file xxx */
+      case 'w':        /* Write to capture file xxx */
         cf.save_file = g_strdup(optarg);
+	break;
+      case 'W':        /* Write to capture file FD xxx */
+        cf.save_file_fd = atoi(optarg);
 	break;
 #endif
     }
@@ -1249,6 +1253,13 @@ main(int argc, char *argv[])
     if (cf.save_file == NULL) {
       fprintf(stderr, "ethereal: \"-k\" flag was specified without \"-w\" flag\n");
       exit(1);
+    }
+    if (fork_mode) {
+      if (cf.save_file_fd == -1) {
+        fprintf(stderr, "ethereal: \"-k\" flag was specified with \"-%c\" flag but without \"-W\" flag\n",
+            (sync_mode ? 'S' : 'F'));
+        exit(1);
+      }
     }
   }
 
