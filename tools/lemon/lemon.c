@@ -25,7 +25,7 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** $Id: lemon.c,v 1.7 2001/04/18 03:02:57 gram Exp $
+** $Id: lemon.c,v 1.8 2001/04/18 04:52:51 gram Exp $
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -3528,8 +3528,18 @@ struct symbol *Symbol_new(char *x)
 /* Compare two symbols */
 int Symbolcmpp(const void *a_arg, const void *b_arg)
 {
-  const struct symbol **a = a_arg;
-  const struct symbol **b = b_arg;
+/* MSVC complains about this, but it's wrong. GCC does not
+complain about this, as is right. From Guy Harris:
+
+At least as I read the ANSI C spec, GCC is right and MSVC is wrong here.
+The arguments are pointers to "const void", and should be cast to
+pointers to "const struct symbol *"; however, at least as I read the
+spec, "const struct symbol **" is "pointer to pointer to const struct
+symbol", not "pointer to const pointer to struct symbol".
+*/
+
+  struct symbol *const *a = a_arg;
+  struct symbol *const *b = b_arg;
 
   return strcmp((**a).name,(**b).name);
 }
