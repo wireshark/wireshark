@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.37 2001/10/16 01:57:12 gerald Exp $
+$Id: README.developer,v 1.38 2001/10/30 21:35:09 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -85,7 +85,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.37 2001/10/16 01:57:12 gerald Exp $"
+The "$Id: README.developer,v 1.38 2001/10/30 21:35:09 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -95,7 +95,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.37 2001/10/16 01:57:12 gerald Exp $
+ * $Id: README.developer,v 1.38 2001/10/30 21:35:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -346,6 +346,14 @@ Little-Endian-to-host-order access for shorts (guint16), longs (guint24), and
 guint16 tvb_get_letohs(tvbuff_t*, gint offset);
 guint32 tvb_get_letohl(tvbuff_t*, gint offset);
 guint32 tvb_get_letoh24(tvbuff_t*, gint offset);
+
+NOTE: IPv4 addresses are not to be converted to host byte order before
+being passed to "proto_tree_add_ipv4()".  You should use "tvb_memcpy()"
+to fetch them, not "tvb_get_ntohl()" *OR* "tvb_get_letohl()" - don't,
+for example, try to use "tvb_get_ntohl()", find that it gives you the
+wrong answer on the PC on which you're doing development, and try
+"tvb_get_letohl()" instead, as "tvb_get_letohl()" will give the wrong
+answer on big-endian machines.
 
 Copying memory:
 guint8* tvb_memcpy(tvbuff_t*, guint8* target, gint offset, gint length);
