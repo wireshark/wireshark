@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.61 2004/05/26 21:23:20 guy Exp $
+ * $Id: follow_dlg.c,v 1.62 2004/05/27 16:45:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -468,7 +468,6 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 	follow_info = OBJECT_GET_DATA(w, E_FOLLOW_INFO_KEY);
 	unlink(follow_info->data_out_filename);
 	g_free(follow_info->filter_out_filter);
-	window_destroy(w);
 	forget_follow_info(follow_info);
 	g_free(follow_info);
 }

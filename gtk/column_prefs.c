@@ -1,7 +1,7 @@
 /* column_prefs.c
  * Dialog box for column preferences
  *
- * $Id: column_prefs.c,v 1.23 2004/05/26 03:49:22 ulfl Exp $
+ * $Id: column_prefs.c,v 1.24 2004/05/27 16:48:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -681,5 +681,4 @@ column_prefs_destroy(GtkWidget *w) {
     /* Let the list cb know we're about to destroy the widget tree, so it */
     /* doesn't operate on widgets that don't exist. */
     OBJECT_SET_DATA(w, E_COL_CM_KEY, (gpointer)TRUE);
-    window_destroy(GTK_WIDGET(w));
 }
