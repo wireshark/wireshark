@@ -645,6 +645,10 @@ Andy Hood <ahood@westpac.com.au> {
 	   inadequacies of function declarations in X11 headers
 }
 
+Randy McEoin <rmceoin@pe.net> {
+	Appletalk Data Stream Interface (used by AFP-over-TCP) support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
