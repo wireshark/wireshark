@@ -322,7 +322,7 @@ dissect_payload_kink_ap_req(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
   guint8 reserved;
   guint16 payload_length;
   guint16 krb_ap_req_length;
-  timer_t timer;                 /* For showing utc */
+  time_t timer;                  /* For showing utc */
   struct tm *tp;                 /* For showing utc */
   int start_payload_offset = 0;  /* Keep begining of payload offset */
 
