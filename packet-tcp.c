@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.173 2003/02/21 00:22:45 guy Exp $
+ * $Id: packet-tcp.c,v 1.174 2003/02/27 03:56:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1966,7 +1966,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * Assume, initially, that we can't desegment.
    */
   pinfo->can_desegment = 0;
-
   th_sum = tvb_get_ntohs(tvb, offset + 16);
   if (!pinfo->fragmented && len >= reported_len) {
     /* The packet isn't part of an un-reassembled fragmented datagram
@@ -2021,6 +2020,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Checksum is invalid, so we're not willing to desegment it. */
         desegment_ok = FALSE;
+        pinfo->noreassembly_reason = " (incorrect TCP checksum)";
       }
     } else {
       proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.86 2003/01/22 06:26:36 guy Exp $
+ * $Id: packet.c,v 1.87 2003/02/27 03:56:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -277,6 +277,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.ipxptype = 0;
 	edt->pi.ctype = CT_NONE;
 	edt->pi.circuit_id = 0;
+	edt->pi.noreassembly_reason = "";
 	edt->pi.fragmented = FALSE;
 	edt->pi.in_error_pkt = FALSE;
 	edt->pi.ptype = PT_NONE;

@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.29 2003/01/22 06:26:36 guy Exp $
+ * $Id: packet_info.h,v 1.30 2003/02/27 03:56:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -131,6 +131,7 @@ typedef struct _packet_info {
   guint32 ipxptype;		/* IPX packet type, if this is an IPX packet */
   circuit_type ctype;		/* type of circuit, for protocols with a VC identifier */
   guint32 circuit_id;		/* circuit ID, for protocols with a VC identifier */
+  char   *noreassembly_reason;  /* reason why reassembly wasn't done, if any */
   gboolean fragmented;		/* TRUE if the protocol is only a fragment */
   gboolean in_error_pkt;	/* TRUE if we're inside an {ICMP,CLNP,...} error packet */
   port_type ptype;		/* type of the following two port numbers */

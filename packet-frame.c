@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.34 2003/01/31 01:02:03 guy Exp $
+ * $Id: packet-frame.c,v 1.35 2003/02/27 03:56:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -213,11 +213,12 @@ show_reported_bounds_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * but it wasn't in the fragment we dissected.
 		 */
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO,
-			    "[Unreassembled Packet]");
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+			    "[Unreassembled Packet%s]",
+			    pinfo->noreassembly_reason);
 		proto_tree_add_protocol_format(tree, proto_unreassembled,
-		    tvb, 0, 0, "[Unreassembled Packet: %s]",
-		    pinfo->current_proto);
+		    tvb, 0, 0, "[Unreassembled Packet%s: %s]",
+		    pinfo->noreassembly_reason, pinfo->current_proto);
 	} else {
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_str(pinfo->cinfo, COL_INFO,
