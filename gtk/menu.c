@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.133 2004/01/03 18:05:56 sharpe Exp $
+ * $Id: menu.c,v 1.134 2004/01/04 06:16:57 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -250,7 +250,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/Analyze/_Enabled Protocols...", "<shift><control>R", proto_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/Decode _As...", NULL, decode_as_cb,
                        0, NULL, NULL),
-    ITEM_FACTORY_ENTRY("/Analyze/_User Specified Decodes", NULL,
+    ITEM_FACTORY_ENTRY("/Analyze/_User Specified Decodes...", NULL,
                        decode_show_cb, 0, NULL, NULL),
     ITEM_FACTORY_ENTRY("/Analyze/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/Analyze/_Follow TCP Stream", NULL, follow_stream_cb,
