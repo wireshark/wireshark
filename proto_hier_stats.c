@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.6 2001/12/10 00:25:41 guy Exp $
+ * $Id: proto_hier_stats.c,v 1.7 2001/12/16 22:16:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -129,7 +129,7 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 			pd, frame->cap_len);
 
 	/* Dissect the frame */
-	edt = epan_dissect_new(&phdr, pd, frame, TRUE, cinfo);
+	edt = epan_dissect_new(&phdr, pd, frame, TRUE, FALSE, cinfo);
 
 	/* Get stats from this protocol tree */
 	process_tree(edt->tree, ps, frame->pkt_len);

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.253 2001/12/10 03:25:58 guy Exp $
+ * $Id: file.c,v 1.254 2001/12/16 22:16:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -644,7 +644,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
   /* Dissect the frame. */
   edt = epan_dissect_new(pseudo_header, buf, fdata, create_proto_tree,
-    &cf->cinfo);
+    FALSE, &cf->cinfo);
 
   /* If we have a display filter, apply it if we're refiltering, otherwise
      leave the "passed_dfilter" flag alone.
@@ -777,7 +777,7 @@ read_packet(capture_file *cf, long offset)
 
   passed = TRUE;
   if (cf->rfcode) {
-    edt = epan_dissect_new(pseudo_header, buf, fdata, TRUE, NULL);
+    edt = epan_dissect_new(pseudo_header, buf, fdata, TRUE, FALSE, NULL);
     passed = dfilter_apply_edt(cf->rfcode, edt);
     epan_dissect_free(edt);
   }   
@@ -1122,10 +1122,6 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
   print_separator = FALSE;
 
-  /* The protocol tree will be "visible", i.e., printed, only if we're
-     not printing a summary. */
-  proto_tree_is_visible = !print_args->print_summary;
-
   /* Update the progress bar when it gets to this value. */
   progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
@@ -1170,14 +1166,15 @@ print_packets(capture_file *cf, print_args_t *print_args)
     /* Check to see if we are suppressing unmarked packets, if so, 
      * suppress them and then proceed to check for visibility.
      */
-    if (((print_args->suppress_unmarked && fdata->flags.marked ) || !(print_args->suppress_unmarked)) && fdata->flags.passed_dfilter) {
+    if (((print_args->suppress_unmarked && fdata->flags.marked ) ||
+        !(print_args->suppress_unmarked)) && fdata->flags.passed_dfilter) {
       wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
       			cf->pd, fdata->cap_len);
       if (print_args->print_summary) {
         /* Fill in the column information, but don't bother creating
            the logical protocol tree. */
         edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, FALSE,
-          &cf->cinfo);
+          FALSE, &cf->cinfo);
         fill_in_columns(&edt->pi);
         cp = &line_buf[0];
         line_len = 0;
@@ -1212,10 +1209,11 @@ print_packets(capture_file *cf, print_args_t *print_args)
         if (print_separator)
           print_line(cf->print_fh, print_args->format, "\n");
 
-        /* Create the logical protocol tree; we don't need the columns
-           here. */
+        /* Create the logical protocol tree, complete with the display
+           representation of the items; we don't need the columns here,
+           however. */
         edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, TRUE,
-          NULL);
+          TRUE, NULL);
 
         /* Print the information in that tree. */
         proto_tree_print(FALSE, print_args, (GNode *)edt->tree,
@@ -1246,8 +1244,6 @@ print_packets(capture_file *cf, print_args_t *print_args)
   close_print_dest(print_args->to_file, cf->print_fh);
  
   cf->print_fh = NULL;
-
-  proto_tree_is_visible = FALSE;
 
   return TRUE;
 }
@@ -1437,7 +1433,7 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
         wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
         		cf->pd, fdata->cap_len);
         edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, TRUE,
-          NULL);
+          FALSE, NULL);
         frame_matched = dfilter_apply_edt(sfcode, edt);
 	epan_dissect_free(edt);
         if (frame_matched) {
@@ -1541,15 +1537,13 @@ select_packet(capture_file *cf, int row)
   			cf->pd, fdata->cap_len);
 
   /* Create the logical protocol tree. */
-  proto_tree_is_visible = TRUE;
   if (cf->edt != NULL) {
     epan_dissect_free(cf->edt);
     cf->edt = NULL;
   }
   /* We don't need the columns here. */
   cf->edt = epan_dissect_new(&cf->pseudo_header, cf->pd, cf->current_frame,
-    TRUE, NULL);
-  proto_tree_is_visible = FALSE;
+    TRUE, TRUE, NULL);
 
   /* Display the GUI protocol tree and hex dump.
      XXX - why does the protocol tree not show up if we call

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.105 2001/12/10 02:12:53 guy Exp $
+ * $Id: tethereal.c,v 1.106 2001/12/16 22:16:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1239,7 +1239,7 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
   cf->count++;
   if (cf->rfcode) {
     fill_in_fdata(&fdata, cf, phdr, pseudo_header, offset);
-    edt = epan_dissect_new(pseudo_header, buf, &fdata, TRUE, NULL);
+    edt = epan_dissect_new(pseudo_header, buf, &fdata, TRUE, FALSE, NULL);
     passed = dfilter_apply_edt(cf->rfcode, edt);
   } else {
     passed = TRUE;
@@ -1331,10 +1331,6 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
 
   cf->count++;
 
-  /* The protocol tree will be "visible", i.e., printed, only if we're
-     not printing a summary. */
-  proto_tree_is_visible = verbose;
-
   fill_in_fdata(&fdata, cf, phdr, pseudo_header, offset);
 
   passed = TRUE;
@@ -1342,10 +1338,13 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
     create_proto_tree = TRUE;
   else
     create_proto_tree = FALSE;
-  /* We only need the columns if we're *not* verbose; in verbose mode,
+  /* The protocol tree will be "visible", i.e., printed, only if we're
+     not printing a summary.
+
+     We only need the columns if we're *not* verbose; in verbose mode,
      we print the protocol tree, not the protocol summary. */
   edt = epan_dissect_new(pseudo_header, buf, &fdata, create_proto_tree,
-    verbose ? NULL : &cf->cinfo);
+    verbose, verbose ? NULL : &cf->cinfo);
   if (cf->rfcode)
     passed = dfilter_apply_edt(cf->rfcode, edt);
   if (passed) {
@@ -1581,8 +1580,6 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
   epan_dissect_free(edt);
 
   clear_fdata(&fdata);
-
-  proto_tree_is_visible = FALSE;
 }
 
 char *

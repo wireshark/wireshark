@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.13 2001/12/10 00:26:16 guy Exp $
+ * $Id: epan.c,v 1.14 2001/12/16 22:16:13 guy Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -75,7 +75,8 @@ epan_conversation_init(void)
 
 epan_dissect_t*
 epan_dissect_new(void* pseudo_header, const guint8* data, frame_data *fd,
-		gboolean create_proto_tree, column_info *cinfo)
+		gboolean create_proto_tree, gboolean proto_tree_visible,
+		column_info *cinfo)
 {
 	epan_dissect_t	*edt;
 
@@ -86,6 +87,12 @@ epan_dissect_new(void* pseudo_header, const guint8* data, frame_data *fd,
                 g_slist_free( fd->data_src);
         fd->data_src = 0;
 
+	/*
+	 * Set the global "proto_tree_is_visible" to control whether
+	 * to fill in the text representation field in the protocol
+	 * tree fields.
+	 */
+	proto_tree_is_visible = proto_tree_visible;
 	if (create_proto_tree) {
 		edt->tree = proto_tree_create_root();
 	}
@@ -94,6 +101,8 @@ epan_dissect_new(void* pseudo_header, const guint8* data, frame_data *fd,
 	}
 
 	dissect_packet(edt, pseudo_header, data, fd, cinfo);
+
+	proto_tree_is_visible = FALSE;
 
 	return edt;
 }
