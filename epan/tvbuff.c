@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.45 2003/06/04 21:45:49 guy Exp $
+ * $Id: tvbuff.c,v 1.46 2003/06/09 07:27:42 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -844,11 +844,15 @@ composite_ensure_contiguous(tvbuff_t *tvb, guint abs_offset, guint abs_length)
 }
 
 static guint8*
-ensure_contiguous(tvbuff_t *tvb, gint offset, gint length)
+ensure_contiguous_no_exception(tvbuff_t *tvb, gint offset, gint length,
+		int *exception)
 {
 	guint	abs_offset, abs_length;
 
-	check_offset_length(tvb, offset, length, &abs_offset, &abs_length);
+	if (!check_offset_length_no_exception(tvb, offset, length,
+	    &abs_offset, &abs_length, exception)) {
+		return NULL;
+	}
 
 	if (tvb->real_data) {
 		return tvb->real_data + abs_offset;
@@ -868,6 +872,20 @@ ensure_contiguous(tvbuff_t *tvb, gint offset, gint length)
 
 	g_assert_not_reached();
 	return NULL;
+}
+
+static guint8*
+ensure_contiguous(tvbuff_t *tvb, gint offset, gint length)
+{
+	int exception;
+	guint8 *p;
+
+	p = ensure_contiguous_no_exception(tvb, offset, length, &exception);
+	if (p == NULL) {
+		g_assert(exception > 0);
+		THROW(exception);
+	}
+	return p;
 }
 
 static const guint8*
@@ -1545,7 +1563,7 @@ tvb_strneql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
 {
 	guint8 *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, size);
+	ptr = ensure_contiguous_no_exception(tvb, offset, size, NULL);
 
 	if (ptr) {
 		int cmp = strncmp(ptr, str, size);
@@ -1572,7 +1590,7 @@ tvb_strncaseeql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
 {
 	guint8 *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, size);
+	ptr = ensure_contiguous_no_exception(tvb, offset, size, NULL);
 
 	if (ptr) {
 		int cmp = strncasecmp(ptr, str, size);
@@ -1599,7 +1617,7 @@ tvb_memeql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
 {
 	guint8 *ptr;
 
-	ptr = ensure_contiguous(tvb, offset, size);
+	ptr = ensure_contiguous_no_exception(tvb, offset, size, NULL);
 
 	if (ptr) {
 		int cmp = memcmp(ptr, str, size);
