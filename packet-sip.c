@@ -7,7 +7,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sip.c,v 1.11 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-sip.c,v 1.12 2001/01/30 02:22:23 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,17 +67,17 @@ static gint sip_get_msg_offset(tvbuff_t *tvb, guint32 offset);
  
 static dissector_handle_t sdp_handle;
 
+#define SIP2_HDR "SIP/2.0 "
+#define SIP2_HDR_LEN (strlen (SIP2_HDR))
+
 /* Code to actually dissect the packets */
 static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         guint32 offset;
         gint eol, next_offset, msg_offset;
         tvbuff_t *next_tvb;
-        gboolean is_request;
+        gboolean is_request, is_status = FALSE;
 
-        if (check_col(pinfo->fd, COL_PROTOCOL)) 
-                col_set_str(pinfo->fd, COL_PROTOCOL, "SIP");
-    
 	/*
 	 * Note that "tvb_strneql()" doesn't throw exceptions, so
 	 * "sip_is_request()" won't throw an exception.
@@ -87,15 +87,22 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * "tvb_get_ptr()" call s below won't throw exceptions.
 	 */
         offset = 0;
-        is_request = sip_is_request(tvb, 0);
         eol = tvb_find_line_end(tvb, 0, -1, &next_offset);
+        is_request = sip_is_request(tvb, 0);
+	/* XXX - Is this case-sensitive?  RFC 2543 didn't explicitly say. */
+	if (tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) == 0)
+	  is_status = TRUE;
+	  
+        if (check_col(pinfo->fd, COL_PROTOCOL) && (is_request || is_status)) 
+                col_set_str(pinfo->fd, COL_PROTOCOL, "SIP");
+    
 
-        if (check_col(pinfo->fd, COL_INFO))
+        if (check_col(pinfo->fd, COL_INFO) && (is_request || is_status))
                 col_add_fstr(pinfo->fd, COL_INFO, "%s: %s",
                              is_request ? "Request" : "Status",
                              is_request ? 
-                             tvb_format_text(tvb, 0, eol - strlen(" SIP/2.0")) :
-                             tvb_format_text(tvb, strlen("SIP/2.0 "), eol - strlen("SIP/2.0 ")));
+                             tvb_format_text(tvb, 0, eol - SIP2_HDR_LEN) :
+                             tvb_format_text(tvb, SIP2_HDR_LEN, eol - SIP2_HDR_LEN));
 
         msg_offset = sip_get_msg_offset(tvb, offset);
         if (msg_offset < 0) goto bad;
