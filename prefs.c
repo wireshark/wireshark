@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.58 2001/07/22 22:41:37 guy Exp $
+ * $Id: prefs.c,v 1.59 2001/07/23 00:12:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -63,7 +63,6 @@
 static int    set_pref(gchar*, gchar*);
 static GList *get_string_list(gchar *);
 static gchar *put_string_list(GList *);
-static void   put_string_from_list(gchar *, int *, int *, gchar *);
 static void   clear_string_list(GList *);
 static void   free_col_info(e_prefs *);
 
@@ -468,13 +467,47 @@ put_string_list(GList *sl)
 {
   static gchar  pref_str[MAX_FMT_PREF_LEN] = "";
   GList        *clp = g_list_first(sl);
-  fmt_data     *cfmt;
-  int          cur_pos = 0, cur_len = 0;
-  
+  gchar        *str;
+  int           cur_pos = 0, cur_len = 0;
+  gchar        *quoted_str;
+  int           str_len;
+  gchar        *strp, *quoted_strp, c;
+  int           fmt_len;
+
   while (clp) {
-    cfmt = (fmt_data *) clp->data;
-    put_string_from_list(pref_str, &cur_pos, &cur_len, cfmt->title);
-    put_string_from_list(pref_str, &cur_pos, &cur_len, cfmt->fmt);
+    str = clp->data;
+
+    /* Allocate a buffer big enough to hold the entire string, with each
+       character quoted (that's the worst case).  */
+    str_len = strlen(str);
+    quoted_str = g_malloc(str_len*2 + 1);
+
+    /* Now quote any " or \ characters in it. */
+    strp = str;
+    quoted_strp = quoted_str;
+    while ((c = *strp++) != '\0') {
+      if (c == '"' || c == '\\') {
+        /* It has to be backslash-quoted.  */
+        *quoted_strp++ = '\\';
+      }
+      *quoted_strp++ = c;
+    }
+    *quoted_strp = '\0';
+
+    fmt_len = strlen(quoted_str) + 4;
+    if ((fmt_len + cur_len) < (MAX_FMT_PREF_LEN - 1)) {
+      if ((fmt_len + cur_pos) > MAX_FMT_PREF_LINE_LEN) {
+        /* Wrap the line.  */
+        cur_len--;
+        cur_pos = 0;
+        pref_str[cur_len] = '\n'; cur_len++;
+        pref_str[cur_len] = '\t'; cur_len++;
+      }
+      sprintf(&pref_str[cur_len], "\"%s\", ", quoted_str);
+      cur_pos += fmt_len;
+      cur_len += fmt_len;
+    }
+    g_free(quoted_str);
     clp = clp->next;
   }
 
@@ -486,51 +519,6 @@ put_string_list(GList *sl)
 
   return(pref_str);
 }    
-
-static void
-put_string_from_list(gchar *pref_str, int *cur_posp, int *cur_lenp, gchar *str)
-{
-  int cur_pos = *cur_posp;
-  int cur_len = *cur_lenp;
-  gchar *quoted_str;
-  int str_len;
-  gchar *strp, *quoted_strp, c;
-  int fmt_len;
-
-  /* Allocate a buffer big enough to hold the entire string, with each
-     character quoted (that's the worst case).  */
-  str_len = strlen(str);
-  quoted_str = g_malloc(str_len*2 + 1);
-
-  /* Now quote any " or \ characters in it. */
-  strp = str;
-  quoted_strp = quoted_str;
-  while ((c = *strp++) != '\0') {
-    if (c == '"' || c == '\\') {
-      /* It has to be backslash-quoted.  */
-      *quoted_strp++ = '\\';
-    }
-    *quoted_strp++ = c;
-  }
-  *quoted_strp = '\0';
-
-  fmt_len = strlen(quoted_str) + 4;
-  if ((fmt_len + cur_len) < (MAX_FMT_PREF_LEN - 1)) {
-    if ((fmt_len + cur_pos) > MAX_FMT_PREF_LINE_LEN) {
-      /* Wrap the line.  */
-      cur_len--;
-      cur_pos = 0;
-      pref_str[cur_len] = '\n'; cur_len++;
-      pref_str[cur_len] = '\t'; cur_len++;
-    }
-    sprintf(&pref_str[cur_len], "\"%s\", ", quoted_str);
-    cur_pos += fmt_len;
-    cur_len += fmt_len;
-  }
-  g_free(quoted_str);
-  *cur_posp = cur_pos;
-  *cur_lenp = cur_len;
-}
 
 static void
 clear_string_list(GList *sl)
@@ -1446,7 +1434,9 @@ write_prefs(char **pf_path_return)
 {
   FILE        *pf;
   struct stat  s_buf;
-  
+  GList       *clp, *col_l;
+  fmt_data    *cfmt;
+
   /* To do:
    * - Split output lines longer than MAX_VAL_LEN
    * - Create a function for the preference directory check/creation
@@ -1494,9 +1484,21 @@ write_prefs(char **pf_path_return)
     "is set to \"command\"\n"
     "%s: %s\n\n", PRS_PRINT_CMD, prefs.pr_cmd);
 
+  clp = prefs.col_list;
+  col_l = NULL;
+  while (clp) {
+    cfmt = (fmt_data *) clp->data;
+    col_l = g_list_append(col_l, cfmt->title);
+    col_l = g_list_append(col_l, cfmt->fmt);
+    clp = clp->next;
+  }
   fprintf (pf, "# Packet list column format.  Each pair of strings consists "
     "of a column title \n# and its format.\n"
-    "%s: %s\n\n", PRS_COL_FMT, put_string_list(prefs.col_list));
+    "%s: %s\n\n", PRS_COL_FMT, put_string_list(col_l));
+  /* This frees the list of strings, but not the strings to which it
+     refers; that's what we want, as we haven't copied those strings,
+     we just referred to them.  */
+  g_list_free(col_l);
 
   fprintf (pf, "# TCP stream window color preferences.  Each value is a six "
     "digit hexadecimal value in the form rrggbb.\n");
