@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.6 2001/12/10 21:26:25 guy Exp $
+ * $Id: tcp_graph.c,v 1.7 2001/12/10 21:42:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -419,7 +419,7 @@ static void callback_graph_init_on_typechg (GtkWidget * , gpointer );
 static void callback_create_help (GtkWidget * , gpointer );
 static void callback_close_help (GtkWidget * , gpointer );
 static void update_zoom_spins (struct graph * );
-static int get_headers (char * , struct segment * );
+static int get_headers (frame_data *, char * , struct segment * );
 static int compare_headers (struct segment * , struct segment * , int );
 static int get_num_dsegs (struct graph * );
 static int get_num_acks (struct graph * );
@@ -546,7 +546,7 @@ void tcp_graph_cb (GtkWidget *w, gpointer data, guint graph_type)
 	graph_put (g);
 
 	g->type = graph_type;
-	if (!get_headers (cfile.pd, &current)) {
+	if (!get_headers (cfile.current_frame, cfile.pd, &current)) {
 		/* currently selected packet is neither TCP over IP over Ethernet II/PPP
 		 * nor TCP over IP alone - should display some
 		 * kind of warning dialog */
@@ -1732,7 +1732,7 @@ static void graph_segment_list_get (struct graph *g)
 	int condition;
 
 	debug(DBS_FENTRY) puts ("graph_segment_list_get()");
-	get_headers (cfile.pd, &current);
+	get_headers (cfile.current_frame, cfile.pd, &current);
 	if (g->type == GRAPH_THROUGHPUT)
 		condition = COMPARE_CURR_DIR;
 	else
@@ -1745,7 +1745,7 @@ static void graph_segment_list_get (struct graph *g)
 			segment = (struct segment * )malloc (sizeof (struct segment));
 			if (!segment)
 				perror ("malloc failed");
-		if (!get_headers (pd, segment))
+		if (!get_headers (ptr, pd, segment))
 			continue;	/* not TCP over IP over Ethernet II */
 		if (compare_headers (&current, segment, condition)) {
 			segment->next = NULL;
@@ -1769,9 +1769,8 @@ static void graph_segment_list_get (struct graph *g)
 	}
 }
 
-static int get_headers (char *pd, struct segment *hdrs)
+static int get_headers (frame_data *fd, char *pd, struct segment *hdrs)
 {
-	frame_data *fd = cfile.current_frame;
 	struct ether_header *e;
 	struct ppp_header   *p;
 	void *ip;
