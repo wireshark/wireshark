@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.49 2003/10/10 21:35:17 guy Exp $
+$Id: README.win32,v 1.50 2003/12/01 17:25:23 gerald Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -175,7 +175,7 @@ package is as follows:
     libiconv-1.9.1.bin.woe32.zip        C:\ethereal-win32-libs\gtk+
     libintl-0.10.40-tml-20020904.zip    C:\ethereal-win32-libs\gtk+
     net-snmp-5.0.6.zip                  C:\ethereal-win32-libs
-    zlib-114-dev.zip                    C:\ethereal-win32-libs
+    zlib121-dll.zip                     C:\ethereal-win32-libs\zlib121-dll
 
 
 Instructions for MS Visual C++
