@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.8 2001/06/04 07:27:49 guy Exp $
+ * $Id: conversation.c,v 1.9 2001/06/06 01:29:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -644,9 +644,10 @@ conversation_set_dissector(conversation_t *conversation,
  * If found, call it and return TRUE, otherwise return FALSE.
  *
  * Will search for a exact match (src & dst), then search for wild
- * card matches: try to match any port on the destination address first,
- * then try to match any address on the port, then try to match any 
- * address and any port. 
+ * card matches: try to match any destination address on the specified
+ * destination first, then try to match any destination port at the
+ * specified destination address, then try to match any destination
+ * address and any destination port.
  */
 gboolean
 try_conversation_dissector(address *src, address *dst, port_type ptype,
@@ -657,18 +658,21 @@ try_conversation_dissector(address *src, address *dst, port_type ptype,
 	const guint8 *pd;
 	int offset;
 
-	conversation = find_conversation(src, dst, ptype, src_port, dst_port, 0);
+	conversation = find_conversation(src, dst, ptype, src_port, dst_port,
+	    0);
 
 	if (conversation == NULL)
-		conversation = find_conversation(src, dst, ptype, src_port, dst_port, NO_DST_ADDR);
+		conversation = find_conversation(src, dst, ptype, src_port,
+		    dst_port, NO_DST_ADDR);
 
 	if (conversation == NULL)
-		conversation = find_conversation(src, dst, ptype, src_port, dst_port, NO_DST_PORT);
+		conversation = find_conversation(src, dst, ptype, src_port,
+		    dst_port, NO_DST_PORT);
 
 	if (conversation == NULL)
-		conversation = find_conversation(src, dst, ptype, src_port, dst_port,
-		    NO_DST_PORT | NO_DST_ADDR);
-
+		conversation = find_conversation(src, dst, ptype, src_port,
+		    dst_port, NO_DST_PORT | NO_DST_ADDR);
+	
 	if (conversation != NULL) {
 		if (conversation->is_old_dissector) {
 			if (conversation->dissector.old_d == NULL)
