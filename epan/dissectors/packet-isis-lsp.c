@@ -38,7 +38,7 @@
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
 #include "packet-isis-lsp.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 /* lsp packets */
 static int hf_isis_lsp_pdu_length = -1;

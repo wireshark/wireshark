@@ -41,7 +41,7 @@
 #include "isprint.h"
 
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 #include "packet-q931.h"
 #include "packet-gtp.h"

@@ -35,7 +35,7 @@
 #include "compat_macros.h"
 #include "epan/packet_info.h"
 #include "epan/to_str.h"
-#include "epan/resolv.h"
+#include "epan/addr_resolv.h"
 #include "hostlist_table.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"

@@ -35,7 +35,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 static int proto_icp=-1;
 static int hf_icp_length=-1;

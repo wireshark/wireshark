@@ -31,7 +31,7 @@
 #include "globals.h"
 #include "nameres_prefs.h"
 #include "gtkglobals.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "prefs.h"
 #include "prefs_dlg.h"
 #include "ui_util.h"

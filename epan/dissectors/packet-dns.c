@@ -38,7 +38,7 @@
 #include <epan/ipv6-utils.h>
 #include <epan/packet.h>
 #include "ipproto.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "packet-dns.h"
 #include "packet-tcp.h"
 #include "prefs.h"

@@ -48,7 +48,7 @@
 #include "osi-utils.h"
 #include "to_str.h"
 
-#include "resolv.h"
+#include "addr_resolv.h"
 #include "tvbuff.h"
 #include "plugins.h"
 #include "epan_dissect.h"

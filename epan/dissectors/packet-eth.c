@@ -30,7 +30,7 @@
 #include <epan/packet.h>
 #include "prefs.h"
 #include "etypes.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "packet-eth.h"
 #include "packet-ieee8023.h"
 #include "packet-ipx.h"

@@ -46,7 +46,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 static int proto_icq = -1;
 static int hf_icq_uin = -1;

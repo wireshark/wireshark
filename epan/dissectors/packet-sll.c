@@ -33,7 +33,7 @@
 #include "packet-sll.h"
 #include "packet-ipx.h"
 #include "packet-llc.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "etypes.h"
 
 static int proto_sll = -1;

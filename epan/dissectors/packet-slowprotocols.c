@@ -39,7 +39,7 @@
 #include "etypes.h"
 #include "llcsaps.h"
 #include "ppptypes.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 /* Offsets of fields within a LACPDU */
 

@@ -37,7 +37,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "ipproto.h"
 #include "prefs.h"
 

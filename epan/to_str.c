@@ -59,7 +59,7 @@
 
 #include "to_str.h"
 #include "value_string.h"
-#include "resolv.h"
+#include "addr_resolv.h"
 #include "pint.h"
 #include "atalk-utils.h"
 #include "sna-utils.h"

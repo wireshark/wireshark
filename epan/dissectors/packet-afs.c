@@ -41,7 +41,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 #include "packet-rx.h"
 #include "packet-afs.h"

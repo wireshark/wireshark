@@ -39,6 +39,8 @@ INCLUDES = -I$(srcdir)/..
 libethereal_la_SOURCES = \
 	addr_and_mask.c		\
 	addr_and_mask.h		\
+	addr_resolv.c		\
+	addr_resolv.h		\
 	address.h		\
 	atalk-utils.c		\
 	atalk-utils.h		\
@@ -78,8 +80,6 @@ libethereal_la_SOURCES = \
 	plugins.h		\
 	proto.c			\
 	proto.h			\
-	resolv.c		\
-	resolv.h		\
 	report_err.h		\
 	slab.h			\
 	sna-utils.c		\

@@ -29,7 +29,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 #include <epan/atalk-utils.h>
 #include <epan/addr_and_mask.h>

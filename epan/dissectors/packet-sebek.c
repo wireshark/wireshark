@@ -41,7 +41,7 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 
 /*
         IP address:     32bit unsigned

@@ -86,7 +86,7 @@
 #include "prefs.h"
 #include "column.h"
 #include "print.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "util.h"
 #include "version_info.h"
 #ifdef HAVE_LIBPCAP

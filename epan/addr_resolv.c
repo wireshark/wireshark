@@ -101,7 +101,7 @@
 
 #include "packet.h"
 #include "ipv6-utils.h"
-#include "resolv.h"
+#include "addr_resolv.h"
 #include "filesystem.h"
 #include "prefs.h"
 

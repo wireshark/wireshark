@@ -39,7 +39,7 @@
 
 #include <epan/filesystem.h>
 #include "globals.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include <epan/packet.h>
 #include "file.h"
 #include "prefs.h"

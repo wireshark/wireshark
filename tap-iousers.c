@@ -35,7 +35,7 @@
 #include <string.h>
 #include <epan/packet_info.h>
 #include <epan/packet.h>
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "tap.h"
 #include "register.h"
 #include <epan/dissectors/packet-ip.h>

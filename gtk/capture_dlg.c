@@ -35,7 +35,7 @@
 #include <epan/packet.h>
 #include "capture.h"
 #include "globals.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "main.h"
 #include "ui_util.h"
 #include "capture_dlg.h"

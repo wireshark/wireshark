@@ -36,7 +36,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "etypes.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include "packet-ip.h"
 #include "packet-ipv6.h"
 #include "packet-pflog.h"

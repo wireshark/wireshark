@@ -37,7 +37,7 @@
 #include "afn.h"
 #include "ipproto.h"
 #include "in_cksum.h"
-#include <epan/resolv.h>
+#include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include "prefs.h"
 
