@@ -816,6 +816,7 @@ Laurent Rabret <laurent.rabret[AT]rd.francetelecom.fr> {
 	    appearing in the Ethernet protocol type field)
 	PAP support
 	BGP bug fix
+	ISIS fixes and enhancements
 }
 
 nuf si <gnippiks[AT]yahoo.com> {

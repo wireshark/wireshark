@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.36 2002/09/02 22:10:15 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.37 2003/03/27 19:42:31 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -49,8 +49,15 @@ static int hf_isis_lsp_clv_ipv4_int_addr = -1;
 static int hf_isis_lsp_clv_ipv6_int_addr = -1;
 static int hf_isis_lsp_clv_te_router_id = -1;
 static int hf_isis_lsp_clv_mt = -1;
+static int hf_isis_lsp_p = -1;
+static int hf_isis_lsp_att = -1;
+static int hf_isis_lsp_hippity = -1;
+static int hf_isis_lsp_is_type = -1;
+
 
 static gint ett_isis_lsp = -1;
+static gint ett_isis_lsp_info = -1;
+static gint ett_isis_lsp_att = -1;
 static gint ett_isis_lsp_clv_area_addr = -1;
 static gint ett_isis_lsp_clv_is_neighbors = -1;
 static gint ett_isis_lsp_clv_ext_is_reachability = -1; /* CLV 22 */
@@ -75,15 +82,23 @@ static gint ett_isis_lsp_clv_mt = -1;
 static gint ett_isis_lsp_clv_mt_is = -1;
 static gint ett_isis_lsp_part_of_clv_mt_is = -1;
 
-static const char *isis_lsp_attached_bits[] = {
-	"error", "expense", "delay", "default" };
-
 static const value_string isis_lsp_istype_vals[] = {
 	{ ISIS_LSP_TYPE_UNUSED0,	"Unused 0x0 (invalid)"},
-	{ ISIS_LSP_TYPE_LEVEL_1,	"Level 1 IS"},
+	{ ISIS_LSP_TYPE_LEVEL_1,	"Level 1"},
 	{ ISIS_LSP_TYPE_UNUSED2,	"Unused 0x2 (invalid)"},
-	{ ISIS_LSP_TYPE_LEVEL_2,	"Level 1 and Level 2 IS"},
+	{ ISIS_LSP_TYPE_LEVEL_2,	"Level 2"},
 	{ 0, NULL } };
+
+static const true_false_string attached_string = {
+		"Supported",
+		"Unsupported"
+	};
+
+static const true_false_string hippity_string = {
+		"Set",
+		"Unset"
+	};
+
 
 /*
  * Predclare dissectors for use in clv dissection.
@@ -1500,11 +1515,11 @@ void
 isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	int lsp_type, int header_length, int id_length)
 {
-	proto_item	*ti;
-	proto_tree	*lsp_tree = NULL;
+	proto_item	*ti, *to, *ta;
+	proto_tree	*lsp_tree = NULL, *info_tree, *att_tree;
 	guint16		pdu_length;
-	char		sbuf[128];
-	int		inx, q, some, value, len;
+	guint8		lsp_info, lsp_att;
+	int		len;
 
 	if (tree) {
 		ti = proto_tree_add_text(tree, tvb, offset, -1,
@@ -1559,33 +1574,33 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 
 	if (tree) {
 		/*
-		 * We need to build our type block values.
+		 * P | ATT | HIPPITY | IS TYPE description.
 		 */
-		sbuf[0] = 0;
-		some = 0;
-		value = ISIS_LSP_ATT(tvb_get_guint8(tvb, offset));
-		inx = 0;
-		for ( q = (1<<ISIS_LSP_ATT_SHIFT); q > 0; q = q >> 1 ){
-			if (q & value) {
-				if (some++) {
-					strcat(sbuf, ", ");
-				}
-				strcat ( sbuf, isis_lsp_attached_bits[inx] );
-			}
-			inx++;
-		}
-		if (!some) {
-			strcat ( sbuf, "default-only" );
-		}
-		proto_tree_add_text(lsp_tree, tvb, offset + 18, 1,
-			"Type block(0x%02x): P:%d, Supported metric(s): %s, OL:%d, istype:%s",
-			tvb_get_guint8(tvb, offset),
-			ISIS_LSP_PARTITION(tvb_get_guint8(tvb, offset)) ? 1 : 0,
-			sbuf,
-			ISIS_LSP_HIPPITY(tvb_get_guint8(tvb, offset)) ? 1 : 0,
-			val_to_str(ISIS_LSP_IS_TYPE(tvb_get_guint8(tvb, offset)),
-				isis_lsp_istype_vals, "Unknown (0x%x)")
+		lsp_info = tvb_get_guint8(tvb, offset);
+		to = proto_tree_add_text(lsp_tree, tvb, offset, 1,
+			"Type block(0x%02x): Partition Repair:%d, Attached bits:%d, Overload bit:%d, IS type:%d",
+			lsp_info,
+			ISIS_LSP_PARTITION(lsp_info),
+			ISIS_LSP_ATT(lsp_info),
+			ISIS_LSP_HIPPITY(lsp_info),
+			ISIS_LSP_IS_TYPE(lsp_info)
 			);
+
+		info_tree = proto_item_add_subtree(to, ett_isis_lsp_info);
+		proto_tree_add_boolean(info_tree, hf_isis_lsp_p, tvb, offset, 1, lsp_info);
+		ta = proto_tree_add_uint(info_tree, hf_isis_lsp_att, tvb, offset, 1, lsp_info);
+		att_tree = proto_item_add_subtree(ta, ett_isis_lsp_att);
+		lsp_att = ISIS_LSP_ATT(lsp_info);
+		proto_tree_add_text(att_tree, tvb, offset, 1,
+			  "%d... = Default metric: %s", ISIS_LSP_ATT_DEFAULT(lsp_att), ISIS_LSP_ATT_DEFAULT(lsp_att) ? "Set" : "Unset");
+		proto_tree_add_text(att_tree, tvb, offset, 1,
+			  ".%d.. = Delay metric: %s", ISIS_LSP_ATT_DELAY(lsp_att), ISIS_LSP_ATT_DELAY(lsp_att) ? "Set" : "Unset");
+		proto_tree_add_text(att_tree, tvb, offset, 1,
+			  "..%d. = Expense metric: %s", ISIS_LSP_ATT_EXPENSE(lsp_att), ISIS_LSP_ATT_EXPENSE(lsp_att) ? "Set" : "Unset");
+		proto_tree_add_text(att_tree, tvb, offset, 1,
+			  "...%d = Error metric: %s", ISIS_LSP_ATT_ERROR(lsp_att), ISIS_LSP_ATT_ERROR(lsp_att) ? "Set" : "Unset");
+		proto_tree_add_boolean(info_tree, hf_isis_lsp_hippity, tvb, offset, 1, lsp_info);
+		proto_tree_add_uint(info_tree, hf_isis_lsp_is_type, tvb, offset, 1, lsp_info);
 	}
 	offset += 1;
 
@@ -1656,15 +1671,37 @@ isis_register_lsp(int proto_isis) {
 		{ &hf_isis_lsp_clv_mt,
 		{ "MT-ID                     ", "isis.lsp.clv_mt",
 			FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL }},
+
+		{ &hf_isis_lsp_p,
+		{ "Partition Repair",	"isis.lsp.partition_repair", FT_BOOLEAN, 8,
+			TFS(&attached_string), ISIS_LSP_PARTITION_MASK,
+			"If set, this router supports the optional Partion Repair function", HFILL }},
+
+		{ &hf_isis_lsp_att,
+		{ "Attachment",	"isis.lsp.att", FT_UINT8, BASE_DEC,
+			NULL, ISIS_LSP_ATT_MASK,
+			"", HFILL }},
+
+		{ &hf_isis_lsp_hippity,
+		{ "Overload bit",	"isis.lsp.overload", FT_BOOLEAN, 8,
+			TFS(&hippity_string), ISIS_LSP_HIPPITY_MASK,
+			"If set, this router will not be used by any decision process to calculate routes", HFILL }},
+
+		{ &hf_isis_lsp_is_type,
+		{ "Type of Intermadiate System",	"isis.lsp.is_type", FT_UINT8, BASE_DEC,
+			VALS(isis_lsp_istype_vals), ISIS_LSP_IS_TYPE_MASK,
+			"", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_isis_lsp,
+		&ett_isis_lsp_info,
+		&ett_isis_lsp_att,
 		&ett_isis_lsp_clv_area_addr,
 		&ett_isis_lsp_clv_is_neighbors,
 		&ett_isis_lsp_clv_ext_is_reachability, /* CLV 22 */
-			&ett_isis_lsp_part_of_clv_ext_is_reachability,
-			&ett_isis_lsp_subclv_admin_group,
-			&ett_isis_lsp_subclv_unrsv_bw,
+		&ett_isis_lsp_part_of_clv_ext_is_reachability,
+		&ett_isis_lsp_subclv_admin_group,
+		&ett_isis_lsp_subclv_unrsv_bw,
 		&ett_isis_lsp_clv_unknown,
 		&ett_isis_lsp_clv_partition_dis,
 		&ett_isis_lsp_clv_prefix_neighbors,
@@ -1676,9 +1713,9 @@ isis_register_lsp(int proto_isis) {
 		&ett_isis_lsp_clv_te_router_id,
 		&ett_isis_lsp_clv_ip_reachability,
 		&ett_isis_lsp_clv_ext_ip_reachability, /* CLV 135 */
-			&ett_isis_lsp_part_of_clv_ext_ip_reachability,
+		&ett_isis_lsp_part_of_clv_ext_ip_reachability,
 		&ett_isis_lsp_clv_ipv6_reachability, /* CLV 236 */
-			&ett_isis_lsp_part_of_clv_ipv6_reachability,
+		&ett_isis_lsp_part_of_clv_ipv6_reachability,
 		&ett_isis_lsp_clv_mt,
 		&ett_isis_lsp_clv_mt_is,
 		&ett_isis_lsp_part_of_clv_mt_is,

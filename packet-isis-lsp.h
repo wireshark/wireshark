@@ -1,7 +1,7 @@
 /* packet-isis-lsp.h
  * Defines and such for LSP and their CLV decodes
  *
- * $Id: packet-isis-lsp.h,v 1.15 2002/09/02 22:10:15 guy Exp $
+ * $Id: packet-isis-lsp.h,v 1.16 2003/03/27 19:42:33 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -30,21 +30,40 @@
  * Declarations for L1/L2 LSP base header.
  */
 
-#define ISIS_LSP_PARTITION_MASK	0x80
-#define ISIS_LSP_ATT_MASK	0x78
-#define ISIS_LSP_ATT_SHIFT	3
-#define ISIS_LSP_HIPPITY_MASK	0x04
-#define ISIS_LSP_IS_TYPE_MASK	0x03
+/* P | ATT | HIPPITY | DS FIELD description */
+#define ISIS_LSP_PARTITION_MASK     0x80
+#define ISIS_LSP_PARTITION_SHIFT    7
+#define ISIS_LSP_PARTITION(info)    (((info) & ISIS_LSP_PARTITION_MASK) >> ISIS_LSP_PARTITION_SHIFT)
 
-#define ISIS_LSP_PARTITION(x)	(x&ISIS_LSP_PARTITION_MASK)
-#define ISIS_LSP_ATT(x)		((x&ISIS_LSP_ATT_MASK)>>ISIS_LSP_ATT_SHIFT)
-#define ISIS_LSP_HIPPITY(x)	(x&ISIS_LSP_HIPPITY_MASK)
-#define ISIS_LSP_IS_TYPE(x)	(x&ISIS_LSP_IS_TYPE_MASK)
+#define ISIS_LSP_ATT_MASK     0x78
+#define ISIS_LSP_ATT_SHIFT    3
+#define ISIS_LSP_ATT(info)    (((info) & ISIS_LSP_ATT_MASK) >> ISIS_LSP_ATT_SHIFT)
+
+#define ISIS_LSP_ATT_DEFAULT(info)    ((info) >> 3)
+#define ISIS_LSP_ATT_DELAY(info)      (((info) >> 2) & 1)
+#define ISIS_LSP_ATT_EXPENSE(info)    (((info) >> 1) & 1)
+#define ISIS_LSP_ATT_ERROR(info)      ((info) & 1)
+
+#define ISIS_LSP_HIPPITY_MASK     0x04
+#define ISIS_LSP_HIPPITY_SHIFT    2
+#define ISIS_LSP_HIPPITY(info)    (((info) & ISIS_LSP_HIPPITY_MASK) >> ISIS_LSP_HIPPITY_SHIFT)
+
+#define ISIS_LSP_IS_TYPE_MASK     0x03
+#define ISIS_LSP_IS_TYPE(info)    ((info) & ISIS_LSP_IS_TYPE_MASK)
+
+
 
 #define ISIS_LSP_TYPE_UNUSED0		0
 #define ISIS_LSP_TYPE_LEVEL_1		1
 #define ISIS_LSP_TYPE_UNUSED2		2
 #define ISIS_LSP_TYPE_LEVEL_2		3
+
+#define ISIS_LSP_ATTACHED_NONE    0
+#define ISIS_LSP_ATTACHED_DEFAULT 1
+#define ISIS_LSP_ATTACHED_DELAY   2
+#define ISIS_LSP_ATTACHED_EXPENSE 4
+#define ISIS_LSP_ATTACHED_ERROR   8
+
 
 #define ISIS_LSP_CLV_METRIC_SUPPORTED(x)	((x)&0x80)
 #define ISIS_LSP_CLV_METRIC_IE(x)               ((x)&0x40)
