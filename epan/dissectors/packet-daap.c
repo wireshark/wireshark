@@ -185,7 +185,6 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb, int offset, int length)
    proto_item *ti = NULL;
    proto_item *ti2 = NULL;
    proto_tree *new_tree = NULL;
-   guint64 persistent_id;
 
    do {
       if (!tvb_offset_exists(tvb, offset)) 
@@ -252,11 +251,8 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb, int offset, int length)
 	 break;
       case daap_mper:
 	 /* Tags conain uint64 */
-	 persistent_id = tvb_get_ntohl(tvb, offset);
-	 persistent_id <<= 32;
-	 persistent_id = tvb_get_ntohl(tvb, offset+4);
 	 proto_item_append_text(ti, ", Persistent Id: %" PRIu64, 
-				persistent_id);
+				tvb_get_ntoh64(tvb, offset));
 	 break;
       case daap_mstt:
 	 proto_item_append_text(ti, ", Status: %d", 
