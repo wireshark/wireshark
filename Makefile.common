@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.32 2004/03/23 06:21:16 guy Exp $
+# $Id: Makefile.common,v 1.33 2004/03/23 18:02:50 tuexen Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -164,6 +164,7 @@ DISSECTOR_INCLUDES =	\
 	packet-rwall.h	\
 	packet-rx.h	\
 	packet-scsi.h	\
+	packet-sctp.h	\
 	packet-ses.h	\
 	packet-sll.h	\
 	packet-smb-browse.h	\
