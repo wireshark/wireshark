@@ -2,7 +2,7 @@
  * gui functions used by stats
  * Copyright 2003 Lars Roland
  *
- * $Id: gtk_stat_util.c,v 1.2 2003/04/27 21:50:59 guy Exp $
+ * $Id: gtk_stat_util.c,v 1.3 2003/08/21 17:48:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,7 +92,6 @@ init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, char *title, char *
 
 /* create a table, using a scrollable gtkclist */
 
-#if GTK_MAJOR_VERSION < 2
 GtkCList *
 create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, char *titles[])
 {
@@ -104,7 +103,7 @@ create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, char
 
 	/* configure scrolling window*/
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
-				       GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+				       GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 	gtk_box_pack_start(GTK_BOX(vbox), scrolled_window, TRUE, TRUE, 0);
 
 	/* configure clist */
@@ -112,7 +111,7 @@ create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, char
 	gtk_clist_column_titles_show(table);
 	for (i = 0; i < columns; i++)
 	    gtk_clist_set_column_auto_resize(table, i, TRUE);
-	gtk_clist_set_selection_mode(table, GTK_SELECTION_EXTENDED);
+	gtk_clist_set_selection_mode(table, GTK_SELECTION_SINGLE);
 
 	/* Put clist into a scrolled window */
 	gtk_container_add(GTK_CONTAINER(scrolled_window),
@@ -122,4 +121,4 @@ create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, char
 
 	return table;
 }
-#endif
+

@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.6 2003/04/27 21:50:59 guy Exp $
+ * $Id: mgcp_stat.c,v 1.7 2003/08/21 17:48:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,21 +48,17 @@
 #include "../file.h"
 #include "../globals.h"
 
+extern GtkWidget *main_display_filter_widget;
 
-
-#define NUM_TIMESTATS 11
+#define NUM_TIMESTATS 10
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _mgcpstat_t {
 	GtkWidget *win;
 	GtkWidget *vbox;
 	char *filter;
-#if GTK_MAJOR_VERSION >= 2
-	gtk_table *table;
-#else /* gtk1 using a scrollable clist*/
 	GtkWidget *scrolled_window;
 	GtkCList *table;
-#endif
         timestat_t rtd[NUM_TIMESTATS];
 	guint32 open_req_num;
 	guint32 disc_rsp_num;
@@ -71,16 +67,16 @@ typedef struct _mgcpstat_t {
 } mgcpstat_t;
 
 static const value_string mgcp_mesage_type[] = {
-  {  0,	"Overall"},
-  {  1,	"EPCF"},
-  {  2,	"CRCX"},
-  {  3,	"MDCX"},
-  {  4,	"DLCX"},
-  {  5,	"RQNT"},
-  {  6,	"NTFY"},
-  {  7,	"AUEP"},
-  {  8, "AUCX"},
-  {  9, "RSIP"},
+  {  0,	"EPCF"},
+  {  1,	"CRCX"},
+  {  2,	"MDCX"},
+  {  3,	"DLCX"},
+  {  4,	"RQNT"},
+  {  5,	"NTFY"},
+  {  6,	"AUEP"},
+  {  7, "AUCX"},
+  {  8, "RSIP"},
+  {  0, NULL}
 };
 
 static void
@@ -151,37 +147,35 @@ mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, void *pm
 				delta.secs--;
 			}
 
-			time_stat_update(&(ms->rtd[0]),&delta, pinfo);
-
 			if (strncasecmp(mi->code, "EPCF", 4) == 0 ) {
-				time_stat_update(&(ms->rtd[1]),&delta, pinfo);
+				time_stat_update(&(ms->rtd[0]),&delta, pinfo);
 			}
 			else if (strncasecmp(mi->code, "CRCX", 4) == 0 ) {
-				time_stat_update(&(ms->rtd[2]),&delta, pinfo);
+				time_stat_update(&(ms->rtd[1]),&delta, pinfo);
 			}
 			else if (strncasecmp(mi->code, "MDCX", 4) == 0 ) {
-				time_stat_update(&(ms->rtd[3]),&delta, pinfo);
+				time_stat_update(&(ms->rtd[2]),&delta, pinfo);
 			}
 			else if (strncasecmp(mi->code, "DLCX", 4) == 0 ) {
-				time_stat_update(&(ms->rtd[4]),&delta, pinfo);
+				time_stat_update(&(ms->rtd[3]),&delta, pinfo);
 			}
 			else if (strncasecmp(mi->code, "RQNT", 4) == 0 ) {
-				time_stat_update(&(ms->rtd[5]),&delta, pinfo);
+				time_stat_update(&(ms->rtd[4]),&delta, pinfo);
 			}
 			else if (strncasecmp(mi->code, "NTFY", 4) == 0 ) {
-				time_stat_update(&(ms->rtd[6]),&delta, pinfo);
+				time_stat_update(&(ms->rtd[5]),&delta, pinfo);
 			}
 			else if (strncasecmp(mi->code, "AUEP", 4) == 0 ) {
-				time_stat_update(&(ms->rtd[7]),&delta, pinfo);
+				time_stat_update(&(ms->rtd[6]),&delta, pinfo);
 			}
 			else if (strncasecmp(mi->code, "AUCX", 4) == 0 ) {
-				time_stat_update(&(ms->rtd[8]),&delta, pinfo);
+				time_stat_update(&(ms->rtd[7]),&delta, pinfo);
 			}
 			else if (strncasecmp(mi->code, "RSIP", 4) == 0 ) {
-				time_stat_update(&(ms->rtd[9]),&delta, pinfo);
+				time_stat_update(&(ms->rtd[8]),&delta, pinfo);
 			}
 			else {
-				time_stat_update(&(ms->rtd[10]),&delta, pinfo);
+				time_stat_update(&(ms->rtd[9]),&delta, pinfo);
 			}
 
 			return 1;
@@ -199,52 +193,7 @@ mgcpstat_draw(void *pms)
 {
 	mgcpstat_t *ms=(mgcpstat_t *)pms;
 	int i;
-#if GTK_MAJOR_VERSION >= 2
-	int pos;
-	char str[256];
-
-	gtk_widget_destroy(ms->table->widget);
-	ms->table->height=5;
-	ms->table->width=7;
-	ms->table->widget=gtk_table_new(ms->table->height, ms->table->width, TRUE);
-	gtk_container_add(GTK_CONTAINER(ms->vbox), ms->table->widget);
-
-	pos=0;
-
-	add_table_entry(ms->table, "Type", 0, pos);
-	add_table_entry(ms->table, "Messages", 1, pos);
-	add_table_entry(ms->table, "Min RTD", 2, pos);
-	add_table_entry(ms->table, "Max RTD", 3, pos);
-	add_table_entry(ms->table, "Avg RTD", 4, pos);
-	add_table_entry(ms->table, "Min in Frame", 5, pos);
-	add_table_entry(ms->table, "Max in Frame", 6, pos);
-	pos++;
-
-	for(i=0;i<NUM_TIMESTATS;i++) {
-		/* nothing seen, nothing to do */
-		if(ms->rtd[i].num==0){
-			continue;
-		}
-
-		sprintf(str, "%s", val_to_str(i,mgcp_mesage_type,"Other"));
-		add_table_entry(ms->table, str, 0, pos);
-		sprintf(str, "%d", ms->rtd[i].num);
-		add_table_entry(ms->table, str, 1, pos);
-		sprintf(str, "%8.2f msec", nstime_to_msec(&(ms->rtd[i].min)));
-		add_table_entry(ms->table, str, 2, pos);
-		sprintf(str, "%8.2f msec", nstime_to_msec(&(ms->rtd[i].max)));
-		add_table_entry(ms->table, str, 3, pos);
-		sprintf(str, "%8.2f msec", get_average(&(ms->rtd[i].tot), ms->rtd[i].num));
-		add_table_entry(ms->table, str, 4, pos);
-		sprintf(str, "%6u", ms->rtd[i].min_num);
-		add_table_entry(ms->table, str, 5, pos);
-		sprintf(str, "%6u", ms->rtd[i].max_num);
-		add_table_entry(ms->table, str, 6, pos);
-		pos++;
-	}
-
-	gtk_widget_show(ms->table->widget);
-#else /* gtk1 using a scrollable clist*/
+	/* gtk1 using a scrollable clist*/
 	char *str[7];
 
 	for(i=0;i<7;i++) {
@@ -274,7 +223,6 @@ mgcpstat_draw(void *pms)
 	for(i=0;i<7;i++) {
 		g_free(str[i]);
 	}
-#endif
 }
 
 void protect_thread_critical_region(void);
@@ -292,18 +240,14 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 		g_free(ms->filter);
 		ms->filter=NULL;
 	}
-#if GTK_MAJOR_VERSION >= 2
-	g_free(ms->table);
-	ms->table=NULL;
-#endif
 	g_free(ms);
 }
 
 static gchar *titles[]={"Type",
 			"Messages",
-			"Min RTD",
-			"Max RTD",
-			"Avg RTD",
+			"Min SRT",
+			"Max SRT",
+			"Avg SRT",
 			"Min in Frame",
 			"Max in Frame" };
 
@@ -313,13 +257,8 @@ gtk_mgcpstat_init(char *optarg)
 	mgcpstat_t *ms;
 	char *filter=NULL;
 	GString *error_string;
-#if GTK_MAJOR_VERSION >= 2
-	GtkWidget *stat_label;
-	GtkWidget *filter_label;
-	char filter_string[256];
-#endif
 
-	if(strncmp(optarg,"mgcp,rtd,",9) == 0){
+	if(strncmp(optarg,"mgcp,srt,",9) == 0){
 		filter=optarg+9;
 	} else {
 		filter=g_malloc(1);
@@ -337,41 +276,19 @@ gtk_mgcpstat_init(char *optarg)
 
 	ms->vbox=gtk_vbox_new(FALSE, 0);
 
-	init_main_stat_window(ms->win, ms->vbox, "MGCP Response Time Delay (RTD) Statistics", filter);
+	init_main_stat_window(ms->win, ms->vbox, "MGCP Service Response Time (SRT) Statistics", filter);
 
-#if GTK_MAJOR_VERSION >= 2
-
-	ms->table =(gtk_table *)g_malloc(sizeof(gtk_table));
-	ms->table->height=5;
-	ms->table->width=7;
-	ms->table->widget=gtk_table_new(ms->table->height, ms->table->width, TRUE);
-	gtk_container_add(GTK_CONTAINER(ms->vbox), ms->table->widget);
-
-	add_table_entry(ms->table, "Type", 0, 0);
-	add_table_entry(ms->table, "Messages", 1, 0);
-	add_table_entry(ms->table, "Min RTD", 2, 0);
-	add_table_entry(ms->table, "Max RTD", 3, 0);
-	add_table_entry(ms->table, "Avg RTD", 4, 0);
-	add_table_entry(ms->table, "Min in Frame", 5, 0);
-	add_table_entry(ms->table, "Max in Frame", 6, 0);
-
-	gtk_widget_show(ms->table->widget);
-
-#else /* GTK1 using a scrollable clist*/
+	/* GTK1 using a scrollable clist*/
         /* init a scrolled window*/
 	ms->scrolled_window = gtk_scrolled_window_new(NULL, NULL);
-	WIDGET_SET_SIZE(ms->scrolled_window, 550, 100);
+	WIDGET_SET_SIZE(ms->scrolled_window, 550, 150);
 
 	ms->table = create_stat_table(ms->scrolled_window, ms->vbox, 7, titles);
-#endif
 
 	error_string=register_tap_listener("mgcp", ms, filter, mgcpstat_reset, mgcpstat_packet, mgcpstat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_WARN, NULL, error_string->str);
 		g_string_free(error_string, TRUE);
-#if GTK_MAJOR_VERSION >= 2
-		g_free(ms->table);
-#endif
 		g_free(ms->filter);
 		g_free(ms);
 		return;
@@ -401,9 +318,9 @@ mgcpstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 
 	filter=(char *)gtk_entry_get_text(GTK_ENTRY(filter_entry));
 	if(filter[0]==0){
-		gtk_mgcpstat_init("mgcp,rtd");
+		gtk_mgcpstat_init("mgcp,srt");
 	} else {
-		sprintf(str,"mgcp,rtd,%s", filter);
+		sprintf(str,"mgcp,srt,%s", filter);
 		gtk_mgcpstat_init(str);
 	}
 }
@@ -413,6 +330,8 @@ mgcpstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 static void
 gtk_mgcpstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
+	char *filter;
+
 	/* if the window is already open, bring it to front */
 	if(dlg){
 		gdk_window_raise(dlg->window);
@@ -420,7 +339,7 @@ gtk_mgcpstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	}
 
 	dlg=gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(dlg), "MGCP RTD Statistics");
+	gtk_window_set_title(GTK_WINDOW(dlg), "MGCP SRT Statistics");
 	SIGNAL_CONNECT(dlg, "destroy", dlg_destroy_cb, NULL);
 	dlg_box=gtk_vbox_new(FALSE, 0);
 	gtk_container_add(GTK_CONTAINER(dlg), dlg_box);
@@ -437,6 +356,10 @@ gtk_mgcpstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	filter_entry=gtk_entry_new_with_max_length(250);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_entry, FALSE, FALSE, 0);
+	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
+	if(filter){
+		gtk_entry_set_text(GTK_ENTRY(filter_entry), filter);
+	}
 	gtk_widget_show(filter_entry);
 
 	gtk_box_pack_start(GTK_BOX(dlg_box), filter_box, TRUE, TRUE, 0);
@@ -456,13 +379,13 @@ gtk_mgcpstat_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkmgcpstat(void)
 {
-	register_ethereal_tap("mgcp,rtd", gtk_mgcpstat_init);
+	register_ethereal_tap("mgcp,srt", gtk_mgcpstat_init);
 }
 
 void
 register_tap_menu_gtkmgcpstat(void)
 {
 	if (find_tap_id("mgcp"))
-		register_tap_menu_item("MGCP/RTD", gtk_mgcpstat_cb);
+		register_tap_menu_item("Service Response Time/MGCP", gtk_mgcpstat_cb);
 }
 

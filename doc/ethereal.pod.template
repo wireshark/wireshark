@@ -365,18 +365,18 @@ on those calls that match that filter.
 Example: use B<-z "fc,srt,fc.id==01.02.03"> to only collect stats for
 FC packets echanged by the host at FC address 01.02.03 .
 
-B<-z> mgcp,rtd[I<,filter>]
+B<-z> mgcp,srt[I<,filter>]
 
-Collect requests/response RTD (Response Time Delay) data for MGCP. 
-This is similar to B<-z smb,rtt>). Data collected is number of calls
-for each known MGCP Type, MinRTD, MaxRTD and AvgRTD.
-Example: use B<-z mgcp,rtd>.
+Collect requests/response SRT (Service Response Time) data for MGCP. 
+This is similar to B<-z smb,srt>). Data collected is number of calls
+for each known MGCP Type, Minimum SRT, Maximum SRT and Average SRT.
+Example: use B<-z mgcp,srt>.
 
 This option can be used multiple times on the command line. 
 
 If the optional filterstring is provided, the stats will only be calculated
 on those calls that match that filter.
-Example: use B<-z "mgcp,rtd,ip.addr==1.2.3.4"> to only collect stats for
+Example: use B<-z "mgcp,srt,ip.addr==1.2.3.4"> to only collect stats for
 MGCP packets exchanged by the host at IP address 1.2.3.4 .
 
 =back
@@ -876,14 +876,16 @@ Display how the average packetsize from host a.b.c.d changes over time.
 Set first graph to   filter:ip.addr==a.b.c.d&&frame.pkt_len  Calc:AVG frame.pkt_len
 
 
-=item Tools:Statistics:MGCP:RTD
+=item Tools:Statistics:Service Response Time:MGCP
 
-Collect requests/response RTD (Response Time Delay) data for MGCP. 
-Data collected is number of calls for each known MGCP Type, 
-MinRTD, MaxRTD and AvgRTD. The data will be presented in a table.
+Collect requests/response SRT (Service Response Time) data for MGCP. 
+Data collected is B<number of calls> for each known MGCP Type, 
+B<Minimum SRT>, B<Maximum SRT> and B<Average SRT>. 
+These windows opened will update in semi-real time to reflect changes when
+doing live captures or when reading new capture files into B<Ethereal>.
 
 You can apply an optional filter string in a dialog box, before starting
-the calculation. The stats will only be calculated 
+the calculation. The statistics will only be calculated 
 on those calls matching that filter.
 
 =back
