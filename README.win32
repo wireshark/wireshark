@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.57 2004/01/07 12:12:09 ulfl Exp $
+$Id: README.win32,v 1.58 2004/01/17 11:05:35 ulfl Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -156,7 +156,7 @@ WinPcap, zlib, Net-SNMP, ADNS, and PCRE.  The GLIB, GTK+, and WinPcap
 packages are available from the respective home pages for each project
 (the same URLs as listed above). The development packages contain header
 files and stub libraries to link against.  Precompiled versions of all
-of these packages, except for WinPcap, are available at
+of these packages are available at
 
 	http://www.ethereal.com/distribution/win32/development/
 
