@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.58 2002/08/30 02:08:50 sharpe Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.59 2002/11/10 09:49:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1600,6 +1600,14 @@ samr_dissect_CRYPT_PASSWORD(tvbuff_t *tvb, int offset,
 			packet_info *pinfo _U_, proto_tree *tree,
 			char *drep _U_)
 {
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/* just a run to handle conformant arrays, no scalars to dissect */
+		return offset;
+	}
+
 	proto_tree_add_item(tree, hf_samr_crypt_password, tvb, offset, 516,
 		FALSE);
 	offset += 516;
@@ -1611,6 +1619,14 @@ samr_dissect_CRYPT_HASH(tvbuff_t *tvb, int offset,
 			packet_info *pinfo _U_, proto_tree *tree,
 			char *drep _U_)
 {
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/* just a run to handle conformant arrays, no scalars to dissect */
+		return offset;
+	}
+
 	proto_tree_add_item(tree, hf_samr_crypt_hash, tvb, offset, 16,
 		FALSE);
 	offset += 16;
@@ -1657,15 +1673,18 @@ samr_dissect_unicode_change_password_user2_rqst(tvbuff_t *tvb, int offset,
 						packet_info *pinfo,
 						proto_tree *tree, char *drep)
 {
-        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			samr_dissect_PASSWORD_INFO, NDR_POINTER_REF,
+			"PASSWORD_INFO:", -1, 0);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_pointer_UNICODE_STRING, NDR_POINTER_UNIQUE,
+			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
 			"Server", hf_samr_server, 0);
+
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_pointer_UNICODE_STRING, NDR_POINTER_REF,
-			"Account Name", hf_samr_acct_name, 0);
+			"Account Name:", hf_samr_acct_name, 1);
+
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			samr_dissect_CRYPT_PASSWORD, NDR_POINTER_UNIQUE,
 			"Password", -1, 0);
@@ -1998,18 +2017,18 @@ samr_dissect_set_information_group_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-
 static int
 samr_dissect_get_domain_password_information_rqst(tvbuff_t *tvb, int offset,
 						  packet_info *pinfo,
 						  proto_tree *tree,
 						  char *drep)
 {
-        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			samr_dissect_PASSWORD_INFO, NDR_POINTER_REF,
+			"PASSWORD_INFO:", -1, 0);
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			samr_dissect_pointer_STRING, NDR_POINTER_UNIQUE,
+			dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
 			"Domain", hf_samr_domain, 0);
 	return offset;
 }
@@ -2020,12 +2039,12 @@ samr_dissect_get_domain_password_information_reply(tvbuff_t *tvb, int offset,
 						   proto_tree *tree,
 						   char *drep)
 {
-	/*
-	 * XXX - really?  Not the same as
-	 * "samr_dissect_get_usrdom_pwinfo_reply()"?
-	 */
-        offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
-				       hf_samr_hnd, NULL, FALSE, FALSE);
+        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			samr_dissect_PASSWORD_INFO, NDR_POINTER_REF,
+			"PASSWORD_INFO:", -1, 0);
+
+        offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_samr_rc, NULL);
 
 	return offset;
 }
