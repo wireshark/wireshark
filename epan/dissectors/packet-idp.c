@@ -109,15 +109,21 @@ dissect_idp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	type = tvb_get_guint8(tvb, 5);
 	proto_tree_add_uint(idp_tree, hf_idp_packet_type, tvb, 5, 1, type);
 
+	pinfo->ptype = PT_IDP;
+
 	/* Destination */
 	proto_tree_add_item(idp_tree, hf_idp_dnet, tvb, 6, 4, FALSE);
 	proto_tree_add_item(idp_tree, hf_idp_dnode, tvb, 10, 6, FALSE);
-	proto_tree_add_item(idp_tree, hf_idp_dsocket, tvb, 16, 2, FALSE);
+	pinfo->destport = tvb_get_ntohs(tvb, 16);
+	proto_tree_add_uint(idp_tree, hf_idp_dsocket, tvb, 16, 2,
+	    pinfo->destport);
 
 	/* Source */
 	proto_tree_add_item(idp_tree, hf_idp_snet, tvb, 18, 4, FALSE);
 	proto_tree_add_item(idp_tree, hf_idp_snode, tvb, 22, 6, FALSE);
-	proto_tree_add_item(idp_tree, hf_idp_ssocket, tvb, 28, 2, FALSE);
+	pinfo->srcport = tvb_get_ntohs(tvb, 28);
+	proto_tree_add_uint(idp_tree, hf_idp_ssocket, tvb, 28, 2,
+	    pinfo->srcport);
 
 	/* Make the next tvbuff */
 	next_tvb = tvb_new_subset(tvb, IDP_HEADER_LEN, -1, -1);

@@ -1,6 +1,6 @@
 /* packet-spp.c
  * Routines for XNS SPP
- * Based on the Netware SPP dissector by Gilbert Ramirez <gram@alumni.rice.edu>
+ * Based on the Netware SPX dissector by Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * $Id$
  *
@@ -49,6 +49,8 @@ static gint ett_spp = -1;
 static gint ett_spp_connctrl = -1;
 
 static dissector_handle_t data_handle;
+
+static dissector_table_t spp_socket_dissector_table;
 
 /*
  * See
@@ -123,6 +125,7 @@ dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const char	*datastream_type_string;
 	guint16         spp_seq;
 	const char	*spp_msg_string;
+	guint16		low_socket, high_socket;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPP");
@@ -185,7 +188,21 @@ dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tvb_reported_length_remaining(tvb, SPP_HEADER_LEN) > 0) {
+		if (pinfo->srcport > pinfo->destport) {
+			low_socket = pinfo->destport;
+			high_socket = pinfo->srcport;
+		} else {
+			low_socket = pinfo->srcport;
+			high_socket = pinfo->destport;
+		}
+
 		next_tvb = tvb_new_subset(tvb, SPP_HEADER_LEN, -1, -1);
+		if (dissector_try_port(spp_socket_dissector_table, low_socket,
+		    next_tvb, pinfo, tree))
+			return;
+		if (dissector_try_port(spp_socket_dissector_table, high_socket,
+		    next_tvb, pinfo, tree))
+			return;
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	}
 }
@@ -265,6 +282,9 @@ proto_register_spp(void)
 	    "SPP", "spp");
 	proto_register_field_array(proto_spp, hf_spp, array_length(hf_spp));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	spp_socket_dissector_table = register_dissector_table("spp.socket",
+	    "SPP socket", FT_UINT16, BASE_HEX);
 }
 
 void

@@ -39,9 +39,10 @@ static const gchar* port_type_to_str (port_type type) {
 		case PT_UDP:	return "UDP";
 		case PT_IPX:	return "IPX";
 		case PT_NCP:	return "NCP";
-		case PT_EXCHG: return "FC EXCHG";
-		case PT_DDP: return "DDP";
-		case PT_SBCCS: return "FICON SBCCS";
+		case PT_EXCHG:	return "FC EXCHG";
+		case PT_DDP:	return "DDP";
+		case PT_SBCCS:	return "FICON SBCCS";
+		case PT_IDp:	return "IDP";
 	}
 	
 	g_assert_not_reached();

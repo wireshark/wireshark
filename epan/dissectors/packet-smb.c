@@ -44,6 +44,7 @@
 #include <epan/reassemble.h>
 #include <epan/tap.h>
 #include "packet-ipx.h"
+#include "packet-idp.h"
 
 #include "packet-windows-common.h"
 #include "packet-smb-common.h"
@@ -17306,4 +17307,5 @@ proto_reg_handoff_smb(void)
 	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_REDIR, smb_handle);
 	dissector_add("ipx.socket", IPX_SOCKET_NWLINK_SMB_MESSENGER,
 	    smb_handle);
+	dissector_add("spp.socket", IDP_SOCKET_SMB, smb_handle);
 }

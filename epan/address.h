@@ -113,7 +113,8 @@ typedef enum {
   PT_NCP,		/* NCP connection */
   PT_EXCHG,		/* Fibre Channel exchange */
   PT_DDP,		/* DDP AppleTalk connection */
-  PT_SBCCS		/* FICON */
+  PT_SBCCS,		/* FICON */
+  PT_IDP		/* XNS IDP sockets */
 } port_type;
 
 /* Types of circuit IDs Ethereal knows about. */

@@ -719,6 +719,17 @@ col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src)
     pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
     break;
 
+  case PT_IDP:
+    /* XXX - resolve IDP socket numbers */
+    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "0x%04x", port);
+    if (is_src)
+      strcpy(pinfo->cinfo->col_expr[col], "idp.src.socket");
+    else
+      strcpy(pinfo->cinfo->col_expr[col], "idp.dst.socket");
+    snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "0x%04x", port);
+    pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
+    break;
+
   default:
     break;
   }
