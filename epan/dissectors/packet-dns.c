@@ -1503,6 +1503,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
   case T_AAAA:
     {
       const guint8 *addr6;
+      struct e_in6_addr addr_in6;
 
       addr6 = tvb_get_ptr(tvb, cur_offset, 16);
       if (cinfo != NULL) {
@@ -1514,6 +1515,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 		     ip6_to_str((const struct e_in6_addr *)addr6));
 	proto_tree_add_text(rr_tree, tvb, cur_offset, 16, "Addr: %s",
 		     ip6_to_str((const struct e_in6_addr *)addr6));
+      }
+      if ((class & 0x7f) == C_IN) {
+	memcpy(&addr_in6, addr6, sizeof(addr_in6));
+	add_ipv6_name(&addr_in6, name);
       }
     }
     break;
