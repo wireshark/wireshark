@@ -538,6 +538,10 @@ Charles Levert <charles@comm.polymtl.ca> {
 	CUPS browsing protocol support
 }
 
+Todd Sabin <tas@webspan.net> {
+	DCE RPC support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
