@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.44 2002/05/02 10:59:37 guy Exp $
+ * $Id: packet-afs.c,v 1.45 2002/05/06 01:25:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -429,7 +429,16 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * ASCII strings containing the UID/PTS record and and a ascii number
  * representing a logical OR of all the ACL permission bits
  */
-/* FIXME: sscanf is probably quite dangerous if we run outside the packet. */
+/*
+ * XXX - FIXME:
+ *
+ *	sscanf is probably quite dangerous if we run outside the packet.
+ *
+ *	"GETSTR" doesn't guarantee that the resulting string is
+ *	null-terminated.
+ *
+ * Should this just scan the string itself, rather than using "sscanf()"?
+ */
 static int 
 dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset)
 {
