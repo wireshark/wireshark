@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.13 2000/09/08 09:50:06 guy Exp $
+ * $Id: packet_win.c,v 1.14 2000/09/08 10:59:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -196,8 +196,7 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
   /* draw the protocol tree & print hex data */
   proto_tree_draw(DataPtr->protocol_tree, tree_view);
   packet_hex_print( GTK_TEXT(byte_view), DataPtr->pd,
-		DataPtr->cap_len, -1, -1, DataPtr->encoding,
-		prefs.gui_hex_dump_highlight_style);
+		DataPtr->cap_len, -1, -1, DataPtr->encoding);
 		
   DataPtr->finfo_selected = NULL;
   gtk_widget_show(main_w);
@@ -232,7 +231,7 @@ new_tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column,
 
 	packet_hex_print(GTK_TEXT(DataPtr->byte_view), DataPtr->pd,
 		DataPtr->cap_len, finfo->start, finfo->length,
-		DataPtr->encoding, prefs.gui_hex_dump_highlight_style);
+		DataPtr->encoding);
 
 }
 
@@ -248,8 +247,7 @@ new_tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column,
 
 	DataPtr->finfo_selected = NULL;
 	packet_hex_print(GTK_TEXT(DataPtr->byte_view), DataPtr->pd,
-		DataPtr->cap_len, -1, -1, DataPtr->encoding,
-		prefs.gui_hex_dump_highlight_style);
+		DataPtr->cap_len, -1, -1, DataPtr->encoding);
 }
 
 /* Functions called from elsewhere to act on all popup packet windows. */
@@ -272,17 +270,16 @@ destroy_packet_wins(void)
 }
 
 static void
-set_hex_dump_highlight_style_cb(gpointer data, gpointer user_data)
+redraw_hex_dump_cb(gpointer data, gpointer user_data)
 {
 	struct PacketWinData *DataPtr = (struct PacketWinData *)data;
 
-	set_hex_dump_highlight_style(DataPtr->byte_view,
-		DataPtr->finfo_selected, *(gint *)user_data);
+	redraw_hex_dump(DataPtr->byte_view, DataPtr->finfo_selected);
 }
 
-/* Set the hex dump highlight style of all the popup packet windows. */
+/* Redraw the hex dump part of all the popup packet windows. */
 void
-set_hex_dump_highlight_style_packet_wins(gboolean style)
+redraw_hex_dump_packet_wins(void)
 {
-	g_list_foreach(detail_windows, set_hex_dump_highlight_style_cb, &style);
+	g_list_foreach(detail_windows, redraw_hex_dump_cb, NULL);
 }

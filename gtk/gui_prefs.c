@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.17 2000/09/08 09:50:01 guy Exp $
+ * $Id: gui_prefs.c,v 1.18 2000/09/08 10:59:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,8 @@
 #include "gui_prefs.h"
 #include "gtkglobals.h"
 #include "prefs_dlg.h"
+#include "follow_dlg.h"
+#include "help_dlg.h"
 #include "prefs.h"
 #include "prefs-int.h"
 #include "ui_util.h"
@@ -385,34 +387,61 @@ gui_prefs_fetch(GtkWidget *w)
 void
 gui_prefs_apply(GtkWidget *w)
 {
-	GdkFont *font = NULL;
+	GdkFont *new_r_font, *new_b_font;
+	char *bold_font_name;
+	GdkFont *old_r_font = NULL, *old_b_font = NULL;
 
 	if (font_changed) {
-		font = gdk_font_load(prefs.gui_font_name);
-		if (font == NULL) {
+		new_r_font = gdk_font_load(prefs.gui_font_name);
+		if (new_r_font == NULL) {
 			/* XXX - make this a dialog box, and don't let them
-			continue! */
+			   continue! */
 			fprintf(stderr, "Can't open font %s\n", prefs.gui_font_name);
+		} else {
+			bold_font_name = boldify(prefs.gui_font_name);
+			new_b_font = gdk_font_load(bold_font_name);
+			if (new_b_font == NULL) {
+				/* XXX - make this a dialog box, and don't
+				   let them continue! */
+				fprintf(stderr, "Can't open font %s\n",
+				    bold_font_name);
+				gdk_font_unref(new_r_font);
+			} else {
+				set_plist_font(new_r_font);
+				set_ptree_font_all(new_r_font);
+				old_r_font = m_r_font;
+				old_b_font = m_b_font;
+				m_r_font = new_r_font;
+				m_b_font = new_b_font;
+			}
+			g_free(bold_font_name);
 		}
 	}
+
+	/* Redraw the hex dump windows, in case either the font or the
+	   highlight style changed. */
+	redraw_hex_dump_all();
+
+	/* Redraw the help window. */
+	help_redraw();
+
+	/* Redraw the "Follow TCP Stream" windows, in case either the font
+	   or the colors to use changed. */
+	follow_redraw_all();
 
 	set_scrollbar_placement_all(prefs.gui_scrollbar_on_right);
 	set_plist_sel_browse(prefs.gui_plist_sel_browse);
 	set_ptree_sel_browse_all(prefs.gui_ptree_sel_browse);
 	set_ptree_line_style_all(prefs.gui_ptree_line_style);
 	set_ptree_expander_style_all(prefs.gui_ptree_expander_style);
-	set_hex_dump_highlight_style_all(prefs.gui_hex_dump_highlight_style);
 	if (colors_changed)
 		update_marked_frames();
-	if (font != NULL) {
-		set_plist_font(font);
-		set_ptree_font_all(font);
-#if 0
-		gdk_font_unref(m_r_font);
-		m_r_font = font;
-		/* Do the windows that directly use m_r_font here. */
-#endif
-	}
+
+	/* We're no longer using the old fonts; unreference them. */
+	if (old_r_font != NULL)
+		gdk_font_unref(old_r_font);
+	if (old_b_font != NULL)
+		gdk_font_unref(old_b_font);
 }
 
 void

@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.8 2000/08/21 13:04:05 deniel Exp $
+ * $Id: follow_dlg.c,v 1.9 2000/09/08 10:59:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -107,6 +107,37 @@ FILE *data_out_file = NULL;
 
 
 #define E_FOLLOW_INFO_KEY "follow_info_key"
+
+/* List of "follow_info_t" structures for all "Follow TCP Stream" windows,
+   so we can redraw them all if the colors or font changes. */
+static GList *follow_infos;
+
+/* Add a "follow_info_t" structure to the list. */
+static void
+remember_follow_info(follow_info_t *follow_info)
+{
+  follow_infos = g_list_append(follow_infos, follow_info);
+}
+
+/* Remove a "follow_info_t" structure from the list. */
+static void
+forget_follow_info(follow_info_t *follow_info)
+{
+  follow_infos = g_list_remove(follow_infos, follow_info);
+}
+
+static void
+follow_redraw(gpointer data, gpointer user_data)
+{
+	follow_load_text((follow_info_t *)data);
+}
+
+/* Redraw the text in all "Follow TCP Stream" windows. */
+void
+follow_redraw_all(void)
+{
+	g_list_foreach(follow_infos, follow_redraw, NULL);
+}
 
 /* Follow the TCP stream, if any, to which the last packet that we called
    a dissection routine on belongs (this might be the most recently
@@ -347,6 +378,7 @@ follow_stream_cb(GtkWidget * w, gpointer data)
 			    follow_info);
 
 	follow_load_text(follow_info);
+	remember_follow_info(follow_info);
 
 	data_out_file = NULL;
 
@@ -367,6 +399,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data)
 	follow_info = gtk_object_get_data(GTK_OBJECT(w), E_FOLLOW_INFO_KEY);
 	unlink(follow_info->data_out_filename);
 	gtk_widget_destroy(w);
+	forget_follow_info(follow_info);
 	g_free(follow_info);
 }
 

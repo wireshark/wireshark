@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.19 2000/09/08 09:50:07 guy Exp $
+ * $Id: proto_draw.c,v 1.20 2000/09/08 10:59:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,25 +58,25 @@ extern GdkFont      *m_r_font, *m_b_font;
 static void
 proto_tree_draw_node(GNode *node, gpointer data);
 
-/* Set the highlight style of a given byte view window. */
+/* Redraw a given byte view window. */
 void
-set_hex_dump_highlight_style(GtkWidget *bv, field_info *finfo, gboolean style)
+redraw_hex_dump(GtkWidget *bv, field_info *finfo)
 {
   if (finfo != NULL) {
     packet_hex_print(GTK_TEXT(bv), cfile.pd, cfile.current_frame->cap_len, 
 		     finfo->start, finfo->length,
-		     cfile.current_frame->flags.encoding, style);
+		     cfile.current_frame->flags.encoding);
   } else {
     packet_hex_print(GTK_TEXT(bv), cfile.pd, cfile.current_frame->cap_len, 
-		     -1, -1, cfile.current_frame->flags.encoding, style);
+		     -1, -1, cfile.current_frame->flags.encoding);
   }
 }
 
 void
-set_hex_dump_highlight_style_all(gboolean style)
+redraw_hex_dump_all(void)
 {
-  set_hex_dump_highlight_style(byte_view, finfo_selected, style);
-  set_hex_dump_highlight_style_packet_wins(style);
+  redraw_hex_dump(byte_view, finfo_selected);
+  redraw_hex_dump_packet_wins();
 }
 
 void
@@ -108,7 +108,7 @@ create_byte_view(gint bv_size, GtkWidget *pane, GtkWidget **byte_view_p,
 
 void
 packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
-		char_enc encoding, gboolean style) {
+		char_enc encoding) {
   gint     i = 0, j, k, cur;
   guchar   line[128], hexchars[] = "0123456789abcdef", c = '\0';
   GdkFont *cur_font, *new_font;
@@ -138,7 +138,7 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen,
     sprintf(line, "%04x  ", i);
     
     /* Display with inverse video ? */
-    if (style) {
+    if (prefs.gui_hex_dump_highlight_style) {
       gtk_text_insert(bv, m_r_font, &BLACK, &WHITE, line, -1);
       /* Do we start in reverse? */
       reverse = i >= bstart && i < bend;

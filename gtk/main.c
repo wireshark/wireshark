@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.154 2000/09/08 09:50:03 guy Exp $
+ * $Id: main.c,v 1.155 2000/09/08 10:59:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -136,7 +136,6 @@ GtkStyle *item_style;
 field_info *finfo_selected = NULL;
 
 static char* hfinfo_numeric_format(header_field_info *hfinfo);
-static char *boldify(const char *font_name);
 static void create_main_window(gint, gint, gint, e_prefs*);
 
 /* About Ethereal window */
@@ -573,8 +572,7 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 	}
 
 	packet_hex_print(GTK_TEXT(byte_view), cfile.pd, cfile.current_frame->cap_len, 
-		finfo->start, finfo->length, cfile.current_frame->flags.encoding,
-		prefs.gui_hex_dump_highlight_style);
+		finfo->start, finfo->length, cfile.current_frame->flags.encoding);
 }
 
 static void
@@ -584,8 +582,7 @@ tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer us
 	finfo_selected = NULL;
 	set_menus_for_selected_tree_row(FALSE);
 	packet_hex_print(GTK_TEXT(byte_view), cfile.pd, cfile.current_frame->cap_len, 
-		-1, -1, cfile.current_frame->flags.encoding,
-		prefs.gui_hex_dump_highlight_style);
+		-1, -1, cfile.current_frame->flags.encoding);
 }
 
 void collapse_all_cb(GtkWidget *widget, gpointer data) {
@@ -1406,7 +1403,7 @@ static const struct {
 };
 #define	N_WEIGHTS	(sizeof weight_map / sizeof weight_map[0])
 	
-static char *
+char *
 boldify(const char *font_name)
 {
 	char *bold_font_name;

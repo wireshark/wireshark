@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.9 2000/09/07 05:08:19 gram Exp $
+ * $Id: help_dlg.c,v 1.10 2000/09/08 10:59:13 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -70,14 +70,19 @@ static void set_help_text(GtkWidget *w, help_type_t type);
  */
 static GtkWidget *help_w = NULL;
 
+/*
+ * Keep static pointers to the text widgets as well.
+ */
+GtkWidget *overview_text, *proto_text, *dfilter_text, *cfilter_text;
+
 void help_cb(GtkWidget *w, gpointer data)
 {
 
   GtkWidget *main_vb, *bbox, *help_nb, *close_bt, *label, *txt_scrollw,
-    *overview_vb, *overview_text,
-    *proto_vb, *proto_text,
-    *dfilter_vb, *dfilter_text,
-    *cfilter_vb, *cfilter_text;
+    *overview_vb,
+    *proto_vb,
+    *dfilter_vb,
+    *cfilter_vb;
   
   if (help_w != NULL) {
     /* There's already a "Help" dialog box; reactivate it. */
@@ -398,3 +403,42 @@ static void set_help_text(GtkWidget *w, help_type_t type)
   gtk_text_thaw(GTK_TEXT(w));
 
 } /* set_help_text */
+
+static void clear_help_text(GtkWidget *w)
+{
+  GtkText *txt = GTK_TEXT(w);
+
+  gtk_text_set_point(txt, 0);
+  /* Keep GTK+ 1.2.3 through 1.2.6 from dumping core - see 
+     http://ethereal.zing.org/lists/ethereal-dev/199912/msg00312.html and
+     http://www.gnome.org/mailing-lists/archives/gtk-devel-list/1999-October/0051.shtml
+     for more information */
+  gtk_adjustment_set_value(txt->vadj, 0.0);
+  gtk_text_forward_delete(txt, gtk_text_get_length(txt));
+}
+
+/* Redraw all the text widgets, to use a new font. */
+void help_redraw(void)
+{
+  if (help_w != NULL) {
+    gtk_text_freeze(GTK_TEXT(overview_text));
+    clear_help_text(overview_text);
+    set_help_text(overview_text, OVERVIEW_HELP);
+    gtk_text_thaw(GTK_TEXT(overview_text));
+
+    gtk_text_freeze(GTK_TEXT(proto_text));
+    clear_help_text(proto_text);
+    set_help_text(proto_text, PROTOCOL_HELP);
+    gtk_text_thaw(GTK_TEXT(proto_text));
+
+    gtk_text_freeze(GTK_TEXT(dfilter_text));
+    clear_help_text(dfilter_text);
+    set_help_text(dfilter_text, DFILTER_HELP);
+    gtk_text_thaw(GTK_TEXT(dfilter_text));
+
+    gtk_text_freeze(GTK_TEXT(cfilter_text));
+    clear_help_text(cfilter_text);
+    set_help_text(cfilter_text, CFILTER_HELP);
+    gtk_text_thaw(GTK_TEXT(cfilter_text));
+  }
+}

@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.h,v 1.2 2000/08/11 13:32:57 deniel Exp $
+ * $Id: follow_dlg.h,v 1.3 2000/09/08 10:59:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,5 +26,8 @@
 #define __FOLLOW_DLG_H__
 
 void follow_stream_cb( GtkWidget *, gpointer);
+
+/* Redraw the text in all "Follow TCP Stream" windows. */
+void follow_redraw_all(void);
 
 #endif
