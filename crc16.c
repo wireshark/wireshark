@@ -3,7 +3,7 @@
  * 
  * 2004 Richard van der Hoff <richardv@mxtelecom.com>
  *
- * $Id: crc16.c,v 1.1 2004/06/25 06:31:46 sahlberg Exp $
+ * $Id: crc16.c,v 1.2 2004/06/26 09:45:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@xxxxxxxxxxxx>
@@ -67,7 +67,7 @@
 /*                                                               */
 /*****************************************************************/
 
-guint crc16_ccitt_table[256] =
+static const guint crc16_ccitt_table[256] =
 {
  0x0000, 0x1189, 0x2312, 0x329B, 0x4624, 0x57AD, 0x6536, 0x74BF,
  0x8C48, 0x9DC1, 0xAF5A, 0xBED3, 0xCA6C, 0xDBE5, 0xE97E, 0xF8F7,
@@ -117,7 +117,7 @@ static guint16 crc16_unreflected(const unsigned char *buf, guint len,
        faster. We just ignore the top 16 bits and let them do what they want. */
     guint crc16 = (guint)crc_in;;
 
-    while( len-- > 0 )
+    while( len-- != 0 )
        crc16 = table[(crc16 ^ *buf++) & 0xff] ^ (crc16 << 8);
 
     return (guint16)crc16;
@@ -128,15 +128,17 @@ static guint16 crc16_reflected(const unsigned char *buf, guint len,
                                 guint16 crc_in, const guint table[])
 {
     /* we use guints, rather than guint16s, as they are likely to be
-       faster. We just ignore the top 16 bits and let them do what they want. */
-    guint crc16 = (guint)crc_in;;
+       faster. We just ignore the top 16 bits and let them do what they want.
+       XXX - does any time saved not zero-extending guint16's to 32 bits
+       into a register outweigh any increased cache footprint from the
+       larger CRC table? */
+    guint crc16 = (guint)crc_in;
 
-    while( len-- > 0 )
+    while( len-- != 0 )
        crc16 = table[(crc16 ^ *buf++) & 0xff] ^ (crc16 >> 8);
 
     return (guint16)crc16;
 }
-
 
 guint16 crc16_ccitt(const unsigned char *buf, guint len)
 {
