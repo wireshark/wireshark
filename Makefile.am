@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.195 2000/05/11 08:14:47 gram Exp $
+# $Id: Makefile.am,v 1.196 2000/05/12 03:59:55 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -470,7 +470,6 @@ EXTRA_DIST = \
 	doc/dfilter2pod.in      \
 	doc/editcap.pod		\
 	doc/ethereal.pod.template \
-	doc/proto_tree		\
 	doc/randpkt.txt		\
 	doc/tethereal.pod.template \
 	editcap.c		\
@@ -501,6 +500,7 @@ EXTRA_DIST = \
 	README.win32		\
 	randpkt.c		\
 	rdps.c			\
+	tvbtest.c		\
 	TODO
 
 if SETUID_INSTALL
