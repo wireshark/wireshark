@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.10 2003/10/20 19:07:18 guy Exp $
+ * $Id: toolbar.c,v 1.11 2003/10/22 22:13:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -145,22 +145,16 @@ void
 toolbar_redraw_all(void)
 {
     GtkWidget     *main_tb, *main_tb_hb;
-    gboolean      gui_toolbar_main_show;
     static const GtkToolbarStyle styles[] = {
 	GTK_TOOLBAR_ICONS,
 	GTK_TOOLBAR_TEXT,
 	GTK_TOOLBAR_BOTH
     };
 
-    /* default: show toolbar */
-    /* XXX: get this info from a preference setting */
-    gui_toolbar_main_show = TRUE;
-    /* gui_toolbar_main_style = prefs.gui_toolbar_main_show; */
-
     main_tb_hb = OBJECT_GET_DATA(top_level, E_TB_MAIN_HB_KEY);
 
     /* does the user want the toolbar? */
-    if (gui_toolbar_main_show) {
+    if (prefs.gui_toolbar_main_show) {
         /* yes, set the style he/she prefers (texts, icons, both) */
         main_tb = OBJECT_GET_DATA(top_level, E_TB_MAIN_KEY);
         gtk_toolbar_set_style(GTK_TOOLBAR(main_tb),
