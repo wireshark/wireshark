@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.25 2003/10/10 11:11:37 sahlberg Exp $
+ * $Id: dcerpc_stat.c,v 1.26 2003/10/10 11:24:24 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,13 +81,21 @@ uuid_equal(e_uuid_t *uuid1, e_uuid_t *uuid2)
 	return 1;
 }
 
+static char *
+dcerpcstat_gen_title(rpcstat_t *rs)
+{
+	char *title;
+
+	title = g_strdup_printf("DCE-RPC Service Response Time statistics for %s version %d.%d: %s", rs->prog, rs->ver&0xff, rs->ver>>8, cf_get_display_name(&cfile));
+	return title;
+}
+
 static void
 dcerpcstat_set_title(rpcstat_t *rs)
 {
 	char *title;
 
-	title = g_strdup_printf("DCE-RPC Service Response Time statistics for %s version %d.%d: %s",
-	    rs->prog, rs->ver&0xff, rs->ver>>8, cf_get_display_name(&cfile));
+	title = dcerpcstat_gen_title(rs);
 	gtk_window_set_title(GTK_WINDOW(rs->win), title);
 	g_free(title);
 }
@@ -170,7 +178,7 @@ gtk_dcerpcstat_init(char *optarg)
 {
 	rpcstat_t *rs;
 	guint32 i, max_procs;
-	char title_string[256];
+	char *title_string;
 	char filter_string[256];
 	GtkWidget *vbox;
 	GtkWidget *stat_label;
@@ -229,7 +237,9 @@ gtk_dcerpcstat_init(char *optarg)
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
 	gtk_widget_show(vbox);
 
+	title_string=dcerpcstat_gen_title(rs);
 	stat_label=gtk_label_new(title_string);
+	g_free(title_string);
 	gtk_box_pack_start(GTK_BOX(vbox), stat_label, FALSE, FALSE, 0);
 	gtk_widget_show(stat_label);
 
