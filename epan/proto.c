@@ -2553,7 +2553,7 @@ proto_register_field_array(int parent, hf_register_info *hf, int num_records)
 	proto = find_protocol_by_id(parent);
 	for (i = 0; i < num_records; i++, ptr++) {
 		/*
-		 * Make sure we haven't registed this yet.
+		 * Make sure we haven't registered this yet.
 		 * Most fields have variables associated with them
 		 * that are initialized to -1; some have array elements,
 		 * or possibly uninitialized variables, so we also allow
