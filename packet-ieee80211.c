@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.56 2002/04/17 09:30:58 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.57 2002/04/17 09:34:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1162,6 +1162,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   proto_tree *flag_tree;
   proto_tree *fc_tree;
   guint16 hdr_len;
+  gboolean save_fragmented;
   tvbuff_t *volatile next_tvb;
   guint32 addr_type;
   volatile gboolean is_802_2;
@@ -1633,13 +1634,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
    *
    * XXX - what about short frames?
    */
+  save_fragmented = pinfo->fragmented;
   if (wlan_defragment && (more_frags || frag_number != 0)) {
-    gboolean save_fragmented;
     fragment_data *fd_head;
     unsigned char *buf;
-
-    save_fragmented = pinfo->fragmented;
-    pinfo->fragmented = TRUE;
 
     /*
      * If we've already seen this frame, look it up in the
@@ -1652,7 +1650,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 				     wlan_reassembled_table,
 				     frag_number,
 				     tvb_length_remaining(tvb, hdr_len),
-				      more_frags);
+				     more_frags);
     if (fd_head != NULL) {
       /*
        * Either this is reassembled or it wasn't fragmented
@@ -1679,23 +1677,36 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       	 */
 	next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
       }
+
+      /* It's not fragmented. */
       pinfo->fragmented = FALSE;
     } else {
-      /*
-       * Not yet reassembled.
-       */
-      pinfo->fragmented = save_fragmented;
+      /* We don't have the complete reassembled payload. */
       next_tvb = NULL;
     }
   } else {
     /*
-     * XXX - how do we know it's the last fragment?
+     * If this is the first fragment, dissect its contents, otherwise
+     * just show it as a fragment.
      */
     if (frag_number != 0) {
-      /* Just show this as a fragment. */
+      /* Not the first fragment - don't dissect it. */
       next_tvb = NULL;
-    } else
+    } else {
+      /* First fragment, or not fragmented.  Dissect what we have here. */
+
+      /* Get a tvbuff for the payload. */
       next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
+
+      /*
+       * If this is the first fragment, but not the only fragment,
+       * tell the next protocol that.
+       */
+      if (more_frags)
+        pinfo->fragmented = TRUE;
+      else
+        pinfo->fragmented = FALSE;
+    }
   }
 
   if (next_tvb == NULL) {
@@ -1704,6 +1715,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       col_set_str(pinfo->cinfo, COL_INFO, "Fragmented IEEE 802.11 frame");
     next_tvb = tvb_new_subset (tvb, hdr_len, -1, -1);
     call_dissector(data_handle, next_tvb, pinfo, tree);
+    pinfo->fragmented = save_fragmented;
     return;
   }
 
@@ -1744,6 +1756,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         call_dissector(ipx_handle, next_tvb, pinfo, tree);
       break;
     }
+  pinfo->fragmented = save_fragmented;
 }
 
 /*
