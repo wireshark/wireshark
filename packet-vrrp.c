@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.16 2001/06/18 02:17:53 guy Exp $
+ * $Id: packet-vrrp.c,v 1.17 2001/07/12 19:43:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,12 @@ static gint ett_vrrp_ver_type = -1;
 static gint hf_vrrp_ver_type = -1;
 static gint hf_vrrp_version = -1;
 static gint hf_vrrp_type = -1;
+static gint hf_vrrp_virt_rtr_id = -1;
+static gint hf_vrrp_prio = -1;
+static gint hf_vrrp_count_ip = -1;
+static gint hf_vrrp_auth_type = -1;
+static gint hf_vrrp_adver_int = -1;
+static gint hf_vrrp_ip = -1;
 
 #define VRRP_VERSION_MASK 0xf0
 #define VRRP_TYPE_MASK 0x0f
@@ -106,7 +112,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (tree) {
                 proto_item *ti, *tv;
                 proto_tree *vrrp_tree, *ver_type_tree;
-                guint8 priority, ip_count, auth_type, adver_int;
+                guint8 priority, ip_count, auth_type;
                 guint16 cksum, computed_cksum;
                 guint8 auth_buf[VRRP_AUTH_DATA_LEN+1];
 
@@ -126,37 +132,29 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     ver_type);
                 offset++;
                 
-                proto_tree_add_text(vrrp_tree, tvb, offset, 1,
-                                    "Virtual Router ID: %u",
-                                    tvb_get_guint8(tvb, offset));
+                proto_tree_add_item(vrrp_tree, hf_vrrp_virt_rtr_id, tvb, offset, 1, FALSE);
                 offset++;
 
                 priority = tvb_get_guint8(tvb, offset);
-                proto_tree_add_text(vrrp_tree, tvb, offset, 1, "Priority: %u (%s)",
-                                    priority,
-                                    val_to_str(priority, vrrp_prio_vals, "Non-default backup priority"));
+                proto_tree_add_uint_format(vrrp_tree, hf_vrrp_prio, tvb, offset, 1, priority, "Priority: %u (%s)",
+                                           priority,
+                                           val_to_str(priority, vrrp_prio_vals, "Non-default backup priority"));
                 offset++;
 
                 ip_count = tvb_get_guint8(tvb, offset);
-                proto_tree_add_text(vrrp_tree, tvb, offset, 1,
-                                    "Count IP Addrs: %u", ip_count);
+                proto_tree_add_uint(vrrp_tree, hf_vrrp_count_ip, tvb, offset, 1, ip_count);
                 offset++;
 
                 auth_type = tvb_get_guint8(tvb, offset);
-                proto_tree_add_text(vrrp_tree, tvb, offset, 1,
-                                    "Authentication Type: %u (%s)", auth_type,
-                                    val_to_str(auth_type, vrrp_auth_vals, "Unknown"));
+                proto_tree_add_item(vrrp_tree, hf_vrrp_auth_type, tvb, offset, 1, FALSE);
                 offset++;
 
-                adver_int = tvb_get_guint8(tvb, offset);
-                proto_tree_add_text(vrrp_tree, tvb, offset, 1,
-                                    "Advertisement Interval: %u second%s",
-                                    adver_int, plurality(adver_int, "", "s"));
+                proto_tree_add_item(vrrp_tree, hf_vrrp_adver_int, tvb, offset, 1, FALSE);
                 offset++;
 
                 cksum = tvb_get_ntohs(tvb, offset);
-                vrrp_len = tvb_reported_length(tvb);
-                if (!pinfo->fragmented && tvb_length(tvb) >= vrrp_len) {
+                vrrp_len = (gint)tvb_reported_length(tvb);
+                if (!pinfo->fragmented && (gint)tvb_length(tvb) >= vrrp_len) {
                         /* The packet isn't part of a fragmented datagram
                            and isn't truncated, so we can checksum it. */
                         cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, vrrp_len);
@@ -179,9 +177,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset+=2;
 
                 while (ip_count > 0) {
-                        proto_tree_add_text(vrrp_tree, tvb, offset, 4,
-                                            "Virtual Router IP address: %s",
-                                            ip_to_str(tvb_get_ptr(tvb, offset, 4)));
+                        proto_tree_add_item(vrrp_tree, hf_vrrp_ip, tvb, offset, 4, FALSE);
                         offset+=4;
                         ip_count--;
                 }
@@ -215,7 +211,38 @@ void proto_register_vrrp(void)
                 { &hf_vrrp_type,
                   {"VRRP packet type", "vrrp.type",
                    FT_UINT8, BASE_DEC, VALS(vrrp_type_vals), VRRP_TYPE_MASK,
-                   "VRRP type", HFILL }}
+                   "VRRP type", HFILL }},
+
+                { &hf_vrrp_virt_rtr_id,
+                  {"Virtual Rtr ID", "vrrp.virt_rtr_id",
+                   FT_UINT8, BASE_DEC, NULL, 0x0,
+                   "Virtual router this packet is reporting status for", HFILL }},
+
+                { &hf_vrrp_prio,
+                  {"Priority", "vrrp.prio",
+                   FT_UINT8, BASE_DEC, NULL, 0x0,
+                   "Sending VRRP router's priority for the virtual router", HFILL }},
+
+                { &hf_vrrp_count_ip,
+                  {"Count IP Addrs", "vrrp.count_ip_addrs",
+                   FT_UINT8, BASE_DEC, NULL, 0x0,
+                   "The number of IP addresses contained in this VRRP advertisement", HFILL }},
+
+                { &hf_vrrp_auth_type,
+                  {"Auth Type", "vrrp.auth_type",
+                   FT_UINT8, BASE_DEC, VALS(vrrp_auth_vals), 0x0,
+                   "The authentication method being utilized", HFILL }},
+
+                { &hf_vrrp_adver_int,
+                  {"Adver Int", "vrrp.adver_int",
+                   FT_UINT8, BASE_DEC, NULL, 0x0,
+                   "Time interval (in seconds) between ADVERTISEMENTS", HFILL }},
+
+                { &hf_vrrp_ip,
+                  {"IP Address", "vrrp.ip_addr",
+                   FT_IPv4, 0, NULL, 0x0,
+                   "IP address associated with the virtual router", HFILL }},
+
         };
 
         static gint *ett[] = {
