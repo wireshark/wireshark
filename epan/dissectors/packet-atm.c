@@ -61,6 +61,7 @@ static gint ett_oamaal = -1;
 
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t tr_handle;
+static dissector_handle_t fr_handle;
 static dissector_handle_t llc_handle;
 static dissector_handle_t sscop_handle;
 static dissector_handle_t lane_handle;
@@ -1071,6 +1072,10 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case AAL_5:
     switch (pinfo->pseudo_header->atm.type) {
 
+    case TRAF_FR:
+      call_dissector(fr_handle, next_tvb, pinfo, tree);
+      break;
+
     case TRAF_LLCMX:
       call_dissector(llc_handle, next_tvb, pinfo, tree);
       break;
@@ -1647,11 +1652,12 @@ proto_reg_handoff_atm(void)
 	dissector_handle_t atm_handle, atm_untruncated_handle;
 
 	/*
-	 * Get handles for the Ethernet, Token Ring, LLC, SSCOP, LANE,
-	 * and ILMI dissectors.
+	 * Get handles for the Ethernet, Token Ring, Frame Relay, LLC,
+	 * SSCOP, LANE, and ILMI dissectors.
 	 */
 	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 	tr_handle = find_dissector("tr");
+	fr_handle = find_dissector("fr");
 	llc_handle = find_dissector("llc");
 	sscop_handle = find_dissector("sscop");
 	lane_handle = find_dissector("lane");
