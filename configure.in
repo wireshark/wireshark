@@ -1,17 +1,28 @@
-# $Id: configure.in,v 1.3 1998/09/17 02:01:46 gerald Exp $
+# $Id: configure.in,v 1.4 1998/09/20 00:21:56 gerald Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
 AM_INIT_AUTOMAKE(ethereal, 0.3.16)
 
+dnl Check for CPU / vendor / OS
+AC_CANONICAL_HOST
+
 dnl Checks for programs.
 AC_PROG_CC
 
-# If LD_LIBRARY_PATH is defined, add it as a link directory.
-# This should help Solaris users.
-if test x$LD_LIBRARY_PATH != x ; then
-  LIBS="$LIBS -R$LD_LIBRARY_PATH"
-fi
+# If we're running Solaris, and LD_LIBRARY_PATH is defined, add it as a
+# link directory.
+case "$host_os" in
+  solaris*)
+    AC_MSG_RESULT(You appear to be running Solaris.  Checking for LD_LIBRARY_PATH...)
+    if test x$LD_LIBRARY_PATH != x -a ; then
+      LIBS="$LIBS -R$LD_LIBRARY_PATH"
+      AC_MSG_RESULT(Added LD_LIBRARY_PATH to run-time linker path)
+    else
+      AC_MSG_RESULT(You don't have LD_LIBRARY_PATH defined.  This may cause trouble later on.)
+    fi
+  ;;
+esac
 
 # GTK checks
 AM_PATH_GTK(1.0.0, CFLAGS="$CFLAGS $GTK_CFLAGS" LIBS="$LIBS $GTK_LIBS",
