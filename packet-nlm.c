@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.14 2001/01/28 03:39:48 guy Exp $
+ * $Id: packet-nlm.c,v 1.15 2001/02/04 09:04:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -78,6 +78,7 @@ static int hf_nlm_share = -1;
 static int hf_nlm_share_mode = -1;
 static int hf_nlm_share_access = -1;
 static int hf_nlm_share_name = -1;
+static int hf_nlm_sequence = -1;
 
 static gint ett_nlm = -1;
 static gint ett_nlm_lock = -1;
@@ -333,6 +334,16 @@ dissect_nlm_share(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
+dissect_nlm_shareres(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree, int version)
+{
+	offset = dissect_rpc_data_tvb(tvb, pinfo, tree, hf_nlm_cookie, offset);
+	offset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, hf_nlm_state, offset);
+	offset = dissect_rpc_uint32_tvb(tvb, pinfo, tree, hf_nlm_sequence, offset);
+	return offset;
+}
+
+static int
 dissect_nlm_freeall(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree,int version)
 {
@@ -455,10 +466,38 @@ dissect_nlm3_share(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
+dissect_nlm4_share(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
+{
+	return dissect_nlm_share(tvb,offset,pinfo,tree,4);
+}
+
+static int
+dissect_nlm3_shareres(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
+{
+	return dissect_nlm_shareres(tvb,offset,pinfo,tree,3);
+}
+
+static int
+dissect_nlm4_shareres(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
+{
+	return dissect_nlm_shareres(tvb,offset,pinfo,tree,4);
+}
+
+static int
 dissect_nlm3_freeall(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree)
 {
 	return dissect_nlm_freeall(tvb,offset,pinfo,tree,3);
+}
+
+static int
+dissect_nlm4_freeall(tvbuff_t *tvb, int offset, packet_info *pinfo,
+    proto_tree *tree)
+{
+	return dissect_nlm_freeall(tvb,offset,pinfo,tree,4);
 }
 
 
@@ -579,13 +618,13 @@ static const vsff nlm3_proc[] = {
 	{ NLM_GRANTED_RES,	"GRANTED_RES",	
 		dissect_nlm_gen_reply,		NULL },
 	{ NLM_SHARE,		"SHARE",	
-		dissect_nlm3_share,		NULL },	/* XXX */
+		dissect_nlm3_share,		dissect_nlm3_shareres },
 	{ NLM_UNSHARE,		"UNSHARE",	
-		dissect_nlm3_share,		NULL },	/* XXX */
+		dissect_nlm3_share,		dissect_nlm3_shareres },
 	{ NLM_NM_LOCK,		"NM_LOCK",	
-		dissect_nlm1_lock,	dissect_nlm_gen_reply },
+		dissect_nlm1_lock,		dissect_nlm_gen_reply },
 	{ NLM_FREE_ALL,		"FREE_ALL",	
-		dissect_nlm3_freeall,		NULL },	/* XXX */
+		dissect_nlm3_freeall,		NULL },
 	{ 0,			NULL,
 		NULL,				NULL }
 };
@@ -597,15 +636,15 @@ static const vsff nlm4_proc[] = {
 	{ NLM_NULL,		"NULL",		
 		NULL,				NULL },
 	{ NLM_TEST,		"TEST",		
-		dissect_nlm4_test,		NULL },
+		dissect_nlm4_test,		dissect_nlm4_test_res },
 	{ NLM_LOCK,		"LOCK",		
-		dissect_nlm4_lock,		NULL },
+		dissect_nlm4_lock,		dissect_nlm_gen_reply },
 	{ NLM_CANCEL,		"CANCEL",	
-		dissect_nlm4_cancel,		NULL },
+		dissect_nlm4_cancel,		dissect_nlm_gen_reply },
 	{ NLM_UNLOCK,		"UNLOCK",	
-		dissect_nlm4_unlock,	 	NULL },
+		dissect_nlm4_unlock,	 	dissect_nlm_gen_reply },
 	{ NLM_GRANTED,		"GRANTED",	
-		dissect_nlm4_granted,		NULL },
+		dissect_nlm4_granted,		dissect_nlm_gen_reply },
 	{ NLM_TEST_MSG,		"TEST_MSG",	
 		dissect_nlm4_test,		NULL },
 	{ NLM_LOCK_MSG,		"LOCK_MSG",	
@@ -627,13 +666,13 @@ static const vsff nlm4_proc[] = {
 	{ NLM_GRANTED_RES,	"GRANTED_RES",	
 		dissect_nlm_gen_reply,		NULL },
 	{ NLM_SHARE,		"SHARE",
-		NULL,				NULL },	/* XXX */
+		dissect_nlm4_share,		dissect_nlm4_shareres },
 	{ NLM_UNSHARE,		"UNSHARE",
-		NULL,				NULL },	/* XXX */
+		dissect_nlm4_share,		dissect_nlm4_shareres },
 	{ NLM_NM_LOCK,		"NM_LOCK",	
-		dissect_nlm4_lock,		NULL },
+		dissect_nlm4_lock,		dissect_nlm_gen_reply },
 	{ NLM_FREE_ALL,		"FREE_ALL",
-		NULL,				NULL },	/* XXX */
+		dissect_nlm4_freeall,		NULL },
 	{ 0,			NULL,
 		NULL,				NULL }
 };
@@ -701,6 +740,9 @@ proto_register_nlm(void)
 		{ &hf_nlm_share_name, {
 			"name", "nlm.share.name", FT_STRING, BASE_NONE,
 			NULL, 0, "name" }},
+		{ &hf_nlm_sequence, {
+			"sequence", "nlm.sequence", FT_INT32, BASE_DEC,
+			NULL, 0, "sequence" }},
 		};
 
 	static gint *ett[] = {
