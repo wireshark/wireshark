@@ -327,8 +327,7 @@ the I<File:Print Packet> menu item.
 
 The main window is split into three panes.  You can resize each pane using
 a "thumb" at the right end of each divider line.  Below the panes is a
-strip that shows the file load progress, current filter, and informational
-text.
+strip that shows the current filter and informational text.
 
 =over 6
 

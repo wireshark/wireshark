@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.31 2000/06/27 04:35:46 guy Exp $
+ * $Id: tethereal.c,v 1.32 2000/07/03 08:35:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1045,7 +1045,6 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   cf->esec      = 0;
   cf->eusec     = 0;
   cf->snap      = wtap_snapshot_length(cf->wth);
-  cf->update_progbar = FALSE;
   cf->progbar_quantum = 0;
   cf->progbar_nextstep = 0;
   firstsec = 0, firstusec = 0;

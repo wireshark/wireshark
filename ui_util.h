@@ -1,7 +1,7 @@
 /* ui_util.h
  * Definitions for UI utility routines
  *
- * $Id: ui_util.h,v 1.4 2000/02/29 06:24:16 guy Exp $
+ * $Id: ui_util.h,v 1.5 2000/07/03 08:35:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,31 @@ void reactivate_window(GtkWidget *);
 
 /* Destroy all popup packet windows. */
 void destroy_packet_wins(void);
+
+/*
+ * Progress (modal) dialog box routines.
+ */
+
+/*
+ * Create and pop up the progress dialog; return a pointer to it, as
+ * a "void *", so that our caller doesn't have to know the GUI
+ * implementation.
+ *
+ * The first argument is the title to give the dialog box; the second
+ * argument is a pointer to a Boolean variable that will be set to
+ * TRUE if the user hits the "Cancel" button.
+ */
+void *create_progress_dlg(gchar *title, gboolean *stop_flag);
+
+/*
+ * Set the percentage value of the progress bar.
+ */
+void update_progress_dlg(void *dlg, gfloat percentage);
+
+/*
+ * Destroy the progress bar.
+ */
+void destroy_progress_dlg(void *dlg);
 
 #ifdef __cplusplus
 }

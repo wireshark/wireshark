@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.125 2000/06/27 07:13:25 guy Exp $
+ * $Id: main.c,v 1.126 2000/07/03 08:36:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -121,7 +121,7 @@ FILE        *data_out_file = NULL;
 packet_info  pi;
 capture_file cfile;
 GtkWidget   *top_level, *packet_list, *tree_view, *byte_view,
-            *prog_bar, *info_bar, *tv_scrollw, *pkt_scrollw;
+            *info_bar, *tv_scrollw, *pkt_scrollw;
 static GtkWidget	*bv_scrollw;
 GdkFont     *m_r_font, *m_b_font;
 guint        main_ctx, file_ctx;
@@ -1785,15 +1785,11 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   create_byte_view(bv_size, l_pane, &byte_view, &bv_scrollw,
 			prefs->gui_scrollbar_on_right);
 
-  /* Progress/filter/info box */
+  /* Filter/info box */
   stat_hbox = gtk_hbox_new(FALSE, 1);
   gtk_container_border_width(GTK_CONTAINER(stat_hbox), 0);
   gtk_box_pack_start(GTK_BOX(main_vbox), stat_hbox, FALSE, TRUE, 0);
   gtk_widget_show(stat_hbox);
-
-  prog_bar = gtk_progress_bar_new();
-  gtk_box_pack_start(GTK_BOX(stat_hbox), prog_bar, FALSE, TRUE, 3);
-  gtk_widget_show(prog_bar);
 
   filter_bt = gtk_button_new_with_label("Filter:");
   gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.192 2000/06/27 09:26:10 guy Exp $
+ * $Id: file.c,v 1.193 2000/07/03 08:35:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -85,7 +85,7 @@
 
 #include "plugins.h"
 
-extern GtkWidget *packet_list, *prog_bar, *info_bar, *byte_view, *tree_view;
+extern GtkWidget *packet_list, *info_bar, *byte_view, *tree_view;
 extern guint      file_ctx;
 
 gboolean auto_scroll_live = FALSE;
@@ -166,7 +166,6 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   cf->esec      = 0;
   cf->eusec     = 0;
   cf->snap      = wtap_snapshot_length(cf->wth);
-  cf->update_progbar = FALSE;
   cf->progbar_quantum = 0;
   cf->progbar_nextstep = 0;
   firstsec = 0, firstusec = 0;
@@ -288,12 +287,16 @@ set_display_filename(capture_file *cf)
 read_status_t
 read_cap_file(capture_file *cf, int *err)
 {
-  gchar  *name_ptr, *load_msg, *load_fmt = " Loading: %s...";
-  size_t  msg_len;
-  char   *errmsg;
-  char    errmsg_errno[1024+1];
-  gchar   err_str[2048+1];
-  int     data_offset;
+  gchar   *name_ptr, *load_msg, *load_fmt = " Loading: %s...";
+  size_t   msg_len;
+  char    *errmsg;
+  char     errmsg_errno[1024+1];
+  gchar    err_str[2048+1];
+  int      data_offset;
+  void    *progbar;
+  gboolean stop_flag;
+  int      file_pos;
+  float    prog_val;
 
   name_ptr = get_basename(cf->filename);
 
@@ -301,9 +304,7 @@ read_cap_file(capture_file *cf, int *err)
   load_msg = g_malloc(msg_len);
   snprintf(load_msg, msg_len, load_fmt, name_ptr);
   gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
-  g_free(load_msg);
 
-  cf->update_progbar = TRUE;
   /* Update the progress bar when it gets to this value. */
   cf->progbar_nextstep = 0;
   /* When we reach the value that triggers a progress bar update,
@@ -316,16 +317,36 @@ read_cap_file(capture_file *cf, int *err)
 
   freeze_clist(cf);
 
+  stop_flag = FALSE;
+  progbar = create_progress_dlg(load_msg, &stop_flag);
+  g_free(load_msg);
+
   while ((data_offset = wtap_read(cf->wth, err)) > 0) {
-    if (cf->state == FILE_READ_ABORTED) {
+    /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
+       when we update it, we have to run the GTK+ main loop to get it
+       to repaint what's pending, and doing so may involve an "ioctl()"
+       to see if there's any pending input from an X server, and doing
+       that for every packet can be costly, especially on a big file. */
+    if (data_offset >= cf->progbar_nextstep) {
+        file_pos = lseek(cf->filed, 0, SEEK_CUR);
+        prog_val = (gfloat) file_pos / (gfloat) cf->f_len;
+        update_progress_dlg(progbar, prog_val);
+        cf->progbar_nextstep += cf->progbar_quantum;
+    }
+
+    if (stop_flag) {
       /* Well, the user decided to abort the read.  Close the capture
          file, and return READ_ABORTED so our caller can do whatever is
 	 appropriate when that happens. */
+      cf->state = FILE_READ_ABORTED;	/* so that we're allowed to close it */
       close_cap_file(cf, info_bar);
       return (READ_ABORTED);
     }
     read_packet(cf, data_offset);
   }
+
+  /* We're done reading the file; destroy the progress bar. */
+  destroy_progress_dlg(progbar);
 
   /* We're done reading sequentially through the file. */
   cf->state = FILE_READ_DONE;
@@ -341,9 +362,6 @@ read_cap_file(capture_file *cf, int *err)
 
   cf->current_frame = cf->first_displayed;
   thaw_clist(cf);
-
-  gtk_progress_set_activity_mode(GTK_PROGRESS(prog_bar), FALSE);
-  gtk_progress_set_value(GTK_PROGRESS(prog_bar), 0);
 
   gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
   set_display_filename(cf);
@@ -711,28 +729,6 @@ read_packet(capture_file *cf, int offset)
   int           passed;
   proto_tree   *protocol_tree;
   frame_data   *plist_end;
-  int file_pos;
-  float prog_val;
-
-  /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
-     when we update it, we have to run the GTK+ main loop to get it
-     to repaint what's pending, and doing so may involve an "ioctl()"
-     to see if there's any pending input from an X server, and doing
-     that for every packet can be costly, especially on a big file.
-     
-     Do so only if we were told to do so; when reading a capture file
-     being updated by a live capture, we don't do so (as we're not
-     "done" until the capture stops, so we don't know how close to
-     "done" we are. */
-
-  if (cf->update_progbar && offset >= cf->progbar_nextstep) {
-      file_pos = lseek(cf->filed, 0, SEEK_CUR);
-      prog_val = (gfloat) file_pos / (gfloat) cf->f_len;
-      gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), prog_val);
-      cf->progbar_nextstep += cf->progbar_quantum;
-      while (gtk_events_pending())
-        gtk_main_iteration();
-  }
 
   /* Allocate the next list entry, and add it to the list. */
   fdata = g_mem_chunk_alloc(cf->plist_chunk);
@@ -829,6 +825,8 @@ void
 colorize_packets(capture_file *cf)
 {
   frame_data *fdata;
+  void *progbar;
+  gboolean stop_flag;
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
   int count;
@@ -854,8 +852,6 @@ colorize_packets(capture_file *cf)
 
   /* Initialize protocol-specific variables */
   init_all_protocols();
-
-  gtk_progress_set_activity_mode(GTK_PROGRESS(prog_bar), FALSE);
 
   /* Freeze the packet list while we redo it, so we don't get any
      screen updates while it happens. */
@@ -884,7 +880,8 @@ colorize_packets(capture_file *cf)
   /* Count of packets at which we've looked. */
   count = 0;
 
-  gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(prog_bar), GTK_PROGRESS_LEFT_TO_RIGHT);
+  stop_flag = FALSE;
+  progbar = create_progress_dlg("Filtering", &stop_flag);
 
   for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
     /* Update the progress bar, but do it only N_PROGBAR_UPDATES times;
@@ -898,12 +895,25 @@ colorize_packets(capture_file *cf)
        */
       g_assert(cf->count > 0);
 
-      gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
-		(gfloat) count / cf->count);
+      update_progress_dlg(progbar, (gfloat) count / cf->count);
 
       progbar_nextstep += progbar_quantum;
-      while (gtk_events_pending())
-        gtk_main_iteration();
+    }
+
+    if (stop_flag) {
+      /* Well, the user decided to abort the filtering.  Just stop.
+
+         XXX - go back to the previous filter?  Users probably just
+	 want not to wait for a filtering operation to finish;
+	 unless we cancel by having no filter, reverting to the
+	 previous filter will probably be even more expensive than
+	 continuing the filtering, as it involves going back to the
+	 beginning and filtering, and even with no filter we currently
+	 have to re-generate the entire clist, which is also expensive.
+
+	 I'm not sure what Network Monitor does, but it doesn't appear
+	 to give you an unfiltered display if you cancel. */
+      break;
     }
 
     count++;
@@ -916,7 +926,8 @@ colorize_packets(capture_file *cf)
       selected_row = row;
   }
  
-  gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);
+  /* We're done filtering the packets; destroy the progress bar. */
+  destroy_progress_dlg(progbar);
 
   /* Unfreeze the packet list. */
   gtk_clist_thaw(GTK_CLIST(packet_list));
@@ -939,6 +950,8 @@ print_packets(capture_file *cf, print_args_t *print_args)
 {
   int         i;
   frame_data *fdata;
+  void       *progbar;
+  gboolean    stop_flag;
   guint32     progbar_quantum;
   guint32     progbar_nextstep;
   guint32     count;
@@ -1022,7 +1035,8 @@ print_packets(capture_file *cf, print_args_t *print_args)
   /* Count of packets at which we've looked. */
   count = 0;
 
-  gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(prog_bar), GTK_PROGRESS_LEFT_TO_RIGHT);
+  stop_flag = FALSE;
+  progbar = create_progress_dlg("Printing", &stop_flag);
 
   /* Iterate through the list of packets, printing the packets that
      were selected by the current display filter.  */
@@ -1038,12 +1052,21 @@ print_packets(capture_file *cf, print_args_t *print_args)
        */
       g_assert(cf->count > 0);
 
-      gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
-        (gfloat) count / cf->count);
+      update_progress_dlg(progbar, (gfloat) count / cf->count);
+
       progbar_nextstep += progbar_quantum;
-      while (gtk_events_pending())
-        gtk_main_iteration();
     }
+
+    if (stop_flag) {
+      /* Well, the user decided to abort the printing.  Just stop.
+
+         XXX - note that what got generated before they did that
+	 will get printed, as we're piping to a print program; we'd
+	 have to write to a file and then hand that to the print
+	 program to make it actually not print anything. */
+      break;
+    }
+
     count++;
 
     if (fdata->flags.passed_dfilter) {
@@ -1113,6 +1136,9 @@ print_packets(capture_file *cf, print_args_t *print_args)
     }
   }
 
+  /* We're done printing the packets; destroy the progress bar. */
+  destroy_progress_dlg(progbar);
+
   if (col_widths != NULL)
     g_free(col_widths);
   if (line_buf != NULL)
@@ -1122,8 +1148,6 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
   close_print_dest(print_args->to_file, cf->print_fh);
  
-  gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);
-
   cf->print_fh = NULL;
 
   proto_tree_is_visible = FALSE;
@@ -1214,6 +1238,8 @@ find_packet(capture_file *cf, dfilter *sfcode)
   frame_data *start_fd;
   frame_data *fdata;
   frame_data *new_fd = NULL;
+  void *progbar;
+  gboolean stop_flag;
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
   int count;
@@ -1223,8 +1249,6 @@ find_packet(capture_file *cf, dfilter *sfcode)
 
   start_fd = cf->current_frame;
   if (start_fd != NULL)  {
-    gtk_progress_set_activity_mode(GTK_PROGRESS(prog_bar), FALSE);
-
     /* Iterate through the list of packets, starting at the packet we've
        picked, calling a routine to run the filter on the packet, see if
        it matches, and stop if so.  */
@@ -1236,7 +1260,9 @@ find_packet(capture_file *cf, dfilter *sfcode)
     /* When we reach the value that triggers a progress bar update,
        bump that value by this amount. */
     progbar_quantum = cf->count/N_PROGBAR_UPDATES;
-    gtk_progress_bar_set_orientation(GTK_PROGRESS_BAR(prog_bar), GTK_PROGRESS_LEFT_TO_RIGHT);
+
+    stop_flag = FALSE;
+    progbar = create_progress_dlg("Searching", &stop_flag);
 
     fdata = start_fd;
     for (;;) {
@@ -1251,12 +1277,16 @@ find_packet(capture_file *cf, dfilter *sfcode)
          */
         g_assert(cf->count > 0);
 
-        gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar),
-		(gfloat) count / cf->count);
+        update_progress_dlg(progbar, (gfloat) count / cf->count);
 
         progbar_nextstep += progbar_quantum;
-        while (gtk_events_pending())
-          gtk_main_iteration();
+      }
+
+      if (stop_flag) {
+        /* Well, the user decided to abort the search.  Go back to the
+           frame where we started. */
+        new_fd = start_fd;
+        break;
       }
 
       /* Go past the current frame. */
@@ -1296,7 +1326,8 @@ find_packet(capture_file *cf, dfilter *sfcode)
       }
     }
 
-    gtk_progress_bar_update(GTK_PROGRESS_BAR(prog_bar), 0);
+    /* We're done scanning the packets; destroy the progress bar. */
+    destroy_progress_dlg(progbar);
   }
 
   if (new_fd != NULL) {
