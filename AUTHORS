@@ -1789,6 +1789,7 @@ Michael Lum <mlum [AT] telostech.com> {
 	Support for saving list of disabled protocols
 	ANSI TCAP support
 	ANSI MAP support
+	ALCAP (Q.2630.1) support
 }
 
 Shiang-Ming Huang <smhuang [AT] pcs.csie.nctu.edu.tw> {
