@@ -555,14 +555,14 @@ class EthCtx:
                               'attr' : {}, 
                               'ref' : [t]}
         self.eth_type[nm]['attr'].update(self.conform.use_item('ETYPE_ATTR', nm))
-        if self.type[t]['attr'].get('STRINGS') == '$$':
-          self.eth_type[nm]['attr']['STRINGS'] = 'VALS(%s)' % (self.eth_vals_nm(nm))
       self.type[t]['ethname'] = nm
       if (not self.eth_type[nm]['export'] and self.type[t]['export']):  # new export
         self.eth_export_ord.append(nm)
       self.eth_type[nm]['export'] |= self.type[t]['export']
       self.eth_type[nm]['user_def'] &= self.type[t]['user_def']
       self.eth_type[nm]['no_emit'] &= self.type[t]['no_emit']
+      if self.type[t]['attr'].get('STRINGS') == '$$':
+        self.eth_type[nm]['attr']['STRINGS'] = 'VALS(%s)' % (self.eth_vals_nm(nm))
     for t in self.eth_type_ord:
       bits = self.eth_type[t]['val'].eth_named_bits()
       if (bits):
