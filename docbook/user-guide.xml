@@ -73,6 +73,7 @@ Ethereal Info
   <!ENTITY EtherealCurrentVersion "0.10.5">
   <!ENTITY EtherealNextMinorVersion "0.10.6">
   <!ENTITY EtherealWebSite "http://www.ethereal.com">
+  <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs/#usersguide">
   <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
   <!ENTITY EtherealBinariesPage "&EtherealWebSite;/download.html#binaries">
   <!ENTITY EtherealAuthorsPage "&EtherealWebSite;/introduction.html#authors">
@@ -97,12 +98,6 @@ Gnu info
 -->
   <!ENTITY GPLWebsite "http://www.gnu.org/copyleft/gpl.html">
 
-<!-- Self referential info
--->
-
-  <!ENTITY LatestVersionWebsite "http://www.richardsharpe.com/richard/ethereal/user-guide/book1.html" >
-  <!ENTITY LatestVersionPDFWebsiteA4 "http://www.richardsharpe.com/richard/ethereal/user-guide/user-guide-a4.pdf" >
-  <!ENTITY LatestVersionPDFWebsiteUSLetter "http://www.richardsharpe.com/richard/ethereal/user-guide/user-guide-usletter.pdf" >
 <!--
 FILE SECTION
 -Use this section to specify the files that make up the book. Use FPI (public identifiers)
