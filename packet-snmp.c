@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.47 2000/08/13 14:09:00 deniel Exp $
+ * $Id: packet-snmp.c,v 1.48 2000/09/08 07:14:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1971,10 +1971,15 @@ proto_register_snmp(void)
 	   when run on older versions, routines not present on those
 	   older versions.
 
-	   I.e., we load "libsnmp.so" with "dlopen()", and call
+	   I.e., we load "libsnmp.so.0" with "dlopen()", and call
 	   "dlsym()" to try to find "snmp_set_suffix_only()"; if we
 	   don't find it, we make the appropriate call to
-	   "ds_set_int()" instead.
+	   "ds_set_int()" instead.  (We load "libsnmp.so.0" rather
+	   than "libsnmp.so" because, at least on RH 6.2, "libsnmp.so"
+	   exists only if you've loaded the libsnmp development package,
+	   which makes "libsnmp.so" a symlink to "libsnmp.so.0"; we
+	   don't want to force users to install it or to make said
+	   symlink by hand.)
 
 	   We do this only on Linux, for now, as we've only seen the
 	   problem on Red Hat; it may show up on other OSes that bundle
@@ -1989,12 +1994,26 @@ proto_register_snmp(void)
 	   *if* they're thin enough; however, as this code is currently
 	   used only on Linux, we don't worry about that for now.) */
 
-	libsnmp_handle = dlopen("libsnmp.so", RTLD_LAZY|RTLD_GLOBAL);
+	libsnmp_handle = dlopen("libsnmp.so.0", RTLD_LAZY|RTLD_GLOBAL);
 	if (libsnmp_handle == NULL) {
-		/* We didn't find "libsnmp.so"; we may be linked
-		   statically, in which case whatever call the following
-		   line of code makes will presumably work, as
-		   we have the routine it calls wired into our binary. */
+		/* We didn't find "libsnmp.so.0".
+
+		   This could mean that there is no SNMP shared library
+		   on this system, in which case we were linked statically,
+		   in which case whatever call the following line of code
+		   makes will presumably work, as we have the routine it
+		   calls wired into our binary.  (If we were linked
+		   dynamically with "-lsnmp", we would have failed to
+		   start.)
+
+		   It could also mean that there is an SNMP shared library
+		   on this system, but it's called something other than
+		   "libsnmp.so.0"; so far, we've seen the problem we're
+		   working around only on systems where the SNMP shared
+		   library is called "libsnmp.so.0", so we assume for now
+		   that systems with shared SNMP libraries named something
+		   other than "libsnmp.so.0" have an SNMP library that's
+		   not 4.1.1. */
 		snmp_set_suffix_only(2);
 	} else {
 		/* OK, we have it loaded.  Do we have
