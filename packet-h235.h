@@ -10,7 +10,7 @@
  * Routines for H.235 packet dissection
  * 2004  Tomas Kukosa
  *
- * $Id: packet-h235.h,v 1.1 2004/05/25 10:09:04 sahlberg Exp $
+ * $Id: packet-h235.h,v 1.2 2004/05/25 21:08:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,8 +42,8 @@
 /* packet-h235-exp.h                                                          */
 /* ../../tools/asn2eth.py -X -p h235 -c h235.cnf -s packet-h235-template H235-SECURITY-MESSAGES.asn */
 
-const value_string AuthenticationMechanism_vals[];
-const value_string CryptoToken_vals[];
+extern const value_string AuthenticationMechanism_vals[];
+extern const value_string CryptoToken_vals[];
 guint32 dissect_h235_TimeStamp(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 guint32 dissect_h235_AuthenticationMechanism(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index);
 guint32 dissect_h235_ClearToken(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree *tree, int hf_index);
