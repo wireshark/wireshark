@@ -3,7 +3,7 @@
  * (From IEEE Draft P802.1X/D11; is there a later draft, or a
  * final standard?  If so, check it.)
  *
- * $Id: packet-eapol.c,v 1.13 2003/06/03 01:20:14 gerald Exp $
+ * $Id: packet-eapol.c,v 1.14 2003/09/23 02:35:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,9 +30,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include "packet-ieee8023.h"
-#include "packet-ipx.h"
-#include "packet-llc.h"
+#include "packet-ieee80211.h"
 #include "etypes.h"
 
 static int proto_eapol = -1;
@@ -56,11 +54,8 @@ static int hf_eapol_wpa_keydes_mic = -1;
 static int hf_eapol_wpa_keydes_datalen = -1;
 static int hf_eapol_wpa_keydes_data = -1;
 
-static int tag_number = -1;
-static int tag_length = -1;
-static int tag_interpretation = -1;
-
 static gint ett_eapol = -1;
+static gint ett_eapol_keydes_data = -1;
 static gint ett_eapol_key_index = -1;
 
 static dissector_handle_t eap_handle;
@@ -94,9 +89,6 @@ static const value_string eapol_keydes_type_vals[] = {
 static const true_false_string keytype_tfs =
 	{ "Unicast", "Broadcast" };
 
-extern void dissect_vendor_specific_ie(proto_tree * tree, tvbuff_t * tvb,
-	int offset, int tag_number, int tag_length, int tag_interpretation);
-
 static void
 dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -109,7 +101,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8      key_index;
   proto_tree *ti = NULL;
   proto_tree *eapol_tree = NULL;
-  proto_tree *key_index_tree;
+  proto_tree *key_index_tree, *keydes_tree;
   tvbuff_t   *next_tvb;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -184,11 +176,11 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         		    offset, 2, eapol_data_len);
         offset += 2;
         if (eapol_data_len != 0) {
-          proto_tree_add_item(eapol_tree, hf_eapol_wpa_keydes_data,
+          ti = proto_tree_add_item(eapol_tree, hf_eapol_wpa_keydes_data,
           	tvb, offset, eapol_data_len, FALSE);
-          dissect_vendor_specific_ie(eapol_tree, tvb, offset,
-          	tag_number, tag_length, tag_interpretation);
-          offset += eapol_data_len;
+          keydes_tree = proto_item_add_subtree(ti, ett_eapol_keydes_data);
+          ieee_80211_add_tagged_parameters(tvb, offset, keydes_tree,
+                eapol_data_len);
         }
       }
       else {
@@ -289,19 +281,10 @@ proto_register_eapol(void)
 	{ &hf_eapol_wpa_keydes_data, {
 		"WPA Key", "eapol.keydes.data", FT_BYTES, BASE_NONE,
 		NULL, 0x0, "WPA Key Data", HFILL }},
-
-	{&tag_number, {
-		"WPA Key Interpretation", "eapol.keydes.data.wpaie",
-		FT_UINT16, BASE_DEC, NULL, 0x0, "Element ID", HFILL }},
-	{&tag_length, {
-		"WPA Key Interpretation", "eapol.keydes.data.wpaie",
-		FT_UINT16, BASE_DEC, NULL, 0, "Length of tag", HFILL }},
-	{&tag_interpretation, {
-		"WPA Key Interpretation", "eapol.keydes.data.wpaie",
-		FT_STRING, BASE_NONE, NULL, 0, "Interpretation of tag", HFILL }}
   };
   static gint *ett[] = {
 	&ett_eapol,
+	&ett_eapol_keydes_data,
 	&ett_eapol_key_index
   };
 

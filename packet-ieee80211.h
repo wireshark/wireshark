@@ -4,7 +4,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.h,v 1.7 2002/08/28 21:00:17 jmayer Exp $
+ * $Id: packet-ieee80211.h,v 1.8 2003/09/23 02:35:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,3 +29,6 @@
 
 void capture_ieee80211 (const guchar *, int, int, packet_counts *);
 void capture_ieee80211_fixed (const guchar *, int, int, packet_counts *);
+
+void ieee_80211_add_tagged_parameters (tvbuff_t * tvb, int offset,
+       proto_tree * tree, int tagged_parameters_len);
