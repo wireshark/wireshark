@@ -491,7 +491,8 @@ Kent Engström <kent@unit.liu.se> {
 Ronnie Sahlberg <rsahlber@bigpond.net.au> {
 	NLM dissector enhancements
 	Mount dissector enhancements
-	Support for status monitor protocol
+	Support for status monitor protocol and status monitor callback
+	    protocol
 }
 
 Borosa Tomislav <tomislav.borosa@SIEMENS.HR> {

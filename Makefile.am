@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.289 2001/03/15 09:11:00 guy Exp $
+# $Id: Makefile.am,v 1.290 2001/03/15 22:15:32 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -200,6 +200,7 @@ DISSECTOR_SOURCES = \
 	packet-srvloc.c \
 	packet-sscop.c \
 	packet-stat.c   \
+	packet-stat-notify.c \
 	packet-sual.c   \
 	packet-syslog.c \
 	packet-tacacs.c \
@@ -295,6 +296,7 @@ noinst_HEADERS = \
 	packet-snmp.h	\
 	packet-sscop.h \
 	packet-stat.h   \
+	packet-stat-notify.h \
 	packet-tcp.h   \
 	packet-tns.h \
 	packet-tpkt.h  \
