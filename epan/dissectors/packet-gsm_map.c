@@ -858,7 +858,7 @@ unpack_digits(tvbuff_t *tvb, int offset){
 	length = length - offset;
 	digit_str = g_malloc(length+1);
 
-	while ( offset < length ){
+	while ( offset <= length ){
 
 		octet = tvb_get_guint8(tvb,offset);
 		digit_str[i] = ((octet & 0x0f) + 0x30);
@@ -1681,7 +1681,6 @@ dissect_gsm_map_Hlr_Number(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_map_hlr_number_digits, parameter_tvb, 1, -1, digit_str);
- g_free(digit_str);
 
 
 
@@ -2968,7 +2967,8 @@ dissect_gsm_map_Msisdn(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, pac
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_misdn_digits, parameter_tvb, 1, -1, digit_str);
- g_free(digit_str);
+ 
+
 
 
 
@@ -4719,7 +4719,7 @@ dissect_gsm_map_Gmsc_Address(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_map_gmsc_address_digits, parameter_tvb, 1, -1, digit_str);
- g_free(digit_str);
+ 
 
 
 
@@ -4863,7 +4863,7 @@ dissect_gsm_map_RoamingNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_map_RoamingNumber_digits, parameter_tvb, 1, -1, digit_str);
- g_free(digit_str);
+ 
 
 
 
@@ -6030,7 +6030,6 @@ dissect_gsm_map_ServiceCentreAddress(gboolean implicit_tag _U_, tvbuff_t *tvb, i
  digit_str = unpack_digits(parameter_tvb, 1);
 
  proto_tree_add_string(tree, hf_gsm_map_servicecentreaddress_digits, parameter_tvb, 1, -1, digit_str);
- g_free(digit_str);
 
 
 
@@ -8871,8 +8870,9 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tap_rec.invoke = TRUE;
 	tap_rec.opr_code_idx = op_idx;
 	tap_rec.size = gsm_map_pdu_size;
+	/*
 	tap_queue_packet(gsm_map_tap, pinfo, &tap_rec);
-	
+	*/
 
 
 }
