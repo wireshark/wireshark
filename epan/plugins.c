@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.13 2000/11/28 15:54:20 gram Exp $
+ * $Id: plugins.c,v 1.14 2000/11/29 09:10:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -445,6 +445,8 @@ static void
 plugins_scan_dir(const char *dirname)
 {
 #define FILENAME_LEN	1024
+    gchar         *hack_path;       /* pathname used to construct lt_lib_ext */
+    gchar         *lt_lib_ext;      /* extension for loadable modules */
     DIR           *dir;             /* scanned directory */
     struct dirent *file;            /* current file */
     gchar          filename[FILENAME_LEN];   /* current file name */
@@ -461,11 +463,29 @@ plugins_scan_dir(const char *dirname)
     int            cr;
     FILE          *statusfile;
 
-#ifdef WIN32
-#define LT_LIB_EXT ".dll"
-#else
-#define LT_LIB_EXT ".so"
-#endif
+    /*
+     * We find the extension used on this platform for loadable modules
+     * by the sneaky hack of calling "g_module_build_path" to build
+     * the pathname for a module with an empty directory name and
+     * empty module name, and then search for the last "." and use
+     * everything from the last "." on.
+     *
+     * GLib 2.0 will probably define G_MODULE_SUFFIX as the extension
+     * to use, but that's not checked into the GLib CVS tree yet,
+     * and we can't use it on systems that don't have GLib 2.0.
+     */
+    hack_path = g_module_build_path("", "");
+    lt_lib_ext = strrchr(hack_path, '.');
+    if (lt_lib_ext == NULL)
+    {
+	/*
+	 * Does this mean there *is* no extension?  Assume so.
+	 *
+	 * XXX - the code below assumes that all loadable modules have
+	 * an extension....
+	 */
+	lt_lib_ext = "";
+    }
 
     if (!plugin_status_file)
     {
@@ -485,11 +505,12 @@ plugins_scan_dir(const char *dirname)
 	    if (!(strcmp(file->d_name, "..") &&
 		  strcmp(file->d_name, "."))) continue;
 
-            /* skip anything but files with LT_LIB_EXT */
+            /* skip anything but files with lt_lib_ext */
             dot = strrchr(file->d_name, '.');
-            if (dot == NULL || strcmp(dot, LT_LIB_EXT) != 0) continue;
+            if (dot == NULL || strcmp(dot, lt_lib_ext) != 0) continue;
 
-	    snprintf(filename, FILENAME_LEN, "%s/%s", dirname, file->d_name);
+	    snprintf(filename, FILENAME_LEN, "%s" G_DIR_SEPARATOR_S "%s",
+	        dirname, file->d_name);
 	    if ((handle = g_module_open(filename, 0)) == NULL) continue;
 	    name = (gchar *)file->d_name;
 	    if (g_module_symbol(handle, "version", (gpointer*)&version) == FALSE)
@@ -599,6 +620,7 @@ plugins_scan_dir(const char *dirname)
 	}
 	closedir(dir);
     }
+    g_free(hack_path);
     if (statusfile) fclose(statusfile);
 }
 
