@@ -18,7 +18,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.57 2004/01/19 23:48:05 guy Exp $
+ * $Id: packet-sip.c,v 1.58 2004/02/03 20:39:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1495,6 +1495,7 @@ proto_reg_handoff_sip(void)
 
         sip_handle = new_create_dissector_handle(dissect_sip, proto_sip);
         dissector_add("udp.port", UDP_PORT_SIP, sip_handle);
+	dissector_add_string("media_type", "message/sip", sip_handle);
 
         sip_tcp_handle = create_dissector_handle(dissect_sip_tcp, proto_sip);
         dissector_add("tcp.port", TCP_PORT_SIP, sip_tcp_handle);
@@ -1502,5 +1503,4 @@ proto_reg_handoff_sip(void)
         heur_dissector_add("udp", dissect_sip_heur, proto_sip);
         heur_dissector_add("tcp", dissect_sip_heur, proto_sip);
         heur_dissector_add("sctp", dissect_sip_heur, proto_sip);
-
 }
