@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.15 2004/02/16 16:49:13 jmayer Exp $
+# $Id: Makefile.common,v 1.16 2004/02/20 10:04:10 sahlberg Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,7 @@ DISSECTOR_SRC =	\
 	packet-bacapp.c	\
 	packet-bacnet.c	\
 	packet-beep.c	\
+	packet-ber.c	\
 	packet-bfd.c	\
 	packet-bgp.c	\
 	packet-bofl.c	\
@@ -457,6 +458,7 @@ noinst_HEADERS =	\
 	packet-arp.h	\
 	packet-atalk.h	\
 	packet-atm.h	\
+	packet-ber.h	\
 	packet-bgp.h	\
 	packet-bootparams.h	\
 	packet-bssap.h	\
