@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.8 2002/09/06 22:45:44 sahlberg Exp $
+ * $Id: main.c,v 1.9 2002/09/06 22:53:19 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1215,10 +1215,12 @@ update_thread(gpointer data _U_)
 		draw_tap_listeners(FALSE);
 		gdk_threads_leave();
 		g_static_mutex_unlock(&update_thread_mutex);
-		do{
-			g_thread_yield();
-			gettimeofday(&tv2, NULL);
-		}while(tv2.tv_sec<(tv1.tv_sec+2));
+		g_thread_yield();
+		gettimeofday(&tv2, NULL);
+		if( ((tv1.tv_sec + 2) * 1000000 + tv1.tv_usec) > (tv2.tv_sec * 1000000 + tv2.tv_usec) ){
+			g_usleep(((tv1.tv_sec + 2) * 1000000 + tv1.tv_usec) -
+				(tv2.tv_sec * 1000000 + tv2.tv_usec));
+		}
 	}
 	return NULL;
 }
