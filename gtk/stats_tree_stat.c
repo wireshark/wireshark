@@ -51,7 +51,7 @@
 #include "../tap_dfilter_dlg.h"
 
 struct _st_node_pres {
-#if 0 /* GTK_MAJOR_VERSION >= 2 */
+#if GTK_MAJOR_VERSION >= 2
 	GtkTreeIter*	iter;
 #else
 	/* g_malloc(0) ??? */
@@ -65,7 +65,7 @@ struct _tree_pres {
 	GString*		text;
 	GtkWidget*		win;
 	
-#if 0 /* GTK_MAJOR_VERSION >= 2 */
+#if GTK_MAJOR_VERSION >= 2
 	GtkTreeStore*   store;
 	GtkWidget*		tree;
 #else
@@ -89,12 +89,13 @@ enum _stat_tree_columns {
  * node: the node
  */
 static void setup_gtk_node_pr(stat_node* node) {
-	node->pr = g_malloc(sizeof(st_node_pres));
-	
-
-#if 0 /* GTK_MAJOR_VERSION >= 2 */
+#if GTK_MAJOR_VERSION >= 2
 	GtkTreeIter* parent =  NULL;
+#endif
 	
+	node->pr = g_malloc(sizeof(st_node_pres));
+
+#if GTK_MAJOR_VERSION >= 2
 	if ( node->parent && node->parent->pr ) 
 		parent = node->parent->pr->iter;
 
@@ -107,11 +108,12 @@ static void setup_gtk_node_pr(stat_node* node) {
 	}
 #else
 	node->pr->dummy = NULL;
+	
 #endif
 }
 
 
-#if 0 /* GTK_MAJOR_VERSION >= 2 */
+#if GTK_MAJOR_VERSION >= 2
 static void draw_gtk_node(stat_node* node) {
 	static gchar value[NUM_BUF_SIZE];
 	static gchar rate[NUM_BUF_SIZE];
@@ -142,7 +144,7 @@ static void draw_gtk_tree( void *psp  ) {
 	stats_tree *st = psp;
 	stat_node* child;
 
-#if 0 /* GTK_MAJOR_VERSION >= 2 */
+#if GTK_MAJOR_VERSION >= 2
 	for (child = st->root.children; child; child = child->next )
 		draw_gtk_node(child);
 	
@@ -182,7 +184,7 @@ static void free_gtk_tree(GtkWindow *win _U_, stats_tree *st)
 	remove_tap_listener(st);
 	unprotect_thread_critical_region();
 	
-#if 0 /* GTK_MAJOR_VERSION >= 2 */
+#if GTK_MAJOR_VERSION >= 2
 	if (st->root.pr)
 		st->root.pr->iter = NULL;
 #endif
@@ -197,7 +199,7 @@ static void init_gtk_tree(char* optarg) {
 	guint8* window_name = NULL;
 	GString* error_string;
 	GtkWidget *scr_win;
-#if 0 /* GTK_MAJOR_VERSION >= 2 */
+#if GTK_MAJOR_VERSION >= 2
 	GtkTreeViewColumn* column;
 	GtkCellRenderer* renderer;
 #endif
@@ -237,7 +239,7 @@ static void init_gtk_tree(char* optarg) {
 
 	scr_win = scrolled_window_new(NULL, NULL);
 
-#if 0 /* GTK_MAJOR_VERSION >= 2 */
+#if GTK_MAJOR_VERSION >= 2
 	
 	st->pr->store = gtk_tree_store_new (N_COLUMNS, G_TYPE_STRING, G_TYPE_STRING,
 									G_TYPE_STRING, G_TYPE_STRING);
@@ -328,7 +330,7 @@ static void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p 
 	st->pr->text = NULL;
 	st->pr->win = NULL;
 	
-#if 0 /* GTK_MAJOR_VERSION >= 2 */
+#if GTK_MAJOR_VERSION >= 2
 	st->pr->store = NULL;
 	st->pr->tree = NULL;
 #else
