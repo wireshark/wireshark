@@ -433,10 +433,32 @@ static const value_string avp_type_vals[] = {
 
 #define CISCO_ASSIGNED_CONNECTION_ID	1
 #define CISCO_PW_CAPABILITY_LIST	2
+#define CISCO_LOCAL_SESSION_ID		3
+#define CISCO_REMOTE_SESSION_ID		4
+#define CISCO_ASSIGNED_COOKIE		5
+#define CISCO_REMOTE_END_ID		6
+#define CISCO_PW_TYPE			7
+#define CISCO_CIRCUIT_STATUS		8
+#define CISCO_SESSION_TIE_BREAKER	9
+#define CISCO_DRAFT_AVP_VERSION		10
+#define CISCO_MESSAGE_DIGEST		12
+#define CISCO_AUTH_NONCE		13
+#define CISCO_INTERFACE_MTU		14
 
 static const value_string cisco_avp_type_vals[] = {
   { CISCO_ASSIGNED_CONNECTION_ID,	"Assigned Connection ID" },
   { CISCO_PW_CAPABILITY_LIST,		"Pseudowire Capabilities List" },
+  { CISCO_LOCAL_SESSION_ID,		"Local Session ID" },
+  { CISCO_REMOTE_SESSION_ID,		"Remote Session ID" },
+  { CISCO_ASSIGNED_COOKIE,		"Assigned Cookie" },
+  { CISCO_REMOTE_END_ID,		"Remote End ID" },
+  { CISCO_PW_TYPE,			"Pseudowire Type" },
+  { CISCO_CIRCUIT_STATUS,		"Circuit Status" },
+  { CISCO_SESSION_TIE_BREAKER,		"Session Tie Breaker" },
+  { CISCO_DRAFT_AVP_VERSION,		"Draft AVP Version" },
+  { CISCO_MESSAGE_DIGEST,       	"Message Digest" },
+  { CISCO_AUTH_NONCE,        		"Control Message Authentication Nonce" },
+  { CISCO_INTERFACE_MTU,		"Interface MTU" },
   { 0,                         		NULL }
 };
 
@@ -604,6 +626,67 @@ static void process_control_avps(tvbuff_t *tvb,
 						index += 2;
 						avp_len -= 2;
 					}
+					break;
+					
+				case CISCO_LOCAL_SESSION_ID:
+					proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+							    "Local Session ID: %u",
+							    tvb_get_ntohl(tvb, index));
+					break;
+				case CISCO_REMOTE_SESSION_ID:
+					proto_tree_add_text(l2tp_avp_tree, tvb, index, 4,
+							    "Remote Session ID: %u",
+							    tvb_get_ntohl(tvb, index));
+					break;
+				case CISCO_ASSIGNED_COOKIE:
+					proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+							    "Assigned Cookie: %s",
+							    tvb_bytes_to_str(tvb, index, avp_len));
+					break;
+				case CISCO_REMOTE_END_ID:
+					proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+							    "Remote End ID: %s",
+							    tvb_format_text(tvb, index, avp_len));
+					break;
+				case CISCO_PW_TYPE:
+					proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+							    "Pseudowire Type: %u - %s",
+							    tvb_get_ntohs(tvb, index),
+							    val_to_str(tvb_get_ntohs(tvb, index),
+								       pw_types_vals, "Unknown (%u)"));
+					break;
+				case CISCO_CIRCUIT_STATUS:
+					bits = tvb_get_ntohs(tvb, index);
+					proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+							    "Circuit Status: %s",
+							    (CIRCUIT_STATUS_BIT(bits)) ? "Up" : "Down");
+					proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+							    "Circuit Type: %s",
+							    (CIRCUIT_TYPE_BIT(bits)) ? "New" : "Existing");
+					break;
+				case CISCO_SESSION_TIE_BREAKER:
+					proto_tree_add_item(l2tp_avp_tree, hf_l2tp_tie_breaker,
+							    tvb, index, 8, FALSE);
+					break;
+				case CISCO_DRAFT_AVP_VERSION:
+					proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
+							    "Draft AVP Version: %u",
+							    tvb_get_ntohs(tvb, index));
+					break;
+				case CISCO_MESSAGE_DIGEST:
+					proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+							    "Message Digest: %s",
+							    tvb_bytes_to_str(tvb, index, avp_len));
+					break;
+				case CISCO_AUTH_NONCE:
+					proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+							    "Nonce: %s",
+							    tvb_bytes_to_str(tvb, index, avp_len));
+					break;
+				case CISCO_INTERFACE_MTU:
+					proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
+							    "Interface MTU: %u",
+							    tvb_get_ntohs(tvb, index));
 					break;
 					
 				default:
@@ -1097,13 +1180,14 @@ static void process_control_avps(tvbuff_t *tvb,
 			case REMOTE_END_ID:
 				proto_tree_add_text(l2tp_avp_tree, tvb, index, avp_len,
 						    "Remote End ID: %s",
-						    tvb_bytes_to_str(tvb, index, avp_len));
+						    tvb_format_text(tvb, index, avp_len));
 				break;
 			case PW_TYPE:
 				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
-						    "Pseudowire Type: %s",
+						    "Pseudowire Type: %u - %s",
+						    tvb_get_ntohs(tvb, index),
 						    val_to_str(tvb_get_ntohs(tvb, index),
-							       pw_types_vals, "Unknown (%u)"));
+							       pw_types_vals, "Unknown"));
 				break;
 			case L2_SPECIFIC_SUBLAYER:
 				proto_tree_add_text(l2tp_avp_tree, tvb, index, 2,
