@@ -2,7 +2,7 @@
  * Routines for the Point-to-Point Tunnelling Protocol (PPTP) (RFC 2637)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-pptp.c,v 1.11 2000/08/07 03:21:01 guy Exp $
+ * $Id: packet-pptp.c,v 1.12 2000/08/25 12:30:30 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,9 +41,14 @@
 #include <glib.h>
 #include "packet.h"
 
+static int proto_pptp = -1;
+static int hf_pptp_message_type = -1;
+
 static gint ett_pptp = -1;
 
 #define TCP_PORT_PPTP			1723
+
+#define MAGIC_COOKIE		0x1A2B3C4D
 
 #define NUM_MSG_TYPES		3
 #define msgtype2str(t)	\
@@ -384,7 +389,9 @@ dissect_pptp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   struct pptp_hdr *	hdr = (struct pptp_hdr *)(pd + offset);
   guint16		len;
   guint16		cntrl_type;
-  
+
+  OLD_CHECK_DISPLAY_AS_DATA(proto_pptp, pd, offset, fd, tree);
+
   if (check_col(fd, COL_PROTOCOL))
     col_add_str(fd, COL_PROTOCOL, "PPTP");
   
@@ -396,10 +403,11 @@ dissect_pptp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     
   if (IS_DATA_IN_FRAME(offset) && tree) {
     guint16		msg_type;
+    guint32		cookie;
     proto_item *	ti;
     proto_tree *	pptp_tree;
 
-    ti = proto_tree_add_text(tree, NullTVB, offset, len, "PPTP Control Channel");
+    ti = proto_tree_add_item(tree, proto_pptp, NullTVB, offset, len, FALSE);
     pptp_tree = proto_item_add_subtree(ti, ett_pptp);
     
     proto_tree_add_text(pptp_tree, NullTVB, offset, sizeof(hdr->len), 
@@ -407,12 +415,22 @@ dissect_pptp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     offset += sizeof(hdr->len);
 
     msg_type = pntohs(&hdr->type);
-    proto_tree_add_text(pptp_tree, NullTVB, offset, sizeof(hdr->type),
-			"Message type: %s (%u)", msgtype2str(msg_type), msg_type);
+    proto_tree_add_uint_format(pptp_tree, hf_pptp_message_type, NullTVB,
+			       offset, sizeof(hdr->type), 
+			       msg_type,
+			       "Message type: %s (%u)", 
+			       msgtype2str(msg_type), msg_type);
+    
     offset += sizeof(hdr->type);
 
-    proto_tree_add_text(pptp_tree, NullTVB, offset, sizeof(hdr->cookie),
-			"Cookie: %#08x", pntohl(&hdr->cookie));
+    cookie = pntohl(&hdr->cookie);
+
+    if (cookie == MAGIC_COOKIE)
+      proto_tree_add_text(pptp_tree, NullTVB, offset, sizeof(hdr->cookie),
+			  "Cookie: %#08x (correct)", cookie);
+    else
+      proto_tree_add_text(pptp_tree, NullTVB, offset, sizeof(hdr->cookie),
+			  "Cookie: %#08x (incorrect)", cookie);
     offset += sizeof(hdr->cookie);
     
     proto_tree_add_text(pptp_tree, NullTVB, offset, sizeof(hdr->cntrl_type),
@@ -897,6 +915,16 @@ proto_register_pptp(void)
     &ett_pptp,
   };
 
+  static hf_register_info hf[] = {
+    { &hf_pptp_message_type,
+      { "Message Type",			"pptp.type",
+	FT_UINT16,	BASE_HEX,	NULL,	0x0,
+      	"PPTP message type" }}
+  };
+
+  proto_pptp = proto_register_protocol("Point-to-Point Tunnelling Protocol",
+				       "pptp");
+  proto_register_field_array(proto_pptp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
 
