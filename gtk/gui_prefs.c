@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.18 2000/09/08 10:59:12 guy Exp $
+ * $Id: gui_prefs.c,v 1.19 2000/09/09 10:35:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,7 @@
 #include "prefs.h"
 #include "prefs-int.h"
 #include "ui_util.h"
+#include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "proto_draw.h"
 #include "main.h"
@@ -117,6 +118,10 @@ static gboolean colors_changed;
    the font, and therefore that the "apply" function needs to take care
    of that */
 static gboolean font_changed;
+
+/* Font name from the font dialog box; if "font_changed" is TRUE, this
+   has been set to the name of the font the user selected. */
+static gchar *new_font_name;
 
 GtkWidget*
 gui_prefs_show(void)
@@ -268,7 +273,11 @@ font_browse_cb(GtkWidget *w, gpointer data)
 	    NULL);			/* all charsets are OK (XXX - ISO 8859/1 only?) */
 
 	/* Set the font to the current font.
-	   XXX - this doesn't seem to work right. */
+	   XXX - GTK+ 1.2.8, and probably earlier versions, have a bug
+	   wherein that doesn't necessarily cause that font to be
+	   selected in the dialog box.  I've sent to the GTK+ folk
+	   a fix; hopefully, it'll show up in 1.2.9 if, as, and when
+	   they put out a 1.2.9 release. */
 	gtk_font_selection_dialog_set_font_name(
 	    GTK_FONT_SELECTION_DIALOG(font_browse_w), prefs.gui_font_name);
 
@@ -305,12 +314,45 @@ font_browse_cb(GtkWidget *w, gpointer data)
 static void
 font_browse_ok_cb(GtkWidget *w, GtkFontSelectionDialog *fs)
 {
-	font_changed = TRUE;
-	if (prefs.gui_font_name != NULL)
-		g_free(prefs.gui_font_name);
-	prefs.gui_font_name =
-	    g_strdup(gtk_font_selection_dialog_get_font_name(
+	gchar *font_name, *bold_font_name;
+	GdkFont *new_r_font, *new_b_font;
+
+	font_name = g_strdup(gtk_font_selection_dialog_get_font_name(
 	      GTK_FONT_SELECTION_DIALOG(fs)));
+
+	/* Get the name that the boldface version of that font would have. */
+	bold_font_name = boldify(font_name);
+
+	/* Now load those fonts, just to make sure we can. */
+	new_r_font = gdk_font_load(font_name);
+	if (new_r_font == NULL) {
+		/* Oops, that font didn't work.
+		   Tell the user, but don't tear down the font selection
+		   dialog, so that they can try again. */
+		simple_dialog(ESD_TYPE_CRIT, NULL,
+		   "The font you selected cannot be loaded.");
+
+		g_free(font_name);
+		g_free(bold_font_name);
+		return;
+	}
+
+	new_b_font = gdk_font_load(bold_font_name);
+	if (new_b_font == NULL) {
+		/* Oops, that font didn't work.
+		   Tell the user, but don't tear down the font selection
+		   dialog, so that they can try again. */
+		simple_dialog(ESD_TYPE_CRIT, NULL,
+		   "The font you selected doesn't have a boldface version.");
+
+		g_free(font_name);
+		g_free(bold_font_name);
+		gdk_font_unref(new_r_font);
+		return;
+	}
+
+	font_changed = TRUE;
+	new_font_name = font_name;
 
 	gtk_widget_hide(GTK_WIDGET(fs));
 	gtk_widget_destroy(GTK_WIDGET(fs));
@@ -355,12 +397,6 @@ fetch_enum_value(gpointer control, const enum_val *enumvals)
 void
 gui_prefs_fetch(GtkWidget *w)
 {
-	/* XXX - currently, "prefs.gui_font_name" doesn't directly
-	   affect the behavior of existing or newly-created windows,
-	   so we can get away with setting it when the user presses
-	   "OK" on the font selection dialog - it doesn't affect
-	   anything until the "apply" function is called. */
-
 	prefs.gui_scrollbar_on_right = fetch_enum_value(
 	    gtk_object_get_data(GTK_OBJECT(w), SCROLLBAR_PLACEMENT_KEY),
 	    scrollbar_placement_vals);
@@ -380,6 +416,12 @@ gui_prefs_fetch(GtkWidget *w)
 	    gtk_object_get_data(GTK_OBJECT(w), HEX_DUMP_HIGHLIGHT_STYLE_KEY),
 	    highlight_style_vals);
 
+	if (font_changed) {
+		if (prefs.gui_font_name != NULL)
+			g_free(prefs.gui_font_name);
+		prefs.gui_font_name = g_strdup(new_font_name);
+	}
+
 	if (colors_changed)
 	    fetch_colors();
 }
@@ -392,30 +434,19 @@ gui_prefs_apply(GtkWidget *w)
 	GdkFont *old_r_font = NULL, *old_b_font = NULL;
 
 	if (font_changed) {
+		/* XXX - what if the world changed out from under
+		   us, so that one or both of these fonts cannot
+		   be loaded? */
 		new_r_font = gdk_font_load(prefs.gui_font_name);
-		if (new_r_font == NULL) {
-			/* XXX - make this a dialog box, and don't let them
-			   continue! */
-			fprintf(stderr, "Can't open font %s\n", prefs.gui_font_name);
-		} else {
-			bold_font_name = boldify(prefs.gui_font_name);
-			new_b_font = gdk_font_load(bold_font_name);
-			if (new_b_font == NULL) {
-				/* XXX - make this a dialog box, and don't
-				   let them continue! */
-				fprintf(stderr, "Can't open font %s\n",
-				    bold_font_name);
-				gdk_font_unref(new_r_font);
-			} else {
-				set_plist_font(new_r_font);
-				set_ptree_font_all(new_r_font);
-				old_r_font = m_r_font;
-				old_b_font = m_b_font;
-				m_r_font = new_r_font;
-				m_b_font = new_b_font;
-			}
-			g_free(bold_font_name);
-		}
+		bold_font_name = boldify(prefs.gui_font_name);
+		new_b_font = gdk_font_load(bold_font_name);
+		set_plist_font(new_r_font);
+		set_ptree_font_all(new_r_font);
+		old_r_font = m_r_font;
+		old_b_font = m_b_font;
+		m_r_font = new_r_font;
+		m_b_font = new_b_font;
+		g_free(bold_font_name);
 	}
 
 	/* Redraw the hex dump windows, in case either the font or the
@@ -467,6 +498,10 @@ gui_prefs_destroy(GtkWidget *w)
 		/* Yes.  Destroy it. */
 		gtk_widget_destroy(fs);
 	}
+
+	/* Free up any saved font name. */
+	if (new_font_name != NULL)
+		g_free(new_font_name);
 }
 
 /* color selection part */
