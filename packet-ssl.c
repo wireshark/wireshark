@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.7 2001/09/14 07:10:06 guy Exp $
+ * $Id: packet-ssl.c,v 1.8 2001/10/16 07:13:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -250,6 +250,12 @@ static const value_string ssl_20_cipher_suites[] = {
     { 0x000064, "TLS_RSA_EXPORT1024_WITH_RC4_56_SHA" },
     { 0x000065, "TLS_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA" },
     { 0x000066, "TLS_DHE_DSS_WITH_RC4_128_SHA" },
+    /* these from http://www.mozilla.org/projects/
+         security/pki/nss/ssl/fips-ssl-ciphersuites.html */
+    { 0x00fefe, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
+    { 0x00feff, "SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA" },
+    { 0x00ffe0, "SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA" },
+    { 0x00ffe1, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
     /* note that ciphersuites of {0x00????} are TLS cipher suites in
      * a sslv2 client hello message; the ???? above is the two-byte
      * tls cipher suite id
@@ -399,6 +405,12 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x0064, "TLS_RSA_EXPORT1024_WITH_RC4_56_SHA" },
     { 0x0065, "TLS_DHE_DSS_EXPORT1024_WITH_RC4_56_SHA" },
     { 0x0066, "TLS_DHE_DSS_WITH_RC4_128_SHA" },
+    /* these from http://www.mozilla.org/projects/
+         security/pki/nss/ssl/fips-ssl-ciphersuites.html */
+    { 0xfefe, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
+    { 0xfeff, "SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA" },
+    { 0xffe0, "SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA" },
+    { 0xffe1, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
     /* note that ciphersuites 0xff00 - 0xffff are private */
     { 0x00, NULL }
 };
