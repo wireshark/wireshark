@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.50 2001/07/05 22:10:09 oabad Exp $
+ * $Id: packet-x25.c,v 1.51 2001/07/14 09:30:01 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -375,10 +375,22 @@ static char *clear_code(unsigned char code)
 	return "DTE Originated";
     if (code == 0x01)
 	return "Number Busy";
+    if (code == 0x03)
+	return "Invalid Facility Requested";
+    if (code == 0x05)
+	return "Network Congestion";
     if (code == 0x09)
 	return "Out Of Order";
+    if (code == 0x0B)
+	return "Access Barred";
+    if (code == 0x0D)
+	return "Not Obtainable";
     if (code == 0x11)
 	return "Remote Procedure Error";
+    if (code == 0x13)
+	return "Local Procedure Error";
+    if (code == 0x15)
+	return "RPOA Out Of Order";
     if (code == 0x19)
 	return "Reverse Charging Acceptance Not Subscribed";
     if (code == 0x21)
@@ -387,18 +399,6 @@ static char *clear_code(unsigned char code)
 	return "Fast Select Acceptance Not Subscribed";
     if (code == 0x39)
 	return "Destination Absent";
-    if (code == 0x03)
-	return "Invalid Facility Requested";
-    if (code == 0x0B)
-	return "Access Barred";
-    if (code == 0x13)
-	return "Local Procedure Error";
-    if (code == 0x05)
-	return "Network Congestion";
-    if (code == 0x0D)
-	return "Not Obtainable";
-    if (code == 0x15)
-	return "RPOA Out Of Order";
 
     sprintf(buffer, "Unknown %02X", code);
 
@@ -545,6 +545,87 @@ static char *clear_diag(unsigned char code)
 	return "Unknown called DNIC";
     if (code == 122)
 	return "Maintenance action";
+    if (code == 144)
+	return "Timer expired or retransmission count surpassed";
+    if (code == 145)
+	return "Ti6er expired or retransmission count surpassed for INTERRUPT";
+    if (code == 146)
+	return "Timer expired or retransmission count surpassed for DATA "
+	       "packet transmission";
+    if (code == 147)
+	return "Timer expired or retransmission count surpassed for REJECT";
+    if (code == 160)
+	return "DTE-specific signals";
+    if (code == 161)
+	return "DTE operational";
+    if (code == 162)
+	return "DTE not operational";
+    if (code == 163)
+	return "DTE resource constraint";
+    if (code == 164)
+	return "Fast select not subscribed";
+    if (code == 165)
+	return "Invalid partially full DATA packet";
+    if (code == 166)
+	return "D-bit procedure not supported";
+    if (code == 167)
+	return "Registration/Cancellation confirmed";
+    if (code == 224)
+	return "OSI network service problem";
+    if (code == 225)
+	return "Disconnection (transient condition)";
+    if (code == 226)
+	return "Disconnection (permanent condition)";
+    if (code == 227)
+	return "Connection rejection - reason unspecified (transient "
+	       "condition)";
+    if (code == 228)
+	return "Connection rejection - reason unspecified (permanent "
+	       "condition)";
+    if (code == 229)
+	return "Connection rejection - quality of service not available "
+               "transient condition)";
+    if (code == 230)
+	return "Connection rejection - quality of service not available "
+               "permanent condition)";
+    if (code == 231)
+	return "Connection rejection - NSAP unreachable (transient condition)";
+    if (code == 232)
+	return "Connection rejection - NSAP unreachable (permanent condition)";
+    if (code == 233)
+	return "reset - reason unspecified";
+    if (code == 234)
+	return "reset - congestion";
+    if (code == 235)
+	return "Connection rejection - NSAP address unknown (permanent "
+               "condition)";
+    if (code == 240)
+	return "Higher layer initiated";
+    if (code == 241)
+	return "Disconnection - normal";
+    if (code == 242)
+	return "Disconnection - abnormal";
+    if (code == 243)
+	return "Disconnection - incompatible information in user data";
+    if (code == 244)
+	return "Connection rejection - reason unspecified (transient "
+               "condition)";
+    if (code == 245)
+	return "Connection rejection - reason unspecified (permanent "
+               "condition)";
+    if (code == 246)
+	return "Connection rejection - quality of service not available "
+               "(transient condition)";
+    if (code == 247)
+	return "Connection rejection - quality of service not available "
+               "(permanent condition)";
+    if (code == 248)
+	return "Connection rejection - incompatible information in user data";
+    if (code == 249)
+	return "Connection rejection - unrecognizable protocol indentifier "
+               "in user data";
+    if (code == 250)
+	return "Reset - user resynchronization";
 
     sprintf(buffer, "Unknown %d", code);
 
