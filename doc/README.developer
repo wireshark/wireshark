@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.70 2003/01/31 03:17:50 guy Exp $
+$Id: README.developer,v 1.71 2003/02/10 19:21:25 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -121,6 +121,9 @@ those are declared by <glib.h>, and you'll need to include that anyway,
 as Ethereal header files that all dissectors must include use stuff from
 <glib.h>.
 
+Don't put a comma after the last element of an enum - some compilers may
+either warn about it (producing extra noise) or refuse to accept it.
+
 1.1.2 Name convention.
 
 Ethereal uses the underscore_convention rather than the InterCapConvention for
@@ -158,7 +161,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.70 2003/01/31 03:17:50 guy Exp $"
+The "$Id: README.developer,v 1.71 2003/02/10 19:21:25 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -168,7 +171,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.70 2003/01/31 03:17:50 guy Exp $
+ * $Id: README.developer,v 1.71 2003/02/10 19:21:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
