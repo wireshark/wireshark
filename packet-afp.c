@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.16 2002/05/30 05:26:05 guy Exp $
+ * $Id: packet-afp.c,v 1.17 2002/06/20 00:44:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -149,6 +149,15 @@
 #define AFP_GETCMT          58
 #define AFP_ADDICON        192
 
+/* AFP 3.0 new calls */
+#define AFP_BYTELOCK_EXT	59
+#define AFP_CATSEARCH_EXT	67
+#define AFP_ENUMERATE_EXT	66
+#define AFP_READ_EXT		60
+#define AFP_WRITE_EXT		61
+#define AFP_GETSESSTOKEN	64
+#define AFP_DISCTOLDSESS        65
+
 /* ----------------------------- */
 static int proto_afp = -1;
 static int hf_afp_reserved = -1;
@@ -279,6 +288,20 @@ static gint ett_afp_cat_r_bitmap	= -1;
 static gint ett_afp_cat_spec		= -1;
 static gint ett_afp_vol_did	= -1;
 
+/* AFP 3.0 parameters */
+static gint hf_afp_lock_offset64	= -1;
+static gint hf_afp_lock_len64   	= -1;
+static gint hf_afp_lock_range_start64	= -1;
+
+static int hf_afp_offset64		= -1;
+static int hf_afp_rw_count64		= -1;
+
+static int hf_afp_last_written64	= -1;
+
+static int hf_afp_session_token_type	= -1;
+static int hf_afp_session_token_len	= -1;
+static int hf_afp_session_token		= -1;
+
 static dissector_handle_t data_handle;
 
 static const value_string vol_signature_vals[] = {
@@ -339,6 +362,13 @@ static const value_string CommandCode_vals[] = {
   {AFP_ADDCMT,		"FPAddComment" },
   {AFP_RMVCMT,		"FPRemoveComment" },
   {AFP_GETCMT,		"FPGetComment" },
+  {AFP_BYTELOCK_EXT,	"FPByteRangeLockExt" },
+  {AFP_CATSEARCH_EXT,	"FPCatSearchExt" },
+  {AFP_ENUMERATE_EXT,	"FPEnumerateExt" },
+  {AFP_READ_EXT,	"FPReadExt" },
+  {AFP_WRITE_EXT,	"FPWriteExt" },
+  {AFP_GETSESSTOKEN,	"FPGetSessionToken" },
+  {AFP_DISCTOLDSESS,    "FPDisconnectOldSession" },
   {AFP_ADDICON,		"FPAddIcon" },
   {0,			 NULL }
 };
@@ -440,6 +470,11 @@ static int hf_afp_file_attribute_DeleteInhibit = -1;
 static int hf_afp_file_attribute_CopyProtect   = -1;
 static int hf_afp_file_attribute_SetClear      = -1;
 
+static int hf_afp_map_name_type = -1;
+static int hf_afp_map_name	= -1;
+static int hf_afp_map_id	= -1;
+static int hf_afp_map_id_type	= -1;
+
 static const value_string vol_bitmap_vals[] = {
   {kFPVolAttributeBit,          "VolAttribute"},
   {kFPVolSignatureBit,		"VolSignature"},
@@ -464,6 +499,20 @@ static const value_string path_type_vals[] = {
   {1,	"Short names" },
   {2,	"Long names" },
   {3,	"Unicode names" },
+  {0,	NULL } };
+
+static const value_string map_name_type_vals[] = {
+  {1,	"Unicode user name to a user ID" },
+  {2,	"Unicode group name to a group ID" },
+  {3,	"Macintosh roman user name to a user ID" },
+  {4,	"Macintosh roman group name to a group ID" },
+  {0,	NULL } };
+
+static const value_string map_id_type_vals[] = {
+  {1,	"User ID to a Macintosh roman user name" },
+  {2,	"Group ID to a Macintosh roman group name" },
+  {3,	"User ID to a unicode user name" },
+  {4,	"Group ID to a unicode group name" },
   {0,	NULL } };
 
 /*
@@ -827,8 +876,9 @@ decode_file_attribute(proto_tree *tree, tvbuff_t *tvb, gint offset, int shared)
 	if (!shared) {
 		proto_tree_add_item(sub_tree, hf_afp_file_attribute_DAlreadyOpen , tvb, offset, 2,FALSE);
 		proto_tree_add_item(sub_tree, hf_afp_file_attribute_RAlreadyOpen , tvb, offset, 2,FALSE);
-		proto_tree_add_item(sub_tree, hf_afp_file_attribute_WriteInhibit , tvb, offset, 2,FALSE);
 	}
+	/* writeinhibit is file only but Macs are setting it with FPSetFileDirParms too */
+	proto_tree_add_item(sub_tree, hf_afp_file_attribute_WriteInhibit , tvb, offset, 2,FALSE);
 	proto_tree_add_item(sub_tree, hf_afp_file_attribute_BackUpNeeded , tvb, offset, 2,FALSE);
 	proto_tree_add_item(sub_tree, hf_afp_file_attribute_RenameInhibit, tvb, offset, 2,FALSE);
 	proto_tree_add_item(sub_tree, hf_afp_file_attribute_DeleteInhibit, tvb, offset, 2,FALSE);
@@ -1750,7 +1800,7 @@ dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		proto_tree_add_item(tree, hf_afp_user, tvb, offset, 1,FALSE);
 		offset += len +1;
 
-		len = tvb_strsize(tvb, offset);
+		len = 8; /* tvb_strsize(tvb, offset);*/
 		proto_tree_add_item(tree, hf_afp_passwd, tvb, offset, len,FALSE);
 		offset += len;
 	}
@@ -1789,6 +1839,34 @@ dissect_reply_afp_write(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 /* ************************** */
 static gint
+dissect_query_afp_write_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+	proto_tree_add_item(tree, hf_afp_flag, tvb, offset, 1,FALSE);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_afp_offset64, tvb, offset, 8,FALSE);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_afp_rw_count64, tvb, offset, 8,FALSE);
+	offset += 8;
+
+	return offset;
+}
+
+static gint
+dissect_reply_afp_write_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+	proto_tree_add_item(tree, hf_afp_last_written64, tvb, offset, 8, FALSE);
+	offset += 8;
+	
+	return offset;
+}
+
+/* ************************** */
+static gint
 dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
 	PAD(1);
@@ -1807,6 +1885,24 @@ dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	
 	proto_tree_add_item(tree, hf_afp_newline_char, tvb, offset, 1,FALSE);
 	offset++;
+
+	return offset;
+}
+
+/* ************************** */
+static gint
+dissect_query_afp_read_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+	PAD(1);
+	
+	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	proto_tree_add_item(tree, hf_afp_offset64, tvb, offset, 8,FALSE);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_afp_rw_count64, tvb, offset, 8,FALSE);
+	offset += 8;
 
 	return offset;
 }
@@ -1912,7 +2008,9 @@ dissect_query_afp_set_fldr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	if ((offset & 1))
 		PAD(1);
 	/* did:name can be a file or a folder but only the intersection between 
-	 * file bitmap and dir bitmap can be set
+	 * file bitmap and dir bitmap can be set.
+	 * Well it's in afp spec, but clients (Mac) are setting 'file only' bits with this call
+	 * (WriteInhibit for example).
 	 */
 	offset = parse_file_bitmap(tree, tvb, offset, f_bitmap, 1);
 
@@ -2196,6 +2294,45 @@ dissect_reply_afp_byte_lock(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 /* ************************** */
 static gint
+dissect_query_afp_byte_lock_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+  	proto_tree *sub_tree = NULL;
+  	proto_item *item;
+	guint8 flag;
+	
+	flag = tvb_get_guint8(tvb, offset);
+	if (tree) {
+		item = proto_tree_add_text(tree, tvb, offset, 1, "Flags: 0x%02x", flag);
+		sub_tree = proto_item_add_subtree(item, ett_afp_lock_flags);
+	}
+
+	proto_tree_add_item(sub_tree, hf_afp_lock_op, tvb, offset, 1,FALSE);
+	proto_tree_add_item(sub_tree, hf_afp_lock_from, tvb, offset, 1,FALSE);
+	offset += 1;
+
+	proto_tree_add_item(tree, hf_afp_ofork, tvb, offset, 2,FALSE);
+	offset += 2;
+	
+	proto_tree_add_item(tree, hf_afp_lock_offset64, tvb, offset, 8,FALSE);
+	offset += 8;
+
+	proto_tree_add_item(tree, hf_afp_lock_len64, tvb, offset, 8,FALSE);
+	offset += 8;
+	return offset;
+}
+
+/* -------------------------- */
+static gint
+dissect_reply_afp_byte_lock_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+	proto_tree_add_item(tree, hf_afp_lock_range_start64, tvb, offset, 8,FALSE);
+	offset += 8;
+
+	return offset;
+}
+
+/* ************************** */
+static gint
 dissect_query_afp_add_cmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
 	guint8 len;
@@ -2431,6 +2568,108 @@ dissect_query_afp_create_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 /* ************************** */
+static gint
+dissect_query_afp_map_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+	proto_tree_add_item(tree, hf_afp_map_id_type, tvb, offset, 1,FALSE);
+	offset++;
+	
+	proto_tree_add_item(tree, hf_afp_map_id, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	return offset;
+}
+
+/* -------------------------- */
+static gint
+dissect_reply_afp_map_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+int len;
+
+	len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, 1,FALSE);
+	offset += len +1;
+	return offset;
+}
+
+/* ************************** */
+static gint
+dissect_query_afp_map_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+int len;
+	proto_tree_add_item(tree, hf_afp_map_name_type, tvb, offset, 1,FALSE);
+	offset++;
+
+	len = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_afp_map_name, tvb, offset, 1,FALSE);
+	offset += len +1;
+	
+	return offset;
+}
+
+/* -------------------------- */
+static gint
+dissect_reply_afp_map_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+
+	proto_tree_add_item(tree, hf_afp_map_id, tvb, offset, 4,FALSE);
+	offset += 4;
+	return offset;
+}
+
+/* ************************** */
+static gint
+dissect_query_afp_disconnect_old_session(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+int len;
+
+	PAD(1);
+
+	proto_tree_add_item(tree, hf_afp_session_token_type, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	len = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_item(tree, hf_afp_session_token_len, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_afp_session_token, tvb, offset, len,FALSE);
+	offset += len;
+
+	return offset;
+}
+
+/* ************************** */
+static gint
+dissect_query_afp_get_session_token(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+
+	PAD(1);
+	proto_tree_add_item(tree, hf_afp_session_token_type, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	return offset;
+}
+
+/* -------------------------- */
+static gint
+dissect_reply_afp_get_session_token(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+int len;
+
+	proto_tree_add_item(tree, hf_afp_session_token_type, tvb, offset, 2,FALSE);
+	offset += 2;
+
+	len = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_item(tree, hf_afp_session_token_len, tvb, offset, 4,FALSE);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_afp_session_token, tvb, offset, len,FALSE);
+	offset += len;
+
+	return offset;
+}
+
+/* ************************** */
 static void
 dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -2489,6 +2728,11 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			     val_to_str(afp_command, CommandCode_vals,
 					"Unknown command (%u)"),
 			     aspinfo->reply ? "reply" : "request");
+		if (aspinfo->reply && aspinfo->code != 0) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, ": %s (%d)",
+			     	val_to_str(aspinfo->code, asp_error_vals,
+					"Unknown error (%u)"), aspinfo->code);
+		}
 	}
 
 	if (tree)
@@ -2502,6 +2746,8 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		switch(afp_command) {
 		case AFP_BYTELOCK:
 			offset = dissect_query_afp_byte_lock(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_BYTELOCK_EXT:
+			offset = dissect_query_afp_byte_lock_ext(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_OPENDT: 	/* same as close vol */
 		case AFP_FLUSH:		
 		case AFP_CLOSEVOL:
@@ -2518,10 +2764,15 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_query_afp_copy_file(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_CREATEFILE:
 			offset = dissect_query_afp_create_file(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_DISCTOLDSESS:
+			offset = dissect_query_afp_disconnect_old_session(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_ENUMERATE_EXT:
 		case AFP_ENUMERATE:
 			offset = dissect_query_afp_enumerate(tvb, pinfo, afp_tree, offset);break;
 		case AFP_GETFORKPARAM:
 			offset = dissect_query_afp_get_fork_param(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_GETSESSTOKEN:
+			offset = dissect_query_afp_get_session_token(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_GETSRVINFO:
 			/* offset = dissect_query_afp_get_server_info(tvb, pinfo, afp_tree, offset);break; */
 		case AFP_GETSRVPARAM:
@@ -2532,9 +2783,11 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_query_afp_login(tvb, pinfo, afp_tree, offset);break;
 		case AFP_LOGINCONT:
 		case AFP_LOGOUT:
-		case AFP_MAPID:
-		case AFP_MAPNAME:
 			break;
+		case AFP_MAPID:
+			offset = dissect_query_afp_map_id(tvb, pinfo, afp_tree, offset);break;
+		case AFP_MAPNAME:
+			offset = dissect_query_afp_map_name(tvb, pinfo, afp_tree, offset);break;
 		case AFP_MOVE:
 			offset = dissect_query_afp_move(tvb, pinfo, afp_tree, offset);break;
 		case AFP_OPENVOL:
@@ -2545,6 +2798,8 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_query_afp_open_fork(tvb, pinfo, afp_tree, offset);break;
 		case AFP_READ:
 			offset = dissect_query_afp_read(tvb, pinfo, afp_tree, offset);break;
+		case AFP_READ_EXT:
+			offset = dissect_query_afp_read_ext(tvb, pinfo, afp_tree, offset);break;
 		case AFP_RENAME:
 			offset = dissect_query_afp_rename(tvb, pinfo, afp_tree, offset);break;
 		case AFP_SETDIRPARAM:
@@ -2557,6 +2812,8 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_query_afp_set_vol_param(tvb, pinfo, afp_tree, offset);break;
 		case AFP_WRITE:
 			offset = dissect_query_afp_write(tvb, pinfo, afp_tree, offset);break;
+		case AFP_WRITE_EXT:
+			offset = dissect_query_afp_write_ext(tvb, pinfo, afp_tree, offset);break;
 		case AFP_GETFLDRPARAM:
 			offset = dissect_query_afp_get_fldr_param(tvb, pinfo, afp_tree, offset);break;
 		case AFP_SETFLDRPARAM:
@@ -2574,6 +2831,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_query_afp_resolve_id(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_EXCHANGEFILE:
 			offset = dissect_query_afp_exchange_file(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_CATSEARCH_EXT:
 		case AFP_CATSEARCH:
 			offset = dissect_query_afp_cat_search(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_GETICON:	
@@ -2606,6 +2864,9 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  		switch(afp_command) {
 		case AFP_BYTELOCK:
 			offset = dissect_reply_afp_byte_lock(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_BYTELOCK_EXT:
+			offset = dissect_reply_afp_byte_lock_ext(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_ENUMERATE_EXT:
  		case AFP_ENUMERATE:
  			offset = dissect_reply_afp_enumerate(tvb, pinfo, afp_tree, offset);break;
  		case AFP_OPENVOL:
@@ -2619,15 +2880,23 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_reply_afp_get_server_param(tvb, pinfo, afp_tree, offset);break;
 		case AFP_CREATEDIR:
 			offset = dissect_reply_afp_create_dir(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_MAPID:
+			offset = dissect_reply_afp_map_id(tvb, pinfo, afp_tree, offset);break;
+		case AFP_MAPNAME:
+			offset = dissect_reply_afp_map_name(tvb, pinfo, afp_tree, offset);break;
 		case AFP_MOVE:		/* same as create_id */
 		case AFP_CREATEID:
 			offset = dissect_reply_afp_create_id(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_GETSESSTOKEN:
+			offset = dissect_reply_afp_get_session_token(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_GETVOLPARAM:
 			offset = dissect_reply_afp_get_vol_param(tvb, pinfo, afp_tree, offset);break;
  		case AFP_GETFLDRPARAM:
  			offset = dissect_reply_afp_get_fldr_param(tvb, pinfo, afp_tree, offset);break;
 		case AFP_OPENDT:
 			offset = dissect_reply_afp_open_dt(tvb, pinfo, afp_tree, offset);break;
+
+		case AFP_CATSEARCH_EXT:
 		case AFP_CATSEARCH:
 			offset = dissect_reply_afp_cat_search(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_GTICNINFO:
@@ -2638,6 +2907,8 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_reply_afp_get_cmt(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_WRITE:
 			offset = dissect_reply_afp_write(tvb, pinfo, afp_tree, offset);break;
+		case AFP_WRITE_EXT:
+			offset = dissect_reply_afp_write_ext(tvb, pinfo, afp_tree, offset);break;
 		}
 	}
 	if (tree && offset < len) {
@@ -3540,6 +3811,73 @@ proto_register_afp(void)
       { "Position",         "afp.cat_position",
 		FT_BYTES, BASE_HEX, NULL, 0x0,
       	"Reserved", HFILL }},
+
+
+    { &hf_afp_map_name_type,
+      { "Type",      "afp.map_name_type",
+		FT_UINT8, BASE_DEC, VALS(map_name_type_vals), 0x0,
+      	"Map name type", HFILL }},
+
+    { &hf_afp_map_id_type,
+      { "Type",      "afp.map_id_type",
+		FT_UINT8, BASE_DEC, VALS(map_id_type_vals), 0x0,
+      	"Map ID type", HFILL }},
+
+    { &hf_afp_map_id,
+      { "ID",             "afp.map_id",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+      	"User/Group ID", HFILL }},
+
+    { &hf_afp_map_name,
+      { "Name",             "afp.map_name",
+		FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+      	"User/Group name", HFILL }},
+
+    /* AFP 3.0 */
+    { &hf_afp_lock_offset64,
+      { "Offset",         "afp.lock_offset64",
+		FT_INT64, BASE_DEC, NULL, 0x0,
+      	"First byte to be locked (64 bits)", HFILL }},
+
+    { &hf_afp_lock_len64,
+      { "Length",         "afp.lock_len64",
+		FT_INT64, BASE_DEC, NULL, 0x0,
+      	"Number of bytes to be locked/unlocked (64 bits)", HFILL }},
+
+    { &hf_afp_lock_range_start64,
+      { "Start",         "afp.lock_range_start64",
+		FT_INT64, BASE_DEC, NULL, 0x0,
+      	"First byte locked/unlocked (64 bits)", HFILL }},
+
+    { &hf_afp_offset64,
+      { "Offset",         "afp.offset64",
+		FT_INT64, BASE_DEC, NULL, 0x0,
+      	"Offset (64 bits)", HFILL }},
+    
+    { &hf_afp_rw_count64,
+      { "Count",         "afp.rw_count64",
+		FT_INT64, BASE_DEC, NULL, 0x0,
+      	"Number of bytes to be read/written (64 bits)", HFILL }},
+
+    { &hf_afp_last_written64,
+      { "Last written",  "afp.last_written64",
+		FT_UINT64, BASE_DEC, NULL, 0x0,
+      	"Offset of the last byte written (64 bits)", HFILL }},
+
+    { &hf_afp_session_token_type,
+      { "Type",         "afp.session_token_type",
+		FT_UINT16, BASE_HEX, NULL, 0x0,
+      	"Session token type", HFILL }},
+
+    { &hf_afp_session_token_len,
+      { "Len",         "afp.session_token_len",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+      	"Session token length", HFILL }},
+
+    { &hf_afp_session_token,
+      { "Token",         "afp.session_token",
+		FT_BYTES, BASE_HEX, NULL, 0x0,
+      	"Session token", HFILL }},
 
   };
 

@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.74 2002/06/07 10:11:38 guy Exp $
+ * $Id: packet-atalk.c,v 1.75 2002/06/20 00:44:33 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -1189,6 +1189,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case ASPFUNC_CMD:
   	case ASPFUNC_WRITE:
     		proto_item_set_len(asp_tree, 4);
+		aspinfo->code = tvb_get_ntohl(tvb, offset);;
 		proto_tree_add_item(asp_tree, hf_asp_error, tvb, offset, 4, FALSE);
 		offset += 4;
 		len = tvb_reported_length_remaining(tvb,offset);
