@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.367 2004/02/23 22:48:50 guy Exp $
+ * $Id: file.c,v 1.368 2004/02/28 22:04:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2259,18 +2259,20 @@ find_packet(capture_file *cf,
            * we need an API for popping up alert boxes with
            * {Verb} and "Cancel".
            */
-          simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTN_OK,
-                        "You have searched up to the beginning of the capture.\n"
-                        "Do you want to continue the search from the end of the capture?");
+          simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
+                        "%sBeginning of capture exceeded!%s\n\n"
+                        "Search is continued from the end of the capture.",
+                        simple_dialog_primary_start(), simple_dialog_primary_end());
           fdata = cf->plist_end;	/* wrap around */
         }
       } else {
         /* Go on to the next frame. */
         fdata = fdata->next;
         if (fdata == NULL) {
-          simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTN_OK,
-                        "You have searched up to the end of the capture.\n"
-                        "Do you want to continue the search from the beginning of the capture?");
+          simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
+                        "%sEnd of capture exceeded!%s\n\n"
+                        "Search is continued from the start of the capture.",
+                        simple_dialog_primary_start(), simple_dialog_primary_end());
           fdata = cf->plist;	/* wrap around */
         }
       }
