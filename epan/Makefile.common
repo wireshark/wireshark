@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.4 2004/03/05 10:29:36 guy Exp $
+# $Id: Makefile.common,v 1.5 2004/03/05 10:56:16 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -26,6 +26,7 @@
 
 # the dissector sources (without any helpers)
 DISSECTOR_SRC =	\
+	../packet-3g-a11.c	\
 	../packet-aarp.c	\
 	../packet-acap.c	\
 	../packet-acse.c	\

@@ -2090,6 +2090,7 @@ B<http://www.ethereal.com>.
   Ian Schorr               <ischorr [AT] comcast.net>
   Rowan McFarland          <rmcfarla [AT] cisco.com>
   John Engelhart           <johne [AT] zang.com>
+  Ryuji Somegawa           <ryuji-so [AT] is.aist-nara.ac.jp>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>
