@@ -1,6 +1,6 @@
 /* proto_dlg.c
  *
- * $Id: proto_dlg.c,v 1.21 2002/12/01 22:51:56 gerald Exp $
+ * $Id: proto_dlg.c,v 1.22 2002/12/02 02:28:52 gerald Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -28,6 +28,7 @@
 #endif
 
 #include <gtk/gtk.h>
+#include <gdk/gdkkeysyms.h>
 #include <string.h>
 
 #include "prefs.h"
@@ -59,6 +60,8 @@ static void disable_all_cb(GtkWidget *button, gpointer parent_w);
 #if GTK_MAJOR_VERSION < 2
 static void proto_list_select_cb(GtkCList *proto_list, gint row, gint col, 
                                  GdkEventButton *ev, gpointer gp);
+static gboolean proto_list_keypress_cb(GtkWidget *pl, GdkEventKey *ev,
+                                   gpointer gp);
 #endif
 
 static GtkWidget *proto_w = NULL;
@@ -145,6 +148,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   width = gdk_string_width(proto_list->style->font, DISABLED);
   gtk_clist_set_column_width(GTK_CLIST(proto_list), 0, width);
   SIGNAL_CONNECT(proto_list, "select-row", proto_list_select_cb, NULL);
+  SIGNAL_CONNECT(proto_list, "key-press-event", proto_list_keypress_cb, NULL);
   show_proto_selection(GTK_CLIST(proto_list));
   gtk_widget_show(proto_list);
 #else
@@ -253,7 +257,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
 #if GTK_MAJOR_VERSION < 2
 static void
 proto_list_select_cb(GtkCList *proto_list, gint row, gint col, 
-                                 GdkEventButton *ev, gpointer gp _U_) {
+                     GdkEventButton *ev _U_, gpointer gp _U_) {
   protocol_data_t *p = gtk_clist_get_row_data(proto_list, row);
   
   if (row < 0 || col < 0)
@@ -266,9 +270,20 @@ proto_list_select_cb(GtkCList *proto_list, gint row, gint col,
 
   gtk_clist_set_text(proto_list, row, 0, STATUS_TXT(p->enabled) );
 } /* proto_list_select_cb */
+
+static gboolean
+proto_list_keypress_cb(GtkWidget *pl, GdkEventKey *ev, gpointer gp _U_) {
+  GtkCList *proto_list = GTK_CLIST(pl);
+  
+  if (ev->keyval == GDK_space) {
+    proto_list_select_cb(proto_list, proto_list->focus_row, 0, NULL, gp);
+  }
+  return TRUE;
+}
+
 #endif
 
-/* XXX - We need a callback for Gtk2 */
+/* XXX - We need callbacks for Gtk2 */
 
 
 /* Toggle All */

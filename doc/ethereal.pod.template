@@ -418,9 +418,10 @@ changed, or deleted.
 =item Edit:Protocols
 
 Allow protocol dissection to be enabled or disabled for a specific
-protocol.  Individual protocols can be enabled or disabled by clicking on
-them in the list.  The entire list can be enabled, disabled, or inverted
-using the buttons below the list.
+protocol.  Individual protocols can be enabled or disabled by clicking
+on them in the list or by highlighting them and pressing the space bar.
+The entire list can be enabled, disabled, or inverted using the buttons
+below the list.
 
 When a protocol is disabled, dissection in a particular packet stops
 when that protocol is reached, and Ethereal moves on to the next packet.
