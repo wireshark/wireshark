@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.78 2003/12/13 02:24:48 guy Exp $
+ * $Id: packet-isakmp.c,v 1.79 2004/06/15 18:47:24 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -365,7 +365,7 @@ static const guint8 VID_draft_ietf_ipsec_nat_t_ike_02b[VID_LEN]= {0x90, 0xCB, 0x
 static const guint8 VID_draft_beaulieu_ike_xauth_02[VID_LEN]= {0x09, 0x00, 0x26, 0x89, 0xDF, 0xD6, 0xB7, 0x12, 0x80, 0xA2, 0x24, 0xDE, 0xC3, 0x3B, 0x81, 0xE5}; /* draft-beaulieu-ike-xauth-02.txt */
 
 
-static const guint8 VID_draft_ietf_ipsec_dpd_00[VID_LEN]= {0xAF, 0xCA,0xD7, 0x13, 0x68, 0xA1, 0xF1, 0xC9, 0x6B, 0x86, 0x96, 0xFC, 0x77, 0x57, 0x01, 0x00}; /* draft-ietf-ipsec-dpd-00.txt */
+static const guint8 VID_rfc3706_dpd[VID_LEN]= {0xAF, 0xCA,0xD7, 0x13, 0x68, 0xA1, 0xF1, 0xC9, 0x6B, 0x86, 0x96, 0xFC, 0x77, 0x57, 0x01, 0x00}; /* RFC 3706 */
 
 static const guint8 VID_IKE_CHALLENGE_RESPONSE_1[VID_LEN]= {0xBA, 0x29, 0x04, 0x99, 0xC2, 0x4E, 0x84, 0xE5, 0x3A, 0x1D, 0x83, 0xA0, 0x5E, 0x5F, 0x00, 0xC9}; /* IKE Challenge/Response for Authenticated Cryptographic Keys */
 
@@ -1152,8 +1152,8 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   if (memcmp(pVID,  VID_draft_beaulieu_ike_xauth_02, isakmp_min(VID_LEN, length)) == 0)
         proto_item_append_text(pt, "draft-beaulieu-ike-xauth-02.txt");
   else
-  if (memcmp(pVID,  VID_draft_ietf_ipsec_dpd_00, isakmp_min(VID_LEN, length)) == 0)
-        proto_item_append_text(pt, "draft-ietf-ipsec-dpd-00.txt");
+  if (memcmp(pVID,  VID_rfc3706_dpd, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "RFC 3706 Detecting Dead IKE Peers (DPD)");
   else
   if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_1, isakmp_min(VID_LEN, length)) == 0)
         proto_item_append_text(pt, "IKE Challenge/Response for Authenticated Cryptographic Keys");
