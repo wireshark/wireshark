@@ -4070,7 +4070,7 @@ dissect_rsvp_call_id (proto_tree *ti, tvbuff_t *tvb,
     proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1,
 			"Class number: %u - %s",
 			class, type_str);
-    proto_item_set_text(ti, "CALL-ID");
+    proto_item_set_text(ti, "CALL-ID: ");
     type = tvb_get_guint8 (tvb, offset2);
     switch(c_type) {
     case 1:
@@ -4084,6 +4084,8 @@ dissect_rsvp_call_id (proto_tree *ti, tvbuff_t *tvb,
 			      val_to_str(type, address_type_vals, "Unknown (%u)"));
 	  proto_tree_add_text(rsvp_object_tree, tvb, offset2+1, 3, "Reserved: %u",
 			      tvb_get_ntoh24(tvb, offset2+1));
+	  proto_item_append_text(ti, "Operator-Specific. Addr Type: %s. ", 
+				 val_to_str(type, address_type_vals, "Unknown (%u)"));
 	}
 	else {
 	  offset3 = offset2 + 16;
@@ -4095,10 +4097,13 @@ dissect_rsvp_call_id (proto_tree *ti, tvbuff_t *tvb,
 	  str = tvb_get_string (tvb, offset2 + 1, 3);  
 	  proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 1, 3,
 			      "International Segment: %s", str); 
+	  proto_item_append_text(ti, "Globally-Unique. Addr Type: %s. Intl Segment: %s. ", 
+				 val_to_str(type, address_type_vals, "Unknown (%u)"), str);
 	  g_free (str);
 	  str = tvb_get_string (tvb, offset2 + 4, 12);  
 	  proto_tree_add_text(rsvp_object_tree, tvb, offset2 + 4, 12,
 			      "National Segment: %s", str); 
+	  proto_item_append_text(ti, "Natl Segment: %s. ", str);
 	  g_free (str);
 	}
 
@@ -4107,30 +4112,36 @@ dissect_rsvp_call_id (proto_tree *ti, tvbuff_t *tvb,
 	  offset4 = offset3 + 4;
 	  proto_tree_add_text(rsvp_object_tree, tvb, offset3, 4, "Source Transport Network addr: %s",
 			      ip_to_str(tvb_get_ptr(tvb, offset3, 4)));
+	  proto_item_append_text(ti, "Src TNA: %s. ", ip_to_str(tvb_get_ptr(tvb, offset3, 4)));
 	  break;
 	  
 	case 2:
 	  offset4 = offset3 + 16;
 	  proto_tree_add_text(rsvp_object_tree, tvb, offset3, 16, "Source Transport Network addr: %s",
 			      ip6_to_str((const struct e_in6_addr *) tvb_get_ptr(tvb, offset3, 16)));
+	  proto_item_append_text(ti, "Src TNA: %s. ", 
+				 ip6_to_str((const struct e_in6_addr *) tvb_get_ptr(tvb, offset3, 16)));
 	  break;
 	  
 	case 3:
 	  offset4 = offset3 + 20;
 	  proto_tree_add_text(rsvp_object_tree, tvb, offset3, 20, "Source Transport Network addr: %s",
 			      tvb_bytes_to_str(tvb, offset3, 20));
+	  proto_item_append_text(ti, "Src TNA: %s. ", tvb_bytes_to_str(tvb, offset3, 20));
 	  break;
 	  
 	case 4:
 	  offset4 = offset3 + 6;
 	  proto_tree_add_text(rsvp_object_tree, tvb, offset3, 6, "Source Transport Network addr: %s",
 			      tvb_bytes_to_str(tvb, offset3, 6));
+	  proto_item_append_text(ti, "Src TNA: %s. ", tvb_bytes_to_str(tvb, offset3, 6));
 	  break;
 	  
 	case 0x7F:
 	  offset4 = offset3 + len;
 	  proto_tree_add_text(rsvp_object_tree, tvb, offset3, len, "Source Transport Network addr: %s",
 			      tvb_bytes_to_str(tvb, offset3, len));
+	  proto_item_append_text(ti, "Src TNA: %s. ", tvb_bytes_to_str(tvb, offset3, len));
 	  break;
 
 	default:
@@ -4141,6 +4152,7 @@ dissect_rsvp_call_id (proto_tree *ti, tvbuff_t *tvb,
 
 	proto_tree_add_text(rsvp_object_tree, tvb, offset4, 8, "Local Identifier: %s",
 			    tvb_bytes_to_str(tvb, offset4, 8));
+	proto_item_append_text(ti, "Local ID: %s. ", tvb_bytes_to_str(tvb, offset4, 8));
 	break;
 
     default:
