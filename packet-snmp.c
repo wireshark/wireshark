@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.111 2003/08/04 07:38:15 guy Exp $
+ * $Id: packet-snmp.c,v 1.112 2003/09/04 05:16:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -643,7 +643,6 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 	guchar *buf;
 	size_t buf_len;
 	size_t out_len;
-	size_t i;
 
 	switch (vb_type) {
 
@@ -725,17 +724,6 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 	out_len = 0;
 	sprint_realloc_value(&buf, &buf_len, &out_len, 1,  variable_oid,
 	    variable_oid_length, variable);
-
-	/*
-	 * "sprint_realloc_value" can put newlines into the string it
-	 * produces; turn them into spaces, as this is all supposed to be
-	 * on a single line.
-	 */
-	for (i = 0; i < out_len; i++) {
-		if (buf[i] == '\n')
-			buf[i] = ' ';
-	}
-
 	return buf;
 }
 #endif
