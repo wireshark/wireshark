@@ -1,0 +1,3 @@
+Overview of changes in Ethereal MGCP plugin 0.0.2:
+* Fixed misc problems with improperly dissecting some xgcp packets as 
+  short or malformed.  

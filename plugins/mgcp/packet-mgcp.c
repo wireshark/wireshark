@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.10 2000/12/25 09:37:35 guy Exp $
+ * $Id: packet-mgcp.c,v 1.11 2000/12/28 10:10:17 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -812,15 +812,18 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb,
       my_proto_tree_add_string = proto_tree_add_string_hidden;
     }
 
-    tvb_current_offset = tvb_find_guint8(tvb,tvb_previous_offset,
-					     tvb_current_len, ' ');
-    if(tvb_current_offset == -1){
-      tvb_current_offset = tvb_len;
-    }
-    tvb_current_len = tvb_length_remaining(tvb,tvb_previous_offset);
-    tokenlen = tvb_current_offset - tvb_previous_offset;
+    do {
+      tvb_current_len = tvb_length_remaining(tvb,tvb_previous_offset);
+      tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset,
+					   tvb_current_len, ' ');
+      if(tvb_current_offset == -1){
+	tvb_current_offset = tvb_len;
+	tokenlen = tvb_current_len;
+      }				  
+      else{
+	tokenlen = tvb_current_offset - tvb_previous_offset;
+      }
 
-    while( tvb_current_offset < tvb_len || tokennum <= 3){
       if(tokennum == 0){
 	if(is_mgcp_verb(tvb,tvb_previous_offset,tvb_current_len)){
 	  mgcp_type = MGCP_REQUEST;
@@ -849,38 +852,46 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb,
       if(tokennum == 2){
 	if(mgcp_type == MGCP_REQUEST){
 	  my_proto_tree_add_string(tree,hf_mgcp_req_endpoint, tvb,
-				tvb_previous_offset, tokenlen,
-				tvb_format_text(tvb, tvb_previous_offset,
-						tokenlen));
+				   tvb_previous_offset, tokenlen,
+				   tvb_format_text(tvb, tvb_previous_offset,
+						   tokenlen));
 	}
 	else if(mgcp_type == MGCP_RESPONSE){
-	  tokenlen = tvb_find_line_end(tvb, tvb_previous_offset, 
-				       -1,&tvb_current_offset);
-	  my_proto_tree_add_string(tree,hf_mgcp_rsp_rspstring, tvb,
+	  if(tvb_current_offset < tvb_len){
+	    tokenlen = tvb_find_line_end(tvb, tvb_previous_offset, 
+					 -1,&tvb_current_offset);
+	  }
+	  else{
+	    tokenlen = tvb_current_len;
+	  }
+	  my_proto_tree_add_string(tree, hf_mgcp_rsp_rspstring, tvb,
 				   tvb_previous_offset, tokenlen,
-				   tvb_format_text(tvb,tvb_previous_offset,
+				   tvb_format_text(tvb, tvb_previous_offset,
 						   tokenlen));
-	  break;
-	}
+	  }
+	break;
       }
       if( (tokennum == 3 && mgcp_type == MGCP_REQUEST) ){
-	tokenlen = tvb_find_line_end(tvb, tvb_previous_offset, 
-				     -1,&tvb_current_offset);
+	if(tvb_current_offset < tvb_len ){
+	  tokenlen = tvb_find_line_end(tvb, tvb_previous_offset, 
+				       -1,&tvb_current_offset);
+	}
+	else{
+	  tokenlen = tvb_current_len;
+	}
 	my_proto_tree_add_string(tree,hf_mgcp_version, tvb,
 				 tvb_previous_offset, tokenlen,
 				 tvb_format_text(tvb,tvb_previous_offset,
 						 tokenlen));
 	break;
       }
-      tvb_previous_offset = tvb_skip_wsp(tvb, tvb_current_offset,
-					 tvb_current_len);
-      tvb_current_len = tvb_length_remaining(tvb,tvb_previous_offset);
-      tvb_current_offset = tvb_find_guint8(tvb,tvb_previous_offset,
-					   tvb_current_len, ' ');
-      tokenlen = tvb_current_offset - tvb_previous_offset;
+      if(tvb_current_offset < tvb_len){
+	tvb_previous_offset = tvb_skip_wsp(tvb, tvb_current_offset,
+					   tvb_current_len);
+      }
       tokennum++;
-    }
-  
+    } while( tvb_current_offset < tvb_len && tvb_previous_offset < tvb_len 
+	     && tokennum <= 3);
     switch (mgcp_type){
     case MGCP_RESPONSE:
       proto_tree_add_boolean_hidden(tree,hf_mgcp_rsp, NullTVB,0,0,1);
@@ -972,8 +983,13 @@ static void dissect_mgcp_params(tvbuff_t *tvb, packet_info *pinfo,
  */
 static gint tvb_skip_wsp(tvbuff_t* tvb, gint offset, gint maxlength){
   gint counter = offset;
-  gint end = offset + maxlength;
+  gint end = offset + maxlength,tvb_len;
   guint8 tempchar;
+  tvb_len = tvb_length(tvb);
+  end = offset + maxlength;
+  if(end >= tvb_len){
+    end = tvb_len;
+  }
   for(counter = offset; counter < end && 
 	((tempchar = tvb_get_guint8(tvb,counter)) == ' ' || 
 	tempchar == '\t');counter++);
