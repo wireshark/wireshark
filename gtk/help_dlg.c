@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.16 2001/03/06 21:07:13 guy Exp $
+ * $Id: help_dlg.c,v 1.17 2001/05/12 19:45:37 gerald Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -81,7 +81,7 @@ void help_cb(GtkWidget *w, gpointer data)
   GtkWidget *main_vb, *bbox, *help_nb, *close_bt, *label, *txt_scrollw,
     *overview_vb,
     *proto_vb,
-    *dfilter_vb,
+    *dfilter_tb, *dfilter_vsb,
     *cfilter_vb;
   
   if (help_w != NULL) {
@@ -160,17 +160,35 @@ void help_cb(GtkWidget *w, gpointer data)
   gtk_notebook_append_page(GTK_NOTEBOOK(help_nb), proto_vb, label);
   
   /* display filter help */
+  /* X windows have a maximum size of 32767.  Since the height can easily
+     exceed this, we have to jump through some hoops to have a functional
+     vertical scroll bar. */
+  
+  dfilter_tb = gtk_table_new(2, 2, FALSE);
+  gtk_table_set_col_spacing (GTK_TABLE (dfilter_tb), 0, 3);
+  gtk_table_set_row_spacing (GTK_TABLE (dfilter_tb), 0, 3);
+  gtk_container_border_width(GTK_CONTAINER(dfilter_tb), 1);  
 
-  dfilter_vb = gtk_vbox_new(FALSE, 0);
-  gtk_container_border_width(GTK_CONTAINER(dfilter_vb), 1);  
   txt_scrollw = gtk_scrolled_window_new(NULL, NULL);
-  gtk_box_pack_start(GTK_BOX(dfilter_vb), txt_scrollw, TRUE, TRUE, 0);
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
 				 GTK_POLICY_ALWAYS,
-				 GTK_POLICY_ALWAYS);
-  set_scrollbar_placement_scrollw(txt_scrollw, prefs.gui_scrollbar_on_right);
+				 GTK_POLICY_NEVER);
   remember_scrolled_window(txt_scrollw);
   dfilter_text = gtk_text_new(NULL, NULL);
+  dfilter_vsb = gtk_vscrollbar_new(GTK_TEXT(dfilter_text)->vadj);
+  if (prefs.gui_scrollbar_on_right) {
+    gtk_table_attach (GTK_TABLE (dfilter_tb), txt_scrollw, 0, 1, 0, 1,
+                            GTK_EXPAND | GTK_SHRINK | GTK_FILL,
+                            GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0);
+    gtk_table_attach (GTK_TABLE (dfilter_tb), dfilter_vsb, 1, 2, 0, 1,
+                            GTK_FILL, GTK_SHRINK | GTK_FILL, 0, 0);
+  } else {
+    gtk_table_attach (GTK_TABLE (dfilter_tb), txt_scrollw, 1, 2, 0, 1,
+                            GTK_EXPAND | GTK_SHRINK | GTK_FILL,
+                            GTK_EXPAND | GTK_SHRINK | GTK_FILL, 0, 0);
+    gtk_table_attach (GTK_TABLE (dfilter_tb), dfilter_vsb, 0, 1, 0, 1,
+                            GTK_FILL, GTK_SHRINK | GTK_FILL, 0, 0);
+  }
   gtk_text_set_editable(GTK_TEXT(dfilter_text), FALSE);
   gtk_text_set_line_wrap(GTK_TEXT(dfilter_text), FALSE);
   set_help_text(dfilter_text, DFILTER_HELP);
@@ -178,9 +196,10 @@ void help_cb(GtkWidget *w, gpointer data)
 					dfilter_text);  
   gtk_widget_show(txt_scrollw);
   gtk_widget_show(dfilter_text);
-  gtk_widget_show(dfilter_vb);
+  gtk_widget_show(dfilter_tb);
+  gtk_widget_show(dfilter_vsb);
   label = gtk_label_new("Display Filters");
-  gtk_notebook_append_page(GTK_NOTEBOOK(help_nb), dfilter_vb, label);
+  gtk_notebook_append_page(GTK_NOTEBOOK(help_nb), dfilter_tb, label);
 
   /* capture filter help (this one has no horizontal scrollbar) */
 
@@ -392,11 +411,11 @@ static void set_help_text(GtkWidget *w, help_type_t type)
 	set_text(w, buffer, strlen(buffer));
 	nb_lines ++;
       }
-
-      height = (1 + nb_lines) * m_font_height;
-      gtk_widget_set_usize(GTK_WIDGET(w), 20 + width, 20 + height);
-
     }
+
+    height = (1 + nb_lines) * m_font_height;
+    gtk_widget_set_usize(GTK_WIDGET(w), 20 + width, 20 + height);
+
     break;
   case CFILTER_HELP :
     set_text(w, cfilter_help, -1);
