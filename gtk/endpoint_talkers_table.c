@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.12 2003/09/04 23:11:03 sahlberg Exp $
+ * $Id: endpoint_talkers_table.c,v 1.13 2003/09/04 23:12:46 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,6 +53,7 @@ extern GtkWidget   *main_display_filter_widget;
 #define NUM_COLS 10
 
 
+/* convert a port number into a string */
 static char *
 ett_port_to_str(int port_type, guint32 port)
 {
@@ -60,7 +61,7 @@ ett_port_to_str(int port_type, guint32 port)
 	static gchar *strp, str[4][12];
 
 	i++;
-	if(i>=16){
+	if(i>=4){
 		i=0;
 	}
 	strp=str[i];
