@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.81 1999/08/10 20:05:38 guy Exp $
+ * $Id: ethereal.c,v 1.82 1999/08/12 07:36:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -98,6 +98,7 @@
 #include "gtkpacket.h"
 #include "dfilter.h"
 
+static void file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs);
 static void print_cmd_toggle_dest(GtkWidget *widget, gpointer data);
@@ -173,31 +174,6 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 
 		"\nSee http://ethereal.zing.org for more information",
                 VERSION, comp_info_str);
-}
-
-/* Things to do when the OK button is pressed */
-void
-file_sel_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
-  gchar     *cf_name;
-  GtkWidget *filter_te;
-  gchar     *rfilter;
-  int        err;
-
-  cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
-  filter_te = gtk_object_get_data(GTK_OBJECT(w), E_RFILTER_TE_KEY);
-  rfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
-  gtk_widget_hide(GTK_WIDGET (fs));
-  gtk_widget_destroy(GTK_WIDGET (fs));
-
-  /* this depends upon load_cap_file removing the filename from
-   * cf_name, leaving only the path to the directory. */
-  if ((err = load_cap_file(cf_name, rfilter, &cf)) == 0)
-    chdir(cf_name);
-  g_free(cf_name);
-  if (err == 0) {
-    set_menu_sensitivity("/File/Save", FALSE);
-    set_menu_sensitivity("/File/Save As...", TRUE);
-  }
 }
 
 /* Update the progress bar */
@@ -392,10 +368,10 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
 
   file_sel = gtk_file_selection_new ("Ethereal: Open Capture File");
   
-  /* Connect the ok_button to file_sel_ok_cb function and pass along a
+  /* Connect the ok_button to file_open_ok_cb function and pass along a
      pointer to the file selection box widget */
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION (file_sel)->ok_button),
-    "clicked", (GtkSignalFunc) file_sel_ok_cb, file_sel );
+    "clicked", (GtkSignalFunc) file_open_ok_cb, file_sel );
 
   /* Gilbert --- I added this if statement. Is this right? */
   if (w)
@@ -439,6 +415,30 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(file_sel), "");
 
   gtk_widget_show(file_sel);
+}
+
+static void
+file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
+  gchar     *cf_name;
+  GtkWidget *filter_te;
+  gchar     *rfilter;
+  int        err;
+
+  cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
+  filter_te = gtk_object_get_data(GTK_OBJECT(w), E_RFILTER_TE_KEY);
+  rfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
+  gtk_widget_hide(GTK_WIDGET (fs));
+  gtk_widget_destroy(GTK_WIDGET (fs));
+
+  /* this depends upon load_cap_file removing the filename from
+   * cf_name, leaving only the path to the directory. */
+  if ((err = load_cap_file(cf_name, rfilter, &cf)) == 0)
+    chdir(cf_name);
+  g_free(cf_name);
+  if (err == 0) {
+    set_menu_sensitivity("/File/Save", FALSE);
+    set_menu_sensitivity("/File/Save As...", TRUE);
+  }
 }
 
 /* Close a file */

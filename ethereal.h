@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: ethereal.h,v 1.20 1999/07/27 02:04:35 guy Exp $
+ * $Id: ethereal.h,v 1.21 1999/08/12 07:36:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,7 +82,6 @@ typedef struct _selection_info {
 extern GtkStyle *item_style;
 
 void about_ethereal( GtkWidget *, gpointer);
-void file_sel_ok_cb(GtkWidget *, GtkFileSelection *);
 void blank_packetinfo();
 gint file_progress_cb(gpointer);
 void follow_stream_cb( GtkWidget *, gpointer);
