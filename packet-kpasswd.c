@@ -4,7 +4,7 @@
  *
  * See RFC 3244 
  *
- * $Id: packet-kpasswd.c,v 1.1 2003/11/07 05:26:27 sahlberg Exp $
+ * $Id: packet-kpasswd.c,v 1.2 2004/02/16 09:42:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,6 +30,7 @@
 #endif
 
 #include <epan/packet.h>
+#include "packet-kerberos.h"
 #include "prefs.h"
 
 static int proto_kpasswd = -1;
@@ -65,7 +66,7 @@ dissect_kpasswd_ap_req_data(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tree *p
 		it=proto_tree_add_item(parent_tree, hf_kpasswd_ap_req_data, tvb, 0, -1, FALSE);
 		tree=proto_item_add_subtree(it, ett_ap_req_data);
 	}
-	/* XXX we should dissect the AP_REQ data here */
+	dissect_kerberos_main(tvb, pinfo, tree, FALSE);
 }
 
 static void
@@ -78,7 +79,7 @@ dissect_kpasswd_krb_priv_message(packet_info *pinfo _U_, tvbuff_t *tvb, proto_tr
 		it=proto_tree_add_item(parent_tree, hf_kpasswd_krb_priv_message, tvb, 0, -1, FALSE);
 		tree=proto_item_add_subtree(it, ett_krb_priv_message);
 	}
-	/* XXX we should dissect the KRB-PRIV data here */
+	dissect_kerberos_main(tvb, pinfo, tree, FALSE);
 }
 
 
