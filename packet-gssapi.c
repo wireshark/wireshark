@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@samba.org> Added a few 
  *		   bits and pieces ...
  *
- * $Id: packet-gssapi.c,v 1.20 2002/09/29 18:58:56 gerald Exp $
+ * $Id: packet-gssapi.c,v 1.21 2002/11/05 21:41:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -143,7 +143,8 @@ dissect_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    gboolean is_verifier)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -156,6 +157,7 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gssapi_oid_value *value;
 	volatile dissector_handle_t handle = NULL;
 	conversation_t *volatile conversation;
+	tvbuff_t *oid_tvb;
 
 	/*
 	 * We need this later, so lets get it now ...
@@ -289,39 +291,42 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		handle = value->handle;
 
-		if (handle) {
-			tvbuff_t *oid_tvb;
+		/* 
+		 * Here we should create a conversation if needed and 
+		 * save the OID and dissector handle in it for the 
+		 * GSSAPI protocol.
+		 */
 
-			/* 
-			 * Here we should create a conversation if needed and 
-			 * save the OID and dissector handle in it for the 
-			 * GSSAPI protocol.
-			 */
-
-			if (!conversation) { /* Create one */
-			  conversation = conversation_new(&pinfo->src,
-							  &pinfo->dst, 
-							  pinfo->ptype, 
-							  pinfo->srcport, 
-							  pinfo->destport, 0);
-			}
-
-			/*
-			 * Now add the proto data ... 
-			 * but only if it is not already there.
-			 */
-
-			if (!conversation_get_proto_data(conversation,
-							 proto_gssapi)) {
-			  conversation_add_proto_data(conversation,
-						      proto_gssapi, handle);
-			}
-
-			oid_tvb = tvb_new_subset(tvb, offset, -1, -1);
-			call_dissector(handle, oid_tvb, pinfo, subtree);
+		if (!conversation) { /* Create one */
+		  conversation = conversation_new(&pinfo->src,
+						  &pinfo->dst, 
+						  pinfo->ptype, 
+						  pinfo->srcport, 
+						  pinfo->destport, 0);
 		}
-		else { /* FIXME, do something if handle not found */
 
+		/*
+		 * Now add the proto data ... 
+		 * but only if it is not already there.
+		 */
+
+		if (!conversation_get_proto_data(conversation,
+						 proto_gssapi)) {
+		  conversation_add_proto_data(conversation,
+					      proto_gssapi, handle);
+		}
+
+		if (is_verifier) {
+			proto_tree_add_text(subtree, tvb, offset, -1,
+			    "Authentication verifier");
+		} else {
+			if (handle != NULL) {
+				oid_tvb = tvb_new_subset(tvb, offset, -1, -1);
+				call_dissector(handle, oid_tvb, pinfo, subtree);
+			} else {
+				proto_tree_add_text(subtree, tvb, offset, -1,
+				    "Authentication credentials");
+			}
 		}
 
 	 done:
@@ -331,6 +336,18 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	} CATCH(ReportedBoundsError) {
 		show_reported_bounds_error(tvb, pinfo, tree);
 	} ENDTRY;
+}
+
+static void
+dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_gssapi_work(tvb, pinfo, tree, FALSE);
+}
+
+static void
+dissect_gssapi_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_gssapi_work(tvb, pinfo, tree, TRUE);
 }
 
 void
@@ -354,6 +371,7 @@ proto_register_gssapi(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("gssapi", dissect_gssapi, proto_gssapi);
+	register_dissector("gssapi_verf", dissect_gssapi_verf, proto_gssapi);
 
 	gssapi_oids = g_hash_table_new(gssapi_oid_hash, gssapi_oid_equal);
 }

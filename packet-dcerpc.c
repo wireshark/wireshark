@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.85 2002/11/03 20:34:54 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.86 2002/11/05 21:41:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -404,7 +404,9 @@ static gint ett_dcerpc_fragments = -1;
 static gint ett_dcerpc_fragment = -1;
 static gint ett_decrpc_krb5_auth_verf = -1;
 
-static dissector_handle_t ntlmssp_handle, gssapi_handle;
+static dissector_handle_t ntlmssp_handle;
+static dissector_handle_t gssapi_handle;
+static dissector_handle_t gssapi_verf_handle;
 
 static const fragment_items dcerpc_frag_items = {
 	&ett_dcerpc_fragments,
@@ -1429,7 +1431,8 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tree,
-                        e_dce_cn_common_hdr_t *hdr, int *auth_level_p)
+                        e_dce_cn_common_hdr_t *hdr, int *auth_level_p,
+                        gboolean are_credentials)
 {
     int offset;
     guint8 auth_pad_len;
@@ -1470,13 +1473,17 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
         offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                         hf_dcerpc_auth_ctx_id, NULL);
 
-	/* Dissect the authentication data */
+	/*
+	 * Dissect the authentication data.
+	 */
+	if (are_credentials) {
+	    /*
+	     * The authentication data are credentials.
+	     */
+	    switch (auth_type) {
 
-	switch(auth_type) {
-
+	    case DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP: {
 		/* NTLMSSP */
-
-	case DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP: {
 		tvbuff_t *ntlmssp_tvb;
 
 		ntlmssp_tvb = tvb_new_subset(tvb, offset, hdr->auth_len,
@@ -1486,11 +1493,10 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 			       dcerpc_tree);
 
 		break;
-	}
+	    }
 
+	    case DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO: {
 		/* SPNEGO (rfc2478) */
-
-	case DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO: {
 		tvbuff_t *gssapi_tvb;
 
 		gssapi_tvb = tvb_new_subset(tvb, offset, hdr->auth_len,
@@ -1499,11 +1505,34 @@ dissect_dcerpc_cn_auth (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 		call_dissector(gssapi_handle, gssapi_tvb, pinfo, dcerpc_tree);
 
 		break;
-	}
+	    }
 
-	default:
+	    default:
 		proto_tree_add_text (dcerpc_tree, tvb, offset, hdr->auth_len,
-				     "Auth Data");
+				     "Auth Credentials");
+	    }
+	} else {
+	    /*
+	     * The authentication data are a verifier.
+	     */
+	    switch (auth_type) {
+
+	    case DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO: {
+		/* SPNEGO (rfc2478) */
+		tvbuff_t *gssapi_tvb;
+
+		gssapi_tvb = tvb_new_subset(tvb, offset, hdr->auth_len,
+					    hdr->auth_len);
+
+		call_dissector(gssapi_verf_handle, gssapi_tvb, pinfo, dcerpc_tree);
+
+		break;
+	    }
+
+	    default:
+		proto_tree_add_text (dcerpc_tree, tvb, offset, hdr->auth_len,
+				     "Auth Verifier");
+	    }
 	}
 
         /* figure out where the auth padding starts */
@@ -1700,7 +1729,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
      * an authentication header, and associate it with an authentication
      * context, so subsequent PDUs can use that context.
      */
-    dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr, NULL);
+    dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr, NULL, TRUE);
 }
 
 static void
@@ -1788,7 +1817,7 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerp
      * XXX - do we need to do anything with the authentication level
      * we get back from this?
      */
-    dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr, NULL);
+    dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr, NULL, TRUE);
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
         if (num_results != 0 && result == 0) {
@@ -2030,7 +2059,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
      * and we just have a security context?
      */
     auth_sz = dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr,
-                                      &auth_level);
+                                      &auth_level, FALSE);
 
     conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
@@ -2150,7 +2179,7 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
      * and we just have a security context?
      */
     auth_sz = dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr,
-                                      &auth_level);
+                                      &auth_level, FALSE);
 
     conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
@@ -2262,7 +2291,7 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, packet_info *pinfo,
      * and we just have a security context?
      */
     auth_sz = dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr,
-                                      &auth_level);
+                                      &auth_level, FALSE);
 
     conv = find_conversation (&pinfo->src, &pinfo->dst, pinfo->ptype,
                               pinfo->srcport, pinfo->destport, 0);
@@ -2599,6 +2628,13 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
         dissect_dcerpc_cn_bind_ack (tvb, pinfo, dcerpc_tree, &hdr);
         break;
 
+    case PDU_AUTH3:
+        /*
+         * Nothing after the common header other than credentials.
+         */
+        dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, &hdr, NULL, TRUE);
+        break;
+
     case PDU_REQ:
         dissect_dcerpc_cn_rqst (tvb, pinfo, dcerpc_tree, tree, &hdr);
         break;
@@ -2621,7 +2657,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
          * Nothing after the common header other than an authentication
          * verifier.
          */
-        dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, &hdr, NULL);
+        dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, &hdr, NULL, FALSE);
         break;
 
     case PDU_SHUTDOWN:
@@ -2633,7 +2669,7 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     default:
         /* might as well dissect the auth info */
-        dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, &hdr, NULL);
+        dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, &hdr, NULL, FALSE);
         break;
     }
     return hdr.frag_len + padding;
@@ -3771,4 +3807,5 @@ proto_reg_handoff_dcerpc (void)
     heur_dissector_add ("smb_transact", dissect_dcerpc_cn_bs, proto_dcerpc);
     ntlmssp_handle = find_dissector("ntlmssp");
     gssapi_handle = find_dissector("gssapi");
+    gssapi_verf_handle = find_dissector("gssapi_verf");
 }
