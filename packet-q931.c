@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.18 2000/10/19 06:45:10 guy Exp $
+ * $Id: packet-q931.c,v 1.19 2000/10/19 07:01:32 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -2586,6 +2586,15 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 gboolean
 dissect_q931_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	/*
+	 * XXX - should this be heuristic, or should we just make
+	 * port 1720 do Q.931-inside-TPKT; that port appears to be
+	 * intended for H.323 calls, according to
+	 *
+	 *	http://www.isi.edu/in-notes/iana/assignments/port-numbers
+	 *
+	 * which says it's for "h323hostcall"?
+	 */
 	pinfo->current_proto = "Q.931 HEUR";
 	return q931_dissector(tvb, pinfo, tree, TRUE);
 }
