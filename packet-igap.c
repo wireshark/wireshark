@@ -2,7 +2,7 @@
  * Routines for IGMP/IGAP packet disassembly
  * 2003, Endoh Akria (see AUTHORS for email)
  *
- * $Id: packet-igap.c,v 1.1 2003/12/10 19:21:55 guy Exp $
+ * $Id: packet-igap.c,v 1.2 2004/03/06 01:54:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,6 +124,8 @@ static const value_string igap_account_status[] = {
     {0, NULL}
 };
 
+#define ACCOUNT_SIZE	16
+#define MESSAGE_SIZE	64
 
 /* This function is only called from the IGMP dissector */
 int
@@ -131,7 +133,8 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
 {
     proto_tree *tree;
     proto_item *item;
-    guint8 type, tsecs, subtype, asize, msize, account[17], message[65];
+    guint8 type, tsecs, subtype, asize, msize;
+    guchar account[ACCOUNT_SIZE+1], message[MESSAGE_SIZE+1];
 
     if (!proto_is_protocol_enabled(find_protocol_by_id(proto_igap))) {
 	/* we are not enabled, skip entire packet to be nice
@@ -190,13 +193,23 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
     offset += 3;
 
     if (asize > 0) {
+    	if (asize > ACCOUNT_SIZE) {
+    	    /* Bogus account size.
+    	       XXX - flag this? */
+    	    asize = ACCOUNT_SIZE;
+    	}
 	tvb_memcpy(tvb, account, offset, asize);
 	account[asize] = '\0';
 	proto_tree_add_string(tree, hf_account, tvb, offset, asize, account);
     }
-    offset += 16;
+    offset += ACCOUNT_SIZE;
 
     if (msize > 0) {
+    	if (msize > MESSAGE_SIZE) {
+    	    /* Bogus message size.
+    	       XXX - flag this? */
+    	    msize = MESSAGE_SIZE;
+    	}
 	tvb_memcpy(tvb, message, offset, msize);
 	switch (subtype) {
 	case IGAP_SUBTYPE_PASSWORD_JOIN:
@@ -238,8 +251,8 @@ dissect_igap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
 				"Message: (Unknown)");
 	}
     }
+    offset += MESSAGE_SIZE;
 
-    offset += 64;
     if (item) proto_item_set_len(item, offset);
     return offset;
 }
