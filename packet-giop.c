@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.56 2002/02/18 01:08:35 guy Exp $
+ * $Id: packet-giop.c,v 1.57 2002/02/27 00:30:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4302,6 +4302,8 @@ proto_register_giop (void)
 void proto_reg_handoff_giop (void) {
   data_handle = find_dissector("data");
   heur_dissector_add("tcp", dissect_giop, proto_giop);
+  /* Support DIOP (GIOP/UDP) */
+  heur_dissector_add("udp", dissect_giop, proto_giop);
 }
 
 

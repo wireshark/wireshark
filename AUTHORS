@@ -1059,6 +1059,7 @@ Kari Tiirikainen <ktiirika[AT]stybba.ntc.nokia.com> {
 
 John Mackenzie <John.A.Mackenzie[AT]t-online.de> {
 	Put missing initializations of table entries in "plugins.c"
+	Register GIOP dissector as a UDP heuristic dissector
 }
 
 Peter Valchev <pvalchev[AT]openbsd.org> {
