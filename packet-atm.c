@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.65 2003/09/06 01:21:00 guy Exp $
+ * $Id: packet-atm.c,v 1.66 2004/06/16 23:36:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1598,7 +1598,7 @@ proto_register_atm(void)
 	};
 	proto_atm = proto_register_protocol("ATM", "ATM", "atm");
 	proto_aal1 = proto_register_protocol("ATM AAL1", "AAL1", "aal1");
-	proto_aal3_4 = proto_register_protocol("ATM AAL3/4", "AAL3_4", "aal3_4");
+	proto_aal3_4 = proto_register_protocol("ATM AAL3/4", "AAL3/4", "aal3_4");
 	proto_oamaal = proto_register_protocol("ATM OAM AAL", "OAM AAL", "oamaal");
 	proto_register_field_array(proto_atm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
