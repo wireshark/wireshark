@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.h,v 1.4 2002/08/28 21:03:47 jmayer Exp $
+ * $Id: follow_dlg.h,v 1.5 2004/06/01 21:56:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,9 +25,18 @@
 #ifndef __FOLLOW_DLG_H__
 #define __FOLLOW_DLG_H__
 
-void follow_stream_cb( GtkWidget *, gpointer);
+/** @file
+ *  "Follow TCP Stream" dialog box.
+ */
 
-/* Redraw the text in all "Follow TCP Stream" windows. */
-void follow_redraw_all(void);
+/** User requested the "Follow TCP Stream" dialog box by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void follow_stream_cb( GtkWidget *widget, gpointer data);
+
+/** Redraw the text in all "Follow TCP Stream" windows. */
+extern void follow_redraw_all(void);
 
 #endif

@@ -2,7 +2,7 @@
  * gui functions used by stats
  * Copyright 2003 Lars Roland
  *
- * $Id: gtk_stat_util.h,v 1.3 2003/08/21 17:48:04 guy Exp $
+ * $Id: gtk_stat_util.h,v 1.4 2004/06/01 21:56:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,15 +29,27 @@
 
 #include <gtk/gtk.h>
 
-typedef struct _gtk_table {
-	GtkWidget *widget;
-	int height;
-	int width;
-}gtk_table;
+/** @file
+ *  Utilities for statistics.
+ */
 
-extern void add_table_entry(gtk_table *tab, char *str, int x, int y);
+
+/** Init a window for stats, set title and display used filter in window.
+ *
+ * @param window the window
+ * @param mainbox the vbox for the window
+ * @param title the title for the window
+ * @param filter the filter string
+ */
 extern void init_main_stat_window(GtkWidget *window, GtkWidget *mainbox, char *title, char *filter);
 
+/** Create a stats table, using a scrollable gtkclist.
+ *
+ * @param scrolled_window the scrolled window
+ * @param vbox the vbox for the window
+ * @param columns number of columns
+ * @param titles 
+ */
 extern GtkCList *create_stat_table(GtkWidget *scrolled_window, GtkWidget *vbox, int columns, char *titles[]);
 
 #endif

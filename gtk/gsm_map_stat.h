@@ -1,6 +1,6 @@
 /* gsm_map_stat.h
  *
- * $Id: gsm_map_stat.h,v 1.1 2004/04/21 17:57:31 guy Exp $
+ * $Id: gsm_map_stat.h,v 1.2 2004/06/01 21:56:04 ulfl Exp $
  *
  * Copyright 2004, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
@@ -24,6 +24,11 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+/** @file
+ *  Statistics for GSM MAP Operations.
+ */
+
+/** @todo ??? */
 typedef struct _gsm_map_stat_t {
     int			opr_code[GSM_MAP_MAX_NUM_OPR_CODES];
     double		size[GSM_MAP_MAX_NUM_OPR_CODES];
@@ -32,4 +37,5 @@ typedef struct _gsm_map_stat_t {
     double		size_rr[GSM_MAP_MAX_NUM_OPR_CODES];
 } gsm_map_stat_t;
 
+/** @todo ??? */
 extern gsm_map_stat_t		gsm_map_stat;

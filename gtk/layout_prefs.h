@@ -1,7 +1,7 @@
 /* layout_prefs.h
  * Definitions for layout preferences window
  *
- * $Id: layout_prefs.h,v 1.2 2004/04/30 00:40:45 guy Exp $
+ * $Id: layout_prefs.h,v 1.3 2004/06/01 21:56:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,9 +25,32 @@
 #ifndef __LAYOUT_PREFS_H__
 #define __LAYOUT_PREFS_H__
 
-GtkWidget *layout_prefs_show(void);
-void layout_prefs_fetch(GtkWidget *w);
-void layout_prefs_apply(GtkWidget *w);
-void layout_prefs_destroy(GtkWidget *w);
+/** @file
+ *  User interface layout preferences pages.
+ */
+
+/** Build a User interface layout preferences page.
+ *
+ * @return the new preferences page
+ */
+extern GtkWidget *layout_prefs_show(void);
+
+/** Fetch preference values from page.
+ *
+ * @param widget widget from layout_prefs_show()
+ */
+extern void layout_prefs_fetch(GtkWidget *widget);
+
+/** Apply preference values from page.
+ *
+ * @param widget widget from layout_prefs_show()
+ */
+extern void layout_prefs_apply(GtkWidget *widget);
+
+/** Destroy preference values from page.
+ *
+ * @param widget widget from layout_prefs_show()
+ */
+extern void layout_prefs_destroy(GtkWidget *widget);
 
 #endif

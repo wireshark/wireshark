@@ -1,7 +1,7 @@
 /* gui_prefs.h
  * Definitions for GUI preferences window
  *
- * $Id: gui_prefs.h,v 1.5 2004/01/17 00:26:22 ulfl Exp $
+ * $Id: gui_prefs.h,v 1.6 2004/06/01 21:56:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,11 +26,38 @@
 #ifndef __GUI_PREFS_H__
 #define __GUI_PREFS_H__
 
-GtkWidget *gui_prefs_show(void);
-void gui_prefs_fetch(GtkWidget *w);
-void gui_prefs_apply(GtkWidget *w);
-void gui_prefs_destroy(GtkWidget *w);
+/** @file
+ *  User interface and font preferences pages.
+ */
 
+/** Build a User interface preferences page.
+ *
+ * @return the new preferences page
+ */
+extern GtkWidget *gui_prefs_show(void);
+
+/** Fetch preference values from page.
+ *
+ * @param widget widget from gui_prefs_show()
+ */
+extern void gui_prefs_fetch(GtkWidget *widget);
+
+/** Apply preference values from page.
+ *
+ * @param widget widget from gui_prefs_show()
+ */
+extern void gui_prefs_apply(GtkWidget *widget);
+
+/** Destroy preference values from page.
+ *
+ * @param widget widget from gui_prefs_show()
+ */
+void gui_prefs_destroy(GtkWidget *widget);
+
+/** Build a User interface font preferences page.
+ *
+ * @return the new preferences page
+ */
 extern GtkWidget *gui_font_prefs_show(void);
 
 #endif

@@ -2,7 +2,7 @@
  * gui functions used by stats
  * Copyright 2003 Lars Roland
  *
- * $Id: gtk_stat_util.c,v 1.5 2004/03/13 15:15:24 ulfl Exp $
+ * $Id: gtk_stat_util.c,v 1.6 2004/06/01 21:56:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,13 @@
 #include "../globals.h"
 
 /* insert a string into a GTK_TABLE at column x and row y*/
+#if 0
+/* Statistic table */
+typedef struct _gtk_table {
+	GtkWidget *widget;  /**< the table widget */
+	int height;         /**< the height */
+	int width;          /**< the width */
+}gtk_table;
 
 void
 add_table_entry(gtk_table *tab, char *str, int x, int y)
@@ -62,6 +69,7 @@ add_table_entry(gtk_table *tab, char *str, int x, int y)
 	gtk_label_set_justify(GTK_LABEL(tmp), GTK_JUSTIFY_LEFT);
 	gtk_widget_show(tmp);
 }
+#endif
 
 /* init a main windowfor stats, set title and display used filter in window */
 

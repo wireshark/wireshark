@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all host talkers taps.
  *
- * $Id: hostlist_table.h,v 1.3 2004/05/03 22:15:22 ulfl Exp $
+ * $Id: hostlist_table.h,v 1.4 2004/06/01 21:56:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,40 +23,76 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-typedef struct _hostlist_talker_t {
-	address src_address;
-	guint32 sat;
-	guint32 port_type;
-	guint32 src_port;
+/** @file
+ *  Hostlist definitions.
+ */
 
-	guint32 rx_frames;
-	guint32 tx_frames;
-	guint32 rx_bytes;
-	guint32 tx_bytes;
+/** Address type */
+typedef enum {
+    SAT_NONE,       /**< no address type */
+    SAT_ETHER,      /**< ethernet */
+    SAT_FDDI,       /**< fddi */
+    SAT_TOKENRING   /**< token ring */
+} SAT_E;
+
+/** Hostlist information */
+typedef struct _hostlist_talker_t {
+	address src_address;    /**< source address */
+	SAT_E   sat;            /**< address type */
+	guint32 port_type;      /**< port_type (e.g. PT_TCP) */
+	guint32 src_port;       /**< source port */
+
+	guint32 rx_frames;      /**< number of received packets */
+	guint32 tx_frames;      /**< number of transmitted packets */
+	guint32 rx_bytes;       /**< number of received bytes */
+	guint32 tx_bytes;       /**< number of transmitted bytes */
 } hostlist_talker_t;
 
+/** Hostlist widget */
 typedef struct _hostlist_table {
-	char *name;
-	GtkWidget *win;
-	GtkWidget *page_lb;
-	GtkWidget *scrolled_window;
-	GtkCList *table;
-	GtkItemFactory *item_factory;
-	GtkWidget *menu;
-	gboolean has_ports;
-	guint32 num_hosts;
-	hostlist_talker_t *hosts;
-    gboolean resolve_names;
+	char                *name;              /**< the name of the table */
+	GtkWidget           *win;               /**< GTK window */
+	GtkWidget           *page_lb;           /**< label */
+    GtkWidget           *scrolled_window;   /**< the scrolled window */
+	GtkCList            *table;             /**< the GTK table */
+	GtkWidget           *menu;              /**< context menu */
+	gboolean            has_ports;          /**< table has ports */
+	guint32             num_hosts;          /**< number of hosts (0 or 1) */
+	hostlist_talker_t   *hosts;             /**< array of host values */
+	gboolean            resolve_names;      /**< resolve address names? */
 } hostlist_table;
 
+/** Register the hostlist table for the multiple hostlist window.
+ *
+ * @param hide_ports hide the port columns
+ * @param table_name the table name to be displayed
+ * @param tap_name the registered tap name
+ * @param filter the optional filter name or NULL
+ * @param packet_func the function to be called for each incoming packet
+ */
 extern void register_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
 
+/** Init the hostlist table for the single hostlist window.
+ *
+ * @param hide_ports hide the port columns
+ * @param table_name the table name to be displayed
+ * @param tap_name the registered tap name
+ * @param filter the optional filter name or NULL
+ * @param packet_func the function to be called for each incoming packet
+ * @todo get values from register_hostlist_table() instead of own parameters
+ */
 extern void init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
 
-#define SAT_NONE		0
-#define SAT_ETHER		1
-#define SAT_FDDI		2
-#define SAT_TOKENRING	3
-
-
-void add_hostlist_table_data(hostlist_table *hl, address *src, guint32 src_port, gboolean sender, int num_frames, int num_bytes, int sat, int port_type);
+/** Add some data to the table.
+ *
+ * @param hl the table to add the data to
+ * @param src source address
+ * @param src_port source port
+ * @param sender TRUE, if this is a sender
+ * @param num_frames number of packets
+ * @param num_bytes number of bytes
+ * @param sat address type
+ * @param port_type the port type (e.g. PT_TCP)
+ */
+void add_hostlist_table_data(hostlist_table *hl, address *src, 
+                             guint32 src_port, gboolean sender, int num_frames, int num_bytes, SAT_E sat, int port_type);

@@ -1,7 +1,7 @@
 /* menu.h
  * Menu definitions
  *
- * $Id: menu.h,v 1.18 2004/05/20 10:37:40 ulfl Exp $
+ * $Id: menu.h,v 1.19 2004/06/01 21:56:04 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,16 +29,51 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/* Write all recent capture filenames to the user's recent file */
-void menu_recent_file_write_all(FILE *rf);
-void menu_open_recent_file_cmd(GtkWidget *w);
+/** @file
+ *  Various functions provided by menu.c
+ */
+
+/** Write all recent capture filenames to the user's recent file.
+ * @param rf recent file
+ */
+extern void menu_recent_file_write_all(FILE *rf);
+
+/** User pushed a recent file submenu item.
+ *
+ * @param widget parent widget
+ */
+extern void menu_open_recent_file_cmd(GtkWidget *widget);
+
+/** The recent file read has finished, update the menu corresponding. */
 extern void menu_recent_read_finished(void);
+
+/** One of the name resolution menu items changed. */
 extern void menu_name_resolution_changed(void);
 
-GtkWidget *main_menu_new(GtkAccelGroup **);
-void set_menu_object_data (gchar *path, gchar *key, gpointer data);
-gint popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data);
+/** Create a new menu.
+ *
+ * @param accel the created accelerator group
+ * @return the new menu
+ */
+extern GtkWidget *main_menu_new(GtkAccelGroup **accel);
 
+/** Set object data of menu, like OBJECT_SET_DATA().
+ *
+ * @param path the path of the menu item
+ * @param key the key to set
+ * @param data the data to set
+ */
+extern void set_menu_object_data(gchar *path, gchar *key, gpointer data);
+
+/** The popup menu handler.
+ *
+ * @param widget the parent widget
+ * @param event the GdkEvent
+ * @param data the corresponding menu 
+ */
+extern gint popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data);
+
+/** The popup menu. */
 extern GtkWidget           *popup_menu_object;
 
 #ifdef __cplusplus

@@ -1,7 +1,7 @@
 /* find_dlg.h
  * Definitions for "find frame" window
  *
- * $Id: find_dlg.h,v 1.6 2003/10/07 09:50:41 sahlberg Exp $
+ * $Id: find_dlg.h,v 1.7 2004/06/01 21:56:03 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,10 +26,42 @@
 #ifndef __FIND_DLG_H__
 #define __FIND_DLG_H__
 
-void   find_frame_cb(GtkWidget *, gpointer);
-void   find_next_cb(GtkWidget *, gpointer);
-void   find_previous_cb(GtkWidget *, gpointer);
-void   find_frame_with_filter(char *);
-void   find_previous_next_frame_with_filter(char *filter, gboolean backwards);
+/** @file
+ *  "Find" dialog box and related functions.
+ */
+
+/** User requested the "Find" dialog box by menu or toolbar.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void find_frame_cb(GtkWidget *widget, gpointer data);
+
+/** User requested the "Find Next" function.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void find_next_cb(GtkWidget *widget, gpointer data);
+
+/** User requested the "Find Previous" function.
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ */
+extern void find_previous_cb(GtkWidget *widget, gpointer data);
+
+/** Find frame by filter.
+ *
+ * @param filter the filter string
+ */
+extern void find_frame_with_filter(char *filter);
+
+/** Find next/previous frame by filter.
+ *
+ * @param filter the filter string
+ * @param backwards TRUE, if searching should be done backwards
+ */
+extern void find_previous_next_frame_with_filter(char *filter, gboolean backwards);
 
 #endif /* find_dlg.h */
