@@ -71,6 +71,12 @@ GLIB_LIBS = @GLIB_LIBS@
 GTK_CFLAGS = @GTK_CFLAGS@
 GTK_CONFIG = @GTK_CONFIG@
 GTK_LIBS = @GTK_LIBS@
+HAVE_PKGMK = @HAVE_PKGMK@
+HAVE_PKGPROTO = @HAVE_PKGPROTO@
+HAVE_PKGTRANS = @HAVE_PKGTRANS@
+HAVE_RPM = @HAVE_RPM@
+HAVE_RPM_PACKAGING = @HAVE_RPM_PACKAGING@
+HAVE_SVR4_PACKAGING = @HAVE_SVR4_PACKAGING@
 INET_ATON_C = @INET_ATON_C@
 INET_ATON_O = @INET_ATON_O@
 INET_NTOP_C = @INET_NTOP_C@
@@ -95,6 +101,8 @@ SNMP_LIBS = @SNMP_LIBS@
 SNPRINTF_C = @SNPRINTF_C@
 SNPRINTF_O = @SNPRINTF_O@
 SOCKET_LIBS = @SOCKET_LIBS@
+STRCASECMP_C = @STRCASECMP_C@
+STRCASECMP_O = @STRCASECMP_O@
 STRERROR_C = @STRERROR_C@
 STRERROR_O = @STRERROR_O@
 STRNCASECMP_C = @STRNCASECMP_C@
@@ -103,7 +111,7 @@ VERSION = @VERSION@
 YACC = @YACC@
 ethereal_SUBDIRS = @ethereal_SUBDIRS@
 
-SUBDIRS = solaris
+SUBDIRS = rpm svr4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -112,7 +120,7 @@ DIST_COMMON =  Makefile.am Makefile.in
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = tar
+TAR = gtar
 GZIP_ENV = --best
 all: all-redirect
 .SUFFIXES:
@@ -226,7 +234,7 @@ distdir: $(DISTFILES)
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
-	    cp -pr $$/$$file $(distdir)/$$file; \
+	    cp -pr $$d/$$file $(distdir)/$$file; \
 	  else \
 	    test -f $(distdir)/$$file \
 	    || ln $$d/$$file $(distdir)/$$file 2> /dev/null \

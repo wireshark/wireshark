@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.212 2000/07/22 20:56:13 oabad Exp $
+# $Id: Makefile.am,v 1.213 2000/07/26 03:38:26 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -487,7 +487,6 @@ EXTRA_DIST = \
 	doc/randpkt.txt		\
 	doc/tethereal.pod.template \
 	editcap.c		\
-	ethereal.spec.in         \
 	getopt.c		\
 	getopt.h		\
 	ieee-float.h		\
@@ -544,7 +543,7 @@ endif
 #dist-hook:
 #	@rm -f $(distdir)/register.c
 
-SUBDIRS = wiretap gtk plugins @ethereal_SUBDIRS@
+SUBDIRS = wiretap gtk plugins packaging @ethereal_SUBDIRS@
 
 ethereal.1: ethereal doc/ethereal.pod.template
 	(cd doc ; \
@@ -565,29 +564,50 @@ libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status --recheck
 
 # We load top_stagedir with an explicit path so that libtool doesn't freak.
-top_stagedir=`cd $(top_srcdir) && pwd`/packaging/solaris.stage
+top_stagedir=`cd $(top_srcdir) && pwd`/packaging/svr4.stage
 stagedir=$(top_stagedir)/$(PACKAGE).stage
 host_cpu=@host_cpu@
 host_os=@host_os@
 
-solaris-package: $(bin_SCRIPTS) $(lib_LTLIBRARIES)
-	case x$(host_os) in \
-	xsolaris*) \
+svr4-package: $(bin_SCRIPTS) $(lib_LTLIBRARIES)
+	if test x$(HAVE_SVR4_PACKAGING) = xyes ; then \
 		rm -rf $(stagedir) ; \
 		$(MAKE) DESTDIR=$(stagedir) install-strip; \
-		$(srcdir)/packaging/solaris/mkpkg \
+		$(srcdir)/packaging/svr4/mkpkg \
 			$(PACKAGE) \
 			$(PACKAGE)-$(VERSION)-$(host_os)-$(host_cpu)-local \
 			$(prefix) \
-			$(top_stagedir) \
-		;; \
-	*) \
-		echo "Solaris packages can only be built on machines running Solaris." ; \
-		;; \
-	esac
+			$(top_stagedir) ; \
+	else \
+		echo "Error: SVR4 packaging tools not found." ; \
+		echo "Package build abandoned." ; \
+	fi
+
+solaris-package: svr4-package
+
+specfile=$(top_srcdir)/packaging/rpm/ethereal.spec
+
+rpm-package: dist
+	if test x$(HAVE_RPM_PACKAGING) = xyes ; then \
+		cp $(top_srcdir)/$(distdir).tar.gz $(RPM_SOURCEDIR) ; \
+		rpm -bb --clean --rmsource $(specfile) ; \
+	else \
+		echo "Error: RPM executable and/or source directory not found." ; \
+		echo "Package build abandoned." ; \
+	fi
+
+srpm-package: dist
+	if test x$(HAVE_RPM_PACKAGING) = xyes ; then \
+		cp $(top_srcdir)/$(distdir).tar.gz $(RPM_SOURCEDIR) ; \
+		rpm -bs --clean --rmsource $(specfile) ; \
+	else \
+		echo "Error: RPM executable and/or source directory not found." ; \
+		echo "Package build abandoned." ; \
+	fi
+
+debian-package: debian/rules
+	dpkg-buildpackage -rfakeroot -us -uc
 
 clean-local:
 	rm -rf $(top_stagedir)
 
-debian-package: debian/rules
-	dpkg-buildpackage -rfakeroot -us -uc

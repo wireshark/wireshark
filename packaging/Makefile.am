@@ -1,1 +1,1 @@
-SUBDIRS = solaris
+SUBDIRS = rpm svr4
