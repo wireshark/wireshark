@@ -15,7 +15,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@clarent.com>
  *
- * $Id: packet-sip.c,v 1.27 2002/05/08 20:29:46 guy Exp $
+ * $Id: packet-sip.c,v 1.28 2002/05/09 07:42:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -187,11 +187,23 @@ dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * So we first check if the frame is really meant for us.
          */
 
-        /* check for a request */
+        /*
+         * Check for a request.
+         * First, make sure we have enough data to do the check.
+         */
+        if (!tvb_bytes_exist(tvb, 0, SIP2_HDR_LEN)) {
+                /*
+                 * We don't.
+                 */
+                return FALSE;
+        }
 
+        /*
+         * Now see if we have a request header.
+         */
         if (tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) != 0)  {
                 /*
-                 * Not a request; check for a response.
+                 * We don't, so this isn't a request; check for a response.
                  */
                 eol = tvb_find_line_end(tvb, 0, -1, &next_offset);
                 if ((eol > (gint)SIP2_HDR_LEN) &&
