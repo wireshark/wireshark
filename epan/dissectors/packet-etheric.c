@@ -1220,19 +1220,16 @@ dissect_etheric_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *e
 
    /* extract pointer to start of optional part (if any) */
    if (opt_part_possible == TRUE){
-	   if (message_length > 5 ) 
+	   if (message_length > 5 ) {
 		   opt_parameter_pointer = tvb_get_guint8(message_tvb, offset);
 
-	   if (opt_parameter_pointer > 0){
 		   proto_tree_add_uint_format(etheric_tree, hf_etheric_pointer_to_start_of_optional_part,
 				message_tvb, offset, 1, opt_parameter_pointer, "Pointer to start of optional part: %u", opt_parameter_pointer);
-			offset += opt_parameter_pointer;
-			optional_parameter_tvb = tvb_new_subset(message_tvb, offset, -1, -1 );
-			dissect_etheric_optional_parameter(optional_parameter_tvb, pinfo, etheric_tree);
-	   }else{
-			proto_tree_add_uint_format(etheric_tree, hf_etheric_pointer_to_start_of_optional_part, 
-					message_tvb, offset, 1, opt_parameter_pointer, "No optional parameter present (Pointer: %u)",
-					opt_parameter_pointer);
+		   offset += opt_parameter_pointer;
+		   if (opt_parameter_pointer > 0){
+		     optional_parameter_tvb = tvb_new_subset(message_tvb, offset, -1, -1 );
+		     dissect_etheric_optional_parameter(optional_parameter_tvb, pinfo, etheric_tree);
+		   }
 	   }
    }
    else if (message_type !=ETHERIC_MESSAGE_TYPE_CHARGE_INFO)
