@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.69 2001/06/18 02:17:52 guy Exp $
+ * $Id: packet-snmp.c,v 1.70 2001/09/03 08:19:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -580,7 +580,8 @@ format_oid(subid_t *oid, guint oid_length)
 {
 	char *result;
 	int result_len;
-	int len, i;
+	int len;
+	unsigned int i;
 	char *buf;
 
 	result_len = oid_length * 22;
@@ -726,7 +727,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 	long value;
 #endif
 #endif	/* HAVE_SPRINT_VALUE */
-	int i;
+	unsigned int i;
 	gchar *buf;
 	int len;
 
