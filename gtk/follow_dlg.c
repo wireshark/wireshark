@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.62 2004/05/27 16:45:25 ulfl Exp $
+ * $Id: follow_dlg.c,v 1.63 2004/05/27 21:55:59 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,6 +62,7 @@
 #include "compat_macros.h"
 #include "ipproto.h"
 #include "tap_menu.h"
+#include "print_mswin.h"
 
 /* Show Stream */
 typedef enum {
@@ -101,9 +102,7 @@ static void follow_filter_out_stream(GtkWidget * w, gpointer parent_w);
 static void follow_print_stream(GtkWidget * w, gpointer parent_w);
 static void follow_save_as_cmd_cb(GtkWidget * w, gpointer data);
 static void follow_save_as_ok_cb(GtkWidget * w, gpointer fs);
-#if !((GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2)
 static void follow_save_as_destroy_cb(GtkWidget * win, gpointer user_data);
-#endif
 static void follow_stream_om_both(GtkWidget * w, gpointer data);
 static void follow_stream_om_client(GtkWidget * w, gpointer data);
 static void follow_stream_om_server(GtkWidget * w, gpointer data);
@@ -256,12 +255,12 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
 
 	gtk_widget_set_name(streamwindow, "TCP stream window");
     gtk_window_set_default_size(GTK_WINDOW(streamwindow), DEF_WIDTH, DEF_HEIGHT);
-	gtk_container_border_width(GTK_CONTAINER(streamwindow), 2);
+	gtk_container_border_width(GTK_CONTAINER(streamwindow), 6);
 
 	/* setup the container */
     tooltips = gtk_tooltips_new ();
 
-	vbox = gtk_vbox_new(FALSE, 0);
+	vbox = gtk_vbox_new(FALSE, 6);
 	gtk_container_add(GTK_CONTAINER(streamwindow), vbox);
 
     /* content frame */
@@ -273,8 +272,8 @@ follow_stream_cb(GtkWidget * w, gpointer data _U_)
   	gtk_container_add(GTK_CONTAINER(vbox), stream_fr);
   	gtk_widget_show(stream_fr);
 
-    stream_vb = gtk_vbox_new(FALSE, 0);
-	gtk_container_set_border_width( GTK_CONTAINER(stream_vb) , 5);
+    stream_vb = gtk_vbox_new(FALSE, 6);
+	gtk_container_set_border_width( GTK_CONTAINER(stream_vb) , 6);
 	gtk_container_add(GTK_CONTAINER(stream_fr), stream_vb);
 
 	/* create a scrolled window for the text */
@@ -503,7 +502,7 @@ follow_stream_om_server(GtkWidget *w _U_, gpointer data)
 static void
 follow_charset_toggle_cb(GtkWidget * w _U_, gpointer data)
 {
-	follow_info_t	*follow_info = data;
+    follow_info_t	*follow_info = data;
 
 	if (GTK_TOGGLE_BUTTON(follow_info->ebcdic_bt)->active)
 		follow_info->show_type = SHOW_EBCDIC;
@@ -737,6 +736,16 @@ static gboolean
 follow_print_text(char *buffer, int nchars, gboolean is_server _U_, void *arg)
 {
     FILE *fh = arg;
+    int i;
+
+    /* convert non printable characters */
+    for (i = 0; i < nchars; i++) {
+        if (buffer[i] == '\n' || buffer[i] == '\r')
+            continue;
+        if (! isprint(buffer[i])) {
+            buffer[i] = '.';
+        }
+    }
 
     if (fwrite(buffer, nchars, 1, fh) != 1)
       return FALSE;
@@ -770,74 +779,99 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
     gboolean		to_file;
     char		*print_dest;
     follow_info_t	*follow_info = data;
+#ifdef _WIN32
+    gboolean win_printer = FALSE;
+#endif
+
 
     switch (prefs.pr_dest) {
     case PR_DEST_CMD:
-	print_dest = prefs.pr_cmd;
-	to_file = FALSE;
-	break;
-
+#ifdef _WIN32
+        win_printer = TRUE;
+        /*XXX should use temp file stuff in util routines */
+        print_dest = g_strdup(tmpnam(NULL));
+        to_file = TRUE;
+#else
+        print_dest = prefs.pr_cmd;
+        to_file = FALSE;
+#endif
+        break;
     case PR_DEST_FILE:
-	print_dest = prefs.pr_file;
-	to_file = TRUE;
-	break;
+        print_dest = prefs.pr_file;
+        to_file = TRUE;
+        break;
     default:			/* "Can't happen" */
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		      "Couldn't figure out where to send the print "
-		      "job. Check your preferences.");
-	return;
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+            "Couldn't figure out where to send the print "
+            "job. Check your preferences.");
+        return;
     }
 
     fh = open_print_dest(to_file, print_dest);
     if (fh == NULL) {
-	if (to_file)
-	    open_failure_alert_box(prefs.pr_file, errno, TRUE);
-	else {
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-			  "Couldn't run print command %s.", prefs.pr_cmd);
-	}
-	return;
+        if (to_file) {
+            open_failure_alert_box(prefs.pr_file, errno, TRUE);
+        } else {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+	              "Couldn't run print command %s.", prefs.pr_cmd);
+        }
+        return;
     }
 
     print_preamble(fh, PR_FMT_TEXT, cfile.filename);
     if (ferror(fh))
-	goto print_error;
+        goto print_error;
+
     switch (follow_read_stream(follow_info, follow_print_text, fh)) {
-
     case FRS_OK:
-	break;
-
+    	break;
     case FRS_OPEN_ERROR:
     case FRS_READ_ERROR:
-	/* XXX - cancel printing? */
-	close_print_dest(to_file, fh);
-	return;
-
+	    /* XXX - cancel printing? */
+	    close_print_dest(to_file, fh);
+	    return;
     case FRS_PRINT_ERROR:
-	goto print_error;
+	    goto print_error;
     }
+
     print_finale(fh, PR_FMT_TEXT);
     if (ferror(fh))
-	goto print_error;
+	    goto print_error;
+
     if (!close_print_dest(to_file, fh)) {
-	if (to_file)
-	    write_failure_alert_box(prefs.pr_file, errno);
-	else {
-	    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+        if (to_file) {
+    	    write_failure_alert_box(prefs.pr_file, errno);
+        } else {
+	        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			  "Error closing print destination.");
-	}
+        }
     }
+#ifdef _WIN32
+    if (win_printer) {
+        print_mswin(print_dest);
+
+        /* trash temp file */
+        remove(print_dest);
+    }
+#endif
     return;
 
 print_error:
-    if (to_file)
-	write_failure_alert_box(prefs.pr_file, errno);
-    else {
-	simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-		      "Error writing to print command: %s", strerror(errno));
+    if (to_file) {
+        write_failure_alert_box(prefs.pr_file, errno);
+    } else {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+          "Error writing to print command: %s", strerror(errno));
     }
     /* XXX - cancel printing? */
     close_print_dest(to_file, fh);
+
+#ifdef _WIN32
+    if (win_printer) {
+        /* trash temp file */
+        remove(print_dest);
+    }
+#endif
 }
 
 static gboolean
@@ -954,12 +988,15 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
     if (last_open_dir)
 	file_selection_set_current_folder(new_win, last_open_dir);
 
+    SIGNAL_CONNECT(new_win, "destroy", follow_save_as_destroy_cb, follow_info);
+
 #if (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2
     if (gtk_dialog_run(GTK_DIALOG(new_win)) == GTK_RESPONSE_ACCEPT)
     {
         follow_save_as_ok_cb(new_win, new_win);
+    } else {
+        window_destroy(new_win);
     }
-    else window_destroy(new_win);
 #else
     /* Connect the ok_button to file_save_as_ok_cb function and pass along a
        pointer to the file selection box widget */
@@ -972,7 +1009,6 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
     gtk_file_selection_set_filename(GTK_FILE_SELECTION(new_win), "");
 
     SIGNAL_CONNECT(new_win, "delete_event", window_delete_event_cb, NULL);
-    SIGNAL_CONNECT(new_win, "destroy", follow_save_as_destroy_cb, follow_info);
 
     gtk_widget_show_all(new_win);
     window_present(new_win);
@@ -1040,7 +1076,6 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
     g_free(to_name);
 }
 
-#if !((GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION >= 4) || GTK_MAJOR_VERSION > 2)
 static void
 follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
 {
@@ -1049,4 +1084,3 @@ follow_save_as_destroy_cb(GtkWidget * win _U_, gpointer data)
 	/* Note that we no longer have a dialog box. */
 	follow_info->follow_save_as_w = NULL;
 }
-#endif
