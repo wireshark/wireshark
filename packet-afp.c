@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.2 2002/04/28 19:21:38 guy Exp $
+ * $Id: packet-afp.c,v 1.3 2002/04/28 19:33:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -219,13 +219,14 @@ static int hf_afp_path_type = -1;
 static int hf_afp_path_len = -1;
 static int hf_afp_path_name = -1;
 
-static int hf_afp_flag    	= -1;
-static int hf_afp_dt_ref  	= -1;
-static int hf_afp_ofork   	= -1;
-static int hf_afp_ofork_len = -1;
-static int hf_afp_offset   	= -1;
-static int hf_afp_rw_count 	= -1;
-static int hf_afp_actual_count = -1;
+static int hf_afp_flag		= -1;
+static int hf_afp_dt_ref	= -1;
+static int hf_afp_ofork		= -1;
+static int hf_afp_ofork_len	= -1;
+static int hf_afp_offset	= -1;
+static int hf_afp_rw_count	= -1;
+static int hf_afp_last_written	= -1;
+static int hf_afp_actual_count	= -1;
 
 static int hf_afp_fork_type			= -1;
 static int hf_afp_access_mode		= -1;
@@ -1564,6 +1565,15 @@ dissect_query_afp_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gin
 	return offset;
 }
 
+static gint
+dissect_reply_afp_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+	proto_tree_add_item(tree, hf_afp_last_written, tvb, offset, 4, FALSE);
+	offset += 4;
+	
+	return offset;
+}
+
 /* ************************** */
 static gint
 dissect_query_afp_read(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
@@ -2386,6 +2396,8 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_reply_afp_get_appl(tvb, pinfo, afp_tree, offset);break; 
 		case AFP_GETCMT:
 			offset = dissect_reply_afp_get_cmt(tvb, pinfo, afp_tree, offset);break; 
+		case AFP_WRITE:
+			offset = dissect_reply_afp_write(tvb, pinfo, afp_tree, offset);break;
 		}
 	}
 	if (tree && offset < len)
@@ -2921,9 +2933,14 @@ proto_register_afp(void)
       	"offset ", HFILL }},
     
     { &hf_afp_rw_count,
-      { "count",         "afp.rw_count",
+      { "Count",         "afp.rw_count",
 		FT_INT32, BASE_DEC, NULL, 0x0,
-      	"number of bytes to be read/written ", HFILL }},
+      	"Number of bytes to be read/written", HFILL }},
+    
+    { &hf_afp_last_written,
+      { "Last written",  "afp.last_written",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+      	"Offset of the last byte written", HFILL }},
 
     { &hf_afp_actual_count,
       { "count",         "afp.actual_count",
