@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.29 2002/04/29 01:25:51 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.30 2002/04/29 06:15:31 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2240,6 +2240,22 @@ lsa_dissect_LSA_UNICODE_STRING_array(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_LSA_UNICODE_STRING_ARRAY(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_count, NULL);
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_UNICODE_STRING_array, NDR_POINTER_UNIQUE,
+		"UNICODE_STRING pointer: ", di->hf_index, 0);
+	
+	return offset;
+}
 
 static int
 lsa_dissect_LSA_TRANSLATED_SID(tvbuff_t *tvb, int offset,
@@ -2739,8 +2755,39 @@ lsa_dissect_lsaenumerateaccountswithuserright_reply(tvbuff_t *tvb, int offset,
 {
 	/* [out, ref] LSA_UNICODE_STRING_ARRAY *accounts */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		lsa_dissect_LSA_UNICODE_STRING_array, NDR_POINTER_REF,
+		lsa_dissect_LSA_UNICODE_STRING_ARRAY, NDR_POINTER_REF,
 		"Account pointer: names", hf_lsa_acct, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsaenumerateaccountrights_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [in] LSA_HANDLE hnd */
+	offset = lsa_dissect_LSA_HANDLE(tvb, offset,
+		pinfo, tree, drep);
+
+	/* [in, ref] SID *account */
+	offset = dissect_ndr_nt_SID(tvb, offset,
+		pinfo, tree, drep);
+
+	return offset;
+}
+
+
+static int
+lsa_dissect_lsaenumerateaccountrights_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	/* [out, ref] LSA_UNICODE_STRING_ARRAY *rights */
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_UNICODE_STRING_ARRAY, NDR_POINTER_REF,
+		"Account pointer: rights", hf_lsa_rights, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_lsa_rc, NULL);
@@ -2866,11 +2913,8 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsaenumerateaccountswithuserright_rqst,
 		lsa_dissect_lsaenumerateaccountswithuserright_reply },
 	{ LSA_LSAENUMERATEACCOUNTRIGHTS, "LSAENUMERATEACCOUNTRIGHTS",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsaenumerateaccountrights_rqst,
 		lsa_dissect_lsaenumerateaccountrights_reply },
-#endif
 	{ LSA_LSAADDACCOUNTRIGHTS, "LSAADDACCOUNTRIGHTS",
 		NULL, NULL },
 #ifdef REMOVED
