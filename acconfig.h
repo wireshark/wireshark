@@ -1,12 +1,11 @@
 /* acconfig.h
  * #ifdefs to be controlled by "configure"
  *
- * $Id: acconfig.h,v 1.19 2001/06/02 06:21:13 guy Exp $
+ * $Id: acconfig.h,v 1.20 2001/07/27 07:10:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.org>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -40,5 +39,7 @@
 #undef NEED_STRPTIME_H
 
 #undef HAVE_LIBPCAP
+
+#undef HAVE_PCAP_VERSION
 
 #undef PLUGIN_DIR

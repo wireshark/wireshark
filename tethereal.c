@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.89 2001/07/26 07:25:44 guy Exp $
+ * $Id: tethereal.c,v 1.90 2001/07/27 07:10:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -205,16 +205,10 @@ main(int argc, char *argv[])
   extern char         *optarg;
   gboolean             arg_error = FALSE;
 #ifdef HAVE_LIBPCAP
-#ifdef WIN32
-  char pcap_version[] = WPCAP_STRING;
-#else
-#ifdef __APPLE__
-  char pcap_version[] = "Unknown";
-#else
+#ifdef HAVE_PCAP_VERSION
   extern char          pcap_version[];
-#endif
-#endif
-#endif
+#endif /* HAVE_PCAP_VERSION */
+#endif /* HAVE_LIBPCAP */
 
 #ifdef WIN32
   WSADATA		wsaData;
@@ -309,10 +303,14 @@ main(int argc, char *argv[])
 
 #ifdef HAVE_LIBPCAP
   g_string_append(comp_info_str, ", with libpcap ");
+#ifdef HAVE_PCAP_VERSION
   g_string_append(comp_info_str, pcap_version);
-#else
+#else /* HAVE_PCAP_VERSION */
+  g_string_append(comp_info_str, "(version unknown)");
+#endif /* HAVE_PCAP_VERSION */
+#else /* HAVE_LIBPCAP */
   g_string_append(comp_info_str, ", without libpcap");
-#endif
+#endif /* HAVE_LIBPCAP */
 
 #ifdef HAVE_LIBZ
   g_string_append(comp_info_str, ", with libz ");

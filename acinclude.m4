@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.28 2001/07/09 23:42:39 guy Exp $
+dnl $Id: acinclude.m4,v 1.29 2001/07/27 07:10:09 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -284,8 +284,9 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 	else
 	  #
 	  # The user specified a directory in which libpcap resides,
-	  # so add that directory to the include file and library
-	  # search path.
+	  # so add the "include" subdirectory of that directory to
+	  # the include file search path and the "lib" subdirectory
+	  # of that directory to the library search path.
 	  #
 	  # XXX - if there's also a libpcap in a directory that's
 	  # already in CFLAGS, CPPFLAGS, or LDFLAGS, this won't
@@ -293,8 +294,8 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 	  # as the compiler and/or linker will search that other
 	  # directory before it searches the specified directory.
 	  #
-	  CFLAGS="$CFLAGS -I$pcap_dir"
-	  CPPFLAGS="$CPPFLAGS -I$pcap_dir"
+	  CFLAGS="$CFLAGS -I$pcap_dir/include"
+	  CPPFLAGS="$CPPFLAGS -I$pcap_dir/include"
 	  AC_ETHEREAL_ADD_DASH_L(LDFLAGS, $pcap_dir/lib)
 	fi
 
@@ -313,6 +314,38 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 	  ], AC_MSG_ERROR(Library libpcap not found.),
 	  $SOCKET_LIBS $NSL_LIBS)
 	AC_SUBST(PCAP_LIBS)
+])
+
+#
+# AC_ETHEREAL_PCAP_VERSION_CHECK
+#
+# Check whether "pcap_version" is defined by libpcap.
+#
+AC_DEFUN(AC_ETHEREAL_PCAP_VERSION_CHECK,
+[
+	AC_MSG_CHECKING(whether pcap_version is defined by libpcap)
+	ac_save_LIBS="$LIBS"
+	LIBS="$PCAP_LIBS $LIBS"
+	AC_TRY_LINK([],
+	   [
+char *
+return_pcap_version(void)
+{
+	extern char pcap_version[];
+
+	return pcap_version;
+}
+	   ],
+	   ac_cv_pcap_version_defined=yes,
+	   ac_cv_pcap_version_defined=no,
+	   [echo $ac_n "cross compiling; assumed OK... $ac_c"])
+	LIBS="$ac_save_LIBS"
+	if test "$ac_cv_pcap_version_defined" = yes ; then
+		AC_MSG_RESULT(yes)
+		AC_DEFINE(HAVE_PCAP_VERSION)
+	else
+		AC_MSG_RESULT(no)
+	fi
 ])
 
 #
