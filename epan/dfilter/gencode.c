@@ -1,5 +1,5 @@
 /*
- * $Id: gencode.c,v 1.8 2002/10/16 16:32:59 gram Exp $
+ * $Id: gencode.c,v 1.9 2002/11/01 17:37:25 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,7 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo)
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*val1, *val2;
 	int		reg = -1;
+	gboolean	added_new_hfinfo = FALSE;
 
 	/* Rewind to find the first field of this name. */
 	while (hfinfo->same_name_prev) {
@@ -73,16 +74,20 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo)
 		g_hash_table_insert(dfw->loaded_fields,
 			hfinfo, GUINT_TO_POINTER(reg + 1));
 
-		insn = dfvm_insn_new(READ_TREE);
-		val1 = dfvm_value_new(HFINFO);
-		val1->value.hfinfo = hfinfo;
-		val2 = dfvm_value_new(REGISTER);
-		val2->value.numeric = reg;
+		added_new_hfinfo = TRUE;
+	}
 
-		insn->arg1 = val1;
-		insn->arg2 = val2;
-		dfw_append_insn(dfw, insn);
+	insn = dfvm_insn_new(READ_TREE);
+	val1 = dfvm_value_new(HFINFO);
+	val1->value.hfinfo = hfinfo;
+	val2 = dfvm_value_new(REGISTER);
+	val2->value.numeric = reg;
 
+	insn->arg1 = val1;
+	insn->arg2 = val2;
+	dfw_append_insn(dfw, insn);
+	
+	if (added_new_hfinfo) {
 		while (hfinfo) {
 			/* Record the FIELD_ID in hash of interesting fields. */
 			g_hash_table_insert(dfw->interesting_fields,
@@ -90,9 +95,7 @@ dfw_append_read_tree(dfwork_t *dfw, header_field_info *hfinfo)
 			    GUINT_TO_POINTER(TRUE));
 			hfinfo = hfinfo->same_name_next;
 		}
-
 	}
-
 
 	return reg;
 }
