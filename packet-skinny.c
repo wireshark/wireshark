@@ -7,7 +7,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.3 2001/10/11 16:04:36 guy Exp $
+ * $Id: packet-skinny.c,v 1.4 2001/10/20 18:42:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -204,6 +204,7 @@ static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* hdr_data_length > 1024 is just a heuristic. Better values/checks welcome */
   if (hdr_data_length < 4 || hdr_data_length > 1024 || hdr_reserved != 0) {
     /* Not an SKINNY packet, just happened to use the same port */
+    dissect_data(tvb, 0, pinfo, tree);
     return;
   }
   
