@@ -1215,7 +1215,7 @@ add_tagged_field (packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int of
       memcpy (out_buff, tag_data_ptr, (size_t) tag_len);
       out_buff[tag_len + 1] = 0;
       for (i = 0; i < tag_len; i++) {
-	  if (!isprint(out_buff[i])) {
+	  if (!isprint( (int) out_buff[i])) {
 	      out_buff[i]='.';
 	  }
       }
