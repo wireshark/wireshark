@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.1 2001/04/01 07:32:35 hagbard Exp $
+ * $Id: column-utils.c,v 1.2 2001/04/02 02:30:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,6 +27,13 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+#include <time.h>
+
+#ifdef HAVE_SYS_TIME_H
+# include <sys/time.h>
+#endif
+
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -49,9 +56,6 @@
 #include "resolv.h"
 #include "ipv6-utils.h" 
 #include "osi-utils.h"
-
-#include <string.h>
-#include <time.h>
 
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */

@@ -1,7 +1,7 @@
 /* to_str.h
  * Routines  for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.3 2001/04/01 17:35:21 hagbard Exp $
+ * $Id: to_str.c,v 1.4 2001/04/02 02:30:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,6 +27,10 @@
 # include "config.h"
 #endif
 
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
 #endif
@@ -35,12 +39,12 @@
 # include <netinet/in.h>
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
+#endif
+
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
 #endif
 
 #ifdef NEED_INET_V6DEFS_H
@@ -50,7 +54,6 @@
 #ifdef HAVE_SYS_TIME_H
 # include <sys/time.h>
 #endif
-
 
 #include "to_str.h"
 #include "resolv.h"

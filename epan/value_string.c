@@ -1,7 +1,7 @@
 /* value_string.c
  * Routines for value_strings
  *
- * $Id: value_string.c,v 1.1 2001/04/01 03:18:41 hagbard Exp $
+ * $Id: value_string.c,v 1.2 2001/04/02 02:30:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,10 @@
 #endif
 
 #include <stdio.h>
+
+#ifdef HAVE_SYS_TIME_H
+# include <sys/time.h>
+#endif
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
