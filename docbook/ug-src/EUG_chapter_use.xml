@@ -9,7 +9,7 @@
       <itemizedlist>
 	<listitem>
 	  <para>
-	    How the Ethereal user interface work
+	    How the Ethereal user interface works
 	  </para>
 	</listitem>
 	<listitem>
@@ -339,17 +339,17 @@
 		<entry></entry>
 		<entry><para>
 		    This menu item allows you to export the (or some) of the packets in 
-		    the capture file to a plain ascii text file. 
+		    the capture file to a plain ASCII text file. 
 			It pops up the Ethereal Export dialog box (which is discussed further in 
 		    <xref linkend="ChIOExportPlainDialog"/>).
 		  </para></entry>
 	      </row>
 	      <row>
-		<entry><command>Export > as "Postscript" file...</command></entry>
+		<entry><command>Export > as "PostScript" file...</command></entry>
 		<entry></entry>
 		<entry><para>
 		    This menu item allows you to export the (or some) of the packets in 
-		    the capture file to a postscript file. 
+		    the capture file to a PostScript file. 
 			It pops up the Ethereal Export dialog box (which is discussed further in 
 		    <xref linkend="ChIOExportPSDialog"/>).
 		  </para></entry>
@@ -996,7 +996,7 @@
 		<entry><command>Decode As...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows the user to force ethereal to 
+		    This menu item allows the user to force Ethereal to 
 		    decode certain packets as a particular protocol, see 
 			<xref linkend="ChAdvDecodeAs"/>
 		  </para></entry>
@@ -1005,7 +1005,7 @@
 		<entry><command>User Specified Decodes...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item allows the user to force ethereal to 
+		    This menu item allows the user to force Ethereal to 
 		    decode certain packets as a particular protocol, see 
 			<xref linkend="ChAdvDecodeAsShow"/>
 		  </para></entry>
@@ -1105,7 +1105,7 @@
 		<entry><command>Conversation List</command></entry>
 		<entry></entry>
 		<entry><para>
-		    Display a list of conversations, obsoleted be the combined window 
+		    Display a list of conversations, obsoleted by the combined window 
 			of Conversations above, see 
 			<xref linkend="ChStatConversationListWindow"/>.
 		  </para></entry>
@@ -1238,7 +1238,7 @@
 		<entry><command>Manual Pages > ...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item starts a webbrowser showing one of the locally 
+		    This menu item starts a Web browser showing one of the locally 
 			installed html manual pages.
 		  </para></entry>
 	      </row>
@@ -1246,7 +1246,7 @@
 		<entry><command>Ethereal Online > ...</command></entry>
 		<entry></entry>
 		<entry><para>
-		    This menu item tries to start a webbrowser showing a specific 
+		    This menu item tries to start a Web browser showing a specific 
 			webpage from: 
 			<ulink url="&EtherealWebSite;">&EtherealWebSite;</ulink>.
 		  </para></entry>
@@ -1261,8 +1261,8 @@
 		<entry></entry>
 		<entry><para>
 		    This menu item brings up an information window that 
-		    provides some information on Ethereal, like the plugins, the used 
-			folders, ...
+		    provides some information on Ethereal, such as the plugins, the 
+			used folders, ...
 		  </para></entry>
 	      </row>
 	    </tbody>
@@ -1577,8 +1577,8 @@
 	  <note><title>Note!</title>
 	  <para>
 	  	After you've changed something in this field, don't forget to press 
-		the Apply button (or the enter key), to apply this filter string to 
-		the display.
+		the Apply button (or the Enter/Return key), to apply this filter 
+		string to the display.
 	  </para>
 	  </note>
 	  <note><title>Note!</title>
@@ -1630,12 +1630,12 @@
     <para>
 	While dissecting a packet, Ethereal will place informations from the 
 	protocol dissectors into the columns. As higher level protocols might
-	overwrite information from lower levels, you will see the information
-	from the highest possible level only. 
+	overwrite information from lower levels, you will typically see the 
+	information from the highest possible level only. 
     </para>
     <para>	
 	For example, let's look at a packet containing TCP inside IP inside
-	an Ethernet packet. The Ethernet dissector will write it's data (like the 
+	an Ethernet packet. The Ethernet dissector will write its data (like the 
 	Ethernet addresses), the IP dissector will overwrite this by it's own 
 	(like the IP addresses), the TCP dissector will overwrite the IP 
 	information and so on.
@@ -1725,7 +1725,7 @@
 	<command>Links</command>
 	If Ethereal detected a relationship to another packet in the capture file, 
 	it will generate a link to that packet. Links are underlined and displayed 
-	in blue. If clicked, Ethereal jumps to the corresponding packet. 
+	in blue. If double-clicked, Ethereal jumps to the corresponding packet. 
     </para>	
 	</listitem>
 	</itemizedlist>
@@ -1794,8 +1794,8 @@
 		  <title>The Statusbar with a loaded capture file</title>
 		  <graphic entityref="EtherealStatusbarLoaded" format="PNG"/>
 		</figure>
-		The left side shows information about the capture file, it's 
-		name, it's size and the elapsed time while it was captured.
+		The left side shows information about the capture file, its 
+		name, its size and the elapsed time while it was captured.
 	</para>
 	<para>
 		The right side shows the current number of packets in the 

@@ -75,7 +75,7 @@
       <listitem>
 	<para>
 	  Pat Eyler, for his suggestions on improving the example on 
-	  generating a <command>backtrace</command>.
+	  generating a backtrace.
 	</para>
       </listitem>
     </itemizedlist>
@@ -87,19 +87,19 @@
       <listitem>
 	<para>
 	  Scott Renfro from whose <command>mergecap</command> man page 
-	  <xref linkend="AppToolsmergecap"/> derived.
+	  <xref linkend="AppToolsmergecap"/> is derived.
 	</para>
       </listitem>
       <listitem>
 	<para>
 	  Ashok Narayanan from whose <command>text2pcap</command> man page 
-	  <xref linkend="AppToolstext2pcap"/> derived.
+	  <xref linkend="AppToolstext2pcap"/> is derived.
 	</para>
       </listitem>
       <listitem>
 	<para>
 	  Frank Singleton from whose <filename>README.idl2eth</filename> 
-	  <xref linkend="AppToolsidl2eth"/> derived. 
+	  <xref linkend="AppToolsidl2eth"/> is derived. 
 	</para>
       </listitem>
     </itemizedlist>

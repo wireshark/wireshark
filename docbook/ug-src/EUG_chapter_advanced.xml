@@ -103,13 +103,16 @@
   </section>
   </section>
   
-  <section id="ChAdvReassemblySection"><title>Packet Reassembling</title>
+  <section id="ChAdvReassemblySection"><title>Packet Reassembling/Desegmenting</title>
+    <para>
+	XXX - rework this chapter, as it's still a bit confusing.
+	</para>
     <section><title>What is it?</title>
     <para>
 	Often network protocols needs to transport large chunks of data, which are 
 	complete in itself, e.g. when transferring a file. The underlying 
 	protocol might not be able to handle that chunk size (e.g. limitation of 
-	the network packet size), or is stream based like TCP, which doesn't know 
+	the network packet size), or is stream-based like TCP, which doesn't know 
 	data chunks at all.
     </para>
     <para>
@@ -117,6 +120,13 @@
 	(if required) spreading the data over multiple packets. It also needs a 
 	mechanism to find back the chunk boundaries on the receiving side.
     </para>
+    <note><title>Reassembling vs. Desegmenting!</title>
+    <para>
+	Desegmenting is a slightly different mechanism compared to reassembling, 
+	but doing the same thing. Both mechanisms combine traffic back together,
+	in this chapter only the term reassembling will be used.
+	</para>
+	</note>
     </section>
     <section><title>How Ethereal handles it</title>
     <para>
@@ -143,7 +153,7 @@
 	<listitem>
 	  <para>
 		In a <command>HTTP</command> GET response, the requested data (e.g. a 
-		HTML page) is returned. Ethereal will show the hexdump of the data in 
+		HTML page) is returned. Ethereal will show the hex dump of the data in 
 		a new tab "Uncompressed entity body" in the "Packet Bytes" pane.
 	  </para>
 	</listitem>
@@ -156,6 +166,44 @@
 	  </para>
 	</listitem>
 	</itemizedlist>
+    </para>
+    </section>
+	
+    <section><title>Reassembling is disabled!</title>
+    <para>
+	Reassembling is usually disabled in the preferences by default, as it 
+	slows down packet processing a bit. 
+    </para>
+    <para>
+	Enabling reassembling of a protocol typically requires two things:
+	<orderedlist>
+	<listitem>
+    <para>
+	the lower level protocol (e.g., TCP) must support
+	reassembly. Often this reassembly can be enabled or disabled at will
+	via the protocol preferences.
+    </para>
+	</listitem>
+	<listitem>
+    <para>
+	the higher level protocol (e.g., HTTP) must use the
+	reassembly mechanism to reassemble fragmented protocol data. This too
+	can often be enabled or disabled via the protocol preferences.
+    </para>
+	</listitem>
+	</orderedlist>
+    </para>
+    <para>
+	As a result, if reassembly of protocol Y on top of protocol X 
+	must be enabled, it is wise to take a look at the protocol preferences for
+	both protocols. Check whether protocol X allows subdissectors to
+	reassemble, and check whether protocol Y supports reassembly 
+	and has it enabled.
+    </para>
+    <para>
+	For example: if you have HTTP on top of TCP, you have to enable the TCP 
+	preference "Allow subdissectors to reassemble" and enable the HTTP 
+	preference "Reassemble".
     </para>
     </section>
   </section>
@@ -178,8 +226,8 @@
     </note>
     <note><title>Note!</title>
     <para>
-	The resolved names are not stored in the capture file or somewhere else. 
-	So the resolved names might not be available if you open the capture file
+	The resolved names are not stored in the capture file or somewhere else, 
+	so the resolved names might not be available if you open the capture file
 	later or on another machine.
     </para>
     </note>
@@ -214,13 +262,13 @@
 	</section>
 	<section><title>Transport Layer</title>
     <para><command>TCP/UDP port conversion</command>
-	Convert a TCP or UDP port to it's well known name (e.g. 80 -> http).
+	Convert a TCP or UDP port to its well known name (e.g. 80 -> http).
     </para>
 	</section>
 	<section><title>ADNS</title>
 	<para>
 	As noted, DNS resolvings can significantly slow down Ethereal and make it 
-	appear freezed, which can be very annoying. To solve this, Ethereal can use
+	appear frozen, which can be very annoying. To solve this, Ethereal can use
 	the ADNS library, which handles DNS calls asynchronous.
 	</para>
 	</section>

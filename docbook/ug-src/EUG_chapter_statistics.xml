@@ -85,7 +85,7 @@
 	network and not loaded from a file).</para>
 	</listitem>
 	<listitem>
-	<para><command>Display</command> some display related informations.</para>
+	<para><command>Display</command> some display related information.</para>
 	</listitem>
 	<listitem>
 	<para>
@@ -117,18 +117,18 @@
 	The following columns containing the statistical values are available:
 	<itemizedlist>
 	<listitem>
-	<para><command>Protocol</command> this protocols name</para>
+	<para><command>Protocol</command> this protocol's name</para>
 	</listitem>
 	<listitem>
 	<para><command>% Packets</command> the percentage of protocol packets, 
 	relative to all packets in the capture</para>
 	</listitem>
 	<listitem>
-	<para><command>Packets</command> the absolute amount of packets of this 
+	<para><command>Packets</command> the absolute number of packets of this 
 	protocol</para>
 	</listitem>
 	<listitem>
-	<para><command>Bytes</command> the absolute amount of bytes of this 
+	<para><command>Bytes</command> the absolute number of bytes of this 
 	protocol</para>
 	</listitem>
 	<listitem>
@@ -137,13 +137,13 @@
 	</listitem>
 	<listitem>
 	<para>
-	<command>End Packets</command> the absolute amount of packets of this 
+	<command>End Packets</command> the absolute number of packets of this 
 	protocol (where this protocol were the highest protocol to decode)
 	</para>
 	</listitem>
 	<listitem>
 	<para>
-	<command>End Bytes</command> the absolute amount of bytes of this protocol 
+	<command>End Bytes</command> the absolute number of bytes of this protocol 
 	(where this protocol were the highest protocol to decode)
 	</para>
 	</listitem>
@@ -159,7 +159,7 @@
 	<para>
 	Packets will usually contain multiple protocols, so more than one protocol 
 	will be counted for each packet.
-	Example: In the screenshot IP have 99,17% and TCP 85,83% (which is together 
+	Example: In the screenshot IP has 99,17% and TCP 85,83% (which is together 
 	much more than 100%).
 	</para>
 	</note>
@@ -197,12 +197,13 @@
 	</listitem>
 	<listitem>
     <para>
-	<command>FDDI</command> XXX - insert info here.
+	<command>FDDI</command> a FDDI endpoint is identical to the FDDI MAC 
+	address.
     </para>
 	</listitem>
 	<listitem>
     <para>
-	<command>IPv4</command> an IP endpoint is identical to it's IP address.
+	<command>IPv4</command> an IP endpoint is identical to its IP address.
     </para>
 	</listitem>
 	<listitem>
@@ -213,26 +214,27 @@
 	<listitem>
     <para>
 	<command>TCP</command> a TCP endpoint is a combination of the IP address 
-	and the TCP port used. So different TCP ports on the same IP address are
+	and the TCP port used, so different TCP ports on the same IP address are
 	different TCP endpoints.
     </para>
 	</listitem>
 	<listitem>
     <para>
-	<command>Token Ring</command> XXX - insert info here.
+	<command>Token Ring</command> a Token Ring endpoint is identical to the 
+	Token Ring MAC address.
     </para>
 	</listitem>
 	<listitem>
     <para>
 	<command>UDP</command> a UDP endpoint is a combination of the IP address 
-	and the UDP port used. So different UDP ports on the same IP address are
+	and the UDP port used, so different UDP ports on the same IP address are
 	different UDP endpoints.
     </para>
 	</listitem>
 	</itemizedlist>	
 	<note><title>Broadcast / multicast endpoints</title>
 	<para>
-	Broadcast / multicast traffic will be seperately accounted as additional
+	Broadcast / multicast traffic will be separately accounted as additional
 	endpoints. Of course, as these endpoints are virtual endpoints, the real 
 	traffic will be received by all (multicast: some) of the listed unicast 
 	endpoints.
@@ -277,7 +279,7 @@
   <section id="ChStatEndpointListWindow">
     <title>The protocol specific "Endpoint List" windows</title>
 	<para>
-	Before the combined window described above was available, each of it's 
+	Before the combined window described above was available, each of its 
 	pages were shown as seperate windows. Even as the combined window is 
 	much more convenient to use, these seperate windows are still 
 	available. The main reason is, they might process faster for 
@@ -313,7 +315,7 @@
 	<section id="ChStatConversationListWindow">
 	<title>The protocol specific "Conversation List" windows</title>
     <para>
-	Before the combined window described above was available, each of it's 
+	Before the combined window described above was available, each of its 
 	pages were shown as seperate windows. Even as the combined window is 
 	much more convenient to use, these seperate windows are still 
 	available. The main reason is, they might process faster for 

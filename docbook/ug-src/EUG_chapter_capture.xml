@@ -99,15 +99,23 @@ ethereal -i eth0 -k
 		This checkbox allows you to specify that Ethereal 
 		should set the interface in promiscuous mode when capturing. 
 		If you do not specify this, Ethereal will only capture the 
-		packets going to or from your computer ( not 
-		all packets going by your interface).
+		packets going to or from your computer (not 
+		all packets on your LAN segment).
 	      </para>
 	      <note>
 		<title>Note</title>
 		<para>
 		  If some other process has put the interface in 
-		  promiscuous mode you may be capturing in promiscous 
+		  promiscuous mode you may be capturing in promiscuous 
 		  mode even if you turn off this option
+		</para>
+	      </note>
+	      <note>
+		<title>Note</title>
+		<para>
+		Even in promiscuous mode you still won't necessarily see all packets 
+		on your LAN segment, see <ulink url="&EtherealFAQPromiscPage;"/> for 
+		some more explanations.
 		</para>
 	      </note>
 	    </listitem>
@@ -120,8 +128,30 @@ ethereal -i eth0 -k
 		sometimes referred to as the <command>snaplen</command>. If disabled, 
 		the default is 65535, which will be sufficient for most 
 		protocols. The value should be at least the MTU for the interface 
-		you are capturing on.
+		you are capturing on. Some rules of thumb:
 	      </para>
+		<itemizedlist>
+	    <listitem>
+	      <para>
+		  If you are unsure, just keep the default value.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		  You may want to choose a small snapshot length, as it reduces CPU time 
+		  for copying packets, less buffer space is required and perhaps fewer 
+		  packets dropped if traffic is very heavy.
+	      </para>
+	    </listitem>
+	    <listitem>
+	      <para>
+		  You may not want a small snapshot length, as you don't get all the 
+		  packet data, the stuff you want might be in the part that's 
+		  dropped or reassembly might not be possible as required data for it
+		  is missing.
+	      </para>
+	    </listitem>
+		</itemizedlist>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry><term><command>Capture Filter</command></term>
@@ -152,11 +182,14 @@ ethereal -i eth0 -k
 	    <listitem>
 	      <para>
 			This field allows you to specify the file name that will be 
-			used for the capture file. There is no default for this value. 
+			used for the capture file. This field is left blank by default.
+			If the field is left blank, the capture data will be stored in a 
+			temporary file, see <xref linkend="ChCapCaptureFiles"/> for 
+			details.
 	      </para>
 	      <para>
-			You can also click on the button right to this field to browse 
-			through the filesystem.
+			You can also click on the button to the right of this field to 
+			browse through the filesystem.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -188,7 +221,7 @@ ethereal -i eth0 -k
 	  <varlistentry><term><command>Ring buffer with n files</command></term>
 	    <listitem>
 	      <para>
-			Multiple files only: Form a ringbuffer of the capture files, with 
+			Multiple files only: Form a ring buffer of the capture files, with 
 			the given number of files.
 	      </para>
 	    </listitem>
@@ -208,7 +241,7 @@ ethereal -i eth0 -k
 	  <varlistentry><term><command>... after n packet(s)</command></term>
 	    <listitem>
 	      <para>
-			Stop capturing, after the given number of packets were 
+			Stop capturing, after the given number of packets have been
 			captured.
 	      </para>
 	    </listitem>
@@ -217,7 +250,7 @@ ethereal -i eth0 -k
 	    <listitem>
 	      <para>
 			Stop capturing, after the given number of 
-			byte(s)/kilobyte(s)/megabyte(s)/gigabyte(s) were captured.
+			byte(s)/kilobyte(s)/megabyte(s)/gigabyte(s) have been captured.
 			This option is greyed out, if "Use multiple files" is selected.
 	      </para>
 	    </listitem>
@@ -226,7 +259,7 @@ ethereal -i eth0 -k
 	    <listitem>
 	      <para>
 			Stop capturing, after the given number of 
-			second(s)/minutes(s)/hours(s)/days(s) expired.
+			second(s)/minutes(s)/hours(s)/days(s) have elapsed.
 	      </para>
 	    </listitem>
 	  </varlistentry>
@@ -367,7 +400,7 @@ ethereal -i eth0 -k
 	As it keeps these informations only for the loaded file, using one of 
 	the multiple file modes may cut these contexts, If the establishing phase 
 	is saved in one file and the things you would like to see is in another, 
-	so you might not see some of the valuable context related information.
+	you might not see some of the valuable context related information.
 	</para>
 	</note>
 	<tip><title>Tip!</title>
@@ -414,7 +447,7 @@ ethereal -i eth0 -k
 		<entry>foo_00001_20040205110102.cap, foo_00002_20040205110102.cap, ...</entry>
 	      </row>
 	      <row>
-		<entry><command>Multiple files, ringbuffer</command></entry>
+		<entry><command>Multiple files, ring buffer</command></entry>
 		<entry>foo.cap</entry>
 		<entry>x</entry>
 		<entry>x</entry>
@@ -447,14 +480,14 @@ ethereal -i eth0 -k
 	    <term><command>Multiple files, continuous</command></term>
 	    <listitem>
 	<para>
-	Like the "Single file named" mode, but a new file is created and used, 
+	Like the "Single named file" mode, but a new file is created and used, 
 	after reaching one of the multiple file switch conditions (one of the 
 	"Next file every ..." values).
 	</para>
 	    </listitem>
 	  </varlistentry>
 	  <varlistentry>
-	    <term><command>Multiple files, ringbuffer</command></term>
+	    <term><command>Multiple files, ring buffer</command></term>
 	    <listitem>
 	<para>
 	Much like "Multiple files continuous", reaching one of the multiple files 
@@ -475,8 +508,8 @@ ethereal -i eth0 -k
   <section id="ChCapCaptureFilterSection"><title>Filtering while capturing</title>
     <para>
       Ethereal uses the libpcap filter language for capture filters. 
-      This is explained in the tcpdump man page. If you can understand 
-      it, you are a better man that I am, Gunga Din!
+      This is explained in the tcpdump man page, which can be hard to 
+	  understand, so it's explained here to some extend.
     </para>
     <para>
       You enter the capture filter into the Filter field of the Ethereal 

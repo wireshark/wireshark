@@ -37,19 +37,26 @@
       menu item from the <command>File</command> menu.  
       Ethereal will then pop up the File 
       Open dialog box, which is discussed in more detail in 
-      <xref linkend="ChIOOpen"/>. You can also use <command>drag-and-drop
-	  </command> to open a file, by simply dropping the desired file from 
-	  your file manager onto Ethereal's main window.
+      <xref linkend="ChIOOpen"/>. 
     </para>
+	<note><title>Note!</title>
+    <para>
+	You can also use <command>drag-and-drop </command> to open a file, by 
+	simply dropping the desired file from your file manager onto Ethereal's 
+	main window. However, drag-and-drop is not available/won't work on all 
+	desktop environments.
+    </para>
+    </note>
     <para>
 	  If you didn't save the current capture file before, you will be asked 
-	  to do so, to prevent data loss (this behaviour can be disabled by 
+	  to do so, to prevent data loss (this behaviour can be disabled in the 
 	  preferences).
     </para>
     <para>
-	  In addition to it's native file format libpcap, Ethereal can read 
-	  capture files from a large number of other packet capture programs as 
-	  well. See <xref linkend="ChIOInputFormatsSection"/> for the list of 
+	  In addition to its native file format (libpcap format, also used by 
+	  tcpdump/WinDump and other libpcap/WinPcap-based programs), Ethereal can 
+	  read capture files from a large number of other packet capture programs 
+	  as well. See <xref linkend="ChIOInputFormatsSection"/> for the list of 
 	  capture formats Ethereal understands.
     </para>
 	
@@ -63,11 +70,12 @@
 	    <note>
 	      <title>Note</title>
 	      <para>
-		  Ethereal uses the open dialog box from it's underlying GTK toolkit.
-		  This dialog was completely redesigned in the GTK version 2.4. 
-		  As not all Ethereal distributions may have already updated, 
-		  your dialog box might be looking different. But as the functionality
-		  remains almost the same, you will still be able to get the point.
+		  Ethereal uses the open dialog box from the version of the GTK+ 
+		  toolkit that it's using. This dialog was completely redesigned in 
+		  the GTK version 2.4. Depending on the installed GTK version, 
+		  your dialog box might be looking different. However, as the 
+		  functionality remains almost the same, much of this description 
+		  will work with your version of Ethereal.
 	      </para>
 	    </note>
       <figure id="ChIOOpenFileDialog">
@@ -79,12 +87,16 @@
 	<orderedlist>
 	  <listitem>
 	    <para>
-		  XXX - how does the +Add button work?
+		The "+ Add" button allows you to add a directory, selected in the 
+		right-hand pane, to the favorites (bookmarks?) list. Those changes 
+		are persistent.
 	    </para>
 	  </listitem>
 	  <listitem>
 	    <para>
-		  XXX - how does the -Remove button work?
+		The "- Remove" button allows you to remove a selected directory from 
+		that list again (the items like: "Home", "Desktop", and "Filesystem" 
+		cannot be removed).
 	    </para>
 	  </listitem>
 	  <listitem>
@@ -170,6 +182,15 @@
 		  <listitem><para>Linux Bluez Bluetooth stack hcidump -w traces</para></listitem>
 	</itemizedlist>
     </para>
+    <note><title>Note!</title>
+	<para>
+	It may not be possible to read some formats dependant on the packet types 
+	captured. Ethernet captures are usually supported for most file formats, 
+	but other packet types (e.g. token ring packets) may not be possible to 
+	read from all file formats.
+	</para>
+	</note>
+	
   </section>
 
   </section>
@@ -191,11 +212,12 @@
 	    <note>
 	      <title>Note</title>
 	      <para>
-		  Ethereal uses the save dialog box from it's underlying GTK toolkit.
-		  This dialog was completely redesigned in the GTK version 2.4. 
-		  As not all Ethereal distributions may have already updated, 
-		  your dialog box might be looking different. But as the functionality
-		  remains almost the same, you will still be able to get the point.
+		  Ethereal uses the open dialog box from the version of the GTK+ 
+		  toolkit that it's using. This dialog was completely redesigned in 
+		  the GTK version 2.4. Depending on the installed GTK version, 
+		  your dialog box might be looking different. However, as the 
+		  functionality remains almost the same, much of this description 
+		  will work with your version of Ethereal.
 	      </para>
 	    </note>
       <figure id="ChIOSaveCaptureFileAs">
@@ -283,6 +305,18 @@
 	      <listitem><para>Networks Instruments Observer version 9</para></listitem>
 	</itemizedlist>
     </para>
+	<note><title></title>
+	<para>
+	Other protocol analyzers may require that the file has a certain suffix 
+	in order to read the files you generate with Ethereal, e.g.:
+	</para>
+	<para>
+	".DMP" for Tcpdump/libpcap
+	</para>
+	<para>
+	".CAP" for Network Assosciates Sniffer Windows
+	</para>
+	</note>
   </section>	
   </section>
   
@@ -401,12 +435,12 @@
 	  </para>
     </section>
 	<section id="ChIOExportPSDialog">
-	<title>The "Export as Postscript File" dialog box</title>
+	<title>The "Export as PostScript File" dialog box</title>
 	  <para>
-	    Export packet data into postscript, much like the format used 
+	    Export packet data into PostScript, much like the format used 
 		to print packets.
     <figure>
-      <title>The "Export as Postscript File" dialog box</title>
+      <title>The "Export as PostScript File" dialog box</title>
       <graphic entityref="EtherealExportPSDialog" format="PNG"/>
     </figure>
 	<itemizedlist>
@@ -534,8 +568,8 @@
 		<listitem>
 		  <para>
 		    <command>PostScipt</command> specifies, that 
-		    the packet print process should use Postscript to 
-		    generate a better print output on postscript aware printers.
+		    the packet print process should use PostScript to 
+		    generate a better print output on PostScript aware printers.
 		  </para>
 		</listitem>
 		<listitem>
@@ -648,7 +682,7 @@ lpr -Pmypostscript
 		  <command>Specify a packet range</command> process a user specified 
 		  range of packets, e.g. specifying <command>5,10-15,20-</command> will 
 		  process the packet number five, the packets from packet number ten 
-		  to fifteen (including) and every packet from number twenty to the 
+		  to fifteen (inclusive) and every packet from number twenty to the 
 		  end of the capture.
 		  </para>
 		</listitem>
@@ -701,13 +735,14 @@ lpr -Pmypostscript
 		<listitem>
 		  <para>
 		  <command>Packet bytes</command> enable the output of the packet 
-		  bytes.
+		  bytes, just as in the "Packet Bytes" pane.
 		  </para>
 		</listitem>
 		<listitem>
 		  <para>
-		  <command>Each packet on a new page</command> put some kind of 
-		  formfeed (suitable for the output format) between each packet.
+		  <command>Each packet on a new page</command> put each packet on a 
+		  separate page (e.g. when saving/printing to a text file, this will 
+		  put a form feed character between the packets).
 		  </para>
 		</listitem>
 	</itemizedlist>
