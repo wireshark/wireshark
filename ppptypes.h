@@ -1,7 +1,7 @@
 /* ppptypes.h
  * Defines PPP packet types.
  *
- * $Id: ppptypes.h,v 1.3 2001/01/10 09:07:35 guy Exp $
+ * $Id: ppptypes.h,v 1.4 2001/01/10 09:34:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,14 +73,21 @@
  * Protocol types for the Cisco HDLC format.
  *
  * As per the above, according to RFC 1547, these are "standard 16 bit
- * Ethernet protocol type code[s]", but 0x8035 is Reverse ARP, so, unless
- * Cisco SLARP looks just like Reverse ARP, that's not quite true.
+ * Ethernet protocol type code[s]", but 0x8035 is Reverse ARP, and
+ * that is (at least according to the Linux ISDN code) not the
+ * same as Cisco SLARP.
+ *
  * In addition, 0x2000 is apparently the Cisco Discovery Protocol, but
  * on Ethernet those are encapsulated inside SNAP with an OUI of
  * OUI_CISCO, not OUI_ENCAP_ETHER.
  *
- * If it *is* true, that'd be lovely, as we could just use
- * "ethertype()" to handle Cisco HDLC.
+ * Perhaps we should set up a protocol table for those protocols
+ * that differ between Ethernet and Cisco HDLC, and have the PPP
+ * code first try that table and, if it finds nothing in that
+ * table, call "ethertype()".  (Unfortunately, that means that -
+ * assuming we had a Cisco SLARP dissector - said dissector were
+ * disabled, SLARP packets would be dissected as Reverse ARP
+ * packets, not as data.
  */
 #define CISCO_SLARP	0x8035	/* Cisco SLARP protocol */
 
