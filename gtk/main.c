@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.229 2002/01/13 20:35:11 guy Exp $
+ * $Id: main.c,v 1.230 2002/01/18 07:29:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -233,24 +233,24 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
     filter_te = gtk_object_get_data(GTK_OBJECT(data), E_DFILTER_TE_KEY);
     g_assert(filter_te);
 
-    ptr = gtk_entry_get_text(GTK_ENTRY(filter_te));
+    ptr = gtk_editable_get_chars(GTK_EDITABLE(filter_te),0,-1);
 
     switch (action&MATCH_SELECTED_MASK) {
 
     case MATCH_SELECTED_REPLACE:
-	ptr = text;
+	ptr = g_strdup(text);
 	break;
 
     case MATCH_SELECTED_AND:
 	if ((!ptr) || (0 == strlen(ptr)))
-	    ptr = text;
+	    ptr = g_strdup(text);
 	else
 	    ptr = g_strconcat("(", ptr, ") && (", text, ")", NULL);
 	break;
 
     case MATCH_SELECTED_OR:
 	if ((!ptr) || (0 == strlen(ptr)))
-	    ptr = text;
+	    ptr = g_strdup(text);
 	else
 	    ptr = g_strconcat("(", ptr, ") || (", text, ")", NULL);
 	break;
@@ -284,9 +284,9 @@ match_selected_cb_do(gpointer data, int action, gchar *text)
     if (action&MATCH_SELECTED_APPLY_NOW)
 	filter_packets(&cfile, ptr);
 
-    /* Don't g_free(text) here. filter_packets() will do it the next time
+    /* Don't g_free(ptr) here. filter_packets() will do it the next time
        it's called. */
-    /* XXX - what about ptr? */
+    g_free(text);
 }
 
 void
