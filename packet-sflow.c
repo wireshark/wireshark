@@ -2,7 +2,7 @@
  * Routines for sFlow dissection
  * Copyright 2003, Jeff Rizzo <riz@boogers.sf.ca.us>
  *
- * $Id: packet-sflow.c,v 1.1 2003/06/13 22:31:11 guy Exp $
+ * $Id: packet-sflow.c,v 1.2 2003/06/14 23:50:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -544,6 +544,7 @@ dissect_sflow_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 	case SFLOW_PACKET_DATA_TYPE_IPV4:
 	case SFLOW_PACKET_DATA_TYPE_IPV6:
 	default:
+		break;
 	};
 	/* still need to dissect extended data */
 	extended_data = tvb_get_ntohl(tvb,offset);
