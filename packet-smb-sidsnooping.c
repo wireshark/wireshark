@@ -2,7 +2,7 @@
  * Routines for snooping SID to name mappings
  * Copyright 2003, Ronnie Sahlberg
  *
- * $Id: packet-smb-sidsnooping.c,v 1.5 2003/05/22 11:03:15 sahlberg Exp $
+ * $Id: packet-smb-sidsnooping.c,v 1.6 2003/05/22 11:48:28 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -92,6 +92,7 @@ add_sid_name_mapping(char *sid, char *name)
 /*
  * PolicyInformation :
  * level  3 : PRIMARY_DOMAIN_INFO lsa.domain_sid -> lsa.domain
+ * level  5 : ACCOUNT_DOMAIN_INFO lsa.domain_sid -> lsa.domain
  * level 12 : DNS_DOMAIN_INFO     lsa.domain_sid -> lsa.domain
  */
 static int
@@ -112,6 +113,7 @@ lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *
 
 	switch(info_level){
 	case 3:
+	case 5:
 	case 12:
 		gp=proto_get_finfo_ptr_array(edt->tree, hf_lsa_domain);
 		if(!gp || gp->len!=1){
