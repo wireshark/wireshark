@@ -5,7 +5,7 @@
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-06.txt
  * Optionally, supports the protocol described in: draft-ietf-ips-iscsi-03.txt
  *
- * $Id: packet-iscsi.c,v 1.1 2001/05/30 18:52:37 guy Exp $
+ * $Id: packet-iscsi.c,v 1.2 2001/05/31 08:54:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1564,24 +1564,24 @@ proto_register_iscsi(void)
 	module_t *iscsi_module = prefs_register_protocol(proto_iscsi, NULL);
 
 	prefs_register_bool_preference(iscsi_module,
-				       "version03compatible", 
+				       "version_03_compatible", 
 				       "Enable 03 compatibility mode",
 				       "When enabled, assume packets conform to the legacy 03 version of the iSCSI specification",
 				       &enable_03_mode);
 	prefs_register_bool_preference(iscsi_module,
-				       "boguspdufilter", 
+				       "bogus_pdu_filter", 
 				       "Enable bogus pdu filter",
 				       "When enabled, packets that appear bogus are ignored",
 				       &enable_bogosity_filter);
 
 	prefs_register_uint_preference(iscsi_module,
-				       "boguspdumaxdatalen", 
+				       "bogus_pdu_max_data_len", 
 				       "Bogus pdu max data length threshold",
 				       "Treat packets whose data segment length is greater than this value as bogus",
 				       10,
 				       &bogus_pdu_data_length_threshold);
 	prefs_register_uint_preference(iscsi_module,
-				       "boguspdumaxdigestpadding", 
+				       "bogus_pdu_max_digest_padding", 
 				       "Bogus pdu max digest padding",
 				       "Treat packets whose apparent total digest size is greater than this value as bogus",
 				       10,
