@@ -2,7 +2,7 @@
  * Structures and functions for NetWare Core Protocol.
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp-int.h,v 1.8 2002/05/16 09:59:52 guy Exp $
+ * $Id: packet-ncp-int.h,v 1.9 2002/05/17 23:17:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,7 @@ struct _ptvc_record {
 	unsigned int	endianness	: 1; /* 0=BE, 1=LE */
 	unsigned int	var_index	: 2;
 	unsigned int	repeat_index	: 2;
-	unsigned int	req_cond_index	: 6;
+	unsigned int	req_cond_index	: 8;
 	unsigned int	special_fmt	: 2;
 };
 
