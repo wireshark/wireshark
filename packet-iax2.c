@@ -8,7 +8,7 @@
  * IAX2 is a VoIP protocol for the open source PBX Asterisk. Please see
  * http://www.asterisk.org for more information.
  *
- * $Id: packet-iax2.c,v 1.2 2004/01/27 01:43:41 guy Exp $
+ * $Id: packet-iax2.c,v 1.3 2004/01/27 20:25:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -542,7 +542,7 @@ proto_register_iax2 (void)
       "",
       HFILL}},
     {&hf_iax2_type,
-     {"Type", "iax2.type", FT_INT8, BASE_DEC, VALS (iax_frame_types),
+     {"Type", "iax2.type", FT_UINT8, BASE_DEC, VALS (iax_frame_types),
       0x0, "",
       HFILL}},
     {&hf_iax2_csub,
