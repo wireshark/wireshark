@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.107 2003/03/03 23:46:48 sahlberg Exp $
+ * $Id: packet-udp.c,v 1.108 2003/06/04 08:43:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -241,8 +241,20 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pinfo->srcport = udph->uh_sport;
   pinfo->destport = udph->uh_dport;
 
-/* call sub-dissectors */
-  decode_udp_ports( tvb, offset, pinfo, tree, udph->uh_sport, udph->uh_dport);
+  /*
+   * Call sub-dissectors.
+   *
+   * XXX - should we do this if this is included in an error packet?
+   * It might be nice to see the details of the packet that caused the
+   * ICMP error, but it might not be nice to have the dissector update
+   * state based on it.
+   * Also, we probably don't want to run UDP taps on those packets.
+   *
+   * We definitely don't want to do it for an error packet if there's
+   * nothing left in the packet.
+   */
+  if (!pinfo->in_error_pkt || tvb_length_remaining(tvb, offset) > 0)
+    decode_udp_ports(tvb, offset, pinfo, tree, udph->uh_sport, udph->uh_dport);
   tap_queue_packet(udp_tap, pinfo, udph);
 }
 
