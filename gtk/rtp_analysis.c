@@ -10,6 +10,10 @@
  * Copyright 2003, Iskratel, Ltd, Kranj
  * By Miha Jemec <m.jemec@iskratel.si>
  *
+ * Graph. Copyright 2004, Verso Technology
+ * By Alejandro Vaquero <alejandro.vaquero@verso.com>
+ * Based on io_stat.c by Ronnie Sahlberg 
+ *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
@@ -55,6 +59,9 @@
 #include "rtp_pt.h"
 
 /* in /gtk ... */
+#include <gtk/gtk.h>
+#include "gtkglobals.h"
+
 #include "dlg_utils.h"
 #include "ui_util.h"
 #include "alert_box.h"
@@ -63,6 +70,7 @@
 #include "main.h"
 #include "progress_dlg.h"
 #include "compat_macros.h"
+#include "../color.h"
 
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
@@ -96,6 +104,61 @@ typedef struct column_arrows {
 	GtkWidget *descend_pm;
 } column_arrows;
 
+#define NUM_GRAPH_ITEMS 100000
+#define MAX_YSCALE 16
+#define AUTO_MAX_YSCALE 0
+#define MAX_GRAPHS 4
+#define GRAPH_FWD_JITTER 0
+#define GRAPH_FWD_DIFF 1
+#define GRAPH_REV_JITTER 2
+#define GRAPH_REV_DIFF 3
+static guint32 yscale_max[MAX_YSCALE] = {AUTO_MAX_YSCALE, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000, 20000000, 50000000};
+
+#define MAX_PIXELS_PER_TICK 4
+#define DEFAULT_PIXELS_PER_TICK 1
+static guint32 pixels_per_tick[MAX_PIXELS_PER_TICK] = {1, 2, 5, 10};
+static char *graph_descr[4] = {"Fwd Jitter", "Fwd Difference", "Rvr Jitter", "Rvr Difference"};
+/* unit is in ms */
+#define MAX_TICK_VALUES 5
+#define DEFAULT_TICK_VALUE 1
+static guint tick_interval_values[MAX_TICK_VALUES] = { 1, 10, 100, 1000, 10000 };
+typedef struct _dialog_graph_graph_item_t {
+	guint32 value;
+	guint32 flags;
+} dialog_graph_graph_item_t;
+
+typedef struct _dialog_graph_graph_t {
+	struct _user_data_t *ud;	
+        dialog_graph_graph_item_t items[NUM_GRAPH_ITEMS];
+        int plot_style;
+        gboolean display;
+        GtkWidget *display_button;
+        int hf_index;
+        GdkColor color;
+        GdkGC *gc;
+	gchar title[100];
+} dialog_graph_graph_t;
+
+
+typedef struct _dialog_graph_t {
+	gboolean needs_redraw;
+        gint32 interval;    /* measurement interval in ms */
+        guint32 last_interval;
+        guint32 max_interval; /* XXX max_interval and num_items are redundant */
+        guint32 num_items;
+	struct _dialog_graph_graph_t graph[MAX_GRAPHS];
+        GtkWidget *window;
+        GtkWidget *draw_area;
+        GdkPixmap *pixmap;
+        GtkAdjustment *scrollbar_adjustment;
+        GtkWidget *scrollbar;
+        int pixmap_width;
+        int pixmap_height;
+        int pixels_per_tick;
+        int max_y_units;
+	double start_time;
+} dialog_graph_t;	
+
 typedef struct _dialog_data_t {
 	GtkWidget *window;
 	GtkCList *clist_fwd;
@@ -108,7 +171,9 @@ typedef struct _dialog_data_t {
 	GtkCList *selected_clist;
 	GtkWidget *save_voice_as_w;
 	GtkWidget *save_csv_as_w;
+	gint notebook_signal_id;
 	gint selected_row;
+        dialog_graph_t dialog_graph;
 #ifdef USE_CONVERSATION_GRAPH
 	GtkWidget *graph_window;
 #endif
@@ -178,6 +243,10 @@ typedef enum {
 	TAP_RTP_NO_DATA
 } error_type_t; 
 
+#if GTK_MAJOR_VERSION < 2
+GtkRcStyle *rc_style;
+GdkColormap *colormap;
+#endif
 
 /****************************************************************************/
 /* structure that holds the information about the forward and reversed direction */
@@ -192,6 +261,7 @@ typedef struct _tap_rtp_stat_t {
 	guint32 delta_timestamp;
 	double delay;
 	double jitter;
+	double diff;
 	double time;
 	double start_time;
 	double max_delay;
@@ -266,8 +336,8 @@ typedef struct _user_data_t {
 static gchar *titles[8] =  {
 	"Packet",
 	"Sequence",
-	"Delay (s)",
-	"Jitter (s)",
+	"Delay (ms)",
+	"Jitter (ms)",
 	"Marker",
 	"Status",
 	"Date",
@@ -277,6 +347,16 @@ static gchar *titles[8] =  {
 
 typedef const guint8 * ip_addr_p;
 
+static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_);
+/****************************************************************************/
+static void enable_graph(dialog_graph_graph_t *dgg)
+{
+        
+        dgg->display=TRUE;
+
+}
+
+static void dialog_graph_reset(user_data_t* user_data);
 
 /****************************************************************************/
 /* TAP FUNCTIONS */
@@ -287,13 +367,14 @@ static void
 rtp_reset(void *user_data_arg)
 {
 	user_data_t *user_data = user_data_arg;
-
 	user_data->forward.statinfo.first_packet = TRUE;
 	user_data->reversed.statinfo.first_packet = TRUE;
 	user_data->forward.statinfo.max_delay = 0;
 	user_data->reversed.statinfo.max_delay = 0;
 	user_data->forward.statinfo.delay = 0;
 	user_data->reversed.statinfo.delay = 0;
+        user_data->forward.statinfo.diff = 0;
+        user_data->reversed.statinfo.diff = 0;
 	user_data->forward.statinfo.jitter = 0;
 	user_data->reversed.statinfo.jitter = 0;
 	user_data->forward.statinfo.timestamp = 0;
@@ -324,6 +405,13 @@ rtp_reset(void *user_data_arg)
 	user_data->forward.saveinfo.saved = FALSE;
 	user_data->reversed.saveinfo.saved = FALSE;
 
+	/* clear the dialog box clists */
+	gtk_clist_clear(GTK_CLIST(user_data->dlg.clist_fwd));
+	gtk_clist_clear(GTK_CLIST(user_data->dlg.clist_rev));
+
+	/* reset graph info */
+	dialog_graph_reset(user_data);
+
 #ifdef USE_CONVERSATION_GRAPH
 	if (user_data->dlg.graph_window != NULL)
 		window_destroy(user_data->dlg.graph_window);
@@ -347,6 +435,61 @@ rtp_reset(void *user_data_arg)
 	if (user_data->reversed.saveinfo.fp == NULL)
 		user_data->reversed.saveinfo.error_type = TAP_RTP_FILE_OPEN_ERROR;
 	return;
+}
+
+/****************************************************************************/
+static int rtp_packet_add_graph(dialog_graph_graph_t *dgg, tap_rtp_stat_t *statinfo, packet_info *pinfo, struct _rtp_info *rtpinfo, guint32 value)
+{
+        dialog_graph_graph_item_t *it;
+        int idx;
+	double rtp_time;
+
+        /* we sometimes get called when dgg is disabled.
+           this is a bug since the tap listener should be removed first */
+        if(!dgg->display){
+                return 0;
+        }
+
+        dgg->ud->dlg.dialog_graph.needs_redraw=TRUE;
+
+        /*
+         * Find which interval this is supposed to to in and store the
+         * interval index as idx
+         */
+	if (dgg->ud->dlg.dialog_graph.start_time == -1){ /* it is the first */
+		dgg->ud->dlg.dialog_graph.start_time = statinfo->start_time;
+	}	
+	rtp_time = ((double)pinfo->fd->rel_secs + (double) pinfo->fd->rel_usecs/1000000) - dgg->ud->dlg.dialog_graph.start_time;
+	if(rtp_time<0){
+		return FALSE;
+	}	
+	idx = (guint32)(rtp_time*1000)/dgg->ud->dlg.dialog_graph.interval;
+
+        /* some sanity checks */
+        if((idx<0)||(idx>=NUM_GRAPH_ITEMS)){
+                return FALSE;
+        }
+
+        /* update num_items */
+        if((guint32)idx > dgg->ud->dlg.dialog_graph.num_items){
+                dgg->ud->dlg.dialog_graph.num_items=idx;
+                dgg->ud->dlg.dialog_graph.max_interval=idx*dgg->ud->dlg.dialog_graph.interval;
+        }
+
+        /*
+         * Find the appropriate dialog_graph_graph_item_t structure
+         */
+        it=&dgg->items[idx];
+
+	/*
+	 * Use the max value to highlight RTP problems
+	 */
+	if (value > it->value) {
+		it->value=value;
+	}
+	it->flags = it->flags | statinfo->flags;
+
+        return TRUE;
 }
 
 /****************************************************************************/
@@ -380,11 +523,9 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 #ifdef USE_CONVERSATION_GRAPH
 	value_pair_t vp;
 #endif
-
 	/* we ignore packets that are not displayed */
 	if (pinfo->fd->flags.passed_dfilter == 0)
 		return 0;
-
 	/* is it the forward direction?  */
 	else if (user_data->ssrc_fwd == rtpinfo->info_sync_src)  {
 #ifdef USE_CONVERSATION_GRAPH
@@ -393,6 +534,8 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 		g_array_append_val(user_data->series_fwd.value_pairs, vp);
 #endif
 		rtp_packet_analyse(&(user_data->forward.statinfo), pinfo, rtpinfo);
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_JITTER]), &(user_data->forward.statinfo), pinfo, rtpinfo, (guint32)(user_data->forward.statinfo.jitter*1000000));
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_FWD_DIFF]), &(user_data->forward.statinfo), pinfo, rtpinfo, (guint32)(user_data->forward.statinfo.diff*1000000));
 		rtp_packet_add_info(user_data->dlg.clist_fwd,
 			&(user_data->forward.statinfo), pinfo, rtpinfo);
 		rtp_packet_save_payload(&(user_data->forward.saveinfo),
@@ -406,6 +549,8 @@ static int rtp_packet(void *user_data_arg, packet_info *pinfo, epan_dissect_t *e
 		g_array_append_val(user_data->series_rev.value_pairs, vp);
 #endif
 		rtp_packet_analyse(&(user_data->reversed.statinfo), pinfo, rtpinfo);
+		rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_JITTER]), &(user_data->reversed.statinfo), pinfo, rtpinfo, (guint32)(user_data->reversed.statinfo.jitter*1000000));
+                rtp_packet_add_graph(&(user_data->dlg.dialog_graph.graph[GRAPH_REV_DIFF]), &(user_data->reversed.statinfo), pinfo, rtpinfo, (guint32)(user_data->reversed.statinfo.diff*1000000));
 		rtp_packet_add_info(user_data->dlg.clist_rev,
 			&(user_data->reversed.statinfo), pinfo, rtpinfo);
 		rtp_packet_save_payload(&(user_data->reversed.saveinfo),
@@ -422,6 +567,7 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 {
 	double current_time;
 	double current_jitter;
+	double current_diff;
 	guint32 clock_rate;
 
 	statinfo->flags = 0;
@@ -441,10 +587,11 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 
 	/* store the current time and calculate the current jitter */
 	current_time = (double)pinfo->fd->rel_secs + (double) pinfo->fd->rel_usecs/1000000;
-	current_jitter = statinfo->jitter + ( fabs (current_time - (statinfo->time) -
-		((double)(rtpinfo->info_timestamp)-(double)(statinfo->timestamp))/clock_rate)- statinfo->jitter)/16;
+	current_diff = fabs (current_time - (statinfo->time) - ((double)(rtpinfo->info_timestamp)-(double)(statinfo->timestamp))/clock_rate);
+	current_jitter = statinfo->jitter + ( current_diff - statinfo->jitter)/16;
 	statinfo->delay = current_time-(statinfo->time);
 	statinfo->jitter = current_jitter;
+	statinfo->diff = current_diff;
 
 	/*  is this the first packet we got in this direction? */
 	if (statinfo->first_packet) {
@@ -452,6 +599,7 @@ static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		statinfo->start_time = current_time;
 		statinfo->delay = 0;
 		statinfo->jitter = 0;
+		statinfo->diff = 0;
 		statinfo->flags |= STAT_FLAG_FIRST;
 		statinfo->first_packet = FALSE;
 	}
@@ -624,8 +772,8 @@ static int rtp_packet_add_info(GtkCList *clist,
 	else {
 		add_to_clist(clist,
 			pinfo->fd->num, rtpinfo->info_seq_num,
-			statinfo->delay,
-			statinfo->jitter,
+			statinfo->delay*1000,
+			statinfo->jitter*1000,
 			status,
 			rtpinfo->info_marker_set,
 			timeStr, pinfo->fd->pkt_len,
@@ -769,6 +917,11 @@ void unprotect_thread_critical_region(void);
 /* close the dialog window and remove the tap listener */
 static void on_destroy(GtkWidget *win _U_, user_data_t *user_data _U_)
 {
+	/* remove tap listener */
+	protect_thread_critical_region();
+	remove_tap_listener(user_data);
+	unprotect_thread_critical_region();
+
 	/* close and remove temporary files */
 	if (user_data->forward.saveinfo.fp != NULL)
 		fclose(user_data->forward.saveinfo.fp);
@@ -782,11 +935,18 @@ static void on_destroy(GtkWidget *win _U_, user_data_t *user_data _U_)
 	if (user_data->dlg.save_voice_as_w != NULL)
 		window_destroy(user_data->dlg.save_voice_as_w);
 
+	/* destroy graph window if open */
+	if (user_data->dlg.dialog_graph.window != NULL)
+		window_destroy(user_data->dlg.dialog_graph.window);
+
 #ifdef USE_CONVERSATION_GRAPH
 	/* destroy graph window if open */
 	if (user_data->dlg.graph_window != NULL)
 		window_destroy(user_data->dlg.graph_window);
 #endif
+
+	/* disable the "switch_page" signal in the dlg, otherwise will be called when the windows is destroy and cause an exeption using GTK1*/
+	gtk_signal_disconnect(GTK_OBJECT(user_data->dlg.notebook), user_data->dlg.notebook_signal_id);
 
 	g_free(user_data->dlg.col_arrows_fwd);
 	g_free(user_data->dlg.col_arrows_rev);
@@ -862,7 +1022,6 @@ static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 		reactivate_window(user_data->dlg.graph_window);
 		return;
 	}
-		
 	list = g_list_append(list, &(user_data->series_fwd));
 	list = g_list_append(list, &(user_data->series_rev));
 
@@ -899,6 +1058,1034 @@ static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 }
 #endif /*USE_CONVERSATION_GRAPH*/
 
+/****************************************************************************/
+static void dialog_graph_set_title(user_data_t* user_data)
+{
+	char            *title;
+	if (!user_data->dlg.dialog_graph.window){
+		return;
+	}
+	title = g_strdup_printf("RTP Graph Analysis Forward: %s:%u to %s:%u   Reverse: %s:%u to %s:%u",
+			ip_to_str((ip_addr_p)&(user_data->ip_src_fwd)),
+			user_data->port_src_fwd,
+			ip_to_str((ip_addr_p)&(user_data->ip_dst_fwd)),
+			user_data->port_dst_fwd,
+			ip_to_str((ip_addr_p)&(user_data->ip_src_rev)),
+			user_data->port_src_rev,
+			ip_to_str((ip_addr_p)&(user_data->ip_dst_rev)),
+			user_data->port_dst_rev);
+
+	gtk_window_set_title(GTK_WINDOW(user_data->dlg.dialog_graph.window), title);
+	g_free(title);	
+
+}
+
+
+/****************************************************************************/
+static void dialog_graph_reset(user_data_t* user_data)
+{
+	int i, j;
+
+	user_data->dlg.dialog_graph.needs_redraw=TRUE;
+	for(i=0;i<MAX_GRAPHS;i++){
+                for(j=0;j<NUM_GRAPH_ITEMS;j++){
+                        dialog_graph_graph_item_t *dggi;
+                        dggi=&user_data->dlg.dialog_graph.graph[i].items[j];
+			dggi->value=0;
+			dggi->flags=0;
+                }
+        }
+	user_data->dlg.dialog_graph.last_interval=0xffffffff;
+	user_data->dlg.dialog_graph.max_interval=0;
+	user_data->dlg.dialog_graph.num_items=0;
+
+	/* create the color titles near the filter buttons */
+	for(i=0;i<MAX_GRAPHS;i++){
+		/* it is forward */ 
+		if (i<2){
+       			g_snprintf(user_data->dlg.dialog_graph.graph[i].title, 100, "%s: %s:%u to %s:%u (SSRC=%u)",
+			graph_descr[i],
+                	ip_to_str((ip_addr_p)&(user_data->ip_src_fwd)),
+                	user_data->port_src_fwd,
+                	ip_to_str((ip_addr_p)&(user_data->ip_dst_fwd)),
+                	user_data->port_dst_fwd,
+                	user_data->ssrc_fwd);
+		/* it is reverse */
+		} else {
+			g_snprintf(user_data->dlg.dialog_graph.graph[i].title, 100, "%s: %s:%u to %s:%u (SSRC=%u)",
+			graph_descr[i],
+                	ip_to_str((ip_addr_p)&(user_data->ip_src_rev)),
+                	user_data->port_src_rev,
+                	ip_to_str((ip_addr_p)&(user_data->ip_dst_rev)),
+                	user_data->port_dst_rev,
+                	user_data->ssrc_rev);
+		}
+	}
+
+	dialog_graph_set_title(user_data);	
+}
+
+/****************************************************************************/
+static guint32 get_it_value(dialog_graph_graph_t *dgg, int idx)
+{
+        dialog_graph_graph_item_t *it;
+
+        it=&dgg->items[idx];
+
+	return it->value;
+}
+
+/****************************************************************************/
+static void print_time_scale_string(char *buf, int buf_len, guint32 t)
+{
+        if(t>=10000000){
+                g_snprintf(buf, buf_len, "%ds",t/1000000);
+        } else if(t>=1000000){
+                g_snprintf(buf, buf_len, "%d.%03ds",t/1000000,(t%1000000)/1000);
+        } else if(t>=10000){
+                g_snprintf(buf, buf_len, "%dms",t/1000);
+        } else if(t>=1000){
+                g_snprintf(buf, buf_len, "%d.%03dms",t/1000,t%1000);
+        } else {
+                g_snprintf(buf, buf_len, "%dus",t);
+        }
+}
+
+/****************************************************************************/
+static void dialog_graph_draw(user_data_t* user_data)
+{
+        int i, lwidth;
+        guint32 last_interval, first_interval, interval_delta, delta_multiplier;
+        gint32 current_interval;
+        guint32 left_x_border;
+        guint32 right_x_border;
+        guint32 top_y_border;
+        guint32 bottom_y_border;
+#if GTK_MAJOR_VERSION < 2
+        GdkFont *font;
+#else
+        PangoLayout  *layout;
+#endif
+        guint32 label_width, label_height;
+        guint32 draw_width, draw_height;
+        char label_string[15];
+
+        /* new variables */
+        guint32 num_time_intervals;
+        guint32 max_value;              /* max value of seen data */
+        guint32 max_y;                  /* max value of the Y scale */
+
+#if GTK_MAJOR_VERSION <2
+        font = user_data->dlg.dialog_graph.draw_area->style->font;
+#endif
+        if(!user_data->dlg.dialog_graph.needs_redraw){
+                return;
+        }
+        user_data->dlg.dialog_graph.needs_redraw=FALSE;
+
+        /*
+         * Find the length of the intervals we have data for
+         * so we know how large arrays we need to malloc()
+         */
+        num_time_intervals=user_data->dlg.dialog_graph.num_items;
+        /* if there isnt anything to do, just return */
+        if(num_time_intervals==0){
+                return;
+        }
+        num_time_intervals+=1;
+        /* XXX move this check to _packet() */
+        if(num_time_intervals>NUM_GRAPH_ITEMS){
+                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "RTP Graph error. There are too many entries, bailing out");
+                return;
+        }
+
+        /*
+         * find the max value so we can autoscale the y axis
+         */
+        max_value=0;
+        for(i=0;i<MAX_GRAPHS;i++){
+                int idx;
+
+                if(!user_data->dlg.dialog_graph.graph[i].display){
+                        continue;
+                }
+                for(idx=0;(guint32) (idx) < num_time_intervals;idx++){
+                        guint32 val;
+
+                        val=get_it_value(&user_data->dlg.dialog_graph.graph[i], idx);
+
+                        /* keep track of the max value we have encountered */
+                        if(val>max_value){
+                                max_value=val;
+                        }
+                }
+        }
+	
+        /*
+         * Clear out old plot
+         */
+        gdk_draw_rectangle(user_data->dlg.dialog_graph.pixmap,
+                           user_data->dlg.dialog_graph.draw_area->style->white_gc,
+                           TRUE,
+                           0, 0,
+                           user_data->dlg.dialog_graph.draw_area->allocation.width,
+                           user_data->dlg.dialog_graph.draw_area->allocation.height);
+
+
+        /*
+         * Calculate the y scale we should use
+         */
+        if(user_data->dlg.dialog_graph.max_y_units==AUTO_MAX_YSCALE){
+                max_y=yscale_max[MAX_YSCALE-1];
+                for(i=MAX_YSCALE-1;i>0;i--){
+                        if(max_value<yscale_max[i]){
+                                max_y=yscale_max[i];
+                        }
+                }
+        } else {
+                /* the user had specified an explicit y scale to use */
+                max_y=user_data->dlg.dialog_graph.max_y_units;
+        }
+
+        /*
+         * Calculate size of borders surrounding the plot
+         * The border on the right side needs to be adjusted depending
+         * on the width of the text labels. For simplicity we assume that the
+         * top y scale label will be the widest one
+         */
+         print_time_scale_string(label_string, 15, max_y);
+#if GTK_MAJOR_VERSION < 2
+        label_width=gdk_string_width(font, label_string);
+        label_height=gdk_string_height(font, label_string);
+#else
+        layout = gtk_widget_create_pango_layout(user_data->dlg.dialog_graph.draw_area, label_string);
+        pango_layout_get_pixel_size(layout, &label_width, &label_height);
+#endif
+        left_x_border=10;
+        right_x_border=label_width+20;
+        top_y_border=10;
+        bottom_y_border=label_height+20;
+
+
+        /*
+         * Calculate the size of the drawing area for the actual plot
+         */
+        draw_width=user_data->dlg.dialog_graph.pixmap_width-right_x_border-left_x_border;
+        draw_height=user_data->dlg.dialog_graph.pixmap_height-top_y_border-bottom_y_border;
+
+
+        /*
+         * Draw the y axis and labels
+         * (we always draw the y scale with 11 ticks along the axis)
+         */
+        gdk_draw_line(user_data->dlg.dialog_graph.pixmap, user_data->dlg.dialog_graph.draw_area->style->black_gc,
+                user_data->dlg.dialog_graph.pixmap_width-right_x_border+1,
+                top_y_border,
+                user_data->dlg.dialog_graph.pixmap_width-right_x_border+1,
+                user_data->dlg.dialog_graph.pixmap_height-bottom_y_border);
+        for(i=0;i<=10;i++){
+                int xwidth, lwidth;
+
+                xwidth=5;
+                if(!(i%5)){
+                        /* first, middle and last tick are slightly longer */
+                        xwidth=10;
+                }
+                /* draw the tick */
+                gdk_draw_line(user_data->dlg.dialog_graph.pixmap, user_data->dlg.dialog_graph.draw_area->style->black_gc,
+                        user_data->dlg.dialog_graph.pixmap_width-right_x_border+1,
+                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10,
+                        user_data->dlg.dialog_graph.pixmap_width-right_x_border+1+xwidth,
+                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10);
+                /* draw the labels */
+                if(i==0){
+                        print_time_scale_string(label_string, 15, (max_y*i/10));
+#if GTK_MAJOR_VERSION < 2
+                        lwidth=gdk_string_width(font, label_string);
+                        gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
+                                        font,
+                                        user_data->dlg.dialog_graph.draw_area->style->black_gc,
+                                        user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
+                                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10+label_height/2,
+                                        label_string);
+#else
+                        pango_layout_set_text(layout, label_string, -1);
+                        pango_layout_get_pixel_size(layout, &lwidth, NULL);
+                        gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
+                                        user_data->dlg.dialog_graph.draw_area->style->black_gc,
+                                        user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
+                                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
+                                        layout);
+#endif
+                }
+                if(i==5){
+                        print_time_scale_string(label_string, 15, (max_y*i/10));
+#if GTK_MAJOR_VERSION < 2
+                        lwidth=gdk_string_width(font, label_string);
+                        gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
+                                        font,
+                                        user_data->dlg.dialog_graph.draw_area->style->black_gc,
+                                        user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
+                                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10+label_height/2,
+                                        label_string);
+#else
+                        pango_layout_set_text(layout, label_string, -1);
+                        pango_layout_get_pixel_size(layout, &lwidth, NULL);
+                        gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
+                                        user_data->dlg.dialog_graph.draw_area->style->black_gc,
+                                        user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
+                                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
+                                        layout);
+#endif
+                }
+                if(i==10){
+                        print_time_scale_string(label_string, 15, (max_y*i/10));
+#if GTK_MAJOR_VERSION < 2
+                        lwidth=gdk_string_width(font, label_string);
+                        gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
+                                        font,
+                                        user_data->dlg.dialog_graph.draw_area->style->black_gc,
+                                        user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
+                                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10+label_height/2,
+                                        label_string);
+#else
+                        pango_layout_set_text(layout, label_string, -1);
+                        pango_layout_get_pixel_size(layout, &lwidth, NULL);
+                        gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
+                                        user_data->dlg.dialog_graph.draw_area->style->black_gc,
+                                        user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
+                                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
+                                        layout);
+#endif
+                }
+        }
+
+
+
+        /*
+         * if we have not specified the last_interval via the gui,
+         * then just pick the current end of the capture so that is scrolls
+         * nicely when doing live captures
+         */
+        if(user_data->dlg.dialog_graph.last_interval==0xffffffff){
+                last_interval=user_data->dlg.dialog_graph.max_interval;
+        } else {
+                last_interval=user_data->dlg.dialog_graph.last_interval;
+        }
+
+
+
+
+/*XXX*/
+        /* plot the x-scale */
+        gdk_draw_line(user_data->dlg.dialog_graph.pixmap, user_data->dlg.dialog_graph.draw_area->style->black_gc, left_x_border, user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+1, user_data->dlg.dialog_graph.pixmap_width-right_x_border+1, user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+1);
+
+        if((last_interval/user_data->dlg.dialog_graph.interval)>draw_width/user_data->dlg.dialog_graph.pixels_per_tick+1){
+                first_interval=(last_interval/user_data->dlg.dialog_graph.interval)-draw_width/user_data->dlg.dialog_graph.pixels_per_tick+1;
+                first_interval*=user_data->dlg.dialog_graph.interval;
+        } else {
+                first_interval=0;
+        }
+
+        interval_delta=1;
+        delta_multiplier=5;
+        while(interval_delta<((last_interval-first_interval)/10)){
+                interval_delta*=delta_multiplier;
+                if(delta_multiplier==5){
+                        delta_multiplier=2;
+                } else {
+                        delta_multiplier=5;
+                }
+        }
+
+        for(current_interval=last_interval;current_interval>(gint32)first_interval;current_interval=current_interval-user_data->dlg.dialog_graph.interval){
+                int x, xlen;
+
+                /* if pixels_per_tick is <5, only draw every 10 ticks */
+                if((user_data->dlg.dialog_graph.pixels_per_tick<10) && (current_interval%(10*user_data->dlg.dialog_graph.interval))){
+                        continue;
+                }
+
+                if(current_interval%interval_delta){
+                        xlen=5;
+                } else {
+                        xlen=17;
+                }
+
+                x=draw_width+left_x_border-((last_interval-current_interval)/user_data->dlg.dialog_graph.interval)*user_data->dlg.dialog_graph.pixels_per_tick;
+                gdk_draw_line(user_data->dlg.dialog_graph.pixmap, user_data->dlg.dialog_graph.draw_area->style->black_gc,
+                        x-1-user_data->dlg.dialog_graph.pixels_per_tick/2,
+                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+1,
+                        x-1-user_data->dlg.dialog_graph.pixels_per_tick/2,
+                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+xlen+1);
+
+                if(xlen==17){
+                        int lwidth;
+                        if(user_data->dlg.dialog_graph.interval>=1000){
+                                g_snprintf(label_string, 15, "%ds", current_interval/1000);
+                        } else if(user_data->dlg.dialog_graph.interval>=100){
+                                g_snprintf(label_string, 15, "%d.%1ds", current_interval/1000,(current_interval/100)%10)
+;
+                        } else if(user_data->dlg.dialog_graph.interval>=10){
+                                g_snprintf(label_string, 15, "%d.%2ds", current_interval/1000,(current_interval/10)%100)
+;
+                        } else {
+                                g_snprintf(label_string, 15, "%d.%3ds", current_interval/1000,current_interval%1000);
+                        }
+#if GTK_MAJOR_VERSION < 2
+                        lwidth=gdk_string_width(font, label_string);
+                        gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
+                                        font,
+                                        user_data->dlg.dialog_graph.draw_area->style->black_gc,
+                                        x-1-user_data->dlg.dialog_graph.pixels_per_tick/2-lwidth/2,
+                                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+20+label_height,
+                                        label_string);
+#else
+                        pango_layout_set_text(layout, label_string, -1);
+                        pango_layout_get_pixel_size(layout, &lwidth, NULL);
+                        gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
+                                        user_data->dlg.dialog_graph.draw_area->style->black_gc,
+                                        x-1-user_data->dlg.dialog_graph.pixels_per_tick/2-lwidth/2,
+                                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+20,
+                                        layout);
+#endif
+                }
+
+        }
+
+
+
+
+
+
+        /*
+         * Draw "x" for Sequence Errors and "m" for Marks
+         */
+	/* Draw the labels Fwd and Rev */
+	strcpy(label_string,"<-Fwd");
+#if GTK_MAJOR_VERSION < 2
+	lwidth=gdk_string_width(font, label_string);
+	gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
+		font,
+		user_data->dlg.dialog_graph.draw_area->style->black_gc,
+		user_data->dlg.dialog_graph.pixmap_width-right_x_border+33-lwidth,
+		user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+label_height,
+		label_string);
+#else
+	pango_layout_set_text(layout, label_string, -1);
+	pango_layout_get_pixel_size(layout, &lwidth, NULL);
+	gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
+		user_data->dlg.dialog_graph.draw_area->style->black_gc,
+		user_data->dlg.dialog_graph.pixmap_width-right_x_border+33-lwidth,
+		user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3,
+		layout);
+#endif
+        strcpy(label_string,"<-Rev");
+#if GTK_MAJOR_VERSION < 2
+        lwidth=gdk_string_width(font, label_string);
+        gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
+                font,
+                user_data->dlg.dialog_graph.draw_area->style->black_gc,
+                user_data->dlg.dialog_graph.pixmap_width-right_x_border+33-lwidth,
+                user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+9+label_height,
+                label_string);
+#else
+        pango_layout_set_text(layout, label_string, -1);
+        pango_layout_get_pixel_size(layout, &lwidth, NULL);
+        gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
+                user_data->dlg.dialog_graph.draw_area->style->black_gc,
+                user_data->dlg.dialog_graph.pixmap_width-right_x_border+33-lwidth,
+                user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+9,
+                layout);
+#endif
+
+	/* Draw the marks */	
+	for(i=MAX_GRAPHS-1;i>=0;i--){
+		guint32 interval;
+		guint32 x_pos, prev_x_pos;
+
+		/* XXX for fwd or rev, the flag info for jitter and diff is the same, and here I loop twice */
+		if (!user_data->dlg.dialog_graph.graph[i].display){
+			continue;
+		}
+		/* initialize prev x/y to the low left corner of the graph */
+		prev_x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-first_interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;
+
+		for(interval=first_interval+user_data->dlg.dialog_graph.interval;interval<=last_interval;interval+=user_data->dlg.dialog_graph.interval){
+			x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;
+
+			if(user_data->dlg.dialog_graph.graph[i].items[interval/user_data->dlg.dialog_graph.interval].flags & (STAT_FLAG_WRONG_SEQ|STAT_FLAG_MARKER)){
+				int lwidth;
+				if (user_data->dlg.dialog_graph.graph[i].items[interval/user_data->dlg.dialog_graph.interval].flags & STAT_FLAG_WRONG_SEQ){
+					strcpy(label_string,"x");
+				} else {
+				        strcpy(label_string,"m");
+				}
+					
+#if GTK_MAJOR_VERSION < 2
+                                lwidth=gdk_string_width(font, label_string);
+                                gdk_draw_string(user_data->dlg.dialog_graph.pixmap,
+                                        font,
+                                        user_data->dlg.dialog_graph.draw_area->style->black_gc,
+                                        x_pos-1-lwidth/2,
+                                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+7*(i/2)+label_height,
+                                        label_string);
+#else				
+                           	pango_layout_set_text(layout, label_string, -1);
+                                pango_layout_get_pixel_size(layout, &lwidth, NULL);
+                                gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
+                                        user_data->dlg.dialog_graph.draw_area->style->black_gc,
+                                        x_pos-1-lwidth/2,
+                                        user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+7*(i/2),
+                                        layout);
+#endif
+                        }
+
+                        prev_x_pos=x_pos;
+                }
+        }
+
+#if GTK_MAJOR_VERSION >= 2
+        g_object_unref(G_OBJECT(layout));
+#endif
+
+
+        /*
+         * Loop over all graphs and draw them
+         */
+	for(i=MAX_GRAPHS-1;i>=0;i--){
+		guint32 interval;
+		guint32 x_pos, y_pos, prev_x_pos, prev_y_pos;
+	        if (!user_data->dlg.dialog_graph.graph[i].display){
+                        continue;
+                }	
+		/* initialize prev x/y to the low left corner of the graph */
+		prev_x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-first_interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;
+		prev_y_pos=draw_height-1+top_y_border;
+		
+		for(interval=first_interval+user_data->dlg.dialog_graph.interval;interval<=last_interval;interval+=user_data->dlg.dialog_graph.interval){
+			guint32 val;
+			x_pos=draw_width-1-user_data->dlg.dialog_graph.pixels_per_tick*((last_interval-interval)/user_data->dlg.dialog_graph.interval+1)+left_x_border;
+			val=get_it_value(&user_data->dlg.dialog_graph.graph[i], interval/user_data->dlg.dialog_graph.interval);
+			if(val>max_y){
+                                y_pos=0;
+                        } else {
+                                y_pos=draw_height-1-(val*draw_height)/max_y+top_y_border;
+                        }
+
+                        /* dont need to draw anything if the segment
+                         * is entirely above the top of the graph
+                         */
+                        if( (prev_y_pos==0) && (y_pos==0) ){
+                                prev_y_pos=y_pos;
+                                prev_x_pos=x_pos;
+                                continue;
+                        }
+		
+                        if(val){
+	                        gdk_draw_line(user_data->dlg.dialog_graph.pixmap, user_data->dlg.dialog_graph.graph[i].gc,
+                                x_pos, draw_height-1+top_y_border,
+                                x_pos, y_pos);
+        		}
+
+                        prev_y_pos=y_pos;
+                        prev_x_pos=x_pos;
+                }
+        }
+
+
+        gdk_draw_pixmap(user_data->dlg.dialog_graph.draw_area->window,
+                        user_data->dlg.dialog_graph.draw_area->style->fg_gc[GTK_WIDGET_STATE(user_data->dlg.dialog_graph.draw_area)],
+                        user_data->dlg.dialog_graph.pixmap,
+                        0, 0,
+                        0, 0,
+                        user_data->dlg.dialog_graph.pixmap_width, user_data->dlg.dialog_graph.pixmap_height);
+
+
+        /* update the scrollbar */
+        user_data->dlg.dialog_graph.scrollbar_adjustment->upper=(gfloat) user_data->dlg.dialog_graph.max_interval;
+        user_data->dlg.dialog_graph.scrollbar_adjustment->step_increment=(gfloat) ((last_interval-first_interval)/10);
+        user_data->dlg.dialog_graph.scrollbar_adjustment->page_increment=(gfloat) (last_interval-first_interval);
+        if((last_interval-first_interval)*100 < user_data->dlg.dialog_graph.max_interval){
+                user_data->dlg.dialog_graph.scrollbar_adjustment->page_size=(gfloat) (user_data->dlg.dialog_graph.max_interval/100);
+        } else {
+                user_data->dlg.dialog_graph.scrollbar_adjustment->page_size=(gfloat) (last_interval-first_interval);
+        }
+        user_data->dlg.dialog_graph.scrollbar_adjustment->value=last_interval-user_data->dlg.dialog_graph.scrollbar_adjustment->page_size;
+        gtk_adjustment_changed(user_data->dlg.dialog_graph.scrollbar_adjustment);
+        gtk_adjustment_value_changed(user_data->dlg.dialog_graph.scrollbar_adjustment);
+
+}
+
+/****************************************************************************/
+static void dialog_graph_redraw(user_data_t* user_data)
+{
+        user_data->dlg.dialog_graph.needs_redraw=TRUE;
+        dialog_graph_draw(user_data); 
+}
+
+/****************************************************************************/
+static gint quit(GtkWidget *widget, GdkEventExpose *event _U_)
+{
+        user_data_t *user_data;
+
+        user_data=(user_data_t *)OBJECT_GET_DATA(widget, "user_data_t");
+
+	user_data->dlg.dialog_graph.window = NULL;
+        return TRUE;
+}
+
+/****************************************************************************/
+static gint expose_event(GtkWidget *widget, GdkEventExpose *event)
+{
+	user_data_t *user_data;
+
+	user_data=(user_data_t *)OBJECT_GET_DATA(widget, "user_data_t");
+        if(!user_data){
+                exit(10);
+        }
+
+
+        gdk_draw_pixmap(widget->window,
+                        widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
+                        user_data->dlg.dialog_graph.pixmap,
+                        event->area.x, event->area.y,
+                        event->area.x, event->area.y,
+                        event->area.width, event->area.height);
+
+        return FALSE;
+}
+
+/****************************************************************************/
+static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
+{
+        user_data_t *user_data;
+	int i;
+
+        user_data=(user_data_t *)OBJECT_GET_DATA(widget, "user_data_t");
+
+        if(!user_data){
+                exit(10);
+        }
+
+        if(user_data->dlg.dialog_graph.pixmap){
+                gdk_pixmap_unref(user_data->dlg.dialog_graph.pixmap);
+                user_data->dlg.dialog_graph.pixmap=NULL;
+        }
+
+        user_data->dlg.dialog_graph.pixmap=gdk_pixmap_new(widget->window,
+                        widget->allocation.width,
+                        widget->allocation.height,
+                        -1);
+        user_data->dlg.dialog_graph.pixmap_width=widget->allocation.width;
+        user_data->dlg.dialog_graph.pixmap_height=widget->allocation.height;
+
+        gdk_draw_rectangle(user_data->dlg.dialog_graph.pixmap,
+                        widget->style->white_gc,
+                        TRUE,
+                        0, 0,
+                        widget->allocation.width,
+                        widget->allocation.height);
+
+        /* set up the colors and the GC structs for this pixmap */
+	for(i=0;i<MAX_GRAPHS;i++){
+		user_data->dlg.dialog_graph.graph[i].gc=gdk_gc_new(user_data->dlg.dialog_graph.pixmap);
+#if GTK_MAJOR_VERSION < 2
+                colormap = gtk_widget_get_colormap (widget);
+                if (!gdk_color_alloc (colormap, &user_data->dlg.dialog_graph.graph[i].color)){
+                        g_warning ("Couldn't allocate color");
+                }
+
+                gdk_gc_set_foreground(user_data->dlg.dialog_graph.graph[i].gc, &user_data->dlg.dialog_graph.graph[i].color);
+#else
+                gdk_gc_set_rgb_fg_color(user_data->dlg.dialog_graph.graph[i].gc, &user_data->dlg.dialog_graph.graph[i].color);
+#endif
+	}
+
+	dialog_graph_redraw(user_data);
+        return TRUE;
+}
+
+/****************************************************************************/
+static gint scrollbar_changed(GtkWidget *widget _U_, gpointer data)
+{
+        user_data_t *user_data=(user_data_t *)data;
+        guint32 mi;
+
+        mi=(guint32) (user_data->dlg.dialog_graph.scrollbar_adjustment->value+user_data->dlg.dialog_graph.scrollbar_adjustment->page_size);
+        if(user_data->dlg.dialog_graph.last_interval==mi){
+                return TRUE;
+        }
+        if( (user_data->dlg.dialog_graph.last_interval==0xffffffff)
+        &&  (mi==user_data->dlg.dialog_graph.max_interval) ){
+                return TRUE;
+        }
+
+        user_data->dlg.dialog_graph.last_interval=(mi/user_data->dlg.dialog_graph.interval)*user_data->dlg.dialog_graph.interval;
+
+	dialog_graph_redraw(user_data);
+        return TRUE;
+}
+
+/****************************************************************************/
+static void create_draw_area(user_data_t* user_data, GtkWidget *box)
+{
+        user_data->dlg.dialog_graph.draw_area=gtk_drawing_area_new();
+        SIGNAL_CONNECT(user_data->dlg.dialog_graph.draw_area, "destroy", quit, user_data);
+        OBJECT_SET_DATA(user_data->dlg.dialog_graph.draw_area, "user_data_t", user_data);
+
+        WIDGET_SET_SIZE(user_data->dlg.dialog_graph.draw_area, user_data->dlg.dialog_graph.pixmap_width, user_data->dlg.dialog_graph.pixmap_height);
+
+        /* signals needed to handle backing pixmap */
+        SIGNAL_CONNECT(user_data->dlg.dialog_graph.draw_area, "expose_event", expose_event, NULL);
+        SIGNAL_CONNECT(user_data->dlg.dialog_graph.draw_area, "configure_event", configure_event, user_data);
+
+        gtk_widget_show(user_data->dlg.dialog_graph.draw_area);
+        gtk_box_pack_start(GTK_BOX(box), user_data->dlg.dialog_graph.draw_area, TRUE, TRUE, 0);
+
+        /* create the associated scrollbar */
+        user_data->dlg.dialog_graph.scrollbar_adjustment=(GtkAdjustment *)gtk_adjustment_new(0,0,0,0,0,0);
+        user_data->dlg.dialog_graph.scrollbar=gtk_hscrollbar_new(user_data->dlg.dialog_graph.scrollbar_adjustment);
+        gtk_widget_show(user_data->dlg.dialog_graph.scrollbar);
+        gtk_box_pack_start(GTK_BOX(box), user_data->dlg.dialog_graph.scrollbar, FALSE, FALSE, 0);
+        SIGNAL_CONNECT(user_data->dlg.dialog_graph.scrollbar_adjustment, "value_changed", scrollbar_changed, user_data);
+}
+
+/****************************************************************************/
+static void disable_graph(dialog_graph_graph_t *dgg)
+{
+        if (dgg->display) {
+                dgg->display=FALSE;
+                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dgg->display_button),
+                    FALSE);
+        }
+}
+
+/****************************************************************************/
+static gint filter_callback(GtkWidget *widget _U_, dialog_graph_graph_t *dgg)
+{
+        /* this graph is not active, just update display and redraw */
+        if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(dgg->display_button))){
+                disable_graph(dgg); 
+                dialog_graph_redraw(dgg->ud);
+		return 0;
+        }
+
+	enable_graph(dgg);
+        retap_packets(&cfile);
+        dialog_graph_redraw(dgg->ud);
+
+        return 0;
+}
+
+/****************************************************************************/
+static void create_filter_box(dialog_graph_graph_t *dgg, GtkWidget *box, int num)
+{
+        GtkWidget *hbox;
+        GtkWidget *label;
+        char str[256];
+
+        hbox=gtk_hbox_new(FALSE, 3);
+        gtk_container_add(GTK_CONTAINER(box), hbox);
+        gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
+        gtk_widget_show(hbox);
+
+	g_snprintf(str, 256, "Graph %d", num);
+	dgg->display_button=gtk_toggle_button_new_with_label(str);
+        gtk_box_pack_start(GTK_BOX(hbox), dgg->display_button, FALSE, FALSE, 0);
+        gtk_widget_show(dgg->display_button);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(dgg->display_button), dgg->display);
+        SIGNAL_CONNECT(dgg->display_button, "toggled", filter_callback, dgg);
+
+	label=gtk_label_new(dgg->title);
+        gtk_widget_show(label);
+        gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+
+#if GTK_MAJOR_VERSION < 2
+    /* setting the color of the display button doesn't work */
+        rc_style = gtk_rc_style_new ();
+        rc_style->fg[GTK_STATE_NORMAL] = dgg->color;
+        rc_style->color_flags[GTK_STATE_NORMAL] |= GTK_RC_FG;
+        rc_style->fg[GTK_STATE_ACTIVE] = dgg->color;
+        rc_style->color_flags[GTK_STATE_ACTIVE] |= GTK_RC_FG;
+        rc_style->fg[GTK_STATE_PRELIGHT] = dgg->color;
+        rc_style->color_flags[GTK_STATE_PRELIGHT] |= GTK_RC_FG;
+        rc_style->fg[GTK_STATE_SELECTED] = dgg->color;
+        rc_style->color_flags[GTK_STATE_SELECTED] |= GTK_RC_FG;
+        rc_style->fg[GTK_STATE_INSENSITIVE] = dgg->color;
+        rc_style->color_flags[GTK_STATE_INSENSITIVE] |= GTK_RC_FG;
+        gtk_widget_modify_style (label, rc_style);
+        gtk_rc_style_unref (rc_style);
+#else
+        gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &dgg->color);
+        gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &dgg->color);
+        gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &dgg->color);
+        gtk_widget_modify_fg(label, GTK_STATE_SELECTED, &dgg->color);
+        gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &dgg->color);
+#endif
+
+        return;
+}
+
+/****************************************************************************/
+static void create_filter_area(user_data_t* user_data, GtkWidget *box)
+{
+        GtkWidget *frame;
+        GtkWidget *vbox;
+	int i;
+	GtkWidget *label;
+
+    	frame=gtk_frame_new("Graphs");
+        gtk_container_add(GTK_CONTAINER(box), frame);
+        gtk_widget_show(frame);
+
+        vbox=gtk_vbox_new(FALSE, 1);
+        gtk_container_add(GTK_CONTAINER(frame), vbox);
+    	gtk_container_border_width(GTK_CONTAINER(vbox), 3);
+        gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_START);
+        gtk_widget_show(vbox);
+
+	for(i=0;i<MAX_GRAPHS;i++){
+		create_filter_box(&user_data->dlg.dialog_graph.graph[i], vbox, i+1);
+	}
+
+	label=gtk_label_new("Label:    x = Wrong Seq. number      m = Mark set");
+	gtk_widget_show(label);
+	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
+
+        return;
+}
+
+/****************************************************************************/
+static void yscale_select(GtkWidget *item, gpointer key)
+{
+        int val;
+	user_data_t *user_data;
+        
+        user_data=(user_data_t *)key;
+        val=(int)OBJECT_GET_DATA(item, "yscale_max");
+
+        user_data->dlg.dialog_graph.max_y_units=val;
+        dialog_graph_redraw(user_data);
+}
+
+/****************************************************************************/
+static void pixels_per_tick_select(GtkWidget *item, gpointer key)
+{
+        int val;
+        user_data_t *user_data;
+
+        user_data=(user_data_t *)key;
+        val=(int)OBJECT_GET_DATA(item, "pixels_per_tick");
+        user_data->dlg.dialog_graph.pixels_per_tick=val;
+        dialog_graph_redraw(user_data);
+}
+
+/****************************************************************************/
+static void tick_interval_select(GtkWidget *item, gpointer key)
+{
+        int val;
+        user_data_t *user_data;
+
+        user_data=(user_data_t *)key;
+        val=(int)OBJECT_GET_DATA(item, "tick_interval");
+
+        user_data->dlg.dialog_graph.interval=val;
+        retap_packets(&cfile);
+        dialog_graph_redraw(user_data);
+}
+
+/****************************************************************************/
+static void create_yscale_max_menu_items(user_data_t* user_data, GtkWidget *menu)
+{
+        char str[15];
+        GtkWidget *menu_item;
+        int i;
+
+        for(i=0;i<MAX_YSCALE;i++){
+                if(yscale_max[i]==AUTO_MAX_YSCALE){
+                        strcpy(str,"Auto");
+                } else {
+                        g_snprintf(str, 15, "%d ms", yscale_max[i]/1000);
+                }
+                menu_item=gtk_menu_item_new_with_label(str);
+                OBJECT_SET_DATA(menu_item, "yscale_max", yscale_max[i]);
+                SIGNAL_CONNECT(menu_item, "activate", yscale_select, user_data);
+                gtk_widget_show(menu_item);
+                gtk_menu_append(GTK_MENU(menu), menu_item);
+        }
+        return;
+}
+
+/****************************************************************************/
+static void create_pixels_per_tick_menu_items(user_data_t* user_data, GtkWidget *menu)
+{
+        char str[5];
+        GtkWidget *menu_item;
+        int i;
+
+        for(i=0;i<MAX_PIXELS_PER_TICK;i++){
+                g_snprintf(str, 5, "%d", pixels_per_tick[i]);
+                menu_item=gtk_menu_item_new_with_label(str);
+
+                OBJECT_SET_DATA(menu_item, "pixels_per_tick",
+                                pixels_per_tick[i]);
+                SIGNAL_CONNECT(menu_item, "activate", pixels_per_tick_select, user_data);
+                gtk_widget_show(menu_item);
+                gtk_menu_append(GTK_MENU(menu), menu_item);
+        }
+        gtk_menu_set_active(GTK_MENU(menu), DEFAULT_PIXELS_PER_TICK);
+        return;
+}
+
+
+/****************************************************************************/
+static void create_tick_interval_menu_items(user_data_t* user_data, GtkWidget *menu)
+{
+        char str[15];
+        GtkWidget *menu_item;
+        int i;
+
+        for(i=0;i<MAX_TICK_VALUES;i++){
+                if(tick_interval_values[i]>=1000){
+                        g_snprintf(str, 15, "%d sec", tick_interval_values[i]/1000);
+                } else if(tick_interval_values[i]>=100){
+                        g_snprintf(str, 15, "0.%1d sec", (tick_interval_values[i]/100)%10);
+                } else if(tick_interval_values[i]>=10){
+                        g_snprintf(str, 15, "0.%02d sec", (tick_interval_values[i]/10)%10);
+                } else {
+                        g_snprintf(str, 15, "0.%03d sec", (tick_interval_values[i])%10);
+                }
+
+                menu_item=gtk_menu_item_new_with_label(str);
+                OBJECT_SET_DATA(menu_item, "tick_interval",
+                                tick_interval_values[i]);
+                SIGNAL_CONNECT(menu_item, "activate", tick_interval_select, (gpointer)user_data);
+                gtk_widget_show(menu_item);
+                gtk_menu_append(GTK_MENU(menu), menu_item);
+        }
+        gtk_menu_set_active(GTK_MENU(menu), DEFAULT_TICK_VALUE);
+        return;
+}
+
+/****************************************************************************/
+static void create_ctrl_menu(user_data_t* user_data, GtkWidget *box, char *name, void (*func)(user_data_t* user_data, GtkWidget *menu))
+{
+        GtkWidget *hbox;
+        GtkWidget *label;
+        GtkWidget *option_menu;
+        GtkWidget *menu;
+
+        hbox=gtk_hbox_new(FALSE, 0);
+        gtk_container_add(GTK_CONTAINER(box), hbox);
+        gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
+        gtk_widget_show(hbox);
+
+        label=gtk_label_new(name);
+        gtk_widget_show(label);
+        gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
+
+        option_menu=gtk_option_menu_new();
+        menu=gtk_menu_new();
+        (*func)(user_data, menu);
+        gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
+        gtk_box_pack_end(GTK_BOX(hbox), option_menu, FALSE, FALSE, 0);
+        gtk_widget_show(option_menu);
+}
+
+/****************************************************************************/
+static void create_ctrl_area(user_data_t* user_data, GtkWidget *box)
+{
+	GtkWidget *frame_vbox;
+    	GtkWidget *frame;
+        GtkWidget *vbox;
+
+        frame_vbox=gtk_vbox_new(FALSE, 0);
+        gtk_container_add(GTK_CONTAINER(box), frame_vbox);
+        gtk_widget_show(frame_vbox);
+
+	frame = gtk_frame_new("X Axis");
+        gtk_container_add(GTK_CONTAINER(frame_vbox), frame);
+        gtk_widget_show(frame);
+
+        vbox=gtk_vbox_new(FALSE, 0);
+        gtk_container_add(GTK_CONTAINER(frame), vbox);
+	gtk_container_border_width(GTK_CONTAINER(vbox), 3);
+        gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
+        gtk_widget_show(vbox);
+
+        create_ctrl_menu(user_data, vbox, "Tick interval:", create_tick_interval_menu_items);
+        create_ctrl_menu(user_data, vbox, "Pixels per tick:", create_pixels_per_tick_menu_items);
+
+    	frame = gtk_frame_new("Y Axis");
+        gtk_container_add(GTK_CONTAINER(frame_vbox), frame);
+        gtk_widget_show(frame);
+
+        vbox=gtk_vbox_new(FALSE, 0);
+        gtk_container_add(GTK_CONTAINER(frame), vbox);
+    	gtk_container_border_width(GTK_CONTAINER(vbox), 3);
+        gtk_box_set_child_packing(GTK_BOX(box), vbox, FALSE, FALSE, 0, GTK_PACK_END);
+        gtk_widget_show(vbox);
+
+        create_ctrl_menu(user_data, vbox, "Scale:", create_yscale_max_menu_items);
+
+        return;
+}
+
+/****************************************************************************/
+static void dialog_graph_init_window(user_data_t* user_data)
+{
+        GtkWidget *vbox;
+        GtkWidget *hbox;
+    	GtkWidget *bt_close;
+
+        /* create the main window */
+        user_data->dlg.dialog_graph.window=window_new(GTK_WINDOW_TOPLEVEL, "I/O Graphs");
+
+        vbox=gtk_vbox_new(FALSE, 0);
+        gtk_container_add(GTK_CONTAINER(user_data->dlg.dialog_graph.window), vbox);
+        gtk_widget_show(vbox);
+
+        create_draw_area(user_data, vbox);
+
+        hbox=gtk_hbox_new(FALSE, 3);
+        gtk_box_pack_end(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
+    	gtk_container_border_width(GTK_CONTAINER(hbox), 3);
+        gtk_box_set_child_packing(GTK_BOX(vbox), hbox, FALSE, FALSE, 0, GTK_PACK_START);
+        gtk_widget_show(hbox);
+
+        create_filter_area(user_data, hbox);
+        create_ctrl_area(user_data, hbox);
+
+        dialog_graph_set_title(user_data);
+
+    hbox = dlg_button_row_new(GTK_STOCK_CLOSE, NULL);
+        gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 0);
+    gtk_widget_show(hbox);
+
+    bt_close = OBJECT_GET_DATA(hbox, GTK_STOCK_CLOSE);
+    window_set_cancel_button(user_data->dlg.dialog_graph.window, bt_close, window_cancel_button_cb);
+
+    SIGNAL_CONNECT(user_data->dlg.dialog_graph.window, "delete_event", window_delete_event_cb, NULL);
+
+    gtk_widget_show(user_data->dlg.dialog_graph.window);
+    window_present(user_data->dlg.dialog_graph.window);
+
+}
+
+
+/****************************************************************************/
+static void on_graph_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
+{
+        if (user_data->dlg.dialog_graph.window != NULL) {
+                /* There's already a graph window; reactivate it. */
+                reactivate_window(user_data->dlg.dialog_graph.window);
+                return;
+        }
+
+	dialog_graph_init_window(user_data);	
+
+}
 
 /****************************************************************************/
 static void on_goto_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
@@ -923,10 +2110,6 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	dfilter_t *sfcode;
 	GString *error_string;
 
-	/* clear the dialog box clists */
-	gtk_clist_clear(GTK_CLIST(user_data->dlg.clist_fwd));
-	gtk_clist_clear(GTK_CLIST(user_data->dlg.clist_rev));
-
 	/* try to compile the filter. */
 	strcpy(filter_text,"rtp && ip");
 	if (!dfilter_compile(filter_text, &sfcode)) {
@@ -945,6 +2128,10 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 		ip_to_str((ip_addr_p)&(user_data->ip_dst_rev)),
 		user_data->port_dst_rev
 		);
+	/* remove tap listener */
+	protect_thread_critical_region();
+	remove_tap_listener(user_data);
+	unprotect_thread_critical_region();
 
 	/* register tap listener */
 	error_string = register_tap_listener("rtp", user_data, filter_text,
@@ -957,11 +2144,6 @@ static void on_refresh_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 
 	/* retap all packets */
 	retap_packets(&cfile);
-
-	/* remove tap listener again */
-	protect_thread_critical_region();
-	remove_tap_listener(user_data);
-	unprotect_thread_critical_region();
 
 	/* draw statistics info */
 	draw_stat(user_data);
@@ -1708,22 +2890,33 @@ static void draw_stat(user_data_t *user_data)
 		- user_data->reversed.statinfo.start_seq_nr + 1;
 	gint32 f_lost = f_expected - user_data->forward.statinfo.total_nr;
 	gint32 r_lost = r_expected - user_data->reversed.statinfo.total_nr;
-
+	double f_perc, r_perc;
+	if (f_expected){
+		f_perc = (double)(f_lost*100)/(double)f_expected;
+	} else {
+		f_perc = 0;
+	}
+        if (r_expected){
+                r_perc = (double)(r_lost*100)/(double)r_expected;
+        } else {
+                r_perc = 0;
+        } 
+		
 	g_snprintf(label_max, 199, "Max delay = %f sec at packet no. %u \n"
-		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d"
+		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
 		"   Sequence errors = %u",
 		user_data->forward.statinfo.max_delay, user_data->forward.statinfo.max_nr,
 		user_data->forward.statinfo.total_nr,
-		f_expected, f_lost, user_data->forward.statinfo.sequence);
+		f_expected, f_lost, f_perc, user_data->forward.statinfo.sequence);
 
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_fwd), label_max);
 
 	g_snprintf(label_max, 199, "Max delay = %f sec at packet no. %u \n"
-		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d"
+		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d (%.2f%%)"
 		"   Sequence errors = %u",
 		user_data->reversed.statinfo.max_delay, user_data->reversed.statinfo.max_nr,
 		user_data->reversed.statinfo.total_nr,
-		r_expected, r_lost, user_data->reversed.statinfo.sequence);
+		r_expected, r_lost, r_perc, user_data->reversed.statinfo.sequence);
 
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_rev), label_max);
 
@@ -1948,7 +3141,7 @@ void create_rtp_dialog(user_data_t* user_data)
 #ifdef USE_CONVERSATION_GRAPH
 	GtkWidget *graph_bt;
 #endif
-
+	GtkWidget *graph_bt;
 	gchar label_forward[150];
 	gchar label_reverse[150];
 
@@ -1986,7 +3179,8 @@ void create_rtp_dialog(user_data_t* user_data)
 	notebook = gtk_notebook_new();
 	gtk_container_add(GTK_CONTAINER(main_vb), notebook);
 	OBJECT_SET_DATA(window, "notebook", notebook);
-	SIGNAL_CONNECT(notebook, "switch_page", on_notebook_switch_page,
+
+	user_data->dlg.notebook_signal_id = SIGNAL_CONNECT(notebook, "switch_page", on_notebook_switch_page,
                        user_data);
 
 	/* page for forward connection */
@@ -2077,6 +3271,12 @@ void create_rtp_dialog(user_data_t* user_data)
 	gtk_container_add(GTK_CONTAINER(box4), goto_bt);
 	gtk_widget_show(goto_bt);
 	SIGNAL_CONNECT(goto_bt, "clicked", on_goto_bt_clicked, user_data);
+
+        graph_bt = gtk_button_new_with_label("Graph");
+	gtk_container_add(GTK_CONTAINER(box4), graph_bt);
+	gtk_widget_show(graph_bt);
+	SIGNAL_CONNECT(graph_bt, "clicked", on_graph_bt_clicked, user_data);	
+
 
 #ifdef USE_CONVERSATION_GRAPH
 	graph_bt = gtk_button_new_with_label("Graph");
@@ -2202,7 +3402,13 @@ void rtp_analysis(
 {
 	user_data_t *user_data;
 	int fd;
-
+	int i;
+	static color_t col[MAX_GRAPHS] = {
+       		{0,     0x0000, 0x0000, 0x0000},
+        	{0,     0xffff, 0x0000, 0x0000},
+        	{0,     0x0000, 0xffff, 0x0000},
+        	{0,     0x0000, 0x0000, 0xffff}
+	};
 	/* init */
 	user_data = g_malloc(sizeof(user_data_t));
 
@@ -2229,11 +3435,40 @@ void rtp_analysis(
 	user_data->reversed.saveinfo.fp = NULL;
 	user_data->dlg.save_voice_as_w = NULL;
 	user_data->dlg.save_csv_as_w = NULL;
+        user_data->dlg.dialog_graph.window = NULL;
+
 #ifdef USE_CONVERSATION_GRAPH
 	user_data->dlg.graph_window = NULL;
 	user_data->series_fwd.value_pairs = NULL;
 	user_data->series_rev.value_pairs = NULL;
 #endif
+
+        /* init dialog_graph */
+        user_data->dlg.dialog_graph.needs_redraw=TRUE;
+        user_data->dlg.dialog_graph.interval=tick_interval_values[DEFAULT_TICK_VALUE];
+        user_data->dlg.dialog_graph.draw_area=NULL;
+        user_data->dlg.dialog_graph.pixmap=NULL;
+        user_data->dlg.dialog_graph.scrollbar=NULL;
+        user_data->dlg.dialog_graph.scrollbar_adjustment=NULL;
+        user_data->dlg.dialog_graph.pixmap_width=500;
+        user_data->dlg.dialog_graph.pixmap_height=200;
+        user_data->dlg.dialog_graph.pixels_per_tick=pixels_per_tick[DEFAULT_PIXELS_PER_TICK];
+        user_data->dlg.dialog_graph.max_y_units=AUTO_MAX_YSCALE;
+        user_data->dlg.dialog_graph.last_interval=0xffffffff;
+        user_data->dlg.dialog_graph.max_interval=0;
+        user_data->dlg.dialog_graph.num_items=0;
+	user_data->dlg.dialog_graph.start_time = -1;
+
+	for(i=0;i<MAX_GRAPHS;i++){
+        	user_data->dlg.dialog_graph.graph[i].gc=NULL;
+        	user_data->dlg.dialog_graph.graph[i].color.pixel=0;
+        	user_data->dlg.dialog_graph.graph[i].color.red=col[i].red;
+        	user_data->dlg.dialog_graph.graph[i].color.green=col[i].green;
+        	user_data->dlg.dialog_graph.graph[i].color.blue=col[i].blue;
+        	user_data->dlg.dialog_graph.graph[i].display=TRUE;
+        	user_data->dlg.dialog_graph.graph[i].display_button=NULL;
+        	user_data->dlg.dialog_graph.graph[i].ud=user_data;
+	}
 
 	/* create the dialog box */
 	create_rtp_dialog(user_data);
@@ -2324,6 +3559,8 @@ void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 		return;
 	}
 
+	/* Scan for rtpstream */
+	rtpstream_scan();
 	/* search for reversed direction in the global rtp streams list */
 	nfound = 0;
 	strinfo_list = g_list_first(rtpstream_get_info()->strinfo_list);
