@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.45 2003/04/17 08:25:11 guy Exp $
+ * $Id: packet-vines.c,v 1.46 2003/04/17 19:10:17 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -37,6 +37,7 @@
 #include "ppptypes.h"
 #include "ipproto.h"
 #include "arcnet_pids.h"
+#include "llcsaps.h"
 
 #define UDP_PORT_VINES	573
 
@@ -44,10 +45,15 @@ static int proto_vines = -1;
 static int hf_vines_protocol = -1;
 
 static gint ett_vines = -1;
+static gint ett_vines_tctl = -1;
 
 static int proto_vines_frp = -1;
 
 static gint ett_vines_frp = -1;
+
+static int proto_vines_llc = -1;
+
+static gint ett_vines_llc = -1;
 
 static int proto_vines_spp = -1;
 
@@ -166,6 +172,78 @@ proto_reg_handoff_vines_frp(void)
 	dissector_add("udp.port", UDP_PORT_VINES, vines_frp_handle);
 }
 
+static dissector_table_t vines_llc_dissector_table;
+
+#define VINES_LLC_IP	0xba
+
+static const value_string vines_llc_ptype_vals[] = {
+	{ VINES_LLC_IP, "Vines IP" },
+	{ 0,            NULL }
+};
+
+static void
+dissect_vines_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint8   ptype;
+	proto_tree *vines_llc_tree;
+	proto_item *ti;
+	tvbuff_t *next_tvb;
+
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines LLC");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
+
+	ptype = tvb_get_guint8(tvb, 0);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_str(pinfo->cinfo, COL_INFO,
+		    val_to_str(ptype, vines_llc_ptype_vals,
+		      "Unknown protocol 0x%02x"));
+	if (tree) {
+		ti = proto_tree_add_item(tree, proto_vines_llc, tvb, 0, 1,
+		    FALSE);
+		vines_llc_tree = proto_item_add_subtree(ti, ett_vines_llc);
+
+		proto_tree_add_text(vines_llc_tree, tvb, 0, 1,
+				    "Packet Type: %s (0x%02x)",
+				    val_to_str(ptype, vines_llc_ptype_vals,
+				        "Unknown"),
+				    ptype);
+	}
+
+	next_tvb = tvb_new_subset(tvb, 1, -1, -1);
+	if (!dissector_try_port(vines_llc_dissector_table, ptype,
+	    next_tvb, pinfo, tree))
+		call_dissector(data_handle, next_tvb, pinfo, tree);
+}
+
+void
+proto_register_vines_llc(void)
+{
+	static gint *ett[] = {
+		&ett_vines_llc,
+	};
+
+	proto_vines_llc = proto_register_protocol(
+	    "Banyan Vines LLC Protocol", "Vines LLC", "vines_llc");
+	proto_register_subtree_array(ett, array_length(ett));
+
+	/* subdissector code */
+	vines_llc_dissector_table = register_dissector_table("vines_llc.ptype",
+	    "Vines LLC protocol", FT_UINT8, BASE_HEX);
+}
+
+void
+proto_reg_handoff_vines_llc(void)
+{
+	dissector_handle_t vines_llc_handle;
+
+	vines_llc_handle = create_dissector_handle(dissect_vines_llc,
+	    proto_vines_llc);
+	dissector_add("llc.dsap", SAP_VINES1, vines_llc_handle);
+	dissector_add("llc.dsap", SAP_VINES2, vines_llc_handle);
+}
+
 static dissector_table_t vines_dissector_table;
 
 static const value_string proto_vals[] = {
@@ -182,7 +260,7 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int         offset = 0;
 	e_vip       viph;
-	proto_tree *vip_tree;
+	proto_tree *vip_tree, *tctl_tree;
 	proto_item *ti;
 /*	gchar      tos_str[32]; */
 	const guint8     *dst_addr, *src_addr;
@@ -286,11 +364,28 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "Packet checksum: 0x%04x",
 				    viph.vip_chksum);
 		proto_tree_add_text(vip_tree, tvb, offset +  2, 2,
-				    "Packet length: 0x%04x (%d)",
-				    viph.vip_pktlen, viph.vip_pktlen);
-		proto_tree_add_text(vip_tree, tvb, offset +  4, 1,
+				    "Packet length: %u",
+				    viph.vip_pktlen);
+		ti = proto_tree_add_text(vip_tree, tvb, offset +  4, 1,
 				    "Transport control: 0x%02x",
 				    viph.vip_tctl);
+		tctl_tree = proto_item_add_subtree(ti, ett_vines_tctl);
+		/* XXX - bit 0x80 is "Normal" if 0; what is it if 1? */
+		proto_tree_add_text(tctl_tree, tvb, offset + 4, 1,
+		    decode_boolean_bitfield(viph.vip_tctl, 0x40, 1*8,
+		      "Forwarding router can handle redirect packets",
+		      "Forwarding router cannot handle redirect packets"));
+		proto_tree_add_text(tctl_tree, tvb, offset + 4, 1,
+		    decode_boolean_bitfield(viph.vip_tctl, 0x20, 1*8,
+		      "Return metric notification packet",
+		      "Do not return metric notification packet"));
+		proto_tree_add_text(tctl_tree, tvb, offset + 4, 1,
+		    decode_boolean_bitfield(viph.vip_tctl, 0x10, 1*8,
+		      "Return exception notification packet",
+		      "Do not return exception notification packet"));
+		proto_tree_add_text(tctl_tree, tvb, offset + 4, 1,
+		    decode_numeric_bitfield(viph.vip_tctl, 0x0F, 1*8,
+			"Hop count remaining = %u"));
 		proto_tree_add_uint(vip_tree, hf_vines_protocol, tvb,
 				    offset +  5, 1,
 				    viph.vip_proto);
@@ -317,11 +412,12 @@ proto_register_vines(void)
 {
 	static gint *ett[] = {
 		&ett_vines,
+		&ett_vines_tctl,
 	};
 
 	static hf_register_info hf[] = {
 	  { &hf_vines_protocol,
-	    { "Protocol",			"vines.protocol",
+	    { "Protocol",			"vines_ip.protocol",
 	      FT_UINT8,		BASE_HEX,	VALS(proto_vals),	0x0,
 	      "Vines protocol", HFILL }}
 	};
@@ -332,7 +428,7 @@ proto_register_vines(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* subdissector code */
-	vines_dissector_table = register_dissector_table("vines.proto",
+	vines_dissector_table = register_dissector_table("vines_ip.protocol",
 	    "Vines protocol", FT_UINT8, BASE_HEX);
 
 	vines_handle = create_dissector_handle(dissect_vines, proto_vines);
@@ -344,6 +440,7 @@ proto_reg_handoff_vines(void)
 	dissector_add("ethertype", ETHERTYPE_VINES, vines_handle);
 	dissector_add("ppp.protocol", PPP_VINES, vines_handle);
 	dissector_add("arcnet.protocol_id", ARCNET_PROTO_BANYAN, vines_handle);
+	dissector_add("vines_llc.ptype", VINES_LLC_IP, vines_handle);
 	data_handle = find_dissector("data");
 }
 
@@ -382,7 +479,7 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SPP");
 	if (check_col(pinfo->cinfo, COL_INFO))
  		col_add_fstr(pinfo->cinfo, COL_INFO,
-			     "%s NS=%04x NR=%04x Window=%04x RID=%04x LID=%04x D=%04x S=%04x",
+			     "%s NS=%u NR=%u Window=%u RID=%04x LID=%04x D=%04x S=%04x",
 			     val_to_str(viph.vspp_pkttype, pkttype_vals,
 			         "Unknown packet type (0x%02x)"),
 			     viph.vspp_seqno, viph.vspp_ack, viph.vspp_win,
@@ -436,12 +533,12 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "Remote Connection ID: 0x%04x",
 				    viph.vspp_rmtid);
 		proto_tree_add_text(vspp_tree, tvb, offset + 10, 2,
-				    "Sequence number: 0x%04x",
+				    "Sequence number: %u",
 				    viph.vspp_seqno);
 		proto_tree_add_text(vspp_tree, tvb, offset + 12, 2,
-				    "Ack number: 0x%04x", viph.vspp_ack);
+				    "Ack number: %u", viph.vspp_ack);
 		proto_tree_add_text(vspp_tree, tvb, offset + 14, 2,
-				    "Window: 0x%04x", viph.vspp_win);
+				    "Window: %u", viph.vspp_win);
 	}
 	offset += 16; /* sizeof SPP */
 	call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1),
@@ -467,5 +564,5 @@ proto_reg_handoff_vines_spp(void)
 
 	vines_spp_handle = create_dissector_handle(dissect_vines_spp,
 	    proto_vines_spp);
-	dissector_add("vines.proto", VIP_PROTO_SPP, vines_spp_handle);
+	dissector_add("vines_ip.protocol", VIP_PROTO_SPP, vines_spp_handle);
 }
