@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.38 2003/09/12 04:52:55 sahlberg Exp $
+ * $Id: packet-frame.c,v 1.39 2003/09/22 09:06:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@ static int hf_frame_capture_len = -1;
 static int hf_frame_p2p_dir = -1;
 static int hf_frame_file_off = -1;
 static int hf_frame_marked = -1;
+static int hf_frame_ref_time = -1;
 
 static int proto_short = -1;
 int proto_malformed = -1;
@@ -130,6 +131,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  fh_tree = proto_item_add_subtree(ti, ett_frame);
 
 	  proto_tree_add_boolean_hidden(fh_tree, hf_frame_marked, tvb, 0, 0,pinfo->fd->flags.marked);
+
+	  if(pinfo->fd->flags.ref_time){
+		proto_tree_add_item(fh_tree, hf_frame_ref_time, tvb, 0, 0, FALSE);
+	  }
 
 	  ts.secs = pinfo->fd->abs_secs;
 	  ts.nsecs = pinfo->fd->abs_usecs*1000;
@@ -270,6 +275,10 @@ proto_register_frame(void)
 		{ &hf_frame_marked,
 		{ "Frame is marked",	"frame.marked", FT_BOOLEAN, 8, NULL, 0x0,
 			"Frame is marked in the GUI", HFILL }},
+
+		{ &hf_frame_ref_time,
+		{ "This is a Ref Time frame",	"frame.ref_time", FT_NONE, 0, NULL, 0x0,
+			"This frame is a Reference Time frame", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_frame,
