@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.125 1999/12/05 02:32:39 guy Exp $
+# $Id: Makefile.am,v 1.126 1999/12/05 07:50:01 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -155,6 +155,8 @@ DISSECTOR_SOURCES = \
 
 ethereal_SOURCES = \
 	alignment.h    \
+	asn1.c         \
+	asn1.h         \
 	capture.c      \
 	capture.h      \
 	colors.c       \
