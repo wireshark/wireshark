@@ -217,7 +217,7 @@ mkinstalldirs stamp-h.in
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP = --best
 DEP_FILES =  .deps/capture.P .deps/column.P .deps/ethereal.P \
 .deps/ethertype.P .deps/file.P .deps/filter.P .deps/follow.P \
