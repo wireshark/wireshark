@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.25 2001/02/06 06:46:10 guy Exp $
+ * $Id: packet-portmap.c,v 1.26 2001/02/06 06:56:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -394,7 +394,7 @@ static const vsff portmap3_proc[] = {
 	{ RPCBPROC_DUMP,	"DUMP",
 		NULL, dissect_rpcb3_dump_reply },
 	{ RPCBPROC_CALLIT,	"CALLIT",
-		NULL, NULL },
+		dissect_callit_call, NULL },
 	{ RPCBPROC_GETTIME,	"GETTIME",
 		NULL, NULL },
 	{ RPCBPROC_UADDR2TADDR,	"UADDR2TADDR",
@@ -419,7 +419,7 @@ static const vsff portmap4_proc[] = {
 	{ RPCBPROC_DUMP,	"DUMP",
 		NULL, dissect_rpcb3_dump_reply },
 	{ RPCBPROC_BCAST,	"BCAST",
-		NULL, NULL },
+		dissect_callit_call, NULL },
 	{ RPCBPROC_GETTIME,	"GETTIME",
 		NULL, NULL },
 	{ RPCBPROC_UADDR2TADDR,	"UADDR2TADDR",
@@ -429,7 +429,7 @@ static const vsff portmap4_proc[] = {
 	{ RPCBPROC_GETVERSADDR,	"GETVERSADDR",
 		NULL, NULL },
 	{ RPCBPROC_INDIRECT,	"INDIRECT",
-		NULL, NULL },
+		dissect_callit_call, NULL },
 	{ RPCBPROC_GETADDRLIST,	"GETADDRLIST",
 		NULL, NULL },
 	{ RPCBPROC_GETSTAT,	"GETSTAT",
