@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.16 1999/11/27 01:55:43 guy Exp $
+ * $Id: snoop.c,v 1.17 1999/11/27 06:03:46 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -63,34 +63,21 @@ static int snoop_read(wtap *wth, int *err);
  *	http://www.opengroup.org/onlinepubs/9638599/apdxf.htm
  *
  * for the "dlpi.h" header file specified by The Open Group, which lists
- * the DL_ values for various protocols.  Those are the values that
- * Solaris might also use, although the "atmdump" source seems to imply
- * that Solaris might use 15 rather than 17 for ATM (although the README.ATM
- * says of the Solaris version of "atmdump" "This version has not been
- * tested yet").  Solaris 7 uses the same values as The Open Group's
- * "dlpi.h".
+ * the DL_ values for various protocols; Solaris 7 uses the same values.
  *
- * The "atmdump" source also says that an ATM packet handed up from the Sun
- * driver for the Sun SBus ATM card on Solaris 2.5.1 has 1 byte of direction,
- * 1 byte of VPI, 2 bytes of VCI, and then the ATM PDU, and suggests that
- * the direction byte is 0x80 for "transmitted" (presumably meaning
- * DTE->DCE) and presumably not 0x80 for "received" (presumably meaning
- * DCE->DTE).  (The RADCOM dissector makes the X.25 flag 0x80 for DCE->DTE
- * packets; is there some significance to 0x80?)
+ * The page at
  *
- * I don't know what the encapsulation of any of the other types is, and
- * haven't actually seen any packets from the Sun ATM driver, so I leave
- * them all as WTAP_ENCAP_UNKNOWN.  I also don't know whether "snoop"
- * can handle any of them; even if it can't, this may be useful reference
- * information for anybody doing code to use DLPI to do raw packet
- * captures.
+ *	http://mrpink.lerc.nasa.gov/118x/support.html
  *
- *	http://mrpink.lerc.nasa.gov/118x/support/convert.c
+ * has links to modified versions of "tcpdump" and "libpcap" for SUNatm
+ * DLPI support; they suggest the 3.0 verson of SUNatm uses those
+ * values.
  *
- * which is a program to convert files from the format written by
- * the "atmsnoop" program that comes with the SunATM package to
- * regular "snoop" format, claims that "SunATM 2.1 claimed to be DL_FDDI
- * (don't ask why).  SunATM 3.0 claims to be DL_IPATM, which is 0x12".
+ * It also has a link to "convert.c", which is a program to convert files
+ * from the format written by the "atmsnoop" program that comes with the
+ * SunATM package to regular "snoop" format, claims that "SunATM 2.1 claimed
+ * to be DL_FDDI (don't ask why).  SunATM 3.0 claims to be DL_IPATM, which
+ * is 0x12".
  *
  * It also says that "ATM Mac header is 12 bytes long.", and seems to imply
  * that in an "atmsnoop" file, the header contains 2 bytes (direction and
@@ -99,6 +86,29 @@ static int snoop_read(wtap *wth, int *err);
  * of LLC control, and 3 bytes of SNAP OUI, that'd mean that an ATM
  * pseudo-header in an "atmsnoop" file is probably 1 byte of direction,
  * 1 byte of VPI, and 2 bytes of VCI.
+ *
+ * The aforementioned page also has a link to some capture files from
+ * "atmsnoop"; this version of "snoop.c" appears to be able to read them.
+ *
+ * Source to an "atmdump" package, which includes a modified version of
+ * "libpcap" to handle SunATM DLPI and an ATM driver for FreeBSD, and
+ * also includes "atmdump", which is a modified "tcpdump", says that an
+ * ATM packet handed up from the Sun driver for the Sun SBus ATM card on
+ * Solaris 2.5.1 has 1 byte of direction, 1 byte of VPI, 2 bytes of VCI,
+ * and then the ATM PDU, and suggests that the direction byte is 0x80 for
+ * "transmitted" (presumably meaning DTE->DCE) and presumably not 0x80 for
+ * "received" (presumably meaning DCE->DTE).
+ *
+ * In fact, the "direction" byte appears to have some other stuff, perhaps
+ * a traffic type, in the lower 7 bits, with the 8th bit indicating the
+ * direction.
+ *
+ * I don't know what the encapsulation of any of the other types is, so I
+ * leave them all as WTAP_ENCAP_UNKNOWN.  I also don't know whether "snoop"
+ * can handle any of them (it presumably can't handle ATM, otherwise Sun
+ * wouldn't have supplied "atmsnoop"; even if it can't, this may be useful
+ * reference information for anybody doing code to use DLPI to do raw packet
+ * captures on those network types.
  */
 int snoop_open(wtap *wth, int *err)
 {
@@ -256,10 +266,6 @@ static int snoop_read(wtap *wth, int *err)
 			return -1;
 		}
 
-		/*
-		 * OK, which value means "DTE->DCE" and which value means
-		 * "DCE->DTE"?
-		 */
 		wth->phdr.pseudo_header.ngsniffer_atm.channel =
 		    (atm_phdr[0] & 0x80) ? 1 : 0;
 		wth->phdr.pseudo_header.ngsniffer_atm.Vpi = atm_phdr[1];
