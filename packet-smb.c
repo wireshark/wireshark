@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.248 2002/04/24 06:18:50 tpot Exp $
+ * $Id: packet-smb.c,v 1.249 2002/04/24 07:19:25 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6819,6 +6819,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *par
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int old_offset = offset;
+	guint16 size;
 	
 	if(parent_tree){
 		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
@@ -6837,7 +6838,8 @@ dissect_nt_v2_ace(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *par
 	offset = dissect_nt_v2_ace_flags(tvb, pinfo, offset, tree);
 
 	/* size */
-	proto_tree_add_item(tree, hf_smb_ace_size, tvb, offset, 2, TRUE);
+	size = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_ace_size, tvb, offset, 2, size);
 	offset += 2;
 
 	/* access mask */
@@ -6847,7 +6849,11 @@ dissect_nt_v2_ace(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *par
 	offset = dissect_nt_sid(tvb, pinfo, offset, tree, "ACE");
 
 	proto_item_set_len(item, offset-old_offset);
-	return offset;
+
+	/* Sometimes there is some spare space at the end of the ACE so use
+	   the size field to work out where the end is. */
+
+	return old_offset + size;
 }
 
 static int
