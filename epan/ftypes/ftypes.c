@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.14 2003/11/25 19:25:31 guy Exp $
+ * $Id: ftypes.c,v 1.15 2003/12/02 09:47:23 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,21 +26,13 @@
 
 #include <ftypes-int.h>
 #include <glib.h>
+#include "../slab.h"
 
 /* Keep track of ftype_t's via their ftenum number */
 static ftype_t* type_list[FT_NUM_TYPES];
 
 /* Space for quickly allocating/de-allocating fvalue_t's */
 fvalue_t *fvalue_free_list=NULL;
-
-/* Chunk of fvalue_t values */
-#define FVALUE_TS_PER_CHUNK	200
-typedef struct _fvalue_chunk_t {
-	struct _fvalue_chunk_t *next;
-	fvalue_t fvalues[FVALUE_TS_PER_CHUNK];
-} fvalue_chunk_t;
-
-static fvalue_chunk_t *fvalue_chunk_list;
 
 /* These are the ftype registration functions that need to be called.
  * This list and the initialization function could be produced
@@ -68,20 +60,6 @@ ftypes_initialize(void)
 	ftype_register_time();
 	ftype_register_tvbuff();
 }
-
-void
-ftypes_cleanup(void)
-{
-	while (fvalue_chunk_list) {
-		fvalue_chunk_t *tmpchunk;
-		tmpchunk=fvalue_chunk_list->next;
-		g_free(fvalue_chunk_list);
-		fvalue_chunk_list=tmpchunk;
-	}
-	fvalue_free_list=NULL;
-}
-
-
 
 /* Each ftype_t is registered via this function */
 void
@@ -215,21 +193,7 @@ fvalue_new(ftenum_t ftype)
 	ftype_t			*ft;
 	FvalueNewFunc		new_value;
 
-	if(!fvalue_free_list){
-		int i;
-		fvalue_chunk_t *chunk;
-		chunk=g_malloc(sizeof(fvalue_chunk_t));
-		chunk->next=fvalue_chunk_list;
-		fvalue_chunk_list=chunk;
-		for(i=0;i<FVALUE_TS_PER_CHUNK;i++){
-			fvalue_t *tmpfv;
-			tmpfv=&chunk->fvalues[i];
-			tmpfv->ptr_u.next=fvalue_free_list;
-			fvalue_free_list=tmpfv;
-		}
-	}
-	fv=fvalue_free_list;
-	fvalue_free_list=fv->ptr_u.next;
+	SLAB_ALLOC(fv, fv->ptr_u.next, fvalue_free_list);
 
 	FTYPE_LOOKUP(ftype, ft);
 	fv->ptr_u.ftype = ft;

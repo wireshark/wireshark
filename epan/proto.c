@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.117 2003/12/02 09:11:15 sahlberg Exp $
+ * $Id: proto.c,v 1.118 2003/12/02 09:47:22 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -291,8 +291,6 @@ proto_cleanup(void)
 	if (tree_is_expanded != NULL)
 		g_free(tree_is_expanded);
 
-	/* Cleanup the ftype subsystem */
-	ftypes_cleanup();
 }
 
 /* frees the resources that the dissection a proto_tree uses */

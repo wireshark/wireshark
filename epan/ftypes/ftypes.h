@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.21 2003/11/25 13:20:36 sahlberg Exp $
+ * $Id: ftypes.h,v 1.22 2003/12/02 09:47:23 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,7 +27,7 @@
 #define FTYPES_H
 
 #include <glib.h>
-
+#include "../slab.h"
 
 /* field types */
 enum ftenum {
@@ -77,11 +77,6 @@ typedef enum ftrepr ftrepr_t;
 /* Initialize the ftypes subsytem. Called once. */
 void
 ftypes_initialize(void);
-
-/* Cleanup the ftypes subsystem. Called once. */
-void
-ftypes_cleanup(void);
-
 
 /* ---------------- FTYPE ----------------- */
 
@@ -218,13 +213,12 @@ fvalue_new(ftenum_t ftype);
 extern fvalue_t *fvalue_free_list;
 #define FVALUE_FREE(fv)						\
 	{							\
-		FvalueFreeFunc	free_value;			\
+		register FvalueFreeFunc	free_value;		\
 		free_value = fv->ptr_u.ftype->free_value;	\
 		if (free_value) {				\
 			free_value(fv);				\
 		}						\
-		fv->ptr_u.next=fvalue_free_list;		\
-		fvalue_free_list=fv;				\
+		SLAB_FREE(fv, fv->ptr_u.next, fvalue_free_list);\
 	}
 
 
