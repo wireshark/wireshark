@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.18 2001/06/23 19:45:12 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.19 2001/07/01 20:37:02 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -927,7 +927,7 @@ dissect_lsp_eis_neighbors_clv_inner(const u_char *pd, int offset,
 			if ( show_virtual ) {
 				/* virtual path flag */
 				proto_tree_add_text ( tree, NullTVB, offset, 1, 
-				   &pd[offset] ? "IsNotVirtual" : "IsVirtual" );
+				   pd[offset] ? "IsNotVirtual" : "IsVirtual" );
 			} else {
 				proto_tree_add_text ( tree, NullTVB, offset, 1, 
 					"Reserved value 0x%02x, must == 0",
