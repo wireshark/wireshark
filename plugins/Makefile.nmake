@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.33 2004/03/25 11:21:06 guy Exp $
+# $Id: Makefile.nmake,v 1.34 2004/03/30 18:45:04 guy Exp $
 #
 
 include ..\config.nmake
@@ -122,6 +122,8 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../asn1
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../ciscosm
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../docsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../enttec
@@ -142,7 +144,11 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../rdm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../rlm
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../rtnet
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../rudp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
@@ -155,6 +161,8 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../asn1
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../ciscosm
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../docsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../enttec
@@ -175,7 +183,11 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../rdm
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../rlm
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../rtnet
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../rudp
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../v5ua
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
