@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.14 2001/01/03 07:53:47 guy Exp $
+ * $Id: plugin_api.h,v 1.15 2001/01/13 06:34:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -55,7 +55,6 @@
 
 #define register_dissector		(*p_register_dissector)
 #define find_dissector			(*p_find_dissector)
-#define old_call_dissector		(*p_old_call_dissector)
 #define call_dissector			(*p_call_dissector)
 
 #define dissect_data			(*p_dissect_data)

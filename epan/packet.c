@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.17 2001/01/13 04:28:42 guy Exp $
+ * $Id: packet.c,v 1.18 2001/01/13 06:34:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1694,44 +1694,6 @@ register_dissector(const char *name, dissector_t dissector, int proto)
 }
 
 /* Call a dissector through a handle. */
-void
-old_call_dissector(dissector_handle_t handle, const u_char *pd,
-    int offset, frame_data *fd, proto_tree *tree)
-{
-	tvbuff_t *tvb;
-	const char *saved_proto;
-
-	/*
-	 * Is this protocol enabled?
-	 */
-	if (handle->proto_index != -1 &&
-	    !proto_is_protocol_enabled(handle->proto_index)) {
-		/*
-		 * No - just dissect this packet as data.
-		 */
-		old_dissect_data(pd, offset, fd, tree);
-	}
-
-	/*
-	 * Old dissector calling new dissector; use
-	 * "tvb_create_from_top()" to remap.
-	 *
-	 * XXX - what about the "pd" argument?  Do
-	 * any dissectors not just pass that along and
-	 * let the "offset" argument handle stepping
-	 * through the packet?
-	 */
-	tvb = tvb_create_from_top(offset);
-
-	saved_proto = pi.current_proto;
-	if (handle->proto_index != -1) {
-		pi.current_proto =
-		    proto_get_protocol_short_name(handle->proto_index);
-	}
-	(*handle->dissector)(tvb, &pi, tree);
-	pi.current_proto = saved_proto;
-}
-
 void
 call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree)

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.18 2001/01/09 09:57:06 guy Exp $
+ * $Id: packet.h,v 1.19 2001/01/13 06:34:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -293,8 +293,6 @@ void register_dissector(const char *name, dissector_t dissector, int proto);
 dissector_handle_t find_dissector(const char *name);
 
 /* Call a dissector through a handle. */
-void old_call_dissector(dissector_handle_t handle, const u_char *pd,
-    int offset, frame_data *fd, proto_tree *tree);
 void call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree);
 

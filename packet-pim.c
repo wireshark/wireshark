@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.21 2001/01/09 06:31:40 guy Exp $
+ * $Id: packet-pim.c,v 1.22 2001/01/13 06:34:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,17 +47,8 @@
 #include "packet-ip.h"
 #include "packet-ipv6.h"
 
-#ifndef offsetof
-#define	offsetof(type, member)	((size_t)(&((type *)0)->member))
-#endif
-
-struct pim {
-	guint8	pim_typever;
 #define PIM_TYPE(x)	((x) & 0x0f)
 #define PIM_VER(x)	(((x) & 0xf0) >> 4)
-	guint8  pim_rsv;	/* Reserved */
-	guint16	pim_cksum;	/* IP style check sum */
-};
 
 enum pimv2_addrtype {
 	pimv2_unicast, pimv2_group, pimv2_source
@@ -72,86 +63,116 @@ static gint ett_pim = -1;
 
 static dissector_handle_t ip_handle;
 
+/*
+ * Address family values.
+ */
+#define PIM_AF_RESERVED		0
+#define PIM_AF_IP		1	/* IPv4 */
+#define PIM_AF_IPV6		2	/* IPv6 */
+#define PIM_AF_NSAP		3	/* NSAP */
+#define PIM_AF_HDLC		4	/* HDLC (8-bit multidrop) */
+#define PIM_AF_BBN_1822		5	/* BBN 1822 */
+#define PIM_AF_802		6	/* 802 (D/I/X Ethernet, 802.x, FDDI) */
+#define PIM_AF_E_163		7	/* E.163 */
+#define PIM_AF_E_164		8	/* E.164 (SMDS, Frame Relay, ATM) */
+#define PIM_AF_F_69		9	/* F.69 (Telex) */
+#define PIM_AF_X_121		10	/* X.121 (X.25, Frame Relay) */
+#define PIM_AF_IPX		11	/* IPX */
+#define PIM_AF_ATALK		12	/* Appletalk */
+#define PIM_AF_DECNET_IV	13	/* DECnet Phase IV */
+#define PIM_AF_VINES		14	/* Banyan Vines */
+#define PIM_AF_E_164_NSAP	15	/* E.164 with NSAP format subaddress */
+
 static const char *
-dissect_pim_addr(const u_char *bp, const u_char *ep, enum pimv2_addrtype at,
+dissect_pim_addr(tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
 	int *advance) {
     static char buf[512];
-    int af;
+    guint8 af;
+    guint8 et;
+    guint8 flags;
+    guint8 mask_len;
     int len = 0;
 
-    if (bp >= ep)
-	return NULL;
-
-    switch (bp[0]) {
-    case 1:
-	af = 4;
-	break;
-    case 2:
-	af = 6;
-	break;
-    default:
+    af = tvb_get_guint8(tvb, offset);
+    if (af != PIM_AF_IP && af != PIM_AF_IPV6) {
+	/*
+	 * We don't handle the other formats, and addresses don't include
+	 * a length field, so we can't even show them as raw bytes.
+	 */
 	return NULL;
     }
 
-    if (bp[1] != 0)
+    et = tvb_get_guint8(tvb, offset + 1);
+    if (et != 0) {
+	/*
+	 * The only defined encoding type is 0, for the native encoding;
+	 * again, as addresses don't include a length field, we can't
+	 * even show addresses with a different encoding type as raw
+	 * bytes.
+	 */
 	return NULL;
+    }
 
     switch (at) {
     case pimv2_unicast:
-	if (af == 4) {
+	switch (af) {
+	case PIM_AF_IP:
 	    len = 4;
-	    if (bp + 2 + len > ep)
-		return NULL;
-	    (void)snprintf(buf, sizeof(buf), "%s", ip_to_str(bp + 2));
-	}
-	else if (af == 6) {
-	    len = 16;
-	    if (bp + 2 + len > ep)
-		return NULL;
 	    (void)snprintf(buf, sizeof(buf), "%s",
-		ip6_to_str((struct e_in6_addr *)(bp + 2)));
+	        ip_to_str(tvb_get_ptr(tvb, offset + 2, len)));
+	    break;
+
+	case PIM_AF_IPV6:
+	    len = 16;
+	    (void)snprintf(buf, sizeof(buf), "%s",
+		ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset + 2, len)));
+	    break;
 	}
 	if (advance)
 	    *advance = 2 + len;
 	break;
 
     case pimv2_group:
-	if (af == 4) {
+	mask_len = tvb_get_guint8(tvb, offset + 3);
+	switch (af) {
+	case PIM_AF_IP:
 	    len = 4;
-	    if (bp + 4 + len > ep)
-		return NULL;
-	    (void)snprintf(buf, sizeof(buf), "%s/%u", ip_to_str(bp + 4), bp[3]);
-	}
-	else if (af == 6) {
-	    len = 16;
-	    if (bp + 4 + len > ep)
-		return NULL;
 	    (void)snprintf(buf, sizeof(buf), "%s/%u",
-		ip6_to_str((struct e_in6_addr *)(bp + 4)), bp[3]);
+		ip_to_str(tvb_get_ptr(tvb, offset + 4, len)), mask_len);
+	    break;
+
+	case PIM_AF_IPV6:
+	    len = 16;
+	    (void)snprintf(buf, sizeof(buf), "%s/%u",
+		ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, len)), mask_len);
+	    break;
 	}
 	if (advance)
 	    *advance = 4 + len;
 	break;
+
     case pimv2_source:
-	if (af == 4) {
+	flags = tvb_get_guint8(tvb, offset + 2);
+	mask_len = tvb_get_guint8(tvb, offset + 3);
+	switch (af) {
+	case PIM_AF_IP:
 	    len = 4;
-	    if (bp + 4 + len > ep)
-		return NULL;
-	    (void)snprintf(buf, sizeof(buf), "%s/%u", ip_to_str(bp + 4), bp[3]);
-	}
-	else if (af == 6) {
-	    len = 16;
-	    if (bp + 4 + len > ep)
-		return NULL;
 	    (void)snprintf(buf, sizeof(buf), "%s/%u",
-		ip6_to_str((struct e_in6_addr *)(bp + 4)), bp[3]);
+		ip_to_str(tvb_get_ptr(tvb, offset + 4, len)), mask_len);
+	    break;
+
+	case PIM_AF_IPV6:
+	    len = 16;
+	    (void)snprintf(buf, sizeof(buf), "%s/%u",
+		ip6_to_str((struct e_in6_addr *)tvb_get_ptr(tvb, offset + 4, len)), mask_len);
+	    break;
 	}
-	if (bp[2]) {
+	if (flags) {
 	    (void)snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf),
 		" (%s%s%s)",
-		bp[2] & 0x04 ? "S" : "",
-		bp[2] & 0x02 ? "W" : "",
-		bp[2] & 0x01 ? "R" : "");
+		flags & 0x04 ? "S" : "",
+		flags & 0x02 ? "W" : "",
+		flags & 0x01 ? "R" : "");
 	}
 	if (advance)
 	    *advance = 4 + len;
@@ -164,8 +185,10 @@ dissect_pim_addr(const u_char *bp, const u_char *ep, enum pimv2_addrtype at,
 }
 
 static void 
-dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
-    struct pim pim;
+dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+    int offset = 0;
+    guint8 pim_typever;
+    guint16 pim_cksum;
     static const value_string type1vals[] = {
 	{ 0, "Query" },
 	{ 1, "Register" },
@@ -192,72 +215,93 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     };
     char *typestr;
     proto_tree *pim_tree = NULL;
-	proto_item *ti; 
+    proto_item *ti; 
     proto_tree *pimopt_tree = NULL;
-	proto_item *tiopt; 
+    proto_item *tiopt; 
 
-    OLD_CHECK_DISPLAY_AS_DATA(proto_pim, pd, offset, fd, tree);
+    CHECK_DISPLAY_AS_DATA(proto_pim, tvb, pinfo, tree);
 
-    /* avoid alignment problem */
-    memcpy(&pim, &pd[offset], sizeof(pim));
+    pinfo->current_proto = "PIM";
 
-    switch (PIM_VER(pim.pim_typever)) {
+    if (check_col(pinfo->fd, COL_PROTOCOL))
+        col_set_str(pinfo->fd, COL_PROTOCOL, "PIM");
+    if (check_col(pinfo->fd, COL_INFO))
+	col_clear(pinfo->fd, COL_INFO);
+
+    pim_typever = tvb_get_guint8(tvb, 0);
+
+    switch (PIM_VER(pim_typever)) {
     case 1:
-	typestr = val_to_str(PIM_TYPE(pim.pim_typever), type1vals, "Unknown");
+	typestr = val_to_str(PIM_TYPE(pim_typever), type1vals, "Unknown");
 	break;
     case 2:
-	typestr = val_to_str(PIM_TYPE(pim.pim_typever), type2vals, "Unknown");
+	typestr = val_to_str(PIM_TYPE(pim_typever), type2vals, "Unknown");
 	break;
     default:
 	typestr = "Unknown";
 	break;
     }
 
-    if (check_col(fd, COL_PROTOCOL)) {
-        col_add_fstr(fd, COL_PROTOCOL, "PIM version %d",
-	    PIM_VER(pim.pim_typever));
+    if (check_col(pinfo->fd, COL_PROTOCOL)) {
+        col_add_fstr(pinfo->fd, COL_PROTOCOL, "PIM version %d",
+	    PIM_VER(pim_typever));
     }
-    if (check_col(fd, COL_INFO))
-	col_add_fstr(fd, COL_INFO, "%s", typestr); 
+    if (check_col(pinfo->fd, COL_INFO))
+	col_add_fstr(pinfo->fd, COL_INFO, "%s", typestr); 
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_pim, NullTVB, offset, END_OF_FRAME, FALSE);
+	ti = proto_tree_add_item(tree, proto_pim, tvb, offset,
+	    tvb_length_remaining(tvb, offset), FALSE);
 	pim_tree = proto_item_add_subtree(ti, ett_pim);
 
-	proto_tree_add_uint(pim_tree, hf_pim_version, NullTVB, offset, 1,
-	    PIM_VER(pim.pim_typever)); 
-	proto_tree_add_uint_format(pim_tree, hf_pim_type, NullTVB, offset, 1,
-	    PIM_TYPE(pim.pim_typever),
-	    "Type: %s (%u)", typestr, PIM_TYPE(pim.pim_typever)); 
+	proto_tree_add_uint(pim_tree, hf_pim_version, tvb, offset, 1,
+	    PIM_VER(pim_typever)); 
+	proto_tree_add_uint_format(pim_tree, hf_pim_type, tvb, offset, 1,
+	    PIM_TYPE(pim_typever),
+	    "Type: %s (%u)", typestr, PIM_TYPE(pim_typever)); 
 
-	proto_tree_add_uint(pim_tree, hf_pim_cksum, NullTVB,
-	    offset + offsetof(struct pim, pim_cksum), sizeof(pim.pim_cksum),
-	    ntohs(pim.pim_cksum));
+	/*
+	 * XXX - RFC 2362 says that this is "the 16-bit one's complement
+	 * of the one's complement sum of the entire PIM message,
+	 * (excluding the data portion in the Register message).  For
+	 * computing the checksum, the checksum field is zeroed."
+	 *
+	 * As I read that, it translates as "this is the IP checksum
+	 * of everything in the PIM packet except for the data portion
+	 * in the Register message" - but, in at least one IPv6
+	 * capture, that doesn't appear to be the case; perhaps it's
+	 * different for PIM-over-IPv6.
+	 */
+	pim_cksum = tvb_get_ntohs(tvb, offset + 2);
+	proto_tree_add_uint(pim_tree, hf_pim_cksum, tvb,
+	    offset + 2, 2, pim_cksum);
 
-	if (sizeof(struct pim) < END_OF_FRAME) {
-	    tiopt = proto_tree_add_text(pim_tree, NullTVB,
-		offset + sizeof(struct pim), END_OF_FRAME,
-		"PIM parameters");
+	offset += 4;
+
+	if (tvb_reported_length_remaining(tvb, offset) > 0) {
+	    tiopt = proto_tree_add_text(pim_tree, tvb, offset,
+	        tvb_length_remaining(tvb, offset), "PIM parameters");
 	    pimopt_tree = proto_item_add_subtree(tiopt, ett_pim);
 	} else
 	    goto done;
 
-	if (PIM_VER(pim.pim_typever) != 2)
+	if (PIM_VER(pim_typever) != 2)
 	    goto done;
 
 	/* version 2 decoder */
-	switch (PIM_TYPE(pim.pim_typever)) {
+	switch (PIM_TYPE(pim_typever)) {
 	case 0:	/*hello*/
 	  {
-	    guint16 *w;
-	    w = (guint16 *)&pd[offset + sizeof(struct pim)];
-	    while ((guint8 *)w < &pd[offset + END_OF_FRAME]) {
-		if (pntohs(&w[0]) == 1 && pntohs(&w[1]) == 2
-		 && (guint8 *)&w[3] <= &pd[offset + END_OF_FRAME]) {
-		    proto_tree_add_text(pimopt_tree, NullTVB, (guint8 *)w - pd, 6,
-			"Holdtime: %u%s", pntohs(&w[2]),
-			pntohs(&w[2]) == 0xffff ? " (infty)" : "");
-		    w += 3;
+	    while (tvb_reported_length_remaining(tvb, offset) >= 2) {
+		if (tvb_get_ntohs(tvb, offset) == 1 &&
+		    tvb_get_ntohs(tvb, offset + 2) == 2) {
+		    guint16 holdtime;
+
+		    holdtime = tvb_get_ntohs(tvb, offset + 4);
+		    proto_tree_add_text(pimopt_tree, tvb, offset, 6,
+			"Holdtime: %u%s", holdtime,
+			holdtime == 0xffff ? " (infty)" : "");
+		    offset += 6;
 		} else
 		    break;
 	    }
@@ -266,42 +310,55 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	case 1:	/* register */
 	  {
-	    const guint8 *ip;
+	    guint32 flags;
+	    guint8 v_hl;
+	    tvbuff_t *next_tvb;
+	    const guint8 *next_pd;
+	    int next_offset;
 	    proto_tree *flag_tree = NULL;
-		proto_item *tiflag; 
-	    int flagoff;
+	    proto_item *tiflag; 
 
-	    flagoff = offset + sizeof(struct pim);
-	    tiflag = proto_tree_add_text(pimopt_tree, NullTVB, flagoff, 4,
-		"Flags: 0x%08x", pntohl(&pd[flagoff]));
+	    flags = tvb_get_ntohl(tvb, offset);
+	    tiflag = proto_tree_add_text(pimopt_tree, tvb, offset, 4,
+		"Flags: 0x%08x", flags);
 	    flag_tree = proto_item_add_subtree(tiflag, ett_pim);
-	    proto_tree_add_text(flag_tree, NullTVB, flagoff, 1, "%s",
-		decode_boolean_bitfield(pd[flagoff], 0x80000000, 32,
+	    proto_tree_add_text(flag_tree, tvb, offset, 1, "%s",
+		decode_boolean_bitfield(flags, 0x80000000, 32,
 		    "Border", "Not border"));
-	    proto_tree_add_text(flag_tree, NullTVB, flagoff, 1, "%s",
-		decode_boolean_bitfield(pd[flagoff], 0x40000000, 32,
+	    proto_tree_add_text(flag_tree, tvb, offset, 1, "%s",
+		decode_boolean_bitfield(flags, 0x40000000, 32,
 		    "Null-Register", "Not Null-Register"));
+	    offset += 4;
+	    
+	    /*
+	     * The rest of the packet is a multicast data packet.
+	     */
+	    next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 
-	    ip = &pd[flagoff + sizeof(guint32)];
-	    switch((*ip & 0xf0) >> 4) {
+	    /*
+	     * It's an IP packet - determine whether it's IPv4 or IPv6.
+	     */
+	    v_hl = tvb_get_guint8(tvb, offset);
+	    switch((v_hl & 0xf0) >> 4) {
 	    case 4:	/* IPv4 */
 #if 0
-		    old_call_dissector(ip_handle, pd, ip - pd, fd, tree);
+		    call_dissector(ip_handle, next_tvb, pinfo, tree);
 #else
-		    old_call_dissector(ip_handle, pd, ip - pd, fd, pimopt_tree);
+		    call_dissector(ip_handle, next_tvb, pinfo, pimopt_tree);
 #endif
 		    break;
 	    case 6:	/* IPv6 */
+	    	    tvb_compat(next_tvb, &next_pd, &next_offset);
 #if 0
-		    dissect_ipv6(pd, ip - pd, fd, tree);
+		    dissect_ipv6(next_pd, next_offset, pinfo->fd, tree);
 #else
-		    dissect_ipv6(pd, ip - pd, fd, pimopt_tree);
+		    dissect_ipv6(next_pd, next_offset, pinfo->fd, pimopt_tree);
 #endif
 		    break;
 	    default:
-		    proto_tree_add_text(pimopt_tree, NullTVB,
-			ip - pd, END_OF_FRAME,
-			"Unknown IP version %d", (*ip & 0xf0) >> 4);
+		    proto_tree_add_text(pimopt_tree, tvb,
+			offset, tvb_length_remaining(tvb, offset),
+			"Unknown IP version %d", (v_hl & 0xf0) >> 4);
 		    break;
 	    }
 	    break;
@@ -310,20 +367,17 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	case 2:	/* register-stop */
 	  {
 	    int advance;
-	    const guint8 *ep;
 	    const char *s;
 
-	    ep = &pd[offset + END_OF_FRAME];
-	    offset += sizeof(struct pim);
-	    s = dissect_pim_addr(&pd[offset], ep, pimv2_group, &advance);
+	    s = dissect_pim_addr(tvb, offset, pimv2_group, &advance);
 	    if (s == NULL)
 		break;
-	    proto_tree_add_text(pimopt_tree, NullTVB, offset, advance, "Group: %s", s);
+	    proto_tree_add_text(pimopt_tree, tvb, offset, advance, "Group: %s", s);
 	    offset += advance;
-	    s = dissect_pim_addr(&pd[offset], ep, pimv2_unicast, &advance);
+	    s = dissect_pim_addr(tvb, offset, pimv2_unicast, &advance);
 	    if (s == NULL)
 		break;
-	    proto_tree_add_text(pimopt_tree, NullTVB, offset, advance, "Source: %s", s);
+	    proto_tree_add_text(pimopt_tree, tvb, offset, advance, "Source: %s", s);
 	    break;
 	  }
 
@@ -332,84 +386,76 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	case 7:	/* graft-ack */
 	  {
 	    int advance;
-	    const guint8 *ep;
 	    int off;
 	    const char *s;
 	    int ngroup, i, njoin, nprune, j;
+	    guint16 holdtime;
 	    proto_tree *grouptree = NULL;
-		proto_item *tigroup; 
+	    proto_item *tigroup; 
 	    proto_tree *subtree = NULL;
-		proto_item *tisub; 
+	    proto_item *tisub; 
 
-	    ep = &pd[offset + END_OF_FRAME];
-	    offset += sizeof(struct pim);
-	    if (PIM_TYPE(pim.pim_typever) != 7)	{
+	    if (PIM_TYPE(pim_typever) != 7) {
 		/* not graft-ack */
-		s = dissect_pim_addr(&pd[offset], ep, pimv2_unicast, &advance);
+		s = dissect_pim_addr(tvb, offset, pimv2_unicast, &advance);
 		if (s == NULL)
 		    break;
-		proto_tree_add_text(pimopt_tree, NullTVB, offset, advance,
+		proto_tree_add_text(pimopt_tree, tvb, offset, advance,
 		    "Upstream-neighbor: %s", s);
 		offset += advance;
 	    }
 
-	    if (&pd[offset + 2] > ep)
-		break;
-	    ngroup = pd[offset + 1];
-	    proto_tree_add_text(pimopt_tree, NullTVB, offset + 1, 1,
-		"Groups: %u", pd[offset + 1]);
-	    offset += 2;
+	    offset += 1;	/* skip reserved field */
 
-	    if (&pd[offset + 2] > ep)
-		break;
-	    if (PIM_TYPE(pim.pim_typever) != 7)	{
+	    ngroup = tvb_get_guint8(tvb, offset);
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 1,
+		"Groups: %u", ngroup);
+	    offset += 1;
+
+	    if (PIM_TYPE(pim_typever) != 7)	{
 		/* not graft-ack */
-		proto_tree_add_text(pimopt_tree, NullTVB, offset, 2,
-		    "Holdtime: %u%s", pntohs(&pd[offset]),
-		    pntohs(&pd[offset]) == 0xffff ? " (infty)" : "");
+		holdtime = tvb_get_ntohs(tvb, offset);
+		proto_tree_add_text(pimopt_tree, tvb, offset, 2,
+		    "Holdtime: %u%s", holdtime,
+		    holdtime == 0xffff ? " (infty)" : "");
 	    }
 	    offset += 2;
 
 	    for (i = 0; i < ngroup; i++) {
-		if (&pd[offset] >= ep)
-		    goto breakbreak3;
-
-		s = dissect_pim_addr(&pd[offset], ep, pimv2_group, &advance);
+		s = dissect_pim_addr(tvb, offset, pimv2_group, &advance);
 		if (s == NULL)
 		    goto breakbreak3;
-		tigroup = proto_tree_add_text(pimopt_tree, NullTVB, offset, advance,
+		tigroup = proto_tree_add_text(pimopt_tree, tvb, offset, advance,
 		    "Group %d: %s", i, s);
 		grouptree = proto_item_add_subtree(tigroup, ett_pim);
 		offset += advance;
 
-		if (&pd[offset + 4] > ep)
-		    goto breakbreak3;
-		njoin = pntohs(&pd[offset]);
-		nprune = pntohs(&pd[offset + 2]);
+		njoin = tvb_get_ntohs(tvb, offset);
+		nprune = tvb_get_ntohs(tvb, offset + 2);
 
-		tisub = proto_tree_add_text(grouptree, NullTVB, offset, 2,
+		tisub = proto_tree_add_text(grouptree, tvb, offset, 2,
 		    "Join: %d", njoin);
 		subtree = proto_item_add_subtree(tisub, ett_pim);
 		off = offset + 4;
 		for (j = 0; j < nprune; j++) {
-		    s = dissect_pim_addr(&pd[off], ep, pimv2_source,
+		    s = dissect_pim_addr(tvb, off, pimv2_source,
 			&advance);
 		    if (s == NULL)
 			goto breakbreak3;
-		    proto_tree_add_text(subtree, NullTVB, off, advance,
+		    proto_tree_add_text(subtree, tvb, off, advance,
 			"IP address: %s", s);
 		    off += advance;
 		}
 
-		tisub = proto_tree_add_text(grouptree, NullTVB, offset + 2, 2,
+		tisub = proto_tree_add_text(grouptree, tvb, offset + 2, 2,
 		    "Prune: %d", nprune);
 		subtree = proto_item_add_subtree(tisub, ett_pim);
 		for (j = 0; j < nprune; j++) {
-		    s = dissect_pim_addr(&pd[off], ep, pimv2_source,
+		    s = dissect_pim_addr(tvb, off, pimv2_source,
 			&advance);
 		    if (s == NULL)
 			goto breakbreak3;
-		    proto_tree_add_text(subtree, NullTVB, off, advance,
+		    proto_tree_add_text(subtree, tvb, off, advance,
 			"IP address: %s", s);
 		    off += advance;
 		}
@@ -424,69 +470,60 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    int advance;
 	    int i, j;
 	    int frpcnt;
+	    guint16 holdtime;
 	    proto_tree *grouptree = NULL;
-		proto_item *tigroup; 
+	    proto_item *tigroup; 
 
-	    offset += sizeof(struct pim);
-
-	    if (END_OF_FRAME < 2)
-		break;
-	    proto_tree_add_text(pimopt_tree, NullTVB, offset, 2,
-		"Fragment tag: 0x%04x", pntohs(&pd[offset]));
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 2,
+		"Fragment tag: 0x%04x", tvb_get_ntohs(tvb, offset));
 	    offset += 2;
 
-	    if (END_OF_FRAME < 2)
-		break;
-	    proto_tree_add_text(pimopt_tree, NullTVB, offset, 1,
-		"Hash mask len: %u", pd[offset]);
-	    proto_tree_add_text(pimopt_tree, NullTVB, offset + 1, 1,
-		"BSR priority: %u", pd[offset + 1]);
-	    offset += 2;
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 1,
+		"Hash mask len: %u", tvb_get_guint8(tvb, offset));
+	    offset += 1;
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 1,
+		"BSR priority: %u", tvb_get_guint8(tvb, offset));
+	    offset += 1;
 
-	    s = dissect_pim_addr(&pd[offset], &pd[offset + END_OF_FRAME],
-		pimv2_unicast, &advance);
+	    s = dissect_pim_addr(tvb, offset, pimv2_unicast, &advance);
 	    if (s == NULL)
 		break;
-	    proto_tree_add_text(pimopt_tree, NullTVB, offset, advance, "BSR: %s", s);
+	    proto_tree_add_text(pimopt_tree, tvb, offset, advance, "BSR: %s", s);
 	    offset += advance;
 
-	    for (i = 0; END_OF_FRAME > 0; i++) {
-		s = dissect_pim_addr(&pd[offset], &pd[offset + END_OF_FRAME],
-		    pimv2_group, &advance);
+	    for (i = 0; tvb_reported_length_remaining(tvb, offset) > 0; i++) {
+		s = dissect_pim_addr(tvb, offset, pimv2_group, &advance);
 		if (s == NULL)
 		    goto breakbreak4;
-		tigroup = proto_tree_add_text(pimopt_tree, NullTVB, offset, advance,
+		tigroup = proto_tree_add_text(pimopt_tree, tvb, offset, advance,
 		    "Group %d: %s", i, s);
 		grouptree = proto_item_add_subtree(tigroup, ett_pim);
 		offset += advance;
 
-		if (END_OF_FRAME < 2)
-		    goto breakbreak4;
-		proto_tree_add_text(grouptree, NullTVB, offset, 1,
-		    "RP count: %u", pd[offset]);
-		proto_tree_add_text(grouptree, NullTVB, offset + 1, 1,
-		    "FRP count: %u", pd[offset + 1]);
-		frpcnt = pd[offset + 1];
-		offset += 4;
+		proto_tree_add_text(grouptree, tvb, offset, 1,
+		    "RP count: %u", tvb_get_guint8(tvb, offset));
+		offset += 1;
+		frpcnt = tvb_get_guint8(tvb, offset);
+		proto_tree_add_text(grouptree, tvb, offset, 1,
+		    "FRP count: %u", frpcnt);
+		offset += 3;
 
-		for (j = 0; j < frpcnt && END_OF_FRAME > 0; j++) {
-		    s = dissect_pim_addr(&pd[offset],
-			&pd[offset + END_OF_FRAME], pimv2_unicast, &advance);
+		for (j = 0; j < frpcnt; j++) {
+		    s = dissect_pim_addr(tvb, offset, pimv2_unicast, &advance);
 		    if (s == NULL)
 			goto breakbreak4;
-		    proto_tree_add_text(grouptree, NullTVB, offset, advance,
+		    proto_tree_add_text(grouptree, tvb, offset, advance,
 			"RP %d: %s", j, s);
 		    offset += advance;
 
-		    if (END_OF_FRAME < 4)
-			goto breakbreak4;
-		    proto_tree_add_text(grouptree, NullTVB, offset, 2,
-			"Holdtime: %u%s", pntohs(&pd[offset]),
-			pntohs(&pd[offset]) == 0xffff ? " (infty)" : "");
-		    proto_tree_add_text(grouptree, NullTVB, offset + 3, 1,
-			"Priority: %u", pd[offset + 3]);
-
-		    offset += 4;
+		    holdtime = tvb_get_ntohs(tvb, offset);
+		    proto_tree_add_text(grouptree, tvb, offset, 2,
+			"Holdtime: %u%s", holdtime,
+			holdtime == 0xffff ? " (infty)" : "");
+		    offset += 2;
+		    proto_tree_add_text(grouptree, tvb, offset, 1,
+			"Priority: %u", tvb_get_guint8(tvb, offset));
+		    offset += 2;	/* also skips reserved field */
 		}
 	    }
 
@@ -499,35 +536,27 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    const char *s;
 	    int advance;
 
-	    offset += sizeof(struct pim);
-
-	    s = dissect_pim_addr(&pd[offset], &pd[offset + END_OF_FRAME],
-		pimv2_group, &advance);
+	    s = dissect_pim_addr(tvb, offset, pimv2_group, &advance);
 	    if (s == NULL)
 		break;
-	    proto_tree_add_text(pimopt_tree, NullTVB, offset, advance, "Group: %s", s);
+	    proto_tree_add_text(pimopt_tree, tvb, offset, advance, "Group: %s", s);
 	    offset += advance;
 
-	    s = dissect_pim_addr(&pd[offset], &pd[offset + END_OF_FRAME],
-		pimv2_unicast, &advance);
+	    s = dissect_pim_addr(tvb, offset, pimv2_unicast, &advance);
 	    if (s == NULL)
 		break;
-	    proto_tree_add_text(pimopt_tree, NullTVB, offset, advance, "Source: %s", s);
+	    proto_tree_add_text(pimopt_tree, tvb, offset, advance, "Source: %s", s);
 	    offset += advance;
 
-	    if (END_OF_FRAME < 4)
-		break;
-	    proto_tree_add_text(pimopt_tree, NullTVB, offset, 1, "%s",
-		decode_boolean_bitfield(pd[offset], 0x80, 8,
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 1, "%s",
+		decode_boolean_bitfield(tvb_get_guint8(tvb, offset), 0x80, 8,
 		    "RP Tree", "Not RP Tree"));
-	    proto_tree_add_text(pimopt_tree, NullTVB, offset, 4, "Preference: %u",
-		pntohl(&pd[offset]) & 0x7fffffff);
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 4, "Preference: %u",
+		tvb_get_ntohl(tvb, offset) & 0x7fffffff);
 	    offset += 4;
 
-	    if (END_OF_FRAME < 4)
-		break;
-	    proto_tree_add_text(pimopt_tree, NullTVB, offset, 4, "Metric: %u",
-		pntohl(&pd[offset]));
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 4, "Metric: %u",
+		tvb_get_ntohl(tvb, offset));
 
 	    break;
 	  }
@@ -537,36 +566,33 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    const char *s;
 	    int advance;
 	    int pfxcnt;
+	    guint16 holdtime;
 	    int i;
 
-	    offset += sizeof(struct pim);
-	    if (END_OF_FRAME < 4)
-		break;
-	    pfxcnt = pd[offset];
-	    proto_tree_add_text(pimopt_tree, NullTVB, offset, 1,
-		"Prefix-count: %u", pd[offset]);
-	    proto_tree_add_text(pimopt_tree, NullTVB, offset + 1, 1,
-		"Priority: %u", pd[offset + 1]);
-	    proto_tree_add_text(pimopt_tree, NullTVB, offset + 2, 2,
-		"Holdtime: %u%s", pntohs(&pd[offset + 2]),
-		pntohs(&pd[offset + 2]) == 0xffff ? " (infty)" : "");
-	    offset += 4;
+	    pfxcnt = tvb_get_guint8(tvb, offset);
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 1,
+		"Prefix-count: %u", pfxcnt);
+	    offset += 1;
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 1,
+		"Priority: %u", tvb_get_guint8(tvb, offset));
+	    offset += 1;
+	    holdtime = tvb_get_ntohs(tvb, offset);
+	    proto_tree_add_text(pimopt_tree, tvb, offset, 2,
+		"Holdtime: %u%s", holdtime,
+		holdtime == 0xffff ? " (infty)" : "");
+	    offset += 2;
 
-	    if (END_OF_FRAME <= 0)
-		break;
-	    s = dissect_pim_addr(&pd[offset], &pd[offset + END_OF_FRAME],
-		pimv2_unicast, &advance);
+	    s = dissect_pim_addr(tvb, offset, pimv2_unicast, &advance);
 	    if (s == NULL)
 		break;
-	    proto_tree_add_text(pimopt_tree, NullTVB, offset, advance, "RP: %s", s);
+	    proto_tree_add_text(pimopt_tree, tvb, offset, advance, "RP: %s", s);
 	    offset += advance;
 
-	    for (i = 0; i < pfxcnt && END_OF_FRAME > 0; i++) {
-		s = dissect_pim_addr(&pd[offset], &pd[offset + END_OF_FRAME],
-		    pimv2_group, &advance);
+	    for (i = 0; i < pfxcnt; i++) {
+		s = dissect_pim_addr(tvb, offset, pimv2_group, &advance);
 		if (s == NULL)
 		    goto breakbreak8;
-		proto_tree_add_text(pimopt_tree, NullTVB, offset, advance,
+		proto_tree_add_text(pimopt_tree, tvb, offset, advance,
 		    "Group %d: %s", i, s);
 		offset += advance;
 	    }
@@ -608,7 +634,7 @@ proto_register_pim(void)
 void
 proto_reg_handoff_pim(void)
 {
-    old_dissector_add("ip.proto", IP_PROTO_PIM, dissect_pim, proto_pim);
+    dissector_add("ip.proto", IP_PROTO_PIM, dissect_pim, proto_pim);
 
     /*
      * Get a handle for the IP dissector.
