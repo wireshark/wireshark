@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.240 2002/03/05 12:03:26 guy Exp $
+ * $Id: main.c,v 1.241 2002/03/06 23:37:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,13 +28,11 @@
  *
  * To do:
  * - Graphs
- * - Check for end of packet in dissect_* routines.
  * - Playback window
  * - Multiple window support
  * - Add cut/copy/paste
  * - Create header parsing routines
  * - Make byte view selections more fancy?
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -1418,7 +1416,7 @@ main(int argc, char *argv[])
   g_string_append(comp_info_str, "(version unknown)");
 #endif /* HAVE_SNMP_VERSION_H */
 #else /* no SNMP */
-  g_string_append(comp_info_str, ", without SNMP");
+  g_string_append(comp_info_str, ", without SNMP MIB support");
 #endif
 
   /* Now get our args */

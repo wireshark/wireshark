@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.129 2002/02/28 19:35:08 gram Exp $
+ * $Id: tethereal.c,v 1.130 2002/03/06 23:37:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -437,7 +437,7 @@ main(int argc, char *argv[])
   g_string_append(comp_info_str, "(version unknown)");
 #endif /* HAVE_SNMP_VERSION_H */
 #else /* no SNMP */
-  g_string_append(comp_info_str, ", without SNMP");
+  g_string_append(comp_info_str, ", without SNMP MIB support");
 #endif
     
   /* Now get our args */
