@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.1 1999/11/06 06:27:09 guy Exp $
+ * $Id: find_dlg.c,v 1.2 1999/11/06 06:42:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,11 +28,6 @@
 # include "config.h"
 #endif
 
-#if 0
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#endif
 #include <gtk/gtk.h>
 
 #ifdef HAVE_UNISTD_H
@@ -47,15 +42,6 @@
 #include "dfilter.h"
 #include "globals.h"
 
-#if 0
-#include <time.h>
-
-#include <signal.h>
-#include <errno.h>
-
-#include <wiretap/wtap.h>
-#include "main.h"
-#endif
 #include "find_dlg.h"
 #include "prefs_dlg.h"
 #include "util.h"
@@ -173,7 +159,8 @@ find_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   /* Was it empty? */
   if (sfcode == NULL) {
     /* Yes - complain. */
-    simple_dialog(ESD_TYPE_WARN, NULL, "Blah blah blah");
+    simple_dialog(ESD_TYPE_WARN, NULL,
+       "You didn't specify a filter to use when searching for a frame.");
     return;
   }
 
