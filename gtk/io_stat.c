@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.11 2002/12/16 06:44:45 sahlberg Exp $
+ * $Id: io_stat.c,v 1.12 2002/12/16 07:11:24 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -687,6 +687,7 @@ gtk_iostat_draw(void *g)
 	/* loop over all items */
 	for(i=MAX_GRAPHS-1;i>=0;i--){
 		int adv_type=0;
+		int first_drawed=1;
 
 		if( (!io->graphs[i].display) || (!io->graphs[i].counts) ){
 			continue;
@@ -733,6 +734,19 @@ gtk_iostat_draw(void *g)
 			   the draw_area */
 			if(startx <=0){
 				continue;
+			}
+
+
+			/* the first seen data for this graph might be 
+			 * somewhere in the middle of the capture,  make sure 
+			 * we start drawing a proper line at zero from the 
+			 * left edge of the graph up until the measurement 
+			 * point.
+			 */
+			if(first_drawed){
+				first_drawed=0;
+				gdk_draw_line(io->pixmap, io->graphs[i].gc, 10, draw_height-1+10, startx+10, draw_height-1+10);
+				gdk_draw_line(io->pixmap, io->graphs[i].gc, startx+10, draw_height-1+10, startx+10, starty+10);
 			}
 
 			gdk_draw_line(io->pixmap, io->graphs[i].gc, startx+10, starty+10, startx+io->pixels_per_tick-1+10, starty+10);
