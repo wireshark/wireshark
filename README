@@ -1,4 +1,4 @@
-$Id: README,v 1.56 2002/05/15 21:50:26 gram Exp $
+$Id: README,v 1.57 2002/05/20 19:13:20 guy Exp $
 
 General Information
 ------- -----------
@@ -181,16 +181,18 @@ SNMP
 Ethereal can do some basic decoding of SNMP packets; it can also use the
 UCD SNMP library, version 4.2.2 or later, to do more sophisticated
 decoding, by reading MIB files and using the information in those files
-to display OIDs and variable binding values in a friendlier fashion The
-configure script will automatically determine whether you have the UCD
-SNMP library on your system, and will use it if it's version 4.2.2 or
-later.  If you have an SNMP library but _do not_ want to have ethereal
-use it, you can run configure with the "--disable-snmp" option.  (If you
-have an earlier version of the UCD SNMP library on your system, the
-configure script will stop, reporting that it can't find the
+to display OIDs and variable binding values in a friendlier fashion. 
+The configure script will automatically determine whether you have the
+UCD SNMP library on your system, and will use it if it's version 4.2.2
+or later.  If you have an SNMP library but _do not_ want to have
+ethereal use it, you can run configure with the "--without-ucdsnmp"
+option.
+
+If you have an earlier version of the UCD SNMP library on your system,
+the configure script will stop, reporting that it can't find the
 "sprint_realloc_objid()" routine; you should either upgrade to version
-4.2.4, as that version fixes some potential buffer overflow problems, or
-should configure with "--disable-snmp".)
+4.2.4 or later, as UCD SNMP 4.2.4 fixes some potential buffer overflow
+problems, or should configure with "--without-ucdsnmp".
 
 
 How to Report a Bug
