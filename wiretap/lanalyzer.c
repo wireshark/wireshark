@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.20 2000/01/22 06:22:38 guy Exp $
+ * $Id: lanalyzer.c,v 1.21 2000/03/22 07:06:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -49,6 +49,7 @@
 #define BOARD_325TR		227	/* LANalyzer 325TR (Token-ring) */
 
 static int lanalyzer_read(wtap *wth, int *err);
+static void lanalyzer_close(wtap *wth);
 
 int lanalyzer_open(wtap *wth, int *err)
 {
@@ -86,6 +87,7 @@ int lanalyzer_open(wtap *wth, int *err)
 	wth->file_type = WTAP_FILE_LANALYZER;
 	wth->capture.lanalyzer = g_malloc(sizeof(lanalyzer_t));
 	wth->subtype_read = lanalyzer_read;
+	wth->subtype_close = lanalyzer_close;
 	wth->snapshot_length = 0;
 
 	/* Read records until we find the start of packets */
@@ -293,4 +295,10 @@ static int lanalyzer_read(wtap *wth, int *err)
 	wth->phdr.pkt_encap = wth->file_encap;
 
 	return data_offset;
+}
+
+static void
+lanalyzer_close(wtap *wth)
+{
+	g_free(wth->capture.lanalyzer);
 }

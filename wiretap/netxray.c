@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.24 2000/02/19 08:00:04 guy Exp $
+ * $Id: netxray.c,v 1.25 2000/03/22 07:06:55 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -91,6 +91,7 @@ struct netxrayrec_2_x_hdr {
 };
 
 static int netxray_read(wtap *wth, int *err);
+static void netxray_close(wtap *wth);
 static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	const u_char *pd, int *err);
 static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err);
@@ -186,6 +187,7 @@ int netxray_open(wtap *wth, int *err)
 	wth->file_type = file_type;
 	wth->capture.netxray = g_malloc(sizeof(netxray_t));
 	wth->subtype_read = netxray_read;
+	wth->subtype_close = netxray_close;
 	wth->file_encap = netxray_encap[hdr.network];
 	wth->snapshot_length = 16384;	/* XXX - not available in header */
 	wth->capture.netxray->start_time = pletohl(&hdr.start_time);
@@ -293,6 +295,12 @@ reread:
 	wth->phdr.pkt_encap = wth->file_encap;
 
 	return data_offset;
+}
+
+static void
+netxray_close(wtap *wth)
+{
+	g_free(wth->capture.netxray);
 }
 
 static const int wtap_encap[] = {

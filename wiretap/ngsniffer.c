@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.36 2000/02/19 08:00:07 guy Exp $
+ * $Id: ngsniffer.c,v 1.37 2000/03/22 07:06:57 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -247,6 +247,7 @@ struct frame4_rec {
 static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
 
 static int ngsniffer_read(wtap *wth, int *err);
+static void ngsniffer_close(wtap *wth);
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	const u_char *pd, int *err);
 static gboolean ngsniffer_dump_close(wtap_dumper *wdh, int *err);
@@ -370,6 +371,7 @@ int ngsniffer_open(wtap *wth, int *err)
 	wth->file_type = WTAP_FILE_NGSNIFFER;
 	wth->capture.ngsniffer = g_malloc(sizeof(ngsniffer_t));
 	wth->subtype_read = ngsniffer_read;
+	wth->subtype_close = ngsniffer_close;
 	wth->snapshot_length = 16384;	/* not available in header, only in frame */
 	wth->capture.ngsniffer->timeunit = Usec[version.timeunit];
 	wth->file_encap = sniffer_encap[version.network];
@@ -636,6 +638,12 @@ found:
 			*1.0e6);
 	wth->phdr.pkt_encap = wth->file_encap;
 	return data_offset;
+}
+
+static void
+ngsniffer_close(wtap *wth)
+{
+	g_free(wth->capture.ngsniffer);
 }
 
 static const int wtap_encap[] = {

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.64 2000/02/19 08:00:08 guy Exp $
+ * $Id: wtap.h,v 1.65 2000/03/22 07:06:59 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -185,8 +185,8 @@ typedef struct {
 	guint32	start_usecs;
 	guint8	version_major;
 	guint32 *frame_table;
+	int	frame_table_size;
 	int	current_frame;
-	int	end_offset;
 } netmon_t;
 
 typedef struct {
@@ -342,6 +342,7 @@ typedef struct wtap {
 	} capture;
 
 	subtype_read_func	subtype_read;
+	void			(*subtype_close)(struct wtap*);
 	int			file_encap;	/* per-file, for those
 						   file formats that have
 						   per-file encapsulation

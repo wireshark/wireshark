@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.8 2000/03/01 10:25:14 oabad Exp $
+ * $Id: nettl.c,v 1.9 2000/03/22 07:06:56 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -67,6 +67,7 @@ struct nettlrec_ns_ls_ip_hdr {
 /* header is followed by data and once again the total length (2 bytes) ! */
 
 static int nettl_read(wtap *wth, int *err);
+static void nettl_close(wtap *wth);
 
 int nettl_open(wtap *wth, int *err)
 {
@@ -110,6 +111,7 @@ int nettl_open(wtap *wth, int *err)
     wth->file_type = WTAP_FILE_NETTL;
     wth->capture.nettl = g_malloc(sizeof(nettl_t));
     wth->subtype_read = nettl_read;
+    wth->subtype_close = nettl_close;
     wth->snapshot_length = 16384;	/* not available in header, only in frame */
 
     wth->capture.nettl->start = 0;
@@ -267,4 +269,9 @@ static int nettl_read(wtap *wth, int *err)
 	return -1;
     }
     return data_offset;
+}
+
+static void nettl_close(wtap *wth)
+{
+    g_free(wth->capture.nettl);
 }

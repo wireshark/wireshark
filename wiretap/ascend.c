@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.12 2000/01/22 06:22:35 guy Exp $
+ * $Id: ascend.c,v 1.13 2000/03/22 07:06:56 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -82,6 +82,7 @@ static const char ascend_w2magic[] = { 'W', 'D', '_', 'D', 'I', 'A', 'L', 'O', '
 #define ASCEND_W2_SIZE (sizeof ascend_w2magic / sizeof ascend_w2magic[0])
 
 static int ascend_read(wtap *wth, int *err);
+static void ascend_close(wtap *wth);
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure.  A valid offset is 0; since
@@ -149,6 +150,7 @@ int ascend_open(wtap *wth, int *err)
   wth->file_type = WTAP_FILE_ASCEND;
   wth->snapshot_length = ASCEND_MAX_PKT_LEN;
   wth->subtype_read = ascend_read;
+  wth->subtype_close = ascend_close;
   wth->capture.ascend = g_malloc(sizeof(ascend_t));
 
   /* MAXen and Pipelines report the time since reboot.  In order to keep 
@@ -211,4 +213,9 @@ int ascend_seek_read (FILE *fh, int seek_off, guint8 *pd, int len)
 {
   file_seek(fh, seek_off - 1, SEEK_SET);
   return parse_ascend(fh, pd, NULL, NULL, len);
+}
+
+static void ascend_close(wtap *wth)
+{
+  g_free(wth->capture.ascend);
 }

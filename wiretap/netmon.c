@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.25 2000/02/19 08:00:05 guy Exp $
+ * $Id: netmon.c,v 1.26 2000/03/22 07:06:54 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -95,6 +95,7 @@ struct netmonrec_2_x_hdr {
 };
 
 static int netmon_read(wtap *wth, int *err);
+static void netmon_close(wtap *wth);
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const u_char *pd, int *err);
 static gboolean netmon_dump_close(wtap_dumper *wdh, int *err);
@@ -121,8 +122,8 @@ int netmon_open(wtap *wth, int *err)
 	};
 	#define NUM_NETMON_ENCAPS (sizeof netmon_encap / sizeof netmon_encap[0])
 	struct tm tm;
+	int frame_table_offset;
 	guint32 frame_table_length;
-	guint32 first_frame_table_entry;
 
 	/* Read in the string that should be at the start of a Network
 	 * Monitor file */
@@ -180,6 +181,7 @@ int netmon_open(wtap *wth, int *err)
 	wth->file_type = file_type;
 	wth->capture.netmon = g_malloc(sizeof(netmon_t));
 	wth->subtype_read = netmon_read;
+	wth->subtype_close = netmon_close;
 	wth->file_encap = netmon_encap[hdr.network];
 	wth->snapshot_length = 16384;	/* XXX - not available in header */
 	/*
@@ -213,48 +215,49 @@ int netmon_open(wtap *wth, int *err)
 	wth->capture.netmon->version_major = hdr.ver_major;
 
 	/*
-	 * The "frame index table" appears to come after the last
-	 * packet; remember its offset, so we know when we have no
-	 * more packets to read.
+	 * Get the offset of the frame index table.
 	 */
-	wth->capture.netmon->end_offset = pletohl(&hdr.frametableoffset);
+	frame_table_offset = pletohl(&hdr.frametableoffset);
 
 	/*
 	 * It appears that some NetMon 2.x files don't have the
 	 * first packet starting exactly 128 bytes into the file.
-	 * So we read the first entry from the frame table, and
-	 * use that as the offset of the first packet.
 	 *
-	 * First, make sure the frame table has at least one entry
-	 * in it....
+	 * Furthermore, it also appears that there are "holes" in
+	 * the file, i.e. frame N+1 doesn't always follow immediately
+	 * after frame N.
+	 *
+	 * Therefore, we must read the frame table, and use the offsets
+	 * in it as the offsets of the frames.
 	 */
 	frame_table_length = pletohl(&hdr.frametablelength);
-	if (frame_table_length < sizeof first_frame_table_entry) {
+	wth->capture.netmon->frame_table_size = frame_table_length / sizeof (guint32);
+	if ((wth->capture.netmon->frame_table_size * sizeof (guint32)) != frame_table_length) {
+		g_message("netmon: frame table length is %u, which is not a multiple of the size of an entry",
+		    frame_table_length);
+		*err = WTAP_ERR_UNSUPPORTED;
+		return -1;
+	}
+	if (wth->capture.netmon->frame_table_size == 0) {
 		g_message("netmon: frame table length is %u, which means it's less than one entry in size",
 		    frame_table_length);
 		*err = WTAP_ERR_UNSUPPORTED;
 		return -1;
 	}
-
-	/*
-	 * Now read that entry.  (It appears that the N+1st frame immediately
-	 * follows the Nth frame, so we don't need any entries after the
-	 * first entry.)
-	 */
+	wth->capture.netmon->frame_table = g_malloc(frame_table_length);
 	errno = WTAP_ERR_CANT_READ;
-	file_seek(wth->fh, wth->capture.netmon->end_offset, SEEK_SET);
-	bytes_read = file_read(&first_frame_table_entry, 1,
-	    sizeof first_frame_table_entry, wth->fh);
-	if (bytes_read != sizeof first_frame_table_entry) {
+	file_seek(wth->fh, frame_table_offset, SEEK_SET);
+	bytes_read = file_read(wth->capture.netmon->frame_table, 1,
+	    frame_table_length, wth->fh);
+	if (bytes_read != frame_table_length) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
 			return -1;
 		return 0;
 	}
 
-	/* Seek to the beginning of the data records. */
-	wth->data_offset = pletohl(&first_frame_table_entry);
-	file_seek(wth->fh, wth->data_offset, SEEK_SET);
+	/* Set up to start reading at the first frame. */
+	wth->capture.netmon->current_frame = 0;
 
 	return 1;
 }
@@ -262,6 +265,7 @@ int netmon_open(wtap *wth, int *err)
 /* Read the next packet */
 static int netmon_read(wtap *wth, int *err)
 {
+	netmon_t *netmon = wth->capture.netmon;
 	guint32	packet_size = 0;
 	int	bytes_read;
 	union {
@@ -275,12 +279,24 @@ static int netmon_read(wtap *wth, int *err)
 	double	t;
 
 	/* Have we reached the end of the packet data? */
-	if (wth->data_offset >= wth->capture.netmon->end_offset) {
+	if (netmon->current_frame >= netmon->frame_table_size) {
 		/* Yes. */
 		return 0;
 	}
+
+	/* Seek to the beginning of the current record, if we're
+	   not there already (seeking to the current position
+	   may still cause a seek and a read of the underlying file,
+	   so we don't want to do it unconditionally). */
+	data_offset = netmon->frame_table[netmon->current_frame];
+	if (wth->data_offset != data_offset) {
+		wth->data_offset = data_offset;
+		file_seek(wth->fh, wth->data_offset, SEEK_SET);
+	}
+	netmon->current_frame++;
+
 	/* Read record header. */
-	switch (wth->capture.netmon->version_major) {
+	switch (netmon->version_major) {
 
 	case 1:
 		hdr_size = sizeof (struct netmonrec_1_x_hdr);
@@ -291,6 +307,7 @@ static int netmon_read(wtap *wth, int *err)
 		break;
 	}
 	errno = WTAP_ERR_CANT_READ;
+
 	bytes_read = file_read(&hdr, 1, hdr_size, wth->fh);
 	if (bytes_read != hdr_size) {
 		*err = file_error(wth->fh);
@@ -304,7 +321,7 @@ static int netmon_read(wtap *wth, int *err)
 	}
 	wth->data_offset += hdr_size;
 
-	switch (wth->capture.netmon->version_major) {
+	switch (netmon->version_major) {
 
 	case 1:
 		packet_size = pletohs(&hdr.hdr_1_x.incl_len);
@@ -338,8 +355,8 @@ static int netmon_read(wtap *wth, int *err)
 	}
 	wth->data_offset += packet_size;
 
-	t = (double)wth->capture.netmon->start_usecs;
-	switch (wth->capture.netmon->version_major) {
+	t = (double)netmon->start_usecs;
+	switch (netmon->version_major) {
 
 	case 1:
 		t += ((double)pletohl(&hdr.hdr_1_x.ts_delta))*1000;
@@ -352,10 +369,10 @@ static int netmon_read(wtap *wth, int *err)
 	}
 	secs = (time_t)(t/1000000);
 	usecs = (guint32)(t - secs*1000000);
-	wth->phdr.ts.tv_sec = wth->capture.netmon->start_secs + secs;
+	wth->phdr.ts.tv_sec = netmon->start_secs + secs;
 	wth->phdr.ts.tv_usec = usecs;
 	wth->phdr.caplen = packet_size;
-	switch (wth->capture.netmon->version_major) {
+	switch (netmon->version_major) {
 
 	case 1:
 		wth->phdr.len = pletohs(&hdr.hdr_1_x.orig_len);
@@ -368,6 +385,13 @@ static int netmon_read(wtap *wth, int *err)
 	wth->phdr.pkt_encap = wth->file_encap;
 
 	return data_offset;
+}
+
+static void
+netmon_close(wtap *wth)
+{
+	g_free(wth->capture.netmon->frame_table);
+	g_free(wth->capture.netmon);
 }
 
 static const int wtap_encap[] = {

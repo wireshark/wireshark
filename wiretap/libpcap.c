@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.32 2000/02/19 08:00:06 guy Exp $
+ * $Id: libpcap.c,v 1.33 2000/03/22 07:06:58 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -88,6 +88,7 @@ struct pcaprec_modified_hdr {
 
 static int libpcap_read(wtap *wth, int *err);
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
+static void libpcap_close(wtap *wth);
 static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const u_char *pd, int *err);
 
@@ -259,6 +260,7 @@ int libpcap_open(wtap *wth, int *err)
 	wth->capture.pcap->version_major = hdr.version_major;
 	wth->capture.pcap->version_minor = hdr.version_minor;
 	wth->subtype_read = libpcap_read;
+	wth->subtype_close = libpcap_close;
 	wth->file_encap = pcap_encap[hdr.network];
 	wth->snapshot_length = hdr.snaplen;
 
@@ -452,6 +454,12 @@ adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 		hdr->orig_len = hdr->incl_len;
 		hdr->incl_len = temp;
 	}
+}
+
+static void
+libpcap_close(wtap *wth)
+{
+	g_free(wth->capture.pcap);
 }
 
 int wtap_pcap_encap_to_wtap_encap(int encap)

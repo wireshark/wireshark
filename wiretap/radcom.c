@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.18 2000/02/19 08:00:04 guy Exp $
+ * $Id: radcom.c,v 1.19 2000/03/22 07:06:56 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -68,6 +68,7 @@ struct radcomrec_hdr {
 };
 
 static int radcom_read(wtap *wth, int *err);
+static void radcom_close(wtap *wth);
 
 int radcom_open(wtap *wth, int *err)
 {
@@ -135,6 +136,7 @@ int radcom_open(wtap *wth, int *err)
 	wth->file_type = WTAP_FILE_RADCOM;
 	wth->capture.radcom = g_malloc(sizeof(radcom_t));
 	wth->subtype_read = radcom_read;
+	wth->subtype_close = radcom_close;
 	wth->snapshot_length = 16384;	/* not available in header, only in frame */
 
 	tm.tm_year = pletohs(&start_date.year)-1900;
@@ -300,4 +302,10 @@ static int radcom_read(wtap *wth, int *err)
 	}
 
 	return data_offset;
+}
+
+static void
+radcom_close(wtap *wth)
+{
+	g_free(wth->capture.radcom);
 }

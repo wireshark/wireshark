@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.37 2000/01/22 06:22:44 guy Exp $
+ * $Id: wtap.c,v 1.38 2000/03/22 07:06:55 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -189,50 +189,8 @@ const char *wtap_strerror(int err)
 
 void wtap_close(wtap *wth)
 {
-	/* free up memory. If any capture structure ever allocates
-	 * its own memory, it would be better to make a *close() function
-	 * for each filetype, like pcap_close(0, lanalyzer_close(), etc.
-	 * But for now this will work. */
-	switch(wth->file_type) {
-		case WTAP_FILE_PCAP:
-		case WTAP_FILE_PCAP_MODIFIED:
-			g_free(wth->capture.pcap);
-			break;
-
-		case WTAP_FILE_LANALYZER:
-			g_free(wth->capture.lanalyzer);
-			break;
-
-		case WTAP_FILE_NGSNIFFER:
-			g_free(wth->capture.ngsniffer);
-			break;
-
-		case WTAP_FILE_RADCOM:
-			g_free(wth->capture.radcom);
-			break;
-
-		case WTAP_FILE_NETMON_1_x:
-		case WTAP_FILE_NETMON_2_x:
-			g_free(wth->capture.netmon);
-			break;
-
-		case WTAP_FILE_NETXRAY_1_0:
-		case WTAP_FILE_NETXRAY_1_1:
-		case WTAP_FILE_NETXRAY_2_001:
-			g_free(wth->capture.netxray);
-			break;
-
-		case WTAP_FILE_ASCEND:
-			g_free(wth->capture.ascend);
-			break;
-
-		case WTAP_FILE_NETTL:
-			g_free(wth->capture.nettl);
-			break;
-
-		/* default:
-			 nothing */
-	}
+	if (wth->subtype_close != NULL)
+		(*wth->subtype_close)(wth);
 
 	file_close(wth->fh);
 
