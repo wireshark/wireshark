@@ -4,7 +4,7 @@
  *   Copyright 2003  Ronnie Sahlberg, exchange first/last matching and 
  *                                    tap listener and misc updates
  *
- * $Id: packet-fc.c,v 1.12 2003/07/09 06:23:19 guy Exp $
+ * $Id: packet-fc.c,v 1.13 2003/08/23 13:35:05 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -165,10 +165,10 @@ fc_exchange_equal_unmatched(gconstpointer v1, gconstpointer v2)
     }
     /* compare s_id, d_id and treat the fc address
        s_id==00.00.00 as a wildcard matching anything */
-    if( (fced1->s_id!=0) && (fced1->s_id!=fced2->s_id) ){
+    if( ((fced1->s_id.data[0]!=0)||(fced1->s_id.data[1]!=0)||(fced1->s_id.data[2]!=0)) && CMP_ADDRESS(&fced1->s_id, &fced2->s_id) ){
         return 0;
     }
-    if(fced1->d_id!=fced2->d_id){
+    if(CMP_ADDRESS(&fced1->d_id, &fced2->d_id)){
         return 0;
     }
 
@@ -733,8 +733,10 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         fchdr.r_ctl = tvb_get_guint8 (tvb, offset);
     }
     
-    fchdr.d_id=tvb_get_letoh24(tvb, offset+1);
-    fchdr.s_id=tvb_get_letoh24(tvb, offset+5);
+    SET_ADDRESS (&pinfo->dst, AT_FC, 3, tvb_get_ptr(tvb,offset+1,3));
+    SET_ADDRESS (&fchdr.d_id, AT_FC, 3, tvb_get_ptr(tvb,offset+1,3));
+    SET_ADDRESS (&pinfo->src, AT_FC, 3, tvb_get_ptr(tvb,offset+5,3));
+    SET_ADDRESS (&fchdr.s_id, AT_FC, 3, tvb_get_ptr(tvb,offset+5,3));
     fchdr.cs_ctl = tvb_get_guint8 (tvb, offset+4);
     fchdr.type  = tvb_get_guint8 (tvb, offset+8);
     fchdr.fctl=tvb_get_ntoh24(tvb,offset+9);
@@ -743,8 +745,6 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     fchdr.rxid=tvb_get_ntohs(tvb,offset+18);
     param = tvb_get_ntohl (tvb, offset+20);
 
-    SET_ADDRESS (&pinfo->dst, AT_FC, 3, tvb_get_ptr(tvb,offset+1,3));
-    SET_ADDRESS (&pinfo->src, AT_FC, 3, tvb_get_ptr(tvb,offset+5,3));
     pinfo->oxid = fchdr.oxid;
     pinfo->rxid = fchdr.rxid;
     pinfo->ptype = PT_EXCHG;
@@ -780,16 +780,16 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                is still open/unmatched. 
             */
             fced.oxid=fchdr.oxid;
-            fced.s_id=fchdr.s_id;
-            fced.d_id=fchdr.d_id;
+            SET_ADDRESS(&fced.s_id, fchdr.s_id.type, fchdr.s_id.len, fchdr.s_id.data);
+            SET_ADDRESS(&fced.d_id, fchdr.d_id.type, fchdr.d_id.len, fchdr.d_id.data);
             old_fced=g_hash_table_lookup(fc_exchange_unmatched, &fced);
             if(old_fced){
                 g_hash_table_remove(fc_exchange_unmatched, old_fced);
             }
             old_fced=g_mem_chunk_alloc(fc_exchange_vals);
             old_fced->oxid=fchdr.oxid;
-            old_fced->s_id=fchdr.s_id;
-            old_fced->d_id=fchdr.d_id;
+            COPY_ADDRESS(&old_fced->s_id, &fchdr.s_id);
+            COPY_ADDRESS(&old_fced->d_id, &fchdr.d_id);
 	    old_fced->first_exchange_frame=pinfo->fd->num;
             old_fced->fc_time.nsecs = pinfo->fd->abs_usecs*1000;
             old_fced->fc_time.secs = pinfo->fd->abs_secs;
@@ -809,8 +809,8 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             fc_exchange_data fced, *old_fced;
 
             fced.oxid=fchdr.oxid;
-            fced.s_id=fchdr.d_id;
-            fced.d_id=fchdr.s_id;
+            SET_ADDRESS(&fced.s_id, fchdr.d_id.type, fchdr.d_id.len, fchdr.d_id.data);
+            SET_ADDRESS(&fced.d_id, fchdr.s_id.type, fchdr.s_id.len, fchdr.s_id.data);
             old_fced=g_hash_table_lookup(fc_exchange_unmatched, &fced);
             if(old_fced){
                 g_hash_table_remove(fc_exchange_unmatched, old_fced);
@@ -943,17 +943,17 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* XXX - use "fc_wka_vals[]" on this? */
     proto_tree_add_string (fc_tree, hf_fc_did, tvb, offset+1, 3,
-                           fc32_to_str (fchdr.d_id));
+                           fc32_to_str (&fchdr.d_id));
     proto_tree_add_string_hidden (fc_tree, hf_fc_id, tvb, offset+1, 3,
-                           fc32_to_str (fchdr.d_id));
+                           fc32_to_str (&fchdr.d_id));
 
     proto_tree_add_uint (fc_tree, hf_fc_csctl, tvb, offset+4, 1, fchdr.cs_ctl);
 
     /* XXX - use "fc_wka_vals[]" on this? */
     proto_tree_add_string (fc_tree, hf_fc_sid, tvb, offset+5, 3,
-                           fc32_to_str (fchdr.s_id));
+                           fc32_to_str (&fchdr.s_id));
     proto_tree_add_string_hidden (fc_tree, hf_fc_id, tvb, offset+5, 3,
-                           fc32_to_str (fchdr.s_id));
+                           fc32_to_str (&fchdr.s_id));
         
     if (ftype == FC_FTYPE_LINKCTL) {
         if (((fchdr.r_ctl & 0x0F) == FC_LCTL_FBSYB) ||

@@ -1,7 +1,7 @@
 /* to_str.h
  * Definitions for utilities to convert various other types to strings.
  *
- * $Id: to_str.h,v 1.15 2003/06/23 09:15:08 sahlberg Exp $
+ * $Id: to_str.h,v 1.16 2003/08/23 13:35:06 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include "nstime.h"
+#include "epan/packet_info.h"
 
 /*
  * Resolution of a time stamp.
@@ -49,7 +50,7 @@ extern gchar*	ether_to_str(const guint8 *);
 extern gchar*	ip_to_str(const guint8 *);
 extern void	ip_to_str_buf(const guint8 *, gchar *);
 extern gchar*	fc_to_str(const guint8 *);
-extern gchar*	fc32_to_str(guint32);
+extern gchar*	fc32_to_str(address *);
 extern gchar*	fcwwn_to_str (const guint8 *);
 extern char*	ip6_to_str(const struct e_in6_addr *);
 extern gchar*	ipx_addr_to_str(guint32, const guint8 *);

@@ -2,7 +2,7 @@
  * Basic Fibre Channel Header definitions
  * Copyright 2002 Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-fc.h,v 1.3 2003/06/25 10:21:44 sahlberg Exp $
+ * $Id: packet-fc.h,v 1.4 2003/08/23 13:35:05 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -118,8 +118,8 @@ extern const value_string fc_fc4_val[];
    frames and time deltas 
 */
 typedef struct _fc_exchange_data {
-    guint32 s_id;
-    guint32 d_id;
+    address s_id;
+    address d_id;
     guint16 oxid;
     guint32 first_exchange_frame;
     guint32 last_exchange_frame;
@@ -128,8 +128,8 @@ typedef struct _fc_exchange_data {
 
 /* FC header structure */
 typedef struct _fc_hdr {
-    guint32 s_id;
-    guint32 d_id;
+    address s_id;
+    address d_id;
     guint32 fctl;
     guint8 type;
     guint16 seqcnt;

@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.28 2003/06/26 08:47:31 guy Exp $
+ * $Id: to_str.c,v 1.29 2003/08/23 13:35:06 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -582,10 +582,8 @@ fc_to_str(const guint8 *ad)
     return bytestring_to_str (ad, 3, '.');
 }
 
-/* convert the fc id stored in the three high order bytes of a guint32 into a 
-   fc id string*/
 gchar *
-fc32_to_str(guint32 ad32)
+fc32_to_str(address *addr)
 {
     static gchar *cur;
     static gchar str[3][9];
@@ -598,7 +596,7 @@ fc32_to_str(guint32 ad32)
         cur = &str[0][0];
     }
 
-    sprintf(cur,"%02x.%02x.%02x", ad32&0xff, (ad32>>8)&0xff, (ad32>>16)&0xff);
+    sprintf(cur,"%02x.%02x.%02x", addr->data[0], addr->data[1], addr->data[2]);
     return cur;
 }
 
