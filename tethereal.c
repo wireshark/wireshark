@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.143 2002/06/23 21:58:02 guy Exp $
+ * $Id: tethereal.c,v 1.144 2002/06/27 22:39:16 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -320,7 +320,7 @@ main(int argc, char *argv[])
   gboolean             capture_option_specified = FALSE;
 #endif
   int                  out_file_type = WTAP_FILE_PCAP;
-  gchar               *cf_name = NULL, *rfilter = NULL;
+  gchar               *cf_name = NULL, *rfilter = NULL, *if_text;
   dfilter_t           *rfcode = NULL;
   e_prefs             *prefs;
   char                 badopt;
@@ -818,7 +818,12 @@ main(int argc, char *argv[])
         /* No - is a default specified in the preferences file? */
         if (prefs->capture_device != NULL) {
             /* Yes - use it. */
-            cfile.iface	= g_strdup(prefs->capture_device);
+	    if_text = strrchr(prefs->capture_device, ' ');
+	    if (if_text == NULL) {
+            	cfile.iface = g_strdup(prefs->capture_device);
+	    } else {
+            	cfile.iface = g_strdup(if_text + 1); /* Skip over space */
+	    }
         } else {
             /* No - pick the first one from the list of interfaces. */
             if_list = get_interface_list(&err, err_str);
@@ -836,7 +841,12 @@ main(int argc, char *argv[])
                 }
                 exit(2);
             }
-            cfile.iface = g_strdup(if_list->data);	/* first interface */
+	    if_text = strrchr(if_list->data, ' ');	/* first interface */
+	    if (if_text == NULL) {
+            	cfile.iface = g_strdup(if_list->data);
+	    } else {
+            	cfile.iface = g_strdup(if_text + 1); /* Skip over space */
+	    }
             free_interface_list(if_list);
         }
     }

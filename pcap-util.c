@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.7 2002/05/18 02:41:45 gerald Exp $
+ * $Id: pcap-util.c,v 1.8 2002/06/27 22:39:16 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -390,7 +390,7 @@ search_for_if_cb(gpointer data, gpointer user_data)
 	if (strcmp((char *)data, search_user_data->name) == 0)
 		search_user_data->found = TRUE;
 }
-#else
+#else /* Windows */
 #define MAX_WIN_IF_NAME_LEN 511
 GList *
 get_interface_list(int *err, char *err_str) {
@@ -415,7 +415,14 @@ get_interface_list(int *err, char *err_str) {
    * ASCII "\0"), a double UNICODE "\0", followed by the descriptions
    * of the adapters, in ASCII format, separated by a single ASCII
    * "\0" . The string is terminated by a double ASCII "\0".
+   *
+   * We prepend the device name with a description to make it easier 
+   * for users to choose the interface they want.  This requires that 
+   * we split out the device name later on in tethereal.c and gtk/main.c.
+   * It might be useful to have separate structures for raw names and
+   * descriptions at some point.
    */
+
   names = (wchar_t *)pcap_lookupdev(err_str);
   i = done = 0;
 
