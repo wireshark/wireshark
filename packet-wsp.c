@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.41 2001/10/18 08:23:24 guy Exp $
+ * $Id: packet-wsp.c,v 1.42 2001/10/22 20:37:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1517,9 +1517,11 @@ add_well_known_header (proto_tree *tree, tvbuff_t *tvb, int offset,
 		break;
 
 	case FN_CACHE_CONTROL_DEP:	/* Cache-Control */
+	case FN_CACHE_CONTROL:
+	case FN_CACHE_CONTROL14:
 		/*
-		 * XXX - should both encoding versions 1.1 and
-		 * 1.3 be handled this way?
+		 * XXX - is the only difference in the three different
+		 * versions (1.1, 1.3, 1.4) really only S_MAXAGE?
 		 */
 		add_cache_control_header (tree, header_buff, headerLen,
 		    value_buff, valueType, valueLen);
@@ -1901,7 +1903,7 @@ add_cache_control_header (proto_tree *tree, tvbuff_t *header_buff,
     int headerLen, tvbuff_t *value_buff, value_type_t valueType,
     int valueLen)
 {
-	int offset;
+	int offset = 0;
 	int subvalueLen;
 	int subvalueOffset;
 	guint value;
@@ -1990,6 +1992,7 @@ add_cache_control_header (proto_tree *tree, tvbuff_t *header_buff,
 		case MAX_AGE:
 		case MAX_STALE:
 		case MIN_FRESH:
+		case S_MAXAGE:
 			/*
 			 * Get Delta-second-value.
 			 */
