@@ -1,7 +1,7 @@
 /* packet-bxxp.c
  * Routines for BXXP packet disassembly
  *
- * $Id: packet-bxxp.c,v 1.3 2000/09/12 02:24:19 sharpe Exp $
+ * $Id: packet-bxxp.c,v 1.4 2000/10/02 01:44:58 sharpe Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -49,14 +49,22 @@
 #define TCP_PORT_BXXP 10288
 void proto_reg_handoff_bxxp(void);
 
+
+static int global_bxxp_tcp_port = TCP_PORT_BXXP;
+static int global_bxxp_strict_term = TRUE;
+
 static int proto_bxxp = -1;
 
 static int hf_bxxp_req = -1;
+static int hf_bxxp_req_chan = -1;
+static int hf_bxxp_rsp_chan = -1;
+static int hf_bxxp_seq_chan = -1;
 static int hf_bxxp_rsp = -1;
 static int hf_bxxp_seq = -1;
-static int hf_bxxp_end = -1;    /* Do we need this one?        */
-static int hf_bxxp_complete = -1;   /* More data follows */
-static int hf_bxxp_intermediate = -1; /* No More data follows */
+static int hf_bxxp_end = -1;
+static int hf_bxxp_proto_viol = -1;
+static int hf_bxxp_complete = -1;   /* No More data follows */
+static int hf_bxxp_intermediate = -1; /* More data follows */
 static int hf_bxxp_serial = -1;
 static int hf_bxxp_seqno = -1;
 static int hf_bxxp_size = -1;
@@ -65,6 +73,22 @@ static int hf_bxxp_positive = -1;
 static int hf_bxxp_negative = -1;
 static int hf_bxxp_ackno = -1;
 static int hf_bxxp_window = -1;
+
+/* Arrays of hf entry pointers for some routines to use. If you want more
+ * hidden items added for a field, add them to the list before the NULL, 
+ * and the various routines that these are passed to will add them.
+ */
+
+static int *req_serial_hfa[] = { &hf_bxxp_serial, NULL };
+static int *req_seqno_hfa[]  = { &hf_bxxp_seqno, NULL };
+static int *req_size_hfa[]   = { &hf_bxxp_size, NULL };
+static int *req_chan_hfa[]   = { &hf_bxxp_channel, &hf_bxxp_req_chan, NULL };
+static int *rsp_serial_hfa[] = { &hf_bxxp_serial, NULL };
+static int *rsp_seqno_hfa[]  = { &hf_bxxp_seqno, NULL };
+static int *rsp_size_hfa[]   = { &hf_bxxp_size, NULL };
+static int *seq_chan_hfa[]   = { &hf_bxxp_channel, &hf_bxxp_seq_chan, NULL };
+static int *seq_ackno_hfa[]  = { &hf_bxxp_ackno, NULL };
+static int *seq_window_hfa[] = { &hf_bxxp_window, NULL };
 
 static int ett_bxxp = -1;
 static int ett_mime_header = -1;
@@ -194,19 +218,24 @@ dissect_bxxp_more(tvbuff_t *tvb, int offset, frame_data *fd,
 		  proto_tree *tree)
 {
 
+  /* FIXME: We should return a value to indicate all OK */
   switch (bxxp_get_more(tvb_get_guint8(tvb, offset))) {
 
   case BXXP_COMPLETE:
 
-    proto_tree_add_boolean_hidden(tree, hf_bxxp_complete, tvb, offset, 1, TRUE);
-    proto_tree_add_text(tree, tvb, offset, 1, "More: Complete");
+    if (tree) {
+      proto_tree_add_boolean_hidden(tree, hf_bxxp_complete, tvb, offset, 1, TRUE);
+      proto_tree_add_text(tree, tvb, offset, 1, "More: Complete");
+    }
 
     break;
 
   case BXXP_INTERMEDIATE:
-	
-    proto_tree_add_boolean_hidden(tree, hf_bxxp_intermediate, tvb, offset, 1, TRUE);
-    proto_tree_add_text(tree, tvb, offset, 1, "More: Intermediate");
+
+    if (tree) {
+      proto_tree_add_boolean_hidden(tree, hf_bxxp_intermediate, tvb, offset, 1, TRUE);
+      proto_tree_add_text(tree, tvb, offset, 1, "More: Intermediate");
+    }
 
     break;
 
@@ -221,20 +250,26 @@ dissect_bxxp_more(tvbuff_t *tvb, int offset, frame_data *fd,
 void dissect_bxxp_status(tvbuff_t *tvb, int offset, frame_data *fd,
 			 proto_tree *tree)
 {
+
+  /* FIXME: We should return a value to indicate all OK. */
   
   switch(tvb_get_guint8(tvb, offset)) {
 
   case '+':
-  
-    proto_tree_add_boolean_hidden(tree, hf_bxxp_positive, tvb, offset, 1, TRUE);
-    proto_tree_add_text(tree, tvb, offset, 1, "Status: Positive");
+
+    if (tree) {
+      proto_tree_add_boolean_hidden(tree, hf_bxxp_positive, tvb, offset, 1, TRUE);
+      proto_tree_add_text(tree, tvb, offset, 1, "Status: Positive");
+    }
 
     break;
 
   case '-':
 
-    proto_tree_add_boolean_hidden(tree, hf_bxxp_negative, tvb, offset, 1, TRUE);
-    proto_tree_add_text(tree, tvb, offset, 1, "Status: Negative");
+    if (tree) {
+      proto_tree_add_boolean_hidden(tree, hf_bxxp_negative, tvb, offset, 1, TRUE);
+      proto_tree_add_text(tree, tvb, offset, 1, "Status: Negative");
+    }
 
     break;
 
@@ -272,15 +307,19 @@ int
 dissect_bxxp_mime_header(tvbuff_t *tvb, int offset, frame_data *fd,
 			 proto_tree *tree)
 {
-  proto_tree    *ti, *mime_tree;
+  proto_tree    *ti = NULL, *mime_tree = NULL;
   int           mime_length = header_len(tvb, offset);
 
-  ti = proto_tree_add_text(tree, tvb, offset, mime_length + 2, "Mime header: %s", tvb_format_text(tvb, offset, mime_length + 2));
-  mime_tree = proto_item_add_subtree(ti, ett_mime_header);
+  if (tree) {
+    ti = proto_tree_add_text(tree, tvb, offset, mime_length + 2, "Mime header: %s", tvb_format_text(tvb, offset, mime_length + 2));
+    mime_tree = proto_item_add_subtree(ti, ett_mime_header);
+  }
 
   if (mime_length == 0) { /* Default header */
 
+    if (tree) {
     proto_tree_add_text(mime_tree, tvb, offset, 2, "Default values");
+    }
 
   }
   else {  /* FIXME: Process the headers */
@@ -294,9 +333,9 @@ dissect_bxxp_mime_header(tvbuff_t *tvb, int offset, frame_data *fd,
 
 int
 dissect_bxxp_int(tvbuff_t *tvb, int offset, frame_data *fd,
-		    proto_tree *tree, int hf, int *val)
+		    proto_tree *tree, int hf, int *val, int *hfa[])
 {
-  int ival, i = num_len(tvb, offset);
+  int ival, ind = 0, i = num_len(tvb, offset);
   guint8 int_buff[100];
 
   memset(int_buff, '\0', sizeof(int_buff));
@@ -305,7 +344,16 @@ dissect_bxxp_int(tvbuff_t *tvb, int offset, frame_data *fd,
 
   sscanf(int_buff, "%d", &ival);  /* FIXME: Dangerous */
 
-  proto_tree_add_uint(tree, hf, tvb, offset, i, ival);
+  if (tree) {
+    proto_tree_add_uint(tree, hf, tvb, offset, i, ival);
+  }
+
+  while (hfa[ind]) {
+
+    proto_tree_add_uint_hidden(tree, *hfa[ind], tvb, offset, i, ival);
+    ind++;
+
+  }
 
   *val = ival;  /* Return the value */
 
@@ -313,37 +361,89 @@ dissect_bxxp_int(tvbuff_t *tvb, int offset, frame_data *fd,
 
 }
 
+/*
+ * We check for a terminator. This can be CRLF, which will be recorded
+ * as a terminator, or CR or LF by itself, which will be redorded as
+ * an incorrect terminator ... We build the tree at this point
+ * However, we depend on the variable bxxp_strict_term
+ */ 
+
 int 
-check_crlf(tvbuff_t *tvb, int offset)
+check_term(tvbuff_t *tvb, int offset, frame_data *fd, proto_tree *tree)
 {
 
-  return (tvb_get_guint8(tvb, offset) == 0x0d
-	  && tvb_get_guint8(tvb, offset + 1) == 0x0a);
+  /* First, check for CRLF, or, if global_bxxp_strict_term is false, 
+   * one of CR or LF ... If neither of these hold, we add an element
+   * that complains of a protocol violation, and return -1, else
+   * we add a terminator to the tree (possibly non-standard) and return
+   * the count of characters we saw ... This may throw off the rest of the 
+   * dissection ... so-be-it!
+   */
+
+  if ((tvb_get_guint8(tvb, offset) == 0x0d && 
+       tvb_get_guint8(tvb, offset + 1) == 0x0a)){ /* Correct terminator */
+
+    if (tree) {
+      proto_tree_add_text(tree, tvb, offset, 2, "Terminator: CRLF");
+    }
+    return 2;
+
+  }
+  else if ((tvb_get_guint8(tvb, offset) == 0x0d) && !global_bxxp_strict_term) {
+
+    if (tree) {
+      proto_tree_add_text(tree, tvb, offset, 1, "Nonstandard Terminator: CR");
+    }
+    return 1;
+
+  }
+  else if ((tvb_get_guint8(tvb, offset) == 0x0a) && !global_bxxp_strict_term) {
+
+    if (tree) {
+      proto_tree_add_text(tree, tvb, offset, 1, "Nonstandard Terminator: LF");
+    }
+    return 1;
+
+  }
+  else {    
+
+    if (tree) {
+      proto_tree_add_text(tree, tvb, offset, 2, "PROTOCOL VIOLATION, Invalid Terminator: %s", tvb_format_text(tvb, offset, 2));
+    }
+    return -1;
+
+  }
 
 }
 
-static int global_bxxp_tcp_port = TCP_PORT_BXXP;
-
-/* Build the tree */
+/* Build the tree
+ *
+ * A return value of <= 0 says we bailed out, skip the rest of this message,
+ * if any.
+ *
+ * A return value > 0 is the count of bytes we consumed ...
+ */
 
 int
 dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 		  proto_tree *tree, struct bxxp_request_val *request_val, 
 		  struct bxxp_proto_data *frame_data)
 {
-  proto_tree     *ti, *hdr;
-  int            st_offset, serial, seqno, size, channel, ackno, window;
+  proto_tree     *ti = NULL, *hdr = NULL;
+  int            st_offset, serial, seqno, size, channel, ackno, window, cc;
 
   st_offset = offset;
 
   if (tvb_strneql(tvb, offset, "REQ ", 4) == 0) {
 
-    ti = proto_tree_add_text(tree, tvb, offset, header_len(tvb, offset) + 2, "Header");
+    if (tree) {
+      ti = proto_tree_add_text(tree, tvb, offset, header_len(tvb, offset) + 2, "Header");
 
-    hdr = proto_item_add_subtree(ti, ett_header);
+      hdr = proto_item_add_subtree(ti, ett_header);
 
-    proto_tree_add_boolean_hidden(hdr, hf_bxxp_req, tvb, offset, 3, TRUE);
-    proto_tree_add_text(hdr, NullTVB, offset, 3, "Command: REQ");
+      proto_tree_add_boolean_hidden(hdr, hf_bxxp_req, tvb, offset, 3, TRUE);
+      proto_tree_add_text(hdr, NullTVB, offset, 3, "Command: REQ");
+    }
 
     offset += 3;
 
@@ -368,20 +468,20 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* Dissect the serial */
 
-    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_serial, &serial);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_serial, &serial, req_serial_hfa);
     /* skip the space */
 
     offset += 1;
 
     /* now for the seqno */
 
-    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_seqno, &seqno);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_seqno, &seqno, req_seqno_hfa);
 
     /* skip the space */
 
     offset += 1;
 
-    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_size, &size);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_size, &size, req_size_hfa);
     if (request_val)
       request_val -> size = size;  /* Stash this away */
     else {
@@ -395,20 +495,27 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* Get the channel */
 
-    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_channel, &channel);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_channel, &channel, req_chan_hfa);
       
-    if (check_crlf(tvb, offset)) {
+    if ((cc = check_term(tvb, offset, pinfo->fd, hdr)) <= 0) {
 
-      proto_tree_add_text(hdr, tvb, offset, 2, "Terminator: CRLF");
+      /* We dissect the rest as data and bail ... */
+
+      if (tree) {
+	proto_tree_add_text(hdr, tvb, offset, 
+			    tvb_length_remaining(tvb, offset),
+			    "Undissected Payload: %s", 
+			    tvb_format_text(tvb, offset, 
+					    tvb_length_remaining(tvb, offset)
+					    )
+			    );
+      }
+
+      return -1;
 
     }
-    else {  /* Protocol violation */
 
-      /* FIXME: implement */
-
-    }
-
-    offset += 2;
+    offset += cc;
     
     /* Insert MIME header ... */
 
@@ -427,7 +534,10 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
        * and what is the next message
        */
 
-      proto_tree_add_text(tree, tvb, offset, pl_size, "Payload: %s", tvb_format_text(tvb, offset, pl_size));
+      if (tree) {
+	proto_tree_add_text(tree, tvb, offset, pl_size, "Payload: %s", tvb_format_text(tvb, offset, pl_size));
+
+      }
 
       offset += pl_size;
 
@@ -441,21 +551,23 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
       }
     }
       
-    /* If anything else left, dissect it ... As what? */
+    /* If anything else left, dissect it ... */
 
     if (tvb_length_remaining(tvb, offset) > 0)
       offset += dissect_bxxp_tree(tvb, offset, pinfo, tree, request_val, frame_data);
 
   } else if (tvb_strneql(tvb, offset, "RSP ", 4) == 0) {
 
-    /* FIXME: Fix the header length */
+    if (tree) {
 
-    ti = proto_tree_add_text(tree, tvb, offset, header_len(tvb, offset) + 2, "Header");
+      ti = proto_tree_add_text(tree, tvb, offset, header_len(tvb, offset) + 2, "Header");
 
-    hdr = proto_item_add_subtree(ti, ett_header);
+      hdr = proto_item_add_subtree(ti, ett_header);
 
-    proto_tree_add_boolean_hidden(hdr, hf_bxxp_rsp, NullTVB, offset, 3, TRUE);
-    proto_tree_add_text(hdr, tvb, offset, 3, "Command: RSP");
+      proto_tree_add_boolean_hidden(hdr, hf_bxxp_rsp, NullTVB, offset, 3, TRUE);
+      proto_tree_add_text(hdr, tvb, offset, 3, "Command: RSP");
+
+    }
 
     offset += 3;
 
@@ -472,20 +584,20 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     offset += 1;
 
-    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_serial, &serial);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_serial, &serial, rsp_serial_hfa);
     /* skip the space */
 
     offset += 1;
 
     /* now for the seqno */
 
-    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_seqno, &seqno);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_seqno, &seqno, rsp_seqno_hfa);
 
     /* skip the space */
 
     offset += 1;
 
-    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_size, &size);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, hdr, hf_bxxp_size, &size, rsp_size_hfa);
     if (request_val)
       request_val->size = size;
     else
@@ -499,18 +611,25 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     offset += 1;
 
-    if (check_crlf(tvb, offset)) {
+    if ((cc = check_term(tvb, offset, pinfo->fd, hdr)) <= 0) {
 
-      proto_tree_add_text(hdr, tvb, offset, 2, "Terminator: CRLF");
+      /* We dissect the rest as data and bail ... */
+
+      if (tree) {
+	proto_tree_add_text(hdr, tvb, offset, 
+			    tvb_length_remaining(tvb, offset),
+			    "Undissected Payload: %s", 
+			    tvb_format_text(tvb, offset, 
+					    tvb_length_remaining(tvb, offset)
+					    )
+			    );
+      }
+
+      return -1;
 
     }
-    else {  /* Protocol violation */
 
-      /* FIXME: implement */
-
-    }
-
-    offset += 2;
+    offset += cc;
     
     /* Insert MIME header ... */
 
@@ -524,7 +643,9 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
       
       /* Except, check the payload length, and only dissect that much */
 
-      proto_tree_add_text(tree, tvb, offset, pl_size, "Payload: %s", tvb_format_text(tvb, offset, pl_size));
+      if (tree) {
+	proto_tree_add_text(tree, tvb, offset, pl_size, "Payload: %s", tvb_format_text(tvb, offset, pl_size));
+      }
 
       offset += pl_size;
 
@@ -545,67 +666,85 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   } else if (tvb_strneql(tvb, offset, "SEQ ", 4) == 0) {
 
-    proto_tree_add_boolean_hidden(tree, hf_bxxp_seq, NullTVB, offset, 3, TRUE);
-    proto_tree_add_text(tree, tvb, offset, 3, "Command: SEQ");
-      
+    if (tree) {
+      proto_tree_add_boolean_hidden(tree, hf_bxxp_seq, NullTVB, offset, 3, TRUE);
+      proto_tree_add_text(tree, tvb, offset, 3, "Command: SEQ");
+    }
+
     offset += 3;
 
     /* Now check the space: FIXME */
 
     offset += 1;
 
-    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, tree, hf_bxxp_channel, &channel);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, tree, hf_bxxp_channel, &channel, seq_chan_hfa);
 
     /* Check the space: FIXME */
 
     offset += 1;
 
-    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, tree, hf_bxxp_ackno, &ackno);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, tree, hf_bxxp_ackno, &ackno, seq_ackno_hfa);
 
     /* Check the space: FIXME */
 
     offset += 1;
 
-    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, tree, hf_bxxp_window, &window);
+    offset += dissect_bxxp_int(tvb, offset, pinfo->fd, tree, hf_bxxp_window, &window, seq_window_hfa);
 
-    if (check_crlf(tvb, offset)) {
+    if ((cc = check_term(tvb, offset, pinfo->fd, tree)) <= 0) {
 
-      proto_tree_add_text(tree, tvb, offset, 2, "Terminator: CRLF");
+      /* We dissect the rest as data and bail ... */
+
+      if (tree) {
+	proto_tree_add_text(tree, tvb, offset, 
+			    tvb_length_remaining(tvb, offset),
+			    "Undissected Payload: %s", 
+			    tvb_format_text(tvb, offset, 
+					    tvb_length_remaining(tvb, offset)
+					    )
+			    );
+      }
+
+      return -1;
 
     }
-    else {  /* Protocol violation */
 
-      /* FIXME: implement */
-
-    }
-
-    offset += 2;
+    offset += cc;
 
   } else if (tvb_strneql(tvb, offset, "END", 3) == 0) {
 
-    proto_tree *tr;
+    proto_tree *tr = NULL;
 
-    ti = proto_tree_add_text(tree, tvb, offset, MIN(5, tvb_length_remaining(tvb, offset)), "Trailer");
+    if (tree) {
+      ti = proto_tree_add_text(tree, tvb, offset, MIN(5, tvb_length_remaining(tvb, offset)), "Trailer");
 
-    tr = proto_item_add_subtree(ti, ett_trailer);
+      tr = proto_item_add_subtree(ti, ett_trailer);
 
-    proto_tree_add_boolean_hidden(tr, hf_bxxp_end, NullTVB, offset, 3, TRUE);
-    proto_tree_add_text(tr, tvb, offset, 3, "Command: END");
+      proto_tree_add_boolean_hidden(tr, hf_bxxp_end, NullTVB, offset, 3, TRUE);
+      proto_tree_add_text(tr, tvb, offset, 3, "Command: END");
+
+    }
 
     offset += 3;
 
-    if (check_crlf(tvb, offset)) {
+    if ((cc = check_term(tvb, offset, pinfo->fd, tr)) <= 0) {
 
-      proto_tree_add_text(tr, tvb, offset, 2, "Terminator: CRLF");
+      /* We dissect the rest as data and bail ... */
+
+      if (tree) { 
+	proto_tree_add_text(tr, tvb, offset, tvb_length_remaining(tvb, offset),
+			    "Undissected Payload: %s", 
+			    tvb_format_text(tvb, offset, 
+					    tvb_length_remaining(tvb, offset)
+					    )
+			    );
+      }
+
+      return -1;
 
     }
-    else {  /* Protocol violation */
 
-      /* FIXME: implement */
-
-    }
-
-    offset += 2;
+    offset += cc;
 
   }
 
@@ -633,18 +772,20 @@ dissect_bxxp_tree(tvbuff_t *tvb, int offset, packet_info *pinfo,
      * another message here, then handle it correctly as well.
      */
 
-    /* If the pl_size == 0 and the offset == 0, then we have not processed
+    /* If the pl_size == 0 and the offset == 0?, then we have not processed
      * anything in this frame above, so we better treat all this data as 
      * payload to avoid recursion loops
      */
 
-    if (pl_size == 0 && offset == 0)
+    if (pl_size == 0 && offset == st_offset) 
       pl_size = tvb_length_remaining(tvb, offset);
 
     if (pl_size > 0) {
 
-      proto_tree_add_text(tree, tvb, offset, pl_size, "Payload: %s",
-			  tvb_format_text(tvb, offset, pl_size));
+      if (tree) {
+	proto_tree_add_text(tree, tvb, offset, pl_size, "Payload: %s",
+			    tvb_format_text(tvb, offset, pl_size));
+      }
 
       offset += pl_size;            /* Advance past the payload */
 
@@ -672,7 +813,7 @@ dissect_bxxp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int offset;
   struct bxxp_proto_data  *frame_data = NULL;
-  proto_tree              *bxxp_tree, *ti;
+  proto_tree              *bxxp_tree = NULL, *ti = NULL;
   conversation_t          *conversation = NULL;
   struct bxxp_request_key request_key, *new_request_key;
   struct bxxp_request_val *request_val = NULL;
@@ -745,69 +886,80 @@ dissect_bxxp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   }
 
-  if (tree) {  /* Build the tree info ... */
+  /* Here, we parse the message so we can retrieve the info we need, which 
+   * is that there is some payload left from a previous segment on the 
+   * front of this segment ... This all depends on TCP segments not getting
+   * out of order ... 
+   *
+   * As a huge kludge, we push the checking for the tree down into the code
+   * and process as if we were given a tree but not call the routines that
+   * adorn the protocol tree if they were NULL.
+   */
 
-    /* Check the per-frame data and the conversation for any left-over 
-     * payload from the previous frame 
-     */
+  if (tree) {  /* Build the tree info ... */
 
     ti = proto_tree_add_item(tree, proto_bxxp, tvb, offset, tvb_length(tvb), FALSE);
 
     bxxp_tree = proto_item_add_subtree(ti, ett_bxxp);
 
-    /* FIXME: This conditional is not correct */
-    if ((frame_data && frame_data->pl_left > 0) ||
-	(request_val && request_val->size > 0)) {
-      int pl_left = 0;
+  }
+  
+  /* Check the per-frame data and the conversation for any left-over 
+   * payload from the previous frame 
+   */
 
-      if (frame_data) {
-	pl_left = frame_data->pl_left;
-      }
-      else {
-	pl_left = request_val->size;
+  /* FIXME: This conditional is not quite correct */
+  if ((frame_data && frame_data->pl_left > 0) ||
+      (request_val && request_val->size > 0)) {
+    int pl_left = 0;
 
-	request_val->size = 0;
-
-	/* We create the frame data here for this case, and 
-	 * elsewhere for other frames
-	 */
-
-	frame_data = g_mem_chunk_alloc(bxxp_packet_infos);
-
-	frame_data->pl_left = pl_left;
-	frame_data->pl_size = 0;
-
-	p_add_proto_data(pinfo->fd, proto_bxxp, frame_data);
-
-      }
-
-      pl_left = MIN(pl_left, tvb_length_remaining(tvb, offset));
-
-      /* Add the payload bit */
-      proto_tree_add_text(bxxp_tree, tvb, offset, pl_left, "Payload: %s",
-			  tvb_format_text(tvb, offset, pl_left));
-      offset += pl_left;
+    if (frame_data) {
+      pl_left = frame_data->pl_left;
     }
+    else {
+      pl_left = request_val->size;
+      request_val->size = 0;
 
-    if (tvb_length_remaining(tvb, offset) > 0) {
-
-      offset += dissect_bxxp_tree(tvb, offset, pinfo, bxxp_tree, request_val, frame_data);
-
-    }
-
-    /* Set up the per-frame data here if not already done so */
-
-    if (frame_data == NULL) { 
+      /* We create the frame data here for this case, and 
+       * elsewhere for other frames
+       */
 
       frame_data = g_mem_chunk_alloc(bxxp_packet_infos);
 
-      frame_data->pl_left = 0;
+      frame_data->pl_left = pl_left;
       frame_data->pl_size = 0;
 
       p_add_proto_data(pinfo->fd, proto_bxxp, frame_data);
-	
+
     }
 
+    pl_left = MIN(pl_left, tvb_length_remaining(tvb, offset));
+
+    /* Add the payload bit, only if we have a tree */
+    if (tree) {
+      proto_tree_add_text(bxxp_tree, tvb, offset, pl_left, "Payload: %s",
+			  tvb_format_text(tvb, offset, pl_left));
+    }
+    offset += pl_left;
+  }
+
+  if (tvb_length_remaining(tvb, offset) > 0) {
+
+    offset += dissect_bxxp_tree(tvb, offset, pinfo, bxxp_tree, request_val, frame_data);
+
+  }
+
+  /* Set up the per-frame data here if not already done so */
+
+  if (frame_data == NULL) { 
+
+    frame_data = g_mem_chunk_alloc(bxxp_packet_infos);
+
+    frame_data->pl_left = 0;
+    frame_data->pl_size = 0;
+
+    p_add_proto_data(pinfo->fd, proto_bxxp, frame_data);
+	
   }
 
 }
@@ -818,14 +970,26 @@ void
 proto_register_bxxp(void)
 {
   static hf_register_info hf[] = {
+    { &hf_bxxp_proto_viol,
+      { "Protocol Violation", "bxxp.violation", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "" }},
+
     { &hf_bxxp_req,
       { "Request", "bxxp.req", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "" }},
+
+    { &hf_bxxp_req_chan,
+      { "Request Channel Number", "bxxp.req.channel", FT_UINT32, BASE_DEC, NULL, 0x0, ""}},
 
     { &hf_bxxp_rsp,
       { "Response", "bxxp.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "" }},
 
+    { &hf_bxxp_rsp_chan,
+      { "Response Channel Number", "bxxp.rsp.channel", FT_UINT32, BASE_DEC, NULL, 0x0, ""}},
+
     { &hf_bxxp_seq,
       { "Sequence", "bxxp.seq", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "" }},
+
+    { &hf_bxxp_seq_chan,
+      { "Sequence Channel Number", "bxxp.seq.channel", FT_UINT32, BASE_DEC, NULL, 0x0, ""}},
 
     { &hf_bxxp_end,
       { "End", "bxxp.end", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "" }},
@@ -869,7 +1033,7 @@ proto_register_bxxp(void)
   };
   module_t *bxxp_module; 
 
-  /* Register our configuration options for BXXP, particularly out port */
+  /* Register our configuration options for BXXP, particularly our port */
 
   bxxp_module = prefs_register_module("bxxp", "BXXP", proto_reg_handoff_bxxp);
 
@@ -877,6 +1041,12 @@ proto_register_bxxp(void)
 				 "Set the port for BXXP messages (if other"
 				 " than the default of 10288)",
 				 10, &global_bxxp_tcp_port);
+
+  prefs_register_bool_preference(bxxp_module, "strict_header_terminator", 
+				 "BXXP Header Requires CRLF", 
+				 "Specifies that BXXP requires CRLF as a "
+				 "terminator, and not just CR or LF",
+				 &global_bxxp_strict_term);
 
   proto_bxxp = proto_register_protocol("Blocks eXtensible eXchange Protocol",
 				       "bxxp");
