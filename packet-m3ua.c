@@ -7,7 +7,7 @@
  *
  * Copyright 2000, 2001, 2002, 2003 Michael Tuexen <Michael.Tuexen [AT] siemens.com>
  *
- * $Id: packet-m3ua.c,v 1.27 2003/01/28 20:08:36 tuexen Exp $
+ * $Id: packet-m3ua.c,v 1.28 2003/02/18 19:48:31 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -436,11 +436,10 @@ dissect_affected_destinations_parameter(tvbuff_t *parameter_tvb, proto_tree *par
 static void
 dissect_routing_context_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  guint16 number_of_contexts, context_number, parameter_length;
+  guint16 number_of_contexts, context_number;
   gint context_offset;
 
-  parameter_length   = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
-  number_of_contexts = (parameter_length - PARAMETER_HEADER_LENGTH) >> 4;
+  number_of_contexts = (tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH) >> 2;
   context_offset = PARAMETER_VALUE_OFFSET;
   for(context_number=1; context_number <= number_of_contexts; context_number++) {
     proto_tree_add_item(parameter_tree, hf_routing_context, parameter_tvb, context_offset, ROUTING_CONTEXT_LENGTH, NETWORK_BYTE_ORDER);
