@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.112 2003/12/17 08:40:56 guy Exp $
+ * $Id: packet-dns.c,v 1.113 2003/12/17 08:51:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1774,15 +1774,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 		 * be an NTLMSSP blob, with no ASN.1 in it, in
 		 * a query.
 		 *
-		 * See
-		 *
-		 * http://www.alternic.org/drafts/drafts-s-t/draft-skwan-gss-tsig-05.html
-		 *
-		 * which might indicate what's going on here.  (The key
-		 * is an output_token from GSS_Init_sec_context.)
+		 * See RFC 3645 which might indicate what's going on here.
+		 * (The key is an output_token from GSS_Init_sec_context.)
 		 *
 		 * How the heck do we know what method is being used,
-		 * so we know how to decode the key?
+		 * so we know how to decode the key?  Do we have to
+		 * look at the algorithm name, e.g. "gss.microsoft.com"?
 		 */
 		gssapi_tvb = tvb_new_subset(
 			tvb, cur_offset, tkey_keylen, tkey_keylen);
