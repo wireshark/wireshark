@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.43 2004/02/03 20:03:39 ulfl Exp $
+; $Id: ethereal.nsi,v 1.44 2004/02/03 20:13:18 ulfl Exp $
 
  
 !ifdef MAKENSIS_MODERN_UI
@@ -349,10 +349,6 @@ RMDir "$INSTDIR\diameter"
 RMDir "$INSTDIR\snmp\mibs"
 RMDir "$INSTDIR\snmp"
 RMDir "$INSTDIR"
-
-IfFileExists "$INSTDIR" 0 NoFinalErrorMsg
-    MessageBox MB_OK "Note: $INSTDIR could not be removed!" IDOK 0 ; skipped if file doesn't exist
-NoFinalErrorMsg: 
 
 IfFileExists "$INSTDIR" 0 NoFinalErrorMsg
     MessageBox MB_OK "Note: $INSTDIR could not be removed!" IDOK 0 ; skipped if file doesn't exist
