@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.20 2001/01/13 08:57:46 guy Exp $
+ * $Id: packet-srvloc.c,v 1.21 2001/01/22 08:54:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -226,10 +226,6 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 length;
     guint8 flags;
     guint32 count;
-
-    CHECK_DISPLAY_AS_DATA(proto_srvloc, tvb, pinfo, tree);
-    
-    pinfo->current_proto = "SRVLOC";
 
     if (check_col(pinfo->fd, COL_PROTOCOL))
         col_set_str(pinfo->fd, COL_PROTOCOL, "SRVLOC");

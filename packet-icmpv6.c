@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.34 2001/01/09 06:31:36 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.35 2001/01/22 08:54:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -731,8 +731,6 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     vec_t cksum_vec[4];
     guint32 phdr[2];
     guint16 cksum, computed_cksum;
-
-    OLD_CHECK_DISPLAY_AS_DATA(proto_icmpv6, pd, offset, fd, tree);
 
     dp = (struct icmp6_hdr *)&pd[offset];
     codename = typename = colcodename = coltypename = "Unknown";

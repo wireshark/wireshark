@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.36 2001/01/11 06:30:54 guy Exp $
+ * $Id: packet-http.c,v 1.37 2001/01/22 08:54:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,10 +97,6 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	http_type_t     http_type;
 	int		datalen;
 
-	CHECK_DISPLAY_AS_DATA(proto_http, tvb, pinfo, tree);
-
-	pinfo->current_proto = "HTTP";
-
 	switch (pinfo->match_port) {
 
 	case TCP_PORT_SSDP:	/* TCP_PORT_SSDP = UDP_PORT_SSDP */
@@ -122,6 +118,10 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * if it's an HTTP request or reply (but leave out the
 		 * line terminator).
 		 * Otherwise, just call it a continuation.
+		 *
+		 * Note that "tvb_find_line_end()" will return a value that
+		 * is not longer than what's in the buffer, so the
+		 * "tvb_get_ptr()" call won't throw an exception.
 		 */
 		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
 		line = tvb_get_ptr(tvb, offset, linelen);

@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.14 2001/01/09 06:32:10 guy Exp $
+ * $Id: packet-mgcp.c,v 1.15 2001/01/22 08:54:08 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -195,10 +195,6 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint tvb_sectionend,tvb_sectionbegin, tvb_len, tvb_current_len;
   tvbuff_t *next_tvb;
 
-  CHECK_DISPLAY_AS_DATA(proto_mgcp, tvb, pinfo, tree);
-
-  pinfo->current_proto = "MGCP";
-
   /* Initialize variables */
   
   tvb_sectionend = 0;
@@ -207,6 +203,15 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvb_len = tvb_length(tvb);
   tvb_current_len  = tvb_len;
   
+  /*
+   * Set the columns now, so that they'll be set correctly if we throw
+   * an exception.  We can set them later as well....
+   */
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "MGCP");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
+
   /* 
    * Check to see whether we're really dealing with MGCP by looking 
    * for a valid MGCP verb or response code.  This isn't infallible,
