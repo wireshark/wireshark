@@ -279,7 +279,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	gboolean	saw_req_resp_or_header;
 	guchar		c;
 	http_type_t     http_type;
-	proto_item	*hdr_item;
+	proto_item	*hdr_item = NULL;
 	ReqRespDissector reqresp_dissector;
 	proto_tree	*req_tree;
 	int		colon_offset;
@@ -581,11 +581,12 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				    offset, next_offset - offset, "%s",
 				    tvb_format_text(tvb, offset,
 				      next_offset - offset));
-				if (reqresp_dissector) {
-					req_tree = proto_item_add_subtree(hdr_item, ett_http_request);
-					reqresp_dissector(tvb, req_tree, offset,
-					    line, lineend);
-				}
+			}
+			if (reqresp_dissector) {
+				if (tree) req_tree = proto_item_add_subtree(hdr_item, ett_http_request);
+				else req_tree = NULL;
+				
+				reqresp_dissector(tvb, req_tree, offset, line, lineend);
 			}
 		} else {
 			/*
