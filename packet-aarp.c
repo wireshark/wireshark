@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.27 2001/01/09 06:31:33 guy Exp $
+ * $Id: packet-aarp.c,v 1.28 2001/01/22 00:20:29 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -141,9 +141,10 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
 
-  CHECK_DISPLAY_AS_DATA(proto_aarp, tvb, pinfo, tree);
-
-  pinfo->current_proto = "AARP";
+  if(check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL, "AARP");
+  if(check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
 
   ar_hrd = tvb_get_ntohs(tvb, AR_HRD);
   ar_pro = tvb_get_ntohs(tvb, AR_PRO);
@@ -168,9 +169,6 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
   tpa_str = aarpproaddr_to_str(tpa_val, ar_pln, ar_pro);
   
-  if(check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "AARP");
-
   if (check_col(pinfo->fd, COL_INFO)) {
     switch (ar_op) {
       case AARP_REQUEST:

@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lapd.c,v 1.19 2001/01/09 06:31:38 guy Exp $
+ * $Id: packet-lapd.c,v 1.20 2001/01/22 00:20:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,12 +93,10 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean	is_response;
 	tvbuff_t	*next_tvb;
 
-	CHECK_DISPLAY_AS_DATA(proto_lapd, tvb, pinfo, tree);
-
-	pinfo->current_proto = "LAPD";
-
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "LAPD");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
 	address = tvb_get_ntohs(tvb, 0);
 	cr = address & LAPD_CR;
@@ -119,7 +117,6 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(check_col(pinfo->fd, COL_RES_DL_SRC))
 		    col_set_str(pinfo->fd, COL_RES_DL_SRC, "Network");
 	}
-
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_lapd, tvb, 0, 3, FALSE);
@@ -165,7 +162,7 @@ proto_register_lapd(void)
     static hf_register_info hf[] = {
 	{ &hf_lapd_address,
 	  { "Address Field", "lapd.address", FT_UINT16, BASE_HEX, NULL, 0x0, 
-	  	"" }},
+	  	"Address" }},
 
 	{ &hf_lapd_sapi,
 	  { "SAPI", "lapd.sapi", FT_UINT16, BASE_DEC, VALS(lapd_sapi_vals), LAPD_SAPI,
@@ -189,7 +186,7 @@ proto_register_lapd(void)
 
 	{ &hf_lapd_control,
 	  { "Control Field", "lapd.control", FT_UINT16, BASE_HEX, NULL, 0x0,
-	  	"" }},
+	  	"Control field" }},
     };
     static gint *ett[] = {
         &ett_lapd,

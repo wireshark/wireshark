@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.38 2001/01/13 07:47:48 guy Exp $
+ * $Id: packet-gre.c,v 1.39 2001/01/22 00:20:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,10 +91,6 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16	sre_af;
   guint8	sre_length;
   tvbuff_t	*next_tvb;
-
-  CHECK_DISPLAY_AS_DATA(proto_gre, tvb, pinfo, tree);
-
-  pinfo->current_proto = "GRE";
 
   flags_and_ver = tvb_get_ntohs(tvb, offset);
   type = tvb_get_ntohs(tvb, offset + sizeof(flags_and_ver));

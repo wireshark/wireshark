@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapb.c,v 1.27 2001/01/09 06:31:38 guy Exp $
+ * $Id: packet-lapb.c,v 1.28 2001/01/22 00:20:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,12 +56,10 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8		byte0;
     tvbuff_t		*next_tvb;
 
-    CHECK_DISPLAY_AS_DATA(proto_lapb, tvb, pinfo, tree);
-
-    pinfo->current_proto = "LAPB";
-
     if (check_col(pinfo->fd, COL_PROTOCOL))
 	col_set_str(pinfo->fd, COL_PROTOCOL, "LAPB");
+    if (check_col(pinfo->fd, COL_INFO))
+	col_clear(pinfo->fd, COL_INFO);
 
     if (pinfo->pseudo_header->x25.flags & FROM_DCE) {
 	if(check_col(pinfo->fd, COL_RES_DL_DST))
@@ -120,11 +118,11 @@ proto_register_lapb(void)
     static hf_register_info hf[] = {
 	{ &hf_lapb_address,
 	  { "Address Field", "lapb.address", FT_UINT8, BASE_HEX, NULL, 0x0, 
-	  	"" }},
+	  	"Address" }},
 
 	{ &hf_lapb_control,
 	  { "Control Field", "lapb.control", FT_UINT8, BASE_HEX, NULL, 0x0,
-	  	"" }},
+	  	"Control field" }},
     };
     static gint *ett[] = {
         &ett_lapb,

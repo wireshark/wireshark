@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.20 2001/01/14 08:25:14 guy Exp $
+ * $Id: packet-bpdu.c,v 1.21 2001/01/22 00:20:29 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -101,8 +101,6 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       proto_tree *bpdu_tree;
       proto_item *ti;
 
-      CHECK_DISPLAY_AS_DATA(proto_bpdu, tvb, pinfo, tree);
-
       /* GARP application frames require special interpretation of the
          destination address field; otherwise, they will be mistaken as
          BPDU frames.  
@@ -147,8 +145,6 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	    return;
       }
-
-      pinfo->current_proto = "STP";
 
       bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);
       flags = tvb_get_guint8(tvb, BPDU_FLAGS);

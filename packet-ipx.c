@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.76 2001/01/13 07:47:48 guy Exp $
+ * $Id: packet-ipx.c,v 1.77 2001/01/22 00:20:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -291,9 +291,10 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	guint16		ipx_dsocket, ipx_ssocket;
 
-	CHECK_DISPLAY_AS_DATA(proto_ipx, tvb, pinfo, tree);
-
-	pinfo->current_proto = "IPX";
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "IPX");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
 	/* Calculate here for use in pinfo and in tree */
 	ipx_dsocket	= tvb_get_ntohs(tvb, 16);
@@ -319,8 +320,6 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	SET_ADDRESS(&pi.net_dst,	AT_IPX, 10, dst_net_node);
 	SET_ADDRESS(&pi.dst,		AT_IPX, 10, dst_net_node);
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "IPX");
 	if (check_col(pinfo->fd, COL_INFO))
 		col_add_fstr(pinfo->fd, COL_INFO, "%s (0x%04X)",
 				socket_text(ipx_dsocket), ipx_dsocket);
@@ -441,9 +440,6 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		conn_ctrl;
 	guint8		datastream_type;
 
-	CHECK_DISPLAY_AS_DATA(proto_spx, tvb, pinfo, tree);
-
-	pinfo->current_proto = "SPX";
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "SPX");
 	if (check_col(pinfo->fd, COL_INFO))
@@ -486,12 +482,10 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti;
 	guint8		conn_number, sig_char;
 
-	CHECK_DISPLAY_AS_DATA(proto_ipxmsg, tvb, pinfo, tree);
-
-	pinfo->current_proto = "IPX MSG";
-
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-	 col_set_str(pinfo->fd, COL_PROTOCOL, "IPX MSG");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "IPX MSG");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
 	conn_number = tvb_get_guint8(tvb, 0);
 	sig_char = tvb_get_guint8(tvb, 1);
@@ -527,11 +521,10 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	char		*rip_type[3] = { "Request", "Response", "Unknown" };
 
-	CHECK_DISPLAY_AS_DATA(proto_ipxrip, tvb, pinfo, tree);
-
-	pinfo->current_proto = "IPX RIP";
 	if (check_col(pinfo->fd, COL_PROTOCOL))
-	 col_set_str(pinfo->fd, COL_PROTOCOL, "IPX RIP");
+		col_set_str(pinfo->fd, COL_PROTOCOL, "IPX RIP");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
 	operation = tvb_get_ntohs(tvb, 0) - 1;
 
@@ -675,11 +668,10 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	char		*sap_type[4] = { "General Query", "General Response",
 		"Nearest Query", "Nearest Response" };
 
-	CHECK_DISPLAY_AS_DATA(proto_sap, tvb, pinfo, tree);
-
-	pinfo->current_proto = "IPX SAP";
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "IPX SAP");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_clear(pinfo->fd, COL_INFO);
 
 	query.query_type = tvb_get_ntohs(tvb, 0);
 	query.server_type = tvb_get_ntohs(tvb, 2);
@@ -926,7 +918,7 @@ proto_reg_handoff_ipx(void)
 	dissector_add("ipx.socket", IPX_SOCKET_SAP, dissect_ipxsap,
 	    proto_sap);
 	dissector_add("ipx.socket", IPX_SOCKET_IPXRIP, dissect_ipxrip,
-	    proto_sap);
+	    proto_ipxrip);
 	dissector_add("ipx.socket", IPX_SOCKET_IPX_MESSAGE, dissect_ipxmsg,
 	    proto_ipxmsg);
 }

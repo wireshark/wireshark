@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.39 2001/01/18 07:44:39 guy Exp $
+ * $Id: packet-null.c,v 1.40 2001/01/22 00:20:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -216,10 +216,6 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree	*fh_tree;
   proto_item	*ti;
   tvbuff_t	*next_tvb;
-
-  CHECK_DISPLAY_AS_DATA(proto_null, tvb, pinfo, tree);
-
-  pinfo->current_proto = "Null";
 
   /*
    * See comment in "capture_null()" for an explanation of what we're

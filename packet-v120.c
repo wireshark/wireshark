@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.17 2001/01/09 06:31:44 guy Exp $
+ * $Id: packet-v120.c,v 1.18 2001/01/22 00:20:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -65,12 +65,10 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16	control;
     tvbuff_t	*next_tvb;
 
-    CHECK_DISPLAY_AS_DATA(proto_v120, tvb, pinfo, tree);
-
-    pinfo->current_proto = "V.120";
-
     if (check_col(pinfo->fd, COL_PROTOCOL))
 	col_set_str(pinfo->fd, COL_PROTOCOL, "V.120");
+    if (check_col(pinfo->fd, COL_INFO))
+	col_clear(pinfo->fd, COL_INFO);
 
     byte0 = tvb_get_guint8(tvb, 0);
 
