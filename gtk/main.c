@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.104 2000/02/12 06:46:53 guy Exp $
+ * $Id: main.c,v 1.105 2000/02/13 10:36:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -960,12 +960,14 @@ set_ptree_expander_style(gint style)
 	
 
 void
-file_quit_cmd_cb (GtkWidget *widget, gpointer data) {
-  /* If we have a capture file open, and it's a temporary file,
-     unlink it. */
-  if (cf.filename != NULL && cf.is_tempfile)
-	unlink(cf.filename);
-  gtk_exit(0);
+file_quit_cmd_cb (GtkWidget *widget, gpointer data)
+{
+	/* Close any capture file we have open; on some OSes, you can't
+	   unlink a temporary capture file if you have it open.
+	   "close_cap_file()" will unlink it after closing it if
+	   it's a temporary file. */
+	close_cap_file(&cf, info_bar);
+	gtk_exit(0);
 }
 
 /* call initialization routines at program startup time */
