@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.16 2001/02/20 19:09:30 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.17 2001/02/20 20:06:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1110,6 +1110,14 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 	 */
 	gtk_clist_set_selection_mode (GTK_CLIST(tree),
 				      GTK_SELECTION_BROWSE);
+
+	/*
+	 * Catch the "destroy" signal on the text entry widget to which
+	 * we're attached; if it's destroyed, we should destroy ourselves
+	 * as well.
+	 */
+	gtk_signal_connect(GTK_OBJECT(filter_te), "destroy",
+	    GTK_SIGNAL_FUNC(dfilter_expr_dlg_cancel_cb), window);
 
 	gtk_widget_show(window);
 }
