@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.105 2003/04/18 21:05:52 guy Exp $
+ * $Id: packet-snmp.c,v 1.106 2003/04/19 06:04:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,7 +111,8 @@ static const guchar nullstring[] = "";
 
 /* Take a pointer that may be null and return a pointer that's not null
    by turning null pointers into pointers to the above null string. */
-#define	SAFE_STRING(s)	(((s) != NULL) ? (s) : nullstring)
+#define	SAFE_USTRING(s)	(((s) != NULL) ? (s) : nullstring)
+#define	SAFE_STRING(s)	(((s) != NULL) ? (s) : (char *)nullstring)
 
 static int proto_snmp = -1;
 static int proto_smux = -1;
@@ -851,7 +852,7 @@ snmp_variable_decode(proto_tree *snmp_tree,
 				    length,
 				    "Value: %s: %.*s", vb_type_name,
 				    (int)vb_length,
-				    SAFE_STRING(vb_octet_string));
+				    SAFE_USTRING(vb_octet_string));
 			}
 #endif /* HAVE_SOME_SNMP */
 		}
@@ -1637,7 +1638,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_tree_add_text(secur_tree, tvb, offset,
 				    length, "User Name: %.*s",
 				    username_length,
-				    SAFE_STRING(username));
+				    SAFE_USTRING(username));
 			}
 			g_free(username);
 			offset += length;
@@ -1736,7 +1737,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (snmp_tree) {
 			proto_tree_add_text(snmp_tree, tvb, offset, length,
 			    "Context Name: %.*s", cname_length,
-			    SAFE_STRING(cname));
+			    SAFE_USTRING(cname));
 		}
 		g_free(cname);
 		offset += length;
@@ -1870,7 +1871,7 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (tree) {
 			proto_tree_add_text(smux_tree, tvb, offset, length,
 			    "Application: %.*s", application_length,
-			     SAFE_STRING(application));
+			     SAFE_USTRING(application));
 		}
 		g_free(application);
 		offset += length;
@@ -1885,7 +1886,7 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (tree) {
 			proto_tree_add_text(smux_tree, tvb, offset, length,
 			    "Password: %.*s", password_length,
-			    SAFE_STRING(password));
+			    SAFE_USTRING(password));
 		}
 		g_free(password);
 		offset += length;
