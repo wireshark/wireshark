@@ -744,33 +744,190 @@ remove_tap_listener_sip_calls(void)
 /* ***************************TAP for ISUP **********************************/
 /****************************************************************************/
 
-static gchar		isup_called_number[255], isup_calling_number[255];
-static guint16		isup_cic;
-static guint8		isup_message_type;
-static guint8		isup_cause_value;
-static guint32		isup_frame_num;
+static	guint32		mtp3_opc, mtp3_dpc;
+static	guint8		mtp3_ni;
+static 	guint32		mtp3_frame_num;
+
 
 /****************************************************************************/
 /* whenever a isup_ packet is seen by the tap listener */
 static int 
 isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *isup_info _U_)
 {
+	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
+	voip_calls_info_t *tmp_listinfo;
+	voip_calls_info_t *strinfo = NULL;
+	isup_calls_info_t *tmp_isupinfo;
+	gboolean found = FALSE;
+	gboolean forward = FALSE;
+	gboolean right_pair = TRUE;
+	GList* list;
+	gchar *frame_label = NULL;
+	gchar *comment = NULL;
+	int i;
+
 	/*voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct; unused */
 	const isup_tap_rec_t *pi = isup_info;
 
-	if (pi->calling_number!=NULL){
-		strcpy(isup_calling_number, pi->calling_number);
-	}
-	if (pi->called_number!=NULL){
-		strcpy(isup_called_number, pi->called_number);
-	}
-	isup_message_type = pi->message_type;
-	isup_cause_value = pi->cause_value;
-	isup_cic = pinfo->circuit_id;
-	isup_frame_num = pinfo->fd->num;
-	isup_frame_num = pinfo->fd->num;
+
+	/* check if the lower layer is MTP matching the frame number */
+	if (mtp3_frame_num != pinfo->fd->num) return 0;
 	
-	return 0;
+	/* check wether we already have a call with these parameters in the list */
+	list = g_list_first(tapinfo->strinfo_list);
+	while (list)
+	{
+		tmp_listinfo=list->data;
+		if ((tmp_listinfo->protocol == VOIP_ISUP)&&(tmp_listinfo->call_active_state==VOIP_ACTIVE)){
+			tmp_isupinfo = tmp_listinfo->prot_info;
+			if ((tmp_isupinfo->cic == pinfo->circuit_id)&&(tmp_isupinfo->ni == mtp3_ni)) {
+				if ((tmp_isupinfo->opc == mtp3_opc)&&(tmp_isupinfo->dpc == mtp3_dpc)){
+					 forward = TRUE;
+				 }
+				 else if ((tmp_isupinfo->dpc == mtp3_opc)&&(tmp_isupinfo->opc == mtp3_dpc)){
+					 forward = FALSE;
+				 }
+				 else{
+					 right_pair = FALSE;
+				 }
+				 if (right_pair){
+					/* if there is an IAM for a call that is not in setup state, that means the previous call in the same
+					   cic is no longer active */
+					if (tmp_listinfo->call_state == VOIP_CALL_SETUP){
+						found = TRUE;
+					}
+					else if (pi->message_type != 1){
+						found = TRUE;
+					}
+					else{
+						tmp_listinfo->call_active_state=VOIP_INACTIVE;
+					}
+				}
+				if (found){
+					strinfo = (voip_calls_info_t*)(list->data);
+					break;
+				}
+			}
+		}
+		list = g_list_next (list);
+	}
+
+	/* not in the list? then create a new entry if the message is IAM
+	   -i.e. if this session is a call*/
+
+
+	if ((strinfo==NULL) &&(pi->message_type==1)){
+
+		strinfo = g_malloc(sizeof(voip_calls_info_t));
+		strinfo->call_active_state = VOIP_ACTIVE;
+		strinfo->call_state = VOIP_UNKNOWN;
+		COPY_ADDRESS(&(strinfo->initial_speaker),&(pinfo->src));
+		strinfo->selected=FALSE;
+		strinfo->first_frame_num=pinfo->fd->num;
+		strinfo->start_sec=pinfo->fd->rel_secs;
+		strinfo->start_usec=pinfo->fd->rel_usecs;
+		strinfo->protocol=VOIP_ISUP;
+		if (pi->calling_number!=NULL){
+			strinfo->from_identity=g_strdup(pi->calling_number);
+		}
+		if (pi->called_number!=NULL){
+			strinfo->to_identity=g_strdup(pi->called_number);
+		}
+		strinfo->prot_info=g_malloc(sizeof(isup_calls_info_t));
+		tmp_isupinfo=strinfo->prot_info;
+		tmp_isupinfo->opc = mtp3_opc;
+		tmp_isupinfo->dpc = mtp3_dpc;
+		tmp_isupinfo->ni = mtp3_ni;
+		tmp_isupinfo->cic = pinfo->circuit_id;
+		strinfo->npackets = 0;
+		strinfo->call_num = tapinfo->ncalls++;
+		tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);
+	}
+
+	if (strinfo!=NULL){
+		strinfo->stop_sec=pinfo->fd->rel_secs;
+		strinfo->stop_usec=pinfo->fd->rel_usecs;
+		strinfo->last_frame_num=pinfo->fd->num;
+		++(strinfo->npackets);
+
+		/* Let's analyze the call state */
+
+
+		for (i=0;(isup_message_type_value[i].strptr!=NULL)&& (isup_message_type_value[i].value!=pi->message_type);i++);
+
+		if (isup_message_type_value[i].value==pi->message_type){
+			frame_label = g_strdup(isup_message_type_value_acro[i].strptr);
+		}
+		else{
+			frame_label = g_strdup_printf("Unknown");
+		}
+
+		if (strinfo->npackets == 1){ /* this is the first packet, that must be an IAM */
+			if ((pi->calling_number!=NULL)&&(pi->called_number !=NULL)){
+				comment = g_strdup_printf("Call from %s to %s",
+				 pi->calling_number, pi->called_number);
+			 }
+		}
+		else if (strinfo->npackets == 2){ /* in the second packet we show the SPs */
+			if (forward){
+				comment = g_strdup_printf("%i-%i -> %i-%i. Cic:%i",
+				 mtp3_ni, mtp3_opc,
+				 mtp3_ni, mtp3_dpc, pinfo->circuit_id);
+
+			}
+			else{
+				comment = g_strdup_printf("%i-%i -> %i-%i. Cic:%i",
+				 mtp3_ni, mtp3_dpc,
+				 mtp3_ni, mtp3_opc, pinfo->circuit_id);
+
+			}
+		}
+
+		switch(pi->message_type){
+			case 1: /* IAM */
+				strinfo->call_state=VOIP_CALL_SETUP;
+				break;
+			case 7: /* CONNECT */
+			case 9: /* ANSWER */
+				strinfo->call_state=VOIP_IN_CALL;
+				break;
+			case 12: /* RELEASE */
+				if (strinfo->call_state==VOIP_CALL_SETUP){
+					if (forward){
+						strinfo->call_state=VOIP_CANCELLED;
+					}
+					else{
+						strinfo->call_state=VOIP_REJECTED;
+						tapinfo->rejected_calls++;
+					}
+				}
+				else if (strinfo->call_state == VOIP_IN_CALL){
+					strinfo->call_state = VOIP_COMPLETED;
+					tapinfo->completed_calls++;
+				}
+				for (i=0;(q931_cause_code_vals[i].strptr!=NULL)&& (q931_cause_code_vals[i].value!=pi->cause_value);i++);
+				if (q931_cause_code_vals[i].value==pi->cause_value){
+					comment = g_strdup_printf("Cause %i - %s",pi->cause_value, q931_cause_code_vals[i].strptr);
+				}
+				else{
+					comment = g_strdup_printf("Cause %i",pi->cause_value);
+				}
+				break;
+		}
+
+		/* increment the packets counter of all calls */
+		++(tapinfo->npackets);
+
+		/* add to the graph */
+		add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num);  
+		g_free(comment);
+		g_free(frame_label);
+	}
+
+
+
+	
+	return 1;
 }
 
 /****************************************************************************/
@@ -825,171 +982,16 @@ remove_tap_listener_isup_calls(void)
 static int 
 mtp3_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const void *mtp3_info _U_)
 {
-	voip_calls_tapinfo_t *tapinfo = &the_tapinfo_struct;
-	voip_calls_info_t *tmp_listinfo;
-	voip_calls_info_t *strinfo = NULL;
-	isup_calls_info_t *tmp_isupinfo;
-	gboolean found = FALSE;
-	gboolean forward = FALSE;
-	gboolean right_pair = TRUE;
-	GList* list;
-	gchar *frame_label = NULL;
-	gchar *comment = NULL;
-	int i;
-
 	const mtp3_tap_rec_t *pi = mtp3_info;
 
-	/* check if the upper layer is ISUP matching the frame number */
-	if (isup_frame_num != pinfo->fd->num) return 0;
-	
-	/* check wether we already have a call with these parameters in the list */
-	list = g_list_first(tapinfo->strinfo_list);
-	while (list)
-	{
-		tmp_listinfo=list->data;
-		if ((tmp_listinfo->protocol == VOIP_ISUP)&&(tmp_listinfo->call_active_state==VOIP_ACTIVE)){
-			tmp_isupinfo = tmp_listinfo->prot_info;
-			if ((tmp_isupinfo->cic == isup_cic)&&(tmp_isupinfo->ni == pi->addr_opc.ni)) {
-				if ((tmp_isupinfo->opc == pi->addr_opc.pc)&&(tmp_isupinfo->dpc == pi->addr_dpc.pc)){
-					 forward = TRUE;
-				 }
-				 else if ((tmp_isupinfo->dpc == pi->addr_opc.pc)&&(tmp_isupinfo->opc == pi->addr_dpc.pc)){
-					 forward = FALSE;
-				 }
-				 else{
-					 /* XXX: what about forward is it FALSE as declared or should it be true */
-					 right_pair = FALSE;
-				 }
-				 if (right_pair){
-					/* if there is an IAM for a call that is not in setup state, that means the previous call in the same
-					   cic is no longer active */
-					if (tmp_listinfo->call_state == VOIP_CALL_SETUP){
-						found = TRUE;
-					}
-					else if (isup_message_type != 1){
-						found = TRUE;
-					}
-					else{
-						tmp_listinfo->call_active_state=VOIP_INACTIVE;
-					}
-				}
-				if (found){
-					strinfo = (voip_calls_info_t*)(list->data);
-					break;
-				}
-			}
-		}
-		list = g_list_next (list);
-	}
+	/* keep the data in memory to use when the ISUP information arrives */
 
-	/* not in the list? then create a new entry if the message is IAM
-	   -i.e. if this session is a call*/
+	mtp3_opc = pi->addr_opc.pc;
+	mtp3_dpc = pi->addr_dpc.pc;
+	mtp3_ni = pi->addr_opc.ni;
+	mtp3_frame_num = pinfo->fd->num;
 
-
-	if ((strinfo==NULL) &&(isup_message_type==1)){
-
-		strinfo = g_malloc(sizeof(voip_calls_info_t));
-		strinfo->call_active_state = VOIP_ACTIVE;
-		strinfo->call_state = VOIP_UNKNOWN;
-		COPY_ADDRESS(&(strinfo->initial_speaker),&(pinfo->src));
-		strinfo->selected=FALSE;
-		strinfo->first_frame_num=pinfo->fd->num;
-		strinfo->start_sec=pinfo->fd->rel_secs;
-		strinfo->start_usec=pinfo->fd->rel_usecs;
-		strinfo->protocol=VOIP_ISUP;
-		strinfo->from_identity=g_strdup(isup_calling_number);
-		strinfo->to_identity=g_strdup(isup_called_number);
-		strinfo->prot_info=g_malloc(sizeof(isup_calls_info_t));
-		tmp_isupinfo=strinfo->prot_info;
-		tmp_isupinfo->opc = pi->addr_opc.pc;
-		tmp_isupinfo->dpc = pi->addr_dpc.pc;
-		tmp_isupinfo->ni = pi->addr_opc.ni;
-		tmp_isupinfo->cic = pinfo->circuit_id;
-		strinfo->npackets = 0;
-		strinfo->call_num = tapinfo->ncalls++;
-		tapinfo->strinfo_list = g_list_append(tapinfo->strinfo_list, strinfo);
-	}
-
-	if (strinfo!=NULL){
-		strinfo->stop_sec=pinfo->fd->rel_secs;
-		strinfo->stop_usec=pinfo->fd->rel_usecs;
-		strinfo->last_frame_num=pinfo->fd->num;
-		++(strinfo->npackets);
-
-		/* Let's analyze the call state */
-
-
-		for (i=0;(isup_message_type_value[i].strptr!=NULL)&& (isup_message_type_value[i].value!=isup_message_type);i++);
-
-		if (isup_message_type_value[i].value==isup_message_type){
-			frame_label = g_strdup(isup_message_type_value_acro[i].strptr);
-		}
-		else{
-			frame_label = g_strdup_printf("Unknown");
-		}
-
-		if (strinfo->npackets == 1){ /* this is the first packet, that must be an IAM */
-			comment = g_strdup_printf("Call from %s to %s",
-			 isup_calling_number, isup_called_number);
-		}
-		else if (strinfo->npackets == 2){ /* in the second packet we show the SPs */
-			if (forward){
-				comment = g_strdup_printf("%i-%i -> %i-%i. Cic:%i",
-				 pi->addr_opc.ni, pi->addr_opc.pc,
-				 pi->addr_opc.ni, pi->addr_dpc.pc, pinfo->circuit_id);
-
-			}
-			else{
-				comment = g_strdup_printf("%i-%i -> %i-%i. Cic:%i",
-				 pi->addr_opc.ni, pi->addr_dpc.pc,
-				 pi->addr_opc.ni, pi->addr_opc.pc, pinfo->circuit_id);
-
-			}
-		}
-
-		switch(isup_message_type){
-			case 1: /* IAM */
-				strinfo->call_state=VOIP_CALL_SETUP;
-				break;
-			case 7: /* CONNECT */
-			case 9: /* ANSWER */
-				strinfo->call_state=VOIP_IN_CALL;
-				break;
-			case 12: /* RELEASE */
-				if (strinfo->call_state==VOIP_CALL_SETUP){
-					if (forward){
-						strinfo->call_state=VOIP_CANCELLED;
-					}
-					else{
-						strinfo->call_state=VOIP_REJECTED;
-						tapinfo->rejected_calls++;
-					}
-				}
-				else if (strinfo->call_state == VOIP_IN_CALL){
-					strinfo->call_state = VOIP_COMPLETED;
-					tapinfo->completed_calls++;
-				}
-				for (i=0;(q931_cause_code_vals[i].strptr!=NULL)&& (q931_cause_code_vals[i].value!=isup_cause_value);i++);
-				if (q931_cause_code_vals[i].value==isup_cause_value){
-					comment = g_strdup_printf("Cause %i - %s",isup_cause_value, q931_cause_code_vals[i].strptr);
-				}
-				else{
-					comment = g_strdup_printf("Cause %i",isup_cause_value);
-				}
-				break;
-		}
-
-		/* increment the packets counter of all calls */
-		++(tapinfo->npackets);
-
-		/* add to the graph */
-		add_to_graph(tapinfo, pinfo, frame_label, comment, strinfo->call_num);  
-		g_free(comment);
-		g_free(frame_label);
-	}
-
-
-	return 1;
+	return 0;
 }
 
 /****************************************************************************/
