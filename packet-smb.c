@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.233 2002/03/20 06:51:14 guy Exp $
+ * $Id: packet-smb.c,v 1.234 2002/03/20 07:55:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6644,6 +6644,7 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	    rid = tvb_get_letohl(tvb, offset);
 	    proto_tree_add_text(tree, tvb, offset, 4, "RID: %u", rid);
 	    proto_item_append_text(item, ": S-1-%u-%s-%u", auth, gstr->str, rid);
+	    offset+=4;
 	  }
 	  else {
 	    proto_item_append_text(item, ": S-1-%u-%s", auth, gstr->str);  
