@@ -1,0 +1,31 @@
+Status of the GTK+ 2.0 port :
+---------------------------
+
+GtkList and GtkCList ==> GtkTreeView conversion :
+- color_dlg.c
+- column_prefs.c
+- decode_as_dlg.c : done
+- dfilter_expr_dialog.c
+- filter_prefs.c
+- main.c
+- plugins_dlg.c : done
+
+GtkCTree ==> GtkTreeView  conversion : done
+
+GtkText ==> GtkTextView conversion : done
+
+Remaining problems :
+
+- gtk_font_selection_dialog_set_filter doesn't exist anymore (but hasn't
+  been removed from the documentation). I don't know how to filter the
+  font selection dialog to get only fixed width fonts ;
+
+- we have to remove GUI prefs which are not usefule anymore : tree line
+  style and tree expander style ;
+
+- double click on item in protocol tree doesn't expand or collapse its
+  subtree ;
+
+- the spacing between lines in the tree view is too big ;
+
+- merge gtk and gtk2 directories. Create a gtk12 directory if necessary.
