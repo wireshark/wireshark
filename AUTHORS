@@ -406,6 +406,7 @@ Mark Clayton <clayton[AT]shore.net> {
 
 Michael Rozhavsky <mike[AT]tochna.technion.ac.il> {
 	OSPF enhancements
+	CRLDP support
 }
 
 Dug Song <dugsong[AT]monkey.org> {

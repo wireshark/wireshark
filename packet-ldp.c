@@ -1,9 +1,12 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.32 2002/04/08 20:30:52 gram Exp $
+ * $Id: packet-ldp.c,v 1.33 2002/04/24 19:16:49 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
+ *
+ * CRLDP (RFC3212) is now supported
+ *   - (c) 2002 Michael Rozhavsky <mike[AT]tochna.technion.ac.il>
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -142,6 +145,34 @@ static int hf_ldp_tlv_fec_vc_intparam_id = -1;
 static int hf_ldp_tlv_fec_vc_intparam_maxcatmcells = -1;
 static int hf_ldp_tlv_fec_vc_intparam_desc = -1;
 static int hf_ldp_tlv_fec_vc_intparam_cembytes = -1;
+static int hf_ldp_tlv_lspid_act_flg = -1;
+static int hf_ldp_tlv_lspid_cr_lsp = -1;
+static int hf_ldp_tlv_lspid_ldpid = -1;
+static int hf_ldp_tlv_er_hop_loose = -1;
+static int hf_ldp_tlv_er_hop_prelen = -1;
+static int hf_ldp_tlv_er_hop_prefix4 = -1;
+static int hf_ldp_tlv_er_hop_prefix6 = -1;
+static int hf_ldp_tlv_er_hop_as = -1;
+static int hf_ldp_tlv_er_hop_cr_lsp = -1;
+static int hf_ldp_tlv_er_hop_ldpid = -1;
+static int hf_ldp_tlv_flags_reserv = -1;
+static int hf_ldp_tlv_flags_weight = -1;
+static int hf_ldp_tlv_flags_ebs = -1;
+static int hf_ldp_tlv_flags_cbs = -1;
+static int hf_ldp_tlv_flags_cdr = -1;
+static int hf_ldp_tlv_flags_pbs = -1;
+static int hf_ldp_tlv_flags_pdr = -1;
+static int hf_ldp_tlv_frequency = -1;
+static int hf_ldp_tlv_pdr = -1;
+static int hf_ldp_tlv_pbs = -1;
+static int hf_ldp_tlv_cdr = -1;
+static int hf_ldp_tlv_cbs = -1;
+static int hf_ldp_tlv_ebs = -1;
+static int hf_ldp_tlv_weight = -1;
+static int hf_ldp_tlv_set_prio = -1;
+static int hf_ldp_tlv_hold_prio = -1;
+static int hf_ldp_tlv_route_pinning = -1;
+static int hf_ldp_tlv_resource_class = -1;
 static int ett_ldp = -1;
 static int ett_ldp_header = -1;
 static int ett_ldp_ldpid = -1;
@@ -185,6 +216,16 @@ static int global_ldp_udp_port = UDP_PORT_LDP;
 #define TLV_ATM_SESSION_PARMS      0x0501
 #define TLV_FRAME_RELAY_SESSION_PARMS 0x0502
 #define TLV_LABEL_REQUEST_MESSAGE_ID 0x0600
+#define TLV_ER                     0x0800
+#define TLV_ER_HOP_IPV4            0x0801
+#define TLV_ER_HOP_IPV6            0x0802
+#define TLV_ER_HOP_AS              0x0803
+#define TLV_ER_HOP_LSPID           0x0804
+#define TLV_TRAFFIC_PARAM          0x0810
+#define TLV_PREEMPTION             0x0820
+#define TLV_LSPID                  0x0821
+#define TLV_RESOURCE_CLASS         0x0822
+#define TLV_ROUTE_PINNING          0x0823
 
 #define TLV_VENDOR_PRIVATE_START   0x3E00
 #define TLV_VENDOR_PRIVATE_END     0x3EFF
@@ -211,6 +252,16 @@ static const value_string tlv_type_names[] = {
   { TLV_ATM_SESSION_PARMS,         "ATM Session Parameters TLV"},
   { TLV_FRAME_RELAY_SESSION_PARMS, "Frame Relay Session Parameters TLV"},
   { TLV_LABEL_REQUEST_MESSAGE_ID,  "Label Request Message ID TLV"},
+  { TLV_LSPID,                     "LSP ID TLV"},
+  { TLV_ER,                        "Explicit route TLV"},
+  { TLV_ER_HOP_IPV4,               "ER hop IPv4 prefix TLV"},
+  { TLV_ER_HOP_IPV6,               "ER hop IPv6 prefix TLV"},
+  { TLV_ER_HOP_AS,                 "ER hop Autonomous system number prefix TLV"},
+  { TLV_TRAFFIC_PARAM,             "Traffic parameters TLV"},
+  { TLV_PREEMPTION,                "Preemption TLV"},
+  { TLV_ER_HOP_LSPID,              "ER hop LSPID prefix TLV"},
+  { TLV_RESOURCE_CLASS,            "Resource Class (Color) TLV"},
+  { TLV_ROUTE_PINNING,             "Route Pinning TLV"},
   { TLV_VENDOR_PRIVATE_START,	"Vendor Private TLV"},
   { TLV_EXPERIMENTAL_START,	"Experimental TLV"},
   { 0, NULL}
@@ -264,8 +315,8 @@ static const true_false_string hello_targeted_vals = {
 };
 
 static const value_string tlv_unknown_vals[] = {
-  {0, "Known TLV"},
-  {1, "Known TLV"},
+  {0, "Known TLV, do not Forward"},
+  {1, "Known TLV, do Forward"},
   {2, "Unknown TLV, do not Forward"},
   {3, "Unknown TLV, do Forward"},
   {0, NULL}
@@ -274,12 +325,14 @@ static const value_string tlv_unknown_vals[] = {
 #define	WILDCARD_FEC	1
 #define	PREFIX_FEC	2
 #define	HOST_FEC	3
+#define CRLSP_FEC       4
 #define VC_FEC          0x80	/* draft-martini-l2circuit-trans-mpls */
 
 static const value_string fec_types[] = {
   {WILDCARD_FEC, "Wildcard FEC"},
   {PREFIX_FEC, "Prefix FEC"},
   {HOST_FEC, "Host Address FEC"},
+  {CRLSP_FEC, "CR LSP FEC"},
   {VC_FEC, "Virtual Circuit FEC"},
   {0, NULL}
 };
@@ -351,6 +404,31 @@ static const value_string tlv_fr_len_vals[] = {
   {1, "Reserved"},
   {2, "23 bits"},
   {3, "Reserved"},
+  {0, NULL}
+};
+
+static const value_string ldp_act_flg_vals[] = {
+  {0, "indicates initial LSP setup"},
+  {1, "indicates modify LSP"},
+  {0, NULL}
+};
+
+static const value_string route_pinning_vals[] = {
+  {0, "route pinning is not requested"},
+  {1, "route pinning is requested"},
+  {0, NULL}
+};
+
+static const value_string ldp_loose_vals[] = {
+  {0, "strict hop"},
+  {1, "loose hop"},
+  {0, NULL}
+};
+
+static const value_string freq_values[] = {
+  {0, "Unspecified"},
+  {1, "Frequent"},
+  {2, "VeryFrequent"},
   {0, NULL}
 };
 
@@ -442,12 +520,6 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 	char *str;
 
 	if (tree) {
-
-		if( rem < 4 ) {
-			proto_tree_add_text(tree, tvb, offset, rem, "Error processing TLV");
-			return;
-		}
-
 		ti=proto_tree_add_text(tree, tvb, offset, rem, "FEC Elements");
 		val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
 		if(val_tree == NULL) return;
@@ -455,10 +527,11 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 		while (rem > 0){
 			switch (tvb_get_guint8(tvb, offset)) {
 			case WILDCARD_FEC:
-	  			ti = proto_tree_add_text(val_tree, tvb, offset, 4, "FEC Element %u", ix);
+			case CRLSP_FEC:
+	  			ti = proto_tree_add_text(val_tree, tvb, offset, 1, "FEC Element %u", ix);
 	  			fec_tree = proto_item_add_subtree(ti, ett_ldp_fec);
 				if(fec_tree == NULL) return;
-	  			proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_wc,tvb, offset, 4, FALSE);
+	  			proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_wc,tvb, offset, 1, FALSE);
 	  			rem -= 1;
 	  			offset += 1;
 	  			break;
@@ -641,7 +714,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 			    proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_vcid,tvb, offset, 4, FALSE);
 			    proto_item_append_text (ti," VCID: %u",tvb_get_ntohl(tvb,offset));
 
-			  } else {                 
+			  } else {
 			    proto_tree_add_text(val_tree,tvb,offset +4, 8 +vc_len, "VC FEC size format error");
 			    return;
 			  }
@@ -708,7 +781,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 /* Dissect Address List TLV */
 
-void
+static void
 dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *val_tree = NULL;
@@ -720,7 +793,8 @@ dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 	if (tree) {
 		if( rem < 2 ) {
 			proto_tree_add_text(tree, tvb, offset, rem,
-					 "Error processing TLV");
+			    "Error processing Address List TLV: length is %d, should be >= 2",
+			    rem);
 			return;
 		}
 
@@ -761,19 +835,19 @@ dissect_tlv_address_list(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 			str = (* (char* (*)(guint8 *))str_handler)(addr);
 			proto_tree_add_string_format(val_tree,
-			hf_ldp_tlv_addrl_addr, tvb, offset, addr_size, str,
-			"Address %u: %s", ix, str);
+			    hf_ldp_tlv_addrl_addr, tvb, offset, addr_size, str,
+			    "Address %u: %s", ix, str);
 		}
 		if(rem)
 			proto_tree_add_text(val_tree, tvb, offset, rem,
-					 "Error processing TLV");
+			    "Error processing TLV: Extra data at end of address list");
 		g_free(addr);
 	}
 }
 
 /* Dissect Path Vector TLV */
 
-void
+static void
 dissect_tlv_path_vector(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *val_tree = NULL;
@@ -795,13 +869,13 @@ dissect_tlv_path_vector(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 		}
 		if(rem)
 			proto_tree_add_text(val_tree, tvb, offset, rem,
-					 "Error processing TLV");
+			    "Error processing TLV: Extra data at end of path vector");
 	}
 }
 
 /* Dissect ATM Label TLV */
 
-void
+static void
 dissect_tlv_atm_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *val_tree = NULL;
@@ -809,7 +883,9 @@ dissect_tlv_atm_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 	if(tree) {
 		if(rem != 4){
-			proto_tree_add_text(tree, tvb, offset, rem, "Error processing TLV");
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing ATM Label TLV: length is %d, should be 4",
+			    rem);
 			return;
 		}
 		ti=proto_tree_add_text(tree, tvb, offset, rem, "ATM Label");
@@ -828,7 +904,7 @@ dissect_tlv_atm_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 /* Dissect FRAME RELAY Label TLV */
 
-void
+static void
 dissect_tlv_frame_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *val_tree = NULL;
@@ -837,7 +913,9 @@ dissect_tlv_frame_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 	if(tree) {
 		if(rem != 4){
-			proto_tree_add_text(tree, tvb, offset, rem,"Error processing TLV");
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing Frame Relay Label TLV: length is %d, should be 4",
+			    rem);
 			return;
 		}
 		ti=proto_tree_add_text(tree, tvb, offset, rem, "Frame Relay Label");
@@ -855,7 +933,7 @@ dissect_tlv_frame_label(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 /* Dissect STATUS TLV */
 
-void
+static void
 dissect_tlv_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *val_tree = NULL;
@@ -863,7 +941,9 @@ dissect_tlv_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 	if(tree) {
 		if(rem != 10){
-			proto_tree_add_text(tree, tvb, offset, rem,"Error processing TLV");
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing Status TLV: length is %d, should be 10",
+			    rem);
 			return;
 		}
 
@@ -884,14 +964,16 @@ dissect_tlv_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 /* Dissect Returned PDU TLV */
 
-void
+static void
 dissect_tlv_returned_pdu(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *val_tree = NULL;
 
 	if(tree) {
 		if(rem < 10){
-			proto_tree_add_text(tree, tvb, offset, rem,"Error processing TLV");
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing Returned PDU TLV: length is %d, should be >= 10",
+			    rem);
 			return;
 		}
 		ti=proto_tree_add_text(tree, tvb, offset, rem, "Returned PDU");
@@ -914,7 +996,7 @@ dissect_tlv_returned_pdu(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 /* Dissect Returned MESSAGE TLV */
 
-void
+static void
 dissect_tlv_returned_message(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *val_tree = NULL;
@@ -922,7 +1004,9 @@ dissect_tlv_returned_message(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 
 	if(tree) {
 		if(rem < 4){
-			proto_tree_add_text(tree, tvb, offset, rem,"Error processing TLV");
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing Returned Message TLV: length is %d, should be >= 4",
+			    rem);
 			return;
 		}
 		ti=proto_tree_add_text(tree, tvb, offset, rem, "Returned Message");
@@ -953,7 +1037,7 @@ dissect_tlv_returned_message(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 
 /* Dissect the common hello params */
 
-void 
+static void 
 dissect_tlv_common_hello_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *val_tree = NULL;
@@ -967,25 +1051,27 @@ dissect_tlv_common_hello_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, in
 		val_tree=tree;
 #endif
 		proto_tree_add_item(val_tree, hf_ldp_tlv_val_hold, tvb, offset, 2, FALSE);
-		proto_tree_add_item(val_tree, hf_ldp_tlv_val_target, tvb, offset + 2, 1, FALSE);
-		proto_tree_add_item(val_tree, hf_ldp_tlv_val_request, tvb, offset + 2, 1, FALSE);
+		proto_tree_add_item(val_tree, hf_ldp_tlv_val_target, tvb, offset + 2, 2, FALSE);
+		proto_tree_add_item(val_tree, hf_ldp_tlv_val_request, tvb, offset + 2, 2, FALSE);
 		proto_tree_add_item(val_tree, hf_ldp_tlv_val_res, tvb, offset + 2, 2, FALSE);
 	}
 }
 
 /* Dissect the common session params */
 
-void 
+static void 
 dissect_tlv_common_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *val_tree = NULL;
 
 	if (tree != NULL) {
-		ti = proto_tree_add_text(tree, tvb, offset, rem, "Parameters");
 		if( rem != 14) { /*length of Comm Sess Parms tlv*/
-			proto_tree_add_text(tree, tvb, offset, rem, "Error processing TLV");
-			return ;
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing Common Session Parameters TLV: length is %d, should be 14",
+			    rem);
+			return;
 		}
+		ti = proto_tree_add_text(tree, tvb, offset, rem, "Parameters");
     		val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
 
 		if(val_tree != NULL) {
@@ -1018,7 +1104,7 @@ dissect_tlv_common_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, 
 
 /* Dissect the atm session params */
 
-void 
+static void 
 dissect_tlv_atm_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *val_tree = NULL, *lbl_tree = NULL;
@@ -1028,7 +1114,8 @@ dissect_tlv_atm_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int
 	if (tree != NULL) {
 		if(rem < 4) {
 			proto_tree_add_text(tree, tvb, offset, rem,
-						 "Error processing TLV");
+			    "Error processing ATM Parameters TLV: length is %d, should be >= 4",
+			    rem);
 			return;
 		}
 
@@ -1065,29 +1152,38 @@ dissect_tlv_atm_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int
 
 				id=tvb_get_ntohs(tvb, offset)&0x0FFF;
 				proto_tree_add_uint_format(lbl_tree, 
-			hf_ldp_tlv_sess_atm_minvpi,tvb, offset, 2, id, "Minimum VPI: %u", id); 
+				    hf_ldp_tlv_sess_atm_minvpi,
+				    tvb, offset, 2,
+				    id, "Minimum VPI: %u", id); 
 				id=tvb_get_ntohs(tvb, offset+4)&0x0FFF;
 				proto_tree_add_uint_format(lbl_tree, 
-			hf_ldp_tlv_sess_atm_maxvpi,tvb, (offset+4), 2, id, "Maximum VPI: %u", id); 
+				    hf_ldp_tlv_sess_atm_maxvpi,
+				    tvb, (offset+4), 2, id,
+				    "Maximum VPI: %u", id); 
 				 
 				id=tvb_get_ntohs(tvb, offset+2);
 				proto_tree_add_uint_format(lbl_tree, 
-			hf_ldp_tlv_sess_atm_minvci,tvb, offset+2, 2, id, "Minimum VCI: %u", id); 
+				    hf_ldp_tlv_sess_atm_minvci,
+				    tvb, offset+2, 2,
+				    id, "Minimum VCI: %u", id); 
 				id=tvb_get_ntohs(tvb, offset+6);
 				proto_tree_add_uint_format(lbl_tree, 
-			hf_ldp_tlv_sess_atm_maxvci,tvb, offset+6, 2, id, "Maximum VCI: %u", id); 
+				    hf_ldp_tlv_sess_atm_maxvci,
+				    tvb, offset+6, 2,
+				    id, "Maximum VCI: %u", id); 
 
 				offset += 8;
 			}
 			if( rem || numlr)
-				proto_tree_add_text(val_tree, tvb, offset, rem,"Error processing TLV");
+				proto_tree_add_text(val_tree, tvb, offset, rem,
+				    "Error processing TLV: Extra data at end of TLV");
 		}
 	}
 }
 
 /* Dissect the frame relay session params */
 
-void 
+static void 
 dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, guint offset,proto_tree *tree, int rem)
 {
 	proto_tree *ti = NULL, *val_tree = NULL, *lbl_tree = NULL;
@@ -1097,7 +1193,8 @@ dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, guint offset,proto_tree *tr
 	if (tree != NULL) {
 		if(rem < 4) {
 			proto_tree_add_text(tree, tvb, offset, rem,
-						 "Error processing TLV");
+			    "Error processing Frame Relay Parameters TLV: length is %d, should be >= 4",
+			    rem);
 			return;
 		}
 
@@ -1153,7 +1250,321 @@ dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, guint offset,proto_tree *tr
 
 			if( rem || numlr)
 				proto_tree_add_text(val_tree, tvb, offset, rem,
-				 "Error processing TLV");
+				 "Error processing TLV: Extra data at end of TLV");
+		}
+	}
+}
+
+
+static void
+dissect_tlv_lspid(tvbuff_t *tvb, guint offset,proto_tree *tree, int rem)
+{
+	proto_tree *ti = NULL, *val_tree = NULL;
+
+	if (tree != NULL) {
+		if(rem != 8) {
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing LSP ID TLV: length is %d, should be 8",
+			    rem);
+			return;
+		}
+
+		ti = proto_tree_add_text(tree, tvb, offset, rem,
+						"LSP ID");
+		val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+
+		if(val_tree != NULL) {
+			proto_tree_add_item(val_tree, hf_ldp_tlv_lspid_act_flg,
+					   tvb, offset, 2, FALSE); 
+			offset += 2;
+			proto_tree_add_item(val_tree, hf_ldp_tlv_lspid_cr_lsp,
+					   tvb, offset, 2, FALSE);
+			offset += 2;
+			proto_tree_add_item(val_tree, hf_ldp_tlv_lspid_ldpid, 
+					   tvb, offset, 4, FALSE);
+		}
+	}
+}
+
+static void
+dissect_tlv_er_hop_ipv4(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+{
+	proto_tree *ti = NULL, *val_tree = NULL;
+
+
+	if (tree != NULL) {
+		if(rem != 8) {
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing ER HOP IPv4 TLV: length is %d, should be 8",
+			    rem);
+			return;
+		}
+		ti = proto_tree_add_text(tree, tvb, offset, rem, "ER HOP IPv4");
+		val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+
+		if(val_tree != NULL) {
+			proto_tree_add_item(val_tree, hf_ldp_tlv_er_hop_loose,
+					   tvb, offset, 3, FALSE);
+			offset += 3;
+			proto_tree_add_item(val_tree, hf_ldp_tlv_er_hop_prelen,
+					   tvb, offset, 1, FALSE);
+			offset ++;
+			proto_tree_add_item(val_tree, hf_ldp_tlv_er_hop_prefix4,
+					   tvb, offset, 4, FALSE);
+		}
+	}
+}
+
+static void
+dissect_tlv_er_hop_ipv6(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+{
+	proto_tree *ti = NULL, *val_tree = NULL;
+
+	if (tree != NULL) {
+		if(rem != 20) {
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing ER HOP IPv6 TLV: length is %d, should be 20",
+			    rem);
+			return;
+		}
+		ti = proto_tree_add_text(tree, tvb, offset, rem, "ER HOP IPv6");
+		val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+
+		if(val_tree != NULL) {
+			proto_tree_add_item(val_tree, hf_ldp_tlv_er_hop_loose,
+					   tvb, offset, 3, FALSE);
+			offset += 3;
+			proto_tree_add_item(val_tree, hf_ldp_tlv_er_hop_prelen,
+					  tvb, offset, 1, FALSE);
+			offset ++;
+			proto_tree_add_item(val_tree, hf_ldp_tlv_er_hop_prefix6,
+					   tvb, offset, 16, FALSE);
+		}
+	}
+}
+
+static void
+dissect_tlv_er_hop_as(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+{
+	proto_tree *ti = NULL, *val_tree = NULL;
+
+	if (tree != NULL) {
+		if(rem != 4) {
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing ER HOP AS TLV: length is %d, should be 4",
+			    rem);
+			return;
+		}
+		ti = proto_tree_add_text(tree, tvb, offset, rem, "ER HOP AS");
+		val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+
+		if(val_tree != NULL) {
+			proto_tree_add_item(val_tree, hf_ldp_tlv_er_hop_loose,
+					   tvb, offset, 2, FALSE);
+			offset += 2;
+			proto_tree_add_item(val_tree, hf_ldp_tlv_er_hop_as,
+					   tvb, offset, 2, FALSE);
+		}
+	}
+}
+
+static void
+dissect_tlv_er_hop_lspid(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+{
+	proto_tree *ti = NULL, *val_tree = NULL;
+
+	if (tree != NULL) {
+		if(rem != 8) {
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing ER HOP LSPID TLV: length is %d, should be 8",
+			    rem);
+			return;
+		}
+		ti = proto_tree_add_text(tree, tvb, offset, rem, "ER HOP LSPID");
+		val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+
+		if(val_tree != NULL) {
+			proto_tree_add_item(val_tree, hf_ldp_tlv_er_hop_loose,
+					   tvb, offset, 2, FALSE);
+			offset += 2;
+			proto_tree_add_item(val_tree, hf_ldp_tlv_er_hop_cr_lsp,
+					   tvb, offset, 2, FALSE);
+			offset += 2;
+			proto_tree_add_item(val_tree, hf_ldp_tlv_er_hop_ldpid,
+					   tvb, offset, 4, FALSE);
+		}
+	}
+}
+
+static void
+dissect_tlv_traffic(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+{
+	proto_tree *ti = NULL, *val_tree = NULL;
+	union {
+		guint32 val_32;
+		float   val_f;
+	} conv;
+	guint8  val_8;
+	proto_item *pi;
+
+	if (tree != NULL) {
+		if(rem != 24) {
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing Traffic Parameters TLV: length is %d, should be 24",
+			    rem);
+			return;
+		}
+		ti = proto_tree_add_text(tree, tvb, offset, rem, "Traffic parameters");
+		val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+
+		if(val_tree != NULL) {
+			/* flags */
+			proto_tree_add_item(val_tree, hf_ldp_tlv_flags_reserv, tvb, offset, 1, FALSE);
+			proto_tree_add_item(val_tree, hf_ldp_tlv_flags_weight, tvb, offset, 1, FALSE);
+			proto_tree_add_item(val_tree, hf_ldp_tlv_flags_ebs, tvb, offset, 1, FALSE);
+			proto_tree_add_item(val_tree, hf_ldp_tlv_flags_cbs, tvb, offset, 1, FALSE);
+			proto_tree_add_item(val_tree, hf_ldp_tlv_flags_cdr, tvb, offset, 1, FALSE);
+			proto_tree_add_item(val_tree, hf_ldp_tlv_flags_pbs, tvb, offset, 1, FALSE);
+			proto_tree_add_item(val_tree, hf_ldp_tlv_flags_pdr, tvb, offset, 1, FALSE);
+
+			offset ++;
+			/* frequency */
+			proto_tree_add_item(val_tree, hf_ldp_tlv_frequency, tvb, offset, 1, FALSE);
+			offset ++;
+
+			/* reserver byte */
+			offset ++;
+
+			/* wieght */
+			pi = proto_tree_add_item(val_tree, hf_ldp_tlv_weight, tvb, offset, 1, FALSE);
+			val_8 = tvb_get_guint8(tvb, offset);
+			if (val_8 == 0)
+				proto_item_set_text(pi, "Weight: Not applicable");
+			offset ++;
+
+			/* PDR */
+			conv.val_32 = tvb_get_ntohl (tvb, offset);
+			proto_tree_add_double_format(val_tree, hf_ldp_tlv_pdr, tvb, offset,
+						    4, conv.val_f, "PDR: %f Bps", conv.val_f);
+			offset += 4;
+			/* PBS */
+			conv.val_32 = (float)tvb_get_ntohl (tvb, offset);
+			proto_tree_add_double_format(val_tree, hf_ldp_tlv_pbs, tvb, offset,
+						    4, conv.val_f, "PBS: %f Bytes", conv.val_f);
+			offset += 4;
+
+			/* CDR */
+			conv.val_32 = (float)tvb_get_ntohl (tvb, offset);
+			proto_tree_add_double_format(val_tree, hf_ldp_tlv_cdr, tvb, offset,
+						    4, conv.val_f, "CDR: %f Bps", conv.val_f);
+			offset += 4;
+
+			/* CBS */
+			conv.val_32 = (float)tvb_get_ntohl (tvb, offset);
+			proto_tree_add_double_format(val_tree, hf_ldp_tlv_cbs, tvb, offset,
+						    4, conv.val_f, "CBS: %f Bytes", conv.val_f);
+			offset += 4;
+
+			/* EBS */
+			conv.val_32 = (float)tvb_get_ntohl (tvb, offset);
+			proto_tree_add_double_format(val_tree, hf_ldp_tlv_ebs, tvb, offset,
+						    4, conv.val_f, "EBS: %f Bytes", conv.val_f);
+
+		}
+	}
+}
+
+static void
+dissect_tlv_route_pinning(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+{
+	proto_tree *ti = NULL, *val_tree = NULL;
+
+	if (tree != NULL) {
+		if(rem != 4) {
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing Route Pinning TLV: length is %d, should be 4",
+			    rem);
+			return;
+		}
+		ti = proto_tree_add_text(tree, tvb, offset, rem, "Route Pinning");
+		val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+
+		if(val_tree != NULL) {
+			proto_tree_add_item(val_tree, hf_ldp_tlv_route_pinning,
+					   tvb, offset, 4, FALSE);
+		}
+	}
+}
+
+
+static void
+dissect_tlv_resource_class(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+{
+	proto_tree *ti = NULL, *val_tree = NULL;
+
+	if (tree != NULL) {
+		if(rem != 4) {
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing Resource Class TLV: length is %d, should be 4",
+			    rem);
+			return;
+		}
+		ti = proto_tree_add_text(tree, tvb, offset, rem, "Resource Class");
+		val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+
+		if(val_tree != NULL) {
+			proto_tree_add_item(val_tree, hf_ldp_tlv_resource_class,
+					   tvb, offset, 4, FALSE);
+		}
+	}
+}
+
+
+static void
+dissect_tlv_preemption(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+{
+	proto_tree *ti = NULL, *val_tree = NULL;
+
+	if (tree != NULL) {
+		if(rem != 4) {
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing Preemption TLV: length is %d, should be 4",
+			    rem);
+			return;
+		}
+		ti = proto_tree_add_text(tree, tvb, offset, rem, "Preemption");
+		val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+
+		if(val_tree != NULL) {
+			proto_tree_add_item(val_tree, hf_ldp_tlv_set_prio,
+					   tvb, offset, 1, FALSE);
+			offset += 1;
+			proto_tree_add_item(val_tree, hf_ldp_tlv_hold_prio,
+					   tvb, offset, 1, FALSE);
+		}
+	}
+}
+
+static int
+dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem);
+
+static void
+dissect_tlv_er(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+{
+	proto_tree *ti = NULL, *val_tree = NULL;
+	int len;
+
+	if (tree != NULL) {
+		ti = proto_tree_add_text(tree, tvb, offset, rem, "Explicit route");
+		val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+
+		if(val_tree != NULL) {
+			len = 0;
+			while (rem > 0) {
+				len = dissect_tlv (tvb, offset, val_tree, rem);
+				offset += len;
+				rem -= len;
+			}
 		}
 	}
 }
@@ -1161,7 +1572,7 @@ dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, guint offset,proto_tree *tr
 
 /* Dissect a TLV and return the number of bytes consumed ... */
 
-int
+static int
 dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 {
 	guint16 type, typebak;
@@ -1173,7 +1584,9 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 	if( rem < 4 ) {/*chk for minimum header*/
 		if(tree)
-			proto_tree_add_text(tree, tvb, offset, rem,"Error processing TLV");
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing TLV: length is %d, should be >= 4",
+			    rem);
 		return rem;
 	}
 	type = tvb_get_ntohs(tvb, offset) & 0x3FFF;
@@ -1217,7 +1630,9 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 		case TLV_HOP_COUNT:
 			if( length != 1 ) /*error, only one byte*/
-				proto_tree_add_text(tlv_tree, tvb, offset + 4,length,"Error processing TLV");
+				proto_tree_add_text(tlv_tree, tvb, offset + 4,length,
+				    "Error processing Hop Count TLV: length is %d, should be 1",
+				    length);
 			else
 				proto_tree_add_item(tlv_tree, hf_ldp_tlv_hc_value, tvb,offset + 4, length, FALSE); 
 			break;
@@ -1228,7 +1643,9 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 		case TLV_GENERIC_LABEL:
 			if( length != 4 ) /*error, need only label*/
-				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,"Error processing TLV");
+				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+				    "Error processing Generic Label TLV: length is %d, should be 4",
+				    length);
 			else {
 				guint32 label=tvb_get_ntohl(tvb, offset+4) & 0x000FFFFF;
 
@@ -1251,7 +1668,9 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 		case TLV_EXTENDED_STATUS:
 			if( length != 4 ) /*error, need only status_code(guint32)*/
-				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,"Error processing TLV");
+				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+				    "Error processing Extended Status TLV: length is %d, should be 4",
+				    length);
 			else {
 				proto_tree_add_item(tlv_tree, hf_ldp_tlv_extstatus_data, tvb, offset + 4, length, FALSE); 
 			}
@@ -1271,7 +1690,9 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 		case TLV_IPV4_TRANSPORT_ADDRESS:
 			if( length != 4 ) /*error, need only ipv4*/
-				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,"Error processing TLV");
+				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+				    "Error processing IPv4 Transport Address TLV: length is %d, should be 4",
+				    length);
 			else {
 				proto_tree_add_item(tlv_tree, hf_ldp_tlv_ipv4_taddr, tvb, offset + 4, 4, FALSE);
 			}
@@ -1279,7 +1700,9 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 		case TLV_CONFIGURATION_SEQNO:
 			if( length != 4 ) /*error, need only seq_num(guint32)*/
-				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,"Error processing TLV");
+				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+				    "Error processing Configuration Sequence Number TLV: length is %d, should be 4",
+				    length);
 			else {
 				proto_tree_add_item(tlv_tree, hf_ldp_tlv_config_seqno, tvb, offset + 4, 4, FALSE);
 			}
@@ -1287,7 +1710,9 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 		case TLV_IPV6_TRANSPORT_ADDRESS:
 			if( length != 16 ) /*error, need only ipv6*/
-				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,"Error processing TLV");
+				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+				    "Error processing IPv6 Transport Address TLV: length is %d, should be 16",
+				    length);
 			else {
 				proto_tree_add_item(tlv_tree, hf_ldp_tlv_ipv6_taddr, tvb, offset + 4, 16, FALSE);
 			}
@@ -1307,14 +1732,58 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 		case TLV_LABEL_REQUEST_MESSAGE_ID:
 			if( length != 4 ) /*error, need only one msgid*/
-				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,"Error processing TLV");
+				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+				    "Error processing Label Request Message ID TLV: length is %d, should be 4",
+				    length);
 			else
 				proto_tree_add_item(tlv_tree, hf_ldp_tlv_lbl_req_msg_id, tvb,offset + 4,length, FALSE); 
 			break;
 
+		case TLV_LSPID:
+			dissect_tlv_lspid(tvb, offset + 4, tlv_tree, length);
+			break;
+			
+		case TLV_ER:
+			dissect_tlv_er(tvb, offset + 4, tlv_tree, length);
+			break;
+			
+		case TLV_ER_HOP_IPV4:
+			dissect_tlv_er_hop_ipv4(tvb, offset + 4, tlv_tree, length);
+			break;
+			
+		case TLV_ER_HOP_IPV6:
+			dissect_tlv_er_hop_ipv6(tvb, offset +4, tlv_tree, length);
+			break;
+			
+		case TLV_ER_HOP_AS:
+			dissect_tlv_er_hop_as(tvb, offset + 4, tlv_tree, length);
+			break;
+			
+		case TLV_ER_HOP_LSPID:
+			dissect_tlv_er_hop_lspid(tvb, offset +4, tlv_tree, length);
+			break;
+			
+		case TLV_TRAFFIC_PARAM:
+			dissect_tlv_traffic(tvb, offset +4, tlv_tree, length);
+			break;
+			
+		case TLV_PREEMPTION:
+			dissect_tlv_preemption(tvb, offset +4, tlv_tree, length);
+			break;
+			
+		case TLV_RESOURCE_CLASS:
+			dissect_tlv_resource_class(tvb, offset +4, tlv_tree, length);
+			break;
+			
+		case TLV_ROUTE_PINNING:
+			dissect_tlv_route_pinning(tvb, offset +4, tlv_tree, length);
+			break;
+			
 		case TLV_VENDOR_PRIVATE_START:
 			if( length < 4 ) /*error, at least Vendor ID*/
-				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,"Error processing TLV");
+				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+				    "Error processing Vendor Private Start TLV: length is %d, should be >= 4",
+				    length);
 			else {
 				proto_tree_add_item(tlv_tree, hf_ldp_tlv_vendor_id, tvb,offset + 4, 4, FALSE); 
 				if( length > 4 )  /*have data*/ 
@@ -1324,7 +1793,9 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 		case TLV_EXPERIMENTAL_START:
 			if( length < 4 ) /*error, at least Experiment ID*/
-				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,"Error processing TLV");
+				proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+				    "Error processing Experimental Start TLV: length is %d, should be >= 4",
+				    length);
 			else {
 				proto_tree_add_item(tlv_tree, hf_ldp_tlv_experiment_id, tvb,offset + 4, 4, FALSE); 
 				if( length > 4 )  /*have data*/ 
@@ -1344,7 +1815,7 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 /* Dissect a Message and return the number of bytes consumed ... */
 
-int
+static int
 dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, int rem)
 {
 	guint16 type, typebak;
@@ -1359,7 +1830,9 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, i
 		if( check_col(pinfo->cinfo, COL_INFO) )
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Bad Message");
 		if(tree)
-			proto_tree_add_text(tree, tvb, offset, rem,"Error processing Message");
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing Message: length is %d, should be >= 8",
+			    rem);
 		return rem;
 	}
 	type = tvb_get_ntohs(tvb, offset) & 0x7FFF;
@@ -1380,7 +1853,9 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, i
 		if( check_col(pinfo->cinfo, COL_INFO) )
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Bad Message Length ");
 		if(tree)
-			proto_tree_add_text(tree, tvb, offset, rem,"Error processing Message Length");
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing Message Length: length is %d, should be >= %u",
+			    length, 4+extra);
 		return rem;
 	}
 	rem -= 4; 
@@ -1433,7 +1908,7 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, i
 
 /* Dissect a PDU and return the number of bytes consumed ... */
 
-int
+static int
 dissect_ldp_pdu(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, int rem, guint ix)
 {
 	int length, ao=0, co;
@@ -1463,7 +1938,9 @@ dissect_ldp_pdu(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tre
 			col_append_fstr(pinfo->cinfo, COL_INFO, "Bad PDU Length ");
 		}
 		if(tree)
-			proto_tree_add_text(tree, tvb, offset, rem,"Error processing PDU Length");
+			proto_tree_add_text(tree, tvb, offset, rem,
+			    "Error processing PDU Length: length is %d, should be >= 6",
+			    length);
 		return rem;
 	}
 
@@ -1478,7 +1955,9 @@ dissect_ldp_pdu(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tre
 			if( check_col(pinfo->cinfo, COL_INFO) )
 				col_append_fstr(pinfo->cinfo, COL_INFO, "Bad PDU Length ");
 			if(tree)
-				proto_tree_add_text(tree, tvb, offset, rem+4,"Error processing PDU Length");
+				proto_tree_add_text(tree, tvb, offset, rem+4,
+				    "Error processing PDU Length: length is %d, should be <= %d",
+				    length, rem);
 		}
 		return rem+4;
 	}
@@ -1602,10 +2081,10 @@ proto_register_ldp(void)
       { "Hold Time", "ldp.msg.tlv.hello.hold", FT_UINT16, BASE_DEC, NULL, 0x0, "Hello Common Parameters Hold Time", HFILL }},
 
     { &hf_ldp_tlv_val_target,
-      { "Targeted Hello", "ldp.msg.tlv.hello.targeted", FT_BOOLEAN, 8, TFS(&hello_targeted_vals), 0x80, "Hello Common Parameters Targeted Bit", HFILL }},
+      { "Targeted Hello", "ldp.msg.tlv.hello.targeted", FT_BOOLEAN, 16, TFS(&hello_targeted_vals), 0x8000, "Hello Common Parameters Targeted Bit", HFILL }},
 
     { &hf_ldp_tlv_val_request,
-      { "Hello Requested", "ldp,msg.tlv.hello.requested", FT_BOOLEAN, 8, TFS(&hello_requested_vals), 0x40, "Hello Common Parameters Hello Requested Bit", HFILL }},
+      { "Hello Requested", "ldp,msg.tlv.hello.requested", FT_BOOLEAN, 16, TFS(&hello_requested_vals), 0x4000, "Hello Common Parameters Hello Requested Bit", HFILL }},
  
     { &hf_ldp_tlv_val_res,
       { "Reserved", "ldp.msg.tlv.hello.res", FT_UINT16, BASE_HEX, NULL, 0x3FFF, "Hello Common Parameters Reserved Field", HFILL }},
@@ -1812,6 +2291,89 @@ proto_register_ldp(void)
 
     {&hf_ldp_tlv_fec_vc_intparam_cembytes,
      {"Payload Bytes", "ldp.msg.tlv.fec.vc.intparam.cembytes", FT_UINT16, BASE_DEC, NULL, 0x0, "VC FEC Interface Param CEM Payload Bytes", HFILL }},
+
+    { &hf_ldp_tlv_lspid_act_flg,
+      { "Action Indicator Flag", "ldp.msg.tlv.lspid.actflg", FT_UINT16, BASE_HEX, VALS(ldp_act_flg_vals), 0x000F, "Action Indicator Flag", HFILL}},
+
+    { &hf_ldp_tlv_lspid_cr_lsp,
+      { "Local CR-LSP ID", "ldp.msg.tlv.lspid.locallspid", FT_UINT16, BASE_HEX, NULL, 0x0, "Local CR-LSP ID", HFILL}},
+
+    { &hf_ldp_tlv_lspid_ldpid,
+      { "Ingress LSR Router ID", "ldp.msg.tlv.lspid.lsrid", FT_IPv4, BASE_DEC, NULL, 0x0, "Ingress LSR Router ID", HFILL}},
+
+    { &hf_ldp_tlv_er_hop_loose,
+      { "Loose route bit", "ldp.msg.tlv.er_hop.loose", FT_UINT24, BASE_HEX, VALS(ldp_loose_vals), 0x800000, "Loose route bit", HFILL}},
+
+    { &hf_ldp_tlv_er_hop_prelen,
+      { "Prefix length", "ldp.msg.tlv.er_hop.prefixlen", FT_UINT8, BASE_DEC, NULL, 0x0, "Prefix len", HFILL}},
+
+    { &hf_ldp_tlv_er_hop_prefix4,
+      { "IPv4 Address", "ldp.msg.tlv.er_hop.prefix4", FT_IPv4, BASE_DEC, NULL, 0x0, "IPv4 Address", HFILL}},
+   { &hf_ldp_tlv_er_hop_prefix6,
+     { "IPv6 Address", "ldp.msg.tlv.er_hop.prefix6", FT_IPv6, BASE_DEC, NULL, 0x0, "IPv6 Address", HFILL}},
+    
+    { &hf_ldp_tlv_er_hop_as,
+      { "AS Number", "ldp.msg.tlv.er_hop.as", FT_UINT16, BASE_DEC, NULL, 0x0, "AS Number", HFILL}},
+    
+    { &hf_ldp_tlv_er_hop_cr_lsp,
+      { "Local CR-LSP ID", "ldp.msg.tlv.er_hop.locallspid", FT_UINT16, BASE_DEC, NULL, 0x0, "Local CR-LSP ID", HFILL}},
+    
+    { &hf_ldp_tlv_er_hop_ldpid,
+      { "Local CR-LSP ID", "ldp.msg.tlv.er_hop.lsrid", FT_IPv4, BASE_DEC, NULL, 0x0, "Local CR-LSP ID", HFILL}},
+
+    { &hf_ldp_tlv_flags_reserv,
+      { "Reserved", "ldp.msg.tlv.flags_reserv", FT_UINT8, BASE_HEX, NULL, 0xC0, "Reserved", HFILL}},
+    
+    { &hf_ldp_tlv_flags_pdr,
+      { "PDR", "ldp.msg.tlv.flags_pdr", FT_BOOLEAN, 8, NULL, 0x1, "PDR", HFILL}},
+    
+    { &hf_ldp_tlv_flags_pbs,
+      { "PBS", "ldp.msg.tlv.flags_pbs", FT_BOOLEAN, 8, NULL, 0x2, "PBS", HFILL}},
+    
+    { &hf_ldp_tlv_flags_cdr,
+      { "CDR", "ldp.msg.tlv.flags_cdr", FT_BOOLEAN, 8, NULL, 0x4, "CDR", HFILL}},
+    
+    { &hf_ldp_tlv_flags_cbs,
+      { "CBS", "ldp.msg.tlv.flags_cbs", FT_BOOLEAN, 8, NULL, 0x8, "CBS", HFILL}},
+    
+    { &hf_ldp_tlv_flags_ebs,
+      { "EBS", "ldp.msg.tlv.flags_ebs", FT_BOOLEAN, 8, NULL, 0x10, "EBS", HFILL}},
+    
+    { &hf_ldp_tlv_flags_weight,
+      { "Weight", "ldp.msg.tlv.flags_weight", FT_BOOLEAN, 8, NULL, 0x20, "Weight", HFILL}},
+    
+    { &hf_ldp_tlv_frequency,
+      { "Frequency", "ldp.msg.tlv.frequency", FT_UINT8, BASE_DEC, VALS(freq_values), 0, "Frequency", HFILL}},
+    
+    { &hf_ldp_tlv_weight,
+      { "Weight", "ldp.msg.tlv.weight", FT_UINT8, BASE_DEC, NULL, 0, "weight of the CR-LSP", HFILL}},
+    
+    { &hf_ldp_tlv_pdr,
+      { "PDR", "ldp.msg.tlv.pdr", FT_DOUBLE, BASE_NONE, NULL, 0, "Peak Data Rate", HFILL}},
+    
+    { &hf_ldp_tlv_pbs,
+      { "PBS", "ldp.msg.tlv.pbs", FT_DOUBLE, BASE_NONE, NULL, 0, "Peak Burst Size", HFILL}},
+    
+    { &hf_ldp_tlv_cdr,
+      { "CDR", "ldp.msg.tlv.cdr", FT_DOUBLE, BASE_NONE, NULL, 0, "Committed Data Rate", HFILL}},
+    
+    { &hf_ldp_tlv_cbs,
+      { "CBS", "ldp.msg.tlv.cbs", FT_DOUBLE, BASE_NONE, NULL, 0, "Committed Burst Size", HFILL}},
+    
+    { &hf_ldp_tlv_ebs,
+      { "EBS", "ldp.msg.tlv.ebs", FT_DOUBLE, BASE_NONE, NULL, 0, "Excess Burst Size", HFILL}},
+    
+    { &hf_ldp_tlv_set_prio,
+      { "Set Prio", "ldp.msg.tlv.set_prio", FT_UINT8, BASE_DEC, NULL, 0, "LSP setup priority", HFILL}},
+    
+    { &hf_ldp_tlv_hold_prio,
+      { "Hold Prio", "ldp.msg.tlv.hold_prio", FT_UINT8, BASE_DEC, NULL, 0, "LSP hold priority", HFILL}},
+
+    { &hf_ldp_tlv_route_pinning,
+      { "Route Pinning", "ldp.msg.tlv.route_pinning", FT_UINT32, BASE_DEC, VALS(route_pinning_vals), 0x80000000, "Route Pinning", HFILL}},
+    
+    { &hf_ldp_tlv_resource_class,
+      { "Resource Class", "ldp.msg.tlv.resource_class", FT_UINT32, BASE_HEX, NULL, 0, "Resource Class (Color)", HFILL}},
 
   };
 
