@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.125 2002/01/17 09:28:22 guy Exp $
+ * $Id: packet-tcp.c,v 1.126 2002/01/18 22:35:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +55,17 @@
 
 /* Place TCP summary in proto tree */
 static gboolean tcp_summary_in_tree = TRUE;
+
+/*
+ * Don't check the TCP checksum (I've seen packets with bad TCP checksums
+ * in Solaris network traces, but the traffic appears to indicate that
+ * the packet *was* received; I suspect the packets were sent by the host
+ * on which the capture was being done, on a network interface to which
+ * checksumming was offloaded, so that DLPI supplied an un-checksummed
+ * packet to the capture program but a checksummed packet got put onto
+ * the wire).
+ */
+static gboolean tcp_check_checksum = TRUE;
 
 extern FILE* data_out_file;
 
@@ -835,6 +846,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32    phdr[2];
   guint16    computed_cksum;
   guint      length_remaining;
+  gboolean   desegment_ok;
   struct tcpinfo tcpinfo;
   gboolean   save_fragmented;
 
@@ -968,68 +980,89 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   th_sum = tvb_get_ntohs(tvb, offset + 16);
   if (!pinfo->fragmented && len >= reported_len) {
-    /* The packet isn't part of a fragmented datagram, isn't being
-       returned inside an ICMP error packet, and isn't truncated, so we
-       can checksum it.
-       XXX - make a bigger scatter-gather list once we do fragment
-       reassembly? */
+    /* The packet isn't part of an un-reassembled fragmented datagram
+       and isn't truncated.  This means we have all the data, and thus
+       can checksum it and, unless it's being returned in an error
+       packet, are willing to allow subdissectors to request reassembly
+       on it. */
+  
+    if (tcp_check_checksum) {
+      /* We haven't turned checksum checking off; checksum it. */
 
-    /* Set up the fields of the pseudo-header. */
-    cksum_vec[0].ptr = pinfo->src.data;
-    cksum_vec[0].len = pinfo->src.len;
-    cksum_vec[1].ptr = pinfo->dst.data;
-    cksum_vec[1].len = pinfo->dst.len;
-    cksum_vec[2].ptr = (const guint8 *)&phdr;
-    switch (pinfo->src.type) {
+      /* Set up the fields of the pseudo-header. */
+      cksum_vec[0].ptr = pinfo->src.data;
+      cksum_vec[0].len = pinfo->src.len;
+      cksum_vec[1].ptr = pinfo->dst.data;
+      cksum_vec[1].len = pinfo->dst.len;
+      cksum_vec[2].ptr = (const guint8 *)&phdr;
+      switch (pinfo->src.type) {
 
-    case AT_IPv4:
-	phdr[0] = htonl((IP_PROTO_TCP<<16) + reported_len);
-	cksum_vec[2].len = 4;
-	break;
+      case AT_IPv4:
+        phdr[0] = htonl((IP_PROTO_TCP<<16) + reported_len);
+        cksum_vec[2].len = 4;
+        break;
 
-    case AT_IPv6:
+      case AT_IPv6:
         phdr[0] = htonl(reported_len);
         phdr[1] = htonl(IP_PROTO_TCP);
         cksum_vec[2].len = 8;
         break;
 
-    default:
+      default:
         /* TCP runs only atop IPv4 and IPv6.... */
         g_assert_not_reached();
         break;
-    }
-    cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, len);
-    cksum_vec[3].len = reported_len;
-    computed_cksum = in_cksum(&cksum_vec[0], 4);
-    if (computed_cksum == 0) {
-      /*
-       * We have all the data for this TCP segment, and the checksum of
-       * the header and the data is good, so we can desegment it.
-       * Is desegmentation enabled?
-       */
-      if (tcp_desegment) {
-	/* Yes - is this segment being returned in an error packet? */
-	if (!pinfo->in_error_pkt) {
-	  /* No - indicate that we will desegment.
-	     We do NOT want to desegment segments returned in error
-	     packets, as they're not part of a TCP connection. */
-	  pinfo->can_desegment = 2;
-	}
       }
-      proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
-         offset + 16, 2, th_sum, "Checksum: 0x%04x (correct)", th_sum);
-    } else {
-      proto_tree_add_boolean_hidden(tcp_tree, hf_tcp_checksum_bad, tvb,
+      cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, len);
+      cksum_vec[3].len = reported_len;
+      computed_cksum = in_cksum(&cksum_vec[0], 4);
+      if (computed_cksum == 0) {
+        proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
+          offset + 16, 2, th_sum, "Checksum: 0x%04x (correct)", th_sum);
+
+        /* Checksum is valid, so we're willing to desegment it. */
+        desegment_ok = TRUE;
+      } else {
+        proto_tree_add_boolean_hidden(tcp_tree, hf_tcp_checksum_bad, tvb,
 	   offset + 16, 2, TRUE);
-      proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
+        proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
            offset + 16, 2, th_sum,
 	   "Checksum: 0x%04x (incorrect, should be 0x%04x)", th_sum,
 	   in_cksum_shouldbe(th_sum, computed_cksum));
+
+        /* Checksum is invalid, so we're not willing to desegment it. */
+        desegment_ok = FALSE;
+      }
+    } else {
+      proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
+         offset + 16, 2, th_sum, "Checksum: 0x%04x", th_sum);
+
+      /* We didn't check the checksum, and don't care if it's valid,
+         so we're willing to desegment it. */
+      desegment_ok = TRUE;
     }
   } else {
+    /* We don't have all the packet data, so we can't checksum it... */
     proto_tree_add_uint_format(tcp_tree, hf_tcp_checksum, tvb,
        offset + 16, 2, th_sum, "Checksum: 0x%04x", th_sum);
+
+    /* ...and aren't willing to desegment it. */
+    desegment_ok = FALSE;
   }
+
+  if (desegment_ok) {
+    /* We're willing to desegment this.  Is desegmentation enabled? */
+    if (tcp_desegment) {
+      /* Yes - is this segment being returned in an error packet? */
+      if (!pinfo->in_error_pkt) {
+	/* No - indicate that we will desegment.
+	   We do NOT want to desegment segments returned in error
+	   packets, as they're not part of a TCP connection. */
+	pinfo->can_desegment = 2;
+      }
+    }
+  }
+
   if (th_flags & TH_URG) {
     th_urp = tvb_get_ntohs(tvb, offset + 18);
     /* Export the urgent pointer, for the benefit of protocols such as
@@ -1228,6 +1261,10 @@ proto_register_tcp(void)
 	    "Show TCP summary in protocol tree",
 "Whether the TCP summary line should be shown in the protocol tree",
 	    &tcp_summary_in_tree);
+	prefs_register_bool_preference(tcp_module, "check_checksum",
+	    "Check the validity of the TCP checksum when possible",
+"Whether to check the validity of the TCP checksum",
+	    &tcp_check_checksum);
 	prefs_register_bool_preference(tcp_module, "desegment_tcp_streams",
 	    "Allow subdissector to desegment TCP streams",
 "Whether subdissector can request TCP streams to be desegmented",
