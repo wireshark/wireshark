@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.139 2000/08/20 09:02:29 guy Exp $
+ * $Id: main.c,v 1.140 2000/08/20 15:38:50 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1155,24 +1155,28 @@ main(int argc, char *argv[])
   m_r_font = gdk_font_load(prefs->gui_font_name);
   m_b_font = gdk_font_load(bold_font_name);
   if (m_r_font == NULL || m_b_font == NULL) {
-    /* XXX - pop this up as a dialog box? */
-    if (m_r_font == NULL)
-      fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
+    /* XXX - pop this up as a dialog box? no */
+    if (m_r_font == NULL) {
+      if (!capture_child) 
+	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
 		prefs->gui_font_name);
-    else
+    } else {
       gdk_font_unref(m_r_font);
-    if (m_b_font == NULL)
-      fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
+    }
+    if (m_b_font == NULL) {
+      if (!capture_child)
+	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
 		bold_font_name);
-    else
+    } else {
       gdk_font_unref(m_b_font);
+    }
     g_free(bold_font_name);
     if ((m_r_font = gdk_font_load("6x13")) == NULL) {
       fprintf(stderr, "ethereal: Error: font 6x13 not found\n");
       exit(1);
     }
     if ((m_b_font = gdk_font_load("6x13bold")) == NULL) {
-      fprintf(stderr, "ethereal: Error: font 6x13 not found\n");
+      fprintf(stderr, "ethereal: Error: font 6x13bold not found\n");
       exit(1);
     }
   }
