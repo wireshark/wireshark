@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.46 2004/01/21 21:19:32 ulfl Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.47 2004/01/26 21:02:36 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -281,6 +281,11 @@ show_relations(GtkWidget *relation_list, ftenum_t ftype)
 	if (ftype_can_contains(ftype) ||
 	    (ftype_can_slice(ftype) && ftype_can_contains(FT_BYTES)))
 		add_relation_list(relation_list, "contains");
+#ifdef HAVE_LIBPCRE
+	if (ftype_can_matches(ftype) ||
+	    (ftype_can_slice(ftype) && ftype_can_matches(FT_BYTES)))
+		add_relation_list(relation_list, "matches");
+#endif
 
 #if GTK_MAJOR_VERSION >= 2
         gtk_tree_model_get_iter_first(gtk_tree_view_get_model(GTK_TREE_VIEW(relation_list)), &iter);
@@ -889,6 +894,8 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
         can_compare = ftype_can_le(ftype);
     else if (strcmp(item_str, "contains") == 0)
         can_compare = ftype_can_contains(ftype);
+    else if (strcmp(item_str, "matches") == 0)
+        can_compare = ftype_can_matches(ftype);
     else
         can_compare = TRUE;	/* not a comparison */
     if (!can_compare) {
