@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.290 2002/09/21 11:36:25 oabad Exp $
+ * $Id: file.c,v 1.291 2002/09/23 19:09:47 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,8 +25,6 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <gtk/gtk.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -64,11 +62,6 @@
 #include <epan/filesystem.h>
 
 #include "color.h"
-#if GTK_MAJOR_VERSION == 1
-#include "gtk/color_utils.h"
-#else
-#include "gtk2/color_utils.h"
-#endif
 #include "column.h"
 #include <epan/packet.h>
 #include "print.h"
@@ -83,11 +76,6 @@
 #include <epan/dfilter/dfilter.h>
 #include <epan/conversation.h>
 #include "globals.h"
-#if GTK_MAJOR_VERSION == 1
-#include "gtk/colors.h"
-#else
-#include "gtk2/colors.h"
-#endif
 #include <epan/epan_dissect.h>
 #include "tap.h"
 
@@ -655,7 +643,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   gint          row;
   gboolean	create_proto_tree = FALSE;
   epan_dissect_t *edt;
-  GdkColor      fg, bg;
 
   /* We don't yet have a color filter to apply. */
   args.colorf = NULL;
@@ -773,13 +760,10 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     row = packet_list_append(cf->cinfo.col_data, fdata);
 
     if (fdata->flags.marked) {
-	color_t_to_gdkcolor(&bg, &prefs.gui_marked_bg);
-	color_t_to_gdkcolor(&fg, &prefs.gui_marked_fg);
-        packet_list_set_colors(row, &bg, &fg);
+        packet_list_set_colors(row, &prefs.gui_marked_fg, &prefs.gui_marked_bg);
     } else if (filter_list != NULL && (args.colorf != NULL)) {
-	bg = args.colorf->bg_color;
-	fg = args.colorf->fg_color;
-        packet_list_set_colors(row, &bg, &fg);
+        packet_list_set_colors(row, &args.colorf->fg_color,
+                               &args.colorf->bg_color);
     }
   } else {
     /* This frame didn't pass the display filter, so it's not being added

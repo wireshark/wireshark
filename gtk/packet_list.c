@@ -1,7 +1,7 @@
 /* packet_list.c
  * packet list related functions   2002 Olivier Abad
  *
- * $Id: packet_list.c,v 1.1 2002/09/21 11:36:27 oabad Exp $
+ * $Id: packet_list.c,v 1.2 2002/09/23 19:09:49 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,9 @@
 
 #include "gtkglobals.h"
 #include "epan/epan.h"
+#include "color.h"
 #include "../ui_util.h"
+#include "color_utils.h"
 #include "column.h"
 #include "epan/column_info.h"
 
@@ -95,10 +97,20 @@ packet_list_append(gchar *text[], gpointer data)
 }
 
 void
-packet_list_set_colors(gint row, GdkColor *fg, GdkColor *bg)
+packet_list_set_colors(gint row, color_t *fg, color_t *bg)
 {
-    if (fg) gtk_clist_set_foreground(GTK_CLIST(packet_list), row, fg);
-    if (bg) gtk_clist_set_background(GTK_CLIST(packet_list), row, bg);
+    GdkColor gdkfg, gdkbg;
+
+    if (fg)
+    {
+        color_t_to_gdkcolor(&gdkfg, fg);
+        gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &gdkfg);
+    }
+    if (bg)
+    {
+        color_t_to_gdkcolor(&gdkbg, bg);
+        gtk_clist_set_background(GTK_CLIST(packet_list), row, &gdkbg);
+    }
 }
 
 gint

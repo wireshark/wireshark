@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.2 2002/09/05 18:48:51 jmayer Exp $
+ * $Id: colors.c,v 1.3 2002/09/23 19:09:52 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,7 @@
 
 #include <epan/packet.h>
 #include "colors.h"
+#include "color_utils.h"
 #include "file.h"
 #include <epan/dfilter/dfilter.h>
 #include "simple_dialog.h"
@@ -91,8 +92,8 @@ new_color_filter(gchar *name,           /* The name of the filter to create */
 	colorf = (color_filter_t *)g_malloc(sizeof (color_filter_t));
 	colorf->filter_name = g_strdup(name);
 	colorf->filter_text = g_strdup(filter_string);
-	colorf->bg_color = WHITE;
-	colorf->fg_color = BLACK;
+	gdkcolor_to_color_t(&colorf->bg_color, &WHITE);
+	gdkcolor_to_color_t(&colorf->fg_color, &BLACK);
 	colorf->c_colorfilter = NULL;
 	colorf->edit_dialog = NULL;
 	filter_list = g_slist_append(filter_list, colorf);
@@ -213,8 +214,8 @@ read_filters(void)
 			bg_color.green = bg_g;
 			bg_color.blue = bg_b;
 
-			colorf->bg_color = bg_color;
-			colorf->fg_color = fg_color;
+			gdkcolor_to_color_t(&colorf->bg_color, &bg_color);
+			gdkcolor_to_color_t(&colorf->fg_color, &fg_color);
 		}    /* if sscanf */
 	} while(!feof(f));
 	return TRUE;

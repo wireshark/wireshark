@@ -1,7 +1,7 @@
 /* color.h
  * Definitions for "toolkit-independent" colors
  *
- * $Id: color.h,v 1.2 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: color.h,v 1.3 2002/09/23 19:09:47 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,6 +26,8 @@
 #ifndef __COLOR_H__
 #define __COLOR_H__
 
+#include "epan/dfilter/dfilter.h"
+
 /*
  * Data structure holding RGB value for a color.
  *
@@ -41,5 +43,22 @@ typedef struct {
 	guint16 green;
 	guint16 blue;
 } color_t;
+
+/* Data for a color filter. */
+typedef struct _color_filter {
+        gchar     *filter_name;   /* name of the filter */
+        gchar     *filter_text;   /* text of the filter expression */
+        color_t    bg_color;      /* background color for packets that match */
+        color_t    fg_color;      /* foreground color for packets that match */
+        dfilter_t *c_colorfilter; /* compiled filter expression */
+        void      *edit_dialog;   /* if filter is being edited, dialog
+                                   * box for it */
+} color_filter_t;
+
+/* List of all color filters. */
+extern GSList *filter_list;
+
+void
+filter_list_prime_edt(epan_dissect_t *edt);
 
 #endif

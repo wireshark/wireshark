@@ -2,7 +2,7 @@
  * Utilities for converting between "toolkit-independent" and GDK
  * notions of color
  *
- * $Id: color_utils.c,v 1.2 2002/09/05 18:48:51 jmayer Exp $
+ * $Id: color_utils.c,v 1.3 2002/09/23 19:09:52 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,7 +30,7 @@
 
 #include <gtk/gtk.h>
 
-#include "prefs.h"	/* to declare "color_t" */
+#include "color.h"	/* to declare "color_t" */
 
 void
 color_t_to_gdkcolor(GdkColor *target, color_t *source)

@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.2 2002/09/05 18:48:51 jmayer Exp $
+ * $Id: color_dlg.c,v 1.3 2002/09/23 19:09:52 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,6 +34,7 @@
 #include <epan/packet.h>
 #include "colors.h"
 #include "color_dlg.h"
+#include "color_utils.h"
 #include "file.h"
 #include <epan/dfilter/dfilter.h>
 #include "simple_dialog.h"
@@ -367,16 +368,19 @@ static void
 add_filter_to_clist(gpointer filter_arg, gpointer clist_arg)
 {
   color_filter_t *colorf = filter_arg;
-  GtkWidget *color_filters = clist_arg;
-  gchar *data[2];
-  gint row;
+  GtkWidget      *color_filters = clist_arg;
+  gchar          *data[2];
+  gint            row;
+  GdkColor        bg, fg;
 
   data[0] = colorf->filter_name;
   data[1] = colorf->filter_text;
   row = gtk_clist_append(GTK_CLIST(color_filters), data);
+  color_t_to_gdkcolor(&fg, &colorf->fg_color);
+  color_t_to_gdkcolor(&bg, &colorf->bg_color);
   gtk_clist_set_row_data(GTK_CLIST(color_filters), row, colorf);
-  gtk_clist_set_foreground(GTK_CLIST(color_filters), row, &colorf->fg_color);
-  gtk_clist_set_background(GTK_CLIST(color_filters), row, &colorf->bg_color);
+  gtk_clist_set_foreground(GTK_CLIST(color_filters), row, &fg);
+  gtk_clist_set_background(GTK_CLIST(color_filters), row, &bg);
   num_of_filters++;
 }
 
@@ -705,8 +709,8 @@ edit_color_filter_dialog_new (GtkWidget *color_filters,
   gtk_entry_set_text(GTK_ENTRY(*colorize_filter_name), colorf->filter_name);
 
   style = gtk_style_copy(gtk_widget_get_style(*colorize_filter_name));
-  style->base[GTK_STATE_NORMAL] = colorf->bg_color;
-  style->fg[GTK_STATE_NORMAL]   = colorf->fg_color;
+  color_t_to_gdkcolor(&style->base[GTK_STATE_NORMAL], &colorf->bg_color);
+  color_t_to_gdkcolor(&style->fg[GTK_STATE_NORMAL], &colorf->fg_color);
   gtk_widget_set_style(*colorize_filter_name, style);
 
   gtk_widget_show (*colorize_filter_name);
@@ -961,8 +965,8 @@ edit_color_filter_ok_cb                (GtkButton       *button,
 	if (colorf->filter_text != NULL)
 	    g_free(colorf->filter_text);
 	colorf->filter_text = filter_text;
-	colorf->fg_color = new_fg_color;
-	colorf->bg_color = new_bg_color;
+	gdkcolor_to_color_t(&colorf->fg_color, &new_fg_color);
+	gdkcolor_to_color_t(&colorf->bg_color, &new_bg_color);
 	gtk_clist_set_foreground(GTK_CLIST(color_filters), row_selected,
 	    &new_fg_color);
 	gtk_clist_set_background(GTK_CLIST(color_filters), row_selected,
@@ -1002,13 +1006,13 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
   static const gchar fg_title_format[] = "Choose foreground color for \"%s\"";
   static const gchar bg_title_format[] = "Choose background color for \"%s\"";
   GtkWidget *color_sel_win;
-  GdkColor *color;
+  color_t   *color;
   GtkWidget *color_sel_ok;
   GtkWidget *color_sel_cancel;
   GtkWidget *color_sel_help;
 
   if (is_bg) {
-    color = &colorf->bg_color;
+    color  = &colorf->bg_color;
     title_len = strlen(bg_title_format) + strlen(colorf->filter_name);
     title = g_malloc(title_len + 1);
     sprintf(title, bg_title_format, colorf->filter_name);

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.263 2002/09/09 20:38:58 guy Exp $
+ * $Id: main.c,v 1.264 2002/09/23 19:09:49 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -647,14 +647,14 @@ set_frame_mark(gboolean set, frame_data *frame, gint row) {
     mark_frame(&cfile, frame);
     color_t_to_gdkcolor(&fg, &prefs.gui_marked_fg);
     color_t_to_gdkcolor(&bg, &prefs.gui_marked_bg);
+    gtk_clist_set_background(GTK_CLIST(packet_list), row, &bg);
+    gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &fg);
   } else {
     unmark_frame(&cfile, frame);
-    fg = BLACK;
-    bg = WHITE;
+    gtk_clist_set_background(GTK_CLIST(packet_list), row, NULL);
+    gtk_clist_set_foreground(GTK_CLIST(packet_list), row, NULL);
   }
   file_set_save_marked_sensitive();
-  gtk_clist_set_background(GTK_CLIST(packet_list), row, &bg);
-  gtk_clist_set_foreground(GTK_CLIST(packet_list), row, &fg);
 }
 
 static void
