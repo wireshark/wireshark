@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.80 1999/10/20 22:35:57 gram Exp $
+ * $Id: capture.c,v 1.81 1999/11/25 22:37:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -506,17 +506,10 @@ capture(void)
       break;
 
     default:
-      if (err < 0) {
-        simple_dialog(ESD_TYPE_WARN, NULL,
-		"The file to which the capture was being"
-		" saved (\"%s\") could not be closed: Error %d.",
-		cf.save_file, err);
-      } else {
-        simple_dialog(ESD_TYPE_WARN, NULL,
+      simple_dialog(ESD_TYPE_WARN, NULL,
 		"The file to which the capture was being"
 		" saved (\"%s\") could not be closed: %s.",
-		cf.save_file, strerror(err));
-      }
+		cf.save_file, wtap_strerror(err));
       break;
     }
   }
