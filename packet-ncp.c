@@ -2,8 +2,10 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
+ * Modified to decode server op-lock 
+ * & NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp.c,v 1.65 2002/08/02 23:35:54 jmayer Exp $
+ * $Id: packet-ncp.c,v 1.66 2002/08/23 17:47:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,8 +26,16 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifdef HAVE_CONFIG_H
+#ifdef HAVE_CONFIG_H 
 # include "config.h"
+#endif
+
+#ifdef HAVE_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
 #endif
 
 #include <string.h>
@@ -64,16 +74,22 @@ static int hf_ncp_data_bytes = -1;
 static int hf_ncp_missing_fraglist_count = -1;
 static int hf_ncp_missing_data_offset = -1;
 static int hf_ncp_missing_data_count = -1;
+static int hf_ncp_oplock_flag = -1;
+static int hf_ncp_oplock_handle = -1;
 static int hf_ncp_completion_code = -1;
 static int hf_ncp_connection_status = -1;
 static int hf_ncp_slot = -1;
 static int hf_ncp_control_code = -1;
+static int hf_ncp_fragment_handle = -1;
+static int hf_lip_echo = -1;
+
 
 gint ett_ncp = -1;
 static gint ett_ncp_system_flags = -1;
 
 /* desegmentation of NCP over TCP */
 static gboolean ncp_desegment = TRUE;
+static ncp_nds_true = FALSE;
 
 static dissector_handle_t data_handle;
 
@@ -135,7 +151,7 @@ struct ncp_common_header {
 	guint8	conn_low;
 	guint8	task;
 	guint8	conn_high; /* type=0x5555 doesn't have this */
-};
+};                         
 
 
 static value_string ncp_type_vals[] = {
@@ -144,8 +160,10 @@ static value_string ncp_type_vals[] = {
 	{ NCP_SERVICE_REPLY,	"Service reply" },
 	{ NCP_WATCHDOG,		"Watchdog" },
 	{ NCP_DEALLOCATE_SLOT,	"Destroy service connection" },
+    { NCP_BROADCAST_SLOT,   "Server Broadcast" },
 	{ NCP_BURST_MODE_XFER,	"Burst mode transfer" },
 	{ NCP_POSITIVE_ACK,	"Request being processed" },
+    { NCP_LIP_ECHO, "Large Internet Packet Echo" },
 	{ 0,			NULL }
 };
 
@@ -174,6 +192,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree			*flags_tree = NULL;
 	guint16				data_len = 0;
 	guint16				missing_fraglist_count = 0;
+    guint16             ncp_nds_verb;
 	int				hdr_offset = 0;
 	int				commhdr;
 	int				offset;
@@ -254,19 +273,19 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	switch (header.type) {
 
-	case NCP_ALLOCATE_SLOT:		/* Allocate Slot Request */
-	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
-	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
-	case NCP_WATCHDOG:		/* Watchdog Packet */
-	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
-	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
-	default:
-		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
+    case NCP_BROADCAST_SLOT:    /* Server Broadcast */
+        proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
 		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
 		proto_tree_add_item(ncp_tree, hf_ncp_task,	tvb, commhdr + 4, 1, FALSE);
-		break;
+		proto_tree_add_item(ncp_tree, hf_ncp_oplock_flag, tvb, commhdr + 9, 1, FALSE);
+		proto_tree_add_item(ncp_tree, hf_ncp_oplock_handle, tvb, commhdr + 10, 4, FALSE);
+        break;
 
-	case NCP_BURST_MODE_XFER:	/* Packet Burst Packet */
+    case NCP_LIP_ECHO:    /* Lip Echo Packet */
+        proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr, 13, FALSE);
+        break;
+
+    case NCP_BURST_MODE_XFER:	/* Packet Burst Packet */
 		/*
 		 * XXX - we should keep track of whether there's a burst
 		 * outstanding on a connection and, if not, treat the
@@ -360,6 +379,18 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item(ncp_tree, hf_ncp_missing_fraglist_count,
 		    tvb, commhdr + 34, 2, FALSE);
 		break;
+
+    case NCP_SERVICE_REQUEST:	/* Server NCP Request */
+    case NCP_SERVICE_REPLY:		/* Server NCP Reply */
+	case NCP_ALLOCATE_SLOT:		/* Allocate Slot Request */
+	case NCP_WATCHDOG:		    /* Watchdog Packet */
+	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
+	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
+	default:
+		proto_tree_add_uint(ncp_tree, hf_ncp_seq,	tvb, commhdr + 2, 1, header.sequence);
+		proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
+		proto_tree_add_item(ncp_tree, hf_ncp_task,	tvb, commhdr + 4, 1, FALSE);
+		break;
 	}
 
 	/*
@@ -368,14 +399,30 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	switch (header.type) {
 
 	case NCP_ALLOCATE_SLOT:		/* Allocate Slot Request */
-	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
+    case NCP_SERVICE_REQUEST:	/* Server NCP Request */
 	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
+    case NCP_BROADCAST_SLOT:	/* Server Broadcast Packet */
 		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
-		dissect_ncp_request(next_tvb, pinfo, nw_connection,
+        if (tvb_get_guint8(tvb, commhdr+6)==0x68) {
+            ncp_nds_verb = tvb_get_ntohl(tvb, commhdr+4);
+            if (tvb_get_guint8(tvb, commhdr+7)==0x02) {  /* NDS Packet to decode */
+                dissect_nds_request(next_tvb, pinfo, nw_connection, 
+                    header.sequence, header.type, ncp_tree);
+            }
+            else
+            {
+            dissect_ncp_request(next_tvb, pinfo, nw_connection,
+                header.sequence, header.type, ncp_tree);
+            }
+        }
+        else
+        {
+        dissect_ncp_request(next_tvb, pinfo, nw_connection,
 			header.sequence, header.type, ncp_tree);
+        }
 		break;
 
-	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
+    case NCP_SERVICE_REPLY:		/* Server NCP Reply */
 	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
 		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
 		dissect_ncp_reply(next_tvb, pinfo, nw_connection,
@@ -441,6 +488,10 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 		break;
 
+    case NCP_LIP_ECHO:		/* LIP Echo Packet */
+        proto_tree_add_text(ncp_tree, tvb, commhdr, -1,
+            "Lip Echo Packet");
+        break;
 	default:
 		if (tree) {
 			proto_tree_add_text(ncp_tree, tvb, commhdr + 6, -1,
@@ -534,6 +585,14 @@ proto_register_ncp(void)
       { "Task Number",     	"ncp.task",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"", HFILL }},
+    { &hf_ncp_oplock_flag,
+      { "Oplock Flag",    "ncp.oplock_flag",
+	FT_UINT8, BASE_HEX, NULL, 0x0,
+	"", HFILL }},
+    { &hf_ncp_oplock_handle,
+      { "File Handle",    "ncp.oplock_handle",
+	FT_UINT16, BASE_HEX, NULL, 0x0,
+	"", HFILL }},
     { &hf_ncp_stream_type,
       { "Stream Type",     	"ncp.stream_type",
 	FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -618,6 +677,14 @@ proto_register_ncp(void)
       { "Control Code",    "ncp.control_code",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"", HFILL }},
+    { &hf_ncp_fragment_handle,
+      { "Fragment Handle",    "ncp.fragger_hndl",
+    FT_UINT16, BASE_HEX, NULL, 0x0,
+    "", HFILL }},
+    { &hf_lip_echo,
+      { "Large Internet Packet Echo",    "ncp.lip_echo",
+    FT_STRING, BASE_NONE, NULL, 0x0,
+    "", HFILL }},
   };
   static gint *ett[] = {
     &ett_ncp,
@@ -652,3 +719,5 @@ proto_reg_handoff_ncp(void)
 
   data_handle = find_dissector("data");
 }
+
+

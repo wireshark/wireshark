@@ -2,7 +2,7 @@
  * Structures and functions for NetWare Core Protocol.
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp-int.h,v 1.9 2002/05/17 23:17:22 gram Exp $
+ * $Id: packet-ncp-int.h,v 1.10 2002/08/23 17:47:31 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,7 @@ struct _ptvc_record {
 #define NCP_FMT_NONE			0
 #define NCP_FMT_NW_DATE			1
 #define NCP_FMT_NW_TIME			2
+#define NCP_FMT_UNICODE         3
 
 struct _sub_ptvc_record {
 	gint			*ett;
@@ -87,6 +88,9 @@ void dissect_ncp_request(tvbuff_t*, packet_info*, guint16,
 void dissect_ncp_reply(tvbuff_t *, packet_info*, guint16, guint8,
 		guint16, proto_tree*);
 
+void dissect_nds_request(tvbuff_t*, packet_info*, guint16,
+		guint8, guint16, proto_tree*);
+
 extern int proto_ncp;
 extern gint ett_ncp;
 
@@ -100,5 +104,7 @@ extern gint ett_ncp;
 #define NCP_DEALLOCATE_SLOT	0x5555
 #define NCP_BURST_MODE_XFER	0x7777
 #define NCP_POSITIVE_ACK	0x9999
+#define NCP_BROADCAST_SLOT  0xbbbb
+#define NCP_LIP_ECHO        0x4c69
 
 #endif

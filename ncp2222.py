@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+         
 """
 Creates C code from a table of NCP type 0x2222 packet types.
 (And 0x3333, which are the replies, but the packets are more commonly
@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.30 2002/06/26 07:29:41 guy Exp $
+$Id: ncp2222.py,v 1.31 2002/08/23 17:47:30 gram Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -57,8 +57,7 @@ packets		= []
 compcode_lists	= None
 ptvc_lists	= None
 msg		= None
-	
-	
+
 REC_START	= 0
 REC_LENGTH	= 1
 REC_FIELD	= 2
@@ -760,7 +759,10 @@ class Type:
 
 	def NWTime(self):
 		self.special_fmt = "NCP_FMT_NW_TIME"
-
+                
+	def NWUnicode(self):
+		self.special_fmt = "NCP_FMT_UNICODE"                
+                
 	def SpecialFmt(self):
 		return self.special_fmt
 
@@ -955,7 +957,7 @@ class val_string(Type):
 		value_repr = self.value_format % 0
 		result = result + "\t{ %s,\tNULL },\n" % (value_repr)
 		result = result + "};\n"
-
+		REC_VAL_STRING_RES = self.value_format % value
 		return result
 
 	def ValuesCName(self):
@@ -1366,7 +1368,7 @@ CategoryName                    = stringz("category_name", "Category Name")
 CCFileHandle			= bytes("cc_file_handle", "File Handle", 4)
 CCFunction			= val_string8("cc_function", "OP-Lock Flag", [
 	[ 0x01, "Clear OP-Lock" ],
-	[ 0x02, "Achnowledge Callback" ],
+	[ 0x02, "Acknowledge Callback" ],
 	[ 0x03, "Decline Callback" ],
 ])
 ChangeBits			= bitfield16("change_bits", "Change Bits", [
@@ -1784,7 +1786,19 @@ DstQueueID			= uint32("dst_queue_id", "Destination Queue ID")
 DuplicateRepliesSent 		= uint16("duplicate_replies_sent", "Duplicate Replies Sent")
 
 EAAccessFlag			= bitfield16("ea_access_flag", "EA Access Flag", [
+	bf_boolean16(0x0001, "ea_permanent_memory", "Permanent Memory"),
+	bf_boolean16(0x0002, "ea_deep_freeze", "Deep Freeze"),
+	bf_boolean16(0x0004, "ea_in_progress", "In Progress"),
+	bf_boolean16(0x0008, "ea_header_being_enlarged", "Header Being Enlarged"),
+	bf_boolean16(0x0010, "ea_new_tally_used", "New Tally Used"),
+	bf_boolean16(0x0020, "ea_tally_need_update", "Tally Need Update"),
+	bf_boolean16(0x0040, "ea_score_card_present", "Score Card Present"),
 	bf_boolean16(0x0080, "ea_need_bit_flag", "EA Need Bit Flag"),
+	bf_boolean16(0x0100, "ea_write_privileges", "Write Privileges"),
+	bf_boolean16(0x0200, "ea_read_privileges", "Read Privileges"),
+	bf_boolean16(0x0400, "ea_delete_privileges", "Delete Privileges"),
+	bf_boolean16(0x0800, "ea_system_ea_only", "System EA Only"),
+	bf_boolean16(0x1000, "ea_write_in_progress", "Write In Progress"),
 ])
 EABytesWritten 			= uint32("ea_bytes_written", "Bytes Written")
 EACount				= uint32("ea_count", "Count")
@@ -1917,6 +1931,7 @@ EAFlags				= val_string16("ea_flags", "EA Flags", [
 EAHandle			= uint32("ea_handle", "EA Handle")
 EAHandle.Display("BASE_HEX")
 EAHandleOrNetWareHandleOrVolume	= uint32("ea_handle_or_netware_handle_or_volume", "EAHandle or NetWare Handle or Volume (see EAFlags)")
+EAHandleOrNetWareHandleOrVolume.Display("BASE_HEX")
 EAKey			        = nstring16("ea_key", "EA Key")
 EAKeySize			= uint32("ea_key_size", "Key Size")
 EAKeySizeDuplicated		= uint32("ea_key_size_duplicated", "Key Size Duplicated")
@@ -2857,6 +2872,7 @@ NDSVerb				= val_string16("nds_verb", "NDS Verb", [
 	[ 75, "Low Level Join" ],
 	[ 76, "Abort Low Level Join" ],
 	[ 77, "Get All Servers" ],
+        [ 255, "EDirectory Call" ],
 ])
 NDSNewVerb			= val_string16("nds_new_verb", "NDS Verb", [
 ])
@@ -3795,7 +3811,8 @@ TransportType                   = val_string8("transport_type", "Communications 
         [ 0x06, "Transmission Control Protocol (TCP)" ],
 ])
 TreeLength			= uint32("tree_length", "Tree Length")
-TreeName			= fw_string("tree_name", "Tree Name", 48)
+TreeName			= nstring32("tree_name", "Tree Name")
+TreeName.NWUnicode()
 TrusteeRights		        = bitfield16("trustee_rights_low", "Trustee Rights", [
 	bf_boolean16(0x0001, "trustee_rights_read", "Read"),
 	bf_boolean16(0x0002, "trustee_rights_write", "Write"),
@@ -4901,13 +4918,11 @@ PhyLockStruct			= struct("phy_lock_struct", [
 	LockType,
 ], "Physical Locks")
 PingVersion9                    = struct("ping_version_9", [
-        TreeLength,
 	TreeName,
 ])        
 PingVersion10                   = struct("ping_version_10", [
-        TreeLength,
-        Reserved8,
-        nstring32("tree_uni_name", "Tree Name" ),
+        Reserved12,
+        TreeName,
 ])
 printInfo                       = struct("print_info_struct", [
         PrintFlags,
@@ -5197,6 +5212,7 @@ def define_errors():
 	errors[0x0106] = "Invalid Parameter"
 	errors[0x0107] = "Invalid Number of Minutes to Delay"
         errors[0x0108] = "Invalid Start or Network Number"
+        errors[0x0109] = "Cannot Obtain License"
 
 	errors[0x0200] = "One or more clients in the send list are not logged in"
 	errors[0x0201] = "Queue server cannot attach"
@@ -5302,8 +5318,12 @@ def define_errors():
 	errors[0xa201] = "I/O Lock Error"
 
 	errors[0xa400] = "Invalid directory rename attempted"
+        errors[0xa600] = "Auditor Access has been Removed"
 	errors[0xa700] = "Error Auditing Version"
+        
 	errors[0xa800] = "Invalid Support Module ID"
+        errors[0xa801] = "No Auditing Access Rights"
+        
 	errors[0xbe00] = "Invalid Data Stream"
 	errors[0xbf00] = "Requests for this name space are not valid on this volume"
 
@@ -5452,6 +5472,7 @@ def define_errors():
 	errors[0xfb06] = "Unknown Request"
         errors[0xfb07] = "Invalid Subfunction Request"
         errors[0xfb08] = "Attempt to use an invalid parameter (drive number, path, or flag value) during a set drive path call"
+        errors[0xfb09] = "NMAS not installed on this server, NCP NOT Supported"
 
 	errors[0xfc00] = "The message queue cannot accept another message"
 	errors[0xfc01] = "The trustee associated with ObjectId does not exist"
@@ -5605,9 +5626,14 @@ static int ptvc_struct_int_storage;
 static int hf_ncp_func = -1;
 static int hf_ncp_length = -1;
 static int hf_ncp_subfunc = -1;
+static int hf_ncp_fragment_handle = -1;
 static int hf_ncp_completion_code = -1;
 static int hf_ncp_connection_status = -1;
 static int hf_ncp_req_frame_num = -1;
+static int hf_ncp_fragment_size = -1;
+static int hf_ncp_message_size = -1;
+static int hf_ncp_nds_flag = -1;
+static int hf_ncp_nds_verb = -1;
 	"""
 
 	# Look at all packet types in the packets collection, and cull information
@@ -5952,7 +5978,22 @@ proto_register_ncp2222(void)
 	{ &hf_ncp_completion_code,
 	{ "Completion Code", "ncp.completion_code", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
 
-	/*
+	{ &hf_ncp_fragment_handle,
+	{ "Fragment Handle", "ncp.ndsfrag", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+        
+	{ &hf_ncp_fragment_size,
+	{ "Fragment Size", "ncp.ndsfragsize", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+
+	{ &hf_ncp_message_size,
+	{ "Message Size", "ncp.ndsmessagesize", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
+        
+	{ &hf_ncp_nds_flag,
+	{ "Flags", "ncp.ndsflag", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL }},
+        
+	{ &hf_ncp_nds_verb,
+	{ "NDS Verb", "ncp.ndsverb", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
+        
+        /*
 	 * XXX - the page at
 	 *
 	 *	http://www.odyssea.com/whats_new/tcpipnet/tcpipnet.html
@@ -6876,10 +6917,29 @@ def define_ncp2222():
 		rec( 11, 1, SequenceByte ),
 		rec( 12, (1, 255), Path ),
 	], info_str=(Path, "Scan for Extended Trustees: %s", ", %s"))
-	pkt.Reply(15, [
+	pkt.Reply(91, [
 		rec( 8, 1, NumberOfEntries, var="x" ),
-		rec( 9, 4, ObjectID, repeat="x" ),
-		rec( 13, 2, AccessRightsMaskWord, repeat="x" ),
+		rec( 9, 4, ObjectID ),
+		rec( 13, 4, ObjectID ),
+		rec( 17, 4, ObjectID ),
+		rec( 21, 4, ObjectID ),
+		rec( 25, 4, ObjectID ),
+		rec( 29, 4, ObjectID ),
+		rec( 33, 4, ObjectID ),
+		rec( 37, 4, ObjectID ),
+		rec( 41, 4, ObjectID ),
+		rec( 45, 4, ObjectID ),
+		rec( 49, 4, ObjectID ),
+		rec( 53, 4, ObjectID ),
+		rec( 57, 4, ObjectID ),
+		rec( 61, 4, ObjectID ),
+		rec( 65, 4, ObjectID ),
+		rec( 69, 4, ObjectID ),
+		rec( 73, 4, ObjectID ),
+		rec( 77, 4, ObjectID ),
+		rec( 81, 4, ObjectID ),
+		rec( 85, 4, ObjectID ),
+		rec( 89, 2, AccessRightsMaskWord, repeat="x" ),
  	])
 	pkt.CompletionCodes([0x0000, 0x9800, 0x9b00, 0x9c00])
 	# 2222/1627, 22/39
@@ -7395,7 +7455,7 @@ def define_ncp2222():
 		rec( 10, 1, RequestCode ),
 	])
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x7a00, 0x7b00, 0x7c00, 0xe000, 0xfb06, 0xfd00])
+	pkt.CompletionCodes([0x0000, 0x0109, 0x7a00, 0x7b00, 0x7c00, 0xe000, 0xfb06, 0xfd00])
 	# 2222/171E, 23/30
 	pkt = NCP(0x171E, "Set Watchdog Delay Interval", 'file')
 	pkt.Request( 14, [
@@ -7500,7 +7560,7 @@ def define_ncp2222():
 		rec( 10, 4, ObjectID, BE ),
 		rec( 14, 2, ObjectType, BE ),
 		rec( 16, (1,48), ObjectName ),
-	], info_str=(ObjectName, "Scann Bindery Object: %s", ", %s"))
+	], info_str=(ObjectName, "Scan Bindery Object: %s", ", %s"))
 	pkt.Reply(65, [
 		rec( 8, 4, ObjectID, BE ),
 		rec( 12, 2, ObjectType, BE ),
@@ -10781,8 +10841,8 @@ def define_ncp2222():
         pkt.CompletionCodes([0x0000, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
-	# 2222/5720, 87/32      # Tested and fixed on 6-14-02 GM
-	pkt = NCP(0x5720, "Open/Create File or Subdirectory with Callback", 'file', has_length=0)
+	# 2222/5720, 87/32 
+        pkt = NCP(0x5720, "Open/Create File or Subdirectory with Callback", 'file', has_length=0)
 	pkt.Request((30, 284), [
 		rec( 8, 1, NameSpace  ),
 		rec( 9, 1, OpenCreateMode ),
@@ -11149,7 +11209,7 @@ def define_ncp2222():
 	])
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5802, 8802
 	pkt = NCP(0x5802, "Add User Audit Property", "auditing", has_length=0)
 	pkt.Request(25, [
@@ -11162,168 +11222,176 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5803, 8803
 	pkt = NCP(0x5803, "Add Auditor Access", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5804, 8804
 	pkt = NCP(0x5804, "Change Auditor Volume Password", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5805, 8805
 	pkt = NCP(0x5805, "Check Auditor Access", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5806, 8806
 	pkt = NCP(0x5806, "Delete User Audit Property", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5807, 8807
 	pkt = NCP(0x5807, "Disable Auditing On A Volume", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5808, 8808
 	pkt = NCP(0x5808, "Enable Auditing On A Volume", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5809, 8809
 	pkt = NCP(0x5809, "Query User Being Audited", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/580A, 88,10
 	pkt = NCP(0x580A, "Read Audit Bit Map", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/580B, 88,11
 	pkt = NCP(0x580B, "Read Audit File Configuration Header", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/580D, 88,13
 	pkt = NCP(0x580D, "Remove Auditor Access", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/580E, 88,14
 	pkt = NCP(0x580E, "Reset Audit File", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
+                             
+	# 2222/580F, 88,15
+	pkt = NCP(0x580F, "Auditing NCP", "auditing", has_length=0)
+	pkt.Request(8)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5810, 88,16
 	pkt = NCP(0x5810, "Write Audit Bit Map", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5811, 88,17
 	pkt = NCP(0x5811, "Write Audit File Configuration Header", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5812, 88,18
 	pkt = NCP(0x5812, "Change Auditor Volume Password2", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5813, 88,19
 	pkt = NCP(0x5813, "Return Audit Flags", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5814, 88,20
 	pkt = NCP(0x5814, "Close Old Audit File", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5816, 88,22
 	pkt = NCP(0x5816, "Check Level Two Access", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5817, 88,23
 	pkt = NCP(0x5817, "Return Old Audit File List", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5818, 88,24
 	pkt = NCP(0x5818, "Init Audit File Reads", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5819, 88,25
 	pkt = NCP(0x5819, "Read Auditing File", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/581A, 88,26
 	pkt = NCP(0x581A, "Delete Old Audit File", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/581E, 88,30
 	pkt = NCP(0x581E, "Restart Volume auditing", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/581F, 88,31
 	pkt = NCP(0x581F, "Set Volume Password", "auditing", has_length=0)
 	pkt.Request(8)
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xa600, 0xa801, 0xfd00, 0xff16])
 	# 2222/5A01, 90/00
 	pkt = NCP(0x5A01, "Parse Tree", 'file')
 	pkt.Request(26, [
@@ -11513,6 +11581,12 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x7e01, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xa800, 0xfd00, 0xff16])
+                             
+	# 2222/5E, 94   
+	pkt = NCP(0x5e, "NMAS Communications Packet", 'comm')
+	pkt.Request(7)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0xfb09])
 	# 2222/61, 97
 	pkt = NCP(0x61, "Get Big Packet NCP Max Packet Size", 'comm')
 	pkt.Request(10, [
@@ -11562,9 +11636,15 @@ def define_ncp2222():
 	# 2222/6801, 104/01
 	pkt = NCP(0x6801, "Ping for NDS NCP", "nds", has_length=0)
 	pkt.Request(8)
-	pkt.Reply( 10, [
+	pkt.Reply(10, [
 		rec( 8, 2, PingVersion ),
+		rec( 10, 2, Reserved ),
+                srec(PingVersion9, req_cond="ncp.ping_version==9"),
+                srec(PingVersion10, req_cond="ncp.ping_version==10"),
+                #rec( 12, 4, Reserved4 ),
+		#rec( 16, (4,48), TreeName ),
 	])
+        pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000, 0x8100, 0xfb04, 0xfe0c])
 	# 2222/6802, 104/02
 	#
@@ -11578,16 +11658,16 @@ def define_ncp2222():
 	# does only the first one have it?
 	#
 	pkt = NCP(0x6802, "Send NDS Fragmented Request/Reply", "nds", has_length=0)
-	pkt.Request(26, [
-		rec( 8, 4, FraggerHandle ),
-		rec( 12, 4, FragSize ),
-		rec( 16, 4, TotalRequest ),
-		rec( 20, 4, NDSFlags ),
-		rec( 24, 2, NDSVerb, LE ),
+	pkt.Request(8)
+#		rec( 8, 4, FraggerHandle ),
+#		rec( 12, 4, FragSize ),
+#		rec( 16, 4, TotalRequest ),
+#		rec( 20, 4, NDSFlags ),
+#		rec( 24, 2, NDSVerb, LE ),
 #                rec( 26, 2, Reserved2),
 #                srec(NDS8Struct, req_cond="ncp.nds_verb==0x00fe"),
 #                srec(NDS7Struct, req_cond="ncp.nds_verb!=0x00fe"),
-	])
+#	]) 
 	pkt.Reply(8)
         pkt.ReqCondSizeVariable()
 	pkt.CompletionCodes([0x0000])
