@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.63 2003/11/11 18:25:04 guy Exp $
+# $Id: config.nmake,v 1.64 2003/11/15 11:39:57 ulfl Exp $
 
 VERSION=0.9.16
 #
@@ -125,6 +125,7 @@ GTK_CFLAGS=$(GLIB_CFLAGS) /I$(GTK_DIR)\include\gtk-$(GTK_VERSION) \
 	/I$(GTK_DIR)\include\pango-1.0
 GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-$(GTK_VERSION).lib \
 	$(GTK_DIR)\lib\gdk-win32-$(GTK_VERSION).lib \
+	$(GTK_DIR)\lib\gdk_pixbuf-$(GTK_VERSION).lib \
 	$(GTK_DIR)\lib\pango-1.0.lib \
 	$(GLIB_LIBS)
 !ENDIF
