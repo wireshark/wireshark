@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.37 2000/02/22 07:07:46 guy Exp $
+ * $Id: util.c,v 1.38 2000/03/14 08:26:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -651,38 +651,76 @@ free_interface_list(GList *if_list)
 const char*
 get_home_dir(void)
 {
-	char *env_value;
 	static const char *home = NULL;
-#ifndef WIN32
+#ifdef WIN32
+	char *homedrive, *homepath;
+	char *homestring;
+	char *lastsep;
+#else
 	struct passwd *pwd;
 #endif
 
 	/* Return the cached value, if available */
 	if (home)
 		return home;
-
-	env_value = getenv("HOME");
-
-	if (env_value) {
-		home = env_value;
-	}
-	else {
 #ifdef WIN32
-		/* XXX - on NT, get the user name and append it to
-		   "C:\winnt\profiles\"?
-		   What about Windows 9x? */
+	/*
+	 * XXX - should we use USERPROFILE anywhere in this process?
+	 * Is there a chance that it might be set but one or more of
+	 * HOMEDRIVE or HOMEPATH isn't set?
+	 */
+	homedrive = getenv("HOMEDRIVE");
+	if (homedrive != NULL) {
+		homepath = getenv("HOMEPATH");
+		if (homepath != NULL) {
+			/*
+			 * This is cached, so we don't need to worry about
+			 * allocating multiple ones of them.
+			 */
+			homestring =
+			    g_malloc(strlen(homedrive) + strlen(homepath) + 1);
+			strcpy(homestring, homedrive);
+			strcat(homestring, homepath);
+
+			/*
+			 * Trim off any trailing slash or backslash.
+			 */
+			lastsep = find_last_pathname_separator(homestring);
+			if (lastsep != NULL && *(lastsep + 1) == '\0') {
+				/*
+				 * Last separator is the last character
+				 * in the string.  Nuke it.
+				 */
+				*lastsep = '\0';
+			}
+			home = homestring;
+		} else
+			home = homedrive;
+	} else {
+		/*
+		 * Try using "windir?
+		 */
 		home = "C:";
+	}
 #else
+	home = getenv("HOME");
+	if (home == NULL) {
+		/*
+		 * Get their home directory from the password file.
+		 * If we can't even find a password file entry for them,
+		 * use "/tmp".
+		 */
 		pwd = getpwuid(getuid());
 		if (pwd != NULL) {
-			/* This is cached, so we don't need to worry
-			   about allocating multiple ones of them. */
+			/*
+			 * This is cached, so we don't need to worry
+			 * about allocating multiple ones of them.
+			 */
 			home = g_strdup(pwd->pw_dir);
-		}
-		else
+		} else
 			home = "/tmp";
-#endif
 	}
+#endif
 
 	return home;
 }
