@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.73 2002/06/04 07:03:44 guy Exp $
+ * $Id: packet-atalk.c,v 1.74 2002/06/07 10:11:38 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -286,6 +286,19 @@ static gint ett_rtmp_tuple = -1;
 static gint ett_ddp = -1;
 static gint ett_llap = -1;
 static gint ett_pstring = -1;
+
+fragment_items atp_frag_items = {
+	&ett_atp_segment,
+	&ett_atp_segments,
+	&hf_atp_segments,
+	&hf_atp_segment,
+	&hf_atp_segment_overlap,
+	&hf_atp_segment_overlap_conflict,
+	&hf_atp_segment_multiple_tails,
+	&hf_atp_segment_too_long_segment,
+	&hf_atp_segment_error,
+	"segments"
+};
 
 static dissector_table_t ddp_dissector_table;
 
@@ -646,67 +659,6 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   return;
 }
 
-static void
-show_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	       fragment_data *fd_head)
-{
-  guint32 offset;
-  fragment_data *fd;
-  proto_tree *ft;
-  proto_item *fi;
-
-  fi = proto_tree_add_item(tree, hf_atp_segments, tvb, 0, -1, FALSE);
-  ft = proto_item_add_subtree(fi, ett_atp_segments);
-  offset = 0;
-  for (fd = fd_head->next; fd != NULL; fd = fd->next){
-    if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-      /*
-       * This segment has some flags set; create a subtree for it and
-       * display the flags.
-       */
-      proto_tree *fet = NULL;
-      proto_item *fei = NULL;
-      int hf;
-
-      if (fd->flags & (FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-	hf = hf_atp_segment_error;
-      } else {
-	hf = hf_atp_segment;
-      }
-      fei = proto_tree_add_none_format(ft, hf, tvb, offset, fd->len,
-				       "Frame:%u payload:%u-%u",
-				       fd->frame, offset, offset+fd->len-1);
-      fet = proto_item_add_subtree(fei, ett_atp_segment);
-      if (fd->flags&FD_OVERLAP)
-	proto_tree_add_boolean(fet, hf_atp_segment_overlap, tvb, 0, 0, TRUE);
-      if (fd->flags&FD_OVERLAPCONFLICT) {
-	proto_tree_add_boolean(fet, hf_atp_segment_overlap_conflict, tvb, 0, 0,
-			       TRUE);
-      }
-      if (fd->flags&FD_MULTIPLETAILS) {
-	proto_tree_add_boolean(fet, hf_atp_segment_multiple_tails, tvb, 0, 0,
-			       TRUE);
-      }
-      if (fd->flags&FD_TOOLONGFRAGMENT) {
-	proto_tree_add_boolean(fet, hf_atp_segment_too_long_segment, tvb, 0, 0,
-			       TRUE);
-      }
-    } else {
-      /*
-       * Nothing of interest for this segment.
-       */
-      proto_tree_add_text (ft, tvb, offset, fd->len,
-			   "Frame:%u payload:%u-%u",
-			   fd->frame, offset, offset+fd->len-1);
-    }
-    offset += fd->len;
-  }
-  if (fd_head->flags & (FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "[Illegal segments]");
-  }
-}
-
 /* ----------------------------- 
    ATP protocol cf. inside appletalk chap. 9
    desegmentation from packet-ieee80211.c
@@ -860,8 +812,10 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             tvb_set_child_real_data_tvbuff(tvb, new_tvb);
             add_new_data_source(pinfo, new_tvb, "Reassembled ATP");
 	    /* Show all fragments. */
-	    if (tree)
-		    show_fragments(new_tvb, pinfo, atp_tree, fd_head);
+	    if (tree) {
+		    show_fragment_seq_tree(fd_head, &atp_frag_items,
+		        atp_tree, pinfo, new_tvb);
+	    }
         }
         else 
       	    new_tvb = tvb_new_subset(tvb, ATP_HDRSIZE -1, -1, -1);

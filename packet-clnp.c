@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.56 2002/06/04 07:03:44 guy Exp $
+ * $Id: packet-clnp.c,v 1.57 2002/06/07 10:11:38 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -76,6 +76,19 @@ static int hf_clnp_segment_overlap_conflict = -1;
 static int hf_clnp_segment_multiple_tails = -1;
 static int hf_clnp_segment_too_long_segment = -1;
 static int hf_clnp_segment_error = -1;
+
+fragment_items clnp_frag_items = {
+	&ett_clnp_segment,
+	&ett_clnp_segments,
+	&hf_clnp_segments,
+	&hf_clnp_segment,
+	&hf_clnp_segment_overlap,
+	&hf_clnp_segment_overlap_conflict,
+	&hf_clnp_segment_multiple_tails,
+	&hf_clnp_segment_too_long_segment,
+	&hf_clnp_segment_error,
+	"segments"
+};
 
 static dissector_handle_t data_handle;
 
@@ -1827,10 +1840,6 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			   cnf_type & CNF_MORE_SEGS);
 
     if (fd_head != NULL) {
-      fragment_data *fd;
-      proto_tree *ft=NULL;
-      proto_item *fi=NULL;
-
       /* OK, we have the complete reassembled payload.
          Allocate a new tvbuff, referring to the reassembled payload. */
       next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen,
@@ -1844,75 +1853,8 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Add the defragmented data to the data source list. */
       add_new_data_source(pinfo, next_tvb, "Reassembled CLNP");
 
-      /* It's not fragmented. */
-      pinfo->fragmented = FALSE;
-
-      /* show all segments */
-      fi = proto_tree_add_item(clnp_tree, hf_clnp_segments, 
-                next_tvb, 0, -1, FALSE);
-      ft = proto_item_add_subtree(fi, ett_clnp_segments);
-      for (fd = fd_head->next; fd != NULL; fd = fd->next){
-        if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
-                          |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-          /* this segment has some flags set, create a subtree 
-           * for it and display the flags.
-           */
-          proto_tree *fet = NULL;
-          proto_item *fei = NULL;
-          int hf;
-
-          if (fd->flags & (FD_OVERLAPCONFLICT
-                      |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-            hf = hf_clnp_segment_error;
-          } else {
-            hf = hf_clnp_segment;
-          }
-          fei = proto_tree_add_none_format(ft, hf, 
-                   next_tvb, fd->offset, fd->len,
-                   "Frame:%u payload:%u-%u",
-                   fd->frame,
-                   fd->offset,
-                   fd->offset+fd->len-1
-          );
-          fet = proto_item_add_subtree(fei, ett_clnp_segment);
-          if (fd->flags&FD_OVERLAP) {
-            proto_tree_add_boolean(fet, 
-                 hf_clnp_segment_overlap, next_tvb, 0, 0, 
-                 TRUE);
-          }
-          if (fd->flags&FD_OVERLAPCONFLICT) {
-            proto_tree_add_boolean(fet, 
-                 hf_clnp_segment_overlap_conflict, next_tvb, 0, 0, 
-                 TRUE);
-          }
-          if (fd->flags&FD_MULTIPLETAILS) {
-            proto_tree_add_boolean(fet, 
-                 hf_clnp_segment_multiple_tails, next_tvb, 0, 0, 
-                 TRUE);
-          }
-          if (fd->flags&FD_TOOLONGFRAGMENT) {
-            proto_tree_add_boolean(fet, 
-                 hf_clnp_segment_too_long_segment, next_tvb, 0, 0, 
-                 TRUE);
-          }
-        } else {
-          /* nothing of interest for this segment */
-          proto_tree_add_none_format(ft, hf_clnp_segment, 
-                   next_tvb, fd->offset, fd->len,
-                   "Frame:%u payload:%u-%u",
-                   fd->frame,
-                   fd->offset,
-                   fd->offset+fd->len-1
-          );
-        }
-      }
-      if (fd_head->flags & (FD_OVERLAPCONFLICT
-                        |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-          col_set_str(pinfo->cinfo, COL_INFO, "[Illegal segments]");
-          update_col_info = FALSE;
-        }
-      }
+      update_col_info = !show_fragment_tree(fd_head, &clnp_frag_items,
+        clnp_tree, pinfo, next_tvb);
     } else {
       /* We don't have the complete reassembled payload. */
       next_tvb = NULL;

@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.82 2002/06/04 07:03:45 guy Exp $
+ * $Id: packet-ipv6.c,v 1.83 2002/06/07 10:11:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -105,6 +105,19 @@ static int hf_ipv6_mipv6_sub_alternative_COA = -1;
 static gint ett_ipv6 = -1;
 static gint ett_ipv6_fragments = -1;
 static gint ett_ipv6_fragment  = -1;
+
+fragment_items ipv6_frag_items = {
+	&ett_ipv6_fragment,
+	&ett_ipv6_fragments,
+	&hf_ipv6_fragments,
+	&hf_ipv6_fragment,
+	&hf_ipv6_fragment_overlap,
+	&hf_ipv6_fragment_overlap_conflict,
+	&hf_ipv6_fragment_multiple_tails,
+	&hf_ipv6_fragment_too_long_fragment,
+	&hf_ipv6_fragment_error,
+	"fragments"
+};
 
 static dissector_handle_t data_handle;
 
@@ -828,10 +841,6 @@ again:
 			     offlg & IP6F_MORE_FRAG);
 
     if (ipfd_head != NULL) {
-      fragment_data *ipfd;
-      proto_tree *ft = NULL;
-      proto_item *fi = NULL;
-
       /* OK, we have the complete reassembled payload.
          Allocate a new tvbuff, referring to the reassembled payload. */
       next_tvb = tvb_new_real_data(ipfd_head->data, ipfd_head->datalen,
@@ -845,75 +854,9 @@ again:
       /* Add the defragmented data to the data source list. */
       add_new_data_source(pinfo, next_tvb, "Reassembled IPv6");
 
-      /* It's not fragmented. */
-      pinfo->fragmented = FALSE;
-
       /* show all fragments */
-      fi = proto_tree_add_item(ipv6_tree, hf_ipv6_fragments,
-                next_tvb, 0, -1, FALSE);
-      ft = proto_item_add_subtree(fi, ett_ipv6_fragments);
-      for (ipfd = ipfd_head->next; ipfd; ipfd = ipfd->next){
-        if (ipfd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
-                          |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-          /* this fragment has some flags set, create a subtree
-           * for it and display the flags.
-           */
-          proto_tree *fet = NULL;
-          proto_item *fei = NULL;
-          int hf;
-
-          if (ipfd->flags & (FD_OVERLAPCONFLICT
-                      |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-            hf = hf_ipv6_fragment_error;
-          } else {
-            hf = hf_ipv6_fragment;
-          }
-          fei = proto_tree_add_none_format(ft, hf,
-                   next_tvb, ipfd->offset, ipfd->len,
-                   "Frame:%u payload:%u-%u",
-                   ipfd->frame,
-                   ipfd->offset,
-                   ipfd->offset+ipfd->len-1
-          );
-          fet = proto_item_add_subtree(fei, ett_ipv6_fragment);
-          if (ipfd->flags&FD_OVERLAP) {
-            proto_tree_add_boolean(fet,
-                 hf_ipv6_fragment_overlap, next_tvb, 0, 0,
-                 TRUE);
-          }
-          if (ipfd->flags&FD_OVERLAPCONFLICT) {
-            proto_tree_add_boolean(fet,
-                 hf_ipv6_fragment_overlap_conflict, next_tvb, 0, 0,
-                 TRUE);
-          }
-          if (ipfd->flags&FD_MULTIPLETAILS) {
-            proto_tree_add_boolean(fet,
-                 hf_ipv6_fragment_multiple_tails, next_tvb, 0, 0,
-                 TRUE);
-          }
-          if (ipfd->flags&FD_TOOLONGFRAGMENT) {
-            proto_tree_add_boolean(fet,
-                 hf_ipv6_fragment_too_long_fragment, next_tvb, 0, 0,
-                 TRUE);
-          }
-        } else {
-          /* nothing of interest for this fragment */
-          proto_tree_add_none_format(ft, hf_ipv6_fragment,
-                   next_tvb, ipfd->offset, ipfd->len,
-                   "Frame:%u payload:%u-%u",
-                   ipfd->frame,
-                   ipfd->offset,
-                   ipfd->offset+ipfd->len-1
-          );
-        }
-      }
-      if (ipfd_head->flags & (FD_OVERLAPCONFLICT
-                        |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-          col_set_str(pinfo->cinfo, COL_INFO, "[Illegal fragments]");
-          update_col_info = FALSE;
-        }
-      }
+      update_col_info = !show_fragment_tree(ipfd_head, &ipv6_frag_items,
+        ipv6_tree, pinfo, next_tvb);
     } else {
       /* We don't have the complete reassembled payload. */
       next_tvb = NULL;

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.168 2002/06/05 11:21:47 sahlberg Exp $
+ * $Id: packet-ip.c,v 1.169 2002/06/07 10:11:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -122,7 +122,8 @@ fragment_items ip_frag_items = {
 	&hf_ip_fragment_overlap_conflict,
 	&hf_ip_fragment_multiple_tails,
 	&hf_ip_fragment_too_long_fragment,
-	&hf_ip_fragment_error
+	&hf_ip_fragment_error,
+	"fragments"
 };
 
 /* Used by IPv6 as well, so not static */
@@ -1009,8 +1010,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       add_new_data_source(pinfo, next_tvb, "Reassembled IPv4");
 
       /* show all fragments */
-      update_col_info = !show_fragment_tree(ipfd_head, &ip_frag_items, ip_tree, pinfo, next_tvb);
-
+      update_col_info = !show_fragment_tree(ipfd_head, &ip_frag_items,
+        ip_tree, pinfo, next_tvb);
     } else {
       /* We don't have the complete reassembled payload. */
       next_tvb = NULL;

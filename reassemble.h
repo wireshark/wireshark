@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.8 2002/06/05 11:21:49 sahlberg Exp $
+ * $Id: reassemble.h,v 1.9 2002/06/07 10:11:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -184,6 +184,14 @@ typedef struct _fragment_items {
 	int	*hf_fragment_multiple_tails;
 	int	*hf_fragment_too_long_fragment;
 	int	*hf_fragment_error;
+
+	char	*tag;
 } fragment_items;
-int
-show_fragment_tree(fragment_data *ipfd_head, fragment_items *fit, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb);
+
+extern gboolean
+show_fragment_tree(fragment_data *ipfd_head, fragment_items *fit,
+    proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb);
+
+extern gboolean
+show_fragment_seq_tree(fragment_data *ipfd_head, fragment_items *fit,
+    proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb);

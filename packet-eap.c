@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.25 2002/06/04 07:03:44 guy Exp $
+ * $Id: packet-eap.c,v 1.26 2002/06/07 10:11:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -194,8 +194,26 @@ static GHashTable *eaptls_fragment_table = NULL;
 
 static int   hf_eaptls_fragment  = -1;
 static int   hf_eaptls_fragments = -1;
+static int   hf_eaptls_fragment_overlap = -1;
+static int   hf_eaptls_fragment_overlap_conflict = -1;
+static int   hf_eaptls_fragment_multiple_tails = -1;
+static int   hf_eaptls_fragment_too_long_fragment = -1;
+static int   hf_eaptls_fragment_error = -1;
 static gint ett_eaptls_fragment  = -1;
 static gint ett_eaptls_fragments = -1;
+
+fragment_items eaptls_frag_items = {
+	&ett_eaptls_fragment,
+	&ett_eaptls_fragments,
+	&hf_eaptls_fragments,
+	&hf_eaptls_fragment,
+	&hf_eaptls_fragment_overlap,
+	&hf_eaptls_fragment_overlap_conflict,
+	&hf_eaptls_fragment_multiple_tails,
+	&hf_eaptls_fragment_too_long_fragment,
+	&hf_eaptls_fragment_error,
+	"fragments"
+};
 
 /*********************************************************************
 **********************************************************************/
@@ -603,32 +621,15 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    if (fd_head != NULL)            /* Reassembled  */
 	      {
 
-		fragment_data *ffd; /* fragment file descriptor */
-		proto_tree *ft=NULL;
-		proto_item *fi=NULL;
-		guint32 frag_offset;
-
 		next_tvb = tvb_new_real_data(fd_head->data,
 					     fd_head->len,
 					     fd_head->len);
 		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
 		add_new_data_source(pinfo, next_tvb, "Reassembled EAP-TLS");
-		pinfo->fragmented = FALSE;
-		
-		fi = proto_tree_add_item(eap_tree, hf_eaptls_fragments,
-					 next_tvb, 0, -1, FALSE);
-		ft = proto_item_add_subtree(fi, ett_eaptls_fragments);
-		frag_offset = 0;
-		for (ffd=fd_head->next; ffd; ffd=ffd->next){
-		  proto_tree_add_none_format(ft, hf_eaptls_fragment,
-					     next_tvb, frag_offset, ffd->len,
-					     "Frame:%u payload:%u-%u",
-					     ffd->frame,
-					     frag_offset,
-					     frag_offset+ffd->len-1
-					     );
-		  frag_offset += ffd->len;
-		}
+
+		show_fragment_seq_tree(fd_head, &eaptls_frag_items,
+		    eap_tree, pinfo, next_tvb);
+
 		call_dissector(ssl_handle, next_tvb, pinfo, eap_tree);
 
 		/*
@@ -817,14 +818,32 @@ proto_register_eap(void)
 		VALS(eap_type_vals), 0x0, "", HFILL }},
 	{ &hf_eaptls_fragment,
 	  { "EAP-TLS Fragment", "eaptls.fragment", 
-	        FT_NONE, BASE_NONE, NULL, 0x0,
-	        "EAP-TLS Fragment", HFILL }},
+		FT_NONE, BASE_NONE, NULL, 0x0,
+		"EAP-TLS Fragment", HFILL }},
 	{ &hf_eaptls_fragments,
 	  { "EAP-TLS Fragments", "eaptls.fragments", 
 	        FT_NONE, BASE_NONE, NULL, 0x0,
 	        "EAP-TLS Fragments", HFILL }},
-
-
+	{ &hf_eaptls_fragment_overlap,
+	  { "Fragment overlap",	"eaptls.fragment.overlap",
+		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		"Fragment overlaps with other fragments", HFILL }},
+	{ &hf_eaptls_fragment_overlap_conflict,
+	  { "Conflicting data in fragment overlap",	"eaptls.fragment.overlap.conflict",
+		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		"Overlapping fragments contained conflicting data", HFILL }},
+	{ &hf_eaptls_fragment_multiple_tails,
+	  { "Multiple tail fragments found",	"eaptls.fragment.multipletails",
+		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		"Several tails were found when defragmenting the packet", HFILL }},
+	{ &hf_eaptls_fragment_too_long_fragment,
+	  { "Fragment too long",	"eaptls.fragment.toolongfragment",
+		FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		"Fragment contained data past end of packet", HFILL }},
+	{ &hf_eaptls_fragment_error,
+	  { "Defragmentation error", "eaptls.fragment.error",
+		FT_NONE, BASE_NONE, NULL, 0x0,
+		"Defragmentation error due to illegal fragments", HFILL }},
   };
   static gint *ett[] = {
 	&ett_eap,

@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.63 2002/06/04 07:03:44 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.64 2002/06/07 10:11:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -362,6 +362,19 @@ static gint ett_80211_mgt = -1;
 static gint ett_fixed_parameters = -1;
 static gint ett_tagged_parameters = -1;
 static gint ett_wep_parameters = -1;
+
+fragment_items frag_items = {
+	&ett_fragment,
+	&ett_fragments,
+	&hf_fragments,
+	&hf_fragment,
+	&hf_fragment_overlap,
+	&hf_fragment_overlap_conflict,
+	&hf_fragment_multiple_tails,
+	&hf_fragment_too_long_fragment,
+	&hf_fragment_error,
+	"fragments"
+};
 
 static dissector_handle_t llc_handle;
 static dissector_handle_t ipx_handle;
@@ -1081,67 +1094,6 @@ set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
 		     ether_to_str(addr), type);
 }
 
-static void
-show_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	       fragment_data *fd_head)
-{
-  guint32 offset;
-  fragment_data *fd;
-  proto_tree *ft;
-  proto_item *fi;
-
-  fi = proto_tree_add_item(tree, hf_fragments, tvb, 0, -1, FALSE);
-  ft = proto_item_add_subtree(fi, ett_fragments);
-  offset = 0;
-  for (fd = fd_head->next; fd != NULL; fd = fd->next){
-    if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-      /*
-       * This fragment has some flags set; create a subtree for it and
-       * display the flags.
-       */
-      proto_tree *fet = NULL;
-      proto_item *fei = NULL;
-      int hf;
-
-      if (fd->flags & (FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-	hf = hf_fragment_error;
-      } else {
-	hf = hf_fragment;
-      }
-      fei = proto_tree_add_none_format(ft, hf, tvb, offset, fd->len,
-				       "Frame:%u payload:%u-%u",
-				       fd->frame, offset, offset+fd->len-1);
-      fet = proto_item_add_subtree(fei, ett_fragment);
-      if (fd->flags&FD_OVERLAP)
-	proto_tree_add_boolean(fet, hf_fragment_overlap, tvb, 0, 0, TRUE);
-      if (fd->flags&FD_OVERLAPCONFLICT) {
-	proto_tree_add_boolean(fet, hf_fragment_overlap_conflict, tvb, 0, 0,
-			       TRUE);
-      }
-      if (fd->flags&FD_MULTIPLETAILS) {
-	proto_tree_add_boolean(fet, hf_fragment_multiple_tails, tvb, 0, 0,
-			       TRUE);
-      }
-      if (fd->flags&FD_TOOLONGFRAGMENT) {
-	proto_tree_add_boolean(fet, hf_fragment_too_long_fragment, tvb, 0, 0,
-			       TRUE);
-      }
-    } else {
-      /*
-       * Nothing of interest for this fragment.
-       */
-      proto_tree_add_none_format(ft, hf_fragment, tvb, offset, fd->len,
-				 "Frame:%u payload:%u-%u",
-				 fd->frame, offset, offset+fd->len-1);
-    }
-    offset += fd->len;
-  }
-  if (fd_head->flags & (FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_set_str(pinfo->cinfo, COL_INFO, "[Illegal fragments]");
-  }
-}
-
 /* ************************************************************************* */
 /*                          Dissect 802.11 frame                             */
 /* ************************************************************************* */
@@ -1667,8 +1619,8 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         tvb_set_child_real_data_tvbuff(tvb, next_tvb);
         add_new_data_source(pinfo, next_tvb, "Reassembled 802.11");
 
-	/* Show all fragments. */
-	show_fragments(next_tvb, pinfo, hdr_tree, fd_head);
+        /* Show all fragments. */
+        show_fragment_seq_tree(fd_head, &frag_items, hdr_tree, pinfo, next_tvb);
       } else {
       	/*
       	 * Not fragmented, really.

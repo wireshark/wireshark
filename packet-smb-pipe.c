@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.78 2002/06/04 07:03:45 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.79 2002/06/07 10:11:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,9 +72,30 @@ static int hf_pipe_getinfo_current_instances = -1;
 static int hf_pipe_getinfo_pipe_name_length = -1;
 static int hf_pipe_getinfo_pipe_name = -1;
 static int hf_pipe_write_raw_bytes_written = -1;
+static int hf_pipe_fragments = -1;
+static int hf_pipe_fragment = -1;
+static int hf_pipe_fragment_overlap = -1;
+static int hf_pipe_fragment_overlap_conflict = -1;
+static int hf_pipe_fragment_multiple_tails = -1;
+static int hf_pipe_fragment_too_long_fragment = -1;
+static int hf_pipe_fragment_error = -1;
 
 static gint ett_smb_pipe = -1;
+static gint ett_smb_pipe_fragment = -1;
 static gint ett_smb_pipe_fragments = -1;
+
+fragment_items smb_pipe_frag_items = {
+	&ett_smb_pipe_fragment,
+	&ett_smb_pipe_fragments,
+	&hf_pipe_fragments,
+	&hf_pipe_fragment,
+	&hf_pipe_fragment_overlap,
+	&hf_pipe_fragment_overlap_conflict,
+	&hf_pipe_fragment_multiple_tails,
+	&hf_pipe_fragment_too_long_fragment,
+	&hf_pipe_fragment_error,
+	"fragments"
+};
 
 static int proto_smb_lanman = -1;
 static int hf_function_code = -1;
@@ -3163,10 +3184,6 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 		fd_head=fragment_get(pinfo, pinfo->fd->num , 
 			dcerpc_fragment_table);
 		if(fd_head && fd_head->flags&FD_DEFRAGMENTED){
-			proto_tree *tr;
-			proto_item *it;
-			fragment_data *fd;
-		
 			new_tvb = tvb_new_real_data(fd_head->data,
 				  fd_head->datalen, fd_head->datalen);
 			tvb_set_child_real_data_tvbuff(d_tvb, new_tvb);
@@ -3177,14 +3194,8 @@ dissect_pipe_dcerpc(tvbuff_t *d_tvb, packet_info *pinfo, proto_tree *parent_tree
 			d_tvb=new_tvb;
 
 			/* list what segments we have */
-			it = proto_tree_add_text(tree, d_tvb, 0, -1, "Fragments");
-			tr = proto_item_add_subtree(it, ett_smb_pipe_fragments);
-			for(fd=fd_head->next;fd;fd=fd->next){
-				proto_tree_add_text(tr, d_tvb, fd->offset, fd->len,
-					    "Frame:%u Data:%u-%u",
-					    fd->frame, fd->offset,
-					    fd->offset+fd->len-1);
-			}
+			show_fragment_tree(fd_head, &smb_pipe_frag_items,
+			    tree, pinfo, d_tvb);
 		}
 	}
 
@@ -3650,9 +3661,31 @@ proto_register_smb_pipe(void)
 		{ &hf_pipe_write_raw_bytes_written,
 			{ "Bytes Written", "pipe.write_raw.bytes_written", FT_UINT16, BASE_DEC,
 			NULL, 0, "Number of bytes written to the pipe", HFILL }},
+		{ &hf_pipe_fragment_overlap,
+			{ "Fragment overlap",	"pipe.fragment.overlap", FT_BOOLEAN, BASE_NONE,
+			NULL, 0x0, "Fragment overlaps with other fragments", HFILL }},
+		{ &hf_pipe_fragment_overlap_conflict,
+			{ "Conflicting data in fragment overlap",	"pipe.fragment.overlap.conflict", FT_BOOLEAN,
+			BASE_NONE, NULL, 0x0, "Overlapping fragments contained conflicting data", HFILL }},
+		{ &hf_pipe_fragment_multiple_tails,
+			{ "Multiple tail fragments found",	"pipe.fragment.multipletails", FT_BOOLEAN,
+			BASE_NONE, NULL, 0x0, "Several tails were found when defragmenting the packet", HFILL }},
+		{ &hf_pipe_fragment_too_long_fragment,
+			{ "Fragment too long",	"pipe.fragment.toolongfragment", FT_BOOLEAN,
+			BASE_NONE, NULL, 0x0, "Fragment contained data past end of packet", HFILL }},
+		{ &hf_pipe_fragment_error,
+			{ "Defragmentation error", "pipe.fragment.error", FT_NONE,
+			BASE_NONE, NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
+		{ &hf_pipe_fragment,
+			{ "Fragment", "pipe.fragment", FT_NONE,
+			BASE_NONE, NULL, 0x0, "Pipe Fragment", HFILL }},
+		{ &hf_pipe_fragments,
+			{ "Fragments", "pipe.fragments", FT_NONE,
+			BASE_NONE, NULL, 0x0, "Pipe Fragments", HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_smb_pipe,
+		&ett_smb_pipe_fragment,
 		&ett_smb_pipe_fragments,
 	};
 

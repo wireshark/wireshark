@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.96 2002/06/05 11:32:14 sahlberg Exp $
+ * $Id: packet-rpc.c,v 1.97 2002/06/07 10:11:39 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -223,7 +223,8 @@ fragment_items rpc_frag_items = {
 	&hf_rpc_fragment_overlap_conflict,
 	&hf_rpc_fragment_multiple_tails,
 	&hf_rpc_fragment_too_long_fragment,
-	&hf_rpc_fragment_error
+	&hf_rpc_fragment_error,
+	"fragments"
 };
 
 /* Hash table with info on RPC program numbers */

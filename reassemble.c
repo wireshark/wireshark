@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.19 2002/06/05 11:21:48 sahlberg Exp $
+ * $Id: reassemble.c,v 1.20 2002/06/07 10:11:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1104,14 +1104,82 @@ fragment_add_seq_check(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-/* This function will build the fragment subtree
-   function will return TRUE if there were fragmentation errors
+/*
+ * Show a single fragment in a fragment subtree.
+ */
+static void
+show_fragment(fragment_data *fd, int offset, fragment_items *fit,
+    proto_tree *ft, tvbuff_t *tvb)
+{
+	if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
+		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+		/* this fragment has some flags set, create a subtree 
+		 * for it and display the flags.
+		 */
+		proto_tree *fet=NULL;
+		proto_item *fei=NULL;
+		int hf;
+
+		if (fd->flags & (FD_OVERLAPCONFLICT
+			|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+			hf = *(fit->hf_fragment_error);
+		} else {
+			hf = *(fit->hf_fragment);
+		}
+		fei = proto_tree_add_none_format(ft, hf, 
+			tvb, offset, fd->len,
+			"Frame:%u payload:%u-%u",
+			fd->frame,
+			offset,
+			offset+fd->len-1);
+		fet = proto_item_add_subtree(fei, *(fit->ett_fragment));
+		if (fd->flags&FD_OVERLAP) {
+			proto_tree_add_boolean(fet, 
+				*(fit->hf_fragment_overlap),
+				tvb, 0, 0, 
+				TRUE);
+		}
+		if (fd->flags&FD_OVERLAPCONFLICT) {
+			proto_tree_add_boolean(fet, 
+				*(fit->hf_fragment_overlap_conflict), 
+				tvb, 0, 0, 
+				TRUE);
+		}
+		if (fd->flags&FD_MULTIPLETAILS) {
+			proto_tree_add_boolean(fet, 
+				*(fit->hf_fragment_multiple_tails),
+				tvb, 0, 0, 
+				TRUE);
+		}
+		if (fd->flags&FD_TOOLONGFRAGMENT) {
+			proto_tree_add_boolean(fet, 
+				*(fit->hf_fragment_too_long_fragment), 
+				tvb, 0, 0, 
+				TRUE);
+		}
+	} else {
+		/* nothing of interest for this fragment */
+		proto_tree_add_none_format(ft, *(fit->hf_fragment), 
+			tvb, offset, fd->len,
+			"Frame:%u payload:%u-%u",
+			fd->frame,
+			offset,
+			offset+fd->len-1
+		);
+	}
+}
+
+/* This function will build the fragment subtree; it's for fragments
+   reassembled with "fragment_add()".
+   
+   It will return TRUE if there were fragmentation errors
    or FALSE if fragmentation was ok.
 */
-int
-show_fragment_tree(fragment_data *ipfd_head, fragment_items *fit, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
+gboolean
+show_fragment_tree(fragment_data *fd_head, fragment_items *fit,
+    proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 {
-	fragment_data *ipfd;
+	fragment_data *fd;
 	proto_tree *ft=NULL;
 	proto_item *fi=NULL;
 
@@ -1121,68 +1189,53 @@ show_fragment_tree(fragment_data *ipfd_head, fragment_items *fit, proto_tree *tr
 	fi = proto_tree_add_item(tree, *(fit->hf_fragments), 
 		tvb, 0, -1, FALSE);
 	ft = proto_item_add_subtree(fi, *(fit->ett_fragments));
-	for (ipfd=ipfd_head->next; ipfd; ipfd=ipfd->next){
-		if (ipfd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
-			|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-			/* this fragment has some flags set, create a subtree 
-			 * for it and display the flags.
-			 */
-			proto_tree *fet=NULL;
-			proto_item *fei=NULL;
-			int hf;
+	for (fd=fd_head->next; fd; fd=fd->next)
+		show_fragment(fd, fd->offset, fit, ft, tvb);
 
-			if (ipfd->flags & (FD_OVERLAPCONFLICT
-				|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-				hf = *(fit->hf_fragment_error);
-			} else {
-				hf = *(fit->hf_fragment);
-			}
-			fei = proto_tree_add_none_format(ft, hf, 
-				tvb, ipfd->offset, ipfd->len,
-				"Frame:%u payload:%u-%u",
-				ipfd->frame,
-				ipfd->offset,
-				ipfd->offset+ipfd->len-1);
-			fet = proto_item_add_subtree(fei, *(fit->ett_fragment));
-			if (ipfd->flags&FD_OVERLAP) {
-				proto_tree_add_boolean(fet, 
-					*(fit->hf_fragment_overlap), tvb, 0, 0, 
-					TRUE);
-			}
-			if (ipfd->flags&FD_OVERLAPCONFLICT) {
-				proto_tree_add_boolean(fet, 
-					*(fit->hf_fragment_overlap_conflict), 
-					tvb, 0, 0, 
-					TRUE);
-			}
-			if (ipfd->flags&FD_MULTIPLETAILS) {
-				proto_tree_add_boolean(fet, 
-					*(fit->hf_fragment_multiple_tails), tvb, 0, 0, 
-					TRUE);
-			}
-			if (ipfd->flags&FD_TOOLONGFRAGMENT) {
-				proto_tree_add_boolean(fet, 
-					*(fit->hf_fragment_too_long_fragment), 
-					tvb, 0, 0, 
-					TRUE);
-			}
-		} else {
-			/* nothing of interest for this fragment */
-			proto_tree_add_none_format(ft, *(fit->hf_fragment), 
-				tvb, ipfd->offset, ipfd->len,
-				"Frame:%u payload:%u-%u",
-				ipfd->frame,
-				ipfd->offset,
-				ipfd->offset+ipfd->len-1
-			);
+	if (fd_head->flags & (FD_OVERLAPCONFLICT
+		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, 
+				"[Illegal %s]", fit->tag);
+			return TRUE;
 		}
 	}
 
-	if (ipfd_head->flags & (FD_OVERLAPCONFLICT
+	return FALSE;
+}	
+
+/* This function will build the fragment subtree; it's for fragments
+   reassembled with "fragment_add_seq()" or "fragment_add_seq_check()".
+   
+   It will return TRUE if there were fragmentation errors
+   or FALSE if fragmentation was ok.
+*/
+gboolean
+show_fragment_seq_tree(fragment_data *fd_head, fragment_items *fit,
+    proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
+{
+	guint32 offset;
+	fragment_data *fd;
+	proto_tree *ft=NULL;
+	proto_item *fi=NULL;
+
+	/* It's not fragmented. */
+	pinfo->fragmented = FALSE;
+
+	fi = proto_tree_add_item(tree, *(fit->hf_fragments), 
+		tvb, 0, -1, FALSE);
+	ft = proto_item_add_subtree(fi, *(fit->ett_fragments));
+	offset = 0;
+	for (fd=fd_head->next; fd; fd=fd->next){
+		show_fragment(fd, offset, fit, ft, tvb);
+		offset += fd->len;
+	}
+
+	if (fd_head->flags & (FD_OVERLAPCONFLICT
 		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_set_str(pinfo->cinfo, COL_INFO, 
-				"[Illegal fragments]");
+			col_add_fstr(pinfo->cinfo, COL_INFO, 
+				"[Illegal %s]", fit->tag);
 			return TRUE;
 		}
 	}

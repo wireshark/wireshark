@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.54 2002/06/05 11:21:47 sahlberg Exp $
+ * $Id: packet-dcerpc.c,v 1.55 2002/06/07 10:11:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -232,7 +232,9 @@ fragment_items dcerpc_frag_items = {
 	&hf_dcerpc_fragment_overlap_conflict,
 	&hf_dcerpc_fragment_multiple_tails,
 	&hf_dcerpc_fragment_too_long_fragment,
-	&hf_dcerpc_fragment_error
+	&hf_dcerpc_fragment_error,
+
+	"fragments"
 };
 
 /* try to desegment big DCE/RPC packets over TCP? */
