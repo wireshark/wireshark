@@ -210,6 +210,7 @@ void h245dg_calls_init_tap(void);
 void q931_calls_init_tap(void);
 void sdp_calls_init_tap(void);
 void rtp_init_tap(void);
+void rtp_event_init_tap(void);
 void rtp_init_tap_event(void);
 void mgcp_calls_init_tap(void);
 
