@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes 
 #
-# $Id: manuf,v 1.1 1998/09/25 23:24:00 gerald Exp $
+# $Id: manuf,v 1.2 1998/09/27 07:13:29 deniel Exp $
 #
 # Laurent Deniel <deniel@worldnet.fr>
 #
@@ -86,9 +86,11 @@
 00:00:e1	Hitachi
 00:00:ed	April
 00:00:f0	Samsung
+00:00:f6	Madge
 00:00:f8	DEC
 00:01:fa	Compaq
 00:02:04	Novell
+00:02:31	Axis
 00:04:00	Lexmark
 00:04:ac	IBM
 00:06:0d	HP
