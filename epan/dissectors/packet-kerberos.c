@@ -287,6 +287,8 @@ static gint ett_krb_e_checksum = -1;
 guint32 krb5_errorcode;
 
 
+dissector_handle_t krb4_handle=NULL;
+
 static int do_col_info;
 
 
@@ -3645,6 +3647,21 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int d
 static void
 dissect_kerberos_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+    /* Some weird kerberos implementation apparently do krb4 on the krb5 port.
+       Since all (except weirdo transarc krb4 stuff) use 
+       an opcode <=16 in the first byte, use this to see if it might
+       be krb4.
+       All krb5 commands start with an APPL tag and thus is >=0x60
+       so if first byte is <=16  just blindly assume it is krb4 then
+    */
+    if(tvb_get_guint8(tvb, 0)<=0x10){
+      if(krb4_handle){ 
+	call_dissector(krb4_handle, tvb, pinfo, tree);
+      }
+      return;
+    }
+
+
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 
@@ -4244,6 +4261,7 @@ proto_register_kerberos(void)
 				   "The keytab file containing all the secrets",
 				   &keytab_filename);
 #endif
+
 }
 
 static int wrap_dissect_gss_kerb(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -4276,6 +4294,8 @@ void
 proto_reg_handoff_kerberos(void)
 {
     dissector_handle_t kerberos_handle_tcp;
+
+    krb4_handle = find_dissector("krb4");
 
     kerberos_handle_udp = create_dissector_handle(dissect_kerberos_udp,
 	proto_kerberos);
