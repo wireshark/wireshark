@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.19 2001/04/20 20:34:29 guy Exp $
+ * $Id: packet-x11.c,v 1.20 2001/04/20 22:31:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -697,7 +697,7 @@ static void atom(tvbuff_t *tvb, proto_tree *t, int hf)
 		  interpretation = match_strval(v, cVALS(hfi -> strings));
       }
       if (!interpretation) interpretation = "error in Xlib client program ?";
-      proto_tree_add_uint_format(t, hf, tvb, cur_offset, 4, v, "%s: %d (%s)", 
+      proto_tree_add_uint_format(t, hf, tvb, cur_offset, 4, v, "%s: %u (%s)", 
 				 proto_registrar_get_nth(hf) -> name, v, interpretation);
       cur_offset += 4;
 }
@@ -1198,7 +1198,7 @@ static guint32 field8(tvbuff_t *tvb, int hf)
       if (hfi -> strings)
 	    enumValue = match_strval(v, cVALS(hfi -> strings));
       if (enumValue)
-	    proto_tree_add_uint_format(t, hf, tvb, cur_offset, 1, v, "%s: %d (%s)", nameAsChar, v, enumValue);
+	    proto_tree_add_uint_format(t, hf, tvb, cur_offset, 1, v, "%s: %u (%s)", nameAsChar, v, enumValue);
       else
 	    proto_tree_add_item(t, hf, tvb, cur_offset, 1, little_endian);
       cur_offset += 1;
@@ -1226,7 +1226,7 @@ static guint32 field32(tvbuff_t *tvb, int hf)
 	    proto_tree_add_uint_format(t, hf, tvb, cur_offset, 4, v, "%s: 0x%08x (%s)", nameAsChar, v, enumValue);
       else
 	    proto_tree_add_uint_format(t, hf, tvb, cur_offset, 4, v, 
-				       hfi -> display == BASE_DEC ? "%s: %d" : "%s : 0x%08x",
+				       hfi -> display == BASE_DEC ? "%s: %u" : "%s: 0x%08x",
 				       nameAsChar, v);
       cur_offset += 4;
       return v;
