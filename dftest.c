@@ -1,6 +1,6 @@
 /* dftest.c.c
  *
- * $Id: dftest.c,v 1.10 2004/03/23 21:19:55 guy Exp $
+ * $Id: dftest.c,v 1.11 2004/04/17 01:05:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,7 @@
 
 packet_info	pi;
 
+static void failure_message(const char *msg_format, va_list ap);
 static void open_failure_message(const char *filename, int err,
     gboolean for_writing);
 static void read_failure_message(const char *filename, int err);
@@ -72,7 +73,7 @@ main(int argc, char **argv)
 	in case any dissectors register preferences. */
 	epan_init(PLUGIN_DIR,register_all_protocols,
 		  register_all_protocol_handoffs,
-		  open_failure_message, read_failure_message);
+		  failure_message, open_failure_message, read_failure_message);
 
 	/* now register the preferences for any non-dissector modules.
 	we must do that before we read the preferences as well. */
@@ -141,17 +142,25 @@ main(int argc, char **argv)
 }
 
 /*
+ * General errors are reported with an console message in "dftest".
+ */
+static void
+failure_message(const char *msg_format, va_list ap)
+{
+	fprintf(stderr, "dftest: ");
+	vfprintf(stderr, msg_format, ap);
+	fprintf(stderr, "\n");
+}
+
+/*
  * Open/create errors are reported with an console message in "dftest".
  */
 static void
 open_failure_message(const char *filename, int err, gboolean for_writing)
 {
-	char *errmsg;
-
-	errmsg = g_strdup_printf(file_open_error_message(err, for_writing),
-	    filename);
-	fprintf(stderr, "dftest: %s\n", errmsg);
-	g_free(errmsg);
+	fprintf(stderr, "dftest: ");
+	fprintf(stderr, file_open_error_message(err, for_writing), filename);
+	fprintf(stderr, "\n");
 }
 
 /*
@@ -160,6 +169,6 @@ open_failure_message(const char *filename, int err, gboolean for_writing)
 static void
 read_failure_message(const char *filename, int err)
 {
-	fprintf(stderr, "dftest: An error occurred while reading from the file \"%s\": %s.",
+	fprintf(stderr, "dftest: An error occurred while reading from the file \"%s\": %s.\n",
 	    filename, strerror(err));
 }
