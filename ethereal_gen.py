@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.2 2001/06/18 19:31:50 guy Exp $
+# $Id: ethereal_gen.py,v 1.3 2001/06/27 20:41:16 guy Exp $
 #
 #                           
 # ethereal_gen.py (part of idl2eth)           
@@ -78,7 +78,7 @@ import tempfile
 # 
 # 1. generate hf[] data for searchable fields (but what is searchable?)
 # 2. add item instead of add_text()
-# 3. sequence handling [started]
+# 3. sequence handling [done]
 # 4. Exceptions
 # 5. Fix arrays, and structs containing arrays [started]
 # 6. Handle pragmas.
@@ -86,21 +86,19 @@ import tempfile
 #    operation helper functions.
 # 8. Automatic variable declaration [done, improve]
 # 9. wchar and wstring handling  
+# 10. Support Fixed [started]
+# 11. Support attributes (get/set)
+
+
+
 #
-
-
-
-
-
-
-
-#    dump decode_<operation> 
+#   Strategy:
+#
 #    For return val and all parameters do
 #       find basic IDL type for each parameter
 #       output get_CDR_xxx
-#       output exception handling code
+#    output exception handling code
 #
-# Generate operation-> helper delegation code (strcmp operation -> helper)
 #
 
 class ethereal_gen_C:
@@ -126,7 +124,7 @@ class ethereal_gen_C:
     c_float       = "gfloat    my_float;"
     c_double      = "gdouble   my_double;"
 
-    c_seq         = "gchar   *seq;"     # pointer to buffer of gchars
+    c_seq         = "gchar   *seq = NULL;"          # pointer to buffer of gchars
     c_i           = "guint32   i_";                 # loop index
     c_i_lim       = "guint32   u_octet4_loop_";     # loop limit
     
@@ -196,7 +194,8 @@ class ethereal_gen_C:
     
     def genHeader(self):
         self.st.out(self.template_Header,dissector_name=self.dissname)        
-        #print "genHeader"
+        if self.DEBUG:
+            print "XXX genHeader"
 
     #
     # genGPL
@@ -230,7 +229,6 @@ class ethereal_gen_C:
     #
     
     def genDeclares(self,oplist):
-        t=0
         if self.DEBUG:
             print "XXX genDeclares"
 
@@ -291,7 +289,7 @@ class ethereal_gen_C:
     #
     # eg:
     #
-    # static const char Penguin_Echo_echoShort_op = echoShort ;
+    # static const char Penguin_Echo_echoShort_op[] = "echoShort" ;
     #
 
     def genOpList(self,oplist):
@@ -329,7 +327,7 @@ class ethereal_gen_C:
 
 
     #
-    # genExhelper()
+    # genExhelper()  -- TODO not complete yet
     #
     # Generate private helper functions to decode used exceptions
     #
@@ -436,7 +434,6 @@ class ethereal_gen_C:
     #
     
     def genOperationRequest(self,opnode):
-        #self.st.inc_indent()
         for p in opnode.parameters():
             if p.is_in():
                 if self.DEBUG:
@@ -468,7 +465,7 @@ class ethereal_gen_C:
             self.get_CDR_alias(rt, "Operation Return Value" )
                                
         else:            
-            self.getCDR3(rt, "Operation return value")    # return value is NOT an alias
+            self.getCDR3(rt, "Operation Return Value")    # return value is NOT an alias
               
         for p in opnode.parameters():
             if p.is_out():              # out or inout
@@ -571,7 +568,7 @@ class ethereal_gen_C:
         pn = name                       # param name
 
         if self.DEBUG:
-            print "XXX kind = " , pt
+            print "XXX getCDR3: kind = " , pt
             
         if pt == idltype.tk_ulong:
             self.get_CDR_ulong(pn)
@@ -587,6 +584,8 @@ class ethereal_gen_C:
             self.get_CDR_float(pn)
         elif pt ==  idltype.tk_double:
             self.get_CDR_double(pn)
+        elif pt == idltype.tk_fixed:
+            self.get_CDR_fixed(type.unalias(),pn)
         elif pt ==  idltype.tk_boolean:
             self.get_CDR_boolean(pn)
         elif pt ==  idltype.tk_char:
@@ -615,6 +614,8 @@ class ethereal_gen_C:
         elif pt == idltype.tk_array:
             self.get_CDR_array(type,pn)
         elif pt == idltype.tk_alias:
+            if self.DEBUG:
+                print "XXXXX Alias type XXXXX " , type
             self.get_CDR_alias(type,pn)            
         else:
             if self.DEBUG:
@@ -658,6 +659,20 @@ class ethereal_gen_C:
         self.st.out(self.template_get_CDR_boolean, varname=pn)
         self.addvar(self.c_u_octet1)
         
+    def get_CDR_fixed(self,type,pn):
+        if self.DEBUG:
+            print "XXXX calling get_CDR_fixed, type = ", type
+            print "XXXX calling get_CDR_fixed, type.digits() = ", type.digits()
+            print "XXXX calling get_CDR_fixed, type.scale() = ", type.scale()
+
+        string_digits = '%i ' % type.digits() # convert int to string
+        string_scale  = '%i ' % type.scale()  # convert int to string
+        string_length  = '%i ' % self.dig_to_len(type.digits())  # how many octets to hilight for a number of digits
+    
+        self.st.out(self.template_get_CDR_fixed, varname=pn, digits=string_digits, scale=string_scale, length=string_length )
+        self.addvar(self.c_seq)
+                
+                
     def get_CDR_char(self,pn):
         self.st.out(self.template_get_CDR_char, varname=pn)
         self.addvar(self.c_u_octet1)        
@@ -706,39 +721,34 @@ class ethereal_gen_C:
 
     def get_CDR_alias(self,type,pn):
         if self.DEBUG:
-            print "XXX type = " ,type , " pn = " , pn
-            print "XXX type.decl() = " ,type.decl()
+            print "XXX get_CDR_alias, type = " ,type , " pn = " , pn
+            print "XXX get_CDR_alias, type.decl() = " ,type.decl()
+            print "XXX get_CDR_alias, type.decl().alias() = " ,type.decl().alias()
 
         decl = type.decl()              # get declarator object
         
         if (decl.sizes()):        # a typedef array 
             indices = self.get_indices_from_sizes(decl.sizes())
             string_indices = '%i ' % indices # convert int to string
-            #self.st.out(self.template_get_CDR_array_comment, aname=decl.identifier(), asize=string_indices)
             self.st.out(self.template_get_CDR_array_comment, aname=pn, asize=string_indices)
             
-            #self.st.out(self.template_get_CDR_array_start, aname=decl.identifier(), aval=string_indices)
-            self.st.out(self.template_get_CDR_array_start, aname=pn, aval=string_indices)
-            
-            #self.addvar(self.c_i + decl.identifier() + ";")
-            
-            self.addvar(self.c_i + pn + ";")
-            
+            self.st.out(self.template_get_CDR_array_start, aname=pn, aval=string_indices)                        
+            self.addvar(self.c_i + pn + ";")            
             self.st.inc_indent()       
-            #self.getCDR3(type.decl().alias().aliasType(), type.name() + "_" + decl.identifier() )
             self.getCDR3(type.decl().alias().aliasType(),  pn )
             
             self.st.dec_indent()
             self.st.out(self.template_get_CDR_array_end)
             
             
-        else:                           # a simple typdef 
+        else:                           # a simple typdef
+            if self.DEBUG:
+                print "XXX get_CDR_alias, type = " ,type , " pn = " , pn
+                print "XXX get_CDR_alias, type.decl() = " ,type.decl()
+
             self.getCDR3(type, decl.identifier() )
-            #self.getCDR3(type, type.name() + "_" + decl.identifier() )
             
-        #self.st.out(self.template_structure_end, name=type.name())
             
-        #self.getCDR3(type.decl().alias().aliasType() ) # and start all over with the type
             
         
         
@@ -760,7 +770,6 @@ class ethereal_gen_C:
                     string_indices = '%i ' % indices # convert int to string
                     self.st.out(self.template_get_CDR_array_comment, aname=decl.identifier(), asize=string_indices)     
                     self.st.out(self.template_get_CDR_array_start, aname=decl.identifier(), aval=string_indices)
-                    #self.addvar("guint32   i_" + decl.identifier() + ";")
                     self.addvar(self.c_i + decl.identifier() + ";")
                     
                     self.st.inc_indent()       
@@ -783,8 +792,6 @@ class ethereal_gen_C:
     def get_CDR_sequence(self,type, pn):
         self.st.out(self.template_get_CDR_sequence_length, seqname=pn )
         self.st.out(self.template_get_CDR_sequence_loop_start, seqname=pn )
-        #self.addvar("guint32   u_octet4_loop_" + pn + ";" )
-        #self.addvar("guint32   i_" + pn + ";")
         self.addvar(self.c_i_lim + pn + ";" )
         self.addvar(self.c_i + pn + ";")
 
@@ -793,7 +800,8 @@ class ethereal_gen_C:
         self.st.dec_indent()     
         
         self.st.out(self.template_get_CDR_sequence_loop_end)
-        #self.addvar("guint32   u_octet4_loop_" + pn + ";" ) # TODO - is this one an extra that can be removed ?
+
+
         
     #
     # Generate code to access arrays, 
@@ -919,8 +927,15 @@ class ethereal_gen_C:
             
         return val
 
+    #
+    # Determine how many octets contain requested number
+    # of digits for an "fixed" IDL type  "on the wire"
+    #
 
+    def dig_to_len(self,dignum):
+        return (dignum/2) + 1
 
+            
     
     #
     # Templates for C code
@@ -1299,10 +1314,24 @@ if (tree) {
 }
 """
 
+
+
     template_get_CDR_any = """\
 get_CDR_any(tvb,tree,offset,stream_is_big_endian, boundary, header);
 
 """
+
+    template_get_CDR_fixed = """\
+get_CDR_fixed(tvb, &seq, offset, @digits@, @scale@);
+if (tree) {
+   proto_tree_add_text(tree,tvb,*offset-@length@, @length@, "@varname@ < @digits@, @scale@> = %s",seq);   
+}
+
+g_free(seq);          /*  free buffer  */
+seq = NULL;
+
+"""
+    
     
     template_get_CDR_enum = """\
 
