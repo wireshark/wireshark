@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.22 2001/11/27 07:36:22 guy Exp $
+ * $Id: packet-fr.c,v 1.23 2001/11/30 04:39:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,7 +23,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- *
  * References:
  *
  * http://www.protocols.com/pbook/frame.htm
@@ -33,7 +32,6 @@
  * RFC-2427
  * Cisco encapsulation
  * http://www.trillium.com/whats-new/wp_frmrly.html
- *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -130,7 +128,7 @@ static const value_string fr_nlpid_vals[] = {
 	{ 0,                     NULL },
 };
 
-dissector_table_t fr_subdissector_table;
+static dissector_table_t fr_subdissector_table;
 
 static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			     proto_tree *tree, proto_item *ti,

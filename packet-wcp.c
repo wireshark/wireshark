@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.16 2001/11/27 07:36:23 guy Exp $
+ * $Id: packet-wcp.c,v 1.17 2001/11/30 04:39:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,8 +141,6 @@ typedef struct {
 
 static GMemChunk *wcp_window = NULL;
 static GMemChunk *wcp_pdata = NULL;
-
-extern dissector_table_t fr_subdissector_table;
 
 static int proto_wcp = -1;
 static int hf_wcp_cmd = -1;
