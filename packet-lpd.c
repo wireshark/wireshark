@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-lpd.c,v 1.11 1999/10/17 11:40:13 deniel Exp $
+ * $Id: packet-lpd.c,v 1.12 1999/11/05 15:55:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -96,7 +96,7 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_text(tree, proto_lpd, offset, 
+		ti = proto_tree_add_item(tree, proto_lpd, offset, 
 					 END_OF_FRAME, NULL);
 		lpd_tree = proto_item_add_subtree(ti, ETT_LPD);
 
