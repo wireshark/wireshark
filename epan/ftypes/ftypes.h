@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.8 2002/01/21 07:37:39 guy Exp $
+ * $Id: ftypes.h,v 1.9 2002/02/15 09:01:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,14 +50,12 @@ enum ftenum {
 	FT_STRING,
 	FT_STRINGZ,	/* for use with proto_tree_add_item() */
 	FT_UINT_STRING,	/* for use with proto_tree_add_item() */
-	FT_UCS2_LE,     /* Unicode, 2 byte, Little Endian     */
+	/*FT_UCS2_LE, */    /* Unicode, 2 byte, Little Endian     */
 	FT_ETHER,
 	FT_BYTES,
 	FT_IPv4,
 	FT_IPv6,
 	FT_IPXNET,
-/*	FT_TEXT_ONLY,*/	/* non-filterable, used when converting ethereal
-				from old-style proto_tree to new-style proto_tree */
 	FT_NUM_TYPES /* last item number plus one */
 };
 
