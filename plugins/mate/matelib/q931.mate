@@ -1,0 +1,6 @@
+# q931.thing
+
+Action=PDU; Proto=q931; Transport=ip; addr=ip.addr; call_ref=q931.call_ref;  q931_msg=q931.message_type; guid=h225.guid; called=q931.called_party_number.digits; calling=q931.calling_party_number.digits; q931_cause=q931.cause_value; h225_cause=h225.ReleaseCompleteReason;
+Action=LegKey; On=q931; call_ref; addr; addr;
+Action=LegStart; On=q931; q931_msg=5;
+Action=LegStop; On=q931; q931_msg=90;

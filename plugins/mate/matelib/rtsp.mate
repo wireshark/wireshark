@@ -1,0 +1,5 @@
+
+Action=PDU; Proto=rtsp; Transport=ip; isup_msg=isup.message_type; calling=X_Vig_Msisdn; rtsp_method=rtsp.method; rtsp_ses=rtsp.session; addr=ip.addr; rtsp_url=rtsp.url;
+Action=LegKey; On=rtsp; rtsp_ses;
+Action=LegStart; On=rtsp; rtsp_method=SETUP;
+Action=LegStop; On=rtsp; rtsp_method=TEARDOWN;

@@ -1,0 +1,6 @@
+# isup.thing
+
+Action=PDU; Proto=isup; Transport=mtp3; mtp3pc=mtp3.dpc; mtp3pc=mtp3.opc; cic=isup.cic; isup_msg=isup.message_type;  called=isup.called; calling=isup.calling;  isup_cause=isup.cause_indicator;
+Action=LegKey; On=isup; cic; mtp3pc; mtp3pc;
+Action=LegStart; On=isup; isup_msg=1;
+Action=LegStop; On=isup; isup_msg=16;

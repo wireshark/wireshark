@@ -1,0 +1,20 @@
+# nrg_sms.thing
+# (c) 2004, Luis E. Garcia Ontanon
+# Distributed under GPL see http://www.gno.org/gpl.html for licencing info
+
+#Action=Settings; DiscardPduData=TRUE; Debug_Leak=3; Filename=/Users/lego/Desktop/call_thing.log;
+
+Action=PDU; Proto=ucp; Transport=ip; addr=ip.addr; ucp_trn=ucp.hdr.TRN; ucp_ot=ucp.hdr.OT; ucp_type=ucp.hdr.O_R; e164=ucp.parm.AdC;
+Action=LegKey; On=ucp; ucp_trn; addr; addr;
+Action=LegStart; On=ucp; ucp_type=79;
+Action=LegStop; On=ucp; ucp_type=82;
+
+Action=LegExtra; On=ucp; e164; ucp_ot;
+ 
+Action=PDU; Proto=giop; Transport=ip; addr=ip.addr; giop_id=giop.request_id; giop_op=giop.request_op; giop_type=giop.type;
+Action=LegKey; On=giop; giop_id; addr; addr;
+Action=LegStart; On=giop; giop_type=0;
+Action=LegStop; On=giop; giop_type=1;
+
+Action=LegExtra; On=giop; giop_op;
+

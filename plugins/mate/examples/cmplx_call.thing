@@ -1,0 +1,78 @@
+# call_tracing.thing
+#
+# This config works with most of the ViG's call scenarios
+#
+# To work well with the Vig needs the following:
+# a user to calling mapping to map emails to calling numbers (this only if calls begin towards an e-mail not a number)
+# a opc:cic to term mapping to represent the MGw config (if you want to see megaco)
+#
+
+Action=PDU; Proto=sip; Transport=ip; addr=ip.addr; sip_method=sip.Method; sip_callid=sip.Call-ID; calling=sdp.owner.username;
+Action=LegKey; On=sip; sip_callid; addr; addr;
+Action=LegStart; On=sip; sip_method=INVITE;
+Action=LegStop; On=sip; sip_method=BYE;
+
+#Action=Include; Filename=users.thing;
+# will contain:
+Action=Transform; On=sip; Method=Every;  calling=merlia;
+Action=Transform; On=sip; Method=Insert; calling=1793900802;
+
+Action=PDU; Proto=q931; Transport=ip; addr=ip.addr; call_ref=q931.call_ref;  q931_msg=q931.message_type; guid=h225.guid; called=q931.called_party_number.digits; calling=q931.calling_party_number.digits; q931_cause=q931.cause_value; h225_cause=h225.ReleaseCompleteReason;
+Action=LegKey; On=q931; call_ref; addr; addr;
+Action=LegStart; On=q931; q931_msg=5;
+Action=LegStop; On=q931; q931_msg=90;
+
+Action=PDU; Proto=isup; Transport=mtp3; mtp3pc=mtp3.dpc; mtp3pc=mtp3.opc; cic=isup.cic; isup_msg=isup.message_type;  called=isup.called; calling=isup.calling;  isup_cause=isup.cause_indicator;
+Action=LegKey; On=isup; cic; mtp3pc; mtp3pc;
+Action=LegStart; On=isup; isup_msg=1;
+Action=LegStop; On=isup; isup_msg=16;
+
+Action=PDU; Proto=h225.RasMessage; Transport=ip; ras_msg=h225.RasMessage; addr=ip.addr; guid=h225.guid; seqnum=h225.RequestSeqNum;
+Action=LegKey; On=h225.RasMessage; addr; addr; seqnum;
+Action=LegStart; On=h225.RasMessage;  ras_msg|0|3|6|9|12|15|18|21|26|30;
+Action=LegStop; On=h225.RasMessage;  ras_msg|1|2|4|5|7|8|10|11|13|14|16|17|19|20|22|24|27|28|29|31;
+
+Action=PDU; Proto=megaco; Transport=ip; addr=ip.addr; megaco_ctx=megaco.context; megaco_trx=megaco.transid; megaco_msg=megaco.transaction; term=megaco.termid;
+Action=LegKey; On=megaco; addr; addr; megaco_trx;
+Action=LegStart; On=megaco; megaco_msg|Request|Notify;
+Action=LegStop; On=megaco; megaco_msg=Reply;
+
+#Action=Include; Filename=mgw.thing;
+# will contain the whole list of dpc:cic -> ds1_term mappings like the following
+Action=Transform; On=isup; Method=Every;  mtp3pc=1921; cic=1;
+Action=Transform; On=isup; Method=Insert; term=DS1/0/1/1;
+Action=Transform; On=isup; Method=Every;  mtp3pc=1921; cic=2;
+Action=Transform; On=isup; Method=Insert; term=DS1/0/1/2;
+Action=Transform; On=isup; Method=Every;  mtp3pc=1921; cic=14;
+Action=Transform; On=isup; Method=Insert; term=DS1/0/1/14;
+
+
+Action=PDU; Proto=rtsp; Transport=ip; isup_msg=isup.message_type; calling=X_Vig_Msisdn; rtsp_method=rtsp.method; rtsp_ses=rtsp.session; addr=ip.addr; rtsp_url=rtsp.url;
+Action=LegKey; On=rtsp; rtsp_ses;
+Action=LegStart; On=rtsp; rtsp_method=SETUP;
+Action=LegStop; On=rtsp; rtsp_method=TEARDOWN;
+
+Action=PDU; Proto=radius; Transport=ip; radius_id=radius.id; radius_code=radius.code; class=radius.class; addr=ip.addr; calling=radius.calling; rad_sesid=radius.acct.sessionid;
+Action=LegKey; On=radius; addr; addr; radius_id;
+Action=LegStart; On=radius; radius_code|1|4;
+Action=LegStop; On=radius; radius_code|2|3|5;
+
+Action=LegExtra; On=radius; calling; rad_sesid;
+
+Action=LegExtra; On=sip;	calling!-;
+Action=LegExtra; On=q931;   called; calling; guid; q931_cause; h225_cause;
+Action=LegExtra; On=h225.RasMessage;   guid;
+Action=LegExtra; On=isup;   called; calling; isup_cause; term;
+Action=LegExtra; On=megaco;   term^DS1; megaco_ctx!Choose one;
+Action=LegExtra; On=rtsp;   rtsp_url; calling;
+Action=LegExtra; On=radius;   calling;
+
+Action=SesKey; Name=call; On=sip;   calling; sip_callid;
+Action=SesKey; Name=call; On=isup;   calling;
+Action=SesKey; Name=call; On=q931;   calling;
+Action=SesKey; Name=call; On=megaco;   term^DS1;
+Action=SesKey; Name=call; On=megaco;   megaco_ctx;
+Action=SesKey; Name=call; On=rtsp;   calling;
+Action=SesKey; Name=call; On=h225.RasMessage;   guid;
+
+Action=SesExtra; On=call;   called; term^DS1; megaco_ctx; guid; q931_cause; h225_cause; isup_cause; rtsp_url; 

@@ -1,0 +1,7 @@
+# radius.thing
+
+Action=pdu; Proto=radius; Transport=ip; addr=ip.addr; radius_id=radius.id; radius_code=radius.code; calling=radius.calling;
+
+Action=pdukey; On=radius; radius_id; addr; addr;
+Action=start; On=radius; radius_code=4;
+Action=stop; On=radius; radius_code=5;

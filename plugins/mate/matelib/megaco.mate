@@ -1,0 +1,6 @@
+# megaco.thing
+
+Action=PDU; Proto=megaco; Transport=ip; addr=ip.addr; megaco_ctx=megaco.context; megaco_trx=megaco.transid; megaco_msg=megaco.transaction; term=megaco.termid;
+Action=LegKey; On=megaco; addr; addr; megaco_trx;
+Action=LegStart; On=megaco; megaco_msg|Request|Notify;
+Action=LegStop; On=megaco; megaco_msg=Reply;

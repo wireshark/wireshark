@@ -1,0 +1,6 @@
+# sip.thing
+
+Action=PDU; Proto=sip; Transport=ip; addr=ip.addr; sip_method=sip.Method; sip_callid=sip.Call-ID; calling=sdp.owner.username;
+Action=LegKey; On=sip; sip_callid; addr; addr;
+Action=LegStart; On=sip; sip_method=INVITE;
+Action=LegStop; On=sip; sip_method=BYE;
