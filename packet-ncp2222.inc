@@ -8,7 +8,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to decode NDS packets by Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ncp2222.inc,v 1.23 2002/10/08 08:58:55 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.24 2002/10/08 19:18:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4133,7 +4133,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 
                                 info_type = get_info_type((gchar*) ncp_rec->req_info_str->first_string);
                                                             
-                                if (info_type == 2) {    // Is this  a string or not?
+                                if (info_type == 2) {    /* Is this  a string or not? */
                                 
                                         col_append_fstr(pinfo->cinfo, COL_INFO,
       		               	                (gchar*) ncp_rec->req_info_str->first_string,
@@ -4152,7 +4152,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 					finfo = g_ptr_array_index(parray, i);
                                         info_type = get_info_type((gchar*) ncp_rec->req_info_str->repeat_string);
                                                                     
-                                        if (info_type == 2) {    // Is this  a string or not?
+                                        if (info_type == 2) {    /* Is this  a string or not? */
                                         
                                                 col_append_fstr(pinfo->cinfo, COL_INFO,
               		               	                (gchar*) ncp_rec->req_info_str->repeat_string,

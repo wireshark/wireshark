@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.40 2002/09/25 00:48:53 jmayer Exp $
+ * $Id: packet-bpdu.c,v 1.41 2002/10/08 19:18:57 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  *
@@ -134,9 +134,9 @@ static const value_string protocol_id_vals[] = {
 	{ 0, NULL }
 };
 
-#define BPDU_TYPE_CONF			0x00	// STP Configuration BPDU
-#define BPDU_TYPE_RST			0x02	// RST BPDU (or MST)
-#define BPDU_TYPE_TOPOLOGY_CHANGE	0x80	// STP TCN (Topology change notify) BPDU
+#define BPDU_TYPE_CONF			0x00	/* STP Configuration BPDU */
+#define BPDU_TYPE_RST			0x02	/* RST BPDU (or MST) */
+#define BPDU_TYPE_TOPOLOGY_CHANGE	0x80	/* STP TCN (Topology change notify) BPDU */
 
 static const value_string bpdu_type_vals[] = {
 	{ BPDU_TYPE_CONF,            "Configuration" },

@@ -26,7 +26,7 @@ Hannes R. Boehm      <hannes[AT]boehm.org> {
     CDP (Cisco Discover Protocol Version 1)
 }
 
-Mike Hall            <mlh[AT]io.com>{
+Mike Hall            <mlh[AT]io.com> {
     TCP Follow
 }
 
@@ -1292,6 +1292,7 @@ Peter Hawkins <peter[AT]hawkins.emu.id.au> {
 
 Bill Fumerola <billf[AT]FreeBSD.org> {
 	Recognize "Option negotiated failed" error in TFTP
+	Rewritten Cisco NetFlow protocol support
 }
 
 Chris Waters <chris[AT]waters.co.nz> {
@@ -1413,7 +1414,7 @@ Ulf Lamping <ulf.lamping[AT]web.de> {
 }
 
 Matthew Smart <smart[AT]monkey.org> {
-	Cisco NetFlow protocol support
+	Original Cisco NetFlow protocol support
 }
 
 Jamie Fournier <jafour1[AT]yahoo.com> {
@@ -1446,6 +1447,10 @@ Steve Langasek <vorlon [AT] netexpress.net> {
 
 Brad Hards <bhards[AT]bigpond.net.au> {
 	Support for SRVLOC v2
+}
+
+cjs 2895 <cjs2895[AT]hotmail.com> {
+	Compile fixes for IBM's C compiler for AIX
 }
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
