@@ -1,5 +1,5 @@
 /* packet-vj.c
- * Routines for Van Jacobson header decompression.
+ * Routines for Van Jacobson header decompression.  (See RFC 1144.)
  *
  * $Id$
  *
