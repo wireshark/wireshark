@@ -34,6 +34,7 @@ register.c
 stamp-h
 stamp-h.in
 tethereal
+tethereal_static
 tethereal.1
 .*.swp
 etherXXXX*
