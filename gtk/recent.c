@@ -41,6 +41,7 @@
 #include "ui_util.h"
 #include "dlg_utils.h"
 #include "cfilter_combo_utils.h"
+#include "simple_dialog.h"
 
 #define RECENT_KEY_MAIN_TOOLBAR_SHOW        "gui.toolbar_main_show"
 #define RECENT_KEY_FILTER_TOOLBAR_SHOW      "gui.filter_toolbar_show"
@@ -91,12 +92,13 @@ find_index_from_string_array(char *needle, char **haystack, int default_value)
 	return default_value;
 }
 
-/* Write out "recent" to the user's recent file, and return 0.
-   If we got an error, stuff a pointer to the path of the recent file
-   into "*pf_path_return", and return the errno. */
-int
-write_recent(char **rf_path_return)
+/* Attempt to Write out "recent" to the user's recent file.
+   If we got an error report it with a dialog box and return FALSE,
+   otherwise return TRUE. */
+gboolean
+write_recent(void)
 {
+  char        *pf_dir_path;
   char        *rf_path;
   FILE        *rf;
 
@@ -106,10 +108,23 @@ write_recent(char **rf_path_return)
    *   so that duplication can be avoided with filter.c
    */
 
+  /* Create the directory that holds personal configuration files, if
+     necessary.  */
+  if (create_persconffile_dir(&pf_dir_path) == -1) {
+     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      "Can't create directory\n\"%s\"\nfor recent file: %s.", pf_dir_path,
+      strerror(errno));
+     g_free(pf_dir_path);
+     return FALSE;
+  }
+
   rf_path = get_persconffile_path(RECENT_FILE_NAME, TRUE);
   if ((rf = fopen(rf_path, "w")) == NULL) {
-    *rf_path_return = rf_path;
-    return errno;
+     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      "Can't open recent file\n\"%s\": %s.", rf_path,
+      strerror(errno));
+    g_free(rf_path);
+    return FALSE;
   }
 
   fputs("# Recent settings file for Ethereal " VERSION ".\n"
@@ -213,10 +228,10 @@ write_recent(char **rf_path_return)
   fclose(rf);
 
   /* XXX - catch I/O errors (e.g. "ran out of disk space") and return
-     an error indication, or maybe write to a new preferences file and
+     an error indication, or maybe write to a new recent file and
      rename that file on top of the old one only if there are not I/O
      errors. */
-  return 0;
+  return TRUE;
 }
 
 

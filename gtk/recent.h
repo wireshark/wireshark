@@ -67,10 +67,9 @@ extern recent_settings_t recent;
 
 /** Write recent settings file.
  *
- * @param rf_path_return path to recent file if function failed
- * @return 0 if succeeded, errno if failed
+ * @return TRUE if succeeded, FALSE if failed
  */
-extern int write_recent(char **rf_path_return);
+extern gboolean write_recent(void);
 
 /** Read recent settings file.
  *

@@ -864,15 +864,12 @@ main_set_for_capture_file(gboolean have_capture_file_in)
 gboolean
 main_do_quit(void)
 {
-	gchar *rec_path;
-
-
-    /* get the current geometry, before writing it to disk */
-    main_save_window_geometry(top_level);
+	/* get the current geometry, before writing it to disk */
+	main_save_window_geometry(top_level);
 
 	/* write user's recent file to disk
 	 * It is no problem to write this file, even if we do not quit */
-	write_recent(&rec_path);
+	write_recent();
 
 	/* XXX - should we check whether the capture file is an
 	   unsaved temporary file for a live capture and, if so,
