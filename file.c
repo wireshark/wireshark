@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.166 2000/02/19 14:00:34 oabad Exp $
+ * $Id: file.c,v 1.167 2000/02/21 08:18:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -849,8 +849,6 @@ colorize_packets(capture_file *cf)
   gtk_clist_thaw(GTK_CLIST(packet_list));
 }
 
-#define	MAX_LINE_LENGTH	256
-
 int
 print_packets(capture_file *cf, print_args_t *print_args)
 {
@@ -863,9 +861,11 @@ print_packets(capture_file *cf, print_args_t *print_args)
   gint       *col_widths = NULL;
   gint        data_width;
   gboolean    print_separator;
-  char        line_buf[MAX_LINE_LENGTH+1];	/* static-sized buffer! */
+  char       *line_buf = NULL;
+  int         line_buf_len = 256;
   char        *cp;
-  int         sprintf_len;
+  int         column_len;
+  int         line_len;
 
   cf->print_fh = open_print_dest(print_args->to_file, print_args->dest);
   if (cf->print_fh == NULL)
@@ -874,13 +874,16 @@ print_packets(capture_file *cf, print_args_t *print_args)
   print_preamble(cf->print_fh, print_args->format);
 
   if (print_args->print_summary) {
-    /* We're printing packet summaries.
+    /* We're printing packet summaries.  Allocate the line buffer at
+       its initial length. */
+    line_buf = g_malloc(line_buf_len + 1);
 
-       Find the widths for each of the columns - maximum of the
+    /* Find the widths for each of the columns - maximum of the
        width of the title and the width of the data - and print
        the column titles. */
     col_widths = (gint *) g_malloc(sizeof(gint) * cf->cinfo.num_cols);
     cp = &line_buf[0];
+    line_len = 0;
     for (i = 0; i < cf->cinfo.num_cols; i++) {
       /* Don't pad the last column. */
       if (i == cf->cinfo.num_cols - 1)
@@ -892,12 +895,25 @@ print_packets(capture_file *cf, print_args_t *print_args)
           col_widths[i] = data_width;
       }
 
+      /* Find the length of the string for this column. */
+      column_len = strlen(cf->cinfo.col_title[i]);
+      if (col_widths[i] > column_len)
+        column_len = col_widths[i];
+
+      /* Make sure there's room in the line buffer for the column; if not,
+         double its length. */
+      line_len += column_len + 1;	/* "+1" for space or \n */
+      if (line_len > line_buf_len) {
+        line_buf_len *= 2;
+        line_buf = g_realloc(line_buf, line_buf_len + 1);
+      }
+
       /* Right-justify the packet number column. */
       if (cf->cinfo.col_fmt[i] == COL_NUMBER)
-        sprintf_len = sprintf(cp, "%*s", col_widths[i], cf->cinfo.col_title[i]);
+        sprintf(cp, "%*s", col_widths[i], cf->cinfo.col_title[i]);
       else
-        sprintf_len = sprintf(cp, "%-*s", col_widths[i], cf->cinfo.col_title[i]);
-      cp += sprintf_len;
+        sprintf(cp, "%-*s", col_widths[i], cf->cinfo.col_title[i]);
+      cp += column_len;
       if (i == cf->cinfo.num_cols - 1)
         *cp++ = '\n';
       else
@@ -954,13 +970,27 @@ print_packets(capture_file *cf, print_args_t *print_args)
         dissect_packet(cf->pd, fd, NULL);
         fill_in_columns(fd);
         cp = &line_buf[0];
+        line_len = 0;
         for (i = 0; i < cf->cinfo.num_cols; i++) {
+          /* Find the length of the string for this column. */
+          column_len = strlen(cf->cinfo.col_data[i]);
+          if (col_widths[i] > column_len)
+            column_len = col_widths[i];
+
+          /* Make sure there's room in the line buffer for the column; if not,
+             double its length. */
+          line_len += column_len + 1;	/* "+1" for space or \n */
+          if (line_len > line_buf_len) {
+            line_buf_len *= 2;
+            line_buf = g_realloc(line_buf, line_buf_len + 1);
+          }
+
           /* Right-justify the packet number column. */
           if (cf->cinfo.col_fmt[i] == COL_NUMBER)
-            sprintf_len = sprintf(cp, "%*s", col_widths[i], cf->cinfo.col_data[i]);
+            sprintf(cp, "%*s", col_widths[i], cf->cinfo.col_data[i]);
           else
-            sprintf_len = sprintf(cp, "%-*s", col_widths[i], cf->cinfo.col_data[i]);
-          cp += sprintf_len;
+            sprintf(cp, "%-*s", col_widths[i], cf->cinfo.col_data[i]);
+          cp += column_len;
           if (i == cf->cinfo.num_cols - 1)
             *cp++ = '\n';
           else
@@ -996,6 +1026,8 @@ print_packets(capture_file *cf, print_args_t *print_args)
 
   if (col_widths != NULL)
     g_free(col_widths);
+  if (line_buf != NULL)
+    g_free(line_buf);
 
   print_finale(cf->print_fh, print_args->format);
 
