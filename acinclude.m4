@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.20 2000/01/21 06:18:15 guy Exp $
+dnl $Id: acinclude.m4,v 1.21 2001/01/18 09:54:09 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -339,6 +339,56 @@ AC_DEFUN(AC_ETHEREAL_UCDSNMP_CHECK,
 			CFLAGS="$CFLAGS -I${ucdsnmpdir}/include"
 			CPPFLAGS="$CPPFLAGS -I${ucdsnmpdir}/include"
 			AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${ucdsnmpdir}/lib)
+		fi
+	fi
+])
+
+#
+# AC_ETHEREAL_SSL_CHECK
+#
+AC_DEFUN(AC_ETHEREAL_SSL_CHECK,
+[
+	want_ssl=yes
+
+	AC_ARG_WITH(ssl,
+	[  --with-ssl=DIR          use SSL crypto library, located in directory DIR.], [
+	if test $withval = no
+	then
+		want_ssl=no
+	else
+		want_ssl=yes
+		ssl_user_dir=$withval
+	fi
+	])
+
+	if test $want_ssl = yes
+	then
+		ssldir=""
+
+		for d in $ssl_user_dir $prefix
+		do
+			if test x$d != xNONE 
+			then
+				AC_MSG_CHECKING($d for ssl)
+
+				if test x$d != x/usr/local && test -f $d/lib/libcrypto.a
+				then
+					AC_MSG_RESULT(found)
+					ssldir=$d
+					break
+				else
+					AC_MSG_RESULT(not found)
+				fi
+			fi
+		done
+
+		if test x$ssldir != x
+		then
+			SSL_LIBS=-lcrypto
+			AC_MSG_RESULT(added $d to paths)
+			CFLAGS="$CFLAGS -I${ssldir}/include"
+			CPPFLAGS="$CPPFLAGS -I${ssldir}/include"
+			AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${ssldir}/lib)
 		fi
 	fi
 ])
