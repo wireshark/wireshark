@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.1 1999/09/09 03:32:03 gram Exp $
+ * $Id: prefs_dlg.c,v 1.2 1999/09/10 06:53:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -56,9 +56,10 @@
 
 e_prefs prefs;
 
-static void   prefs_main_ok_cb(GtkWidget *, gpointer);
-static void   prefs_main_save_cb(GtkWidget *, gpointer);
-static void   prefs_main_cancel_cb(GtkWidget *, gpointer);
+static void     prefs_main_ok_cb(GtkWidget *, gpointer);
+static void     prefs_main_save_cb(GtkWidget *, gpointer);
+static void     prefs_main_cancel_cb(GtkWidget *, gpointer);
+static gboolean prefs_main_delete_cb(GtkWidget *, gpointer);
 
 
 #define E_PRINT_PAGE_KEY  "printer_options_page"
@@ -79,6 +80,8 @@ prefs_cb(GtkWidget *w, gpointer sp) {
 
   prefs_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(prefs_w), "Ethereal: Preferences");
+  gtk_signal_connect(GTK_OBJECT(prefs_w), "delete-event",
+    GTK_SIGNAL_FUNC(prefs_main_delete_cb), NULL);
   
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 5);
@@ -160,7 +163,7 @@ prefs_cb(GtkWidget *w, gpointer sp) {
   gtk_widget_show(prefs_w);
 }
 
-void
+static void
 prefs_main_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 {
   printer_prefs_ok(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
@@ -169,7 +172,7 @@ prefs_main_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
-void
+static void
 prefs_main_save_cb(GtkWidget *save_bt, gpointer parent_w)
 {
   printer_prefs_save(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
@@ -178,7 +181,7 @@ prefs_main_save_cb(GtkWidget *save_bt, gpointer parent_w)
   write_prefs();
 }
 
-void
+static void
 prefs_main_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w)
 {
   printer_prefs_cancel(gtk_object_get_data(GTK_OBJECT(parent_w), E_PRINT_PAGE_KEY));
@@ -187,3 +190,11 @@ prefs_main_cancel_cb(GtkWidget *cancel_bt, gpointer parent_w)
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 }
 
+static gboolean
+prefs_main_delete_cb(GtkWidget *prefs_w, gpointer dummy)
+{
+  printer_prefs_delete(gtk_object_get_data(GTK_OBJECT(prefs_w), E_PRINT_PAGE_KEY));
+  filter_prefs_delete(gtk_object_get_data(GTK_OBJECT(prefs_w), E_FILTER_PAGE_KEY));
+  column_prefs_delete(gtk_object_get_data(GTK_OBJECT(prefs_w), E_COLUMN_PAGE_KEY));
+  return FALSE;
+}

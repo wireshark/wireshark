@@ -1,7 +1,7 @@
 /* filter_prefs.h
  * Definitions for packet filter preferences window
  *
- * $Id: filter_prefs.h,v 1.2 1999/09/09 04:25:48 guy Exp $
+ * $Id: filter_prefs.h,v 1.3 1999/09/10 06:53:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,5 +35,6 @@ void       filter_sel_del_cb(GtkWidget *, gpointer);
 void       filter_prefs_ok(GtkWidget *);
 void       filter_prefs_save(GtkWidget *);
 void       filter_prefs_cancel(GtkWidget *);
+void       filter_prefs_delete(GtkWidget *);
 
 #endif /* filter.h */

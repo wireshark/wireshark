@@ -1,7 +1,7 @@
 /* print_prefs.c
  * Dialog boxes for preferences for printing
  *
- * $Id: print_prefs.c,v 1.3 1999/09/09 04:25:48 guy Exp $
+ * $Id: print_prefs.c,v 1.4 1999/09/10 06:53:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,6 +32,8 @@
 #ifndef __GLOBALS_H__
 #include "globals.h"
 #endif
+
+#include "print_prefs.h"
 
 #ifndef __KEYS_H__
 #include "keys.h"
@@ -208,6 +210,8 @@ printer_prefs_ok(GtkWidget *w)
 	prefs.pr_file =  
 		g_strdup(gtk_entry_get_text(GTK_ENTRY(gtk_object_get_data(GTK_OBJECT(w),
     PRINT_FILE_TE_KEY))));
+
+	printer_prefs_delete(w);
 }
 
 void
@@ -219,29 +223,34 @@ printer_prefs_save(GtkWidget *w)
 void
 printer_prefs_cancel(GtkWidget *w)
 {
+	printer_prefs_delete(w);
+}
+
+void
+printer_prefs_delete(GtkWidget *w)
+{
 }
 
 static void
 printer_opts_toggle_format(GtkWidget *widget, gpointer data)
 {
-		if (GTK_TOGGLE_BUTTON (widget)->active) {
-			prefs.pr_format = PR_FMT_PS;
-			/* toggle file/cmd */
-		}
-		else {
-			prefs.pr_format = PR_FMT_TEXT;
-			/* toggle file/cmd */
-		}
+	if (GTK_TOGGLE_BUTTON (widget)->active) {
+		prefs.pr_format = PR_FMT_PS;
+		/* toggle file/cmd */
+	}
+	else {
+		prefs.pr_format = PR_FMT_TEXT;
+		/* toggle file/cmd */
+	}
 }
 
 static void
 printer_opts_toggle_dest(GtkWidget *widget, gpointer data)
 {
-		if (GTK_TOGGLE_BUTTON (widget)->active) {
-			prefs.pr_dest = PR_DEST_FILE;
-		}
-		else {
-			prefs.pr_dest = PR_DEST_CMD;
-		}
+	if (GTK_TOGGLE_BUTTON (widget)->active) {
+		prefs.pr_dest = PR_DEST_FILE;
+	}
+	else {
+		prefs.pr_dest = PR_DEST_CMD;
+	}
 }
-

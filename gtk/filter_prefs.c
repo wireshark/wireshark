@@ -1,7 +1,7 @@
 /* filter_prefs.c
  * Dialog boxes for preferences for filter sets
  *
- * $Id: filter_prefs.c,v 1.3 1999/09/10 06:01:02 guy Exp $
+ * $Id: filter_prefs.c,v 1.4 1999/09/10 06:53:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -420,7 +420,7 @@ filter_prefs_ok(GtkWidget *w) {
     }
   }
 
-  filter_prefs_cancel(w);
+  filter_prefs_delete(w);
 }
 
 void
@@ -459,6 +459,12 @@ filter_prefs_save(GtkWidget *w) {
 
 void
 filter_prefs_cancel(GtkWidget *w) {
+
+  filter_prefs_delete(w);
+}
+
+void
+filter_prefs_delete(GtkWidget *w) {
  
   /* Let the list cb know we're about to destroy the widget tree, so it */
   /* doesn't operate on widgets that don't exist. */  

@@ -1,7 +1,7 @@
 /* column.h
  * Definitions for column handling routines
  *
- * $Id: column.h,v 1.4 1999/07/28 03:29:00 guy Exp $
+ * $Id: column.h,v 1.5 1999/09/10 06:53:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,5 +47,6 @@ GtkWidget           *column_prefs_show(void);
 void                 column_prefs_ok(GtkWidget *);
 void                 column_prefs_save(GtkWidget *);
 void                 column_prefs_cancel(GtkWidget *);
+void                 column_prefs_delete(GtkWidget *);
 
 #endif /* column.h */
