@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.205 2001/07/27 07:10:11 guy Exp $
+ * $Id: main.c,v 1.206 2001/10/21 16:15:19 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -142,11 +142,18 @@
 #include "strutil.h"
 #include "register.h"
 #include "prefs.h"
+#include "image/clist_ascend.xpm"
+#include "image/clist_descend.xpm"
 
 #ifdef WIN32
 #include "capture-wpcap.h"
 #endif
 
+typedef struct column_arrows {
+  GtkWidget *table;
+  GtkWidget *ascend_pm;
+  GtkWidget *descend_pm;
+} column_arrows;
 
 packet_info  pi;
 capture_file cfile;
@@ -327,16 +334,31 @@ packet_list_compare(GtkCList *clist, gconstpointer  ptr1, gconstpointer  ptr2)
 static void 
 packet_list_click_column_cb(GtkCList *clist, gint column, gpointer data)
 {
+  column_arrows *col_arrows = (column_arrows *) data;
+  int i;
+  
+  gtk_clist_freeze(clist);
+  
+  for (i = 0; i < cfile.cinfo.num_cols; i++) {
+    gtk_widget_hide(col_arrows[i].ascend_pm);
+    gtk_widget_hide(col_arrows[i].descend_pm);
+  }
+  
   if (column == clist->sort_column) {
-    if (clist->sort_type == GTK_SORT_ASCENDING)
+    if (clist->sort_type == GTK_SORT_ASCENDING) {
       clist->sort_type = GTK_SORT_DESCENDING;
-    else
+      gtk_widget_show(col_arrows[column].descend_pm);
+    } else {
       clist->sort_type = GTK_SORT_ASCENDING;
+      gtk_widget_show(col_arrows[column].ascend_pm);
+    }
   }
   else {
     clist->sort_type = GTK_SORT_ASCENDING;
+    gtk_widget_show(col_arrows[column].ascend_pm);
     gtk_clist_set_sort_column(clist, column);
   }
+  gtk_clist_thaw(clist);
 
   gtk_clist_sort(clist);
 }
@@ -1641,11 +1663,15 @@ static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 {
   GtkWidget           *main_vbox, *menubar, *u_pane, *l_pane,
-                      *stat_hbox,
+                      *stat_hbox, *column_lb,
                       *filter_bt, *filter_cm, *filter_te,
                       *filter_reset;
   GList               *filter_list = NULL;
   GtkAccelGroup       *accel;
+  GtkStyle            *win_style;
+  GdkBitmap           *ascend_bm, *descend_bm;
+  GdkPixmap           *ascend_pm, *descend_pm;
+  column_arrows       *col_arrows;
   int			i;
   /* Display filter construct dialog has an Apply button, and "OK" not
      only sets our text widget, it activates it (i.e., it causes us to
@@ -1696,14 +1722,17 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_widget_show(pkt_scrollw);
   gtk_paned_add1(GTK_PANED(u_pane), pkt_scrollw);
 
-  packet_list = gtk_clist_new_with_titles(cfile.cinfo.num_cols, cfile.cinfo.col_title);
+  packet_list = gtk_clist_new(cfile.cinfo.num_cols);
+  /* Column titles are filled in below */
   gtk_container_add(GTK_CONTAINER(pkt_scrollw), packet_list);
+
+  col_arrows = (column_arrows *) g_malloc(sizeof(column_arrows) * cfile.cinfo.num_cols);
   
   set_plist_sel_browse(prefs->gui_plist_sel_browse);
   set_plist_font(m_r_font);
   gtk_widget_set_name(packet_list, "packet list");
   gtk_signal_connect (GTK_OBJECT (packet_list), "click_column",
-    GTK_SIGNAL_FUNC(packet_list_click_column_cb), NULL);
+    GTK_SIGNAL_FUNC(packet_list_click_column_cb), col_arrows);
   gtk_signal_connect(GTK_OBJECT(packet_list), "select_row",
     GTK_SIGNAL_FUNC(packet_list_select_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(packet_list), "unselect_row",
@@ -1799,6 +1828,34 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_widget_show(info_bar);
 
   gtk_widget_show(top_level);
+
+  /* Fill in column titles.  This must be done after the top level window
+     is displayed. */
+  win_style = gtk_widget_get_style(top_level);
+  ascend_pm = gdk_pixmap_create_from_xpm_d(top_level->window, &ascend_bm,
+  	&win_style->bg[GTK_STATE_NORMAL], (gchar **)clist_ascend_xpm);
+  descend_pm = gdk_pixmap_create_from_xpm_d(top_level->window, &descend_bm,
+  	&win_style->bg[GTK_STATE_NORMAL], (gchar **)clist_descend_xpm);
+  for (i = 0; i < cfile.cinfo.num_cols; i++) {
+    col_arrows[i].table = gtk_table_new(2, 2, FALSE);
+    gtk_table_set_col_spacings(GTK_TABLE(col_arrows[i].table), 5);
+    column_lb = gtk_label_new(cfile.cinfo.col_title[i]);
+    gtk_table_attach(GTK_TABLE(col_arrows[i].table), column_lb, 0, 1, 0, 2,
+    	GTK_SHRINK, GTK_SHRINK, 0, 0);
+    gtk_widget_show(column_lb);
+    col_arrows[i].ascend_pm = gtk_pixmap_new(ascend_pm, ascend_bm);
+    gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].ascend_pm, 
+    	1, 2, 1, 2, GTK_SHRINK, GTK_SHRINK, 0, 0);
+    if (i == 0) {
+      gtk_widget_show(col_arrows[i].ascend_pm);
+    }
+    col_arrows[i].descend_pm = gtk_pixmap_new(descend_pm, descend_bm);
+    gtk_table_attach(GTK_TABLE(col_arrows[i].table), col_arrows[i].descend_pm,
+    	1, 2, 0, 1, GTK_SHRINK, GTK_SHRINK, 0, 0);
+    gtk_clist_set_column_widget(GTK_CLIST(packet_list), i, col_arrows[i].table);
+    gtk_widget_show(col_arrows[i].table);
+  }
+  gtk_clist_column_titles_show(GTK_CLIST(packet_list));
 }
 
 
