@@ -2089,9 +2089,9 @@ class SequenceType (SqType):
     def eth_type_fn(self, proto, tname, ectx):
       fname = ectx.eth_type[tname]['ref'][0]
       if (ectx.OBer()):
-        out = "static %s_sequence %s_sequence[] = {\n" % (ectx.encp(), tname)
+        out = "static const %s_sequence %s_sequence[] = {\n" % (ectx.encp(), tname)
       else:
-        out = "static %s_sequence_t %s_sequence[] = {\n" % (ectx.encp(), tname)
+        out = "static const %s_sequence_t %s_sequence[] = {\n" % (ectx.encp(), tname)
       if hasattr(self, 'ext_list'):
         ext = 'ASN1_EXTENSION_ROOT'
       else:
@@ -2317,9 +2317,9 @@ class ChoiceType (Type):
           if (e.GetTag(ectx)[0] != t):
             tagval = False
       if (ectx.OBer()):
-        out += "static %s_choice %s_choice[] = {\n" % (ectx.encp(), tname)
+        out += "static const %s_choice %s_choice[] = {\n" % (ectx.encp(), tname)
       else:
-        out += "static %s_choice_t %s_choice[] = {\n" % (ectx.encp(), tname)
+        out += "static const %s_choice_t %s_choice[] = {\n" % (ectx.encp(), tname)
       cnt = 0
       if hasattr(self, 'ext_list'):
         ext = 'ASN1_EXTENSION_ROOT'
