@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.h,v 1.1 2000/10/06 10:10:49 gram Exp $
+ * $Id: packet-frame.h,v 1.2 2000/12/03 22:32:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,3 +26,6 @@
 
 void
 dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/* "Protocol" used for "malformed frame" errors */
+extern int proto_malformed;

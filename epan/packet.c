@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.9 2000/12/03 22:26:26 guy Exp $
+ * $Id: packet.c,v 1.10 2000/12/03 22:32:10 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,9 +83,6 @@
 #include "tvbuff.h"
 #include "plugins.h"
 
-extern int proto_malformed;
-
-
 static void display_signed_time(gchar *, int, gint32, gint32);
 
 
@@ -97,7 +94,7 @@ typedef struct _frame_proto_data {
   void *proto_data;
 } frame_proto_data;
 
-GMemChunk *frame_proto_data_area = NULL;
+static GMemChunk *frame_proto_data_area = NULL;
 
 
 /* 
