@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.44 2004/04/21 05:53:58 guy Exp $
+ * $Id: to_str.c,v 1.45 2004/06/16 23:09:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -379,7 +379,7 @@ time_secs_to_str_buf(guint32 time, guint32 frac, gboolean is_nsecs,
 {
   static gchar *p;
   int hours, mins, secs;
-  int do_comma;
+  gboolean do_comma = FALSE;
 
   secs = time % 60;
   time /= 60;
@@ -392,21 +392,18 @@ time_secs_to_str_buf(guint32 time, guint32 frac, gboolean is_nsecs,
   if (time != 0) {
     sprintf(p, "%u day%s", time, PLURALIZE(time));
     p += strlen(p);
-    do_comma = 1;
-  } else
-    do_comma = 0;
+    do_comma = TRUE;
+  }
   if (hours != 0) {
     sprintf(p, "%s%u hour%s", COMMA(do_comma), hours, PLURALIZE(hours));
     p += strlen(p);
-    do_comma = 1;
-  } else
-    do_comma = 0;
+    do_comma = TRUE;
+  }
   if (mins != 0) {
     sprintf(p, "%s%u minute%s", COMMA(do_comma), mins, PLURALIZE(mins));
     p += strlen(p);
-    do_comma = 1;
-  } else
-    do_comma = 0;
+    do_comma = TRUE;
+  }
   if (secs != 0 || frac != 0) {
     if (frac != 0) {
       if (is_nsecs)
