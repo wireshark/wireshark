@@ -44,6 +44,8 @@
 /* Include vendor id translation */
 #include <epan/sminmpec.h>
 
+#include "packet-ntp.h"
+
 /* Initialize the protocol and registered fields */
 static int proto_a11 = -1;
 static int hf_a11_type = -1;
@@ -98,7 +100,6 @@ static gint ett_a11_radiuses = -1;
 
 /* Port used for Mobile IP based Tunneling Protocol (A11) */
 #define UDP_PORT_3GA11    699
-#define NTP_BASETIME 2208988800ul
 
 typedef enum {
     REGISTRATION_REQUEST = 1,
@@ -649,8 +650,9 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree    *flags_tree;
   guint8         type;
   guint8         flags;
-  nstime_t       ident_time;
   size_t         offset=0;
+  const guint8  *reftime;
+  gchar          buff[NTP_TS_SIZE];
   
   if (!tvb_bytes_exist(tvb, offset, 1))
 	return 0;	/* not enough data to check message type */
@@ -711,10 +713,12 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, FALSE);
 	  offset += 4;
 
-	  /* Identifier */
-	  ident_time.secs =  tvb_get_ntohl(tvb,16)-(guint32) NTP_BASETIME;
-	  ident_time.nsecs = tvb_get_ntohl(tvb,20)*1000;
-	  proto_tree_add_time(a11_tree, hf_a11_ident, tvb, offset, 8, &ident_time);
+	  /* Identifier - assumed to be an NTP time here */
+	  reftime = tvb_get_ptr(tvb, offset, 8);
+	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
+				      reftime,
+				      "Identification: %s",
+				      ntp_fmt_ts(reftime, buff));
 	  offset += 8;
 		
 	} /* if tree */
@@ -749,10 +753,12 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, FALSE);
 	  offset += 4;
 
-	  /* Identifier */
-	  ident_time.secs =  tvb_get_ntohl(tvb,12)-(guint32) NTP_BASETIME;
-	  ident_time.nsecs = tvb_get_ntohl(tvb,16)*1000;
-	  proto_tree_add_time(a11_tree, hf_a11_ident, tvb, offset, 8, &ident_time);
+	  /* Identifier - assumed to be an NTP time here */
+	  reftime = tvb_get_ptr(tvb, offset, 8);
+	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
+				      reftime,
+				      "Identification: %s",
+				      ntp_fmt_ts(reftime, buff));
 	  offset += 8;
 	} /* if tree */
 	
@@ -781,10 +787,12 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, FALSE);
 	  offset += 4;
 
-	  /* Identifier */
-	  ident_time.secs =  tvb_get_ntohl(tvb,12)-(guint32) NTP_BASETIME;
-	  ident_time.nsecs = tvb_get_ntohl(tvb,16)*1000;
-	  proto_tree_add_time(a11_tree, hf_a11_ident, tvb, offset, 8, &ident_time);
+	  /* Identifier - assumed to be an NTP time here */
+	  reftime = tvb_get_ptr(tvb, offset, 8);
+	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
+				      reftime,
+				      "Identification: %s",
+				      ntp_fmt_ts(reftime, buff));
 	  offset += 8;
 
 	} /* if tree */
@@ -818,10 +826,12 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, FALSE);
 	  offset += 4;
 
-	  /* Identifier */
-	  ident_time.secs =  tvb_get_ntohl(tvb,12)-(guint32) NTP_BASETIME;
-	  ident_time.nsecs = tvb_get_ntohl(tvb,16)*1000;
-	  proto_tree_add_time(a11_tree, hf_a11_ident, tvb, offset, 8, &ident_time);
+	  /* Identifier - assumed to be an NTP time here */
+	  reftime = tvb_get_ptr(tvb, offset, 8);
+	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
+				      reftime,
+				      "Identification: %s",
+				      ntp_fmt_ts(reftime, buff));
 	  offset += 8;
 
 	} /* if tree */
@@ -850,10 +860,12 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, FALSE);
 	  offset += 4;
 
-	  /* Identifier */
-	  ident_time.secs =  tvb_get_ntohl(tvb,12)-(guint32) NTP_BASETIME;
-	  ident_time.nsecs = tvb_get_ntohl(tvb,16)*1000;
-	  proto_tree_add_time(a11_tree, hf_a11_ident, tvb, offset, 8, &ident_time);
+	  /* Identifier - assumed to be an NTP time here */
+	  reftime = tvb_get_ptr(tvb, offset, 8);
+	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
+				      reftime,
+				      "Identification: %s",
+				      ntp_fmt_ts(reftime, buff));
 	  offset += 8;
 
 	} /* if tree */
@@ -887,10 +899,12 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, FALSE);
 	  offset += 4;
 
-	  /* Identifier */
-	  ident_time.secs =  tvb_get_ntohl(tvb,12)-(guint32) NTP_BASETIME;
-	  ident_time.nsecs = tvb_get_ntohl(tvb,16)*1000;
-	  proto_tree_add_time(a11_tree, hf_a11_ident, tvb, offset, 8, &ident_time);
+	  /* Identifier - assumed to be an NTP time here */
+	  reftime = tvb_get_ptr(tvb, offset, 8);
+	  proto_tree_add_bytes_format(a11_tree, hf_a11_ident, tvb, offset, 8,
+				      reftime,
+				      "Identification: %s",
+				      ntp_fmt_ts(reftime, buff));
 	  offset += 8;
 
 	} /* if tree */
@@ -989,7 +1003,7 @@ void proto_register_a11(void)
 	  },
 	  { &hf_a11_ident,
 		 { "Identification",           "a11.ident",
-			FT_ABSOLUTE_TIME, BASE_NONE, NULL, 0,          
+			FT_BYTES, BASE_NONE, NULL, 0,          
 			"MN Identification.", HFILL }
 	  },
 	  { &hf_a11_ext_type,
