@@ -47,12 +47,13 @@ Novell B<LANalyzer> captures, Network General/Network Associates
 DOS-based B<Sniffer> (compressed or uncompressed) captures, Microsoft
 B<Network Monitor> captures, files from AIX's B<iptrace>, Cinco Networks
 B<NetXRay> captures, captures from Network Associates Windows-based
-B<Sniffer>, AG Group/WildPackets B<EtherPeek>/B<TokenPeek>/B<AiroPeek>
-captures, captures from B<RADCOM>'s WAN/LAN analyzer, B<Lucent/Ascend>
-router debug output, files from HP-UX's B<nettl>, the dump output from
-B<Toshiba's> ISDN routers, the output from B<i4btrace> from the ISDN4BSD
-project, the output in B<IPLog> format from the Cisco Secure Intrusion
-Detection System, B<pppd logs> (pppdump format), the output from VMS's
+B<Sniffer>, AG Group/WildPackets
+B<EtherPeek>/B<TokenPeek>/B<AiroPeek>/B<EtherHelp> captures, captures
+from B<RADCOM>'s WAN/LAN analyzer, B<Lucent/Ascend> router debug output,
+files from HP-UX's B<nettl>, the dump output from B<Toshiba's> ISDN
+routers, the output from B<i4btrace> from the ISDN4BSD project, the
+output in B<IPLog> format from the Cisco Secure Intrusion Detection
+System, B<pppd logs> (pppdump format), the output from VMS's
 B<TCPIPtrace>/B<TCPtrace>/B<UCX$TRACE> utilities, the text output from
 the B<DBS Etherwatch> VMS utility, traffic capture files from Visual
 Networks' Visual UpTime, the output from B<CoSine> L2 debug, the output

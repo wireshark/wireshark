@@ -1,4 +1,4 @@
-$Id: README,v 1.62 2003/10/31 08:15:14 guy Exp $
+$Id: README,v 1.63 2003/12/18 03:41:00 guy Exp $
 
 General Information
 ------- -----------
@@ -96,7 +96,7 @@ Microsoft Network Monitor
 AIX's iptrace
 Cinco Networks NetXRray
 Network Associates Windows-based Sniffer
-AG Group/WildPackets EtherPeek/TokenPeek/AiroPeek
+AG Group/WildPackets EtherPeek/TokenPeek/AiroPeek/EtherHelp
 RADCOM's WAN/LAN Analyzer
 Lucent/Ascend access products
 HP-UX's nettl

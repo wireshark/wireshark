@@ -2,7 +2,7 @@
  * Routines for opening EtherPeek (and TokenPeek?) files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.24 2003/10/01 07:11:46 guy Exp $
+ * $Id: etherpeek.c,v 1.25 2003/12/18 03:43:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -162,6 +162,20 @@ int etherpeek_open(wtap *wth, int *err)
 	wtap_file_read_unknown_bytes(
 		&ep_hdr.master, sizeof(ep_hdr.master), wth->fh, err);
 	wth->data_offset += sizeof(ep_hdr.master);
+
+	/*
+	 * It appears that EtherHelp (a free application from WildPackets
+	 * that did blind capture, saving to a file, so that you could
+	 * give the resulting file to somebody with EtherPeek) saved
+	 * captures in EtherPeek format except that it ORed the 0x80
+	 * bit on in the version number.
+	 *
+	 * We therefore strip off the 0x80 bit in the version number.
+	 * Perhaps there's some reason to care whether the capture
+	 * came from EtherHelp; if we discover one, we should check
+	 * that bit.
+	 */
+	ep_hdr.master.version &= ~0x80;
 
 	/* switch on the file version */
 	switch (ep_hdr.master.version) {
