@@ -602,6 +602,7 @@ Hannes Gredler <hannes@juniper.net> {
 	OSI network layer over PPP support
 	Many IS-IS enhancements
 	Juniper Networks vendor ID in RADIUS dissector
+	HELLO message support in RSVP
 }
 
 Inoue <inoue@ainet.or.jp> {

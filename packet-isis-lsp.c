@@ -1,13 +1,12 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.17 2001/06/18 02:17:47 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.18 2001/06/23 19:45:12 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -60,6 +59,7 @@ static int hf_isis_lsp_checksum = -1;
 static int hf_isis_lsp_clv_ipv4_int_addr = -1;
 static int hf_isis_lsp_clv_ipv6_int_addr = -1;
 static int hf_isis_lsp_clv_te_router_id = -1;
+static int hf_isis_lsp_clv_mt = -1;
 
 static gint ett_isis_lsp = -1;
 static gint ett_isis_lsp_clv_area_addr = -1;
@@ -82,6 +82,9 @@ static gint ett_isis_lsp_clv_ext_ip_reachability = -1; /* CLV 135 */
 	static gint ett_isis_lsp_part_of_clv_ext_ip_reachability = -1;
 static gint ett_isis_lsp_clv_ipv6_reachability = -1; /* CLV 236 */
 	static gint ett_isis_lsp_part_of_clv_ipv6_reachability = -1;
+static gint ett_isis_lsp_clv_mt = -1;
+static gint ett_isis_lsp_clv_mt_is = -1;
+static gint ett_isis_lsp_part_of_clv_mt_is = -1;
 
 static const char *isis_lsp_attached_bits[] = {
 	"error", "expense", "delay", "default" };
@@ -130,6 +133,10 @@ static void dissect_lsp_l1_auth_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_l2_auth_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
+static void dissect_lsp_mt_clv(const u_char *pd, int offset,
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
+static void dissect_lsp_mt_is_reachability_clv(const u_char *pd, int offset,
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 
 static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 	{
@@ -140,7 +147,7 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 	},
 	{
 		ISIS_CLV_L1_LSP_IS_NEIGHBORS,
-		"IS Neighbor(s)",
+		"IS Reachability",
 		&ett_isis_lsp_clv_is_neighbors,
 		dissect_lsp_l1_is_neighbors_clv
 	},
@@ -156,7 +163,7 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 		&ett_isis_lsp_clv_ext_is_reachability,
 		dissect_lsp_ext_is_reachability_clv
 	},
-        {
+	{
 		ISIS_CLV_L1_LSP_IP_INT_REACHABLE,
 		"IP Internal reachability",
 		&ett_isis_lsp_clv_ip_reachability,
@@ -223,6 +230,19 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 		dissect_lsp_l1_auth_clv
 	},
 	{
+		ISIS_CLV_L1_LSP_MT,
+		"Multi Topology",
+		&ett_isis_lsp_clv_mt,
+		dissect_lsp_mt_clv
+	},
+	{
+		ISIS_CLV_L1_LSP_MT_IS_REACHABLE,
+		"Multi Topology IS Reachability",
+		&ett_isis_lsp_clv_mt_is,
+		dissect_lsp_mt_is_reachability_clv
+	},
+
+	{
 		0,
 		"",
 		NULL,
@@ -239,7 +259,7 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
 	},
 	{
 		ISIS_CLV_L2_LSP_IS_NEIGHBORS,
-		"IS Neighbor(s)",
+		"IS Reachability",
 		&ett_isis_lsp_clv_is_neighbors,
 		dissect_lsp_l2_is_neighbors_clv
 	},
@@ -326,6 +346,18 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
 		"Authentication",
 		&ett_isis_lsp_clv_auth,
 		dissect_lsp_l2_auth_clv
+	},
+	{
+		ISIS_CLV_L2_LSP_MT,
+		"Multi Topology",
+		&ett_isis_lsp_clv_mt,
+		dissect_lsp_mt_clv
+	},
+	{
+		ISIS_CLV_L2_LSP_MT_IS_REACHABLE,
+		"Multi Topology IS Reachability",
+		&ett_isis_lsp_clv_mt_is,
+		dissect_lsp_mt_is_reachability_clv
 	},
 	{
 		0,
@@ -549,8 +581,8 @@ dissect_lsp_ext_ip_reachability_clv(const u_char *pd, int offset,
 			"Metric: %d, Distribution: %s", pntohl (&pd[offset]), ((ctrl_info & 0x80) == 0) ? "up" : "down" );
 
 		proto_tree_add_text (subtree, NullTVB, offset+4, 1,
-			"Sub_CLV(s): %s",
-			((ctrl_info & 0x40) == 0) ? "no" : "yes" );
+			"%s sub-TLVs present",
+			((ctrl_info & 0x40) == 0) ? "no" : "" );
 
 		len = 5 + byte_length;
 		if ((ctrl_info & 0x40) != 0)
@@ -616,7 +648,7 @@ dissect_lsp_ipv6_reachability_clv(const u_char *pd, int offset,
 			"Reserved bits: 0x%x",
 			(ctrl_info & 0x1f) );
 		proto_tree_add_text (ntree, NullTVB, offset+4, 1,
-			"Sub_CLV(s): %s",
+			"sub-TLVs: %s",
 			((ctrl_info & 0x20) == 0) ? "no" : "yes" );
 
 		len = 6 + byte_length;
@@ -653,6 +685,32 @@ dissect_lsp_nlpid_clv(const u_char *pd, int offset,
 }
 
 /*
+ * Name: dissect_lsp_mt_clv()
+ *
+ * Description:
+ *	Decode for a lsp packets Multi Topology clv.  Calls into the
+ *	clv common one.
+ *
+ * Input:
+ *	u_char * : packet data
+ *	int : current offset into packet data
+ *	guint : length of this clv
+ *	int : length of IDs in packet.
+ *	frame_data * : frame data
+ *	proto_tree * : proto tree to build on (may be null)
+ *
+ * Output:
+ *	void, will modify proto_tree if not null.
+ */
+
+static void 
+dissect_lsp_mt_clv(const u_char *pd, int offset, 
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
+	isis_dissect_mt_clv(pd, offset, length, fd, tree,
+			    hf_isis_lsp_clv_mt );
+}
+
+/*
  * Name: dissect_lsp_hostname_clv()
  *
  * Description:
@@ -670,6 +728,7 @@ dissect_lsp_nlpid_clv(const u_char *pd, int offset,
  * Output:
  *      void, will modify proto_tree if not null.
  */
+
 static void 
 dissect_lsp_hostname_clv(const u_char *pd, int offset, 
                 guint length, int id_length, frame_data *fd, proto_tree *tree) {
@@ -935,12 +994,6 @@ dissect_lsp_eis_neighbors_clv_inner(const u_char *pd, int offset,
 					       ISIS_LSP_CLV_METRIC_IE(pd[offset+3]) ? "External" : "Internal");
                         }
 	 
-			
-/* this is redundant information
-			Proto_tree_add_text ( ntree, NullTVB, offset + 4, id_length, 
-				"Neighbour ID: %s",
-				print_system_id( pd + offset + 4, id_length ) );
-*/
 		}
 		offset += tlen;
 		length -= tlen;
@@ -1192,7 +1245,7 @@ dissect_lsp_ext_is_reachability_clv(const u_char *pd, int offset,
 
 		subclvs_len = pd[offset+10];
 		if (subclvs_len == 0) {
-			proto_tree_add_text (ntree, NullTVB, offset+10, 1, "No sub-CLV");
+			proto_tree_add_text (ntree, NullTVB, offset+10, 1, "no sub-TLVs present");
 		}
 		else {
 			i = 0;
@@ -1247,6 +1300,79 @@ dissect_lsp_ext_is_reachability_clv(const u_char *pd, int offset,
 		proto_item_set_len (ti, len);
 		offset += len;
 		length -= len;
+	}
+}
+
+/* MT IS */
+
+static void 
+dissect_lsp_mt_is_reachability_clv(const u_char *pd, int offset, 
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
+	proto_item *ti;
+	proto_tree *ntree = NULL;
+	guint8     subclvs_len;
+	guint8     len;
+
+	int  mt_block;
+	char mt_desc[60]; 
+
+	if (!tree) return;
+
+	while (length > 0) {
+
+                /* fetch two bytes */
+
+                mt_block=(*(pd+offset)<<8)+(*(pd+offset+1)); 
+		
+
+		              /* mask out the lower 12 bits */
+              switch(mt_block&0x0fff) {
+                case 0:
+                  strcpy(mt_desc,"IPv4 unicast");
+                  break;
+                case 1:
+                  strcpy(mt_desc,"In-Band Management");
+                  break;
+                case 2:
+                  strcpy(mt_desc,"IPv6 unicast");
+                  break;
+                case 3:
+                  strcpy(mt_desc,"Multicast");
+                  break;
+                case 4095:
+                  strcpy(mt_desc,"Development, Experimental or Proprietary");
+                  break;
+                default:
+                  strcpy(mt_desc,"Reserved for IETF Consensus");
+              }
+
+                proto_tree_add_text ( tree, NullTVB, offset, 2 ,
+                        "%s Topology (0x%x)",
+                                      mt_desc,
+                                      mt_block&0xfff ); 
+
+		ti = proto_tree_add_text (tree, NullTVB, offset+2, 0,
+			"IS neighbor: %s",
+			print_system_id (&pd[offset+2], 7) );
+	      
+		ntree = proto_item_add_subtree (ti, 
+			ett_isis_lsp_part_of_clv_mt_is );
+		
+		proto_tree_add_text (ntree, NullTVB, offset+9, 3,
+			"Metric: %d", pntoh24 (&pd[offset+9]) );
+
+		subclvs_len = pd[offset+12];
+		if (subclvs_len == 0) {
+			proto_tree_add_text (ntree, NullTVB, offset+12, 1, "no sub-TLVs present");
+		} else {
+		  proto_tree_add_text (ntree, NullTVB, offset+12, 1, "sub-TLVs present");
+		    }
+		
+		len = 13 + subclvs_len;
+		proto_item_set_len (ti, len);
+		offset += len;
+		length -= len;		
+				
 	}
 }
 
@@ -1549,7 +1675,7 @@ proto_register_isis_lsp(void) {
 		  BASE_DEC, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_lsp_remaining_life,
-		{ "Remaining life",	"isis_lsp.remaining_life", FT_UINT16, 
+		{ "Remaining lifetime",	"isis_lsp.remaining_life", FT_UINT16, 
 		  BASE_DEC, NULL, 0x0, "", HFILL }},
 
 		{ &hf_isis_lsp_sequence_number,
@@ -1594,6 +1720,9 @@ proto_register_isis_lsp(void) {
 			&ett_isis_lsp_part_of_clv_ext_ip_reachability,
 		&ett_isis_lsp_clv_ipv6_reachability, /* CLV 236 */
 			&ett_isis_lsp_part_of_clv_ipv6_reachability,
+		&ett_isis_lsp_clv_mt,
+		&ett_isis_lsp_clv_mt_is,
+		&ett_isis_lsp_part_of_clv_mt_is,
 	};
 
 	proto_isis_lsp = proto_register_protocol(PROTO_STRING_LSP,
@@ -1601,5 +1730,3 @@ proto_register_isis_lsp(void) {
 	proto_register_field_array(proto_isis_lsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
-
-

@@ -1,13 +1,12 @@
 /* packet-isis-lsp.h
  * Defines and such for LSP and their CLV decodes
  *
- * $Id: packet-isis-lsp.h,v 1.7 2001/06/18 01:24:58 guy Exp $
+ * $Id: packet-isis-lsp.h,v 1.8 2001/06/23 19:45:12 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -69,6 +68,8 @@
 #define ISIS_CLV_L1_LSP_TE_ROUTER_ID            134 
 #define ISIS_CLV_L1_LSP_EXT_IP_REACHABLE        135
 #define ISIS_CLV_L1_LSP_HOSTNAME                137
+#define ISIS_CLV_L1_LSP_MT_IS_REACHABLE         222
+#define ISIS_CLV_L1_LSP_MT                      229
 #define ISIS_CLV_L1_LSP_IPv6_INTERFACE_ADDR     232
 #define ISIS_CLV_L1_LSP_IPv6_REACHABLE          236
 /* 
@@ -94,6 +95,8 @@
 #define ISIS_CLV_L2_LSP_TE_ROUTER_ID            134 
 #define ISIS_CLV_L2_LSP_EXT_IP_REACHABLE        135
 #define ISIS_CLV_L2_LSP_HOSTNAME                137
+#define ISIS_CLV_L2_LSP_MT_IS_REACHABLE         222
+#define ISIS_CLV_L2_LSP_MT                      229
 #define ISIS_CLV_L2_LSP_IPv6_INTERFACE_ADDR     232
 #define ISIS_CLV_L2_LSP_IPv6_REACHABLE          236
 /* 
@@ -114,9 +117,3 @@ extern void isis_lsp_decode_lsp_id(char *tstr, proto_tree *tree,
 	const u_char *pd, int offset, int id_length);
 
 #endif /* _PACKET_ISIS_LSP_H */
-
-
-
-
-
-

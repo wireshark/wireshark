@@ -1,13 +1,12 @@
 /* packet-isis-clv.h
  * Declares for common clv decoding functions.
  *
- * $Id: packet-isis-clv.h,v 1.5 2001/05/14 18:40:15 guy Exp $
+ * $Id: packet-isis-clv.h,v 1.6 2001/06/23 19:45:12 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -60,6 +59,8 @@ extern void isis_dissect_nlpid_clv(const u_char *pd, int offset,
 		guint length, frame_data *fd, proto_tree *tree );
 extern void isis_dissect_hostname_clv(const u_char *pd, int offset, 
                 guint length, frame_data *fd, proto_tree *tree );
+extern void isis_dissect_mt_clv(const u_char *pd, int offset, 
+		guint length, frame_data *fd, proto_tree *tree, gint tree_id );
 extern void isis_dissect_te_router_id_clv(const u_char *pd, int offset, 
 		guint length, frame_data *fd, proto_tree *tree, gint tree_id );
 #endif /* _PACKET_ISIS_CLV_H */

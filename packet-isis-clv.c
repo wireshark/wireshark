@@ -1,13 +1,12 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.12 2001/06/05 21:23:32 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.13 2001/06/23 19:45:12 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -228,6 +227,58 @@ isis_dissect_hostname_clv(const u_char *pd, int offset,
 
 
 
+
+void 
+isis_dissect_mt_clv(const u_char *pd, int offset, 
+		guint length, frame_data *fd, proto_tree *tree, gint tree_id ) {
+	
+  int  mt_block;
+  char mt_desc[60];
+
+	while (length>1) {
+	  /* length can only be a multiple of 2, otherwise there is 
+	     something broken -> so decode down until length is 1 */
+	  if (length!=1)
+	    {
+	      /* fetch two bytes */
+	      mt_block=(*(pd+offset)<<8)+(*(pd+offset+1));
+
+	      /* mask out the lower 12 bits */
+	      switch(mt_block&0x0fff) {
+	        case 0:
+		  strcpy(mt_desc,"IPv4 unicast");
+		  break;
+	        case 1:
+		  strcpy(mt_desc,"In-Band Management");
+		  break;
+	        case 2:
+		  strcpy(mt_desc,"IPv6 unicast");
+		  break;
+	        case 3:
+		  strcpy(mt_desc,"Multicast");
+		  break;
+	        case 4095:
+		  strcpy(mt_desc,"Development, Experimental or Proprietary");
+		  break;
+	        default:
+		  strcpy(mt_desc,"Reserved for IETF Consensus");
+	      }
+	        proto_tree_add_text ( tree, NullTVB, offset, 2 ,
+                        "%s Topology (0x%x)%s%s",
+				      mt_desc,
+				      mt_block&0xfff,
+				      (mt_block&0x8000) ? "" : ", no sub-TLVs present",
+				      (mt_block&0x4000) ? ", ATT bit set" : "" );
+	    }
+	  else {
+	    proto_tree_add_text ( tree, NullTVB, offset, 1 ,
+                        "malformed MT-ID");
+	    break;
+	  }
+	  length=length-2;
+	  offset=offset+2;
+	}
+}
 
 
 /*

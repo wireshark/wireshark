@@ -1,13 +1,12 @@
 /* packet-isis-hello.h
  * Declares for hello handling inside isis.
  *
- * $Id: packet-isis-hello.h,v 1.3 2001/05/14 18:40:15 guy Exp $
+ * $Id: packet-isis-hello.h,v 1.4 2001/06/23 19:45:12 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -45,12 +44,14 @@
 /*
  * detail clv information on l1 hello packets
  */
-#define ISIS_CLV_L1H_AREA_ADDRESS	1
-#define ISIS_CLV_L1H_IS_NEIGHBORS	6
-#define ISIS_CLV_L1H_PADDING		8
-#define ISIS_CLV_L1H_NLPID		129
-#define ISIS_CLV_L1H_IP_INTERFACE_ADDR	132
+#define ISIS_CLV_L1H_AREA_ADDRESS	 1
+#define ISIS_CLV_L1H_IS_NEIGHBORS	 6
+#define ISIS_CLV_L1H_PADDING		 8
+#define ISIS_CLV_L1H_NLPID		 129
+#define ISIS_CLV_L1H_IP_INTERFACE_ADDR	 132
+#define ISIS_CLV_L1H_MT                  229
 #define ISIS_CLV_L1H_IPv6_INTERFACE_ADDR 232
+
 /*
  * Note, the spec say 133, but everyone seems to use 10. Any clue on why
  * this is would be appreciated!
@@ -61,11 +62,12 @@
 /*
  * detail clv information on l2 hello packets
  */
-#define ISIS_CLV_L2H_AREA_ADDRESS	1
-#define ISIS_CLV_L2H_IS_NEIGHBORS	6
-#define ISIS_CLV_L2H_PADDING		8
-#define ISIS_CLV_L2H_NLPID		129
-#define ISIS_CLV_L2H_IP_INTERFACE_ADDR	132
+#define ISIS_CLV_L2H_AREA_ADDRESS	 1
+#define ISIS_CLV_L2H_IS_NEIGHBORS	 6
+#define ISIS_CLV_L2H_PADDING		 8
+#define ISIS_CLV_L2H_NLPID		 129
+#define ISIS_CLV_L2H_IP_INTERFACE_ADDR	 132
+#define ISIS_CLV_L2H_MT                  229
 #define ISIS_CLV_L2H_IPv6_INTERFACE_ADDR 232
 /*
  * Note, the spec say 133, but everyone seems to use 10. Any clue on why
@@ -77,11 +79,13 @@
 /*
  * detail clv information on PTP hello packets
  */
-#define ISIS_CLV_PTP_AREA_ADDRESS	1
-#define ISIS_CLV_PTP_PADDING		8
-#define ISIS_CLV_PTP_NLPID		129
-#define ISIS_CLV_PTP_IP_INTERFACE_ADDR	132
+#define ISIS_CLV_PTP_AREA_ADDRESS	 1
+#define ISIS_CLV_PTP_PADDING		 8
+#define ISIS_CLV_PTP_NLPID		 129
+#define ISIS_CLV_PTP_IP_INTERFACE_ADDR	 132
+#define ISIS_CLV_PTP_MT                  229
 #define ISIS_CLV_PTP_IPv6_INTERFACE_ADDR 232
+#define ISIS_CLV_PTP_ADJ                 240
 /*
  * Note, the spec say 133, but everyone seems to use 10. Any clue on why
  * this is would be appreciated!

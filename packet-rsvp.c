@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.44 2001/06/18 02:17:51 guy Exp $
+ * $Id: packet-rsvp.c,v 1.45 2001/06/23 19:45:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,6 +96,7 @@ static gint ett_rsvp_label = -1;
 static gint ett_rsvp_label_request = -1;
 static gint ett_rsvp_session_attribute = -1;
 static gint ett_rsvp_session_attribute_flags = -1;
+static gint ett_rsvp_hello_obj = -1;
 static gint ett_rsvp_explicit_route = -1;
 static gint ett_rsvp_explicit_route_subobj = -1;
 static gint ett_rsvp_record_route = -1;
@@ -117,7 +118,8 @@ typedef enum {
     RSVP_MSG_RTEAR_CONFIRM=10,
     RSVP_MSG_BUNDLE = 12,
     RSVP_MSG_ACK,
-    RSVP_MSG_SREFRESH = 15
+    RSVP_MSG_SREFRESH = 15,
+    RSVP_MSG_HELLO = 20
 } rsvp_message_types;
 
 static value_string message_type_vals[] = { 
@@ -132,6 +134,7 @@ static value_string message_type_vals[] = {
     {RSVP_MSG_BUNDLE, "BUNDLE Message"},
     {RSVP_MSG_ACK, "ACK Message"},
     {RSVP_MSG_SREFRESH, "SREFRESH Message"},
+    {RSVP_MSG_HELLO, "HELLO Message"},
     {0, NULL}
 };
 
@@ -168,6 +171,7 @@ enum rsvp_classes {
     RSVP_CLASS_MESSAGE_ID_LIST,
 
     RSVP_CLASS_SESSION_ATTRIBUTE=207,
+    RSVP_CLASS_HELLO = 22
 };
 
 static value_string rsvp_class_vals[] = { 
@@ -194,6 +198,7 @@ static value_string rsvp_class_vals[] = {
     {RSVP_CLASS_MESSAGE_ID, "MESSAGE-ID object"},
     {RSVP_CLASS_MESSAGE_ID_ACK, "MESSAGE-ID ACK/NACK object"},
     {RSVP_CLASS_MESSAGE_ID_LIST, "MESSAGE-ID LIST object"},
+    {RSVP_CLASS_HELLO, "HELLO object"},
     {0, NULL}
 };
 
@@ -367,7 +372,7 @@ enum rsvp_filter_keys {
     RSVPF_ACK,
     RSVPF_JUNK14,
     RSVPF_SREFRESH,
-
+    RSVPF_HELLO,
     /* Does the message contain an object of this type? */
     RSVPF_OBJECT,
     /* Object present shorthands */
@@ -396,7 +401,7 @@ enum rsvp_filter_keys {
     RSVPF_MESSAGE_ID,
     RSVPF_MESSAGE_ID_ACK,
     RSVPF_MESSAGE_ID_LIST,
-
+    RSVPF_HELLO_OBJ,
     RSVPF_SESSION_ATTRIBUTE,
     RSVPF_UNKNOWN_OBJ, 
 
@@ -429,6 +434,10 @@ static hf_register_info rsvpf_info[] = {
     {&rsvp_filter[RSVPF_PATH], 
      { "Path Message", "rsvp.path", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
+
+    {&rsvp_filter[RSVPF_HELLO], 
+     { "HELLO Message", "rsvp.hello", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+     	"" }},
 
     {&rsvp_filter[RSVPF_RESV], 
      { "Resv Message", "rsvp.resv", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -471,6 +480,10 @@ static hf_register_info rsvpf_info[] = {
     {&rsvp_filter[RSVPF_HOP], 
      { "HOP", "rsvp.hop", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
+
+    {&rsvp_filter[RSVPF_HELLO_OBJ], 
+     { "HELLO Request/Ack", "rsvp.hello_obj", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"" }},
 
     {&rsvp_filter[RSVPF_INTEGRITY], 
      { "INTEGRITY", "rsvp.integrity", FT_NONE, BASE_NONE, NULL, 0x0,
@@ -552,6 +565,10 @@ static hf_register_info rsvpf_info[] = {
      { "MESSAGE-ID LIST", "rsvp.msgid_list", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
+    {&rsvp_filter[RSVPF_HELLO_OBJ], 
+     { "HELLO Message", "rsvp.hello", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"" }},
+
     {&rsvp_filter[RSVPF_UNKNOWN_OBJ], 
      { "Unknown object", "rsvp.obj_unknown", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
@@ -614,9 +631,12 @@ static inline int rsvp_class_to_filter_num(int classnum)
     case RSVP_CLASS_RECORD_ROUTE :
     case RSVP_CLASS_MESSAGE_ID :
     case RSVP_CLASS_MESSAGE_ID_ACK :
-    case RSVP_CLASS_MESSAGE_ID_LIST :
+    case RSVP_CLASS_MESSAGE_ID_LIST :    
 	return classnum + RSVPF_OBJECT;
 	break;
+    case RSVP_CLASS_HELLO :
+        return RSVPF_HELLO_OBJ;
+        break;
 
     case RSVP_CLASS_SESSION_ATTRIBUTE :
 	return RSVPF_SESSION_ATTRIBUTE;
@@ -1957,6 +1977,32 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
                 break;
 
+	    case RSVP_CLASS_HELLO:
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_hello_obj);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+				    "Length: %u", obj_length);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+				    "Class number: %u - %s", 
+				    class, object_type);        
+		switch(type) {
+		    case 1:
+		      proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-Type: 1 - HELLO REQUEST object");
+		      break;
+		    case 2:
+		      proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-Type: 2 - HELLO ACK object");
+		      break;
+		};
+
+		proto_tree_add_text(rsvp_object_tree, tvb, offset+4, 4,
+				    "Source Instance: 0x%x",tvb_get_ntohl(tvb, offset+4));
+   
+		proto_tree_add_text(rsvp_object_tree, tvb, offset+8, 4,
+				    "Destination Instance: 0x%x",tvb_get_ntohl(tvb, offset+8));
+   
+		break;
+
 	    default :
 		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_unknown_class);
 		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
@@ -2010,6 +2056,7 @@ proto_register_rsvp(void)
 		&ett_rsvp_explicit_route_subobj,
 		&ett_rsvp_record_route,
 		&ett_rsvp_record_route_subobj,
+		&ett_rsvp_hello_obj,
 		&ett_rsvp_unknown_class,
 	};
 
