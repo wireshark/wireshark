@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.9 1999/10/17 08:33:23 deniel Exp $
+ * $Id: packet-ipsec.c,v 1.10 1999/11/16 11:42:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,6 +50,10 @@ static int hf_esp_sequence = -1;
 static int proto_ipcomp = -1;
 static int hf_ipcomp_flags = -1;
 static int hf_ipcomp_cpi = -1;
+
+static gint ett_ah = -1;
+static gint ett_esp = -1;
+static gint ett_ipcomp = -1;
 
 struct newah {
 	guint8	ah_nxt;		/* Next Header */
@@ -115,7 +119,7 @@ dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     if (tree) {
 	/* !!! specify length */
 	ti = proto_tree_add_item(tree, proto_ah, offset, advance, NULL);
-	ah_tree = proto_item_add_subtree(ti, ETT_AH);
+	ah_tree = proto_item_add_subtree(ti, ett_ah);
 
 	proto_tree_add_text(ah_tree, offset + offsetof(struct newah, ah_nxt), 1,
 	    "Next Header: %s (0x%02x)", ipprotostr(ah.ah_nxt), ah.ah_nxt);
@@ -161,7 +165,7 @@ dissect_esp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
      */
     if(tree) {
 	ti = proto_tree_add_item(tree, proto_esp, offset, END_OF_FRAME, NULL);
-	esp_tree = proto_item_add_subtree(ti, ETT_ESP);
+	esp_tree = proto_item_add_subtree(ti, ett_esp);
 	proto_tree_add_item(esp_tree, hf_esp_spi, 
 			    offset + offsetof(struct newesp, esp_spi), 4,
 			    (guint32)ntohl(esp.esp_spi));
@@ -204,7 +208,7 @@ dissect_ipcomp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_ipcomp, offset, END_OF_FRAME,
 	    NULL);
-	ipcomp_tree = proto_item_add_subtree(ti, ETT_IPCOMP);
+	ipcomp_tree = proto_item_add_subtree(ti, ett_ipcomp);
 
 	proto_tree_add_text(ipcomp_tree,
 	    offset + offsetof(struct ipcomp, comp_nxt), 1,
@@ -259,6 +263,11 @@ proto_register_ipsec(void)
       { "CPI",		"ipcomp.cpi",	FT_UINT16,	BASE_HEX, NULL, 0x0,
       	"" }},
   };
+  static gint *ett[] = {
+    &ett_ah,
+    &ett_esp,
+    &ett_ipcomp,
+  };
 
   proto_ah = proto_register_protocol("Authentication Header", "ah");
   proto_register_field_array(proto_ah, hf_ah, array_length(hf_ah));
@@ -268,4 +277,6 @@ proto_register_ipsec(void)
 
   proto_ipcomp = proto_register_protocol("IP Payload Compression", "ipcomp");
   proto_register_field_array(proto_ipcomp, hf_ipcomp, array_length(hf_ipcomp));
+
+  proto_register_subtree_array(ett, array_length(ett));
 }

@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.9 1999/11/14 10:16:25 deniel Exp $
+ * $Id: packet-pop.c,v 1.10 1999/11/16 11:42:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -47,6 +47,8 @@ static int proto_pop = -1;
 static int hf_pop_response = -1;
 static int hf_pop_request = -1;
 
+static gint ett_pop = -1;
+
 void
 dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
@@ -88,7 +90,7 @@ dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (tree) {
 
 	  ti = proto_tree_add_item(tree, proto_pop, offset, END_OF_FRAME, NULL);
-	  pop_tree = proto_item_add_subtree(ti, ETT_POP);
+	  pop_tree = proto_item_add_subtree(ti, ett_pop);
 
 	  if (pi.match_port == pi.destport) { /* Request */
 	    proto_tree_add_item_hidden(pop_tree, hf_pop_request, offset, i1, TRUE);
@@ -122,7 +124,11 @@ proto_register_pop(void)
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       	"TRUE if POP request" }}
   };
+  static gint *ett[] = {
+    &ett_pop,
+  };
 
   proto_pop = proto_register_protocol("Post Office Protocol", "pop");
   proto_register_field_array(proto_pop, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 }

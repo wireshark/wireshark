@@ -1,8 +1,8 @@
 /* packet-icp.c
- * Routines for ICP (internet cache protocol) packet disassembly RFC 2186 && RFC 2187
- * 
+ * Routines for ICP (internet cache protocol) packet disassembly
+ * RFC 2186 && RFC 2187
  *
- * $Id: packet-icp.c,v 1.2 1999/10/12 06:20:07 gram Exp $
+ * $Id: packet-icp.c,v 1.3 1999/11/16 11:42:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Peter Torvals
@@ -23,13 +23,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-int proto_icp=-1;
-int hf_icp_length=-1;
-int hf_icp_opcode=-1;
-int hf_icp_version=-1;
-int hf_icp_request_nr=-1;
-
-
 #define MAX_TEXTBUF_LENGTH 600
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -48,6 +41,15 @@ int hf_icp_request_nr=-1;
 #include <glib.h>
 #include "packet.h"
 #include "resolv.h"
+
+static int proto_icp=-1;
+static int hf_icp_length=-1;
+static int hf_icp_opcode=-1;
+static int hf_icp_version=-1;
+static int hf_icp_request_nr=-1;
+
+static gint ett_icp = -1;
+static gint ett_icp_payload = -1;
 
 #define CODE_ICP_OP_QUERY 1
 #define CODE_ICP_OP_INVALID 0
@@ -206,7 +208,7 @@ void dissect_icp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         ti = proto_tree_add_item(tree,proto_icp ,offset,fd->pkt_len-offset,
 			NULL);
 
-        icp_tree = proto_item_add_subtree(ti, ETT_ICP);
+        icp_tree = proto_item_add_subtree(ti, ett_icp);
         proto_tree_add_item_format(icp_tree,hf_icp_opcode, offset,      1,
                icph.opcode, "Opcode:0x%01x (%s)",icph.opcode, opcodestrval);
 
@@ -246,7 +248,7 @@ void dissect_icp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         payloadtf = proto_tree_add_text(icp_tree,
                         offset+20,icph.message_length - 20,
                         "Payload");
-        payload_tree = proto_item_add_subtree(payloadtf, ETT_ICP_PAYLOAD);
+        payload_tree = proto_item_add_subtree(payloadtf, ett_icp_payload);
 
         if (payload_tree !=NULL)
         {
@@ -275,7 +277,12 @@ proto_register_icp(void)
 		{ "Request Number","icp.nr", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"" }},
 	};
+	static gint *ett[] = {
+		&ett_icp,
+		&ett_icp_payload,
+	};
 
 	proto_icp = proto_register_protocol ("Internet Cache protocol", "icp");
 	proto_register_field_array(proto_icp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.9 1999/10/22 08:51:04 guy Exp $
+ * $Id: packet-vines.c,v 1.10 1999/11/16 11:43:02 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -40,6 +40,9 @@
 #include "packet.h"
 #include "packet-vines.h"
 
+static gint ett_vines = -1;
+static gint ett_vines_frp = -1;
+static gint ett_vines_spp = -1;
 
 /* AFAIK Vines FRP (Fragmentation Protocol) is used on all media except Ethernet
  * and TR (and probably FDDI) - Fragmentation on these media types is not possible
@@ -85,7 +88,7 @@ dissect_vines_frp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   
   if (tree) {
     ti = proto_tree_add_text(tree, offset, 2, "Vines Fragmentation Protocol");
-    vines_frp_tree = proto_item_add_subtree(ti, ETT_VINES_FRP);
+    vines_frp_tree = proto_item_add_subtree(ti, ett_vines_frp);
     proto_tree_add_text(vines_frp_tree, offset,     1, "Control Flags: 0x%02x = %s fragment", vines_frp_ctrl, frp_flags_str);
     proto_tree_add_text(vines_frp_tree, offset + 1, 1, "Sequence Number: 0x%02x", vines_frp_seqno);
   }
@@ -213,7 +216,7 @@ dissect_vines(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   	if (tree) 
   		{
     	ti = proto_tree_add_text(tree, offset, (viph.vip_pktlen), "Vines IP");
-    	vip_tree = proto_item_add_subtree(ti, ETT_VINES);
+    	vip_tree = proto_item_add_subtree(ti, ett_vines);
     	proto_tree_add_text(vip_tree, offset,      2, "Packet checksum: 0x%04x", viph.vip_chksum);
     	proto_tree_add_text(vip_tree, offset +  2, 2, "Packet length: 0x%04x (%d)", viph.vip_pktlen, viph.vip_pktlen); 
     	proto_tree_add_text(vip_tree, offset +  4, 1, "Transport control: 0x%02x",
@@ -300,7 +303,7 @@ void dissect_vines_spp(const u_char *pd, int offset, frame_data *fd, proto_tree 
   	if (tree) 
   		{
     	ti = proto_tree_add_text(tree, offset, sizeof(viph), "Vines SPP");
-    	vspp_tree = proto_item_add_subtree(ti, ETT_VINES_SPP);
+    	vspp_tree = proto_item_add_subtree(ti, ett_vines_spp);
     	proto_tree_add_text(vspp_tree, offset,      2, "Source port: 0x%04x", viph.vspp_sport);
     	proto_tree_add_text(vspp_tree, offset+2,    2, "Destination port: 0x%04x", viph.vspp_dport); 
     	proto_tree_add_text(vspp_tree, offset+4,    1, "Packet type: 0x%02x", viph.vspp_pkttype);
@@ -310,6 +313,17 @@ void dissect_vines_spp(const u_char *pd, int offset, frame_data *fd, proto_tree 
     	proto_tree_add_text(vspp_tree, offset+10,   2, "Sequence number: 0x%04x", viph.vspp_seqno);
     	proto_tree_add_text(vspp_tree, offset+12,   2, "Ack number: 0x%04x", viph.vspp_ack);
     	proto_tree_add_text(vspp_tree, offset+14,   2, "Window: 0x%04x", viph.vspp_win);
-  		}
-
+		}
 	}
+
+void
+proto_register_vines(void)
+{
+	static gint *ett[] = {
+		&ett_vines,
+		&ett_vines_frp,
+		&ett_vines_spp,
+	};
+
+	proto_register_subtree_array(ett, array_length(ett));
+}

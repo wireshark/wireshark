@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-rtsp.c,v 1.3 1999/07/29 05:47:03 gram Exp $
+ * $Id: packet-rtsp.c,v 1.4 1999/11/16 11:42:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,8 @@
 #include "packet.h"
 
 static int proto_rtsp = -1;
+
+static gint ett_rtsp = -1;
 
 static int is_rtsp_request_or_reply(const u_char *data, int linelen);
 
@@ -107,7 +109,7 @@ void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_rtsp, offset, END_OF_FRAME, NULL);
-		rtsp_tree = proto_item_add_subtree(ti, ETT_RTSP);
+		rtsp_tree = proto_item_add_subtree(ti, ett_rtsp);
 	}
 
 	while (data < dataend) {
@@ -247,7 +249,11 @@ proto_register_rtsp(void)
                 { &variable,
                 { "Name",           "rtsp.abbreviation", TYPE, VALS_POINTER }},
         };*/
+	static gint *ett[] = {
+		&ett_rtsp,
+	};
 
         proto_rtsp = proto_register_protocol("Real Time Streaming Protocol", "rtsp");
  /*       proto_register_field_array(proto_rtsp, hf, array_length(hf));*/
+	proto_register_subtree_array(ett, array_length(ett));
 }

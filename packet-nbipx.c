@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-nbipx.c,v 1.14 1999/09/03 03:22:19 guy Exp $
+ * $Id: packet-nbipx.c,v 1.15 1999/11/16 11:42:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,9 @@
 #include "packet-netbios.h"
 
 static int proto_nbipx = -1;
+
+static gint ett_nbipx = -1;
+static gint ett_nbipx_name_type_flags = -1;
 
 enum nbipx_protocol {
 	NETBIOS_NETWARE,
@@ -184,14 +187,14 @@ dissect_nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nbipx, offset, 50, NULL);
-		nbipx_tree = proto_item_add_subtree(ti, ETT_NBIPX);
+		nbipx_tree = proto_item_add_subtree(ti, ett_nbipx);
 
 		add_routers(nbipx_tree, pd, offset);
 
 		tf = proto_tree_add_text(nbipx_tree, offset+32, 1,
 			"Name type flag: 0x%02x", name_type_flag);
 		name_type_flag_tree = proto_item_add_subtree(tf,
-				ETT_NBIPX_NAME_TYPE_FLAGS);
+				ett_nbipx_name_type_flags);
 		proto_tree_add_text(name_type_flag_tree, offset+32,
 		    1, "%s",
 		    decode_boolean_bitfield(name_type_flag, 0x80, 8,
@@ -236,7 +239,7 @@ dissect_nbipx_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nbipx, offset,
 		    2+16+16, NULL);
-		nbipx_tree = proto_item_add_subtree(ti, ETT_NBIPX);
+		nbipx_tree = proto_item_add_subtree(ti, ett_nbipx);
 
 		proto_tree_add_text(nbipx_tree, offset, 1,
 		    "Connection control: 0x%02x", pd[offset]);
@@ -322,7 +325,7 @@ dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nbipx, offset, 68, NULL);
-		nbipx_tree = proto_item_add_subtree(ti, ETT_NBIPX);
+		nbipx_tree = proto_item_add_subtree(ti, ett_nbipx);
 
 		add_routers(nbipx_tree, pd, offset);
 
@@ -336,7 +339,7 @@ dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 				"Name type flag: 0x%02x",
 				name_type_flag);
 			name_type_flag_tree = proto_item_add_subtree(tf,
-					ETT_NBIPX_NAME_TYPE_FLAGS);
+					ett_nbipx_name_type_flags);
 			proto_tree_add_text(name_type_flag_tree, offset+32,
 			    1, "%s",
 			    decode_boolean_bitfield(name_type_flag, 0x80, 8,
@@ -401,7 +404,12 @@ proto_register_nbipx(void)
                 { &variable,
                 { "Name",           "nbipx.abbreviation", TYPE, VALS_POINTER }},
         };*/
+	static gint *ett[] = {
+		&ett_nbipx,
+		&ett_nbipx_name_type_flags,
+	};
 
         proto_nbipx = proto_register_protocol("NetBIOS over IPX", "nbipx");
  /*       proto_register_field_array(proto_nbipx, hf, array_length(hf));*/
+	proto_register_subtree_array(ett, array_length(ett));
 }

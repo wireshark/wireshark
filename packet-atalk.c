@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.21 1999/11/04 07:06:50 guy Exp $
+ * $Id: packet-atalk.c,v 1.22 1999/11/16 11:42:25 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -48,6 +48,8 @@ static int hf_ddp_src_node = -1;
 static int hf_ddp_dst_socket = -1;
 static int hf_ddp_src_socket = -1;
 static int hf_ddp_type = -1;
+
+static gint ett_ddp = -1;
 
 /* P = Padding, H = Hops, L = Len */
 #if BYTE_ORDER == BIG_ENDIAN
@@ -141,7 +143,7 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   
   if (tree) {
     ti = proto_tree_add_item(tree, proto_ddp, offset, DDP_HEADER_SIZE, NULL);
-    ddp_tree = proto_item_add_subtree(ti, ETT_DDP);
+    ddp_tree = proto_item_add_subtree(ti, ett_ddp);
     proto_tree_add_item(ddp_tree, hf_ddp_hopcount, offset,      1, 
 			ddp_hops(ddp.hops_len));
     proto_tree_add_item(ddp_tree, hf_ddp_len, offset,	    2, 
@@ -205,7 +207,11 @@ proto_register_atalk(void)
       { "Protocol type",       	"ddp.type",	FT_UINT8,  BASE_DEC, VALS(op_vals), 0x0,
       	"" }},
   };
+  static gint *ett[] = {
+    &ett_ddp,
+  };
 
   proto_ddp = proto_register_protocol("Datagram Delivery Protocol", "ddp");
   proto_register_field_array(proto_ddp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 }

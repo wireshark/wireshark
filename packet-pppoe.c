@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-pppoe.c,v 1.3 1999/08/24 17:26:13 gram Exp $
+ * $Id: packet-pppoe.c,v 1.4 1999/11/16 11:42:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,9 @@
 
 #include <glib.h>
 #include "packet.h"
+
+static gint ett_pppoed = -1;
+static gint ett_pppoed_tags = -1;
 
 /* For lack of a better source, I made up the following defines. -jsj */
 
@@ -101,7 +104,7 @@ dissect_pppoe_tags(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 
 	if (tree) {
 		ti = proto_tree_add_text(tree,offset,payload_length,"PPPoE Tags");
-		pppoe_tree = proto_item_add_subtree(ti, ETT_PPPOED_TAGS);
+		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed_tags);
 
 		tagstart = offset;
 		while(tagstart <= payload_length-2 ) {
@@ -167,7 +170,7 @@ dissect_pppoed(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	if (tree) {
 		ti = proto_tree_add_text(tree,offset,pppoe_length+6,"PPPoE Discovery");
-		pppoe_tree = proto_item_add_subtree(ti, ETT_PPPOED);
+		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed);
 		proto_tree_add_text(pppoe_tree,offset,1,
 			"Version: %d", pppoe_ver);
 		proto_tree_add_text(pppoe_tree,offset,1,
@@ -211,7 +214,7 @@ dissect_pppoes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	if (tree) {
 		ti = proto_tree_add_text(tree,offset,pppoe_length+6,"PPPoE Session");
-		pppoe_tree = proto_item_add_subtree(ti, ETT_PPPOED);
+		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed);
 		proto_tree_add_text(pppoe_tree,offset,1,
 			"Version: %d", pppoe_ver);
 		proto_tree_add_text(pppoe_tree,offset,1,
@@ -231,3 +234,15 @@ dissect_pppoes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	dissect_payload_ppp(pd,offset+6,fd,tree);
 }
+
+void
+proto_register_pppoed(void)
+{
+	static gint *ett[] = {
+		&ett_pppoed,
+		&ett_pppoed_tags,
+	};
+
+	proto_register_subtree_array(ett, array_length(ett));
+}
+

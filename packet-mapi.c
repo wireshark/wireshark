@@ -1,7 +1,7 @@
 /* packet-mapi.c
  * Routines for MSX mapi packet dissection
  *
- * $Id: packet-mapi.c,v 1.1 1999/11/11 23:13:42 nneul Exp $
+ * $Id: packet-mapi.c,v 1.2 1999/11/16 11:42:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -44,6 +44,8 @@
 
 static int proto_mapi = -1;
 
+static gint ett_mapi = -1;
+
 void
 dissect_mapi(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
@@ -61,7 +63,7 @@ dissect_mapi(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (tree) 
 	{
 		ti = proto_tree_add_item(tree, proto_mapi, offset, END_OF_FRAME, NULL);
-		mapi_tree = proto_item_add_subtree(ti, ETT_MAPI);
+		mapi_tree = proto_item_add_subtree(ti, ett_mapi);
 
 		if (pi.match_port == pi.destport)
 		{
@@ -79,5 +81,9 @@ dissect_mapi(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_mapi(void)
 {
+	static gint *ett[] = {
+		&ett_mapi,
+	};
 	proto_mapi = proto_register_protocol("MAPI", "mapi");
+	proto_register_subtree_array(ett, array_length(ett));
 }

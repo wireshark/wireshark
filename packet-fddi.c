@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.24 1999/10/22 07:17:31 guy Exp $
+ * $Id: packet-fddi.c,v 1.25 1999/11/16 11:42:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,8 @@ static int proto_fddi = -1;
 static int hf_fddi_fc = -1;
 static int hf_fddi_dst = -1;
 static int hf_fddi_src = -1;
+
+static gint ett_fddi = -1;
 
 /* FDDI Frame Control values */
 
@@ -296,7 +298,7 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
       swap_mac_addr(dst_swapped, (u_char*)&pd[FDDI_P_DHOST]);
       swap_mac_addr(src_swapped, (u_char*)&pd[FDDI_P_SHOST]);
 
-      fh_tree = proto_item_add_subtree(ti, ETT_FDDI);
+      fh_tree = proto_item_add_subtree(ti, ett_fddi);
       proto_tree_add_item(fh_tree, hf_fddi_fc, FDDI_P_FC, 1, fc);
       proto_tree_add_item(fh_tree, hf_fddi_dst, FDDI_P_DHOST, 6, dst);
       proto_tree_add_item(fh_tree, hf_fddi_src, FDDI_P_SHOST, 6, src);
@@ -358,7 +360,11 @@ proto_register_fddi(void)
 		{ "Source",		"fddi.src", FT_ETHER, BASE_NONE, NULL, 0x0,
 			"" }},
 	};
+	static gint *ett[] = {
+		&ett_fddi,
+	};
 
 	proto_fddi = proto_register_protocol ("Fiber Distributed Data Interface", "fddi" );
 	proto_register_field_array(proto_fddi, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

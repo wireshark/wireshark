@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.5 1999/10/16 09:31:47 deniel Exp $
+ * $Id: packet-bpdu.c,v 1.6 1999/11/16 11:42:27 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -73,6 +73,8 @@ static int hf_bpdu_max_age = -1;
 static int hf_bpdu_hello_time = -1;
 static int hf_bpdu_forward_delay = -1;
 
+static gint ett_bpdu = -1;
+
 void dissect_bpdu(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       guint16 protocol_identifier;
       guint8  protocol_version_identifier;
@@ -120,7 +122,7 @@ void dissect_bpdu(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	    protocol_version_identifier = (guint8) bpdu[BPDU_VERSION_IDENTIFIER];
 
 	    ti = proto_tree_add_item_format(tree, proto_bpdu, offset, 35, NULL, "Spanning Tree Protocol");
-	    bpdu_tree = proto_item_add_subtree(ti, ETT_BPDU);
+	    bpdu_tree = proto_item_add_subtree(ti, ett_bpdu);
 	    proto_tree_add_item_format(bpdu_tree, hf_bpdu_proto_id,
 				       offset + BPDU_IDENTIFIER, 2, 
 				       protocol_identifier,
@@ -252,8 +254,11 @@ proto_register_bpdu(void)
 	FT_DOUBLE,	BASE_NONE,	NULL,	0x0,
       	"" }},
   };
+  static gint *ett[] = {
+    &ett_bpdu,
+  };
 
   proto_bpdu = proto_register_protocol("Spanning Tree Protocol", "stp");
   proto_register_field_array(proto_bpdu, hf, array_length(hf));
-
+  proto_register_subtree_array(ett, array_length(ett));
 }

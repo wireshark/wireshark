@@ -1,7 +1,7 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.5 1999/11/15 17:16:50 nneul Exp $
+ * $Id: packet-bootparams.c,v 1.6 1999/11/16 11:42:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -49,6 +49,8 @@ static int hf_bootparams_fileid = -1;
 static int hf_bootparams_filepath = -1;
 static int hf_bootparams_hostaddr = -1;
 static int hf_bootparams_routeraddr = -1;
+
+static gint ett_bootparams = -1;
 
 int dissect_bp_address(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree, int hfindex)
@@ -172,12 +174,16 @@ proto_register_bootparams(void)
 			"Router Address", "bootparams.routeraddr", FT_IPv4, BASE_DEC,
 			NULL, 0, "Router Address" }},
 	};
+	static gint *ett[] = {
+		&ett_bootparams,
+	};
 
 	proto_bootparams = proto_register_protocol("Boot Parameters", "bootparams");
 	proto_register_field_array(proto_bootparams, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_bootparams, BOOTPARAMS_PROGRAM, ETT_BOOTPARAMS);
+	rpc_init_prog(proto_bootparams, BOOTPARAMS_PROGRAM, ett_bootparams);
 	/* Register the procedure tables */
 	rpc_init_proc_table(BOOTPARAMS_PROGRAM, 1, bootparams1_proc);
 }

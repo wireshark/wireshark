@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.4 1999/11/15 22:52:03 gram Exp $
+ * $Id: proto_draw.c,v 1.5 1999/11/16 11:44:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -121,7 +121,7 @@ packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen) {
 
 void expand_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view) {
   int i;
-  for(i=0; i < NUM_TREE_TYPES; i++) {
+  for(i=0; i < num_tree_types; i++) {
     tree_is_expanded[i] = TRUE;
   }
   gtk_tree_clear_items(GTK_TREE(tree_view), 0, -1);
@@ -130,7 +130,7 @@ void expand_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view) {
 
 void collapse_all_tree(proto_tree *protocol_tree, GtkWidget *tree_view) {
   int i;
-  for(i=0; i < NUM_TREE_TYPES; i++) {
+  for(i=0; i < num_tree_types; i++) {
     tree_is_expanded[i] = FALSE;
   }
   gtk_tree_clear_items(GTK_TREE(tree_view), 0, -1);

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.43 1999/11/15 14:17:20 nneul Exp $
+ * $Id: packet-tcp.c,v 1.44 1999/11/16 11:42:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,6 +77,11 @@ static int hf_tcp_flags_fin = -1;
 static int hf_tcp_window_size = -1;
 static int hf_tcp_checksum = -1;
 static int hf_tcp_urgent_pointer = -1;
+
+static gint ett_tcp = -1;
+static gint ett_tcp_flags = -1;
+static gint ett_tcp_options = -1;
+static gint ett_tcp_option_sack = -1;
 
 /* TCP Ports */
 
@@ -194,7 +199,7 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, const u_char *opd,
   while (optlen > 0) {
     if (field_tree == NULL) {
       /* Haven't yet made a subtree out of this option.  Do so. */
-      field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+      field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
     }
     if (optlen < 4) {
       proto_tree_add_text(field_tree, offset,      optlen,
@@ -254,7 +259,7 @@ static const ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_EOL,
     "EOL",
-    -1,
+    NULL,
     NO_LENGTH,
     0,
     NULL,
@@ -262,7 +267,7 @@ static const ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_NOP,
     "NOP",
-    -1,
+    NULL,
     NO_LENGTH,
     0,
     NULL,
@@ -270,7 +275,7 @@ static const ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_MSS,
     "Maximum segment size",
-    -1,
+    NULL,
     FIXED_LENGTH,
     TCPOLEN_MSS,
     dissect_tcpopt_maxseg
@@ -278,7 +283,7 @@ static const ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_WINDOW,
     "Window scale",
-    -1,
+    NULL,
     FIXED_LENGTH,
     TCPOLEN_WINDOW,
     dissect_tcpopt_wscale
@@ -286,7 +291,7 @@ static const ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_SACK_PERM,
     "SACK permitted",
-    -1,
+    NULL,
     FIXED_LENGTH,
     TCPOLEN_SACK_PERM,
     NULL,
@@ -294,7 +299,7 @@ static const ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_SACK,
     "SACK",
-    ETT_TCP_OPTION_SACK,
+    &ett_tcp_option_sack,
     VARIABLE_LENGTH,
     TCPOLEN_SACK_MIN,
     dissect_tcpopt_sack
@@ -302,7 +307,7 @@ static const ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_ECHO,
     "Echo",
-    -1,
+    NULL,
     FIXED_LENGTH,
     TCPOLEN_ECHO,
     dissect_tcpopt_echo
@@ -310,7 +315,7 @@ static const ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_ECHOREPLY,
     "Echo reply",
-    -1,
+    NULL,
     FIXED_LENGTH,
     TCPOLEN_ECHOREPLY,
     dissect_tcpopt_echo
@@ -318,7 +323,7 @@ static const ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_TIMESTAMP,
     "Time stamp",
-    -1,
+    NULL,
     FIXED_LENGTH,
     TCPOLEN_TIMESTAMP,
     dissect_tcpopt_timestamp
@@ -326,7 +331,7 @@ static const ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_CC,
     "CC",
-    -1,
+    NULL,
     FIXED_LENGTH,
     TCPOLEN_CC,
     dissect_tcpopt_cc
@@ -334,7 +339,7 @@ static const ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_CCNEW,
     "CC.NEW",
-    -1,
+    NULL,
     FIXED_LENGTH,
     TCPOPT_CCNEW,
     dissect_tcpopt_cc
@@ -342,7 +347,7 @@ static const ip_tcp_opt tcpopts[] = {
   {
     TCPOPT_CCECHO,
     "CC.ECHO",
-    -1,
+    NULL,
     FIXED_LENGTH,
     TCPOLEN_CCECHO,
     dissect_tcpopt_cc
@@ -418,7 +423,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   
   if (tree) {
     ti = proto_tree_add_item(tree, proto_tcp, offset, hlen, NULL);
-    tcp_tree = proto_item_add_subtree(ti, ETT_TCP);
+    tcp_tree = proto_item_add_subtree(ti, ett_tcp);
     proto_tree_add_item_format(tcp_tree, hf_tcp_srcport, offset, 2, th.th_sport,
 	"Source port: %s (%u)", get_tcp_port(th.th_sport), th.th_sport);
     proto_tree_add_item_format(tcp_tree, hf_tcp_dstport, offset + 2, 2, th.th_dport,
@@ -432,7 +437,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	"Header length: %u bytes", hlen);
     tf = proto_tree_add_item_format(tcp_tree, hf_tcp_flags, offset + 13, 1,
 	th.th_flags, "Flags: 0x%04x (%s)", th.th_flags, flags);
-    field_tree = proto_item_add_subtree(tf, ETT_TCP_FLAGS);
+    field_tree = proto_item_add_subtree(tf, ett_tcp_flags);
     proto_tree_add_item(field_tree, hf_tcp_flags_urg, offset + 13, 1, th.th_flags);
     proto_tree_add_item(field_tree, hf_tcp_flags_ack, offset + 13, 1, th.th_flags);
     proto_tree_add_item(field_tree, hf_tcp_flags_push, offset + 13, 1, th.th_flags);
@@ -452,7 +457,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     optlen = hlen - sizeof (e_tcphdr); /* length of options, in bytes */
     tf = proto_tree_add_text(tcp_tree, offset +  20, optlen,
       "Options: (%d bytes)", optlen);
-    field_tree = proto_item_add_subtree(tf, ETT_TCP_OPTIONS);
+    field_tree = proto_item_add_subtree(tf, ett_tcp_options);
     dissect_ip_tcp_options(&pd[offset + 20], offset + 20, optlen,
       tcpopts, N_TCP_OPTS, TCPOPT_EOL, field_tree);
   }
@@ -621,7 +626,14 @@ proto_register_tcp(void)
 		{ "Urgent pointer",		"tcp.urgent_pointer", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"" }},
 	};
+	static gint *ett[] = {
+		&ett_tcp,
+		&ett_tcp_flags,
+		&ett_tcp_options,
+		&ett_tcp_option_sack,
+	};
 
 	proto_tcp = proto_register_protocol ("Transmission Control Protocol", "tcp");
 	proto_register_field_array(proto_tcp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

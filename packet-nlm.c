@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.2 1999/11/15 14:32:16 nneul Exp $
+ * $Id: packet-nlm.c,v 1.3 1999/11/16 11:42:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -41,6 +41,7 @@
 
 static int proto_nlm = -1;
 
+static gint ett_nlm = -1;
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: take the generic one. */
@@ -74,10 +75,15 @@ const vsff nlm3_proc[] = {
 void
 proto_register_nlm(void)
 {
+	static gint *ett[] = {
+		&ett_nlm,
+	};
+
 	proto_nlm = proto_register_protocol("Network Lock Manager Protocol", "nlm");
+	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_nlm, NLM_PROGRAM, ETT_NLM);
+	rpc_init_prog(proto_nlm, NLM_PROGRAM, ett_nlm);
 	/* Register the procedure table */
 	rpc_init_proc_table(NLM_PROGRAM, 3, nlm3_proc);
 }

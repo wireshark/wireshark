@@ -1,7 +1,7 @@
 /* packet-stat.c
  * Routines for stat dissection
  *
- * $Id: packet-stat.c,v 1.1 1999/11/11 21:22:00 nneul Exp $
+ * $Id: packet-stat.c,v 1.2 1999/11/16 11:42:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -38,6 +38,8 @@
 
 static int proto_stat = -1;
 
+static gint ett_stat = -1;
+
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: take the generic one. */
 
@@ -70,13 +72,16 @@ proto_register_stat(void)
 			NULL, 0, "Path" }},
 #endif
 	};
+	static gint *ett[] = {
+		&ett_stat,
+	};
 
 	proto_stat = proto_register_protocol("Status Service", "stat");
 	proto_register_field_array(proto_stat, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_stat, STAT_PROGRAM, ETT_STAT);
+	rpc_init_prog(proto_stat, STAT_PROGRAM, ett_stat);
 	/* Register the procedure tables */
 	rpc_init_proc_table(STAT_PROGRAM, 1, stat_proc);
 }
-

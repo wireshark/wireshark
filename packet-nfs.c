@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.4 1999/11/15 14:32:15 nneul Exp $
+ * $Id: packet-nfs.c,v 1.5 1999/11/16 11:42:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -40,6 +40,30 @@
 
 
 static int proto_nfs = -1;
+
+static gint ett_nfs = -1;
+static gint ett_nfs_fhandle = -1;
+static gint ett_nfs_timeval = -1;
+static gint ett_nfs_mode = -1;
+static gint ett_nfs_fattr = -1;
+static gint ett_nfs_sattr = -1;
+static gint ett_nfs_mode3 = -1;
+static gint ett_nfs_specdata3 = -1;
+static gint ett_nfs_fh3 = -1;
+static gint ett_nfs_nfstime3 = -1;
+static gint ett_nfs_fattr3 = -1;
+static gint ett_nfs_sattr3 = -1;
+static gint ett_nfs_sattrguard3 = -1;
+static gint ett_nfs_set_mode3 = -1;
+static gint ett_nfs_set_uid3 = -1;
+static gint ett_nfs_set_gid3 = -1;
+static gint ett_nfs_set_size3 = -1;
+static gint ett_nfs_set_atime = -1;
+static gint ett_nfs_set_mtime = -1;
+static gint ett_nfs_pre_op_attr = -1;
+static gint ett_nfs_post_op_attr = -1;
+static gint ett_nfs_wcc_attr = -1;
+static gint ett_nfs_wcc_data = -1;
 
 
 /***************************/
@@ -147,7 +171,7 @@ dissect_fhandle(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 		fitem = proto_tree_add_text(tree, offset, FHSIZE,
 			"%s", name);
 		if (fitem)
-			ftree = proto_item_add_subtree(fitem, ETT_NFS_FHANDLE);
+			ftree = proto_item_add_subtree(fitem, ett_nfs_fhandle);
 	}
 
 	if (ftree) {
@@ -177,7 +201,7 @@ dissect_timeval(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 		time_item = proto_tree_add_text(tree, offset, 8,
 			"%s: %u.%06u", name, seconds, mseconds);
 		if (time_item)
-			time_tree = proto_item_add_subtree(time_item, ETT_NFS_TIMEVAL);
+			time_tree = proto_item_add_subtree(time_item, ett_nfs_timeval);
 	}
 
 	if (time_tree) {
@@ -216,7 +240,7 @@ char* name)
 		mode_item = proto_tree_add_text(tree, offset, 4,
 			"%s: 0%o", name, mode);
 		if (mode_item)
-			mode_tree = proto_item_add_subtree(mode_item, ETT_NFS_MODE);
+			mode_tree = proto_item_add_subtree(mode_item, ett_nfs_mode);
 	}
 
 	if (mode_tree) {
@@ -266,7 +290,7 @@ dissect_fattr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, ch
 		fattr_item = proto_tree_add_text(tree, offset,
 			END_OF_FRAME, "%s", name);
 		if (fattr_item)
-			fattr_tree = proto_item_add_subtree(fattr_item, ETT_NFS_FATTR);
+			fattr_tree = proto_item_add_subtree(fattr_item, ett_nfs_fattr);
 	}
 
 	offset = dissect_ftype        (pd,offset,fd,fattr_tree,"type");
@@ -305,7 +329,7 @@ dissect_sattr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, ch
 		sattr_item = proto_tree_add_text(tree, offset,
 			END_OF_FRAME, "%s", name);
 		if (sattr_item)
-			sattr_tree = proto_item_add_subtree(sattr_item, ETT_NFS_SATTR);
+			sattr_tree = proto_item_add_subtree(sattr_item, ett_nfs_sattr);
 	}
 
 	/* some how we should indicate here, that -1 means "do not set" */
@@ -520,7 +544,7 @@ char* name)
 		mode3_item = proto_tree_add_text(tree, offset, 4,
 			"%s: 0%o", name, mode3);
 		if (mode3_item)
-			mode3_tree = proto_item_add_subtree(mode3_item, ETT_NFS_MODE3);
+			mode3_tree = proto_item_add_subtree(mode3_item, ett_nfs_mode3);
 	}
 
 	/* RFC 1813, Page 23 */
@@ -680,7 +704,7 @@ dissect_specdata3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			"%s: %u,%u", name, specdata1, specdata2);
 		if (specdata3_item)
 			specdata3_tree = proto_item_add_subtree(specdata3_item,
-					ETT_NFS_SPECDATA3);
+					ett_nfs_specdata3);
 	}
 
 	if (specdata3_tree) {
@@ -713,7 +737,7 @@ dissect_nfs_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 		fitem = proto_tree_add_text(tree, offset, 4+fh_len_full,
 			"%s", name);
 		if (fitem)
-			ftree = proto_item_add_subtree(fitem, ETT_NFS_FH3);
+			ftree = proto_item_add_subtree(fitem, ett_nfs_fh3);
 	}
 
 	if (ftree) {
@@ -748,7 +772,7 @@ dissect_nfstime3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		time_item = proto_tree_add_text(tree, offset, 8,
 			"%s: %u.%09u", name, seconds, nseconds);
 		if (time_item)
-			time_tree = proto_item_add_subtree(time_item, ETT_NFS_NFSTIME3);
+			time_tree = proto_item_add_subtree(time_item, ett_nfs_nfstime3);
 	}
 
 	if (time_tree) {
@@ -774,7 +798,7 @@ dissect_fattr3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, c
 		fattr3_item = proto_tree_add_text(tree, offset,
 			END_OF_FRAME, "%s", name);
 		if (fattr3_item)
-			fattr3_tree = proto_item_add_subtree(fattr3_item, ETT_NFS_FATTR3);
+			fattr3_tree = proto_item_add_subtree(fattr3_item, ett_nfs_fattr3);
 	}
 
 	offset = dissect_ftype3   (pd,offset,fd,fattr3_tree,"type");
@@ -821,7 +845,7 @@ dissect_post_op_attr(const u_char *pd, int offset, frame_data *fd, proto_tree *t
 		post_op_attr_item = proto_tree_add_text(tree, offset,
 			END_OF_FRAME, "%s", name);
 		if (post_op_attr_item)
-			post_op_attr_tree = proto_item_add_subtree(post_op_attr_item, ETT_NFS_POST_OP_ATTR);
+			post_op_attr_tree = proto_item_add_subtree(post_op_attr_item, ett_nfs_post_op_attr);
 	}
 
 	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
@@ -861,7 +885,7 @@ dissect_wcc_attr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		wcc_attr_item = proto_tree_add_text(tree, offset,
 			END_OF_FRAME, "%s", name);
 		if (wcc_attr_item)
-			wcc_attr_tree = proto_item_add_subtree(wcc_attr_item, ETT_NFS_WCC_ATTR);
+			wcc_attr_tree = proto_item_add_subtree(wcc_attr_item, ett_nfs_wcc_attr);
 	}
 
 	offset = dissect_size3   (pd, offset, fd, wcc_attr_tree, "size" );
@@ -890,7 +914,7 @@ dissect_pre_op_attr(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 		pre_op_attr_item = proto_tree_add_text(tree, offset,
 			END_OF_FRAME, "%s", name);
 		if (pre_op_attr_item)
-			pre_op_attr_tree = proto_item_add_subtree(pre_op_attr_item, ETT_NFS_PRE_OP_ATTR);
+			pre_op_attr_tree = proto_item_add_subtree(pre_op_attr_item, ett_nfs_pre_op_attr);
 	}
 
 	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
@@ -930,7 +954,7 @@ dissect_wcc_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		wcc_data_item = proto_tree_add_text(tree, offset,
 			END_OF_FRAME, "%s", name);
 		if (wcc_data_item)
-			wcc_data_tree = proto_item_add_subtree(wcc_data_item, ETT_NFS_WCC_DATA);
+			wcc_data_tree = proto_item_add_subtree(wcc_data_item, ett_nfs_wcc_data);
 	}
 
 	offset = dissect_pre_op_attr (pd, offset, fd, wcc_data_tree, "before");
@@ -963,7 +987,7 @@ dissect_set_mode3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 		set_mode3_item = proto_tree_add_text(tree, offset,
 			END_OF_FRAME, "%s: %s", name, set_it_name);
 		if (set_mode3_item)
-			set_mode3_tree = proto_item_add_subtree(set_mode3_item, ETT_NFS_SET_MODE3);
+			set_mode3_tree = proto_item_add_subtree(set_mode3_item, ett_nfs_set_mode3);
 	}
 
 	if (set_mode3_tree)
@@ -1009,7 +1033,7 @@ dissect_set_uid3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		set_uid3_item = proto_tree_add_text(tree, offset,
 			END_OF_FRAME, "%s: %s", name, set_it_name);
 		if (set_uid3_item)
-			set_uid3_tree = proto_item_add_subtree(set_uid3_item, ETT_NFS_SET_UID3);
+			set_uid3_tree = proto_item_add_subtree(set_uid3_item, ett_nfs_set_uid3);
 	}
 
 	if (set_uid3_tree)
@@ -1055,7 +1079,7 @@ dissect_set_gid3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		set_gid3_item = proto_tree_add_text(tree, offset,
 			END_OF_FRAME, "%s: %s", name, set_it_name);
 		if (set_gid3_item)
-			set_gid3_tree = proto_item_add_subtree(set_gid3_item, ETT_NFS_SET_GID3);
+			set_gid3_tree = proto_item_add_subtree(set_gid3_item, ett_nfs_set_gid3);
 	}
 
 	if (set_gid3_tree)
@@ -1101,7 +1125,7 @@ dissect_set_size3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 		set_size3_item = proto_tree_add_text(tree, offset,
 			END_OF_FRAME, "%s: %s", name, set_it_name);
 		if (set_size3_item)
-			set_size3_tree = proto_item_add_subtree(set_size3_item, ETT_NFS_SET_SIZE3);
+			set_size3_tree = proto_item_add_subtree(set_size3_item, ett_nfs_set_size3);
 	}
 
 	if (set_size3_tree)
@@ -1162,7 +1186,7 @@ dissect_set_atime(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			END_OF_FRAME, "%s: %s",
 			name, set_it_name, set_it);
 		if (set_atime_item)
-			set_atime_tree = proto_item_add_subtree(set_atime_item, ETT_NFS_SET_ATIME);
+			set_atime_tree = proto_item_add_subtree(set_atime_item, ett_nfs_set_atime);
 	}
 
 	if (set_atime_tree)
@@ -1210,7 +1234,7 @@ dissect_set_mtime(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			END_OF_FRAME, "%s: %s",
 			name, set_it_name, set_it);
 		if (set_mtime_item)
-			set_mtime_tree = proto_item_add_subtree(set_mtime_item, ETT_NFS_SET_MTIME);
+			set_mtime_tree = proto_item_add_subtree(set_mtime_item, ett_nfs_set_mtime);
 	}
 
 	if (set_mtime_tree)
@@ -1251,7 +1275,7 @@ dissect_sattr3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, c
 		sattr3_item = proto_tree_add_text(tree, offset,
 			END_OF_FRAME, "%s", name);
 		if (sattr3_item)
-			sattr3_tree = proto_item_add_subtree(sattr3_item, ETT_NFS_SATTR3);
+			sattr3_tree = proto_item_add_subtree(sattr3_item, ett_nfs_sattr3);
 	}
 
 	offset = dissect_set_mode3(pd, offset, fd, sattr3_tree, "mode");
@@ -1339,7 +1363,7 @@ dissect_sattrguard3(const u_char* pd, int offset, frame_data* fd, proto_tree* tr
 		sattrguard3_item = proto_tree_add_text(tree, offset,
 			END_OF_FRAME, "%s: %s", name, check_name);
 		if (sattrguard3_item)
-			sattrguard3_tree = proto_item_add_subtree(sattrguard3_item, ETT_NFS_SATTRGUARD3);
+			sattrguard3_tree = proto_item_add_subtree(sattrguard3_item, ett_nfs_sattrguard3);
 	}
 
 	if (sattrguard3_tree)
@@ -1431,12 +1455,37 @@ const vsff nfs3_proc[] = {
 void
 proto_register_nfs(void)
 {
+	static gint *ett[] = {
+		&ett_nfs,
+		&ett_nfs_fhandle,
+		&ett_nfs_timeval,
+		&ett_nfs_mode,
+		&ett_nfs_fattr,
+		&ett_nfs_sattr,
+		&ett_nfs_mode3,
+		&ett_nfs_specdata3,
+		&ett_nfs_fh3,
+		&ett_nfs_nfstime3,
+		&ett_nfs_fattr3,
+		&ett_nfs_sattr3,
+		&ett_nfs_sattrguard3,
+		&ett_nfs_set_mode3,
+		&ett_nfs_set_uid3,
+		&ett_nfs_set_gid3,
+		&ett_nfs_set_size3,
+		&ett_nfs_set_atime,
+		&ett_nfs_set_mtime,
+		&ett_nfs_pre_op_attr,
+		&ett_nfs_post_op_attr,
+		&ett_nfs_wcc_attr,
+		&ett_nfs_wcc_data,
+	};
 	proto_nfs = proto_register_protocol("Network File System", "nfs");
+	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_nfs, NFS_PROGRAM, ETT_NFS);
+	rpc_init_prog(proto_nfs, NFS_PROGRAM, ett_nfs);
 	/* Register the procedure tables */
 	rpc_init_proc_table(NFS_PROGRAM, 2, nfs2_proc);
 	rpc_init_proc_table(NFS_PROGRAM, 3, nfs3_proc);
 }
-

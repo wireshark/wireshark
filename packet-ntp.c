@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.4 1999/10/25 20:48:48 guy Exp $
+ * $Id: packet-ntp.c,v 1.5 1999/11/16 11:42:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -191,6 +191,9 @@ static int hf_ntp_xmt = -1;
 static int hf_ntp_keyid = -1;
 static int hf_ntp_mac = -1;
 
+static gint ett_ntp = -1;
+static gint ett_ntp_flags = -1;
+
 /* ntm_fmt_ts - converts NTP timestamp to human readable string.
  * tsdata - 64bit timestamp (IN)
  * buff - string buffer for result (OUT)
@@ -250,11 +253,11 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (tree) {
 		/* Adding NTP item and subtree */
 		ti = proto_tree_add_item(tree, proto_ntp, offset, END_OF_FRAME, NULL);
-		ntp_tree = proto_item_add_subtree(ti, ETT_NTP);
+		ntp_tree = proto_item_add_subtree(ti, ett_ntp);
 		tf = proto_tree_add_item(ntp_tree, hf_ntp_flags, offset, 1, pkt->flags);
 
 		/* Adding flag subtree and items */
-		flags_tree = proto_item_add_subtree(tf, ETT_NTP_FLAGS);
+		flags_tree = proto_item_add_subtree(tf, ett_ntp_flags);
 		proto_tree_add_item_format(flags_tree, hf_ntp_flags_li, offset, 1,
 					   *pkt->flags & NTP_LI_MASK,
 					   decode_enumerated_bitfield(*pkt->flags, NTP_LI_MASK,
@@ -415,7 +418,12 @@ proto_register_ntp(void)
 				"Message Authentication Code", "ntp.mac", FT_BYTES, BASE_HEX, 
 				NULL, 0, "Message Authentication Code" }},
         };
+	static gint *ett[] = {
+		&ett_ntp,
+		&ett_ntp_flags,
+	};
 
 	proto_ntp = proto_register_protocol("Network Time Protocol", "ntp");
 	proto_register_field_array(proto_ntp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

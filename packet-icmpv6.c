@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.10 1999/10/16 20:41:37 deniel Exp $
+ * $Id: packet-icmpv6.c,v 1.11 1999/11/16 11:42:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,6 +68,10 @@ static int hf_icmpv6_type = -1;
 static int hf_icmpv6_code = -1;
 static int hf_icmpv6_checksum = -1;
 
+static gint ett_icmpv6 = -1;
+static gint ett_icmpv6opt = -1;
+static gint ett_icmpv6flag = -1;
+
 static void
 dissect_icmpv6opt(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
@@ -89,7 +93,7 @@ again:
 
     /* !!! specify length */
     ti = proto_tree_add_text(tree, offset, len, "ICMPv6 options");
-    icmp6opt_tree = proto_item_add_subtree(ti, ETT_ICMPv6OPT);
+    icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6opt);
 
     switch (opt->nd_opt_type) {
     case ND_OPT_SOURCE_LINKADDR:
@@ -151,7 +155,7 @@ again:
 	flagoff = offsetof(struct nd_opt_prefix_info, nd_opt_pi_flags_reserved);
 	tf = proto_tree_add_text(icmp6opt_tree, flagoff, 1, "Flags: 0x%02x",
 	    pntohl(&pi->nd_opt_pi_flags_reserved));
-	field_tree = proto_item_add_subtree(tf, ETT_ICMPv6FLAG);
+	field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
 	proto_tree_add_text(field_tree, flagoff, 1, "%s",
 	    decode_boolean_bitfield(pi->nd_opt_pi_flags_reserved,
 		    0x80, 8, "Onlink", "Not onlink"));
@@ -342,7 +346,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     if (tree) {
 	/* !!! specify length */
 	ti = proto_tree_add_item(tree, proto_icmpv6, offset, len, NULL);
-	icmp6_tree = proto_item_add_subtree(ti, ETT_ICMPv6);
+	icmp6_tree = proto_item_add_subtree(ti, ett_icmpv6);
 
 	proto_tree_add_item_format(icmp6_tree, hf_icmpv6_type,
 	    offset + offsetof(struct icmp6_hdr, icmp6_type), 1,
@@ -428,7 +432,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    flagoff = offset + offsetof(struct nd_router_advert, nd_ra_flags_reserved);
 	    ra_flags = pntohl(&pd[flagoff]);
 	    tf = proto_tree_add_text(icmp6_tree, flagoff, 4, "Flags: 0x%08x", ra_flags);
-	    field_tree = proto_item_add_subtree(tf, ETT_ICMPv6FLAG);
+	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
 	    proto_tree_add_text(field_tree, flagoff, 4, "%s",
 		decode_boolean_bitfield(ra_flags,
 			0x80000000, 32, "Managed", "Not managed"));
@@ -476,7 +480,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    na_flags = pntohl(&pd[flagoff]);
 
 	    tf = proto_tree_add_text(icmp6_tree, flagoff, 4, "Flags: 0x%08x", na_flags);
-	    field_tree = proto_item_add_subtree(tf, ETT_ICMPv6FLAG);
+	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
 	    proto_tree_add_text(field_tree, flagoff, 4, "%s",
 		decode_boolean_bitfield(na_flags,
 			0x80000000, 32, "Router", "Not router"));
@@ -543,7 +547,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    flagoff = offset + offsetof(struct icmp6_router_renum, rr_segnum) + 1;
 	    tf = proto_tree_add_text(icmp6_tree, flagoff, 4, "Flags: 0x%08x",
 		pd[flagoff]);
-	    field_tree = proto_item_add_subtree(tf, ETT_ICMPv6FLAG);
+	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
 	    proto_tree_add_text(field_tree, flagoff, 1, "%s",
 		decode_boolean_bitfield(pd[flagoff], 0x80, 8,
 		    "Test command", "Not test command"));
@@ -586,8 +590,14 @@ proto_register_icmpv6(void)
       { "Checksum",       "icmpv6.checksum",	FT_UINT16, BASE_HEX, NULL, 0x0,
       	"" }}
   };
+  static gint *ett[] = {
+    &ett_icmpv6,
+    &ett_icmpv6opt,
+    &ett_icmpv6flag,
+  };
 
   proto_icmpv6 = proto_register_protocol("Internet Control Message Protocol v6",
 					 "icmpv6");
   proto_register_field_array(proto_icmpv6, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 }

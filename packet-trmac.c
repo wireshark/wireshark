@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-trmac.c,v 1.16 1999/10/12 06:20:19 gram Exp $
+ * $Id: packet-trmac.c,v 1.17 1999/11/16 11:43:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -54,6 +54,10 @@ static int hf_trmac_errors_fc = -1;
 static int hf_trmac_errors_freq = -1;
 static int hf_trmac_errors_token = -1;
 static int hf_trmac_naun = -1;
+
+static gint ett_tr_mac = -1;
+static gint ett_tr_ierr_cnt = -1;
+static gint ett_tr_nerr_cnt = -1;
 
 /* Major Vector */
 static value_string major_vector_vs[] = {
@@ -230,7 +234,7 @@ sv_text(const u_char *pd, int pkt_offset, proto_tree *tree)
 			memcpy(errors, &pd[2], 6);
 			ti = proto_tree_add_item(tree, hf_trmac_errors_iso, pkt_offset+1, sv_length-1,
 				errors[0] + errors[1] + errors[2] + errors[3] + errors[4]);
-			sv_tree = proto_item_add_subtree(ti, ETT_TR_IERR_CNT);
+			sv_tree = proto_item_add_subtree(ti, ett_tr_ierr_cnt);
 
 			proto_tree_add_item(sv_tree, hf_trmac_errors_line, pkt_offset+2, 1, errors[0]);
 			proto_tree_add_item(sv_tree, hf_trmac_errors_internal, pkt_offset+3, 1, errors[1]);
@@ -244,7 +248,7 @@ sv_text(const u_char *pd, int pkt_offset, proto_tree *tree)
 			memcpy(errors, &pd[2], 6);
 			ti = proto_tree_add_item(tree, hf_trmac_errors_noniso, pkt_offset+1, sv_length-1,
 				errors[0] + errors[1] + errors[2] + errors[3] + errors[4]);
-			sv_tree = proto_item_add_subtree(ti, ETT_TR_NERR_CNT);
+			sv_tree = proto_item_add_subtree(ti, ett_tr_nerr_cnt);
 
 			proto_tree_add_item(sv_tree, hf_trmac_errors_lost, pkt_offset+2, 1, errors[0]);
 			proto_tree_add_item(sv_tree, hf_trmac_errors_congestion, pkt_offset+3, 1, errors[1]);
@@ -289,7 +293,7 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	if (tree) {
 
 		ti = proto_tree_add_item(tree, proto_trmac, offset, mv_length, NULL);
-		mac_tree = proto_item_add_subtree(ti, ETT_TR_MAC);
+		mac_tree = proto_item_add_subtree(ti, ett_tr_mac);
 
 		proto_tree_add_item(mac_tree, hf_trmac_mv, offset+3, 1, mv_val);
 		proto_tree_add_item_format(mac_tree, hf_trmac_length, offset, 2, mv_length,
@@ -391,7 +395,13 @@ proto_register_trmac(void)
 		{ "NAUN",				"trmac.naun", FT_ETHER, BASE_DEC, NULL, 0x0,
 			"" }},
         };
+	static gint *ett[] = {
+		&ett_tr_mac,
+		&ett_tr_ierr_cnt,
+		&ett_tr_nerr_cnt,
+	};
 
         proto_trmac = proto_register_protocol("Token-Ring Media Access Control", "trmac");
 	proto_register_field_array(proto_trmac, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.38 1999/11/16 07:58:12 sharpe Exp $
+ * $Id: packet-smb.c,v 1.39 1999/11/16 11:42:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -48,7 +48,29 @@
 #include "alignment.h"
 
 static int proto_smb = -1;
+
+static gint ett_smb = -1;
+static gint ett_smb_fileattributes = -1;
+static gint ett_smb_capabilities = -1;
+static gint ett_smb_aflags = -1;
+static gint ett_smb_dialects = -1;
+static gint ett_smb_mode = -1;
+static gint ett_smb_rawmode = -1;
+static gint ett_smb_flags = -1;
+static gint ett_smb_flags2 = -1;
+static gint ett_smb_desiredaccess = -1;
+static gint ett_smb_search = -1;
+static gint ett_smb_file = -1;
+static gint ett_smb_openfunction = -1;
+static gint ett_smb_filetype = -1;
+static gint ett_smb_action = -1;
+static gint ett_smb_writemode = -1;
+static gint ett_smb_lock_type = -1;
+
 static int proto_browse = -1;
+
+static gint ett_browse = -1;
+static gint ett_browse_flags = -1;
 
 /*
  * Struct passed to each SMB decode routine of info it may need
@@ -783,7 +805,7 @@ dissect_set_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
       if (tree) {
 
 	ti = proto_tree_add_text(tree, offset, 2, "Attributes: 0x%02x", Attributes);
-	Attributes_tree = proto_item_add_subtree(ti, ETT_SMB_FILEATTRIBUTES);
+	Attributes_tree = proto_item_add_subtree(ti, ett_smb_fileattributes);
 	proto_tree_add_text(Attributes_tree, offset, 2, "%s",
 			    decode_boolean_bitfield(Attributes, 0x01, 16, "Read-only file", "Not a read-only file"));
 	proto_tree_add_text(Attributes_tree, offset, 2, "%s",
@@ -1628,7 +1650,7 @@ dissect_query_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
       if (tree) {
 
 	ti = proto_tree_add_text(tree, offset, 2, "Attributes: 0x%02x", Attributes);
-	Attributes_tree = proto_item_add_subtree(ti, ETT_SMB_FILEATTRIBUTES);
+	Attributes_tree = proto_item_add_subtree(ti, ett_smb_fileattributes);
 	proto_tree_add_text(Attributes_tree, offset, 2, "%s",
 			    decode_boolean_bitfield(Attributes, 0x01, 16, "Read-only file", "Not a read-only file"));
 	proto_tree_add_text(Attributes_tree, offset, 2, "%s",
@@ -2215,7 +2237,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
       if (tree) {
 
         ti = proto_tree_add_text(tree, offset, 4, "Capabilities: 0x%04x", Capabilities);
-        Capabilities_tree = proto_item_add_subtree(ti, ETT_SMB_CAPABILITIES);
+        Capabilities_tree = proto_item_add_subtree(ti, ett_smb_capabilities);
         proto_tree_add_text(Capabilities_tree, offset, 4, "%s",
                             decode_boolean_bitfield(Capabilities, 0x0001, 32, " Raw Mode supported", " Raw Mode not supported"));
         proto_tree_add_text(Capabilities_tree, offset, 4, "%s",
@@ -2575,7 +2597,7 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 2, "Additional Flags: 0x%02x", flags);
-      flags_tree = proto_item_add_subtree(ti, ETT_SMB_AFLAGS);
+      flags_tree = proto_item_add_subtree(ti, ett_smb_aflags);
       proto_tree_add_text(flags_tree, offset, 2, "%s", 
 			  decode_boolean_bitfield(flags, 0x01, 16,
 						  "Disconnect TID",
@@ -2772,7 +2794,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, END_OF_FRAME, "Dialects");
-      dialects = proto_item_add_subtree(ti, ETT_SMB_DIALECTS);
+      dialects = proto_item_add_subtree(ti, ett_smb_dialects);
 
     }
 
@@ -2848,7 +2870,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 2, "Security Mode: 0x%04x", mode);
-      mode_tree = proto_item_add_subtree(ti, ETT_SMB_MODE);
+      mode_tree = proto_item_add_subtree(ti, ett_smb_mode);
       proto_tree_add_text(mode_tree, offset, 2, "%s",
 			  decode_boolean_bitfield(mode, 0x0001, 16,
 						  "Security  = User",
@@ -2891,7 +2913,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 2, "Raw Mode: 0x%04x", rawmode);
-      rawmode_tree = proto_item_add_subtree(ti, ETT_SMB_RAWMODE);
+      rawmode_tree = proto_item_add_subtree(ti, ett_smb_rawmode);
       proto_tree_add_text(rawmode_tree, offset, 2, "%s",
 			  decode_boolean_bitfield(rawmode, 0x01, 16,
 						  "Read Raw supported",
@@ -3008,7 +3030,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 1, "Security Mode: 0x%02x", mode);
-      mode_tree = proto_item_add_subtree(ti, ETT_SMB_MODE);
+      mode_tree = proto_item_add_subtree(ti, ett_smb_mode);
       proto_tree_add_text(mode_tree, offset, 1, "%s",
 			  decode_boolean_bitfield(mode, 0x01, 8,
 						  "Security  = User",
@@ -3075,7 +3097,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 4, "Capabilities: 0x%04x", caps);
-      caps_tree = proto_item_add_subtree(ti, ETT_SMB_CAPABILITIES);
+      caps_tree = proto_item_add_subtree(ti, ett_smb_capabilities);
       proto_tree_add_text(caps_tree, offset, 4, "%s",
 			  decode_boolean_bitfield(caps, 0x0001, 32,
 						  "Raw Mode supported",
@@ -3660,7 +3682,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 2, "Flags: 0x%02x", Flags);
-      Flags_tree = proto_item_add_subtree(ti, ETT_SMB_FLAGS);
+      Flags_tree = proto_item_add_subtree(ti, ett_smb_flags);
       proto_tree_add_text(Flags_tree, offset, 2, "%s",
                           decode_boolean_bitfield(Flags, 0x01, 16, "Dont Return Additional Info", "Return Additional Info"));
       proto_tree_add_text(Flags_tree, offset, 2, "%s",
@@ -3679,7 +3701,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 2, "Desired Access: 0x%02x", DesiredAccess);
-      DesiredAccess_tree = proto_item_add_subtree(ti, ETT_SMB_DESIREDACCESS);
+      DesiredAccess_tree = proto_item_add_subtree(ti, ett_smb_desiredaccess);
       proto_tree_add_text(DesiredAccess_tree, offset, 2, "%s",
                           decode_enumerated_bitfield(DesiredAccess, 0x07, 16, DesiredAccess_0x07, "%s"));
       proto_tree_add_text(DesiredAccess_tree, offset, 2, "%s",
@@ -3702,7 +3724,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 2, "Search: 0x%02x", Search);
-      Search_tree = proto_item_add_subtree(ti, ETT_SMB_SEARCH);
+      Search_tree = proto_item_add_subtree(ti, ett_smb_search);
       proto_tree_add_text(Search_tree, offset, 2, "%s",
                           decode_boolean_bitfield(Search, 0x01, 16, "Read only file", "Not a read only file"));
       proto_tree_add_text(Search_tree, offset, 2, "%s",
@@ -3727,7 +3749,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 2, "File: 0x%02x", File);
-      File_tree = proto_item_add_subtree(ti, ETT_SMB_FILE);
+      File_tree = proto_item_add_subtree(ti, ett_smb_file);
       proto_tree_add_text(File_tree, offset, 2, "%s",
                           decode_boolean_bitfield(File, 0x01, 16, "Read only file", "Not a read only file"));
       proto_tree_add_text(File_tree, offset, 2, "%s",
@@ -3776,7 +3798,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 2, "Open Function: 0x%02x", OpenFunction);
-      OpenFunction_tree = proto_item_add_subtree(ti, ETT_SMB_OPENFUNCTION);
+      OpenFunction_tree = proto_item_add_subtree(ti, ett_smb_openfunction);
       proto_tree_add_text(OpenFunction_tree, offset, 2, "%s",
                           decode_enumerated_bitfield(OpenFunction, 0x10, 16, OpenFunction_0x10, "%s"));
       proto_tree_add_text(OpenFunction_tree, offset, 2, "%s",
@@ -3927,7 +3949,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       if (tree) {
 
 	ti = proto_tree_add_text(tree, offset, 2, "FileAttributes: 0x%02x", FileAttributes);
-	FileAttributes_tree = proto_item_add_subtree(ti, ETT_SMB_FILEATTRIBUTES);
+	FileAttributes_tree = proto_item_add_subtree(ti, ett_smb_fileattributes);
 	proto_tree_add_text(FileAttributes_tree, offset, 2, "%s",
 			    decode_boolean_bitfield(FileAttributes, 0x01, 16, "Read only file", "Not a read only file"));
 	proto_tree_add_text(FileAttributes_tree, offset, 2, "%s",
@@ -4000,7 +4022,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       if (tree) {
 
 	ti = proto_tree_add_text(tree, offset, 2, "File Type: 0x%02x", FileType);
-	FileType_tree = proto_item_add_subtree(ti, ETT_SMB_FILETYPE);
+	FileType_tree = proto_item_add_subtree(ti, ett_smb_filetype);
 	proto_tree_add_text(FileType_tree, offset, 2, "%s",
                           decode_enumerated_bitfield(FileType, 0xFFFF, 16, FileType_0xFFFF, "%s"));
     
@@ -4027,7 +4049,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       if (tree) {
 
 	ti = proto_tree_add_text(tree, offset, 2, "Action: 0x%02x", Action);
-	Action_tree = proto_item_add_subtree(ti, ETT_SMB_ACTION);
+	Action_tree = proto_item_add_subtree(ti, ett_smb_action);
 	proto_tree_add_text(Action_tree, offset, 2, "%s",
 			    decode_enumerated_bitfield(Action, 0x8000, 16, Action_0x8000, "%s"));
 	proto_tree_add_text(Action_tree, offset, 2, "%s",
@@ -4193,7 +4215,7 @@ dissect_write_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       if (tree) {
 
         ti = proto_tree_add_text(tree, offset, 2, "WriteMode: 0x%02x", WriteMode);
-        WriteMode_tree = proto_item_add_subtree(ti, ETT_SMB_WRITEMODE);
+        WriteMode_tree = proto_item_add_subtree(ti, ett_smb_writemode);
         proto_tree_add_text(WriteMode_tree, offset, 2, "%s",
                             decode_boolean_bitfield(WriteMode, 0x01, 16, "Write through requested", "Write through not requested"));
         proto_tree_add_text(WriteMode_tree, offset, 2, "%s",
@@ -4334,7 +4356,7 @@ dissect_write_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
       if (tree) {
 
         ti = proto_tree_add_text(tree, offset, 2, "WriteMode: 0x%02x", WriteMode);
-        WriteMode_tree = proto_item_add_subtree(ti, ETT_SMB_WRITEMODE);
+        WriteMode_tree = proto_item_add_subtree(ti, ett_smb_writemode);
         proto_tree_add_text(WriteMode_tree, offset, 2, "%s",
                             decode_boolean_bitfield(WriteMode, 0x01, 16, "Write through requested", "Write through not requested"));
         proto_tree_add_text(WriteMode_tree, offset, 2, "%s",
@@ -4589,7 +4611,7 @@ dissect_move_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *paren
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 2, "Flags: 0x%02x", Flags);
-      Flags_tree = proto_item_add_subtree(ti, ETT_SMB_FLAGS);
+      Flags_tree = proto_item_add_subtree(ti, ett_smb_flags);
       proto_tree_add_text(Flags_tree, offset, 2, "%s",
                           decode_enumerated_bitfield(Flags, 0x03, 16, Flags_0x03, "%s"));
     
@@ -4851,7 +4873,7 @@ dissect_open_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 2, "Mode: 0x%02x", Mode);
-      Mode_tree = proto_item_add_subtree(ti, ETT_SMB_MODE);
+      Mode_tree = proto_item_add_subtree(ti, ett_smb_mode);
       proto_tree_add_text(Mode_tree, offset, 2, "%s",
                           decode_enumerated_bitfield(Mode, 0x03, 16, Mode_0x03, "%s"));
     
@@ -5464,7 +5486,7 @@ dissect_seek_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 2, "Mode: 0x%02x", Mode);
-      Mode_tree = proto_item_add_subtree(ti, ETT_SMB_MODE);
+      Mode_tree = proto_item_add_subtree(ti, ett_smb_mode);
       proto_tree_add_text(Mode_tree, offset, 2, "%s",
                           decode_enumerated_bitfield(Mode, 0x03, 16, Mode_0x03, "%s"));
     
@@ -6190,7 +6212,7 @@ dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 1, "Lock Type: 0x%01x", LockType);
-      LockType_tree = proto_item_add_subtree(ti, ETT_SMB_LOCK_TYPE);
+      LockType_tree = proto_item_add_subtree(ti, ett_smb_lock_type);
       proto_tree_add_text(LockType_tree, offset, 1, "%s",
                           decode_boolean_bitfield(LockType, 0x01, 16, "Read-only lock", "Not a Read-only lock"));
       proto_tree_add_text(LockType_tree, offset, 1, "%s",
@@ -6492,7 +6514,7 @@ dissect_create_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 2, "Attributes: 0x%02x", Attributes);
-      Attributes_tree = proto_item_add_subtree(ti, ETT_SMB_FILEATTRIBUTES);
+      Attributes_tree = proto_item_add_subtree(ti, ett_smb_fileattributes);
       proto_tree_add_text(Attributes_tree, offset, 2, "%s",
                           decode_boolean_bitfield(Attributes, 0x01, 16, "Read-only file", "Not a read-only file"));
       proto_tree_add_text(Attributes_tree, offset, 2, "%s",
@@ -7543,7 +7565,7 @@ dissect_get_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
       if (tree) {
 
 	ti = proto_tree_add_text(tree, offset, 2, "Attributes: 0x%02x", Attributes);
-	Attributes_tree = proto_item_add_subtree(ti, ETT_SMB_FILEATTRIBUTES);
+	Attributes_tree = proto_item_add_subtree(ti, ett_smb_fileattributes);
 	proto_tree_add_text(Attributes_tree, offset, 2, "%s",
 			    decode_boolean_bitfield(Attributes, 0x01, 16, "Read-only file", "Not a read-only file"));
 	proto_tree_add_text(Attributes_tree, offset, 2, "%s",
@@ -7974,7 +7996,7 @@ dissect_write_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 2, "WriteMode: 0x%02x", WriteMode);
-      WriteMode_tree = proto_item_add_subtree(ti, ETT_SMB_WRITEMODE);
+      WriteMode_tree = proto_item_add_subtree(ti, ett_smb_writemode);
       proto_tree_add_text(WriteMode_tree, offset, 2, "%s",
                           decode_boolean_bitfield(WriteMode, 0x01, 16, "Write through requested", "Write through not requested"));
       proto_tree_add_text(WriteMode_tree, offset, 2, "%s",
@@ -8381,7 +8403,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 2, "Flags: 0x%02x", Flags);
-      Flags_tree = proto_item_add_subtree(ti, ETT_SMB_FLAGS);
+      Flags_tree = proto_item_add_subtree(ti, ett_smb_flags);
       proto_tree_add_text(Flags_tree, offset, 2, "%s",
                           decode_boolean_bitfield(Flags, 0x01, 16, "Also disconnect TID", "Dont disconnect TID"));
       proto_tree_add_text(Flags_tree, offset, 2, "%s",
@@ -9005,7 +9027,7 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
     if (tree) {
 
       ti = proto_tree_add_text(tree, offset, 2, "Flags: 0x%02x", Flags);
-      Flags_tree = proto_item_add_subtree(ti, ETT_SMB_FLAGS);
+      Flags_tree = proto_item_add_subtree(ti, ett_smb_flags);
       proto_tree_add_text(Flags_tree, offset, 2, "%s",
                           decode_boolean_bitfield(Flags, 0x01, 16, "Also disconnect TID", "Dont disconnect TID"));
       proto_tree_add_text(Flags_tree, offset, 2, "%s",
@@ -9604,7 +9626,7 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
     if (tree) {  /* Add the browse tree */
 
       ti = proto_tree_add_item(parent, proto_browse, DataOffset, DataCount, NULL);
-      browse_tree = proto_item_add_subtree(ti, ETT_BROWSE);
+      browse_tree = proto_item_add_subtree(ti, ett_browse);
 
       proto_tree_add_text(browse_tree, loc_offset, 1, "OpCode: %s", (OpCode > (sizeof(browse_commands)/sizeof(char *))) ? "Error, No Such Command" : browse_commands[OpCode]);
 
@@ -9673,7 +9695,7 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
       if (tree) {
 
 	ti = proto_tree_add_text(browse_tree, loc_offset, 4, "Server Type: 0x%04x", ServerType);
-	flags_tree = proto_item_add_subtree(ti, ETT_BROWSE_FLAGS);
+	flags_tree = proto_item_add_subtree(ti, ett_browse_flags);
 	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
 			    decode_boolean_bitfield(ServerType, 0x0001, 32, "Workstation", "Not Workstation"));
 	proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
@@ -10359,7 +10381,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	if (tree) {
 
 	  ti = proto_tree_add_item(tree, proto_smb, offset, END_OF_FRAME, NULL);
-	  smb_tree = proto_item_add_subtree(ti, ETT_SMB);
+	  smb_tree = proto_item_add_subtree(ti, ett_smb);
 
 	  /* 0xFFSMB is actually a 1 byte msg type and 3 byte server
 	   * component ... SMB is only one used
@@ -10423,7 +10445,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	  tf = proto_tree_add_text(smb_tree, offset, 1, "Flags: 0x%02x", flags);
 
-	  flags_tree = proto_item_add_subtree(tf, ETT_SMB_FLAGS);
+	  flags_tree = proto_item_add_subtree(tf, ett_smb_flags);
 	  proto_tree_add_text(flags_tree, offset, 1, "%s",
 			      decode_boolean_bitfield(flags, 0x01, 8,
 						      "Lock&Read, Write&Unlock supported",
@@ -10463,7 +10485,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	  tf = proto_tree_add_text(smb_tree, offset, 1, "Flags2: 0x%04x", flags2);
 
-	  flags2_tree = proto_item_add_subtree(tf, ETT_SMB_FLAGS2);
+	  flags2_tree = proto_item_add_subtree(tf, ett_smb_flags2);
 	  proto_tree_add_text(flags2_tree, offset, 1, "%s",
 			      decode_boolean_bitfield(flags2, 0x0001, 16,
 						      "Long file names supported",
@@ -10576,8 +10598,30 @@ proto_register_smb(void)
                 { &variable,
                 { "Name",           "smb.abbreviation", TYPE, VALS_POINTER }},
         };*/
+	static gint *ett[] = {
+		&ett_smb,
+		&ett_smb_fileattributes,
+		&ett_smb_capabilities,
+		&ett_smb_aflags,
+		&ett_smb_dialects,
+		&ett_smb_mode,
+		&ett_smb_rawmode,
+		&ett_smb_flags,
+		&ett_smb_flags2,
+		&ett_smb_desiredaccess,
+		&ett_smb_search,
+		&ett_smb_file,
+		&ett_smb_openfunction,
+		&ett_smb_filetype,
+		&ett_smb_action,
+		&ett_smb_writemode,
+		&ett_smb_lock_type,
+		&ett_browse,
+		&ett_browse_flags,
+	};
 
         proto_smb = proto_register_protocol("Server Message Block Protocol", "smb");
 	proto_browse = proto_register_protocol("Microsoft Windows Browser Protocol", "browser");
  /*       proto_register_field_array(proto_smb, hf, array_length(hf));*/
+	proto_register_subtree_array(ett, array_length(ett));
 }

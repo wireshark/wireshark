@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@netapp.com>
  *
- * $Id: packet-ipp.c,v 1.2 1999/09/17 06:25:41 guy Exp $
+ * $Id: packet-ipp.c,v 1.3 1999/11/16 11:42:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,10 @@
 #include "packet.h"
 
 static int proto_ipp = -1;
+
+static gint ett_ipp = -1;
+static gint ett_ipp_as = -1;
+static gint ett_ipp_attr = -1;
 
 #define	PRINT_JOB		0x0002
 #define	PRINT_URI		0x0003
@@ -173,7 +177,7 @@ void dissect_ipp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ipp, offset, END_OF_FRAME, NULL);
-		ipp_tree = proto_item_add_subtree(ti, ETT_IPP);
+		ipp_tree = proto_item_add_subtree(ti, ett_ipp);
 
 		proto_tree_add_text(ipp_tree, offset, 2, "Version: %u.%u",
 		    pd[offset], pd[offset + 1]);
@@ -387,7 +391,7 @@ parse_attributes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				 * a tree.
 				 */
 				as_tree = proto_item_add_subtree(tas,
-				    ETT_IPP_AS);
+				    ett_ipp_as);
 				attr_tree = as_tree;
 			}
 
@@ -466,7 +470,7 @@ add_integer_tree(proto_tree *tree, const u_char *pd, int offset,
 		    name_length, &pd[offset + 1 + 2],
 		    pntohl(&pd[1 + 2 + name_length + 2]));
 	}
-	return proto_item_add_subtree(ti, ETT_IPP_ATTR);
+	return proto_item_add_subtree(ti, ett_ipp_attr);
 }
 
 static void
@@ -493,7 +497,7 @@ add_octetstring_tree(proto_tree *tree, const u_char *pd, int offset,
 	    name_length,
 	    &pd[offset + 1 + 2]);
 	    bytes_to_str(&pd[offset + 1 + 2 + name_length + 2], value_length);
-	return proto_item_add_subtree(ti, ETT_IPP_ATTR);
+	return proto_item_add_subtree(ti, ett_ipp_attr);
 }
 
 static void
@@ -517,7 +521,7 @@ add_charstring_tree(proto_tree *tree, const u_char *pd, int offset,
 	    "%.*s: %.*s",
 	    name_length, &pd[offset + 1 + 2],
 	    value_length, &pd[offset + 1 + 2 + name_length + 2]);
-	return proto_item_add_subtree(ti, ETT_IPP_ATTR);
+	return proto_item_add_subtree(ti, ett_ipp_attr);
 }
 
 static void
@@ -557,7 +561,13 @@ proto_register_ipp(void)
                 { &variable,
                 { "Name",           "ipp.abbreviation", TYPE, VALS_POINTER }},
         };*/
+	static gint *ett[] = {
+		&ett_ipp,
+		&ett_ipp_as,
+		&ett_ipp_attr,
+	};
 
         proto_ipp = proto_register_protocol("Internet Printing Protocol", "ipp");
  /*       proto_register_field_array(proto_ipp, hf, array_length(hf));*/
+	proto_register_subtree_array(ett, array_length(ett));
 }

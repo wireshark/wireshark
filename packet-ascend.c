@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.7 1999/10/16 14:04:22 deniel Exp $
+ * $Id: packet-ascend.c,v 1.8 1999/11/16 11:42:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,8 @@ static int hf_chunk      = -1;
 static int hf_task       = -1;
 static int hf_user_name  = -1;
 
+static gint ett_raw = -1;
+
 static const value_string encaps_vals[] = {
   {ASCEND_PFX_WDS_X, "PPP Transmit"},
   {ASCEND_PFX_WDS_R, "PPP Receive" },
@@ -67,7 +69,7 @@ dissect_ascend( const u_char *pd, frame_data *fd, proto_tree *tree ) {
      layer (ie none) */
   if(tree) {
     ti = proto_tree_add_text(tree, 0, 0, "Lucent/Ascend packet trace" );
-    fh_tree = proto_item_add_subtree(ti, ETT_RAW);
+    fh_tree = proto_item_add_subtree(ti, ett_raw);
     proto_tree_add_item(fh_tree, hf_link_type, 0, 0, 
 			fd->pseudo_header.ascend.type);
     if (fd->pseudo_header.ascend.type == ASCEND_PFX_WDD) {
@@ -127,8 +129,11 @@ proto_register_ascend(void)
     { "User name",     	"ascend.user",	FT_STRING, BASE_NONE,	NULL, 0x0,
       "" }},
   };
+  static gint *ett[] = {
+    &ett_raw,
+  };
 
   proto_ascend = proto_register_protocol("Lucent/Ascend debug output", "ascend");
   proto_register_field_array(proto_ascend, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 }
-

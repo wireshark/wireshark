@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.3 1999/11/15 17:16:51 nneul Exp $
+ * $Id: packet-mount.c,v 1.4 1999/11/16 11:42:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -41,6 +41,7 @@
 static int proto_mount = -1;
 static int hf_mount_path = -1;
 
+static gint ett_mount = -1;
 
 int dissect_mount_dirpath_call(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
@@ -100,12 +101,16 @@ proto_register_mount(void)
 			"Path", "mount.path", FT_STRING, BASE_DEC,
 			NULL, 0, "Path" }},
 	};
+	static gint *ett[] = {
+		&ett_mount,
+	};
 
 	proto_mount = proto_register_protocol("Mount Service", "mount");
 	proto_register_field_array(proto_mount, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_mount, MOUNT_PROGRAM, ETT_MOUNT);
+	rpc_init_prog(proto_mount, MOUNT_PROGRAM, ett_mount);
 	/* Register the procedure tables */
 	rpc_init_proc_table(MOUNT_PROGRAM, 1, mount1_proc);
 	rpc_init_proc_table(MOUNT_PROGRAM, 3, mount3_proc);

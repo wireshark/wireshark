@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.16 1999/10/12 06:20:12 gram Exp $
+ * $Id: packet-null.c,v 1.17 1999/11/16 11:42:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,8 @@ extern const value_string etype_vals[];
 static int proto_null = -1;
 static int hf_null_etype = -1;
 static int hf_null_family = -1;
+
+static gint ett_null = -1;
 
 /* Null/loopback structs and definitions */
 
@@ -260,7 +262,7 @@ dissect_null( const u_char *pd, frame_data *fd, proto_tree *tree )
     if (null_header > IEEE_802_3_MAX_LEN) {
       if (tree) {
         ti = proto_tree_add_item(tree, proto_null, 0, 4, NULL);
-        fh_tree = proto_item_add_subtree(ti, ETT_NULL);
+        fh_tree = proto_item_add_subtree(ti, ett_null);
       } else
       	fh_tree = NULL;
       ethertype(null_header, 4, pd, fd, tree, fh_tree, hf_null_etype);
@@ -269,7 +271,7 @@ dissect_null( const u_char *pd, frame_data *fd, proto_tree *tree )
          layer (ie none) */
       if (tree) {
         ti = proto_tree_add_item(tree, proto_null, 0, 4, NULL);
-        fh_tree = proto_item_add_subtree(ti, ETT_NULL);
+        fh_tree = proto_item_add_subtree(ti, ett_null);
         proto_tree_add_item(fh_tree, hf_null_family, 0, 4, null_header);
       }
 
@@ -318,7 +320,11 @@ proto_register_null(void)
 		{ "Family",		"null.family",	FT_UINT32, BASE_HEX, VALS(family_vals), 0x0,
 			"" }}
 	};
+	static gint *ett[] = {
+		&ett_null,
+	};
 
 	proto_null = proto_register_protocol ("Null/Loopback", "null" );
 	proto_register_field_array(proto_null, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

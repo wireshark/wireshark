@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.6 1999/10/21 15:06:02 gram Exp $
+ * $Id: packet-pim.c,v 1.7 1999/11/16 11:42:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,6 +67,8 @@ static int proto_pim = -1;
 static int hf_pim_version = -1;
 static int hf_pim_type = -1;
 static int hf_pim_cksum = -1;
+
+static gint ett_pim = -1;
 
 static const char *
 dissect_pim_addr(const u_char *bp, const u_char *ep, enum pimv2_addrtype at,
@@ -216,7 +218,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_pim, offset, END_OF_FRAME, NULL);
-	pim_tree = proto_item_add_subtree(ti, ETT_PIM);
+	pim_tree = proto_item_add_subtree(ti, ett_pim);
 
 	proto_tree_add_item(pim_tree, hf_pim_version, offset, 1,
 	    PIM_VER(pim.pim_typever)); 
@@ -232,7 +234,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    tiopt = proto_tree_add_text(pim_tree,
 		offset + sizeof(struct pim), END_OF_FRAME,
 		"PIM parameters");
-	    pimopt_tree = proto_item_add_subtree(tiopt, ETT_PIM);
+	    pimopt_tree = proto_item_add_subtree(tiopt, ett_pim);
 	} else
 	    goto done;
 
@@ -268,7 +270,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    flagoff = offset + sizeof(struct pim);
 	    tiflag = proto_tree_add_text(pimopt_tree, flagoff, 4,
 		"Flags: 0x%08x", ntohl(*(guint32 *)&pd[flagoff]));
-	    flag_tree = proto_item_add_subtree(tiflag, ETT_PIM);
+	    flag_tree = proto_item_add_subtree(tiflag, ett_pim);
 	    proto_tree_add_text(flag_tree, flagoff, 1, "%s",
 		decode_boolean_bitfield(pd[flagoff], 0x80000000, 32,
 		    "Border", "Not border"));
@@ -373,7 +375,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		    goto breakbreak3;
 		tigroup = proto_tree_add_text(pimopt_tree, offset, advance,
 		    "Group %d: %s", i, s);
-		grouptree = proto_item_add_subtree(tigroup, ETT_PIM);
+		grouptree = proto_item_add_subtree(tigroup, ett_pim);
 		offset += advance;
 
 		if (&pd[offset + 4] > ep)
@@ -383,7 +385,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 		tisub = proto_tree_add_text(grouptree, offset, 2,
 		    "Join: %d", njoin);
-		subtree = proto_item_add_subtree(tisub, ETT_PIM);
+		subtree = proto_item_add_subtree(tisub, ett_pim);
 		off = offset + 4;
 		for (j = 0; j < nprune; j++) {
 		    s = dissect_pim_addr(&pd[off], ep, pimv2_source,
@@ -397,7 +399,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 		tisub = proto_tree_add_text(grouptree, offset + 2, 2,
 		    "Prune: %d", nprune);
-		subtree = proto_item_add_subtree(tisub, ETT_PIM);
+		subtree = proto_item_add_subtree(tisub, ett_pim);
 		for (j = 0; j < nprune; j++) {
 		    s = dissect_pim_addr(&pd[off], ep, pimv2_source,
 			&advance);
@@ -451,7 +453,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		    goto breakbreak4;
 		tigroup = proto_tree_add_text(pimopt_tree, offset, advance,
 		    "Group %d: %s", i, s);
-		grouptree = proto_item_add_subtree(tigroup, ETT_PIM);
+		grouptree = proto_item_add_subtree(tigroup, ett_pim);
 		offset += advance;
 
 		if (END_OF_FRAME < 2)
@@ -589,8 +591,12 @@ proto_register_pim(void)
 	{ "Checksum",		"pim.cksum",
 				FT_UINT16, BASE_HEX, NULL, 0x0, "" }},
     };
+    static gint *ett[] = {
+        &ett_pim,
+    };
 
     proto_pim = proto_register_protocol("Protocol Independent Multicast",
 	"pim");
     proto_register_field_array(proto_pim, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 }

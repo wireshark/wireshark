@@ -1,7 +1,7 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.5 1999/11/15 17:16:51 nneul Exp $
+ * $Id: packet-ypserv.c,v 1.6 1999/11/16 11:43:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -44,6 +44,8 @@ static int hf_ypserv_map = -1;
 static int hf_ypserv_key = -1;
 static int hf_ypserv_value = -1;
 static int hf_ypserv_status = -1;
+
+static gint ett_ypserv = -1;
 
 /* Dissect a domain call */
 int dissect_domain_call(const u_char *pd, int offset, frame_data *fd,
@@ -233,14 +235,17 @@ proto_register_ypserv(void)
 			"Status", "ypserv.status", FT_BOOLEAN, BASE_DEC,
 			&okfailed , 0, "Status" }},
 	};
+	static gint *ett[] = {
+		&ett_ypserv,
+	};
 
 	proto_ypserv = proto_register_protocol("Yellow Pages Service", "ypserv");
 	proto_register_field_array(proto_ypserv, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_ypserv, YPSERV_PROGRAM, ETT_YPSERV);
+	rpc_init_prog(proto_ypserv, YPSERV_PROGRAM, ett_ypserv);
 	/* Register the procedure tables */
 	rpc_init_proc_table(YPSERV_PROGRAM, 1, ypserv1_proc);
 	rpc_init_proc_table(YPSERV_PROGRAM, 2, ypserv2_proc);
 }
-

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.61 1999/11/02 07:06:07 guy Exp $
+ * $Id: packet-ip.c,v 1.62 1999/11/16 11:42:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -77,6 +77,14 @@ static int hf_ip_ttl = -1;
 static int hf_ip_proto = -1;
 static int hf_ip_checksum = -1;
 
+static gint ett_ip = -1;
+static gint ett_ip_tos = -1;
+static gint ett_ip_off = -1;
+static gint ett_ip_options = -1;
+static gint ett_ip_option_sec = -1;
+static gint ett_ip_option_route = -1;
+static gint ett_ip_option_timestamp = -1;
+
 static int proto_igmp = -1;
 static int hf_igmp_version = -1;
 static int hf_igmp_type = -1;
@@ -84,10 +92,14 @@ static int hf_igmp_unused = -1;
 static int hf_igmp_checksum = -1;
 static int hf_igmp_group = -1;
 
+static gint ett_igmp = -1;
+
 static int proto_icmp = -1;
 static int hf_icmp_type = -1;
 static int hf_icmp_code = -1;
 static int hf_icmp_checksum = -1;
+
+static gint ett_icmp = -1;
 
 /* ICMP structs and definitions */
 typedef struct _e_icmp {
@@ -348,7 +360,7 @@ dissect_ipopt_security(const ip_tcp_opt *optp, const u_char *opd, int offset,
     {0,                  NULL          } };
 
   tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s:", optp->name);
-  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
   offset += 2;
 
   val = pntohs(opd);
@@ -384,7 +396,7 @@ dissect_ipopt_route(const ip_tcp_opt *optp, const u_char *opd, int offset,
 
   tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s (%d bytes)",
 				optp->name, optlen);
-  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
 
   optoffset += 2;	/* skip past type and length */
   optlen -= 2;		/* subtract size of type and length */
@@ -446,7 +458,7 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, const u_char *opd,
   guint ts;
 
   tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s:", optp->name);
-  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
 
   optoffset += 2;	/* skip past type and length */
   optlen -= 2;		/* subtract size of type and length */
@@ -517,7 +529,7 @@ static const ip_tcp_opt ipopts[] = {
   {
     IPOPT_END,
     "EOL",
-    -1,
+    NULL,
     NO_LENGTH,
     0,
     NULL,
@@ -525,7 +537,7 @@ static const ip_tcp_opt ipopts[] = {
   {
     IPOPT_NOOP,
     "NOP",
-    -1,
+    NULL,
     NO_LENGTH,
     0,
     NULL,
@@ -533,7 +545,7 @@ static const ip_tcp_opt ipopts[] = {
   {
     IPOPT_SEC,
     "Security",
-    ETT_IP_OPTION_SEC,
+    &ett_ip_option_sec,
     FIXED_LENGTH,
     IPOLEN_SEC,
     dissect_ipopt_security
@@ -541,7 +553,7 @@ static const ip_tcp_opt ipopts[] = {
   {
     IPOPT_SSRR,
     "Strict source route",
-    ETT_IP_OPTION_ROUTE,
+    &ett_ip_option_route,
     VARIABLE_LENGTH,
     IPOLEN_SSRR_MIN,
     dissect_ipopt_route
@@ -549,7 +561,7 @@ static const ip_tcp_opt ipopts[] = {
   {
     IPOPT_LSRR,
     "Loose source route",
-    ETT_IP_OPTION_ROUTE,
+    &ett_ip_option_route,
     VARIABLE_LENGTH,
     IPOLEN_LSRR_MIN,
     dissect_ipopt_route
@@ -557,7 +569,7 @@ static const ip_tcp_opt ipopts[] = {
   {
     IPOPT_RR,
     "Record route",
-    ETT_IP_OPTION_ROUTE,
+    &ett_ip_option_route,
     VARIABLE_LENGTH,
     IPOLEN_RR_MIN,
     dissect_ipopt_route
@@ -565,7 +577,7 @@ static const ip_tcp_opt ipopts[] = {
   {
     IPOPT_SID,
     "Stream identifier",
-    -1,
+    NULL,
     FIXED_LENGTH,
     IPOLEN_SID,
     dissect_ipopt_sid
@@ -573,7 +585,7 @@ static const ip_tcp_opt ipopts[] = {
   {
     IPOPT_TIMESTAMP,
     "Time stamp",
-    ETT_IP_OPTION_TIMESTAMP,
+    &ett_ip_option_timestamp,
     VARIABLE_LENGTH,
     IPOLEN_TIMESTAMP_MIN,
     dissect_ipopt_timestamp
@@ -823,7 +835,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     }
 
     ti = proto_tree_add_item(tree, proto_ip, offset, hlen, NULL);
-    ip_tree = proto_item_add_subtree(ti, ETT_IP);
+    ip_tree = proto_item_add_subtree(ti, ett_ip);
 
     proto_tree_add_item(ip_tree, hf_ip_version, offset, 1, hi_nibble(iph.ip_v_hl));
     proto_tree_add_item_format(ip_tree, hf_ip_hdr_len, offset, 1, hlen,
@@ -832,7 +844,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	"Type of service: 0x%02x (%s)", iph.ip_tos,
 	val_to_str( IPTOS_TOS(iph.ip_tos), iptos_vals, "Unknown") );
 
-    field_tree = proto_item_add_subtree(tf, ETT_IP_TOS);
+    field_tree = proto_item_add_subtree(tf, ett_ip_tos);
     proto_tree_add_item(field_tree, hf_ip_tos_precedence, offset + 1, 1, iph.ip_tos);
     proto_tree_add_item(field_tree, hf_ip_tos_delay, offset + 1, 1, iph.ip_tos);
     proto_tree_add_item(field_tree, hf_ip_tos_throughput, offset + 1, 1, iph.ip_tos);
@@ -843,7 +855,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     flags = (iph.ip_off & (IP_DF|IP_MF)) >> 12;
     tf = proto_tree_add_item(ip_tree, hf_ip_flags, offset +  6, 1, flags);
-    field_tree = proto_item_add_subtree(tf, ETT_IP_OFF);
+    field_tree = proto_item_add_subtree(tf, ett_ip_off);
     proto_tree_add_item(field_tree, hf_ip_flags_df, offset + 6, 1, flags),
     proto_tree_add_item(field_tree, hf_ip_flags_mf, offset + 6, 1, flags),
 
@@ -865,7 +877,7 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       optlen = hlen - sizeof (e_ip);	/* length of options, in bytes */
       tf = proto_tree_add_text(ip_tree, offset +  20, optlen,
         "Options: (%d bytes)", optlen);
-      field_tree = proto_item_add_subtree(tf, ETT_IP_OPTIONS);
+      field_tree = proto_item_add_subtree(tf, ett_ip_options);
       dissect_ip_tcp_options(&pd[offset + 20], offset + 20, optlen,
          ipopts, N_IP_OPTS, IPOPT_END, field_tree);
     }
@@ -1071,7 +1083,7 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_icmp, offset, 4, NULL);
-    icmp_tree = proto_item_add_subtree(ti, ETT_ICMP);
+    icmp_tree = proto_item_add_subtree(ti, ett_icmp);
     proto_tree_add_item_format(icmp_tree, hf_icmp_type, offset,      1, 
 			       ih.icmp_type,
 			       "Type: %d (%s)",
@@ -1230,7 +1242,7 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     col_add_str(fd, COL_INFO, type_str);
   if (tree) {
     ti = proto_tree_add_item(tree, proto_igmp, offset, 8, NULL);
-    igmp_tree = proto_item_add_subtree(ti, ETT_IGMP);
+    igmp_tree = proto_item_add_subtree(ti, ett_igmp);
     proto_tree_add_item(igmp_tree, hf_igmp_version, offset,     1, 
 			hi_nibble(ih.igmp_v_t));
     proto_tree_add_item_format(igmp_tree, hf_igmp_type,  offset    , 1, 
@@ -1273,9 +1285,13 @@ proto_register_igmp(void)
 		{ "Group address",	"igmp.group", FT_IPv4, BASE_NONE, NULL, 0x0,
 			"" }},
 	};
+	static gint *ett[] = {
+		&ett_igmp,
+	};
 
 	proto_igmp = proto_register_protocol ("Internet Group Management Protocol", "igmp");
 	proto_register_field_array(proto_igmp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
@@ -1368,9 +1384,19 @@ proto_register_ip(void)
 		{ "Header checksum",	"ip.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
 			"" }},
 	};
+	static gint *ett[] = {
+		&ett_ip,
+		&ett_ip_tos,
+		&ett_ip_off,
+		&ett_ip_options,
+		&ett_ip_option_sec,
+		&ett_ip_option_route,
+		&ett_ip_option_timestamp,
+	};
 
 	proto_ip = proto_register_protocol ("Internet Protocol", "ip");
 	proto_register_field_array(proto_ip, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
@@ -1390,13 +1416,19 @@ proto_register_icmp(void)
       { "Checksum",	"icmp.checksum",	FT_UINT16, BASE_HEX,	NULL, 0x0,
       	"" }},
   };
+  static gint *ett[] = {
+    &ett_icmp,
+  };
   
   proto_icmp = proto_register_protocol ("Internet Control Message Protocol", 
 					"icmp");
   proto_register_field_array(proto_icmp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 }
 
 static int proto_eigrp = -1;
+
+static gint ett_eigrp = -1;
 
 void
 dissect_eigrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
@@ -1427,7 +1459,7 @@ static const value_string eigrp_opcode_vals[] = {
   if (tree) {
 
      ti = proto_tree_add_item(tree, proto_eigrp, offset, END_OF_FRAME, NULL);
-     eigrp_tree = proto_item_add_subtree(ti, ETT_RIP);
+     eigrp_tree = proto_item_add_subtree(ti, ett_eigrp);
   
      proto_tree_add_text(eigrp_tree, offset, 1, "Version: %d", ih.eigrp_version); 
      proto_tree_add_text(eigrp_tree, offset + 1, 1, "Opcode: %d (%s)", ih.eigrp_opcode,
@@ -1444,5 +1476,9 @@ static const value_string eigrp_opcode_vals[] = {
 void
 proto_register_eigrp(void)
    {
+      static gint *ett[] = {
+        &ett_eigrp,
+      };
    proto_eigrp = proto_register_protocol("Enhanced Interior Gateway Routing Protocol", "eigrp");
+   proto_register_subtree_array(ett, array_length(ett));
    }

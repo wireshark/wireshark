@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.5 1999/10/17 14:46:40 deniel Exp $
+ * $Id: packet-nntp.c,v 1.6 1999/11/16 11:42:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -45,6 +45,8 @@ static int proto_nntp = -1;
 static int hf_nntp_response = -1;
 static int hf_nntp_request = -1;
 
+static gint ett_nntp = -1;
+
 void
 dissect_nntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
@@ -81,7 +83,7 @@ dissect_nntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (tree) {
 
 	  ti = proto_tree_add_item(tree, proto_nntp, offset, END_OF_FRAME, NULL);
-	  nntp_tree = proto_item_add_subtree(ti, ETT_NNTP);
+	  nntp_tree = proto_item_add_subtree(ti, ett_nntp);
 
 	  if (pi.match_port == pi.destport) {
 	    proto_tree_add_item_hidden(nntp_tree, hf_nntp_request, 0, 0, TRUE);
@@ -130,9 +132,12 @@ proto_register_nntp(void)
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       	"TRUE if NNTP request" }}
   };
+  static gint *ett[] = {
+    &ett_nntp,
+  };
 
   proto_nntp = proto_register_protocol("Network News Transfer Protocol", 
 				       "nntp");
   proto_register_field_array(proto_nntp, hf, array_length(hf));
-
+  proto_register_subtree_array(ett, array_length(ett));
 }

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.19 1999/11/15 06:32:15 gram Exp $
+ * $Id: proto.h,v 1.20 1999/11/16 11:43:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -173,6 +173,9 @@ proto_register_protocol(char *name, char *abbrev);
 void
 proto_register_field_array(int parent, hf_register_info *hf, int num_records);
 
+void
+proto_register_subtree_array(gint **indices, int num_indices);
+
 proto_item *
 proto_tree_add_item(proto_tree *tree, int hfindex, gint start,
 	gint length, ...);
@@ -237,5 +240,16 @@ void proto_registrar_dump(void);
  * having to call vsnprintf and copy strings around.
  */
 extern gboolean proto_tree_is_visible;
+
+/* Points to the first element of an array of Booleans, indexed by
+   a subtree item type; that array element is TRUE if subtrees of
+   an item of that type are to be expanded.
+
+   ETT_NONE is reserved for unregistered subtree types. */
+#define	ETT_NONE	0
+extern gboolean	     *tree_is_expanded;
+
+/* Number of elements in that array. */
+extern int           num_tree_types;
 
 #endif /* proto.h */

@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.32 1999/11/08 09:16:52 guy Exp $
+ * $Id: packet-nbns.c,v 1.33 1999/11/16 11:42:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,6 +51,15 @@ static int hf_nbns_count_answers = -1;
 static int hf_nbns_count_auth_rr = -1;
 static int hf_nbns_count_add_rr = -1;
 
+static gint ett_nbns = -1;
+static gint ett_nbns_qd = -1;
+static gint ett_nbns_flags = -1;
+static gint ett_nbns_nb_flags = -1;
+static gint ett_nbns_name_flags = -1;
+static gint ett_nbns_rr = -1;
+static gint ett_nbns_qry = -1;
+static gint ett_nbns_ans = -1;
+
 static int proto_nbdgm = -1;
 static int hf_nbdgm_type = -1;
 static int hf_nbdgm_fragment = -1;
@@ -60,9 +69,14 @@ static int hf_nbdgm_datagram_id = -1;
 static int hf_nbdgm_src_ip = -1;
 static int hf_nbdgm_src_port = -1;
 
+static gint ett_nbdgm = -1;
+
 static int proto_nbss = -1;
 static int hf_nbss_type = -1;
 static int hf_nbss_flags = -1;
+
+static gint ett_nbss = -1;
+static gint ett_nbss_flags = -1;
 
 /* Packet structure taken from RFC 1002. See also RFC 1001.
  * Opcode, flags, and rcode treated as "flags", similarly to DNS,
@@ -339,7 +353,7 @@ dissect_nbns_query(const u_char *pd, int offset, int nbns_data_offset,
 	if (nbns_tree != NULL) {
 		tq = proto_tree_add_text(nbns_tree, offset, len,
 		    "%s: type %s, class %s",  name, type_name, class_name);
-		q_tree = proto_item_add_subtree(tq, ETT_NBNS_QD);
+		q_tree = proto_item_add_subtree(tq, ett_nbns_qd);
 
 		add_name_and_type(q_tree, offset, name_len, "Name", name,
 		    name_type);
@@ -384,7 +398,7 @@ nbns_add_nbns_flags(proto_tree *nbns_tree, int offset, u_short flags,
 	}
 	tf = proto_tree_add_text(nbns_tree, offset, 2,
 			"Flags: 0x%04x (%s)", flags, buf);
-	field_tree = proto_item_add_subtree(tf, ETT_NBNS_FLAGS);
+	field_tree = proto_item_add_subtree(tf, ett_nbns_flags);
 	proto_tree_add_text(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, F_RESPONSE,
 				2*8, "Response", "Query"));
@@ -454,7 +468,7 @@ nbns_add_nb_flags(proto_tree *rr_tree, int offset, u_short flags)
 		strcat(buf, "unique");
 	tf = proto_tree_add_text(rr_tree, offset, 2, "Flags: 0x%x (%s)", flags,
 			buf);
-	field_tree = proto_item_add_subtree(tf, ETT_NBNS_NB_FLAGS);
+	field_tree = proto_item_add_subtree(tf, ett_nbns_nb_flags);
 	proto_tree_add_text(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, NB_FLAGS_G,
 				2*8,
@@ -495,7 +509,7 @@ nbns_add_name_flags(proto_tree *rr_tree, int offset, u_short flags)
 		strcat(buf, ", permanent node name");
 	tf = proto_tree_add_text(rr_tree, offset, 2, "Name flags: 0x%x (%s)",
 			flags, buf);
-	field_tree = proto_item_add_subtree(tf, ETT_NBNS_NAME_FLAGS);
+	field_tree = proto_item_add_subtree(tf, ett_nbns_name_flags);
 	proto_tree_add_text(field_tree, offset, 2, "%s",
 			decode_boolean_bitfield(flags, NAME_FLAGS_G,
 				2*8,
@@ -599,7 +613,7 @@ dissect_nbns_answer(const u_char *pd, int offset, int nbns_data_offset,
 		strcat(name, " (");
 		strcat(name, netbios_name_type_descr(name_type));
 		strcat(name, ")");
-		rr_tree = add_rr_to_tree(trr, ETT_NBNS_RR, offset, name,
+		rr_tree = add_rr_to_tree(trr, ett_nbns_rr, offset, name,
 		    name_len, type_name, class_name, ttl, data_len);
 		while (data_len > 0) {
 			if (opcode == OPCODE_WACK) {
@@ -668,7 +682,7 @@ dissect_nbns_answer(const u_char *pd, int offset, int nbns_data_offset,
 		    (dptr - data_start) + data_len,
 		    "%s: type %s, class %s",
 		    name, type_name, class_name);
-		rr_tree = add_rr_to_tree(trr, ETT_NBNS_RR, offset, name,
+		rr_tree = add_rr_to_tree(trr, ett_nbns_rr, offset, name,
 		    name_len, type_name, class_name, ttl, data_len);
 		if (!BYTES_ARE_IN_FRAME(cur_offset, 1)) {
 			/* We ran past the end of the captured
@@ -1026,7 +1040,7 @@ dissect_nbns_answer(const u_char *pd, int offset, int nbns_data_offset,
 		    (dptr - data_start) + data_len,
                     "%s: type %s, class %s",
 		    name, type_name, class_name);
-		rr_tree = add_rr_to_tree(trr, ETT_NBNS_RR, offset, name,
+		rr_tree = add_rr_to_tree(trr, ett_nbns_rr, offset, name,
 		    name_len, type_name, class_name, ttl, data_len);
 		proto_tree_add_text(rr_tree, cur_offset, data_len, "Data");
 		break;
@@ -1047,7 +1061,7 @@ dissect_query_records(const u_char *pd, int cur_off, int nbns_data_offset,
 	start_off = cur_off;
 	if (nbns_tree != NULL) {
 		ti = proto_tree_add_text(nbns_tree, start_off, 0, "Queries");
-		qatree = proto_item_add_subtree(ti, ETT_NBNS_QRY);
+		qatree = proto_item_add_subtree(ti, ett_nbns_qry);
 	}
 	while (count-- > 0) {
 		add_off = dissect_nbns_query(pd, cur_off, nbns_data_offset,
@@ -1078,7 +1092,7 @@ dissect_answer_records(const u_char *pd, int cur_off, int nbns_data_offset,
 	start_off = cur_off;
 	if (nbns_tree != NULL) {
 		ti = proto_tree_add_text(nbns_tree, start_off, 0, name);
-		qatree = proto_item_add_subtree(ti, ETT_NBNS_ANS);
+		qatree = proto_item_add_subtree(ti, ett_nbns_ans);
 	}
 	while (count-- > 0) {
 		add_off = dissect_nbns_answer(pd, cur_off, nbns_data_offset,
@@ -1139,7 +1153,7 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nbns, offset, END_OF_FRAME, NULL);
-		nbns_tree = proto_item_add_subtree(ti, ETT_NBNS);
+		nbns_tree = proto_item_add_subtree(ti, ett_nbns);
 
 		if (flags & F_RESPONSE) {
 			proto_tree_add_item_hidden(nbns_tree, hf_nbns_response, 
@@ -1297,7 +1311,7 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nbdgm, offset, header.dgm_length, NULL);
-		nbdgm_tree = proto_item_add_subtree(ti, ETT_NBDGM);
+		nbdgm_tree = proto_item_add_subtree(ti, ett_nbdgm);
 
 		proto_tree_add_item_format(nbdgm_tree, hf_nbdgm_type,
 					   offset, 1, 
@@ -1449,7 +1463,7 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
 	if (tree) {
 	  ti = proto_tree_add_item(tree, proto_nbss, offset, length + 4, NULL);
-	  nbss_tree = proto_item_add_subtree(ti, ETT_NBSS);
+	  nbss_tree = proto_item_add_subtree(ti, ett_nbss);
 	  
 	  proto_tree_add_item_format(nbss_tree, hf_nbss_type,
 				     offset, 1, 
@@ -1463,7 +1477,7 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
 	if (tree) {
 	  tf = proto_tree_add_item(nbss_tree, hf_nbss_flags, offset, 1, flags);
-	  field_tree = proto_item_add_subtree(tf, ETT_NBSS_FLAGS);
+	  field_tree = proto_item_add_subtree(tf, ett_nbss_flags);
 	  proto_tree_add_text(field_tree, offset, 1, "%s",
 			      decode_boolean_bitfield(flags, NBSS_FLAGS_E,
 						      8, "Add 65536 to length", "Add 0 to length"));
@@ -1665,6 +1679,19 @@ proto_register_nbt(void)
 	FT_UINT8, BASE_HEX, NULL, 0x0,
 	"NBSS message flags" }}
   };
+  static gint *ett[] = {
+    &ett_nbns,
+    &ett_nbns_qd,
+    &ett_nbns_flags,
+    &ett_nbns_nb_flags,
+    &ett_nbns_name_flags,
+    &ett_nbns_rr,
+    &ett_nbns_qry,
+    &ett_nbns_ans,
+    &ett_nbdgm,
+    &ett_nbss,
+    &ett_nbss_flags,
+  };
 
   proto_nbns = proto_register_protocol("NetBIOS Name Service", "nbns");
   proto_register_field_array(proto_nbns, hf_nbns, array_length(hf_nbns));
@@ -1675,4 +1702,5 @@ proto_register_nbt(void)
   proto_nbss = proto_register_protocol("NetBIOS Session Service", "nbss");
   proto_register_field_array(proto_nbss, hf_nbss, array_length(hf_nbss));
 
+  proto_register_subtree_array(ett, array_length(ett));
 }

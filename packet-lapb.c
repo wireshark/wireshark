@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <abad@daba.dhis.org>
  *
- * $Id: packet-lapb.c,v 1.7 1999/10/15 21:05:49 gram Exp $
+ * $Id: packet-lapb.c,v 1.8 1999/11/16 11:42:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,9 +40,12 @@
 
 #define FROM_DCE	0x80
 
-int proto_lapb = -1;
-int hf_lapb_address = -1;
-int hf_lapb_control = -1;
+static int proto_lapb = -1;
+static int hf_lapb_address = -1;
+static int hf_lapb_control = -1;
+
+static gint ett_lapb = -1;
+static gint ett_lapb_control = -1;
 
 void
 dissect_lapb(const u_char *pd, frame_data *fd, proto_tree *tree)
@@ -87,14 +90,14 @@ dissect_lapb(const u_char *pd, frame_data *fd, proto_tree *tree)
     if (tree) {
 	ti = proto_tree_add_item_format(tree, proto_lapb, 0, 2, NULL,
 					    "LAPB");
-	lapb_tree = proto_item_add_subtree(ti, ETT_LAPB);
+	lapb_tree = proto_item_add_subtree(ti, ett_lapb);
 	proto_tree_add_item_format(lapb_tree, hf_lapb_address, 0, 1, pd[0],
 				       "Address: 0x%02X", pd[0]);
     }
     else
         lapb_tree = NULL;
     dissect_xdlc_control(pd, 1, fd, lapb_tree, hf_lapb_control,
-	    is_response, FALSE);
+	    ett_lapb_control, is_response, FALSE);
 
     /* not end of frame ==> X.25 */
     if (fd->cap_len > 2) dissect_x25(pd, 2, fd, tree);
@@ -112,7 +115,12 @@ proto_register_lapb(void)
 	  { "Control Field", "lapb.control", FT_STRING, BASE_NONE, NULL, 0x0,
 	  	"" }},
     };
+    static gint *ett[] = {
+        &ett_lapb,
+        &ett_lapb_control,
+    };
 
     proto_lapb = proto_register_protocol ("Link Access Procedure Balanced (LAPB)", "lapb");
     proto_register_field_array (proto_lapb, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 }

@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.12 1999/10/27 02:05:09 guy Exp $
+ * $Id: packet-snmp.c,v 1.13 1999/11/16 11:42:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -55,6 +55,8 @@
 #define in_addr_t u_int
 
 static int proto_snmp = -1;
+
+static gint ett_snmp = -1;
 
 #ifdef WITH_SNMP_UCD
 /* should be defined only if supported in ucd-snmp */
@@ -455,7 +457,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			/* all_length=header_length+pdu_type_length+request_id_length+error_status_length+error_index_length; */
 			all_length=fd->pkt_len-offset;
 			item = proto_tree_add_item(tree, proto_snmp, offset, all_length, NULL);
-			snmp_tree = proto_item_add_subtree(item, ETT_SNMP);
+			snmp_tree = proto_item_add_subtree(item, ett_snmp);
 			proto_tree_add_text(snmp_tree, offset, header_length, "Community: \"%s\", Version: %s", community, val_to_str(version, versions, "Unknown version %#x"));
 			offset+=header_length;
 			proto_tree_add_text(snmp_tree, offset, pdu_type_length, "%s", pdu_type_string);
@@ -483,7 +485,7 @@ dissect_snmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		if(tree) {
 			all_length=fd->pkt_len-offset;
 			item = proto_tree_add_item(tree, proto_snmp, offset, all_length, NULL);
-			snmp_tree = proto_item_add_subtree(item, ETT_SNMP);
+			snmp_tree = proto_item_add_subtree(item, ett_snmp);
 			proto_tree_add_text(snmp_tree, offset, header_length, "Community: \"%s\", Version: %s", community, val_to_str(version, versions, "Unknown version %#x"));
 			offset+=header_length;
 			proto_tree_add_text(snmp_tree, offset, pdu_type_length, "Pdu type: %s", pdu_type_string);
@@ -875,9 +877,13 @@ proto_register_snmp(void)
                 { &variable,
                 { "Name",           "snmp.abbreviation", TYPE, VALS_POINTER }},
         };*/
+	static gint *ett[] = {
+		&ett_snmp,
+	};
 
 	init_mib();
         proto_snmp = proto_register_protocol("Simple Network Management Protocol", "snmp");
  /*       proto_register_field_array(proto_snmp, hf, array_length(hf));*/
+	proto_register_subtree_array(ett, array_length(ett));
 #endif /* WITH_SNMP: CMU or UCD */
 }

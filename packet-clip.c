@@ -1,7 +1,7 @@
 /* packet-clip.c
  * Routines for clip packet disassembly
  *
- * $Id: packet-clip.c,v 1.2 1999/08/24 06:16:27 guy Exp $
+ * $Id: packet-clip.c,v 1.3 1999/11/16 11:42:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,8 @@
 
 #include <glib.h>
 #include "packet.h"
+
+static gint ett_clip = -1;
 
 void
 capture_clip( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
@@ -70,8 +72,18 @@ dissect_clip( const u_char *pd, frame_data *fd, proto_tree *tree ) {
      header. */
   if(tree) {
     ti = proto_tree_add_text(tree, 0, 0, "Classical IP frame" );
-    fh_tree = proto_item_add_subtree(ti, ETT_CLIP);
+    fh_tree = proto_item_add_subtree(ti, ett_clip);
     proto_tree_add_text(fh_tree, 0, 0, "No link information available");
   }
   dissect_ip(pd, 0, fd, tree);
+}
+
+void
+proto_register_clip(void)
+{
+  static gint *ett[] = {
+    &ett_clip,
+  };
+
+  proto_register_subtree_array(ett, array_length(ett));
 }

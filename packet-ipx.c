@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.31 1999/11/15 21:33:56 nneul Exp $
+ * $Id: packet-ipx.c,v 1.32 1999/11/16 11:42:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -61,6 +61,8 @@ static int hf_ipx_snet = -1;
 static int hf_ipx_snode = -1;
 static int hf_ipx_ssocket = -1;
 
+static gint ett_ipx = -1;
+
 static int proto_spx = -1;
 static int hf_spx_connection_control = -1;
 static int hf_spx_datastream_type = -1;
@@ -70,13 +72,20 @@ static int hf_spx_seq_nr = -1;
 static int hf_spx_ack_nr = -1;
 static int hf_spx_all_nr = -1;
 
+static gint ett_spx = -1;
+
 static int proto_ipxrip = -1;
 static int hf_ipxrip_request = -1;
 static int hf_ipxrip_response = -1;
 
+static gint ett_ipxrip = -1;
+
 static int proto_sap = -1;
 static int hf_sap_request = -1;
 static int hf_sap_response = -1;
+
+static gint ett_ipxsap = -1;
+static gint ett_ipxsap_server = -1;
 
 static void
 dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
@@ -310,7 +319,7 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		ipx_hops = pd[offset+4];
 
 		ti = proto_tree_add_item(tree, proto_ipx, offset, 30, NULL);
-		ipx_tree = proto_item_add_subtree(ti, ETT_IPX);
+		ipx_tree = proto_item_add_subtree(ti, ett_ipx);
 		proto_tree_add_item(ipx_tree, hf_ipx_checksum, offset, 2, ipx_checksum);
 		proto_tree_add_item_format(ipx_tree, hf_ipx_len, offset+2, 2, ipx_length,
 			"Length: %d bytes", ipx_length);
@@ -429,7 +438,7 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_spx, offset, 12, NULL);
-		spx_tree = proto_item_add_subtree(ti, ETT_SPX);
+		spx_tree = proto_item_add_subtree(ti, ett_spx);
 
 		proto_tree_add_item_format(spx_tree, hf_spx_connection_control,
 					   offset,      1,
@@ -498,7 +507,7 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ipxrip, offset, END_OF_FRAME, NULL);
-		rip_tree = proto_item_add_subtree(ti, ETT_IPXRIP);
+		rip_tree = proto_item_add_subtree(ti, ett_ipxrip);
 
 		if (operation < 2) {
 			proto_tree_add_text(rip_tree, offset, 2,
@@ -646,7 +655,7 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_sap, offset, END_OF_FRAME, NULL);
-		sap_tree = proto_item_add_subtree(ti, ETT_IPXSAP);
+		sap_tree = proto_item_add_subtree(ti, ett_ipxsap);
 
 		if (query.query_type >= 1 && query.query_type <= 4) {
 			proto_tree_add_text(sap_tree, offset, 2, sap_type[query.query_type - 1]);
@@ -678,7 +687,7 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 				ti = proto_tree_add_text(sap_tree, cursor+2, 48,
 					"Server Name: %s", server.server_name);
-				s_tree = proto_item_add_subtree(ti, ETT_IPXSAP_SERVER);
+				s_tree = proto_item_add_subtree(ti, ett_ipxsap_server);
 
 				proto_tree_add_text(s_tree, cursor, 2, "Server Type: %s (0x%04X)",
 						server_type(server.server_type), server.server_type);
@@ -807,7 +816,14 @@ proto_register_ipx(void)
 		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
 		  "TRUE if SAP response" }}
 	};
-		
+	static gint *ett[] = {
+		&ett_ipx,
+		&ett_spx,
+		&ett_ipxrip,
+		&ett_ipxsap,
+		&ett_ipxsap_server,
+	};
+
 	proto_ipx = proto_register_protocol ("Internetwork Packet eXchange", "ipx");
 	proto_register_field_array(proto_ipx, hf_ipx, array_length(hf_ipx));
 
@@ -819,4 +835,6 @@ proto_register_ipx(void)
 
 	proto_sap = proto_register_protocol ("Service Advertisement Protocol", "sap");
 	proto_register_field_array(proto_sap, hf_sap, array_length(hf_sap));
+
+	proto_register_subtree_array(ett, array_length(ett));
 }

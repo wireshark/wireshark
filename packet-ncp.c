@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.20 1999/10/17 14:09:35 deniel Exp $
+ * $Id: packet-ncp.c,v 1.21 1999/11/16 11:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -48,6 +48,10 @@ static int hf_ncp_type = -1;
 static int hf_ncp_seq = -1;
 static int hf_ncp_connection = -1;
 static int hf_ncp_task = -1;
+
+static gint ett_ncp = -1;
+static gint ett_ncp_request_fields = -1;
+static gint ett_ncp_reply_fields = -1;
 
 struct svc_record;
 
@@ -455,7 +459,7 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ncp, offset, END_OF_FRAME, NULL);
-		ncp_tree = proto_item_add_subtree(ti, ETT_NCP);
+		ncp_tree = proto_item_add_subtree(ti, ett_ncp);
 
 		proto_tree_add_item_format(ncp_tree, hf_ncp_type, 
 					   offset,      2,
@@ -536,7 +540,7 @@ dissect_ncp_request(const u_char *pd, int offset, frame_data *fd,
 			if (ncp_request->req) {
 				ti = proto_tree_add_text(ncp_tree, offset, END_OF_FRAME,
 				"NCP Request Packet");
-				field_tree = proto_item_add_subtree(ti, ETT_NCP_REQUEST_FIELDS);
+				field_tree = proto_item_add_subtree(ti, ett_ncp_request_fields);
 
 				parse_ncp_svc_fields(pd, field_tree, offset, ncp_request->req);
 			}
@@ -621,7 +625,7 @@ dissect_ncp_reply(const u_char *pd, int offset, frame_data *fd,
 			if (ncp_request->rep) {
 				ti = proto_tree_add_text(ncp_tree, offset+8, END_OF_FRAME,
 				"NCP Reply Packet");
-				field_tree = proto_item_add_subtree(ti, ETT_NCP_REPLY_FIELDS);
+				field_tree = proto_item_add_subtree(ti, ett_ncp_reply_fields);
 
 				parse_ncp_svc_fields(pd, field_tree, offset+8, ncp_request->rep);
 			}
@@ -878,8 +882,13 @@ proto_register_ncp(void)
 	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"" }}
   };
+  static gint *ett[] = {
+    &ett_ncp,
+    &ett_ncp_request_fields,
+    &ett_ncp_reply_fields,
+  };
 
   proto_ncp = proto_register_protocol("NetWare Core Protocol", "ncp");
   proto_register_field_array(proto_ncp, hf, array_length(hf));
-
+  proto_register_subtree_array(ett, array_length(ett));
 }

@@ -1,7 +1,7 @@
 /* packet-ypbind.c
  * Routines for ypbind dissection
  *
- * $Id: packet-ypbind.c,v 1.2 1999/11/10 21:05:11 nneul Exp $
+ * $Id: packet-ypbind.c,v 1.3 1999/11/16 11:43:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -39,6 +39,8 @@
 
 static int proto_ypbind = -1;
 
+static gint ett_ypbind = -1;
+
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: take the generic one. */
 const vsff ypbind1_proc[] = {
@@ -61,12 +63,16 @@ const vsff ypbind2_proc[] = {
 void
 proto_register_ypbind(void)
 {
+	static gint *ett[] = {
+		&ett_ypbind,
+	};
+
 	proto_ypbind = proto_register_protocol("Yellow Pages Bind", "ypbind");
+	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_ypbind, YPBIND_PROGRAM, ETT_YPBIND);
+	rpc_init_prog(proto_ypbind, YPBIND_PROGRAM, ett_ypbind);
 	/* Register the procedure tables */
 	rpc_init_proc_table(YPBIND_PROGRAM, 1, ypbind1_proc);
 	rpc_init_proc_table(YPBIND_PROGRAM, 2, ypbind2_proc);
 }
-

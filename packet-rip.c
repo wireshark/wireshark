@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.12 1999/08/26 07:34:40 guy Exp $
+ * $Id: packet-rip.c,v 1.13 1999/11/16 11:42:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,9 @@
 #include "packet-rip.h"
 
 static int proto_rip = -1;
+
+static gint ett_rip = -1;
+static gint ett_rip_vec = -1;
 
 static void dissect_ip_rip_vektor(guint8 version,
     const e_rip_vektor *rip_vektor, int offset, proto_tree *tree);
@@ -93,7 +96,7 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_rip, offset, END_OF_FRAME, NULL);
-	rip_tree = proto_item_add_subtree(ti, ETT_RIP);
+	rip_tree = proto_item_add_subtree(ti, ett_rip);
 
 	proto_tree_add_text(rip_tree, offset, 1, "Command: %d (%s)", rip_header.command, packet_type[rip_header.command]); 
 	proto_tree_add_text(rip_tree, offset + 1, 1, "Version: %d", rip_header.version);
@@ -141,7 +144,7 @@ dissect_ip_rip_vektor(guint8 version, const e_rip_vektor *rip_vektor,
 {
     proto_tree *rip_vektor_tree;
 
-    rip_vektor_tree = proto_item_add_subtree(tree, ETT_RIP_VEC);
+    rip_vektor_tree = proto_item_add_subtree(tree, ett_rip_vec);
 	   
     proto_tree_add_text(rip_vektor_tree, offset, 2, "Address Family ID: IP"); 
     if(version == RIPv2)
@@ -166,7 +169,7 @@ dissect_rip_authentication(const e_rip_authentication *rip_authentication,
     proto_tree *rip_authentication_tree;
     guint16 authtype;
 
-    rip_authentication_tree = proto_item_add_subtree(tree, ETT_RIP_VEC);
+    rip_authentication_tree = proto_item_add_subtree(tree, ett_rip_vec);
 
     authtype = ntohs(rip_authentication->authtype);
     proto_tree_add_text(rip_authentication_tree, offset + 2, 2,
@@ -184,7 +187,12 @@ proto_register_rip(void)
                 { &variable,
                 { "Name",           "rip.abbreviation", TYPE, VALS_POINTER }},
         };*/
+	static gint *ett[] = {
+		&ett_rip,
+		&ett_rip_vec,
+	};
 
         proto_rip = proto_register_protocol("Routing Information Protocol", "rip");
  /*       proto_register_field_array(proto_rip, hf, array_length(hf));*/
+	proto_register_subtree_array(ett, array_length(ett));
 }

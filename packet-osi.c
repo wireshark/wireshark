@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.11 1999/10/12 06:20:12 gram Exp $
+ * $Id: packet-osi.c,v 1.12 1999/11/16 11:42:44 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -61,7 +61,11 @@ static int hf_clnp_dest = -1;
 static int hf_clnp_src_length = -1;
 static int hf_clnp_src = -1;
 
+static gint ett_clnp = -1;
+
 static int proto_cotp = -1;
+
+static gint ett_cotp = -1;
 
 /* Network layer protocol identifiers */
 
@@ -264,7 +268,7 @@ static int osi_decode_DR(const u_char *pd, int offset,
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, offset, li + 1, NULL);
-    cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+    cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, offset,      1,
 			"Length indicator: %d", li);
     proto_tree_add_text(cotp_tree, offset +  1, 1, 
@@ -356,7 +360,7 @@ static int osi_decode_DT(const u_char *pd, int offset,
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, offset, li + 1, NULL);
-    cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+    cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, offset,      1,
 			"Length indicator: %d", li);
     proto_tree_add_text(cotp_tree, offset +  1, 1, 
@@ -491,7 +495,7 @@ static int osi_decode_ED(const u_char *pd, int offset,
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, offset, li + 1, NULL);
-    cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+    cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, offset,      1,
 			"Length indicator: %d", li);
     proto_tree_add_text(cotp_tree, offset +  1, 1, 
@@ -574,7 +578,7 @@ static int osi_decode_RJ(const u_char *pd, int offset,
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, offset, li + 1, NULL);
-    cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+    cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, offset,      1,
 			"Length indicator: %d", li);
     proto_tree_add_text(cotp_tree, offset +  1, 1, 
@@ -662,7 +666,7 @@ static int osi_decode_CC(const u_char *pd, int offset,
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, offset, li + 1, NULL);
-    cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+    cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, offset,      1,
 			"Length indicator: %d", li);
     proto_tree_add_text(cotp_tree, offset +  1, 1, 
@@ -934,7 +938,7 @@ static int osi_decode_DC(const u_char *pd, int offset,
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, offset, li + 1, NULL);
-    cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+    cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, offset,      1,
 			"Length indicator: %d", li);
     proto_tree_add_text(cotp_tree, offset +  1, 1, 
@@ -987,7 +991,7 @@ static int osi_decode_AK(const u_char *pd, int offset,
     
     if (tree) {
       ti = proto_tree_add_item(tree, proto_cotp, offset, li + 1, NULL);
-      cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+      cotp_tree = proto_item_add_subtree(ti, ett_cotp);
       proto_tree_add_text(cotp_tree, offset,      1,
 			  "Length indicator: %d", li);
       proto_tree_add_text(cotp_tree, offset +  1, 1, 
@@ -1093,7 +1097,7 @@ static int osi_decode_AK(const u_char *pd, int offset,
     
     if (tree) {
       ti = proto_tree_add_item(tree, proto_cotp, offset, li + 1, NULL);
-      cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+      cotp_tree = proto_item_add_subtree(ti, ett_cotp);
       proto_tree_add_text(cotp_tree, offset,      1,
 			  "Length indicator: %d", li);
       proto_tree_add_text(cotp_tree, offset +  1, 1, 
@@ -1246,7 +1250,7 @@ static int osi_decode_EA(const u_char *pd, int offset,
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, offset, li + 1, NULL);
-    cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+    cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, offset,      1,
 			"Length indicator: %d", li);
     proto_tree_add_text(cotp_tree, offset +  1, 1, 
@@ -1331,7 +1335,7 @@ static int osi_decode_ER(const u_char *pd, int offset,
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, offset, li + 1, NULL);
-    cotp_tree = proto_item_add_subtree(ti, ETT_COTP);
+    cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, offset,      1,
 			"Length indicator: %d", li);
     proto_tree_add_text(cotp_tree, offset +  1, 1, 
@@ -1470,7 +1474,7 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_clnp, offset, clnp.cnf_hdr_len, NULL);
-    clnp_tree = proto_item_add_subtree(ti, ETT_CLNP);
+    clnp_tree = proto_item_add_subtree(ti, ett_clnp);
     proto_tree_add_item_format(clnp_tree, hf_clnp_id, offset, 1, 
 			       clnp.cnf_proto_id,
 			       "Protocol identifier: 0x%02x", 
@@ -1676,9 +1680,13 @@ void proto_register_clnp(void)
       { "Source address",       "clnp.ssap",	FT_BYTES, BASE_NONE, NULL, 0x0,
       	"" }},
   };
+  static gint *ett[] = {
+    &ett_clnp,
+  };
 
   proto_clnp = proto_register_protocol("ISO CLNP", "clnp");
   proto_register_field_array(proto_clnp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 }
 
 void proto_register_cotp(void)
@@ -1687,7 +1695,11 @@ void proto_register_cotp(void)
                 { &variable,
                 { "Name",           "cotp.abbreviation", TYPE, VALS_POINTER }},
         };*/
+	static gint *ett[] = {
+		&ett_cotp,
+	};
 
         proto_cotp = proto_register_protocol("ISO COTP", "cotp");
  /*       proto_register_field_array(proto_cotp, hf, array_length(hf));*/
+	proto_register_subtree_array(ett, array_length(ett));
 }

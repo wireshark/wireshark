@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.9 1999/11/15 21:33:57 nneul Exp $
+ * $Id: packet-netbios.c,v 1.10 1999/11/16 11:42:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,6 +83,11 @@
 #define	NB_SENDER_NAME		28
 
 static int proto_netbios = -1;
+
+static gint ett_netb = -1;
+static gint ett_netb_name = -1;
+static gint ett_netb_flags = -1;
+static gint ett_netb_status = -1;
 
 /* The strings for the station type, used by get_netbios_name function;
    many of them came from the file "NetBIOS.txt" in the Zip archive at
@@ -242,7 +247,7 @@ void netbios_add_name( char* label, const u_char *pd, int offset,
 	tf = proto_tree_add_text( tree, offset + nb_offset, NETBIOS_NAME_LEN,
 	    	"%s: %s<%02x> (%s)", label, name_str, name_type, name_type_str);
 
-	field_tree = proto_item_add_subtree( tf, ETT_NETB_NAME);
+	field_tree = proto_item_add_subtree( tf, ett_netb_name);
 	
 	proto_tree_add_text( field_tree, offset + nb_offset, 15, "%s",
 	    name_str);
@@ -262,7 +267,7 @@ static void netbios_data_first_middle_flags( const u_char *pd, proto_tree *tree,
 
 	tf = proto_tree_add_text( tree, offset, 1,
 			"Flags: 0x%02x", flags);
-	field_tree = proto_item_add_subtree(tf, ETT_NETB_FLAGS);
+	field_tree = proto_item_add_subtree(tf, ett_netb_flags);
 
 	proto_tree_add_text(field_tree, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x08, 8,
@@ -288,7 +293,7 @@ static void netbios_data_only_flags( const u_char *pd, proto_tree *tree,
 
 	tf = proto_tree_add_text( tree, offset, 1,
 			"Flags: 0x%02x", flags);
-	field_tree = proto_item_add_subtree(tf, ETT_NETB_FLAGS);
+	field_tree = proto_item_add_subtree(tf, ett_netb_flags);
 
 	proto_tree_add_text(field_tree, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x08, 8,
@@ -314,7 +319,7 @@ static void netbios_add_ses_confirm_flags( const u_char *pd, proto_tree *tree,
 
 	tf = proto_tree_add_text( tree, offset, 1,
 			"Flags: 0x%02x", flags);
-	field_tree = proto_item_add_subtree( tf, ETT_NETB_FLAGS);
+	field_tree = proto_item_add_subtree( tf, ett_netb_flags);
 
 	proto_tree_add_text(field_tree, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x80, 8,
@@ -336,7 +341,7 @@ static void netbios_add_session_init_flags( const u_char *pd, proto_tree *tree,
 
 	tf = proto_tree_add_text( tree, offset, 1,
 			"Flags: 0x%02x", flags);
-	field_tree = proto_item_add_subtree(tf, ETT_NETB_FLAGS);
+	field_tree = proto_item_add_subtree(tf, ett_netb_flags);
 
 	proto_tree_add_text(field_tree, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x80, 8,
@@ -365,7 +370,7 @@ static void netbios_no_receive_flags( const u_char *pd, proto_tree *tree,
 			"Flags: 0x%02x", flags);
 
 	if (flags & 0x02) {
-		field_tree = proto_item_add_subtree(tf, ETT_NETB_FLAGS);
+		field_tree = proto_item_add_subtree(tf, ett_netb_flags);
 		proto_tree_add_text(field_tree, offset, 1, "%s",
 		    decode_boolean_bitfield(flags, 0x02, 8,
 			"SEND.NO.ACK data not received", NULL));
@@ -734,7 +739,7 @@ static void  dissect_netb_status_resp(const u_char *data_ptr, int offset,
 	data2 = pletohs(data_ptr + NB_DATA2);
 	td2 = proto_tree_add_text(tree, offset + NB_DATA2, 2, "Status: 0x04x",
 	    data2);
-	data2_tree = proto_item_add_subtree(td2, ETT_NETB_STATUS);
+	data2_tree = proto_item_add_subtree(td2, ett_netb_status);
 	if (data2 & 0x8000) {
 		proto_tree_add_text(data2_tree, offset, 2, "%s",
 		    decode_boolean_bitfield(data2, 0x8000, 8*2,
@@ -973,7 +978,7 @@ void dissect_netbios(const u_char *pd, int offset, frame_data *fd,
 			if (tree) {
 				ti = proto_tree_add_item(tree, proto_netbios,
 					offset, END_OF_FRAME, NULL);
-				netb_tree = proto_item_add_subtree(ti, ETT_NETB);
+				netb_tree = proto_item_add_subtree(ti, ett_netb);
 				
 				proto_tree_add_text( netb_tree, offset,
 				    END_OF_FRAME, "Data (%u bytes)", 
@@ -1019,7 +1024,7 @@ void dissect_netbios(const u_char *pd, int offset, frame_data *fd,
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_netbios, offset, END_OF_FRAME, NULL);
 
-		netb_tree = proto_item_add_subtree(ti, ETT_NETB);
+		netb_tree = proto_item_add_subtree(ti, ett_netb);
 
 		proto_tree_add_text(netb_tree, offset, 2,
 				"Header Length: %d", hdr_len);
@@ -1059,6 +1064,13 @@ void dissect_netbios(const u_char *pd, int offset, frame_data *fd,
 
 void proto_register_netbios(void)
 {
+	static gint *ett[] = {
+		&ett_netb,
+		&ett_netb_name,
+		&ett_netb_flags,
+		&ett_netb_status,
+	};
 
         proto_netbios = proto_register_protocol("NetBIOS", "netbios");
+	proto_register_subtree_array(ett, array_length(ett));
 }

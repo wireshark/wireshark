@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.9 1999/11/11 21:08:51 itojun Exp $
+ * $Id: packet-bgp.c,v 1.10 1999/11/16 11:42:26 guy Exp $
  * 
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -179,6 +179,18 @@ static const value_string afnumber[] = {
 
 static int proto_bgp = -1;
 
+static gint ett_bgp = -1;
+static gint ett_bgp_unfeas = -1;
+static gint ett_bgp_attrs = -1;
+static gint ett_bgp_attr = -1;
+static gint ett_bgp_attr_flags = -1;
+static gint ett_bgp_mp_reach_nlri = -1;
+static gint ett_bgp_mp_unreach_nlri = -1;
+static gint ett_bgp_nlri = -1;
+static gint ett_bgp_open = -1;
+static gint ett_bgp_update = -1;
+static gint ett_bgp_notification = -1;
+
 /*
  * Decode an IPv4 prefix.
  */
@@ -296,7 +308,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
     if (len > 0) {
         ti = proto_tree_add_text(tree, p - pd, len, "Withdrawn routes:");
         /* TODO: unfeasible */
-	subtree = proto_item_add_subtree(ti, ETT_BGP_UNFEAS);
+	subtree = proto_item_add_subtree(ti, ett_bgp_unfeas);
     }
     p += 2 + len;
 
@@ -309,7 +321,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 /* --- move --- */
     if (len > 0) {
         ti = proto_tree_add_text(tree, p - pd + 2, len, "Path attributes");
-	subtree = proto_item_add_subtree(ti, ETT_BGP_ATTRS);
+	subtree = proto_item_add_subtree(ti, ett_bgp_attrs);
 	i = 2;
 	while (i < len) {
 	    int alen, aoff;
@@ -429,13 +441,13 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 			val_to_str(bgpa.bgpa_type, bgpattr_type, "Unknown"),
 			alen + aoff, (alen + aoff == 1) ? "byte" : "bytes");
 	    }
-	    subtree2 = proto_item_add_subtree(ti, ETT_BGP_ATTR);
+	    subtree2 = proto_item_add_subtree(ti, ett_bgp_attr);
 
             /* figure out flags */
 	    ti = proto_tree_add_text(subtree2,
 		    p - pd + i + offsetof(struct bgp_attr, bgpa_flags), 1,
 		    "Flags: 0x%02x", bgpa.bgpa_flags);
-	    subtree3 = proto_item_add_subtree(ti, ETT_BGP_ATTR_FLAGS);
+	    subtree3 = proto_item_add_subtree(ti, ett_bgp_attr_flags);
 	    proto_tree_add_text(subtree3,
 		    p - pd + i + offsetof(struct bgp_attr, bgpa_flags), 1,
 		    "%s", decode_boolean_bitfield(bgpa.bgpa_flags,
@@ -566,7 +578,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		    int j, advance;
 		    const char *s;
 
-		    subtree3 = proto_item_add_subtree(ti, ETT_BGP_MP_REACH_NLRI);
+		    subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_reach_nlri);
 
 		    j = 0;
 		    while (j < p[i + aoff + 3]) {
@@ -600,7 +612,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 			"Subnetwork points of attachment: %u", snpa);
 		off++;
 		if (snpa)
-		    subtree3 = proto_item_add_subtree(ti, ETT_BGP_MP_REACH_NLRI);
+		    subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_reach_nlri);
 		for (/*nothing*/; snpa > 0; snpa--) {
 		    proto_tree_add_text(subtree3, p - pd + i + aoff + off, 1,
 			"SNPA length: ", p[i + aoff + off]);
@@ -618,7 +630,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 			"Network Layer Reachability Information (%u %s)",
 			alen, (alen == 1) ? "byte" : "bytes");
 		if (alen)
-		    subtree3 = proto_item_add_subtree(ti, ETT_BGP_MP_UNREACH_NLRI);
+		    subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_unreach_nlri);
 		while (alen > 0) {
 		    int advance;
 		    char buf[256];
@@ -660,7 +672,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
 		alen -= 3;
 		aoff += 3;
 		if (alen > 0)
-		    subtree3 = proto_item_add_subtree(ti, ETT_BGP_MP_UNREACH_NLRI);
+		    subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_unreach_nlri);
 		while (alen > 0) {
 		    int advance;
 		    char buf[256];
@@ -704,7 +716,7 @@ dissect_bgp_update(const u_char *pd, int offset, frame_data *fd,
                 (len == 1) ? "byte" : "bytes");
 
         if (len > 0) {
-	    subtree = proto_item_add_subtree(ti, ETT_BGP_NLRI);
+	    subtree = proto_item_add_subtree(ti, ett_bgp_nlri);
 
             /* parse prefixes */
             end = p + len;
@@ -826,7 +838,7 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     if (tree) {
 	ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
 		    "Border Gateway Protocol");
-	bgp_tree = proto_item_add_subtree(ti, ETT_BGP);
+	bgp_tree = proto_item_add_subtree(ti, ett_bgp);
 
 	p = &pd[offset];
 	l = END_OF_FRAME;
@@ -858,19 +870,19 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    /* add a different tree for each message type */
 	    switch (bgp.bgp_type) {
 	    case BGP_OPEN:
-	        bgp1_tree = proto_item_add_subtree(ti, ETT_BGP_OPEN);
+	        bgp1_tree = proto_item_add_subtree(ti, ett_bgp_open);
 		break;
 	    case BGP_UPDATE:
-	        bgp1_tree = proto_item_add_subtree(ti, ETT_BGP_UPDATE);
+	        bgp1_tree = proto_item_add_subtree(ti, ett_bgp_update);
 		break;
 	    case BGP_NOTIFICATION:
-	        bgp1_tree = proto_item_add_subtree(ti, ETT_BGP_NOTIFICATION);
+	        bgp1_tree = proto_item_add_subtree(ti, ett_bgp_notification);
 		break;
 	    case BGP_KEEPALIVE:
-	        bgp1_tree = proto_item_add_subtree(ti, ETT_BGP);
+	        bgp1_tree = proto_item_add_subtree(ti, ett_bgp);
 		break;
 	    default:
-	        bgp1_tree = proto_item_add_subtree(ti, ETT_BGP);
+	        bgp1_tree = proto_item_add_subtree(ti, ett_bgp);
 		break;
 	    }
 
@@ -924,5 +936,20 @@ dissect_bgp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_bgp(void)
 {
+    static gint *ett[] = {
+      &ett_bgp,
+      &ett_bgp_unfeas,
+      &ett_bgp_attrs,
+      &ett_bgp_attr,
+      &ett_bgp_attr_flags,
+      &ett_bgp_mp_reach_nlri,
+      &ett_bgp_mp_unreach_nlri,
+      &ett_bgp_nlri,
+      &ett_bgp_open,
+      &ett_bgp_update,
+      &ett_bgp_notification,
+    };
+
     proto_bgp = proto_register_protocol("Border Gateway Protocol", "bgp");
+    proto_register_subtree_array(ett, array_length(ett));
 }

@@ -2,7 +2,7 @@
  * Routines for yahoo messenger packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-yhoo.c,v 1.3 1999/10/20 16:36:07 gram Exp $
+ * $Id: packet-yhoo.c,v 1.4 1999/11/16 11:43:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -55,6 +55,8 @@ static int hf_yhoo_msgtype = -1;
 static int hf_yhoo_nick1 = -1;
 static int hf_yhoo_nick2 = -1;
 static int hf_yhoo_content = -1;
+
+static gint ett_yhoo = -1;
 
 static const value_string yhoo_service_vals[] = {
 	{YAHOO_SERVICE_LOGON, "Pager Logon"},
@@ -125,7 +127,7 @@ dissect_yhoo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_yhoo, offset, END_OF_FRAME, NULL);
-		yhoo_tree = proto_item_add_subtree(ti, ETT_YHOO);
+		yhoo_tree = proto_item_add_subtree(ti, ett_yhoo);
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_version, 
 			offset, 8, pkt->version);
@@ -185,8 +187,13 @@ proto_register_yhoo(void)
 				"Version", "yhoo.version", FT_STRING, 0,
 				NULL, 0, "Packet version identifier" }},
         };
+	static gint *ett[] = {
+		&ett_yhoo,
+	};
 
 	proto_yhoo = proto_register_protocol("Yahoo Messenger Protocol", "yhoo");
 
 	proto_register_field_array(proto_yhoo, hf, array_length(hf));
+
+	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-sna.c,v 1.8 1999/10/26 08:08:24 gram Exp $
+ * $Id: packet-sna.c,v 1.9 1999/11/16 11:42:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -111,6 +111,14 @@ static int hf_sna_rh_edi = -1;
 static int hf_sna_rh_pdi = -1;
 static int hf_sna_rh_cebi = -1;
 static int hf_sna_ru = -1;
+
+static gint ett_sna = -1;
+static gint ett_sna_th = -1;
+static gint ett_sna_th_fid = -1;
+static gint ett_sna_rh = -1;
+static gint ett_sna_rh_0 = -1;
+static gint ett_sna_rh_1 = -1;
+static gint ett_sna_rh_2 = -1;
 
 /* Format Identifier */
 static const value_string sna_th_fid_vals[] = {
@@ -321,13 +329,13 @@ dissect_sna(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		/* Don't bother setting length. We'll set it later after we find
 		 * the lengths of TH/RH/RU */
 		sna_ti = proto_tree_add_item(tree, proto_sna, offset, 0, NULL);
-		sna_tree = proto_item_add_subtree(sna_ti, ETT_SNA);
+		sna_tree = proto_item_add_subtree(sna_ti, ett_sna);
 
 		/* --- TH --- */
 		/* Don't bother setting length. We'll set it later after we find
 		 * the length of TH */
 		th_ti = proto_tree_add_item(sna_tree, hf_sna_th,  offset, 0, NULL);
-		th_tree = proto_item_add_subtree(th_ti, ETT_SNA_TH);
+		th_tree = proto_item_add_subtree(th_ti, ett_sna_th);
 	}
 
 	/* Get size of TH */
@@ -364,7 +372,7 @@ dissect_sna(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		/* --- RH --- */
 		if (BYTES_ARE_IN_FRAME(offset, 3)) {
 			rh_ti = proto_tree_add_item(sna_tree, hf_sna_rh, offset, 3, NULL);
-			rh_tree = proto_item_add_subtree(rh_ti, ETT_SNA_RH);
+			rh_tree = proto_item_add_subtree(rh_ti, ett_sna_rh);
 			dissect_rh(pd, offset, fd, rh_tree);
 			sna_header_len += 3;
 			offset += 3;
@@ -421,7 +429,7 @@ dissect_fid0_1 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_item(tree, hf_sna_th_0, offset, 1, th_0);
-	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	proto_tree_add_item(bf_tree, hf_sna_th_fid, offset, 1, th_0);
 	proto_tree_add_item(bf_tree, hf_sna_th_mpf, offset, 1, th_0);
@@ -471,7 +479,7 @@ dissect_fid2 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_item(tree, hf_sna_th_0, offset, 1, th_0);
-	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	proto_tree_add_item(bf_tree, hf_sna_th_fid, offset, 1, th_0);
 	proto_tree_add_item(bf_tree, hf_sna_th_mpf, offset, 1, th_0);
@@ -513,7 +521,7 @@ dissect_fid3 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_item(tree, hf_sna_th_0, offset, 1, th_0);
-	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	proto_tree_add_item(bf_tree, hf_sna_th_fid, offset, 1, th_0);
 	proto_tree_add_item(bf_tree, hf_sna_th_mpf, offset, 1, th_0);
@@ -590,7 +598,7 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_item(tree, hf_sna_th_0, offset, 1, th_byte);
-	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	/* Byte 0 */
 	proto_tree_add_item(bf_tree, hf_sna_th_fid, offset, 1, th_byte);
@@ -604,7 +612,7 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_text(tree, offset, 1, "Transmision Header Byte 1");
-	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	/* Byte 1 */
 	proto_tree_add_item(bf_tree, hf_sna_th_tgsf, offset, 1, th_byte);
@@ -617,7 +625,7 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_text(tree, offset, 1, "Transmision Header Byte 2");
-	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	/* Byte 2 */
 	if (mft) {
@@ -634,7 +642,7 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_text(tree, offset, 1, "Transmision Header Byte 3");
-	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	/* Byte 3 */
 	proto_tree_add_item(bf_tree, hf_sna_th_vrn, offset, 1, th_byte);
@@ -645,7 +653,7 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_text(tree, offset, 2, "Transmision Header Bytes 4-5");
-	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	/* Bytes 4-5 */
 	proto_tree_add_item(bf_tree, hf_sna_th_vr_cwi, offset, 2, th_word);
@@ -660,7 +668,7 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_text(tree, offset, 2, "Transmision Header Bytes 6-7");
-	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	/* Bytes 6-7 */
 	proto_tree_add_item(bf_tree, hf_sna_th_vrprq, offset, 2, th_word);
@@ -686,7 +694,7 @@ dissect_fid4 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_text(tree, offset, 2, "Transmision Header Byte 16");
-	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	/* Byte 16 */
 	proto_tree_add_item(tree, hf_sna_th_snai, offset, 1, th_byte);
@@ -733,7 +741,7 @@ dissect_fid5 (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_item(tree, hf_sna_th_0, offset, 1, th_0);
-	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	proto_tree_add_item(bf_tree, hf_sna_th_fid, offset, 1, th_0);
 	proto_tree_add_item(bf_tree, hf_sna_th_mpf, offset, 1, th_0);
@@ -777,7 +785,7 @@ dissect_fidf (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* Create the bitfield tree */
 	bf_item = proto_tree_add_item(tree, hf_sna_th_0, offset, 1, th_0);
-	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_TH_FID);
+	bf_tree = proto_item_add_subtree(bf_item, ett_sna_th_fid);
 
 	proto_tree_add_item(bf_tree, hf_sna_th_fid, offset, 1, th_0);
 	proto_tree_add_text(tree, offset+1, 1, "Reserved");
@@ -811,7 +819,7 @@ dissect_rh (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* Create the bitfield tree for byte 0*/
 	bf_item = proto_tree_add_item(tree, hf_sna_rh_0, offset, 1, rh_0);
-	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_RH_0);
+	bf_tree = proto_item_add_subtree(bf_item, ett_sna_rh_0);
 
 	proto_tree_add_item(bf_tree, hf_sna_rh_rri, offset, 1, rh_0);
 	proto_tree_add_item(bf_tree, hf_sna_rh_ru_category, offset, 1, rh_0);
@@ -824,7 +832,7 @@ dissect_rh (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	/* Create the bitfield tree for byte 1*/
 	bf_item = proto_tree_add_item(tree, hf_sna_rh_1, offset, 1, rh_1);
-	bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_RH_1);
+	bf_tree = proto_item_add_subtree(bf_item, ett_sna_rh_1);
 
 	proto_tree_add_item(bf_tree, hf_sna_rh_dr1,  offset, 1, rh_1);
 
@@ -851,7 +859,7 @@ dissect_rh (const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	bf_item = proto_tree_add_item(tree, hf_sna_rh_2, offset, 1, rh_2);
 
 	if (!is_response) {
-		bf_tree = proto_item_add_subtree(bf_item, ETT_SNA_RH_2);
+		bf_tree = proto_item_add_subtree(bf_item, ett_sna_rh_2);
 
 		proto_tree_add_item(bf_tree, hf_sna_rh_bbi,  offset, 1, rh_2);
 		proto_tree_add_item(bf_tree, hf_sna_rh_ebi,  offset, 1, rh_2);
@@ -1176,8 +1184,17 @@ proto_register_sna(void)
                 { "Request/Response Unit",	"sna.ru", FT_NONE, BASE_NONE, NULL, 0x0,
 			""}},
         };
+	static gint *ett[] = {
+		&ett_sna,
+		&ett_sna_th,
+		&ett_sna_th_fid,
+		&ett_sna_rh,
+		&ett_sna_rh_0,
+		&ett_sna_rh_1,
+		&ett_sna_rh_2,
+	};
 
         proto_sna = proto_register_protocol("Systems Network Architecture", "sna");
 	proto_register_field_array(proto_sna, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
-

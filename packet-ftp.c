@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.9 1999/10/12 06:20:05 gram Exp $
+ * $Id: packet-ftp.c,v 1.10 1999/11/16 11:42:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -51,6 +51,8 @@ static int hf_ftp_request_command = -1;
 static int hf_ftp_request_data = -1;
 static int hf_ftp_response_code = -1;
 static int hf_ftp_response_data = -1;
+
+static gint ett_ftp = -1;
 
 void
 dissect_ftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -104,7 +106,7 @@ dissect_ftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (tree) {
 
 	  ti = proto_tree_add_item(tree, proto_ftp, offset, END_OF_FRAME, NULL);
-	  ftp_tree = proto_item_add_subtree(ti, ETT_FTP);
+	  ftp_tree = proto_item_add_subtree(ti, ett_ftp);
 
 	  if (pi.match_port == pi.destport) { /* Request */
 
@@ -185,8 +187,11 @@ proto_register_ftp(void)
       { "Response data",      "ftp.reponse.data",	FT_STRING,  BASE_NONE, NULL, 0x0,
       	"" }}
   };
+  static gint *ett[] = {
+    &ett_ftp,
+  };
 
   proto_ftp = proto_register_protocol("File Transfer Protocol", "ftp");
   proto_register_field_array(proto_ftp, hf, array_length(hf));
-
+  proto_register_subtree_array(ett, array_length(ett));
 }

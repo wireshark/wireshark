@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.3 1999/11/10 05:42:06 guy Exp $
+ * $Id: packet-vlan.c,v 1.4 1999/11/16 11:43:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,6 +44,8 @@ static int hf_vlan_priority = -1;
 static int hf_vlan_id = -1;
 static int hf_vlan_cfi = -1;
 
+static gint ett_vlan = -1;
+
 void
 dissect_vlan(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree *ti, *vlan_tree = NULL;
@@ -66,7 +68,7 @@ dissect_vlan(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_vlan, offset, 4);
-    vlan_tree = proto_item_add_subtree(ti, ETT_VLAN);
+    vlan_tree = proto_item_add_subtree(ti, ett_vlan);
 
     proto_tree_add_item(vlan_tree, hf_vlan_priority, offset, 2, tci);
     proto_tree_add_item(vlan_tree, hf_vlan_cfi, offset, 2, tci);
@@ -93,7 +95,11 @@ proto_register_vlan(void)
 		"ID", "vlan.id", FT_UINT16, BASE_BIN, 
 		0, 0x0FFF, "ID" }},
   };
+  static gint *ett[] = {
+	&ett_vlan,
+  };
 
   proto_vlan = proto_register_protocol("802.1q Virtual LAN", "vlan");
   proto_register_field_array(proto_vlan, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 }

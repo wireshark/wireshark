@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.5 1999/11/06 03:08:33 guy Exp $
+ * $Id: packet-icq.c,v 1.6 1999/11/16 11:42:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -68,13 +68,19 @@
 #include "packet.h"
 #include "resolv.h"
 
-int proto_icq = -1;
-int hf_icq_uin =-1;
-int hf_icq_cmd =-1;
-int hf_icq_sessionid =-1;
-int hf_icq_checkcode =-1;
-int hf_icq_decode = -1;
-int hf_icq_type = -1;
+static int proto_icq = -1;
+static int hf_icq_uin =-1;
+static int hf_icq_cmd =-1;
+static int hf_icq_sessionid =-1;
+static int hf_icq_checkcode =-1;
+static int hf_icq_decode = -1;
+static int hf_icq_type = -1;
+
+static gint ett_icq = -1;
+static gint ett_icq_header = -1;
+static gint ett_icq_decode = -1;
+static gint ett_icq_body = -1;
+static gint ett_icq_body_parts = -1;
 
 enum { ICQ5_client, ICQ5_server};
 
@@ -609,7 +615,7 @@ icqv5_decode_msgType(proto_tree* tree,
 			     2,
 			     "Type: %d (%s)", msgType, findMsgType(msgType));
     /* Create a new subtree */
-    subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY_PARTS);
+    subtree = proto_item_add_subtree(ti, ett_icq_body_parts);
 
     switch(msgType) {
     case 0xffff:           /* Field unknown */
@@ -755,7 +761,7 @@ icqv5_decode_msgType(proto_tree* tree,
 	u_char* msgText2 = NULL;
 	msgText = NULL;
 	/* Create a new subtree */
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY_PARTS);
+	subtree = proto_item_add_subtree(ti, ett_icq_body_parts);
 	while (p!=NULL) {
 	    p = strnchr(pprev, 0xfe, left);
 	    
@@ -826,7 +832,7 @@ icqv5_cmd_ack(proto_tree* tree,/* Tree to put the data in */
 					4,
 					CMD_ACK,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree,
 			    offset + CMD_ACK_RANDOM,
 			    4,
@@ -865,7 +871,7 @@ icqv5_cmd_rand_search(proto_tree* tree,       /* Tree to put the data in */
 					4,
 					CMD_RAND_SEARCH,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	if (group>0 && (group<=sizeof(groups)/sizeof(const char*)))
 	    proto_tree_add_text(subtree,
 				offset + CMD_RAND_SEARCH_GROUP,
@@ -896,7 +902,7 @@ icqv5_cmd_ack_messages(proto_tree* tree,/* Tree to put the data in */
 					4,
 					CMD_ACK_MESSAGES,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree,
 			    offset + CMD_ACK_MESSAGES_RANDOM,
 			    4,
@@ -921,7 +927,7 @@ icqv5_cmd_keep_alive(proto_tree* tree,/* Tree to put the data in */
 					4,
 					CMD_KEEP_ALIVE,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree,
 			    offset + CMD_KEEP_ALIVE_RANDOM,
 			    4,
@@ -964,7 +970,7 @@ icqv5_cmd_send_text_code(proto_tree* tree,/* Tree to put the data in */
 					left,
 					CMD_KEEP_ALIVE,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree,
 			    offset + CMD_SEND_TEXT_CODE_LEN,
 			    2,
@@ -1000,7 +1006,7 @@ icqv5_cmd_add_to_list(proto_tree* tree,/* Tree to put the data in */
 					4,
 					CMD_ADD_TO_LIST,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree,
 			    offset + CMD_ADD_TO_LIST_UIN,
 			    4,
@@ -1026,7 +1032,7 @@ icqv5_cmd_status_change(proto_tree* tree,/* Tree to put the data in */
 					offset,
 					4,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	if (status!=-1)
 	    proto_tree_add_text(subtree,
 				offset + CMD_STATUS_CHANGE_STATUS,
@@ -1067,7 +1073,7 @@ icqv5_cmd_send_msg(proto_tree* tree,
 					size,
 					CMD_SEND_MSG,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree,
 			    offset + CMD_SEND_MSG_RECV_UIN,
 			    4,
@@ -1128,7 +1134,7 @@ icqv5_cmd_login(proto_tree* tree,
 					size,
 					CMD_SEND_MSG,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	if (theTime!=-1)
 	    proto_tree_add_text(subtree,
 				offset + CMD_LOGIN_TIME,
@@ -1182,7 +1188,7 @@ icqv5_cmd_contact_list(proto_tree* tree,
 					size,
 					CMD_CONTACT_LIST,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree,
 			    offset + CMD_CONTACT_LIST,
 			    1,
@@ -1225,7 +1231,7 @@ icqv5_cmd_no_params(proto_tree* tree,/* Tree to put the data in */
 					0,
 					cmd,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree,
 			    offset,
 			    0,
@@ -1256,7 +1262,7 @@ icqv5_srv_no_params(proto_tree* tree,/* Tree to put the data in */
 					0,
 					cmd,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree,
 			    offset,
 			    0,
@@ -1284,7 +1290,7 @@ icqv5_srv_login_reply(proto_tree* tree,/* Tree to put the data in */
 					SRV_LOGIN_REPLY_IP + 8,
 					SRV_LOGIN_REPLY,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree,
 			    offset + SRV_LOGIN_REPLY_IP,
 			    4,
@@ -1337,7 +1343,7 @@ icqv5_srv_user_online(proto_tree* tree,/* Tree to put the data in */
 					SRV_LOGIN_REPLY_IP + 8,
 					SRV_LOGIN_REPLY,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree,
 			    offset + SRV_USER_ONL_UIN,
 			    4,
@@ -1385,7 +1391,7 @@ icqv5_srv_user_offline(proto_tree* tree,/* Tree to put the data in */
 					SRV_USER_OFFLINE_UIN + 4,
 					SRV_USER_OFFLINE,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree,
 			    offset + SRV_USER_OFFLINE_UIN,
 			    4,
@@ -1417,7 +1423,7 @@ icqv5_srv_multi(proto_tree* tree,/* Tree to put the data in */
 					size,
 					SRV_MULTI,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_text(subtree,
 			    offset + SRV_MULTI_NUM,
 			    1,
@@ -1471,7 +1477,7 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 					size,
 					SRV_META_USER,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	ti = proto_tree_add_text(subtree,
 				 offset + SRV_META_USER_SUBCMD,
 				 2,
@@ -1497,7 +1503,7 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	    int len = 0;
 	    guint16 x2 = -1;
 	    guint32 x3 = -1;
-	    proto_tree* sstree = proto_item_add_subtree(ti, ETT_ICQ_BODY_PARTS);
+	    proto_tree* sstree = proto_item_add_subtree(ti, ett_icq_body_parts);
 
 	    /* Skip over META_USER header */
 	    left -= 3;
@@ -1606,7 +1612,7 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	{
 	    int len;
 	    char* about = NULL;
-	    proto_tree* sstree = proto_item_add_subtree(ti, ETT_ICQ_BODY_PARTS);
+	    proto_tree* sstree = proto_item_add_subtree(ti, ett_icq_body_parts);
 
 	    /* Skip over META_USER header */
 	    left -= 3;
@@ -1657,7 +1663,7 @@ icqv5_srv_meta_user(proto_tree* tree,      /* Tree to put the data in */
 	    unsigned char user_timezone = -1;
 	    unsigned char auth = -1;
 	    int len = 0;
-	    proto_tree* sstree = proto_item_add_subtree(ti, ETT_ICQ_BODY_PARTS);
+	    proto_tree* sstree = proto_item_add_subtree(ti, ett_icq_body_parts);
 
 	    /* Skip over META_USER header */
 	    left -= 3;
@@ -1777,7 +1783,7 @@ icqv5_srv_recv_message(proto_tree* tree,      /* Tree to put the data in */
 					4,
 					SRV_RECV_MESSAGE,
 					"Body");
-	subtree = proto_item_add_subtree(ti, ETT_ICQ_BODY);
+	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	if (left>=sizeof(guint32)) {
 	    uin = pletohl(pd + SRV_RECV_MSG_UIN);
 	    proto_tree_add_item_format(subtree,
@@ -1863,14 +1869,14 @@ dissect_icqv5Client(const u_char *pd,
 				 "ICQv5 %s (len %d)",
 				 findClientCmd(cmd),
 				 pktsize);
-        icq_tree = proto_item_add_subtree(ti, ETT_ICQ);
+        icq_tree = proto_item_add_subtree(ti, ett_icq);
 	ti = proto_tree_add_item_format(icq_tree,
 					hf_icq_type,
 					offset,
 					ICQ5_CL_HDRSIZE,
 					ICQ5_client,
 					"Header");
-	icq_header_tree = proto_item_add_subtree(ti, ETT_ICQ_HEADER);
+	icq_header_tree = proto_item_add_subtree(ti, ett_icq_header);
 					
 	proto_tree_add_item_format(icq_header_tree,
 				   hf_icq_sessionid,
@@ -1988,7 +1994,7 @@ dissect_icqv5Client(const u_char *pd,
 				 pktsize,
 				 "Decoded packet");
         icq_decode_tree = proto_item_add_subtree(ti,
-						 ETT_ICQ_DECODE);
+						 ett_icq_decode);
 	proto_tree_add_hexdump(icq_decode_tree, offset, decr_pd, pktsize);
 
     }
@@ -2037,7 +2043,7 @@ dissect_icqv5Server(const u_char *pd,
 					findServerCmd(cmd),
 					pktsize);
 	
-        icq_tree = proto_item_add_subtree(ti, ETT_ICQ);
+        icq_tree = proto_item_add_subtree(ti, ett_icq);
 
 	ti = proto_tree_add_item_format(icq_tree,
 					hf_icq_type,
@@ -2045,7 +2051,7 @@ dissect_icqv5Server(const u_char *pd,
 					ICQ5_SRV_HDRSIZE,
 					ICQ5_server,
 					"Header");
-	icq_header_tree = proto_item_add_subtree(ti, ETT_ICQ_HEADER);
+	icq_header_tree = proto_item_add_subtree(ti, ett_icq_header);
 					
 	proto_tree_add_item_format(icq_header_tree,
 				   hf_icq_sessionid,
@@ -2144,7 +2150,7 @@ dissect_icqv5Server(const u_char *pd,
 				 pktsize,
 				 "Decoded packet");
         icq_decode_tree = proto_item_add_subtree(ti,
-						 ETT_ICQ_DECODE);
+						 ett_icq_decode);
 	proto_tree_add_hexdump(icq_decode_tree, offset, decr_pd, pktsize);
     }
 }
@@ -2206,8 +2212,17 @@ proto_register_icq(void)
 	{ &hf_icq_decode,
 	  {"Decode", "icq.decode", FT_STRING, BASE_NONE, NULL, 0x0, ""}}
     };
+    static gint *ett[] = {
+        &ett_icq,
+        &ett_icq_header,
+        &ett_icq_decode,
+        &ett_icq_body,
+        &ett_icq_body_parts,
+    };
     
     proto_icq = proto_register_protocol ("ICQ Protocol", "icq");
     
     proto_register_field_array(proto_icq, hf, array_length(hf));
+
+    proto_register_subtree_array(ett, array_length(ett));
 }

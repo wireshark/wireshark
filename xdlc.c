@@ -2,7 +2,7 @@
  * Routines for use by various SDLC-derived protocols, such as HDLC
  * and its derivatives LAPB, IEEE 802.2 LLC, etc..
  *
- * $Id: xdlc.c,v 1.9 1999/09/26 20:31:50 guy Exp $
+ * $Id: xdlc.c,v 1.10 1999/11/16 11:43:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -196,7 +196,7 @@ get_xdlc_control(const u_char *pd, int offset, int is_response, int is_extended)
 
 int
 dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
-  proto_tree *xdlc_tree, int hf_xdlc_control, 
+  proto_tree *xdlc_tree, int hf_xdlc_control, gint ett_xdlc_control,
   int is_response, int is_extended)
 {
     guint16 control;
@@ -253,7 +253,7 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 			offset, 2,
 			frame_type,
 			"Control field: %s (0x%04X)", info, control);
-		control_tree = proto_item_add_subtree(tc, ETT_XDLC_CONTROL);
+		control_tree = proto_item_add_subtree(tc, ett_xdlc_control);
 		proto_tree_add_text(control_tree, offset, 2,
 		    decode_numeric_bitfield(control, XDLC_N_R_EXT_MASK, 2*8,
 			"N(R) = %u"));
@@ -274,7 +274,7 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 			offset, 1,
 			frame_type,
 			"Control field: %s (0x%02X)", info, control);
-		control_tree = proto_item_add_subtree(tc, ETT_XDLC_CONTROL);
+		control_tree = proto_item_add_subtree(tc, ett_xdlc_control);
 		proto_tree_add_text(control_tree, offset, 1,
 		    decode_numeric_bitfield(control, XDLC_N_R_MASK, 1*8,
 			"N(R) = %u"));
@@ -327,7 +327,7 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 			offset, 1,
 			frame_type,
 			"Control field: %s (0x%02X)", info, control);
-	    control_tree = proto_item_add_subtree(tc, ETT_XDLC_CONTROL);
+	    control_tree = proto_item_add_subtree(tc, ett_xdlc_control);
 	    if (control & XDLC_P_F) {
 		proto_tree_add_text(control_tree, offset, 2,
 		    decode_boolean_bitfield(control, XDLC_P_F, 1*8,
@@ -372,7 +372,7 @@ dissect_xdlc_control(const u_char *pd, int offset, frame_data *fd,
 			(is_extended) ? "Control field: %s (0x%04X)"
 			              : "Control field: %s (0x%02X)",
 			info, control);
-	    control_tree = proto_item_add_subtree(tc, ETT_XDLC_CONTROL);
+	    control_tree = proto_item_add_subtree(tc, ett_xdlc_control);
 	    if (is_extended) {
 		proto_tree_add_text(control_tree, offset, 2,
 		    decode_numeric_bitfield(control, XDLC_N_R_EXT_MASK, 2*8,

@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.48 1999/11/15 06:32:14 gram Exp $
+ * $Id: proto.c,v 1.49 1999/11/16 11:43:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -121,6 +121,14 @@ GMemChunk *gmc_item_labels = NULL;
 /* List which stores protocols and fields that have been registered */
 GPtrArray *gpa_hfinfo = NULL;
 
+/* Points to the first element of an array of Booleans, indexed by
+   a subtree item type; that array element is TRUE if subtrees of
+   an item of that type are to be expanded. */
+gboolean	*tree_is_expanded;
+
+/* Number of elements in that array. */
+int		num_tree_types;
+
 /* Is the parsing being done for a visible proto_tree or an invisible one?
  * By setting this correctly, the proto_tree creation is sped up by not
  * having to call vsnprintf and copy strings around.
@@ -145,6 +153,8 @@ proto_init(void)
 		g_mem_chunk_destroy(gmc_item_labels);
 	if (gpa_hfinfo)
 		g_ptr_array_free(gpa_hfinfo, FALSE);
+	if (tree_is_expanded != NULL)
+		g_free(tree_is_expanded);
 
 	gmc_hfinfo = g_mem_chunk_new("gmc_hfinfo",
 		sizeof(struct header_field_info), 50 * sizeof(struct 
@@ -157,6 +167,12 @@ proto_init(void)
 		G_ALLOC_AND_FREE);
 	gpa_hfinfo = g_ptr_array_new();
 
+	/* Allocate "tree_is_expanded", with one element for ETT_NONE,
+	   and initialize that element to FALSE. */
+	tree_is_expanded = g_malloc(sizeof (gint));
+	tree_is_expanded[0] = FALSE;
+	num_tree_types = 1;
+
 	/* Have each dissector register its protocols and fields. */
 	register_all_protocols();
 
@@ -164,6 +180,11 @@ proto_init(void)
 		converting ethereal to new-style proto_tree. These fields
 		are merely strings on the GUI tree; they are not filterable */
 	proto_register_field_array(-1, hf, array_length(hf));
+
+	/* We've assigned all the subtree type values; allocate the array
+	   for them, and zero it out. */
+	tree_is_expanded = g_malloc(num_tree_types*sizeof (gint *));
+	memset(tree_is_expanded, '\0', num_tree_types*sizeof (gint *));
 }
 
 void
@@ -413,6 +434,7 @@ proto_tree_create_root(void)
 proto_tree*
 proto_item_add_subtree(proto_item *pi,  gint idx) {
 	field_info *fi = (field_info*) (((GNode*)pi)->data);
+	g_assert(idx >= 0 && idx < num_tree_types);
 	fi->tree_type = idx;
 	return (proto_tree*) pi;
 }
@@ -478,6 +500,31 @@ proto_register_field_init(header_field_info *hfinfo, int parent)
 	g_ptr_array_add(gpa_hfinfo, hfinfo);
 	hfinfo->id = gpa_hfinfo->len - 1;
 	return hfinfo->id;
+}
+
+void
+proto_register_subtree_array(gint **indices, int num_indices)
+{
+	int	i;
+	gint	**ptr = indices;
+
+	/*
+	 * Add "num_indices" elements to "tree_is_expanded".
+	 */
+	tree_is_expanded = g_realloc(tree_is_expanded,
+	    (num_tree_types + num_indices)*sizeof (gint));
+
+	/*
+	 * Assign "num_indices" subtree numbers starting at "num_tree_types",
+	 * returning the indices through the pointers in the array whose
+	 * first element is pointed to by "indices", set to FALSE the
+	 * elements to which those subtree numbers refer, and update
+	 * "num_tree_types" appropriately.
+	 */
+	for (i = 0; i < num_indices; i++, ptr++, num_tree_types++) {
+		tree_is_expanded[num_tree_types] = FALSE;
+		**ptr = num_tree_types;
+	}
 }
 
 void

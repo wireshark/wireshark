@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.org>
  *
- * $Id: packet-x25.c,v 1.8 1999/10/18 01:51:25 guy Exp $
+ * $Id: packet-x25.c,v 1.9 1999/11/16 11:43:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,24 +84,26 @@
 #define X25_FAC_ADDR_EXT		0xCB
 #define X25_FAC_CALL_DEFLECT		0xD1
 
-int proto_x25 = -1;
-int hf_x25_qbit = -1;
-int hf_x25_dbit = -1;
-int hf_x25_mod = -1;
-int hf_x25_lcn = -1;
-int hf_x25_type = -1;
-int hf_x25_p_r = -1;
-int hf_x25_mbit = -1;
-int hf_x25_p_s = -1;
-int proto_ex25 = -1;
-int hf_ex25_qbit = -1;
-int hf_ex25_dbit = -1;
-int hf_ex25_mod = -1;
-int hf_ex25_lcn = -1;
-int hf_ex25_type = -1;
-int hf_ex25_p_r = -1;
-int hf_ex25_mbit = -1;
-int hf_ex25_p_s = -1;
+static int proto_x25 = -1;
+static int hf_x25_qbit = -1;
+static int hf_x25_dbit = -1;
+static int hf_x25_mod = -1;
+static int hf_x25_lcn = -1;
+static int hf_x25_type = -1;
+static int hf_x25_p_r = -1;
+static int hf_x25_mbit = -1;
+static int hf_x25_p_s = -1;
+static int proto_ex25 = -1;
+static int hf_ex25_qbit = -1;
+static int hf_ex25_dbit = -1;
+static int hf_ex25_mod = -1;
+static int hf_ex25_lcn = -1;
+static int hf_ex25_type = -1;
+static int hf_ex25_p_r = -1;
+static int hf_ex25_mbit = -1;
+static int hf_ex25_p_s = -1;
+
+static gint ett_x25 = -1;
 
 static const value_string vals_modulo[] = {
 	{ 1, "8" },
@@ -1068,7 +1070,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     if (tree) {
 	ti = proto_tree_add_item(tree, (modulo == 8) ? proto_x25 : proto_ex25,
 		localoffset, x25_pkt_len, NULL);
-	x25_tree = proto_item_add_subtree(ti, ETT_X25);
+	x25_tree = proto_item_add_subtree(ti, ett_x25);
 	if (pd[localoffset] & 0x80)
 	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_qbit : hf_ex25_qbit,
 		    localoffset, 2, pd[localoffset]*256+pd[localoffset+1]);
@@ -1568,9 +1570,13 @@ proto_register_x25(void)
 	  { "P(S)", "ex25.p_s", FT_UINT8, BASE_HEX, NULL, 0xFE,
 	  	"Packet Send Sequence Number" } },
     };
+    static gint *ett[] = {
+        &ett_x25,
+    };
 
     proto_x25 = proto_register_protocol ("X.25", "x25");
     proto_ex25 = proto_register_protocol ("Extended X.25 (modulo 128)", "ex25");
     proto_register_field_array (proto_x25, hf8, array_length(hf8));
     proto_register_field_array (proto_ex25, hf128, array_length(hf128));
+    proto_register_subtree_array(ett, array_length(ett));
 }

@@ -2,7 +2,7 @@
  * Routines for the Internet Security Association and Key Management Protocol (ISAKMP)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.9 1999/09/17 05:56:54 guy Exp $
+ * $Id: packet-isakmp.c,v 1.10 1999/11/16 11:42:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -51,6 +51,10 @@
 #endif
 
 static int proto_isakmp = -1;
+
+static gint ett_isakmp = -1;
+static gint ett_isakmp_flags = -1;
+static gint ett_isakmp_payload = -1;
 
 #define NUM_PROTO_TYPES	5
 #define proto2str(t)	\
@@ -294,7 +298,7 @@ void dissect_isakmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
     proto_tree *	isakmp_tree;
     
     ti = proto_tree_add_item(tree, proto_isakmp, offset, len, NULL);
-    isakmp_tree = proto_item_add_subtree(ti, ETT_ISAKMP);
+    isakmp_tree = proto_item_add_subtree(ti, ett_isakmp);
     
     proto_tree_add_text(isakmp_tree, offset, sizeof(hdr->icookie),
 			"Initiator cookie");
@@ -324,7 +328,7 @@ void dissect_isakmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
       proto_tree *	ftree;
       
       fti   = proto_tree_add_text(isakmp_tree, offset, sizeof(hdr->flags), "Flags");
-      ftree = proto_item_add_subtree(fti, ETT_ISAKMP_FLAGS);
+      ftree = proto_item_add_subtree(fti, ett_isakmp_flags);
       
       proto_tree_add_text(ftree, offset, 1, "%s",
 			  decode_boolean_bitfield(hdr->flags, E_FLAG, sizeof(hdr->flags)*8,
@@ -366,7 +370,7 @@ dissect_sa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_item *		ti	  = proto_tree_add_text(tree, offset, length, "Security Association payload");
   proto_tree *		ntree;
 
-  ntree = proto_item_add_subtree(ti, ETT_ISAKMP_PAYLOAD);
+  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
   
   proto_tree_add_text(ntree, offset, sizeof(hdr->next_payload),
 		      "Next payload: %s (%u)",
@@ -405,7 +409,7 @@ dissect_proposal(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   proto_tree *		ntree;
   guint8		i;
   
-  ntree = proto_item_add_subtree(ti, ETT_ISAKMP_PAYLOAD);
+  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
   
   proto_tree_add_text(ntree, offset, sizeof(hdr->next_payload),
 		      "Next payload: %s (%u)",
@@ -457,7 +461,7 @@ dissect_transform(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   proto_item *		ti	= proto_tree_add_text(tree, offset, length, "Transform payload");
   proto_tree *		ntree;
 
-  ntree = proto_item_add_subtree(ti, ETT_ISAKMP_PAYLOAD);
+  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
   
   proto_tree_add_text(ntree, offset, sizeof(hdr->next_payload),
 		      "Next payload: %s (%u)",
@@ -516,7 +520,7 @@ dissect_key_exch(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   proto_item *		ti	= proto_tree_add_text(tree, offset, length, "Key Exchange payload");
   proto_tree *		ntree;
 
-  ntree = proto_item_add_subtree(ti, ETT_ISAKMP_PAYLOAD);
+  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
   
   proto_tree_add_text(ntree, offset, sizeof(hdr->next_payload),
 		      "Next payload: %s (%u)",
@@ -544,7 +548,7 @@ dissect_id(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_item *		ti	= proto_tree_add_text(tree, offset, length, "Identification payload");
   proto_tree *		ntree;
 
-  ntree = proto_item_add_subtree(ti, ETT_ISAKMP_PAYLOAD);
+  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
   
   proto_tree_add_text(ntree, offset, sizeof(hdr->next_payload),
 		      "Next payload: %s (%u)",
@@ -597,7 +601,7 @@ dissect_cert(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_item *		ti	= proto_tree_add_text(tree, offset, length, "Certificate payload");
   proto_tree *		ntree;
 
-  ntree = proto_item_add_subtree(ti, ETT_ISAKMP_PAYLOAD);
+  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
   
   proto_tree_add_text(ntree, offset, sizeof(hdr->next_payload),
 		      "Next payload: %s (%u)",
@@ -629,7 +633,7 @@ dissect_certreq(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) 
   proto_item *		ti	= proto_tree_add_text(tree, offset, length, "Certificate Request payload");
   proto_tree *		ntree;
 
-  ntree = proto_item_add_subtree(ti, ETT_ISAKMP_PAYLOAD);
+  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
   
   proto_tree_add_text(ntree, offset, sizeof(hdr->next_payload),
 		      "Next payload: %s (%u)",
@@ -661,7 +665,7 @@ dissect_hash(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_item *		ti	= proto_tree_add_text(tree, offset, length, "Hash payload");
   proto_tree *		ntree;
 
-  ntree = proto_item_add_subtree(ti, ETT_ISAKMP_PAYLOAD);
+  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
   
   proto_tree_add_text(ntree, offset, sizeof(hdr->next_payload),
 		      "Next payload: %s (%u)",
@@ -689,7 +693,7 @@ dissect_sig(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_item *		ti	= proto_tree_add_text(tree, offset, length, "Signature payload");
   proto_tree *		ntree;
 
-  ntree = proto_item_add_subtree(ti, ETT_ISAKMP_PAYLOAD);
+  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
   
   proto_tree_add_text(ntree, offset, sizeof(hdr->next_payload),
 		      "Next payload: %s (%u)",
@@ -717,7 +721,7 @@ dissect_nonce(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_item *		ti	= proto_tree_add_text(tree, offset, length, "Nonce payload");
   proto_tree *		ntree;
 
-  ntree = proto_item_add_subtree(ti, ETT_ISAKMP_PAYLOAD);
+  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
   
   proto_tree_add_text(ntree, offset, sizeof(hdr->next_payload),
 		      "Next payload: %s (%u)",
@@ -747,7 +751,7 @@ dissect_notif(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_item *		ti	= proto_tree_add_text(tree, offset, length, "Notification payload");
   proto_tree *		ntree;
 
-  ntree = proto_item_add_subtree(ti, ETT_ISAKMP_PAYLOAD);
+  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
   
   proto_tree_add_text(ntree, offset, sizeof(hdr->next_payload),
 		      "Next payload: %s (%u)",
@@ -803,7 +807,7 @@ dissect_delete(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_tree *		ntree;
   guint16		i;
   
-  ntree = proto_item_add_subtree(ti, ETT_ISAKMP_PAYLOAD);
+  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
   
   proto_tree_add_text(ntree, offset, sizeof(hdr->next_payload),
 		      "Next payload: %s (%u)",
@@ -851,7 +855,7 @@ dissect_vid(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   proto_item *		ti	= proto_tree_add_text(tree, offset, length, "Vendor ID payload");
   proto_tree *		ntree;
 
-  ntree = proto_item_add_subtree(ti, ETT_ISAKMP_PAYLOAD);
+  ntree = proto_item_add_subtree(ti, ett_isakmp_payload);
   
   proto_tree_add_text(ntree, offset, sizeof(hdr->next_payload),
 		      "Next payload: %s (%u)",
@@ -1057,7 +1061,13 @@ proto_register_isakmp(void)
                 { &variable,
                 { "Name",           "isakmp.abbreviation", TYPE, VALS_POINTER }},
         };*/
+	static gint *ett[] = {
+		&ett_isakmp,
+		&ett_isakmp_flags,
+		&ett_isakmp_payload,
+	};
 
         proto_isakmp = proto_register_protocol("Internet Security Association and Key Management Protocol", "isakmp");
  /*       proto_register_field_array(proto_isakmp, hf, array_length(hf));*/
+	proto_register_subtree_array(ett, array_length(ett));
 }

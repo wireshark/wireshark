@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.30 1999/10/22 07:17:43 guy Exp $
+ * $Id: packet-tr.c,v 1.31 1999/11/16 11:43:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -55,6 +55,10 @@ static int hf_tr_direction = -1;
 static int hf_tr_rif = -1;
 static int hf_tr_rif_ring = -1;
 static int hf_tr_rif_bridge = -1;
+
+static gint ett_token_ring = -1;
+static gint ett_token_ring_ac = -1;
+static gint ett_token_ring_fc = -1;
 
 #define TR_MIN_HEADER_LEN 14
 #define TR_MAX_HEADER_LEN 32
@@ -414,11 +418,11 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	if (tree) {
 		/* Create Token-Ring Tree */
 		ti = proto_tree_add_item(tree, proto_tr, offset, 14 + actual_rif_bytes, NULL);
-		tr_tree = proto_item_add_subtree(ti, ETT_TOKEN_RING);
+		tr_tree = proto_item_add_subtree(ti, ett_token_ring);
 
 		/* Create the Access Control bitfield tree */
 		ti = proto_tree_add_item(tr_tree, hf_tr_ac, offset, 1, trn_ac);
-		bf_tree = proto_item_add_subtree(ti, ETT_TOKEN_RING_AC);
+		bf_tree = proto_item_add_subtree(ti, ett_token_ring_ac);
 
 		proto_tree_add_item(bf_tree, hf_tr_priority, offset, 1, trn_ac);
 		proto_tree_add_item(bf_tree, hf_tr_frame, offset, 1, trn_ac);
@@ -427,7 +431,7 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 		/* Create the Frame Control bitfield tree */
 		ti = proto_tree_add_item(tr_tree, hf_tr_fc, offset + 1, 1, trn_fc);
-		bf_tree = proto_item_add_subtree(ti, ETT_TOKEN_RING_FC);
+		bf_tree = proto_item_add_subtree(ti, ett_token_ring_fc);
 
 		proto_tree_add_item(bf_tree, hf_tr_fc_type, offset + 1, 1, trn_fc);
 		proto_tree_add_item(bf_tree, hf_tr_fc_pcf,  offset + 1, 1, trn_fc);
@@ -615,8 +619,14 @@ proto_register_tr(void)
 		{ "RIF Bridge",		"tr.rif.bridge", FT_UINT8, BASE_HEX, NULL, 0x0,
 			"" }},
 	};
+	static gint *ett[] = {
+		&ett_token_ring,
+		&ett_token_ring_ac,
+		&ett_token_ring_fc,
+	};
 
 	proto_tr = proto_register_protocol("Token-Ring", "tr");
 	proto_register_field_array(proto_tr, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 

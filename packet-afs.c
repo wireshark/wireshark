@@ -6,7 +6,7 @@
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  *
- * $Id: packet-afs.c,v 1.5 1999/10/28 20:46:42 nneul Exp $
+ * $Id: packet-afs.c,v 1.6 1999/11/16 11:42:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -604,6 +604,13 @@ static int hf_afs_ubik_locktype = -1;
 static int hf_afs_ubik_voteend = -1;
 static int hf_afs_ubik_votetype = -1;
 
+static gint ett_afs = -1;
+static gint ett_afs_op = -1;
+static gint ett_afs_acl = -1;
+static gint ett_afs_fid = -1;
+static gint ett_afs_callback = -1;
+static gint ett_afs_ubikver = -1;
+
 /*
  * Dissector prototypes
  */
@@ -880,7 +887,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_afs, doffset, END_OF_FRAME);
-		afs_tree = proto_item_add_subtree(ti, ETT_AFS);
+		afs_tree = proto_item_add_subtree(ti, ett_afs);
 
 		if ( !BYTES_ARE_IN_FRAME(offset, sizeof(struct rx_header) +
 			sizeof(struct afs_header)) )
@@ -919,7 +926,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		}
 
 		/* Add the subtree for this particular service */
-		afs_op_tree = proto_item_add_subtree(ti, ETT_AFS_OP);
+		afs_op_tree = proto_item_add_subtree(ti, ett_afs_op);
 
 		if ( typenode != 0 )
 		{
@@ -1001,7 +1008,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	{ 	proto_tree *save, *ti; \
 		ti = proto_tree_add_text(tree, curoffset, 3*4, "Callback"); \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ETT_AFS_CALLBACK); \
+		tree = proto_item_add_subtree(ti, ett_afs_callback); \
 		TRUNC(3*sizeof(guint32)); \
 		UINTOUT(hf_afs_fs_callback_version); \
 		BIGDATEOUT(hf_afs_fs_callback_expires); \
@@ -1014,7 +1021,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	{ 	proto_tree *save, *ti; \
 		ti = proto_tree_add_text(tree, curoffset, 3*4, "Callback"); \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ETT_AFS_CALLBACK); \
+		tree = proto_item_add_subtree(ti, ett_afs_callback); \
 		TRUNC(3*sizeof(guint32)); \
 		UINTOUT(hf_afs_cb_callback_version); \
 		DATEOUT(hf_afs_cb_callback_expires); \
@@ -1029,7 +1036,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		ti = proto_tree_add_text(tree, curoffset, 3*4, \
 			"FileID (%s)", label); \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ETT_AFS_FID); \
+		tree = proto_item_add_subtree(ti, ett_afs_fid); \
 		UINTOUT(hf_afs_fs_fid_volume); \
 		UINTOUT(hf_afs_fs_fid_vnode); \
 		UINTOUT(hf_afs_fs_fid_uniqifier); \
@@ -1042,7 +1049,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		ti = proto_tree_add_text(tree, curoffset, 3*4, \
 			"FileID (%s)", label); \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ETT_AFS_FID); \
+		tree = proto_item_add_subtree(ti, ett_afs_fid); \
 		UINTOUT(hf_afs_cb_fid_volume); \
 		UINTOUT(hf_afs_cb_fid_vnode); \
 		UINTOUT(hf_afs_cb_fid_uniqifier); \
@@ -1067,7 +1074,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			"ACL:  %s %s%s", \
 			who, tmp, positive ? "" : " (negative)"); \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ETT_AFS_ACL); \
+		tree = proto_item_add_subtree(ti, ett_afs_acl); \
 		proto_tree_add_item(tree,hf_afs_fs_acl_entity,curoffset,strlen(who), who);\
 		tmpoffset = curoffset + strlen(who) + 1; \
 		acllen = bytes - strlen(who) - 1; \
@@ -1144,7 +1151,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		ti = proto_tree_add_text(tree, curoffset, 3*4, \
 			"UBIK Version (%s): %u.%u", label, epoch, counter ); \
 		save = tree; \
-		tree = proto_item_add_subtree(ti, ETT_AFS_UBIKVER); \
+		tree = proto_item_add_subtree(ti, ett_afs_ubikver); \
 		proto_tree_add_item(tree,hf_afs_ubik_version_epoch,curoffset-8, \
 			sizeof(guint32),&tv); \
 		proto_tree_add_item(tree,hf_afs_ubik_version_counter,curoffset-4, \
@@ -2588,7 +2595,16 @@ proto_register_afs(void)
 			0, 0, "Site" }},
 
 	};
+	static gint *ett[] = {
+		&ett_afs,
+		&ett_afs_op,
+		&ett_afs_acl,
+		&ett_afs_fid,
+		&ett_afs_callback,
+		&ett_afs_ubikver,
+	};
 
 	proto_afs = proto_register_protocol("Andrew File System (AFS)", "afs");
 	proto_register_field_array(proto_afs, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

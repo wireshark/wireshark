@@ -1,7 +1,7 @@
 /* packet-ypxfr.c
  * Routines for ypxfr dissection
  *
- * $Id: packet-ypxfr.c,v 1.1 1999/11/10 17:23:55 nneul Exp $
+ * $Id: packet-ypxfr.c,v 1.2 1999/11/16 11:43:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -39,6 +39,8 @@
 
 static int proto_ypxfr = -1;
 
+static gint ett_ypxfr = -1;
+
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: take the generic one. */
 const vsff ypxfr1_proc[] = {
@@ -51,10 +53,15 @@ const vsff ypxfr1_proc[] = {
 void
 proto_register_ypxfr(void)
 {
+	static gint *ett[] = {
+		&ett_ypxfr
+	};
+
 	proto_ypxfr = proto_register_protocol("Yellow Pages Transfer", "ypxfr");
+	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_ypxfr, YPXFR_PROGRAM, ETT_YPXFR);
+	rpc_init_prog(proto_ypxfr, YPXFR_PROGRAM, ett_ypxfr);
 	/* Register the procedure tables */
 	rpc_init_proc_table(YPXFR_PROGRAM, 1, ypxfr1_proc);
 }

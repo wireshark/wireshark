@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.5 1999/11/13 10:13:24 guy Exp $
+ * $Id: packet-q931.c,v 1.6 1999/11/16 11:42:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,11 +49,14 @@
  * http://www.tulatelecom.ru/staff/german/DSSHelp/MessList/InfEl/InfElList.html
  */
 
-int proto_q931 = -1;
-int hf_q931_discriminator = -1;
-int hf_q931_call_ref_len = -1;
-int hf_q931_call_ref = -1;
-int hf_q931_message_type = -1;
+static int proto_q931 = -1;
+static int hf_q931_discriminator = -1;
+static int hf_q931_call_ref_len = -1;
+static int hf_q931_call_ref = -1;
+static int hf_q931_message_type = -1;
+
+static gint ett_q931 = -1;
+static gint ett_q931_ie = -1;
 
 /*
  * Q.931 message types.
@@ -1959,7 +1962,7 @@ dissect_q931(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_q931, offset, 3, NULL);
-		q931_tree = proto_item_add_subtree(ti, ETT_Q931);
+		q931_tree = proto_item_add_subtree(ti, ett_q931);
 
 		proto_tree_add_item(q931_tree, hf_q931_discriminator, offset, 1, pd[offset]);
 	}
@@ -2084,7 +2087,7 @@ dissect_q931(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			    1+1+info_element_len, "%s",
 			    val_to_str(info_element, q931_info_element_vals,
 			      "Unknown information element (0x%02X)"));
-			ie_tree = proto_item_add_subtree(ti, ETT_Q931_IE);
+			ie_tree = proto_item_add_subtree(ti, ett_q931_ie);
 			proto_tree_add_text(ie_tree, offset, 1,
 			    "Information element: %s",
 			    val_to_str(info_element, q931_info_element_vals,
@@ -2255,7 +2258,12 @@ proto_register_q931(void)
 	  	"" }},
 
     };
+    static gint *ett[] = {
+        &ett_q931,
+        &ett_q931_ie,
+    };
 
     proto_q931 = proto_register_protocol ("Q.931", "q931");
     proto_register_field_array (proto_q931, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 }

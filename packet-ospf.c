@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.15 1999/10/27 03:10:37 guy Exp $
+ * $Id: packet-ospf.c,v 1.16 1999/11/16 11:42:45 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -52,6 +52,14 @@
 
 static int proto_ospf = -1;
 
+static gint ett_ospf = -1;
+static gint ett_ospf_hdr = -1;
+static gint ett_ospf_hello = -1;
+static gint ett_ospf_desc = -1;
+static gint ett_ospf_lsr = -1;
+static gint ett_ospf_lsa = -1;
+static gint ett_ospf_lsa_upd = -1;
+
 void 
 dissect_ospf(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     e_ospfhdr ospfh;
@@ -84,10 +92,10 @@ dissect_ospf(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_ospf, offset, ntohs(ospfh.length), NULL);
-	ospf_tree = proto_item_add_subtree(ti, ETT_OSPF);
+	ospf_tree = proto_item_add_subtree(ti, ett_ospf);
 
 	ti = proto_tree_add_text(ospf_tree, offset, OSPF_HEADER_LENGTH, "OSPF Header"); 
-	ospf_header_tree = proto_item_add_subtree(ti, ETT_OSPF_HDR);
+	ospf_header_tree = proto_item_add_subtree(ti, ett_ospf_hdr);
 
         proto_tree_add_text(ospf_header_tree, offset, 1, "OSPF Version: %d", ospfh.version);  
 	proto_tree_add_text(ospf_header_tree, offset + 1 , 1, "OSPF Packet Type: %d (%s)", 
@@ -188,7 +196,7 @@ dissect_ospf_hello(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 
     if (tree) {
 	ti = proto_tree_add_text(tree, offset, END_OF_FRAME, "OSPF Hello Packet"); 
-	ospf_hello_tree = proto_item_add_subtree(ti, ETT_OSPF_HELLO);
+	ospf_hello_tree = proto_item_add_subtree(ti, ett_ospf_hello);
 
 
 	proto_tree_add_text(ospf_hello_tree, offset , 4, "Network Mask: %s",  ip_to_str((guint8 *) &ospfhello.network_mask));
@@ -248,7 +256,7 @@ dissect_ospf_db_desc(const u_char *pd, int offset, frame_data *fd, proto_tree *t
 
     if (tree) {
 	ti = proto_tree_add_text(tree, offset, END_OF_FRAME, "OSPF DB Description"); 
-	ospf_db_desc_tree = proto_item_add_subtree(ti, ETT_OSPF_DESC);
+	ospf_db_desc_tree = proto_item_add_subtree(ti, ett_ospf_desc);
 
 	proto_tree_add_text(ospf_db_desc_tree, offset, 2, "Interface MTU: %d", ntohs(ospf_dbd.interface_mtu) );
 
@@ -318,7 +326,7 @@ dissect_ospf_ls_req(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 	while( ((int) (pi.captured_len - offset)) >= OSPF_LS_REQ_LENGTH ){
              memcpy(&ospf_lsr, &pd[offset], sizeof(e_ospf_ls_req));
 	     ti = proto_tree_add_text(tree, offset, OSPF_LS_REQ_LENGTH, "Link State Request"); 
-	     ospf_lsr_tree = proto_item_add_subtree(ti, ETT_OSPF_LSR);
+	     ospf_lsr_tree = proto_item_add_subtree(ti, ett_ospf_lsr);
 
 	     switch( ntohl( ospf_lsr.ls_type ) ){
 		 case OSPF_LSTYPE_ROUTER:
@@ -367,7 +375,7 @@ dissect_ospf_ls_upd(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 	ti = proto_tree_add_text(tree, offset, END_OF_FRAME, "LS Update Packet"); 
-	ospf_lsa_upd_tree = proto_item_add_subtree(ti, ETT_OSPF_LSA_UPD);
+	ospf_lsa_upd_tree = proto_item_add_subtree(ti, ett_ospf_lsa_upd);
 
 	proto_tree_add_text(ospf_lsa_upd_tree, offset, 4, "Nr oF LSAs: %ld", (long)ntohl(upd_hdr.lsa_nr) );
     }
@@ -451,7 +459,7 @@ dissect_ospf_lsa(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
         } else {
              ti = proto_tree_add_text(tree, offset, OSPF_LSA_HEADER_LENGTH, "LSA Header"); 
         }
-        ospf_lsa_tree = proto_item_add_subtree(ti, ETT_OSPF_LSA);
+        ospf_lsa_tree = proto_item_add_subtree(ti, ett_ospf_lsa);
 
 	
         proto_tree_add_text(ospf_lsa_tree, offset, 2, "LS Age: %d seconds", ntohs(lsa_hdr.ls_age));
@@ -605,7 +613,17 @@ proto_register_ospf(void)
                 { &variable,
                 { "Name",           "ospf.abbreviation", TYPE, VALS_POINTER }},
         };*/
+	static gint *ett[] = {
+		&ett_ospf,
+		&ett_ospf_hdr,
+		&ett_ospf_hello,
+		&ett_ospf_desc,
+		&ett_ospf_lsr,
+		&ett_ospf_lsa,
+		&ett_ospf_lsa_upd,
+	};
 
         proto_ospf = proto_register_protocol("Open Shortest Path First", "ospf");
  /*       proto_register_field_array(proto_ospf, hf, array_length(hf));*/
+	proto_register_subtree_array(ett, array_length(ett));
 }

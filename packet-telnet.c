@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.6 1999/08/24 17:26:15 gram Exp $
+ * $Id: packet-telnet.c,v 1.7 1999/11/16 11:42:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -44,6 +44,9 @@
 #include "packet.h"
 
 static int proto_telnet = -1;
+
+static gint ett_telnet = -1;
+static gint ett_telnet_subopt = -1;
 
 /* Some defines for Telnet */
 
@@ -140,7 +143,7 @@ void telnet_sub_option(proto_tree *telnet_tree, char *rr, int *i, int offset, in
 
   ti = proto_tree_add_text(telnet_tree, offset, subneg_len, "Suboption Begin: %s", opt);
 
-  option_tree = proto_item_add_subtree(ti, ETT_TELNET_SUBOPT);
+  option_tree = proto_item_add_subtree(ti, ett_telnet_subopt);
 
   proto_tree_add_text(option_tree, offset + 2, subneg_len - 2, "%s %s", (req ? "Send your" : "Here's my"), opt);
 
@@ -332,7 +335,7 @@ dissect_telnet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	  memcpy(rr, pd + offset, max_data);
 
 	  ti = proto_tree_add_item(tree, proto_telnet, offset, END_OF_FRAME, NULL);
-	  telnet_tree = proto_item_add_subtree(ti, ETT_TELNET);
+	  telnet_tree = proto_item_add_subtree(ti, ett_telnet);
 
 	  i1 = i2 = i3 = 0;
 
@@ -380,7 +383,12 @@ proto_register_telnet(void)
                 { &variable,
                 { "Name",           "telnet.abbreviation", TYPE, VALS_POINTER }},
         };*/
+	static gint *ett[] = {
+		&ett_telnet,
+		&ett_telnet_subopt,
+	};
 
         proto_telnet = proto_register_protocol("Telnet", "telnet");
  /*       proto_register_field_array(proto_telnet, hf, array_length(hf));*/
+	proto_register_subtree_array(ett, array_length(ett));
 }

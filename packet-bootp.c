@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-bootp.c,v 1.21 1999/10/12 06:20:02 gram Exp $
+ * $Id: packet-bootp.c,v 1.22 1999/11/16 11:42:27 guy Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -56,6 +56,9 @@ static int hf_bootp_hw_addr = -1;
 static int hf_bootp_server = -1;
 static int hf_bootp_file = -1;
 static int hf_bootp_cookie = -1;
+
+static guint ett_bootp = -1;
+static guint ett_bootp_option = -1;
 
 enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
 	time_in_secs,
@@ -209,7 +212,7 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 
 				vti = proto_tree_add_text(bp_tree, voff,
 					consumed, "Option %d: %s", code, text);
-				v_tree = proto_item_add_subtree(vti, ETT_BOOTP_OPTION);
+				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				for (i = voff + 2; i < voff + consumed; i += 8) {
 					proto_tree_add_text(v_tree, i, 8, "IP Address/Mask: %s/%s",
 						ip_to_str((guint8*)&pd[i]),
@@ -232,7 +235,7 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 
 				vti = proto_tree_add_text(bp_tree, voff,
 					consumed, "Option %d: %s", code, text);
-				v_tree = proto_item_add_subtree(vti, ETT_BOOTP_OPTION);
+				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				for (i = voff + 2; i < voff + consumed; i += 8) {
 					proto_tree_add_text(v_tree, i, 8,
 						"Destination IP Address/Router: %s/%s",
@@ -274,7 +277,7 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 		case 55:
 			vti = proto_tree_add_text(bp_tree, voff,
 				vlen + 2, "Option %d: %s", code, text);
-			v_tree = proto_item_add_subtree(vti, ETT_BOOTP_OPTION);
+			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 			for (i = 0; i < vlen; i++) {
 				byte = pd[voff+2+i];
 				if (byte < NUM_OPT_INFOS) {
@@ -296,7 +299,7 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 			if (vlen == 7) {
 				vti = proto_tree_add_text(bp_tree, voff,
 					consumed, "Option %d: %s", code, text);
-				v_tree = proto_item_add_subtree(vti, ETT_BOOTP_OPTION);
+				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 				proto_tree_add_text(v_tree, voff+2, 1,
 					"Hardware type: %s",
 					arphrdtype_to_str(pd[voff+2],
@@ -345,7 +348,7 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 
 					vti = proto_tree_add_text(bp_tree, voff,
 						consumed, "Option %d: %s", code, text);
-					v_tree = proto_item_add_subtree(vti, ETT_BOOTP_OPTION);
+					v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 					for (i = voff + 2; i < voff + consumed; i += 4) {
 						proto_tree_add_text(v_tree, i, 4, "IP Address: %s",
 							ip_to_str((guint8*)&pd[i]));
@@ -378,7 +381,7 @@ bootp_option(const u_char *pd, proto_tree *bp_tree, int voff, int eoff)
 				else {
 					vti = proto_tree_add_text(bp_tree, voff,
 						consumed, "Option %d: %s", code, text);
-					v_tree = proto_item_add_subtree(vti, ETT_BOOTP_OPTION);
+					v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 					for (i = voff + 2; i < voff + consumed; i += 2) {
 						proto_tree_add_text(v_tree, i, 4, "Value: %d",
 							pntohs(&pd[i]));
@@ -471,7 +474,7 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_bootp, offset, END_OF_FRAME, NULL);
-		bp_tree = proto_item_add_subtree(ti, ETT_BOOTP);
+		bp_tree = proto_item_add_subtree(ti, ett_bootp);
 
 		proto_tree_add_item_format(bp_tree, hf_bootp_type, 
 					   offset, 1,
@@ -630,7 +633,12 @@ proto_register_bootp(void)
       { "Magic cookie",			"bootp.cookie",	 FT_IPv4,   BASE_NONE, NULL, 0x0,
       	"" }},
   };
+  static gint *ett[] = {
+    &ett_bootp,
+    &ett_bootp_option,
+  };
   
   proto_bootp = proto_register_protocol("Bootstrap Protocol", "bootp");
   proto_register_field_array(proto_bootp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 }

@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.34 1999/11/14 20:44:51 guy Exp $
+ * $Id: packet-udp.c,v 1.35 1999/11/16 11:43:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,12 +44,14 @@
 #include "packet.h"
 #include "resolv.h"
 
-int proto_udp = -1;		
-int hf_udp_srcport = -1;
-int hf_udp_dstport = -1;
-int hf_udp_port = -1;
-int hf_udp_length = -1;
-int hf_udp_checksum = -1;
+static int proto_udp = -1;		
+static int hf_udp_srcport = -1;
+static int hf_udp_dstport = -1;
+static int hf_udp_port = -1;
+static int hf_udp_length = -1;
+static int hf_udp_checksum = -1;
+
+static gint ett_udp = -1;
 
 /* UDP structs and definitions */
 
@@ -200,7 +202,7 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     
   if (tree) {
     ti = proto_tree_add_item(tree, proto_udp, offset, 8);
-    udp_tree = proto_item_add_subtree(ti, ETT_UDP);
+    udp_tree = proto_item_add_subtree(ti, ett_udp);
 
     proto_tree_add_item_format(udp_tree, hf_udp_srcport, offset, 2, uh_sport,
 	"Source port: %s (%u)", get_udp_port(uh_sport), uh_sport);
@@ -324,8 +326,11 @@ proto_register_udp(void)
 		{ "Checksum",		"udp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
 			"" }},
 	};
+	static gint *ett[] = {
+		&ett_udp,
+	};
 
 	proto_udp = proto_register_protocol("User Datagram Protocol", "udp");
 	proto_register_field_array(proto_udp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
-

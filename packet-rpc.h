@@ -1,5 +1,5 @@
 /* packet-rpc.h (c) 1999 Uwe Girlich */
-/* $Id: packet-rpc.h,v 1.6 1999/11/15 17:16:51 nneul Exp $ */
+/* $Id: packet-rpc.h,v 1.7 1999/11/16 11:42:52 guy Exp $ */
 
 #ifndef __PACKET_RPC_H__
 #define __PACKET_RPC_H__
@@ -42,8 +42,6 @@
 #define AUTH_TOOWEAK 5
 
 typedef int (dissect_function_t)(const u_char* pd, int offset, frame_data* fd, proto_tree* tree);
-
-extern GHashTable *rpc_progs;
 
 typedef struct _vsff {
 	guint32	value;

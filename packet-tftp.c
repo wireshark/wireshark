@@ -3,7 +3,7 @@
  *
  * Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-tftp.c,v 1.6 1999/11/14 10:32:26 deniel Exp $
+ * $Id: packet-tftp.c,v 1.7 1999/11/16 11:43:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -44,6 +44,8 @@
 static int proto_tftp = -1;
 static int hf_tftp_type = -1;
 static int hf_tftp_error_code = -1;
+
+static gint ett_tftp = -1;
 
 #define	RRQ	1
 #define	WRQ	2
@@ -93,7 +95,7 @@ dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (tree) {
 
 	  ti = proto_tree_add_item(tree, proto_tftp, offset, END_OF_FRAME, NULL);
-	  tftp_tree = proto_item_add_subtree(ti, ETT_TFTP);
+	  tftp_tree = proto_item_add_subtree(ti, ett_tftp);
 
 	  i1 = pntohs(pd+offset);
 	  proto_tree_add_item_hidden(tftp_tree, hf_tftp_type, offset, 2, i1);
@@ -165,7 +167,11 @@ proto_register_tftp(void)
 	FT_UINT16, BASE_DEC, NULL, 0x0,
       	"Error code in case of TFTP error message" }}
   };
+  static gint *ett[] = {
+    &ett_tftp,
+  };
 
   proto_tftp = proto_register_protocol("Trivial File Transfer Protocol", "tftp");
   proto_register_field_array(proto_tftp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 }

@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.6 1999/11/15 14:17:19 nneul Exp $
+ * $Id: packet-portmap.c,v 1.7 1999/11/16 11:42:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -44,6 +44,8 @@ static int hf_portmap_proc = -1;
 static int hf_portmap_version = -1;
 static int hf_portmap_port = -1;
 static int hf_portmap_answer = -1;
+
+static gint ett_portmap = -1;
 
 /* Dissect a getport call */
 int dissect_getport_call(const u_char *pd, int offset, frame_data *fd,
@@ -266,16 +268,19 @@ proto_register_portmap(void)
 			"Answer", "portmap.answer", FT_BOOLEAN, BASE_DEC,
 			NULL, 0, "Answer" }},
 	};
+	static gint *ett[] = {
+		&ett_portmap,
+	};
 
 	proto_portmap = proto_register_protocol("Portmap", "portmap");
 	proto_register_field_array(proto_portmap, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register the protocol as RPC */
-	rpc_init_prog(proto_portmap, PORTMAP_PROGRAM, ETT_PORTMAP);
+	rpc_init_prog(proto_portmap, PORTMAP_PROGRAM, ett_portmap);
 	/* Register the procedure tables */
 	rpc_init_proc_table(PORTMAP_PROGRAM, 1, portmap1_proc);
 	rpc_init_proc_table(PORTMAP_PROGRAM, 2, portmap2_proc);
 	rpc_init_proc_table(PORTMAP_PROGRAM, 3, portmap3_proc);
 	rpc_init_proc_table(PORTMAP_PROGRAM, 4, portmap4_proc);
 }
-

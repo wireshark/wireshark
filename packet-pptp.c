@@ -2,7 +2,7 @@
  * Routines for the Point-to-Point Tunnelling Protocol (PPTP)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-pptp.c,v 1.5 1999/09/17 05:56:55 guy Exp $
+ * $Id: packet-pptp.c,v 1.6 1999/11/16 11:42:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -40,6 +40,8 @@
 
 #include <glib.h>
 #include "packet.h"
+
+static gint ett_pptp = -1;
 
 #define NUM_MSG_TYPES		3
 #define msgtype2str(t)	\
@@ -396,7 +398,7 @@ dissect_pptp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree *	pptp_tree;
 
     ti = proto_tree_add_text(tree, offset, len, "PPTP Control Channel");
-    pptp_tree = proto_item_add_subtree(ti, ETT_PPTP);
+    pptp_tree = proto_item_add_subtree(ti, ett_pptp);
     
     proto_tree_add_text(pptp_tree, offset, sizeof(hdr->len), 
 			"Length: %u", len);
@@ -884,4 +886,14 @@ dissect_set_link(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   proto_tree_add_text(tree, offset, sizeof(hdr->recv_acm),
 		      "Recv ACCM: %#08x", hdr->recv_acm);
   offset += sizeof(hdr->recv_acm);
+}
+
+void
+proto_register_pptp(void)
+{
+  static gint *ett[] = {
+    &ett_pptp,
+  };
+
+  proto_register_subtree_array(ett, array_length(ett));
 }

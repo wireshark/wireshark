@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.1 1999/08/20 06:55:05 guy Exp $
+ * $Id: packet-atm.c,v 1.2 1999/11/16 11:42:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,12 @@
 
 static int proto_atm = -1;
 static int proto_atm_lane = -1;
+
+static gint ett_atm = -1;
+static gint ett_atm_lane = -1;
+static gint ett_atm_lane_lc_lan_dest = -1;
+static gint ett_atm_lane_lc_lan_dest_rd = -1;
+static gint ett_atm_lane_lc_flags = -1;
 
 /*
  * See
@@ -137,7 +143,7 @@ dissect_le_client(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   if (tree) {
     ti = proto_tree_add_item_format(tree, proto_atm_lane, offset, 2, NULL,
 					    "ATM LANE");
-    lane_tree = proto_item_add_subtree(ti, ETT_ATM_LANE);
+    lane_tree = proto_item_add_subtree(ti, ett_atm_lane);
 
     proto_tree_add_text(lane_tree, offset, 2, "LE Client: 0x%04X",
 			pntohs(&pd[offset]));
@@ -156,7 +162,7 @@ dissect_lan_destination(const u_char *pd, int offset, const char *type, proto_tr
 
   td = proto_tree_add_text(tree, offset, 8, "%s LAN destination",
     			type);
-  dest_tree = proto_item_add_subtree(td, ETT_ATM_LANE_LC_LAN_DEST);
+  dest_tree = proto_item_add_subtree(td, ett_atm_lane_lc_lan_dest);
   tag = pntohs(&pd[offset]);
   proto_tree_add_text(dest_tree, offset, 2, "Tag: %s",
 	val_to_str(tag, le_control_landest_tag_vals,
@@ -175,7 +181,7 @@ dissect_lan_destination(const u_char *pd, int offset, const char *type, proto_tr
     route_descriptor = pntohs(&pd[offset]);
     trd = proto_tree_add_text(dest_tree, offset, 2, "Route descriptor: 0x%02X",
     			route_descriptor);
-    rd_tree = proto_item_add_subtree(td, ETT_ATM_LANE_LC_LAN_DEST_RD);
+    rd_tree = proto_item_add_subtree(td, ett_atm_lane_lc_lan_dest_rd);
     proto_tree_add_text(rd_tree, offset, 2,
 	    decode_numeric_bitfield(route_descriptor, 0xFFF0, 2*8,
 			"LAN ID = %u"));
@@ -202,7 +208,7 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
   if (tree) {
     ti = proto_tree_add_item_format(tree, proto_atm_lane, offset, 108, NULL,
 					    "ATM LANE");
-    lane_tree = proto_item_add_subtree(ti, ETT_ATM_LANE);
+    lane_tree = proto_item_add_subtree(ti, ett_atm_lane);
 
     proto_tree_add_text(lane_tree, offset, 2, "Marker: 0x%04X",
 			pntohs(&pd[offset]));
@@ -246,7 +252,7 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
     flags = pntohs(&pd[offset]);
     tf = proto_tree_add_text(lane_tree, offset, 2, "Flags: 0x%04X",
     			pntohs(&pd[offset]));
-    flags_tree = proto_item_add_subtree(tf, ETT_ATM_LANE_LC_FLAGS);
+    flags_tree = proto_item_add_subtree(tf, ett_atm_lane_lc_flags);
     proto_tree_add_text(flags_tree, offset, 2, "%s",
 	decode_boolean_bitfield(flags, 0x0001, 8*2,
 				"Remote address", "Local address"));
@@ -446,7 +452,7 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
   if (tree) {
     ti = proto_tree_add_item_format(tree, proto_atm, 0, 0, NULL,
 					    "ATM");
-    atm_tree = proto_item_add_subtree(ti, ETT_ATM);
+    atm_tree = proto_item_add_subtree(ti, ett_atm);
 
     proto_tree_add_text(atm_tree, 0, 0, "AAL: %s",
 	val_to_str(aal_type, aal_vals, "Unknown AAL (%x)"));
@@ -541,6 +547,14 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
 void
 proto_register_atm(void)
 {
+	static gint *ett[] = {
+		&ett_atm,
+		&ett_atm_lane,
+		&ett_atm_lane_lc_lan_dest,
+		&ett_atm_lane_lc_lan_dest_rd,
+		&ett_atm_lane_lc_flags,
+	};
 	proto_atm = proto_register_protocol("ATM", "atm");
 	proto_atm_lane = proto_register_protocol("ATM LANE", "lane");
+	proto_register_subtree_array(ett, array_length(ett));
 }

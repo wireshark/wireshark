@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-sdp.c,v 1.3 1999/07/29 05:47:03 gram Exp $
+ * $Id: packet-sdp.c,v 1.4 1999/11/16 11:42:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,8 @@
 
 static int proto_sdp = -1;
 
+static int ett_sdp = -1;
+
 void dissect_sdp(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree)
 {
@@ -71,7 +73,7 @@ void dissect_sdp(const u_char *pd, int offset, frame_data *fd,
 		return;
 
 	ti = proto_tree_add_item(tree, proto_sdp, offset, END_OF_FRAME, NULL);
-	sdp_tree = proto_item_add_subtree(ti, ETT_SDP);
+	sdp_tree = proto_item_add_subtree(ti, ett_sdp);
 
 	section = 0;
 	for (; data < dataend; offset += linelen, data = lineend) {
@@ -182,7 +184,11 @@ proto_register_sdp(void)
                 { &variable,
                 { "Name",           "sdp.abbreviation", TYPE, VALS_POINTER }},
         };*/
+	static gint *ett[] = {
+		&ett_sdp,
+	};
 
         proto_sdp = proto_register_protocol("Session Description Protocol", "sdp");
  /*       proto_register_field_array(proto_sdp, hf, array_length(hf));*/
+	proto_register_subtree_array(ett, array_length(ett));
 }

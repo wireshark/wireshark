@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.15 1999/11/15 17:16:51 nneul Exp $
+ * $Id: packet-rpc.c,v 1.16 1999/11/16 11:42:51 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -42,19 +42,19 @@
 #include "packet-rpc.h"
 
 
-const value_string rpc_msg_type[3] = {
+static const value_string rpc_msg_type[3] = {
 	{ RPC_CALL, "Call" },
 	{ RPC_REPLY, "Reply" },
 	{ 0, NULL }
 };
 
-const value_string rpc_reply_state[3] = {
+static const value_string rpc_reply_state[3] = {
 	{ MSG_ACCEPTED, "accepted" },
 	{ MSG_DENIED, "denied" },
 	{ 0, NULL }
 };
 
-const value_string rpc_auth_flavor[5] = {
+static const value_string rpc_auth_flavor[5] = {
 	{ AUTH_NULL, "AUTH_NULL" },
 	{ AUTH_UNIX, "AUTH_UNIX" },
 	{ AUTH_SHORT, "AUTH_SHORT" },
@@ -62,7 +62,7 @@ const value_string rpc_auth_flavor[5] = {
 	{ 0, NULL }
 };
 
-const value_string rpc_accept_state[6] = {
+static const value_string rpc_accept_state[6] = {
 	{ SUCCESS, "RPC executed successfully" },
 	{ PROG_UNAVAIL, "remote hasn't exported program" },
 	{ PROG_MISMATCH, "remote can't support version #" },
@@ -71,13 +71,13 @@ const value_string rpc_accept_state[6] = {
 	{ 0, NULL }
 };
 
-const value_string rpc_reject_state[3] = {
+static const value_string rpc_reject_state[3] = {
 	{ RPC_MISMATCH, "RPC_MISMATCH" },
 	{ AUTH_ERROR, "AUTH_ERROR" },
 	{ 0, NULL }
 };
 
-const value_string rpc_auth_state[6] = {
+static const value_string rpc_auth_state[6] = {
 	{ AUTH_BADCRED, "bad credential (seal broken)" },
 	{ AUTH_REJECTEDCRED, "client must begin new session" },
 	{ AUTH_BADVERF, "bad verifier (seal broken)" },
@@ -110,12 +110,17 @@ static int hf_rpc_state_reply = -1;
 static int hf_rpc_state_reject = -1;
 static int hf_rpc_state_auth = -1;
 
+static gint ett_rpc = -1;
+static gint ett_rpc_string = -1;
+static gint ett_rpc_cred = -1;
+static gint ett_rpc_verf = -1;
+static gint ett_rpc_gids = -1;
 
 /* Hash table with info on RPC program numbers */
-GHashTable *rpc_progs;
+static GHashTable *rpc_progs;
 
 /* Hash table with info on RPC procedure numbers */
-GHashTable *rpc_procs;
+static GHashTable *rpc_procs;
 
 
 /***********************************/
@@ -403,7 +408,7 @@ dissect_rpc_string(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 		proto_tree_add_item_hidden(tree, hfindex, offset+4,
 			string_length, string_buffer);
 		if (string_item) {
-			string_tree = proto_item_add_subtree(string_item, ETT_RPC_STRING);
+			string_tree = proto_item_add_subtree(string_item, ett_rpc_string);
 		}
 	}
 	if (string_tree) {
@@ -483,8 +488,8 @@ dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			gids_count = EXTRACT_UINT(pd,offset+0);
 			if (tree) {
 				gitem = proto_tree_add_text(tree, offset, 4+gids_count*4,
-				"Auxilliary GIDs");
-				gtree = proto_item_add_subtree(gitem, ETT_RPC_GIDS);
+				"Auxiliary GIDs");
+				gtree = proto_item_add_subtree(gitem, ett_rpc_gids);
 			}
 			offset += 4;
 			if (!BYTES_ARE_IN_FRAME(offset,4*gids_count)) return;
@@ -536,7 +541,7 @@ dissect_rpc_cred( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	if (tree) {
 		citem = proto_tree_add_text(tree, offset, 8+length_full,
 			"Credentials");
-		ctree = proto_item_add_subtree(citem, ETT_RPC_CRED);
+		ctree = proto_item_add_subtree(citem, ett_rpc_cred);
 		dissect_rpc_auth(pd, offset, fd, ctree);
 	}
 	offset += 8 + length_full;
@@ -561,7 +566,7 @@ dissect_rpc_verf( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	if (tree) {
 		vitem = proto_tree_add_text(tree, offset, 8+length_full,
 			"Verifier");
-		vtree = proto_item_add_subtree(vitem, ETT_RPC_VERF);
+		vtree = proto_item_add_subtree(vitem, ett_rpc_verf);
 		dissect_rpc_auth(pd, offset, fd, vtree);
 	}
 	offset += 8 + length_full;
@@ -691,7 +696,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (tree) {
 		rpc_item = proto_tree_add_item(tree, proto_rpc, offset, END_OF_FRAME, NULL);
 		if (rpc_item) {
-			rpc_tree = proto_item_add_subtree(rpc_item, ETT_RPC);
+			rpc_tree = proto_item_add_subtree(rpc_item, ett_rpc);
 		}
 	}
 
@@ -1085,8 +1090,15 @@ proto_register_rpc(void)
 			"Machine Name", "rpc.auth.machinename", FT_STRING, 
 			BASE_DEC, NULL, 0, "Machine Name" }},
 	};
-
+	static gint *ett[] = {
+		&ett_rpc,
+		&ett_rpc_string,
+		&ett_rpc_cred,
+		&ett_rpc_verf,
+		&ett_rpc_gids,
+	};
 
 	proto_rpc = proto_register_protocol("Remote Procedure Call", "rpc");
 	proto_register_field_array(proto_rpc, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

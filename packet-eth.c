@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.21 1999/10/22 07:17:31 guy Exp $
+ * $Id: packet-eth.c,v 1.22 1999/11/16 11:42:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,6 +44,9 @@ static int hf_eth_dst = -1;
 static int hf_eth_src = -1;
 static int hf_eth_len = -1;
 static int hf_eth_type = -1;
+
+static gint ett_ieee8023 = -1;
+static gint ett_ether2 = -1;
 
 #define ETH_HEADER_SIZE	14
 
@@ -154,7 +157,7 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	ti = proto_tree_add_item_format(tree, proto_eth, 0, ETH_HEADER_SIZE,
 		NULL, "IEEE 802.3 %s", (ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
 
-	fh_tree = proto_item_add_subtree(ti, ETT_IEEE8023);
+	fh_tree = proto_item_add_subtree(ti, ett_ieee8023);
 
 	proto_tree_add_item(fh_tree, hf_eth_dst, 0, 6, &pd[offset+0]);
 	proto_tree_add_item(fh_tree, hf_eth_src, 6, 6, &pd[offset+6]);
@@ -180,7 +183,7 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	ti = proto_tree_add_item_format(tree, proto_eth, 0, ETH_HEADER_SIZE,
 		NULL, "Ethernet II");
 
-	fh_tree = proto_item_add_subtree(ti, ETT_ETHER2);
+	fh_tree = proto_item_add_subtree(ti, ett_ether2);
 
 	proto_tree_add_item_format(fh_tree, hf_eth_dst, 0, 6, &pd[offset+0],
 		"Destination: %s (%s)", ether_to_str((guint8 *) &pd[offset+0]),
@@ -228,7 +231,12 @@ proto_register_eth(void)
 		{ "Type",		"eth.type", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
 			"" }}
 	};
+	static gint *ett[] = {
+		&ett_ieee8023,
+		&ett_ether2,
+	};
 
 	proto_eth = proto_register_protocol ("Ethernet", "eth" );
 	proto_register_field_array(proto_eth, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

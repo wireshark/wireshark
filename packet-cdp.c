@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.16 1999/10/16 14:27:00 deniel Exp $
+ * $Id: packet-cdp.c,v 1.17 1999/11/16 11:42:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,9 @@ static int hf_cdp_ttl = -1;
 static int hf_cdp_tlvtype = -1;
 static int hf_cdp_tlvlength = -1;
 
+static gint ett_cdp = -1;
+static gint ett_cdp_tlv = -1;
+
 static void
 add_multi_line_string_to_tree(proto_tree *tree, gint start, gint len,
   const gchar *prefix, const gchar *string);
@@ -88,7 +91,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     if(tree){
         ti = proto_tree_add_item(tree, proto_cdp, offset, END_OF_FRAME, NULL);
-	cdp_tree = proto_item_add_subtree(ti, ETT_CDP);
+	cdp_tree = proto_item_add_subtree(ti, ett_cdp);
 	
 	/* CDP header */
 	proto_tree_add_item(cdp_tree, hf_cdp_version, offset, 1, pd[offset]);
@@ -117,7 +120,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				    length + 4, "Type: %s, length: %u",
 				    type_str, length);
 				tlv_tree = proto_item_add_subtree(tlvi,
-				    ETT_CDP_TLV);
+				    ett_cdp_tlv);
 				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
 				    offset + TLV_TYPE, 2, type);
 				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
@@ -134,7 +137,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				    length, "Chassis ID: %s",
 				    &pd[offset+4]);
 				tlv_tree = proto_item_add_subtree(tlvi,
-				    ETT_CDP_TLV);
+				    ett_cdp_tlv);
 				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
 				    offset + TLV_TYPE, 2, type);
 				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
@@ -153,7 +156,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				    4, "Type: %u (unknown), second field: %u",
 				    type, length);
 				tlv_tree = proto_item_add_subtree(tlvi,
-				    ETT_CDP_TLV);
+				    ett_cdp_tlv);
 				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
 				    offset + TLV_TYPE, 2, type);
 				proto_tree_add_text(tlv_tree,
@@ -167,7 +170,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				    length, "Sent through Interface: %s",
 				    &pd[offset+4]);
 				tlv_tree = proto_item_add_subtree(tlvi,
-				    ETT_CDP_TLV);
+				    ett_cdp_tlv);
 				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
 				    offset + TLV_TYPE, 2, type);
 				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
@@ -193,7 +196,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				    offset, length, "Platform: %s",
 				    stringmem);
 				tlv_tree = proto_item_add_subtree(tlvi,
-				    ETT_CDP_TLV);
+				    ett_cdp_tlv);
 				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
 				    offset + TLV_TYPE, 2, type);
 				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
@@ -211,7 +214,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				    offset, length + 4, "Mgmt IP: %s",
 				    ip_to_str(&pd[offset+4]));
 				tlv_tree = proto_item_add_subtree(tlvi,
-				    ETT_CDP_TLV);
+				    ett_cdp_tlv);
 				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
 				    offset + TLV_TYPE, 2, type);
 				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
@@ -226,7 +229,7 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				    length, "Type: %s, length: %u",
 				    type_str, length);
 				tlv_tree = proto_item_add_subtree(tlvi,
-				    ETT_CDP_TLV);
+				    ett_cdp_tlv);
 				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
 				    offset + TLV_TYPE, 2, type);
 				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
@@ -304,7 +307,12 @@ proto_register_cdp(void)
                 { "Length",		"cdp.tlv.len", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"" }},
         };
+	static gint *ett[] = {
+		&ett_cdp,
+		&ett_cdp_tlv,
+	};
 
         proto_cdp = proto_register_protocol("Cisco Discovery Protocol", "cdp");
         proto_register_field_array(proto_cdp, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

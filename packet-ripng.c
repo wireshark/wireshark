@@ -3,7 +3,7 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.5 1999/10/18 00:37:35 itojun Exp $
+ * $Id: packet-ripng.c,v 1.6 1999/11/16 11:42:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -48,6 +48,9 @@ static int proto_ripng = -1;
 static int hf_ripng_cmd = -1;
 static int hf_ripng_version = -1;
 
+static gint ett_ripng = -1;
+static gint ett_ripng_addr = -1;
+
 void 
 dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     struct rip6 rip6;
@@ -74,7 +77,7 @@ dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_ripng, offset, END_OF_FRAME, NULL);
-	ripng_tree = proto_item_add_subtree(ti, ETT_RIPNG);
+	ripng_tree = proto_item_add_subtree(ti, ett_ripng);
 
 	proto_tree_add_item_format(ripng_tree, hf_ripng_cmd, offset, 1,
 	    rip6.rip6_cmd,
@@ -99,7 +102,7 @@ dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				ni6.rip6_plen,
 				ni6.rip6_metric);
 	    }
-	    subtree = proto_item_add_subtree(ti, ETT_RIPNG_ADDR);
+	    subtree = proto_item_add_subtree(ti, ett_ripng_addr);
 	    proto_tree_add_text(subtree,
 			offset + offsetof(struct netinfo6, rip6_dest),
 			sizeof(ni6.rip6_dest), "IP Address: %s",
@@ -133,7 +136,12 @@ proto_register_ripng(void)
 	{ "Version",		"ripng.version",
 				FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
     };
+    static gint *ett[] = {
+      &ett_ripng,
+      &ett_ripng_addr,
+    };
 
     proto_ripng = proto_register_protocol("RIPng", "ripng");
     proto_register_field_array(proto_ripng, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 }

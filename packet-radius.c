@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.4 1999/10/12 06:20:15 gram Exp $
+ * $Id: packet-radius.c,v 1.5 1999/11/16 11:42:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -20,10 +20,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-int proto_radius = -1;
-int hf_radius_length = -1;
-int hf_radius_code = -1;
-int hf_radius_id =-1;
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -43,6 +39,14 @@ int hf_radius_id =-1;
 #include <glib.h>
 #include "packet.h"
 #include "resolv.h"
+
+static int proto_radius = -1;
+static int hf_radius_length = -1;
+static int hf_radius_code = -1;
+static int hf_radius_id =-1;
+
+static gint ett_radius = -1;
+static gint ett_radius_avp = -1;
 
 typedef struct _e_radiushdr {
         guint8 rh_code;
@@ -572,7 +576,7 @@ proto_tree
         ti = proto_tree_add_item(tree,proto_radius, offset, rhlength,
 			NULL);
 
-        radius_tree = proto_item_add_subtree(ti, ETT_RADIUS);
+        radius_tree = proto_item_add_subtree(ti, ett_radius);
 
 	proto_tree_add_item_format(radius_tree,hf_radius_code, offset,      1,
                 rh.rh_code, "Packet code:0x%01x (%s)",rhcode, codestrval);
@@ -599,7 +603,7 @@ proto_tree
         avptf = proto_tree_add_text(radius_tree
                         ,offset+hdrlength,avplength,
                         "Attribute value pairs");
-        avptree = proto_item_add_subtree(avptf, ETT_RADIUS_AVP);
+        avptree = proto_item_add_subtree(avptf, ett_radius_avp);
 
         if (avptree !=NULL)
         {
@@ -625,8 +629,12 @@ proto_register_radius(void)
 		{ "Length","radius.length", FT_UINT16, BASE_DEC, NULL, 0x0,
 			"" }}
 	};
+	static gint *ett[] = {
+		&ett_radius,
+		&ett_radius_avp,
+	};
 
 	proto_radius = proto_register_protocol ("Radius Protocol", "radius");
 	proto_register_field_array(proto_radius, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }
-

@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.9 1999/10/12 06:20:16 gram Exp $
+ * $Id: packet-rsvp.c,v 1.10 1999/11/16 11:42:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,6 +74,25 @@
 #include "packet-rsvp.h"
 
 static int proto_rsvp = -1;
+
+static gint ett_rsvp = -1;
+static gint ett_rsvp_hdr = -1;
+static gint ett_rsvp_session = -1;
+static gint ett_rsvp_hop = -1;
+static gint ett_rsvp_time_values = -1;
+static gint ett_rsvp_error = -1;
+static gint ett_rsvp_scope = -1;
+static gint ett_rsvp_style = -1;
+static gint ett_rsvp_confirm = -1;
+static gint ett_rsvp_sender_template = -1;
+static gint ett_rsvp_filter_spec = -1;
+static gint ett_rsvp_sender_tspec = -1;
+static gint ett_rsvp_flowspec = -1;
+static gint ett_rsvp_adspec = -1;
+static gint ett_rsvp_adspec_subtree = -1;
+static gint ett_rsvp_integrity = -1;
+static gint ett_rsvp_policy = -1;
+static gint ett_rsvp_unknown_class = -1;
 
 /* Stuff for IEEE float handling */
 
@@ -373,11 +392,11 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     if (tree) {
 	msg_length = pntohs(pd+offset+6);
 	ti = proto_tree_add_item(tree, proto_rsvp, offset, msg_length, NULL);
-	rsvp_tree = proto_item_add_subtree(ti, ETT_RSVP);
+	rsvp_tree = proto_item_add_subtree(ti, ett_rsvp);
 
 	ti = proto_tree_add_text(rsvp_tree, offset, 
 			      sizeof(rsvp_header), "RSVP Header"); 
-	rsvp_header_tree = proto_item_add_subtree(ti, ETT_RSVP_HDR);
+	rsvp_header_tree = proto_item_add_subtree(ti, ett_rsvp_hdr);
 
         proto_tree_add_text(rsvp_header_tree, offset, 1, "RSVP Version: %d", 
 			 (hdr->ver_flags & 0xf0)>>4);  
@@ -426,7 +445,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    switch(obj->class) {
 
 	    case RSVP_CLASS_SESSION : 		
-		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_SESSION);
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_session);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
 		proto_tree_add_text(rsvp_object_tree, offset+2, 1, 
@@ -488,7 +507,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		break;
 		
 	    case RSVP_CLASS_HOP :		
-		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_HOP);
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_hop);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
 		proto_tree_add_text(rsvp_object_tree, offset+2, 1, 
@@ -533,7 +552,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		break;
 		
 	    case RSVP_CLASS_TIME_VALUES : 
-		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_TIME_VALUES);
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_time_values);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
 		proto_tree_add_text(rsvp_object_tree, offset+2, 1, 
@@ -563,7 +582,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		break;
 
 	    case RSVP_CLASS_ERROR :
-		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_ERROR);
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_error);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
 		proto_tree_add_text(rsvp_object_tree, offset+2, 1, 
@@ -625,7 +644,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	    case RSVP_CLASS_SCOPE : 
 		mylen = obj_length;
-		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_SCOPE);
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_scope);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
 		proto_tree_add_text(rsvp_object_tree, offset+2, 1, 
@@ -674,7 +693,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		break;
 		
 	    case RSVP_CLASS_STYLE : 
-		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_STYLE);
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_style);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
 		proto_tree_add_text(rsvp_object_tree, offset+2, 1, 
@@ -705,7 +724,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		break;
 	    
 	    case RSVP_CLASS_CONFIRM :		
-		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_CONFIRM);
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_confirm);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
 		proto_tree_add_text(rsvp_object_tree, offset+2, 1, 
@@ -744,7 +763,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		break;
 
 	    case RSVP_CLASS_SENDER_TEMPLATE :
-		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_SENDER_TEMPLATE);
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_sender_template);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
 		proto_tree_add_text(rsvp_object_tree, offset+2, 1, 
@@ -752,7 +771,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				    obj->class, object_type);
 		goto common_template;
 	    case RSVP_CLASS_FILTER_SPEC :
-		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_FILTER_SPEC);
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_filter_spec);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
 		proto_tree_add_text(rsvp_object_tree, offset+2, 1, 
@@ -803,7 +822,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		char *str;
 
 		mylen = obj_length;
-		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_SENDER_TSPEC);
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_sender_tspec);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
 		proto_tree_add_text(rsvp_object_tree, offset+2, 1, 
@@ -915,7 +934,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		char *str;
 
 		mylen = obj_length;
-		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_FLOWSPEC);
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_flowspec);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
 		proto_tree_add_text(rsvp_object_tree, offset+2, 1, 
@@ -1043,10 +1062,9 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		param_hdr *phdr; 
 
 		char *str;
-		int tree_num;
 
 		mylen = obj_length;
-		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_ADSPEC);
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_adspec);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
 		proto_tree_add_text(rsvp_object_tree, offset+2, 1, 
@@ -1060,7 +1078,6 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				    "Data length: %d words, not including header", 
 				    pntohs(pd+offset2+2));
 		offset2+=4;
-		tree_num=ETT_RSVP_ADSPEC_SUBTREE1;
 		mylen -= 4;
 		while (mylen > 4) {
 		    shdr = (service_hdr *)(pd + offset2);
@@ -1069,7 +1086,8 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    ti = proto_tree_add_text(rsvp_object_tree, offset2, 
 					     (pntohs(&shdr->length)+1)<<2,
 					     str?str:"Unknown");
-		    adspec_tree = proto_item_add_subtree(ti, tree_num++);
+		    adspec_tree = proto_item_add_subtree(ti,
+		    			ett_rsvp_adspec_subtree);
 		    proto_tree_add_text(adspec_tree, offset2, 1,
 					"Service header %d - %s",
 					shdr->service_num, str);
@@ -1132,7 +1150,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    }
 
 	    case RSVP_CLASS_INTEGRITY :
-		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_INTEGRITY);
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_integrity);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
 		proto_tree_add_text(rsvp_object_tree, offset+2, 1, 
@@ -1141,7 +1159,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		goto default_class;
 
 	    case RSVP_CLASS_POLICY :
-		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_POLICY);
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_policy);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
 		proto_tree_add_text(rsvp_object_tree, offset+2, 1, 
@@ -1150,7 +1168,7 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		goto default_class;
 
 	    default :
-		rsvp_object_tree = proto_item_add_subtree(ti, ETT_RSVP_UNKNOWN_CLASS);
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_unknown_class);
 		proto_tree_add_text(rsvp_object_tree, offset, 2, "Length: %d", 
 				    obj_length);
 		proto_tree_add_text(rsvp_object_tree, offset+2, 1, 
@@ -1176,6 +1194,28 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_rsvp(void)
 {
+	static gint *ett[] = {
+		&ett_rsvp,
+		&ett_rsvp_hdr,
+		&ett_rsvp_session,
+		&ett_rsvp_hop,
+		&ett_rsvp_time_values,
+		&ett_rsvp_error,
+		&ett_rsvp_scope,
+		&ett_rsvp_style,
+		&ett_rsvp_confirm,
+		&ett_rsvp_sender_template,
+		&ett_rsvp_filter_spec,
+		&ett_rsvp_sender_tspec,
+		&ett_rsvp_flowspec,
+		&ett_rsvp_adspec,
+		&ett_rsvp_adspec_subtree,
+		&ett_rsvp_integrity,
+		&ett_rsvp_policy,
+		&ett_rsvp_unknown_class,
+	};
+
         proto_rsvp = proto_register_protocol("Resource ReserVation Protocol (RSVP)", "rsvp");
         proto_register_field_array(proto_rsvp, rsvpf_info, array_length(rsvpf_info));
+	proto_register_subtree_array(ett, array_length(ett));
 }

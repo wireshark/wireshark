@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.53 1999/11/11 05:36:05 gram Exp $
+ * $Id: packet.c,v 1.54 1999/11/16 11:43:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,14 +67,14 @@
 
 extern capture_file  cf;
 
-gboolean	tree_is_expanded[NUM_TREE_TYPES];
+static int proto_frame = -1;
+static int hf_frame_arrival_time = -1;
+static int hf_frame_time_delta = -1;
+static int hf_frame_number = -1;
+static int hf_frame_packet_len = -1;
+static int hf_frame_capture_len = -1;
 
-int proto_frame = -1;
-int hf_frame_arrival_time = -1;
-int hf_frame_time_delta = -1;
-int hf_frame_number = -1;
-int hf_frame_packet_len = -1;
-int hf_frame_capture_len = -1;
+static gint ett_frame = -1;
 
 gchar *
 ether_to_str(const guint8 *ad) {
@@ -735,7 +735,7 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 	  ti = proto_tree_add_item_format(tree, proto_frame, 0, fd->cap_len,
 	    NULL, "Frame (%d on wire, %d captured)", fd->pkt_len, fd->cap_len);
 
-	  fh_tree = proto_item_add_subtree(ti, ETT_FRAME);
+	  fh_tree = proto_item_add_subtree(ti, ett_frame);
 
 	  tv.tv_sec = fd->abs_secs;
 	  tv.tv_usec = fd->abs_usecs;
@@ -834,7 +834,11 @@ proto_register_frame(void)
 		{ "Capture Frame Length",	"frame.cap_len", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"" }},
 	};
+	static gint *ett[] = {
+		&ett_frame,
+	};
 
 	proto_frame = proto_register_protocol("Frame", "frame");
 	proto_register_field_array(proto_frame, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

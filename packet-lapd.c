@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lapd.c,v 1.2 1999/11/11 08:35:10 guy Exp $
+ * $Id: packet-lapd.c,v 1.3 1999/11/16 11:42:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,14 +45,18 @@
  * http://www.acacia-net.com/Clarinet/Protocol/q9213o84.htm
  */
 
-int proto_lapd = -1;
-int hf_lapd_address = -1;
-int hf_lapd_sapi = -1;
-int hf_lapd_cr = -1;
-int hf_lapd_ea1 = -1;
-int hf_lapd_tei = -1;
-int hf_lapd_ea2 = -1;
-int hf_lapd_control = -1;
+static int proto_lapd = -1;
+static int hf_lapd_address = -1;
+static int hf_lapd_sapi = -1;
+static int hf_lapd_cr = -1;
+static int hf_lapd_ea1 = -1;
+static int hf_lapd_tei = -1;
+static int hf_lapd_ea2 = -1;
+static int hf_lapd_control = -1;
+
+static gint ett_lapd = -1;
+static gint ett_lapd_address = -1;
+static gint ett_lapd_control = -1;
 
 /*
  * Bits in the address field.
@@ -115,10 +119,10 @@ dissect_lapd(const u_char *pd, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_lapd, 0, 3, NULL);
-		lapd_tree = proto_item_add_subtree(ti, ETT_LAPD);
+		lapd_tree = proto_item_add_subtree(ti, ett_lapd);
 
 		ti = proto_tree_add_item(lapd_tree, hf_lapd_address, 0, 2, address);
-		addr_tree = proto_item_add_subtree(ti, ETT_LAPD_ADDRESS);
+		addr_tree = proto_item_add_subtree(ti, ett_lapd_address);
 
 		proto_tree_add_item(addr_tree, hf_lapd_sapi,	0, 1, address);
 		proto_tree_add_item(addr_tree, hf_lapd_cr,	0, 1, address);
@@ -130,7 +134,8 @@ dissect_lapd(const u_char *pd, frame_data *fd, proto_tree *tree)
 		lapd_tree = NULL;
 	}
 
-	control = dissect_xdlc_control(pd, 2, fd, lapd_tree, hf_lapd_control, is_response, TRUE);
+	control = dissect_xdlc_control(pd, 2, fd, lapd_tree, hf_lapd_control,
+	    ett_lapd_control, is_response, TRUE);
 	lapd_header_len += XDLC_CONTROL_LEN(control, TRUE);
 
 	if (XDLC_HAS_PAYLOAD(control)) {
@@ -180,7 +185,13 @@ proto_register_lapd(void)
 	  { "Control Field", "lapd.control", FT_UINT16, BASE_HEX, NULL, 0x0,
 	  	"" }},
     };
+    static gint *ett[] = {
+        &ett_lapd,
+        &ett_lapd_address,
+        &ett_lapd_control,
+    };
 
     proto_lapd = proto_register_protocol ("Link Access Procedure, Channel D (LAPD)", "lapd");
     proto_register_field_array (proto_lapd, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 }

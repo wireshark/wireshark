@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.21 1999/10/12 06:20:14 gram Exp $
+ * $Id: packet-ppp.c,v 1.22 1999/11/16 11:42:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,10 +37,32 @@
 #include "packet-ip.h"
 
 static int proto_ppp = -1;
+
+static gint ett_ppp = -1;
+static gint ett_ipcp = -1;
+static gint ett_ipcp_options = -1;
+static gint ett_ipcp_ipaddrs_opt = -1;
+static gint ett_ipcp_compressprot_opt = -1;
+static gint ett_lcp = -1;
+static gint ett_lcp_options = -1;
+static gint ett_lcp_mru_opt = -1;
+static gint ett_lcp_async_map_opt = -1;
+static gint ett_lcp_authprot_opt = -1;
+static gint ett_lcp_qualprot_opt = -1;
+static gint ett_lcp_magicnum_opt = -1;
+static gint ett_lcp_fcs_alternatives_opt = -1;
+static gint ett_lcp_numbered_mode_opt = -1;
+static gint ett_lcp_callback_opt = -1;
+static gint ett_lcp_multilink_ep_disc_opt = -1;
+static gint ett_lcp_internationalization_opt = -1;
+
 static int proto_mp = -1;
 static int hf_mp_frag_first = -1;
 static int hf_mp_frag_last = -1;
 static int hf_mp_sequence_num = -1;
+
+static int ett_mp = -1;
+static int ett_mp_flags = -1;
 
 /* PPP structs and definitions */
 
@@ -218,7 +240,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_MRU,
 		"Maximum Receive Unit",
-		ETT_LCP_MRU_OPT,
+		&ett_lcp_mru_opt,
 		FIXED_LENGTH,
 		4,
 		dissect_lcp_mru_opt
@@ -226,7 +248,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_ASYNCMAP,
 		"Async Control Character Map",
-		ETT_LCP_ASYNC_MAP_OPT,
+		&ett_lcp_async_map_opt,
 		FIXED_LENGTH,
 		6,
 		dissect_lcp_async_map_opt
@@ -234,7 +256,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_AUTHTYPE,
 		"Authentication protocol",
-		ETT_LCP_AUTHPROT_OPT,
+		&ett_lcp_authprot_opt,
 		VARIABLE_LENGTH,
 		4,
 		dissect_lcp_protocol_opt
@@ -242,7 +264,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_QUALITY,
 		"Quality protocol",
-		ETT_LCP_QUALPROT_OPT,
+		&ett_lcp_qualprot_opt,
 		VARIABLE_LENGTH,
 		4,
 		dissect_lcp_protocol_opt
@@ -250,7 +272,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_MAGICNUMBER,
 		NULL,
-		ETT_LCP_MAGICNUM_OPT,
+		&ett_lcp_magicnum_opt,
 		FIXED_LENGTH,
 		6,
 		dissect_lcp_magicnumber_opt
@@ -258,7 +280,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_PCOMPRESSION,
 		"Protocol field compression",
-		-1,
+		NULL,
 		FIXED_LENGTH,
 		2,
 		NULL
@@ -266,7 +288,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_ACCOMPRESSION,
 		"Address/control field compression",
-		-1,
+		NULL,
 		FIXED_LENGTH,
 		2,
 		NULL
@@ -274,7 +296,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_FCS_ALTERNATIVES,
 		NULL,
-		ETT_LCP_FCS_ALTERNATIVES_OPT,
+		&ett_lcp_fcs_alternatives_opt,
 		FIXED_LENGTH,
 		3,
 		dissect_lcp_fcs_alternatives_opt
@@ -282,7 +304,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_SELF_DESCRIBING_PAD,
 		NULL,
-		-1,
+		NULL,
 		FIXED_LENGTH,
 		3,
 		dissect_lcp_self_describing_pad_opt
@@ -290,7 +312,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_NUMBERED_MODE,
 		"Numbered mode",
-		ETT_LCP_NUMBERED_MODE_OPT,
+		&ett_lcp_numbered_mode_opt,
 		VARIABLE_LENGTH,
 		4,
 		dissect_lcp_numbered_mode_opt
@@ -298,7 +320,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_CALLBACK,
 		"Callback",
-		ETT_LCP_CALLBACK_OPT,
+		&ett_lcp_callback_opt,
 		VARIABLE_LENGTH,
 		3,
 		dissect_lcp_callback_opt,
@@ -306,7 +328,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_COMPOUND_FRAMES,
 		"Compound frames",
-		-1,
+		NULL,
 		FIXED_LENGTH,
 		2,
 		NULL
@@ -314,7 +336,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_MULTILINK_MRRU,
 		NULL,
-		-1,
+		NULL,
 		FIXED_LENGTH,
 		4,
 		dissect_lcp_multilink_mrru_opt
@@ -322,7 +344,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_MULTILINK_SSNH,
 		"Use short sequence number headers",
-		-1,
+		NULL,
 		FIXED_LENGTH,
 		2,
 		NULL
@@ -330,7 +352,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_MULTILINK_EP_DISC,
 		"Multilink endpoint discriminator",
-		ETT_LCP_MULTILINK_EP_DISC_OPT,
+		&ett_lcp_multilink_ep_disc_opt,
 		VARIABLE_LENGTH,
 		3,
 		dissect_lcp_multilink_ep_disc_opt,
@@ -338,7 +360,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_DCE_IDENTIFIER,
 		"DCE identifier",
-		-1,
+		NULL,
 		VARIABLE_LENGTH,
 		2,
 		NULL
@@ -346,7 +368,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_MULTILINK_PLUS_PROC,
 		"Multilink Plus Procedure",
-		-1,
+		NULL,
 		VARIABLE_LENGTH,
 		2,
 		NULL
@@ -354,7 +376,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_LINK_DISC_FOR_BACP,
 		NULL,
-		-1,
+		NULL,
 		FIXED_LENGTH,
 		4,
 		dissect_lcp_bap_link_discriminator_opt
@@ -362,7 +384,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_LCP_AUTHENTICATION,
 		"LCP authentication",
-		-1,
+		NULL,
 		VARIABLE_LENGTH,
 		2,
 		NULL
@@ -370,7 +392,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_COBS,
 		"Consistent Overhead Byte Stuffing",
-		-1,
+		NULL,
 		VARIABLE_LENGTH,
 		2,
 		NULL
@@ -378,7 +400,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_PREFIX_ELISION,
 		"Prefix elision",
-		-1,
+		NULL,
 		VARIABLE_LENGTH,
 		2,
 		NULL
@@ -386,7 +408,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_MULTILINK_HDR_FMT,
 		"Multilink header format",
-		-1,
+		NULL,
 		VARIABLE_LENGTH,
 		2,
 		NULL
@@ -394,7 +416,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_INTERNATIONALIZATION,
 		"Internationalization",
-		ETT_LCP_INTERNATIONALIZATION_OPT,
+		&ett_lcp_internationalization_opt,
 		VARIABLE_LENGTH,
 		7,
 		dissect_lcp_internationalization_opt
@@ -402,7 +424,7 @@ static const ip_tcp_opt lcp_opts[] = {
 	{
 		CI_SDL_ON_SONET_SDH,
 		"Simple data link on SONET/SDH",
-		-1,
+		NULL,
 		VARIABLE_LENGTH,
 		2,
 		NULL
@@ -432,7 +454,7 @@ static const ip_tcp_opt ipcp_opts[] = {
 	{
 		CI_ADDRS,
 		"IP addresses (deprecated)",
-		ETT_IPCP_IPADDRS_OPT,
+		&ett_ipcp_ipaddrs_opt,
 		FIXED_LENGTH,
 		10,
 		dissect_ipcp_addrs_opt
@@ -440,7 +462,7 @@ static const ip_tcp_opt ipcp_opts[] = {
 	{
 		CI_COMPRESSTYPE,
 		"IP compression protocol",
-		ETT_IPCP_COMPRESSPROT_OPT,
+		&ett_ipcp_compressprot_opt,
 		VARIABLE_LENGTH,
 		4,
 		dissect_lcp_protocol_opt
@@ -448,7 +470,7 @@ static const ip_tcp_opt ipcp_opts[] = {
 	{
 		CI_ADDR,
 		"IP address",
-		-1,
+		NULL,
 		FIXED_LENGTH,
 		6,
 		dissect_ipcp_addr_opt
@@ -456,7 +478,7 @@ static const ip_tcp_opt ipcp_opts[] = {
 	{
 		CI_MOBILE_IPv4,
 		"Mobile node's home IP address",
-		-1,
+		NULL,
 		FIXED_LENGTH,
 		6,
 		dissect_ipcp_addr_opt
@@ -464,7 +486,7 @@ static const ip_tcp_opt ipcp_opts[] = {
 	{
 		CI_MS_DNS1,
 		"Primary DNS server IP address",
-		-1,
+		NULL,
 		FIXED_LENGTH,
 		6,
 		dissect_ipcp_addr_opt
@@ -472,7 +494,7 @@ static const ip_tcp_opt ipcp_opts[] = {
 	{
 		CI_MS_WINS1,
 		"Primary WINS server IP address",
-		-1,
+		NULL,
 		FIXED_LENGTH,
 		6,
 		dissect_ipcp_addr_opt
@@ -480,7 +502,7 @@ static const ip_tcp_opt ipcp_opts[] = {
 	{
 		CI_MS_DNS2,
 		"Secondary DNS server IP address",
-		-1,
+		NULL,
 		FIXED_LENGTH,
 		6,
 		dissect_ipcp_addr_opt
@@ -488,7 +510,7 @@ static const ip_tcp_opt ipcp_opts[] = {
 	{
 		CI_MS_WINS2,
 		"Secondary WINS server IP address",
-		-1,
+		NULL,
 		FIXED_LENGTH,
 		6,
 		dissect_ipcp_addr_opt
@@ -534,7 +556,7 @@ dissect_lcp_protocol_opt(const ip_tcp_opt *optp, const u_char *opd, int offset,
   
   tf = proto_tree_add_text(tree, offset, length, "%s: %u byte%s",
 	  optp->name, length, plurality(length, "", "s"));
-  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
   offset += 2;
   length -= 2;
   protocol = pntohs(opd);
@@ -567,7 +589,7 @@ dissect_lcp_fcs_alternatives_opt(const ip_tcp_opt *optp, const u_char *opd,
   alternatives = *opd;
   tf = proto_tree_add_text(tree, offset, length, "%s: 0x%02x",
 	  optp->name, alternatives);
-  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
   offset += 2;
   if (alternatives & 0x1)
     proto_tree_add_text(field_tree, offset + 2, 1, "%s",
@@ -598,7 +620,7 @@ dissect_lcp_numbered_mode_opt(const ip_tcp_opt *optp, const u_char *opd,
   
   tf = proto_tree_add_text(tree, offset, length, "%s: %u byte%s",
 	  optp->name, length, plurality(length, "", "s"));
-  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
   offset += 2;
   length -= 2;
   proto_tree_add_text(field_tree, offset, 1, "Window: %u", *opd);
@@ -628,7 +650,7 @@ dissect_lcp_callback_opt(const ip_tcp_opt *optp, const u_char *opd, int offset,
   
   tf = proto_tree_add_text(tree, offset, length, "%s: %u byte%s",
 	  optp->name, length, plurality(length, "", "s"));
-  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
   offset += 2;
   length -= 2;
   proto_tree_add_text(field_tree, offset, 1, "Operation: %s (0x%02x)",
@@ -677,7 +699,7 @@ dissect_lcp_multilink_ep_disc_opt(const ip_tcp_opt *optp, const u_char *opd,
 
   tf = proto_tree_add_text(tree, offset, length, "%s: %u byte%s",
 	  optp->name, length, plurality(length, "", "s"));
-  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
   offset += 2;
   length -= 2;
   ep_disc_class = *opd;
@@ -788,7 +810,7 @@ dissect_lcp_internationalization_opt(const ip_tcp_opt *optp, const u_char *opd,
   
   tf = proto_tree_add_text(tree, offset, length, "%s: %u byte%s",
 	  optp->name, length, plurality(length, "", "s"));
-  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
   offset += 2;
   length -= 2;
   proto_tree_add_text(field_tree, offset, 4, "Character set: %s (0x%04x)",
@@ -813,7 +835,7 @@ dissect_ipcp_addrs_opt(const ip_tcp_opt *optp, const u_char *opd,
   
   tf = proto_tree_add_text(tree, offset, length, "%s: %u byte%s",
 	  optp->name, length, plurality(length, "", "s"));
-  field_tree = proto_item_add_subtree(tf, optp->subtree_index);
+  field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
   offset += 2;
   length -= 2;
   proto_tree_add_text(field_tree, offset, 4,
@@ -995,11 +1017,11 @@ dissect_ppp_stuff( const u_char *pd, int offset, frame_data *fd,
       dissect_ipv6(pd, offset, fd, tree);
       return TRUE;
     case PPP_LCP:
-      dissect_cp(pd, offset, "L", "Link", ETT_LCP, lcp_vals, ETT_LCP_OPTIONS,
+      dissect_cp(pd, offset, "L", "Link", ett_lcp, lcp_vals, ett_lcp_options,
 		lcp_opts, N_LCP_OPTS, fd, tree);
       return TRUE;
     case PPP_IPCP:
-      dissect_cp(pd, offset, "IP", "IP", ETT_IPCP, cp_vals, ETT_IPCP_OPTIONS,
+      dissect_cp(pd, offset, "IP", "IP", ett_ipcp, cp_vals, ett_ipcp_options,
 		ipcp_opts, N_IPCP_OPTS, fd, tree);
       return TRUE;
     default:
@@ -1056,10 +1078,10 @@ dissect_mp(const u_char *pd, int offset, frame_data *fd,
         break;
     }
     ti = proto_tree_add_item(tree, proto_mp, offset, 4, NULL);
-    mp_tree = proto_item_add_subtree(ti, ETT_MP);
+    mp_tree = proto_item_add_subtree(ti, ett_mp);
     ti = proto_tree_add_text(mp_tree, offset, 1, "Fragment: 0x%2X (%s)",
       flags, flag_str);
-    hdr_tree = proto_item_add_subtree(ti, ETT_MP_FLAGS);
+    hdr_tree = proto_item_add_subtree(ti, ett_mp_flags);
     proto_tree_add_item_format(hdr_tree, hf_mp_frag_first, offset, 1, first,
       "%s", decode_boolean_bitfield(flags, MP_FRAG_FIRST, sizeof(flags) * 8,
         "first", "not first"));
@@ -1078,7 +1100,7 @@ dissect_mp(const u_char *pd, int offset, frame_data *fd,
   if (fd->cap_len > offset) {
     if (tree) {
       ti = proto_tree_add_item(tree, proto_ppp, offset, 1, NULL);
-      fh_tree = proto_item_add_subtree(ti, ETT_PPP);
+      fh_tree = proto_item_add_subtree(ti, ett_ppp);
     }
     dissect_ppp_stuff(pd, offset, fd, tree, fh_tree);
   }
@@ -1093,7 +1115,7 @@ dissect_payload_ppp( const u_char *pd, int offset, frame_data *fd, proto_tree *t
      layer (ie none) */
   if(tree) {
     ti = proto_tree_add_item(tree, proto_ppp, 0+offset, 2, NULL);
-    fh_tree = proto_item_add_subtree(ti, ETT_PPP);
+    fh_tree = proto_item_add_subtree(ti, ett_ppp);
   }
 
   dissect_ppp_stuff(pd, offset, fd, tree, fh_tree);
@@ -1123,7 +1145,7 @@ dissect_ppp( const u_char *pd, frame_data *fd, proto_tree *tree ) {
      layer (ie none) */
   if(tree) {
     ti = proto_tree_add_item(tree, proto_ppp, 0, 4, NULL);
-    fh_tree = proto_item_add_subtree(ti, ETT_PPP);
+    fh_tree = proto_item_add_subtree(ti, ett_ppp);
     proto_tree_add_text(fh_tree, 0, 1, "Address: %02x", ph.ppp_addr);
     proto_tree_add_text(fh_tree, 1, 1, "Control: %02x", ph.ppp_ctl);
   }
@@ -1141,9 +1163,29 @@ proto_register_ppp(void)
                 { &variable,
                 { "Name",           "ppp.abbreviation", TYPE, VALS_POINTER }},
         };*/
+	static gint *ett[] = {
+		&ett_ppp,
+		&ett_ipcp,
+		&ett_ipcp_options,
+		&ett_ipcp_ipaddrs_opt,
+		&ett_ipcp_compressprot_opt,
+		&ett_lcp,
+		&ett_lcp_options,
+		&ett_lcp_mru_opt,
+		&ett_lcp_async_map_opt,
+		&ett_lcp_authprot_opt,
+		&ett_lcp_qualprot_opt,
+		&ett_lcp_magicnum_opt,
+		&ett_lcp_fcs_alternatives_opt,
+		&ett_lcp_numbered_mode_opt,
+		&ett_lcp_callback_opt,
+		&ett_lcp_multilink_ep_disc_opt,
+		&ett_lcp_internationalization_opt,
+	};
 
         proto_ppp = proto_register_protocol("Point-to-Point Protocol", "ppp");
  /*       proto_register_field_array(proto_ppp, hf, array_length(hf));*/
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
@@ -1162,7 +1204,12 @@ proto_register_mp(void)
     { "Sequence number",	"mp.seq",	FT_UINT32, BASE_DEC, NULL, 0x0,
     	"" }}
   };
+  static gint *ett[] = {
+    &ett_mp,
+    &ett_mp_flags,
+  };
 
   proto_mp = proto_register_protocol("PPP Multilink Protocol", "mp");
   proto_register_field_array(proto_mp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 }

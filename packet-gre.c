@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.6 1999/09/17 05:56:54 guy Exp $
+ * $Id: packet-gre.c,v 1.7 1999/11/16 11:42:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -39,6 +39,9 @@
 #include "packet.h"
 
 static int proto_gre = -1;
+
+static gint ett_gre = -1;
+static gint ett_gre_flags = -1;
 
 /* bit positions for flags in header */
 #define GH_B_C		0x8000
@@ -86,13 +89,13 @@ dissect_gre(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       is_ppp = 1;
       ti = proto_tree_add_item_format(tree, proto_gre, offset, calc_len(flags_and_ver, 1),
 	NULL, "Generic Routing Encapsulation (PPP)");
-      gre_tree = proto_item_add_subtree(ti, ETT_GRE);
+      gre_tree = proto_item_add_subtree(ti, ett_gre);
       add_flags_and_ver(gre_tree, flags_and_ver, offset, 1);
     }
     else {
       is_ppp = 0;
       ti = proto_tree_add_item(tree, proto_gre, offset, calc_len(flags_and_ver, 1), NULL);
-      gre_tree = proto_item_add_subtree(ti, ETT_GRE);
+      gre_tree = proto_item_add_subtree(ti, ett_gre);
       add_flags_and_ver(gre_tree, flags_and_ver, offset, 0);
     }
 
@@ -196,7 +199,7 @@ add_flags_and_ver(proto_tree *tree, guint16 flags_and_ver, int offset, int is_pp
   
   ti = proto_tree_add_text(tree, offset, 2, 
 			   "Flags and version: %#08x", flags_and_ver);
-  fv_tree = proto_item_add_subtree(ti, ETT_GRE_FLAGS);
+  fv_tree = proto_item_add_subtree(ti, ett_gre_flags);
   
   proto_tree_add_text(fv_tree, offset, sizeof(flags_and_ver), "%s",
 		      decode_boolean_bitfield(flags_and_ver, GH_B_C, nbits,
@@ -242,7 +245,11 @@ proto_register_gre(void)
                 { &variable,
                 { "Name",           "gre.abbreviation", TYPE, VALS_POINTER }},
         };*/
+	static gint *ett[] = {
+		&ett_gre,
+	};
 
         proto_gre = proto_register_protocol("Generic Routing Encapsulation", "gre");
  /*       proto_register_field_array(proto_gre, hf, array_length(hf));*/
+	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.24 1999/10/22 07:17:32 guy Exp $
+ * $Id: packet-ipv6.c,v 1.25 1999/11/16 11:42:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,6 +66,8 @@ static int hf_ipv6_dst = -1;
 static int hf_ipv6_final = -1;
 #endif
 
+static gint ett_ipv6 = -1;
+
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
 #endif
@@ -85,7 +87,7 @@ dissect_routing6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	/* !!! specify length */
 	ti = proto_tree_add_text(tree, offset, len,
 	    "Routing Header, Type %d", rt.ip6r_type);
-	rthdr_tree = proto_item_add_subtree(ti, ETT_IPv6);
+	rthdr_tree = proto_item_add_subtree(ti, ett_ipv6);
 
 	proto_tree_add_text(rthdr_tree,
 	    offset + offsetof(struct ip6_rthdr, ip6r_nxt), 1,
@@ -167,7 +169,7 @@ dissect_opts(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	/* !!! specify length */
 	ti = proto_tree_add_text(tree, offset, len,
 	    "%s Header", optname);
-	dstopt_tree = proto_item_add_subtree(ti, ETT_IPv6);
+	dstopt_tree = proto_item_add_subtree(ti, ett_ipv6);
 
 	proto_tree_add_text(dstopt_tree,
 	    offset + offsetof(struct ip6_ext, ip6e_nxt), 1,
@@ -263,7 +265,7 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (tree) {
     /* !!! specify length */
     ti = proto_tree_add_item(tree, proto_ipv6, offset, 40, NULL);
-    ipv6_tree = proto_item_add_subtree(ti, ETT_IPv6);
+    ipv6_tree = proto_item_add_subtree(ti, ett_ipv6);
 
     /* !!! warning: version also contains 4 Bit priority */
     proto_tree_add_item(ipv6_tree, hf_ipv6_version,
@@ -443,7 +445,11 @@ proto_register_ipv6(void)
 				FT_UINT8, BASE_HEX, NULL, 0x0, "" }},
 #endif
   };
+  static gint *ett[] = {
+    &ett_ipv6,
+  };
 
   proto_ipv6 = proto_register_protocol("Internet Protocol Version 6", "ipv6");
   proto_register_field_array(proto_ipv6, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 }

@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-lpd.c,v 1.12 1999/11/05 15:55:09 gram Exp $
+ * $Id: packet-lpd.c,v 1.13 1999/11/16 11:42:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -40,6 +40,8 @@
 static int proto_lpd = -1;
 static int hf_lpd_response = -1;
 static int hf_lpd_request = -1;
+
+static gint ett_lpd = -1;
 
 enum lpr_type { request, response };
 
@@ -98,7 +100,7 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_lpd, offset, 
 					 END_OF_FRAME, NULL);
-		lpd_tree = proto_item_add_subtree(ti, ETT_LPD);
+		lpd_tree = proto_item_add_subtree(ti, ett_lpd);
 
 		if (lpr_packet_type == response) {
 		  proto_tree_add_item_hidden(lpd_tree, hf_lpd_response, 
@@ -171,8 +173,11 @@ proto_register_lpd(void)
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       	"TRUE if LPD request" }}
   };
+  static gint *ett[] = {
+    &ett_lpd,
+  };
 
   proto_lpd = proto_register_protocol("Line Printer Daemon Protocol", "lpd");
   proto_register_field_array(proto_lpd, hf, array_length(hf));
-
+  proto_register_subtree_array(ett, array_length(ett));
 }

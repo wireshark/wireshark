@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.27 1999/11/11 08:04:06 guy Exp $
+ * $Id: packet-llc.c,v 1.28 1999/11/16 11:42:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -42,6 +42,9 @@ static int hf_llc_ssap = -1;
 static int hf_llc_ctrl = -1;
 static int hf_llc_type = -1;
 static int hf_llc_oui = -1;
+
+static gint ett_llc = -1;
+static gint ett_llc_ctrl = -1;
 
 typedef void (capture_func_t)(const u_char *, int, guint32, packet_counts *);
 typedef void (dissect_func_t)(const u_char *, int, frame_data *, proto_tree *);
@@ -241,7 +244,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_llc, offset, 0, NULL);
-		llc_tree = proto_item_add_subtree(ti, ETT_LLC);
+		llc_tree = proto_item_add_subtree(ti, ett_llc);
 		proto_tree_add_item(llc_tree, hf_llc_dsap, offset, 1, pd[offset]);
 		proto_tree_add_item(llc_tree, hf_llc_ssap, offset+1, 1, pd[offset+1]);
 	} else
@@ -263,7 +266,8 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	 * it's basic or extended operation; is that the case?
 	 */
 	control = dissect_xdlc_control(pd, offset+2, fd, llc_tree,
-				hf_llc_ctrl, pd[offset+1] & 0x01, TRUE);
+				hf_llc_ctrl, ett_llc_ctrl,
+				pd[offset+1] & 0x01, TRUE);
 	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
 	if (is_snap)
 		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of ethertype */
@@ -344,7 +348,12 @@ proto_register_llc(void)
 		{ "Organization Code",	"llc.oui", FT_UINT24, BASE_HEX, VALS(llc_oui_vals), 0x0,
 			""}}
 	};
+	static gint *ett[] = {
+		&ett_llc,
+		&ett_llc_ctrl,
+	};
 
 	proto_llc = proto_register_protocol ("Logical-Link Control", "llc" );
 	proto_register_field_array(proto_llc, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.21 1999/11/04 08:15:38 guy Exp $
+ * $Id: packet-arp.c,v 1.22 1999/11/16 11:42:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,8 @@ static int hf_arp_src_ether = -1;
 static int hf_arp_src_proto = -1;
 static int hf_arp_dst_ether = -1;
 static int hf_arp_dst_proto = -1;
+
+static gint ett_arp = -1;
 
 /* Definitions taken from Linux "linux/if_arp.h" header file, and from
 
@@ -254,7 +256,7 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				      MIN_ARP_HEADER_SIZE + 2*ar_hln + 
 				      2*ar_pln, NULL,
 				      "Unknown ARP (opcode 0x%04x)", ar_op);
-    arp_tree = proto_item_add_subtree(ti, ETT_ARP);
+    arp_tree = proto_item_add_subtree(ti, ett_arp);
     proto_tree_add_item(arp_tree, hf_arp_hard_type, offset + AR_HRD, 2,
 			       ar_hrd);
     proto_tree_add_item(arp_tree, hf_arp_proto_type, offset + AR_PRO, 2,
@@ -329,7 +331,11 @@ proto_register_arp(void)
 	FT_BYTES,	BASE_NONE,	NULL,	0x0,
       "" }}
   };
+  static gint *ett[] = {
+    &ett_arp,
+  };
 
   proto_arp = proto_register_protocol("Address Resolution Protocol", "arp");
   proto_register_field_array(proto_arp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 }

@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.3 1999/10/28 15:08:42 nneul Exp $
+ * $Id: packet-rx.c,v 1.4 1999/11/16 11:42:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -88,6 +88,9 @@ static int hf_rx_securityindex = -1;
 static int hf_rx_spare = -1;
 static int hf_rx_serviceid = -1;
 
+static gint ett_rx = -1;
+static gint ett_rx_flags = -1;
+
 void
 dissect_rx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
@@ -108,7 +111,7 @@ dissect_rx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_rx, offset,
 			sizeof(struct rx_header), NULL);
-		rx_tree = proto_item_add_subtree(ti, ETT_RX);
+		rx_tree = proto_item_add_subtree(ti, ett_rx);
 
 		proto_tree_add_item(rx_tree, hf_rx_epoch,
 			offset, 4, ntohl(rxh->epoch));
@@ -126,7 +129,7 @@ dissect_rx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 		rx_flags = proto_tree_add_item(rx_tree, hf_rx_flags,
 			offset+21, 1, rxh->flags);
-		rx_tree_flags = proto_item_add_subtree(rx_flags, ETT_RX_FLAGS);
+		rx_tree_flags = proto_item_add_subtree(rx_flags, ett_rx_flags);
 		proto_tree_add_item(rx_tree_flags, hf_rx_flags_free_packet,
 			offset+21, 1, rxh->flags);
 		proto_tree_add_item(rx_tree_flags, hf_rx_flags_more_packets,
@@ -223,7 +226,12 @@ proto_register_rx(void)
 			"Service ID", "rx.serviceid", FT_UINT16, BASE_DEC,
 			NULL, 0, "Service ID" }},
 	};
+	static gint *ett[] = {
+		&ett_rx,
+		&ett_rx_flags,
+	};
 
 	proto_rx = proto_register_protocol("RX Protocol", "rx");
 	proto_register_field_array(proto_rx, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 }

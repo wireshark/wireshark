@@ -2,7 +2,7 @@
  * Routines for imap packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-imap.c,v 1.2 1999/11/14 10:48:17 deniel Exp $
+ * $Id: packet-imap.c,v 1.3 1999/11/16 11:42:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -47,6 +47,8 @@ static int proto_imap = -1;
 static int hf_imap_response = -1;
 static int hf_imap_request = -1;
 
+static gint ett_imap = -1;
+
 void
 dissect_imap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
@@ -88,7 +90,7 @@ dissect_imap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (tree) {
 
 	  ti = proto_tree_add_item(tree, proto_imap, offset, END_OF_FRAME, NULL);
-	  imap_tree = proto_item_add_subtree(ti, ETT_IMAP);
+	  imap_tree = proto_item_add_subtree(ti, ett_imap);
 
 	  if (pi.match_port == pi.destport) { /* Request */
 
@@ -123,8 +125,12 @@ proto_register_imap(void)
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       	"TRUE if IMAP request" }}
   };
+  static gint *ett[] = {
+    &ett_imap,
+  };
 
   proto_imap = proto_register_protocol("Internet Message Access Protocol", 
 				       "imap");
   proto_register_field_array(proto_imap, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
 }
