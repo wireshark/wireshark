@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes 
 #
-# $Id: manuf,v 1.4 1999/12/23 21:13:32 guy Exp $
+# $Id: manuf,v 1.5 2000/01/04 23:42:17 gram Exp $
 #
 # Laurent Deniel <deniel@worldnet.fr>
 #
@@ -114,6 +114,7 @@
 00:20:af	3Com
 00:40:a6 	Cray
 00:40:c8	Milan
+00:50:56	VMware
 00:50:BA	D-link
 00:60:08	3Com
 00:60:09	Cisco
