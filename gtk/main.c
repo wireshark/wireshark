@@ -132,7 +132,9 @@
 #include "decode_as_dlg.h"
 #include "webbrowser.h"
 #include "capture_dlg.h"
+#if 0
 #include "../image/eicon3d64.xpm"
+#endif
 #include "capture_ui_utils.h"
 
 
