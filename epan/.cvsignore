@@ -17,6 +17,8 @@ configure
 dfilter-grammar.c
 dfilter-grammar.h
 dfilter-scanner.c
+libethereal.dll
+libethereal.exp
 libtool
 register.c
 stamp-h
