@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.13 1999/12/09 10:10:29 girlich Exp $
+ * $Id: packet-nfs.c,v 1.14 1999/12/09 12:54:10 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -2142,7 +2142,7 @@ dissect_nfs3_create_call(const u_char* pd, int offset, frame_data* fd, proto_tre
 	switch (mode) {
 		case UNCHECKED:
 		case GUARDED:
-			offset = dissect_sattr3(pd, offset, fd, tree, "obj_attributes");
+			offset = dissect_sattr3     (pd, offset, fd, tree, "obj_attributes");
 		break;
 		case EXCLUSIVE:
 			offset = dissect_createverf3(pd, offset, fd, tree);
@@ -2162,12 +2162,12 @@ dissect_nfs3_create_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
 	switch (status) {
 		case 0:
-			offset = dissect_post_op_fh3(pd, offset, fd, tree, "obj");
+			offset = dissect_post_op_fh3 (pd, offset, fd, tree, "obj");
 			offset = dissect_post_op_attr(pd, offset, fd, tree, "obj_attributes");
-			offset = dissect_wcc_data(pd, offset, fd, tree, "dir_wcc");
+			offset = dissect_wcc_data    (pd, offset, fd, tree, "dir_wcc");
 		break;
 		default:
-			offset = dissect_wcc_data(pd, offset, fd, tree, "dir_wcc");
+			offset = dissect_wcc_data    (pd, offset, fd, tree, "dir_wcc");
 		break;
 	}
 		
@@ -2175,7 +2175,116 @@ dissect_nfs3_create_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 }
 
 
-/* 25 missing functions */
+/* RFC 1813, Page 58..60 */
+int
+dissect_nfs3_mkdir_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	offset = dissect_diropargs3(pd, offset, fd, tree, "where");
+	offset = dissect_sattr3    (pd, offset, fd, tree, "attributes");
+	
+	return offset;
+}
+
+
+/* RFC 1813, Page 61..63 */
+int
+dissect_nfs3_symlink_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	offset = dissect_diropargs3(pd, offset, fd, tree, "where");
+	offset = dissect_sattr3    (pd, offset, fd, tree, "symlink_attributes");
+	offset = dissect_nfspath3  (pd, offset, fd, tree, hf_nfs_symlink_to);
+	
+	return offset;
+}
+
+
+/* RFC 1813, Page 67..69 */
+int
+dissect_nfs3_remove_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 status;
+
+	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	switch (status) {
+		case 0:
+			offset = dissect_wcc_data    (pd, offset, fd, tree, "dir_wcc");
+		break;
+		default:
+			offset = dissect_wcc_data    (pd, offset, fd, tree, "dir_wcc");
+		break;
+	}
+		
+	return offset;
+}
+
+
+/* RFC 1813, Page 71..74 */
+int
+dissect_nfs3_rename_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	offset = dissect_diropargs3(pd, offset, fd, tree, "from");
+	offset = dissect_diropargs3(pd, offset, fd, tree, "to");
+	
+	return offset;
+}
+
+
+/* RFC 1813, Page 71..74 */
+int
+dissect_nfs3_rename_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 status;
+
+	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	switch (status) {
+		case 0:
+			offset = dissect_wcc_data(pd, offset, fd, tree, "fromdir_wcc");
+			offset = dissect_wcc_data(pd, offset, fd, tree, "todir_wcc");
+		break;
+		default:
+			offset = dissect_wcc_data(pd, offset, fd, tree, "fromdir_wcc");
+			offset = dissect_wcc_data(pd, offset, fd, tree, "todir_wcc");
+		break;
+	}
+		
+	return offset;
+}
+
+
+/* RFC 1813, Page 74..76 */
+int
+dissect_nfs3_link_call(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	offset = dissect_nfs_fh3   (pd, offset, fd, tree, "file");
+	offset = dissect_diropargs3(pd, offset, fd, tree, "link");
+	
+	return offset;
+}
+
+
+/* RFC 1813, Page 74..76 */
+int
+dissect_nfs3_link_reply(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
+{
+	guint32 status;
+
+	offset = dissect_nfsstat3(pd, offset, fd, tree, "status", &status);
+	switch (status) {
+		case 0:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "file_attributes");
+			offset = dissect_wcc_data    (pd, offset, fd, tree, "linkdir_wcc");
+		break;
+		default:
+			offset = dissect_post_op_attr(pd, offset, fd, tree, "file_attributes");
+			offset = dissect_wcc_data    (pd, offset, fd, tree, "linkdir_wcc");
+		break;
+	}
+		
+	return offset;
+}
+
+
+/* 14 missing functions */
 
 
 /* proc number, "proc name", dissect_request, dissect_reply */
@@ -2199,20 +2308,20 @@ const vsff nfs3_proc[] = {
 	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
 	{ 8,	"CREATE",	/* OK */
 	dissect_nfs3_create_call,	dissect_nfs3_create_reply },
-	{ 9,	"MKDIR",	/* todo: call, reply */
-	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
-	{ 10,	"SYMLINK",	/* todo: call, reply */
-	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
-	{ 11,	"MKNOD",	/* todo: call, reply */
-	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
-	{ 12,	"REMOVE",	/* todo: reply */
-	dissect_nfs3_diropargs3_call,	dissect_nfs3_any_reply },
-	{ 13,	"RMDIR",	/* todo: reply */
-	dissect_nfs3_diropargs3_call,	dissect_nfs3_any_reply },
-	{ 14,	"RENAME",	/* todo: call, reply */
-	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
-	{ 15,	"LINK",		/* todo: call, reply */
-	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
+	{ 9,	"MKDIR",	/* OK */
+	dissect_nfs3_mkdir_call,	dissect_nfs3_create_reply },
+	{ 10,	"SYMLINK",	/* OK */
+	dissect_nfs3_symlink_call,	dissect_nfs3_create_reply },
+	{ 11,	"MKNOD",	/* todo: call */
+	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_create_reply },
+	{ 12,	"REMOVE",	/* OK */
+	dissect_nfs3_diropargs3_call,	dissect_nfs3_remove_reply },
+	{ 13,	"RMDIR",	/* OK */
+	dissect_nfs3_diropargs3_call,	dissect_nfs3_remove_reply },
+	{ 14,	"RENAME",	/* OK */
+	dissect_nfs3_rename_call,	dissect_nfs3_rename_reply },
+	{ 15,	"LINK",		/* OK */
+	dissect_nfs3_link_call,		dissect_nfs3_link_reply },
 	{ 16,	"READDIR",	/* todo: call, reply */
 	dissect_nfs3_nfs_fh3_call,	dissect_nfs3_any_reply },
 	{ 17,	"READDIRPLUS",	/* todo: call, reply */
