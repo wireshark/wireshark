@@ -11,12 +11,17 @@
 
 #.NO_EMIT
 
+
 #.TYPE_RENAME
 
 #.FIELD_RENAME
+RequestedInfo/locationInformation  locationInformationFlag
+RequestedInfo/subscriberState      subscriberStateFlag
 
 #.TYPE_ATTR
 Ss-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)
 Teleservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice_vals)
 
 #.END
+
+
