@@ -2,7 +2,7 @@
  * Routines for CCSDS dissection
  * Copyright 2000, Scott Hovis scott.hovis@ums.msfc.nasa.gov
  *
- * $Id: packet-ccsds.c,v 1.2 2003/11/24 23:46:06 guy Exp $
+ * $Id: packet-ccsds.c,v 1.3 2003/12/05 22:33:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -104,7 +104,7 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		first_word=tvb_get_ntohs(tvb, offset);
 		proto_tree_add_uint(header_tree, hf_ccsds_version, tvb, offset, 2, first_word);
 		proto_tree_add_uint(header_tree, hf_ccsds_type, tvb, offset, 2, first_word);
-		proto_tree_add_uint(header_tree, hf_ccsds_secheader, tvb, offset, 2, first_word);
+		proto_tree_add_boolean(header_tree, hf_ccsds_secheader, tvb, offset, 2, first_word);
 		proto_tree_add_uint(header_tree, hf_ccsds_apid, tvb, offset, 2, first_word);
 		offset += 2;
 
