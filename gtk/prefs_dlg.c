@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.23 2000/11/18 21:41:38 guy Exp $
+ * $Id: prefs_dlg.c,v 1.24 2001/01/11 04:40:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -188,6 +188,7 @@ pref_show(pref_t *pref, gpointer user_data)
 	gtk_menu_append(GTK_MENU(menu), menu_item);
 	if (enum_valp->value == pref->saved_val.enumval)
 	  menu_index = index;
+	gtk_widget_show(menu_item);
       }
 
       /* Create the option menu from the option */
