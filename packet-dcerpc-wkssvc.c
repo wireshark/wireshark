@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.23 2003/05/01 17:53:22 sharpe Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.24 2003/05/01 19:51:37 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,6 +94,11 @@ static int hf_wkssvc_parm_err = -1;
 static int hf_wkssvc_errlog_sz = -1;
 static int hf_wkssvc_print_buf_time = -1;
 static int hf_wkssvc_wrk_heuristics = -1;
+static int hf_wkssvc_quality_of_service = -1;
+static int hf_wkssvc_number_of_vcs = -1;
+static int hf_wkssvc_transport_name = -1;
+static int hf_wkssvc_transport_address = -1;
+static int hf_wkssvc_wan_ish = -1;
 static gint ett_dcerpc_wkssvc = -1;
 
 extern const value_string platform_id_vals[];
@@ -464,6 +469,9 @@ wkssvc_dissect_netwkstagetinfo_rqst(tvbuff_t *tvb, int offset,
  * IDL   [case(1012)] [unique] WKS_INFO_1012 *wks1012;
  * IDL   [case(1013)] [unique] WKS_INFO_1013 *wks1013;
  * IDL   [case(1018)] [unique] WKS_INFO_1018 *wks1018;
+ * IDL   [case(1023)] [unique] WKS_INFO_1023 *wks1023;
+ * IDL   [case(1027)] [unique] WKS_INFO_1027 *wks1027;
+ * IDL   [case(1033)] [unique] WKS_INFO_1033 *wks1033;
  * IDL } WKS_INFO_UNION;
  */
 static int
@@ -539,6 +547,34 @@ wkssvc_dissect_WKS_GETINFO_UNION(tvbuff_t *tvb, int offset,
 					     NDR_POINTER_UNIQUE, 
 					     "WKS_INFO_1018:", -1);
 		break;
+
+	case 1023:
+	        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+					     wkssvc_dissect_WKS_INFO_1023,
+					     NDR_POINTER_UNIQUE, 
+					     "WKS_INFO_1023:", -1);
+		break;
+
+	case 1027:
+	        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+					     wkssvc_dissect_WKS_INFO_1027,
+					     NDR_POINTER_UNIQUE, 
+					     "WKS_INFO_1027:", -1);
+		break;
+
+	case 1033:
+	        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+					     wkssvc_dissect_WKS_INFO_1033,
+					     NDR_POINTER_UNIQUE, 
+					     "WKS_INFO_1033:", -1);
+		break;
+
+		/*	case 1018:
+	        offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+					     wkssvc_dissect_WKS_INFO_1018,
+					     NDR_POINTER_UNIQUE, 
+					     "WKS_INFO_1018:", -1);
+					     break; */
 
 	}
 
@@ -826,6 +862,167 @@ static int wkssvc_dissect_netwkstaenumusers_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/*
+ * IDL typedef struct {
+ * IDL   long quality_of_service;
+ * IDL   long number_of_vcs;
+ * IDL   [string] [unique] wchar_t *transport_name;
+ * IDL   [string] [unique] wchar_t *transport_address; 
+ * IDL   BOOL wan_ish;
+ * IDL } TRANSPORT_INFO_0;
+ */
+static int
+wkssvc_dissect_TRANSPORT_INFO_0(tvbuff_t *tvb, int offset,
+				     packet_info *pinfo, proto_tree *tree,
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_wkssvc_quality_of_service, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_wkssvc_number_of_vcs, 0);
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Transport Name", 
+			hf_wkssvc_transport_name, 0);
+
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+			NDR_POINTER_UNIQUE, "Transport Address", 
+			hf_wkssvc_transport_address, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_wkssvc_wan_ish, 0);
+
+	return offset;
+}
+
+static int
+wkssvc_dissect_TRANSPORT_INFO_0_array(tvbuff_t *tvb, int offset,
+				     packet_info *pinfo, proto_tree *tree,
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			wkssvc_dissect_TRANSPORT_INFO_0);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] TRANSPORT_INFO_0 *devs;
+ * IDL } TRANSPORT_INFO_0_CONTAINER;
+ */
+static int
+wkssvc_dissect_TRANSPORT_INFO_0_CONTAINER(tvbuff_t *tvb, int offset,
+				     packet_info *pinfo, proto_tree *tree,
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_wkssvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		wkssvc_dissect_TRANSPORT_INFO_0_array, NDR_POINTER_UNIQUE,
+		"TRANSPORT_INFO_0 array:", -1);
+
+	return offset;
+}
+
+/*
+ * IDL typedef [switch_type(long)] union {
+ * IDL   [case(0)] [unique] TRANSPORT_INFO_0_CONTAINER *dev0;
+ * IDL } TRANSPORT_ENUM_UNION;
+ */
+static int
+wkssvc_dissect_TRANSPORT_ENUM_UNION(tvbuff_t *tvb, int offset,
+				     packet_info *pinfo, proto_tree *tree,
+				     char *drep)
+{
+	guint32 level;
+
+	ALIGN_TO_4_BYTES;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_wkssvc_info_level, &level);
+
+	switch(level){
+	case 0:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			wkssvc_dissect_TRANSPORT_INFO_0_CONTAINER,
+			NDR_POINTER_UNIQUE, "TRANSPORT_INFO_0_CONTAINER:", -1);
+		break;
+
+	}
+
+	return offset;
+}
+
+/*
+ * IDL long NetWkstaTransportEnum(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] long level,
+ * IDL      [in] [out] [ref] WKS_TRANSPORT_ENUM_STRUCT *users,
+ * IDL      [in] long prefmaxlen,
+ * IDL      [out] long *entriesread,
+ * IDL      [out] long *totalentries,
+ * IDL      [in] [out] [ref] *resumehandle
+ * IDL );
+ */
+static int
+wkssvc_dissect_netwkstatransportenum_rqst(tvbuff_t *tvb, int offset, 
+				      packet_info *pinfo, proto_tree *tree,
+				      char *drep)
+{
+        offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
+					      NDR_POINTER_UNIQUE, "Server", 
+					      hf_wkssvc_server, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_wkssvc_info_level, 0);
+
+  	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			wkssvc_dissect_TRANSPORT_ENUM_UNION,
+			NDR_POINTER_REF, "Transport Info", -1);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_wkssvc_pref_max, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+				     wkssvc_dissect_ENUM_HANDLE,
+				     NDR_POINTER_UNIQUE, "Enum Handle", -1);
+
+	return offset;
+
+}
+
+static int wkssvc_dissect_netwkstatransportenum_reply(tvbuff_t *tvb, 
+						      int offset,
+						      packet_info *pinfo, 
+						      proto_tree *tree,
+						      char *drep)
+{
+        /* There seems to be an info level there first */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_wkssvc_info_level, 0);
+
+  	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			wkssvc_dissect_TRANSPORT_ENUM_UNION,
+			NDR_POINTER_REF, "Transport Info", -1);
+
+	/* Entries read seems to be in the enum array ... */
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_wkssvc_total_entries, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+				     wkssvc_dissect_ENUM_HANDLE,
+				     NDR_POINTER_UNIQUE, "Enum Handle", -1);
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+	hf_wkssvc_rc, NULL);
+
+	return offset;
+}
+
 static dcerpc_sub_dissector dcerpc_wkssvc_dissectors[] = {
         { WKS_NetWkstaGetInfo, "NetWkstaGetInfo", 
 	  wkssvc_dissect_netwkstagetinfo_rqst, 
@@ -833,7 +1030,7 @@ static dcerpc_sub_dissector dcerpc_wkssvc_dissectors[] = {
 	{ WKS_NetWkstaSetInfo, "NetWkstaSetInfo",
 	  wkssvc_dissect_netwkstasetinfo_rqst,
 	  wkssvc_dissect_netwkstasetinfo_reply},
-        { WKS_NetWkstaEnumUsers, "NetWkstaEnumUsers",
+        { WKS_NetWkstaEnumUsers, "NetWkstaUserEnum",
 	  wkssvc_dissect_netwkstaenumusers_rqst,
  	  wkssvc_dissect_netwkstaenumusers_reply},
 	{ WKS_NetWkstaUnkn_003, "NetWkstaUnknown_003",
@@ -843,8 +1040,8 @@ static dcerpc_sub_dissector dcerpc_wkssvc_dissectors[] = {
 	  NULL,
 	  NULL},
 	{ WKS_NetWkstaTransportEnum, "NetWkstaTransportEnum",
-	  NULL, 
-	  NULL},
+	  wkssvc_dissect_netwkstatransportenum_rqst, 
+	  wkssvc_dissect_netwkstatransportenum_reply},
         {0, NULL, NULL,  NULL }
 };
 
@@ -1027,6 +1224,22 @@ proto_register_dcerpc_wkssvc(void)
 	  { &hf_wkssvc_wrk_heuristics, 
 	    { "Wrk Heuristics", "wkssvc.wrk.heuristics", FT_INT32,
 	      BASE_DEC, NULL, 0x0, "Wrk Heuristics", HFILL}},
+	  { &hf_wkssvc_quality_of_service, 
+	    { "Quality Of Service", "wkssvc.qos", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Quality Of Service", HFILL}},
+	  { &hf_wkssvc_number_of_vcs, 
+	    { "Number Of VCs", "wkssvc.number.of.vcs", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "Number of VSs", HFILL}},
+	  { &hf_wkssvc_transport_name,
+	    { "Transport Name", "wkssvc.transport.name", FT_STRING, BASE_NONE,
+	      NULL, 0x0, "Transport Name", HFILL}},
+	  { &hf_wkssvc_transport_address,
+	    { "Transport Address", "wkssvc.transport.address", FT_STRING, 
+	      BASE_NONE,
+	      NULL, 0x0, "Transport Address", HFILL}},
+	  { &hf_wkssvc_wan_ish, 
+	    { "WAN ish", "wkssvc.wan.ish", FT_INT32,
+	      BASE_DEC, NULL, 0x0, "WAN ish", HFILL}},
 	};
         static gint *ett[] = {
                 &ett_dcerpc_wkssvc
