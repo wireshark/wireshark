@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.154 2002/08/21 23:57:38 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.155 2002/08/22 19:40:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -164,9 +164,18 @@ static GHashTable *tcp_rel_seq_table = NULL;
 static GMemChunk *tcp_analysis_chunk = NULL;
 static int tcp_analysis_count = 20;	/* one for each conversation */
 struct tcp_analysis {
-	/* these two structs are managed such as CMP_ADDRESS(src,dst)
-	 * ==1,  then stuff sent from src is in ual1
-	 * ==-1, then stuff sent from src is in ual2 and vv
+	/* These two structs are managed based on comparing the source
+	 * and destination addresses and, if they're equal, comparing
+	 * the source and destination ports.
+	 *
+	 * If the source is greater than the destination, then stuff
+	 * sent from src is in ual1.
+	 *
+	 * If the source is less than the destination, then stuff
+	 * sent from src is in ual2.
+	 *
+	 * XXX - if the addresses and ports are equal, we don't guarantee
+	 * the behavior.
 	 */
 	struct tcp_unacked *ual1;	/* UnAcked List 1*/
 	guint32 base_seq1;
@@ -237,7 +246,18 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 
 	/* check direction and get ua lists */
 	direction=CMP_ADDRESS(&pinfo->src, &pinfo->dst);
-	if(direction==1){
+	if(direction==0)
+		direction=pinfo->srcport - pinfo->destport;
+	if(direction>=0){
+		/*
+		 * XXX - if direction == 0, that'll be true for packets
+		 * from both sides of the connection, so this won't
+		 * work.
+		 *
+		 * That'd be a connection from a given port on a machine
+		 * to that same port on the same machine; does that ever
+		 * happen?
+		 */
 		ual1=tcpd->ual1;
 		ual2=tcpd->ual2;
 		base_seq=tcpd->base_seq1;
@@ -478,7 +498,16 @@ ack_finished:
 
 
 	/* store the lists back in our struct */
-	if(direction==1){
+	if(direction>=0){
+		/*
+		 * XXX - if direction == 0, that'll be true for packets
+		 * from both sides of the connection, so this won't
+		 * work.
+		 *
+		 * That'd be a connection from a given port on a machine
+		 * to that same port on the same machine; does that ever
+		 * happen?
+		 */
 		tcpd->ual1=ual1;
 		tcpd->ual2=ual2;
 		tcpd->base_seq1=base_seq;
