@@ -2,7 +2,7 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.30 2002/01/20 22:12:28 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.31 2002/02/10 02:25:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -127,19 +127,20 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 			if (tri != NULL)
 				tri->trans_subcmd = trans_subcmd;
 		}
-	} else
+	} else {
 		trans_subcmd = tri->trans_subcmd;
-
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, proto_smb_msp, mshdr_tvb,
-			0, -1, FALSE);
-		tree = proto_item_add_subtree(item, ett_smb_msp);
 	}
 
 	/* Only do these ones if we have them. For fragmented SMB Transactions
 	   we may only have the setup area for the first fragment
 	*/
 	if(mshdr_tvb && setup_tvb){
+		if (parent_tree) {
+			item = proto_tree_add_item(parent_tree, proto_smb_msp,
+						   mshdr_tvb, 0, -1, FALSE);
+			tree = proto_item_add_subtree(item, ett_smb_msp);
+		}
+
 		/* do the opcode field */
 		opcode = tvb_get_letohs(setup_tvb, offset);
 
@@ -177,8 +178,8 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 		len = tvb_strsize(mshdr_tvb, offset);
 		proto_tree_add_item(tree, hf_name, mshdr_tvb, offset, len, TRUE);
 		offset += len;
+		proto_item_set_len(item, offset);
 	}
-	proto_item_set_len(item, offset);
 
 	dissected = FALSE;
 	switch(trans_subcmd){
@@ -245,5 +246,5 @@ proto_register_smb_mailslot(void)
 void
 proto_reg_handoff_smb_mailslot(void)
 {
-  data_handle = find_dissector("data");
+	data_handle = find_dissector("data");
 }
