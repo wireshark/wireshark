@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.82 2003/06/03 23:49:59 guy Exp $
+ * $Id: packet-bgp.c,v 1.83 2004/01/05 19:31:43 ulfl Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -896,7 +896,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
         case SAFNUM_LAB_VPNUNICAST:
         case SAFNUM_LAB_VPNMULCAST:
         case SAFNUM_LAB_VPNUNIMULC:
-            plen =  tvb_get_ntohs(tvb,offset);
+            plen =  (guint8) tvb_get_ntohs(tvb,offset);
             rd_type=tvb_get_ntohs(tvb,offset+2);
             ce_id=tvb_get_ntohs(tvb,offset+10);
             labblk_off=tvb_get_ntohs(tvb,offset+12);

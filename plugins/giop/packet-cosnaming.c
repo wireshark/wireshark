@@ -289,7 +289,7 @@ static void decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb _U_, p
 
 static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_ ) {
 
-    gboolean be _U_;                        /* big endianess */
+    /*gboolean be _U_;*/                        /* big endianess */
 
 
 

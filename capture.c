@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.220 2003/12/21 12:18:59 ulfl Exp $
+ * $Id: capture.c,v 1.221 2004/01/05 19:31:43 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -348,7 +348,9 @@ do_capture(const char *save_file)
     char sautostop_filesize[24];	/* need a constant for len of numbers */
     char sautostop_duration[24];	/* need a constant for len of numbers */
     char save_file_fd[24];
+#ifndef _WIN32
     char errmsg[1024+1];
+#endif
     int error;
     int argc;
     char **argv;
@@ -1395,14 +1397,14 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   char        errmsg[4096+1];
   gboolean    write_ok;
   gboolean    close_ok;
-  fd_set      set1;
-  struct timeval timeout;
   capture_info   capture_ui;
 
 #ifdef _WIN32
   WORD        wVersionRequested;
   WSADATA     wsaData;
 #else
+  fd_set      set1;
+  struct timeval timeout;
   static const char ppamsg[] = "can't find PPA for ";
   char       *libpcap_warn;
   int         sel_ret;

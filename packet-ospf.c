@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.78 2003/12/21 04:31:56 jmayer Exp $
+ * $Id: packet-ospf.c,v 1.79 2004/01/05 19:31:44 ulfl Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -819,7 +819,7 @@ dissect_ospf_ls_req(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version)
 				    tvb, offset, 4, FALSE);
 	        break;
     	    case OSPF_VERSION_3:
- 	        reserved = tvb_get_ntohs(tvb, offset);
+ 	        reserved = (guint8) tvb_get_ntohs(tvb, offset);
  	        proto_tree_add_text(ospf_lsr_tree, tvb, offset, 2,
  	            (reserved == 0 ? "Reserved: %u" :  "Reserved: %u (incorrect, should be 0)"), reserved);
  	        ls_type = tvb_get_ntohs(tvb, offset+2);
@@ -1270,7 +1270,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 	/* again: flags should be secified in detail */
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset, 1, "Flags: 0x%02x",
 			    tvb_get_guint8(tvb, offset));
-	nr_links = tvb_get_ntohs(tvb, offset + 2);
+	nr_links = (guint8) tvb_get_ntohs(tvb, offset + 2);
 	proto_tree_add_text(ospf_lsa_tree, tvb, offset + 2, 2, "Number of Links: %u",
 			    nr_links);
 	offset += 4;

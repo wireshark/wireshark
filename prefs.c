@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.119 2003/12/31 09:58:56 guy Exp $
+ * $Id: prefs.c,v 1.120 2004/01/05 19:31:44 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1311,9 +1311,9 @@ prefs_set_pref(char *prefarg)
 #define PRS_CAP_REAL_TIME     "capture.real_time_update"
 #define PRS_CAP_AUTO_SCROLL   "capture.auto_scroll"
 
-#define RED_COMPONENT(x)   ((((x) >> 16) & 0xff) * 65535 / 255)
-#define GREEN_COMPONENT(x) ((((x) >>  8) & 0xff) * 65535 / 255)
-#define BLUE_COMPONENT(x)   (((x)        & 0xff) * 65535 / 255)
+#define RED_COMPONENT(x)   (guint16) (((((x) >> 16) & 0xff) * 65535 / 255))
+#define GREEN_COMPONENT(x) (guint16) (((((x) >>  8) & 0xff) * 65535 / 255))
+#define BLUE_COMPONENT(x)  (guint16) ( (((x)        & 0xff) * 65535 / 255))
 
 static gchar *pr_formats[] = { "text", "postscript" };
 static gchar *pr_dests[]   = { "command", "file" };

@@ -3,7 +3,7 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.43 2003/11/04 18:37:32 guy Exp $
+ * $Id: packet-gryphon.c,v 1.44 2004/01/05 19:27:50 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -919,7 +919,7 @@ resp_time(tvbuff_t *tvb, int offset, proto_tree *pt)
      */
     ts.lng[1] = tvb_get_ntohl(tvb, offset);
     ts.lng[0] = tvb_get_ntohl(tvb, offset + 4);
-    timestamp = ts.lnglng / 100000L;
+    timestamp = (time_t) (ts.lnglng / 100000L);
     strncpy (date, ctime(&timestamp), sizeof(date));
     date[strlen(date)-1] = 0x00;
     proto_tree_add_text(pt, tvb, offset, 8, "Date/Time: %s", date);

@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.61 2004/01/01 21:35:49 guy Exp $
+ * $Id: packet-vines.c,v 1.62 2004/01/05 19:31:44 ulfl Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -939,7 +939,7 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Non-sequenced ARP.
 		 */
-		packet_type = tvb_get_ntohs(tvb, 0);
+		packet_type = (guint8) tvb_get_ntohs(tvb, 0);
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_str(pinfo->cinfo, COL_INFO,
 			    val_to_str(packet_type, vines_arp_packet_type_vals,

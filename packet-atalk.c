@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.91 2003/11/16 23:17:16 guy Exp $
+ * $Id: packet-atalk.c,v 1.92 2004/01/05 19:31:43 ulfl Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -1089,7 +1089,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	}
 	if (utf_ofs) {
 		ofs = utf_ofs;
-		len  = tvb_get_ntohs(tvb, ofs);
+		len  = (guint8) tvb_get_ntohs(tvb, ofs);
 		proto_tree_add_item(tree, hf_asp_server_utf8_name_len, tvb, ofs, 2, FALSE);
 		ofs += 2;		
 		proto_tree_add_item(tree, hf_asp_server_utf8_name, tvb, ofs, len, FALSE);
@@ -1165,7 +1165,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (!aspinfo)
      return;
 
-  fn = aspinfo->command;
+  fn = (guint8) aspinfo->command;
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
 	if (aspinfo->reply)
@@ -1313,7 +1313,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (!aspinfo)
      return;
 
-  fn = aspinfo->command;
+  fn = (guint8) aspinfo->command;
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
 	if (aspinfo->reply)

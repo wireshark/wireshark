@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.213 2004/01/03 18:40:07 sharpe Exp $
+ * $Id: tethereal.c,v 1.214 2004/01/05 19:31:44 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1598,7 +1598,6 @@ capture(int out_file_type)
   bpf_u_int32 netnum, netmask;
   struct bpf_program fcode;
   const char *set_linktype_err_str;
-  void        (*oldhandler)(int);
   int         err = 0;
   int         volatile volatile_err = 0;
   int         volatile inpkts = 0;
@@ -1607,6 +1606,7 @@ capture(int out_file_type)
   condition  *volatile cnd_stop_capturesize = NULL;
   condition  *volatile cnd_stop_timeout = NULL;
 #ifndef _WIN32
+  void        (*oldhandler)(int);
   static const char ppamsg[] = "can't find PPA for ";
   char       *libpcap_warn;
   volatile int pipe_fd = -1;

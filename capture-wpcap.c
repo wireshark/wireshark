@@ -3,7 +3,7 @@
  * time, so that we only need one Ethereal binary and one Tethereal binary
  * for Windows, regardless of whether WinPcap is installed or not.
  *
- * $Id: capture-wpcap.c,v 1.7 2003/12/21 12:18:59 ulfl Exp $
+ * $Id: capture-wpcap.c,v 1.8 2004/01/05 19:31:42 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -348,7 +348,7 @@ get_interface_list(int *err, char *err_str)
 				j = 0;
 				while (names[i] != 0) {
 					if (j < MAX_WIN_IF_NAME_LEN)
-					ascii_name[j++] = names[i++];
+					ascii_name[j++] = (char) names[i++];
 				}
 				ascii_name[j] = '\0';
 				i++;

@@ -152,7 +152,7 @@ static const char CosEventComm_PullConsumer_disconnect_pull_consumer_op[] = "dis
 
 static gboolean decode_user_exception(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int *offset _U_, MessageHeader *header _U_, gchar *operation _U_ ) {
 
-    gboolean be _U_;                        /* big endianess */
+    /*gboolean be _U_;*/                        /* big endianess */
 
 
 

@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.80 2002/09/12 00:10:58 tpot Exp $
+ * $Id: packet-nbns.c,v 1.81 2004/01/05 19:31:44 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -432,7 +432,7 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
 	proto_tree *field_tree;
 	proto_item *tf;
 
-	opcode = (flags & F_OPCODE) >> OPCODE_SHIFT;
+	opcode = (guint16) ((flags & F_OPCODE) >> OPCODE_SHIFT);
 	strcpy(buf, val_to_str(opcode, opcode_vals, "Unknown operation"));
 	if (flags & F_RESPONSE && !is_wack) {
 		strcat(buf, " response");
@@ -1007,8 +1007,8 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* To do: check for runts, errs, etc. */
 	id    = tvb_get_ntohs(tvb, offset + NBNS_ID);
 	flags = tvb_get_ntohs(tvb, offset + NBNS_FLAGS);
-	opcode = (flags & F_OPCODE) >> OPCODE_SHIFT;
-	rcode = (flags & F_RCODE);
+	opcode = (guint16) ((flags & F_OPCODE) >> OPCODE_SHIFT);
+	rcode  = (guint16)  (flags & F_RCODE);
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s",
@@ -1197,7 +1197,7 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	case NBDS_ERROR:
-		header.error_code = tvb_get_ntohs(tvb, offset+10);
+		header.error_code = (guint8) tvb_get_ntohs(tvb, offset+10);
 		break;
 	}
 

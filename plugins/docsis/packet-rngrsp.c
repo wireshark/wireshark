@@ -2,7 +2,7 @@
  * Routines for Ranging Response Message dissection
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *
- * $Id: packet-rngrsp.c,v 1.6 2003/12/13 03:18:38 guy Exp $
+ * $Id: packet-rngrsp.c,v 1.7 2004/01/05 19:28:34 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,7 +86,7 @@ byte_to_signed (guint8 i)
     {
       val = i;
     }
-  return (val);
+  return (gint8) (val);
 }
 
 gint16

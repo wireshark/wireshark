@@ -1,7 +1,7 @@
 /* packet-artnet.c
  * Routines for Art-Net packet disassembly
  *
- * $Id: packet-artnet.c,v 1.5 2003/11/17 20:57:11 guy Exp $
+ * $Id: packet-artnet.c,v 1.6 2004/01/05 19:28:54 ulfl Exp $
  *
  * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  *
@@ -997,22 +997,22 @@ dissect_artnet_video_data(tvbuff_t *tvb, guint offset, proto_tree *tree) {
                       offset, 2, FALSE);
   offset += 2;
 
-  pos_x = tvb_get_ntohs(tvb, offset);
+  pos_x = (guint8) tvb_get_ntohs(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_video_data_pos_x, tvb,
                       offset, 1, pos_x);
   offset += 1;
 
-  pos_y = tvb_get_ntohs(tvb, offset);
+  pos_y = (guint8) tvb_get_ntohs(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_video_data_pos_y, tvb,
                       offset, 1, pos_y);
   offset += 1;
 
-  len_x = tvb_get_ntohs(tvb, offset);
+  len_x = (guint8) tvb_get_ntohs(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_video_data_len_x, tvb,
                       offset, 1, len_x);
   offset += 1;
 
-  len_y = tvb_get_ntohs(tvb, offset);
+  len_y = (guint8) tvb_get_ntohs(tvb, offset);
   proto_tree_add_uint(tree, hf_artnet_video_data_len_y, tvb,
                       offset, 1, len_y);
   offset += 1;

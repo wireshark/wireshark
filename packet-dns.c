@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.116 2003/12/19 23:13:42 guy Exp $
+ * $Id: packet-dns.c,v 1.117 2004/01/05 19:31:43 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2145,8 +2145,8 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   /* To do: check for errs, etc. */
   id    = tvb_get_ntohs(tvb, offset + DNS_ID);
   flags = tvb_get_ntohs(tvb, offset + DNS_FLAGS);
-  opcode = (flags & F_OPCODE) >> OPCODE_SHIFT;
-  rcode = (flags & F_RCODE);
+  opcode = (guint16) ((flags & F_OPCODE) >> OPCODE_SHIFT);
+  rcode  = (guint16)  (flags & F_RCODE);
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     strcpy(buf, val_to_str(opcode, opcode_vals, "Unknown operation (%u)"));

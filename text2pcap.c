@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.27 2003/12/21 04:31:57 jmayer Exp $
+ * $Id: text2pcap.c,v 1.28 2004/01/05 19:31:44 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -352,7 +352,7 @@ write_byte (char *str)
     unsigned long num;
 
     num = parse_num(str, FALSE);
-    packet_buf[curr_offset] = num;
+    packet_buf[curr_offset] = (unsigned char) num;
     curr_offset ++;
     if (curr_offset >= max_offset) /* packet full */
 	    start_new_packet();
@@ -558,7 +558,7 @@ write_current_packet (void)
         /* Write IP header */
         if (hdr_ip) {
             HDR_IP.packet_length = g_htons(ip_length);
-            HDR_IP.protocol = hdr_ip_proto;
+            HDR_IP.protocol = (guint8) hdr_ip_proto;
             HDR_IP.hdr_checksum = 0;
             HDR_IP.hdr_checksum = in_checksum(&HDR_IP, sizeof(HDR_IP));
             fwrite(&HDR_IP, sizeof(HDR_IP), 1, output_file);
@@ -568,7 +568,7 @@ write_current_packet (void)
 	pseudoh.src_addr    = HDR_IP.src_addr;
 	pseudoh.dest_addr   = HDR_IP.dest_addr;
 	pseudoh.zero        = 0;
-	pseudoh.protocol    = hdr_ip_proto;
+	pseudoh.protocol    = (guint8) hdr_ip_proto;
 	pseudoh.length      = g_htons(proto_length);
 
         /* Write UDP header */

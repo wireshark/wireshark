@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.39 2003/12/21 05:51:32 jmayer Exp $
+ * $Id: packet-cops.c,v 1.40 2004/01/05 19:31:43 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -920,7 +920,7 @@ static guchar*format_asn_value (struct variable_list *variable, subid_t *variabl
   subtree = get_tree(variable_oid,variable_oid_length, subtree);
   
   if (subtree->type == 0)
-    variable->type=type_from_packet;
+    variable->type= (guint8)type_from_packet;
   
   buf_len = SPRINT_MAX_LEN; /*defined in NET-SNMP's snmp-impl.h*/
   buf = g_malloc(buf_len);
