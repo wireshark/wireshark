@@ -469,6 +469,7 @@ DISSECTOR_SRC =	\
 	packet-syslog.c	\
 	packet-t38.c	\
 	packet-tacacs.c	\
+	packet-tali.c	\
 	packet-tcap.c	\
 	packet-tcp.c	\
 	packet-tds.c	\

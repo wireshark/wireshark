@@ -2207,8 +2207,12 @@ Luis Ontanon		<luis.ontanon.ibm[AT]h3g.it> {
 	RADIUS and ISUP enhancements
 }
 
-Luca Deri	<deri@ntop.org> {
+Luca Deri	<deri [AT] ntop.org> {
 	NetFlow v9 enhancements
+}
+
+Viorel Suman	<vsuman [AT] avmob.ro> {
+	TALI (RFC 3094) support
 }
 
 And assorted fixes and enhancements by the people listed above and by:

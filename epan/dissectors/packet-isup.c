@@ -6339,6 +6339,7 @@ proto_reg_handoff_isup(void)
   dissector_add("mtp3.service_indicator", MTP3_ISUP_SERVICE_INDICATOR, isup_handle);
   dissector_add("m3ua.protocol_data_si", MTP3_ISUP_SERVICE_INDICATOR, isup_handle);
   dissector_add_string("media_type","application/isup", application_isup_handle);
+  dissector_add_string("tali.opcode", "isot", isup_handle);
 
 }
 
