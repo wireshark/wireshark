@@ -2230,7 +2230,7 @@ static gboolean dissect_@dissname@(tvbuff_t *tvb, packet_info *pinfo, proto_tree
  */
 
     if (ptree) {
-       ti = proto_tree_add_item(ptree, proto_@dissname@, tvb, *offset, tvb_length(tvb) - *offset, FALSE);
+       ti = proto_tree_add_item(ptree, proto_@dissname@, tvb, *offset, -1, FALSE);
        tree = proto_item_add_subtree(ti, ett_@dissname@);
     }  
 

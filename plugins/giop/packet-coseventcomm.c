@@ -686,7 +686,7 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
  */
 
     if (ptree) {
-       ti = proto_tree_add_item(ptree, proto_coseventcomm, tvb, *offset, tvb_length(tvb) - *offset, FALSE);
+       ti = proto_tree_add_item(ptree, proto_coseventcomm, tvb, *offset, -1, FALSE);
        tree = proto_item_add_subtree(ti, ett_coseventcomm);
     }
 
