@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.10 2001/06/30 09:32:44 guy Exp $
+ * $Id: packet-afs-macros.h,v 1.11 2001/07/16 05:16:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -418,8 +418,7 @@
 
 /* Raw data */
 #define OUT_BYTES(field, bytes) \
-	proto_tree_add_bytes(tree,field, tvb,offset,bytes,\
-		tvb_get_ptr(tvb,offset,bytes)); \
+	proto_tree_add_item(tree, field, tvb, offset, bytes, FALSE);\
 	offset += bytes;
 
 /* Output a rx style string, up to a maximum length first 

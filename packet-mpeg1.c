@@ -2,7 +2,7 @@
  *
  * Routines for RFC 2250 MPEG-1 dissection
  *
- * $Id: packet-mpeg1.c,v 1.2 2001/06/18 02:17:49 guy Exp $
+ * $Id: packet-mpeg1.c,v 1.3 2001/07/16 05:16:57 guy Exp $
  * 
  * Copyright 2001, 
  * Francisco Javier Cabello Torres, <fjcabello@vtools.es>
@@ -192,7 +192,7 @@ dissect_mpeg1( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	    offset += 1;
 	  
 	    /* The rest of the packet is the MPEG-1 stream */
-	    proto_tree_add_bytes( mpg_tree, hf_rtp_mpg_data, tvb, offset, tvb_length_remaining( tvb, offset ), tvb_get_ptr( tvb, offset, tvb_length_remaining( tvb, offset ) ) );
+	    proto_tree_add_item( mpg_tree, hf_rtp_mpg_data, tvb, offset, tvb_length_remaining( tvb, offset ), FALSE );
 
 	  }
 }

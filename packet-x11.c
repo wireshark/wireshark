@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.21 2001/06/18 02:17:54 guy Exp $
+ * $Id: packet-x11.c,v 1.22 2001/07/16 05:16:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -825,7 +825,7 @@ static void listOfByte(tvbuff_t *tvb, int hf, int length)
 	    length = next_offset -  cur_offset;
       }
       if (length <= 0) length = 1;
-      proto_tree_add_bytes(t, hf, tvb, cur_offset, length, tvb_get_ptr(tvb, cur_offset, length));
+      proto_tree_add_item(t, hf, tvb, cur_offset, length, little_endian);
       cur_offset += length;
 }
 
@@ -1126,7 +1126,7 @@ static void string16_with_buffer_preallocated(tvbuff_t *tvb, proto_tree *t,
 	    proto_tree_add_string_format(t, hf, tvb, offset, length, tvb_get_ptr(tvb, offset, length), "%s: %s", 
 					proto_registrar_get_nth(hf) -> name, *s);
       } else
-	    proto_tree_add_bytes(t, hf_bytes, tvb, offset, length, tvb_get_ptr(tvb, offset, length));
+	    proto_tree_add_item(t, hf_bytes, tvb, offset, length, little_endian);
 
 }
 

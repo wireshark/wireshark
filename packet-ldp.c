@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for ldp packet disassembly
  *
- * $Id: packet-ldp.c,v 1.17 2001/06/18 02:17:48 guy Exp $
+ * $Id: packet-ldp.c,v 1.18 2001/07/16 05:16:57 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -217,8 +217,8 @@ void dissect_tlv_common_hello_parms(tvbuff_t *tvb, guint offset, proto_tree *tre
 
   if (tree) {
 
-    ti = proto_tree_add_bytes(tree, hf_ldp_tlv_value, tvb, offset, rem,
-			      tvb_get_ptr(tvb, offset, rem));
+    ti = proto_tree_add_item(tree, hf_ldp_tlv_value, tvb, offset, rem,
+			     FALSE);
 
     val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
 
@@ -387,8 +387,8 @@ int dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
       break;
 
     default:
-      proto_tree_add_bytes(tlv_tree, hf_ldp_tlv_value, tvb, offset + 4, 
-			   length, tvb_get_ptr(tvb, offset + 4, length));
+      proto_tree_add_item(tlv_tree, hf_ldp_tlv_value, tvb, offset + 4, 
+			   length, FALSE);
 
       break;
     }

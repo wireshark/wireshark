@@ -1,7 +1,7 @@
 /* packet-mrdisc.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP/MRDISC packet disassembly
  *
- * $Id: packet-mrdisc.c,v 1.1 2001/06/27 20:19:19 guy Exp $
+ * $Id: packet-mrdisc.c,v 1.2 2001/07/16 05:16:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,8 +116,7 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 	guint16 num;
 
 	/* Advertising Interval */
-	proto_tree_add_uint(parent_tree, hf_advint, tvb,
-		offset, 1, tvb_get_guint8(tvb, offset));
+	proto_tree_add_item(parent_tree, hf_advint, tvb, offset, 1, FALSE);
 	offset += 1;
 
 	/* checksum */
@@ -160,8 +159,8 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 					tvb_get_ntohs(tvb, offset));
 			}
 
-			proto_tree_add_uint(tree, hf_qi, tvb, offset, len,
-				tvb_get_ntohs(tvb, offset));
+			proto_tree_add_item(tree, hf_qi, tvb, offset, len,
+				FALSE);
 			offset += len;
 			break;
 		case MRDISC_RV:
@@ -171,8 +170,8 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 					tvb_get_ntohs(tvb, offset));
 			}
 
-			proto_tree_add_uint(tree, hf_rv, tvb, offset, len,
-				tvb_get_ntohs(tvb, offset));
+			proto_tree_add_item(tree, hf_rv, tvb, offset, len,
+				FALSE);
 			offset += len;
 			break;
 		default:
@@ -180,8 +179,8 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 				proto_item_set_text(item,"Option: unknown");
 			}
 
-			proto_tree_add_bytes(tree, hf_option_bytes,
-				tvb, offset, len, tvb_get_ptr(tvb, offset, len));
+			proto_tree_add_item(tree, hf_option_bytes,
+				tvb, offset, len, FALSE);
 			offset += len;
 		}
 		if (item) {

@@ -5,7 +5,7 @@
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-06.txt
  * Optionally, supports the protocol described in: draft-ietf-ips-iscsi-03.txt
  *
- * $Id: packet-iscsi.c,v 1.7 2001/06/28 08:05:26 guy Exp $
+ * $Id: packet-iscsi.c,v 1.8 2001/07/16 05:16:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -758,15 +758,15 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    else {
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
-	    proto_tree_add_bytes(ti, hf_iscsi_LUN, tvb, offset + 8, 8, tvb_get_ptr(tvb, offset + 8, 8));
-	    proto_tree_add_uint(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, tvb_get_ntohl(tvb, offset + 16));
-	    proto_tree_add_uint(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, tvb_get_ntohl(tvb, offset + 20));
-	    proto_tree_add_uint(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, tvb_get_ntohl(tvb, offset + 24));
-	    proto_tree_add_uint(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
+	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_ExpDataSN, tvb, offset + 32, 4, tvb_get_ntohl(tvb, offset + 32));
+		proto_tree_add_item(ti, hf_iscsi_ExpDataSN, tvb, offset + 32, 4, FALSE);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, tvb_get_ntohl(tvb, offset + 40));
+	    proto_tree_add_item(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, FALSE);
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x80) ||
@@ -792,11 +792,11 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    else {
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, tvb_get_ntohl(tvb, offset + 16));
-	    proto_tree_add_uint(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, tvb_get_ntohl(tvb, offset + 20));
-	    proto_tree_add_uint(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, tvb_get_ntohl(tvb, offset + 24));
-	    proto_tree_add_uint(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
-	    proto_tree_add_uint(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, tvb_get_ntohl(tvb, offset + 32));
+	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x01) ||
@@ -817,7 +817,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		    proto_tree_add_boolean(tt, hf_iscsi_SCSICommand_W, tvb, offset + 1, 1, b);
 		    proto_tree_add_uint(tt, hf_iscsi_SCSICommand_Attr, tvb, offset + 1, 1, b);
 		}
-		proto_tree_add_uint(ti, hf_iscsi_SCSICommand_AddCDB, tvb, offset + 3, 1, tvb_get_guint8(tvb, offset + 3));
+		proto_tree_add_item(ti, hf_iscsi_SCSICommand_AddCDB, tvb, offset + 3, 1, FALSE);
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
 	    }
 	    else {
@@ -833,15 +833,15 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		    proto_tree_add_boolean(tt, hf_iscsi_SCSICommand_W, tvb, offset + 1, 1, b);
 		    proto_tree_add_uint(tt, hf_iscsi_SCSICommand_Attr, tvb, offset + 1, 1, b);
 		}
-		proto_tree_add_uint(ti, hf_iscsi_SCSICommand_CRN, tvb, offset + 3, 1, tvb_get_guint8(tvb, offset + 3));
-		proto_tree_add_uint(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, tvb_get_guint8(tvb, offset + 4));
+		proto_tree_add_item(ti, hf_iscsi_SCSICommand_CRN, tvb, offset + 3, 1, FALSE);
+		proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, FALSE);
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
-	    proto_tree_add_bytes(ti, hf_iscsi_LUN, tvb, offset + 8, 8, tvb_get_ptr(tvb, offset + 8, 8));
-	    proto_tree_add_uint(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, tvb_get_ntohl(tvb, offset + 16));
-	    proto_tree_add_uint(ti, hf_iscsi_ExpectedDataTransferLength, tvb, offset + 20, 4, tvb_get_ntohl(tvb, offset + 20));
-	    proto_tree_add_uint(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, tvb_get_ntohl(tvb, offset + 24));
-	    proto_tree_add_uint(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
+	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_ExpectedDataTransferLength, tvb, offset + 20, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    {
 		/* dissect a little of the CDB for the most common
 		 * commands */
@@ -872,7 +872,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		    tf = proto_tree_add_uint(ti, hf_iscsi_SCSICommand_CDB0, tvb, cdb_offset, cdb_len, cdb0);
 		{
 		    proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_CDB);
-		    proto_tree_add_bytes(tt, hf_iscsi_SCSICommand_CDB, tvb, cdb_offset, cdb_len, tvb_get_ptr(tvb, cdb_offset, cdb_len));
+		    proto_tree_add_item(tt, hf_iscsi_SCSICommand_CDB, tvb, cdb_offset, cdb_len, FALSE);
 		}
 		offset = cdb_offset + cdb_len + handleHeaderDigest(ti, tvb, offset, cdb_offset + cdb_len);
 	    }
@@ -909,26 +909,26 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		    proto_tree_add_boolean(tt, hf_iscsi_SCSIResponse_U, tvb, offset + 1, 1, b);
 		    proto_tree_add_boolean(tt, hf_iscsi_SCSIResponse_S, tvb, offset + 1, 1, b);
 		    if(b & 0x01)
-			proto_tree_add_uint(ti, hf_iscsi_StatusResponse_is_status, tvb, offset + 3, 1, tvb_get_guint8(tvb, offset + 3));
+			proto_tree_add_item(ti, hf_iscsi_StatusResponse_is_status, tvb, offset + 3, 1, FALSE);
 		    else
-			proto_tree_add_uint(ti, hf_iscsi_StatusResponse_is_response, tvb, offset + 3, 1, tvb_get_guint8(tvb, offset + 3));
+			proto_tree_add_item(ti, hf_iscsi_StatusResponse_is_response, tvb, offset + 3, 1, FALSE);
 		}
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, tvb_get_ntohl(tvb, offset + 16));
-	    proto_tree_add_uint(ti, hf_iscsi_SCSIResponse_BasicResidualCount, tvb, offset + 20, 4, tvb_get_ntohl(tvb, offset + 20));
-	    proto_tree_add_uint(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, tvb_get_ntohl(tvb, offset + 24));
-	    proto_tree_add_uint(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
-	    proto_tree_add_uint(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, tvb_get_ntohl(tvb, offset + 32));
+	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_SCSIResponse_BasicResidualCount, tvb, offset + 20, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_CommandStatus03, tvb, offset + 36, 1, tvb_get_guint8(tvb, offset + 36));
-		proto_tree_add_uint(ti, hf_iscsi_SCSIResponse_SenseLength, tvb, offset + 40, 2, tvb_get_ntohs(tvb, offset + 40));
+		proto_tree_add_item(ti, hf_iscsi_CommandStatus03, tvb, offset + 36, 1, FALSE);
+		proto_tree_add_item(ti, hf_iscsi_SCSIResponse_SenseLength, tvb, offset + 40, 2, FALSE);
 	    }
 	    else {
-		proto_tree_add_uint(ti, hf_iscsi_ExpDataSN, tvb, offset + 36, 4, tvb_get_ntohl(tvb, offset + 36));
-		proto_tree_add_uint(ti, hf_iscsi_R2TExpDataSN, tvb, offset + 40, 4, tvb_get_ntohl(tvb, offset + 40));
+		proto_tree_add_item(ti, hf_iscsi_ExpDataSN, tvb, offset + 36, 4, FALSE);
+		proto_tree_add_item(ti, hf_iscsi_R2TExpDataSN, tvb, offset + 40, 4, FALSE);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_SCSIResponse_BidiReadResidualCount, tvb, offset + 44, 4, tvb_get_ntohl(tvb, offset + 44));
+	    proto_tree_add_item(ti, hf_iscsi_SCSIResponse_BidiReadResidualCount, tvb, offset + 44, 4, FALSE);
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x02) ||
@@ -944,15 +944,15 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
 				    offset + 0, 1, opcode);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_SCSITask_Function, tvb, offset + 1, 1, tvb_get_guint8(tvb, offset + 1));
+	    proto_tree_add_item(ti, hf_iscsi_SCSITask_Function, tvb, offset + 1, 1, FALSE);
 	    if(enable_03_mode) {
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
 	    }
-	    proto_tree_add_bytes(ti, hf_iscsi_LUN, tvb, offset + 8, 8, tvb_get_ptr(tvb, offset + 8, 8));
-	    proto_tree_add_uint(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, tvb_get_ntohl(tvb, offset + 16));
-	    proto_tree_add_uint(ti, hf_iscsi_SCSITask_ReferencedTaskTag, tvb, offset + 20, 4, tvb_get_ntohl(tvb, offset + 20));
-	    proto_tree_add_uint(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, tvb_get_ntohl(tvb, offset + 24));
-	    proto_tree_add_uint(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
+	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_SCSITask_ReferencedTaskTag, tvb, offset + 20, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x82) ||
@@ -967,13 +967,13 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
 				    offset + 0, 1, opcode);
 	    }
-	    proto_tree_add_bytes(ti, hf_iscsi_LUN, tvb, offset + 8, 8, tvb_get_ptr(tvb, offset + 8, 8));
-	    proto_tree_add_uint(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, tvb_get_ntohl(tvb, offset + 16));
-	    proto_tree_add_uint(ti, hf_iscsi_SCSITask_ReferencedTaskTag, tvb, offset + 20, 4, tvb_get_ntohl(tvb, offset + 20));
-	    proto_tree_add_uint(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, tvb_get_ntohl(tvb, offset + 24));
-	    proto_tree_add_uint(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
-	    proto_tree_add_uint(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, tvb_get_ntohl(tvb, offset + 32));
-	    proto_tree_add_uint(ti, hf_iscsi_SCSITask_Response, tvb, offset + 36, 1, tvb_get_guint8(tvb, offset + 36));
+	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_SCSITask_ReferencedTaskTag, tvb, offset + 20, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_SCSITask_Response, tvb, offset + 36, 1, FALSE);
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x03) ||
@@ -995,24 +995,24 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		    proto_tree_add_boolean(tt, hf_iscsi_Login_F, tvb, offset + 1, 1, b);
 		}
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_VersionMax, tvb, offset + 2, 1, tvb_get_guint8(tvb, offset + 2));
-	    proto_tree_add_uint(ti, hf_iscsi_VersionMin, tvb, offset + 3, 1, tvb_get_guint8(tvb, offset + 3));
+	    proto_tree_add_item(ti, hf_iscsi_VersionMax, tvb, offset + 2, 1, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_VersionMin, tvb, offset + 3, 1, FALSE);
 	    if(enable_03_mode) {
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
 	    }
 	    else {
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_CID, tvb, offset + 8, 2, tvb_get_ntohs(tvb, offset + 8));
-	    proto_tree_add_uint(ti, hf_iscsi_ISID, tvb, offset + 12, 2, tvb_get_ntohs(tvb, offset + 12));
-	    proto_tree_add_uint(ti, hf_iscsi_TSID, tvb, offset + 14, 2, tvb_get_ntohs(tvb, offset + 14));
-	    proto_tree_add_uint(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, tvb_get_ntohl(tvb, offset + 16));
+	    proto_tree_add_item(ti, hf_iscsi_CID, tvb, offset + 8, 2, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_ISID, tvb, offset + 12, 2, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_TSID, tvb, offset + 14, 2, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_InitCmdSN, tvb, offset + 24, 4, tvb_get_ntohl(tvb, offset + 24));
+		proto_tree_add_item(ti, hf_iscsi_InitCmdSN, tvb, offset + 24, 4, FALSE);
 	    }
 	    else {
-		proto_tree_add_uint(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, tvb_get_ntohl(tvb, offset + 24));
-		proto_tree_add_uint(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
+		proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
+		proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    }
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	    if(packet_len > offset) {
@@ -1022,7 +1022,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		offset = addTextKeys(tt, tvb, offset, text_len);
 		if(offset < packet_len) {
 		    int padding = 4 - (offset & 3);
-		    proto_tree_add_bytes(ti, hf_iscsi_Padding, tvb, offset, padding, tvb_get_ptr(tvb, offset, padding));
+		    proto_tree_add_item(ti, hf_iscsi_Padding, tvb, offset, padding, FALSE);
 		    offset += padding;
 		}
 	    }
@@ -1045,25 +1045,25 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 		proto_tree_add_boolean(tt, hf_iscsi_Login_F, tvb, offset + 1, 1, b);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_VersionMax, tvb, offset + 2, 1, tvb_get_guint8(tvb, offset + 2));
-	    proto_tree_add_uint(ti, hf_iscsi_VersionMin, tvb, offset + 3, 1, tvb_get_guint8(tvb, offset + 3));
+	    proto_tree_add_item(ti, hf_iscsi_VersionMax, tvb, offset + 2, 1, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_VersionMin, tvb, offset + 3, 1, FALSE);
 	    if(enable_03_mode) {
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
 	    }
 	    else {
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_ISID, tvb, offset + 12, 2, tvb_get_ntohs(tvb, offset + 12));
-	    proto_tree_add_uint(ti, hf_iscsi_TSID, tvb, offset + 14, 2, tvb_get_ntohs(tvb, offset + 14));
-	    proto_tree_add_uint(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, tvb_get_ntohl(tvb, offset + 16));
-	    proto_tree_add_uint(ti, hf_iscsi_InitStatSN, tvb, offset + 24, 4, tvb_get_ntohl(tvb, offset + 24));
-	    proto_tree_add_uint(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
-	    proto_tree_add_uint(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, tvb_get_ntohl(tvb, offset + 32));
+	    proto_tree_add_item(ti, hf_iscsi_ISID, tvb, offset + 12, 2, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_TSID, tvb, offset + 14, 2, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_InitStatSN, tvb, offset + 24, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_Login_Status03, tvb, offset + 36, 1, tvb_get_guint8(tvb, offset + 36));
+		proto_tree_add_item(ti, hf_iscsi_Login_Status03, tvb, offset + 36, 1, FALSE);
 	    }
 	    else {
-		proto_tree_add_uint(ti, hf_iscsi_Login_Status, tvb, offset + 36, 1, tvb_get_ntohs(tvb, offset + 36));
+		proto_tree_add_item(ti, hf_iscsi_Login_Status, tvb, offset + 36, 1, FALSE);
 	    }
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	    if(packet_len > offset) {
@@ -1073,7 +1073,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		offset = addTextKeys(tt, tvb, offset, text_len);
 		if(offset < packet_len) {
 		    int padding = 4 - (offset & 3);
-		    proto_tree_add_bytes(ti, hf_iscsi_Padding, tvb, offset, padding, tvb_get_ptr(tvb, offset, padding));
+		    proto_tree_add_item(ti, hf_iscsi_Padding, tvb, offset, padding, FALSE);
 		    offset += padding;
 		}
 	    }
@@ -1100,9 +1100,9 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		}
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, tvb_get_ntohl(tvb, offset + 16));
-	    proto_tree_add_uint(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, tvb_get_ntohl(tvb, offset + 24));
-	    proto_tree_add_uint(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
+	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	    if(packet_len > offset) {
 		int text_len = iscsi_min(data_segment_len, packet_len - offset);
@@ -1111,7 +1111,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		offset = addTextKeys(tt, tvb, offset, text_len);
 		if(offset < packet_len) {
 		    int padding = 4 - (offset & 3);
-		    proto_tree_add_bytes(ti, hf_iscsi_Padding, tvb, offset, padding, tvb_get_ptr(tvb, offset, padding));
+		    proto_tree_add_item(ti, hf_iscsi_Padding, tvb, offset, padding, FALSE);
 		    offset += padding;
 		}
 	    }
@@ -1136,10 +1136,10 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		}
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, tvb_get_ntohl(tvb, offset + 16));
-	    proto_tree_add_uint(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, tvb_get_ntohl(tvb, offset + 24));
-	    proto_tree_add_uint(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
-	    proto_tree_add_uint(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, tvb_get_ntohl(tvb, offset + 32));
+	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	    if(packet_len > offset) {
 		int text_len = iscsi_min(data_segment_len, packet_len - offset);
@@ -1148,7 +1148,7 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		offset = addTextKeys(tt, tvb, offset, text_len);
 		if(offset < packet_len) {
 		    int padding = 4 - (offset & 3);
-		    proto_tree_add_bytes(ti, hf_iscsi_Padding, tvb, offset, padding, tvb_get_ptr(tvb, offset, padding));
+		    proto_tree_add_item(ti, hf_iscsi_Padding, tvb, offset, padding, FALSE);
 		    offset += padding;
 		}
 	    }
@@ -1176,13 +1176,13 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    else {
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
-	    proto_tree_add_bytes(ti, hf_iscsi_LUN, tvb, offset + 8, 8, tvb_get_ptr(tvb, offset + 8, 8));
-	    proto_tree_add_uint(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, tvb_get_ntohl(tvb, offset + 16));
-	    proto_tree_add_uint(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, tvb_get_ntohl(tvb, offset + 20));
-	    proto_tree_add_uint(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
+	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    if(!enable_03_mode)
-		proto_tree_add_uint(ti, hf_iscsi_DataSN, tvb, offset + 36, 4, tvb_get_ntohl(tvb, offset + 36));
-	    proto_tree_add_uint(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, tvb_get_ntohl(tvb, offset + 40));
+		proto_tree_add_item(ti, hf_iscsi_DataSN, tvb, offset + 36, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, FALSE);
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x85) ||
@@ -1216,24 +1216,24 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		    proto_tree_add_boolean(tt, hf_iscsi_SCSIData_U, tvb, offset + 1, 1, b);
 		    proto_tree_add_boolean(tt, hf_iscsi_SCSIData_S, tvb, offset + 1, 1, b);
 		}
-		proto_tree_add_uint(ti, hf_iscsi_StatusResponse_is_status, tvb, offset + 3, 1, tvb_get_guint8(tvb, offset + 3));
+		proto_tree_add_item(ti, hf_iscsi_StatusResponse_is_status, tvb, offset + 3, 1, FALSE);
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, tvb_get_ntohl(tvb, offset + 16));
+	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, tvb_get_ntohl(tvb, offset + 20));
+		proto_tree_add_item(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, FALSE);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, tvb_get_ntohl(tvb, offset + 24));
-	    proto_tree_add_uint(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
-	    proto_tree_add_uint(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, tvb_get_ntohl(tvb, offset + 32));
+	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_CommandStatus03, tvb, offset + 36, 1, tvb_get_guint8(tvb, offset + 36));
+		proto_tree_add_item(ti, hf_iscsi_CommandStatus03, tvb, offset + 36, 1, FALSE);
 	    }
 	    else {
-		proto_tree_add_uint(ti, hf_iscsi_DataSN, tvb, offset + 36, 4, tvb_get_ntohl(tvb, offset + 36));
+		proto_tree_add_item(ti, hf_iscsi_DataSN, tvb, offset + 36, 4, FALSE);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, tvb_get_ntohl(tvb, offset + 40));
-	    proto_tree_add_uint(ti, hf_iscsi_SCSIData_ResidualCount, tvb, offset + 44, 4, tvb_get_ntohl(tvb, offset + 44));
+	    proto_tree_add_item(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_SCSIData_ResidualCount, tvb, offset + 44, 4, FALSE);
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x06) ||
@@ -1249,14 +1249,14 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 				    offset + 0, 1, opcode);
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_CID, tvb, offset + 8, 2, tvb_get_ntohs(tvb, offset + 8));
+	    proto_tree_add_item(ti, hf_iscsi_CID, tvb, offset + 8, 2, FALSE);
 	    if(enable_03_mode)
-		proto_tree_add_uint(ti, hf_iscsi_Logout_Reason03, tvb, offset + 11, 1, tvb_get_guint8(tvb, offset + 11));
+		proto_tree_add_item(ti, hf_iscsi_Logout_Reason03, tvb, offset + 11, 1, FALSE);
 	    else
-		proto_tree_add_uint(ti, hf_iscsi_Logout_Reason, tvb, offset + 11, 1, tvb_get_guint8(tvb, offset + 11));
-	    proto_tree_add_uint(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, tvb_get_ntohl(tvb, offset + 16));
+		proto_tree_add_item(ti, hf_iscsi_Logout_Reason, tvb, offset + 11, 1, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    if(!enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
+		proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    }
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
@@ -1272,10 +1272,10 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
 				    offset + 0, 1, opcode);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, tvb_get_ntohl(tvb, offset + 16));
-	    proto_tree_add_uint(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
-	    proto_tree_add_uint(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, tvb_get_ntohl(tvb, offset + 32));
-	    proto_tree_add_uint(ti, hf_iscsi_Logout_Response, tvb, offset + 36, 1, tvb_get_guint8(tvb, offset + 36));
+	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_Logout_Response, tvb, offset + 36, 1, FALSE);
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((!enable_03_mode && (opcode == 0x10 || opcode == 0x50))) {
@@ -1291,17 +1291,17 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		proto_tree_add_boolean(tt, hf_iscsi_SNACK_S, tvb, offset + 1, 1, b);
 		S = b & 0x01;
 	    }
-	    proto_tree_add_boolean(ti, hf_iscsi_AddRuns, tvb, offset + 3, 1, tvb_get_guint8(tvb, offset + 3));
-	    proto_tree_add_uint(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, tvb_get_ntohl(tvb, offset + 16));
-	    proto_tree_add_uint(ti, hf_iscsi_BegRun, tvb, offset + 20, 4, tvb_get_ntohl(tvb, offset + 20));
-	    proto_tree_add_uint(ti, hf_iscsi_RunLength, tvb, offset + 24, 4, tvb_get_ntohl(tvb, offset + 24));
+	    proto_tree_add_item(ti, hf_iscsi_AddRuns, tvb, offset + 3, 1, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_BegRun, tvb, offset + 20, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_RunLength, tvb, offset + 24, 4, FALSE);
 	    if(S) {
-		proto_tree_add_uint(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
+		proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
 	    }
 	    else {
-		proto_tree_add_uint(ti, hf_iscsi_ExpDataSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
+		proto_tree_add_item(ti, hf_iscsi_ExpDataSN, tvb, offset + 28, 4, FALSE);
 	    }
-	    proto_tree_add_bytes(ti, hf_iscsi_AdditionalRuns, tvb, offset + 32, 16, tvb_get_ptr(tvb, offset + 32, 16));
+	    proto_tree_add_item(ti, hf_iscsi_AdditionalRuns, tvb, offset + 32, 16, FALSE);
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if((enable_03_mode && opcode == 0x90) ||
@@ -1316,21 +1316,21 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
 				    offset + 0, 1, opcode);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, tvb_get_ntohl(tvb, offset + 16));
-	    proto_tree_add_uint(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, tvb_get_ntohl(tvb, offset + 20));
+	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, FALSE);
 	    if(!enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, tvb_get_ntohl(tvb, offset + 24));
+		proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
-	    proto_tree_add_uint(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, tvb_get_ntohl(tvb, offset + 32));
+	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_DesiredDataLength, tvb, offset + 36, 4, tvb_get_ntohl(tvb, offset + 36));
-		proto_tree_add_uint(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, tvb_get_ntohl(tvb, offset + 40));
+		proto_tree_add_item(ti, hf_iscsi_DesiredDataLength, tvb, offset + 36, 4, FALSE);
+		proto_tree_add_item(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, FALSE);
 	    }
 	    else {
-		proto_tree_add_uint(ti, hf_iscsi_DataSN, tvb, offset + 36, 4, tvb_get_ntohl(tvb, offset + 36));
-		proto_tree_add_uint(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, tvb_get_ntohl(tvb, offset + 40));
-		proto_tree_add_uint(ti, hf_iscsi_DesiredDataLength, tvb, offset + 44, 4, tvb_get_ntohl(tvb, offset + 44));
+		proto_tree_add_item(ti, hf_iscsi_DataSN, tvb, offset + 36, 4, FALSE);
+		proto_tree_add_item(ti, hf_iscsi_BufferOffset, tvb, offset + 40, 4, FALSE);
+		proto_tree_add_item(ti, hf_iscsi_DesiredDataLength, tvb, offset + 44, 4, FALSE);
 	    }
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
@@ -1347,22 +1347,22 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 				    offset + 0, 1, opcode);
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
 	    }
-	    proto_tree_add_bytes(ti, hf_iscsi_LUN, tvb, offset + 8, 8, tvb_get_ptr(tvb, offset + 8, 8));
-	    proto_tree_add_uint(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, tvb_get_ntohl(tvb, offset + 24));
-	    proto_tree_add_uint(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, tvb_get_ntohl(tvb, offset + 28));
-	    proto_tree_add_uint(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, tvb_get_ntohl(tvb, offset + 32));
+	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
 	    if(enable_03_mode) {
-		proto_tree_add_uint(ti, hf_iscsi_SCSIEvent03, tvb, offset + 36, 1, tvb_get_guint8(tvb, offset + 36));
-		proto_tree_add_uint(ti, hf_iscsi_iSCSIEvent03, tvb, offset + 37, 1, tvb_get_guint8(tvb, offset + 37));
+		proto_tree_add_item(ti, hf_iscsi_SCSIEvent03, tvb, offset + 36, 1, FALSE);
+		proto_tree_add_item(ti, hf_iscsi_iSCSIEvent03, tvb, offset + 37, 1, FALSE);
 	    }
 	    else {
-		proto_tree_add_uint(ti, hf_iscsi_SCSIEvent, tvb, offset + 36, 1, tvb_get_guint8(tvb, offset + 36));
-		proto_tree_add_uint(ti, hf_iscsi_iSCSIEvent, tvb, offset + 37, 1, tvb_get_guint8(tvb, offset + 37));
+		proto_tree_add_item(ti, hf_iscsi_SCSIEvent, tvb, offset + 36, 1, FALSE);
+		proto_tree_add_item(ti, hf_iscsi_iSCSIEvent, tvb, offset + 37, 1, FALSE);
 	    }
-	    proto_tree_add_uint(ti, hf_iscsi_Parameter1, tvb, offset + 38, 2, tvb_get_ntohs(tvb, offset + 38));
-	    proto_tree_add_uint(ti, hf_iscsi_Parameter2, tvb, offset + 40, 2, tvb_get_ntohs(tvb, offset + 40));
+	    proto_tree_add_item(ti, hf_iscsi_Parameter1, tvb, offset + 38, 2, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_Parameter2, tvb, offset + 40, 2, FALSE);
 	    if(!enable_03_mode)
-		proto_tree_add_uint(ti, hf_iscsi_Parameter3, tvb, offset + 42, 2, tvb_get_ntohs(tvb, offset + 40));
+		proto_tree_add_item(ti, hf_iscsi_Parameter3, tvb, offset + 42, 2, FALSE);
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 	else if(opcode == 0xef) {
@@ -1371,20 +1371,20 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		proto_tree_add_uint(ti, hf_iscsi_Opcode_03, tvb, 
 				    offset + 0, 1, opcode);
 		proto_tree_add_uint(ti, hf_iscsi_Length03, tvb, offset + 4, 4, data_segment_len);
-		proto_tree_add_uint(ti, hf_iscsi_Reject_Reason03, tvb, offset + 36, 1, tvb_get_guint8(tvb, offset + 36));
+		proto_tree_add_item(ti, hf_iscsi_Reject_Reason03, tvb, offset + 36, 1, FALSE);
 	    }
 	    else {
 		proto_tree_add_uint(ti, hf_iscsi_Opcode, tvb,
 				    offset + 0, 1, opcode);
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, data_segment_len);
-		proto_tree_add_uint(ti, hf_iscsi_Reject_Reason, tvb, offset + 40, 1, tvb_get_guint8(tvb, offset + 40));
-		proto_tree_add_uint(ti, hf_iscsi_Reject_FirstBadByte, tvb, offset + 42, 1, tvb_get_ntohs(tvb, offset + 42));
+		proto_tree_add_item(ti, hf_iscsi_Reject_Reason, tvb, offset + 40, 1, FALSE);
+		proto_tree_add_item(ti, hf_iscsi_Reject_FirstBadByte, tvb, offset + 42, 1, FALSE);
 	    }
 	    offset += 48 + handleHeaderDigest(ti, tvb, offset, 48);
 	}
 
 	if(packet_len > offset)
-	    proto_tree_add_bytes(ti, hf_iscsi_Payload, tvb, offset, packet_len - offset, tvb_get_ptr(tvb, offset, packet_len - offset));
+	    proto_tree_add_item(ti, hf_iscsi_Payload, tvb, offset, packet_len - offset, FALSE);
     }
 
     return TRUE;
