@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.57 2002/05/20 01:01:11 guy Exp $
+ * $Id: packet-bgp.c,v 1.58 2002/05/21 21:44:28 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -313,7 +313,7 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, char *buf, int buflen)
 
     buf[0] = '\0' ;
 
-    while ((label_entry && 0x000001) == 0) {
+    while ((label_entry & 0x000001) == 0) {
 
         label_entry = tvb_get_ntoh24(tvb, index) ;
 
@@ -322,7 +322,7 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, char *buf, int buflen)
             snprintf(buf, buflen, "0 (withdrawn)");
             return (1);
         }
-        snprintf(buf, buflen,"%s%u%s", buf, (label_entry >> 4), ((label_entry && 0x000001) == 0) ? "," : " (bottom)");
+        snprintf(buf, buflen,"%s%u%s", buf, (label_entry >> 4), ((label_entry & 0x000001) == 0) ? "," : " (bottom)");
         index += 3 ;
     }
 

@@ -675,7 +675,7 @@ Hannes Gredler <hannes[AT]juniper.net> {
 	Juniper Networks vendor ID in RADIUS dissector
 	HELLO message support in RSVP
 	Labeled unicast support for BGP
-	Fix to label stack handling for withdrawn routes
+	BGP bug fixes
 }
 
 Inoue <inoue[AT]ainet.or.jp> {
