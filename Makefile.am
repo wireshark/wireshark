@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.470 2002/09/06 22:45:40 sahlberg Exp $
+# $Id: Makefile.am,v 1.471 2002/09/07 00:29:28 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -482,6 +482,7 @@ noinst_HEADERS = \
 	packet-isis-snp.h \
 	packet-isis.h  \
 	packet-isl.h   \
+	packet-kerberos.h \
 	packet-klm.h   \
 	packet-ldap.h  \
 	packet-llc.h   \

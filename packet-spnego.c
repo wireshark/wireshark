@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.29 2002/09/06 05:41:17 sharpe Exp $
+ * $Id: packet-spnego.c,v 1.30 2002/09/07 00:29:29 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "asn1.h"
 #include "format-oid.h"
 #include "packet-gssapi.h"
+#include "packet-kerberos.h"
 #include "epan/conversation.h"
 
 #define SPNEGO_negTokenInit 0
