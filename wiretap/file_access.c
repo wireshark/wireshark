@@ -1,6 +1,6 @@
 /* file_access.c
  *
- * $Id: file_access.c,v 1.2 2003/08/26 07:10:38 guy Exp $
+ * $Id: file_access.c,v 1.3 2003/10/01 07:11:47 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -123,25 +123,6 @@ static int (*const open_routines[])(wtap *, int *) = {
 };
 
 #define	N_FILE_TYPES	(sizeof open_routines / sizeof open_routines[0])
-
-gboolean wtap_def_seek_read(wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header _U_,
-	guint8 *pd, int len, int *err)
-{
-	int bytes_read;
-
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
-
-	bytes_read = file_read(pd, sizeof(guint8), len, wth->random_fh);
-	if (bytes_read != len) {
-		*err = file_error(wth->random_fh);
-		if (*err == 0)
-			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
-	}
-	return TRUE;
-}
 
 /*
  * Visual C++ on Win32 systems doesn't define these.  (Old UNIX systems don't

@@ -1,6 +1,6 @@
 /* wtap.h
  *
- * $Id: wtap.h,v 1.140 2003/08/26 07:10:39 guy Exp $
+ * $Id: wtap.h,v 1.141 2003/10/01 07:11:49 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -197,6 +197,11 @@
  * of that.
  */
 
+/* Packet "pseudo-header" information for Ethernet capture files. */
+struct eth_phdr {
+	gint	fcs_len;	/* Number of bytes of FCS - -1 means "unknown" */
+};
+
 /* Packet "pseudo-header" information for X.25 capture files. */
 #define FROM_DCE			0x80
 struct x25_phdr {
@@ -353,6 +358,7 @@ struct cosine_phdr {
 };
 
 union wtap_pseudo_header {
+	struct eth_phdr		eth;
 	struct x25_phdr		x25;
 	struct isdn_phdr	isdn;
 	struct atm_phdr		atm;
@@ -419,8 +425,6 @@ const char *wtap_strerror(int err);
 void wtap_sequential_close(wtap *wth);
 void wtap_close(wtap *wth);
 gboolean wtap_seek_read (wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
-gboolean wtap_def_seek_read (wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len, int *err);
 
 gboolean wtap_dump_can_open(int filetype);

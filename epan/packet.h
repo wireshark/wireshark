@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.71 2003/09/09 18:09:42 guy Exp $
+ * $Id: packet.h,v 1.72 2003/10/01 07:11:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -331,6 +331,6 @@ extern void capture_ethertype(guint16 etype, const guchar *pd, int offset,
 		int len, packet_counts *ld);
 extern void ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_ethertype,
 		packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
-		int etype_id, int trailer_id);
+		int etype_id, int trailer_id, int fcs_len);
 
 #endif /* packet.h */

@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.37 2003/08/21 21:05:29 guy Exp $
+ * $Id: packet-ethertype.c,v 1.38 2003/10/01 07:11:44 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -103,7 +103,8 @@ const value_string etype_vals[] = {
     {0,				NULL				} };
 
 static void add_dix_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
-    tvbuff_t *next_tvb, int offset_after_etype, guint length_before);
+    tvbuff_t *next_tvb, int offset_after_etype, guint length_before,
+    gint fcs_len);
 
 void
 capture_ethertype(guint16 etype, const guchar *pd, int offset, int len,
@@ -138,7 +139,7 @@ capture_ethertype(guint16 etype, const guchar *pd, int offset, int len,
 void
 ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
-		int etype_id, int trailer_id)
+		int etype_id, int trailer_id, int fcs_len)
 {
 	char			*description;
 	tvbuff_t		*next_tvb;
@@ -188,7 +189,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 
 		/* Add the trailer, if appropriate. */
 		add_dix_trailer(fh_tree, trailer_id, tvb, next_tvb,
-		    offset_after_etype, length_before);
+		    offset_after_etype, length_before, fcs_len);
 
 		/* Put back the protocol for which the exception is
 		   thrown, and rethrow the exception, so the
@@ -233,12 +234,13 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	}
 
 	add_dix_trailer(fh_tree, trailer_id, tvb, next_tvb, offset_after_etype,
-	    length_before);
+	    length_before, fcs_len);
 }
 
 static void
 add_dix_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
-    tvbuff_t *next_tvb, int offset_after_etype, guint length_before)
+    tvbuff_t *next_tvb, int offset_after_etype, guint length_before,
+    gint fcs_len)
 {
 	guint		length;
 	tvbuff_t	*volatile trailer_tvb;
@@ -271,9 +273,8 @@ add_dix_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
 	} else
 		trailer_tvb = NULL;	/* no trailer */
 
-	add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb);
+	add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
 }
-
 
 void
 proto_register_ethertype(void)
@@ -284,6 +285,7 @@ proto_register_ethertype(void)
 }
 
 void
-proto_reg_handoff_ethertype(void){
-  data_handle = find_dissector("data");
+proto_reg_handoff_ethertype(void)
+{
+	data_handle = find_dissector("data");
 }

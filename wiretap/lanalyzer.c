@@ -1,6 +1,6 @@
 /* lanalyzer.c
  *
- * $Id: lanalyzer.c,v 1.39 2003/07/29 20:30:00 guy Exp $
+ * $Id: lanalyzer.c,v 1.40 2003/10/01 07:11:47 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -118,6 +118,8 @@ static const gint8 LA_CyclicInformationFake[] = {
       };
 
 static gboolean lanalyzer_read(wtap *wth, int *err, long *data_offset);
+static gboolean lanalyzer_seek_read(wtap *wth, long seek_off,
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
 static void     lanalyzer_close(wtap *wth);
 static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err);
 
@@ -155,7 +157,7 @@ int lanalyzer_open(wtap *wth, int *err)
 	wth->file_type = WTAP_FILE_LANALYZER;
 	wth->capture.lanalyzer = g_malloc(sizeof(lanalyzer_t));
 	wth->subtype_read = lanalyzer_read;
-	wth->subtype_seek_read = wtap_def_seek_read;
+	wth->subtype_seek_read = lanalyzer_seek_read;
 	wth->subtype_close = lanalyzer_close;
 	wth->snapshot_length = 0;
 
@@ -383,6 +385,44 @@ static gboolean lanalyzer_read(wtap *wth, int *err, long *data_offset)
 	wth->phdr.len = true_size;
 	wth->phdr.caplen = packet_size;
 	wth->phdr.pkt_encap = wth->file_encap;
+
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_ETHERNET:
+		/* We assume there's no FCS in this frame. */
+		wth->pseudo_header.eth.fcs_len = 0;
+		break;
+	}
+
+	return TRUE;
+}
+
+static gboolean lanalyzer_seek_read(wtap *wth, long seek_off,
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
+{
+	int bytes_read;
+
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+		return FALSE;
+
+	/*
+	 * Read the packet data.
+	 */
+	bytes_read = file_read(pd, sizeof(guint8), length, wth->random_fh);
+	if (bytes_read != length) {
+		*err = file_error(wth->random_fh);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_ETHERNET:
+		/* We assume there's no FCS in this frame. */
+		pseudo_header->eth.fcs_len = 0;
+		break;
+	}
 
 	return TRUE;
 }

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.97 2003/09/04 06:40:45 guy Exp $
+ * $Id: libpcap.c,v 1.98 2003/10/01 07:11:47 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -949,7 +949,9 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 	 * the VCI; read them and generate the pseudo-header from
 	 * them.
 	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_ATM_PDUS:
 		if (packet_size < sizeof (struct sunatm_hdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
@@ -970,6 +972,14 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 		orig_size -= sizeof (struct sunatm_hdr);
 		packet_size -= sizeof (struct sunatm_hdr);
 		wth->data_offset += sizeof (struct sunatm_hdr);
+		break;
+
+	case WTAP_ENCAP_ETHERNET:
+		/*
+		 * We don't know whether there's an FCS in this frame or not.
+		 */
+		wth->pseudo_header.eth.fcs_len = -1;
+		break;
 	}
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
@@ -1004,12 +1014,22 @@ libpcap_seek_read(wtap *wth, long seek_off,
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_ATM_PDUS:
 		if (!libpcap_read_atm_pseudoheader(wth->random_fh, pseudo_header,
 		    err)) {
 			/* Read error */
 			return FALSE;
 		}
+		break;
+
+	case WTAP_ENCAP_ETHERNET:
+		/*
+		 * We don't know whether there's an FCS in this frame or not.
+		 */
+		pseudo_header->eth.fcs_len = -1;
+		break;
 	}
 
 	/*

@@ -1,7 +1,7 @@
 /* packet-sll.c
  * Routines for disassembly of packets from Linux "cooked mode" captures
  *
- * $Id: packet-sll.c,v 1.19 2002/08/28 21:00:31 jmayer Exp $
+ * $Id: packet-sll.c,v 1.20 2003/10/01 07:11:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -218,7 +218,7 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	} else {
 		ethertype(protocol, tvb, SLL_HEADER_SIZE, pinfo, tree,
-		    fh_tree, hf_sll_etype, hf_sll_trailer);
+		    fh_tree, hf_sll_etype, hf_sll_trailer, 0);
 	}
 }
 

@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.47 2003/01/10 04:04:41 guy Exp $
+ * $Id: iptrace.c,v 1.48 2003/10/01 07:11:47 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -46,7 +46,7 @@ static int iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len,
     int *err);
 static gboolean iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr,
     int packet_size, int *err);
-static void get_atm_pseudo_header(const guint8 *pd, guint32 len,
+static void fill_in_pseudo_header(int encap, const guint8 *pd, guint32 len,
     union wtap_pseudo_header *pseudo_header, guint8 *header);
 static int wtap_encap_ift(unsigned int  ift);
 
@@ -186,10 +186,9 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, long *data_offset)
 		return FALSE;
 	}
 
-	if (wth->phdr.pkt_encap == WTAP_ENCAP_ATM_PDUS) {
-		get_atm_pseudo_header(data_ptr, wth->phdr.caplen,
-		    &wth->pseudo_header, header);
-	}
+	/* Fill in the pseudo-header. */
+	fill_in_pseudo_header(wth->phdr.pkt_encap, data_ptr, wth->phdr.caplen,
+	    &wth->pseudo_header, header);
 
 	/* If the per-file encapsulation isn't known, set it to this
 	   packet's encapsulation.
@@ -252,9 +251,9 @@ static gboolean iptrace_seek_read_1_0(wtap *wth, long seek_off,
 	if (!iptrace_read_rec_data(wth->random_fh, pd, packet_size, err))
 		return FALSE;
 
-	/* Get the ATM pseudo-header, if this is ATM traffic. */
-	if (pkt_encap == WTAP_ENCAP_ATM_PDUS)
-		get_atm_pseudo_header(pd, packet_size, pseudo_header, header);
+	/* Fill in the pseudo_header. */
+	fill_in_pseudo_header(pkt_encap, pd, packet_size, pseudo_header,
+	    header);
 
 	return TRUE;
 }
@@ -369,10 +368,9 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, long *data_offset)
 		return FALSE;
 	}
 
-	if (wth->phdr.pkt_encap == WTAP_ENCAP_ATM_PDUS) {
-		get_atm_pseudo_header(data_ptr, wth->phdr.caplen,
-		    &wth->pseudo_header, header);
-	}
+	/* Fill in the pseudo-header. */
+	fill_in_pseudo_header(wth->phdr.pkt_encap, data_ptr, wth->phdr.caplen,
+	    &wth->pseudo_header, header);
 
 	/* If the per-file encapsulation isn't known, set it to this
 	   packet's encapsulation.
@@ -435,9 +433,9 @@ static gboolean iptrace_seek_read_2_0(wtap *wth, long seek_off,
 	if (!iptrace_read_rec_data(wth->random_fh, pd, packet_size, err))
 		return FALSE;
 
-	/* Get the ATM pseudo-header, if this is ATM traffic. */
-	if (pkt_encap == WTAP_ENCAP_ATM_PDUS)
-		get_atm_pseudo_header(pd, packet_size, pseudo_header, header);
+	/* Fill in the pseudo-header. */
+	fill_in_pseudo_header(pkt_encap, pd, packet_size, pseudo_header,
+	    header);
 
 	return TRUE;
 }
@@ -480,15 +478,16 @@ iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr, int packet_size, int *err)
 }
 
 /*
- * Fill in the pseudo-header information we can; alas, "iptrace" doesn't
- * tell us what type of traffic is in the packet - it was presumably
- * run on a machine that was one of the endpoints of the connection, so
- * in theory it could presumably have told us, but, for whatever reason,
- * it failed to do so - perhaps the low-level mechanism that feeds the
- * presumably-AAL5 frames to us doesn't have access to that information
- * (e.g., because it's in the ATM driver, and the ATM driver merely knows
- * that stuff on VPI/VCI X.Y should be handed up to some particular
- * client, it doesn't know what that client is).
+ * Fill in the pseudo-header information we can.
+ *
+ * For ATM traffic, "iptrace", alas, doesn't tell us what type of traffic
+ * is in the packet - it was presumably run on a machine that was one of
+ * the endpoints of the connection, so in theory it could presumably have
+ * told us, but, for whatever reason, it failed to do so - perhaps the
+ * low-level mechanism that feeds the presumably-AAL5 frames to us doesn't
+ * have access to that information (e.g., because it's in the ATM driver,
+ * and the ATM driver merely knows that stuff on VPI/VCI X.Y should be
+ * handed up to some particular client, it doesn't know what that client is).
  *
  * We let our caller try to figure out what kind of traffic it is, either
  * by guessing based on the VPI/VCI, guessing based on the header of the
@@ -496,7 +495,7 @@ iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr, int packet_size, int *err)
  * in some fashion what sort of traffic it is, or being told by the user.
  */
 static void
-get_atm_pseudo_header(const guint8 *pd, guint32 len,
+fill_in_pseudo_header(int encap, const guint8 *pd, guint32 len,
     union wtap_pseudo_header *pseudo_header, guint8 *header)
 {
 	char	if_text[9];
@@ -504,38 +503,48 @@ get_atm_pseudo_header(const guint8 *pd, guint32 len,
 	int	Vpi = 0;
 	int	Vci = 0;
 
-	/* Rip apart the "x.y" text into Vpi/Vci numbers */
-	memcpy(if_text, &header[20], 8);
-	if_text[8] = '\0';
-	decimal = strchr(if_text, '.');
-	if (decimal) {
-		*decimal = '\0';
-		Vpi = strtoul(if_text, NULL, 10);
-		decimal++;
-		Vci = strtoul(decimal, NULL, 10);
+	switch (encap) {
+
+	case WTAP_ENCAP_ATM_PDUS:
+		/* Rip apart the "x.y" text into Vpi/Vci numbers */
+		memcpy(if_text, &header[20], 8);
+		if_text[8] = '\0';
+		decimal = strchr(if_text, '.');
+		if (decimal) {
+			*decimal = '\0';
+			Vpi = strtoul(if_text, NULL, 10);
+			decimal++;
+			Vci = strtoul(decimal, NULL, 10);
+		}
+
+		/*
+		 * OK, which value means "DTE->DCE" and which value means
+		 * "DCE->DTE"?
+		 */
+		pseudo_header->atm.channel = header[29];
+
+		pseudo_header->atm.vpi = Vpi;
+		pseudo_header->atm.vci = Vci;
+
+		/*
+		 * Attempt to guess from the packet data, the VPI,
+		 * and the VCI information about the type of traffic.
+		 */
+		atm_guess_traffic_type(pd, len, pseudo_header);
+
+		/* We don't have this information */
+		pseudo_header->atm.flags = 0;
+		pseudo_header->atm.cells = 0;
+		pseudo_header->atm.aal5t_u2u = 0;
+		pseudo_header->atm.aal5t_len = 0;
+		pseudo_header->atm.aal5t_chksum = 0;
+		break;
+
+	case WTAP_ENCAP_ETHERNET:
+		/* We assume there's no FCS in this frame. */
+		pseudo_header->eth.fcs_len = 0;
+		break;
 	}
-
-	/*
-	 * OK, which value means "DTE->DCE" and which value means
-	 * "DCE->DTE"?
-	 */
-	pseudo_header->atm.channel = header[29];
-
-	pseudo_header->atm.vpi = Vpi;
-	pseudo_header->atm.vci = Vci;
-
-	/*
-	 * Attempt to guess from the packet data, the VPI, and the VCI
-	 * information about the type of traffic.
-	 */
-	atm_guess_traffic_type(pd, len, pseudo_header);
-
-	/* We don't have this information */
-	pseudo_header->atm.flags = 0;
-	pseudo_header->atm.cells = 0;
-	pseudo_header->atm.aal5t_u2u = 0;
-	pseudo_header->atm.aal5t_len = 0;
-	pseudo_header->atm.aal5t_chksum = 0;
 }
 
 /* Given an RFC1573 (SNMP ifType) interface type,

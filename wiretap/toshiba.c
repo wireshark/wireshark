@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.26 2002/10/31 07:12:42 guy Exp $
+ * $Id: toshiba.c,v 1.27 2003/10/01 07:11:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -367,6 +367,8 @@ parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
 		default:
 			if (wth)
 				wth->phdr.pkt_encap = WTAP_ENCAP_ETHERNET;
+			/* XXX - is there an FCS in the frame? */
+			pseudo_header->eth.fcs_len = -1;
 			break;
 	}
 	return pkt_len;

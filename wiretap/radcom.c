@@ -1,6 +1,6 @@
 /* radcom.c
  *
- * $Id: radcom.c,v 1.41 2003/01/07 08:41:23 guy Exp $
+ * $Id: radcom.c,v 1.42 2003/10/01 07:11:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -316,6 +316,11 @@ static gboolean radcom_read(wtap *wth, int *err, long *data_offset)
 
 	switch (wth->file_encap) {
 
+	case WTAP_ENCAP_ETHERNET:
+		/* XXX - is there an FCS? */
+		wth->pseudo_header.eth.fcs_len = -1;
+		break;
+
 	case WTAP_ENCAP_LAPB:
 		wth->pseudo_header.x25.flags = (hdr.dce & 0x1) ?
 		    0x00 : FROM_DCE;
@@ -388,6 +393,11 @@ radcom_seek_read(wtap *wth, long seek_off,
 	}
 
 	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_ETHERNET:
+		/* XXX - is there an FCS? */
+		pseudo_header->eth.fcs_len = -1;
+		break;
 
 	case WTAP_ENCAP_LAPB:
 		pseudo_header->x25.flags = (hdr.dce & 0x1) ? 0x00 : FROM_DCE;

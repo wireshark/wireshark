@@ -1,6 +1,6 @@
 /* 5views.c
  *
- * $Id: 5views.c,v 1.2 2003/07/29 20:26:34 guy Exp $
+ * $Id: 5views.c,v 1.3 2003/10/01 07:11:46 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -251,6 +251,14 @@ _5views_read(wtap *wth, int *err, long *data_offset)
 	wth->phdr.len = orig_size;
 	wth->phdr.pkt_encap = wth->file_encap;
 
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_ETHERNET:
+		/* We assume there's no FCS in this frame. */
+		wth->pseudo_header.eth.fcs_len = 0;
+		break;
+	}
+
 	return TRUE;
 }
 
@@ -301,7 +309,7 @@ _5views_read_header(wtap *wth _U_, FILE_T fh, t_5VW_TimeStamped_Header  *hdr,   
 
 static gboolean
 _5views_seek_read(wtap *wth, long seek_off,
-    union wtap_pseudo_header *pseudo_header _U_, guchar *pd, int length, int *err)
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -311,6 +319,13 @@ _5views_seek_read(wtap *wth, long seek_off,
 	if (!_5views_read_rec_data(wth->random_fh, pd, length, err))
 		return FALSE;
 
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_ETHERNET:
+		/* We assume there's no FCS in this frame. */
+		pseudo_header->eth.fcs_len = 0;
+		break;
+	}
 
 	return TRUE;
 }

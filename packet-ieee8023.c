@@ -1,7 +1,7 @@
 /* packet-ieee8023.c
  * Routine for dissecting 802.3 (as opposed to D/I/X Ethernet) packets.
  *
- * $Id: packet-ieee8023.c,v 1.5 2003/08/21 21:05:30 guy Exp $
+ * $Id: packet-ieee8023.c,v 1.6 2003/10/01 07:11:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,7 +37,8 @@ static dissector_handle_t llc_handle;
 void
 dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
 	      int offset_after_length, packet_info *pinfo, proto_tree *tree,
-	      proto_tree *fh_tree, int length_id, int trailer_id)
+	      proto_tree *fh_tree, int length_id, int trailer_id,
+	      int fcs_len)
 {
   tvbuff_t		*volatile next_tvb;
   tvbuff_t		*volatile trailer_tvb;
@@ -87,7 +88,7 @@ dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
   }
   CATCH2(BoundsError, ReportedBoundsError) {
     /* Well, somebody threw an exception.  Add the trailer, if appropriate. */
-    add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb);
+    add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
 
     /* Rethrow the exception, so the "Short Frame" or "Mangled Frame"
        indication can be put into the tree. */
@@ -98,7 +99,7 @@ dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
   }
   ENDTRY;
 
-  add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb);
+  add_ethernet_trailer(fh_tree, trailer_id, tvb, trailer_tvb, fcs_len);
 }
 
 void

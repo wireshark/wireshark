@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.32 2003/05/05 01:01:36 guy Exp $
+ * $Id: nettl.c,v 1.33 2003/10/01 07:11:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -291,6 +291,8 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    } else {
 		wth->file_encap = WTAP_ENCAP_ETHERNET;
 		phdr->pkt_encap = WTAP_ENCAP_ETHERNET;
+		/* We assume there's no FCS in this frame. */
+		pseudo_header->eth.fcs_len = 0;
 	    }
 
 	    bytes_read = file_read(&ip_hdr, 1, sizeof ip_hdr, fh);
@@ -368,6 +370,8 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	       we assumes everything is. We will crash and burn for anything else */
 	    /* for encapsulated 100baseT we do this */
 	    phdr->pkt_encap = WTAP_ENCAP_ETHERNET;
+	    /* We assume there's no FCS in this frame. */
+	    pseudo_header->eth.fcs_len = 0;
 	    bytes_read = file_read(&drv_eth_hdr, 1, sizeof drv_eth_hdr, fh);
 	    if (bytes_read != sizeof drv_eth_hdr) {
 		*err = file_error(fh);

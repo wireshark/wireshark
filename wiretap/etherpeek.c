@@ -2,7 +2,7 @@
  * Routines for opening EtherPeek (and TokenPeek?) files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.23 2003/06/25 17:35:16 guy Exp $
+ * $Id: etherpeek.c,v 1.24 2003/10/01 07:11:46 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -140,6 +140,8 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset);
 static gboolean etherpeek_seek_read_v7(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
 static gboolean etherpeek_read_v56(wtap *wth, int *err, long *data_offset);
+static gboolean etherpeek_seek_read_v56(wtap *wth, long seek_off,
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
 static void etherpeek_close(wtap *wth);
 
 int etherpeek_open(wtap *wth, int *err)
@@ -308,7 +310,7 @@ int etherpeek_open(wtap *wth, int *err)
 		 */
 		wth->file_encap = WTAP_ENCAP_PER_PACKET;
 		wth->subtype_read = etherpeek_read_v56;
-		wth->subtype_seek_read = wtap_def_seek_read;
+		wth->subtype_seek_read = etherpeek_seek_read_v56;
 		break;
 
 	case 7:
@@ -345,6 +347,8 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset)
 	double  t;
 	airopeek_radio_hdr_t radio_hdr;
 
+	*data_offset = wth->data_offset;
+
 	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->fh, err);
 	wth->data_offset += sizeof(ep_pkt);
 
@@ -362,8 +366,6 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset)
 		sliceLength = length;
 	}
 
-	*data_offset = wth->data_offset;
-
 	/* fill in packet header length values before slicelength may be
 	   adjusted */
 	wth->phdr.len    = length;
@@ -372,7 +374,9 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset)
 	if (sliceLength % 2) /* packets are padded to an even length */
 		sliceLength++;
 
-	if (wth->file_encap == WTAP_ENCAP_IEEE_802_11_WITH_RADIO) {
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
 		/*
 		 * The first 4 bytes of the packet data are radio
 		 * information (including a reserved byte).
@@ -397,6 +401,14 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, long *data_offset)
 		wth->pseudo_header.ieee_802_11.channel = radio_hdr.channel;
 		wth->pseudo_header.ieee_802_11.data_rate = radio_hdr.data_rate;
 		wth->pseudo_header.ieee_802_11.signal_level = radio_hdr.signal_level;
+		break;
+
+	case WTAP_ENCAP_ETHERNET:
+		/* XXX - it appears that if the low-order bit of
+		   "status" is 0, there's an FCS in this frame,
+		   and if it's 1, there's 4 bytes of 0. */
+		wth->pseudo_header.eth.fcs_len = (status & 0x01) ? 0 : 4;
+		break;
 	}
 
 	/* read the frame data */
@@ -434,12 +446,21 @@ static gboolean
 etherpeek_seek_read_v7(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
 {
+	guchar ep_pkt[ETHERPEEK_V7_PKT_SIZE];
+	guint8  status;
 	airopeek_radio_hdr_t radio_hdr;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (wth->file_encap == WTAP_ENCAP_IEEE_802_11_WITH_RADIO) {
+	/* Read the packet header. */
+	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->random_fh,
+	    err);
+	status = ep_pkt[ETHERPEEK_V7_STATUS_OFFSET];
+
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
 		/*
 		 * The first 4 bytes of the packet data are radio
 		 * information (including a reserved byte).
@@ -457,6 +478,14 @@ etherpeek_seek_read_v7(wtap *wth, long seek_off,
 		pseudo_header->ieee_802_11.channel = radio_hdr.channel;
 		pseudo_header->ieee_802_11.data_rate = radio_hdr.data_rate;
 		pseudo_header->ieee_802_11.signal_level = radio_hdr.signal_level;
+		break;
+
+	case WTAP_ENCAP_ETHERNET:
+		/* XXX - it appears that if the low-order bit of
+		   "status" is 0, there's an FCS in this frame,
+		   and if it's 1, there's 4 bytes of 0. */
+		pseudo_header->eth.fcs_len = (status & 0x01) ? 0 : 4;
+		break;
 	}
 
 	/*
@@ -480,6 +509,18 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, long *data_offset)
 	guint16 protoNum;
 	char    protoStr[8];
 	unsigned int i;
+
+	/*
+	 * XXX - in order to figure out whether this packet is an
+	 * Ethernet packet or not, we have to look at the packet
+	 * header, so we have to remember the address of the header,
+	 * not the address of the data, for random access.
+	 *
+	 * If we can determine that from the file header, rather than
+	 * the packet header, we can remember the offset of the data,
+	 * and not have the seek_read routine read the header.
+	 */
+	*data_offset = wth->data_offset;
 
 	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->fh, err);
 	wth->data_offset += sizeof(ep_pkt);
@@ -506,7 +547,11 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, long *data_offset)
 		sliceLength = length;
 	}
 
-	*data_offset = wth->data_offset;
+	/* read the frame data */
+	buffer_assure_space(wth->frame_buffer, sliceLength);
+	wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
+	                              sliceLength, wth->fh, err);
+	wth->data_offset += sliceLength;
 
 	/* fill in packet header values */
 	wth->phdr.len        = length;
@@ -523,5 +568,51 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, long *data_offset)
 		}
 	}
 
+	switch (wth->phdr.pkt_encap) {
+
+	case WTAP_ENCAP_ETHERNET:
+		/* We assume there's no FCS in this frame. */
+		wth->pseudo_header.eth.fcs_len = 0;
+		break;
+	}
+	return TRUE;
+}
+
+static gboolean
+etherpeek_seek_read_v56(wtap *wth, long seek_off,
+    union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err)
+{
+	guchar ep_pkt[ETHERPEEK_V56_PKT_SIZE];
+	int pkt_encap;
+	guint16 protoNum;
+	unsigned int i;
+
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+		return FALSE;
+
+	wtap_file_read_expected_bytes(ep_pkt, sizeof(ep_pkt), wth->random_fh,
+	    err);
+
+	protoNum = pntohs(&ep_pkt[ETHERPEEK_V56_PROTONUM_OFFSET]);
+	pkt_encap = WTAP_ENCAP_UNKNOWN;
+	for (i=0; i<NUM_ETHERPEEK_ENCAPS; i++) {
+		if (etherpeek_encap[i].protoNum == protoNum) {
+			pkt_encap = etherpeek_encap[i].encap;
+		}
+	}
+
+	switch (pkt_encap) {
+
+	case WTAP_ENCAP_ETHERNET:
+		/* We assume there's no FCS in this frame. */
+		pseudo_header->eth.fcs_len = 0;
+		break;
+	}
+
+	/*
+	 * XXX - should "errno" be set in "wtap_file_read_expected_bytes()"?
+	 */
+	errno = WTAP_ERR_CANT_READ;
+	wtap_file_read_expected_bytes(pd, length, wth->random_fh, err);
 	return TRUE;
 }

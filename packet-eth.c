@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.87 2003/08/27 21:12:27 guy Exp $
+ * $Id: packet-eth.c,v 1.88 2003/10/01 07:11:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -157,7 +157,8 @@ capture_eth(const guchar *pd, int offset, int len, packet_counts *ld)
 }
 
 static void
-dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+	int fcs_len)
 {
   proto_item		*ti;
   eth_hdr 		*ehdr;
@@ -255,7 +256,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src_addr);
 
     dissect_802_3(ehdr->type, is_802_2, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree,
-		  hf_eth_len, hf_eth_trailer);
+		  hf_eth_len, hf_eth_trailer, fcs_len);
   } else {
     if (eth_interpret_as_fw1_monitor) {
       call_dissector(fw1_handle, tvb, pinfo, tree);
@@ -279,7 +280,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src_addr);
 
     ethertype(ehdr->type, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_eth_type,
-          hf_eth_trailer);
+          hf_eth_trailer, fcs_len);
   }
 
 end_of_eth:
@@ -290,10 +291,14 @@ end_of_eth:
 /*
  * Add an Ethernet trailer - which, for some captures, might be the FCS
  * rather than a pad-to-60-bytes trailer.
+ *
+ * If fcs_len is 0, we assume the frame has no FCS; if it's 4, we assume
+ * it has an FCS; if it's anything else (such as -1, which means "maybe
+ * it does, maybe it doesn't"), we try to infer whether it has an FCS.
  */
 void
 add_ethernet_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
-		     tvbuff_t *trailer_tvb)
+		     tvbuff_t *trailer_tvb, int fcs_len)
 {
   /* If there're some bytes left over, show those bytes as a trailer.
 
@@ -307,15 +312,23 @@ add_ethernet_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
 
     trailer_length = tvb_length(trailer_tvb);
     trailer_reported_length = tvb_reported_length(trailer_tvb);
-    if (tvb_reported_length(tvb) >= 64) {
-      /* OK, the frame is big enough that, if we have a trailer, it
-	 probably includes an FCS; there's no need to pad an Ethernet
+    if (fcs_len != 0) {
+      /* If fcs_len is 4, we assume we definitely have an FCS.
+         Otherwise, then, if the frame is big enough that, if we
+         have a trailer, it probably inclues an FCS, and we have
+         enough space in the trailer for the FCS, we assume we
+         have an FCS.
+
+	 "Big enough" means 64 bytes or more; any frame that big
+	 needs no trailer, as there's no need to pad an Ethernet
 	 packet past 60 bytes.
 
-	 Do we have enough space in the trailer for an FCS? */
-      if (trailer_reported_length >= 4) {
-	/* Yes, as the claimed trailer length is at least as big as
-	   a 4-byte FCS. */
+	 The trailer must be at least 4 bytes long to have enough
+	 space for an FCS. */
+
+      if (fcs_len == 4 || (tvb_reported_length(tvb) >= 64 &&
+			   trailer_reported_length >= 4)) {
+	/* Either we know we have an FCS, or we believe we have an FCS. */
 	if (trailer_length < trailer_reported_length) {
 	  /* The packet is claimed to have enough data for a 4-byte FCS,
 	     but we didn't capture all of the packet.
@@ -354,6 +367,22 @@ add_ethernet_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
       }
     }
   }
+}
+
+/* Called for the Ethernet Wiretap encapsulation type; pass the FCS length
+   reported to us. */
+static void
+dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_eth_common(tvb, pinfo, tree, pinfo->pseudo_header->eth.fcs_len);
+}
+
+/* Called by other dissectors - for now, we assume Ethernet encapsulated
+   inside other protocols doesn't include the FCS. */
+static void
+dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_eth_common(tvb, pinfo, tree, 0);
 }
 
 void
@@ -410,7 +439,7 @@ proto_register_eth(void)
 void
 proto_reg_handoff_eth(void)
 {
-	dissector_handle_t eth_handle;
+	dissector_handle_t eth_handle, eth_maybefcs_handle;
 
 	/*
 	 * Get a handle for the ISL dissector.
@@ -418,8 +447,11 @@ proto_reg_handoff_eth(void)
 	isl_handle = find_dissector("isl");
 	fw1_handle = find_dissector("fw1");
 
+	eth_maybefcs_handle = create_dissector_handle(dissect_eth_maybefcs,
+	    proto_eth);
+	dissector_add("wtap_encap", WTAP_ENCAP_ETHERNET, eth_maybefcs_handle);
+
 	eth_handle = find_dissector("eth");
-	dissector_add("wtap_encap", WTAP_ENCAP_ETHERNET, eth_handle);
 	dissector_add("ethertype", ETHERTYPE_ETHBRIDGE, eth_handle);
 	dissector_add("chdlctype", ETHERTYPE_ETHBRIDGE, eth_handle);
 	dissector_add("gre.proto", ETHERTYPE_ETHBRIDGE, eth_handle);

@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.83 2003/09/28 23:15:40 guy Exp $
+ * $Id: netxray.c,v 1.84 2003/10/01 07:11:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -156,7 +156,7 @@ static gboolean netxray_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err);
 static int netxray_read_rec_header(wtap *wth, FILE_T fh,
     union netxrayrec_hdr *hdr, int *err);
-static void netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
+static guint netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
     union wtap_pseudo_header *pseudo_header, union netxrayrec_hdr *hdr);
 static gboolean netxray_read_rec_data(FILE_T fh, guint8 *data_ptr,
     guint32 packet_size, int *err);
@@ -481,31 +481,33 @@ int netxray_open(wtap *wth, int *err)
 	wth->capture.netxray->version_major = version_major;
 
 	/*
-	 * End-of-packet padding.  802.11 captures appear to have four
-	 * bytes of it, as do some ISDN captures; those 4 bytes don't
-	 * show up as frame data.
-	 *
-	 * We've seen what appears to be an FCS at the end of some frames
-	 * in some Ethernet captures, but this stuff appears to be just
-	 * padding - Sniffers don't show it, and it doesn't have values
-	 * that look like FCS values, so it looks like padding.
+	 * If frames have an extra 4 bytes of stuff at the end, is
+	 * it an FCS, or just junk?
 	 */
-	wth->capture.netxray->padding = 0;
+	wth->capture.netxray->fcs_valid = FALSE;
 	switch (file_encap) {
 
+	case WTAP_ENCAP_ETHERNET:
 	case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-		wth->capture.netxray->padding = 4;
-		break;
-
-	case WTAP_ENCAP_ISDN:
 		/*
-		 * The only captures we've seen with padding are PRI
-		 * captures; until we see PRI captures with no padding,
-		 * or BRI captures with padding, we assume that PRI
-		 * captures have padding and BRI captures don't.
+		 * It appears that, in at least some version 2 Ethernet
+		 * captures, for frames that have 0xff in hdr_2_x.xxx[2]
+		 * and hdr_2_x.xxx[3] in the per-packet header:
+		 *
+		 *	if, in the file header, hdr.xxb[13] is 0x34 and
+		 *	hdr.xxb[14] is 0x12, the frames have an FCS at
+		 *	the end;
+		 *
+		 *	otherwise, they have 4 bytes of junk at the end.
+		 *
+		 * For now, we assume that to be true for 802.11 captures
+		 * as well; it appears to be the case for at least one
+		 * such capture.
 		 */
-		if (isdn_type == 1 || isdn_type == 2)
-			wth->capture.netxray->padding = 4;
+		if (version_major == 2) {
+			if (hdr.xxb[13] == 0x34 && hdr.xxb[14] == 0x12)
+				wth->capture.netxray->fcs_valid = TRUE;
+		}
 		break;
 	}
 
@@ -539,6 +541,7 @@ static gboolean netxray_read(wtap *wth, int *err, long *data_offset)
 	int	hdr_size;
 	double	t;
 	guint8  *pd;
+	guint	padding;
 
 reread:
 	/* Have we reached the end of the packet data? */
@@ -598,8 +601,8 @@ reread:
 	/*
 	 * Set the pseudo-header.
 	 */
-	netxray_set_pseudo_header(wth, pd, packet_size, &wth->pseudo_header,
-	    &hdr);
+	padding = netxray_set_pseudo_header(wth, pd, packet_size,
+	    &wth->pseudo_header, &hdr);
 
 	if (wth->capture.netxray->version_major == 0) {
 		t = (double)pletohl(&hdr.old_hdr.timelo)
@@ -613,7 +616,7 @@ reread:
 		 * We subtract the padding from the packet size, so our caller
 		 * doesn't see it.
 		 */
-		wth->phdr.caplen = packet_size - wth->capture.netxray->padding;
+		wth->phdr.caplen = packet_size - padding;
 		wth->phdr.len = wth->phdr.caplen;
 	} else {
 		t = (double)pletohl(&hdr.hdr_1_x.timelo)
@@ -627,8 +630,8 @@ reread:
 		 * We subtract the padding from the packet size, so our caller
 		 * doesn't see it.
 		 */
-		wth->phdr.caplen = packet_size - wth->capture.netxray->padding;
-		wth->phdr.len = pletohs(&hdr.hdr_1_x.orig_len) - wth->capture.netxray->padding;
+		wth->phdr.caplen = packet_size - padding;
+		wth->phdr.len = pletohs(&hdr.hdr_1_x.orig_len) - padding;
 	}
 	wth->phdr.pkt_encap = wth->file_encap;
 
@@ -663,6 +666,7 @@ netxray_seek_read(wtap *wth, long seek_off,
 	ret = netxray_read_rec_data(wth->random_fh, pd, length, err);
 	if (!ret)
 		return FALSE;
+
 	/*
 	 * Set the pseudo-header.
 	 */
@@ -712,15 +716,74 @@ netxray_read_rec_header(wtap *wth, FILE_T fh, union netxrayrec_hdr *hdr,
 	return hdr_size;
 }
 
-static void
+static guint
 netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
     union wtap_pseudo_header *pseudo_header, union netxrayrec_hdr *hdr)
 {
+	guint padding = 0;
+
 	/*
-	 * If this is 802.11, ISDN, X.25, or ATM, set the pseudo-header.
+	 * If this is Ethernet, 802.11, ISDN, X.25, or ATM, set the
+	 * pseudo-header.
 	 */
-	if (wth->capture.netxray->version_major == 2) {
+	switch (wth->capture.netxray->version_major) {
+
+	case 1:
 		switch (wth->file_encap) {
+
+		case WTAP_ENCAP_ETHERNET:
+			/*
+			 * XXX - if hdr->hdr_1_x.xxx[15] is 1
+			 * the frame appears not to have any extra
+			 * stuff at the end, but if it's 0,
+			 * there appears to be 4 bytes of stuff
+			 * at the end, but it's not an FCS.
+			 *
+			 * Or is that just the low-order bit?
+			 *
+			 * For now, we just say "no FCS".
+			 */
+			pseudo_header->eth.fcs_len = 0;
+			break;
+		}
+		break;
+
+	case 2:
+		switch (wth->file_encap) {
+
+		case WTAP_ENCAP_ETHERNET:
+			/*
+			 * It appears, at least with version 2 captures,
+			 * that we have 4 bytes of stuff (which might be
+			 * a valid FCS or might be junk) at the end of
+			 * the packet if hdr->hdr_2_x.xxx[2] and
+			 * hdr->hdr_2_x.xxx[3] are 0xff, and we don't if
+			 * they don't.
+			 *
+			 * It also appears that if the low-order bit of
+			 * hdr->hdr_2_x.xxx[8] is set, the packet has a
+			 * bad FCS.
+			 */
+			if (hdr->hdr_2_x.xxx[2] == 0xff &&
+			    hdr->hdr_2_x.xxx[3] == 0xff) {
+				/*
+				 * We have 4 bytes of stuff at the
+				 * end of the frame - FCS, or junk?
+				 */
+			    	if (wth->capture.netxray->fcs_valid) {
+					/*
+					 * FCS.
+					 */
+					pseudo_header->eth.fcs_len = 4;
+				} else {
+					/*
+					 * Junk.
+					 */
+					padding = 4;
+				}
+			} else
+				pseudo_header->eth.fcs_len = 0;
+			break;
 
 		case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
 			pseudo_header->ieee_802_11.channel =
@@ -729,6 +792,33 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 			    hdr->hdr_2_x.xxx[13];
 			pseudo_header->ieee_802_11.signal_level =
 			    hdr->hdr_2_x.xxx[14];
+
+			/*
+			 * It appears, in one 802.11 capture, that
+			 * we have 4 bytes of junk at the ends of
+			 * frames in which hdr->hdr_2_x.xxx[2] and
+			 * hdr->hdr_2_x.xxx[3] are 0xff; we assume
+			 * for now that it works like Ethernet.
+			 */
+			if (hdr->hdr_2_x.xxx[2] == 0xff &&
+			    hdr->hdr_2_x.xxx[3] == 0xff) {
+				/*
+				 * We have 4 bytes of stuff at the
+				 * end of the frame - FCS, or junk?
+				 */
+			    	if (wth->capture.netxray->fcs_valid) {
+					/*
+					 * FCS.
+					 */
+					pseudo_header->eth.fcs_len = 4;
+				} else {
+					/*
+					 * Junk.
+					 */
+					padding = 4;
+				}
+			} else
+				pseudo_header->eth.fcs_len = 0;
 			break;
 
 		case WTAP_ENCAP_ISDN:
@@ -761,6 +851,12 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 					pseudo_header->isdn.channel = 0;
 				else if (pseudo_header->isdn.channel > 16)
 					pseudo_header->isdn.channel -= 1;
+
+				/*
+				 * PRI captures appear to have 4 bytes of
+				 * stuff at the end - FCS, or padding?
+				 */
+				padding = 4;
 				break;
 
 			case 2:
@@ -773,6 +869,12 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 					pseudo_header->isdn.channel = 0;
 				else if (pseudo_header->isdn.channel > 24)
 					pseudo_header->isdn.channel -= 1;
+
+				/*
+				 * PRI captures appear to have 4 bytes of
+				 * stuff at the end - FCS, or padding?
+				 */
+				padding = 4;
 				break;
 			}
 			break;
@@ -880,7 +982,9 @@ netxray_set_pseudo_header(wtap *wth, const guint8 *pd, int len,
 			}
 			break;
 		}
+		break;
 	}
+	return padding;
 }
 
 static gboolean
@@ -1299,6 +1403,10 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
 
     case WTAP_ENCAP_SDLC:
 	file_hdr.xxb[20] = CAPTYPE_SDLC;
+	break;
+
+    default:
+	file_hdr.xxb[20] = CAPTYPE_NDIS;
 	break;
     }
 

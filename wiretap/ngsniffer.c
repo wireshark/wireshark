@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.110 2003/03/03 23:29:59 guy Exp $
+ * $Id: ngsniffer.c,v 1.111 2003/10/01 07:11:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -374,8 +374,8 @@ static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
     struct frame4_rec *frame4);
 static gboolean ngsniffer_read_frame6(wtap *wth, gboolean is_random,
     struct frame6_rec *frame6, int *err);
-static void set_pseudo_header_frame6(union wtap_pseudo_header *pseudo_header,
-    struct frame6_rec *frame6);
+static void set_pseudo_header_frame6(wtap *wth,
+    union wtap_pseudo_header *pseudo_header, struct frame6_rec *frame6);
 static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,
     guchar *pd, int length, int *err);
 static int infer_pkt_encap(const guint8 *pd, int len);
@@ -1014,7 +1014,8 @@ static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset)
 			t = (double)time_low+(double)(time_med)*65536.0 +
 			    (double)time_high*4294967296.0;
 
-			set_pseudo_header_frame6(&wth->pseudo_header, &frame6);
+			set_pseudo_header_frame6(wth, &wth->pseudo_header,
+			    &frame6);
 			goto found;
 
 		case REC_EOF:
@@ -1133,7 +1134,7 @@ static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
 
 		length -= sizeof frame6;	/* we already read that much */
 
-		set_pseudo_header_frame6(pseudo_header, &frame6);
+		set_pseudo_header_frame6(wth, pseudo_header, &frame6);
 		break;
 
 	default:
@@ -1249,6 +1250,17 @@ static void set_pseudo_header_frame2(wtap *wth,
 	 *	about display filters.
 	 */
 	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_ETHERNET:
+		/*
+		 * XXX - do we ever have an FCS?  If not, why do we often
+		 * have 4 extra bytes of stuff at the end?  Do some
+		 * PC Ethernet interfaces report the length including the
+		 * FCS but not store the FCS in the packet, or do some
+		 * Ethernet drivers work that way?
+		 */
+		pseudo_header->eth.fcs_len = 0;
+		break;
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
 	case WTAP_ENCAP_SDLC:
@@ -1569,11 +1581,19 @@ static gboolean ngsniffer_read_frame6(wtap *wth, gboolean is_random,
 	return TRUE;
 }
 
-static void set_pseudo_header_frame6(
-	union wtap_pseudo_header *pseudo_header _U_,
+static void set_pseudo_header_frame6(wtap *wth,
+	union wtap_pseudo_header *pseudo_header,
 	struct frame6_rec *frame6 _U_)
 {
 	/* XXX - Once the frame format is divined, something will most likely go here */
+
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_ETHERNET:
+		/* XXX - is there an FCS? */
+		pseudo_header->eth.fcs_len = -1;
+		break;
+	}
 }
 
 static gboolean ngsniffer_read_rec_data(wtap *wth, gboolean is_random,

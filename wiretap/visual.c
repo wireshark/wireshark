@@ -2,7 +2,7 @@
  * File read and write routines for Visual Networks cap files.
  * Copyright (c) 2001, Tom Nisbet  tnisbet@visualnetworks.com
  *
- * $Id: visual.c,v 1.12 2003/01/31 01:02:11 guy Exp $
+ * $Id: visual.c,v 1.13 2003/10/01 07:11:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -117,6 +117,8 @@ static void visual_close(wtap *wth);
 static gboolean visual_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
     int *err);
+static void visual_set_pseudo_header(int encap, struct visual_pkt_hdr *vpkt_hdr,
+    union wtap_pseudo_header *pseudo_header);
 static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
 static gboolean visual_dump_close(wtap_dumper *wdh, int *err);
@@ -232,7 +234,6 @@ static gboolean visual_read(wtap *wth, int *err, long *data_offset)
 {
     struct visual_read_info *visual = wth->capture.generic;
     guint32 packet_size = 0;
-    guint32 packet_status;
     int bytes_read;
     struct visual_pkt_hdr vpkt_hdr;
     int phdr_size = sizeof(vpkt_hdr);
@@ -300,24 +301,8 @@ static gboolean visual_read(wtap *wth, int *err, long *data_offset)
     wth->phdr.caplen = packet_size;
     wth->phdr.len = pletohs(&vpkt_hdr.orig_len);
 
-    /* Set status flags.  The only status currently supported for all
-       encapsulations is direction.  This either goes in the p2p or the
-       X.25 pseudo header.  It would probably be better to move this up
-       into the phdr. */
-    packet_status = pletohl(&vpkt_hdr.status);
-    switch (wth->file_encap)
-    {
-    case WTAP_ENCAP_CHDLC:
-    case WTAP_ENCAP_PPP_WITH_PHDR:
-        wth->pseudo_header.p2p.sent = (packet_status & PS_SENT) ? TRUE : FALSE;
-        break;
-
-    case WTAP_ENCAP_FRELAY_WITH_PHDR:
-    case WTAP_ENCAP_LAPB:
-        wth->pseudo_header.x25.flags =
-            (packet_status & PS_SENT) ? 0x00 : FROM_DCE;
-        break;
-    }
+    /* Set the pseudo_header. */
+    visual_set_pseudo_header(wth->file_encap, &vpkt_hdr, &wth->pseudo_header);
 
     /* Fill in the encapsulation.  Visual files have a media type in the
        file header and an encapsulation type in each packet header.  Files
@@ -349,7 +334,6 @@ static gboolean visual_seek_read (wtap *wth, long seek_off,
 {
     struct visual_pkt_hdr vpkt_hdr;
     int phdr_size = sizeof(vpkt_hdr);
-    guint32 packet_status;
     int bytes_read;
 
     /* Seek to the packet header */
@@ -376,13 +360,29 @@ static gboolean visual_seek_read (wtap *wth, long seek_off,
         return FALSE;
     }
 
+    /* Set the pseudo_header. */
+    visual_set_pseudo_header(wth->file_encap, &vpkt_hdr, pseudo_header);
+
+    return TRUE;
+}
+
+static void visual_set_pseudo_header(int encap, struct visual_pkt_hdr *vpkt_hdr,
+    union wtap_pseudo_header *pseudo_header)
+{
+    guint32 packet_status;
+
     /* Set status flags.  The only status currently supported for all
        encapsulations is direction.  This either goes in the p2p or the
        X.25 pseudo header.  It would probably be better to move this up
        into the phdr. */
-    packet_status = pletohl(&vpkt_hdr.status);
-    switch (wth->file_encap)
+    packet_status = pletohl(&vpkt_hdr->status);
+    switch (encap)
     {
+    case WTAP_ENCAP_ETHERNET:
+        /* XXX - is there an FCS in the frame? */
+        pseudo_header->eth.fcs_len = -1;
+        break;
+
     case WTAP_ENCAP_CHDLC:
     case WTAP_ENCAP_PPP_WITH_PHDR:
         pseudo_header->p2p.sent = (packet_status & PS_SENT) ? TRUE : FALSE;
@@ -390,13 +390,11 @@ static gboolean visual_seek_read (wtap *wth, long seek_off,
 
     case WTAP_ENCAP_FRELAY_WITH_PHDR:
     case WTAP_ENCAP_LAPB:
-        pseudo_header->x25.flags = (packet_status & PS_SENT) ? 0x00 : FROM_DCE;
+        pseudo_header->x25.flags =
+            (packet_status & PS_SENT) ? 0x00 : FROM_DCE;
         break;
     }
-
-    return TRUE;
 }
-
 
 /* Check for media types that may be written in Visual file format.
    Returns 0 if the specified encapsulation type is supported,

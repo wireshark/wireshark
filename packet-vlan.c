@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.42 2003/01/31 03:17:47 guy Exp $
+ * $Id: packet-vlan.c,v 1.43 2003/10/01 07:11:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,10 +116,10 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ENDTRY;
 
     dissect_802_3(encap_proto, is_802_2, tvb, 4, pinfo, tree, vlan_tree,
-		  hf_vlan_len, hf_vlan_trailer);
+		  hf_vlan_len, hf_vlan_trailer, 0);
   } else {
     ethertype(encap_proto, tvb, 4, pinfo, tree, vlan_tree,
-		       hf_vlan_etype, hf_vlan_trailer);
+		       hf_vlan_etype, hf_vlan_trailer, 0);
   }
 }
 

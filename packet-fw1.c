@@ -2,7 +2,7 @@
  * Routines for Ethernet header disassembly of FW1 "monitor" files
  * Copyright 2002,2003, Alfred Koebler <ako@icon.de>
  *
- * $Id: packet-fw1.c,v 1.8 2003/08/16 00:29:15 guy Exp $
+ * $Id: packet-fw1.c,v 1.9 2003/10/01 07:11:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Alfred Koebler <ako@icon.de>
@@ -233,7 +233,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
   ethertype(etype, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_fw1_type,
-          hf_fw1_trailer);
+          hf_fw1_trailer, 0);
 }
 
 void

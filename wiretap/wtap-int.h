@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.39 2003/08/26 07:10:39 guy Exp $
+ * $Id: wtap-int.h,v 1.40 2003/10/01 07:11:49 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -99,7 +99,7 @@ typedef struct {
 	gboolean	wrapped;
 	int		end_offset;
 	int		version_major;
-	guint		padding;	/* end-of-packet padding */
+	gboolean	fcs_valid;	/* if packets have valid FCS at the end */
 	guint		isdn_type;	/* 1 = E1 PRI, 2 = T1 PRI, 3 = BRI */
 } netxray_t;
 

@@ -2,7 +2,7 @@
  * Declaration of routine for dissecting 802.3 (as opposed to D/I/X Ethernet)
  * packets.
  *
- * $Id: packet-ieee8023.h,v 1.2 2002/08/28 21:00:17 jmayer Exp $
+ * $Id: packet-ieee8023.h,v 1.3 2003/10/01 07:11:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,6 +29,6 @@
 
 void dissect_802_3(int length, gboolean is_802_2, tvbuff_t *tvb,
     int offset_after_length, packet_info *pinfo, proto_tree *tree,
-    proto_tree *fh_tree, int length_id, int trailer_id);
+    proto_tree *fh_tree, int length_id, int trailer_id, int fcs_len);
 
 #endif

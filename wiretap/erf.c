@@ -32,7 +32,7 @@
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 * POSSIBILITY OF SUCH DAMAGE.
 *
-* $Id: erf.c,v 1.3 2003/09/19 04:08:11 guy Exp $
+* $Id: erf.c,v 1.4 2003/10/01 07:11:46 guy Exp $
 */
 
 /* 
@@ -69,7 +69,7 @@ static gboolean erf_seek_read(wtap *wth, long seek_off,
 		int length, int *err);
 static void erf_close(wtap *wth);
 static int erf_encap_to_wtap_encap(erf_t *erf, guint8 erf_encap);
-static void erf_guess_atm_traffic_type(
+static void erf_set_pseudo_header(
 		guint8 type,
 		erf_t *erf,
 		guchar *pd,
@@ -245,7 +245,7 @@ static gboolean erf_read(wtap *wth, int *err, long *data_offset)
 	);
 	wth->data_offset += packet_size;
 
-	erf_guess_atm_traffic_type(
+	erf_set_pseudo_header(
 			erf_header.type, wth->capture.erf,
 			buffer_start_ptr(wth->frame_buffer), packet_size, &wth->pseudo_header
 	);
@@ -274,7 +274,7 @@ static gboolean erf_seek_read(wtap *wth, long seek_off,
 
 	wtap_file_read_expected_bytes(pd+offset, (int)packet_size, wth->random_fh, err);
 
-	erf_guess_atm_traffic_type(erf_header.type, wth->capture.erf, pd, length, pseudo_header);
+	erf_set_pseudo_header(erf_header.type, wth->capture.erf, pd, length, pseudo_header);
 
 	return TRUE;
 }
@@ -435,9 +435,15 @@ static int erf_encap_to_wtap_encap(erf_t *erf, guint8 erf_encap)
 	return wtap_encap;
 }
 
-static void erf_guess_atm_traffic_type(
+static void erf_set_pseudo_header(
 	guint8 type, erf_t *erf, guchar *pd, int length, union wtap_pseudo_header *pseudo_header)
 {
+	if (type == TYPE_ETH) {
+		/*
+		 * We don't know whether there's an FCS in this frame or not.
+		 */
+		pseudo_header->eth.fcs_len = -1;
+	} else
 	if (!erf->is_rawatm &&
 			(type == TYPE_ATM || type == TYPE_AAL5) &&
 			(erf->atm_encap == WTAP_ENCAP_ATM_PDUS ||
@@ -450,5 +456,3 @@ static void erf_guess_atm_traffic_type(
 		pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
 	}
 }
-
-

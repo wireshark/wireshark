@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.64 2003/01/10 04:04:41 guy Exp $
+ * $Id: netmon.c,v 1.65 2003/10/01 07:11:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -392,7 +392,9 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 	 * and the VPI and VCI; read them and generate the pseudo-header
 	 * from them.
 	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_ATM_PDUS:
 		if (packet_size < sizeof (struct netmon_atm_hdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
@@ -413,6 +415,14 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 		orig_size -= sizeof (struct netmon_atm_hdr);
 		packet_size -= sizeof (struct netmon_atm_hdr);
 		wth->data_offset += sizeof (struct netmon_atm_hdr);
+		break;
+
+	case WTAP_ENCAP_ETHERNET:
+		/*
+		 * We assume there's no FCS in this frame.
+		 */
+		wth->pseudo_header.eth.fcs_len = 0;
+		break;
 	}
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
@@ -460,12 +470,22 @@ netmon_seek_read(wtap *wth, long seek_off,
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_ATM_PDUS:
 		if (!netmon_read_atm_pseudoheader(wth->random_fh, pseudo_header,
 		    err)) {
 			/* Read error */
 			return FALSE;
 		}
+		break;
+
+	case WTAP_ENCAP_ETHERNET:
+		/*
+		 * We assume there's no FCS in this frame.
+		 */
+		pseudo_header->eth.fcs_len = 0;
+		break;
 	}
 
 	/*

@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.62 2003/02/18 19:59:00 guy Exp $
+ * $Id: snoop.c,v 1.63 2003/10/01 07:11:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -405,7 +405,9 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 	 * the VCI; read them and generate the pseudo-header from
 	 * them.
 	 */
-	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_ATM_PDUS:
 		if (packet_size < sizeof (struct snoop_atm_hdr)) {
 			/*
 			 * Uh-oh, the packet isn't big enough to even
@@ -427,6 +429,19 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 		orig_size -= sizeof (struct snoop_atm_hdr);
 		packet_size -= sizeof (struct snoop_atm_hdr);
 		wth->data_offset += sizeof (struct snoop_atm_hdr);
+		break;
+
+	case WTAP_ENCAP_ETHERNET:
+		/*
+		 * If this is a snoop file, we assume there's no FCS in
+		 * this frame; if this is a Shomit file, we assume there
+		 * is.  (XXX - or should we treat it a "maybe"?)
+		 */
+		if (wth->file_type == WTAP_FILE_SHOMITI)
+			wth->pseudo_header.eth.fcs_len = 4;
+		else
+			wth->pseudo_header.eth.fcs_len = 0;
+		break;
 	}
 
 	buffer_assure_space(wth->frame_buffer, packet_size);
@@ -485,12 +500,27 @@ snoop_seek_read(wtap *wth, long seek_off,
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
+	switch (wth->file_encap) {
+
+	case WTAP_ENCAP_ATM_PDUS:
 		if (!snoop_read_atm_pseudoheader(wth->random_fh, pseudo_header,
 		    err)) {
 			/* Read error */
 			return FALSE;
 		}
+		break;
+
+	case WTAP_ENCAP_ETHERNET:
+		/*
+		 * If this is a snoop file, we assume there's no FCS in
+		 * this frame; if this is a Shomit file, we assume there
+		 * is.  (XXX - or should we treat it a "maybe"?)
+		 */
+		if (wth->file_type == WTAP_FILE_SHOMITI)
+			pseudo_header->eth.fcs_len = 4;
+		else
+			pseudo_header->eth.fcs_len = 0;
+		break;
 	}
 
 	/*
