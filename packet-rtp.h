@@ -3,7 +3,7 @@
  * Routines for RTP dissection
  * RTP = Real time Transport Protocol
  *
- * $Id: packet-rtp.h,v 1.11 2004/01/31 09:48:25 guy Exp $
+ * $Id: packet-rtp.h,v 1.12 2004/06/15 18:26:08 etxrab Exp $
  *
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
@@ -50,5 +50,16 @@ struct _rtp_info {
 	*/
 };
 
-void     rtp_add_address   ( packet_info *pinfo, const unsigned char* ip_addr, int prt );
-void     proto_register_rtp( void );
+/* Info to save in RTP conversation / packet-info */
+#define MAX_RTP_SETUP_METHOD_SIZE 8
+struct _rtp_conversation_info
+{
+	gchar   method[MAX_RTP_SETUP_METHOD_SIZE];
+	guint32 frame_number;
+};
+
+/* Add an RTP conversation with the given details */
+void rtp_add_address(packet_info *pinfo,
+                     const unsigned char* ip_addr, int port,
+                     int other_port,
+                     gchar *setup_method, guint32 setup_frame_number);

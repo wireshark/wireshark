@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.43 2004/06/01 18:58:04 guy Exp $
+ * $Id: packet-rtcp.c,v 1.44 2004/06/15 18:26:08 etxrab Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -58,6 +58,9 @@
 #endif
 #include <epan/conversation.h>
 
+#include "prefs.h"
+
+
 /* Version is the first 2 bits of the first octet*/
 #define RTCP_VERSION(octet)	((octet) >> 6)
 
@@ -67,6 +70,8 @@
 
 /* Receiver/ Sender count is the 5 last bits  */
 #define RTCP_COUNT(octet)	((octet) & 0x1F)
+
+static dissector_handle_t rtcp_handle;
 
 static const value_string rtcp_version_vals[] =
 {
@@ -191,7 +196,7 @@ static int hf_rtcp_fsn               = -1;
 static int hf_rtcp_blp               = -1;
 static int hf_rtcp_padding_count     = -1;
 static int hf_rtcp_padding_data      = -1;
-static int hf_rtcp_app_PoC1_subtype  = -1; 
+static int hf_rtcp_app_poc1_subtype  = -1;
 static int hf_rtcp_app_poc1_sip_uri  = -1;
 static int hf_rtcp_app_poc1_disp_name = -1;
 static int hf_rtcp_app_poc1_last_pkt_seq_no = -1;
@@ -201,6 +206,12 @@ static int hf_rtcp_app_poc1_reason1_phrase	= -1;
 static int hf_rtcp_app_poc1_reason_code2	= -1;
 static int hf_rtcp_app_poc1_additionalinfo	= -1;
 
+/* RTCP setup fields */
+static int hf_rtcp_setup        = -1;
+static int hf_rtcp_setup_frame  = -1;
+static int hf_rtcp_setup_method = -1;
+
+
 /* RTCP fields defining a sub tree */
 static gint ett_rtcp			= -1;
 static gint ett_ssrc			= -1;
@@ -209,6 +220,7 @@ static gint ett_ssrc_ext_high		= -1;
 static gint ett_sdes			= -1;
 static gint ett_sdes_item		= -1;
 static gint ett_PoC1			= -1;
+static gint ett_rtcp_setup		= -1;
 
 static address fake_addr;
 static int heur_init = FALSE;
@@ -217,12 +229,23 @@ static gboolean dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree );
 static void dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
      proto_tree *tree );
+static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-void rtcp_add_address( packet_info *pinfo, const unsigned char* ip_addr,
-    int prt )
+/* Preferences bool to control whether or not setup info should be shown */
+static gboolean global_rtcp_show_setup_info = TRUE;
+
+/* Memory chunk for storing conversation and per-packet info */
+static GMemChunk *rtcp_conversations = NULL;
+
+
+void rtcp_add_address( packet_info *pinfo,
+                       const unsigned char* ip_addr, int port,
+                       int other_port,
+                       gchar *setup_method, guint32 setup_frame_number)
 {
 	address src_addr;
-	conversation_t* pconv;
+	conversation_t* p_conv;
+	struct _rtcp_conversation_info *p_conv_data = NULL;
 
 	/*
 	 * If this isn't the first time this packet has been processed,
@@ -232,42 +255,76 @@ void rtcp_add_address( packet_info *pinfo, const unsigned char* ip_addr,
 	if (pinfo->fd->flags.visited)
 		return;
 
-	src_addr.type = AT_IPv4;
-	src_addr.len = 4;
+	src_addr.type = pinfo->net_src.type;
+	src_addr.len = pinfo->net_src.len;
 	src_addr.data = ip_addr;
 
 	/*
 	 * The first time the function is called let the udp dissector
 	 * know that we're interested in traffic
-	 */
+	 * TODO???
+	 *
 	if ( ! heur_init ) {
 		heur_dissector_add( "udp", dissect_rtcp_heur, proto_rtcp );
 		heur_init = TRUE;
 	}
+	*/
 
 	/*
 	 * Check if the ip address and port combination is not
 	 * already registered
 	 */
-	pconv = find_conversation( &src_addr, &fake_addr, PT_UDP, prt, 0, 0 );
+	p_conv = find_conversation( &src_addr, &src_addr, PT_UDP, port, other_port,
+	                            NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
 
 	/*
 	 * If not, add
-	 * XXX - use wildcard address and port B?
 	 */
-	if ( ! pconv ) {
-		pconv = conversation_new( &src_addr, &fake_addr, PT_UDP,
-		    (guint32) prt, (guint32) 0, 0 );
-		conversation_add_proto_data(pconv, proto_rtcp, NULL);
-	}
+	if ( ! p_conv ) {
+		/* Create conversation data */
+		p_conv_data = g_mem_chunk_alloc(rtcp_conversations);
 
+		/* Check length first time we look at method string */
+		strncpy(p_conv_data->method, setup_method,
+		        (strlen(setup_method)+1 <= MAX_RTCP_SETUP_METHOD_SIZE) ?
+		            strlen(setup_method)+1 :
+		            MAX_RTCP_SETUP_METHOD_SIZE);
+		p_conv_data->method[MAX_RTCP_SETUP_METHOD_SIZE] = '\0';
+		p_conv_data->frame_number = setup_frame_number;
+
+		/* Create conversation with this data */
+		p_conv = conversation_new( &src_addr, &src_addr, PT_UDP,
+		                           (guint32)port, (guint32)port,
+		                           NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
+		conversation_add_proto_data(p_conv, proto_rtcp, p_conv_data);
+
+		/* Set dissector */
+		conversation_set_dissector(p_conv, rtcp_handle);
+	}
+	else
+	{
+		/* Update existing conversation data */
+		p_conv_data = conversation_get_proto_data(p_conv, proto_rtcp);
+		strcpy(p_conv_data->method, setup_method);
+		p_conv_data->frame_number = setup_frame_number;
+	}
 }
 
-#if 0
 static void rtcp_init( void )
 {
 	unsigned char* tmp_data;
 	int i;
+
+	/* (Re)allocate mem chunk for conversations */
+	if (rtcp_conversations)
+	{
+		g_mem_chunk_destroy(rtcp_conversations);
+	}
+	rtcp_conversations = g_mem_chunk_new("rtcp_conversations",
+	                                     sizeof(struct _rtcp_conversation_info),
+	                                     20 * sizeof(struct _rtcp_conversation_info),
+	                                     G_ALLOC_ONLY);
+
 
 	/* Create a fake adddress... */
 	fake_addr.type = AT_IPv4;
@@ -279,7 +336,6 @@ static void rtcp_init( void )
 	}
 	fake_addr.data = tmp_data;
 }
-#endif
 
 static gboolean
 dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
@@ -383,7 +439,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 	proto_tree *PoC1_tree;
 	proto_item *PoC1_item;
 
-	/* XXX If more application types are to be dissected it may be useful to use a table like in packet-sip.c */ 
+	/* XXX If more application types are to be dissected it may be useful to use a table like in packet-sip.c */
 	static const char app_name_str[] = "PoC1";
 
 
@@ -417,7 +473,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 		return offset;
 	}else{/* PoC1 Application */
 		proto_item *item;
-		item = proto_tree_add_uint( tree, hf_rtcp_app_PoC1_subtype, tvb, offset - 8, 1, rtcp_subtype );
+		item = proto_tree_add_uint( tree, hf_rtcp_app_poc1_subtype, tvb, offset - 8, 1, rtcp_subtype );
 		PROTO_ITEM_SET_GENERATED(item);
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_append_fstr(pinfo->cinfo, COL_INFO,"(%s) subtype=%s",ascii_name,
@@ -469,7 +525,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				offset = offset + item_len;
 				packet_len = packet_len - item_len;
 				break;
-			case 3:				
+			case 3:
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason_code1, tvb, offset, 1, FALSE );
 				offset++;
 				packet_len--;
@@ -483,13 +539,13 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				offset = offset + item_len;
 				packet_len = packet_len - item_len;
 				break;
-			case 4:				
+			case 4:
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_last_pkt_seq_no, tvb, offset, 2, FALSE );
 				proto_tree_add_text(PoC1_tree, tvb, offset + 2, 2, "Padding 2 bytes");
 				offset += 4;
 				packet_len-=4;
 				break;
-			case 6:				
+			case 6:
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason_code2, tvb, offset, 2, FALSE );
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_additionalinfo, tvb, offset + 2, 2, FALSE );
 				offset += 4;
@@ -765,6 +821,63 @@ dissect_rtcp_sr( tvbuff_t *tvb, int offset, proto_tree *tree,
 	return offset;
 }
 
+/* Look for conversation info and display any setup info found */
+void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	/* Conversation and current data */
+	conversation_t *p_conv = NULL;
+	struct _rtcp_conversation_info *p_conv_data = NULL;
+
+	if (!pinfo->fd->flags.visited)
+	{
+		/* First time, get info from conversation */
+		p_conv = find_conversation(&pinfo->net_src, &pinfo->net_dst,
+		                           pinfo->ptype,
+		                           pinfo->srcport, pinfo->destport, 0);
+		if (p_conv)
+		{
+			/* Create space for packet info */
+			struct _rtcp_conversation_info *p_conv_packet_data;
+			p_conv_data = conversation_get_proto_data(p_conv, proto_rtcp);
+
+			/* Save this conversation info into packet info */
+			p_conv_packet_data = g_mem_chunk_alloc(rtcp_conversations);
+			strcpy(p_conv_packet_data->method, p_conv_data->method);
+			p_conv_packet_data->frame_number = p_conv_data->frame_number;
+			p_add_proto_data(pinfo->fd, proto_rtcp, p_conv_packet_data);
+		}
+	}
+	else
+	{
+		/* Otherwise, use stored packet data instead */
+		p_conv_data = p_get_proto_data(pinfo->fd, proto_rtcp);
+	}
+
+	/* Create setup info subtree with summary info. */
+	if (p_conv_data)
+	{
+		proto_tree *rtcp_setup_tree;
+		proto_item *ti =  proto_tree_add_string_format(tree, hf_rtcp_setup, tvb, 0, 0,
+		                                               "",
+		                                               "Stream setup by %s (frame %d)",
+		                                               p_conv_data->method,
+		                                               p_conv_data->frame_number);
+		PROTO_ITEM_SET_GENERATED(ti);
+		rtcp_setup_tree = proto_item_add_subtree(ti, ett_rtcp_setup);
+		if (rtcp_setup_tree)
+		{
+			/* Add details into subtree */
+			proto_item* item = proto_tree_add_uint(rtcp_setup_tree, hf_rtcp_setup_frame,
+			                                       tvb, 0, 0, p_conv_data->frame_number);
+			PROTO_ITEM_SET_GENERATED(item);
+			item = proto_tree_add_string(rtcp_setup_tree, hf_rtcp_setup_method,
+			                             tvb, 0, 0, p_conv_data->method);
+			PROTO_ITEM_SET_GENERATED(item);
+		}
+	}
+}
+
+
 static void
 dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
@@ -817,7 +930,6 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	}
 
 	if ( tree ) {
-
 		/*
 		 * Check if there are at least 4 bytes left in the frame,
 		 * the last 16 bits of those is the length of the current
@@ -843,6 +955,14 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 			ti = proto_tree_add_item(tree, proto_rtcp, tvb, offset, packet_length, FALSE );
 			rtcp_tree = proto_item_add_subtree( ti, ett_rtcp );
+
+
+			/* Conversation setup info */
+			if (global_rtcp_show_setup_info)
+			{
+				show_setup_info(tvb, pinfo, rtcp_tree);
+			}
+
 
 			temp_byte = tvb_get_guint8( tvb, offset );
 
@@ -1296,7 +1416,7 @@ proto_register_rtcp(void)
 			}
 		},
 		{
-			&hf_rtcp_app_PoC1_subtype,
+			&hf_rtcp_app_poc1_subtype,
 			{
 				"Subtype",
 				"rtcp.app.PoC1.subtype",
@@ -1451,6 +1571,43 @@ proto_register_rtcp(void)
 				"", HFILL
 			}
 		},
+		{
+			&hf_rtcp_setup,
+			{
+				"Stream setup",
+				"rtcp.setup",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"Stream setup, method and frame number", HFILL
+			}
+		},
+		{
+			&hf_rtcp_setup_frame,
+			{
+				"Setup frame",
+				"rtcp.setup-frame",
+				FT_FRAMENUM,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"Frame that set up this stream", HFILL
+			}
+		},
+		{
+			&hf_rtcp_setup_method,
+			{
+				"Setup Method",
+				"rtcp.setup-method",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"Method used to set up this stream", HFILL
+			}
+		}
+
 	};
 
 	static gint *ett[] =
@@ -1462,8 +1619,10 @@ proto_register_rtcp(void)
 		&ett_sdes,
 		&ett_sdes_item,
 		&ett_PoC1,
+		&ett_rtcp_setup
 	};
 
+	module_t *rtcp_module;
 
 	proto_rtcp = proto_register_protocol("Real-time Transport Control Protocol",
 	    "RTCP", "rtcp");
@@ -1472,16 +1631,20 @@ proto_register_rtcp(void)
 
 	register_dissector("rtcp", dissect_rtcp, proto_rtcp);
 
-#if 0
+	rtcp_module = prefs_register_protocol(proto_rtcp, NULL);
+
+	prefs_register_bool_preference(rtcp_module, "show_setup_info",
+		"Show stream setup information",
+		"Where available, show which protocol and frame caused "
+		"this RTCP stream to be created",
+		&global_rtcp_show_setup_info);
+
 	register_init_routine( &rtcp_init );
-#endif
 }
 
 void
 proto_reg_handoff_rtcp(void)
 {
-	dissector_handle_t rtcp_handle;
-
 	/*
 	 * Register this dissector as one that can be selected by a
 	 * UDP port number.

@@ -1,6 +1,6 @@
 /* packet-rtcp.h
  *
- * $Id: packet-rtcp.h,v 1.8 2002/08/28 21:00:30 jmayer Exp $
+ * $Id: packet-rtcp.h,v 1.9 2004/06/15 18:26:08 etxrab Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -27,5 +27,18 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-void     rtcp_add_address   ( packet_info *pinfo, const unsigned char* ip_addr, int prt );
-void     proto_register_rtcp( void );
+/* Info to save in RTCP conversation / packet-info */
+#define MAX_RTCP_SETUP_METHOD_SIZE 8
+struct _rtcp_conversation_info
+{
+	gchar   method[MAX_RTCP_SETUP_METHOD_SIZE];
+	guint32 frame_number;
+};
+
+
+/* Add an RTCP conversation with the given details */
+void rtcp_add_address(packet_info *pinfo,
+                      const unsigned char* ip_addr, int port,
+                      int other_port,
+                      gchar *setup_method, guint32 setup_frame_number);
+

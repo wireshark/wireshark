@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.46 2004/06/01 21:40:41 etxrab Exp $
+ * $Id: packet-sdp.c,v 1.47 2004/06/15 18:26:08 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,7 +48,11 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/strutil.h>
+
+#include "packet-rtp.h"
 #include "rtp_pt.h"
+#include "packet-rtcp.h"
+
 
 static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t rtcp_handle=NULL;
@@ -187,7 +191,6 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	char            *string;
 
 	address 	src_addr;
-	conversation_t 	*conv=NULL;
 
 	transport_info_t transport_info;
 
@@ -380,20 +383,14 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    src_addr.data=(char *)&ipv4_address;
 
 		    if(rtp_handle){
-			    conv=find_conversation(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
-			    if(!conv){
-				    conv=conversation_new(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
-				    conversation_set_dissector(conv, rtp_handle);
-			    }
+				rtp_add_address(pinfo, (char *)&ipv4_address, ipv4_port, 0,
+				                "SDP", pinfo->fd->num);
 		    }
 
 		    if(rtcp_handle){
-			    ipv4_port++;
-			    conv=find_conversation(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
-			    if(!conv){
-				    conv=conversation_new(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
-				    conversation_set_dissector(conv, rtcp_handle);
-			    }
+				ipv4_port++;
+				rtcp_add_address(pinfo, (char *)&ipv4_address, ipv4_port, 0,
+				                 "SDP", pinfo->fd->num);
 		    }
 	    }
 	}

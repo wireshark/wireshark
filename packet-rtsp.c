@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.64 2004/05/11 10:55:42 guy Exp $
+ * $Id: packet-rtsp.c,v 1.65 2004/06/15 18:26:08 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,7 +27,7 @@
  * References:
  * RTSP is defined in RFC 2326, http://www.ietf.org/rfc/rfc2326.txt?number=2326
  * http://www.iana.org/assignments/rsvp-parameters
- * 
+ *
  */
 
 #include "config.h"
@@ -266,15 +266,15 @@ typedef enum {
 
 static const char *rtsp_methods[] = {
 	"DESCRIBE",
-	"ANNOUNCE", 
-	"GET_PARAMETER", 
+	"ANNOUNCE",
+	"GET_PARAMETER",
 	"OPTIONS",
-	"PAUSE", 
-	"PLAY", 
-	"RECORD", 
-	"REDIRECT", 
+	"PAUSE",
+	"PLAY",
+	"RECORD",
+	"REDIRECT",
 	"SETUP",
-	"SET_PARAMETER", 
+	"SET_PARAMETER",
 	"TEARDOWN"
 };
 
@@ -444,16 +444,14 @@ rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	 */
 	SET_ADDRESS(&null_addr, pinfo->src.type, 0, NULL);
 
-	conv = conversation_new(&pinfo->dst, &null_addr, PT_UDP, c_data_port,
-		s_data_port, NO_ADDR2 | (!s_data_port ? NO_PORT2 : 0));
-	conversation_set_dissector(conv, rtp_handle);
+	rtp_add_address(pinfo, (char *)&pinfo->dst, c_data_port, s_data_port,
+                    "RTSP", pinfo->fd->num);
 
 	if (!c_mon_port)
 		return;
 
-	conv = conversation_new(&pinfo->dst, &null_addr, PT_UDP, c_mon_port,
-		s_mon_port, NO_ADDR2 | (!s_mon_port ? NO_PORT2 : 0));
-	conversation_set_dissector(conv, rtcp_handle);
+	rtcp_add_address(pinfo, (char *)&pinfo->dst, c_mon_port, s_mon_port,
+                     "RTSP", pinfo->fd->num);
 }
 
 static const char rtsp_content_length[] = "Content-Length:";
@@ -597,10 +595,10 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			else
 				col_add_str(pinfo->cinfo, COL_INFO,
 					format_text(line, first_linelen));
-			
+
 		else
 			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
-		
+
 	}
 
 	orig_offset = offset;
@@ -635,7 +633,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			return -1;
 		line_end_offset = offset + linelen;
 		/*
-		 * colon_offset may be -1 
+		 * colon_offset may be -1
 		 */
 		colon_offset = tvb_find_guint8(tvb, offset, linelen, ':');
 
@@ -766,7 +764,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		/*
 		 * Not a blank line - either a request, a reply, or a header
 		 * line.
-		 */ 
+		 */
 		saw_req_resp_or_header = TRUE;
 		if (rtsp_tree) {
 			ti = proto_tree_add_text(rtsp_tree, tvb, offset,
@@ -833,13 +831,13 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				 */
 				content_length = rtsp_get_content_length(line,
 				    linelen);
-		
+
 			} else if (MIME_HDR_MATCHES(rtsp_Session)) {
 				/*
 				 * Extract the session string
-				 
+
 				 */
-				
+
 				if ( colon_offset != -1 ){
 					/*
 					* Skip whitespace after the colon.
@@ -859,7 +857,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 						value_offset, value_len ,
 						tvb_format_text(tvb, value_offset, value_len));
 				}
-					
+
 			} else if (MIME_HDR_MATCHES(rtsp_X_Vig_Msisdn)) {
 				/*
 				 * Extract the X_Vig_Msisdn string
@@ -1035,7 +1033,7 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
 	/* Method name */
 	proto_tree_add_string(tree, hf_rtsp_method, tvb, offset,
 		strlen(rtsp_methods[ii]), rtsp_methods[ii]);
-	
+
 
 	/* URL */
 	url = data;
@@ -1125,19 +1123,19 @@ proto_register_rtsp(void)
 	};
 	static hf_register_info hf[] = {
 		{ &hf_rtsp_method,
-			{ "Method", "rtsp.method", FT_STRING, BASE_NONE, NULL, 0, 
+			{ "Method", "rtsp.method", FT_STRING, BASE_NONE, NULL, 0,
 			"", HFILL }},
 		{ &hf_rtsp_url,
-			{ "URL", "rtsp.url", FT_STRING, BASE_NONE, NULL, 0, 
+			{ "URL", "rtsp.url", FT_STRING, BASE_NONE, NULL, 0,
 			"", HFILL }},
 		{ &hf_rtsp_status,
-			{ "Status", "rtsp.status", FT_UINT32, BASE_DEC, NULL, 0, 
+			{ "Status", "rtsp.status", FT_UINT32, BASE_DEC, NULL, 0,
 			"", HFILL }},
 		{ &hf_rtsp_session,
-			{ "Session", "rtsp.session", FT_STRING, BASE_NONE, NULL, 0, 
+			{ "Session", "rtsp.session", FT_STRING, BASE_NONE, NULL, 0,
 			"", HFILL }},
 		{ &hf_rtsp_X_Vig_Msisdn,
-			{ "X-Vig-Msisdn", "X_Vig_Msisdn", FT_STRING, BASE_NONE, NULL, 0, 
+			{ "X-Vig-Msisdn", "X_Vig_Msisdn", FT_STRING, BASE_NONE, NULL, 0,
 			"", HFILL }},
 
 
@@ -1192,10 +1190,10 @@ proto_reg_handoff_rtsp(void)
 		dissector_delete("tcp.port", tcp_alternate_port, rtsp_handle);
 	}
 	/* Set our port number for future use */
-	
+
 	tcp_port = global_rtsp_tcp_port;
 	tcp_alternate_port = global_rtsp_tcp_alternate_port;
-	
+
 	dissector_add("tcp.port", tcp_port, rtsp_handle);
 	dissector_add("tcp.port", tcp_alternate_port, rtsp_handle);
 

@@ -6,7 +6,7 @@
  *
  * Maintained by Andreas Sikkema (h323@ramdyne.nl)
  *
- * $Id: packet-h245.c,v 1.47 2004/05/17 20:03:36 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.48 2004/06/15 18:26:08 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,8 @@
 #include "packet-tpkt.h"
 #include "packet-per.h"
 #include "t35.h"
+#include "packet-rtp.h"
+#include "packet-rtcp.h"
 
 static dissector_handle_t rtp_handle=NULL;
 static dissector_handle_t rtcp_handle=NULL;
@@ -14367,17 +14369,12 @@ dissect_h245_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
 		address src_addr;
-		conversation_t *conv=NULL;
 
 		src_addr.type=AT_IPv4;
 		src_addr.len=4;
 		src_addr.data=(char *)&ipv4_address;
 
-		conv=find_conversation(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
-		if(!conv){
-			conv=conversation_new(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
-			conversation_set_dissector(conv, rtp_handle);
-		}
+		rtp_add_address(pinfo, (char *)&ipv4_address, ipv4_port, 0, "H245", pinfo->fd->num);
 	}
 	return offset;
 }
@@ -14391,17 +14388,12 @@ dissect_h245_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 
 	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && rtcp_handle){
 		address src_addr;
-		conversation_t *conv=NULL;
 
 		src_addr.type=AT_IPv4;
 		src_addr.len=4;
 		src_addr.data=(char *)&ipv4_address;
 
-		conv=find_conversation(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
-		if(!conv){
-			conv=conversation_new(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR2|NO_PORT2);
-			conversation_set_dissector(conv, rtcp_handle);
-		}
+		rtcp_add_address(pinfo, (char *)&ipv4_address, ipv4_port, 0, "H245", pinfo->fd->num);
 	}
 	return offset;
 }
@@ -17982,7 +17974,7 @@ dissect_h245_signalType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	/* XXX this is just wrong.
          * the definition in the ASN.1 file is :
 	 *   signalType	IA5String (SIZE (1) ^ FROM ("0123456789#*ABCD!"))
-	 * which means the 17 characters are encoded as 8-bit values 
+	 * which means the 17 characters are encoded as 8-bit values
 	 * between 0x00 and 0x10
          *
 	 * however, captures from real world applications show that

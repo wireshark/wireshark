@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <h323@ramdyne.nl>
  *
- * $Id: packet-rtp.c,v 1.48 2004/06/12 08:56:05 guy Exp $
+ * $Id: packet-rtp.c,v 1.49 2004/06/15 18:26:08 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,10 @@
 #include <epan/conversation.h>
 #include "tap.h"
 
+#include "prefs.h"
+
+static dissector_handle_t rtp_handle;
+
 static int rtp_tap = -1;
 
 static dissector_table_t rtp_pt_dissector_table;
@@ -91,10 +95,16 @@ static int hf_rtp_prof_define  = -1;
 static int hf_rtp_length       = -1;
 static int hf_rtp_hdr_ext      = -1;
 
+/* RTP setup fields */
+static int hf_rtp_setup        = -1;
+static int hf_rtp_setup_frame  = -1;
+static int hf_rtp_setup_method = -1;
+
 /* RTP fields defining a sub tree */
 static gint ett_rtp       = -1;
 static gint ett_csrc_list = -1;
 static gint ett_hdr_ext   = -1;
+static gint ett_rtp_setup = -1;
 
 static dissector_handle_t data_handle;
 
@@ -102,6 +112,13 @@ static gboolean dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree );
 static void dissect_rtp( tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree );
+static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/* Preferences bool to control whether or not setup info should be shown */
+static gboolean global_rtp_show_setup_info = TRUE;
+
+/* Memory chunk for storing conversation and per-packet info */
+static GMemChunk *rtp_conversations = NULL;
 
 /*
  * Fields in the first octet of the RTP header.
@@ -173,11 +190,15 @@ const value_string rtp_payload_type_vals[] =
 static address fake_addr;
 static int heur_init = FALSE;
 
-void rtp_add_address( packet_info *pinfo, const unsigned char* ip_addr,
-    int prt )
+/* Set up an RTP conversation */
+void rtp_add_address(packet_info *pinfo,
+                     const unsigned char* ip_addr, int port,
+                     int other_port,
+                     gchar *setup_method, guint32 setup_frame_number)
 {
 	address src_addr;
-	conversation_t* pconv;
+	conversation_t* p_conv = NULL;
+	struct _rtp_conversation_info *p_conv_data = NULL;
 
 	/*
 	 * If this isn't the first time this packet has been processed,
@@ -187,42 +208,75 @@ void rtp_add_address( packet_info *pinfo, const unsigned char* ip_addr,
 	if (pinfo->fd->flags.visited)
 		return;
 
-	src_addr.type = AT_IPv4;
-	src_addr.len = 4;
+	src_addr.type = pinfo->net_src.type;
+	src_addr.len = pinfo->net_src.len;
 	src_addr.data = ip_addr;
 
 	/*
-	 * The first time the function is called let the tcp dissector
+	 * The first time the function is called let the udp dissector
 	 * know that we're interested in traffic
-	 */
+	 * TODO???
+	 *
 	if ( ! heur_init ) {
 		heur_dissector_add( "udp", dissect_rtp_heur, proto_rtp );
 		heur_init = TRUE;
 	}
+	*/
 
 	/*
-	 * Check if the ip address an dport combination is not
+	 * Check if the ip address and port combination is not
 	 * already registered
 	 */
-	pconv = find_conversation( &src_addr, &fake_addr, PT_UDP, prt, 0, 0 );
+	p_conv = find_conversation( &src_addr, &src_addr, PT_UDP, port, other_port,
+                                NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
 
 	/*
 	 * If not, add
-	 * XXX - use wildcard address and port B?
 	 */
-	if ( ! pconv ) {
-		pconv = conversation_new( &src_addr, &fake_addr, PT_UDP,
-		    (guint32) prt, (guint32) 0, 0 );
-		conversation_add_proto_data(pconv, proto_rtp, NULL);
-	}
+	if ( ! p_conv ) {
+		/* Create conversation data */
+		p_conv_data = g_mem_chunk_alloc(rtp_conversations);
 
+		/* Check length first time we look at method string */
+		strncpy(p_conv_data->method, setup_method,
+		        (strlen(setup_method)+1 <= MAX_RTP_SETUP_METHOD_SIZE) ?
+		             strlen(setup_method)+1 :
+		             MAX_RTP_SETUP_METHOD_SIZE);
+		p_conv_data->method[MAX_RTP_SETUP_METHOD_SIZE] = '\0';
+		p_conv_data->frame_number = setup_frame_number;
+
+		/* Create conversation with this data */
+		p_conv = conversation_new( &src_addr, &src_addr, PT_UDP,
+		                           (guint32)port, (guint32)other_port,
+								   NO_ADDR2 | (!other_port ? NO_PORT2 : 0));
+		conversation_add_proto_data(p_conv, proto_rtp, p_conv_data);
+
+		/* Set dissector */
+		conversation_set_dissector(p_conv, rtp_handle);
+	}
+	else
+	{
+		/* Update existing conversation data */
+		p_conv_data = conversation_get_proto_data(p_conv, proto_rtp);
+		strcpy(p_conv_data->method, setup_method);
+		p_conv_data->frame_number = setup_frame_number;
+	}
 }
 
-#if 0
 static void rtp_init( void )
 {
 	unsigned char* tmp_data;
 	int i;
+
+	/* (Re)allocate mem chunk for conversations */
+	if (rtp_conversations)
+	{
+		g_mem_chunk_destroy(rtp_conversations);
+	}
+	rtp_conversations = g_mem_chunk_new("rtp_conversations",
+	                                    sizeof(struct _rtp_conversation_info),
+	                                    20 * sizeof(struct _rtp_conversation_info),
+	                                    G_ALLOC_ONLY);
 
 	/* Create a fake adddress... */
 	fake_addr.type = AT_IPv4;
@@ -234,7 +288,6 @@ static void rtp_init( void )
 	}
 	fake_addr.data = tmp_data;
 }
-#endif
 
 static gboolean
 dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
@@ -408,8 +461,15 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		    marker_set ? ", Mark" : "");
 	}
 	if ( tree ) {
-		ti = proto_tree_add_item( tree, proto_rtp, tvb, offset, -1, FALSE );
-		rtp_tree = proto_item_add_subtree( ti, ett_rtp );
+		/* Create RTP protocol tree */
+		ti = proto_tree_add_item(tree, proto_rtp, tvb, offset, -1, FALSE );
+		rtp_tree = proto_item_add_subtree(ti, ett_rtp );
+
+		/* Conversation setup info */
+		if (global_rtp_show_setup_info)
+		{
+			show_setup_info(tvb, pinfo, rtp_tree);
+		}
 
 		proto_tree_add_uint( rtp_tree, hf_rtp_version, tvb,
 		    offset, 1, octet1 );
@@ -440,7 +500,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		offset += 4;
 	} else {
 		offset += 12;
-	} 
+	}
 	/* CSRC list*/
 	if ( csrc_count > 0 ) {
         	if ( tree ) {
@@ -572,6 +632,64 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	if (!pinfo->in_error_pkt)
 		tap_queue_packet(rtp_tap, pinfo, &rtp_info);
 }
+
+
+/* Look for conversation info and display any setup info found */
+void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	/* Conversation and current data */
+	conversation_t *p_conv = NULL;
+	struct _rtp_conversation_info *p_conv_data = NULL;
+
+	if (!pinfo->fd->flags.visited)
+	{
+		/* First time, get info from conversation */
+		p_conv = find_conversation(&pinfo->net_src, &pinfo->net_dst,
+								   pinfo->ptype,
+								   pinfo->srcport, pinfo->destport, 0);
+		if (p_conv)
+		{
+			/* Create space for packet info */
+			struct _rtp_conversation_info *p_conv_packet_data;
+			p_conv_data = conversation_get_proto_data(p_conv, proto_rtp);
+
+			/* Save this conversation info into packet info */
+			p_conv_packet_data = g_mem_chunk_alloc(rtp_conversations);
+			strcpy(p_conv_packet_data->method, p_conv_data->method);
+			p_conv_packet_data->frame_number = p_conv_data->frame_number;
+			p_add_proto_data(pinfo->fd, proto_rtp, p_conv_packet_data);
+		}
+	}
+	else
+	{
+		/* Otherwise, use stored packet data instead */
+		p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
+	}
+
+	/* Create setup info subtree with summary info. */
+	if (p_conv_data)
+	{
+		proto_tree *rtp_setup_tree;
+		proto_item *ti =  proto_tree_add_string_format(tree, hf_rtp_setup, tvb, 0, 0,
+		                                               "",
+		                                               "Stream setup by %s (frame %d)",
+		                                               p_conv_data->method,
+		                                               p_conv_data->frame_number);
+		PROTO_ITEM_SET_GENERATED(ti);
+		rtp_setup_tree = proto_item_add_subtree(ti, ett_rtp_setup);
+		if (rtp_setup_tree)
+		{
+			/* Add details into subtree */
+			proto_item* item = proto_tree_add_uint(rtp_setup_tree, hf_rtp_setup_frame,
+			                                       tvb, 0, 0, p_conv_data->frame_number);
+			PROTO_ITEM_SET_GENERATED(item);
+			item = proto_tree_add_string(rtp_setup_tree, hf_rtp_setup_method,
+			                             tvb, 0, 0, p_conv_data->method);
+			PROTO_ITEM_SET_GENERATED(item);
+		}
+	}
+}
+
 
 void
 proto_register_rtp(void)
@@ -770,14 +888,54 @@ proto_register_rtp(void)
 				"", HFILL
 			}
 		},
-};
+		{
+			&hf_rtp_setup,
+			{
+				"Stream setup",
+				"rtp.setup",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"Stream setup, method and frame number", HFILL
+			}
+		},
+		{
+			&hf_rtp_setup_frame,
+			{
+				"Setup frame",
+				"rtp.setup-frame",
+				FT_FRAMENUM,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"Frame that set up this stream", HFILL
+			}
+		},
+		{
+			&hf_rtp_setup_method,
+			{
+				"Setup Method",
+				"rtp.setup-method",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"Method used to set up this stream", HFILL
+			}
+		}
+
+	};
 
 	static gint *ett[] =
 	{
 		&ett_rtp,
 		&ett_csrc_list,
 		&ett_hdr_ext,
+		&ett_rtp_setup
 	};
+
+	module_t *rtp_module;
 
 
 	proto_rtp = proto_register_protocol("Real-Time Transport Protocol",
@@ -791,16 +949,20 @@ proto_register_rtp(void)
 	rtp_pt_dissector_table = register_dissector_table("rtp.pt",
 	    "RTP payload type", FT_UINT8, BASE_DEC);
 
-#if 0
+	rtp_module = prefs_register_protocol(proto_rtp, NULL);
+
+	prefs_register_bool_preference(rtp_module, "show_setup_info",
+		"Show stream setup information",
+		"Where available, show which protocol and frame caused "
+		"this RTP stream to be created",
+		&global_rtp_show_setup_info);
+
 	register_init_routine( &rtp_init );
-#endif
 }
 
 void
 proto_reg_handoff_rtp(void)
 {
-	dissector_handle_t rtp_handle;
-
 	data_handle = find_dissector("data");
 
 	/*
