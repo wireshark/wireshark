@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly 
  *
- * $Id: packet-icmpv6.c,v 1.5 1999/07/28 02:14:14 gerald Exp $
+ * $Id: packet-icmpv6.c,v 1.6 1999/07/28 02:32:25 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -237,6 +237,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    codename = "Reassembly";
 	    break;
 	}
+        break;
     case ICMP6_PARAM_PROB:
 	typename = "Parameter problem";
 	switch (dp->icmp6_code) {
@@ -250,6 +251,7 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    codename = "Option";
 	    break;
 	}
+        break;
     case ICMP6_ECHO_REQUEST:
 	typename = "Echo request";
 	codename = NULL;
