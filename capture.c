@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.92 2000/01/26 23:09:21 guy Exp $
+ * $Id: capture.c,v 1.93 2000/01/30 17:10:29 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -100,6 +100,7 @@ gboolean capture_child;	/* if this is the child for "-S" */
 static guint cap_input_id;
 
 static void cap_file_input_cb(gpointer, gint, GdkInputCondition);
+static void capture_delete_cb(GtkWidget *, GdkEvent *, gpointer);
 static void capture_stop_cb(GtkWidget *, gpointer);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
   const u_char *);
@@ -654,9 +655,13 @@ capture(void)
   gtk_box_pack_start(GTK_BOX(main_vb), other_lb, FALSE, FALSE, 3);
   gtk_widget_show(other_lb);
 
+  /* allow user to either click a stop button, or the close button on
+	the window to stop a capture in progress. */
   stop_bt = gtk_button_new_with_label ("Stop");
   gtk_signal_connect(GTK_OBJECT(stop_bt), "clicked",
     GTK_SIGNAL_FUNC(capture_stop_cb), (gpointer) &ld);
+  gtk_signal_connect(GTK_OBJECT(cap_w), "delete_event",
+	GTK_SIGNAL_FUNC(capture_delete_cb), (gpointer) &ld);
   gtk_box_pack_end(GTK_BOX(main_vb), stop_bt, FALSE, FALSE, 3);
   GTK_WIDGET_SET_FLAGS(stop_bt, GTK_CAN_DEFAULT);
   gtk_widget_grab_default(stop_bt);
@@ -832,6 +837,11 @@ pct(gint num, gint denom) {
   } else {
     return 0.0;
   }
+}
+
+static void
+capture_delete_cb(GtkWidget *w, GdkEvent *event, gpointer data) {
+  capture_stop_cb(NULL, data);
 }
 
 static void
