@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.194 2001/04/18 05:45:58 guy Exp $
+ * $Id: main.c,v 1.195 2001/04/19 23:06:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -466,7 +466,6 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 
 	set_menus_for_selected_tree_row(TRUE);
 
-	/*if (finfo->hfinfo && finfo->hfinfo->type != FT_TEXT_ONLY) {*/
 	if (finfo->hfinfo) {
 	  if (finfo->hfinfo->blurb != NULL && 
 	      finfo->hfinfo->blurb[0] != '\0') {
@@ -475,13 +474,33 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 	  } else {
 	    length = strlen(finfo->hfinfo->name);
 	  }
-	  length += strlen(finfo->hfinfo->abbrev) + 10;
-	  help_str = g_malloc(sizeof(gchar) * length);
-	  sprintf(help_str, "%s (%s)", 
-		  (has_blurb) ? finfo->hfinfo->blurb : finfo->hfinfo->name,
-		  finfo->hfinfo->abbrev);
-	  gtk_statusbar_push(GTK_STATUSBAR(info_bar), help_ctx, help_str);
-	  g_free(help_str);
+          if (length) {
+	    length += strlen(finfo->hfinfo->abbrev) + 10;
+	    help_str = g_malloc(sizeof(gchar) * length);
+	    sprintf(help_str, "%s (%s)", 
+	       (has_blurb) ? finfo->hfinfo->blurb : finfo->hfinfo->name,
+	       finfo->hfinfo->abbrev);
+	    gtk_statusbar_push(GTK_STATUSBAR(info_bar), help_ctx, help_str);
+	    g_free(help_str);
+          } else {
+            /*
+	     * Don't show anything if the field name is zero-length;
+	     * the pseudo-field for "proto_tree_add_text()" is such
+	     * a field, and we don't want "Text (text)" showing up
+	     * on the status line if you've selected such a field.
+	     *
+	     * XXX - perhaps the name and abbrev field should be null
+	     * pointers rather than null strings for that pseudo-field,
+	     * but we'd have to add checks for null pointers in some
+	     * places if we did that.
+	     *
+	     * Or perhaps protocol tree items added with
+	     * "proto_tree_add_text()" should have -1 as the field index,
+	     * with no pseudo-field being used, but that might also
+	     * require special checks for -1 to be added.
+	     */
+	    gtk_statusbar_push(GTK_STATUSBAR(info_bar), help_ctx, "");
+          }
 	}
 
 	packet_hex_print(GTK_TEXT(byte_view), byte_data, cfile.current_frame,

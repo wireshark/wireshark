@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.21 2001/04/10 19:10:10 guy Exp $
+ * $Id: proto.c,v 1.22 2001/04/19 23:06:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -168,8 +168,8 @@ proto_init(const char *plugin_dir,void (register_all_protocols)(void),
 {
 	static hf_register_info hf[] = {
 		{ &hf_text_only,
-		{ "Text",	"text", FT_NONE, BASE_NONE, NULL, 0x0,
-			"" }},
+		{ "",	"", FT_NONE, BASE_NONE, NULL, 0x0,
+			NULL }},
 	};
 
 	if (gmc_hfinfo)
@@ -2707,6 +2707,26 @@ proto_registrar_dump(void)
 	len = gpa_hfinfo->len;
 	for (i = 0; i < len ; i++) {
 		hfinfo = proto_registrar_get_nth(i);
+
+		/*
+		 * Skip fields with zero-length names or abbreviations;
+		 * the pseudo-field for "proto_tree_add_text()" is such
+		 * a field, and we don't want it in the list of filterable
+		 * fields.
+		 *
+		 *
+		 * XXX - perhaps the name and abbrev field should be null
+		 * pointers rather than null strings for that pseudo-field,
+		 * but we'd have to add checks for null pointers in some
+		 * places if we did that.
+		 *
+		 * Or perhaps protocol tree items added with
+		 * "proto_tree_add_text()" should have -1 as the field index,
+		 * with no pseudo-field being used, but that might also
+		 * require special checks for -1 to be added.
+		 */
+		if (strlen(hfinfo->name) == 0 || strlen(hfinfo->abbrev) == 0)
+			continue;
 
 		/* format for protocols */
 		if (proto_registrar_is_protocol(i)) {
