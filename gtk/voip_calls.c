@@ -56,6 +56,7 @@
 #include <plugins/mgcp/packet-mgcp.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/dissectors/packet-rtp-events.h>
+#include <epan/conversation.h>
 #include "rtp_pt.h"
 
 #include "alert_box.h"
@@ -376,6 +377,7 @@ RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	voip_rtp_stream_info_t *tmp_listinfo;
 	voip_rtp_stream_info_t *strinfo = NULL;
 	GList* list;
+	struct _rtp_conversation_info *p_conv_data = NULL;
 
 	const struct _rtp_info *pi = RTPinfo;
 
@@ -413,6 +415,15 @@ RTP_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 		strinfo->ssrc = pi->info_sync_src;
 		strinfo->end_stream = FALSE;
 		strinfo->pt = pi->info_payload_type;
+		strinfo->pt_str = NULL;
+		/* if it is dynamic payload, let use the conv data to see if it is defined */
+		if ( (strinfo->pt>95) && (strinfo->pt<128) ) {
+			/* Use existing packet info if available */
+			p_conv_data = p_get_proto_data(pinfo->fd, proto_get_id_by_filter_name("rtp"));
+			if (p_conv_data)
+				strinfo->pt_str = g_strdup(g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &strinfo->pt));
+		}
+		if (!strinfo->pt_str) strinfo->pt_str = g_strdup(val_to_str(strinfo->pt, rtp_payload_type_short_vals, "%u"));
 		strinfo->npackets = 0;
 		strinfo->first_frame_num = pinfo->fd->num;
 		strinfo->start_rel_sec = pinfo->fd->rel_secs;
@@ -478,7 +489,8 @@ void RTP_packet_draw(void *prs _U_)
 						new_gai->port_src = rtp_listinfo->src_port;
 						new_gai->port_dst = rtp_listinfo->dest_port;
 						duration = (rtp_listinfo->stop_rel_sec*1000000 + rtp_listinfo->stop_rel_usec) - (rtp_listinfo->start_rel_sec*1000000 + rtp_listinfo->start_rel_usec);
-						new_gai->frame_label = g_strdup_printf("RTP (%s) %s", val_to_str(rtp_listinfo->pt, rtp_payload_type_short_vals, "%u"), (rtp_listinfo->rtp_event == -1)?"":val_to_str(rtp_listinfo->rtp_event, rtp_event_type_values, "Uknown RTP Event"));
+						new_gai->frame_label = g_strdup_printf("RTP (%s) %s", rtp_listinfo->pt_str, (rtp_listinfo->rtp_event == -1)?"":val_to_str(rtp_listinfo->rtp_event, rtp_event_type_values, "Uknown RTP Event")); 
+						g_free(rtp_listinfo->pt_str);
 						new_gai->comment = g_strdup_printf("RTP Num packets:%d  Duration:%d.%03ds ssrc:%d", rtp_listinfo->npackets, duration/1000000,(duration%1000000)/1000, rtp_listinfo->ssrc);
 						new_gai->conv_num = conv_num;
 						new_gai->display=FALSE;

@@ -169,7 +169,8 @@ typedef struct _voip_rtp_stream_info {
 	address dest_addr;
 	guint16 dest_port;
 	guint32 ssrc;
-	guint8  pt;
+	guint32  pt;
+	gchar *pt_str;
 	guint32 npackets;
 	gboolean end_stream;
 
@@ -211,7 +212,6 @@ void q931_calls_init_tap(void);
 void sdp_calls_init_tap(void);
 void rtp_init_tap(void);
 void rtp_event_init_tap(void);
-void rtp_init_tap_event(void);
 void mgcp_calls_init_tap(void);
 
 
