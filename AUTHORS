@@ -1522,6 +1522,7 @@ Brad Hards <bhards[AT]bigpond.net.au> {
 	Initial rsync support
 	ACAP support
 	DISTCC support
+	Jabber client-to-server protocol support
 }
 
 cjs 2895 <cjs2895[AT]hotmail.com> {
