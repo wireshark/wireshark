@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.102 1999/10/08 20:50:38 guy Exp $
+ * $Id: packet.h,v 1.103 1999/10/10 11:50:45 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -382,6 +382,8 @@ void       col_append_fstr(frame_data *, gint, gchar *, ...);
 void       col_add_str(frame_data *, gint, const gchar *);
 void       col_append_str(frame_data *, gint, gchar *);
 
+
+void smb_init_protocol(void);
 
 void dissect_packet(const u_char *, frame_data *, proto_tree *);
 /*

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.103 1999/10/05 04:34:00 gram Exp $
+ * $Id: file.c,v 1.104 1999/10/10 11:50:38 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -132,6 +132,7 @@ open_cap_file(char *fname, capture_file *cf) {
 
   /* Initialize protocol-specific variables */
   ncp_init_protocol();
+  smb_init_protocol();
 
   cf->wth = wth;
   cf->fh = fh;

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.27 1999/10/03 05:01:56 guy Exp $
+ * $Id: packet-smb.c,v 1.28 1999/10/10 11:50:40 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -48,7 +48,77 @@
 static int proto_smb = -1;
 
 char *decode_smb_name(unsigned char);
-void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, int, int, int);
+
+GHashTable *smb_request_hash = NULL;
+
+struct smb_request_key {
+  guint32 src_ip, dst_ip;
+  guint16 src_port, dst_port;
+  guint16 mid;
+};
+
+/* Hash Functions */
+gint
+smb_equal(gconstpointer v, gconstpointer w)
+{
+  struct smb_request_key *v1 = (struct smb_request_key *)v;
+  struct smb_request_key *v2 = (struct smb_request_key *)w;
+
+  #if defined(DEBUG_SMB_HASH)
+  printf("Comparing %08X:%08X:%d:%d:%d\n      and %08X:%08X:%d:%d:%d\n",
+	 v1 -> src_ip, v1 -> dst_ip, v1 -> src_port, v1 -> dst_port, v1 -> mid,
+	 v2 -> src_ip, v2 -> dst_ip, v2 -> src_port, v2 -> dst_port, v2 -> mid);
+  #endif
+
+  if (v1 -> src_ip   == v2 -> src_ip &&
+      v1 -> dst_ip   == v2 -> dst_ip &&
+      v1 -> src_port == v2 -> src_port &&
+      v1 -> dst_port == v2 -> dst_port &&
+      v1 -> mid      == v2 -> mid) {
+
+    return 1;
+
+  }
+
+  return 0;
+}
+
+guint 
+smb_hash (gconstpointer v)
+{
+  struct smb_request_key *key = (struct smb_request_key *)v;
+  guint val;
+
+  val = key -> src_ip + key -> dst_ip + key -> src_port + key -> dst_port +
+    key -> mid;
+
+  #if defined(DEBUG_SMB_HASH)
+  printf("SMB Hash calculated as %d\n", val);
+  #endif
+
+  return val;
+
+}
+
+/*
+ * Initialize some variables every time a file is loaded or re-loaded
+ */
+
+void
+smb_init_protocol(void)
+{
+  #if defined(DEBUG_SMB_HASH)
+  printf("Initializing SMB hashtable area\n");
+  #endif
+
+  if (smb_request_hash)
+    g_hash_table_destroy(smb_request_hash);
+
+  smb_request_hash = g_hash_table_new(smb_hash, smb_equal);
+
+}
+
+void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, int, int, int, int);
 
 char *SMB_names[256] = {
   "SMBcreatedirectory",
@@ -310,7 +380,7 @@ char *SMB_names[256] = {
 };
 
 void 
-dissect_unknown_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_unknown_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 {
 
   if (tree) {
@@ -435,7 +505,7 @@ unicode_to_str(const guint8 *us, int *us_lenp) {
  */
 
 void
-dissect_flush_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_flush_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -513,7 +583,7 @@ dissect_flush_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 }
 
 void
-dissect_get_disk_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_get_disk_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -647,7 +717,7 @@ dissect_get_disk_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 }
 
 void
-dissect_set_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_set_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *Attributes_tree;
@@ -861,7 +931,7 @@ dissect_set_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 }
 
 void
-dissect_write_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_write_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -1016,7 +1086,7 @@ dissect_write_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 }
 
 void
-dissect_read_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_read_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -1265,7 +1335,7 @@ dissect_read_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *t
 }
 
 void
-dissect_delete_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_delete_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -1356,7 +1426,7 @@ dissect_delete_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_query_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_query_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *Attributes_tree;
@@ -1570,7 +1640,7 @@ dissect_query_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_treecon_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_treecon_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -1742,7 +1812,7 @@ dissect_treecon_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
 /* Generated by build-dissect.pl Vesion 0.6 27-Jun-1999, ACT */
 void
-dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *Capabilities_tree;
@@ -1911,41 +1981,45 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
       offset += 2; /* Skip Byte Count (BCC) */
 
-      /* Build display for: AccountName */
+      if (ByteCount > 0) {
 
-      AccountName = pd + offset;
+	/* Build display for: AccountName */
 
-      if (tree) {
+	AccountName = pd + offset;
 
-        proto_tree_add_text(tree, offset, strlen(AccountName) + 1, "AccountName: %s", AccountName);
+	if (tree) {
+
+	  proto_tree_add_text(tree, offset, strlen(AccountName) + 1, "AccountName: %s", AccountName);
+
+	}
+
+	offset += strlen(AccountName) + 1; /* Skip AccountName */
+
+	/* Build display for: PrimaryDomain */
+
+	PrimaryDomain = pd + offset;
+
+	if (tree) {
+
+	  proto_tree_add_text(tree, offset, strlen(PrimaryDomain) + 1, "PrimaryDomain: %s", PrimaryDomain);
+
+	}
+
+	offset += strlen(PrimaryDomain) + 1; /* Skip PrimaryDomain */
+
+	/* Build display for: NativeOS */
+
+	NativeOS = pd + offset;
+
+	if (tree) {
+
+	  proto_tree_add_text(tree, offset, strlen(NativeOS) + 1, "NativeOS: %s", NativeOS);
+
+	}
+
+	offset += strlen(NativeOS) + 1; /* Skip NativeOS */
 
       }
-
-      offset += strlen(AccountName) + 1; /* Skip AccountName */
-
-      /* Build display for: PrimaryDomain */
-
-      PrimaryDomain = pd + offset;
-
-      if (tree) {
-
-        proto_tree_add_text(tree, offset, strlen(PrimaryDomain) + 1, "PrimaryDomain: %s", PrimaryDomain);
-
-      }
-
-      offset += strlen(PrimaryDomain) + 1; /* Skip PrimaryDomain */
-
-      /* Build display for: NativeOS */
-
-      NativeOS = pd + offset;
-
-      if (tree) {
-
-        proto_tree_add_text(tree, offset, strlen(NativeOS) + 1, "NativeOS: %s", NativeOS);
-
-      }
-
-      offset += strlen(NativeOS) + 1; /* Skip NativeOS */
 
     break;
 
@@ -2137,90 +2211,94 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
       offset += 2; /* Skip Byte Count */
 
-      /* Build display for: ANSI Password */
+      if (ByteCount > 0) {
 
-      ANSIPassword = pd + offset;
+	/* Build display for: ANSI Password */
 
-      if (tree) {
-
-        proto_tree_add_text(tree, offset, strlen(ANSIPassword) + 1, "ANSI Password: %s", ANSIPassword);
-
-      }
-
-      offset += ANSIAccountPasswordLength; /* Skip ANSI Password */
-
-      /* Build display for: UNICODE Password */
-
-      UNICODEPassword = pd + offset;
-
-      if (UNICODEAccountPasswordLength > 0) {
+	ANSIPassword = pd + offset;
 
 	if (tree) {
 
-	  proto_tree_add_text(tree, offset, strlen(UNICODEPassword) + 1, "UNICODE Password: %s", UNICODEPassword);
+	  proto_tree_add_text(tree, offset, strlen(ANSIPassword) + 1, "ANSI Password: %s", ANSIPassword);
 
 	}
 
-	offset += strlen(UNICODEPassword) + 1; /* Skip UNICODE Password */
+	offset += ANSIAccountPasswordLength; /* Skip ANSI Password */
+
+	/* Build display for: UNICODE Password */
+
+	UNICODEPassword = pd + offset;
+
+	if (UNICODEAccountPasswordLength > 0) {
+
+	  if (tree) {
+
+	    proto_tree_add_text(tree, offset, strlen(UNICODEPassword) + 1, "UNICODE Password: %s", UNICODEPassword);
+
+	  }
+
+	  offset += strlen(UNICODEPassword) + 1; /* Skip UNICODE Password */
+
+	}
+
+	/* Build display for: Account Name */
+
+	AccountName = pd + offset;
+
+	if (tree) {
+
+	  proto_tree_add_text(tree, offset, strlen(AccountName) + 1, "Account Name: %s", AccountName);
+
+	}
+
+	offset += strlen(AccountName) + 1; /* Skip Account Name */
+
+	/* Build display for: Primary Domain */
+
+	PrimaryDomain = pd + offset;
+
+	if (tree) {
+
+	  proto_tree_add_text(tree, offset, strlen(PrimaryDomain) + 1, "Primary Domain: %s", PrimaryDomain);
+
+	}
+
+	offset += strlen(PrimaryDomain) + 1; /* Skip Primary Domain */
+
+	/* Build display for: Native OS */
+
+	NativeOS = pd + offset;
+
+	if (tree) {
+
+	  proto_tree_add_text(tree, offset, strlen(NativeOS) + 1, "Native OS: %s", NativeOS);
+
+	}
+
+	offset += strlen(NativeOS) + 1; /* Skip Native OS */
+
+	/* Build display for: Native LanMan Type */
+
+	NativeLanManType = pd + offset;
+
+	if (tree) {
+
+	  proto_tree_add_text(tree, offset, strlen(NativeLanManType) + 1, "Native LanMan Type: %s", NativeLanManType);
+
+	}
+
+	offset += strlen(NativeLanManType) + 1; /* Skip Native LanMan Type */
 
       }
 
-      /* Build display for: Account Name */
-
-      AccountName = pd + offset;
-
-      if (tree) {
-
-        proto_tree_add_text(tree, offset, strlen(AccountName) + 1, "Account Name: %s", AccountName);
-
-      }
-
-      offset += strlen(AccountName) + 1; /* Skip Account Name */
-
-      /* Build display for: Primary Domain */
-
-      PrimaryDomain = pd + offset;
-
-      if (tree) {
-
-        proto_tree_add_text(tree, offset, strlen(PrimaryDomain) + 1, "Primary Domain: %s", PrimaryDomain);
-
-      }
-
-      offset += strlen(PrimaryDomain) + 1; /* Skip Primary Domain */
-
-      /* Build display for: Native OS */
-
-      NativeOS = pd + offset;
-
-      if (tree) {
-
-        proto_tree_add_text(tree, offset, strlen(NativeOS) + 1, "Native OS: %s", NativeOS);
-
-      }
-
-      offset += strlen(NativeOS) + 1; /* Skip Native OS */
-
-      /* Build display for: Native LanMan Type */
-
-      NativeLanManType = pd + offset;
-
-      if (tree) {
-
-        proto_tree_add_text(tree, offset, strlen(NativeLanManType) + 1, "Native LanMan Type: %s", NativeLanManType);
-
-      }
-
-      offset += strlen(NativeLanManType) + 1; /* Skip Native LanMan Type */
-
-    break;
+      break;
 
     }
 
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, errcode, dirn);
+      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -2308,46 +2386,49 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     offset += 2; /* Skip Byte Count (BCC) */
 
-    /* Build display for: NativeOS */
+    if (ByteCount > 0) {
 
-    NativeOS = pd + offset;
+      /* Build display for: NativeOS */
 
-    if (tree) {
+      NativeOS = pd + offset;
 
-      proto_tree_add_text(tree, offset, strlen(NativeOS) + 1, "NativeOS: %s", NativeOS);
+      if (tree) {
+
+	proto_tree_add_text(tree, offset, strlen(NativeOS) + 1, "NativeOS: %s", NativeOS);
+
+      }
+
+      offset += strlen(NativeOS) + 1; /* Skip NativeOS */
+
+      /* Build display for: NativeLanMan */
+
+      NativeLanMan = pd + offset;
+
+      if (tree) {
+
+	proto_tree_add_text(tree, offset, strlen(NativeLanMan) + 1, "NativeLanMan: %s", NativeLanMan);
+
+      }
+
+      offset += strlen(NativeLanMan) + 1; /* Skip NativeLanMan */
+
+      /* Build display for: PrimaryDomain */
+
+      PrimaryDomain = pd + offset;
+
+      if (tree) {
+
+	proto_tree_add_text(tree, offset, strlen(PrimaryDomain) + 1, "PrimaryDomain: %s", PrimaryDomain);
+
+      }
+
+      offset += strlen(PrimaryDomain) + 1; /* Skip PrimaryDomain */
 
     }
-
-    offset += strlen(NativeOS) + 1; /* Skip NativeOS */
-
-    /* Build display for: NativeLanMan */
-
-    NativeLanMan = pd + offset;
-
-    if (tree) {
-
-      proto_tree_add_text(tree, offset, strlen(NativeLanMan) + 1, "NativeLanMan: %s", NativeLanMan);
-
-    }
-
-    offset += strlen(NativeLanMan) + 1; /* Skip NativeLanMan */
-
-    /* Build display for: PrimaryDomain */
-
-    PrimaryDomain = pd + offset;
-
-    if (tree) {
-
-      proto_tree_add_text(tree, offset, strlen(PrimaryDomain) + 1, "PrimaryDomain: %s", PrimaryDomain);
-
-    }
-
-    offset += strlen(PrimaryDomain) + 1; /* Skip PrimaryDomain */
-
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, errcode, dirn);
+      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -2356,7 +2437,7 @@ dissect_ssetup_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8      wct, andxcmd;
@@ -2477,11 +2558,11 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (tree) {
 
-      proto_tree_add_text(tree, offset, strlen(str) + 1, "Password: %s", str);
+      proto_tree_add_text(tree, offset, strlen(str) + 1, "Password: %s", format_text(str, passwdlen));
 
     }
 
-    offset += strlen(str) + 1;
+    offset += passwdlen;
 
     str = pd + offset;
 
@@ -2504,8 +2585,6 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
     break;
 
   case 2:
-
-    offset += 2;
 
     bcc = GSHORT(pd, offset);
 
@@ -2583,12 +2662,12 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
   if (andxcmd != 0xFF) /* Process that next command ... ??? */
 
-    (dissect[andxcmd])(pd, offset, fd, tree, max_data - offset, errcode, dirn);
+    (dissect[andxcmd])(pd, offset, fd, tree, max_data - offset, SMB_offset, errcode, dirn);
 
 }
 
 void 
-dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 {
   guint8        wct, enckeylen;
   guint16       bcc, mode, rawmode, dialect;
@@ -3097,7 +3176,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 }
 
 void
-dissect_deletedir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_deletedir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -3188,7 +3267,7 @@ dissect_deletedir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_createdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_createdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -3279,7 +3358,7 @@ dissect_createdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_checkdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_checkdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -3370,7 +3449,7 @@ dissect_checkdir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *t
 }
 
 void
-dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   static const value_string OpenFunction_0x10[] = {
@@ -3720,7 +3799,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, errcode, dirn);
+      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -3949,7 +4028,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, errcode, dirn);
+      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -3958,7 +4037,7 @@ dissect_open_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_write_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_write_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *WriteMode_tree;
@@ -4328,7 +4407,7 @@ dissect_write_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_tdis_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_tdis_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -4393,7 +4472,7 @@ dissect_tdis_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 }
 
 void
-dissect_move_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_move_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   static const value_string Flags_0x03[] = {
@@ -4541,7 +4620,7 @@ dissect_move_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 }
 
 void
-dissect_rename_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_rename_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -4671,7 +4750,7 @@ dissect_rename_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_open_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_open_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   static const value_string Mode_0x03[] = {
@@ -4811,7 +4890,7 @@ dissect_open_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_
 }
 
 void
-dissect_close_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_close_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -4889,7 +4968,7 @@ dissect_close_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto
 }
 
 void
-dissect_read_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_read_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -5131,7 +5210,7 @@ dissect_read_raw_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *t
 }
 
 void
-dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -5205,7 +5284,7 @@ dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, errcode, dirn);
+      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -5276,7 +5355,7 @@ dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, errcode, dirn);
+      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -5285,7 +5364,7 @@ dissect_logoff_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_seek_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_seek_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   static const value_string Mode_0x03[] = {
@@ -5412,7 +5491,7 @@ dissect_seek_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_write_and_unlock_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_write_and_unlock_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -5567,7 +5646,7 @@ dissect_write_and_unlock_smb(const u_char *pd, int offset, frame_data *fd, proto
 }
 
 void
-dissect_set_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_set_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -5723,7 +5802,7 @@ dissect_set_info2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_lock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_lock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -5827,7 +5906,7 @@ dissect_lock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 }
 
 void
-dissect_get_print_queue_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_get_print_queue_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -5974,7 +6053,7 @@ dissect_get_print_queue_smb(const u_char *pd, int offset, frame_data *fd, proto_
 }
 
 void
-dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *LockType_tree;
@@ -6140,7 +6219,7 @@ dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, errcode, dirn);
+      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -6216,7 +6295,7 @@ dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 
     if (AndXCommand != 0xFF) {
 
-      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, errcode, dirn);
+      (dissect[AndXCommand])(pd, offset, fd, tree, max_data, SMB_offset, errcode, dirn);
 
     }
 
@@ -6225,7 +6304,7 @@ dissect_locking_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 }
 
 void
-dissect_unlock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_unlock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -6329,7 +6408,7 @@ dissect_unlock_bytes_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 }
 
 void
-dissect_create_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_create_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *Attributes_tree;
@@ -6478,7 +6557,7 @@ dissect_create_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree
 }
 
 void
-dissect_search_dir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_search_dir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -6664,7 +6743,7 @@ dissect_search_dir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree 
 }
 
 void
-dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -6836,7 +6915,7 @@ dissect_create_temporary_file_smb(const u_char *pd, int offset, frame_data *fd, 
 }
 
 void
-dissect_close_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_close_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -6940,7 +7019,7 @@ dissect_close_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 }
 
 void
-dissect_write_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_write_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -7044,7 +7123,7 @@ dissect_write_print_file_smb(const u_char *pd, int offset, frame_data *fd, proto
 }
 
 void
-dissect_lock_and_read_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_lock_and_read_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -7255,7 +7334,7 @@ dissect_lock_and_read_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 }
 
 void
-dissect_process_exit_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_process_exit_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -7320,7 +7399,7 @@ dissect_process_exit_smb(const u_char *pd, int offset, frame_data *fd, proto_tre
 }
 
 void
-dissect_get_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_get_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *Attributes_tree;
@@ -7547,7 +7626,7 @@ dissect_get_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 }
 
 void
-dissect_read_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_read_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -7758,7 +7837,7 @@ dissect_read_file_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_write_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_write_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *WriteMode_tree;
@@ -7966,7 +8045,7 @@ dissect_write_mpx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 }
 
 void
-dissect_find_close2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_find_close2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   guint8        WordCount;
@@ -8075,7 +8154,7 @@ char *decode_trans2_name(int code)
 
 }
 void
-dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int errcode, int dirn)
+dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int SMB_offset, int errcode, int dirn)
 
 {
   proto_tree    *Flags_tree;
@@ -8382,7 +8461,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
       if (tree) {
 
-	proto_tree_add_text(tree, offset, ParameterCount, "Parameters: %S", format_text(&pd[offset], ParameterCount));
+	proto_tree_add_text(tree, SMB_offset + ParameterOffset, ParameterCount, "Parameters: %S: %d", format_text(&pd[SMB_offset + ParameterOffset], ParameterCount), SMB_offset + ParameterOffset);
 
       }
 
@@ -8414,7 +8493,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
       if (tree) {
 
-	proto_tree_add_text(tree, offset, DataCount, "Data: %s", format_text(&pd[offset], DataCount));
+	proto_tree_add_text(tree, SMB_offset + DataOffset, DataCount, "Data: %s", format_text(&pd[offset], DataCount));
 
       }
 
@@ -8646,7 +8725,7 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
 }
 
-void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, int, int, int) = {
+void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, int, int, int, int) = {
 
   dissect_unknown_smb,      /* unknown SMB 0x00 */
   dissect_unknown_smb,      /* unknown SMB 0x01 */
@@ -9065,6 +9144,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	proto_item      *ti, *tf;
 	guint8          cmd, errcls, errcode1, flags;
 	guint16         flags2, errcode, tid, pid, uid, mid;
+	int             SMB_offset = offset;
 
 	cmd = pd[offset + SMB_hdr_com_offset];
 
@@ -9282,7 +9362,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	/* Now vector through the table to dissect them */
 
-	(dissect[cmd])(pd, offset, fd, smb_tree, max_data, errcode,
+	(dissect[cmd])(pd, offset, fd, smb_tree, max_data, SMB_offset, errcode,
 		       ((flags & 0x80) == 0));
 
 
