@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.179 2002/06/07 10:54:03 guy Exp $
+ * $Id: capture.c,v 1.180 2002/06/07 11:12:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -228,7 +228,6 @@ static void adjust_header(loop_data *, struct pcap_hdr *, struct pcaprec_hdr *);
 static int pipe_open_live(char *, struct pcap_hdr *, loop_data *);
 static int pipe_dispatch(int, loop_data *, struct pcap_hdr *);
 #endif
-static void capture_frame(const u_char *, guint32 len, loop_data *);
 
 /* Win32 needs the O_BINARY flag for open() */
 #ifndef O_BINARY
@@ -1141,11 +1140,10 @@ pipe_open_live(char *pipename, struct pcap_hdr *hdr, loop_data *ld)
 static int
 pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
 {
-  struct wtap_pkthdr whdr;
   struct pcaprec_modified_hdr rechdr;
+  struct pcap_pkthdr phdr;
   int bytes_to_read, bytes_read, b;
   u_char pd[WTAP_MAX_PACKET_SIZE];
-  int err;
 
   /* read the record header */
   bytes_to_read = ld->modified ? sizeof rechdr : sizeof rechdr.hdr;
@@ -1189,17 +1187,14 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr)
     }
     bytes_read += b;
   }
-  /* dump the packet data to the capture file */
-  whdr.ts.tv_sec = rechdr.hdr.ts_sec;
-  whdr.ts.tv_usec = rechdr.hdr.ts_usec;
-  whdr.caplen = rechdr.hdr.incl_len;
-  whdr.len = rechdr.hdr.orig_len;
-  whdr.pkt_encap = ld->linktype;
-  wtap_dump(ld->pdh, &whdr, NULL, pd, &err);
 
-  /* update capture statistics */
-  ++ld->counts.total;
-  capture_frame(pd, whdr.caplen, ld);
+  /* Fill in a "struct pcap_pkthdr", and process the packet. */
+  phdr.ts.tv_sec = rechdr.hdr.ts_sec;
+  phdr.ts.tv_usec = rechdr.hdr.ts_usec;
+  phdr.caplen = rechdr.hdr.incl_len;
+  phdr.len = rechdr.hdr.orig_len;
+
+  capture_pcap_cb((u_char *)ld, &phdr, pd);
 
   return 1;
 }
@@ -1958,7 +1953,8 @@ kill_capture_child(void)
 
 static void
 capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
-  const u_char *pd) {
+  const u_char *pd)
+{
   struct wtap_pkthdr whdr;
   loop_data *ld = (loop_data *) user;
   int err;
@@ -1967,18 +1963,20 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   {
      ld->go = FALSE;
   }
-  if (ld->pdh) {
-    /* "phdr->ts" may not necessarily be a "struct timeval" - it may
-       be a "struct bpf_timeval", with member sizes wired to 32
-       bits - and we may go that way ourselves in the future, so
-       copy the members individually. */
-    whdr.ts.tv_sec = phdr->ts.tv_sec;
-    whdr.ts.tv_usec = phdr->ts.tv_usec;
-    whdr.caplen = phdr->caplen;
-    whdr.len = phdr->len;
-    whdr.pkt_encap = ld->linktype;
 
-    /* If this fails, set "ld->go" to FALSE, to stop the capture, and set
+  /* "phdr->ts" may not necessarily be a "struct timeval" - it may
+     be a "struct bpf_timeval", with member sizes wired to 32
+     bits - and we may go that way ourselves in the future, so
+     copy the members individually. */
+  whdr.ts.tv_sec = phdr->ts.tv_sec;
+  whdr.ts.tv_usec = phdr->ts.tv_usec;
+  whdr.caplen = phdr->caplen;
+  whdr.len = phdr->len;
+  whdr.pkt_encap = ld->linktype;
+
+  if (ld->pdh) {
+    /* We're supposed to write the packet to a file; do so.
+       If this fails, set "ld->go" to FALSE, to stop the capture, and set
        "ld->err" to the error. */
     if (!wtap_dump(ld->pdh, &whdr, NULL, pd, &err)) {
       ld->go = FALSE;
@@ -1986,54 +1984,48 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
     }
   }
 
-  capture_frame(pd, phdr->caplen, ld);
-}
-
-static void
-capture_frame(const u_char *pd, guint32 caplen, loop_data *ld)
-{
   switch (ld->linktype) {
     case WTAP_ENCAP_ETHERNET:
-      capture_eth(pd, 0, caplen, &ld->counts);
+      capture_eth(pd, 0, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_FDDI:
     case WTAP_ENCAP_FDDI_BITSWAPPED:
-      capture_fddi(pd, caplen, &ld->counts);
+      capture_fddi(pd, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_PRISM_HEADER:
-      capture_prism(pd, 0, caplen, &ld->counts);
+      capture_prism(pd, 0, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_TOKEN_RING:
-      capture_tr(pd, 0, caplen, &ld->counts);
+      capture_tr(pd, 0, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_NULL:
-      capture_null(pd, caplen, &ld->counts);
+      capture_null(pd, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_PPP:
-      capture_ppp_hdlc(pd, 0, caplen, &ld->counts);
+      capture_ppp_hdlc(pd, 0, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_RAW_IP:
-      capture_raw(pd, caplen, &ld->counts);
+      capture_raw(pd, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_SLL:
-      capture_sll(pd, caplen, &ld->counts);
+      capture_sll(pd, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_LINUX_ATM_CLIP:
-      capture_clip(pd, caplen, &ld->counts);
+      capture_clip(pd, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_IEEE_802_11:
     case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
-      capture_ieee80211(pd, 0, caplen, &ld->counts);
+      capture_ieee80211(pd, 0, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_CHDLC:
-      capture_chdlc(pd, 0, caplen, &ld->counts);
+      capture_chdlc(pd, 0, whdr.caplen, &ld->counts);
       break;
     case WTAP_ENCAP_LOCALTALK:
       capture_llap(&ld->counts);
       break;
-    /* XXX - FreeBSD may append 4-byte ATM pseudo-header to DLT_ATM_RFC1483,
-       with LLC header following; we should implement it at some
-       point. */
+    /* XXX - some ATM drivers on FreeBSD might prepend a 4-byte ATM
+       pseudo-header to DLT_ATM_RFC1483, with LLC header following;
+       we might have to implement that at some point. */
   }
 }
 
