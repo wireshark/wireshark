@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.181 2003/03/01 08:57:36 sharpe Exp $
+ * $Id: packet-tcp.c,v 1.182 2003/03/03 02:59:23 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1536,10 +1536,8 @@ dissect_tcpopt_maxseg(const ip_tcp_opt *optp, tvbuff_t *tvb,
   mss = tvb_get_ntohs(tvb, offset + 2);
   proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_mss, tvb, offset,
 				optlen, TRUE);
-  proto_tree_add_uint_hidden(opt_tree, hf_tcp_option_mss_val, tvb, offset,
-			     optlen, mss);
-  proto_tree_add_text(opt_tree, tvb, offset,      optlen,
-			"%s: %u bytes", optp->name, mss);
+  proto_tree_add_uint_format(opt_tree, hf_tcp_option_mss_val, tvb, offset,
+			     optlen, mss, "%s: %u bytes", optp->name, mss);
   tcp_info_append_uint(pinfo, "MSS", mss);
 }
 
@@ -1552,10 +1550,9 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp, tvbuff_t *tvb,
   ws = tvb_get_guint8(tvb, offset + 2);
   proto_tree_add_boolean_hidden(opt_tree, hf_tcp_option_wscale, tvb, 
 				offset, optlen, TRUE);
-  proto_tree_add_uint_hidden(opt_tree, hf_tcp_option_wscale_val, tvb,
-			     offset, optlen, ws);
-  proto_tree_add_text(opt_tree, tvb, offset,      optlen,
-			"%s: %u (multiply by %u)", optp->name, ws, 1 << ws);
+  proto_tree_add_uint_format(opt_tree, hf_tcp_option_wscale_val, tvb,
+			     offset, optlen, ws, "%s: %u (multiply by %u)", 
+			     optp->name, ws, 1 << ws);
   tcp_info_append_uint(pinfo, "WS", ws);
 }
 
