@@ -1,7 +1,7 @@
 /* colors.h
  * Definitions for color structures and routines
  *
- * $Id: colors.h,v 1.7 1999/11/30 05:32:58 guy Exp $
+ * $Id: colors.h,v 1.8 1999/12/19 07:01:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,6 +49,8 @@ extern GdkColor BLACK;
  */
 
 typedef struct _color_filter {
+	gchar *filter_name;
+	gchar *filter_text;
 	GdkColor bg_color;
 	GdkColor fg_color;
 	dfilter *c_colorfilter;

@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.18 1999/12/09 07:19:02 guy Exp $
+ * $Id: colors.c,v 1.19 1999/12/19 07:01:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,6 +54,8 @@ static GtkWidget* create_colorize_win(colfilter *filter,
 				 GtkWidget **colorize_filter_text);
 static GtkWidget* create_color_sel_win(colfilter *filter, GdkColor *);
 static gboolean get_color(GdkColor *new_color);
+
+static GSList *filter_list;
 
 static GdkColormap*	sys_cmap;
 static GdkColormap*	our_cmap = NULL;
@@ -183,7 +185,6 @@ new_color_filter(colfilter *filters, gchar *name, gchar *filter_string)
 {
 	color_filter_t *colorf;
         gchar *data[2];
-	
 	gint row;
 
 	data[0] = g_strdup(name);
@@ -191,10 +192,26 @@ new_color_filter(colfilter *filters, gchar *name, gchar *filter_string)
         row = gtk_clist_append(GTK_CLIST(filters->color_filters), data);
 
 	colorf = (color_filter_t *)g_malloc(sizeof (color_filter_t));
+	colorf->filter_name = data[0];
+	colorf->filter_text = data[1];
 	colorf->bg_color = WHITE;
 	colorf->fg_color = BLACK;
 	colorf->c_colorfilter = NULL;
+	filter_list = g_slist_append(filter_list, colorf);
  	gtk_clist_set_row_data(GTK_CLIST(filters->color_filters), row, colorf);
+}
+
+static void
+delete_color_filter(color_filter_t *colorf)
+{
+	if (colorf->filter_name != NULL)
+	  g_free(colorf->filter_name);
+	if (colorf->filter_text != NULL)
+	  g_free(colorf->filter_text);
+	if (colorf->c_colorfilter != NULL)
+	  dfilter_destroy(colorf->c_colorfilter);
+	filter_list = g_slist_remove(filter_list, colorf);
+	g_free(colorf);
 }
 
 static gboolean
@@ -357,11 +374,15 @@ color_delete_cb(GtkWidget *widget, gpointer user_data)
 {
   colfilter *filter;
   GtkWidget *color_change_colors;
+  color_filter_t *colorf;
 
   filter = (colfilter *)user_data;
   if(filter->row_selected != -1){
+  	colorf = gtk_clist_get_row_data(GTK_CLIST(filter->color_filters),
+	   filter->row_selected);
 	gtk_clist_remove(GTK_CLIST(filter->color_filters),
 	   filter->row_selected);
+	delete_color_filter(colorf);
 	filter->num_of_filters--;
         if(!filter->num_of_filters){
         	/* No filters any more, so none can be selected... */
@@ -576,6 +597,7 @@ colorize_ok_cb                         (GtkButton       *button,
   GdkColor new_bg_color;
   gchar *filter_name;
   gchar *filter_text;
+  color_filter_t *cfilter;
   dfilter *compiled_filter;
 
   dialog = (GtkWidget *)user_data;
@@ -594,16 +616,20 @@ colorize_ok_cb                         (GtkButton       *button,
   	g_free(filter_text);
 	return;
   }
-	
 
-  color_filter(cf.colors, cf.colors->row_selected)->fg_color = new_fg_color;
-  color_filter(cf.colors, cf.colors->row_selected)->bg_color = new_bg_color;
+  cfilter = color_filter(cf.colors, cf.colors->row_selected);
+  if (cfilter->filter_name != NULL)
+    g_free(cfilter->filter_name);
+  cfilter->filter_name = filter_name;
+  if (cfilter->filter_text != NULL)
+    g_free(cfilter->filter_text);
+  cfilter->filter_text = filter_text;
+  cfilter->fg_color = new_fg_color;
+  cfilter->bg_color = new_bg_color;
   gtk_clist_set_foreground(GTK_CLIST(cf.colors->color_filters),
 	cf.colors->row_selected, &new_fg_color);
   gtk_clist_set_background(GTK_CLIST(cf.colors->color_filters),
 	cf.colors->row_selected, &new_bg_color);
-
-
 
   if(dfilter_compile(filter_text, &compiled_filter) != 0 ){
 	simple_dialog(ESD_TYPE_WARN, NULL, "Filter \"%s\" did not compile correctly.\n"
@@ -617,10 +643,6 @@ colorize_ok_cb                         (GtkButton       *button,
 	set_color_filter_name(cf.colors,cf.colors->row_selected,filter_name);
         gtk_widget_destroy(dialog);
   }
-  g_free(filter_name);
-  g_free(filter_text);
-
-
 }
 
 /* Revert to existing colors */
