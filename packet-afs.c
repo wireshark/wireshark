@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.43 2002/02/08 22:36:21 nneul Exp $
+ * $Id: packet-afs.c,v 1.44 2002/05/02 10:59:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -431,7 +431,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  */
 /* FIXME: sscanf is probably quite dangerous if we run outside the packet. */
 static int 
-dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset)
+dissect_acl(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset)
 {
 	int old_offset;
 	gint32 bytes;
@@ -900,7 +900,7 @@ dissect_bos_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int of
 }
 
 static void
-dissect_bos_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
+dissect_bos_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset, int opcode)
 {
 	offset += 4;  /* skip the opcode */
 
@@ -1050,7 +1050,7 @@ dissect_vol_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int of
 }
 
 static void
-dissect_vol_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
+dissect_vol_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset, int opcode)
 {
 	offset += 4;  /* skip the opcode */
 
@@ -1082,7 +1082,7 @@ dissect_kauth_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int 
 }
 
 static void
-dissect_kauth_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
+dissect_kauth_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset, int opcode)
 {
 	offset += 4;  /* skip the opcode */
 
@@ -1140,7 +1140,7 @@ dissect_cb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int off
 }
 
 static void
-dissect_cb_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
+dissect_cb_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset, int opcode)
 {
 	offset += 4;  /* skip the opcode */
 
@@ -1234,7 +1234,7 @@ dissect_prot_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 }
 
 static void
-dissect_prot_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
+dissect_prot_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset, int opcode)
 {
 	offset += 4;  /* skip the opcode */
 
@@ -1488,7 +1488,7 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 }
 
 static void
-dissect_vldb_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
+dissect_vldb_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset, int opcode)
 {
 	offset += 4;  /* skip the opcode */
 
@@ -1538,7 +1538,7 @@ dissect_vldb_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int
  * UBIK Helpers
  */
 static void
-dissect_ubik_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
+dissect_ubik_reply(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset, int opcode)
 {
 	switch ( opcode )
 	{
@@ -1584,7 +1584,7 @@ dissect_ubik_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 }
 
 static void
-dissect_ubik_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
+dissect_ubik_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree, int offset, int opcode)
 {
 	offset += 4;  /* skip the opcode */
 
@@ -1678,7 +1678,7 @@ dissect_backup_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int
 }
 
 static void
-dissect_backup_request(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode)
+dissect_backup_request(tvbuff_t *tvb _U_, struct rxinfo *rxinfo _U_, proto_tree *tree _U_, int offset, int opcode)
 {
 	offset += 4;  /* skip the opcode */
 
