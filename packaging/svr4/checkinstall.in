@@ -14,13 +14,7 @@ host_os="@host_os@"
 release=`uname -r`
 platform=`uname -p`
 
-# GNU autoconf translates "i86pc" to "i386".
-if [ "$host_cpu" = "i386" ] ; then
-  expected_platform="i86pc"
-else
-  expected_platform="@host_cpu@"
-fi
-#
+expected_platform="@host_cpu@"
 
 if [ -x /usr/local/bin/gtk-config ] ; then
   gtk_installed=`/usr/local/bin/gtk-config --version`
