@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.24 2001/01/02 01:32:21 guy Exp $
+ * $Id: proto_draw.c,v 1.25 2001/01/11 05:51:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -313,10 +313,10 @@ packet_hex_print(GtkText *bv, guint8 *pd, frame_data *fd, field_info *finfo)
   if ( bstart > 0 ) {
     int lineheight, linenum;
     float scrollval;
-    linenum = bstart / BYTE_VIEW_WIDTH;
 
-    /* need to change to some way of getting that offset instead of +4 */
-    lineheight = gdk_string_height(m_b_font, "0") + 4;
+    linenum = bstart / BYTE_VIEW_WIDTH;
+    /* This is the lineheight that the GtkText widget uses when drawing text. */
+    lineheight = m_b_font->ascent + m_b_font->descent;
     scrollval = MIN(linenum * lineheight,bv->vadj->upper - bv->vadj->page_size);
 
     gtk_adjustment_set_value(bv->vadj, scrollval);
