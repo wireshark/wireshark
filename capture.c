@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.114 2000/07/30 16:53:53 oabad Exp $
+ * $Id: capture.c,v 1.115 2000/07/30 16:59:07 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -143,6 +143,12 @@ typedef struct _loop_data {
   packet_counts  counts;
   wtap_dumper   *pdh;
 } loop_data;
+
+#ifndef _WIN32
+static void adjust_header(loop_data *, struct pcap_hdr *, struct pcaprec_hdr *);
+static int pipe_open_live(char *, struct pcap_hdr *, loop_data *, char *);
+static int pipe_dispatch(int, loop_data *, struct pcap_hdr *);
+#endif
 
 /* Win32 needs the O_BINARY flag for open() */
 #ifndef O_BINARY
