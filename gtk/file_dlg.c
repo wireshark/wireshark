@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.32 2000/10/19 22:59:24 guy Exp $
+ * $Id: file_dlg.c,v 1.33 2001/01/02 01:32:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -112,7 +112,7 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
 
   filter_bt = gtk_button_new_with_label("Filter:");
   gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-    GTK_SIGNAL_FUNC(filter_browse_cb), NULL);
+    GTK_SIGNAL_FUNC(display_filter_construct_cb), NULL);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
   

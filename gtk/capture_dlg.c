@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.35 2000/10/19 22:59:24 guy Exp $
+ * $Id: capture_dlg.c,v 1.36 2001/01/02 01:32:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -198,7 +198,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   
   filter_bt = gtk_button_new_with_label("Filter:");
   gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-    GTK_SIGNAL_FUNC(filter_browse_cb), NULL);
+    GTK_SIGNAL_FUNC(capture_filter_construct_cb), NULL);
   gtk_table_attach_defaults(GTK_TABLE(table), filter_bt, 0, 1, 2, 3);
   gtk_widget_show(filter_bt);
   

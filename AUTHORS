@@ -158,6 +158,7 @@ Jeff Foster <jfoste@woodward.com> {
 	Microsoft Proxy protocol support
 	Support for conversations with "wildcard" destination addresses
 	   and/or ports
+	Initial support for constructing filter expressions
 }
 
 Peter Torvals <petertv@xoommail.com> {

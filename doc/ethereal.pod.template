@@ -583,17 +583,24 @@ Makes a copy of the currently selected list item.
 
 Deletes the currently selected list item.
 
-=item Apply
+=item Add Expression...
 
-Sets the currently selected list item as the active filter, and applies
-it to the current capture, if any.
-(The currently selected list item must be a display filter, not a
-capture filter.)  If nothing is selected, turns filtering off.
+Pops up a dialog box to allow you to construct a filter expression to
+test a particular field; it offers lists of field names, and, when
+appropriate, lists from which to select tests to perform on the field
+and values with which to compare it.
 
 =item OK
 
-Sets the currently selected list item as the active filter.  If nothing
-is selected, turns filtering off.
+Sets the filter in the I<Filter string> entry as the active filter.  If
+nothing is selected, turns filtering off.
+
+=item Apply
+
+Sets the filter in the I<Filter string> entry as the active filter, and
+applies it to the current capture, if any.  (The currently selected list
+item must be a display filter, not a capture filter.) If nothing is
+selected, turns filtering off.
 
 =item Save
 

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.169 2000/12/22 12:05:38 gram Exp $
+ * $Id: main.c,v 1.170 2001/01/02 01:32:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1589,10 +1589,10 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   gtk_widget_show(stat_hbox);
 
   filter_bt = gtk_button_new_with_label("Filter:");
-  /* A non-null pointer passed to "filter_browse_cb()" causes it to
+  /* A non-null pointer passed to "display_filter_construct_cb()" causes it to
      give the dialog box it pops up an "Apply" button. */
   gtk_signal_connect(GTK_OBJECT(filter_bt), "clicked",
-    GTK_SIGNAL_FUNC(filter_browse_cb), "");
+    GTK_SIGNAL_FUNC(display_filter_construct_cb), "");
   gtk_box_pack_start(GTK_BOX(stat_hbox), filter_bt, FALSE, TRUE, 0);
   gtk_widget_show(filter_bt);
   

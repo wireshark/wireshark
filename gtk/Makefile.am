@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.31 2000/11/21 23:54:09 guy Exp $
+# $Id: Makefile.am,v 1.32 2001/01/02 01:32:21 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,8 @@ libui_a_SOURCES = \
 	color_utils.h	\
 	column_prefs.c	\
 	column_prefs.h	\
+	dfilter_expr_dlg.c \
+	dfilter_expr_dlg.h \
 	display_opts.c	\
 	display_opts.h	\
 	dlg_utils.c	\

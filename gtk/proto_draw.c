@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.23 2000/11/22 04:07:00 gram Exp $
+ * $Id: proto_draw.c,v 1.24 2001/01/02 01:32:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,8 +53,6 @@
 
 #define BYTE_VIEW_WIDTH    16
 #define BYTE_VIEW_SEP      8
-
-extern GdkFont      *m_r_font, *m_b_font;
 
 static void
 proto_tree_draw_node(GNode *node, gpointer data);
