@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.33 2000/05/31 17:10:10 gram Exp $
+ * $Id: proto.h,v 1.34 2000/05/31 18:32:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -334,7 +334,7 @@ proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 #else
 proto_item *
 proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint8* value, const char *format, ...);
+	gint length, const guint8* value, const char *format, ...);
 #endif
 
 /* Add a FT_STRING to a proto_tree */

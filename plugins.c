@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.16 2000/05/08 20:13:55 gram Exp $
+ * $Id: plugins.c,v 1.17 2000/05/31 18:32:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -477,15 +477,39 @@ init_plugins()
 	patable.p_proto_tree_add_item		= proto_tree_add_item;
 	patable.p_proto_tree_add_item_hidden	= proto_tree_add_item_hidden;
 	patable.p_proto_tree_add_protocol_format = proto_tree_add_protocol_format;
+	patable.p_proto_tree_add_bytes		= proto_tree_add_bytes;
+	patable.p_proto_tree_add_bytes_hidden	= proto_tree_add_bytes_hidden;
 	patable.p_proto_tree_add_bytes_format	= proto_tree_add_bytes_format;
+	patable.p_proto_tree_add_time		= proto_tree_add_time;
+	patable.p_proto_tree_add_time_hidden	= proto_tree_add_time_hidden;
 	patable.p_proto_tree_add_time_format	= proto_tree_add_time_format;
+	patable.p_proto_tree_add_ipxnet		= proto_tree_add_ipxnet;
+	patable.p_proto_tree_add_ipxnet_hidden	= proto_tree_add_ipxnet_hidden;
 	patable.p_proto_tree_add_ipxnet_format	= proto_tree_add_ipxnet_format;
+	patable.p_proto_tree_add_ipv4		= proto_tree_add_ipv4;
+	patable.p_proto_tree_add_ipv4_hidden	= proto_tree_add_ipv4_hidden;
 	patable.p_proto_tree_add_ipv4_format	= proto_tree_add_ipv4_format;
+	patable.p_proto_tree_add_ipv6		= proto_tree_add_ipv6;
+	patable.p_proto_tree_add_ipv6_hidden	= proto_tree_add_ipv6_hidden;
 	patable.p_proto_tree_add_ipv6_format	= proto_tree_add_ipv6_format;
+	patable.p_proto_tree_add_ether		= proto_tree_add_ether;
+	patable.p_proto_tree_add_ether_hidden	= proto_tree_add_ether_hidden;
 	patable.p_proto_tree_add_ether_format	= proto_tree_add_ether_format;
+	patable.p_proto_tree_add_string		= proto_tree_add_string;
+	patable.p_proto_tree_add_string_hidden	= proto_tree_add_string_hidden;
 	patable.p_proto_tree_add_string_format	= proto_tree_add_string_format;
+	patable.p_proto_tree_add_boolean	= proto_tree_add_boolean;
+	patable.p_proto_tree_add_boolean_hidden	= proto_tree_add_boolean_hidden;
 	patable.p_proto_tree_add_boolean_format	= proto_tree_add_boolean_format;
+	patable.p_proto_tree_add_double		= proto_tree_add_double;
+	patable.p_proto_tree_add_double_hidden	= proto_tree_add_double_hidden;
+	patable.p_proto_tree_add_double_format	= proto_tree_add_double_format;
+	patable.p_proto_tree_add_uint		= proto_tree_add_uint;
+	patable.p_proto_tree_add_uint_hidden	= proto_tree_add_uint_hidden;
 	patable.p_proto_tree_add_uint_format	= proto_tree_add_uint_format;
+	patable.p_proto_tree_add_int		= proto_tree_add_int;
+	patable.p_proto_tree_add_int_hidden	= proto_tree_add_int_hidden;
+	patable.p_proto_tree_add_int_format	= proto_tree_add_int_format;
 	patable.p_proto_tree_add_text		= proto_tree_add_text;
 	patable.p_proto_tree_add_notext		= proto_tree_add_notext;
 #endif

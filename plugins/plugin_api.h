@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.5 2000/05/05 09:32:35 guy Exp $
+ * $Id: plugin_api.h,v 1.6 2000/05/31 18:32:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -24,7 +24,10 @@
  */
 
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
+
+#ifdef _WIN32
 #define DLLEXPORT    __declspec(dllexport)
+#endif
 
 /* Some OSes (Win32) have DLLs that cannot reference symbols in the parent
    executable, so the executable needs to provide a collection of pointers
@@ -56,15 +59,39 @@
 #define	proto_tree_add_item		(*p_proto_tree_add_item)
 #define	proto_tree_add_item_hidden	(*p_proto_tree_add_item_hidden)
 #define	proto_tree_add_protocol_format	(*p_proto_tree_add_protocol_format)
+#define	proto_tree_add_bytes		(*p_proto_tree_add_bytes)
+#define	proto_tree_add_bytes_hidden	(*p_proto_tree_add_bytes_hidden)
 #define	proto_tree_add_bytes_format	(*p_proto_tree_add_bytes_format)
+#define	proto_tree_add_time		(*p_proto_tree_add_time)
+#define	proto_tree_add_time_hidden	(*p_proto_tree_add_time_hidden)
 #define	proto_tree_add_time_format	(*p_proto_tree_add_time_format)
+#define	proto_tree_add_ipxnet		(*p_proto_tree_add_ipxnet)
+#define	proto_tree_add_ipxnet_hidden	(*p_proto_tree_add_ipxnet_hidden)
 #define	proto_tree_add_ipxnet_format	(*p_proto_tree_add_ipxnet_format)
+#define	proto_tree_add_ipv4		(*p_proto_tree_add_ipv4)
+#define	proto_tree_add_ipv4_hidden	(*p_proto_tree_add_ipv4_hidden)
 #define	proto_tree_add_ipv4_format	(*p_proto_tree_add_ipv4_format)
+#define	proto_tree_add_ipv6		(*p_proto_tree_add_ipv6)
+#define	proto_tree_add_ipv6_hidden	(*p_proto_tree_add_ipv6_hidden)
 #define	proto_tree_add_ipv6_format	(*p_proto_tree_add_ipv6_format)
+#define	proto_tree_add_ether		(*p_proto_tree_add_ether)
+#define	proto_tree_add_ether_hidden	(*p_proto_tree_add_ether_hidden)
 #define	proto_tree_add_ether_format	(*p_proto_tree_add_ether_format)
+#define	proto_tree_add_string		(*p_proto_tree_add_string)
+#define	proto_tree_add_string_hidden	(*p_proto_tree_add_string_hidden)
 #define	proto_tree_add_string_format	(*p_proto_tree_add_string_format)
+#define	proto_tree_add_boolean		(*p_proto_tree_add_boolean)
+#define	proto_tree_add_boolean_hidden	(*p_proto_tree_add_boolean_hidden)
 #define	proto_tree_add_boolean_format	(*p_proto_tree_add_boolean_format)
+#define	proto_tree_add_double		(*p_proto_tree_add_double)
+#define	proto_tree_add_double_hidden	(*p_proto_tree_add_double_hidden)
+#define	proto_tree_add_double_format	(*p_proto_tree_add_double_format)
+#define	proto_tree_add_uint		(*p_proto_tree_add_uint)
+#define	proto_tree_add_uint_hidden	(*p_proto_tree_add_uint_hidden)
 #define	proto_tree_add_uint_format	(*p_proto_tree_add_uint_format)
+#define	proto_tree_add_int		(*p_proto_tree_add_int)
+#define	proto_tree_add_int_hidden	(*p_proto_tree_add_int_hidden)
+#define	proto_tree_add_int_format	(*p_proto_tree_add_int_format)
 #define	proto_tree_add_text		(*p_proto_tree_add_text)
 #define	proto_tree_add_notext		(*p_proto_tree_add_notext)
 
