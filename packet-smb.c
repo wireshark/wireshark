@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.229 2002/03/18 09:45:27 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.230 2002/03/19 10:16:40 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -544,6 +544,7 @@ static int hf_smb_quota_flags_log_limit = -1;
 static int hf_smb_quota_flags_log_warning = -1;
 static int hf_smb_soft_quota_limit = -1;
 static int hf_smb_hard_quota_limit = -1;
+static int hf_smb_user_quota_used = -1;
 static int hf_smb_user_quota_offset = -1;
 
 static gint ett_smb = -1;
@@ -6973,10 +6974,15 @@ dissect_nt_user_quota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 		COUNT_BYTES_TRANS_SUBR(4);
 
 		/* 16 unknown bytes */
-		CHECK_BYTE_COUNT_TRANS_SUBR(16);
+		CHECK_BYTE_COUNT_TRANS_SUBR(8);
 		proto_tree_add_item(tree, hf_smb_unknown, tvb,
-			    offset, 16, TRUE);
-		COUNT_BYTES_TRANS_SUBR(16);
+			    offset, 8, TRUE);
+		COUNT_BYTES_TRANS_SUBR(8);
+
+		/* number of bytes for used quota */
+		CHECK_BYTE_COUNT_TRANS_SUBR(8);
+		proto_tree_add_item(tree, hf_smb_user_quota_used, tvb, offset, 8, TRUE);
+		COUNT_BYTES_TRANS_SUBR(8);
 
 		/* number of bytes for quota warning */
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
@@ -7710,7 +7716,9 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 		offset += 4;
 		break;
 	case NT_TRANS_GET_USER_QUOTA:
-		/* not decoded yet */
+		proto_tree_add_text(tree, tvb, offset, 4, "Size of returned Quota data: %d",
+			tvb_get_letohl(tvb, offset));
+		offset += 4;
 		break;
 	case NT_TRANS_SET_USER_QUOTA:
 		/* not decoded yet */
@@ -16161,12 +16169,16 @@ proto_register_smb(void)
 		NULL, 0, "Number of free allocation units", HFILL }},
 
 	{ &hf_smb_soft_quota_limit,
-		{ "Default (Soft) Quota Warning", "smb.quota.soft.default", FT_UINT64, BASE_DEC,
-		NULL, 0, "Default Soft Quota limit", HFILL }},
+		{ "(Soft) Quota Treshold", "smb.quota.soft.default", FT_UINT64, BASE_DEC,
+		NULL, 0, "Soft Quota treshold", HFILL }},
 
 	{ &hf_smb_hard_quota_limit,
-		{ "Default (Hard) Quota Limit", "smb.quota.hard.default", FT_UINT64, BASE_DEC,
-		NULL, 0, "Default Hard Quota limit", HFILL }},
+		{ "(Hard) Quota Limit", "smb.quota.hard.default", FT_UINT64, BASE_DEC,
+		NULL, 0, "Hard Quota limit", HFILL }},
+
+	{ &hf_smb_user_quota_used,
+		{ "Quota Used", "smb.quota.used", FT_UINT64, BASE_DEC,
+		NULL, 0, "How much Quota is used by this user", HFILL }},
 
 	{ &hf_smb_max_name_len,
 		{ "Max name length", "smb.fs_max_name_len", FT_UINT32, BASE_DEC,
