@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.34 2000/05/31 05:06:54 guy Exp $
+ * $Id: packet-bootp.c,v 1.35 2000/07/08 07:52:11 guy Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -664,14 +664,13 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 						   "Boot file name not given");
 		}
 
+		memcpy(&ip_addr, &pd[offset + 236], sizeof(ip_addr));
 		if (pntohl(&pd[offset+236]) == 0x63825363) {
 			proto_tree_add_ipv4_format(bp_tree, hf_bootp_cookie, NullTVB,
-						   offset + 236, 4,
-						   pd[offset+236],
-						   "Magic cookie: (OK)");
+					    offset + 236, 4, ip_addr,
+					    "Magic cookie: (OK)");
 		}
 		else {
-			memcpy(&ip_addr, &pd[offset + 236], sizeof(ip_addr));
 			proto_tree_add_ipv4(bp_tree, hf_bootp_cookie, NullTVB,
 					    offset + 236, 4, ip_addr);
 		}
