@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.272 2004/06/23 08:39:06 guy Exp $
+# $Id: configure.in,v 1.273 2004/06/25 07:10:53 jmayer Exp $
 #
 AC_INIT(etypes.h)
 
@@ -1137,11 +1137,14 @@ AM_CONFIG_HEADER(config.h)
 AC_CONFIG_SUBDIRS(wiretap)
 AC_OUTPUT(
   Makefile
+  doxygen.cfg
   doc/Makefile
   epan/Makefile
+  epan/doxygen.cfg
   epan/dfilter/Makefile
   epan/ftypes/Makefile
   gtk/Makefile
+  gtk/doxygen.cfg
   help/Makefile
   packaging/Makefile
   packaging/nsis/Makefile

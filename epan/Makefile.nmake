@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.43 2004/05/13 10:10:28 ulfl Exp $
+# $Id: Makefile.nmake,v 1.44 2004/06/25 07:10:54 jmayer Exp $
 
 include ..\config.nmake
 include <win32.mak>
@@ -84,7 +84,7 @@ ethereal.lib	: ..\config.h $(OBJECTS)
 	cd epan
 
 clean:
-	rm -f $(OBJECTS) ethereal.lib libethereal.dll libethereal.lib libethereal.exp $(PDB_FILE) doxygen.tmp
+	rm -f $(OBJECTS) ethereal.lib libethereal.dll libethereal.lib libethereal.exp $(PDB_FILE) doxygen.cfg
 	cd ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../dfilter
@@ -109,16 +109,16 @@ dfilter:: ..\config.h
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-doxygen.tmp: ..\config.nmake doxygen.cfg
+doxygen.cfg: ..\config.nmake doxygen.cfg.in
 	sed -e s/@VERSION@/$(VERSION)/ \
-	    < doxygen.cfg > $@
+	    < doxygen.cfg.in > $@
 
 doxygen-run:
 !IFDEF DOXYGEN
-	$(DOXYGEN) doxygen.tmp
+	$(DOXYGEN) doxygen.cfg
 !ENDIF
 
-doxygen: doxygen.tmp doxygen-run
+doxygen: doxygen.cfg doxygen-run
 
 #
 # Build "register.c", which contains a function "register_all_protocols()"

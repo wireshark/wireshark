@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.76 2004/06/04 17:16:57 ulfl Exp $
+# $Id: Makefile.nmake,v 1.77 2004/06/25 07:10:54 jmayer Exp $
 
 include ..\config.nmake
 
@@ -42,21 +42,21 @@ ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) ../make-tapreg-dotc Makefile.common
 
 
 clean:
-	rm -f $(ETHEREAL_WIN32_GTK_OBJECTS) $(ETHEREAL_TAP_OBJECTS) libui.lib $(PDB_FILE) doxygen.tmp
+	rm -f $(ETHEREAL_WIN32_GTK_OBJECTS) $(ETHEREAL_TAP_OBJECTS) libui.lib $(PDB_FILE) doxygen.cfg
 
 distclean: clean
 	rm -f ethereal-tap-register.c
 
-# convert doxygen.cfg to doxygen.tmp with stamped version info
-doxygen.tmp: ..\config.nmake doxygen.cfg
+# convert doxygen.cfg.in to doxygen.cfg with stamped version info
+doxygen.cfg: ..\config.nmake doxygen.cfg.in
 !IFDEF DOXYGEN
 	sed -e s/@VERSION@/$(VERSION)/ \
-	    < doxygen.cfg > $@
+	    < doxygen.cfg.in > $@
 !ENDIF
 
 doxygen-run:
 !IFDEF DOXYGEN
-	$(DOXYGEN) doxygen.tmp
+	$(DOXYGEN) doxygen.cfg
 !ENDIF
 
 # MS html help conpiler hhc returns 1 on success, but as nmake expects 0 it would stop here.
@@ -66,5 +66,5 @@ doxygen.chm:
 	-1 $(HHC) html\index.hhp
 !ENDIF
 
-doxygen: doxygen.tmp doxygen-run doxygen.chm
+doxygen: doxygen.cfg doxygen-run doxygen.chm
 

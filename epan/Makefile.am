@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.52 2004/06/17 08:53:42 jmayer Exp $
+# $Id: Makefile.am,v 1.53 2004/06/25 07:10:53 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -108,7 +108,7 @@ EXTRA_DIST = \
 	Makefile.common	\
 	Makefile.nmake	\
 	tvbtest.c	\
-	doxygen.cfg
+	doxygen.cfg.in
 
 CLEANFILES = \
 	libethereal.a		\
@@ -125,7 +125,7 @@ MAINTAINERCLEANFILES =	\
 # Add the object files for missing routines, if any.
 #
 libethereal_la_LIBADD = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la
-libethereal_la_DEPENDENCIES = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la doxygen
+libethereal_la_DEPENDENCIES = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@ dfilter/libdfilter.la ftypes/libftypes.la
 
 ../packet-ncp2222.c : $(srcdir)/../ncp2222.py
 	$(PYTHON) $(srcdir)/../ncp2222.py -o $@
@@ -251,14 +251,8 @@ plugin_src =
 
 endif		# HAVE_PLUGINS
 
-# Doxygen
-doxygen.tmp: doxygen.cfg
-	sed -e s/@VERSION@/$(VERSION)/ \
-	    < doxygen.cfg > $@
-
-doxygen-run:
+doxygen:
 if HAVE_DOXYGEN
-	$(DOXYGEN) doxygen.tmp
+	$(DOXYGEN) doxygen.cfg
 endif		# HAVE_DOXYGEN
 
-doxygen: doxygen.tmp doxygen-run
