@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.143 2000/08/21 08:09:12 guy Exp $
+ * $Id: main.c,v 1.144 2000/08/21 12:33:22 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1417,8 +1417,9 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
         GTK_JUSTIFY_RIGHT);
   }
   gtk_widget_set_usize(packet_list, -1, pl_size);
-  gtk_signal_connect_object(GTK_OBJECT(packet_list), "button_press_event",
-    GTK_SIGNAL_FUNC(popup_menu_handler), gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
+  gtk_signal_connect(GTK_OBJECT(packet_list), "button_press_event",
+		     GTK_SIGNAL_FUNC(popup_menu_handler), 
+		     gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_PACKET_LIST_KEY));
   gtk_clist_set_compare_func(GTK_CLIST(packet_list), packet_list_compare);
   gtk_widget_show(packet_list);
 
@@ -1432,17 +1433,17 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     GTK_SIGNAL_FUNC(tree_view_select_row_cb), NULL);
   gtk_signal_connect(GTK_OBJECT(tree_view), "tree-unselect-row",
     GTK_SIGNAL_FUNC(tree_view_unselect_row_cb), NULL);
-  gtk_signal_connect_object(GTK_OBJECT(tree_view), "button_press_event",
-    GTK_SIGNAL_FUNC(popup_menu_handler), gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY));
+  gtk_signal_connect(GTK_OBJECT(tree_view), "button_press_event",
+		     GTK_SIGNAL_FUNC(popup_menu_handler),
+		     gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY));
   gtk_widget_show(tree_view);
 
   /* Byte view. */
   create_byte_view(bv_size, l_pane, &byte_view, &bv_scrollw,
 			prefs->gui_scrollbar_on_right);
-  gtk_signal_connect_object(GTK_OBJECT(byte_view), "button_press_event",
-			    GTK_SIGNAL_FUNC(popup_menu_handler), 
-			    gtk_object_get_data(GTK_OBJECT(popup_menu_object),
-						PM_HEXDUMP_KEY));
+  gtk_signal_connect(GTK_OBJECT(byte_view), "button_press_event",
+		     GTK_SIGNAL_FUNC(popup_menu_handler),
+		     gtk_object_get_data(GTK_OBJECT(popup_menu_object), PM_HEXDUMP_KEY));
 
   /* Filter/info box */
   stat_hbox = gtk_hbox_new(FALSE, 1);

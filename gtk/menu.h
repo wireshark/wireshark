@@ -1,7 +1,7 @@
 /* menu.h
  * Menu definitions
  *
- * $Id: menu.h,v 1.5 2000/04/06 06:52:10 guy Exp $
+ * $Id: menu.h,v 1.6 2000/08/21 12:33:21 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,7 +32,7 @@ extern "C" {
 
 void get_main_menu (GtkWidget **, GtkAccelGroup **);
 void set_menu_object_data (gchar *path, gchar *key, gpointer data);
-void popup_menu_handler(GtkWidget *widget, GdkEvent *event);
+gint popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data);
 
 extern GtkWidget           *popup_menu_object;
 

@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.40 2000/08/20 21:55:57 deniel Exp $
+ * $Id: menu.c,v 1.41 2000/08/21 12:33:21 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -279,14 +279,14 @@ set_menu_object_data (gchar *path, gchar *key, gpointer data) {
   }
 }
 
-void
-popup_menu_handler(GtkWidget *widget, GdkEvent *event)
+gint
+popup_menu_handler(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	GtkWidget *menu = NULL;
 	GdkEventButton *event_button = NULL;
 
-	if(widget == NULL || event == NULL) {
-		return;
+	if(widget == NULL || event == NULL || data == NULL) {
+		return FALSE;
 	}
 	
 	/*
@@ -296,14 +296,17 @@ popup_menu_handler(GtkWidget *widget, GdkEvent *event)
 	 * I guess, like a CList with one column(?) and the expander widget
 	 * as a pixmap.
 	 */
-	menu = widget;
+	menu = (GtkWidget *)data;
 	if(event->type == GDK_BUTTON_PRESS) {
 		event_button = (GdkEventButton *) event;
 		
 		if(event_button->button == 3) {
 			gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, event_button->button, event_button->time);
+			gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), "button_press_event");
+			return TRUE;
 		}
 	}
+	return FALSE;
 }
 
 /* Enable or disable menu items based on whether you have a capture file
