@@ -1,7 +1,7 @@
-/* packet-dvmrp.h   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
+/* packet-dvmrp.h   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Declarations of routines for IGMP/DVMRP packet disassembly
  *
- * $Id: packet-dvmrp.h,v 1.1 2001/06/12 06:21:55 guy Exp $
+ * $Id: packet-dvmrp.h,v 1.2 2001/12/23 21:36:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

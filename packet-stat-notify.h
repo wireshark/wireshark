@@ -1,8 +1,8 @@
 /* packet-stat-notify.h
  * Async callback to notify NSM servers of changes in client status
- * 2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
+ * 2001 Ronnie Sahlberg <See AUTHORS for email>
  *
- * $Id: packet-stat-notify.h,v 1.2 2001/06/12 06:31:14 guy Exp $
+ * $Id: packet-stat-notify.h,v 1.3 2001/12/23 21:36:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

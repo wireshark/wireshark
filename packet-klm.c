@@ -1,7 +1,7 @@
-/* packet-klm.c    2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
+/* packet-klm.c    2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for klm dissection
  *
- * $Id: packet-klm.c,v 1.5 2001/11/27 22:37:20 guy Exp $
+ * $Id: packet-klm.c,v 1.6 2001/12/23 21:36:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

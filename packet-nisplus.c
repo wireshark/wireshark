@@ -1,7 +1,7 @@
 /* packet-nisplus.c
- * 2001  Ronnie Sahlberg   <rsahlber@bigpond.net.au>
+ * 2001  Ronnie Sahlberg   <See AUTHORS for email>
  *
- * $Id: packet-nisplus.c,v 1.8 2001/09/14 07:10:05 guy Exp $
+ * $Id: packet-nisplus.c,v 1.9 2001/12/23 21:36:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.21 2001/10/29 21:13:08 guy Exp $
+ * $Id: packet-nlm.c,v 1.22 2001/12/23 21:36:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9,7 +9,7 @@
  *
  * Copied from packet-mount.c
  *
- * 2001-JAN  Ronnie Sahlberg <rsahlber@bigpond.net.au>
+ * 2001-JAN  Ronnie Sahlberg <See AUTHORS for email>
  *  Updates to version 1 of the protocol.
  *  Added version 3 of the protocol.
  *  Added version 4 of the protocol.

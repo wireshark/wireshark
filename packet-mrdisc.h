@@ -1,7 +1,7 @@
-/* packet-mrdisc.h   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
+/* packet-mrdisc.h   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Declarations of routines for IGMP/MRDISC packet disassembly
  *
- * $Id: packet-mrdisc.h,v 1.1 2001/06/27 20:19:19 guy Exp $
+ * $Id: packet-mrdisc.h,v 1.2 2001/12/23 21:36:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

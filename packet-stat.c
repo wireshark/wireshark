@@ -1,7 +1,7 @@
 /* packet-stat.c
  * Routines for stat dissection
  *
- * $Id: packet-stat.c,v 1.10 2001/06/18 02:17:53 guy Exp $
+ * $Id: packet-stat.c,v 1.11 2001/12/23 21:36:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -9,7 +9,7 @@
  *
  * Copied from packet-smb.c
  *
- * 2001  Ronnie Sahlberg <rsahlber@bigpond.net.au>
+ * 2001  Ronnie Sahlberg <See AUTHORS for email>
  *     Added the dissectors for STAT protocol
  *
  * This program is free software; you can redistribute it and/or

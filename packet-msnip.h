@@ -1,7 +1,7 @@
-/* packet-msnip.h   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
+/* packet-msnip.h   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Declarations of routines for IGMP/MSNIP packet disassembly
  *
- * $Id: packet-msnip.h,v 1.1 2001/06/29 18:55:50 guy Exp $
+ * $Id: packet-msnip.h,v 1.2 2001/12/23 21:36:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

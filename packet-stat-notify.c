@@ -1,8 +1,8 @@
 /* packet-stat.c
  * Routines for async NSM stat callback dissection
- * 2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
+ * 2001 Ronnie Sahlberg <See AUTHORS for email>
  *
- * $Id: packet-stat-notify.c,v 1.7 2001/09/13 08:14:45 guy Exp $
+ * $Id: packet-stat-notify.c,v 1.8 2001/12/23 21:36:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

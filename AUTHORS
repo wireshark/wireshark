@@ -531,7 +531,7 @@ Kent Engström <kent[AT]unit.liu.se> {
 	CDP VTP Management Domain item support
 }
 
-Ronnie Sahlberg <rsahlber[AT]bigpond.net.au> {
+Ronnie Sahlberg <sahlberg[AT]optushome.com.au> {
 	NLM dissector enhancements
 	Mount dissector enhancements
 	Support for status monitor protocol and status monitor callback
@@ -565,6 +565,7 @@ Ronnie Sahlberg <rsahlber[AT]bigpond.net.au> {
 	    Diameter, L2TP, NFS, and NLM dissectors to use it and to the
 	    ONC RPC dissector to allow ONC RPC subdissectors to use it
 	SMB tvbuffication
+	NDMPv3 support
 }
 
 Borosa Tomislav <tomislav.borosa[AT]SIEMENS.HR> {

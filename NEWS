@@ -1,5 +1,6 @@
 Overview of changes in Ethereal 0.9.0:
 
+* Initial NDMPv3 support. (Ronnie)
 * packet-l2tp.c - Vendor-specific attribute fixes. (Motonori)
 * Fix timestamp processing in packet-ucp.c, other UCP fixes. (Steffen
     Weinreich)
