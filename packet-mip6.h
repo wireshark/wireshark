@@ -1,6 +1,6 @@
 /* packet-mip6.h
  *
- * $Id: packet-mip6.h,v 1.2 2003/07/11 09:30:48 guy Exp $
+ * $Id: packet-mip6.h,v 1.3 2003/07/11 21:03:13 guy Exp $
  *
  * Definitions for Mobile IPv6 dissection (draft-ietf-mobileip-ipv6-20.txt)
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>
@@ -188,5 +188,22 @@ static const value_string mip6_be_status_value[] = {
 #define MIP6_BE_STATUS_LEN    1
 #define MIP6_BE_RES_LEN       1
 #define MIP6_BE_HOA_LEN      16
+
+/* Field offsets & field and option lengths for mobility options */
+#define MIP6_BRA_LEN          2
+#define MIP6_BRA_RI_OFF       2
+#define MIP6_BRA_RI_LEN       2
+
+#define MIP6_ACOA_LEN        16
+#define MIP6_ACOA_ACOA_OFF    2
+#define MIP6_ACOA_ACOA_LEN   16
+
+#define MIP6_NI_LEN           4
+#define MIP6_NI_HNI_OFF       2
+#define MIP6_NI_CNI_OFF       4
+#define MIP6_NI_HNI_LEN       2
+#define MIP6_NI_CNI_LEN       2
+
+#define MIP6_BAD_AUTH_OFF     2
 
 #endif /* __PACKET_MIP6_H_DEFINED__ */

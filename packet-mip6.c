@@ -1,6 +1,6 @@
 /* packet-mip6.c
  *
- * $Id: packet-mip6.c,v 1.3 2003/07/11 09:30:48 guy Exp $
+ * $Id: packet-mip6.c,v 1.4 2003/07/11 21:03:13 guy Exp $
  *
  * Routines for Mobile IPv6 dissection (draft-ietf-mobileip-ipv6-20.txt)
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>
@@ -327,7 +327,7 @@ dissect_mip6_opt_bra(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 {
     int ri;
 
-    ri = tvb_get_ntohs(tvb, offset + 2);
+    ri = tvb_get_ntohs(tvb, offset + MIP6_BRA_RI_OFF);
     proto_tree_add_uint_format(opt_tree, hf_mip6_bra_interval, tvb,
                                offset, optlen,
                                ri, "Refresh interval: %d (%ld seconds)",
@@ -340,7 +340,8 @@ dissect_mip6_opt_acoa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
                       proto_tree *opt_tree)
 {
     proto_tree_add_ipv6(opt_tree, hf_mip6_acoa_acoa, tvb,
-                        offset, optlen, tvb_get_ptr(tvb, offset + 2, 16));
+                        offset, optlen,
+                        tvb_get_ptr(tvb, offset + MIP6_ACOA_ACOA_OFF, MIP6_ACOA_ACOA_LEN));
 }
 
 static void
@@ -355,9 +356,9 @@ dissect_mip6_opt_ni(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
     field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
 
     proto_tree_add_item(field_tree, hf_mip6_ni_hni, tvb,
-                        offset + 2, 2, FALSE);
+                        offset + MIP6_NI_HNI_OFF, MIP6_NI_HNI_LEN, FALSE);
     proto_tree_add_item(field_tree, hf_mip6_ni_cni, tvb,
-                        offset + 4, 2, FALSE);
+                        offset + MIP6_NI_CNI_OFF, MIP6_NI_CNI_LEN, FALSE);
 }
 
 static void
@@ -372,7 +373,8 @@ dissect_mip6_opt_bad(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
     field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
 
     proto_tree_add_item(field_tree, hf_mip6_bad_auth, tvb,
-                         offset + 2, optlen - 2, FALSE);
+                        offset + MIP6_BAD_AUTH_OFF,
+                        optlen - MIP6_BAD_AUTH_OFF, FALSE);
 }
 
 static const ip_tcp_opt mip6_opts[] = {
@@ -397,7 +399,7 @@ static const ip_tcp_opt mip6_opts[] = {
     "Binding Refresh Advice",
     &ett_mip6_opt_bra,
     FIXED_LENGTH,
-    2,
+    MIP6_BRA_LEN,
     dissect_mip6_opt_bra
   },
   {
@@ -405,7 +407,7 @@ static const ip_tcp_opt mip6_opts[] = {
     "Alternate Care-of Address",
     &ett_mip6_opt_acoa,
     FIXED_LENGTH,
-    16,
+    MIP6_ACOA_LEN,
     dissect_mip6_opt_acoa
   },
   {
@@ -413,7 +415,7 @@ static const ip_tcp_opt mip6_opts[] = {
     "Nonce Indices",
     &ett_mip6_opt_ni,
     FIXED_LENGTH,
-    4,
+    MIP6_NI_LEN,
     dissect_mip6_opt_ni
   },
   {
