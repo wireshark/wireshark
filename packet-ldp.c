@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.52 2004/05/11 11:20:34 guy Exp $
+ * $Id: packet-ldp.c,v 1.53 2004/05/13 20:20:33 gerald Exp $
  *
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -397,7 +397,7 @@ static const value_string fec_types[] = {
 };
 
 
-static const value_string fec_vc_types_vals[] = {
+const value_string fec_vc_types_vals[] = {
   {0x0001, "Frame Relay DLCI"},
   {0x0002, "ATM AAL5 SDU VCC transport"},
   {0x0003, "ATM transparent cell transport"},

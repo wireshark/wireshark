@@ -1,13 +1,12 @@
-/* packet-ntp.h
- * Definitions for packet disassembly structures and routines
+/* packet-ldp.h
+ * Declarations of exported routines from LDP dissector
+ * Copyright 2004, Carlos Pignataro <cpignata@cisco.com>
  *
- * $Id: packet-ntp.h,v 1.9 2004/05/13 20:20:34 gerald Exp $
+ * $Id: packet-ldp.h,v 1.1 2004/05/13 20:20:34 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- * Joerg Mayer <jmayer@loplof.de>
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,15 +23,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* This is from yahoolib.h from gtkyahoo */
+#ifndef __PACKET_LDP_H_
+#define __PACKET_LDP_H__
 
-#ifndef PACKET_NTP_H
-#define PACKET_NTP_H
-
-/* NTP_BASETIME is infact epoch - ntp_start_time */
-#define NTP_BASETIME 2208988800ul
-#define NTP_TS_SIZE 100
-
-extern char * ntp_fmt_ts(const guint8 *reftime, char* buff);
+/*
+ * Used by MPLS Echo dissector as well.
+ */
+extern const enum_val_t fec_vc_types_vals[];
 
 #endif

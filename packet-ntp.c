@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.40 2003/11/18 19:28:24 guy Exp $
+ * $Id: packet-ntp.c,v 1.41 2004/05/13 20:20:34 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -359,7 +359,7 @@ static int dissect_ntp_ext(tvbuff_t *, proto_tree *, int);
  * buff - string buffer for result (OUT)
  * returns pointer to filled buffer.
  */
-static char *
+char *
 ntp_fmt_ts(const guint8 *reftime, char* buff)
 {
 	guint32 tempstmp, tempfrac;

@@ -2104,11 +2104,16 @@ Lukas Pokorny <maskis [AT] seznam.cz> {
 	RTPS (Real-Time Publish-Subscribe) support
 }
 
-Carlos M. Pignataro <cpignata [AT] cisco.com> {
+Carlos Pignataro <cpignata [AT] cisco.com> {
 	Graceful Restart Mechanism for LDP [RFC3478]
 	Fault Tolerance for LDP [RFC3479]
 	Other LDP enhancements
         PPP OSI Network Layer Control Protocol [RFC1377]
+	Fix dissecting of CLNS Protocols over Cisco HDLC
+	PWE3 Interface parameter additions and miscelaneous updates
+	    from various IETF PWE3 drafts
+	MPLS PW Control Channel Header
+	Multiprotocol Label Switching Echo [draft-ietf-mpls-lsp-ping-05]
 }
 
 Thomas Anders <thomas.anders [AT] blue-cable.de> {
