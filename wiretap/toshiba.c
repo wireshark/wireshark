@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.9 2000/05/18 09:09:46 guy Exp $
+ * $Id: toshiba.c,v 1.10 2000/05/19 08:18:17 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -107,8 +107,8 @@ static const char toshiba_rec_magic[]  = { '[', 'N', 'o', '.' };
 static int toshiba_read(wtap *wth, int *err);
 static int toshiba_seek_read(wtap *wth, int seek_off, union pseudo_header *pseudo_header, guint8 *pd, int len);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf, int byte_offset);
-static int parse_toshiba_hex_dump(FILE_T *fh, int pkt_len, guint8* buf, int *err);
-static int parse_toshiba_rec_hdr(wtap *wth, FILE_T *fh,
+static int parse_toshiba_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err);
+static int parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
     union pseudo_header *pseudo_header, int *err);
 
 /* Seeks to the beginning of the next packet, and returns the
@@ -250,7 +250,7 @@ toshiba_seek_read (wtap *wth, int seek_off, union pseudo_header *pseudo_header,
 
 /* Parses a packet record header. */
 static int
-parse_toshiba_rec_hdr(wtap *wth, FILE_T *fh,
+parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
     union pseudo_header *pseudo_header, int *err)
 {
 	char	line[TOSHIBA_LINE_LENGTH];
@@ -339,7 +339,7 @@ parse_toshiba_rec_hdr(wtap *wth, FILE_T *fh,
 
 /* Converts ASCII hex dump to binary data */
 static int
-parse_toshiba_hex_dump(FILE_T *fh, int pkt_len, guint8* buf, int *err)
+parse_toshiba_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
 {
 	char	line[TOSHIBA_LINE_LENGTH];
 	int	i, hex_lines;

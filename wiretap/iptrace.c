@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.27 2000/05/18 09:09:30 guy Exp $
+ * $Id: iptrace.c,v 1.28 2000/05/19 08:18:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -38,9 +38,9 @@ static int iptrace_seek_read_1_0(wtap *wth, int seek_off,
 static int iptrace_read_2_0(wtap *wth, int *err);
 static int iptrace_seek_read_2_0(wtap *wth, int seek_off,
     union pseudo_header *pseudo_header, u_char *pd, int packet_size);
-static int iptrace_read_rec_header(FILE_T *fh, guint8 *header, int header_len,
+static int iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len,
     int *err);
-static int iptrace_read_rec_data(FILE_T *fh, guint8 *data_ptr, int packet_size,
+static int iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr, int packet_size,
     int *err);
 static void get_atm_pseudo_header(union pseudo_header *pseudo_header,
     guint8 *header);
@@ -301,7 +301,7 @@ static int iptrace_seek_read_2_0(wtap *wth, int seek_off,
 }
 
 static int
-iptrace_read_rec_header(FILE_T *fh, guint8 *header, int header_len, int *err)
+iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len, int *err)
 {
 	int	bytes_read;
 
@@ -321,7 +321,7 @@ iptrace_read_rec_header(FILE_T *fh, guint8 *header, int header_len, int *err)
 }
 
 static int
-iptrace_read_rec_data(FILE_T *fh, guint8 *data_ptr, int packet_size, int *err)
+iptrace_read_rec_data(FILE_T fh, guint8 *data_ptr, int packet_size, int *err)
 {
 	int	bytes_read;
 

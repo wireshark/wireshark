@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.11 2000/05/18 09:09:38 guy Exp $
+ * $Id: nettl.c,v 1.12 2000/05/19 08:18:15 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -67,10 +67,10 @@ struct nettlrec_ns_ls_ip_hdr {
 static int nettl_read(wtap *wth, int *err);
 static int nettl_seek_read(wtap *wth, int seek_off,
 		union pseudo_header *pseudo_header, u_char *pd, int length);
-static int nettl_read_rec_header(wtap *wth, FILE_T *fh,
+static int nettl_read_rec_header(wtap *wth, FILE_T fh,
 		struct wtap_pkthdr *phdr, union pseudo_header *pseudo_header,
 		int *err);
-static int nettl_read_rec_data(FILE_T *fh, char *pd, int length, int *err);
+static int nettl_read_rec_data(FILE_T fh, char *pd, int length, int *err);
 static void nettl_close(wtap *wth);
 
 int nettl_open(wtap *wth, int *err)
@@ -174,7 +174,7 @@ nettl_seek_read(wtap *wth, int seek_off,
 }
 
 static int
-nettl_read_rec_header(wtap *wth, FILE_T *fh, struct wtap_pkthdr *phdr,
+nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		union pseudo_header *pseudo_header, int *err)
 {
     int bytes_read;
@@ -289,7 +289,7 @@ nettl_read_rec_header(wtap *wth, FILE_T *fh, struct wtap_pkthdr *phdr,
 }
 
 static int
-nettl_read_rec_data(FILE_T *fh, char *pd, int length, int *err)
+nettl_read_rec_data(FILE_T fh, char *pd, int length, int *err)
 {
     int bytes_read;
 

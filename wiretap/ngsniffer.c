@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.40 2000/05/18 09:09:41 guy Exp $
+ * $Id: ngsniffer.c,v 1.41 2000/05/19 08:18:16 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -249,17 +249,17 @@ static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
 static int ngsniffer_read(wtap *wth, int *err);
 static int ngsniffer_seek_read(wtap *wth, int seek_off,
     union pseudo_header *pseudo_header, u_char *pd, int packet_size);
-static int ngsniffer_read_rec_header(FILE_T *fh, guint16 *typep,
+static int ngsniffer_read_rec_header(FILE_T fh, guint16 *typep,
     guint16 *lengthp, int *err);
-static int ngsniffer_read_frame2(FILE_T *fh, struct frame2_rec *frame2,
+static int ngsniffer_read_frame2(FILE_T fh, struct frame2_rec *frame2,
     int *err);
 static void set_pseudo_header_frame2(union pseudo_header *pseudo_header,
     struct frame2_rec *frame2);
-static int ngsniffer_read_frame4(FILE_T *fh, struct frame4_rec *frame4,
+static int ngsniffer_read_frame4(FILE_T fh, struct frame4_rec *frame4,
     int *err);
 static void set_pseudo_header_frame4(union pseudo_header *pseudo_header,
     struct frame4_rec *frame4);
-static int ngsniffer_read_rec_data(FILE_T *fh, char *pd, int length, int *err);
+static int ngsniffer_read_rec_data(FILE_T fh, char *pd, int length, int *err);
 static void ngsniffer_close(wtap *wth);
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	const union pseudo_header *pseudo_header, const u_char *pd, int *err);
@@ -631,7 +631,7 @@ static int ngsniffer_seek_read(wtap *wth, int seek_off,
 	return ngsniffer_read_rec_data(wth->random_fh, pd, packet_size, &err);
 }
 
-static int ngsniffer_read_rec_header(FILE_T *fh, guint16 *typep,
+static int ngsniffer_read_rec_header(FILE_T fh, guint16 *typep,
     guint16 *lengthp, int *err)
 {
 	int	bytes_read;
@@ -667,7 +667,7 @@ static int ngsniffer_read_rec_header(FILE_T *fh, guint16 *typep,
 	return 1;	/* success */
 }
 
-static int ngsniffer_read_frame2(FILE_T *fh, struct frame2_rec *frame2,
+static int ngsniffer_read_frame2(FILE_T fh, struct frame2_rec *frame2,
     int *err)
 {
 	int bytes_read;
@@ -711,7 +711,7 @@ static void set_pseudo_header_frame2(union pseudo_header *pseudo_header,
 	pseudo_header->x25.flags = (frame2->fs & 0x80) ? 0x00 : 0x80;
 }
 
-static int ngsniffer_read_frame4(FILE_T *fh, struct frame4_rec *frame4,
+static int ngsniffer_read_frame4(FILE_T fh, struct frame4_rec *frame4,
     int *err)
 {
 	int bytes_read;
@@ -742,7 +742,7 @@ static void set_pseudo_header_frame4(union pseudo_header *pseudo_header,
 	pseudo_header->ngsniffer_atm.aal5t_chksum = pletohl(&frame4->atm_info.Trailer.aal5t_chksum);
 }
 
-static int ngsniffer_read_rec_data(FILE_T *fh, char *pd, int length, int *err)
+static int ngsniffer_read_rec_data(FILE_T fh, char *pd, int length, int *err)
 {
 	int	bytes_read;
 
