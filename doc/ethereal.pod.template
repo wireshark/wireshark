@@ -299,6 +299,8 @@ A filter for HTTP, HTTPS, and DNS traffic might look like this:
 Selecting the I<Filter:> button lets you choose from a list of named
 filters that you can optionally save.  Pressing the Return or Enter
 keys will cause the filter to be applied to the current list of packets.
+Selecting the I<Reset> button clears the display filter so that all
+packets are displayed.
 
 =item Preferences
 
