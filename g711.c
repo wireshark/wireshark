@@ -1,5 +1,5 @@
 /*
- * $Id: g711.c,v 1.2 2003/03/06 21:57:17 guy Exp $
+ * $Id: g711.c,v 1.3 2003/03/10 19:58:47 guy Exp $
  *
  * This source code is a product of Sun Microsystems, Inc. and is provided
  * for unrestricted use.  Users may copy or modify this source code without
@@ -152,7 +152,7 @@ alaw2linear(
 {
 	int		t;
 	int		seg;
-	//printf(" vrednost a_val %X ", a_val);
+	/*printf(" vrednost a_val %X ", a_val);*/
 	a_val ^= 0x55;
 
 	t = (a_val & QUANT_MASK) << 4;
@@ -168,7 +168,7 @@ alaw2linear(
 		t += 0x108;
 		t <<= seg - 1;
 	}
-	//printf("izracunan int %d in njegov hex %X \n", t,t);
+	/*printf("izracunan int %d in njegov hex %X \n", t,t);*/
 	return ((a_val & SIGN_BIT) ? t : -t);
 }
 
