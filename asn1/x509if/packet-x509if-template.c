@@ -46,26 +46,9 @@ int hf_x509if_object_identifier_id = -1;
 #include "packet-x509if-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_x509if_Attribute = -1;
 #include "packet-x509if-ett.c"
 
 static char object_identifier_id[64]; /*64 chars should be long enough? */
-
-
-static const ber_sequence Attribute_sequence[] = {
-  /*  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509if_type },*/
-  /*XXX  missing stuff here */
-  { 0, 0, 0, NULL }
-};
-
-int
-dissect_x509if_Attribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Attribute_sequence, hf_index, ett_x509if_Attribute);
-
-  return offset;
-}
-
 
 #include "packet-x509if-fn.c"
 
@@ -84,7 +67,6 @@ void proto_register_x509if(void) {
 
   /* List of subtrees */
   static gint *ett[] = {
-    &ett_x509if_Attribute,
 #include "packet-x509if-ettarr.c"
   };
 

@@ -27,7 +27,5 @@
 
 #include "packet-x509if-exp.h"
 
-int dissect_x509if_Attribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_index);
-
 #endif  /* PACKET_X509IF_H */
 

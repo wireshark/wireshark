@@ -27,26 +27,26 @@ IMPORTS
 
 AttributeId ::= OBJECT IDENTIFIER
 
+--AttributeValue ::= Any
+--
 -- attribute data types 
--- XXX This function is implemented by hand inside the template
--- Attribute ::= SEQUENCE {
---   type               AttributeId,
---   values
---     SET SIZE (0..MAX) OF ATTRIBUTE.&Type({SupportedAttributes}{@type}),
+Attribute ::= SEQUENCE {
+  type               AttributeId
+--  value
+--     SET SIZE (0..MAX) OF AttributeValue
 --   valuesWithContext
 --     SET SIZE (1..MAX) OF
---       SEQUENCE {value        ATTRIBUTE.&Type({SupportedAttributes}{@type}),
+--       SEQUENCE {value        Any,
 --                 contextList  SET SIZE (1..MAX) OF Context} OPTIONAL
--- }
+}
 
 AttributeType ::= AttributeId
 
--- AttributeValue ::= ATTRIBUTE.&Type
 -- 
 -- Context ::= SEQUENCE {
---   contextType    CONTEXT.&id({SupportedContexts}),
+--   contextType    AttributeId,
 --   contextValues
---     SET SIZE (1..MAX) OF CONTEXT.&Type({SupportedContexts}{@contextType}),
+--     SET SIZE (1..MAX) OF Any,
 --   fallback       BOOLEAN DEFAULT FALSE
 -- }
 -- 
@@ -98,13 +98,12 @@ RelativeDistinguishedName ::=
 
 AttributeTypeAndDistinguishedValue ::= SEQUENCE {
   type                  AttributeId,
---  value                 ATTRIBUTE.&Type({SupportedAttributes}{@type}),
   value                 Any,
   primaryDistinguished  BOOLEAN OPTIONAL
 --   valuesWithContext
 --     SET SIZE (1..MAX) OF
 --       SEQUENCE {distingAttrValue
---                   [0]  ATTRIBUTE.&Type({SupportedAttributes}{@type}) OPTIONAL,
+--                   [0]  Any OPTIONAL,
 --                 contextList       SET SIZE (1..MAX) OF Context} OPTIONAL
 }
  
@@ -595,13 +594,13 @@ ImposedSubset ::= ENUMERATED {baseObject(0), oneLevel(1), wholeSubtree(2)}
 --   includeSubtypes     [0]  BOOLEAN DEFAULT FALSE,
 --   selectedValues
 --     [1]  SEQUENCE SIZE (0..MAX) OF
---            ATTRIBUTE.&Type({SupportedAttributes}{@attributeType}) OPTIONAL,
+--            Any OPTIONAL,
 --   defaultValues
 --     [2]  SEQUENCE SIZE (0..MAX) OF
 --            SEQUENCE {entryType  OBJECT-CLASS.&id OPTIONAL,
 --                      values
 --                        SEQUENCE OF
---                          ATTRIBUTE.&Type({SupportedAttributes}{@attributeType})
+--                          Any
 --            } OPTIONAL,
 --   contexts            [3]  SEQUENCE SIZE (0..MAX) OF ContextProfile OPTIONAL,
 --   contextCombination  [4]  ContextCombination DEFAULT and:{},
@@ -647,14 +646,14 @@ ImposedSubset ::= ENUMERATED {baseObject(0), oneLevel(1), wholeSubtree(2)}
 --   outputValues
 --     CHOICE {selectedValues
 --               SEQUENCE SIZE (1..MAX) OF
---                 ATTRIBUTE.&Type({SupportedAttributes}{@attributeType}),
+--                 Any,
 --             matchedValuesOnly  NULL} OPTIONAL,
 --   contexts       [0]  SEQUENCE SIZE (1..MAX) OF ContextProfile OPTIONAL
 -- }
 -- 
 -- OutputValues ::= CHOICE {
 --   selectedValues
---     SEQUENCE SIZE (1..MAX) OF ATTRIBUTE.&Type({SupportedAttributes}),
+--     SEQUENCE SIZE (1..MAX) OF Any,
 --   matchedValuesOnly  NULL
 -- }
 -- 
@@ -738,9 +737,9 @@ ImposedSubset ::= ENUMERATED {baseObject(0), oneLevel(1), wholeSubtree(2)}
 -- 
 -- REQUEST-ATTRIBUTE ::= CLASS {
 --   &attributeType       AttributeId,
---   &SelectedValues      ATTRIBUTE.&Type OPTIONAL,
+--   &SelectedValues      Any OPTIONAL,
 --   &DefaultValues       SEQUENCE {entryType  OBJECT-CLASS.&id OPTIONAL,
---                                  values     SEQUENCE OF ATTRIBUTE.&Type
+--                                  values     SEQUENCE OF Any
 --   } OPTIONAL,
 --   &contexts            SEQUENCE OF ContextProfile OPTIONAL,
 --   &contextCombination  ContextCombination OPTIONAL,

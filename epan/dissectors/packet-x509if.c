@@ -8,7 +8,7 @@
 /* packet-x509if.c
  * Routines for X.509 Information Framework packet dissection
  *
- * $Id: packet-x509if-template.c 12245 2004-10-08 20:28:04Z guy $
+ * $Id: packet-x509if-template.c 12431 2004-10-29 11:10:31Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -53,10 +53,10 @@ int hf_x509if_object_identifier_id = -1;
 
 /*--- Included file: packet-x509if-hf.c ---*/
 
+static int hf_x509if_type = -1;                   /* AttributeId */
 static int hf_x509if_rdnSequence = -1;            /* RDNSequence */
 static int hf_x509if_RDNSequence_item = -1;       /* RelativeDistinguishedName */
 static int hf_x509if_RelativeDistinguishedName_item = -1;  /* AttributeTypeAndDistinguishedValue */
-static int hf_x509if_type = -1;                   /* T_type */
 static int hf_x509if_value = -1;                  /* T_value */
 static int hf_x509if_primaryDistinguished = -1;   /* BOOLEAN */
 /* named bits */
@@ -68,10 +68,10 @@ static int hf_x509if_AllowedSubset_wholeSubtree = -1;
 
 
 /* Initialize the subtree pointers */
-static gint ett_x509if_Attribute = -1;
 
 /*--- Included file: packet-x509if-ett.c ---*/
 
+static gint ett_x509if_Attribute = -1;
 static gint ett_x509if_Name = -1;
 static gint ett_x509if_RDNSequence = -1;
 static gint ett_x509if_RelativeDistinguishedName = -1;
@@ -84,22 +84,6 @@ static gint ett_x509if_AllowedSubset = -1;
 static char object_identifier_id[64]; /*64 chars should be long enough? */
 
 
-static const ber_sequence Attribute_sequence[] = {
-  /*  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509if_type },*/
-  /*XXX  missing stuff here */
-  { 0, 0, 0, NULL }
-};
-
-int
-dissect_x509if_Attribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
-                                Attribute_sequence, hf_index, ett_x509if_Attribute);
-
-  return offset;
-}
-
-
-
 /*--- Included file: packet-x509if-fn.c ---*/
 
 /*--- Fields for imported types ---*/
@@ -108,8 +92,25 @@ dissect_x509if_Attribute(gboolean implicit_tag, tvbuff_t *tvb, int offset, packe
 
 static int
 dissect_x509if_AttributeId(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_object_identifier(implicit_tag, pinfo, tree, tvb, offset,
-                                         hf_index, NULL);
+  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
+                                         hf_x509if_object_identifier_id, object_identifier_id);
+
+
+  return offset;
+}
+static int dissect_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509if_AttributeId(FALSE, tvb, offset, pinfo, tree, hf_x509if_type);
+}
+
+static const ber_sequence Attribute_sequence[] = {
+  { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_type },
+  { 0, 0, 0, NULL }
+};
+
+int
+dissect_x509if_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
+                                Attribute_sequence, hf_index, ett_x509if_Attribute);
 
   return offset;
 }
@@ -120,19 +121,6 @@ dissect_x509if_AttributeType(gboolean implicit_tag _U_, tvbuff_t *tvb, int offse
   offset = dissect_x509if_AttributeId(implicit_tag, tvb, offset, pinfo, tree, hf_index);
 
   return offset;
-}
-
-
-static int
-dissect_x509if_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_object_identifier(FALSE, pinfo, tree, tvb, offset,
-                                         hf_x509if_object_identifier_id, object_identifier_id);
-
-
-  return offset;
-}
-static int dissect_type(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509if_T_type(FALSE, tvb, offset, pinfo, tree, hf_x509if_type);
 }
 
 
@@ -299,6 +287,10 @@ void proto_register_x509if(void) {
 
 /*--- Included file: packet-x509if-hfarr.c ---*/
 
+    { &hf_x509if_type,
+      { "type", "x509if.type",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "", HFILL }},
     { &hf_x509if_rdnSequence,
       { "rdnSequence", "x509if.rdnSequence",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -311,10 +303,6 @@ void proto_register_x509if(void) {
       { "Item", "x509if.RelativeDistinguishedName_item",
         FT_NONE, BASE_NONE, NULL, 0,
         "RelativeDistinguishedName/_item", HFILL }},
-    { &hf_x509if_type,
-      { "type", "x509if.type",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "AttributeTypeAndDistinguishedValue/type", HFILL }},
     { &hf_x509if_value,
       { "value", "x509if.value",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -342,10 +330,10 @@ void proto_register_x509if(void) {
 
   /* List of subtrees */
   static gint *ett[] = {
-    &ett_x509if_Attribute,
 
 /*--- Included file: packet-x509if-ettarr.c ---*/
 
+    &ett_x509if_Attribute,
     &ett_x509if_Name,
     &ett_x509if_RDNSequence,
     &ett_x509if_RelativeDistinguishedName,
