@@ -1,4 +1,4 @@
-$Id: README.hpux,v 1.11 2000/04/04 21:07:33 guy Exp $
+$Id: README.hpux,v 1.12 2000/04/29 08:38:35 guy Exp $
 
 Contents:
 
@@ -347,13 +347,7 @@ think you can omit the "/dev/" in both tcpdump and Ethereal).
 
 Here is a patch to "pcap-dlpi.c" in libpcap that, at least on HP-UX
 11.X, allows the name of the network interface, rather than the "dlpiN"
-name, to be specified to tcpdump and Ethereal.  It has not been tried on
-HP-UX 10.20; it fixes one bug that could have caused the code in vanilla
-libpcap not to correctly find the PPA for an interface on HP-UX 10.20,
-but HP-UX 10.20's DLPI doesn't supply, in the data returned by a
-DL_HP_PPA_REQ request, network interface names, so, on systems without
-the network interface names in that data, the code continues to check
-the major device number.
+name, to be specified to tcpdump and Ethereal.
 
 On HP-UX 11.00, the patch allows a network interface to be specified by
 name as an argument to tcpdump, rather than requiring that you specify a
@@ -362,15 +356,65 @@ name as an argument to tcpdump, rather than requiring that you specify a
 If you try this code on HP-UX 10.20, and it doesn't let you specify the
 interface by name, please send mail to ethereal-dev@zing.org, so that we
 know that it didn't work - we'll probably send you debugging patches in
-the hopes of being able to make it work on 10.20 as well.
+the hopes of being able to make it work on 10.20 as well.  (It appeared
+to work in some tests done on HP-UX 10.20 systems.)
 
-Here's the patch (to vanilla libpcap 0.4; it patches "configure",
-"aclocal.m4", and "configure.in", to make the configure script check
+Here's the patch (to vanilla libpcap 0.4; it patches "aclocal.m4",
+"configure", and "configure.in", to make the configure script check
 whether your version of HP-UX supplies the interface names in the reply
-to a DL_HP_PPA_REQ request, and "pcap-dlpi.c"):
+to a DL_HP_PPA_REQ request, and patches "pcap-dlpi.c"):
 
+diff -c ../libpcap-0.4/aclocal.m4 ./aclocal.m4
+*** ../libpcap-0.4/aclocal.m4	Fri Jun 12 03:45:15 1998
+--- ./aclocal.m4	Tue Jan  4 21:02:13 2000
+***************
+*** 415,420 ****
+--- 415,454 ----
+      fi])
+  
+  dnl
++ dnl Checks to see if the dl_hp_ppa_info_t struct has the HP-UX 11.00
++ dnl dl_module_id_1 member
++ dnl
++ dnl usage:
++ dnl
++ dnl	AC_LBL_HP_PPA_INFO_T_DL_MODULE_ID_1
++ dnl
++ dnl results:
++ dnl
++ dnl	HAVE_HP_PPA_INFO_T_DL_MODULE_ID_1 (defined)
++ dnl
++ dnl NOTE: any compile failure means we conclude that it doesn't have
++ dnl that member, so if we don't have DLPI, don't have a <sys/dlpi_ext.h>
++ dnl header, or have one that doesn't declare a dl_hp_ppa_info_t type,
++ dnl we conclude it doesn't have that member (which is OK, as either we
++ dnl won't be using code that would use that member, or we wouldn't
++ dnl compile in any case).
++ dnl
++ AC_DEFUN(AC_LBL_HP_PPA_INFO_T_DL_MODULE_ID_1,
++     [AC_MSG_CHECKING(if dl_hp_ppa_info_t struct has dl_module_id_1 member)
++     AC_CACHE_VAL(ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1,
++ 	AC_TRY_COMPILE([
++ #	include <sys/types.h>
++ #	include <sys/dlpi.h>
++ #	include <sys/dlpi_ext.h>],
++ 	[u_int i = sizeof(((dl_hp_ppa_info_t *)0)->dl_module_id_1)],
++ 	ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1=yes,
++ 	ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1=no))
++     AC_MSG_RESULT($ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1)
++     if test $ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1 = yes ; then
++ 	    AC_DEFINE(HAVE_HP_PPA_INFO_T_DL_MODULE_ID_1)
++     fi])
++ 
++ dnl
+  dnl Checks to see if -R is used
+  dnl
+  dnl usage:
+Common subdirectories: ../libpcap-0.4/bpf and ./bpf
+
+diff -c ../libpcap-0.4/configure ./configure
 *** ../libpcap-0.4/configure	Sat Jul 25 12:41:51 1998
---- configure	Fri Jan 14 00:40:04 2000
+--- ./configure	Fri Jan 14 00:40:04 2000
 ***************
 *** 1702,1709 ****
   
@@ -444,56 +488,9 @@ to a DL_HP_PPA_REQ request, and "pcap-dlpi.c"):
   if eval "test \"`echo '$''{'ac_cv_path_install'+set}'`\" = set"; then
     echo $ac_n "(cached) $ac_c" 1>&6
 
-
-*** ../libpcap-0.4/aclocal.m4	Fri Jun 12 03:45:15 1998
---- aclocal.m4	Tue Jan  4 21:02:13 2000
-***************
-*** 415,420 ****
---- 415,454 ----
-      fi])
-  
-  dnl
-+ dnl Checks to see if the dl_hp_ppa_info_t struct has the HP-UX 11.00
-+ dnl dl_module_id_1 member
-+ dnl
-+ dnl usage:
-+ dnl
-+ dnl	AC_LBL_HP_PPA_INFO_T_DL_MODULE_ID_1
-+ dnl
-+ dnl results:
-+ dnl
-+ dnl	HAVE_HP_PPA_INFO_T_DL_MODULE_ID_1 (defined)
-+ dnl
-+ dnl NOTE: any compile failure means we conclude that it doesn't have
-+ dnl that member, so if we don't have DLPI, don't have a <sys/dlpi_ext.h>
-+ dnl header, or have one that doesn't declare a dl_hp_ppa_info_t type,
-+ dnl we conclude it doesn't have that member (which is OK, as either we
-+ dnl won't be using code that would use that member, or we wouldn't
-+ dnl compile in any case).
-+ dnl
-+ AC_DEFUN(AC_LBL_HP_PPA_INFO_T_DL_MODULE_ID_1,
-+     [AC_MSG_CHECKING(if dl_hp_ppa_info_t struct has dl_module_id_1 member)
-+     AC_CACHE_VAL(ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1,
-+ 	AC_TRY_COMPILE([
-+ #	include <sys/types.h>
-+ #	include <sys/dlpi.h>
-+ #	include <sys/dlpi_ext.h>],
-+ 	[u_int i = sizeof(((dl_hp_ppa_info_t *)0)->dl_module_id_1)],
-+ 	ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1=yes,
-+ 	ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1=no))
-+     AC_MSG_RESULT($ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1)
-+     if test $ac_cv_lbl_dl_hp_ppa_info_t_has_dl_module_id_1 = yes ; then
-+ 	    AC_DEFINE(HAVE_HP_PPA_INFO_T_DL_MODULE_ID_1)
-+     fi])
-+ 
-+ dnl
-  dnl Checks to see if -R is used
-  dnl
-  dnl usage:
-
-
+diff -c ../libpcap-0.4/configure.in ./configure.in
 *** ../libpcap-0.4/configure.in	Sun Jul 27 22:16:22 1997
---- configure.in	Tue Jan  4 21:02:13 2000
+--- ./configure.in	Tue Jan  4 21:02:13 2000
 ***************
 *** 154,159 ****
 --- 154,161 ----
@@ -506,8 +503,9 @@ to a DL_HP_PPA_REQ request, and "pcap-dlpi.c"):
   
   if test "${srcdir}" = "." ; then
 
+diff -c ../libpcap-0.4/pcap-dlpi.c ./pcap-dlpi.c
 *** ../libpcap-0.4/pcap-dlpi.c	Wed Oct 15 21:59:34 1997
---- pcap-dlpi.c	Tue Jan  4 21:02:13 2000
+--- ./pcap-dlpi.c	Wed Apr 26 21:32:33 2000
 ***************
 *** 246,255 ****
   	}
@@ -567,7 +565,7 @@ to a DL_HP_PPA_REQ request, and "pcap-dlpi.c"):
   	/* Try device without unit number */
   	strcpy(dname2, dname);
   	cp = strchr(dname, *cp);
---- 270,331 ----
+--- 270,321 ----
   		sprintf(ebuf, "%s bad unit number", device);
   		goto bad;
   	}
@@ -583,16 +581,6 @@ to a DL_HP_PPA_REQ request, and "pcap-dlpi.c"):
 ! 	 * use a different driver, in which case we may need to
 ! 	 * search "/dev" for the appropriate device with that major
 ! 	 * device number, rather than hardwiring "/dev/dlpi".
-! 	 *
-! 	 * I'm assuming that the code that was used for HP-UX 10.x
-! 	 * is valid, and therefore that, in 10.x, DLPIable devices have
-! 	 * "/dev" entries corresponding to them and that their
-! 	 * major device number is what appears in the "dl_hp_ppa_info_t"
-! 	 * structure for that device.  We can search by name in 11.x
-! 	 * (and we may have to, as it's not clear that DLPIable devices
-! 	 * will have those sorts of "/dev" entries), but we can't in
-! 	 * 10.x, as 10.x doesn't have the "dl_module_id_1" and
-! 	 * "dl_module_id_2" members in the "dl_hp_ppa_info_t" structure.
 ! 	 */
   	cp = "/dev/dlpi";
   	if ((p->fd = open(cp, O_RDWR)) < 0) {
@@ -639,7 +627,7 @@ to a DL_HP_PPA_REQ request, and "pcap-dlpi.c"):
   		goto bad;
   	}
   
---- 441,448 ----
+--- 431,438 ----
   		break;
   
   	default:
@@ -649,7 +637,7 @@ to a DL_HP_PPA_REQ request, and "pcap-dlpi.c"):
   	}
   
 ***************
-*** 709,715 ****
+*** 709,737 ****
   
   #ifdef DL_HP_PPA_ACK_OBS
   /*
@@ -657,16 +645,9 @@ to a DL_HP_PPA_REQ request, and "pcap-dlpi.c"):
    */
   
   
---- 760,766 ----
-  
-  #ifdef DL_HP_PPA_ACK_OBS
-  /*
-!  * Under HP-UX 10 and HP-UX 11, we can ask for the ppa
-   */
-  
-  
-***************
-*** 719,736 ****
+! /* Determine ppa number that specifies ifname */
+  static int
+  get_dlpi_ppa(register int fd, register const char *device, register int unit,
       register char *ebuf)
   {
   	register dl_hp_ppa_ack_t *ap;
@@ -677,46 +658,73 @@ to a DL_HP_PPA_REQ request, and "pcap-dlpi.c"):
   	struct stat statbuf;
   	bpf_u_int32 buf[MAXDLBUF];
   
-! 	if (stat(device, &statbuf) < 0) {
-! 		sprintf(ebuf, "stat: %s: %s", device, pcap_strerror(errno));
-  		return (-1);
-  	}
-  	majdev = major(statbuf.st_rdev);
-  
+- 	if (stat(device, &statbuf) < 0) {
+- 		sprintf(ebuf, "stat: %s: %s", device, pcap_strerror(errno));
+- 		return (-1);
+- 	}
+- 	majdev = major(statbuf.st_rdev);
+- 
   	memset((char *)&req, 0, sizeof(req));
   	req.dl_primitive = DL_HP_PPA_REQ;
---- 770,800 ----
+  
+--- 750,806 ----
+  
+  #ifdef DL_HP_PPA_ACK_OBS
+  /*
+!  * Under HP-UX 10 and HP-UX 11, we can ask for the ppa
+   */
+  
+  
+! /*
+!  * Determine ppa number that specifies ifname.
+!  *
+!  * If the "dl_hp_ppa_info_t" doesn't have a "dl_module_id_1" member,
+!  * the code that's used here is the old code for HP-UX 10.x.
+!  *
+!  * However, HP-UX 10.20, at least, appears to have such a member
+!  * in its "dl_hp_ppa_info_t" structure, so the new code is used.
+!  * The new code didn't work on an old 10.20 system on which Rick
+!  * Jones of HP tried it, but with later patches installed, it
+!  * worked - it appears that the older system had those members but
+!  * didn't put anything in them, so, if the search by name fails, we
+!  * do the old search.
+!  *
+!  * Rick suggests that making sure your system is "up on the latest
+!  * lancommon/DLPI/driver patches" is probably a good idea; it'd fix
+!  * that problem, as well as allowing libpcap to see packets sent
+!  * from the system on which the libpcap application is being run.
+!  * (On 10.20, in addition to getting the latest patches, you need
+!  * to turn the kernel "lanc_outbound_promisc_flag" flag on with ADB;
+!  * a posting to "comp.sys.hp.hpux" at
+!  *
+!  *	http://www.deja.com/[ST_rn=ps]/getdoc.xp?AN=558092266
+!  *
+!  * says that, to see the machine's outgoing traffic, you'd need to
+!  * apply the right patches to your system, and also set that variable
+!  * with:
+!  
+! echo 'lanc_outbound_promisc_flag/W1' | /usr/bin/adb -w /stand/vmunix /dev/kmem
+! 
+!  * which could be put in, for example, "/sbin/init.d/lan".
+!  *
+!  * Setting the variable is not necessary on HP-UX 11.x.
+!  */
+  static int
+  get_dlpi_ppa(register int fd, register const char *device, register int unit,
       register char *ebuf)
   {
   	register dl_hp_ppa_ack_t *ap;
 ! 	register dl_hp_ppa_info_t *ipstart, *ip;
   	register int i;
-+ #ifndef HAVE_HP_PPA_INFO_T_DL_MODULE_ID_1
 + 	char dname[100];
   	register u_long majdev;
   	struct stat statbuf;
-+ #endif
 + 	dl_hp_ppa_req_t	req;
   	bpf_u_int32 buf[MAXDLBUF];
   
-! #ifndef HAVE_HP_PPA_INFO_T_DL_MODULE_ID_1
-! 	/*
-! 	 * HP-UX 10 doesn't put the interface name in the
-! 	 * "dl_hp_ppa_info_t" structure, so we have to
-! 	 * try to get the major device number for the device
-! 	 * corresponding to the device and unit name provided to
-! 	 * us, and search for the entry with that major device number.
-! 	 */
-! 	sprintf(dname, "/dev/%s%d", device, unit);
-! 	if (stat(dname, &statbuf) < 0) {
-! 		sprintf(ebuf, "stat: %s: %s", dname, pcap_strerror(errno));
-  		return (-1);
-  	}
-  	majdev = major(statbuf.st_rdev);
-+ #endif
-  
   	memset((char *)&req, 0, sizeof(req));
   	req.dl_primitive = DL_HP_PPA_REQ;
+  
 ***************
 *** 741,760 ****
   		return (-1);
@@ -724,12 +732,12 @@ to a DL_HP_PPA_REQ request, and "pcap-dlpi.c"):
   	ap = (dl_hp_ppa_ack_t *)buf;
 ! 	ip = (dl_hp_ppa_info_t *)((u_char *)ap + ap->dl_offset);
   
-          for(i = 0; i < ap->dl_count; i++) {
+!         for(i = 0; i < ap->dl_count; i++) {
 !                 if (ip->dl_mjr_num == majdev && ip->dl_instance_num == unit)
-                          break;
+!                         break;
   
 !                 ip = (dl_hp_ppa_info_t *)((u_char *)ip + ip->dl_next_offset);
-          }
+!         }
           if (i == ap->dl_count) {
 !                 sprintf(ebuf, "can't find PPA for %s", device);
   		return (-1);
@@ -739,25 +747,76 @@ to a DL_HP_PPA_REQ request, and "pcap-dlpi.c"):
   		return (-1);
           }
           return ((int)ip->dl_ppa);
---- 805,831 ----
+--- 810,887 ----
   		return (-1);
   
   	ap = (dl_hp_ppa_ack_t *)buf;
 ! 	ipstart = (dl_hp_ppa_info_t *)((u_char *)ap + ap->dl_offset);
 ! 	ip = ipstart;
   
-          for(i = 0; i < ap->dl_count; i++) {
 ! #ifdef HAVE_HP_PPA_INFO_T_DL_MODULE_ID_1
+! 	/*
+! 	 * The "dl_hp_ppa_info_t" structure has a "dl_module_id_1"
+! 	 * member that should, in theory, contain the part of the
+! 	 * name for the device that comes before the unit number,
+! 	 * and should also have a "dl_module_id_2" member that may
+! 	 * contain an alternate name (e.g., I think Ethernet devices
+! 	 * have both "lan", for "lanN", and "snap", for "snapN", with
+! 	 * the former being for Ethernet packets and the latter being
+! 	 * for 802.3/802.2 packets).
+! 	 *
+! 	 * Search for the device that has the specified name and
+! 	 * instance number.
+! 	 */
+! 	for (i = 0; i < ap->dl_count; i++) {
 ! 		if ((strcmp(ip->dl_module_id_1, device) == 0 ||
 ! 		     strcmp(ip->dl_module_id_2, device) == 0) &&
-! #else
-!                 if (ip->dl_mjr_num == majdev &&
-! #endif
 ! 		    ip->dl_instance_num == unit)
-                          break;
+! 			break;
   
-!                 ip = (dl_hp_ppa_info_t *)((u_char *)ipstart + ip->dl_next_offset);
-          }
+! 		ip = (dl_hp_ppa_info_t *)((u_char *)ipstart + ip->dl_next_offset);
+! 	}
+! #else
+! 	/*
+! 	 * We don't have that member, so the search is impossible; make it
+! 	 * look as if the search failed.
+! 	 */
+! 	i = ap->dl_count;
+! #endif
+! 
+! 	if (i == ap->dl_count) {
+! 		/*
+! 		 * Well, we didn't, or can't, find the device by name.
+! 		 *
+! 		 * HP-UX 10.20, whilst it has "dl_module_id_1" and
+! 		 * "dl_module_id_2" fields in the "dl_hp_ppa_info_t",
+! 		 * doesn't seem to fill them in unless the system is
+! 		 * at a reasonably up-to-date patch level.
+! 		 *
+! 		 * Older HP-UX 10.x systems might not have those fields
+! 		 * at all.
+! 		 *
+! 		 * Therefore, we'll search for the entry with the major
+! 		 * device number of a device with the name "/dev/<dev><unit>",
+! 		 * if such a device exists, as the old code did.
+! 		 */
+! 		sprintf(dname, "/dev/%s%d", device, unit);
+! 		if (stat(dname, &statbuf) < 0) {
+! 			sprintf(ebuf, "stat: %s: %s", dname, pcap_strerror(errno));
+! 			return (-1);
+! 		}
+! 		majdev = major(statbuf.st_rdev);
+! 
+! 		ip = ipstart;
+! 
+! 		for (i = 0; i < ap->dl_count; i++) {
+! 			if (ip->dl_mjr_num == majdev &&
+! 			    ip->dl_instance_num == unit)
+! 				break;
+! 
+! 			ip = (dl_hp_ppa_info_t *)((u_char *)ipstart + ip->dl_next_offset);
+! 		}
+! 	}
           if (i == ap->dl_count) {
 !                 sprintf(ebuf, "can't find PPA for %s%d", device, unit);
   		return (-1);
@@ -776,7 +835,7 @@ to a DL_HP_PPA_REQ request, and "pcap-dlpi.c"):
   
   	cp = strrchr(ifname, '/');
   	if (cp != NULL)
---- 854,860 ----
+--- 910,916 ----
   	register int kd;
   	void *addr;
   	struct ifnet ifnet;
@@ -799,7 +858,7 @@ to a DL_HP_PPA_REQ request, and "pcap-dlpi.c"):
   			return (ifnet.if_index);
   	}
   
---- 882,893 ----
+--- 938,949 ----
   		if (dlpi_kread(kd, (off_t)addr,
   		    &ifnet, sizeof(ifnet), ebuf) < 0 ||
   		    dlpi_kread(kd, (off_t)ifnet.if_name,
@@ -812,5 +871,3 @@ to a DL_HP_PPA_REQ request, and "pcap-dlpi.c"):
   			return (ifnet.if_index);
   	}
   
-
-
