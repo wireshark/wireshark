@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.31 2001/01/22 00:20:29 guy Exp $
+ * $Id: packet-netbios.c,v 1.32 2001/02/26 01:25:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -520,7 +520,7 @@ static void dissect_netb_unknown( tvbuff_t *tvb, int offset, proto_tree *tree)
 
 {/* Handle any unknow commands, do nothing */
 
-/*	old_dissect_data( data_ptr, offset + NB_COMMAND + 1, fd, tree); */
+/*	dissect_data( tvb, offset + NB_COMMAND + 1, pinfo, tree); */
 }
 
 
