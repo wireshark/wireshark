@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.16 2002/04/18 00:29:16 guy Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.17 2002/04/20 07:15:19 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3363,8 +3363,8 @@ netlogon_dissect_function_00_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_TYPE_1_ptr, NDR_POINTER_REF,
 		"TYPE_1* pointer: unknown_TYPE_1", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -3396,8 +3396,8 @@ netlogon_dissect_function_01_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_TYPE_2, NDR_POINTER_REF,
 		"TYPE_2 pointer: unknown_TYPE_2", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -3406,6 +3406,9 @@ static int
 netlogon_dissect_netlogonsamlogon_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "SamLogon request");
+
 	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
 		pinfo, tree, drep);
 
@@ -3433,6 +3436,9 @@ static int
 netlogon_dissect_netlogonsamlogon_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "SamLogon response");
+
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_NETLOGON_AUTHENTICATOR, NDR_POINTER_UNIQUE,
 		"NETLOGON_AUTHENTICATOR pointer: server_cred", -1, 0);
@@ -3445,8 +3451,8 @@ netlogon_dissect_netlogonsamlogon_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_pointer_char, NDR_POINTER_REF,
 		"BOOLEAN pointer: Authoritative", hf_netlogon_authoritative, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -3487,8 +3493,8 @@ netlogon_dissect_netlogonsamlogoff_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_NETLOGON_AUTHENTICATOR, NDR_POINTER_UNIQUE,
 		"NETLOGON_AUTHENTICATOR pointer: server_cred", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -3497,6 +3503,10 @@ static int
 netlogon_dissect_netserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, 
+			    "RequestChallenge request");
+
 	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
 		pinfo, tree, drep);
 
@@ -3515,12 +3525,16 @@ static int
 netlogon_dissect_netserverreqchallenge_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, 
+			    "RequestChallenge response");
+
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_NETLOGON_CREDENTIAL, NDR_POINTER_REF,
 		"NETLOGON_CREDENTIAL pointer: server_chal", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -3557,8 +3571,8 @@ netlogon_dissect_netserverauthenticate_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_NETLOGON_CREDENTIAL, NDR_POINTER_REF,
 		"NETLOGON_CREDENTIAL pointer: server_chal", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -3599,8 +3613,8 @@ netlogon_dissect_netserverpasswordset_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_NETLOGON_AUTHENTICATOR, NDR_POINTER_REF,
 		"NETLOGON_AUTHENTICATOR pointer: server_cred", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -3653,8 +3667,8 @@ netlogon_dissect_netsamdeltas_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_SAM_DELTA_ARRAY_ptr, NDR_POINTER_REF,
 		"SAM_DELTA_ARRAY_ptr pointer: deltas", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -3706,8 +3720,8 @@ netlogon_dissect_function_08_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_SAM_DELTA_ARRAY_ptr, NDR_POINTER_REF,
 		"SAM_DELTA_ARRAY* pointer: unknown_SAM_DELTA_ARRAY", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -3770,8 +3784,8 @@ netlogon_dissect_function_09_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_TYPE_36, NDR_POINTER_REF,
 		"TYPE_36 pointer: unknown_TYPE_36", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -3835,8 +3849,8 @@ netlogon_dissect_function_0a_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_TYPE_36, NDR_POINTER_REF,
 		"TYPE_36 pointer: unknown_TYPE_36", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -3868,8 +3882,8 @@ netlogon_dissect_function_0b_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_WCHAR_ptr, NDR_POINTER_REF,
 		"WCHAR* pointer: unknown string", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -3899,8 +3913,8 @@ netlogon_dissect_netlogoncontrol_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_NETLOGON_INFO, NDR_POINTER_REF,
 		"NETLOGON_INFO pointer: unknown_NETLOGON_INFO", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -3931,8 +3945,8 @@ netlogon_dissect_function_0d_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_WCHAR_ptr, NDR_POINTER_REF,
 		"WCHAR* pointer: unknown string", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -3966,8 +3980,8 @@ netlogon_dissect_netlogoncontrol2_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_NETLOGON_INFO, NDR_POINTER_REF,
 		"NETLOGON_INFO pointer: unknown_NETLOGON_INFO", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -3976,6 +3990,9 @@ static int
 netlogon_dissect_netserverauthenticate2_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "Auth2 request");
+
 	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
 		pinfo, tree, drep);
 
@@ -4003,6 +4020,9 @@ static int
 netlogon_dissect_netserverauthenticate2_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "Auth2 response");
+
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		netlogon_dissect_NETLOGON_CREDENTIAL, NDR_POINTER_REF,
 		"NETLOGON_CREDENTIAL pointer: server_chal", -1, 0);
@@ -4011,8 +4031,8 @@ netlogon_dissect_netserverauthenticate2_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_pointer_long, NDR_POINTER_REF,
 		"ULONG pointer: neg_flags", hf_netlogon_unknown_long, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4068,8 +4088,8 @@ netlogon_dissect_netdatabasesync2_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_SAM_DELTA_ARRAY_ptr, NDR_POINTER_REF,
 		"SAM_DELTA_ARRAY* pointer: unknown_SAM_DELTA_ARRAY", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4115,8 +4135,8 @@ netlogon_dissect_function_11_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_SAM_DELTA_ARRAY_ptr, NDR_POINTER_REF,
 		"SAM_DELTA_ARRAY* pointer: unknown_SAM_DELTA_ARRAY", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4150,8 +4170,8 @@ netlogon_dissect_function_12_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_NETLOGON_INFO, NDR_POINTER_REF,
 		"NETLOGON_INFO pointer: unknown_NETLOGON_INFO", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4175,8 +4195,8 @@ netlogon_dissect_nettrusteddomainlist_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_UNICODE_MULTI, NDR_POINTER_REF,
 		"UNICODE_MULTI pointer: trust_dom_name_list", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4215,8 +4235,8 @@ netlogon_dissect_dsrgetdcname2_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_DOMAIN_CONTROLLER_INFO_ptr, NDR_POINTER_REF,
 		"DOMAIN_CONTROLLER_INFO* pointer: info", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4258,8 +4278,8 @@ netlogon_dissect_function_15_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_TYPE_44, NDR_POINTER_PTR,
 		"TYPE_44 pointer: unknown_TYPE_44", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4285,8 +4305,8 @@ static int
 netlogon_dissect_function_16_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4314,8 +4334,8 @@ netlogon_dissect_function_17_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_pointer_long, NDR_POINTER_PTR,
 		"ULONG pointer: unknown_ULONG", hf_netlogon_unknown_long, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4362,8 +4382,8 @@ netlogon_dissect_function_18_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_BYTE_16_array, NDR_POINTER_PTR,
 		"BYTE pointer: unknown_BYTE", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4398,8 +4418,8 @@ netlogon_dissect_function_19_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_BYTE_16_array, NDR_POINTER_PTR,
 		"BYTE pointer: unknown_BYTE", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4450,8 +4470,8 @@ netlogon_dissect_netserverauthenticate3_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_pointer_long, NDR_POINTER_PTR,
 		"ULONG pointer: unknown_ULONG", hf_netlogon_unknown_long, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4490,8 +4510,8 @@ netlogon_dissect_dsrgetdcname_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_DOMAIN_CONTROLLER_INFO_ptr, NDR_POINTER_REF,
 		"DOMAIN_CONTROLLER_INFO* pointer: info", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4515,8 +4535,8 @@ netlogon_dissect_dsrgetsitename_reply(tvbuff_t *tvb, int offset,
 	offset = netlogon_dissect_UNICODE_STRING(tvb, offset, pinfo, tree, drep,
 		NDR_POINTER_REF, hf_netlogon_site_name, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4561,8 +4581,8 @@ netlogon_dissect_function_1d_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_TYPE_47, NDR_POINTER_PTR,
 		"TYPE_47 pointer: unknown_TYPE_47", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4603,8 +4623,8 @@ netlogon_dissect_function_1e_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_NETLOGON_AUTHENTICATOR, NDR_POINTER_PTR,
 		"NETLOGON_AUTHENTICATOR pointer: unknown_NETLOGON_AUTHENTICATOR", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4647,8 +4667,8 @@ netlogon_dissect_netserverpasswordset2_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_LM_OWF_PASSWORD, NDR_POINTER_REF,
 		"LM_OWF_PASSWORD pointer: server_pwd", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4686,8 +4706,8 @@ netlogon_dissect_function_20_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_NETLOGON_AUTHENTICATOR, NDR_POINTER_PTR,
 		"NETLOGON_AUTHENTICATOR pointer: unknown_NETLOGON_AUTHENTICATOR", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4718,8 +4738,8 @@ netlogon_dissect_function_21_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_TYPE_50_ptr_ptr, NDR_POINTER_REF,
 		"TYPE_50** pointer: unknown_TYPE_50", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4765,8 +4785,8 @@ netlogon_dissect_function_22_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_DOMAIN_CONTROLLER_INFO_ptr_ptr, NDR_POINTER_REF,
 		"DOMAIN_CONTROLLER_INFO** pointer: unknown_DOMAIN_CONTROLLER_INFO", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4794,8 +4814,8 @@ netlogon_dissect_function_23_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_pointer_long, NDR_POINTER_PTR,
 		"ULONG pointer: unknown_ULONG", hf_netlogon_unknown_long, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4819,8 +4839,8 @@ netlogon_dissect_function_24_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_TYPE_51, NDR_POINTER_PTR,
 		"TYPE_51 pointer: unknown_TYPE_51", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4851,8 +4871,8 @@ netlogon_dissect_function_25_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_TYPE_52_ptr_ptr, NDR_POINTER_REF,
 		"TYPE_52** pointer: unknown_TYPE_52", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4878,8 +4898,8 @@ netlogon_dissect_function_26_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_TYPE_50_ptr_ptr, NDR_POINTER_REF,
 		"TYPE_50** pointer: unknown_TYPE_50", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4929,8 +4949,8 @@ netlogon_dissect_function_27_reply(tvbuff_t *tvb, int offset,
 		netlogon_dissect_pointer_long, NDR_POINTER_PTR,
 		"ULONG pointer: unknown_ULONG", hf_netlogon_unknown_long, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4957,8 +4977,8 @@ netlogon_dissect_dsrrolegetprimarydomaininformation_reply(tvbuff_t *tvb, int off
 		netlogon_dissect_TYPE_51, NDR_POINTER_PTR,
 		"TYPE_51 pointer: unknown_TYPE_51", -1, 0);
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
@@ -4994,8 +5014,8 @@ static int
 netlogon_dissect_dsrderegisterdnshostrecords_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-		hf_netlogon_rc, NULL);
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_netlogon_rc, NULL);
 
 	return offset;
 }
