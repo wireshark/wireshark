@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.78 2004/06/25 07:06:46 jmayer Exp $
+dnl $Id: acinclude.m4,v 1.79 2004/06/29 07:59:12 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -1018,9 +1018,10 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 			fi
 			want_krb5=no
 		], $KRB5_LIBS)
-		AC_SUBST(KRB5_LIBS)
 	else
+		KRB5_LIBS=""
 		want_krb5=no
 	fi
+	AC_SUBST(KRB5_LIBS)
 ])
 
