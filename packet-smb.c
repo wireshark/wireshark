@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.349 2003/06/09 00:02:13 guy Exp $
+ * $Id: packet-smb.c,v 1.350 2003/06/09 03:01:02 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -100,6 +100,8 @@ static int hf_smb_pid = -1;
 static int hf_smb_tid = -1;
 static int hf_smb_uid = -1;
 static int hf_smb_mid = -1;
+static int hf_smb_pid_high = -1;
+static int hf_smb_sig = -1;
 static int hf_smb_response_to = -1;
 static int hf_smb_time = -1;
 static int hf_smb_response_in = -1;
@@ -16258,9 +16260,20 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		/*
 		 * 12 reserved bytes.
 		 * XXX - high part of pid?
+                 * According to http://ubiqx.org/cifs/SMB.html#SMB.4.2.1
+                 * and http://ubiqx.org/cifs/SMB.html#SMB.5.5.1 these are
+                 * a two byte pid-high, and an 8-byte signature ...
 		 */
-		proto_tree_add_item(htree, hf_smb_reserved, tvb, offset, 12, TRUE);
-		offset += 12;
+
+                proto_tree_add_uint(htree, hf_smb_pid_high, tvb, offset, 2, si->tid);
+                offset +=2;
+
+		proto_tree_add_item(htree, hf_smb_sig, tvb, offset, 8, TRUE);                
+
+                offset +=8;
+
+		proto_tree_add_item(htree, hf_smb_reserved, tvb, offset, 2, TRUE);
+		offset += 2;
 	}
 
 	/* TID */
@@ -16385,7 +16398,9 @@ proto_register_smb(void)
 	{ &hf_smb_reserved,
 		{ "Reserved", "smb.reserved", FT_BYTES, BASE_HEX,
 		NULL, 0, "Reserved bytes, must be zero", HFILL }},
-
+        { &hf_smb_sig,
+                { "Signature", "smb.signature", FT_BYTES, BASE_HEX,
+                  NULL, 0, "Signature bytes", HFILL }},
 	{ &hf_smb_key,
 		{ "Key", "smb.key", FT_UINT32, BASE_HEX,
 		NULL, 0, "SMB-over-IPX Key", HFILL }},
@@ -16405,6 +16420,10 @@ proto_register_smb(void)
 	{ &hf_smb_pid,
 		{ "Process ID", "smb.pid", FT_UINT16, BASE_DEC,
 		NULL, 0, "Process ID", HFILL }},
+
+	{ &hf_smb_pid_high,
+		{ "Process ID High", "smb.pid.high", FT_UINT16, BASE_DEC,
+		NULL, 0, "Process ID High Bytes", HFILL }},
 
 	{ &hf_smb_tid,
 		{ "Tree ID", "smb.tid", FT_UINT16, BASE_DEC,
