@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.23 2003/05/04 18:50:53 gerald Exp $
+ * $Id: epan.c,v 1.24 2004/03/23 21:19:56 guy Exp $
  *
  * Ethereal Protocol Analyzer Library
  */
@@ -12,6 +12,7 @@
 #include <glib.h>
 #include "epan.h"
 #include "epan_dissect.h"
+#include "report_err.h"
 
 #include "conversation.h"
 #include "circuit.h"
@@ -20,6 +21,9 @@
 #include "column-utils.h"
 #include "../tap.h"
 #include "resolv.h"
+
+static void (*report_open_failure_func)(const char *, int, gboolean);
+static void (*report_read_failure_func)(const char *, int);
 
 /*
  * XXX - this takes the plugin directory as an argument, because
@@ -43,9 +47,13 @@
  * libraries are located.)
  */
 void
-epan_init(const char *plugin_dir, void (register_all_protocols)(void),
-	  void (register_all_handoffs)(void))
+epan_init(const char *plugin_dir, void (*register_all_protocols)(void),
+	  void (*register_all_handoffs)(void),
+	  void (*report_open_failure)(const char *, int, gboolean),
+	  void (*report_read_failure)(const char *, int))
 {
+	report_open_failure_func = report_open_failure;
+	report_read_failure_func = report_read_failure;
 	except_init();
 	tvbuff_init();
 	frame_data_init();
@@ -79,6 +87,25 @@ void
 epan_circuit_init(void)
 {
 	circuit_init();
+}
+
+/*
+ * Report an error when trying to open a file.
+ */
+void
+report_open_failure(const char *filename, int err,
+    gboolean for_writing)
+{
+	(*report_open_failure_func)(filename, err, for_writing);
+}
+
+/*
+ * Report an error when trying to read a file.
+ */
+void
+report_read_failure(const char *filename, int err)
+{
+	(*report_read_failure_func)(filename, err);
 }
 
 epan_dissect_t*

@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id: packet-asn1.c,v 1.21 2004/03/02 23:45:34 jmayer Exp $
+ * $Id: packet-asn1.c,v 1.22 2004/03/23 21:19:58 guy Exp $
  *
  * A plugin for:
  *
@@ -82,8 +82,8 @@
 #include "prefs.h"
 #include <epan/strutil.h>
 #include <epan/filesystem.h>
+#include <epan/report_err.h>
 #include "asn1.h"
-#include "report_err.h"
 #include "simple_dialog.h"
 
 #include "plugins/plugin_api_defs.h"

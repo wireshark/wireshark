@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.419 2004/03/20 06:34:08 guy Exp $
+ * $Id: main.c,v 1.420 2004/03/23 21:19:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1939,7 +1939,8 @@ main(int argc, char *argv[])
      "-G" flag, as the "-G" flag dumps information registered by the
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
-  epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs);
+  epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs,
+            open_failure_alert_box, read_failure_alert_box);
 
   /* Register all tap listeners; we do this before we parse the arguments,
      as the "-z" argument can specify a registered tap. */

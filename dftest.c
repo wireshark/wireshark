@@ -1,6 +1,6 @@
 /* dftest.c.c
  *
- * $Id: dftest.c,v 1.9 2004/03/18 19:04:31 obiot Exp $
+ * $Id: dftest.c,v 1.10 2004/03/23 21:19:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,6 +50,10 @@
 
 packet_info	pi;
 
+static void open_failure_message(const char *filename, int err,
+    gboolean for_writing);
+static void read_failure_message(const char *filename, int err);
+
 int
 main(int argc, char **argv)
 {
@@ -67,7 +71,8 @@ main(int argc, char **argv)
 	by the dissectors, and we must do it before we read the preferences,
 	in case any dissectors register preferences. */
 	epan_init(PLUGIN_DIR,register_all_protocols,
-		  register_all_protocol_handoffs);
+		  register_all_protocol_handoffs,
+		  open_failure_message, read_failure_message);
 
 	/* now register the preferences for any non-dissector modules.
 	we must do that before we read the preferences as well. */
@@ -138,22 +143,23 @@ main(int argc, char **argv)
 /*
  * Open/create errors are reported with an console message in "dftest".
  */
-void
-report_open_failure(const char *filename, int err, gboolean for_writing)
+static void
+open_failure_message(const char *filename, int err, gboolean for_writing)
 {
-  char *errmsg;
+	char *errmsg;
 
-  errmsg = g_strdup_printf(file_open_error_message(err, for_writing), filename);
-  fprintf(stderr, "dftest: %s\n", errmsg);
-  g_free(errmsg);
+	errmsg = g_strdup_printf(file_open_error_message(err, for_writing),
+	    filename);
+	fprintf(stderr, "dftest: %s\n", errmsg);
+	g_free(errmsg);
 }
 
 /*
  * Read errors are reported with an console message in "dftest".
  */
-void
-report_read_failure(const char *filename, int err)
+static void
+read_failure_message(const char *filename, int err)
 {
-  fprintf(stderr, "dftest: An error occurred while reading from the file \"%s\": %s.",
-          filename, strerror(err));
+	fprintf(stderr, "dftest: An error occurred while reading from the file \"%s\": %s.",
+	    filename, strerror(err));
 }

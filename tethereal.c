@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.232 2004/03/18 19:04:31 obiot Exp $
+ * $Id: tethereal.c,v 1.233 2004/03/23 21:19:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,7 +96,6 @@
 #include "ringbuffer.h"
 #include <epan/epan_dissect.h>
 #include "tap.h"
-#include "report_err.h"
 #include <epan/timestamp.h>
 
 #ifdef HAVE_LIBPCAP
@@ -185,6 +184,10 @@ static int pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
                 struct pcaprec_modified_hdr *, guchar *, char *, int);
 #endif /* _WIN32 */
 #endif
+
+static void open_failure_message(const char *filename, int err,
+    gboolean for_writing);
+static void read_failure_message(const char *filename, int err);
 
 capture_file cfile;
 #ifdef HAVE_LIBPCAP
@@ -836,7 +839,8 @@ main(int argc, char *argv[])
      "-G" flag, as the "-G" flag dumps information registered by the
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
-  epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs);
+  epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs,
+            open_failure_message, read_failure_message);
 
   /* Register all tap listeners; we do this before we parse the arguments,
      as the "-z" argument can specify a registered tap. */
@@ -2970,8 +2974,8 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 /*
  * Open/create errors are reported with an console message in Tethereal.
  */
-void
-report_open_failure(const char *filename, int err, gboolean for_writing)
+static void
+open_failure_message(const char *filename, int err, gboolean for_writing)
 {
   char *errmsg;
 
@@ -3328,8 +3332,8 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
 /*
  * Read errors are reported with an console message in Tethereal.
  */
-void
-report_read_failure(const char *filename, int err)
+static void
+read_failure_message(const char *filename, int err)
 {
   fprintf(stderr, "tethereal: An error occurred while reading from the file \"%s\": %s.",
           filename, strerror(err));

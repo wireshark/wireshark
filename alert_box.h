@@ -2,7 +2,7 @@
  * Routines to put up various "standard" alert boxes used in multiple
  * places
  *
- * $Id: alert_box.h,v 1.3 2004/02/11 01:37:11 guy Exp $
+ * $Id: alert_box.h,v 1.4 2004/03/23 21:19:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,12 @@ extern "C" {
  */
 extern void open_failure_alert_box(const char *filename, int err,
                                    gboolean for_writing);
+
+/*
+ * Alert box for a failed attempt to read a file.
+ * "err" is assumed to be a UNIX-style errno.
+ */
+extern void read_failure_alert_box(const char *filename, int err);
 
 /*
  * Alert box for a failed attempt to write to a file.

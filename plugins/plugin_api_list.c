@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.30 2004/03/04 07:07:03 guy Exp $
+ * $Id: plugin_api_list.c,v 1.31 2004/03/23 21:19:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,6 +29,8 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/filesystem.h>
+#include <epan/report_err.h>
+#include <epan/except.h>
 #include "prefs.h"
 #include "reassemble.h"
 #include "packet-giop.h"
@@ -39,8 +41,6 @@
 #include "tap.h"
 #include "asn1.h"
 #include "xdlc.h"
-#include "epan/except.h"
-#include "report_err.h"
 
 gint check_col(column_info*, gint);
 void col_clear(column_info*, gint);
