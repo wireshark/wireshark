@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.30 1999/10/30 06:41:51 guy Exp $
+ * $Id: main.c,v 1.31 1999/11/04 21:04:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -629,6 +629,9 @@ main(int argc, char *argv[])
   int                  opt;
   extern char         *optarg;
 #endif
+#ifdef HAVE_LIBPCAP
+  extern char         pcap_version[];
+#endif
   char                *pf_path;
   int                 pf_open_errno = 0;
   int                 err;
@@ -724,16 +727,16 @@ main(int argc, char *argv[])
   /* Assemble the compile-time options */
   snprintf(comp_info_str, 256,
 #ifdef GTK_MAJOR_VERSION
-    "GTK+ %d.%d.%d, %s libpcap", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
+    "GTK+ %d.%d.%d, %s%s", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
     GTK_MICRO_VERSION,
 #else
-    "GTK+ (version unknown), %s libpcap",
+    "GTK+ (version unknown), %s%s",
 #endif
 
 #ifdef HAVE_LIBPCAP
-   "with"
+   "with libpcap ", pcap_version
 #else
-   "without"
+   "without libpcap", ""
 #endif
    );
 
