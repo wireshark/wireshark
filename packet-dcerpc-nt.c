@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.79 2004/05/15 10:05:09 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.80 2004/05/19 04:52:31 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1011,11 +1011,12 @@ int dissect_ndr_str_pointer_item(tvbuff_t *tvb, gint offset,
 
 /* SID dissection routines */
 
-static int hf_nt_count= -1;
+static int hf_nt_count = -1;
+static int hf_nt_domain_sid = -1;
 
 int
 dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-		   proto_tree *tree, guint8 *drep, int hf_sid)
+		   proto_tree *tree, guint8 *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -1038,7 +1039,8 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_nt_count, NULL);
 
-	offset = dissect_nt_sid(tvb, offset, tree, name, &sid_str, hf_sid);
+	offset = dissect_nt_sid(tvb, offset, tree, name, &sid_str, 
+				hf_nt_domain_sid);
 
 	/* dcv can be null, for example when this ndr structure is embedded
 	 * inside non-dcerpc pdus, i.e. kerberos PAC structure
@@ -1054,9 +1056,8 @@ static int
 dissect_ndr_nt_SID_hf_through_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 		   proto_tree *tree, guint8 *drep)
 {
-	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
+	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
 
-	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep, di->hf_index);
 	return offset;
 }
 
@@ -1065,7 +1066,7 @@ static gint ett_nt_sid_pointer = -1;
 int
 dissect_ndr_nt_PSID(tvbuff_t *tvb, int offset,
 		    packet_info *pinfo, proto_tree *parent_tree,
-		    guint8 *drep, int hf_sid)
+		    guint8 *drep)
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
@@ -1079,7 +1080,7 @@ dissect_ndr_nt_PSID(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_SID_hf_through_ptr, NDR_POINTER_UNIQUE,
-			"SID pointer", hf_sid);
+			"SID pointer", hf_nt_domain_sid);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -1264,7 +1265,7 @@ dissect_ndr_nt_PSID_no_hf(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *parent_tree,
                              guint8 *drep)
 {
-	offset=dissect_ndr_nt_PSID(tvb, offset, pinfo, parent_tree, drep, -1);
+	offset=dissect_ndr_nt_PSID(tvb, offset, pinfo, parent_tree, drep);
 	return offset;
 }
 
@@ -1324,7 +1325,7 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
 		tree = proto_item_add_subtree(item, ett_nt_sid_and_attributes);
 	}
 
-	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_nt_attrib, NULL);
@@ -1452,6 +1453,11 @@ void dcerpc_smb_init(int proto_dcerpc)
 		    "If this account has been autolocked", HFILL }},
 
 		/* SIDs */
+
+		{ &hf_nt_domain_sid,
+		  { "Domain SID", "nt.domain_sid", 
+		    FT_STRING, BASE_NONE, NULL, 0x0, 
+		    "The Domain SID", HFILL }},
 
 		{ &hf_nt_count,
 		  { "Count", "nt.count", 

@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.93 2004/03/30 07:39:04 sharpe Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.94 2004/05/19 04:52:31 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,7 +73,6 @@ static int hf_lsa_max_count = -1;
 static int hf_lsa_index = -1;
 static int hf_lsa_fqdomain = -1;
 static int hf_lsa_domain = -1;
-static int hf_lsa_domain_sid = -1;
 static int hf_lsa_acct = -1;
 static int hf_lsa_server_role = -1;
 static int hf_lsa_source = -1;
@@ -794,8 +793,7 @@ lsa_dissect_POLICY_PRIMARY_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 		hf_lsa_domain, 0);
 
 	/* sid */
-	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep, hf_lsa_domain_sid);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -821,8 +819,7 @@ lsa_dissect_POLICY_ACCOUNT_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 		hf_lsa_domain, 0);
 
 	/* sid */
-	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep, hf_lsa_domain_sid);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -1036,7 +1033,7 @@ lsa_dissect_POLICY_DNS_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	/* SID pointer */
-	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep, hf_lsa_domain_sid);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -1370,8 +1367,7 @@ lsa_dissect_LSA_TRUST_INFORMATION(tvbuff_t *tvb, int offset,
 		hf_lsa_name, 0);
 
 	/* sid */
-	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -1460,8 +1456,7 @@ lsa_dissect_LSA_TRUST_INFORMATION_EX(tvbuff_t *tvb, int offset,
 		hf_lsa_flat_name, 0);
 
 	/* sid */
-	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 
 	/* direction */
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
@@ -1726,8 +1721,7 @@ lsa_dissect_lsarclearauditlog_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
-	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
 
 	/* unknown */
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
@@ -1807,8 +1801,7 @@ lsa_dissect_lsaropentrusteddomain_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
-	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
 
 	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
 		pinfo, tree, drep);
@@ -1838,8 +1831,7 @@ lsa_dissect_lsardeletetrusteddomain_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
-	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
 
 	return offset;
 }
@@ -2291,8 +2283,7 @@ lsa_dissect_LSA_TRUSTED_DOMAIN(tvbuff_t *tvb, int offset,
 		hf_lsa_domain, 0);
 
 	/* sid */
-	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 
 	proto_item_set_len(item, offset-old_offset);
 	return offset;
@@ -2554,8 +2545,7 @@ lsa_dissect_lsaropenaccount_rqst(tvbuff_t *tvb, int offset,
 			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] SID *account */
-	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
 
 	/* [in] ACCESS_MASK access */
 	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
@@ -2920,8 +2910,7 @@ lsa_dissect_lsarenumerateaccountrights_rqst(tvbuff_t *tvb, int offset,
 			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] SID *account */
-	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
 
 	return offset;
 }
@@ -2951,8 +2940,7 @@ lsa_dissect_lsaraddaccountrights_rqst(tvbuff_t *tvb, int offset,
 			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] SID *account */
-	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
 
 	/* [in, ref] LSA_UNICODE_STRING_ARRAY *rights */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -2982,8 +2970,7 @@ lsa_dissect_lsarremoveaccountrights_rqst(tvbuff_t *tvb, int offset,
 			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] SID *account */
-	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
 
 	/* remove all */
 	offset = dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
@@ -3091,8 +3078,7 @@ lsa_dissect_lsarquerytrusteddomaininfo_rqst(tvbuff_t *tvb, int offset,
 			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] SID *sid */
-	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
 
 	/* [in] TRUSTED_INFORMATION_CLASS level */
         offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
@@ -3162,8 +3148,7 @@ lsa_dissect_lsarsettrusteddomaininfo_rqst(tvbuff_t *tvb, int offset,
 			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
 	/* [in, ref] SID *sid */
-	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
 
 	/* [in] TRUSTED_INFORMATION_CLASS level */
         offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
@@ -3373,8 +3358,7 @@ lsa_dissect_lsarcreateaccount_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 			hf_lsa_hnd, NULL, NULL, FALSE, FALSE);
 
-	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
 
 	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
 		pinfo, tree, drep);
@@ -4221,10 +4205,6 @@ proto_register_dcerpc_lsa(void)
 	{ &hf_lsa_domain,
 		{ "Domain", "lsa.domain", FT_STRING, BASE_NONE,
 		NULL, 0x0, "Domain", HFILL }},
-
-	{ &hf_lsa_domain_sid,
-		{ "Domain SID", "lsa.domain_sid", FT_STRING, BASE_NONE,
-		NULL, 0x0, "The Domain SID", HFILL }},
 
 	{ &hf_lsa_acct,
 		{ "Account", "lsa.acct", FT_STRING, BASE_NONE,

@@ -2,7 +2,7 @@
  * Routines for the efsrpc MSRPC interface
  * Copyright 2004 Ronnie Sahlberg, Jean-Baptiste Marchand
  *
- * $Id: packet-dcerpc-efs.c,v 1.1 2004/04/29 22:40:21 sahlberg Exp $
+ * $Id: packet-dcerpc-efs.c,v 1.2 2004/05/19 04:52:31 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -317,8 +317,7 @@ efsrpc_dissect_efs_SID_ptr(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     guint8 *drep)
 {
-	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_SID(tvb, offset, pinfo, tree, drep);
 
 	return offset;
 }

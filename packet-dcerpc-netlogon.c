@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.105 2004/05/01 00:34:28 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.106 2004/05/19 04:52:31 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -127,7 +127,6 @@ static int hf_netlogon_group_rid = -1;
 static int hf_netlogon_logon_srv = -1;
 static int hf_netlogon_principal = -1;
 static int hf_netlogon_logon_dom = -1;
-static int hf_netlogon_resourcegroupdomainsid = -1;
 static int hf_netlogon_resourcegroupcount = -1;
 static int hf_netlogon_downlevel_domain_name = -1;
 static int hf_netlogon_dns_domain_name = -1;
@@ -1224,8 +1223,7 @@ netlogon_dissect_VALIDATION_SAM_INFO(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_logon_dom, 0);
 
-	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 
 	for(i=0;i<2;i++){
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -1350,8 +1348,7 @@ netlogon_dissect_VALIDATION_SAM_INFO2(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_logon_dom, 0);
 
-	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 
 	for(i=0;i<2;i++){
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -1489,8 +1486,7 @@ netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_logon_dom, 0);
 
-	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 
 	for(i=0;i<2;i++){
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -1511,8 +1507,7 @@ netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, int offset,
 		dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY, NDR_POINTER_UNIQUE,
 		"SID_AND_ATTRIBUTES_ARRAY:", -1);
 
-	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep, hf_netlogon_resourcegroupdomainsid);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_resourcegroupcount, &rgc);
@@ -2766,8 +2761,7 @@ netlogon_dissect_DELTA_POLICY(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_counted_string(tvb, offset, pinfo, tree, drep,
 		hf_netlogon_domain_name, 0);
 
-	offset = dissect_ndr_nt_PSID(tvb, offset,
-		pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 
 	offset = netlogon_dissect_QUOTA_LIMITS(tvb, offset,
 		pinfo, tree, drep);
@@ -3456,24 +3450,19 @@ netlogon_dissect_DELTA_ID_UNION(tvbuff_t *tvb, int offset,
 			hf_netlogon_user_rid, NULL);
 		break;
 	case 13:
-		offset = dissect_ndr_nt_PSID(tvb, offset,
-			pinfo, tree, drep, -1);
+		offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 		break;
 	case 14:
-		offset = dissect_ndr_nt_PSID(tvb, offset,
-			pinfo, tree, drep, -1);
+		offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 		break;
 	case 15:
-		offset = dissect_ndr_nt_PSID(tvb, offset,
-			pinfo, tree, drep, -1);
+		offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 		break;
 	case 16:
-		offset = dissect_ndr_nt_PSID(tvb, offset,
-			pinfo, tree, drep, -1);
+		offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 		break;
 	case 17:
-		offset = dissect_ndr_nt_PSID(tvb, offset,
-			pinfo, tree, drep, -1);
+		offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 		break;
 	case 18:
 		offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, 
@@ -5318,7 +5307,7 @@ netlogon_dissect_DS_DOMAIN_TRUSTS(tvbuff_t *tvb, int offset,
 		hf_netlogon_trust_attribs, &tmp);
 
 	/* SID pointer */
-	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep, -1);
+	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, drep);
 
 	/* GUID */
 	offset = dissect_nt_GUID(tvb, offset, pinfo, tree, drep);
@@ -6895,10 +6884,6 @@ static hf_register_info hf[] = {
 	{ &hf_netlogon_logon_dom,
 		{ "Domain", "netlogon.domain", FT_STRING, BASE_NONE,
 		NULL, 0, "Domain", HFILL }},
-
-	{ &hf_netlogon_resourcegroupdomainsid,
-		{ "ResourceGroupDomainSID", "netlogon.resourcegroupdomainsid", FT_STRING, BASE_NONE,
-		NULL, 0, "Resource Group Domain SID", HFILL }},
 
 	{ &hf_netlogon_resourcegroupcount,
 		{ "ResourceGroup count", "netlogon.resourcegroupcount", FT_UINT32, BASE_DEC,
