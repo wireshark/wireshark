@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.49 2004/06/09 03:08:12 gerald Exp $
+# $Id: Makefile.am,v 1.50 2004/06/09 19:20:45 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -250,7 +250,7 @@ plugin_src =
 endif		# HAVE_PLUGINS
 
 # Doxygen
-doxygen.tmp: ../config.nmake doxygen.cfg
+doxygen.tmp: doxygen.cfg
 	sed -e s/@VERSION@/$(VERSION)/ \
 	    < doxygen.cfg > $@
 

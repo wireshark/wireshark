@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.101 2004/06/09 03:08:13 gerald Exp $
+# $Id: Makefile.am,v 1.102 2004/06/09 19:20:46 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -115,7 +115,7 @@ EXTRA_DIST = \
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
 
 # Doxygen
-doxygen.tmp: ../config.nmake doxygen.cfg
+doxygen.tmp: doxygen.cfg
 	sed -e s/@VERSION@/$(VERSION)/ \
 	    < doxygen.cfg > $@
 
