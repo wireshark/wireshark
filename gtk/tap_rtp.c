@@ -1,7 +1,7 @@
 /*
  * tap_rtp.c
  *
- * $Id: tap_rtp.c,v 1.5 2003/03/07 01:18:21 jmayer Exp $
+ * $Id: tap_rtp.c,v 1.6 2003/03/07 19:47:07 guy Exp $
  *
  * RTP analysing addition for ethereal
  *
@@ -120,6 +120,10 @@
 #include <unistd.h>
 #endif
 #include <fcntl.h>
+
+#ifdef HAVE_IO_H
+#include <io.h>	/* open/close on win32 */
+#endif
 
 #ifndef O_BINARY
 #define O_BINARY 0
