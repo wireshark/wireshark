@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.265 2002/05/29 19:55:55 guy Exp $
+ * $Id: packet-smb.c,v 1.266 2002/05/30 11:29:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -13107,7 +13107,7 @@ static smb_function smb_dissector[256] = {
   /* 0x2f Write And X*/  {dissect_write_andx_request, dissect_write_andx_response},
 
   /* 0x30 */  {dissect_unknown, dissect_unknown},
-  /* 0x31 Close And Tree Discover*/  {dissect_unknown, dissect_unknown},
+  /* 0x31 Close And Tree Disconnect */  {dissect_close_file_request, dissect_empty},
   /* 0x32 Transaction2*/		{dissect_transaction_request, dissect_transaction_response},
   /* 0x33 Transaction2 Secondary*/  {dissect_transaction_request, dissect_unknown}, /*This SMB has no response */
   /* 0x34 Find Close2*/  {dissect_sid, dissect_empty},
@@ -13422,7 +13422,7 @@ static const value_string smb_cmd_vals[] = {
   { 0x2E, "Read AndX" },
   { 0x2F, "Write AndX" },
   { 0x30, "unknown-0x30" },
-  { 0x31, "Close And Tree Discover" },
+  { 0x31, "Close And Tree Disconnect" },
   { 0x32, "Transaction2" },
   { 0x33, "Transaction2 Secondary" },
   { 0x34, "Find Close2" },
