@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.1 2000/02/12 08:31:45 guy Exp $
+ * $Id: color_dlg.c,v 1.2 2000/02/12 08:42:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,7 +30,6 @@
 #include <gtk/gtk.h>
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include <errno.h>
@@ -39,11 +38,11 @@
 #include "gtk/main.h"
 #include "packet.h"
 #include "colors.h"
+#include "color_dlg.h"
 #include "file.h"
 #include "dfilter.h"
 #include "simple_dialog.h"
 #include "ui_util.h"
-#include "util.h"
 		
 static GtkWidget* colorize_dialog_new(colfilter *filter);
 static void add_filter_to_clist(gpointer filter_arg, gpointer clist_arg);
