@@ -289,6 +289,10 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, gchar *title)
     case 0x00: str = "Unknown"; break;
     case 0x01: str = "International"; break;
     case 0x02: str = "National"; break;
+    case 0x03: str = "Network specific"; break;
+    case 0x04: str = "Subscriber"; break;
+    case 0x05: str = "Alphanumeric (coded according to 3GPP TS 23.038 GSM 7-bit default alphabet)"; break;
+    case 0x06: str = "Abbreviated number"; break;
     case 0x07: str = "Reserved for extension"; break;
     default: str = "Unknown, reserved (?)"; break;
     }
@@ -304,7 +308,14 @@ dis_field_addr(tvbuff_t *tvb, proto_tree *tree, guint32 *offset_p, gchar *title)
     switch (oct & 0x0f)
     {
     case 0x00: str = "Unknown"; break;
-    case 0x01: str = "ISDN/telephone"; break;
+    case 0x01: str = "ISDN/telephone (E.164/E.163)"; break;
+    case 0x03: str = "Data numbering plan (X.121)"; break;
+    case 0x04: str = "Telex numbering plan"; break;
+    case 0x05: str = "Service Centre Specific plan"; break;
+    case 0x06: str = "Service Centre Specific plan"; break;
+    case 0x08: str = "National numbering plan"; break;
+    case 0x09: str = "Private numbering plan"; break;
+    case 0x0a: str = "ERMES numbering plan (ETSI DE/PS 3 01-3)"; break;
     case 0x0f: str = "Reserved for extension"; break;
     default: str = "Unknown, reserved (?)"; break;
     }
@@ -768,12 +779,12 @@ dis_field_scts_aux(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     oct = tvb_get_guint8(tvb, offset);
 
     sign = (oct & 0x08)?'-':'+';
-    oct = ((oct >> 4) + (oct & 0x07) * 10) * 15;
+    oct = (oct >> 4) + (oct & 0x07) * 10;
 
     proto_tree_add_text(tree,
 	tvb, offset, 1,
 	"Timezone: GMT %c %d hours %d minutes",
-	sign, oct / 60, oct % 60);
+	sign, oct / 4, oct % 4 * 15);
 }
 
 /* 9.2.3.11 */
