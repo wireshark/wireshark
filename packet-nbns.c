@@ -1,10 +1,10 @@
 /* packet-nbns.c
- * Routines for NetBIOS Name Service, Datagram Service, and Session Service
- * packet disassembly (the name dates back to when it had only NBNS)
+ * Routines for NetBIOS-over-TCP packet disassembly (the name dates back
+ * to when it had only NBNS)
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.26 1999/08/21 17:59:36 guy Exp $
+ * $Id: packet-nbns.c,v 1.27 1999/09/03 01:43:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,7 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-dns.h"
+#include "packet-netbios.h"
 #include "util.h"
 
 static int proto_nbns = -1;
@@ -146,48 +147,15 @@ nbns_type_name (int type)
 	return "unknown";
 }
 
-/* "Canonicalize" a 16-character NetBIOS name by:
- *
- *	removing and saving the last byte;
- *
- *	stripping trailing blanks;
- *
- *	appending the trailing byte, as a hex number, in square brackets. */
-static char *
-canonicalize_netbios_name(char *nbname)
-{
-	char *pnbname;
-	u_char lastchar;
-
-	/* Get the last character of the name, as it's a special number
-	 * indicating the type of the name, rather than part of the name
-	 * *per se*. */
-	pnbname = nbname + 15;	/* point to the 16th character */
-	lastchar = *(unsigned char *)pnbname;
-
-	/* Now strip off any trailing blanks used to pad it to
-	 * 16 bytes. */
-	while (pnbname > &nbname[0]) {
-		if (*(pnbname - 1) != ' ')
-			break;		/* found non-blank character */
-		pnbname--;		/* blank - skip over it */
-	}
-
-	/* Replace the last character with its hex value, in square
-	 * brackets, to make it easier to tell what it is. */
-	sprintf(pnbname, "[%02X]", lastchar);
-	pnbname += 4;
-	return pnbname;
-}
-
 static int
 get_nbns_name(const u_char *nbns_data_ptr, const u_char *pd,
-    int offset, char *name_ret)
+    int offset, char *name_ret, int *name_type_ret)
 {
 	int name_len;
 	char name[MAXDNAME];
-	char nbname[MAXDNAME+4];	/* 4 for [<last char>] */
+	char nbname[NETBIOS_NAME_LEN];
 	char *pname, *pnbname, cname, cnbname;
+	int name_type;
 
 	name_len = get_dns_name(nbns_data_ptr, pd + offset, name, sizeof(name));
 	
@@ -230,29 +198,42 @@ get_nbns_name(const u_char *nbns_data_ptr, const u_char *pd,
 		cnbname |= cname;
 		pname++;
 
-		/* Store the character. */
-		*pnbname++ = cnbname;
+		/* Do we have room to store the character? */
+		if (pnbname < &nbname[NETBIOS_NAME_LEN]) {
+			/* Yes - store the character. */
+			*pnbname = cnbname;
+		}
+
+		/* We bump the pointer even if it's past the end of the
+		   name, so we keep track of how long the name is. */
+		pnbname++;
 	}
 
 	/* NetBIOS names are supposed to be exactly 16 bytes long. */
-	if (pnbname - nbname == 16) {
-		/* This one is; canonicalize its name. */
-		pnbname = canonicalize_netbios_name(nbname);
-	} else {
+	if (pnbname - nbname != NETBIOS_NAME_LEN) {
+		/* It's not. */
 		sprintf(nbname, "Illegal NetBIOS name (%ld bytes long)",
 		    (long)(pnbname - nbname));
 		goto bad;
 	}
+
+	/* This one is; make its name printable. */
+	name_type = process_netbios_name(nbname, name_ret);
+	name_ret += strlen(name_ret);
+	sprintf(name_ret, "<%02x>", name_type);
+	name_ret += 4;
 	if (cname == '.') {
 		/* We have a scope ID, starting at "pname"; append that to
 		 * the decoded host name. */
-		strcpy(pnbname, pname);
-	} else {
-		/* Terminate the decoded host name. */
-		*pnbname = '\0';
+		strcpy(name_ret, pname);
 	}
+	if (name_type_ret != NULL)
+		*name_type_ret = name_type;
+	return name_len;
 
 bad:
+	if (name_type_ret != NULL)
+		*name_type_ret = -1;
 	strcpy (name_ret, nbname);
 	return name_len;
 }
@@ -260,14 +241,15 @@ bad:
 
 static int
 get_nbns_name_type_class(const u_char *nbns_data_ptr, const u_char *pd,
-    int offset, char *name_ret, int *name_len_ret, int *type_ret,
-    int *class_ret)
+    int offset, char *name_ret, int *name_len_ret, int *name_type_ret,
+    int *type_ret, int *class_ret)
 {
 	int name_len;
 	int type;
 	int class;
 
-	name_len = get_nbns_name(nbns_data_ptr, pd, offset, name_ret);
+	name_len = get_nbns_name(nbns_data_ptr, pd, offset, name_ret,
+	   name_type_ret);
 	offset += name_len;
 	
 	type = pntohs(&pd[offset]);
@@ -281,14 +263,27 @@ get_nbns_name_type_class(const u_char *nbns_data_ptr, const u_char *pd,
 	return name_len + 4;
 }
 
+static void
+add_name_and_type(proto_tree *tree, int offset, int len, char *tag,
+    char *name, int name_type)
+{
+	if (name_type != -1) {
+		proto_tree_add_text(tree, offset, len, "%s: %s (%s)",
+		    tag, name, netbios_name_type_descr(name_type));
+	} else {
+		proto_tree_add_text(tree, offset, len, "%s: %s",
+		    tag, name);
+	}
+}
 
 static int
 dissect_nbns_query(const u_char *nbns_data_ptr, const u_char *pd, int offset,
     proto_tree *nbns_tree)
 {
 	int len;
-	char name[MAXDNAME];
+	char name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME];
 	int name_len;
+	int name_type;
 	int type;
 	int class;
 	char *class_name;
@@ -301,7 +296,7 @@ dissect_nbns_query(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 	data_start = dptr = pd + offset;
 
 	len = get_nbns_name_type_class(nbns_data_ptr, pd, offset, name,
-	    &name_len, &type, &class);
+	    &name_len, &name_type, &type, &class);
 	dptr += len;
 
 	type_name = nbns_type_name(type);
@@ -311,7 +306,7 @@ dissect_nbns_query(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 	    name, type_name, class_name);
 	q_tree = proto_item_add_subtree(tq, ETT_NBNS_QD);
 
-	proto_tree_add_text(q_tree, offset, name_len, "Name: %s", name);
+	add_name_and_type(q_tree, offset, name_len, "Name", name, name_type);
 	offset += name_len;
 
 	proto_tree_add_text(q_tree, offset, 2, "Type: %s", type_name);
@@ -499,8 +494,9 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
     proto_tree *nbns_tree, int opcode)
 {
 	int len;
-	char name[MAXDNAME];
+	char name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME + 64];
 	int name_len;
+	int name_type;
 	int type;
 	int class;
 	char *class_name;
@@ -512,11 +508,12 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 	u_short flags;
 	proto_tree *rr_tree;
 	proto_item *trr;
+	char name_str[(NETBIOS_NAME_LEN - 1)*4 + 1];
 
 	data_start = dptr = pd + offset;
 
 	len = get_nbns_name_type_class(nbns_data_ptr, pd, offset, name,
-	    &name_len, &type, &class);
+	    &name_len, &name_type, &type, &class);
 	dptr += len;
 
 	type_name = nbns_type_name(type);
@@ -534,6 +531,9 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 		    (dptr - data_start) + data_len,
 		    "%s: type %s, class %s",
 		    name, type_name, class_name);
+		strcat(name, " (");
+		strcat(name, netbios_name_type_descr(name_type));
+		strcat(name, ")");
 		rr_tree = add_rr_to_tree(trr, ETT_NBNS_RR, offset, name,
 		    name_len, type_name, class_name, ttl, data_len);
 		offset += (dptr - data_start);
@@ -604,18 +604,21 @@ dissect_nbns_answer(const u_char *nbns_data_ptr, const u_char *pd, int offset,
 			offset += 1;
 
 			while (num_names != 0) {
-				if (data_len < 16) {
+				if (data_len < NETBIOS_NAME_LEN) {
 					proto_tree_add_text(rr_tree, offset,
 					    data_len, "(incomplete entry)");
 					goto out;
 				}
-				memcpy(nbname, dptr, 16);
-				dptr += 16;
-				canonicalize_netbios_name(nbname);
-				proto_tree_add_text(rr_tree, offset, 16,
-				    "Name: %s", nbname);
-				offset += 16;
-				data_len -= 16;
+				memcpy(nbname, dptr, NETBIOS_NAME_LEN);
+				dptr += NETBIOS_NAME_LEN;
+				name_type = process_netbios_name(nbname,
+				    name_str);
+				proto_tree_add_text(rr_tree, offset,
+				    NETBIOS_NAME_LEN, "Name: %s<%02x> (%s)",
+				    name_str, name_type,
+				    netbios_name_type_descr(name_type));
+				offset += NETBIOS_NAME_LEN;
+				data_len -= NETBIOS_NAME_LEN;
 
 				if (data_len < 2) {
 					proto_tree_add_text(rr_tree, offset,
@@ -1013,7 +1016,8 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	char *yesno[] = { "No", "Yes" };
 
-	char name[MAXDNAME+4];
+	char name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME];
+	int name_type;
 	int len;
 
 	header.msg_type = pd[offset];
@@ -1085,21 +1089,21 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		max_data -= 4;
 
 		/* Source name */
-		len = get_nbns_name(&pd[offset], pd, offset, name);
+		len = get_nbns_name(&pd[offset], pd, offset, name, &name_type);
 
 		if (tree) {
-			proto_tree_add_text(nbdgm_tree, offset, len, "Source name: %s",
-					name);
+			add_name_and_type(nbdgm_tree, offset, len,
+			    "Source name", name, name_type);
 		}
 		offset += len;
 		max_data -= len;
 
 		/* Destination name */
-		len = get_nbns_name(&pd[offset], pd, offset, name);
+		len = get_nbns_name(&pd[offset], pd, offset, name, &name_type);
 
 		if (tree) {
-			proto_tree_add_text(nbdgm_tree, offset, len, "Destination name: %s",
-					name);
+			add_name_and_type(nbdgm_tree, offset, len,
+			    "Destination name", name, name_type);
 		}
 		offset += len;
 		max_data -= len;
@@ -1116,11 +1120,11 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	else if (header.msg_type == 0x14 ||
 			header.msg_type == 0x15 || header.msg_type == 0x16) {
 		/* Destination name */
-		len = get_nbns_name(&pd[offset], pd, offset, name);
+		len = get_nbns_name(&pd[offset], pd, offset, name, &name_type);
 
 		if (tree) {
-			proto_tree_add_text(nbdgm_tree, offset, len, "Destination name: %s",
-					name);
+			add_name_and_type(nbdgm_tree, offset, len,
+			    "Destination name", name, name_type);
 		}
 	}
 }
@@ -1177,7 +1181,8 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 	guint8		flags;
 	guint16		length;
 	int		len;
-	char		name[MAXDNAME+4];
+	char		name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME];
+	int		name_type;
 
 	msg_type = pd[offset];
 	flags = pd[offset + 1];
@@ -1214,17 +1219,17 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 	switch (msg_type) {
 
 	case SESSION_REQUEST:
-	  len = get_nbns_name(&pd[offset], pd, offset, name);
+	  len = get_nbns_name(&pd[offset], pd, offset, name, &name_type);
 	  if (tree)
-	    proto_tree_add_text(nbss_tree, offset, len,
-				"Called name: %s", name);
+	    add_name_and_type(nbss_tree, offset, len,
+				"Called name", name, name_type);
 	  offset += len;
 
-	  len = get_nbns_name(&pd[offset], pd, offset, name);
+	  len = get_nbns_name(&pd[offset], pd, offset, name, &name_type);
 	  
 	  if (tree)
-	    proto_tree_add_text(nbss_tree, offset, len,
-				"Calling name: %s", name);
+	    add_name_and_type(nbss_tree, offset, len,
+				"Calling name", name, name_type);
 
 	  break;
 

@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.5 1999/09/03 00:24:39 guy Exp $
+ * $Id: packet-netbios.c,v 1.6 1999/09/03 01:43:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -203,6 +203,14 @@ guint get_netbios_name(const u_char *data_ptr, int offset, char *name_ret)
 	return process_netbios_name(data_ptr + offset, name_ret);
 }
 
+/*
+ * Get a string describing the type of a NetBIOS name.
+ */
+char *
+netbios_name_type_descr(int name_type)
+{
+	return val_to_str(name_type, name_type_vals, "Unknown");
+}
 
 void netbios_add_name( char* label, const u_char *pd, int offset,
     int nb_offset, proto_tree *tree)
@@ -220,7 +228,7 @@ void netbios_add_name( char* label, const u_char *pd, int offset,
 					/* decode the name field */
 	name_type = get_netbios_name( pd, nb_offset, name_str);
 
-	name_type_str = val_to_str(name_type, name_type_vals, "Unknown");
+	name_type_str = netbios_name_type_descr(name_type);
 	tf = proto_tree_add_text( tree, offset + nb_offset, NETBIOS_NAME_LEN,
 	    	"%s: %s<%02x> (%s)", label, name_str, name_type, name_type_str);
 
@@ -346,7 +354,7 @@ static void nb_call_name_type(const u_char *data_ptr, int offset,
 	
 	proto_tree_add_text( tree, offset + NB_CALL_NAME_TYPE, 1,
 	    "Caller's Name Type.: 0x%02x (%s)", name_type_value,
-	    val_to_str(name_type_value, name_type_vals, "Unknown"));
+	    netbios_name_type_descr(name_type_value));
 }
 
 
