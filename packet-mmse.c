@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.28 2003/12/21 12:21:37 jmayer Exp $
+ * $Id: packet-mmse.c,v 1.29 2003/12/21 18:12:33 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -400,7 +400,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti;
     proto_tree *mmse_tree;
 
-	DebugLog(("dissect_mmse() - START\n"));
+	DebugLog(("dissect_mmse() - START (Packet %u)\n", pinfo->fd->num));
 
     pdut = tvb_get_guint8(tvb, 1);
     /* Make entries in Protocol column and Info column on summary display */
@@ -453,12 +453,13 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			major = (field & 0x70) >> 4;
 			minor = field & 0x0F;
 			if (minor == 0x0F)
-			    sprintf(strval, "%d", major);
+			    strval = g_strdup_printf("%u", major);
 			else
-			    sprintf(strval, "%d.%d", major, minor);
+			    strval = g_strdup_printf("%u.%u", major, minor);
 		    }
 		    proto_tree_add_string(mmse_tree, hf_mmse_mms_version, tvb,
 			    		  offset - 2, 2, strval);
+			g_free(strval);
 		    break;
 		case MM_BCC_HDR:		/* Encoded-string-value	*/
 		    length = get_encoded_strval(tvb, offset, &strval);
