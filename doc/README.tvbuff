@@ -1,6 +1,11 @@
-$Id: README.tvbuff,v 1.5 2002/08/02 23:46:26 jmayer Exp $
+$Id: README.tvbuff,v 1.6 2004/02/15 07:35:35 jmayer Exp $
 
 TVBUFFs and Exceptions
+
+  NOTE: This document describes the ideas and some of the tvbuff
+        functions. If it describes a function, the description
+	may not be complete.
+        For a description of the functions, see epan/tvbuff.h
 
 This document describes the changes made to the Ethereal dissector
 routines in Ethereal 0.8.9. All protocol dissectors need to be modified,
