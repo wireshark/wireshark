@@ -9,7 +9,7 @@
  * 2002, some share information levels implemented based on samba
  * sources.
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.64 2004/01/19 20:10:35 jmayer Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.65 2004/06/28 05:17:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -402,6 +402,9 @@ srvsvc_dissect_CHARDEV_ENUM_UNION(tvbuff_t *tvb, int offset,
 				     guint8 *drep)
 {
 	guint32 level;
+	dcerpc_info *di;
+
+	di = pinfo->private_data;
 
 	ALIGN_TO_4_BYTES;
 
@@ -412,11 +415,15 @@ srvsvc_dissect_CHARDEV_ENUM_UNION(tvbuff_t *tvb, int offset,
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_CHARDEV_INFO_0_CONTAINER,
 			NDR_POINTER_UNIQUE, "CHARDEV_INFO_0_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", CHARDEV_INFO_0 level");
 		break;
 	case 1:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_CHARDEV_INFO_1_CONTAINER,
 			NDR_POINTER_UNIQUE, "CHARDEV_INFO_1_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", CHARDEV_INFO_1 level");
 		break;
 	}
 
@@ -1145,6 +1152,9 @@ srvsvc_dissect_CONNECT_ENUM_UNION(tvbuff_t *tvb, int offset,
 				     guint8 *drep)
 {
 	guint32 level;
+	dcerpc_info *di;
+
+	di = pinfo->private_data;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1155,11 +1165,15 @@ srvsvc_dissect_CONNECT_ENUM_UNION(tvbuff_t *tvb, int offset,
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_CONNECT_INFO_0_CONTAINER,
 			NDR_POINTER_UNIQUE, "CONNECT_INFO_0_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", CONNECT_INFO_0 level");
 		break;
 	case 1:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_CONNECT_INFO_1_CONTAINER,
 			NDR_POINTER_UNIQUE, "CONNECT_INFO_1_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", CONNECT_INFO_1 level");
 		break;
 	}
 
@@ -1367,6 +1381,9 @@ srvsvc_dissect_FILE_ENUM_UNION(tvbuff_t *tvb, int offset,
 				     guint8 *drep)
 {
 	guint32 level;
+	dcerpc_info *di;
+
+	di = pinfo->private_data;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1377,11 +1394,15 @@ srvsvc_dissect_FILE_ENUM_UNION(tvbuff_t *tvb, int offset,
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_FILE_INFO_2_CONTAINER,
 			NDR_POINTER_UNIQUE, "FILE_INFO_2_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", FILE_INFO_2 level");
 		break;
 	case 3:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_FILE_INFO_3_CONTAINER,
 			NDR_POINTER_UNIQUE, "FILE_INFO_3_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", FILE_INFO_3 level");
 		break;
 	}
 
@@ -1909,6 +1930,9 @@ srvsvc_dissect_SESSION_ENUM_UNION(tvbuff_t *tvb, int offset,
 				     guint8 *drep)
 {
 	guint32 level;
+	dcerpc_info *di;
+
+	di = pinfo->private_data;
 
 	ALIGN_TO_4_BYTES;
 
@@ -1919,26 +1943,37 @@ srvsvc_dissect_SESSION_ENUM_UNION(tvbuff_t *tvb, int offset,
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SESSION_INFO_0_CONTAINER,
 			NDR_POINTER_UNIQUE, "SESSION_INFO_0_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", SESSION_INFO_0 level");
 		break;
 	case 1:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SESSION_INFO_1_CONTAINER,
 			NDR_POINTER_UNIQUE, "SESSION_INFO_1_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", SESSION_INFO_1 level");
 		break;
 	case 2:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SESSION_INFO_2_CONTAINER,
 			NDR_POINTER_UNIQUE, "SESSION_INFO_2_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", SESSION_INFO_2 level");
 		break;
 	case 10:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SESSION_INFO_10_CONTAINER,
 			NDR_POINTER_UNIQUE, "SESSION_INFO_10_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", SESSION_INFO_10 level");
 		break;
 	case 502:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SESSION_INFO_502_CONTAINER,
 			NDR_POINTER_UNIQUE, "SESSION_INFO_502_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, 
+					", SESSION_INFO_502 level");
 		break;
 	}
 
@@ -2813,6 +2848,9 @@ srvsvc_dissect_SHARE_ENUM_UNION(tvbuff_t *tvb, int offset,
 				     guint8 *drep)
 {
 	guint32 level;
+	dcerpc_info *di;
+
+	di = pinfo->private_data;
 
 	ALIGN_TO_4_BYTES;
 
@@ -2823,26 +2861,36 @@ srvsvc_dissect_SHARE_ENUM_UNION(tvbuff_t *tvb, int offset,
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_0_CONTAINER,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_0_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", SHARE_INFO_0 level");
 		break;
 	case 1:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_1_CONTAINER,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_1_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", SHARE_INFO_1 level");
 		break;
 	case 2:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_2_CONTAINER,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_2_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", SHARE_INFO_2 level");
 		break;
 	case 501:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_501_CONTAINER,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_501_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", SHARE_INFO_501 level");
 		break;
 	case 502:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_INFO_502_CONTAINER,
 			NDR_POINTER_UNIQUE, "SHARE_INFO_502_CONTAINER:", -1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", SHARE_INFO_502 level");
 		break;
 #if 0
 	case 1004:
@@ -5798,6 +5846,9 @@ srvsvc_dissect_SERVER_XPORT_ENUM_UNION(tvbuff_t *tvb, int offset,
 				     guint8 *drep)
 {
 	guint32 level;
+	dcerpc_info *di;
+
+	di = pinfo->private_data;
 
 	ALIGN_TO_4_BYTES;
 
@@ -5809,12 +5860,16 @@ srvsvc_dissect_SERVER_XPORT_ENUM_UNION(tvbuff_t *tvb, int offset,
 			srvsvc_dissect_SERVER_XPORT_INFO_0_CONTAINER,
 			NDR_POINTER_UNIQUE, "SERVER_XPORT_INFO_0_CONTAINER:",
 			-1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", TRANSPORT_INFO_0 level");
 		break;
 	case 1:
 		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SERVER_XPORT_INFO_1_CONTAINER,
 			NDR_POINTER_UNIQUE, "SERVER_XPORT_INFO_1_CONTAINER:",
 			-1);
+		if (check_col(pinfo->cinfo, COL_INFO) && di->ptype == PDU_REQ)
+			col_append_str(pinfo->cinfo, COL_INFO, ", TRANSPORT_INFO_1 level");
 		break;
 	}
 
@@ -6386,6 +6441,7 @@ srvsvc_dissect_netrnamecompare_reply(tvbuff_t *tvb, int offset,
 /*
  * IDL long NetrShareEnumSticky(
  * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL	    [in] [out] level
  * IDL      [in] [out] [ref] SHARE_ENUM_STRUCT *share,
  * IDL      [in] long MaxLen,
  * IDL      [out] long Entries,
@@ -6399,6 +6455,9 @@ srvsvc_dissect_netrshareenumsticky_rqst(tvbuff_t *tvb, int offset,
 {
         offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
 			NDR_POINTER_UNIQUE, "Server", hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_info_level, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_ENUM_STRUCT,
@@ -6418,6 +6477,10 @@ srvsvc_dissect_netrshareenumsticky_reply(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree,
 				     guint8 *drep)
 {
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_info_level, 0);
+
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			srvsvc_dissect_SHARE_ENUM_STRUCT,
 			NDR_POINTER_REF, "Shares", -1);
