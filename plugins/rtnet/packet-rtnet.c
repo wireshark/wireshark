@@ -1,7 +1,7 @@
 /* packet-rtnet.c
  * Routines for RTnet packet disassembly
  *
- * $Id: packet-rtnet.c,v 1.4 2003/09/05 07:44:50 jmayer Exp $
+ * $Id: packet-rtnet.c,v 1.5 2003/10/02 21:04:32 guy Exp $
  *
  * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  *
@@ -42,7 +42,6 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/resolv.h>
-#include "prefs.h"
 #include "etypes.h"
 #include <epan/strutil.h>
 
@@ -690,15 +689,11 @@ proto_register_rtnet(void) {
     &ett_rtnet,
   };
 
-  module_t *rtnet_module;
-
   proto_rtnet = proto_register_protocol("RTNET",
 				       "RTNET","rtnet");
   proto_register_field_array(proto_rtnet,hf,array_length(hf));
   proto_register_subtree_array(ett,array_length(ett));
 
-  rtnet_module = prefs_register_protocol(proto_rtnet,
-					proto_reg_handoff_rtnet);
 }
 
 /* The registration hand-off routing */
