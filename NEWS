@@ -15,6 +15,11 @@ This release fixes three security and stability-related issues:
   Diego Giago discovered a buffer overflow in the 3GPP2 A11 dissector.
   This flaw was later reported by LSS Security. (CAN-2005-0699)
 
+  A bug in the JXTA dissector could make Ethereal crash.
+
+  A bug in the sFlow dissector could make Ethereal crash.
+
+
 Please see the following advisory for more information:
   
     http://www.ethereal.com/appnotes/enpa-sa-00018.html
