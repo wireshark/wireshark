@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.50 2002/03/16 20:22:14 guy Exp $
+$Id: README.developer,v 1.51 2002/03/18 00:20:18 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -105,7 +105,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.50 2002/03/16 20:22:14 guy Exp $"
+The "$Id: README.developer,v 1.51 2002/03/18 00:20:18 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -115,7 +115,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.50 2002/03/16 20:22:14 guy Exp $
+ * $Id: README.developer,v 1.51 2002/03/18 00:20:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -313,10 +313,10 @@ PROTOABBREV	An abbreviated name for the protocol. (NO SPACES) (rec.
 FIELDNAME	The displayed name for the header field.
 FIELDABBREV	The abbreviated name for the header field. (NO SPACES)
 FIELDTYPE	FT_NONE, FT_BOOLEAN, FT_UINT8, FT_UINT16, FT_UINT24,
-		FT_UINT32, FT_INT8, FT_INT16, FT_INT24, FT_INT32,
-		FT_DOUBLE, FT_ABSOLUTE_TIME, FT_RELATIVE_TIME, FT_STRING,
-		FT_STRINGZ, FT_UINT_STRING, FT_ETHER, FT_BYTES, FT_IPv4,
-		FT_IPv6, FT_IPXNET
+		FT_UINT32, FT_UINT64, FT_INT8, FT_INT16, FT_INT24, FT_INT32,
+		FT_INT64, FT_DOUBLE, FT_ABSOLUTE_TIME, FT_RELATIVE_TIME,
+		FT_STRING, FT_STRINGZ, FT_UINT_STRING, FT_ETHER, FT_BYTES,
+		FT_IPv4, FT_IPv6, FT_IPXNET
 FIELDBASE	BASE_NONE, BASE_DEC, BASE_HEX, BASE_OCT, BASE_BIN
 FIELDCONVERT	VALS(x), TFS(x), NULL
 BITMASK		Usually 0x0 unless using the TFS(x) field conversion.
@@ -358,15 +358,15 @@ Single-byte accessor:
 
 guint8  tvb_get_guint8(tvbuff_t*, gint offset);
 
-Network-to-host-order access for shorts (guint16), longs (guint24), and
-24-bit ints:
+Network-to-host-order access for 16-bit integers (guint16), 32-bit
+integers (guint32), and 24-bit integers:
 
 guint16 tvb_get_ntohs(tvbuff_t*, gint offset);
 guint32 tvb_get_ntohl(tvbuff_t*, gint offset);
 guint32 tvb_get_ntoh24(tvbuff_t*, gint offset);
 
-Little-Endian-to-host-order access for shorts (guint16), longs (guint24), and
-24-bit ints:
+Little-Endian-to-host-order access for 16-bit integers (guint16), 32-bit
+integers (guint32), and 24-bit integers:
 
 guint16 tvb_get_letohs(tvbuff_t*, gint offset);
 guint32 tvb_get_letohl(tvbuff_t*, gint offset);
@@ -693,10 +693,12 @@ The type of value this field holds. The current field types are:
 	FT_UINT16		A 16-bit unsigned integer.
 	FT_UINT24		A 24-bit unsigned integer.
 	FT_UINT32		A 32-bit unsigned integer.
+	FT_UINT64		A 64-bit unsigned integer.
 	FT_INT8			An 8-bit signed integer.
 	FT_INT16		A 16-bit signed integer.
 	FT_INT24		A 24-bit signed integer.
 	FT_INT32		A 32-bit signed integer.
+	FT_INT64		A 64-bit signed integer.
 	FT_DOUBLE		A floating point number.
 	FT_ABSOLUTE_TIME	Seconds (4 bytes) and nanoseconds (4 bytes)
 				of time displayed as month name, month day,
@@ -1248,10 +1250,12 @@ For proto_tree_add_double(), the 'value' argument is a 'double' in the
 host's floating-point format.
 
 For proto_tree_add_uint(), the 'value' argument is a 32-bit unsigned
-integer value, in host byte order.
+integer value, in host byte order.  (This routine cannot be used to add
+64-bit integers; they can only be added with proto_tree_add_item().)
 
 For proto_tree_add_int(), the 'value' argument is a 32-bit signed
-integer value, in host byte order.
+integer value, in host byte order.  (This routine cannot be used to add
+64-bit integers; they can only be added with proto_tree_add_item().)
 
 proto_tree_add_bytes_hidden()
 proto_tree_add_time_hidden()
