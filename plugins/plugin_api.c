@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.43 2002/11/14 18:54:53 guy Exp $
+ * $Id: plugin_api.c,v 1.44 2003/03/06 09:01:44 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -210,4 +210,7 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_fragment_delete			= pat->p_fragment_delete;
 	p_show_fragment_tree			= pat->p_show_fragment_tree;
 	p_show_fragment_seq_tree		= pat->p_show_fragment_seq_tree;
+
+	p_register_tap				= pat->p_register_tap;
+	p_tap_queue_packet			= pat->p_tap_queue_packet;
 }

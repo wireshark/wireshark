@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.62 2002/12/08 22:22:03 guy Exp $
+ * $Id: plugins.c,v 1.63 2003/03/06 09:01:43 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,6 +65,7 @@
 #include "packet-giop.h"
 #include "packet-tpkt.h"
 #include "packet-tcp.h"
+#include "tap.h"
 #include "plugins/plugin_table.h"
 static plugin_address_table_t	patable;
 #endif
@@ -487,7 +488,10 @@ init_plugins(const char *plugin_dir)
 	patable.p_fragment_delete		= fragment_delete;
 	patable.p_show_fragment_tree		= show_fragment_tree;
 	patable.p_show_fragment_seq_tree	= show_fragment_seq_tree;
-
+	
+	patable.p_register_tap			= register_tap;
+	patable.p_tap_queue_packet		= tap_queue_packet;
+	
 #endif
 
 #ifdef WIN32

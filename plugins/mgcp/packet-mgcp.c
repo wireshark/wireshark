@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.35 2002/08/28 20:39:07 jmayer Exp $
+ * $Id: packet-mgcp.c,v 1.36 2003/03/06 09:01:47 sahlberg Exp $
  *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -43,6 +43,8 @@
 #include <epan/resolv.h>
 #include "prefs.h"
 #include <epan/strutil.h>
+#include <epan/conversation.h>
+#include "packet-mgcp.h"
 
 #include "plugins/plugin_api_defs.h"
 
@@ -65,7 +67,10 @@ static int proto_mgcp = -1;
 static int hf_mgcp_req = -1;
 static int hf_mgcp_req_verb = -1;
 static int hf_mgcp_req_endpoint = -1;
+static int hf_mgcp_req_frame = -1;
 static int hf_mgcp_rsp = -1;
+static int hf_mgcp_rsp_frame = -1;
+static int hf_mgcp_time = -1;
 static int hf_mgcp_transid = -1;
 static int hf_mgcp_version = -1;
 static int hf_mgcp_rsp_rspcode = -1;
@@ -97,6 +102,9 @@ static int hf_mgcp_param_capabilities = -1;
 static int hf_mgcp_param_extention = -1;
 static int hf_mgcp_param_invalid = -1;
 static int hf_mgcp_messagecount = -1;
+static int hf_mgcp_dup = -1;
+static int hf_mgcp_req_dup = -1;
+static int hf_mgcp_rsp_dup = -1;
 
 /*
  * Define the trees for mgcp
@@ -105,6 +113,10 @@ static int hf_mgcp_messagecount = -1;
 static int ett_mgcp = -1;
 static int ett_mgcp_param = -1;
 
+/*
+ * Define the tap for mgcp
+ */
+static int mgcp_tap = -1;
 
 /*
  * Here are the global variables associated with
@@ -140,14 +152,6 @@ static int gateway_udp_port = 0;
 static int callagent_tcp_port = 0;
 static int callagent_udp_port = 0;
 
-
-/* A simple MGCP type that is occasionally handy */
-typedef enum _mgcp_type {
-  MGCP_REQUEST,
-  MGCP_RESPONSE,
-  MGCP_OTHERS
-} mgcp_type_t;
-
 /* Some basic utility functions that are specific to this dissector */
 static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength);
 static gboolean is_mgcp_rspcode(tvbuff_t *tvb, gint offset, gint maxlength);
@@ -161,8 +165,8 @@ static gint tvb_parse_param(tvbuff_t *tvb, gint offset, gint maxlength,
  */
 static void dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo,
 				 proto_tree *tree,proto_tree *mgcp_tree, proto_tree *ti);
-static void dissect_mgcp_firstline(tvbuff_t *tvb,
-				   proto_tree *tree);
+static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
+				   proto_tree *tree, mgcp_info_t *mi);
 static void dissect_mgcp_params(tvbuff_t *tvb,
 				proto_tree *tree);
 static void mgcp_raw_text_add(tvbuff_t *tvb,
@@ -180,6 +184,43 @@ static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset,
 static gboolean is_rfc2234_alpha(guint8 c);
 
 static dissector_handle_t sdp_handle;
+
+
+/*
+ * Init Hash table stuff
+ */
+ 
+typedef struct _mgcp_call_info_key {
+	guint32	transid;
+	conversation_t *conversation;
+} mgcp_call_info_key;
+
+static GMemChunk *mgcp_call_info_key_chunk;
+
+static GMemChunk *mgcp_call_info_value_chunk;
+
+static GHashTable *mgcp_calls;
+
+/* compare 2 keys */
+static gint
+mgcp_call_equal(gconstpointer k1, gconstpointer k2)
+{
+	const mgcp_call_info_key* key1 = (const mgcp_call_info_key*) k1;
+	const mgcp_call_info_key* key2 = (const mgcp_call_info_key*) k2;
+
+	return (key1->transid == key2->transid &&
+	    key1->conversation == key2->conversation);
+}
+
+
+/* calculate a hash key */
+static guint
+mgcp_call_hash(gconstpointer k)
+{
+	const mgcp_call_info_key* key = (const mgcp_call_info_key*) k;
+
+	return key->transid  + (guint32)(key->conversation);
+}
 
 /*
  * dissect_mgcp - The dissector for the Media Gateway Control Protocol
@@ -273,7 +314,7 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO) ){
       sectionlen = tvb_find_line_end(tvb, tvb_sectionbegin,-1,
 				     &tvb_sectionend,FALSE);
-      col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+      col_prepend_fstr(pinfo->cinfo, COL_INFO, "%s",
 		   tvb_format_text(tvb,tvb_sectionbegin,sectionlen));
     }
   }
@@ -287,7 +328,8 @@ dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gint sectionlen;
   gint tvb_sectionend,tvb_sectionbegin, tvb_len, tvb_current_len;
   tvbuff_t *next_tvb;
-
+  static mgcp_info_t mi;
+    
   /* Initialize variables */
   tvb_sectionend = 0;
   tvb_sectionbegin = tvb_sectionend;
@@ -312,8 +354,8 @@ dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       sectionlen = tvb_find_line_end(tvb,0,-1,&tvb_sectionend,FALSE);
       if( sectionlen > 0){
 	dissect_mgcp_firstline(tvb_new_subset(tvb, tvb_sectionbegin,
-					      sectionlen,-1),
-			       mgcp_tree);
+					      sectionlen,-1), pinfo,
+			       mgcp_tree, &mi);
       }
       tvb_sectionbegin = tvb_sectionend;
 
@@ -373,6 +415,35 @@ static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree){
   } while ( tvb_lineend < tvb_len );
 }
 
+/* Discard and init any state we've saved */
+
+static void
+mgcp_init_protocol(void)
+{
+	if (mgcp_calls != NULL) {
+		g_hash_table_destroy(mgcp_calls);
+		mgcp_calls = NULL;
+	}
+	if (mgcp_call_info_key_chunk != NULL) {
+		g_mem_chunk_destroy(mgcp_call_info_key_chunk);
+		mgcp_call_info_key_chunk = NULL;
+	}
+	if (mgcp_call_info_value_chunk != NULL) {
+		g_mem_chunk_destroy(mgcp_call_info_value_chunk);
+		mgcp_call_info_value_chunk = NULL;
+	}
+
+	mgcp_calls = g_hash_table_new(mgcp_call_hash, mgcp_call_equal);
+	mgcp_call_info_key_chunk = g_mem_chunk_new("call_info_key_chunk",
+	    sizeof(mgcp_call_info_key),
+	    200 * sizeof(mgcp_call_info_key),
+	    G_ALLOC_ONLY);
+	mgcp_call_info_value_chunk = g_mem_chunk_new("call_info_value_chunk",
+	    sizeof(mgcp_call_t),
+	    200 * sizeof(mgcp_call_t),
+	    G_ALLOC_ONLY);	
+}
+
 /* Register all the bits needed with the filtering engine */
 
 void
@@ -385,6 +456,15 @@ proto_register_mgcp(void)
     { &hf_mgcp_rsp,
       { "Response", "mgcp.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 	"TRUE if MGCP response", HFILL }},
+    { &hf_mgcp_req_frame, 
+      {	"Request Frame", "mgcp.reqframe", FT_FRAMENUM, BASE_NONE, NULL, 0,
+        "Request Frame", HFILL }},
+    { &hf_mgcp_rsp_frame, 
+      {	"Response Frame", "mgcp.rspframe", FT_FRAMENUM, BASE_NONE, NULL, 0,
+        "Response Frame", HFILL }},
+    { &hf_mgcp_time,
+      {	"Time from request", "mgcp.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
+        "Timedelta between Request and Response", HFILL }},
     { &hf_mgcp_req_verb,
       { "Verb", "mgcp.req.verb", FT_STRING, BASE_DEC, NULL, 0x0,
 	"Name of the verb", HFILL }},
@@ -484,6 +564,15 @@ proto_register_mgcp(void)
     { &hf_mgcp_messagecount,
       { "MGCP Message Count", "mgcp.messagecount", FT_UINT32,
 	BASE_DEC, NULL, 0x0, "Number of MGCP message in a packet", HFILL }},
+    { &hf_mgcp_dup,
+      {	"Duplicate Message", "mgcp.dup", FT_UINT32, BASE_DEC,
+	NULL, 0, "Duplicate Message", HFILL }},
+    { &hf_mgcp_req_dup,
+      {	"Duplicate Request", "mgcp.req.dup", FT_UINT32, BASE_DEC,
+	NULL, 0, "Duplicate Request", HFILL }},
+    { &hf_mgcp_rsp_dup,
+      {	"Duplicate Response", "mgcp.rsp.dup", FT_UINT32, BASE_DEC,
+	NULL, 0, "Duplicate Response", HFILL }},
     /* Add more fields here */
   };
   static gint *ett[] = {
@@ -497,6 +586,7 @@ proto_register_mgcp(void)
 
   proto_register_field_array(proto_mgcp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  register_init_routine(&mgcp_init_protocol);
 
   /* Register our configuration options for , particularly our ports */
 
@@ -548,6 +638,8 @@ proto_register_mgcp(void)
                                  "Display the number of MGCP messages "
                                  "found in a packet in the protocol column.",
                                  &global_mgcp_message_count);
+  
+  mgcp_tap = register_tap("mgcp");
 }
 
 /* The registration hand-off routine */
@@ -864,17 +956,28 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf){
  * tree - The tree from which to hang the structured information parsed
  *        from the first line of the MGCP message.
  */
-static void dissect_mgcp_firstline(tvbuff_t *tvb,
-				   proto_tree *tree){
+static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
+				   proto_tree *tree, mgcp_info_t *mi){
   gint tvb_current_offset,tvb_previous_offset,tvb_len,tvb_current_len;
   gint tokennum, tokenlen;
+  char *transid = NULL;
+  char *code = NULL;
   mgcp_type_t mgcp_type = MGCP_OTHERS;
+  conversation_t* conversation;
+  mgcp_call_info_key mgcp_call_key;
+  mgcp_call_info_key *new_mgcp_call_key = NULL;
+  mgcp_call_t *mgcp_call = NULL;
+  nstime_t delta;
+  
+  static address null_address = { AT_NONE, 0, NULL };
   proto_item* (*my_proto_tree_add_string)(proto_tree*, int, tvbuff_t*, gint,
 					  gint, const char*);
   tvb_previous_offset = 0;
   tvb_len = tvb_length(tvb);
   tvb_current_len = tvb_len;
   tvb_current_offset = tvb_previous_offset;
+  mi->is_duplicate = FALSE;
+  mi->request_available = FALSE;
 
   if(tree){
     tokennum = 0;
@@ -898,29 +1001,33 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb,
 	tokenlen = tvb_current_offset - tvb_previous_offset;
       }
       if(tokennum == 0){
+        code = g_malloc(tokenlen);
+        code = tvb_format_text(tvb,tvb_previous_offset,tokenlen);
+        strncpy(mi->code,code,4);
+        mi->code[4] = '\0';
 	if(is_mgcp_verb(tvb,tvb_previous_offset,tvb_current_len)){
 	  mgcp_type = MGCP_REQUEST;
 	  my_proto_tree_add_string(tree,hf_mgcp_req_verb, tvb,
 				   tvb_previous_offset, tokenlen,
-				   tvb_format_text(tvb,tvb_previous_offset
-						   ,tokenlen));
+				   code);
 	}
 	else if (is_mgcp_rspcode(tvb,tvb_previous_offset,tvb_current_len)){
 	  mgcp_type = MGCP_RESPONSE;
 	  my_proto_tree_add_string(tree,hf_mgcp_rsp_rspcode, tvb,
 				   tvb_previous_offset, tokenlen,
-				   tvb_format_text(tvb,tvb_previous_offset
-						   ,tokenlen));
+				   code);
 	}
 	else {
 	  break;
 	}
       }
       if(tokennum == 1){
+      	transid = g_malloc(tokenlen);
+        transid = tvb_format_text(tvb,tvb_previous_offset,tokenlen);
+        mi->transid = atol(transid);
 	my_proto_tree_add_string(tree,hf_mgcp_transid, tvb,
 				 tvb_previous_offset, tokenlen,
-				 tvb_format_text(tvb,tvb_previous_offset,
-						 tokenlen));
+				 transid);
       }
       if(tokennum == 2){
 	if(mgcp_type == MGCP_REQUEST){
@@ -967,15 +1074,200 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb,
 	     && tokennum <= 3);
     switch (mgcp_type){
     case MGCP_RESPONSE:
-      proto_tree_add_boolean_hidden(tree, hf_mgcp_rsp, tvb, 0, 0, TRUE);
+	proto_tree_add_boolean_hidden(tree, hf_mgcp_rsp, tvb, 0, 0, TRUE);
+	/* Check for MGCP response.  A response must match a call that
+	   we've seen, and the response must be sent to the same
+	   port and address that the call came from, and must
+	   come from the port to which the call was sent.
+
+	   If the transport is connection-oriented (we check, for
+	   now, only for "pinfo->ptype" of PT_TCP), we take
+	   into account the address from which the call was sent
+	   and the address to which the call was sent, because
+	   the addresses of the two endpoints should be the same
+	   for all calls and replies.
+
+	   If the transport is connectionless, we don't worry
+	   about the address to which the call was sent and from
+	   which the reply was sent, because there's no
+	   guarantee that the reply will come from the address
+	   to which the call was sent. */
+	if (pinfo->ptype == PT_TCP) {
+		conversation = find_conversation(&pinfo->src,
+		    &pinfo->dst, pinfo->ptype, pinfo->srcport,
+		    pinfo->destport, 0);
+	} else {
+		/*
+		 * XXX - can we just use NO_ADDR_B?  Unfortunately,
+		 * you currently still have to pass a non-null
+		 * pointer for the second address argument even
+		 * if you do that.
+		 */
+		conversation = find_conversation(&null_address,
+		    &pinfo->dst, pinfo->ptype, pinfo->srcport,
+		    pinfo->destport, 0);
+	}
+	if (conversation != NULL) {
+		/* look only for matching request, if
+		   matching conversation is available. */
+		mgcp_call_key.transid = mi->transid;
+		mgcp_call_key.conversation = conversation;
+		mgcp_call = g_hash_table_lookup(mgcp_calls, &mgcp_call_key);
+		if(mgcp_call) {
+			/* Indicate the frame to which this is a reply. */
+			if(mgcp_call->req_num){
+				mi->request_available = TRUE;
+				mgcp_call->responded = TRUE;
+				proto_tree_add_uint_format(tree, hf_mgcp_req_frame,
+				    tvb, 0, 0, mgcp_call->req_num,
+				    "This is a response to a request in frame %u",
+				    mgcp_call->req_num);
+				delta.secs= pinfo->fd->abs_secs-mgcp_call->req_time.secs;
+				delta.nsecs=pinfo->fd->abs_usecs*1000-mgcp_call->req_time.nsecs;
+				if(delta.nsecs<0){
+					delta.nsecs+=1000000000;
+					delta.secs--;
+				}
+				proto_tree_add_time(tree, hf_mgcp_time, tvb, 0, 0,
+					&delta);
+			}
+
+			if (mgcp_call->rsp_num == 0) {
+				/* We have not yet seen a response to that call, so
+				   this must be the first response; remember its
+				   frame number. */
+				mgcp_call->rsp_num = pinfo->fd->num;
+			} else {
+				/* We have seen a response to this call - but was it
+				   *this* response? */
+				if (mgcp_call->rsp_num != pinfo->fd->num) {
+					/* No, so it's a duplicate response.
+					   Mark it as such. */
+					mi->is_duplicate = TRUE;   
+					if (check_col(pinfo->cinfo, COL_INFO)) {
+						col_append_fstr(pinfo->cinfo, COL_INFO,
+							", Duplicate Response %ld",mi->transid);
+						if (tree) {
+							proto_tree_add_uint_hidden(tree,
+								hf_mgcp_dup, tvb, 0,0, mi->transid);
+							proto_tree_add_uint_hidden(tree,
+								hf_mgcp_rsp_dup, tvb, 0,0, mi->transid);
+						}
+					}
+				}
+			}
+		}
+	}
       break;
     case MGCP_REQUEST:
-      proto_tree_add_boolean_hidden(tree, hf_mgcp_req, tvb, 0, 0, TRUE);
+	proto_tree_add_boolean_hidden(tree, hf_mgcp_req, tvb, 0, 0, TRUE);
+	/* Keep track of the address and port whence the call came,
+	   and the port to which the call is being sent, so that
+	   we can match up calls with replies.
+
+	   If the transport is connection-oriented (we check, for
+	   now, only for "pinfo->ptype" of PT_TCP), we take
+	   into account the address from which the call was sent
+	   and the address to which the call was sent, because
+	   the addresses of the two endpoints should be the same
+	   for all calls and replies.
+
+	   If the transport is connectionless, we don't worry
+	   about the address to which the call was sent and from
+	   which the reply was sent, because there's no
+	   guarantee that the reply will come from the address
+	   to which the call was sent. */
+	if (pinfo->ptype == PT_TCP) {
+		conversation = find_conversation(&pinfo->src,
+		    &pinfo->dst, pinfo->ptype, pinfo->srcport,
+		    pinfo->destport, 0);
+	} else {
+		/*
+		 * XXX - can we just use NO_ADDR_B?  Unfortunately,
+		 * you currently still have to pass a non-null
+		 * pointer for the second address argument even
+		 * if you do that.
+		 */
+		conversation = find_conversation(&pinfo->src,
+		    &null_address, pinfo->ptype, pinfo->srcport,
+		    pinfo->destport, 0);
+	}
+	if (conversation == NULL) {
+		/* It's not part of any conversation - create a new
+		   one. */
+		if (pinfo->ptype == PT_TCP) {
+			conversation = conversation_new(&pinfo->src,
+			    &pinfo->dst, pinfo->ptype, pinfo->srcport,
+			    pinfo->destport, 0);
+		} else {
+			conversation = conversation_new(&pinfo->src,
+			    &null_address, pinfo->ptype, pinfo->srcport,
+			    pinfo->destport, 0);
+		}
+	}
+	
+	/* prepare the key data */
+	mgcp_call_key.transid = mi->transid;
+	mgcp_call_key.conversation = conversation;
+	
+	/* look up the request */
+	mgcp_call = g_hash_table_lookup(mgcp_calls, &mgcp_call_key);
+	if (mgcp_call != NULL) {
+		/* We've seen a request with this TRANSID, with the same
+		   source and destination, before - but was it
+		   *this* request? */
+		if (pinfo->fd->num != mgcp_call->req_num) {
+			/* No, so it's a duplicate request.
+			   Mark it as such. */
+			mi->is_duplicate = TRUE;
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_fstr(pinfo->cinfo, COL_INFO,
+					", Duplicate Request %ld",mi->transid);	
+				if (tree) {
+					proto_tree_add_uint_hidden(tree, 
+						hf_mgcp_dup, tvb, 0,0, mi->transid);
+					proto_tree_add_uint_hidden(tree, 
+						hf_mgcp_req_dup, tvb, 0,0, mi->transid);
+				}
+			}
+		}
+	}
+	else {
+		/* Prepare the value data.
+		   "req_num" and "rsp_num" are frame numbers;
+		   frame numbers are 1-origin, so we use 0
+		   to mean "we don't yet know in which frame
+		   the reply for this call appears". */
+		new_mgcp_call_key = g_mem_chunk_alloc(mgcp_call_info_key_chunk);
+		*new_mgcp_call_key = mgcp_call_key;
+		mgcp_call = g_mem_chunk_alloc(mgcp_call_info_value_chunk);
+		mgcp_call->req_num = pinfo->fd->num;
+		mgcp_call->rsp_num = 0;
+		mgcp_call->transid = mi->transid;
+		mgcp_call->responded = FALSE;
+		mgcp_call->req_time.secs=pinfo->fd->abs_secs;
+		mgcp_call->req_time.nsecs=pinfo->fd->abs_usecs*1000;
+		strcpy(mgcp_call->code,mi->code);
+		/* store it */
+		g_hash_table_insert(mgcp_calls, new_mgcp_call_key, mgcp_call);
+	}
+	if(mgcp_call && mgcp_call->rsp_num){
+		proto_tree_add_uint_format(tree, hf_mgcp_rsp_frame,
+		    tvb, 0, 0, mgcp_call->rsp_num,
+		    "The response to this request is in frame %u",
+		    mgcp_call->rsp_num);
+	}
       break;
     default:
       break;
     }
+    mi->mgcp_type = mgcp_type;
+    if(mgcp_call) {
+    	mi->req_time.secs=mgcp_call->req_time.secs;
+    	mi->req_time.nsecs=mgcp_call->req_time.nsecs;
+    }
   }
+  tap_queue_packet(mgcp_tap, pinfo, mi);
 }
 
 /*

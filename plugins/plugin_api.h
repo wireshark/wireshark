@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.44 2002/11/14 18:54:53 guy Exp $
+ * $Id: plugin_api.h,v 1.45 2003/03/06 09:01:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -240,7 +240,10 @@
 #define fragment_delete			(*p_fragment_delete)
 #define show_fragment_tree		(*p_show_fragment_tree)
 #define show_fragment_seq_tree		(*p_show_fragment_seq_tree)
-                                                
+
+#define register_tap			(*p_register_tap)
+#define tap_queue_packet		(*p_tap_queue_packet)
+
 #endif
 
 #include <epan/packet.h>
@@ -250,6 +253,7 @@
 #include "packet-giop.h"
 #include "packet-tpkt.h"
 #include "packet-tcp.h"
+#include "tap.h"
 
 #include "plugin_table.h"
 

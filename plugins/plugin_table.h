@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.56 2002/12/02 23:34:40 guy Exp $
+ * $Id: plugin_table.h,v 1.57 2003/03/06 09:01:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -278,6 +278,9 @@ typedef void (*addr_fragment_set_partial_reassembly)(packet_info *, guint32, GHa
 typedef unsigned char *(*addr_fragment_delete)(packet_info *, guint32, GHashTable *);
 typedef gboolean (*addr_show_fragment_tree)(fragment_data *, const fragment_items *, proto_tree *, packet_info *, tvbuff_t *);
 typedef gboolean (*addr_show_fragment_seq_tree)(fragment_data *, const fragment_items *, proto_tree *, packet_info *, tvbuff_t *);
+
+typedef int (*addr_register_tap)(char *);
+typedef void (*addr_tap_queue_packet)(int, packet_info *, void *);
 
 typedef struct  {
 

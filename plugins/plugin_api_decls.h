@@ -2,7 +2,7 @@
  * Declarations of a list of "p_" names; included in various places
  * to declare them as variables or as function members.
  *
- * $Id: plugin_api_decls.h,v 1.6 2002/11/14 18:54:53 guy Exp $
+ * $Id: plugin_api_decls.h,v 1.7 2003/03/06 09:01:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -250,3 +250,5 @@ addr_fragment_delete			p_fragment_delete;
 addr_show_fragment_tree			p_show_fragment_tree;
 addr_show_fragment_seq_tree		p_show_fragment_seq_tree;
 
+addr_register_tap			p_register_tap;
+addr_tap_queue_packet			p_tap_queue_packet;
