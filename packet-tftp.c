@@ -3,7 +3,7 @@
  *
  * Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-tftp.c,v 1.2 1999/03/23 03:14:44 gram Exp $
+ * $Id: packet-tftp.c,v 1.3 1999/05/13 05:46:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -38,10 +38,14 @@
 # include <netinet/in.h>
 #endif
 
-#include <arpa/tftp.h>
-
 #include <glib.h>
 #include "packet.h"
+
+#define	RRQ	1
+#define	WRQ	2
+#define	DATA	3
+#define	ACK	4
+#define	ERROR	5
 
 char *tftp_opcodes[8] = {
   "Unknown Request",
@@ -70,7 +74,6 @@ dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	proto_tree	*tftp_tree;
 	proto_item	*ti;
-	struct tftphdr  *tftp_pack = (struct tftphdr *)&pd[offset]; /* Want the hdr */
 	u_int           i1;
 
 	if (check_col(fd, COL_PROTOCOL))
@@ -78,7 +81,7 @@ dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (check_col(fd, COL_INFO)) {
 
-	  i1 = ntohs(tftp_pack -> th_opcode);
+	  i1 = pntohs(&pd[offset]);
 	  col_add_fstr(fd, COL_INFO, "TFTP %s", i1 <= ERROR ? tftp_opcodes[i1 % 8] : "Unknown Request");
 
 	}
@@ -90,7 +93,7 @@ dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	  tftp_tree = proto_tree_new();
 	  proto_item_add_subtree(ti, tftp_tree, ETT_TFTP);
 
-	  switch (i1 = ntohs(tftp_pack -> th_opcode)) {
+	  switch (i1 = pntohs(pd+offset)) {
 	  case RRQ:
 	    proto_tree_add_item(tftp_tree, offset, 2, "Read Request");
 	    offset += 2;
@@ -110,7 +113,7 @@ dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	  case DATA:
 	    proto_tree_add_item(tftp_tree, offset, 2, "Data Packet");
 	    offset += 2;
-	    i1 = ntohs(*(short *)(pd + offset));
+	    i1 = pntohs(pd+offset);
 	    proto_tree_add_item(tftp_tree, offset, 2, "Block = %u", i1);
 	    offset += 2;
 	    proto_tree_add_item(tftp_tree, offset, END_OF_FRAME,
@@ -119,13 +122,13 @@ dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	  case ACK:
 	    proto_tree_add_item(tftp_tree, offset, 2, "Acknowledgement");
 	    offset += 2;
-	    i1 = ntohs(*(short *)(pd + offset));
+	    i1 = pntohs(pd+offset);
 	    proto_tree_add_item(tftp_tree, offset, END_OF_FRAME, "Block = %u", i1);
 	    break;
 	  case ERROR:
 	    proto_tree_add_item(tftp_tree, offset, 2, "Error Code");
 	    offset += 2;
-	    i1 = ntohs(*(short *)(pd + offset));
+	    i1 = pntohs(pd+offset);
 	    proto_tree_add_item(tftp_tree, offset, 2, "Code = %s", tftp_errors[i1 % 8]);
 	    offset += 2;
 	    proto_tree_add_item(tftp_tree, offset, END_OF_FRAME, "Error Message: %s", pd + offset);
