@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.34 2004/02/06 19:19:10 ulfl Exp $
+ * $Id: plugins_dlg.c,v 1.35 2004/02/13 00:00:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,16 +37,24 @@
 #ifdef HAVE_PLUGINS
 
 static void plugins_close_cb(GtkWidget *, gpointer);
+static void plugins_destroy_cb(GtkWidget *, gpointer);
 #if GTK_MAJOR_VERSION < 2
 static void plugins_scan(GtkWidget *);
 #else
 static void plugins_scan(GtkListStore *);
 #endif
 
+/*
+ * Keep a static pointer to the current "Plugins" window, if any, so that
+ * if somebody tries to do "Help->About Plugins" while there's already a
+ * "Plugins" window up, we just pop up the existing one, rather than
+ * creating a new one.
+*/
+static GtkWidget *plugins_window = NULL;
+
 void
 tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 {
-    GtkWidget *plugins_window;
     GtkWidget *main_vbox;
     GtkWidget *main_frame;
     GtkWidget *frame_hbox;
@@ -61,7 +69,14 @@ tools_plugins_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
     GtkTreeViewColumn *column;
 #endif
 
+    if (plugins_window != NULL) {
+        /* There's already a "Plugins" dialog box; reactivate it. */
+        reactivate_window(plugins_window);
+        return;
+    }
+
     plugins_window = dlg_window_new("Ethereal: Plugins");
+    SIGNAL_CONNECT(plugins_window, "destroy", plugins_destroy_cb, NULL);
 
     main_vbox = gtk_vbox_new(FALSE, 0);
     gtk_container_add(GTK_CONTAINER(plugins_window), main_vbox);
@@ -170,5 +185,12 @@ plugins_close_cb(GtkWidget *close_bt _U_, gpointer parent_w)
 {
     gtk_grab_remove(GTK_WIDGET(parent_w));
     gtk_widget_destroy(GTK_WIDGET(parent_w));
+}
+
+static void
+plugins_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
+{
+    /* Note that we no longer have a Plugins window. */
+    plugins_window = NULL;
 }
 #endif
