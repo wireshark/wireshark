@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/lwres
 #
-# $Id: Makefile.am,v 1.1 2003/08/05 05:03:30 guy Exp $
+# $Id: Makefile.am,v 1.2 2003/08/06 03:04:24 gerald Exp $
 #
 # Ethereal - Network traffic analyzer / light waight resolver (part of Bind9)
 # By Steve Oleg Terletsky <oleg.terletsky@comverse.com>
@@ -27,7 +27,7 @@ INCLUDES = -I$(top_srcdir)
 plugindir = @plugindir@
 
 plugin_LTLIBRARIES = lwres.la
-lwres_la_SOURCES = packet-lwres.c packet-lwres.h moduleinfo.h
+lwres_la_SOURCES = packet-lwres.c moduleinfo.h
 lwres_la_LDFLAGS = -module -avoid-version
 
 # Libs must be cleared, or else libtool won't create a shared module.
