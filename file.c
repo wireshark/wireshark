@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.124 1999/11/29 01:40:49 guy Exp $
+ * $Id: file.c,v 1.125 1999/11/29 01:54:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,10 +69,6 @@
 # include <netinet/in.h>
 #endif
 
-#ifdef HAVE_SYS_WAIT_H
-# include <sys/wait.h>
-#endif
-
 #include "gtk/main.h"
 #include "column.h"
 #include "gtk/menu.h"
@@ -100,9 +96,7 @@
 
 extern GtkWidget *packet_list, *prog_bar, *info_bar, *byte_view, *tree_view;
 extern guint      file_ctx;
-extern int        sync_pipe[];
 
-guint cap_input_id;
 gboolean auto_scroll_live = FALSE;
 
 static guint32 firstsec, firstusec;
@@ -225,10 +219,37 @@ close_cap_file(capture_file *cf, void *w, guint context) {
   set_menu_sensitivity("/Tools/Summary", FALSE);
 }
 
+static void
+set_statusbar_filename(capture_file *cf)
+{
+  gchar  *name_ptr;
+  size_t  msg_len;
+  gchar  *done_fmt = " File: %s  Drops: %u";
+  gchar  *done_msg;
+
+  if (cf->user_saved || !cf->save_file) {
+    /* Get the last component of the file name, and put that in the
+       status bar. */
+    if ((name_ptr = (gchar *) strrchr(cf->filename, '/')) == NULL)
+      name_ptr = cf->filename;
+    else
+      name_ptr++;
+  } else {
+    /* The file we read is a temporary file from a live capture;
+       we don't mention its name in the status bar. */
+    name_ptr = "<none>";
+  }
+
+  msg_len = strlen(name_ptr) + strlen(done_fmt) + 64;
+  done_msg = g_malloc(msg_len);
+  snprintf(done_msg, msg_len, done_fmt, name_ptr, cf->drops);
+  gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, done_msg);
+  g_free(done_msg);
+}
+
 int
 read_cap_file(capture_file *cf) {
   gchar  *name_ptr, *load_msg, *load_fmt = " Loading: %s...";
-  gchar  *done_fmt = " File: %s  Drops: %d";
   int     success;
   int     err;
   size_t  msg_len;
@@ -241,9 +262,11 @@ read_cap_file(capture_file *cf) {
   else
     name_ptr++;
 
-  load_msg = g_malloc(strlen(name_ptr) + strlen(load_fmt) + 2);
-  sprintf(load_msg, load_fmt, name_ptr);
+  msg_len = strlen(name_ptr) + strlen(load_fmt) + 2;
+  load_msg = g_malloc(msg_len);
+  snprintf(load_msg, msg_len, load_fmt, name_ptr);
   gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
+  g_free(load_msg);
 
   cf->update_progbar = TRUE;
   /* Update the progress bar when it gets to this value. */
@@ -270,16 +293,7 @@ read_cap_file(capture_file *cf) {
 
   gtk_statusbar_pop(GTK_STATUSBAR(info_bar), file_ctx);
 
-  msg_len = strlen(name_ptr) + strlen(done_fmt) + 64;
-  load_msg = g_realloc(load_msg, msg_len);
-
-  if (cf->user_saved || !cf->save_file)
-    snprintf(load_msg, msg_len, done_fmt, name_ptr, cf->drops);
-  else
-    snprintf(load_msg, msg_len, done_fmt, "<none>", cf->drops);
-
-  gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
-  g_free(load_msg);
+  set_statusbar_filename(cf);
 
   /* Enable menu items that make sense if you have a capture. */
   set_menu_sensitivity("/File/Close", TRUE);
@@ -328,197 +342,13 @@ read_cap_file(capture_file *cf) {
 }
 
 #ifdef HAVE_LIBPCAP
-void 
-cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
-  
-  capture_file *cf = (capture_file *)data;
-  char buffer[256+1], *p = buffer, *q = buffer;
-  int  nread;
-  int  to_read = 0;
-  gboolean exit_loop = FALSE;
-  int  err;
-  int  wstatus;
-  int  wsignal;
-  char *msg;
-  char *sigmsg;
-  char sigmsg_buf[6+1+3+1];
-  char *coredumped;
-
-  /* avoid reentrancy problems and stack overflow */
-  gtk_input_remove(cap_input_id);
-
-  if ((nread = read(sync_pipe[0], buffer, 256)) <= 0) {
-
-    /* The child has closed the sync pipe, meaning it's not going to be
-       capturing any more packets.  Pick up its exit status, and
-       complain if it died of a signal. */
-    if (wait(&wstatus) != -1) {
-      /* XXX - are there any platforms on which we can run that *don't*
-         support POSIX.1's <sys/wait.h> and macros therein? */
-      wsignal = wstatus & 0177;
-      coredumped = "";
-      if (wstatus == 0177) {
-      	/* It stopped, rather than exiting.  "Should not happen." */
-      	msg = "stopped";
-      	wsignal = (wstatus >> 8) & 0xFF;
-      } else {
-        msg = "terminated";
-        if (wstatus & 0200)
-          coredumped = " - core dumped";
-      }
-      if (wsignal != 0) {
-        switch (wsignal) {
-
-        case SIGHUP:
-          sigmsg = "Hangup";
-          break;
-
-        case SIGINT:
-          sigmsg = "Interrupted";
-          break;
-
-        case SIGQUIT:
-          sigmsg = "Quit";
-          break;
-
-        case SIGILL:
-          sigmsg = "Illegal instruction";
-          break;
-
-        case SIGTRAP:
-          sigmsg = "Trace trap";
-          break;
-
-        case SIGABRT:
-          sigmsg = "Abort";
-          break;
-
-        case SIGFPE:
-          sigmsg = "Arithmetic exception";
-          break;
-
-        case SIGKILL:
-          sigmsg = "Killed";
-          break;
-
-        case SIGBUS:
-          sigmsg = "Bus error";
-          break;
-
-        case SIGSEGV:
-          sigmsg = "Segmentation violation";
-          break;
-
-	/* http://metalab.unc.edu/pub/Linux/docs/HOWTO/GCC-HOWTO 
-		Linux is POSIX compliant.  These are not POSIX-defined signals ---
-		  ISO/IEC 9945-1:1990 (IEEE Std 1003.1-1990), paragraph B.3.3.1.1 sez:
-
-	       ``The signals SIGBUS, SIGEMT, SIGIOT, SIGTRAP, and SIGSYS
-		were omitted from POSIX.1 because their behavior is
-		implementation dependent and could not be adequately catego-
-		rized.  Conforming implementations may deliver these sig-
-		nals, but must document the circumstances under which they
-		are delivered and note any restrictions concerning their
-		delivery.''
-	*/
-
-	#ifdef SIGSYS
-        case SIGSYS:
-          sigmsg = "Bad system call";
-          break;
-	#endif
-
-        case SIGPIPE:
-          sigmsg = "Broken pipe";
-          break;
-
-        case SIGALRM:
-          sigmsg = "Alarm clock";
-          break;
-
-        case SIGTERM:
-          sigmsg = "Terminated";
-          break;
-
-        default:
-          sprintf(sigmsg_buf, "Signal %d", wsignal);
-          sigmsg = sigmsg_buf;
-          break;
-        }
-	simple_dialog(ESD_TYPE_WARN, NULL,
-		"Child capture process %s: %s%s", msg, sigmsg, coredumped);
-      }
-    }
-      
-    /* Read what remains of the capture file, and stop capture (restore
-       menu items) */
-    gtk_clist_freeze(GTK_CLIST(packet_list));
-
-    /* XXX - do something if this fails? */
-    wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
-
-    thaw_clist(cf);
-    if (auto_scroll_live)
-      gtk_clist_moveto(GTK_CLIST(packet_list), 
-		       cf->plist_end->row, -1, 1.0, 1.0);
-
-    wtap_close(cf->wth);
-    cf->wth = NULL;
-    set_menu_sensitivity("/File/Open...", TRUE);
-    set_menu_sensitivity("/File/Close", TRUE);
-    set_menu_sensitivity("/File/Save", TRUE);
-    set_menu_sensitivity("/File/Print...", TRUE);
-    set_menu_sensitivity("/File/Reload", TRUE);
-    set_menu_sensitivity("/Capture/Start...", TRUE);
-    set_menu_sensitivity("/Tools/Summary", TRUE);
-    gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, " File: <none>");
-    return;
-  }
-
-  buffer[nread] = '\0';
-
-  while(!exit_loop) {
-    /* look for (possibly multiple) '*' */
-    switch (*q) {
-    case '*' :
-      to_read += atoi(p);
-      p = q + 1; 
-      q++;
-      break;
-    case '\0' :
-      /* XXX should handle the case of a pipe full (i.e. no star found) */
-      exit_loop = TRUE;
-      break;
-    default :
-      q++;
-      break;
-    } 
-  }
-
-  gtk_clist_freeze(GTK_CLIST(packet_list));
-  /* XXX - do something if this fails? */
-  wtap_loop(cf->wth, to_read, wtap_dispatch_cb, (u_char *) cf, &err);
-  gtk_clist_thaw(GTK_CLIST(packet_list));
-  if (auto_scroll_live)
-    gtk_clist_moveto(GTK_CLIST(packet_list), cf->plist_end->row, -1, 1.0, 1.0);
-
-  /* restore pipe handler */
-  cap_input_id = gtk_input_add_full (sync_pipe[0],
-				     GDK_INPUT_READ,
-				     cap_file_input_cb,
-				     NULL,
-				     (gpointer) cf,
-				     NULL);
-}
-
 int
-tail_cap_file(char *fname, capture_file *cf) {
+start_tail_cap_file(char *fname, capture_file *cf) {
   int     err;
   int     i;
 
   err = open_cap_file(fname, cf);
-  if ((err == 0) && (cf->cd_t != WTAP_FILE_UNKNOWN)) {
-
+  if (err == 0) {
     set_menu_sensitivity("/File/Open...", FALSE);
     set_menu_sensitivity("/Display/Options...", TRUE);
     set_menu_sensitivity("/Display/Match Selected", TRUE);
@@ -541,20 +371,68 @@ tail_cap_file(char *fname, capture_file *cf) {
       }
     }
 
+    /* Yes, "open_cap_file()" set this - but it set it to a file handle
+       from Wiretap, which will be closed when we close the file; we
+       want it to remain open even after that, so that we can read
+       packet data from it. */
     cf->fh = file_open(fname, "r");
 
-    cap_input_id = gtk_input_add_full (sync_pipe[0],
-				       GDK_INPUT_READ,
-				       cap_file_input_cb,
-				       NULL,
-				       (gpointer) cf,
-				       NULL);
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, 
 		       " <live capture in progress>");
   }
-  else {
-    close(sync_pipe[0]);
-  }
+  return err;
+}
+
+int
+continue_tail_cap_file(capture_file *cf, int to_read)
+{
+  int err;
+
+  gtk_clist_freeze(GTK_CLIST(packet_list));
+
+  wtap_loop(cf->wth, to_read, wtap_dispatch_cb, (u_char *) cf, &err);
+
+  gtk_clist_thaw(GTK_CLIST(packet_list));
+  if (auto_scroll_live)
+    gtk_clist_moveto(GTK_CLIST(packet_list), 
+		       cf->plist_end->row, -1, 1.0, 1.0);
+  return err;
+}
+
+int
+finish_tail_cap_file(capture_file *cf)
+{
+  int err;
+
+  gtk_clist_freeze(GTK_CLIST(packet_list));
+
+  wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
+
+  thaw_clist(cf);
+  if (auto_scroll_live)
+    gtk_clist_moveto(GTK_CLIST(packet_list), 
+		       cf->plist_end->row, -1, 1.0, 1.0);
+
+  /* There's nothing more to read from the capture file - close it. */
+  wtap_close(cf->wth);
+  cf->wth = NULL;
+
+  set_statusbar_filename(cf);
+
+  /* Restore the "File/Open" menu item. */
+  set_menu_sensitivity("/File/Open...", TRUE);
+
+  /* Enable menu items that make sense if you have a capture file
+     you've finished reading. */
+  set_menu_sensitivity("/File/Save", TRUE);
+  set_menu_sensitivity("/File/Close", TRUE);
+  set_menu_sensitivity("/File/Reload", TRUE);
+  set_menu_sensitivity("/File/Print...", TRUE);
+
+  /* Enable menu items that make sense if you're not currently running
+     a capture. */
+  set_menu_sensitivity("/Capture/Start...", TRUE);
+
   return err;
 }
 #endif /* HAVE_LIBPCAP */

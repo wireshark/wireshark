@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.82 1999/11/28 09:44:53 guy Exp $
+ * $Id: capture.c,v 1.83 1999/11/29 01:54:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,10 @@
 
 #ifdef HAVE_SYS_STAT_H
 # include <sys/stat.h>
+#endif
+
+#ifdef HAVE_SYS_WAIT_H
+# include <sys/wait.h>
 #endif
 
 #include <gtk/gtk.h>
@@ -90,10 +94,12 @@
 #include "globals.h"
 
 int sync_mode;	/* fork a child to do the capture, and sync between them */
-int sync_pipe[2]; /* used to sync father */
+static int sync_pipe[2]; /* used to sync father */
 int quit_after_cap; /* Makes a "capture only mode". Implies -k */
 gboolean capture_child;	/* if this is the child for "-S" */
+static guint cap_input_id;
 
+static void cap_file_input_cb(gpointer, gint, GdkInputCondition);
 static void capture_stop_cb(GtkWidget *, gpointer);
 static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
   const u_char *);
@@ -160,7 +166,12 @@ do_capture(char *capfile_name)
     signal(SIGCHLD, SIG_IGN);
     pipe(sync_pipe);
     if ((fork_child = fork()) == 0) {
-      /* args: -i interface specification
+      /*
+       * Child process - run Ethereal with the right arguments to make
+       * it just pop up the live capture dialog box and capture with
+       * the specified capture parameters, writing to the specified file.
+       *
+       * args: -i interface specification
        * -w file to write
        * -W file descriptor to write
        * -c count to capture
@@ -178,8 +189,9 @@ do_capture(char *capfile_name)
 		(cf.cfilter == NULL)? 0 : "-f",
 		(cf.cfilter == NULL)? 0 : cf.cfilter,
 		(const char *)NULL);	
-    }
-    else {
+    } else {
+      /* Parent process - read messages from the child process over the
+         sync pipe. */
       cf.filename = cf.save_file;
       close(sync_pipe[1]);
 
@@ -193,14 +205,24 @@ do_capture(char *capfile_name)
 	i = read(sync_pipe[0], &c, 1);
 	if (i == 0) {
 	  /* EOF - the child process died.
-	     XXX - reap it and report the status. */
+	     Close the read side of the sync pipe, remove the capture file,
+	     and report the failure.
+	     XXX - reap the child process and report the status in detail. */
+	  close(sync_pipe[0]);
+	  unlink(cf.save_file);
+	  cf.save_file = NULL;
 	  simple_dialog(ESD_TYPE_WARN, NULL, "Capture child process died");
 	  return;
 	}
 	if (c == ';')
 	  break;
 	if (!isdigit(c)) {
-	  /* Child process handed us crap. */
+	  /* Child process handed us crap.
+	     Close the read side of the sync pipe, remove the capture file,
+	     and report the failure. */
+	  close(sync_pipe[0]);
+	  unlink(cf.save_file);
+	  cf.save_file = NULL;
 	  simple_dialog(ESD_TYPE_WARN, NULL,
 	     "Capture child process sent us a bad message");
 	  return;
@@ -208,14 +230,35 @@ do_capture(char *capfile_name)
 	byte_count = byte_count*10 + c - '0';
       }
       if (byte_count == 0) {
-	/* Success. */
-	  err = tail_cap_file(cf.save_file, &cf);
-	  if (err != 0) {
-	    simple_dialog(ESD_TYPE_WARN, NULL,
+	/* Success.  Open the capture file, and set up to read it. */
+	err = start_tail_cap_file(cf.save_file, &cf);
+	if (err == 0) {
+	  /* We were able to open and set up to read the capture file;
+	     arrange that our callback be called whenever it's possible
+	     to read from the sync pipe, so that it's called when
+	     the child process wants to tell us something. */
+	  cap_input_id = gtk_input_add_full(sync_pipe[0],
+				       GDK_INPUT_READ,
+				       cap_file_input_cb,
+				       NULL,
+				       (gpointer) &cf,
+				       NULL);
+	} else {
+	  /* We weren't able to open the capture file; complain, and
+	     close the sync pipe. */
+	  simple_dialog(ESD_TYPE_WARN, NULL,
 			file_open_error_message(err, FALSE), cf.save_file);
-	  }
+
+	  /* Close the sync pipe. */
+	  close(sync_pipe[0]);
+
+	  /* Don't unlink the save file - leave it around, for debugging
+	     purposes. */
+	  cf.save_file = NULL;
+	}
       } else {
-	/* Failure. */
+	/* Failure - the child process sent us a message indicating
+	   what the problem was. */
 	msg = g_malloc(byte_count + 1);
 	if (msg == NULL) {
 	  simple_dialog(ESD_TYPE_WARN, NULL,
@@ -232,11 +275,18 @@ do_capture(char *capfile_name)
 	  } else
 	    simple_dialog(ESD_TYPE_WARN, NULL, msg);
 	  g_free(msg);
+
+	  /* Close the sync pipe. */
+	  close(sync_pipe[0]);
+
+	  /* Get rid of the save file - the capture never started. */
+	  unlink(cf.save_file);
+	  cf.save_file = NULL;
 	}
       }
     }
-  }
-  else {
+  } else {
+    /* Not sync mode. */
     capture_succeeded = capture();
     if (quit_after_cap) {
       /* DON'T unlink the save file.  Presumably someone wants it. */
@@ -253,6 +303,170 @@ do_capture(char *capfile_name)
       }
     }
   }
+}
+
+/* There's stuff to read from the sync pipe, meaning the child has sent
+   us a message, or the sync pipe has closed, meaning the child has
+   closed it (perhaps because it exited). */
+static void 
+cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
+{
+  capture_file *cf = (capture_file *)data;
+  char buffer[256+1], *p = buffer, *q = buffer;
+  int  nread;
+  int  to_read = 0;
+  gboolean exit_loop = FALSE;
+  int  err;
+  int  wstatus;
+  int  wsignal;
+  char *msg;
+  char *sigmsg;
+  char sigmsg_buf[6+1+3+1];
+  char *coredumped;
+
+  /* avoid reentrancy problems and stack overflow */
+  gtk_input_remove(cap_input_id);
+
+  if ((nread = read(sync_pipe[0], buffer, 256)) <= 0) {
+    /* The child has closed the sync pipe, meaning it's not going to be
+       capturing any more packets.  Pick up its exit status, and
+       complain if it died of a signal. */
+    if (wait(&wstatus) != -1) {
+      /* XXX - are there any platforms on which we can run that *don't*
+         support POSIX.1's <sys/wait.h> and macros therein? */
+      wsignal = wstatus & 0177;
+      coredumped = "";
+      if (wstatus == 0177) {
+      	/* It stopped, rather than exiting.  "Should not happen." */
+      	msg = "stopped";
+      	wsignal = (wstatus >> 8) & 0xFF;
+      } else {
+        msg = "terminated";
+        if (wstatus & 0200)
+          coredumped = " - core dumped";
+      }
+      if (wsignal != 0) {
+        switch (wsignal) {
+
+        case SIGHUP:
+          sigmsg = "Hangup";
+          break;
+
+        case SIGINT:
+          sigmsg = "Interrupted";
+          break;
+
+        case SIGQUIT:
+          sigmsg = "Quit";
+          break;
+
+        case SIGILL:
+          sigmsg = "Illegal instruction";
+          break;
+
+        case SIGTRAP:
+          sigmsg = "Trace trap";
+          break;
+
+        case SIGABRT:
+          sigmsg = "Abort";
+          break;
+
+        case SIGFPE:
+          sigmsg = "Arithmetic exception";
+          break;
+
+        case SIGKILL:
+          sigmsg = "Killed";
+          break;
+
+        case SIGBUS:
+          sigmsg = "Bus error";
+          break;
+
+        case SIGSEGV:
+          sigmsg = "Segmentation violation";
+          break;
+
+	/* http://metalab.unc.edu/pub/Linux/docs/HOWTO/GCC-HOWTO 
+		Linux is POSIX compliant.  These are not POSIX-defined signals ---
+		  ISO/IEC 9945-1:1990 (IEEE Std 1003.1-1990), paragraph B.3.3.1.1 sez:
+
+	       ``The signals SIGBUS, SIGEMT, SIGIOT, SIGTRAP, and SIGSYS
+		were omitted from POSIX.1 because their behavior is
+		implementation dependent and could not be adequately catego-
+		rized.  Conforming implementations may deliver these sig-
+		nals, but must document the circumstances under which they
+		are delivered and note any restrictions concerning their
+		delivery.''
+	*/
+
+	#ifdef SIGSYS
+        case SIGSYS:
+          sigmsg = "Bad system call";
+          break;
+	#endif
+
+        case SIGPIPE:
+          sigmsg = "Broken pipe";
+          break;
+
+        case SIGALRM:
+          sigmsg = "Alarm clock";
+          break;
+
+        case SIGTERM:
+          sigmsg = "Terminated";
+          break;
+
+        default:
+          sprintf(sigmsg_buf, "Signal %d", wsignal);
+          sigmsg = sigmsg_buf;
+          break;
+        }
+	simple_dialog(ESD_TYPE_WARN, NULL,
+		"Child capture process %s: %s%s", msg, sigmsg, coredumped);
+      }
+    }
+      
+    /* Read what remains of the capture file, and finish the capture.
+       XXX - do something if this fails? */
+    err = finish_tail_cap_file(cf);
+    return;
+  }
+
+  buffer[nread] = '\0';
+
+  while(!exit_loop) {
+    /* look for (possibly multiple) '*' */
+    switch (*q) {
+    case '*' :
+      to_read += atoi(p);
+      p = q + 1; 
+      q++;
+      break;
+    case '\0' :
+      /* XXX should handle the case of a pipe full (i.e. no star found) */
+      exit_loop = TRUE;
+      break;
+    default :
+      q++;
+      break;
+    } 
+  }
+
+  /* Read from the capture file the number of records the child told us
+     it added.
+     XXX - do something if this fails? */
+  err = continue_tail_cap_file(cf, to_read);
+
+  /* restore pipe handler */
+  cap_input_id = gtk_input_add_full (sync_pipe[0],
+				     GDK_INPUT_READ,
+				     cap_file_input_cb,
+				     NULL,
+				     (gpointer) cf,
+				     NULL);
 }
 
 /* Do the low-level work of a capture.
