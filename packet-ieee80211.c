@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.53 2002/04/08 09:09:47 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.54 2002/04/13 18:41:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -815,8 +815,8 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
       proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
       memset (out_buff, 0, SHORT_STR);
       snprintf (out_buff, SHORT_STR, "Challenge text: %.47s", tag_data_ptr);
-      proto_tree_add_string (tree, tag_interpretation, tvb, offset, tag_len,
-			     out_buff);
+      proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
+			     tag_len, out_buff);
 
       break;
 
@@ -1558,6 +1558,14 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 
       }
       ENDTRY;
+
+      if (COOK_FRAGMENT_NUMBER(tvb_get_letohs(tvb, 22)) > 0) {
+	/* Just show this as a fragment. */
+	if (check_col(pinfo->cinfo, COL_INFO))
+	  col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented IEEE 802.11 frame");
+	call_dissector(data_handle, next_tvb, pinfo, tree);
+	break;
+      }
 
       if (is_802_2)
         call_dissector(llc_handle, next_tvb, pinfo, tree);
