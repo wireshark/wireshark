@@ -24,3 +24,7 @@ g_memdup (const gpointer mem,
 gchar*
 g_strjoin (const gchar  *separator,
 	   ...);
+
+gpointer
+g_slist_nth_data (GSList   *list,
+		          guint     n);

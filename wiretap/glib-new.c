@@ -89,4 +89,17 @@ g_strjoin (const gchar  *separator,
 
   return string;
 }
+
+/* this was introduced sometime between glib-1.0.1 and glib-1.0.4 */
+gpointer
+g_slist_nth_data (GSList   *list,
+		          guint     n)
+{
+	  while ((n-- > 0) && list)
+		      list = list->next;
+
+	    return list ? list->data : NULL;
+}
+
+
 #endif
