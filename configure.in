@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.231 2003/11/17 20:57:08 guy Exp $
+# $Id: configure.in,v 1.232 2003/11/17 22:09:16 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -271,7 +271,7 @@ if test "$GTK_OK" = "no" ; then
 		AM_PATH_GLIB(1.2.0, CFLAGS="$CFLAGS $GLIB_CFLAGS", AC_MSG_ERROR(GLib distribution not found.), gmodule)
 	fi
 else
-	ethereal_bin="ethereal"
+	ethereal_bin="ethereal\$(EXEEXT)"
 	ethereal_man="ethereal.1"
         ethereal_SUBDIRS="gtk"
 	# Honor GLIB_CFLAGS
@@ -329,7 +329,7 @@ AC_ARG_ENABLE(tethereal,
 [  --enable-tethereal      build tethereal.  [default=yes]],tethereal=$enableval,enable_tethereal=yes)
 
 if test "x$enable_tethereal" = "xyes" ; then
-	tethereal_bin="tethereal"
+	tethereal_bin="tethereal\$(EXEEXT)"
 	tethereal_man="tethereal.1"
 	etherealfilter_man="ethereal-filter.4"
 else
@@ -348,7 +348,7 @@ AC_ARG_ENABLE(editcap,
 [  --enable-editcap        build editcap.  [default=yes]],enable_editcap=$enableval,enable_editcap=yes)
 
 if test "x$enable_editcap" = "xyes" ; then
-	editcap_bin="editcap"
+	editcap_bin="editcap\$(EXEEXT)"
 	editcap_man="editcap.1"
 else
 	editcap_bin=""
@@ -364,7 +364,7 @@ AC_ARG_ENABLE(mergecap,
 [  --enable-mergecap       build mergecap.  [default=yes]],enable_mergecap=$enableval,enable_mergecap=yes)
 
 if test "x$enable_mergecap" = "xyes" ; then
-	mergecap_bin="mergecap"
+	mergecap_bin="mergecap\$(EXEEXT)"
 	mergecap_man="mergecap.1"
 else
 	mergecap_bin=""
@@ -380,7 +380,7 @@ AC_ARG_ENABLE(text2pcap,
 [  --enable-text2pcap      build text2pcap.  [default=yes]],text2pcap=$enableval,enable_text2pcap=yes)
 
 if test "x$enable_text2pcap" = "xyes" ; then
-	text2pcap_bin="text2pcap"
+	text2pcap_bin="text2pcap\$(EXEEXT)"
 	text2pcap_man="text2pcap.1"
 else
 	text2pcap_bin=""
@@ -411,7 +411,7 @@ AC_ARG_ENABLE(dftest,
 [  --enable-dftest         build dftest.  [default=no]],enable_dftest=$enableval,enable_dftest=no)
 
 if test "x$enable_dftest" = "xyes" ; then
-	dftest_bin="dftest"
+	dftest_bin="dftest\$(EXEEXT)"
 else
 	dftest_bin=""
 fi
@@ -424,7 +424,7 @@ AC_ARG_ENABLE(randpkt,
 [  --enable-randpkt        build randpkt.  [default=no]],enable_randpkt=$enableval,enable_randpkt=no)
 
 if test "x$enable_randpkt" = "xyes" ; then
-	randpkt_bin="randpkt"
+	randpkt_bin="randpkt\$(EXEEXT)"
 else
 	randpkt_bin=""
 fi
