@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.70 2001/08/05 19:44:13 guy Exp $
+ * $Id: packet-ppp.c,v 1.71 2001/09/30 13:30:51 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,6 +87,13 @@ static gint ett_pap_data		= -1;
 static gint ett_pap_peer_id		= -1;
 static gint ett_pap_password		= -1;
 static gint ett_pap_message		= -1;
+
+static int proto_chap			= -1;		/* CHAP vars */
+static gint ett_chap			= -1;
+static gint ett_chap_data		= -1;
+static gint ett_chap_value		= -1;
+static gint ett_chap_name		= -1;
+static gint ett_chap_message		= -1;
 
 static dissector_table_t subdissector_table;
 static dissector_handle_t chdlc_handle;
@@ -563,6 +570,19 @@ static const value_string pap_vals[] = {
 
 static void dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
+#define CHAP_CHAL  1  /* CHAP Challenge */
+#define CHAP_RESP  2  /* CHAP Response */
+#define CHAP_SUCC  3  /* CHAP Success */
+#define CHAP_FAIL  4  /* CHAP Failure */
+
+static const value_string chap_vals[] = {
+	{CHAP_CHAL,  "Challenge" },
+	{CHAP_RESP,  "Response" },
+	{CHAP_SUCC,  "Success" },
+        {CHAP_FAIL,  "Failure" },
+	{0,          NULL            } };
+
+static void dissect_chap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 const unsigned int fcstab_32[256] =
       {
@@ -1558,6 +1578,107 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   }
 }
 
+/*
+ * Handles CHAP just as a protocol field
+ */
+static void
+dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
+  proto_item *ti;
+  proto_tree *fh_tree = NULL;
+  proto_item *tf;
+  proto_tree *field_tree;
+  proto_item *tv;
+  proto_tree *value_tree;
+  proto_item *tm;
+  proto_tree *message_tree;
+
+  guint8 code, id, value_size;
+  guint16 length;
+  int offset;
+  int name_length;
+
+  code = tvb_get_guint8(tvb, 0);
+  id = tvb_get_guint8(tvb, 1);
+  length = tvb_get_ntohs(tvb, 2);
+
+  if(check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL,
+		proto_get_protocol_short_name(proto_chap));
+
+  if(check_col(pinfo->fd, COL_INFO))
+	col_add_fstr(pinfo->fd, COL_INFO, "%s %s",
+		proto_get_protocol_short_name(proto_chap),
+		val_to_str(code, chap_vals, "Unknown"));
+
+  if(tree) {
+    ti = proto_tree_add_item(tree, proto_chap, tvb, 0, length, FALSE);
+    fh_tree = proto_item_add_subtree(ti, ett_chap);
+    proto_tree_add_text(fh_tree, tvb, 0, 1, "Code: %s (0x%02x)",
+      val_to_str(code, chap_vals, "Unknown"), code);
+    proto_tree_add_text(fh_tree, tvb, 1, 1, "Identifier: 0x%02x",
+			id);
+    proto_tree_add_text(fh_tree, tvb, 2, 2, "Length: %u",
+			length);
+  }
+  offset = 4;
+  length -= 4;
+
+  switch (code) {
+    case CHAP_CHAL:
+    case CHAP_RESP:
+      if(tree) {
+        if (length > 0) {
+          tf = proto_tree_add_text(fh_tree, tvb, offset, length,
+				   "Data: (%d byte%s)", length, 
+				   plurality(length, "", "s"));
+          field_tree = proto_item_add_subtree(tf, ett_chap_data);
+	  value_size = tvb_get_guint8(tvb, offset);
+	  name_length = length - value_size - 1; 
+	  tv = proto_tree_add_text(field_tree, tvb, offset, 1,
+				   "Value Size: %d byte%s", 
+				   value_size, plurality(value_size, "", "s"));
+	  if (--length > 0) {
+	    value_tree = proto_item_add_subtree(tv, ett_chap_value);
+	    proto_tree_add_text(value_tree, tvb, ++offset, 
+				ppp_min(value_size, length),
+				"Value (%d byte%s)", 
+				value_size, plurality(value_size, "", "s"));
+	    offset+=value_size;
+	    length-=value_size;
+	    if (length > 0) {
+	      proto_tree_add_text(field_tree, tvb, offset, 
+				  ppp_min(name_length, length),
+				  "Name (%d byte%s)", name_length, 
+				  plurality(name_length, "", "s"));
+	    }
+	  }
+        }
+      }
+      break;
+
+    case CHAP_SUCC:
+    case CHAP_FAIL:
+      if(tree) {
+        if (length > 0) {
+          tf = proto_tree_add_text(fh_tree, tvb, offset, length,
+				   "Data: (%d byte%s)", length, 
+				   plurality(length, "", "s"));
+          field_tree = proto_item_add_subtree(tf, ett_chap_data);
+	  tv = proto_tree_add_text(field_tree, tvb, offset, length,
+				   "Message: %d byte%s", 
+				   length, plurality(length, "", "s"));
+	}
+      }
+      break;
+    default:
+      if (length > 0)
+        proto_tree_add_text(fh_tree, tvb, offset, length, "Stuff (%d byte%s)",
+				length, plurality(length, "", "s"));
+      break;
+  }
+}
+
+
 void
 proto_register_ppp(void)
 {
@@ -1746,4 +1867,32 @@ proto_reg_handoff_pap(void)
    * registering with the "ethertype" dissector table.
    */
   dissector_add("ethertype", PPP_PAP, dissect_pap, proto_pap);
+}
+
+void
+proto_register_chap(void)
+{
+  static gint *ett[] = {
+    &ett_chap,
+    &ett_chap_data,
+    &ett_chap_value,
+    &ett_chap_name,
+    &ett_chap_message,
+  };
+
+  proto_chap = proto_register_protocol("PPP Challenge Handshake Authentication Protocol", "PPP CHAP",
+				      "chap");
+  proto_register_subtree_array(ett, array_length(ett));
+}
+
+void
+proto_reg_handoff_chap(void)
+{
+  dissector_add("ppp.protocol", PPP_CHAP, dissect_chap, proto_chap);
+
+  /*
+   * See above comment about NDISWAN for an explanation of why we're
+   * registering with the "ethertype" dissector table.
+   */
+  dissector_add("ethertype", PPP_CHAP, dissect_chap, proto_chap);
 }
