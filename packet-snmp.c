@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.101 2002/11/10 20:53:03 gerald Exp $
+ * $Id: packet-snmp.c,v 1.102 2002/11/11 17:34:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2008,7 +2008,7 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_snmp(void)
 {
-#ifdef WIN32 && HAVE_SOME_SNMP
+#if defined(WIN32) && defined(HAVE_SOME_SNMP)
 	char *mib_path;
 #define MIB_PATH_APPEND "snmp\\mibs"
 #endif
