@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.27 2003/01/08 02:19:51 guy Exp $
+ * $Id: tcp_graph.c,v 1.28 2003/02/13 22:17:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2029,6 +2029,9 @@ static void graph_pixmap_display (struct graph *g)
     gdk_draw_pixmap (g->drawing_area->window, g->fg_gc,
 					g->pixmap[g->displayed], 0, 0, g->wp.x, g->wp.y,
 					g->wp.width, g->wp.height);
+    if (g->cross.erase_needed) {
+       cross_xor(g, g->cross.x, g->cross.y);
+    }
 }
 
 static void graph_pixmaps_switch (struct graph *g)
