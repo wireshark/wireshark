@@ -1,5 +1,5 @@
 /*
- * $Id: sttype-test.c,v 1.4 2003/08/27 15:23:05 gram Exp $
+ * $Id: sttype-test.c,v 1.5 2003/12/06 16:35:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,6 +91,8 @@ num_operands(test_op_t op)
 		case TEST_OP_LE:
 			return 2;
 		case TEST_OP_CONTAINS:
+			return 2;
+		case TEST_OP_MATCHES:
 			return 2;
 	}
 	g_assert_not_reached();

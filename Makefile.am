@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.663 2003/12/06 06:09:10 gram Exp $
+# $Id: Makefile.am,v 1.664 2003/12/06 16:35:17 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -481,7 +481,7 @@ if HAVE_PLUGINS
 plugin_libs = \
 	plugins/acn/acn.la \
 	plugins/artnet/artnet.la \
-        plugins/asn1/asn1.la \
+	plugins/asn1/asn1.la \
 	plugins/docsis/docsis.la \
 	plugins/enttec/enttec.la \
 	plugins/giop/cosnaming.la \
@@ -498,7 +498,7 @@ if ENABLE_STATIC
 plugin_ldadd = \
 	plugins/acn/packet-acn.o \
 	plugins/artnet/packet-artnet.o \
-        plugins/asn1/packet-asn1.o \
+	plugins/asn1/packet-asn1.o \
 	plugins/docsis/packet-bpkmattr.o \
 	plugins/docsis/packet-bpkmreq.o \
 	plugins/docsis/packet-bpkmrsp.o \
@@ -536,7 +536,7 @@ plugin_ldadd = \
 plugin_src = \
 	plugins/acn/packet-acn.c \
 	plugins/artnet/packet-artnet.c \
-        plugins/asn1/packet-asn1.c \
+	plugins/asn1/packet-asn1.c \
 	plugins/docsis/packet-bpkmattr.c \
 	plugins/docsis/packet-bpkmreq.c \
 	plugins/docsis/packet-bpkmrsp.c \
@@ -576,7 +576,7 @@ plugin_ldadd = \
 	"-dlopen" self	\
 	"-dlopen" plugins/acn/acn.la \
 	"-dlopen" plugins/artnet/artnet.la \
-        "-dlopen" plugins/asn1/asn1.la \
+	"-dlopen" plugins/asn1/asn1.la \
 	"-dlopen" plugins/docsis/docsis.la \
 	"-dlopen" plugins/enttec/enttec.la \
 	"-dlopen" plugins/giop/cosnaming.la \
@@ -930,6 +930,7 @@ ethereal_LDADD = \
 	$(ethereal_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@ 		\
 	$(plugin_ldadd)			\
+	@PCRE_LIBS@ \
 	@PCAP_LIBS@ @GTK_LIBS@ @ADNS_LIBS@
 
 TETHEREAL_TAP_SRC = \
@@ -978,6 +979,7 @@ tethereal_LDADD = \
 	$(tethereal_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@		\
 	$(plugin_ldadd)			\
+	@PCRE_LIBS@ \
 	@GLIB_LIBS@ -lm			\
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@
 
@@ -1119,6 +1121,7 @@ dftest_LDADD = \
 	$(dftest_additional_libs)	\
 	@SNMP_LIBS@ @SSL_LIBS@		\
 	$(plugin_ldadd)			\
+	@PCRE_LIBS@ \
 	@GLIB_LIBS@ -lm \
 	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@ @ADNS_LIBS@
 

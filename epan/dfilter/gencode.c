@@ -1,5 +1,5 @@
 /*
- * $Id: gencode.c,v 1.11 2003/08/27 15:23:04 gram Exp $
+ * $Id: gencode.c,v 1.12 2003/12/06 16:35:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -322,6 +322,10 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 
 		case TEST_OP_CONTAINS:
 			gen_relation(dfw, ANY_CONTAINS, st_arg1, st_arg2);
+			break;
+
+		case TEST_OP_MATCHES:
+			gen_relation(dfw, ANY_MATCHES, st_arg1, st_arg2);
 			break;
 	}
 }

@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.62 2003/11/01 02:30:14 guy Exp $
+dnl $Id: acinclude.m4,v 1.63 2003/12/06 16:35:18 gram Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -509,6 +509,108 @@ AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 		  ])
 		CFLAGS="$ac_save_CFLAGS"
 		LIBS="$ac_save_LIBS"
+	fi
+])
+
+#
+# AC_ETHEREAL_LIBPCRE_CHECK
+#
+AC_DEFUN(AC_ETHEREAL_LIBPCRE_CHECK,
+[
+	if test "x$pcre_dir" != "x"
+	then
+	  #
+	  # The user specified a directory in which libpcre resides,
+	  # so add the "include" subdirectory of that directory to
+	  # the include file search path and the "lib" subdirectory
+	  # of that directory to the library search path.
+	  #
+	  # XXX - if there's also a libpcre in a directory that's
+	  # already in CFLAGS, CPPFLAGS, or LDFLAGS, this won't
+	  # make us find the version in the specified directory,
+	  # as the compiler and/or linker will search that other
+	  # directory before it searches the specified directory.
+	  #
+	  ethereal_save_CFLAGS="$CFLAGS"
+	  CFLAGS="$CFLAGS -I$pcre_dir/include"
+	  ethereal_save_CPPLAGS="$CPPLAGS"
+	  CPPFLAGS="$CPPFLAGS -I$pcre_dir/include"
+	  ethereal_save_LIBS="$LIBS"
+	  PCRE_LIBS="-L$pcre_dir/lib -lpcre"
+	fi
+
+	#
+	# Make sure we have "pcre.h".  If we don't, it means we probably
+	# don't have libpcre, so don't use it.
+	#
+	AC_CHECK_HEADER(pcre.h,,
+	  [
+	    if test "x$pcre_dir" != "x"
+	    then
+	      #
+	      # The user used "--with-pcre=" to specify a directory
+	      # containing libpcre, but we didn't find the header file
+	      # there; that either means they didn't specify the
+	      # right directory or are confused about whether libpcre
+	      # is, in fact, installed.  Report the error and give up.
+	      #
+	      AC_MSG_ERROR([libpcre header not found in directory specified in --with-pcre])
+	    else
+	      if test "x$want_pcre" = "xyes"
+	      then
+		#
+		# The user tried to force us to use the library, but we
+		# couldn't find the header file; report an error.
+		#
+		AC_MSG_ERROR(Header file pcre.h not found.)
+	      else
+		#
+		# We couldn't find the header file; don't use the
+		# library, as it's probably not present.
+		#
+		want_pcre=no
+	      fi
+	    fi
+	  ])
+
+	if test "x$want_pcre" != "xno"
+	then
+		#
+		# Well, we at least have the pcre header file.
+		#
+		# We're only using standard functions from libpcre,
+		# so we don't need to perform extra checks.
+		#
+		AC_CHECK_LIB(pcre, pcre_compile,
+		[
+			if test "x$pcre_dir" != "x"
+			then
+				#
+				# Put the "-I" and "-L" flags for pcre at
+				# the beginning of CFLAGS, CPPFLAGS, and
+				# LIBS.
+				#
+				PCRE_LIBS="-L$pcre_dir/lib -lpcre $ethereal_save_LIBS"
+			else
+				PCRE_LIBS="-lpcre"
+			fi
+			AC_DEFINE(HAVE_LIBPCRE, 1, [Define to use libpcre library])
+		],[
+			if test "x$pcre_dir" != "x"
+			then
+				#
+				# Restore the versions of CFLAGS, CPPFLAGS,
+				# and LIBS before we added the "-with-pcre="
+				# directory, as we didn't actually find
+				# pcre there.
+				#
+				CFLAGS="$ethereal_save_CFLAGS"
+				CPPFLAGS="$ethereal_save_CPPLAGS"
+				PCRE_LIBS=""
+			fi
+			want_pcre=no
+		])
+		AC_SUBST(PCRE_LIBS)
 	fi
 ])
 

@@ -1,5 +1,5 @@
 /*
- * $Id: dfvm.c,v 1.12 2003/12/02 21:15:48 guy Exp $
+ * $Id: dfvm.c,v 1.13 2003/12/06 16:35:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -405,6 +405,11 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 
 			case ANY_CONTAINS:
 				accum = any_test(df, fvalue_contains,
+						arg1->value.numeric, arg2->value.numeric);
+				break;
+
+			case ANY_MATCHES:
+				accum = any_test(df, fvalue_matches,
 						arg1->value.numeric, arg2->value.numeric);
 				break;
 

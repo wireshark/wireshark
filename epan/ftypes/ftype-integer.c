@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-integer.c,v 1.15 2003/08/27 15:23:06 gram Exp $
+ * $Id: ftype-integer.c,v 1.16 2003/12/06 16:35:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -243,6 +243,7 @@ ftype_register_integers(void)
 		u_cmp_lt,
 		u_cmp_le,
 		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -273,6 +274,7 @@ ftype_register_integers(void)
 		u_cmp_lt,
 		u_cmp_le,
 		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -303,6 +305,7 @@ ftype_register_integers(void)
 		u_cmp_lt,
 		u_cmp_le,
 		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -333,6 +336,7 @@ ftype_register_integers(void)
 		u_cmp_lt,
 		u_cmp_le,
 		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -363,6 +367,7 @@ ftype_register_integers(void)
 		s_cmp_lt,
 		s_cmp_le,
 		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -393,6 +398,7 @@ ftype_register_integers(void)
 		s_cmp_lt,
 		s_cmp_le,
 		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -423,6 +429,7 @@ ftype_register_integers(void)
 		s_cmp_lt,
 		s_cmp_le,
 		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -453,6 +460,7 @@ ftype_register_integers(void)
 		s_cmp_lt,
 		s_cmp_le,
 		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -483,6 +491,7 @@ ftype_register_integers(void)
 		NULL,				/* cmp_lt */
 		NULL,				/* cmp_le */
 		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -514,6 +523,7 @@ ftype_register_integers(void)
 		u_cmp_lt,
 		u_cmp_le,
 		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
 
 		NULL,				/* len */
 		NULL,				/* slice */
@@ -545,6 +555,7 @@ ftype_register_integers(void)
 		u_cmp_lt,
 		u_cmp_le,
 		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
 
 		NULL,				/* len */
 		NULL,				/* slice */

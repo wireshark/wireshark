@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-string.c,v 1.15 2003/11/25 13:20:36 sahlberg Exp $
+ * $Id: ftype-string.c,v 1.16 2003/12/06 16:35:20 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,6 +26,13 @@
 
 #include <ftypes-int.h>
 #include <string.h>
+
+#ifdef HAVE_LIBPCRE
+#include <pcre.h>
+#define CMP_MATCHES cmp_matches
+#else
+#define CMP_MATCHES NULL
+#endif
 
 static void
 string_fvalue_new(fvalue_t *fv)
@@ -226,6 +233,54 @@ cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
 	}
 }
 
+#ifdef HAVE_LIBPCRE
+static gboolean
+cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
+{
+	pcre *re;
+	const char *pcre_error_text;
+	int pcre_error_offset;
+	int options = 0;
+	int rc;
+	pcre_extra *pe = NULL; /* TODO - pcre_study() */
+
+	re = pcre_compile(
+			fv_b->value.string,	/* pattern */
+			options,			/* PCRE options */
+			&pcre_error_text,	/* PCRE constant error string */
+			&pcre_error_offset,	/* Start offset of error in pattern */
+			NULL				/* Default char tables (C locale) */
+			);
+	if (re == NULL) {
+		/* TODO - Do something with pcre_error and pcre_error_offset */
+		return FALSE;
+	}
+	/* TODO - Study the RE *if* the compile & study only happens once * /
+	pe = pcre_study(re, 0, &pcre_error_text);
+	if (pcre_error != NULL) {
+		/ * TODO - Do something with pcre_error and pcre_error_offset * /
+		return FALSE;
+	}
+	*/
+	rc = pcre_exec(
+			re,					/* Compiled PCRE */
+			pe,					/* PCRE extra from pcre_study() */
+			fv_a->value.string,	/* The data to check for the pattern */
+			(int)strlen(fv_a->value.string),	/* and its length */
+			0,					/* Start offset within data */
+			options,			/* PCRE options */
+			NULL,				/* We are not interested in the matched string */
+			0					/* of the pattern; only in success or failure. */
+			);
+	/* if (pe != NULL)
+		g_free(pe); */
+	g_free(re);
+	if (rc == 0)
+		return TRUE;
+	return FALSE;
+}
+#endif
+
 void
 ftype_register_string(void)
 {
@@ -255,7 +310,8 @@ ftype_register_string(void)
 		cmp_ge,
 		cmp_lt,
 		cmp_le,
-		cmp_contains,			/* cmp_contains */
+		cmp_contains,
+		CMP_MATCHES,
 
 		len,
 		slice,
@@ -286,6 +342,7 @@ ftype_register_string(void)
 		cmp_lt,
 		cmp_le,
 		cmp_contains,			/* cmp_contains */
+		CMP_MATCHES,
 
 		len,
 		slice,
@@ -316,6 +373,7 @@ ftype_register_string(void)
 		cmp_lt,
 		cmp_le,
 		cmp_contains,			/* cmp_contains */
+		CMP_MATCHES,
 
 		len,
 		slice,

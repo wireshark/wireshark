@@ -1,6 +1,6 @@
 %{
 /*
- * $Id: scanner.l,v 1.10 2003/10/27 22:45:47 guy Exp $
+ * $Id: scanner.l,v 1.11 2003/12/06 16:35:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,26 +65,26 @@ GString* quoted_string = NULL;
 "("				return simple(TOKEN_LPAREN);
 ")"				return simple(TOKEN_RPAREN);
 
-"=="				return simple(TOKEN_TEST_EQ);
-"eq"				return simple(TOKEN_TEST_EQ);
-"!="				return simple(TOKEN_TEST_NE);
-"ne"				return simple(TOKEN_TEST_NE);
+"=="			return simple(TOKEN_TEST_EQ);
+"eq"			return simple(TOKEN_TEST_EQ);
+"!="			return simple(TOKEN_TEST_NE);
+"ne"			return simple(TOKEN_TEST_NE);
 ">"				return simple(TOKEN_TEST_GT);
-"gt"				return simple(TOKEN_TEST_GT);
-">="				return simple(TOKEN_TEST_GE);
-"ge"				return simple(TOKEN_TEST_GE);
+"gt"			return simple(TOKEN_TEST_GT);
+">="			return simple(TOKEN_TEST_GE);
+"ge"			return simple(TOKEN_TEST_GE);
 "<"				return simple(TOKEN_TEST_LT);
-"lt"				return simple(TOKEN_TEST_LT);
-"<="				return simple(TOKEN_TEST_LE);
-"le"				return simple(TOKEN_TEST_LE);
-"contains"			return simple(TOKEN_TEST_CONTAINS);
-
+"lt"			return simple(TOKEN_TEST_LT);
+"<="			return simple(TOKEN_TEST_LE);
+"le"			return simple(TOKEN_TEST_LE);
+"contains"		return simple(TOKEN_TEST_CONTAINS);
+"matches"		return simple(TOKEN_TEST_MATCHES);
 "!"				return simple(TOKEN_TEST_NOT);
-"not"				return simple(TOKEN_TEST_NOT);
-"&&"				return simple(TOKEN_TEST_AND);
-"and"				return simple(TOKEN_TEST_AND);
-"||"				return simple(TOKEN_TEST_OR);
-"or"				return simple(TOKEN_TEST_OR);
+"not"			return simple(TOKEN_TEST_NOT);
+"&&"			return simple(TOKEN_TEST_AND);
+"and"			return simple(TOKEN_TEST_AND);
+"||"			return simple(TOKEN_TEST_OR);
+"or"			return simple(TOKEN_TEST_OR);
 
 
 
@@ -223,6 +223,7 @@ simple(int token)
 		case TOKEN_TEST_LT:
 		case TOKEN_TEST_LE:
 		case TOKEN_TEST_CONTAINS:
+		case TOKEN_TEST_MATCHES:
 		case TOKEN_TEST_NOT:
 		case TOKEN_TEST_AND:
 		case TOKEN_TEST_OR:

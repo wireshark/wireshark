@@ -1,4 +1,4 @@
-/* $Id: grammar.lemon,v 1.6 2003/08/27 15:23:04 gram Exp $ */
+/* $Id: grammar.lemon,v 1.7 2003/12/06 16:35:19 gram Exp $ */
 
 %include {
 #ifdef HAVE_CONFIG_H
@@ -108,7 +108,7 @@ shifting 3 more symbols. */
 /* Associativity */
 %left TEST_AND.
 %left TEST_OR.
-%nonassoc TEST_EQ TEST_NE TEST_LT TEST_LE TEST_GT TEST_GE TEST_CONTAINS.
+%nonassoc TEST_EQ TEST_NE TEST_LT TEST_LE TEST_GT TEST_GE TEST_CONTAINS TEST_MATCHES.
 %right TEST_NOT.
 
 /* Top-level targets */
@@ -248,6 +248,7 @@ rel_op2(O) ::= TEST_GE.  { O = TEST_OP_GE; }
 rel_op2(O) ::= TEST_LT.  { O = TEST_OP_LT; }
 rel_op2(O) ::= TEST_LE.  { O = TEST_OP_LE; }
 rel_op2(O) ::= TEST_CONTAINS.  { O = TEST_OP_CONTAINS; }
+rel_op2(O) ::= TEST_MATCHES.  { O = TEST_OP_MATCHES; }
 
 
 

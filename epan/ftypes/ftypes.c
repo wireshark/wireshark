@@ -1,5 +1,5 @@
 /*
- * $Id: ftypes.c,v 1.18 2003/12/03 09:28:23 guy Exp $
+ * $Id: ftypes.c,v 1.19 2003/12/06 16:35:20 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -181,6 +181,15 @@ ftype_can_contains(enum ftenum ftype)
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->cmp_contains ? TRUE : FALSE;
+}
+
+gboolean
+ftype_can_matches(enum ftenum ftype)
+{
+	ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	return ft->cmp_matches ? TRUE : FALSE;
 }
 
 /* ---------------------------------------------------------- */
@@ -500,4 +509,12 @@ fvalue_contains(fvalue_t *a, fvalue_t *b)
 	/* XXX - check compatibility of a and b */
 	g_assert(a->ftype->cmp_contains);
 	return a->ftype->cmp_contains(a, b);
+}
+
+gboolean
+fvalue_matches(fvalue_t *a, fvalue_t *b)
+{
+	/* XXX - check compatibility of a and b */
+	g_assert(a->ftype->cmp_matches);
+	return a->ftype->cmp_matches(a, b);
 }

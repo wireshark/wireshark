@@ -1,5 +1,5 @@
 /*
- * $Id: sttype-test.h,v 1.4 2003/08/27 15:23:05 gram Exp $
+ * $Id: sttype-test.h,v 1.5 2003/12/06 16:35:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,7 +36,8 @@ typedef enum {
 	TEST_OP_GE,
 	TEST_OP_LT,
 	TEST_OP_LE,
-	TEST_OP_CONTAINS
+	TEST_OP_CONTAINS,
+	TEST_OP_MATCHES
 } test_op_t;
 
 void

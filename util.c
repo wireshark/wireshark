@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.73 2003/12/01 20:27:09 gerald Exp $
+ * $Id: util.c,v 1.74 2003/12/06 16:35:18 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -59,6 +59,10 @@ typedef int mode_t;	/* for win32 */
 #ifdef HAVE_LIBZ
 #include <zlib.h>	/* to get the libz version number */
 #endif
+
+#ifdef HAVE_LIBPCRE
+#include <pcre.h>	/* to get the libpcre version number */
+#endif /* HAVE_LIBPCRE */
 
 #ifdef HAVE_LIBPCAP
 #include <pcap.h>
@@ -152,6 +156,26 @@ get_compiled_version_info(GString *str)
 	g_string_append(str, ",");
 	do_word_wrap(str, break_point);
 
+	g_string_append(str, " ");
+	break_point = str->len - 1;
+#ifdef HAVE_LIBPCRE
+	g_string_append(str, "with libpcre ");
+#ifdef PCRE_MAJOR
+#ifdef PCRE_MINOR
+	g_string_sprintfa(str, "%u.%u", PCRE_MAJOR, PCRE_MINOR);
+#else			/* PCRE_MINOR */
+	g_string_sprintfa(str, "%u", PCRE_MAJOR);
+#endif			/* PCRE_MINOR */
+#else		/* PCRE_MAJOR */
+	g_string_append(str, "(version unknown)");
+#endif		/* PCRE_MAJOR */
+#else	/* HAVE_LIBPCRE */
+	g_string_append(str, "without libpcre");
+#endif	/* HAVE_LIBPCRE */
+
+	g_string_append(str, ",");
+	do_word_wrap(str, break_point);
+
 /* Oh, this is pretty. */
 /* Oh, ha.  you think that was pretty.  Try this:! --Wes */
 	g_string_append(str, " ");
@@ -181,7 +205,17 @@ get_compiled_version_info(GString *str)
 #else
 	g_string_append(str, "without ADNS");
 #endif /* HAVE_GNU_ADNS */
+
+	g_string_append(str, ".");
 	do_word_wrap(str, break_point);
+
+#ifndef HAVE_LIBPCRE
+	break_point = str->len - 1;
+	g_string_append(str,
+			"\nNOTE: this build does not support the \"matches\" operator"
+			"\nfor Ethereal filter syntax.\n");
+	do_word_wrap(str, break_point);
+#endif	/* HAVE_LIBPCRE */
 }
 
 /*

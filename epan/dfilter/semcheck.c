@@ -1,5 +1,5 @@
 /*
- * $Id: semcheck.c,v 1.19 2003/08/27 15:23:04 gram Exp $
+ * $Id: semcheck.c,v 1.20 2003/12/06 16:35:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -693,6 +693,14 @@ check_test(stnode_t *st_node)
 			break;
 		case TEST_OP_CONTAINS:
 			check_relation("contains", TRUE, ftype_can_contains, st_node, st_arg1, st_arg2);
+			break;
+		case TEST_OP_MATCHES:
+#ifdef HAVE_LIBPCRE
+			check_relation("matches", TRUE, ftype_can_matches, st_node, st_arg1, st_arg2);
+#else
+			dfilter_fail("This Ethereal version does not support the \"matches\" operation.");
+			THROW(TypeError);
+#endif
 			break;
 
 		default:

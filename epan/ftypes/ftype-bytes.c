@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-bytes.c,v 1.18 2003/10/29 23:48:14 guy Exp $
+ * $Id: ftype-bytes.c,v 1.19 2003/12/06 16:35:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -642,6 +642,7 @@ ftype_register_bytes(void)
 		cmp_lt,
 		cmp_le,
 		cmp_contains,
+		NULL,				/* cmp_matches */
 
 		len,
 		slice,
@@ -673,6 +674,7 @@ ftype_register_bytes(void)
 		cmp_lt,
 		cmp_le,
 		cmp_contains,
+		NULL,				/* cmp_matches */
 
 		len,
 		slice,
@@ -704,6 +706,7 @@ ftype_register_bytes(void)
 		cmp_lt,
 		cmp_le,
 		cmp_contains,
+		NULL,				/* cmp_matches */
 
 		len,
 		slice,
@@ -735,6 +738,7 @@ ftype_register_bytes(void)
 		cmp_lt,
 		cmp_le,
 		cmp_contains,
+		NULL,				/* cmp_matches */
 
 		len,
 		slice,
@@ -766,6 +770,7 @@ ftype_register_bytes(void)
 		cmp_lt,
 		cmp_le,
 		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
 
 		len,
 		slice,
@@ -797,6 +802,7 @@ ftype_register_bytes(void)
 		cmp_lt_i64,
 		cmp_le_i64,
 		NULL,				/* cmp_contains */
+		NULL,				/* cmp_matches */
 
 		len,
 		slice,
