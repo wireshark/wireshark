@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.44 1999/11/20 13:48:26 sharpe Exp $
+ * $Id: packet-smb.c,v 1.45 1999/11/21 11:17:13 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -8887,8 +8887,6 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree
   guint8           Pad2;
   gchar            *Data;
 
-  printf("SMB_offset = %u, ParamOffset = %u, DataOffset = %u\n", SMB_offset, ParameterOffset, DataOffset);
-
   TransactNameCopy = g_malloc(strlen(TransactName) + 1);
 
   /* Should check for error here ... */
@@ -8904,8 +8902,6 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree
   }
   else
     trans_cmd = NULL;
-
-  printf("Trans_Type=%s, cmd=%s\n", trans_type, trans_cmd); 
 
   if (((strcmp(trans_type, "MAILSLOT") != 0) ||
        !dissect_mailslot_smb(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, trans_cmd, SMB_offset + DataOffset, DataCount)) &&
@@ -9313,8 +9309,6 @@ dissect_transact_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *p
 
     /* Let's see if we can decode this */
 
-    printf("Let;s try to decode\n");
-
     dissect_transact_params(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, DataOffset, DataCount, ParameterOffset, ParameterCount, TransactName);
 
   }
@@ -9708,8 +9702,6 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
     FunctionCode = si.request_val -> last_lanman_cmd;
 
-    printf("LANMAN response\n");
-
     switch (FunctionCode) {
 
     case NETSERVERENUM2:
@@ -9728,8 +9720,6 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 	proto_tree_add_text(lanman_tree, loc_offset, 2, "Function Code: NetServerEnum2");
 
       }
-
-      printf("SMB_offset=%u, ParameterOffset=%u\n", SMB_offset, ParameterOffset);
 
       loc_offset = SMB_offset + ParameterOffset;
       Status = GSHORT(pd, loc_offset);
@@ -9863,7 +9853,6 @@ dissect_pipe_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *paren
 
   if (strcmp(command, "LANMAN") == 0) { /* Try to decode a LANMAN */
 
-    printf("LANMAN done \n");
     return dissect_pipe_lanman(pd, offset, fd, parent, tree, si, max_data, SMB_offset, errcode, dirn, command, DataOffset, DataCount, ParameterOffset, ParameterCount);
 
   }
