@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.47 2000/02/01 04:13:47 guy Exp $
+ * $Id: packet-udp.c,v 1.48 2000/02/09 17:15:47 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,6 +66,7 @@ typedef struct _e_udphdr {
 
 /* UDP Ports -> should go in packet-udp.h */
 
+#define UDP_PORT_TIME    37
 #define UDP_PORT_TACACS  49
 #define UDP_PORT_DNS     53
 #define UDP_PORT_BOOTPS  67
@@ -303,6 +304,9 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       /* This is the first point of call, but it adds a dynamic call */
       udp_hash_add(MAX(uh_sport, uh_dport), dissect_tftp);  /* Add to table */
       dissect_tftp(pd, offset, fd, tree);
+  } else if (PORT_IS(UDP_PORT_TIME)) {
+      /* This is the first point of call, but it adds a dynamic call */
+      dissect_time(pd, offset, fd, tree);
   } else if (PORT_IS(UDP_PORT_RADIUS) ||
 		PORT_IS(UDP_PORT_RADACCT) ||
 		PORT_IS(UDP_PORT_RADIUS_NEW) ||

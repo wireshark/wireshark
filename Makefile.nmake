@@ -102,6 +102,7 @@ DISSECTOR_OBJECTS = \
 	packet-tcp.obj   \
 	packet-telnet.obj\
 	packet-tftp.obj  \
+	packet-time.obj  \
 	packet-tns.obj \
 	packet-tr.obj    \
 	packet-trmac.obj \

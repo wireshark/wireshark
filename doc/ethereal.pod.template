@@ -820,6 +820,7 @@ B<http://ethereal.zing.org>.
   Gerrit Gehnen            <G.Gehnen@atrie.de>
   Craig Newell             <craign@cheque.uq.edu.au>
   Ed Meaney                <emeaney@altiga.com>
+  Dietmar Petras           <DPetras@ELSA.de> 
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

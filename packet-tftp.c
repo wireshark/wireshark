@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.9 2000/01/27 07:09:15 guy Exp $
+ * $Id: packet-tftp.c,v 1.10 2000/02/09 17:15:47 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -166,9 +166,6 @@ dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    break;
 	  case OACK:
 	    proto_tree_add_text(tftp_tree, offset, 2, "Option Acknowledgement");
-	    offset += 2;
-	    i1 = pntohs(pd+offset);
-	    proto_tree_add_text(tftp_tree, offset, 2, "Block = %u", i1);
 	    offset += 2;
 	    while (offset < pi.captured_len) {
 	      int i2;

@@ -1,7 +1,7 @@
 # 
 # /etc/manuf - Ethernet vendor codes 
 #
-# $Id: manuf,v 1.5 2000/01/04 23:42:17 gram Exp $
+# $Id: manuf,v 1.6 2000/02/09 17:15:47 gram Exp $
 #
 # Laurent Deniel <deniel@worldnet.fr>
 #
@@ -140,6 +140,7 @@
 00:90:27	Intel
 00:90:b1	Cisco
 00:a0:24	3Com
+00:a0:57	ELSA
 00:aa:00	Intel
 00:c0:4f	Dell
 00:c0:95	Znyx            # Network Appliance

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.170 2000/02/05 09:19:06 guy Exp $
+ * $Id: packet.h,v 1.171 2000/02/09 17:15:47 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -402,6 +402,7 @@ void dissect_tacplus(const u_char *, int, frame_data *, proto_tree *);
 void dissect_tcp(const u_char *, int, frame_data *, proto_tree *);
 void dissect_telnet(const u_char *, int, frame_data *, proto_tree *);
 void dissect_tftp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_time(const u_char *, int, frame_data *, proto_tree *);
 void dissect_tns(const u_char *, int, frame_data *, proto_tree *);
 void dissect_tr(const u_char *, int, frame_data *, proto_tree *);
 void dissect_trmac(const u_char *, int, frame_data *, proto_tree *);
