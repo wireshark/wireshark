@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Definitions for Gryphon packet disassembly structures and routines
  *
- * $Id: packet-gryphon.h,v 1.5 2002/05/01 06:15:44 guy Exp $
+ * $Id: packet-gryphon.h,v 1.6 2002/05/01 06:56:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -364,6 +364,6 @@
 typedef struct val_str_dsp {
     int     value;
     char    *strptr;
-    int     (*cmd_fnct)(tvbuff_t *, int, int, proto_tree*);
-    int     (*rsp_fnct)(tvbuff_t *, int, int, proto_tree*);
+    int     (*cmd_fnct)(tvbuff_t *, int, proto_tree*);
+    int     (*rsp_fnct)(tvbuff_t *, int, proto_tree*);
 } val_str_dsp;

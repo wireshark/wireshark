@@ -3,7 +3,7 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.31 2002/05/01 06:46:52 guy Exp $
+ * $Id: packet-gryphon.c,v 1.32 2002/05/01 06:56:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -99,50 +99,50 @@ static void dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, gboolean is_msgresp_add);
 static int decode_command(tvbuff_t*, int, int, proto_tree*);
 static int decode_response(tvbuff_t*, int, int, proto_tree*);
-static int decode_data(tvbuff_t*, int, int, proto_tree*);
-static int decode_event(tvbuff_t*, int, int, proto_tree*);
-static int cmd_init(tvbuff_t*, int, int, proto_tree*);
-static int resp_time(tvbuff_t*, int, int, proto_tree*);
-static int cmd_setfilt(tvbuff_t*, int, int, proto_tree*);
-static int cmd_ioctl(tvbuff_t*, int, int, proto_tree*);
-static int cmd_addfilt(tvbuff_t*, int, int, proto_tree*);
-static int resp_addfilt(tvbuff_t*, int, int, proto_tree*);
-static int cmd_modfilt(tvbuff_t*, int, int, proto_tree*);
-static int resp_filthan(tvbuff_t*, int, int, proto_tree*);
-static int dfiltmode(tvbuff_t*, int, int, proto_tree*);
-static int filtmode(tvbuff_t*, int, int, proto_tree*);
-static int resp_events(tvbuff_t*, int, int, proto_tree*);
-static int cmd_register(tvbuff_t*, int, int, proto_tree*);
-static int resp_register(tvbuff_t*, int, int, proto_tree*);
-static int resp_getspeeds(tvbuff_t*, int, int, proto_tree*);
-static int cmd_sort(tvbuff_t*, int, int, proto_tree*);
-static int cmd_optimize(tvbuff_t*, int, int, proto_tree*);
-static int resp_config(tvbuff_t*, int, int, proto_tree*);
-static int cmd_sched(tvbuff_t*, int, int, proto_tree*);
-static int resp_blm_data(tvbuff_t*, int, int, proto_tree*);
-static int resp_blm_stat(tvbuff_t*, int, int, proto_tree*);
-static int cmd_addresp(tvbuff_t*, int, int, proto_tree*);
-static int resp_addresp(tvbuff_t*, int, int, proto_tree*);
-static int cmd_modresp(tvbuff_t*, int, int, proto_tree*);
-static int resp_resphan(tvbuff_t*, int, int, proto_tree*);
-static int resp_sched(tvbuff_t*, int, int, proto_tree*);
-static int cmd_desc(tvbuff_t*, int, int, proto_tree*);
-static int resp_desc(tvbuff_t*, int, int, proto_tree*);
-static int cmd_upload(tvbuff_t*, int, int, proto_tree*);
-static int cmd_delete(tvbuff_t*, int, int, proto_tree*);
-static int cmd_list(tvbuff_t*, int, int, proto_tree*);
-static int resp_list(tvbuff_t*, int, int, proto_tree*);
-static int cmd_start(tvbuff_t*, int, int, proto_tree*);
-static int resp_start(tvbuff_t*, int, int, proto_tree*);
-static int resp_status(tvbuff_t*, int, int, proto_tree*);
-static int cmd_options(tvbuff_t*, int, int, proto_tree*);
-static int cmd_files(tvbuff_t*, int, int, proto_tree*);
-static int resp_files(tvbuff_t*, int, int, proto_tree*);
-static int eventnum(tvbuff_t*, int, int, proto_tree*);
-static int speed(tvbuff_t*, int, int, proto_tree*);
-static int filter_block(tvbuff_t*, int, int, proto_tree*);
-static int blm_mode(tvbuff_t*, int, int, proto_tree*);
-static int cmd_usdt(tvbuff_t*, int, int, proto_tree*);
+static int decode_data(tvbuff_t*, int, proto_tree*);
+static int decode_event(tvbuff_t*, int, proto_tree*);
+static int cmd_init(tvbuff_t*, int, proto_tree*);
+static int resp_time(tvbuff_t*, int, proto_tree*);
+static int cmd_setfilt(tvbuff_t*, int, proto_tree*);
+static int cmd_ioctl(tvbuff_t*, int, proto_tree*);
+static int cmd_addfilt(tvbuff_t*, int, proto_tree*);
+static int resp_addfilt(tvbuff_t*, int, proto_tree*);
+static int cmd_modfilt(tvbuff_t*, int, proto_tree*);
+static int resp_filthan(tvbuff_t*, int, proto_tree*);
+static int dfiltmode(tvbuff_t*, int, proto_tree*);
+static int filtmode(tvbuff_t*, int, proto_tree*);
+static int resp_events(tvbuff_t*, int, proto_tree*);
+static int cmd_register(tvbuff_t*, int, proto_tree*);
+static int resp_register(tvbuff_t*, int, proto_tree*);
+static int resp_getspeeds(tvbuff_t*, int, proto_tree*);
+static int cmd_sort(tvbuff_t*, int, proto_tree*);
+static int cmd_optimize(tvbuff_t*, int, proto_tree*);
+static int resp_config(tvbuff_t*, int, proto_tree*);
+static int cmd_sched(tvbuff_t*, int, proto_tree*);
+static int resp_blm_data(tvbuff_t*, int, proto_tree*);
+static int resp_blm_stat(tvbuff_t*, int, proto_tree*);
+static int cmd_addresp(tvbuff_t*, int, proto_tree*);
+static int resp_addresp(tvbuff_t*, int, proto_tree*);
+static int cmd_modresp(tvbuff_t*, int, proto_tree*);
+static int resp_resphan(tvbuff_t*, int, proto_tree*);
+static int resp_sched(tvbuff_t*, int, proto_tree*);
+static int cmd_desc(tvbuff_t*, int, proto_tree*);
+static int resp_desc(tvbuff_t*, int, proto_tree*);
+static int cmd_upload(tvbuff_t*, int, proto_tree*);
+static int cmd_delete(tvbuff_t*, int, proto_tree*);
+static int cmd_list(tvbuff_t*, int, proto_tree*);
+static int resp_list(tvbuff_t*, int, proto_tree*);
+static int cmd_start(tvbuff_t*, int, proto_tree*);
+static int resp_start(tvbuff_t*, int, proto_tree*);
+static int resp_status(tvbuff_t*, int, proto_tree*);
+static int cmd_options(tvbuff_t*, int, proto_tree*);
+static int cmd_files(tvbuff_t*, int, proto_tree*);
+static int resp_files(tvbuff_t*, int, proto_tree*);
+static int eventnum(tvbuff_t*, int, proto_tree*);
+static int speed(tvbuff_t*, int, proto_tree*);
+static int filter_block(tvbuff_t*, int, proto_tree*);
+static int blm_mode(tvbuff_t*, int, proto_tree*);
+static int cmd_usdt(tvbuff_t*, int, proto_tree*);
 
 static char *frame_type[] = {
 	"",
@@ -392,10 +392,10 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset = decode_response(tvb, offset, src, body_tree);
 	break;
     case GY_FT_DATA:
-	offset = decode_data(tvb, offset, src, body_tree);
+	offset = decode_data(tvb, offset, body_tree);
 	break;
     case GY_FT_EVENT:
-	offset = decode_event(tvb, offset, src, body_tree);
+	offset = decode_event(tvb, offset, body_tree);
 	break;
     case GY_FT_MISC:
 	break;
@@ -666,7 +666,7 @@ decode_command(tvbuff_t *tvb, int offset, int dst, proto_tree *pt)
     	padding = 3 - (msglen + 3) % 4;
  	ti = proto_tree_add_text(pt, tvb, offset, -1, "Data: (%d bytes)", msglen);
 	ft = proto_item_add_subtree(ti, ett_gryphon_command_data);
-	offset = (*(cmds[i].cmd_fnct)) (tvb, offset, dst, ft);
+	offset = (*(cmds[i].cmd_fnct)) (tvb, offset, ft);
     }
     return offset;
 }
@@ -710,13 +710,13 @@ decode_response(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     if (cmds[i].rsp_fnct && msglen > 0) {
 	ti = proto_tree_add_text(pt, tvb, offset, msglen, "Data: (%d bytes)", msglen);
 	ft = proto_item_add_subtree(ti, ett_gryphon_response_data);
-	offset = (*(cmds[i].rsp_fnct)) (tvb, offset, src, ft);
+	offset = (*(cmds[i].rsp_fnct)) (tvb, offset, ft);
     }
     return offset;
 }
 
 static int
-decode_data(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+decode_data(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_item	*item, *item1;
     proto_tree	*tree, *tree1;
@@ -802,7 +802,7 @@ decode_data(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-decode_event(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+decode_event(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int		    msglen;
     int     	    hours, minutes, seconds, fraction, padding, length;
@@ -838,7 +838,7 @@ decode_event(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_init(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_init(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     char    	*ptr;
     
@@ -853,7 +853,7 @@ cmd_init(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-eventnum(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+eventnum(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     guint8	event = tvb_get_guint8(tvb, offset);
     
@@ -867,7 +867,7 @@ eventnum(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-resp_time(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_time(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int     hours, minutes, seconds, fraction;
     union {
@@ -894,7 +894,7 @@ resp_time(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_setfilt(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_setfilt(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int     	    flag = tvb_get_ntohl(tvb, offset);
     int     	    length, padding;
@@ -924,7 +924,7 @@ cmd_setfilt(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_ioctl(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_ioctl(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int		    msglen;
     unsigned int    ioctl;
@@ -943,7 +943,7 @@ cmd_ioctl(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_addfilt(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_addfilt(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_item	*item;
     proto_tree	*tree;
@@ -970,13 +970,13 @@ cmd_addfilt(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 	length += 3 - (length + 3) % 4;
 	item = proto_tree_add_text(pt, tvb, offset, length, "Filter block %d", i);
 	tree = proto_item_add_subtree (item, ett_gryphon_cmd_filter_block);
-	offset = filter_block(tvb, offset, src, tree);
+	offset = filter_block(tvb, offset, tree);
     }
     return offset;
 }
 
 static int
-resp_addfilt(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_addfilt(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_tree_add_text(pt, tvb, offset, 1, "Filter handle: %u",
 	tvb_get_guint8(tvb, offset));
@@ -986,7 +986,7 @@ resp_addfilt(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_modfilt(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_modfilt(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     guint8	    filter_handle;
     unsigned char   action;
@@ -1006,7 +1006,7 @@ cmd_modfilt(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-resp_filthan(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_filthan(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int     	handles = tvb_get_guint8(tvb, offset);
     int     	i, padding;
@@ -1024,7 +1024,7 @@ resp_filthan(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-dfiltmode(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+dfiltmode(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     unsigned char   mode;
     
@@ -1037,7 +1037,7 @@ dfiltmode(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-filtmode(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+filtmode(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     unsigned char   mode;
     
@@ -1050,7 +1050,7 @@ filtmode(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-resp_events(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_events(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int		    msglen;
     unsigned int    i;
@@ -1074,7 +1074,7 @@ resp_events(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_register(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_register(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_tree_add_text(pt, tvb, offset, 16, "Username: %.16s",
 	tvb_get_ptr(tvb, offset, 16));
@@ -1086,7 +1086,7 @@ cmd_register(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-resp_register(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_register(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_tree_add_text(pt, tvb, offset, 1, "Client ID: %u",
 	tvb_get_guint8(tvb, offset));
@@ -1099,7 +1099,7 @@ resp_register(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 
 
 static int
-resp_getspeeds(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_getspeeds(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int size;
     int number;
@@ -1121,7 +1121,7 @@ resp_getspeeds(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_sort(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_sort(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     char    	*which;
     
@@ -1134,7 +1134,7 @@ cmd_sort(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_optimize(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_optimize(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     char    	*which;
     
@@ -1147,7 +1147,7 @@ cmd_optimize(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-resp_config(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_config(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_item	*ti;
     proto_tree	*ft;
@@ -1219,7 +1219,7 @@ resp_config(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_sched(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_sched(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int		    msglen;
     proto_item	    *item, *item1;
@@ -1274,7 +1274,7 @@ cmd_sched(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 	item1 = proto_tree_add_text(tree, tvb, offset, length, "Message");
 	tree1 = proto_item_add_subtree (item1, ett_gryphon_cmd_sched_cmd);
 	save_offset = offset;
-	offset = decode_data(tvb, offset, src, tree1);
+	offset = decode_data(tvb, offset, tree1);
 	msglen -= offset - save_offset;
 	i++;
     }
@@ -1282,7 +1282,7 @@ cmd_sched(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-resp_blm_data(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_blm_data(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     unsigned int    i;
     int             hours, minutes, seconds, fraction, x, fract;
@@ -1312,7 +1312,7 @@ resp_blm_data(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-resp_blm_stat(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_blm_stat(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     unsigned int    x, i;
     char    	    *fields[] = {
@@ -1324,7 +1324,7 @@ resp_blm_stat(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     	"Transmit error count: %u",
     };
 
-    offset = resp_blm_data(tvb, offset, src, pt);
+    offset = resp_blm_data(tvb, offset, pt);
     for (i = 0; i < SIZEOF(fields); i++){
 	x = tvb_get_ntohl(tvb, offset);
 	proto_tree_add_text(pt, tvb, offset, 4, fields[i], x);
@@ -1359,7 +1359,7 @@ static const value_string deact_after_per_vals[] = {
 };
 
 static int
-cmd_addresp(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_addresp(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_item	*item;
     proto_tree	*tree;
@@ -1428,7 +1428,7 @@ cmd_addresp(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 	length += 3 - (length + 3) % 4;
 	item = proto_tree_add_text(pt, tvb, offset, length, "Filter block %d", i);
 	tree = proto_item_add_subtree (item, ett_gryphon_cmd_filter_block);
-	offset = filter_block(tvb, offset, src, tree);
+	offset = filter_block(tvb, offset, tree);
     }
     for (i = 1; i <= responses; i++) {
 	msglen = tvb_get_ntohs(tvb, offset+4) + 8;
@@ -1443,7 +1443,7 @@ cmd_addresp(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-resp_addresp(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_addresp(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_tree_add_text(pt, tvb, offset, 1, "Response handle: %u",
 	tvb_get_guint8(tvb, offset));
@@ -1453,7 +1453,7 @@ resp_addresp(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_modresp(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_modresp(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     unsigned char   action;
     unsigned char   dest = tvb_get_guint8(tvb, offset-5);
@@ -1476,7 +1476,7 @@ cmd_modresp(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-resp_resphan(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_resphan(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int     	handles = tvb_get_guint8(tvb, offset);
     int     	i, padding;
@@ -1494,7 +1494,7 @@ resp_resphan(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-resp_sched(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_sched(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     unsigned int    id = tvb_get_ntohl(tvb, offset);
 
@@ -1504,7 +1504,7 @@ resp_sched(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_desc(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_desc(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_tree_add_text(pt, tvb, offset, 4, "Program size: %u bytes",
 	tvb_get_ntohl(tvb, offset));
@@ -1519,7 +1519,7 @@ cmd_desc(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-resp_desc(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_desc(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_item	*item;
     proto_tree	*tree;
@@ -1540,7 +1540,7 @@ resp_desc(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_upload(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_upload(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int		    msglen;
     unsigned int    length;
@@ -1566,7 +1566,7 @@ cmd_upload(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_delete(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_delete(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_tree_add_text(pt, tvb, offset, 32, "Program name: %.32s",
 	tvb_get_ptr(tvb, offset, 32));
@@ -1575,7 +1575,7 @@ cmd_delete(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_list(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_list(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_tree_add_text(pt, tvb, offset, 1, "Block number: %u",
 	tvb_get_guint8(tvb, offset));
@@ -1585,7 +1585,7 @@ cmd_list(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-resp_list(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_list(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_item	*item;
     proto_tree	*tree;
@@ -1612,12 +1612,12 @@ resp_list(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_start(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_start(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     char	    string[120];
     gint	    length;
     
-    offset = cmd_delete(tvb, offset, src, pt);
+    offset = cmd_delete(tvb, offset, pt);
     length = tvb_get_nstringz0(tvb, offset, 120, string) + 1;
     proto_tree_add_text(pt, tvb, offset, length, "Arguments: %s", string);
     offset += length;
@@ -1630,7 +1630,7 @@ cmd_start(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-resp_start(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_start(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_tree_add_text(pt, tvb, offset, 1, "Channel (Client) number: %u",
 	tvb_get_guint8(tvb, offset));
@@ -1640,7 +1640,7 @@ resp_start(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-resp_status(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_status(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_item	*item;
     proto_tree	*tree;
@@ -1666,7 +1666,7 @@ resp_status(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_options(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_options(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int		    msglen;
     proto_item	    *item;
@@ -1737,7 +1737,7 @@ cmd_options(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_files(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int	    msglen;
     u_char  *which;
@@ -1756,7 +1756,7 @@ cmd_files(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-resp_files(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+resp_files(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     int		msglen;
     u_char  	*flag;
@@ -1770,7 +1770,7 @@ resp_files(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-cmd_usdt(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+cmd_usdt(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     u_char  *desc;
     guint8  assemble_flag;
@@ -1801,7 +1801,7 @@ cmd_usdt(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-speed(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+speed(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     proto_tree_add_text(pt, tvb, offset, 1, "Baud rate index: %u",
 	tvb_get_guint8(tvb, offset));
@@ -1811,7 +1811,7 @@ speed(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-filter_block(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+filter_block(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     unsigned int    type, operator;
     int     length, padding;
@@ -1861,7 +1861,7 @@ filter_block(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 }
 
 static int
-blm_mode(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
+blm_mode(tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     char    *mode, line[50];
     int     x, y, seconds;
