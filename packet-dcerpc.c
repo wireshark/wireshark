@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.6 2001/07/11 01:25:45 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.7 2001/07/11 04:49:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -438,7 +438,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     if (check_col (pinfo->fd, COL_PROTOCOL)) {
         col_set_str (pinfo->fd, COL_PROTOCOL, sub_proto->name);
     }
-    // FIXME: call approp. dissector
+    /* FIXME: call approp. dissector */
     return 0;
 }
 
