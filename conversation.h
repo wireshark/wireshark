@@ -1,7 +1,7 @@
 /* conversation.h
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.h,v 1.3 1999/10/29 01:04:17 guy Exp $
+ * $Id: conversation.h,v 1.4 2000/01/05 21:48:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,8 +37,8 @@ typedef struct conversation {
 
 extern void conversation_init(void);
 conversation_t *conversation_new(address *src, address *dst, port_type ptype,
-    guint16 src_port, guint16 dst_port, void *data);
+    guint32 src_port, guint32 dst_port, void *data);
 conversation_t *find_conversation(address *src, address *dst, port_type ptype,
-    guint16 src_port, guint16 dst_port);
+    guint32 src_port, guint32 dst_port);
 
 #endif /* conversation.h */

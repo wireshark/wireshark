@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.5 1999/11/14 21:16:58 guy Exp $
+ * $Id: conversation.c,v 1.6 2000/01/05 21:48:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,8 +51,8 @@ typedef struct conversation_key {
 	address	src;
 	address	dst;
 	port_type ptype;
-	guint16	port_src;
-	guint16	port_dst;
+	guint32	port_src;
+	guint32	port_dst;
 } conversation_key;
 
 /*
@@ -226,7 +226,7 @@ copy_address(address *to, address *from)
  */
 conversation_t *
 conversation_new(address *src, address *dst, port_type ptype,
-    guint16 src_port, guint16 dst_port, void *data)
+    guint32 src_port, guint32 dst_port, void *data)
 {
 	conversation_t *conversation;
 	conversation_key *new_key;
@@ -256,7 +256,7 @@ conversation_new(address *src, address *dst, port_type ptype,
  */
 conversation_t *
 find_conversation(address *src, address *dst, port_type ptype,
-    guint16 src_port, guint16 dst_port)
+    guint32 src_port, guint32 dst_port)
 {
 	conversation_key key;
 
