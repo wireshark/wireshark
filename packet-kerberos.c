@@ -23,7 +23,7 @@
  *
  * Some structures from RFC2630
  *
- * $Id: packet-kerberos.c,v 1.65 2004/05/26 08:53:45 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.66 2004/05/26 11:04:15 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -208,7 +208,6 @@ static gint hf_krb_KDCOptions_renew = -1;
 static gint hf_krb_KDCOptions_validate = -1;
 static gint hf_krb_KDC_REQ_BODY = -1;
 static gint hf_krb_SAFE = -1;
-static gint hf_krb_SAFE_BODY = -1;
 static gint hf_krb_PRIV_BODY = -1;
 static gint hf_krb_ENC_PRIV = -1;
 static gint hf_krb_authenticator_enc = -1;
@@ -253,7 +252,6 @@ static gint ett_krb_recordmark = -1;
 static gint ett_krb_ticket = -1;
 static gint ett_krb_ticket_enc = -1;
 static gint ett_krb_SAFE = -1;
-static gint ett_krb_SAFE_BODY = -1;
 static gint ett_krb_PRIV = -1;
 static gint ett_krb_PRIV_enc = -1;
 
@@ -2526,7 +2524,7 @@ static int
 dissect_krb5_SAFE_BODY(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 
-	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, SAFE_BODY_sequence, hf_krb_SAFE_BODY, ett_krb_SAFE_BODY);
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, SAFE_BODY_sequence, -1, -1);
 
 	return offset;
 }
@@ -3491,9 +3489,6 @@ proto_register_kerberos(void)
 	{ &hf_krb_SAFE, {
 	    "SAFE", "kerberos.safe", FT_NONE, BASE_NONE,
 	    NULL, 0, "Kerberos SAFE structure", HFILL }},
-	{ &hf_krb_SAFE_BODY, {
-	    "SAFE BODY", "kerberos.safe_body", FT_NONE, BASE_NONE,
-	    NULL, 0, "Kerberos SAFE_BODY structure", HFILL }},
 	{ &hf_krb_encrypted_PRIV, {
 	    "Encrypted PRIV", "kerberos.enc_priv", FT_NONE, BASE_NONE,
 	    NULL, 0, "Kerberos Encrypted PRIVate blob data", HFILL }},
@@ -3738,7 +3733,6 @@ proto_register_kerberos(void)
         &ett_krb_ticket,
 	&ett_krb_ticket_enc,
         &ett_krb_SAFE,
-        &ett_krb_SAFE_BODY,
         &ett_krb_PRIV,
         &ett_krb_PRIV_enc,
         &ett_krb_EncTicketPart,
