@@ -352,9 +352,6 @@ sctp_stat_on_close (GtkButton *button _U_, gpointer         user_data _U_)
 static void
 sctp_stat_on_analyse (GtkButton *button _U_, gpointer         user_data _U_)
 {
-	if (selected_stream==NULL)
-		return;
-
 	if (selected_stream)
 		assoc_analyse(selected_stream);
 }
