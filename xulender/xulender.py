@@ -19,6 +19,7 @@ import getopt
 # Local modules
 import win32csdk
 from frontendutil import id_to_name
+import cssparser
 
 frontend_list = []
 
@@ -49,14 +50,14 @@ def walk_tree(doc, lvl):
 		    func = getattr(fe, func_name)
 		    func(n)
 
-	    print level_prefix(lvl), element_name,
-	    if n.hasAttributes():
-		print '[',
-		for k in n.attributes.keys():
-		    print k + ': ' + n.attributes[k].value + ' ',
-		print ']'
-	    else:
-		print
+#	    print level_prefix(lvl), element_name,
+#	    if n.hasAttributes():
+#		print '[',
+#		for k in n.attributes.keys():
+#		    print k + ': ' + n.attributes[k].value + ' ',
+#		print ']'
+#	    else:
+#		print
 
 	if n.hasChildNodes():
 	    walk_tree(n, lvl + 1)
@@ -73,7 +74,7 @@ def walk_tree(doc, lvl):
 
 def main():
     path_prefix = ''
-    opts, files = getopt.getopt(sys.argv[1:], 'f:I:')
+    opts, files = getopt.getopt(sys.argv[1:], 'f:I:C:')
 
     for flag, arg in opts:
     	if flag == '-f':
@@ -86,6 +87,9 @@ def main():
 		    print 'Error: Unknown frontend "' + fe + '"'
 	if flag == '-I':
 	    path_prefix = arg
+
+	if flag == '-C':
+	    cssparser.parse_file(arg)
 
     print 'Path prefix: ' + path_prefix
 

@@ -7,7 +7,7 @@
   >
 
   <vbox>
-    <grid> <!-- Labels -->
+    <grid class="bottom_spacing"> <!-- Labels -->
       <columns>
 	<column/>           <!-- Static labels -->
 	<column flex="1" /> <!-- Dynamic labels -->
@@ -19,10 +19,12 @@
 	    flex="1"
 	    id="progress-dlg.task_title"
 	    style="text-align: right;"
+            class="bottom_spacing"
 	  > </description>
 	  <description 
 	    id="progress-dlg.item_title" 
 	    flex="1"
+            class="lb_spacing"
 	  > </description>
 	</row>
 
@@ -30,10 +32,12 @@
 	  <description
 	    flex="1"
 	    style="text-align: right;"
+            class="bottom_spacing"
 	  >Status: </description>
 	  <description 
 	    id="progress-dlg.status" 
 	    flex="1"
+            class="lb_spacing"
 	  > </description>
 	</row>
 
@@ -41,10 +45,12 @@
 	  <description
 	    flex="1"
 	    style="text-align: right;"
+            class="bottom_spacing"
 	  >Elapsed Time: </description>
 	  <description 
 	    id="progress-dlg.time.elapsed" 
 	    flex="1"
+            class="lb_spacing"
 	  >00:00</description>
 	</row>
 
@@ -52,10 +58,12 @@
 	  <description
 	    flex="1"
 	    style="text-align: right;"
+            class="bottom_spacing"
 	  >Time Left: </description>
 	  <description 
 	    id="progress-dlg.time.left" 
 	    flex="1"
+            class="lb_spacing"
 	  >--:--</description>
 	</row>
 
@@ -67,9 +75,11 @@
 	  <hbox>
 	    <progressmeter 
 	      id="progress-dlg.progress" 
+              class="left_spacing"
 	    />
 	    <description
 	      id="progress-dlg.percentage"
+              class="left_spacing"
 	    >0%</description>
 	  </hbox>
 	</row>

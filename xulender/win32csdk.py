@@ -10,6 +10,7 @@
 
 from frontendutil import *
 import string
+import cssparser
 
 cur_cf = None
 cur_hf = None
@@ -50,6 +51,23 @@ def cleanup():
 	cur_rcf.close()
 
 #
+# CSS property to element struct name conversions
+#
+padding_trans_tbl = {
+    'padding-top'   : 'padding_top',
+    'padding-left'  : 'padding_left',
+    'padding-bottom': 'padding_bottom',
+    'padding-right' : 'padding_right',
+}
+
+margin_trans_tbl = {
+    'margin-top'   : 'margin_top',
+    'margin-left'  : 'margin_left',
+    'margin-bottom': 'margin_bottom',
+    'margin-right' : 'margin_right',
+}
+
+#
 # Generate any attribute-specific code, e.g. for "id" or "orient"
 #
 def get_element_attributes(node):
@@ -62,7 +80,6 @@ def get_element_attributes(node):
     minwidth      = get_attribute(node, 'minwidth',      None)
     orient        = get_attribute(node, 'orient',        None)
     sortdirection = get_attribute(node, 'sortdirection', 'natural')
-    style         = get_attribute(node, 'style',         None)
 
     onchange  = get_attribute(node, 'onchange',  None)
     oncommand = get_attribute(node, 'oncommand', None)
@@ -113,26 +130,39 @@ def get_element_attributes(node):
     elif sortdirection.lower() == 'descending':
 	cur_cf.write_body('    cur_el->sortdirection = EL_SORT_DESCENDING;\n')
 
-    get_element_style(style)
+    get_element_style(node)
 
 #
 # Parse out any CSS style information, and generate code accordingly
 #
-def get_element_style(style):
-    if style is None:
+def get_element_style(node):
+    pvpairs = cssparser.get_css_attributes(node)
+
+    if pvpairs is None:
 	return
 
-    for parts in style.split(';'):
-	if parts.find(':') == -1:
-	    continue
-	prop, val = parts.split(':', 2)
-	prop = prop.strip()
-	val = val.strip()
-	if prop.lower() == 'text-align':
-	    taval = None
-	    if val.lower() in ['left', 'right', 'center', 'justify']:
-		cur_cf.write_body('    cur_el->text_align = CSS_TEXT_ALIGN_%s;\n'
-		    % val.upper())
+    for prop in pvpairs.keys():
+	val = pvpairs[prop]
+
+	if prop == 'text-align' and val.lower() in ['left', 'right', 'center', 'justify']:
+	    cur_cf.write_body('    cur_el->text_align = CSS_TEXT_ALIGN_%s;\n'
+		% val.upper())
+
+	if prop in padding_trans_tbl:
+	    if val[-2:] != 'px':
+		raise CodeGenerationError
+	    cur_cf.write_body('    cur_el->%(prop)s = %(intval)s;\n' % {
+		'prop': padding_trans_tbl[prop],
+		'intval': val[:-2]
+	    })
+
+	if prop in margin_trans_tbl:
+	    if val[-2:] != 'px':
+		raise CodeGenerationError
+	    cur_cf.write_body('    cur_el->%(prop)s = %(intval)s;\n' % {
+		'prop': margin_trans_tbl[prop],
+		'intval': val[:-2]
+	    })
 
 #
 # Add a callback function
@@ -190,7 +220,6 @@ def win32_gen_caption(node):
 	    lines.append(child.data.strip())
 	title = string.join(lines, '')
 	title = title.replace('\n', '')
-	print 'caption: ' + title
 
     # XXX - Groupboxes under Windows tend to eat various messages.  To
     # work around this, we add an insulating vbox.
@@ -278,7 +307,6 @@ def win32_gen_description(node):
 	    lines.append(child.data.strip())
 	text = string.join(lines, '')
 	text = text.replace('\n', '')
-	print 'text: ' + text
 
     cur_cf.write_body('''
     /* Begin <description> */
@@ -380,7 +408,7 @@ void
  */
 void
 %(varname)s_handle_wm_initdialog(HWND hw_dlg) {
-    win32_element_t *cur_box = NULL;
+    win32_element_t *cur_box;
     win32_element_t *cur_el = NULL;
     GList* box_stack = NULL;
 
@@ -388,6 +416,7 @@ void
     SendMessage(hw_dlg, WM_SETICON, (WPARAM) ICON_BIG, (LPARAM) get_ethereal_icon_large(hw_dlg));
 
     cur_box = win32_hbox_new(hw_dlg, NULL);
+    cur_el  = cur_box;
     win32_element_set_id(cur_box, "%(cur_window_id)s");
 
 ''' % {
@@ -398,6 +427,8 @@ void
     'varname': cur_var_name,
     'width': cur_width,
     })
+
+    get_element_style(node)
 
     cur_hf = sect_file(header_file_name)
 
@@ -905,7 +936,6 @@ def win32_gen_statusbarpanel(node):
 	    lines.append(child.data.strip())
 	text = string.join(lines, '')
 	text = text.replace('\n', '')
-	print 'text: ' + text
 
     cur_cf.write_body('''
     /* Begin <statusbarpanel> */

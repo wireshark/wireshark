@@ -5,9 +5,9 @@
   >
 
   <vbox>
-    <groupbox>
+    <groupbox class="bottom_spacing">
       <caption>Capture</caption>
-      <hbox>
+      <hbox class="bottom_spacing">
         <description>Interface:</description>
         <menulist
           editable="True"
@@ -16,19 +16,25 @@
           onchange="capture_prep_interface_changed"
         />
       </hbox>
-      <description id="capture-dialog.ip-address">IP address:</description>
-      <hbox>
+      <description
+        id="capture-dialog.ip-address"
+        class="bottom_spacing"
+      >
+        IP address:
+      </description>
+      <hbox class="bottom_spacing">
         <description id="capture-dialog.link-layer-desc">Link-layer header type:</description>
-	<menulist id="capture-dialog.link-layer" />
-        <description>Buffer size:</description>
+	<menulist id="capture-dialog.link-layer" class="left-spacing" />
+        <description class="left-spacing">Buffer size:</description>
         <ethereal:spinner id="capture-dialog.buffer-size" />
-        <description>megabyte(s)</description>
+        <description class="left-spacing">megabyte(s)</description>
       </hbox>
       <checkbox
         id="capture-dialog.promiscuous"
         label="Capture packets in promiscuous mode"
+        class="bottom_spacing"
       />
-      <hbox>
+      <hbox class="bottom_spacing">
         <checkbox
           id="capture-dialog.packet-size-cb"
           label="Limit each packet to"
@@ -46,11 +52,11 @@
       </hbox>
     </groupbox>
 
-    <hbox>
+    <hbox class="bottom_spacing">
       <vbox>
-        <groupbox>
+        <groupbox class="bottom_spacing">
           <caption>Capture File(s)</caption>
-          <hbox>
+          <hbox class="bottom_spacing">
 	    <description>File:</description>
             <textbox id="capture-dialog.save-file" flex="1" />
             <button
@@ -62,6 +68,7 @@
             id="capture-dialog.use-multiple-files"
             label="Use multiple files"
             oncommand="capture_dialog_adjust_sensitivity"
+            class="bottom_spacing"
           />
           <grid>
             <columns>
@@ -76,9 +83,16 @@
                   id="capture-dialog.next-file-every-size-cb"
                   label="Next file every"
                   oncommand="capture_dialog_adjust_sensitivity"
+                  class="bottom_spacing"
                 />
-                <ethereal:spinner id="capture-dialog.next-file-every-size-spinner" />
-                <menulist id="capture-dialog.next-file-every-size-ml">
+                <ethereal:spinner
+                  id="capture-dialog.next-file-every-size-spinner"
+                  class="bottom_spacing"
+                />
+                <menulist
+                  id="capture-dialog.next-file-every-size-ml"
+                  class="lb_spacing"
+                >
                   <menupopup>
                     <menuitem label="byte(s)" />
                     <menuitem label="kilobyte(s)" />
@@ -92,9 +106,16 @@
                   id="capture-dialog.next-file-every-time-cb"
                   label="Next file every"
                   oncommand="capture_dialog_adjust_sensitivity"
+                  class="bottom_spacing"
                 />
-                <ethereal:spinner id="capture-dialog.next-file-every-time-spinner" />
-                <menulist id="capture-dialog.next-file-every-time-ml">
+                <ethereal:spinner
+                  id="capture-dialog.next-file-every-time-spinner"
+                  class="bottom_spacing"
+                />
+                <menulist
+                  id="capture-dialog.next-file-every-time-ml"
+                  class="lb_spacing"
+                >
                   <menupopup>
                     <menuitem label="second(s)" />
                     <menuitem label="minute(s)" selected="true" />
@@ -108,9 +129,16 @@
                   id="capture-dialog.ring-buffer-with-cb"
                   label="Ring buffer with"
                   oncommand="capture_dialog_adjust_sensitivity"
+                  class="bottom_spacing"
                 />
-                <ethereal:spinner id="capture-dialog.ring-buffer-with-spinner" />
-                <description id="capture-dialog.ring-buffer-with-descr">
+                <ethereal:spinner
+                  id="capture-dialog.ring-buffer-with-spinner"
+                  class="bottom_spacing"
+                />
+                <description
+                  id="capture-dialog.ring-buffer-with-descr"
+                  class="lb_spacing"
+                >
                   Files
                 </description>
               </row>
@@ -120,8 +148,13 @@
                   label="Stop capture after"
                   oncommand="capture_dialog_adjust_sensitivity"
                 />
-                <ethereal:spinner id="capture-dialog.stop-capture-after-spinner" />
-                <description id="capture-dialog.stop-capture-after-descr">
+                <ethereal:spinner
+                  id="capture-dialog.stop-capture-after-spinner"
+                />
+                <description
+                  id="capture-dialog.stop-capture-after-descr"
+                  class="left_spacing"
+                >
                   File(s)
                 </description>
               </row>
@@ -135,9 +168,16 @@
               id="capture-dialog.stop-after-packets-cb"
               label="... after"
               oncommand="capture_dialog_adjust_sensitivity"
+              class="bottom_spacing"
             />
-            <ethereal:spinner id="capture-dialog.stop-after-packets-spinner" />
-            <description id="capture-dialog.stop-after-packets-descr">
+            <ethereal:spinner
+              id="capture-dialog.stop-after-packets-spinner"
+              class="bottom_spacing"
+            />
+            <description
+              id="capture-dialog.stop-after-packets-descr"
+              class="lb_spacing"
+            >
               File(s)
             </description>
           </hbox>
@@ -146,9 +186,16 @@
               id="capture-dialog.stop-after-size-cb"
               label="... after"
               oncommand="capture_dialog_adjust_sensitivity"
+              class="bottom_spacing"
             />
-            <ethereal:spinner id="capture-dialog.stop-after-size-spinner" />
-            <menulist id="capture-dialog.stop-after-size-ml">
+            <ethereal:spinner
+              id="capture-dialog.stop-after-size-spinner"
+              class="bottom_spacing"
+            />
+            <menulist
+              id="capture-dialog.stop-after-size-ml"
+              class="lb_spacing"
+            >
               <menupopup>
                 <menuitem label="byte(s)" />
                 <menuitem label="kilobyte(s)" />
@@ -163,8 +210,13 @@
               label="... after"
               oncommand="capture_dialog_adjust_sensitivity"
             />
-            <ethereal:spinner id="capture-dialog.stop-after-time-spinner" />
-            <menulist id="capture-dialog.stop-after-time-ml">
+            <ethereal:spinner
+              id="capture-dialog.stop-after-time-spinner"
+            />
+            <menulist
+              id="capture-dialog.stop-after-time-ml"
+              class="left_spacing"
+            >
               <menupopup>
                 <menuitem label="second(s)" />
                 <menuitem label="minute(s)" selected="true" />
@@ -176,8 +228,8 @@
         </groupbox>
       </vbox>
 
-      <vbox>
-        <groupbox flex="1">
+      <vbox class="left_spacing">
+        <groupbox flex="1" class="bottom_spacing">
           <caption>Display Options</caption>
           <checkbox
             id="capture-dialog.update-real-time"
@@ -229,6 +281,7 @@
         id="capture-cancel"
         label="Cancel"
         oncommand="capture_dialog_hide"
+        class="left_spacing"
        />
     </hbox>
   </vbox>

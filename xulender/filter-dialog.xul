@@ -5,7 +5,7 @@
   >
 
   <vbox>
-    <hbox>
+    <hbox class="bottom_spacing">
       <groupbox>
 	<caption>Edit</caption>
 	<spacer flex="1" />
@@ -22,7 +22,7 @@
 	/>
 	<spacer flex="1" />
       </groupbox>
-      <groupbox flex="1">
+      <groupbox flex="1" class="left_spacing">
 	<caption>Filter</caption>
 	<listbox
 	  id="filter-dialog.filter.filterlist"
@@ -36,9 +36,9 @@
 	</listbox>
       </groupbox>
     </hbox>
-    <groupbox>
+    <groupbox class="bottom_spacing">
       <caption>Properties</caption>
-      <hbox>
+      <hbox class="bottom_spacing">
         <description>Filter name:</description>
         <textbox
 	  flex="1"
@@ -72,22 +72,26 @@
         id="filter-dialog.apply"
         label="Apply"
         oncommand="filter_dialog_apply"
+        class="left_spacing"
        />
       <button
         id="filter-dialog.ok"
         label="OK"
         oncommand="filter_dialog_ok"
+        class="left_spacing"
        />
       <button
         id="filter-dialog.save"
         label="Save"
         oncommand="filter_dialog_save"
+        class="left_spacing"
        />
       <button
         id="filter-dialog.close"
         label="Close"
         default="True"
         oncommand="filter_dialog_close"
+        class="left_spacing"
        />
     </hbox>
   </vbox>

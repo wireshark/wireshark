@@ -92,32 +92,6 @@ win32_deck_new(HWND hw_parent) {
 
 
 /*
- * Find a deck's intrinsic (minimum) width.
- */
-gint
-win32_deck_intrinsic_width(win32_element_t *deck) {
-    gint             width, min_width = 0;
-    GList           *contents;
-    win32_element_t *cur_el;
-
-    win32_element_assert(deck);
-
-    if (deck->contents == NULL)
-	return deck->minwidth + deck->frame_left + deck->frame_right;
-
-    contents = g_list_first(deck->contents);
-    while (contents) {
-	cur_el = (win32_element_t *) contents->data;
-	width = win32_element_intrinsic_width(cur_el);
-	if (width > min_width)
-	    min_width = width;
-	contents = g_list_next(contents);
-    }
-
-    return min_width + deck->frame_left + deck->frame_right;
-}
-
-/*
  * Resize the contents of the deck.  This is meant to be called from
  * win32_element_resize() after the deck's HWND has been resized; therefore
  * we only handle the deck's contents and not the deck's HWND.
@@ -131,16 +105,48 @@ win32_deck_resize_contents(win32_element_t *deck, int set_width, int set_height)
 
     win32_element_assert(deck);
 
-    width = set_width - deck->frame_left - deck->frame_right;
+    width = set_width - deck->padding_left - deck->padding_right
+	    - deck->margin_left - deck->margin_right;
     if (width < 0) width = 0;
-    height = set_height  - deck->frame_bottom - deck->frame_top;
+    height = set_height  - deck->padding_bottom - deck->padding_top
+	    - deck->margin_top - deck->margin_bottom;
     if (height < 0) height = 0;
     contents = g_list_first(deck->contents);
     while (contents != NULL) {
 	cur_el = (win32_element_t *) contents->data;
 	win32_element_resize(cur_el, width, height);
+	win32_element_move(cur_el, cur_el->margin_left, cur_el->margin_top);
 	contents = g_list_next(contents);
     }
+}
+
+/*
+ * Find a deck's intrinsic (minimum) width.
+ */
+gint
+win32_deck_intrinsic_width(win32_element_t *deck) {
+    gint             width, min_width = 0;
+    GList           *contents;
+    win32_element_t *cur_el;
+
+    win32_element_assert(deck);
+
+    if (deck->contents == NULL)
+	return deck->minwidth + deck->padding_left + deck->padding_right +
+		deck->margin_left + deck->margin_right;
+
+    contents = g_list_first(deck->contents);
+    while (contents) {
+	cur_el = (win32_element_t *) contents->data;
+	width = win32_element_intrinsic_width(cur_el);
+	if (width > min_width)
+	    min_width = width;
+	contents = g_list_next(contents);
+    }
+
+    min_width += deck->padding_left + deck->padding_right;
+    min_width += deck->margin_left + deck->margin_right;
+    return min_width;
 }
 
 /*
@@ -155,7 +161,8 @@ win32_deck_intrinsic_height(win32_element_t *deck) {
     win32_element_assert(deck);
 
     if (deck->contents == NULL)
-	return deck->minheight + deck->frame_top + deck->frame_bottom;
+	return deck->minheight + deck->padding_top + deck->padding_bottom
+		+ deck->margin_top + deck->margin_bottom;
 
     contents = g_list_first(deck->contents);
     while (contents) {
@@ -166,7 +173,9 @@ win32_deck_intrinsic_height(win32_element_t *deck) {
 	contents = g_list_next(contents);
     }
 
-    return min_height + deck->frame_top + deck->frame_bottom;
+    min_height += deck->padding_top + deck->padding_bottom;
+    min_height += deck->margin_top + deck->margin_bottom;
+    return min_height;
 }
 
 /*

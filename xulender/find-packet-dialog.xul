@@ -5,26 +5,29 @@
   >
 
   <vbox>
-    <groupbox>
+    <groupbox class="bottom_spacing">
       <caption>Find</caption>
       <vbox>
-        <hbox>
+        <hbox class="bottom_spacing">
           <description>By:</description>
 	  <radiogroup orient="horizontal">
 	    <radio 
 	      label="Display filter"
 	      id="find-packet.by.display-filter"
 	      oncommand="find_dlg_by_toggle"
+	      class="left_spacing"
 	    />
 	    <radio 
 	      label="Hex value"
 	      id="find-packet.by.hex-value"
 	      oncommand="find_dlg_by_toggle"
+	      class="left_spacing"
 	    />
 	    <radio 
 	      label="String"
 	      id="find-packet.by.string"
 	      oncommand="find_dlg_by_toggle"
+	      class="left_spacing"
 	    />
 	  </radiogroup>
 	</hbox>
@@ -38,7 +41,7 @@
 	</hbox>
       </vbox>
     </groupbox>
-    <hbox>
+    <hbox class="bottom_spacing">
       <groupbox>
 	<caption>Search In</caption>
 	<radiogroup>
@@ -56,12 +59,13 @@
 	  />
 	</radiogroup>
       </groupbox>
-      <groupbox>
+      <groupbox class="left_spacing">
 	<caption>String Options</caption>
 	<checkbox
 	  label="Case sensitive"
 	  id="find-packet.string-options.case-sensitive"
 	  oncommand="win32_checkbox_toggle_attached_data"
+	  class="bottom_spacing"
 	/>
 	<description>Character set:</description>
 	<menulist id="find-packet.string-options.char-set">
@@ -72,7 +76,7 @@
 	  </menupopup>
 	</menulist>
       </groupbox>
-      <groupbox>
+      <groupbox class="left_spacing">
 	<caption>Direction</caption>
 	<radiogroup>
 	  <radio 
@@ -98,6 +102,7 @@
         id="find-packet.cancel"
         label="Cancel"
         oncommand="find_dlg_cancel"
+        class="left_spacing"
        />
     </hbox>
   </vbox>

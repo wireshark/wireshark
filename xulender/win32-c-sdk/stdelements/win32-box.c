@@ -282,7 +282,7 @@ void
 win32_element_resize (win32_element_t *el, int set_width, int set_height) {
     int x, y, width, height;
     int flex_dim, static_dim;
-    win32_element_t *cur_el;
+    win32_element_t *cur_el, *last_flexible_el = NULL;
     GList *contents;
     gfloat total_flex;
     gboolean force_max = FALSE, horizontal;
@@ -302,7 +302,9 @@ win32_element_resize (win32_element_t *el, int set_width, int set_height) {
     GetWindowRect(el->h_wnd, &wr);
     GetClientRect(el->h_wnd, &cr);
     if (GetParent(el->h_wnd) != NULL) { /* We're a client window. */
-	SetWindowPos(el->h_wnd, HWND_TOP, 0, 0, set_width, set_height,
+	SetWindowPos(el->h_wnd, HWND_TOP, 0, 0,
+		set_width - el->margin_left - el->margin_right,
+		set_height - el->margin_top - el->margin_bottom,
 		SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOMOVE);
     } else if (force_max) {
 	MoveWindow(el->h_wnd, wr.left, wr.top,
@@ -325,23 +327,32 @@ win32_element_resize (win32_element_t *el, int set_width, int set_height) {
     /* Otherwise, we have a box.  Proceed through its contents. */
 
     /* Shave off the groupbox frame */
+    /* XXX - Maybe we should have "frame_" dimensions that elements can
+     * set to indicate frame thickness */
     if (el->type == BOX_GROUPBOX) {
 	set_width -= win32_groupbox_extra_width(el);
 	set_height -= win32_groupbox_extra_height(el);
     }
-    x = el->frame_left;
-    y = el->frame_top;
-    width = set_width - el->frame_left - el->frame_right;
-    height = set_height - el->frame_top - el->frame_bottom;
+    x = el->padding_left;
+    y = el->padding_top;
+    width = set_width - el->padding_left - el->padding_right - el->margin_left - el->margin_right;
+    height = set_height - el->padding_top - el->padding_bottom - el->margin_top - el->margin_bottom;
     total_flex = win32_box_flex_total(el);
     static_dim = win32_box_static_dim(el);
 
     if (el->orient == BOX_ORIENT_HORIZONTAL) {
 	horizontal = TRUE;
-	flex_dim = set_width - static_dim - x - el->frame_right;
+	flex_dim = set_width - static_dim - x - el->padding_right;
     } else {
 	horizontal = FALSE;
-	flex_dim = set_height - static_dim - y - el->frame_bottom;
+	flex_dim = set_height - static_dim - y - el->padding_bottom;
+    }
+
+    for (contents = g_list_first(el->contents); contents != NULL; contents = g_list_next(contents)) {
+	cur_el = (win32_element_t *) contents->data;
+	if (cur_el->flex > 0.0 && win32_element_is_visible(cur_el)) {
+	    last_flexible_el = cur_el;
+	}
     }
 
     for (contents = g_list_first(el->contents); contents != NULL; contents = g_list_next(contents)) {
@@ -351,13 +362,26 @@ win32_element_resize (win32_element_t *el, int set_width, int set_height) {
 	}
 	if (horizontal) { /* Trundle along in the y direction */
 	    if (cur_el->flex > 0.0 && total_flex > 0) {
-		width = (int) (cur_el->flex * flex_dim / total_flex);
+		if (cur_el != last_flexible_el) {
+		    width = (int) (cur_el->flex * flex_dim / total_flex);
+		    flex_dim -= width;
+		    total_flex -= cur_el->flex;
+		} else {	/* We're the last flexible item.  Take up the remaining flex space. */
+		    width = flex_dim;
+		}
 	    } else {
 		width = win32_element_intrinsic_width(cur_el);
 	    }
 	} else { /* Vertical */
 	    if (cur_el->flex > 0.0 && total_flex > 0) {
-		height = (int) (cur_el->flex * flex_dim / total_flex);
+		if (cur_el != last_flexible_el) {
+		    height = (int) (cur_el->flex * flex_dim / total_flex);
+		    flex_dim -= height;
+		    total_flex -= cur_el->flex;
+		} else {	/* We're the last flexible item.  Take up the remaining flex space. */
+		    height = flex_dim;
+		}
+
 	    } else {
 		height = win32_element_intrinsic_height(cur_el);
 	    }
@@ -384,7 +408,7 @@ win32_element_resize (win32_element_t *el, int set_width, int set_height) {
 
     win32_element_assert(el);
     GetWindowRect(el->h_wnd, &wr);
-    MoveWindow(el->h_wnd, x, y, wr.right - wr.left, wr.bottom - wr.top, TRUE);
+    MoveWindow(el->h_wnd, x + el->margin_left, y + el->margin_top, wr.right - wr.left, wr.bottom - wr.top, TRUE);
 }
 
 

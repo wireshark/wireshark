@@ -1,0 +1,21 @@
+
+dialog {
+	padding: 7px;
+}
+
+groupbox {
+	padding: 7px;
+}
+
+.left_spacing {
+	margin-left: 5px;
+}
+
+.bottom_spacing {
+	margin-bottom: 5px;
+}
+
+.lb_spacing {
+	margin-left: 5px;
+	margin-bottom: 5px;
+}

@@ -14,7 +14,9 @@ CFLAGS=-DHAVE_CONFIG_H $(LOCAL_CFLAGS) $(GLIB_CFLAGS) /I. /Iwiretap \
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
-XULENDERFLAGS=-I.. -f win32csdk
+STYLESHEET=wethereal.css
+
+XULENDERFLAGS=-I.. -f win32csdk -C ..\$(STYLESHEET)
 
 .c.obj::
 	$(CC) $(CVARSDLL) $(CFLAGS) -Fd.\ -c $<
@@ -102,13 +104,14 @@ RESOURCES = win32-main.res
 RC_FILES = win32-file-dlg.rc win32-main.rc generated/*.rc win32-main.h win32-file-dlg.h
 
 XUL_SCRIPTS = \
+	..\cssparser.py \
 	..\frontendutil.py \
 	..\xulender.py \
 	..\win32csdk.py
 
 all: win32-c-sdk.lib $(RESOURCES)
 
-$(GENERATED_OBJECTS): $(XUL_SCRIPTS)
+$(GENERATED_OBJECTS): $(XUL_SCRIPTS) $(STYLESHEET)
 
 win32-main.rc: win32-main.rc.in ..\..\config.nmake ..\..\image\win32-toolbar.bmp
 	sed -e s/@VERSION@/$(VERSION)/ \

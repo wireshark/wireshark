@@ -1611,18 +1611,19 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 			cfilter_dialog();
 			break;
 
+		    case IDM_ETHEREAL_MAIN_ANALYZE_DF:
+		    case IDB_MAIN_TOOLBAR_DISP_FILT:
+			el = win32_identifier_get_str("main-toolbar");
+			win32_element_assert(el);
+		 	filter_dialog_cb(el);
+		 	break;
+
 		    case IDM_ETHEREAL_MAIN_ABOUT_ETHEREAL:
 			about_dialog_init(hw_mainwin);
 			break;
 		    case IDM_ETHEREAL_MAIN_EXIT:
 			file_quit_cmd(hw_mainwin);
 			break;
-
-		    case IDB_MAIN_TOOLBAR_DISP_FILT:
-			el = win32_identifier_get_str("main-toolbar");
-			win32_element_assert(el);
-		 	filter_dialog_cb(el);
-		 	break;
 
 		    default:
 			if (w_param >= IDM_RECENT_FILE_START && w_param < IDM_RECENT_FILE_START + prefs.gui_recent_files_count_max) {

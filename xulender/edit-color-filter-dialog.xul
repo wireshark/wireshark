@@ -5,9 +5,9 @@
   >
 
   <vbox>
-    <groupbox>
+    <groupbox class="bottom_spacing">
       <caption>Filter</caption>
-      <hbox>
+      <hbox class="bottom_spacing">
         <description>Name:</description>
         <textbox flex="1" id="edit-color-filter.name" />
       </hbox>
@@ -21,7 +21,7 @@
 	/>
       </hbox>
     </groupbox>
-    <groupbox>
+    <groupbox class="bottom_spacing">
       <caption>Display Colors</caption>
       <hbox>
         <spacer flex="1" />
@@ -35,6 +35,7 @@
 	  label="Background Color..."
 	  id="edit-color-filter.background"
 	  oncommand="edit_color_background"
+          class="left_spacing"
 	/>
 	<spacer flex="1" />
       </hbox>
@@ -52,6 +53,7 @@
         id="edit-color-filter.cancel"
         label="Close"
         oncommand="edit_color_cancel"
+        class="left_spacing"
        />
     </hbox>
   </vbox>

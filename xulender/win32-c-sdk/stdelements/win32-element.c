@@ -65,6 +65,11 @@ win32_element_new(HWND hw_el) {
     el->align = BOX_ALIGN_STRETCH;
     el->pack = BOX_PACK_START;
 
+    el->margin_top = 0;
+    el->margin_bottom = 0;
+    el->margin_left = 0;
+    el->margin_right = 0;
+
     el->padding_top = 0;
     el->padding_bottom = 0;
     el->padding_left = 0;
@@ -76,11 +81,6 @@ win32_element_new(HWND hw_el) {
     el->maxwidth = -1;
     el->minheight = 0;
     el->minwidth = 0;
-
-    el->frame_top = 0;
-    el->frame_bottom = 0;
-    el->frame_left = 0;
-    el->frame_right = 0;
 
     el->onchange = NULL;
     el->oncommand = NULL;
@@ -187,15 +187,17 @@ win32_element_get_width(win32_element_t *el) {
  */
 LONG
 win32_element_hwnd_get_width(HWND hwnd) {
+    win32_element_t *el;
     RECT wr;
 
     win32_element_hwnd_assert(hwnd);
+    el = (win32_element_t *) GetWindowLong(hwnd, GWL_USERDATA);
 
     if (! IsWindowVisible(hwnd))
 	return 0;
 
     GetWindowRect(hwnd, &wr);
-    return wr.right - wr.left;
+    return (wr.right - wr.left) + el->margin_left + el->margin_right;
 }
 
 /*
@@ -214,15 +216,17 @@ win32_element_get_height(win32_element_t *el) {
  */
 LONG
 win32_element_hwnd_get_height(HWND hwnd) {
+    win32_element_t *el;
     RECT wr;
 
     win32_element_hwnd_assert(hwnd);
+    el = (win32_element_t *) GetWindowLong(hwnd, GWL_USERDATA);
 
     if (! IsWindowVisible(hwnd))
 	return 0;
 
     GetWindowRect(hwnd, &wr);
-    return wr.bottom - wr.top;
+    return (wr.bottom - wr.top) + el->margin_top + el->margin_bottom;
 }
 
 /*
@@ -307,8 +311,9 @@ win32_element_intrinsic_width(win32_element_t *el) {
 	    }
 	    contents = g_list_next(contents);
 	}
-	min_width += el->frame_left + el->frame_right;
+	min_width += el->padding_left + el->padding_right;
     }
+    min_width += el->margin_left + el->margin_right;
     return min_width + extra;
 }
 
@@ -350,8 +355,9 @@ win32_element_intrinsic_height(win32_element_t *el) {
 	    }
 	    contents = g_list_next(contents);
 	}
-	min_height += el->frame_top + el->frame_bottom;
+	min_height += el->padding_top + el->padding_bottom;
     }
+    min_height += el->margin_top + el->margin_bottom;
     return min_height + extra;
 }
 

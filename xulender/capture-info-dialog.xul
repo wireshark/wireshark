@@ -5,15 +5,15 @@
   >
 
   <vbox id="debug-element">
-    <groupbox orient="vertical">
+    <groupbox orient="vertical" class="bottom_spacing">
       <caption>Captured Packets</caption>
 
-      <hbox>
+      <hbox class="bottom_spacing">
         <description>Total: </description>
         <description id="capture-count-total" flex="1">0</description>
       </hbox>
 
-      <hbox>
+      <hbox class="bottom_spacing">
         <description>Running: </description>
         <description id="capture-run-time" flex="1">Unknown</description>
       </hbox>
@@ -28,26 +28,28 @@
 
         <rows>
           <row>
-            <description flex="1">SCTP: </description>
+            <description flex="1" class="bottom_spacing">SCTP: </description>
             <description 
               id="capture-sctp-count" 
               flex="1"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0000
             </description>
-            <progressmeter id="capture-sctp-progress" />
+            <progressmeter id="capture-sctp-progress" class="lb_spacing"/>
             <description
               id="capture-sctp-percent"
               flex="1"
               style="text-align: right;"
+              class="lb_spacing"
             >
               000.0%
             </description>
           </row>
 
           <row>
-            <description>TCP: </description>
+            <description class="bottom_spacing">TCP: </description>
             <description
               id="capture-tcp-count"
               flex="1"
@@ -55,172 +57,191 @@
             >
               0
             </description>
-            <progressmeter id="capture-tcp-progress" />
+            <progressmeter id="capture-tcp-progress" class="lb_spacing"/>
             <description
               id="capture-tcp-percent"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0.0%
             </description>
           </row>
 
           <row>
-            <description>UDP: </description>
+            <description class="bottom_spacing">UDP: </description>
             <description
               id="capture-udp-count"
               flex="1"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0
             </description>
-            <progressmeter id="capture-udp-progress" />
+            <progressmeter id="capture-udp-progress" class="lb_spacing"/>
             <description
               id="capture-udp-percent"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0.0%
             </description>
           </row>
 
           <row>
-            <description>ICMP: </description>
+            <description class="bottom_spacing">ICMP: </description>
             <description
               id="capture-icmp-count"
               flex="1"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0
             </description>
-            <progressmeter id="capture-icmp-progress" />
+            <progressmeter id="capture-icmp-progress" class="lb_spacing"/>
             <description
               id="capture-icmp-percent"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0.0%
             </description>
           </row>
 
           <row>
-            <description>ARP: </description>
+            <description class="bottom_spacing">ARP: </description>
             <description
               id="capture-arp-count"
               flex="1"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0
             </description>
-            <progressmeter id="capture-arp-progress" />
+            <progressmeter id="capture-arp-progress" class="lb_spacing"/>
             <description
               id="capture-arp-percent"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0.0%
             </description>
           </row>
 
           <row>
-            <description>OSPF: </description>
+            <description class="bottom_spacing">OSPF: </description>
             <description
               id="capture-ospf-count"
               flex="1"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0
             </description>
-            <progressmeter id="capture-ospf-progress" />
+            <progressmeter id="capture-ospf-progress" class="lb_spacing"/>
             <description
               id="capture-ospf-percent"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0.0%
             </description>
           </row>
 
           <row>
-            <description>GRE: </description>
+            <description class="bottom_spacing">GRE: </description>
             <description
               id="capture-gre-count"
               flex="1"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0
             </description>
-            <progressmeter id="capture-gre-progress" />
+            <progressmeter id="capture-gre-progress" class="lb_spacing"/>
             <description
               id="capture-gre-percent"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0.0%
             </description>
           </row>
 
           <row>
-            <description>NetBIOS: </description>
+            <description class="bottom_spacing">NetBIOS: </description>
             <description
               id="capture-netbios-count"
               flex="1"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0
             </description>
-            <progressmeter id="capture-netbios-progress" />
+            <progressmeter id="capture-netbios-progress" class="lb_spacing"/>
             <description
               id="capture-netbios-percent"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0.0%
             </description>
           </row>
 
           <row>
-            <description>IPX: </description>
+            <description class="bottom_spacing">IPX: </description>
             <description
               id="capture-ipx-count"
               flex="1"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0
             </description>
-            <progressmeter id="capture-ipx-progress" />
+            <progressmeter id="capture-ipx-progress" class="lb_spacing"/>
             <description
               id="capture-ipx-percent"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0.0%
             </description>
           </row>
 
           <row>
-            <description>VINES: </description>
+            <description class="bottom_spacing">VINES: </description>
             <description
               id="capture-vines-count"
               flex="1"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0
             </description>
-            <progressmeter id="capture-vines-progress" />
+            <progressmeter id="capture-vines-progress" class="lb_spacing"/>
             <description
               id="capture-vines-percent"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0.0%
             </description>
           </row>
 
           <row>
-            <description>Other: </description>
+            <description class="bottom_spacing">Other: </description>
             <description
               id="capture-other-count"
               flex="1"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0
             </description>
-            <progressmeter id="capture-other-progress" />
+            <progressmeter id="capture-other-progress" class="lb_spacing"/>
             <description
               id="capture-other-percent"
               style="text-align: right;"
+              class="lb_spacing"
             >
               0.0%
             </description>

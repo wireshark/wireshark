@@ -14,7 +14,7 @@
   -->
 
   <vbox>
-    <hbox>
+    <hbox class="bottom_spacing">
       <tree
         id="prefs-dialog.tree"
         onselect="prefs_tree_select"
@@ -62,7 +62,7 @@
         </treechildren>
       </tree>
 
-      <deck id="prefs-dialog.deck">
+      <deck id="prefs-dialog.deck" class="left_spacing">
 
         <!-- User Interface -->
         <groupbox id="prefs-dialog.deck.user-interface">
@@ -521,18 +521,21 @@
         id="prefs-dialog.apply"
         label="Apply"
         oncommand="prefs_dialog_apply"
+	class="left_spacing"
        />
 
       <button
         id="prefs-dialog.save"
         label="Save"
         oncommand="prefs_dialog_save"
+	class="left_spacing"
        />
 
       <button
         id="prefs-dialog.cancel"
         label="Cancel"
         oncommand="prefs_dialog_cancel"
+	class="left_spacing"
        />
 
     </hbox>

@@ -201,14 +201,14 @@ win32_grid_resize_contents(win32_element_t *grid, int set_width, int set_height)
 
 
     flex_dim = set_height - fixed_dim;
-    y = grid->frame_top;
+    y = grid->padding_top;
     /* Pass 4: Adjust our flexible row heights and resize each cell */
     for (cur_row = 0; cur_row < grid->rows->len; cur_row++) {
 	row_data = g_ptr_array_index(grid->rows, cur_row);
 	if (row_data->flex > 0.0 && total_flex > 0.0) {
 	    row_data->height = (int) (row_data->flex * flex_dim / total_flex);
 	}
-	x = grid->frame_left;
+	x = grid->padding_left;
 	for (cur_col = 0; cur_col < grid->columns->len; cur_col++) {
 	    col_data = g_ptr_array_index(grid->columns, cur_col);
 	    cur_el = (win32_element_t *) g_list_nth_data(row_data->contents, cur_col);
@@ -240,7 +240,8 @@ win32_grid_intrinsic_width(win32_element_t *grid) {
     for (cur_col = 0; cur_col < grid->columns->len; cur_col++) {
 	tot_width += win32_grid_column_intrinsic_width(grid, cur_col);
     }
-    return tot_width + grid->frame_left + grid->frame_right;
+    return tot_width + grid->padding_left + grid->padding_right;
+    return tot_width + grid->margin_left + grid->margin_right;
 }
 
 
@@ -261,7 +262,8 @@ win32_grid_intrinsic_height(win32_element_t *grid) {
     for (cur_row = 0; cur_row < grid->rows->len; cur_row++) {
 	tot_height += win32_grid_row_intrinsic_height(grid, cur_row);
     }
-    return tot_height + grid->frame_top + grid->frame_bottom;
+    return tot_height + grid->padding_top + grid->padding_bottom;
+    return tot_height + grid->margin_top + grid->margin_bottom;
 }
 
 /*

@@ -114,6 +114,16 @@ typedef struct _win32_element_t {
     win32_el_sortdirection_t sortdirection;
 
     /* CSS attributes */
+
+    /* Margin dimensions - the space around elements */
+    gint margin_top;
+    gint margin_bottom;
+    gint margin_left;
+    gint margin_right;
+
+    /* Padding dimensions - the distance from the inner edge of a box
+     * to the outer edge of the box contents.
+     */
     gint padding_top;
     gint padding_bottom;
     gint padding_left;
@@ -130,14 +140,6 @@ typedef struct _win32_element_t {
     /* Absolute minimum height/width */
     gint minheight;
     gint minwidth;
-
-    /* Frame dimensions - the distance from the outer edge of the box
-     * to the outer edge of the box contents.
-     */
-    gint frame_top;
-    gint frame_bottom;
-    gint frame_left;
-    gint frame_right;
 
     /* XUL element methods */
     void (*onchange)();

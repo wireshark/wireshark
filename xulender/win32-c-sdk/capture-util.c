@@ -1166,6 +1166,8 @@ capture_interfaces_dialog_init(HWND hw_parent) {
 
     SetTimer(if_dlg->h_wnd, IF_TIMER_ID, 1000, NULL);
 
+    win32_element_resize(if_dlg, -1, -1);
+
     capture_interfaces_dialog_dialog_show(if_dlg->h_wnd);
 }
 

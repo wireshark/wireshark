@@ -5,20 +5,22 @@
   >
 
   <vbox>
-    <hbox>
+    <hbox class="bottom_spacing">
       <vbox>
-        <groupbox flex="1">
+        <groupbox flex="1" class="left_spacing">
           <caption>Edit</caption>
 	  <button
 	    label="New"
 	    id="coloring-rules.edit.new"
 	    oncommand="coloring_rules_new"
+            class="bottom_spacing"
 	  />
 	  <spacer flex="1" />
 	  <button
 	    label="Edit..."
 	    id="coloring-rules.edit.edit"
 	    oncommand="coloring_rules_edit"
+            class="bottom_spacing"
 	  />
 	  <spacer flex="1" />
 	  <button 
@@ -33,12 +35,14 @@
 	    label="Export..."
 	    id="coloring-rules.manage.export"
 	    oncommand="coloring_rules_export"
+            class="bottom_spacing"
 	  />
 	  <spacer flex="1" />
 	  <button 
 	    label="Import..."
 	    id="coloring-rules.manage.import"
 	    oncommand="coloring_rules_import"
+            class="bottom_spacing"
 	  />
 	  <spacer flex="1" />
 	  <button 
@@ -48,7 +52,7 @@
 	  />
 	</groupbox>
       </vbox>
-      <groupbox flex="1">
+      <groupbox flex="1" class="left_spacing">
 	<caption>Filter</caption>
 	<description>
 	  [ List is processed in order until a match is found ]
@@ -64,7 +68,7 @@
 	  </listhead>
 	</listbox>
       </groupbox>
-      <groupbox>
+      <groupbox class="left_spacing">
 	<caption>Order</caption>
 	<spacer flex="1" />
 	<button 
@@ -93,16 +97,19 @@
         id="coloring-rules.apply"
         label="Apply"
         oncommand="coloring_rules_apply"
+        class="left_spacing"
        />
       <button
         id="coloring-rules.save"
         label="Save"
         oncommand="coloring_rules_save"
+        class="left_spacing"
        />
       <button
         id="coloring-rules.close"
         label="Close"
         oncommand="coloring_rules_close"
+        class="left_spacing"
        />
     </hbox>
   </vbox>
