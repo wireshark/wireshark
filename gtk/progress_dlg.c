@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.18 2003/12/23 00:16:46 ulfl Exp $
+ * $Id: progress_dlg.c,v 1.19 2004/01/02 13:27:00 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,6 +26,8 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+
 #include <gtk/gtk.h>
 #include "gtkglobals.h"
 #include "dlg_utils.h"
@@ -43,6 +45,8 @@ static void stop_cb(GtkWidget *w, gpointer data);
 struct progdlg {
 	GtkWidget *dlg_w;	/* top-level window widget */
 	GTimeVal   start_time;
+	GTimeVal   last_time;   /* last time it was updated */
+	
 	GtkLabel  *status_lb;
 	GtkLabel  *elapsed_lb;
 	GtkLabel  *time_left_lb;
@@ -215,6 +219,7 @@ create_progress_dlg(const gchar *task_title, const gchar *item_title,
 	dlg->dlg_w = dlg_w;
 
 	g_get_current_time(&dlg->start_time);
+	memset(&dlg->last_time, 0, sizeof(dlg->last_time));
 
 	return dlg;
 }
@@ -333,12 +338,21 @@ update_progress_dlg(progdlg_t *dlg, gfloat percentage, gchar *status)
 
 	/* calculate some timing values */
 	g_get_current_time(&time_now);
+	
+	delta_time = (time_now.tv_sec - dlg->last_time.tv_sec) * 1e6 +
+		time_now.tv_usec - dlg->last_time.tv_usec;
 
+	/* after the first time don't update more than every 100ms */
+	if (dlg->last_time.tv_sec && delta_time < 100*1000) 
+		return;
+
+	dlg->last_time = time_now;
 	delta_time = (time_now.tv_sec - dlg->start_time.tv_sec) * 1e6 +
 		time_now.tv_usec - dlg->start_time.tv_usec;
+		
 	ul_percentage = (gulong) (percentage * 100);
 	ul_elapsed = (gulong) (delta_time / 1000 / 1000);
-
+	
 	/* update labels */
 	g_snprintf(tmp, sizeof(tmp), "%lu%% of %s", ul_percentage, dlg->title);
 	gtk_window_set_title(GTK_WINDOW(dlg_w), tmp);
