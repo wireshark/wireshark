@@ -1815,6 +1815,7 @@ Michael Lum <mlum [AT] telostech.com> {
 	GSM SMS (3GPP TS 24.011) support
 	GSM SS (3GPP TS 24.080) support
 	GSM SMS TPDU (3GPP TS 23.040) support
+	GSM MAP fixes and parameter separation
 	Taps for ANSI A-interface statistics
 }
 
@@ -1939,6 +1940,10 @@ David Fort <david.fort [AT] irisa.fr> {
 Martijn Schipper <mschipper [AT] globespanvirata.com> {
 	Support for reading AiroPeek files in V9 capture file format
 	(AiroPeek 2.x)
+}
+
+Felix Fei <felix.fei [AT] utstar.com> {
+	GSM MAP support
 }
 
 And assorted fixes and enhancements by the people listed above and by:

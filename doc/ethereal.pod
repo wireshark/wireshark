@@ -2003,6 +2003,7 @@ B<http://www.ethereal.com>.
   Pasi Kovanen             <Pasi.Kovanen [AT] tahoenetworks.fi>
   Teemu Rinta-aho          <teemu.rinta-aho [AT] nomadiclab.com>
   Martijn Schipper         <martijn.schipper [AT] intersil.com>
+  Felix Fei                <felix.fei [AT] utstar.com>
   Wayne Parrott            <wayne_p [AT] pacific.net.au>
   Laurent Meyer            <laurent.meyer6 [AT] wanadoo.fr>
   Lars Roland              <Lars.Roland [AT] gmx.net>
