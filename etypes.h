@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.13 2000/03/09 18:31:50 ashokn Exp $
+ * $Id: etypes.h,v 1.14 2000/08/09 22:10:23 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,42 @@
  * http://www.cavebear.com/CaveBear/Ethernet/
  */
 
+#ifndef ETHERTYPE_3C_NBP_DGRAM
+#define ETHERTYPE_3C_NBP_DGRAM	0x3c07
+#endif
+
+#ifndef ETHERTYPE_DEC
+#define ETHERTYPE_DEC		0x6000
+#endif
+
+#ifndef ETHERTYPE_DNA_DL
+#define ETHERTYPE_DNA_DL	0x6001
+#endif
+
+#ifndef ETHERTYPE_DNA_RC
+#define ETHERTYPE_DNA_RC	0x6002
+#endif
+
+#ifndef ETHERTYPE_DNA_RT
+#define ETHERTYPE_DNA_RT	0x6003
+#endif
+
+#ifndef ETHERTYPE_LAT
+#define ETHERTYPE_LAT		0x6004
+#endif
+
+#ifndef ETHERTYPE_DEC_DIAG
+#define ETHERTYPE_DEC_DIAG	0x6005
+#endif
+
+#ifndef ETHERTYPE_DEC_CUST
+#define ETHERTYPE_DEC_CUST	0x6006
+#endif
+
+#ifndef ETHERTYPE_DEC_SCA
+#define ETHERTYPE_DEC_SCA	0x6007
+#endif
+
 #ifndef ETHERTYPE_IP
 #define ETHERTYPE_IP 0x0800
 #endif
@@ -63,6 +99,10 @@
 
 #ifndef ETHERTYPE_REVARP
 #define ETHERTYPE_REVARP 0x8035
+#endif
+
+#ifndef ETHERTYPE_DEC_LB
+#define ETHERTYPE_DEC_LB 0x8038
 #endif
 
 #ifndef ETHERTYPE_ATALK
