@@ -308,11 +308,6 @@ new_register_dissector
 nt_cmd_vals                     DATA
 num_tap_filters                 DATA
 num_tree_types                  DATA
-packet_range_convert_str
-packet_range_init
-packet_range_process_all
-packet_range_process_init
-packet_range_process_packet
 plugin_list                     DATA
 postseq_cleanup_all_protocols
 prefs                           DATA

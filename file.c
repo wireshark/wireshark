@@ -70,7 +70,7 @@
 #include "color_filters.h"
 #include "column.h"
 #include <epan/packet.h>
-#include <epan/packet-range.h>
+#include "packet-range.h"
 #include "print.h"
 #include "file.h"
 #include "menu.h"

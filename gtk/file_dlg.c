@@ -30,7 +30,7 @@
 
 #include <gtk/gtk.h>
 
-#include <epan/packet-range.h>
+#include "packet-range.h"
 #include <epan/filesystem.h>
 
 #include "globals.h"

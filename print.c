@@ -39,8 +39,8 @@
 #include <epan/epan_dissect.h>
 #include <epan/tvbuff.h>
 #include <epan/packet.h>
-#include <epan/packet-range.h>
 
+#include "packet-range.h"
 #include "print.h"
 #include "ps.h"
 #include "util.h"

@@ -25,7 +25,7 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
-#include <epan/packet-range.h>
+#include "packet-range.h"
 #include "wiretap/wtap.h"
 #include <epan/dfilter/dfilter.h>
 #include "print.h"

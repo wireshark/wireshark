@@ -36,9 +36,9 @@
 
 #include <epan/frame_data.h>
 
-#include <epan/packet-range.h>
-
 #include "globals.h"
+
+#include "packet-range.h"
 
 /* (re-)calculate the packet counts (except the user specified range) */
 void packet_range_calc(packet_range_t *range) {
