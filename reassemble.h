@@ -1,7 +1,7 @@
 /* reassemble.h
  * Declarations of outines for {fragment,segment} reassembly
  *
- * $Id: reassemble.h,v 1.21 2003/12/20 03:21:20 guy Exp $
+ * $Id: reassemble.h,v 1.22 2004/06/24 07:43:24 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,6 +68,7 @@ typedef struct _fragment_data {
  * Initialize a fragment table.
  */
 extern void fragment_table_init(GHashTable **fragment_table);
+extern void dcerpc_fragment_table_init(GHashTable **fragment_table);
 
 /*
  * Initialize a reassembled-packet table.
@@ -107,6 +108,12 @@ extern fragment_data *fragment_add_check(tvbuff_t *tvb, int offset,
 extern fragment_data *fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint32 id, GHashTable *fragment_table, guint32 frag_number,
     guint32 frag_data_len, gboolean more_frags);
+
+extern fragment_data *
+fragment_add_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
+	void *act_id,
+	GHashTable *fragment_table, guint32 frag_number,
+	guint32 frag_data_len, gboolean more_frags);
 
 /*
  * These functions add a new fragment to the fragment hash table.

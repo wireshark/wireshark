@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.49 2004/06/20 19:20:55 guy Exp $
+ * $Id: reassemble.c,v 1.50 2004/06/24 07:43:24 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,7 @@
 
 #include "reassemble.h"
 
+#include "packet-dcerpc.h"
 
 typedef struct _fragment_key {
 	address src;
@@ -39,7 +40,15 @@ typedef struct _fragment_key {
 	guint32	id;
 } fragment_key;
 
+typedef struct _dcerpc_fragment_key {
+       address src;
+       address dst;
+       guint32 id;
+    e_uuid_t act_id;
+} dcerpc_fragment_key;
+
 static GMemChunk *fragment_key_chunk = NULL;
+static GMemChunk *dcerpc_fragment_key_chunk = NULL;
 static GMemChunk *fragment_data_chunk = NULL;
 static int fragment_init_count = 200;
 
@@ -95,6 +104,39 @@ fragment_hash(gconstpointer k)
 	hash_val += key->id;
 
 	return hash_val;
+}
+
+static gint
+dcerpc_fragment_equal(gconstpointer k1, gconstpointer k2)
+{
+       const dcerpc_fragment_key* key1 = (const dcerpc_fragment_key*) k1;
+       const dcerpc_fragment_key* key2 = (const dcerpc_fragment_key*) k2;
+
+       /*key.id is the first item to compare since item is most
+         likely to differ between sessions, thus shortcircuiting
+         the comparasion of addresses.
+       */
+       return (((key1->id == key2->id)
+             && (ADDRESSES_EQUAL(&key1->src, &key2->src))
+             && (ADDRESSES_EQUAL(&key1->dst, &key2->dst))
+             && (memcmp (&key1->act_id, &key2->act_id, sizeof (e_uuid_t)) == 0))
+            ? TRUE : FALSE);
+}
+
+static guint
+dcerpc_fragment_hash(gconstpointer k)
+{
+       const dcerpc_fragment_key* key = (const dcerpc_fragment_key*) k;
+       guint hash_val;
+
+       hash_val = 0;
+
+       hash_val += key->id;
+       hash_val += key->act_id.Data1;
+       hash_val += key->act_id.Data2 << 16;
+       hash_val += key->act_id.Data3;
+
+       return hash_val;
 }
 
 typedef struct _reassembled_key {
@@ -214,6 +256,26 @@ fragment_table_init(GHashTable **fragment_table)
 	}
 }
 
+void
+dcerpc_fragment_table_init(GHashTable **fragment_table)
+{
+       if (*fragment_table != NULL) {
+               /*
+                * The fragment hash table exists.
+                *
+                * Remove all entries and free fragment data for
+                * each entry.  (The key and value data is freed
+                * by "reassemble_init()".)
+                */
+               g_hash_table_foreach_remove(*fragment_table,
+                               free_all_fragments, NULL);
+       } else {
+               /* The fragment table does not exist. Create it */
+               *fragment_table = g_hash_table_new(dcerpc_fragment_hash,
+                               dcerpc_fragment_equal);
+       }
+}
+
 /*
  * Initialize a reassembled-packet table.
  */
@@ -246,6 +308,8 @@ reassemble_init(void)
 {
 	if (fragment_key_chunk != NULL)
 		g_mem_chunk_destroy(fragment_key_chunk);
+	if (dcerpc_fragment_key_chunk != NULL)
+		g_mem_chunk_destroy(fragment_key_chunk);
 	if (fragment_data_chunk != NULL)
 		g_mem_chunk_destroy(fragment_data_chunk);
 	if (reassembled_key_chunk != NULL)
@@ -253,6 +317,10 @@ reassemble_init(void)
 	fragment_key_chunk = g_mem_chunk_new("fragment_key_chunk",
 	    sizeof(fragment_key),
 	    fragment_init_count * sizeof(fragment_key),
+	    G_ALLOC_AND_FREE);
+	dcerpc_fragment_key_chunk = g_mem_chunk_new("dcerpc_fragment_key_chunk",
+	    sizeof(dcerpc_fragment_key),
+	    fragment_init_count * sizeof(dcerpc_fragment_key),
 	    G_ALLOC_AND_FREE);
 	fragment_data_chunk = g_mem_chunk_new("fragment_data_chunk",
 	    sizeof(fragment_data),
@@ -1219,6 +1287,79 @@ fragment_add_seq(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
 		 */
 		return NULL;
 	}
+}
+
+fragment_data *
+fragment_add_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 id,
+                    void *v_act_id,
+                    GHashTable *fragment_table, guint32 frag_number,
+                    guint32 frag_data_len, gboolean more_frags)
+{
+       dcerpc_fragment_key key, *new_key;
+       fragment_data *fd_head;
+       e_uuid_t *act_id = (e_uuid_t *)v_act_id;
+
+       /* create key to search hash with */
+       key.src = pinfo->src;
+       key.dst = pinfo->dst;
+       key.id  = id;
+       key.act_id  = *act_id;
+
+       fd_head = g_hash_table_lookup(fragment_table, &key);
+
+       /* have we already seen this frame ?*/
+       if (pinfo->fd->flags.visited) {
+               if (fd_head != NULL && fd_head->flags & FD_DEFRAGMENTED) {
+                       return fd_head;
+               } else {
+                       return NULL;
+               }
+       }
+
+       if (fd_head==NULL){
+               /* not found, this must be the first snooped fragment for this
+                 * packet. Create list-head.
+                */
+               fd_head=g_mem_chunk_alloc(fragment_data_chunk);
+
+               /* head/first structure in list only holds no other data than
+                 * 'datalen' then we don't have to change the head of the list
+                 * even if we want to keep it sorted
+                 */
+               fd_head->next=NULL;
+               fd_head->datalen=0;
+               fd_head->offset=0;
+               fd_head->len=0;
+               fd_head->flags=FD_BLOCKSEQUENCE;
+               fd_head->data=NULL;
+               fd_head->reassembled_in=0;
+
+               /*
+                * We're going to use the key to insert the fragment,
+                * so allocate a structure for it, and copy the
+                * addresses, allocating new buffers for the address
+                * data.
+                */
+               new_key = g_mem_chunk_alloc(dcerpc_fragment_key_chunk);
+               COPY_ADDRESS(&new_key->src, &key.src);
+               COPY_ADDRESS(&new_key->dst, &key.dst);
+               new_key->id = key.id;
+               new_key->act_id = key.act_id;
+               g_hash_table_insert(fragment_table, new_key, fd_head);
+       }
+
+       if (fragment_add_seq_work(fd_head, tvb, offset, pinfo,
+                                 frag_number, frag_data_len, more_frags)) {
+               /*
+                * Reassembly is complete.
+                */
+               return fd_head;
+       } else {
+               /*
+                * Reassembly isn't complete.
+                */
+               return NULL;
+       }
 }
 
 /*
