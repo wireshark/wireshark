@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.24 2001/03/08 19:15:31 guy Exp $
+ * $Id: packet-q931.c,v 1.25 2001/03/27 08:00:00 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -2126,7 +2126,7 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gboolean	is_h323_h225 = FALSE;
 	/*
 	 * It is very much possible to find a TPKT header here
-	 * TPKT is defined in RFC 1009 as a wrapper around ISO
+	 * TPKT is defined in RFC 1006 as a wrapper around ISO
 	 * defined protocols. There could even be several TPKT
 	 * wrapped messages in one TCP data field...
 	 * XXXXXXXX THIS IS NOT IMPLEMENTED YET!!! XXXXXXXXXXX
