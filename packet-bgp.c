@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.74 2003/01/31 08:09:24 guy Exp $
+ * $Id: packet-bgp.c,v 1.75 2003/04/05 11:20:53 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -58,6 +58,7 @@
 #include <epan/packet.h>
 #include "packet-bgp.h"
 #include "packet-ipv6.h"
+#include "packet-frame.h"
 #include "afn.h"
 #include "prefs.h"
 
@@ -1031,7 +1032,7 @@ static const value_string community_vals[] = {
 };
 
 static void
-dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_bgp_open(tvbuff_t *tvb, proto_tree *tree)
 {
     struct bgp_open bgpo;      /* BGP OPEN message      */
     int             hlen;      /* message length        */
@@ -1049,34 +1050,34 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
     proto_tree      *subtree2; /* subtree for an option */
 
     /* snarf OPEN message */
-    tvb_memcpy(tvb, bgpo.bgpo_marker, offset, BGP_MIN_OPEN_MSG_SIZE);
+    tvb_memcpy(tvb, bgpo.bgpo_marker, 0, BGP_MIN_OPEN_MSG_SIZE);
     hlen = g_ntohs(bgpo.bgpo_len);
 
     proto_tree_add_text(tree, tvb,
-	offset + offsetof(struct bgp_open, bgpo_version), 1,
+	offsetof(struct bgp_open, bgpo_version), 1,
 	"Version: %u", bgpo.bgpo_version);
     proto_tree_add_text(tree, tvb,
-	offset + offsetof(struct bgp_open, bgpo_myas), 2,
+	offsetof(struct bgp_open, bgpo_myas), 2,
 	"My AS: %u", g_ntohs(bgpo.bgpo_myas));
     proto_tree_add_text(tree, tvb,
-	offset + offsetof(struct bgp_open, bgpo_holdtime), 2,
+	offsetof(struct bgp_open, bgpo_holdtime), 2,
 	"Hold time: %u", g_ntohs(bgpo.bgpo_holdtime));
     proto_tree_add_text(tree, tvb,
-	offset + offsetof(struct bgp_open, bgpo_id), 4,
+	offsetof(struct bgp_open, bgpo_id), 4,
 	"BGP identifier: %s", ip_to_str((guint8 *)&bgpo.bgpo_id));
     proto_tree_add_text(tree, tvb,
-	offset + offsetof(struct bgp_open, bgpo_optlen), 1,
+	offsetof(struct bgp_open, bgpo_optlen), 1,
 	"Optional parameters length: %u %s", bgpo.bgpo_optlen,
         (bgpo.bgpo_optlen == 1) ? "byte" : "bytes");
 
     /* optional parameters */
     if (bgpo.bgpo_optlen > 0) {
         /* add a subtree and setup some offsets */
-        ostart = offset + BGP_MIN_OPEN_MSG_SIZE;
+        ostart = BGP_MIN_OPEN_MSG_SIZE;
         ti = proto_tree_add_text(tree, tvb, ostart, bgpo.bgpo_optlen,
              "Optional parameters");
         subtree = proto_item_add_subtree(ti, ett_bgp_options);
-        p = offset + ostart;
+        p = ostart;
         oend = p + bgpo.bgpo_optlen;
 
         /* step through all of the optional parameters */
@@ -1136,7 +1137,7 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
  * Dissect a BGP UPDATE message.
  */
 static void
-dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
 {
     struct bgp_attr bgpa;                       /* path attributes          */
     guint16         hlen;                       /* message length           */
@@ -1166,8 +1167,8 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
     int             junk_buf_len;               /* tmp len                  */
     guint8          ipaddr[4];                  /* IPv4 address             */
 
-    hlen = tvb_get_ntohs(tvb, offset + BGP_MARKER_SIZE);
-    o = offset + BGP_HEADER_SIZE;
+    hlen = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
+    o = BGP_HEADER_SIZE;
 
     /* check for withdrawals */
     len = tvb_get_ntohs(tvb, o);
@@ -2030,7 +2031,7 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
         o += 2 + len;
 
         /* NLRI */
-        len = offset + hlen - o;
+        len = hlen - o;
 
         /* parse prefixes */
         if (len > 0) {
@@ -2059,19 +2060,19 @@ dissect_bgp_update(tvbuff_t *tvb, int offset, proto_tree *tree)
  * Dissect a BGP NOTIFICATION message.
  */
 static void
-dissect_bgp_notification(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree)
 {
     struct bgp_notification bgpn;   /* BGP NOTIFICATION message */
     int                     hlen;   /* message length           */
     char                    *p;     /* string pointer           */
 
     /* snarf message */
-    tvb_memcpy(tvb, bgpn.bgpn_marker, offset, BGP_MIN_NOTIFICATION_MSG_SIZE);
+    tvb_memcpy(tvb, bgpn.bgpn_marker, 0, BGP_MIN_NOTIFICATION_MSG_SIZE);
     hlen = g_ntohs(bgpn.bgpn_len);
 
     /* print error code */
     proto_tree_add_text(tree, tvb,
-	offset + offsetof(struct bgp_notification, bgpn_major), 1,
+	offsetof(struct bgp_notification, bgpn_major), 1,
 	"Error code: %s (%u)",
 	val_to_str(bgpn.bgpn_major, bgpnotify_major, "Unknown"),
 	bgpn.bgpn_major);
@@ -2086,12 +2087,12 @@ dissect_bgp_notification(tvbuff_t *tvb, int offset, proto_tree *tree)
     else
         p = "Unknown";
     proto_tree_add_text(tree, tvb,
-	offset + offsetof(struct bgp_notification, bgpn_minor), 1,
+	offsetof(struct bgp_notification, bgpn_minor), 1,
 	"Error subcode: %s (%u)", p, bgpn.bgpn_minor);
 
     /* only print if there is optional data */
     if (hlen > BGP_MIN_NOTIFICATION_MSG_SIZE) {
-        proto_tree_add_text(tree, tvb, offset + BGP_MIN_NOTIFICATION_MSG_SIZE,
+        proto_tree_add_text(tree, tvb, BGP_MIN_NOTIFICATION_MSG_SIZE,
 	    hlen - BGP_MIN_NOTIFICATION_MSG_SIZE, "Data");
     }
 }
@@ -2100,7 +2101,7 @@ dissect_bgp_notification(tvbuff_t *tvb, int offset, proto_tree *tree)
  * Dissect a BGP ROUTE-REFRESH message.
  */
 static void
-dissect_bgp_route_refresh(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_bgp_route_refresh(tvbuff_t *tvb, proto_tree *tree)
 {
     guint16         i;    /* tmp            */
     int             p;         /* tvb offset counter    */
@@ -2138,8 +2139,8 @@ example 2
     18		  le = 24
     10 07 02	  prefix = 7.2.0.0/16
 */
-    hlen = tvb_get_ntohs(tvb, offset + BGP_MARKER_SIZE);
-    p = offset + BGP_HEADER_SIZE;
+    hlen = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
+    p = BGP_HEADER_SIZE;
     /* AFI */
     i = tvb_get_ntohs(tvb, p);
     proto_tree_add_text(tree, tvb, p, 2,
@@ -2160,7 +2161,7 @@ example 2
     p++;
     if ( hlen == BGP_HEADER_SIZE + 4 )
 	return;
-    while (p < offset + hlen) {
+    while (p < hlen) {
     	/* ORF type */
     	orfwhen = tvb_get_guint8(tvb, p);
     	orftype = tvb_get_guint8(tvb, p+1);
@@ -2216,8 +2217,9 @@ example 2
  * Dissect a BGP CAPABILITY message.
  */
 static void
-dissect_bgp_capability(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_bgp_capability(tvbuff_t *tvb, proto_tree *tree)
 {
+    int offset = 0;
     proto_item *ti;
     proto_tree *subtree;
     guint8  action;
@@ -2243,6 +2245,104 @@ dissect_bgp_capability(tvbuff_t *tvb, int offset, proto_tree *tree)
     }
 }
 
+static void
+dissect_bgp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    gboolean first)
+{
+    guint16       bgp_len;       /* Message length             */
+    guint8        bgp_type;      /* Message type               */
+    char          *typ;          /* Message type (string)      */
+    proto_item    *ti;           /* tree item                        */
+    proto_tree    *bgp_tree;     /* BGP packet tree                  */
+    proto_tree    *bgp1_tree;    /* BGP message tree                 */
+
+    bgp_len = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
+    bgp_type = tvb_get_guint8(tvb, BGP_MARKER_SIZE + 2);
+    typ = val_to_str(bgp_type, bgptypevals, "Unknown Message");
+
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+	if (first)
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", typ);
+	else
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", typ);
+    }
+
+    if (tree) {
+	ti = proto_tree_add_item(tree, proto_bgp, tvb, 0, -1, FALSE);
+	bgp_tree = proto_item_add_subtree(ti, ett_bgp);
+
+	ti = proto_tree_add_text(bgp_tree, tvb, 0, -1, "%s", typ);
+
+	/* add a different tree for each message type */
+	switch (bgp_type) {
+	case BGP_OPEN:
+	    bgp1_tree = proto_item_add_subtree(ti, ett_bgp_open);
+	    break;
+	case BGP_UPDATE:
+	    bgp1_tree = proto_item_add_subtree(ti, ett_bgp_update);
+	    break;
+	case BGP_NOTIFICATION:
+	    bgp1_tree = proto_item_add_subtree(ti, ett_bgp_notification);
+	    break;
+	case BGP_KEEPALIVE:
+	    bgp1_tree = proto_item_add_subtree(ti, ett_bgp);
+	    break;
+	case BGP_ROUTE_REFRESH_CISCO:
+	case BGP_ROUTE_REFRESH:
+	    bgp1_tree = proto_item_add_subtree(ti, ett_bgp_route_refresh);
+	    break;
+	case BGP_CAPABILITY:
+	    bgp1_tree = proto_item_add_subtree(ti, ett_bgp_capability);
+	    break;
+	default:
+	    bgp1_tree = proto_item_add_subtree(ti, ett_bgp);
+	    break;
+	}
+
+	proto_tree_add_text(bgp1_tree, tvb, 0, BGP_MARKER_SIZE,
+			    "Marker: 16 bytes");
+
+	if (bgp_len < BGP_HEADER_SIZE || bgp_len > BGP_MAX_PACKET_SIZE) {
+	    proto_tree_add_text(bgp1_tree, tvb, BGP_MARKER_SIZE, 2,
+				"Length (invalid): %u %s", bgp_len,
+				(bgp_len == 1) ? "byte" : "bytes");
+	    return;
+	} else {
+	    proto_tree_add_text(bgp1_tree, tvb, BGP_MARKER_SIZE, 2,
+				"Length: %u %s", bgp_len,
+				(bgp_len == 1) ? "byte" : "bytes");
+	}
+
+	proto_tree_add_uint_format(bgp1_tree, hf_bgp_type, tvb,
+				   BGP_MARKER_SIZE + 2, 1,
+				   bgp_type,
+				   "Type: %s (%u)", typ, bgp_type);
+
+	switch (bgp_type) {
+	case BGP_OPEN:
+	    dissect_bgp_open(tvb, bgp1_tree);
+	    break;
+	case BGP_UPDATE:
+	    dissect_bgp_update(tvb, bgp1_tree);
+	    break;
+	case BGP_NOTIFICATION:
+	    dissect_bgp_notification(tvb, bgp1_tree);
+	    break;
+	case BGP_KEEPALIVE:
+	    /* no data in KEEPALIVE messages */
+	    break;
+        case BGP_ROUTE_REFRESH_CISCO:
+	case BGP_ROUTE_REFRESH:
+	    dissect_bgp_route_refresh(tvb, bgp1_tree);
+	    break;
+	case BGP_CAPABILITY:
+	    dissect_bgp_capability(tvb, bgp1_tree);
+	    break;
+	default:
+	    break;
+	}
+    }
+}
 
 /*
  * Dissect a BGP packet.
@@ -2250,151 +2350,190 @@ dissect_bgp_capability(tvbuff_t *tvb, int offset, proto_tree *tree)
 static void
 dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item    *ti;           /* tree item                        */
-    proto_tree    *bgp_tree;     /* BGP packet tree                  */
-    proto_tree    *bgp1_tree;    /* BGP message tree                 */
-    int           l, i;          /* tmp                              */
-    int           found;         /* number of BGP messages in packet */
+    volatile int  offset = 0;   /* offset into the tvbuff           */
+    gint          reported_length_remaining;
+    guint8        bgp_marker[BGP_MARKER_SIZE];    /* Marker (should be all ones */
     static guchar marker[] = {   /* BGP message marker               */
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
     };
-    guint8        bgp_marker[BGP_MARKER_SIZE];    /* Marker (should be all ones */
-    guint16       bgp_len;                        /* Message length             */
-    guint8        bgp_type;                       /* Message type               */
-
-    char          *typ;                           /* Message type (string)      */
+    proto_item    *ti;           /* tree item                        */
+    proto_tree    *bgp_tree;     /* BGP packet tree                  */
+    guint16       bgp_len;       /* Message length             */
+    int           offset_before;
+    guint         length_remaining;
+    guint         length;
+    volatile gboolean first = TRUE;  /* TRUE for the first BGP message in packet */
+    tvbuff_t      *next_tvb;
 
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BGP");
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_clear(pinfo->cinfo, COL_INFO);
 
-    l = tvb_reported_length(tvb);
-    i = 0;
-    found = -1;
-    /* run through the TCP packet looking for BGP headers         */
-    while (i + BGP_HEADER_SIZE <= l) {
-	tvb_memcpy(tvb, bgp_marker, i, BGP_MARKER_SIZE);
-	bgp_len = tvb_get_ntohs(tvb, i + BGP_MARKER_SIZE);
-	bgp_type = tvb_get_guint8(tvb, i + BGP_MARKER_SIZE + 2);
-
-	/* look for bgp header */
-	if (memcmp(bgp_marker, marker, sizeof(marker)) != 0) {
-	    i++;
-	    continue;
-	}
-
-	found++;
+    /*
+     * Scan through the TCP payload looking for a BGP marker.
+     */
+    while ((reported_length_remaining = tvb_reported_length_remaining(tvb, offset))
+		!= 0) {
+	/*
+	 * "reported_length_remaining" is the number of bytes of TCP payload
+	 * remaining.  If it's more than the length of a BGP marker,
+	 * we check only the number of bytes in a BGP marker.
+	 */
+	if (reported_length_remaining > BGP_MARKER_SIZE)
+	    reported_length_remaining = BGP_MARKER_SIZE;
 
 	/*
-	 * Desegmentation check.
+	 * OK, is there a BGP marker starting at the specified offset -
+	 * or, at least, the beginning of a BGP marker running to the end
+	 * of the TCP payload?
+	 *
+	 * This will throw an exception if the frame is short; that's what
+	 * we want.
 	 */
-	if (bgp_desegment) {
-	    if (bgp_len > tvb_length_remaining(tvb, i) && pinfo->can_desegment) {
+	tvb_memcpy(tvb, bgp_marker, offset, reported_length_remaining);
+	if (memcmp(bgp_marker, marker, reported_length_remaining) == 0) {
+	    /*
+	     * Yes - stop scanning and start processing BGP packets.
+	     */
+	    break;
+	}
+
+	/*
+	 * No - keep scanning through the tvbuff to try to find a marker.
+	 */
+	offset++;
+    }
+
+    /*
+     * If we skipped any bytes, mark it as a BGP continuation.
+     */
+    if (offset > 0) {
+	ti = proto_tree_add_item(tree, proto_bgp, tvb, 0, -1, FALSE);
+	bgp_tree = proto_item_add_subtree(ti, ett_bgp);
+
+	proto_tree_add_text(bgp_tree, tvb, 0, offset, "Continuation");
+    }
+
+    /*
+     * Now process the BGP packets in the TCP payload.
+     *
+     * XXX - perhaps "tcp_dissect_pdus()" should take a starting
+     * offset, in which case we can replace the loop below with
+     * a call to "tcp_dissect_pdus()".
+     */
+    while (tvb_reported_length_remaining(tvb, offset) != 0) {
+	/*
+	 * This will throw an exception if we don't have any data left.
+	 * That's what we want.  (See "tcp_dissect_pdus()", which is
+	 * similar.)
+	 */
+	length_remaining = tvb_ensure_length_remaining(tvb, offset);
+
+	/*
+	 * Can we do reassembly?
+	 */
+	if (bgp_desegment && pinfo->can_desegment) {
+	    /*
+	     * Yes - would a BGP header starting at this offset be split
+	     * across segment boundaries?
+	     */
+	    if (length_remaining < BGP_HEADER_SIZE) {
 		/*
-		 * Not all of this packet is in the data we've been
-		 * handed, but we can do reassembly on it.
-		 *
-		 * Tell the TCP dissector where the data for
-		 * this message starts in the data it handed
-		 * us, and how many more bytes we need, and
-		 * return.
+		 * Yes.  Tell the TCP dissector where the data for this
+		 * message starts in the data it handed us, and how many
+		 * more bytes we need, and return.
 		 */
-		pinfo->desegment_offset = i;
-		pinfo->desegment_len = bgp_len - tvb_length_remaining(tvb, i);
+		pinfo->desegment_offset = offset;
+		pinfo->desegment_len = BGP_HEADER_SIZE - length_remaining;
 		return;
 	    }
 	}
 
-	typ = val_to_str(bgp_type, bgptypevals, "Unknown Message");
-
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	    if (found == 0)
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s", typ);
-	    else
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", typ);
+	/*
+	 * Get the length and type from the BGP header.
+	 */
+	bgp_len = tvb_get_ntohs(tvb, offset + BGP_MARKER_SIZE);
+	if (bgp_len < BGP_HEADER_SIZE) {
+	    /*
+	     * The BGP length doesn't include the BGP header; report that
+	     * as an error.
+	     * Report this as an error.
+	     */
+	    show_reported_bounds_error(tvb, pinfo, tree);
+	    return;
 	}
 
-	if (tree) {
-	    ti = proto_tree_add_item(tree, proto_bgp, tvb, i, bgp_len, FALSE);
-	    bgp_tree = proto_item_add_subtree(ti, ett_bgp);
-
-	    ti = proto_tree_add_text(bgp_tree, tvb, i, bgp_len, "%s", typ);
-
-	    /* add a different tree for each message type */
-	    switch (bgp_type) {
-	    case BGP_OPEN:
-	        bgp1_tree = proto_item_add_subtree(ti, ett_bgp_open);
-		break;
-	    case BGP_UPDATE:
-	        bgp1_tree = proto_item_add_subtree(ti, ett_bgp_update);
-		break;
-	    case BGP_NOTIFICATION:
-	        bgp1_tree = proto_item_add_subtree(ti, ett_bgp_notification);
-		break;
-	    case BGP_KEEPALIVE:
-	        bgp1_tree = proto_item_add_subtree(ti, ett_bgp);
-		break;
-            case BGP_ROUTE_REFRESH_CISCO:
-	    case BGP_ROUTE_REFRESH:
-	        bgp1_tree = proto_item_add_subtree(ti, ett_bgp_route_refresh);
-		break;
-	    case BGP_CAPABILITY:
-		bgp1_tree = proto_item_add_subtree(ti, ett_bgp_capability);
-		break;
-	    default:
-	        bgp1_tree = proto_item_add_subtree(ti, ett_bgp);
-		break;
-	    }
-
-	    proto_tree_add_text(bgp1_tree, tvb, i, BGP_MARKER_SIZE,
-		"Marker: 16 bytes");
-
-	    if (bgp_len < BGP_HEADER_SIZE || bgp_len > BGP_MAX_PACKET_SIZE) {
-		proto_tree_add_text(bgp1_tree, tvb,
-		    i + BGP_MARKER_SIZE, 2,
-		    "Length (invalid): %u %s", bgp_len,
-		    (bgp_len == 1) ? "byte" : "bytes");
+	/*
+	 * Can we do reassembly?
+	 */
+	if (bgp_desegment && pinfo->can_desegment) {
+	    /*
+	     * Yes - is the PDU split across segment boundaries?
+	     */
+	    if (length_remaining < bgp_len) {
+		/*
+		 * Yes.  Tell the TCP dissector where the data for this
+		 * message starts in the data it handed us, and how many
+		 * more bytes we need, and return.
+		 */
+		pinfo->desegment_offset = offset;
+		pinfo->desegment_len = bgp_len - length_remaining;
 		return;
-	    } else {
-		proto_tree_add_text(bgp1_tree, tvb,
-		    i + BGP_MARKER_SIZE, 2,
-		    "Length: %u %s", bgp_len,
-		    (bgp_len == 1) ? "byte" : "bytes");
-	    }
-
-	    proto_tree_add_uint_format(bgp1_tree, hf_bgp_type, tvb,
-				       i + BGP_MARKER_SIZE + 2, 1,
-				       bgp_type,
-				       "Type: %s (%u)", typ, bgp_type);
-
-	    switch (bgp_type) {
-	    case BGP_OPEN:
-		dissect_bgp_open(tvb, i, bgp1_tree);
-		break;
-	    case BGP_UPDATE:
-		dissect_bgp_update(tvb, i, bgp1_tree);
-		break;
-	    case BGP_NOTIFICATION:
-		dissect_bgp_notification(tvb, i, bgp1_tree);
-		break;
-	    case BGP_KEEPALIVE:
-		/* no data in KEEPALIVE messages */
-		break;
-            case BGP_ROUTE_REFRESH_CISCO:
-	    case BGP_ROUTE_REFRESH:
-		dissect_bgp_route_refresh(tvb, i, bgp1_tree);
-		break;
-	    case BGP_CAPABILITY:
-		dissect_bgp_capability(tvb, i, bgp1_tree);
-		break;
-	    default:
-		break;
 	    }
 	}
 
-	i += bgp_len;
+	/*
+	 * Construct a tvbuff containing the amount of the payload we have
+	 * available.  Make its reported length the amount of data in the PDU.
+	 *
+	 * XXX - if reassembly isn't enabled. the subdissector will throw a
+	 * BoundsError exception, rather than a ReportedBoundsError exception.
+	 * We really want a tvbuff where the length is "length", the reported
+	 * length is "plen", and the "if the snapshot length were infinite"
+	 * length is the minimum of the reported length of the tvbuff handed
+	 * to us and "plen", with a new type of exception thrown if the offset
+	 * is within the reported length but beyond that third length, with
+	 * that exception getting the "Unreassembled Packet" error.
+	 */
+	length = length_remaining;
+	if (length > bgp_len)
+	    length = bgp_len;
+	next_tvb = tvb_new_subset(tvb, offset, length, bgp_len);
+
+	/*
+	 * Dissect the PDU.
+	 *
+	 * Catch the ReportedBoundsError exception; if this particular message
+	 * happens to get a ReportedBoundsError exception, that doesn't mean
+	 * that we should stop dissecting PDUs within this frame or chunk of
+	 * reassembled data.
+	 *
+	 * If it gets a BoundsError, we can stop, as there's nothing more to
+	 * see, so we just re-throw it.
+	 */
+	TRY {
+	    dissect_bgp_pdu(next_tvb, pinfo, tree, first);
+	}
+	CATCH(BoundsError) {
+	    RETHROW;
+	}
+	CATCH(ReportedBoundsError) {
+	    show_reported_bounds_error(tvb, pinfo, tree);
+	}
+	ENDTRY;
+
+	first = FALSE;
+
+	/*
+	 * Step to the next PDU.
+	 * Make sure we don't overflow.
+	 */
+	offset_before = offset;
+	offset += bgp_len;
+	if (offset <= offset_before)
+	    break;
     }
 }
 

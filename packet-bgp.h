@@ -1,7 +1,7 @@
 /* packet-bgp.c
  * Definitions for BGP packet disassembly structures and routine
  *
- * $Id: packet-bgp.h,v 1.23 2003/01/28 05:25:16 guy Exp $
+ * $Id: packet-bgp.h,v 1.24 2003/04/05 11:20:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,8 +27,8 @@
 
 /* some handy things to know */
 #define BGP_MAX_PACKET_SIZE		4096
-#define BGP_MARKER_SIZE			16
-#define BGP_HEADER_SIZE			19
+#define BGP_MARKER_SIZE			16	/* size of BGP marker */
+#define BGP_HEADER_SIZE			19	/* size of BGP header, including marker */
 #define BGP_MIN_OPEN_MSG_SIZE		29
 #define BGP_MIN_UPDATE_MSG_SIZE		23
 #define BGP_MIN_NOTIFICATION_MSG_SIZE	21
