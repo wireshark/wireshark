@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.21 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: packet-afp.c,v 1.22 2002/09/18 01:10:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1566,14 +1566,15 @@ loop_record(tvbuff_t *tvb, proto_tree *ptree, gint offset,
   	proto_item *item;
 	gchar 	*name;
 	guint8	flags;
-	guint8	size;
+	guint	size;
 	gint	org;
 	int i;
 
 	for (i = 0; i < count; i++) {
 		org = offset;
-		name = NULL;
 		size = tvb_get_guint8(tvb, offset) +add;
+		if (!size)
+			return offset;	/* packet is malformed */
 		flags = tvb_get_guint8(tvb, offset +1);
 
 		if (ptree) {
@@ -1590,6 +1591,7 @@ loop_record(tvbuff_t *tvb, proto_tree *ptree, gint offset,
 			}
 			item = proto_tree_add_text(ptree, tvb, offset, size, name);
 			tree = proto_item_add_subtree(item, ett_afp_enumerate_line);
+			g_free((gpointer)name);
 		}
 		proto_tree_add_item(tree, hf_afp_struct_size, tvb, offset, 1,FALSE);
 		offset++;
@@ -1605,8 +1607,6 @@ loop_record(tvbuff_t *tvb, proto_tree *ptree, gint offset,
 		if ((offset & 1))
 			PAD(1);
 		offset = org +size;		/* play safe */
-		if (ptree)
-			g_free((gpointer)name);
 	}
 	return offset;
 }
