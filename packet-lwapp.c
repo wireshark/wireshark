@@ -3,7 +3,7 @@
  * Routines for LWAPP encapsulated packet disassembly
  * draft-calhoun-seamoby-lwapp-N (the current draft is 3)
  *
- * $Id: packet-lwapp.c,v 1.2 2003/08/29 22:57:55 guy Exp $
+ * $Id: packet-lwapp.c,v 1.3 2003/09/10 20:07:10 guy Exp $
  *
  * Copyright (c) 2003 by David Frascone <dave@frascone.com>
  *
@@ -264,14 +264,8 @@ static void dissect_control(tvbuff_t *tvb, packet_info *pinfo,
     header.length = g_ntohs(header.length);
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-        gchar *description;
-
-        description = match_strval(header.type, control_msg_vals);
-        if (!description) {
-            description = alloca(120);
-            sprintf(description, "Bad Type: 0x%02x", header.type);
-        }
-        col_append_str(pinfo->cinfo, COL_INFO, description);
+        col_append_str(pinfo->cinfo, COL_INFO,
+            val_to_str(header.type, control_msg_vals, "Bad Type: 0x%02x"));
     }
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
