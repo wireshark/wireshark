@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.7 2000/04/03 09:00:31 guy Exp $
+ * $Id: packet-ldap.c,v 1.8 2000/04/06 03:59:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,6 +54,16 @@
 
 #include <string.h>
 #include <glib.h>
+
+#ifdef NEED_SNPRINTF_H
+# ifdef HAVE_STDARG_H
+#  include <stdarg.h>
+# else
+#  include <varargs.h>
+# endif
+# include "snprintf.h"
+#endif
+
 #include "packet.h"
 
 #include "packet-ldap.h"
