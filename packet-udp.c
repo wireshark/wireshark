@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.9 1998/11/20 05:58:41 gram Exp $
+ * $Id: packet-udp.c,v 1.10 1998/12/21 03:42:22 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -65,20 +65,22 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
   if (check_col(fd, COL_RES_SRC_PORT))
     col_add_str(fd, COL_RES_SRC_PORT, get_udp_port(uh_sport));
   if (check_col(fd, COL_UNRES_SRC_PORT))
-    col_add_fstr(fd, COL_UNRES_SRC_PORT, "%d", uh_sport);
+    col_add_fstr(fd, COL_UNRES_SRC_PORT, "%u", uh_sport);
   if (check_col(fd, COL_RES_DST_PORT))
     col_add_str(fd, COL_RES_DST_PORT, get_udp_port(uh_dport));
   if (check_col(fd, COL_UNRES_DST_PORT))
-    col_add_fstr(fd, COL_UNRES_DST_PORT, "%d", uh_dport);
+    col_add_fstr(fd, COL_UNRES_DST_PORT, "%u", uh_dport);
     
   if (tree) {
     ti = add_item_to_tree(GTK_WIDGET(tree), offset, 8,
       "User Datagram Protocol");
     udp_tree = gtk_tree_new();
     add_subtree(ti, udp_tree, ETT_UDP);
-    add_item_to_tree(udp_tree, offset,     2, "Source port: %s", get_udp_port(uh_sport));
-    add_item_to_tree(udp_tree, offset + 2, 2, "Destination port: %s", get_udp_port(uh_dport));
-    add_item_to_tree(udp_tree, offset + 4, 2, "Length: %d", uh_ulen);
+    add_item_to_tree(udp_tree, offset,     2, "Source port: %s (%u)",
+      get_udp_port(uh_sport), uh_sport);
+    add_item_to_tree(udp_tree, offset + 2, 2, "Destination port: %s (%u)",
+      get_udp_port(uh_dport), uh_dport);
+    add_item_to_tree(udp_tree, offset + 4, 2, "Length: %u", uh_ulen);
     add_item_to_tree(udp_tree, offset + 6, 2, "Checksum: 0x%04x", uh_sum);
   }
 
