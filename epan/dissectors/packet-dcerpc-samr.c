@@ -93,6 +93,10 @@ static int hf_samr_nt_passchange_block_pseudorandom = -1;
 static int hf_samr_lm_verifier = -1;
 static int hf_samr_nt_verifier = -1;
 static int hf_samr_attrib = -1;
+static int hf_samr_force_logoff_time = -1;
+static int hf_samr_lockout_duration_time = -1;
+static int hf_samr_lockout_reset_time = -1;
+static int hf_samr_lockout_threshold_short = -1;
 static int hf_samr_max_pwd_age = -1;
 static int hf_samr_min_pwd_age = -1;
 static int hf_samr_min_pwd_len = -1;
@@ -2483,6 +2487,32 @@ samr_dissect_DOMAIN_INFO_11(tvbuff_t *tvb, int offset,
 }
 
 static int
+samr_dissect_DOMAIN_INFO_12(tvbuff_t *tvb, int offset,
+			packet_info *pinfo, proto_tree *parent_tree,
+			guint8 *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"DOMAIN_INFO_12:");
+		tree = proto_item_add_subtree(item, ett_samr_replication_status);
+	}
+
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+				hf_samr_lockout_duration_time);
+	offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
+				hf_samr_lockout_reset_time);
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+				hf_samr_lockout_threshold_short, NULL);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+static int
 samr_dissect_DOMAIN_INFO_13(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *parent_tree,
                              guint8 *drep)
@@ -2541,7 +2571,7 @@ samr_dissect_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 
 	case 3:
 		offset = dissect_ndr_nt_NTTIME(tvb, offset, pinfo, tree, drep,
-				hf_samr_unknown_time);
+				hf_samr_force_logoff_time);
 		break;
 	case 4:
 		offset = dissect_ndr_counted_string(tvb, offset, pinfo,
@@ -2575,7 +2605,7 @@ samr_dissect_DOMAIN_INFO(tvbuff_t *tvb, int offset,
 				tvb, offset, pinfo, tree, drep);
 		break;
 	case 12:
-		offset = samr_dissect_REPLICATION_STATUS(
+		offset = samr_dissect_DOMAIN_INFO_12(
 				tvb, offset, pinfo, tree, drep);
 		break;
 	case 13:
@@ -5294,6 +5324,20 @@ proto_register_dcerpc_samr(void)
 	{ &hf_samr_lm_change, {
 		"LM Change", "samr.lm_change", FT_UINT8, BASE_HEX,
 		NULL, 0, "LM Change value", HFILL }},
+
+	{ &hf_samr_force_logoff_time,
+		{ "Forced Logoff Time After Time Expires", "samr.force_logoff_time", FT_RELATIVE_TIME, BASE_NONE,
+		NULL, 0, "Forced logoff time after expires:", HFILL }},
+
+	{ &hf_samr_lockout_duration_time,
+		{ "Lockout Duration Time", "samr.lockout_duration_time", FT_RELATIVE_TIME, BASE_NONE,
+		NULL, 0, "Lockout duration time:", HFILL }},
+	{ &hf_samr_lockout_reset_time,
+		{ "Lockout Reset Time", "samr.lockout_reset_time", FT_RELATIVE_TIME, BASE_NONE,
+		NULL, 0, "Lockout Reset Time:", HFILL }},
+	{ &hf_samr_lockout_threshold_short,
+		{ "Lockout Threshold", "samr.lockout_threshold", FT_UINT16, BASE_DEC,
+		NULL, 0, "Lockout Threshold:", HFILL }},
 
 	{ &hf_samr_max_pwd_age,
 		{ "Max Pwd Age", "samr.max_pwd_age", FT_RELATIVE_TIME, BASE_NONE,
