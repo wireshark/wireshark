@@ -81,6 +81,14 @@ TelexNumber     B "2.5.4.21.1" "id-at-collectiveTelexNumber"
 #.TYPE_RENAME
 
 #.FIELD_RENAME
+OctetSubstringAssertion/_item/any	any_substring
+OctetSubstringAssertion/_item/final	finall_substring
+OctetSubstringAssertion/_item/initial	initial_substring
+XDayOf/first				first_dayof
+XDayOf/second				second_dayof
+XDayOf/third				third_dayof
+XDayOf/fourth				fourth_dayof
+XDayOf/fifth				fifth_dayof
 
 #.FN_BODY DirectoryString
 	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);

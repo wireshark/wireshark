@@ -99,9 +99,9 @@ static int hf_x509sat_final = -1;                 /* DirectoryString */
 static int hf_x509sat_control = -1;               /* Attribute */
 static int hf_x509sat_CaseIgnoreListMatch_item = -1;  /* DirectoryString */
 static int hf_x509sat_OctetSubstringAssertion_item = -1;  /* OctetSubstringAssertion_item */
-static int hf_x509sat_initial1 = -1;              /* OCTET_STRING */
-static int hf_x509sat_any1 = -1;                  /* OCTET_STRING */
-static int hf_x509sat_final1 = -1;                /* OCTET_STRING */
+static int hf_x509sat_initial_substring = -1;     /* OCTET_STRING */
+static int hf_x509sat_any_substring = -1;         /* OCTET_STRING */
+static int hf_x509sat_finall_substring = -1;      /* OCTET_STRING */
 static int hf_x509sat_ZonalSelect_item = -1;      /* AttributeType */
 static int hf_x509sat_time = -1;                  /* T_time */
 static int hf_x509sat_absolute = -1;              /* T_absolute */
@@ -130,18 +130,18 @@ static int hf_x509sat_intMonth_item = -1;         /* INTEGER */
 static int hf_x509sat_bitMonth = -1;              /* T_bitMonth */
 static int hf_x509sat_years = -1;                 /* SET_OF_INTEGER */
 static int hf_x509sat_years_item = -1;            /* INTEGER */
-static int hf_x509sat_first = -1;                 /* NamedDay */
-static int hf_x509sat_second = -1;                /* NamedDay */
-static int hf_x509sat_third = -1;                 /* NamedDay */
-static int hf_x509sat_fourth = -1;                /* NamedDay */
-static int hf_x509sat_fifth = -1;                 /* NamedDay */
+static int hf_x509sat_first_dayof = -1;           /* NamedDay */
+static int hf_x509sat_second_dayof = -1;          /* NamedDay */
+static int hf_x509sat_third_dayof = -1;           /* NamedDay */
+static int hf_x509sat_fourth_dayof = -1;          /* NamedDay */
+static int hf_x509sat_fifth_dayof = -1;           /* NamedDay */
 static int hf_x509sat_intNamedDays = -1;          /* T_intNamedDays */
 static int hf_x509sat_bitNamedDays = -1;          /* T_bitNamedDays */
 static int hf_x509sat_startDayTime = -1;          /* DayTime */
 static int hf_x509sat_endDayTime = -1;            /* DayTime */
 static int hf_x509sat_hour = -1;                  /* INTEGER */
 static int hf_x509sat_minute = -1;                /* INTEGER */
-static int hf_x509sat_second1 = -1;               /* INTEGER */
+static int hf_x509sat_second = -1;                /* INTEGER */
 static int hf_x509sat_now = -1;                   /* NULL */
 static int hf_x509sat_at = -1;                    /* GeneralizedTime */
 static int hf_x509sat_between = -1;               /* T_between */
@@ -628,14 +628,14 @@ static int dissect_nAddresses_item(packet_info *pinfo, proto_tree *tree, tvbuff_
 static int dissect_nAddress(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509sat_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_x509sat_nAddress);
 }
-static int dissect_initial1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_x509sat_initial1);
+static int dissect_initial_substring(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_x509sat_initial_substring);
 }
-static int dissect_any1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_x509sat_any1);
+static int dissect_any_substring(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_x509sat_any_substring);
 }
-static int dissect_final1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_x509sat_final1);
+static int dissect_finall_substring(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_OCTET_STRING(FALSE, tvb, offset, pinfo, tree, hf_x509sat_finall_substring);
 }
 
 static const ber_sequence_t SET_OF_OCTET_STRING_set_of[1] = {
@@ -802,9 +802,9 @@ static const value_string OctetSubstringAssertion_item_vals[] = {
 };
 
 static const ber_choice_t OctetSubstringAssertion_item_choice[] = {
-  {   0, BER_CLASS_CON, 0, 0, dissect_initial1 },
-  {   1, BER_CLASS_CON, 1, 0, dissect_any1 },
-  {   2, BER_CLASS_CON, 2, 0, dissect_final1 },
+  {   0, BER_CLASS_CON, 0, 0, dissect_initial_substring },
+  {   1, BER_CLASS_CON, 1, 0, dissect_any_substring },
+  {   2, BER_CLASS_CON, 2, 0, dissect_finall_substring },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -929,14 +929,14 @@ static int dissect_hour(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 static int dissect_minute(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
   return dissect_x509sat_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_minute);
 }
-static int dissect_second1(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_second1);
+static int dissect_second(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_INTEGER(FALSE, tvb, offset, pinfo, tree, hf_x509sat_second);
 }
 
 static const ber_sequence_t DayTime_sequence[] = {
   { BER_CLASS_CON, 0, 0, dissect_hour },
   { BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_minute },
-  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_second1 },
+  { BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_second },
   { 0, 0, 0, NULL }
 };
 
@@ -1099,20 +1099,20 @@ dissect_x509sat_NamedDay(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, p
 
   return offset;
 }
-static int dissect_first(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_NamedDay(FALSE, tvb, offset, pinfo, tree, hf_x509sat_first);
+static int dissect_first_dayof(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_NamedDay(FALSE, tvb, offset, pinfo, tree, hf_x509sat_first_dayof);
 }
-static int dissect_second(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_NamedDay(FALSE, tvb, offset, pinfo, tree, hf_x509sat_second);
+static int dissect_second_dayof(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_NamedDay(FALSE, tvb, offset, pinfo, tree, hf_x509sat_second_dayof);
 }
-static int dissect_third(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_NamedDay(FALSE, tvb, offset, pinfo, tree, hf_x509sat_third);
+static int dissect_third_dayof(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_NamedDay(FALSE, tvb, offset, pinfo, tree, hf_x509sat_third_dayof);
 }
-static int dissect_fourth(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_NamedDay(FALSE, tvb, offset, pinfo, tree, hf_x509sat_fourth);
+static int dissect_fourth_dayof(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_NamedDay(FALSE, tvb, offset, pinfo, tree, hf_x509sat_fourth_dayof);
 }
-static int dissect_fifth(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
-  return dissect_x509sat_NamedDay(FALSE, tvb, offset, pinfo, tree, hf_x509sat_fifth);
+static int dissect_fifth_dayof(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) {
+  return dissect_x509sat_NamedDay(FALSE, tvb, offset, pinfo, tree, hf_x509sat_fifth_dayof);
 }
 
 
@@ -1126,11 +1126,11 @@ const value_string XDayOf_vals[] = {
 };
 
 static const ber_choice_t XDayOf_choice[] = {
-  {   1, BER_CLASS_CON, 1, 0, dissect_first },
-  {   2, BER_CLASS_CON, 2, 0, dissect_second },
-  {   3, BER_CLASS_CON, 3, 0, dissect_third },
-  {   4, BER_CLASS_CON, 4, 0, dissect_fourth },
-  {   5, BER_CLASS_CON, 5, 0, dissect_fifth },
+  {   1, BER_CLASS_CON, 1, 0, dissect_first_dayof },
+  {   2, BER_CLASS_CON, 2, 0, dissect_second_dayof },
+  {   3, BER_CLASS_CON, 3, 0, dissect_third_dayof },
+  {   4, BER_CLASS_CON, 4, 0, dissect_fourth_dayof },
+  {   5, BER_CLASS_CON, 5, 0, dissect_fifth_dayof },
   { 0, 0, 0, 0, NULL }
 };
 
@@ -1658,15 +1658,15 @@ void proto_register_x509sat(void) {
       { "Item", "x509sat.OctetSubstringAssertion_item",
         FT_UINT32, BASE_DEC, VALS(OctetSubstringAssertion_item_vals), 0,
         "OctetSubstringAssertion/_item", HFILL }},
-    { &hf_x509sat_initial1,
+    { &hf_x509sat_initial_substring,
       { "initial", "x509sat.initial",
         FT_BYTES, BASE_HEX, NULL, 0,
         "OctetSubstringAssertion/_item/initial", HFILL }},
-    { &hf_x509sat_any1,
+    { &hf_x509sat_any_substring,
       { "any", "x509sat.any",
         FT_BYTES, BASE_HEX, NULL, 0,
         "OctetSubstringAssertion/_item/any", HFILL }},
-    { &hf_x509sat_final1,
+    { &hf_x509sat_finall_substring,
       { "final", "x509sat.final",
         FT_BYTES, BASE_HEX, NULL, 0,
         "OctetSubstringAssertion/_item/final", HFILL }},
@@ -1782,23 +1782,23 @@ void proto_register_x509sat(void) {
       { "Item", "x509sat.years_item",
         FT_INT32, BASE_DEC, NULL, 0,
         "Period/years/_item", HFILL }},
-    { &hf_x509sat_first,
+    { &hf_x509sat_first_dayof,
       { "first", "x509sat.first",
         FT_UINT32, BASE_DEC, VALS(NamedDay_vals), 0,
         "XDayOf/first", HFILL }},
-    { &hf_x509sat_second,
+    { &hf_x509sat_second_dayof,
       { "second", "x509sat.second",
         FT_UINT32, BASE_DEC, VALS(NamedDay_vals), 0,
         "XDayOf/second", HFILL }},
-    { &hf_x509sat_third,
+    { &hf_x509sat_third_dayof,
       { "third", "x509sat.third",
         FT_UINT32, BASE_DEC, VALS(NamedDay_vals), 0,
         "XDayOf/third", HFILL }},
-    { &hf_x509sat_fourth,
+    { &hf_x509sat_fourth_dayof,
       { "fourth", "x509sat.fourth",
         FT_UINT32, BASE_DEC, VALS(NamedDay_vals), 0,
         "XDayOf/fourth", HFILL }},
-    { &hf_x509sat_fifth,
+    { &hf_x509sat_fifth_dayof,
       { "fifth", "x509sat.fifth",
         FT_UINT32, BASE_DEC, VALS(NamedDay_vals), 0,
         "XDayOf/fifth", HFILL }},
@@ -1826,7 +1826,7 @@ void proto_register_x509sat(void) {
       { "minute", "x509sat.minute",
         FT_INT32, BASE_DEC, NULL, 0,
         "DayTime/minute", HFILL }},
-    { &hf_x509sat_second1,
+    { &hf_x509sat_second,
       { "second", "x509sat.second",
         FT_INT32, BASE_DEC, NULL, 0,
         "DayTime/second", HFILL }},
