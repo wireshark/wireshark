@@ -1,7 +1,7 @@
 # Note that this is NOT a relocatable package
 %define ver      @VERSION@
 %define rel      1
-%define prefix   /usr/X11R6
+%define prefix   /usr
 
 Summary:	Network traffic analyzer
 Name:		ethereal
@@ -13,7 +13,7 @@ Source:		ethereal-%{PACKAGE_VERSION}.tar.gz
 URL:		http://www.ethereal.com/
 BuildRoot:	/tmp/ethereal-%{PACKAGE_VERSION}-root
 Packager:	FastJack <fastjack@i-s-o.net>
-Requires:	gtk+
+Requires:	gtk2
 Requires:	libpcap
 
 %description
@@ -21,52 +21,33 @@ Ethereal is a network traffic analyzer for Unix-ish operating systems.
 
 %prep
 %setup
-CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%prefix --sysconfdir=/etc
+CFLAGS="$RPM_OPT_FLAGS" ./configure --prefix=%prefix
 make
 
 %install
 rm -rf $RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/{etc,usr/X11R6/bin,usr/X11R6/man/man1,usr/bin,usr/man/man1}
-
-# can't use make install here. It would put manuf directly into /etc
-cp ethereal $RPM_BUILD_ROOT/usr/X11R6/bin
-cp tethereal $RPM_BUILD_ROOT/usr/bin
-cp editcap $RPM_BUILD_ROOT/usr/bin
-cp ethereal.1 $RPM_BUILD_ROOT/usr/X11R6/man/man1
-cp tethereal.1 $RPM_BUILD_ROOT/usr/man/man1
-cp editcap.1 $RPM_BUILD_ROOT/usr/man/man1
-cp manuf $RPM_BUILD_ROOT/etc
-cp dictionary.dtd $RPM_BUILD_ROOT/etc
-cp dictionary.xml $RPM_BUILD_ROOT/etc
-cp mobileipv4.xml $RPM_BUILD_ROOT/etc
-cp nasreq.xml $RPM_BUILD_ROOT/etc
-cp sunping.xml $RPM_BUILD_ROOT/etc
+make DESTDIR=$RPM_BUILD_ROOT install
+mkdir -p $RPM_BUILD_ROOT%prefix/X11R6/bin $RPM_BUILD_ROOT%prefix/X11R6/man/man1
+mv $RPM_BUILD_ROOT%prefix/bin/ethereal $RPM_BUILD_ROOT%prefix/X11R6/bin/ethereal
+mv $RPM_BUILD_ROOT%prefix/man/man1/ethereal.1* $RPM_BUILD_ROOT%prefix/X11R6/man/man1/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-, root, root)
-%doc AUTHORS COPYING ChangeLog FAQ INSTALL NEWS README
-%doc README.hpux  README.linux  README.vmware
-%doc README.aix  README.irix  README.tru64  README.win32
-%doc README.bsd
-%config /etc/manuf
-%config /etc/dictionary.dtd
-%config /etc/dictionary.xml
-%config /etc/mobileipv4.xml
-%config /etc/nasreq.xml
-%config /etc/sunping.xml
-/usr/X11R6/bin/ethereal
-/usr/X11R6/man/man1/ethereal.1.gz
-/usr/bin/tethereal
-/usr/lib/libwiretap.so*
-/usr/lib/libethereal.so*
-/usr/bin/editcap
-/usr/man/man1/tethereal.1.gz
-/usr/man/man1/editcap.1.gz
+%doc AUTHORS COPYING ChangeLog FAQ INSTALL NEWS README*
+%config /etc/*
+%prefix/X11R6/bin/*
+%prefix/X11R6/man/*/*
+%prefix/bin/*
+%prefix/lib/*
+%prefix/man/*/*
 
 %changelog
+* Sun Jul 17 2004 Joerg Mayer
+- Redo install and files section to actually work with normal bulids
+
 * Sat Feb 07 2004 Joerg Mayer
 - in case there are shared libs: include them
 
