@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.26 2000/06/27 07:13:25 guy Exp $
+ * $Id: file_dlg.c,v 1.27 2000/07/03 09:34:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -231,9 +231,11 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
     break;
 
   case READ_ABORTED:
-    /* Exit by leaving the main loop, so that any quit functions
-       we registered get called. */
-    gtk_main_quit();
+    /* The user bailed out of re-reading the capture file; the
+       capture file has been closed - just free the capture file name
+       string and return (without changing the last containing
+       directory). */
+    g_free(cf_name);
     return;
   }
     
@@ -531,9 +533,11 @@ file_reload_cmd_cb(GtkWidget *w, gpointer data) {
       break;
 
     case READ_ABORTED:
-      /* Exit by leaving the main loop, so that any quit functions
-         we registered get called. */
-      gtk_main_quit();
+      /* The user bailed out of re-reading the capture file; the
+         capture file has been closed - just free the capture file name
+         string and return (without changing the last containing
+         directory). */
+      g_free(filename);
       return;
     }
   } else {

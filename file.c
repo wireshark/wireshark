@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.193 2000/07/03 08:35:39 guy Exp $
+ * $Id: file.c,v 1.194 2000/07/03 09:34:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1710,9 +1710,10 @@ done:
 	  break;
 
 	case READ_ABORTED:
-	  /* Exit by leaving the main loop, so that any quit functions
-	     we registered get called. */
-	  gtk_main_quit();
+	  /* The user bailed out of re-reading the capture file; the
+	     capture file has been closed - just return (without
+	     changing any menu settings; "close_cap_file()" set them
+	     correctly for the "no capture file open" state). */
 	  return 0;
 	}
 	set_menus_for_unsaved_capture_file(FALSE);
