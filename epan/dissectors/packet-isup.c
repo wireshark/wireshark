@@ -304,7 +304,7 @@ const value_string isup_message_type_value_acro[] = {
 #define PARAM_TYPE_GENERIC_NR           192
 #define PARAM_TYPE_GENERIC_DIGITS       193
 
-static const value_string isup_parameter_type_value[] = {
+const value_string isup_parameter_type_value[] = {
 { PARAM_TYPE_END_OF_OPT_PARAMS,        "End of optional parameters"},
   { PARAM_TYPE_CALL_REF,               "Call Reference (national use)"},
   { PARAM_TYPE_TRANSM_MEDIUM_REQU,     "Transmission medium requirement"},
@@ -611,7 +611,8 @@ static const value_string isup_calling_partys_category_value[] = {
 #define MEDIUM_27_64KBS                     40
 #define MEDIUM_28_64KBS                     41
 #define MEDIUM_29_64KBS                     42
-static const value_string isup_transmission_medium_requirement_value[] = {
+
+const value_string isup_transmission_medium_requirement_value[] = {
   { MEDIUM_SPEECH,                       "speech"},
   { MEDIUM_64KBS,                        "64 kbit/s unrestricted"},
   { MEDIUM_3_1_KHZ_AUDIO,                "3.1 kHz audio"},
@@ -1345,7 +1346,8 @@ static int hf_isup_apm_segmentation_ind					= -1;
 static int hf_isup_apm_si_ind						= -1;
 static int hf_isup_app_Release_call_ind					= -1;
 static int hf_length_indicator						= -1;
-static int hf_afi							= -1;
+static int hf_afi									= -1;
+static int hf_bicc_nsap_dsp							= -1;
 static int hf_bat_ase_identifier					= -1;
 static int hf_Action_Indicator						= -1;
 
@@ -1989,7 +1991,7 @@ static const value_string iana_icp_values[] = {
 	{ 0,	NULL }
 };
 
-static void
+void
 dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter_tree)
 {
 	guint8 afi, cc_length = 0;
@@ -2146,7 +2148,7 @@ dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter
 					length = 1;
 			break;
 			case 0x2 :	cc = cc >> 4;
-					length = 2;
+					length = 1;
 			break;
 			default:	length = 2;
 			break;
@@ -2163,8 +2165,9 @@ dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter
 				break;
 				default:;
 				}
-			proto_tree_add_text(parameter_tree, parameter_tvb, offset + 8, (len - 9),
-				    "DSP = %s", tvb_bytes_to_str(parameter_tvb, offset + 8, (len -9)));
+			proto_tree_add_text(parameter_tree,parameter_tvb, cc_offset, length,"DSP length %u(len %u -9 )",(len-9),len );
+
+			proto_tree_add_item(parameter_tree, hf_bicc_nsap_dsp, parameter_tvb, offset + 8, (len - 9),FALSE);
 	
 		break;
 		default:
@@ -5900,7 +5903,7 @@ proto_register_isup(void)
 
 		{ &hf_isup_event_ind,
 			{ "Event indicator",  "isup.event_ind",
-			  FT_UINT8, 8, NULL, 0x0,
+			  FT_UINT8, 8, VALS(isup_event_ind_value), GFEDCBA_8BIT_MASK,
 			"", HFILL }},
 
 		{ &hf_isup_event_presentation_restricted_ind,
@@ -6196,7 +6199,11 @@ proto_register_isup(void)
 			{ "X.213 Address Format Information ( AFI )",  "x213.afi",
 			FT_UINT8, BASE_HEX, VALS(x213_afi_value),0x0,	
 			"", HFILL }},
-
+		
+		{ &hf_bicc_nsap_dsp,
+			{ "X.213 Address Format Information ( DSP )",  "x213.dsp",
+			FT_BYTES, BASE_HEX, NULL,0x0,	
+			"", HFILL }},
 		{ &hf_characteristics,
 			{ "Backbone network connection characteristics", "bat_ase.char",
 			FT_UINT8, BASE_HEX, VALS(bearer_network_connection_characteristics_vals),0x0,	

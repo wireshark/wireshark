@@ -38,4 +38,13 @@ typedef struct _isup_tap_rec_t {
  */
 ETH_VAR_IMPORT const value_string isup_message_type_value[];
 ETH_VAR_IMPORT const value_string isup_message_type_value_acro[];
+/*
+ * Export some strings for other dissectors
+ */
+extern const value_string isup_parameter_type_value[]; 
+extern const value_string isup_transmission_medium_requirement_value[];
 
+/*
+ * Export dissection of some parameters
+ */
+void dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter_tree);
