@@ -20,9 +20,13 @@ Xplugin_api.c: plugin_gen.py plugin_api_list.c
 
 plugin_api.obj: plugin_api.c Xplugin_api.c
 
-xyzzy: plugin_gen.py plugin_api_list.c
+# you will need cygwin's gcc to build this target!
+xyzzy: xyzzyclean plugin_gen.py plugin_api_list.c
 	gcc -aux-info xyzzy -DHAVE_CONFIG_H $(GCC_GLIB_CFLAGS) -I.. -c plugin_api_list.c
 	$(PYTHON) plugin_gen.py xyzzy
+
+xyzzyclean: clean 
+ 	rm -f xyzzy Xass-list Xplugin_api.c Xplugin_api.h Xplugin_api_decls.h Xplugin_table.h plugin_api_list.o
 
 acn:: 
 	cd acn

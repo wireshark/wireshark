@@ -35,8 +35,11 @@ ADDRESS_EXPORT_FILES = \
 $(ADDRESS_EXPORT_FILES): xyzzy plugin_gen.py plugin_api.c plugin_api_list.c
 	$(PYTHON) $(srcdir)/plugin_gen.py xyzzy
 
-xyzzy: plugin_api_list.c
+xyzzy: xyzzyclean plugin_api_list.c
 	gcc -aux-info xyzzy -DHAVE_CONFIG_H $(GLIB_CFLAGS) -I$(top_srcdir) -I$(top_builddir) -c $(srcdir)/plugin_api_list.c
+
+xyzzyclean: clean 
+ 	rm -f xyzzy Xass-list Xplugin_api.c Xplugin_api.h Xplugin_api_decls.h Xplugin_table.h plugin_api_list.o
 
 EXTRA_DIST = \
 	plugin_api.c	\
