@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.2 2000/07/31 04:09:54 guy Exp $
+ * $Id: packet-diameter.c,v 1.3 2000/08/03 09:30:32 gram Exp $
  *
  * Copyright (c) 2000 by David Frascone <chaos@mindspring.com>
  *
@@ -694,7 +694,7 @@ proto_register_diameter(void)
 				       10,
 				       &gbl_diameterUdpPort);
 	prefs_register_uint_preference(diameter_module, "tcp.port",
-				       "DIAMETER UDP Port",
+				       "DIAMETER TCP Port",
 				       "Set the TCP port for DIAMETER messages",
 				       10,
 				       &gbl_diameterTcpPort);
