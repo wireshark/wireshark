@@ -1,6 +1,6 @@
 # Makefile.am
 #
-# $Id: Makefile.am,v 1.2 2001/02/02 04:03:43 gram Exp $
+# $Id: Makefile.am,v 1.3 2001/02/27 20:34:09 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,7 @@ lemon_SOURCES = \
 	lemon.c
 
 EXTRA_DIST = \
+	cppmagic.h		\
 	lemon.html		\
 	lemonflex-head.inc	\
 	lemonflex-tail.inc	\
