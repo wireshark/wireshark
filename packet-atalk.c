@@ -39,12 +39,12 @@ static int proto_ddp = -1;
 /* P = Padding, H = Hops, L = Len */
 #if BYTE_ORDER == BIG_ENDIAN
  /* PPHHHHLL LLLLLLLL */
- #define ddp_hops(x)	( ( x >> 10) & 0x3C )
- #define ddp_len(x)		( x & 0x03ff )
+# define ddp_hops(x)	( ( x >> 10) & 0x3C )
+# define ddp_len(x)		( x & 0x03ff )
 #else
  /* LLLLLLLL PPHHHHLL*/
- #define ddp_hops(x)	( x & 0x3C )
- #define ddp_len(x)		( ntohs(x) & 0x03ff )
+# define ddp_hops(x)	( x & 0x3C )
+# define ddp_len(x)		( ntohs(x) & 0x03ff )
 #endif
 typedef struct _e_ddp {
   guint16	hops_len; /* combines pad, hops, and len */

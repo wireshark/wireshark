@@ -1,6 +1,6 @@
 /* buffer.h
  *
- * $Id: buffer.h,v 1.2 1998/11/12 06:01:19 gram Exp $
+ * $Id: buffer.h,v 1.3 1999/09/12 14:34:36 deniel Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -39,10 +39,10 @@ void buffer_append(Buffer* buffer, char *from, unsigned int bytes);
 void buffer_remove_start(Buffer* buffer, unsigned int bytes);
 
 #ifdef SOME_FUNCTIONS_ARE_DEFINES
- #define buffer_increase_length(buffer,bytes) (buffer)->first_free += (bytes)
- #define buffer_length(buffer) ((buffer)->first_free - (buffer)->start)
- #define buffer_start_ptr(buffer) ((buffer)->data + (buffer)->start)
- #define buffer_end_ptr(buffer) ((buffer)->data + (buffer)->first_free)
+# define buffer_increase_length(buffer,bytes) (buffer)->first_free += (bytes)
+# define buffer_length(buffer) ((buffer)->first_free - (buffer)->start)
+# define buffer_start_ptr(buffer) ((buffer)->data + (buffer)->start)
+# define buffer_end_ptr(buffer) ((buffer)->data + (buffer)->first_free)
 #else
  void buffer_increase_length(Buffer* buffer, unsigned int bytes);
  unsigned int buffer_length(Buffer* buffer);

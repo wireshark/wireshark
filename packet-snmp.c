@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.8 1999/08/29 04:15:31 gram Exp $
+ * $Id: packet-snmp.c,v 1.9 1999/09/12 14:34:18 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -30,9 +30,9 @@
 
 
 #if defined(HAVE_UCD_SNMP_SNMP_H)
-  #define WITH_SNMP_UCD 1
+# define WITH_SNMP_UCD 1
 #elif defined(HAVE_SNMP_SNMP_H)
-  #define WITH_SNMP_CMU 1
+# define WITH_SNMP_CMU 1
 #endif
 
 #if defined(WITH_SNMP_CMU) || defined(WITH_SNMP_UCD)

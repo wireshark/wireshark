@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.10 1999/09/12 06:11:38 guy Exp $
+ * $Id: proto.h,v 1.11 1999/09/12 14:34:20 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,13 +28,13 @@
 #define __PROTO_H__
 
 #ifdef HAVE_SYS_TIME_H
- #ifndef _SYS_TIME_H
-  #include <sys/time.h>
- #endif
+# ifndef _SYS_TIME_H
+#  include <sys/time.h>
+# endif
 #endif
 
 #ifdef HAVE_WINSOCK_H
-#include <winsock.h>
+# include <winsock.h>
 #endif
 
 /* needs glib.h */

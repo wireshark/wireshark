@@ -1,7 +1,7 @@
 /* globals.h
  * Global defines, etc.
  *
- * $Id: globals.h,v 1.3 1999/09/10 07:19:40 guy Exp $
+ * $Id: globals.h,v 1.4 1999/09/12 14:34:18 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,22 +60,22 @@
 
 /* Byte ordering */
 #ifndef BYTE_ORDER
-  #define LITTLE_ENDIAN 4321
-  #define BIG_ENDIAN 1234
-  #ifdef WORDS_BIGENDIAN
-    #define BYTE_ORDER BIG_ENDIAN
-  #else
-    #define BYTE_ORDER LITTLE_ENDIAN
-  #endif
+# define LITTLE_ENDIAN 4321
+# define BIG_ENDIAN 1234
+# ifdef WORDS_BIGENDIAN
+#  define BYTE_ORDER BIG_ENDIAN
+# else
+#  define BYTE_ORDER LITTLE_ENDIAN
+# endif
 #endif
 
 /* From the K&R book, p. 89 */
 #ifndef MAX
-  #define MAX(x, y) ((x) > (y) ? (x) : (y))
+# define MAX(x, y) ((x) > (y) ? (x) : (y))
 #endif
 
 #ifndef MIN
-  #define MIN(x, y) ((x) < (y) ? (x) : (y))
+# define MIN(x, y) ((x) < (y) ? (x) : (y))
 #endif
 
 extern FILE        *data_out_file;
