@@ -1,7 +1,7 @@
 /* packet-isis-lsp.h
  * Defines and such for LSP and their CLV decodes
  *
- * $Id: packet-isis-lsp.h,v 1.16 2003/03/27 19:42:33 guy Exp $
+ * $Id: packet-isis-lsp.h,v 1.17 2003/04/03 05:22:11 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -51,6 +51,12 @@
 #define ISIS_LSP_IS_TYPE_MASK     0x03
 #define ISIS_LSP_IS_TYPE(info)    ((info) & ISIS_LSP_IS_TYPE_MASK)
 
+#define ISIS_LSP_MT_MSHIP_RES_MASK    4
+#define ISIS_LSP_MT_MSHIP_RES_SHIFT   12
+#define ISIS_LSP_MT_MSHIP_RES(info)  (((info) >> ISIS_LSP_MT_MSHIP_RES_SHIFT) & ISIS_LSP_MT_MSHIP_RES_MASK)
+
+#define ISIS_LSP_MT_MSHIP_ID_MASK   0x0FFF
+#define ISIS_LSP_MT_MSHIP_ID(info)  ((info) & ISIS_LSP_MT_MSHIP_ID_MASK)
 
 
 #define ISIS_LSP_TYPE_UNUSED0		0
@@ -88,7 +94,9 @@
 #define ISIS_CLV_L1_LSP_MT_IS_REACHABLE         222
 #define ISIS_CLV_L1_LSP_MT                      229
 #define ISIS_CLV_L1_LSP_IPv6_INTERFACE_ADDR     232
+#define ISIS_CLV_L1_LSP_MT_REACHABLE_IPv4_PREFX 235
 #define ISIS_CLV_L1_LSP_IPv6_REACHABLE          236
+#define ISIS_CLV_L1_LSP_MT_REACHABLE_IPv6_PREFX 237
 /*
  * Note, the spec say 133, but everyone seems to use 10. Any clue on why
  * this is would be appreciated!
@@ -115,7 +123,10 @@
 #define ISIS_CLV_L2_LSP_MT_IS_REACHABLE         222
 #define ISIS_CLV_L2_LSP_MT                      229
 #define ISIS_CLV_L2_LSP_IPv6_INTERFACE_ADDR     232
+#define ISIS_CLV_L2_LSP_MT_REACHABLE_IPv4_PREFX 235
 #define ISIS_CLV_L2_LSP_IPv6_REACHABLE          236
+#define ISIS_CLV_L2_LSP_MT_REACHABLE_IPv6_PREFX 237
+
 /*
  * Note, the spec say 133, but everyone seems to use 10. Any clue on why
  * this is would be appreciated!

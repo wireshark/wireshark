@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.40 2003/03/31 23:37:37 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.41 2003/04/03 05:22:08 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -54,7 +54,6 @@ static int hf_isis_lsp_att = -1;
 static int hf_isis_lsp_hippity = -1;
 static int hf_isis_lsp_is_type = -1;
 
-
 static gint ett_isis_lsp = -1;
 static gint ett_isis_lsp_info = -1;
 static gint ett_isis_lsp_att = -1;
@@ -82,6 +81,8 @@ static gint ett_isis_lsp_clv_ipv6_reachability = -1; /* CLV 236 */
 static gint ett_isis_lsp_clv_mt = -1;
 static gint ett_isis_lsp_clv_mt_is = -1;
 static gint ett_isis_lsp_part_of_clv_mt_is = -1;
+static gint ett_isis_lsp_clv_mt_reachable_IPv4_prefx = -1;  /* CLV 235 */
+static gint ett_isis_lsp_clv_mt_reachable_IPv6_prefx = -1;  /* CLV 237 */
 
 static const value_string isis_lsp_istype_vals[] = {
 	{ ISIS_LSP_TYPE_UNUSED0,	"Unused 0x0 (invalid)"},
@@ -144,6 +145,10 @@ static void dissect_lsp_ip_reachability_clv(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_ipreach_subclv(tvbuff_t *tvb,
         proto_tree *tree, int offset, int clv_code, int clv_len);
+static void dissect_lsp_mt_reachable_IPv4_prefx_clv(tvbuff_t *tvb,
+        proto_tree *tree, int offset, int id_length, int length);
+static void dissect_lsp_mt_reachable_IPv6_prefx_clv(tvbuff_t *tvb,
+        proto_tree *tree, int offset, int id_length, int length);
 
 
 static const isis_clv_handle_t clv_l1_lsp_opts[] = {
@@ -249,7 +254,18 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 		&ett_isis_lsp_clv_mt_is,
 		dissect_lsp_mt_is_reachability_clv
 	},
-
+	{
+		ISIS_CLV_L1_LSP_MT_REACHABLE_IPv4_PREFX,
+		"Multi Topology Reachable IPv4 Prefixes",
+		&ett_isis_lsp_clv_mt_reachable_IPv4_prefx,
+		dissect_lsp_mt_reachable_IPv4_prefx_clv
+	},
+	{
+		ISIS_CLV_L1_LSP_MT_REACHABLE_IPv6_PREFX,
+		"Multi Topology Reachable IPv6 Prefixes",
+		&ett_isis_lsp_clv_mt_reachable_IPv6_prefx,
+		dissect_lsp_mt_reachable_IPv6_prefx_clv
+	},
 	{
 		0,
 		"",
@@ -368,6 +384,18 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
 		dissect_lsp_mt_is_reachability_clv
 	},
 	{
+		ISIS_CLV_L2_LSP_MT_REACHABLE_IPv4_PREFX,
+		"Multi Topology Reachable IPv4 Prefixes",
+		&ett_isis_lsp_clv_mt_reachable_IPv4_prefx,
+		dissect_lsp_mt_reachable_IPv4_prefx_clv
+	},
+	{
+		ISIS_CLV_L2_LSP_MT_REACHABLE_IPv6_PREFX,
+		"Multi Topology Reachable IPv6 Prefixes",
+		&ett_isis_lsp_clv_mt_reachable_IPv6_prefx,
+		dissect_lsp_mt_reachable_IPv6_prefx_clv
+	},
+	{
 		0,
 		"",
 		NULL,
@@ -375,6 +403,58 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
 	}
 };
 
+/*
+ * Name: dissect_lsp_mt_id()
+ *
+ * Description:
+ *	dissect and display the multi-topology ID value
+ *
+ * Input:
+ *	tvbuff_t * : tvbuffer for packet data
+ *	proto_tree * : protocol display tree to fill out.  CAN'T BE NULL
+ *	int : offset into packet data where we are.
+ *
+ * Output:
+ *	void, but we will add to proto tree.
+ */
+static void
+dissect_lsp_mt_id(tvbuff_t *tvb, proto_tree *tree, int offset)
+{
+	int  mt_block, mt_id;
+	char mt_desc[60];
+
+	/* fetch two bytes */
+	mt_block = tvb_get_ntohs(tvb, offset);
+
+	proto_tree_add_text ( tree, tvb, offset, 1 ,
+                        "4 most significant bits reserved, should be set to 0 (%d)", ISIS_LSP_MT_MSHIP_RES(mt_block));
+
+	mt_id = ISIS_LSP_MT_MSHIP_ID(mt_block);
+	/*mask out the lower 12 bits */
+	switch(mt_id) {
+	case 0:
+		strcpy(mt_desc,"'standard' topology");
+		break;
+	case 1:
+		strcpy(mt_desc,"IPv4 In-Band Management purposes");
+		break;
+	case 2:
+		strcpy(mt_desc,"IPv6 routing topology");
+		break;
+	case 3:
+		strcpy(mt_desc,"IPv4 multicast routing topology");
+		break;
+	case 4:
+		strcpy(mt_desc,"IPv6 multicast routing topology");
+		break;
+	default:
+		strcpy(mt_desc,((mt_block & 0x0fff) < 3996) ? "Reserved for IETF Consensus" : "Development, Experimental and Proprietary features");
+	}
+
+	proto_tree_add_text ( tree, tvb, offset, 2 ,
+                        "%s Topology (%d)", mt_desc, mt_id);
+
+}
 
 /*
  * Name: dissect_metric()
@@ -598,6 +678,9 @@ dissect_ipreach_subclv(tvbuff_t *tvb, proto_tree *tree, int offset, int clv_code
  *   the metric as a 32-bit unsigned interger and allows to add
  *   sub-CLV(s).
  *
+ *   CALLED BY TLV 235 DISSECTOR
+ *
+ *
  * Input:
  *   tvbuff_t * : tvbuffer for packet data
  *   proto_tree * : proto tree to build on (may be null)
@@ -693,6 +776,8 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
  * Name: dissect_lsp_ipv6_reachability_clv()
  *
  * Description: Decode an IPv6 reachability CLV - code 236.
+ *
+ *   CALLED BY TLV 237 DISSECTOR
  *
  * Input:
  *   tvbuff_t * : tvbuffer for packet data
@@ -815,7 +900,7 @@ dissect_lsp_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 /*
  * Name: dissect_lsp_mt_clv()
  *
- * Description:
+ * Description: - code 229
  *	Decode for a lsp packets Multi Topology clv.  Calls into the
  *	clv common one.
  *
@@ -1331,6 +1416,8 @@ dissect_subclv_unrsv_bw(tvbuff_t *tvb, proto_tree *tree, int offset)
  *   of the IS reachability TLV (code 2). It encodes the metric
  *   as a 24-bit unsigned interger and allows to add sub-CLV(s).
  *
+ *   CALLED BY TLV 222 DISSECTOR
+ *
  * Input:
  *   tvbuff_t * : tvbuffer for packet data
  *   proto_tree * : protocol display tree to fill out.  May be NULL
@@ -1423,79 +1510,108 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, proto_tree *tree,
 	}
 }
 
-/* MT IS */
+/*
+ * Name: dissect_lsp_mt_reachable_IPv4_prefx_clv()
+ *
+ * Description: Decode Multi-Topology IPv4 Prefixes - code 235
+ *
+ *
+ * Input:
+ *   tvbuff_t * : tvbuffer for packet data
+ *   proto_tree * : protocol display tree to fill out.  May be NULL
+ *   int : offset into packet data where we are.
+ *   int : length of IDs in packet.
+ *   int : length of clv we are decoding
+ *
+ * Output:
+ *   void, but we will add to proto tree if !NULL.
+ */
+static void
+dissect_lsp_mt_reachable_IPv4_prefx_clv(tvbuff_t *tvb,
+        proto_tree *tree, int offset, int id_length _U_, int length)
+{
+	if (!tree) return;
+	if (length < 2) {
+		isis_dissect_unknown(tvb, tree, offset,
+				"short lsp multi-topology reachable IPv4 prefixes(%d vs %d)", length,
+				2 );
+		return;
+	}
+	dissect_lsp_mt_id(tvb, tree, offset);
+	dissect_lsp_ext_ip_reachability_clv(tvb, tree, offset+2, 0, length-2);
+}
+
+/*
+ * Name: dissect_lsp_mt_reachable_IPv6_prefx_clv()
+ *
+ * Description: Decode Multi-Topology IPv6 Prefixes - code 237
+ *
+ *
+ * Input:
+ *   tvbuff_t * : tvbuffer for packet data
+ *   proto_tree * : protocol display tree to fill out.  May be NULL
+ *   int : offset into packet data where we are.
+ *   int : length of IDs in packet.
+ *   int : length of clv we are decoding
+ *
+ * Output:
+ *   void, but we will add to proto tree if !NULL.
+ */
+static void
+dissect_lsp_mt_reachable_IPv6_prefx_clv(tvbuff_t *tvb,
+        proto_tree *tree, int offset, int id_length _U_, int length)
+{
+	if (!tree) return;
+	if (length < 2) {
+		isis_dissect_unknown(tvb, tree, offset,
+				"short lsp multi-topology reachable IPv6 prefixes(%d vs %d)", length,
+				2 );
+		return;
+	}
+	dissect_lsp_mt_id(tvb, tree, offset);
+	dissect_lsp_ipv6_reachability_clv(tvb, tree, offset+2, 0, length-2);
+}
 
 
-
+/*
+ * Name: dissect_lsp_mt_is_reachability_clv()
+ *
+ * Description: Decode Multi-Topology Intermediate Systems - code 222
+ *
+ *
+ * Input:
+ *   tvbuff_t * : tvbuffer for packet data
+ *   proto_tree * : protocol display tree to fill out.  May be NULL
+ *   int : offset into packet data where we are.
+ *   int : unused
+ *   int : length of clv we are decoding
+ *
+ * Output:
+ *   void, but we will add to proto tree if !NULL.
+ */
 
 static void
 dissect_lsp_mt_is_reachability_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int id_length _U_, int length)
 {
-	proto_item *ti;
-	proto_tree *ntree = NULL;
-	guint8     subclvs_len;
-	guint8     len;
-
-	int  mt_block;
-	char mt_desc[60];
-
 	if (!tree) return;
-
-	while (length > 0) {
-
-              /* fetch two bytes */
-              mt_block = tvb_get_ntohs(tvb, offset);
-
-              /* mask out the lower 12 bits */
-              switch(mt_block&0x0fff) {
-                case 0:
-                  strcpy(mt_desc,"IPv4 unicast");
-                  break;
-                case 1:
-                  strcpy(mt_desc,"In-Band Management");
-                  break;
-                case 2:
-                  strcpy(mt_desc,"IPv6 unicast");
-                  break;
-                case 3:
-                  strcpy(mt_desc,"Multicast");
-                  break;
-                case 4095:
-                  strcpy(mt_desc,"Development, Experimental or Proprietary");
-                  break;
-                default:
-                  strcpy(mt_desc,"Reserved for IETF Consensus");
-              }
-
-                proto_tree_add_text ( tree, tvb, offset, 2 ,
-                        "%s Topology (0x%x)",
-                                      mt_desc,
-                                      mt_block&0xfff );
-
-		ti = proto_tree_add_text (tree, tvb, offset+2, -1,
-			"IS neighbor: %s",
-			print_system_id(tvb_get_ptr(tvb, offset+2, 7), 7) );
-
-		ntree = proto_item_add_subtree (ti,
-			ett_isis_lsp_part_of_clv_mt_is );
-
-		proto_tree_add_text (ntree, tvb, offset+9, 3,
-			"Metric: %d", tvb_get_ntoh24(tvb, offset+9) );
-
-		subclvs_len = tvb_get_guint8(tvb, offset+12);
-		if (subclvs_len == 0) {
-			proto_tree_add_text (ntree, tvb, offset+12, 1, "no sub-TLVs present");
-		} else {
-		  proto_tree_add_text (ntree, tvb, offset+12, 1, "sub-TLVs present");
-		    }
-
-		len = 13 + subclvs_len;
-		proto_item_set_len (ti, len);
-		offset += len;
-		length -= len;
-
+	if (length < 2) {
+		isis_dissect_unknown(tvb, tree, offset,
+				"short lsp reachability(%d vs %d)", length,
+				2 );
+		return;
 	}
+
+	/*
+	 * the MT ID value dissection is used in other LSPs so we push it
+	 * in a function
+	 */
+	dissect_lsp_mt_id(tvb, tree, offset);
+	/*
+	 * fix here. No need to parse TLV 22 (with bugs) while it is
+	 * already done correctly!!
+	 */
+	dissect_lsp_ext_is_reachability_clv(tvb, tree, offset+2, 0, length-2);
 }
 
 /*
@@ -1842,6 +1958,8 @@ isis_register_lsp(int proto_isis) {
 		&ett_isis_lsp_clv_mt,
 		&ett_isis_lsp_clv_mt_is,
 		&ett_isis_lsp_part_of_clv_mt_is,
+    &ett_isis_lsp_clv_mt_reachable_IPv4_prefx,
+    &ett_isis_lsp_clv_mt_reachable_IPv6_prefx,
 	};
 
 	proto_register_field_array(proto_isis, hf, array_length(hf));
