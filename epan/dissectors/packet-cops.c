@@ -2860,12 +2860,12 @@ cops_surveillance_parameters(tvbuff_t *tvb, proto_tree *st, guint n, guint32 off
      offset += 4;
 
      /* BCID Element ID */
-     bcid_str = tvb_get_string(tvb, offset, 8);
+     bcid_str = tvb_format_text(tvb, offset, 8);
      proto_tree_add_text(stt, tvb, offset, 8,"%-28s : '%s'","BCID - Element ID",bcid_str);
      offset += 8;
 
      /* BCID Time Zone */
-     bcid_str = tvb_get_string(tvb, offset, 8);
+     bcid_str = tvb_format_text(tvb, offset, 8);
      proto_tree_add_text(stt, tvb, offset, 8,"%-28s : '%s'","BCID - Time Zone",bcid_str);
      offset += 8;
 
@@ -2921,12 +2921,12 @@ cops_event_generation_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offse
      offset += 4;
 
      /* BCID Element ID */
-     bcid_str = tvb_get_string(tvb, offset, 8);
+     bcid_str = tvb_format_text(tvb, offset, 8);
      proto_tree_add_text(stt, tvb, offset, 8,"%-28s : '%s'","BCID - Element ID",bcid_str);
      offset += 8;
 
      /* BCID Time Zone */
-     bcid_str = tvb_get_string(tvb, offset, 8);
+     bcid_str = tvb_format_text(tvb, offset, 8);
      proto_tree_add_text(stt, tvb, offset, 8,"%-28s : '%s'","BCID - Time Zone",bcid_str);
      offset += 8;
 
@@ -4120,12 +4120,12 @@ cops_mm_event_generation_info(tvbuff_t *tvb, proto_tree *st, guint n, guint32 of
      offset += 4;
 
      /* BCID Element ID */
-     bcid_str = tvb_get_string(tvb, offset, 8);
+     bcid_str = tvb_format_text(tvb, offset, 8);
      proto_tree_add_text(stt, tvb, offset, 8,"%-28s : '%s'","BCID - Element ID",bcid_str);
      offset += 8;
 
      /* BCID Time Zone */
-     bcid_str = tvb_get_string(tvb, offset, 8);
+     bcid_str = tvb_format_text(tvb, offset, 8);
      proto_tree_add_text(stt, tvb, offset, 8,"%-28s : '%s'","BCID - Time Zone",bcid_str);
      offset += 8;
 
