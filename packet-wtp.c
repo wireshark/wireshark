@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  *
- * $Id: packet-wtp.c,v 1.40 2002/10/24 06:17:36 guy Exp $
+ * $Id: packet-wtp.c,v 1.41 2002/12/02 20:18:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -798,14 +798,14 @@ proto_register_wtp(void)
 	{ &hf_wtp_header_sequence_number,
 	    { 	"Packet Sequence Number",
 		"wtp.header.sequence",
-		FT_UINT8, BASE_HEX, NULL, 0x00,
+		FT_UINT8, BASE_DEC, NULL, 0x00,
 		"Packet Sequence Number", HFILL
 	    }
 	},
 	{ &hf_wtp_header_missing_packets,
 	    { 	"Missing Packets",
 		"wtp.header.missing_packets",
-		FT_UINT8, BASE_HEX, NULL, 0x00,
+		FT_UINT8, BASE_DEC, NULL, 0x00,
 		"Missing Packets", HFILL
 	    }
 	},
