@@ -1,7 +1,7 @@
 /* gtkglobals.h
  * GTK-related Global defines, etc.
  *
- * $Id: gtkglobals.h,v 1.13 2001/03/23 14:44:04 jfoster Exp $
+ * $Id: gtkglobals.h,v 1.14 2001/04/10 12:07:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,5 +43,19 @@ void remember_scrolled_window(GtkWidget *);
 
 void set_plist_sel_browse(gboolean);
 void set_plist_font(GdkFont *font);
+
+#ifdef _WIN32
+/* It appears that isprint() is not working well
+ * with gtk+'s text widget. By narrowing down what
+ * we print, the ascii portion of the hex display works.
+ * MSVCRT's isprint() returns true on values like 0xd2,
+ * which cause the GtkTextWidget to go wacko.
+ *
+ * This is a quick fix for the symptom, not the
+ * underlying problem.
+ */
+#define isprint(c) (c >= 0x20 && c <= 0x7f)
+#endif
+
 
 #endif

@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.190 2001/04/09 22:35:23 gram Exp $
+ * $Id: main.c,v 1.191 2001/04/10 12:07:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1701,8 +1701,9 @@ set_last_open_dir(char *dirname)
 
 	if (dirname) {
 		len = strlen(dirname);
-		if (dirname[len-1] != '/') {
-			last_open_dir = g_strconcat(dirname, "/", NULL);
+		if (dirname[len-1] != G_DIR_SEPARATOR) {
+			last_open_dir = g_strconcat(dirname, G_DIR_SEPARATOR_S,
+				NULL);
 		}
 	}
 	else {

@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.32 2001/03/24 23:57:12 guy Exp $
+ * $Id: proto_draw.c,v 1.33 2001/04/10 12:07:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,6 +54,7 @@
 #include "proto_draw.h"
 #include "packet_win.h"
 #include "gtkglobals.h"
+
 
 #define BYTE_VIEW_WIDTH    16
 #define BYTE_VIEW_SEP      8
@@ -514,7 +515,7 @@ packet_hex_print_common(GtkText *bv, guint8 *pd, int len, int bstart, int bend, 
 	  else {
 		  g_assert_not_reached();
 	  }
-	  line[cur++] = (isprint(c)) ? c : '.';
+	  line[cur++] = isprint(c) ? c : '.';
 	} else {
 	  line[cur++] = ' ';
 	}
@@ -594,7 +595,7 @@ packet_hex_print_common(GtkText *bv, guint8 *pd, int len, int bstart, int bend, 
 	  else {
 		  g_assert_not_reached();
 	  }
-	  line[cur++] = (isprint(c)) ? c : '.';
+	  line[cur++] = isprint(c) ? c : '.';
 	} else {
 	  line[cur++] = ' ';
 	}

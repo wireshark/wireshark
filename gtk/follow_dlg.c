@@ -1,6 +1,6 @@
 /* follow_dlg.c
  *
- * $Id: follow_dlg.c,v 1.12 2001/04/02 09:41:56 guy Exp $
+ * $Id: follow_dlg.c,v 1.13 2001/04/10 12:07:39 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -638,6 +638,24 @@ follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server,
 {
     GtkWidget *text = arg;
     GdkColor   fg, bg;
+
+#ifdef _WIN32
+    /* While our isprint() hack is in place, we
+     * have to use convert some chars to '.' in order
+     * to be able to see the data we *should* see
+     * in the GtkText widget.
+     */
+    int i;
+
+    for (i = 0; i < nchars; i++) {
+	    if (buffer[i] == 0x0a || buffer[i] == 0x0d) {
+		    continue;
+	    }
+	    else if (! isprint(buffer[i])) {
+		    buffer[i] = '.';
+	    }
+    }
+#endif
 
     if (is_server) {
     	color_t_to_gdkcolor(&fg, &prefs.st_server_fg);
