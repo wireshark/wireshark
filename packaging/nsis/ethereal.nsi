@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.6 2002/09/29 18:16:42 gerald Exp $
+; $Id: ethereal.nsi,v 1.7 2002/09/30 14:43:18 gerald Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -170,28 +170,17 @@ Section "Uninstall"
 DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal"
 DeleteRegKey HKEY_LOCAL_MACHINE SOFTWARE\Ethereal
 
-Delete "$INSTDIR\FAQ"
-Delete "$INSTDIR\README*"
-Delete "$INSTDIR\manuf"
-Delete "$INSTDIR\dictionary.dtd"
-Delete "$INSTDIR\dictionary.xml"
-Delete "$INSTDIR\mobileipv4.xml"
-Delete "$INSTDIR\nasreq.xml"
-Delete "$INSTDIR\sunping.xml"
-Delete "$INSTDIR\*.exe"
-Delete "$INSTDIR\*.html"
-Delete "$INSTDIR\*.dll"
-Delete "$INSTDIR\plugins\${VERSION}\coseventcomm.dll"
-Delete "$INSTDIR\plugins\${VERSION}\cosnaming.dll"
-Delete "$INSTDIR\plugins\${VERSION}\docsis.dll"
-Delete "$INSTDIR\plugins\${VERSION}\gryphon.dll"
-Delete "$INSTDIR\plugins\${VERSION}\mgcp.dll"
+Delete "$INSTDIR\plugins\${VERSION}\*.*"
+Delete "$INSTDIR\plugins\*.*"
+Delete "$INSTDIR\diameter\*.*"
+Delete "$INSTDIR\*.*"
 Delete "$SMPROGRAMS\Ethereal\*.*"
 Delete "$DESKTOP\Ethereal.lnk"
 
 RMDir "$SMPROGRAMS\Ethereal"
 RMDir "$INSTDIR\plugins\${VERSION}"
 RMDir "$INSTDIR\plugins"
+RMDir "$INSTDIR\diameter"
 RMDir "$INSTDIR"
 
 SectionEnd
