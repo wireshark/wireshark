@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.70 2004/01/19 00:42:10 ulfl Exp $
+# $Id: Makefile.nmake,v 1.71 2004/01/21 19:21:28 ulfl Exp $
 
 include ..\config.nmake
 
@@ -65,7 +65,6 @@ OBJECTS = \
 	color_utils.obj  \
 	decode_as_dlg.obj \
 	dfilter_expr_dlg.obj \
-	display_opts.obj \
 	dlg_utils.obj	\
 	endpoint_talkers_table.obj \
 	ethereal-tap-register.obj \
