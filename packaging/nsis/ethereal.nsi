@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.55 2004/05/21 17:31:16 ulfl Exp $
+; $Id: ethereal.nsi,v 1.56 2004/05/23 22:21:30 guy Exp $
 
  
 !ifdef MAKENSIS_MODERN_UI
@@ -226,16 +226,15 @@ File "${GTK2_DIR}\bin\libatk-1.0-0.dll"
 File "${GTK2_DIR}\bin\libpango-1.0-0.dll"
 File "${GTK2_DIR}\bin\libpangowin32-1.0-0.dll"
 SetOutPath $INSTDIR\etc\gtk-2.0
-File "${GTK2_DIR}\etc\gtk-2.0\gdk-pixbuf.loaders"
-File "${GTK2_DIR}\etc\gtk-2.0\gtk.immodules"
+File "${GTK2_DIR}\etc\gtk-2.0\*.*"
 SetOutPath $INSTDIR\etc\pango
-File "${GTK2_DIR}\etc\pango\pango.modules"
-SetOutPath $INSTDIR\lib\gtk-2.0\2.2.0\loaders
-File "${GTK2_DIR}\lib\gtk-2.0\2.2.0\loaders\libpixbufloader-*.dll"
-SetOutPath $INSTDIR\lib\gtk-2.0\2.2.0\immodules
-File "${GTK2_DIR}\lib\gtk-2.0\2.2.0\immodules\im-*.dll"
-SetOutPath $INSTDIR\lib\pango\1.2.0\modules
-File "${GTK2_DIR}\lib\pango\1.2.0\modules\pango-*.dll"
+File "${GTK2_DIR}\etc\pango\pango.*"
+SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_INST_VERSION}.0\loaders
+File "${GTK2_DIR}\lib\gtk-2.0\${GTK2_INST_VERSION}.0\loaders\libpixbufloader-*.dll"
+SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_INST_VERSION}.0\immodules
+File "${GTK2_DIR}\lib\gtk-2.0\${GTK2_INST_VERSION}.0\immodules\im-*.dll"
+SetOutPath $INSTDIR\lib\pango\${PANGO_INST_VERSION}.0\modules
+File "${GTK2_DIR}\lib\pango\${PANGO_INST_VERSION}.0\modules\pango-*.dll"
 
 SectionEnd
 !endif
@@ -243,7 +242,7 @@ SectionEnd
 !ifdef GTK_WIMP_DIR
 Section "GTK-Wimp" SecGTKWimp
 ;-------------------------------------------
-SetOutPath $INSTDIR\lib\gtk-2.0\2.2.0\engines
+SetOutPath $INSTDIR\lib\gtk-2.0\${GTK2_INST_VERSION}.0\engines
 File "${GTK_WIMP_DIR}\libwimp.dll"
 SetOutPath $INSTDIR\share\themes\Default\gtk-2.0
 File "${GTK_WIMP_DIR}\Theme\gtk-2.0\gtkrc"
@@ -387,7 +386,11 @@ Delete "$INSTDIR\etc\pango\*.*"
 Delete "$INSTDIR\lib\gtk-2.0\2.2.0\engines\*.*"
 Delete "$INSTDIR\lib\gtk-2.0\2.2.0\loaders\*.*"
 Delete "$INSTDIR\lib\gtk-2.0\2.2.0\immodules\*.*"
+Delete "$INSTDIR\lib\gtk-2.0\2.4.0\engines\*.*"
+Delete "$INSTDIR\lib\gtk-2.0\2.4.0\loaders\*.*"
+Delete "$INSTDIR\lib\gtk-2.0\2.4.0\immodules\*.*"
 Delete "$INSTDIR\lib\pango\1.2.0\modules\*.*"
+Delete "$INSTDIR\lib\pango\1.4.0\modules\*.*"
 Delete "$INSTDIR\share\themes\Default\gtk-2.0\*.*"
 Delete "$INSTDIR\help\*.*"
 Delete "$INSTDIR\plugins\${VERSION}\*.*"
@@ -414,9 +417,15 @@ RMDir "$INSTDIR\lib\gtk-2.0\2.2.0\engines"
 RMDir "$INSTDIR\lib\gtk-2.0\2.2.0\loaders"
 RMDir "$INSTDIR\lib\gtk-2.0\2.2.0\immodules"
 RMDir "$INSTDIR\lib\gtk-2.0\2.2.0"
+RMDir "$INSTDIR\lib\gtk-2.0\2.4.0\engines"
+RMDir "$INSTDIR\lib\gtk-2.0\2.4.0\loaders"
+RMDir "$INSTDIR\lib\gtk-2.0\2.4.0\immodules"
+RMDir "$INSTDIR\lib\gtk-2.0\2.4.0"
 RMDir "$INSTDIR\lib\gtk-2.0"
 RMDir "$INSTDIR\lib\pango\1.2.0\modules"
 RMDir "$INSTDIR\lib\pango\1.2.0"
+RMDir "$INSTDIR\lib\pango\1.4.0\modules"
+RMDir "$INSTDIR\lib\pango\1.4.0"
 RMDir "$INSTDIR\lib\pango"
 RMDir "$INSTDIR\lib"
 RMDir "$INSTDIR\share\themes\Default\gtk-2.0"
