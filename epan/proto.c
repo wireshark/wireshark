@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.40 2001/11/03 01:19:59 guy Exp $
+ * $Id: proto.c,v 1.41 2001/11/03 11:42:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1547,8 +1547,14 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 void
 proto_item_set_text(proto_item *pi, const char *format, ...)
 {
-	field_info *fi = (field_info*) (((GNode*)pi)->data);
+	field_info *fi = NULL;
 	va_list	ap;
+
+	if (pi==NULL) {
+		return;
+	}
+
+	fi = (field_info *)(((GNode*)pi)->data);
 
 	if (fi->representation)
 		g_mem_chunk_free(gmc_item_labels, fi->representation);
@@ -1562,9 +1568,15 @@ proto_item_set_text(proto_item *pi, const char *format, ...)
 void
 proto_item_append_text(proto_item *pi, const char *format, ...)
 {
-	field_info *fi = (field_info*) (((GNode*)pi)->data);
+	field_info *fi = NULL;
 	size_t curlen;
 	va_list	ap;
+
+	if (pi==NULL) {
+		return;
+	}
+
+	fi = (field_info*) (((GNode*)pi)->data);
 
 	if (fi->visible) {
 		va_start(ap, format);

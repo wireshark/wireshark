@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.124 2001/11/03 06:56:55 guy Exp $
+ * $Id: packet-smb.c,v 1.125 2001/11/03 11:42:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,6 +79,54 @@ static int hf_smb_flags2_dfs = -1;
 static int hf_smb_flags2_roe = -1;
 static int hf_smb_flags2_nt_error = -1;
 static int hf_smb_flags2_string = -1;
+static int hf_smb_word_count = -1;
+static int hf_smb_byte_count = -1;
+static int hf_smb_buffer_format = -1;
+static int hf_smb_dialect_name = -1;
+static int hf_smb_dialect_index = -1;
+static int hf_smb_max_trans_buf_size = -1;
+static int hf_smb_max_mpx_count = -1;
+static int hf_smb_max_vcs_num = -1;
+static int hf_smb_session_key = -1;
+static int hf_smb_server_timezone = -1;
+static int hf_smb_encryption_key_length = -1;
+static int hf_smb_encryption_key = -1;
+static int hf_smb_primary_domain = -1;
+static int hf_smb_max_raw_buf_size = -1;
+static int hf_smb_server_guid = -1;
+static int hf_smb_security_blob = -1;
+static int hf_smb_sm_mode16 = -1;
+static int hf_smb_sm_password16 = -1;
+static int hf_smb_sm_mode = -1;
+static int hf_smb_sm_password = -1;
+static int hf_smb_sm_signatures = -1;
+static int hf_smb_sm_sig_required = -1;
+static int hf_smb_rm_read = -1;
+static int hf_smb_rm_write = -1;
+static int hf_smb_server_date_time = -1;
+static int hf_smb_server_smb_date = -1;
+static int hf_smb_server_smb_time = -1;
+static int hf_smb_server_cap_raw_mode = -1;
+static int hf_smb_server_cap_mpx_mode = -1;
+static int hf_smb_server_cap_unicode = -1;
+static int hf_smb_server_cap_large_files = -1;
+static int hf_smb_server_cap_nt_smbs = -1;
+static int hf_smb_server_cap_rpc_remote_apis = -1;
+static int hf_smb_server_cap_nt_status = -1;
+static int hf_smb_server_cap_level_ii_oplocks = -1;
+static int hf_smb_server_cap_lock_and_read = -1;
+static int hf_smb_server_cap_nt_find = -1;
+static int hf_smb_server_cap_dfs = -1;
+static int hf_smb_server_cap_infolevel_passthru = -1;
+static int hf_smb_server_cap_large_readx = -1;
+static int hf_smb_server_cap_large_writex = -1;
+static int hf_smb_server_cap_unix = -1;
+static int hf_smb_server_cap_reserved = -1;
+static int hf_smb_server_cap_bulk_transfer = -1;
+static int hf_smb_server_cap_compressed_data = -1;
+static int hf_smb_server_cap_extended_security = -1;
+static int hf_smb_system_time = -1;
+static int hf_smb_unknown = -1;
 
 
 static gint ett_smb = -1;
@@ -87,6 +135,7 @@ static gint ett_smb_command = -1;
 static gint ett_smb_fileattributes = -1;
 static gint ett_smb_capabilities = -1;
 static gint ett_smb_aflags = -1;
+static gint ett_smb_dialect = -1;
 static gint ett_smb_dialects = -1;
 static gint ett_smb_mode = -1;
 static gint ett_smb_rawmode = -1;
@@ -102,9 +151,34 @@ static gint ett_smb_writemode = -1;
 static gint ett_smb_lock_type = -1;
 static gint ett_smb_ssetupandxaction = -1;
 static gint ett_smb_optionsup = -1;
+static gint ett_smb_time_date = -1;
+static gint ett_smb_64bit_time = -1;
+
 
 static char *decode_smb_name(unsigned char);
 static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree, guint8 cmd);
+static const gchar *get_unicode_or_ascii_string_tvb(tvbuff_t *tvb, int *offsetp, packet_info *pinfo, int *len, gboolean nopad, gboolean exactlen);
+
+
+#define WORD_COUNT	\
+	/* Word Count */				\
+	wc = tvb_get_guint8(tvb, offset);		\
+	proto_tree_add_uint(tree, hf_smb_word_count,	\
+		tvb, offset, 1, wc);			\
+	offset += 1;					\
+	if(wc==0) goto bytecount;
+
+#define BYTE_COUNT	\
+	bytecount:					\
+	bc = tvb_get_letohs(tvb, offset);		\
+	proto_tree_add_uint(tree, hf_smb_byte_count,	\
+			tvb, offset, 2, bc);		\
+	offset += 2;					\
+	if(bc==0) goto endofcommand;
+
+#define END_OF_SMB	\
+	endofcommand:
+
 
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
    These variables and functions are used to match
@@ -191,7 +265,601 @@ smb_info_init(void)
    End of request/response matching functions
    XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
 
+static const value_string buffer_format_vals[] = {
+	{1,     "Data Block"},
+	{2,     "Dialect"},
+	{3,     "Pathname"},
+	{4,     "ASCII"},
+	{5,     "Variable Block"},
+	{0,     NULL}
+};
 
+static int
+dissect_smb_64bit_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, char *str, int hf_date)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	nstime_t tv;
+
+	/* XXXX we need some way to represent this as a time 
+	   properly. For now we display everything as 8 bytes*/
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 8,
+			str);
+		tree = proto_item_add_subtree(item, ett_smb_64bit_time);
+	}
+
+	proto_tree_add_bytes_format(tree, hf_smb_unknown, tvb, offset, 8, tvb_get_ptr(tvb, offset, 8), "%s: can't decode this yet", str);
+
+	offset += 8;
+	return offset;
+}
+
+static int
+dissect_smb_timedate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, int hf_date, int hf_dos_date, int hf_dos_time)
+{
+	guint16 dos_time, dos_date;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	struct tm tm;
+	time_t t;
+	nstime_t tv;
+
+	dos_time = tvb_get_letohs(tvb, offset);
+	dos_date = tvb_get_letohs(tvb, offset+2);
+
+	if((dos_time==0xffff)&&(dos_time==0xffff)){
+		proto_tree_add_text(parent_tree, tvb, offset, 4,
+		    "%s: No time specified (0xffffffff)",
+		    proto_registrar_get_name(hf_date));
+		offset += 4;
+		return offset;
+	}
+
+	tm.tm_sec = (dos_time&0x1f)*2;
+	tm.tm_min = (dos_time>>5)&0x3f;
+	tm.tm_hour = (dos_time>>11)&0x1f;
+	tm.tm_mday = dos_date&0x1f;
+	tm.tm_mon = ((dos_date>>5)&0x0f) - 1;
+	tm.tm_year = ((dos_date>>9)&0x7f)+80;
+	tm.tm_isdst = -1;
+
+	t = mktime(&tm);
+
+	tv.secs = t;
+	tv.nsecs = 0;
+	
+	if(parent_tree){
+		item = proto_tree_add_time(parent_tree, hf_date, tvb, offset, 4, &tv);
+		tree = proto_item_add_subtree(item, ett_smb_time_date);
+		proto_tree_add_uint_format(tree, hf_dos_time, tvb, offset, 2, dos_time, "DOS Time: %02d:%02d:%02d (0x%04x)", tm.tm_hour, tm.tm_min, tm.tm_sec, dos_time);
+		proto_tree_add_uint_format(tree, hf_dos_date, tvb, offset+2, 2, dos_date, "DOS Date: %04d-%02d-%02d (0x%04x)", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, dos_date);
+	}
+
+	offset += 4;
+
+	return offset;
+}
+
+#define SERVER_CAP_RAW_MODE            0x00000001
+#define SERVER_CAP_MPX_MODE            0x00000002
+#define SERVER_CAP_UNICODE             0x00000004
+#define SERVER_CAP_LARGE_FILES         0x00000008
+#define SERVER_CAP_NT_SMBS             0x00000010
+#define SERVER_CAP_RPC_REMOTE_APIS     0x00000020
+#define SERVER_CAP_STATUS32            0x00000040
+#define SERVER_CAP_LEVEL_II_OPLOCKS    0x00000080
+#define SERVER_CAP_LOCK_AND_READ       0x00000100
+#define SERVER_CAP_NT_FIND             0x00000200
+#define SERVER_CAP_DFS                 0x00001000
+#define SERVER_CAP_INFOLEVEL_PASSTHRU  0x00002000
+#define SERVER_CAP_LARGE_READX         0x00004000
+#define SERVER_CAP_LARGE_WRITEX        0x00008000
+#define SERVER_CAP_UNIX                0x00800000
+#define SERVER_CAP_RESERVED            0x02000000
+#define SERVER_CAP_BULK_TRANSFER       0x20000000
+#define SERVER_CAP_COMPRESSED_DATA     0x40000000
+#define SERVER_CAP_EXTENDED_SECURITY   0x80000000
+static const true_false_string tfs_server_cap_raw_mode = {
+	"Read Raw and Write Raw are supported",
+	"Read Raw and Write Raw are not supported"
+};
+static const true_false_string tfs_server_cap_mpx_mode = {
+	"Read Mpx and Write Mpx are supported",
+	"Read Mpx and Write Mpx are not supported"
+};
+static const true_false_string tfs_server_cap_unicode = {
+	"Unicode strings are supported",
+	"Unicode strings are not supported"
+};
+static const true_false_string tfs_server_cap_large_files = {
+	"Large files are supported",
+	"Large files are not supported",
+};
+static const true_false_string tfs_server_cap_nt_smbs = {
+	"NT SMBs are supported",
+	"NT SMBs are not supported"
+};
+static const true_false_string tfs_server_cap_rpc_remote_apis = {
+	"RPC remote APIs are supported",
+	"RPC remote APIs are not supported"
+};
+static const true_false_string tfs_server_cap_nt_status = {
+	"NT status codes are supported",
+	"NT status codes are not supported"
+};
+static const true_false_string tfs_server_cap_level_ii_oplocks = {
+	"Level 2 oplocks are supported",
+	"Level 2 oplocks are not supported"
+};
+static const true_false_string tfs_server_cap_lock_and_read = {
+	"Lock and Read is supported",
+	"Lock and Read is not supported"
+};
+static const true_false_string tfs_server_cap_nt_find = {
+	"NT Find is supported",
+	"NT Find is not supported"
+};
+static const true_false_string tfs_server_cap_dfs = {
+	"Dfs is supported",
+	"Dfs is not supported"
+};
+static const true_false_string tfs_server_cap_infolevel_passthru = {
+	"NT information level request passthrough is supported",
+	"NT information level request passthrough is not supported"
+};
+static const true_false_string tfs_server_cap_large_readx = {
+	"Large Read andX is supported",
+	"Large Read andX is not supported"
+};
+static const true_false_string tfs_server_cap_large_writex = {
+	"Large Write andX is supported",
+	"Large Write andX is not supported"
+};
+static const true_false_string tfs_server_cap_unix = {
+	"UNIX extensions are supported",
+	"UNIX extensions are not supported"
+};
+static const true_false_string tfs_server_cap_reserved = {
+	"Reserved",
+	"Reserved"
+};
+static const true_false_string tfs_server_cap_bulk_transfer = {
+	"Bulk Read and Bulk Write are supported",
+	"Bulk Read and Bulk Write are not supported"
+};
+static const true_false_string tfs_server_cap_compressed_data = {
+	"Compressed data transfer is supported",
+	"Compressed data transfer is not supported"
+};
+static const true_false_string tfs_server_cap_extended_security = {
+	"Extended security exchanges are supported",
+	"Extended security exchanges are not supported"
+};
+static int
+dissect_negprot_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohl(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4, "Capabilities: 0x%08x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_capabilities);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_server_cap_raw_mode,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_mpx_mode,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_unicode,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_large_files,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_nt_smbs,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_rpc_remote_apis,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_nt_status,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_level_ii_oplocks,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_lock_and_read,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_nt_find,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_dfs,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_infolevel_passthru,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_large_readx,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_large_writex,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_unix,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_reserved,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_bulk_transfer,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_compressed_data,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_server_cap_extended_security,
+		tvb, offset, 4, mask);
+
+	return mask;
+}
+
+#define RAWMODE_READ   0x01
+#define RAWMODE_WRITE  0x02
+static const true_false_string tfs_rm_read = {
+	"Read Raw is supported",
+	"Read Raw is not supported"
+};
+static const true_false_string tfs_rm_write = {
+	"Write Raw is supported",
+	"Write Raw is not supported"
+};
+
+static int
+dissect_negprot_rawmode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint16 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohs(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 2, "Raw Mode: 0x%04x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_rawmode);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_rm_read, tvb, offset, 2, mask);
+	proto_tree_add_boolean(tree, hf_smb_rm_write, tvb, offset, 2, mask);
+
+	offset += 2;
+
+	return offset;
+}
+
+#define SECURITY_MODE_MODE             0x01
+#define SECURITY_MODE_PASSWORD         0x02
+#define SECURITY_MODE_SIGNATURES       0x04
+#define SECURITY_MODE_SIG_REQUIRED     0x08
+static const true_false_string tfs_sm_mode = {
+	"USER security mode",
+	"SHARE security mode"
+};
+static const true_false_string tfs_sm_password = {
+	"ENCRYPTED password. Use challenge/response",
+	"PLAINTEXT password"
+};
+static const true_false_string tfs_sm_signatures = {
+	"Security signatures ENABLED",
+	"Security signatures NOT enabled"
+};
+static const true_false_string tfs_sm_sig_required = {
+	"Security signatures REQUIRED",
+	"Security signatures NOT required"
+};
+
+static int
+dissect_negprot_security_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, int wc)
+{
+	guint16 mask = 0;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	switch(wc){
+	case 13:
+		mask = tvb_get_letohs(tvb, offset);
+		item = proto_tree_add_text(parent_tree, tvb, offset, 2,
+				"Security Mode: 0x%04x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_mode);
+		proto_tree_add_boolean(tree, hf_smb_sm_mode16, tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_sm_password16, tvb, offset, 2, mask);
+		offset += 2;
+		break;
+
+	case 17:
+		mask = tvb_get_guint8(tvb, offset);
+		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
+				"Security Mode: 0x%02x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_mode);
+		proto_tree_add_boolean(tree, hf_smb_sm_mode, tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_sm_password, tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_sm_signatures, tvb, offset, 1, mask);
+		proto_tree_add_boolean(tree, hf_smb_sm_sig_required, tvb, offset, 1, mask);
+		offset += 1;
+		break;
+	}
+
+	return offset;
+}
+
+static int
+dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
+{
+	proto_item *it = NULL;
+	proto_tree *tr = NULL;
+	guint16 bc;
+	guint8 wc;
+
+	WORD_COUNT;
+
+	BYTE_COUNT;
+
+	if(tree){
+		it = proto_tree_add_text(tree, tvb, offset, bc,
+				"Requested Dialects");
+		tr = proto_item_add_subtree(it, ett_smb_dialects);
+	}
+
+	while(bc){
+		int len;
+		int old_offset = offset;
+		const guint8 *str;
+		proto_item *dit = NULL;
+		proto_tree *dtr = NULL;
+
+		len = tvb_strsize(tvb, offset+1);
+		str = tvb_get_ptr(tvb, offset+1, len);
+
+		if(tr){
+			dit = proto_tree_add_text(tr, tvb, offset, len+1,
+					"Dialect: %s", str);
+			dtr = proto_item_add_subtree(dit, ett_smb_dialect);
+		}
+
+		/* Buffer Format */
+		proto_tree_add_uint(dtr, hf_smb_buffer_format, tvb, offset, 1,
+			tvb_get_guint8(tvb, offset));
+		offset += 1;
+		bc -= 1;
+
+		/*Dialect Name */
+		proto_tree_add_string(dtr, hf_smb_dialect_name, tvb, offset, 
+			len, str);
+		offset += len;
+		bc -= len;
+	}
+
+	END_OF_SMB
+
+	return offset;
+}
+
+static int
+dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
+{
+	guint8 wc;
+	guint16 dialect;
+	const char *dn;
+	int dn_len;
+	guint16 bc;
+	guint16 ekl=0;
+	guint32 caps=0;
+	gint16 tz;
+
+
+	WORD_COUNT;
+
+	/* Dialect Index */
+	dialect = tvb_get_letohs(tvb, offset);
+	switch(wc){
+	case 1:
+		if(dialect==0xffff){
+			proto_tree_add_uint_format(tree, hf_smb_dialect_index,
+				tvb, offset, 2, dialect,
+				"Selected Index: -1, PC NETWORK PROGRAM 1.0 choosen");
+		} else {
+			proto_tree_add_uint(tree, hf_smb_dialect_index,
+				tvb, offset, 2, dialect);
+		}
+		break;
+	case 13:
+		proto_tree_add_uint_format(tree, hf_smb_dialect_index,
+			tvb, offset, 2, dialect, 
+			"Dialect Index: %u, Greater than CORE PROTOCOL and up to LANMAN2.1", dialect);
+		break;
+	case 17:
+		proto_tree_add_uint_format(tree, hf_smb_dialect_index,
+			tvb, offset, 2, dialect, 
+			"Dialect Index: %u, greater than LANMAN2.1", dialect);
+		break;
+	default:
+		proto_tree_add_text(tree, tvb, offset, wc*2,
+			"Words for unknown response format");
+		offset += wc*2;
+		goto bytecount;
+	}
+	offset += 2;
+
+	switch(wc){
+	case 13:
+		/* Security Mode */
+		offset = dissect_negprot_security_mode(tvb, pinfo, tree, offset,
+				wc);
+
+		/* Maximum Transmit Buffer Size */
+		proto_tree_add_uint(tree, hf_smb_max_trans_buf_size,
+			tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		offset += 2;
+
+		/* Maximum Multiplex Count */
+		proto_tree_add_uint(tree, hf_smb_max_mpx_count,
+			tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		offset += 2;
+
+		/* Maximum Vcs Number */
+		proto_tree_add_uint(tree, hf_smb_max_vcs_num,
+			tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		offset += 2;
+
+		/* raw mode */
+		offset = dissect_negprot_rawmode(tvb, pinfo, tree, offset);
+
+		/* session key */
+		proto_tree_add_uint(tree, hf_smb_session_key,
+			tvb, offset, 4, tvb_get_letohl(tvb, offset));
+		offset += 4;
+
+		/* current time and date at server */
+		offset = dissect_smb_timedate(tvb, pinfo, tree, offset, hf_smb_server_date_time, hf_smb_server_smb_date, hf_smb_server_smb_time);
+
+		/* time zone */
+		tz = tvb_get_letohs(tvb, offset);
+		proto_tree_add_int_format(tree, hf_smb_server_timezone, tvb, offset, 2, tz, "Server Time Zone: %d min from UTC", tz);
+		offset += 2;
+
+		/* encryption key length */
+		ekl = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_encryption_key_length, tvb, offset, 2, ekl);
+		offset += 2;
+
+		/* 2 reserved bytes */
+		proto_tree_add_bytes(tree, hf_smb_reserved, tvb, offset, 2, tvb_get_ptr(tvb, offset, 2));
+		offset += 2;
+
+		break;
+
+	case 17:
+		/* Security Mode */
+		offset = dissect_negprot_security_mode(tvb, pinfo, tree, offset, wc);
+
+		/* Maximum Multiplex Count */
+		proto_tree_add_uint(tree, hf_smb_max_mpx_count,
+			tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		offset += 2;
+
+		/* Maximum Vcs Number */
+		proto_tree_add_uint(tree, hf_smb_max_vcs_num,
+			tvb, offset, 2, tvb_get_letohs(tvb, offset));
+		offset += 2;
+
+		/* Maximum Transmit Buffer Size */
+		proto_tree_add_uint(tree, hf_smb_max_trans_buf_size,
+			tvb, offset, 4, tvb_get_letohl(tvb, offset));
+		offset += 4;
+
+		/* maximum raw buffer size */
+		proto_tree_add_uint(tree, hf_smb_max_raw_buf_size,
+			tvb, offset, 4, tvb_get_letohl(tvb, offset));
+		offset += 4;
+
+		/* session key */
+		proto_tree_add_uint(tree, hf_smb_session_key,
+			tvb, offset, 4, tvb_get_letohl(tvb, offset));
+		offset += 4;
+
+		/* server capabilities */
+		caps = dissect_negprot_capabilities(tvb, pinfo, tree, offset);
+		offset += 4;
+
+		/* system time */
+		offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+			       	"System Time", hf_smb_system_time);
+
+		/* time zone */
+		tz = tvb_get_letohs(tvb, offset);
+		proto_tree_add_int_format(tree, hf_smb_server_timezone,
+			tvb, offset, 2, tz,
+			"Server Time Zone: %d min from UTC", tz);
+		offset += 2;
+
+		/* encryption key length */
+		ekl = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_encryption_key_length,
+			tvb, offset, 1, ekl);
+		offset += 1;
+
+		break;
+	}
+
+	BYTE_COUNT;
+
+	switch(wc){
+	case 13:
+		/* challange/ encryption key */
+		if(ekl){
+			proto_tree_add_bytes(tree, hf_smb_encryption_key, tvb, offset, ekl, tvb_get_ptr(tvb, offset, ekl));
+			offset += ekl;
+		}
+
+		/* is this string optional ? */
+		if(tvb_reported_length_remaining(tvb, offset)>0){
+			/* domain */
+			dn = get_unicode_or_ascii_string_tvb(tvb, &offset,
+				pinfo, &dn_len, FALSE, FALSE);
+			proto_tree_add_string(tree, hf_smb_primary_domain, tvb,
+				offset, dn_len,dn);
+			offset += dn_len;
+		}
+		break;
+
+	case 17:
+		if(!(caps&SERVER_CAP_EXTENDED_SECURITY)){
+			smb_info_t *si;
+
+			/* challange/ encryption key */
+			if(ekl){
+				proto_tree_add_bytes(tree, hf_smb_encryption_key,
+					tvb, offset, ekl,
+					tvb_get_ptr(tvb, offset, ekl));
+				offset += ekl;
+			}
+
+			if(tvb_reported_length_remaining(tvb, offset)){
+				/* domain */
+				/* this string is special, unicode is flagged in caps */
+				/* This string is NOT padded to be 16bit aligned. (seen in actual capture) */
+				si = pinfo->private_data;
+				si->unicode = (caps&SERVER_CAP_UNICODE);
+				dn = get_unicode_or_ascii_string_tvb(tvb,
+					&offset, pinfo, &dn_len, TRUE, FALSE);
+				proto_tree_add_string(tree, hf_smb_primary_domain,
+					tvb, offset, dn_len,dn);
+				offset += dn_len;
+			}
+		} else {
+			int len;
+
+			/* guid */
+			/* XXX - show it in the standard Microsoft format
+			   for GUIDs? */
+			proto_tree_add_bytes(tree, hf_smb_server_guid,
+				tvb, offset, 16, tvb_get_ptr(tvb, offset, 16));
+			offset += 16;
+
+			/* security blob */
+			/* XXX - is this ASN.1-encoded?  Is it a Kerberos
+			   data structure, at least in NT 5.0-and-later
+			   server replies? */
+			len = tvb_reported_length_remaining(tvb, offset);
+			if(len){
+				proto_tree_add_bytes(tree, hf_smb_security_blob,
+					tvb, offset, len,
+					tvb_get_ptr(tvb, offset, len));
+				offset += len;
+			}
+		}
+		break;
+
+	default:
+		proto_tree_add_text(tree, tvb, offset, bc,
+			"Bytes for unknown response format");
+		offset += bc;
+		goto endofcommand;
+	}
+
+	END_OF_SMB
+
+	return offset;
+}
 
 
 
@@ -316,7 +984,7 @@ smb_function smb_dissector[256] = {
   /* 0x6f */  {NULL, NULL},
   /* 0x70 */  {NULL, NULL},
   /* 0x71 */  {NULL, NULL},
-  /* 0x72 */  {NULL, NULL},
+  /* 0x72 Negotiate Protocol*/	{dissect_negprot_request, dissect_negprot_response},
   /* 0x73 */  {NULL, NULL},
   /* 0x74 */  {NULL, NULL},
   /* 0x75 */  {NULL, NULL},
@@ -474,8 +1142,9 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, int
 		int (*dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree);
 
 		if (check_col(pinfo->fd, COL_INFO)) {
-			col_append_fstr(pinfo->fd, COL_INFO, "%s ",
-				decode_smb_name(cmd));
+			col_add_fstr(pinfo->fd, COL_INFO, "%s %s ",
+				decode_smb_name(cmd),
+				(si->request)? "Request" : "Response");
 		}
 
 		cmd_item = proto_tree_add_text(smb_tree, tvb, offset,
@@ -621,7 +1290,7 @@ static const value_string smb_cmd_vals[] = {
   { 0x6F, "unknown-0x6F" },
   { 0x70, "Tree Connect" },
   { 0x71, "Tree Disconnect" },
-  { 0x72, "Negotiate" },
+  { 0x72, "Negotiate Protocol" },
   { 0x73, "Session Setup AndX" },
   { 0x74, "Logoff AndX" },
   { 0x75, "Tree Connect AndX" },
@@ -1325,6 +1994,7 @@ unicode_to_str(const guint8 *us, int *us_lenp) {
   int           us_len;
   int           overflow = 0;
 
+  NullTVB; /* remove this function when we are fully tvbuffified */
   if (cur == &str[0][0]) {
     cur = &str[1][0];
   } else if (cur == &str[1][0]) {  
@@ -1354,6 +2024,60 @@ unicode_to_str(const guint8 *us, int *us_lenp) {
   *us_lenp = us_len;
   return cur;
 }
+/* Turn a little-endian Unicode '\0'-terminated string into a string we
+   can display.
+   XXX - for now, we just handle the ISO 8859-1 characters.
+   If exactlen==TRUE then us_lenp contains the exact len of the string in
+   bytes. It might not be null terminated !
+*/
+static gchar *
+unicode_to_str_tvb(tvbuff_t *tvb, int offset, int *us_lenp, gboolean exactlen) {
+  static gchar  str[3][MAX_UNICODE_STR_LEN+3+1];
+  static gchar *cur;
+  gchar        *p;
+  guint16       uchar;
+  int           len;
+  int           us_len;
+  int           overflow = 0;
+
+  if (cur == &str[0][0]) {
+    cur = &str[1][0];
+  } else if (cur == &str[1][0]) {  
+    cur = &str[2][0];
+  } else {  
+    cur = &str[0][0];
+  }
+  p = cur;
+  len = MAX_UNICODE_STR_LEN;
+  us_len = 0;
+  while ((uchar = tvb_get_letohs(tvb, offset)) != 0) {
+    if (len > 0) {
+      if ((uchar & 0xFF00) == 0)
+        *p++ = uchar;	/* ISO 8859-1 */
+      else
+        *p++ = '?';	/* not 8859-1 */
+      len--;
+    } else
+      overflow = 1;
+    offset += 2;
+    us_len += 2;
+    if(exactlen){
+      if(us_len>= *us_lenp){
+        break;
+      }
+    }
+  }
+  if (overflow) {
+    /* Note that we're not showing the full string.  */
+    *p++ = '.';
+    *p++ = '.';
+    *p++ = '.';
+  }
+  *p = '\0';
+  *us_lenp = us_len;
+  return cur;
+}
+ 
 
 /* Get a null terminated string, which is Unicode if "is_unicode" is true
    and ASCII (OEM character set) otherwise.
@@ -1366,6 +2090,7 @@ get_unicode_or_ascii_string(const u_char *pd, int *offsetp, int SMB_offset,
   const gchar *string;
   int string_len;
 
+  NullTVB;  /* delete this function when we are fully tvbuffified */
   if (is_unicode) {
     if ((offset - SMB_offset) % 2) {
       /*
@@ -1387,14 +2112,48 @@ get_unicode_or_ascii_string(const u_char *pd, int *offsetp, int SMB_offset,
   return string;
 }
 
-static const value_string buffer_format_vals[] = {
-	{ 1, "Data block" },
-	{ 2, "Dialect" },
-	{ 3, "Pathname" },
-	{ 4, "ASCII" },
-	{ 5, "Variable block" },
-	{ 0, NULL }
-};
+/* nopad == TRUE : Do not add any padding before this string
+ * exactlen == TRUE : len contains the exact len of the string in bytes.
+ */
+static const gchar *
+get_unicode_or_ascii_string_tvb(tvbuff_t *tvb, int *offsetp, packet_info *pinfo, int *len, gboolean nopad, gboolean exactlen)
+{
+  int offset = *offsetp;
+  const gchar *string;
+  int string_len;
+  smb_info_t *si;
+
+  si = pinfo->private_data;
+  if (si->unicode) {
+    if ((!nopad) && (*offsetp % 2)) {
+      /*
+       * XXX - this should be an offset relative to the beginning of the SMB,
+       * not an offset relative to the beginning of the frame; if the stuff
+       * before the SMB has an odd number of bytes, an offset relative to
+       * the beginning of the frame will give the wrong answer.
+       */
+      (*offsetp)++;   /* Looks like a pad byte there sometimes */
+    }
+    if(exactlen){
+      string_len = *len;
+      string = unicode_to_str_tvb(tvb, *offsetp, &string_len, exactlen);
+    } else {
+      string = unicode_to_str_tvb(tvb, *offsetp, &string_len, exactlen);
+      string_len += 2;
+    }
+  } else {
+    if(exactlen){
+      string = tvb_get_ptr(tvb, *offsetp, *len);
+      string_len = *len;
+    } else {
+      string_len = tvb_strsize(tvb, *offsetp);
+      string = tvb_get_ptr(tvb, *offsetp, string_len);
+    }
+  }
+  *len = string_len;
+  return string;
+}
+
 
 /*
  * Each dissect routine is passed an offset to wct and works from there 
@@ -4040,563 +4799,6 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
 }
 
-void 
-dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
-{
-  guint8        wct, enckeylen;
-  guint16       bcc, mode, rawmode, dialect;
-  guint32       caps;
-  proto_tree    *dialects = NULL, *mode_tree, *caps_tree, *rawmode_tree;
-  proto_item    *ti;
-  const char    *str;
-  char          *ustr;
-  int           ustr_len;
-
-  wct = pd[offset];    /* Should be 0, 1 or 13 or 17, I think */
-
-  if (!((wct == 0) && si.request) && !((wct == 1) && !si.request) &&
-      !((wct == 13) && !si.request) && !((wct == 17) && !si.request)) {
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Invalid Negotiate Protocol format. WCT should be zero or 1 or 13 or 17 ..., not %u", wct);
-
-      proto_tree_add_text(tree, NullTVB, offset, END_OF_FRAME, "Data");
-
-      return;
-    }
-  }
-
-  if (tree) {
-
-    proto_tree_add_text(tree, NullTVB, offset, 1, "Word Count (WCT): %d", wct);
-
-  }
-
-  offset += 1; 
-
-  if (!si.request && wct == 0) {
-
-    /* Build display for: Byte Count (BCC) */
-
-    bcc = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", bcc);
-
-    }
-
-    offset += 2; /* Skip Byte Count (BCC) */
-
-    return;
-
-  }
-
-  /* Now decode the various formats ... */
-
-  switch (wct) {
-
-  case 0:     /* A request */
-
-    bcc = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", bcc);
-
-    }
-
-    offset += 2;
-
-    if (tree) {
-
-      ti = proto_tree_add_text(tree, NullTVB, offset, END_OF_FRAME, "Dialects");
-      dialects = proto_item_add_subtree(ti, ett_smb_dialects);
-
-    }
-
-    while (IS_DATA_IN_FRAME(offset)) {
-      const char *str;
-
-      if (tree) {
-
-	proto_tree_add_text(dialects, NullTVB, offset, 1, "Dialect Marker: %d", pd[offset]);
-
-      }
-
-      offset += 1;
-
-      str = pd + offset;
-
-      if (tree) {
-
-	proto_tree_add_text(dialects, NullTVB, offset, strlen(str)+1, "Dialect: %s", str);
-
-      }
-
-      offset += strlen(str) + 1;
-
-    }
-    break;
-
-  case 1:     /* PC NETWORK PROGRAM 1.0 */
-
-    dialect = GSHORT(pd, offset);
-
-    if (tree) {  /* Hmmmm, what if none of the dialects is recognized */
-
-      if (dialect == 0xFFFF) { /* Server didn't like them dialects */
-
-	proto_tree_add_text(tree, NullTVB, offset, 2, "Supplied dialects not recognized");
-
-      }
-      else {
-
-	proto_tree_add_text(tree, NullTVB, offset, 2, "Dialect Index: %u, PC NETWORK PROTGRAM 1.0", dialect);
-
-      }
-
-    }
-
-    offset += 2;
-
-    bcc = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", bcc);
-
-    }
-
-    break;
-
-  case 13:    /* Greater than Core and up to and incl LANMAN2.1  */
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Dialect Index: %u, Greater than CORE PROTOCOL and up to LANMAN2.1", GSHORT(pd, offset));
-
-    }
-
-    /* Much of this is similar to response 17 below */
-
-    offset += 2;
-
-    mode = GSHORT(pd, offset);
-
-    if (tree) {
-
-      ti = proto_tree_add_text(tree, NullTVB, offset, 2, "Security Mode: 0x%04x", mode);
-      mode_tree = proto_item_add_subtree(ti, ett_smb_mode);
-      proto_tree_add_text(mode_tree, NullTVB, offset, 2, "%s",
-			  decode_boolean_bitfield(mode, 0x0001, 16,
-						  "Security  = User",
-						  "Security  = Share"));
-      proto_tree_add_text(mode_tree, NullTVB, offset, 2, "%s",
-			  decode_boolean_bitfield(mode, 0x0002, 16,
-						  "Passwords = Encrypted",
-						  "Passwords = Plaintext"));
-
-    }
-
-    offset += 2;
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Max buffer size:     %u", GSHORT(pd, offset));
-
-    }
-
-    offset += 2;
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Max multiplex count: %u", GSHORT(pd, offset));
-
-    }
-    
-    offset += 2;
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Max vcs:             %u", GSHORT(pd, offset));
-
-    }
-
-    offset += 2;
-
-    rawmode = GSHORT(pd, offset);
-
-    if (tree) {
-
-      ti = proto_tree_add_text(tree, NullTVB, offset, 2, "Raw Mode: 0x%04x", rawmode);
-      rawmode_tree = proto_item_add_subtree(ti, ett_smb_rawmode);
-      proto_tree_add_text(rawmode_tree, NullTVB, offset, 2, "%s",
-			  decode_boolean_bitfield(rawmode, 0x01, 16,
-						  "Read Raw supported",
-						  "Read Raw not supported"));
-      proto_tree_add_text(rawmode_tree, NullTVB, offset, 2, "%s",
-			  decode_boolean_bitfield(rawmode, 0x02, 16,
-						  "Write Raw supported",
-						  "Write Raw not supported"));
-
-    }
-
-    offset += 2;
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 4, "Session key:         %08x", GWORD(pd, offset));
-
-    }
-
-    offset += 4;
-
-    /* Now the server time, two short parameters ... */
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Server Time: %s",
-			dissect_dos_time(GSHORT(pd, offset)));
-      proto_tree_add_text(tree, NullTVB, offset + 2, 2, "Server Date: %s",
-			dissect_dos_date(GSHORT(pd, offset + 2)));
-
-    }
-
-    offset += 4;
-
-    /* Server Time Zone, SHORT */
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Server time zone: %i min from UTC",
-			  (signed short)GSSHORT(pd, offset));
-
-    }
-
-    offset += 2;
-
-    /* Challenge Length */
-
-    enckeylen = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Challenge Length: %u", enckeylen);
-
-    }
-
-    offset += 2;
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Reserved: %u (MBZ)", GSHORT(pd, offset));
-
-    }
-
-    offset += 2;
-
-    bcc = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Byte Count (BCC): %u", bcc);
-
-    }
-
-    offset += 2;
-
-    if (enckeylen) { /* only if non-zero key len */
-
-      str = pd + offset;
-
-      if (tree) {
-
-	proto_tree_add_text(tree, NullTVB, offset, enckeylen, "Challenge: %s",
-				bytes_to_str(str, enckeylen));
-      }
-
-      offset += enckeylen;
-
-    }
-
-    /* Primary Domain ... */
-
-    str = pd + offset;
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, strlen(str)+1, "Primary Domain: %s", str);
-
-    }
-
-    break;
-
-  case 17:    /* Greater than LANMAN2.1 */
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Dialect Index: %u, Greater than LANMAN2.1", GSHORT(pd, offset));
-
-    }
-
-    offset += 2;
-
-    mode = GBYTE(pd, offset);
-
-    if (tree) {
-
-      ti = proto_tree_add_text(tree, NullTVB, offset, 1, "Security Mode: 0x%02x", mode);
-      mode_tree = proto_item_add_subtree(ti, ett_smb_mode);
-      proto_tree_add_text(mode_tree, NullTVB, offset, 1, "%s",
-			  decode_boolean_bitfield(mode, 0x01, 8,
-						  "Security  = User",
-						  "Security  = Share"));
-      proto_tree_add_text(mode_tree, NullTVB, offset, 1, "%s",
-			  decode_boolean_bitfield(mode, 0x02, 8,
-						  "Passwords = Encrypted",
-						  "Passwords = Plaintext"));
-      proto_tree_add_text(mode_tree, NullTVB, offset, 1, "%s",
-			  decode_boolean_bitfield(mode, 0x04, 8,
-						  "Security signatures enabled",
-						  "Security signatures not enabled"));
-      proto_tree_add_text(mode_tree, NullTVB, offset, 1, "%s",
-			  decode_boolean_bitfield(mode, 0x08, 8,
-						  "Security signatures required",
-						  "Security signatures not required"));
-
-    }
-
-    offset += 1;
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Max multiplex count: %u", GSHORT(pd, offset));
-
-    }
-    
-    offset += 2;
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Max vcs:             %u", GSHORT(pd, offset));
-
-    }
-
-    offset += 2;
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Max buffer size:     %u", GWORD(pd, offset));
-
-    }
-
-    offset += 4;
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 4, "Max raw size:        %u", GWORD(pd, offset));
-
-    }
-
-    offset += 4;
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 4, "Session key:         %08x", GWORD(pd, offset));
-
-    }
-
-    offset += 4;
-
-    caps = GWORD(pd, offset);
-
-    if (tree) {
-
-      ti = proto_tree_add_text(tree, NullTVB, offset, 4, "Capabilities: 0x%04x", caps);
-      caps_tree = proto_item_add_subtree(ti, ett_smb_capabilities);
-      proto_tree_add_text(caps_tree, NullTVB, offset, 4, "%s",
-			  decode_boolean_bitfield(caps, 0x0001, 32,
-						  "Raw Mode supported",
-						  "Raw Mode not supported"));
-      proto_tree_add_text(caps_tree, NullTVB, offset, 4, "%s",
-			  decode_boolean_bitfield(caps, 0x0002, 32,
-						  "MPX Mode supported",
-						  "MPX Mode not supported"));
-      proto_tree_add_text(caps_tree, NullTVB, offset, 4, "%s",
-			  decode_boolean_bitfield(caps, 0x0004, 32,
-						  "Unicode supported",
-						  "Unicode not supported"));
-      proto_tree_add_text(caps_tree, NullTVB, offset, 4, "%s",
-			  decode_boolean_bitfield(caps, 0x0008, 32,
-						  "Large files supported",
-						  "Large files not supported"));
-      proto_tree_add_text(caps_tree, NullTVB, offset, 4, "%s",
-			  decode_boolean_bitfield(caps, 0x0010, 32, 
-						  "NT LM 0.12 SMBs supported",
-						  "NT LM 0.12 SMBs not supported"));
-      proto_tree_add_text(caps_tree, NullTVB, offset, 4, "%s",
-			  decode_boolean_bitfield(caps, 0x0020, 32,
-						  "RPC remote APIs supported",
-						  "RPC remote APIs not supported"));
-      proto_tree_add_text(caps_tree, NullTVB, offset, 4, "%s",
-			  decode_boolean_bitfield(caps, 0x0040, 32,
-						  "NT status codes supported",
-						  "NT status codes  not supported"));
-      proto_tree_add_text(caps_tree, NullTVB, offset, 4, "%s",
-			  decode_boolean_bitfield(caps, 0x0080, 32,
-						  "Level 2 OpLocks supported",
-						  "Level 2 OpLocks not supported"));
-      proto_tree_add_text(caps_tree, NullTVB, offset, 4, "%s",
-			  decode_boolean_bitfield(caps, 0x0100, 32,
-						  "Lock&Read supported",
-						  "Lock&Read not supported"));
-      proto_tree_add_text(caps_tree, NullTVB, offset, 4, "%s",
-			  decode_boolean_bitfield(caps, 0x0200, 32,
-						  "NT Find supported",
-						  "NT Find not supported"));
-      proto_tree_add_text(caps_tree, NullTVB, offset, 4, "%s",
-			  decode_boolean_bitfield(caps, 0x1000, 32,
-						  "DFS supported",
-						  "DFS not supported"));
-      proto_tree_add_text(caps_tree, NullTVB, offset, 4, "%s",
-			  decode_boolean_bitfield(caps, 0x4000, 32,
-						  "Large READX supported",
-						  "Large READX not supported"));
-      proto_tree_add_text(caps_tree, NullTVB, offset, 4, "%s",
-			  decode_boolean_bitfield(caps, 0x8000, 32,
-						  "Large WRITEX supported",
-						  "Large WRITEX not supported"));
-      proto_tree_add_text(caps_tree, NullTVB, offset, 4, "%s",
-			  decode_boolean_bitfield(caps, 0x80000000, 32,
-						  "Extended security exchanges supported",
-						  "Extended security exchanges not supported"));
-    }
-
-    offset += 4;
-
-    /* Server time, 2 WORDS */
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 4, "System Time Low: 0x%08x", GWORD(pd, offset));
-      proto_tree_add_text(tree, NullTVB, offset + 4, 4, "System Time High: 0x%08x", GWORD(pd, offset + 4)); 
-
-    }
-
-    offset += 8;
-
-    /* Server Time Zone, SHORT */
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Server time zone: %i min from UTC",
-			  (signed short)GSSHORT(pd, offset));
-
-    }
-
-    offset += 2;
-
-    /* Encryption key len */
-
-    enckeylen = pd[offset];
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Encryption key len: %u", enckeylen);
-
-    }
-
-    offset += 1;
-
-    bcc = GSHORT(pd, offset);
-
-    if (tree) {
-
-      proto_tree_add_text(tree, NullTVB, offset, 2, "Byte count (BCC): %u", bcc);
-
-    }
-
-    offset += 2;
-
-    if (caps & 0x80000000) {
-      /* Extended security */
-
-      /* GUID */
-
-      if (tree) {
-
-	/* XXX - show it in GUID form, with dashes or whatever */
-	proto_tree_add_text(tree, NullTVB, offset, 16, "GUID: %s",
-				bytes_to_str(&pd[offset], 16));
-
-      }
-
-      offset += 16;
-
-      /* Security blob */
-      /* XXX - is this ASN.1-encoded?  Is it a Kerberos data structure,
-	 at least in NT 5.0-and-later server replies? */
-
-      if (bcc > 16) {
-	bcc -= 16;
-
-	if (tree) {
-
-	  proto_tree_add_text(tree, NullTVB, offset, bcc, "Security blob: %s",
-				bytes_to_str(&pd[offset], bcc));
-
-	}
-      }
-    } else {
-      /* Non-extended security */
-
-      if (enckeylen) { /* only if non-zero key len */
-
-	/* Encryption challenge key */
-
-	str = pd + offset;
-
-	if (tree) {
-
-	  proto_tree_add_text(tree, NullTVB, offset, enckeylen, "Challenge encryption key: %s",
-				bytes_to_str(str, enckeylen));
-
-	}
-
-	offset += enckeylen;
-
-      }
-
-      /* The domain, a null terminated string; Unicode if "caps" has
-	 the 0x0004 bit set, ASCII (OEM character set) otherwise.
-	XXX - for now, we just handle the ISO 8859-1 subset of Unicode. */
-
-      str = pd + offset;
-
-      if (tree) {
-
-	if (caps & 0x0004) {
-	  ustr = unicode_to_str(str, &ustr_len);
-	  proto_tree_add_text(tree, NullTVB, offset, ustr_len+2, "OEM domain name: %s", ustr);
-	} else {
-	  proto_tree_add_text(tree, NullTVB, offset, strlen(str)+1, "OEM domain name: %s", str);
-	}
-
-      }
-    }
-
-    break;
-
-  default:    /* Baddd */
-
-    if (tree)
-      proto_tree_add_text(tree, NullTVB, offset, 1, "Bad format, should never get here");
-    return;
-
-  }
-
-}
 
 void
 dissect_deletedir_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset)
@@ -11601,7 +11803,7 @@ static void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, pro
   dissect_unknown_smb,      /* unknown SMB 0x6f */
   dissect_treecon_smb,      /* SMBtcon tree connect */
   dissect_tdis_smb,         /* SMBtdis tree disconnect */
-  dissect_negprot_smb,      /* SMBnegprot negotiate a protocol */
+  dissect_unknown_smb,
   dissect_ssetup_andx_smb,  /* SMBsesssetupX Session Set Up & X (including User Logon) */
   dissect_logoff_andx_smb,  /* SMBlogof Logoff & X */
   dissect_tcon_andx_smb,    /* SMBtconX tree connect and X */
@@ -12976,12 +13178,6 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		sip->mid);
 	offset += 2;
 
-
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_set_str(pinfo->fd, COL_INFO, 
-			(sip->request)? "Request  ":"Response ");
-	}
-
 	if(smb_dissector[sip->cmd].request){ 
 	  /* call smb command dissector */
 	  pinfo->private_data = sip;
@@ -12992,8 +13188,9 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	  tvb_compat(tvb, &pd, &SMB_offset);
 	  offset += SMB_offset;
 	  if (check_col(pinfo->fd, COL_INFO)) {
-	    col_append_fstr(pinfo->fd, COL_INFO, "%s ",
-			    decode_smb_name(sip->cmd));
+	    col_add_fstr(pinfo->fd, COL_INFO, "%s %s",
+			 decode_smb_name(sip->cmd),
+			 (sip->request)? "Request" : "Response");
 	  }
 	  (dissect[sip->cmd])(pd, offset, pinfo->fd, parent_tree, tree, si,
 			      tvb_length(tvb), SMB_offset);
@@ -13023,6 +13220,14 @@ proto_register_smb(void)
 	{ &hf_smb_cmd,
 		{ "SMB Command", "smb.cmd", FT_UINT8, BASE_HEX,
 		VALS(smb_cmd_vals), 0x0, "SMB Command", HFILL }},
+
+	{ &hf_smb_word_count,
+		{ "Word Count (WCT)", "smb.wct", FT_UINT8, BASE_DEC,
+		NULL, 0x0, "Word Count, count of parameter words", HFILL }},
+
+	{ &hf_smb_byte_count,
+		{ "Byte Count (BCC)", "smb.bcc", FT_UINT16, BASE_DEC,
+		NULL, 0x0, "Byte Count, count of data bytes", HFILL }},
 
 	{ &hf_smb_response_to,
 		{ "Response to", "smb.response_to", FT_UINT32, BASE_DEC,
@@ -13118,11 +13323,195 @@ proto_register_smb(void)
 
 	{ &hf_smb_flags2_nt_error,
 		{ "", "smb.flags2.error", FT_BOOLEAN, 16,
-		TFS(&tfs_smb_flags2_nt_error), 0x4000, "Are errorcodes NT or DOS format?", HFILL }},
+		TFS(&tfs_smb_flags2_nt_error), 0x4000, "Are error codes NT or DOS format?", HFILL }},
 
 	{ &hf_smb_flags2_string,
 		{ "", "smb.flags2.string", FT_BOOLEAN, 16,
 		TFS(&tfs_smb_flags2_string), 0x8000, "Are strings ASCII or UNICODE?", HFILL }},
+
+	{ &hf_smb_buffer_format,
+		{ "Buffer Format", "smb.buffer_format", FT_UINT8, BASE_DEC,
+		VALS(buffer_format_vals), 0x0, "Buffer Format, type of buffer", HFILL }},
+
+	{ &hf_smb_dialect_name,
+		{ "Name", "smb.dialect.name", FT_STRING, BASE_NONE,
+		NULL, 0, "Name of dialect", HFILL }},
+
+	{ &hf_smb_dialect_index,
+		{ "Selected Index", "smb.dialect.index", FT_UINT16, BASE_DEC,
+		NULL, 0, "Index of selected dialect", HFILL }},
+
+	{ &hf_smb_max_trans_buf_size,
+		{ "Max Buffer Size", "smb.max_bufsize", FT_UINT32, BASE_DEC,
+		NULL, 0, "Maximum transmit buffer size", HFILL }},
+
+	{ &hf_smb_max_mpx_count,
+		{ "Max Mpx Count", "smb.max_mpx_count", FT_UINT16, BASE_DEC,
+		NULL, 0, "Maximum pending multiplexed requests", HFILL }},
+
+	{ &hf_smb_max_vcs_num,
+		{ "Max VCs", "smb.max_vcs", FT_UINT16, BASE_DEC,
+		NULL, 0, "Maximum VCs between client and server", HFILL }},
+
+	{ &hf_smb_session_key,
+		{ "Session Key", "smb.session_key", FT_UINT32, BASE_HEX,
+		NULL, 0, "Unique token identifying this session", HFILL }},
+
+	{ &hf_smb_server_timezone,
+		{ "Time Zone", "smb.server.timezone", FT_INT16, BASE_DEC,
+		NULL, 0, "Current timezone at server.", HFILL }},
+
+	{ &hf_smb_encryption_key_length,
+		{ "Key Length", "smb.encryption_key_length", FT_UINT16, BASE_DEC,
+		NULL, 0, "Encryption key length (must be 0 if not LM2.1 dialect)", HFILL }},
+
+	{ &hf_smb_encryption_key,
+		{ "Encryption Key", "smb.encryption_key", FT_BYTES, BASE_HEX,
+		NULL, 0, "Challenge/Response Encryption Key (for LM2.1 dialect)", HFILL }},
+
+	{ &hf_smb_primary_domain,
+		{ "Primary Domain", "smb.primary_domain", FT_STRING, BASE_NONE,
+		NULL, 0, "The server's primary domain", HFILL }},
+
+	{ &hf_smb_max_raw_buf_size,
+		{ "Max Raw Buffer", "smb.max_raw", FT_UINT32, BASE_DEC,
+		NULL, 0, "Maximum raw buffer size", HFILL }},
+
+	{ &hf_smb_server_guid,
+		{ "Server GUID", "smb.server.guid", FT_BYTES, BASE_HEX,
+		NULL, 0, "Globally unique identifier for this server", HFILL }},
+
+	{ &hf_smb_security_blob,
+		{ "Security Blob", "smb.security.blob", FT_BYTES, BASE_HEX,
+		NULL, 0, "Security blob", HFILL }},
+
+	{ &hf_smb_sm_mode16,
+		{ "Mode", "smb.sm.mode", FT_BOOLEAN, 16,
+		TFS(&tfs_sm_mode), SECURITY_MODE_MODE, "User or Share security mode?", HFILL }},
+
+	{ &hf_smb_sm_password16,
+		{ "Password", "smb.sm.password", FT_BOOLEAN, 16,
+		TFS(&tfs_sm_password), SECURITY_MODE_PASSWORD, "Encrypted or plaintext passwords?", HFILL }},
+
+	{ &hf_smb_sm_mode,
+		{ "Mode", "smb.sm.mode", FT_BOOLEAN, 8,
+		TFS(&tfs_sm_mode), SECURITY_MODE_MODE, "User or Share security mode?", HFILL }},
+
+	{ &hf_smb_sm_password,
+		{ "Password", "smb.sm.password", FT_BOOLEAN, 8,
+		TFS(&tfs_sm_password), SECURITY_MODE_PASSWORD, "Encrypted or plaintext passwords?", HFILL }},
+
+	{ &hf_smb_sm_signatures,
+		{ "Signatures", "smb.sm.signatures", FT_BOOLEAN, 8,
+		TFS(&tfs_sm_signatures), SECURITY_MODE_SIGNATURES, "Are security signatures enabled?", HFILL }},
+
+	{ &hf_smb_sm_sig_required,
+		{ "Sig Req", "smb.sm.sig_required", FT_BOOLEAN, 8,
+		TFS(&tfs_sm_sig_required), SECURITY_MODE_SIG_REQUIRED, "Are security signatures required?", HFILL }},
+
+	{ &hf_smb_rm_read,
+		{ "Read Raw", "smb.rm.read", FT_BOOLEAN, 16,
+		TFS(&tfs_rm_read), RAWMODE_READ, "Is Read Raw supported?", HFILL }},
+
+	{ &hf_smb_rm_write,
+		{ "Write Raw", "smb.rm.write", FT_BOOLEAN, 16,
+		TFS(&tfs_rm_write), RAWMODE_WRITE, "Is Write Raw supported?", HFILL }},
+
+	{ &hf_smb_server_date_time,
+		{ "Server Date and Time", "smb.server_date_time", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "Current date and time at server", HFILL }},
+
+	{ &hf_smb_server_smb_date,
+		{ "Server Date", "smb.server_date_time.smb_date", FT_UINT16, BASE_HEX,
+		NULL, 0, "Current date at server, SMB_DATE format", HFILL }},
+
+	{ &hf_smb_server_smb_time,
+		{ "Server Time", "smb.server_date_time.smb_time", FT_UINT16, BASE_HEX,
+		NULL, 0, "Current time at server, SMB_TIME format", HFILL }},
+
+	{ &hf_smb_server_cap_raw_mode,
+		{ "Raw Mode", "smb.server.cap.raw_mode", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_raw_mode), SERVER_CAP_RAW_MODE, "Are Raw Read and Raw Write supported?", HFILL }},
+
+	{ &hf_smb_server_cap_mpx_mode,
+		{ "MPX Mode", "smb.server.cap.mpx_mode", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_mpx_mode), SERVER_CAP_MPX_MODE, "Are Read Mpx and Write Mpx supported?", HFILL }},
+
+	{ &hf_smb_server_cap_unicode,
+		{ "Unicode", "smb.server.cap.unicode", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_unicode), SERVER_CAP_UNICODE, "Are Unicode strings supported?", HFILL }},
+
+	{ &hf_smb_server_cap_large_files,
+		{ "Large Files", "smb.server.cap.large_files", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_large_files), SERVER_CAP_LARGE_FILES, "Are large files (>4GB) supported?", HFILL }},
+
+	{ &hf_smb_server_cap_nt_smbs,
+		{ "NT SMBs", "smb.server.cap.nt_smbs", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_nt_smbs), SERVER_CAP_NT_SMBS, "Are NT SMBs supported?", HFILL }},
+
+	{ &hf_smb_server_cap_rpc_remote_apis,
+		{ "RPC Remote APIs", "smb.server.cap.rpc_remote_apis", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_rpc_remote_apis), SERVER_CAP_RPC_REMOTE_APIS, "Are RPC Remote APIs supported?", HFILL }},
+
+	{ &hf_smb_server_cap_nt_status,
+		{ "NT Status Codes", "smb.server.cap.nt_status", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_nt_status), SERVER_CAP_STATUS32, "Are NT Status Codes supported?", HFILL }},
+
+	{ &hf_smb_server_cap_level_ii_oplocks,
+		{ "Level 2 Oplocks", "smb.server.cap.level_2_oplocks", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_level_ii_oplocks), SERVER_CAP_LEVEL_II_OPLOCKS, "Are Level 2 oplocks supported?", HFILL }},
+
+	{ &hf_smb_server_cap_lock_and_read,
+		{ "Lock and Read", "smb.server.cap.lock_and_read", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_lock_and_read), SERVER_CAP_LOCK_AND_READ, "Is Lock and Read supported?", HFILL }},
+
+	{ &hf_smb_server_cap_nt_find,
+		{ "NT Find", "smb.server.cap.nt_find", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_nt_find), SERVER_CAP_NT_FIND, "Is NT Find supported?", HFILL }},
+
+	{ &hf_smb_server_cap_dfs,
+		{ "Dfs", "smb.server.cap.dfs", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_dfs), SERVER_CAP_DFS, "Is Dfs supported?", HFILL }},
+
+	{ &hf_smb_server_cap_infolevel_passthru,
+		{ "Infolevel Passthru", "smb.server.cap.infolevel_passthru", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_infolevel_passthru), SERVER_CAP_INFOLEVEL_PASSTHRU, "Is NT information level request passthrough supported?", HFILL }},
+
+	{ &hf_smb_server_cap_large_readx,
+		{ "Large ReadX", "smb.server.cap.large_readx", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_large_readx), SERVER_CAP_LARGE_READX, "Is Large Read andX supported?", HFILL }},
+
+	{ &hf_smb_server_cap_large_writex,
+		{ "Large WriteX", "smb.server.cap.large_writex", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_large_writex), SERVER_CAP_LARGE_WRITEX, "Is Large Write andX supported?", HFILL }},
+
+	{ &hf_smb_server_cap_unix,
+		{ "UNIX", "smb.server.cap.unix", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_unix), SERVER_CAP_UNIX , "Are UNIX extensions supported?", HFILL }},
+
+	{ &hf_smb_server_cap_reserved,
+		{ "Reserved", "smb.server.cap.reserved", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_reserved), SERVER_CAP_RESERVED, "RESERVED", HFILL }},
+
+	{ &hf_smb_server_cap_bulk_transfer,
+		{ "Bulk Transfer", "smb.server.cap.bulk_transfer", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_bulk_transfer), SERVER_CAP_BULK_TRANSFER, "Are Bulk Read and Bulk Write supported?", HFILL }},
+
+	{ &hf_smb_server_cap_compressed_data,
+		{ "Compressed Data", "smb.server.cap.compressed_data", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_compressed_data), SERVER_CAP_COMPRESSED_DATA, "Is compressed data transfer supported?", HFILL }},
+
+	{ &hf_smb_server_cap_extended_security,
+		{ "Extended Security", "smb.server.cap.extended_security", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_extended_security), SERVER_CAP_EXTENDED_SECURITY, "Are Extended security exchanges supported?", HFILL }},
+
+	{ &hf_smb_system_time,
+		{ "System Time", "smb.system.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "System Time", HFILL }},
+
+	{ &hf_smb_unknown,
+		{ "Unknown Data", "smb.unknown", FT_BYTES, BASE_HEX,
+		NULL, 0, "Unknown Data. Should be implemented by someone", HFILL }},
 
 
 	};
@@ -13133,6 +13522,7 @@ proto_register_smb(void)
 		&ett_smb_fileattributes,
 		&ett_smb_capabilities,
 		&ett_smb_aflags,
+		&ett_smb_dialect,
 		&ett_smb_dialects,
 		&ett_smb_mode,
 		&ett_smb_rawmode,
@@ -13148,6 +13538,8 @@ proto_register_smb(void)
 		&ett_smb_lock_type,
 		&ett_smb_ssetupandxaction,
 		&ett_smb_optionsup,
+		&ett_smb_time_date,
+		&ett_smb_64bit_time,
 	};
 
 	proto_smb = proto_register_protocol("SMB (Server Message Block Protocol)",
