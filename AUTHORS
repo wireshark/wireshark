@@ -618,6 +618,13 @@ Juan Toledo <toledo@users.sourceforge.net> {
 	Passive FTP support
 }
 
+Jean-Christian Pennetier <jeanchristian.pennetier@rd.francetelecom.fr> {
+	ISIS IPv6 routing TLV dissection
+	ISIS traffic engineering TLV dissection
+	IS neighbor and IP reachability TLVs given their own subtree
+	types
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

@@ -1,7 +1,7 @@
 /* packet-isis-clv.h
  * Declares for common clv decoding functions.
  *
- * $Id: packet-isis-clv.h,v 1.4 2001/04/16 10:04:30 guy Exp $
+ * $Id: packet-isis-clv.h,v 1.5 2001/05/14 18:40:15 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -53,6 +53,8 @@ extern void isis_dissect_metric(proto_tree *tree, int offset, guint8 value,
 extern void isis_dissect_authentication_clv(const u_char *pd, int offset, 
 		guint length, frame_data *fd, proto_tree *tree, char *meaning);
 extern void isis_dissect_ip_int_clv(const u_char *pd, int offset,
+		guint length, frame_data *fd, proto_tree *tree, gint tree_id );
+extern void isis_dissect_ipv6_int_clv(const u_char *pd, int offset,
 		guint length, frame_data *fd, proto_tree *tree, gint tree_id );
 extern void isis_dissect_nlpid_clv(const u_char *pd, int offset, 
 		guint length, frame_data *fd, proto_tree *tree );

@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.10 2001/04/16 10:04:30 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.11 2001/05/14 18:40:15 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -263,6 +263,49 @@ isis_dissect_ip_int_clv(const u_char *pd, int offset,
 	}
 }
 
+/*
+ * Name: isis_dissect_ipv6_int_clv()
+ * 
+ * Description:
+ *	Take apart the CLV that lists all the IPv6 interfaces.  The
+ *	meaning of which is slightly different for the different base packet
+ *	types, but the display is not different.  What we have is n ip
+ *	addresses, plain and simple.
+ *
+ * Input:
+ *	u_char * : packet data
+ *	int : offset into packet data where we are.
+ *	guint : length of clv we are decoding
+ *	frame_data * : frame data (complete frame)
+ *	proto_tree * : protocol display tree to fill out.  May be NULL
+ *	gint : tree id to use for proto tree.
+ * 
+ * Output:
+ *	void, but we will add to proto tree if !NULL.
+ */
+void 
+isis_dissect_ipv6_int_clv(const u_char *pd, int offset, 
+		guint length, frame_data *fd, proto_tree *tree, gint tree_id ) {
+	guint8 addr [16];
+
+	if ( length <= 0 ) {
+		return;
+	}
+
+	while ( length > 0 ) {
+		if ( length < 16 ) {
+			isis_dissect_unknown(offset, length, tree, fd,
+				"Short IPv6 interface address (%d vs 16)",length );
+			return;
+		}
+		memcpy(addr, &pd[offset], sizeof(addr));
+		if ( tree ) {
+			proto_tree_add_ipv6(tree, tree_id, NullTVB, offset, 16, addr);
+		}
+		offset += 16;
+		length -= 16;
+	}
+}
 
 /*
  * Name: isis_dissect_te_router_id_clv()

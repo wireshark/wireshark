@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.12 2001/04/16 10:04:30 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.13 2001/05/14 18:40:15 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -44,6 +44,7 @@
 
 #include "packet.h"
 #include "packet-osi.h"
+#include "packet-ipv6.h"
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
 #include "packet-isis-lsp.h"
@@ -56,11 +57,16 @@ static int hf_isis_lsp_remaining_life = -1;
 static int hf_isis_lsp_sequence_number = -1;
 static int hf_isis_lsp_checksum = -1;
 static int hf_isis_lsp_clv_ipv4_int_addr = -1;
+static int hf_isis_lsp_clv_ipv6_int_addr = -1;
 static int hf_isis_lsp_clv_te_router_id = -1;
 
 static gint ett_isis_lsp = -1;
 static gint ett_isis_lsp_clv_area_addr = -1;
 static gint ett_isis_lsp_clv_is_neighbors = -1;
+static gint ett_isis_lsp_clv_ext_is_reachability = -1; /* CLV 22 */
+	static gint ett_isis_lsp_part_of_clv_ext_is_reachability = -1;
+	static gint ett_isis_lsp_subclv_admin_group = -1;
+	static gint ett_isis_lsp_subclv_unrsv_bw = -1;
 static gint ett_isis_lsp_clv_unknown = -1;
 static gint ett_isis_lsp_clv_partition_dis = -1;
 static gint ett_isis_lsp_clv_prefix_neighbors = -1;
@@ -69,7 +75,12 @@ static gint ett_isis_lsp_clv_hostname = -1;
 static gint ett_isis_lsp_clv_te_router_id = -1;
 static gint ett_isis_lsp_clv_auth = -1;
 static gint ett_isis_lsp_clv_ipv4_int_addr = -1;
+static gint ett_isis_lsp_clv_ipv6_int_addr = -1; /* CLV 232 */
 static gint ett_isis_lsp_clv_ip_reachability = -1;
+static gint ett_isis_lsp_clv_ext_ip_reachability = -1; /* CLV 135 */
+	static gint ett_isis_lsp_part_of_clv_ext_ip_reachability = -1;
+static gint ett_isis_lsp_clv_ipv6_reachability = -1; /* CLV 236 */
+	static gint ett_isis_lsp_part_of_clv_ipv6_reachability = -1;
 
 static const char *isis_lsp_attached_bits[] = {
 	"error", "expense", "delay", "default" };
@@ -92,11 +103,17 @@ static void dissect_lsp_l1_es_neighbors_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_l2_is_neighbors_clv(const u_char *pd, int offset, 
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
+static void dissect_lsp_ext_is_reachability_clv(const u_char *pd, int offset, 
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_partition_dis_clv(const u_char *pd, int offset, 
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_prefix_neighbors_clv(const u_char *pd, int offset, 
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_ip_reachability_clv(const u_char *pd, int offset,
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
+static void dissect_lsp_ext_ip_reachability_clv(const u_char *pd, int offset,
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
+static void dissect_lsp_ipv6_reachability_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_nlpid_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
@@ -105,6 +122,8 @@ static void dissect_lsp_hostname_clv(const u_char *pd, int offset,
 static void dissect_lsp_te_router_id_clv(const u_char *pd, int offset,
                 guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_ip_int_addr_clv(const u_char *pd, int offset,
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
+static void dissect_lsp_ipv6_int_addr_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_lsp_l1_auth_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
@@ -131,10 +150,28 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 		dissect_lsp_l1_es_neighbors_clv
 	},
 	{
+		ISIS_CLV_L1_LSP_EXT_IS_REACHABLE,
+		"Extended IS reachability",
+		&ett_isis_lsp_clv_ext_is_reachability,
+		dissect_lsp_ext_is_reachability_clv
+	},
+	{
 		ISIS_CLV_L1_LSP_IP_INT_REACHABLE,
 		"IP Internal reachability",
 		&ett_isis_lsp_clv_ip_reachability,
 		dissect_lsp_ip_reachability_clv
+	},
+	{
+		ISIS_CLV_L1_LSP_EXT_IP_REACHABLE,
+		"Extended IP Reachability",
+		&ett_isis_lsp_clv_ext_ip_reachability,
+		dissect_lsp_ext_ip_reachability_clv
+	},
+	{
+		ISIS_CLV_L1_LSP_IPv6_REACHABLE,
+		"IPv6 reachability",
+		&ett_isis_lsp_clv_ipv6_reachability,
+		dissect_lsp_ipv6_reachability_clv
 	},
 	{
 		ISIS_CLV_L1_LSP_NLPID,
@@ -159,6 +196,12 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
 		"IP Interface address(es)",
 		&ett_isis_lsp_clv_ipv4_int_addr,
 		dissect_lsp_ip_int_addr_clv
+	},
+	{
+		ISIS_CLV_L1_LSP_IPv6_INTERFACE_ADDR,
+		"IPv6 Interface address(es)",
+		&ett_isis_lsp_clv_ipv6_int_addr,
+		dissect_lsp_ipv6_int_addr_clv
 	},
 	{
 		ISIS_CLV_L1_LSP_AUTHENTICATION_NS,
@@ -192,6 +235,12 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
 		"IS Neighbor(s)",
 		&ett_isis_lsp_clv_is_neighbors,
 		dissect_lsp_l2_is_neighbors_clv
+	},
+	{
+		ISIS_CLV_L2_LSP_EXT_IS_REACHABLE,
+		"Extended IS reachability",
+		&ett_isis_lsp_clv_ext_is_reachability,
+		dissect_lsp_ext_is_reachability_clv
 	},
 	{
 		ISIS_CLV_L2_LSP_PARTITION_DIS,
@@ -236,10 +285,28 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
 		dissect_lsp_ip_reachability_clv
 	},
 	{
+		ISIS_CLV_L2_LSP_EXT_IP_REACHABLE,
+		"Extended IP Reachability",
+		&ett_isis_lsp_clv_ext_ip_reachability,
+		dissect_lsp_ext_ip_reachability_clv
+	},
+	{
+		ISIS_CLV_L2_LSP_IPv6_REACHABLE,
+		"IPv6 reachability",
+		&ett_isis_lsp_clv_ipv6_reachability,
+		dissect_lsp_ipv6_reachability_clv
+	},
+	{
 		ISIS_CLV_L2_LSP_IP_INTERFACE_ADDR,
 		"IP Interface address(es)",
 		&ett_isis_lsp_clv_ipv4_int_addr,
 		dissect_lsp_ip_int_addr_clv
+	},
+	{
+		ISIS_CLV_L2_LSP_IPv6_INTERFACE_ADDR,
+		"IPv6 Interface address(es)",
+		&ett_isis_lsp_clv_ipv6_int_addr,
+		dissect_lsp_ipv6_int_addr_clv
 	},
 	{
 		ISIS_CLV_L2_LSP_AUTHENTICATION_NS,
@@ -308,7 +375,7 @@ dissect_metric(proto_tree *tree, int offset, guint8 value,
 	
 
 /*
- * Name: dissect_lsp_ip_reachabillityclv()
+ * Name: dissect_lsp_ip_reachabillity_clv()
  *
  * Description:
  *	Decode an IP reachability CLV.  This can be either internal or
@@ -365,6 +432,140 @@ dissect_lsp_ip_reachability_clv(const u_char *pd, int offset,
 		length -= 12;
 	}
 }
+
+/*
+ * Name: dissect_lsp_ext_ip_reachability_clv()
+ *
+ * Description: Decode an Extended IP Reachability CLV - code 135.
+ *
+ *   The extended IP reachability TLV is an extended version
+ *   of the IP reachability TLVs (codes 128 and 130). It encodes 
+ *   the metric as a 32-bit unsigned interger and allows to add 
+ *   sub-CLV(s).
+ *
+ * Input:
+ *   u_char * : packet data
+ *   int : current offset into packet data
+ *   guint : length of this clv
+ *   int : length of IDs in packet.
+ *   frame_data * : frame data
+ *   proto_tree * : proto tree to build on (may be null)
+ *
+ * Output:
+ *   void, will modify proto_tree if not null.
+ */
+static void 
+dissect_lsp_ext_ip_reachability_clv(const u_char *pd, int offset, 
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
+	proto_item *pi = NULL;
+	proto_tree *subtree = NULL;
+	guint8     ctrl_info;
+	guint8     bit_length, byte_length;
+	guint8     prefix [4];
+	guint8     len;
+
+	if (!tree) return;
+
+	while (length > 0) {
+		memset (prefix, 0, 4);
+		ctrl_info = pd[offset+4];
+		bit_length = ctrl_info & 0x3f;
+		byte_length = (bit_length + 7) / 8;
+		memcpy (prefix, &pd[offset+5], byte_length);
+		pi = proto_tree_add_text (tree, NullTVB, offset, 0,
+			"IPv4 prefix: %s /%d", 
+			ip_to_str (prefix),
+			bit_length );
+		subtree = proto_item_add_subtree (pi, 
+			ett_isis_lsp_part_of_clv_ext_ip_reachability);
+
+		proto_tree_add_text (subtree, NullTVB, offset, 4,
+			"Metric: %d", pntohl (&pd[offset]) );
+
+		proto_tree_add_text (subtree, NullTVB, offset+4, 1,
+			"Distribution: %s",
+			((ctrl_info & 0x80) == 0) ? "up" : "down" );
+
+		proto_tree_add_text (subtree, NullTVB, offset+4, 1,
+			"Sub_CLV(s): %s",
+			((ctrl_info & 0x40) == 0) ? "no" : "yes" );
+
+		len = 5 + byte_length;
+		if ((ctrl_info & 0x40) != 0)
+			len += 1 + pd[offset+len] ;
+		proto_item_set_len (pi, len);
+		offset += len;
+		length -= len;
+	}
+}
+
+/*
+ * Name: dissect_lsp_ipv6_reachability_clv()
+ *
+ * Description: Decode an IPv6 reachability CLV - code 236.
+ *
+ * Input:
+ *   u_char * : packet data
+ *   int : current offset into packet data
+ *   guint : length of this clv
+ *   int : length of IDs in packet.
+ *   frame_data * : frame data
+ *   proto_tree * : proto tree to build on (may be null)
+ *
+ * Output:
+ *   void, will modify proto_tree if not null.
+ */
+static void 
+dissect_lsp_ipv6_reachability_clv(const u_char *pd, int offset, 
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
+	proto_item        *ti;
+	proto_tree        *ntree = NULL;
+	guint8            bit_length, byte_length;
+	struct e_in6_addr prefix;
+	guint8            ctrl_info;
+	guint32           metric;
+	guint8            len;
+
+	if (!tree) return;
+	
+	memset (prefix.s6_addr, 0, 16);
+
+	while (length > 0) {
+		bit_length = pd[offset+5];
+		byte_length = (bit_length + 7) / 8;
+		memcpy (prefix.s6_addr, &pd[offset+6], byte_length);
+		ti = proto_tree_add_text (tree, NullTVB, offset, 0,
+			"IP prefix: %s /%d", 
+			ip6_to_str (&prefix),
+			bit_length );
+		ntree = proto_item_add_subtree (ti, ett_isis_lsp_part_of_clv_ipv6_reachability);
+
+		metric = pntohl (&pd[offset]);
+		proto_tree_add_text (ntree, NullTVB, offset, 4,
+			"Metric: %d", metric);
+
+		ctrl_info = pd[offset+4];
+		proto_tree_add_text (ntree, NullTVB, offset+4, 1,
+			"Distribution: %s, %s",
+			((ctrl_info & 0x80) == 0) ? "up" : "down",
+			((ctrl_info & 0x40) == 0) ? "internal" : "external" );
+
+		proto_tree_add_text (ntree, NullTVB, offset+4, 1,
+			"Reserved bits: 0x%x",
+			(ctrl_info & 0x1f) );
+		proto_tree_add_text (ntree, NullTVB, offset+4, 1,
+			"Sub_CLV(s): %s",
+			((ctrl_info & 0x20) == 0) ? "no" : "yes" );
+
+		len = 6 + byte_length;
+		if ((ctrl_info & 0x20) != 0)
+			len += 1 + pd[offset+len] ;
+		proto_item_set_len (ti, len);
+		offset += len;
+		length -= len;
+	}
+}
+
 /*
  * Name: dissect_lsp_nlpid_clv()
  *
@@ -465,6 +666,31 @@ dissect_lsp_ip_int_addr_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	isis_dissect_ip_int_clv(pd, offset, length, fd, tree, 
 		hf_isis_lsp_clv_ipv4_int_addr );
+}
+
+/*
+ * Name: dissect_lsp_ipv6_int_addr_clv()
+ *
+ * Description: Decode an IPv6 interface addr CLV - code 232.
+ *
+ *   Calls into the clv common one.
+ *
+ * Input:
+ *   u_char * : packet data
+ *   int : current offset into packet data
+ *   guint : length of this clv
+ *   int : length of IDs in packet.
+ *   frame_data * : frame data
+ *   proto_tree * : proto tree to build on (may be null)
+ *
+ * Output:
+ *   void, will modify proto_tree if not null.
+ */
+static void 
+dissect_lsp_ipv6_int_addr_clv(const u_char *pd, int offset, 
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
+	isis_dissect_ipv6_int_clv(pd, offset, length, fd, tree, 
+		hf_isis_lsp_clv_ipv6_int_addr );
 }
 
 /*
@@ -708,6 +934,233 @@ dissect_lsp_l2_is_neighbors_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	dissect_lsp_eis_neighbors_clv_inner(pd, offset, length, id_length,
 		fd, tree, FALSE, FALSE);
+}
+
+/*
+ * Name: dissect_subclv_admin_group ()
+ *
+ * Description: Called by function dissect_lsp_ext_is_reachability_clv().
+ *
+ *   This function is called by dissect_lsp_ext_is_reachability_clv()
+ *   for dissect the administrive group sub-CLV (code 3).
+ *
+ * Input:
+ *   u_char * : packet data
+ *   int : offset into packet data where we are (beginning of the sub_clv value).
+ *   proto_tree * : protocol display tree to fill out.
+ *
+ * Output:
+ *   void
+ */
+static void
+dissect_subclv_admin_group (const u_char *pd, int offset, proto_tree  *tree) {
+	proto_item *ti;
+	proto_tree *ntree;
+	guint32    clv_value;
+	guint32    mask;
+	int        i;
+
+	ti = proto_tree_add_text (tree, NullTVB, offset-2, 6, "Administrative group(s):");
+	ntree = proto_item_add_subtree (ti, ett_isis_lsp_subclv_admin_group);
+
+	clv_value = pntohl (&pd[offset]);
+	mask = 1;
+	for (i = 0 ; i < 32 ; i++) {
+		if ( (clv_value & mask) != 0 ) {
+			proto_tree_add_text (ntree, NullTVB, offset, 4, "group %d", i);
+		}
+		mask <<= 1;
+	}
+}
+
+/*
+ * Name: dissect_subclv_max_bw ()
+ *
+ * Description: Called by function dissect_lsp_ext_is_reachability_clv().
+ *
+ *   This function is called by dissect_lsp_ext_is_reachability_clv()
+ *   for dissect the maximum link bandwidth sub-CLV (code 9).
+ *
+ * Input:
+ *   u_char * : packet data
+ *   int : offset into packet data where we are (beginning of the sub_clv value).
+ *   proto_tree * : protocol display tree to fill out.
+ *
+ * Output:
+ *   void
+ */
+static void
+dissect_subclv_max_bw (const u_char *pd, int offset, proto_tree *tree) {
+	guint32 ui;
+	gfloat  bw;
+
+	ui = pntohl (&pd[offset]);
+	memcpy (&bw, &ui, 4);
+	proto_tree_add_text (tree, NullTVB, offset-2, 6,
+		"Maximum link bandwidth : %f bytes/second", bw );
+}
+
+/*
+ * Name: dissect_subclv_rsv_bw ()
+ *
+ * Description: Called by function dissect_lsp_ext_is_reachability_clv().
+ *
+ *   This function is called by dissect_lsp_ext_is_reachability_clv()
+ *   for dissect the reservable link bandwidth sub-CLV (code 10).
+ *
+ * Input:
+ *   u_char * : packet data
+ *   int : offset into packet data where we are (beginning of the sub_clv value).
+ *   proto_tree * : protocol display tree to fill out.
+ *
+ * Output:
+ *   void
+ */
+static void
+dissect_subclv_rsv_bw (const u_char *pd, int offset, proto_tree *tree) {
+	guint32 ui;
+	gfloat  bw;
+
+	ui = pntohl (&pd[offset]);
+	memcpy (&bw, &ui, 4);
+	proto_tree_add_text (tree, NullTVB, offset-2, 6,
+		"Reservable link bandwidth: %f bytes/second", bw );
+}
+
+/*
+ * Name: dissect_subclv_unrsv_bw ()
+ *
+ * Description: Called by function dissect_lsp_ext_is_reachability_clv().
+ *
+ *   This function is called by dissect_lsp_ext_is_reachability_clv()
+ *   for dissect the unreserved bandwidth sub-CLV (code 11).
+ *
+ * Input:
+ *   u_char * : packet data
+ *   int : offset into packet data where we are (beginning of the sub_clv value).
+ *   proto_tree * : protocol display tree to fill out.
+ *
+ * Output:
+ *   void
+ */
+static void
+dissect_subclv_unrsv_bw (const u_char *pd, int offset, proto_tree *tree) {
+	proto_item *ti;
+	proto_tree *ntree;
+	guint32    ui;
+	gfloat     bw;
+	int        i;
+
+	ti = proto_tree_add_text (tree, NullTVB, offset-2, 34, "Unreserved bandwidth:");
+	ntree = proto_item_add_subtree (ti, ett_isis_lsp_subclv_unrsv_bw);
+
+	for (i = 0 ; i < 8 ; i++) {
+		ui = pntohl (&pd[offset]);
+		memcpy (&bw, &ui, 4);
+		proto_tree_add_text (ntree, NullTVB, offset+4*i, 4,
+			"priority level %d: %f bytes/second", i, bw );
+	}
+}
+
+/*
+ * Name: dissect_lsp_ext_is_reachability_clv()
+ *
+ * Description: Decode a Extended IS Reachability CLV - code 22
+ *
+ *   The extended IS reachability TLV is an extended version
+ *   of the IS reachability TLV (code 2). It encodes the metric
+ *   as a 24-bit unsigned interger and allows to add sub-CLV(s).
+ *
+ * Input:
+ *   u_char * : packet data
+ *   int : offset into packet data where we are.
+ *   guint : length of clv we are decoding
+ *   int : length of IDs in packet.
+ *   frame_data * : frame data (complete frame)
+ *   proto_tree * : protocol display tree to fill out.  May be NULL
+ *
+ * Output:
+ *   void, but we will add to proto tree if !NULL.
+ */
+static void 
+dissect_lsp_ext_is_reachability_clv(const u_char *pd, int offset, 
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
+	proto_item *ti;
+	proto_tree *ntree = NULL;
+	guint8     subclvs_len;
+	guint8     len, i;
+	guint8     clv_code, clv_len;
+
+	if (!tree) return;
+
+	while (length > 0) {
+		ti = proto_tree_add_text (tree, NullTVB, offset, 0,
+			"IS neighbor: %s",
+			print_system_id (&pd[offset], 7) );
+		ntree = proto_item_add_subtree (ti, 
+			ett_isis_lsp_part_of_clv_ext_is_reachability );
+		
+		proto_tree_add_text (ntree, NullTVB, offset+7, 3,
+			"Metric: %d", pntoh24 (&pd[offset+7]) );
+
+		subclvs_len = pd[offset+10];
+		if (subclvs_len == 0) {
+			proto_tree_add_text (ntree, NullTVB, offset+10, 1, "No sub-CLV");
+		}
+		else {
+			i = 0;
+			while (i < subclvs_len) {
+				clv_code = pd[offset+11+i];
+				clv_len  = pd[offset+12+i];
+				switch (clv_code) {
+				case 3 :
+					dissect_subclv_admin_group (pd, offset+13+i, ntree);
+					break;
+				case 6 :
+					proto_tree_add_text (ntree, NullTVB, offset+11+i, 6,
+						"IPv4 interface address: %s", ip_to_str (&pd[offset+13+i]) );
+					break;
+				case 8 :
+					proto_tree_add_text (ntree, NullTVB, offset+11+i, 6,
+						"IPv4 neighbor address: %s", ip_to_str (&pd[offset+13+i]) );
+					break;
+				case 9 :
+					dissect_subclv_max_bw (pd, offset+13+i, ntree);
+					break;
+				case 10:
+					dissect_subclv_rsv_bw (pd, offset+13+i, ntree);
+					break;
+				case 11:
+					dissect_subclv_unrsv_bw (pd, offset+13+i, ntree);
+					break;
+				case 18:
+					proto_tree_add_text (ntree, NullTVB, offset+11+i, 5,
+						"Traffic engineering default metric: %d", 
+						pntoh24 (&pd[offset+13+i]) );
+					break;
+				case 250:
+				case 251:
+				case 252:
+				case 253:
+				case 254:
+					proto_tree_add_text (ntree, NullTVB, offset+11+i, clv_len+2,
+						"Unknown Cisco specific extensions: code %d, length %d",
+						clv_code, clv_len );
+					break;
+				default :
+					proto_tree_add_text (ntree, NullTVB, offset+11+i, clv_len+2,
+						"Unknown sub-CLV: code %d, length %d", clv_code, clv_len );
+					break;
+				}
+				i += clv_len + 2;
+			}
+		}
+
+		len = 11 + subclvs_len;
+		proto_item_set_len (ti, len);
+		offset += len;
+		length -= len;
+	}
 }
 
 /*
@@ -1024,6 +1477,10 @@ proto_register_isis_lsp(void) {
 		{ "IPv4 interface address: ", "isis_lsp.clv_ipv4_int_addr", FT_IPv4,
 		   BASE_NONE, NULL, 0x0, "" }},
 
+		{ &hf_isis_lsp_clv_ipv6_int_addr,
+		{ "IPv6 interface address", "isis_lsp.clv_ipv6_int_addr", FT_IPv6,
+		   BASE_NONE, NULL, 0x0, "" }},
+
 		{ &hf_isis_lsp_clv_te_router_id,
 		{ "Traffic Engineering Router ID: ", "isis_lsp.clv_te_router_id", FT_IPv4,
 		   BASE_NONE, NULL, 0x0, "" }},
@@ -1032,6 +1489,10 @@ proto_register_isis_lsp(void) {
 		&ett_isis_lsp,
 		&ett_isis_lsp_clv_area_addr,
 		&ett_isis_lsp_clv_is_neighbors,
+		&ett_isis_lsp_clv_ext_is_reachability, /* CLV 22 */
+			&ett_isis_lsp_part_of_clv_ext_is_reachability,
+			&ett_isis_lsp_subclv_admin_group,
+			&ett_isis_lsp_subclv_unrsv_bw,
 		&ett_isis_lsp_clv_unknown,
 		&ett_isis_lsp_clv_partition_dis,
 		&ett_isis_lsp_clv_prefix_neighbors,
@@ -1039,8 +1500,13 @@ proto_register_isis_lsp(void) {
 		&ett_isis_lsp_clv_nlpid,
                 &ett_isis_lsp_clv_hostname,
 		&ett_isis_lsp_clv_ipv4_int_addr,
+		&ett_isis_lsp_clv_ipv6_int_addr, /* CLV 232 */
 		&ett_isis_lsp_clv_te_router_id,
 		&ett_isis_lsp_clv_ip_reachability,
+		&ett_isis_lsp_clv_ext_ip_reachability, /* CLV 135 */
+			&ett_isis_lsp_part_of_clv_ext_ip_reachability,
+		&ett_isis_lsp_clv_ipv6_reachability, /* CLV 236 */
+			&ett_isis_lsp_part_of_clv_ipv6_reachability,
 	};
 
 	proto_isis_lsp = proto_register_protocol(PROTO_STRING_LSP,

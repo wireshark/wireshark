@@ -1,7 +1,7 @@
 /* packet-isis-hello.h
  * Declares for hello handling inside isis.
  *
- * $Id: packet-isis-hello.h,v 1.2 2000/06/19 08:33:48 guy Exp $
+ * $Id: packet-isis-hello.h,v 1.3 2001/05/14 18:40:15 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -50,6 +50,7 @@
 #define ISIS_CLV_L1H_PADDING		8
 #define ISIS_CLV_L1H_NLPID		129
 #define ISIS_CLV_L1H_IP_INTERFACE_ADDR	132
+#define ISIS_CLV_L1H_IPv6_INTERFACE_ADDR 232
 /*
  * Note, the spec say 133, but everyone seems to use 10. Any clue on why
  * this is would be appreciated!
@@ -65,6 +66,7 @@
 #define ISIS_CLV_L2H_PADDING		8
 #define ISIS_CLV_L2H_NLPID		129
 #define ISIS_CLV_L2H_IP_INTERFACE_ADDR	132
+#define ISIS_CLV_L2H_IPv6_INTERFACE_ADDR 232
 /*
  * Note, the spec say 133, but everyone seems to use 10. Any clue on why
  * this is would be appreciated!
@@ -79,6 +81,7 @@
 #define ISIS_CLV_PTP_PADDING		8
 #define ISIS_CLV_PTP_NLPID		129
 #define ISIS_CLV_PTP_IP_INTERFACE_ADDR	132
+#define ISIS_CLV_PTP_IPv6_INTERFACE_ADDR 232
 /*
  * Note, the spec say 133, but everyone seems to use 10. Any clue on why
  * this is would be appreciated!

@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.13 2001/04/16 10:04:30 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.14 2001/05/14 18:40:15 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -53,6 +53,7 @@ static int hf_isis_hello_priority_reserved   = -1;
 static int hf_isis_hello_lan_id              = -1;
 static int hf_isis_hello_local_circuit_id    = -1;
 static int hf_isis_hello_clv_ipv4_int_addr   = -1;
+static int hf_isis_hello_clv_ipv6_int_addr   = -1;
 
 static gint ett_isis_hello                   = -1;
 static gint ett_isis_hello_clv_area_addr     = -1;
@@ -62,6 +63,7 @@ static gint ett_isis_hello_clv_unknown       = -1;
 static gint ett_isis_hello_clv_nlpid         = -1;
 static gint ett_isis_hello_clv_auth          = -1;
 static gint ett_isis_hello_clv_ipv4_int_addr = -1;
+static gint ett_isis_hello_clv_ipv6_int_addr = -1;
 
 static const value_string isis_hello_circuit_type_vals[] = {
 	{ ISIS_HELLO_TYPE_RESERVED,	"Reserved 0 (discard PDU)"},
@@ -82,6 +84,8 @@ static void dissect_hello_padding_clv(const u_char *pd, int offset,
 static void dissect_hello_nlpid_clv(const u_char *pd, int offset, 
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_hello_ip_int_addr_clv(const u_char *pd, int offset, 
+		guint length, int id_length, frame_data *fd, proto_tree *tree);
+static void dissect_hello_ipv6_int_addr_clv(const u_char *pd, int offset, 
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
 static void dissect_hello_auth_clv(const u_char *pd, int offset, 
 		guint length, int id_length, frame_data *fd, proto_tree *tree);
@@ -116,6 +120,12 @@ static const isis_clv_handle_t clv_l1_hello_opts[] = {
 		"IP Interface address(es)",
 		&ett_isis_hello_clv_ipv4_int_addr,
 		dissect_hello_ip_int_addr_clv
+	},
+	{
+		ISIS_CLV_L1H_IPv6_INTERFACE_ADDR,
+		"IPv6 Interface address(es)",
+		&ett_isis_hello_clv_ipv6_int_addr,
+		dissect_hello_ipv6_int_addr_clv
 	},
 	{
 		ISIS_CLV_L1H_AUTHENTICATION_NS,
@@ -169,6 +179,12 @@ static const isis_clv_handle_t clv_l2_hello_opts[] = {
 		dissect_hello_ip_int_addr_clv
 	},
 	{
+		ISIS_CLV_L2H_IPv6_INTERFACE_ADDR,
+		"IPv6 Interface address(es)",
+		&ett_isis_hello_clv_ipv6_int_addr,
+		dissect_hello_ipv6_int_addr_clv
+	},
+	{
 		ISIS_CLV_L2H_AUTHENTICATION_NS,
 		"Authentication(non spec)",
 		&ett_isis_hello_clv_auth,
@@ -212,6 +228,12 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
 		"IP Interface address(es)",
 		&ett_isis_hello_clv_ipv4_int_addr,
 		dissect_hello_ip_int_addr_clv
+	},
+	{
+		ISIS_CLV_PTP_IPv6_INTERFACE_ADDR,
+		"IPv6 Interface address(es)",
+		&ett_isis_hello_clv_ipv6_int_addr,
+		dissect_hello_ipv6_int_addr_clv
 	},
 	{
 		ISIS_CLV_PTP_AUTHENTICATION_NS,
@@ -280,6 +302,31 @@ dissect_hello_ip_int_addr_clv(const u_char *pd, int offset,
 		guint length, int id_length, frame_data *fd, proto_tree *tree) {
 	isis_dissect_ip_int_clv(pd, offset, length, fd, tree, 
 		hf_isis_hello_clv_ipv4_int_addr );
+}
+
+/*
+ * Name: dissect_hello_ipv6_int_addr_clv()
+ *
+ * Description:
+ *	Decode for a hello packets ipv6 interface addr clv.  Calls into the
+ *	clv common one.
+ *
+ * Input:
+ *	u_char * : packet data
+ *	int : current offset into packet data
+ *	guint : length of this clv
+ *	int : length of IDs in packet.
+ *	frame_data * : frame data
+ *	proto_tree * : proto tree to build on (may be null)
+ *
+ * Output:
+ *	void, will modify proto_tree if not null.
+ */
+static void 
+dissect_hello_ipv6_int_addr_clv(const u_char *pd, int offset, 
+		guint length, int id_length, frame_data *fd, proto_tree *tree) {
+	isis_dissect_ipv6_int_clv(pd, offset, length, fd, tree, 
+		hf_isis_hello_clv_ipv6_int_addr );
 }
 
 /*
@@ -578,6 +625,10 @@ proto_register_isis_hello(void) {
 		{ "IPv4 interface address    ", "isis_hello.clv_ipv4_int_addr",
 			FT_IPv4, BASE_NONE, NULL, 0x0, "" }},
 
+		{ &hf_isis_hello_clv_ipv6_int_addr,
+		{ "IPv6 interface address    ", "isis_hello.clv_ipv6_int_addr",
+			FT_IPv6, BASE_NONE, NULL, 0x0, "" }},
+
 	};
 	static gint *ett[] = {
 		&ett_isis_hello,
@@ -588,6 +639,7 @@ proto_register_isis_hello(void) {
 		&ett_isis_hello_clv_nlpid,
 		&ett_isis_hello_clv_auth,
 		&ett_isis_hello_clv_ipv4_int_addr,
+		&ett_isis_hello_clv_ipv6_int_addr
 	};
 
 	proto_isis_hello = proto_register_protocol("ISIS HELLO",

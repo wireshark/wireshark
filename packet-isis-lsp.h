@@ -1,7 +1,7 @@
 /* packet-isis-lsp.h
  * Defines and such for LSP and their CLV decodes
  *
- * $Id: packet-isis-lsp.h,v 1.4 2001/04/16 10:04:30 guy Exp $
+ * $Id: packet-isis-lsp.h,v 1.5 2001/05/14 18:40:15 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -59,11 +59,15 @@
 #define ISIS_CLV_L1_LSP_AREA_ADDRESS		1
 #define ISIS_CLV_L1_LSP_IS_NEIGHBORS		2
 #define ISIS_CLV_L1_LSP_ES_NEIGHBORS		3
+#define ISIS_CLV_L1_LSP_EXT_IS_REACHABLE    22
 #define ISIS_CLV_L1_LSP_IP_INT_REACHABLE	128
 #define ISIS_CLV_L1_LSP_NLPID			129
 #define ISIS_CLV_L1_LSP_IP_INTERFACE_ADDR	132
 #define ISIS_CLV_L1_LSP_TE_ROUTER_ID            134 
+#define ISIS_CLV_L1_LSP_EXT_IP_REACHABLE    135
 #define ISIS_CLV_L1_LSP_HOSTNAME                137
+#define ISIS_CLV_L1_LSP_IPv6_INTERFACE_ADDR 232
+#define ISIS_CLV_L1_LSP_IPv6_REACHABLE      236
 /* 
  * Note, the spec say 133, but everyone seems to use 10. Any clue on why
  * this is would be appreciated!
@@ -78,13 +82,17 @@
 #define ISIS_CLV_L2_LSP_IS_NEIGHBORS		2
 #define ISIS_CLV_L2_LSP_PARTITION_DIS		4
 #define ISIS_CLV_L2_LSP_PREFIX_NEIGHBORS	5
+#define ISIS_CLV_L2_LSP_EXT_IS_REACHABLE    22
 #define ISIS_CLV_L2_LSP_IP_INT_REACHABLE	128
 #define ISIS_CLV_L2_LSP_NLPID			129
 #define ISIS_CLV_L2_LSP_IP_EXT_REACHABLE	130
 #define ISIS_CLV_L2_LSP_IDRP_INFO		131
 #define ISIS_CLV_L2_LSP_IP_INTERFACE_ADDR	132
 #define ISIS_CLV_L2_LSP_TE_ROUTER_ID            134 
+#define ISIS_CLV_L2_LSP_EXT_IP_REACHABLE    135
 #define ISIS_CLV_L2_LSP_HOSTNAME                137
+#define ISIS_CLV_L2_LSP_IPv6_INTERFACE_ADDR 232
+#define ISIS_CLV_L2_LSP_IPv6_REACHABLE      236
 /* 
  * Note, the spec say 133, but everyone seems to use 10. Any clue on why
  * this is would be appreciated!
