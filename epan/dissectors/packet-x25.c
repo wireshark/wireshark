@@ -34,7 +34,7 @@
 #include "llcsaps.h"
 #include <epan/packet.h>
 #include <epan/circuit.h>
-#include "reassemble.h"
+#include <epan/reassemble.h>
 #include <epan/prefs.h>
 #include "nlpid.h"
 #include "x264_prt_id.h"

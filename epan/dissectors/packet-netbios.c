@@ -36,7 +36,7 @@
 
 #include <epan/packet.h>
 #include "llcsaps.h"
-#include "reassemble.h"
+#include <epan/reassemble.h>
 #include <epan/prefs.h>
 #include "packet-netbios.h"
 

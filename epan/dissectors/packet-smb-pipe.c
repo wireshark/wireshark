@@ -48,7 +48,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
 #include "packet-smb-common.h"
 #include "packet-windows-common.h"
 #include "packet-dcerpc.h"
-#include "reassemble.h"
+#include <epan/reassemble.h>
 
 static int proto_smb_pipe = -1;
 static int hf_pipe_function = -1;

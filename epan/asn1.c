@@ -71,7 +71,7 @@
 #endif
 
 #include <epan/tvbuff.h>
-#include "asn1.h"
+#include <epan/asn1.h>
 
 /*
  * NAME:        asn1_open                                   [API]

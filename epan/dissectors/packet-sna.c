@@ -35,7 +35,7 @@
 #include <epan/sna-utils.h>
 #include <epan/charsets.h>
 #include <epan/prefs.h>
-#include "reassemble.h"
+#include <epan/reassemble.h>
 
 /*
  * http://www.wanresources.com/snacell.html

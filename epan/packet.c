@@ -53,7 +53,7 @@
 #include "plugins.h"
 #include "epan_dissect.h"
 
-#include "../reassemble.h"
+#include <epan/reassemble.h>
 
 static gint proto_malformed = -1;
 static dissector_handle_t frame_handle = NULL;

@@ -41,7 +41,7 @@
 
 #include <epan/strutil.h>
 
-#include "asn1.h"
+#include <epan/asn1.h>
 #include "format-oid.h"
 
 #include "packet-ses.h"

@@ -79,7 +79,7 @@
 
 #include <epan/packet.h>
 
-#include "asn1.h"
+#include <epan/asn1.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include "packet-frame.h"

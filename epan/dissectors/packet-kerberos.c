@@ -94,7 +94,7 @@
 #include <epan/dissectors/packet-dcerpc-netlogon.h>
 #include <epan/dissectors/packet-dcerpc.h>
 
-#include "asn1.h"		/* for "subid_t" */
+#include <epan/asn1.h>		/* for "subid_t" */
 #include <epan/dissectors/packet-gssapi.h>
 
 #define UDP_PORT_KERBEROS		88

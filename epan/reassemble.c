@@ -30,7 +30,7 @@
 
 #include <epan/packet.h>
 
-#include "reassemble.h"
+#include <epan/reassemble.h>
 
 #include <epan/dissectors/packet-dcerpc.h>
 

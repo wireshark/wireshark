@@ -62,7 +62,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
-#include "reassemble.h"
+#include <epan/reassemble.h>
 #include "packet-ipx.h"
 #include "packet-llc.h"
 #include "packet-ieee80211.h"

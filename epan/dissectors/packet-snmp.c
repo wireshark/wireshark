@@ -105,7 +105,7 @@
 
 #endif /* HAVE_SOME_SNMP */
 
-#include "asn1.h"
+#include <epan/asn1.h>
 
 #include "packet-snmp.h"
 #include "format-oid.h"

@@ -28,6 +28,7 @@ LIBETHEREAL_SRC = 		\
 	addr_resolv.c		\
 	adler32.c		\
 	afn.c			\
+	asn1.c			\
 	atalk-utils.c		\
 	base64.c		\
 	bitswap.c		\
@@ -45,6 +46,7 @@ LIBETHEREAL_SRC = 		\
 	epan.c			\
 	except.c		\
 	filesystem.c		\
+	follow.c		\
 	frame_data.c		\
 	h225-persistentdata.c	\
 	in_cksum.c		\
@@ -55,7 +57,9 @@ LIBETHEREAL_SRC = 		\
 	plugins.c		\
 	prefs.c			\
 	proto.c			\
+	ptvcursor.c		\
 	range.c			\
+	reassemble.c		\
 	req_resp_hdrs.c		\
 	sha1.c			\
 	sigcomp_state_hdlr.c	\
@@ -69,7 +73,8 @@ LIBETHEREAL_SRC = 		\
 	to_str.c		\
 	tvbuff.c		\
 	value_string.c		\
-	xdlc.c
+	xdlc.c			\
+	xmlstub.c
 
 LIBETHEREAL_INCLUDES = 		\
 	addr_and_mask.h		\
@@ -78,6 +83,7 @@ LIBETHEREAL_INCLUDES = 		\
 	adler32.h		\
 	afn.h			\
 	arptypes.h		\
+	asn1.h			\
 	atalk-utils.h		\
 	base64.h		\
 	bitswap.h		\
@@ -98,6 +104,7 @@ LIBETHEREAL_INCLUDES = 		\
 	except.h		\
 	exceptions.h		\
 	filesystem.h		\
+	follow.h		\
 	frame_data.h		\
 	gdebug.h		\
 	h225-persistentdata.h	\
@@ -114,7 +121,9 @@ LIBETHEREAL_INCLUDES = 		\
 	prefs.h			\
 	prefs-int.h		\
 	proto.h			\
+	ptvcursor.h		\
 	range.h			\
+	reassemble.h		\
 	report_err.h		\
 	req_resp_hdrs.h		\
 	sha1.h			\
@@ -130,13 +139,9 @@ LIBETHEREAL_INCLUDES = 		\
 	to_str.h		\
 	tvbuff.h		\
 	value_string.h		\
-	xdlc.h
+	xdlc.h			\
+	xmlstub.h
 
 # dissector helpers (needed from the dissectors, but not a dissector itself)
-DISSECTOR_SUPPORT_SRC =	\
-	../asn1.c	\
-	../follow.c	\
-	../ptvcursor.c	\
-	../reassemble.c	\
-	../xmlstub.c
+DISSECTOR_SUPPORT_SRC =
 

@@ -36,7 +36,7 @@
 
 #include "packet-windows-common.h"
 #include "packet-smb-common.h"
-#include "asn1.h"		/* XXX - needed for subid_t */
+#include <epan/asn1.h>		/* XXX - needed for subid_t */
 #include "packet-gssapi.h"
 #include "packet-frame.h"
 #include <epan/prefs.h>

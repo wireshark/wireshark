@@ -32,7 +32,7 @@
 #include <epan/report_err.h>
 #include <epan/except.h>
 #include <epan/prefs.h>
-#include "reassemble.h"
+#include <epan/reassemble.h>
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-giop.h>
 #include <epan/dissectors/packet-per.h>
@@ -43,7 +43,7 @@
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/dissectors/packet-rtcp.h>
 #include <epan/tap.h>
-#include "asn1.h"
+#include <epan/asn1.h>
 #include <epan/xdlc.h>
 #include <epan/crc16.h>
 

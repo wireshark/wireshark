@@ -56,7 +56,7 @@
 
 #include "epan/packet.h"
 #include <epan/tap.h>
-#include "asn1.h"
+#include <epan/asn1.h>
 
 #include "packet-tcap.h"
 #include "packet-gsm_sms.h"

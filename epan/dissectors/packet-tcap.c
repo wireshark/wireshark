@@ -61,7 +61,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include "asn1.h"
+#include <epan/asn1.h>
 #include "packet-tcap.h"
 #include "packet-ber.h"
 

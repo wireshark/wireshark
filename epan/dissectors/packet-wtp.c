@@ -41,7 +41,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "reassemble.h"
+#include <epan/reassemble.h>
 #include "packet-wap.h"
 #include "packet-wtp.h"
 #include "packet-wsp.h"

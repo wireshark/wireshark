@@ -28,11 +28,9 @@
 DISSECTOR_SUPPORT_INCLUDES =	\
 	aftypes.h	\
 	arcnet_pids.h	\
-	asn1.h	\
 	bridged_pids.h	\
 	chdlctypes.h	\
 	etypes.h	\
-	follow.h	\
 	format-oid.h	\
 	greproto.h	\
 	iax2_codec_type.h	\
@@ -43,14 +41,11 @@ DISSECTOR_SUPPORT_INCLUDES =	\
 	nlpid.h	\
 	oui.h	\
 	ppptypes.h	\
-	ptvcursor.h	\
-	reassemble.h	\
 	rpc_defrag.h	\
 	rtp_pt.h	\
 	sctpppids.h	\
 	smb.h	\
-	x264_prt_id.h	\
-	xmlstub.h
+	x264_prt_id.h
 
 # "BUILT_SOURCES" are built before any "make all" or "make check" targets.
 BUILT_SOURCES =		\

@@ -35,14 +35,14 @@
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include "ip_opts.h"
-#include "follow.h"
+#include <epan/follow.h>
 #include <epan/prefs.h>
 #include "packet-tcp.h"
 #include "packet-ip.h"
 #include "packet-frame.h"
 #include <epan/conversation.h>
 #include <epan/strutil.h>
-#include "reassemble.h"
+#include <epan/reassemble.h>
 #include <epan/tap.h>
 
 static int tcp_tap = -1;

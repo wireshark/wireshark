@@ -31,7 +31,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include "ppptypes.h"
-#include "reassemble.h"
+#include <epan/reassemble.h>
 
 static int proto_eap = -1;
 static int hf_eap_code = -1;

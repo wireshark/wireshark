@@ -38,7 +38,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include "asn1.h"
+#include <epan/asn1.h>
 #include "format-oid.h"
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-gssapi.h>

@@ -40,7 +40,7 @@
 #include <epan/conversation.h>
 
 #include "packet-tcp.h"
-#include "reassemble.h"
+#include <epan/reassemble.h>
 #include <epan/prefs.h>
 
 /* Capabilities */

@@ -84,7 +84,7 @@
 #include <epan/prefs.h>
 #include <epan/ipv6-utils.h>
 #include <epan/tap.h>
-#include "asn1.h"
+#include <epan/asn1.h>
 
 #include "packet-tcap.h"
 #include "packet-bssap.h"

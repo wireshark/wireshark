@@ -38,7 +38,7 @@
 #endif
 
 #include <epan/packet.h>
-#include "reassemble.h"
+#include <epan/reassemble.h>
 
 /* Bitmasks for the bits in the address field
 */

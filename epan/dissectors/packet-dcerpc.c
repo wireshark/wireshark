@@ -40,7 +40,7 @@
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
-#include "reassemble.h"
+#include <epan/reassemble.h>
 #include <epan/tap.h>
 #include <epan/dissectors/packet-frame.h>
 #include <epan/dissectors/packet-dcerpc-nt.h>

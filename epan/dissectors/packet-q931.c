@@ -39,7 +39,7 @@
 #include "packet-q931.h"
 #include "packet-e164.h"
 #include <epan/prefs.h>
-#include "reassemble.h"
+#include <epan/reassemble.h>
 
 #include "lapd_sapi.h"
 #include "packet-tpkt.h"

@@ -46,7 +46,7 @@
 #include "colors.h"
 #include "file.h"
 #include "follow_dlg.h"
-#include "follow.h"
+#include <epan/follow.h>
 #include "dlg_utils.h"
 #include "keys.h"
 #include "globals.h"

@@ -60,14 +60,14 @@
 
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
 #include "conversation.h"
-#include "reassemble.h"
+#include <epan/reassemble.h>
 #include <epan/prefs.h>
 #include <epan/dissectors/packet-giop.h>
 #include <epan/dissectors/packet-tpkt.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/dissectors/packet-rpc.h>
 #include <epan/tap.h>
-#include "asn1.h"
+#include <epan/asn1.h>
 #include <epan/dissectors/packet-per.h>
 #include <epan/dissectors/packet-ber.h>
 #include <epan/dissectors/packet-rtp.h>

@@ -11,7 +11,7 @@
  * Copyright 2004, Tim Endean <endeant@hotmail.com>
  * Built from the gsm-map dissector Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id:$
+ * $Id$
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs

@@ -49,7 +49,7 @@
 #include "packet-ipx.h"
 #include "packet-tcp.h"
 #include "packet-ncp-int.h"
-#include "reassemble.h"
+#include <epan/reassemble.h>
 #include <epan/conversation.h>
 
 int proto_ncp = -1;

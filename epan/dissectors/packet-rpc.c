@@ -39,7 +39,7 @@
 #include "packet-frame.h"
 #include "packet-tcp.h"
 #include <epan/prefs.h>
-#include "reassemble.h"
+#include <epan/reassemble.h>
 #include "rpc_defrag.h"
 #include "packet-nfs.h"
 #include <epan/tap.h>

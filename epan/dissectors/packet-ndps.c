@@ -36,7 +36,7 @@
 #include "packet-tcp.h"
 #include <epan/conversation.h>
 #include "packet-ndps.h"
-#include "reassemble.h"
+#include <epan/reassemble.h>
 
 #define NDPS_PACKET_INIT_COUNT	200
 

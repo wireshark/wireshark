@@ -37,7 +37,7 @@
 #include <time.h>
 #include <glib.h>
 #include <epan/filesystem.h>
-#include "xmlstub.h"
+#include <epan/xmlstub.h>
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>

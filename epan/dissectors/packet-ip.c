@@ -39,7 +39,7 @@
 #include <epan/ipproto.h>
 #include "ip_opts.h"
 #include <epan/prefs.h>
-#include "reassemble.h"
+#include <epan/reassemble.h>
 #include "etypes.h"
 #include "greproto.h"
 #include "ppptypes.h"

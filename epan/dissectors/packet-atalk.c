@@ -41,7 +41,7 @@
 #include <epan/conversation.h>
 
 #include <epan/prefs.h>
-#include "reassemble.h"
+#include <epan/reassemble.h>
 
 #include "packet-afp.h"
 

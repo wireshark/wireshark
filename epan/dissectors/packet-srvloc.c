@@ -49,7 +49,7 @@
 #include <epan/strutil.h>
 #include <epan/prefs.h>
 #include "packet-tcp.h"
-#include "reassemble.h"
+#include <epan/reassemble.h>
 
 static gboolean srvloc_desegment = TRUE;
 static int proto_srvloc = -1;

@@ -34,7 +34,7 @@
 #include <epan/prefs.h>
 
 #include "packet-tcp.h"
-#include "reassemble.h"
+#include <epan/reassemble.h>
 
 
 static int proto_pgsql = -1;

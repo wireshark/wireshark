@@ -41,7 +41,7 @@
 #include "smb.h"
 #include <epan/strutil.h>
 #include <epan/prefs.h>
-#include "reassemble.h"
+#include <epan/reassemble.h>
 #include <epan/tap.h>
 #include "packet-ipx.h"
 

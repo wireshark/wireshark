@@ -5559,7 +5559,7 @@ def produce_code():
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include "ptvcursor.h"
+#include <epan/ptvcursor.h>
 #include "packet-ncp-int.h"
 #include "packet-ncp-nmas.h"
 #include <epan/strutil.h>

@@ -110,7 +110,7 @@
 #include <string.h>
 
 #include "epan/packet.h"
-#include "asn1.h"
+#include <epan/asn1.h>
 #include <epan/tap.h>
 
 #include "packet-ansi_a.h"

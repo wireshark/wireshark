@@ -84,7 +84,7 @@
 #endif /* HAVE_NET_SNMP */
 #endif /* HAVE_SOME_SNMP */
 
-#include "asn1.h"
+#include <epan/asn1.h>
 #include "format-oid.h"
 #include <epan/prefs.h>
 
