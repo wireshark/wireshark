@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\winreg packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.5 2002/06/21 04:59:04 tpot Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.6 2002/06/24 00:03:17 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,7 @@ const value_string reg_datatypes[] = {
 };
 
 static int proto_dcerpc_reg = -1;
+static int hf_reg_opnum = -1;
 static gint ett_dcerpc_reg = -1;
 
 static e_uuid_t uuid_dcerpc_reg = {
@@ -92,15 +93,54 @@ static dcerpc_sub_dissector dcerpc_reg_dissectors[] = {
         { 0, NULL, NULL,  NULL }
 };
 
+static const value_string reg_opnum_vals[] = {
+        { REG_OPEN_HKCR, "OpenHKCR" },
+        { _REG_UNK_01, "Unknown01" },
+        { REG_OPEN_HKLM, "OpenHKLM" },
+        { _REG_UNK_03, "Unknown03" },
+        { REG_OPEN_HKU, "OpenHKU" },
+        { REG_CLOSE, "Close" },
+        { REG_CREATE_KEY, "CreateKey" },
+        { REG_DELETE_KEY, "DeleteKey" },
+        { REG_DELETE_VALUE, "DeleteValue" },
+        { REG_ENUM_KEY, "EnumKey" },
+        { REG_ENUM_VALUE, "EnumValue" },
+        { REG_FLUSH_KEY, "FlushKey" },
+        { REG_GET_KEY_SEC, "GetKeySecurity" },
+        { _REG_UNK_0D, "Unknown0d" },
+        { _REG_UNK_0E, "Unknown0e" },
+        { REG_OPEN_ENTRY, "OpenEntry" },
+        { REG_QUERY_KEY, "QueryKey" },
+        { REG_INFO, "Info" },
+        { _REG_UNK_12, "Unknown12" },
+        { _REG_UNK_13, "Unknown13" },
+        { _REG_UNK_14, "Unknown14" },
+        { REG_SET_KEY_SEC, "SetKeySecurity" },
+        { REG_CREATE_VALUE, "CreateValue" },
+        { _REG_UNK_17, "Unknown17" },
+        { REG_SHUTDOWN, "Shutdown" },
+        { REG_ABORT_SHUTDOWN, "AbortShutdown" },
+        { REG_UNK_1A, "Unknown1A" },
+	{ 0, NULL }
+};
+
 void 
 proto_register_dcerpc_reg(void)
 {
+	static hf_register_info hf[] = {
+		{ &hf_reg_opnum,
+		  { "Operation", "reg.opnum", FT_UINT16, BASE_DEC,
+		    VALS(reg_opnum_vals), 0x0, "Operation", HFILL }},
+	};
+
         static gint *ett[] = {
                 &ett_dcerpc_reg
         };
 
         proto_dcerpc_reg = proto_register_protocol(
                 "Microsoft Registry", "REG", "reg");
+
+	proto_register_field_array(proto_dcerpc_reg, hf, array_length(hf));
 
         proto_register_subtree_array(ett, array_length(ett));
 }
@@ -111,5 +151,5 @@ proto_reg_handoff_dcerpc_reg(void)
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_reg, ett_dcerpc_reg, &uuid_dcerpc_reg,
-                         ver_dcerpc_reg, dcerpc_reg_dissectors);
+                         ver_dcerpc_reg, dcerpc_reg_dissectors, -1);
 }

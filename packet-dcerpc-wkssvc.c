@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\wkssvc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.3 2002/05/31 00:31:13 tpot Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.4 2002/06/24 00:03:18 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,5 +68,5 @@ proto_reg_handoff_dcerpc_wkssvc(void)
 
         dcerpc_init_uuid(proto_dcerpc_wkssvc, ett_dcerpc_wkssvc, 
                          &uuid_dcerpc_wkssvc, ver_dcerpc_wkssvc, 
-                         dcerpc_wkssvc_dissectors);
+                         dcerpc_wkssvc_dissectors, -1);
 }

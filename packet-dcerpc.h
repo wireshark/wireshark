@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.17 2002/06/19 08:34:38 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.18 2002/06/24 00:03:18 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -170,7 +170,7 @@ typedef struct _dcerpc_sub_dissector {
 } dcerpc_sub_dissector;
 
 /* registration function for subdissectors */
-void dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver, dcerpc_sub_dissector *procs);
+void dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver, dcerpc_sub_dissector *procs, int opnum_hf);
 
 /* Private data structure to pass to DCERPC dissector. This is used to
    pass transport specific information down to the dissector from the

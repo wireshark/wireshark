@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.22 2002/05/31 00:31:13 tpot Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.23 2002/06/24 00:03:17 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,6 +38,7 @@
 #include "packet-dcerpc-lsa.h"
 
 static int proto_dcerpc_netlogon = -1;
+static int hf_netlogon_opnum = -1;
 static int hf_netlogon_rc = -1;
 static int hf_netlogon_len = -1;
 static int hf_netlogon_status = -1;
@@ -5147,11 +5148,61 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
         {0, NULL, NULL,  NULL }
 };
 
+static const value_string netlogon_opnum_vals[] = {
+	{ NETLOGON_UASLOGON, "UasLogon" },
+	{ NETLOGON_UASLOGOFF, "UasLogoff" },
+	{ NETLOGON_NETLOGONSAMLOGON, "NETLOGONSAMLOGON" },
+	{ NETLOGON_NETLOGONSAMLOGOFF, "NETLOGONSAMLOGOFF" },
+	{ NETLOGON_NETSERVERREQCHALLENGE, "NETSERVERREQCHALLENGE" },
+	{ NETLOGON_NETSERVERAUTHENTICATE, "NETSERVERAUTHENTICATE" },
+	{ NETLOGON_NETSERVERPASSWORDSET, "NETSERVERPASSWORDSET" },
+	{ NETLOGON_NETSAMDELTAS, "NETSAMDELTAS" },
+	{ NETLOGON_DATABASESYNC, "DatabaseSync" },
+	{ NETLOGON_ACCOUNTDELTAS, "AccountDeltas" },
+	{ NETLOGON_ACCOUNTSYNC, "AccountSync" },
+	{ NETLOGON_GETDCNAME, "GetDCName" },
+	{ NETLOGON_NETLOGONCONTROL, "NETLOGONCONTROL" },
+	{ NETLOGON_GETANYDCNAME, "GetAnyDCName" },
+	{ NETLOGON_NETLOGONCONTROL2, "NETLOGONCONTROL2" },
+	{ NETLOGON_NETSERVERAUTHENTICATE2, "NETSERVERAUTHENTICATE2" },
+	{ NETLOGON_NETDATABASESYNC2, "NETDATABASESYNC2" },
+	{ NETLOGON_DATABASEREDO, "DatabaseRedo" },
+	{ NETLOGON_FUNCTION_12, "FUNCTION_12" },
+	{ NETLOGON_NETTRUSTEDDOMAINLIST, "NETTRUSTEDDOMAINLIST" },
+	{ NETLOGON_DSRGETDCNAME2, "DSRGETDCNAME2" },
+	{ NETLOGON_FUNCTION_15, "FUNCTION_15" },
+	{ NETLOGON_FUNCTION_16, "FUNCTION_16" },
+	{ NETLOGON_FUNCTION_17, "FUNCTION_17" },
+	{ NETLOGON_FUNCTION_18, "FUNCTION_18" },
+	{ NETLOGON_FUNCTION_19, "FUNCTION_19" },
+	{ NETLOGON_NETSERVERAUTHENTICATE3, "NETSERVERAUTHENTICATE3" },
+	{ NETLOGON_DSRGETDCNAME, "DSRGETDCNAME" },
+	{ NETLOGON_DSRGETSITENAME, "DSRGETSITENAME" },
+	{ NETLOGON_FUNCTION_1D, "FUNCTION_1D" },
+	{ NETLOGON_FUNCTION_1E, "FUNCTION_1E" },
+	{ NETLOGON_NETSERVERPASSWORDSET2, "NETSERVERPASSWORDSET2" },
+	{ NETLOGON_FUNCTION_20, "FUNCTION_20" },
+	{ NETLOGON_FUNCTION_21, "FUNCTION_21" },
+	{ NETLOGON_FUNCTION_22, "FUNCTION_22" },
+	{ NETLOGON_FUNCTION_23, "FUNCTION_23" },
+	{ NETLOGON_FUNCTION_24, "FUNCTION_24" },
+	{ NETLOGON_FUNCTION_25, "FUNCTION_25" },
+	{ NETLOGON_FUNCTION_26, "FUNCTION_26" },
+	{ NETLOGON_FUNCTION_27, "FUNCTION_27" },
+	{ NETLOGON_DSRROLEGETPRIMARYDOMAININFORMATION, "DSRROLEGETPRIMARYDOMAININFORMATION" },
+	{ NETLOGON_DSRDEREGISTERDNSHOSTRECORDS, "DSRDEREGISTERDNSHOSTRECORDS" },
+	{ 0, NULL }
+};
+
 void 
 proto_register_dcerpc_netlogon(void)
 {
 
 static hf_register_info hf[] = {
+	{ &hf_netlogon_opnum,
+	  { "Operation", "netlogon.opnum", FT_UINT16, BASE_DEC,
+	    VALS(netlogon_opnum_vals), 0x0, "Operation", HFILL }},
+
 	{ &hf_netlogon_rc, { 
 		"Return code", "netlogon.rc", FT_UINT32, BASE_HEX, 
 		VALS(NT_errors), 0x0, "Netlogon return code", HFILL }},
@@ -5574,5 +5625,5 @@ proto_reg_handoff_dcerpc_netlogon(void)
 
         dcerpc_init_uuid(proto_dcerpc_netlogon, ett_dcerpc_netlogon, 
                          &uuid_dcerpc_netlogon, ver_dcerpc_netlogon, 
-                         dcerpc_netlogon_dissectors);
+                         dcerpc_netlogon_dissectors, hf_netlogon_opnum);
 }

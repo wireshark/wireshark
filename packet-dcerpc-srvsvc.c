@@ -6,7 +6,7 @@
  * Copyright 2002, Ronnie Sahlberg
  *   rewrote entire dissector
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.38 2002/06/23 12:00:38 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.39 2002/06/24 00:03:18 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,6 +44,7 @@
 #include "smb.h"
 
 static int proto_dcerpc_srvsvc = -1;
+static int hf_srvsvc_opnum = -1;
 static int hf_srvsvc_reserved = -1;
 static int hf_srvsvc_server = -1;
 static int hf_srvsvc_emulated_server = -1;
@@ -6939,6 +6940,9 @@ void
 proto_register_dcerpc_srvsvc(void)
 {
         static hf_register_info hf[] = {
+	  { &hf_srvsvc_opnum,
+	    { "Operation", "srvsvc.opnum", FT_UINT16, BASE_DEC,
+	      VALS(srvsvc_opnum_vals), 0x0, "Operation", HFILL }},
 	  { &hf_srvsvc_server,
 	    { "Server", "srvsvc.server", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "Server Name", HFILL}},
@@ -7500,6 +7504,5 @@ proto_reg_handoff_dcerpc_srvsvc(void)
 
         dcerpc_init_uuid(proto_dcerpc_srvsvc, ett_dcerpc_srvsvc, 
                          &uuid_dcerpc_srvsvc, ver_dcerpc_srvsvc, 
-                         dcerpc_srvsvc_dissectors);
+                         dcerpc_srvsvc_dissectors, hf_srvsvc_opnum);
 }
-

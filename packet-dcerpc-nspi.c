@@ -2,7 +2,7 @@
  * Routines for dcerpc nspi dissection
  * Copyright 2001, Todd Sabin <tsabin@optonline.net>
  *
- * $Id: packet-dcerpc-nspi.c,v 1.2 2002/05/31 00:31:13 tpot Exp $
+ * $Id: packet-dcerpc-nspi.c,v 1.3 2002/06/24 00:03:17 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,8 @@
 
 static int proto_nspi = -1;
 
+static int hf_nspi_opnum = -1;
+
 static gint ett_nspi = -1;
 
 static e_uuid_t uuid_nspi = { 0xf5cc5a18, 0x4264, 0x101a, { 0x8c, 0x59, 0x08, 0x00, 0x2b, 0x2f, 0x84, 0x26 } };
@@ -68,14 +70,45 @@ static dcerpc_sub_dissector nspi_dissectors[] = {
     { 0, NULL, NULL, NULL }
 };
 
+static const value_string nspi_opnum_vals[] = {
+    { 0, "Bind" },
+    { 1, "Unbind" },
+    { 2, "UpdateStat" },
+    { 3, "QueryRows" },
+    { 4, "SeekEntries" },
+    { 5, "GetMatches" },
+    { 6, "ResortRestriction" },
+    { 7, "DNToEph" },
+    { 8, "GetPropList" },
+    { 9, "GetProps" },
+    { 10, "CompareDNTs" },
+    { 11, "ModProps" },
+    { 12, "GetHierarchyInfo" },
+    { 13, "GetTemplateInfo" },
+    { 14, "ModLinkAttr" },
+    { 15, "DeleteEntries" },
+    { 16, "QueryColumns" },
+    { 17, "GetNamesFromIDs" },
+    { 18, "GetIDsFromNames" },
+    { 19, "ResolveNames" },
+    { 0, NULL }
+};
+
 
 void
 proto_register_nspi (void)
 {
+   static hf_register_info hf[] = {
+	   { &hf_nspi_opnum,
+	     { "Operation", "nspi.opnum", FT_UINT16, BASE_DEC,
+	       VALS(nspi_opnum_vals), 0x0, "Operation", HFILL }},
+   };
+
    static gint *ett[] = {
        &ett_nspi
    };
    proto_nspi = proto_register_protocol ("NSPI", "NSPI", "nspi");
+   proto_register_field_array(proto_nspi, hf, array_length(hf));
    proto_register_subtree_array (ett, array_length (ett));
 }
 
@@ -83,5 +116,5 @@ void
 proto_reg_handoff_nspi (void)
 {
    /* Register the protocol as dcerpc */
-   dcerpc_init_uuid (proto_nspi, ett_nspi, &uuid_nspi, ver_nspi, nspi_dissectors);
+   dcerpc_init_uuid (proto_nspi, ett_nspi, &uuid_nspi, ver_nspi, nspi_dissectors, hf_nspi_opnum);
 }

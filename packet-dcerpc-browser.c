@@ -2,7 +2,7 @@
  * Routines for DCERPC Browser packet disassembly
  * Copyright 2001, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-browser.c,v 1.6 2002/06/16 13:50:51 sahlberg Exp $
+ * $Id: packet-dcerpc-browser.c,v 1.7 2002/06/24 00:03:16 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1161,5 +1161,5 @@ proto_reg_handoff_dcerpc_browser(void)
 
         dcerpc_init_uuid(proto_dcerpc_browser, ett_dcerpc_browser, 
                          &uuid_dcerpc_browser, ver_dcerpc_browser, 
-                         dcerpc_browser_dissectors);
+                         dcerpc_browser_dissectors, -1);
 }

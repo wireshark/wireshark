@@ -2,7 +2,7 @@
  * Routines for dcerpc endpoint mapper dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-epm.c,v 1.10 2002/05/31 00:31:12 tpot Exp $
+ * $Id: packet-dcerpc-epm.c,v 1.11 2002/06/24 00:03:17 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,7 @@
 
 static int proto_epm = -1;
 
+static int hf_epm_opnum = -1;
 static int hf_epm_inquiry_type = -1;
 static int hf_epm_object_p = -1;
 static int hf_epm_object = -1;
@@ -370,11 +371,24 @@ static dcerpc_sub_dissector epm_dissectors[] = {
     { 0, NULL, NULL, NULL }
 };
 
+static const value_string epm_opnum_vals[] = {
+	{ 0, "insert" },
+	{ 1, "delete" },
+	{ 2, "lookup" },
+	{ 3, "map" },
+	{ 4, "lookup_handle_free" },
+	{ 5, "inq_object" },
+	{ 6, "mgmt_delete" },
+	{ 0, NULL }
+};
 
 void
 proto_register_epm (void)
 {
 	static hf_register_info hf[] = {
+        { &hf_epm_opnum,
+	  { "Operation", "epm.opnum", FT_UINT16, BASE_DEC,
+	    VALS(epm_opnum_vals), 0x0, "Operation", HFILL }},
         { &hf_epm_inquiry_type,
           { "Inquiry type", "epm.inq_type", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
         { &hf_epm_object_p,
@@ -432,5 +446,5 @@ void
 proto_reg_handoff_epm (void)
 {
 	/* Register the protocol as dcerpc */
-	dcerpc_init_uuid (proto_epm, ett_epm, &uuid_epm, ver_epm, epm_dissectors);
+	dcerpc_init_uuid (proto_epm, ett_epm, &uuid_epm, ver_epm, epm_dissectors, hf_epm_opnum);
 }

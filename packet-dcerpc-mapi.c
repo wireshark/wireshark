@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.11 2002/06/15 22:24:31 sahlberg Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.12 2002/06/24 00:03:17 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -452,5 +452,5 @@ proto_reg_handoff_dcerpc_mapi(void)
 
         dcerpc_init_uuid(proto_dcerpc_mapi, ett_dcerpc_mapi, 
                          &uuid_dcerpc_mapi, ver_dcerpc_mapi, 
-                         dcerpc_mapi_dissectors);
+                         dcerpc_mapi_dissectors, -1);
 }

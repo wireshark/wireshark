@@ -2,7 +2,7 @@
  * Routines for dcerpc conv dissection
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-conv.c,v 1.3 2002/05/31 00:31:12 tpot Exp $
+ * $Id: packet-dcerpc-conv.c,v 1.4 2002/06/24 00:03:16 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,5 +80,5 @@ void
 proto_reg_handoff_conv (void)
 {
 	/* Register the protocol as dcerpc */
-	dcerpc_init_uuid (proto_conv, ett_conv, &uuid_conv, ver_conv, conv_dissectors);
+	dcerpc_init_uuid (proto_conv, ett_conv, &uuid_conv, ver_conv, conv_dissectors, -1);
 }

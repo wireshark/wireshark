@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\netdfs packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-dfs.c,v 1.3 2002/05/31 00:31:12 tpot Exp $
+ * $Id: packet-dcerpc-dfs.c,v 1.4 2002/06/24 00:03:17 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,8 @@
 static int proto_dcerpc_dfs = -1;
 static gint ett_dcerpc_dfs = -1;
 
+static int hf_dfs_opnum = -1;
+
 static e_uuid_t uuid_dcerpc_dfs = {
         0x4fc742e0, 0x4a10, 0x11cf,
         { 0x82, 0x73, 0x00, 0xaa, 0x00, 0x4a, 0xe6, 0x73 }
@@ -43,24 +45,41 @@ static e_uuid_t uuid_dcerpc_dfs = {
 static guint16 ver_dcerpc_dfs = 3;
 
 static dcerpc_sub_dissector dcerpc_dfs_dissectors[] = {
-        { DFS_EXIST, "DFS_EXIST", NULL, NULL },
-        { DFS_ADD, "DFS_ADD", NULL, NULL },
-        { DFS_REMOVE, "DFS_REMOVE", NULL, NULL },
-        { DFS_GET_INFO, "DFS_GET_INFO", NULL, NULL },
-        { DFS_ENUM, "DFS_ENUM", NULL, NULL },
+        { DFS_EXIST, "Exist", NULL, NULL },
+        { DFS_ADD, "Add", NULL, NULL },
+        { DFS_REMOVE, "Remove", NULL, NULL },
+        { DFS_GET_INFO, "GetInfo", NULL, NULL },
+        { DFS_ENUM, "Enum", NULL, NULL },
 
         {0, NULL, NULL,  NULL }
+};
+
+static const value_string dfs_opnum_vals[] = {
+        { DFS_EXIST, "Exit" },
+        { DFS_ADD, "Add" },
+        { DFS_REMOVE, "Remove" },
+        { DFS_GET_INFO, "GetInfo" },
+        { DFS_ENUM, "Enum" },
+        { 0, NULL },
 };
 
 void 
 proto_register_dcerpc_dfs(void)
 {
+	static hf_register_info hf[] = {
+		{ &hf_dfs_opnum,
+		  { "Operation", "dfs.opnum", FT_UINT16, BASE_DEC,
+		    VALS(dfs_opnum_vals), 0x0, "Operation", HFILL }},
+	};
+
         static gint *ett[] = {
                 &ett_dcerpc_dfs
         };
 
         proto_dcerpc_dfs = proto_register_protocol(
                 "Microsoft Distributed File System", "DFS", "dfs");
+
+	proto_register_field_array(proto_dcerpc_dfs, hf, array_length(hf));
 
         proto_register_subtree_array(ett, array_length(ett));
 }
@@ -71,5 +90,5 @@ proto_reg_handoff_dcerpc_dfs(void)
         /* Register protocol as dcerpc */
 
         dcerpc_init_uuid(proto_dcerpc_dfs, ett_dcerpc_dfs, &uuid_dcerpc_dfs,
-                         ver_dcerpc_dfs, dcerpc_dfs_dissectors);
+                         ver_dcerpc_dfs, dcerpc_dfs_dissectors, hf_dfs_opnum);
 }

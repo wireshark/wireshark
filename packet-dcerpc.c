@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.62 2002/06/22 01:30:53 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.63 2002/06/24 00:03:18 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -443,6 +443,7 @@ typedef struct _dcerpc_uuid_value {
     int ett;
     gchar *name;
     dcerpc_sub_dissector *procs;
+    int opnum_hf;
 } dcerpc_uuid_value;
 
 static gint
@@ -465,7 +466,7 @@ dcerpc_uuid_hash (gconstpointer k)
 
 void
 dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver,
-                  dcerpc_sub_dissector *procs)
+                  dcerpc_sub_dissector *procs, int opnum_hf)
 {
     dcerpc_uuid_key *key = g_malloc (sizeof (*key));
     dcerpc_uuid_value *value = g_malloc (sizeof (*value));
@@ -477,6 +478,7 @@ dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver,
     value->ett = ett;
     value->name = proto_get_protocol_short_name (proto);
     value->procs = procs;
+    value->opnum_hf = opnum_hf;
 
     g_hash_table_insert (dcerpc_uuids, key, value);
 }
@@ -1246,24 +1248,18 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
         /*
          * Put the operation number into the tree along with
          * the operation's name.
-         *
-         * XXX - the subdissectors should all have their own fields
-         * for the opnum, so that you can filter on a particular
-         * protocol and opnum value; the opnum value isn't, by itself,
-         * very interesting, as its interpretation depends on the
-         * subprotocol.
-         *
-         * That would also allow the field to have a value_string
-         * table, giving names for operations, and letting you filter
-         * by name.
-         *
-         * ONC RPC should do the same thing with the version and
-         * procedure fields it puts into the subprotocol's tree.
          */
-        proto_tree_add_uint_format (sub_tree, hf_dcerpc_op, tvb,
-                                    0, 0, opnum,
-                                    "Operation: %s (%u)",
-                                    name, opnum);
+
+	if (sub_proto->opnum_hf != -1)
+		proto_tree_add_uint_format(sub_tree, sub_proto->opnum_hf,
+					   tvb, 0, 0, opnum,
+					   "Operation: %s (%u)",
+					   name, opnum);
+	else
+		proto_tree_add_uint_format(sub_tree, hf_dcerpc_op, tvb,
+					   0, 0, opnum,
+					   "Operation: %s (%u)",
+					   name, opnum);
     }
 
     /* 

@@ -2,7 +2,7 @@
  * Routines for DCOM OXID Resolver
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc-oxid.c,v 1.3 2002/05/31 00:31:13 tpot Exp $
+ * $Id: packet-dcerpc-oxid.c,v 1.4 2002/06/24 00:03:17 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,5 +74,5 @@ void
 proto_reg_handoff_oxid (void)
 {
 	/* Register the protocol as dcerpc */
-	dcerpc_init_uuid (proto_oxid, ett_oxid, &uuid_oxid, ver_oxid, oxid_dissectors);
+	dcerpc_init_uuid (proto_oxid, ett_oxid, &uuid_oxid, ver_oxid, oxid_dissectors, -1);
 }
