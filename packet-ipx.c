@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.105 2002/06/26 07:39:48 guy Exp $
+ * $Id: packet-ipx.c,v 1.106 2002/07/02 07:32:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -188,6 +188,8 @@ static const value_string ipx_packet_type_vals[] = {
 
 static const value_string ipxmsg_sigchar_vals[] = {
 	{ '?', "Poll inactive station" },
+	{ 'Y', "Station is still using the connection" },
+	{ '!', "Broadcast message waiting" },
 	{ 0, NULL }
 };
 
@@ -211,6 +213,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16		ipx_length;
 
 	guint16		ipx_dsocket, ipx_ssocket;
+	guint16		low_socket, high_socket;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX");
@@ -267,21 +270,50 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Make the next tvbuff */
 	next_tvb = tvb_new_subset(tvb, IPX_HEADER_LEN, -1, -1);
 
-	if (dissector_try_port(ipx_type_dissector_table, ipx_type, next_tvb,
-	    pinfo, tree))
-		return;
-
 	/*
 	 * Let the subdissector know what type of IPX packet this is.
 	 */
 	pinfo->ipxptype = ipx_type;
 
-	if (dissector_try_port(ipx_socket_dissector_table, ipx_dsocket,
+	/*
+	 * Check the socket numbers before we check the packet type;
+	 * we've seen non-NCP packets with a type of NCP and a
+	 * destination socket of IPX_SOCKET_IPX_MESSAGE, and SAP
+	 * packets with a type of NCP and a destination socket of
+	 * IPX_SOCKET_SAP.
+	 *
+	 * Assume the lower-numbered socket number is more likely
+	 * to be the right one, along the lines of what we do for
+	 * TCP and UDP.  We've seen NCP packets with a type of NCP,
+	 * a source socket of IPX_SOCKET_NCP, and a destination
+	 * socket of IPX_SOCKET_IPX_MESSAGE, and we've seen NCP
+	 * packets with a type of NCP, a source socket of
+	 * IPX_SOCKET_IPX_MESSAGE, and a destination socket of
+	 * IPX_SOCKET_NCP.
+	 */
+	if (ipx_ssocket > ipx_dsocket) {
+		low_socket = ipx_dsocket;
+		high_socket = ipx_ssocket;
+	} else {
+		low_socket = ipx_ssocket;
+		high_socket = ipx_dsocket;
+	}
+	if (dissector_try_port(ipx_socket_dissector_table, low_socket,
 	    next_tvb, pinfo, tree))
 		return;
-	if (dissector_try_port(ipx_socket_dissector_table, ipx_ssocket,
+	if (dissector_try_port(ipx_socket_dissector_table, high_socket,
 	    next_tvb, pinfo, tree))
 		return;
+
+	/*
+	 * Neither of them are known; try the packet type.
+	 *
+	 * XXX - should we do this?
+	 */
+	if (dissector_try_port(ipx_type_dissector_table, ipx_type, next_tvb,
+	    pinfo, tree))
+		return;
+
 	call_dissector(data_handle,next_tvb, pinfo, tree);
 }
 
