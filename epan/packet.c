@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.91 2003/04/23 10:20:27 sahlberg Exp $
+ * $Id: packet.c,v 1.92 2003/05/23 22:09:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1116,11 +1116,18 @@ dissector_handle_get_short_name(dissector_handle_t handle)
 	return proto_get_protocol_short_name(handle->proto_index);
 }
 
+/* Get the dissector name for a dissector handle. */
+const char *
+dissector_handle_get_dissector_name(dissector_handle_t handle)
+{
+	return handle->name;
+}
+
 /* Get the index of the protocol for a dissector handle. */
 int
 dissector_handle_get_protocol_index(dissector_handle_t handle)
 {
-  return handle->proto_index;
+	return handle->proto_index;
 }
 
 /* Find a registered dissector by name. */
