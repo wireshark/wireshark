@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.7 2000/10/21 05:52:23 guy Exp $
+ * $Id: packet-smtp.c,v 1.8 2000/11/11 07:48:30 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -79,10 +79,11 @@ struct smtp_request_key {
   guint32 conversation;
 };
 
+/*
+ * State information stored with a conversation.
+ */
 struct smtp_request_val {
-  guint16 processed;     /* Have we processed this conversation? */
-  guint16 data_seen;     /* Have we seen the data packet */
-  guint16 eom_seen;      /* Have we seen the end of message */
+  gboolean reading_data; /* Reading message data, not commands */
   guint16 crlf_seen;     /* Have we seen a CRLF on the end of a packet */
 };
 
@@ -199,6 +200,7 @@ dissect_smtp(const u_char *pd, int offset, frame_data *fd,
     conversation_t          *conversation;
     struct smtp_request_key request_key, *new_request_key;
     struct smtp_request_val *request_val;
+    gboolean                eom_seen = FALSE;
 
 #if 0
     CHECK_DISPLAY_AS_DATA(proto_smtp, tvb, pinfo, tree);
@@ -206,14 +208,23 @@ dissect_smtp(const u_char *pd, int offset, frame_data *fd,
     OLD_CHECK_DISPLAY_AS_DATA(proto_smtp, pd, offset, fd, tree);
 #endif
 
-    /* If we have per frame data, use that, else, we must be on the first 
-     * pass, so we figure it out on the first pass.
-     * 
-     * Since we can't stash info away in a conversation (as they are 
-     * removed during a filter operation, and we can't rely on the visited
-     * flag, as that is set to 0 during a filter, we must save per-frame
-     * data for each frame. However, we only need it for requests. Responses
+    /* As there is no guarantee that we will only see frames in the
+     * the SMTP conversation once, and that we will see them in
+     * order - in Ethereal, the user could randomly click on frames
+     * in the conversation in any order in which they choose - we
+     * have to store information with each frame indicating whether
+     * it contains commands or data or an EOM indication.
+     *
+     * XXX - what about frames that contain *both*?  TCP is a
+     * byte-stream protocol, and there are no guarantees that
+     * TCP segment boundaries will correspond to SMTP commands
+     * or EOM indications.
+     *
+     * We only need that for the client->server stream; responses
      * are easy to manage.
+     *
+     * If we have per frame data, use that, else, we must be on the first 
+     * pass, so we figure it out on the first pass.
      */
 
     /* Find out what conversation this packet is part of ... but only
@@ -252,9 +263,7 @@ dissect_smtp(const u_char *pd, int offset, frame_data *fd,
 	new_request_key->conversation = conversation->index;
 
 	request_val = g_mem_chunk_alloc(smtp_request_vals);
-	request_val->processed = 0;
-	request_val->data_seen = 0;
-	request_val->eom_seen = 0;
+	request_val->reading_data = FALSE;
 	request_val->crlf_seen = 0;
 
 	g_hash_table_insert(smtp_request_hash, new_request_key, request_val);
@@ -268,7 +277,7 @@ dissect_smtp(const u_char *pd, int offset, frame_data *fd,
        * two passes through here ...
        */
 
-      if (request_val->data_seen && !request_val->processed) {
+      if (request_val->reading_data) {
 
 	/*
 	 * The order of these is important ... We want to avoid
@@ -279,7 +288,7 @@ dissect_smtp(const u_char *pd, int offset, frame_data *fd,
 	if ((request_val->crlf_seen && strncmp(pd + offset, ".\r\n", 3) == 0) ||
 	    (strncmp(pd + offset, "\r\n.\r\n", 5) == 0)) {
 
-	  request_val->eom_seen = 1;
+	  eom_seen = TRUE;
 
 	}
 
@@ -304,40 +313,52 @@ dissect_smtp(const u_char *pd, int offset, frame_data *fd,
 
 	frame_data = g_mem_chunk_alloc(smtp_packet_infos);
 
-	if (!request_val->processed) { 
+	if (request_val->reading_data) {
+	  /*
+	   * This is message data.
+	   */
+	  if (eom_seen) { /* Seen the EOM */
+	    /*
+	     * EOM.
+	     * Everything that comes after it is commands.
+	     *
+	     * XXX - what if the EOM isn't at the beginning of
+	     * the TCP segment?  It can occur anywhere....
+	     */
+	    frame_data->pdu_type = SMTP_PDU_EOM;
+	    request_val->reading_data = FALSE;
+	  } else {
+	    /*
+	     * Message data with no EOM.
+	     */
+	    frame_data->pdu_type = SMTP_PDU_MESSAGE;
+	  }
+	} else {
+	  /*
+	   * This is commands.
+	   */
 	  if (strncmp(pd + offset, "DATA", 4)==0) {
 
-	  request_val->data_seen = 1;
-	  frame_data->pdu_type = SMTP_PDU_CMD;
-	  p_add_proto_data(pinfo->fd, proto_smtp, frame_data);
-
-	  } else if ((!request_val->eom_seen) &&
-		     (request_val->data_seen)) {
-	 
-	    /* Now, create the frame data for this frame ... */
-
-	    frame_data->pdu_type = SMTP_PDU_MESSAGE;
-	    p_add_proto_data(pinfo->fd, proto_smtp, frame_data);
-
-	  } else if (request_val->eom_seen) { /* Seen the EOM */
-
-	    /* Now, we clear the eom_seen and data_seen bits */
-
-	    request_val->eom_seen = request_val->data_seen = 0;
-	    request_val->processed = 1;   /* We have seen all the packets */
-
-	    /* And add the packet data */
-
-	    frame_data->pdu_type = SMTP_PDU_EOM;
-	    p_add_proto_data(pinfo->fd, proto_smtp, frame_data);
+	    /*
+	     * DATA command.
+	     * This is a command, but everything that comes after it,
+	     * until an EOM, is data.
+	     */
+	    frame_data->pdu_type = SMTP_PDU_CMD;
+	    request_val->reading_data = TRUE;
 
 	  } else {
 
+	    /*
+	     * Regular command.
+	     */
 	    frame_data->pdu_type = SMTP_PDU_CMD;
-	    p_add_proto_data(pinfo->fd, proto_smtp, frame_data);
-
 	  }
+
 	}
+
+	p_add_proto_data(pinfo->fd, proto_smtp, frame_data);
+
       }
     }
 
