@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.19 2002/03/28 09:15:28 guy Exp $
+ * $Id: packet-ssl.c,v 1.20 2002/04/08 10:05:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -442,7 +442,7 @@ static int dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                                gboolean *need_desegmentation);
 
 /* change cipher spec dissector */
-static void dissect_ssl3_change_cipher_spec(tvbuff_t *tvb, packet_info *pinfo,
+static void dissect_ssl3_change_cipher_spec(tvbuff_t *tvb,
                                             proto_tree *tree,
                                             guint32 offset,
                                             guint *conv_version);
@@ -459,22 +459,22 @@ static void dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                    guint *conv_version);
 
 
-static void dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
+static void dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb,
                                        proto_tree *tree,
                                        guint32 offset);
 
-static void dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb, packet_info *pinfo,
+static void dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
                                        proto_tree *tree,
                                        guint32 offset);
 
-static void dissect_ssl3_hnd_cert(tvbuff_t *tvb, packet_info *pinfo,
+static void dissect_ssl3_hnd_cert(tvbuff_t *tvb,
                                   proto_tree *tree, guint32 offset);
 
-static void dissect_ssl3_hnd_cert_req(tvbuff_t *tvb, packet_info *pinfo,
+static void dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
                                       proto_tree *tree,
                                       guint32 offset);
 
-static void dissect_ssl3_hnd_finished(tvbuff_t *tvb, packet_info *pinfo,
+static void dissect_ssl3_hnd_finished(tvbuff_t *tvb,
                                       proto_tree *tree,
                                       guint32 offset,
                                       guint *conv_version);
@@ -492,19 +492,17 @@ static int dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo,
                                gboolean *need_desegmentation);
 
 /* client hello dissector */
-static void dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
+static void dissect_ssl2_hnd_client_hello(tvbuff_t *tvb,
                                           proto_tree *tree,
                                           guint32 offset);
 
 /* client master key dissector */
 static void dissect_ssl2_hnd_client_master_key(tvbuff_t *tvb,
-                                               packet_info *pinfo,
                                                proto_tree *tree,
                                                guint32 offset);
 
 /* server hello dissector */
 static void dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
-                                          packet_info *pinfo,
                                           proto_tree *tree,
                                           guint32 offset);
 
@@ -899,7 +897,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
     case SSL_ID_CHG_CIPHER_SPEC:
         if (check_col(pinfo->cinfo, COL_INFO))
             col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
-        dissect_ssl3_change_cipher_spec(tvb, pinfo, ssl_record_tree,
+        dissect_ssl3_change_cipher_spec(tvb, ssl_record_tree,
                                         offset, conv_version);
         break;
     case SSL_ID_ALERT:
@@ -936,7 +934,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
 /* dissects the change cipher spec procotol, filling in the tree */
 static void
-dissect_ssl3_change_cipher_spec(tvbuff_t *tvb, packet_info *pinfo,
+dissect_ssl3_change_cipher_spec(tvbuff_t *tvb,
                                 proto_tree *tree, guint32 offset,
                                 guint *conv_version)
 {
@@ -1153,19 +1151,19 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CLIENT_HELLO:
-                dissect_ssl3_hnd_cli_hello(tvb, pinfo, ssl_hand_tree, offset);
+                dissect_ssl3_hnd_cli_hello(tvb, ssl_hand_tree, offset);
             break;
 
             case SSL_HND_SERVER_HELLO:
-                dissect_ssl3_hnd_srv_hello(tvb, pinfo, ssl_hand_tree, offset);
+                dissect_ssl3_hnd_srv_hello(tvb, ssl_hand_tree, offset);
                 break;
 
             case SSL_HND_CERTIFICATE:
-                dissect_ssl3_hnd_cert(tvb, pinfo, ssl_hand_tree, offset);
+                dissect_ssl3_hnd_cert(tvb, ssl_hand_tree, offset);
                 break;
 
             case SSL_HND_CERT_REQUEST:
-                dissect_ssl3_hnd_cert_req(tvb, pinfo, ssl_hand_tree, offset);
+                dissect_ssl3_hnd_cert_req(tvb, ssl_hand_tree, offset);
                 break;
 
             case SSL_HND_SVR_HELLO_DONE:
@@ -1173,7 +1171,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_FINISHED:
-                dissect_ssl3_hnd_finished(tvb, pinfo, ssl_hand_tree,
+                dissect_ssl3_hnd_finished(tvb, ssl_hand_tree,
                                           offset, conv_version);
                 break;
 
@@ -1237,7 +1235,7 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
 }
 
 static void
-dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
+dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb,
                            proto_tree *tree, guint32 offset)
 {
     /* struct {
@@ -1330,7 +1328,7 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void
-dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb, packet_info *pinfo,
+dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
                            proto_tree *tree, guint32 offset)
 {
     /* struct {
@@ -1366,7 +1364,7 @@ dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void
-dissect_ssl3_hnd_cert(tvbuff_t *tvb, packet_info *pinfo,
+dissect_ssl3_hnd_cert(tvbuff_t *tvb,
                       proto_tree *tree, guint32 offset)
 {
 
@@ -1430,7 +1428,7 @@ dissect_ssl3_hnd_cert(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void
-dissect_ssl3_hnd_cert_req(tvbuff_t *tvb, packet_info *pinfo,
+dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
                           proto_tree *tree, guint32 offset)
 {
     /*
@@ -1526,7 +1524,7 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void
-dissect_ssl3_hnd_finished(tvbuff_t *tvb, packet_info *pinfo,
+dissect_ssl3_hnd_finished(tvbuff_t *tvb,
                           proto_tree *tree, guint32 offset,
                           guint *conv_version)
 {
@@ -1757,15 +1755,15 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* dissect the message (only handle client hello right now) */
     switch (msg_type) {
     case SSL2_HND_CLIENT_HELLO:
-        dissect_ssl2_hnd_client_hello(tvb, pinfo, ssl_record_tree, offset);
+        dissect_ssl2_hnd_client_hello(tvb, ssl_record_tree, offset);
         break;
 
     case SSL2_HND_CLIENT_MASTER_KEY:
-        dissect_ssl2_hnd_client_master_key(tvb, pinfo, ssl_record_tree, offset);
+        dissect_ssl2_hnd_client_master_key(tvb, ssl_record_tree, offset);
         break;
 
     case SSL2_HND_SERVER_HELLO:
-        dissect_ssl2_hnd_server_hello(tvb, pinfo, ssl_record_tree, offset);
+        dissect_ssl2_hnd_server_hello(tvb, ssl_record_tree, offset);
         break;
 
     case SSL2_HND_ERROR:
@@ -1786,7 +1784,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
+dissect_ssl2_hnd_client_hello(tvbuff_t *tvb,
                               proto_tree *tree, guint32 offset)
 {
     /* struct {
@@ -1887,7 +1885,7 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void
-dissect_ssl2_hnd_client_master_key(tvbuff_t *tvb, packet_info *pinfo,
+dissect_ssl2_hnd_client_master_key(tvbuff_t *tvb,
                                    proto_tree *tree, guint32 offset)
 {
     /* struct {
@@ -1961,7 +1959,7 @@ dissect_ssl2_hnd_client_master_key(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void
-dissect_ssl2_hnd_server_hello(tvbuff_t *tvb, packet_info *pinfo,
+dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
                               proto_tree *tree, guint32 offset)
 {
     /* struct {
