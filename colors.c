@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.10 1999/10/05 04:33:59 gram Exp $
+ * $Id: colors.c,v 1.11 1999/10/05 18:10:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,6 +46,7 @@
 extern capture_file cf;
 
 static gboolean read_filters(capture_file *cf);
+static GtkWidget* create_color_sel_win(cap_file  *cf, GdkColor *);
 
 GdkColor 	proto_colors[MAXCOLORS];
 GdkColormap*	sys_cmap;
@@ -1051,7 +1052,7 @@ create_colorize_win (capture_file *cf,
   return colorize_win;
 }
 
-GtkWidget*
+static GtkWidget*
 create_color_sel_win (capture_file *cf, GdkColor * color)
 {
   GtkWidget *color_sel_win;

@@ -1,7 +1,7 @@
 /* colors.h
  * Definitions for color structures and routines
  *
- * $Id: colors.h,v 1.3 1999/10/05 04:34:00 gram Exp $
+ * $Id: colors.h,v 1.4 1999/10/05 18:10:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -153,7 +153,5 @@ GtkWidget* create_color_win (cap_file *cf);
 GtkWidget* create_colorize_win (cap_file *cf,
 				 GtkWidget **colorize_filter_name,
 				 GtkWidget **colorize_filter_text);
-GtkWidget* create_color_sel_win (cap_file  *cf, GdkColor *);
-
 
 #endif
