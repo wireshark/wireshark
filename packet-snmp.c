@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.84 2002/03/10 23:17:00 guy Exp $
+ * $Id: packet-snmp.c,v 1.85 2002/03/11 01:40:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -487,7 +487,7 @@ check_var_length(guint vb_length, guint required_length)
 
 static u_char *
 format_var(struct variable_list *variable, subid_t *variable_oid,
-    guint variable_oid_length, gushort vb_type, guint vb_length)
+    guint variable_oid_length, gushort vb_type, guint val_len)
 {
 	u_char *buf;
 	size_t buf_len;
@@ -497,14 +497,14 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 
 	case SNMP_IPADDR:
 		/* Length has to be 4 bytes. */
-		buf = check_var_length(vb_length, 4);
+		buf = check_var_length(val_len, 4);
 		if (buf != NULL)
 			return buf;	/* it's not 4 bytes */
 		break;
 
 	case SNMP_COUNTER64:
 		/* Length has to be 8 bytes. */
-		buf = check_var_length(vb_length, 8);
+		buf = check_var_length(val_len, 8);
 		if (buf != NULL)
 			return buf;	/* it's not 8 bytes */
 		break;
@@ -552,7 +552,6 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 
 	case SNMP_OBJECTID:
 		variable->type = VALTYPE_OBJECTID;
-		vb_length *= sizeof (subid_t);	/* XXX - necessary? */
 		break;
 
 	case SNMP_BITSTR:
@@ -563,7 +562,7 @@ format_var(struct variable_list *variable, subid_t *variable_oid,
 		variable->type = VALTYPE_COUNTER64;
 		break;
 	}
-	variable->val_len = vb_length;
+	variable->val_len = val_len;
 
 	/*
 	 * XXX - check for "malloc" and "sprint_realloc_objid()" failure.
@@ -770,7 +769,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			variable.val.objid = vb_oid;
 			vb_display_string = format_var(&variable,
 			    variable_oid, variable_oid_length, vb_type,
-			    vb_length);
+			    vb_oid_length * sizeof (subid_t));
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s", vb_display_string);
