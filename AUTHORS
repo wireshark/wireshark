@@ -1284,8 +1284,12 @@ Tsutomu Mieno <iitom[AT]utouto.com> {
 	DHCPv6 updates
 }
 
-Yasuhiro Shirasaki <yasuhiro@gnome[AT[gr.jp> {
+Yasuhiro Shirasaki <yasuhiro@gnome[AT]gr.jp> {
 	DHCPv6 updates
+}
+
+Anand V. Narwani <anarwani[AT]cisco.com> {
+	gtk/Makefile.am fix
 }
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to

@@ -1456,6 +1456,7 @@ B<http://www.ethereal.com>.
   Markus Steinmann         <ms[AT]seh.de>
   Tsutomu Mieno            <iitom[AT]utouto.com>
   Yasuhiro Shirasaki       <yasuhiro@gnome[AT]gr.jp>
+  Anand V. Narwani         <anarwani[AT]cisco.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

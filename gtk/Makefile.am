@@ -1,12 +1,11 @@
 # Makefile.am
 # Automake file for the GTK interface routines for Ethereal
 #
-# $Id: Makefile.am,v 1.38 2002/01/13 20:35:11 guy Exp $
+# $Id: Makefile.am,v 1.39 2002/06/27 19:06:56 guy Exp $
 #
 # Ethereal - Network traffic analyzer
-# By Gerald Combs <gerald@zing.org>
+# By Gerald Combs <gerald@ethereal.com>
 # Copyright 1998 Gerald Combs
-#
 # 
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -99,4 +98,6 @@ libui_a_SOURCES = \
 	ui_util.h
 
 EXTRA_DIST = \
-	Makefile.nmake
+	Makefile.nmake \
+	print_mswin.c  \
+	print_mswin.h 
