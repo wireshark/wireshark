@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.27 2000/11/09 14:09:41 itojun Exp $
+ * $Id: packet-icmpv6.c,v 1.28 2000/11/09 16:39:59 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,6 +82,13 @@ static const value_string names_nodeinfo_qtype[] = {
     { NI_QTYPE_DNSNAME,		"DNS name" },
     { NI_QTYPE_NODEADDR,	"Node addresses" },
     { NI_QTYPE_IPV4ADDR, 	"IPv4 node addresses" },
+    { 0,			NULL }
+};
+
+static const value_string names_rrenum_matchcode[] = {
+    { RPM_PCO_ADD,		"Add" },
+    { RPM_PCO_CHANGE,		"Change" },
+    { RPM_PCO_SETGLOBAL,	"Set Global" },
     { 0,			NULL }
 };
 
@@ -557,6 +564,159 @@ nodata:;
 }
 
 static void
+dissect_rrenum(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+{
+    proto_tree *field_tree, *opt_tree;
+	proto_item *tf;
+    struct icmp6_router_renum *rr = (struct icmp6_router_renum *)&pd[offset];
+    struct rr_pco_match *match;
+    struct rr_pco_use *use;
+    int flagoff, off, l;
+
+    proto_tree_add_text(tree, NullTVB,
+	offset + offsetof(struct icmp6_router_renum, rr_seqnum), 4,
+	"Sequence number: 0x%08x", pntohl(&rr->rr_seqnum));
+    proto_tree_add_text(tree, NullTVB,
+	offset + offsetof(struct icmp6_router_renum, rr_segnum), 1,
+	"Segment number: 0x%02x", rr->rr_segnum);
+
+    flagoff = offset + offsetof(struct icmp6_router_renum, rr_flags);
+    tf = proto_tree_add_text(tree, NullTVB, flagoff, 1,
+	"Flags: 0x%02x", pd[flagoff]);
+    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
+    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
+	decode_boolean_bitfield(pd[flagoff], 0x80, 8,
+	    "Test command", "Not test command"));
+    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
+	decode_boolean_bitfield(pd[flagoff], 0x40, 8,
+	    "Result requested", "Result not requested"));
+    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
+	decode_boolean_bitfield(pd[flagoff], 0x20, 8,
+	    "All interfaces", "Not all interfaces"));
+    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
+	decode_boolean_bitfield(pd[flagoff], 0x10, 8,
+	    "Site specific", "Not site specific"));
+    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
+	decode_boolean_bitfield(pd[flagoff], 0x08, 8,
+	    "Processed previously", "Complete result"));
+
+    proto_tree_add_text(tree, NullTVB,
+	offset + offsetof(struct icmp6_router_renum, rr_maxdelay), 2,
+	"Max delay: 0x%04x", pntohs(&rr->rr_maxdelay));
+    old_dissect_data(pd, offset + sizeof(*rr), fd, tree);	/*XXX*/
+
+    if (rr->rr_code == ICMP6_ROUTER_RENUMBERING_COMMAND) {
+	off = offset + sizeof(*rr);
+	match = (struct rr_pco_match *)&pd[off];
+	tf = proto_tree_add_text(tree, NullTVB, off, sizeof(*match),
+	    "Match-Prefix: %s/%u (%u-%u)", ip6_to_str(&match->rpm_prefix),
+	    match->rpm_matchlen, match->rpm_minlen, match->rpm_maxlen);
+	opt_tree = proto_item_add_subtree(tf, ett_icmpv6opt);
+	proto_tree_add_text(opt_tree, NullTVB,
+	    off + offsetof(struct rr_pco_match, rpm_code),
+	    sizeof(match->rpm_code), "OpCode: %s",
+	    val_to_str(match->rpm_code, names_rrenum_matchcode, "Unknown"), 
+	    match->rpm_code);
+	proto_tree_add_text(opt_tree, NullTVB,
+	    off + offsetof(struct rr_pco_match, rpm_len),
+	    sizeof(match->rpm_len), "OpLength: %u (%u octets)",
+	    match->rpm_len, match->rpm_len * 8);
+	proto_tree_add_text(opt_tree, NullTVB,
+	    off + offsetof(struct rr_pco_match, rpm_ordinal),
+	    sizeof(match->rpm_ordinal), "Ordinal: %u", match->rpm_ordinal);
+	proto_tree_add_text(opt_tree, NullTVB,
+	    off + offsetof(struct rr_pco_match, rpm_matchlen),
+	    sizeof(match->rpm_matchlen), "MatchLen: %u", match->rpm_matchlen);
+	proto_tree_add_text(opt_tree, NullTVB,
+	    off + offsetof(struct rr_pco_match, rpm_minlen),
+	    sizeof(match->rpm_minlen), "MinLen: %u", match->rpm_minlen);
+	proto_tree_add_text(opt_tree, NullTVB,
+	    off + offsetof(struct rr_pco_match, rpm_maxlen),
+	    sizeof(match->rpm_maxlen), "MaxLen: %u", match->rpm_maxlen);
+	proto_tree_add_text(opt_tree, NullTVB,
+	    off + offsetof(struct rr_pco_match, rpm_prefix),
+	    sizeof(match->rpm_prefix), "MatchPrefix: %s",
+	    ip6_to_str(&match->rpm_prefix));
+
+	off += sizeof(*match);
+	use = (struct rr_pco_use *)&pd[off];
+	for (l = match->rpm_len * 8 - sizeof(*match);
+	     l >= sizeof(*use); l -= sizeof(*use), off += sizeof(*use)) {
+	    tf = proto_tree_add_text(tree, NullTVB, off, sizeof(*use),
+		"Use-Prefix: %s/%u (keep %u)", ip6_to_str(&use->rpu_prefix),
+		use->rpu_uselen, use->rpu_keeplen);
+	    opt_tree = proto_item_add_subtree(tf, ett_icmpv6opt);
+	    proto_tree_add_text(opt_tree, NullTVB,
+		off + offsetof(struct rr_pco_use, rpu_uselen),
+		sizeof(use->rpu_uselen), "UseLen: %u", use->rpu_uselen);
+	    proto_tree_add_text(opt_tree, NullTVB,
+		off + offsetof(struct rr_pco_use, rpu_keeplen),
+		sizeof(use->rpu_keeplen), "KeepLen: %u", use->rpu_keeplen);
+	    tf = proto_tree_add_text(opt_tree, NullTVB,
+		flagoff = off + offsetof(struct rr_pco_use, rpu_ramask),
+		sizeof(use->rpu_ramask), "FlagMask: 0x%x", use->rpu_ramask);
+	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
+	    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
+		decode_boolean_bitfield(pd[flagoff],
+		    ICMP6_RR_PCOUSE_RAFLAGS_ONLINK, 8,
+		    "Onlink", "Not onlink"));
+	    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
+		decode_boolean_bitfield(pd[flagoff],
+		    ICMP6_RR_PCOUSE_RAFLAGS_AUTO, 8,
+		    "Auto", "Not auto"));
+	    tf = proto_tree_add_text(opt_tree, NullTVB,
+		flagoff = off + offsetof(struct rr_pco_use, rpu_raflags),
+		sizeof(use->rpu_raflags), "RAFlags: 0x%x", use->rpu_raflags);
+	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
+	    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
+		decode_boolean_bitfield(pd[flagoff],
+		    ICMP6_RR_PCOUSE_RAFLAGS_ONLINK, 8,
+		    "Onlink", "Not onlink"));
+	    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
+		decode_boolean_bitfield(pd[flagoff],
+		    ICMP6_RR_PCOUSE_RAFLAGS_AUTO, 8, "Auto", "Not auto"));
+	    if (pntohl(&use->rpu_vltime) == 0xffffffff)
+		proto_tree_add_text(opt_tree, NullTVB,
+		    off + offsetof(struct rr_pco_use, rpu_vltime),
+		    sizeof(use->rpu_vltime), "Valid Lifetime: infinity");
+	    else
+		proto_tree_add_text(opt_tree, NullTVB,
+		    off + offsetof(struct rr_pco_use, rpu_vltime),
+		    sizeof(use->rpu_vltime), "Valid Lifetime: %u",
+		    pntohl(&use->rpu_vltime));
+	    if (pntohl(&use->rpu_pltime) == 0xffffffff)
+		proto_tree_add_text(opt_tree, NullTVB,
+		    off + offsetof(struct rr_pco_use, rpu_pltime),
+		    sizeof(use->rpu_pltime), "Preferred Lifetime: infinity");
+	    else
+		proto_tree_add_text(opt_tree, NullTVB,
+		    off + offsetof(struct rr_pco_use, rpu_pltime),
+		    sizeof(use->rpu_pltime), "Preferred Lifetime: %u",
+		    pntohl(&use->rpu_pltime));
+	    tf = proto_tree_add_text(opt_tree, NullTVB,
+		flagoff = off + offsetof(struct rr_pco_use, rpu_flags),
+		sizeof(use->rpu_flags), "Flags: 0x%08x",
+		pntohl(&use->rpu_flags));
+	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
+	    proto_tree_add_text(field_tree, NullTVB, flagoff, 4, "%s",
+		decode_boolean_bitfield(pd[flagoff],
+		    ICMP6_RR_PCOUSE_FLAGS_DECRVLTIME, 32,
+		    "Decrement valid lifetime", "No decrement valid lifetime"));
+	    proto_tree_add_text(field_tree, NullTVB, flagoff, 4, "%s",
+		decode_boolean_bitfield(pd[flagoff],
+		    ICMP6_RR_PCOUSE_FLAGS_DECRPLTIME, 32,
+		    "Decrement preferred lifetime",
+		    "No decrement preferred lifetime"));
+	    proto_tree_add_text(opt_tree, NullTVB,
+		off + offsetof(struct rr_pco_use, rpu_prefix),
+		sizeof(use->rpu_prefix), "UsePrefix: %s",
+		ip6_to_str(&use->rpu_prefix));
+	}
+
+    }
+}
+
+static void
 dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
     proto_tree *icmp6_tree, *field_tree;
@@ -675,6 +835,9 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    break;
 	case ICMP6_ROUTER_RENUMBERING_RESULT:
 	    codename = colcodename = "Result";
+	    break;
+	case ICMP6_ROUTER_RENUMBERING_SEQNUM_RESET:
+	    codename = colcodename = "Sequence number reset";
 	    break;
 	}
 	len = sizeof(struct icmp6_router_renum);
@@ -935,43 +1098,8 @@ dissect_icmpv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    break;
 	  }
 	case ICMP6_ROUTER_RENUMBERING:
-	  {
-	    struct icmp6_router_renum *rr = (struct icmp6_router_renum *)dp;
-	    int flagoff;
-	    proto_tree_add_text(icmp6_tree, NullTVB,
-		offset + offsetof(struct icmp6_router_renum, rr_seqnum), 4,
-		/*"Sequence number: 0x%08x", (guint32)htonl(rr->rr_seqnum));*/
-		"Sequence number: 0x%08x", pntohl(&rr->rr_seqnum));
-	    proto_tree_add_text(icmp6_tree, NullTVB,
-		offset + offsetof(struct icmp6_router_renum, rr_segnum), 1,
-		"Segment number: 0x%02x", rr->rr_segnum);
-
-	    flagoff = offset + offsetof(struct icmp6_router_renum, rr_flags);
-	    tf = proto_tree_add_text(icmp6_tree, NullTVB, flagoff, 1,
-	        "Flags: 0x%02x", pd[flagoff]);
-	    field_tree = proto_item_add_subtree(tf, ett_icmpv6flag);
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
-		decode_boolean_bitfield(pd[flagoff], 0x80, 8,
-		    "Test command", "Not test command"));
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
-		decode_boolean_bitfield(pd[flagoff], 0x40, 8,
-		    "Result requested", "Result not requested"));
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
-		decode_boolean_bitfield(pd[flagoff], 0x20, 8,
-		    "All interfaces", "Not all interfaces"));
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
-		decode_boolean_bitfield(pd[flagoff], 0x10, 8,
-		    "Site specific", "Not site specific"));
-	    proto_tree_add_text(field_tree, NullTVB, flagoff, 1, "%s",
-		decode_boolean_bitfield(pd[flagoff], 0x08, 8,
-		    "Processed previously", "Complete result"));
-
-	    proto_tree_add_text(icmp6_tree, NullTVB,
-		offset + offsetof(struct icmp6_router_renum, rr_maxdelay), 2,
-		"Max delay: 0x%04x", pntohs(&rr->rr_maxdelay));
-	    old_dissect_data(pd, offset + sizeof(*rr), fd, tree);	/*XXX*/
+	    dissect_rrenum(pd, offset, fd, icmp6_tree);
 	    break;
-	  }
 	case ICMP6_NI_QUERY:
 	case ICMP6_NI_REPLY:
 	    ni = (struct icmp6_nodeinfo *)dp;

@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.14 2000/11/09 14:09:41 itojun Exp $
+ * $Id: packet-ipv6.h,v 1.15 2000/11/09 16:39:59 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -489,66 +489,34 @@ struct rr_pco_match {		/* match prefix part */
 #define RPM_PCO_SETGLOBAL	3
 #define RPM_PCO_MAX		4
 
-#if BYTE_ORDER == BIG_ENDIAN /* net byte order */
 struct rr_pco_use {		/* use prefix part */
 	guint8	rpu_uselen;
 	guint8	rpu_keeplen;
-	guint32	rpu_mask_onlink : 1;
-	guint32	rpu_mask_autonomous : 1;
-	guint32	rpu_mask_reserved : 6;
-	guint32	rpu_onlink : 1;
-	guint32	rpu_autonomous : 1;
-	guint32	rpu_raflags_reserved : 6;
+	guint8	rpu_ramask;
+	guint8	rpu_raflags;
 	guint32	rpu_vltime;
 	guint32	rpu_pltime;
-	guint32	rpu_decr_vltime : 1;
-	guint32	rpu_decr_pltime : 1;
-	guint32	rpu_flags_reserved : 6;
-	guint32	rpu_reserved : 24;
+	guint32	rpu_flags;
 	struct e_in6_addr rpu_prefix;
 };
-#elif BYTE_ORDER == LITTLE_ENDIAN
-struct rr_pco_use {		/* use prefix part */
-	guint8	rpu_uselen;
-	guint8	rpu_keeplen;
-	guint32	rpu_mask_reserved : 6;
-	guint32	rpu_mask_autonomous : 1;
-	guint32	rpu_mask_onlink : 1;
-	guint32	rpu_raflags_reserved : 6;
-	guint32	rpu_autonomous : 1;
-	guint32	rpu_onlink : 1;
-	guint32	rpu_vltime;
-	guint32	rpu_pltime;
-	guint32	rpu_flags_reserved : 6;
-	guint32	rpu_decr_pltime : 1;
-	guint32	rpu_decr_vltime : 1;
-	guint32	rpu_reserved : 24;
-	struct e_in6_addr rpu_prefix;
-};
-#endif /* BYTE_ORDER */
 
-#if BYTE_ORDER == BIG_ENDIAN /* net byte order */
+#define ICMP6_RR_PCOUSE_RAFLAGS_ONLINK  0x80
+#define ICMP6_RR_PCOUSE_RAFLAGS_AUTO    0x40
+
+/* network endian */
+#define ICMP6_RR_PCOUSE_FLAGS_DECRVLTIME	0x80000000
+#define ICMP6_RR_PCOUSE_FLAGS_DECRPLTIME	0x40000000
+
 struct rr_result {		/* router renumbering result message */
-	guint8	rrr_reserved;
-	guint32	rrr_flags_reserved : 6;
-	guint32	rrr_outofbound : 1;
-	guint32	rrr_forbidden : 1;
+	guint16	rrr_flags;
 	guint8	rrr_ordinal;
 	guint8	rrr_matchedlen;
 	guint32	rrr_ifid;
 	struct e_in6_addr rrr_prefix;
 };
-#elif BYTE_ORDER == LITTLE_ENDIAN
-struct rr_result {		/* router renumbering result message */
-	guint8	rrr_reserved;
-	guint32	rrr_forbidden : 1;
-	guint32	rrr_outofbound : 1;
-	guint32	rrr_flags_reserved : 6;
-	guint8	rrr_ordinal;
-	guint8	rrr_matchedlen;
-	guint32	rrr_ifid;
-	struct e_in6_addr rrr_prefix;
-};
-#endif /* BYTE_ORDER */
+
+/* network endian */
+#define ICMP6_RR_RESULT_FLAGS_OOB		0x0002
+#define ICMP6_RR_RESULT_FLAGS_FORBIDDEN		0x0001
 
 #endif /* __PACKET_IPV6_H_DEFINED__ */
