@@ -2,7 +2,7 @@
  * Routines for NetWare's NDPS
  * Greg Morris <gmorris@novell.com>
  *
- * $Id: packet-ndps.c,v 1.6 2002/10/21 18:56:52 guy Exp $
+ * $Id: packet-ndps.c,v 1.7 2002/10/22 06:09:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2041,7 +2041,7 @@ ndps_hash_lookup(conversation_t *conversation, guint32 ndps_xid)
 static void
 dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree	*ndps_tree;
+    proto_tree	*ndps_tree = NULL;
     proto_item	*ti;
 	
     guint16     record_mark;
@@ -2062,120 +2062,120 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO))
         col_clear(pinfo->cinfo, COL_INFO);
 	
+    foffset = 0;
     if (tree) {
-        foffset = 0;
         ti = proto_tree_add_item(tree, proto_ndps, tvb, foffset, -1, FALSE);
         ndps_tree = proto_item_add_subtree(ti, ett_ndps);
-        if (tvb_length_remaining(tvb, foffset) >= 28)
+    }
+    if (tvb_length_remaining(tvb, foffset) >= 28)
+    {
+        record_mark = tvb_get_ntohs(tvb, foffset);
+        if (tvb_get_ntohl(tvb, foffset+4) == 0x00000065) /* Check xid if not 65 then fragment packet */
         {
-            record_mark = tvb_get_ntohs(tvb, foffset);
-            if (tvb_get_ntohl(tvb, foffset+4) == 0x00000065) /* Check xid if not 65 then fragment packet */
+            proto_tree_add_uint(ndps_tree, hf_ndps_record_mark, tvb,
+                           foffset, 2, record_mark);
+            foffset += 2;
+            ndps_length = tvb_get_ntohs(tvb, foffset);
+            proto_tree_add_uint_format(ndps_tree, hf_ndps_length, tvb,
+                           foffset, 2, ndps_length,
+                           "Length of NDPS Packet: %d", ndps_length);
+            foffset += 2;
+            ndps_xid = tvb_get_ntohl(tvb, foffset);
+            proto_tree_add_uint(ndps_tree, hf_ndps_xid, tvb, foffset, 4, ndps_xid);
+            foffset += 4;
+            ndps_packet_type = tvb_get_ntohl(tvb, foffset);
+            proto_tree_add_uint(ndps_tree, hf_ndps_packet_type, tvb, foffset, 4, ndps_packet_type);
+            foffset += 4;
+            if(ndps_packet_type == 0x00000001)          /* Reply packet */
             {
-                proto_tree_add_uint(ndps_tree, hf_ndps_record_mark, tvb,
-                               foffset, 2, record_mark);
-                foffset += 2;
-                ndps_length = tvb_get_ntohs(tvb, foffset);
-                proto_tree_add_uint_format(ndps_tree, hf_ndps_length, tvb,
-                               foffset, 2, ndps_length,
-                               "Length of NDPS Packet: %d", ndps_length);
-                foffset += 2;
-                ndps_xid = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_uint(ndps_tree, hf_ndps_xid, tvb, foffset, 4, ndps_xid);
-                foffset += 4;
-                ndps_packet_type = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_item(ndps_tree, hf_ndps_packet_type, tvb, foffset, 4, FALSE);
-                foffset += 4;
-                if(ndps_packet_type == 0x00000001)          /* Reply packet */
-                {
-                    if (check_col(pinfo->cinfo, COL_INFO))
-                        col_set_str(pinfo->cinfo, COL_INFO, "R NDPS ");
-                    proto_tree_add_item(ndps_tree, hf_ndps_rpc_accept, tvb, foffset, 4, FALSE);
-                    if (tvb_get_ntohl(tvb, foffset)==0) {
-                        foffset += 4;
-                        proto_tree_add_item(ndps_tree, hf_ndps_auth_null, tvb, foffset, 8, FALSE);
-                        foffset += 8;
-                    }
-                    else
-                    {
-                        foffset += 4;
-                        proto_tree_add_item(ndps_tree, hf_ndps_rpc_rej_stat, tvb, foffset+4, 4, FALSE);
-                        foffset += 4;
-                    }
-                    dissect_ndps_reply(tvb, pinfo, ndps_tree, ndps_xid, foffset);
+                if (check_col(pinfo->cinfo, COL_INFO))
+                    col_set_str(pinfo->cinfo, COL_INFO, "R NDPS ");
+                proto_tree_add_item(ndps_tree, hf_ndps_rpc_accept, tvb, foffset, 4, FALSE);
+                if (tvb_get_ntohl(tvb, foffset)==0) {
+                    foffset += 4;
+                    proto_tree_add_item(ndps_tree, hf_ndps_auth_null, tvb, foffset, 8, FALSE);
+                    foffset += 8;
                 }
                 else
                 {
-                    if (check_col(pinfo->cinfo, COL_INFO))
-                        col_set_str(pinfo->cinfo, COL_INFO, "C NDPS ");
-                    ndps_rpc_version = tvb_get_ntohl(tvb, foffset);
-                    proto_tree_add_item(ndps_tree, hf_ndps_rpc_version, tvb, foffset, 4, FALSE);
                     foffset += 4;
-                    ndps_prog = tvb_get_ntohl(tvb, foffset);
-                    ndps_program_string = match_strval(ndps_prog, spx_ndps_program_vals);
-                    if( ndps_program_string != NULL)
-                    {
-                        proto_tree_add_item(ndps_tree, hf_spx_ndps_program, tvb, foffset, 4, FALSE);
-                        foffset += 4;
-                        if (check_col(pinfo->cinfo, COL_INFO))
-                        {
-                            col_append_str(pinfo->cinfo, COL_INFO, (gchar*) ndps_program_string);
-                            col_append_str(pinfo->cinfo, COL_INFO, ", ");
-                        }
-                        proto_tree_add_item(ndps_tree, hf_spx_ndps_version, tvb, foffset, 4, FALSE);
-                        foffset += 4;
-                        ndps_func = tvb_get_ntohl(tvb, foffset);
-                        switch(ndps_prog)
-                            {
-                            case 0x060976:
-                                ndps_hfname = hf_spx_ndps_func_print;
-                                ndps_func_string = match_strval(ndps_func, spx_ndps_print_func_vals);
-                                break;
-                            case 0x060977:
-                                ndps_hfname = hf_spx_ndps_func_broker;
-                                ndps_func_string = match_strval(ndps_func, spx_ndps_broker_func_vals);
-                                break;
-                            case 0x060978:
-                                ndps_hfname = hf_spx_ndps_func_registry;
-                                ndps_func_string = match_strval(ndps_func, spx_ndps_registry_func_vals);
-                                break;
-                            case 0x060979:
-                                ndps_hfname = hf_spx_ndps_func_notify;
-                                ndps_func_string = match_strval(ndps_func, spx_ndps_notify_func_vals);
-                                break;
-                            case 0x06097a:
-                                ndps_hfname = hf_spx_ndps_func_resman;
-                                ndps_func_string = match_strval(ndps_func, spx_ndps_resman_func_vals);
-                                break;
-                            case 0x06097b:
-                                ndps_hfname = hf_spx_ndps_func_delivery;
-                                ndps_func_string = match_strval(ndps_func, spx_ndps_deliver_func_vals);
-                                break;
-                            default:
-                                ndps_hfname = 0;
-                                break;
-                        }
-                        if(ndps_hfname != 0)
-                        {
-                            proto_tree_add_item(ndps_tree, ndps_hfname, tvb, foffset, 4, FALSE);
-                            if (ndps_func_string != NULL) 
-                            {
-                                if (check_col(pinfo->cinfo, COL_INFO))
-                                    col_append_str(pinfo->cinfo, COL_INFO, (gchar*) ndps_func_string);
-
-                                foffset += 4;
-                                proto_tree_add_item(ndps_tree, hf_ndps_auth_null, tvb, foffset, 16, FALSE);
-                                foffset+=16;
-                                dissect_ndps_request(tvb, pinfo, ndps_tree, ndps_xid, ndps_prog, ndps_func, foffset);
-                            }
-                        }
-                    }
+                    proto_tree_add_item(ndps_tree, hf_ndps_rpc_rej_stat, tvb, foffset+4, 4, FALSE);
+                    foffset += 4;
                 }
+                dissect_ndps_reply(tvb, pinfo, ndps_tree, ndps_xid, foffset);
             }
             else
             {
                 if (check_col(pinfo->cinfo, COL_INFO))
-                    col_append_str(pinfo->cinfo, COL_INFO, "Continuation Fragment");
+                    col_set_str(pinfo->cinfo, COL_INFO, "C NDPS ");
+                ndps_rpc_version = tvb_get_ntohl(tvb, foffset);
+                proto_tree_add_item(ndps_tree, hf_ndps_rpc_version, tvb, foffset, 4, FALSE);
+                foffset += 4;
+                ndps_prog = tvb_get_ntohl(tvb, foffset);
+                ndps_program_string = match_strval(ndps_prog, spx_ndps_program_vals);
+                if( ndps_program_string != NULL)
+                {
+                    proto_tree_add_item(ndps_tree, hf_spx_ndps_program, tvb, foffset, 4, FALSE);
+                    foffset += 4;
+                    if (check_col(pinfo->cinfo, COL_INFO))
+                    {
+                        col_append_str(pinfo->cinfo, COL_INFO, (gchar*) ndps_program_string);
+                        col_append_str(pinfo->cinfo, COL_INFO, ", ");
+                    }
+                    proto_tree_add_item(ndps_tree, hf_spx_ndps_version, tvb, foffset, 4, FALSE);
+                    foffset += 4;
+                    ndps_func = tvb_get_ntohl(tvb, foffset);
+                    switch(ndps_prog)
+                    {
+                        case 0x060976:
+                            ndps_hfname = hf_spx_ndps_func_print;
+                            ndps_func_string = match_strval(ndps_func, spx_ndps_print_func_vals);
+                            break;
+                        case 0x060977:
+                            ndps_hfname = hf_spx_ndps_func_broker;
+                            ndps_func_string = match_strval(ndps_func, spx_ndps_broker_func_vals);
+                            break;
+                        case 0x060978:
+                            ndps_hfname = hf_spx_ndps_func_registry;
+                            ndps_func_string = match_strval(ndps_func, spx_ndps_registry_func_vals);
+                            break;
+                        case 0x060979:
+                            ndps_hfname = hf_spx_ndps_func_notify;
+                            ndps_func_string = match_strval(ndps_func, spx_ndps_notify_func_vals);
+                            break;
+                        case 0x06097a:
+                            ndps_hfname = hf_spx_ndps_func_resman;
+                            ndps_func_string = match_strval(ndps_func, spx_ndps_resman_func_vals);
+                            break;
+                        case 0x06097b:
+                            ndps_hfname = hf_spx_ndps_func_delivery;
+                            ndps_func_string = match_strval(ndps_func, spx_ndps_deliver_func_vals);
+                            break;
+                        default:
+                            ndps_hfname = 0;
+                            break;
+                    }
+                    if(ndps_hfname != 0)
+                    {
+                        proto_tree_add_item(ndps_tree, ndps_hfname, tvb, foffset, 4, FALSE);
+                        if (ndps_func_string != NULL) 
+                        {
+                            if (check_col(pinfo->cinfo, COL_INFO))
+                                col_append_str(pinfo->cinfo, COL_INFO, (gchar*) ndps_func_string);
+
+                            foffset += 4;
+                            proto_tree_add_item(ndps_tree, hf_ndps_auth_null, tvb, foffset, 16, FALSE);
+                            foffset+=16;
+                            dissect_ndps_request(tvb, pinfo, ndps_tree, ndps_xid, ndps_prog, ndps_func, foffset);
+                        }
+                    }
+                }
             }
+        }
+        else
+        {
+            if (check_col(pinfo->cinfo, COL_INFO))
+                col_append_str(pinfo->cinfo, COL_INFO, "Continuation Fragment");
         }
     }
 }
