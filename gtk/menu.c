@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.104 2003/10/20 22:28:22 guy Exp $
+ * $Id: menu.c,v 1.105 2003/11/06 23:02:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,7 +107,7 @@ static GtkItemFactoryEntry menu_items[] =
                              0, GTK_STOCK_CLOSE),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Save", "<control>S", file_save_cmd_cb,
                              0, GTK_STOCK_SAVE),
-    ITEM_FACTORY_STOCK_ENTRY("/File/Save _As...", NULL, file_save_as_cmd_cb,
+    ITEM_FACTORY_STOCK_ENTRY("/File/Save _As...", "<shift><control>S", file_save_as_cmd_cb,
                              0, GTK_STOCK_SAVE_AS),
     ITEM_FACTORY_STOCK_ENTRY("/File/_Reload", "<control>R", file_reload_cmd_cb,
                              0, GTK_STOCK_REFRESH),
