@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.180 2000/04/13 18:18:54 gram Exp $
+ * $Id: packet.h,v 1.181 2000/04/13 20:39:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -110,8 +110,8 @@ typedef struct _packet_counts {
 
 /* Types of character encodings */
 typedef enum {
-	CHAR_ASCII,	/* ASCII */
-	CHAR_EBCDIC	/* EBCDIC */
+	CHAR_ASCII	 = 0,	/* ASCII */
+	CHAR_EBCDIC	 = 1	/* EBCDIC */
 } char_enc;
 
 typedef struct _frame_proto_data {
@@ -141,8 +141,11 @@ typedef struct _frame_data {
   long         file_off;  /* File offset */
   column_info *cinfo;     /* Column formatting information */
   int          lnk_t;     /* Per-packet encapsulation/data-link type */
-  gboolean     passed_dfilter; /* TRUE = display, FALSE = no display */
-  char_enc     encoding;  /* Character encoding (ASCII, EBCDIC...) */
+  struct {
+	unsigned int passed_dfilter	: 1; /* 1 = display, 0 = no display */
+  	unsigned int encoding		: 2; /* Character encoding (ASCII, EBCDIC...) */
+	unsigned int visited		: 1; /* Has this packet been visited yet? 1=Yes,0=No*/
+  } flags;
   union pseudo_header pseudo_header; /* "pseudo-header" from wiretap */
 } frame_data;
 

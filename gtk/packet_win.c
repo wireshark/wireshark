@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.4 2000/03/08 06:48:01 guy Exp $
+ * $Id: packet_win.c,v 1.5 2000/04/13 20:39:38 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -166,7 +166,7 @@ create_new_window ( char *Title, gint tv_size, gint bv_size){
   DataPtr = (struct PacketWinData *) g_malloc(sizeof(struct PacketWinData));
 
   DataPtr->cap_len = cf.current_frame->cap_len;
-  DataPtr->encoding = cf.current_frame->encoding;
+  DataPtr->encoding = cf.current_frame->flags.encoding;
   DataPtr->pd = g_malloc(DataPtr->cap_len);
   memcpy(DataPtr->pd, cf.pd, DataPtr->cap_len);
   DataPtr->protocol_tree = proto_tree_create_root();

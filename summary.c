@@ -1,7 +1,7 @@
 /* summary.c
  * Routines for capture file summary info
  *
- * $Id: summary.c,v 1.16 1999/12/29 21:30:28 guy Exp $
+ * $Id: summary.c,v 1.17 2000/04/13 20:39:18 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,7 +53,7 @@ tally_frame_data(frame_data *cur_frame, summary_tally *sum_tally)
     sum_tally->stop_time = cur_time;
   }
   sum_tally->bytes += cur_frame->pkt_len;
-  if (cur_frame->passed_dfilter)
+  if (cur_frame->flags.passed_dfilter)
     sum_tally->filtered_count++;
 }
 

@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.28 2000/01/22 06:22:18 guy Exp $
+ * $Id: print.c,v 1.29 2000/04/13 20:39:18 gram Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -105,7 +105,7 @@ void proto_tree_print(gboolean print_one_packet, print_args_t *print_args,
 	data.level = 0;
 	data.fh = fh;
 	data.pd = pd;
-	data.encoding = fd->encoding;
+	data.encoding = fd->flags.encoding;
 	data.print_all_levels = print_args->expand_all;
 	data.print_hex_for_data = !print_args->print_hex;
 	    /* If we're printing the entire packet in hex, don't

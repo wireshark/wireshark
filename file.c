@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.181 2000/04/07 08:00:34 guy Exp $
+ * $Id: file.c,v 1.182 2000/04/13 20:39:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -543,9 +543,9 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
     protocol_tree = proto_tree_create_root();
     dissect_packet(buf, fdata, protocol_tree);
     if (cf->dfcode != NULL)
-      fdata->passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, buf);
+      fdata->flags.passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, buf) ? 1 : 0;
     else
-      fdata->passed_dfilter = TRUE;
+      fdata->flags.passed_dfilter = 1;
 
     /* Apply color filters, if we have any. */
     if (filter_list != NULL) {
@@ -561,14 +561,14 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
 	    protocol_tree = proto_tree_create_root();
 #endif
 	dissect_packet(buf, fdata, protocol_tree);
-	fdata->passed_dfilter = TRUE;
+	fdata->flags.passed_dfilter = 1;
 #ifdef HAVE_PLUGINS
 	if (protocol_tree)
 	    proto_tree_free(protocol_tree);
 #endif
   }
 
-  if (fdata->passed_dfilter) {
+  if (fdata->flags.passed_dfilter) {
     /* If we don't have the time stamp of the previous displayed packet,
        it's because this is the first displayed packet.  Save the time
        stamp of this packet as the time stamp of the previous displayed
@@ -679,7 +679,8 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   fdata->lnk_t = phdr->pkt_encap;
   fdata->abs_secs  = phdr->ts.tv_sec;
   fdata->abs_usecs = phdr->ts.tv_usec;
-  fdata->encoding = CHAR_ASCII;
+  fdata->flags.encoding = CHAR_ASCII;
+  fdata->flags.visited = 0;
   fdata->pseudo_header = phdr->pseudo_header;
   fdata->cinfo = NULL;
 
@@ -970,7 +971,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
     }
     count++;
 
-    if (fd->passed_dfilter) {
+    if (fd->flags.passed_dfilter) {
       wtap_seek_read (cf->cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
       if (print_args->print_summary) {
         /* Fill in the column information, but don't bother creating
@@ -1027,7 +1028,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
 	if (print_args->print_hex) {
 	  /* Print the full packet data as hex. */
 	  print_hex_data(cf->print_fh, print_args->format, cf->pd,
-			fd->cap_len, fd->encoding);
+			fd->cap_len, fd->flags.encoding);
 	}
 
         /* Print a blank line if we print anything after this. */
@@ -1197,7 +1198,7 @@ find_packet(capture_file *cf, dfilter *sfcode)
       count++;
 
       /* Is this packet in the display? */
-      if (fd->passed_dfilter) {
+      if (fd->flags.passed_dfilter) {
         /* Yes.  Does it match the search filter? */
         protocol_tree = proto_tree_create_root();
         wtap_seek_read(cf->cd_t, cf->fh, fd->file_off, cf->pd, fd->cap_len);
@@ -1255,7 +1256,7 @@ goto_frame(capture_file *cf, guint fnumber)
 
   if (fd == NULL)
     return NO_SUCH_FRAME;	/* we didn't find that frame */
-  if (!fd->passed_dfilter)
+  if (!fd->flags.passed_dfilter)
     return FRAME_NOT_DISPLAYED;	/* the frame with that number isn't displayed */
 
   /* We found that frame, and it's currently being displayed.
@@ -1331,7 +1332,7 @@ select_packet(capture_file *cf, int row)
   clear_tree_and_hex_views();
   proto_tree_draw(cf->protocol_tree, tree_view);
   packet_hex_print(GTK_TEXT(byte_view), cf->pd, cf->current_frame->cap_len,
-			-1, -1, cf->current_frame->encoding);
+			-1, -1, cf->current_frame->flags.encoding);
 
   /* A packet is selected. */
   set_menus_for_selected_packet(TRUE);
@@ -1538,7 +1539,7 @@ save_cap_file(char *fname, capture_file *cf, gboolean save_filtered,
        NetMon do? */
     for (fd = cf->plist; fd != NULL; fd = fd->next) {
       /* XXX - do a progress bar */
-      if (!save_filtered || fd->passed_dfilter) {
+      if (!save_filtered || fd->flags.passed_dfilter) {
       	/* Either we're saving all frames, or we're saving filtered frames
 	   and this one passed the display filter - save it. */
         hdr.ts.tv_sec = fd->abs_secs;

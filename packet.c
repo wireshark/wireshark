@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.75 2000/04/13 18:18:54 gram Exp $
+ * $Id: packet.c,v 1.76 2000/04/13 20:39:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1173,6 +1173,8 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
  			dissect_v120(pd, fd, tree);
  			break;
 	}
+
+	fd->flags.visited = 1;
 }
 
 gint p_compare(gconstpointer a, gconstpointer b)

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.24 2000/04/04 07:02:58 guy Exp $
+ * $Id: tethereal.c,v 1.25 2000/04/13 20:39:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -759,7 +759,8 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
   fdata->lnk_t = phdr->pkt_encap;
   fdata->abs_secs  = phdr->ts.tv_sec;
   fdata->abs_usecs = phdr->ts.tv_usec;
-  fdata->encoding = CHAR_ASCII;
+  fdata->flags.encoding = CHAR_ASCII;
+  fdata->flags.visited = 0;
   fdata->pseudo_header = phdr->pseudo_header;
   fdata->cinfo = NULL;
 
@@ -904,7 +905,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     }
     if (print_hex) {
       print_hex_data(stdout, print_args.format, buf,
-			fdata.cap_len, fdata.encoding);
+			fdata.cap_len, fdata.flags.encoding);
       printf("\n");
     }
     fdata.cinfo = NULL;

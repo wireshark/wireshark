@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.2 2000/04/13 11:11:38 gram Exp $
+ * $Id: packet-socks.c,v 1.3 2000/04/13 20:39:15 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -213,8 +213,6 @@ static char *reply_table_v5[] = {
 #define socks_hash_val_length (sizeof(socks_hash_entry_t))
 
 static GMemChunk *socks_vals = NULL;
-
-static guint32 last_row= 0;	/* used to see if packet is new */
 
 
 /************************* Support routines ***************************/
@@ -1010,8 +1008,7 @@ dissect_socks(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 /* run state machine if needed */
 
-	if ((hash_info->state != Done) && ( fd->num > last_row)){
-		last_row = fd->num;
+	if ((hash_info->state != Done) && ( !fd->flags.visited)){
 
 		if ( hash_info->version == 4)
 			state_machine_v4( hash_info, pd, offset, fd);
@@ -1077,8 +1074,6 @@ static void socks_reinit( void){
 /* performed. Reset the highest row seen counter and re-initialize the	*/
 /* conversation memory chunks.						*/
 
-	last_row = 0;			
-	
   	if (socks_vals)
     		g_mem_chunk_destroy(socks_vals);
 
