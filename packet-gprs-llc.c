@@ -2,7 +2,7 @@
  * Routines for Logical Link Control GPRS dissection ETSI 4.64
  * Copyright 2000, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-gprs-llc.c,v 1.2 2004/04/13 17:48:34 guy Exp $
+ * $Id: packet-gprs-llc.c,v 1.3 2004/04/13 21:32:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -345,7 +345,7 @@ proto_register_llcgprs(void)
 		{ &hf_llcgprs_PM_bit,
 			{ "PM bit", "llcgprs.pm", FT_BOOLEAN, 16, TFS(&pm_bit), UI_MASK_PM, "Protected mode bit",HFILL}},
 		{ &hf_llcgprs_As,
-			{ "Ackn request bit", "llcgprs.as", FT_BOOLEAN , 16, NULL, 0x2000 ,"Acknowledgement request bit A", HFILL}},
+			{ "Ackn request bit", "llcgprs.as", FT_BOOLEAN, 16, TFS(&a_bit), 0x2000 ,"Acknowledgement request bit A", HFILL}},
 		{ &hf_llcgprs_PF,
 			{ "P/F bit", "llcgprs.pf", FT_BOOLEAN, 8, NULL, 0x10,"Poll /Finall bit", HFILL}},
 		{ &hf_llcgprs_ucom,
