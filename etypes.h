@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.35 2003/10/08 06:44:15 guy Exp $
+ * $Id: etypes.h,v 1.36 2003/11/17 18:23:34 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@
  * RFCs 894, 1042, 826
  * tcpdump's ethertype.h
  * http://www.cavebear.com/CaveBear/Ethernet/
+ * http://standards.ieee.org/regauth/ethertype/type-pub.html
  */
 
 #ifndef ETHERTYPE_VINES_IP
@@ -197,6 +198,10 @@
 
 #ifndef ETHERTYPE_EAPOL
 #define ETHERTYPE_EAPOL 	0x888e  /* 802.1x Authentication */
+#endif
+
+#ifndef ETHERTYPE_PROFINET
+#define ETHERTYPE_PROFINET 	0x8892  /* PROFIBUS PROFInet protocol */
 #endif
 
 #ifndef ETHERTYPE_HYPERSCSI
