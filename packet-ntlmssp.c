@@ -3,7 +3,7 @@
  * Devin Heitmueller <dheitmueller@netilla.com>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-ntlmssp.c,v 1.44 2003/09/01 00:01:39 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.45 2003/09/26 06:30:13 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -179,7 +179,6 @@ static gint ett_ntlmssp_string = -1;
 static gint ett_ntlmssp_blob = -1;
 static gint ett_ntlmssp_address_list = -1;
 static gint ett_ntlmssp_address_list_item = -1;
-static gint ett_ntlmssp_decrypted_tree = -1;
 
 /* Configuration variables */
 static char *nt_password = NULL;
@@ -1209,12 +1208,11 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   return offset;
 }
 
-
-static int
-dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb, 
-				  packet_info *pinfo, proto_tree *tree)
+static tvbuff_t *
+dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb, int offset,
+				  packet_info *pinfo, 
+				  dcerpc_auth_info *auth_info _U_)
 {
-  volatile int offset = 0;
   tvbuff_t *decr_tvb; /* Used to display decrypted buffer */
   guint8 *peer_block;
   conversation_t *conversation;
@@ -1223,8 +1221,6 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb,
   rc4_state_struct *rc4_state_peer;
   ntlmssp_info *conv_ntlmssp_info = NULL;
   ntlmssp_packet_info *packet_ntlmssp_info = NULL;
-  proto_item *it;
-  static decrypted_info_t ndi;
 
   encrypted_block_length = tvb_length_remaining (tvb, offset);
 
@@ -1244,14 +1240,14 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb,
 				     pinfo->destport, 0);
     if (conversation == NULL) {
       /* There is no conversation, thus no encryption state */
-      return offset + encrypted_block_length;
+      return NULL;
     }
     
     conv_ntlmssp_info = conversation_get_proto_data(conversation,
 						    proto_ntlmssp);
     if (conv_ntlmssp_info == NULL) {
       /* There is no NTLMSSP state tied to the conversation */
-      return offset + encrypted_block_length;
+	    return NULL;
     }
     
     /* Get the pair of RC4 state structures.  One is used for to decrypt the
@@ -1267,7 +1263,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb,
     
     if (rc4_state == NULL || rc4_state_peer == NULL) {
       /* There is no encryption state, so we cannot decrypt */
-      return offset + encrypted_block_length;
+      return NULL;
     }
 
     /* Store the decrypted contents in the packet state struct
@@ -1297,21 +1293,12 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb,
   decr_tvb = tvb_new_real_data(packet_ntlmssp_info->decrypted_payload,
 			       encrypted_block_length,
 			       encrypted_block_length);
-  tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
-  add_new_data_source(pinfo, decr_tvb,
-		      "Decrypted NTLMSSP block");
-  
-  /* Show the decrypted payload in the tree */
-  it=proto_tree_add_text(tree, decr_tvb, 0, -1,
-			"Decrypted stub data (%d byte%s)",
-			encrypted_block_length, 
-			plurality(encrypted_block_length, "", "s"));
-  ndi.decr_tree=proto_item_add_subtree(it, ett_ntlmssp_decrypted_tree);
-  ndi.decr_tvb=decr_tvb;    
-  pinfo->decrypted_data=&ndi;
 
+  tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
+  
   offset += encrypted_block_length;
-  return offset;
+
+  return decr_tvb;
 }
 
 static void
@@ -1522,8 +1509,7 @@ proto_register_ntlmssp(void)
     &ett_ntlmssp_string,
     &ett_ntlmssp_blob,
     &ett_ntlmssp_address_list,
-    &ett_ntlmssp_address_list_item,
-    &ett_ntlmssp_decrypted_tree
+    &ett_ntlmssp_address_list_item
   };
   module_t *ntlmssp_module;
   
@@ -1545,8 +1531,6 @@ proto_register_ntlmssp(void)
 
   register_dissector("ntlmssp", dissect_ntlmssp, proto_ntlmssp);
   new_register_dissector("ntlmssp_verf", dissect_ntlmssp_verf, proto_ntlmssp);
-  new_register_dissector("ntlmssp_encrypted_payload", 
-			 dissect_ntlmssp_encrypted_payload, proto_ntlmssp);
 }
 
 static int wrap_dissect_ntlmssp(tvbuff_t *tvb, int offset, packet_info *pinfo, 
@@ -1575,19 +1559,6 @@ static int wrap_dissect_ntlmssp_verf(tvbuff_t *tvb, int offset, packet_info *pin
 	return dissect_ntlmssp_verf(auth_tvb, pinfo, tree);
 }
 
-static int wrap_dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb, int offset, 
-						  packet_info *pinfo, 
-						  proto_tree *tree, char *drep _U_)
-{
-	tvbuff_t *auth_tvb;
-
-	auth_tvb = tvb_new_subset(
-		tvb, offset, tvb_length_remaining(tvb, offset),
-		tvb_length_remaining(tvb, offset));
-	
-	return dissect_ntlmssp_encrypted_payload(auth_tvb, pinfo, tree);
-}
-
 static dcerpc_auth_subdissector_fns ntlmssp_sign_fns = {
 	wrap_dissect_ntlmssp, 			/* Bind */
 	wrap_dissect_ntlmssp,			/* Bind ACK */
@@ -1604,8 +1575,8 @@ static dcerpc_auth_subdissector_fns ntlmssp_seal_fns = {
 	wrap_dissect_ntlmssp,			/* AUTH3 */
 	wrap_dissect_ntlmssp_verf, 		/* Request verifier */
 	wrap_dissect_ntlmssp_verf,		/* Response verifier */
-	wrap_dissect_ntlmssp_encrypted_payload,	/* Request data */
-	wrap_dissect_ntlmssp_encrypted_payload	/* Response data */
+	dissect_ntlmssp_encrypted_payload,	/* Request data */
+	dissect_ntlmssp_encrypted_payload	/* Response data */
 };
 
 void

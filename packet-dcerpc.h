@@ -2,7 +2,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.h,v 1.34 2003/08/04 02:48:58 tpot Exp $
+ * $Id: packet-dcerpc.h,v 1.35 2003/09/26 06:30:13 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,7 +76,13 @@ typedef struct _e_dce_dg_common_hdr_t {
     guint8 serial_lo;
 } e_dce_dg_common_hdr_t;
 
-
+typedef struct _dcerpc_auth_info {
+  guint8 auth_pad_len;
+  guint8 auth_level;
+  guint8 auth_type;
+  guint32 auth_size;
+  tvbuff_t *auth_data;
+} dcerpc_auth_info;
 
 #define PDU_REQ         0
 #define PDU_PING        1
@@ -282,14 +288,25 @@ typedef struct _dcerpc_uuid_value {
 
 /* Authenticated pipe registration functions and miscellanea */
 
-typedef struct _decrpc_auth_subdissector_fns {
+typedef tvbuff_t *(dcerpc_decode_data_fnct_t)(tvbuff_t *tvb, int offset, 
+					      packet_info *pinfo,
+					      dcerpc_auth_info *auth_info);
+
+typedef struct _dcerpc_auth_subdissector_fns {
+
+	/* Dissect credentials and verifiers */
+
 	dcerpc_dissect_fnct_t *bind_fn;
 	dcerpc_dissect_fnct_t *bind_ack_fn;
 	dcerpc_dissect_fnct_t *auth3_fn;
 	dcerpc_dissect_fnct_t *req_verf_fn;
 	dcerpc_dissect_fnct_t *resp_verf_fn;
-	dcerpc_dissect_fnct_t *req_data_fn;
-	dcerpc_dissect_fnct_t *resp_data_fn;
+
+	/* Decrypt encrypted requests/response PDUs */
+
+	dcerpc_decode_data_fnct_t *req_data_fn;
+	dcerpc_decode_data_fnct_t *resp_data_fn;
+
 } dcerpc_auth_subdissector_fns;
 
 void register_dcerpc_auth_subdissector(guint8 auth_level, guint8 auth_type,
@@ -311,10 +328,5 @@ void register_dcerpc_auth_subdissector(guint8 auth_level, guint8 auth_type,
 #define DCE_C_AUTHN_LEVEL_PKT		4
 #define DCE_C_AUTHN_LEVEL_PKT_INTEGRITY	5
 #define DCE_C_AUTHN_LEVEL_PKT_PRIVACY	6
-
-typedef struct _decrypted_info_t {
-	tvbuff_t *decr_tvb;
-	proto_tree *decr_tree;
-} decrypted_info_t;
 
 #endif /* packet-dcerpc.h */
