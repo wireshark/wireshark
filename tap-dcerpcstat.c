@@ -1,7 +1,7 @@
 /* tap-dcerpcstat.c
  * dcerpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-dcerpcstat.c,v 1.7 2003/12/15 20:15:02 guy Exp $
+ * $Id: tap-dcerpcstat.c,v 1.8 2004/01/19 18:23:01 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -192,7 +192,7 @@ dcerpcstat_init(char *optarg)
 	guint32 i, max_procs;
 	dcerpc_sub_dissector *procs;
 	e_uuid_t uuid;
-	int d1,d2,d3,d40,d41,d42,d43,d44,d45,d46,d47;
+	guint d1,d2,d3,d40,d41,d42,d43,d44,d45,d46,d47;
 	int major, minor;
 	guint16 ver;
 	int pos=0;
