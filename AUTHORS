@@ -893,6 +893,9 @@ Tim Potter <tpot[AT]samba.org> {
 	Support for DCE RPC atop SMB
 	Support for several Microsoft DCE RPC services used with SMB
 	Added code to call request and reply subdissectors in DCE RPC
+	Display the FID in the Info column of NT Create and X replies
+	Display the setup words in some SMB Transaction messages and
+	    extract the FID from them
 }
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to

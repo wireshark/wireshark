@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.156 2001/11/18 02:51:19 guy Exp $
+ * $Id: packet-smb.c,v 1.157 2001/11/18 22:12:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -506,6 +506,8 @@ static int hf_smb_fs_attr_fc = -1;
 static int hf_smb_fs_attr_vq = -1;
 static int hf_smb_fs_attr_dim = -1;
 static int hf_smb_fs_attr_vic = -1;
+static int hf_smb_setupword1 = -1;
+static int hf_smb_setupword2 = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_hdr = -1;
@@ -2432,12 +2434,17 @@ dissect_open_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
 	guint8 wc;
 	guint16 bc;
+	guint16 fid;
 
 	WORD_COUNT;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, 2, fid);
 	offset += 2;
+
+	if (check_col(pinfo->fd, COL_INFO))
+		col_append_fstr(pinfo->fd, COL_INFO, ", FID: 0x%04x", fid);
 
 	/* File Attributes */
 	offset = dissect_file_attributes(tvb, pinfo, tree, offset);
@@ -3018,12 +3025,17 @@ dissect_create_temporary_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	const char *fn;
 	guint8 wc;
 	guint16 bc;
+	guint16 fid;
 
 	WORD_COUNT;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, 2, fid);
 	offset += 2;
+
+	if (check_col(pinfo->fd, COL_INFO))
+		col_append_fstr(pinfo->fd, COL_INFO, ", FID: 0x%04x", fid);
 
 	BYTE_COUNT;
 
@@ -4361,6 +4373,7 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
 	guint8	wc, cmd=0xff;
 	guint16 andxoffset=0, bc;
+	guint16 fid;
 
 	WORD_COUNT;
 
@@ -4383,8 +4396,12 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 2;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, 2, fid);
 	offset += 2;
+
+	if (check_col(pinfo->fd, COL_INFO))
+		col_append_fstr(pinfo->fd, COL_INFO, ", FID: 0x%04x", fid);
 
 	/* File Attributes */
 	offset = dissect_file_attributes(tvb, pinfo, tree, offset);
@@ -6570,6 +6587,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 	const char *fn;
 	smb_info_t *si;
 	smb_nt_transact_info_t *nti;
+	guint16 fid;
 
 	si = (smb_info_t *)pinfo->private_data;
 	if (si->sip != NULL)
@@ -6608,8 +6626,12 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 		offset += 1;
 		
 		/* fid */
-		proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+		fid = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, 2, fid);
 		offset += 2;
+
+		if (check_col(pinfo->fd, COL_INFO))
+			col_append_fstr(pinfo->fd, COL_INFO, ", FID: 0x%04x", fid);
 
 		/* create action */
 		proto_tree_add_item(tree, hf_smb_create_action, tvb, offset, 4, TRUE);
@@ -7216,6 +7238,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	guint8	wc, cmd=0xff;
 	guint16 andxoffset=0;
 	guint16 bc;
+	guint16 fid;
 
 	WORD_COUNT;
 
@@ -7242,8 +7265,12 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	offset += 1;
 
 	/* fid */
-	proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+	fid = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, 2, fid);
 	offset += 2;
+
+	if (check_col(pinfo->fd, COL_INFO))
+		col_append_fstr(pinfo->fd, COL_INFO, ", FID: 0x%04x", fid);
 
 	/* create action */
 	/*XXX is this really the same as create disposition in the request? it looks so*/
@@ -8988,7 +9015,27 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				break;
 
 			case 0x25:
-				/* TRANSACTION setup words processed below */
+				/* MSRPC transactions have two setup count 
+				   words which we decode here.  Setup word 1 
+				   is always 0x26.  The second setup word is 
+				   the fid which the transaction occurs on. */
+				if (sc == 2) {
+					guint16 sw1, sw2;
+
+					sw1 = tvb_get_letohs(tvb, offset);
+					sw2 = tvb_get_letohs(tvb, offset + 2);
+					
+					proto_tree_add_uint(tree, hf_smb_setupword1, tvb, offset, 2, sw1);
+					proto_tree_add_uint(tree, hf_smb_setupword2, tvb, offset + 2, 2, sw2);
+
+					/* Make fid hidden so we can find it
+					   in a filter. */
+
+					if (sw1 == 0x26)
+						proto_tree_add_uint_hidden(tree, hf_smb_fid, tvb, offset + 2, 2, sw2);
+				}
+				/* TRANSACTION setup words also processed
+				   below */
 				break;
 			}
 
@@ -10214,6 +10261,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 	proto_tree *tree = NULL;
 	smb_info_t *si;
 	smb_transact2_info_t *t2i;
+	guint16 fid;
 	int fn_len, lno;
 	const char *fn;
 	int old_offset = offset;
@@ -10244,8 +10292,12 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 	switch(t2i->subcmd){
 	case 0x00:	/*TRANS2_OPEN2*/
 		/* fid */
-		proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+		fid = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, 2, fid);
 		offset += 2;
+
+		if (check_col(pinfo->fd, COL_INFO))
+			col_append_fstr(pinfo->fd, COL_INFO, ", FID: 0x%04x", fid);
 
 		/* File Attributes */
 		offset = dissect_file_attributes(tvb, pinfo, tree, offset);
@@ -14543,6 +14595,14 @@ proto_register_smb(void)
 	{ &hf_smb_fs_attr_vic,
 		{ "Compressed", "smb.fs.attr.vic", FT_BOOLEAN, 32,
 		TFS(&tfs_fs_attr_vic), 0x00008000, "Is this FS Compressed?", HFILL }},
+
+	{ &hf_smb_setupword1,
+		{ "Setup Word 1", "smb.transaction.setupword1", FT_UINT16, BASE_HEX,
+		NULL, 0, "First setup word in TRANSACTION command", HFILL }},
+
+	{ &hf_smb_setupword2,
+		{ "Setup Word 2", "smb.transaction.setupword2", FT_UINT16, BASE_HEX,
+		NULL, 0, "Second setup word in TRANSACTION command", HFILL }},
 
 
 	};
