@@ -3,7 +3,7 @@
  * Routines for wbxml dissection
  * Copyright 2003, Olivier Biot <olivier.biot (ad) siemens.com>
  *
- * $Id: packet-wbxml.c,v 1.27 2004/03/04 23:33:41 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.28 2004/03/08 21:41:47 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1848,6 +1848,7 @@ static const value_valuestring wbxml_nokiaprovc70_attrStart[] = {
 /*****         Tag tokens          *****/
 /* Common code page (0x00) */
 static const value_string wbxml_wv_csp_10_tags_cp0[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "Acceptance" },
 	{ 0x06, "AddList" },
 	{ 0x07, "AddNickList" },
@@ -1912,6 +1913,7 @@ static const value_string wbxml_wv_csp_10_tags_cp0[] = {
 
 /* Access code page (0x01) */
 static const value_string wbxml_wv_csp_10_tags_cp1[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "AllFunctions" },
 	{ 0x06, "AllFunctionsRequest" },
 	{ 0x07, "CancelInvite-Request" },
@@ -1964,6 +1966,7 @@ static const value_string wbxml_wv_csp_10_tags_cp1[] = {
 
 /* Service code page (0x02) */
 static const value_string wbxml_wv_csp_10_tags_cp2[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "ADDGM" },
 	{ 0x06, "AttListFunc" },
 	{ 0x07, "BLENT" },
@@ -2026,6 +2029,7 @@ static const value_string wbxml_wv_csp_10_tags_cp2[] = {
 
 /* Client capability code page (0x03) */
 static const value_string wbxml_wv_csp_10_tags_cp3[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "AcceptedCharset" },
 	{ 0x06, "AcceptedContentLength" },
 	{ 0x07, "AcceptedContentType" },
@@ -2047,6 +2051,7 @@ static const value_string wbxml_wv_csp_10_tags_cp3[] = {
 
 /* Presence primitive code page (0x04) */
 static const value_string wbxml_wv_csp_10_tags_cp4[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "CancelAuth-Request" },
 	{ 0x06, "ContactListProperties" },
 	{ 0x07, "CreateAttributeList-Request" },
@@ -2080,6 +2085,7 @@ static const value_string wbxml_wv_csp_10_tags_cp4[] = {
 
 /* Presence attribute code page (0x05) */
 static const value_string wbxml_wv_csp_10_tags_cp5[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "Accuracy" },
 	{ 0x06, "Address" },
 	{ 0x07, "AddrPref" },
@@ -2128,6 +2134,7 @@ static const value_string wbxml_wv_csp_10_tags_cp5[] = {
 
 /* Messaging code page (0x06) */
 static const value_string wbxml_wv_csp_10_tags_cp6[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "BlockList" },
 	{ 0x06, "BlockUser-Request" },
 	{ 0x07, "DeliveryMethod" },
@@ -2155,6 +2162,7 @@ static const value_string wbxml_wv_csp_10_tags_cp6[] = {
 
 /* Group code page (0x07) */
 static const value_string wbxml_wv_csp_10_tags_cp7[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "AddGroupMembers-Request" },
 	{ 0x06, "Admin" },
 	{ 0x07, "CreateGroup-Request" },
@@ -2192,6 +2200,7 @@ static const value_string wbxml_wv_csp_10_tags_cp7[] = {
  */
 /* common code page (0x00) */
 static const value_string wbxml_wv_csp_10_attrStart_cp0[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "xmlns='http://www.wireless-village.org/CSP'" },
 	{ 0x06, "xmlns='http://www.wireless-village.org/PA'" },
 	{ 0x07, "xmlns='http://www.wireless-village.org/TRC'" },
@@ -2204,6 +2213,7 @@ static const value_string wbxml_wv_csp_10_attrStart_cp0[] = {
  */
 /* Common value tokens (0x00) */
 static const value_string wbxml_wv_csp_10_attrValue_cp0[] = {
+	/* 0x80 -- 0x84 GLOBAL */
 	{ 0x85, "AccessType" },
 	{ 0x86, "ActiveUsers" },
 	{ 0x87, "Admin" },
@@ -2257,6 +2267,7 @@ static const value_string wbxml_wv_csp_10_attrValue_cp0[] = {
 
 /* Access value tokens (0x01) */
 static const value_string wbxml_wv_csp_10_attrValue_cp1[] = {
+	/* 0x80 -- 0x84 GLOBAL */
 	{ 0x85, "GROUP_ID" },
 	{ 0x86, "GROUP_NAME" },
 	{ 0x87, "GROUP_TOPIC" },
@@ -2280,6 +2291,7 @@ static const value_string wbxml_wv_csp_10_attrValue_cp1[] = {
 
 /* Presence value tokens (0x05) */
 static const value_string wbxml_wv_csp_10_attrValue_cp5[] = {
+	/* 0x80 -- 0x84 GLOBAL */
 	{ 0x85, "ANGRY" },
 	{ 0x86, "ANXIOUS" },
 	{ 0x87, "ASHAMED" },
@@ -2362,6 +2374,8 @@ static const value_string wbxml_wv_csp_11_tags_cp0[] = {
 	{ 0x05, "Acceptance" },
 	{ 0x06, "AddList" },
 	{ 0x07, "AddNickList" },
+	{ 0x08, "SName" },		/* Was: Attribute */
+	{ 0x09, "WV-CSP-Message" },	/* Was: AttributeList */
 	{ 0x0A, "ClientID" },
 	{ 0x0B, "Code" },
 	{ 0x0C, "ContactList" },
@@ -2401,7 +2415,6 @@ static const value_string wbxml_wv_csp_11_tags_cp0[] = {
 	{ 0x2E, "SessionDescriptor" },
 	{ 0x2F, "SessionID" },
 	{ 0x30, "SessionType" },
-	{ 0x08, "SName" },
 	{ 0x31, "Status" },
 	{ 0x32, "Transaction" },
 	{ 0x33, "TransactionContent" },
@@ -2415,7 +2428,7 @@ static const value_string wbxml_wv_csp_11_tags_cp0[] = {
 	{ 0x3B, "UserList" },
 	{ 0x3C, "Validity" },
 	{ 0x3D, "Value" },
-	{ 0x09, "WV-CSP-Message" },
+	/* 0x3E - Removed: WV-CSP-Message */
 
 	{ 0x00, NULL }
 };
@@ -2432,7 +2445,6 @@ static const value_string wbxml_wv_csp_11_tags_cp1[] = {
 	{ 0x0B, "CapabilityRequest" },
 	{ 0x0C, "ClientCapability-Request" },
 	{ 0x0D, "ClientCapability-Response" },
-	{ 0x34, "CompletionFlag" },
 	{ 0x0E, "DigestBytes" },
 	{ 0x0F, "DigestSchema" },
 	{ 0x10, "Disconnect" },
@@ -2447,7 +2459,6 @@ static const value_string wbxml_wv_csp_11_tags_cp1[] = {
 	{ 0x19, "InviteUser-Request" },
 	{ 0x1A, "InviteUser-Response" },
 	{ 0x1B, "KeepAlive-Request" },
-	{ 0x29, "KeepAlive-Response" },
 	{ 0x1C, "KeepAliveTime" },
 	{ 0x1D, "Login-Request" },
 	{ 0x1E, "Login-Response" },
@@ -2461,82 +2472,26 @@ static const value_string wbxml_wv_csp_11_tags_cp1[] = {
 	{ 0x26, "SearchID" },
 	{ 0x27, "SearchIndex" },
 	{ 0x28, "SearchLimit" },
+	{ 0x29, "KeepAlive-Response" },	/* Was: SearchOnlineStatus */
 	{ 0x2A, "SearchPairList" },
 	{ 0x2B, "Search-Request" },
 	{ 0x2C, "Search-Response" },
 	{ 0x2D, "SearchResult" },
-	{ 0x33, "SearchString" },
 	{ 0x2E, "Service-Request" },
 	{ 0x2F, "Service-Response" },
 	{ 0x30, "SessionCookie" },
 	{ 0x31, "StopSearch-Request" },
 	{ 0x32, "TimeToLive" },
+	/* New in WV-CSP 1.1 */
+	{ 0x33, "SearchString" },
+	{ 0x34, "CompletionFlag" },
 
 	{ 0x00, NULL }
 };
 
 /* Service code page */
-static const value_string wbxml_wv_csp_11_tags_cp2[] = {
-	/* 0x00 -- 0x04 GLOBAL */
-	{ 0x05, "ADDGM" },
-	{ 0x06, "AttListFunc" },
-	{ 0x07, "BLENT" },
-	{ 0x08, "CAAUT" },
-	{ 0x09, "CAINV" },
-	{ 0x0A, "CALI" },
-	{ 0x0B, "CCLI" },
-	{ 0x0C, "ContListFunc" },
-	{ 0x0D, "CREAG" },
-	{ 0x0E, "DALI" },
-	{ 0x0F, "DCLI" },
-	{ 0x10, "DELGR" },
-	{ 0x11, "FundamentalFeat" },
-	{ 0x12, "FWMSG" },
-	{ 0x13, "GALS" },
-	{ 0x14, "GCLI" },
-	{ 0x15, "GETGM" },
-	{ 0x16, "GETGP" },
-	{ 0x17, "GETLM" },
-	{ 0x18, "GETM" },
-	{ 0x19, "GETPR" },
-	{ 0x1A, "GETSPI" },
-	{ 0x1B, "GETWL" },
-	{ 0x1C, "GLBLU" },
-	{ 0x1D, "GRCHN" },
-	{ 0x1E, "GroupAuthFunc" },
-	{ 0x1F, "GroupFeat" },
-	{ 0x20, "GroupMgmtFunc" },
-	{ 0x21, "GroupUseFunc" },
-	{ 0x22, "IMAuthFunc" },
-	{ 0x23, "IMFeat" },
-	{ 0x24, "IMReceiveFunc" },
-	{ 0x25, "IMSendFunc" },
-	{ 0x26, "INVIT" },
-	{ 0x27, "InviteFunc" },
-	{ 0x28, "MBRAC" },
-	{ 0x29, "MCLS" },
-	{ 0x2A, "MDELIV" },
-	{ 0x2B, "NEWM" },
-	{ 0x2C, "NOTIF" },
-	{ 0x2D, "PresenceAuthFunc" },
-	{ 0x2E, "PresenceDeliverFunc" },
-	{ 0x2F, "PresenceFeat" },
-	{ 0x30, "REACT" },
-	{ 0x31, "REJCM" },
-	{ 0x32, "REJEC" },
-	{ 0x33, "RMVGM" },
-	{ 0x34, "SearchFunc" },
-	{ 0x35, "ServiceFunc" },
-	{ 0x36, "SETD" },
-	{ 0x37, "SETGP" },
-	{ 0x38, "SRCH" },
-	{ 0x39, "STSRC" },
-	{ 0x3A, "SUBGCN" },
-	{ 0x3B, "UPDPR" },
-	{ 0x3C, "WVCSPFeat" },
-
-	{ 0x00, NULL }
-};
+/* Same as cp2 of WV-CSP 1.0 */
+#define wbxml_wv_csp_11_tags_cp2 wbxml_wv_csp_10_tags_cp2
 
 /* Client capability code page */
 static const value_string wbxml_wv_csp_11_tags_cp3[] = {
@@ -2546,7 +2501,7 @@ static const value_string wbxml_wv_csp_11_tags_cp3[] = {
 	{ 0x07, "AcceptedContentType" },
 	{ 0x08, "AcceptedTransferEncoding" },
 	{ 0x09, "AnyContent" },
-	{ 0x0A, "DefaultLanguage" },
+	{ 0x0A, "DefaultLanguage" },	/* Was: ClientType */
 	{ 0x0B, "InitialDeliveryMethod" },
 	{ 0x0C, "MultiTrans" },
 	{ 0x0D, "ParserSize" },
@@ -2582,12 +2537,14 @@ static const value_string wbxml_wv_csp_11_tags_cp4[] = {
 	{ 0x15, "GetWatcherList-Response" },
 	{ 0x16, "ListManage-Request" },
 	{ 0x17, "ListManage-Response" },
+	{ 0x18, "UnsubscribePresence-Request" },	/* Was: Presence */
 	{ 0x19, "PresenceAuth-Request" },
-	{ 0x1A, "PresenceAuth-User" },
+	{ 0x1A, "PresenceAuth-User" },		/* Was: PresenceAuth-Response */
 	{ 0x1B, "PresenceNotification-Request" },
+	{ 0x1C, "UpdatePresence-Request" },	/* Was: PresenceValueList */
 	{ 0x1D, "SubscribePresence-Request" },
-	{ 0x18, "UnsubscribePresence-Request" },
-	{ 0x1C, "UpdatePresence-Request" },
+	/* 0x1E - Removed: UnsubscribePresence-Request */
+	/* 0x1F - Removed: UpdatePresence-Request */
 
 	{ 0x00, NULL }
 };
@@ -2602,23 +2559,18 @@ static const value_string wbxml_wv_csp_11_tags_cp5[] = {
 	{ 0x09, "Altitude" },
 	{ 0x0A, "Building" },
 	{ 0x0B, "Caddr" },
-	{ 0x2F, "Cap" },
 	{ 0x0C, "City" },
 	{ 0x0D, "ClientInfo" },
 	{ 0x0E, "ClientProducer" },
 	{ 0x0F, "ClientType" },
 	{ 0x10, "ClientVersion" },
-	{ 0x30, "Cname" },
 	{ 0x11, "CommC" },
 	{ 0x12, "CommCap" },
-	{ 0x31, "Contact" },
 	{ 0x13, "ContactInfo" },
 	{ 0x14, "ContainedvCard" },
 	{ 0x15, "Country" },
-	{ 0x32, "Cpriority" },
 	{ 0x16, "Crossing1" },
 	{ 0x17, "Crossing2" },
-	{ 0x33, "Cstatus" },
 	{ 0x18, "DevManufacturer" },
 	{ 0x19, "DirectContent" },
 	{ 0x1A, "FreeTextLocation" },
@@ -2628,7 +2580,6 @@ static const value_string wbxml_wv_csp_11_tags_cp5[] = {
 	{ 0x1E, "Longitude" },
 	{ 0x1F, "Model" },
 	{ 0x20, "NamedArea" },
-	{ 0x34, "Note" },
 	{ 0x21, "OnlineStatus" },
 	{ 0x22, "PLMN" },
 	{ 0x23, "PrefC" },
@@ -2643,6 +2594,13 @@ static const value_string wbxml_wv_csp_11_tags_cp5[] = {
 	{ 0x2C, "Street" },
 	{ 0x2D, "TimeZone" },
 	{ 0x2E, "UserAvailability" },
+	/* New in WV-CSP 1.1 */
+	{ 0x2F, "Cap" },
+	{ 0x30, "Cname" },
+	{ 0x31, "Contact" },
+	{ 0x32, "Cpriority" },
+	{ 0x33, "Cstatus" },
+	{ 0x34, "Note" },
 	{ 0x35, "Zone" },
 
 	{ 0x00, NULL }
@@ -2656,7 +2614,6 @@ static const value_string wbxml_wv_csp_11_tags_cp6[] = {
 	{ 0x07, "DeliveryMethod" },
 	{ 0x08, "DeliveryReport" },
 	{ 0x09, "DeliveryReport-Request" },
-	{ 0x1A, "DeliveryTime" },
 	{ 0x0A, "ForwardMessage-Request" },
 	{ 0x0B, "GetBlockedList-Request" },
 	{ 0x0C, "GetBlockedList-Response" },
@@ -2673,6 +2630,8 @@ static const value_string wbxml_wv_csp_11_tags_cp6[] = {
 	{ 0x17, "SendMessage-Request" },
 	{ 0x18, "SendMessage-Response" },
 	{ 0x19, "SetDeliveryMethod-Request" },
+	/* New in WV-CSP 1.1 */
+	{ 0x1A, "DeliveryTime" },
 
 	{ 0x00, NULL }
 };
@@ -2691,7 +2650,6 @@ static const value_string wbxml_wv_csp_11_tags_cp7[] = {
 	{ 0x0D, "GroupChangeNotice" },
 	{ 0x0E, "GroupProperties" },
 	{ 0x0F, "Joined" },
-	{ 0x21, "JoinGroup" },
 	{ 0x10, "JoinedRequest" },
 	{ 0x11, "JoinGroup-Request" },
 	{ 0x12, "JoinGroup-Response" },
@@ -2707,24 +2665,20 @@ static const value_string wbxml_wv_csp_11_tags_cp7[] = {
 	{ 0x1C, "SetGroupProps-Request" },
 	{ 0x1D, "SubscribeGroupNotice-Request" },
 	{ 0x1E, "SubscribeGroupNotice-Response" },
-	{ 0x22, "SubscribeNotification" },
-	{ 0x23, "SubscribeType" },
 	{ 0x1F, "Users" },
 	{ 0x20, "WelcomeNote" },
+	/* New in WV-CSP 1.1 */
+	{ 0x21, "JoinGroup" },
+	{ 0x22, "SubscribeNotification" },
+	{ 0x23, "SubscribeType" },
 
 	{ 0x00, NULL }
 };
 
 /*****    Attribute Start tokens   *****/
 /* Common code page */
-static const value_string wbxml_wv_csp_11_attrStart_cp0[] = {
-	/* 0x00 -- 0x04 GLOBAL */
-	{ 0x05, "xmlns='http://www.wireless-village.org/CSP'" },
-	{ 0x06, "xmlns='http://www.wireless-village.org/PA'" },
-	{ 0x07, "xmlns='http://www.wireless-village.org/TRC'" },
-
-	{ 0x00, NULL }
-};
+/* Same as cp0 of WV-CSP 1.0 */
+#define wbxml_wv_csp_11_attrStart_cp0 wbxml_wv_csp_10_attrStart_cp0
 
 /*****    Attribute Value tokens   *****/
 /*
@@ -2735,18 +2689,20 @@ static const value_string wbxml_wv_csp_11_attrStart_cp0[] = {
  * the index in the following value_string.
  * 
  * Please note that:
- *  - Values ‘T’ and ‘F’ are Boolean values representing "True" and "False"
+ *  - Values 'T' and 'F' are Boolean values representing "True" and "False"
  *    (or "Yes" and "No" in some circumstances) respectively.
- *  - Values ‘GR’, ‘IM’, ‘PR’, ‘SC’, ‘GM’ and ‘US’ are enumerated values
+ *  - Values 'GR', 'IM', 'PR', 'SC', 'GM' and 'US' are enumerated values
  *    representing "Group", "Instant Messaging", "Presence", "Shared Content",
  *    "Group membership" and "User" respectively.
- *  - Values ‘G’, ‘S’ and ‘U’ are enumerated values representing "Get", "Set"
+ *  - Values 'G', 'S' and 'U' are enumerated values representing "Get", "Set"
  *    and "Unset" respectively.
- *  - Values ‘N’ and ‘P’ are enumerated values representing "Notify/Get" and
+ *  - Values 'N' and 'P' are enumerated values representing "Notify/Get" and
  *    "Push" respectively.
  *
  * I repeat: this is NOT a attrValue[] array hence it is not called
  * wbxml_wv_XXX but vals_wv_XXX.
+ *
+ * Result: the attribute value token definitions from WV-CSP 1.0 are dropped.
  */
 static const value_string vals_wv_csp_11_element_value_tokens[] = {
 	/*
@@ -2897,72 +2853,13 @@ static const value_valuestring wbxml_wv_csp_11_attrStart[] = {
 
 /*****         Tag tokens          *****/
 /* Common code page */
-static const value_string wbxml_wv_csp_12_tags_cp0[] = {
-	{ 0x05, "Acceptance" },
-	{ 0x06, "AddList" },
-	{ 0x07, "AddNickList" },
-	{ 0x0A, "ClientID" },
-	{ 0x0B, "Code" },
-	{ 0x0C, "ContactList" },
-	{ 0x0D, "ContentData" },
-	{ 0x0E, "ContentEncoding" },
-	{ 0x0F, "ContentSize" },
-	{ 0x10, "ContentType" },
-	{ 0x11, "DateTime" },
-	{ 0x12, "Description" },
-	{ 0x13, "DetailedResult" },
-	{ 0x14, "EntityList" },
-	{ 0x15, "Group" },
-	{ 0x16, "GroupID" },
-	{ 0x17, "GroupList" },
-	{ 0x18, "InUse" },
-	{ 0x19, "Logo" },
-	{ 0x1A, "MessageCount" },
-	{ 0x1B, "MessageID" },
-	{ 0x1C, "MessageURI" },
-	{ 0x1D, "MSISDN" },
-	{ 0x1E, "Name" },
-	{ 0x1F, "NickList" },
-	{ 0x20, "NickName" },
-	{ 0x21, "Poll" },
-	{ 0x22, "Presence" },
-	{ 0x23, "PresenceSubList" },
-	{ 0x24, "PresenceValue" },
-	{ 0x25, "Property" },
-	{ 0x26, "Qualifier" },
-	{ 0x27, "Recipient" },
-	{ 0x28, "RemoveList" },
-	{ 0x29, "RemoveNickList" },
-	{ 0x2A, "Result" },
-	{ 0x2B, "ScreenName" },
-	{ 0x2C, "Sender" },
-	{ 0x2D, "Session" },
-	{ 0x2E, "SessionDescriptor" },
-	{ 0x2F, "SessionID" },
-	{ 0x30, "SessionType" },
-	{ 0x08, "SName" },
-	{ 0x31, "Status" },
-	{ 0x32, "Transaction" },
-	{ 0x33, "TransactionContent" },
-	{ 0x34, "TransactionDescriptor" },
-	{ 0x35, "TransactionID" },
-	{ 0x36, "TransactionMode" },
-	{ 0x37, "URL" },
-	{ 0x38, "URLList" },
-	{ 0x39, "User" },
-	{ 0x3A, "UserID" },
-	{ 0x3B, "UserList" },
-	{ 0x3C, "Validity" },
-	{ 0x3D, "Value" },
-	{ 0x09, "WV-CSP-Message" },
-
-	{ 0x00, NULL }
-};
+/* Same as cp0 of WV-CSP 1.1 */
+#define wbxml_wv_csp_12_tags_cp0 wbxml_wv_csp_11_tags_cp0
 /* Note that the table continues in code page 0x09 */
 
 /* Access code page (0x01) */
 static const value_string wbxml_wv_csp_12_tags_cp1[] = {
-	{ 0x3A, "AgreedCapabilityList" },
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "AllFunctions" },
 	{ 0x06, "AllFunctionsRequest" },
 	{ 0x07, "CancelInvite-Request" },
@@ -2972,13 +2869,9 @@ static const value_string wbxml_wv_csp_12_tags_cp1[] = {
 	{ 0x0B, "CapabilityRequest" },
 	{ 0x0C, "ClientCapability-Request" },
 	{ 0x0D, "ClientCapability-Response" },
-	{ 0x34, "CompletionFlag" },
 	{ 0x0E, "DigestBytes" },
 	{ 0x0F, "DigestSchema" },
 	{ 0x10, "Disconnect" },
-	{ 0x38, "Extended-Request" },
-	{ 0x39, "Extended-Response" },
-	{ 0x3B, "ExtendedData" },
 	{ 0x11, "Functions" },
 	{ 0x12, "GetSPInfo-Request" },
 	{ 0x13, "GetSPInfo-Response" },
@@ -2990,36 +2883,43 @@ static const value_string wbxml_wv_csp_12_tags_cp1[] = {
 	{ 0x19, "InviteUser-Request" },
 	{ 0x1A, "InviteUser-Response" },
 	{ 0x1B, "KeepAlive-Request" },
-	{ 0x29, "KeepAlive-Response" },
 	{ 0x1C, "KeepAliveTime" },
 	{ 0x1D, "Login-Request" },
 	{ 0x1E, "Login-Response" },
 	{ 0x1F, "Logout-Request" },
 	{ 0x20, "Nonce" },
-	{ 0x3C, "OtherServer" },
 	{ 0x21, "Password" },
 	{ 0x22, "Polling-Request" },
-	{ 0x3D, "PresenceAttributeNSName" },
-	{ 0x36, "ReceiveList" },
 	{ 0x23, "ResponseNote" },
 	{ 0x24, "SearchElement" },
 	{ 0x25, "SearchFindings" },
 	{ 0x26, "SearchID" },
 	{ 0x27, "SearchIndex" },
 	{ 0x28, "SearchLimit" },
+	{ 0x29, "KeepAlive-Response" },
 	{ 0x2A, "SearchPairList" },
 	{ 0x2B, "Search-Request" },
 	{ 0x2C, "Search-Response" },
 	{ 0x2D, "SearchResult" },
-	{ 0x33, "SearchString" },
 	{ 0x2E, "Service-Request" },
 	{ 0x2F, "Service-Response" },
 	{ 0x30, "SessionCookie" },
-	{ 0x3E, "SessionNSName" },
 	{ 0x31, "StopSearch-Request" },
 	{ 0x32, "TimeToLive" },
-	{ 0x3F, "TransactionNSName" },
+	/* New in WV-CSP 1.1 */
+	{ 0x33, "SearchString" },
+	{ 0x34, "CompletionFlag" },
+	/* New in WV-CSP 1.2 */
+	{ 0x36, "ReceiveList" },
 	{ 0x37, "VerifyID-Request" },
+	{ 0x38, "Extended-Request" },
+	{ 0x39, "Extended-Response" },
+	{ 0x3A, "AgreedCapabilityList" },
+	{ 0x3B, "ExtendedData" },
+	{ 0x3C, "OtherServer" },
+	{ 0x3D, "PresenceAttributeNSName" },
+	{ 0x3E, "SessionNSName" },
+	{ 0x3F, "TransactionNSName" },
 
 	{ 0x00, NULL }
 };
@@ -3027,6 +2927,7 @@ static const value_string wbxml_wv_csp_12_tags_cp1[] = {
 
 /* Service code page (0x02) */
 static const value_string wbxml_wv_csp_12_tags_cp2[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "ADDGM" },
 	{ 0x06, "AttListFunc" },
 	{ 0x07, "BLENT" },
@@ -3064,9 +2965,6 @@ static const value_string wbxml_wv_csp_12_tags_cp2[] = {
 	{ 0x27, "InviteFunc" },
 	{ 0x28, "MBRAC" },
 	{ 0x29, "MCLS" },
-	{ 0x3D, "MF" },
-	{ 0x3E, "MG" },
-	{ 0x3F, "MM" },
 	{ 0x2A, "MDELIV" },
 	{ 0x2B, "NEWM" },
 	{ 0x2C, "NOTIF" },
@@ -3085,37 +2983,24 @@ static const value_string wbxml_wv_csp_12_tags_cp2[] = {
 	{ 0x39, "STSRC" },
 	{ 0x3A, "SUBGCN" },
 	{ 0x3B, "UPDPR" },
-	{ 0x3E, "VRID" }, /* Duplicate - WV-CSP is really crappy */
 	{ 0x3C, "WVCSPFeat" },
+	/* New in WV-CSP 1.2 */
+	{ 0x3D, "MF" },
+	{ 0x3E, "MG" },
+	{ 0x3E, "VRID" }, /* Duplicate, and cp2 is full --> Will move to cp8? */
+	{ 0x3F, "MM" },
 
 	{ 0x00, NULL }
 };
 /* Note that the table continues in code page 0x08 */
 
 /* Client capability code page (0x03) */
-static const value_string wbxml_wv_csp_12_tags_cp3[] = {
-	{ 0x05, "AcceptedCharset" },
-	{ 0x06, "AcceptedContentLength" },
-	{ 0x07, "AcceptedContentType" },
-	{ 0x08, "AcceptedTransferEncoding" },
-	{ 0x09, "AnyContent" },
-	{ 0x0A, "DefaultLanguage" },
-	{ 0x0B, "InitialDeliveryMethod" },
-	{ 0x0C, "MultiTrans" },
-	{ 0x0D, "ParserSize" },
-	{ 0x0E, "ServerPollMin" },
-	{ 0x0F, "SupportedBearer" },
-	{ 0x10, "SupportedCIRMethod" },
-	{ 0x11, "TCPAddress" },
-	{ 0x12, "TCPPort" },
-	{ 0x13, "UDPPort" },
-
-	{ 0x00, NULL }
-};
+/* Same as cp3 of WV-CSP 1.0 */
+#define wbxml_wv_csp_12_tags_cp3 wbxml_wv_csp_10_tags_cp3
 
 /* Presence primitive code page (0x04) */
 static const value_string wbxml_wv_csp_12_tags_cp4[] = {
-	{ 0x1E, "Auto-Subscribe" },
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "CancelAuth-Request" },
 	{ 0x06, "ContactListProperties" },
 	{ 0x07, "CreateAttributeList-Request" },
@@ -3131,24 +3016,29 @@ static const value_string wbxml_wv_csp_12_tags_cp4[] = {
 	{ 0x11, "GetList-Response" },
 	{ 0x12, "GetPresence-Request" },
 	{ 0x13, "GetPresence-Response" },
-	{ 0x1F, "GetReactiveAuthStatus-Request" },
-	{ 0x20, "GetReactiveAuthStatus-Response" },
 	{ 0x14, "GetWatcherList-Request" },
 	{ 0x15, "GetWatcherList-Response" },
 	{ 0x16, "ListManage-Request" },
 	{ 0x17, "ListManage-Response" },
+	{ 0x18, "UnsubscribePresence-Request" },
 	{ 0x19, "PresenceAuth-Request" },
 	{ 0x1A, "PresenceAuth-User" },
 	{ 0x1B, "PresenceNotification-Request" },
-	{ 0x1D, "SubscribePresence-Request" },
-	{ 0x18, "UnsubscribePresence-Request" },
 	{ 0x1C, "UpdatePresence-Request" },
+	{ 0x1D, "SubscribePresence-Request" },
+	/* New in WV-CSP 1.2 */
+	{ 0x1E, "Auto-Subscribe" },
+	/* 0x1E was defined in WV-CSP 1.0: UnsubscribePresence-Request */
+	{ 0x1F, "GetReactiveAuthStatus-Request" },
+	/* 0x1F was defined in WV-CSP 1.0: UpdatePresence-Request */
+	{ 0x20, "GetReactiveAuthStatus-Response" },
 
 	{ 0x00, NULL }
 };
 
 /* Presence attribute code page (0x05) */
 static const value_string wbxml_wv_csp_12_tags_cp5[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "Accuracy" },
 	{ 0x06, "Address" },
 	{ 0x07, "AddrPref" },
@@ -3156,37 +3046,27 @@ static const value_string wbxml_wv_csp_12_tags_cp5[] = {
 	{ 0x09, "Altitude" },
 	{ 0x0A, "Building" },
 	{ 0x0B, "Caddr" },
-	{ 0x2F, "Cap" },
 	{ 0x0C, "City" },
 	{ 0x0D, "ClientInfo" },
 	{ 0x0E, "ClientProducer" },
 	{ 0x0F, "ClientType" },
 	{ 0x10, "ClientVersion" },
-	{ 0x30, "Cname" },
 	{ 0x11, "CommC" },
 	{ 0x12, "CommCap" },
-	{ 0x31, "Contact" },
 	{ 0x13, "ContactInfo" },
 	{ 0x14, "ContainedvCard" },
-	{ 0x36, "ContentType" },
 	{ 0x15, "Country" },
-	{ 0x32, "Cpriority" },
 	{ 0x16, "Crossing1" },
 	{ 0x17, "Crossing2" },
-	{ 0x33, "Cstatus" },
 	{ 0x18, "DevManufacturer" },
 	{ 0x19, "DirectContent" },
 	{ 0x1A, "FreeTextLocation" },
 	{ 0x1B, "GeoLocation" },
-	{ 0x37, "Inf_link" },
-	{ 0x38, "InfoLink" },
 	{ 0x1C, "Language" },
 	{ 0x1D, "Latitude" },
-	{ 0x39, "Link" },
 	{ 0x1E, "Longitude" },
 	{ 0x1F, "Model" },
 	{ 0x20, "NamedArea" },
-	{ 0x34, "Note" },
 	{ 0x21, "OnlineStatus" },
 	{ 0x22, "PLMN" },
 	{ 0x23, "PrefC" },
@@ -3199,22 +3079,34 @@ static const value_string wbxml_wv_csp_12_tags_cp5[] = {
 	{ 0x2A, "StatusMood" },
 	{ 0x2B, "StatusText" },
 	{ 0x2C, "Street" },
-	{ 0x3A, "Text" },
 	{ 0x2D, "TimeZone" },
 	{ 0x2E, "UserAvailability" },
+	/* New in WV-CSP 1.1 */
+	{ 0x2F, "Cap" },
+	{ 0x30, "Cname" },
+	{ 0x31, "Contact" },
+	{ 0x32, "Cpriority" },
+	{ 0x33, "Cstatus" },
+	{ 0x34, "Note" },
 	{ 0x35, "Zone" },
+	/* New in WV-CSP 1.2 */
+	{ 0x36, "ContentType" },
+	{ 0x37, "Inf_link" },
+	{ 0x38, "InfoLink" },
+	{ 0x39, "Link" },
+	{ 0x3A, "Text" },
 
 	{ 0x00, NULL }
 };
 
 /* Messaging code page (0x06) */
 static const value_string wbxml_wv_csp_12_tags_cp6[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "BlockList" },
-	{ 0x06, "BlockEntity-Request" },
+	{ 0x06, "BlockEntity-Request" }, /* Was: BlockUser-Request */
 	{ 0x07, "DeliveryMethod" },
 	{ 0x08, "DeliveryReport" },
 	{ 0x09, "DeliveryReport-Request" },
-	{ 0x1A, "DeliveryTime" },
 	{ 0x0A, "ForwardMessage-Request" },
 	{ 0x0B, "GetBlockedList-Request" },
 	{ 0x0C, "GetBlockedList-Response" },
@@ -3231,38 +3123,33 @@ static const value_string wbxml_wv_csp_12_tags_cp6[] = {
 	{ 0x17, "SendMessage-Request" },
 	{ 0x18, "SendMessage-Response" },
 	{ 0x19, "SetDeliveryMethod-Request" },
+	{ 0x1A, "DeliveryTime" },
 
 	{ 0x00, NULL }
 };
 
 /* Group code page (0x07) */
 static const value_string wbxml_wv_csp_12_tags_cp7[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "AddGroupMembers-Request" },
 	{ 0x06, "Admin" },
-	{ 0x26, "AdminMapList" },
-	{ 0x27, "AdminMapping" },
 	{ 0x07, "CreateGroup-Request" },
 	{ 0x08, "DeleteGroup-Request" },
 	{ 0x09, "GetGroupMembers-Request" },
 	{ 0x0A, "GetGroupMembers-Response" },
 	{ 0x0B, "GetGroupProps-Request" },
 	{ 0x0C, "GetGroupProps-Response" },
-	{ 0x24, "GetJoinedUsers-Request" },
-	{ 0x25, "GetJoinedUsers-Response" },
 	{ 0x0D, "GroupChangeNotice" },
 	{ 0x0E, "GroupProperties" },
 	{ 0x0F, "Joined" },
-	{ 0x21, "JoinGroup" },
 	{ 0x10, "JoinedRequest" },
 	{ 0x11, "JoinGroup-Request" },
 	{ 0x12, "JoinGroup-Response" },
 	{ 0x13, "LeaveGroup-Request" },
 	{ 0x14, "LeaveGroup-Response" },
 	{ 0x15, "Left" },
-	{ 0x28, "Mapping" },
 	{ 0x16, "MemberAccess-Request" },
 	{ 0x17, "Mod" },
-	{ 0x29, "ModMapping" },
 	{ 0x18, "OwnProperties" },
 	{ 0x19, "RejectList-Request" },
 	{ 0x1A, "RejectList-Response" },
@@ -3270,27 +3157,39 @@ static const value_string wbxml_wv_csp_12_tags_cp7[] = {
 	{ 0x1C, "SetGroupProps-Request" },
 	{ 0x1D, "SubscribeGroupNotice-Request" },
 	{ 0x1E, "SubscribeGroupNotice-Response" },
-	{ 0x22, "SubscribeNotification" },
-	{ 0x23, "SubscribeType" },
-	{ 0x2A, "UserMapList" },
-	{ 0x2B, "UserMapping" },
 	{ 0x1F, "Users" },
 	{ 0x20, "WelcomeNote" },
+	/* New in WV-CSP 1.1 */
+	{ 0x21, "JoinGroup" },
+	{ 0x22, "SubscribeNotification" },
+	{ 0x23, "SubscribeType" },
+	/* New in WV-CSP 1.2 */
+	{ 0x24, "GetJoinedUsers-Request" },
+	{ 0x25, "GetJoinedUsers-Response" },
+	{ 0x26, "AdminMapList" },
+	{ 0x27, "AdminMapping" },
+	{ 0x28, "Mapping" },
+	{ 0x29, "ModMapping" },
+	{ 0x2A, "UserMapList" },
+	{ 0x2B, "UserMapping" },
 
 	{ 0x00, NULL }
 };
 
 /* Service negotiation code page - continued (0x08) */
+/* Same as cp8 of WV-CSP 1.1, but a new token is likely to be added. - XXX */
 static const value_string wbxml_wv_csp_12_tags_cp8[] = {
+	/* 0x00 -- 0x04 GLOBAL */
+	{ 0x05, "MP" },
 	{ 0x06, "GETAUT" },
 	{ 0x07, "GETJU" },
-	{ 0x05, "MP" },
 
 	{ 0x00, NULL }
 };
 
 /* Common code page - continued (0x09) */
 static const value_string wbxml_wv_csp_12_tags_cp9[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "CIR" },
 	{ 0x06, "Domain" },
 	{ 0x07, "ExtBlock" },
@@ -3301,13 +3200,14 @@ static const value_string wbxml_wv_csp_12_tags_cp9[] = {
 	{ 0x0C, "ReactiveAuthStatus" },
 	{ 0x0D, "ReactiveAuthStatusList" },
 	{ 0x0E, "Watcher" },
-	{ 0x0C, "WatcherStatus" },
+	{ 0x0C, "WatcherStatus" }, /* Duplicate --> Will move to 0x0F? */
 
 	{ 0x00, NULL }
 };
 
 /* Access code page - continued (0x0A) */
 static const value_string wbxml_wv_csp_12_tags_cp10[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "WV-CSP-NSDiscovery-Request" },
 	{ 0x06, "WV-CSP-NSDiscovery-Response" },
 
@@ -3317,9 +3217,11 @@ static const value_string wbxml_wv_csp_12_tags_cp10[] = {
 /*****    Attribute Start tokens   *****/
 /* Common code page (0x00) */
 static const value_string wbxml_wv_csp_12_attrStart_cp0[] = {
+	/* 0x00 -- 0x04 GLOBAL */
 	{ 0x05, "xmlns='http://www.wireless-village.org/CSP'" },
 	{ 0x06, "xmlns='http://www.wireless-village.org/PA'" },
 	{ 0x07, "xmlns='http://www.wireless-village.org/TRC'" },
+	/* New in WV-CSP 1.2 */
 	{ 0x08, "xmlns='http://www.openmobilealliance.org/DTD/WV-CSP'" },
 	{ 0x09, "xmlns='http://www.openmobilealliance.org/DTD/WV-PA'" },
 	{ 0x0A, "xmlns http://www.openmobilealliance.org/DTD/WV-TRC'" },
@@ -3336,14 +3238,14 @@ static const value_string wbxml_wv_csp_12_attrStart_cp0[] = {
  * the index in the following value_string.
  *
  * Please note that:
- *  - Values ‘T’ and ‘F’ are Boolean values representing "True" and "False"
+ *  - Values 'T' and 'F' are Boolean values representing "True" and "False"
  *    (or "Yes" and "No" in some circumstances) respectively.
- *  - Values ‘GR’, ‘IM’, ‘PR’, ‘SC’, ‘GM’ and ‘US’ are enumerated values
+ *  - Values 'GR', 'IM', 'PR', 'SC', 'GM' and 'US' are enumerated values
  *    representing "Group", "Instant Messaging", "Presence", "Shared Content",
  *    "Group membership" and "User" respectively.
- *  - Values ‘G’, ‘S’ and ‘U’ are enumerated values representing "Get", "Set"
+ *  - Values 'G', 'S' and 'U' are enumerated values representing "Get", "Set"
  *    and "Unset" respectively.
- *  - Values ‘N’ and ‘P’ are enumerated values representing "Notify/Get" and
+ *  - Values 'N' and 'P' are enumerated values representing "Notify/Get" and
  *    "Push" respectively.
  *
  * I repeat: this is NOT a attrValue[] array hence it is not called
@@ -3359,18 +3261,14 @@ static const value_string vals_wv_csp_12_element_value_tokens[] = {
 	{ 0x03, "'application/'" },
 	{ 0x04, "'application/vnd.wap.mms-message'" },
 	{ 0x05, "'application/x-sms'" },
-	{ 0x31, "'AutoDelete'" },
 	{ 0x06, "'AutoJoin'" },
 	{ 0x07, "'BASE64'" },
 	{ 0x08, "'Closed'" },
 	{ 0x09, "'Default'" },
-	{ 0x34, "'DENIED'" },
 	{ 0x0A, "'DisplayName'" },
 	{ 0x0B, "'F'" },
 	{ 0x0C, "'G'" },
-	{ 0x32, "'GM'" },
 	{ 0x0D, "'GR'" },
-	{ 0x35, "'GRANTED'" },
 	{ 0x0E, "'http://'" },
 	{ 0x0F, "'https://'" },
 	{ 0x10, "'image/'" },
@@ -3383,7 +3281,6 @@ static const value_string vals_wv_csp_12_element_value_tokens[] = {
 	{ 0x17, "'N'" },
 	{ 0x18, "'Open'" },
 	{ 0x19, "'Outband'" },
-	{ 0x36, "'PENDING'" },
 	{ 0x1A, "'PR'" },
 	{ 0x1B, "'Private'" },
 	{ 0x1C, "'PrivateMessaging'" },
@@ -3397,7 +3294,6 @@ static const value_string vals_wv_csp_12_element_value_tokens[] = {
 	{ 0x24, "'Searchable'" },
 	{ 0x25, "'S'" },
 	{ 0x26, "'SC'" },
-	{ 0x34, "'ShowID'" },
 	{ 0x27, "'text/'" },
 	{ 0x28, "'text/plain'" },
 	{ 0x29, "'text/x-vCalendar'" },
@@ -3407,8 +3303,15 @@ static const value_string vals_wv_csp_12_element_value_tokens[] = {
 	{ 0x2D, "'Type'" },
 	{ 0x2E, "'U'" },
 	{ 0x2F, "'US'" },
-	{ 0x33, "'Validity'" },
 	{ 0x30, "'www.wireless-village.org'" },
+	/* New in WV-CSP 1.2 */
+	{ 0x31, "'AutoDelete'" },
+	{ 0x32, "'GM'" },
+	{ 0x33, "'Validity'" },
+	{ 0x34, "'DENIED'" }, /* Duplicate */
+	{ 0x34, "'ShowID'" }, /* Duplicate */
+	{ 0x35, "'GRANTED'" },
+	{ 0x36, "'PENDING'" },
 	/*
 	 * Access value tokens
 	 */
@@ -3416,7 +3319,6 @@ static const value_string vals_wv_csp_12_element_value_tokens[] = {
 	{ 0x3E, "'GROUP_NAME'" },
 	{ 0x3F, "'GROUP_TOPIC'" },
 	{ 0x40, "'GROUP_USER_ID_JOINED'" },
-	{ 0x50, "'GROUP_USER_ID_AUTOJOIN'" },
 	{ 0x41, "'GROUP_USER_ID_OWNER'" },
 	{ 0x42, "'HTTP'" },
 	{ 0x43, "'SMS'" },
@@ -3432,6 +3334,8 @@ static const value_string vals_wv_csp_12_element_value_tokens[] = {
 	{ 0x4D, "'WAPSMS'" },
 	{ 0x4E, "'WAPUDP'" },
 	{ 0x4F, "'WSP'" },
+	/* New in WV-CSP 1.2 */
+	{ 0x50, "'GROUP_USER_ID_AUTOJOIN'" },
 	/*
 	 * Presence value tokens
 	 */
@@ -3536,7 +3440,7 @@ static const wbxml_token_map map[] = {
 	},
 #endif
 	{ 0x04, NULL, TRUE, /* WML 1.1 */
-		wbxml_wmlc10_global, /* Same as WML 1.0 */
+		wbxml_wmlc11_global, /* Same as WML 1.0 */
 		wbxml_wmlc11_tags,
 		wbxml_wmlc11_attrStart,
 		wbxml_wmlc11_attrValue
@@ -3566,13 +3470,13 @@ static const wbxml_token_map map[] = {
 		NULL, /* wbxml_channelc10_attrValue - does not exist */
 	},
 	{ 0x09, NULL, TRUE, /* WML 1.2 */
-		wbxml_wmlc10_global, /* Same as WML 1.0 */
+		wbxml_wmlc12_global, /* Same as WML 1.0 */
 		wbxml_wmlc12_tags,
 		wbxml_wmlc12_attrStart,
 		wbxml_wmlc12_attrValue
 	},
 	{ 0x0A, NULL, TRUE, /* WML 1.3 */
-		wbxml_wmlc10_global, /* Same as WML 1.0 */
+		wbxml_wmlc13_global, /* Same as WML 1.0 */
 		wbxml_wmlc13_tags,
 		wbxml_wmlc13_attrStart,
 		wbxml_wmlc13_attrValue
@@ -3632,7 +3536,7 @@ static const wbxml_token_map map[] = {
 	{ 0x1108, NULL, TRUE, /* Phone.com - WML+ 1.1 */
 		/* Note: I assumed WML+ 1.1 would be not that different from WML 1.1,
 		 *       the real mapping should come from Phone.com (OpenWave)! */
-		wbxml_wmlc10_global, /* Same as WML 1.0 - Not 100% true */
+		wbxml_wmlc13_global, /* Same as WML 1.0 - Not 100% true */
 		wbxml_wmlc11_tags, /* Not 100% true */
 		wbxml_wmlc11_attrStart, /* Not 100% true */
 		wbxml_wmlc11_attrValue /* Not 100% true */
@@ -3640,7 +3544,7 @@ static const wbxml_token_map map[] = {
 	{ 0x110D, NULL, TRUE, /* Phone.com - WML+ 1.3 */
 		/* Note: I assumed WML+ 1.3 would be not that different from WML 1.3,
 		 *       the real mapping should come from Phone.com (OpenWave)! */
-		wbxml_wmlc10_global, /* Same as WML 1.0 - Not 100% true */
+		wbxml_wmlc13_global, /* Same as WML 1.0 - Not 100% true */
 		wbxml_wmlc13_tags, /* Not 100% true */
 		wbxml_wmlc13_attrStart, /* Not 100% true */
 		wbxml_wmlc13_attrValue /* Not 100% true */
