@@ -2,7 +2,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.h,v 1.35 2003/09/26 06:30:13 tpot Exp $
+ * $Id: packet-dcerpc.h,v 1.36 2003/10/10 11:11:37 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -217,6 +217,7 @@ typedef struct _dcerpc_sub_dissector {
 /* registration function for subdissectors */
 void dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver, dcerpc_sub_dissector *procs, int opnum_hf);
 char *dcerpc_get_proto_name(e_uuid_t *uuid, guint16 ver);
+int dcerpc_get_proto_hf_opnum(e_uuid_t *uuid, guint16 ver);
 dcerpc_sub_dissector *dcerpc_get_proto_sub_dissector(e_uuid_t *uuid, guint16 ver);
 
 /* Create a opnum, name value_string from a subdissector list */

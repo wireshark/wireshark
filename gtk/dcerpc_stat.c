@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.24 2003/09/26 02:09:43 guy Exp $
+ * $Id: dcerpc_stat.c,v 1.25 2003/10/10 11:11:37 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -182,6 +182,7 @@ gtk_dcerpcstat_init(char *optarg)
 	int pos=0;
         char *filter=NULL;
         GString *error_string;
+	int hf_opnum;
 
 	if(sscanf(optarg,"dcerpc,srt,%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x,%d.%d,%n", &d1,&d2,&d3,&d40,&d41,&d42,&d43,&d44,&d45,&d46,&d47,&major,&minor,&pos)==13){
 		uuid.Data1=d1;
@@ -208,6 +209,7 @@ gtk_dcerpcstat_init(char *optarg)
 
 	rs=g_malloc(sizeof(rpcstat_t));
 	rs->prog=dcerpc_get_proto_name(&uuid, (minor<<8)|(major&0xff) );
+	hf_opnum=dcerpc_get_proto_hf_opnum(&uuid, (minor<<8)|(major&0xff) );
 	if(!rs->prog){
 		g_free(rs);
 		fprintf(stderr,"ethereal: dcerpcstat_init() Protocol with uuid:%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x v%d.%d not supported\n",uuid.Data1,uuid.Data2,uuid.Data3,uuid.Data4[0],uuid.Data4[1],uuid.Data4[2],uuid.Data4[3],uuid.Data4[4],uuid.Data4[5],uuid.Data4[6],uuid.Data4[7],major,minor);
@@ -246,7 +248,11 @@ gtk_dcerpcstat_init(char *optarg)
 	/* We must display TOP LEVEL Widget before calling init_srt_table() */
 	gtk_widget_show(rs->win);
 
-	init_srt_table(&rs->srt_table, max_procs+1, vbox, NULL);
+	if(hf_opnum!=-1){
+		init_srt_table(&rs->srt_table, max_procs+1, vbox, proto_registrar_get_nth(hf_opnum)->abbrev);
+	} else {
+		init_srt_table(&rs->srt_table, max_procs+1, vbox, NULL);
+	}
 
        	for(i=0;i<(max_procs+1);i++){
 		int j;

@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.143 2003/10/08 12:29:52 sahlberg Exp $
+ * $Id: packet-dcerpc.c,v 1.144 2003/10/10 11:11:37 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -630,6 +630,23 @@ dcerpc_get_proto_name(e_uuid_t *uuid, guint16 ver)
         return NULL;
     }
     return sub_proto->name;
+}
+
+/* Function to find the opnum hf-field of a registered protocol
+ * or -1 if the protocol/version is not known to ethereal.
+ */
+int
+dcerpc_get_proto_hf_opnum(e_uuid_t *uuid, guint16 ver)
+{
+    dcerpc_uuid_key key;
+    dcerpc_uuid_value *sub_proto;
+
+    key.uuid = *uuid;
+    key.ver = ver;
+    if(!(sub_proto = g_hash_table_lookup (dcerpc_uuids, &key))){
+        return -1;
+    }
+    return sub_proto->opnum_hf;
 }
 
 /* Create a value_string consisting of DCERPC opnum and name from a
