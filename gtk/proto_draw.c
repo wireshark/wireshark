@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.53 2002/06/04 07:03:57 guy Exp $
+ * $Id: proto_draw.c,v 1.54 2002/06/24 00:08:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,6 +66,7 @@
 
 #define E_BYTE_VIEW_TREE_PTR      "byte_view_tree_ptr"
 #define E_BYTE_VIEW_TREE_VIEW_PTR "byte_view_tree_view_ptr"
+#define E_BYTE_VIEW_NDIGITS_KEY   "byte_view_ndigits"
 #define E_BYTE_VIEW_TVBUFF_KEY    "byte_view_tvbuff"
 #define E_BYTE_VIEW_START_KEY     "byte_view_start"
 #define E_BYTE_VIEW_END_KEY       "byte_view_end"
@@ -206,6 +207,23 @@ toggle_tree(GtkCTree *ctree, GdkEventKey *event, gpointer user_data _U_)
 	gtk_ctree_toggle_expansion(ctree, GTK_CTREE_NODE(ctree->clist.selection->data));
 }
 
+#define MAX_OFFSET_LEN	8	/* max length of hex offset of bytes */
+#define BYTES_PER_LINE	16	/* max byte values in a line */
+#define HEX_DUMP_LEN	(BYTES_PER_LINE*3 + 1)
+				/* max number of characters hex dump takes -
+				   2 digits plus trailing blank
+				   plus separator between first and
+				   second 8 digits */
+#define DATA_DUMP_LEN	(HEX_DUMP_LEN + 2 + BYTES_PER_LINE)
+				/* number of characters those bytes take;
+				   3 characters per byte of hex dump,
+				   2 blanks separating hex from ASCII,
+				   1 character per byte of ASCII dump */
+#define MAX_LINE_LEN	(MAX_OFFSET_LEN + 2 + DATA_DUMP_LEN)
+				/* number of characters per line;
+				   offset, 2 blanks separating offset
+				   from data dump, data dump */
+
 /* Which byte the offset is referring to. Associates
  * whitespace with the preceding digits. */
 static int
@@ -213,7 +231,6 @@ byte_num(int offset, int start_point)
 {
 	return (offset - start_point) / 3;
 }
-
 
 /* If the user selected a certain byte in the byte view, try to find
  * the item in the GUI proto_tree that corresponds to that byte, and
@@ -229,26 +246,89 @@ byte_view_select(GtkWidget *widget, GdkEventButton *event)
 	int		row, column;
 	int		byte;
 	tvbuff_t	*tvb;
+	guint		ndigits;
+	int		digits_start_1;
+	int		digits_end_1;
+	int		digits_start_2;
+	int		digits_end_2;
+	int		text_start_1;
+	int		text_end_1;
+	int		text_start_2;
+	int		text_end_2;
 
-	/* The column of the first hex digit in the first half */
-	const int	digits_start_1 = 6;
-	/* The column of the last hex digit in the first half. */
-	const int	digits_end_1 = 28;
+	/*
+	 * Get the number of digits of offset being displayed, and
+	 * compute the columns of various parts of the display.
+	 */
+	ndigits = GPOINTER_TO_UINT(gtk_object_get_data(GTK_OBJECT(bv),
+			  E_BYTE_VIEW_NDIGITS_KEY));
 
-	/* The column of the first hex digit in the second half */
-	const int	digits_start_2 = 31;
-	/* The column of the last hex digit in the second half. */
-	const int	digits_end_2 = 53;
+	/*
+	 * The column of the first hex digit in the first half.
+	 * That starts after "ndigits" digits of offset and two
+	 * separating blanks.
+	 */
+	digits_start_1 = ndigits + 2;
 
-	/* The column of the first "text dump" character in first half. */
-	const int	text_start_1 = 57;
-	/* The column of the last "text dump" character in first half. */
-	const int	text_end_1 = 64;
+	/*
+	 * The column of the last hex digit in the first half.
+	 * There are BYTES_PER_LINE/2 bytes displayed in the first
+	 * half; there are 2 characters per byte, plus a separating
+	 * blank after all but the last byte's characters.
+	 *
+	 * Then subtract 1 to get the last column of the first half
+	 * rather than the first column after the first half.
+	 */
+	digits_end_1 = digits_start_1 + (BYTES_PER_LINE/2)*2 +
+	    (BYTES_PER_LINE/2 - 1) - 1;
 
-	/* The column of the first "text dump" character in second half. */
-	const int	text_start_2 = 66;
-	/* The column of the last "text dump" character in second half. */
-	const int	text_end_2 = 73;
+	/*
+	 * The column of the first hex digit in the second half.
+	 * Add back the 1 to get the first column after the first
+	 * half, and then add 2 for the 2 separating blanks between
+	 * the halves.
+	 */
+	digits_start_2 = digits_end_1 + 3;
+
+	/*
+	 * The column of the last hex digit in the second half.
+	 * Add the same value we used to get "digits_end_1" from
+	 * "digits_start_1".
+	 */
+	digits_end_2 = digits_start_2 + (BYTES_PER_LINE/2)*2 +
+	    (BYTES_PER_LINE/2 - 1) - 1;
+
+	/*
+	 * The column of the first "text dump" character in the first half.
+	 * Add back the 1 to get the first column after the second
+	 * half's hex dump, and then add 3 for the 3 separating blanks
+	 * between the hex and text dummp.
+	 */
+	text_start_1 = digits_end_2 + 4;
+
+	/*
+	 * The column of the last "text dump" character in the first half.
+	 * There are BYTES_PER_LINE/2 bytes displayed in the first
+	 * half; there is 1 character per byte.
+	 *
+	 * Then subtract 1 to get the last column of the first half
+	 * rather than the first column after the first half.
+	 */
+	text_end_1 = text_start_1 + BYTES_PER_LINE/2 - 1;
+
+	/*
+	 * The column of the first "text dump" character in the second half.
+	 * Add back the 1 to get the first column after the first half,
+	 * and then add 1 for the separating blank between the halves.
+	 */
+	text_start_2 = text_end_1 + 2;
+
+	/*
+	 * The column of the last "text dump" character in second half.
+	 * Add the same value we used to get "text_end_1" from
+	 * "text_start_1".
+	 */
+	text_end_2 = text_start_2 + BYTES_PER_LINE/2 - 1;
 
 	tree = gtk_object_get_data(GTK_OBJECT(widget), E_BYTE_VIEW_TREE_PTR);
 	if (tree == NULL) {
@@ -478,8 +558,13 @@ static void
 packet_hex_print_common(GtkText *bv, const guint8 *pd, int len, int bstart,
 			int bend, int encoding)
 {
-  int    i = 0, j, k, cur;
-  guchar   line[128], hexchars[] = "0123456789abcdef", c = '\0';
+  int      i = 0, j, k, cur;
+  guchar   line[MAX_LINE_LEN + 1];
+  static guchar hexchars[16] = {
+		'0', '1', '2', '3', '4', '5', '6', '7',
+		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+  guchar   c = '\0';
+  unsigned int use_digits;
   GdkFont *cur_font, *new_font;
   GdkColor *fg, *bg;
   gboolean reverse, newreverse;
@@ -496,9 +581,38 @@ packet_hex_print_common(GtkText *bv, const guint8 *pd, int len, int bstart,
   gtk_adjustment_set_value(bv->vadj, 0.0);
   gtk_text_forward_delete(bv, gtk_text_get_length(bv));
 
+  /*
+   * How many of the leading digits of the offset will we supply?
+   * We always supply at least 4 digits, but if the maximum offset
+   * won't fit in 4 digits, we use as many digits as will be needed.
+   */
+  if (((len - 1) & 0xF0000000) != 0)
+    use_digits = 8;	/* need all 8 digits */
+  else if (((len - 1) & 0x0F000000) != 0)
+    use_digits = 7;	/* need 7 digits */
+  else if (((len - 1) & 0x00F00000) != 0)
+    use_digits = 6;	/* need 6 digits */
+  else if (((len - 1) & 0x000F0000) != 0)
+    use_digits = 5;	/* need 5 digits */
+  else
+    use_digits = 4;	/* we'll supply 4 digits */
+
+  /* Record the number of digits in this text view. */
+  gtk_object_set_data(GTK_OBJECT(bv), E_BYTE_VIEW_NDIGITS_KEY,
+                      GUINT_TO_POINTER(use_digits));
+
   while (i < len) {
     /* Print the line number */
-    sprintf(line, "%04x  ", i);
+    j = use_digits;
+    cur = 0;
+    do {
+      j--;
+      c = (i >> (j*4)) & 0xF;
+      line[cur++] = hexchars[c];
+    } while (j != 0);
+    line[cur++] = ' ';
+    line[cur++] = ' ';
+    line[cur] = '\0';
     
     /* Display with inverse video ? */
     if (prefs.gui_hex_dump_highlight_style) {
@@ -711,7 +825,6 @@ packet_hex_print(GtkText *bv, const guint8 *pd, frame_data *fd,
   gtk_object_set_data(GTK_OBJECT(bv),  E_BYTE_VIEW_ENCODE_KEY, GINT_TO_POINTER(fd->flags.encoding));
 
   packet_hex_print_common(bv, pd, len, bstart, bend, fd->flags.encoding);
-
 }
 
 /*
