@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.74 2003/01/10 04:04:41 guy Exp $
+ * $Id: netxray.c,v 1.75 2003/01/30 22:38:47 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -755,33 +755,39 @@ netxray_close(wtap *wth)
 	g_free(wth->capture.netxray);
 }
 
-static const int wtap_encap[] = {
-    -1,		/* WTAP_ENCAP_UNKNOWN -> unsupported */
-    0,		/* WTAP_ENCAP_ETHERNET -> NDIS Ethernet */
-    1,		/* WTAP_ENCAP_TOKEN_RING -> NDIS Token Ring */
-    -1,		/* WTAP_ENCAP_SLIP -> unsupported */
-    -1,		/* WTAP_ENCAP_PPP -> unsupported */
-    2,		/* WTAP_ENCAP_FDDI -> NDIS FDDI */
-    2,		/* WTAP_ENCAP_FDDI_BITSWAPPED -> NDIS FDDI */
-    -1,		/* WTAP_ENCAP_RAW_IP -> unsupported */
-    -1,		/* WTAP_ENCAP_ARCNET -> unsupported */
-    -1,		/* WTAP_ENCAP_ATM_RFC1483 -> unsupported */
-    -1,		/* WTAP_ENCAP_LINUX_ATM_CLIP -> unsupported */
-    -1,		/* WTAP_ENCAP_LAPB -> unsupported */
-    -1,		/* WTAP_ENCAP_ATM_PDUS_UNTRUNCATED -> unsupported */
-    -1		/* WTAP_ENCAP_NULL -> unsupported */
+static const struct {
+	int	wtap_encap_value;
+	int	ndis_value;
+} wtap_encap_1_1[] = {
+    { WTAP_ENCAP_ETHERNET, 0 },		/* -> NDIS Ethernet */
+    { WTAP_ENCAP_TOKEN_RING, 1 },	/* -> NDIS Token Ring */
+    { WTAP_ENCAP_FDDI, 2 },		/* -> NDIS FDDI */
+    { WTAP_ENCAP_FDDI_BITSWAPPED, 2 },	/* -> NDIS FDDI */
 };
-#define NUM_WTAP_ENCAPS (sizeof wtap_encap / sizeof wtap_encap[0])
+#define NUM_WTAP_ENCAPS_1_1 (sizeof wtap_encap_1_1 / sizeof wtap_encap_1_1[0])
+
+static int
+wtap_encap_to_netxray_1_1_encap(int encap)
+{
+    unsigned int i;
+
+    for (i = 0; i < NUM_WTAP_ENCAPS_1_1; i++) {
+    	if (encap == wtap_encap_1_1[i].wtap_encap_value)
+	    return wtap_encap_1_1[i].ndis_value;
+    }
+
+    return -1;
+}
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int netxray_dump_can_write_encap(int encap)
+int netxray_dump_can_write_encap_1_1(int encap)
 {
     /* Per-packet encapsulations aren't supported. */
     if (encap == WTAP_ENCAP_PER_PACKET)
 	return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 
-    if (encap < 0 || (unsigned)encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
+    if (wtap_encap_to_netxray_1_1_encap(encap) == -1)
 	return WTAP_ERR_UNSUPPORTED_ENCAP;
 
     return 0;
@@ -914,7 +920,7 @@ static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
     file_hdr.nframes = htolel(netxray->nframes);
     file_hdr.start_offset = htolel(CAPTUREFILE_HEADER_SIZE);
     file_hdr.end_offset = htolel(filelen);
-    file_hdr.network = htoles(wtap_encap[wdh->encap]);
+    file_hdr.network = htoles(wtap_encap_to_netxray_1_1_encap(wdh->encap));
     file_hdr.timelo = htolel(0);
     file_hdr.timehi = htolel(0);
 
@@ -932,6 +938,45 @@ static gboolean netxray_dump_close_1_1(wtap_dumper *wdh, int *err)
     }
 
     return TRUE;
+}
+
+static const struct {
+	int	wtap_encap_value;
+	int	ndis_value;
+} wtap_encap_2_0[] = {
+    { WTAP_ENCAP_ETHERNET, 0 },		/* -> NDIS Ethernet */
+    { WTAP_ENCAP_TOKEN_RING, 1 },	/* -> NDIS Token Ring */
+    { WTAP_ENCAP_FDDI, 2 },		/* -> NDIS FDDI */
+    { WTAP_ENCAP_FDDI_BITSWAPPED, 2 },	/* -> NDIS FDDI */
+    { WTAP_ENCAP_FRELAY, 3 },		/* -> NDIS WAN(PPP) */
+};
+#define NUM_WTAP_ENCAPS_2_0 (sizeof wtap_encap_2_0 / sizeof wtap_encap_2_0[0])
+
+static int
+wtap_encap_to_netxray_2_0_encap(int encap)
+{
+    unsigned int i;
+
+    for (i = 0; i < NUM_WTAP_ENCAPS_2_0; i++) {
+    	if (encap == wtap_encap_2_0[i].wtap_encap_value)
+	    return wtap_encap_2_0[i].ndis_value;
+    }
+
+    return -1;
+}
+
+/* Returns 0 if we could write the specified encapsulation type,
+   an error indication otherwise. */
+int netxray_dump_can_write_encap_2_0(int encap)
+{
+    /* Per-packet encapsulations aren't supported. */
+    if (encap == WTAP_ENCAP_PER_PACKET)
+	return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
+
+    if (wtap_encap_to_netxray_2_0_encap(encap) == -1)
+	return WTAP_ERR_UNSUPPORTED_ENCAP;
+
+    return 0;
 }
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
@@ -1068,9 +1113,15 @@ static gboolean netxray_dump_close_2_0(wtap_dumper *wdh, int *err)
     file_hdr.nframes = htolel(netxray->nframes);
     file_hdr.start_offset = htolel(CAPTUREFILE_HEADER_SIZE);
     file_hdr.end_offset = htolel(filelen);
-    file_hdr.network = htoles(wtap_encap[wdh->encap]);
+    file_hdr.network = htoles(wtap_encap_to_netxray_2_0_encap(wdh->encap));
     file_hdr.timelo = htolel(0);
     file_hdr.timehi = htolel(0);
+    switch (wdh->encap) {
+
+    case WTAP_ENCAP_FRELAY:
+	file_hdr.xxb[20] = 4;
+	break;
+    }
 
     memset(hdr_buf, '\0', sizeof hdr_buf);
     memcpy(hdr_buf, &file_hdr, sizeof(file_hdr));
