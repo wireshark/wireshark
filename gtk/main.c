@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.372 2004/01/24 01:02:54 guy Exp $
+ * $Id: main.c,v 1.373 2004/01/25 15:10:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3282,6 +3282,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 {
     GtkWidget     
                   *filter_bt, *filter_cm, *filter_te,
+                  *filter_add_expr_bt,
                   *filter_apply,
                   *filter_reset;
     GList         *filter_list = NULL;
@@ -3401,7 +3402,7 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     OBJECT_SET_DATA(top_level, E_FILT_BT_PTR_KEY, filter_bt);
 
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_bt, 
-        "Edit/Apply display filter...", "Private");
+        "Open the \"Display Filter\" dialog, to edit/apply filters", "Private");
 
     filter_cm = gtk_combo_new();
     filter_list = g_list_append (filter_list, "");
@@ -3415,24 +3416,34 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     OBJECT_SET_DATA(filter_te, E_DFILTER_CM_KEY, filter_cm);
     OBJECT_SET_DATA(top_level, E_DFILTER_CM_KEY, filter_cm);
     SIGNAL_CONNECT(filter_te, "activate", filter_activate_cb, filter_te);
+    SIGNAL_CONNECT(filter_te, "changed", filter_te_syntax_check_cb, NULL);
     WIDGET_SET_SIZE(filter_cm, 400, -1);
     gtk_widget_show(filter_cm);
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_cm, 
-        "Enter a display filter", "Private");
+        "Enter a display filter", NULL);
+
+    /* Create the "Add Expression..." button, to pop up a dialog
+       for constructing filter comparison expressions. */
+    filter_add_expr_bt = BUTTON_NEW_FROM_STOCK(ETHEREAL_STOCK_ADD_EXPRESSION);
+    OBJECT_SET_DATA(filter_tb, E_FILT_FILTER_TE_KEY, filter_te);
+    SIGNAL_CONNECT(filter_add_expr_bt, "clicked", filter_add_expr_bt_cb, filter_tb);
+    gtk_widget_show(filter_add_expr_bt);
+    gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_add_expr_bt, 
+        "Add an expression to this filter string", "Private");
 
     filter_reset = BUTTON_NEW_FROM_STOCK(GTK_STOCK_CLEAR);
     OBJECT_SET_DATA(filter_reset, E_DFILTER_TE_KEY, filter_te);
     SIGNAL_CONNECT(filter_reset, "clicked", filter_reset_cb, NULL);
     gtk_widget_show(filter_reset);
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_reset, 
-        "Clear the current display filter", "Private");
+        "Clear this filter string and update the display", "Private");
 
     filter_apply = BUTTON_NEW_FROM_STOCK(GTK_STOCK_APPLY);
     OBJECT_SET_DATA(filter_apply, E_DFILTER_CM_KEY, filter_cm);
     SIGNAL_CONNECT(filter_apply, "clicked", filter_activate_cb, filter_te);
     gtk_widget_show(filter_apply);
     gtk_toolbar_append_widget(GTK_TOOLBAR(filter_tb), filter_apply, 
-        "Apply this display filter", "Private");
+        "Apply this filter string to the display", "Private");
 
     /* Sets the text entry widget pointer as the E_DILTER_TE_KEY data
      * of any widget that ends up calling a callback which needs

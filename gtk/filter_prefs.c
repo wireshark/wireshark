@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.53 2004/01/25 13:47:09 ulfl Exp $
+ * $Id: filter_prefs.c,v 1.54 2004/01/25 15:10:35 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,7 +55,6 @@
 #define E_FILT_COPY_BT_KEY          "filter_copy_bt"
 #define E_FILT_DEL_BT_KEY           "filter_del_bt"
 #define E_FILT_NAME_TE_KEY          "filter_name_te"
-#define E_FILT_FILTER_TE_KEY        "filter_filter_te"
 #define E_FILT_DBLFUNC_KEY          "filter_dblfunc"
 #define E_FILT_DBLARG_KEY           "filter_dblarg"
 #define E_FILT_DBLACTIVATE_KEY      "filter_dblactivate"
@@ -86,8 +85,7 @@ static void filter_sel_list_cb(GtkTreeSelection *, gpointer);
 #endif
 static void filter_new_bt_clicked_cb(GtkWidget *, gpointer);
 static void filter_del_bt_clicked_cb(GtkWidget *, gpointer);
-static void filter_add_expr_bt_cb(GtkWidget *, gpointer);
-static void filter_te_changed_cb(GtkWidget *, gpointer);
+static void filter_name_te_changed_cb(GtkWidget *, gpointer);
 
 #ifdef HAVE_LIBPCAP
 /* Create a filter dialog for constructing a capture filter.
@@ -530,7 +528,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     name_te = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX(middle_hb), name_te, TRUE, TRUE, 0);
     OBJECT_SET_DATA(main_w, E_FILT_NAME_TE_KEY, name_te);
-    SIGNAL_CONNECT(name_te, "changed", filter_te_changed_cb, filter_list_type_p);
+    SIGNAL_CONNECT(name_te, "changed", filter_name_te_changed_cb, filter_list_type_p);
     gtk_widget_show(name_te);
 
     /* row: Filter text entry */
@@ -545,7 +543,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     filter_te = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX(bottom_hb), filter_te, TRUE, TRUE, 0);
     OBJECT_SET_DATA(main_w, E_FILT_FILTER_TE_KEY, filter_te);
-    SIGNAL_CONNECT(filter_te, "changed", filter_te_changed_cb, filter_list_type_p);
+    SIGNAL_CONNECT(filter_te, "changed", filter_name_te_changed_cb, filter_list_type_p);
     gtk_widget_show(filter_te);
 
     OBJECT_SET_DATA(main_w, E_FILT_PARENT_FILTER_TE_KEY, parent_filter_te);
@@ -1146,7 +1144,7 @@ chg_filter_cb(gpointer data, gpointer user_data)
 }
 
 static void
-filter_te_changed_cb(GtkWidget *w, gpointer data)
+filter_name_te_changed_cb(GtkWidget *w, gpointer data)
 {
     GtkWidget  *main_w = gtk_widget_get_toplevel(w);
     GtkWidget  *name_te = OBJECT_GET_DATA(main_w, E_FILT_NAME_TE_KEY);
@@ -1167,9 +1165,6 @@ filter_te_changed_cb(GtkWidget *w, gpointer data)
     GtkTreeModel      *model;
     GtkTreeIter        iter;
 #endif
-    dfilter_t   *dfp;
-    GdkColor    bg;
-    GtkStyle    *style;
 
 #if GTK_MAJOR_VERSION < 2
     sl     = GTK_LIST(filter_l)->selection;
@@ -1181,21 +1176,7 @@ filter_te_changed_cb(GtkWidget *w, gpointer data)
 
     if (DFILTER_LIST == list) {
         /* colorize filter string entry */
-        if (strval && dfilter_compile(strval, &dfp)) {
-            /* XXX: do we have to free the dfp again? */
-            bg.pixel    = 0;
-            bg.red      = 0xAFFF;
-            bg.green    = 0xFFFF;
-            bg.blue     = 0xAFFF;
-        } else {
-            bg.pixel    = 0;
-            bg.red      = 0xFFFF;
-            bg.green    = 0xAFFF;
-            bg.blue     = 0xAFFF;
-        }
-        style = gtk_style_copy(gtk_widget_get_style(filter_te));
-        style->base[GTK_STATE_NORMAL] = bg;
-        gtk_widget_set_style(filter_te, style);
+        filter_te_syntax_check_cb(filter_te);
     }
 
     /* if something was selected */
@@ -1303,7 +1284,7 @@ filter_del_bt_clicked_cb(GtkWidget *w, gpointer data)
     }
 }
 
-static void
+void
 filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg)
 {
 	GtkWidget  *main_w = GTK_WIDGET(main_w_arg);
@@ -1312,4 +1293,44 @@ filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg)
 	filter_te = OBJECT_GET_DATA(main_w, E_FILT_FILTER_TE_KEY);
 	dfilter_expr_dlg_new(filter_te);
 }
+
+void
+filter_te_syntax_check_cb(GtkWidget *w _U_)
+{
+    const gchar *strval = "";
+    dfilter_t   *dfp;
+    GdkColor    bg;
+    GtkStyle    *style;
+    gboolean    ok = FALSE;
+
+    strval = gtk_entry_get_text(GTK_ENTRY(w));
+
+    /* colorize filter string entry */
+    if (strval && dfilter_compile(strval, &dfp)) {
+        /* XXX: do we have to free the dfp again? */
+        if (strlen(strval) == 0) {
+            /* white */
+            bg.pixel    = 0;
+            bg.red      = 0xFFFF;
+            bg.green    = 0xFFFF;
+            bg.blue     = 0xFFFF;
+        } else {
+            /* light green */
+            bg.pixel    = 0;
+            bg.red      = 0xAFFF;
+            bg.green    = 0xFFFF;
+            bg.blue     = 0xAFFF;
+        }
+    } else {
+        /* light red */
+        bg.pixel    = 0;
+        bg.red      = 0xFFFF;
+        bg.green    = 0xAFFF;
+        bg.blue     = 0xAFFF;
+    }
+    style = gtk_style_copy(gtk_widget_get_style(w));
+    style->base[GTK_STATE_NORMAL] = bg;
+    gtk_widget_set_style(w, style);
+}
+
 

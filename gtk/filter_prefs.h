@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.h,v 1.16 2004/01/18 00:40:39 ulfl Exp $
+ * $Id: filter_prefs.h,v 1.17 2004/01/25 15:10:36 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,7 +44,11 @@ void filter_button_destroy_cb(GtkWidget *button, gpointer user_data);
 void cfilter_dialog_cb(GtkWidget *w);
 void dfilter_dialog_cb(GtkWidget *w);
 
-#define E_FILT_BT_PTR_KEY	"filter_bt_ptr"
-#define E_FILT_TE_PTR_KEY	"filter_te_ptr"
+void filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg);
+void filter_te_syntax_check_cb(GtkWidget *w _U_);
+
+#define E_FILT_BT_PTR_KEY	    "filter_bt_ptr"
+#define E_FILT_TE_PTR_KEY	    "filter_te_ptr"
+#define E_FILT_FILTER_TE_KEY    "filter_filter_te"
 
 #endif /* filter.h */
