@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.7 1999/11/23 17:52:04 gram Exp $
+ * $Id: packet-nfs.c,v 1.8 1999/11/26 13:32:58 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -333,13 +333,53 @@ dissect_sattr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, ch
 			sattr_tree = proto_item_add_subtree(sattr_item, ett_nfs_sattr);
 	}
 
-	/* some how we should indicate here, that -1 means "do not set" */
-	offset = dissect_mode         (pd,offset,fd,sattr_tree,"mode");
-	offset = dissect_unsigned_int (pd,offset,fd,sattr_tree,"uid");
-	offset = dissect_unsigned_int (pd,offset,fd,sattr_tree,"gid");
-	offset = dissect_unsigned_int (pd,offset,fd,sattr_tree,"size");
-	offset = dissect_timeval      (pd,offset,fd,sattr_tree,"atime");
-	offset = dissect_timeval      (pd,offset,fd,sattr_tree,"mtime");
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	if (EXTRACT_UINT(pd, offset+0) != 0xffffffff)
+		offset = dissect_mode         (pd,offset,fd,sattr_tree,"mode");
+	else {
+		proto_tree_add_text(sattr_tree, offset, 4, "mode: no value");
+		offset += 4;
+	}
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	if (EXTRACT_UINT(pd, offset+0) != 0xffffffff)
+		offset = dissect_unsigned_int (pd,offset,fd,sattr_tree,"uid");
+	else {
+		proto_tree_add_text(sattr_tree, offset, 4, "uid: no value");
+		offset += 4;
+	}
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	if (EXTRACT_UINT(pd, offset+0) != 0xffffffff)
+		offset = dissect_unsigned_int (pd,offset,fd,sattr_tree,"gid");
+	else {
+		proto_tree_add_text(sattr_tree, offset, 4, "gid: no value");
+		offset += 4;
+	}
+
+	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
+	if (EXTRACT_UINT(pd, offset+0) != 0xffffffff)
+		offset = dissect_unsigned_int (pd,offset,fd,sattr_tree,"size");
+	else {
+		proto_tree_add_text(sattr_tree, offset, 4, "size: no value");
+		offset += 4;
+	}
+
+	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
+	if (EXTRACT_UINT(pd, offset+0) != 0xffffffff)
+		offset = dissect_timeval      (pd,offset,fd,sattr_tree,"atime");
+	else {
+		proto_tree_add_text(sattr_tree, offset, 8, "atime: no value");
+		offset += 8;
+	}
+
+	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
+	if (EXTRACT_UINT(pd, offset+0) != 0xffffffff)
+		offset = dissect_timeval      (pd,offset,fd,sattr_tree,"mtime");
+	else {
+		proto_tree_add_text(sattr_tree, offset, 8, "mtime: no value");
+		offset += 8;
+	}
 
 	/* now we know, that sattr is shorter */
 	if (sattr_item) {
