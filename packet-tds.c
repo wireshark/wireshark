@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.4 2002/09/28 16:04:03 sharpe Exp $
+ * $Id: packet-tds.c,v 1.5 2002/11/17 21:47:41 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -283,16 +283,17 @@ static const value_string login_field_names[] = {
 
 
 #define MAX_COLUMNS 256
+#define REM_BUF_SIZE 4096
 
 /*
  * this is where we store the column information to be used in decoding the
  * TDS_ROW_TOKEN PDU's
  */
 struct _tds_col {
-     char name[256];
-     int  utype;
-     int  ctype;
-     int  csize;
+     gchar name[256];
+     guint16 utype;
+     guint8 ctype;
+     guint csize;
 };
 
 /*
@@ -305,7 +306,7 @@ struct _conv_data {
 	guint num_cols;
 	struct _tds_col *columns[MAX_COLUMNS];
 	guint tds_bytes_left;
-	unsigned char tds_remainder[4096];
+	guint8 tds_remainder[REM_BUF_SIZE];
 };
 
 /*
@@ -317,21 +318,21 @@ struct _packet_data {
 	guint num_cols;
 	struct _tds_col *columns[MAX_COLUMNS];
 	guint tds_bytes_left;
-	unsigned char tds_remainder[4096];
+	guint8 tds_remainder[REM_BUF_SIZE];
 };
 
 /*
  * and finally a place for netlib packets within tcp packets
  */
 struct _netlib_data {
-	guint packet_type;
-	guint packet_size;
-	guint packet_last;
+	guint8 packet_type;
+	guint8 packet_last;
+	guint16 packet_size;
 	guint netlib_unread_bytes;
 	guint num_cols;
 	struct _tds_col *columns[MAX_COLUMNS];
 	guint tds_bytes_left;
-	unsigned char tds_remainder[4096];
+	guint8 tds_remainder[REM_BUF_SIZE];
 };
 
 /* all the standard memory management stuff */
@@ -360,9 +361,9 @@ static void dissect_tds_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, tree);
 }
 
-static void dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int length)
+static void dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint length)
 {
-	int offset, offset2, len, i;
+	guint offset, i, offset2, len;
 	guint16 bc;
 	gboolean is_unicode = TRUE;
 	const char *val;
@@ -381,7 +382,7 @@ static void dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	/* create display subtree for the protocol */
 	login_hdr = proto_tree_add_text(tree, tds7_tvb, 0, length,
-                    "TDS7 Login Packet");
+		"TDS7 Login Packet");
 	login_tree = proto_item_add_subtree(login_hdr, ett_tds7_login);
 
 	header_hdr = proto_tree_add_text(login_tree, tds7_tvb, offset, 50, "Login Packet Header");
@@ -390,19 +391,18 @@ static void dissect_tds7_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		offset2 = tvb_get_letohs(tds7_tvb, offset + i*4);
 		len = tvb_get_letohs(tds7_tvb, offset + i*4 + 2);
 		proto_tree_add_text(header_tree, tds7_tvb, offset + i*4, 2,
-		       "%s offset: %d",val_to_str(i,login_field_names,"Unknown"),
-		       offset2);
+			"%s offset: %d",val_to_str(i,login_field_names,"Unknown"),
+			offset2);
 		proto_tree_add_text(header_tree, tds7_tvb, offset + i*4 + 2, 2,
-		       "%s length: %d",val_to_str(i,login_field_names,"Unknown"),
-		       len);
-		if (len) {
+			"%s length: %d",val_to_str(i,login_field_names,"Unknown"),
+			len);
+		if (len > 0) {
 			if (is_unicode == TRUE)
 				len *= 2;
 			val = get_unicode_or_ascii_string(tds7_tvb, &offset2,
-			                            is_unicode, &len,
-		        	                    TRUE, TRUE, &bc);
+				is_unicode, &len, TRUE, TRUE, &bc);
 			proto_tree_add_text(login_tree, tds7_tvb, offset2, len,
-			                    "%s: %s", val_to_str(i, login_field_names, "Unknown"), val);
+				"%s: %s", val_to_str(i, login_field_names, "Unknown"), val);
 		}
 	}
 
@@ -497,7 +497,7 @@ static char *data_to_string(void *data, guint col_type, guint col_size)
 static int
 get_skip_count(tvbuff_t *tvb, guint offset, struct _netlib_data *nl_data, guint last_byte)
 {
-int token;
+guint8 token;
 guint i;
 int csize;
 unsigned int cur;
@@ -513,7 +513,7 @@ int switched = 0;
           case TDS_ROW_TOKEN:
                buf = nl_data->tds_remainder;
                cur = 1;
-               for (i=0;i<nl_data->num_cols;i++) {
+               for (i = 0; i < nl_data->num_cols; i++) {
                     if (! is_fixed_coltype(nl_data->columns[i]->ctype)) {
                          if (!switched && cur >= nl_data->tds_bytes_left) {
                               switched = 1;
@@ -571,50 +571,54 @@ guint cur, i, csize;
  * read the results PDU and store the relevent information in the _netlib_data
  * structure for later use (see tds_get_row_size)
  * XXX - assumes that result token will be entirely contained within packet
- * boundry
+ * boundary
  */
 static gboolean
-read_results_tds5(tvbuff_t *tvb, struct _netlib_data *nl_data, int offset)
+read_results_tds5(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset)
 {
 guint len, name_len;
 guint cur;
 guint i;
 
-     len = tvb_get_letohs(tvb, offset+1);
-     cur = offset + 3;
+len = tvb_get_letohs(tvb, offset+1);
+cur = offset + 3;
 
-     /*
-      * This would be the logical place to check for little/big endianess if we
-      * didn't see the login packet.
-      */
-     nl_data->num_cols = tvb_get_letohs(tvb, cur);
+	/*
+	 * This would be the logical place to check for little/big endianess if we
+	 * didn't see the login packet.
+	 */
+	nl_data->num_cols = tvb_get_letohs(tvb, cur);
+	if (nl_data->num_cols > MAX_COLUMNS) {
+		nl_data->num_cols = 0;
+		return FALSE;
+	}
 
-     cur += 2;
+	cur += 2;
 
-     for (i=0;i<nl_data->num_cols;i++) {
-          nl_data->columns[i] = g_mem_chunk_alloc(tds_column);
-          name_len = tvb_get_guint8(tvb,cur);
-          cur ++;
-          cur += name_len;
+	for (i = 0; i < nl_data->num_cols; i++) {
+		nl_data->columns[i] = g_mem_chunk_alloc(tds_column);
+		name_len = tvb_get_guint8(tvb,cur);
+		cur ++;
+		cur += name_len;
 
-          cur ++; /* unknown */
+		cur ++; /* unknown */
 
-          nl_data->columns[i]->utype = tvb_get_letohs(tvb, cur);
-          cur += 2;
+		nl_data->columns[i]->utype = tvb_get_letohs(tvb, cur);
+		cur += 2;
 
-          cur += 2; /* unknown */
+		cur += 2; /* unknown */
 
-          nl_data->columns[i]->ctype = tvb_get_guint8(tvb,cur);
-          cur ++;
+		nl_data->columns[i]->ctype = tvb_get_guint8(tvb,cur);
+		cur ++;
 
-          if (!is_fixed_coltype(nl_data->columns[i]->ctype)) {
-               nl_data->columns[i]->csize = tvb_get_guint8(tvb,cur);
-               cur ++;
-          } else {
-               nl_data->columns[i]->csize = get_size_by_coltype(nl_data->columns[i]->ctype);
-          }
-          cur ++; /* unknown */
-     }
+		if (!is_fixed_coltype(nl_data->columns[i]->ctype)) {
+			nl_data->columns[i]->csize = tvb_get_guint8(tvb,cur);
+			cur ++;
+		} else {
+			nl_data->columns[i]->csize = get_size_by_coltype(nl_data->columns[i]->ctype);
+		}
+		cur ++; /* unknown */
+	}
 	return TRUE;
 }
 /*
@@ -641,7 +645,7 @@ store_conv_data(packet_info *pinfo, struct _netlib_data *nl_data)
         conv_data->num_cols = nl_data->num_cols;
         memcpy(conv_data->columns, nl_data->columns, sizeof(struct _tds_col *) * MAX_COLUMNS);
         conv_data->tds_bytes_left = nl_data->tds_bytes_left;
-        memcpy(conv_data->tds_remainder, nl_data->tds_remainder, 4096);
+        memcpy(conv_data->tds_remainder, nl_data->tds_remainder, REM_BUF_SIZE);
 
 	conversation_add_proto_data(conv,proto_tds, conv_data);
 }
@@ -669,7 +673,7 @@ store_pkt_data(packet_info *pinfo, struct _netlib_data *nl_data)
         p_data->num_cols = nl_data->num_cols;
         memcpy(p_data->columns, nl_data->columns, sizeof(struct _tds_col *) * MAX_COLUMNS);
         p_data->tds_bytes_left = nl_data->tds_bytes_left;
-        memcpy(p_data->tds_remainder, nl_data->tds_remainder, 4096);
+        memcpy(p_data->tds_remainder, nl_data->tds_remainder, REM_BUF_SIZE);
 
 	/* stash it */
 	p_add_proto_data( pinfo->fd, proto_tds, (void*)p_data);
@@ -696,7 +700,7 @@ load_packet_data(packet_info *pinfo, struct _packet_data *pkt_data)
         pkt_data->num_cols = conv_data->num_cols;
         memcpy(pkt_data->columns, conv_data->columns, sizeof(struct _tds_col *) * MAX_COLUMNS);
         pkt_data->tds_bytes_left = conv_data->tds_bytes_left;
-        memcpy(pkt_data->tds_remainder, conv_data->tds_remainder, 4096);
+        memcpy(pkt_data->tds_remainder, conv_data->tds_remainder, REM_BUF_SIZE);
 
 }
 /* load packet data into netlib_data */
@@ -714,7 +718,7 @@ load_netlib_data(packet_info *pinfo, struct _netlib_data *nl_data)
         nl_data->num_cols = pkt_data->num_cols;
         memcpy(nl_data->columns, pkt_data->columns, sizeof(struct _tds_col *) * MAX_COLUMNS);
         nl_data->tds_bytes_left = pkt_data->tds_bytes_left;
-        memcpy(nl_data->tds_remainder, pkt_data->tds_remainder, 4096);
+        memcpy(nl_data->tds_remainder, pkt_data->tds_remainder, REM_BUF_SIZE);
 }
 
 
@@ -734,7 +738,8 @@ netlib_read_header(tvbuff_t *tvb, guint offset, struct _netlib_data *nl_data)
 	if (!is_valid_tds_type(nl_data->packet_type)) {
 		return FALSE;
 	}
-	if (nl_data->packet_last!=0 && nl_data->packet_last!=1) {
+	/* Valid values are 0 and 1 */
+	if (nl_data->packet_last > 1) {
 		return FALSE;
 	}
 	if (nl_data->packet_size == 0) {
@@ -754,7 +759,7 @@ netlib_read_header(tvbuff_t *tvb, guint offset, struct _netlib_data *nl_data)
  * weak heuristics of the netlib check.
  */
 static gboolean
-netlib_check_login_pkt(tvbuff_t *tvb, int offset, packet_info *pinfo, struct _netlib_data *nl_data)
+netlib_check_login_pkt(tvbuff_t *tvb, guint offset, packet_info *pinfo, struct _netlib_data *nl_data)
 {
 	guint tds_major, bytes_avail;
 
@@ -805,8 +810,7 @@ dissect_tds_env_chg(tvbuff_t *tvb, struct _netlib_data *nl_data _U_, guint offse
 {
 guint8 env_type;
 guint packet_len;
-guint old_len, new_len;
-unsigned int old_len_offset;
+guint old_len, new_len, old_len_offset;
 const char *new_val = NULL, *old_val = NULL;
 guint32 string_offset;
 guint16 bc;
@@ -868,7 +872,8 @@ proto_item *ti;
 proto_item *tds_hdr;
 proto_tree *tds_tree;
 guint last_byte, end_of_pkt;
-guint pos, token, token_sz = 0;
+guint pos, token_sz = 0;
+guint8 token;
 gint skip_count;
 proto_tree *pdu_tree;
 
@@ -898,7 +903,7 @@ proto_tree *pdu_tree;
 	tds_tree = proto_item_add_subtree(tds_hdr, ett_tds);
 
 	/* is there the second half of a PDU here ? */
-	if (nl_data->tds_bytes_left) {
+	if (nl_data->tds_bytes_left > 0) {
 		/* XXX - should be calling dissection here */
 		skip_count = get_skip_count(tvb, offset, nl_data, last_byte);
 
@@ -912,9 +917,8 @@ proto_tree *pdu_tree;
 			ti = proto_tree_add_text(tds_tree, tvb, offset, token_sz,
                     		"Token 0x%02x %s (continued)",  token, val_to_str(token, token_names,
                 		"Unknown Token Type"));
-			memcpy( &nl_data->tds_remainder[nl_data->tds_bytes_left],
-				tvb_get_ptr(tvb, offset, token_sz),
-				token_sz);
+			tvb_memcpy( tvb, &nl_data->tds_remainder[nl_data->tds_bytes_left],
+				offset, token_sz);
 			nl_data->tds_bytes_left += token_sz;
 			nl_data->netlib_unread_bytes = 0;
 			return;
@@ -952,8 +956,7 @@ proto_tree *pdu_tree;
 				 */
 				token_sz = last_byte - pos;
 				nl_data->tds_bytes_left = token_sz;
-				memcpy(nl_data->tds_remainder,
-					tvb_get_ptr(tvb, pos, token_sz), token_sz);
+				tvb_memcpy(tvb, nl_data->tds_remainder, pos, token_sz);
 			}
 
 		} else {
@@ -1033,8 +1036,8 @@ dissect_netlib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	conversation_t *conv;
 	struct _netlib_data nl_data;
 	struct _packet_data *p_data;
-	int offset = 0;
-	int bytes_remaining;
+	guint offset = 0;
+	guint bytes_remaining;
 
 	p_data = p_get_proto_data(pinfo->fd, proto_tds);
 
@@ -1067,7 +1070,7 @@ dissect_netlib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * if offset is > 0 then we have undecoded data at the front of the
 	 * packet.  Call the TDS dissector on it.
  	 */
-	if (nl_data.packet_type == TDS_RESP_PKT && offset) {
+	if (nl_data.packet_type == TDS_RESP_PKT && offset > 0) {
 		dissect_tds(tvb, pinfo, tree, &nl_data, 0);
 	}
 
@@ -1078,7 +1081,7 @@ dissect_netlib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * if packet is less than 8 characters, its not a
 		 * netlib packet
-		 * This is not entirely correct...fix.
+		 * XXX - This is not entirely correct...fix.
 		 */
 		if (bytes_remaining < 8) {
 			return FALSE;
