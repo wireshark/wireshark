@@ -3,7 +3,7 @@
  * By Jan Kiszka <jan.kiszka@web.de>
  * Copyright 2003 Jan Kiszka
  *
- * $Id: packet-ircomm.c,v 1.1 2003/12/18 19:07:12 guy Exp $
+ * $Id: packet-ircomm.c,v 1.2 2004/03/07 22:46:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -46,6 +46,14 @@
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
 #endif
+
+/*
+ * See
+ *
+ *	http://www.irda.org/standards/specifications.asp
+ *
+ * for various IrDA specifications.
+ */
 
 #include "irda-appl.h"
 
@@ -268,6 +276,7 @@ static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, unsigned offset, packet
     proto_item* ti;
     proto_tree* p_tree;
     char        buf[256];
+    char        *str;
     guint8      pv;
 
 
@@ -326,12 +335,11 @@ static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, unsigned offset, packet
                     break;
 
                 case IRCOMM_PORT_NAME:
-                    proto_item_append_text(ti, ": Port Name (\"");
-
-                    tvb_memcpy(tvb, buf, offset+2, p_len);
-                    strcat(buf, "\")");
-
-                    proto_item_append_text(ti, buf);
+                    /* XXX - the IrCOMM V1.0 spec says this "Normally
+                       human readable text, but not required". */
+                    str = tvb_get_string(tvb, offset+2, p_len);
+                    proto_item_append_text(ti, ": Port Name (\"%s\")", str);
+                    g_free(str);
 
                     break;
 
