@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.109 2000/09/21 04:41:07 gram Exp $
+ * $Id: packet.c,v 1.110 2000/09/23 05:58:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -82,6 +82,7 @@
 #include "packet-ipv6.h"
 #include "packet-lapb.h"
 #include "packet-lapd.h"
+#include "packet-llc.h"
 #include "packet-null.h"
 #include "packet-ppp.h"
 #include "packet-raw.h"
@@ -1113,6 +1114,12 @@ dissect_packet(union wtap_pseudo_header *pseudo_header, const u_char *pd,
 				break;
 			case WTAP_ENCAP_V120 :
 	 			dissect_v120(tvb, &pi, tree);
+				break;
+			case WTAP_ENCAP_ATM_RFC1483:
+				dissect_llc(tvb, &pi, tree);
+				break;
+			default:
+				g_assert_not_reached();
 				break;
 		}
 	}

@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.32 2000/09/21 04:41:32 gram Exp $
+ * $Id: netxray.c,v 1.33 2000/09/23 05:58:26 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -117,7 +117,7 @@ int netxray_open(wtap *wth, int *err)
 		WTAP_ENCAP_UNKNOWN,	/* "DIX" - should not occur */
 		WTAP_ENCAP_UNKNOWN,	/* ARCNET raw */
 		WTAP_ENCAP_UNKNOWN,	/* ARCNET 878.2 */
-		WTAP_ENCAP_UNKNOWN,	/* ATM */
+		WTAP_ENCAP_ATM_RFC1483,	/* ATM */
 		WTAP_ENCAP_UNKNOWN,	/* Wireless WAN */
 		WTAP_ENCAP_UNKNOWN	/* IrDA */
 	};
