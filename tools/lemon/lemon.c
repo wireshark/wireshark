@@ -25,7 +25,7 @@
 **   drh@acm.org
 **   http://www.hwaci.com/drh/
 **
-** $Id: lemon.c,v 1.9 2001/04/23 23:45:35 guy Exp $
+** $Id: lemon.c,v 1.10 2001/06/26 20:52:19 guy Exp $
 */
 #include <stdio.h>
 #include <stdarg.h>
@@ -1696,17 +1696,17 @@ void optprint(void){
       case OPT_INT:
       case OPT_FINT:
         fprintf(errstream,"  %s=<integer>%*s  %s\n",op[i].label,
-          max-strlen(op[i].label)-9,"",op[i].message);
+          (int)(max-strlen(op[i].label)-9),"",op[i].message);
         break;
       case OPT_DBL:
       case OPT_FDBL:
         fprintf(errstream,"  %s=<real>%*s  %s\n",op[i].label,
-          max-strlen(op[i].label)-6,"",op[i].message);
+          (int)(max-strlen(op[i].label)-6),"",op[i].message);
         break;
       case OPT_STR:
       case OPT_FSTR:
         fprintf(errstream,"  %s=<string>%*s  %s\n",op[i].label,
-          max-strlen(op[i].label)-8,"",op[i].message);
+          (int)(max-strlen(op[i].label)-8),"",op[i].message);
         break;
     }
   }
