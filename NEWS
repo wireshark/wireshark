@@ -1,6 +1,6 @@
 Overview of changes in Ethereal 0.8.12:
-* Buffer-overlow protection with snprintf (Gilbert)
-* Add "Save As" feature to TCP FOllow dialogue (Gilbert)
+* Buffer-overflow protection with snprintf (Gilbert)
+* Add "Save As" feature to TCP Follow dialogue (Gilbert)
 * NFS update (Guy)
 * Show correct IP cksum if cksum in packet is incorrect
 	(Johannes.Hennecke@elsa.de, Gilbert, Guy)
@@ -13,16 +13,17 @@ Overview of changes in Ethereal 0.8.12:
 * Packet-length fixes in various dissectors (Guy)
 * Add preferences to OSI CLNP/COTP/CLTP (Laurent)
 * Dissector tables allow for tvbuff and non-tvbuff dissectors (Guy)
-* Code cleanup (Larent, Guy)
+* Code cleanup (Laurent, Guy)
 * SMB fix (Richard)
-* eproto2sgml (Richard)
+* Add scripts to turn lists of protocols and filterable fields, as
+	produced by "ethereal -G", to SGML (Richard)
 * RPC updates (Uwe)
 * NLM v1 updates (Uwe)
 * Add Help window (Laurent)
-* Improve add_host_nam,e fill IP host hasthable from DNS answeres (Laurent)
+* Improve add_host_name fill IP host hasthable from DNS answers (Laurent)
 * Add doc strings to ncp2222.py (Gilbert)
-* Fix display of IPv6 frag header in proto_tree (Santeri)
-* Add wiretap support for Cisco Secure Intrustion Dection System IPLog format
+* Fix display of IPv6 frag header in proto_tree (Santeri Paavolainen)
+* Add wiretap support for Cisco Secure Intrusion Detection System IPLog format
 	(Mike Hall, Gilbert)
 * Allow "filtering" in TCP Follow Save As, i.e., save entire conversation, or
 	either half of the conversation (C->S, S->C) (Gilbert, Laurent)
@@ -38,7 +39,7 @@ Overview of changes in Ethereal 0.8.12:
 * make-reg-dotc fix (Guy)
 * header-file inclusion fixes (Laurent)
 * Add Kerberos 5 dissector (Wes Hardaker, Guy, Gilbert)
-* Compressed ngsniffer enhancements (Guy)
+* Speedup of random access to compressed ngsniffer files (Guy)
 * LLC non-SNAP fix (Guy)
 * snprintf fixes (Guy)
 * "TCP follow" support for TCP over IPv6 (Laurent)
@@ -54,7 +55,7 @@ Overview of changes in Ethereal 0.8.12:
 * GUI convenience function updates (Guy)
 * DNS A6 records are now RFC 2874, not i-d (itojun)
 * Add support for draft-ietf-ipngwg-icmp-name-lookups-06.txt
-	(icmp node information query, itojun)
+	(ICMP node information query) (itojun)
 * Gryphon plugin fix (Laurent)
 * Plugin fix (Laurent)
 * Add Zebra dissector (Jochen, Guy)
@@ -66,7 +67,7 @@ Overview of changes in Ethereal 0.8.12:
 * Choose bold font from normal-weight font name (Guy)
 * Font fixes (Laurent)
 * BGP display filter fix (Laurent)
-* Ascend display fliter fix (Laurent)
+* Ascend display filter fix (Laurent)
 * Ability to mark frames with middle mouse button. (Laurent)
 * Tethereal initialization fix (Guy)
 * Turn FT_NSTRING_UINT8 into FT_UINT_STRING (Gilbert)
@@ -79,7 +80,7 @@ Overview of changes in Ethereal 0.8.12:
 * RPC packet-state fix (Guy)
 * Name updates to stuff in GSS authentication for ONC RPC (Dug Song)
 * Update doco (Guy, Laurent)
-* libpcap->wiretap encapsulation type mapping fix (Guy)
+* libpcap->wiretap encapsulation type mapping fix for new DLT_ types (Guy)
 * LLC fix (Guy)
 * pptp fix (Laurent)
 * vines fix (Laurent)
@@ -97,7 +98,9 @@ Overview of changes in Ethereal 0.8.12:
 * New tvbuff routines (Gilbert, Richard)
 * libsnmp.so loading fix (Guy)
 * Use inverse video instead of boldface in hex dump (Graham Bloice, Guy)
-* Ability to choose font (Guy)
+* Ability to choose fixed-width font as a GUI preference (Guy)
+* Default to "6x13" rather than Lucida Typewriter, as not all X servers
+	have Lucida Typewriter (Guy)
 * Comment-out Cut/Copy/Paste items in Edit menu (Guy)
 * redraw_hex_dump fixes (Guy)
 * Negative relative and delta timestamp fixes (Guy)
