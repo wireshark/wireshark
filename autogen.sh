@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.2 1999/07/27 05:19:10 gram Exp $
+# $Id: autogen.sh,v 1.3 1999/08/04 00:21:37 guy Exp $
 
 DIE=0
 PROJECT="Ethereal"
@@ -28,7 +28,7 @@ if test "$DIE" -eq 1 ; then
 fi
 
 if test -z "$*"; then
-	echo "Running ./configure with no arguments. If you wish to pass any,",
+	echo "Running ./configure with no arguments. If you wish to pass any,"
 	echo "please specify them on the $0 command line."
 fi
 
