@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.209 2002/02/21 18:39:49 tpot Exp $
+ * $Id: packet-smb.c,v 1.210 2002/02/21 23:54:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -14099,7 +14099,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 				 */
 				col_append_fstr(
 					pinfo->cinfo, COL_INFO, ", Error: %s",
-					val_to_str(nt_status, NT_errors, "%s"));
+					val_to_str(nt_status, NT_errors,
+					    "Unknown (0x%08X)"));
 			}
 		} else {
 			/*
