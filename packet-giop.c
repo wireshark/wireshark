@@ -4,7 +4,7 @@
  * Laurent Deniel <deniel@worldnet.fr>
  * Craig Rodrigues <rodrigc@mediaone.net>
  *
- * $Id: packet-giop.c,v 1.28 2001/01/09 06:31:35 guy Exp $
+ * $Id: packet-giop.c,v 1.29 2001/01/16 23:35:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -647,13 +647,13 @@ dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   if (check_col(pinfo->fd, COL_INFO))
     {
       col_append_fstr(pinfo->fd, COL_INFO, ": %s",
-			   match_strval(reply_status, reply_status_types));
+	val_to_str(reply_status, reply_status_types, "Unknown (%u)"));
     }
   if (tree)
     {
       proto_tree_add_text (reply_tree, tvb, offset-4, 4,
-			   "Reply status: %s",
-			   match_strval(reply_status, reply_status_types));
+	"Reply status: %s",
+	val_to_str(reply_status, reply_status_types, "Unknown (%u)"));
 
     }
 
@@ -714,13 +714,13 @@ dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   if (check_col(pinfo->fd, COL_INFO))
     {
       col_append_fstr(pinfo->fd, COL_INFO, ": %s",
-			   match_strval(reply_status, reply_status_types));
+	val_to_str(reply_status, reply_status_types, "Unknown (%u)"));
     }
   if (tree)
     {
       proto_tree_add_text (reply_tree, tvb, offset-4, 4,
-			   "Reply status: %s",
-			   match_strval(reply_status, reply_status_types));
+	"Reply status: %s",
+	val_to_str(reply_status, reply_status_types, "Unknown (%u)"));
 
     }
 

@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.22 2001/01/09 06:31:40 guy Exp $
+ * $Id: packet-radius.c,v 1.23 2001/01/16 23:35:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -590,7 +590,7 @@ value_string *valstrarr;
 				rd_match_strval(intval & 0xffffff,valstrarr));
 			break;
 		}
-		strcpy(cont,match_strval(intval,valstrarr));
+		strcpy(cont,rd_match_strval(intval,valstrarr));
 		break;
 	case( RADIUS_TUNNEL_MEDIUM_TYPE ):
 		valstrarr=radius_tunnel_medium_type_vals;
@@ -601,7 +601,7 @@ value_string *valstrarr;
 				rd_match_strval(intval & 0xffffff,valstrarr));
 			break;
 		}
-		strcpy(cont,match_strval(intval,valstrarr));
+		strcpy(cont,rd_match_strval(intval,valstrarr));
 		break;
         case( RADIUS_STRING_TAGGED ):
 		/* Tagged ? */
