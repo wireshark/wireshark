@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.25 2000/01/10 17:32:53 gram Exp $
+ * $Id: util.c,v 1.26 2000/01/15 00:22:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,6 +53,10 @@
 #  include <varargs.h>
 # endif
 # include "snprintf.h"
+#endif
+
+#ifdef NEED_MKSTEMP
+#include "mkstemp.h"
 #endif
 
 #include "util.h"

@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.1 1999/12/15 04:34:18 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.2 2000/01/15 00:22:32 gram Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -37,12 +37,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
-#include <netinet/in.h>
+
+#ifdef HAVE_NET_INET_H
+#include <net/inet.h>
+#endif
+
 #include "packet.h"
-#include "resolv.h"
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
 #include "packet-isis-lsp.h"
+#include "resolv.h"
 
 /* lsp packets */
 static int proto_isis_lsp = -1;

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.151 2000/01/14 07:51:14 guy Exp $
+# $Id: Makefile.am,v 1.152 2000/01/15 00:22:28 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -252,6 +252,7 @@ EXTRA_ethereal_SOURCES = \
 	strerror.h	\
 	strncasecmp.c	\
 	mkstemp.c	\
+	mkstemp.h	\
 	inet_aton.c     \
 	inet_pton.c     \
 	inet_ntop.c

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.54 1999/12/09 20:54:32 guy Exp $
+ * $Id: packet-tcp.c,v 1.55 2000/01/15 00:22:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,9 +51,7 @@
 # include "snprintf.h"
 #endif
 
-#ifdef HAVE_DLFCN_H
 #include "plugins.h"
-#endif
 
 #ifndef __PACKET_IP_H__
 #include "packet-ip.h"
@@ -490,7 +488,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (packet_max > offset) {
 
     /* try to apply the plugins */
-#ifdef HAVE_DLFCN_H
+#ifdef HAVE_PLUGINS
     plugin *pt_plug = plugin_list;
 
     if (pt_plug) {

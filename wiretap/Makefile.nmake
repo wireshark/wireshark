@@ -1,5 +1,4 @@
-GLIB_DIR=c:\prj\gtk+-win32\src\glib
-#LOCAL_CFLAGS=/Ic:\tools\msdev\include
+GLIB_DIR=T:\w32-ix86\glib
 LOCAL_CFLAGS=
 
 #################3

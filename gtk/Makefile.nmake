@@ -1,36 +1,41 @@
-GLIB_DIR=c:\prj\gtk+-win32\src\glib
-GTK_DIR=c:\prj\gtk+-win32\src\gtk+
+GLIB_DIR=T:\w32-ix86\glib
+GTK_DIR=T:\w32-ix86\gtk+
 
-#LOCAL_CFLAGS=/Ic:\tools\msdev\include
 LOCAL_CFLAGS=
 
 #################3
-CFLAGS=/DHAVE_CONFIG_H /I$(GLIB_DIR) /I$(GTK_DIR) /I.. \
-	/I$(GTK_DIR)\gdk\win32 $(LOCAL_CFLAGS)
+CFLAGS=/DHAVE_CONFIG_H /I.. /I../wiretap \
+	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
+	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 $(LOCAL_CFLAGS)
 
+# gtkclist.obj is not in here because it is gtk+-1.2 code,
+# while the DLL for GTK+ on windows is gtk+-1.3, and there's
+# some functions that have disappeared in gtk+-1.3. I might
+# get around to #ifdef'ing them out in our gtkclist.c.
 OBJECTS=capture_dlg.obj \
+	column_prefs.obj \
 	display_opts.obj \
 	file_dlg.obj \
 	filter_prefs.obj \
 	find_dlg.obj \
 	goto_dlg.obj \
-	gtkclist.obj \
+	gui_prefs.obj \
 	main.obj 	\
 	menu.obj 	\
 	plugins_dlg.obj \
 	prefs_dlg.obj \
 	print_dlg.obj \
-	print_prefs.c   \
+	print_prefs.obj  \
 	proto_draw.obj \
+	simple_dialog.obj \
 	stream_prefs.obj \
 	summary_dlg.obj \
 	ui_util.obj
 
 
-libui.lib	: config.h $(OBJECTS)
+libui.lib	: ..\config.h $(OBJECTS)
 	lib /out:libui.lib $(OBJECTS)	
 
 
-config.h	: config.h.win32
-	copy config.h.win32 $@
-
+..\config.h	: ..\config.h.win32
+	copy ..\config.h.win32 ..\config.h

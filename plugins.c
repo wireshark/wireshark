@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.4 2000/01/04 21:29:43 oabad Exp $
+ * $Id: plugins.c,v 1.5 2000/01/15 00:22:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,19 +27,35 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_DLFCN_H
+#include "plugins.h"
+
+#ifdef HAVE_PLUGINS
 
 #include <time.h>
+
+#ifdef HAVE_DIRENT_H
 #include <dirent.h>
+#endif
+
+#ifdef HAVE_DIRECT_H
+#include <direct.h>
+#endif
+
 #include <string.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+
+#ifdef HAVE_FCNTL_H
 #include <fcntl.h>
+#endif
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 
 #include "globals.h"
 
-#include "plugins.h"
 
 /* linked list of all plugins */
 plugin *plugin_list;
@@ -240,7 +256,11 @@ save_plugin_status()
     if (!statusfile) {
 	pf_path = g_malloc(strlen(getenv("HOME")) + strlen(PF_DIR) + 2);
 	sprintf(pf_path, "%s/%s", getenv("HOME"), PF_DIR);
+	#ifdef WIN32
+	mkdir(pf_path);
+	#else
 	mkdir(pf_path, 0755);
+	#endif
 	g_free(pf_path);
 	statusfile=fopen(plugin_status_file, "w");
 	if (!statusfile) return -1;
@@ -262,7 +282,7 @@ save_plugin_status()
  * If necessary, enable the plugin, and change the filter.
  */
 static void
-check_plugin_status(gchar *name, gchar *version, lt_dlhandle handle,
+check_plugin_status(gchar *name, gchar *version, GModule *handle,
 	            gchar *filter_string, FILE *statusfile)
 {
     gchar   *ref_string;
@@ -285,9 +305,9 @@ check_plugin_status(gchar *name, gchar *version, lt_dlhandle handle,
 	else { /* found the plugin */
 	    if (line[ref_string_len+1] == '1') {
 		enable_plugin(name, version);
-		proto_init = (void (*)())lt_dlsym(handle, "proto_init");
-		if (proto_init)
+		if (g_module_symbol(handle, "proto_init", (gpointer*)&proto_init) == TRUE) {
 		    proto_init();
+		}
 	    }
 
 	    if (fgets(line, 512, statusfile) == NULL) return;
@@ -307,7 +327,7 @@ plugins_scan_dir(const char *dirname)
     DIR           *dir;             /* scanned directory */
     struct dirent *file;            /* current file */
     gchar          filename[512];   /* current file name */
-    lt_dlhandle    handle;          /* handle returned by dlopen */
+    GModule       *handle;          /* handle returned by dlopen */
     gchar         *name;
     gchar         *version;
     gchar         *protocol;
@@ -318,7 +338,11 @@ plugins_scan_dir(const char *dirname)
     int            cr;
     FILE          *statusfile;
 
+#ifdef WIN32
+#define LT_LIB_EXT ".dll"
+#else
 #define LT_LIB_EXT ".la"
+#endif
 
     if (!plugin_status_file)
     {
@@ -341,34 +365,31 @@ plugins_scan_dir(const char *dirname)
 
 	    sprintf(filename, "%s/%s", dirname, file->d_name);
 
-	    if ((handle = lt_dlopen(filename)) == NULL) continue;
+	    if ((handle = g_module_open(filename, 0)) == NULL) continue;
 	    name = (gchar *)file->d_name;
-	    if ((version = (gchar *)lt_dlsym(handle, "version")) == NULL)
+	    if (g_module_symbol(handle, "version", (gpointer*)&version) == FALSE)
 	    {
-		lt_dlclose(handle);
+		g_module_close(handle);
 		continue;
 	    }
-	    if ((protocol = (gchar *)lt_dlsym(handle, "protocol")) == NULL)
+	    if (g_module_symbol(handle, "protocol", (gpointer*)&protocol) == FALSE)
 	    {
-		lt_dlclose(handle);
+		g_module_close(handle);
 		continue;
 	    }
-	    if ((filter_string = (gchar *)lt_dlsym(handle, "filter_string")) == NULL)
+	    if (g_module_symbol(handle, "filter_string", (gpointer*)&filter_string) == FALSE)
 	    {
-		lt_dlclose(handle);
+		g_module_close(handle);
 		continue;
 	    }
 	    if (dfilter_compile(filter_string, &filter) != 0) {
-		lt_dlclose(handle);
+		g_module_close(handle);
 		continue;
 	    }
-	    if ((dissector = (void (*)(const u_char *, int,
-				frame_data *,
-				proto_tree *)) lt_dlsym(handle, "dissector")) == NULL)
-	    {
+	    if (g_module_symbol(handle, "dissector", (gpointer*)&dissector) == FALSE) {
 		if (filter != NULL)
 		    dfilter_destroy(filter);
-		lt_dlclose(handle);
+		g_module_close(handle);
 		continue;
 	    }
 
@@ -384,7 +405,7 @@ plugins_scan_dir(const char *dirname)
 			    name, version);
 		if (filter != NULL)
 		    dfilter_destroy(filter);
-		lt_dlclose(handle);
+		g_module_close(handle);
 		continue;
 	    }
 	    if (statusfile) {

@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.2 1999/12/10 09:49:26 guy Exp $
+ * $Id: asn1.c,v 1.3 2000/01/15 00:22:29 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -63,6 +63,10 @@
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
+#endif
+
+#ifdef HAVE_WINSOCK_H
+#include <winsock.h>
 #endif
 
 #include <glib.h>

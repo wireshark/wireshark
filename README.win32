@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.2 1999/07/21 17:40:34 gram Exp $
+$Id: README.win32,v 1.3 2000/01/15 00:22:28 gram Exp $
 
 Ethereal can be compiled on Win32 platforms. Some libraries are
 needed, however.
@@ -7,29 +7,35 @@ The glib, gtk, glib-dev, and gtk-dev packages for win32 can be found
 at http://www.gimp.org/~tml/gimp/win32 You will definitely need these.
 Download them and unpack them.
 
-I have seen mention of a UCD SNMP library for win32 on the cygwin
-home page, but I have not tried it with ethereal.
+The UCD SNMP library for win32 can be had from
+ftp://ftp.revelstone.com/pub/snmp/, but it has not been tested
+with Ethereal.
 
-There is no open-source libpcap for win32 yet.
+The win32 versions of libpcap have not been integrated into
+Ethereal yet.
 
+Zlib (or 'libz') is available for Win32 from
+http://www.winimage.com/zLibDll/
 
 Instructions for MS Visual C
 ----------------------------
-Modify the top lines of Makefile.nmake and wiretap/Makefile.nmake to
-point to the glib and gtk directories.
+Modify the top lines of Makefile.nmake, wiretap/Makefile.nmake, and
+gtk/Makefile.nmake to point to your glib and gtk directories.
 
-Be sure to set your %lib% environment variable to point to the msvc
-lib directory. Example:
-
-	set lib=c:/tools/msdev/lib
+Be sure that your command-line environment is set up to compile
+and linke with MSVC. When installing MSVC, you can have your
+system's environment set up to always allow compiling from the
+command line, or you can invoke the vcvars32.bat script.
 
 In the wiretap directory, type "nmake -f makefile.nmake"
+In the gtk directory, type "nmake -f makefile.nmake"
 Then in the ethereal directory, type "nmake -f makefile.nmake"
 
 You must set your HOME environment variable for ethereal to work.
 
 Make sure the glib and gtk DLL's are in your path when you run
-ethereal.
+ethereal. This includes gtk-*.dll, glib-*.dll, gmodule-*.dll, gdk-*.dll,
+and gthread-*.dll
 
 Instructions for cygwin
 -----------------------

@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.45 2000/01/07 09:10:12 guy Exp $
+ * $Id: packet-udp.c,v 1.46 2000/01/15 00:22:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,9 +44,7 @@
 #include "globals.h"
 #include "resolv.h"
 
-#ifdef HAVE_DLFCN_H
 #include "plugins.h"
-#endif
 
 static int proto_udp = -1;		
 static int hf_udp_srcport = -1;
@@ -247,7 +245,7 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     return;
 
   /* try to apply the plugins */
-#ifdef HAVE_DLFCN_H
+#ifdef HAVE_PLUGINS
   {
       plugin *pt_plug = plugin_list;
 

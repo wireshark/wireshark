@@ -1,7 +1,7 @@
 /* plugins_dlg.c
  * Dialog boxes for plugins
  *
- * $Id: plugins_dlg.c,v 1.9 2000/01/04 20:37:18 oabad Exp $
+ * $Id: plugins_dlg.c,v 1.10 2000/01/15 00:22:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,7 +27,7 @@
 #include "config.h"
 #endif
 
-#ifdef HAVE_DLFCN_H
+#ifdef HAVE_PLUGINS
 
 #include <errno.h>
 #include <sys/types.h>
@@ -160,7 +160,6 @@ tools_plugins_cmd_cb(GtkWidget *widget, gpointer data)
 
     gtk_widget_show(plugins_window);
 
-    lt_dlinit();
 }
 
 /*
@@ -186,10 +185,16 @@ plugins_scan(GtkWidget *clist)
     while (pt_plug)
     {
 	plugent[0] = pt_plug->name;
-	plugent[1] = (gchar *)lt_dlsym(pt_plug->handle, "desc");
+
+	if (g_module_symbol(pt_plug->handle, "desc", &plugent[1]) == FALSE) {
+		/* This plugin fails; continue next plugin */
+		goto NEXT_PLUGIN;
+	}
+
 	plugent[2] = pt_plug->version;
 	plugent[3] = (pt_plug->enabled ? "Yes" : "No");
 	gtk_clist_append(GTK_CLIST(clist), plugent);
+   NEXT_PLUGIN:
 	pt_plug = pt_plug->next;
     }
 }
@@ -240,8 +245,7 @@ plugins_enable_cb(GtkWidget *button, gpointer clist)
 	simple_dialog(ESD_TYPE_WARN, NULL, "Plugin not found");
 	return;
     }
-    proto_init = (void (*)())lt_dlsym(pt_plug->handle, "proto_init");
-    if (proto_init)
+    if (g_module_symbol(pt_plug->handle, "proto_init", (void**)&proto_init) == TRUE)
 	proto_init();
 
     gtk_clist_set_text(GTK_CLIST(clist), selected_row, 3, "Yes");
@@ -370,7 +374,7 @@ filter_default_cb(GtkWidget *button, gpointer parent_w)
 
     filter_entry = gtk_object_get_data(GTK_OBJECT(parent_w), PLUGINS_DFILTER_TE);
     pt_plug = find_plugin(selected_name, selected_version);
-    filter_string = (gchar *)lt_dlsym(pt_plug->handle, "filter_string");
+    g_module_symbol(pt_plug->handle, "filter_string", &filter_string);
     gtk_entry_set_text(GTK_ENTRY(filter_entry), filter_string);
 }
 #endif

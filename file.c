@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.152 2000/01/13 00:53:09 guy Exp $
+ * $Id: file.c,v 1.153 2000/01/15 00:22:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,9 +83,7 @@
 #include "conversation.h"
 #include "globals.h"
 
-#ifdef HAVE_DLFCN_H
 #include "plugins.h"
-#endif
 
 extern GtkWidget *packet_list, *prog_bar, *info_bar, *byte_view, *tree_view;
 extern guint      file_ctx;
@@ -534,13 +532,13 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
     proto_tree_free(protocol_tree);
   }
   else {
-#ifdef HAVE_DLFCN_H
+#ifdef HAVE_PLUGINS
 	if (plugin_list)
 	    protocol_tree = proto_tree_create_root();
 #endif
 	dissect_packet(buf, fdata, protocol_tree);
 	fdata->passed_dfilter = TRUE;
-#ifdef HAVE_DLFCN_H
+#ifdef HAVE_PLUGINS
 	if (protocol_tree)
 	    proto_tree_free(protocol_tree);
 #endif

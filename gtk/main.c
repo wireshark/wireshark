@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.86 2000/01/12 22:07:56 oabad Exp $
+ * $Id: main.c,v 1.87 2000/01/15 00:22:51 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -52,6 +52,10 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#ifdef HAVE_IO_H
+#include <io.h> /* open/close on win32 */
+#endif
 
 #ifdef HAVE_DIRECT_H
 #include <direct.h>
@@ -1294,8 +1298,10 @@ main(int argc, char *argv[])
   if (capture_option_specified)
     fprintf(stderr, "This version of Ethereal was not built with support for capturing packets.\n");
 #endif
+#ifndef WIN32
   if (arg_error)
     print_usage();
+#endif
 #ifdef HAVE_LIBPCAP
   if (start_capture) {
     if (cf.iface == NULL) {

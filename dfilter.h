@@ -1,7 +1,7 @@
 /* dfilter.h
  * Definitions for display filters
  *
- * $Id: dfilter.h,v 1.14 1999/10/12 05:00:47 guy Exp $
+ * $Id: dfilter.h,v 1.15 2000/01/15 00:22:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,6 +25,10 @@
 
 #ifndef __DFILTER_H__
 #define __DFILTER_H__
+
+#ifndef __PROTO_H__
+#include "proto.h"
+#endif
 
 /* dfilter_error_msg is NULL if there was no error during dfilter_compile,
  * otherwise it points to a displayable error message. */
