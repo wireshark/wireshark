@@ -2721,182 +2721,239 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 					info_element_len += tvb_reported_length_remaining(tvb, offset + 4);
 				}
 			} else {
-				/* we move calling, called number and release cause to not check tree=NULL for the tap used in Voip Calls... */
-			    	switch ((codeset << 8) | info_element){
-					case CS0 | Q931_IE_CALLING_PARTY_NUMBER:
-						e164_info.e164_number_type = CALLING_PARTY_NUMBER;
-						dissect_q931_number_ie(tvb,
-							offset + 2, info_element_len,
-							ie_tree,
-							hf_q931_calling_party_number, e164_info);
-						break;
-					case CS0 | Q931_IE_CALLED_PARTY_NUMBER:
-						e164_info.e164_number_type = CALLED_PARTY_NUMBER;
-						dissect_q931_number_ie(tvb,
-							offset + 2, info_element_len,
-							ie_tree,
-							hf_q931_called_party_number, e164_info);
-						break;
-					case CS0 | Q931_IE_CAUSE:
-						dissect_q931_cause_ie(tvb,
-							offset + 2, info_element_len,
-							ie_tree,
-							hf_q931_cause_value, &dummy);
-						break;
-				}
-				if (q931_tree != NULL) {
-					switch ((codeset << 8) | info_element) {
+				/*
+				 * For the calling number, called number,
+				 * and release cause IEs, don't check
+				 * for the tree being null, as
+				 * the dissectors for those IEs also
+				 * supply information for the tap used
+				 * in VoIP calls.
+				 */
+				switch ((codeset << 8) | info_element) {
 
-					case CS0 | Q931_IE_BEARER_CAPABILITY:
-					case CS0 | Q931_IE_LOW_LAYER_COMPAT:
+				case CS0 | Q931_IE_BEARER_CAPABILITY:
+				case CS0 | Q931_IE_LOW_LAYER_COMPAT:
+					if (q931_tree != NULL) {
 						dissect_q931_bearer_capability_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_CALL_STATE:
+				case CS0 | Q931_IE_CAUSE:
+					dissect_q931_cause_ie(tvb,
+						offset + 2, info_element_len,
+						ie_tree,
+						hf_q931_cause_value, &dummy);
+					break;
+
+				case CS0 | Q931_IE_CALL_STATE:
+					if (q931_tree != NULL) {
 						dissect_q931_call_state_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_CHANNEL_IDENTIFICATION:
+				case CS0 | Q931_IE_CHANNEL_IDENTIFICATION:
+					if (q931_tree != NULL) {
 						dissect_q931_channel_identification_ie(
 							tvb, offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_PROGRESS_INDICATOR:
+				case CS0 | Q931_IE_PROGRESS_INDICATOR:
+					if (q931_tree != NULL) {
 						dissect_q931_progress_indicator_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_NETWORK_SPECIFIC_FACIL:
-					case CS0 | Q931_IE_TRANSIT_NETWORK_SEL:
+				case CS0 | Q931_IE_NETWORK_SPECIFIC_FACIL:
+				case CS0 | Q931_IE_TRANSIT_NETWORK_SEL:
+					if (q931_tree != NULL) {
 						dissect_q931_ns_facilities_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_NOTIFICATION_INDICATOR:
+				case CS0 | Q931_IE_NOTIFICATION_INDICATOR:
+					if (q931_tree != NULL) {
 						dissect_q931_notification_indicator_ie(
 							tvb, offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_DISPLAY:
+				case CS0 | Q931_IE_DISPLAY:
+					if (q931_tree != NULL) {
 						dissect_q931_ia5_ie(tvb, offset + 2,
 							info_element_len, ie_tree,
 							"Display information");
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_DATE_TIME:
+				case CS0 | Q931_IE_DATE_TIME:
+					if (q931_tree != NULL) {
 						dissect_q931_date_time_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_KEYPAD_FACILITY:
+				case CS0 | Q931_IE_KEYPAD_FACILITY:
+					if (q931_tree != NULL) {
 						dissect_q931_ia5_ie(tvb, offset + 2,
 							info_element_len, ie_tree,
 							"Keypad facility");
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_SIGNAL:
+				case CS0 | Q931_IE_SIGNAL:
+					if (q931_tree != NULL) {
 						dissect_q931_signal_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_INFORMATION_RATE:
+				case CS0 | Q931_IE_INFORMATION_RATE:
+					if (q931_tree != NULL) {
 						dissect_q931_information_rate_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_E2E_TRANSIT_DELAY:
+				case CS0 | Q931_IE_E2E_TRANSIT_DELAY:
+					if (q931_tree != NULL) {
 						dissect_q931_e2e_transit_delay_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_TD_SELECTION_AND_INT:
+				case CS0 | Q931_IE_TD_SELECTION_AND_INT:
+					if (q931_tree != NULL) {
 						dissect_q931_td_selection_and_int_ie(
 							tvb, offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_PL_BINARY_PARAMETERS:
+				case CS0 | Q931_IE_PL_BINARY_PARAMETERS:
+					if (q931_tree != NULL) {
 						dissect_q931_pl_binary_parameters_ie(
 							tvb, offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_PL_WINDOW_SIZE:
+				case CS0 | Q931_IE_PL_WINDOW_SIZE:
+					if (q931_tree != NULL) {
 						dissect_q931_pl_window_size_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_PACKET_SIZE:
+				case CS0 | Q931_IE_PACKET_SIZE:
+					if (q931_tree != NULL) {
 						dissect_q931_packet_size_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_CUG:
+				case CS0 | Q931_IE_CUG:
+					if (q931_tree != NULL) {
 						dissect_q931_cug_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_REVERSE_CHARGE_IND:
+				case CS0 | Q931_IE_REVERSE_CHARGE_IND:
+					if (q931_tree != NULL) {
 						dissect_q931_reverse_charge_ind_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_CONNECTED_NUMBER_DEFAULT:
+				case CS0 | Q931_IE_CONNECTED_NUMBER_DEFAULT:
+					if (q931_tree != NULL) {
 						dissect_q931_number_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree,
 							hf_q931_connected_number, e164_info);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_REDIRECTING_NUMBER:
+
+				case CS0 | Q931_IE_CALLING_PARTY_NUMBER:
+					e164_info.e164_number_type = CALLING_PARTY_NUMBER;
+					dissect_q931_number_ie(tvb,
+						offset + 2, info_element_len,
+						ie_tree,
+						hf_q931_calling_party_number, e164_info);
+					break;
+
+				case CS0 | Q931_IE_CALLED_PARTY_NUMBER:
+					e164_info.e164_number_type = CALLED_PARTY_NUMBER;
+					dissect_q931_number_ie(tvb,
+						offset + 2, info_element_len,
+						ie_tree,
+						hf_q931_called_party_number, e164_info);
+					break;
+
+				case CS0 | Q931_IE_CALLING_PARTY_SUBADDR:
+				case CS0 | Q931_IE_CALLED_PARTY_SUBADDR:
+					if (q931_tree != NULL) {
+						dissect_q931_party_subaddr_ie(tvb,
+							offset + 2, info_element_len,
+							ie_tree);
+					}
+					break;
+
+				case CS0 | Q931_IE_REDIRECTING_NUMBER:
+					if (q931_tree != NULL) {
 						dissect_q931_number_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree,
 							hf_q931_redirecting_number, e164_info);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_CALLING_PARTY_SUBADDR:
-					case CS0 | Q931_IE_CALLED_PARTY_SUBADDR:
-						dissect_q931_party_subaddr_ie(tvb,
-							offset + 2, info_element_len,
-							ie_tree);
-						break;
-
-					case CS0 | Q931_IE_RESTART_INDICATOR:
+				case CS0 | Q931_IE_RESTART_INDICATOR:
+					if (q931_tree != NULL) {
 						dissect_q931_restart_indicator_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_HIGH_LAYER_COMPAT:
+				case CS0 | Q931_IE_HIGH_LAYER_COMPAT:
+					if (q931_tree != NULL) {
 						dissect_q931_high_layer_compat_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					case CS0 | Q931_IE_USER_USER:
+				case CS0 | Q931_IE_USER_USER:
+					if (q931_tree != NULL) {
 						dissect_q931_user_user_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree);
-						break;
+					}
+					break;
 
-					default:
+				default:
+					if (q931_tree != NULL) {
 						proto_tree_add_text(ie_tree, tvb,
 							offset + 2, info_element_len,
 							"Data: %s",
@@ -2904,8 +2961,8 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 							  tvb_get_ptr(tvb, offset + 2,
 								  info_element_len),
 							  info_element_len));
-						break;
 					}
+					break;
 				}
 			}
 			offset += 1 + 1 + info_element_len;
