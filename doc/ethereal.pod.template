@@ -451,6 +451,8 @@ Furthermore, each protocol field is typed. The types are:
     IPv4 address
     IPv6 address
     IPX network number
+    String (text)
+    Double-precision floating point number
 
 An integer may be expressed in decimal, octal, or hexadecimal notation. The following
 three display filters are equivalent:

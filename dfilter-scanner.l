@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.25 1999/10/19 05:31:13 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.26 1999/10/19 05:45:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -216,9 +216,7 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 			retval = 0;
 			break;
 		case FT_STRING:
-			dfilter_fail("Sorry, you can't filter on field \"%s\", as we don't yet support filtering on string values.",
-			    yytext);
-			retval = 0;
+			retval = T_FT_STRING;
 			break;
 		case FT_ETHER:
 			retval = T_FT_ETHER;

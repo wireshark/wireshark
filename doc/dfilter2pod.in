@@ -9,7 +9,7 @@
 #	will be replaced by the pod-formatted glossary
 # STDOUT is the output
 #
-# $Id: dfilter2pod.in,v 1.4 1999/10/12 06:21:15 gram Exp $
+# $Id: dfilter2pod.in,v 1.5 1999/10/19 05:45:56 gram Exp $
 
 %ftenum_names = (
 	'FT_NONE',	'No value',
@@ -25,6 +25,7 @@
 	'FT_ABSOLUTE_TIME',	'Date/Time stamp',
 	'FT_RELATIVE_TIME',	'Time duration',
 	'FT_STRING',		'String',
+	'FT_DOUBLE',		'Double-precision floating point',
 	'FT_ETHER',		'6-byte Hardware (MAC) Address',
 	'FT_BYTES',		'Byte array',
 	'FT_IPv4',		'IPv4 address',
