@@ -1,7 +1,7 @@
 /* resolv.c
  * Routines for network object lookup
  *
- * $Id: resolv.c,v 1.17 2001/10/26 17:29:09 gram Exp $
+ * $Id: resolv.c,v 1.18 2001/11/21 01:00:37 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -622,7 +622,6 @@ static hashmanuf_t *manuf_name_lookup(const guint8 *addr)
 
 static void initialize_ethers(void)
 {
-  char *dir;
   ether_t *eth;
   char *manuf_path;
 
@@ -926,8 +925,6 @@ static ipxnet_t *get_ipxnetbyaddr(guint32 addr)
 
 static void initialize_ipxnets(void)
 {
-  char *dir;
-
   /* Compute the pathname of the ipxnets file.
    *
    * XXX - is there a notion of an "ipxnets file" in any flavor of

@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.25 2001/11/20 10:37:16 guy Exp $
+ * $Id: packet_win.c,v 1.26 2001/11/21 01:02:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,8 +133,6 @@ create_new_window(char *Title, gint tv_size, gint bv_size)
                       *bv_scrollw,
                       *bv_nb_ptr;
   struct PacketWinData *DataPtr;
-  int i;
-  tvbuff_t* bv_tvb;
 	
   main_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 

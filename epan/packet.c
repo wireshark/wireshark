@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.39 2001/11/20 22:29:07 guy Exp $
+ * $Id: packet.c,v 1.40 2001/11/21 01:00:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -104,7 +104,6 @@ void
 set_actual_length(tvbuff_t *tvb, packet_info *pinfo, guint specified_len)
 {
   guint payload_len, reported_payload_len;
-  int   padding;
 
   /* Length of payload handed to us. */
   reported_payload_len = tvb_reported_length(tvb);
@@ -348,8 +347,6 @@ dissector_try_port(dissector_table_t sub_dissectors, guint32 port,
     tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	dtbl_entry_t *dtbl_entry;
-	const guint8 *pd;
-	int offset;
 	const char *saved_proto;
 	guint32 saved_match_port;
 

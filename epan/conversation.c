@@ -1,7 +1,7 @@
 /* conversation.c
  * Routines for building lists of packets that are part of a "conversation"
  *
- * $Id: conversation.c,v 1.14 2001/10/31 05:59:19 guy Exp $
+ * $Id: conversation.c,v 1.15 2001/11/21 01:00:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -918,8 +918,6 @@ try_conversation_dissector(address *addr_a, address *addr_b, port_type ptype,
     proto_tree *tree)
 {
 	conversation_t *conversation;
-	const guint8 *pd;
-	int offset;
 
 	conversation = find_conversation(addr_a, addr_b, ptype, port_a,
 	    port_b, 0);
