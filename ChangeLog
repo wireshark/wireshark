@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.23 2003/06/10 01:47:32 gerald Exp $
+$Id: ChangeLog,v 1.24 2003/06/12 01:01:05 gerald Exp $
 
 Overview of changes in Ethereal 0.9.13:
 
@@ -191,14 +191,39 @@ Overview of changes in Ethereal 0.9.13:
 * Add a tap listener to present sid to name mappings for tethereal (Ronnie)
 * Fix Tethereal man page command line options and program name (Guy)
 * Fix the display of the high 16 bits of the SMB PID (Guy)
-* 
-
-  Left off at http://www.ethereal.com/lists/ethereal-cvs/200306/msg00063.html
-
-
-
-
-
+* Update the FAQ to May 25 (Joerg)
+* Update manuf to June 10 (Joerg)
+* Show the upper 2 bytes of SMB's formerly-reserved area as a "High Part of
+  PID" even for SMB-over-IPX (Guy)
+* Add support for some additional SAPs for Netware and OSI (Guy)
+* Improve the CR-LF check in SMTP (Guy)
+* Change DCERPC, Fix, and ISDN to reflect the new behavior of tvb_memeql()
+  (Guy)
+* If ADNS_DIR isn't defined, don't link with the ADNS library (Guy)
+* Properly handle an empty interface list in Windows (Guy)
+* Finish the NFS_ACL dissector (Mike Frisch)
+* Fix "Ethereal" capitalization and boldface in the pod page (Guy)
+* Get rid of an unused variable in proto.c (Guy)
+* Add a paddint preference to the FDDI dissector (Laurent)
+* Add http.request.method field with an accompanying subtree (Gilbert)
+* Put the FTP request or response line into the protocol tree (Guy)
+* Add a couple of missing line continuations to Makefile.nmake (Gerald)
+* Get the right length for HTTP methods with an "M-" prefix (Guy)
+* Add support for Common Industrial Protocol over IP (Joakim Wiberg)
+* Add RTNET/TDMA support (Erwin Rol)
+* Handle diff lines that look like "Binary files" (Gilbert)
+* Put the SMTP request or response line into the protocol tree (Guy)
+* Put the POP request or response line into the protocol tree (Guy)
+* Put the IMAP request or response line into the protocol tree (Guy)
+* Put the ACAP request or response line into the protocol tree (Guy)
+* Fix value fetching and tree filling in TSP (Guy)
+* Fix the NCP SetCmdValueNum display (Gilbert)
+* Update the SIP request/response subfield display, fix a string free (Guy)
+* Expand the ability of fvalue_to_string_repr, and modify more FT_* types
+  to provide that method (Gilbert)
+* Put in a missing "break" statement in proto.c (Guy)
+* Update to the CIP dissector, reverting to the "EtherNet/IP" name
+  (Joakim)
 
 
 Overview of changes in Ethereal 0.9.12:

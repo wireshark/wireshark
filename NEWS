@@ -1,10 +1,10 @@
-$Id: NEWS,v 1.129 2003/06/10 17:24:40 guy Exp $
+$Id: NEWS,v 1.130 2003/06/12 01:01:05 gerald Exp $
 
 == June ?, 2003
 
 Ethereal 0.9.13 has been released.
 
-  This release fixes several security issues  discovered by Timo
+  This release fixes a large number of security issues  discovered by Timo
   Sirainen and others.  See
 
     http://www.ethereal.com/appnotes/enpa-sa-00010.html
@@ -20,61 +20,25 @@ New and updated features
   
   "Decode As..." functionality has been added to Tethereal via the "-d"
   flag.
+  
+  The HTTP, FTP, POP, SMTP, IMAP, and ACAP requests and responses are now
+  shown in the protocol tree.
 
 New protocols
 
-distcc,
-MSRPC ATSVC,
+  distcc, EtherNet/IP, MSRPC ATSVC, RTNET/TMDA
 
 Updated protocols
 
-802.11,
-AIM, 
-BGP,
-CLNP,
-COTP,
-CPHA,
-DCERPC,
-DNS,
-EAPOL,
-Ethernet, 
-GSSAPI,
-IP,
-ISAKMP,
-ISIS,
-LDAP,
-LSP,
-M2PA,
-MAPI,
-Modbus,
-NDPS,
-NFS,
-NTLMSSP,
-OpenBSD pflog,
-OSI,
-OSPF,
-PPTP,
-RMCP,
-RMI,
-RPC,
-RTP,
-SCSI,
-SCTP,
-SIP,
-SMB,
-SMPP,
-SNMP,
-SPNEGO,
-TACACS,
-TCP,
-WBXML,
-WSP,
-WTP,
+  802.11, AIM,  BGP, CLNP, COTP, CPHA, DCERPC, DNS, EAPOL, Ethernet, FDDI,
+  GSSAPI, IP, ISAKMP, ISIS, LDAP, LSP, M2PA, MAPI, Modbus, NDPS, NFS,
+  NTLMSSP, OSI, OSPF, OpenBSD pflog, PPTP, RMCP, RMI, RPC, RTP, SCSI,
+  SCTP, SIP, SMB, SMPP, SMTP, SNMP, SPNEGO, TACACS, TCP, TSP, WBXML, WSP,
+  WTP
 
 Updated capture file support
 
-  HP-UX nettl, VMS UCX$TRACE, 
-
+  HP-UX nettl, VMS UCX$TRACE
 
 
 == May 1, 2003
