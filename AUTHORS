@@ -1044,6 +1044,11 @@ Dermot Bradley <dermot.bradley[AT]openwave.com> {
 	Support for additional WSP language values
 }
 
+Adam Sulmicki <adam[AT]cfar.umd.edu> {
+	Add more type values for EAP.
+	Fix off-by-one bug when displaying Code of EAP message.
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

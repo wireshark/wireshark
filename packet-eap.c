@@ -1,7 +1,8 @@
 /* packet-eap.c
- * Routines for EAP Extensible Authentication Protocol header disassembly
+ * Routines for EAP Extensible Authentication Protocol header disassembly,
+ * RFC 2284
  *
- * $Id: packet-eap.c,v 1.7 2002/02/17 00:51:19 guy Exp $
+ * $Id: packet-eap.c,v 1.8 2002/02/22 09:52:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -50,20 +51,23 @@ static int hf_eap_type = -1;
 
 static gint ett_eap = -1;
 
-static dissector_handle_t data_handle;
-
 typedef struct _e_eap {
     guint8 eap_code;
     guint8 eap_id;
     guint16 eap_len;
 } e_eap;
 
+#define EAP_REQUEST	1
+#define EAP_RESPONSE	2
+#define EAP_SUCCESS	3
+#define EAP_FAILURE	4
+
 static const value_string eap_code_vals[] = { 
-    { 1, "Request" },
-    { 2, "Response" },
-    { 3, "Success" },
-    { 4, "Failure" },
-    { 0, NULL }
+    { EAP_REQUEST,  "Request" },
+    { EAP_RESPONSE, "Response" },
+    { EAP_SUCCESS,  "Success" },
+    { EAP_FAILURE,  "Failure" },
+    { 0,            NULL }
 };
 
 static const value_string eap_type_vals[] = { 
@@ -71,8 +75,9 @@ static const value_string eap_type_vals[] = {
     { 2, "Notification" },
     { 3, "Nak (Response only)" },
     { 4, "MD5-Challenge" },
-    { 5, "One-Time Password" },
+    { 5, "One-Time Password (OTP) (RFC 1938)" },
     { 6, "Generic Token Card" },
+    { 13, "EAP/TLS (RFC2716)" },
     { 0, NULL }
 };
 
@@ -82,7 +87,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   e_eap       eaph;
   guint       len;
   proto_tree *ti;
-  proto_tree *volatile eap_tree;
+  proto_tree *eap_tree;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
@@ -102,21 +107,23 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_eap, tvb, 0, len, FALSE);
     eap_tree = proto_item_add_subtree(ti, ett_eap);
 
-    proto_tree_add_text(eap_tree, tvb, 0, 0, "Code: %s (%u) ",
-			val_to_str(eaph.eap_code, eap_code_vals, "Unknown"),
-			eaph.eap_code);
+    proto_tree_add_uint(eap_tree, hf_eap_code,   tvb, 0, 1, eaph.eap_code);
 
     proto_tree_add_uint(eap_tree, hf_eap_identifier, tvb, 1, 1, eaph.eap_id);
     proto_tree_add_uint(eap_tree, hf_eap_len,    tvb, 2, 2, eaph.eap_len);
+  }
 
-    if (len > 4) {
-	guint8 eap_type = tvb_get_guint8(tvb, 4);
-	proto_tree_add_text(eap_tree, tvb, 4, 1, "Type: %s (%u)", 
-			    val_to_str(eap_type, eap_type_vals, "Unknown"),
-			    eap_type);
+  switch (eaph.eap_code) {
+
+  case EAP_REQUEST:
+  case EAP_RESPONSE:
+    if (tree) {
+      proto_tree_add_item(eap_tree, hf_eap_type, tvb, 4, 1, FALSE);
+      if (len > 5) {
+        proto_tree_add_text(eap_tree, tvb, 5, len - 5, "Type-Data (%d byte%s)",
+          len - 5, plurality(len - 5, "", "s"));
+      }
     }
-    if (len > 5)
-      call_dissector(data_handle,tvb_new_subset(tvb, 5,-1,tvb_reported_length_remaining(tvb,5)), pinfo, tree);
   }
 }
 
@@ -126,7 +133,7 @@ proto_register_eap(void)
   static hf_register_info hf[] = {
 	{ &hf_eap_code, { 
 		"Code", "eap.code", FT_UINT8, BASE_DEC, 
-		NULL, 0x0, "", HFILL }},
+		VALS(eap_code_vals), 0x0, "", HFILL }},
 	{ &hf_eap_identifier, {
 		"Id", "eap.id", FT_UINT8, BASE_DEC,
 		NULL, 0x0, "", HFILL }},
@@ -135,7 +142,7 @@ proto_register_eap(void)
 		NULL, 0x0, "", HFILL }},
 	{ &hf_eap_type, { 
 		"Type", "eap.type", FT_UINT8, BASE_DEC, 
-		NULL, 0x0, "", HFILL }},
+		VALS(eap_type_vals), 0x0, "", HFILL }},
   };
   static gint *ett[] = {
 	&ett_eap,
@@ -152,7 +159,6 @@ proto_reg_handoff_eap(void)
 {
   dissector_handle_t eap_handle;
 
-  data_handle = find_dissector("data");
   eap_handle = create_dissector_handle(dissect_eap, proto_eap);
   dissector_add("ppp.protocol", PPP_EAP, eap_handle);
 }
