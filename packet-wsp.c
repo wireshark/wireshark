@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.55 2002/04/02 20:16:19 guy Exp $
+ * $Id: packet-wsp.c,v 1.56 2002/04/29 00:33:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1504,7 +1504,6 @@ static void
 add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint URILenOffset, guint URIOffset)
 {
 	proto_item *ti;
-	char *newBuffer;
 
 	guint count = 0;
 	guint uriLen = tvb_get_guintvar (tvb, URILenOffset, &count);
@@ -1512,16 +1511,12 @@ add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint URILenOffset
 	if (tree)
 		ti = proto_tree_add_uint (tree, hf_wsp_header_uri_len,tvb,URILenOffset,count,uriLen);
 
-	newBuffer = g_malloc (uriLen+2);
-	newBuffer[0] = ' ';  /* This is for COL_INFO */
-	strncpy (newBuffer+1, tvb_get_ptr (tvb, URIOffset, uriLen), uriLen);
-	newBuffer[uriLen+1] = 0;
 	if (tree)
-		ti = proto_tree_add_string (tree, hf_wsp_header_uri,tvb,URIOffset,uriLen,newBuffer+1);
+		ti = proto_tree_add_item (tree, hf_wsp_header_uri,tvb,URIOffset,uriLen,bo_little_endian);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_str(pinfo->cinfo, COL_INFO, newBuffer);
-	};
-	g_free (newBuffer);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+		    tvb_format_text (tvb, URIOffset, uriLen));
+	}
 }
 
 static void
