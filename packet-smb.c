@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.98 2001/08/11 07:26:25 guy Exp $
+ * $Id: packet-smb.c,v 1.99 2001/08/11 13:50:11 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,7 @@ static int proto_smb = -1;
 static int hf_smb_cmd = -1;
 
 static gint ett_smb = -1;
+static gint ett_smb_hdr = -1;
 static gint ett_smb_fileattributes = -1;
 static gint ett_smb_capabilities = -1;
 static gint ett_smb_aflags = -1;
@@ -11136,13 +11137,13 @@ char *decode_smb_error(guint8 errcls, guint16 errcode)
 void
 dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data)
 {
-	proto_tree      *smb_tree = tree, *flags_tree, *flags2_tree;
-	proto_item      *ti, *tf;
+	proto_tree      *smb_tree = tree, *smb_hdr_tree, *flags_tree, *flags2_tree;
+	proto_item      *ti, *tf, *th;
 	guint8          cmd, errcls, errcode1, flags;
 	guint16         flags2, errcode, tid, pid, uid, mid;
 	guint32         status;
 	int             SMB_offset = offset;
-	struct smb_info si;
+	struct          smb_info si;
 
 	OLD_CHECK_DISPLAY_AS_DATA(proto_smb, pd, offset, fd, tree);
 
@@ -11167,12 +11168,16 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	  ti = proto_tree_add_item(tree, proto_smb, NullTVB, offset, END_OF_FRAME, FALSE);
 	  smb_tree = proto_item_add_subtree(ti, ett_smb);
 
+	  th = proto_tree_add_text(smb_tree, NullTVB, offset, 32, "SMB Header");
+
+	  smb_hdr_tree = proto_item_add_subtree(th, ett_smb_hdr);
+
 	  /* 0xFFSMB is actually a 1 byte msg type and 3 byte server
 	   * component ... SMB is only one used
 	   */
 
-	  proto_tree_add_text(smb_tree, NullTVB, offset, 1, "Message Type: 0xFF");
-	  proto_tree_add_text(smb_tree, NullTVB, offset+1, 3, "Server Component: SMB");
+	  proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 1, "Message Type: 0xFF");
+	  proto_tree_add_text(smb_hdr_tree, NullTVB, offset+1, 3, "Server Component: SMB");
 
 	}
 
@@ -11180,7 +11185,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	if (tree) {
 
-	  proto_tree_add_uint(smb_tree, hf_smb_cmd, NullTVB, offset, 1, cmd);
+	  proto_tree_add_uint(smb_hdr_tree, hf_smb_cmd, NullTVB, offset, 1, cmd);
 
 	}
 
@@ -11199,7 +11204,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	    if (tree) {
 
-		proto_tree_add_text(smb_tree, NullTVB, offset, 4, "Status: 0x%08x",
+		proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 4, "Status: 0x%08x",
 				    status);
 
 	    }
@@ -11216,7 +11221,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	    if (tree) {
 
-		proto_tree_add_text(smb_tree, NullTVB, offset, 1, "Error Class: %s", 
+		proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 1, "Error Class: %s", 
 				    val_to_str((guint8)pd[offset], errcls_types, "Unknown Error Class (%x)"));
 	    }
 
@@ -11228,7 +11233,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	    if (tree) {
 
-		proto_tree_add_text(smb_tree, NullTVB, offset, 1, "Reserved: %i", errcode1); 
+		proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 1, "Reserved: %i", errcode1); 
 
 	    }
 
@@ -11238,7 +11243,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	    if (tree) {
 
-		proto_tree_add_text(smb_tree, NullTVB, offset, 2, "Error Code: %s",
+		proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 2, "Error Code: %s",
 				    decode_smb_error(errcls, errcode));
 
 	    }
@@ -11253,7 +11258,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	if (tree) {
 
-	  tf = proto_tree_add_text(smb_tree, NullTVB, offset, 1, "Flags: 0x%02x", flags);
+	  tf = proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 1, "Flags: 0x%02x", flags);
 
 	  flags_tree = proto_item_add_subtree(tf, ett_smb_flags);
 	  proto_tree_add_text(flags_tree, NullTVB, offset, 1, "%s",
@@ -11296,7 +11301,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	if (tree) {
 
-	  tf = proto_tree_add_text(smb_tree, NullTVB, offset, 2, "Flags2: 0x%04x", flags2);
+	  tf = proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 2, "Flags2: 0x%04x", flags2);
 
 	  flags2_tree = proto_item_add_subtree(tf, ett_smb_flags2);
 	  proto_tree_add_text(flags2_tree, NullTVB, offset, 2, "%s",
@@ -11368,7 +11373,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 	   * IPX_SOCKET_NWLINK_SMB_SERVER or IPX_SOCKET_NWLINK_SMB_REDIR
 	   * or, if it also uses 0x0554, IPX_SOCKET_NWLINK_SMB_MESSENGER).
 	   */
-	  proto_tree_add_text(smb_tree, NullTVB, offset, 12, "Reserved: 6 WORDS");
+	  proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 12, "Reserved: 6 WORDS");
 
 	}
 
@@ -11384,7 +11389,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	if (tree) {
 
-	  proto_tree_add_text(smb_tree, NullTVB, offset, 2, "Network Path/Tree ID (TID): %i (%04x)", tid, tid); 
+	  proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 2, "Network Path/Tree ID (TID): %i (%04x)", tid, tid); 
 
 	}
 
@@ -11400,7 +11405,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	if (tree) {
 
-	  proto_tree_add_text(smb_tree, NullTVB, offset, 2, "Process ID (PID): %i (%04x)", pid, pid); 
+	  proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 2, "Process ID (PID): %i (%04x)", pid, pid); 
 
 	}
 
@@ -11413,7 +11418,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	if (tree) {
 
-	  proto_tree_add_text(smb_tree, NullTVB, offset, 2, "User ID (UID): %i (%04x)", uid, uid); 
+	  proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 2, "User ID (UID): %i (%04x)", uid, uid); 
 
 	}
 	
@@ -11426,7 +11431,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	if (tree) {
 
-	  proto_tree_add_text(smb_tree, NullTVB, offset, 2, "Multiplex ID (MID): %i (%04x)", mid, mid); 
+	  proto_tree_add_text(smb_hdr_tree, NullTVB, offset, 2, "Multiplex ID (MID): %i (%04x)", mid, mid); 
 
 	}
 
@@ -11457,6 +11462,7 @@ proto_register_smb(void)
 	};
 	static gint *ett[] = {
 		&ett_smb,
+		&ett_smb_hdr,
 		&ett_smb_fileattributes,
 		&ett_smb_capabilities,
 		&ett_smb_aflags,
