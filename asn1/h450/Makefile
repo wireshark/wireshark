@@ -7,7 +7,7 @@ all: generate_dissector
 generate_dissector: $(DISSECTOR_FILES)
 
 $(DISSECTOR_FILES): ../../tools/asn2eth.py h4501.asn packet-h450-template.c packet-h450-template.h h450.cnf
-	python ../../tools/asn2eth.py -X -b -e -p h450 -c h450.cnf -s packet-h450-template h4501.asn
+	python ../../tools/asn2eth.py -X -e -p h450 -c h450.cnf -s packet-h450-template h4501.asn
 
 clean:
 	rm -f parsetab.py $(DISSECTOR_FILES)
