@@ -8,12 +8,6 @@
  * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
- * Copied from WHATEVER_FILE_YOU_USED (where "WHATEVER_FILE_YOU_USED"
- * is a dissector file; if you just copied this from README.developer,
- * don't bother with the "Copied from" - you don't even need to put
- * in a "Copied from" if you copied an existing dissector, especially
- * if the bulk of the code in the new dissector is your code)
- * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -52,20 +46,11 @@
 #define NSIP_SEP ", " /* Separator string */
 #define NSIP_LITTLE_ENDIAN 0
 
-
-
-#define ERICSSON_DESCR_LEN 50
-#define ERICSSON_RIP_TYPE 223 /* Ip address of format x.x.223.x */
-#define ERICSSON_LIP_TYPE 80 /* Ip address of format x.x.80.x */
-static int hf_nsip_ericsson_rip = -1;
-static int hf_nsip_ericsson_lip = -1;
-static int hf_nsip_ericsson_rp = -1;
-
 static int nsip_udp_port1 = NSIP_UDP_PORT1;
 static int nsip_udp_port2 = NSIP_UDP_PORT2;
 static int global_nsip_udp_port1 = NSIP_UDP_PORT1;
 static int global_nsip_udp_port2 = NSIP_UDP_PORT2;
-static gboolean ericsson_decode = FALSE;
+
 void proto_reg_handoff_nsip(void);
 
 /* Initialize the protocol and registered fields */
@@ -269,79 +254,6 @@ static true_false_string set_unset = {
   "Set",
   "Not set"
 };
-
-
-static void
-add_ericsson_internal_info(address addr, build_info_t *bi, char *descr) {
-  const guint8 MIN_RIP_ID = 3;
-  const guint8 MAX_RIP_ID = 16;
-  const guint8 MIN_LIP_ID = 10;
-  const guint8 MAX_LIP_ID = 13;
-
-  int rp;
-  guint8 addr_type, addr_id;
-  guint8 dummy_len = 1;
-  gchar **ip_str_parts;
-
-  if (addr.type != AT_IPv4) {
-    descr = NULL;
-    return;
-  }
-  ip_str_parts = g_strsplit((ip_to_str(addr.data)), ".", 4);
-  addr_type = (guint8)atol(ip_str_parts[2]);
-  addr_id = (guint8)atol(ip_str_parts[3]);
-
-  g_strfreev(ip_str_parts);
-
-  switch (addr_type) {
-  case ERICSSON_RIP_TYPE:
-    if ((addr_id >= MIN_RIP_ID) && (addr_id <= MAX_RIP_ID)) {
-      if (bi->nsip_tree) {
-	proto_tree_add_uint_hidden(bi->nsip_tree, hf_nsip_ericsson_rip, 
-				   bi->tvb, bi->offset, dummy_len, addr_id);
-      }
-      g_snprintf(descr, ERICSSON_DESCR_LEN, "RIP .%d", addr_id);
-    }
-    else {
-      g_snprintf(descr, ERICSSON_DESCR_LEN, "Unknown RIP (.%d)", addr_id);
-    }
-    break;
-  case ERICSSON_LIP_TYPE:
-    if ((addr_id >= MIN_LIP_ID) && (addr_id <= MAX_LIP_ID)) {
-	switch (addr_id) {
-	case 13: rp = 101; break;
-	case 12: rp = 100; break;
-	case 11: rp = 99; break;
-	case 10: rp = 98; break;
-	default: rp = -1; break;
-	}
-      if (bi->nsip_tree) {
-	proto_tree_add_uint_hidden(bi->nsip_tree, hf_nsip_ericsson_lip, 
-				   bi->tvb, bi->offset, dummy_len, addr_id);
-	if (rp != -1) {
-	  proto_tree_add_uint_hidden(bi->nsip_tree, hf_nsip_ericsson_rp, 
-				     bi->tvb, bi->offset, dummy_len, 
-				     (guint8)rp);
-	}
-      }
-      if (rp != -1) {
-	g_snprintf(descr, ERICSSON_DESCR_LEN, "LIP .%d (RP%d)", addr_id, rp);
-      }
-      else {
-	g_snprintf(descr, ERICSSON_DESCR_LEN, "LIP .%d (Unknown RP)", 
-		   addr_id);
-      }      
-    }
-    else {
-      g_snprintf(descr, ERICSSON_DESCR_LEN, "Unknown LIP (.%d)", addr_id);
-    }
-    break;
-  default:
-    g_snprintf(descr, ERICSSON_DESCR_LEN, "Not a RIP or LIP (.%d.%d)", 
-	       addr_type, addr_id);
-  }
-}
-
 
 static void 
 get_value_length(nsip_ie_t *ie, build_info_t *bi) {
@@ -1041,8 +953,6 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   build_info_t bi = { NULL, 0, NULL, NULL, NULL };
   proto_item *ti;
   proto_tree *nsip_tree;
-  char ericsson_src[ERICSSON_DESCR_LEN];
-  char ericsson_dst[ERICSSON_DESCR_LEN];
 
   bi.tvb = tvb;
   bi.pinfo = pinfo;
@@ -1076,24 +986,6 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		val_to_str(pdu_type, tab_nsip_pdu_types, "Unknown PDU type"));
   }
   decode_pdu(pdu_type, &bi);
-
-  if (ericsson_decode){
-	 add_ericsson_internal_info(bi.pinfo->src, &bi, ericsson_src);
-	 if (ericsson_src != NULL) {
-	    pinfo->src.type = AT_NONE;
-	    if (check_col(pinfo->cinfo, COL_DEF_SRC)) {
-	      col_set_str(pinfo->cinfo, COL_DEF_SRC, ericsson_src);
-	    }
-	  }
-	  add_ericsson_internal_info(bi.pinfo->dst, &bi, ericsson_dst);
-	  if (ericsson_dst != NULL) {
-	    pinfo->dst.type = AT_NONE;
-	    if (check_col(pinfo->cinfo, COL_DEF_DST)) {
-	      col_set_str(pinfo->cinfo, COL_DEF_DST, ericsson_dst);
-	    }
-	  }
-  }/* ericsson_decode */
-
 }
 
 void
@@ -1210,21 +1102,6 @@ proto_register_nsip(void)
 	FT_UINT8, BASE_DEC, NULL, 0x0,          
 	"", HFILL }
     },
-    { &hf_nsip_ericsson_rip,
-      { "Ericsson RIP", "nsip.ericsson.rip",
-	FT_UINT8, BASE_DEC, NULL, 0x0,          
-	"", HFILL }
-    },
-    { &hf_nsip_ericsson_lip,
-      { "Ericsson LIP", "nsip.ericsson.lip",
-	FT_UINT8, BASE_DEC, NULL, 0x0,          
-	"", HFILL }
-    },
-    { &hf_nsip_ericsson_rp,
-      { "Ericsson RP", "nsip.ericsson.rp",
-	FT_UINT8, BASE_DEC, NULL, 0x0,          
-	"", HFILL }
-    },
   };
 
   /* Setup protocol subtree array */
@@ -1256,9 +1133,6 @@ proto_register_nsip(void)
   prefs_register_uint_preference(nsip_module, "udp.port2", "NSIP UDP Port 2",
 				 "Set the second UDP port",
 				 10, &nsip_udp_port2);
-  prefs_register_bool_preference(nsip_module,"ericsson_decode", "Ericsson internal IP addr decode",
-				"Display Ericsson internal decode of IP address in SRC and DST Col",
-				&ericsson_decode);
 }
 
 void
