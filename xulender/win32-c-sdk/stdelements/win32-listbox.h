@@ -42,6 +42,12 @@ gchar * win32_listbox_get_text(win32_element_t *listbox, gint row, gint column);
 void win32_listbox_set_row_data(win32_element_t *listbox, gint row, gpointer data);
 
 /*
+ * Set the foreground and background colors for a row.  Either color may be
+ * NULL, in which case the system default color is used.
+ */
+void win32_listbox_set_row_colors(win32_element_t *listbox, gint row, color_t *fg, color_t *bg);
+
+/*
  * Fetch the data pointer associated with a row.
  */
 gpointer win32_listbox_get_row_data(win32_element_t *listbox, gint row);

@@ -287,7 +287,7 @@ ethereal_treeview_notify(HWND hw_treeview, LPARAM l_param, capture_file *cfile) 
     LPNMHDR          lpnmh = (LPNMHDR) l_param;
     LPNMTREEVIEW     tv_sel;
     field_info      *finfo = NULL;
-    const guint8    *byte_data;
+    const guint8    *byte_data = NULL;
     guint            byte_len;
 
     win32_element_assert(treeview);

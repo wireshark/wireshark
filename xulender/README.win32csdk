@@ -26,8 +26,11 @@ Bugs/Caveats/To-dos
   win32_menulist_get_selection() vs win32_listbox_set_selected().
 
 - The byte view window takes too long to fill in.  It also flashes when
-  a new packet is selected.  Perhaps the richedit control is the wrong
-  thing to use in this case.
+  a new packet is selected.  We may need to draw it offscreen.  Or perhaps
+  the richedit control is the wrong thing to use in this case.
+
+- Elements are currently crammed together with no spacing in between.  We
+  could fix this by adding CSS support.
 
 
 Window Creation Example

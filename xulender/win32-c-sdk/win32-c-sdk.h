@@ -1,6 +1,8 @@
 #ifndef __WIN32_C_SDK_H__
 #define __WIN32_C_SDK_H__
 
+#include "color.h"
+
 #include "win32-element.h"
 
 #include "win32-box.h"

@@ -331,6 +331,7 @@ set_frame_mark(gboolean set, frame_data *frame, gint row) {
 /* call this after last set_frame_mark is done */
 static void
 mark_frames_ready(void) {
+// XXX - We need to fetch the save dialog HWND somehow.
 //    file_set_save_marked_sensitive();
 //    packets_bar_update();
 }
@@ -440,33 +441,12 @@ packet_list_set_colors(gint row, color_t *fg, color_t *bg) {
     if (pli == NULL)
 	return;
 
-    if (fg != NULL) {
-	if (pli->fg == NULL)
-	    pli->fg = g_malloc(sizeof(color_t));
-	pli->fg->pixel = fg->pixel;
-	pli->fg->red   = fg->red;
-	pli->fg->green = fg->green;
-	pli->fg->blue  = fg->blue;
-    } else {
-	if (pli->fg != NULL) {
-	    g_free(pli->fg);
-	    pli->fg = NULL;
-	}
-    }
-
-    if (bg != NULL) {
-	if (pli->bg == NULL)
-	    pli->bg = g_malloc(sizeof(color_t));
-	pli->bg->pixel = bg->pixel;
-	pli->bg->red   = bg->red;
-	pli->bg->green = bg->green;
-	pli->bg->blue  = bg->blue;
-    } else {
-	if (pli->bg != NULL) {
-	    g_free(pli->bg);
-	    pli->bg = NULL;
-	}
-    }
+    if (pli->fg)
+	g_free(pli->fg);
+    if (pli->bg)
+	g_free(pli->bg);
+    pli->fg = g_memdup(fg, sizeof(*pli->fg));
+    pli->bg = g_memdup(bg, sizeof(*pli->bg));
 }
 
 gint

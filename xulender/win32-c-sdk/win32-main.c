@@ -87,6 +87,7 @@
 #include "ethereal-main.h"
 #include "capture-dialog.h"
 #include "capture-info-dialog.h"
+#include "coloring-rules-dialog.h"
 #include "find-packet-dialog.h"
 #include "preferences-dialog.h"
 #include "win32-file-dlg.h"
@@ -1492,12 +1493,17 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 			prefs_dialog_init(hw_mainwin);
 			break;
 
+		    case IDM_ETHEREAL_MAIN_VIEW_COLORING:
+			coloring_rules_dialog_init(hw_mainwin);
+			break;
+
 		    case IDM_ETHEREAL_MAIN_CAPTURE_START:
 			capture_start_prep();
 			break;
 		    case IDM_ETHEREAL_MAIN_CAPTURE_STOP:
 			capture_stop();
 			break;
+
 		    case IDM_ETHEREAL_MAIN_ABOUT_ETHEREAL:
 			about_dialog_init(hw_mainwin);
 			break;

@@ -20,6 +20,8 @@
 #include <windowsx.h>
 #include <commctrl.h>
 
+#include "color.h"
+
 #include "win32-c-sdk.h"
 
 #include "win32-globals.h"
@@ -44,6 +46,8 @@ typedef struct _listbox_data_t {
 typedef struct _listrow_data_t {
     gchar    *id; /* XXX - We only store IDs for the entire row.  Do we need to handle individual cells? */
     gpointer *data;
+    color_t  *fg;
+    color_t  *bg;
 } listrow_data_t;
 
 #define EWC_LISTBOX_PANE "ListboxPane"
@@ -125,8 +129,13 @@ win32_listbox_clear(win32_element_t *listbox) {
 	item.iSubItem = 0;
 	if (ListView_GetItem(ld->listview, &item)) {
 	    lr = (listrow_data_t *) item.lParam;
-	    if (lr)
+	    if (lr) {
+		if (lr->fg)
+		    g_free(lr->fg);
+		if (lr->bg)
+		    g_free(lr->bg);
 		g_free(lr);
+	    }
 	}
 	i = ListView_GetNextItem(ld->listview, i, LVNI_ALL);
     }
@@ -185,6 +194,8 @@ win32_listbox_add_item(win32_element_t *listbox, gint row, gchar *id, gchar *tex
     lr = g_malloc(sizeof(listrow_data_t));
     lr->id = g_strdup(id);
     lr->data = NULL;
+    lr->fg = NULL;
+    lr->bg = NULL;
 
     if (ld->num_cols < 1) {
 	win32_listbox_add_column(listbox, NULL, NULL);
@@ -322,6 +333,36 @@ win32_listbox_set_row_data(win32_element_t *listbox, gint row, gpointer data) {
 	lr = (listrow_data_t *) item.lParam;
 	g_assert(lr != NULL);
 	lr->data = data;
+    }
+}
+
+/*
+ * Set the foreground and background colors for a row.  Either color may be
+ * NULL, in which case the system default color is used.
+ */
+void
+win32_listbox_set_row_colors(win32_element_t *listbox, gint row, color_t *fg, color_t *bg) {
+    listbox_data_t   *ld;
+    LVITEM            item;
+    listrow_data_t   *lr;
+
+    win32_element_assert(listbox);
+    ld = (listbox_data_t *) win32_element_get_data(listbox, WIN32_LISTBOX_DATA);
+
+    ZeroMemory(&item, sizeof(item));
+    item.mask = TVIF_PARAM;
+    item.iItem = row;
+    item.iSubItem = 0;
+
+    if (ListView_GetItem(ld->listview, &item)) {
+	lr = (listrow_data_t *) item.lParam;
+	g_assert(lr != NULL);
+	if (lr->fg)
+	    g_free(lr->fg);
+	if (lr->bg)
+	    g_free(lr->bg);
+	lr->fg = g_memdup(fg, sizeof(*lr->fg));
+	lr->bg = g_memdup(bg, sizeof(*lr->bg));
     }
 }
 
@@ -550,7 +591,9 @@ win32_listbox_wnd_proc(HWND hw_listbox, UINT msg, WPARAM w_param, LPARAM l_param
     LPCREATESTRUCT   cs = (LPCREATESTRUCT) l_param;
     LPNMHDR          nmh;
     LPNMLISTVIEW     nmlv;
+    NMLVCUSTOMDRAW  *lvcdparam;
     LONG             extra_style = LVS_NOCOLUMNHEADER;
+    listrow_data_t  *lr;
 
     switch (msg) {
 	case WM_CREATE:
@@ -606,6 +649,23 @@ win32_listbox_wnd_proc(HWND hw_listbox, UINT msg, WPARAM w_param, LPARAM l_param
 
 		    if (ld->onselect) {
 			ld->onselect(listbox, nmlv);
+		    }
+		    break;
+		case NM_CUSTOMDRAW: /* Apply colors to each item */
+		    lvcdparam = (NMLVCUSTOMDRAW *) l_param;
+		    switch (lvcdparam->nmcd.dwDrawStage) {
+			case CDDS_PREPAINT:
+			    return CDRF_NOTIFYITEMDRAW;
+			    break;
+			case CDDS_ITEMPREPAINT:
+			    lr = (listrow_data_t *) lvcdparam->nmcd.lItemlParam;
+			    if (lr != NULL && lr->fg != NULL && lr->bg != NULL) {
+				lvcdparam->clrText = COLOR_T2COLORREF(lr->fg);
+				lvcdparam->clrTextBk = COLOR_T2COLORREF(lr->bg);
+				return CDRF_NEWFONT;
+			    }
+			    return CDRF_DODEFAULT;
+			    break;
 		    }
 		    break;
 		default:

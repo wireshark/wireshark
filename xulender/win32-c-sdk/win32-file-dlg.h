@@ -47,6 +47,18 @@ void win32_export_file (HWND h_wnd);
  */
 void win32_export_raw_file (HWND h_wnd);
 
+/** Open the "Export Color Filters" dialog box
+ *
+ * @param h_wnd HWND of the parent window
+ */
+void win32_export_color_file(HWND h_wnd);
+
+/** Open the "Import Color Filters" dialog box
+ *
+ * @param h_wnd HWND of the parent window
+ */
+void win32_import_color_file(HWND h_wnd);
+
 /** Given a print_args_t struct, update a set of print/export format controls
  *  accordingly.
  *

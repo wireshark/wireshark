@@ -41,6 +41,8 @@
 #include <fcntl.h>
 
 #include "alert_box.h"
+#include "color.h"
+#include "color_filters.h"
 #include "epan/filesystem.h"
 #include "epan/resolv.h"
 #include "merge.h"
@@ -526,6 +528,96 @@ win32_export_raw_file(HWND h_wnd) {
     }
 }
 
+void
+win32_export_color_file(HWND h_wnd) {
+    static OPENFILENAME ofn;
+    gchar  file_name[MAX_PATH] = "";
+    gchar *dirname;
+
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = h_wnd;
+    ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+    /* XXX - Grab the rest of the extension list from ethereal.nsi. */
+    ofn.lpstrFilter =
+	"Text Files (*.txt)\0"	"*.txt\0"
+	"All Files (*.*)\0"	"*.*\0"
+	"\0";
+    ofn.lpstrCustomFilter = NULL;
+    ofn.nMaxCustFilter = 0;
+    ofn.nFilterIndex = 2;
+    ofn.lpstrFile = file_name;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.lpstrTitle = "Ethereal: Export Color Filters";
+    ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER |
+	    OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST |
+	    OFN_ENABLEHOOK;
+    ofn.lpstrDefExt = NULL;
+    ofn.lpfnHook = NULL;
+    ofn.lpTemplateName = NULL;
+
+    filetype = cfile.cd_t;
+
+    /* XXX - Support marked filters */
+    if (GetSaveFileName(&ofn)) {
+	if (!write_other_filters(file_name, FALSE))
+	    return;
+
+	/* Save the directory name for future file dialogs. */
+	dirname = get_dirname(file_name);  /* Overwrites cf_name */
+	set_last_open_dir(dirname);
+    }
+}
+
+void
+win32_import_color_file(HWND h_wnd) {
+    static OPENFILENAME ofn;
+    gchar  file_name[MAX_PATH] = "";
+    gchar *dirname;
+
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner = h_wnd;
+    ofn.hInstance = (HINSTANCE) GetWindowLong(h_wnd, GWL_HINSTANCE);
+    /* XXX - Grab the rest of the extension list from ethereal.nsi. */
+    ofn.lpstrFilter =
+	"Text Files (*.txt)\0"	"*.txt\0"
+	"All Files (*.*)\0"	"*.*\0"
+	"\0";
+    ofn.lpstrCustomFilter = NULL;
+    ofn.nMaxCustFilter = 0;
+    ofn.nFilterIndex = 2;
+    ofn.lpstrFile = file_name;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.lpstrTitle = "Ethereal: Import Color Filters";
+    ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER |
+	    OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY | OFN_PATHMUSTEXIST |
+	    OFN_ENABLEHOOK;
+    ofn.lpstrDefExt = NULL;
+    ofn.lpfnHook = NULL;
+    ofn.lpTemplateName = NULL;
+
+    /* XXX - Support marked filters */
+    if (GetOpenFileName(&ofn)) {
+	if (!read_other_filters(file_name, FALSE))
+	    return;
+
+	/* Save the directory name for future file dialogs. */
+	dirname = get_dirname(file_name);  /* Overwrites cf_name */
+	set_last_open_dir(dirname);
+    }
+}
+
+
+/*
+ * Private routines
+ */
 static void
 format_handle_wm_initdialog(HWND dlg_hwnd, print_args_t *args) {
     HWND cur_ctrl;

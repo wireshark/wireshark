@@ -324,6 +324,8 @@ def win32_gen_dialog(node):
 
 #include <epan/epan.h>
 
+#include "color.h"
+
 #include "win32-c-sdk.h"
 #include "ethereal-win32.h"
 
