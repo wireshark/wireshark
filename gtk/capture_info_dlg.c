@@ -1,7 +1,7 @@
 /* capture_info_dlg.c
  * Routines for packet capture info dialog
  *
- * $Id: capture_info_dlg.c,v 1.1 2003/11/15 08:53:56 ulfl Exp $
+ * $Id: capture_info_dlg.c,v 1.2 2003/11/17 00:27:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,12 +33,13 @@
 
 #include <time.h>
 
+#include <pcap.h>
 
 #include <epan/packet.h>
 #include "../capture.h"
 #include "globals.h"
 #include "capture_combo_utils.h"
-
+#include "dlg_utils.h"
 
 /* a single capture counter value (with title, pointer to value and GtkWidgets) */
 /* as the packet_counts is a struct, not an array, keep a pointer to the */
