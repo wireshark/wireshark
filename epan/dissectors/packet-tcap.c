@@ -2917,7 +2917,7 @@ proto_reg_handoff_tcap(void)
     }
 
     g_free(ssn_range);
-    ssn_range = global_ssn_range;
+    ssn_range = range_copy(global_ssn_range);
 
     range_foreach(ssn_range, range_add_callback);
 
