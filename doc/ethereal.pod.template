@@ -348,7 +348,7 @@ enabled or disabled.
 
 =item Capture:Start
 
-Initiates a live packet capture (see L<"Capture Preferences"> below).  A
+Initiates a live packet capture (see L<"Capture Options"> below).  A
 temporary file will be created to hold the capture.  The location of the
 file can be chosen by setting your TMPDIR environment variable before
 starting B<Ethereal>.  Otherwise, the default TMPDIR location is
@@ -368,15 +368,30 @@ delta, to enable or disable the automatic scrolling of the packet list
 while a live capture is in progress or to enable or disable translation
 of addresses to names in the display.
 
-=item Display:Match Selected
+=item Display:Match
 
-Creates and applies a display filter based on the data that is currently
-highlighted in the protocol tree.  If that data is a field that can be
-tested in a display filter expression, the display filter will test that
-field; otherwise, the display filter will be based on absolute offset
-within the packet, and so could be unreliable if the packet contains
-protocols with variable-length headers, such as a source-routed
-token-ring packet.
+Creates a display filter, or adds to the display filter strip at the
+bottom, a display filter based on the data currently highlighted in the
+protocol tree, and applies the filter.
+
+If that data is a field that can be tested in a display filter
+expression, the display filter will test that field; otherwise, the
+display filter will be based on absolute offset within the packet, and
+so could be unreliable if the packet contains protocols with
+variable-length headers, such as a source-routed token-ring packet.
+
+The B<Selected> option creates a display filter that tests for a match
+of the data; the B<Not Selected> option creates a display filter that
+tests for a non-match of the data.  The B<And Selected>, B<Or Selected>,
+B<And Not Selected>, and B<Or Not Selected> options add to the end of
+the display filter in the strip at the bottom an AND or OR operator
+followed by the new display filter expression.
+
+=item Display:Prepare
+
+Creates a display filter, or adds to the display filter strip at the
+bottom, a display filter based on the data currently highlighted in the
+protocol tree, but doesn't apply the filter.
 
 =item Display:Colorize Display
 
@@ -539,9 +554,9 @@ A filter for HTTP, HTTPS, and DNS traffic might look like this:
 
 Selecting the I<Filter:> button lets you choose from a list of named
 filters that you can optionally save.  Pressing the Return or Enter
-keys will cause the filter to be applied to the current list of packets.
-Selecting the I<Reset> button clears the display filter so that all
-packets are displayed.
+keys, or selecting the I<Apply> button, will cause the filter to be
+applied to the current list of packets.  Selecting the I<Reset> button
+clears the display filter so that all packets are displayed.
 
 =back
 
@@ -557,10 +572,11 @@ for the behavior of B<Ethereal>.
 The radio buttons at the top of the I<Printing> page allow you choose
 between printing packets with the I<File:Print Packet> menu item as text
 or PostScript, and sending the output directly to a command or saving it
-to a file.  The I<Command:> text entry box is the command to send files
-to (usually B<lpr>), and the I<File:> entry box lets you enter the name
-of the file you wish to save to.  Additionally, you can select the
-I<File:> button to browse the file system for a particular save file.
+to a file.  The I<Command:> text entry box, on UNIX-compatible systems,
+is the command to send files to (usually B<lpr>), and the I<File:> entry
+box lets you enter the name of the file you wish to save to. 
+Additionally, you can select the I<File:> button to browse the file
+system for a particular save file.
 
 =item Column Preferences
 
@@ -604,17 +620,17 @@ Closes the dialog without making any changes.
 
 =back
 
-=item TCP Stream Preferences
+=item TCP Streams Preferences
 
 The I<TCP Streams> page can be used to change the color of the text
 displayed in the TCP stream window.  To change a color, simply select
 an attribute from the "Set:" menu and use the color selector to get the
 desired color.  The new text colors are displayed in a sample window.
 
-=item GUI Preferences
+=item User Interface Preferences
 
-The I<GUI> page is used to modify small aspects of the GUI to your own
-personal taste:
+The I<User Interface> page is used to modify small aspects of the GUI to
+your own personal taste:
 
 =over 6
 
@@ -625,16 +641,40 @@ the left or the right.
 
 =item Selection Bars
 
-The selection bar in the
-packet list and protocol tree can have either a "browse" or "select"
-behavior. If the selection bar has a "browse" behavior, the arrow keys
-will move an outline of the selection bar, allowing you to browse
-the rest of the list or tree without changing the selection
-until you press the space bar. If the selection bar has a "select"
-behavior, the arrow keys will move the selection bar and change
+The selection bar in the packet list and protocol tree can have either a
+"browse" or "select" behavior.  If the selection bar has a "browse"
+behavior, the arrow keys will move an outline of the selection bar,
+allowing you to browse the rest of the list or tree without changing the
+selection until you press the space bar.  If the selection bar has a
+"select" behavior, the arrow keys will move the selection bar and change
 the selection to the new item in the packet list or protocol tree.
+
+=item Tree Line Style
+
+Trees can be drawn with no lines, solid lines, or dotted lines between
+items, or can be drawn with "tab" headings.
+
+=item Tree Expander Style
+
+The expander item that can be clicked to show or hide items under a tree
+item can be omitted (note that this will prevent you from changing
+whether those items are shown or hidden!), or can be drawn as squares,
+triangles, or circles.
+
+=item Hex Display
+
 The highlight method in the hex dump display for the selected protocol
 item can be set to use either inverse video, or bold characters.
+
+=item Save Window Position
+
+If this item is selected, the position of the main Ethereal window will
+be saved when Ethereal exits, and used when Ethereal is started again.
+
+=item Save Window Size
+
+If this item is selected, the size of the main Ethereal window will
+be saved when Ethereal exits, and used when Ethereal is started again.
 
 =item Fonts
 
@@ -646,6 +686,21 @@ The "Colors..." button lets you select the colors to be used for instance
 for the marked frames.
 
 =back
+
+=item Capture Preferences
+
+The I<Capture> page lets you specify various parameters for capturing
+live packet data; these are used the first time a capture is started.
+
+The I<Interface:> combo box lets you specify the interface from which to
+capture packet data, or the name of a FIFO from which to get the packet
+data.  You can specify whether the interface is to be put in promiscuous
+mode or not with the I<Capture packets in promiscuous mode> check box,
+can specify that the display should be updated as packets are captured
+with the I<Update list of packets in real time> check box, and can
+specify whether in such a capture the packet list pane should scroll to
+show the most recently captured packets with the I<Automatic scrolling
+in live capture> check box.
 
 =item Protocol Preferences
 
@@ -760,29 +815,49 @@ string> entry.
 
 =back
 
-=item Capture Preferences
+=item Capture Options
 
-The I<Capture Preferences> dialog lets you specify various parameters for
+The I<Capture Options> dialog lets you specify various parameters for
 capturing live packet data.
 
 The I<Interface:> combo box lets you specify the interface from which to
-capture packet data, or the name of a FIFO from which to get the packet
-data.  The I<Count:> entry specifies the number of packets to capture. 
-Entering 0 will capture packets indefinitely.  The I<Filter:> entry lets
-you specify the capture filter using a tcpdump-style filter string as
-described above.  The I<File:> entry specifies the file to save to, as
-in the I<Printer Options> dialog above.  You can specify the maximum
-number of bytes to capture per packet with the I<Capture length> entry,
-can specify whether the interface is to be put in promiscuous mode or
-not with the I<Capture packets in promiscuous mode> check box, can
-specify that the display should be updated as packets are captured with
-the I<Update list of packets in real time> check box, can specify
-whether in such a capture the packet list pane should scroll to show the
-most recently captured packets with the I<Automatic scrolling in live
+capture packet data or a command from which to get the packet data via a
+pipe.
+
+The I<Count:> entry specifies the maximum number of packets to capture. 
+0 means Ethereal will not stop capturing at some fixed number of
+captured packets.
+
+The I<File size:> entry specifies the maximum size of a capture file, in
+kilobytes (where a kilobyte is 1000 bytes, not 1024 bytes).  0 means
+Ethereal will not stop capturing at some capture file size (although the
+operating system on which Ethereal is running, or the available disk
+space, may still limit the maximum size of a capture file).
+
+The I<Duration:> entry specifies the maximum time over which to capture,
+in seconds.  0 means Ethereal will not stop capturing after some fixed
+time has elapsed.
+
+The I<Filter:> entry lets you specify the capture filter using a
+tcpdump-style filter string as described above.
+
+The I<File:> entry specifies the file to save to, as in the I<Printer
+Options> dialog above.
+
+You can specify the maximum number of bytes to capture per packet with
+the I<Capture length> entry, can specify whether the interface is to be
+put in promiscuous mode or not with the I<Capture packets in promiscuous
+mode> check box, can specify whether Ethereal should run in "ring
+buffer" mode with the I<Use ring buffer> check box and can specify the
+number of files to use with the I<Number of files> spin box, can specify
+that the display should be updated as packets are captured with the
+I<Update list of packets in real time> check box, can specify whether in
+such a capture the packet list pane should scroll to show the most
+recently captured packets with the I<Automatic scrolling in live
 capture> check box, and can specify whether addresses should be
-translated to names in the display with the I<Enable MAC name resolution>,
-I<Enable network name resolution> and I<Enable transport name resolution>
-check boxes.
+translated to names in the display with the I<Enable MAC name
+resolution>, I<Enable network name resolution> and I<Enable transport
+name resolution> check boxes.
 
 =item Display Options
 
