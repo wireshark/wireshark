@@ -2,7 +2,7 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.29 2002/04/02 01:32:46 guy Exp $
+ * $Id: packet-wccp.c,v 1.30 2002/04/02 01:34:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -286,7 +286,7 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    hf_cache_ip, tvb, offset, 4,
 				    ipaddr,
 				    "Web Cache %d IP Address: %s", i,
-				    ip_to_str((guint8 *)&ipaddr);
+				    ip_to_str((guint8 *)&ipaddr));
 				offset += 4;
 			}
 			for (i = 0; i < 256; i += 4) {
