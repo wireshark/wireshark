@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.45 2000/11/17 06:02:20 guy Exp $
+ * $Id: packet-atalk.c,v 1.46 2000/11/19 08:20:34 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -382,7 +382,7 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   e_ddp       ddp;
   proto_tree *ddp_tree;
   proto_item *ti;
-  struct atalk_ddp_addr src, dst;
+  static struct atalk_ddp_addr src, dst;
   tvbuff_t   *new_tvb;
 
   CHECK_DISPLAY_AS_DATA(proto_ddp, tvb, pinfo, tree);
