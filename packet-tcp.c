@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.206 2003/09/12 05:52:38 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.207 2003/09/18 19:19:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1865,7 +1865,7 @@ dissect_tcpopt_wscale(const ip_tcp_opt *optp, tvbuff_t *tvb,
 			     offset, optlen, ws, "%s: %u (multiply by %u)", 
 			     optp->name, ws, 1 << ws);
   tcp_info_append_uint(pinfo, "WS", ws);
-  if(!pinfo->fd->flags.visited){
+  if(!pinfo->fd->flags.visited && tcp_analyze_seq && tcp_relative_seq){
     pdu_store_window_scale_option(pinfo, ws);
   }
 }
@@ -2839,8 +2839,10 @@ proto_register_tcp(void)
 	    "Make the TCP dissector analyze TCP sequence numbers to find and flag segment retransmissions, missing segments and RTT",
 	    &tcp_analyze_seq);
 	prefs_register_bool_preference(tcp_module, "relative_sequence_numbers",
-	    "Relative Seq nums and Window Scaling",
-	    "Make the TCP dissector use relative sequence numbers instead of absolute ones. To use this option you must also enable \"Analyze TCP sequence numbers\". This option will also try to track and adjust the window field according to any seen tcp window scaling options.",
+	    "Relative sequence numbers and window scaling",
+	    "Make the TCP dissector use relative sequence numbers instead of absolute ones. "
+	    "To use this option you must also enable \"Analyze TCP sequence numbers\". "
+	    "This option will also try to track and adjust the window field according to any TCP window scaling options seen.",
 	    &tcp_relative_seq);
 	prefs_register_bool_preference(tcp_module, "try_heuristic_first",
 	    "Try heuristic sub-dissectors first",
