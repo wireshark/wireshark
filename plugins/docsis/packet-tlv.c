@@ -2,7 +2,7 @@
  * Routines to Dissect Appendix C TLV's
  * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
  *
- * $Id: packet-tlv.c,v 1.7 2002/09/10 19:07:39 guy Exp $
+ * $Id: packet-tlv.c,v 1.8 2002/09/12 19:58:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1102,10 +1102,10 @@ dissect_clsfr_err (tvbuff_t * tvb, proto_tree * tree, guint16 start,
       switch (type)
 	{
 	case CFR_ERR_PARAM:
-	  if (len == 1)
+	  if (length == 1)
 	    proto_tree_add_item (err_tree, hf_docsis_tlv_clsfr_err_param, tvb,
 				 pos, length, FALSE);
-	  else if (len == 2)
+	  else if (length == 2)
 	    {
 	      proto_tree_add_item (err_tree, hf_docsis_tlv_clsfr_err_param,
 				   tvb, pos, 1, FALSE);
@@ -2381,7 +2381,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_clsfr_err_code,
      {"..2 Error Code", "docsis.tlv.clsfr.err.code",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
+      FT_UINT8, BASE_DEC, VALS(docsis_conf_code), 0x0,
       "TCP/UDP Destination Port End", HFILL}
      },
     {&hf_docsis_tlv_clsfr_err_msg,
