@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.153 2003/11/12 09:00:27 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.154 2003/11/13 23:13:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4444,7 +4444,7 @@ proto_register_dcerpc (void)
           { "FACK Version", "dcerpc.fack_vers", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 
         { &hf_dcerpc_dg_fack_window_size,
-          { "Window Size", "dcerpc.fack_window size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
+          { "Window Size", "dcerpc.fack_window_size", FT_UINT16, BASE_DEC, NULL, 0x0, "", HFILL }},
 
         { &hf_dcerpc_dg_fack_max_tsdu,
           { "Max TSDU", "dcerpc.fack_max_tsdu", FT_UINT32, BASE_DEC, NULL, 0x0, "", HFILL }},
