@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.38 2003/09/05 05:28:50 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.39 2003/09/05 06:59:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1061,6 +1061,11 @@ dfilter_expr_dlg_destroy_cb(GtkWidget *w, gpointer filter_te)
 	SIGNAL_DISCONNECT_BY_FUNC(filter_te, dfilter_expr_dlg_cancel_cb, w);
 }
 
+/*
+ * Length of string used for protocol fields.
+ */
+#define TAG_STRING_LEN	256
+
 void
 dfilter_expr_dlg_new(GtkWidget *filter_te)
 {
@@ -1288,7 +1293,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
         hfinfo = proto_registrar_get_nth(i);
         /* Create a node for the protocol, and remember it for
            later use. */
-        name = proto_get_protocol_short_name(i);
+        name = proto_get_protocol_short_name(i); /* name, short_name or filter name ? */
         protocol_node = gtk_ctree_insert_node(GTK_CTREE(tree),
                                               NULL, NULL,
                                               &name, 5,
@@ -1301,7 +1306,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
     len = proto_registrar_n();
     for (i = 0; i < len; i++) {
-        char *strp, str[128];
+        char *strp, str[TAG_STRING_LEN+1];
 
         /*
          * If this field is a protocol, skip it - we already put
@@ -1332,17 +1337,19 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
         protocol_node = g_hash_table_lookup(proto_array,
                                             GINT_TO_POINTER(proto_registrar_get_parent(i)));
         if (hfinfo->blurb != NULL && hfinfo->blurb[0] != '\0') {
-            snprintf(str, 127, "%-30s %s (%s)", hfinfo->abbrev, hfinfo->name,
-                     hfinfo->blurb);
-        } else
-            snprintf(str, 127, "%-30s %s", hfinfo->abbrev, hfinfo->name);
-        str[127]=0;
+            snprintf(str, TAG_STRING_LEN, "%s - %s (%s)", hfinfo->abbrev,
+                     hfinfo->name, hfinfo->blurb);
+        } else {
+            snprintf(str, TAG_STRING_LEN, "%s - %s", hfinfo->abbrev,
+                     hfinfo->name);
+        }
+        str[TAG_STRING_LEN]=0;
         strp=str;
         item_node = gtk_ctree_insert_node(GTK_CTREE(tree),
                                           protocol_node, NULL,
                                           &strp, 5,
                                           NULL, NULL, NULL, NULL,
-                                          FALSE, FALSE);
+                                          TRUE, FALSE);
         gtk_ctree_node_set_row_data(GTK_CTREE(tree),
                                     item_node, hfinfo);
     }
@@ -1358,7 +1365,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 
     for (i = proto_get_first_protocol(&cookie); i != -1;
          i = proto_get_next_protocol(&cookie)) {
-	char *strp, str[128];
+	char *strp, str[TAG_STRING_LEN+1];
 
 	hfinfo = proto_registrar_get_nth(i);
 	name = proto_get_protocol_short_name(i); /* name, short_name or filter name ? */
@@ -1373,13 +1380,13 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
 			continue;
 
 		if (hfinfo->blurb != NULL && hfinfo->blurb[0] != '\0') {
-			snprintf(str, 127, "%-30s %s (%s)", hfinfo->abbrev,
-			    hfinfo->name, hfinfo->blurb);
+			snprintf(str, TAG_STRING_LEN, "%s - %s (%s)",
+			    hfinfo->abbrev, hfinfo->name, hfinfo->blurb);
 		} else {
-			snprintf(str, 127, "%-30s %s", hfinfo->abbrev,
+			snprintf(str, TAG_STRING_LEN, "%s - %s", hfinfo->abbrev,
 			    hfinfo->name);
 		}
-		str[127]=0;
+		str[TAG_STRING_LEN]=0;
 		strp=str;
 		gtk_tree_store_append(store, &child_iter, &iter);
 		gtk_tree_store_set(store, &child_iter, 0, strp, 1, hfinfo, -1);
