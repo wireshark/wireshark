@@ -1,6 +1,6 @@
 %{
 /*
- * $Id: scanner.l,v 1.17 2004/04/25 04:53:42 gram Exp $
+ * $Id: scanner.l,v 1.18 2004/05/08 22:03:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -182,12 +182,6 @@ GString* quoted_string = NULL;
 	/* hex sequence */
 	unsigned int result;
 	sscanf(yytext + 2, "%x", &result);
-	if (result > 0xff) {
-		g_string_free(quoted_string, TRUE);
-		quoted_string = NULL;
-		dfilter_fail("%s is larger than 255.", yytext);
-		return SCAN_FAILED;
-	}
 	g_string_append_c(quoted_string, (gchar) result);
 }
 
