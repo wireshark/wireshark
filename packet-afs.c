@@ -6,7 +6,7 @@
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  *
- * $Id: packet-afs.c,v 1.15 2000/10/23 04:26:55 guy Exp $
+ * $Id: packet-afs.c,v 1.16 2000/11/02 16:15:53 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -120,12 +120,13 @@ static const value_string prot_req[] = {
 	{ 512,		"list-entry" },
 	{ 513,		"change-entry" },
 	{ 514,		"list-elements" },
-	{ 515,		"same-mbr-of" },
+	{ 515,		"is-member-of" },
 	{ 516,		"set-fld-sentry" },
 	{ 517,		"list-owned" },
 	{ 518,		"get-cps2" },
 	{ 519,		"get-host-cps" },
 	{ 520,		"update-entry" },
+	{ 521,		"list-entries" },
 	{ 0,		NULL },
 };
 
