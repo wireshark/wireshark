@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.68 2001/09/03 10:33:06 guy Exp $
+ * $Id: packet-rpc.c,v 1.69 2001/09/12 08:13:33 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -217,6 +217,7 @@ typedef struct _rpc_prog_info_value {
 	char* progname;
 } rpc_prog_info_value;
 
+static void dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /***********************************/
 /* Hash array with procedure names */
@@ -1125,13 +1126,35 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* Keep track of the address and port whence the call came,
 		   and the port to which the call is being sent, so that
-		   we can match up calls wityh replies.  (We don't worry
+		   we can match up calls with replies.
+
+		   If the transport is connection-oriented (we check, for
+		   now, only for "pinfo->ptype" of PT_TCP), we take
+		   into account the address from which the call was sent
+		   and the address to which the call was sent, because
+		   the addresses of the two endpoints should be the same
+		   for all calls and replies.
+
+		   If the transport is connectionless, we don't worry
 		   about the address to which the call was sent and from
 		   which the reply was sent, because there's no
 		   guarantee that the reply will come from the address
-		   to which the call was sent.) */
-		conversation = find_conversation(&pinfo->src, &null_address,
-		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+		   to which the call was sent. */
+		if (pinfo->ptype == PT_TCP) {
+			conversation = find_conversation(&pinfo->src,
+			    &pinfo->dst, pinfo->ptype, pinfo->srcport,
+			    pinfo->destport, 0);
+		} else {
+			/*
+			 * XXX - can we just use NO_ADDR_B?  Unfortunately,
+			 * you currently still have to pass a non-null
+			 * pointer for the second address argument even
+			 * if you do that.
+			 */
+			conversation = find_conversation(&pinfo->src,
+			    &null_address, pinfo->ptype, pinfo->srcport,
+			    pinfo->destport, 0);
+		}
 		if (conversation == NULL) {
 			/* It's not part of any conversation - create a new
 			   one.
@@ -1139,10 +1162,20 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			   XXX - this should never happen, as we should've
 			   created a conversation for it in the RPC
 			   dissector. */
-			conversation = conversation_new(&pinfo->src,
-			    &null_address, pinfo->ptype, pinfo->srcport,
-			    pinfo->destport, 0);
+			if (pinfo->ptype == PT_TCP) {
+				conversation = conversation_new(&pinfo->src,
+				    &pinfo->dst, pinfo->ptype, pinfo->srcport,
+				    pinfo->destport, 0);
+			} else {
+				conversation = conversation_new(&pinfo->src,
+				    &null_address, pinfo->ptype, pinfo->srcport,
+				    pinfo->destport, 0);
+			}
 		}
+
+		/* Make the dissector for this conversation the non-heuristic
+		   RPC dissector. */
+		conversation_set_dissector(conversation, dissect_rpc);
 
 		/* Prepare the key data.
 
@@ -1226,12 +1259,33 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	   calls.  A reply must match a call that we've seen, and the
 	   reply must be sent to the same port and address that the
 	   call came from, and must come from the port to which the
-	   call was sent.  (We don't worry about the address to which
-	   the call was sent and from which the reply was sent, because
-	   there's no guarantee that the reply will come from the address
-	   to which the call was sent.) */
-	conversation = find_conversation(&null_address, &pinfo->dst,
-	    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	   call was sent.
+
+	   If the transport is connection-oriented (we check, for
+	   now, only for "pinfo->ptype" of PT_TCP), we take
+	   into account the address from which the call was sent
+	   and the address to which the call was sent, because
+	   the addresses of the two endpoints should be the same
+	   for all calls and replies.
+
+	   If the transport is connectionless, we don't worry
+	   about the address to which the call was sent and from
+	   which the reply was sent, because there's no
+	   guarantee that the reply will come from the address
+	   to which the call was sent. */
+	if (pinfo->ptype == PT_TCP) {
+		conversation = find_conversation(&pinfo->src, &pinfo->dst,
+		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	} else {
+		/*
+		 * XXX - can we just use NO_ADDR_B?  Unfortunately,
+		 * you currently still have to pass a non-null
+		 * pointer for the second address argument even
+		 * if you do that.
+		 */
+		conversation = find_conversation(&null_address, &pinfo->dst,
+		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+	}
 	if (conversation == NULL) {
 		/* We haven't seen an RPC call for that conversation,
 		   so we can't check for a reply to that call.
@@ -1306,8 +1360,32 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return offset;
 }
 
+/*
+ * Just mark this as a continuation of an earlier packet.
+ */
+static void
+dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *rpc_item;
+	proto_tree *rpc_tree;
+
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_set_str(pinfo->fd, COL_PROTOCOL, "RPC");
+	if (check_col(pinfo->fd, COL_INFO))
+		col_set_str(pinfo->fd, COL_INFO, "Continuation");
+
+	if (tree) {
+		rpc_item = proto_tree_add_item(tree, proto_rpc, tvb, 0,
+				tvb_length(tvb), FALSE);
+		rpc_tree = proto_item_add_subtree(rpc_item, ett_rpc);
+		proto_tree_add_text(rpc_tree, tvb, 0, tvb_length(tvb),
+		    "Continuation data");
+	}
+}
+
 static gboolean
-dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    gboolean is_heur)
 {
 	int offset = 0;
 	guint32	msg_type;
@@ -1364,8 +1442,11 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* the first 4 bytes are special in "record marking mode" */
 	if (use_rm) {
-		if (!tvb_bytes_exist(tvb, offset, 4))
+		if (!tvb_bytes_exist(tvb, offset, 4)) {
+			if (!is_heur)
+				dissect_rpc_continuation(tvb, pinfo, tree);
 			return FALSE;
+		}
 		rpc_rm = tvb_get_ntohl(tvb, offset);
 		offset += 4;
 	}
@@ -1375,6 +1456,8 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	if (!tvb_bytes_exist(tvb, offset, 8)) {
 		/* Captured data in packet isn't enough to let us tell. */
+		if (!is_heur)
+			dissect_rpc_continuation(tvb, pinfo, tree);
 		return FALSE;
 	}
 
@@ -1388,6 +1471,8 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (!tvb_bytes_exist(tvb, offset, 16)) {
 			/* Captured data in packet isn't enough to let us
 			   tell. */
+			if (!is_heur)
+				dissect_rpc_continuation(tvb, pinfo, tree);
 			return FALSE;
 		}
 
@@ -1401,6 +1486,8 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    ((rpc_prog = g_hash_table_lookup(rpc_progs, &rpc_prog_key))
 		       == NULL)) {
 			/* They're not, so it's probably not an RPC call. */
+			if (!is_heur)
+				dissect_rpc_continuation(tvb, pinfo, tree);
 			return FALSE;
 		}
 		break;
@@ -1409,16 +1496,40 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Check for RPC reply.  A reply must match a call that
 		   we've seen, and the reply must be sent to the same
 		   port and address that the call came from, and must
-		   come from the port to which the call was sent.  (We
-		   don't worry about the address to which the call was
-		   sent and from which the reply was sent, because there's
-		   no guarantee that the reply will come from the address
-		   to which the call was sent.) */
-		conversation = find_conversation(&null_address, &pinfo->dst,
-		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
+		   come from the port to which the call was sent.
+
+		   If the transport is connection-oriented (we check, for
+		   now, only for "pinfo->ptype" of PT_TCP), we take
+		   into account the address from which the call was sent
+		   and the address to which the call was sent, because
+		   the addresses of the two endpoints should be the same
+		   for all calls and replies.
+
+		   If the transport is connectionless, we don't worry
+		   about the address to which the call was sent and from
+		   which the reply was sent, because there's no
+		   guarantee that the reply will come from the address
+		   to which the call was sent. */
+		if (pinfo->ptype == PT_TCP) {
+			conversation = find_conversation(&pinfo->src,
+			    &pinfo->dst, pinfo->ptype, pinfo->srcport,
+			    pinfo->destport, 0);
+		} else {
+			/*
+			 * XXX - can we just use NO_ADDR_B?  Unfortunately,
+			 * you currently still have to pass a non-null
+			 * pointer for the second address argument even
+			 * if you do that.
+			 */
+			conversation = find_conversation(&null_address,
+			    &pinfo->dst, pinfo->ptype, pinfo->srcport,
+			    pinfo->destport, 0);
+		}
 		if (conversation == NULL) {
 			/* We haven't seen an RPC call for that conversation,
 			   so we can't check for a reply to that call. */
+			if (!is_heur)
+				dissect_rpc_continuation(tvb, pinfo, tree);
 			return FALSE;
 		}
 
@@ -1429,6 +1540,8 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (rpc_call == NULL) {
 			/* The XID doesn't match a call from that
 			   conversation, so it's probably not an RPC reply. */
+			if (!is_heur)
+				dissect_rpc_continuation(tvb, pinfo, tree);
 			return FALSE;
 		}
 		break;
@@ -1437,6 +1550,8 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* The putative message type field contains neither
 		   RPC_CALL nor RPC_REPLY, so it's not an RPC call or
 		   reply. */
+		if (!is_heur)
+			dissect_rpc_continuation(tvb, pinfo, tree);
 		return FALSE;
 	}
 
@@ -1579,20 +1694,52 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Keep track of the address and port whence the call came,
 		   and the port to which the call is being sent, so that
-		   we can match up calls wityh replies.  (We don't worry
+		   we can match up calls with replies.
+
+		   If the transport is connection-oriented (we check, for
+		   now, only for "pinfo->ptype" of PT_TCP), we take
+		   into account the address from which the call was sent
+		   and the address to which the call was sent, because
+		   the addresses of the two endpoints should be the same
+		   for all calls and replies.
+
+		   If the transport is connectionless, we don't worry
 		   about the address to which the call was sent and from
 		   which the reply was sent, because there's no
 		   guarantee that the reply will come from the address
-		   to which the call was sent.) */
-		conversation = find_conversation(&pinfo->src, &null_address,
-		    pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
-		if (conversation == NULL) {
-			/* It's not part of any conversation - create a new
-			   one. */
-			conversation = conversation_new(&pinfo->src,
+		   to which the call was sent. */
+		if (pinfo->ptype == PT_TCP) {
+			conversation = find_conversation(&pinfo->src,
+			    &pinfo->dst, pinfo->ptype, pinfo->srcport,
+			    pinfo->destport, 0);
+		} else {
+			/*
+			 * XXX - can we just use NO_ADDR_B?  Unfortunately,
+			 * you currently still have to pass a non-null
+			 * pointer for the second address argument even
+			 * if you do that.
+			 */
+			conversation = find_conversation(&pinfo->src,
 			    &null_address, pinfo->ptype, pinfo->srcport,
 			    pinfo->destport, 0);
 		}
+		if (conversation == NULL) {
+			/* It's not part of any conversation - create a new
+			   one. */
+			if (pinfo->ptype == PT_TCP) {
+				conversation = conversation_new(&pinfo->src,
+				    &pinfo->dst, pinfo->ptype, pinfo->srcport,
+				    pinfo->destport, 0);
+			} else {
+				conversation = conversation_new(&pinfo->src,
+				    &null_address, pinfo->ptype, pinfo->srcport,
+				    pinfo->destport, 0);
+			}
+		}
+
+		/* Make the dissector for this conversation the non-heuristic
+		   RPC dissector. */
+		conversation_set_dissector(conversation, dissect_rpc);
 
 		/* prepare the key data */
 		rpc_call_key.xid = xid;
@@ -1934,6 +2081,17 @@ dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	return TRUE;
 }
 
+static gboolean
+dissect_rpc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	return dissect_rpc_common(tvb, pinfo, tree, TRUE);
+}
+
+static void
+dissect_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_rpc_common(tvb, pinfo, tree, FALSE);
+}
 
 /* Discard any state we've saved. */
 static void
@@ -2139,10 +2297,9 @@ proto_register_rpc(void)
 	rpc_procs = g_hash_table_new(rpc_proc_hash, rpc_proc_equal);
 }
 
-
 void
 proto_reg_handoff_rpc(void)
 {
-	heur_dissector_add("tcp", dissect_rpc, proto_rpc);
-	heur_dissector_add("udp", dissect_rpc, proto_rpc);
+	heur_dissector_add("tcp", dissect_rpc_heur, proto_rpc);
+	heur_dissector_add("udp", dissect_rpc_heur, proto_rpc);
 }
