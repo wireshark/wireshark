@@ -3,7 +3,7 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.29 2002/05/01 05:24:42 guy Exp $
+ * $Id: packet-gryphon.c,v 1.30 2002/05/01 06:15:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -959,25 +959,17 @@ cmd_addfilt(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     proto_tree	*tree;
     guint8	flags;
     int     	blocks, i, length;
-    char    	*ptr;
-    char    	pass[] = ".... ...1 = Conforming messages are passed";
-    char    	block[] = ".... ...0 = Conforming messages are blocked";
-    char    	active[] = ".... ..1. = The filter is active";
-    char    	inactive[] = ".... ..0. = The filter is inactive";
 
     item = proto_tree_add_text(pt, tvb, offset, 1, "Flags");
     tree = proto_item_add_subtree (item, ett_gryphon_flags);
     flags = tvb_get_guint8(tvb, offset);
-    if (flags & FILTER_PASS_FLAG)
-	ptr = pass;
-    else
-	ptr = block;
-    proto_tree_add_text(tree, tvb, offset, 1, ptr);
-    if (flags & FILTER_ACTIVE_FLAG)
-	ptr = active;
-    else
-	ptr = inactive;
-    proto_tree_add_text(tree, tvb, offset, 1, ptr);
+    proto_tree_add_text(tree, tvb, offset, 1, "%s",
+	decode_boolean_bitfield(flags, FILTER_PASS_FLAG, 8,
+	    "Conforming messages are passed",
+	    "Conforming messages are blocked"));
+    proto_tree_add_text(tree, tvb, offset, 1, "%s",
+	decode_boolean_bitfield(flags, FILTER_ACTIVE_FLAG, 8,
+	    "The filter is active", "The filter is inactive"));
     offset += 1;
     blocks = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(pt, tvb, offset, 1, "Number of filter blocks = %d", blocks);
@@ -1267,23 +1259,21 @@ cmd_sched(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     int		    save_offset;
     unsigned int    i, x, length;
     unsigned char   def_chan = tvb_get_guint8(tvb, offset-9);
-    char    	    *ptr;
-    char    	    crit[] = ".... ...1 = Critical scheduler";
-    char    	    norm[] = ".... ...0 = Normal scheduler";
     
     msglen = tvb_reported_length_remaining(tvb, offset);
     x = tvb_get_ntohl(tvb, offset);
     if (x == 0xFFFFFFFF)
     	proto_tree_add_text(pt, tvb, offset, 4, "Number of iterations: infinite");
     else
-    	proto_tree_add_text(pt, tvb, offset, 4, "Number of iterations: %d", x);
+    	proto_tree_add_text(pt, tvb, offset, 4, "Number of iterations: %u", x);
     offset += 4;
     msglen -= 4;
     x = tvb_get_ntohl(tvb, offset);
-    item = proto_tree_add_text(pt, tvb, offset, 4, "Flags");
+    item = proto_tree_add_text(pt, tvb, offset, 4, "Flags: 0x%08x", x);
     tree = proto_item_add_subtree (item, ett_gryphon_flags);
-    ptr = x & 1 ? crit : norm;
-    proto_tree_add_text(tree, tvb, offset, 4, ptr, NULL);
+    proto_tree_add_text(tree, tvb, offset, 4, "%s",
+	decode_boolean_bitfield(x, 0x01, 32,
+	    "Critical scheduler", "Normal scheduler"));
     offset += 4;
     msglen -= 4;
     i = 1;
@@ -1294,22 +1284,22 @@ cmd_sched(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 	item = proto_tree_add_text(pt, tvb, offset, length, "Message %d", i);
 	tree = proto_item_add_subtree (item, ett_gryphon_cmd_sched_data);
 	x = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 4, "Sleep: %d milliseconds", x);
+	proto_tree_add_text(tree, tvb, offset, 4, "Sleep: %u milliseconds", x);
 	offset += 4;
 	msglen -= 4;
 	x = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 4, "Transmit count: %d", x);
+	proto_tree_add_text(tree, tvb, offset, 4, "Transmit count: %u", x);
 	offset += 4;
 	msglen -= 4;
 	x = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 4, "Transmit period: %d milliseconds", x);
+	proto_tree_add_text(tree, tvb, offset, 4, "Transmit period: %u milliseconds", x);
 	offset += 4;
 	msglen -= 4;
 	proto_tree_add_text(tree, tvb, offset, 2, "reserved flags");
 	x = tvb_get_guint8(tvb, offset+2);
 	if (x == 0)
 	    x = def_chan;
-	proto_tree_add_text(tree, tvb, offset+2, 1, "Channel: %d", x);
+	proto_tree_add_text(tree, tvb, offset+2, 1, "Channel: %u", x);
 	proto_tree_add_text(tree, tvb, offset+3, 1, "reserved");
 	offset += 4;
 	msglen -= 4;
@@ -1358,12 +1348,12 @@ resp_blm_stat(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 {
     unsigned int    x, i;
     char    	    *fields[] = {
-    	"Receive frame count: %d",
-    	"Transmit frame count: %d",
-    	"Receive dropped frame count: %d",
-    	"Transmit dropped frame count: %d",
-    	"Receive error count: %d",
-    	"Transmit error count: %d",
+    	"Receive frame count: %u",
+    	"Transmit frame count: %u",
+    	"Receive dropped frame count: %u",
+    	"Transmit dropped frame count: %u",
+    	"Receive error count: %u",
+    	"Transmit error count: %u",
     };
 
     offset = resp_blm_data(tvb, offset, src, pt);
@@ -1375,26 +1365,48 @@ resp_blm_stat(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     return offset;
 }
 
+static const value_string action_vals[] = {
+    { FR_RESP_AFTER_EVENT,  "Send response(s) for each conforming message" },
+    { FR_RESP_AFTER_PERIOD, "Send response(s) after the specified period expires following a conforming message" },
+    { FR_IGNORE_DURING_PER, "Send response(s) for a conforming message and ignore\nfurther messages until the specified period expires" },
+    { 0,                    NULL }
+};
+
+static const value_string deact_on_event_vals[] = {
+    { FR_DEACT_ON_EVENT,
+	"Deactivate this response for a conforming message" },
+    { FR_DELETE|FR_DEACT_ON_EVENT,
+	"Delete this response for a conforming message" },
+    { 0,
+	NULL }
+};
+
+static const value_string deact_after_per_vals[] = {
+    { FR_DEACT_AFTER_PER,
+	"Deactivate this response after the specified period following a conforming message" },
+    { FR_DELETE|FR_DEACT_AFTER_PER,
+	"Delete this response after the specified period following a conforming message" },
+    { 0,
+	NULL }
+};
+
 static int
 cmd_addresp(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 {
     proto_item	*item;
     proto_tree	*tree;
+    guint8	flags;
     int     	blocks, responses, old_handle, i, msglen, length;
     int     	action, actionType, actionValue;
-    char    	*ptr;
-    char    	active[] = ".... ..1. = The response is active";
-    char    	inactive[] = ".... ..0. = The response is inactive";
     tvbuff_t	*next_tvb;
 
     actionType = 0;
-    item = proto_tree_add_text(pt, tvb, offset, 1, "Flags");
+    flags = tvb_get_guint8(tvb, offset);
+    item = proto_tree_add_text(pt, tvb, offset, 1, "Flags: 0x%02x", flags);
     tree = proto_item_add_subtree (item, ett_gryphon_flags);
-    if (tvb_get_guint8(tvb, offset) & FILTER_ACTIVE_FLAG)
-    	ptr = active;
-    else
-    	ptr = inactive;
-    proto_tree_add_text(tree, tvb, offset, 1, ptr, NULL);
+    proto_tree_add_text(tree, tvb, offset, 1, "%s",
+	decode_boolean_bitfield(flags, FILTER_ACTIVE_FLAG, 8,
+		"The response is active", "The response is inactive"));
     offset += 1;
     blocks = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(pt, tvb, offset, 1, "Number of filter blocks = %d", blocks);
@@ -1406,47 +1418,31 @@ cmd_addresp(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     proto_tree_add_text(pt, tvb, offset, 1, "Old handle = %d", old_handle);
     offset += 1;
     action = tvb_get_guint8(tvb, offset);
-    switch (action & 7) {
-    case FR_RESP_AFTER_EVENT:
-    	ptr = "Send response(s) for each conforming message";
-    	break;
-    case FR_RESP_AFTER_PERIOD:
-    	ptr = "Send response(s) after the specified period expires following a conforming message";
-    	break;
-    case FR_IGNORE_DURING_PER:
-    	ptr = "Send response(s) for a conforming message and ignore\nfurther messages until the specified period expires";
-    	break;
-    default:
-    	ptr = "- unknown -";
-    }
-    item = proto_tree_add_text(pt, tvb, offset, 1, "Action = %s", ptr);
+    item = proto_tree_add_text(pt, tvb, offset, 1, "Action: %s",
+	val_to_str(action & 0x07, action_vals, "Unknown (%u)"));
     tree = proto_item_add_subtree (item, ett_gryphon_flags);
-    if (action & FR_DEACT_AFTER_PER && !(action & FR_DELETE)){
-    	proto_tree_add_text(tree, tvb, offset, 1,
-	    	"1.0. .... Deactivate this response after the specified period following a conforming message");
-    }
-    if (action & FR_DEACT_ON_EVENT && !(action & FR_DELETE)){
-    	proto_tree_add_text(tree, tvb, offset, 1,
-	    	".10. .... Deactivate this response for a conforming message");
-    }
-    if (action & FR_DEACT_AFTER_PER && action & FR_DELETE){
-    	proto_tree_add_text(tree, tvb, offset, 1,
-	    	"1.1. .... Delete this response after the specified period following a conforming message");
-    }
-    if (action & FR_DEACT_ON_EVENT && action & FR_DELETE){
-    	proto_tree_add_text(tree, tvb, offset, 1,
-	    	".11. .... Delete this response for a conforming message");
-    }
+    proto_tree_add_text(tree, tvb, offset, 1, "%s",
+	decode_enumerated_bitfield(action, 0x07, 8, action_vals, "%s"));
     actionValue = tvb_get_ntohs(tvb, offset+2);
     if (actionValue) {
-	if (action & FR_PERIOD_MSGS){
-    	    ptr = "...1 .... The period is in frames";
+	if (action & FR_PERIOD_MSGS) {
 	    actionType = 1;
 	} else {
-    	    ptr = "...0 .... The period is in 0.01 seconds";
 	    actionType = 0;
 	}
-    	proto_tree_add_text(tree, tvb, offset, 1, ptr, NULL);
+    	proto_tree_add_text(tree, tvb, offset, 1, "%s",
+	    decode_boolean_bitfield(action, FR_PERIOD_MSGS, 8,
+		"The period is in frames", "The period is in 0.01 seconds"));
+    }
+    if (action & FR_DEACT_ON_EVENT) {
+	proto_tree_add_text(tree, tvb, offset, 1, "%s",
+	    decode_enumerated_bitfield(action, FR_DELETE|FR_DEACT_ON_EVENT, 8,
+		deact_on_event_vals, "%s"));
+    }
+    if (action & FR_DEACT_AFTER_PER) {
+	proto_tree_add_text(tree, tvb, offset, 1, "%s",
+	    decode_enumerated_bitfield(action, FR_DELETE|FR_DEACT_AFTER_PER, 8,
+		deact_after_per_vals, "%s"));
     }
     offset += 1;
     proto_tree_add_text(pt, tvb, offset, 1, "reserved");
@@ -1565,17 +1561,15 @@ resp_desc(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 {
     proto_item	*item;
     proto_tree	*tree;
-    char    	*ptr;
-    char    	missing[] = ".... ...0 = The program is not present";
-    char    	present[] = ".... ...1 = The program is already present";
+    guint8	flags;
     
-    item = proto_tree_add_text(pt, tvb, offset, 1, "Flags");
+    flags = tvb_get_guint8(tvb, offset);
+    item = proto_tree_add_text(pt, tvb, offset, 1, "Flags: 0x%02x", flags);
     tree = proto_item_add_subtree (item, ett_gryphon_flags);
-    if (tvb_get_guint8(tvb, offset) & 1)
-    	ptr = present;
-    else
-    	ptr = missing;
-    proto_tree_add_text(tree, tvb, offset, 1, ptr);
+    proto_tree_add_text(tree, tvb, offset, 1, "%s",
+	decode_boolean_bitfield(flags, 0x01, 8,
+		"The program is already present",
+		"The program is not present"));
     proto_tree_add_text(pt, tvb, offset+1, 1, "Handle: %u",
 	tvb_get_guint8(tvb, offset+1));
     proto_tree_add_text(pt, tvb, offset+2, 2, "reserved");
@@ -1599,7 +1593,7 @@ cmd_upload(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     offset += 3;
     msglen -= 3;
     length = msglen;
-    proto_tree_add_text(pt, tvb, offset, length, "Data (%d bytes)", length);
+    proto_tree_add_text(pt, tvb, offset, length, "Data (%u bytes)", length);
     offset += length;
     length = 3 - (length + 3) % 4;
     if (length) {
@@ -1636,14 +1630,14 @@ resp_list(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     unsigned int    i, count;
     
     count = tvb_get_guint8(tvb, offset);
-    proto_tree_add_text(pt, tvb, offset, 1, "Number of programs in this response: %d", count);
+    proto_tree_add_text(pt, tvb, offset, 1, "Number of programs in this response: %u", count);
     proto_tree_add_text(pt, tvb, offset+1, 1, "reserved");
     offset += 2;
     proto_tree_add_text(pt, tvb, offset, 2, "Number of remaining programs: %u",
 	tvb_get_ntohs(tvb, offset));
     offset += 2;
     for (i = 1; i <= count; i++) {
-	item = proto_tree_add_text(pt, tvb, offset, 112, "Program %d", i);
+	item = proto_tree_add_text(pt, tvb, offset, 112, "Program %u", i);
 	tree = proto_item_add_subtree (item, ett_gryphon_pgm_list);
 	proto_tree_add_text(tree, tvb, offset, 32, "Name: %.32s",
 	    tvb_get_ptr(tvb, offset, 32));
@@ -1691,12 +1685,12 @@ resp_status(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     unsigned int    i, copies, length;
     
     copies = tvb_get_guint8(tvb, offset);
-    item = proto_tree_add_text(pt, tvb, offset, 1, "Number of running copies: %d", copies);
+    item = proto_tree_add_text(pt, tvb, offset, 1, "Number of running copies: %u", copies);
     tree = proto_item_add_subtree (item, ett_gryphon_pgm_status);
     offset += 1;
     if (copies) {
 	for (i = 1; i <= copies; i++) {
-	    proto_tree_add_text(tree, tvb, offset, 1, "Program %d channel (client) number %u",
+	    proto_tree_add_text(tree, tvb, offset, 1, "Program %u channel (client) number %u",
 		i, tvb_get_guint8(tvb, offset));
 	    offset += 1;
 	}
@@ -1728,7 +1722,7 @@ cmd_options(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
 	option_length = tvb_get_guint8(tvb, offset+1);
     	size = option_length + 2;
 	padding = 3 - ((size + 3) %4);
-	item = proto_tree_add_text(pt, tvb, offset, size + padding, "Option number %d", i);
+	item = proto_tree_add_text(pt, tvb, offset, size + padding, "Option number %u", i);
     	tree = proto_item_add_subtree (item, ett_gryphon_pgm_options);
 	option = tvb_get_guint8(tvb, offset);
 	switch (option_length) {
@@ -1860,7 +1854,7 @@ filter_block(tvbuff_t *tvb, int offset, int src, proto_tree *pt)
     unsigned int    type, operator, i;
     int     length, padding;
     
-    proto_tree_add_text(pt, tvb, offset, 2, "Filter field starts at byte %d",
+    proto_tree_add_text(pt, tvb, offset, 2, "Filter field starts at byte %u",
 	tvb_get_ntohs(tvb, offset));
     length = tvb_get_ntohs(tvb, offset+2);
     proto_tree_add_text(pt, tvb, offset+2, 2, "Filter field is %d bytes long", length);

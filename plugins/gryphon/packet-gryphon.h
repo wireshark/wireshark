@@ -1,12 +1,11 @@
 /* packet-gryphon.c
  * Definitions for Gryphon packet disassembly structures and routines
  *
- * $Id: packet-gryphon.h,v 1.4 2002/05/01 05:24:42 guy Exp $
+ * $Id: packet-gryphon.h,v 1.5 2002/05/01 06:15:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,8 +20,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #define MSG_HDR_SZ  	    8
@@ -169,10 +166,10 @@
 #define FR_RESP_AFTER_EVENT    	    0
 #define FR_RESP_AFTER_PERIOD	    1
 #define FR_IGNORE_DURING_PER	    2
-#define FR_DEACT_AFTER_PER    	    128
-#define FR_DEACT_ON_EVENT     	    64
-#define FR_DELETE   	    	    32
-#define FR_PERIOD_MSGS 	    	    16
+#define FR_DEACT_AFTER_PER    	    0x80
+#define FR_DEACT_ON_EVENT     	    0x40
+#define FR_DELETE   	    	    0x20
+#define FR_PERIOD_MSGS 	    	    0x10
 
 /* Filter data types */
 
