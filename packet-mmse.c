@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.24 2003/12/08 20:37:15 obiot Exp $
+ * $Id: packet-mmse.c,v 1.25 2003/12/18 02:07:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -191,20 +191,22 @@ static const value_string vals_status[] = {
  *
  * \param	tvb	The buffer with PDU-data
  * \param	offset	Offset within that buffer
- * \param	strval	String buffer to receive the text, reserve memory!
+ * \param	strval	Pointer to variable into which to put pointer to
+ *			buffer allocated to hold the text; must be freed
+ *			when no longer used
  *
  * \return		The length in bytes of the entire field
  */
 static guint
-get_text_string(tvbuff_t *tvb, guint offset, char *strval)
+get_text_string(tvbuff_t *tvb, guint offset, char **strval)
 {
     guint	 len;
 
     len = tvb_strsize(tvb, offset);
     if (tvb_get_guint8(tvb, offset) == MM_QUOTE)
-	tvb_memcpy(tvb, strval, offset + 1, len - 1);
+	*strval = tvb_memdup(tvb, offset + 1, len - 1);
     else
-	tvb_memcpy(tvb, strval, offset, len);
+	*strval = tvb_memdup(tvb, offset, len);
     return len;
 }
 
@@ -245,12 +247,14 @@ get_value_length(tvbuff_t *tvb, guint offset, guint *byte_count)
  *
  * \param	tvb	The buffer with PDU-data
  * \param	offset	Offset within that buffer
- * \param	strval	String buffer to receive the text, reserve memory!
+ * \param	strval	Pointer to variable into which to put pointer to
+ *			buffer allocated to hold the text; must be freed
+ *			when no longer used
  *
  * \return		The length in bytes of the entire field
  */
 static guint
-get_encoded_strval(tvbuff_t *tvb, guint offset, char *strval)
+get_encoded_strval(tvbuff_t *tvb, guint offset, char **strval)
 {
     guint	 field;
     guint	 length;
@@ -261,8 +265,7 @@ get_encoded_strval(tvbuff_t *tvb, guint offset, char *strval)
     if (field < 32) {
 	length = get_value_length(tvb, offset, &count);
 	/* \todo	Something with "Char-set", skip for now	*/
-	tvb_memcpy(tvb, strval, offset + count + 1, length - 1);
-	strval[length - 1] = '\0';	/* Just to make sure	*/
+	*strval = tvb_get_string(tvb, offset + count + 1, length - 1);
 	return count + length;
     } else
 	return get_text_string(tvb, offset, strval);
@@ -340,7 +343,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8	 pdut;
     guint	 offset;
     guint8	 field = 0;
-    char	 strval[BUFSIZ];
+    char	 *strval;
     guint	 length;
     guint	 count;
 
@@ -380,9 +383,10 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    switch (field)
 	    {
 		case MM_TID_HDR:		/* Text-string	*/
-		    length = get_text_string(tvb, offset, strval);
+		    length = get_text_string(tvb, offset, &strval);
 		    proto_tree_add_string(mmse_tree, hf_mmse_transaction_id,
 					  tvb, offset - 1, length + 1,strval);
+		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_VERSION_HDR:		/* nibble-Major/nibble-minor*/
@@ -401,21 +405,24 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    		  offset - 2, 2, strval);
 		    break;
 		case MM_BCC_HDR:		/* Encoded-string-value	*/
-		    length = get_encoded_strval(tvb, offset, strval);
+		    length = get_encoded_strval(tvb, offset, &strval);
 		    proto_tree_add_string(mmse_tree, hf_mmse_bcc, tvb,
 			    		offset - 1, length + 1, strval);
+		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_CC_HDR:			/* Encoded-string-value	*/
-		    length = get_encoded_strval(tvb, offset, strval);
+		    length = get_encoded_strval(tvb, offset, &strval);
 		    proto_tree_add_string(mmse_tree, hf_mmse_cc, tvb,
 			    		offset - 1, length + 1, strval);
+		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_CLOCATION_HDR:		/* Uri-value		*/
-		    length = get_text_string(tvb, offset, strval);
+		    length = get_text_string(tvb, offset, &strval);
 		    proto_tree_add_string(mmse_tree, hf_mmse_content_location,
 					  tvb, offset - 1, length + 1,strval);
+		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_DATE_HDR:		/* Long-integer		*/
@@ -499,13 +506,17 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    length = get_value_length(tvb, offset, &count);
 		    field = tvb_get_guint8(tvb, offset + count);
 		    if (field == 0x81) {
-			strcpy(strval, "<insert address>");
+			proto_tree_add_string(mmse_tree, hf_mmse_from, tvb,
+					      offset-1, length + count + 1,
+					      "<insert address>");
 		    } else {
 			(void) get_encoded_strval(tvb, offset + count + 1,
-						  strval);
+						  &strval);
+			proto_tree_add_string(mmse_tree, hf_mmse_from, tvb,
+					      offset-1, length + count + 1,
+					      strval);
+			g_free(strval);
 		    }
-		    proto_tree_add_string(mmse_tree, hf_mmse_from, tvb,
-			    		  offset-1, length + count + 1, strval);
 		    offset += length + count;
 		    break;
 		case MM_MCLASS_HDR:
@@ -519,18 +530,20 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    hf_mmse_message_class_id,
 					    tvb, offset - 2, 2, field);
 		    } else {
-			length = get_text_string(tvb, offset, strval);
+			length = get_text_string(tvb, offset, &strval);
 			proto_tree_add_string(mmse_tree,
 					      hf_mmse_message_class_str,
 					      tvb, offset - 1, length + 1,
 					      strval);
+			g_free(strval);
 			offset += length;
 		    }
 		    break;
 		case MM_MID_HDR:		/* Text-string		*/
-		    length = get_text_string(tvb, offset, strval);
+		    length = get_text_string(tvb, offset, &strval);
 		    proto_tree_add_string(mmse_tree, hf_mmse_message_id, tvb,
 			    		  offset - 1, length + 1, strval);
+		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_MSIZE_HDR:		/* Long-integer		*/
@@ -560,9 +573,10 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					offset - 2, 2, field);
 		    break;
 		case MM_RTEXT_HDR:		/* Encoded-string-value	*/
-		    length = get_encoded_strval(tvb, offset, strval);
+		    length = get_encoded_strval(tvb, offset, &strval);
 		    proto_tree_add_string(mmse_tree, hf_mmse_response_text, tvb,
 			    		offset - 1, length + 1, strval);
+		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_SVISIBILITY_HDR:	/* Hide|Show		*/
@@ -576,15 +590,17 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					offset - 2, 2, field);
 		    break;
 		case MM_SUBJECT_HDR:		/* Encoded-string-value	*/
-		    length = get_encoded_strval(tvb, offset, strval);
+		    length = get_encoded_strval(tvb, offset, &strval);
 		    proto_tree_add_string(mmse_tree, hf_mmse_subject, tvb,
 			    		offset - 1, length + 1, strval);
+		    g_free(strval);
 		    offset += length;
 		    break;
 		case MM_TO_HDR:			/* Encoded-string-value	*/
-		    length = get_encoded_strval(tvb, offset, strval);
+		    length = get_encoded_strval(tvb, offset, &strval);
 		    proto_tree_add_string(mmse_tree, hf_mmse_to, tvb,
 			    		offset - 1, length + 1, strval);
+		    g_free(strval);
 		    offset += length;
 		    break;
 		default:
@@ -593,11 +609,12 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				"Unknown field (0x%02x)", field);
 		    } else {
 			guint	 length2;
-			char	 strval2[BUFSIZ];
+			char	 *strval2;
 
 			--offset;
-			length = get_text_string(tvb, offset, strval);
-			length2= get_text_string(tvb, offset+length, strval2);
+			length = get_text_string(tvb, offset, &strval);
+			CLEANUP_PUSH(g_free, strval);
+			length2= get_text_string(tvb, offset+length, &strval2);
 
 			proto_tree_add_string_format(mmse_tree,
 						     hf_mmse_ffheader,
@@ -605,7 +622,9 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						     length + length2,
 						     tvb_get_ptr(tvb,offset,length + length2),
 						     "%s: %s",strval,strval2);
+			g_free(strval2);
 			offset += length + length2;
+			CLEANUP_CALL_AND_POP;
 		    }
 		    break;
 	    }
