@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.33 2000/08/08 12:24:31 deniel Exp $
+ * $Id: menu.c,v 1.34 2000/08/09 06:43:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -131,8 +131,9 @@ static GtkItemFactoryEntry menu_items[] =
 /*  {"/Tools/Graph", NULL, NULL, 0, NULL}, future use */
   {"/Tools/_Summary", NULL, GTK_MENU_FUNC(summary_open_cb), 0, NULL},
   {"/_Help", NULL, NULL, 0, "<LastBranch>" },
-  {"/Help/_About Ethereal...", NULL, GTK_MENU_FUNC(about_ethereal), 0, NULL},
-  {"/Help/_Help", NULL, GTK_MENU_FUNC(help_cb), 0, NULL}
+  {"/Help/_Help", NULL, GTK_MENU_FUNC(help_cb), 0, NULL},
+  {"/Help/<separator>", NULL, NULL, 0, "<Separator>"},
+  {"/Help/_About Ethereal...", NULL, GTK_MENU_FUNC(about_ethereal), 0, NULL}
 };
 
 /* calculate the number of menu_items */
