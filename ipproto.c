@@ -1,7 +1,7 @@
 /* ipproto.c
  * Routines for converting IPv4 protocol/v6 nxthdr field into string
  *
- * $Id: ipproto.c,v 1.23 2003/11/02 22:12:35 gerald Exp $
+ * $Id: ipproto.c,v 1.24 2003/11/24 21:42:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -108,7 +108,7 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_ICMPV6,	"ICMPv6" },
     { IP_PROTO_NONE,	"IPv6 no next header" },
     { IP_PROTO_DSTOPTS,	"IPv6 destination option" },
-    { IP_PROTO_MIPV6,	"Mobile IPv6" },
+    { IP_PROTO_MIPV6_OLD, "Mobile IPv6 (old)" },
     { IP_PROTO_SATEXPAK,"SATNET EXPAK" },
     { IP_PROTO_KRYPTOLAN, "Kryptolan" },
     { IP_PROTO_RVD,     "Remote Virtual Disk" },
@@ -177,6 +177,7 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_SCTP,    "SCTP" },
     { IP_PROTO_FC,      "Fibre Channel" },
     { IP_PROTO_RSVPE2EI,"RSVP E2EI" },
+    { IP_PROTO_MIPV6,	"Mobile IPv6" },
     { IP_PROTO_NCS_HEARTBEAT,"Novell NCS Heartbeat" },
     { 0,		NULL },
 };

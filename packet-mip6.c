@@ -1,6 +1,6 @@
 /* packet-mip6.c
  *
- * $Id: packet-mip6.c,v 1.4 2003/07/11 21:03:13 guy Exp $
+ * $Id: packet-mip6.c,v 1.5 2003/11/24 21:42:13 guy Exp $
  *
  * Routines for Mobile IPv6 dissection (draft-ietf-mobileip-ipv6-20.txt)
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>
@@ -687,5 +687,6 @@ proto_reg_handoff_mip6(void)
     
     /* mip6_handle = find_dissector("mipv6"); */
     mip6_handle = create_dissector_handle(dissect_mip6, proto_mip6);
+    dissector_add("ip.proto", IP_PROTO_MIPV6_OLD, mip6_handle);
     dissector_add("ip.proto", IP_PROTO_MIPV6, mip6_handle);
 }

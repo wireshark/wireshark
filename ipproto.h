@@ -2,7 +2,7 @@
  * Declarations of IP protocol numbers, and of routines for converting
  * IP protocol numbers into strings.
  *
- * $Id: ipproto.h,v 1.11 2003/11/22 08:35:45 guy Exp $
+ * $Id: ipproto.h,v 1.12 2003/11/24 21:42:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,6 +95,17 @@
 #define IP_PROTO_NONE		59		/* IP6 no next header - RFC1883 */
 #define IP_PROTO_DSTOPTS	60		/* IP6 destination options - RFC1883 */
 /* 61 is reserved by IANA for any host internal protocol */
+/*
+ * The current Protocol Numbers list says that the IP protocol number for
+ * mobility headers is 135; it cites draft-ietf-mobileip-ipv6-24, but
+ * that draft doesn't actually give a number.
+ *
+ * It appears that 62 used to be used, even though that's assigned to
+ * a protocol called CFTP; however, the only reference for CFTP is a
+ * Network Message from BBN back in 1982, so, for now, we support 62,
+ * aas well as 135, as a protocol number for mobility headers.
+ */
+#define IP_PROTO_MIPV6_OLD	62		/* Mobile IPv6  */
 /* 63 is reserved by IANA for any local network */
 #define IP_PROTO_SATEXPAK       64
 #define IP_PROTO_KRYPTOLAN      65
