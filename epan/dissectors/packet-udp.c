@@ -83,12 +83,14 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   reported_len = tvb_reported_length_remaining(tvb, offset);
   if (uh_ulen != -1) {
     /* This is the length from the UDP header; the payload should be cut
-       off at that length.
+       off at that length.  (If our caller passed a value here, they
+       are assumed to have checked that it's >= 8, and hence >= offset.)
+
        XXX - what if it's *greater* than the reported length? */
-    if (uh_ulen < len)
-      len = uh_ulen;
-    if (uh_ulen < reported_len)
-      reported_len = uh_ulen;
+    if (uh_ulen - offset < reported_len)
+      reported_len = uh_ulen - offset;
+    if (len > reported_len)
+      len = reported_len;
   }
   next_tvb = tvb_new_subset(tvb, offset, len, reported_len);
 
@@ -148,7 +150,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static void
 dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  proto_tree *udp_tree;
+  proto_tree *udp_tree = NULL;
   proto_item *ti;
   guint      len;
   guint      reported_len;
@@ -174,9 +176,6 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   udph->uh_sport=tvb_get_ntohs(tvb, offset);
   udph->uh_dport=tvb_get_ntohs(tvb, offset+2);
-  udph->uh_ulen=tvb_get_ntohs(tvb, offset+4);
-  udph->uh_sum=tvb_get_ntohs(tvb, offset+6);
-
 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "Source port: %s  Destination port: %s",
@@ -199,14 +198,22 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_uint_hidden(udp_tree, hf_udp_port, tvb, offset, 2, udph->uh_sport);
     proto_tree_add_uint_hidden(udp_tree, hf_udp_port, tvb, offset+2, 2, udph->uh_dport);
+  }
 
-    if (udph->uh_ulen < 8) {
-      /* Bogus length - it includes the header, so it must be >= 8. */
+  udph->uh_ulen = tvb_get_ntohs(tvb, offset+4);
+  if (udph->uh_ulen < 8) {
+    /* Bogus length - it includes the header, so it must be >= 8. */
+    if (tree) {
       proto_tree_add_uint_format(udp_tree, hf_udp_length, tvb, offset + 4, 2,
 	udph->uh_ulen, "Length: %u (bogus, must be >= 8)", udph->uh_ulen);
-      return;
     }
+    return;
+  }
+  if (tree)
     proto_tree_add_uint(udp_tree, hf_udp_length, tvb, offset + 4, 2, udph->uh_ulen);
+
+  udph->uh_sum = tvb_get_ntohs(tvb, offset+6);
+  if (tree) {
     reported_len = tvb_reported_length(tvb);
     len = tvb_length(tvb);
     if (udph->uh_sum == 0) {
