@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.48 1999/11/28 14:50:23 gram Exp $
+ * $Id: main.c,v 1.49 1999/11/29 02:45:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -932,17 +932,27 @@ main(int argc, char *argv[])
   /* Assemble the compile-time options */
   snprintf(comp_info_str, 256,
 #ifdef GTK_MAJOR_VERSION
-    "GTK+ %d.%d.%d, %s%s", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
+    "GTK+ %d.%d.%d, %s%s, %s%s", GTK_MAJOR_VERSION, GTK_MINOR_VERSION,
     GTK_MICRO_VERSION,
 #else
-    "GTK+ (version unknown), %s%s",
+    "GTK+ (version unknown), %s%s, %s%s",
 #endif
 
 #ifdef HAVE_LIBPCAP
-   "with libpcap ", pcap_version
+   "with libpcap ", pcap_version,
 #else
-   "without libpcap", ""
+   "without libpcap", "",
 #endif
+
+#ifdef HAVE_LIBZ
+#ifdef ZLIB_VERSION
+   "with libz ", ZLIB_VERSION
+#else /* ZLIB_VERSION */
+   "with libz ", "(version unknown)"
+#endif /* ZLIB_VERSION */
+#else /* HAVE_LIBZ */
+   "without libz", ""
+#endif /* HAVE_LIBZ */
    );
 
 #ifndef WIN32
