@@ -81,6 +81,9 @@ static dissector_table_t teredo_dissector_table;
 /*static heur_dissector_list_t heur_subdissector_list;*/
 static dissector_handle_t data_handle;
 
+static gboolean global_teredo_heur = FALSE;
+
+
 static int
 parse_teredo_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			int offset, e_teredohdr *teredoh)
@@ -250,6 +253,78 @@ dissect_teredo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tap_queue_packet(teredo_tap, pinfo, teredoh);    
 }
 
+
+static gboolean
+dissect_teredo_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	guint16 val;
+	int offset = 0;
+
+	if (!global_teredo_heur)
+		return FALSE;
+
+	if (tvb_length_remaining(tvb, offset) < 40)
+		return FALSE;
+
+	val = tvb_get_ntohs(tvb, offset);
+
+	if (val == 1) /* possible auth header */
+	{
+		guint8 idlen, aulen;
+
+		offset += 2;
+
+		idlen = tvb_get_guint8(tvb, offset);
+		offset++;
+
+		aulen = tvb_get_guint8(tvb, offset);
+		offset += 10;
+
+		if (tvb_length_remaining(tvb, offset) < idlen + aulen + 40)
+			return FALSE;
+
+		offset += idlen + aulen;
+
+		val = tvb_get_ntohs(tvb, offset);
+	}
+
+	if (val == 0) /* origin indication */
+	{
+		offset += 8;
+
+		if (tvb_length_remaining(tvb, offset) < 40)
+			return FALSE;
+
+		val = tvb_get_ntohs(tvb, offset);
+	}
+
+	/* 
+	 * We have to check upper-layer packet a little bit otherwise we will
+	 * match -almost- *ANY* packet.
+	 * These checks are in the Teredo specification by the way.
+	 * Unfortunately, that will cause false-negative if the snaplen is too
+	 * short to get the packet entirely.
+	 */
+	if ((val >> 12) == 6) /* IPv6 header */
+	{
+		/* checks IPv6 payload length */
+		val = tvb_get_ntohs(tvb, offset + 4);
+		offset += 40;
+
+		if (val > 65467)
+			return FALSE; /* length too big for Teredo */
+
+		if (tvb_length_remaining(tvb, offset) != val)
+			return FALSE; /* length mismatch */
+
+		dissect_teredo (tvb, pinfo, tree);
+		return TRUE;
+	}
+
+	return FALSE; /* not an IPv6 packet */
+}
+
+
 void
 proto_register_teredo(void)
 {
@@ -313,6 +388,8 @@ proto_register_teredo(void)
 		&ett_teredo, &ett_teredo_auth, &ett_teredo_orig
 	};
 
+	module_t *teredo_module;
+
 	proto_teredo = proto_register_protocol(
 		"Teredo IPv6 over UDP tunneling", "Teredo", "teredo");
 	proto_register_field_array(proto_teredo, hf, array_length(hf));
@@ -320,7 +397,14 @@ proto_register_teredo(void)
 
 /* subdissector code */
 	teredo_dissector_table = register_dissector_table("teredo","Teredo ", FT_UINT16, BASE_DEC);
-/*	register_heur_dissector_list("teredo.heur", &heur_subdissector_list); */
+
+	teredo_module = prefs_register_protocol(proto_teredo, NULL);
+
+	prefs_register_bool_preference(teredo_module, "heuristic_teredo",
+		"Try to decode UDP packets as Teredo IPv6",
+		"Check this to decode IPv6 traffic between Teredo clients and "
+		"relays",
+		&global_teredo_heur);
 
 }
 
@@ -334,5 +418,6 @@ proto_reg_handoff_teredo(void)
 	teredo_tap    = register_tap("teredo");
 
 	dissector_add("udp.port", UDP_PORT_TEREDO, teredo_handle);
+	heur_dissector_add("udp", dissect_teredo_heur, proto_teredo);
 }
 
