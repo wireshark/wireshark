@@ -1,7 +1,7 @@
 /* colors.h
  * Definitions for color structures and routines
  *
- * $Id: colors.h,v 1.1 1999/08/24 16:27:21 gram Exp $
+ * $Id: colors.h,v 1.2 1999/08/28 18:42:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,7 +39,7 @@
 #define MAX_COLOR_FILTER_STRING_LEN 256
 
 #define CFILTERS_CONTAINS_FILTER(cf) \
-	((cf)->colors->color_filters != NULL)
+	((cf)->colors->num_of_filters != 0)
 
 extern GdkColor 	proto_colors[MAXCOLORS];
 extern GdkColormap*	sys_cmap;
