@@ -147,7 +147,7 @@ extern void xml_lexer_init(int proto_hfid, int ett) {
 	
 	proto_xml = proto_hfid;
 	ett_xml = ett;
-};
+}
 
 extern void dissect_xml(tvbuff_t* the_tvb, packet_info* pinfo _U_, proto_tree* the_tree) {
 
