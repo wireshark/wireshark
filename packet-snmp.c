@@ -10,7 +10,7 @@
  *
  * See RFCs 2570-2576 for SNMPv3
  *
- * $Id: packet-snmp.c,v 1.124 2004/01/17 12:51:00 ulfl Exp $
+ * $Id: packet-snmp.c,v 1.125 2004/01/23 00:40:00 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -643,10 +643,10 @@ new_format_oid(subid_t *oid, guint oid_length,
 }
 
 #ifdef HAVE_SOME_SNMP
-static guchar *
+static gchar *
 check_var_length(guint vb_length, guint required_length)
 {
-	guchar *buf;
+	gchar *buf;
 	static const char badlen_fmt[] = "Length is %u, should be %u";
 
 	if (vb_length != required_length) {
@@ -660,11 +660,11 @@ check_var_length(guint vb_length, guint required_length)
 	return NULL;	/* length is OK */
 }
 
-static guchar *
+static gchar *
 format_var(struct variable_list *variable, subid_t *variable_oid,
     guint variable_oid_length, gushort vb_type, guint val_len)
 {
-	guchar *buf;
+	gchar *buf;
 	size_t buf_len;
 	size_t out_len;
 
@@ -1504,7 +1504,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 enginetime;
 
 	guchar *msgflags;
-	guchar *commustr;
+	gchar *commustr;
 	guchar *community;
 	guchar *secparm;
 	guchar *cengineid;
@@ -1514,16 +1514,16 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guchar *username;
 	guchar *authpar;
 	guchar *privpar;
-	int msgflags_length;
-	int community_length;
-	int secparm_length;
-	int cengineid_length;
-	int cname_length;
-	int cryptpdu_length;
-	int aengineid_length;
-	int username_length;
-	int authpar_length;
-	int privpar_length;
+	guint msgflags_length;
+	guint community_length;
+	guint secparm_length;
+	guint cengineid_length;
+	guint cname_length;
+	guint cryptpdu_length;
+	guint aengineid_length;
+	guint username_length;
+	guint authpar_length;
+	guint privpar_length;
 
 	guint pdu_type;
 	guint pdu_length;
@@ -2015,10 +2015,10 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 commit;
 
 	guchar *password;
-	int password_length;
+	guint password_length;
 
 	guchar *application;
-	int application_length;
+	guint application_length;
 
 	subid_t *regid;
 	guint regid_length;
