@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.55 2004/06/01 17:33:36 ulfl Exp $
+ * $Id: help_dlg.c,v 1.56 2004/06/05 09:57:10 ulfl Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -46,11 +46,8 @@
 
 
 #define NOTEBOOK_KEY    "notebook_key"
-#define TEXT_KEY        "txt_key"
 
 static void help_destroy_cb(GtkWidget *w, gpointer data);
-static void insert_text(GtkWidget *w, const char *buffer, int nchars);
-static void set_help_text(GtkWidget *w, const char *help_file_path);
 
 /*
  * Keep a static pointer to the current "Help" window, if any, so that
@@ -67,58 +64,10 @@ static GtkWidget *help_w = NULL;
 typedef struct {
   char *topic;
   char *pathname;
-  GtkWidget *txt;
+  GtkWidget *page;
 } help_page_t;
 
 static GSList *help_text_pages = NULL;
-
-/*
- * Helper function to show a simple text page from a file.
- */
-GtkWidget * text_page_new(const char *absolute_path)
-{
-  GtkWidget *page_vb, *txt_scrollw, *txt;
-
-  page_vb = gtk_vbox_new(FALSE, 0);
-  gtk_container_border_width(GTK_CONTAINER(page_vb), 1);
-  txt_scrollw = scrolled_window_new(NULL, NULL);
-#if GTK_MAJOR_VERSION >= 2
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
-                                   GTK_SHADOW_IN);
-#endif
-  gtk_box_pack_start(GTK_BOX(page_vb), txt_scrollw, TRUE, TRUE, 0);
-
-#if GTK_MAJOR_VERSION < 2
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
-				 GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
-  txt = gtk_text_new(NULL, NULL);
-  gtk_text_set_editable(GTK_TEXT(txt), FALSE);
-  gtk_text_set_word_wrap(GTK_TEXT(txt), TRUE);
-  gtk_text_set_line_wrap(GTK_TEXT(txt), TRUE);
-#else
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
-				 GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
-  txt = gtk_text_view_new();
-  gtk_text_view_set_editable(GTK_TEXT_VIEW(txt), FALSE);
-  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(txt), GTK_WRAP_WORD);
-  gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(txt), FALSE);
-  /* XXX: there seems to be no way to add a small border *around* the whole text,
-   * so the text will be "bump" against the edges.
-   * the following is only working for left and right edges,
-   * there is no such thing for top and bottom :-( */
-  /* gtk_text_view_set_left_margin(GTK_TEXT_VIEW(txt), 3); */
-  /* gtk_text_view_set_right_margin(GTK_TEXT_VIEW(txt), 3); */
-#endif
-
-  OBJECT_SET_DATA(page_vb, TEXT_KEY, txt);
-
-  set_help_text(txt, absolute_path);
-  gtk_container_add(GTK_CONTAINER(txt_scrollw), txt);
-  gtk_widget_show(txt_scrollw);
-  gtk_widget_show(txt);
-
-  return page_vb;
-}
 
 
 /*
@@ -126,23 +75,23 @@ GtkWidget * text_page_new(const char *absolute_path)
  */
 static GtkWidget * help_page(const char *topic, const char *filename)
 {
-  GtkWidget *page_vb;
+  GtkWidget *text_page;
   char *relative_path, *absolute_path;
   help_page_t *page;
 
   relative_path = g_strconcat(HELP_DIR, G_DIR_SEPARATOR_S, filename, NULL);
   absolute_path = get_datafile_path(relative_path);
-  page_vb = text_page_new(absolute_path);
+  text_page = text_page_new(absolute_path);
   g_free(relative_path);
-  gtk_widget_show(page_vb);
+  gtk_widget_show(text_page);
 
   page = g_malloc(sizeof (help_page_t));
   page->topic = g_strdup(topic);
   page->pathname = absolute_path;
-  page->txt = OBJECT_GET_DATA(page_vb, TEXT_KEY);
+  page->page = text_page;
   help_text_pages = g_slist_append(help_text_pages, page);
 
-  return page_vb;
+  return text_page;
 }
 
 
@@ -292,106 +241,20 @@ static void help_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
 }
 
 
-/*
- * Insert some text to a help page.
- */
-static void insert_text(GtkWidget *w, const char *buffer, int nchars)
-{
-#if GTK_MAJOR_VERSION < 2
-    gtk_text_insert(GTK_TEXT(w), m_r_font, NULL, NULL, buffer, nchars);
-#else
-    GtkTextBuffer *buf= gtk_text_view_get_buffer(GTK_TEXT_VIEW(w));
-    GtkTextIter    iter;
-
-    gtk_text_buffer_get_end_iter(buf, &iter);
-    gtk_widget_modify_font(w, m_r_font);
-    if (!g_utf8_validate(buffer, -1, NULL))
-        printf("Invalid utf8 encoding: %s\n", buffer);
-    gtk_text_buffer_insert(buf, &iter, buffer, nchars);
-#endif
-}
-
-
-/*
- * Put the complete help text into a help page.
- */
-static void set_help_text(GtkWidget *w, const char *help_file_path)
-{
-  FILE *help_file;
-  char line[4096+1];	/* XXX - size? */
-
-#if GTK_MAJOR_VERSION < 2
-  gtk_text_freeze(GTK_TEXT(w));
-#endif
-
-  help_file = fopen(help_file_path, "r");
-  if (help_file != NULL) {
-    while (fgets(line, sizeof line, help_file) != NULL) {
-      insert_text(w, line, strlen(line));
-    }
-    if(ferror(help_file)) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Error reading file \"%s\": %s",
-                    help_file_path, strerror(errno));
-    }
-    fclose(help_file);
-  } else {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "Could not open file \"%s\": %s",
-                    help_file_path, strerror(errno));
-  }
-#if GTK_MAJOR_VERSION < 2
-  gtk_text_thaw(GTK_TEXT(w));
-#endif
-} /* set_help_text */
-
-
-/*
- * Clear the help text from the help page.
- */
-static void clear_help_text(GtkWidget *w)
-{
-#if GTK_MAJOR_VERSION < 2
-  GtkText *txt = GTK_TEXT(w);
-
-  gtk_text_set_point(txt, 0);
-  /* Keep GTK+ 1.2.3 through 1.2.6 from dumping core - see
-     http://www.ethereal.com/lists/ethereal-dev/199912/msg00312.html and
-     http://www.gnome.org/mailing-lists/archives/gtk-devel-list/1999-October/0051.shtml
-     for more information */
-  gtk_adjustment_set_value(txt->vadj, 0.0);
-  gtk_text_forward_delete(txt, gtk_text_get_length(txt));
-#else
-  GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(w));
-
-  gtk_text_buffer_set_text(buf, "", 0);
-#endif
-}
-
-
-/*
- * Redraw a single help page.
- */
-void help_redraw_page(const help_page_t *page)
-{
-#if GTK_MAJOR_VERSION < 2
-  gtk_text_freeze(GTK_TEXT(page->txt));
-#endif
-  clear_help_text(page->txt);
-  set_help_text(page->txt, page->pathname);
-#if GTK_MAJOR_VERSION < 2
-  gtk_text_thaw(GTK_TEXT(page->txt));
-#endif
-}
-
-/*
+/**
  * Redraw all help pages, to use a new font.
  */
 void help_redraw(void)
 {
   GSList *help_page_ent;
+  help_page_t *help_page;
 
   if (help_w != NULL) {
     for (help_page_ent = help_text_pages; help_page_ent != NULL;
-         help_page_ent = g_slist_next(help_page_ent))
-      help_redraw_page((help_page_t *)help_page_ent->data);
+        help_page_ent = g_slist_next(help_page_ent))
+    {
+      help_page = (help_page_t *)help_page_ent->data;
+      text_page_redraw(help_page->page, help_page->pathname);
+    }
   }
 }

@@ -1,7 +1,7 @@
 /* text_page.h
  * Declarations of routine to construct a simple text page from a file.
  *
- * $Id: text_page.h,v 1.3 2004/06/03 14:54:26 ulfl Exp $
+ * $Id: text_page.h,v 1.4 2004/06/05 09:57:11 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,7 +27,6 @@
 
 /** @file
  *  Construct a simple text page widget from a file.
- *  @todo move this and the implementation to ui_util.
  */
 
 /** Construct a simple text page widget from a file (UTF8 encoded).
@@ -36,5 +35,12 @@
  * @return the new widget
  */
 extern GtkWidget * text_page_new(const char *absolute_path);
+
+/** Clear and insert the file content (again).
+ *
+ * @param page the text_page from text_page_new()
+ * @param absolute_path the path to the text file
+ */
+extern void text_page_redraw(GtkWidget *page, const char *absolute_path);
 
 #endif /* __TEXT_PAGE_H__ */
