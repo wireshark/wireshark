@@ -69,6 +69,7 @@
 #include <epan/prefs.h>
 
 static dissector_handle_t rtp_handle;
+static dissector_handle_t stun_handle;
 
 static int rtp_tap = -1;
 
@@ -105,6 +106,17 @@ static gint ett_rtp       = -1;
 static gint ett_csrc_list = -1;
 static gint ett_hdr_ext   = -1;
 static gint ett_rtp_setup = -1;
+
+
+#define RTP0_INVALID 0
+#define RTP0_STUN    1
+
+static enum_val_t rtp_version0_types[] = {
+	{ "invalid", "Invalid RTP packets", RTP0_INVALID },
+	{ "stun", "STUN packets", RTP0_STUN },
+	{ NULL, NULL, 0 }
+};
+static uint global_rtp_version0_type = 0;
 
 static dissector_handle_t data_handle;
 
@@ -319,7 +331,17 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	octet1 = tvb_get_guint8( tvb, offset );
 	version = RTP_VERSION( octet1 );
 
-	if (version != 2) {
+	if (version == 0) {
+		switch (global_rtp_version0_type) {
+		case RTP0_STUN:
+			call_dissector(stun_handle, tvb, pinfo, tree);
+			return TRUE;
+
+		case RTP0_INVALID:
+		default:
+			return FALSE; /* Unknown or unsupported version */
+		}
+	} else if (version != 2) {
 		/* Unknown or unsupported version */
 		return FALSE;
 	}
@@ -382,6 +404,18 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	/* Get the fields in the first octet */
 	octet1 = tvb_get_guint8( tvb, offset );
 	version = RTP_VERSION( octet1 );
+
+	if (version == 0) {
+		switch (global_rtp_version0_type) {
+		case RTP0_STUN:
+			call_dissector(stun_handle, tvb, pinfo, tree);
+			return;
+
+		case RTP0_INVALID:
+		default:
+			; /* Unknown or unsupported version (let it fall through */
+		}
+	}
 
 	/* fill in the rtp_info structure */
 	rtp_info.info_version = version;
@@ -523,7 +557,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	}
 	/* CSRC list*/
 	if ( csrc_count > 0 ) {
-        	if ( tree ) {
+		if ( tree ) {
 			ti = proto_tree_add_text(rtp_tree, tvb, offset, csrc_count * 4, "Contributing Source identifiers");
 			rtp_csrc_tree = proto_item_add_subtree( ti, ett_csrc_list );
 		}
@@ -668,8 +702,8 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		/* First time, get info from conversation */
 		p_conv = find_conversation(pinfo->fd->num, &pinfo->net_dst, &pinfo->net_src,
-                                   pinfo->ptype,
-                                   pinfo->destport, pinfo->srcport, NO_ADDR_B);
+		                           pinfo->ptype,
+		                           pinfo->destport, pinfo->srcport, NO_ADDR_B);
 		if (p_conv)
 		{
 			/* Create space for packet info */
@@ -968,22 +1002,27 @@ proto_register_rtp(void)
 	rtp_tap = register_tap("rtp");
 
 	rtp_pt_dissector_table = register_dissector_table("rtp.pt",
-	    "RTP payload type", FT_UINT8, BASE_DEC);
+	                                                  "RTP payload type", FT_UINT8, BASE_DEC);
 
 	rtp_module = prefs_register_protocol(proto_rtp, NULL);
 
 	prefs_register_bool_preference(rtp_module, "show_setup_info",
-		"Show stream setup information",
-		"Where available, show which protocol and frame caused "
-		"this RTP stream to be created",
-		&global_rtp_show_setup_info);
+	                               "Show stream setup information",
+	                               "Where available, show which protocol and frame caused "
+	                               "this RTP stream to be created",
+	                               &global_rtp_show_setup_info);
 
 	prefs_register_bool_preference(rtp_module, "heuristic_rtp",
-		"Try to decode RTP outside of conversations ",
-                "If call control SIP/H323/RTSP/.. messages are missing in the trace, "
-                "RTP isn't decoded without this",
-		&global_rtp_heur);
-   
+	                               "Try to decode RTP outside of conversations",
+	                               "If call control SIP/H323/RTSP/.. messages are missing in the trace, "
+	                               "RTP isn't decoded without this",
+	                               &global_rtp_heur);
+
+	prefs_register_enum_preference(rtp_module, "version0_type",
+	                               "Treat RTP version 0 packets as",
+	                               "If an RTP version 0 packet is encountered, it can be treated as an invalid packet or a STUN packet",
+	                               &global_rtp_version0_type,
+	                               rtp_version0_types, FALSE);
 	register_init_routine( &rtp_init );
 }
 
@@ -991,6 +1030,7 @@ void
 proto_reg_handoff_rtp(void)
 {
 	data_handle = find_dissector("data");
+	stun_handle = find_dissector("stun");
 
 	/*
 	 * Register this dissector as one that can be selected by a
