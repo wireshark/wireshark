@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.98 2003/10/01 07:11:47 guy Exp $
+ * $Id: libpcap.c,v 1.99 2003/10/24 10:52:04 sahlberg Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1160,6 +1160,15 @@ adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 	    (wth->capture.pcap->version_minor < 3 ||
 	     (wth->capture.pcap->version_minor == 3 &&
 	      hdr->incl_len > hdr->orig_len))) {
+		guint32 temp;
+
+		temp = hdr->orig_len;
+		hdr->orig_len = hdr->incl_len;
+		hdr->incl_len = temp;
+	}
+	/* DG/UX use v 543.0 and also swap these fields */
+	if(wth->capture.pcap->version_major == 543 &&
+	   wth->capture.pcap->version_minor == 0){
 		guint32 temp;
 
 		temp = hdr->orig_len;
