@@ -55,6 +55,14 @@ not continue properly and thus everything after this tree item will be
 just random dissection junk.
 
 
+There is a flag which controls whether internal PER bits will be placed in
+the tree or not.
+Currently it is enabled which is why all those Extension Bit... etc
+that are just internal PER stuff are placed in the tree.
+To get rid of these ones just change display_internal_per_fields to FALSE
+below.
+This will be a preference later and will default to FALSE.
+
 
 What needs to be done?
 TODO:
@@ -84,7 +92,7 @@ proper helper routines
  * Routines for H.245 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-h245.c,v 1.2 2003/07/06 10:29:14 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.3 2003/07/06 11:11:41 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -299,8 +307,8 @@ static int hf_h245_H235Media = -1;
 static int hf_h245_V75Parameters = -1;
 static int hf_h245_Q2931Address = -1;
 static int hf_h245_NetworkAccessParameters = -1;
-static int hf_h245_OpenLogicalChannel_reverseLogicalChannelParameters = -1;
-static int hf_h245_OpenLogicalChannel_forwardLogicalChannelParameters = -1;
+static int hf_h245_reverseLogicalChannelParameters = -1;
+static int hf_h245_forwardLogicalChannelParameters = -1;
 static int hf_h245_OpenLogicalChannel = -1;
 static int hf_h245_FECCapability_rfc2733_separateStream = -1;
 static int hf_h245_FECCapability_rfc2733 = -1;
@@ -527,8 +535,8 @@ static int hf_h245_Q2931Address_address = -1;
 static int hf_h245_NetworkAccessParameters_t120SetupProcedure = -1;
 static int hf_h245_NetworkAccessParameters_networkAddress = -1;
 static int hf_h245_NetworkAccessParameters_distribution = -1;
-static int hf_h245_OpenLogicalChannel_reverseLogicalChannelParameters_multiplexParameters = -1;
-static int hf_h245_OpenLogicalChannel_forwardLogicalChannelParameters_multiplexParameters = -1;
+static int hf_h245_reverseLogicalChannelParameters_multiplexParameters = -1;
+static int hf_h245_forwardLogicalChannelParameters_multiplexParameters = -1;
 static int hf_h245_FECCapability = -1;
 static int hf_h245_MultiplexFormat = -1;
 static int hf_h245_ParameterValue = -1;
@@ -1228,8 +1236,8 @@ static gint ett_h245_H235Media = -1;
 static gint ett_h245_V75Parameters = -1;
 static gint ett_h245_Q2931Address = -1;
 static gint ett_h245_NetworkAccessParameters = -1;
-static gint ett_h245_OpenLogicalChannel_reverseLogicalChannelParameters = -1;
-static gint ett_h245_OpenLogicalChannel_forwardLogicalChannelParameters = -1;
+static gint ett_h245_reverseLogicalChannelParameters = -1;
+static gint ett_h245_forwardLogicalChannelParameters = -1;
 static gint ett_h245_OpenLogicalChannel = -1;
 static gint ett_h245_FECCapability_rfc2733_separateStream = -1;
 static gint ett_h245_FECCapability_rfc2733 = -1;
@@ -1446,8 +1454,8 @@ static gint ett_h245_Q2931Address_address = -1;
 static gint ett_h245_NetworkAccessParameters_t120SetupProcedure = -1;
 static gint ett_h245_NetworkAccessParameters_networkAddress = -1;
 static gint ett_h245_NetworkAccessParameters_distribution = -1;
-static gint ett_h245_OpenLogicalChannel_reverseLogicalChannelParameters_multiplexParameters = -1;
-static gint ett_h245_OpenLogicalChannel_forwardLogicalChannelParameters_multiplexParameters = -1;
+static gint ett_h245_reverseLogicalChannelParameters_multiplexParameters = -1;
+static gint ett_h245_forwardLogicalChannelParameters_multiplexParameters = -1;
 static gint ett_h245_FECCapability = -1;
 static gint ett_h245_MultiplexFormat = -1;
 static gint ett_h245_ParameterValue = -1;
@@ -1549,9 +1557,18 @@ printf("#%d  %s   tvb:0x%08x\n",pinfo->fd->num,x,(int)tvb);
 #define DEBUG_ENTRY(x) \
 	;
 
+
+
+
 /*************************************************************
  ASN.1_PER functions here 
 **************************************************************/
+/* whether the PER helpers should put the internal PER fields into the tree
+   or not.
+*/
+static guint display_internal_per_fields = TRUE;
+
+
 /* in all functions here, offset is guint32 and is
    byteposition<<3 + bitposition
 */
@@ -2189,6 +2206,7 @@ DEBUG_ENTRY("dissect_per_choice");
 		guint32 choice_offset=offset;
 		proto_tree *choicetree;
 		proto_item *choiceitem;
+		proto_tree *etr=NULL;
 
 		/* 22.6 */
 		/* 22.7 */
@@ -2198,7 +2216,10 @@ DEBUG_ENTRY("dissect_per_choice");
 			&choice_index, &choiceitem);
 		choicetree=proto_item_add_subtree(choiceitem, ett_index);
 
-		dissect_per_boolean(tvb, old_offset, pinfo, choicetree, hf_h245_extension_bit, NULL);
+		if(display_internal_per_fields){
+			etr=choicetree;
+		}
+		dissect_per_boolean(tvb, old_offset, pinfo, etr, hf_h245_extension_bit, NULL);
 		/* find and call the appropriate callback */
 		for(i=0;choice[i].name;i++){
 			if(choice[i].value==(int)choice_index){
@@ -2217,13 +2238,16 @@ DEBUG_ENTRY("dissect_per_choice");
 		guint32 choice_offset;
 		proto_tree *choicetree;
 		proto_item *choiceitem;
+		proto_tree *etr=NULL;
 
-
-		dissect_per_boolean(tvb, old_offset, pinfo, tr, hf_h245_extension_bit, NULL);
+		if(display_internal_per_fields){
+			etr=tr;
+		}
+		dissect_per_boolean(tvb, old_offset, pinfo, etr, hf_h245_extension_bit, NULL);
 
 		/* 22.8 */
-		offset=dissect_per_normally_small_nonnegative_whole_number(tvb, offset, pinfo, tr, hf_h245_choice_extension, &choice_index);
-		offset=dissect_per_length_determinant(tvb, offset, pinfo, tr, hf_h245_open_type_length, &length);
+		offset=dissect_per_normally_small_nonnegative_whole_number(tvb, offset, pinfo, etr, hf_h245_choice_extension, &choice_index);
+		offset=dissect_per_length_determinant(tvb, offset, pinfo, etr, hf_h245_open_type_length, &length);
 
 
 		choice_offset=offset;
@@ -2303,8 +2327,13 @@ DEBUG_ENTRY("dissect_per_sequence");
 	if(sequence[0].extension==NO_EXTENSIONS){
 		extension_present=0;
 	} else {
+		proto_tree *etr=NULL;
+
+		if(display_internal_per_fields){
+			etr=tree;
+		}
 		extension_present=1;
-		offset=dissect_per_boolean(tvb, offset, pinfo, tree, hf_h245_extension_bit, &extension_flag);
+		offset=dissect_per_boolean(tvb, offset, pinfo, etr, hf_h245_extension_bit, &extension_flag);
 	}
 
 	/* 18.2 */
@@ -2316,7 +2345,11 @@ DEBUG_ENTRY("dissect_per_sequence");
 	}
 	optional_mask=0;
 	for(i=0;i<num_opts;i++){
-		offset=dissect_per_boolean(tvb, offset, pinfo, tree, hf_h245_optional_field_bit, &optional_field_flag);
+		proto_tree *etr=NULL;
+		if(display_internal_per_fields){
+			etr=tree;
+		}
+		offset=dissect_per_boolean(tvb, offset, pinfo, etr, hf_h245_optional_field_bit, &optional_field_flag);
 		optional_mask<<=1;
 		if(optional_field_flag){
 			optional_mask|=0x01;
@@ -2350,11 +2383,16 @@ DEBUG_ENTRY("dissect_per_sequence");
 		guint32 num_known_extensions;
 		guint32 num_extensions;
 		guint32 extension_mask;
+		proto_tree *etr=NULL;
 
-		offset=dissect_per_normally_small_nonnegative_whole_number(tvb, offset, pinfo, tree, hf_h245_num_sequence_extensions, &num_extensions);
+		if(display_internal_per_fields){
+			etr=tree;
+		}
+
+		offset=dissect_per_normally_small_nonnegative_whole_number(tvb, offset, pinfo, etr, hf_h245_num_sequence_extensions, &num_extensions);
 		extension_mask=0;
 		for(i=0;i<(int)num_extensions;i++){
-			offset=dissect_per_boolean(tvb, offset, pinfo, tree, hf_h245_extension_present_bit, &extension_bit);
+			offset=dissect_per_boolean(tvb, offset, pinfo, etr, hf_h245_extension_present_bit, &extension_bit);
 			extension_mask=(extension_mask<<1)|extension_bit;
 		}
 
@@ -2378,7 +2416,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 				continue;
 			}
 
-			offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_h245_open_type_length, &length);
+			offset=dissect_per_length_determinant(tvb, offset, pinfo, etr, hf_h245_open_type_length, &length);
 
 			if(i>=num_known_extensions){
 				/* we dont know how to decode this extension */
@@ -17786,7 +17824,7 @@ dissect_h245_H2250LogicalChannelParameters(tvbuff_t *tvb, int offset, packet_inf
 
 
 
-static const value_string OpenLogicalChannel_forwardLogicalChannelParameters_multiplexParameters_vals[] = {
+static const value_string forwardLogicalChannelParameters_multiplexParameters_vals[] = {
 	{  0, "h222LogicalChannelParameters" },
 	{  1, "h223LogicalChannelParameters" },
 	{  2, "v76LogicalChannelParameters" },
@@ -17794,7 +17832,7 @@ static const value_string OpenLogicalChannel_forwardLogicalChannelParameters_mul
 	{  4, "none" },
 	{  0, NULL }
 };
-static per_choice_t OpenLogicalChannel_forwardLogicalChannelParameters_multiplexParameters_choice[] = {
+static per_choice_t forwardLogicalChannelParameters_multiplexParameters_choice[] = {
 	{  0, "h222LogicalChannelParameters", EXTENSION_ROOT,
 		dissect_h245_H222LogicalChannelParameters },
 	{  1, "h223LogicalChannelParameters", EXTENSION_ROOT,
@@ -17808,9 +17846,9 @@ static per_choice_t OpenLogicalChannel_forwardLogicalChannelParameters_multiplex
 	{  0, NULL, 0, NULL }
 };
 static int
-dissect_h245_OpenLogicalChannel_forwardLogicalChannelParameters_multiplexParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h245_forwardLogicalChannelParameters_multiplexParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_OpenLogicalChannel_forwardLogicalChannelParameters_multiplexParameters, ett_h245_OpenLogicalChannel_forwardLogicalChannelParameters_multiplexParameters, OpenLogicalChannel_forwardLogicalChannelParameters_multiplexParameters_choice, "multiplexParameters");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_forwardLogicalChannelParameters_multiplexParameters, ett_h245_forwardLogicalChannelParameters_multiplexParameters, forwardLogicalChannelParameters_multiplexParameters_choice, "multiplexParameters");
 
 	return offset;
 }
@@ -17836,13 +17874,13 @@ dissect_h245_MultiplePayloadStreamElement(tvbuff_t *tvb, int offset, packet_info
 
 
 
-static const value_string OpenLogicalChannel_reverseLogicalChannelParameters_multiplexParameters_vals[] = {
+static const value_string reverseLogicalChannelParameters_multiplexParameters_vals[] = {
 	{  0, "h223LogicalChannelParameters" },
 	{  1, "v76LogicalChannelParameters" },
 	{  2, "h2250LogicalChannelParameters" },
 	{  0, NULL }
 };
-static per_choice_t OpenLogicalChannel_reverseLogicalChannelParameters_multiplexParameters_choice[] = {
+static per_choice_t reverseLogicalChannelParameters_multiplexParameters_choice[] = {
 	{  0, "h223LogicalChannelParameters", EXTENSION_ROOT,
 		dissect_h245_H223LogicalChannelParameters },
 	{  1, "v76LogicalChannelParameters", EXTENSION_ROOT,
@@ -17852,9 +17890,9 @@ static per_choice_t OpenLogicalChannel_reverseLogicalChannelParameters_multiplex
 	{  0, NULL, 0, NULL }
 };
 static int
-dissect_h245_OpenLogicalChannel_reverseLogicalChannelParameters_multiplexParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h245_reverseLogicalChannelParameters_multiplexParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_OpenLogicalChannel_reverseLogicalChannelParameters_multiplexParameters, ett_h245_OpenLogicalChannel_reverseLogicalChannelParameters_multiplexParameters, OpenLogicalChannel_reverseLogicalChannelParameters_multiplexParameters_choice, "multiplexParameters");
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_reverseLogicalChannelParameters_multiplexParameters, ett_h245_reverseLogicalChannelParameters_multiplexParameters, reverseLogicalChannelParameters_multiplexParameters_choice, "multiplexParameters");
 
 	return offset;
 }
@@ -17886,13 +17924,13 @@ dissect_h245_OpenLogicalChannelAck_reverseLogicalChannelParameters_multiplexPara
 
 
 
-static per_sequence_t OpenLogicalChannel_forwardLogicalChannelParameters_sequence[] = {
+static per_sequence_t forwardLogicalChannelParameters_sequence[] = {
 	{ "portNumber", EXTENSION_ROOT, OPTIONAL,
 		dissect_h245_portNumber },
 	{ "dataType", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h245_DataType },
 	{ "multiplexParameters", EXTENSION_ROOT, NOT_OPTIONAL,
-		dissect_h245_OpenLogicalChannel_forwardLogicalChannelParameters_multiplexParameters },
+		dissect_h245_forwardLogicalChannelParameters_multiplexParameters },
 	{ "forwardLogicalChannelDependency", NOT_EXTENSION_ROOT, OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
 	{ "replacementFor", NOT_EXTENSION_ROOT, OPTIONAL, 
@@ -17900,9 +17938,9 @@ static per_sequence_t OpenLogicalChannel_forwardLogicalChannelParameters_sequenc
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h245_OpenLogicalChannel_forwardLogicalChannelParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h245_forwardLogicalChannelParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_OpenLogicalChannel_forwardLogicalChannelParameters, ett_h245_OpenLogicalChannel_forwardLogicalChannelParameters, OpenLogicalChannel_forwardLogicalChannelParameters_sequence);
+	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_forwardLogicalChannelParameters, ett_h245_forwardLogicalChannelParameters, forwardLogicalChannelParameters_sequence);
 
 	return offset;
 }
@@ -17910,11 +17948,11 @@ dissect_h245_OpenLogicalChannel_forwardLogicalChannelParameters(tvbuff_t *tvb, i
 
 
 
-static per_sequence_t OpenLogicalChannel_reverseLogicalChannelParameters_sequence[] = {
+static per_sequence_t reverseLogicalChannelParameters_sequence[] = {
 	{ "dataType", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h245_DataType },
 	{ "multiplexParameters", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_OpenLogicalChannel_reverseLogicalChannelParameters_multiplexParameters },
+		dissect_h245_reverseLogicalChannelParameters_multiplexParameters },
 	{ "reverseLogicalChannelDependency", NOT_EXTENSION_ROOT, OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
 	{ "replacementFor", NOT_EXTENSION_ROOT, OPTIONAL, 
@@ -17922,9 +17960,9 @@ static per_sequence_t OpenLogicalChannel_reverseLogicalChannelParameters_sequenc
 	{ NULL, 0, 0, NULL }
 };
 static int
-dissect_h245_OpenLogicalChannel_reverseLogicalChannelParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_h245_reverseLogicalChannelParameters(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_OpenLogicalChannel_reverseLogicalChannelParameters, ett_h245_OpenLogicalChannel_reverseLogicalChannelParameters, OpenLogicalChannel_reverseLogicalChannelParameters_sequence);
+	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_reverseLogicalChannelParameters, ett_h245_reverseLogicalChannelParameters, reverseLogicalChannelParameters_sequence);
 
 	return offset;
 }
@@ -19110,9 +19148,9 @@ static per_sequence_t OpenLogicalChannel_sequence[] = {
 	{ "forwardLogicalChannelNumber", EXTENSION_ROOT, NOT_OPTIONAL, 
 		dissect_h245_LogicalChannelNumber },
 	{ "forwardLogicalChannelParameters", EXTENSION_ROOT, NOT_OPTIONAL,
-		dissect_h245_OpenLogicalChannel_forwardLogicalChannelParameters },
+		dissect_h245_forwardLogicalChannelParameters },
 	{ "reverseLogicalChannelParameters", EXTENSION_ROOT, OPTIONAL,
-		dissect_h245_OpenLogicalChannel_reverseLogicalChannelParameters },
+		dissect_h245_reverseLogicalChannelParameters },
 	{ "separateStack", NOT_EXTENSION_ROOT, OPTIONAL,
 		dissect_h245_NetworkAccessParameters },
 	{ "encryptionSync", NOT_EXTENSION_ROOT, OPTIONAL,
@@ -20420,12 +20458,12 @@ proto_register_h245(void)
 	{ &hf_h245_NetworkAccessParameters,
 		{ "NetworkAccessParameters", "h245.NetworkAccessParameters", FT_NONE, BASE_NONE,
 		NULL, 0, "NetworkAccessParameters sequence", HFILL }},
-	{ &hf_h245_OpenLogicalChannel_reverseLogicalChannelParameters,
-		{ "OpenLogicalChannel_reverseLogicalChannelParameters", "h245.OpenLogicalChannel_reverseLogicalChannelParameters", FT_NONE, BASE_NONE,
-		NULL, 0, "OpenLogicalChannel_reverseLogicalChannelParameters sequence", HFILL }},
-	{ &hf_h245_OpenLogicalChannel_forwardLogicalChannelParameters,
-		{ "OpenLogicalChannel_forwardLogicalChannelParameters", "h245.OpenLogicalChannel_forwardLogicalChannelParameters", FT_NONE, BASE_NONE,
-		NULL, 0, "OpenLogicalChannel_forwardLogicalChannelParameters sequence", HFILL }},
+	{ &hf_h245_reverseLogicalChannelParameters,
+		{ "reverseLogicalChannelParameters", "h245.reverseLogicalChannelParameters", FT_NONE, BASE_NONE,
+		NULL, 0, "reverseLogicalChannelParameters sequence", HFILL }},
+	{ &hf_h245_forwardLogicalChannelParameters,
+		{ "forwardLogicalChannelParameters", "h245.forwardLogicalChannelParameters", FT_NONE, BASE_NONE,
+		NULL, 0, "forwardLogicalChannelParameters sequence", HFILL }},
 	{ &hf_h245_OpenLogicalChannel,
 		{ "OpenLogicalChannel", "h245.OpenLogicalChannel", FT_NONE, BASE_NONE,
 		NULL, 0, "OpenLogicalChannel sequence", HFILL }},
@@ -21104,12 +21142,12 @@ proto_register_h245(void)
 	{ &hf_h245_NetworkAccessParameters_distribution,
 		{ "NetworkAccessParameters_distribution type", "h245.NetworkAccessParameters_distribution_type", FT_UINT32, BASE_DEC,
 		VALS(NetworkAccessParameters_distribution_vals), 0, "Type of NetworkAccessParameters_distribution choice", HFILL }},
-	{ &hf_h245_OpenLogicalChannel_reverseLogicalChannelParameters_multiplexParameters,
-		{ "OpenLogicalChannel_reverseLogicalChannelParameters_multiplexParameters type", "h245.OpenLogicalChannel_reverseLogicalChannelParameters_multiplexParameters_type", FT_UINT32, BASE_DEC,
-		VALS(OpenLogicalChannel_reverseLogicalChannelParameters_multiplexParameters_vals), 0, "Type of OpenLogicalChannel_reverseLogicalChannelParameters_multiplexParameters choice", HFILL }},
-	{ &hf_h245_OpenLogicalChannel_forwardLogicalChannelParameters_multiplexParameters,
-		{ "OpenLogicalChannel_forwardLogicalChannelParameters_multiplexParameters type", "h245.OpenLogicalChannel_forwardLogicalChannelParameters_multiplexParameters_type", FT_UINT32, BASE_DEC,
-		VALS(OpenLogicalChannel_forwardLogicalChannelParameters_multiplexParameters_vals), 0, "Type of OpenLogicalChannel_forwardLogicalChannelParameters_multiplexParameters choice", HFILL }},
+	{ &hf_h245_reverseLogicalChannelParameters_multiplexParameters,
+		{ "reverseLogicalChannelParameters_multiplexParameters type", "h245.reverseLogicalChannelParameters_multiplexParameters_type", FT_UINT32, BASE_DEC,
+		VALS(reverseLogicalChannelParameters_multiplexParameters_vals), 0, "Type of reverseLogicalChannelParameters_multiplexParameters choice", HFILL }},
+	{ &hf_h245_forwardLogicalChannelParameters_multiplexParameters,
+		{ "forwardLogicalChannelParameters_multiplexParameters type", "h245.forwardLogicalChannelParameters_multiplexParameters_type", FT_UINT32, BASE_DEC,
+		VALS(forwardLogicalChannelParameters_multiplexParameters_vals), 0, "Type of forwardLogicalChannelParameters_multiplexParameters choice", HFILL }},
 	{ &hf_h245_FECCapability,
 		{ "FECCapability type", "h245.FECCapability_type", FT_UINT32, BASE_DEC,
 		VALS(FECCapability_vals), 0, "Type of FECCapability choice", HFILL }},
@@ -22868,8 +22906,8 @@ proto_register_h245(void)
 		&ett_h245_V75Parameters,
 		&ett_h245_Q2931Address,
 		&ett_h245_NetworkAccessParameters,
-		&ett_h245_OpenLogicalChannel_reverseLogicalChannelParameters,
-		&ett_h245_OpenLogicalChannel_forwardLogicalChannelParameters,
+		&ett_h245_reverseLogicalChannelParameters,
+		&ett_h245_forwardLogicalChannelParameters,
 		&ett_h245_OpenLogicalChannel,
 		&ett_h245_FECCapability_rfc2733_separateStream,
 		&ett_h245_FECCapability_rfc2733,
@@ -23086,8 +23124,8 @@ proto_register_h245(void)
 		&ett_h245_NetworkAccessParameters_t120SetupProcedure,
 		&ett_h245_NetworkAccessParameters_networkAddress,
 		&ett_h245_NetworkAccessParameters_distribution,
-		&ett_h245_OpenLogicalChannel_reverseLogicalChannelParameters_multiplexParameters,
-		&ett_h245_OpenLogicalChannel_forwardLogicalChannelParameters_multiplexParameters,
+		&ett_h245_reverseLogicalChannelParameters_multiplexParameters,
+		&ett_h245_forwardLogicalChannelParameters_multiplexParameters,
 		&ett_h245_FECCapability,
 		&ett_h245_MultiplexFormat,
 		&ett_h245_ParameterValue,
