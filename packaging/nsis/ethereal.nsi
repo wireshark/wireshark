@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.54 2004/05/14 02:46:38 gerald Exp $
+; $Id: ethereal.nsi,v 1.55 2004/05/21 17:31:16 ulfl Exp $
 
  
 !ifdef MAKENSIS_MODERN_UI
@@ -157,6 +157,8 @@ File "${PCRE_DIR}\man\cat3\pcrepattern.3.txt"
 File "..\..\FAQ"
 File "..\..\README"
 File "..\..\README.win32"
+File "..\..\AUTHORS-SHORT"
+File "..\..\COPYING"
 File "..\..\manuf"
 File "..\..\doc\ethereal.html"
 File "..\..\doc\ethereal-filter.html"
@@ -396,6 +398,8 @@ Delete "$INSTDIR\snmp\*.*"
 Delete "$INSTDIR\*.exe"
 Delete "$INSTDIR\*.dll"
 Delete "$INSTDIR\*.html"
+Delete "$INSTDIR\COPYING"
+Delete "$INSTDIR\AUTHORS-SHORT"
 Delete "$INSTDIR\README*"
 Delete "$INSTDIR\FAQ"
 Delete "$INSTDIR\manuf"
