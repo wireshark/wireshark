@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.92 2000/06/05 03:21:01 gram Exp $
+ * $Id: packet-ip.c,v 1.93 2000/06/13 10:37:24 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -802,7 +802,6 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_ip       iph;
   proto_tree *ip_tree, *field_tree;
   proto_item *ti, *tf;
-  gchar      tos_str[32];
   guint      hlen, optlen, len;
   guint16    flags;
   guint8     nxt;
@@ -835,31 +834,6 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   hlen = lo_nibble(iph.ip_v_hl) * 4;	/* IP header length, in bytes */
   
   if (tree) {
-
-    switch (IPTOS_TOS(iph.ip_tos)) {
-      case IPTOS_NONE:
-        strcpy(tos_str, "None");
-        break;
-      case IPTOS_LOWCOST:
-        strcpy(tos_str, "Minimize cost");
-        break;
-      case IPTOS_RELIABILITY:
-        strcpy(tos_str, "Maximize reliability");
-        break;
-      case IPTOS_THROUGHPUT:
-        strcpy(tos_str, "Maximize throughput");
-        break;
-      case IPTOS_LOWDELAY:
-        strcpy(tos_str, "Minimize delay");
-        break;
-      case IPTOS_SECURITY:
-        strcpy(tos_str, "Maximize security");
-        break;
-      default:
-        strcpy(tos_str, "Unknown.  Malformed?");
-        break;
-    }
-
     ti = proto_tree_add_item(tree, proto_ip, NullTVB, offset, hlen, FALSE);
     ip_tree = proto_item_add_subtree(ti, ett_ip);
 
