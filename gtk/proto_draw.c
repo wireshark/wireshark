@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.29 2001/03/23 14:44:04 jfoster Exp $
+ * $Id: proto_draw.c,v 1.30 2001/03/23 17:14:40 jfoster Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -370,10 +370,6 @@ GtkWidget *add_byte_tab( GtkWidget *byte_nb, const char *name, const guint8 *dat
   label = gtk_label_new (name);
   gtk_notebook_append_page (GTK_NOTEBOOK(byte_nb), byte_scrollw, label);
 
-  /* Byte view.  Create a scrolled window for the text. */
-  gtk_paned_pack2(GTK_PANED(pane), byte_scrollw, FALSE, FALSE);
-  gtk_widget_set_usize(byte_scrollw, -1, bv_size);
-
   /* The horizontal scrollbar of the scroll-window doesn't seem
    * to affect the GtkText widget at all, even when line wrapping
    * is turned off in the GtkText widget and there is indeed more
@@ -389,7 +385,7 @@ GtkWidget *add_byte_tab( GtkWidget *byte_nb, const char *name, const guint8 *dat
   gtk_text_set_editable(GTK_TEXT(byte_view), FALSE);
   gtk_text_set_word_wrap(GTK_TEXT(byte_view), FALSE);
   gtk_text_set_line_wrap(GTK_TEXT(byte_view), FALSE);
-  gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_DATA_PTR_KEY, data);
+  gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_DATA_PTR_KEY, (guint8*)data);
   gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_DATA_LEN_KEY, GINT_TO_POINTER(len));
   gtk_label_get(GTK_LABEL(label), &name_ptr);
   gtk_object_set_data(GTK_OBJECT(byte_view), E_BYTE_VIEW_NAME_KEY, name_ptr);
