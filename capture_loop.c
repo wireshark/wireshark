@@ -84,6 +84,8 @@
 /* XXX - try to remove this later */
 #include "ui_util.h"
 /* XXX - try to remove this later */
+#include "util.h"
+#include "alert_box.h"
 
 
 #include <epan/dissectors/packet-ap1394.h>
@@ -779,7 +781,7 @@ static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * 
 
 
 /* open the wiretap part of the capture output file */
-static int capture_loop_open_wiretap_output(capture_options *capture_opts, loop_data *ld, char *errmsg, int errmsg_len) {
+static int capture_loop_open_wiretap_output(capture_options *capture_opts, int save_file_fd, loop_data *ld, char *errmsg, int errmsg_len) {
   int         pcap_encap;
   int         file_snaplen;
   int         err;
@@ -809,7 +811,7 @@ static int capture_loop_open_wiretap_output(capture_options *capture_opts, loop_
     ld->wtap_pdh = ringbuf_init_wtap_dump_fdopen(WTAP_FILE_PCAP, ld->wtap_linktype,
       file_snaplen, &err);
   } else {
-    ld->wtap_pdh = wtap_dump_fdopen(capture_opts->save_file_fd, WTAP_FILE_PCAP,
+    ld->wtap_pdh = wtap_dump_fdopen(save_file_fd, WTAP_FILE_PCAP,
       ld->wtap_linktype, file_snaplen, &err);
   }
 
@@ -966,6 +968,70 @@ capture_loop_dispatch(capture_options *capture_opts, loop_data *ld,
 }
 
 
+/* open the output file (temporary/specified name/ringbuffer) */
+/* Returns TRUE if the file opened successfully, FALSE otherwise. */
+static gboolean
+capture_loop_open_output(capture_options *capture_opts, int *save_file_fd) {
+  char tmpname[128+1];
+  gchar *capfile_name;
+  gboolean is_tempfile;
+
+
+  if (capture_opts->save_file != NULL) {
+    /* If the Sync option is set, we return to the caller while the capture
+     * is in progress.  Therefore we need to take a copy of save_file in
+     * case the caller destroys it after we return.
+     */
+    capfile_name = g_strdup(capture_opts->save_file);
+    if (capture_opts->multi_files_on) {
+      /* ringbuffer is enabled */
+      *save_file_fd = ringbuf_init(capfile_name,
+          (capture_opts->has_ring_num_files) ? capture_opts->ring_num_files : 0);
+
+      /* we need the ringbuf name */
+      g_free(capfile_name);
+      capfile_name = g_strdup(ringbuf_current_filename());
+    } else {
+      /* Try to open/create the specified file for use as a capture buffer. */
+      *save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
+				0600);
+    }
+    is_tempfile = FALSE;
+  } else {
+    /* Choose a random name for the temporary capture buffer */
+    *save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
+    capfile_name = g_strdup(tmpname);
+    is_tempfile = TRUE;
+  }
+
+  /* did we fail to open the output file? */
+  if (*save_file_fd == -1) {
+    if (is_tempfile) {
+      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+	"The temporary file to which the capture would be saved (\"%s\") "
+	"could not be opened: %s.", capfile_name, strerror(errno));
+    } else {
+      if (capture_opts->multi_files_on) {
+        ringbuf_error_cleanup();
+      }
+      open_failure_alert_box(capfile_name, errno, TRUE);
+    }
+    g_free(capfile_name);
+    return FALSE;
+  }
+
+  if(capture_opts->save_file != NULL) {
+    g_free(capture_opts->save_file);
+  }
+  capture_opts->save_file = capfile_name;
+  /* capture_opts.save_file is "g_free"ed later, which is equivalent to
+     "g_free(capfile_name)". */
+
+  return TRUE;
+}
+
+
+
 /*
  * This needs to be static, so that the SIGUSR1 handler can clear the "go"
  * flag.
@@ -989,6 +1055,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   gboolean    close_ok;
   capture_info   capture_ui;
   char        errmsg[4096+1];
+  int         save_file_fd;
 
   gboolean    show_info = capture_opts->show_info || !capture_opts->sync_mode;
 
@@ -1030,22 +1097,10 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   /*g_warning("capture_loop_start");
   capture_opts_info(capture_opts);*/
 
-  /*_asm {int 3};*/
 
-  if (capture_opts->multi_files_on) {
-      /* ringbuffer is enabled */
-      capture_opts->save_file_fd = ringbuf_init(capture_opts->save_file,
-          (capture_opts->has_ring_num_files) ? capture_opts->ring_num_files : 0);
-      if (capture_opts->save_file_fd == -1) {
-        ringbuf_error_cleanup();
-        goto error;
-      }
-
-      /* replace save_file by current ringbuffer filename */
-      if(capture_opts->save_file) {
-          g_free(capture_opts->save_file);
-      }
-      capture_opts->save_file = g_strdup(ringbuf_current_filename());  
+  /* open the output file (temporary/specified name/ringbuffer) */
+  if (!capture_loop_open_output(capture_opts, &save_file_fd)) {
+    goto error;    
   }
 
   /* open the "input file" from network interface or capture pipe */
@@ -1059,7 +1114,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   }
 
   /* open the wiretap part of the output file (the output file is already open) */
-  if (!capture_loop_open_wiretap_output(capture_opts, &ld, errmsg, sizeof(errmsg))) {
+  if (!capture_loop_open_wiretap_output(capture_opts, save_file_fd, &ld, errmsg, sizeof(errmsg))) {
     goto error;
   }
 
@@ -1137,7 +1192,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           }
 
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.wtap_pdh, &capture_opts->save_file, &capture_opts->save_file_fd, &ld.err)) {
+          if (ringbuf_switch_file(&ld.wtap_pdh, &capture_opts->save_file, &save_file_fd, &ld.err)) {
             /* File switch succeeded: reset the conditions */
             cnd_reset(cnd_autostop_size);
             if (cnd_file_duration) {
@@ -1209,7 +1264,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
           }
 
           /* Switch to the next ringbuffer file */
-          if (ringbuf_switch_file(&ld.wtap_pdh, &capture_opts->save_file, &capture_opts->save_file_fd, &ld.err)) {
+          if (ringbuf_switch_file(&ld.wtap_pdh, &capture_opts->save_file, &save_file_fd, &ld.err)) {
             /* file switch succeeded: reset the conditions */
             cnd_reset(cnd_file_duration);
             if(cnd_autostop_size)
@@ -1320,7 +1375,7 @@ error:
   } else {
     /* We can't use the save file, and we have no wtap_dump stream
        to close in order to close it, so close the FD directly. */
-    close(capture_opts->save_file_fd);
+    close(save_file_fd);
 
     /* We couldn't even start the capture, so get rid of the capture
        file. */

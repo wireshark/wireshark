@@ -67,143 +67,41 @@
 #include "ui_util.h"
 
 
-/* Win32 needs the O_BINARY flag for open() */
-#ifndef O_BINARY
-#define O_BINARY	0
-#endif
-
-/*static gboolean normal_do_capture(capture_options *capture_opts, gboolean is_tempfile);*/
 static void stop_capture_signal_handler(int signo);
 
 
-/* open the output file (temporary/specified name/ringbuffer) */
-/* Returns TRUE if the file opened successfully, FALSE otherwise. */
-static gboolean
-capture_open_output(capture_options *capture_opts, gboolean *is_tempfile) {
-  char tmpname[128+1];
-  gchar *capfile_name;
 
-
-  if (capture_opts->save_file != NULL) {
-    /* If the Sync option is set, we return to the caller while the capture
-     * is in progress.  Therefore we need to take a copy of save_file in
-     * case the caller destroys it after we return.
-     */
-    capfile_name = g_strdup(capture_opts->save_file);
-    if (capture_opts->multi_files_on) {
-      /* ringbuffer is enabled */
-/*      capture_opts->save_file_fd = ringbuf_init(capfile_name,
-          (capture_opts->has_ring_num_files) ? capture_opts->ring_num_files : 0);*/
-    /* XXX - this is a hack, we need to find a way to move this whole function to capture_loop.c */
-      capture_opts->save_file_fd = -1;
-      if(capture_opts->save_file != NULL) {
-        g_free(capture_opts->save_file);
-      }
-      capture_opts->save_file = capfile_name;
-      *is_tempfile = FALSE;
-      return TRUE;
-    } else {
-      /* Try to open/create the specified file for use as a capture buffer. */
-      capture_opts->save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
-				0600);
-    }
-    *is_tempfile = FALSE;
-  } else {
-    /* Choose a random name for the temporary capture buffer */
-    capture_opts->save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
-    capfile_name = g_strdup(tmpname);
-    *is_tempfile = TRUE;
-  }
-
-  /* did we fail to open the output file? */
-  if (capture_opts->save_file_fd == -1) {
-    if (*is_tempfile) {
-      simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-	"The temporary file to which the capture would be saved (\"%s\") "
-	"could not be opened: %s.", capfile_name, strerror(errno));
-    } else {
-      if (capture_opts->multi_files_on) {
-/*        ringbuf_error_cleanup();*/
-      }
-      open_failure_alert_box(capfile_name, errno, TRUE);
-    }
-    g_free(capfile_name);
-    return FALSE;
-  }
-
-  if(capture_opts->save_file != NULL) {
-    g_free(capture_opts->save_file);
-  }
-  capture_opts->save_file = capfile_name;
-  /* capture_opts.save_file is "g_free"ed later, which is equivalent to
-     "g_free(capfile_name)". */
-
-  return TRUE;
-}
-
-
-#if 0
-/* close the output file (NOT the capture file) */
-static void
-capture_close_output(capture_options *capture_opts)
-{
-    if (capture_opts->multi_files_on) {
-/*        ringbuf_free();*/
-    } else {
-        g_free(capture_opts->save_file);
-    }
-    capture_opts->save_file = NULL;
-}
-#endif
-
-
-/* Open a specified file, or create a temporary file, and start a capture
-   to the file in question.  */
+/* start a capture */
 /* Returns TRUE if the capture starts successfully, FALSE otherwise. */
 gboolean
 do_capture(capture_options *capture_opts)
 {
-  gboolean is_tempfile;
   gboolean ret;
 
-
-  /* open the new output file (temporary/specified name/ringbuffer) */
-  if(!capture_open_output(capture_opts, &is_tempfile)) {
-    return FALSE;
-  }
 
   /* close the currently loaded capture file */
   cf_close(capture_opts->cf);
 
-  /* We could simply use TRUE for this expression now, this will work for all 
-   * captures except for some of the multiple files options, as these capture 
-   * options currently cannot be passed through the command line to the 
-   * capture child.
-   *
-   * If this is fixed, we could always use the sync mode, throwing away the 
-   * normal mode completely and doing some more cleanup. */
-/*  if (TRUE) {*/
-/*  if (capture_opts->sync_mode) {*/
-    /* sync mode: do the capture in a child process */
-    ret = sync_pipe_do_capture(capture_opts, is_tempfile);
-    /* capture is still running */
-    cf_callback_invoke(cf_cb_live_capture_prepare, capture_opts);
-#if 0
+  /* try to start the capture child process */
+  ret = sync_pipe_do_capture(capture_opts, capture_opts->save_file == NULL);
+
+  if(ret) {
+      /* tell callbacks (menu, ...) that capture is running now */
+      cf_callback_invoke(cf_cb_live_capture_prepare, capture_opts);
   } else {
-    /* normal mode: do the capture synchronously */
-    cf_callback_invoke(cf_cb_live_capture_prepare, capture_opts);
-    ret = normal_do_capture(capture_opts, is_tempfile);
-    /* capture is finished here */
+      if(capture_opts->save_file != NULL) {
+          g_free(capture_opts->save_file);
+          capture_opts->save_file = NULL;
+      }
   }
-#endif
 
   return ret;
 }
 
 
 /* we've succeeded a capture, try to read it into a new capture file */
-gboolean
-capture_read(capture_options *capture_opts, gboolean is_tempfile, gboolean drops_known,
+static gboolean
+capture_input_read_all(capture_options *capture_opts, gboolean is_tempfile, gboolean drops_known,
 guint32 drops)
 {
     int err;
@@ -280,46 +178,142 @@ guint32 drops)
 }
 
 
-#if 0
-/* start a normal capture session */
-static gboolean
-normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
+/* capture child tells us, we have a new (or the first) capture file */
+gboolean
+capture_input_new_file(capture_options *capture_opts, gchar *new_file)
 {
-    gboolean succeeded;
-    gboolean stats_known;
-    struct pcap_stat stats;
+  gboolean is_tempfile;
+  int  err;
 
 
-    /* Not sync mode. */
-    succeeded = capture_loop_start(capture_opts, &stats_known, &stats);
-    if (capture_opts->quit_after_cap) {
-      /* DON'T unlink the save file.  Presumably someone wants it. */
-        main_window_exit();
+      /*g_warning("New capture file: %s", new_file);*/
+
+      /* save the new filename */
+      if(capture_opts->save_file != NULL) {
+        /* we start a new capture file, simply close the old one */
+        /* XXX - is it enough to call cf_close here? */
+        /* XXX - is it safe to call cf_close even if the file is close before? */
+        cf_close(capture_opts->cf);
+        g_free(capture_opts->save_file);
+        is_tempfile = FALSE;
+      } else {
+        /* we didn't had a save_file before, must be a tempfile */
+        is_tempfile = TRUE;
+        cf_set_tempfile(capture_opts->cf, TRUE);
+      }
+      capture_opts->save_file = g_strdup(new_file);
+
+      /* if we are in sync mode, open the new file */
+    if(capture_opts->sync_mode) {
+        /* The child process started a capture.
+           Attempt to open the capture file and set up to read it. */
+        switch(cf_start_tail(capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
+        case CF_OK:
+            break;
+        case CF_ERROR:
+            /* Don't unlink the save file - leave it around, for debugging
+            purposes. */
+            g_free(capture_opts->save_file);
+            capture_opts->save_file = NULL;
+            return FALSE;
+            break;
+        }
     }
-    if (succeeded) {
-        /* We succeed in doing the capture, try to read it in. */
-        succeeded = capture_read(capture_opts, is_tempfile, stats_known, stats.ps_drop);
-    }
 
-    /* wether the capture suceeded or not, we have to close the output file here */
-    capture_close_output(capture_opts);
-    return succeeded;
+    return TRUE;
 }
-#endif
+
+    
+/* capture child tells us, we have new packets to read */
+void
+capture_input_new_packets(capture_options *capture_opts, int to_read)
+{
+  int  err;
 
 
+  if(capture_opts->sync_mode) {
+      /* Read from the capture file the number of records the child told us
+         it added.
+         XXX - do something if this fails? */
+      switch (cf_continue_tail(capture_opts->cf, to_read, &err)) {
+
+      case CF_READ_OK:
+      case CF_READ_ERROR:
+        /* Just because we got an error, that doesn't mean we were unable
+           to read any of the file; we handle what we could get from the
+           file.
+
+           XXX - abort on a read error? */
+        break;
+
+      case CF_READ_ABORTED:
+        /* Kill the child capture process; the user wants to exit, and we
+           shouldn't just leave it running. */
+        capture_kill_child(capture_opts);
+        break;
+      }
+  }
+}
+
+
+/* capture child closed it's side ot the pipe, do the required cleanup */
+void
+capture_input_closed(capture_options *capture_opts)
+{
+    int  err;
+
+
+    if(capture_opts->sync_mode) {
+        /* Read what remains of the capture file, and finish the capture.
+           XXX - do something if this fails? */
+        switch (cf_finish_tail(capture_opts->cf, &err)) {
+
+        case CF_READ_OK:
+            if(cf_packet_count(capture_opts->cf) == 0) {
+              simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
+              "%sNo packets captured!%s\n\n"
+              "As no data was captured, closing the %scapture file!",
+              simple_dialog_primary_start(), simple_dialog_primary_end(),
+              cf_is_tempfile(capture_opts->cf) ? "temporary " : "");
+              cf_close(capture_opts->cf);
+            }
+            break;
+        case CF_READ_ERROR:
+          /* Just because we got an error, that doesn't mean we were unable
+             to read any of the file; we handle what we could get from the
+             file. */
+          break;
+
+        case CF_READ_ABORTED:
+          /* Exit by leaving the main loop, so that any quit functions
+             we registered get called. */
+          main_window_quit();
+        }
+    } else {
+        /* this is a normal mode capture, read in the capture file data */
+        capture_input_read_all(capture_opts, cf_is_tempfile(capture_opts->cf), 
+            cf_get_drops_known(capture_opts->cf), cf_get_drops(capture_opts->cf));
+    }
+
+    /* We're not doing a capture any more, so we don't have a save file. */
+    g_assert(capture_opts->save_file);
+    g_free(capture_opts->save_file);
+    capture_opts->save_file = NULL;
+}
+
+
+#ifndef _WIN32
 static void
-stop_capture_signal_handler(int signo _U_)
+capture_child_stop_signal_handler(int signo _U_)
 {
   capture_loop_stop();
 }
+#endif
 
 
 int  
 capture_child_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats)
 {
-/*  gchar *err_msg;*/
-
   g_assert(capture_opts->capture_child);
 
 #ifndef _WIN32
@@ -327,19 +321,7 @@ capture_child_start(capture_options *capture_opts, gboolean *stats_known, struct
    * Catch SIGUSR1, so that we exit cleanly if the parent process
    * kills us with it due to the user selecting "Capture->Stop".
    */
-    signal(SIGUSR1, stop_capture_signal_handler);
-#endif
-
-#if 0
-    /* parent must have send us a file descriptor for the opened output file */
-    if (capture_opts->save_file_fd == -1) {
-      /* send this to the standard output as something our parent
-	     should put in an error message box */
-      err_msg = g_strdup_printf("%s: \"-W\" flag not specified (internal error)\n", CHILD_NAME);
-      sync_pipe_errmsg_to_parent(err_msg);
-      g_free(err_msg);
-      return FALSE;
-    }
+    signal(SIGUSR1, capture_child_stop_signal_handler);
 #endif
 
   return capture_loop_start(capture_opts, stats_known, stats);
@@ -361,9 +343,7 @@ void
 capture_kill_child(capture_options *capture_opts)
 {
   /* kill the capture child, if we have one */
-  if (!capture_opts->capture_child) {	
-    sync_pipe_kill(capture_opts);
-  }
+  sync_pipe_kill(capture_opts);
 }
 
 

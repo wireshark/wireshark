@@ -183,6 +183,11 @@ int cf_packet_count(capture_file *cf);
 gboolean cf_is_tempfile(capture_file *cf);
 
 /**
+ * Set flag, that this file is a tempfile.
+ */
+void cf_set_tempfile(capture_file *cf, gboolean is_tempfile);
+
+/**
  * Set flag, if the number of packet drops while capturing are known or not.
  * 
  * @param cf the capture file

@@ -52,7 +52,6 @@ typedef struct capture_options_tag {
                                  "use default" */
     gboolean capture_child; /**< True if this is the child for "-S" */
     gchar    *save_file;    /**< the capture file name */
-    int      save_file_fd;  /**< File descriptor for saved file */
 
     /* GUI related */
     gboolean sync_mode;     /**< Fork a child to do the capture,
@@ -105,10 +104,19 @@ capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt
 extern gboolean do_capture(capture_options *capture_opts);
 
 /**
- * Read in the newly captured data into the capture_file. 
+ * Capture child told us, we have a new (or the first) capture file.
  */
-extern gboolean capture_read(capture_options *capture_opts, gboolean is_tempfile, gboolean drops_known,
-guint32 drops);
+extern gboolean capture_input_new_file(capture_options *capture_opts, gchar *new_file);
+
+/**
+ * Capture child told us, we have new packets to read.
+ */
+extern void capture_input_new_packets(capture_options *capture_opts, int to_read);
+
+/**
+ * Capture child closed it's side ot the pipe, do the required cleanup.
+ */
+extern void capture_input_closed(capture_options *capture_opts);
 
 /** Do the low-level work of a capture (start the capture child).
  *  Returns TRUE if it succeeds, FALSE otherwise. */

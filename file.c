@@ -659,6 +659,12 @@ cf_is_tempfile(capture_file *cf)
     return cf->is_tempfile;
 }
 
+void cf_set_tempfile(capture_file *cf, gboolean is_tempfile)
+{
+    cf->is_tempfile = is_tempfile;
+}
+
+
 /* XXX - use a macro instead? */
 void cf_set_drops_known(capture_file *cf, gboolean drops_known)
 {

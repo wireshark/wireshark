@@ -61,7 +61,6 @@ capture_opts_init(capture_options *capture_opts, void *cfile)
   capture_opts->linktype                = -1;               /* the default linktype */
   capture_opts->capture_child           = FALSE;
   capture_opts->save_file               = NULL;
-  capture_opts->save_file_fd            = -1;
   capture_opts->sync_mode               = TRUE;
   capture_opts->show_info               = TRUE;
   capture_opts->quit_after_cap          = FALSE;
@@ -101,7 +100,6 @@ capture_opts_info(capture_options *capture_opts) {
     g_warning("LinkType           : %d", capture_opts->linktype);
     g_warning("Child              : %u", capture_opts->capture_child);
     g_warning("SaveFile           : %s", capture_opts->save_file);
-    g_warning("SaveFileFd         : %d", capture_opts->save_file_fd);
     g_warning("SyncMode           : %u", capture_opts->sync_mode);
     g_warning("ShowInfo           : %u", capture_opts->show_info);
     g_warning("QuitAfterCap       : %u", capture_opts->quit_after_cap);
@@ -277,9 +275,6 @@ capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt
     case 'w':        /* Write to capture file xxx */
         capture_opts->save_file = g_strdup(optarg);
 	    break;
-    case 'W':        /* Write to capture file FD xxx */
-        capture_opts->save_file_fd = atoi(optarg);
-        break;
     case 'y':        /* Set the pcap data link type */
 #ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
         capture_opts->linktype = pcap_datalink_name_to_val(optarg);
