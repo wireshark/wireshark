@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.92 2002/12/20 01:48:54 guy Exp $
+ * $Id: prefs.c,v 1.93 2003/01/28 22:27:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1632,6 +1632,10 @@ set_pref(gchar *pref_name, gchar *value)
         /* Handle old names for Diameter preferences. */
         if (strcmp(dotp, "diameter.desegment") == 0)
           pref = find_preference(module, "desegment");
+      } else if (strncmp(pref_name, "pcli.", 5) == 0) {
+        /* Handle old names for PCLI preferences. */
+        if (strcmp(dotp, "pcli.udp_port") == 0)
+          pref = find_preference(module, "udp_port");
       }
     }
     if (pref == NULL)
