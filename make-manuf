@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# $Id: make-manuf,v 1.7 2002/09/09 19:38:09 guy Exp $
+# $Id: make-manuf,v 1.8 2002/11/18 02:49:36 jmayer Exp $
 #
 # Make-manuf - Creates a file containing ethernet OUIs and their
 # company IDs.  It merges the databases at
@@ -14,11 +14,13 @@
 # precedence.
 
 # LWP is part of the standard Perl module libwww 
+
 eval "require LWP::UserAgent;";
 if( $@ ) {
   die "LWP isn't installed. It is part of the standard Perl\n" .
 	" module libwww.  Bailing.\n";
 }
+$agent    = LWP::UserAgent->new;
 
 $template = "manuf.tmpl";
 $wkatmpl  = "wka.tmpl";
@@ -38,16 +40,55 @@ $cb_skipped   = 0;
 $ieee_added   = 0;
 $ieee_skipped = 0;
 
-$agent    = LWP::UserAgent->new;
+sub shorten
+{
+  my $origmanuf = shift; 
+  my $manuf = " " . $origmanuf . " ";
+  # Remove any punctuation
+  $manuf =~ tr/,.()/    /;
+  # & isn't needed when Standalone
+  $manuf =~ s/ \& / /g;
+  # Remove any "the", "inc", "plc" ...
+  $manuf =~ s/\s(the|inc|incorporated|plc||systems|corp|corporation|a\/s|ab|ag|kg|gmbh|co|company|limited|ltd)(?= )//gi;
+  # Cleanup multiple spaces
+  $manuf =~ s/^\s+//g;
+  $manuf =~ s/\s+/ /g;
+  # Truncate all names to a reasonable length, say 10 characters.
+  $manuf = substr($manuf, 0, 20); # XXX 20 for testing only
+  # Remove trailing whitespaces
+  $manuf =~ s/\s+$//g;
+  # Convert to consistent case
+  $manuf =~ s/(\w+)/\u\L$1/g;
+  # Replace any spaces with underscores
+  $manuf =~ s/\s+/_/g;
 
-print "Fetching $cb_url.\n";
-$request  = HTTP::Request->new(GET => $cb_url);
-$result   = $agent->request($request);
-
-if (!$result->is_success) {
-  die ("Error fetching $cb_url: " . $result->status_line . "\n");
+  if ($manuf =~ /\Q$origmanuf\E/i) {
+    return $manuf;
+  } else {
+    return sprintf("%-22s # %s\n", $manuf, $origmanuf);
+  }
 }
-$cb_list = $result->content;
+
+# Write out the header and populate the OUI list with our entries.
+
+open (TMPL, "< $template") || 
+  die "Couldn't open template file for reading ($template)\n";
+
+while ($line = <TMPL>) {
+  chomp($line);
+  if ($line !~ /^$oui_re\s+\S/ && $inheader) {
+    $header .= "$line\n";
+  } elsif (($oui, $manuf) = ($line =~ /^($oui_re)\s+(\S.*)$/)) {
+    $inheader = 0;
+    # Ensure OUI is all upper-case
+    $oui =~ tr/a-f/A-F/;
+    # $oui_list{$oui} = &shorten($manuf);
+    $oui_list{$oui} = $manuf;
+    $tmpl_added++;
+  }
+}
+
+# Add IEEE entries for OUIs not yet known.
 
 print "Fetching $ieee_url.\n";
 $request  = HTTP::Request->new(GET => $ieee_url);
@@ -58,30 +99,6 @@ if (!$result->is_success) {
 }
 $ieee_list = $result->content;
 
-open (TMPL, "< $template") || 
-  die "Couldn't open template file for reading ($template)\n";
-
-open (WKATMPL, "< $wkatmpl") || 
-  die "Couldn't open well-known address template file for reading ($wkatmpl)\n";
-
-open (OUT, "> $outfile") ||
-  die "Couldn't open output file for writing ($outfile)\n";
-
-# Write out the header and populate the OUI list with our entries.
-while ($line = <TMPL>) {
-  chomp($line);
-  if ($line !~ /^$oui_re\s+\S/ && $inheader) {
-    print(OUT "$line\n");
-  } elsif (($oui, $manuf) = ($line =~ /^($oui_re)\s+(\S.*)$/)) {
-    $inheader = 0;
-    # Ensure OUI is all upper-case
-    $oui =~ tr/a-f/A-F/;
-    $oui_list{$oui} = $manuf;
-    $tmpl_added++;
-  }
-}
-
-# Add IEEE entries for OUIs not yet known.
 foreach $line (split(/\n/, $ieee_list)) {
   if (($oui, $manuf) = ($line =~ /^($ieee_re)\s+\(hex\)\s+(\S.*)$/)) {
     $oui =~ tr /-/:/;  # The IEEE bytes are separated by dashes.
@@ -91,13 +108,23 @@ foreach $line (split(/\n/, $ieee_list)) {
       printf "$oui - Skipping IEEE \"$manuf\" in favor of \"$oui_list{$oui}\"\n";
       $ieee_skipped++;
     } else {
-      $oui_list{$oui} = $manuf;
+      $oui_list{$oui} = &shorten($manuf);
       $ieee_added++;
     }
   }
 }
 
 # Add CaveBear entries for OUIs not yet known.
+
+print "Fetching $cb_url.\n";
+$request  = HTTP::Request->new(GET => $cb_url);
+$result   = $agent->request($request);
+
+if (!$result->is_success) {
+  die ("Error fetching $cb_url: " . $result->status_line . "\n");
+}
+$cb_list = $result->content;
+
 foreach $line (split(/\n/, $cb_list)) {
   if (($oui, $manuf) = ($line =~ /^($cb_re)\s+(\S.*)$/)) {
     ($h1, $h2, $h3) = ($oui =~ /($hp)($hp)($hp)/);  # The CaveBear bytes have no separators
@@ -108,21 +135,30 @@ foreach $line (split(/\n/, $cb_list)) {
       printf "$oui - Skipping CaveBear \"$manuf\" in favor of \"$oui_list{$oui}\"\n";
       $cb_skipped++;
     } else {
-      $oui_list{$oui} = $manuf;
+      $oui_list{$oui} = &shorten($manuf);
       $cb_added++;
     }
   }
 }
 
+# Write output file
+
+open (OUT, "> $outfile") ||
+  die "Couldn't open output file for writing ($outfile)\n";
+
+print(OUT "$header");
+
 foreach $oui (sort(keys %oui_list)) {
   print(OUT "$oui\t$oui_list{$oui}\n");
 }
 
-#
 # Write out a blank line separating the OUIs from the well-known
 # addresses, and then read the well-known address template file
 # and write it to the manuf file.
-#
+
+open (WKATMPL, "< $wkatmpl") || 
+  die "Couldn't open well-known address template file for reading ($wkatmpl)\n";
+
 # XXX - it'd be nice to get this from the Cavebear file, but inferring
 # the address mask from entries in that file involves some work.
 #
