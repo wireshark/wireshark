@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.69 2002/04/03 13:24:12 girlich Exp $
+ * $Id: packet-nfs.c,v 1.70 2002/05/21 10:17:18 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -381,6 +381,106 @@ static gint ett_nfs_stateid4 = -1;
 static gint ett_nfs_fattr4_fh_expire_type = -1;
 
 
+/* fhandle displayfilters to match also corresponding request/response
+   packet in addition to the one containing the actual filehandle */
+gboolean nfs_fhandle_reqrep_matching = FALSE;
+static GMemChunk *nfs_fhandle_data_chunk = NULL;
+static int nfs_fhandle_data_init_count = 100;
+static GHashTable *nfs_fhandle_data_table = NULL;
+GHashTable *nfs_fhandle_frame_table = NULL;
+
+static gint
+nfs_fhandle_data_equal(gconstpointer k1, gconstpointer k2)
+{
+	nfs_fhandle_data_t *key1 = (nfs_fhandle_data_t *)k1;
+	nfs_fhandle_data_t *key2 = (nfs_fhandle_data_t *)k2;
+
+	return (key1->len==key2->len)
+	     &&(!memcmp(key1->fh, key2->fh, key1->len));
+}
+static guint
+nfs_fhandle_data_hash(gconstpointer k)
+{
+	nfs_fhandle_data_t *key = (nfs_fhandle_data_t *)k;
+	int i;
+	int hash;
+
+	hash=0;
+	for(i=0;i<key->len;i++)
+		hash ^= key->fh[i];
+
+	return hash;
+}
+static gboolean
+nfs_fhandle_data_free_all(gpointer key_arg _U_, gpointer value, gpointer user_data _U_)
+{
+	nfs_fhandle_data_t *nns = (nfs_fhandle_data_t *)value;
+
+	if(nns->fh){
+		tvb_free(nns->tvb);
+		nns->tvb=NULL;		
+		g_free((gpointer)nns->fh);
+		nns->fh=NULL;
+		nns->len=0;
+	}
+
+	return TRUE;
+}
+static gint
+nfs_fhandle_frame_equal(gconstpointer k1, gconstpointer k2)
+{
+	int key1 = (int)k1;
+	int key2 = (int)k2;
+
+	return key1==key2;
+}
+static guint
+nfs_fhandle_frame_hash(gconstpointer k)
+{
+	int key = (int)k;
+
+	return key;
+}
+static gboolean
+nfs_fhandle_frame_free_all(gpointer key_arg _U_, gpointer value _U_, gpointer user_data _U_)
+{
+	return TRUE;
+}
+static void
+nfs_fhandle_reqrep_matching_init(void)
+{
+	if (nfs_fhandle_frame_table != NULL) {
+		g_hash_table_foreach_remove(nfs_fhandle_frame_table,
+				nfs_fhandle_frame_free_all, NULL);
+	} else {
+		nfs_fhandle_frame_table=g_hash_table_new(nfs_fhandle_frame_hash,
+			nfs_fhandle_frame_equal);
+	}
+
+
+	if (nfs_fhandle_data_table != NULL) {
+		g_hash_table_foreach_remove(nfs_fhandle_data_table,
+				nfs_fhandle_data_free_all, NULL);
+	} else {
+		nfs_fhandle_data_table=g_hash_table_new(nfs_fhandle_data_hash,
+			nfs_fhandle_data_equal);
+	}
+
+	if(nfs_fhandle_data_chunk){
+		g_mem_chunk_destroy(nfs_fhandle_data_chunk);
+		nfs_fhandle_data_chunk = NULL;
+	}
+
+	if(nfs_fhandle_reqrep_matching){
+		nfs_fhandle_data_chunk = g_mem_chunk_new("nfs_fhandle_data_chunk",
+			sizeof(nfs_fhandle_data_t),
+			nfs_fhandle_data_init_count * sizeof(nfs_fhandle_data_t),
+			G_ALLOC_ONLY);
+	}
+		
+}
+
+
 /* file name snooping */
 gboolean nfs_file_name_snooping = FALSE;
 gboolean nfs_file_name_full_snooping = FALSE;
@@ -683,7 +783,7 @@ nfs_full_name_snoop(nfs_name_snoop_t *nns, int *len, unsigned char **name, unsig
 }
 
 static void
-nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_offset, int fh_length)
+nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_offset, int fh_length, gboolean hidden)
 {
 	nfs_name_snoop_key_t key;
 	nfs_name_snoop_t *nns = NULL;
@@ -727,11 +827,21 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 
 	/* if we know the mapping, print the filename */
 	if(nns){
-		proto_tree_add_string_format(tree, hf_nfs_name, tvb, 
-			fh_offset, 0, nns->name, "Name: %s", nns->name);
+		if(hidden){
+			proto_tree_add_string_hidden(tree, hf_nfs_name, tvb, 
+				fh_offset, 0, nns->name);
+		}else {
+			proto_tree_add_string_format(tree, hf_nfs_name, tvb, 
+				fh_offset, 0, nns->name, "Name: %s", nns->name);
+		}
 		if(nns->full_name){
-			proto_tree_add_string_format(tree, hf_nfs_full_name, tvb, 
-				fh_offset, 0, nns->name, "Full Name: %s", nns->full_name);
+			if(hidden){
+				proto_tree_add_string_hidden(tree, hf_nfs_full_name, tvb, 
+					fh_offset, 0, nns->name);
+			} else {
+				proto_tree_add_string_format(tree, hf_nfs_full_name, tvb, 
+					fh_offset, 0, nns->name, "Full Name: %s", nns->full_name);
+			}
 		}
 	}
 }
@@ -1258,7 +1368,7 @@ dissect_fhandle_data_unknown(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 static void
 dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
-    proto_tree *tree, unsigned int fhlen)
+    proto_tree *tree, unsigned int fhlen, gboolean hidden)
 {
 	unsigned int fhtype = FHT_UNKNOWN;
 
@@ -1268,38 +1378,84 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   senseless. */
 	if (!tvb_bytes_exist(tvb,offset,fhlen)) goto type_ready;
 
+	/* this is to set up fhandle display filters to find both packets
+	   of an RPC call */
+	if(nfs_fhandle_reqrep_matching && (!hidden) ){
+		nfs_fhandle_data_t *old_fhd=NULL;
+
+		if( !pinfo->fd->flags.visited ){
+			nfs_fhandle_data_t fhd;
+
+			/* first check if we have seen this fhandle before */
+			fhd.len=fhlen;
+			fhd.fh=(unsigned char *)tvb_get_ptr(tvb, offset, fhlen);
+			old_fhd=g_hash_table_lookup(nfs_fhandle_data_table, 
+				(gconstpointer)&fhd);
+			if(!old_fhd){
+				/* oh, a new fhandle, alloc struct and store it in the table*/
+				old_fhd=g_mem_chunk_alloc(nfs_fhandle_data_chunk);
+				old_fhd->len=fhlen;
+				old_fhd->fh=g_malloc(fhlen);
+				memcpy(old_fhd->fh, fhd.fh, fhlen);
+				old_fhd->tvb=tvb_new_real_data(old_fhd->fh, old_fhd->len, old_fhd->len);
+				g_hash_table_insert(nfs_fhandle_data_table, 
+					(gpointer)old_fhd, (gpointer)old_fhd);
+			}
+	
+			/* XXX here we should really check that we havent stored
+			   this fhandle for this frame number already.
+		   	   We should also make sure we can handle when we have multiple 
+		   	   fhandles seen for the same frame, which WILL happen for certain
+		   	   nfs calls. For now, we dont handle this and those calls will
+		   	   not work properly with this feature 
+			*/
+			g_hash_table_insert(nfs_fhandle_frame_table,
+					(gpointer)pinfo->fd->num,
+					(gpointer)old_fhd);
+		}
+	}
+
 	/* create a semiunique hash value for the filehandle */
 	{
 		guint32 fhhash;
 		guint32 i;
 
 		for(fhhash=0,i=0;i<(fhlen-3);i+=4){
-			fhhash ^= tvb_get_ntohl(tvb, offset+i);
+			guint32 val;
+			val = tvb_get_ntohl(tvb, offset+i);
+			fhhash ^= val;
+			fhhash += val;
 		}
-		proto_tree_add_uint(tree, hf_nfs_fh_hash, tvb, offset, fhlen,
-			fhhash);
+		if(hidden){
+			proto_tree_add_uint_hidden(tree, hf_nfs_fh_hash, tvb, offset, 
+				fhlen, fhhash);
+		} else {
+			proto_tree_add_uint(tree, hf_nfs_fh_hash, tvb, offset, 
+				fhlen, fhhash);
+		}
 	}
 	if(nfs_file_name_snooping){
-		nfs_name_snoop_fh(pinfo, tree, tvb, offset, fhlen);
+		nfs_name_snoop_fh(pinfo, tree, tvb, offset, fhlen, hidden);
 	}
-		
-	/* calculate (heuristically) fhtype */
-	switch (fhlen) {
-		case 12: {
+
+	if(!hidden){		
+		/* calculate (heuristically) fhtype */
+		switch (fhlen) {
+		case 12:
 			if (tvb_get_ntohl(tvb,offset) == 0x01000000) {
-				fhtype=FHT_LINUX_KNFSD_NEW;
-			}
-		} break;
-		case 20: {
+					fhtype=FHT_LINUX_KNFSD_NEW;
+				}
+			break;
+		case 20:
 			if (tvb_get_ntohl(tvb,offset) == 0x01000001) {
 				fhtype=FHT_LINUX_KNFSD_NEW;
 			}
-		} break;
-		case 24: {
+			break;
+		case 24:
 			if (tvb_get_ntohl(tvb,offset) == 0x01000002) {
 				fhtype=FHT_LINUX_KNFSD_NEW;
 			}
-		} break;
+			break;
 		case 32: {
 			guint32 len1;
 			guint32 len2;
@@ -1336,15 +1492,18 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					}
 				}
 			}
-		} break;
+			} break;
+		}
 	}
 
 type_ready:
 
-	proto_tree_add_text(tree, tvb, offset, 0, 
-		"type: %s", val_to_str(fhtype, names_fhtype, "Unknown"));
+	if(!hidden){
+		proto_tree_add_text(tree, tvb, offset, 0, 
+			"type: %s", val_to_str(fhtype, names_fhtype, "Unknown"));
+	
 
-	switch (fhtype) {
+		switch (fhtype) {
 		case FHT_SVR4:
 			dissect_fhandle_data_SVR4          (tvb, offset, tree,
 			    fhlen);
@@ -1365,6 +1524,15 @@ type_ready:
 		default:
 			dissect_fhandle_data_unknown(tvb, offset, tree, fhlen);
 		break;
+		}
+	}
+}
+
+void
+dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, nfs_fhandle_data_t *nfd)
+{
+	if(nfd && nfd->len){
+		dissect_fhandle_data(nfd->tvb, 0, pinfo, tree, nfd->len, TRUE);
 	}
 }
 
@@ -1594,7 +1762,7 @@ dissect_fhandle(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		}
 	}
 
-	dissect_fhandle_data(tvb, offset, pinfo, ftree, FHSIZE);
+	dissect_fhandle_data(tvb, offset, pinfo, ftree, FHSIZE, FALSE);
 
 	offset += FHSIZE;
 	return offset;
@@ -2583,7 +2751,7 @@ dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	proto_tree_add_uint(ftree, hf_nfs_fh_length, tvb, offset+0, 4,
 			fh3_len);
-	dissect_fhandle_data(tvb, offset+4, pinfo, ftree, fh3_len);
+	dissect_fhandle_data(tvb, offset+4, pinfo, ftree, fh3_len, FALSE);
 
 	offset += 4 + fh3_len_full;
 	return offset;
@@ -7427,7 +7595,12 @@ proto_register_nfs(void)
 				       "Snoop full path to filenames",
 				       "Whether the dissector should snoop the full pathname for files for matching FH's",
 				       &nfs_file_name_full_snooping);
+	prefs_register_bool_preference(nfs_module, "fhandle_find_both_reqrep",
+				       "Fhandle filters finds both request/response",
+				       "With this option display filters for nfs fhandles (nfs.fh.{name|full_name|hash}) will find both the request and response packets for a RPC call, even if the actual fhandle is only present in one of the packets",
+					&nfs_fhandle_reqrep_matching);
 	register_init_routine(nfs_name_snoop_init);
+	register_init_routine(nfs_fhandle_reqrep_matching_init);
 }
 
 void

@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.93 2002/05/15 23:01:51 guy Exp $
+ * $Id: packet-rpc.c,v 1.94 2002/05/21 10:17:30 sahlberg Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,6 +45,7 @@
 #include "prefs.h"
 #include "reassemble.h"
 #include "rpc_defrag.h"
+#include "packet-nfs.h"
 
 /*
  * See:
@@ -2133,6 +2134,36 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	   the ptree */
 	call_dissector(data_handle,
 	    tvb_new_subset(tvb, offset, -1, -1), pinfo, ptree);
+
+
+	/* XXX this should really loop over all fhandles registred for the frame */
+	if(nfs_fhandle_reqrep_matching){
+		nfs_fhandle_data_t *fhd;
+		switch (msg_type) {
+		case RPC_CALL:
+			if(rpc_call && rpc_call->rep_num){
+				fhd=(nfs_fhandle_data_t *)g_hash_table_lookup(
+					nfs_fhandle_frame_table, 
+					(gconstpointer)rpc_call->rep_num);
+				if(fhd){
+					dissect_fhandle_hidden(pinfo,
+						ptree, fhd);
+				}
+			}
+			break;
+		case RPC_REPLY:
+			if(rpc_call && rpc_call->req_num){
+				fhd=(nfs_fhandle_data_t *)g_hash_table_lookup(
+					nfs_fhandle_frame_table, 
+					(gconstpointer)rpc_call->req_num);
+				if(fhd){
+					dissect_fhandle_hidden(pinfo,
+						ptree, fhd);
+				}
+			}
+			break;
+		}
+	}
 
 	return TRUE;
 }

@@ -1,5 +1,5 @@
 /* packet-nfs.h (c) 1999 Uwe Girlich */
-/* $Id: packet-nfs.h,v 1.9 2002/01/12 10:24:47 guy Exp $ */
+/* $Id: packet-nfs.h,v 1.10 2002/05/21 10:17:26 sahlberg Exp $ */
 
 #ifndef __PACKET_NFS_H__
 #define __PACKET_NFS_H__
@@ -107,6 +107,16 @@ int dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
     char *name);
 
 void nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, int parent_offset, int parent_len, unsigned char *name);
+
+
+extern gboolean nfs_fhandle_reqrep_matching;
+extern GHashTable *nfs_fhandle_frame_table;
+typedef struct nfs_fhandle_data {
+	int len;
+	unsigned char *fh;
+	tvbuff_t *tvb;
+} nfs_fhandle_data_t;
+void dissect_fhandle_hidden(packet_info *pinfo, proto_tree *tree, nfs_fhandle_data_t *nfd);
 
 #endif /* packet-nfs.h */
 

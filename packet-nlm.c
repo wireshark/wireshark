@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.26 2002/05/08 12:51:45 sahlberg Exp $
+ * $Id: packet-nlm.c,v 1.27 2002/05/21 10:17:27 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -230,6 +230,40 @@ nlm_print_msgres_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
 		proto_tree_add_uint(tree, hf_nlm_reply_in, tvb, 0, 0, md->rep_frame);
 	}
 }
+static void
+nlm_match_fhandle_reply(packet_info *pinfo, proto_tree *tree)
+{
+	nlm_msg_res_matched_data *md;
+
+	md=g_hash_table_lookup(nlm_msg_res_matched, (gconstpointer)pinfo->fd->num);
+	if(md && md->rep_frame){
+		nfs_fhandle_data_t *fhd;
+		fhd=(nfs_fhandle_data_t *)g_hash_table_lookup(
+			nfs_fhandle_frame_table, 
+			(gconstpointer)md->req_frame);
+		if(fhd){
+			dissect_fhandle_hidden(pinfo,
+				tree, fhd);
+		}
+	}
+}
+static void
+nlm_match_fhandle_request(packet_info *pinfo, proto_tree *tree)
+{
+	nlm_msg_res_matched_data *md;
+
+	md=g_hash_table_lookup(nlm_msg_res_matched, (gconstpointer)pinfo->fd->num);
+	if(md && md->rep_frame){
+		nfs_fhandle_data_t *fhd;
+		fhd=(nfs_fhandle_data_t *)g_hash_table_lookup(
+			nfs_fhandle_frame_table, 
+			(gconstpointer)md->rep_frame);
+		if(fhd){
+			dissect_fhandle_hidden(pinfo,
+				tree, fhd);
+		}
+	}
+}
 
 static void
 nlm_register_unmatched_res(packet_info *pinfo, tvbuff_t *tvb, int offset)
@@ -399,6 +433,11 @@ dissect_nlm_test(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
 			}
+			/* for the fhandle matching that finds both request and 
+			   response packet */
+			if(nfs_fhandle_reqrep_matching){
+				nlm_match_fhandle_request(pinfo, tree);
+			}
 		}
 	}
 	
@@ -420,6 +459,11 @@ dissect_nlm_lock(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				nlm_register_unmatched_msg(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
+			}
+			/* for the fhandle matching that finds both request and 
+			   response packet */
+			if(nfs_fhandle_reqrep_matching){
+				nlm_match_fhandle_request(pinfo, tree);
 			}
 		}
 	}
@@ -445,6 +489,11 @@ dissect_nlm_cancel(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
 			}
+			/* for the fhandle matching that finds both request and 
+			   response packet */
+			if(nfs_fhandle_reqrep_matching){
+				nlm_match_fhandle_request(pinfo, tree);
+			}
 		}
 	}
 
@@ -467,6 +516,11 @@ dissect_nlm_unlock(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
 			}
+			/* for the fhandle matching that finds both request and 
+			   response packet */
+			if(nfs_fhandle_reqrep_matching){
+				nlm_match_fhandle_request(pinfo, tree);
+			}
 		}
 	}
 	
@@ -487,8 +541,14 @@ dissect_nlm_granted(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			} else {
 				nlm_print_msgres_request(pinfo, tree, tvb);
 			}
+			/* for the fhandle matching that finds both request and 
+			   response packet */
+			if(nfs_fhandle_reqrep_matching){
+				nlm_match_fhandle_request(pinfo, tree);
+			}
 		}
 	}
+
 	offset = dissect_rpc_data(tvb, tree, hf_nlm_cookie, offset);
 	offset = dissect_rpc_bool(tvb, tree, hf_nlm_exclusive, offset);
 	offset = dissect_lock(tvb, pinfo, tree, version, offset);
@@ -510,6 +570,11 @@ dissect_nlm_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 				nlm_register_unmatched_res(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_reply(pinfo, tree, tvb);
+			}
+			/* for the fhandle matching that finds both request and 
+			   response packet */
+			if(nfs_fhandle_reqrep_matching){
+				nlm_match_fhandle_reply(pinfo, tree);
 			}
 		}
 	}
@@ -637,6 +702,11 @@ dissect_nlm_gen_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 				nlm_register_unmatched_res(pinfo, tvb, offset);
 			} else {
 				nlm_print_msgres_reply(pinfo, tree, tvb);
+			}
+			/* for the fhandle matching that finds both request and 
+			   response packet */
+			if(nfs_fhandle_reqrep_matching){
+				nlm_match_fhandle_reply(pinfo, tree);
 			}
 		}
 	}
