@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.63 2002/02/26 11:55:39 guy Exp $
+ * $Id: packet.c,v 1.64 2002/02/27 00:26:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -983,7 +983,8 @@ create_dissector_handle(dissector_t dissector, int proto)
 
 	handle = g_malloc(sizeof (struct dissector_handle));
 	handle->name = NULL;
-	handle->dissector = dissector;
+	handle->is_new = FALSE;
+	handle->dissector.old = dissector;
 	handle->proto_index = proto;
 
 	return handle;
