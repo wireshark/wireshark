@@ -93,7 +93,7 @@ static void setup_gtk_node_pr(stat_node* node) {
 
 	if (node->st->pr->store) {
 		gtk_tree_store_append (node->st->pr->store, node->pr->iter, parent);
-		g_message("setup_gtk_node_pr: %s",node->name);
+		/* g_message("setup_gtk_node_pr: %s",node->name); */
 		gtk_tree_store_set(node->st->pr->store, node->pr->iter, TITLE_COLUMN, node->name, RATE_COLUMN, "", COUNT_COLUMN, "", -1);
 	}
 #else
@@ -112,7 +112,7 @@ static void draw_gtk_node(stat_node* node) {
 	get_strings_from_node(node, value, rate, percent);
 	
 	if (node->st->pr->store) {
-		g_message("draw_gtk_node: %s",node->name);
+		/* g_message("draw_gtk_node: %s",node->name); */
 		gtk_tree_store_set(node->st->pr->store, node->pr->iter,
 						   RATE_COLUMN, rate,
 						   COUNT_COLUMN, value,
