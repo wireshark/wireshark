@@ -3,7 +3,7 @@
  * Routines for WAP Binary XML dissection
  * Copyright 2003, 2004, Olivier Biot.
  *
- * $Id: packet-wbxml.c,v 1.31 2004/03/17 19:50:05 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.32 2004/04/15 22:38:22 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -44,11 +44,9 @@
 
 #include <glib.h>
 
-#ifdef NEED_SNPRINTF_H
-# include "snprintf.h"
-#endif
-
 #include <epan/packet.h>
+
+#include "prefs.h"
 
 /* We need the function tvb_get_guintvar() */
 #include "packet-wap.h"
@@ -79,8 +77,8 @@
  *      o  WMLC 1.0 with respect to later WMLC 1.x
  *      o  All WV-CSP versions (never backwards compatible)
  *    The only way of correctly rendering the WBXML is to let the end-user
- *    choose from the possible renderings. This only aaplies to the case when
- *    the WBXML DocType is not included in the WBXML header.
+ *    choose from the possible renderings. This only applies to the case when
+ *    the WBXML DocType is not included in the WBXML header (unknown/missing).
  *
  *  - Some WBXML content uses EXT_T_* in a non-tableref manner. This is the
  *    case with WV-CSP 1.1 and up, where the index points to a value_string
@@ -89,7 +87,7 @@
  *    map for content must also contain a function pointer if no tableref
  *    string is used.
  *
- *  - Code page switches only apply to the following token. In the WBXML/1.x
+ *  - Code page switches apply until a new code page switch. In the WBXML/1.x
  *    ABNF notation, it can be proven that the switch_page can only precede
  *    the following tokens:
  *      o  stag      : TAG | LITERAL | LITERAL_A | LITERAL_C | LITERAL_AC
@@ -125,7 +123,8 @@
  *    This would only be the case when the content type declaration in the
  *    WSP Content-Type header would be different (or would have parameters
  *    which are relevant to the WBXML decoding) from the content type
- *    identifier specified in the WBXML header.
+ *    identifier specified in the WBXML header. This has to do with the
+ *    decoding of terminated text strings in the different character codings.
  *    TODO: investigate this and provide correct decoding at all times.
  */
 
@@ -164,7 +163,7 @@ val_to_valstr(guint32 val, const value_valuestring *vvs)
  *	This requires a list { "media/type", discriminator, { decodings } }
  *
  *   b.1. Use a discriminator to choose an appropriate token mapping;
- *	The disciminator needs a small number of bytes from the data tvbuf_t.
+ *	The disciminator needs a small number of bytes from the data tvbuff_t.
  *
  * else
  *   b.2. Provide a list to the end-user with all possible token mappings.
@@ -218,6 +217,10 @@ static int hf_wbxml_charset = -1;
 static gint ett_wbxml = -1;
 static gint ett_wbxml_str_tbl = -1;
 static gint ett_wbxml_content = -1;
+
+/* WBXML Preferences */
+static gboolean skip_wbxml_token_mapping = FALSE;
+static gboolean disable_wbxml_token_parsing = FALSE;
 
 
 /**************** WBXML related declarations and definitions ****************/
@@ -4018,6 +4021,12 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += len + str_tbl_len;
 
 		/* The WBXML BODY starts here */
+		if (disable_wbxml_token_parsing) {
+		    ti = proto_tree_add_text (wbxml_tree, tvb, offset, -1,
+			    "Data representation not shown "
+			    "(edit WBXML preferences to show)");
+		    return;
+		} /* Else: render the WBXML tokens */
 		ti = proto_tree_add_text (wbxml_tree, tvb, offset, -1,
 				"Data representation");
 		wbxml_content_tree = proto_item_add_subtree (ti, ett_wbxml_content);
@@ -4032,15 +4041,24 @@ dissect_wbxml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    if (! content_map) {
 			content_map = get_wbxml_decoding_from_content_type (pinfo->match_string);
 			if (! content_map) {
-			    proto_tree_add_text (wbxml_content_tree, tvb,
-				    offset, -1,
+			    proto_tree_add_text (wbxml_content_tree,
+				    tvb, offset, -1,
 				    "[Rendering of this content type"
 				    " not (yet) supported]");
 			} else {
 			    proto_item_append_text(ti,
-				    " is based on Content-Type: %s (chosen decoding: %s)",
+				    " is based on Content-Type: %s "
+				    "(chosen decoding: %s)",
 				    pinfo->match_string, content_map->name);
 			}
+		    }
+		    if (content_map && skip_wbxml_token_mapping) {
+			proto_tree_add_text (wbxml_content_tree,
+				tvb, offset, -1,
+				"[Rendering of this content type"
+				" has been disabled "
+				"(edit WBXML preferences to enable)]");
+			content_map = NULL;
 		    }
 		    proto_tree_add_text (wbxml_content_tree, tvb,
 			    offset, -1,
@@ -5365,7 +5383,10 @@ parse_wbxml_attribute_list (proto_tree *tree, tvbuff_t *tvb,
 
 void
 proto_register_wbxml(void)
-{ /* Setup list of header fields. See Section 1.6.1 for details. */
+{
+	module_t *wbxml_module;	/* WBXML Preferences */
+
+	/* Setup list of header fields. */
 	static hf_register_info hf[] = {
 		{ &hf_wbxml_version,
 			{ "Version",
@@ -5415,6 +5436,25 @@ proto_register_wbxml(void)
 	 * and subtrees used */
 	proto_register_field_array(proto_wbxml, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* Preferences */
+	wbxml_module = prefs_register_protocol(proto_wbxml, NULL);
+	prefs_register_bool_preference(wbxml_module,
+			"skip_wbxml_token_mapping",
+			"Skip the mapping of WBXML tokens to media type tokens.",
+			"Enable this preference if you want to view the WBXML "
+			"tokens without the representation in a media type "
+			"(e.g., WML). Tokens will show up as Tag_0x12, "
+			"attrStart_0x08 or attrValue_0x0B for example.",
+			&skip_wbxml_token_mapping);
+	prefs_register_bool_preference(wbxml_module,
+			"disable_wbxml_token_parsing",
+			"Disable the parsing of the WBXML tokens.",
+			"Enable this preference if you want to skip the "
+			"parsing of the WBXML tokens that constitute the body "
+			"of the WBXML document. Only the WBXML header will be "
+			"dissected (and visualized) then.",
+			&disable_wbxml_token_parsing);
 
 	register_dissector("wbxml", dissect_wbxml, proto_wbxml);
 }
