@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.96 2003/09/07 00:47:56 guy Exp $
+ * $Id: packet.c,v 1.97 2003/09/09 18:09:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1021,6 +1021,21 @@ dissector_try_string(dissector_table_t sub_dissectors, const gchar *string,
 		return ret != 0;
 	}
 	return FALSE;
+}
+
+/* Look for a given value in a given string dissector table and, if found,
+   return the dissector handle for that value. */
+dissector_handle_t
+dissector_get_string_handle(dissector_table_t sub_dissectors,
+    const gchar *string)
+{
+	dtbl_entry_t *dtbl_entry;
+
+	dtbl_entry = find_string_dtbl_entry(sub_dissectors, string);
+	if (dtbl_entry != NULL)
+		return dtbl_entry->current;
+	else
+		return NULL;
 }
 
 dissector_handle_t

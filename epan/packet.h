@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.70 2003/09/07 00:47:56 guy Exp $
+ * $Id: packet.h,v 1.71 2003/09/09 18:09:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -204,6 +204,11 @@ extern void dissector_reset_string(const char *name, const gchar *pattern);
    return FALSE. */
 extern gboolean dissector_try_string(dissector_table_t sub_dissectors,
     const gchar *string, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/* Look for a given value in a given string dissector table and, if found,
+   return the dissector handle for that value. */
+extern dissector_handle_t dissector_get_string_handle(
+    dissector_table_t sub_dissectors, const gchar *string);
 
 /* Add a handle to the list of handles that *could* be used with this
    table.  That list is used by code in the UI. */
