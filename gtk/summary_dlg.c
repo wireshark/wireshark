@@ -1,7 +1,7 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id: summary_dlg.c,v 1.7 2000/08/19 21:36:51 deniel Exp $
+ * $Id: summary_dlg.c,v 1.8 2000/08/21 18:20:19 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -129,6 +129,10 @@ summary_open_cb(GtkWidget *w, gpointer d)
 
   /* Filtered Packet count */
   snprintf(string_buff, SUM_STR_MAX, "Filtered packet count: %i", summary.filtered_count);
+  add_string_to_box(string_buff, data_box);
+
+  /* Marked Packet count */
+  snprintf(string_buff, SUM_STR_MAX, "Marked packet count: %i", summary.marked_count);
   add_string_to_box(string_buff, data_box);
 
   /* Packets per second */

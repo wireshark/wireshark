@@ -1,7 +1,7 @@
 /* summary.h
  * Definitions for capture file summary data
  *
- * $Id: summary.h,v 1.4 1999/12/10 04:20:54 gram Exp $
+ * $Id: summary.h,v 1.5 2000/08/21 18:20:12 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,7 @@ typedef struct _summary_tally {
 				   includes time before first packet
 				   and after last packet */
     int		filtered_count; /* number of filtered packets */
+    int		marked_count;	/* number of marked packets */
     int		packet_count;	/* total number of packets in trace */
     const char	*filename;
     long	file_length;	/* file length in bytes */
