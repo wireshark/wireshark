@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.8 2000/04/13 09:03:32 guy Exp $
+$Id: README.win32,v 1.9 2000/04/29 08:32:50 guy Exp $
 
 Ethereal can be compiled on Win32 platforms. Some libraries are
 needed, however.
@@ -13,17 +13,12 @@ or
 
 (the mirror nearer to you may be faster).
 
-You will definitely need these.  Download them and unpack them.  As of
-2000-01-24, at least in one test, some problems have been seen with the
-versions there; the page in question says
-
-	The latest version of my port, 19991218, might be buggier than
-	the next-to-previous version, 1990828.  If you have problems
-	with the latest version, try the 19990828 version instead.
-
-and the problems seemed not to be present with the 19990828 version.  If
-you see problems (e.g., a mangled hex dump window), that version can be
-found at
+You will definitely need these.  Download them and unpack them.  Some
+problems had been seen with versions of those libraries after the
+1999-08-28 version but before the 2000-04-16 version, but those problems
+don't appear to occur with the 2000-04-16 version.  If you see problems
+(e.g., a mangled hex dump window), the 1999-08-28 version can be found
+at
 
 	http://www.gimp.org/~tml/gimp/win32/index-19990828.html
 
@@ -72,18 +67,27 @@ command line, or you can invoke the vcvars32.bat script.
 In the ethereal directory, type "nmake -f makefile.nmake". It will
 recurse into the subdirectories as appropriate.
 
-To do a full build, you will need bison, flex, and bash. However,
-you can first build on Unix to create the source files that these
-tools make, then run the build on Windows. That will avoid the need
-for these tools on your Windows computer.
+To do a full build, or if you modify any of the ".y" files, any of the
+".l" files, or any of the dissector files, you will need Bison, Flex,
+Bash, and various other UNIX-compatible utilities.  However, if you have
+a Unix system handy, you can first build on Unix to create the source
+files that these tools make, then run the build on Windows.  That will
+avoid the need for these tools on your Windows computer.
+
+If you don't have a Unix system handy, those tools are available for
+Win32 systems as part of the Cygwin package:
+
+	http://sourceware.cygnus.com/cygwin/
+
+After installing them, you will probably have to modify the config.nmake
+file to specify where the Cygwin binaries are installed.
 
 Make sure the glib and gtk DLL's are in your path when you run
-ethereal. This includes gtk-*.dll, glib-*.dll, gmodule-*.dll, gdk-*.dll,
-and gthread-*.dll
+Ethereal. This includes gtk-*.dll, glib-*.dll, gmodule-*.dll, gdk-*.dll,
+and gthread-*.dll.
 
-Instructions for cygwin
+Instructions for Cygwin
 -----------------------
-No one has ever compiled ethereal with cygwin. It should not be difficult,
-however. This spot is reserverd for your instructions on how to compile
-ethereal with cygwin.
-
+No one has ever compiled Ethereal entirely with Cygwin.  It should not
+be difficult, however.  This spot is reserverd for your instructions on
+how to compile Ethereal with Cygwin.
