@@ -5,7 +5,7 @@
  *		<anders.broman@ericsson.com>
  * Inserted routines for BICC dissection according to Q.765.5 Q.1902 Q.1970 Q.1990,
  * calling SDP dissector for RFC2327 decoding.
- * $Id: packet-isup.c,v 1.31 2003/10/06 20:46:50 guy Exp $
+ * $Id: packet-isup.c,v 1.32 2003/10/07 17:43:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1318,8 +1318,8 @@ static int hf_BCTP_Version_Indicator					= -1;
 static int hf_Tunnelled_Protocol_Indicator				= -1;
 static int hf_TPEI							= -1;
 static int hf_BVEI							= -1;
-static int hf_bnci							= -1;
-static int hf_bat_ase_biwf						= -1;
+static int hf_bncid							= -1;
+static int hf_bat_ase_biwfa						= -1;
 static int hf_characteristics						= -1;
 
 static int hf_Organization_Identifier					= -1;
@@ -1330,6 +1330,10 @@ static int hf_late_cut_trough_cap_ind					= -1;
 static int hf_bat_ase_signal						= -1;
 static int hf_bat_ase_duration						= -1;
 static int hf_bat_ase_bearer_redir_ind					= -1;
+static int hf_BAT_ASE_Comp_Report_Reason				= -1;
+static int hf_BAT_ASE_Comp_Report_ident					= -1;
+static int hf_BAT_ASE_Comp_Report_diagnostic				= -1;
+
 
 /* Initialize the subtree pointers */
 static gint ett_isup 							= -1;
@@ -1340,7 +1344,8 @@ static gint ett_isup_circuit_state_ind					= -1;
 static gint ett_bat_ase							= -1;	
 static gint ett_bicc 							= -1;
 static gint ett_bat_ase_element						= -1;
-static gint ett_bat_ase_iwf						= -1;
+static gint ett_bat_ase_iwfa						= -1;
+
 
 
 static dissector_handle_t sdp_handle;
@@ -1906,13 +1911,482 @@ static const value_string x213_afi_value[] = {
 	{ 0,	NULL }
 };
 
+static const value_string E164_country_code_value[] = {
+	{ 0x00, "Reserved (Assignment of all 0XX codes will be feasible after 31 December 2000. This question is currently under study.)"}, 
+	{ 0x01, "Americas"}, 
+	{ 0x020,"Egypt"},
+	{ 0x0210,"Spare code"},
+	{ 0x0211,"Spare code"},
+	{ 0x0212,"Morocco"},
+	{ 0x0213,"Algeria"},
+	{ 0x0214,"spare code"},
+	{ 0x0215,"spare code"}, 
+	{ 0x0216,"Tunisia"}, 
+	{ 0x0217,"Spare code"}, 
+	{ 0x0218,"Libya"},
+	{ 0x0219,"Spare code"}, 
+	{ 0x0220,"Gambia"},
+	{ 0x0221,"Senegal"},
+	{ 0x0222,"Mauritania"}, 
+	{ 0x0223,"Mali"},
+	{ 0x0224,"Guinea"},
+	{ 0x0225,"Ivory Coast"}, 
+	{ 0x0226,"Burkina Faso"},
+	{ 0x0227,"Niger"},
+	{ 0x0228,"Togolese Republic"},
+	{ 0x0229,"Benin"},
+	{ 0x0230,"Mauritius"}, 
+	{ 0x0231,"Liberia "},
+	{ 0x0232,"Sierra Leone"},
+	{ 0x0233,"Ghana"},
+	{ 0x0234,"Nigeria"},
+	{ 0x0235,"Chad"},
+	{ 0x0236,"Central African Republic"},
+	{ 0x0237,"Cameroon"},
+	{ 0x0238,"Cape Verde"},
+	{ 0x0239,"Sao Tome and Principe"},
+	{ 0x0240,"Equatorial Guinea"},
+	{ 0x0241,"Gabonese Republic"},
+	{ 0x0242,"Republic of Congo"},
+	{ 243,"Democratic Republic of Congo"},
+	{ 0x0244,"Angola"},
+	{ 0x0245,"Guinea-Bissau"},
+	{ 0x0246,"Diego Garcia"},
+	{ 0x0247,"Ascension"},
+	{ 0x0248,"Seychelles"},
+	{ 0x0249,"Sudan"},
+	{ 0x0250,"Rwandese Republic"},
+	{ 0x0251,"Ethiopia"},
+	{ 0x0252,"Somali"},
+	{ 0x0253,"Djibouti"},
+	{ 0x0254,"Kenya"},
+	{ 0x0255,"Tanzania"}, 
+	{ 0x0256,"Uganda"},
+	{ 0x0257,"Burundi"},
+	{ 0x0258,"Mozambique"}, 
+	{ 0x0259,"Spare code"},
+	{ 0x0260,"Zambia"},
+	{ 0x0261,"Madagascar"}, 
+	{ 0x0262,"Reunion Island"}, 
+	{ 0x0263,"Zimbabwe"},
+	{ 0x0264,"Namibia"},
+	{ 0x0265,"Malawi"},
+	{ 0x0266,"Lesotho"},
+	{ 0x0267,"Botswana"},
+	{ 0x0268,"Swaziland"},
+	{ 0x0269,"Comoros Mayotte"},
+	{ 0x027,"South Africa"},
+	{ 0x0281,"spare code"},
+	{ 0x0282,"spare code"},
+	{ 0x0283,"spare code"},
+	{ 0x0284,"spare code"},
+	{ 0x0285,"spare code"},
+	{ 0x0286,"spare code"},
+	{ 0x0287,"spare code"},
+	{ 0x0288,"spare code"},
+	{ 0x0289,"spare code"},
+	{ 0x0290,"Saint Helena"},
+	{ 0x0291,"Eritrea"},
+	{ 0x0292,"spare code"}, 
+	{ 0x0293,"spare code"},
+	{ 0x0294,"spare code"},
+	{ 0x0295,"spare code"},
+	{ 0x0296,"spare code"},
+	{ 0x0297,"Aruba"}, 
+	{ 0x0298,"Faroe Islands"},
+	{ 0x0299,"Greenland"},
+	{ 0x030,"Greece"},
+	{ 0x031,"Netherlands"}, 
+	{ 0x032,"Belgium"},
+	{ 0x033,"France"},
+	{ 0x034,"Spain"},
+	{ 0x0350,"Gibraltar"}, 
+	{ 0x0351,"Portugal"},
+	{ 0x0352,"Luxembourg"}, 
+	{ 0x0353,"Ireland"},
+	{ 0x0354,"Iceland"},
+	{ 0x0355,"Albania"},
+	{ 0x0356,"Malta"},
+	{ 0x0357,"Cyprus"},
+	{ 0x0358,"Finland"},
+	{ 0x0359,"Bulgaria"},
+	{ 0x036,"Hungary"},
+	{ 0x0370,"Lithuania"}, 
+	{ 0x0371,"Latvia"},
+	{ 0x0372,"Estonia"},
+	{ 0x0373,"Moldova"},
+	{ 0x0374,"Armenia"},
+	{ 0x0375,"Belarus"},
+	{ 0x0376,"Andorra"},
+	{ 0x0377,"Monaco"},
+	{ 0x0378,"San Marino"}, 
+	{ 0x0379,"Vatican"},
+	{ 0x0380,"Ukraine"},
+	{ 0x0381,"Yugoslavia"}, 
+	{ 0x0382,"spare code"},
+	{ 0x0383,"spare code"},
+	{ 0x0384,"spare code"},
+	{ 0x0385,"Croatia"},
+	{ 0x0386,"Slovenia"},
+	{ 0x0387,"Bosnia and Herzegovina"},
+	{ 0x0388,"Groups of contries:"},  
+	{ 0x0389,"Macedonia"},
+	{ 0x039,"Italy"},
+	{ 0x040,"Romania"}, 
+	{ 0x041,"Switzerland"}, 
+	{ 0x0420,"Czech Republic"}, 
+	{ 0x0421,"Slovak Republic"},
+	{ 0x0422,"Spare code"},
+	{ 0x0423,"Liechtenstein"}, 
+	{ 0x0424,"spare code"},
+	{ 0x0425,"spare code"},
+	{ 0x0426,"spare code"},
+	{ 0x0427,"spare code"},
+	{ 0x0428,"spare code"},
+	{ 0x0429,"spare code"}, 
+	{ 0x043,"Austria"},
+	{ 0x044,"United Kingdom"},
+	{ 0x045,"Denmark"},
+	{ 0x046,"Sweden"},
+	{ 0x047,"Norway"},
+	{ 0x048,"Poland"},
+	{ 0x049,"Germany"},
+	{ 0x0500,"Falkland Islands (Malvinas)"},
+	{ 0x0501,"Belize"},
+	{ 0x0502,"Guatemala"}, 
+	{ 0x0503,"El Salvador"}, 
+	{ 0x0504,"Honduras"},
+	{ 0x0505,"Nicaragua"},
+	{ 0x0506,"Costa Rica"},
+	{ 0x0507,"Panama"},
+	{ 0x0508,"Saint Pierre and Miquelon"}, 
+	{ 0x0509,"Haiti"},
+	{ 0x051,"Peru"},
+	{ 0x052,"Mexico"}, 
+	{ 0x053,"Cuba"},
+	{ 0x054,"Argentina"},
+	{ 0x055,"Brazil"},
+	{ 0x056,"Chile"},
+	{ 0x057,"Colombia"}, 
+	{ 0x058,"Venezuela"},
+	{ 0x0590,"Guadeloupe"}, 
+	{ 0x0591,"Bolivia"},
+	{ 0x0592,"Guyana"},
+	{ 0x0593,"Ecuador"},
+	{ 0x0594,"French Guiana"}, 
+	{ 0x0595,"Paraguay"},
+	{ 0x0596,"Martinique"}, 
+	{ 0x0597,"Suriname"},
+	{ 0x0598,"Uruguay"},
+	{ 0x0599,"Netherlands Antilles"}, 
+	{ 0x060,"Malaysia"},
+	{ 0x061,"Australia"},
+	{ 0x062,"Indonesia"},
+	{ 0x063,"Philippines"}, 
+	{ 0x064,"New Zealand"},
+	{ 0x065,"Singapore"},
+	{ 0x066,"Thailand"},
+	{ 0x0670,"East Timor"}, 
+	{ 0x0671,"Spare code"},
+	{ 0x0672,"Australian External Territories"}, 
+	{ 0x0673,"Brunei Darussalam"},
+	{ 0x0674,"Nauru"},
+	{ 0x0675,"Papua New Guinea"},
+	{ 0x0676,"Tonga"},
+	{ 0x0677,"Solomon Islands"},
+	{ 0x0678,"Vanuatu"},
+	{ 0x0679,"Fiji"},
+	{ 0x0680,"Palau"},
+	{ 0x0681,"Wallis and Futuna"},
+	{ 0x0682,"Cook Islands"},
+	{ 0x0683,"Niue"},
+	{ 0x0684,"American Samoa"},
+	{ 0x0685,"Samoa"},
+	{ 0x0686,"Kiribati"},
+	{ 0x0687,"New Caledonia"},
+	{ 0x0688,"Tuvalu"},
+	{ 0x0689,"French Polynesia"},
+	{ 0x0690,"Tokelau"},
+	{ 0x0691,"Micronesia"}, 
+	{ 0x0692,"Marshall Islands"},
+	{ 0x0693,"spare code"},
+	{ 0x0694,"spare code"},
+	{ 0x0695,"spare code"},
+	{ 0x0696,"spare code"},
+	{ 0x0697,"spare code"},
+	{ 0x0698,"spare code"},
+	{ 0x0699,"spare code"},
+	{ 0x07,"Russian Federation,Kazakstan"}, 
+	{ 0x0800,"International Freephone Service (see E.169.1)"}, 
+	{ 0x0801,"spare code"},
+	{ 0x0802,"spare code"},
+	{ 0x0803,"spare code"},
+	{ 0x0804,"spare code"},
+	{ 0x0805,"spare code"},
+	{ 0x0806,"spare code"},
+	{ 0x0807,"spare code"},
+	{ 0x0808,"Universal International Shared Cost Number (see E.169.3)"}, 
+	{ 0x0809,"Spare code"},
+	{ 0x081,"Japan"},
+	{ 0x082,"Korea (Republic of)"}, 
+	{ 0x0830,"Spare code"},
+	{ 0x0831,"Spare code"},
+	{ 0x0832,"Spare code"},
+	{ 0x0833,"Spare code"},
+	{ 0x0834,"Spare code"},
+	{ 0x0835,"Spare code"},
+	{ 0x0836,"Spare code"},
+	{ 0x0837,"Spare code"},
+	{ 0x0838,"Spare code"},
+	{ 0x0839,"Spare code"},
+	{ 0x084,"Viet Nam"},
+	{ 0x0850,"Democratic People's Republic of Korea"}, 
+	{ 0x0851,"Spare code"},
+	{ 0x0852,"Hongkong, China"}, 
+	{ 0x0853,"Macau, China"},
+	{ 0x0854,"Spare code"},
+	{ 0x0855,"Cambodia"},
+	{ 0x0856,"Laos"},
+	{ 0x0857,"Spare code"},
+	{ 0x0858,"Spare code"},
+	{ 0x0859,"Spare code"},
+	{ 0x086,"China (People's Republic of)"},
+	{ 0x0870,"Inmarsat SNAC"},
+	{ 0x0871,"Inmarsat (Atlantic Ocean-East)"}, 
+	{ 0x0872,"Inmarsat (Pacific Ocean)"},
+	{ 0x0873,"Inmarsat (Indian Ocean)"},
+	{ 0x0874,"Inmarsat (Atlantic Ocean-West)"},
+	{ 0x0875,"Reserved - Maritime Mobile Service Applications"},
+	{ 0x0876,"Reserved - Maritime Mobile Service Applications"},
+	{ 0x0877,"Reserved - Maritime Mobile Service Applications"}, 
+	{ 0x0878,"Reserved - Universal Personal Telecommunication Service (UPT)"}, 
+	{ 0x0879,"Reserved for national non-commercial purposes"},
+	{ 0x0880,"Bangladesh"},
+	{ 0x0881,"Global Mobile Satellite System (GMSS), shared code:"}, 
+	{ 0x0882,"International Networks: (see E.164)"},
+	{ 0x0883,"Spare code"},
+	{ 0x0884,"Spare code"},
+	{ 0x0885,"Spare code"},
+	{ 0x0886,"Reserved"}, 
+	{ 0x0887,"Spare code"},
+	{ 0x0888,"Reserved for future global services (see E.164)"}, 
+	{ 0x0889,"Spare code"},
+	{ 0x0890,"Spare code"},
+	{ 0x0891,"Spare code"},
+	{ 0x0892,"Spare code"},
+	{ 0x0893,"Spare code"},
+	{ 0x0894,"Spare code"},
+	{ 0x0895,"Spare code"},
+	{ 0x0896,"Spare code"},
+	{ 0x0897,"Spare code"},
+	{ 0x0898,"Spare code"},
+	{ 0x0899,"Spare code"}, 
+	{ 0x090,"Turkey"}, 
+	{ 0x091,"India"},
+	{ 0x092,"Pakistan"}, 
+	{ 0x093,"Afghanistan"}, 
+	{ 0x094,"Sri Lanka"},
+	{ 0x095,"Myanmar"},
+	{ 0x0960,"Maldives"}, 
+	{ 0x0961,"Lebanon"},
+	{ 0x0962,"Jordan"},
+	{ 0x0963,"Syrian Arab Republic"}, 
+	{ 0x0964,"Iraq"},
+	{ 0x0965,"Kuwait"}, 
+	{ 0x0966,"Saudi Arabia"}, 
+	{ 0x0967,"Yemen"},
+	{ 0x0968,"Oman"},
+	{ 0x0969,"Reserved"}, 
+	{ 0x0970,"Reserved"},
+	{ 0x0971,"United Arab Emirates"}, 
+	{ 0x0972,"Israel"},
+	{ 0x0973,"Bahrain"},
+	{ 0x0974,"Qatar"},
+	{ 0x0975,"Bhutan"},
+	{ 0x0976,"Mongolia"}, 
+	{ 0x0977,"Nepal"},
+	{ 0x0978,"Spare code"}, 
+	{ 0x0979,"Universal International Premium Rate Number (see E.169.2)"}, 
+	{ 0x098,"Iran"},
+	{ 0x0990,"Spare code"}, 
+	{ 0x0991,"Trial service (see E.164.2)"}, 
+	{ 0x0992,"Tajikstan"},
+	{ 0x0993,"Turkmenistan"}, 
+	{ 0x0994,"Azerbaijani Republic"}, 
+	{ 0x0995,"Georgia"},
+	{ 0x0996,"Kyrgyz Republic"}, 
+	{ 0x0997,"Spare code"},
+	{ 0x0998,"Uzbekistan"},
+	{ 0x0999,"Spare code"},
+	{ 0,	NULL }
+};    
+static const value_string E164_International_Networks_vals[] = {
+	{   0x10, "British Telecommunications"}, 
+	{   0x11, "Singapore Telecommunications"},
+	{   0x12, "MCIWorldCom"},
+	{   0x13, "Telespazio"},
+	{   0x14, "GTE"},
+	{   0x15, "Telstra"}, 
+	{   0x16, "United Arab Emirates"}, 
+	{   0x17, "AT&T"},
+	{   0x18, "Teledesic"}, 
+	{   0x19, "Telecom Italia"}, 
+	{   0x20, "Asia Cellular Satellite"}, 
+	{   0x21, "Ameritech"},
+	{   0x22, "Cable & Wireless"}, 
+	{   0x23, "Sita-Equant"},
+	{   0x24, "Telia AB"},
+	{   0x25, "Constellation Communications"}, 
+	{   0x26, "SBC Communications"},
+	{ 0,	NULL }
+};    
+
 static void
 dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter_tree)
 {
-	guint8 afi;
+	guint8 afi, cc_length = 0;
+	guint8 length = 0;
+	guint temp_cc, cc, id_code;
 
 	afi = tvb_get_guint8(parameter_tvb, offset);
-	proto_tree_add_uint(parameter_tree, hf_afi, parameter_tvb, offset, len, afi );
+
+	switch ( afi ) {
+		case 0x45:	/* E.164 ATM format */
+		case 0xC3:	/* E.164 ATM group format */
+		proto_tree_add_text(parameter_tree, parameter_tvb, offset, 9,
+		    "IDP = %s", tvb_bytes_to_str(parameter_tvb, offset, 9));
+
+		proto_tree_add_uint(parameter_tree, hf_afi, parameter_tvb, offset, len, afi );
+
+		proto_tree_add_text(parameter_tree, parameter_tvb, offset + 1, 8,
+		    "IDI = %s", tvb_bytes_to_str(parameter_tvb, offset + 1, 8));
+			offset = offset + 1;
+			temp_cc = tvb_get_ntohs(parameter_tvb, offset);
+			cc = temp_cc >> 4;
+
+			switch ( cc & 0x0f00 ) {
+		
+			case 0x0 : cc_length = 1;	
+			break;
+
+			case 0x0100 : cc_length = 1;	
+			break;
+
+			case 0x0200 : 
+			switch ( cc & 0x00f0 ) {
+				case 0 : 
+				case 7 : cc_length = 2;	
+				break;
+				default : cc_length = 3;
+				}
+			break;
+				
+			case 0x0300 : 
+			switch ( cc & 0x00f0 ) {
+				case 0 : 
+				case 1 : 
+				case 2 : 
+				case 3 : 
+				case 4 : 
+				case 6 : 
+				case 9 : cc_length = 2;
+				break;	
+				default : cc_length = 3;
+				break;
+				}
+			break;
+
+			case 0x0400 : 
+			switch ( cc & 0x00f0 ) {
+				case 2 : cc_length = 3;
+				break;	
+				default : cc_length = 2;
+				break;
+				}
+			break;
+
+			case 0x0500 : 
+			switch ( cc & 0x00f0 ) {
+				case 0 : 
+				case 9 : cc_length = 3;
+				break;	
+				default : cc_length = 2;
+				break;
+				}
+			break;
+
+			case 0x0600 : 
+			switch ( cc & 0x00f0 ) {
+				case 7 : 
+				case 8 : 
+				case 9 : cc_length = 3; 
+				break;	
+				default : cc_length = 2;
+				break;
+				}
+			break;
+
+			case 0x0700 : cc_length = 1;	
+			break;
+
+			case 0x0800 : 
+			switch ( cc & 0x00f0 ) {
+				case 1 : 
+				case 2 : 
+				case 4 :  
+				case 6 : cc_length = 2; 
+				break;	
+				default : cc_length = 3;
+				break;
+				}
+			break;
+
+			case 0x0900 : 
+				switch ( cc & 0x00f0 ) {
+				case 0 : 
+				case 1 : 
+				case 2 :  
+				case 3 :  
+				case 4 :  
+				case 5 :  
+				case 8 : cc_length = 2; 
+				break;	
+				default : cc_length = 3;
+				break;
+				}
+			break;
+
+			default: ;
+			}/* End switch cc */
+			switch ( cc_length ) {
+			case 0x1 :	cc = cc >> 8;
+					length = 1;
+			break;
+			case 0x2 :	cc = cc >> 4;
+					length = 2;
+			break;
+			default:	length = 2;
+			break;
+			}/* end switch cc_length */
+			proto_tree_add_text(parameter_tree,parameter_tvb, offset, length,"Country Code: %x %s length %u",cc,
+					val_to_str(cc,E164_country_code_value,"unknown (%x)"),cc_length);
+			switch ( cc ) {
+				case 0x882 :
+						id_code = tvb_get_ntohs(parameter_tvb, offset + 1);
+						id_code = (id_code & 0x0fff) >> 4;
+						proto_tree_add_text(parameter_tree,parameter_tvb, (offset + 1), 2,"Identification Code: %x %s ",id_code,
+							val_to_str(id_code,E164_International_Networks_vals,"unknown (%x)"));
+
+				break;
+				default:;
+				}
+			proto_tree_add_text(parameter_tree, parameter_tvb, offset + 8, (len - 9),
+				    "DSP = %s", tvb_bytes_to_str(parameter_tvb, offset + 8, (len -9)));
+	
+		break;
+		default:
+		 	proto_tree_add_uint(parameter_tree, hf_afi, parameter_tvb, offset, len, afi );
+		}/* end switch afi */
 
 }
 
@@ -2139,6 +2613,14 @@ static const value_string BAt_ASE_Signal_Type_vals[] = {
 	{ 0,	NULL }
 };
 
+static const value_string BAT_ASE_Report_Reason_vals[] = {
+
+	{ 0x00,	"no indication"},
+	{ 0x01,	"information element non-existent or not implemented"},
+	{ 0x02,	"BICC data with unrecognized information element, discarded"},
+	{ 0,	NULL }
+};
+
 
 /* Dissect BAT ASE message according to Q.765.5 200006 and Amendment 1 200107	*/
 /* Layout of message								*/
@@ -2157,13 +2639,14 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 { 
 	gint		length = tvb_reported_length_remaining(parameter_tvb, offset);
 	tvbuff_t	*next_tvb;
-	proto_tree	*bat_ase_tree, *bat_ase_element_tree, *bat_ase_iwf_tree;
-	proto_item	*bat_ase_item, *bat_ase_element_item, *bat_ase_iwf_item;
+	proto_tree	*bat_ase_tree, *bat_ase_element_tree, *bat_ase_iwfa_tree;
+	proto_item	*bat_ase_item, *bat_ase_element_item, *bat_ase_iwfa_item;
 	guint8 identifier,compatibility_info,content, BCTP_Indicator_field_1, BCTP_Indicator_field_2;
 	guint8 length_indicator, sdp_length, tempdata, content_len, element_no, number_of_indicators;
-	guint8 iwf[32];
+	guint8 iwfa[32], diagnostic_len;
 	guint duration;
-	guint32 bnci, Local_BCU_ID;
+	guint diagnostic;
+	guint32 bncid, Local_BCU_ID;
 	element_no = 0;
 
 	bat_ase_item = proto_tree_add_text(parameter_tree,parameter_tvb,
@@ -2213,31 +2696,31 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 				break;                         	
 			case BACKBONE_NETWORK_CONNECTION_IDENTIFIER :   	
 
-				bnci = tvb_get_letohl(parameter_tvb, offset);
+				bncid = tvb_get_ntohl(parameter_tvb, offset);
 				switch ( content_len ){
 				case 1:
-						bnci = bnci & 0x000000ff;
+						bncid = bncid & 0x000000ff;
 						break;  
 				case 2:
-						bnci = bnci & 0x0000ffff;
+						bncid = bncid & 0x0000ffff;
 						break;  
 				case 3:
-						bnci = bnci & 0x00ffffff;
+						bncid = bncid & 0x00ffffff;
 						break;  
 				case 4:;  
 				default:;
 				}
-				proto_tree_add_uint_format(bat_ase_element_tree, hf_bnci, parameter_tvb, offset, content_len, bnci, "BNCI: 0x%08x", bnci);
-				proto_item_append_text(bat_ase_element_item, " - 0x%08x",bnci);
+				proto_tree_add_uint_format(bat_ase_element_tree, hf_bncid, parameter_tvb, offset, content_len, bncid, "BNCId: 0x%08x", bncid);
+				proto_item_append_text(bat_ase_element_item, " - 0x%08x",bncid);
 				offset = offset + content_len;
 
 			break;
 			case INTERWORKING_FUNCTION_ADDRESS :           	
-				tvb_memcpy(parameter_tvb, iwf, offset, content_len);        	
-				bat_ase_iwf_item = proto_tree_add_bytes(bat_ase_element_tree, hf_bat_ase_biwf, parameter_tvb, offset, content_len,
-							    iwf);
-				bat_ase_iwf_tree = proto_item_add_subtree(bat_ase_iwf_item , ett_bat_ase_iwf);
-				dissect_nsap(parameter_tvb, offset, content_len, bat_ase_iwf_tree);
+				tvb_memcpy(parameter_tvb, iwfa, offset, content_len);        	
+				bat_ase_iwfa_item = proto_tree_add_bytes(bat_ase_element_tree, hf_bat_ase_biwfa, parameter_tvb, offset, content_len,
+							    iwfa);
+				bat_ase_iwfa_tree = proto_item_add_subtree(bat_ase_iwfa_item , ett_bat_ase_iwfa);
+				dissect_nsap(parameter_tvb, offset, content_len, bat_ase_iwfa_tree);
 
 				offset = offset + content_len;
 			break;
@@ -2304,12 +2787,25 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
                              	
 			break;
 			case BAT_COMPATIBILITY_REPORT :                	
-				proto_tree_add_text(bat_ase_element_tree, parameter_tvb, offset,content_len , "Not decoded yet, (%u byte%s length)", (content_len), plurality(content_len, "", "s"));
-				offset = offset + content_len;
-			break;
-			case BEARER_NETWORK_CONNECTION_CHARACTERISTICS :	
 				tempdata = tvb_get_guint8(parameter_tvb, offset);
-				proto_tree_add_uint(bat_ase_element_tree, hf_characteristics , parameter_tvb, offset, 1, tempdata );
+				proto_tree_add_uint(bat_ase_element_tree, hf_BAT_ASE_Comp_Report_Reason, parameter_tvb, offset, 1, tempdata );
+				offset = offset + 1;
+
+				diagnostic_len = content_len - 1;
+				while ( diagnostic_len > 0 ) {
+					tempdata = tvb_get_guint8(parameter_tvb, offset);
+					proto_tree_add_uint(bat_ase_element_tree, hf_BAT_ASE_Comp_Report_ident, parameter_tvb, offset, 1, tempdata );
+					offset = offset + 1;
+					diagnostic = tvb_get_letohs(parameter_tvb, offset);
+					proto_tree_add_uint(bat_ase_element_tree, hf_BAT_ASE_Comp_Report_diagnostic, parameter_tvb, offset, 2, diagnostic);
+					offset = offset + 2;
+					diagnostic_len = diagnostic_len - 3;
+				}
+			break;
+			case BEARER_NETWORK_CONNECTION_CHARACTERISTICS :
+				tempdata = tvb_get_guint8(parameter_tvb, offset);
+				proto_tree_add_uint(bat_ase_element_tree, hf_characteristics , parameter_tvb,
+						 offset, 1, tempdata );
 				proto_item_append_text(bat_ase_element_item, " - %s",
 						 val_to_str(tempdata,bearer_network_connection_characteristics_vals, "unknown (%u)"));
 
@@ -5510,13 +6006,13 @@ proto_register_isup(void)
 			FT_BOOLEAN, 8, TFS(&BCTP_TPEI_value), 0x40,
 			"", HFILL }},
 
-		{ &hf_bnci,
-			{ "Backbone Network Connection Identifier (BNCI)", "bat_ase.bnci",
+		{ &hf_bncid,
+			{ "Backbone Network Connection Identifier (BNCId)", "bat_ase.bncid",
 			FT_UINT32, BASE_HEX, NULL, 0x0,
 			  "", HFILL }},
 
-		{ &hf_bat_ase_biwf,
-			{ "Interworking Function Address( x.213 NSAP encoded)", "bat_ase_biwf",
+		{ &hf_bat_ase_biwfa,
+			{ "Interworking Function Address( X.213 NSAP encoded)", "bat_ase_biwfa",
 			FT_BYTES, BASE_HEX, NULL, 0x0,
 			  "", HFILL }},
 
@@ -5545,6 +6041,22 @@ proto_register_isup(void)
 			FT_BOOLEAN, 8, TFS(&Bearer_Control_Tunnelling_ind_value),0x01,
 			"", HFILL }},
 
+		{ &hf_BAT_ASE_Comp_Report_Reason,
+			{ "Compabillity report reason",  "bat_ase.Comp_Report_Reason",
+			FT_UINT8, BASE_HEX, VALS(BAT_ASE_Report_Reason_vals),0x0,
+			"", HFILL }},
+
+
+		{ &hf_BAT_ASE_Comp_Report_ident,
+			{ "Bearer control tunneling",  "bat_ase.bearer_control_tunneling",
+			FT_UINT8, BASE_HEX, VALS(bat_ase_list_of_Identifiers_vals),0x0,
+			"", HFILL }},
+
+		{ &hf_BAT_ASE_Comp_Report_diagnostic,
+			{ "Diagnostics",  "Comp_Report_diagnostic",
+			FT_UINT16, BASE_HEX, NULL,0x0,
+			"", HFILL }},
+
 		{ &hf_Local_BCU_ID,
 			{ "Local BCU ID",  "bat_ase.Local_BCU_ID",
 			FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -5564,6 +6076,7 @@ proto_register_isup(void)
 			{ "Duration in ms",  "bat_ase.signal_type",
 			FT_UINT16, BASE_DEC, NULL,0x0,
 			"", HFILL }},
+
 		{ &hf_bat_ase_bearer_redir_ind,
 			{ "Redirection Indicator",  "bat_ase_bearer_redir_ind",
 			FT_UINT8, BASE_HEX, VALS(Bearer_Redirection_Indicator_vals),0x0,
@@ -5581,7 +6094,7 @@ proto_register_isup(void)
 		&ett_isup_circuit_state_ind,
 		&ett_bat_ase,
 		&ett_bat_ase_element,
-		&ett_bat_ase_iwf
+		&ett_bat_ase_iwfa
 	};
 
 /* Register the protocol name and description */
