@@ -2,7 +2,7 @@
  * Routines for MMS Message Encapsulation dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-mmse.c,v 1.25 2003/12/18 02:07:26 guy Exp $
+ * $Id: packet-mmse.c,v 1.26 2003/12/19 20:26:59 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,22 @@
 
 #define MMS_CONTENT_TYPE	0x3E	/* WINA-value for mms-message	*/
 
+/* General-purpose debug logger.
+ * Requires double parentheses because of variable arguments of printf().
+ *
+ * Enable debug logging for MMSE by defining AM_CFLAGS
+ * so that it contains "-DDEBUG_mmse"
+ */
+#ifdef DEBUG_mmse
+#define DebugLog(x) \
+	printf("%s:%u: ", __FILE__, __LINE__); \
+	printf x; \
+	fflush(stdout)
+#else
+#define DebugLog(x) ;
+#endif
+
+
 /*
  * Forward declarations
  */
@@ -79,6 +95,34 @@ static void dissect_mmse(tvbuff_t *, packet_info *, proto_tree *);
 #define MM_TO_HDR		0x97	/* To			*/
 #define MM_TID_HDR		0x98	/* Transaction-Id	*/
 
+static const value_string vals_mm_header_names[] = {
+	{ MM_BCC_HDR,			"Bcc" },
+	{ MM_CC_HDR,			"Cc" },
+	{ MM_CLOCATION_HDR,		"Content-Location" },
+	{ MM_CTYPE_HDR,			"Content-Type" },
+	{ MM_DATE_HDR,			"Date" },
+	{ MM_DREPORT_HDR,		"Delivery-Report" },
+	{ MM_DTIME_HDR,			"Delivery-Time" },
+	{ MM_EXPIRY_HDR,		"Expiry" },
+	{ MM_FROM_HDR,			"From" },
+	{ MM_MCLASS_HDR,		"Message-Class" },
+	{ MM_MID_HDR,			"Message-ID" },
+	{ MM_MTYPE_HDR,			"Message-Type" },
+	{ MM_VERSION_HDR,		"MMS-Version" },
+	{ MM_MSIZE_HDR,			"Message-Size" },
+	{ MM_PRIORITY_HDR,		"Priority" },
+	{ MM_RREPLY_HDR,		"Read-Reply" },
+	{ MM_RALLOWED_HDR,		"Report-Allowed" },
+	{ MM_RSTATUS_HDR,		"Response-Status" },
+	{ MM_RTEXT_HDR,			"Response-Text" },
+	{ MM_SVISIBILITY_HDR,	"Sender-Visibility" },
+	{ MM_STATUS_HDR,		"Status" },
+	{ MM_SUBJECT_HDR,		"Subject" },
+	{ MM_TO_HDR,			"To" },
+	{ MM_TID_HDR,			"Transaction-Id" },
+
+	{ 0x00, NULL },
+};
 /*
  * Initialize the protocol and registered fields
  */
@@ -202,11 +246,15 @@ get_text_string(tvbuff_t *tvb, guint offset, char **strval)
 {
     guint	 len;
 
+	DebugLog(("get_text_string(tvb = %p, offset = %u, **strval) - start\n",
+				tvb, offset));
     len = tvb_strsize(tvb, offset);
+	DebugLog((" [1] tvb_strsize(tvb, offset) == %u\n", len));
     if (tvb_get_guint8(tvb, offset) == MM_QUOTE)
 	*strval = tvb_memdup(tvb, offset + 1, len - 1);
     else
 	*strval = tvb_memdup(tvb, offset, len);
+	DebugLog((" [3] Return(len) == %u\n", len));
     return len;
 }
 
@@ -320,6 +368,7 @@ dissect_mmse_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8	 pdut;
 
+	DebugLog(("dissect_mmse_heur()\n"));
     /*
      * Check if data makes sense for it to be dissected as MMSE:  Message-type
      * field must make sense and followed by either Transaction-Id
@@ -351,6 +400,8 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *ti;
     proto_tree *mmse_tree;
 
+	DebugLog(("dissect_mmse() - START\n"));
+
     pdut = tvb_get_guint8(tvb, 1);
     /* Make entries in Protocol column and Info column on summary display */
     if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -366,6 +417,7 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * necessary to generate protocol tree items.
      */
     if (tree) {
+	DebugLog(("tree != NULL\n"));
 	offset = 2;			/* Skip Message-Type	*/
 
 	/* create display subtree for the protocol */
@@ -380,6 +432,10 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	while ((offset < tvb_reported_length(tvb)) &&
 	       (field = tvb_get_guint8(tvb, offset++)) != MM_CTYPE_HDR)
 	{
+		DebugLog(("\tField =  0x%02X (offset = %u): %s\n",
+					field, offset,
+					val_to_str(field, vals_mm_header_names,
+						"Unknown MMS header 0x%02X")));
 	    switch (field)
 	    {
 		case MM_TID_HDR:		/* Text-string	*/
@@ -628,8 +684,11 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    }
 		    break;
 	    }
+		DebugLog(("\tEnd(case)\n"));
 	}
+	DebugLog(("\tEnd(switch)\n"));
 	if (field == MM_CTYPE_HDR) {
+		DebugLog(("Content-Type: [from WSP dissector]\n"));
 	    /*
 	     * Eeehh, we're now actually back to good old WSP content-type
 	     * encoding. Let's steal that from the WSP-dissector.
@@ -638,13 +697,20 @@ dissect_mmse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    guint	 type;
 	    const char	*type_str;
 
+		DebugLog(("Calling add_content_type() in WSP dissector\n"));
 	    offset = add_content_type(mmse_tree, tvb, offset, &type, &type_str);
+		DebugLog(("Generating new TVB subset (offset = %u)\n", offset));
 	    tmp_tvb = tvb_new_subset(tvb, offset, -1, -1);
+		DebugLog(("Add POST data\n"));
 	    add_post_data(mmse_tree, tmp_tvb, type, type_str);
+		DebugLog(("Done!\n"));
 	}
-    }
+    } else {
+	DebugLog(("tree == NULL\n"));
+	}
 
     /* If this protocol has a sub-dissector call it here, see section 1.8 */
+	DebugLog(("dissect_mmse() - END\n"));
 }
 
 
