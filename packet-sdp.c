@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.29 2002/02/02 23:04:31 guy Exp $
+ * $Id: packet-sdp.c,v 1.30 2002/04/14 23:22:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,30 +128,19 @@ static int ett_sdp_media_attribute = -1;
 
 /* static functions */
 
-static void call_sdp_subdissector(tvbuff_t *tvb, packet_info *pinfo, 
-				  proto_tree *tree, int hf, proto_tree* ti);
+static void call_sdp_subdissector(tvbuff_t *tvb, int hf, proto_tree* ti);
 
 /* Subdissector functions */
-static void dissect_sdp_owner(tvbuff_t *tvb, packet_info *pinfo, 
-			      proto_tree *tree, proto_item* ti);
-static void dissect_sdp_connection_info(tvbuff_t *tvb, packet_info *pinfo,
-					proto_tree *tree, proto_item* ti);
-static void dissect_sdp_bandwidth(tvbuff_t *tvb, packet_info *pinfo,
-				  proto_tree *tree, proto_item *ti);
-static void dissect_sdp_time(tvbuff_t *tvb, packet_info *pinfo,
-			     proto_tree *tree, proto_item* ti);
-static void dissect_sdp_repeat_time(tvbuff_t *tvb, packet_info *pinfo,
-				    proto_tree *tree, proto_item* ti);
-static void dissect_sdp_timezone(tvbuff_t *tvb, packet_info *pinfo,
-				 proto_tree *tree, proto_item* ti);
-static void dissect_sdp_encryption_key(tvbuff_t *tvb, packet_info *pinfo,
-				       proto_tree *tree, proto_item * ti);
-static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info *pinfo,
-				  proto_tree *tree,proto_item *ti);
-static void dissect_sdp_media(tvbuff_t *tvb, packet_info *pinfo,
-			      proto_tree *tree, proto_item *ti);
-static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo,
-				  proto_tree *tree,proto_item *ti);
+static void dissect_sdp_owner(tvbuff_t *tvb, proto_item* ti);
+static void dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti);
+static void dissect_sdp_bandwidth(tvbuff_t *tvb, proto_item *ti);
+static void dissect_sdp_time(tvbuff_t *tvb, proto_item* ti);
+static void dissect_sdp_repeat_time(tvbuff_t *tvb, proto_item* ti);
+static void dissect_sdp_timezone(tvbuff_t *tvb, proto_item* ti);
+static void dissect_sdp_encryption_key(tvbuff_t *tvb, proto_item * ti);
+static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item *ti);
+static void dissect_sdp_media(tvbuff_t *tvb, proto_item *ti);
+static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item *ti);
 
 static void
 dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -312,7 +301,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		CLEANUP_CALL_AND_POP;
 		call_sdp_subdissector(tvb_new_subset(tvb,offset+tokenoffset,
 						     linelen-tokenoffset,-1),
-				      pinfo,tree,hf,sub_ti);
+				      hf,sub_ti);
 		offset = next_offset;
 	}
 
@@ -324,40 +313,35 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void 
-call_sdp_subdissector(tvbuff_t *tvb, packet_info *pinfo, 
-		      proto_tree *tree, int hf, proto_tree* ti){
+call_sdp_subdissector(tvbuff_t *tvb, int hf, proto_tree* ti){
   if(hf == hf_owner){
-    dissect_sdp_owner(tvb,pinfo,tree,ti);
+    dissect_sdp_owner(tvb,ti);
   } else if ( hf == hf_connection_info) {
-    dissect_sdp_connection_info(tvb,pinfo,tree,ti);
+    dissect_sdp_connection_info(tvb,ti);
   } else if ( hf == hf_bandwidth) {
-    dissect_sdp_bandwidth(tvb,pinfo,tree,ti);
+    dissect_sdp_bandwidth(tvb,ti);
   } else if ( hf == hf_time) {
-    dissect_sdp_time(tvb,pinfo,tree,ti);
+    dissect_sdp_time(tvb,ti);
   } else if ( hf == hf_repeat_time ){
-    dissect_sdp_repeat_time(tvb,pinfo,tree,ti);
+    dissect_sdp_repeat_time(tvb,ti);
   } else if ( hf == hf_timezone ) {
-    dissect_sdp_timezone(tvb,pinfo,tree,ti);
+    dissect_sdp_timezone(tvb,ti);
   } else if ( hf == hf_encryption_key ) {
-    dissect_sdp_encryption_key(tvb,pinfo,tree,ti);
+    dissect_sdp_encryption_key(tvb,ti);
   } else if ( hf == hf_session_attribute ){
-    dissect_sdp_session_attribute(tvb,pinfo,tree,ti);
+    dissect_sdp_session_attribute(tvb,ti);
   } else if ( hf == hf_media ) {
-    dissect_sdp_media(tvb,pinfo,tree,ti);
+    dissect_sdp_media(tvb,ti);
   } else if ( hf == hf_media_attribute ){
-    dissect_sdp_media_attribute(tvb,pinfo,tree,ti);
+    dissect_sdp_media_attribute(tvb,ti);
   }
 }
 
 static void 
-dissect_sdp_owner(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		  proto_item *ti){
+dissect_sdp_owner(tvbuff_t *tvb, proto_item *ti){
   proto_tree *sdp_owner_tree;
   gint offset,next_offset,tokenlen;
 
-  if(!tree)
-    return;
-  
   offset = 0;
   next_offset = 0;
   tokenlen = 0;
@@ -419,14 +403,10 @@ dissect_sdp_owner(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void 
-dissect_sdp_connection_info(tvbuff_t *tvb, packet_info *pinfo,
-			    proto_tree *tree, proto_item* ti){
+dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti){
   proto_tree *sdp_connection_info_tree;
   gint offset,next_offset,tokenlen;
 
-  if(!tree)
-    return;
-  
   offset = 0;
   next_offset = 0;
   tokenlen = 0;
@@ -486,14 +466,10 @@ dissect_sdp_connection_info(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void 
-dissect_sdp_bandwidth(tvbuff_t *tvb, packet_info *pinfo,
-		      proto_tree *tree,proto_item *ti){
+dissect_sdp_bandwidth(tvbuff_t *tvb, proto_item *ti){
   proto_tree * sdp_bandwidth_tree;
   gint offset, next_offset, tokenlen;
   
-  if(!tree)
-    return;
-
   offset = 0;
   next_offset = 0;
   tokenlen = 0;
@@ -518,14 +494,10 @@ dissect_sdp_bandwidth(tvbuff_t *tvb, packet_info *pinfo,
 
 }
 
-static void dissect_sdp_time(tvbuff_t *tvb, packet_info *pinfo,
-			     proto_tree *tree, proto_item* ti){
+static void dissect_sdp_time(tvbuff_t *tvb, proto_item* ti){
   proto_tree *sdp_time_tree;
   gint offset,next_offset, tokenlen;
 
-  if(!tree)
-    return;
-  
   offset = 0;
   next_offset = 0;
   tokenlen = 0;
@@ -547,14 +519,10 @@ static void dissect_sdp_time(tvbuff_t *tvb, packet_info *pinfo,
 		      offset, -1, FALSE);
 }
 
-static void dissect_sdp_repeat_time(tvbuff_t *tvb, packet_info *pinfo,
-				    proto_tree *tree, proto_item* ti){
+static void dissect_sdp_repeat_time(tvbuff_t *tvb, proto_item* ti){
   proto_tree *sdp_repeat_time_tree;
   gint offset,next_offset, tokenlen;
 
-  if(!tree)
-    return;
-  
   offset = 0;
   next_offset = 0;
   tokenlen = 0;
@@ -595,12 +563,9 @@ static void dissect_sdp_repeat_time(tvbuff_t *tvb, packet_info *pinfo,
   
 }
 static void 
-dissect_sdp_timezone(tvbuff_t *tvb, packet_info *pinfo,
-		     proto_tree *tree, proto_item* ti){
+dissect_sdp_timezone(tvbuff_t *tvb, proto_item* ti){
   proto_tree* sdp_timezone_tree;
   gint offset, next_offset, tokenlen;
-  if(!tree)
-    return;
   offset = 0;
   next_offset = 0;
   tokenlen = 0;
@@ -630,8 +595,7 @@ dissect_sdp_timezone(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
-static void dissect_sdp_encryption_key(tvbuff_t *tvb, packet_info *pinfo,
-				       proto_tree *tree, proto_item * ti){
+static void dissect_sdp_encryption_key(tvbuff_t *tvb, proto_item * ti){
   proto_tree *sdp_encryption_key_tree;
   gint offset, next_offset, tokenlen;
 
@@ -659,8 +623,7 @@ static void dissect_sdp_encryption_key(tvbuff_t *tvb, packet_info *pinfo,
 
 
 
-static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info *pinfo,
-					  proto_tree *tree, proto_item * ti){
+static void dissect_sdp_session_attribute(tvbuff_t *tvb, proto_item * ti){
   proto_tree *sdp_session_attribute_tree;
   gint offset, next_offset, tokenlen;
 
@@ -690,14 +653,10 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void 
-dissect_sdp_media(tvbuff_t *tvb, packet_info *pinfo,
-		  proto_tree *tree, proto_item *ti){
+dissect_sdp_media(tvbuff_t *tvb, proto_item *ti){
   proto_tree *sdp_media_tree;
   gint offset, next_offset, tokenlen;
 
-  if(!tree)
-    return;
-  
   offset = 0;
   next_offset = 0;
   tokenlen = 0;
@@ -773,8 +732,7 @@ dissect_sdp_media(tvbuff_t *tvb, packet_info *pinfo,
 
 }
 
-static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo,
-					  proto_tree *tree, proto_item * ti){
+static void dissect_sdp_media_attribute(tvbuff_t *tvb, proto_item * ti){
   proto_tree *sdp_media_attribute_tree;
   gint offset, next_offset, tokenlen;
 

@@ -1,7 +1,7 @@
 /* packet-vj.c
  * Routines for Van Jacobson header decompression. 
  *
- * $Id: packet-vj.c,v 1.6 2002/02/18 01:08:37 guy Exp $
+ * $Id: packet-vj.c,v 1.7 2002/04/14 23:22:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -350,7 +350,6 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
               tvbuff_t **dst_tvb, 
 	      frame_data * fd)
 {
-  tvbuff_t    *orig_tvb    = NULL;
   vj_header_t *hdr_buf;
   guint8      *data_ptr;
   guint8      *pbuf        = NULL;
@@ -408,8 +407,8 @@ vjc_update_state(tvbuff_t *src_tvb,  slcompress *comp, frame_data *fd)
 
   /* Build TCP and IP headers */
   hdrlen = lo_nibble(ip->ihl_version) * 4 + TCP_OFFSET(thp) * 4;
-  thp->cksum = htons((tvb_get_guint8(src_tvb, offset++) << 8) | 
-                      tvb_get_guint8(src_tvb, offset++));
+  thp->cksum = htons(tvb_get_ntohs(src_tvb, offset));
+  offset += 2;
   if (changes & CHANGE_PUSH_BIT)  
     thp->flags |= TCP_PUSH_BIT; 
   else
@@ -578,11 +577,8 @@ vjuc_tvb_setup(tvbuff_t *tvb,
                frame_data *fd)
 {
   guint8     ihl         = ZERO;
-  guint8     index       = ZERO;
   gint       isize       = tvb_length(tvb);
   guint8    *buffer      = NULL;
-  tvbuff_t  *orig_tvb    = NULL;
-  gint       orig_offset = 0;
 
   g_assert(comp);
   g_assert(tvb);
@@ -619,7 +615,6 @@ vjuc_update_state(tvbuff_t *tvb, slcompress *comp, guint8 index)
 {
   cstate  *cs    = NULL;
   guint8   ihl   = ZERO;
-  gint     isize = tvb_length(tvb);
 
   g_assert(comp);
   g_assert(tvb);

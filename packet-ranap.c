@@ -3,7 +3,7 @@
  * Based on 3GPP TS 25.413 V3.4.0
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *
- * $Id: packet-ranap.c,v 1.11 2002/01/24 09:20:50 guy Exp $
+ * $Id: packet-ranap.c,v 1.12 2002/04/14 23:22:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3830,7 +3830,7 @@ dissect_ranap_ie(guint16 ie_id, tvbuff_t *ie_contents_tvb, proto_tree *ie_tree)
 
 
 static int
-dissect_ranap_ie_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ranap_tree)
+dissect_ranap_ie_container(tvbuff_t *tvb, proto_tree *ranap_tree)
 {
   proto_item	*ie_item = NULL;
   proto_tree	*ie_tree = NULL;	
@@ -4084,7 +4084,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ie_tvb = tvb_new_subset(tvb, offset, -1, -1);
 			
   /* dissect the ies */
-  dissect_ranap_ie_container(ie_tvb, pinfo, tree, ranap_tree);			
+  dissect_ranap_ie_container(ie_tvb, ranap_tree);			
 }
 
 

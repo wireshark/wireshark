@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.34 2002/02/05 21:02:36 nneul Exp $
+ * $Id: packet-rx.c,v 1.35 2002/04/14 23:22:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -148,7 +148,7 @@ static gint ett_rx_abort = -1;
 static dissector_handle_t afs_handle;
 
 static int
-dissect_rx_response_encrypted(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+dissect_rx_response_encrypted(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	proto_tree *tree;
 	proto_item *item;
@@ -237,7 +237,7 @@ dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		offset += 4;
 
 		/* encrypted : struct */
-		offset = dissect_rx_response_encrypted(tvb, pinfo, tree, offset);
+		offset = dissect_rx_response_encrypted(tvb, tree, offset);
 
 		/* kvno */
 		proto_tree_add_item(tree, hf_rx_kvno, tvb, offset, 4, FALSE);

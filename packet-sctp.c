@@ -10,7 +10,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.33 2002/03/03 22:42:08 guy Exp $
+ * $Id: packet-sctp.c,v 1.34 2002/04/14 23:22:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -650,7 +650,7 @@ static void
 dissect_parameter(tvbuff_t *, packet_info *, proto_tree *);
 
 static void
-dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_tree);
+dissect_error_cause(tvbuff_t *, packet_info *, proto_tree *);
 
 static gboolean
 dissect_sctp_chunk(tvbuff_t *, packet_info *, proto_tree *, proto_tree *);
@@ -815,7 +815,7 @@ dissect_supported_address_types_parameter(tvbuff_t *parameter_tvb, proto_tree *p
 }
 
 static void
-dissect_ecn_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_ecn_parameter(proto_item *parameter_item)
 {
    proto_item_set_text(parameter_item, "ECN parameter");
 }
@@ -915,7 +915,7 @@ dissect_set_primary_address_parameter(tvbuff_t *parameter_tvb, packet_info *pinf
 }
 
 static void
-dissect_success_report_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+dissect_success_report_parameter(proto_item *parameter_item)
 {
    proto_item_set_text(parameter_item, "Success report parameter");
 }
@@ -1001,7 +1001,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
     dissect_supported_address_types_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case ECN_PARAMETER_ID:
-    dissect_ecn_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_ecn_parameter(parameter_item);
     break;
   case UNRELIABLE_STREAMS_PARAMETER_ID:
     dissect_unreliable_streams_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1019,7 +1019,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
     dissect_set_primary_address_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
     break;    
   case SUCCESS_REPORT_PARAMETER_ID:
-    dissect_success_report_parameter(parameter_tvb, parameter_tree, parameter_item);
+    dissect_success_report_parameter(parameter_item);
     break; 
   case ADAP_LAYER_INDICATION_PARAMETER_ID:
     dissect_adap_indication_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -1094,7 +1094,7 @@ dissect_stale_cookie_error_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, pr
 }
 
 static void
-dissect_out_of_resource_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
+dissect_out_of_resource_cause(proto_item *cause_item)
 {
   proto_item_set_text(cause_item, "Error cause reporting lack of resources");
 }
@@ -1142,7 +1142,7 @@ dissect_unrecognized_chunk_type_cause(tvbuff_t *cause_tvb,  packet_info *pinfo,
 }
 
 static void
-dissect_invalid_mandatory_parameter_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
+dissect_invalid_mandatory_parameter_cause(proto_item *cause_item)
 {
   proto_item_set_text(cause_item, "Error cause reporting an invalid mandatory parameter");
 }
@@ -1179,7 +1179,7 @@ dissect_no_user_data_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_it
 }
 
 static void
-dissect_cookie_received_while_shutting_down_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *cause_item)
+dissect_cookie_received_while_shutting_down_cause(proto_item *cause_item)
 {
   proto_item_set_text(cause_item, "Error cause reporting cookie reception while shutting down");
 }
@@ -1276,7 +1276,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
     dissect_stale_cookie_error_cause(cause_tvb, cause_tree, cause_item);
     break;
   case OUT_OF_RESOURCE:
-    dissect_out_of_resource_cause(cause_tvb, cause_tree, cause_item);
+    dissect_out_of_resource_cause(cause_item);
     break;
   case UNRESOLVABLE_ADDRESS:
     dissect_unresolvable_address_cause(cause_tvb, pinfo, cause_tree, cause_item);
@@ -1285,7 +1285,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
     dissect_unrecognized_chunk_type_cause(cause_tvb, pinfo, cause_tree, cause_item);
     break;
   case INVALID_MANDATORY_PARAMETER:
-    dissect_invalid_mandatory_parameter_cause(cause_tvb, cause_tree, cause_item);
+    dissect_invalid_mandatory_parameter_cause(cause_item);
     break;
   case UNRECOGNIZED_PARAMETERS:
     dissect_unrecognized_parameters_cause(cause_tvb, pinfo, cause_tree, cause_item);
@@ -1294,7 +1294,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
     dissect_no_user_data_cause(cause_tvb, cause_tree, cause_item);
     break;
   case COOKIE_RECEIVED_WHILE_SHUTTING_DOWN:
-    dissect_cookie_received_while_shutting_down_cause(cause_tvb, cause_tree, cause_item);
+    dissect_cookie_received_while_shutting_down_cause(cause_item);
     break;
   case REQUEST_TO_DELETE_LAST_ADDRESS:
     dissect_delete_last_address_cause(cause_tvb, pinfo, cause_tree, cause_item);
@@ -1399,8 +1399,8 @@ dissect_data_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_init_chunk(tvbuff_t *chunk_tvb,  packet_info *pinfo, proto_tree *tree,
-		   proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_init_chunk(tvbuff_t *chunk_tvb,  packet_info *pinfo,
+		   proto_tree *chunk_tree, proto_item *chunk_item)
 { 
   guint32 initiate_tag, adv_rec_window_credit, initial_tsn;
   guint16 number_of_inbound_streams, number_of_outbound_streams;
@@ -1459,15 +1459,15 @@ dissect_init_chunk(tvbuff_t *chunk_tvb,  packet_info *pinfo, proto_tree *tree,
 } 
 
 static void
-dissect_init_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
-		       proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_init_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo,
+		       proto_tree *chunk_tree, proto_item *chunk_item)
 { 
-  dissect_init_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+  dissect_init_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
 } 
 
 static void
-dissect_sack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
-		   proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_sack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo,
+		   proto_tree *chunk_tree, proto_item *chunk_item)
 { 
   guint32 cumulative_tsn_ack, adv_rec_window_credit, dup_tsn;
   guint16 number_of_gap_blocks, number_of_dup_tsns;
@@ -1544,8 +1544,8 @@ dissect_sack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_heartbeat_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
-			proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_heartbeat_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo,
+			proto_tree *chunk_tree, proto_item *chunk_item)
 {
   tvbuff_t   *parameter_tvb;
   guint chunk_length, info_length, padding_length, total_length;
@@ -1567,8 +1567,8 @@ dissect_heartbeat_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tre
 }
  
 static void
-dissect_heartbeat_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
-			    proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_heartbeat_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo,
+			    proto_tree *chunk_tree, proto_item *chunk_item)
 {  
   tvbuff_t   *parameter_tvb;
   guint chunk_length, info_length, padding_length, total_length;
@@ -1591,8 +1591,8 @@ dissect_heartbeat_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree 
 }
 
 static void
-dissect_abort_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
-		    proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_abort_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo,
+		    proto_tree *chunk_tree, proto_item *chunk_item)
 {
   guint offset, number_of_causes;
   guint16 length, padding_length, total_length;
@@ -1622,8 +1622,8 @@ dissect_abort_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_shutdown_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
-		       proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_shutdown_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo,
+		       proto_tree *chunk_tree, proto_item *chunk_item)
 { 
   guint32 cumulative_tsn_ack;
  
@@ -1644,8 +1644,8 @@ dissect_shutdown_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static void
-dissect_shutdown_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
-			   proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_shutdown_ack_chunk(packet_info *pinfo,
+			   proto_tree *chunk_tree, proto_item *chunk_item)
 { 
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_str(pinfo->cinfo, COL_INFO, "SHUTDOWN_ACK ");
@@ -1656,8 +1656,8 @@ dissect_shutdown_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *
 }
 
 static void
-dissect_error_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
-		    proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_error_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo,
+		    proto_tree *chunk_tree, proto_item *chunk_item)
 { 
   guint offset, number_of_causes;
   guint16 length, padding_length, total_length;
@@ -1687,8 +1687,8 @@ dissect_error_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_cookie_echo_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
-			  proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_cookie_echo_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo,
+			  proto_tree *chunk_tree, proto_item *chunk_item)
 { 
   guint length, cookie_length, padding_length;
 
@@ -1714,8 +1714,8 @@ dissect_cookie_echo_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *t
 }
 
 static void
-dissect_cookie_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
-			 proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_cookie_ack_chunk(packet_info *pinfo,
+			 proto_tree *chunk_tree, proto_item *chunk_item)
 {  
   if (check_col(pinfo->cinfo, COL_INFO))
     col_append_str(pinfo->cinfo, COL_INFO, "COOKIE_ACK ");
@@ -1726,8 +1726,8 @@ dissect_cookie_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static void
-dissect_ecne_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
-		   proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_ecne_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo,
+		   proto_tree *chunk_tree, proto_item *chunk_item)
 { 
   guint32 lowest_tsn;
  
@@ -1746,8 +1746,8 @@ dissect_ecne_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_cwr_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
-		  proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_cwr_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo,
+		  proto_tree *chunk_tree, proto_item *chunk_item)
 { 
   guint32 lowest_tsn;
   
@@ -1766,7 +1766,7 @@ dissect_cwr_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_shutdown_complete_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
+dissect_shutdown_complete_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo,
 				proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 { 
   guint8  flags;
@@ -1792,7 +1792,7 @@ dissect_shutdown_complete_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_t
 #define FORWARD_TSN_CHUNK_TSN_LENGTH 4
 
 static void
-dissect_forward_tsn_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_forward_tsn_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 { 
   guint32 tsn;
   
@@ -1822,7 +1822,7 @@ static const value_string sctp_address_type_values[] = {
   { 0,                           NULL } };
 
 static void
-dissect_asconf_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_asconf_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 { 
   guint32 serial_number, correlation_id, ipv4_address;
   guint offset, length, padding_length, total_length;
@@ -1877,7 +1877,7 @@ dissect_asconf_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, 
 }
 
 static void
-dissect_asconf_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_asconf_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *chunk_tree, proto_item *chunk_item)
 { 
   guint32 serial_number, correlation_id;
   guint offset, length, padding_length, total_length;
@@ -1909,8 +1909,8 @@ dissect_asconf_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tr
 }
 
 static void
-dissect_unknown_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
-		      proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
+dissect_unknown_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo,
+		      proto_tree *chunk_tree, proto_item *chunk_item)
 { 
   guint length, chunk_value_length, padding_length;
   guint8 type;
@@ -1979,58 +1979,58 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree, pr
     result = dissect_data_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
     break;
   case SCTP_INIT_CHUNK_ID:
-    dissect_init_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_init_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_INIT_ACK_CHUNK_ID:
-    dissect_init_ack_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_init_ack_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_SACK_CHUNK_ID:
-    dissect_sack_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_sack_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
     break; 
   case SCTP_HEARTBEAT_CHUNK_ID:
-    dissect_heartbeat_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_heartbeat_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_HEARTBEAT_ACK_CHUNK_ID:
-    dissect_heartbeat_ack_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_heartbeat_ack_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_ABORT_CHUNK_ID:
-    dissect_abort_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_abort_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_SHUTDOWN_CHUNK_ID:
-    dissect_shutdown_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_shutdown_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_SHUTDOWN_ACK_CHUNK_ID:
-    dissect_shutdown_ack_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_shutdown_ack_chunk(pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_ERROR_CHUNK_ID:
-    dissect_error_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_error_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_COOKIE_ECHO_CHUNK_ID:
-    dissect_cookie_echo_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_cookie_echo_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_COOKIE_ACK_CHUNK_ID:
-    dissect_cookie_ack_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_cookie_ack_chunk(pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_ECNE_CHUNK_ID:
-    dissect_ecne_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_ecne_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_CWR_CHUNK_ID:
-    dissect_cwr_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_cwr_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_SHUTDOWN_COMPLETE_CHUNK_ID:
-    dissect_shutdown_complete_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_shutdown_complete_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item, flags_item);
     break;
   case SCTP_FORWARD_TSN_CHUNK_ID:
-    dissect_forward_tsn_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_forward_tsn_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_ASCONF_ACK_CHUNK_ID:
-    dissect_asconf_ack_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_asconf_ack_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
     break;
   case SCTP_ASCONF_CHUNK_ID:
-    dissect_asconf_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_asconf_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
     break;
   default:
-    dissect_unknown_chunk(chunk_tvb, pinfo, tree, chunk_tree, chunk_item, flags_item);
+    dissect_unknown_chunk(chunk_tvb, pinfo, chunk_tree, chunk_item);
     break;
   };
   return result;
