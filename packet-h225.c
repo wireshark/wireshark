@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.28 2004/02/05 19:19:05 obiot Exp $
+ * $Id: packet-h225.c,v 1.29 2004/02/06 20:04:48 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1279,7 +1279,10 @@ static per_choice_t FacilityReason_choice[] = {
 static int
 dissect_h225_FacilityReason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_FacilityReason, ett_h225_FacilityReason, FacilityReason_choice, "FacilityReason", &(h225_pi.reason));
+	guint32 value;
+	
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_FacilityReason, ett_h225_FacilityReason, FacilityReason_choice, "FacilityReason", &value);
+	h225_pi.reason = value;
 	return offset;
 }
 
@@ -1568,7 +1571,10 @@ static per_choice_t GatekeeperRejectReason_choice[] = {
 static int
 dissect_h225_GatekeeperRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_GatekeeperRejectReason, ett_h225_GatekeeperRejectReason, GatekeeperRejectReason_choice, "GatekeeperRejectReason", &(h225_pi.reason));
+	guint32 value;
+	
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_GatekeeperRejectReason, ett_h225_GatekeeperRejectReason, GatekeeperRejectReason_choice, "GatekeeperRejectReason", &value);
+	h225_pi.reason = value;
 	return offset;
 }
 
@@ -1601,7 +1607,10 @@ static per_choice_t UnregRequestReason_choice[] = {
 static int
 dissect_h225_UnregRequestReason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_UnregRequestReason, ett_h225_UnregRequestReason, UnregRequestReason_choice, "UnregRequestReason", &(h225_pi.reason));
+	guint32 value;
+	
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_UnregRequestReason, ett_h225_UnregRequestReason, UnregRequestReason_choice, "UnregRequestReason", &value);
+	h225_pi.reason = value;
 	return offset;
 }
 
@@ -1634,7 +1643,10 @@ static per_choice_t UnregRejectReason_choice[] = {
 static int
 dissect_h225_UnregRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_UnregRejectReason, ett_h225_UnregRejectReason, UnregRejectReason_choice, "UnregRejectReason", &(h225_pi.reason));
+	guint32 value;
+	
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_UnregRejectReason, ett_h225_UnregRejectReason, UnregRejectReason_choice, "UnregRejectReason", &value);
+	h225_pi.reason = value;
 	return offset;
 }
 
@@ -1743,7 +1755,10 @@ static per_choice_t BandRejectReason_choice[] = {
 static int
 dissect_h225_BandRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_BandRejectReason, ett_h225_BandRejectReason, BandRejectReason_choice, "BandRejectReason", &(h225_pi.reason));
+	guint32 value;
+	
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_BandRejectReason, ett_h225_BandRejectReason, BandRejectReason_choice, "BandRejectReason", &value);
+	h225_pi.reason = value;
 	return offset;
 }
 
@@ -1767,7 +1782,10 @@ static per_choice_t DisengageReason_choice[] = {
 static int
 dissect_h225_DisengageReason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_DisengageReason, ett_h225_DisengageReason, DisengageReason_choice, "DisengageReason", &(h225_pi.reason));
+	guint32 value;
+	
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_DisengageReason, ett_h225_DisengageReason, DisengageReason_choice, "DisengageReason", &value);
+	h225_pi.reason = value;
 	return offset;
 }
 
@@ -1794,7 +1812,10 @@ static per_choice_t DisengageRejectReason_choice[] = {
 static int
 dissect_h225_DisengageRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_DisengageRejectReason, ett_h225_DisengageRejectReason, DisengageRejectReason_choice, "DisengageRejectReason", &(h225_pi.reason));
+	guint32 value;
+	
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_DisengageRejectReason, ett_h225_DisengageRejectReason, DisengageRejectReason_choice, "DisengageRejectReason", &value);
+	h225_pi.reason = value;
 	return offset;
 }
 
@@ -1822,7 +1843,10 @@ static per_choice_t InfoRequestNakReason_choice[] = {
 static int
 dissect_h225_InfoRequestNakReason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_InfoRequestNakReason, ett_h225_InfoRequestNakReason, InfoRequestNakReason_choice, "InfoRequestNakReason", &(h225_pi.reason));
+	guint32 value;
+	
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_InfoRequestNakReason, ett_h225_InfoRequestNakReason, InfoRequestNakReason_choice, "InfoRequestNakReason", &value);
+	h225_pi.reason = value;
 	return offset;
 }
 
@@ -2392,7 +2416,10 @@ static per_choice_t ReleaseCompleteReason_choice[] = {
 static int
 dissect_h225_ReleaseCompleteReason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_ReleaseCompleteReason, ett_h225_ReleaseCompleteReason, ReleaseCompleteReason_choice, "ReleaseCompleteReason", &(h225_pi.reason));
+	guint32 value;
+	
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_ReleaseCompleteReason, ett_h225_ReleaseCompleteReason, ReleaseCompleteReason_choice, "ReleaseCompleteReason", &value);
+	h225_pi.reason = value;
 	return offset;
 }
 
@@ -5149,7 +5176,10 @@ static per_choice_t AdmissionRejectReason_choice[] = {
 static int
 dissect_h225_AdmissionRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_AdmissionRejectReason, ett_h225_AdmissionRejectReason, AdmissionRejectReason_choice, "AdmissionRejectReason", &(h225_pi.reason));
+	guint32 value;
+	
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_AdmissionRejectReason, ett_h225_AdmissionRejectReason, AdmissionRejectReason_choice, "AdmissionRejectReason", &value);
+	h225_pi.reason = value;
 	return offset;
 }
 
@@ -5307,7 +5337,10 @@ static per_choice_t LocationRejectReason_choice[] = {
 static int
 dissect_h225_LocationRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_LocationRejectReason, ett_h225_LocationRejectReason, LocationRejectReason_choice, "LocationRejectReason", &(h225_pi.reason));
+	guint32 value;
+	
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_LocationRejectReason, ett_h225_LocationRejectReason, LocationRejectReason_choice, "LocationRejectReason", &value);
+	h225_pi.reason = value;
 	return offset;
 }
 
@@ -6096,7 +6129,10 @@ static per_choice_t RegistrationRejectReason_choice[] = {
 static int
 dissect_h225_RegistrationRejectReason(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_RegistrationRejectReason, ett_h225_RegistrationRejectReason, RegistrationRejectReason_choice, "RegistrationRejectReason", &(h225_pi.reason));
+	guint32 value;
+	
+	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h225_RegistrationRejectReason, ett_h225_RegistrationRejectReason, RegistrationRejectReason_choice, "RegistrationRejectReason", &value);
+	h225_pi.reason = value;
 	return offset;
 }
 
@@ -10323,9 +10359,9 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 					/* if end of list is reached, exit loop and decide if request is duplicate or not. */
 					if (h225ras_call->next_call == NULL) {
 						if ( (pinfo->fd->num > h225ras_call->rsp_num && h225ras_call->rsp_num != 0
-						   && pinfo->fd->abs_secs > h225ras_call->req_time.secs + THRESHOLD_REPEATED_RESPONDED_CALL )
+						   && pinfo->fd->abs_secs > (guint) (h225ras_call->req_time.secs + THRESHOLD_REPEATED_RESPONDED_CALL) )
 						   ||(pinfo->fd->num > h225ras_call->req_num && h225ras_call->rsp_num == 0
-						   && pinfo->fd->abs_secs > h225ras_call->req_time.secs + THRESHOLD_REPEATED_NOT_RESPONDED_CALL ) )
+						   && pinfo->fd->abs_secs > (guint) (h225ras_call->req_time.secs + THRESHOLD_REPEATED_NOT_RESPONDED_CALL) ) )
 						{
 							/* if last request has been responded
 							   and this request appears after last response (has bigger frame number)
