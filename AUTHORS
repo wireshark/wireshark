@@ -1385,6 +1385,10 @@ Flavio Poletti <Flavio.Poletti[AT]tei.ericsson.se> {
 	    v1
 }
 
+Marcus Haebler <haeblerm[AT]yahoo.com> {
+	Handle a sub-protocol field of 0x00 as PPP
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

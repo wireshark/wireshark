@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.33 2002/08/23 20:03:12 guy Exp $
+ * $Id: packet-gtp.c,v 1.34 2002/08/24 10:12:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -456,6 +456,8 @@ static const value_string ver_types[] = {
 #define GTP_MSG_DATA_TRANSF_REQ		0xF0
 #define GTP_MSG_DATA_TRANSF_RESP	0xF1
 #define GTP_MSG_TPDU			0xFF
+
+#define GTP_PPP_0x00			0x00
 #define GTP_PPP_0xC0			0xC0
 #define GTP_PPP_0x80			0x80
 #define GTP_PPP_0xC2			0xC2
@@ -4961,20 +4963,9 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		sub_proto = tvb_get_guint8(tvb,GTPv1_HDR_LENGTH - hdr_offset);
 
 		switch(sub_proto) {
+			case GTP_PPP_0x00:
 			case GTP_PPP_0xC0:   
-				next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset, -1, -1);
-				call_dissector(ppp_handle, next_tvb, pinfo, tree);
-				if (check_col(pinfo->cinfo, COL_PROTOCOL))
-					col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "PPP");
-				break;
-
 			case GTP_PPP_0x80:   
-				next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset, -1, -1);
-				call_dissector(ppp_handle, next_tvb, pinfo, tree);
-				if (check_col(pinfo->cinfo, COL_PROTOCOL))
-					col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "PPP");
-				break;
-
 			case GTP_PPP_0xC2:   
 				next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset, -1, -1);
 				call_dissector(ppp_handle, next_tvb, pinfo, tree);
@@ -4985,20 +4976,9 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 			case GTP_PPP_REQ_ERROR:
 				sub_proto = tvb_get_guint8(tvb,GTPv1_HDR_LENGTH - hdr_offset+2);
 				switch(sub_proto) {
+					case GTP_PPP_0x00:
 					case GTP_PPP_0xC0:   
-						next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset+2, -1, -1);
-						call_dissector(ppp_handle, next_tvb, pinfo, tree);
-						if (check_col(pinfo->cinfo, COL_PROTOCOL))
-							col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "PPP");
-						break;
-
 					case GTP_PPP_0x80:   
-						next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset+2, -1, -1);
-						call_dissector(ppp_handle, next_tvb, pinfo, tree);
-						if (check_col(pinfo->cinfo, COL_PROTOCOL))
-							col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "PPP");
-						break;
-
 					case GTP_PPP_0xC2:   
 						next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset+2, -1, -1);
 						call_dissector(ppp_handle, next_tvb, pinfo, tree);
