@@ -41,7 +41,6 @@
 
 #include "util.h"
 #include <epan/tap.h>
-#include "register.h"
 
 #include <epan/dissectors/packet-h225.h>
 #include <epan/dissectors/packet-h245.h>

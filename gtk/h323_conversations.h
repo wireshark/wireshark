@@ -71,8 +71,6 @@ typedef struct _h323conversations_tapinfo {
 	int     npackets;       /* total number of h323 packets of all conversationss */
 	h323_conversations_info_t* filter_conversations_fwd;  /* used as filter in some tap modes */
 	guint32 launch_count;   /* number of times the tap has been run */
-	gboolean is_h225_registered; /* if the tap listener is currently registered or not */
-	gboolean is_h245_registered; /* if the tap listener is currently registered or not */
 	int setup_packets;
 	int completed_calls;
 	int rejected_calls;
@@ -89,8 +87,8 @@ typedef struct _h323conversations_tapinfo {
 * So whenever h323_conversations.c is added to the list of ETHEREAL_TAP_SRCs, the tap will be registered on startup.
 * If not, it will be registered on demand by the h323_conversationss and h323_analysis functions that need it.
 */
-void register_tap_listener_h225_conversations(void);
-void register_tap_listener_h245_conversations(void);
+void h225conversations_init_tap(void);
+void h245conversations_init_tap(void);
 
 /*
 * Removes the h323_conversationss tap listener (if not already done)
@@ -110,12 +108,6 @@ const h323conversations_tapinfo_t* h323conversations_get_info(void);
 */
 void h225conversations_reset(h323conversations_tapinfo_t *tapinfo);
 void h245conversations_reset(h323conversations_tapinfo_t *tapinfo);
-
-/*
-* Scans all packets for H225 conversationss and updates the H225 conversationss list.
-* (redissects all packets)
-*/
-void h323conversations_scan(void);
 
 /*
 * Marks all packets belonging to conversations.

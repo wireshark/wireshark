@@ -31,6 +31,8 @@
 #  include <config.h>
 #endif
 
+#include "register.h"
+
 #include "h323_conversations_dlg.h"
 #include "h323_conversations.h"
 #include "h323_analysis.h"
@@ -528,28 +530,38 @@ void h323conversations_dlg_show(GList *list)
 	}
 }
 
-
-/****************************************************************************/
-/* entry point when called via the GTK menu */
-void h323conversations_launch(GtkWidget *w _U_, gpointer data _U_)
+/* init function for tap */
+static void
+h323conversations_init_tap(char *dummy _U_)
 {
 	/* Register the tap listener */
-	register_tap_listener_h225_conversations();
-	register_tap_listener_h245_conversations();
+	h225conversations_init_tap();
+	h245conversations_init_tap();
 
 	/* Scan for H323 conversations conversationss (redissect all packets) */
-	h323conversations_scan();
+	retap_packets(&cfile);
 
 	/* Show the dialog box with the list of conversationss */
 	h323conversations_dlg_show(h323conversations_get_info()->strinfo_list);
 
 	/* Tap listener will be removed and cleaned up in h323conversations_on_destroy */
+	
+}
+
+
+/****************************************************************************/
+/* entry point when called via the GTK menu */
+void h323conversations_launch(GtkWidget *w _U_, gpointer data _U_)
+{
+	h323conversations_init_tap("");
 }
 
 /****************************************************************************/
 void
 register_tap_listener_h323_conversations_dlg(void)
 {
+	register_ethereal_tap("h323,conv",h323conversations_init_tap);
+	
 	register_tap_menu_item("H.323/Show All H323 Conversations...", REGISTER_TAP_GROUP_NONE,
 	    h323conversations_launch, NULL, NULL, NULL);
 }

@@ -37,7 +37,6 @@
 #include "globals.h"
 
 #include <epan/tap.h>
-#include "register.h"
 #include <epan/dissectors/packet-h225.h>
 #include <epan/dissectors/packet-h245.h>
 
@@ -57,7 +56,7 @@
 /****************************************************************************/
 /* the one and only global h323conversations_tapinfo_t structure */
 static h323conversations_tapinfo_t the_tapinfo_struct =
-	{0, NULL, 0, NULL, 0, FALSE, FALSE, 0, 0, 0};
+	{0, NULL, 0, NULL, 0, 0, 0, 0};
 
 /****************************************************************************/
 /* GCompareFunc style comparison function for _h323_conversations_info */
@@ -135,6 +134,10 @@ int h225conversations_packet(h323conversations_tapinfo_t *tapinfo _U_, packet_in
 	GList* list;
 
 	h225_packet_info *pi = h225info;
+	
+	/* TODO: evaluate RAS Messages. Just ignore them for now*/
+	if(pi->msg_type==H225_RAS)
+		return 0;
 
 	/* gather infos on the conversations this packet is part of */
 	g_memmove(&(tmp_strinfo.src_addr), pinfo->src.data, 4);
@@ -233,26 +236,6 @@ int h225conversations_packet(h323conversations_tapinfo_t *tapinfo _U_, packet_in
 		return 1;  /* refresh output */
 }
 
-/****************************************************************************/
-/* scan for h323 conversationss */
-void h323conversations_scan(void)
-{
-	gboolean was_h225_registered = the_tapinfo_struct.is_h225_registered;
-	gboolean was_h245_registered = the_tapinfo_struct.is_h245_registered;
-
-	if (!the_tapinfo_struct.is_h225_registered)
-		register_tap_listener_h225_conversations();
-	if (!the_tapinfo_struct.is_h245_registered)
-		register_tap_listener_h245_conversations();
-
-	retap_packets(&cfile);
-
-	if (!was_h225_registered)
-		remove_tap_listener_h225_conversations();
-	if (!was_h245_registered)
-		remove_tap_listener_h245_conversations();
-}
-
 
 /****************************************************************************/
 const h323conversations_tapinfo_t* h323conversations_get_info(void)
@@ -264,12 +247,29 @@ const h323conversations_tapinfo_t* h323conversations_get_info(void)
 /****************************************************************************/
 /* TAP INTERFACE */
 /****************************************************************************/
-
+static gboolean have_h225_tap_listener=FALSE;
 /****************************************************************************/
-static void
-h225conversations_init_tap(char *dummy _U_)
+void
+h225conversations_init_tap(void)
 {
-	/* XXX: never called? */
+	GString *error_string;
+	
+	h225conversations_reset(&the_tapinfo_struct);
+
+	if(have_h225_tap_listener==FALSE)
+	{
+		/* don't register tap listener, if we have it already */
+		error_string = register_tap_listener("h225", &the_tapinfo_struct, NULL,
+			(void*)h225conversations_reset, (void*)h225conversations_packet, (void*)h225conversations_draw);
+
+		if (error_string != NULL) {
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+				      error_string->str);
+			g_string_free(error_string, TRUE);
+			exit(1);
+		}
+		have_h225_tap_listener=TRUE;
+	}
 }
 
 
@@ -281,40 +281,12 @@ void unprotect_thread_critical_region(void);
 void
 remove_tap_listener_h225_conversations(void)
 {
-	if (the_tapinfo_struct.is_h225_registered) {
-		protect_thread_critical_region();
-		remove_tap_listener(&the_tapinfo_struct);
-		unprotect_thread_critical_region();
-
-		the_tapinfo_struct.is_h225_registered = FALSE;
-	}
+	protect_thread_critical_region();
+	remove_tap_listener(&the_tapinfo_struct);
+	unprotect_thread_critical_region();
+	
+	have_h225_tap_listener=FALSE;
 }
-
-
-/****************************************************************************/
-void
-register_tap_listener_h225_conversations(void)
-{
-	GString *error_string;
-
-	if (!the_tapinfo_struct.is_h225_registered) {
-		register_ethereal_tap("h225", h225conversations_init_tap);
-
-		error_string = register_tap_listener("h225", &the_tapinfo_struct,
-			NULL,
-			(void*)h225conversations_reset, (void*)h225conversations_packet, (void*)h225conversations_draw);
-
-		if (error_string != NULL) {
-			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-				      error_string->str);
-			g_string_free(error_string, TRUE);
-			exit(1);
-		}
-
-		the_tapinfo_struct.is_h225_registered = TRUE;
-	}
-}
-
 
 
 /****************************************************************************/
@@ -362,34 +334,16 @@ int h245conversations_packet(h323conversations_tapinfo_t *tapinfo _U_, packet_in
 }
 
 /****************************************************************************/
-static void
-h245conversations_init_tap(char *dummy _U_)
-{
-	/* XXX: never called? */
-}
+static gboolean have_h245_tap_listener=FALSE;
 
-/****************************************************************************/
 void
-remove_tap_listener_h245_conversations(void)
-{
-	if (the_tapinfo_struct.is_h245_registered) {
-		protect_thread_critical_region();
-		remove_tap_listener(&the_tapinfo_struct);
-		unprotect_thread_critical_region();
-
-		the_tapinfo_struct.is_h245_registered = FALSE;
-	}
-}
-
-
-/****************************************************************************/
-void
-register_tap_listener_h245_conversations(void)
+h245conversations_init_tap(void)
 {
 	GString *error_string;
-	if (!the_tapinfo_struct.is_h245_registered) {
-		register_ethereal_tap("h245", h245conversations_init_tap);
-
+	
+	if(have_h245_tap_listener==FALSE)
+	{ 
+		/* don't register tap listener, if we have it already */
 		error_string = register_tap_listener("h245", &the_tapinfo_struct,
 			NULL,
 			(void*)h245conversations_reset, (void*)h245conversations_packet, (void*)h245conversations_draw);
@@ -400,11 +354,23 @@ register_tap_listener_h245_conversations(void)
 			g_string_free(error_string, TRUE);
 			exit(1);
 		}
-
-		the_tapinfo_struct.is_h245_registered = TRUE;
+		have_h245_tap_listener=TRUE;
 	}
 }
 
+/****************************************************************************/
+void
+remove_tap_listener_h245_conversations(void)
+{
+	protect_thread_critical_region();
+	remove_tap_listener(&the_tapinfo_struct);
+	unprotect_thread_critical_region();
+	
+	have_h245_tap_listener=FALSE;
+}
+
+
+/****************************************************************************/
 
 void h245conversations_reset(h323conversations_tapinfo_t *tapinfo _U_)
 {
