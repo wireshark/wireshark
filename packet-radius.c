@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.19 2000/11/19 08:54:04 guy Exp $
+ * $Id: packet-radius.c,v 1.20 2000/11/28 06:29:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -193,13 +193,21 @@ static value_string radius_service_type_vals[]=
 {10, "Call Check"},
 {0,NULL}};
 
+/*
+ * These are SMI Network Management Private Enterprise Codes for
+ * organizations; see
+ *
+ *	http://www.isi.edu/in-notes/iana/assignments/enterprise-numbers
+ *
+ * for a list.
+ */
 static value_string radius_vendor_specific_vendors[]=
 {{5, "ACC"},
 {9,"Cisco"},
-{123,"Ascend"},
 {166,"Shiva"},
 {307,"Livingston"},
 {429,"3Com"},
+{529,"Ascend"},
 {1584,"Bay Networks"},
 {0,NULL}};
 
