@@ -111,9 +111,10 @@
 	<note><title>Windows folders</title>
 	<para>
 	%APPDATA% points to the personal configuration folder, typically 
-	"C:\Documents and Settings\&lt;username&gt;\Application Data", 
+	<filename>C:\Documents and Settings\&lt;username&gt;\Application Data</filename> 
+	(for further details, have a look at <xref linkend="ChWindowsProfiles"/>), 
 	%ETHEREAL% points to the Ethereal program folder, typically 
-	"C:\Program Files\Ethereal"
+	<filename>C:\Program Files\Ethereal</filename>
 	</para>
 	</note>
     <para>
@@ -302,7 +303,80 @@ c0-a8-1c-00      CEO
       </variablelist>
     </para>
 
-	<section><title>Windows NT/2000/XP roaming profiles</title>
+	<section id="ChWindowsFolder"><title>Windows folders</title>
+	<para>
+	Here you will find some details about the folders used in Ethereal 
+	on different Windows versions. 
+	</para>
+	<para>
+	As already mentioned, you can find the currently used folders in the 
+	<command>About Ethereal</command> dialog.
+	</para>
+	
+	<section id="ChWindowsProfiles"><title>Windows profiles</title>
+	<para>
+	Windows uses some special directories to store user configuration files 
+	in, named the user profile. This can be confusing, as the default directory location
+	changed from version to version and might also be different for english 
+	and internationalized versions of windows. 
+	</para>
+	<note><title>Note!</title>
+	<para>
+	If you upgraded to a new windows version, your profile might 
+	be kept in the former location, so the defaults mentioned here might not 
+	apply.
+	</para>
+	</note>
+	<para>
+	The following will try to guide 
+	you to the right place where to look for Ethereals profile data.
+	</para>
+	<para>
+      <variablelist>
+	<varlistentry>
+	  <term><command>95/98/ME</command></term>
+	  <listitem>
+	<para>
+	The default in Windows 95/98/ME is: all users work with the same profile,
+	which is located at: 
+	<filename>C:\windows\Application Data\Ethereal</filename>
+	</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>98/ME (with enabled user profiles)</command></term>
+	  <listitem>
+	<para>
+	In Windows 98 and ME you can enable separate user profiles. In that case,
+	something like:
+	<filename>C:\windows\Profiles\&lt;username&gt;\Application Data\Ethereal</filename>
+	is used.
+	</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>NT 4</command></term>
+	  <listitem>
+	<para>
+	<filename>C:\WINNT\Profiles\&lt;username&gt;\Application Data\Ethereal</filename>
+	</para>
+	  </listitem>
+	</varlistentry>
+	<varlistentry>
+	  <term><command>2000/XP</command></term>
+	  <listitem>
+	<para>
+	<filename>C:\Documents and Settings\&lt;username&gt;\Application Data</filename>, 
+	"Documents and Settings" and "Application Data" might be internationalized.
+	</para>
+	  </listitem>
+	</varlistentry>
+      </variablelist>
+	</para>
+	</section>
+
+	<section id="ChWindowsRoamingProfiles">
+	<title>Windows NT/2000/XP roaming profiles</title>
 	<para>
 	The following will only be applicable if you are using roaming profiles.
 	This might be the case, if you work in a Windows domain environment 
@@ -311,19 +385,33 @@ c0-a8-1c-00      CEO
 	you are currently working on, but on the domain server.
 	</para>
 	<para>
-	As Ethereal is using the correct places to store it's configuration data
-	(namely: 
-	C:\Documents and Settings\&lt;username&gt;\Application Data\Ethereal),
+	As Ethereal is using the correct places to store it's profile data,
 	your settings will travel with you, if you logon to a different computer 
 	the next time.
 	</para>
 	<para>
 	There is an exception to this: The "Local Settings" folder in your profile 
 	data (typically something like: 
-	C:\Documents and Settings\&lt;username&gt;\Local Settings)
+	<filename>C:\Documents and Settings\&lt;username&gt;\Local Settings</filename>)
 	will not be transferred to the domain server. This is the default for 
 	temporary capture files.
 	</para>
+	</section>
+
+	<section id="ChWindowsTempFolder">
+	<title>Windows temporary folder</title>
+	<para>
+	Ethereal uses the folder which is set by the TMPDIR or TEMP environment 
+	variable. This variable will be set by the windows installer.
+	</para>
+	<para>
+	The default location for temporary files on NT 4 is just 
+	<filename>C:\TEMP</filename>, and in 2000 the default location 
+	is some directory under your profile directory but it might have 
+	"Temporary Files" in the path name.
+	</para>
+	</section>
+
 	</section>
 
 </appendix>
