@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.236 2000/10/19 06:45:10 guy Exp $
+# $Id: Makefile.am,v 1.237 2000/10/19 07:17:38 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -503,7 +503,6 @@ EXTRA_DIST = \
 	README.win32		\
 	randpkt.c		\
 	rdps.c			\
-	tvbtest.c		\
 	TODO
 
 if SETUID_INSTALL
