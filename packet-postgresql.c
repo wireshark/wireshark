@@ -3,7 +3,7 @@
  *
  * Copyright 2004, Edwin Calo <calo@fusemail.com>
  *
- * $Id: packet-postgresql.c,v 1.4 2004/02/19 08:25:48 guy Exp $
+ * $Id: packet-postgresql.c,v 1.5 2004/02/19 08:53:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,6 +46,13 @@ static gint ett_postgresql = -1;
 
 #define TCP_PORT_POSTGRESQL	5432
 
+/*
+ * For a protocol description, see:
+ *
+ *	http://www.phpfreaks.com/postgresqlmanual/page/protocol-protocol.html
+ *
+ * and subsequent pages.
+ */
 
 static void
 dissect_postgresql (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
