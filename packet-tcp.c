@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.20 1999/04/06 02:02:11 guy Exp $
+ * $Id: packet-tcp.c,v 1.21 1999/04/30 03:16:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,6 +70,7 @@ static int   info_len;
 #define TCP_PORT_HTTP     80
 #define TCP_PORT_POP      110
 #define TCP_PORT_NNTP     119
+#define TCP_PORT_NBSS     139
 #define TCP_PORT_PRINTER  515
 #define TCP_ALT_PORT_HTTP 8080
 
@@ -490,6 +491,11 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     case TCP_ALT_PORT_HTTP:
         dissect_http(pd, offset, fd, tree);
         break;
+	
+    case TCP_PORT_NBSS:
+      pi.match_port = TCP_PORT_NBSS;
+      dissect_nbss(pd, offset, fd, tree, payload);
+      break;
 
     default:
         /* check existence of high level protocols */

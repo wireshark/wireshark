@@ -1,9 +1,10 @@
 /* packet-nbns.c
- * Routines for NetBIOS Name Service packet disassembly
+ * Routines for NetBIOS Name Service, Datagram Service, and Session Service
+ * packet disassembly (the name dates back to when it had only NBNS)
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  * Much stuff added by Guy Harris <guy@netapp.com>
  *
- * $Id: packet-nbns.c,v 1.14 1999/03/23 03:14:40 gram Exp $
+ * $Id: packet-nbns.c,v 1.15 1999/04/30 03:16:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -58,26 +59,6 @@
 /* type values  */
 #define T_NB            32              /* NetBIOS name service RR */
 #define T_NBSTAT        33              /* NetBIOS node status RR */
-
-/* NetBIOS datagram packet, from RFC 1002, page 32 */
-struct nbdgm_header {
-	guint8		msg_type;
-	struct {
-		guint8	more;
-		guint8	first;
-		guint8	node_type;
-	} flags;
-	guint16		dgm_id;
-	guint32		src_ip;
-	guint16		src_port;
-
-	/* For packets with data */
-	guint16		dgm_length;
-	guint16		pkt_offset;
-
-	/* For error packets */
-	guint8		error_code;
-};
 
 /* Bit fields in the flags */
 #define F_RESPONSE      (1<<15)         /* packet is response */
@@ -347,15 +328,15 @@ nbns_add_nbns_flags(proto_tree *nbns_tree, int offset, u_short flags,
 	proto_tree *field_tree;
 	proto_item *tf;
 	static const value_string rcode_vals[] = {
-		  { RCODE_NOERROR,   "No error"              },
-		  { RCODE_FMTERROR,  "Format error"          },
-		  { RCODE_SERVFAIL,  "Server failure"        },
-		  { RCODE_NAMEERROR, "Name error"            },
-		  { RCODE_NOTIMPL,   "Not implemented"       },
-		  { RCODE_REFUSED,   "Refused"               },
-		  { RCODE_ACTIVE,    "Name is active"        },
-		  { RCODE_CONFLICT,  "Name is in conflict"   },
-		  { 0,               NULL                    }
+		  { RCODE_NOERROR,   "No error"                        },
+		  { RCODE_FMTERROR,  "Request was invalidly formatted" },
+		  { RCODE_SERVFAIL,  "Server failure"                  },
+		  { RCODE_NAMEERROR, "Requested name does not exist"   },
+		  { RCODE_NOTIMPL,   "Request is not implemented"      },
+		  { RCODE_REFUSED,   "Request was refused"             },
+		  { RCODE_ACTIVE,    "Name is owned by another node"   },
+		  { RCODE_CONFLICT,  "Name is in conflict"             },
+		  { 0,               NULL                              }
 	};
 
 	strcpy(buf, val_to_str(flags & F_OPCODE, opcode_vals,
@@ -979,6 +960,25 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 }
 
+/* NetBIOS datagram packet, from RFC 1002, page 32 */
+struct nbdgm_header {
+	guint8		msg_type;
+	struct {
+		guint8	more;
+		guint8	first;
+		guint8	node_type;
+	} flags;
+	guint16		dgm_id;
+	guint32		src_ip;
+	guint16		src_port;
+
+	/* For packets with data */
+	guint16		dgm_length;
+	guint16		pkt_offset;
+
+	/* For error packets */
+	guint8		error_code;
+};
 
 void
 dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
@@ -1112,6 +1112,153 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 			proto_tree_add_item(nbdgm_tree, offset, len, "Destination name: %s",
 					name);
+		}
+	}
+}
+
+/*
+ * NetBIOS Session Service message types.
+ */
+#define	SESSION_MESSAGE			0x00
+#define	SESSION_REQUEST			0x81
+#define	POSITIVE_SESSION_RESPONSE	0x82
+#define	NEGATIVE_SESSION_RESPONSE	0x83
+#define	RETARGET_SESSION_RESPONSE	0x84
+#define	SESSION_KEEP_ALIVE		0x85
+
+static const value_string message_types[] = {
+	{ SESSION_MESSAGE,           "Session message" },
+	{ SESSION_REQUEST,           "Session request" },
+	{ POSITIVE_SESSION_RESPONSE, "Positive session response" },
+	{ NEGATIVE_SESSION_RESPONSE, "Negative session response" },
+	{ RETARGET_SESSION_RESPONSE, "Retarget session response" },
+	{ SESSION_KEEP_ALIVE,        "Session keep-alive" },
+	{ 0x0,                       NULL }
+};
+
+/*
+ * NetBIOS Session Service flags.
+ */
+#define	NBSS_FLAGS_E			0x1
+
+static const value_string error_codes[] = {
+	{ 0x80, "Not listening on called name" },
+	{ 0x81, "Not listening for called name" },
+	{ 0x82, "Called name not present" },
+	{ 0x83, "Called name present, but insufficient resources" },
+	{ 0x8F, "Unspecified error" },
+	{ 0x0,  NULL }
+};
+
+/*
+ * Dissect a single NBSS packet (there may be more than one in a given TCP
+ * segment).
+ */
+static int
+dissect_nbss_packet(const u_char *pd, int offset, proto_tree *tree, int max_data)
+{
+	proto_tree	*nbss_tree;
+	proto_item	*ti;
+	proto_tree	*field_tree;
+	proto_item	*tf;
+	guint8		msg_type;
+	guint8		flags;
+	guint16		length;
+	int		len;
+	char		name[32];
+
+	msg_type = pd[offset];
+	flags = pd[offset + 1];
+	length = pntohs(&pd[offset + 2]);
+	if (flags & NBSS_FLAGS_E)
+		length += 65536;
+
+	ti = proto_tree_add_item(tree, offset, length + 4,
+			"NetBIOS Session Service");
+	nbss_tree = proto_tree_new();
+	proto_item_add_subtree(ti, nbss_tree, ETT_NBSS);
+
+	proto_tree_add_item(nbss_tree, offset, 1, "Message Type: %s",
+	    val_to_str(msg_type, message_types, "Unknown"));
+	offset += 1;
+
+	tf = proto_tree_add_item(nbss_tree, offset, 1, "Flags: 0x%04x", flags);
+	field_tree = proto_tree_new();
+	proto_item_add_subtree(tf, field_tree, ETT_NBSS_FLAGS);
+	proto_tree_add_item(field_tree, offset, 1, "%s",
+	    decode_boolean_bitfield(flags, NBSS_FLAGS_E,
+	      8, "Add 65536 to length", "Add 0 to length"));
+	offset += 1;
+
+	proto_tree_add_item(nbss_tree, offset, 2, "Length: %u", length);
+	offset += 2;
+
+	switch (msg_type) {
+
+	case SESSION_REQUEST:
+		len = get_nbns_name(&pd[offset], pd, offset, name);
+		proto_tree_add_item(nbss_tree, offset, len,
+		    "Called name: %s", name);
+		offset += len;
+
+		len = get_nbns_name(&pd[offset], pd, offset, name);
+		proto_tree_add_item(nbss_tree, offset, len,
+		    "Calling name: %s", name);
+		break;
+
+	case NEGATIVE_SESSION_RESPONSE:
+		proto_tree_add_item(nbss_tree, offset, 1,
+		    "Error code: %s",
+		    val_to_str(pd[offset], error_codes, "Unknown (%x)"));
+		break;
+
+	case RETARGET_SESSION_RESPONSE:
+		proto_tree_add_item(nbss_tree, offset, 4,
+		    "Retarget IP address: %s",
+		    ip_to_str((guint8 *)&pd[offset]));
+		offset += 4;
+
+		proto_tree_add_item(nbss_tree, offset, 2,
+		    "Retarget port: %u", pntohs(&pd[offset]));
+		break;
+
+	case SESSION_MESSAGE:
+		/*
+		 * Here we can pass the packet off to the next protocol.
+		 */
+		proto_tree_add_item(nbss_tree, offset, length,
+		    "Data (%u bytes)", length);
+		break;
+	}
+	return length + 4;
+}
+
+void
+dissect_nbss(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data)
+{
+	guint8		msg_type;
+	guint8		flags;
+	guint16		length;
+	int		len;
+
+	msg_type = pd[offset];
+	flags = pd[offset + 1];
+	length = pntohs(&pd[offset + 2]);
+	if (flags & NBSS_FLAGS_E)
+		length += 65536;
+
+	if (check_col(fd, COL_PROTOCOL))
+		col_add_str(fd, COL_PROTOCOL, "NBSS (TCP)");
+	if (check_col(fd, COL_INFO)) {
+		col_add_fstr(fd, COL_INFO,
+		    val_to_str(msg_type, message_types, "Unknown (%x)"));
+	}
+
+	if (tree) {
+		while (max_data > 0) {
+			len = dissect_nbss_packet(pd, offset, tree, max_data);
+			offset += len;
+			max_data -= len;
 		}
 	}
 }
