@@ -3,16 +3,19 @@
 
 <chapter id="ChapterTools">
   <title>Tools</title>
-  <section id="ChToolsInstall">
-    <title>Tool installation</title>
+  <section id="ChToolsIntro">
+    <title>Introduction</title>
 	<para>
-	This chapter will describe the tool installation of the various tools
-	used to build Ethereal. The next chapters will explain the tool
+	This chapter will provide you with information how to install and use 
+	the various tools needed for Ethereal development.
+	</para>
+	<para>
+	In the next chapters you will find explanations of the tool
 	usage for some of the specific development tasks.
 	</para>
 	<para>
 	Several different tools are needed to build Ethereal. These tools have
-	their roots in the unix environment, but win32 ports are also
+	their roots on unix like platforms, but win32 ports are also
 	available. Therefore the tools are available in three different 
 	"flavours":
 	<itemizedlist>
@@ -81,25 +84,75 @@
 	</para>	
 	</section>
 
-	<section id="ChToolsCompiler">
-	<title>C compiler</title>
-
-	<section>
-	<title>Unix: GCC (GNU compiler collection)</title>
+	<section id="ChToolsBash">
+	<title>Bash</title>
 	<para>
-	The gcc C compiler is used for all unix-like platforms.
+	The bash shell is needed to run several shell scripts.
+	</para>
+	
+	<section>
+	<title>Unix: GNU bash</title>
+	<para>
+	The bash is available for most of the unix-like platforms and as the 
+	<application>bash</application> package from the cygwin setup.
 	</para>
 	<para>
-	XXX: is this true?
+	After correct installation, typing inside any shell:
+	</para>
+	<para>
+	<prompt>$</prompt> <userinput>bash --version</userinput>
+	</para>
+	<para>
+	should result in something like:
+	<programlisting>
+<![CDATA[GNU bash, version 2.05b.0(1)-release (i686-pc-cygwin)
+Copyright (C) 2002 Free Software Foundation, Inc.]]>
+	</programlisting>
+	However, the version string may vary.
+	</para>
+	</section>
+	
+	<section>
+	<title>Win32 native: -</title>
+	<para>
+	The authors don't know of any working win32 native bash implementation.
 	</para>
 	</section>
 
+	</section>
+
+	<section id="ChToolsCompiler">
+	<title>C compiler</title>
+	
 	<section>
-	<title>Win32 cygwin: GCC (GNU compiler collection)</title>
+
+	<title>Unix: GCC (GNU compiler collection)</title>
+	<note><title>Win32 Note!</title>
 	<para>
 	Although some effort is currently made to use gcc from the cygwin
-	environment, the
-	mainline is still using Microsoft Visual Studio's compiler.
+	environment, the mainline for several reasons is still using Microsoft 
+	Visual Studio's compiler.
+	</para>
+	</note>
+	<para>
+	The gcc C compiler is available for most of the unix-like platforms and 
+	also as a cygwin package.
+	</para>
+	<para>
+	After correct installation, typing inside the bash:
+	</para>
+	<para>
+	<prompt>$</prompt> <userinput>gcc --version</userinput>
+	</para>
+	<para>
+	should result in something like:
+	<programlisting>
+<![CDATA[gcc (GCC) 3.3.3 (cygwin special)
+Copyright (C) 2003 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
+	</programlisting>
+	However, the version string may vary.
 	</para>
 	</section>
 	 
@@ -114,18 +167,34 @@
 	</note>
 	</para>
 	<para>
-	The mainline for generating Ethereal on the windows platform, is using
-	the Microsoft Visual Studio version 6 compiler cl.exe (and it's nmake,
-	as described below).
-	</para>
-	<para>
 	<warning><title>Warning!</title>
 	<para>
 	There are problems reported with the more recent "Visual
-	Studio .net" version, as it requires to ship a XXX.dll together with the
+	Studio .net" version 7, as it requires to ship a XXX.dll together with the
 	compiled exe, which might make it incompatible with the GPL.
 	</para>
 	</warning>
+	</para>
+	<para>
+	The mainline for generating Ethereal on the windows platform, is using
+	the compiler cl.exe from the Microsoft Visual Studio version 6 (and it's 
+	nmake, as described below).
+	</para>
+	<para>
+	After correct installation, typing inside the command line (cmd.exe):
+	</para>
+	<para>
+	<prompt>&gt;</prompt> <userinput>cl</userinput>
+	</para>
+	<para>
+	should result in something like:
+	<programlisting>
+<![CDATA[Optimierender Microsoft (R) 32-Bit C/C++-Compiler, Version 12.00.8804, fuer x86
+Copyright (C) Microsoft Corp 1984-1998. Alle Rechte vorbehalten.
+
+Verwendung: cl [ Option... ] Dateiname... [ /link Linker-Option... ]]]>
+	</programlisting>
+	However, the version string may vary.
 	</para>
 	</section>
 
@@ -136,16 +205,32 @@
 
 	<section>
 	<title>Unix: GNU make</title>
-	<para>
-	XXX
-	</para>
-	</section>
-
-	<section>
-	<title>Win32 cygwin: GNU make</title>
+	<note><title>Win32 Note!</title>
 	<para>
 	Although some effort is made to use make from the cygwin environment,
 	the mainline is still using Microsoft Visual Studio's nmake.
+	</para>
+	</note>
+	<para>
+	GNU make is available for most of the unix-like platforms and 
+	also as a cygwin package.
+	</para>
+	<para>
+	After correct installation, typing inside the bash:
+	</para>
+	<para>
+	<prompt>$</prompt> <userinput>make --version</userinput>
+	</para>
+	<para>
+	should result in something like:
+	<programlisting>
+<![CDATA[GNU Make 3.80
+Copyright (C) 2002  Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.]]>
+	</programlisting>
+	However, the version string may vary.
 	</para>
 	</section>
 
@@ -158,10 +243,27 @@
 	Instead of using the the workspace (.dsw) and projects (.dsp) files,
 	the	traditional nmake makefiles are used. This has one main reason: it
 	makes it much easier to maintain changes simultaneous with the gcc
-	toolchain makefile.am files as both filetypes are similar. However, as
+	toolchain makefile.am files as both file formats are similar. However, as
 	no Visual Studio workspace/project files are available, this makes it
 	hard to use the Visual Studio IDE e.g. for using the integrated
 	debugging feature.
+	</para>
+	<para>
+	After correct installation, typing inside the command line (cmd.exe):
+	</para>
+	<para>
+	<prompt>&gt;</prompt> <userinput>nmake</userinput>
+	</para>
+	<para>
+	should result in something like:
+	<programlisting>
+<![CDATA[Microsoft (R) Program Maintenance-Dienstprogramm: Version 6.00.9782.0
+Copyright (C) Microsoft Corp 1988-1998. Alle Rechte vorbehalten.
+
+NMAKE : fatal error U1064: MAKEFILE nicht gefunden und kein Ziel angegeben
+Stop.]]]>
+	</programlisting>
+	However, the version string may vary.
 	</para>
 	</section>
 
@@ -180,18 +282,11 @@
 	<section>
 	<title>Unix: python</title>
 	<para>
-	XXX
-	</para>
-	</section>
-
-	<section>
-	<title>Win32 cygwin: python</title>
-	<para>
-	Python is available as the <application>python</application>
-	package from the cygwin setup.
+	Python is available for most of the unix-like platforms and as the 
+	<application>python</application> package from the cygwin setup.
 	</para>
 	<para>
-	After correct installation, typing inside the cygwin bash:
+	After correct installation, typing inside the bash:
 	</para>
 	<para>
 	<userinput>$ python -V</userinput>
@@ -231,16 +326,32 @@
 	<section>
 	<title>Unix: perl</title>
 	<para>
-	XXX
+	Perl is available for most of the unix-like platforms and as the 
+	<application>perl</application> package from the cygwin setup.
 	</para>
-	</section>
-
-	<section>
-	<title>Win32 cygwin: perl</title>
 	<para>
-	Perl is available as the <application>perl</application>
-	package from the cygwin setup.
+	After correct installation, typing inside the bash:
 	</para>
+	<para>
+	<prompt>$</prompt> <userinput>perl --version</userinput>
+	</para>
+	<para>
+	should result in something like:
+	<programlisting>
+<![CDATA[This is perl, v5.8.5 built for cygwin-thread-multi-64int
+
+Copyright 1987-2004, Larry Wall
+
+Perl may be copied only under the terms of either the Artistic License or the
+GNU General Public License, which may be found in the Perl 5 source kit.
+
+Complete documentation for Perl, including FAQ lists, should be found on
+this system using `man perl' or `perldoc perl'.  If you have access to the
+Internet, point your browser at http://www.perl.com/, the Perl Home Page.]]>
+	</programlisting>
+	However, the version string may vary.
+	</para>
+
 	</section>
 
 	<section>
@@ -286,21 +397,16 @@ Built 18:08:02 Feb  4 2003
 	<section>
 	<title>Unix: sed</title>
 	<para>
-	XXX
-	</para>
-	</section>
-
-	<section>
-	<title>Win32 cygwin: sed</title>
-	<para>
-	Sed is available as the <application>sed</application>
-	package from the cygwin setup.
+	Sed is available for most of the unix-like platforms and as the 
+	<application>sed</application> package from the cygwin setup.
 	</para>
 	<para>
-	After correct installation, typing inside the cygwin bash:
+	After correct installation, typing inside the bash:
 	</para>
 	<para>
 	<prompt>$</prompt> <userinput>sed --version</userinput>
+	</para>
+	<para>
 	should result in something like:
 	<programlisting>
 <![CDATA[GNU sed version 4.0.9
@@ -314,9 +420,123 @@ to the extent permitted by law.]]>
 	</section>
 
 	<section>
-	<title>Win32 native: sed</title>
+	<title>Win32 native: -</title>
 	<para>
 	The authors don't know of any working win32 native sed implementation.
+	</para>
+	</section>
+
+	</section>
+
+	<section id="ChToolsYacc">
+	<title>yacc (bison)</title>
+	<para>
+	Bison is a free implementation of yacc.
+	</para>
+
+	<section>
+	<title>Unix: bison</title>
+	<para>
+	Bison is available as the <application>bison</application>
+	package from the cygwin setup.
+	</para>
+	<para>
+	After correct installation, typing inside the bash:
+	</para>
+	<para>
+	<prompt>$</prompt> <userinput>bison --version</userinput>
+	</para>
+	<para>
+	should result in something like:
+	<programlisting>
+<![CDATA[bison (GNU Bison) 1.875b
+Written by Robert Corbett and Richard Stallman.
+
+Copyright (C) 2003 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
+	</programlisting>
+	However, the version string may vary.
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 native: -</title>
+	<para>
+	The authors don't know of any working win32 native yacc/bison 
+	implementation.
+	</para>
+	</section>
+	</section>
+
+
+	<section id="ChToolsLexx">
+	<title>lexx (flex)</title>
+	<para>
+	Flex is a free implementation of lexx.
+	</para>
+	<section>
+	
+	<title>Unix: flex</title>
+	<para>
+	Flex is available as the <application>flex</application>
+	package from the cygwin setup.
+	</para>
+	<para>
+	After correct installation, typing inside the bash:
+	</para>
+	<para>
+	<prompt>$</prompt> <userinput>flexx --version</userinput>
+	</para>
+	<para>
+	should result in something like:
+	<programlisting>
+<![CDATA[flex version 2.5.4]]>
+	</programlisting>
+	However, the version string may vary.
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 native: -</title>
+	<para>
+	The authors don't know of any working win32 native lexx/flex 
+	implementation.
+	</para>
+	</section>
+	</section>
+
+
+	<section id="ChToolsSubversion">
+	<title>Subversion (SVN) client (optional)</title>
+	<para>
+	The Ethereal project uses a subversion (or short SVN) server to keep 
+	track of all the changes done to the source code. If
+	you want to work with the source code and planning to commit your
+	changes back Ethereal, it is recommended to use a SVN client to get the
+	latest source files.
+	</para>
+	<para>
+	For detailed information about the different ways to obtain the sources, 
+	see <xref linkend="ChSrcObtaining"/>.
+	</para>
+	<para>
+	There is a book on subversion available at:
+	<ulink url="http://svnbook.red-bean.com/"/>
+	</para>
+
+	<section>
+	<title>Unix: svn</title>
+	<para>
+	XXX
+	</para>
+	</section>
+
+	<section>
+	<title>Win32 native: TortoiseSVN</title>
+	<para>
+	A good subversion client for Win32 can be found at: 
+	<ulink url="http://tortoisesvn.tigris.org/"/>
 	</para>
 	</section>
 
@@ -332,42 +552,34 @@ to the extent permitted by law.]]>
 	</para>
 
 	<section>
-	<title>Unix: diff</title>
-	<para>
-	XXX
-	</para>
-	</section>
-
-	<section>
-	<title>Win32 cygwin: GNU diff</title>
+	<title>Unix: GNU diff</title>
 	<para>
 	Diff is available as the <application>diff</application>
 	package from the cygwin setup.
 	</para>
 	<para>
-	After correct installation, typing inside the cygwin bash:
+	After correct installation, typing inside the bash:
+	</para>
+	<para>
 	<prompt>$</prompt> <userinput>diff --version</userinput>
 	</para>
 	<para>
 	should result in something like:
 	<programlisting>
-<![CDATA[diff (GNU diffutils) 2.8.4
-Copyright (C) 2002 Free Software Foundation, Inc.
-
-This program comes with NO WARRANTY, to the extent permitted by law.
-You may redistribute copies of this program
-under the terms of the GNU General Public License.
-For more information about these matters, see the files named COPYING.
-
+<![CDATA[diff (GNU diffutils) 2.8.7
 Written by Paul Eggert, Mike Haertel, David Hayes,
-Richard Stallman, and Len Tower.]]>
+Richard Stallman, and Len Tower.
+
+Copyright (C) 2004 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
 	</programlisting>
 	However, the version string may vary.
 	</para>
 	</section>
 
 	<section>
-	<title>Win32 native: diff</title>
+	<title>Win32 native: -</title>
 	<para>
 	The authors don't know of any working win32 native diff implementation.
 	</para>
@@ -388,18 +600,11 @@ Richard Stallman, and Len Tower.]]>
 	<section>
 	<title>Unix: patch</title>
 	<para>
-	XXX
-	</para>
-	</section>
-
-	<section>
-	<title>Win32 cygwin: patch</title>
-	<para>
 	Patch is available as the <application>patch</application>
 	package from the cygwin setup.
 	</para>
 	<para>
-	After correct installation, typing inside the cygwin bash:
+	After correct installation, typing inside the bash:
 	</para>
 	<para>
 	<prompt>$</prompt> <userinput>patch --version</userinput>
@@ -423,33 +628,17 @@ written by Larry Wall and Paul Eggert]]>
 	</section>
 
 	<section>
-	<title>Win32 native: patch</title>
+	<title>Win32 native: -</title>
 	<para>
-	I don't know of any working win32 native patch implementation.
+	The authors don't know of any working win32 native patch implementation.
 	</para>
 	</section>
 
-	</section>
-
-
-	<section id="ChToolsYacc">
-	<title>yacc (bison)</title>
-	<para>
-	XXX
-	</para>
-	</section>
-
-
-	<section id="ChToolsLexx">
-	<title>lexx (flex)</title>
-	<para>
-	XXX
-	</para>
 	</section>
 
 
 	<section id="ChToolsWget">
-	<title>Win32: wget</title>
+	<title>Win32: wget (optional)</title>
 	<para>
 	XXX http_proxy
 	</para>
@@ -457,50 +646,23 @@ written by Larry Wall and Paul Eggert]]>
 
 
 	<section id="ChToolsNSIS">
-	<title>Win32: NSIS</title>
+	<title>Win32: NSIS (optional)</title>
 	<para>
 	The NSIS (Nullsoft Scriptable Install System) is used to generate a
 	setup.exe from all the files needed to be installed, including all
 	required DLL's and such.
 	</para>
 	<para>
-	To install it, simply download the latest final version (currently: 2.0
+	To install it, simply download the latest released version (currently: 2.0
 	final) from <ulink url="http://nsis.sourceforge.net"/>
-	and start the downloaded installer.
-	</para>
-	<para>
-	You will need NSIS version 2 or higher, to build an installer with the
-	modern user interface, and for a much smaller installer (using the lzma
-	compression).	
+	and start the downloaded installer. You will need NSIS version 2 final 
+	or higher.
 	</para>
 	</section>
 
-
-	<section id="ChToolsSubversion">
-	<title>Subversion (SVN) client (optional)</title>
-	<para>
-	The Ethereal project uses subversion (or short SVN) to keep track of
-	all the changes done in the source code. The project has switched from
-	CVS to SVN some time ago. XXX add link to "Obtaining the sources" If
-	you want to work with the source code and planning to commit your
-	changes back Ethereal, it is recommended to use a SVN client to get the
-	latest source files.
-	</para>
-	<para>
-	There is a book on subversion available:
-	<ulink url="http://svnbook.red-bean.com/"/>
-	</para>
-	<para>
-	A good subversion client for Win32 can be found at: 
-	<ulink url="http://tortoisesvn.tigris.org/"/>
-	</para>
-	<para>
-	XXX add more text here.
-	</para>
-	</section>
 
 	<section id="ChToolsWin32">
-	<title>Tool summary for win32 platforms</title>
+	<title>Summary of recommended tools for the win32 platform</title>
 	<para>
 	The recommended tools are highlighted in bold face.
 	
@@ -517,6 +679,11 @@ written by Larry Wall and Paul Eggert]]>
 	</row>
 	</thead>
 	<tbody>
+	<row>
+	  <entry>bash</entry>
+	  <entry><command>bash</command></entry>
+	  <entry>-</entry>
+	</row>
 	<row>
 	  <entry>C compiler</entry>
 	  <entry>gcc</entry>
@@ -540,11 +707,6 @@ written by Larry Wall and Paul Eggert]]>
 	<row>
 	  <entry>sed</entry>
 	  <entry><command>sed</command></entry>
-	  <entry>-</entry>
-	</row>
-	<row>
-	  <entry>bash</entry>
-	  <entry><command>bash</command></entry>
 	  <entry>-</entry>
 	</row>
 	</tbody>

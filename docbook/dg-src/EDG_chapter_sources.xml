@@ -14,27 +14,16 @@
 	several ways to obtain the sources from the SVN server.
 	</para>
 	
-	<section id="ChSrcReleased">
-	<title>Released sources</title>
+	<tip><title>Tip!</title>
 	<para>
-	Recommended for productive purposes.
+	The Ethereal project has switched from CVS (Concurrent versioning system) 
+	to SVN some time ago. You still might find old references to CVS in the 
+	documents.
 	</para>
-	<para>
-	The officially released source files can be found at: <ulink
-	url="http://www.ethereal.com/download.html"/>.
-	You should use these sources if you want to build Ethereal on your
-	platform for productive use.
-	</para>
-	<para>
-	The differences between the released sources and the sources stored at
-	the SVN server are keep on growing until the next release is done (at
-	the release time, the released and latest SVN versions are then
-	identical again :-).
-	</para>
-	</section>
-
+	</tip>
+	
 	<section id="ChSrcAnon">
-	<title>Anonymous (latest) SVN access</title>
+	<title>Anonymous subversion (SVN) access</title>
 	<para>
 	Recommended for development purposes.
 	</para>
@@ -46,6 +35,9 @@
 	of changes into your personal sourcetree in a very comfortable way. So
 	you can update your sourcetree several times a day without much
 	effort.
+	</para>
+	<para>
+	See <xref linkend="ChToolsSubversion"/> how to install a subversion client.
 	</para>
 	<para>
 	XXX: include SVN usage description from www.ethereal.com
@@ -69,6 +61,27 @@
 	possible (believe it, it will save you a lot of time).
 	</para>
 	</section>
+
+
+	<section id="ChSrcReleased">
+	<title>Released sources</title>
+	<para>
+	Recommended for productive purposes.
+	</para>
+	<para>
+	The officially released source files can be found at: <ulink
+	url="http://www.ethereal.com/download.html"/>.
+	You should use these sources if you want to build Ethereal on your
+	platform for productive use.
+	</para>
+	<para>
+	The differences between the released sources and the sources stored at
+	the SVN server are keep on growing until the next release is done (at
+	the release time, the released and latest SVN versions are then
+	identical again :-).
+	</para>
+	</section>
+
 
   </section>
 
