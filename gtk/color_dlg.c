@@ -1246,6 +1246,7 @@ edit_color_filter_dialog(GtkWidget *color_filters,
     style->fg[GTK_STATE_NORMAL]   = colorf->fg_color;
 #endif
     gtk_widget_set_style(*colorize_filter_text, style);
+    gtk_style_unref(style);
     gtk_box_pack_start (GTK_BOX (filter_string_hbox), *colorize_filter_text, TRUE, TRUE, 0);
     gtk_tooltips_set_tip (tooltips, *colorize_filter_text, ("This is the editable text of the filter"), NULL);
 
@@ -1637,6 +1638,7 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
 #endif
 	gtk_widget_set_style(filt_name_entry, style);
 	gtk_widget_set_style(filt_text_entry, style);
+	gtk_style_unref(style);
   }
 }
 

@@ -1312,6 +1312,7 @@ color_filter_te(GtkWidget *w, guint16 red, guint16 green, guint16 blue)
     style = gtk_style_copy(gtk_widget_get_style(w));
     style->base[GTK_STATE_NORMAL] = bg;
     gtk_widget_set_style(w, style);
+    gtk_style_unref(style);
 }
 
 void
