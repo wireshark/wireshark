@@ -38,6 +38,12 @@
  *   Formats and coding
  *   (3GPP TS 24.080 version 4.3.0 Release 4)
  *
+ *   Reference [7]
+ *   Mobile radio interface Layer 3 specification;
+ *   Core network protocols;
+ *   Stage 3
+ *   (3GPP TS 24.008 version 5.9.0 Release 5)
+ *
  * $Id$
  *
  * Ethereal - Network traffic analyzer
@@ -512,6 +518,7 @@ static const value_string gsm_dtap_elem_strings[] = {
     { 0x00,	"CTS Permission" },
     { 0x00,	"LSA Identifier" },
     { 0x00,	"Daylight Saving Time" },
+    { 0x00,     "Emergency Number List" },
     /* Call Control Information Elements 10.5.4 */
     { 0x00,	"Auxiliary States" },
     { 0x00,	"Bearer Capability" },
@@ -554,10 +561,12 @@ static const value_string gsm_dtap_elem_strings[] = {
     /* GPRS Mobility Management Information Elements 10.5.5 */
     { 0x00,	"Attach Result" },
     { 0x00,	"Attach Type" },
+    { 0x00,	"Cipher Algorithm" },
     { 0x00,	"TMSI Status" },
     { 0x00,	"Detach Type" },
     { 0x00,	"DRX Parameter" },
     { 0x00,	"Force to Standby" },
+    { 0x00,     "Force to Standby" },
     { 0x00,	"P-TMSI Signature" },
     { 0x00,	"P-TMSI Signature 2" },
     { 0x00,	"Identity Type 2" },
@@ -568,9 +577,12 @@ static const value_string gsm_dtap_elem_strings[] = {
     { 0x00,	"GMM Cause" },
     { 0x00,	"Routing Area Identification" },
     { 0x00,	"Update Result" },
+    { 0x00,     "Update Type" },
     { 0x00,	"A&C Reference Number" },
+    { 0x00,     "A&C Reference Number" },
     { 0x00,	"Service Type" },
     { 0x00,	"Cell Notification" },
+    { 0x00,     "PS LCS Capability" },
     { 0x00,	"Network Feature Support" },
     /* Short Message Service Information Elements [5] 8.1.4 */
     { 0x00,	"CP-User Data" },
@@ -598,6 +610,8 @@ static const value_string gsm_dtap_elem_strings[] = {
     { 0x00,	"Radio Priority" },
     { 0x00,	"GPRS Timer" },
     { 0x00,	"GPRS Timer 2" },
+    { 0x00,     "Radio Priority 2"},
+    { 0x00,     "Spare Nibble"},
     { 0, NULL },
 };
 
@@ -723,6 +737,16 @@ static gint ett_tc_opr_code = -1;
 static gint ett_tc_err_code = -1;
 static gint ett_tc_prob_code = -1;
 static gint ett_tc_sequence = -1;
+
+static gint ett_gmm_drx = -1;
+static gint ett_gmm_detach_type = -1;
+static gint ett_gmm_attach_type = -1;
+static gint ett_gmm_context_stat = -1;
+static gint ett_gmm_update_type = -1;
+static gint ett_gmm_radio_cap = -1;
+
+static gint ett_sm_pfi = -1;
+static gint ett_sm_tft = -1;
 
 static char a_bigbuf[1024];
 static gchar a_add_string[1024];
@@ -2658,6 +2682,7 @@ typedef enum
     DE_CTS_PERM,	/* CTS Permission */
     DE_LSA_ID,	/* LSA Identifier */
     DE_DAY_SAVING_TIME,	/* Daylight Saving Time */
+    DE_EMERGENCY_NUM_LIST, /* Emergency Number List */
     /* Call Control Information Elements 10.5.4 */
     DE_AUX_STATES,	/* Auxiliary States */
     DE_BEARER_CAP,	/* Bearer Capability */
@@ -2700,10 +2725,12 @@ typedef enum
     /* GPRS Mobility Management Information Elements 10.5.5 */
     DE_ATTACH_RES,	/* Attach Result */
     DE_ATTACH_TYPE,	/* Attach Type */
+    DE_CIPH_ALG,	/* Cipher Algorithm */
     DE_TMSI_STAT,	/* TMSI Status */
     DE_DETACH_TYPE,	/* Detach Type */
     DE_DRX_PARAM,	/* DRX Parameter */
     DE_FORCE_TO_STAND,	/* Force to Standby */
+    DE_FORCE_TO_STAND_H,/* Force to Standby - Info is in the high nibble */
     DE_P_TMSI_SIG,	/* P-TMSI Signature */
     DE_P_TMSI_SIG_2,	/* P-TMSI Signature 2 */
     DE_ID_TYPE_2,	/* Identity Type 2 */
@@ -2714,9 +2741,12 @@ typedef enum
     DE_GMM_CAUSE,	/* GMM Cause */
     DE_RAI,	/* Routing Area Identification */
     DE_UPD_RES,	/* Update Result */
+    DE_UPD_TYPE,	/* Update Type */
     DE_AC_REF_NUM,	/* A&C Reference Number */
+    DE_AC_REF_NUM_H,	/* A&C Reference Number - Info is in the high nibble */
     DE_SRVC_TYPE,	/* Service Type */
     DE_CELL_NOT,	/* Cell Notification */
+    DE_PS_LCS_CAP,	/* PS LCS Capability */
     DE_NET_FEAT_SUP,	/* Network Feature Support */
     /* Short Message Service Information Elements [5] 8.1.4 */
     DE_CP_USER_DATA,	/* CP-User Data */
@@ -2744,6 +2774,8 @@ typedef enum
     DE_RAD_PRIO,	/* Radio Priority */
     DE_GPRS_TIMER,	/* GPRS Timer */
     DE_GPRS_TIMER_2,	/* GPRS Timer 2 */
+    DE_RAD_PRIO_2,	/* Radio Priority 2 */
+    DE_SPARE_NIBBLE,	/* Spare Nibble */
     DE_NONE	/* NONE */
 }
 dtap_elem_idx_t;
@@ -3624,9 +3656,9 @@ de_auth_param_rand(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, g
     curr_offset = offset;
 
 /*
- * 12 octets == 128 bits
+ * 16 octets == 128 bits
  */
-#define	AUTH_PARAM_RAND_LEN	12
+#define	AUTH_PARAM_RAND_LEN	16
 
     proto_tree_add_text(tree,
 	tvb, curr_offset, AUTH_PARAM_RAND_LEN,
@@ -6756,6 +6788,2538 @@ de_rp_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *a
     return(curr_offset - offset);
 }
 
+/*
+ * [7] 10.5.5.1
+ */
+static guint8
+de_gmm_attach_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar       *str;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch(oct&7)
+    {
+    	case 1: str="GPRS only attached"; break;
+    	case 3: str="Combined GPRS/IMSI attached";	break;
+    	default: str="reserved";
+    }
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Attach Result: (%u) %s",
+	oct&7,
+	str);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.2
+ */
+static guint8
+de_gmm_attach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint8      oct_ciph;
+    guint32	curr_offset;
+    gchar       *str_follow;
+    gchar       *str_attach;
+    proto_item  *tf = NULL;
+    proto_tree      *tf_tree = NULL;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+    oct_ciph = oct>>4;
+
+    oct &= 0x0f;
+
+    switch(oct&7)
+    {
+    	case 1: str_attach="GPRS attach"; break;
+    	case 2: str_attach="GPRS attach while IMSI attached"; break;
+    	case 3: str_attach="Combined GPRS/IMSI attach"; break;
+    	default: str_attach="reserved";
+    }
+    switch(oct&8)
+    {
+    	case 8: str_follow="Follow-on request pending"; break;
+    	default: str_follow="No follow-on request pending";
+    }
+
+    tf = proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Attach Type");
+
+    tf_tree = proto_item_add_subtree(tf, ett_gmm_attach_type );
+
+    proto_tree_add_text(tf_tree,
+	tvb, curr_offset, 1,
+	"Type: (%u) %s",
+	oct&7,
+	str_attach);
+    proto_tree_add_text(tf_tree,
+	tvb, curr_offset, 1,
+	"Follow: (%u) %s",
+	(oct>>3)&1,
+	str_follow);
+
+    /* The ciphering key sequence number is added here */
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Ciphering key sequence number: 0x%02x (%u)",
+	oct_ciph,
+	oct_ciph);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.3
+ */
+static guint8
+de_gmm_ciph_alg(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar	*str;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch(oct&7)
+    {
+    	case 0: str="ciphering not used"; break;
+    	case 1: str="GPRS Encryption Algorithm GEA/1"; break;
+    	case 2: str="GPRS Encryption Algorithm GEA/2"; break;
+    	case 3: str="GPRS Encryption Algorithm GEA/3"; break;
+    	case 4: str="GPRS Encryption Algorithm GEA/4"; break;
+    	case 5: str="GPRS Encryption Algorithm GEA/5"; break;
+    	case 6: str="GPRS Encryption Algorithm GEA/6"; break;
+    	case 7: str="GPRS Encryption Algorithm GEA/7"; break;
+    	default: str="This should never happen";
+    }
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Ciphering Algorithm: (%u) %s",
+	oct&7,
+	str);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.4
+ */
+static guint8
+de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar	*str;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch(oct&1)
+    {
+    	case 0: str="no valid TMSI available"; break;
+    	case 1: str="valid TMSI available"; break;
+    	default: str="This should never happen";
+    }
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"TMSI Status: (%u) %s",
+	oct&1,
+	str);
+
+    /* curr_offset++;  - It is encoded in the octed before */
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.5
+ */
+static guint8
+de_gmm_detach_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar       *str;
+    gchar	*str_power;
+    proto_item  *tf = NULL;
+    proto_tree      *tf_tree = NULL;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch(oct&7)
+    {
+    	case 0: str="GPRS detach/re-attach required"; break;
+    	case 1: str="IMSI detach/re-attach not required"; break;
+    	case 2: str="Combined GPRS/IMSI detach/IMSI detach (after VLR failure)"; break;
+    	default: str="Not specified";
+    }
+
+    switch(oct&8)
+    {
+    	case 8: str_power="power switched off"; break;
+    	default: str_power="normal detach"; break;
+    }
+
+    tf = proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Detach Type");
+
+    tf_tree = proto_item_add_subtree(tf, ett_gmm_detach_type );
+
+    proto_tree_add_text(tf_tree,
+	tvb, curr_offset, 1,
+	"Type: (%u) %s",
+	oct&7,
+	str);
+
+    proto_tree_add_text(tf_tree,
+	tvb, curr_offset, 1,
+	"Power: (%u) %s",
+	(oct>>3)&1,
+	str_power);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.6
+ */
+static guint8
+de_gmm_drx_param(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar       *str;
+    gchar	str_val[]="00";
+    proto_item  *tf = NULL;
+    proto_tree      *tf_tree = NULL;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    tf = proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"DRX Parameter");
+
+    tf_tree = proto_item_add_subtree(tf, ett_gmm_drx );
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch(oct)
+    {
+    	case 0: str="704"; break;
+    	case 65: str="71"; break;
+    	case 66: str="72"; break;
+    	case 67: str="74"; break;
+    	case 68: str="75"; break;
+    	case 69: str="77"; break;
+    	case 70: str="79"; break;
+    	case 71: str="80"; break;
+    	case 72: str="83"; break;
+    	case 73: str="86"; break;
+    	case 74: str="88"; break;
+    	case 75: str="90"; break;
+    	case 76: str="92"; break;
+    	case 77: str="96"; break;
+    	case 78: str="101"; break;
+    	case 79: str="103"; break;
+    	case 80: str="107"; break;
+    	case 81: str="112"; break;
+    	case 82: str="116"; break;
+    	case 83: str="118"; break;
+    	case 84: str="128"; break;
+    	case 85: str="141"; break;
+    	case 86: str="144"; break;
+    	case 87: str="150"; break;
+    	case 88: str="160"; break;
+    	case 89: str="171"; break;
+    	case 90: str="176"; break;
+    	case 91: str="192"; break;
+    	case 92: str="214"; break;
+    	case 93: str="224"; break;
+    	case 94: str="235"; break;
+    	case 95: str="256"; break;
+    	case 96: str="288"; break;
+    	case 97: str="320"; break;
+    	case 98: str="352"; break;
+	default: str=str_val;
+		str[0]=oct/10+'0';
+		str[1]=oct%10+'0';
+    }
+
+    proto_tree_add_text(tf_tree,
+	tvb, curr_offset, 1,
+	"Split PG Cycle Code: (%u) %s",
+	oct,
+	str);
+
+    curr_offset++;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch(oct&8)
+    {
+    	case 8: str="Split pg cycle on CCCH is not supported by the mobile station"; break;
+	default: str="Split pg cycle on CCCH is supported by the mobile station";
+    }
+
+    proto_tree_add_text(tf_tree,
+	tvb, curr_offset, 1,
+	"Split on CCCH: (%u) %s",
+	(oct>>3&1),
+	str);
+
+    switch(oct&7)
+    {
+    	case 0: str="no non-DRX mode after transfer state"; break;
+    	case 1: str="max. 1 sec non-DRX mode after transfer state"; break;
+    	case 2: str="max. 2 sec non-DRX mode after transfer state"; break;
+    	case 3: str="max. 4 sec non-DRX mode after transfer state"; break;
+    	case 4: str="max. 8 sec non-DRX mode after transfer state"; break;
+    	case 5: str="max. 16 sec non-DRX mode after transfer state"; break;
+    	case 6: str="max. 32 sec non-DRX mode after transfer state"; break;
+    	case 7: str="max. 64 sec non-DRX mode after transfer state"; break;
+    }
+
+    proto_tree_add_text(tf_tree,
+	tvb, curr_offset, 1,
+	"Non-DRX timer: (%u) %s",
+	oct&7,
+	str);
+
+    switch(oct>>4)
+    {
+    	case 0: str="CN Specific DRX cycle length coefficient not specifiedb by the MS, ie. the system information value >CN domain specific DRX cycle length< is used.(Ref 3GPP TS 25.331)"; break;
+    	case 6: str="CN Specific DRX cycle length coefficient 6"; break;
+    	case 7: str="CN Specific DRX cycle length coefficient 7"; break;
+    	case 8: str="CN Specific DRX cycle length coefficient 8"; break;
+    	case 9: str="CN Specific DRX cycle length coefficient 9"; break;
+    	default: str="CN Specific DRX cycle length coefficient not specified by the MS";
+    }
+
+    proto_tree_add_text(tf_tree,
+	tvb, curr_offset, 1,
+	"CN Specific DRX cycle length coefficient: (%u) %s",
+	oct>>4,
+	str);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.7
+ */
+static guint8
+de_gmm_ftostby(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar       *str;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch(oct&7)
+    {
+    	case 1: str="Force to standby indicated"; break;
+    	default: str="force to standby not indicated";
+    }
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Force to Standby: (%u) %s",
+	oct&7,
+	str);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.7
+ */
+static guint8
+de_gmm_ftostby_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar       *str;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    /* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE HIGHER NIBBLE */
+    oct >>= 4;
+
+    switch(oct&7)
+    {
+    	case 1: str="Force to standby indicated"; break;
+    	default: str="force to standby not indicated";
+    }
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Force to Standby: (%u) %s",
+	oct&7,
+	str);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.8
+ */
+static guint8
+de_gmm_ptmsi_sig(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	val;
+    guint32	curr_offset;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    val = tvb_get_guint8(tvb, curr_offset);
+    val <<= 8;
+    val |= tvb_get_guint8(tvb, curr_offset+1);
+    val <<= 8;
+    val |= tvb_get_guint8(tvb, curr_offset+2);
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 3,
+	"P-TMSI Signature: 0x%08x (%u)",
+	val,
+	val);
+
+    curr_offset+=3;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.8a
+ */
+static guint8
+de_gmm_ptmsi_sig2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	val;
+    guint32	curr_offset;
+
+    add_string = add_string;
+    curr_offset = offset;
+
+    val = tvb_get_guint8(tvb, curr_offset);
+    val <<= 8;
+    val |= tvb_get_guint8(tvb, curr_offset+1);
+    val <<= 8;
+    val |= tvb_get_guint8(tvb, curr_offset+2);
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 3,
+	"P-TMSI Signature 2: 0x%08x (%u) %s",
+	val, val , add_string);
+
+    curr_offset+=3;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.9
+ */
+static guint8
+de_gmm_ident_type2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar       *str;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct&7 )
+    {
+    	case 2: str="IMEI"; break;
+    	case 3: str="IMEISV"; break;
+    	case 4: str="TMSI"; break;
+	default: str="IMSI";
+    }
+    
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Identity Type 2: (%u) %s",
+	oct&7,
+	str);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.10
+ */
+static guint8
+de_gmm_imeisv_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar       *str;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    /* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE HIGHER NIBBLE */
+    oct >>= 4;
+
+    switch ( oct&7 )
+    {
+    	case 1: str="IMEISV requested"; break;
+	default: str="IMEISV not requested";
+    }
+    
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"IMEISV Request: (%u) %s",
+	oct&7,
+	str);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.11
+ */
+static guint8
+de_gmm_rec_npdu_lst(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+    guint	curr_len;
+    
+    curr_len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    if ( len == 0 ) return 0;
+
+    do
+    {
+	    guint32	oct;
+	    oct = tvb_get_guint8(tvb, curr_offset);
+	    oct <<=8;
+	    oct |= tvb_get_guint8(tvb, curr_offset+1);
+	    curr_len -= 2;
+	    oct <<=8;
+
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 2,
+		"NSAPI %d: 0x%02x (%u)",
+		oct>>20,
+		(oct>>12)&0xff,
+		(oct>>12)&0xff);
+	    curr_offset+= 2;
+
+	    if ( curr_len > 2 )
+	    {
+		    oct |= tvb_get_guint8(tvb, curr_offset+2);
+		    curr_len--;
+		    oct <<= 12;
+
+		    proto_tree_add_text(tree,
+			tvb, curr_offset-1, 2,
+			"NSAPI %d: 0x%02x (%u)",
+			oct>>20,
+			(oct>>12)&0xff,
+			(oct>>12)&0xff);
+		    curr_offset++;
+	    }
+
+
+    } while ( curr_len > 1 );
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.12
+ */
+static guint8
+de_gmm_ms_net_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    guint	curr_len;
+    guint	gea_val;
+    
+    gchar answer_gea[2][40]={ "encryption algorithm not available",
+    			"encryption algorithm available" };
+    gchar answer_smdch[2][120]={ "Mobile station does not support mobile terminated point to point SMS via dedicated signalling channels",
+    			"Mobile station supports mobile terminated point to point SMS via dedicated signalling channels" };
+    gchar answer_smgprs[2][100]={ "Mobile station does not support mobile terminated point to point SMS via GPRS packet data channels",
+    			"Mobile station supports mobile terminated point to point SMS via GPRS packet data channels" };
+    gchar answer_ucs2[2][100]={ "the ME has a preference for the default alphabet (defined in 3GPP TS 23.038 [8b]) over UCS2",
+    			"the ME has no preference between the use of the default alphabet and the use of UCS2" };
+    
+    gchar answer_ssid[4][80]={ "default value of phase 1",
+    			"capability of handling of ellipsis notation and phase 2 error handling",
+    			"capability of handling of ellipsis notation and phase 2 error handling",
+    			"capability of handling of ellipsis notation and phase 2 error handling" };
+
+    gchar answer_solsa[2][40]={ "The ME does not support SoLSA",
+    			"The ME supports SoLSA" };
+    			
+    gchar answer_rev[2][80]={ "used by a mobile station not supporting R99 or later versions of the protocol",
+    			"used by a mobile station supporting R99 or later versions of the protocol" };
+
+    gchar answer_pfc[2][80]={ "Mobile station does not support BSS packet flow procedures",
+    			"Mobile station does support BSS packet flow procedures" };
+
+    gchar answer_lcs[2][80]={ "LCS value added location request notification capability not supported" ,
+    			"LCS value added location request notification capability supported" };
+    
+    curr_len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    if ( curr_len == 0 ){ EXTRANEOUS_DATA_CHECK(len, curr_offset - offset); return(curr_offset - offset); }
+    oct = tvb_get_guint8(tvb, curr_offset);
+    curr_len--;
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"GEA1: (%u) %s",
+	oct>>7,
+	answer_gea[oct>>7]);
+    oct<<=1;
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"SM capabilities via dedicated channels: (%u) %s",
+	oct>>7,
+	answer_smdch[oct>>7]);
+    oct<<=1;
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"SM capabilities via GPRS channels: (%u) %s",
+	oct>>7,
+	answer_smgprs[oct>>7]);
+    oct<<=1;
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"UCS2 support: (%u) %s",
+	oct>>7,
+	answer_ucs2[oct>>7]);
+    oct<<=1;
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"SS Screening Indicator: (%u) %s",
+	oct>>6,
+	answer_ssid[oct>>6]);
+    oct<<=2;
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"SoLSA Capability: (%u) %s",
+	oct>>7,
+	answer_solsa[oct>>7]);
+    oct<<=1;
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Revision level indicator: (%u) %s",
+	oct>>7,
+	answer_rev[oct>>7]);
+
+    curr_offset++;
+
+    if ( curr_len == 0 ){ EXTRANEOUS_DATA_CHECK(len, curr_offset - offset); return(curr_offset - offset); }
+    oct = tvb_get_guint8(tvb, curr_offset);
+    curr_len--;
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"PFC feature mode: (%u) %s",
+	oct>>7,
+	answer_pfc[oct>>7]);
+    oct<<=1;
+
+    for( gea_val=2; gea_val<8 ; gea_val++ )
+    {
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"GEA%d: (%u) %s", gea_val,
+		oct>>7,
+		answer_gea[oct>>7]);
+	    oct<<=1;
+    }
+    
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"LCS VA capability:: (%u) %s",
+	oct>>7,
+	answer_lcs[oct>>7]);
+    
+    curr_offset++;	   
+	   	   
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.12a
+ */
+static guint8
+de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+    guint	curr_len;
+    proto_item  *tf = NULL;
+    proto_tree      *tf_tree = NULL;
+    
+    curr_len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    tf = proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Mobile Station Radio Access Capability");
+
+    tf_tree = proto_item_add_subtree(tf, ett_gmm_radio_cap );
+    
+    proto_tree_add_text(tf_tree,
+	tvb, curr_offset, curr_len,
+	"Not Implemented" );
+    
+    curr_offset+= curr_len;	   
+	   	   
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.13
+ */
+static guint8
+de_gc_spare(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Spare Nibble");
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.14
+ */
+static guint8
+de_gmm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar       *str;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct )
+    {
+    	case 0x02: str="IMSI unknown in HLR"; break;
+    	case 0x03: str="Illegal MS"; break;
+    	case 0x04: str="IMSI unknown in VLR"; break;
+    	case 0x05: str="IMEI not accepted"; break;
+    	case 0x06: str="Illegal ME"; break;
+    	case 0x07: str="GPRS services not allowed"; break;
+    	case 0x08: str="GPRS services and non-GPRS services not	allowed"; break;
+    	case 0x09: str="MS identity cannot be derived by the network"; break;
+    	case 0x0a: str="Implicitly detached"; break;
+    	case 0x0b: str="PLMN not allowed"; break;
+    	case 0x0c: str="Location Area not allowed"; break;
+    	case 0x0d: str="Roaming not allowed in this location area"; break;
+    	case 0x0e: str="GPRS services not allowed in this PLMN"; break;
+    	case 0x0f: str="No Suitable Cells In Location Area"; break;
+    	case 0x10: str="MSC temporarily not reachable"; break;
+    	case 0x11: str="Network failure"; break;
+    	case 0x14: str="MAC failure"; break;
+    	case 0x15: str="Synch failure"; break;
+    	case 0x16: str="Congestion"; break;
+    	case 0x17: str="GSM authentication unacceptable"; break;
+    	case 0x18: str="No PDP context activated"; break;
+    	case 0x19: str="retry upon entry into a new cell"; break;
+    	case 0x1a: str="retry upon entry into a new cell"; break;
+    	case 0x1b: str="retry upon entry into a new cell"; break;
+    	case 0x1c: str="retry upon entry into a new cell"; break;
+    	case 0x1d: str="retry upon entry into a new cell"; break;
+    	case 0x1e: str="retry upon entry into a new cell"; break;
+    	case 0x1f: str="retry upon entry into a new cell"; break;
+    	case 0x20: str="Service option not supported"; break;
+    	case 0x21: str="Requested service option not subscribed"; break;
+    	case 0x22: str="Service option temporarily out of order"; break;
+    	case 0x26: str="Call cannot be identified"; break;
+    	case 0x2f: str="Semantically incorrect message"; break;
+    	case 0x30: str="Invalid mandatory information"; break;
+    	case 0x31: str="Message type non-existent or not implemented"; break;
+        case 0x32: str="Message type not compatible with the protocol state"; break;
+        case 0x33: str="Information element non-existent or not implemented"; break;
+        case 0x34: str="Conditional IE error"; break;
+        case 0x35: str="Message not compatible with the protocol state"; break;
+        case 0x36: str="Protocol error, unspecified"; break;
+	default: str="Protocol error, unspecified";
+    }
+    
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"gmm Cause: (%u) %s",
+	oct,
+	str);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.15
+ */
+static guint8
+de_gmm_rai(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	mcc;
+    guint32	mnc;
+    guint32	lac;
+    guint32	rac;
+    guint32	curr_offset;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    mcc = tvb_get_guint8(tvb, curr_offset);
+    mcc |= (tvb_get_guint8(tvb, curr_offset+1)&0x0f)<<8;
+    mnc = tvb_get_guint8(tvb, curr_offset+2);
+    mnc |= (tvb_get_guint8(tvb, curr_offset+1)<<4)&0x0f00;
+    if ((mnc&0x0f00) == 0x0f00 )
+    	mnc&=0xff;
+    lac = tvb_get_guint8(tvb, curr_offset+3);
+    lac <<= 8;
+    lac |= tvb_get_guint8(tvb, curr_offset+4);
+    rac = tvb_get_guint8(tvb, curr_offset+5);
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 6,
+	"Routing area identification: %x-%x-%x-%x",
+	mcc,mnc,lac,rac);
+
+    curr_offset+=6;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.17
+ */
+static guint8
+de_gmm_update_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar       *str;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    /* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE HIGHER NIBBLE */
+    oct >>= 4;
+
+    switch(oct&7)
+    {
+    	case 0: str="RA updated"; break;
+    	case 1: str="combined RA/LA updated";	break;
+    	default: str="reserved";
+    }
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Update Result: (%u) %s",
+	oct&7,
+	str);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.18
+ */
+static guint8
+de_gmm_update_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint8	oct_ciph;
+    guint32	curr_offset;
+    gchar       *str_follow;
+    gchar       *str_update;
+    proto_item  *tf = NULL;
+    proto_tree      *tf_tree = NULL;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+    oct_ciph = oct>>4;
+
+    oct &= 0x0f;
+
+    switch(oct&7)
+    {
+    	case 0: str_update="RA updating"; break;
+    	case 1: str_update="combined RA/LA updating"; break;
+    	case 2: str_update="combined RA/LA updating with IMSI attach"; break;
+    	case 3: str_update="Periodic updating"; break;
+    	default: str_update="reserved";
+    }
+    switch(oct&8)
+    {
+    	case 8: str_follow="Follow-on request pending"; break;
+    	default: str_follow="No follow-on request pending";
+    }
+
+    tf = proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Update Type");
+
+    tf_tree = proto_item_add_subtree(tf, ett_gmm_update_type );
+
+    proto_tree_add_text(tf_tree,
+	tvb, curr_offset, 1,
+	"Type: (%u) %s",
+	oct&7,
+	str_update);
+    proto_tree_add_text(tf_tree,
+	tvb, curr_offset, 1,
+	"Follow: (%u) %s",
+	(oct>>3)&1,
+	str_follow);
+
+    /* The ciphering key sequence number is added here */
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Ciphering key sequence number: 0x%02x (%u)",
+	oct_ciph,
+	oct_ciph);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.19
+ */
+static guint8
+de_gmm_ac_ref_nr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"A&C reference number: 0x%02x (%u)",
+	oct&0xf,
+	oct&0xf);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.19
+ */
+static guint8
+de_gmm_ac_ref_nr_h(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    /* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE HIGHER NIBBLE */
+    oct >>= 4;
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"A&C reference number: 0x%02x (%u)",
+	oct,
+	oct);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.20
+ */
+static guint8
+de_gmm_service_type(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint8	oct_ciph;
+    guint32	curr_offset;
+    gchar	*str;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+    oct_ciph = oct;
+    oct_ciph &= 7;
+
+    oct = oct >> 4;
+
+    switch ( oct&7 )
+    {
+    	case 0: str="Signalling"; break;
+    	case 1: str="Data"; break;
+    	case 2: str="Paging Response"; break;
+    	default: str="reserved";
+    }
+
+    /* The ciphering key sequence number is added here */
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Ciphering key sequence number: 0x%02x (%u)",
+	oct_ciph,
+	oct_ciph);
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Service Type: (%u) %s",
+	oct&7,
+	str);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.21
+ */
+static guint8
+de_gmm_cell_notfi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 0,
+    	"Cell Notification");
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.22
+ */
+static guint8
+de_gmm_ps_lcs_cap(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    
+    gchar	str_otd[2][40]={ "MS assisted E-OTD not supported",
+    			"MS assisted E-OTD supported" };
+    gchar	str_gps[2][40]={ "MS assisted GPS not supported",
+    			"MS assisted GPS supported" };
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    oct <<=3;   // move away the spare bits
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"OTD-A: (%u) %s",
+	oct>>7,
+	str_otd[oct>>7]);
+    oct <<=1;
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"OTD-B: (%u) %s",
+	oct>>7,
+	str_otd[oct>>7]);
+    oct <<=1;
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"GPS-A: (%u) %s",
+	oct>>7,
+	str_gps[oct>>7]);
+    oct <<=1;
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"GPS-B: (%u) %s",
+	oct>>7,
+	str_gps[oct>>7]);
+    oct <<=1;
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"GPS-C: (%u) %s",
+	oct>>7,
+	str_gps[oct>>7]);
+
+    curr_offset++;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.5.23
+ */
+static guint8
+de_gmm_net_feat_supp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar       *str;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch(oct&8)
+    {
+    	case 8: str="LCS-MOLR via PS domain not supported"; break;
+    	default: str="LCS-MOLR via PS domain supported";
+    }
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Network Feature Support: (%u) %s",
+	(oct>>3)&1,
+	str);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.7.3
+ */
+static guint8
+de_gc_timer(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint16	val;
+    guint32	curr_offset;
+    gchar       *str;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    val = oct&0x1f;
+
+    switch(oct>>5)
+    {
+    	case 0: str="sec"; val*=2; break;
+    	case 1: str="min"; break;
+    	case 2: str="min"; val*=6; break;
+    	case 3:
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"GPRS Timer: timer is deactivated");
+
+    	default: str="min";
+    }
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"GPRS Timer: (%u) %u %s",
+	oct, val,
+	str);
+
+    curr_offset++;
+
+    /* no length check possible */
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.7.4
+ */
+static guint8
+de_gc_timer2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint16	val;
+    guint32	curr_offset;
+    gchar       *str;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    val = oct&0x1f;
+
+    switch(oct>>5)
+    {
+    	case 0: str="sec"; val*=2; break;
+    	case 1: str="min"; break;
+    	case 2: str="min"; val*=6; break;
+    	case 3:
+	    proto_tree_add_text(tree,
+		tvb, curr_offset, 1,
+		"GPRS Timer: timer is deactivated");
+
+    	default: str="min";
+    }
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"GPRS Timer: (%u) %u %s %s",
+	oct, val,
+	str,add_string);
+
+    curr_offset++;
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.7.2
+ */
+static guint8
+de_gc_radio_prio(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar       *str;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct&7 )
+    {
+    	case 1: str="priority level 1 (highest)"; break;
+    	case 2: str="priority level 2"; break;
+    	case 3: str="priority level 3"; break;
+    	case 4: str="priority level 4 (lowest)"; break;
+    	default: str="priority level 4 (lowest)";
+    }
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Radio Priority (PDP or SMS): (%u) %s",
+	oct&7,
+	str);
+
+    curr_offset++;
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.7.5
+ */
+static guint8
+de_gc_radio_prio2(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar       *str;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    /* IMPORTANT - IT'S ASSUMED THAT THE INFORMATION IS IN THE HIGHER NIBBLE */
+    oct >>= 4;
+
+    switch ( oct&7 )
+    {
+    	case 1: str="priority level 1 (highest)"; break;
+    	case 2: str="priority level 2"; break;
+    	case 3: str="priority level 3"; break;
+    	case 4: str="priority level 4 (lowest)"; break;
+    	default: str="priority level 4 (lowest)";
+    }
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Radio Priority (TOM8): (%u) %s",
+	oct&7,
+	str);
+
+    curr_offset++;
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.7.1
+ */
+static guint8
+de_gc_context_stat(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint16	pdp_nr;
+    guint32	curr_offset;
+    proto_item  *tf = NULL;
+    proto_tree      *tf_tree = NULL;
+
+    gchar 	str[2][20]={ "PDP-INACTIVE", "PDP-ACTIVE" };
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    tf = proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"PDP Context Status");
+
+    tf_tree = proto_item_add_subtree(tf, ett_gmm_context_stat );
+    
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    for ( pdp_nr=0;pdp_nr<16; pdp_nr++ )
+    {
+            if ( pdp_nr == 8 )
+            {
+            	curr_offset++;
+            	oct = tvb_get_guint8(tvb, curr_offset);
+            }
+	    proto_tree_add_text(tf_tree,
+		tvb, curr_offset, 1,
+		"NSAPI %d: (%u) %s",pdp_nr,
+		oct&1,
+		str[oct&1]);
+	    oct>>=1;
+    }
+
+    curr_offset++;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.6.1
+ */
+#define MAX_APN_LENGTH		50
+
+static guint8
+de_sm_apn(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+    guint       curr_len;
+    const guint8	*cptr;
+    guint8      str[MAX_APN_LENGTH+1];
+
+    cptr = tvb_get_ptr(tvb, offset, len);
+
+    
+    add_string = add_string;
+    curr_offset = offset;
+
+    /* init buffer and copy it */
+    memset ( str , 0 , MAX_APN_LENGTH );
+    memcpy ( str , cptr , len<MAX_APN_LENGTH?len:MAX_APN_LENGTH );
+
+    curr_len = 0;
+    while (( curr_len < len ) && ( curr_len < MAX_APN_LENGTH ))
+    {
+    	guint step = str[curr_len];
+    	str[curr_len]='.';
+    	curr_len += step+1;
+    }
+    
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, len,
+    	"APN: %s %s", str+1 , add_string);
+
+    curr_offset+= len;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.6.2
+ */
+static guint8
+de_sm_nsapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"NSAPI: 0x%02x (%u) %s",
+	oct&0x0f, oct&0x0f,add_string);
+
+    curr_offset++;
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.6.3
+ */
+static guint8
+de_sm_pco(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+    guint	curr_len;
+    guchar	oct;
+    
+    curr_len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+    curr_len--;
+    curr_offset++;
+
+    proto_tree_add_text(tree,tvb, curr_offset, 1, "Ext: 0x%02x (%u)",oct>>7,oct>>7);
+    proto_tree_add_text(tree,tvb, curr_offset, 1, "Configuration Protocol: PPP (%u)",oct&0x0f);
+
+    while ( curr_len > 0 )
+    {
+    	guchar e_len;
+    	guint16 prot;
+	prot = tvb_get_guint8(tvb, curr_offset);
+	prot <<= 8;
+	prot |= tvb_get_guint8(tvb, curr_offset+1);
+	e_len = tvb_get_guint8(tvb, curr_offset+2);
+    	curr_len-=3;
+    	curr_offset+=3;
+
+    	switch ( prot )
+    	{
+    		case 0x0001:
+	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) P-CSCF Address" , prot );
+	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+	    	    break;
+    		case 0x0002:
+	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) IM CN Subsystem Signaling Flag" , prot );
+	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+	    	    break;
+    		case 0x0003:
+	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) DNS Server Address" , prot );
+	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+	    	    break;
+    		case 0x0004:
+	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Parameter: (%u) Policy Control rejection code" , prot );
+	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+	    	    break;
+    		case 0xC021:
+	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: (%u) LCP" , prot );
+	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+	    	    break;
+    		case 0xC023:
+	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: (%u) PAP" , prot );
+	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+	    	    break;
+    		case 0xC223:
+	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: (%u) CHAP" , prot );
+	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+	    	    break;
+    		case 0x8021:
+	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol: (%u) IPCP" , prot );
+	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+	    	    break;
+    		default:
+	    	    proto_tree_add_text(tree,tvb, curr_offset-3, 2, "Protocol/Parameter: (%u) unknwown" , prot );
+	    	    proto_tree_add_text(tree,tvb, curr_offset-1, 1, "Length: 0x%02x (%u)", e_len , e_len);
+    	}
+
+	curr_len-= e_len;
+	curr_offset+= e_len;
+    }    
+    curr_offset+= curr_len;	   
+	   	   
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.6.4
+ */
+static guint8
+de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+    guint	curr_len;
+    gchar       *str;
+    guchar      oct;
+    guchar      oct2;
+    guchar       *addr = NULL;
+    guint16	*addr2 = NULL;
+    
+    curr_len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct&0x0f )
+    {
+    	case 0x00: str="ETSI allocated address"; break;
+    	case 0x01: str="IETF allocated address"; break;
+    	case 0x0f: str="Empty PDP type";
+    	default: str="reserved";
+    }
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"PDP type organisation: (%u) %s",oct&0x0f,str);
+
+    oct2 = tvb_get_guint8(tvb, curr_offset+1);
+
+    if (( oct&0x0f ) == 0 )
+    {
+	    switch ( oct2 )
+	    {
+    		case 0x00: str="Reserved, used in earlier version of this protocol"; break;
+    		case 0x01: str="PDP-type PPP"; break;
+    		default: str="reserved";
+    	    }
+    }
+    else if (( oct&0x0f) == 1 )
+    {
+    	    switch ( oct2 )
+    	    {
+	      	case 0x21: str="IPv4 address"; break;
+    		case 0x57: str="IPv6 address"; break;
+    		default: str="IPv4 address";
+    	    }
+    }
+    else if ((oct2==0) && (( oct&0x0f) == 0x0f ))    
+    	    str="Empty"; 
+    else
+            str="Not specified";    	
+    
+    proto_tree_add_text(tree,
+    	tvb, curr_offset+1, 1,
+    	"PDP type number: (%u) %s",oct2,str);
+
+    if (( len == 2 ) && (( oct2 == 0x21 ) || ( oct2 == 0x57 )))
+    {
+            proto_tree_add_text(tree,
+    		tvb, curr_offset+1, 1,
+    		"Dynamic addressing");
+    	
+	    curr_offset+= curr_len;	   
+
+	    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+           return(curr_offset - offset);
+    }
+    else if ( len == 2 )
+    {
+            proto_tree_add_text(tree,
+    		tvb, curr_offset+1, 1,
+    		"No PDP address is included");
+    	
+	    curr_offset+= curr_len;	   
+
+	    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+           return(curr_offset - offset);
+    }
+
+    if ((( oct2 == 0x21 ) && ( len != 6 )) ||
+       (( oct2 == 0x57 ) && ( len != 18 )))
+    {
+            proto_tree_add_text(tree,
+    		tvb, curr_offset+2, len-2,
+    		"Can't display address");
+    }
+
+
+    if ( oct2 == 0x21 )
+    {    
+            addr = (gchar*)tvb_get_ptr(tvb, offset+2, len-2);
+
+            proto_tree_add_text(tree,
+    		tvb, curr_offset+2, len-2,
+    		"IPv4: %u.%u.%u.%u",addr[0],addr[1],addr[2],addr[3]);
+    }
+
+    if ( oct2 == 0x57 )
+    {
+            addr2 = (guint16*)tvb_get_ptr(tvb, offset+2, len-2);
+  
+            proto_tree_add_text(tree,
+    		tvb, curr_offset+2, len-2,
+    		"IPv6: %4x:%4x:%4x:%4x:%4x:%4x:%4x:%4x",addr[0],addr[1],addr[2],addr[3],addr[4],addr[5],addr[6],addr[7]);
+    }
+    
+    curr_offset+= curr_len;	   
+	   	   
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.6.5
+ */
+static guint8
+de_sm_qos(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+    guint	curr_len;
+    guchar       oct;
+    guchar       *str;
+    
+    curr_len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( (oct>>3)&7 )
+    {
+    	case 0x00: str="Subscribed delay class/reserved"; break;
+    	case 0x01: str="Delay class 1"; break;
+    	case 0x02: str="Delay class 2"; break;
+    	case 0x03: str="Delay class 3"; break;
+    	case 0x04: str="Delay class 4 (best effort)"; break;
+    	case 0x07: str="Reserved"; break;
+    	default: str="Delay class 4 (best effort)";
+    }
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Delay class: (%u) %s",(oct>>3)&7,str);
+
+    switch ( oct&0x7 )
+    {
+    	case 0x00: str="Subscribed reliability class/reserved"; break;
+    	case 0x01: str="Acknowledged GTP, LLC, and RLC; Protected data"; break;
+    	case 0x02: str="Unacknowledged GTP; Acknowledged LLC and RLC, Protected data"; break;
+    	case 0x03: str="Unacknowledged GTP and LLC; Acknowledged RLC, Protected data"; break;
+    	case 0x04: str="Unacknowledged GTP, LLC, and RLC, Protected data"; break;
+    	case 0x05: str="Unacknowledged GTP, LLC, and RLC, Unprotected data"; break;
+    	case 0x07: str="Reserved"; break;
+    	default: str="Unacknowledged GTP and LLC; Acknowledged RLC, Protected data";
+    }
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Reliability class: (%u) %s",oct&7,str);
+
+    curr_offset+= 1;	   
+    curr_len-= 1;
+    
+    if ( curr_len == 0 )
+    {
+	    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	    return(curr_offset - offset);
+    }
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct>>4 )
+    {
+    	case 0x00: str="Subscribed peak throughput/reserved"; break;
+    	case 0x01: str="Up to 1 000 octet/s"; break;
+    	case 0x02: str="Up to 2 000 octet/s"; break;
+    	case 0x03: str="Up to 4 000 octet/s"; break;
+    	case 0x04: str="Up to 8 000 octet/s"; break;
+    	case 0x05: str="Up to 16 000 octet/s"; break;
+    	case 0x06: str="Up to 32 000 octet/s"; break;
+    	case 0x07: str="Up to 64 000 octet/s"; break;
+    	case 0x08: str="Up to 128 000 octet/s"; break;
+    	case 0x09: str="Up to 256 000 octet/s"; break;
+    	case 0x0f: str="Reserved"; break;
+    	default: str="Up to 1 000 octet/s";
+    }
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Peak throughput: (%u) %s",oct>>4,str);
+
+    switch ( oct&0x7 )
+    {
+    	case 0x00: str="Subscribed precedence/reserved"; break;
+    	case 0x01: str="High priority"; break;
+    	case 0x02: str="Normal priority"; break;
+    	case 0x03: str="Low priority"; break;
+    	case 0x07: str="Reserved"; break;
+    	default: str="Normal priority";
+    }
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Precedence class: (%u) %s",oct&7,str);
+
+    curr_offset+= 1;	   
+    curr_len-= 1;
+    
+    if ( curr_len == 0 )
+    {
+	    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	    return(curr_offset - offset);
+    }
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct&0x1f )
+    {
+    	case 0x00: str="Subscribed peak throughput/reserved"; break;
+    	case 0x01: str="100 octet/h"; break;
+    	case 0x02: str="200 octet/h"; break;
+    	case 0x03: str="500 octet/h"; break;
+    	case 0x04: str="1 000 octet/h"; break;
+    	case 0x05: str="2 000 octet/h"; break;
+    	case 0x06: str="5 000 octet/h"; break;
+    	case 0x07: str="10 000 octet/h"; break;
+    	case 0x08: str="20 000 octet/h"; break;
+    	case 0x09: str="50 000 octet/h"; break;
+    	case 0x0a: str="100 000 octet/h"; break;
+    	case 0x0b: str="200 000 octet/h"; break;
+    	case 0x0c: str="500 000 octet/h"; break;
+    	case 0x0d: str="1 000 000 octet/h"; break;
+    	case 0x0e: str="2 000 000 octet/h"; break;
+    	case 0x0f: str="5 000 000 octet/h"; break;
+    	case 0x10: str="10 000 000 octet/h"; break;
+    	case 0x11: str="20 000 000 octet/h"; break;
+    	case 0x12: str="50 000 000 octet/h"; break;
+    	case 0x1e: str="Reserved"; break;
+    	case 0x1f: str="Best effort"; break;
+    	default: str="Best effort";
+    }
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Mean throughput: (%u) %s",oct&0x1f,str);
+
+    curr_offset+= 1;	   
+    curr_len-= 1;
+    
+    if ( curr_len == 0 )
+    {
+	    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	    return(curr_offset - offset);
+    }
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct>>5 )
+    {
+    	case 0x00: str="Subscribed traffic class/reserved"; break;
+    	case 0x01: str="Conversational class"; break;
+    	case 0x02: str="Streaming class"; break;
+    	case 0x03: str="Interactive class"; break;
+    	case 0x04: str="Background class"; break;
+    	case 0x07: str="Reserved"; break;
+    	default: str="Unspecified";
+    }
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Traffic class: (%u) %s",oct>>5,str);
+
+    switch ( (oct>>3)&3 )
+    {
+    	case 0x00: str="Subscribed delivery order"; break;
+    	case 0x01: str="With delivery order ('yes')"; break;
+    	case 0x02: str="Without delivery order ('no')"; break;
+    	case 0x03: str="Reserved"; break;
+    	default: str="This should not happen - BUG";
+    }
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Delivery order: (%u) %s",(oct>>3)&3,str);
+
+    switch ( oct&7 )
+    {
+    	case 0x00: str="Subscribed delivery of erroneous SDUs/reserved"; break;
+    	case 0x01: str="No detect ('-')"; break;
+    	case 0x02: str="Erroneous SDUs are delivered ('yes')"; break;
+    	case 0x03: str="Erroneous SDUs are not delivered ('no')"; break;
+    	case 0x07: str="Reserved"; break;
+    	default: str="Unspecified";
+    }
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Delivery of erroneous SDUs: (%u) %s",oct&7,str);
+
+    curr_offset+= 1;	   
+    curr_len-= 1;
+    
+    if ( curr_len == 0 )
+    {
+	    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	    return(curr_offset - offset);
+    }
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct )
+    {
+    	case 0x00: str="Subscribed maximum SDU size/reserved"; break;
+    	case 0x97: str="1502 octets"; break;
+    	case 0x98: str="1510 octets"; break;
+    	case 0x99: str="1520 octets"; break;
+    	case 0xff: str="Reserved"; break;
+    	default: str="Unspecified";
+    }
+
+    if (( oct >= 1 ) && ( oct <= 96 ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+	    	"Maximum SDU size: (%u) %u octets",oct,oct);
+    else
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+	    	"Maximum SDU size: (%u) %s",oct,str);
+
+    curr_offset+= 1;	   
+    curr_len-= 1;
+    
+    if ( curr_len == 0 )
+    {
+	    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	    return(curr_offset - offset);
+    }
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct )
+    {
+    	case 0x00: str="Subscribed maximum bit rate for uplink/reserved"; break;
+    	case 0xff: str="0kbps"; break;
+    	default: str="This should not happen - BUG";
+    }
+
+    if (( oct >= 1 ) && ( oct <= 0x3f ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Maximum bit rate for uplink: (%u) %ukbps",oct,oct);
+    else if (( oct >= 0x40 ) && ( oct <= 0x7f ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Maximum bit rate for uplink: (%u) %ukbps",oct,(oct-0x40)*8);
+    else if (( oct >= 0x80 ) && ( oct <= 0xfe ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Maximum bit rate for uplink: (%u) %ukbps",oct,(oct-0x80)*64);
+    else
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Maximum bit rate for uplink: (%u) %s",oct,str);
+
+    curr_offset+= 1;	   
+    curr_len-= 1;
+    
+    if ( curr_len == 0 )
+    {
+	    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	    return(curr_offset - offset);
+    }
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct )
+    {
+    	case 0x00: str="Subscribed maximum bit rate for uplink/reserved"; break;
+    	case 0xff: str="0kbps"; break;
+    	default: str="This should not happen - BUG";
+    }
+
+    if (( oct >= 1 ) && ( oct <= 0x3f ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Maximum bit rate for downlink: (%u) %ukbps",oct,oct);
+    else if (( oct >= 0x40 ) && ( oct <= 0x7f ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Maximum bit rate for downlink: (%u) %ukbps",oct,(oct-0x40)*8);
+    else if (( oct >= 0x80 ) && ( oct <= 0xfe ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Maximum bit rate for downlink: (%u) %ukbps",oct,(oct-0x80)*64);
+    else
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Maximum bit rate for downlink: (%u) %s",oct,str);
+
+    curr_offset+= 1;	   
+    curr_len-= 1;
+    
+    if ( curr_len == 0 )
+    {
+	    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	    return(curr_offset - offset);
+    }
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct>>4 )
+    {
+    	case 0x00: str="Subscribed residual BER/reserved"; break;
+    	case 0x01: str="5*10-2"; break;
+    	case 0x02: str="1*10-2"; break;
+    	case 0x03: str="5*10-3"; break;
+    	case 0x04: str="4*10-3"; break;
+    	case 0x05: str="1*10-3"; break;
+    	case 0x06: str="1*10-4"; break;
+    	case 0x07: str="1*10-5"; break;
+    	case 0x08: str="1*10-6"; break;
+    	case 0x09: str="6*10-8"; break;
+    	case 0x0f: str="Reserved"; break;
+    	default: str="Unspecified";
+    }
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Residual BER: (%u) %s",oct>>4,str);
+
+    switch ( oct&0x0f )
+    {
+    	case 0x00: str="Subscribed SDU error ratio/reserved"; break;
+    	case 0x01: str="1*10-2"; break;
+    	case 0x02: str="7*10-3"; break;
+    	case 0x03: str="1*10-3"; break;
+    	case 0x04: str="1*10-4"; break;
+    	case 0x05: str="1*10-5"; break;
+    	case 0x06: str="1*10-6"; break;
+    	case 0x07: str="1*10-1"; break;
+    	case 0x0f: str="Reserved"; break;
+    	default: str="Unspecified";
+    }
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"SDU error ratio: (%u) %s",oct&0x0f,str);
+
+    curr_offset+= 1;	   
+    curr_len-= 1;
+    
+    if ( curr_len == 0 )
+    {
+	    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	    return(curr_offset - offset);
+    }
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct>>2 )
+    {
+    	case 0x00: str="Subscribed transfer delay/reserved"; break;
+    	case 0x3f: str="Reserved"; break;
+    	default: str="This should not happen - BUG";
+    }
+
+    if (( oct >= 1 ) && ( oct <= 0x0f ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+    		"Transfer Delay: (%u) %ums",oct>>2,(oct>>2)*10);
+    else if (( oct >= 0x10 ) && ( oct <= 0x1f ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+    		"Transfer Delay: (%u) %ums",oct>>2,((oct>>2)-0x10)*50);
+    else if (( oct >= 0x20 ) && ( oct <= 0x3e ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+    		"Transfer Delay: (%u) %ums",oct>>2,((oct>>2)-0x20)*100);
+    else
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+    		"Transfer Delay: (%u) %s",oct>>2,str);
+
+    switch ( oct&0x03 )
+    {
+    	case 0x00: str="Subscribed traffic handling priority/reserved"; break;
+    	case 0x01: str="Priority level 1"; break;
+    	case 0x02: str="Priority level 2"; break;
+    	case 0x03: str="Priority level 3"; break;
+    	default: str="This should not happen - BUG";
+    }
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Traffic Handling priority: (%u) %s",oct&0x03,str);
+
+    curr_offset+= 1;	   
+    curr_len-= 1;
+    
+    if ( curr_len == 0 )
+    {
+	    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	    return(curr_offset - offset);
+    }
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct )
+    {
+    	case 0x00: str="Subscribed guaranteed bit rate for uplink/reserved"; break;
+    	case 0xff: str="0kbps"; break;
+    	default: str="This should not happen - BUG";
+    }
+
+    if (( oct >= 1 ) && ( oct <= 0x3f ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Guaranteed bit rate for uplink: (%u) %ukbps",oct,oct);
+    else if (( oct >= 0x40 ) && ( oct <= 0x7f ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Guaranteed bit rate for uplink: (%u) %ukbps",oct,(oct-0x40)*8);
+    else if (( oct >= 0x80 ) && ( oct <= 0xfe ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Guaranteed bit rate for uplink: (%u) %ukbps",oct,(oct-0x80)*64);
+    else
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Guaranteed bit rate for uplink: (%u) %s",oct,str);
+
+    curr_offset+= 1;	   
+    curr_len-= 1;
+    
+    if ( curr_len == 0 )
+    {
+	    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	    return(curr_offset - offset);
+    }
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct )
+    {
+    	case 0x00: str="Subscribed guaranteed bit rate for uplink/reserved"; break;
+    	case 0xff: str="0kbps"; break;
+    	default: str="This should not happen - BUG";
+    }
+
+    if (( oct >= 1 ) && ( oct <= 0x3f ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Guaranteed bit rate for downlink: (%u) %ukbps",oct,oct);
+    else if (( oct >= 0x40 ) && ( oct <= 0x7f ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Guaranteed bit rate for downlink: (%u) %ukbps",oct,(oct-0x40)*8);
+    else if (( oct >= 0x80 ) && ( oct <= 0xfe ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Guaranteed bit rate for downlink: (%u) %ukbps",oct,(oct-0x80)*64);
+    else
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Guaranteed bit rate for downlink: (%u) %s",oct,str);
+
+    curr_offset+= 1;	   
+    curr_len-= 1;
+    
+    if ( curr_len == 0 )
+    {
+	    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	    return(curr_offset - offset);
+    }
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( (oct>>4)&1 )
+    {
+    	case 0x00: str="Not optimised for signalling traffic"; break;
+    	case 0x01: str="Optimised for signalling traffic"; break;
+    	default: str="This should not happen - BUG";
+    }
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Signalling Indication: (%u) %s",(oct>>4)&1,str);
+
+    switch ( oct&7 )
+    {
+    	case 0x00: str="unknown"; break;
+    	case 0x01: str="speech"; break;
+    	default: str="unknown";
+    }
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Source Statistics Descriptor: (%u) %s",oct&7,str);
+
+    curr_offset+= 1;	   
+    curr_len-= 1;
+    
+    if ( curr_len == 0 )
+    {
+	    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	    return(curr_offset - offset);
+    }
+
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct )
+    {
+    	case 0x00: str="Use the value indicated by the Maximum bit rate for downlink"; break;
+    	default: str="Unspecified";
+    }
+
+    if (( oct >= 1 ) && ( oct <= 0x3f ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Maximum bit rate for downlink (extended): (%u) %ukbps",oct,oct*100);
+    else
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Maximum bit rate for downlink (extended): (%u) %s",oct,str);
+
+    curr_offset+= 1;	   
+    curr_len-= 1;
+    
+    if ( curr_len == 0 )
+    {
+	    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+	    return(curr_offset - offset);
+    }
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct )
+    {
+    	case 0x00: str="Use the value indicated by the Guaranteed bit rate for downlink"; break;
+    	default: str="Unspecified";
+    }
+
+    if (( oct >= 1 ) && ( oct <= 0x4a ))
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Guaranteed bit rate for downlink (extended): (%u) %ukbps",oct,oct*100);
+    else
+	    proto_tree_add_text(tree,
+    		tvb, curr_offset, 1,
+   	 	"Guaranteed bit rate for downlink (extended): (%u) %s",oct,str);
+
+    curr_offset+= 1;	   
+    curr_len-= 1;
+    
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.6.6
+ */
+static guint8
+de_sm_cause(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar       *str;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    switch ( oct )
+    {
+    	case 0x08: str="Operator Determined Barring"; break;
+    	case 0x19: str="LLC or SNDCP failure(GSM only)"; break;
+    	case 0x1a: str="Insufficient resources"; break;
+    	case 0x1b: str="Missing or unknown APN"; break;
+    	case 0x1c: str="Unknown PDP address or PDP type"; break;
+    	case 0x1d: str="User Aauthentication failed"; break;
+    	case 0x1e: str="Activation rejected by GGSN"; break;
+    	case 0x1f: str="Activation rejected, unspecified"; break;
+    	case 0x20: str="Service option not supported"; break;
+    	case 0x21: str="Requested service option not subscribed"; break;
+    	case 0x22: str="Service option temporarily out of order"; break;
+    	case 0x23: str="NSAPI already used (not sent)"; break;
+    	case 0x24: str="Regular deactivation"; break;
+    	case 0x25: str="QoS not accepted"; break;
+    	case 0x26: str="Network failure"; break;
+    	case 0x27: str="Reactivation required"; break;
+    	case 0x28: str="Feature not supported"; break;
+    	case 0x29: str="Semantic error in the TFT operation"; break;
+    	case 0x2a: str="Syntactical error in the TFT operation"; break;
+    	case 0x2b: str="Unknown PDP context"; break;
+    	case 0x2e: str="PDP context without TFT already activated"; break;
+    	case 0x2c: str="Semantic errors in packet filter(s)"; break;
+    	case 0x2d: str="Syntactical errors in packet filter(s)"; break;
+    	case 0x51: str="Invalid transaction identifier value"; break;
+    	case 0x5f: str="Semantically incorrect message"; break;
+    	case 0x60: str="Invalid mandatory information"; break;
+    	case 0x61: str="Message type non-existent or not implemented"; break;
+    	case 0x62: str="Message type not compatible with the protocol state"; break;
+    	case 0x63: str="Information element non-existent or not implemented"; break;
+    	case 0x64: str="Conditional IE error"; break;
+    	case 0x65: str="Message not compatible with the protocol state"; break;
+    	case 0x6f: str="Protocol error, unspecified"; break;
+    	default: str="Protocol error, unspecified"; break;
+    }
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"LLC SAPI: (%u) %s %s",
+	oct, str,add_string);
+
+    curr_offset++;
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.6.7
+ */
+static guint8
+de_sm_linked_ti(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+    guint	curr_len;
+    gchar       oct;
+
+    gchar       ti_flag[2][80]={ "The message is sent from the side that originates the TI" ,
+    			"The message is sent to the side that originates the TI" };
+    
+    curr_len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"TI flag: (%u) %s",oct>>7,ti_flag[oct>>7]);
+
+    if ( curr_len > 1 )
+    {
+        oct = tvb_get_guint8(tvb, curr_offset);
+        
+        proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"TI value: 0x%02x (%u)",oct&0x7f,oct&0x7f);
+
+        proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"ext: 0x%02x (%u)",oct>>7,oct>>7);
+
+    }
+    else
+    {
+        proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"TI value: 0x%02x (%u)",(oct>>4)&7,(oct>>4)&7);
+    }
+
+    curr_offset+= curr_len;	   
+	   	   
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.6.9
+ */
+static guint8
+de_sm_sapi(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"LLC SAPI: 0x%02x (%u) %s",
+	oct&0x0f, oct&0x0f,add_string);
+
+    curr_offset++;
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.6.10
+ */
+static guint8
+de_sm_tear_down(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint8	oct;
+    guint32	curr_offset;
+    gchar	str[2][30] = { "tear down not requested" , "tear down requested" };
+    
+    len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    oct = tvb_get_guint8(tvb, curr_offset);
+
+    proto_tree_add_text(tree,
+	tvb, curr_offset, 1,
+	"Tear Down Indicator: (%u) %s %s",
+	oct&1, str[oct&1],add_string);
+
+    curr_offset++;
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.6.11
+ */
+static guint8
+de_sm_pflow_id(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+    guint	curr_len;
+    proto_item  *tf = NULL;
+    proto_tree      *tf_tree = NULL;
+    
+    curr_len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    tf = proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Packet Flow Identifier");
+
+    tf_tree = proto_item_add_subtree(tf, ett_sm_pfi );
+    
+    proto_tree_add_text(tf_tree,
+	tvb, curr_offset, curr_len,
+	"Not Implemented" );
+    
+    curr_offset+= curr_len;	   
+	   	   
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
+/*
+ * [7] 10.5.6.12
+ */
+static guint8
+de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string)
+{
+    guint32	curr_offset;
+    guint	curr_len;
+    proto_item  *tf = NULL;
+    proto_tree      *tf_tree = NULL;
+    
+    curr_len = len;
+    add_string = add_string;
+    curr_offset = offset;
+
+    tf = proto_tree_add_text(tree,
+    	tvb, curr_offset, 1,
+    	"Traffic Flow Template");
+
+    tf_tree = proto_item_add_subtree(tf, ett_sm_tft );
+    
+    proto_tree_add_text(tf_tree,
+	tvb, curr_offset, curr_len,
+	"Not Implemented" );
+    
+    curr_offset+= curr_len;	   
+	   	   
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);
+
+    return(curr_offset - offset);
+}
+
 static guint8 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gchar *add_string) = {
     be_cic,	/* Circuit Identity Code */
     NULL,	/* Reserved */
@@ -6869,6 +9433,7 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     NULL /* no associated data */,	/* CTS Permission */
     de_lsa_id,	/* LSA Identifier */
     de_day_saving_time,	/* Daylight Saving Time */
+    NULL, /* Emergency Number List */
     /* Call Control Information Elements 10.5.4 */
     de_aux_states,	/* Auxiliary States */
     de_bearer_cap,	/* Bearer Capability */
@@ -6909,26 +9474,31 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     NULL,	/* Supported Codec List */
     NULL,	/* Service Category */
     /* GPRS Mobility Management Information Elements 10.5.5 */
-    NULL,	/* Attach Result */
-    NULL,	/* Attach Type */
-    NULL,	/* TMSI Status */
-    NULL,	/* Detach Type */
-    NULL,	/* DRX Parameter */
-    NULL,	/* Force to Standby */
-    NULL,	/* P-TMSI Signature */
-    NULL,	/* P-TMSI Signature 2 */
-    NULL,	/* Identity Type 2 */
-    NULL,	/* IMEISV Request */
-    NULL,	/* Receive N-PDU Numbers List */
-    NULL,	/* MS Network Capability */
-    NULL,	/* MS Radio Access Capability */
-    NULL,	/* GMM Cause */
-    NULL,	/* Routing Area Identification */
-    NULL,	/* Update Result */
-    NULL,	/* A&C Reference Number */
-    NULL,	/* Service Type */
-    NULL,	/* Cell Notification */
-    NULL,	/* Network Feature Support */
+    de_gmm_attach_res,	/* Attach Result */
+    de_gmm_attach_type,	/* Attach Type */
+    de_gmm_ciph_alg,	/* Cipher Algorithm */
+    de_gmm_tmsi_stat,	/* TMSI Status */
+    de_gmm_detach_type,	/* Detach Type */
+    de_gmm_drx_param,	/* DRX Parameter */
+    de_gmm_ftostby,	/* Force to Standby */
+    de_gmm_ftostby_h,	/* Force to Standby - Info is in the high nibble */
+    de_gmm_ptmsi_sig,	/* P-TMSI Signature */
+    de_gmm_ptmsi_sig2,	/* P-TMSI Signature 2 */
+    de_gmm_ident_type2,	/* Identity Type 2 */
+    de_gmm_imeisv_req,	/* IMEISV Request */
+    de_gmm_rec_npdu_lst,	/* Receive N-PDU Numbers List */
+    de_gmm_ms_net_cap,	/* MS Network Capability */
+    de_gmm_ms_radio_acc_cap,	/* MS Radio Access Capability */
+    de_gmm_cause,	/* GMM Cause */
+    de_gmm_rai,	/* Routing Area Identification */
+    de_gmm_update_res,	/* Update Result */
+    de_gmm_update_type,	/* Update Type */
+    de_gmm_ac_ref_nr,	/* A&C Reference Number */
+    de_gmm_ac_ref_nr_h, /* A&C Reference Numer - Info is in the high nibble */
+    de_gmm_service_type,	/* Service Type */
+    de_gmm_cell_notfi,	/* Cell Notification */
+    de_gmm_ps_lcs_cap,	/* PS LCS Capability */
+    de_gmm_net_feat_supp,	/* Network Feature Support */
     /* Short Message Service Information Elements [5] 8.1.4 */
     de_cp_user_data,	/* CP-User Data */
     de_cp_cause,	/* CP-Cause */
@@ -6939,22 +9509,24 @@ static guint8 (*dtap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     de_rp_user_data,	/* RP-User Data */
     de_rp_cause,	/* RP-Cause */
     /* Session Management Information Elements 10.5.6 */
-    NULL,	/* Access Point Name */
-    NULL,	/* Network Service Access Point Identifier */
-    NULL,	/* Protocol Configuration Options */
-    NULL,	/* Packet Data Protocol Address */
-    NULL,	/* Quality Of Service */
-    NULL,	/* SM Cause */
-    NULL,	/* Linked TI */
-    NULL,	/* LLC Service Access Point Identifier */
-    NULL,	/* Tear Down Indicator */
-    NULL,	/* Packet Flow Identifier */
-    NULL,	/* Traffic Flow Template */
+    de_sm_apn,	/* Access Point Name */
+    de_sm_nsapi,	/* Network Service Access Point Identifier */
+    de_sm_pco,	/* Protocol Configuration Options */
+    de_sm_pdp_addr,	/* Packet Data Protocol Address */
+    de_sm_qos,	/* Quality Of Service */
+    de_sm_cause,	/* SM Cause */
+    de_sm_linked_ti,	/* Linked TI */
+    de_sm_sapi,	/* LLC Service Access Point Identifier */
+    de_sm_tear_down,	/* Tear Down Indicator */
+    de_sm_pflow_id,	/* Packet Flow Identifier */
+    de_sm_tflow_temp,	/* Traffic Flow Template */
     /* GPRS Common Information Elements 10.5.7 */
-    NULL,	/* PDP Context Status */
-    NULL,	/* Radio Priority */
-    NULL,	/* GPRS Timer */
-    NULL,	/* GPRS Timer 2 */
+    de_gc_context_stat,	/* PDP Context Status */
+    de_gc_radio_prio,	/* Radio Priority */
+    de_gc_timer,	/* GPRS Timer */
+    de_gc_timer2,	/* GPRS Timer 2 */
+    de_gc_radio_prio2,	/* Radio Priority 2 */
+    de_gc_spare,	/* Spare Nibble */
     NULL,	/* NONE */
 };
 
@@ -10325,6 +12897,1150 @@ rp_error_ms_n(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
 
+/*
+ * [7] 9.4.1
+ */
+static void
+dtap_gmm_attach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_TRUE;
+    g_pinfo->p2p_dir = P2P_DIR_RECV;
+
+    ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_MS_NET_CAP, "");
+    
+    /* Included in attach type
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_CIPH_KEY_SEQ_NUM );
+    curr_offset--;
+    curr_len++;
+    */
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_ATTACH_TYPE );
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_DRX_PARAM );
+    
+    ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_MID , "" );
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RAI );
+    
+    ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_MS_RAD_ACC_CAP , "" );
+
+    ELEM_OPT_TV( 0x19 , BSSAP_PDU_TYPE_DTAP, DE_P_TMSI_SIG, " - Old P-TMSI Signature");
+    
+    ELEM_OPT_TV( 0x17 , BSSAP_PDU_TYPE_DTAP, DE_GPRS_TIMER , " - Ready Timer" );
+    
+    ELEM_OPT_TV_SHORT( 0x90 , BSSAP_PDU_TYPE_DTAP, DE_TMSI_STAT , "" );
+
+    ELEM_OPT_TLV( 0x33 , BSSAP_PDU_TYPE_DTAP, DE_PS_LCS_CAP , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.2
+ */
+static void
+dtap_gmm_attach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_FALSE;
+    g_pinfo->p2p_dir = P2P_DIR_SENT;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_FORCE_TO_STAND_H );
+    curr_len++;
+    curr_offset--;    
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_ATTACH_RES );
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_GPRS_TIMER );
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RAD_PRIO_2 );
+    curr_len++;
+    curr_offset--;
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RAD_PRIO );
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RAI );
+    
+    ELEM_OPT_TV( 0x19 , BSSAP_PDU_TYPE_DTAP, DE_P_TMSI_SIG, "" );
+    
+    ELEM_OPT_TV( 0x17 , BSSAP_PDU_TYPE_DTAP, DE_GPRS_TIMER , " - Negotiated Ready Timer" );
+    
+    ELEM_OPT_TLV( 0x18 , BSSAP_PDU_TYPE_DTAP, DE_MID , " - Allocated P-TMSI" );
+    
+    ELEM_OPT_TLV( 0x23 , BSSAP_PDU_TYPE_DTAP, DE_MID , "" );
+    
+    ELEM_OPT_TV( 0x25 , BSSAP_PDU_TYPE_DTAP, DE_GMM_CAUSE , "" );
+    
+    ELEM_OPT_TLV( 0x2A , BSSAP_PDU_TYPE_DTAP, DE_GPRS_TIMER_2 , " - T3302" );
+    
+    ELEM_OPT_T( 0x8C , BSSAP_PDU_TYPE_DTAP, DE_CELL_NOT , "" );
+    
+    ELEM_OPT_TLV( 0x4A , BSSAP_PDU_TYPE_DTAP, DE_PLMN_LIST , "" );
+
+    ELEM_OPT_TV_SHORT( 0xB0 , BSSAP_PDU_TYPE_DTAP, DE_NET_FEAT_SUP , "" );
+    
+    ELEM_OPT_TLV( 0x34 , BSSAP_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.3
+ */
+static void
+dtap_gmm_attach_com(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+
+    guint32	curr_offset;
+/*    guint32	consumed; */
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_TRUE;
+    g_pinfo->p2p_dir = P2P_DIR_RECV;
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.4
+ */
+static void
+dtap_gmm_attach_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_FALSE;
+    g_pinfo->p2p_dir = P2P_DIR_SENT;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_GMM_CAUSE );
+
+    ELEM_OPT_TLV( 0x2A , BSSAP_PDU_TYPE_DTAP, DE_GPRS_TIMER_2 , " - T3302" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.5
+ */
+static void
+dtap_gmm_detach_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_FALSE;
+    g_pinfo->p2p_dir = P2P_DIR_SENT;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_FORCE_TO_STAND_H );
+    /* Force to standy might be wrong - To decode it correct, we need the direction */
+    curr_len++;
+    curr_offset--;
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_DETACH_TYPE );
+    
+    ELEM_OPT_TV( 0x25 , BSSAP_PDU_TYPE_DTAP, DE_GMM_CAUSE , "" );
+    
+    ELEM_OPT_TV( 0x18 , BSSAP_PDU_TYPE_DTAP, DE_MID , " - P-TMSI" );
+    
+    ELEM_OPT_TV( 0x19 , BSSAP_PDU_TYPE_DTAP, DE_MID , " - P-TMSI Signature" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.6
+ */
+static void
+dtap_gmm_detach_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_TRUE;
+    g_pinfo->p2p_dir = P2P_DIR_RECV;
+
+    if ( curr_len != 0 )
+    {
+        ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_SPARE_NIBBLE );
+        curr_len++;
+        curr_offset--;
+        
+        ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_FORCE_TO_STAND );
+    }
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.7
+ */
+static void
+dtap_gmm_ptmsi_realloc_cmd(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_FALSE;
+    g_pinfo->p2p_dir = P2P_DIR_SENT;
+
+    ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_MID , " - Allocated P-TMSI" );
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RAI );
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_SPARE_NIBBLE );
+    curr_len++;
+    curr_offset--;
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_FORCE_TO_STAND );
+
+    ELEM_OPT_TV( 0x19 , BSSAP_PDU_TYPE_DTAP, DE_MID , " - P-TMSI Signature" );    
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.8
+ */
+static void
+dtap_gmm_ptmsi_realloc_com(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+/*    guint32	consumed; */
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_TRUE;
+    g_pinfo->p2p_dir = P2P_DIR_RECV;
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.9
+ */
+static void
+dtap_gmm_auth_ciph_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+    guint8      oct;
+    
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_FALSE;
+    g_pinfo->p2p_dir = P2P_DIR_SENT;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_IMEISV_REQ );
+    curr_offset--;
+    curr_len++;
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_CIPH_ALG );
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_AC_REF_NUM_H );
+    curr_offset--;
+    curr_len++;
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_FORCE_TO_STAND );
+    
+    ELEM_OPT_TV( 0x21 , BSSAP_PDU_TYPE_DTAP, DE_AUTH_PARAM_RAND , "" );
+
+#if 0    
+    ELEM_OPT_TV_SHORT( 0x08 , BSSAP_PDU_TYPE_DTAP, DE_CIPH_KEY_SEQ_NUM , "" );
+#else
+    if ( curr_len > 0 )
+    {
+	    oct = tvb_get_guint8(tvb, curr_offset);
+	    if (( oct & 0xf0 ) == 0x80 )
+	    {
+    		/* The ciphering key sequence number is added here */
+	    	proto_tree_add_text(tree,
+    			tvb, curr_offset, 1,
+    			"Ciphering key sequence number: 0x%02x (%u)",
+	    		oct&7,
+    			oct&7);
+	    	curr_offset++;
+    		curr_len--;
+    	    }
+    }
+#endif
+
+    if ( curr_len == 0  )
+    {
+        EXTRANEOUS_DATA_CHECK(curr_len, 0);
+	return;
+    }
+        
+    ELEM_OPT_TLV( 0x28 , BSSAP_PDU_TYPE_DTAP, DE_AUTH_PARAM_AUTN , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.10
+ */
+static void
+dtap_gmm_auth_ciph_resp(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_TRUE;
+    g_pinfo->p2p_dir = P2P_DIR_RECV;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_SPARE_NIBBLE );
+    curr_offset--;
+    curr_len++;
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_AC_REF_NUM );
+    
+    ELEM_OPT_TV( 0x22 , BSSAP_PDU_TYPE_DTAP, DE_AUTH_RESP_PARAM , "" );
+    
+    ELEM_OPT_TLV( 0x23 , BSSAP_PDU_TYPE_DTAP, DE_MID , " - IMEISV" );
+    
+    ELEM_OPT_TLV( 0x29 , BSSAP_PDU_TYPE_DTAP, DE_AUTH_RESP_PARAM_EXT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.11
+ */
+static void
+dtap_gmm_auth_ciph_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+/*    guint32	consumed; */
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_FALSE;
+    g_pinfo->p2p_dir = P2P_DIR_SENT;
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.10a
+ */
+static void
+dtap_gmm_auth_ciph_fail(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_TRUE;
+    g_pinfo->p2p_dir = P2P_DIR_RECV;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_GMM_CAUSE );
+    
+    ELEM_OPT_TLV( 0x30 , BSSAP_PDU_TYPE_DTAP, DE_AUTH_FAIL_PARAM , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.12
+ */
+static void
+dtap_gmm_ident_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_FALSE;
+    g_pinfo->p2p_dir = P2P_DIR_SENT;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_FORCE_TO_STAND_H );
+    curr_offset--;
+    curr_len++;
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_ID_TYPE_2 );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.13
+ */
+static void
+dtap_gmm_ident_res(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_TRUE;
+    g_pinfo->p2p_dir = P2P_DIR_RECV;
+
+    ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_MID , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.14
+ */
+static void
+dtap_gmm_rau_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_TRUE;
+    g_pinfo->p2p_dir = P2P_DIR_RECV;
+
+    /* is included in update type
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_CIPH_KEY_SEQ_NUM );
+    curr_offset--;
+    curr_len++;
+    
+    */
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_UPD_TYPE );
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RAI );
+    
+    ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_MS_RAD_ACC_CAP , "" );
+    
+    ELEM_OPT_TV( 0x19 , BSSAP_PDU_TYPE_DTAP, DE_P_TMSI_SIG , " - Old P-TMSI Signature" ); 
+    
+    ELEM_OPT_TV( 0x17 , BSSAP_PDU_TYPE_DTAP, DE_GPRS_TIMER , " - Requested Ready Timer" );
+
+    ELEM_OPT_TV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_DRX_PARAM , "" );
+    
+    ELEM_OPT_TV_SHORT( 0x90 , BSSAP_PDU_TYPE_DTAP, DE_TMSI_STAT , "" );
+    
+    ELEM_OPT_TLV( 0x18 , BSSAP_PDU_TYPE_DTAP, DE_MID , " - P-TMSI" );
+    
+    ELEM_OPT_TLV( 0x31 , BSSAP_PDU_TYPE_DTAP, DE_MS_NET_CAP , "" );
+    
+    ELEM_OPT_TLV( 0x32 , BSSAP_PDU_TYPE_DTAP, DE_PDP_CONTEXT_STAT , "" );
+    
+    ELEM_OPT_TLV( 0x33 , BSSAP_PDU_TYPE_DTAP, DE_PS_LCS_CAP , "" );
+    
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.15
+ */
+static void
+dtap_gmm_rau_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_FALSE;
+    g_pinfo->p2p_dir = P2P_DIR_SENT;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_UPD_RES );
+    curr_offset--;
+    curr_len++;
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_FORCE_TO_STAND_H );
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_GPRS_TIMER );
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RAI );
+    
+    ELEM_OPT_TV( 0x19 , BSSAP_PDU_TYPE_DTAP, DE_P_TMSI_SIG , "" ); 
+    
+    ELEM_OPT_TLV( 0x18 , BSSAP_PDU_TYPE_DTAP, DE_MID , " - Allocated P-TMSI");
+    
+    ELEM_OPT_TLV( 0x23 , BSSAP_PDU_TYPE_DTAP, DE_MID , "" );
+    
+    ELEM_OPT_TLV( 0x26 , BSSAP_PDU_TYPE_DTAP, DE_REC_N_PDU_NUM_LIST , "" );
+    
+    ELEM_OPT_TV( 0x17 , BSSAP_PDU_TYPE_DTAP, DE_GPRS_TIMER , " - Negotiated Ready Timer" );
+    
+    ELEM_OPT_TV( 0x25 , BSSAP_PDU_TYPE_DTAP, DE_GMM_CAUSE , "" );
+    
+    ELEM_OPT_TLV( 0x2A , BSSAP_PDU_TYPE_DTAP, DE_GPRS_TIMER_2 , " - T3302" );
+    
+    ELEM_OPT_T( 0x8C , BSSAP_PDU_TYPE_DTAP, DE_CELL_NOT , "" );
+    
+    ELEM_OPT_TLV( 0x4A , BSSAP_PDU_TYPE_DTAP, DE_PLMN_LIST , "" );
+    
+    ELEM_OPT_TLV( 0x32 , BSSAP_PDU_TYPE_DTAP, DE_PDP_CONTEXT_STAT , "" );
+    
+    ELEM_OPT_TV_SHORT ( 0xB0 , BSSAP_PDU_TYPE_DTAP, DE_NET_FEAT_SUP , "" );
+    
+    ELEM_OPT_TLV( 0x34 , BSSAP_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.16
+ */
+static void
+dtap_gmm_rau_com(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_TRUE;
+    g_pinfo->p2p_dir = P2P_DIR_RECV;
+
+    ELEM_OPT_TLV( 0x26 , BSSAP_PDU_TYPE_DTAP, DE_REC_N_PDU_NUM_LIST , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.17
+ */
+static void
+dtap_gmm_rau_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_FALSE;
+    g_pinfo->p2p_dir = P2P_DIR_SENT;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_GMM_CAUSE );
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_SPARE_NIBBLE );
+    curr_offset--;
+    curr_len++;
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_FORCE_TO_STAND );
+    
+    ELEM_OPT_TLV( 0x26 , BSSAP_PDU_TYPE_DTAP, DE_GPRS_TIMER_2 , " - T3302" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.18
+ */
+static void
+dtap_gmm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+     is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_GMM_CAUSE );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.19
+ */
+static void
+dtap_gmm_information(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_FALSE;
+    g_pinfo->p2p_dir = P2P_DIR_SENT;
+
+    ELEM_OPT_TLV( 0x43 , BSSAP_PDU_TYPE_DTAP, DE_NETWORK_NAME , " - Full Name" );
+    
+    ELEM_OPT_TLV( 0x45 , BSSAP_PDU_TYPE_DTAP, DE_NETWORK_NAME , " - Short Name" );
+    
+    ELEM_OPT_TLV( 0x46 , BSSAP_PDU_TYPE_DTAP, DE_TIME_ZONE , "" );
+    
+    ELEM_OPT_TLV( 0x47 , BSSAP_PDU_TYPE_DTAP, DE_TIME_ZONE_TIME , "" );
+    
+    ELEM_OPT_TLV( 0x48 , BSSAP_PDU_TYPE_DTAP, DE_LSA_ID , "" );
+    
+    ELEM_OPT_TLV( 0x49 , BSSAP_PDU_TYPE_DTAP, DE_DAY_SAVING_TIME , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.20
+ */
+static void
+dtap_gmm_service_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_TRUE;
+    g_pinfo->p2p_dir = P2P_DIR_RECV;
+
+    /* Is included in SRVC TYPE
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_CIPH_KEY_SEQ_NUM );
+    curr_offset--;
+    curr_len++;
+    */
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_SRVC_TYPE );
+    
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_MID );
+    
+    ELEM_OPT_TLV( 0x32 , BSSAP_PDU_TYPE_DTAP, DE_PDP_CONTEXT_STAT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.21
+ */
+static void
+dtap_gmm_service_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_FALSE;
+    g_pinfo->p2p_dir = P2P_DIR_SENT;
+
+    ELEM_OPT_TLV( 0x32 , BSSAP_PDU_TYPE_DTAP, DE_PDP_CONTEXT_STAT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.4.22
+ */
+static void
+dtap_gmm_service_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_FALSE;
+    g_pinfo->p2p_dir = P2P_DIR_SENT;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_GMM_CAUSE );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.5.1
+ */
+static void
+dtap_sm_act_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_NET_SAPI );
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_LLC_SAPI );
+
+    ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_QOS , " - Requested QoS" );
+
+    ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_PD_PRO_ADDR , " - Requested PDP address" );
+
+    ELEM_OPT_TLV( 0x28 , BSSAP_PDU_TYPE_DTAP, DE_ACC_POINT_NAME , "" );
+
+    ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.5.2
+ */
+static void
+dtap_sm_act_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_LLC_SAPI );
+
+    ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_QOS , " - Negotiated QoS" );
+
+#if 0	
+    /* This is done automatically */
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_SPARE );
+    curr_offset--;
+    curr_len++;
+#endif
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_RAD_PRIO );
+
+    ELEM_OPT_TLV( 0x2B , BSSAP_PDU_TYPE_DTAP, DE_PD_PRO_ADDR , "" );
+
+    ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
+
+    ELEM_OPT_TLV( 0x34 , BSSAP_PDU_TYPE_DTAP, DE_PACKET_FLOW_ID , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.5.3
+ */
+static void
+dtap_sm_act_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_SM_CAUSE );
+
+    ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.5.4
+ */
+static void
+dtap_sm_act_sec_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_NET_SAPI );
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_LLC_SAPI );
+
+    ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_QOS , " - Requested QoS" );
+
+    ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_LINKED_TI , "" );
+
+    ELEM_OPT_TLV( 0x33 , BSSAP_PDU_TYPE_DTAP, DE_TRAFFIC_FLOW_TEMPLATE , "" );
+
+    ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.5.5
+ */
+static void
+dtap_sm_act_sec_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_LLC_SAPI );
+
+    ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_QOS , " - Negotiated QoS" );
+
+#if 0	
+    /* This is done automatically */
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_SPARE );
+    curr_offset--;
+    curr_len++;
+#endif
+
+    ELEM_OPT_TLV( 0x34 , BSSAP_PDU_TYPE_DTAP, DE_PACKET_FLOW_ID , "" );
+
+    ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.5.6
+ */
+static void
+dtap_sm_act_sec_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_SM_CAUSE );
+
+    ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.5.7
+ */
+static void
+dtap_sm_req_pdp_act(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+    ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_PD_PRO_ADDR , " - Offered PDP address" );
+
+    ELEM_OPT_TLV( 0x28 , BSSAP_PDU_TYPE_DTAP, DE_ACC_POINT_NAME , "" );
+
+    ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.5.8
+ */
+static void
+dtap_sm_req_pdp_act_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_SM_CAUSE );
+
+    ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.5.9
+ */
+static void
+dtap_sm_mod_pdp_req_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+#if 0	
+    /* This is done automatically */
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_SPARE );
+    curr_offset--;
+    curr_len++;
+#endif
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_LLC_SAPI );
+
+    ELEM_MAND_LV(BSSAP_PDU_TYPE_DTAP, DE_QOS , " - New QoS" );
+
+    ELEM_OPT_TLV( 0x2B , BSSAP_PDU_TYPE_DTAP, DE_PD_PRO_ADDR , "" );
+
+    ELEM_OPT_TLV( 0x34 , BSSAP_PDU_TYPE_DTAP, DE_PACKET_FLOW_ID , "" );
+
+    ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.5.10
+ */
+static void
+dtap_sm_mod_pdp_req_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+    ELEM_OPT_TV( 0x32 , BSSAP_PDU_TYPE_DTAP, DE_LLC_SAPI , " - Requested LLC SAPI" );
+
+    ELEM_OPT_TLV( 0x30 , BSSAP_PDU_TYPE_DTAP, DE_QOS , " - Requested new QoS" );
+
+    ELEM_OPT_TLV( 0x31 , BSSAP_PDU_TYPE_DTAP, DE_TRAFFIC_FLOW_TEMPLATE , " - New TFT" );
+
+    ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.5.11
+ */
+static void
+dtap_sm_mod_pdp_acc_ms(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+    ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.5.12
+ */
+static void
+dtap_sm_mod_pdp_acc_net(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+    ELEM_OPT_TLV( 0x30 , BSSAP_PDU_TYPE_DTAP, DE_QOS , " - Negotiated QoS" );
+
+    ELEM_OPT_TV( 0x32 , BSSAP_PDU_TYPE_DTAP, DE_LLC_SAPI , " - Negotiated LLC SAPI" );
+
+    ELEM_OPT_TV_SHORT ( 0x80 , BSSAP_PDU_TYPE_DTAP , DE_RAD_PRIO , " - New radio priority" );
+
+    ELEM_OPT_TLV( 0x34 , BSSAP_PDU_TYPE_DTAP, DE_PACKET_FLOW_ID , "" );
+
+    ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.5.13
+ */
+static void
+dtap_sm_mod_pdp_rej(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_SM_CAUSE );
+
+    ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.5.14
+ */
+static void
+dtap_sm_deact_pdp_req(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_SM_CAUSE );
+
+    ELEM_OPT_TV_SHORT( 0x90 , BSSAP_PDU_TYPE_DTAP , DE_TEAR_DOWN_IND , "" );
+
+    ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+
+/*
+ * [7] 9.5.15
+ */
+static void
+dtap_sm_deact_pdp_acc(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+     is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+    ELEM_OPT_TLV( 0x27 , BSSAP_PDU_TYPE_DTAP, DE_PRO_CONF_OPT , "" );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+/*
+ * [7] 9.5.21
+ */
+static void
+dtap_sm_status(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len)
+{
+    guint32	curr_offset;
+    guint32	consumed;
+    guint	curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+     is_uplink = IS_UPLINK_UNKNOWN;
+    g_pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+
+    ELEM_MAND_V(BSSAP_PDU_TYPE_DTAP, DE_SM_CAUSE );
+
+    EXTRANEOUS_DATA_CHECK(curr_len, 0);
+}
+
+
 #define	NUM_GSM_DTAP_MSG_MM (sizeof(gsm_a_dtap_msg_mm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_mm[NUM_GSM_DTAP_MSG_MM];
 static void (*dtap_msg_mm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
@@ -10498,29 +14214,29 @@ static void (*dtap_msg_cc_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset
 #define	NUM_GSM_DTAP_MSG_GMM (sizeof(gsm_a_dtap_msg_gmm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_gmm[NUM_GSM_DTAP_MSG_GMM];
 static void (*dtap_msg_gmm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
-    NULL,	/* Attach Request */
-    NULL,	/* Attach Accept */
-    NULL,	/* Attach Complete */
-    NULL,	/* Attach Reject */
-    NULL,	/* Detach Request */
-    NULL,	/* Detach Accept */
-    NULL,	/* Routing Area Update Request */
-    NULL,	/* Routing Area Update Accept */
-    NULL,	/* Routing Area Update Complete */
-    NULL,	/* Routing Area Update Reject */
-    NULL,	/* Service Request */
-    NULL,	/* Service Accept */
-    NULL,	/* Service Reject */
-    NULL,	/* P-TMSI Reallocation Command */
-    NULL,	/* P-TMSI Reallocation Complete */
-    NULL,	/* Authentication and Ciphering Req */
-    NULL,	/* Authentication and Ciphering Resp */
-    NULL,	/* Authentication and Ciphering Rej */
-    NULL,	/* Authentication and Ciphering Failure */
-    NULL,	/* Identity Request */
-    NULL,	/* Identity Response */
-    NULL,	/* GMM Status */
-    NULL,	/* GMM Information */
+    dtap_gmm_attach_req,	/* Attach Request */
+    dtap_gmm_attach_acc,	/* Attach Accept */
+    dtap_gmm_attach_com,	/* Attach Complete */
+    dtap_gmm_attach_rej,	/* Attach Reject */
+    dtap_gmm_detach_req,	/* Detach Request */
+    dtap_gmm_detach_acc,	/* Detach Accept */
+    dtap_gmm_rau_req,	/* Routing Area Update Request */
+    dtap_gmm_rau_acc,	/* Routing Area Update Accept */
+    dtap_gmm_rau_com,	/* Routing Area Update Complete */
+    dtap_gmm_rau_rej,	/* Routing Area Update Reject */
+    dtap_gmm_service_req,	/* Service Request */
+    dtap_gmm_service_acc,	/* Service Accept */
+    dtap_gmm_service_rej,	/* Service Reject */
+    dtap_gmm_ptmsi_realloc_cmd,	/* P-TMSI Reallocation Command */
+    dtap_gmm_ptmsi_realloc_com,	/* P-TMSI Reallocation Complete */
+    dtap_gmm_auth_ciph_req,	/* Authentication and Ciphering Req */
+    dtap_gmm_auth_ciph_resp,	/* Authentication and Ciphering Resp */
+    dtap_gmm_auth_ciph_rej,	/* Authentication and Ciphering Rej */
+    dtap_gmm_auth_ciph_fail,	/* Authentication and Ciphering Failure */
+    dtap_gmm_ident_req,	/* Identity Request */
+    dtap_gmm_ident_res,	/* Identity Response */
+    dtap_gmm_status,	/* GMM Status */
+    dtap_gmm_information,	/* GMM Information */
     NULL,	/* NONE */
 };
 
@@ -10536,27 +14252,27 @@ static void (*dtap_msg_sms_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offse
 #define	NUM_GSM_DTAP_MSG_SM (sizeof(gsm_a_dtap_msg_sm_strings)/sizeof(value_string))
 static gint ett_gsm_dtap_msg_sm[NUM_GSM_DTAP_MSG_SM];
 static void (*dtap_msg_sm_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len) = {
-    NULL,	/* Activate PDP Context Request */
-    NULL,	/* Activate PDP Context Accept */
-    NULL,	/* Activate PDP Context Reject */
-    NULL,	/* Request PDP Context Activation */
-    NULL,	/* Request PDP Context Activation rej. */
-    NULL,	/* Deactivate PDP Context Request */
-    NULL,	/* Deactivate PDP Context Accept */
-    NULL,	/* Modify PDP Context Request(Network to MS direction) */
-    NULL,	/* Modify PDP Context Accept (MS to network direction) */
-    NULL,	/* Modify PDP Context Request(MS to network direction) */
-    NULL,	/* Modify PDP Context Accept (Network to MS direction) */
-    NULL,	/* Modify PDP Context Reject */
-    NULL,	/* Activate Secondary PDP Context Request */
-    NULL,	/* Activate Secondary PDP Context Accept */
-    NULL,	/* Activate Secondary PDP Context Reject */
+    dtap_sm_act_pdp_req,	/* Activate PDP Context Request */
+    dtap_sm_act_pdp_acc,	/* Activate PDP Context Accept */
+    dtap_sm_act_pdp_rej,	/* Activate PDP Context Reject */
+    dtap_sm_req_pdp_act,	/* Request PDP Context Activation */
+    dtap_sm_req_pdp_act_rej,	/* Request PDP Context Activation rej. */
+    dtap_sm_deact_pdp_req,	/* Deactivate PDP Context Request */
+    dtap_sm_deact_pdp_acc,	/* Deactivate PDP Context Accept */
+    dtap_sm_mod_pdp_req_net,	/* Modify PDP Context Request(Network to MS direction) */
+    dtap_sm_mod_pdp_acc_ms,	/* Modify PDP Context Accept (MS to network direction) */
+    dtap_sm_mod_pdp_req_ms,	/* Modify PDP Context Request(MS to network direction) */
+    dtap_sm_mod_pdp_acc_net,	/* Modify PDP Context Accept (Network to MS direction) */
+    dtap_sm_mod_pdp_rej,	/* Modify PDP Context Reject */
+    dtap_sm_act_sec_pdp_req,	/* Activate Secondary PDP Context Request */
+    dtap_sm_act_sec_pdp_acc,	/* Activate Secondary PDP Context Accept */
+    dtap_sm_act_sec_pdp_rej,	/* Activate Secondary PDP Context Reject */
     NULL,	/* Reserved: was allocated in earlier phases of the protocol */
     NULL,	/* Reserved: was allocated in earlier phases of the protocol */
     NULL,	/* Reserved: was allocated in earlier phases of the protocol */
     NULL,	/* Reserved: was allocated in earlier phases of the protocol */
     NULL,	/* Reserved: was allocated in earlier phases of the protocol */
-    NULL,	/* SM Status */
+    dtap_sm_status,	/* SM Status */
     NULL,	/* NONE */
 };
 
@@ -11214,7 +14930,7 @@ proto_register_gsm_a(void)
     };
 
     /* Setup protocol subtree array */
-#define	NUM_INDIVIDUAL_ELEMS	31
+#define	NUM_INDIVIDUAL_ELEMS	39
     static gint *ett[NUM_INDIVIDUAL_ELEMS + NUM_GSM_BSSMAP_MSG +
 			NUM_GSM_DTAP_MSG_MM + NUM_GSM_DTAP_MSG_RR + NUM_GSM_DTAP_MSG_CC +
 			NUM_GSM_DTAP_MSG_GMM + NUM_GSM_DTAP_MSG_SMS +
@@ -11254,6 +14970,16 @@ proto_register_gsm_a(void)
     ett[28] = &ett_tc_err_code;
     ett[29] = &ett_tc_prob_code;
     ett[30] = &ett_tc_sequence;
+    
+    ett[31] = &ett_gmm_drx;
+    ett[32] = &ett_gmm_detach_type;
+    ett[33] = &ett_gmm_attach_type;
+    ett[34] = &ett_gmm_context_stat;
+    ett[35] = &ett_gmm_update_type;
+    ett[36] = &ett_gmm_radio_cap;
+
+    ett[37] = &ett_sm_pfi;
+    ett[38] = &ett_sm_tft;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
