@@ -6,7 +6,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.89 2004/01/13 03:27:47 guy Exp $
+ * $Id: packet-radius.c,v 1.90 2004/02/01 06:49:22 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -44,7 +44,9 @@
 #include "packet-gtp.h"
 #include "prefs.h"
 #include "crypt-md5.h"
+#include "tap.h"
 
+static int radius_tap = -1;
 static int proto_radius = -1;
 static int hf_radius_length = -1;
 static int hf_radius_code = -1;
@@ -2845,6 +2847,7 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_attribute_value_pairs(tvb, hdrlength, avptree, avplength, pinfo);
   }
 
+  tap_queue_packet(radius_tap, pinfo, NULL);
 }
 /* registration with the filtering engine */
 void
@@ -2881,6 +2884,7 @@ proto_register_radius(void)
 	prefs_register_string_preference(radius_module,"shared_secret","Shared Secret",
 					"Shared secret used to decode User Passwords",
 					&shared_secret);
+	radius_tap = register_tap("radius");
 }
 
 void

@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.57 2004/01/23 09:40:38 jmayer Exp $
+ * $Id: tvbuff.c,v 1.58 2004/02/01 06:49:24 jmayer Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -250,7 +250,7 @@ tvb_set_real_data(tvbuff_t* tvb, const guint8* data, guint length, gint reported
 		THROW(ReportedBoundsError);
 	}
 
-	tvb->real_data		= (gpointer) data;
+	tvb->real_data		= data;
 	tvb->length		= length;
 	tvb->reported_length	= reported_length;
 	tvb->initialized	= TRUE;
@@ -1545,7 +1545,7 @@ tvb_strneql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
  * it returns 0 (meaning "equal") and -1 otherwise, otherwise return -1.
  */
 gint
-tvb_strncaseeql(tvbuff_t *tvb, gint offset, const guint8 *str, gint size)
+tvb_strncaseeql(tvbuff_t *tvb, gint offset, const gchar *str, gint size)
 {
 	guint8 *ptr;
 

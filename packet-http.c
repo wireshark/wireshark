@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.93 2004/01/19 23:57:11 guy Exp $
+ * $Id: packet-http.c,v 1.94 2004/02/01 06:49:22 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1031,7 +1031,7 @@ find_header_hf_value(tvbuff_t *tvb, int offset, guint header_len)
         for (i = 0; i < array_length(headers); i++) {
                 if (header_len == strlen(headers[i].name) &&
                     tvb_strncaseeql(tvb, offset,
-						(const guint8 *)headers[i].name, header_len) == 0)
+						headers[i].name, header_len) == 0)
                         return i;
         }
 

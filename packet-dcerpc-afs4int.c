@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/fsint/afs4int.idl
  *
- * $Id: packet-dcerpc-afs4int.c,v 1.6 2004/01/27 04:15:47 guy Exp $
+ * $Id: packet-dcerpc-afs4int.c,v 1.7 2004/02/01 06:49:22 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2136,9 +2136,11 @@ dissect_afsReturns (tvbuff_t * tvb, int offset,
   return offset;
 }
 
+#if 0 /* not used */
+
 static int
 dissect_afsbundled_stat (tvbuff_t * tvb, int offset,
-                packet_info * pinfo, proto_tree * parent_tree, guint8 *drep)
+                packet_info * pinfo, proto_tree * parent_tree, guint8 *drep _U_)
 {
 
 
@@ -2187,11 +2189,12 @@ return offset;
 
 }
 
+#endif /* not used */
 
 static int
-dissect_afsBulkStat (tvbuff_t * tvb, int offset,
-                                  packet_info * pinfo, proto_tree * tree,
-                                  guint8 *drep)
+dissect_afsBulkStat (tvbuff_t * tvb _U_, int offset,
+                                  packet_info * pinfo _U_, proto_tree * tree _U_,
+                                  guint8 *drep _U_)
 {
 /*
         unsigned32 BulkStat_len;
@@ -3826,7 +3829,7 @@ static int
 static int
   afs4int_dissect_gettime_rqst
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, guint8 *drep _U_)
 {
   dcerpc_info *di;
 
@@ -3909,7 +3912,7 @@ static int
 static int
   afs4int_dissect_getserverinterfaces_rqst
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, guint8 *drep _U_)
 {
   dcerpc_info *di;
 
@@ -4038,7 +4041,7 @@ static int
 static int
   afs4int_dissect_getstatistics_rqst
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, guint8 *drep _U_)
 {
   dcerpc_info *di;
 
@@ -4055,7 +4058,7 @@ static int
 static int
   afs4int_dissect_getstatistics_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, guint8 *drep _U_)
 {
   dcerpc_info *di;
 
@@ -4124,7 +4127,7 @@ static int
 static int
   afs4int_dissect_bulkfetchvv_resp
   (tvbuff_t *
-   tvb, int offset, packet_info * pinfo, proto_tree * tree, guint8 *drep)
+   tvb _U_, int offset, packet_info * pinfo, proto_tree * tree _U_, guint8 *drep _U_)
 {
   dcerpc_info *di;
 

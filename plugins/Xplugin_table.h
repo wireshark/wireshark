@@ -99,7 +99,7 @@ typedef gint (*addr_tvb_get_nstringz0) (tvbuff_t *, gint, guint, guint8 *);
 typedef gint (*addr_tvb_find_line_end) (tvbuff_t *, gint, int, gint *, gboolean);
 typedef gint (*addr_tvb_find_line_end_unquoted) (tvbuff_t *, gint, int, gint *);
 typedef gint (*addr_tvb_strneql) (tvbuff_t *, gint, const guint8 *, gint);
-typedef gint (*addr_tvb_strncaseeql) (tvbuff_t *, gint, const guint8 *, gint);
+typedef gint (*addr_tvb_strncaseeql) (tvbuff_t *, gint, const gchar *, gint);
 typedef gchar *(*addr_tvb_bytes_to_str) (tvbuff_t *, gint, gint);
 typedef struct pref_module *(*addr_prefs_register_protocol) (int, void (*) (void));
 typedef void (*addr_prefs_register_uint_preference) (struct pref_module *, const char *, const char *, const char *, guint, guint *);
