@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.1 2003/09/24 07:48:11 guy Exp $
+ * $Id: rtp_analysis.c,v 1.2 2003/09/25 19:35:14 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -50,6 +50,7 @@
 #include "register.h"
 #include "packet-rtp.h"
 #include "g711.h"
+#include "rtp_pt.h"
 
 /* in /gtk ... */
 #include "dlg_utils.h"
@@ -80,8 +81,8 @@
 
 typedef struct _dialog_data_t {
 	GtkWidget *window;
-	GtkWidget *clist_fwd;
-	GtkWidget *clist_rev;
+	GtkCList *clist_fwd;
+	GtkCList *clist_rev;
 	GtkWidget *label_stats_fwd;
 	GtkWidget *label_stats_rev;
 	GtkWidget *notebook;
@@ -94,6 +95,8 @@ typedef struct _dialog_data_t {
 #endif
 } dialog_data_t;
 
+#define OK_TEXT "Ok"
+
 /* type of error when saving voice in a file didn't succeed */
 typedef enum {
 	TAP_RTP_WRONG_CODEC,
@@ -103,14 +106,11 @@ typedef enum {
 	TAP_RTP_NO_DATA
 } error_type_t; 
 
-typedef enum {
-	FIRST_PACKET,
-		MARK_SET,
-		NORMAL_PACKET
-} packet_type;
 
+/****************************************************************************/
 /* structure that holds the information about the forward and reversed direction */
-struct _info_direction {
+typedef struct _tap_rtp_stat_t {
+	guint32 flags;             /* see STAT_FLAG-defines below */
 	gboolean first_packet;
 	guint16 seq_num;
 	guint32 timestamp;
@@ -127,10 +127,28 @@ struct _info_direction {
 	guint32 sequence;
 	gboolean under;
 	gint cycles;
+	guint16 pt;
+} tap_rtp_stat_t;
+
+/* status flags for the flags parameter in tap_rtp_stat_t */
+#define STAT_FLAG_FIRST       0x01
+#define STAT_FLAG_MARKER      0x02
+#define STAT_FLAG_WRONG_SEQ   0x04
+#define STAT_FLAG_PT_CHANGE   0x08
+#define STAT_FLAG_PT_CN       0x10
+
+typedef struct _tap_rtp_save_info_t {
 	FILE *fp;
 	guint32 count;
 	error_type_t error_type;
 	gboolean saved;
+} tap_rtp_save_info_t;
+
+
+/* structure that holds the information about the forward and reversed direction */
+struct _info_direction {
+	tap_rtp_stat_t statinfo;
+	tap_rtp_save_info_t saveinfo;
 };
 
 /* structure that holds general information about the connection 
@@ -175,38 +193,39 @@ typedef const guint8 * ip_addr_p;
 static void
 rtp_reset(user_data_t *user_data _U_)
 {
-	user_data->forward.first_packet = TRUE;
-	user_data->reversed.first_packet = TRUE;
-	user_data->forward.max_delay = 0;
-	user_data->reversed.max_delay = 0;
-	user_data->forward.delay = 0;
-	user_data->reversed.delay = 0;
-	user_data->forward.jitter = 0;
-	user_data->reversed.jitter = 0;
-	user_data->forward.timestamp = 0;
-	user_data->reversed.timestamp = 0;
-	user_data->forward.max_nr = 0;
-	user_data->reversed.max_nr = 0;
-	user_data->forward.total_nr = 0;
-	user_data->reversed.total_nr = 0;
-	user_data->forward.sequence = 0;
-	user_data->reversed.sequence = 0;
-	user_data->forward.start_seq_nr = 0;
-	user_data->reversed.start_seq_nr = 1; /* 1 is ok (for statistics in reversed direction) */
-	user_data->forward.stop_seq_nr = 0;
-	user_data->reversed.stop_seq_nr = 0;
-	user_data->forward.cycles = 0;
-	user_data->reversed.cycles = 0;
-	user_data->forward.under = FALSE;
-	user_data->reversed.under = FALSE;
-	user_data->forward.saved = FALSE;
-	user_data->reversed.saved = FALSE;
-	user_data->forward.start_time = 0;
-	user_data->reversed.start_time = 0;
-	user_data->forward.time = 0;
-	user_data->reversed.time = 0;
-	user_data->forward.count = 0;
-	user_data->reversed.count = 0;
+	user_data->forward.statinfo.first_packet = TRUE;
+	user_data->reversed.statinfo.first_packet = TRUE;
+	user_data->forward.statinfo.max_delay = 0;
+	user_data->reversed.statinfo.max_delay = 0;
+	user_data->forward.statinfo.delay = 0;
+	user_data->reversed.statinfo.delay = 0;
+	user_data->forward.statinfo.jitter = 0;
+	user_data->reversed.statinfo.jitter = 0;
+	user_data->forward.statinfo.timestamp = 0;
+	user_data->reversed.statinfo.timestamp = 0;
+	user_data->forward.statinfo.max_nr = 0;
+	user_data->reversed.statinfo.max_nr = 0;
+	user_data->forward.statinfo.total_nr = 0;
+	user_data->reversed.statinfo.total_nr = 0;
+	user_data->forward.statinfo.sequence = 0;
+	user_data->reversed.statinfo.sequence = 0;
+	user_data->forward.statinfo.start_seq_nr = 0;
+	user_data->reversed.statinfo.start_seq_nr = 1; /* 1 is ok (for statistics in reversed direction) */
+	user_data->forward.statinfo.stop_seq_nr = 0;
+	user_data->reversed.statinfo.stop_seq_nr = 0;
+	user_data->forward.statinfo.cycles = 0;
+	user_data->reversed.statinfo.cycles = 0;
+	user_data->forward.statinfo.under = FALSE;
+	user_data->reversed.statinfo.under = FALSE;
+	user_data->forward.statinfo.start_time = 0;
+	user_data->reversed.statinfo.start_time = 0;
+	user_data->forward.statinfo.time = 0;
+	user_data->reversed.statinfo.time = 0;
+
+	user_data->forward.saveinfo.count = 0;
+	user_data->reversed.saveinfo.count = 0;
+	user_data->forward.saveinfo.saved = FALSE;
+	user_data->reversed.saveinfo.saved = FALSE;
 
 #ifdef USE_CONVERSATION_GRAPH
 	if (user_data->dlg.graph_window != NULL)
@@ -220,16 +239,16 @@ rtp_reset(user_data_t *user_data _U_)
 #endif
 
 	/* XXX check for error at fclose? */
-	if (user_data->forward.fp != NULL)
-		fclose(user_data->forward.fp); 
-	if (user_data->reversed.fp != NULL)
-		fclose(user_data->reversed.fp); 
-	user_data->forward.fp = fopen(user_data->f_tempname, "wb"); 
-	if (user_data->forward.fp == NULL)
-		user_data->forward.error_type = TAP_RTP_FILE_OPEN_ERROR;
-	user_data->reversed.fp = fopen(user_data->r_tempname, "wb");
-	if (user_data->reversed.fp == NULL)
-		user_data->reversed.error_type = TAP_RTP_FILE_OPEN_ERROR;
+	if (user_data->forward.saveinfo.fp != NULL)
+		fclose(user_data->forward.saveinfo.fp); 
+	if (user_data->reversed.saveinfo.fp != NULL)
+		fclose(user_data->reversed.saveinfo.fp); 
+	user_data->forward.saveinfo.fp = fopen(user_data->f_tempname, "wb"); 
+	if (user_data->forward.saveinfo.fp == NULL)
+		user_data->forward.saveinfo.error_type = TAP_RTP_FILE_OPEN_ERROR;
+	user_data->reversed.saveinfo.fp = fopen(user_data->r_tempname, "wb");
+	if (user_data->reversed.saveinfo.fp == NULL)
+		user_data->reversed.saveinfo.error_type = TAP_RTP_FILE_OPEN_ERROR;
 	return;
 }
 
@@ -241,21 +260,22 @@ static void rtp_draw(void *prs _U_)
 	return;
 }
 
-static int do_calculation(GtkWidget *clist, packet_type pkt_type, void *ptrs, void *vpri, void *vpinfo); 
-static void add_to_clist(GtkWidget *clist, guint32 number, guint16 seq_num,
-                         double delay, double jitter, gboolean status, gboolean marker,
-                         gchar *timeStr, guint32 pkt_len);
+/* forward declarations */
+static void add_to_clist(GtkCList *clist, guint32 number, guint16 seq_num,
+                         double delay, double jitter, gchar *status, gboolean marker,
+                         gchar *timeStr, guint32 pkt_len, GdkColor *color);
+
+static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
+							  packet_info *pinfo, struct _rtp_info *rtpinfo);
+static int rtp_packet_add_info(GtkCList *clist,
+	tap_rtp_stat_t *statinfo, packet_info *pinfo, struct _rtp_info *rtpinfo);
+static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo, 
+								   tap_rtp_stat_t *statinfo,
+								   packet_info *pinfo, struct _rtp_info *rtpinfo);
+
 
 /****************************************************************************/
 /* whenever a RTP packet is seen by the tap listener */
-/* this function works as follows:
-* 1) packets that are not displayed are ignored
-*	return
-* 3) if not, is current packet matching the forward direction
-*	if yes, call the function that does the calculation and saves the voice info
-* 4) if not, is current packet matching the reversed connection
-*	if yes, call the function that does the calculation and saves the voice info
-*/
 static int rtp_packet(user_data_t *user_data, packet_info *pinfo, epan_dissect_t *edt _U_, struct _rtp_info *rtpinfo)
 {
 #ifdef USE_CONVERSATION_GRAPH
@@ -273,14 +293,11 @@ static int rtp_packet(user_data_t *user_data, packet_info *pinfo, epan_dissect_t
 		vp.fnumber = pinfo->fd->num;
 		g_array_append_val(user_data->series_fwd.value_pairs, vp);
 #endif
-
-		if (user_data->forward.first_packet != FALSE) 
-			/* first argument is the direction TRUE == forward */
-			return do_calculation(user_data->dlg.clist_fwd, FIRST_PACKET, &user_data->forward, rtpinfo, pinfo);
-		else if (rtpinfo->info_marker_set != FALSE)
-			return do_calculation(user_data->dlg.clist_fwd, MARK_SET, &user_data->forward, rtpinfo, pinfo);
-		else
-			return do_calculation(user_data->dlg.clist_fwd, NORMAL_PACKET, &user_data->forward, rtpinfo, pinfo);
+		rtp_packet_analyse(&(user_data->forward.statinfo), pinfo, rtpinfo);
+		rtp_packet_add_info(user_data->dlg.clist_fwd,
+			&(user_data->forward.statinfo), pinfo, rtpinfo);
+		rtp_packet_save_payload(&(user_data->forward.saveinfo),
+			&(user_data->forward.statinfo), pinfo, rtpinfo);
 	}
 	/* is it the reversed direction? */
 	else if (user_data->ssrc_rev == rtpinfo->info_sync_src) {
@@ -289,13 +306,11 @@ static int rtp_packet(user_data_t *user_data, packet_info *pinfo, epan_dissect_t
 		vp.fnumber = pinfo->fd->num;
 		g_array_append_val(user_data->series_rev.value_pairs, vp);
 #endif
-
-		if (user_data->reversed.first_packet != FALSE) 
-			return do_calculation(user_data->dlg.clist_rev, FIRST_PACKET, &user_data->reversed, rtpinfo, pinfo);
-		else if (rtpinfo->info_marker_set != FALSE)
-			return do_calculation(user_data->dlg.clist_rev, MARK_SET, &user_data->reversed, rtpinfo, pinfo);
-		else
-			return do_calculation(user_data->dlg.clist_rev, NORMAL_PACKET, &user_data->reversed, rtpinfo, pinfo);
+		rtp_packet_analyse(&(user_data->reversed.statinfo), pinfo, rtpinfo);
+		rtp_packet_add_info(user_data->dlg.clist_rev,
+			&(user_data->reversed.statinfo), pinfo, rtpinfo);
+		rtp_packet_save_payload(&(user_data->reversed.saveinfo),
+			&(user_data->reversed.statinfo), pinfo, rtpinfo);
 	}
 
 	return 0;
@@ -303,77 +318,51 @@ static int rtp_packet(user_data_t *user_data, packet_info *pinfo, epan_dissect_t
 
 
 /****************************************************************************/
-static int do_calculation(GtkWidget *clist, packet_type pkt_type, void *ptrs, void *vpri, void *vpinfo)
+static int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
+							  packet_info *pinfo, struct _rtp_info *rtpinfo)
 {
-	struct _info_direction *ptr=ptrs;
-	struct _rtp_info *pri=vpri;
-	packet_info *pinfo = vpinfo;
-	guint i;
 	double current_time;
 	double current_jitter;
-	guint8 *data;
-	gint16 tmp;
+	gboolean first_packet = statinfo->first_packet;
 
-	guint16 msecs;
-	gchar timeStr[32];
+	statinfo->flags = 0;
 
-	struct tm *tm_tmp;
-	time_t then;
+	/* check payload type */
+	if (rtpinfo->info_payload_type == PT_CN
+		|| rtpinfo->info_payload_type == PT_CN_OLD)
+		statinfo->flags |= STAT_FLAG_PT_CN;
+	if (rtpinfo->info_payload_type != statinfo->pt)
+		statinfo->flags |= STAT_FLAG_PT_CHANGE;
 
-	then = pinfo->fd->abs_secs;
-	msecs = (guint16)(pinfo->fd->abs_usecs/1000);
+	statinfo->pt = rtpinfo->info_payload_type;
 	
-	tm_tmp = localtime(&then);
-	snprintf(timeStr,32,"%02d/%02d/%04d %02d:%02d:%02d.%03d",
-		tm_tmp->tm_mon + 1,
-		tm_tmp->tm_mday,
-		tm_tmp->tm_year + 1900,
-		tm_tmp->tm_hour,
-		tm_tmp->tm_min,
-		tm_tmp->tm_sec,
-		msecs);
-
 	/* store the current time and calculate the current jitter */
 	current_time = (double)pinfo->fd->rel_secs + (double) pinfo->fd->rel_usecs/1000000;
-	current_jitter = ptr->jitter + ( fabs (current_time - (ptr->time) -
-		((double)(pri->info_timestamp)-(double)(ptr->timestamp))/8000)- ptr->jitter)/16;
-	ptr->delay =  current_time-(ptr->time);
+	current_jitter = statinfo->jitter + ( fabs (current_time - (statinfo->time) -
+		((double)(rtpinfo->info_timestamp)-(double)(statinfo->timestamp))/8000)- statinfo->jitter)/16;
+	statinfo->delay = current_time-(statinfo->time);
+	statinfo->jitter = current_jitter;
 
-	/* We have 3 possibilities:
-	*  is this the first packet we got in this direction? */
-	if (pkt_type == FIRST_PACKET) {
-		ptr->first_packet = FALSE;
-		ptr->start_seq_nr = pri->info_seq_num;
-		ptr->start_time = current_time;
-		add_to_clist(clist,
-			pinfo->fd->num, pri->info_seq_num, 0,
-			pri->info_marker_set? TRUE: FALSE, TRUE, FALSE,
-			timeStr, pinfo->fd->pkt_len);
-		if (ptr->fp == NULL) {
-			ptr->saved = FALSE;
-			ptr->error_type = TAP_RTP_FILE_OPEN_ERROR;
-		}
-		else
-			ptr->saved = TRUE;
+	/*  is this the first packet we got in this direction? */
+	if (first_packet) {
+		statinfo->first_packet = FALSE;
+		statinfo->start_seq_nr = rtpinfo->info_seq_num;
+		statinfo->start_time = current_time;
+		statinfo->delay = 0;
+		statinfo->jitter = 0;
+		statinfo->flags |= STAT_FLAG_FIRST;
 	}
-	/* or is it a packet with the mark bit set? */
-	else if (pkt_type == MARK_SET) {
-		ptr->delta_timestamp = pri->info_timestamp - ptr->timestamp;
-		add_to_clist(clist,
-			pinfo->fd->num, pri->info_seq_num, current_time - (ptr->time),
-			current_jitter, ptr->seq_num+1 == pri->info_seq_num? TRUE: FALSE, TRUE,
-			timeStr, pinfo->fd->pkt_len);
+	/* is it a packet with the mark bit set? */
+	if (rtpinfo->info_marker_set) {
+		statinfo->delta_timestamp = rtpinfo->info_timestamp - statinfo->timestamp;
+		statinfo->flags |= STAT_FLAG_MARKER;
 	}
-	/* if neither then it is a "normal" packet pkt_type == NORMAL_PACKET */
-	else {
-		if (ptr->delay > ptr->max_delay) {
-			ptr->max_delay = ptr->delay;
-			ptr->max_nr = pinfo->fd->num;
+	/* if neither then it is a normal packet */
+	{
+		if (statinfo->delay > statinfo->max_delay) {
+			statinfo->max_delay = statinfo->delay;
+			statinfo->max_nr = pinfo->fd->num;
 		}
-		add_to_clist(clist,
-			pinfo->fd->num, pri->info_seq_num, current_time -(ptr->time),
-			current_jitter , ptr->seq_num+1 == pri->info_seq_num?TRUE:FALSE, FALSE,
-			timeStr, pinfo->fd->pkt_len);
 	}
 
 	/* When calculating expected rtp packets the seq number can wrap around
@@ -392,21 +381,21 @@ static int do_calculation(GtkWidget *clist, packet_type pkt_type, void *ptrs, vo
 
 	/* so if the current sequence number is less than the start one
 	* we assume, that there is another cycle running */
-	if ((pri->info_seq_num < ptr->start_seq_nr) && (ptr->under == FALSE)){
-		ptr->cycles++;
-		ptr->under = TRUE;
+	if ((rtpinfo->info_seq_num < statinfo->start_seq_nr) && (statinfo->under == FALSE)){
+		statinfo->cycles++;
+		statinfo->under = TRUE;
 	}
 	/* what if the start seq nr was 0? Then the above condition will never
 	* be true, so we add another condition. XXX The problem would arise
 	* if one of the packets with seq nr 0 or 65535 would be lost or late */
-	else if ((pri->info_seq_num == 0) && (ptr->stop_seq_nr == 65535) &&
-		(ptr->under == FALSE)){
-		ptr->cycles++;
-		ptr->under = TRUE;
+	else if ((rtpinfo->info_seq_num == 0) && (statinfo->stop_seq_nr == 65535) &&
+		(statinfo->under == FALSE)){
+		statinfo->cycles++;
+		statinfo->under = TRUE;
 	}
 	/* the whole round is over, so reset the flag */
-	else if ((pri->info_seq_num > ptr->start_seq_nr) && (ptr->under != FALSE)) {
-		ptr->under = FALSE;
+	else if ((rtpinfo->info_seq_num > statinfo->start_seq_nr) && (statinfo->under != FALSE)) {
+		statinfo->under = FALSE;
 	}
 
 	/* Since it is difficult to count lost, duplicate or late packets separately,
@@ -414,98 +403,212 @@ static int do_calculation(GtkWidget *clist, packet_type pkt_type, void *ptrs, vo
 
 	/* if the current seq number equals the last one or if we are here for
 	* the first time, then it is ok, we just store the current one as the last one */
-	if ( ( ptr->seq_num+1 == pri->info_seq_num) || (pkt_type == FIRST_PACKET) )
-		ptr->seq_num = pri->info_seq_num;
+	if ( (statinfo->seq_num+1 == rtpinfo->info_seq_num) || (first_packet) )
+		statinfo->seq_num = rtpinfo->info_seq_num;
 	/* if the first one is 65535. XXX same problem as above: if seq 65535 or 0 is lost... */
-	else if ( (ptr->seq_num == 65535) && (pri->info_seq_num == 0) )
-		ptr->seq_num = pri->info_seq_num;
+	else if ( (statinfo->seq_num == 65535) && (rtpinfo->info_seq_num == 0) )
+		statinfo->seq_num = rtpinfo->info_seq_num;
 	/* lost packets */
-	else if (ptr->seq_num+1 < pri->info_seq_num) {
-		ptr->seq_num = pri->info_seq_num;
-		ptr->sequence++;
+	else if (statinfo->seq_num+1 < rtpinfo->info_seq_num) {
+		statinfo->seq_num = rtpinfo->info_seq_num;
+		statinfo->sequence++;
+		statinfo->flags |= STAT_FLAG_WRONG_SEQ;
 	}
 	/* late or duplicated */
-	else if (ptr->seq_num+1 > pri->info_seq_num)
-		ptr->sequence++;
+	else if (statinfo->seq_num+1 > rtpinfo->info_seq_num) {
+		statinfo->sequence++;
+		statinfo->flags |= STAT_FLAG_WRONG_SEQ;
+	}
 
-	ptr->time = current_time;
-	ptr->timestamp = pri->info_timestamp;
-	ptr->stop_seq_nr = pri->info_seq_num;
-	ptr->total_nr++;
+	statinfo->time = current_time;
+	statinfo->timestamp = rtpinfo->info_timestamp;
+	statinfo->stop_seq_nr = rtpinfo->info_seq_num;
+	statinfo->total_nr++;
+
+	return 0;
+}
+
+
+/****************************************************************************/
+/* adds statistics information from the packet to the clist */
+static int rtp_packet_add_info(GtkCList *clist,
+	tap_rtp_stat_t *statinfo, packet_info *pinfo, struct _rtp_info *rtpinfo)
+{
+	guint16 msecs;
+	gchar timeStr[32];
+	struct tm *tm_tmp;
+	time_t then;
+	gchar status[40];
+	GdkColor color = {0, 0xffff, 0xffff, 0xffff};
+
+	then = pinfo->fd->abs_secs;
+	msecs = (guint16)(pinfo->fd->abs_usecs/1000);
+	tm_tmp = localtime(&then);
+	snprintf(timeStr,32,"%02d/%02d/%04d %02d:%02d:%02d.%03d",
+		tm_tmp->tm_mon + 1,
+		tm_tmp->tm_mday,
+		tm_tmp->tm_year + 1900,
+		tm_tmp->tm_hour,
+		tm_tmp->tm_min,
+		tm_tmp->tm_sec,
+		msecs);
+
+	if (statinfo->pt == PT_CN) {
+		snprintf(status,40,"Comfort noise (PT=13, RFC 3389)");
+		color.pixel = 0;
+		color.red = 0x7fff;
+		color.green = 0x7fff;
+		color.blue = 0xffff;
+	}
+	else if (statinfo->pt == PT_CN_OLD) {
+		snprintf(status,40,"Comfort noise (PT=19, reserved)");
+		color.pixel = 0;
+		color.red = 0x7fff;
+		color.green = 0x7fff;
+		color.blue = 0xffff;
+	}
+	else if (statinfo->flags & STAT_FLAG_WRONG_SEQ) {
+		snprintf(status,40,"Wrong sequence nr.");
+		color.pixel = 0;
+		color.red = 0xffff;
+		color.green = 0x7fff;
+		color.blue = 0x7fff;
+	}
+	else if ((statinfo->flags & STAT_FLAG_PT_CHANGE)
+		&&  !(statinfo->flags & STAT_FLAG_FIRST)
+		&&  !(statinfo->flags & STAT_FLAG_PT_CN)) {
+		snprintf(status,40,"Payload type changed to PT=%u", statinfo->pt);
+		color.pixel = 0;
+		color.red = 0xffff;
+		color.green = 0x7fff;
+		color.blue = 0x7fff;
+	}
+	else {
+		snprintf(status,40,OK_TEXT);
+	}
+
+	/*  is this the first packet we got in this direction? */
+	if (statinfo->first_packet) {
+		add_to_clist(clist,
+			pinfo->fd->num, rtpinfo->info_seq_num,
+			0,
+			0,
+			status,
+			rtpinfo->info_marker_set,
+			timeStr, pinfo->fd->pkt_len,
+			&color);
+	}
+	else {
+		add_to_clist(clist,
+			pinfo->fd->num, rtpinfo->info_seq_num,
+			statinfo->delay,
+			statinfo->jitter,
+			status,
+			rtpinfo->info_marker_set,
+			timeStr, pinfo->fd->pkt_len,
+			&color);
+	}
+
+	return 0;
+}
+
+
+/****************************************************************************/
+static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo, 
+								   tap_rtp_stat_t *statinfo,
+								   packet_info *pinfo, struct _rtp_info *rtpinfo)
+{
+	guint i;
+	guint8 *data;
+	gint16 tmp;
+
+	/*  is this the first packet we got in this direction? */
+	if (statinfo->first_packet) {
+		if (saveinfo->fp == NULL) {
+			saveinfo->saved = FALSE;
+			saveinfo->error_type = TAP_RTP_FILE_OPEN_ERROR;
+		}
+		else
+			saveinfo->saved = TRUE;
+	}
 
 	/* save the voice information */
 	/* if there was already an error, we quit */
-	if (ptr->saved == FALSE)
+	if (saveinfo->saved == FALSE)
 		return 0;
 
 	/* if the captured length and packet length aren't equal, we quit
 	* because there is some information missing */
 	if (pinfo->fd->pkt_len != pinfo->fd->cap_len) {
-		ptr->saved = FALSE;
-		ptr->error_type = TAP_RTP_WRONG_LENGTH;
+		saveinfo->saved = FALSE;
+		saveinfo->error_type = TAP_RTP_WRONG_LENGTH;
 		return 0;
 	}
 
 	/* if padding bit is set, but the padding count is bigger
 	* then the whole RTP data - error with padding count */
-	if ( (pri->info_padding_set != FALSE) &&
-		(pri->info_padding_count > pri->info_payload_len) ) {
-		ptr->saved = FALSE;
-		ptr->error_type = TAP_RTP_PADDING_ERROR;
+	if ( (rtpinfo->info_padding_set != FALSE) &&
+		(rtpinfo->info_padding_count > rtpinfo->info_payload_len) ) {
+		saveinfo->saved = FALSE;
+		saveinfo->error_type = TAP_RTP_PADDING_ERROR;
 		return 0;
 	}
 
 	/* do we need to insert some silence? */
-	if ((pkt_type == MARK_SET) &&
-		(ptr->delta_timestamp > (pri->info_payload_len - pri->info_padding_count)) )  {
+	if ((rtpinfo->info_marker_set) &&
+		(statinfo->delta_timestamp > (rtpinfo->info_payload_len - rtpinfo->info_padding_count)) )  {
 		/* the amount of silence should be the difference between
 		* the last timestamp and the current one minus x
 		* x should equal the amount of information in the last frame
 		* XXX not done yet */
-		for(i=0; i < (ptr->delta_timestamp - pri->info_payload_len -
-			pri->info_padding_count); i++) {
+		for(i=0; i < (statinfo->delta_timestamp - rtpinfo->info_payload_len -
+			rtpinfo->info_padding_count); i++) {
 			tmp = (gint16 )ulaw2linear((unsigned char)(0x55));
-			fwrite(&tmp, 2, 1, ptr->fp);
-			ptr->count++;
+			fwrite(&tmp, 2, 1, saveinfo->fp);
+			saveinfo->count++;
 		}
-		fflush(ptr->fp);
+		fflush(saveinfo->fp);
 	}
 
 	/* ulaw? */
-	if (pri->info_payload_type == 0) {
+	if (rtpinfo->info_payload_type == 0) {
 		/* we put the pointer at the beggining of the RTP data, that is
 		* at the end of the current frame minus the length of the
 		* padding count minus length of the RTP data */
-		data = cfile.pd + (pinfo->fd->pkt_len - pri->info_payload_len);
-		for(i=0; i < (pri->info_payload_len - pri->info_padding_count); i++, data++) {
+		data = cfile.pd + (pinfo->fd->pkt_len - rtpinfo->info_payload_len);
+		for(i=0; i < (rtpinfo->info_payload_len - rtpinfo->info_padding_count); i++, data++) {
 			tmp = (gint16 )ulaw2linear((unsigned char)*data);
-			fwrite(&tmp, 2, 1, ptr->fp);
-			ptr->count++;
+			fwrite(&tmp, 2, 1, saveinfo->fp);
+			saveinfo->count++;
 		}
-		fflush(ptr->fp);
-		ptr->saved = TRUE;
+		fflush(saveinfo->fp);
+		saveinfo->saved = TRUE;
 		return 0;
 	}
 
 	/* alaw? */
-	else if (pri->info_payload_type == 8) {
-		data = cfile.pd + (pinfo->fd->pkt_len - pri->info_payload_len);
-		for(i=0; i < (pri->info_payload_len - pri->info_padding_count); i++, data++) {
+	else if (rtpinfo->info_payload_type == 8) {
+		data = cfile.pd + (pinfo->fd->pkt_len - rtpinfo->info_payload_len);
+		for(i=0; i < (rtpinfo->info_payload_len - rtpinfo->info_padding_count); i++, data++) {
 			tmp = (gint16 )alaw2linear((unsigned char)*data);
-			fwrite(&tmp, 2, 1, ptr->fp);
-			ptr->count++;
+			fwrite(&tmp, 2, 1, saveinfo->fp);
+			saveinfo->count++;
 		}
-		fflush(ptr->fp);
-		ptr->saved = TRUE;
+		fflush(saveinfo->fp);
+		saveinfo->saved = TRUE;
+		return 0;
+	}
+	/* comfort noise? - do nothing */
+	else if (rtpinfo->info_payload_type == PT_CN
+		&& rtpinfo->info_payload_type == PT_CN_OLD) {
+	}
+	/* unsupported codec or XXX other error */
+	else {
+		saveinfo->saved = FALSE;
+		saveinfo->error_type = TAP_RTP_WRONG_CODEC;
 		return 0;
 	}
 
-	/* unsupported codec or XXX other error */
-	else {
-		ptr->saved = FALSE;
-		ptr->error_type = TAP_RTP_WRONG_CODEC;
-		return 0;
-	}
 	return 0;
 }
 
@@ -527,10 +630,10 @@ static void on_destroy(GtkWidget *win _U_, user_data_t *user_data _U_)
 	remove_tap_listener(user_data);
 	unprotect_thread_critical_region();
 
-	if (user_data->forward.fp != NULL)
-		fclose(user_data->forward.fp);
-	if (user_data->reversed.fp != NULL)
-		fclose(user_data->reversed.fp);
+	if (user_data->forward.saveinfo.fp != NULL)
+		fclose(user_data->forward.saveinfo.fp);
+	if (user_data->reversed.saveinfo.fp != NULL)
+		fclose(user_data->reversed.saveinfo.fp);
 	remove(user_data->f_tempname);
 	remove(user_data->r_tempname);
 
@@ -547,6 +650,17 @@ static void on_destroy(GtkWidget *win _U_, user_data_t *user_data _U_)
 	g_free(user_data);
 }
 
+
+/****************************************************************************/
+static void on_notebook_switch_page(GtkNotebook *notebook _U_,
+                                    GtkNotebookPage *page _U_,
+                                    gint page_num _U_,
+                                    user_data_t *user_data _U_)
+{
+	user_data->dlg.selected_clist =
+		(page_num==0) ? user_data->dlg.clist_fwd : user_data->dlg.clist_rev ;
+	user_data->dlg.selected_row = 0;
+}
 
 /****************************************************************************/
 static void on_clist_select_row(GtkCList        *clist _U_,
@@ -676,6 +790,41 @@ static void on_close_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 	gtk_widget_destroy(GTK_WIDGET(user_data->dlg.window));
 }
 
+/****************************************************************************/
+static void on_next_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
+{
+	GtkCList *clist;
+	gchar *text;
+	gint row;
+	if (user_data->dlg.selected_clist==NULL)
+		return;
+/*
+	if (user_data->dlg.selected_row==-1)
+		user_data->dlg.selected_row = 0;
+*/
+	clist = user_data->dlg.selected_clist;
+	row = user_data->dlg.selected_row + 1;
+
+	while (gtk_clist_get_text(clist,row,5,&text)) {
+		if (strcmp(text, OK_TEXT) != 0) {
+			gtk_clist_select_row(clist, row, 0);
+			gtk_clist_moveto(clist, row, 0, 0.5, 0);
+			return;
+		}
+		++row;
+	}
+
+	/* wrap around */
+	row = 0;
+	while (gtk_clist_get_text(clist,row,5,&text) && row<user_data->dlg.selected_row) {
+		if (strcmp(text, OK_TEXT) != 0) {
+			gtk_clist_select_row(clist, row, 0);
+			gtk_clist_moveto(clist, row, 0, 0.5, 0);
+			return;
+		}
+		++row;
+	}
+}
 
 /****************************************************************************/
 /* when we want to save the information */
@@ -946,8 +1095,8 @@ static gboolean copy_file(gchar *dest, gint channels, /*gint format,*/ user_data
 	switch (channels) {
 		/* only forward direction */
 		case 1: {
-			progbar_count = user_data->forward.count;
-			progbar_quantum = user_data->forward.count/100;
+			progbar_count = user_data->forward.saveinfo.count;
+			progbar_quantum = user_data->forward.saveinfo.count/100;
 			while ((fread = read(forw_fd, &f_pd, 2)) > 0) {
 				if(stop_flag) 
 					break;
@@ -971,8 +1120,8 @@ static gboolean copy_file(gchar *dest, gint channels, /*gint format,*/ user_data
 		}
 		/* only reversed direction */
 		case 2: {
-			progbar_count = user_data->reversed.count;
-			progbar_quantum = user_data->reversed.count/100;
+			progbar_count = user_data->reversed.saveinfo.count;
+			progbar_quantum = user_data->reversed.saveinfo.count/100;
 			while ((rread = read(rev_fd, &r_pd, 2)) > 0) {
 				if(stop_flag) 
 					break;
@@ -996,19 +1145,19 @@ static gboolean copy_file(gchar *dest, gint channels, /*gint format,*/ user_data
 		}
 		/* both directions */
 		default: {
-			(user_data->forward.count > user_data->reversed.count) ? 
-					(progbar_count = user_data->forward.count) : 
-						(progbar_count = user_data->reversed.count);
+			(user_data->forward.saveinfo.count > user_data->reversed.saveinfo.count) ? 
+					(progbar_count = user_data->forward.saveinfo.count) : 
+						(progbar_count = user_data->reversed.saveinfo.count);
 			progbar_quantum = progbar_count/100;
 			/* since conversation in one way can start later than in the other one, 
 			 * we have to write some silence information for one channel */
-			if (user_data->forward.start_time > user_data->reversed.start_time) {
+			if (user_data->forward.statinfo.start_time > user_data->reversed.statinfo.start_time) {
 				f_write_silence = 
-					(user_data->forward.start_time-user_data->reversed.start_time)*8000;
+					(user_data->forward.statinfo.start_time-user_data->reversed.statinfo.start_time)*8000;
 			}
-			else if (user_data->forward.start_time < user_data->reversed.start_time) {
+			else if (user_data->forward.statinfo.start_time < user_data->reversed.statinfo.start_time) {
 				r_write_silence = 
-					(user_data->reversed.start_time-user_data->forward.start_time)*8000;
+					(user_data->reversed.statinfo.start_time-user_data->forward.statinfo.start_time)*8000;
 			}
 			for(;;) {
 				if(stop_flag) 
@@ -1097,18 +1246,18 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 	*/
 	
 	/* we can not save in both dirctions */
-	if ((user_data->forward.saved == FALSE) && (user_data->reversed.saved == FALSE) && (GTK_TOGGLE_BUTTON (both)->active)) {
+	if ((user_data->forward.saveinfo.saved == FALSE) && (user_data->reversed.saveinfo.saved == FALSE) && (GTK_TOGGLE_BUTTON (both)->active)) {
 		/* there are many combinations here, we just exit when first matches */
-		if ((user_data->forward.error_type == TAP_RTP_WRONG_CODEC) || 
-			(user_data->reversed.error_type == TAP_RTP_WRONG_CODEC))
+		if ((user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_CODEC) || 
+			(user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_CODEC))
 			simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL, 
 			"Can't save in a file: Unsupported codec!");
-		else if ((user_data->forward.error_type == TAP_RTP_WRONG_LENGTH) || 
-			(user_data->reversed.error_type == TAP_RTP_WRONG_LENGTH))
+		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_LENGTH) || 
+			(user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_LENGTH))
 			simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL, 
 			"Can't save in a file: Wrong length of captured packets!");
-		else if ((user_data->forward.error_type == TAP_RTP_PADDING_ERROR) || 
-			(user_data->reversed.error_type == TAP_RTP_PADDING_ERROR))
+		else if ((user_data->forward.saveinfo.error_type == TAP_RTP_PADDING_ERROR) || 
+			(user_data->reversed.saveinfo.error_type == TAP_RTP_PADDING_ERROR))
 			simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL, 
 			"Can't save in a file: RTP data with padding!");
 		else  
@@ -1117,15 +1266,15 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 		return;
 	}
 	/* we can not save forward direction */
-	else if ((user_data->forward.saved == FALSE) && ((GTK_TOGGLE_BUTTON (forw)->active) ||
+	else if ((user_data->forward.saveinfo.saved == FALSE) && ((GTK_TOGGLE_BUTTON (forw)->active) ||
 		(GTK_TOGGLE_BUTTON (both)->active))) {	
-		if (user_data->forward.error_type == TAP_RTP_WRONG_CODEC)
+		if (user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_CODEC)
 			simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL, 
 			"Can't save forward direction in a file: Unsupported codec!");
-		else if (user_data->forward.error_type == TAP_RTP_WRONG_LENGTH)
+		else if (user_data->forward.saveinfo.error_type == TAP_RTP_WRONG_LENGTH)
 			simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL,
 			"Can't save forward direction in a file: Wrong length of captured packets!");
-		else if (user_data->forward.error_type == TAP_RTP_PADDING_ERROR)
+		else if (user_data->forward.saveinfo.error_type == TAP_RTP_PADDING_ERROR)
 			simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL, 
 			"Can't save forward direction in a file: RTP data with padding!");
 		else
@@ -1134,18 +1283,18 @@ static void save_voice_as_ok_cb(GtkWidget *ok_bt _U_, gpointer fs _U_)
 		return;
 	}
 	/* we can not save reversed direction */
-	else if ((user_data->reversed.saved == FALSE) && ((GTK_TOGGLE_BUTTON (rev)->active) ||
+	else if ((user_data->reversed.saveinfo.saved == FALSE) && ((GTK_TOGGLE_BUTTON (rev)->active) ||
 		(GTK_TOGGLE_BUTTON (both)->active))) {	
-		if (user_data->reversed.error_type == TAP_RTP_WRONG_CODEC)
+		if (user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_CODEC)
 			simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL,
 			"Can't save reversed direction in a file: Unsupported codec!");
-		else if (user_data->reversed.error_type == TAP_RTP_WRONG_LENGTH)
+		else if (user_data->reversed.saveinfo.error_type == TAP_RTP_WRONG_LENGTH)
 			simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL,
 			"Can't save reversed direction in a file: Wrong length of captured packets!");
-		else if (user_data->reversed.error_type == TAP_RTP_PADDING_ERROR)
+		else if (user_data->reversed.saveinfo.error_type == TAP_RTP_PADDING_ERROR)
 			simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL,
 			"Can't save reversed direction in a file: RTP data with padding!");
-		else if (user_data->reversed.error_type == TAP_RTP_NO_DATA)
+		else if (user_data->reversed.saveinfo.error_type == TAP_RTP_NO_DATA)
 			simple_dialog(ESD_TYPE_WARN | ESD_TYPE_MODAL, NULL,
 			"Can't save reversed direction in a file: No RTP data!");
 		else
@@ -1325,26 +1474,26 @@ static void on_save_bt_clicked(GtkWidget *bt _U_, user_data_t *user_data _U_)
 static void draw_stat(user_data_t *user_data)
 {
 	gchar label_max[200];
-	guint32 f_expected = (user_data->forward.stop_seq_nr + user_data->forward.cycles*65536)
-		- user_data->forward.start_seq_nr + 1;
-	guint32 r_expected = (user_data->reversed.stop_seq_nr + user_data->reversed.cycles*65536)
-		- user_data->reversed.start_seq_nr + 1;
-	gint32 f_lost = f_expected - user_data->forward.total_nr;
-	gint32 r_lost = r_expected - user_data->reversed.total_nr;
+	guint32 f_expected = (user_data->forward.statinfo.stop_seq_nr + user_data->forward.statinfo.cycles*65536)
+		- user_data->forward.statinfo.start_seq_nr + 1;
+	guint32 r_expected = (user_data->reversed.statinfo.stop_seq_nr + user_data->reversed.statinfo.cycles*65536)
+		- user_data->reversed.statinfo.start_seq_nr + 1;
+	gint32 f_lost = f_expected - user_data->forward.statinfo.total_nr;
+	gint32 r_lost = r_expected - user_data->reversed.statinfo.total_nr;
 
 	g_snprintf(label_max, 199, "Max delay = %f sec at packet no. %u \n\n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d"
 		"   Sequence errors = %u",
-		user_data->forward.max_delay, user_data->forward.max_nr, user_data->forward.total_nr,
-		f_expected, f_lost, user_data->forward.sequence);
+		user_data->forward.statinfo.max_delay, user_data->forward.statinfo.max_nr, user_data->forward.statinfo.total_nr,
+		f_expected, f_lost, user_data->forward.statinfo.sequence);
 
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_fwd), label_max);
 
 	g_snprintf(label_max, 199, "Max delay = %f sec at packet no. %u \n\n"
 		"Total RTP packets = %u   (expected %u)   Lost RTP packets = %d"
 		"   Sequence errors = %u",
-		user_data->reversed.max_delay, user_data->reversed.max_nr, user_data->reversed.total_nr,
-		r_expected, r_lost, user_data->reversed.sequence);
+		user_data->reversed.statinfo.max_delay, user_data->reversed.statinfo.max_nr, user_data->reversed.statinfo.total_nr,
+		r_expected, r_lost, user_data->reversed.statinfo.sequence);
 
 	gtk_label_set_text(GTK_LABEL(user_data->dlg.label_stats_rev), label_max);
 
@@ -1353,9 +1502,9 @@ static void draw_stat(user_data_t *user_data)
 
 /****************************************************************************/
 /* append a line to clist */
-static void add_to_clist(GtkWidget *clist, guint32 number, guint16 seq_num,
-                         double delay, double jitter, gboolean status, gboolean marker,
-                         gchar *timeStr, guint32 pkt_len)
+static void add_to_clist(GtkCList *clist, guint32 number, guint16 seq_num,
+                         double delay, double jitter, gchar *status, gboolean marker,
+                         gchar *timeStr, guint32 pkt_len, GdkColor *color)
 {
 	guint added_row;
 	gchar *data[8];
@@ -1375,12 +1524,13 @@ static void add_to_clist(GtkWidget *clist, guint32 number, guint16 seq_num,
 	g_snprintf(field[2], 20, "%f", delay);
 	g_snprintf(field[3], 20, "%f", jitter);
 	g_snprintf(field[4], 20, "%s", marker? "SET" : "");
-	g_snprintf(field[5], 29, "%s", status? "OK" : "NOK - Wrong sequence nr.");
+	g_snprintf(field[5], 40, "%s", status);
 	g_snprintf(field[6], 32, "%s", timeStr);
 	g_snprintf(field[7], 20, "%u", pkt_len);
 
 	added_row = gtk_clist_append(GTK_CLIST(clist), data);
 	gtk_clist_set_row_data(GTK_CLIST(clist), added_row, GUINT_TO_POINTER(number));
+	gtk_clist_set_background(GTK_CLIST(clist), added_row, color);
 }
 
 /****************************************************************************/
@@ -1396,7 +1546,7 @@ void create_rtp_dialog(user_data_t* user_data)
 
 	GtkWidget *main_vb, *page, *page_r, *label, *label1, *label2, *label3;
 	GtkWidget *scrolled_window, *scrolled_window_r/*, *frame, *text, *label4, *page_help*/;
-	GtkWidget *box4, *voice_bt, *refresh_bt, *goto_bt, *close_bt, *csv_bt;
+	GtkWidget *box4, *voice_bt, *refresh_bt, *goto_bt, *close_bt, *csv_bt, *next_bt;
 #ifdef USE_CONVERSATION_GRAPH
 	GtkWidget *graph_bt;
 #endif
@@ -1440,6 +1590,9 @@ void create_rtp_dialog(user_data_t* user_data)
 	notebook = gtk_notebook_new();
 	gtk_container_add(GTK_CONTAINER(main_vb), notebook);
 	gtk_object_set_data(GTK_OBJECT(window), "notebook", notebook);
+	gtk_signal_connect(GTK_OBJECT (notebook), "switch_page",
+					  GTK_SIGNAL_FUNC (on_notebook_switch_page),
+					  user_data);
 
 	/* page for forward connection */
 	page = gtk_vbox_new(FALSE, 5);
@@ -1581,6 +1734,12 @@ void create_rtp_dialog(user_data_t* user_data)
 		GTK_SIGNAL_FUNC(on_graph_bt_clicked), user_data);
 #endif
 
+	next_bt = gtk_button_new_with_label("Next");
+	gtk_container_add(GTK_CONTAINER(box4), next_bt);
+	gtk_widget_show(next_bt);
+	gtk_signal_connect(GTK_OBJECT(next_bt), "clicked",
+		GTK_SIGNAL_FUNC(on_next_bt_clicked), user_data);
+
 	close_bt = gtk_button_new_with_label("Close");
 	gtk_container_add(GTK_CONTAINER(box4), close_bt);
 	gtk_widget_show(close_bt);
@@ -1590,13 +1749,13 @@ void create_rtp_dialog(user_data_t* user_data)
 	gtk_widget_show(window);
 
 	user_data->dlg.window = window;
-	user_data->dlg.clist_fwd = clist_fwd;
-	user_data->dlg.clist_rev = clist_rev;
+	user_data->dlg.clist_fwd = GTK_CLIST(clist_fwd);
+	user_data->dlg.clist_rev = GTK_CLIST(clist_rev);
 	user_data->dlg.label_stats_fwd = label_stats_fwd;
 	user_data->dlg.label_stats_rev = label_stats_rev;
 	user_data->dlg.notebook = notebook;
-	user_data->dlg.selected_clist = NULL;
-	user_data->dlg.selected_row = -1;
+	user_data->dlg.selected_clist = GTK_CLIST(clist_fwd);
+	user_data->dlg.selected_row = 0;
 }
 
 
@@ -1703,7 +1862,7 @@ void rtp_analysis(
 		return;
 	}
 
-	sprintf(filter_text,"rtp && ip && !icmp && (( ip.src==%s && udp.srcport==%d && ip.dst==%s && udp.dstport==%d ) || ( ip.src==%s && udp.srcport==%d && ip.dst==%s && udp.dstport==%d ))",
+	sprintf(filter_text,"rtp && ip && !icmp && (( ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u ) || ( ip.src==%s && udp.srcport==%u && ip.dst==%s && udp.dstport==%u ))",
 		ip_to_str((ip_addr_p)&ip_src_fwd),
 		port_src_fwd,
 		ip_to_str((ip_addr_p)&ip_dst_fwd),
@@ -1727,8 +1886,8 @@ void rtp_analysis(
 	/* file names for storing sound data */
 	tmpnam(user_data->f_tempname);
 	tmpnam(user_data->r_tempname);
-	user_data->forward.fp = NULL;
-	user_data->reversed.fp = NULL;
+	user_data->forward.saveinfo.fp = NULL;
+	user_data->reversed.saveinfo.fp = NULL;
 	user_data->dlg.save_voice_as_w = NULL;
 	user_data->dlg.save_csv_as_w = NULL;
 #ifdef USE_CONVERSATION_GRAPH

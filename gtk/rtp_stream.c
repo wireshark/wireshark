@@ -1,7 +1,7 @@
 /* rtp_stream.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream.c,v 1.1 2003/09/24 07:48:11 guy Exp $
+ * $Id: rtp_stream.c,v 1.2 2003/09/25 19:35:14 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -72,8 +72,7 @@ gint rtp_stream_info_cmp(gconstpointer aa, gconstpointer bb)
 		&& (a->src_port == b->src_port)
 		&& (a->dest_addr == b->dest_addr)
 		&& (a->dest_port == b->dest_port)
-		&& (a->ssrc == b->ssrc)
-		&& (a->pt == b->pt))
+		&& (a->ssrc == b->ssrc))
 		return 0;
 	else
 		return 1;
@@ -148,7 +147,7 @@ static void rtp_write_header(rtp_stream_info_t *strinfo, FILE *file)
 	guint16 port;          /* UDP port */
 	guint16 padding;       /* 2 padding bytes */
 	
-	fprintf(file, "#!rtpplay%s %s/%d\n", RTPFILE_VERSION,
+	fprintf(file, "#!rtpplay%s %s/%u\n", RTPFILE_VERSION,
 		ip_to_str((guint8*) &strinfo->dest_addr),
 		strinfo->dest_port);
 
@@ -181,21 +180,6 @@ static void rtp_write_sample(rtp_sample_t* sample, FILE* file)
 	fwrite(&plen, 2, 1, file);
 	fwrite(&offset, 4, 1, file);
 	fwrite(sample->frame, sample->header.frame_length, 1, file);
-}
-
-
-/* utility function for writing a sample to file in RAS format */
-static
-void ras_write_sample(rtp_sample_t* sample, FILE* file)
-{
-	rtp_sample_header_t net_order_header;
-
-	net_order_header.rec_time = g_htonl(sample->header.rec_time);
-	net_order_header.frame_length = g_htons(sample->header.frame_length);
-
-	fwrite(&(net_order_header.rec_time), 1, 4, file);
-	fwrite(&(net_order_header.frame_length), 1, 2, file);
-	fwrite(sample->frame, 1, sample->header.frame_length, file);
 }
 
 
@@ -258,14 +242,12 @@ int rtpstream_packet(rtpstream_tapinfo_t *tapinfo _U_, packet_info *pinfo, epan_
 	}
 	else if (tapinfo->mode == TAP_SAVE) {
 		if (rtp_stream_info_cmp(&tmp_strinfo, tapinfo->filter_stream_fwd)==0) {
-/*			sample.header.rec_time = pinfo->fd->abs_secs*1000 + pinfo->fd->abs_usecs;*/
 			sample.header.rec_time = 
 				(pinfo->fd->abs_usecs + 1000000 - tapinfo->filter_stream_fwd->start_usec)/1000
 				+ (pinfo->fd->abs_secs - tapinfo->filter_stream_fwd->start_sec - 1)*1000;
 			sample.header.frame_length = rtpinfo->info_data_len;
 			sample.frame = cfile.pd + pinfo->fd->pkt_len - rtpinfo->info_data_len;
 			rtp_write_sample(&sample, tapinfo->save_file);
-/*			ras_write_sample(&sample, tapinfo->save_file);*/
 		}
 	}
 	else if (tapinfo->mode == TAP_MARK) {
