@@ -41,11 +41,12 @@
  *
  *  Most of the parameters are passed through the global capture_opts.
  *
+ *  @param capture_opts the options (formerly global)
  *  @param is_tempfile  TRUE if the current cfile is a tempfile
  *  @return             TRUE if a capture could be started, FALSE if not
  */
 extern gboolean 
-sync_pipe_do_capture(gboolean is_tempfile);
+sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile);
 
 /** User wants to stop capturing, gracefully close the capture child */
 extern void

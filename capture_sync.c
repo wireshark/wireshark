@@ -129,6 +129,42 @@ static void sync_pipe_wait_for_child(gboolean always_report);
 
 
 
+void
+sync_pipe_capstart_to_parent(void)
+{
+    static const char capstart_msg = SP_CAPSTART;
+
+    write(1, &capstart_msg, 1);
+}
+
+void
+sync_pipe_packet_count_to_parent(int packet_count)
+{
+    char tmp[SP_DECISIZE+1+1];
+    sprintf(tmp, "%d%c", packet_count, SP_PACKET_COUNT);
+    write(1, tmp, strlen(tmp));
+}
+
+void
+sync_pipe_errmsg_to_parent(const char *errmsg)
+{
+    int msglen = strlen(errmsg);
+    char lenbuf[SP_DECISIZE+1+1];
+
+    sprintf(lenbuf, "%u%c", msglen, SP_ERROR_MSG);
+    write(1, lenbuf, strlen(lenbuf));
+    write(1, errmsg, msglen);
+}
+
+void
+sync_pipe_drops_to_parent(int drops)
+{
+	char tmp[SP_DECISIZE+1+1];
+	sprintf(tmp, "%d%c", drops, SP_DROPS);
+	write(1, tmp, strlen(tmp));
+}
+
+
 /* Add a string pointer to a NULL-terminated array of string pointers. */
 static char **
 sync_pipe_add_arg(char **args, int *argc, char *arg)
@@ -171,7 +207,7 @@ sync_pipe_quote_encapsulate(const char *string)
 
 
 gboolean
-sync_pipe_do_capture(gboolean is_tempfile) {
+sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
     guint byte_count;
     int  i;
     guchar  c;
@@ -218,22 +254,22 @@ sync_pipe_do_capture(gboolean is_tempfile) {
     sprintf(save_file_fd,"%d",cfile.save_file_fd);	/* in lieu of itoa */
     argv = sync_pipe_add_arg(argv, &argc, save_file_fd);
 
-    if (capture_opts.has_autostop_packets) {
+    if (capture_opts->has_autostop_packets) {
       argv = sync_pipe_add_arg(argv, &argc, "-c");
-      sprintf(scount,"%d",capture_opts.autostop_packets);
+      sprintf(scount,"%d",capture_opts->autostop_packets);
       argv = sync_pipe_add_arg(argv, &argc, scount);
     }
 
-    if (capture_opts.has_snaplen) {
+    if (capture_opts->has_snaplen) {
       argv = sync_pipe_add_arg(argv, &argc, "-s");
-      sprintf(ssnap,"%d",capture_opts.snaplen);
+      sprintf(ssnap,"%d",capture_opts->snaplen);
       argv = sync_pipe_add_arg(argv, &argc, ssnap);
     }
 
-    if (capture_opts.linktype != -1) {
+    if (capture_opts->linktype != -1) {
       argv = sync_pipe_add_arg(argv, &argc, "-y");
 #ifdef HAVE_PCAP_DATALINK_VAL_TO_NAME
-      sprintf(ssnap,"%s",pcap_datalink_val_to_name(capture_opts.linktype));
+      sprintf(ssnap,"%s",pcap_datalink_val_to_name(capture_opts->linktype));
 #else
       /* XXX - just treat it as a number */
       sprintf(ssnap,"%d",capture_opts.linktype);
@@ -241,23 +277,23 @@ sync_pipe_do_capture(gboolean is_tempfile) {
       argv = sync_pipe_add_arg(argv, &argc, ssnap);
     }
 
-    if (capture_opts.has_autostop_filesize) {
+    if (capture_opts->has_autostop_filesize) {
       argv = sync_pipe_add_arg(argv, &argc, "-a");
-      sprintf(sautostop_filesize,"filesize:%d",capture_opts.autostop_filesize);
+      sprintf(sautostop_filesize,"filesize:%d",capture_opts->autostop_filesize);
       argv = sync_pipe_add_arg(argv, &argc, sautostop_filesize);
     }
 
-    if (capture_opts.has_autostop_duration) {
+    if (capture_opts->has_autostop_duration) {
       argv = sync_pipe_add_arg(argv, &argc, "-a");
-      sprintf(sautostop_duration,"duration:%d",capture_opts.autostop_duration);
+      sprintf(sautostop_duration,"duration:%d",capture_opts->autostop_duration);
       argv = sync_pipe_add_arg(argv, &argc, sautostop_duration);
     }
 
-    if (!capture_opts.show_info) {
+    if (!capture_opts->show_info) {
       argv = sync_pipe_add_arg(argv, &argc, "-H");
     }
 
-    if (!capture_opts.promisc_mode)
+    if (!capture_opts->promisc_mode)
       argv = sync_pipe_add_arg(argv, &argc, "-p");
 
 #ifdef _WIN32
@@ -600,13 +636,15 @@ sync_pipe_input_cb(gint source, gpointer user_data)
   case READ_ABORTED:
     /* Kill the child capture process; the user wants to exit, and we
        shouldn't just leave it running. */
-    kill_capture_child();
+    kill_capture_child(TRUE /* sync_mode */);
     break;
   }
 
   return TRUE;
 }
 
+
+/* the child process is going down, wait until it's completely terminated */
 static void
 sync_pipe_wait_for_child(gboolean always_report)
 {
@@ -654,40 +692,6 @@ sync_pipe_wait_for_child(gboolean always_report)
 #endif
 }
 
-void
-sync_pipe_errmsg_to_parent(const char *errmsg)
-{
-    int msglen = strlen(errmsg);
-    char lenbuf[SP_DECISIZE+1+1];
-
-    sprintf(lenbuf, "%u%c", msglen, SP_ERROR_MSG);
-    write(1, lenbuf, strlen(lenbuf));
-    write(1, errmsg, msglen);
-}
-
-void
-sync_pipe_drops_to_parent(int drops)
-{
-	char tmp[SP_DECISIZE+1+1];
-	sprintf(tmp, "%d%c", drops, SP_DROPS);
-	write(1, tmp, strlen(tmp));
-}
-
-void
-sync_pipe_packet_count_to_parent(int packet_count)
-{
-    char tmp[SP_DECISIZE+1+1];
-    sprintf(tmp, "%d%c", packet_count, SP_PACKET_COUNT);
-    write(1, tmp, strlen(tmp));
-}
-
-void
-sync_pipe_capstart_to_parent(void)
-{
-    static const char capstart_msg = SP_CAPSTART;
-
-    write(1, &capstart_msg, 1);
-}
 
 #ifndef _WIN32
 static char *

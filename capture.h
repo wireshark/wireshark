@@ -35,7 +35,7 @@
 #ifdef HAVE_LIBPCAP
 
 /** Capture options coming from user interface */
-typedef struct {
+typedef struct capture_options_tag {
     /* general */
 #ifdef _WIN32
     int buffer_size;        /**< the capture buffer size (MB) */
@@ -43,12 +43,12 @@ typedef struct {
 	gboolean has_snaplen;		/**< TRUE if maximum capture packet
 					   length is specified */
 	int snaplen;			/**< Maximum captured packet length */
-	int promisc_mode;		/**< Capture in promiscuous mode */
+	gboolean promisc_mode;  /**< Capture in promiscuous mode */
 	int linktype;			/**< Data link type to use, or -1 for
 					   "use default" */
 
     /* GUI related */
-	int sync_mode;			/**< Fork a child to do the capture,
+	gboolean sync_mode;			/**< Fork a child to do the capture,
 					   and sync between them */
     gboolean show_info;     /**< show the info dialog */
     gboolean quit_after_cap;    /** Makes a "capture only mode". Implies -k */
@@ -77,9 +77,6 @@ typedef struct {
 	gint32 autostop_duration;	/**< Maximum capture duration */
 } capture_options;
 
-/** Global capture options. */
-extern capture_options capture_opts;
-
 /** True if this is the child for "-S" */
 extern gboolean capture_child;	
 
@@ -88,19 +85,19 @@ extern gboolean capture_child;
  * to the file in question.  
  *
  * @return TRUE if the capture starts successfully, FALSE otherwise. */
-extern gboolean do_capture(const char *save_file);
+extern gboolean do_capture(capture_options *capture_opts, const char *save_file);
 
 /** Do the low-level work of a capture (start the capture child). */
-extern int  capture_start(gboolean *stats_known, struct pcap_stat *stats);
+extern int  capture_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);
 
 /** Stop a capture from a menu item. */
-extern void capture_stop(void);
+extern void capture_stop(gboolean sync_mode);
 
 /** Terminate the capture child cleanly when exiting. */
-extern void kill_capture_child(void);
+extern void kill_capture_child(gboolean sync_mode);
 
 /** Do the low-level work of a capture. */
-extern int  capture_loop_start(gboolean *stats_known, struct pcap_stat *stats);
+extern int  capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);
 
 /** Stop a low-level capture. */
 extern void capture_loop_stop(void);

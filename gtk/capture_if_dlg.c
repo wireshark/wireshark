@@ -54,13 +54,14 @@
 
 #include "compat_macros.h"
 #include "simple_dialog.h"
+#include "capture.h"
 #include "capture_dlg.h"
 
 #include "ui_util.h"
 #include "dlg_utils.h"
 
 #include "wtap.h"
-#include "capture.h"
+#include "main.h"
 
 
 extern gboolean is_capture_in_progress(void);
@@ -115,7 +116,7 @@ capture_do_cb(GtkWidget *capture_bt _U_, gpointer if_data)
 
   cfile.iface = g_strdup(if_dlg_data->device);
 
-  do_capture(NULL /* save_file */);
+  do_capture(capture_opts, NULL /* save_file */);
 }
 
 
@@ -160,7 +161,7 @@ open_if(gchar *name, if_dlg_data_t *if_dlg_data)
    */
   if_dlg_data->pch = pcap_open_live(name,
 		       MIN_PACKET_SIZE,
-		       capture_opts.promisc_mode, CAP_READ_TIMEOUT,
+		       capture_opts->promisc_mode, CAP_READ_TIMEOUT,
 		       open_err_str);
 
   if (if_dlg_data->pch != NULL) {

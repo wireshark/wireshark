@@ -40,6 +40,7 @@
 #include "capture_combo_utils.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
+#include "main.h"
 
 /* a single capture counter value (with title, pointer to value and GtkWidgets) */
 /* as the packet_counts is a struct, not an array, keep a pointer to the */
@@ -71,7 +72,7 @@ pct(gint num, gint denom) {
 
 static void
 capture_info_delete_cb(GtkWidget *w _U_, GdkEvent *event _U_, gpointer data _U_) {
-  capture_stop();
+  capture_stop(capture_opts->sync_mode);
 }
 
 

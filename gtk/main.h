@@ -57,6 +57,9 @@
  *  @ingroup windows_group
  */
 
+/** Global capture options. */
+typedef struct capture_options_tag * p_capture_options_t;
+extern p_capture_options_t capture_opts;
 
 /** User requested "Zoom In" by menu or toolbar.
  *

@@ -496,7 +496,7 @@ cap_pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
 
 
 /* open the capture input file (pcap or capture pipe) */
-static int capture_loop_open_input(loop_data *ld, char *errmsg, int errmsg_len) {
+static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld, char *errmsg, int errmsg_len) {
   gchar       open_err_str[PCAP_ERRBUF_SIZE];
   const char *set_linktype_err_str;
 #ifdef _WIN32
@@ -559,16 +559,16 @@ static int capture_loop_open_input(loop_data *ld, char *errmsg, int errmsg_len) 
      the error buffer, and check if it's still a null string.  */
   open_err_str[0] = '\0';
   ld->pcap_h = pcap_open_live(cfile.iface,
-		       capture_opts.has_snaplen ? capture_opts.snaplen :
+		       capture_opts->has_snaplen ? capture_opts->snaplen :
 						  WTAP_MAX_PACKET_SIZE,
-		       capture_opts.promisc_mode, CAP_READ_TIMEOUT,
+		       capture_opts->promisc_mode, CAP_READ_TIMEOUT,
 		       open_err_str);
 
   if (ld->pcap_h != NULL) {
     /* we've opened "cfile.iface" as a network device */
 #ifdef _WIN32
     /* try to set the capture buffer size */
-    if (pcap_setbuff(ld->pcap_h, capture_opts.buffer_size * 1024 * 1024) != 0) {
+    if (pcap_setbuff(ld->pcap_h, capture_opts->buffer_size * 1024 * 1024) != 0) {
         simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
           "%sCouldn't set the capture buffer size!%s\n"
           "\n"
@@ -576,14 +576,14 @@ static int capture_loop_open_input(loop_data *ld, char *errmsg, int errmsg_len) 
           "the default of 1MB will be used.\n"
           "\n"
           "Nonetheless, the capture is started.\n",
-          simple_dialog_primary_start(), simple_dialog_primary_end(), capture_opts.buffer_size);
+          simple_dialog_primary_start(), simple_dialog_primary_end(), capture_opts->buffer_size);
     }
 #endif
 
     /* setting the data link type only works on real interfaces */
-    if (capture_opts.linktype != -1) {
+    if (capture_opts->linktype != -1) {
       set_linktype_err_str = set_pcap_linktype(ld->pcap_h, cfile.iface,
-	capture_opts.linktype);
+	capture_opts->linktype);
       if (set_linktype_err_str != NULL) {
 	g_snprintf(errmsg, errmsg_len, "Unable to set data link type (%s).",
 	  set_linktype_err_str);
@@ -767,14 +767,14 @@ static int capture_loop_init_filter(loop_data *ld, char *errmsg, int errmsg_len)
 }
 
 
-/* open the capture output file (wiretap) */
-static int capture_loop_open_output(loop_data *ld, char *errmsg, int errmsg_len) {
+/* open the wiretap part of the capture output file */
+static int capture_loop_open_wiretap_output(capture_options *capture_opts, loop_data *ld, char *errmsg, int errmsg_len) {
   int         pcap_encap;
   int         file_snaplen;
   int         err;
 
 
-  /* Set up to write to the capture file. */
+  /* get packet encapsulation type and snaplen */
 #ifndef _WIN32
   if (ld->from_cap_pipe) {
     pcap_encap = ld->cap_pipe_hdr.network;
@@ -786,6 +786,7 @@ static int capture_loop_open_output(loop_data *ld, char *errmsg, int errmsg_len)
     file_snaplen = pcap_snapshot(ld->pcap_h);
   }
 
+  /* Set up to write to the capture file. */
   ld->wtap_linktype = wtap_pcap_encap_to_wtap_encap(pcap_encap);
   if (ld->wtap_linktype == WTAP_ENCAP_UNKNOWN) {
     g_snprintf(errmsg, errmsg_len,
@@ -793,7 +794,7 @@ static int capture_loop_open_output(loop_data *ld, char *errmsg, int errmsg_len)
 	" that Ethereal doesn't support (data link type %d).", pcap_encap);
     return FALSE;
   }
-  if (capture_opts.multi_files_on) {
+  if (capture_opts->multi_files_on) {
     ld->wtap_pdh = ringbuf_init_wtap_dump_fdopen(WTAP_FILE_PCAP, ld->wtap_linktype,
       file_snaplen, &err);
   } else {
@@ -836,8 +837,8 @@ static int capture_loop_open_output(loop_data *ld, char *errmsg, int errmsg_len)
   return TRUE;
 }
 
-static gboolean capture_loop_close_output(loop_data *ld, int *err_close) {
-  if (capture_opts.multi_files_on) {
+static gboolean capture_loop_close_output(capture_options *capture_opts, loop_data *ld, int *err_close) {
+  if (capture_opts->multi_files_on) {
     return ringbuf_wtap_dump_close(&cfile, err_close);
   } else {
     return wtap_dump_close(ld->wtap_pdh, err_close);
@@ -963,7 +964,7 @@ static loop_data   ld;
 /* Do the low-level work of a capture.
    Returns TRUE if it succeeds, FALSE otherwise. */
 int
-capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
+capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats)
 {
   time_t      upd_time, cur_time;
   time_t      start_time;
@@ -978,13 +979,13 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
   capture_info   capture_ui;
   char        errmsg[4096+1];
 
-  gboolean    show_info = capture_opts.show_info || !capture_opts.sync_mode;
+  gboolean    show_info = capture_opts->show_info || !capture_opts->sync_mode;
 
 
   /* init the loop data */
   ld.go                 = TRUE;
-  if (capture_opts.has_autostop_packets)
-    ld.packets_max      = capture_opts.autostop_packets;
+  if (capture_opts->has_autostop_packets)
+    ld.packets_max      = capture_opts->autostop_packets;
   else
     ld.packets_max      = 0;	/* no limit */
   ld.err                = 0;	/* no error seen yet */
@@ -1017,7 +1018,7 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
 
 
   /* open the "input file" from network interface or capture pipe */
-  if (!capture_loop_open_input(&ld, errmsg, sizeof(errmsg))) {
+  if (!capture_loop_open_input(capture_opts, &ld, errmsg, sizeof(errmsg))) {
     goto error;
   }
 
@@ -1026,8 +1027,8 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
     goto error;
   }
 
-  /* open the (wiretap) output file */
-  if (!capture_loop_open_output(&ld, errmsg, sizeof(errmsg))) {
+  /* open the wiretap part of the output file (the output file is already open) */
+  if (!capture_loop_open_wiretap_output(capture_opts, &ld, errmsg, sizeof(errmsg))) {
     goto error;
   }
 
@@ -1053,21 +1054,21 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
   /* initialize capture stop (and alike) conditions */
   init_capture_stop_conditions();
   /* create stop conditions */
-  if (capture_opts.has_autostop_filesize)
+  if (capture_opts->has_autostop_filesize)
     cnd_autostop_size =
-        cnd_new(CND_CLASS_CAPTURESIZE,(long)capture_opts.autostop_filesize);
-  if (capture_opts.has_autostop_duration)
+        cnd_new(CND_CLASS_CAPTURESIZE,(long)capture_opts->autostop_filesize);
+  if (capture_opts->has_autostop_duration)
     cnd_autostop_duration =
-        cnd_new(CND_CLASS_TIMEOUT,(gint32)capture_opts.autostop_duration);
+        cnd_new(CND_CLASS_TIMEOUT,(gint32)capture_opts->autostop_duration);
 
-  if (capture_opts.multi_files_on) {
-      if (capture_opts.has_file_duration)
+  if (capture_opts->multi_files_on) {
+      if (capture_opts->has_file_duration)
         cnd_file_duration =
-	    cnd_new(CND_CLASS_TIMEOUT, capture_opts.file_duration);
+	    cnd_new(CND_CLASS_TIMEOUT, capture_opts->file_duration);
 
-      if (capture_opts.has_autostop_files)
+      if (capture_opts->has_autostop_files)
         cnd_autostop_files =
-	    cnd_new(CND_CLASS_CAPTURESIZE, capture_opts.autostop_files);
+	    cnd_new(CND_CLASS_CAPTURESIZE, capture_opts->autostop_files);
   }
 
   /* start capture info dialog */
@@ -1096,7 +1097,7 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
       if (cnd_autostop_size != NULL && cnd_eval(cnd_autostop_size,
                     (guint32)wtap_get_bytes_dumped(ld.wtap_pdh))){
         /* Capture size limit reached, do we have another file? */
-        if (capture_opts.multi_files_on) {
+        if (capture_opts->multi_files_on) {
           if (cnd_autostop_files != NULL && cnd_eval(cnd_autostop_files, ++autostop_files)) {
             /* no files left: stop here */
             ld.go = FALSE;
@@ -1165,7 +1166,7 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
       /* check capture file duration condition */
       if (cnd_file_duration != NULL && cnd_eval(cnd_file_duration)) {
         /* duration limit reached, do we have another file? */
-        if (capture_opts.multi_files_on) {
+        if (capture_opts->multi_files_on) {
           if (cnd_autostop_files != NULL && cnd_eval(cnd_autostop_files, ++autostop_files)) {
             /* no files left: stop here */
             ld.go = FALSE;
@@ -1230,7 +1231,7 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
   }
 
   /* close the wiretap (output) file */
-  close_ok = capture_loop_close_output(&ld, &err_close);
+  close_ok = capture_loop_close_output(capture_opts, &ld, &err_close);
 
   /* If we've displayed a message about a write error, there's no point
      in displaying another message about an error on close. */
@@ -1275,7 +1276,7 @@ capture_loop_start(gboolean *stats_known, struct pcap_stat *stats)
   return write_ok && close_ok;
 
 error:
-  if (capture_opts.multi_files_on) {
+  if (capture_opts->multi_files_on) {
     /* cleanup ringbuffer */
     ringbuf_error_cleanup();
   } else {

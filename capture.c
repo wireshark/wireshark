@@ -72,7 +72,6 @@
 /*
  * Capture options.
  */
-capture_options capture_opts;
 gboolean capture_child;	        /* if this is the child for "-S" */
 
 
@@ -81,19 +80,17 @@ gboolean capture_child;	        /* if this is the child for "-S" */
 #define O_BINARY	0
 #endif
 
-static gboolean normal_do_capture(gboolean is_tempfile);
+static gboolean normal_do_capture(capture_options *capture_opts, gboolean is_tempfile);
 static void stop_capture_signal_handler(int signo);
 
-/* Open a specified file, or create a temporary file, and start a capture
-   to the file in question.  Returns TRUE if the capture starts
-   successfully, FALSE otherwise. */
-gboolean
-do_capture(const char *save_file)
-{
+
+/* open the output file (temporary/specified name/ringbuffer) and close the old one */
+/* Returns TRUE if the file opened successfully, FALSE otherwise. */
+static gboolean
+capture_open_output(capture_options *capture_opts, const char *save_file, gboolean *is_tempfile) {
   char tmpname[128+1];
-  gboolean is_tempfile;
   gchar *capfile_name;
-  gboolean ret;
+
 
   if (save_file != NULL) {
     /* If the Sync option is set, we return to the caller while the capture
@@ -101,29 +98,31 @@ do_capture(const char *save_file)
      * case the caller destroys it after we return.
      */
     capfile_name = g_strdup(save_file);
-    if (capture_opts.multi_files_on) {
+    if (capture_opts->multi_files_on) {
       /* ringbuffer is enabled */
       cfile.save_file_fd = ringbuf_init(capfile_name,
-          (capture_opts.has_ring_num_files) ? capture_opts.ring_num_files : 0);
+          (capture_opts->has_ring_num_files) ? capture_opts->ring_num_files : 0);
     } else {
       /* Try to open/create the specified file for use as a capture buffer. */
       cfile.save_file_fd = open(capfile_name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
 				0600);
     }
-    is_tempfile = FALSE;
+    *is_tempfile = FALSE;
   } else {
-    /* Choose a random name for the capture buffer */
+    /* Choose a random name for the temporary capture buffer */
     cfile.save_file_fd = create_tempfile(tmpname, sizeof tmpname, "ether");
     capfile_name = g_strdup(tmpname);
-    is_tempfile = TRUE;
+    *is_tempfile = TRUE;
   }
+
+  /* did we fail to open the output file? */
   if (cfile.save_file_fd == -1) {
     if (is_tempfile) {
       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 	"The temporary file to which the capture would be saved (\"%s\")"
 	"could not be opened: %s.", capfile_name, strerror(errno));
     } else {
-      if (capture_opts.multi_files_on) {
+      if (capture_opts->multi_files_on) {
         ringbuf_error_cleanup();
       }
       open_failure_alert_box(capfile_name, errno, TRUE);
@@ -131,21 +130,42 @@ do_capture(const char *save_file)
     g_free(capfile_name);
     return FALSE;
   }
+
+  /* close the old file */
   cf_close(&cfile);
   g_assert(cfile.save_file == NULL);
   cfile.save_file = capfile_name;
-  /* cfile.save_file is "g_free"ed below, which is equivalent to
+  /* cfile.save_file is "g_free"ed later, which is equivalent to
      "g_free(capfile_name)". */
 
-  if (capture_opts.sync_mode) {	
+  return TRUE;
+}
+
+
+/* Open a specified file, or create a temporary file, and start a capture
+   to the file in question.  */
+/* Returns TRUE if the capture starts successfully, FALSE otherwise. */
+gboolean
+do_capture(capture_options *capture_opts, const char *save_file)
+{
+  gboolean is_tempfile;
+  gboolean ret;
+
+
+  /* open the output file (temporary/specified name/ringbuffer) and close the old one */
+  if(!capture_open_output(capture_opts, save_file, &is_tempfile)) {
+    return FALSE;
+  }
+
+  if (capture_opts->sync_mode) {	
     /* sync mode: do the capture in a child process */
-    ret = sync_pipe_do_capture(is_tempfile);
+    ret = sync_pipe_do_capture(capture_opts, is_tempfile);
     /* capture is still running */
     set_main_window_name("(Live Capture in Progress) - Ethereal");
   } else {
     /* normal mode: do the capture synchronously */
     set_main_window_name("(Live Capture in Progress) - Ethereal");
-    ret = normal_do_capture(is_tempfile);
+    ret = normal_do_capture(capture_opts, is_tempfile);
     /* capture is finished here */
   }
 
@@ -155,7 +175,7 @@ do_capture(const char *save_file)
 
 /* start a normal capture session */
 static gboolean
-normal_do_capture(gboolean is_tempfile)
+normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
 {
     int capture_succeeded;
     gboolean stats_known;
@@ -163,15 +183,15 @@ normal_do_capture(gboolean is_tempfile)
     int err;
 
     /* Not sync mode. */
-    capture_succeeded = capture_start(&stats_known, &stats);
-    if (capture_opts.quit_after_cap) {
+    capture_succeeded = capture_start(capture_opts, &stats_known, &stats);
+    if (capture_opts->quit_after_cap) {
       /* DON'T unlink the save file.  Presumably someone wants it. */
         main_window_exit();
     }
     if (!capture_succeeded) {
       /* We didn't succeed in doing the capture, so we don't have a save
 	 file. */
-      if (capture_opts.multi_files_on) {
+      if (capture_opts->multi_files_on) {
 	ringbuf_free();
       } else {
 	g_free(cfile.save_file);
@@ -183,7 +203,7 @@ normal_do_capture(gboolean is_tempfile)
     if ((err = cf_open(cfile.save_file, is_tempfile, &cfile)) != 0) {
       /* We're not doing a capture any more, so we don't have a save
 	 file. */
-      if (capture_opts.multi_files_on) {
+      if (capture_opts->multi_files_on) {
 	ringbuf_free();
       } else {
 	g_free(cfile.save_file);
@@ -244,7 +264,7 @@ normal_do_capture(gboolean is_tempfile)
 
     /* We're not doing a capture any more, so we don't have a save
        file. */
-    if (capture_opts.multi_files_on) {
+    if (capture_opts->multi_files_on) {
       ringbuf_free();
     } else {
       g_free(cfile.save_file);
@@ -272,7 +292,7 @@ stop_capture_signal_handler(int signo _U_)
 
 
 int  
-capture_start(gboolean *stats_known, struct pcap_stat *stats)
+capture_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats)
 {
 #ifndef _WIN32
   /*
@@ -283,14 +303,14 @@ capture_start(gboolean *stats_known, struct pcap_stat *stats)
     signal(SIGUSR1, stop_capture_signal_handler);
 #endif
 
-  return capture_loop_start(stats_known, stats);
+  return capture_loop_start(capture_opts, stats_known, stats);
 }
 
 void
-capture_stop(void)
+capture_stop(gboolean sync_mode)
 {
 
-  if (capture_opts.sync_mode) {	
+  if (sync_mode) {	
     sync_pipe_stop();
   }
     
@@ -298,9 +318,9 @@ capture_stop(void)
 }
 
 void
-kill_capture_child(void)
+kill_capture_child(gboolean sync_mode)
 {
-  if (capture_opts.sync_mode) {	
+  if (sync_mode) {	
     sync_pipe_kill();
   }
 }

@@ -177,7 +177,10 @@ static void console_log_handler(const char *log_domain,
 
 #ifdef HAVE_LIBPCAP
 static gboolean list_link_layer_types;
+capture_options global_capture_opts;
+capture_options *capture_opts = &global_capture_opts;
 #endif
+
 
 static void create_main_window(gint, gint, gint, e_prefs*);
 static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_);
@@ -782,7 +785,7 @@ main_do_quit(void)
 
 #ifdef HAVE_LIBPCAP
 	/* Nuke any child capture in progress. */
-	kill_capture_child();
+	kill_capture_child(capture_opts->sync_mode);
 #endif
 
 	/* Are we in the middle of reading a capture? */
@@ -1083,11 +1086,11 @@ set_autostop_criterion(const char *autostoparg)
     return FALSE;
   }
   if (strcmp(autostoparg,"duration") == 0) {
-    capture_opts.has_autostop_duration = TRUE;
-    capture_opts.autostop_duration = get_positive_int(p,"autostop duration");
+    capture_opts->has_autostop_duration = TRUE;
+    capture_opts->autostop_duration = get_positive_int(p,"autostop duration");
   } else if (strcmp(autostoparg,"filesize") == 0) {
-    capture_opts.has_autostop_filesize = TRUE;
-    capture_opts.autostop_filesize = get_positive_int(p,"autostop filesize");
+    capture_opts->has_autostop_filesize = TRUE;
+    capture_opts->autostop_filesize = get_positive_int(p,"autostop filesize");
   } else {
     return FALSE;
   }
@@ -1113,7 +1116,7 @@ get_ring_arguments(const char *arg)
     *p++ = '\0';
   }
 
-  capture_opts.ring_num_files = 
+  capture_opts->ring_num_files = 
     get_natural_int(arg, "number of ring buffer files");
 
   if (colonp == NULL)
@@ -1136,8 +1139,8 @@ get_ring_arguments(const char *arg)
     return FALSE;
   }
 
-  capture_opts.has_file_duration = TRUE;
-  capture_opts.file_duration = get_positive_int(p,
+  capture_opts->has_file_duration = TRUE;
+  capture_opts->file_duration = get_positive_int(p,
 						      "ring buffer duration");
 
   *colonp = ':';	/* put the colon back */
@@ -1750,28 +1753,28 @@ main(int argc, char *argv[])
 #endif
 
 #ifdef HAVE_LIBPCAP
-  capture_opts.has_snaplen = FALSE;
-  capture_opts.snaplen = MIN_PACKET_SIZE;
-  capture_opts.linktype = -1;
+  capture_opts->has_snaplen = FALSE;
+  capture_opts->snaplen = MIN_PACKET_SIZE;
+  capture_opts->linktype = -1;
 #ifdef _WIN32
-  capture_opts.buffer_size = 1;
+  capture_opts->buffer_size = 1;
 #endif
-  capture_opts.quit_after_cap  = FALSE;
+  capture_opts->quit_after_cap  = FALSE;
 
-  capture_opts.has_autostop_packets = FALSE;
-  capture_opts.autostop_packets = 1;
-  capture_opts.has_autostop_duration = FALSE;
-  capture_opts.autostop_duration = 60 /* 1 min */;
-  capture_opts.has_autostop_filesize = FALSE;
-  capture_opts.autostop_filesize = 1024 * 1024 /* 1 MB */;
-  capture_opts.has_autostop_files = FALSE;
-  capture_opts.autostop_files = 1;
+  capture_opts->has_autostop_packets = FALSE;
+  capture_opts->autostop_packets = 1;
+  capture_opts->has_autostop_duration = FALSE;
+  capture_opts->autostop_duration = 60 /* 1 min */;
+  capture_opts->has_autostop_filesize = FALSE;
+  capture_opts->autostop_filesize = 1024 * 1024 /* 1 MB */;
+  capture_opts->has_autostop_files = FALSE;
+  capture_opts->autostop_files = 1;
 
-  capture_opts.multi_files_on = FALSE;
-  capture_opts.has_ring_num_files = TRUE;
-  capture_opts.ring_num_files = 2;
-  capture_opts.has_file_duration = FALSE;
-  capture_opts.file_duration = 60 /* 1 min */;
+  capture_opts->multi_files_on = FALSE;
+  capture_opts->has_ring_num_files = TRUE;
+  capture_opts->ring_num_files = 2;
+  capture_opts->has_file_duration = FALSE;
+  capture_opts->file_duration = 60 /* 1 min */;
 
   /* If this is a capture child process, it should pay no attention
      to the "prefs.capture_prom_mode" setting in the preferences file;
@@ -1782,15 +1785,15 @@ main(int argc, char *argv[])
      Otherwise, set promiscuous mode from the preferences setting. */
   /* the same applies to other preferences settings as well. */
   if (capture_child) {
-    capture_opts.promisc_mode   = TRUE;     /* maybe changed by command line below */
-    capture_opts.show_info      = TRUE;     /* maybe changed by command line below */
-    capture_opts.sync_mode      = TRUE;     /* always true in child process */
+    capture_opts->promisc_mode   = TRUE;     /* maybe changed by command line below */
+    capture_opts->show_info      = TRUE;     /* maybe changed by command line below */
+    capture_opts->sync_mode      = TRUE;     /* always true in child process */
     auto_scroll_live            = FALSE;    /* doesn't matter in child process */
 
   } else {
-    capture_opts.promisc_mode   = prefs->capture_prom_mode;
-    capture_opts.show_info      = prefs->capture_show_info;
-    capture_opts.sync_mode      = prefs->capture_real_time;
+    capture_opts->promisc_mode   = prefs->capture_prom_mode;
+    capture_opts->show_info      = prefs->capture_show_info;
+    capture_opts->sync_mode      = prefs->capture_real_time;
     auto_scroll_live            = prefs->capture_auto_scroll;
   }
 
@@ -1891,8 +1894,8 @@ main(int argc, char *argv[])
         break;
       case 'b':        /* Ringbuffer option */
 #ifdef HAVE_LIBPCAP
-        capture_opts.multi_files_on = TRUE;
-        capture_opts.has_ring_num_files = TRUE;
+        capture_opts->multi_files_on = TRUE;
+        capture_opts->has_ring_num_files = TRUE;
 	if (get_ring_arguments(optarg) == FALSE) {
           fprintf(stderr, "ethereal: Invalid or unknown -b arg \"%s\"\n", optarg);
           exit(1);
@@ -1907,8 +1910,8 @@ main(int argc, char *argv[])
         break;
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
-        capture_opts.has_autostop_packets = TRUE;
-        capture_opts.autostop_packets = get_positive_int(optarg, "packet count");
+        capture_opts->has_autostop_packets = TRUE;
+        capture_opts->autostop_packets = get_positive_int(optarg, "packet count");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -1954,7 +1957,7 @@ main(int argc, char *argv[])
         break;
       case 'H':        /* Hide capture info dialog box */
 #ifdef HAVE_LIBPCAP
-        capture_opts.show_info = FALSE;
+        capture_opts->show_info = FALSE;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -2004,7 +2007,7 @@ main(int argc, char *argv[])
         break;
       case 'p':        /* Don't capture in promiscuous mode */
 #ifdef HAVE_LIBPCAP
-	capture_opts.promisc_mode = FALSE;
+	capture_opts->promisc_mode = FALSE;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -2015,7 +2018,7 @@ main(int argc, char *argv[])
         break;
       case 'Q':        /* Quit after capture (just capture to file) */
 #ifdef HAVE_LIBPCAP
-        capture_opts.quit_after_cap  = TRUE;
+        capture_opts->quit_after_cap  = TRUE;
         start_capture   = TRUE;  /*** -Q implies -k !! ***/
 #else
         capture_option_specified = TRUE;
@@ -2033,8 +2036,8 @@ main(int argc, char *argv[])
         break;
       case 's':        /* Set the snapshot (capture) length */
 #ifdef HAVE_LIBPCAP
-        capture_opts.has_snaplen = TRUE;
-        capture_opts.snaplen = get_positive_int(optarg, "snapshot length");
+        capture_opts->has_snaplen = TRUE;
+        capture_opts->snaplen = get_positive_int(optarg, "snapshot length");
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -2042,7 +2045,7 @@ main(int argc, char *argv[])
         break;
       case 'S':        /* "Sync" mode: used for following file ala tail -f */
 #ifdef HAVE_LIBPCAP
-        capture_opts.sync_mode = TRUE;
+        capture_opts->sync_mode = TRUE;
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
@@ -2086,15 +2089,15 @@ main(int argc, char *argv[])
       case 'y':        /* Set the pcap data link type */
 #ifdef HAVE_LIBPCAP
 #ifdef HAVE_PCAP_DATALINK_NAME_TO_VAL
-        capture_opts.linktype = pcap_datalink_name_to_val(optarg);
-        if (capture_opts.linktype == -1) {
+        capture_opts->linktype = pcap_datalink_name_to_val(optarg);
+        if (capture_opts->linktype == -1) {
           fprintf(stderr, "ethereal: The specified data link type \"%s\" isn't valid\n",
                   optarg);
           exit(1);
         }
 #else /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
         /* XXX - just treat it as a number */
-        capture_opts.linktype = get_natural_int(optarg, "data link type");
+        capture_opts->linktype = get_natural_int(optarg, "data link type");
 #endif /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
 #else /* HAVE_LIBPCAP */
         capture_option_specified = TRUE;
@@ -2205,7 +2208,7 @@ main(int argc, char *argv[])
       exit(1);
     }
     /* No - did they specify a ring buffer option? */
-    if (capture_opts.multi_files_on) {
+    if (capture_opts->multi_files_on) {
       fprintf(stderr, "ethereal: Ring buffer requested, but a capture isn't being done.\n");
       exit(1);
     }
@@ -2220,24 +2223,24 @@ main(int argc, char *argv[])
 
     /* No - was the ring buffer option specified and, if so, does it make
        sense? */
-    if (capture_opts.multi_files_on) {
+    if (capture_opts->multi_files_on) {
       /* Ring buffer works only under certain conditions:
 	 a) ring buffer does not work with temporary files;
-	 b) sync_mode and capture_opts.ringbuffer_on are mutually exclusive -
+	 b) sync_mode and capture_opts->ringbuffer_on are mutually exclusive -
 	    sync_mode takes precedence;
 	 c) it makes no sense to enable the ring buffer if the maximum
 	    file size is set to "infinite". */
       if (save_file == NULL) {
 	fprintf(stderr, "ethereal: Ring buffer requested, but capture isn't being saved to a permanent file.\n");
-	capture_opts.multi_files_on = FALSE;
+	capture_opts->multi_files_on = FALSE;
       }
-      if (capture_opts.sync_mode) {
+      if (capture_opts->sync_mode) {
 	fprintf(stderr, "ethereal: Ring buffer requested, but an \"Update list of packets in real time\" capture is being done.\n");
-	capture_opts.multi_files_on = FALSE;
+	capture_opts->multi_files_on = FALSE;
       }
-      if (!capture_opts.has_autostop_filesize) {
+      if (!capture_opts->has_autostop_filesize) {
 	fprintf(stderr, "ethereal: Ring buffer requested, but no maximum capture file size was specified.\n");
-	capture_opts.multi_files_on = FALSE;
+	capture_opts->multi_files_on = FALSE;
       }
     }
   }
@@ -2354,19 +2357,19 @@ main(int argc, char *argv[])
   }
 
 #ifdef HAVE_LIBPCAP
-  if (capture_opts.has_snaplen) {
-    if (capture_opts.snaplen < 1)
-      capture_opts.snaplen = WTAP_MAX_PACKET_SIZE;
-    else if (capture_opts.snaplen < MIN_PACKET_SIZE)
-      capture_opts.snaplen = MIN_PACKET_SIZE;
+  if (capture_opts->has_snaplen) {
+    if (capture_opts->snaplen < 1)
+      capture_opts->snaplen = WTAP_MAX_PACKET_SIZE;
+    else if (capture_opts->snaplen < MIN_PACKET_SIZE)
+      capture_opts->snaplen = MIN_PACKET_SIZE;
   }
 
   /* Check the value range of the ringbuffer_num_files parameter */
-  if (capture_opts.ring_num_files > RINGBUFFER_MAX_NUM_FILES)
-    capture_opts.ring_num_files = RINGBUFFER_MAX_NUM_FILES;
+  if (capture_opts->ring_num_files > RINGBUFFER_MAX_NUM_FILES)
+    capture_opts->ring_num_files = RINGBUFFER_MAX_NUM_FILES;
 #if RINGBUFFER_MIN_NUM_FILES > 0
-  else if (capture_opts.num_files < RINGBUFFER_MIN_NUM_FILES)
-    capture_opts.ring_num_files = RINGBUFFER_MIN_NUM_FILES;
+  else if (capture_opts->num_files < RINGBUFFER_MIN_NUM_FILES)
+    capture_opts->ring_num_files = RINGBUFFER_MIN_NUM_FILES;
 #endif
 #endif
 
@@ -2508,7 +2511,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
     if (start_capture) {
       /* "-k" was specified; start a capture. */
-      if (do_capture(save_file)) {
+      if (do_capture(capture_opts, save_file)) {
         /* The capture started.  Open tap windows; we do so after creating
            the main window, to avoid GTK warnings, and after starting the
            capture, so we know we have something to tap. */
@@ -2538,7 +2541,7 @@ main(int argc, char *argv[])
     display_queued_messages();
 
     /* XXX - hand these stats to the parent process */
-    capture_start(&stats_known, &stats);
+    capture_start(capture_opts, &stats_known, &stats);
 
     /* The capture is done; there's nothing more for us to do. */
     gtk_exit(0);
