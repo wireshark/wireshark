@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <sraab@cisco.com>
  *
- * $Id: packet-mip.c,v 1.24 2001/12/10 00:25:30 guy Exp $
+ * $Id: packet-mip.c,v 1.25 2002/01/05 22:09:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,7 +68,6 @@ static int hf_mip_ident = -1;
 static int hf_mip_ext_type = -1;
 static int hf_mip_ext_stype = -1;
 static int hf_mip_ext_len = -1;
-static int hf_mip_ext_len2 = -1;
 static int hf_mip_ext = -1;
 static int hf_mip_aext_spi = -1;
 static int hf_mip_aext_auth = -1;
@@ -167,7 +166,8 @@ static const value_string mip_ext_stypes[]= {
 };
 /* Code to dissect extensions */
 static void
-dissect_mip_extensions( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_mip_extensions( tvbuff_t *tvb, int offset, packet_info *pinfo,
+			proto_tree *tree)
 {
   proto_item   *ti;
   proto_tree   *exts_tree=NULL;
@@ -175,9 +175,6 @@ dissect_mip_extensions( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   size_t        ext_len;
   guint8        ext_type;
   guint8        ext_subtype=0;
-  size_t        offset = 0;
-  gchar         ext_data[256];
-  size_t        dataLength;
   size_t        hdrLen;
 
   /* None of this really matters if we don't have a tree */
@@ -185,12 +182,11 @@ dissect_mip_extensions( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Add our tree, if we have extensions */
   ti = proto_tree_add_text(tree, tvb, offset,
-		tvb_length(tvb)-offset, "Extensions");
+		tvb_length_remaining(tvb, offset), "Extensions");
   exts_tree = proto_item_add_subtree(ti, ett_mip_exts);
 
-  /* And, handle each extensions */
-  dataLength = tvb_length(tvb);
-  while (offset < dataLength) {
+  /* And, handle each extension */
+  while (tvb_reported_length_remaining(tvb, offset) > 0) {
 
 	/* Get our extension info */
 	ext_type = tvb_get_guint8(tvb, offset);
@@ -207,14 +203,6 @@ dissect_mip_extensions( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  hdrLen = 2;
 	}
 	
-	/* If everything seems valid, make a tree for it, and update length */
-	if ((offset + ext_len + hdrLen) > dataLength) {
-	  /* Ut-Oh . . . we're done after this one */
-	  g_warning("Invalid MIP extension.  Length (%d) greater than remaining data (%d)",
-				ext_len, (dataLength - (offset + hdrLen)));
-	  ext_len = dataLength - (offset + hdrLen); /* Fudge it */
-	}
-
 	ti = proto_tree_add_text(exts_tree, tvb, offset, ext_len + hdrLen,
 				 "Extension: %s",
 				 val_to_str(ext_type, mip_ext_types,
@@ -250,7 +238,7 @@ dissect_mip_extensions( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   */
 	  proto_tree_add_uint(ext_tree, hf_mip_ext_stype, tvb, offset, 1, ext_subtype);
 	  offset++;
-	  proto_tree_add_uint(ext_tree, hf_mip_ext_len2, tvb, offset, 2, ext_len);
+	  proto_tree_add_uint(ext_tree, hf_mip_ext_len, tvb, offset, 2, ext_len);
 	  offset+=2;
 	  /* SPI */
 	  proto_tree_add_item(ext_tree, hf_mip_aext_spi, tvb, offset, 4, FALSE);
@@ -266,10 +254,8 @@ dissect_mip_extensions( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case MF_CHALLENGE_EXT:  /* RFC 3012 */
 	  /* The default dissector is good here.  The challenge is all hex anyway. */
 	default:
-	  tvb_memcpy(tvb, (guint8*)ext_data, offset, MIN(ext_len,
-		     (dataLength - (offset + 2))));
-	  proto_tree_add_bytes(ext_tree, hf_mip_ext, tvb, offset, ext_len,
-						   ext_data);
+	  proto_tree_add_item(ext_tree, hf_mip_ext, tvb, offset, ext_len, FALSE);
+	  break;
 	} /* ext type */
 
 	offset += ext_len;
@@ -395,13 +381,8 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } /* End switch */
 
   if (tree) {
-	dataRemaining = tvb_length(tvb) - offset;
-	if (dataRemaining > 0) {
-	  extensions_tvb = tvb_new_subset(tvb, offset, dataRemaining,
-									  dataRemaining);
-	  
-	  dissect_mip_extensions(extensions_tvb, pinfo, mip_tree);
-	}
+	if (tvb_offset_exists(tvb, offset))
+	  dissect_mip_extensions(tvb, offset, pinfo, mip_tree);
   }
 } /* dissect_mip */
 
@@ -500,11 +481,6 @@ void proto_register_mip(void)
 	  },
 	  { &hf_mip_ext_len,
 		 { "Extension Length",         "mip.ext.len",
-			FT_UINT8, BASE_DEC, NULL, 0,
-			"Mobile IP Extension Length.", HFILL }
-	  },
-	  { &hf_mip_ext_len2,
-		 { "Extension Length",         "mip.ext.len2",
 			FT_UINT16, BASE_DEC, NULL, 0,
 			"Mobile IP Extension Length.", HFILL }
 	  },
