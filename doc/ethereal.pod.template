@@ -29,11 +29,29 @@ S<[ B<-w> savefile]>
 
 =head1 DESCRIPTION
 
-B<Ethereal> is a network protocol analyzer based on the B<GTK+> GUI toolkit.  It lets
+B<Ethereal> is a GUI network protocol analyzer.  It lets
 you interactively browse packet data from a live network or from a previously saved
-capture file. Ethereal knows how to read B<pcap> / B<tcpdump> formatted capture files,
-as well as those of B<snoop>, B<LanAlyzer>, uncompressed B<Sniffer>,
-Microsoft B<Network Monitor>, AIX's B<iptrace>, B<NetXray>, and B<Sniffer Pro>.
+capture file. Ethereal knows how to read B<libpcap> capture files, including those of
+B<tcpdump>. In addition, Ethereal can read capture files from B<snoop> (including
+B<Shomiti>), B<LanAlyzer>,
+uncompressed B<Sniffer>, Microsoft B<Network Monitor>, AIX's B<iptrace>, B<NetXray>,
+B<Sniffer Pro>, and B<RADCOM>'s WAN/LAN analyzer.
+There is no need to tell Ethereal what type of file you
+are reading; it will determine the file type by itself.
+
+Like other protocol analyzers, B<Ethereal>'s main window shows 3 views of a packet. It
+shows a summary line, briefly describing what the packet is. A protocol tree is shown, allowing
+you to drill down to exact protocol or field that you interested in. Finally, a hex dump
+shows you exactly what the packet looks like when it goes over the wire.
+
+In addition, B<Ethereal> has some features that make it unique. It can assemble all
+the packets in a TCP conversation and show you the ASCII data in that conversation. Display
+filters in B<Ethereal> are very powerful; more fields are filterable in Ethereal than in other
+protocol analyzers, and the syntax you can use to create your filters is richer. As Ethereal
+progresses, expect more and more protocol fields to be allowed in display filters.
+
+Packet capturing is performed with the pcap library. The capture filter syntax follows
+the rules of the pcap library. This syntax is different from the display filter syntax.
 
 =head1 OPTIONS
 
@@ -359,14 +377,128 @@ in the packet list.  You can select "Time of day" for absolute time stamps,
 
 =head1 DISPLAY FILTER SYNTAX
 
-The grammar used for B<Ethereal>'s display filter syntax is similar to
-the syntax of the C programming language.
+Display filters help you remove the noise from a packet trace and let you see only
+the packets that interest you. If a packet meets the requirements expressed in your
+display filter, then it is displayed in the list of packets. Display filters let
+you compare the fields within a protocol against a specific value, compare fields
+against fields, and to check the existence of specified fields or protocols.
+
+The simplest display filter allows you to check for the existence of a protocol or
+field. If you want to see all packets which contain the IPX protocol, the filter would be
+"ipx". (Without the quotation marks) To see all packets that contain a
+Token-Ring RIF field, use "tr.rif".
+
+Fields can also be compared against values. The comparison operators can be expressed
+either through C-like symbols, or through English-like abbreviations:
+
+    eq, ==    Equal
+    ne, !=    Not equal
+    gt, >     Greater than
+    lt, <     Less Than
+    ge, >=    Greater than or Equal to
+    le, <=    Less than or Equal to
+
+Furthermore, each protocol field is typed. The types are:
+
+    Unsigned integer (either 8-bit, 16-bit, or 32-bit)
+    Boolean (true or false)
+    Ethernet address (6 bytes)
+    Byte string (n-number of bytes)
+    IPv4 address
+    IPX network
+
+An integer may be expressed in decimal, octal, or hexadecimal notation. The following
+three display filters are equivalent:
+
+    frame.pkt_len > 10
+    frame.pkt_len > 012
+    frame.pkt_len > 0xa
+
+Boolean values are either true or false. For example, a token-ring packet's source route
+field is boolean:
+
+    tr.sr == true
+
+Ethernet addresses, as well as a string of bytes, are represented in hex digits. The hex
+digits may be separated by colons, periods, or hyphens:
+
+    fddi.dst eq ff:ff:ff:ff:ff:ff
+    ipx.srcnode == 0.0.0.0.0.1
+    ether.src == aa-aa-aa-aa-aa-aa
+
+If a string of bytes contains only one byte, then it is represented as an unsigned integer.
+That is, if you are testing for hex value 'ff' in a one-byte byte-string, you must compare
+it agains '0xff' and not 'ff'.
+
+IPv4 addresses can be represented in either dotted decimal notation, or by using the hostname:
+
+    ip.dst eq www.mit.edu
+    ip.src == 192.168.1.1
+
+IPX networks are represented by unsigned 32-bit integers. Most likely you will be using
+hexadecimal when testing for IPX network values:
+
+    ipx.srcnet == 0xc0a82c00
+
+A substring operator also exists. You can check the substring (byte-string) of any protocol
+or field. For example, you can filter on the vendor portion of an ethernet address (the first
+three bytes) like this:
+
+    ether.src[0:3] == 00:00:83
+
+You can use the substring operator on a protocol name, too. And remember, the "frame" protocol
+encompasses the entire packet, allowing you to look at the nth byte of a packet regardless
+of its frame type (ethernet, token-ring, etc.).
+
+    token[0:5] ne 0.0.0.1.1
+    ipx[0:2] == ff:ff
+    llc[3:1] eq 0xaa
+
+The above tests can be combined together with logical expressions. These too are expressable
+in C-like syntax or with English-like abbreviations:
+
+    and, &&   Logical AND
+    or, ||    Logical OR
+    xor, ^^   Logical XOR
+    not, !    Logical NOT
+
+Expressions can be grouped by parentheses as well. The following are all valid display filter
+expression:
+
+    tcp.port == 80 and ip.src == 192.168.2.1
+    not llc
+    (ipx.srcnet == 0xbad && ipx.srnode == 0.0.0.0.0.1) || ip
+    tr.dst[0:3] == 0.6.29 xor tr.src[0:3] == 0.6.29
+
+A special caveat must be given regarding fields that occur more than once per packet. "ip.addr"
+occurs twice per IP packet, once for the source address, and once for the destination address.
+Likewise, tr.rif.ring fields can occur more than once per packet. The following two expressions
+are not equivalent:
+
+        ip.addr ne 192.168.4.1
+    not ip.addr eq 192.168.4.1
+
+The first filter says "show me all packets where an ip.addr exists that does not equal 192.168.4.1".
+That is, as long as one ip.addr in the packet does not equal 192.168.44.1, the packet passes
+the display filter. The second filter "don't show me any packets that have at least one ip.addr
+field equal to 192.168.4.1". If one ip.addr is 192.168.4.1, the packet does not pass. If B<neither>
+ip.addr fields is 192.168.4.1, then the packet passes.
+
+It is easy to think of the 'ne' and 'eq' operators as having an implict "exists" modifier
+when dealing with multiply-recurring fields. "ip.addr ne 192.168.4.1" can be thought of as
+"there exists an ip.addr that does not equal 192.168.4.1".
+
+Be careful with multiply-recurring fields; they can be confusing.
+
+The following is a table of protocol and protocol fields that are filterable in Ethereal.
+The abbreviation of the protocol or field is given. This abbreviation is what you use in
+the display filter. The type of the field is also given.
 
 =insert_dfilter_table
 
 =head1 SEE ALSO
 
-L<tcpdump(1)>, L<pcap(3)>
+L<tcpdump(8)>, L<pcap(3)>
 
 =head1 NOTES
 
