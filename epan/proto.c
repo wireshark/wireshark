@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.87 2003/06/04 21:51:54 guy Exp $
+ * $Id: proto.c,v 1.88 2003/06/05 03:57:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -720,13 +720,36 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 				}
 				else {
 					/* In this case, length signifies
-					 * maximum length.  That does not
-					 * include the trailing '\0'; we
-					 * assume this is null-padded,
-					 * not null-terminated, so we need
-					 * a buffer of length length+1,
-					 * with the extra 1 for the trailing
-					 * '\0'. */
+					 * the length of the string.
+					 *
+					 * This could either be a null-padded
+					 * string, which doesn't necessarily
+					 * have a '\0' at the end, or a
+					 * null-terminated string, with a
+					 * trailing '\0'.  (Yes, there are
+					 * cases where you have a string
+					 * that's both counted and null-
+					 * terminated.)
+					 *
+					 * In the first case, we must
+					 * allocate a buffer of length
+					 * "length+1", to make room for
+					 * a trailing '\0'.
+					 *
+					 * In the second case, we don't
+					 * assume that there is a trailing
+					 * '\0' there, as the packet might
+					 * be malformed.  (XXX - should we
+					 * throw an exception if there's no
+					 * trailing '\0'?)  Therefore, we
+					 * allocate a buffer of length
+					 * "length+1", and put in a trailing
+					 * '\0', just to be safe.
+					 *
+					 * (XXX - this would change if
+					 * we made string values counted
+					 * rather than null-terminated.)
+					 */
 
 					/* This g_strdup'ed memory is freed
 					 * in proto_tree_free_node() */
@@ -734,11 +757,11 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 					CLEANUP_PUSH(g_free, string);
 
-					found_length = tvb_get_nstringz0(tvb,
-					    start, length + 1, string);
+					tvb_memcpy(tvb, string, start, length);
+					string[length] == '\0';
 
 					CLEANUP_POP;
-					new_fi->length = found_length + 1;
+					new_fi->length = length;
 				}
 				proto_tree_set_string(new_fi, string, TRUE);
 			}
