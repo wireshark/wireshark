@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.5 2000/04/04 06:46:26 guy Exp $
+ * $Id: packet-nlm.c,v 1.6 2000/08/02 11:36:18 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,32 +45,101 @@ static gint ett_nlm = -1;
 
 /* proc number, "proc name", dissect_request, dissect_reply */
 /* NULL as function pointer means: take the generic one. */
+/* NLM protocol version 1 */
+const vsff nlm1_proc[] = {
+	{ NLM_NULL,		"NULL",		NULL,	NULL },
+	{ NLM_TEST,		"TEST",		NULL,	NULL },
+	{ NLM_LOCK,		"LOCK",		NULL,	NULL },
+	{ NLM_CANCEL,		"CANCEL",	NULL,	NULL },
+	{ NLM_UNLOCK,		"UNLOCK",	NULL,	NULL },
+	{ NLM_GRANTED,		"GRANTED",	NULL,	NULL },
+	{ NLM_TEST_MSG,		"TEST_MSG",	NULL,	NULL },
+	{ NLM_LOCK_MSG,		"LOCK_MSG",	NULL,	NULL },
+	{ NLM_CANCEL_MSG,	"CANCEL_MSG",	NULL,	NULL },
+	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG",	NULL,	NULL },
+	{ NLM_GRANTED_MSG,	"GRANTED_MSG",	NULL,	NULL },
+	{ NLM_TEST_RES,		"TEST_RES",	NULL,	NULL },
+	{ NLM_LOCK_RES,		"LOCK_RES",	NULL,	NULL },
+	{ NLM_CANCEL_RES,	"CANCEL_RES",	NULL,	NULL },
+	{ NLM_UNLOCK_RES,	"UNLOCK_RES",	NULL,	NULL },
+	{ NLM_GRANTED_RES,	"GRANTED_RES",	NULL,	NULL },
+	{ 0,			NULL,		NULL,	NULL }
+};
+/* end of NLM protocol version 1 */
+
+/* NLM protocol version 2 */
+const vsff nlm2_proc[] = {
+	{ NLM_NULL,		"NULL",		NULL,	NULL },
+	{ NLM_TEST,		"TEST",		NULL,	NULL },
+	{ NLM_LOCK,		"LOCK",		NULL,	NULL },
+	{ NLM_CANCEL,		"CANCEL",	NULL,	NULL },
+	{ NLM_UNLOCK,		"UNLOCK",	NULL,	NULL },
+	{ NLM_GRANTED,		"GRANTED",	NULL,	NULL },
+	{ NLM_TEST_MSG,		"TEST_MSG",	NULL,	NULL },
+	{ NLM_LOCK_MSG,		"LOCK_MSG",	NULL,	NULL },
+	{ NLM_CANCEL_MSG,	"CANCEL_MSG",	NULL,	NULL },
+	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG",	NULL,	NULL },
+	{ NLM_GRANTED_MSG,	"GRANTED_MSG",	NULL,	NULL },
+	{ NLM_TEST_RES,		"TEST_RES",	NULL,	NULL },
+	{ NLM_LOCK_RES,		"LOCK_RES",	NULL,	NULL },
+	{ NLM_CANCEL_RES,	"CANCEL_RES",	NULL,	NULL },
+	{ NLM_UNLOCK_RES,	"UNLOCK_RES",	NULL,	NULL },
+	{ NLM_GRANTED_RES,	"GRANTED_RES",	NULL,	NULL },
+	{ 0,			NULL,		NULL,	NULL }
+};
+/* end of NLM protocol version 2 */
+
 /* NLM protocol version 3 */
 const vsff nlm3_proc[] = {
-	{ 0,	"NULL",		NULL,	NULL },
-	{ 1,	"TEST",		NULL,	NULL },
-	{ 2,	"LOCK",		NULL,	NULL },
-	{ 3,	"CANCEL",	NULL,	NULL },
-	{ 4,	"UNLOCK",	NULL,	NULL },
-	{ 5,	"GRANTED",	NULL,	NULL },
-	{ 6,	"TEST_MSG",	NULL,	NULL },
-	{ 7,	"LOCK_MSG",	NULL,	NULL },
-	{ 8,	"CANCEL_MSG",	NULL,	NULL },
-	{ 9,	"UNLOCK_MSG",	NULL,	NULL },
-	{ 10,	"GRANTED_MSG",	NULL,	NULL },
-	{ 11,	"TEST_RES",	NULL,	NULL },
-	{ 12,	"LOCK_RES",	NULL,	NULL },
-	{ 13,	"CANCEL_RES",	NULL,	NULL },
-	{ 14,	"UNLOCK_RES",	NULL,	NULL },
-	{ 15,	"GRANTED_RES",	NULL,	NULL },
-	{ 20,	"SHARE",	NULL,	NULL },
-	{ 21,	"UNSHARE",	NULL,	NULL },
-	{ 22,	"NM_LOCK",	NULL,	NULL },
-	{ 23,	"FREE_ALL",	NULL,	NULL },
-	{ 0,	NULL,		NULL,	NULL }
+	{ NLM_NULL,		"NULL",		NULL,	NULL },
+	{ NLM_TEST,		"TEST",		NULL,	NULL },
+	{ NLM_LOCK,		"LOCK",		NULL,	NULL },
+	{ NLM_CANCEL,		"CANCEL",	NULL,	NULL },
+	{ NLM_UNLOCK,		"UNLOCK",	NULL,	NULL },
+	{ NLM_GRANTED,		"GRANTED",	NULL,	NULL },
+	{ NLM_TEST_MSG,		"TEST_MSG",	NULL,	NULL },
+	{ NLM_LOCK_MSG,		"LOCK_MSG",	NULL,	NULL },
+	{ NLM_CANCEL_MSG,	"CANCEL_MSG",	NULL,	NULL },
+	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG",	NULL,	NULL },
+	{ NLM_GRANTED_MSG,	"GRANTED_MSG",	NULL,	NULL },
+	{ NLM_TEST_RES,		"TEST_RES",	NULL,	NULL },
+	{ NLM_LOCK_RES,		"LOCK_RES",	NULL,	NULL },
+	{ NLM_CANCEL_RES,	"CANCEL_RES",	NULL,	NULL },
+	{ NLM_UNLOCK_RES,	"UNLOCK_RES",	NULL,	NULL },
+	{ NLM_GRANTED_RES,	"GRANTED_RES",	NULL,	NULL },
+	{ NLM_SHARE,		"SHARE",	NULL,	NULL },
+	{ NLM_UNSHARE,		"UNSHARE",	NULL,	NULL },
+	{ NLM_NM_LOCK,		"NM_LOCK",	NULL,	NULL },
+	{ NLM_FREE_ALL,		"FREE_ALL",	NULL,	NULL },
+	{ 0,			NULL,		NULL,	NULL }
 };
 /* end of NLM protocol version 3 */
 
+/* NLM protocol version 4 */
+const vsff nlm4_proc[] = {
+	{ NLM_NULL,		"NULL",		NULL,	NULL },
+	{ NLM_TEST,		"TEST",		NULL,	NULL },
+	{ NLM_LOCK,		"LOCK",		NULL,	NULL },
+	{ NLM_CANCEL,		"CANCEL",	NULL,	NULL },
+	{ NLM_UNLOCK,		"UNLOCK",	NULL,	NULL },
+	{ NLM_GRANTED,		"GRANTED",	NULL,	NULL },
+	{ NLM_TEST_MSG,		"TEST_MSG",	NULL,	NULL },
+	{ NLM_LOCK_MSG,		"LOCK_MSG",	NULL,	NULL },
+	{ NLM_CANCEL_MSG,	"CANCEL_MSG",	NULL,	NULL },
+	{ NLM_UNLOCK_MSG,	"UNLOCK_MSG",	NULL,	NULL },
+	{ NLM_GRANTED_MSG,	"GRANTED_MSG",	NULL,	NULL },
+	{ NLM_TEST_RES,		"TEST_RES",	NULL,	NULL },
+	{ NLM_LOCK_RES,		"LOCK_RES",	NULL,	NULL },
+	{ NLM_CANCEL_RES,	"CANCEL_RES",	NULL,	NULL },
+	{ NLM_UNLOCK_RES,	"UNLOCK_RES",	NULL,	NULL },
+	{ NLM_GRANTED_RES,	"GRANTED_RES",	NULL,	NULL },
+	{ NLM_SHARE,		"SHARE",	NULL,	NULL },
+	{ NLM_UNSHARE,		"UNSHARE",	NULL,	NULL },
+	{ NLM_NM_LOCK,		"NM_LOCK",	NULL,	NULL },
+	{ NLM_FREE_ALL,		"FREE_ALL",	NULL,	NULL },
+	{ 0,			NULL,		NULL,	NULL }
+};
+/* end of NLM protocol version 4 */
 
 void
 proto_register_nlm(void)
@@ -88,6 +157,9 @@ proto_reg_handoff_nlm(void)
 {
 	/* Register the protocol as RPC */
 	rpc_init_prog(proto_nlm, NLM_PROGRAM, ett_nlm);
-	/* Register the procedure table */
+	/* Register the procedure tables */
+	rpc_init_proc_table(NLM_PROGRAM, 1, nlm1_proc);
+	rpc_init_proc_table(NLM_PROGRAM, 2, nlm2_proc);
 	rpc_init_proc_table(NLM_PROGRAM, 3, nlm3_proc);
+	rpc_init_proc_table(NLM_PROGRAM, 4, nlm4_proc);
 }
