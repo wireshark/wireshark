@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for ldp packet disassembly
  *
- * $Id: packet-ldp.c,v 1.15 2001/05/21 10:14:35 guy Exp $
+ * $Id: packet-ldp.c,v 1.16 2001/06/05 21:00:17 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -312,6 +312,11 @@ int dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 	  offset += 1;
 	  /* This is IPv4 specific. Should do IPv6 according to AF*/
 	  prefix_len_octets = MIN( (prefix_len+7)/8 , 4 );
+	  if (prefix_len > 32) {
+	    proto_tree_add_text(fec_tree, tvb, offset, 0,
+	    "Invalid prefix %u length, guessing 32", prefix_len);
+	    prefix_len_octets = 4;
+	  }
 	  switch (prefix_len_octets){
 	    case (0): /*prefix_length=0*/
 	      prefix = 0;
@@ -328,12 +333,14 @@ int dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 	    case (4): /*25<=prefix_length<=32*/
 	      prefix = tvb_get_letohl(tvb, offset);
 	      break;
+	    default: /*prefix_length>32*/
+	      g_assert_not_reached();
+	      prefix = 0;
+	      break;
 	  }
 	  proto_tree_add_ipv4(fec_tree, hf_ldp_tlv_fec_pfval, tvb, 
 			      offset, prefix_len_octets, prefix);
 	  fec_len -= 4+prefix_len_octets;
-	  if (prefix_len > 32)
-	    proto_tree_add_text(tlv_tree, tvb, offset, 4, "Invalid prefix length, guessing 32");
 	  break;
 
 	case 3:   /* Host address */
