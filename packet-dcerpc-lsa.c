@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.35 2002/04/30 09:46:48 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.36 2002/04/30 10:02:11 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3044,6 +3044,118 @@ lsa_dissect_lsasettrusteddomaininfo_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+lsa_dissect_lsafunction_2e_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
+		"LSA_HANDLE pointer: hnd", -1, 0);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_lsa_policy_information_class, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsafunction_2e_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_POLICY_INFORMATION, NDR_POINTER_REF,
+		"POLICY_INFORMATION pointer: info", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsafunction_2f_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
+		"LSA_HANDLE pointer: hnd", -1, 0);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_lsa_policy_information_class, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_POLICY_INFORMATION, NDR_POINTER_REF,
+		"POLICY_INFORMATION pointer: info", -1, 0);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsafunction_2f_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsaquerydomaininformationpolicy_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
+		"LSA_HANDLE pointer: hnd", -1, 0);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_lsa_policy_information_class, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsaquerydomaininformationpolicy_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_POLICY_INFORMATION, NDR_POINTER_REF,
+		"POLICY_INFORMATION pointer: info", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsasetdomaininformationpolicy_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
+		"LSA_HANDLE pointer: hnd", -1, 0);
+
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+		hf_lsa_policy_information_class, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_dissect_POLICY_INFORMATION, NDR_POINTER_REF,
+		"POLICY_INFORMATION pointer: info", -1, 0);
+
+	return offset;
+}
+
+static int
+lsa_dissect_lsasetdomaininformationpolicy_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_rc, NULL);
+
+	return offset;
+}
+
 
 
 static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
@@ -3201,17 +3313,11 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsagetusername_reply },
 #endif
 	{ LSA_LSAFUNCTION_2E, "LSAFUNCTION_2E",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsafunction_2e_rqst,
 		lsa_dissect_lsafunction_2e_reply },
-#endif
 	{ LSA_LSAFUNCTION_2F, "LSAFUNCTION_2F",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsafunction_2f_rqst,
 		lsa_dissect_lsafunction_2f_reply },
-#endif
 	{ LSA_LSAQUERYTRUSTEDDOMAININFOBYNAME, "LSAQUERYTRUSTEDDOMAININFOBYNAME",
 		lsa_dissect_lsaquerytrusteddomaininfobyname_rqst,
 		lsa_dissect_lsaquerytrusteddomaininfobyname_reply },
@@ -3237,17 +3343,11 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 		lsa_dissect_lsaclosetrusteddomainex_reply },
 #endif
 	{ LSA_LSAQUERYDOMAININFORMATIONPOLICY, "LSAQUERYDOMAININFORMATIONPOLICY",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsaquerydomaininformationpolicy_rqst,
 		lsa_dissect_lsaquerydomaininformationpolicy_reply },
-#endif
 	{ LSA_LSASETDOMAININFORMATIONPOLICY, "LSASETDOMAININFORMATIONPOLICY",
-		NULL, NULL },
-#ifdef REMOVED
 		lsa_dissect_lsasetdomaininformationpolicy_rqst,
 		lsa_dissect_lsasetdomaininformationpolicy_reply },
-#endif
 	{ LSA_LSAOPENTRUSTEDDOMAINBYNAME, "LSAOPENTRUSTEDDOMAINBYNAME",
 		lsa_dissect_lsaopentrusteddomainbyname_rqst,
 		lsa_dissect_lsaopentrusteddomainbyname_reply },
