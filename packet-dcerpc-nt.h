@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.26 2002/06/16 13:47:39 sahlberg Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.27 2002/06/28 01:23:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,9 +64,6 @@ char *fake_unicode(tvbuff_t *tvb, int offset, int len);
 
 int prs_UNISTR2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *tree, int flags, char **data, char *name);
-
-int prs_policy_hnd(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-		   proto_tree *tree, const guint8 **data);
 
 /* Routines for handling deferral of referants in NDR */
 
@@ -143,12 +140,22 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
  * Policy handle hashing
  */
 
-gboolean 
-dcerpc_smb_fetch_pol(const guint8 *policy_hnd, char **name, 
-		     guint32 *open_frame, guint32 *close_frame);
+/* Store open and close packet numbers for a policy handle */
+
 void 
-dcerpc_smb_store_pol(const guint8 *policy_hnd, char *name,
-		     guint32 open_frame, guint32 close_frame);
+dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, guint32 open_frame, 
+			  guint32 close_frame);
+
+/* Store a name with a policy handle */
+
+void 
+dcerpc_smb_store_pol_name(e_ctx_hnd *policy_hnd, char *name);
+
+/* Fetch details stored with a policy handle */
+
+gboolean 
+dcerpc_smb_fetch_pol(e_ctx_hnd *policy_hnd, char **name, 
+		     guint32 *open_frame, guint32 *close_frame);
 
 /* Check for unparsed data at the end of a frame */
 

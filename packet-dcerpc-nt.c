@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.39 2002/06/25 02:58:11 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.40 2002/06/28 01:23:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -347,28 +347,6 @@ int prs_UNISTR2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
-/* Parse a policy handle. */
-
-int prs_policy_hnd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
-		   proto_tree *tree, const guint8 **data)
-{
-	const guint8 *data8;
-
-	offset = prs_align(offset, 4);
-
-	proto_tree_add_text(tree, tvb, offset, 20, "Policy Handle: %s", 
-                tvb_bytes_to_str(tvb, offset, 20));
-
-	data8 = tvb_get_ptr(tvb, offset, 20);
-	
-	if (data)
-		*data = data8;
-
-	return offset + 20;
-}
-
-
-
 /* following are a few functions for dissecting common structures used by NT 
    services. These might need to be cleaned up at a later time but at least we get
    them out of the real service dissectors.
@@ -688,7 +666,7 @@ static guint pol_hash_fn(gconstpointer k)
 
 /* Return true if a policy handle is all zeros */
 
-static gboolean is_null_pol(const guint8 *policy_hnd)
+static gboolean is_null_pol(e_ctx_hnd *policy_hnd)
 {
 	static guint8 null_policy_hnd[20];
 
@@ -706,15 +684,15 @@ static gint pol_hash_compare(gconstpointer k1, gconstpointer k2)
 		      sizeof(key1->policy_hnd)) == 0;
 }
 
-/* Store a policy handle */
+/* Store the open and close frame numbers of a policy handle */
 
-void dcerpc_smb_store_pol(const guint8 *policy_hnd, char *name,
-			  guint32 open_frame, guint32 close_frame)
+void dcerpc_smb_store_pol_pkts(e_ctx_hnd *policy_hnd, guint32 open_frame, 
+			       guint32 close_frame)
 {
 	pol_hash_key *key;
 	pol_hash_value *value;
 
-	if (is_null_pol(policy_hnd))
+	if (is_null_pol(policy_hnd) || (open_frame == 0 && close_frame == 0))
 		return;
 
 	/* Look up existing value */
@@ -726,15 +704,6 @@ void dcerpc_smb_store_pol(const guint8 *policy_hnd, char *name,
 	if ((value = g_hash_table_lookup(pol_hash, key))) {
 
 		/* Update existing value */
-
-		if (value->name && name) {
-#ifdef DEBUG_HASH_COLL
-			if (strcmp(value->name, name) != 0)
-				g_warning("dcerpc_smb: pol_hash name collision %s/%s\n", value->name, name);
-#endif
-			free(value->name);
-			value->name = strdup(name);
-		}
 
 		if (open_frame) {
 #ifdef DEBUG_HASH_COLL
@@ -762,6 +731,51 @@ void dcerpc_smb_store_pol(const guint8 *policy_hnd, char *name,
 	value->open_frame = open_frame;
 	value->close_frame = close_frame;
 
+	value->name = NULL;
+
+	g_hash_table_insert(pol_hash, key, value);
+}
+
+/* Store a text string with a policy handle */
+
+void dcerpc_smb_store_pol_name(e_ctx_hnd *policy_hnd, char *name)
+{
+	pol_hash_key *key;
+	pol_hash_value *value;
+
+	if (is_null_pol(policy_hnd))
+		return;
+
+	/* Look up existing value */
+
+	key = g_mem_chunk_alloc(pol_hash_key_chunk);
+
+	memcpy(&key->policy_hnd, policy_hnd, sizeof(key->policy_hnd));
+
+	if ((value = g_hash_table_lookup(pol_hash, key))) {
+
+		/* Update existing value */
+
+		if (value->name && name) {
+#ifdef DEBUG_HASH_COLL
+			if (strcmp(value->name, name) != 0)
+				g_warning("dcerpc_smb: pol_hash name collision %s/%s\n", value->name, name);
+#endif
+			free(value->name);
+		}
+
+		value->name = strdup(name);
+
+		return;
+	}
+
+	/* Create a new value */
+
+	value = g_mem_chunk_alloc(pol_hash_value_chunk);
+
+	value->open_frame = 0;
+	value->close_frame = 0;
+
 	if (name)
 		value->name = strdup(name);
 	else
@@ -772,7 +786,7 @@ void dcerpc_smb_store_pol(const guint8 *policy_hnd, char *name,
 
 /* Retrieve a policy handle */
 
-gboolean dcerpc_smb_fetch_pol(const guint8 *policy_hnd, char **name, 
+gboolean dcerpc_smb_fetch_pol(e_ctx_hnd *policy_hnd, char **name, 
 			      guint32 *open_frame, guint32 *close_frame)
 {
 	pol_hash_key key;
@@ -795,21 +809,20 @@ gboolean dcerpc_smb_fetch_pol(const guint8 *policy_hnd, char **name,
 
 	value = g_hash_table_lookup(pol_hash, &key);
 
-	if (!value)
-		return FALSE;
-
 	/* Return name and frame numbers */
+	
+	if (value) {
+		if (name)
+			*name = value->name;
 
-	if (name)
-		*name = value->name;
+		if (open_frame)
+			*open_frame = value->open_frame;
 
-	if (open_frame)
-		*open_frame = value->open_frame;
+		if (close_frame)
+			*close_frame = value->close_frame;
+	}
 
-	if (close_frame)
-		*close_frame = value->close_frame;
-
-	return TRUE;
+	return value != NULL;
 }
 
 /* Iterator to free a policy handle key/value pair */
@@ -983,18 +996,12 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	/* Store request/reply information */
 		
-	if (di->request) {
-		dcerpc_smb_store_pol((const guint8 *)&hnd, NULL, 0,
-				     is_close ? pinfo->fd->num : 0);
-	} else {
-		dcerpc_smb_store_pol((const guint8 *)&hnd, NULL, 
-				     is_open ? pinfo->fd->num: 0, 0);
-	}
+	dcerpc_smb_store_pol_pkts(&hnd, 0, is_close ? pinfo->fd->num : 0);
+	dcerpc_smb_store_pol_pkts(&hnd, is_open ? pinfo->fd->num: 0, 0);
 
 	/* Insert request/reply information if known */
 
-	if (dcerpc_smb_fetch_pol((const guint8 *)&hnd, &name, &open_frame, 
-				 &close_frame)) {
+	if (dcerpc_smb_fetch_pol(&hnd, &name, &open_frame, &close_frame)) {
 
 		if (open_frame)
 			proto_tree_add_text(subtree, tvb, old_offset,

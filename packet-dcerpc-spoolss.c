@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.44 2002/06/27 03:02:50 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.45 2002/06/28 01:23:26 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -645,40 +645,6 @@ static int prs_struct_and_referents(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-/* Display a policy handle in the protocol tree */
-
-static gint ett_POLICY_HND = -1;
-
-static void display_pol(proto_tree *tree, tvbuff_t *tvb, int offset, 
-			const guint8 *policy_hnd)
-{
-	proto_item *item;
-	char *pol_name = NULL;
-	int pol_open_frame = 0, pol_close_frame = 0;
-	proto_tree *subtree;
-
-	dcerpc_smb_fetch_pol(policy_hnd, &pol_name, &pol_open_frame,
-			     &pol_close_frame);
-
-	item = proto_tree_add_text(tree, tvb, offset, 20, 
-				   "Policy handle%s%s", 
-				   pol_name ? ": " : "", 
-				   pol_name ? pol_name : "");
-
-	subtree = proto_item_add_subtree(item, ett_POLICY_HND);
-
-	if (pol_open_frame)
-		proto_tree_add_text(subtree, tvb, offset, 0,
-				    "Opened in frame %u", pol_open_frame);
-
-	if (pol_close_frame)
-		proto_tree_add_text(subtree, tvb, offset, 0,
-				    "Closed in frame %u", pol_close_frame);
-
-	proto_tree_add_text(subtree, tvb, offset, 20, "Policy Handle: %s",
-			    tvb_bytes_to_str(tvb, offset, 20));
-}
-
 /*
  * SpoolssClosePrinter
  */
@@ -701,13 +667,11 @@ static int SpoolssClosePrinter_q(tvbuff_t *tvb, int offset,
 				       hf_spoolss_hnd, &policy_hnd,
 				       FALSE, TRUE);
 
-	dcerpc_smb_fetch_pol((const guint8 *)&policy_hnd, &pol_name, 0, 0);
+	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				pol_name);
-
-	dcerpc_smb_store_pol((const guint8 *)&policy_hnd, NULL, 0, pinfo->fd->num);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -898,7 +862,6 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *key_name, *value_name;
-	const guint8 *policy_hnd;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -906,9 +869,9 @@ static int SpoolssGetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
-
-	display_pol(tree, tvb, offset - 20, policy_hnd);
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
+		FALSE, FALSE);
 
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
 					  prs_UNISTR2_dp, (void **)&key_name,
@@ -988,7 +951,6 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *value_name = NULL;
-	const guint8 *policy_hnd;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -996,9 +958,9 @@ static int SpoolssSetPrinterData_q(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
-
-	display_pol(tree, tvb, offset - 20, policy_hnd);
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
+		FALSE, FALSE);
 
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
 					  prs_UNISTR2_dp, (void **)&value_name,
@@ -1054,7 +1016,6 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	char *key_name, *value_name;
 	guint32 max_len;
-	const guint8 *policy_hnd;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -1062,9 +1023,9 @@ static int SpoolssSetPrinterDataEx_q(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
-
-	display_pol(tree, tvb, offset - 20, policy_hnd);
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
+		FALSE, FALSE);
 
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
 					  prs_UNISTR2_dp, (void **)&key_name,
@@ -1934,20 +1895,23 @@ static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	e_ctx_hnd policy_hnd;
 	guint32 status;
-	const guint8 *policy_hnd;
+	int start_offset = offset;
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
 				    "Request in frame %u", dcv->req_frame);
 
-	/* Parse packet */
+	/* We need the value of the policy handle and status before we
+	   can retrieve the policy handle name.  Then we can insert
+	   the policy handle with the name in the proto tree. */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, NULL, drep, hf_spoolss_hnd, &policy_hnd,
+		TRUE, FALSE);
 
-	display_pol(tree, tvb, offset - 20, policy_hnd);
-
-	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+	offset = dissect_doserror(tvb, offset, pinfo, NULL, drep,
 				  hf_spoolss_rc, &status);
 
 	if (status == 0) {
@@ -1955,13 +1919,24 @@ static int SpoolssOpenPrinterEx_r(tvbuff_t *tvb, int offset,
 		/* Associate the returned printer handle with a name */
 
 		if (dcv->private_data) {
-			dcerpc_smb_store_pol(policy_hnd, dcv->private_data,
-					     pinfo->fd->num, 0);
+			dcerpc_smb_store_pol_name(
+				&policy_hnd, dcv->private_data);
 
 			g_free(dcv->private_data);
 			dcv->private_data = NULL;
 		}
 	}
+
+	/* Parse packet */
+
+	offset = start_offset;
+
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, &policy_hnd,
+		TRUE, FALSE);
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+				  hf_spoolss_rc, &status);
 
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
@@ -2557,9 +2532,7 @@ static int SpoolssReplyOpenPrinter_r(tvbuff_t *tvb, int offset,
 				       hf_spoolss_hnd, &policy_hnd,
 				       TRUE, FALSE);
 
-	dcerpc_smb_store_pol(
-		(const guint8 *)&policy_hnd, "ReplyOpenPrinter handle",
-		pinfo->fd->num, 0);
+	dcerpc_smb_store_pol_name(&policy_hnd, "ReplyOpenPrinter handle");
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 				  hf_spoolss_rc, NULL);
@@ -2660,7 +2633,6 @@ static int SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 level;
-	const guint8 *policy_hnd;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -2668,9 +2640,9 @@ static int SpoolssGetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
-
-	display_pol(tree, tvb, offset - 20, policy_hnd);
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
+		FALSE, FALSE);
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");
 
@@ -2859,7 +2831,6 @@ static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 level;
-	const guint8 *policy_hnd;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -2867,9 +2838,9 @@ static int SpoolssSetPrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
-
-	display_pol(tree, tvb, offset - 20, policy_hnd);
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
+		FALSE, FALSE);
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");
 
@@ -2972,7 +2943,6 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 level;
-	const guint8 *policy_hnd;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -2980,9 +2950,9 @@ static int SpoolssEnumForms_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
-	
-	display_pol(tree, tvb, offset - 20, policy_hnd);
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
+		FALSE, FALSE);
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");
 
@@ -3072,7 +3042,6 @@ static int SpoolssDeletePrinter_q(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	const guint8 *policy_hnd;
 
 	if (dcv->rep_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -3080,10 +3049,10 @@ static int SpoolssDeletePrinter_q(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
+		FALSE, FALSE);
 
-	display_pol(tree, tvb, offset - 20, policy_hnd);
-	
 	dcerpc_smb_check_long_frame(tvb, offset, pinfo, tree);
 
 	return offset;
@@ -3095,7 +3064,6 @@ static int SpoolssDeletePrinter_r(tvbuff_t *tvb, int offset,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	const guint8 *policy_hnd;
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -3103,9 +3071,9 @@ static int SpoolssDeletePrinter_r(tvbuff_t *tvb, int offset,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
-
-	display_pol(tree, tvb, offset - 20, policy_hnd);
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
+		FALSE, FALSE);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 				  hf_spoolss_rc, NULL);
@@ -3169,8 +3137,8 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
+	e_ctx_hnd policy_hnd;
 	guint32 status;
-	const guint8 *policy_hnd;
 
 	if (dcv->req_frame != 0)
 		proto_tree_add_text(tree, tvb, offset, 0, 
@@ -3178,9 +3146,9 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
-
-	display_pol(tree, tvb, offset - 20, policy_hnd);
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, &policy_hnd,
+		TRUE, FALSE);
 
 	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
 				  hf_spoolss_rc, &status);
@@ -3196,8 +3164,8 @@ static int SpoolssAddPrinterEx_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					pinfo->cinfo, COL_INFO, ", %s", 
 					(char *)dcv->private_data);
 
-			dcerpc_smb_store_pol(
-				policy_hnd, dcv->private_data, pinfo->fd->num, 0);
+			dcerpc_smb_store_pol_name(
+				&policy_hnd, dcv->private_data);
 
 			g_free(dcv->private_data);
 			dcv->private_data = NULL;
@@ -3518,7 +3486,6 @@ static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	const guint8 *policy_hnd;
 	guint32 level;
 
 	if (dcv->rep_frame != 0)
@@ -3527,9 +3494,9 @@ static int SpoolssAddForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
-
-	display_pol(tree, tvb, offset - 20, policy_hnd);
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
+		FALSE, FALSE);
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");	
 
@@ -3577,7 +3544,6 @@ static int SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	const guint8 *policy_hnd;
 	char *form_name;
 
 	if (dcv->rep_frame != 0)
@@ -3586,9 +3552,9 @@ static int SpoolssDeleteForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
-
-	display_pol(tree, tvb, offset - 20, policy_hnd);
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
+		FALSE, FALSE);
 
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
 					  prs_UNISTR2_dp, (void **)&form_name,
@@ -3633,7 +3599,6 @@ static int SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	const guint8 *policy_hnd;
 	guint32 level;
 	char *form_name;
 
@@ -3643,9 +3608,9 @@ static int SpoolssSetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
-
-	display_pol(tree, tvb, offset - 20, policy_hnd);
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
+		FALSE, FALSE);
 
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
 					  prs_UNISTR2_dp, (void **)&form_name,
@@ -3699,7 +3664,6 @@ static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	guint32 level;
-	const guint8 *policy_hnd;
 	char *form_name;
 
 	if (dcv->rep_frame != 0)
@@ -3708,9 +3672,9 @@ static int SpoolssGetForm_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, NULL, &policy_hnd);
-
-	display_pol(tree, tvb, offset - 20, policy_hnd);
+	offset = dissect_nt_policy_hnd(
+		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, NULL,
+		FALSE, FALSE);
 
 	offset = prs_struct_and_referents(tvb, offset, pinfo, tree, 
 					  prs_UNISTR2_dp, (void **)&form_name,
@@ -4309,7 +4273,7 @@ static int SpoolssStartPagePrinter_q(tvbuff_t *tvb, int offset,
 				       hf_spoolss_hnd, &policy_hnd,
 				       FALSE, FALSE);
 
-	dcerpc_smb_fetch_pol((const guint8 *)&policy_hnd, &pol_name, 0, 0);
+	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -4364,7 +4328,7 @@ static int SpoolssEndPagePrinter_q(tvbuff_t *tvb, int offset,
 				       hf_spoolss_hnd, &policy_hnd,
 				       FALSE, FALSE);
 
-	dcerpc_smb_fetch_pol((const guint8 *)&policy_hnd, &pol_name, 0, 0);
+	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -4531,7 +4495,7 @@ static int SpoolssStartDocPrinter_q(tvbuff_t *tvb, int offset,
 				       hf_spoolss_hnd, &policy_hnd,
 				       FALSE, FALSE);
 
-	dcerpc_smb_fetch_pol((const guint8 *)&policy_hnd, &pol_name, 0, 0);
+	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -4591,7 +4555,7 @@ static int SpoolssEndDocPrinter_q(tvbuff_t *tvb, int offset,
 				       hf_spoolss_hnd, &policy_hnd,
 				       FALSE, FALSE);
 
-	dcerpc_smb_fetch_pol((const guint8 *)&policy_hnd, &pol_name, 0, 0);
+	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -4650,7 +4614,7 @@ static int SpoolssWritePrinter_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				       hf_spoolss_hnd, &policy_hnd,
 				       FALSE, FALSE);
 
-	dcerpc_smb_fetch_pol((const guint8 *)&policy_hnd, &pol_name, 0, 0);
+	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -4974,7 +4938,7 @@ static int SpoolssGetPrinterDriver2_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_hnd, &policy_hnd,
 		FALSE, FALSE);
 
-	dcerpc_smb_fetch_pol((const guint8 *)&policy_hnd, &pol_name, 0, 0);
+	dcerpc_smb_fetch_pol(&policy_hnd, &pol_name, NULL, NULL);
 
 	if (check_col(pinfo->cinfo, COL_INFO) && pol_name)
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -6447,7 +6411,6 @@ proto_register_dcerpc_spoolss(void)
 		&ett_PRINTER_INFO_3,
 		&ett_RELSTR,
 		&ett_RELSTR_ARRAY,
-		&ett_POLICY_HND,
 		&ett_FORM_REL,
 		&ett_FORM_CTR,
 		&ett_FORM_1,
