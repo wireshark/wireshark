@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.12 2001/10/12 17:14:41 guy Exp $
+# $Id: ethereal_gen.py,v 1.13 2001/10/18 21:49:58 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -1095,6 +1095,10 @@ class ethereal_gen_C:
         if self.DEBUG:    
             print "XXX Union ntype =" , ntype
 
+        if ntype.recursive():
+            sys.stderr.write( "Error: idl2eth does not handle recursive unions yet \n")
+            sys.exit(1)
+            
         st = ntype.switchType()
 
             
@@ -1245,7 +1249,11 @@ class ethereal_gen_C:
             ntype = type.decl().alias().aliasType().decl()           
         else:
             ntype = type.decl()         # I am a struct node
-                        
+
+        if ntype.recursive():
+            sys.stderr.write("Error: idl2eth does not handle recursive structs yet \n")
+            sys.exit(1)
+                                    
         for m in ntype.members():
             for decl in m.declarators():
                 if decl.sizes():        # an array
