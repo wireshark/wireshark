@@ -1,6 +1,6 @@
 /* packet-chdlc.h
  *
- * $Id: packet-chdlc.h,v 1.1 2001/03/15 09:11:00 guy Exp $
+ * $Id: packet-chdlc.h,v 1.2 2001/03/15 21:49:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,7 +36,7 @@
 
 void capture_chdlc(const u_char *, int, packet_counts *);
 
-const value_string chdlc_vals[];
+extern const value_string chdlc_vals[];
 
 void
 chdlctype(guint16 chdlctype, tvbuff_t *tvb, int offset_after_chdlctype,
