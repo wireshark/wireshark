@@ -456,7 +456,7 @@ static const value_string token_names[] = {
 	{TDS_ORDER_BY_TOKEN, "Order By"},
 	{TDS_ERR_TOKEN, "Error Message"},
 	{TDS_MSG_TOKEN, "Info Message"},
-	{TDS_PARAM_TOKEN, "Paramater"},
+	{TDS_PARAM_TOKEN, "Parameter"},
 	{TDS_LOGIN_ACK_TOKEN, "Login Acknowledgement"},
 	{TDS_CONTROL_TOKEN, "TDS Control"},
 	{TDS_KEY_TOKEN, "TDS Key"},
