@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.716 2004/03/03 00:18:21 jmayer Exp $
+# $Id: Makefile.am,v 1.717 2004/03/03 23:51:31 jmayer Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -301,41 +301,6 @@ SUFFIXES = .sh
 	$(editsh) $< > $@.tmp && chmod +x $@.tmp && mv $@.tmp $@
 
 #
-# Build "register.c", which contains a function "register_all_protocols()"
-# that calls the register routines for all protocols.
-#
-# We do this by grepping through sources.  If that turns out to be too slow,
-# maybe we could just require every .o file to have an register routine
-# of a given name (packet-aarp.o -> proto_register_aarp, etc.).
-#
-# Formatting conventions:  The name of the proto_register_* routines must
-# start in column zero, or must be preceded only by "void " starting in
-# column zero, and must not be inside #if.
-#
-# We assume that all dissector routines are in "packet-XXX.c" files.
-#
-# For some unknown reason, having a big "for" loop in the Makefile
-# to scan all the "packet-XXX.c" files doesn't work with some "make"s;
-# they seem to pass only the first few names in the list to the shell,
-# for some reason.
-#
-# Therefore, we have a script to generate the "register.c" file.
-#
-# The first argument is the name of the file to write.
-# The second argument is the directory in which the source files live.
-# All subsequent arguments are the files to scan.
-#
-register.c: $(plugin_src) $(DISSECTOR_SRC) $(srcdir)/make-reg-dotc
-	@if test -n $(PYTHON); then \
-		echo Making register.c with python ; \
-		$(PYTHON) $(srcdir)/make-reg-dotc.py $(srcdir) $(DISSECTOR_SRC) ; \
-	else \
-		echo Making register.c with shell script ; \
-		$(srcdir)/make-reg-dotc register.c $(srcdir) \
-			$(plugin_src) $(DISSECTOR_SRC) ; \
-	fi
-
-#
 # Build "tethereal-tap-register.c", which contains a function 
 # "register_all_tap_listeners()"
 # that calls the register routines for all tehtereal tap listeners.
@@ -559,24 +524,6 @@ install-exec-hook:
 else
 install-exec-hook:
 endif
-
-#
-# Currently register.c can be included in the distribution because
-# we always build all protocol dissectors. We used to have to check
-# whether or not to build the snmp dissector. If we again need to
-# variably build something, making register.c non-portable, uncomment
-# the dist-hook line below.
-#
-# Oh, yuk.  We don't want to include "register.c" in the distribution, as
-# its contents depend on the configuration, and therefore we want it
-# to be built when the first "make" is done; however, Automake insists
-# on putting *all* source into the distribution.
-#
-# We work around this by having a "dist-hook" rule that deletes
-# "register.c", so that "dist" won't pick it up.
-#
-#dist-hook:
-#	@rm -f $(distdir)/register.c
 
 DIST_SUBDIRS = tools wiretap doc epan plugins packaging gtk help
 
