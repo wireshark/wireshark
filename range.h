@@ -1,7 +1,7 @@
 /* range.h
  * Packet range routines (save, print, ...)
  *
- * $Id: range.h,v 1.6 2004/01/08 10:40:33 ulfl Exp $
+ * $Id: range.h,v 1.7 2004/01/09 14:04:53 ulfl Exp $
  *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
@@ -36,7 +36,7 @@ extern guint32  curr_selected_frame;
 
 typedef enum {
     range_process_all,
-    range_process_curr,
+    range_process_selected,
     range_process_marked,
     range_process_marked_range,
     range_process_user_range
@@ -57,17 +57,17 @@ typedef struct packet_range_tag {
     gboolean        process_filtered;   /* captured or filtered packets */
 
     /* user specified range(s) */
-    guint           nranges;
+    guint           nranges;        /* number of entries in ranges (0 based) */
     range_admin_t   ranges[MaxRange];
 
     /* calculated values */
-    guint32  selected_packet;           /* the currently selected packet */
+    guint32  selected_packet;       /* the currently selected packet */
 
     /* current packet counts (captured) */
-    /* cfile.count */                   /* packets in capture file */
-    /* cfile.marked_count */            /* packets marked */
-    guint32  mark_range;                /* packets in marked range */
-    guint32  user_range;                /* packets in user specified range */
+    /* cfile.count */               /* packets in capture file */
+    /* cfile.marked_count */        /* packets marked */
+    guint32  mark_range;            /* packets in marked range */
+    guint32  user_range;            /* packets in user specified range */
 
     /* current packet counts (displayed) */
     guint32  displayed_cnt;
@@ -76,25 +76,28 @@ typedef struct packet_range_tag {
     guint32  displayed_user_range;
 
     /* "enumeration" values */
-    gboolean range_active;
-    guint32  markers;
-    gboolean process_curr_done;
+    gboolean marked_range_active;   /* marked range is currently processed */
+    guint32  markers;               /* marked range packets left to do */
+    gboolean selected_done;         /* selected packet already processed */
 } packet_range_t;
 
 typedef enum {
-    range_process_next,
-    range_processing_finished,
-    range_process_this
+    range_process_this,             /* process this packet */
+    range_process_next,             /* skip this packet, process next */
+    range_processing_finished       /* stop processing, required packets done */
 } range_process_e;
 
 /* init the range structure */
 extern void packet_range_init(packet_range_t *range);
 
+/* init the processing run */
+void packet_range_process_init(packet_range_t *range);
+
 /* do we have to process all packets? */
 extern gboolean packet_range_process_all(packet_range_t *range);
 
 /* do we have to process this packet? */
-extern range_process_e packet_range_process(packet_range_t *range, frame_data *fdata);
+extern range_process_e packet_range_process_packet(packet_range_t *range, frame_data *fdata);
 
 /* convert user given string to the internal user specified range representation */
 extern void packet_range_convert_str(packet_range_t *range, const gchar *es);

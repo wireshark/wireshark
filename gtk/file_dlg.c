@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.77 2004/01/08 10:40:04 ulfl Exp $
+ * $Id: file_dlg.c,v 1.78 2004/01/09 14:05:20 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -693,11 +693,11 @@ toggle_select_all(GtkWidget *widget, gpointer data _U_)
 }
 
 static void
-toggle_select_curr(GtkWidget *widget, gpointer data _U_)
+toggle_select_selected(GtkWidget *widget, gpointer data _U_)
 {
   /* is the button now active? */
   if (GTK_TOGGLE_BUTTON (widget)->active) {
-    range.process = range_process_curr;
+    range.process = range_process_selected;
     set_file_type_list(ft_om);
     file_set_save_dynamics();
   }
@@ -881,7 +881,7 @@ file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 #endif
   gtk_table_attach_defaults(GTK_TABLE(range_tb), select_curr_rb, 0, 1, 2, 3);
   gtk_tooltips_set_tip (tooltips,select_curr_rb,("Save the currently selected packet only"), NULL);
-  SIGNAL_CONNECT(select_curr_rb, "toggled", toggle_select_curr, NULL);
+  SIGNAL_CONNECT(select_curr_rb, "toggled", toggle_select_selected, NULL);
   gtk_widget_show(select_curr_rb);
 	
   select_curr_c_lb = gtk_label_new("?");
@@ -1054,10 +1054,6 @@ file_save_as_ok_cb(GtkWidget *w _U_, GtkFileSelection *fs) {
   gchar	*cf_name;
   gchar	*dirname;
 
-  /* obtain the range specifications in case we selected a user specified range */
-  if (range.process == range_process_user_range) {	
-     range_entry(range_specs);
-  }
 	  
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(fs)));
 

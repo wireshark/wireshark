@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.335 2004/01/09 02:57:07 obiot Exp $
+ * $Id: file.c,v 1.336 2004/01/09 14:04:52 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2304,6 +2304,8 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
     goto fail;
   }
 
+  packet_range_process_init(range);
+
   /* Used to be :
    * if (!save_filtered && !save_marked && !save_manual_range && 
    *     !save_marked_range && !save_curr && save_format == cf->cd_t) {
@@ -2419,7 +2421,7 @@ cf_save(char *fname, capture_file *cf, packet_range_t *range, guint save_format)
         progbar_count++;
 
         /* do we have to process this packet? */
-        process_this = packet_range_process(range, fdata);
+        process_this = packet_range_process_packet(range, fdata);
         if (process_this == range_process_next) {
             /* this packet uninteresting, continue with next one */
             continue;

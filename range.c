@@ -1,7 +1,7 @@
 /* range.c
  * Packet range routines (save, print, ...)
  *
- * $Id: range.c,v 1.6 2004/01/08 10:40:33 ulfl Exp $
+ * $Id: range.c,v 1.7 2004/01/09 14:04:52 ulfl Exp $
  *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
@@ -67,9 +67,9 @@ void packet_range_calc(packet_range_t *range) {
   range->displayed_marked_cnt   = 0L;
   range->displayed_mark_range   = 0L;
 
-  /* The next for-loop is used to obtain the amount of packets to be saved
+  /* The next for-loop is used to obtain the amount of packets to be processed
    * and is used to present the information in the Save/Print As widget.
-   * We have different types of saving : All the packets, the number
+   * We have different types of ranges: All the packets, the number
    * of packets of a marked range, a single packet, and a user specified 
    * packet range. The last one is not calculated here since this
    * data must be entered in the widget by the user.
@@ -166,16 +166,23 @@ void packet_range_init(packet_range_t *range) {
   range->ranges[range->nranges].low  = 0L;
   range->ranges[range->nranges].high = 0L;
 
-  /* "enumeration" values */
-  range->range_active       = FALSE;
-  range->markers            = cfile.marked_count;
-  range->process_curr_done  = FALSE;
-
   /* calculate all packet range counters */
   packet_range_calc(range);
   packet_range_calc_user(range);
 }
 
+/* init the processing run */
+void packet_range_process_init(packet_range_t *range) {
+  /* "enumeration" values */
+  range->marked_range_active    = FALSE;
+  range->selected_done          = FALSE;
+
+  if (range->process_filtered == FALSE) {
+    range->markers = range->mark_range;
+  } else {
+    range->markers = range->displayed_mark_range;
+  }
+}
 
 /* do we have to process all packets? */
 gboolean packet_range_process_all(packet_range_t *range) {
@@ -183,78 +190,58 @@ gboolean packet_range_process_all(packet_range_t *range) {
 }
 
 /* do we have to process this packet? */
-range_process_e packet_range_process(packet_range_t *range, frame_data *fdata) {
+range_process_e packet_range_process_packet(packet_range_t *range, frame_data *fdata) {
 
-    /* do we have to process this packet at all? */
-    if (
-         (!range->process_filtered && range->process != range_process_marked) ||
-         (!range->process_filtered && range->process == range_process_marked && fdata->flags.marked) ||
-          (range->process_filtered && range->process == range_process_marked && fdata->flags.marked && fdata->flags.passed_dfilter) ||
-          (range->process_filtered && range->process != range_process_marked && fdata->flags.passed_dfilter) ||
-          (range->process == range_process_curr)  ||
-          (range->process == range_process_marked_range) ||
-          (range->process == range_process_user_range) ||
-          (range->range_active)
-      ) {
-        /* yes, we have to */
-    } else {
-        return range_process_next;
-    }
-
-    /* In case we process a user specified range, we check whether the packet number
-     * is in any of the ranges as defined the array ranges, see file_dlg.c
-     * If a match is found, we process it, else we process the next packet.
-     */
-    if (range->process == range_process_user_range) {
-       if (range->process_filtered) {
-          if (fdata->flags.passed_dfilter == FALSE) {
-             return range_process_next;
-          }
-       }
-       if (packet_is_in_range(range, fdata->num) == FALSE) {
-          return range_process_next;
-       }
-    }
-
-    /* For processing a marked range, ignore any packet until we get the first marked packet.
-     * At that time we set the range_active to TRUE, and decrement the markers count. Then continue
-     * accepting each packet, until we find the last marker (markers count becomes zero)
-     * We then reset range_active to FALSE to ignore any packet from then on.
-     */
-    if (range->process == range_process_marked_range) {
-       if (range->markers == 0) {
+    switch(range->process) {
+    case(range_process_all):
+        break;
+    case(range_process_selected):
+        if (range->selected_done) {
           return range_processing_finished;
-       }
-       if (fdata->flags.marked == TRUE) {
-          range->range_active = TRUE;
+        }
+        if (fdata->num != cfile.current_frame->num) {
+          return range_process_next;
+        }
+        range->selected_done = TRUE;
+        break;
+    case(range_process_marked):
+        if (fdata->flags.marked == FALSE) {
+          return range_process_next;
+        }
+        break;
+    case(range_process_marked_range):
+        if (range->markers == 0) {
+          return range_processing_finished;
+        }
+        if (fdata->flags.marked == TRUE) {
+          range->marked_range_active = TRUE;
+          if (!range->process_filtered ||
+              (range->process_filtered && fdata->flags.passed_dfilter == TRUE))
+          {
             range->markers--;
-       }
-       if (range->process_filtered) {
-          if (fdata->flags.passed_dfilter == FALSE) {
-             return range_process_next;
           }
-       }
-       if (range->range_active == FALSE ) {
+        }
+        if (range->marked_range_active == FALSE ) {
           return range_process_next;
-       }
+        }
+        break;
+    case(range_process_user_range):
+        if (packet_is_in_range(range, fdata->num) == FALSE) {
+          return range_process_next;
+        }
+        break;
+    default:
+        g_assert_not_reached();
     }
 
-    /* Only process the selected packet */
-    if (range->process == range_process_curr) {
-       if (range->process_curr_done) {
-          return range_processing_finished;
-       }
-       if (fdata->num != cfile.current_frame->num) {
-          return range_process_next;
-       }
-       range->process_curr_done = TRUE;
+    /* this packet has to pass the display filter but didn't? -> try next */
+    if (range->process_filtered && fdata->flags.passed_dfilter == FALSE) {
+        return range_process_next;
     }
 
     /* We fell through the conditions above, so we accept this packet */
     return range_process_this;
 }
-
-
 
 
 /******************** Range Entry Parser *********************************/
