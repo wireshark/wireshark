@@ -1,11 +1,12 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.30 2001/04/27 01:38:19 guy Exp $
+ * $Id: packet-icq.c,v 1.31 2001/05/27 21:37:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Johan Feyaerts
- * Copyright 1999 Johan Feyaerts
+ * By Gerald Combs <gerald@ethereal.com>
+ * Copyright 1998 Gerald Combs
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -1768,32 +1769,26 @@ dissect_icqv5Client(tvbuff_t *tvb,
     guint16 pktsize;		/* The size of the ICQ content */
     guint32 key;
     guint16 cmd;
-    static u_char *decr_pd = NULL;	/* Decrypted content */
-    static int decr_size = 0;		/* Size of decrypted-content buffer */
+    guint8 *decr_pd;		/* Decrypted content */
     tvbuff_t *decr_tvb;
     
     pktsize = tvb_length(tvb);
 
-    if (decr_size == 0) {
-        decr_size = sizeof(u_char) * 128;
-	decr_pd = g_malloc(decr_size);
-    }
-    	
-    while (decr_size < pktsize + 3) {
-        decr_size *= 2;
-	decr_pd = g_realloc(decr_pd, decr_size);
-    }
-    
     /* Get the encryption key */
     key = get_v5key(tvb, pktsize);
 
     /* Make a copy of the packet data, and decrypt it */
+    decr_pd = g_malloc(pktsize + 3);	/* XXX - why +3? */
     tvb_memcpy(tvb, decr_pd, 0, pktsize);
     decrypt_v5(decr_pd, pktsize, key);
     
     /* Allocate a new tvbuff, referring to the decrypted data. */
     decr_tvb = tvb_new_real_data(decr_pd, pktsize, tvb_reported_length(tvb),
 	"Decrypted");
+
+    /* Arrange that the allocated packet data copy be freed when the
+       tvbuff is freed. */
+    tvb_set_free_cb(decr_tvb, g_free);
 
     /* Add the tvbuff to the list of tvbuffs to which the tvbuff we
        were handed refers, so it'll get cleaned up when that tvbuff
