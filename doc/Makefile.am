@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal documentation
 #
-# $Id: Makefile.am,v 1.16 2003/02/12 08:55:19 guy Exp $
+# $Id: Makefile.am,v 1.17 2003/02/27 00:09:53 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -75,6 +75,3 @@ CLEANFILES =	\
 	../tethereal.1	\
 	../text2pcap.1	\
 	../idl2eth.1
-
-EXTRA_DIST = \
-	Ethereal.desktop	\
