@@ -3,7 +3,7 @@
  * By Pavel Mores <pvl@uh.cz>
  * Win32 port:  rwh@unifiedtech.com
  *
- * $Id: tcp_graph.c,v 1.5 2001/12/10 21:19:13 guy Exp $
+ * $Id: tcp_graph.c,v 1.6 2001/12/10 21:26:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -550,8 +550,8 @@ void tcp_graph_cb (GtkWidget *w, gpointer data, guint graph_type)
 		/* currently selected packet is neither TCP over IP over Ethernet II/PPP
 		 * nor TCP over IP alone - should display some
 		 * kind of warning dialog */
-        simple_dialog(ESD_TYPE_WARN, NULL,
-                "Selected packet is not a TCP segment");
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Selected packet is not a TCP segment");
 		return;
 	}
 
@@ -1771,21 +1771,37 @@ static void graph_segment_list_get (struct graph *g)
 
 static int get_headers (char *pd, struct segment *hdrs)
 {
+	frame_data *fd = cfile.current_frame;
 	struct ether_header *e;
 	struct ppp_header   *p;
 	void *ip;
 	void *tcp;
 
-	e = (struct ether_header * )pd;
-	p = (struct ppp_header * )pd;
-	if (pntohs (&e->ether_type) == ETHERTYPE_IP) {
+	switch (fd->lnk_t) {
+
+	case WTAP_ENCAP_ETHERNET:
+		/* It's Ethernet */
+		e = (struct ether_header *)pd;
+		if (pntohs (&e->ether_type) != ETHERTYPE_IP)
+			return FALSE;	/* not IP */
 		ip = e + 1;
-	} else if (((struct iphdr *)e)->protocol == IPPROTO_TCP) {
-		ip = e;
-	} else if (p->ppp_type == PPPTYPE_IP) {
+		break;
+
+	case WTAP_ENCAP_PPP:
+		/* It's PPP */
+		p = (struct ppp_header *)pd;
+		if (p->ppp_type != PPPTYPE_IP)
+			return FALSE;	/* not IP */
 		ip = p + 1;
-	} else {
-		/* printf ("not IP over Ethernet II or PPP\n"); */
+		break;
+
+	case WTAP_ENCAP_RAW_IP:
+		/* Raw IP */
+		ip = pd;
+		break;
+
+	default:
+		/* Those are the only encapsulation types we handle */
 		return FALSE;
 	}
 	if (((struct iphdr *)ip)->protocol != IPPROTO_TCP) {
