@@ -729,6 +729,10 @@ new_item_len )
 					asn->offset = (*offset);
 				    return ;
 			}
+			if(!new_item_len && length>2)
+			{
+					new_item_len = length-1;  /* can't get length from asn1 tag. Use rest of the pdu len. */
+			}
 				header_len = asn->offset - (*offset) +1;
 				ms = proto_tree_add_text(pres_tree, tvb, *offset-1, 
 new_item_len+(asn->offset-*offset)+1,
@@ -844,6 +848,11 @@ new_item_len )
 					(*offset)=start+item_length;
 					asn->offset = (*offset);
 					return ;
+			}
+			if(!new_item_len && length>2)
+			{
+				/* check if really do have what to dissect */
+				new_item_len = length-1;
 			}
 				ms = proto_tree_add_text(pres_tree_pc, tvb, *offset-1, 
 new_item_len+(asn->offset-*offset)+1,
@@ -1557,6 +1566,22 @@ dissect_ppdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 						{
 					return  FALSE;
 						}
+				if(!rest_len)
+				{
+					guint       rest_pdu_len = 0;
+					/* do we really haven't any more bytes ? */
+					if(	(rest_pdu_len = tvb_reported_length_remaining(tvb, offset)) )
+					{
+						/*
+						 * we have but can't say how many from asn1 information.
+						 * use pdu len instead
+						 */
+						if(rest_pdu_len > 2)
+						{
+						rest_len = rest_pdu_len;
+						}
+					}
+				}
 				ms = proto_tree_add_text(pres_tree, tvb, offset, rest_len,
 										val_to_str(session->spdu_type, ses_vals, "Unknown Ppdu type (0x%02x)"));
 				pres_tree_ms = proto_item_add_subtree(ms, ett_pres_ms);
