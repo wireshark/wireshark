@@ -1,6 +1,6 @@
 /* iptrace.c
  *
- * $Id: iptrace.c,v 1.42 2002/07/29 06:09:58 guy Exp $
+ * $Id: iptrace.c,v 1.43 2002/08/13 03:32:56 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -392,12 +392,6 @@ get_atm_pseudo_header(const guint8 *pd, guint32 len,
 	}
 
 	/*
-	 * Attempt to guess from the packet data, the VPI, and the VCI
-	 * information about the type of traffic.
-	 */
-	atm_guess_traffic_type(pd, len, Vpi, Vci, pseudo_header);
-
-	/*
 	 * OK, which value means "DTE->DCE" and which value means
 	 * "DCE->DTE"?
 	 */
@@ -405,6 +399,12 @@ get_atm_pseudo_header(const guint8 *pd, guint32 len,
 
 	pseudo_header->atm.vpi = Vpi;
 	pseudo_header->atm.vci = Vci;
+
+	/*
+	 * Attempt to guess from the packet data, the VPI, and the VCI
+	 * information about the type of traffic.
+	 */
+	atm_guess_traffic_type(pd, len, pseudo_header);
 
 	/* We don't have this information */
 	pseudo_header->atm.cells = 0;

@@ -1,6 +1,6 @@
 /* atm.c
  *
- * $Id: atm.c,v 1.1 2002/04/30 18:58:15 guy Exp $
+ * $Id: atm.c,v 1.2 2002/08/13 03:32:56 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -37,7 +37,7 @@
 
 void
 atm_guess_traffic_type(const guint8 *pd, guint32 len,
-    guint16 vpi, guint16 vci, union wtap_pseudo_header *pseudo_header)
+    union wtap_pseudo_header *pseudo_header)
 {
 	/*
 	 * Start out assuming nothing other than that it's AAL5.
@@ -46,12 +46,12 @@ atm_guess_traffic_type(const guint8 *pd, guint32 len,
 	pseudo_header->atm.type = TRAF_UNKNOWN;
 	pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
 
-	if (vpi == 0) {
+	if (pseudo_header->atm.vpi == 0) {
 		/*
 		 * Traffic on some PVCs with a VPI of 0 and certain
 		 * VCIs is of particular types.
 		 */
-		switch (vci) {
+		switch (pseudo_header->atm.vci) {
 
 		case 5:
 			/*

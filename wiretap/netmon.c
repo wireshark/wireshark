@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.59 2002/08/13 03:26:30 guy Exp $
+ * $Id: netmon.c,v 1.60 2002/08/13 03:32:57 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -445,8 +445,10 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 	 * Attempt to guess from the packet data, the VPI, and the VCI
 	 * information about the type of traffic.
 	 */
-	atm_guess_traffic_type(data_ptr, packet_size, wth->pseudo_header.atm.vpi,
-	    wth->pseudo_header.atm.vci, &wth->pseudo_header);
+	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER) {
+		atm_guess_traffic_type(data_ptr, packet_size,
+		    &wth->pseudo_header);
+	}
 
 	return TRUE;
 }
@@ -476,8 +478,9 @@ netmon_seek_read(wtap *wth, long seek_off,
 	 * Attempt to guess from the packet data, the VPI, and the VCI
 	 * information about the type of traffic.
 	 */
-	atm_guess_traffic_type(pd, length, pseudo_header->atm.vpi,
-	    pseudo_header->atm.vci, pseudo_header);
+	if (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER)
+		atm_guess_traffic_type(pd, length, pseudo_header);
+
 	return TRUE;
 }
 

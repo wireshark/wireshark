@@ -1,6 +1,6 @@
 /* atm.h
  *
- * $Id: atm.h,v 1.1 2002/04/30 18:58:15 guy Exp $
+ * $Id: atm.h,v 1.2 2002/08/13 03:32:56 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -31,7 +31,7 @@
 
 extern void
 atm_guess_traffic_type(const guint8 *pd, guint32 len,
-    guint16 vpi, guint16 vci, union wtap_pseudo_header *pseudo_header);
+    union wtap_pseudo_header *pseudo_header);
 
 extern void
 atm_guess_lane_type(const guint8 *pd, guint32 len,
