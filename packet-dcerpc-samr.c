@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.39 2002/05/04 09:05:43 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.40 2002/05/05 23:48:19 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2261,17 +2261,6 @@ samr_dissect_get_alias_membership_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-samr_dissect_get_alias_membership_response(tvbuff_t *tvb, int offset, 
-					   packet_info *pinfo, 
-					   proto_tree *tree, char *drep)
-{
-        offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
-				  hf_samr_rc, NULL);
-
-	return offset;
-}
-
-static int
 samr_dissect_get_alias_membership_reply(tvbuff_t *tvb, int offset, 
                              packet_info *pinfo, proto_tree *tree,
                              char *drep)
@@ -2280,8 +2269,8 @@ samr_dissect_get_alias_membership_reply(tvbuff_t *tvb, int offset,
 			samr_dissect_INDEX_ARRAY, NDR_POINTER_REF,
 			"", hf_samr_alias, 0);
 
-        offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
-			hf_samr_rc, NULL);
+        offset = dissect_ntstatus(tvb, offset, pinfo, tree, drep,
+				  hf_samr_rc, NULL);
 
 	return offset;
 }
