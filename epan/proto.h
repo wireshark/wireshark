@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.45 2003/11/24 21:12:10 sahlberg Exp $
+ * $Id: proto.h,v 1.46 2003/11/24 22:11:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,7 +111,7 @@ typedef struct field_info {
 		 */
 		struct field_info		*next;
 		header_field_info		*hfinfo;
-	};
+	} ptr_u;
 	gint				start;
 	gint				length;
 	gint				tree_type; /* ETT_* */

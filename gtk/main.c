@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.330 2003/11/18 04:16:28 gerald Exp $
+ * $Id: main.c,v 1.331 2003/11/24 22:11:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -267,7 +267,7 @@ goto_framenum_cb(GtkWidget *w _U_, gpointer data _U_)
 	header_field_info	*hfinfo;
 	guint32			framenum;
 
-	hfinfo = cfile.finfo_selected->hfinfo;
+	hfinfo = cfile.finfo_selected->ptr_u.hfinfo;
 	g_assert(hfinfo);
 	if (hfinfo->type == FT_FRAMENUM) {
 	    framenum = fvalue_get_integer(cfile.finfo_selected->value);
@@ -945,13 +945,13 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
     cfile.finfo_selected = finfo;
     set_menus_for_selected_tree_row(&cfile);
 
-    if (finfo->hfinfo) {
-        if (finfo->hfinfo->blurb != NULL &&
-            finfo->hfinfo->blurb[0] != '\0') {
+    if (finfo->ptr_u.hfinfo) {
+        if (finfo->ptr_u.hfinfo->blurb != NULL &&
+            finfo->ptr_u.hfinfo->blurb[0] != '\0') {
             has_blurb = TRUE;
-            length = strlen(finfo->hfinfo->blurb);
+            length = strlen(finfo->ptr_u.hfinfo->blurb);
         } else {
-            length = strlen(finfo->hfinfo->name);
+            length = strlen(finfo->ptr_u.hfinfo->name);
         }
         if (finfo->length == 0) {
             len_str[0] = '\0';
@@ -962,11 +962,11 @@ tree_view_selection_changed_cb(GtkTreeSelection *sel, gpointer user_data _U_)
         }
         statusbar_pop_field_msg();	/* get rid of current help msg */
         if (length) {
-            length += strlen(finfo->hfinfo->abbrev) + strlen(len_str) + 10;
+            length += strlen(finfo->ptr_u.hfinfo->abbrev) + strlen(len_str) + 10;
             help_str = g_malloc(sizeof(gchar) * length);
             sprintf(help_str, "%s (%s)%s",
-                    (has_blurb) ? finfo->hfinfo->blurb : finfo->hfinfo->name,
-                    finfo->hfinfo->abbrev, len_str);
+                    (has_blurb) ? finfo->ptr_u.hfinfo->blurb : finfo->ptr_u.hfinfo->name,
+                    finfo->ptr_u.hfinfo->abbrev, len_str);
             statusbar_push_field_msg(help_str);
             g_free(help_str);
         } else {

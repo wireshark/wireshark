@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.9 2003/11/03 20:45:25 guy Exp $
+ * $Id: rtp_analysis.c,v 1.10 2003/11/24 22:11:55 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -1780,14 +1780,14 @@ static gboolean process_node(proto_item *ptree_node, header_field_info *hfinform
 
 	finfo = PITEM_FINFO(ptree_node);
 
-	if (hfinformation==(finfo->hfinfo)) {
+	if (hfinformation==(finfo->ptr_u.hfinfo)) {
 		hfssrc = proto_registrar_get_byname((gchar*) proto_field);
 		if (hfssrc == NULL)
 			return FALSE;
 		for(ptree_node=g_node_first_child(ptree_node); ptree_node!=NULL; 
 					ptree_node=g_node_next_sibling(ptree_node)) {
 			finfo=PITEM_FINFO(ptree_node);
-			if (hfssrc==finfo->hfinfo) {
+			if (hfssrc==finfo->ptr_u.hfinfo) {
 				if (hfinformation->type==FT_IPv4) {
 					ipv4 = fvalue_get(finfo->value);
 					*p_result = ipv4_get_net_order_addr(ipv4);

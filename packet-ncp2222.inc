@@ -11,7 +11,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp2222.inc,v 1.65 2003/10/23 08:16:50 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.66 2003/11/24 22:11:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -928,7 +928,7 @@ get_item_string(proto_item *item)
 char *
 get_item_name(proto_item *item)
 {
-	return PITEM_FINFO(item)->hfinfo->name;
+	return PITEM_FINFO(item)->ptr_u.hfinfo->name;
 }
 
 

@@ -1,7 +1,7 @@
 /* tap-protohierstat.c
  * protohierstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-protohierstat.c,v 1.3 2003/04/23 08:20:02 guy Exp $
+ * $Id: tap-protohierstat.c,v 1.4 2003/11/24 22:11:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -93,8 +93,8 @@ protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, void *d
 
 		/* first time we saw a protocol at this leaf */
 		if(rs->protocol==-1){
-			rs->protocol=fi->hfinfo->id;
-			rs->proto_name=fi->hfinfo->abbrev;
+			rs->protocol=fi->ptr_u.hfinfo->id;
+			rs->proto_name=fi->ptr_u.hfinfo->abbrev;
 			rs->frames=1;
 			rs->bytes=pinfo->fd->pkt_len;
 			rs->child=new_phs_t(rs);
@@ -104,7 +104,7 @@ protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, void *d
 
 		/* find this protocol in the list of siblings */
 		for(tmprs=rs;tmprs;tmprs=tmprs->sibling){
-			if(tmprs->protocol==fi->hfinfo->id){
+			if(tmprs->protocol==fi->ptr_u.hfinfo->id){
 				break;
 			}
 		}
@@ -115,8 +115,8 @@ protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, void *d
 				;
 			tmprs->sibling=new_phs_t(rs->parent);
 			rs=tmprs->sibling;
-			rs->protocol=fi->hfinfo->id;
-			rs->proto_name=fi->hfinfo->abbrev;
+			rs->protocol=fi->ptr_u.hfinfo->id;
+			rs->proto_name=fi->ptr_u.hfinfo->abbrev;
 		} else {
 			rs=tmprs;
 		}
