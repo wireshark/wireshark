@@ -8,7 +8,7 @@
 /* packet-x509sat.h
  * Routines for X.509 Selected Attribute Types packet dissection
  *
- * $Id: packet-x509sat-template.h 12203 2004-10-05 09:18:55Z guy $
+ * $Id: packet-x509sat-template.h 12545 2004-11-20 05:58:13Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -39,7 +39,7 @@ IMPORTS
 -- Directory string type 
 --This one is much better declared as this,  it is prettier at least
 --the octet string dissector can handle all of them
-DirectoryString ::= OCTET STRING
+DirectoryString ::= PrintableString
 --DirectoryString ::= CHOICE {
 --  teletexString    TeletexString,
 --  printableString  PrintableString,

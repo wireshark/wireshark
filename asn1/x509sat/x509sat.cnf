@@ -10,11 +10,50 @@ InformationFramework x509if
 DirectoryString
 UniqueIdentifier
 
+#.REGISTER
+CountryName     B "2.5.4.6"    "id-at-countryName"
+DirectoryString B "2.5.4.2"    "id-at-knowledgeInformation"
+DirectoryString B "2.5.4.10"   "id-at-organizationName"
+DirectoryString B "2.5.4.7.1"  "id-at-collectiveLocalityName"
+DirectoryString B "2.5.4.3"    "id-at-commonName"
+DirectoryString B "2.5.4.4"    "id-at-surname"
+DirectoryString B "2.5.4.42"   "id-at-givenName"
+DirectoryString B "2.5.4.43"   "id-at-initials"
+DirectoryString B "2.5.4.44"   "id-at-generationQualifier"
+DirectoryString B "2.5.4.51"   "id-at-houseIdentifier"
+DirectoryString B "2.5.4.54"   "id-at-dmdName"
+DirectoryString B "2.5.4.65"   "id-at-pseudonym"
+DirectoryString B "2.5.4.41"   "id-at-name"
+DirectoryString B "2.5.4.8.1"  "id-at-collectiveStateOrProvinceName"
+DirectoryString B "2.5.4.8"    "id-at-stateOrProvinceName"
+DirectoryString B "2.5.4.9"    "id-at-streetAddress"
+DirectoryString B "2.5.4.9.1"  "id-at-collectiveStreetAddress"
+DirectoryString B "2.5.4.10.1" "id-at-collectiveOrganizationName"
+DirectoryString B "2.5.4.7"    "id-at-localityName"
+DirectoryString B "2.5.4.11"   "id-at-organizationalUnitName"
+DirectoryString B "2.5.4.11.1" "id-at-collectiveOrganizationalUnitName"
+DirectoryString B "2.5.4.12"   "id-at-title"
+DirectoryString B "2.5.4.13"   "id-at-description"
+DirectoryString B "2.5.4.15"   "id-at-businessCategory"
+DirectoryString B "2.5.4.17"   "id-at-postalCode"
+DirectoryString B "2.5.4.17.1" "id-at-collectivePostalCode"
+DirectoryString B "2.5.4.18"   "id-at-postOfficeBox"
+DirectoryString B "2.5.4.18.1" "id-at-collectivePostOfficeBox"
+DirectoryString B "2.5.4.19"   "id-at-physicalDeliveryOfficeName"
+DirectoryString B "2.5.4.19.1" "id-at-collectivePhysicalDeliveryOfficeName"
+TelephoneNumber B "2.5.4.20"   "id-at-telephoneNumber"
+TelephoneNumber B "2.5.4.20.1" "id-at-collectiveTelephoneNumber"
+TelexNumber     B "2.5.4.21"   "id-at-telexNumber"
+TelexNumber     B "2.5.4.21.1" "id-at-collectiveTelexNumber"
+
 #.NO_EMIT
 
 #.TYPE_RENAME
 
 #.FIELD_RENAME
+
+#.FN_BODY DirectoryString
+	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
 
 #.END
 

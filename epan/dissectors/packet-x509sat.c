@@ -9,7 +9,7 @@
 /* packet-x509sat.c
  * Routines for X.509 Selected Attribute Types packet dissection
  *
- * $Id: packet-x509sat-template.c 12203 2004-10-05 09:18:55Z guy $
+ * $Id: packet-x509sat-template.c 12545 2004-11-20 05:58:13Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,44 +51,14 @@
 
 /* Initialize the protocol and registered fields */
 int proto_x509sat = -1;
-int hf_x509sat_countryName = -1;
-int hf_x509sat_organizationName = -1;
-int hf_x509sat_knowledgeInformation = -1;
-int hf_x509sat_name = -1;
-int hf_x509sat_commonName = -1;
-int hf_x509sat_surname = -1;
-int hf_x509sat_givenName = -1;
-int hf_x509sat_initials = -1;
-int hf_x509sat_generationQualifier = -1;
-int hf_x509sat_pseudonym = -1;
-int hf_x509sat_localityName = -1;
-int hf_x509sat_collectiveLocalityName = -1;
-int hf_x509sat_stateOrProvinceName = -1;
-int hf_x509sat_collectiveStateOrProvinceName = -1;
-int hf_x509sat_streetAddress = -1;
-int hf_x509sat_collectiveStreetAddress = -1;
-int hf_x509sat_houseIdentifier = -1;
-int hf_x509sat_collectiveOrganizationName = -1;
-int hf_x509sat_organizationalUnitName = -1;
-int hf_x509sat_collectiveOrganizationalUnitName = -1;
-int hf_x509sat_title = -1;
-int hf_x509sat_description = -1;
-int hf_x509sat_businessCategory = -1;
-int hf_x509sat_postalCode = -1;
-int hf_x509sat_collectivePostalCode = -1;
-int hf_x509sat_postOfficeBox = -1;
-int hf_x509sat_collectivePostOfficeBox = -1;
-int hf_x509sat_physicalDeliveryOfficeName = -1;
-int hf_x509sat_collectivePhysicalDeliveryOfficeName = -1;
-int hf_x509sat_dmdName = -1;
-int hf_x509sat_id_at_telexNumber = -1;
-int hf_x509sat_id_at_collectiveTelexNumber = -1;
-int hf_x509sat_id_at_telephoneNumber = -1;
-int hf_x509sat_id_at_collectiveTelephoneNumber = -1;
 /*aaa*/
 
 /*--- Included file: packet-x509sat-hf.c ---*/
 
+static int hf_x509sat_DirectoryString_PDU = -1;   /* DirectoryString */
+static int hf_x509sat_CountryName_PDU = -1;       /* CountryName */
+static int hf_x509sat_TelephoneNumber_PDU = -1;   /* TelephoneNumber */
+static int hf_x509sat_TelexNumber_PDU = -1;       /* TelexNumber */
 static int hf_x509sat_equality = -1;              /* AttributeType */
 static int hf_x509sat_substrings = -1;            /* AttributeType */
 static int hf_x509sat_greaterOrEqual = -1;        /* AttributeType */
@@ -135,8 +105,8 @@ static int dissect_approximateMatch(packet_info *pinfo, proto_tree *tree, tvbuff
 
 int
 dissect_x509sat_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
-  offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index,
-                                    NULL);
+	offset = dissect_ber_octet_string(implicit_tag, pinfo, tree, tvb, offset, hf_index, NULL);
+
 
   return offset;
 }
@@ -232,214 +202,25 @@ dissect_x509sat_TelexNumber(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset
   return offset;
 }
 
+/*--- PDUs ---*/
+
+static void dissect_DirectoryString_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_DirectoryString_PDU);
+}
+static void dissect_CountryName_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_CountryName(FALSE, tvb, 0, pinfo, tree, hf_x509sat_CountryName_PDU);
+}
+static void dissect_TelephoneNumber_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_TelephoneNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_TelephoneNumber_PDU);
+}
+static void dissect_TelexNumber_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+  dissect_x509sat_TelexNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_TelexNumber_PDU);
+}
+
 
 /*--- End of included file: packet-x509sat-fn.c ---*/
 
 
-static void
-dissect_x509sat_countryName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_CountryName(FALSE, tvb, 0, pinfo, tree, hf_x509sat_countryName);
-}
-
-static void
-dissect_x509sat_organizationName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_organizationName);
-}
-
-static void
-dissect_x509sat_knowledgeInformation_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_knowledgeInformation);
-}
-
-static void
-dissect_x509sat_name_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_name);
-}
-
-static void
-dissect_x509sat_commonName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_commonName);
-}
-
-static void
-dissect_x509sat_surname_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_surname);
-}
-
-static void
-dissect_x509sat_givenName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_givenName);
-}
-
-static void
-dissect_x509sat_initials_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_initials);
-}
-
-static void
-dissect_x509sat_generationQualifier_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_generationQualifier);
-}
-
-static void
-dissect_x509sat_pseudonym_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_pseudonym);
-}
-
-static void
-dissect_x509sat_localityName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_localityName);
-}
-
-static void
-dissect_x509sat_collectiveLocalityName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_collectiveLocalityName);
-}
-
-static void
-dissect_x509sat_stateOrProvinceName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_stateOrProvinceName);
-}
-
-static void
-dissect_x509sat_collectiveStateOrProvinceName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_collectiveStateOrProvinceName);
-}
-
-static void
-dissect_x509sat_streetAddress_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_streetAddress);
-}
-
-static void
-dissect_x509sat_collectiveStreetAddress_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_collectiveStreetAddress);
-}
-
-static void
-dissect_x509sat_houseIdentifier_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_houseIdentifier);
-}
-
-static void
-dissect_x509sat_collectiveOrganizationName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_collectiveOrganizationName);
-}
-
-static void
-dissect_x509sat_organizationalUnitName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_organizationalUnitName);
-}
-
-static void
-dissect_x509sat_collectiveOrganizationalUnitName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_collectiveOrganizationalUnitName);
-}
-
-static void
-dissect_x509sat_title_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_title);
-}
-
-static void
-dissect_x509sat_description_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_description);
-}
-
-static void
-dissect_x509sat_businessCategory_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_businessCategory);
-}
-
-static void
-dissect_x509sat_postalCode_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_postalCode);
-}
-
-static void
-dissect_x509sat_collectivePostalCode_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_collectivePostalCode);
-}
-
-static void
-dissect_x509sat_postOfficeBox_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_postOfficeBox);
-}
-
-static void
-dissect_x509sat_collectivePostOfficeBox_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_collectivePostOfficeBox);
-}
-
-static void
-dissect_x509sat_physicalDeliveryOfficeName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_physicalDeliveryOfficeName);
-}
-
-static void
-dissect_x509sat_collectivePhysicalDeliveryOfficeName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_collectivePhysicalDeliveryOfficeName);
-}
-
-static void
-dissect_x509sat_dmdName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_DirectoryString(FALSE, tvb, 0, pinfo, tree, hf_x509sat_dmdName);
-}
-
-
-static void
-dissect_x509sat_telexNumber_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_TelexNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_id_at_telexNumber);
-}
-
-static void
-dissect_x509sat_collectiveTelexNumber_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_TelexNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_id_at_collectiveTelexNumber);
-}
-
-static void
-dissect_x509sat_telephoneNumber_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_TelephoneNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_id_at_telephoneNumber);
-}
-
-static void
-dissect_x509sat_collectiveTelephoneNumber_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_x509sat_TelephoneNumber(FALSE, tvb, 0, pinfo, tree, hf_x509sat_id_at_collectiveTelephoneNumber);
-}
 /*bbb*/
 
 /*--- proto_register_x509sat ----------------------------------------------*/
@@ -447,146 +228,26 @@ void proto_register_x509sat(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-    { &hf_x509sat_countryName,
-      { "countryName", "x509sat.countryName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "Country Name", HFILL }},
-    { &hf_x509sat_organizationName,
-      { "organizationName", "x509sat.organizationName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "Organization Name", HFILL }},
-    { &hf_x509sat_knowledgeInformation,
-      { "knowledgeInformation", "x509sat.knowledgeInformation",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "knowledgeInformation", HFILL }},
-    { &hf_x509sat_name,
-      { "name", "x509sat.name",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "name", HFILL }},
-    { &hf_x509sat_commonName,
-      { "commonName", "x509sat.commonName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "commonName", HFILL }},
-    { &hf_x509sat_surname,
-      { "surname", "x509sat.surname",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "surname", HFILL }},
-    { &hf_x509sat_givenName,
-      { "givenName", "x509sat.givenName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "givenName", HFILL }},
-    { &hf_x509sat_initials,
-      { "initials", "x509sat.initials",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "initials", HFILL }},
-    { &hf_x509sat_generationQualifier,
-      { "generationQualifier", "x509sat.generationQualifier",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "generationQualifier", HFILL }},
-    { &hf_x509sat_pseudonym,
-      { "pseudonym", "x509sat.pseudonym",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "pseudonym", HFILL }},
-    { &hf_x509sat_localityName,
-      { "localityName", "x509sat.localityName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "localityName", HFILL }},
-    { &hf_x509sat_collectiveLocalityName,
-      { "collectiveLocalityName", "x509sat.collectiveLocalityName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "collectiveLocalityName", HFILL }},
-    { &hf_x509sat_stateOrProvinceName,
-      { "stateOrProvinceName", "x509sat.stateOrProvinceName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "stateOrProvinceName", HFILL }},
-    { &hf_x509sat_collectiveStateOrProvinceName,
-      { "collectiveStateOrProvinceName", "x509sat.collectiveStateOrProvinceName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "collectiveStateOrProvinceName", HFILL }},
-    { &hf_x509sat_streetAddress,
-      { "streetAddress", "x509sat.streetAddress",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "streetAddress", HFILL }},
-    { &hf_x509sat_collectiveStreetAddress,
-      { "collectiveStreetAddress", "x509sat.collectiveStreetAddress",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "collectiveStreetAddress", HFILL }},
-    { &hf_x509sat_houseIdentifier,
-      { "houseIdentifier", "x509sat.houseIdentifier",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "houseIdentifier", HFILL }},
-    { &hf_x509sat_collectiveOrganizationName,
-      { "collectiveOrganizationName", "x509sat.collectiveOrganizationName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "collectiveOrganizationName", HFILL }},
-    { &hf_x509sat_organizationalUnitName,
-      { "organizationalUnitName", "x509sat.organizationalUnitName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "organizationalUnitName", HFILL }},
-    { &hf_x509sat_collectiveOrganizationalUnitName,
-      { "collectiveOrganizationalUnitName", "x509sat.collectiveOrganizationalUnitName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "collectiveOrganizationalUnitName", HFILL }},
-    { &hf_x509sat_title,
-      { "title", "x509sat.title",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "title", HFILL }},
-    { &hf_x509sat_description,
-      { "description", "x509sat.description",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "description", HFILL }},
-    { &hf_x509sat_businessCategory,
-      { "businessCategory", "x509sat.businessCategory",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "businessCategory", HFILL }},
-    { &hf_x509sat_postalCode,
-      { "postalCode", "x509sat.postalCode",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "postalCode", HFILL }},
-    { &hf_x509sat_collectivePostalCode,
-      { "collectivePostalCode", "x509sat.collectivePostalCode",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "collectivePostalCode", HFILL }},
-    { &hf_x509sat_postOfficeBox,
-      { "postOfficeBox", "x509sat.postOfficeBox",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "postOfficeBox", HFILL }},
-    { &hf_x509sat_collectivePostOfficeBox,
-      { "collectivePostOfficeBox", "x509sat.collectivePostOfficeBox",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "collectivePostOfficeBox", HFILL }},
-    { &hf_x509sat_physicalDeliveryOfficeName,
-      { "physicalDeliveryOfficeName", "x509sat.physicalDeliveryOfficeName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "physicalDeliveryOfficeName", HFILL }},
-    { &hf_x509sat_collectivePhysicalDeliveryOfficeName,
-      { "collectivePhysicalDeliveryOfficeName", "x509sat.collectivePhysicalDeliveryOfficeName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "collectivePhysicalDeliveryOfficeName", HFILL }},
-    { &hf_x509sat_dmdName,
-      { "dmdName", "x509sat.dmdName",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "dmdName", HFILL }},
-    { &hf_x509sat_id_at_telexNumber,
-      { "telexNumber", "x509sat.id_at_telexNumber",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "telexNumber", HFILL }},
-    { &hf_x509sat_id_at_collectiveTelexNumber,
-      { "collectiveTelexNumber", "x509sat.id_at_collectiveTelexNumber",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "collectiveTelexNumber", HFILL }},
-    { &hf_x509sat_id_at_telephoneNumber,
-      { "telephoneNumber", "x509sat.id_at_telephoneNumber",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "telephoneNumber", HFILL }},
-    { &hf_x509sat_id_at_collectiveTelephoneNumber,
-      { "collectiveTelephoneNumber", "x509sat.id_at_collectiveTelephoneNumber",
-        FT_STRING, BASE_NONE, NULL, 0,
-        "collectiveTelephoneNumber", HFILL }},
 /*ccc*/
 
 /*--- Included file: packet-x509sat-hfarr.c ---*/
 
+    { &hf_x509sat_DirectoryString_PDU,
+      { "DirectoryString", "x509sat.DirectoryString",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "DirectoryString", HFILL }},
+    { &hf_x509sat_CountryName_PDU,
+      { "CountryName", "x509sat.CountryName",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "CountryName", HFILL }},
+    { &hf_x509sat_TelephoneNumber_PDU,
+      { "TelephoneNumber", "x509sat.TelephoneNumber",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "TelephoneNumber", HFILL }},
+    { &hf_x509sat_TelexNumber_PDU,
+      { "TelexNumber", "x509sat.TelexNumber",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "TelexNumber", HFILL }},
     { &hf_x509sat_equality,
       { "equality", "x509sat.equality",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -648,40 +309,47 @@ void proto_register_x509sat(void) {
 
 /*--- proto_reg_handoff_x509sat -------------------------------------------*/
 void proto_reg_handoff_x509sat(void) {
-	register_ber_oid_dissector("2.5.4.2", dissect_x509sat_knowledgeInformation_callback, proto_x509sat, "id-at-knowledgeInformation");
-	register_ber_oid_dissector("2.5.4.3", dissect_x509sat_commonName_callback, proto_x509sat, "id-at-commonName");
-	register_ber_oid_dissector("2.5.4.4", dissect_x509sat_surname_callback, proto_x509sat, "id-at-surname");
-	register_ber_oid_dissector("2.5.4.6", dissect_x509sat_countryName_callback, proto_x509sat, "id-at-countryName");
-	register_ber_oid_dissector("2.5.4.7", dissect_x509sat_localityName_callback, proto_x509sat, "id-at-localityName");
-	register_ber_oid_dissector("2.5.4.7.1", dissect_x509sat_collectiveLocalityName_callback, proto_x509sat, "id-at-collectiveLocalityName");
-	register_ber_oid_dissector("2.5.4.8", dissect_x509sat_stateOrProvinceName_callback, proto_x509sat, "id-at-stateOrProvinceName");
-	register_ber_oid_dissector("2.5.4.8.1", dissect_x509sat_collectiveStateOrProvinceName_callback, proto_x509sat, "id-at-collectiveStateOrProvinceName");
-	register_ber_oid_dissector("2.5.4.9", dissect_x509sat_streetAddress_callback, proto_x509sat, "id-at-streetAddress");
-	register_ber_oid_dissector("2.5.4.9.1", dissect_x509sat_collectiveStreetAddress_callback, proto_x509sat, "id-at-collectiveStreetAddress");
-	register_ber_oid_dissector("2.5.4.10", dissect_x509sat_organizationName_callback, proto_x509sat, "id-at-organizationName");
-	register_ber_oid_dissector("2.5.4.10.1", dissect_x509sat_collectiveOrganizationName_callback, proto_x509sat, "id-at-collectiveOrganizationName");
-	register_ber_oid_dissector("2.5.4.11", dissect_x509sat_organizationalUnitName_callback, proto_x509sat, "id-at-organizationalUnitName");
-	register_ber_oid_dissector("2.5.4.11.1", dissect_x509sat_collectiveOrganizationalUnitName_callback, proto_x509sat, "id-at-collectiveOrganizationalUnitName");
-	register_ber_oid_dissector("2.5.4.12", dissect_x509sat_title_callback, proto_x509sat, "id-at-title");
-	register_ber_oid_dissector("2.5.4.13", dissect_x509sat_description_callback, proto_x509sat, "id-at-description");
-	register_ber_oid_dissector("2.5.4.15", dissect_x509sat_businessCategory_callback, proto_x509sat, "id-at-businessCategory");
-	register_ber_oid_dissector("2.5.4.17", dissect_x509sat_postalCode_callback, proto_x509sat, "id-at-postalCode");
-	register_ber_oid_dissector("2.5.4.17.1", dissect_x509sat_collectivePostalCode_callback, proto_x509sat, "id-at-collectivePostalCode");
-	register_ber_oid_dissector("2.5.4.18", dissect_x509sat_postOfficeBox_callback, proto_x509sat, "id-at-postOfficeBox");
-	register_ber_oid_dissector("2.5.4.18.1", dissect_x509sat_collectivePostOfficeBox_callback, proto_x509sat, "id-at-collectivePostOfficeBox");
-	register_ber_oid_dissector("2.5.4.19", dissect_x509sat_physicalDeliveryOfficeName_callback, proto_x509sat, "id-at-physicalDeliveryOfficeName");
-	register_ber_oid_dissector("2.5.4.19.1", dissect_x509sat_collectivePhysicalDeliveryOfficeName_callback, proto_x509sat, "id-at-collectivePhysicalDeliveryOfficeName");
-	register_ber_oid_dissector("2.5.4.20", dissect_x509sat_telephoneNumber_callback, proto_x509sat, "id-at-telephoneNumber");
-	register_ber_oid_dissector("2.5.4.20.1", dissect_x509sat_collectiveTelephoneNumber_callback, proto_x509sat, "id-at-collectiveTelephoneNumber");
-	register_ber_oid_dissector("2.5.4.21", dissect_x509sat_telexNumber_callback, proto_x509sat, "id-at-telexNumber");
-	register_ber_oid_dissector("2.5.4.21.1", dissect_x509sat_collectiveTelexNumber_callback, proto_x509sat, "id-at-collectiveTelexNumber");
-	register_ber_oid_dissector("2.5.4.41", dissect_x509sat_name_callback, proto_x509sat, "id-at-name");
-	register_ber_oid_dissector("2.5.4.42", dissect_x509sat_givenName_callback, proto_x509sat, "id-at-givenName");
-	register_ber_oid_dissector("2.5.4.43", dissect_x509sat_initials_callback, proto_x509sat, "id-at-initials");
-	register_ber_oid_dissector("2.5.4.44", dissect_x509sat_generationQualifier_callback, proto_x509sat, "id-at-generationQualifier");
-	register_ber_oid_dissector("2.5.4.51", dissect_x509sat_houseIdentifier_callback, proto_x509sat, "id-at-houseIdentifier");
-	register_ber_oid_dissector("2.5.4.54", dissect_x509sat_dmdName_callback, proto_x509sat, "id-at-dmdName");
-	register_ber_oid_dissector("2.5.4.65", dissect_x509sat_pseudonym_callback, proto_x509sat, "id-at-pseudonym");
+
+/*--- Included file: packet-x509sat-dis-tab.c ---*/
+
+ register_ber_oid_dissector("2.5.4.6", dissect_CountryName_PDU, proto_x509sat, "id-at-countryName");
+ register_ber_oid_dissector("2.5.4.2", dissect_DirectoryString_PDU, proto_x509sat, "id-at-knowledgeInformation");
+ register_ber_oid_dissector("2.5.4.10", dissect_DirectoryString_PDU, proto_x509sat, "id-at-organizationName");
+ register_ber_oid_dissector("2.5.4.7.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectiveLocalityName");
+ register_ber_oid_dissector("2.5.4.3", dissect_DirectoryString_PDU, proto_x509sat, "id-at-commonName");
+ register_ber_oid_dissector("2.5.4.4", dissect_DirectoryString_PDU, proto_x509sat, "id-at-surname");
+ register_ber_oid_dissector("2.5.4.42", dissect_DirectoryString_PDU, proto_x509sat, "id-at-givenName");
+ register_ber_oid_dissector("2.5.4.43", dissect_DirectoryString_PDU, proto_x509sat, "id-at-initials");
+ register_ber_oid_dissector("2.5.4.44", dissect_DirectoryString_PDU, proto_x509sat, "id-at-generationQualifier");
+ register_ber_oid_dissector("2.5.4.51", dissect_DirectoryString_PDU, proto_x509sat, "id-at-houseIdentifier");
+ register_ber_oid_dissector("2.5.4.54", dissect_DirectoryString_PDU, proto_x509sat, "id-at-dmdName");
+ register_ber_oid_dissector("2.5.4.65", dissect_DirectoryString_PDU, proto_x509sat, "id-at-pseudonym");
+ register_ber_oid_dissector("2.5.4.41", dissect_DirectoryString_PDU, proto_x509sat, "id-at-name");
+ register_ber_oid_dissector("2.5.4.8.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectiveStateOrProvinceName");
+ register_ber_oid_dissector("2.5.4.8", dissect_DirectoryString_PDU, proto_x509sat, "id-at-stateOrProvinceName");
+ register_ber_oid_dissector("2.5.4.9", dissect_DirectoryString_PDU, proto_x509sat, "id-at-streetAddress");
+ register_ber_oid_dissector("2.5.4.9.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectiveStreetAddress");
+ register_ber_oid_dissector("2.5.4.10.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectiveOrganizationName");
+ register_ber_oid_dissector("2.5.4.7", dissect_DirectoryString_PDU, proto_x509sat, "id-at-localityName");
+ register_ber_oid_dissector("2.5.4.11", dissect_DirectoryString_PDU, proto_x509sat, "id-at-organizationalUnitName");
+ register_ber_oid_dissector("2.5.4.11.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectiveOrganizationalUnitName");
+ register_ber_oid_dissector("2.5.4.12", dissect_DirectoryString_PDU, proto_x509sat, "id-at-title");
+ register_ber_oid_dissector("2.5.4.13", dissect_DirectoryString_PDU, proto_x509sat, "id-at-description");
+ register_ber_oid_dissector("2.5.4.15", dissect_DirectoryString_PDU, proto_x509sat, "id-at-businessCategory");
+ register_ber_oid_dissector("2.5.4.17", dissect_DirectoryString_PDU, proto_x509sat, "id-at-postalCode");
+ register_ber_oid_dissector("2.5.4.17.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectivePostalCode");
+ register_ber_oid_dissector("2.5.4.18", dissect_DirectoryString_PDU, proto_x509sat, "id-at-postOfficeBox");
+ register_ber_oid_dissector("2.5.4.18.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectivePostOfficeBox");
+ register_ber_oid_dissector("2.5.4.19", dissect_DirectoryString_PDU, proto_x509sat, "id-at-physicalDeliveryOfficeName");
+ register_ber_oid_dissector("2.5.4.19.1", dissect_DirectoryString_PDU, proto_x509sat, "id-at-collectivePhysicalDeliveryOfficeName");
+ register_ber_oid_dissector("2.5.4.20", dissect_TelephoneNumber_PDU, proto_x509sat, "id-at-telephoneNumber");
+ register_ber_oid_dissector("2.5.4.20.1", dissect_TelephoneNumber_PDU, proto_x509sat, "id-at-collectiveTelephoneNumber");
+ register_ber_oid_dissector("2.5.4.21", dissect_TelexNumber_PDU, proto_x509sat, "id-at-telexNumber");
+ register_ber_oid_dissector("2.5.4.21.1", dissect_TelexNumber_PDU, proto_x509sat, "id-at-collectiveTelexNumber");
+
+
+/*--- End of included file: packet-x509sat-dis-tab.c ---*/
+
 
 /*ddd*/
 }
