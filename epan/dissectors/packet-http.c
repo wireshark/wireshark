@@ -156,6 +156,7 @@ typedef void (*RequestDissector)(tvbuff_t*, proto_tree*, int);
 typedef struct {
 	char	*content_type;
 	char	*content_type_parameters;
+	gboolean have_content_length;
 	long	content_length;	/* XXX - make it 64-bit? */
 	char	*content_encoding;
 	char	*transfer_encoding;
@@ -363,7 +364,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	http_type = HTTP_OTHERS;	/* type not known yet */
 	headers.content_type = NULL;	/* content type not known yet */
 	headers.content_type_parameters = NULL;	/* content type parameters too */
-	headers.content_length = -1;	/* content length not known yet */
+	headers.have_content_length = FALSE;	/* content length not known yet */
 	headers.content_encoding = NULL; /* content encoding not known yet */
 	headers.transfer_encoding = NULL; /* transfer encoding not known yet */
 	saw_req_resp_or_header = FALSE;	/* haven't seen anything yet */
@@ -604,7 +605,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * the response in order to handle that.
 	 */
 	datalen = tvb_length_remaining(tvb, offset);
-	if (headers.content_length != -1) {
+	if (headers.have_content_length && headers.content_length != -1) {
 		if (datalen > headers.content_length)
 			datalen = headers.content_length;
 
@@ -626,12 +627,43 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (reported_datalen > headers.content_length)
 			reported_datalen = headers.content_length;
 	} else {
-		if ((stat_info->response_code/100) == 1 ||
-		    stat_info->response_code == 204 ||
-		    stat_info->response_code == 304)
-			datalen = 0;	/* no content! */
-		else
+		switch (http_type) {
+
+		case HTTP_REQUEST:
+			/*
+			 * Requests have no content if there's no
+			 * Content-Length header and no Transfer-Encoding
+			 * header.
+			 */
+			if (headers.transfer_encoding == NULL)
+				datalen = 0;
+			else
+				reported_datalen = -1;
+			break;
+
+		case HTTP_RESPONSE:
+			if ((stat_info->response_code/100) == 1 ||
+			    stat_info->response_code == 204 ||
+			    stat_info->response_code == 304)
+				datalen = 0;	/* no content! */
+			else {
+				/*
+				 * XXX - responses to HEAD requests,
+				 * and possibly other responses,
+				 * "MUST NOT" include a
+				 * message-body.
+				 */
+				reported_datalen = -1;
+			}
+			break;
+
+		default:
+			/*
+			 * XXX - what about HTTP_NOTIFICATION?
+			 */
 			reported_datalen = -1;
+			break;
+		}
 	}
 
 	if (datalen > 0) {
@@ -1446,8 +1478,18 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			eh_ptr->content_length = strtol(value, &p, 10);
 			up = (guchar *)p;
 			if (eh_ptr->content_length < 0 || p == value ||
-			    (*up != '\0' && !isspace(*up)))
-				eh_ptr->content_length = -1;	/* not valid */
+			    (*up != '\0' && !isspace(*up))) {
+				/*
+				 * Content length not valid; pretend
+				 * we don't have it.
+				 */
+				eh_ptr->have_content_length = FALSE;
+			} else {
+				/*
+				 * We do have a valid content length.
+				 */
+				eh_ptr->have_content_length = TRUE;
+			}
 			break;
 
 		case HDR_CONTENT_ENCODING:
