@@ -2742,7 +2742,7 @@ guint8	i;
 				}
 				*input_address = *input_address + 1;
 
-				if ( input_bit_order & 0x0001 ){
+				if ((input_bit_order & 0x0001)==0){
 					/* 
 					 * P bit = 0
 					 */
