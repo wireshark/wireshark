@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.17 2001/01/03 06:56:02 guy Exp $
+ * $Id: packet-gryphon.c,v 1.18 2001/01/04 04:56:20 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -46,7 +46,6 @@
 # include <netinet/in.h>
 #endif
 #include "packet.h"
-#include "dfilter.h"
 #include "packet-gryphon.h"
 
 G_MODULE_EXPORT const gchar version[] = VERSION;
