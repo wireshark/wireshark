@@ -15,7 +15,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@clarent.com>
  *
- * $Id: packet-sip.c,v 1.25 2002/03/29 01:25:57 gerald Exp $
+ * $Id: packet-sip.c,v 1.26 2002/05/01 08:11:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,7 +79,7 @@ static const char *sip_methods[] = {
         "SUBSCRIBE"
 };
 
-static gboolean sip_is_request(tvbuff_t *tvb, guint32 offset, gint eol);
+static gboolean sip_is_request(tvbuff_t *tvb, gint eol);
 static gboolean sip_is_known_request(tvbuff_t *tvb, guint32 offset);
 static gint sip_get_msg_offset(tvbuff_t *tvb, guint32 offset);
  
@@ -109,7 +109,7 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset = 0;
         eol = tvb_find_line_end(tvb, 0, -1, &next_offset);
         /* XXX - Check for a valid status message as well. */
-        is_request = sip_is_request(tvb, 0, eol);
+        is_request = sip_is_request(tvb, eol);
         is_known_request = sip_is_known_request(tvb, 0);
         /* XXX - Is this case-sensitive?  RFC 2543 didn't explicitly say. */
         if (tvb_strneql(tvb, 0, SIP2_HDR, SIP2_HDR_LEN) != 0 && ! is_request)
@@ -199,7 +199,7 @@ static gint sip_get_msg_offset(tvbuff_t *tvb, guint32 offset)
  * Request-Line  =  Method SP Request-URI SP SIP-Version CRLF
  */ 
 
-static gboolean sip_is_request(tvbuff_t *tvb, guint32 offset, gint eol)
+static gboolean sip_is_request(tvbuff_t *tvb, gint eol)
 {
         gint meth_len, req_len, req_colon_pos;
         guint8 req_start, ver_start, ver_len;
