@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-lmp.c,v 1.21 2004/05/24 02:25:18 guy Exp $
+ * $Id: packet-lmp.c,v 1.22 2004/07/02 08:38:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -983,11 +983,6 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				cksum);
 	}
 
-	proto_tree_add_text(lmp_header_tree, tvb, offset+8, 4,
-			    "Local Control Channel ID: %d (%s)",
-			    tvb_get_ntohl(tvb, offset+8),
-			    ip_to_str(tvb_get_ptr(tvb, offset+8, 4)));
-
 	offset += 8;
 	len = 8;
 	while (len < msg_length) {
@@ -1267,7 +1262,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2+12, 4,
 					"Transmission Rate: %.10g", tvb_get_ntohieee_float(tvb, offset2+12));
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2+16, 4,
-					"Wavelength: %d", tvb_get_ntohl(tvb, offset2+4));
+					"Wavelength: %d", tvb_get_ntohl(tvb, offset2+16));
 		    break;
 		default:
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
@@ -1445,7 +1440,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    tvb_get_ntohl(tvb, offset2+l+2));
 			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+4, 4,
 					    "Wavelength: %d",
-					    tvb_get_ntohl(tvb, offset2+l+2));
+					    tvb_get_ntohl(tvb, offset2+l+4));
 			break;
 
 		    default:
@@ -1626,6 +1621,8 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    "Data (%d bytes)", mylen);
 			break;
 		}
+		break;
+		
 	    default:
 		proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
 					    "Data (%d bytes)", mylen);
@@ -1808,7 +1805,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2+12, 4,
 					"Transmission Rate: %.10g", tvb_get_ntohieee_float(tvb, offset2+12));
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2+16, 4,
-					"Wavelength: %d", tvb_get_ntohl(tvb, offset2+4));
+					"Wavelength: %d", tvb_get_ntohl(tvb, offset2+16));
 		    break;
 		default:
 		    proto_tree_add_text(lmp_object_tree, tvb, offset2, mylen,
@@ -1983,10 +1980,10 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		    case 2:
 			proto_item_set_text(ti2, "Wavelength: %d",
-					    tvb_get_ntohl(tvb, offset2+l+2));
+					    tvb_get_ntohl(tvb, offset2+l+4));
 			proto_tree_add_text(lmp_subobj_tree, tvb, offset2+l+4, 4,
 					    "Wavelength: %d",
-					    tvb_get_ntohl(tvb, offset2+l+2));
+					    tvb_get_ntohl(tvb, offset2+l+4));
 			break;
 			    
 		    default:
