@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.231 2002/03/19 22:12:03 guy Exp $
+ * $Id: packet-smb.c,v 1.232 2002/03/19 23:14:39 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6544,6 +6544,7 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 	proto_tree *tree = NULL;
 	int old_offset = offset, sa_offset = offset;
         guint *s_auths = NULL;
+	guint rid;
 	guint8 revision;
 	guint8 num_auth;
         guint auth = 0;   /* FIXME: What if it is larger than 32-bits */
@@ -6592,8 +6593,10 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 
           s_auths = g_malloc(sizeof(guint) * num_auth);
 
-	  /* sub authorities */
-	  for(i=0;i<num_auth;i++){
+	  /* sub authorities, leave RID to last */
+	  /* FIXME: If we take an exception now, we lose the whole 
+	     sub-authorities string thang */
+	  for(i=0; i < (num_auth > 4?(num_auth - 1):num_auth); i++){
 	    /* XXX should not be letohl but native byteorder according to
 	       samba header files. considering that all non-x86 NT ports
 	       are dead we can (?) assume that non le byte encodings
@@ -6606,12 +6609,19 @@ dissect_nt_sid(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent
 
           gstr = g_string_new("");
           
-          for (i = 0; i < num_auth; i++)
+          for (i = 0; i < (num_auth>4?(num_auth - 1):num_auth); i++)
               g_string_sprintfa(gstr, (i>0 ? "-%u" : "%u"), s_auths[i]);
 
           proto_tree_add_text(tree, tvb, sa_offset, num_auth * 4, "Sub-authorities: %s", gstr->str);
 
-	  proto_item_append_text(item, ": S-1-%u-%s", auth, gstr->str);  
+	  if (num_auth > 4) {
+	    rid = tvb_get_letohl(tvb, offset);
+	    proto_tree_add_text(tree, tvb, offset, 4, "RID: %u", rid);
+	    proto_item_append_text(item, ": S-1-%u-%s-%u", auth, gstr->str, rid);
+	  }
+	  else {
+	    proto_item_append_text(item, ": S-1-%u-%s", auth, gstr->str);  
+	  }
 
 	}
 
