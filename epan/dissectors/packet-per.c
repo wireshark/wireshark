@@ -356,8 +356,9 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 
 	if(!length){
 		/* there is no string at all, so dont do any byte alignment */
-		byte_aligned=FALSE;
-	}
+		/* byte_aligned=FALSE; */
+		/* Advance offset to next 'element' */
+		offset = offset + 1;	}
 
 	if(byte_aligned){
 		BYTE_ALIGN_OFFSET(offset);
