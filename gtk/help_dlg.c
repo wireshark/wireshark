@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.33 2003/03/02 19:21:31 jmayer Exp $
+ * $Id: help_dlg.c,v 1.34 2003/03/03 21:59:42 deniel Exp $
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
@@ -53,7 +53,7 @@ typedef enum {
 
 static void help_close_cb(GtkWidget *w, gpointer data);
 static void help_destroy_cb(GtkWidget *w, gpointer data);
-static void insert_text(GtkWidget *w, char *buffer, int nchars);
+static void insert_text(GtkWidget *w, const char *buffer, int nchars);
 static void set_help_text(GtkWidget *w, help_type_t type);
 
 /*
@@ -249,36 +249,6 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_notebook_append_page(GTK_NOTEBOOK(help_nb), dfilter_vb, label);
 #endif
 
-  /* FAQ help (this one has no horizontal scrollbar) */
-
-  faq_vb = gtk_vbox_new(FALSE, 0);
-  gtk_container_border_width(GTK_CONTAINER(faq_vb), 1);
-  txt_scrollw = scrolled_window_new(NULL, NULL);
-  gtk_box_pack_start(GTK_BOX(faq_vb), txt_scrollw, TRUE, TRUE, 0);
-#if GTK_MAJOR_VERSION < 2
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
-				 GTK_POLICY_NEVER,
-				 GTK_POLICY_ALWAYS);
-  faq_text = gtk_text_new(NULL, NULL );
-  gtk_text_set_editable(GTK_TEXT(faq_text), FALSE);
-  gtk_text_set_word_wrap(GTK_TEXT(faq_text), TRUE);
-  gtk_text_set_line_wrap(GTK_TEXT(faq_text), TRUE);
-#else
-  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
-				 GTK_POLICY_NEVER,
-				 GTK_POLICY_AUTOMATIC);
-  faq_text = gtk_text_view_new();
-  gtk_text_view_set_editable(GTK_TEXT_VIEW(faq_text), FALSE);
-  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(faq_text), GTK_WRAP_WORD);
-#endif
-  set_help_text(faq_text, FAQ_HELP);
-  gtk_container_add(GTK_CONTAINER(txt_scrollw), faq_text);
-  gtk_widget_show(txt_scrollw);
-  gtk_widget_show(faq_text);
-  gtk_widget_show(faq_vb);
-  label = gtk_label_new("FAQ");
-  gtk_notebook_append_page(GTK_NOTEBOOK(help_nb), faq_vb, label);
-
   /* capture filter help (this one has no horizontal scrollbar) */
 
   cfilter_vb = gtk_vbox_new(FALSE, 0);
@@ -308,6 +278,36 @@ void help_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_widget_show(cfilter_vb);
   label = gtk_label_new("Capture Filters");
   gtk_notebook_append_page(GTK_NOTEBOOK(help_nb), cfilter_vb, label);
+
+  /* FAQ help (this one has no horizontal scrollbar) */
+
+  faq_vb = gtk_vbox_new(FALSE, 0);
+  gtk_container_border_width(GTK_CONTAINER(faq_vb), 1);
+  txt_scrollw = scrolled_window_new(NULL, NULL);
+  gtk_box_pack_start(GTK_BOX(faq_vb), txt_scrollw, TRUE, TRUE, 0);
+#if GTK_MAJOR_VERSION < 2
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
+				 GTK_POLICY_NEVER,
+				 GTK_POLICY_ALWAYS);
+  faq_text = gtk_text_new(NULL, NULL );
+  gtk_text_set_editable(GTK_TEXT(faq_text), FALSE);
+  gtk_text_set_word_wrap(GTK_TEXT(faq_text), TRUE);
+  gtk_text_set_line_wrap(GTK_TEXT(faq_text), TRUE);
+#else
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(txt_scrollw),
+				 GTK_POLICY_NEVER,
+				 GTK_POLICY_AUTOMATIC);
+  faq_text = gtk_text_view_new();
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(faq_text), FALSE);
+  gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(faq_text), GTK_WRAP_WORD);
+#endif
+  set_help_text(faq_text, FAQ_HELP);
+  gtk_container_add(GTK_CONTAINER(txt_scrollw), faq_text);
+  gtk_widget_show(txt_scrollw);
+  gtk_widget_show(faq_text);
+  gtk_widget_show(faq_vb);
+  label = gtk_label_new("FAQ");
+  gtk_notebook_append_page(GTK_NOTEBOOK(help_nb), faq_vb, label);
 
   /* XXX add other help panels here ... */
 
@@ -345,7 +345,7 @@ static void help_destroy_cb(GtkWidget *w _U_, gpointer data _U_)
   help_w = NULL;
 }
 
-static void insert_text(GtkWidget *w, char *buffer, int nchars)
+static void insert_text(GtkWidget *w, const char *buffer, int nchars)
 {
 #if GTK_MAJOR_VERSION < 2
     gtk_text_insert(GTK_TEXT(w), m_r_font, NULL, NULL, buffer, nchars);
@@ -361,18 +361,15 @@ static void insert_text(GtkWidget *w, char *buffer, int nchars)
 #endif
 }
 
-static char *proto_help =
+static const char *proto_help =
 "The following protocols (and packet types) are currently\n"
 "supported by Ethereal:\n\n";
 
-static char *dfilter_help =
+static const char *dfilter_help =
 "The following per-protocol fields can be used in display\n"
 "filters:\n";
 
-/* FAQ_PARTS, FAQ_SIZE, faq_part[0] ... faq_part[FAQ_PARTS-1] */
-#include "../FAQ.include"
-
-static char *cfilter_help =
+static const char *cfilter_help =
 "Packet capturing is performed with the pcap library. The capture filter "
 "syntax follows the rules of this library.\nSo this syntax is different "
 "from the display filter syntax: see manual page of tcpdump.\n"
@@ -382,22 +379,32 @@ static char *cfilter_help =
 ;
 #endif
 
-static char *overview_help =
-"Ethereal is a GUI network protocol analyzer. It lets you interactively "
-"browse packet data from a live network or from a previously saved capture "
-"file.\n\nEthereal knows how to read libpcap capture files, including those "
-"of tcpdump. In addition, Ethereal can read capture files from snoop "
-"(including Shomiti) and atmsnoop, LanAlyzer, Sniffer (compressed or "
-"uncompressed), Microsoft Network Monitor, AIX's iptrace, NetXray, "
-"Sniffer Pro, RADCOM's WAN/LAN analyzer, Lucent/Ascend router debug output, "
-"HP-UX's nettl, the dump output from Toshiba's ISDN routers, the output from "
-"i4btrace from the ISDN4BSD project, and output in IPLog format from the "
-"Cisco Secure Intrusion Detection System.\n\n"
-"There is no need to tell Ethereal what type of file you are reading; it will "
-"determine the file type by itself. Ethereal is also capable of reading any "
-"of these file formats if they are compressed using gzip. Ethereal recognizes "
-"this directly from the file; the '.gz' extension is not required for this "
-"purpose.";
+static const char *overview_help =
+"Ethereal is a GUI network protocol analyzer.  It lets you interactively "
+"browse packet data from a live network or from a previously saved "
+"capture file.  Ethereal's native capture file format is libpcap format, "
+"which is also the format used by tcpdump and various other tools.  In "
+"addition, Ethereal can read capture files from snoop and atmsnoop, "
+"Shomiti/Finisar Surveyor, Novell LANalyzer, Network General/Network "
+"Associates DOS-based Sniffer (compressed or uncompressed), Microsoft "
+"Network Monitor, AIX's iptrace, Cinco Networks NetXRay, Network "
+"Associates Windows-based Sniffer, AG Group/WildPackets "
+"EtherPeek/TokenPeek/AiroPeek, RADCOM's WAN/LAN analyzer, Lucent/Ascend "
+"router debug output, HP-UX's nettl, the dump output from Toshiba's ISDN "
+"routers, the output from i4btrace from the ISDN4BSD project, the output "
+"in IPLog format from the Cisco Secure Intrusion Detection System, pppd "
+"logs (pppdump format), the output from VMS's TCPIPtrace utility, the "
+"text output from the DBS Etherwatch VMS utility, traffic capture files "
+"from Visual Networks' Visual UpTime, and the output from CoSine L2 debug."
+"\n\n"
+"There is no need to tell Ethereal what type of file you are reading; " 
+"it will determine the file type by itself.  Ethereal is also "
+"capable of reading any of these file formats if they are compressed "
+"using gzip.  Ethereal recognizes this directly from the file; the '.gz' "
+"extension is not required for this purpose.";
+
+/* FAQ_PARTS, FAQ_SIZE, faq_part[0] ... faq_part[FAQ_PARTS-1] */
+#include "../FAQ.include"
 
 static void set_help_text(GtkWidget *w, help_type_t type)
 {
@@ -405,7 +412,6 @@ static void set_help_text(GtkWidget *w, help_type_t type)
 #define BUFF_LEN 4096
 #define B_LEN    256
   char buffer[BUFF_LEN];
-  char faq_help[FAQ_SIZE];
   header_field_info *hfinfo;
   int i, len, maxlen = 0, maxlen2 = 0;
 #if GTK_MAJOR_VERSION < 2
@@ -546,10 +552,8 @@ static void set_help_text(GtkWidget *w, help_type_t type)
     break;
   case FAQ_HELP :
     for (i=0; i<FAQ_PARTS; i++) {
-	/* this is O(n^2) but with very small n */
-	strcat(faq_help, faq_part[i]);
+      insert_text(w, faq_part[i], strlen(faq_part[i]));
     }
-    insert_text(w, faq_help, -1);
     break;
   case CFILTER_HELP :
     insert_text(w, cfilter_help, -1);
@@ -614,6 +618,13 @@ void help_redraw(void)
     set_help_text(cfilter_text, CFILTER_HELP);
 #if GTK_MAJOR_VERSION < 2
     gtk_text_thaw(GTK_TEXT(cfilter_text));
+
+    gtk_text_freeze(GTK_TEXT(faq_text));
+#endif
+    clear_help_text(faq_text);
+    set_help_text(faq_text, FAQ_HELP);
+#if GTK_MAJOR_VERSION < 2
+    gtk_text_thaw(GTK_TEXT(faq_text));
 #endif
   }
 }
