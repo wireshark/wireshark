@@ -7,7 +7,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h245.c,v 1.39 2003/10/09 22:35:07 guy Exp $
+ * $Id: packet-h245.c,v 1.40 2003/10/10 10:54:37 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -17980,7 +17980,7 @@ dissect_h245_FunctionNotUnderstood(tvbuff_t *tvb, int offset, packet_info *pinfo
 static int
 dissect_h245_signalType(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_h245_signalType, 1, 128, "!#*0123456789ABCD", 17);
+	offset=dissect_per_restricted_character_string(tvb, offset, pinfo, tree, hf_h245_signalType, 1, 1, "!#*0123456789ABCD", 17);
 
 	return offset;
 }
