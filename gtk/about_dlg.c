@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.18 2004/07/04 12:15:40 ulfl Exp $
+ * $Id: about_dlg.c,v 1.19 2004/07/04 20:49:38 guy Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -64,7 +64,7 @@ static void about_ethereal_destroy_cb(GtkWidget *, gpointer);
 static GtkWidget *about_ethereal_w;
 
 
-static
+static void
 about_ethereal(GtkWidget *parent, GtkWidget *main_vb, const char *title)
 {
   GtkWidget   *msg_label, *icon;
