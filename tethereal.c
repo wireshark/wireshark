@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.124 2002/02/24 03:33:04 guy Exp $
+ * $Id: tethereal.c,v 1.125 2002/02/24 06:01:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -200,13 +200,18 @@ get_positive_int(const char *string, const char *name)
     exit(1);
   }
   if (number < 0) {
-    fprintf(stderr, "tethereal: The specified %s \"%s\" is a negative number\n",
-	    name, string);
+    fprintf(stderr, "tethereal: The specified %s is a negative number\n",
+	    name);
+    exit(1);
+  }
+  if (number == 0) {
+    fprintf(stderr, "tethereal: The specified %s is zero\n",
+	    name);
     exit(1);
   }
   if (number > INT_MAX) {
-    fprintf(stderr, "tethereal: The specified %s \"%s\" is too large (greater than %d)\n",
-	    name, string, INT_MAX);
+    fprintf(stderr, "tethereal: The specified %s is too large (greater than %d)\n",
+	    name, INT_MAX);
     exit(1);
   }
   return number;
@@ -445,11 +450,6 @@ main(int argc, char *argv[])
       case 'c':        /* Capture xxx packets */
 #ifdef HAVE_LIBPCAP
         packet_count = get_positive_int(optarg, "packet count");
-        if (packet_count == 0) {
-          fprintf(stderr, "tethereal: The specified packet count \"%s\" is zero\n",
-                  optarg);
-          exit(1);
-        }
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;

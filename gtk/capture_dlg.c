@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.60 2002/02/24 03:33:05 guy Exp $
+ * $Id: capture_dlg.c,v 1.61 2002/02/24 06:01:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -652,35 +652,6 @@ cap_prep_fs_destroy_cb(GtkWidget *win, gpointer data)
   /* Now nuke this window. */
   gtk_grab_remove(GTK_WIDGET(win));
   gtk_widget_destroy(GTK_WIDGET(win));
-}
-
-static int
-get_positive_int(const char *string, const char *name)
-{
-  long number;
-  char *p;
-
-  number = strtol(string, &p, 10);
-  /*
-   * XXX - we allow extra stuff after 0, so that we don't have
-   * problems with the "(Infinite)" value.
-   */
-  if (p == string || (*p != '\0' && number != 0)) {
-    simple_dialog(ESD_TYPE_CRIT, NULL,
-        "The specified %s is not a decimal number.", name);
-    return -1;
-  }
-  if (number < 0) {
-    simple_dialog(ESD_TYPE_CRIT, NULL,
-        "The specified %s is a negative number.", name);
-    return -1;
-  }
-  if (number > INT_MAX) {
-    simple_dialog(ESD_TYPE_CRIT, NULL,
-        "The specified %s is too large (greater than %d).", name, INT_MAX);
-    return -1;
-  }
-  return number;
 }
 
 static void

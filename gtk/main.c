@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.235 2002/02/24 03:33:05 guy Exp $
+ * $Id: main.c,v 1.236 2002/02/24 06:01:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1114,6 +1114,11 @@ get_positive_int(const char *string, const char *name)
 	    name, string);
     exit(1);
   }
+  if (number == 0) {
+    fprintf(stderr, "ethereal: The specified %s \"%s\" is zero\n",
+            name, string);
+    exit(1);
+  }
   if (number > INT_MAX) {
     fprintf(stderr, "ethereal: The specified %s \"%s\" is too large (greater than %d)\n",
 	    name, string, INT_MAX);
@@ -1447,11 +1452,6 @@ main(int argc, char *argv[])
 #ifdef HAVE_LIBPCAP
         has_autostop_count = TRUE;
         autostop_count = get_positive_int(optarg, "packet count");
-        if (autostop_count == 0) {
-          fprintf(stderr, "ethereal: The specified packet count \"%s\" is zero\n",
-                  optarg);
-          exit(1);
-        }
 #else
         capture_option_specified = TRUE;
         arg_error = TRUE;
