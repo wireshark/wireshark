@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.34 2001/02/04 08:21:35 guy Exp $
+ * $Id: packet-rsvp.c,v 1.35 2001/02/04 09:37:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1433,7 +1433,9 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
 					"C-type: 1");
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+2, 2,
-					"L3PID: 0x%04x", l3pid);
+					"L3PID: %s (0x%04x)",
+					val_to_str(l3pid, etype_vals, "Unknown"),
+					l3pid);
 		    break;
 		}
 
@@ -1506,18 +1508,18 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					      "Flags: 0x%02x", flags);
 		    rsvp_sa_flags_tree = proto_item_add_subtree(ti2, 
 								ett_rsvp_session_attribute_flags);
-		    proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1, 
-					".......%d: Local protection: %s", 
-					flags & 0x1 ? 1 : 0,
-					flags & 0x1 ? "Set" : "Not set");
-		    proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1, 
-					"......%d.: Merging permitted: %s", 
-					flags & 0x2 ? 1 : 0,
-					flags & 0x2 ? "Set" : "Not set");
-		    proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1, 
-					".....%d..: Ingress note may reroute: %s", 
-					flags & 0x4 ? 1 : 0,
-					flags & 0x4 ? "Set" : "Not set");
+		    proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
+					decode_boolean_bitfield(flags, 0x01, 8,
+					    "Local protection desired",
+					    "Local protection not desired"));
+		    proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
+					decode_boolean_bitfield(flags, 0x02, 8,
+					    "Merging permitted",
+					    "Merging not permitted"));
+		    proto_tree_add_text(rsvp_sa_flags_tree, tvb, offset2+2, 1,
+					decode_boolean_bitfield(flags, 0x04, 8,
+					    "Ingress node may reroute",
+					    "Ingress node may not reroute"));
 		    
 		    name_len = tvb_get_guint8(tvb, offset2+3);
 		    proto_tree_add_text(rsvp_object_tree, tvb, offset2+3, 1,
