@@ -45,6 +45,7 @@
 #include <time.h>
 #include <string.h>
 #include <epan/packet.h>
+#include <epan/proto.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
@@ -209,7 +210,7 @@ static int callagent_tcp_port = 0;
 static int callagent_udp_port = 0;
 
 /* Some basic utility functions that are specific to this dissector */
-static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength);
+static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, gchar **verb_name);
 static gboolean is_mgcp_rspcode(tvbuff_t *tvb, gint offset, gint maxlength);
 static gint tvb_parse_param(tvbuff_t *tvb, gint offset, gint maxlength,
 			    int** hf);
@@ -290,6 +291,7 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 num_messages;
   gint tvb_sectionend,tvb_sectionbegin, tvb_len, tvb_current_len;
   proto_tree *mgcp_tree, *ti;
+  gchar *verb_name = "";
 
   /* Initialize variables */
   tvb_sectionend = 0;
@@ -315,7 +317,7 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * for a valid MGCP verb or response code.  This isn't infallible,
    * but its cheap and its better than nothing.
    */
-  if(is_mgcp_verb(tvb,0,tvb_len) || is_mgcp_rspcode(tvb,0,tvb_len)){
+  if(is_mgcp_verb(tvb,0,tvb_len, &verb_name) || is_mgcp_rspcode(tvb,0,tvb_len)){
     /*
      * Loop through however many mgcp messages may be stuck in
      * this packet using piggybacking
@@ -328,8 +330,7 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	mgcp_tree = proto_item_add_subtree(ti, ett_mgcp);
       }
 
-      sectionlen = tvb_find_dot_line(tvb, tvb_sectionbegin, -1,
-				     &tvb_sectionend);
+      sectionlen = tvb_find_dot_line(tvb, tvb_sectionbegin, -1, &tvb_sectionend);
       if( sectionlen != -1){
 	dissect_mgcp_message(tvb_new_subset(tvb, tvb_sectionbegin,
 					    sectionlen, -1),
@@ -346,8 +347,9 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /*
-     * Add our column information we do this after dissecting SDP
-     * in order to prevent the column info changing to reflect the SDP.
+     * Add our column information after dissecting SDP
+     * in order to prevent the column info changing to reflect the SDP
+     * (when showing message count)
      * XXX - can we do this with a fence?
      */
     tvb_sectionbegin = 0;
@@ -359,9 +361,6 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	else {
 	  col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MGCP (%i message)",num_messages);
 	}
-      }
-      else {
-	  col_add_str(pinfo->cinfo, COL_PROTOCOL, "MGCP");
       }
     }
 
@@ -386,6 +385,7 @@ dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gint sectionlen;
   gint tvb_sectionend,tvb_sectionbegin, tvb_len, tvb_current_len;
   tvbuff_t *next_tvb;
+  gchar *verb_name = "";
 
   /* Initialise stat info for passing to tap */
   pi_current++;
@@ -421,7 +421,7 @@ dissect_mgcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    * for a valid MGCP verb or response code.  This isn't infallible,
    * but its cheap and its better than nothing.
    */
-  if(is_mgcp_verb(tvb,0,tvb_len) || is_mgcp_rspcode(tvb,0,tvb_len)){
+  if(is_mgcp_verb(tvb,0,tvb_len,&verb_name) || is_mgcp_rspcode(tvb,0,tvb_len)){
     /* dissect first line */
     tvb_sectionbegin = 0;
     tvb_current_len = tvb_len;
@@ -800,27 +800,28 @@ proto_reg_handoff_mgcp(void)
  * offset - The offset in tvb at which we are looking for a MGCP verb
  * maxlength - The maximum distance from offset we may look for the
  *             characters that make up a MGCP verb.
+ * verb_name - The name for the verb code found (output)
  *
  * Return: TRUE if there is an MGCP verb at offset in tvb, otherwise FALSE
  */
 
-static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength){
+static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, gchar **verb_name){
   int returnvalue = FALSE;
   guint8 word[5];
 
   if(( maxlength >= 4) && tvb_get_nstringz0(tvb,offset,sizeof(word),word)){
-    if (strncasecmp(word, "EPCF", 4) == 0 ||
-	strncasecmp(word, "CRCX", 4) == 0 ||
-	strncasecmp(word, "MDCX", 4) == 0 ||
-	strncasecmp(word, "DLCX", 4) == 0 ||
-	strncasecmp(word, "RQNT", 4) == 0 ||
-	strncasecmp(word, "NTFY", 4) == 0 ||
-	strncasecmp(word, "AUEP", 4) == 0 ||
-	strncasecmp(word, "AUCX", 4) == 0 ||
-	strncasecmp(word, "RSIP", 4) == 0 ||
+    if (((strncasecmp(word, "EPCF", 4) == 0) && (*verb_name = "EndpointConfiguration|")) ||
+        ((strncasecmp(word, "CRCX", 4) == 0) && (*verb_name = "CreateConnection")) ||
+        ((strncasecmp(word, "MDCX", 4) == 0) && (*verb_name = "ModifyConnection")) ||
+        ((strncasecmp(word, "DLCX", 4) == 0) && (*verb_name = "DeleteConnection")) ||
+        ((strncasecmp(word, "RQNT", 4) == 0) && (*verb_name = "NotificationRequest")) ||
+        ((strncasecmp(word, "NTFY", 4) == 0) && (*verb_name = "Notify")) ||
+        ((strncasecmp(word, "AUEP", 4) == 0) && (*verb_name = "AuditEndpoint")) ||
+        ((strncasecmp(word, "AUCX", 4) == 0) && (*verb_name = "AuditConnection")) ||
+        ((strncasecmp(word, "RSIP", 4) == 0) && (*verb_name = "RestartInProgress")) ||
 	(word[0] == 'X' && is_rfc2234_alpha(word[1]) && is_rfc2234_alpha(word[2]) &&
-	 is_rfc2234_alpha(word[3]))
-	){
+         is_rfc2234_alpha(word[3])))
+    {
       returnvalue = TRUE;
     }
   }
@@ -1092,6 +1093,8 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
   mgcp_call_t *mgcp_call = NULL;
   nstime_t delta;
   gint rspcode = 0;
+  gchar *verb_description = "";
+  char code_with_verb[64] = "";  /* To fit "<4-letter-code> (<longest-verb>)" */
 
   static address null_address = { AT_NONE, 0, NULL };
   proto_item* (*my_proto_tree_add_string)(proto_tree*, int, tvbuff_t*, gint,
@@ -1115,8 +1118,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 
     do {
       tvb_current_len = tvb_length_remaining(tvb,tvb_previous_offset);
-      tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset,
-					   tvb_current_len, ' ');
+      tvb_current_offset = tvb_find_guint8(tvb, tvb_previous_offset, tvb_current_len, ' ');
       if(tvb_current_offset == -1){
 	tvb_current_offset = tvb_len;
 	tokenlen = tvb_current_len;
@@ -1128,11 +1130,16 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
         code = tvb_format_text(tvb,tvb_previous_offset,tokenlen);
         strncpy(mi->code,code,4);
         mi->code[4] = '\0';
-	if(is_mgcp_verb(tvb,tvb_previous_offset,tvb_current_len)){
+        if(is_mgcp_verb(tvb,tvb_previous_offset,tvb_current_len,&verb_description)){
 	  mgcp_type = MGCP_REQUEST;
+          if (verb_description != NULL)
+          {
+            /* Can show verb along with code if known */
+            sprintf(code_with_verb, "%s (%s)", code, verb_description);
+          }
 	  my_proto_tree_add_string(tree,hf_mgcp_req_verb, tvb,
 				   tvb_previous_offset, tokenlen,
-				   code);
+                                   strlen(code_with_verb) ? code_with_verb : code);
 	}
 	else if (is_mgcp_rspcode(tvb,tvb_previous_offset,tvb_current_len)){
 	  mgcp_type = MGCP_RESPONSE;
@@ -1244,14 +1251,16 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 		if(mgcp_call) {
 			/* Indicate the frame to which this is a reply. */
 			if(mgcp_call->req_num){
+				proto_item* item;
 				mi->request_available = TRUE;
 				mgcp_call->responded = TRUE;
 				mi->req_num = mgcp_call->req_num;
 				strcpy(mi->code,mgcp_call->code);
-				proto_tree_add_uint_format(tree, hf_mgcp_req_frame,
+				item = proto_tree_add_uint_format(tree, hf_mgcp_req_frame,
 				    tvb, 0, 0, mgcp_call->req_num,
 				    "This is a response to a request in frame %u",
 				    mgcp_call->req_num);
+				PROTO_ITEM_SET_GENERATED(item);    
 				delta.secs= pinfo->fd->abs_secs-mgcp_call->req_time.secs;
 				delta.nsecs=pinfo->fd->abs_usecs*1000-mgcp_call->req_time.nsecs;
 				if(delta.nsecs<0){
@@ -1383,10 +1392,11 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo,
 		g_hash_table_insert(mgcp_calls, new_mgcp_call_key, mgcp_call);
 	}
 	if(mgcp_call && mgcp_call->rsp_num){
-		proto_tree_add_uint_format(tree, hf_mgcp_rsp_frame,
+		proto_item* item = proto_tree_add_uint_format(tree, hf_mgcp_rsp_frame,
 		    tvb, 0, 0, mgcp_call->rsp_num,
 		    "The response to this request is in frame %u",
 		    mgcp_call->rsp_num);
+		PROTO_ITEM_SET_GENERATED(item);
 	}
       break;
     default:
