@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.14 2000/05/03 07:50:38 guy Exp $
+ * $Id: print_dlg.c,v 1.15 2000/05/08 04:53:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,6 +84,7 @@ void
 file_print_cmd_cb(GtkWidget *widget, gpointer data)
 {
   GtkWidget     *print_w;
+  GtkAccelGroup *accel_group;
   GtkWidget     *main_vb, *main_tb, *button;
   GtkWidget     *format_rb;
   GtkWidget     *format_hb, *format_lb;
@@ -105,6 +106,12 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
 
   print_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(print_w), "Ethereal: Print");
+
+  /* Accelerator group for the accelerators (or, as they're called in
+     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
+     Ctrl+<key> is an accelerator). */
+  accel_group = gtk_accel_group_new();
+  gtk_window_add_accel_group(GTK_WINDOW(print_w), accel_group);
 
   /* Enclosing containers for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 5);
@@ -128,14 +135,16 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_table_attach_defaults(GTK_TABLE(main_tb), format_hb, 1, 2, 0, 1);
   gtk_widget_show(format_hb);
 
-  button = gtk_radio_button_new_with_label(NULL, "Plain Text");
+  button = dlg_radio_button_new_with_label_with_mnemonic(NULL, "Plain _Text",
+				accel_group);
   if (print_format == PR_FMT_TEXT)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
   format_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
   gtk_box_pack_start(GTK_BOX(format_hb), button, FALSE, FALSE, 10);
   gtk_widget_show(button);
 
-  format_rb = gtk_radio_button_new_with_label(format_grp, "PostScript");
+  format_rb = dlg_radio_button_new_with_label_with_mnemonic(format_grp,
+				"_PostScript", accel_group);
   if (print_format == PR_FMT_PS)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(format_rb), TRUE);
   gtk_box_pack_start(GTK_BOX(format_hb), format_rb, FALSE, FALSE, 10);
@@ -151,14 +160,16 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_table_attach_defaults(GTK_TABLE(main_tb), dest_hb, 1, 2, 1, 2);
   gtk_widget_show(dest_hb);
 
-  button = gtk_radio_button_new_with_label(NULL, "Command");
+  button = dlg_radio_button_new_with_label_with_mnemonic(NULL, "_Command",
+				accel_group);
   if (!print_to_file)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(button), TRUE);
   dest_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
   gtk_box_pack_start(GTK_BOX(dest_hb), button, FALSE, FALSE, 10);
   gtk_widget_show(button);
 
-  dest_rb = gtk_radio_button_new_with_label(dest_grp, "File");
+  dest_rb = dlg_radio_button_new_with_label_with_mnemonic(dest_grp, "_File",
+				accel_group);
   if (print_to_file)
     gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(dest_rb), TRUE);
   gtk_signal_connect(GTK_OBJECT(dest_rb), "toggled",
@@ -217,12 +228,14 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_widget_show(print_type_vb);
 
   /* "Print summary"/"Print detail" radio buttons */
-  summary_rb = gtk_radio_button_new_with_label(NULL, "Print summary");
+  summary_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL,
+				"Print _summary", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(summary_rb), FALSE);
   summary_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(summary_rb));
   gtk_container_add(GTK_CONTAINER(print_type_vb), summary_rb);
   gtk_widget_show(summary_rb);
-  detail_rb = gtk_radio_button_new_with_label(summary_grp, "Print detail");
+  detail_rb = dlg_radio_button_new_with_label_with_mnemonic(summary_grp,
+				"Print _detail", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(detail_rb), TRUE);
   gtk_signal_connect(GTK_OBJECT(detail_rb), "toggled",
 			GTK_SIGNAL_FUNC(print_cmd_toggle_detail), NULL);
@@ -230,7 +243,8 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_widget_show(detail_rb);
   
   /* "Print hex" check button. */
-  hex_cb = gtk_check_button_new_with_label("Print hex data");
+  hex_cb = dlg_check_button_new_with_label_with_mnemonic("Print _hex data",
+				accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(hex_cb), FALSE);
   gtk_container_add(GTK_CONTAINER(print_type_vb), hex_cb);
   gtk_widget_show(hex_cb);
@@ -243,12 +257,14 @@ file_print_cmd_cb(GtkWidget *widget, gpointer data)
   gtk_widget_show(expand_vb);
 
   /* "Expand all levels"/"Print as displayed" radio buttons */
-  expand_all_rb = gtk_radio_button_new_with_label(NULL, "Expand all levels");
+  expand_all_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL,
+				"_Expand all levels", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(expand_all_rb), TRUE);
   expand_grp = gtk_radio_button_group(GTK_RADIO_BUTTON(expand_all_rb));
   gtk_container_add(GTK_CONTAINER(expand_vb), expand_all_rb);
   gtk_widget_show(expand_all_rb);
-  as_displayed_rb = gtk_radio_button_new_with_label(expand_grp, "Print as displayed");
+  as_displayed_rb = dlg_radio_button_new_with_label_with_mnemonic(expand_grp,
+				"Print _as displayed", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(as_displayed_rb), FALSE);
   gtk_container_add(GTK_CONTAINER(expand_vb), as_displayed_rb);
   gtk_widget_show(as_displayed_rb);
@@ -509,4 +525,3 @@ file_print_packet_cmd_cb(GtkWidget *widget, gpointer data) {
   print_finale(fh, prefs.pr_format);
   close_print_dest(print_args.to_file, fh);
 }
-

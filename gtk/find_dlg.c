@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.9 2000/05/02 08:04:30 guy Exp $
+ * $Id: find_dlg.c,v 1.10 2000/05/08 04:53:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,6 +75,7 @@ find_frame_cb(GtkWidget *w, gpointer d)
   GtkWidget     *main_vb, *filter_hb, *filter_bt, *filter_te,
                 *direction_hb, *forward_rb, *backward_rb,
                 *bbox, *ok_bt, *cancel_bt;
+  GtkAccelGroup *accel_group;
 
   if (find_frame_w != NULL) {
     /* There's already a "Find Frame" dialog box; reactivate it. */
@@ -86,6 +87,12 @@ find_frame_cb(GtkWidget *w, gpointer d)
   gtk_window_set_title(GTK_WINDOW(find_frame_w), "Ethereal: Find Frame");
   gtk_signal_connect(GTK_OBJECT(find_frame_w), "destroy",
 	GTK_SIGNAL_FUNC(find_frame_destroy_cb), NULL);
+
+  /* Accelerator group for the accelerators (or, as they're called in
+     Windows and, I think, in Motif, "mnemonics"; Alt+<key> is a mnemonic,
+     Ctrl+<key> is an accelerator). */
+  accel_group = gtk_accel_group_new();
+  gtk_window_add_accel_group(GTK_WINDOW(find_frame_w), accel_group);
   
   /* Container for each row of widgets */
   main_vb = gtk_vbox_new(FALSE, 3);
@@ -115,14 +122,15 @@ find_frame_cb(GtkWidget *w, gpointer d)
   gtk_container_add(GTK_CONTAINER(main_vb), direction_hb);
   gtk_widget_show(direction_hb);
 
-  forward_rb = gtk_radio_button_new_with_label(NULL, "Forward");
+  forward_rb = dlg_radio_button_new_with_label_with_mnemonic(NULL, "_Forward",
+			accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(forward_rb), !cf.sbackward);
   gtk_box_pack_start(GTK_BOX(direction_hb), forward_rb, TRUE, TRUE, 0);
   gtk_widget_show(forward_rb);
 
-  backward_rb = gtk_radio_button_new_with_label(
+  backward_rb = dlg_radio_button_new_with_label_with_mnemonic(
                gtk_radio_button_group(GTK_RADIO_BUTTON(forward_rb)),
-               "Backward");
+               "_Backward", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(backward_rb), cf.sbackward);
   gtk_box_pack_start(GTK_BOX(direction_hb), backward_rb, TRUE, TRUE, 0);
   gtk_widget_show(backward_rb);
