@@ -318,6 +318,8 @@ packet_list_thaw(void) {
 }
 
 void packet_list_select_row(gint row) {
+    ListView_SetItemState(g_hw_packetlist, row, LVIS_SELECTED, LVIS_SELECTED);
+    ListView_EnsureVisible(g_hw_packetlist, row, FALSE);
 }
 
 void packet_list_set_column_auto_resize(gint column, gboolean auto_resize) {
@@ -415,6 +417,7 @@ packet_list_get_row_data(gint row) {
 
 void
 packet_list_set_selected_row(gint row) {
+    packet_list_select_row(row);
 }
 
 

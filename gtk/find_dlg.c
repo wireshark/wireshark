@@ -33,6 +33,7 @@
 
 #include <epan/proto.h>
 #include <epan/dfilter/dfilter.h>
+#include <epan/strutil.h>
 #include "globals.h"
 
 #include "ui_util.h"
@@ -85,9 +86,6 @@ string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w);
 static void
 filter_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w);
 
-static guint8 *
-convert_string_to_hex(const char *string, size_t *nbytes);
-
 /*
  * Keep a static pointer to the current "Find Packet" window, if any, so
  * that if somebody tries to do "Find Packet" while there's already a
@@ -101,7 +99,7 @@ void
 find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 {
   GtkWidget     *main_vb, *main_find_hb, *main_options_hb,
-      
+
                 *find_type_frame, *find_type_vb,
                 *find_type_hb, *find_type_lb, *hex_rb, *string_rb, *filter_rb,
                 *filter_hb, *filter_bt,
@@ -113,7 +111,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
                 *hex_data_rb, *decode_data_rb, *summary_data_rb,
 
                 *string_opt_frame, *string_opt_vb,
-                *case_cb, *combo_lb, *combo_cb, 
+                *case_cb, *combo_lb, *combo_cb,
 
                 *bbox, *ok_bt, *cancel_bt;
   GtkTooltips   *tooltips;
@@ -259,7 +257,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_show(decode_data_rb);
 
   /* Packet bytes */
-  hex_data_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(summary_data_rb, 
+  hex_data_rb = RADIO_BUTTON_NEW_WITH_MNEMONIC(summary_data_rb,
                 "Packet bytes", accel_group);
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hex_data_rb), !decode_data && !summary_data);
   gtk_box_pack_start(GTK_BOX(data_vb), hex_data_rb, TRUE, TRUE, 0);
@@ -288,7 +286,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_misc_set_alignment(GTK_MISC(combo_lb), 0.0, 0.5);
   gtk_widget_show(combo_lb);
 
-  /* String Type Selection Dropdown Box 
+  /* String Type Selection Dropdown Box
      These only apply to the Hex Window search option */
   /* Create Combo Box */
   combo_cb = gtk_combo_new();
@@ -350,7 +348,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
   OBJECT_SET_DATA(find_frame_w, E_SOURCE_DECODE_KEY, decode_data_rb);
   OBJECT_SET_DATA(find_frame_w, E_SOURCE_SUMMARY_KEY, summary_data_rb);
   OBJECT_SET_DATA(find_frame_w, E_FILT_TE_BUTTON_KEY, filter_bt);
-  
+
   /*
    * Now that we've attached the pointers, connect the signals - if
    * we do so before we've attached the pointers, the signals may
@@ -385,7 +383,7 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
 }
 
 /* this function opens the find frame dialogue and sets the filter string */
-void   
+void
 find_frame_with_filter(char *filter)
 {
 	find_frame_cb(NULL, NULL);
@@ -412,7 +410,7 @@ find_filter_te_syntax_check_cb(GtkWidget *w, gpointer parent_w)
      */
     strval = gtk_entry_get_text(GTK_ENTRY(w));
     if (strval == NULL) {
-      /* XXX - can this happen? */      
+      /* XXX - can this happen? */
       colorize_filter_te_as_invalid(w);
     } else {
       bytes = convert_string_to_hex(strval, &nbytes);
@@ -429,7 +427,7 @@ find_filter_te_syntax_check_cb(GtkWidget *w, gpointer parent_w)
      */
     strval = gtk_entry_get_text(GTK_ENTRY(w));
     if (strval == NULL) {
-      /* XXX - can this happen? */      
+      /* XXX - can this happen? */
       colorize_filter_te_as_invalid(w);
     } else {
       if (strcmp(strval, "") == 0)
@@ -445,9 +443,9 @@ find_filter_te_syntax_check_cb(GtkWidget *w, gpointer parent_w)
   }
 }
 
-/* 
+/*
  *  This function will re-check the search text syntax.
- */  
+ */
 static void
 hex_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
@@ -460,10 +458,10 @@ hex_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
     return;
 }
 
-/* 
+/*
  *  This function will disable the string options until
  *  the string search is selected.
- */  
+ */
 static void
 string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
@@ -474,7 +472,7 @@ string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
     hex_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_HEX_KEY);
     decode_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_DECODE_KEY);
     summary_data_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_SOURCE_SUMMARY_KEY);
-    
+
     data_combo_lb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGTYPE_LABEL_KEY);
     data_combo_cb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_STRINGTYPE_KEY);
     data_case_cb = (GtkWidget *) OBJECT_GET_DATA(parent_w, E_CASE_SEARCH_KEY);
@@ -500,10 +498,10 @@ string_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
     return;
 }
 
-/* 
+/*
  *  This function will disable the filter button until
  *  the filter search is selected.
- */  
+ */
 static void
 filter_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 {
@@ -511,7 +509,7 @@ filter_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
 
     filter_bt = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FILT_TE_BUTTON_KEY);
     filter_rb = (GtkWidget *)OBJECT_GET_DATA(parent_w, E_FIND_FILTERDATA_KEY);
-    
+
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(filter_rb)))
     {
         gtk_widget_set_sensitive(GTK_WIDGET(filter_bt), TRUE);
@@ -521,110 +519,6 @@ filter_selected_cb(GtkWidget *button_rb _U_, gpointer parent_w)
         gtk_widget_set_sensitive(GTK_WIDGET(filter_bt), FALSE);
     }
     return;
-}
-
-static guint8 *
-convert_string_to_hex(const char *string, size_t *nbytes)
-{
-  size_t n_bytes;
-  const char *p;
-  guchar c;
-  guint8 *bytes, *q, byte_val;
-
-  n_bytes = 0;
-  p = &string[0];
-  for (;;) {
-    c = *p++;
-    if (c == '\0')
-      break;
-    if (isspace(c))
-      continue;	/* allow white space */
-    if (c==':' || c=='.' || c=='-')
-      continue; /* skip any ':', '.', or '-' between bytes */
-    if (!isxdigit(c)) {
-      /* Not a valid hex digit - fail */
-      return NULL;
-    }
-
-    /*
-     * We can only match bytes, not nibbles; we must have a valid
-     * hex digit immediately after that hex digit.
-     */
-    c = *p++;
-    if (!isxdigit(c))
-      return NULL;
-
-    /* 2 hex digits = 1 byte */
-    n_bytes++;
-  }
-
-  /*
-   * Were we given any hex digits?
-   */
-  if (n_bytes == 0) {
-      /* No. */
-      return NULL;
-  }
-
-  /*
-   * OK, it's valid, and it generates "n_bytes" bytes; generate the
-   * raw byte array.
-   */
-  bytes = g_malloc(n_bytes);
-  p = &string[0];
-  q = &bytes[0];
-  for (;;) {
-    c = *p++;
-    if (c == '\0')
-      break;
-    if (isspace(c))
-      continue;	/* allow white space */
-    if (c==':' || c=='.' || c=='-')
-      continue; /* skip any ':', '.', or '-' between bytes */
-    /* From the loop above, we know this is a hex digit */
-    if (isdigit(c))
-      byte_val = c - '0';
-    else if (c >= 'a')
-      byte_val = (c - 'a') + 10;
-    else
-      byte_val = (c - 'A') + 10;
-    byte_val <<= 4;
-
-    /* We also know this is a hex digit */
-    c = *p++;
-    if (isdigit(c))
-      byte_val |= c - '0';
-    else if (c >= 'a')
-      byte_val |= (c - 'a') + 10;
-    else if (c >= 'A')
-      byte_val |= (c - 'A') + 10;
-
-    *q++ = byte_val;
-  }
-  *nbytes = n_bytes;
-  return bytes;
-}
-
-static char *
-convert_string_case(const char *string, gboolean case_insensitive)
-{
-  char *out_string;
-  const char *p;
-  char c;
-  char *q;
-
-  /*
-   * Copy if if it's a case-sensitive search; uppercase it if it's
-   * a case-insensitive search.
-   */
-  if (case_insensitive) {
-    out_string = g_malloc(strlen(string) + 1);
-    for (p = &string[0], q = &out_string[0]; (c = *p) != '\0'; p++, q++)
-      *q = toupper((unsigned char)*p);
-    *q = '\0';
-  } else
-    out_string = g_strdup(string);
-  return out_string;
 }
 
 static void
@@ -748,7 +642,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       g_free(string);
       if (!found_packet) {
         /* We didn't find the packet. */
-        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
+        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
             "%sFound no match!%s\n\n"
             "No packet contained that string in its dissected display.",
             simple_dialog_primary_start(), simple_dialog_primary_end());
@@ -760,7 +654,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       g_free(string);
       if (!found_packet) {
         /* We didn't find the packet. */
-        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
+        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
             "%sFound no match!%s\n\n"
             "No packet contained that string in its Info column.",
             simple_dialog_primary_start(), simple_dialog_primary_end());
@@ -772,7 +666,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
       g_free(string);
       if (!found_packet) {
         /* We didn't find the packet. */
-        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
+        simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
             "%sFound no match!%s\n\n"
             "No packet contained that string in its data.",
             simple_dialog_primary_start(), simple_dialog_primary_end());
@@ -784,7 +678,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
     dfilter_free(sfcode);
     if (!found_packet) {
       /* We didn't find a packet */
-      simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
+      simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
           "%sFound no match!%s\n\n"
           "No packet matched that filter.",
           simple_dialog_primary_start(), simple_dialog_primary_end());
@@ -879,7 +773,7 @@ find_previous_cb(GtkWidget *w , gpointer d)
 }
 
 /* this function jumps to the next packet matching the filter */
-void   
+void
 find_previous_next_frame_with_filter(char *filter, gboolean backwards)
 {
   dfilter_t *sfcode;

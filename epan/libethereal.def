@@ -71,6 +71,8 @@ conversation_delete_proto_data
 conversation_get_proto_data
 conversation_new
 conversation_set_dissector
+convert_string_case
+convert_string_to_hex
 copy_prefs
 crc16_ccitt_tvb
 create_dissector_handle

@@ -5,12 +5,9 @@ the Win32 C SDK.  XUL elements are implemented using common controls,
 custom controls, and plain windows.  
 
 
-Bugs/Caveats
+Bugs/Caveats/To-dos
 
 - Markup in <description> text isn't handled at all.
-
-
-To do:
 
 - Is it the responsibility of each element to set its min/normal/max width
   and height?  It would seem so.
@@ -25,17 +22,74 @@ To do:
 - Some of our element constructors return HWNDs and some return
   win32_element_t *'s.  We should standardize on the latter.
 
-- Once in a while, clicking in the packet list causes a crash for
-  some reason.  The MS debugger doesn't give much helpful information
-  when this happens.
-
-- The packet list occasionally hangs.  Apparently its wndproc isn't
-  returning the right value in some cases.  This could be related to
-  the previous issue.
-
 - Function names and parameters need to be normalized, e.g.
   win32_menulist_get_selection() vs win32_listbox_set_selected().
 
 - The byte view window takes too long to fill in.  It also flashes when
   a new packet is selected.  Perhaps the richedit control is the wrong
   thing to use in this case.
+
+
+Window Creation Example
+
+To show Xulender in in action, let's take a look at the creation of
+the "find packet" dialog.  The process begins by creating the file
+"packet-search-dialog.xul" in the "xulender" directory.
+
+The XUL definition file begins with the following stanza:
+
+	<?xml version="1.0"?>
+	<dialog
+	  id="find-packet-dialog"
+	  title="Ethereal: Find Packet"
+	  >
+
+The "id" tag is a unique identifier that can be used to find a pointer
+to the dialog window.  The title is automatically set in the generated
+code using the "title" tag.
+
+The rest of the file lays out the window and adds all of the
+neccessary elements (a.k.a. widgets or controls). Any object that will
+be modified or accessed must have an "id" tag set.  Buttons,
+checkboxes, and other elements can have callback functions defined
+using an "oncommand" tag.
+
+Three files are created from the XUL definition file and placed in the
+"generated" directory: packet-search-dialog.rc which defines dialog
+templates and menus, packet-search-dialog.c which contains generated C
+code, and packet-search-dialog.h which contains any public
+definitions.  References to these files are added to the following
+locations:
+
+	Makefile.nmake:	Add as .obj to GENERATED_OBJECTS
+	win32-main.c:	Add as .h to #includes
+	win32-main.rc	Add as .rc to #includes
+  
+The generated .h file defines the routines necessary for window
+creation, destruction, and event handling.  It also defines any
+"oncommand" procedures present in the XUL file.  At this point, the
+dialog isn't yet complete.  We must fill in the event handling,
+callback handling, and other implementation details ourselves.
+
+The files "find-util.c" and "find-util.h" are created.  In find-util.c we
+add the following functions:
+  
+    find_dialog_init()
+	This calls find_packet_dialog_dialog_create() followed by
+	find_packet_dialog_dialog_show(), which creates then shows
+	the dialog window.  Both routines are auto-generated.
+
+    find_packet_dialog_dlg_proc()
+	The dialog's window class uses this to process window events.
+	It's a standard Windows SDK WndProc.  When a WM_INITDIALOG
+	event is received, we must call
+	find_packet_dialog_handle_wm_initdialog(), then initialize the
+	window's elements as needed.
+
+    find_dlg_close(), find_dlg_filter(), etc.
+	These are callbacks defined by the XUL definition's
+	"oncommand" tags.  Each time a button is pressed or a checkbox
+	checked, these get called.
+
+To hook the dialog into the rest of the program we add an entry to the
+main window's WM_COMMAND event handler, calling find_dialog_init().

@@ -35,7 +35,7 @@ def cleanup():
     cbkeys.sort()
     for cb in cbkeys:
 	cur_hf.write_body('''
-%(comments)svoid %(callback)s  (win32_element_t *);\n''' % {
+%(comments)svoid %(callback)s (win32_element_t *);\n''' % {
 	    'comments': callbacks[cb],
 	    'callback': cb
 	})

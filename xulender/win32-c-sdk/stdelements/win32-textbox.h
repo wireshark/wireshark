@@ -14,7 +14,7 @@ void win32_textbox_set_text(win32_element_t *textbox, gchar *text);
 
 /*
  * Get the text in a textbox.  The result is a freshly-allocated string
- * which must be freed by the caller.
+ * which must be g_free()d by the caller.
  */
 gchar * win32_textbox_get_text(win32_element_t *textbox);
 

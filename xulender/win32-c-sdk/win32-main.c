@@ -76,6 +76,7 @@
 #include "simple_dialog.h"
 #include "prefs-dlg.h"
 #include "about-dlg.h"
+#include "find-util.h"
 
 #include "win32-c-sdk.h"
 
@@ -86,6 +87,7 @@
 #include "ethereal-main.h"
 #include "capture-dialog.h"
 #include "capture-info-dialog.h"
+#include "find-packet-dialog.h"
 #include "preferences-dialog.h"
 #include "win32-file-dlg.h"
 
@@ -1451,9 +1453,20 @@ win32_main_wnd_proc(HWND hw_mainwin, UINT msg, WPARAM w_param, LPARAM l_param)
 		    case IDM_ETHEREAL_MAIN_SAVE_AS:
 			win32_save_as_file(hw_mainwin, after_save_no_action, NULL);
 			break;
+
+		    case IDM_ETHEREAL_MAIN_EDIT_FIND_PACKET:
+			find_dialog_init(hw_mainwin);
+			break;
+		    case IDM_ETHEREAL_MAIN_EDIT_FIND_NEXT:
+			find_previous_next(FALSE);
+			break;
+		    case IDM_ETHEREAL_MAIN_EDIT_FIND_PREVIOUS:
+			find_previous_next(TRUE);
+			break;
 		    case IDM_ETHEREAL_MAIN_EDIT_PREFERENCES:
 			prefs_dialog_init(hw_mainwin);
 			break;
+
 		    case IDM_ETHEREAL_MAIN_CAPTURE_START:
 			capture_start_prep();
 			break;

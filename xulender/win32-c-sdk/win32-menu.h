@@ -6,5 +6,6 @@ void open_menu_recent_capture_file(HWND hw_mainwin, guint menu_id);
 void clear_menu_recent(HWND hw_mainwin);
 void menu_name_resolution_changed(HWND hw_mainwin);
 void menu_toggle_name_resolution(HWND hw_mainwin, guint menu_id);
+void set_menus_for_capture_in_progress(gboolean capture_in_progress);
 
 #endif /* win32-menu.h */

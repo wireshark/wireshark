@@ -72,11 +72,11 @@
           command="ethereal-main-edit-find-packet"
         />
         <menuitem
-          label="Find Next..."
+          label="Find Next"
           command="ethereal-main-edit-find-next"
         />
         <menuitem
-          label="Find Previous..."
+          label="Find Previous"
           command="ethereal-main-edit-find-previous"
         />
         <menuseparator />

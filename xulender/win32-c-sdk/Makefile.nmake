@@ -36,6 +36,7 @@ GENERATED_OBJECTS = \
 	about-dialog.obj \
 	capture-dialog.obj \
 	capture-info-dialog.obj \
+	find-packet-dialog.obj \
 	preferences-dialog.obj \
 	progress-dialog.obj
 
@@ -70,6 +71,7 @@ OBJECTS = \
 	about-dlg.obj \
 	capture_combo_utils.obj \
 	capture-util.obj \
+	find-util.obj \
 	prefs-dlg.obj \
 	ui_util.obj \
 	win32-file-dlg.obj \
