@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.25 2001/04/09 22:25:39 guy Exp $
+$Id: README.developer,v 1.26 2001/04/10 07:21:38 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -62,7 +62,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.25 2001/04/09 22:25:39 guy Exp $"
+The "$Id: README.developer,v 1.26 2001/04/10 07:21:38 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -72,7 +72,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.25 2001/04/09 22:25:39 guy Exp $
+ * $Id: README.developer,v 1.26 2001/04/10 07:21:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -241,10 +241,9 @@ proto_register_PROTOABBREV(void)
 void
 proto_reg_handoff_PROTOABBREV(void)
 {
-	dissector_add("PARENT_SUBFIELD", ID_VALUE, dissect_PROTOABBREV);
+	dissector_add("PARENT_SUBFIELD", ID_VALUE, dissect_PROTOABBREV,
+	    proto_PROTOABBREV);
 }
-
- dissector_add("llc.dsap", SAP_NETBIOS, dissect_netbios);
 
 ------------------------------------Cut here------------------------------------
 
@@ -282,8 +281,8 @@ ID_VALUE	Lower level protocol field value that identifies this protocol
 
 1.4.1 Header file.
 
-This is only need if the dissector doesn't use self-registration to
-register it's self with the lower level dissector 
+This is only needed if the dissector doesn't use self-registration to
+register itself with the lower level dissector.
 
 The dissector has the following header that must be placed into
 packet-PROTOABBREV.h.
