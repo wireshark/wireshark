@@ -1,6 +1,6 @@
 /* packet-clip.h
  *
- * $Id: packet-clip.h,v 1.5 2001/11/20 21:59:12 guy Exp $
+ * $Id: packet-clip.h,v 1.6 2002/08/02 23:35:48 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,6 @@
 #ifndef __PACKET_CLIP_H__
 #define __PACKET_CLIP_H__
 
-void capture_clip(const u_char *, int, packet_counts *);
+void capture_clip(const guchar *, int, packet_counts *);
 
 #endif

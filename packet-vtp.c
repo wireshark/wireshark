@@ -1,7 +1,7 @@
 /* packet-vtp.c
  * Routines for the disassembly of Cisco's Virtual Trunking Protocol
  *
- * $Id: packet-vtp.c,v 1.19 2002/01/24 09:20:52 guy Exp $
+ * $Id: packet-vtp.c,v 1.20 2002/08/02 23:36:04 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,10 +23,6 @@
  */
  
 #include "config.h"
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 #include <stdlib.h>
 #include <string.h>

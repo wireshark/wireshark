@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.30 2002/07/17 00:42:42 guy Exp $
+ * $Id: packet-msproxy.c,v 1.31 2002/08/02 23:35:54 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,14 +45,6 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <glib.h>
@@ -66,7 +58,7 @@
 #include "packet-udp.h"
 
 extern void udp_hash_add(guint16 proto,
-        void (*dissect)(const u_char *, int, frame_data *, proto_tree *));
+        void (*dissect)(const guchar *, int, frame_data *, proto_tree *));
 
 
 static int proto_msproxy = -1;

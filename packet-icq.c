@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.45 2002/07/17 00:42:40 guy Exp $
+ * $Id: packet-icq.c,v 1.46 2002/08/02 23:35:50 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,14 +31,6 @@
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
 #endif
 
 #ifdef HAVE_STDDEF_H
@@ -360,7 +352,7 @@ static const value_string clientCmdCode[] = {
 /*
  * All ICQv5 decryption code thanx to Sebastien Dault (daus01@gel.usherb.ca)
  */
-static const u_char
+static const guchar
 table_v5 [] = {
  0x59, 0x60, 0x37, 0x6B, 0x65, 0x62, 0x46, 0x48, 0x53, 0x61, 0x4C, 0x59, 0x60, 0x57, 0x5B, 0x3D,
  0x5E, 0x34, 0x6D, 0x36, 0x50, 0x3F, 0x6F, 0x67, 0x53, 0x61, 0x4C, 0x59, 0x40, 0x47, 0x63, 0x39,
@@ -436,7 +428,7 @@ get_v5key(tvbuff_t *tvb, int len)
 }
 
 static void
-decrypt_v5(u_char *bfr, guint32 size,guint32 key)
+decrypt_v5(guchar *bfr, guint32 size,guint32 key)
 {
     guint32 i;
     guint32 k;
@@ -444,12 +436,12 @@ decrypt_v5(u_char *bfr, guint32 size,guint32 key)
     for (i=ICQ5_CL_SESSIONID; i < size; i+=4 ) {
 	k = key+table_v5[i&0xff];
 	if ( i != 0x16 ) {
-	    bfr[i] ^= (u_char)(k & 0xff);
-	    bfr[i+1] ^= (u_char)((k & 0xff00)>>8);
+	    bfr[i] ^= (guchar)(k & 0xff);
+	    bfr[i+1] ^= (guchar)((k & 0xff00)>>8);
 	}
 	if ( i != 0x12 ) {
-	    bfr[i+2] ^= (u_char)((k & 0xff0000)>>16);
-	    bfr[i+3] ^= (u_char)((k & 0xff000000)>>24);
+	    bfr[i+2] ^= (guchar)((k & 0xff0000)>>16);
+	    bfr[i+3] ^= (guchar)((k & 0xff000000)>>24);
 	}
     }
 }
@@ -1113,7 +1105,7 @@ icqv5_cmd_login(proto_tree* tree,
     char *aTime;
     guint32 port;
     guint32 passwdLen;
-    const u_char *ipAddrp;
+    const guchar *ipAddrp;
     guint32 status;
 
     if (tree) {
@@ -1256,7 +1248,7 @@ icqv5_srv_login_reply(proto_tree* tree,/* Tree to put the data in */
 {
     proto_tree* subtree;
     proto_item* ti;
-    const u_char *ipAddrp;
+    const guchar *ipAddrp;
 
     if (tree) {
 	if (size < SRV_LOGIN_REPLY_IP + 8) {
@@ -1290,8 +1282,8 @@ icqv5_srv_user_online(proto_tree* tree,/* Tree to put the data in */
 {
     proto_tree* subtree;
     proto_item* ti;
-    const u_char *ipAddrp;
-    const u_char *realipAddrp;
+    const guchar *ipAddrp;
+    const guchar *realipAddrp;
     guint32 status;
 
     if (tree) {

@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.30 2002/07/17 06:55:20 guy Exp $
+ * $Id: packet-telnet.c,v 1.31 2002/08/02 23:36:03 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,14 +30,6 @@
 #endif
 
 #include <stdio.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include <string.h>
 #include <glib.h>
@@ -127,7 +119,7 @@ telnet_sub_option(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
   int offset = start_offset;
   guint8 opt_byte;
   int subneg_len, req;
-  const u_char *opt;
+  const guchar *opt;
   guint len;
 
   offset += 2;	/* skip IAC and SB */
@@ -194,7 +186,7 @@ static int
 telnet_command(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
 {
   int offset = start_offset;
-  u_char optcode;
+  guchar optcode;
   
   offset += 1;	/* skip IAC */
   optcode = tvb_get_guint8(tvb, offset);

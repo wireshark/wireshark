@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.47 2002/06/07 21:11:22 guy Exp $
+ * $Id: packet-atm.c,v 1.48 2002/08/02 23:35:47 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,10 +24,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <stdio.h>
@@ -617,7 +613,7 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-capture_lane(const union wtap_pseudo_header *pseudo_header, const u_char *pd,
+capture_lane(const union wtap_pseudo_header *pseudo_header, const guchar *pd,
     int len, packet_counts *ld)
 {
   /* Is it LE Control, 802.3, 802.5, or "none of the above"? */
@@ -760,7 +756,7 @@ static const value_string ipsilon_type_vals[] = {
 };
 
 void
-capture_atm(const union wtap_pseudo_header *pseudo_header, const u_char *pd,
+capture_atm(const union wtap_pseudo_header *pseudo_header, const guchar *pd,
     int len, packet_counts *ld)
 {
   if (pseudo_header->atm.aal == AAL_5) {

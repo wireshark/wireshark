@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.39 2002/04/24 06:03:34 guy Exp $
+ * $Id: packet-vlan.c,v 1.40 2002/08/02 23:36:04 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,14 +26,6 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-ieee8023.h"
@@ -53,7 +45,7 @@ static int hf_vlan_trailer = -1;
 static gint ett_vlan = -1;
 
 void
-capture_vlan(const u_char *pd, int offset, int len, packet_counts *ld ) {
+capture_vlan(const guchar *pd, int offset, int len, packet_counts *ld ) {
   guint16 encap_proto;
   if ( !BYTES_ARE_IN_FRAME(offset,len,5) ) {
     ld->other++;

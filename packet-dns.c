@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.89 2002/07/16 22:50:45 guy Exp $
+ * $Id: packet-dns.c,v 1.90 2002/08/02 23:35:48 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,10 +24,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #ifdef NEED_SNPRINTF_H
@@ -270,7 +266,7 @@ http://www.microsoft.com/windows2000/library/resources/reskit/samplechapters/cnc
 
    which discuss them to some extent. */
 static char *
-dns_type_name (u_int type)
+dns_type_name (guint type)
 {
   char *type_names[] = {
     "unused",
@@ -362,7 +358,7 @@ dns_type_name (u_int type)
 
 
 static char *
-dns_long_type_name (u_int type)
+dns_long_type_name (guint type)
 {
   char *type_names[] = {
     "unused",
@@ -773,7 +769,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
 proto_tree *
 add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
   const char *name, int namelen, const char *type_name, const char *class_name,
-  u_int ttl, u_short data_len)
+  guint ttl, gushort data_len)
 {
   proto_tree *rr_tree;
 
@@ -794,7 +790,7 @@ add_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
 static proto_tree *
 add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
   const char *name, int namelen, const char *type_name, int class,
-  u_int ttl, u_short data_len)
+  guint ttl, gushort data_len)
 {
   proto_tree *rr_tree;
 
@@ -870,8 +866,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
   int data_offset;
   int cur_offset;
   int data_start;
-  u_int ttl;
-  u_short data_len;
+  guint ttl;
+  gushort data_len;
   proto_tree *rr_tree = NULL;
   proto_item *trr = NULL;
 

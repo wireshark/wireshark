@@ -1,7 +1,7 @@
 /* capture-wpcap.c
  * Try to load WinPcap DLL at run-time.
  *
- * $Id: capture-wpcap.c,v 1.1 2001/04/03 05:26:26 gram Exp $
+ * $Id: capture-wpcap.c,v 1.2 2002/08/02 23:35:46 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,7 +45,7 @@ gboolean has_wpcap = FALSE;
 static char*   (*p_pcap_lookupdev) (char *);
 static void    (*p_pcap_close) (pcap_t *);
 static int     (*p_pcap_stats) (pcap_t *, struct pcap_stat *);
-static int     (*p_pcap_dispatch) (pcap_t *, int, pcap_handler, u_char *);
+static int     (*p_pcap_dispatch) (pcap_t *, int, pcap_handler, guchar *);
 static int     (*p_pcap_snapshot) (pcap_t *);
 static int     (*p_pcap_datalink) (pcap_t *);
 static int     (*p_pcap_setfilter) (pcap_t *, struct bpf_program *);
@@ -55,7 +55,7 @@ static int     (*p_pcap_compile) (pcap_t *, struct bpf_program *, char *, int,
 static int     (*p_pcap_lookupnet) (char *, bpf_u_int32 *, bpf_u_int32 *,
 			char *);
 static pcap_t* (*p_pcap_open_live) (char *, int, int, int, char *);
-static int     (*p_pcap_loop) (pcap_t *, int, pcap_handler, u_char *);
+static int     (*p_pcap_loop) (pcap_t *, int, pcap_handler, guchar *);
 
 typedef struct {
 	const char	*name;
@@ -128,7 +128,7 @@ pcap_stats(pcap_t *a, struct pcap_stat *b)
 }
 
 int
-pcap_dispatch(pcap_t *a, int b, pcap_handler c, u_char *d)
+pcap_dispatch(pcap_t *a, int b, pcap_handler c, guchar *d)
 {
 	g_assert(has_wpcap);
 	return p_pcap_dispatch(a, b, c, d);
@@ -187,7 +187,7 @@ pcap_open_live(char *a, int b, int c, int d, char *e)
 }
 
 int
-pcap_loop(pcap_t *a, int b, pcap_handler c, u_char *d)
+pcap_loop(pcap_t *a, int b, pcap_handler c, guchar *d)
 {
 	g_assert(has_wpcap);
 	return p_pcap_loop(a, b, c, d);

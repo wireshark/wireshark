@@ -2,7 +2,7 @@
  * Routines for ISO/OSI End System to Intermediate System  
  * Routing Exchange Protocol ISO 9542.
  *
- * $Id: packet-esis.c,v 1.25 2002/04/30 23:56:58 guy Exp $
+ * $Id: packet-esis.c,v 1.26 2002/08/02 23:35:49 jmayer Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -26,10 +26,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <stdio.h>
@@ -64,11 +60,11 @@ static const value_string esis_vals[] = {
 
 /* internal prototypes */
 
-static void esis_dissect_esh_pdu( u_char len, tvbuff_t *tvb,
+static void esis_dissect_esh_pdu( guchar len, tvbuff_t *tvb,
                            proto_tree *treepd);
-static void esis_dissect_ish_pdu( u_char len, tvbuff_t *tvb,
+static void esis_dissect_ish_pdu( guchar len, tvbuff_t *tvb,
                            proto_tree *tree);
-static void esis_dissect_redirect_pdu( u_char len, tvbuff_t *tvb,
+static void esis_dissect_redirect_pdu( guchar len, tvbuff_t *tvb,
                            proto_tree *tree);
 
 /* ################## Descriptions ###########################################*/
@@ -153,7 +149,7 @@ esis_dissect_unknown( tvbuff_t *tvb, proto_tree *tree, char *fmat, ...){
 
 
 static void
-esis_dissect_esh_pdu( u_char len, tvbuff_t *tvb, proto_tree *tree) {
+esis_dissect_esh_pdu( guchar len, tvbuff_t *tvb, proto_tree *tree) {
   proto_tree *esis_area_tree;
   int         offset  = 0;
   int         no_sa   = 0;
@@ -187,7 +183,7 @@ esis_dissect_esh_pdu( u_char len, tvbuff_t *tvb, proto_tree *tree) {
 } /* esis_dissect_esh_pdu */ ;
 
 static void
-esis_dissect_ish_pdu( u_char len, tvbuff_t *tvb, proto_tree *tree) {
+esis_dissect_ish_pdu( guchar len, tvbuff_t *tvb, proto_tree *tree) {
   
   int   offset  = 0;
   int   netl    = 0;
@@ -210,7 +206,7 @@ esis_dissect_ish_pdu( u_char len, tvbuff_t *tvb, proto_tree *tree) {
 };
 
 static void
-esis_dissect_redirect_pdu( u_char len, tvbuff_t *tvb, proto_tree *tree) {
+esis_dissect_redirect_pdu( guchar len, tvbuff_t *tvb, proto_tree *tree) {
 
   int   offset  = 0;
   int   tmpl    = 0;
@@ -283,7 +279,7 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
    proto_item *ti;
    proto_tree *esis_tree    = NULL;
    int         variable_len = 0;
-   u_int       tmp_uint     = 0;
+   guint       tmp_uint     = 0;
    char       *cksum_status;
 
    if (check_col(pinfo->cinfo, COL_PROTOCOL))

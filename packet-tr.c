@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-tr.c,v 1.71 2002/07/02 08:23:53 guy Exp $
+ * $Id: packet-tr.c,v 1.72 2002/08/02 23:36:03 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,10 +25,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <string.h>
@@ -164,7 +160,7 @@ int check_for_old_linux_tvb(tvbuff_t *tvb)
 }
 
 static
-int check_for_old_linux(const u_char * pd)
+int check_for_old_linux(const guchar * pd)
 {
 	int x;
 	for(x=1;x<=18;x++)
@@ -182,7 +178,7 @@ static void
 add_ring_bridge_pairs(int rcf_len, tvbuff_t*, proto_tree *tree);
 
 void
-capture_tr(const u_char *pd, int offset, int len, packet_counts *ld) {
+capture_tr(const guchar *pd, int offset, int len, packet_counts *ld) {
 
 	int			source_routed = 0;
 	int			frame_type;

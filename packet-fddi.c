@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.56 2002/01/21 07:36:34 guy Exp $
+ * $Id: packet-fddi.c,v 1.57 2002/08/02 23:35:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,10 +26,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <stdio.h>
@@ -129,7 +125,7 @@ static dissector_handle_t llc_handle;
 static dissector_handle_t data_handle;
 
 static void
-swap_mac_addr(u_char *swapped_addr, const u_char *orig_addr)
+swap_mac_addr(guchar *swapped_addr, const guchar *orig_addr)
 {
 	int i;
 
@@ -140,7 +136,7 @@ swap_mac_addr(u_char *swapped_addr, const u_char *orig_addr)
 
 
 void
-capture_fddi(const u_char *pd, int len, packet_counts *ld)
+capture_fddi(const guchar *pd, int len, packet_counts *ld)
 {
   int        offset = 0, fc;
 
@@ -263,8 +259,8 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_item *ti;
   gchar      *fc_str;
   proto_tree *fc_tree;
-  static u_char src[6], dst[6];
-  u_char     src_swapped[6], dst_swapped[6];
+  static guchar src[6], dst[6];
+  guchar     src_swapped[6], dst_swapped[6];
   tvbuff_t   *next_tvb;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
@@ -304,10 +300,10 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* Extract the destination address, possibly bit-swapping it. */
   if (bitswapped)
-    swap_mac_addr(dst, (u_char *) tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
+    swap_mac_addr(dst, (guchar *) tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
   else
-    memcpy(dst, (u_char *) tvb_get_ptr(tvb, FDDI_P_DHOST, 6), sizeof dst);
-  swap_mac_addr(dst_swapped, (u_char*) tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
+    memcpy(dst, (guchar *) tvb_get_ptr(tvb, FDDI_P_DHOST, 6), sizeof dst);
+  swap_mac_addr(dst_swapped, (guchar*) tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
 
   /* XXX - copy them to some buffer associated with "pi", rather than
      just making "dst" static? */
@@ -325,10 +321,10 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   /* Extract the source address, possibly bit-swapping it. */
   if (bitswapped)
-    swap_mac_addr(src, (u_char *) tvb_get_ptr(tvb, FDDI_P_SHOST, 6));
+    swap_mac_addr(src, (guchar *) tvb_get_ptr(tvb, FDDI_P_SHOST, 6));
   else
-    memcpy(src, (u_char *) tvb_get_ptr(tvb, FDDI_P_SHOST, 6), sizeof src);
-  swap_mac_addr(src_swapped, (u_char*) tvb_get_ptr(tvb, FDDI_P_SHOST, 6));
+    memcpy(src, (guchar *) tvb_get_ptr(tvb, FDDI_P_SHOST, 6), sizeof src);
+  swap_mac_addr(src_swapped, (guchar*) tvb_get_ptr(tvb, FDDI_P_SHOST, 6));
 
   /* XXX - copy them to some buffer associated with "pi", rather than
      just making "src" static? */

@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.31 2002/07/17 00:42:40 guy Exp $
+ * $Id: packet-gtp.c,v 1.32 2002/08/02 23:35:50 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,14 +32,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include <glib.h>
 
@@ -4794,8 +4786,8 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(flags_tree, hf_gtpv0_flags_spare, tvb, 0, 1, gtpv0_hdr.flags);
 		proto_tree_add_boolean(flags_tree, hf_gtpv0_flags_snn, tvb, 0, 1, gtpv0_hdr.flags);
 		
-		gtpv0_hdr.length = ntohs(gtpv0_hdr.length);
-		gtpv0_hdr.seq_no = ntohs(gtpv0_hdr.seq_no);
+		gtpv0_hdr.length = g_ntohs(gtpv0_hdr.length);
+		gtpv0_hdr.seq_no = g_ntohs(gtpv0_hdr.seq_no);
 		proto_tree_add_uint(gtpv0_tree, hf_gtpv0_message_type, tvb, 1, 1, gtpv0_hdr.message);
 		proto_tree_add_uint(gtpv0_tree, hf_gtpv0_length, tvb, 2, 2, gtpv0_hdr.length);
 		proto_tree_add_uint(gtpv0_tree, hf_gtpv0_seq_number, tvb, 4, 2, gtpv0_hdr.seq_no);
@@ -4893,7 +4885,7 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		
 		proto_tree_add_uint(gtpv1_tree, hf_gtpv1_message_type, tvb, 1, 1, gtpv1_hdr.message);
 		
-		gtpv1_hdr.length = ntohs(gtpv1_hdr.length);
+		gtpv1_hdr.length = g_ntohs(gtpv1_hdr.length);
 		proto_tree_add_uint(gtpv1_tree, hf_gtpv1_length, tvb, 2, 2, gtpv1_hdr.length);
 
 		gtp_prime = (gtpv1_hdr.flags & 0x01) >> 4;
@@ -4902,7 +4894,7 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 		if (!gtp_prime) { 
 		
-			gtpv1_hdr.teid = ntohl(gtpv1_hdr.teid);
+			gtpv1_hdr.teid = g_ntohl(gtpv1_hdr.teid);
 			proto_tree_add_uint(gtpv1_tree, hf_gtpv1_teid, tvb, 4, 4, gtpv1_hdr.teid);
 
 			if (gtpv1_hdr.flags & 0x07) {

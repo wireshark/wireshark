@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.49 2002/07/17 06:55:19 guy Exp $
+ * $Id: packet-http.c,v 1.50 2002/08/02 23:35:50 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,10 +26,6 @@
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
 #endif
 
 #include <string.h>
@@ -77,7 +73,7 @@ typedef enum {
 	PROTO_SSDP		/* Simple Service Discovery Protocol */
 } http_proto_t;
 
-static int is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type);
+static int is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type);
 
 static dissector_table_t subdissector_table;
 static heur_dissector_list_t heur_subdissector_list;
@@ -90,11 +86,11 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*http_tree = NULL;
 	proto_item	*ti = NULL;
 	gint		offset = 0;
-	const u_char	*line;
+	const guchar	*line;
 	gint		next_offset;
-	const u_char	*linep, *lineend;
+	const guchar	*linep, *lineend;
 	int		linelen;
-	u_char		c;
+	guchar		c;
 	http_type_t     http_type;
 	int		datalen;
 
@@ -295,7 +291,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * anyway.
  */
 static int
-is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type)
+is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type)
 {
 	int isHttpRequestOrReply = FALSE;
 
@@ -321,7 +317,7 @@ is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type)
 		*type = HTTP_RESPONSE;
 		isHttpRequestOrReply = TRUE;	/* response */
 	} else {
-		u_char * ptr = (u_char *)data;
+		guchar * ptr = (guchar *)data;
 		int		 index = 0;
 
 		/* Look for the space following the Method */

@@ -1,7 +1,7 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.c,v 1.19 2002/05/02 07:54:41 guy Exp $
+ * $Id: packet-igmp.c,v 1.20 2002/08/02 23:35:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,10 +90,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <stdio.h>
@@ -853,18 +849,18 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		break;
 
 	case IGMP_TYPE_0x23:
-		dst = htonl(MC_ALL_IGMPV3_ROUTERS);
+		dst = g_htonl(MC_ALL_IGMPV3_ROUTERS);
 		if (!memcmp(pinfo->dst.data, &dst, 4)) {
 			offset = dissect_msnip(tvb, pinfo, parent_tree, offset);
 		}
 		break;
 
 	case IGMP_TYPE_0x24:
-		dst = htonl(MC_ALL_ROUTERS);
+		dst = g_htonl(MC_ALL_ROUTERS);
 		if (!memcmp(pinfo->dst.data, &dst, 4)) {
 			offset = dissect_mrdisc(tvb, pinfo, parent_tree, offset);
 		}  
-		dst = htonl(MC_ALL_IGMPV3_ROUTERS);
+		dst = g_htonl(MC_ALL_IGMPV3_ROUTERS);
 		if (!memcmp(pinfo->dst.data, &dst, 4)) {
 			offset = dissect_msnip(tvb, pinfo, parent_tree, offset);
 		}
@@ -876,7 +872,7 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			offset = dissect_msnip(tvb, pinfo, parent_tree, offset);
 		} else {
 			/* ok its not MSNIP, check if it might be MRDISC */
-			dst = htonl(MC_ALL_ROUTERS);
+			dst = g_htonl(MC_ALL_ROUTERS);
 			if (!memcmp(pinfo->dst.data, &dst, 4)) {
 				offset = dissect_mrdisc(tvb, pinfo, parent_tree, offset);
 			}
@@ -884,7 +880,7 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		break;
 
 	case IGMP_TYPE_0x26:
-		dst = htonl(MC_ALL_ROUTERS);
+		dst = g_htonl(MC_ALL_ROUTERS);
 		if (!memcmp(pinfo->dst.data, &dst, 4)) {
 			offset = dissect_mrdisc(tvb, pinfo, parent_tree, offset);
 		}

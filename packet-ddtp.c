@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-ddtp.c,v 1.20 2002/01/24 09:20:47 guy Exp $
+ * $Id: packet-ddtp.c,v 1.21 2002/08/02 23:35:48 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,18 +29,11 @@
 #include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
 /*#include <string.h>
 #include <ctype.h>
 #include <time.h>*/
 
 #include <glib.h>
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 #include <epan/packet.h>
 #include "packet-ddtp.h"
 

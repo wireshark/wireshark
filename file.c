@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.284 2002/07/30 10:13:14 guy Exp $
+ * $Id: file.c,v 1.285 2002/08/02 23:35:46 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,14 +58,6 @@
 
 #ifdef NEED_STRERROR_H
 #include "strerror.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
 #endif
 
 #include <epan/epan.h>
@@ -647,7 +639,7 @@ apply_color_filter(gpointer filter_arg, gpointer argp)
 
 static int
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
-	union wtap_pseudo_header *pseudo_header, const u_char *buf,
+	union wtap_pseudo_header *pseudo_header, const guchar *buf,
 	gboolean refilter)
 {
   apply_color_filter_args args;
@@ -797,7 +789,7 @@ read_packet(capture_file *cf, long offset)
 {
   const struct wtap_pkthdr *phdr = wtap_phdr(cf->wth);
   union wtap_pseudo_header *pseudo_header = wtap_pseudoheader(cf->wth);
-  const u_char *buf = wtap_buf_ptr(cf->wth);
+  const guchar *buf = wtap_buf_ptr(cf->wth);
   frame_data   *fdata;
   int           passed;
   frame_data   *plist_end;

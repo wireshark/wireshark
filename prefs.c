@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.87 2002/08/01 03:15:25 jmayer Exp $
+ * $Id: prefs.c,v 1.88 2002/08/02 23:36:06 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,10 +24,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
 #endif
 
 #include <stdlib.h>
@@ -1033,7 +1029,7 @@ read_prefs_file(const char *pf_path, FILE *pf)
 int
 prefs_set_pref(char *prefarg)
 {
-	u_char *p, *colonp;
+	guchar *p, *colonp;
 	int ret;
 
 	/*

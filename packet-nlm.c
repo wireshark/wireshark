@@ -1,7 +1,7 @@
 /* packet-nlm.c
  * Routines for nlm dissection
  *
- * $Id: packet-nlm.c,v 1.27 2002/05/21 10:17:27 sahlberg Exp $
+ * $Id: packet-nlm.c,v 1.28 2002/08/02 23:35:55 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,10 +35,6 @@
 #include "config.h"
 #endif
 
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 
 #include "packet-rpc.h"

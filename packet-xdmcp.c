@@ -2,7 +2,7 @@
  * Routines for XDMCP message dissection
  * Copyright 2002, Pasi Eronen <pasi.eronen@nixu.com>
  *
- * $Id: packet-xdmcp.c,v 1.1 2002/03/16 02:25:48 guy Exp $
+ * $Id: packet-xdmcp.c,v 1.2 2002/08/02 23:36:05 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -99,7 +99,7 @@ static gint ett_xdmcp_connection = -1;
 /* Copied from packet-x11.c */
 static void stringCopy(char *dest, const char *source, int length)
 {
-  u_char c;
+  guchar c;
   while(length--) {
     c = *source++;
     if (!isgraph(c) && c != ' ') c = '.';

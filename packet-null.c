@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.53 2002/07/30 07:25:29 guy Exp $
+ * $Id: packet-null.c,v 1.54 2002/08/02 23:35:55 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,10 +26,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
 #endif
 
 #include <glib.h>
@@ -75,7 +71,7 @@ static const value_string family_vals[] = {
 static dissector_handle_t ppp_hdlc_handle;
 static dissector_handle_t data_handle;
 void
-capture_null( const u_char *pd, int len, packet_counts *ld )
+capture_null( const guchar *pd, int len, packet_counts *ld )
 {
   guint32 null_header;
 

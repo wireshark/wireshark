@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.29 2002/06/13 07:18:47 guy Exp $
+ * $Id: packet-ethertype.c,v 1.30 2002/08/02 23:35:49 jmayer Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -26,10 +26,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <glib.h>
@@ -104,7 +100,7 @@ static void add_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
     tvbuff_t *next_tvb, int offset_after_etype, guint length_before);
 
 void
-capture_ethertype(guint16 etype, const u_char *pd, int offset, int len,
+capture_ethertype(guint16 etype, const guchar *pd, int offset, int len,
 		  packet_counts *ld)
 {
   switch (etype) {

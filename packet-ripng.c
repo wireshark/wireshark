@@ -3,7 +3,7 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.25 2002/01/24 09:20:51 guy Exp $
+ * $Id: packet-ripng.c,v 1.26 2002/08/02 23:35:57 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,14 +25,6 @@
  */
  
 #include "config.h"
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
 
 #include <string.h>
 #include <glib.h>
@@ -99,7 +91,7 @@ dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 					ip6_to_str(&ni6.rip6_dest),
 					ni6.rip6_plen,
 					ni6.rip6_metric,
-					ntohs(ni6.rip6_tag));
+					g_ntohs(ni6.rip6_tag));
 		    } else {
 			ti = proto_tree_add_text(ripng_tree, tvb, offset,
 					sizeof(ni6), "IP Address: %s/%u, Metric: %u",
@@ -115,7 +107,7 @@ dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		    proto_tree_add_text(subtree, tvb,
 				offset + offsetof(struct netinfo6, rip6_tag),
 				sizeof(ni6.rip6_tag), "Tag: 0x%04x",
-				ntohs(ni6.rip6_tag));
+				g_ntohs(ni6.rip6_tag));
 		    proto_tree_add_text(subtree, tvb,
 				offset + offsetof(struct netinfo6, rip6_plen),
 				sizeof(ni6.rip6_plen), "Prefix length: %u",

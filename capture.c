@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.186 2002/07/16 07:15:04 guy Exp $
+ * $Id: capture.c,v 1.187 2002/08/02 23:35:46 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,10 +27,6 @@
 #endif
 
 #ifdef HAVE_LIBPCAP
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
 
 #ifdef HAVE_SYS_STAT_H
 # include <sys/stat.h>
@@ -203,8 +199,8 @@ static char *signame(int);
 #endif
 static void capture_delete_cb(GtkWidget *, GdkEvent *, gpointer);
 static void capture_stop_cb(GtkWidget *, gpointer);
-static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
-  const u_char *);
+static void capture_pcap_cb(guchar *, const struct pcap_pkthdr *,
+  const guchar *);
 static void get_capture_file_io_error(char *, int, const char *, int, gboolean);
 static void popup_errmsg(const char *);
 static void send_errmsg_to_parent(const char *);
@@ -238,7 +234,7 @@ typedef struct _loop_data {
 static void adjust_header(loop_data *, struct pcap_hdr *, struct pcaprec_hdr *);
 static int pipe_open_live(char *, struct pcap_hdr *, loop_data *, char *, int);
 static int pipe_dispatch(int, loop_data *, struct pcap_hdr *, \
-		struct pcaprec_modified_hdr *, u_char *, char *, int);
+		struct pcaprec_modified_hdr *, guchar *, char *, int);
 #endif
 
 /* Win32 needs the O_BINARY flag for open() */
@@ -297,7 +293,7 @@ do_capture(char *capfile_name)
 {
   char tmpname[128+1];
   gboolean is_tempfile;
-  u_char c;
+  guchar c;
   int i;
   guint byte_count;
   char *msg;
@@ -1231,7 +1227,7 @@ error:
 
 static int
 pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
-		struct pcaprec_modified_hdr *rechdr, u_char *data,
+		struct pcaprec_modified_hdr *rechdr, guchar *data,
 		char *errmsg, int errmsgl)
 {
   struct pcap_pkthdr phdr;
@@ -1311,7 +1307,7 @@ pipe_dispatch(int fd, loop_data *ld, struct pcap_hdr *hdr,
     phdr.caplen = rechdr->hdr.incl_len;
     phdr.len = rechdr->hdr.orig_len;
   
-    capture_pcap_cb((u_char *)ld, &phdr, data);
+    capture_pcap_cb((guchar *)ld, &phdr, data);
   
     ld->pipe_state = STATE_EXPECT_REC_HDR;
     return 1;
@@ -1394,7 +1390,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   int         pipe_fd = -1;
   struct pcap_hdr hdr;
   struct pcaprec_modified_hdr rechdr;
-  u_char pcap_data[WTAP_MAX_PACKET_SIZE];
+  guchar pcap_data[WTAP_MAX_PACKET_SIZE];
 #endif
 #ifdef MUST_DO_SELECT
   int         pcap_fd = 0;
@@ -1789,7 +1785,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
 	 * "select()" says we can read from it without blocking; go for
 	 * it.
 	 */
-	inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (u_char *) &ld);
+	inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (guchar *) &ld);
 	if (inpkts < 0) {
 	  ld.pcap_err = TRUE;
 	  ld.go = FALSE;
@@ -1804,7 +1800,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
         }
       }
 #else
-      inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (u_char *) &ld);
+      inpkts = pcap_dispatch(pch, 1, capture_pcap_cb, (guchar *) &ld);
       if (inpkts < 0) {
         ld.pcap_err = TRUE;
         ld.go = FALSE;
@@ -2129,8 +2125,8 @@ kill_capture_child(void)
 }
 
 static void
-capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
-  const u_char *pd)
+capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
+  const guchar *pd)
 {
   struct wtap_pkthdr whdr;
   union wtap_pseudo_header pseudo_header;

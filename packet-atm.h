@@ -1,6 +1,6 @@
 /* packet-atm.h
  *
- * $Id: packet-atm.h,v 1.7 2002/06/07 21:11:22 guy Exp $
+ * $Id: packet-atm.h,v 1.8 2002/08/02 23:35:47 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,7 +24,7 @@
 #ifndef __PACKET_ATM_H__
 #define __PACKET_ATM_H__
 
-void capture_atm(const union wtap_pseudo_header *, const u_char *, int,
+void capture_atm(const union wtap_pseudo_header *, const guchar *, int,
     packet_counts *);
 
 #endif

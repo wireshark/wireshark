@@ -1,7 +1,7 @@
 /* packet-pflog.c
  * Routines for pflog (OpenBSD Firewall Logging) packet disassembly
  *
- * $Id: packet-pflog.c,v 1.5 2002/07/15 20:55:51 guy Exp $
+ * $Id: packet-pflog.c,v 1.6 2002/08/02 23:35:56 jmayer Exp $
  *
  * Copyright 2001 Mike Frantzen
  * All rights reserved.
@@ -32,10 +32,6 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
@@ -64,7 +60,7 @@ static int hf_pflog_dir = -1;
 static gint ett_pflog = -1;
 
 void
-capture_pflog(const u_char *pd, int offset, int len, packet_counts *ld)
+capture_pflog(const guchar *pd, int offset, int len, packet_counts *ld)
 {
   struct pfloghdr pflogh;
 

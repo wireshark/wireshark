@@ -1,6 +1,6 @@
 /* packet-chdlc.h
  *
- * $Id: packet-chdlc.h,v 1.3 2001/11/20 21:59:12 guy Exp $
+ * $Id: packet-chdlc.h,v 1.4 2002/08/02 23:35:48 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,7 +33,7 @@
 #define CHDLC_ADDR_UNICAST	0x0f
 #define CHDLC_ADDR_MULTICAST	0x8f
 
-void capture_chdlc(const u_char *, int, int, packet_counts *);
+void capture_chdlc(const guchar *, int, int, packet_counts *);
 
 extern const value_string chdlc_vals[];
 

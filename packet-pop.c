@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.31 2002/07/17 06:55:19 guy Exp $
+ * $Id: packet-pop.c,v 1.32 2002/08/02 23:35:56 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,14 +31,6 @@
 
 #include <stdio.h>
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
@@ -54,7 +46,7 @@ static dissector_handle_t data_handle;
 
 #define TCP_PORT_POP			110
 
-static gboolean response_is_continuation(const u_char *data);
+static gboolean response_is_continuation(const guchar *data);
 	
 static void
 dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -64,11 +56,11 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree      *pop_tree;
 	proto_item	*ti;
 	gint		offset = 0;
-	const u_char	*line;
+	const guchar	*line;
 	gint		next_offset;
 	int		linelen;
 	int		tokenlen;
-	const u_char	*next_token;
+	const guchar	*next_token;
 
 	if (check_col(pinfo->cinfo, COL_PROTOCOL))
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "POP");
@@ -186,7 +178,7 @@ dissect_pop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-static gboolean response_is_continuation(const u_char *data)
+static gboolean response_is_continuation(const guchar *data)
 {
   if (strncmp(data, "+OK", strlen("+OK")) == 0)
     return FALSE;

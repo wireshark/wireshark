@@ -3,7 +3,7 @@
  *
  * Ronnie Sahlberg
  *
- * $Id: packet-nfsauth.c,v 1.1 2002/05/16 08:51:17 sahlberg Exp $
+ * $Id: packet-nfsauth.c,v 1.2 2002/08/02 23:35:55 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,10 +28,6 @@
 #include "config.h"
 #endif
 
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 
 #include "packet-rpc.h"

@@ -1,6 +1,6 @@
 /* packet-null.h
  *
- * $Id: packet-null.h,v 1.5 2001/11/20 21:59:13 guy Exp $
+ * $Id: packet-null.h,v 1.6 2002/08/02 23:35:55 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,6 @@
 #ifndef __PACKET_NULL_H__
 #define __PACKET_NULL_H__
 
-void capture_null(const u_char *, int, packet_counts *);
+void capture_null(const guchar *, int, packet_counts *);
 
 #endif

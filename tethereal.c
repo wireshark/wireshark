@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.150 2002/08/01 03:15:26 jmayer Exp $
+ * $Id: tethereal.c,v 1.151 2002/08/02 23:36:07 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,10 +40,6 @@
 #endif
 
 #include <errno.h>
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
@@ -130,8 +126,8 @@ typedef struct _loop_data {
 static loop_data ld;
 
 static int capture(int);
-static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
-  const u_char *);
+static void capture_pcap_cb(guchar *, const struct pcap_pkthdr *,
+  const guchar *);
 #ifdef _WIN32
 static BOOL WINAPI capture_cleanup(DWORD);
 #else /* _WIN32 */
@@ -145,11 +141,11 @@ typedef struct {
 } cb_args_t;
 
 static int load_cap_file(capture_file *, int);
-static void wtap_dispatch_cb_write(u_char *, const struct wtap_pkthdr *, long,
-    union wtap_pseudo_header *, const u_char *);
+static void wtap_dispatch_cb_write(guchar *, const struct wtap_pkthdr *, long,
+    union wtap_pseudo_header *, const guchar *);
 static void show_capture_file_io_error(const char *, int, gboolean);
-static void wtap_dispatch_cb_print(u_char *, const struct wtap_pkthdr *, long,
-    union wtap_pseudo_header *, const u_char *);
+static void wtap_dispatch_cb_print(guchar *, const struct wtap_pkthdr *, long,
+    union wtap_pseudo_header *, const guchar *);
 
 capture_file cfile;
 ts_type timestamp_type = RELATIVE;
@@ -257,7 +253,7 @@ get_positive_int(const char *string, const char *name)
 static gboolean
 set_autostop_criterion(const char *autostoparg)
 {
-  u_char *p, *colonp;
+  guchar *p, *colonp;
 
   colonp = strchr(autostoparg, ':');
   if (colonp == NULL)
@@ -1125,7 +1121,7 @@ capture(int out_file_type)
          each packet. */
       pcap_cnt = 1;
     }
-    inpkts = pcap_dispatch(ld.pch, pcap_cnt, capture_pcap_cb, (u_char *) &ld);
+    inpkts = pcap_dispatch(ld.pch, pcap_cnt, capture_pcap_cb, (guchar *) &ld);
     if (inpkts < 0) {
       /* Error from "pcap_dispatch()". */
       ld.go = FALSE;
@@ -1244,8 +1240,8 @@ error:
 }
 
 static void
-capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
-  const u_char *pd)
+capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
+  const guchar *pd)
 {
   struct wtap_pkthdr whdr;
   union wtap_pseudo_header pseudo_header;
@@ -1265,7 +1261,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   args.cf = &cfile;
   args.pdh = ld->pdh;
   if (ld->pdh) {
-    wtap_dispatch_cb_write((u_char *)&args, &whdr, 0, &pseudo_header, pd);
+    wtap_dispatch_cb_write((guchar *)&args, &whdr, 0, &pseudo_header, pd);
     /* Report packet capture count if not quiet */
     if (!quiet) {
       if (ld->packet_count != 0) {
@@ -1275,7 +1271,7 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
       }
     }
   } else {
-    wtap_dispatch_cb_print((u_char *)&args, &whdr, 0, &pseudo_header, pd);
+    wtap_dispatch_cb_print((guchar *)&args, &whdr, 0, &pseudo_header, pd);
   }
 }
 
@@ -1382,7 +1378,7 @@ load_cap_file(capture_file *cf, int out_file_type)
     }
     args.cf = cf;
     args.pdh = pdh;
-    success = wtap_loop(cf->wth, 0, wtap_dispatch_cb_write, (u_char *) &args,
+    success = wtap_loop(cf->wth, 0, wtap_dispatch_cb_write, (guchar *) &args,
  			&err);
 
     /* Now close the capture file. */
@@ -1391,7 +1387,7 @@ load_cap_file(capture_file *cf, int out_file_type)
   } else {
     args.cf = cf;
     args.pdh = NULL;
-    success = wtap_loop(cf->wth, 0, wtap_dispatch_cb_print, (u_char *) &args,
+    success = wtap_loop(cf->wth, 0, wtap_dispatch_cb_print, (guchar *) &args,
  			&err);
   }
   if (!success) {
@@ -1504,8 +1500,8 @@ clear_fdata(frame_data *fdata)
 }
 
 static void
-wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
-  long offset, union wtap_pseudo_header *pseudo_header, const u_char *buf)
+wtap_dispatch_cb_write(guchar *user, const struct wtap_pkthdr *phdr,
+  long offset, union wtap_pseudo_header *pseudo_header, const guchar *buf)
 {
   cb_args_t    *args = (cb_args_t *) user;
   capture_file *cf = args->cf;
@@ -1605,8 +1601,8 @@ show_capture_file_io_error(const char *fname, int err, gboolean is_close)
 }
 
 static void
-wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
-  long offset, union wtap_pseudo_header *pseudo_header, const u_char *buf)
+wtap_dispatch_cb_print(guchar *user, const struct wtap_pkthdr *phdr,
+  long offset, union wtap_pseudo_header *pseudo_header, const guchar *buf)
 {
   cb_args_t    *args = (cb_args_t *) user;
   capture_file *cf = args->cf;

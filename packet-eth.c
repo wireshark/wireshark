@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.73 2002/04/24 06:03:33 guy Exp $
+ * $Id: packet-eth.c,v 1.74 2002/08/02 23:35:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,10 +24,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <glib.h>
@@ -71,7 +67,7 @@ static dissector_handle_t isl_handle;
 #define ETHERNET_SNAP	3
 
 void
-capture_eth(const u_char *pd, int offset, int len, packet_counts *ld)
+capture_eth(const guchar *pd, int offset, int len, packet_counts *ld)
 {
   guint16    etype, length;
   int     ethhdr_type;	/* the type of ethernet frame */

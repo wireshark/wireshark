@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.33 2002/02/05 00:09:45 guy Exp $
+ * $Id: packet-raw.c,v 1.34 2002/08/02 23:35:57 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,10 +28,6 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
@@ -50,7 +46,7 @@ static dissector_handle_t data_handle;
 static dissector_handle_t ppp_hdlc_handle;
 
 void
-capture_raw(const u_char *pd, int len, packet_counts *ld)
+capture_raw(const guchar *pd, int len, packet_counts *ld)
 {
   /* So far, the only time we get raw connection types are with Linux and
    * Irix PPP connections.  We can't tell what type of data is coming down

@@ -1,6 +1,6 @@
 /* follow.h
  *
- * $Id: follow.h,v 1.11 2002/01/21 07:36:31 guy Exp $
+ * $Id: follow.h,v 1.12 2002/08/02 23:35:46 jmayer Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -34,10 +34,10 @@
 extern gboolean incomplete_tcp_stream;
 
 typedef struct _tcp_frag {
-  u_long              seq;
-  u_long              len;
-  u_long              data_len;
-  u_char             *data;
+  gulong              seq;
+  gulong              len;
+  gulong              data_len;
+  guchar             *data;
   struct _tcp_frag   *next;
 } tcp_frag;
 
@@ -48,8 +48,8 @@ typedef struct _tcp_stream_chunk {
 } tcp_stream_chunk;
 
 char* build_follow_filter( packet_info * );
-void reassemble_tcp( u_long, u_long, const char*, u_long, int, 
-		     address *, address *, u_int, u_int );
+void reassemble_tcp( gulong, gulong, const char*, gulong, int, 
+		     address *, address *, guint, guint );
 void  reset_tcp_reassembly( void );
 
 typedef struct {

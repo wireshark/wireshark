@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.34 2002/05/30 01:56:55 guy Exp $
+ * $Id: packet-rtp.c,v 1.35 2002/08/02 23:36:00 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,14 +57,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-
-#ifdef HAVE_SYS_TYPES_H
-#  include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#  include <netinet/in.h>
-#endif
 
 #include <stdio.h>
 #include <string.h>

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.171 2002/07/15 20:54:45 guy Exp $
+ * $Id: packet-ip.c,v 1.172 2002/08/02 23:35:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,14 +24,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
 #endif
 
 #include <stdio.h>
@@ -347,7 +339,7 @@ ip_defragment_init(void)
 }
 
 void
-capture_ip(const u_char *pd, int offset, int len, packet_counts *ld) {
+capture_ip(const guchar *pd, int offset, int len, packet_counts *ld) {
   if (!BYTES_ARE_IN_FRAME(offset, len, IPH_MIN_LEN)) {
     ld->other++;
     return;
@@ -658,7 +650,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
 			const ip_tcp_opt *opttab, int nopts, int eol,
 			packet_info *pinfo, proto_tree *opt_tree)
 {
-  u_char            opt;
+  guchar            opt;
   const ip_tcp_opt *optp;
   opt_len_type      len_type;
   unsigned int      optlen;

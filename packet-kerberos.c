@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.22 2002/07/29 02:03:54 sharpe Exp $
+ * $Id: packet-kerberos.c,v 1.23 2002/08/02 23:35:52 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,10 +31,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
 
 #include <glib.h>
 

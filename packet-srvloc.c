@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.31 2002/07/17 00:42:42 guy Exp $
+ * $Id: packet-srvloc.c,v 1.32 2002/08/02 23:36:03 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,14 +35,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include <string.h>
 #include <time.h>
@@ -84,7 +76,7 @@ struct srvloc_hdr {
     guint16	length;
     guint8	flags;
     guint8	dialect;
-    u_char	language[2];
+    guchar	language[2];
     guint16	encoding;
     guint16	xid;
 };

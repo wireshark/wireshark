@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.93 2002/05/22 09:52:14 guy Exp $
+ * $Id: packet-ppp.c,v 1.94 2002/08/02 23:35:56 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,10 +26,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <string.h>
@@ -1334,7 +1330,7 @@ fcs32(guint32 fcs, tvbuff_t * tvbuff)
 }
 
 void
-capture_ppp_hdlc( const u_char *pd, int offset, int len, packet_counts *ld ) {
+capture_ppp_hdlc( const guchar *pd, int offset, int len, packet_counts *ld ) {
   if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
     ld->other++;
     return;

@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.68 2002/05/30 05:26:05 guy Exp $
+ * $Id: packet-ospf.c,v 1.69 2002/08/02 23:35:55 jmayer Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -34,14 +34,6 @@
  
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
 #endif
 
 #include <stdio.h>
@@ -523,8 +515,8 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		cksum_vec[1].ptr = pinfo->dst.data;
 		cksum_vec[1].len = pinfo->dst.len;
 		cksum_vec[2].ptr = (const guint8 *)&phdr;
-	        phdr[0] = htonl(ospflen);
-	        phdr[1] = htonl(IP_PROTO_OSPF);
+	        phdr[0] = g_htonl(ospflen);
+	        phdr[1] = g_htonl(IP_PROTO_OSPF);
 	        cksum_vec[2].len = 8;
 
 		cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, reported_length);

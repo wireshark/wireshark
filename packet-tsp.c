@@ -3,7 +3,7 @@
  *
  * Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-tsp.c,v 1.1 2002/01/31 07:50:29 girlich Exp $
+ * $Id: packet-tsp.c,v 1.2 2002/08/02 23:36:04 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,14 +28,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
 #endif
 
 #include <glib.h>

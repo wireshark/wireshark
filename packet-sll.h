@@ -1,6 +1,6 @@
 /* packet-sll.h
  *
- * $Id: packet-sll.h,v 1.2 2001/11/20 21:59:13 guy Exp $
+ * $Id: packet-sll.h,v 1.3 2002/08/02 23:36:01 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,6 @@
 #ifndef __PACKET_SLL_H__
 #define __PACKET_SLL_H__
 
-void capture_sll(const u_char *, int, packet_counts *);
+void capture_sll(const guchar *, int, packet_counts *);
 
 #endif

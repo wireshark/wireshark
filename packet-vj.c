@@ -1,7 +1,7 @@
 /* packet-vj.c
  * Routines for Van Jacobson header decompression. 
  *
- * $Id: packet-vj.c,v 1.14 2002/07/15 09:56:04 guy Exp $
+ * $Id: packet-vj.c,v 1.15 2002/08/02 23:36:04 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,10 +61,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <glib.h>
@@ -606,7 +602,7 @@ vjc_tvb_setup(tvbuff_t *src_tvb,
   pbuf     = g_malloc(buf_len);
   memcpy(pbuf, data_ptr, hdr_len);
   tvb_memcpy(src_tvb, pbuf + hdr_len, offset, buf_len - hdr_len);
-  *dst_tvb = tvb_new_real_data(pbuf, buf_len, ntohs(ip->tot_len));
+  *dst_tvb = tvb_new_real_data(pbuf, buf_len, g_ntohs(ip->tot_len));
   tvb_set_child_real_data_tvbuff(src_tvb, *dst_tvb);
   add_new_data_source(pinfo, *dst_tvb, "VJ Decompressed");
   return VJ_OK;
@@ -733,7 +729,7 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_uint(tree, hf_vj_tcp_cksum, src_tvb, offset, 2, tcp_cksum);
   if(cs != NULL) {
     hdrlen = lo_nibble(ip->ihl_version) * 4 + TCP_OFFSET(thp) * 4;
-    thp->cksum = htons(tcp_cksum);
+    thp->cksum = g_htons(tcp_cksum);
   }
   offset += 2;
   if(cs != NULL) {
@@ -747,14 +743,14 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
   switch(changes & SPECIALS_MASK){
     case SPECIAL_I:                   /* Echoed terminal traffic */
       if(cs != NULL) {
-        word = ntohs(ip->tot_len) - hdrlen;
-        thp->ack_seq = htonl(ntohl(thp->ack_seq) + word);
-        thp->seq = htonl(ntohl(thp->seq) + word);
+        word = g_ntohs(ip->tot_len) - hdrlen;
+        thp->ack_seq = g_htonl(g_ntohl(thp->ack_seq) + word);
+        thp->seq = g_htonl(g_ntohl(thp->seq) + word);
       }
       break;
     case SPECIAL_D:                   /* Unidirectional data */
       if(cs != NULL)
-        thp->seq = htonl(ntohl(thp->seq) + ntohs(ip->tot_len) - hdrlen);
+        thp->seq = g_htonl(g_ntohl(thp->seq) + g_ntohs(ip->tot_len) - hdrlen);
       break;
     default:
       if(changes & NEW_U){
@@ -770,17 +766,17 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
       if(changes & NEW_W) {
         delta = get_signed_delta(src_tvb, &offset, hf_vj_win_delta, tree);
         if(cs != NULL)
-          thp->window = htons(ntohs(thp->window) + delta);
+          thp->window = g_htons(g_ntohs(thp->window) + delta);
       }
       if(changes & NEW_A) {
         delta = get_unsigned_delta(src_tvb, &offset, hf_vj_ack_delta, tree);
         if(cs != NULL)
-          thp->ack_seq = htonl(ntohl(thp->ack_seq) + delta);
+          thp->ack_seq = g_htonl(g_ntohl(thp->ack_seq) + delta);
       }
       if(changes & NEW_S) {
       	delta = get_unsigned_delta(src_tvb, &offset, hf_vj_seq_delta, tree);
         if(cs != NULL)
-          thp->seq = htonl(ntohl(thp->seq) + delta);
+          thp->seq = g_htonl(g_ntohl(thp->seq) + delta);
       }
       break;
   }
@@ -789,7 +785,7 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
   else
     delta = 1;
   if(cs != NULL)
-    ip->id = htons(ntohs(ip->id) + delta);
+    ip->id = g_htons(g_ntohs(ip->id) + delta);
 
   /* Compute IP packet length and the buffer length needed */
   len = tvb_reported_length_remaining(src_tvb, offset);
@@ -819,7 +815,7 @@ vjc_process(tvbuff_t *src_tvb, packet_info *pinfo, proto_tree *tree,
 
   if(cs != NULL) {
     len += hdrlen;
-    ip->tot_len = htons(len);
+    ip->tot_len = g_htons(len);
     /* Compute IP check sum */
     ip->cksum = ZERO;
     ip->cksum = ip_csum((guint8 *)ip, lo_nibble(ip->ihl_version) * 4);

@@ -5,7 +5,7 @@
  * ISO 10589 ISIS (Intradomain Routing Information Exchange Protocol)
  * ISO  9542 ESIS (End System To Intermediate System Routing Exchange Protocol)
  *
- * $Id: packet-osi-options.c,v 1.12 2002/04/30 23:56:58 guy Exp $
+ * $Id: packet-osi-options.c,v 1.13 2002/08/02 23:35:55 jmayer Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -29,10 +29,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <stdio.h>
@@ -166,10 +162,10 @@ static const value_string osi_opt_rfd_reassembly[] = {
      
 
 static void
-dissect_option_qos( const u_char type, const u_char sub_type, int offset,
-                    u_char len, tvbuff_t *tvb, proto_tree *tree ) {
+dissect_option_qos( const guchar type, const guchar sub_type, int offset,
+                    guchar len, tvbuff_t *tvb, proto_tree *tree ) {
 
-  u_char      tmp_type = 0;
+  guchar      tmp_type = 0;
   proto_item *ti;
   proto_tree *osi_qos_tree = NULL;
   
@@ -217,14 +213,14 @@ dissect_option_qos( const u_char type, const u_char sub_type, int offset,
 }
 
 static void
-dissect_option_route( u_char parm_type, u_char offset, u_char parm_len, 
+dissect_option_route( guchar parm_type, guchar offset, guchar parm_len, 
                       tvbuff_t *tvb, proto_tree *tree ) {
 
-  u_char      next_hop = 0;
-  u_char      this_hop = 0;
-  u_char      netl     = 0;
-  u_char      last_hop = 0;
-  u_char      cnt_hops = 0;
+  guchar      next_hop = 0;
+  guchar      this_hop = 0;
+  guchar      netl     = 0;
+  guchar      last_hop = 0;
+  guchar      cnt_hops = 0;
   
   proto_item *ti;
   proto_tree *osi_route_tree = NULL;
@@ -278,9 +274,9 @@ dissect_option_route( u_char parm_type, u_char offset, u_char parm_len,
 
 
 static void
-dissect_option_rfd( const u_char error, const u_char field, u_char offset,
-                          u_char len, tvbuff_t *tvb, proto_tree *tree ) {
-  u_char error_class = 0;
+dissect_option_rfd( const guchar error, const guchar field, guchar offset,
+                          guchar len, tvbuff_t *tvb, proto_tree *tree ) {
+  guchar error_class = 0;
   char   *format_string[] = 
              { "Reason for discard {General}        : %s, in field %u",
                "Reason for discard {Address}        : %s, in field %u",
@@ -338,7 +334,7 @@ dissect_option_rfd( const u_char error, const u_char field, u_char offset,
  *   main esis tree data and call the sub-protocols as needed.
  *
  * Input:
- *   u_char       : length of option section 
+ *   guchar       : length of option section 
  *   tvbuff_t *   : tvbuff containing packet data
  *   int          : offset into packet where we are (packet_data[offset]== start
  *                  of what we care about)
@@ -348,12 +344,12 @@ dissect_option_rfd( const u_char error, const u_char field, u_char offset,
  *   void, but we will add to the proto_tree if it is not NULL.
  */
 void
-dissect_osi_options( u_char opt_len, tvbuff_t *tvb, 
+dissect_osi_options( guchar opt_len, tvbuff_t *tvb, 
                      int offset, proto_tree *tree) {
    proto_item *ti;
    proto_tree *osi_option_tree = NULL;
-   u_char      parm_len        = 0;
-   u_char      parm_type       = 0;
+   guchar      parm_len        = 0;
+   guchar      parm_type       = 0;
    guint8      octet;
 
    if (tree) {

@@ -4,7 +4,7 @@
  * By Peter Torvals
  * Copyright 1999 Peter Torvals
  *
- * $Id: packet-icp.c,v 1.21 2002/01/21 07:36:35 guy Exp $
+ * $Id: packet-icp.c,v 1.22 2002/08/02 23:35:50 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,14 +28,6 @@
 #define MAX_TEXTBUF_LENGTH 600
 #ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
 #endif
 
 #include <stdio.h>

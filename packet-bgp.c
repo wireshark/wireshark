@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.59 2002/05/21 21:55:46 guy Exp $
+ * $Id: packet-bgp.c,v 1.60 2002/08/02 23:35:47 jmayer Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -45,14 +45,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -549,7 +541,7 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
     struct bgp_open bgpo;      /* BGP OPEN message      */
     int             hlen;      /* message length        */
-    u_int           i;         /* tmp                   */
+    guint           i;         /* tmp                   */
     int             ptype;     /* parameter type        */
     int             plen;      /* parameter length      */
     int             ctype;     /* capability type       */
@@ -569,17 +561,17 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
 
     /* snarf OPEN message */
     tvb_memcpy(tvb, bgpo.bgpo_marker, offset, BGP_MIN_OPEN_MSG_SIZE);
-    hlen = ntohs(bgpo.bgpo_len);
+    hlen = g_ntohs(bgpo.bgpo_len);
 
     proto_tree_add_text(tree, tvb,
 	offset + offsetof(struct bgp_open, bgpo_version), 1,
 	"Version: %u", bgpo.bgpo_version);
     proto_tree_add_text(tree, tvb,
 	offset + offsetof(struct bgp_open, bgpo_myas), 2,
-	"My AS: %u", ntohs(bgpo.bgpo_myas));
+	"My AS: %u", g_ntohs(bgpo.bgpo_myas));
     proto_tree_add_text(tree, tvb,
 	offset + offsetof(struct bgp_open, bgpo_holdtime), 2,
-	"Hold time: %u", ntohs(bgpo.bgpo_holdtime));
+	"Hold time: %u", g_ntohs(bgpo.bgpo_holdtime));
     proto_tree_add_text(tree, tvb,
 	offset + offsetof(struct bgp_open, bgpo_id), 4,
 	"BGP identifier: %s", ip_to_str((guint8 *)&bgpo.bgpo_id));
@@ -1633,7 +1625,7 @@ dissect_bgp_notification(tvbuff_t *tvb, int offset, proto_tree *tree)
 
     /* snarf message */
     tvb_memcpy(tvb, bgpn.bgpn_marker, offset, BGP_MIN_NOTIFICATION_MSG_SIZE);
-    hlen = ntohs(bgpn.bgpn_len);
+    hlen = g_ntohs(bgpn.bgpn_len);
 
     /* print error code */
     proto_tree_add_text(tree, tvb,
@@ -1668,7 +1660,7 @@ dissect_bgp_notification(tvbuff_t *tvb, int offset, proto_tree *tree)
 static void
 dissect_bgp_route_refresh(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-    u_int        i;    /* tmp            */
+    guint        i;    /* tmp            */
 
     /* AFI */
     i = tvb_get_ntohs(tvb, offset + BGP_HEADER_SIZE);
@@ -1700,7 +1692,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree    *bgp1_tree;    /* BGP message tree                 */
     int           l, i;          /* tmp                              */
     int           found;         /* number of BGP messages in packet */
-    static u_char marker[] = {   /* BGP message marker               */
+    static guchar marker[] = {   /* BGP message marker               */
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
     };
@@ -1727,7 +1719,7 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	found++;
-	hlen = ntohs(bgp.bgp_len);
+	hlen = g_ntohs(bgp.bgp_len);
 
 	/*
 	 * Desegmentation check.

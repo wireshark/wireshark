@@ -1,7 +1,7 @@
 /* packet-slowprotocols.c
  * Routines for EtherType (0x8809) Slow Protocols disassembly.
  *
- * $Id: packet-slowprotocols.c,v 1.2 2002/06/13 21:20:24 guy Exp $
+ * $Id: packet-slowprotocols.c,v 1.3 2002/08/02 23:36:01 jmayer Exp $
  *
  * Copyright 2002 Steve Housley <steve_housley@3com.com>
  * 
@@ -30,14 +30,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
 #endif
 
 #include <stdio.h>

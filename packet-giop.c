@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.61 2002/05/13 01:24:45 guy Exp $
+ * $Id: packet-giop.c,v 1.62 2002/08/02 23:35:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -280,10 +280,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <string.h>
@@ -2825,11 +2821,11 @@ dissect_target_address(tvbuff_t * tvb, packet_info *pinfo, int *offset, proto_tr
 }
 
 static void
-dissect_reply_body (tvbuff_t *tvb, u_int offset, packet_info *pinfo,
+dissect_reply_body (tvbuff_t *tvb, guint offset, packet_info *pinfo,
 		    proto_tree *tree, gboolean stream_is_big_endian,
 		    guint32 reply_status, MessageHeader *header, proto_tree *clnp_tree) {
 
-  u_int sequence_length;
+  guint sequence_length;
   gboolean exres = FALSE;		/* result of trying explicit dissectors */
   gchar * repoid = NULL;	/* Repositor ID looked up from  objkey */
   
@@ -3078,7 +3074,7 @@ static void dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
 				    MessageHeader * header,
 				    gboolean stream_is_big_endian) {
 
-  u_int offset = 0;
+  guint offset = 0;
   guint32 request_id;
   guint32 reply_status;
   proto_tree *reply_tree = NULL;
@@ -3158,7 +3154,7 @@ static void dissect_giop_cancel_request (tvbuff_t * tvb, packet_info * pinfo,
 			proto_tree * tree,
 			gboolean stream_is_big_endian) {
 
-  u_int offset = 0;
+  guint offset = 0;
   guint32 request_id;
   proto_tree *cancel_request_tree = NULL;
   proto_item *tf;
@@ -3742,15 +3738,15 @@ dissect_giop_fragment( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 /* Main entry point */
 
 gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
-  u_int offset = 0;
+  guint offset = 0;
   MessageHeader header;
   tvbuff_t *giop_header_tvb;
   tvbuff_t *payload_tvb;
 
   proto_tree *clnp_tree = NULL;
   proto_item *ti;
-  u_int message_size;
-  u_int minor_version;
+  guint message_size;
+  guint minor_version;
   gboolean stream_is_big_endian;
 
 

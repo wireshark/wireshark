@@ -1,6 +1,6 @@
 /* packet-eth.h
  *
- * $Id: packet-eth.h,v 1.6 2001/11/20 21:59:12 guy Exp $
+ * $Id: packet-eth.h,v 1.7 2002/08/02 23:35:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,6 @@
 #ifndef __PACKET_ETH_H__
 #define __PACKET_ETH_H__
 
-void capture_eth(const u_char *, int, int, packet_counts *);
+void capture_eth(const guchar *, int, int, packet_counts *);
 
 #endif

@@ -1,6 +1,6 @@
 /* packet-osi.h
  *
- * $Id: packet-osi.h,v 1.10 2002/02/28 19:24:24 gram Exp $
+ * $Id: packet-osi.h,v 1.11 2002/08/02 23:35:55 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -91,6 +91,6 @@ typedef enum {
 	CKSUM_NOT_OK	/* checksum is not OK */
 } cksum_status_t;
 
-extern cksum_status_t calc_checksum(tvbuff_t *, int, u_int, u_int);
+extern cksum_status_t calc_checksum(tvbuff_t *, int, guint, guint);
 
 #endif /* _PACKET_OSI_H */

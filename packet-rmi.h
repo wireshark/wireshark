@@ -2,7 +2,7 @@
  * header file for java rmiregistry dissection
  * Copyright 2002, Michael Stiller <ms@2scale.net>
  *
- * $Id: packet-rmi.h,v 1.1 2002/05/29 18:52:26 guy Exp $
+ * $Id: packet-rmi.h,v 1.2 2002/08/02 23:35:57 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,6 +95,6 @@ static void
 dissect_ser(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 static rmi_type
-get_rmi_type(const u_char *data, int datalen);
+get_rmi_type(const guchar *data, int datalen);
 
 #endif

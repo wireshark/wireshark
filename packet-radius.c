@@ -4,7 +4,7 @@
  *
  * RFC 2865, RFC 2866, RFC 2867, RFC 2868, RFC 2869
  *
- * $Id: packet-radius.c,v 1.65 2002/07/17 01:02:45 guy Exp $
+ * $Id: packet-radius.c,v 1.66 2002/08/02 23:35:57 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,14 +27,6 @@
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
 #endif
 
 #include <stdio.h>
@@ -2829,7 +2821,7 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   rhcode= (int)rh.rh_code;
   rhident= (int)rh.rh_ident;
-  rhlength= (int)ntohs(rh.rh_pktlength);
+  rhlength= (int)g_ntohs(rh.rh_pktlength);
   codestrval=  match_strval(rhcode,radius_vals);
   if (codestrval==NULL)
   {

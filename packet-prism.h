@@ -9,7 +9,7 @@
  *
  * By Tim Newsham
  *
- * $Id: packet-prism.h,v 1.1 2001/11/28 07:11:07 guy Exp $
+ * $Id: packet-prism.h,v 1.2 2002/08/02 23:35:56 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -32,6 +32,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-void capture_prism(const u_char *pd, int offset, int len, packet_counts *ld);
+void capture_prism(const guchar *pd, int offset, int len, packet_counts *ld);
 void proto_register_prism(void);
 void proto_reg_handoff_prism(void);

@@ -7,7 +7,7 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.20 2002/07/31 18:45:50 guy Exp $
+ * $Id: packet-tpkt.c,v 1.21 2002/08/02 23:36:03 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,14 +34,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-
-#ifdef HAVE_SYS_TYPES_H
-#  include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#  include <netinet/in.h>
-#endif
 
 #include <stdio.h>
 #include <string.h>

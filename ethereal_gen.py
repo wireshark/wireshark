@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.27 2002/07/17 00:42:40 guy Exp $
+# $Id: ethereal_gen.py,v 1.28 2002/08/02 23:35:46 jmayer Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -2178,14 +2178,6 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 #include <stdio.h>
 #include <stdlib.h>
 #include <gmodule.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"

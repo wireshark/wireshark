@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.57 2002/06/07 10:11:38 guy Exp $
+ * $Id: packet-clnp.c,v 1.58 2002/08/02 23:35:48 jmayer Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -26,10 +26,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <stdio.h>
@@ -155,9 +151,9 @@ static const value_string npdu_type_vals[] = {
 /* Segmentation part */
 
 struct clnp_segment {
-  u_short	cng_id;		/* data unit identifier */
-  u_short	cng_off;	/* segment offset */
-  u_short	cng_tot_len;	/* total length */
+  gushort	cng_id;		/* data unit identifier */
+  gushort	cng_off;	/* segment offset */
+  gushort	cng_tot_len;	/* total length */
 };
 
 /* NSAP selector */
@@ -276,8 +272,8 @@ static const value_string tp_vpart_type_vals[] = {
 
 /* global variables */
 
-static u_char  li, tpdu, cdt; 	/* common fields */
-static u_short dst_ref;
+static guchar  li, tpdu, cdt; 	/* common fields */
+static gushort dst_ref;
 
 /* List of dissectors to call for COTP packets put atop the Inactive
    Subset of CLNP. */
@@ -296,7 +292,7 @@ static gboolean clnp_reassemble = FALSE;
 /* function definitions */
 
 #define MAX_TSAP_LEN	32
-static gchar *print_tsap(const u_char *tsap, int length)
+static gchar *print_tsap(const guchar *tsap, int length)
 {
 
   static gchar  str[3][MAX_TSAP_LEN * 2 + 1];
@@ -677,8 +673,8 @@ static int osi_decode_DR(tvbuff_t *tvb, int offset,
 {
   proto_tree *cotp_tree;
   proto_item *ti;
-  u_short src_ref;
-  u_char  reason;
+  gushort src_ref;
+  guchar  reason;
   char *str;
   
   if (li < LI_MIN_DR) 
@@ -746,8 +742,8 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
   proto_item *ti;
   gboolean is_extended;
   gboolean is_class_234;
-  u_int    tpdu_nr ;
-  u_int    fragment = 0;
+  guint    tpdu_nr ;
+  guint    fragment = 0;
   tvbuff_t *next_tvb;
     
   /* VP_CHECKSUM is the only parameter allowed in the variable part.
@@ -880,7 +876,7 @@ static int osi_decode_ED(tvbuff_t *tvb, int offset,
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
   gboolean is_extended;
-  u_int    tpdu_nr ;
+  guint    tpdu_nr ;
   tvbuff_t *next_tvb;
 
   /* ED TPDUs are never fragmented */
@@ -985,8 +981,8 @@ static int osi_decode_RJ(tvbuff_t *tvb, int offset,
 {
   proto_tree *cotp_tree;
   proto_item *ti;
-  u_int    tpdu_nr ;
-  u_short  credit = 0;
+  guint    tpdu_nr ;
+  gushort  credit = 0;
 
   switch(li) {
     case LI_NORMAL_RJ   :
@@ -1043,8 +1039,8 @@ static int osi_decode_CC(tvbuff_t *tvb, int offset,
 
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
-  u_short src_ref;
-  u_char  class_option;
+  gushort src_ref;
+  guchar  class_option;
 
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
   class_option = (tvb_get_guint8(tvb, offset + P_CLASS_OPTION) >> 4 ) & 0x0F;
@@ -1113,7 +1109,7 @@ static int osi_decode_DC(tvbuff_t *tvb, int offset,
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
-  u_short src_ref;
+  gushort src_ref;
 
   if (li > LI_MAX_DC) 
     return -1;
@@ -1168,8 +1164,8 @@ static int osi_decode_AK(tvbuff_t *tvb, int offset,
 {
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
-  u_int      tpdu_nr;
-  u_short    cdt_in_ak;
+  guint      tpdu_nr;
+  gushort    cdt_in_ak;
 
   if (li > LI_MAX_AK) 
     return -1;
@@ -1278,7 +1274,7 @@ static int osi_decode_EA(tvbuff_t *tvb, int offset,
   proto_tree *cotp_tree = NULL;
   proto_item *ti;
   gboolean is_extended;
-  u_int    tpdu_nr ;
+  guint    tpdu_nr ;
 
   if (li > LI_MAX_EA) 
     return -1;
@@ -1371,7 +1367,7 @@ static int osi_decode_ER(tvbuff_t *tvb, int offset,
 {
   proto_tree *cotp_tree;
   proto_item *ti;
-  u_char *str;
+  guchar *str;
 
   if (li > LI_MAX_ER) 
     return -1;
@@ -1595,7 +1591,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16     cnf_cksum;
   cksum_status_t cksum_status;
   int         offset;
-  u_char      src_len, dst_len, nsel, opt_len = 0;
+  guchar      src_len, dst_len, nsel, opt_len = 0;
   const guint8     *dst_addr, *src_addr;
   gint        len;
   guint       next_length;

@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.29 2002/02/28 19:35:08 gram Exp $
+ * $Id: follow.c,v 1.30 2002/08/02 23:35:46 jmayer Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -35,10 +35,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
 #include <glib.h>
 #include <epan/packet.h>
 #include "follow.h"
@@ -48,8 +44,8 @@ FILE* data_out_file = NULL;
 gboolean incomplete_tcp_stream = FALSE;
 
 static guint8  ip_address[2][MAX_IPADDR_LEN];
-static u_int   tcp_port[2];
-static u_int   bytes_written[2];
+static guint   tcp_port[2];
+static guint   bytes_written[2];
 static gboolean is_ipv6 = FALSE;
 
 static int check_fragments( int, tcp_stream_chunk * );
@@ -114,17 +110,17 @@ build_follow_filter( packet_info *pi ) {
    of order packets in a smart way. */
 
 static tcp_frag *frags[2] = { 0, 0 };
-static u_long seq[2];
+static gulong seq[2];
 static guint8 src_addr[2][MAX_IPADDR_LEN];
-static u_int src_port[2] = { 0, 0 };
+static guint src_port[2] = { 0, 0 };
 
 void 
-reassemble_tcp( u_long sequence, u_long length, const char* data,
-		u_long data_length, int synflag, address *net_src,
-		address *net_dst, u_int srcport, u_int dstport) {
+reassemble_tcp( gulong sequence, gulong length, const char* data,
+		gulong data_length, int synflag, address *net_src,
+		address *net_dst, guint srcport, guint dstport) {
   guint8 srcx[MAX_IPADDR_LEN], dstx[MAX_IPADDR_LEN];
   int src_index, j, first = 0, len;
-  u_long newseq;
+  gulong newseq;
   tcp_frag *tmp_frag;
   tcp_stream_chunk sc;
   
@@ -207,7 +203,7 @@ reassemble_tcp( u_long sequence, u_long length, const char* data,
        info than we have already seen */
     newseq = sequence + length;
     if( newseq > seq[src_index] ) {
-      u_long new_len;
+      gulong new_len;
 
       /* this one has more than we have seen. let's get the 
 	 payload that we have not seen. */
@@ -244,7 +240,7 @@ reassemble_tcp( u_long sequence, u_long length, const char* data,
     /* out of order packet */
     if(data_length > 0 && sequence > seq[src_index] ) {
       tmp_frag = (tcp_frag *)malloc( sizeof( tcp_frag ) );
-      tmp_frag->data = (u_char *)malloc( data_length );
+      tmp_frag->data = (guchar *)malloc( data_length );
       tmp_frag->seq = sequence;
       tmp_frag->len = length;
       tmp_frag->data_len = data_length;

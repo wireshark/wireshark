@@ -1,7 +1,7 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.h,v 1.26 2002/01/21 07:36:35 guy Exp $
+ * $Id: packet-ipv6.h,v 1.27 2002/08/02 23:35:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -77,8 +77,8 @@ struct ip6_hdr {
  */
 
 struct	ip6_ext {
-	u_char	ip6e_nxt;
-	u_char	ip6e_len;
+	guchar	ip6e_nxt;
+	guchar	ip6e_len;
 };
 
 /* Hop-by-Hop options header */

@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.98 2002/05/29 03:08:01 guy Exp $
+ * $Id: packet-llc.c,v 1.99 2002/08/02 23:35:53 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,10 +25,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <glib.h>
@@ -164,7 +160,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 };
 
 void
-capture_llc(const u_char *pd, int offset, int len, packet_counts *ld) {
+capture_llc(const guchar *pd, int offset, int len, packet_counts *ld) {
 
 	int		is_snap;
 	guint16		control;

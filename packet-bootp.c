@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.68 2002/06/29 19:45:01 guy Exp $
+ * $Id: packet-bootp.c,v 1.69 2002/08/02 23:35:47 jmayer Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -37,10 +37,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <string.h>
@@ -146,11 +142,11 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 {
 	char			*text;
 	enum field_type		ftype;
-	u_char			code = tvb_get_guint8(tvb, voff);
+	guchar			code = tvb_get_guint8(tvb, voff);
 	int			vlen;
-	u_char			byte;
+	guchar			byte;
 	int			i,optp, consumed;
-	u_long			time_secs;
+	gulong			time_secs;
 	proto_tree		*v_tree;
 	proto_item		*vti;
 	guint8			protocol;
@@ -767,12 +763,12 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 
 		case val_u_short:
 			if (vlen == 2) {
-				/* one u_short */
+				/* one gushort */
 				proto_tree_add_text(bp_tree, tvb, voff, consumed,
 						"Option %d: %s = %d", code, text,
 						tvb_get_ntohs(tvb, voff+2));
 			} else {
-				/* > 1 u_short */
+				/* > 1 gushort */
 				vti = proto_tree_add_text(bp_tree, tvb, voff,
 					consumed, "Option %d: %s", code, text);
 				v_tree = proto_item_add_subtree(vti, ett_bootp_option);

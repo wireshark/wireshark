@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.79 2002/06/29 22:15:41 guy Exp $
+ * $Id: packet-atalk.c,v 1.80 2002/08/02 23:35:47 jmayer Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -27,14 +27,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
 #endif
 
 #include <glib.h>
@@ -116,15 +108,15 @@ static int hf_ddp_type = -1;
 static dissector_handle_t asp_handle;
 
 static int proto_atp = -1;
-static int hf_atp_ctrlinfo  = -1; /* u_int8_t    control information */
+static int hf_atp_ctrlinfo  = -1; /* guint8_t    control information */
 static int hf_atp_function  = -1; /* bits 7,6    function */
 static int hf_atp_xo        = -1; /* bit 5       exactly-once */
 static int hf_atp_eom       = -1; /* bit 4       end-of-message */
 static int hf_atp_sts       = -1; /* bit 3       send transaction status */
 static int hf_atp_treltimer = -1; /* bits 2,1,0  TRel timeout indicator */
 
-static int hf_atp_bitmap = -1;   /* u_int8_t  bitmap or sequence number */
-static int hf_atp_tid = -1;      /* u_int16_t transaction id. */
+static int hf_atp_bitmap = -1;   /* guint8_t  bitmap or sequence number */
+static int hf_atp_tid = -1;      /* guint16_t transaction id. */
 static int hf_atp_user_bytes = -1;
 
 static int hf_atp_segments = -1;
@@ -1571,10 +1563,10 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
   tvb_memcpy(tvb, (guint8 *)&ddp, 0, sizeof(e_ddp));
-  ddp.dnet=ntohs(ddp.dnet);
-  ddp.snet=ntohs(ddp.snet);
-  ddp.sum=ntohs(ddp.sum);
-  ddp.hops_len=ntohs(ddp.hops_len);
+  ddp.dnet=g_ntohs(ddp.dnet);
+  ddp.snet=g_ntohs(ddp.snet);
+  ddp.sum=g_ntohs(ddp.sum);
+  ddp.hops_len=g_ntohs(ddp.hops_len);
   
   src.net = ddp.snet;
   src.node = ddp.snode;

@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.30 2002/01/21 07:36:36 guy Exp $
+ * $Id: packet-isl.c,v 1.31 2002/08/02 23:35:52 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,14 +24,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
 #endif
 
 #include <glib.h>
@@ -86,7 +78,7 @@ static dissector_handle_t tr_handle;
 static dissector_handle_t data_handle;
 
 void
-capture_isl(const u_char *pd, int offset, int len, packet_counts *ld)
+capture_isl(const guchar *pd, int offset, int len, packet_counts *ld)
 {
   guint8 type;
 

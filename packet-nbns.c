@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.76 2002/05/15 07:24:20 guy Exp $
+ * $Id: packet-nbns.c,v 1.77 2002/08/02 23:35:54 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,10 +26,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <stdio.h>
@@ -429,7 +425,7 @@ dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
 
 static void
 nbns_add_nbns_flags(proto_tree *nbns_tree, tvbuff_t *tvb, int offset,
-    u_short flags, int is_wack)
+    gushort flags, int is_wack)
 {
 	char buf[128+1];
 	guint16 opcode;
@@ -472,7 +468,7 @@ nbns_add_nbns_flags(proto_tree *nbns_tree, tvbuff_t *tvb, int offset,
 }
 
 static void
-nbns_add_nb_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset, u_short flags)
+nbns_add_nb_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset, gushort flags)
 {
 	char buf[128+1];
 	proto_tree *field_tree;
@@ -507,7 +503,7 @@ nbns_add_nb_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset, u_short flags)
 
 static void
 nbns_add_name_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset,
-    u_short flags)
+    gushort flags)
 {
 	char buf[128+1];
 	proto_item *field_tree;
@@ -582,15 +578,15 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 	int data_offset;
 	int cur_offset;
 	int data_start;
-	u_int ttl;
-	u_short data_len;
-	u_short flags;
+	guint ttl;
+	gushort data_len;
+	gushort flags;
 	proto_tree *rr_tree;
 	proto_item *trr;
 	char name_str[(NETBIOS_NAME_LEN - 1)*4 + 1];
-	u_int num_names;
+	guint num_names;
 	char nbname[16+4+1];	/* 4 for [<last char>] */
-	u_short name_flags;
+	gushort name_flags;
 
 	data_start = data_offset = offset;
 	cur_offset = offset;

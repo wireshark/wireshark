@@ -1,7 +1,7 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.20 2002/04/03 13:24:12 girlich Exp $
+ * $Id: packet-bootparams.c,v 1.21 2002/08/02 23:35:47 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,14 +26,6 @@
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
 #endif
 
 #include <string.h>
@@ -78,7 +70,7 @@ dissect_bp_address(tvbuff_t *tvb, int offset, proto_tree *tree, int hfindex)
 			|((tvb_get_guint8(tvb, offset+11)&0xff)<<8 )
 			|((tvb_get_guint8(tvb, offset+15)&0xff) );
 		proto_tree_add_ipv4(tree, hfindex, tvb, 
-			offset, 16, ntohl(ipaddr));
+			offset, 16, g_ntohl(ipaddr));
 		offset += 16;
 		break;
 

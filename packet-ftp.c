@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.47 2002/07/17 06:55:19 guy Exp $
+ * $Id: packet-ftp.c,v 1.48 2002/08/02 23:35:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,14 +33,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include <string.h>
 #include <glib.h>
@@ -118,11 +110,11 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
  * the address and port number.
  */
 static void
-handle_pasv_response(const u_char *line, int linelen, packet_info *pinfo)
+handle_pasv_response(const guchar *line, int linelen, packet_info *pinfo)
 {
 	char *args;
 	char *p;
-	u_char c;
+	guchar c;
 	int i;
 	int address[4], port[2];
 	guint16 server_port;
@@ -213,13 +205,13 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree      *ftp_tree = NULL;
 	proto_item	*ti;
 	gint		offset = 0;
-	const u_char	*line;
+	const guchar	*line;
 	guint32		code;
 	gboolean	is_pasv_response = FALSE;
 	gint		next_offset;
 	int		linelen;
 	int		tokenlen;
-	const u_char	*next_token;
+	const guchar	*next_token;
 
 	if (pinfo->match_port == pinfo->destport)
 		is_request = TRUE;

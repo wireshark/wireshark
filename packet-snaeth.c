@@ -1,7 +1,7 @@
 /* packet-snaeth.c
  * Routines for SNA-over-Ethernet (Ethernet type 80d5)
  *
- * $Id: packet-snaeth.c,v 1.2 2002/02/17 00:51:19 guy Exp $
+ * $Id: packet-snaeth.c,v 1.3 2002/08/02 23:36:03 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,10 +24,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <glib.h>

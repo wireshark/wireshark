@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.40 2002/05/30 05:26:05 guy Exp $
+ * $Id: packet-ipsec.c,v 1.41 2002/08/02 23:35:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,14 +27,6 @@
 #endif
 
 #include <stdio.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include <string.h>
 #include <glib.h>
@@ -147,7 +139,7 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_fstr(pinfo->cinfo, COL_INFO, "AH (SPI=0x%08x)",
-	    (guint32)ntohl(ah.ah_spi));
+	    (guint32)g_ntohl(ah.ah_spi));
     }
 
     if (tree) {
@@ -164,10 +156,10 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    "Length: %u", (ah.ah_len + 2) << 2);
 	proto_tree_add_uint(ah_tree, hf_ah_spi, tvb,
 			    offsetof(struct newah, ah_spi), 4,
-			    (guint32)ntohl(ah.ah_spi));
+			    (guint32)g_ntohl(ah.ah_spi));
 	proto_tree_add_uint(ah_tree, hf_ah_sequence, tvb,
 			    offsetof(struct newah, ah_seq), 4,
-			    (guint32)ntohl(ah.ah_seq));
+			    (guint32)g_ntohl(ah.ah_seq));
 	proto_tree_add_text(ah_tree, tvb,
 			    sizeof(ah), (ah.ah_len - 1) << 2,
 			    "ICV");
@@ -213,7 +205,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_fstr(pinfo->cinfo, COL_INFO, "ESP (SPI=0x%08x)",
-	    (guint32)ntohl(esp.esp_spi));
+	    (guint32)g_ntohl(esp.esp_spi));
     }
 
     /*
@@ -225,10 +217,10 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	esp_tree = proto_item_add_subtree(ti, ett_esp);
 	proto_tree_add_uint(esp_tree, hf_esp_spi, tvb, 
 			    offsetof(struct newesp, esp_spi), 4,
-			    (guint32)ntohl(esp.esp_spi));
+			    (guint32)g_ntohl(esp.esp_spi));
 	proto_tree_add_uint(esp_tree, hf_esp_sequence, tvb,
 			    offsetof(struct newesp, esp_seq), 4,
-			    (guint32)ntohl(esp.esp_seq));
+			    (guint32)g_ntohl(esp.esp_seq));
 	call_dissector(data_handle,
 	    tvb_new_subset(tvb, sizeof(struct newesp), -1, -1),
 	    pinfo, esp_tree);
@@ -255,10 +247,10 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvb_memcpy(tvb, (guint8 *)&ipcomp, 0, sizeof(ipcomp)); 
 
     if (check_col(pinfo->cinfo, COL_INFO)) {
-	p = match_strval(ntohs(ipcomp.comp_cpi), cpi2val);
+	p = match_strval(g_ntohs(ipcomp.comp_cpi), cpi2val);
 	if (p == NULL) {
 	    col_add_fstr(pinfo->cinfo, COL_INFO, "IPComp (CPI=0x%04x)",
-		ntohs(ipcomp.comp_cpi));
+		g_ntohs(ipcomp.comp_cpi));
 	} else
 	    col_add_fstr(pinfo->cinfo, COL_INFO, "IPComp (CPI=%s)", p);
     }
@@ -280,7 +272,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    ipcomp.comp_flags);
 	proto_tree_add_uint(ipcomp_tree, hf_ipcomp_cpi, tvb, 
 	    offsetof(struct ipcomp, comp_cpi), 2,
-	    ntohs(ipcomp.comp_cpi));
+	    g_ntohs(ipcomp.comp_cpi));
 	call_dissector(data_handle,
 	    tvb_new_subset(tvb, sizeof(struct ipcomp), -1, -1), pinfo,
 	    ipcomp_tree);

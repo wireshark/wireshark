@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.30 2002/04/14 23:22:22 guy Exp $
+ * $Id: packet-sdp.c,v 1.31 2002/08/02 23:36:00 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,10 +26,6 @@
  */
 
 #include "config.h"
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 #include <string.h>
 #include <ctype.h>
@@ -150,9 +146,9 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint		offset = 0;
 	gint		next_offset;
 	int		linelen;
-	u_char		section;
-	u_char		type;
-	u_char          delim;
+	guchar		section;
+	guchar		type;
+	guchar          delim;
 	int		datalen;
 	int             tokenoffset;
 	int             hf = -1;

@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.49 2002/07/22 20:52:21 tpot Exp $
+ * $Id: packet-netbios.c,v 1.50 2002/08/02 23:35:55 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,10 +28,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <stdio.h>
@@ -254,11 +250,11 @@ void capture_netbios(packet_counts *ld)
 
 
 int
-process_netbios_name(const u_char *name_ptr, char *name_ret)
+process_netbios_name(const guchar *name_ptr, char *name_ret)
 {
 	int i;
 	int name_type = *(name_ptr + NETBIOS_NAME_LEN - 1);
-	u_char name_char;
+	guchar name_char;
 	static const char hex_digits[16] = "0123456789abcdef";
 
 	for (i = 0; i < NETBIOS_NAME_LEN - 1; i++) {
@@ -627,7 +623,7 @@ static void  dissect_netb_terminate_trace( tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static u_char zeroes[10];
+static guchar zeroes[10];
 
 static void  dissect_netb_datagram( tvbuff_t *tvb, int offset, proto_tree *tree)
 

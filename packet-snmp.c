@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.93 2002/05/30 01:56:55 guy Exp $
+ * $Id: packet-snmp.c,v 1.94 2002/08/02 23:36:03 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,14 +42,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include <glib.h>
 
@@ -455,7 +447,7 @@ format_oid(subid_t *oid, guint oid_length)
 	unsigned int i;
 	char *buf;
 #ifdef HAVE_UCD_SNMP
-	u_char *oid_string;
+	guchar *oid_string;
 	size_t oid_string_len;
 	size_t oid_out_len;
 #endif
@@ -499,10 +491,10 @@ format_oid(subid_t *oid, guint oid_length)
 }
 
 #ifdef HAVE_UCD_SNMP
-static u_char *
+static guchar *
 check_var_length(guint vb_length, guint required_length)
 {
-	u_char *buf;
+	guchar *buf;
 	static const char badlen_fmt[] = "Length is %u, should be %u";
 
 	if (vb_length != required_length) {
@@ -516,11 +508,11 @@ check_var_length(guint vb_length, guint required_length)
 	return NULL;	/* length is OK */
 }
 
-static u_char *
+static guchar *
 format_var(struct variable_list *variable, subid_t *variable_oid,
     guint variable_oid_length, gushort vb_type, guint val_len)
 {
-	u_char *buf;
+	guchar *buf;
 	size_t buf_len;
 	size_t out_len;
 

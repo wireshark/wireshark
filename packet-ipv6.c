@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.84 2002/07/30 07:25:29 guy Exp $
+ * $Id: packet-ipv6.c,v 1.85 2002/08/02 23:35:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -28,16 +28,8 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
 #ifdef HAVE_SYS_SOCKET_h
 #include <sys/socket.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
 #endif
 
 #include <string.h>
@@ -208,7 +200,7 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
     tvb_memcpy(tvb, (guint8 *)&frag, offset, sizeof(frag));
     len = sizeof(frag);
-    frag.ip6f_offlg = ntohs(frag.ip6f_offlg);
+    frag.ip6f_offlg = g_ntohs(frag.ip6f_offlg);
     *offlg = frag.ip6f_offlg;
     *ident = frag.ip6f_ident;
     if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -685,7 +677,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pinfo->ipproto = ipv6.ip6_nxt; /* XXX make work TCP follow (ipproto = 6) */
 
   /* Get the payload length */
-  plen = ntohs(ipv6.ip6_plen);
+  plen = g_ntohs(ipv6.ip6_plen);
 
   /* Adjust the length of this tvbuff to include only the IPv6 datagram. */
   set_actual_length(tvb, plen + sizeof (struct ip6_hdr));
@@ -707,7 +699,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_uint(ipv6_tree, hf_ipv6_class, tvb,
 		offset + offsetof(struct ip6_hdr, ip6_flow), 4,
-		(guint8)((ntohl(ipv6.ip6_flow) >> 20) & 0xff));
+		(guint8)((g_ntohl(ipv6.ip6_flow) >> 20) & 0xff));
 
     /*
      * there should be no alignment problems for ip6_flow, since it's the first
@@ -715,9 +707,9 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     proto_tree_add_uint_format(ipv6_tree, hf_ipv6_flow, tvb,
 		offset + offsetof(struct ip6_hdr, ip6_flow), 4,
-		(unsigned long)(ntohl(ipv6.ip6_flow) & IPV6_FLOWLABEL_MASK),
+		(unsigned long)(g_ntohl(ipv6.ip6_flow) & IPV6_FLOWLABEL_MASK),
 		"Flowlabel: 0x%05lx",
-		(unsigned long)(ntohl(ipv6.ip6_flow) & IPV6_FLOWLABEL_MASK));
+		(unsigned long)(g_ntohl(ipv6.ip6_flow) & IPV6_FLOWLABEL_MASK));
 
     proto_tree_add_uint(ipv6_tree, hf_ipv6_plen, tvb,
 		offset + offsetof(struct ip6_hdr, ip6_plen), 2,

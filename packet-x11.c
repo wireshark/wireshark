@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.44 2002/05/16 19:29:03 guy Exp $
+ * $Id: packet-x11.c,v 1.45 2002/08/02 23:36:04 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,10 +57,6 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
 
 #include <string.h>
 #include <glib.h>
@@ -981,7 +977,7 @@ static void listOfKeycode(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
 	    int i;
 
 	    for(i = 8, m = modifiers; i; i--, m++) {
-		u_char c = tvb_get_guint8(tvb, *offsetp);
+		guchar c = tvb_get_guint8(tvb, *offsetp);
 		*offsetp += 1;
 		if (c)
 		    bp += sprintf(bp, "  %s=%d", *m, c);
@@ -1100,7 +1096,7 @@ static void listOfSegment(tvbuff_t *tvb, int *offsetp, proto_tree *t, int hf,
    Note that "non-printable characters" may depend on your locale.... */
 static void stringCopy(char *dest, const char *source, int length)
 {
-      u_char c;
+      guchar c;
       while(length--) {
 	    c = *source++;
 	    if (!isgraph(c) && c != ' ') c = '.';

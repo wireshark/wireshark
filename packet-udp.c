@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.103 2002/06/08 21:54:51 guy Exp $
+ * $Id: packet-udp.c,v 1.104 2002/08/02 23:36:04 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,14 +27,6 @@
  
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
 #endif
 
 #include <stdio.h>
@@ -158,10 +150,10 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Avoids alignment problems on many architectures. */
   tvb_memcpy(tvb, (guint8 *)&uh, offset, sizeof(e_udphdr));
-  uh_sport = ntohs(uh.uh_sport);
-  uh_dport = ntohs(uh.uh_dport);
-  uh_ulen  = ntohs(uh.uh_ulen);
-  uh_sum   = ntohs(uh.uh_sum);
+  uh_sport = g_ntohs(uh.uh_sport);
+  uh_dport = g_ntohs(uh.uh_dport);
+  uh_ulen  = g_ntohs(uh.uh_ulen);
+  uh_sum   = g_ntohs(uh.uh_sum);
   
   if (check_col(pinfo->cinfo, COL_INFO))
     col_add_fstr(pinfo->cinfo, COL_INFO, "Source port: %s  Destination port: %s",
@@ -207,13 +199,13 @@ dissect_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       switch (pinfo->src.type) {
 
       case AT_IPv4:
-	phdr[0] = htonl((IP_PROTO_UDP<<16) + reported_len);
+	phdr[0] = g_htonl((IP_PROTO_UDP<<16) + reported_len);
 	cksum_vec[2].len = 4;
 	break;
 
       case AT_IPv6:
-        phdr[0] = htonl(reported_len);
-        phdr[1] = htonl(IP_PROTO_UDP);
+        phdr[0] = g_htonl(reported_len);
+        phdr[1] = g_htonl(IP_PROTO_UDP);
         cksum_vec[2].len = 8;
         break;
 

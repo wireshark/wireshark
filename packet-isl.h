@@ -1,6 +1,6 @@
 /* packet-isl.h
  *
- * $Id: packet-isl.h,v 1.4 2001/11/20 21:59:13 guy Exp $
+ * $Id: packet-isl.h,v 1.5 2002/08/02 23:35:52 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,6 @@
 #ifndef __PACKET_ISL_H__
 #define __PACKET_ISL_H__
 
-void capture_isl(const u_char *, int, int, packet_counts *);
+void capture_isl(const guchar *, int, int, packet_counts *);
 
 #endif

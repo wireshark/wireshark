@@ -1,6 +1,6 @@
 /* packet-raw.h
  *
- * $Id: packet-raw.h,v 1.5 2001/11/20 21:59:13 guy Exp $
+ * $Id: packet-raw.h,v 1.6 2002/08/02 23:35:57 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,6 @@
 #ifndef __PACKET_RAW_H__
 #define __PACKET_RAW_H__
 
-void capture_raw(const u_char *, int, packet_counts *);
+void capture_raw(const guchar *, int, packet_counts *);
 
 #endif

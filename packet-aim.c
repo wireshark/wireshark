@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.15 2002/07/17 00:42:40 guy Exp $
+ * $Id: packet-aim.c,v 1.16 2002/08/02 23:35:47 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,14 +31,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include <glib.h>
 
@@ -79,7 +71,7 @@
 
 static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
-static void get_message( u_char *msg, tvbuff_t *tvb, int msg_offset, int msg_length);
+static void get_message( guchar *msg, tvbuff_t *tvb, int msg_offset, int msg_length);
 static int get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_offset);
 
 /* Initialize the protocol and registered fields */
@@ -107,7 +99,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16 subtype;
   guint8 buddyname_length = 0;
   char buddyname[MAX_BUDDYNAME_LENGTH];
-  u_char msg[1000];
+  guchar msg[1000];
 
 /* Set up structures we will need to add the protocol subtree and manage it */
   proto_item *ti;
@@ -486,7 +478,7 @@ static int get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_of
 }
 
 
-static void get_message( u_char *msg, tvbuff_t *tvb, int msg_offset, int msg_length)
+static void get_message( guchar *msg, tvbuff_t *tvb, int msg_offset, int msg_length)
 {
   int i,j,c;
   int bracket = FALSE;

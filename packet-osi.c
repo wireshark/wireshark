@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.53 2002/01/21 07:36:38 guy Exp $
+ * $Id: packet-osi.c,v 1.54 2002/08/02 23:35:55 jmayer Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -29,10 +29,6 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -48,13 +44,13 @@
 
 
 cksum_status_t
-calc_checksum( tvbuff_t *tvb, int offset, u_int len, u_int checksum) {
+calc_checksum( tvbuff_t *tvb, int offset, guint len, guint checksum) {
   const gchar *buffer;
   guint   available_len;
   const guint8 *p;
   guint32 c0, c1;
-  u_int   seglen;
-  u_int   i;
+  guint   seglen;
+  guint   i;
 
   if ( 0 == checksum )
     return( NO_CKSUM );

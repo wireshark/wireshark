@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.23 2002/03/28 07:40:54 itojun Exp $
+ * $Id: packet-vrrp.c,v 1.24 2002/08/02 23:36:04 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,14 +27,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
 #endif
 
 #include <string.h>
@@ -175,8 +167,8 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				cksum_vec[1].ptr = pinfo->dst.data;
 				cksum_vec[1].len = pinfo->dst.len;
 				cksum_vec[2].ptr = (const guint8 *)&phdr;
-				phdr[0] = htonl(vrrp_len);
-				phdr[1] = htonl(IP_PROTO_VRRP);
+				phdr[0] = g_htonl(vrrp_len);
+				phdr[1] = g_htonl(IP_PROTO_VRRP);
 				cksum_vec[2].len = 8;
 				cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, vrrp_len);
 				cksum_vec[3].len = vrrp_len;

@@ -1,7 +1,7 @@
 /* packet-ip.h
  * Definitions for IP packet disassembly structures and routines
  *
- * $Id: packet-ip.h,v 1.23 2001/12/29 22:01:11 guy Exp $
+ * $Id: packet-ip.h,v 1.24 2002/08/02 23:35:51 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,7 +26,7 @@
 #ifndef __PACKET_IP_H__
 #define __PACKET_IP_H__
 
-void capture_ip(const u_char *, int, int, packet_counts *);
+void capture_ip(const guchar *, int, int, packet_counts *);
 
 typedef enum {
   NO_LENGTH,		/* option has no data, hence no length */

@@ -1,7 +1,7 @@
 /* packet-clip.c
  * Routines for clip packet disassembly
  *
- * $Id: packet-clip.c,v 1.19 2002/01/21 07:36:32 guy Exp $
+ * $Id: packet-clip.c,v 1.20 2002/08/02 23:35:48 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -29,10 +29,6 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
 #include <glib.h>
 #include <epan/packet.h>
 #include "packet-clip.h"
@@ -43,7 +39,7 @@ static gint ett_clip = -1;
 static dissector_handle_t ip_handle;
 
 void
-capture_clip( const u_char *pd, int len, packet_counts *ld ) {
+capture_clip( const guchar *pd, int len, packet_counts *ld ) {
 
     capture_ip(pd, 0, len, ld);
 }

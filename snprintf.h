@@ -1,5 +1,5 @@
 /*
- * $Id: snprintf.h,v 1.7 2002/07/19 12:59:21 girlich Exp $
+ * $Id: snprintf.h,v 1.8 2002/08/02 23:36:07 jmayer Exp $
  */
 
 #ifndef __ETHEREAL_SNPRINTF_H__
@@ -12,10 +12,6 @@
 #endif
 
 /* for size_t */
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
 extern int vsnprintf(char *string, size_t length, const char * format,
   va_list args);
 

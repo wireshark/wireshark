@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.33 2002/07/17 10:37:31 guy Exp $
+ * $Id: packet-rtcp.c,v 1.34 2002/08/02 23:35:59 jmayer Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -45,14 +45,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-
-#ifdef HAVE_SYS_TYPES_H
-#  include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#  include <netinet/in.h>
-#endif
 
 #include <stdio.h>
 #include <string.h>

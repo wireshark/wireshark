@@ -4,7 +4,7 @@
  * IItom Tsutomu MIENO <iitom@utouto.com>
  * SHIRASAKI Yasuhiro <yasuhiro@gnome.gr.jp>
  *
- * $Id: packet-dhcpv6.c,v 1.5 2002/06/26 01:24:42 guy Exp $
+ * $Id: packet-dhcpv6.c,v 1.6 2002/08/02 23:35:48 jmayer Exp $
  *
  * The information used comes from:
  * draft-ietf-dhc-dhcpv6-26.txt
@@ -35,10 +35,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <string.h>

@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.30 2002/07/17 06:55:20 guy Exp $
+ * $Id: packet-smtp.c,v 1.31 2002/08/02 23:36:02 jmayer Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -26,14 +26,6 @@
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
 #endif
 
 #include <stdio.h>
@@ -121,7 +113,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int                     request = 0;
     conversation_t          *conversation;
     struct smtp_request_val *request_val;
-    const u_char            *line;
+    const guchar            *line;
     guint32                 code;
     int                     linelen;
     gboolean                eom_seen = FALSE;

@@ -2,7 +2,7 @@
  * RIPng definition
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-ripng.h,v 1.4 2000/08/11 13:34:28 deniel Exp $
+ * $Id: packet-ripng.h,v 1.5 2002/08/02 23:35:57 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,15 +70,15 @@
 
 struct netinfo6 {
 	struct	e_in6_addr	rip6_dest;
-	u_short	rip6_tag;
-	u_char	rip6_plen;
-	u_char	rip6_metric;
+	gushort	rip6_tag;
+	guchar	rip6_plen;
+	guchar	rip6_metric;
 };
 
 struct	rip6 {
-	u_char	rip6_cmd;
-	u_char	rip6_vers;
-	u_char	rip6_res1[2];
+	guchar	rip6_cmd;
+	guchar	rip6_vers;
+	guchar	rip6_res1[2];
 	union {
 		struct	netinfo6	ru6_nets[1];
 		char	ru6_tracefile[1];

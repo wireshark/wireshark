@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.44 2002/05/14 09:24:26 guy Exp $
+ * $Id: packet-q931.c,v 1.45 2002/08/02 23:35:56 jmayer Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -27,10 +27,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <stdio.h>

@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.16 2002/04/29 08:20:09 guy Exp $
+ * $Id: packet-pgm.c,v 1.17 2002/08/02 23:35:56 jmayer Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -28,16 +28,8 @@
 #include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
 #endif
 
 #include <stdio.h>
@@ -73,12 +65,12 @@ typedef struct {
 	nshort_t tsdulen;          /* TSDU length */
 } pgm_type;
 #define pgmhdr_ntoh(_p) \
-	(_p)->sport = ntohs((_p)->sport); \
-	(_p)->dport = ntohs((_p)->dport); \
-	(_p)->type = ntohs((_p)->type); \
-	(_p)->opts = ntohs((_p)->opts); \
-	(_p)->cksum = ntohs((_p)->cksum); \
-	(_p)->tsdulen = ntohs((_p)->tsdulen)
+	(_p)->sport = g_ntohs((_p)->sport); \
+	(_p)->dport = g_ntohs((_p)->dport); \
+	(_p)->type = g_ntohs((_p)->type); \
+	(_p)->opts = g_ntohs((_p)->opts); \
+	(_p)->cksum = g_ntohs((_p)->cksum); \
+	(_p)->tsdulen = g_ntohs((_p)->tsdulen)
 
 /* The PGM SPM header */
 typedef struct {
@@ -91,11 +83,11 @@ typedef struct {
 } pgm_spm_t;
 static const size_t PGM_SPM_SZ = sizeof(pgm_type)+sizeof(pgm_spm_t);
 #define spm_ntoh(_p) \
-	(_p)->sqn = ntohl((_p)->sqn); \
-	(_p)->trail = ntohl((_p)->trail); \
-	(_p)->lead = ntohl((_p)->lead); \
-	(_p)->path_afi = ntohs((_p)->path_afi); \
-	(_p)->res = ntohs((_p)->res);
+	(_p)->sqn = g_ntohl((_p)->sqn); \
+	(_p)->trail = g_ntohl((_p)->trail); \
+	(_p)->lead = g_ntohl((_p)->lead); \
+	(_p)->path_afi = g_ntohs((_p)->path_afi); \
+	(_p)->res = g_ntohs((_p)->res);
 
 /* The PGM Data (ODATA/RDATA) header */
 typedef struct {
@@ -103,8 +95,8 @@ typedef struct {
 	nlong_t trail;            /* Trailing edge sequence number */
 } pgm_data_t;
 #define data_ntoh(_p) \
-	(_p)->sqn = ntohl((_p)->sqn); \
-	(_p)->trail = ntohl((_p)->trail)
+	(_p)->sqn = g_ntohl((_p)->sqn); \
+	(_p)->trail = g_ntohl((_p)->trail)
 static const size_t PGM_DATA_HDR_SZ = sizeof(pgm_type)+sizeof(pgm_data_t);
 
 /* The PGM NAK (NAK/N-NAK/NCF) header */
@@ -119,11 +111,11 @@ typedef struct {
 } pgm_nak_t;
 static const size_t PGM_NAK_SZ = sizeof(pgm_type)+sizeof(pgm_nak_t);
 #define nak_ntoh(_p) \
-	(_p)->sqn = ntohl((_p)->sqn); \
-	(_p)->src_afi = ntohs((_p)->src_afi); \
-	(_p)->src_res = ntohs((_p)->src_res); \
-	(_p)->grp_afi = ntohs((_p)->grp_afi); \
-	(_p)->grp_res = ntohs((_p)->grp_res)
+	(_p)->sqn = g_ntohl((_p)->sqn); \
+	(_p)->src_afi = g_ntohs((_p)->src_afi); \
+	(_p)->src_res = g_ntohs((_p)->src_res); \
+	(_p)->grp_afi = g_ntohs((_p)->grp_afi); \
+	(_p)->grp_res = g_ntohs((_p)->grp_res)
 
 /* The PGM ACK header (PGMCC) */
 typedef struct {
@@ -132,8 +124,8 @@ typedef struct {
 } pgm_ack_t;
 static const size_t PGM_ACK_SZ = sizeof(pgm_type)+sizeof(pgm_ack_t);
 #define ack_ntoh(_p) \
-	(_p)->rx_max_sqn = ntohl((_p)->rx_max_sqn); \
-	(_p)->bitmap = ntohl((_p)->bitmap)
+	(_p)->rx_max_sqn = g_ntohl((_p)->rx_max_sqn); \
+	(_p)->bitmap = g_ntohl((_p)->bitmap)
 
 /* constants for hdr types */
 #if defined(PGM_SPEC_01_PCKTS)
@@ -484,7 +476,7 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 	int theend = 0, firsttime = 1;
 
 	tvb_memcpy(tvb, (guint8 *)&opts, offset, sizeof(opts));
-	opts.total_len = ntohs(opts.total_len);
+	opts.total_len = g_ntohs(opts.total_len);
 
 	tf = proto_tree_add_text(tree, tvb, offset, 
 		opts.total_len, 
@@ -531,7 +523,7 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 				offset+3, 1, optdata.res);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_join_minjoin, tvb, 
-				offset+4, 4, ntohl(optdata.opt_join_min));
+				offset+4, 4, g_ntohl(optdata.opt_join_min));
 
 			break;
 		}
@@ -555,7 +547,7 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 				paritystr(optdata.po), optdata.po);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_parity_prm_prmtgsz,
-				tvb, offset+4, 4, ntohl(optdata.prm_tgsz));
+				tvb, offset+4, 4, g_ntohl(optdata.prm_tgsz));
 
 			break;
 		}
@@ -578,7 +570,7 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 				offset+3, 1, optdata.res);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_parity_grp_prmgrp,
-				tvb, offset+4, 4, ntohl(optdata.prm_grp));
+				tvb, offset+4, 4, g_ntohl(optdata.prm_grp));
 
 			break;
 		}
@@ -613,7 +605,7 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 			 */
 			for (i=0; i < naks; i++) {
 				sprintf(nakbuf+soffset, "0x%lx ",
-				    (unsigned long)ntohl(naklist[i]));
+				    (unsigned long)g_ntohl(naklist[i]));
 				soffset = strlen(nakbuf);
 				if ((++j % 8) == 0) {
 					if (firsttime) {
@@ -667,12 +659,12 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 				offset+4, 4, optdata.tsp);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_afi, tvb, 
-				offset+8, 2, ntohs(optdata.acker_afi));
+				offset+8, 2, g_ntohs(optdata.acker_afi));
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccdata_res2, tvb, 
-				offset+10, 2, ntohs(optdata.res2));
+				offset+10, 2, g_ntohs(optdata.res2));
 
-			switch (ntohs(optdata.acker_afi)) {
+			switch (g_ntohs(optdata.acker_afi)) {
 
 			case AFNUM_INET:
 				proto_tree_add_ipv4(opt_tree, hf_pgm_opt_ccdata_acker,
@@ -716,12 +708,12 @@ dissect_pgmopts(tvbuff_t *tvb, int offset, proto_tree *tree,
 				offset+4, 4, optdata.tsp);
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_afi, tvb, 
-				offset+8, 2, ntohs(optdata.acker_afi));
+				offset+8, 2, g_ntohs(optdata.acker_afi));
 
 			proto_tree_add_uint(opt_tree, hf_pgm_opt_ccfeedbk_lossrate, tvb, 
-				offset+10, 2, ntohs(optdata.loss_rate));
+				offset+10, 2, g_ntohs(optdata.loss_rate));
 
-			switch (ntohs(optdata.acker_afi)) {
+			switch (g_ntohs(optdata.acker_afi)) {
 
 			case AFNUM_INET:
 				proto_tree_add_ipv4(opt_tree, hf_pgm_opt_ccfeedbk_acker,
@@ -820,7 +812,7 @@ total_size(tvbuff_t *tvb, pgm_type *hdr)
 	}
 	if ((hdr->opts & PGM_OPT)) {
 		tvb_memcpy(tvb, (guint8 *)&opts, bytes, sizeof(opts));
-		bytes += ntohs(opts.total_len);
+		bytes += g_ntohs(opts.total_len);
 	}
 	return(bytes);
 }
@@ -855,9 +847,9 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	tvb_memcpy(tvb, (guint8 *)&pgmhdr, offset, sizeof(pgm_type));
 	hlen = sizeof(pgm_type);
-	pgmhdr.sport = ntohs(pgmhdr.sport);
-	pgmhdr.dport = ntohs(pgmhdr.dport);
-	pgmhdr.tsdulen = ntohs(pgmhdr.tsdulen);
+	pgmhdr.sport = g_ntohs(pgmhdr.sport);
+	pgmhdr.dport = g_ntohs(pgmhdr.dport);
+	pgmhdr.tsdulen = g_ntohs(pgmhdr.tsdulen);
 
 	pktname = val_to_str(pgmhdr.type, type_vals, "Unknown (0x%02x)");
 

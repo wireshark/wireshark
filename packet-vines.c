@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.41 2002/05/30 01:56:55 guy Exp $
+ * $Id: packet-vines.c,v 1.42 2002/08/02 23:36:04 jmayer Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -27,14 +27,6 @@
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
 #endif
 
 #include <string.h>
@@ -198,12 +190,12 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Avoids alignment problems on many architectures. */
 	tvb_memcpy(tvb, (guint8 *)&viph, offset, sizeof(e_vip));
 
-	viph.vip_chksum = ntohs(viph.vip_chksum);
-	viph.vip_pktlen = ntohs(viph.vip_pktlen);
-	viph.vip_dnet = ntohl(viph.vip_dnet);
-	viph.vip_dsub = ntohs(viph.vip_dsub);
-	viph.vip_snet = ntohl(viph.vip_snet);
-	viph.vip_ssub = ntohs(viph.vip_ssub);
+	viph.vip_chksum = g_ntohs(viph.vip_chksum);
+	viph.vip_pktlen = g_ntohs(viph.vip_pktlen);
+	viph.vip_dnet = g_ntohl(viph.vip_dnet);
+	viph.vip_dsub = g_ntohs(viph.vip_dsub);
+	viph.vip_snet = g_ntohl(viph.vip_snet);
+	viph.vip_ssub = g_ntohs(viph.vip_ssub);
 
 	switch (viph.vip_proto) {
  	case VIP_PROTO_IPC:
@@ -369,10 +361,10 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Avoids alignment problems on many architectures. */
 	tvb_memcpy(tvb, (guint8 *)&viph, offset, sizeof(e_vspp));
 
-	viph.vspp_sport = ntohs(viph.vspp_sport);
-	viph.vspp_dport = ntohs(viph.vspp_dport);
-	viph.vspp_lclid = ntohs(viph.vspp_lclid);
-	viph.vspp_rmtid = ntohs(viph.vspp_rmtid);
+	viph.vspp_sport = g_ntohs(viph.vspp_sport);
+	viph.vspp_dport = g_ntohs(viph.vspp_dport);
+	viph.vspp_lclid = g_ntohs(viph.vspp_lclid);
+	viph.vspp_rmtid = g_ntohs(viph.vspp_rmtid);
 
 	switch (viph.vspp_pkttype) {
 	case VSPP_PKTTYPE_DATA:      

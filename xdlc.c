@@ -2,7 +2,7 @@
  * Routines for use by various SDLC-derived protocols, such as HDLC
  * and its derivatives LAPB, IEEE 802.2 LLC, etc..
  *
- * $Id: xdlc.c,v 1.18 2002/03/31 21:09:00 guy Exp $
+ * $Id: xdlc.c,v 1.19 2002/08/02 23:36:07 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,10 +25,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <stdio.h>
@@ -159,7 +155,7 @@ static const value_string modifier_vals_resp[] = {
 };
 
 int
-get_xdlc_control(const u_char *pd, int offset, int is_extended)
+get_xdlc_control(const guchar *pd, int offset, int is_extended)
 {
     guint16 control;
 

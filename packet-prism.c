@@ -9,7 +9,7 @@
  *
  * By Tim Newsham
  *
- * $Id: packet-prism.c,v 1.6 2002/01/21 07:36:38 guy Exp $
+ * $Id: packet-prism.c,v 1.7 2002/08/02 23:35:56 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -34,10 +34,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <glib.h>
@@ -86,7 +82,7 @@ static gint ett_prism = -1;
 static dissector_handle_t ieee80211_handle;
 
 void
-capture_prism(const u_char *pd, int offset, int len, packet_counts *ld)
+capture_prism(const guchar *pd, int offset, int len, packet_counts *ld)
 {
     if(!BYTES_ARE_IN_FRAME(offset, len, (int)sizeof(struct prism_hdr))) {
         ld->other ++;

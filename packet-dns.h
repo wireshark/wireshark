@@ -2,7 +2,7 @@
  * Definitions for packet disassembly structures and routines used both by
  * DNS and NBNS.
  *
- * $Id: packet-dns.h,v 1.11 2001/07/02 07:17:29 guy Exp $
+ * $Id: packet-dns.h,v 1.12 2002/08/02 23:35:49 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,6 @@ int get_dns_name(tvbuff_t *, int, int, char *, int);
 
 proto_tree *
 add_rr_to_tree(proto_item *, int, tvbuff_t *, int, const char *,
-  int, const char *, const char *, u_int, u_short);
+  int, const char *, const char *, guint, gushort);
 
 #endif /* packet-dns.h */

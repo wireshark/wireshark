@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.48 2002/05/10 23:20:38 guy Exp $
+ * $Id: packet-diameter.c,v 1.49 2002/08/02 23:35:48 jmayer Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -26,14 +26,6 @@
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
 #endif
 
 #include <stdio.h>
@@ -1053,11 +1045,11 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
   tvb_memcpy(tvb, (guint8*) &dh, offset, sizeof(dh));
 	
   /* Fix byte ordering in our static structure */
-  dh.versionLength = ntohl(dh.versionLength);
-  dh.flagsCmdCode = ntohl(dh.flagsCmdCode);
-  dh.vendorId = ntohl(dh.vendorId);
-  dh.hopByHopId = ntohl(dh.hopByHopId);
-  dh.endToEndId = ntohl(dh.endToEndId);
+  dh.versionLength = g_ntohl(dh.versionLength);
+  dh.flagsCmdCode = g_ntohl(dh.flagsCmdCode);
+  dh.vendorId = g_ntohl(dh.vendorId);
+  dh.hopByHopId = g_ntohl(dh.hopByHopId);
+  dh.endToEndId = g_ntohl(dh.endToEndId);
 
   if (dh.vendorId) {
 	strcpy(vendorName, 
@@ -1383,8 +1375,8 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	tvb_memcpy(tvb, (guint8*) &avph, offset, MIN((long)sizeof(avph),packetLength));
 	
 	/* Fix the byte ordering */
-	avph.avp_code = ntohl(avph.avp_code);
-	avph.avp_flagsLength = ntohl(avph.avp_flagsLength);
+	avph.avp_code = g_ntohl(avph.avp_code);
+	avph.avp_flagsLength = g_ntohl(avph.avp_flagsLength);
 	
 	flags = (avph.avp_flagsLength & 0xff000000) >> 24;
 	avpLength = avph.avp_flagsLength & 0x00ffffff;
@@ -1408,7 +1400,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 	/* Dissect our vendor id if it exists  and set hdr length */
 	if (flags & AVP_FLAGS_V) {
-	  vendorId = ntohl(avph.avp_vendorId);
+	  vendorId = g_ntohl(avph.avp_vendorId);
 	  /* Vendor id */
 	  hdrLength = sizeof(e_avphdr);
 	} else {

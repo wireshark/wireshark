@@ -1,7 +1,7 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.13 2002/05/30 01:56:54 guy Exp $
+ * $Id: packet-chdlc.c,v 1.14 2002/08/02 23:35:48 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,10 +24,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <glib.h>
@@ -102,7 +98,7 @@ const value_string chdlc_vals[] = {
 };
 
 void
-capture_chdlc( const u_char *pd, int offset, int len, packet_counts *ld ) {
+capture_chdlc( const guchar *pd, int offset, int len, packet_counts *ld ) {
   if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
     ld->other++;
     return;

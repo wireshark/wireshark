@@ -1,7 +1,7 @@
 /* packet-sll.c
  * Routines for disassembly of packets from Linux "cooked mode" captures
  *
- * $Id: packet-sll.c,v 1.17 2002/04/24 06:03:34 guy Exp $
+ * $Id: packet-sll.c,v 1.18 2002/08/02 23:36:01 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,10 +24,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <stdio.h>
@@ -93,7 +89,7 @@ static dissector_handle_t llc_handle;
 static dissector_handle_t data_handle;
 
 void
-capture_sll(const u_char *pd, int len, packet_counts *ld)
+capture_sll(const guchar *pd, int len, packet_counts *ld)
 {
 	guint16 protocol;
 

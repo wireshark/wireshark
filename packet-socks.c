@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.41 2002/07/17 00:42:42 guy Exp $
+ * $Id: packet-socks.c,v 1.42 2002/08/02 23:36:03 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -54,14 +54,6 @@
 # include "config.h"
 #endif
 
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include <stdio.h>
 #include <string.h>
@@ -882,8 +874,8 @@ display_ping_and_tracert(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 /* Display the ping/trace_route conversation */
 
 
-       	const u_char    *data, *dataend;
-       	const u_char   *lineend, *eol;
+       	const guchar    *data, *dataend;
+       	const guchar   *lineend, *eol;
        	int             linelen;
 
 					/* handle the end command */

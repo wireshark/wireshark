@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.55 2002/06/29 09:45:06 guy Exp $
+ * $Id: print.c,v 1.56 2002/08/02 23:36:06 jmayer Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -31,10 +31,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
 #include <epan/epan.h>
 #include <epan/epan_dissect.h>
 #include <epan/tvbuff.h>
@@ -46,8 +42,8 @@
 #include "packet-data.h"
 
 static void proto_tree_print_node(GNode *node, gpointer data);
-static void print_hex_data_buffer(FILE *fh, register const u_char *cp,
-    register u_int length, char_enc encoding, gint format);
+static void print_hex_data_buffer(FILE *fh, register const guchar *cp,
+    register guint length, char_enc encoding, gint format);
 static void ps_clean_string(unsigned char *out, const unsigned char *in,
 			int outbuf_size);
 
@@ -191,7 +187,7 @@ void print_hex_data(FILE *fh, gint format, epan_dissect_t *edt)
 	tvbuff_t *tvb;
 	char *name;
 	char *line;
-	const u_char *cp;
+	const guchar *cp;
 	guint length;
 
 	/*
@@ -245,14 +241,14 @@ void print_hex_data(FILE *fh, gint format, epan_dissect_t *edt)
 				   from data dump, data dump */
 
 static void
-print_hex_data_buffer(FILE *fh, register const u_char *cp,
-    register u_int length, char_enc encoding, gint format)
+print_hex_data_buffer(FILE *fh, register const guchar *cp,
+    register guint length, char_enc encoding, gint format)
 {
 	register unsigned int ad, i, j, k, l;
-	u_char c;
-	u_char line[MAX_LINE_LEN + 1];
+	guchar c;
+	guchar line[MAX_LINE_LEN + 1];
 	unsigned int use_digits;
-	static u_char binhex[16] = {
+	static guchar binhex[16] = {
 		'0', '1', '2', '3', '4', '5', '6', '7',
 		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 

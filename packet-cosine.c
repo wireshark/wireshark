@@ -1,7 +1,7 @@
 /* packet-cosine.c
  * Routines for decoding CoSine IPNOS L2 debug output
  *
- * $Id: packet-cosine.c,v 1.1 2002/07/31 19:27:39 guy Exp $
+ * $Id: packet-cosine.c,v 1.2 2002/08/02 23:35:48 jmayer Exp $
  *
  * Motonori Shindo <mshindo@mshindo.net>
  *
@@ -31,10 +31,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <glib.h>

@@ -10,7 +10,7 @@
  *
  * for information on Modbus/TCP.
  *
- * $Id: packet-mbtcp.c,v 1.9 2002/07/17 00:42:41 guy Exp $
+ * $Id: packet-mbtcp.c,v 1.10 2002/08/02 23:35:54 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,14 +45,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include <glib.h>
 
@@ -234,9 +226,9 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Make entries in Info column on summary display (updated after building proto tree) */
 	tvb_memcpy(tvb, (guint8 *)&mh, offset, sizeof(mbtcp_hdr));
-	mh.transaction_id				=	ntohs(mh.transaction_id);
-	mh.protocol_id					=	ntohs(mh.protocol_id);
-	mh.len							=	ntohs(mh.len);
+	mh.transaction_id				=	g_ntohs(mh.transaction_id);
+	mh.protocol_id					=	g_ntohs(mh.protocol_id);
+	mh.len							=	g_ntohs(mh.len);
 	if ( mh.mdbs_hdr.function_code & 0x80 ) {
 		mh.mdbs_hdr.function_code ^= 0x80;
 		exception_returned = 1;
@@ -268,9 +260,9 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	do {
 	/* Avoids alignment problems on many architectures. */
 		tvb_memcpy(tvb, (guint8 *)&mh, offset, sizeof(mbtcp_hdr));
-		mh.transaction_id				=	ntohs(mh.transaction_id);
-		mh.protocol_id					=	ntohs(mh.protocol_id);
-		mh.len							=	ntohs(mh.len);
+		mh.transaction_id				=	g_ntohs(mh.transaction_id);
+		mh.protocol_id					=	g_ntohs(mh.protocol_id);
+		mh.len							=	g_ntohs(mh.len);
 			
 		if ( mh.mdbs_hdr.function_code & 0x80 ) {
 			tvb_memcpy(tvb, (guint8 *)&exception_code, offset + sizeof(mbtcp_hdr), 1);

@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-trmac.c,v 1.36 2002/06/02 17:51:00 gerald Exp $
+ * $Id: packet-trmac.c,v 1.37 2002/08/02 23:36:04 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,10 +25,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <string.h>
@@ -114,7 +110,7 @@ sv_text(tvbuff_t *tvb, int svoff, proto_tree *tree)
 	proto_tree	*sv_tree;
 	proto_item	*ti;
 
-	u_char		errors[6];	/* isolating or non-isolating */
+	guchar		errors[6];	/* isolating or non-isolating */
 
 	/* Check the SV length. 
 	   XXX - Should we do this in each case statement below, e.g. to force

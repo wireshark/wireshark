@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.21 2002/06/29 23:03:24 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.22 2002/08/02 23:35:51 jmayer Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -25,10 +25,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
 #endif
 
 #include <stdio.h>
@@ -157,7 +153,7 @@ void
 isis_dissect_authentication_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int length, char *meaning)
 {	
-	u_char pw_type;
+	guchar pw_type;
 	char sbuf[300];		/* 255 + header info area */
 	char *s = sbuf;
 	int auth_unsupported;

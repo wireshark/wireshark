@@ -1,7 +1,7 @@
 /* Edit capture files.  We can delete records, adjust timestamps, or
  * simply convert from one format to another format.
  *
- * $Id: editcap.c,v 1.24 2002/06/30 20:28:54 guy Exp $
+ * $Id: editcap.c,v 1.25 2002/08/02 23:35:46 jmayer Exp $
  *
  * Originally written by Richard Sharpe.
  * Improved by Guy Harris.
@@ -22,10 +22,6 @@
 
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
 #endif
 
 #include <string.h>
@@ -137,8 +133,8 @@ typedef struct {
  */
 
 static void
-edit_callback(u_char *user, const struct wtap_pkthdr *phdr, long offset _U_,
-    union wtap_pseudo_header *pseudo_header, const u_char *buf) 
+edit_callback(guchar *user, const struct wtap_pkthdr *phdr, long offset _U_,
+    union wtap_pseudo_header *pseudo_header, const guchar *buf) 
 {
   callback_arg *argp = (callback_arg *)user;
   int err;

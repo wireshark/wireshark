@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.9 2002/06/23 10:32:16 guy Exp $
+ * $Id: mergecap.c,v 1.10 2002/08/02 23:35:46 jmayer Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -21,10 +21,6 @@
 
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
 #endif
 
 #include <string.h>
@@ -65,8 +61,8 @@ static out_file_t out_file;
  * Routine to write frame to output file
  */
 static void
-write_frame(u_char *user, const struct wtap_pkthdr *phdr, long offset _U_,
-            union wtap_pseudo_header *pseudo_header, const u_char *buf) 
+write_frame(guchar *user, const struct wtap_pkthdr *phdr, long offset _U_,
+            union wtap_pseudo_header *pseudo_header, const guchar *buf) 
 {
   wtap_dumper *pdh = (wtap_dumper*)user;
   int err;
@@ -102,7 +98,7 @@ append(int count, in_file_t in_files[], out_file_t *out_file)
 
   for (i = 0; i < count; i++) {
     if (!wtap_loop(in_files[i].wth, 0, write_frame,
-                   (u_char*)out_file->pdh, &err)) {
+                   (guchar*)out_file->pdh, &err)) {
     fprintf(stderr, "mergecap: Error appending from %s to %s: %s\n",
             in_files[i].filename, out_file->filename, wtap_strerror(err));
     }
@@ -170,7 +166,7 @@ merge(int count, in_file_t in_files[], out_file_t *out_file)
     /* write out earliest frame, and fetch another from its
      * input file
      */
-    write_frame((u_char*)out_file->pdh,
+    write_frame((guchar*)out_file->pdh,
                 wtap_phdr(in_files[i].wth),
                 in_files[i].data_offset,
                 wtap_pseudoheader(in_files[i].wth),

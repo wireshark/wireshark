@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.95 2002/07/16 07:15:04 guy Exp $
+ * $Id: file.h,v 1.96 2002/08/02 23:35:46 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,10 +24,6 @@
 
 #ifndef __FILE_H__
 #define __FILE_H__
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 #include "wiretap/wtap.h"
 #include <epan/dfilter/dfilter.h>

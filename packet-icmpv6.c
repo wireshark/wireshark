@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.65 2002/01/30 22:58:54 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.66 2002/08/02 23:35:50 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,14 +38,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include <glib.h>
 
@@ -1192,7 +1184,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dp->icmp6_code,
 		"Code: %u", dp->icmp6_code);
 	}
-	cksum = (guint16)htons(dp->icmp6_cksum);
+	cksum = (guint16)g_htons(dp->icmp6_cksum);
 	length = tvb_length(tvb);
 	reported_length = tvb_reported_length(tvb);
 	if (!pinfo->fragmented && length >= reported_length) {
@@ -1205,8 +1197,8 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    cksum_vec[1].ptr = pinfo->dst.data;
 	    cksum_vec[1].len = pinfo->dst.len;
 	    cksum_vec[2].ptr = (const guint8 *)&phdr;
-	    phdr[0] = htonl(tvb_reported_length(tvb));
-	    phdr[1] = htonl(IP_PROTO_ICMPV6);
+	    phdr[0] = g_htonl(tvb_reported_length(tvb));
+	    phdr[1] = g_htonl(IP_PROTO_ICMPV6);
 	    cksum_vec[2].len = 8;
 	    cksum_vec[3].len = tvb_reported_length(tvb);
 	    cksum_vec[3].ptr = tvb_get_ptr(tvb, offset, cksum_vec[3].len);
@@ -1260,10 +1252,10 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case ICMP6_ECHO_REPLY:
 	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct icmp6_hdr, icmp6_id), 2,
-		"ID: 0x%04x", (guint16)ntohs(dp->icmp6_id));
+		"ID: 0x%04x", (guint16)g_ntohs(dp->icmp6_id));
 	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct icmp6_hdr, icmp6_seq), 2,
-		"Sequence: 0x%04x", (guint16)ntohs(dp->icmp6_seq));
+		"Sequence: 0x%04x", (guint16)g_ntohs(dp->icmp6_seq));
 	    next_tvb = tvb_new_subset(tvb, offset + sizeof(*dp), -1, -1);
 	    call_dissector(data_handle,next_tvb, pinfo, icmp6_tree);
 	    break;
@@ -1273,7 +1265,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct icmp6_hdr, icmp6_maxdelay), 2,
 		"Maximum response delay: %u",
-		(guint16)ntohs(dp->icmp6_maxdelay));
+		(guint16)g_ntohs(dp->icmp6_maxdelay));
 	    proto_tree_add_text(icmp6_tree, tvb, offset + sizeof(*dp), 16,
 		"Multicast Address: %s",
 		ip6_to_str((struct e_in6_addr *)(tvb_get_ptr(tvb, offset + sizeof *dp, sizeof (struct e_in6_addr)))));
@@ -1313,7 +1305,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct nd_router_advert, nd_ra_router_lifetime),
 		2, "Router lifetime: %u",
-		(guint16)ntohs(ra->nd_ra_router_lifetime));
+		(guint16)g_ntohs(ra->nd_ra_router_lifetime));
 	    proto_tree_add_text(icmp6_tree, tvb,
 		offset + offsetof(struct nd_router_advert, nd_ra_reachable), 4,
 		"Reachable time: %u", pntohl(&ra->nd_ra_reachable));

@@ -2,7 +2,7 @@
  * Routines for java rmiregistry dissection
  * Copyright 2002, Michael Stiller <ms@2scale.net>
  *
- * $Id: packet-rmi.c,v 1.3 2002/07/17 06:55:20 guy Exp $
+ * $Id: packet-rmi.c,v 1.4 2002/08/02 23:35:57 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,14 +30,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #include <glib.h>
 
@@ -89,7 +81,7 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint       offset;
     gint       next_offset;
     int        datalen;
-    const u_char *data;
+    const guchar *data;
 
     guint16    version, len, port;
     guint8     message, proto;
@@ -251,7 +243,7 @@ dissect_ser(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static rmi_type
-get_rmi_type(const u_char *data, int datalen)
+get_rmi_type(const guchar *data, int datalen)
 {
     guint16 ser_magic;
     

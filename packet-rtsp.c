@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.48 2002/07/17 06:55:20 guy Exp $
+ * $Id: packet-rtsp.c,v 1.49 2002/08/02 23:36:00 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,10 +26,6 @@
  */
 
 #include "config.h"
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 #include <string.h>
 #include <ctype.h>
@@ -171,10 +167,10 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset - orig_offset;
 }
 
-static void process_rtsp_request(tvbuff_t *tvb, int offset, const u_char *data,
+static void process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
 	size_t linelen, proto_tree *tree);
 
-static void process_rtsp_reply(tvbuff_t *tvb, int offset, const u_char *data,
+static void process_rtsp_reply(tvbuff_t *tvb, int offset, const guchar *data,
 	size_t linelen, proto_tree *tree);
 
 typedef enum {
@@ -192,7 +188,7 @@ static const char *rtsp_methods[] = {
 #define RTSP_NMETHODS	(sizeof rtsp_methods / sizeof rtsp_methods[0])
 
 static rtsp_type_t
-is_rtsp_request_or_reply(const u_char *line, size_t linelen)
+is_rtsp_request_or_reply(const guchar *line, size_t linelen)
 {
 	unsigned	ii;
 
@@ -221,7 +217,7 @@ is_rtsp_request_or_reply(const u_char *line, size_t linelen)
 static const char rtsp_content_type[] = "Content-Type:";
 
 static int
-is_content_sdp(const u_char *line, size_t linelen)
+is_content_sdp(const guchar *line, size_t linelen)
 {
 	static const char type[] = "application/sdp";
 	size_t		typelen = STRLEN_CONST(type);
@@ -251,14 +247,14 @@ static const char rtsp_rtp[] = "rtp/";
 static const char rtsp_inter[] = "interleaved=";
 
 static void
-rtsp_create_conversation(packet_info *pinfo, const u_char *line_begin,
+rtsp_create_conversation(packet_info *pinfo, const guchar *line_begin,
 	size_t line_len)
 {
 	conversation_t	*conv;
-	u_char		buf[256];
-	u_char		*tmp;
-	u_int		c_data_port, c_mon_port;
-	u_int		s_data_port, s_mon_port;
+	guchar		buf[256];
+	guchar		*tmp;
+	guint		c_data_port, c_mon_port;
+	guint		s_data_port, s_mon_port;
 	address		null_addr;
 
 	if (line_len > sizeof(buf) - 1) {
@@ -298,7 +294,7 @@ rtsp_create_conversation(packet_info *pinfo, const u_char *line_begin,
 	}
 	if (!c_data_port) {
 		rtsp_conversation_data_t	*data;
-		u_int				s_data_chan, s_mon_chan;
+		guint				s_data_chan, s_mon_chan;
 		int				i;
 
 		/*
@@ -365,13 +361,13 @@ rtsp_create_conversation(packet_info *pinfo, const u_char *line_begin,
 static const char rtsp_content_length[] = "Content-Length:";
 
 static int
-rtsp_get_content_length(const u_char *line_begin, size_t line_len)
+rtsp_get_content_length(const guchar *line_begin, size_t line_len)
 {
-	u_char		buf[256];
-	u_char		*tmp;
+	guchar		buf[256];
+	guchar		*tmp;
 	long		content_length;
 	char		*p;
-	u_char		*up;
+	guchar		*up;
 
 	if (line_len > sizeof(buf) - 1) {
 		/*
@@ -398,12 +394,12 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	proto_tree	*rtsp_tree;
 	proto_item	*ti = NULL;
-	const u_char	*line;
+	const guchar	*line;
 	gint		next_offset;
-	const u_char	*linep, *lineend;
+	const guchar	*linep, *lineend;
 	int		orig_offset;
 	size_t		linelen;
-	u_char		c;
+	guchar		c;
 	gboolean	is_mime_header;
 	int		is_sdp = FALSE;
 	int		datalen;
@@ -692,14 +688,14 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static void
-process_rtsp_request(tvbuff_t *tvb, int offset, const u_char *data,
+process_rtsp_request(tvbuff_t *tvb, int offset, const guchar *data,
 	size_t linelen, proto_tree *tree)
 {
-	const u_char	*lineend = data + linelen;
+	const guchar	*lineend = data + linelen;
 	unsigned	ii;
-	const u_char	*url;
-	const u_char	*url_start;
-	u_char		*tmp_url;
+	const guchar	*url;
+	const guchar	*url_start;
+	guchar		*tmp_url;
 
 	/* Request Methods */
 	for (ii = 0; ii < RTSP_NMETHODS; ii++) {
@@ -738,12 +734,12 @@ process_rtsp_request(tvbuff_t *tvb, int offset, const u_char *data,
 }
 
 static void
-process_rtsp_reply(tvbuff_t *tvb, int offset, const u_char *data,
+process_rtsp_reply(tvbuff_t *tvb, int offset, const guchar *data,
 	size_t linelen, proto_tree *tree)
 {
-	const u_char	*lineend = data + linelen;
-	const u_char	*status = data;
-	const u_char	*status_start;
+	const guchar	*lineend = data + linelen;
+	const guchar	*status = data;
+	const guchar	*status_start;
 	unsigned int	status_i;
 
 	/* status code */

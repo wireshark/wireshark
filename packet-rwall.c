@@ -1,6 +1,6 @@
 /* packet-rwall.c
  *
- * $Id: packet-rwall.c,v 1.5 2002/04/03 13:24:13 girlich Exp $
+ * $Id: packet-rwall.c,v 1.6 2002/08/02 23:36:00 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,10 +25,6 @@
 #include "config.h"
 #endif
 
-
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
 
 
 #include "packet-rpc.h"

@@ -2,7 +2,7 @@
  * 4.4-Lite-2 Internet checksum routine, modified to take a vector of
  * pointers/lengths giving the pieces to be checksummed.
  *
- * $Id: in_cksum.c,v 1.6 2002/07/21 20:31:21 guy Exp $
+ * $Id: in_cksum.c,v 1.7 2002/08/02 23:35:46 jmayer Exp $
  */
 
 /*
@@ -40,20 +40,8 @@
 # include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-#include <winsock2.h>
 #endif
 
 #include <glib.h>
@@ -210,7 +198,7 @@ in_cksum_shouldbe(guint16 sum, guint16 computed_sum)
 	 * will be in host byte order, which is what we'll return.
 	 */
 	shouldbe = sum;
-	shouldbe += ntohs(computed_sum);
+	shouldbe += g_ntohs(computed_sum);
 	shouldbe = (shouldbe & 0xFFFF) + (shouldbe >> 16);
 	shouldbe = (shouldbe & 0xFFFF) + (shouldbe >> 16);
 	return shouldbe;

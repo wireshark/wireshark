@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.72 2002/07/31 09:00:02 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.73 2002/08/02 23:35:50 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,14 +40,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
 
 #ifdef NEED_SNPRINTF_H
 # include "snprintf.h"
@@ -449,7 +441,7 @@ find_header_length (guint16 fcf)
 /*          This is the capture function used to update packet counts        */
 /* ************************************************************************* */
 static void
-capture_ieee80211_common (const u_char * pd, int offset, int len,
+capture_ieee80211_common (const guchar * pd, int offset, int len,
 			  packet_counts * ld, gboolean fixed_length_header)
 {
   guint16 fcf, hdr_length;
@@ -511,7 +503,7 @@ capture_ieee80211_common (const u_char * pd, int offset, int len,
  * Handle 802.11 with a variable-length link-layer header.
  */
 void
-capture_ieee80211 (const u_char * pd, int offset, int len, packet_counts * ld)
+capture_ieee80211 (const guchar * pd, int offset, int len, packet_counts * ld)
 {
   capture_ieee80211_common (pd, offset, len, ld, FALSE);
 }
@@ -521,7 +513,7 @@ capture_ieee80211 (const u_char * pd, int offset, int len, packet_counts * ld)
  * maximum length).
  */
 void
-capture_ieee80211_fixed (const u_char * pd, int offset, int len, packet_counts * ld)
+capture_ieee80211_fixed (const guchar * pd, int offset, int len, packet_counts * ld)
 {
   capture_ieee80211_common (pd, offset, len, ld, TRUE);
 }

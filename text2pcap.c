@@ -6,7 +6,7 @@
  *
  * (c) Copyright 2001 Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: text2pcap.c,v 1.20 2002/07/21 20:27:30 guy Exp $
+ * $Id: text2pcap.c,v 1.21 2002/08/02 23:36:07 jmayer Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,20 +95,8 @@
 #include <time.h>
 #include <glib.h>
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
 #ifdef HAVE_UNISTD_H
 # include <unistd.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
 #endif
 
 #include <errno.h>
@@ -360,7 +348,7 @@ in_checksum (void *buf, unsigned long count)
 
     while( count > 1 )  {
         /*  This is the inner loop */
-        sum += ntohs(* (unsigned short *) addr++);
+        sum += g_ntohs(* (unsigned short *) addr++);
         count -= 2;
     }
 
@@ -372,7 +360,7 @@ in_checksum (void *buf, unsigned long count)
     while (sum>>16)
         sum = (sum & 0xffff) + (sum >> 16);
 
-    return htons(~sum);
+    return g_htons(~sum);
 }
 
 /* The CRC32C code is taken from draft-ietf-tsvwg-sctpcsum-01.txt.
@@ -529,13 +517,13 @@ write_current_packet (void)
         
         /* Write Ethernet header */
         if (hdr_ethernet) {
-            HDR_ETHERNET.l3pid = htons(hdr_ethernet_proto);
+            HDR_ETHERNET.l3pid = g_htons(hdr_ethernet_proto);
             fwrite(&HDR_ETHERNET, sizeof(HDR_ETHERNET), 1, output_file);
         }
 
         /* Write IP header */
         if (hdr_ip) {
-            HDR_IP.packet_length = htons(ip_length);
+            HDR_IP.packet_length = g_htons(ip_length);
             HDR_IP.protocol = hdr_ip_proto;
             HDR_IP.hdr_checksum = 0;
             HDR_IP.hdr_checksum = in_checksum(&HDR_IP, sizeof(HDR_IP));
@@ -544,9 +532,9 @@ write_current_packet (void)
 
         /* Write UDP header */
         if (hdr_udp) {
-            HDR_UDP.source_port = htons(hdr_udp_src);
-            HDR_UDP.dest_port = htons(hdr_udp_dest);
-            HDR_UDP.length = htons(udp_length);
+            HDR_UDP.source_port = g_htons(hdr_udp_src);
+            HDR_UDP.dest_port = g_htons(hdr_udp_dest);
+            HDR_UDP.length = g_htons(udp_length);
             
             fwrite(&HDR_UDP, sizeof(HDR_UDP), 1, output_file);
         }
@@ -555,11 +543,11 @@ write_current_packet (void)
         if (hdr_data_chunk) {
             HDR_DATA_CHUNK.type   = hdr_data_chunk_type;
             HDR_DATA_CHUNK.bits   = hdr_data_chunk_bits;
-            HDR_DATA_CHUNK.length = htons(curr_offset + sizeof(HDR_DATA_CHUNK));
-            HDR_DATA_CHUNK.tsn    = htonl(hdr_data_chunk_tsn);
-            HDR_DATA_CHUNK.sid    = htons(hdr_data_chunk_sid);
-            HDR_DATA_CHUNK.ssn    = htons(hdr_data_chunk_ssn);
-            HDR_DATA_CHUNK.ppid   = htonl(hdr_data_chunk_ppid);
+            HDR_DATA_CHUNK.length = g_htons(curr_offset + sizeof(HDR_DATA_CHUNK));
+            HDR_DATA_CHUNK.tsn    = g_htonl(hdr_data_chunk_tsn);
+            HDR_DATA_CHUNK.sid    = g_htons(hdr_data_chunk_sid);
+            HDR_DATA_CHUNK.ssn    = g_htons(hdr_data_chunk_ssn);
+            HDR_DATA_CHUNK.ppid   = g_htonl(hdr_data_chunk_ppid);
             
             padding_length = number_of_padding_bytes(curr_offset);
             for (i=0; i<padding_length; i++)
@@ -568,14 +556,14 @@ write_current_packet (void)
         
         /* Write SCTP header */
         if (hdr_sctp) {
-            HDR_SCTP.src_port  = htons(hdr_sctp_src);
-            HDR_SCTP.dest_port = htons(hdr_sctp_dest);
-            HDR_SCTP.tag       = htonl(hdr_sctp_tag);
-            HDR_SCTP.checksum  = htonl(0);
+            HDR_SCTP.src_port  = g_htons(hdr_sctp_src);
+            HDR_SCTP.dest_port = g_htons(hdr_sctp_dest);
+            HDR_SCTP.tag       = g_htonl(hdr_sctp_tag);
+            HDR_SCTP.checksum  = g_htonl(0);
             HDR_SCTP.checksum  = crc32c((unsigned char *)&HDR_SCTP, sizeof(HDR_SCTP), ~0L);
             if (hdr_data_chunk)
               HDR_SCTP.checksum  = crc32c((unsigned char *)&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK), HDR_SCTP.checksum);
-            HDR_SCTP.checksum  = htonl(finalize_crc32c(crc32c(packet_buf, curr_offset, HDR_SCTP.checksum)));
+            HDR_SCTP.checksum  = g_htonl(finalize_crc32c(crc32c(packet_buf, curr_offset, HDR_SCTP.checksum)));
             
             fwrite(&HDR_SCTP, sizeof(HDR_SCTP), 1, output_file);
         }
