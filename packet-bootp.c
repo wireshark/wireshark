@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-bootp.c,v 1.19 1999/08/26 07:34:43 guy Exp $
+ * $Id: packet-bootp.c,v 1.20 1999/10/08 13:57:31 deniel Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -41,6 +41,21 @@
 #include "packet.h"
 
 static int proto_bootp = -1;
+static int hf_bootp_type = -1;
+static int hf_bootp_hw_type = -1;
+static int hf_bootp_hw_len = -1;
+static int hf_bootp_hops = -1;
+static int hf_bootp_id = -1;
+static int hf_bootp_secs = -1;
+static int hf_bootp_flag = -1;
+static int hf_bootp_ip_client = -1;
+static int hf_bootp_ip_your = -1;
+static int hf_bootp_ip_server = -1;
+static int hf_bootp_ip_relay = -1;
+static int hf_bootp_hw_addr = -1;
+static int hf_bootp_server = -1;
+static int hf_bootp_file = -1;
+static int hf_bootp_cookie = -1;
 
 enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
 	time_in_secs,
@@ -438,6 +453,7 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	proto_tree	*bp_tree;
 	proto_item	*ti;
 	int			voff, eoff; /* vender offset, end offset */
+	guint32		ip_addr;
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "BOOTP");
@@ -457,63 +473,91 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_bootp, offset, END_OF_FRAME, NULL);
 		bp_tree = proto_item_add_subtree(ti, ETT_BOOTP);
 
-		proto_tree_add_text(bp_tree, offset, 1, pd[offset] == 1 ?
-			"Boot Request" : "Boot Reply");
-		proto_tree_add_text(bp_tree, offset + 1, 1,
-			"Hardware type: %s",
-			arphrdtype_to_str(pd[offset+1], "Unknown (0x%02x)"));
-		proto_tree_add_text(bp_tree, offset + 2, 1,
-			"Hardware address length: %d", pd[offset+2]);
-		proto_tree_add_text(bp_tree, offset + 3, 1,
-			"Hops: %d", pd[offset+3]);
-		proto_tree_add_text(bp_tree, offset + 4, 4,
-			"Transaction ID: 0x%08x", pntohl(&pd[offset+4]));
-		proto_tree_add_text(bp_tree, offset + 8, 2,
-			"Seconds elapsed: %d", pntohs(&pd[offset+8]));
-		proto_tree_add_text(bp_tree, offset + 10, 2,
-			"Broadcast flag: %d", pd[offset+10] & 1);
-		proto_tree_add_text(bp_tree, offset + 12, 4,
-			"Client IP address: %s", ip_to_str((guint8*)&pd[offset+12]));
-		proto_tree_add_text(bp_tree, offset + 16, 4,
-			"Your (client) IP address: %s", ip_to_str((guint8*)&pd[offset+16]));
-		proto_tree_add_text(bp_tree, offset + 20, 4,
-			"Next server IP address: %s", ip_to_str((guint8*)&pd[offset+20]));
-		proto_tree_add_text(bp_tree, offset + 24, 4,
-			"Relay agent IP address: %s", ip_to_str((guint8*)&pd[offset+24]));
+		proto_tree_add_item_format(bp_tree, hf_bootp_type, 
+					   offset, 1,
+					   pd[offset], 
+					   pd[offset] == 1 ?
+					   "Boot Request" : "Boot Reply");
+		proto_tree_add_item_format(bp_tree, hf_bootp_hw_type,
+					   offset + 1, 1,
+					   pd[offset+1],
+					   "Hardware type: %s",
+					   arphrdtype_to_str(pd[offset+1],
+							     "Unknown (0x%02x)"));
+		proto_tree_add_item(bp_tree, hf_bootp_hw_len,
+				    offset + 2, 1, pd[offset+2]);
+		proto_tree_add_item(bp_tree, hf_bootp_hops,
+				    offset + 3, 1, pd[offset+3]);
+		proto_tree_add_item_format(bp_tree, hf_bootp_id,
+					   offset + 4, 4,
+					   pntohl(&pd[offset+4]),
+					   "Transaction ID: 0x%08x", 
+					   pntohl(&pd[offset+4]));
+		proto_tree_add_item(bp_tree, hf_bootp_secs,
+				    offset + 8, 2, pntohs(&pd[offset+8]));
+		proto_tree_add_item(bp_tree, hf_bootp_flag,
+				    offset + 10, 2, pd[offset+10] & 1);
 
-		proto_tree_add_text(bp_tree, offset + 28, pd[offset+2],
-			"Client hardware address: %s",
-			arphrdaddr_to_str((guint8*)&pd[offset+28],
-				pd[offset+2], pd[offset+1]));
+		memcpy(&ip_addr, &pd[offset+12], sizeof(ip_addr));
+		proto_tree_add_item(bp_tree, hf_bootp_ip_client, 
+				    offset + 12, 4, ip_addr);
+		memcpy(&ip_addr, &pd[offset+16], sizeof(ip_addr));
+		proto_tree_add_item(bp_tree, hf_bootp_ip_your, 
+				    offset + 16, 4, ip_addr);
+		memcpy(&ip_addr, &pd[offset+20], sizeof(ip_addr));
+		proto_tree_add_item(bp_tree, hf_bootp_ip_server,
+				    offset + 20, 4, ip_addr);
+		memcpy(&ip_addr, &pd[offset+24], sizeof(ip_addr));
+		proto_tree_add_item(bp_tree, hf_bootp_ip_relay,
+				    offset + 24, 4, ip_addr);
+
+		proto_tree_add_item_format(bp_tree, hf_bootp_hw_addr, 
+					   offset + 28, pd[offset+2],
+					   &pd[offset+28],
+					   "Client hardware address: %s",
+					   arphrdaddr_to_str((guint8*)&pd[offset+28],
+							     pd[offset+2], pd[offset+1]));
 
 		/* The server host name is optional */
 		if (pd[offset+44]) {
-			proto_tree_add_text(bp_tree, offset + 44, 64,
-				"Server host name: %s", &pd[offset+44]);
+			proto_tree_add_item_format(bp_tree, hf_bootp_server,
+						   offset + 44, 64,
+						   &pd[offset+44],
+						   "Server host name: %s",
+						   &pd[offset+44]);
 		}
 		else {
-			proto_tree_add_text(bp_tree, offset + 44, 64,
-				"Server host name not given");
+			proto_tree_add_item_format(bp_tree, hf_bootp_server,
+						   offset + 44, 64,
+						   &pd[offset+44],
+						   "Server host name not given");
 		}
 
 		/* Boot file */
 		if (pd[offset+108]) {
-			proto_tree_add_text(bp_tree, offset + 108, 128,
-				"Boot file name: %s", &pd[offset+108]);
+			proto_tree_add_item_format(bp_tree, hf_bootp_file,
+						   offset + 108, 128,
+						   &pd[offset+108],
+						   "Boot file name: %s",
+						   &pd[offset+108]);
 		}
 		else {
-			proto_tree_add_text(bp_tree, offset + 108, 128,
-				"Boot file name not given");
+			proto_tree_add_item_format(bp_tree, hf_bootp_file,
+						   offset + 108, 128,
+						   &pd[offset+108],
+						   "Boot file name not given");
 		}
 
 		if (pntohl(&pd[offset+236]) == 0x63825363) {
-			proto_tree_add_text(bp_tree, offset + 236, 4,
-				"Magic cookie: (OK)");
+			proto_tree_add_item_format(bp_tree, hf_bootp_cookie,
+						   offset + 236, 4,
+						   pd[offset+236],
+						   "Magic cookie: (OK)");
 		}
 		else {
-			proto_tree_add_text(bp_tree, offset + 236, 4,
-				"Magic cookie: %s",
-					ip_to_str((guint8*)&pd[offset+236]));
+			memcpy(&ip_addr, &pd[offset + 236], sizeof(ip_addr));
+			proto_tree_add_item(bp_tree, hf_bootp_cookie,
+					    offset + 236, 4, ip_addr);
 		}
 
 		voff = offset+240;
@@ -528,11 +572,39 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_bootp(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "bootp.abbreviation", TYPE, VALS_POINTER }},
-        };*/
-
-        proto_bootp = proto_register_protocol("Bootstrap Protocol", "bootp");
- /*       proto_register_field_array(proto_bootp, hf, array_length(hf));*/
+  static hf_register_info hf[] = {
+    { &hf_bootp_type,
+      { "Message type",			"bootp.type",	 FT_UINT8,  NULL }},
+    { &hf_bootp_hw_type,
+      { "Hardware type",	       	"bootp.hw.type", FT_UINT8,  NULL }},
+    { &hf_bootp_hw_len,
+      { "Hardware address length",	"bootp.hw.len",  FT_UINT8,  NULL }},
+    { &hf_bootp_hops,
+      { "Hops",			       	"bootp.hops",	 FT_UINT8,  NULL }},
+    { &hf_bootp_id,
+      { "Transaction ID",	       	"bootp.id",	 FT_UINT32, NULL }},
+    { &hf_bootp_secs,
+      { "Seconds elapsed",	       	"bootp.secs",	 FT_UINT16, NULL }},
+    { &hf_bootp_flag,
+      { "Broadcast flag",	       	"bootp.flag",    FT_UINT16, NULL }},
+    { &hf_bootp_ip_client,
+      { "Client IP address",	       	"bootp.ip.client",FT_IPv4,  NULL }},
+    { &hf_bootp_ip_your,
+      { "Your (client) IP address",	"bootp.ip.your",  FT_IPv4,  NULL }},
+    { &hf_bootp_ip_server,
+      { "Next server IP address",	"bootp.ip.server",FT_IPv4,  NULL }},
+    { &hf_bootp_ip_relay,
+      { "Relay agent IP address",	"bootp.ip.relay", FT_IPv4,  NULL }},
+    { &hf_bootp_hw_addr,
+      { "Client hardware address",	"bootp.hw.addr", FT_BYTES,  NULL }},
+    { &hf_bootp_server,
+      { "Server host name",		"bootp.server",  FT_STRING, NULL }},
+    { &hf_bootp_file,
+      { "Boot file name",		"bootp.file",	 FT_STRING, NULL }},
+    { &hf_bootp_cookie,
+      { "Magic cookie",			"bootp.cookie",	 FT_IPv4,   NULL }}
+  };
+  
+  proto_bootp = proto_register_protocol("Bootstrap Protocol", "bootp");
+  proto_register_field_array(proto_bootp, hf, array_length(hf));
 }
