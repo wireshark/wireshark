@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.17 2002/06/16 01:52:25 sahlberg Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.18 2002/06/16 11:46:18 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -48,6 +48,10 @@ typedef struct _srvsvc_info {
 
 static int proto_dcerpc_srvsvc = -1;
 static int hf_srvsvc_server = -1;
+static int hf_srvsvc_user = -1;
+static int hf_srvsvc_chrdev = -1;
+static int hf_srvsvc_chrdev_time = -1;
+static int hf_srvsvc_chrdev_status = -1;
 static int hf_srvsvc_info_level = -1;
 static int hf_srvsvc_info = -1;
 static int hf_srvsvc_rc = -1;
@@ -81,12 +85,26 @@ static gint ett_srvsvc_share_info = -1;
 static gint ett_srvsvc_share_info_1 = -1;
 
 
+
 static e_uuid_t uuid_dcerpc_srvsvc = {
         0x4b324fc8, 0x1670, 0x01d3,
         { 0x12, 0x78, 0x5a, 0x47, 0xbf, 0x6e, 0xe1, 0x88 }
 };
 
-static guint16 ver_dcerpc_srvsvc = 3;
+/*static guint16 ver_dcerpc_srvsvc = 3;*/
+static guint16 ver_dcerpc_srvsvc = 0; /*XXX*/
+
+static int
+srvsvc_dissect_ENUM_HANDLE(tvbuff_t *tvb, int offset, 
+			   packet_info *pinfo, proto_tree *tree, 
+			   char *drep)
+{
+
+  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			      hf_srvsvc_enum_handle, 0);
+  return offset;
+
+}
 
 static int
 srvsvc_dissect_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset, 
@@ -105,6 +123,224 @@ srvsvc_dissect_pointer_UNICODE_STRING(tvbuff_t *tvb, int offset,
 						   drep);
 	return offset;
 }
+
+
+
+
+
+/*
+ * IDL typedef struct {
+ * IDL   [string] [unique] wchar_t *dev;
+ * IDL } CHARDEV_INFO_0;
+ */
+static int
+srvsvc_dissect_CHARDEV_INFO_0(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Char Device",
+		hf_srvsvc_chrdev, 0);
+	
+	return offset;
+}
+static int
+srvsvc_dissect_CHARDEV_INFO_0_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_CHARDEV_INFO_0);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] CHARDEV_INFO_0 *devs;
+ * IDL } CHARDEV_INFO_0_CONTAINER;
+ */
+static int
+srvsvc_dissect_CHARDEV_INFO_0_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_CHARDEV_INFO_0_array, NDR_POINTER_UNIQUE,
+		"CHARDEV_INFO_0 array:", -1, 0);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   [string] [unique] wchar_t *dev;
+ * IDL   long status;
+ * IDL   [string] [unique] wchar_t *user;
+ * IDL   long time;
+ * IDL } CHARDEV_INFO_1;
+ */
+static int
+srvsvc_dissect_CHARDEV_INFO_1(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Char Device",
+		hf_srvsvc_chrdev, 0);
+	
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_chrdev_status, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "User",
+		hf_srvsvc_user, 0);
+
+	/* XXX dont know how to decode this time field */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_chrdev_time, 0);
+
+	return offset;
+}
+static int
+srvsvc_dissect_CHARDEV_INFO_1_array(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_CHARDEV_INFO_1);
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long EntriesRead;
+ * IDL   [size_is(EntriesRead)] [unique] CHARDEV_INFO_1 *devs;
+ * IDL } CHARDEV_INFO_1_CONTAINER;
+ */
+static int
+srvsvc_dissect_CHARDEV_INFO_1_CONTAINER(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_num_entries, NULL);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_CHARDEV_INFO_1_array, NDR_POINTER_UNIQUE,
+		"CHARDEV_INFO_1 array:", -1, 3);
+
+	return offset;
+}
+
+/*
+ * IDL typedef [switch_type(long)] union {
+ * IDL   [case(0)] [unique] CHARDEV_INFO_0_CONTAINER *dev0;
+ * IDL   [case(1)] [unique] CHARDEV_INFO_1_CONTAINER *dev1;
+ * IDL } CHARDEV_ENUM_UNION;
+ */
+static int
+srvsvc_dissect_CHARDEV_ENUM_UNION(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	guint32 level;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	ALIGN_TO_4_BYTES;
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_srvsvc_info_level, &level);
+
+	switch(level){
+	case 0:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_CHARDEV_INFO_0_CONTAINER,
+			NDR_POINTER_UNIQUE, "CHARDEV_INFO_0_CONTAINER:",
+			-1, 0);
+		break;
+	case 1:
+		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			srvsvc_dissect_CHARDEV_INFO_1_CONTAINER,
+			NDR_POINTER_UNIQUE, "CHARDEV_INFO_1_CONTAINER:",
+			-1, 0);
+		break;
+	}
+
+	return offset;
+}
+
+/*
+ * IDL typedef struct {
+ * IDL   long Level;
+ * IDL   CHARDEV_ENUM_UNION devs;
+ * IDL } CHARDEV_ENUM_STRUCT;
+ */
+static int
+srvsvc_dissect_CHARDEV_ENUM_STRUCT(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_info_level, 0);
+
+	offset = srvsvc_dissect_CHARDEV_ENUM_UNION(tvb, offset, pinfo, tree, drep);
+
+	return offset;
+}
+
+/* XXX dont know the out parameters. only the in parameters.
+ *
+ * IDL long NetrCharDevEnum(
+ * IDL      [in] [string] [unique] wchar_t *ServerName,
+ * IDL      [in] [ref] CHARDEV_ENUM_STRUCT *devs,
+ * IDL      [in] long PreferredMaximumLength,
+ * IDL      [in] [unique] long *ResumeHandle
+ * IDL );
+*/
+static int
+srvsvc_dissect_netrchardevenum_rqst(tvbuff_t *tvb, int offset, 
+				     packet_info *pinfo, proto_tree *tree, 
+				     char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_pointer_UNICODE_STRING,
+		NDR_POINTER_UNIQUE, "Server",
+		hf_srvsvc_server, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep, 
+		srvsvc_dissect_CHARDEV_ENUM_STRUCT,
+		NDR_POINTER_REF, "CHARDEV_ENUM_STRUCT",
+		-1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_preferred_len, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		srvsvc_dissect_ENUM_HANDLE,
+		NDR_POINTER_UNIQUE, "Enum Handle", -1, 0);
+
+	return offset;
+}
+
+
+/* new functions in order and with idl above this line */
+
+
+
 
 /*
   IDL typedef struct {
@@ -383,20 +619,6 @@ srvsvc_dissect_net_share_get_info_reply(tvbuff_t *tvb, int offset,
 			    hf_srvsvc_rc, NULL);
   return offset;
 }
-
-
-static int
-srvsvc_dissect_ENUM_HANDLE(tvbuff_t *tvb, int offset, 
-			   packet_info *pinfo, proto_tree *tree, 
-			   char *drep)
-{
-
-  offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-			      hf_srvsvc_enum_handle, 0);
-  return offset;
-
-}
-
 
 
 /*
@@ -715,7 +937,9 @@ srvsvc_dissect_netshareenum_reply(tvbuff_t *tvb, int offset,
 }
 
 static dcerpc_sub_dissector dcerpc_srvsvc_dissectors[] = {
-	{SRV_NETRCHARDEVENUM,		"NetrCharDevEnum", NULL, NULL},
+	{SRV_NETRCHARDEVENUM,		"NetrCharDevEnum",
+		srvsvc_dissect_netrchardevenum_rqst,
+		NULL},
 	{SRV_NETRCHARDEVGETINFO,	"NetrCharDevGetInfo", NULL, NULL},
 	{SRV_NETRCHARDEVCONTROL,	"NetrCharDevControl", NULL, NULL},
 	{SRV_NETRCHARDEVQENUM,		"NetrCharDevQEnum", NULL, NULL},
@@ -783,6 +1007,18 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_server,
 	    { "Server", "srvsvc.server", FT_STRING, BASE_NONE,
 	    NULL, 0x0, "Server Name", HFILL}},
+	  { &hf_srvsvc_chrdev,
+	    { "Char Device", "srvsvc.chrdev", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "Char Device Name", HFILL}},
+	  { &hf_srvsvc_user,
+	    { "User", "srvsvc.user", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "User Name", HFILL}},
+	  { &hf_srvsvc_chrdev_status,
+	    { "Status", "srvsvc.chrdev_status", FT_UINT32, BASE_HEX,
+	    NULL, 0x0, "Char Device Status", HFILL}},
+	  { &hf_srvsvc_chrdev_time,
+	    { "Time", "srvsvc.chrdev_time", FT_UINT32, BASE_DEC,
+	    NULL, 0x0, "Char Device Time?", HFILL}},
 	  { &hf_srvsvc_info_level,
 	    { "Info Level", "svrsvc.info_level", FT_UINT32, 
 	    BASE_DEC, NULL, 0x0, "Info Level", HFILL}},
