@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.61 2002/12/03 00:37:27 guy Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.62 2002/12/03 01:20:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1623,7 +1623,7 @@ samr_dissect_CRYPT_PASSWORD(tvbuff_t *tvb, int offset,
 	}
 
 	proto_tree_add_item(tree, hf_samr_crypt_password, tvb, offset, 516,
-		FALSE);
+		TRUE);
 	offset += 516;
 	return offset;
 }
@@ -1642,14 +1642,14 @@ samr_dissect_CRYPT_HASH(tvbuff_t *tvb, int offset,
 	}
 
 	proto_tree_add_item(tree, hf_samr_crypt_hash, tvb, offset, 16,
-		FALSE);
+		TRUE);
 	offset += 16;
 	return offset;
 }
 
 #define NT_BLOCK_SIZE 516
 
-static int
+static void
 samr_dissect_decrypted_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
 				 packet_info *pinfo _U_, proto_tree *tree,
 				 char *drep _U_)
@@ -1685,7 +1685,7 @@ samr_dissect_decrypted_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
 
       /* Pseudorandom data padding up to password */
       proto_tree_add_item(tree, hf_samr_nt_passchange_block_pseudorandom, 
-			  tvb, offset, pseudorandom_len, FALSE);
+			  tvb, offset, pseudorandom_len, TRUE);
       offset += pseudorandom_len;
 
       /* The new password itself */
@@ -1701,7 +1701,7 @@ samr_dissect_decrypted_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
 
       /* Length of password */
       proto_tree_add_item(tree, hf_samr_nt_passchange_block_newpass_len,
-			  tvb, offset, 4, FALSE);
+			  tvb, offset, 4, TRUE);
     }
   else
     {
@@ -1710,10 +1710,8 @@ samr_dissect_decrypted_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
 			   "Decryption of NT Passchange block failed");
       
       proto_tree_add_item(tree, hf_samr_nt_passchange_block_decrypted, tvb,
-			  offset, NT_BLOCK_SIZE, FALSE);
+			  offset, NT_BLOCK_SIZE, TRUE);
     }
-
-  return NT_BLOCK_SIZE;
 }
 
 static int
@@ -1722,14 +1720,13 @@ samr_dissect_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
 				 char *drep _U_)
 {
 	dcerpc_info *di;
-	unsigned char password_unicode[256];
+	size_t password_len;
+	unsigned char *password_unicode;
+	size_t password_len_unicode;
 	unsigned char password_md4_hash[16];
 	guint8 *block;
-	tvbuff_t *decr_tvb = NULL; /* Used to store decrypted buffer */
-	int password_len_unicode = 0;
-	guint32 i;
-	
-	memset(password_unicode, 0, sizeof(password_unicode));
+	tvbuff_t *decr_tvb; /* Used to store decrypted buffer */
+	guint i;
 	
 	/* This implements the the algorithm discussed in lkcl -"DCE/RPC 
 	   over SMB" page 257.  Note that this code does not properly support
@@ -1741,47 +1738,57 @@ samr_dissect_NT_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
 		return offset;
 	}
 
-	if ((block = g_malloc(NT_BLOCK_SIZE)) == NULL)
-	  {
-	    /* Could not allocate memory, just skip the field entirely */
-	    offset += NT_BLOCK_SIZE;
-	    return offset;
-	  }
+	/* Put in a protocol tree entry for the encrypted block. */
+	proto_tree_add_text(tree, tvb, offset, NT_BLOCK_SIZE,
+	    "Encrypted NT Password Block");
 
-	/* Convert the password provided in the Ethereal GUI to Unicode 
-	   (UCS-2).  Since the input is always ASCII, we can just fake it
-	   and pad every other byte with a NULL.  If we ever support UTF-8
-	   in the GUI, we would have to perform a real UTF-8 to UCS-2
-	   conversion */
-	for (i = 0; i < strlen(nt_password); i++)
-	  {
-	    password_unicode[i*2] = nt_password[i];		
-	    password_unicode[i*2+1] = 0;		
-	    password_len_unicode += 2;
-	  }
+	if (nt_password != NULL) {
+		/* We have an NT password, so we can decrypt the password
+		   change block. */
+
+		/* Convert the password provided in the Ethereal GUI to Unicode 
+		   (UCS-2).  Since the input is always ASCII, we can just fake
+		   it and pad every other byte with a NUL.  If we ever support
+		   UTF-8 in the GUI, we would have to perform a real UTF-8 to
+		   UCS-2 conversion */
+		password_len = strlen(nt_password);
+		password_len_unicode = password_len*2;
+		password_unicode = g_malloc(password_len_unicode);
+		for (i = 0; i < password_len; i++) {
+			password_unicode[i*2] = nt_password[i];
+			password_unicode[i*2+1] = 0;
+		}
+
+		/* Run MD4 against the resulting Unicode password.  This will
+		   be used to perform RC4 decryption on the password change
+		   block.  Then free the Unicode password, as we're done
+		   with it. */
+		crypt_md4(password_md4_hash, password_unicode,
+		    password_len_unicode);
+		g_free(password_unicode);
 	
-	/* Run MD4 against the resulting Unicode password.  This will be
-	   used to perform RC4 decryption on the password change block */
-	crypt_md4(password_md4_hash, password_unicode, password_len_unicode);
-
-	/* Copy the block into a temporary buffer so we can decrypt it */
-	memset(block, 0, NT_BLOCK_SIZE);
-	tvb_memcpy(tvb, block, offset, NT_BLOCK_SIZE);
+		/* Copy the block into a temporary buffer so we can decrypt
+		   it */
+		block = g_malloc(NT_BLOCK_SIZE);
+		memset(block, 0, NT_BLOCK_SIZE);
+		tvb_memcpy(tvb, block, offset, NT_BLOCK_SIZE);
 	
-	/* RC4 decrypt the block with the old NT password hash */
-	crypt_rc4(block, password_md4_hash, NT_BLOCK_SIZE);
+		/* RC4 decrypt the block with the old NT password hash */
+		crypt_rc4(block, password_md4_hash, NT_BLOCK_SIZE);
 
-	/* Show the decrypted buffer in a new window */
-	decr_tvb = tvb_new_real_data(block, NT_BLOCK_SIZE, NT_BLOCK_SIZE);
-	tvb_set_free_cb(decr_tvb, g_free);
-	tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
-	add_new_data_source(pinfo, decr_tvb, "Decrypted NT Password Block");
+		/* Show the decrypted buffer in a new window */
+		decr_tvb = tvb_new_real_data(block, NT_BLOCK_SIZE,
+		    NT_BLOCK_SIZE);
+		tvb_set_free_cb(decr_tvb, g_free);
+		tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
+		add_new_data_source(pinfo, decr_tvb,
+		    "Decrypted NT Password Block");
 
-	/* Dissect the decrypted block */
-	offset += samr_dissect_decrypted_NT_PASSCHANGE_BLOCK(decr_tvb, 0,
-							     pinfo, tree,
-							     drep);
-	
+		/* Dissect the decrypted block */
+		samr_dissect_decrypted_NT_PASSCHANGE_BLOCK(decr_tvb, 0, pinfo,
+							   tree, drep);
+	}
+	offset += NT_BLOCK_SIZE;
 	return offset;
 }
 
@@ -1803,7 +1810,7 @@ samr_dissect_LM_PASSCHANGE_BLOCK(tvbuff_t *tvb, int offset,
 	}
 
 	proto_tree_add_item(tree, hf_samr_lm_passchange_block, tvb, offset, 
-			    516, FALSE);
+			    516, TRUE);
 	offset += 516;
 	return offset;
 }
@@ -1826,7 +1833,7 @@ samr_dissect_LM_VERIFIER(tvbuff_t *tvb, int offset,
 	}
 
 	proto_tree_add_item(tree, hf_samr_lm_verifier, tvb, offset, 16,
-		FALSE);
+		TRUE);
 	offset += 16;
 	return offset;
 }
@@ -1850,7 +1857,7 @@ samr_dissect_NT_VERIFIER(tvbuff_t *tvb, int offset,
 	}
 
 	proto_tree_add_item(tree, hf_samr_nt_verifier, tvb, offset, 16,
-		FALSE);
+		TRUE);
 	offset += 16;
 	return offset;
 }
