@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.11 2000/04/01 12:03:40 guy Exp $
+ * $Id: filter_prefs.c,v 1.12 2000/07/05 02:45:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,7 @@
 #include "packet.h"
 #include "file.h"
 #include "util.h"
+#include "dlg_utils.h"
 #include "ui_util.h"
 #include "prefs_dlg.h"
 
@@ -221,7 +222,7 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *filter_te)
 			*cancel_bt;	/* cancel button */ 
 	GtkWidget *filter_pg = NULL;	/* filter settings box */
 
-	main_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	main_w = dlg_window_new();
 	gtk_window_set_title(GTK_WINDOW(main_w), "Ethereal: Filters");
 
 	/* Call a handler when we're destroyed, so we can inform

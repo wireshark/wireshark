@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.3 2000/06/27 04:35:58 guy Exp $
+ * $Id: color_dlg.c,v 1.4 2000/07/05 02:45:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -42,6 +42,7 @@
 #include "file.h"
 #include "dfilter.h"
 #include "simple_dialog.h"
+#include "dlg_utils.h"
 #include "ui_util.h"
 		
 static GtkWidget* colorize_dialog_new(colfilter *filter);
@@ -126,7 +127,7 @@ colorize_dialog_new (colfilter *filter)
   filter->row_selected = -1; /* no row selected */
   tooltips = gtk_tooltips_new ();
 
-  color_win = gtk_window_new (GTK_WINDOW_DIALOG);
+  color_win = dlg_window_new ();
   gtk_object_set_data (GTK_OBJECT (color_win), "color_win", color_win);
   gtk_window_set_title (GTK_WINDOW (color_win), ("Add color to protocols"));
 
@@ -633,7 +634,7 @@ edit_color_filter_dialog_new (colfilter *filter,
 
   tooltips = gtk_tooltips_new ();
 
-  edit_dialog = gtk_window_new (GTK_WINDOW_DIALOG);
+  edit_dialog = dlg_window_new ();
   gtk_object_set_data (GTK_OBJECT (edit_dialog), "edit_dialog", edit_dialog);
   gtk_window_set_title (GTK_WINDOW (edit_dialog), ("Edit color filter"));
   colorf->edit_dialog = edit_dialog;

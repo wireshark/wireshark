@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.27 2000/06/27 04:35:57 guy Exp $
+ * $Id: capture_dlg.c,v 1.28 2000/07/05 02:45:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -131,7 +131,7 @@ capture_prep_cb(GtkWidget *w, gpointer d)
 			err_str);
   }
   
-  cap_open_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  cap_open_w = dlg_window_new();
   gtk_window_set_title(GTK_WINDOW(cap_open_w), "Ethereal: Capture Preferences");
   gtk_signal_connect(GTK_OBJECT(cap_open_w), "destroy",
 	GTK_SIGNAL_FUNC(capture_prep_destroy_cb), NULL);

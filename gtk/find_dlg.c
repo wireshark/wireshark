@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.11 2000/06/27 04:36:00 guy Exp $
+ * $Id: find_dlg.c,v 1.12 2000/07/05 02:45:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,7 +83,7 @@ find_frame_cb(GtkWidget *w, gpointer d)
     return;
   }
 
-  find_frame_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  find_frame_w = dlg_window_new();
   gtk_window_set_title(GTK_WINDOW(find_frame_w), "Ethereal: Find Frame");
   gtk_signal_connect(GTK_OBJECT(find_frame_w), "destroy",
 	GTK_SIGNAL_FUNC(find_frame_destroy_cb), NULL);

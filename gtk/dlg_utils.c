@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.3 2000/05/26 07:32:56 guy Exp $
+ * $Id: dlg_utils.c,v 1.4 2000/07/05 02:45:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -30,11 +30,24 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h>
 
+#include "gtkglobals.h"
+
 static void
 dlg_activate (GtkWidget *widget, gpointer ok_button);
 
 static gint
 dlg_key_press (GtkWidget *widget, GdkEventKey *event, gpointer cancel_button);
+
+/* Create a dialog box window that belongs to Ethereal's main window. */
+GtkWidget *
+dlg_window_new(void)
+{
+	GtkWidget *win;
+
+	win = gtk_window_new(GTK_WINDOW_DIALOG);
+	gtk_window_set_transient_for(GTK_WINDOW(win), GTK_WINDOW(top_level));
+	return win;
+}
 
 /* Set the "activate" signal for a widget to call a routine to
    activate the "OK" button for a dialog box.

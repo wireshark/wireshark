@@ -1,7 +1,7 @@
 /* goto_dlg.c
  * Routines for "go to frame" window
  *
- * $Id: goto_dlg.c,v 1.7 2000/06/27 04:36:01 guy Exp $
+ * $Id: goto_dlg.c,v 1.8 2000/07/05 02:45:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,7 +64,7 @@ goto_frame_cb(GtkWidget *w, gpointer d)
   GtkWidget     *goto_frame_w, *main_vb, *fnumber_hb, *fnumber_lb, *fnumber_te,
                 *bbox, *ok_bt, *cancel_bt;
 
-  goto_frame_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  goto_frame_w = dlg_window_new();
   gtk_window_set_title(GTK_WINDOW(goto_frame_w), "Ethereal: Go To Frame");
   
   /* Container for each row of widgets */

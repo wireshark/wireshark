@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.2 2000/07/03 19:42:36 guy Exp $
+ * $Id: progress_dlg.c,v 1.3 2000/07/05 02:45:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,7 @@
 #endif
 
 #include "gtkglobals.h"
+#include "dlg_utils.h"
 #include "ui_util.h"
 
 #define	PROG_BAR_KEY	"progress_bar"
@@ -62,7 +63,7 @@ create_progress_dlg(gchar *title, gboolean *stop_flag)
 	GtkWidget *dlg_w, *main_vb, *title_lb, *prog_bar, *cancel_al,
 		  *cancel_bt;
 
-	dlg_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	dlg_w = dlg_window_new();
 	gtk_window_set_title(GTK_WINDOW(dlg_w), title);
 
 	/*

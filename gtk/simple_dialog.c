@@ -1,7 +1,7 @@
-/* dialog.c
- * Dialog box routines.
+/* simple_dialog.c
+ * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.2 2000/05/03 07:19:38 guy Exp $
+ * $Id: simple_dialog.c,v 1.3 2000/07/05 02:45:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,7 +81,7 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   gchar      **icon;
 
   /* Main window */
-  win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  win = dlg_window_new();
   gtk_container_border_width(GTK_CONTAINER(win), 7);
 
   switch (type) {
