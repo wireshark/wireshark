@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.56 2003/01/28 06:27:00 tpot Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.57 2003/01/28 23:26:11 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,8 +107,6 @@ static gint ett_nt_policy_hnd = -1;
    } UNICODE_STRING;
   structure used by NT to transmit unicode string values.
 
-  This function also looks at di->levels to see if whoever called us wanted us to append
-  the name: string to any higher levels in the tree .
 */
 int
 dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
@@ -153,10 +151,6 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
      [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
    } UNICODE_STRING;
   structure used by NT to transmit unicode string values.
-
-  the function takes one additional parameter, level
-  which specifies how many additional levels up in the tree where we should
-  append the string.  If unsure, specify levels as 0.
 */
 int
 dissect_ndr_nt_UNICODE_STRING_cb(tvbuff_t *tvb, int offset,
