@@ -6,7 +6,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/directory.tar.gz directory/cds/stubs/cds_clerkserver.idl
  *      
- * $Id: packet-dcerpc-cds_clerkserver.c,v 1.1 2002/09/12 09:29:51 sahlberg Exp $
+ * $Id: packet-dcerpc-cds_clerkserver.c,v 1.2 2002/11/08 19:42:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

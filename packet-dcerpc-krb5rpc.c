@@ -6,7 +6,7 @@
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/krb5rpc.idl
  *
  *
- * $Id: packet-dcerpc-krb5rpc.c,v 1.1 2002/09/13 09:59:21 sahlberg Exp $
+ * $Id: packet-dcerpc-krb5rpc.c,v 1.2 2002/11/08 19:42:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

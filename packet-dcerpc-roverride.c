@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/roverride.idl
  *
- * $Id: packet-dcerpc-roverride.c,v 1.1 2002/09/11 09:17:25 sahlberg Exp $
+ * $Id: packet-dcerpc-roverride.c,v 1.2 2002/11/08 19:42:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/file.tar.gz file/fsint/tkn4int.idl
  *     
- * $Id: packet-dcerpc-tkn4int.c,v 1.1 2002/09/13 10:20:48 sahlberg Exp $
+ * $Id: packet-dcerpc-tkn4int.c,v 1.2 2002/11/08 19:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
