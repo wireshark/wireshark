@@ -74,9 +74,16 @@ dissect_hf_x509if_ATADV_attribute_id(packet_info *pinfo, proto_tree *tree, tvbuf
                                          hf_x509if_ATADV_attribute_id, ATADV_attribute_id);
   return offset;
 }
+static int 
+dissect_hf_x509if_ATADV_attribute_value(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset) 
+{
+  offset=call_ber_oid_callback(ATADV_attribute_id, tvb, offset, pinfo, tree);
+  return offset;
+}
 
 static ber_sequence AttributeTypeAndDistinguishedValue_sequence[] = {
   { BER_CLASS_UNI, BER_UNI_TAG_OID, BER_FLAGS_NOOWNTAG, dissect_hf_x509if_ATADV_attribute_id },
+  { BER_CLASS_ANY, 0, BER_FLAGS_NOOWNTAG, dissect_hf_x509if_ATADV_attribute_value },
   /*XXX  missing stuff here */
   { 0, 0, 0, NULL }
 };

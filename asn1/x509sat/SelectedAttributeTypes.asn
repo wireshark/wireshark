@@ -10,7 +10,7 @@ BEGIN
 -- Directory services. Other applications may use them for their own purposes, but this will not constrain
 -- extensions and modifications needed to maintain or improve the Directory service.
 IMPORTS
-  informationFramework, upperBounds, id-at, id-mr, id-avc,
+  informationFramework, upperBounds, id-mr, id-avc,
     directoryAbstractService, id-pr, id-not, id-cat
     FROM UsefulDefinitions {joint-iso-itu-t ds(5) module(1)
       usefulDefinitions(0) 3}
@@ -944,10 +944,12 @@ CriteriaItem ::= CHOICE {
 -- Object identifier assignments -
 -- object identifiers assigned in other modules are shown in comments
 -- Attributes 
+--     (id-at copied in from UsefulDefinitions)
+id-at OBJECT IDENTIFIER ::= {joint-iso-itu-t ds(5) 4}
 -- id-at-objectClass						OBJECT IDENTIFIER	::=	{id-at 0}
 -- id-at-aliasedEntryName				OBJECT IDENTIFIER	::=	{id-at 1}
 -- id-at-encryptedAliasedEntryName OBJECT IDENTIFIER ::=
---   {id-at 1 2}
+--  {id-at 1 2}
 -- 
 -- id-at-knowledgeInformation OBJECT IDENTIFIER ::= {id-at 2}
 -- 
@@ -962,9 +964,9 @@ CriteriaItem ::= CHOICE {
 -- id-at-serialNumber OBJECT IDENTIFIER ::= {id-at 5}
 -- 
 -- id-at-encryptedSerialNumber OBJECT IDENTIFIER ::= {id-at 5 2}
--- 
--- id-at-countryName OBJECT IDENTIFIER ::= {id-at 6}
--- 
+
+id-at-countryName OBJECT IDENTIFIER ::= {id-at 6}
+
 -- id-at-encryptedCountryName OBJECT IDENTIFIER ::= {id-at 6 2}
 -- 
 -- id-at-localityName OBJECT IDENTIFIER ::= {id-at 7}

@@ -51,6 +51,7 @@
 
 /* Initialize the protocol and registered fields */
 int proto_x509sat = -1;
+int hf_x509sat_countryName = -1;
 
 /*--- Included file: packet-x509sat-hf.c ---*/
 
@@ -157,11 +158,21 @@ dissect_x509sat_CriteriaItem(gboolean implicit_tag, tvbuff_t *tvb, int offset, p
 
 
 
+static void
+dissect_x509sat_countryName_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	dissect_x509sat_CountryName(FALSE, tvb, 0, pinfo, tree, hf_x509sat_countryName);
+}
+
 /*--- proto_register_x509sat ----------------------------------------------*/
 void proto_register_x509sat(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+    { &hf_x509sat_countryName,
+      { "countryName", "x509sat.countryName",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Country Name", HFILL }},
 
 /*--- Included file: packet-x509sat-hfarr.c ---*/
 
@@ -223,5 +234,9 @@ void proto_register_x509sat(void) {
 
 /*--- proto_reg_handoff_x509sat -------------------------------------------*/
 void proto_reg_handoff_x509sat(void) {
+	dissector_handle_t dissector_handle;
+
+	dissector_handle=create_dissector_handle(dissect_x509sat_countryName_callback, proto_x509sat);
+	dissector_add_string("ber.oid", "2.5.4.6", dissector_handle);
 }
 
