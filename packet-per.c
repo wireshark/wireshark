@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.14 2003/08/28 14:41:20 sahlberg Exp $
+ * $Id: packet-per.c,v 1.15 2003/08/31 00:49:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -240,8 +240,12 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 
 	/* semi-constrained whole number for number of elements */
 	/* each element encoded as 10.9 */
-	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_sequence_of_length, &length);
+	proto_tree *etr = NULL;
 
+	if(display_internal_per_fields){
+		etr=tree;
+	}
+	offset=dissect_per_length_determinant(tvb, offset, pinfo, etr, hf_per_sequence_of_length, &length);
 
 	offset=dissect_per_sequence_of_helper(tvb, offset, pinfo, tree, func, length);
 
@@ -288,8 +292,13 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	/* xx.x */
 	length=max_len;
 	if(min_len!=max_len){
+		proto_tree *etr = NULL;
+  
+		if(display_internal_per_fields){
+			etr=tree;
+		}
 		offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
-			tree, hf_per_octet_string_length, min_len, max_len, 
+			etr, hf_per_octet_string_length, min_len, max_len,
 			&length, NULL, FALSE);
 	} 
 
@@ -399,8 +408,13 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_t
 	/* xx.x */
 	length=max_len;
 	if(min_len!=max_len){
+		proto_tree *etr = NULL;
+
+		if(display_internal_per_fields){
+			etr=tree;
+		}
 		offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
-			tree, hf_per_octet_string_length, min_len, max_len, 
+			etr, hf_per_octet_string_length, min_len, max_len,
 			&length, NULL, FALSE);
 	} 
 
@@ -601,7 +615,7 @@ DEBUG_ENTRY("dissect_per_boolean");
 			mask&0x04?'0'+value:'.', 
 			mask&0x02?'0'+value:'.', 
 			mask&0x01?'0'+value:'.',
-			value?"Bit is set":"Bit is clear"
+			value?"True":"False"
 		);
 		it=proto_tree_add_boolean_format(tree, hf_index, tvb, offset>>3, 1, value, str);
 		if(item){
@@ -916,9 +930,14 @@ DEBUG_ENTRY("dissect_per_choice");
 	if(choice[0].extension==NO_EXTENSIONS){
 		extension_present=0;
 	} else {
+		proto_tree *etr=NULL;
+
+		if(display_internal_per_fields){
+			etr=tr;
+		}
 		extension_present=1;
 		/* will be placed called again below to place it in the tree */
-		offset=dissect_per_boolean(tvb, offset, pinfo, tr, hf_per_extension_bit, &extension_flag, NULL);
+		offset=dissect_per_boolean(tvb, offset, pinfo, etr, hf_per_extension_bit, &extension_flag, NULL);
 	}
 
 	/* count the number of entries in the extension_root */
@@ -1354,8 +1373,13 @@ DEBUG_ENTRY("dissect_per_octet_string");
 
 	/* 16.8 */
 	if(max_len>0){
+		proto_tree *etr = NULL;
+
+		if(display_internal_per_fields){
+			etr=tree;
+		}
 		offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
-			tree, hf_per_octet_string_length, min_len, max_len, 
+			etr, hf_per_octet_string_length, min_len, max_len,
 			&length, NULL, FALSE);
 	} else {
 		offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_per_octet_string_length, &length);
