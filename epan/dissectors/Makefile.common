@@ -292,6 +292,7 @@ DISSECTOR_SRC =	\
 	packet-h450.c	\
 	packet-hclnfsd.c	\
 	packet-hpext.c	\
+	packet-hpsw.c	\
 	packet-hsrp.c	\
 	packet-http.c	\
 	packet-hyperscsi.c	\
