@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.28 2002/02/27 05:45:48 guy Exp $
+ * $Id: packet-wtp.c,v 1.29 2002/03/27 07:44:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -175,9 +175,20 @@ static int hf_wtp_header_Abort_reason_user		= HF_EMPTY;
 static int hf_wtp_header_sequence_number		= HF_EMPTY;
 static int hf_wtp_header_missing_packets		= HF_EMPTY;
 
+/* These fields used when reassembling WTP fragments */
+static int hf_wtp_fragments				= HF_EMPTY;
+static int hf_wtp_fragment				= HF_EMPTY;
+static int hf_wtp_fragment_overlap			= HF_EMPTY;
+static int hf_wtp_fragment_overlap_conflict		= HF_EMPTY;
+static int hf_wtp_fragment_multiple_tails		= HF_EMPTY;
+static int hf_wtp_fragment_too_long_fragment		= HF_EMPTY;
+static int hf_wtp_fragment_error			= HF_EMPTY;
+
 /* Initialize the subtree pointers */
 static gint ett_wtp 					= ETT_EMPTY;
 static gint ett_header 					= ETT_EMPTY;
+static gint ett_wsp_fragments				= ETT_EMPTY;
+static gint ett_wtp_fragment				= ETT_EMPTY;
 
 /* Handle for WSP dissector */
 static dissector_handle_t wsp_handle;
@@ -212,6 +223,73 @@ static char retransmission_indicator(unsigned char octet)
 			return octet & 0x01;	/* .......X */
 		default:
 			return 0;
+	}
+}
+
+static void show_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+			   fragment_data *fd_head)
+{
+	guint32 offset;
+	fragment_data *fd;
+	proto_tree *ft;
+	proto_item *fi;
+
+	fi = proto_tree_add_item(tree, hf_wtp_fragments, tvb, 0, -1, FALSE);
+	ft = proto_item_add_subtree(fi, ett_wsp_fragments);
+	offset = 0;
+	for (fd=fd_head->next; fd; fd=fd->next){
+		if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
+		    |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+			/* this fragment has some flags set, create a subtree
+			   for it and display the flags. */
+			proto_tree *fet=NULL;
+			proto_item *fei=NULL;
+			int hf;
+
+			if (fd->flags & (FD_OVERLAPCONFLICT
+			    |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+				hf = hf_wtp_fragment_error;
+			} else {
+				hf = hf_wtp_fragment;
+			}
+			fei = proto_tree_add_none_format(ft, hf, 
+			    tvb, offset, fd->len,
+			    "Frame:%u payload:%u-%u",
+			    fd->frame, offset, offset+fd->len-1);
+			fet = proto_item_add_subtree(fei, ett_wtp_fragment);
+			if (fd->flags&FD_OVERLAP) {
+				proto_tree_add_boolean(fet, 
+				    hf_wtp_fragment_overlap, tvb, 0, 0, 
+				    TRUE);
+			}
+			if (fd->flags&FD_OVERLAPCONFLICT) {
+				proto_tree_add_boolean(fet, 
+				    hf_wtp_fragment_overlap_conflict, tvb, 0, 0,
+				    TRUE);
+			}
+			if (fd->flags&FD_MULTIPLETAILS) {
+				proto_tree_add_boolean(fet, 
+				    hf_wtp_fragment_multiple_tails, tvb, 0, 0,
+				    TRUE);
+			}
+			if (fd->flags&FD_TOOLONGFRAGMENT) {
+				proto_tree_add_boolean(fet, 
+				    hf_wtp_fragment_too_long_fragment, tvb, 0, 0,
+				    TRUE);
+			}
+		} else {
+			/* nothing of interest for this fragment */
+			proto_tree_add_none_format(ft, hf_wtp_fragment, 
+			    tvb, offset, fd->len,
+			    "Frame:%u payload:%u-%u",
+			    fd->frame, offset, offset+fd->len-1);
+		}
+		offset = fd->len;
+	}
+	if (fd_head->flags & (FD_OVERLAPCONFLICT
+                        |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_set_str(pinfo->cinfo, COL_INFO, "[Illegal fragments]");
 	}
 }
 
@@ -528,6 +606,10 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				add_new_data_source(pinfo->fd, wsp_tvb,
 							"Reassembled WTP");
 				pinfo->fragmented = FALSE;
+
+				/* show all fragments */
+				show_fragments(wsp_tvb, pinfo, wtp_tree, fd_head);
+
 				call_dissector(wsp_handle, wsp_tvb, pinfo, tree);
 			}
 			else
@@ -737,12 +819,65 @@ proto_register_wtp(void)
 				"Data", HFILL
 			}
 		},
+
+		/* Fragment fields */
+		{ &hf_wtp_fragment_overlap,
+			{	"Fragment overlap",
+				"wtp.fragment.overlap",
+				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+				"Fragment overlaps with other fragments", HFILL
+				}
+			},
+		{ &hf_wtp_fragment_overlap_conflict,
+			{	"Conflicting data in fragment overlap",
+				"wtp.fragment.overlap.conflict",
+				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+				"Overlapping fragments contained conflicting data", HFILL
+			}
+		},
+		{ &hf_wtp_fragment_multiple_tails,
+			{	"Multiple tail fragments found",
+				"wtp.fragment.multipletails",
+				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+				"Several tails were found when defragmenting the packet", HFILL
+			}
+		},
+		{ &hf_wtp_fragment_too_long_fragment,
+			{	"Fragment too long",
+				"wtp.fragment.toolongfragment",
+				FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+				"Fragment contained data past end of packet", HFILL
+			}
+		},
+		{ &hf_wtp_fragment_error,
+			{	"Defragmentation error",
+				"wtp.fragment.error",
+				FT_NONE, BASE_NONE, NULL, 0x0,
+				"Defragmentation error due to illegal fragments", HFILL
+			}
+		},
+		{ &hf_wtp_fragment,
+			{	"WTP Fragment",
+				"wtp.fragment",
+				FT_NONE, BASE_NONE, NULL, 0x0,
+				"WTP Fragment", HFILL
+			}
+		},
+		{ &hf_wtp_fragments,
+			{	"WTP Fragments",
+				"wtp.fragments",
+				FT_NONE, BASE_NONE, NULL, 0x0,
+				"WTP Fragments", HFILL
+			}
+		},
 	};
 	
 /* Setup protocol subtree array */
 	static gint *ett[] = {
 		&ett_wtp,
 		&ett_header,
+		&ett_wsp_fragments,
+		&ett_wtp_fragment,
 	};
 
 /* Register the protocol name and description */
