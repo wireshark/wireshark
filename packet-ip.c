@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.103 2000/09/16 00:48:43 sharpe Exp $
+ * $Id: packet-ip.c,v 1.104 2000/10/21 04:34:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1008,7 +1008,7 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   e_icmp     ih;
   proto_tree *icmp_tree;
   proto_item *ti;
-  guint16    cksum;
+  guint16    cksum, computed_cksum;
   gchar      type_str[64], code_str[64] = "";
   guint8     num_addrs = 0;
   guint8     addr_entry_size = 0;
@@ -1020,7 +1020,7 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   memcpy(&ih, &pd[offset], sizeof(e_icmp));
   /* To do: check for runts, errs, etc. */
   cksum = ntohs(ih.icmp_cksum);
-  
+
   switch (ih.icmp_type) {
     case ICMP_ECHOREPLY:
       strcpy(type_str, "Echo (ping) reply");
@@ -1107,8 +1107,30 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			       ih.icmp_code,
 			       "Code: %u %s",
 			       ih.icmp_code, code_str);
-    proto_tree_add_uint(icmp_tree, hf_icmp_checksum, NullTVB, offset +  2, 2, 
+
+    if (pi.captured_len >= pi.len) {
+      /* The packet isn't truncated, so we can checksum it.
+         XXX - we have to check whether this is part of a fragmented
+	 IP datagram, too.... */
+
+      computed_cksum = ip_checksum(&pd[offset], END_OF_FRAME);
+      if (computed_cksum == 0) {
+        proto_tree_add_uint_format(icmp_tree, hf_icmp_checksum, NullTVB,
+			offset + 2, 2,
+			cksum,
+			"Checksum: 0x%04x (correct)", cksum);
+      } else {
+        proto_tree_add_uint_format(icmp_tree, hf_icmp_checksum, NullTVB,
+			offset + 2, 2,
+			cksum,
+			"Checksum: 0x%04x (incorrect, should be 0x%04x)",
+			cksum, ip_checksum_shouldbe(cksum, computed_cksum));
+      }
+    } else {
+      proto_tree_add_uint(icmp_tree, hf_icmp_checksum, NullTVB,
+			offset +  2, 2,
 			cksum);
+    }
 
     /* Decode the second 4 bytes of the packet. */
     switch (ih.icmp_type) {
