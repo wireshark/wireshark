@@ -11,7 +11,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp2222.inc,v 1.64 2003/09/25 11:27:24 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.65 2003/10/23 08:16:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4327,8 +4327,8 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		guint16 type, proto_tree *ncp_tree)
 {
 	guint8			func, subfunc = 0;
-	gboolean		requires_subfunc;
-	gboolean		has_length = TRUE;
+	gboolean		requires_subfunc = FALSE;
+	gboolean		has_length = FALSE;
 	ncp_req_hash_value	*request_value = NULL;
 	const ncp_record	*ncp_rec = NULL;
 	conversation_t		*conversation;
@@ -4341,16 +4341,6 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 
 	func = tvb_get_guint8(tvb, 6);
 
-	requires_subfunc = ncp_requires_subfunc(func);
-	has_length = ncp_has_length_parameter(func);
-	if (requires_subfunc) {
-		if (has_length) {
-			subfunc = tvb_get_guint8(tvb, 9);
-		}
-		else {
-			subfunc = tvb_get_guint8(tvb, 7);
-		}
-	}
 	/* Determine which ncp_record to use. */
 	switch (type) {
 		case NCP_ALLOCATE_SLOT:
@@ -4373,6 +4363,16 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                         }        
 			break;
 		case NCP_SERVICE_REQUEST:
+			requires_subfunc = ncp_requires_subfunc(func);
+			has_length = ncp_has_length_parameter(func);
+			if (requires_subfunc) {
+				if (has_length) {
+					subfunc = tvb_get_guint8(tvb, 9);
+				}
+				else {
+					subfunc = tvb_get_guint8(tvb, 7);
+				}
+			}
 			ncp_rec = ncp_record_find(func, subfunc);
 			break;
 		case NCP_DEALLOCATE_SLOT:
@@ -4386,6 +4386,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                         break;        
 		default:
 			ncp_rec = NULL;
+			break;
 	}
 
 	/* Fill in the INFO column. */
@@ -4531,7 +4532,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		/* The group is not part of the packet, but it's useful
 		 * information to display anyway. */
 		if (ncp_rec) {
-			proto_tree_add_text(ncp_tree, tvb, 6, 1, "Group: %s",
+			proto_tree_add_text(ncp_tree, tvb, 0, 0, "Group: %s",
 					ncp_groups[ncp_rec->group]);
 		}
 
