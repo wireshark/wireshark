@@ -4,7 +4,7 @@
  *
  * Maintained by Andreas Sikkema (andreas.sikkema@philips.com)
  *
- * $Id: packet-h225.c,v 1.27 2004/01/09 00:56:03 guy Exp $
+ * $Id: packet-h225.c,v 1.28 2004/02/05 19:19:05 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5016,13 +5016,17 @@ static int
 dissect_h225_fastStart_item(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	guint32 length;
+	guint32 newoffset;
 
 	offset=dissect_per_length_determinant(tvb, offset, pinfo, tree, hf_h225_fastStart_item_length, &length);
+	newoffset=offset + (length<<3);	/* please note that offset is in bits in
+					   PER dissectors, but the item length
+					   is in octets */
 	offset=dissect_h245_OpenLogicalChannel(tvb, offset, pinfo, tree);
 
 	contains_faststart = TRUE;
 
-	return offset;
+	return newoffset;
 }
 
 static int
