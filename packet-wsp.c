@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.104 2004/01/09 22:10:02 obiot Exp $
+ * $Id: packet-wsp.c,v 1.105 2004/01/10 15:33:51 obiot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1269,7 +1269,7 @@ static void add_headers (proto_tree *tree, tvbuff_t *tvb, int hf);
  * tvb_get_string[z]() functions return g_malloc()ed memory! */ 
 #define get_text_string(str,tvb,start,len,ok) \
 	if (is_text_string(tvb_get_guint8(tvb,start))) { \
-		str = tvb_get_stringz(tvb,start,&len); \
+		str = (gchar *)tvb_get_stringz(tvb,start,(gint *)&len); \
 		g_assert (str); \
 		ok = TRUE; \
 	} else { len = 0; str = NULL; ok = FALSE; }
@@ -1731,7 +1731,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf)
 	gint32 tvb_len = tvb_length(tvb);
 	gint32 offset = 0, hdr_len, hdr_start;
 	gint32 val_len, val_start;
-	guint8 *hdr_str, *val_str;
+	gchar *hdr_str, *val_str;
 	proto_tree *wsp_headers;
 	proto_item *ti;
 	guint8 ok;
@@ -1775,12 +1775,12 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf)
 			offset += 2;
 		} else if (hdr_id >= 0x20) { /* Textual header */
 			/* Header name MUST be NUL-ended string ==> tvb_get_stringz() */
-			hdr_str = tvb_get_stringz(tvb, hdr_start, &hdr_len);
+			hdr_str = (gchar *)tvb_get_stringz(tvb, hdr_start, (gint *)&hdr_len);
 			val_start = hdr_start + hdr_len;
 			val_id = tvb_get_guint8(tvb, val_start);
 			/* Call header value dissector for given header */
 			if (val_id >= 0x20 && val_id <=0x7E) { /* OK! */
-				val_str = tvb_get_stringz(tvb, val_start, &val_len);
+				val_str = (gchar *)tvb_get_stringz(tvb, val_start, (gint *)&val_len);
 				g_assert(val_str);
 				offset = val_start + val_len;
 				proto_tree_add_text(wsp_headers,tvb,hdr_start,offset-hdr_start,
@@ -1885,7 +1885,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf)
 	guint32 offset = val_start; /* Offset to one past this header */ \
 	guint32 val_len; /* length for value with length field */ \
 	guint32 val_len_len; /* length of length field */ \
-	guint8 *val_str = NULL
+	gchar *val_str = NULL
 
 #define wkh_1_WellKnownValue				/* Parse Well Known Value */ \
 	proto_tree_add_string_hidden(tree, hf_hdr_name, \
@@ -1901,7 +1901,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf)
 #define wkh_2_TextualValue					/* Parse Textual Value */ \
 		/* END */ \
 	} else if ((val_id == 0) || (val_id >= 0x20)) { /* Textual value */ \
-		val_str = tvb_get_stringz (tvb, val_start, &val_len); \
+		val_str = (gchar *)tvb_get_stringz (tvb, val_start, (gint *)&val_len); \
 		g_assert(val_str); \
 		offset = val_start + val_len; \
 		/* Textual value processing starts HERE \
@@ -2087,7 +2087,7 @@ add_content_type(proto_tree *tree, tvbuff_t *tvb, guint32 val_start,
 	guint32 offset = val_start; /* Offset to one past this header */
 	guint32 val_len; /* length for value with length field */
 	guint32 val_len_len; /* length of length field */
-	guint8 *val_str = NULL;
+	gchar *val_str = NULL;
 	guint32 off, val = 0, len;
 	guint8 peek;
 	gboolean ok = FALSE;
@@ -3514,7 +3514,7 @@ static guint32 wkh_encoding_version (proto_tree *tree, tvbuff_t *tvb,
 {
 	wkh_0_Declarations;
 	guint32 off, val, len;
-	guint8 *str;
+	gchar *str;
 
 	wkh_1_WellKnownValue;
 		val = val_id & 0x7F;
@@ -5216,7 +5216,7 @@ add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
 	guint count = 0;
 	guint uriLen = tvb_get_guintvar (tvb, URILenOffset, &count);
-	char *str = NULL;
+	gchar *str = NULL;
 
 	if (tree)
 		ti = proto_tree_add_uint (tree, hf_wsp_header_uri_len,
@@ -5227,7 +5227,7 @@ add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 		ti = proto_tree_add_item (tree, hf_wsp_header_uri,
 				tvb, URIOffset, uriLen, bo_little_endian);
 
-	str = tvb_format_text (tvb, URIOffset, uriLen);
+	str = (gchar *)tvb_format_text (tvb, URIOffset, uriLen);
 	/* XXX - tvb_format_text() returns a pointer to a static text string
 	 * so please DO NOT attempt at g_free()ing it!
 	 */
@@ -5636,7 +5636,8 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 	char *valueBuffer;
 
 	variableBuffer = g_malloc (variableLength+1);
-	strncpy (variableBuffer, tvb_get_ptr (tvb, variableStart, variableLength), variableLength);
+	strncpy (variableBuffer, (const char *)tvb_get_ptr (tvb,
+				variableStart, variableLength), variableLength);
 	variableBuffer[variableLength] = 0;
 
 	if (valueEnd < valueStart)
@@ -5649,7 +5650,8 @@ add_post_variable (proto_tree *tree, tvbuff_t *tvb, guint variableStart, guint v
 	{
 		valueLength = valueEnd-valueStart;
 		valueBuffer = g_malloc (valueLength+1);
-		strncpy (valueBuffer, tvb_get_ptr (tvb, valueStart, valueLength), valueLength);
+		strncpy (valueBuffer, (const char *)tvb_get_ptr (tvb,
+					valueStart, valueLength), valueLength);
 		valueBuffer[valueLength] = 0;
 	}
 
