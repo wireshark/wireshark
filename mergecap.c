@@ -1,6 +1,6 @@
 /* Combine two dump files, either by appending or by merging by timestamp
  *
- * $Id: mergecap.c,v 1.18 2004/02/20 20:36:13 gerald Exp $
+ * $Id: mergecap.c,v 1.19 2004/03/03 22:14:10 jmayer Exp $
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -264,6 +264,11 @@ open_outfile(out_file_t *out_file, int snapshot_len)
     fprintf(stderr, "mergecap: internal error (null out_file)\n");
     exit(1);
   }
+
+  /* Allow output to stdout by using - */
+  if ((strncmp(out_file->filename, "-", 2) == 0) && (strlen(out_file->filename) == 1))
+    out_file->filename = "";
+
 
   out_file->pdh = wtap_dump_open(out_file->filename, out_file->file_type,
                                  out_file->frame_type, snapshot_len, &err);

@@ -10,7 +10,7 @@ S<[ B<-hva> ]>
 S<[ B<-s> I<snaplen> ]>
 S<[ B<-F> I<file format> ]>
 S<[ B<-T> I<encapsulation type> ]>
-S<B<-w> I<outfile>>
+S<B<-w> I<outfile>|->
 I<infile>
 I<...>
 
@@ -96,7 +96,7 @@ fddi>' is specified).
 
 =item -w
 
-Sets the output filename.
+Sets the output filename. If the name is 'B<->', stdout will be used.
 
 =item -F
 
@@ -148,3 +148,4 @@ of B<Ethereal> can be found at B<http://www.ethereal.com>.
 
   Contributors
   ------------
+  Bill Guyton              <guyton[AT]bguyton.com>
