@@ -2117,6 +2117,7 @@ Brian Wheeler           <Brian.Wheeler [AT] arrisi.com> {
 
 Josh Bailey             <joshbailey [AT] lucent.com> {
 	IPDC support
+	Lucent/Ascend trace parsing updates
 }
 
 Jelmer Vernooij         <jelmer [AT] samba.org> {

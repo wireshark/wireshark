@@ -342,6 +342,9 @@ struct atm_phdr {
 #define ASCEND_PFX_WDS_X 1
 #define ASCEND_PFX_WDS_R 2
 #define ASCEND_PFX_WDD   3
+#define ASCEND_PFX_ISDN_X 4
+#define ASCEND_PFX_ISDN_R 5
+#define ASCEND_PFX_ETHER 6
 
 struct ascend_phdr {
 	guint16	type;			/* ASCEND_PFX_*, as defined above */

@@ -56,17 +56,22 @@ int mul, scratch;
 #define YY_NO_UNISTD_H
 #endif
 
+
 %}
 
-/* %option debug */
 %option nostdinit
 %option noyywrap
 
 D [0-9]
 H [A-Fa-f0-9]
 
-XPFX XMIT-
-RPFX RECV-
+PPP_XPFX PPP-IN
+PPP_RPFX PPP-OUT
+ISDN_XPFX PRI-XMIT-
+ISDN_RPFX PRI-RCV-
+WAN_XPFX XMIT[\-:]*
+WAN_RPFX RECV[\-:]*
+ETHER_PFX ETHER
 
 WDD_DATE    "Date:"
 WDD_TIME    "Time:"
@@ -100,18 +105,61 @@ WDD_TYPE    "type "[^\n\r\t ]+
 
 %s sc_chardisp
 
+%s sc_isdn_call
+%s sc_ether_direction
+
 %%
 
-<INITIAL,sc_gen_byte>{XPFX} {
+<INITIAL,sc_gen_byte>{ETHER_PFX} {
+  BEGIN(sc_ether_direction);
+  ascendlval.d = ASCEND_PFX_ETHER;
+  return ETHER_PREFIX;
+}
+
+<INITIAL,sc_gen_byte>{ISDN_XPFX} {
+  BEGIN(sc_isdn_call);
+  ascendlval.d = ASCEND_PFX_ISDN_X;
+  return ISDN_PREFIX;
+}
+
+<INITIAL,sc_gen_byte>{ISDN_RPFX} {
+  BEGIN(sc_isdn_call);
+  ascendlval.d = ASCEND_PFX_ISDN_R;
+  return ISDN_PREFIX;
+}
+
+<INITIAL,sc_gen_byte>{WAN_XPFX} {
   BEGIN(sc_wds_user);
   ascendlval.d = ASCEND_PFX_WDS_X;
   return WDS_PREFIX;
 }
 
-<INITIAL,sc_gen_byte>{RPFX} {
+<INITIAL,sc_gen_byte>{WAN_RPFX} {
   BEGIN(sc_wds_user);
   ascendlval.d = ASCEND_PFX_WDS_R;
   return WDS_PREFIX;
+}
+
+<INITIAL,sc_gen_byte>{PPP_XPFX} {
+  BEGIN(sc_wds_user);
+  ascendlval.d = ASCEND_PFX_WDS_X;
+  return WDS_PREFIX;
+}
+
+<INITIAL,sc_gen_byte>{PPP_RPFX} {
+  BEGIN(sc_wds_user);
+  ascendlval.d = ASCEND_PFX_WDS_R;
+  return WDS_PREFIX;
+}
+
+<sc_ether_direction>[^\(]+ {
+  BEGIN(sc_gen_task);
+  return STRING; 
+}
+
+<sc_isdn_call>[^\/\(:]+ {
+  BEGIN(sc_gen_task);
+  return DECNUM;
 }
 
 <sc_wds_user>[^:]+ {
@@ -163,14 +211,13 @@ WDD_TYPE    "type "[^\n\r\t ]+
 }
 
 <sc_gen_time_u>{D}+ {
+  char *atcopy = strdup(ascendtext);
   BEGIN(sc_gen_octets);
-  /* We have the fractional portion of the time.  We want it converted
-     to microseconds. */
-  mul = 1000000;
-  ascendlval.d = strtol(ascendtext, NULL, 10);
-  for (scratch = ascendlval.d; scratch > 0; scratch /= 10)
-    mul /= 10;
-  ascendlval.d *= mul;
+  /* only want the most significant 2 digits. convert to usecs */
+  if (strlen(atcopy) > 2)
+    atcopy[2] = '\0';
+  ascendlval.d = strtol(atcopy, NULL, 10) * 10000;
+  free(atcopy);
   return DECNUM;
 }
 
@@ -272,6 +319,10 @@ WDD_TYPE    "type "[^\n\r\t ]+
 <sc_wdd_type>{WDD_TYPE} {
   BEGIN(sc_gen_task);
   return KEYWORD;
+}
+
+<sc_gen_task>\/{D}+ {
+  return SLASH_SUFFIX;
 }
 
 (0x|0X)?{H}+ { return HEXNUM; }

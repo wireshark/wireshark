@@ -42,64 +42,47 @@
 #include <ctype.h>
 #include <string.h>
 
-/* This module reads the output of the 'wandsession', 'wannext',
-   'wandisplay', and similar commands available on Lucent/Ascend access
-   equipment.  The output is text, with a header line followed by the
-   packet data.  Usage instructions for the commands can be found by
-   searching http://aos.ascend.com .  Ascend likes to move their pages
-   around quite a bit, otherwise I'd put a more specific URL here.
+/* Last updated: Feb 03 2005: Josh Bailey (joshbailey@lucent.com).
 
-   Example 'wandsess' output data:
+   This module reads the text hex dump output of various TAOS
+   (Lucent/Ascend Max, Max TNT, APX, etc) debug commands, including:
 
-RECV-iguana:241:(task: B02614C0, time: 1975432.85) 49 octets @ 8003BD94
-  [0000]: FF 03 00 3D C0 06 CA 22 2F 45 00 00 28 6A 3B 40
-  [0010]: 00 3F 03 D7 37 CE 41 62 12 CF 00 FB 08 20 27 00
-  [0020]: 50 E4 08 DD D7 7C 4C 71 92 50 10 7D 78 67 C8 00
-  [0030]: 00
-XMIT-iguana:241:(task: B04E12C0, time: 1975432.85) 53 octets @ 8009EB16
-  [0000]: FF 03 00 3D C0 09 1E 31 21 45 00 00 2C 2D BD 40
-  [0010]: 00 7A 06 D8 B1 CF 00 FB 08 CE 41 62 12 00 50 20
-  [0020]: 29 7C 4C 71 9C 9A 6A 93 A4 60 12 22 38 3F 10 00
-  [0030]: 00 02 04 05 B4
+   * pridisplay		traces primary rate ISDN
+   * ether-display	traces Ethernet packets (dangerous! CPU intensive)
+   * wanopening, wandisplay, wannext, wandsess
+			traces PPP or other WAN connections
 
-    Example 'wdd' output data:
+   Please see ascend-grammar.y for examples.
 
-Date: 01/12/1990.  Time: 12:22:33
-Cause an attempt to place call to 14082750382
-WD_DIALOUT_DISP: chunk 2515EE type IP.
-(task: 251790, time: 994953.28) 44 octets @ 2782B8
-  [0000]: 00 C0 7B 71 45 6C 00 60 08 16 AA 51 08 00 45 00
-  [0010]: 00 2C 66 1C 40 00 80 06 53 F6 AC 14 00 18 CC 47
-  [0020]: C8 45 0A 31 00 50 3B D9 5B 75 00 00
+   Detailed documentation on TAOS products is at http://support.lucent.com.
 
-    (note that the capture whence this came dates back to January
-    *1999*; I presume that either the person who sent it to me
-    hadn't bothered keeping its internal clock set, or that its
-    internal clock or the date it displays in those messages
-    is only loosely connected to reality)
-
-  Note that a maximum of eight rows will be displayed (for a maximum of
-  128 bytes), no matter what the octet count is.
-
-  When reading a packet, the module prepends an ascend_pkt_hdr to the
-  data.
-
- */
+   Support for other commands will be added on an ongoing basis. */
 
 /* How far into the file we should look for packet headers */
 #define ASCEND_MAX_SEEK 100000
 
-/* XXX  Should we replace this with a more generalized array? */
-/* Magic numbers for Ascend wandsession/wanopening/ether-display data */
-static const char ascend_xmagic[]  = { 'X', 'M', 'I', 'T', '-' };
-static const char ascend_rmagic[]  = { 'R', 'E', 'C', 'V', '-' };
-static const char ascend_w1magic[] = { 'D', 'a', 't', 'e', ':',  };
-static const char ascend_w2magic[] = { 'W', 'D', '_', 'D', 'I', 'A', 'L', 'O', 'U', 'T', '_', 'D', 'I', 'S', 'P', ':' };
+typedef struct _ascend_magic_string {
+  guint    type;
+  gchar   *strptr; 
+} ascend_magic_string;
 
-#define ASCEND_X_SIZE  (sizeof ascend_xmagic  / sizeof ascend_xmagic[0])
-#define ASCEND_R_SIZE  (sizeof ascend_rmagic  / sizeof ascend_rmagic[0])
-#define ASCEND_W1_SIZE (sizeof ascend_w1magic / sizeof ascend_w1magic[0])
-#define ASCEND_W2_SIZE (sizeof ascend_w2magic / sizeof ascend_w2magic[0])
+#define ASCEND_MAGIC_STRINGS	11
+#define ASCEND_DATE		"Date:"
+
+/* these magic strings signify the headers of a supported debug commands */
+static const ascend_magic_string ascend_magic[] = {
+  { ASCEND_PFX_ISDN_X,	"PRI-XMIT-" },
+  { ASCEND_PFX_ISDN_R,	"PRI-RCV-" },
+  { ASCEND_PFX_WDS_X,	"XMIT-" },
+  { ASCEND_PFX_WDS_R,	"RECV-" },
+  { ASCEND_PFX_WDS_X,	"XMIT:" },
+  { ASCEND_PFX_WDS_R,	"RECV:" },
+  { ASCEND_PFX_WDS_X,   "PPP-OUT" },
+  { ASCEND_PFX_WDS_R,   "PPP-IN" },
+  { ASCEND_PFX_WDD,	ASCEND_DATE },
+  { ASCEND_PFX_WDD,	"WD_DIALOUT_DISP:" },
+  { ASCEND_PFX_ETHER,	"ETHER" },
+};
 
 static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
 	long *data_offset);
@@ -109,102 +92,58 @@ static gboolean ascend_seek_read(wtap *wth, long seek_off,
 static void ascend_close(wtap *wth);
 
 /* Seeks to the beginning of the next packet, and returns the
-   byte offset at which the heade for that packet begins.
-   Returns -1 on failure.
-
-   If it finds a packet, then, if "wth->capture.ascend" is non-null,
-   it sets "wth->capture.ascend->next_packet_seek_start" to the point
-   at which the seek pointer should be set before this routine is called
-   to find the packet *after* the packet it finds. */
+   byte offset at which the header for that packet begins.
+   Returns -1 on failure. */
 static long ascend_seek(wtap *wth, int max_seek, int *err)
 {
   int byte, bytes_read = 0;
   long date_off = -1, cur_off, packet_off;
-  unsigned int r_level = 0, x_level = 0, w1_level = 0, w2_level = 0;
+  guint string_level[ASCEND_MAGIC_STRINGS];
+  guint string_i = 0, type = 0;
+
+  memset(&string_level, 0, sizeof(string_level));
 
   while (((byte = file_getc(wth->fh)) != EOF) && bytes_read < max_seek) {
-    if (byte == ascend_xmagic[x_level]) {
-      x_level++;
-      if (x_level >= ASCEND_X_SIZE) {
-        /* At what offset are we now? */
-        cur_off = file_tell(wth->fh);
-        if (cur_off == -1) {
-          /* Error. */
-          *err = file_error(wth->fh);
-          return -1;
-        }
 
-        /* Back up over the header we just read; that's where a read
-           of this packet should start. */
-        packet_off = cur_off - ASCEND_X_SIZE;
-        goto found;
-      }
-    } else {
-      x_level = 0;
-    }
-    if (byte == ascend_rmagic[r_level]) {
-      r_level++;
-      if (r_level >= ASCEND_R_SIZE) {
-        /* At what offset are we now? */
-        cur_off = file_tell(wth->fh);
-        if (cur_off == -1) {
-          /* Error. */
-          *err = file_error(wth->fh);
-          return -1;
-        }
+    for (string_i = 0; string_i < ASCEND_MAGIC_STRINGS; string_i++) {
+      gchar *strptr = ascend_magic[string_i].strptr;
+      guint len     = strlen(strptr);
+      
+      if (byte == *(strptr + string_level[string_i])) {
+        string_level[string_i]++;
+        if (string_level[string_i] >= len) {
+          cur_off = file_tell(wth->fh);
+          if (cur_off == -1) {
+            /* Error. */
+            *err = file_error(wth->fh);
+            return -1;
+          }
 
-        /* Back up over the header we just read; that's where a read
-           of this packet should start. */
-        packet_off = cur_off - ASCEND_R_SIZE;
-        goto found;
-      }
-    } else {
-      r_level = 0;
-    }
-    if (byte == ascend_w1magic[w1_level]) {
-      w1_level++;
-      if (w1_level >= ASCEND_W1_SIZE) {
-        /* Get the offset at which the "Date:" header started. */
-        cur_off = file_tell(wth->fh);
-        if (cur_off == -1) {
-          /* Error. */
-          *err = file_error(wth->fh);
-          return -1;
-        }
+          /* Date: header is a special case. Remember the offset,
+             but keep looking for other headers. */
+	  if (strcmp(strptr, ASCEND_DATE) == 0) {
+            date_off = cur_off - len;
+          } else {
+            if (date_off == -1) { 
+              /* Back up over the header we just read; that's where a read
+                 of this packet should start. */
+              packet_off = cur_off - len;
+            } else {
+              /* This packet has a date/time header; a read of it should
+                 start at the beginning of *that* header. */
+              packet_off = date_off;
+            }
 
-        date_off = cur_off - ASCEND_W1_SIZE;
-      }
-    } else {
-      w1_level = 0;
-    }
-    if (byte == ascend_w2magic[w2_level]) {
-      w2_level++;
-      if (w2_level >= ASCEND_W2_SIZE) {
-        /* At what offset are we now? */
-        cur_off = file_tell(wth->fh);
-        if (cur_off == -1) {
-          /* Error. */
-          *err = file_error(wth->fh);
-          return -1;
+            type = ascend_magic[string_i].type;
+            goto found;
+          }
         }
-
-        if (date_off != -1) {
-          /* This packet has a date/time header; a read of it should
-             start at the beginning of *that* header. */
-          packet_off = date_off;
-        } else {
-          /* This packet has only a per-packet header.
-             Back up over that header, which we just read; that's where
-             a read of this packet should start. */
-          packet_off = cur_off - ASCEND_W2_SIZE;
-        }
-        goto found;
+      } else {
+        string_level[string_i] = 0;
       }
-    } else {
-      w2_level = 0;
     }
-    bytes_read++;
   }
+
   if (byte != EOF || file_eof(wth->fh)) {
     /* Either we didn't find the offset, or we got an EOF. */
     *err = 0;
@@ -217,20 +156,14 @@ static long ascend_seek(wtap *wth, int max_seek, int *err)
 
 found:
   /*
-   * The search for the packet after this one should start right
-   * after the header for this packet.  (Ideally, it should
-   * start after the *data* for this one, but we haven't
-   * read that yet.)
-   */
-  if (wth->capture.ascend != NULL)
-    wth->capture.ascend->next_packet_seek_start = cur_off + 1;
-
-  /*
    * Move to where the read for this packet should start, and return
    * that seek offset.
    */
   if (file_seek(wth->fh, packet_off, SEEK_SET, err) == -1)
     return -1;
+
+  wth->pseudo_header.ascend.type = type;
+
   return packet_off;
 }
 
@@ -253,8 +186,22 @@ int ascend_open(wtap *wth, int *err, gchar **err_info _U_)
   }
 
   wth->data_offset = offset;
-  wth->file_encap = WTAP_ENCAP_ASCEND;
   wth->file_type = WTAP_FILE_ASCEND;
+
+  switch(wth->pseudo_header.ascend.type) {
+    case ASCEND_PFX_ISDN_X:
+    case ASCEND_PFX_ISDN_R:
+      wth->file_encap = WTAP_ENCAP_ISDN;
+      break;
+
+    case ASCEND_PFX_ETHER:
+      wth->file_encap = WTAP_ENCAP_ETHERNET;
+      break;
+
+    default:
+      wth->file_encap = WTAP_ENCAP_ASCEND;
+  }
+
   wth->snapshot_length = ASCEND_MAX_PKT_LEN;
   wth->subtype_read = ascend_read;
   wth->subtype_seek_read = ascend_seek_read;
@@ -284,6 +231,25 @@ int ascend_open(wtap *wth, int *err, gchar **err_info _U_)
   return 1;
 }
 
+static void config_pseudo_header(union wtap_pseudo_header *pseudo_head)
+{
+  switch(pseudo_head->ascend.type) {
+    case ASCEND_PFX_ISDN_X:
+      pseudo_head->isdn.uton = TRUE;
+      pseudo_head->isdn.channel = 0;
+      break;
+
+    case ASCEND_PFX_ISDN_R:
+      pseudo_head->isdn.uton = FALSE;
+      pseudo_head->isdn.channel = 0;
+      break;
+
+    case ASCEND_PFX_ETHER:
+      pseudo_head->eth.fcs_len = 0;
+      break;
+  }
+}
+
 /* Read the next packet; called from wtap_loop(). */
 static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
 	long *data_offset)
@@ -292,23 +258,26 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
   guint8 *buf = buffer_start_ptr(wth->frame_buffer);
   ascend_pkthdr header;
 
-  /* (f)lex reads large chunks of the file into memory, so file_tell() doesn't
-     give us the correct location of the packet.  Instead, we seek to the
-     offset after the header of the previous packet and try to find the next
-     packet.  */
+  /* parse_ascend() will advance the point at which to look for the next
+     packet's header, to just after the last packet's header (ie. at the
+     start of the last packet's data). We have to get past the last
+     packet's header because we might mistake part of it for a new header. */
   if (file_seek(wth->fh, wth->capture.ascend->next_packet_seek_start,
                 SEEK_SET, err) == -1)
     return FALSE;
-  offset = ascend_seek(wth, ASCEND_MAX_SEEK, err);
-  if (offset == -1)
-    return FALSE;
-  if (! parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header, 0)) {
+
+    offset = ascend_seek(wth, ASCEND_MAX_SEEK, err);
+    if (offset == -1)
+      return FALSE;
+  if (! parse_ascend(wth->fh, buf, &wth->pseudo_header.ascend, &header, &(wth->capture.ascend->next_packet_seek_start))) {
     *err = WTAP_ERR_BAD_RECORD;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;
   }
 
   buffer_assure_space(wth->frame_buffer, wth->snapshot_length);
+
+  config_pseudo_header(&wth->pseudo_header);
 
   if (! wth->capture.ascend->adjusted) {
     wth->capture.ascend->adjusted = 1;
@@ -343,13 +312,18 @@ static gboolean ascend_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_head, guint8 *pd, int len,
 	int *err, gchar **err_info)
 {
+  /* don't care for length. */
+  (void) len;
+
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
-  if (! parse_ascend(wth->random_fh, pd, &pseudo_head->ascend, NULL, len)) {
+  if (! parse_ascend(wth->random_fh, pd, &pseudo_head->ascend, NULL, &(wth->capture.ascend->next_packet_seek_start))) {
     *err = WTAP_ERR_BAD_RECORD;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;
   }
+
+  config_pseudo_header(pseudo_head);
   return TRUE;
 }
 
