@@ -1,7 +1,7 @@
 /* endpoint_talkers_tcpip.c
  * endpoint_talkers_tcpip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_tcpip.c,v 1.15 2003/09/04 23:11:03 sahlberg Exp $
+ * $Id: endpoint_talkers_tcpip.c,v 1.16 2003/09/04 23:37:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,8 +65,8 @@ gtk_tcpip_talkers_init(char *optarg)
 {
 	char *filter=NULL;
 
-	if(!strncmp(optarg,"talkers,tcp,",12)){
-		filter=optarg+12;
+	if(!strncmp(optarg,"conv,tcp,",9)){
+		filter=optarg+9;
 	} else {
 		filter=NULL;
 	}
@@ -79,14 +79,14 @@ gtk_tcpip_talkers_init(char *optarg)
 static void
 gtk_tcpip_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_tcpip_talkers_init("talkers,tcp");
+	gtk_tcpip_talkers_init("conv,tcp");
 }
 
 
 void
 register_tap_menu_tcpip_talkers(void)
 {
-	register_tap_menu_item("Endpoint Talkers/TCP (IPv4 IPv6)", gtk_tcpip_endpoints_cb);
+	register_tap_menu_item("Conversation List/TCP (IPv4 IPv6)", gtk_tcpip_endpoints_cb);
 }
 
 
@@ -95,6 +95,6 @@ register_tap_menu_tcpip_talkers(void)
 void
 register_tap_listener_tcpip_talkers(void)
 {
-	register_ethereal_tap("talkers,tcp", gtk_tcpip_talkers_init);
+	register_ethereal_tap("conv,tcp", gtk_tcpip_talkers_init);
 }
 

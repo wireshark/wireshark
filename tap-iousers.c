@@ -1,7 +1,7 @@
 /* tap-iousers.c
  * iostat   2003 Ronnie Sahlberg
  *
- * $Id: tap-iousers.c,v 1.13 2003/08/29 10:59:10 sahlberg Exp $
+ * $Id: tap-iousers.c,v 1.14 2003/09/04 23:37:43 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -456,7 +456,7 @@ iousers_draw(io_users_t *iu)
 	guint32 last_frames, max_frames;
 
 	printf("================================================================================\n");
-	printf("%s Talkers\n",iu->type);
+	printf("%s Conversations\n",iu->type);
 	printf("Filter:%s\n",iu->filter?iu->filter:"<No Filter>");
 	printf("                                               |       <-      | |       ->      | |     Total     |\n");
 	printf("                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |\n");
@@ -500,72 +500,72 @@ iousers_init(char *optarg)
 	io_users_t *iu=NULL;
 	GString *error_string;
 
-	if(!strncmp(optarg,"talkers,eth",11)){
-		if(optarg[11]==','){
-			filter=optarg+12;
+	if(!strncmp(optarg,"conv,eth",8)){
+		if(optarg[8]==','){
+			filter=optarg+9;
 		} else {
 			filter=NULL;
 		}
 		tap_type="eth";
 		tap_type_name="Ethernet";
 		packet_func=iousers_eth_packet;
-	} else if(!strncmp(optarg,"talkers,fc",10)){
-		if(optarg[10]==','){
-			filter=optarg+11;
+	} else if(!strncmp(optarg,"conv,fc",7)){
+		if(optarg[7]==','){
+			filter=optarg+8;
 		} else {
 			filter=NULL;
 		}
 		tap_type="fc";
 		tap_type_name="Fibre Channel";
 		packet_func=iousers_fc_packet;
-	} else if(!strncmp(optarg,"talkers,fddi",12)){
-		if(optarg[12]==','){
-			filter=optarg+13;
+	} else if(!strncmp(optarg,"conv,fddi",9)){
+		if(optarg[9]==','){
+			filter=optarg+10;
 		} else {
 			filter=NULL;
 		}
 		tap_type="fddi";
 		tap_type_name="FDDI";
 		packet_func=iousers_fddi_packet;
-	} else if(!strncmp(optarg,"talkers,tcp",11)){
-		if(optarg[11]==','){
-			filter=optarg+12;
+	} else if(!strncmp(optarg,"conv,tcp",8)){
+		if(optarg[8]==','){
+			filter=optarg+9;
 		} else {
 			filter=NULL;
 		}
 		tap_type="tcp";
 		tap_type_name="TCP";
 		packet_func=iousers_tcpip_packet;
-	} else if(!strncmp(optarg,"talkers,udp",11)){
-		if(optarg[11]==','){
-			filter=optarg+12;
+	} else if(!strncmp(optarg,"conv,udp",8)){
+		if(optarg[8]==','){
+			filter=optarg+9;
 		} else {
 			filter=NULL;
 		}
 		tap_type="udp";
 		tap_type_name="UDP";
 		packet_func=iousers_udpip_packet;
-	} else if(!strncmp(optarg,"talkers,tr",10)){
-		if(optarg[10]==','){
-			filter=optarg+11;
+	} else if(!strncmp(optarg,"conv,tr",7)){
+		if(optarg[7]==','){
+			filter=optarg+8;
 		} else {
 			filter=NULL;
 		}
 		tap_type="tr";
 		tap_type_name="Token Ring";
 		packet_func=iousers_tr_packet;
-	} else if(!strncmp(optarg,"talkers,ipx",11)){
-		if(optarg[11]==','){
-			filter=optarg+12;
+	} else if(!strncmp(optarg,"conv,ipx",8)){
+		if(optarg[8]==','){
+			filter=optarg+9;
 		} else {
 			filter=NULL;
 		}
 		tap_type="ipx";
 		tap_type_name="IPX";
 		packet_func=iousers_ipx_packet;
-	} else if(!strncmp(optarg,"talkers,ip",10)){
-		if(optarg[10]==','){
-			filter=optarg+11;
+	} else if(!strncmp(optarg,"conv,ip",7)){
+		if(optarg[7]==','){
+			filter=optarg+8;
 		} else {
 			filter=NULL;
 		}
@@ -573,7 +573,7 @@ iousers_init(char *optarg)
 		tap_type_name="IPv4";
 		packet_func=iousers_ip_packet;
 	} else {
-		fprintf(stderr, "tethereal: invalid \"-z talkers,<type>[,<filter>]\" argument\n");
+		fprintf(stderr, "tethereal: invalid \"-z conv,<type>[,<filter>]\" argument\n");
 		fprintf(stderr,"   <type> must be one of\n");
 		fprintf(stderr,"      \"eth\"\n");
 		fprintf(stderr,"      \"fc\"\n");
@@ -602,7 +602,7 @@ iousers_init(char *optarg)
 			g_free(iu->items);
 		}
 		g_free(iu);
-		fprintf(stderr, "tethereal: Couldn't register talkers tap: %s\n",
+		fprintf(stderr, "tethereal: Couldn't register conversations tap: %s\n",
 		    error_string->str);
 		g_string_free(error_string, TRUE);
 		exit(1);
@@ -613,6 +613,6 @@ iousers_init(char *optarg)
 void
 register_tap_listener_iousers(void)
 {
-	register_ethereal_tap("talkers,", iousers_init);
+	register_ethereal_tap("conv,", iousers_init);
 }
 

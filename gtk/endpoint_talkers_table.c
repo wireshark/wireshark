@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.13 2003/09/04 23:12:46 sahlberg Exp $
+ * $Id: endpoint_talkers_table.c,v 1.14 2003/09/04 23:37:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,6 +74,7 @@ ett_port_to_str(int port_type, guint32 port)
 	}
 	return NULL;
 }
+
 
 #define FN_SRC_ADDRESS		0
 #define FN_DST_ADDRESS		1
@@ -853,7 +854,7 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	talkers->name=table_name;
 	talkers->win=gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_default_size(GTK_WINDOW(talkers->win), 750, 400);
-	snprintf(title, 255, "%s Talkers: %s", table_name, get_basename(cfile.filename));
+	snprintf(title, 255, "%s Conversations: %s", table_name, get_basename(cfile.filename));
 	gtk_window_set_title(GTK_WINDOW(talkers->win), title);
 
 	SIGNAL_CONNECT(talkers->win, "destroy", ett_win_destroy_cb, talkers);
@@ -863,7 +864,7 @@ init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filt
 	gtk_container_set_border_width(GTK_CONTAINER(vbox), 10);
 	gtk_widget_show(vbox);
 
-	snprintf(title, 255, "%s Talkers", table_name);
+	snprintf(title, 255, "%s Conversations", table_name);
 	label=gtk_label_new(title);
 	gtk_box_pack_start(GTK_BOX(vbox), label, FALSE, FALSE, 0);
 	gtk_widget_show(label);

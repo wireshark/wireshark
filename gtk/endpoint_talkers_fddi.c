@@ -1,7 +1,7 @@
 /* endpoint_talkers_fddi.c
  * endpoint_talkers_fddi   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_fddi.c,v 1.8 2003/09/04 23:11:03 sahlberg Exp $
+ * $Id: endpoint_talkers_fddi.c,v 1.9 2003/09/04 23:37:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,8 +66,8 @@ gtk_fddi_talkers_init(char *optarg)
 {
 	char *filter=NULL;
 
-	if(!strncmp(optarg,"talkers,fddi,",13)){
-		filter=optarg+13;
+	if(!strncmp(optarg,"conv,fddi,",10)){
+		filter=optarg+10;
 	} else {
 		filter=NULL;
 	}
@@ -80,14 +80,14 @@ gtk_fddi_talkers_init(char *optarg)
 static void
 gtk_fddi_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_fddi_talkers_init("talkers,fddi");
+	gtk_fddi_talkers_init("conv,fddi");
 }
 
 
 void
 register_tap_menu_fddi_talkers(void)
 {
-	register_tap_menu_item("Endpoint Talkers/FDDI", gtk_fddi_endpoints_cb);
+	register_tap_menu_item("Conversation List/FDDI", gtk_fddi_endpoints_cb);
 }
 
 
@@ -96,6 +96,6 @@ register_tap_menu_fddi_talkers(void)
 void
 register_tap_listener_fddi_talkers(void)
 {
-	register_ethereal_tap("talkers,fddi", gtk_fddi_talkers_init);
+	register_ethereal_tap("conv,fddi", gtk_fddi_talkers_init);
 }
 

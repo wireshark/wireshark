@@ -445,7 +445,7 @@ time and average response time.
 
 
 
-B<-z> talkers,I<type>[,I<filter>]
+B<-z> conv,I<type>[,I<filter>]
 
 Create a table that lists all conversations that could be seen in the capture.
 I<type> specifies which type of conversation we want to generate the 

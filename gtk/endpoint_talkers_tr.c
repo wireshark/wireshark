@@ -1,7 +1,7 @@
 /* endpoint_talkers_tr.c
  * endpoint_talkers_tr   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_tr.c,v 1.14 2003/09/04 23:11:03 sahlberg Exp $
+ * $Id: endpoint_talkers_tr.c,v 1.15 2003/09/04 23:37:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,8 +65,8 @@ gtk_tr_talkers_init(char *optarg)
 {
 	char *filter=NULL;
 
-	if(!strncmp(optarg,"talkers,tr,",11)){
-		filter=optarg+11;
+	if(!strncmp(optarg,"conv,tr,",8)){
+		filter=optarg+8;
 	} else {
 		filter=NULL;
 	}
@@ -79,14 +79,14 @@ gtk_tr_talkers_init(char *optarg)
 static void
 gtk_tr_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_tr_talkers_init("talkers,tr");
+	gtk_tr_talkers_init("conv,tr");
 }
 
 
 void
 register_tap_menu_tr_talkers(void)
 {
-	register_tap_menu_item("Endpoint Talkers/Token Ring", gtk_tr_endpoints_cb);
+	register_tap_menu_item("Conversation List/Token Ring", gtk_tr_endpoints_cb);
 }
 
 
@@ -95,6 +95,6 @@ register_tap_menu_tr_talkers(void)
 void
 register_tap_listener_tr_talkers(void)
 {
-	register_ethereal_tap("talkers,tr", gtk_tr_talkers_init);
+	register_ethereal_tap("conv,tr", gtk_tr_talkers_init);
 }
 

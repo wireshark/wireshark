@@ -1,7 +1,7 @@
 /* endpoint_talkers_ipx.c
  * endpoint_talkers_ipx   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_ipx.c,v 1.12 2003/09/04 23:11:03 sahlberg Exp $
+ * $Id: endpoint_talkers_ipx.c,v 1.13 2003/09/04 23:37:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,8 +66,8 @@ gtk_ipx_talkers_init(char *optarg)
 {
 	char *filter=NULL;
 
-	if(!strncmp(optarg,"talkers,ipx,",12)){
-		filter=optarg+12;
+	if(!strncmp(optarg,"conv,ipx,",9)){
+		filter=optarg+9;
 	} else {
 		filter=NULL;
 	}
@@ -80,14 +80,14 @@ gtk_ipx_talkers_init(char *optarg)
 static void
 gtk_ipx_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_ipx_talkers_init("talkers,ipx");
+	gtk_ipx_talkers_init("conv,ipx");
 }
 
 
 void
 register_tap_menu_ipx_talkers(void)
 {
-	register_tap_menu_item("Endpoint Talkers/IPX", gtk_ipx_endpoints_cb);
+	register_tap_menu_item("Conversation List/IPX", gtk_ipx_endpoints_cb);
 }
 
 
@@ -96,6 +96,6 @@ register_tap_menu_ipx_talkers(void)
 void
 register_tap_listener_ipx_talkers(void)
 {
-	register_ethereal_tap("talkers,ipx", gtk_ipx_talkers_init);
+	register_ethereal_tap("conv,ipx", gtk_ipx_talkers_init);
 }
 

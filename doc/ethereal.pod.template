@@ -379,7 +379,7 @@ on those calls that match that filter.
 Example: use B<-z "mgcp,srt,ip.addr==1.2.3.4"> to only collect stats for
 MGCP packets exchanged by the host at IP address 1.2.3.4 .
 
-B<-z> talkers,I<type>[,I<filter>]
+B<-z> conv,I<type>[,I<filter>]
 
 Create a table that lists all conversations that could be seen in the
 capture.  I<type> specifies for which type of conversation we want to
@@ -403,7 +403,7 @@ frames/bytes.  By default, the table is sorted according to total number
 of frames.
 
 These tables can also be generated at runtime by selecting the appropriate
-conversation type from the menu "Tools/Statistics/EndpointTalkers/".
+conversation type from the menu "Tools/Statistics/Conversation List/".
 
 =back
 
@@ -844,7 +844,7 @@ the calculation. The stats will only be calculated
 on those calls matching that filter.
 
 
-=item Tools:Statistics:Endpoint Talkers
+=item Tools:Statistics:Conversation List
 
 This option will open a new window that displays a list of all
 conversations between two endpoints.  The list has one row for each
@@ -856,7 +856,7 @@ clicking on the column header; it is possible to re-sort the list in
 ascending or descending order by any column.
 
 These statistics windows can also be invoked from the Ethereal command
-line using the B<-z talkers> argument. 
+line using the B<-z conv> argument. 
 
 =item Tools:Statistics:Traffic:IO-Stat
 

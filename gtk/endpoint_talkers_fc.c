@@ -1,7 +1,7 @@
 /* endpoint_talkers_fc.c
  * endpoint_talkers_fc   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_fc.c,v 1.13 2003/09/04 23:11:03 sahlberg Exp $
+ * $Id: endpoint_talkers_fc.c,v 1.14 2003/09/04 23:37:45 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,8 +66,8 @@ gtk_fc_talkers_init(char *optarg)
 {
 	char *filter=NULL;
 
-	if(!strncmp(optarg,"talkers,fc,",11)){
-		filter=optarg+11;
+	if(!strncmp(optarg,"conv,fc,",8)){
+		filter=optarg+8;
 	} else {
 		filter=NULL;
 	}
@@ -80,14 +80,14 @@ gtk_fc_talkers_init(char *optarg)
 static void
 gtk_fc_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	gtk_fc_talkers_init("talkers,fc");
+	gtk_fc_talkers_init("conv,fc");
 }
 
 
 void
 register_tap_menu_fc_talkers(void)
 {
-	register_tap_menu_item("Endpoint Talkers/Fibre Channel", gtk_fc_endpoints_cb);
+	register_tap_menu_item("Conversation List/Fibre Channel", gtk_fc_endpoints_cb);
 }
 
 
@@ -96,6 +96,6 @@ register_tap_menu_fc_talkers(void)
 void
 register_tap_listener_fc_talkers(void)
 {
-	register_ethereal_tap("talkers,fc", gtk_fc_talkers_init);
+	register_ethereal_tap("conv,fc", gtk_fc_talkers_init);
 }
 
