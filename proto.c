@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.8 1999/08/02 02:04:27 guy Exp $
+ * $Id: proto.c,v 1.9 1999/08/03 14:49:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,6 +62,12 @@
 #endif
 
 #define cVALS(x) (const value_string*)(x)
+
+#if defined(HAVE_UCD_SNMP_SNMP_H)
+  #define WITH_SNMP_UCD 1
+#elif defined(HAVE_SNMP_SNMP_H)
+  #define WITH_SNMP_CMU 1
+#endif
 
 static void
 proto_tree_free_node(GNode *node, gpointer data);
