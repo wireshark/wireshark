@@ -78,6 +78,20 @@ typedef struct _protocol protocol_t;
 	}								\
   }
 
+/** Macro used for assertions in dissectors; it doesn't abort, it just
+ * throws a DissectorError exception, with the assertion failure
+ * message as a parameter, so that it can show up in the protocol tree.
+ */
+#define DISSECTOR_ASSERT(expression)  \
+  ((void) ((expression) ? 0 : \
+   __DISSECTOR_ASSERT (expression, __FILE__, __LINE__)))
+
+#define __DISSECTOR_ASSERT_STRINGIFY(s)	# s
+
+#define __DISSECTOR_ASSERT(expression, file, lineno)  \
+  (THROW_MESSAGE(DissectorError, \
+    g_strdup_printf("%s:%u: failed assertion \"%s\"", \
+     file, lineno, __DISSECTOR_ASSERT_STRINGIFY(expression))))
 
 /** GNUC has the ability to check format strings that follow the syntax used in printf and others.
  Hide the differences between different compilers in this GNUC_FORMAT_CHECK macro.

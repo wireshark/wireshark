@@ -220,18 +220,23 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	case ReportedBoundsError:
 		show_reported_bounds_error(tvb, pinfo, tree);
 		break;
-    case FieldError:
+
+	case DissectorError:
 		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_str(pinfo->cinfo, COL_INFO, "[Dissector Bug]");
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+			    "[Dissector bug, protocol %s: %s]",
+			    pinfo->current_proto, exception_message);
 		proto_tree_add_protocol_format(tree, proto_malformed, tvb, 0, 0,
-				"[FieldError: %s]", exception_message);
-        g_warning("FieldError in packet: %u (%s)", pinfo->fd->num, exception_message);
-        if(exception_message)
-            g_free( (void *) exception_message);
-        break;
-    default:
-        /* XXX - we want to know, if an unknown exception passed until here, don't we? */
-        g_assert_not_reached();
+		    "[Dissector bug, protocol %s: %s]",
+		    pinfo->current_proto, exception_message);
+		g_warning("Dissector bug, protocol %s, in packet %u: %s",
+		    pinfo->current_proto, pinfo->fd->num, exception_message);
+		g_free((void *)exception_message);
+		break;
+
+	default:
+		/* XXX - we want to know, if an unknown exception passed until here, don't we? */
+		g_assert_not_reached();
 	}
 }
 
