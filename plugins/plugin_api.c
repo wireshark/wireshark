@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.11 2000/11/13 10:13:21 guy Exp $
+ * $Id: plugin_api.c,v 1.12 2000/11/14 10:38:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -29,6 +29,8 @@
 
 #include <stdarg.h>
 
+#include <glib.h>
+
 #include "plugin_api.h"
 
 packet_info			*p_pi = NULL;
@@ -49,7 +51,7 @@ plugin_address_table_init(plugin_address_table_t *pat)
 	p_proto_register_subtree_array		= pat->p_proto_register_subtree_array;
 	p_dissector_add				= pat->p_dissector_add;
 	p_old_dissector_add			= pat->p_old_dissector_add;
-	p_dissector_delete			= pat->p_old_dissector_delete;
+	p_dissector_delete			= pat->p_dissector_delete;
 	p_heur_dissector_add			= pat->p_heur_dissector_add;
 	p_dissect_data				= pat->p_dissect_data;
 	p_old_dissect_data			= pat->p_old_dissect_data;

@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.1 2000/11/12 11:08:46 guy Exp $
+# $Id: Makefile.nmake,v 1.2 2000/11/14 10:38:15 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -14,7 +14,8 @@ CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../epan /I../../wiretap \
 OBJECTS=packet-mgcp.obj 
 
 mgcp.dll mgcp.exp mgcp.lib : packet-mgcp.obj ..\plugin_api.obj
-	link -dll /out:mgcp.dll packet-mgcp.obj ..\plugin_api.obj
+	link -dll /out:mgcp.dll packet-mgcp.obj ..\plugin_api.obj \
+	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
 
 clean:
 	rm -f $(OBJECTS) mgcp.dll mgcp.exp mgcp.lib
