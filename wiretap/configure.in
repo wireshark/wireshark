@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.52 2004/01/24 16:48:12 jmayer Exp $
+# $Id: configure.in,v 1.53 2004/02/07 05:44:08 jmayer Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -18,6 +18,8 @@ AC_CANONICAL_TARGET
 
 AM_INIT_AUTOMAKE(libwtap.a, 0.0.0)
 AM_CONFIG_HEADER(config.h)
+
+AM_DISABLE_STATIC
 
 dnl Checks for programs.
 AC_PROG_CC
