@@ -431,6 +431,7 @@ int dissect_ber_sequence(gboolean implicit_tag, packet_info *pinfo, proto_tree *
 	proto_tree *tree = parent_tree;
 	proto_item *item = NULL;
 	int end_offset;
+	tvbuff_t *next_tvb;
 
 	/* first we must read the sequence header */
 	offset = dissect_ber_identifier(pinfo, tree, tvb, offset, &class, &pc, &tag);
@@ -503,7 +504,8 @@ ber_sequence_try_again:
 		}
 		
 		/* call the dissector for this field */
-		seq->func(pinfo, tree, tvb, hoffset);
+		next_tvb = tvb_new_subset(tvb, hoffset, eoffset-hoffset, eoffset-hoffset);
+		seq->func(pinfo, tree, next_tvb, 0);
 
 		seq++;
 		offset = eoffset;
