@@ -1546,6 +1546,7 @@ Brian Ginsbach <ginsbach [AT] cray.com> {
 
 Dave Richards <d_m_richards [AT] attbi.com> {
 	BACNET over 802.2
+	BACNET-over-ARCNET fix (it's really BACNET-over-802.2-over-ARCNET)
 }
 
 Martin Regner <martin.regner [AT] chello.se> {

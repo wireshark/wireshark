@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.105 2002/12/10 02:49:31 guy Exp $
+ * $Id: packet-llc.c,v 1.106 2003/01/25 00:06:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,7 @@
 #include "llcsaps.h"
 #include "bridged_pids.h"
 #include "ppptypes.h"
+#include "arcnet_pids.h"
 #include "packet-fc.h"
 #include "packet-ip.h"
 #include "packet-ipx.h"
@@ -563,4 +564,10 @@ proto_reg_handoff_llc(void)
 	dissector_add("udp.port", UDP_PORT_LLC5, llc_handle);
 	/* IP-over-FC when we have the full FC frame */
 	dissector_add("fc.ftype", FC_FTYPE_IP, llc_handle);
+
+	/*
+	 * BACNET-over-ARCNET is really BACNET-over-802.2 LLC-over-ARCNET,
+	 * apparently.
+	 */
+	dissector_add("arcnet.protocol_id", ARCNET_PROTO_BACNET, llc_handle);
 }
