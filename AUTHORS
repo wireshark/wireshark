@@ -1931,6 +1931,10 @@ Scott Hovis <scott.hovis [AT] ums.msfc.nasa.gov> {
 	CCSDS (Consultative Committee for Space Data Systems) support
 }
 
+David Fort <david.fort [AT] irisa.fr> {
+	DNS DSS RR support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

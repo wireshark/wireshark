@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.104 2003/10/05 21:57:36 jmayer Exp $
+ * $Id: packet-dns.c,v 1.105 2003/11/26 23:23:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -137,6 +137,7 @@ static dissector_handle_t gssapi_handle;
 #define T_A6		38              /* IPv6 address with indirection (RFC 2874) */
 #define T_DNAME         39              /* Non-terminal DNS name redirection (RFC 2672) */
 #define T_OPT		41		/* OPT pseudo-RR (RFC 2671) */
+#define T_DS            43		/* draft-ietf-dnsext-delegation-signature */
 #define T_TKEY		249		/* Transaction Key (RFC 2930) */
 #define T_TSIG		250		/* Transaction Signature (RFC 2845) */
 #define T_WINS		65281		/* Microsoft's WINS RR */
@@ -269,6 +270,9 @@ static const value_string tsigerror_vals[] = {
 #define TKEYMODE_RESOLVERASSIGNED           (4)
 #define TKEYMODE_DELETE                     (5)
 
+#define TDSDIGEST_RESERVED (0)
+#define TDSDIGEST_SHA1     (1)
+
 /* See RFC 1035 for all RR types for which no RFC is listed, except for
    the ones with "???", and for the Microsoft WINS and WINS-R RRs, for
    which one should look at
@@ -325,7 +329,9 @@ dns_type_name (guint type)
     "A6",				/* RFC 2874 */
     "DNAME",				/* RFC 2672 */
     NULL,
-    "OPT"				/* RFC 2671 */
+    "OPT",				/* RFC 2671 */
+    NULL,
+    "DS"				/* draft-ietf-dnsext-delegation-signer-15.txt */
   };
 
   if (type < sizeof(type_names)/sizeof(type_names[0]))
@@ -417,7 +423,9 @@ dns_long_type_name (guint type)
     "IPv6 address with indirection",	/* RFC 2874 */
     "Non-terminal DNS name redirection", /* RFC 2672 */
     NULL,
-    "EDNS0 option"			/* RFC 2671 */
+    "EDNS0 option",			/* RFC 2671 */
+    NULL,
+    "Delegation Signer"                 /* draft-ietf-dnsext-delegation-signer-15.txt */
   };
   static char unkbuf[7+1+2+1+4+1+1+10+1+1];	/* "Unknown RR type (%u)" */
 
@@ -846,6 +854,8 @@ add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
 #define	DNS_ALGO_DH		2	/* Diffie-Hellman */
 #define	DNS_ALGO_DSA		3	/* DSA */
 #define	DNS_ALGO_ECC		4	/* Elliptic curve crypto */
+#define DNS_ALGO_RSASHA1        5	/* RSA/SHA1 */
+#define DNS_ALGO_HMACMD5        157	/* HMAC/MD5 */
 #define	DNS_ALGO_INDIRECT	252	/* Indirect key */
 #define	DNS_ALGO_PRIVATEDNS	253	/* Private, domain name  */
 #define	DNS_ALGO_PRIVATEOID	254	/* Private, OID */
@@ -855,6 +865,8 @@ static const value_string algo_vals[] = {
 	  { DNS_ALGO_DH,         "Diffie-Hellman" },
 	  { DNS_ALGO_DSA,        "DSA" },
 	  { DNS_ALGO_ECC,        "Elliptic curve crypto" },
+	  { DNS_ALGO_RSAMD5,     "RSA/MD5" },
+	  { DNS_ALGO_HMACMD5,    "HMAC/MD5" },
 	  { DNS_ALGO_INDIRECT,   "Indirect key" },
 	  { DNS_ALGO_PRIVATEDNS, "Private, domain name" },
 	  { DNS_ALGO_PRIVATEOID, "Private, OID" },
@@ -1558,6 +1570,40 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
       proto_tree_add_text(rr_tree, tvb, cur_offset, data_len, "Data");
     break;
 
+  case T_DS:
+    {
+      guint16 keytag, digest_data_size = -1;
+      guint8  ds_algorithm, ds_digest;
+      int rr_len = data_len;
+
+      static const value_string tds_digests[] = {
+	{ TDSDIGEST_RESERVED, "Reserved digest" },
+	{ TDSDIGEST_SHA1,     "SHA-1" },
+	{ 0, NULL }
+      };
+
+      if (dns_tree != NULL) {
+	
+	keytag = tvb_get_ntohs(tvb, cur_offset);
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Key id: %04u", keytag);
+	cur_offset += 2;
+	rr_len -= 2;
+
+	ds_algorithm = tvb_get_guint8(tvb, cur_offset);
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Algorithm: %s", val_to_str(ds_algorithm, algo_vals,"Unknown (0x%02X)") );
+	cur_offset += 1;
+	rr_len -= 1;
+
+	ds_digest = tvb_get_guint8(tvb, cur_offset);
+	proto_tree_add_text(rr_tree, tvb, cur_offset, 1, "Digest type: %s", val_to_str(ds_digest, tds_digests, "Unknown (0x%02X)"));
+	cur_offset += 1;
+	rr_len -= 1;
+	if( ds_digest == TDSDIGEST_SHA1 ) digest_data_size = 20; // SHA1 key is always 20 bytes long
+	if( digest_data_size > 0 )
+	  proto_tree_add_text(rr_tree, tvb, cur_offset, digest_data_size, "Public key"); 
+      }
+    }
+    break;
   case T_TKEY:
     {
       char tkey_algname[MAXDNAME];
