@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.51 2003/12/05 16:00:34 gerald Exp $
+$Id: README.win32,v 1.52 2003/12/07 00:04:31 gerald Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -148,11 +148,11 @@ Compiling the Ethereal distribution from source
 ===============================================
 
 You'll need the development packages for GLIB, GTK+, iconv, intl,
-WinPcap, zlib, Net-SNMP, and ADNS.  The GLIB, GTK+, and WinPcap packages
-are available from the respctive home pages for each project (the same
-URLs as listed above). The development packages contain header files and
-stub libaries to link against.  Precompiled versions of these packages
-are available at
+WinPcap, zlib, Net-SNMP, ADNS, and PCRE.  The GLIB, GTK+, and WinPcap
+packages are available from the respctive home pages for each project
+(the same URLs as listed above). The development packages contain header
+files and stub libaries to link against.  Precompiled versions of these
+packages are available at
 
 	http://www.ethereal.com/distribution/win32/development/
 
@@ -175,6 +175,7 @@ package is as follows:
     libiconv-1.9.1.bin.woe32.zip        C:\ethereal-win32-libs\gtk+
     libintl-0.10.40-tml-20020904.zip    C:\ethereal-win32-libs\gtk+
     net-snmp-5.1.zip                    C:\ethereal-win32-libs
+    pcre-4.4.zip                        C:\ethereal-win32-libs
     zlib121-dll.zip                     C:\ethereal-win32-libs\zlib121-dll
 
 

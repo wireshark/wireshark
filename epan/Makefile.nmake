@@ -1,14 +1,15 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.31 2003/10/13 19:04:55 guy Exp $
+# $Id: Makefile.nmake,v 1.32 2003/12/07 00:04:31 gerald Exp $
 
 include ..\config.nmake
 
 ############### no need to modify below this line #########
 
 CFLAGS=-DHAVE_CONFIG_H /I. /I.. /I../wiretap $(GTK_CFLAGS) \
-	$(ADNS_CFLAGS) /I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
+	$(ADNS_CFLAGS) $(PCRE_CFLAGS) /I$(PCAP_DIR)\include \
+	-D_U_="" $(LOCAL_CFLAGS)
 
 CVARSDLL=-DWIN32 -DNULL=0 -D_MT -D_DLL
 
@@ -56,7 +57,10 @@ ethereal.lib	: config.h $(OBJECTS)
 	lib /out:ethereal.lib $(OBJECTS)
 
 config.h	: config.h.win32 ..\config.nmake
-	sed -e s/@VERSION@/$(VERSION)/ -e "s;@HAVE_GNU_ADNS@;$(ADNS_CONFIG);" < config.h.win32 > $@
+	sed -e s/@VERSION@/$(VERSION)/ \
+	    -e "s/@HAVE_GNU_ADNS@/$(ADNS_CONFIG)/" \
+	    -e "s/@HAVE_PCRE@/$(PCRE_CONFIG)/" \
+	    < config.h.win32 > $@
 
 clean:
 	rm -f $(OBJECTS) ethereal.lib $(PDB_FILE)

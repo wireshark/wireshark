@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.66 2003/12/05 16:00:34 gerald Exp $
+# $Id: config.nmake,v 1.67 2003/12/07 00:04:31 gerald Exp $
 
 VERSION=0.9.16
 #
@@ -56,7 +56,16 @@ GTK_DIR=C:\ethereal-win32-libs\gtk+
 #
 ZLIB_DIR=C:\ethereal-win32-libs\zlib121-dll
 
+#
+# Set PCAP_DIR to the pathname of the directory in which the WinPcap
+# developer's pack resides
+#
 PCAP_DIR=C:\ethereal-win32-libs\WPdpack
+
+#
+# Set NET_SNMP_DIR to the pathname of the directory in which the
+# Net-SNMP include files and library resides.
+#
 NET_SNMP_DIR=C:\ethereal-win32-libs\net-snmp-5.1
 
 #
@@ -67,6 +76,16 @@ NET_SNMP_DIR=C:\ethereal-win32-libs\net-snmp-5.1
 # isn't defined.
 #
 ADNS_DIR=C:\ethereal-win32-libs\adns-1.0-win32-01
+
+#
+# If you have the PCRE (Perl Compatible Regular Expressions) library,
+# set this to the pathname of the directory in which the GNUWIN32
+# pcre-lib package has been extracted.
+#
+# If you don't have PCRE, comment this line out, so that PCRE_DIR
+# isn't defined.
+#
+PCRE_DIR=C:\ethereal-win32-libs\pcre-4.4
 
 COMMON_FILES_GNU=c:\program files\common files\gnu
 
@@ -167,3 +186,15 @@ ADNS_CFLAGS=
 ADNS_LIBS=
 ADNS_CONFIG=
 !ENDIF
+
+!IFDEF PCRE_DIR
+PCRE_CFLAGS=/I$(PCRE_DIR)\include
+PCRE_LIBS=$(PCRE_DIR)\lib\pcre.lib
+# Nmake uses carets to escape special characters
+PCRE_CONFIG=^#define HAVE_LIBPCRE 1
+!else
+PCRE_CFLAGS=
+PCRE_LIBS=
+PCRE_CONFIG=
+!ENDIF
+

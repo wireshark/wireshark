@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.24 2003/12/01 17:19:09 gerald Exp $
+; $Id: ethereal.nsi,v 1.25 2003/12/07 00:04:32 gerald Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -85,10 +85,12 @@ File "${COMMON_FILES_GNU}\libintl-1.dll"
 !endif
 File "${COMMON_FILES_GNU}\zlib1.dll"
 File "${COMMON_FILES_GNU}\adns_dll.dll"
+File "${COMMON_FILES_GNU}\prce.dll"
 File "..\..\FAQ"
 File "..\..\README"
 File "..\..\README.win32"
 File "..\..\manuf"
+File "${PCRE_DIR}\man\cat3\pcrepattern.3.txt"
 
 ;
 ; Install the Diameter DTD and XML files in the "diameter" subdirectory
