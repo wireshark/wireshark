@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.28 1999/06/21 19:04:34 gram Exp $
+ * $Id: capture.c,v 1.29 1999/06/22 22:02:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -561,9 +561,11 @@ capture(void) {
 #ifdef USE_ITEM
   set_menu_sensitivity("/File/Save", TRUE);
   set_menu_sensitivity("/File/Save as", FALSE);
+  set_menu_sensitivity("/Tools/Summary", TRUE);
 #else
   set_menu_sensitivity("<Main>/File/Save", TRUE);
   set_menu_sensitivity("<Main>/File/Save as", FALSE);
+  set_menu_sensitivity("<Main>/Tools/Summary", TRUE);
 #endif
 }
 

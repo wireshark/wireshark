@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.32 1999/06/22 03:39:06 guy Exp $
+ * $Id: file.c,v 1.33 1999/06/22 22:02:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -315,9 +315,11 @@ load_cap_file(char *fname, capture_file *cf) {
 #ifdef USE_ITEM
     set_menu_sensitivity("/File/Close", TRUE);
     set_menu_sensitivity("/File/Reload", TRUE);
+    set_menu_sensitivity("/Tools/Summary", TRUE);
 #else
     set_menu_sensitivity("<Main>/File/Close", TRUE);
     set_menu_sensitivity("<Main>/File/Reload", TRUE);
+    set_menu_sensitivity("<Main>/Tools/Summary", TRUE);
 #endif
   } else {
     msg_len = strlen(name_ptr) + strlen(err_fmt) + 2;
@@ -330,11 +332,14 @@ load_cap_file(char *fname, capture_file *cf) {
     set_menu_sensitivity("/File/Save", FALSE);
     set_menu_sensitivity("/File/Save As...", FALSE);
     set_menu_sensitivity("/File/Reload", FALSE);
+    set_menu_sensitivity("/Tools/Summary", FALSE);
+
 #else
     set_menu_sensitivity("<Main>/File/Close", FALSE);
     set_menu_sensitivity("<Main>/File/Save", FALSE);
     set_menu_sensitivity("<Main>/File/Save As...", FALSE);
     set_menu_sensitivity("<Main>/File/Reload", FALSE);
+    set_menu_sensitivity("<Main>/Tools/Summary", FALSE);
 #endif
   }
   return err;
@@ -378,6 +383,8 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
     set_menu_sensitivity("/File/Reload", TRUE);
     set_menu_sensitivity("/Capture/Start...", TRUE);
     set_menu_sensitivity("/Tools/Capture...", TRUE);
+    set_menu_sensitivity("/Tools/Summary", TRUE);
+
 #else
     set_menu_sensitivity("<Main>/File/Open...", TRUE);
     set_menu_sensitivity("<Main>/File/Close", TRUE);
@@ -385,6 +392,7 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
     set_menu_sensitivity("<Main>/File/Reload", TRUE);
     set_menu_sensitivity("<Main>/Capture/Start...", TRUE);
     set_menu_sensitivity("<Main>/Tools/Capture...", TRUE);
+    set_menu_sensitivity("<Main>/Tools/Summary", TRUE);
 #endif
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, " File: <none>");
     return;
@@ -465,12 +473,16 @@ tail_cap_file(char *fname, capture_file *cf) {
     set_menu_sensitivity("/File/Reload", FALSE);
     set_menu_sensitivity("/Capture/Start...", FALSE);
     set_menu_sensitivity("/Tools/Capture...", FALSE);
+    set_menu_sensitivity("/Tools/Summary", FALSE);
+
 #else
     set_menu_sensitivity("<Main>/File/Open...", FALSE);
     set_menu_sensitivity("<Main>/File/Close", FALSE);
     set_menu_sensitivity("<Main>/File/Reload", FALSE);
     set_menu_sensitivity("<Main>/Capture/Start...", FALSE);
     set_menu_sensitivity("<Main>/Tools/Capture...", FALSE);
+    set_menu_sensitivity("<Main>/Tools/Summary", FALSE);
+
 #endif
     cf->fh = fopen(fname, "r");
     tail_timeout_id = -1;
@@ -489,11 +501,13 @@ tail_cap_file(char *fname, capture_file *cf) {
     set_menu_sensitivity("/File/Save", FALSE);
     set_menu_sensitivity("/File/Save As...", FALSE);
     set_menu_sensitivity("/File/Reload", FALSE);
+    set_menu_sensitivity("/Tools/Summary", FALSE);
 #else
     set_menu_sensitivity("<Main>/File/Close", FALSE);
     set_menu_sensitivity("<Main>/File/Save", FALSE);
     set_menu_sensitivity("<Main>/File/Save As...", FALSE);
     set_menu_sensitivity("<Main>/File/Reload", FALSE);
+    set_menu_sensitivity("<Main>/Tools/Summary", FALSE);
 #endif
     close(sync_pipe[0]);
   }

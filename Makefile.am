@@ -90,6 +90,8 @@ ethereal_SOURCES = \
 	resolv.c       \
 	resolv.h       \
 	smb.h          \
+        summary.h      \
+        summary.c      \
 	util.c         \
 	util.h
 

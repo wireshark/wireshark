@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.20 1999/06/19 01:14:51 guy Exp $
+ * $Id: menu.c,v 1.21 1999/06/22 22:02:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,7 @@
 #include "menu.h"
 #include "packet.h"
 #include "capture.h"
+#include "summary.h"
 #include "display.h"
 #include "prefs.h"
 #include "print.h"
@@ -102,6 +103,7 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Tools/_Capture...", NULL, GTK_MENU_FUNC(capture_prep_cb), 0, NULL},
   {"/Tools/_Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
   {"/Tools/Graph", NULL, NULL, 0, NULL},
+  {"/Tools/Summary", NULL, GTK_MENU_FUNC(summary_prep_cb), 0, NULL},
   {"/_Help", NULL, NULL, 0, "<LastBranch>" },
   {"/Help/_About Ethereal...", NULL, GTK_MENU_FUNC(about_ethereal), 0, NULL}
 };
@@ -136,6 +138,7 @@ static GtkMenuEntry menu_items[] =
   {"<Main>/Tools/Capture...", NULL, capture_prep_cb, NULL},
   {"<Main>/Tools/Follow TCP Stream", NULL, follow_stream_cb, NULL},
   {"<Main>/Tools/Graph", NULL, NULL, NULL},
+  {"<Main>/Tools/Summary", NULL, summary_prep_cb, NULL},
   {"<Main>/Help/About Ethereal...", NULL, about_ethereal, NULL}
 };
 #endif
@@ -207,6 +210,7 @@ menus_init(void) {
     set_menu_sensitivity("/Edit/Paste", FALSE);
     set_menu_sensitivity("/Edit/Find", FALSE);
     set_menu_sensitivity("/Tools/Graph", FALSE);
+    set_menu_sensitivity("/Tools/Summary", FALSE);
 #ifdef WITH_WIRETAP
     set_menu_sensitivity("/Tools/Follow TCP Stream", FALSE);
 #endif
@@ -227,6 +231,7 @@ menus_init(void) {
     set_menu_sensitivity("<Main>/Edit/Paste", FALSE);
     set_menu_sensitivity("<Main>/Edit/Find", FALSE);
     set_menu_sensitivity("<Main>/Tools/Graph", FALSE);
+    set_menu_sensitivity("<Main>/Tools/Summary", FALSE);
 #ifdef WITH_WIRETAP
     set_menu_sensitivity("<Main>/Tools/Follow TCP Stream", FALSE);
 #endif

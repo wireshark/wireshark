@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.16 1999/06/22 03:39:06 guy Exp $
+ * $Id: file.h,v 1.17 1999/06/22 22:02:12 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -149,3 +149,6 @@ char *file_read_error_message(int);
 char *file_write_error_message(int);
 
 #endif /* file.h */
+
+
+

@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.43 1999/06/19 03:14:31 guy Exp $
+ * $Id: ethereal.c,v 1.44 1999/06/22 22:02:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,6 +75,7 @@
 #include "timestamp.h"
 #include "packet.h"
 #include "capture.h"
+#include "summary.h"
 #include "file.h"
 #include "menu.h"
 #include "etypes.h"
@@ -142,6 +143,7 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 		"Jeff Jahr                <jjahr@shastanets.com>\n"
 		"Brad Robel-Forrest       <bradr@watchguard.com>\n"
 		"Ashok Narayanan          <ashokn@cisco.com>\n"
+		"Aaron Hillegass          <aaron@classmax.com>\n"
 
 		"\nSee http://ethereal.zing.org for more information",
                 VERSION, comp_info_str);
@@ -169,9 +171,11 @@ file_sel_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 #ifdef USE_ITEM
     set_menu_sensitivity("/File/Save", FALSE);
     set_menu_sensitivity("/File/Save As...", TRUE);
+    set_menu_sensitivity("/Tools/Summary", TRUE);
 #else
     set_menu_sensitivity("<Main>/File/Save", FALSE);
     set_menu_sensitivity("<Main>/File/Save As...", TRUE);
+    set_menu_sensitivity("<Main>/Tools/Summary", TRUE);
 #endif
 }
 
@@ -326,9 +330,11 @@ file_close_cmd_cb(GtkWidget *widget, gpointer data) {
 #ifdef USE_ITEM
   set_menu_sensitivity("/File/Close", FALSE);
   set_menu_sensitivity("/File/Reload", FALSE);
+  set_menu_sensitivity("/Tools/Summary", FALSE);
 #else
   set_menu_sensitivity("<Main>/File/Close", FALSE);
   set_menu_sensitivity("<Main>/File/Reload", FALSE);
+  set_menu_sensitivity("<Main>/Tools/Summary", FALSE);
 #endif
 }
 
@@ -942,8 +948,10 @@ main(int argc, char *argv[])
     cf_name[0] = '\0';
 #ifdef USE_ITEM
     set_menu_sensitivity("/File/Save As...", TRUE);
+    set_menu_sensitivity("/Tools/Summary", TRUE);
 #else
     set_menu_sensitivity("<Main>/File/Save As...", TRUE);
+    set_menu_sensitivity("<Main>/Tools/Summary", TRUE);
 #endif
   }
 

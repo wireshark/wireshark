@@ -100,6 +100,10 @@ Ashok Narayanan <ashokn@cisco.com> {
 	RSVP
 }
 
+Aaron Hillegass <aaron@classmax.com> {
+	Summary dialogue
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
