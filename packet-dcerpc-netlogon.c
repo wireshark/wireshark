@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.54 2002/08/28 21:00:09 jmayer Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.55 2002/09/15 06:36:16 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5100,8 +5100,10 @@ static int
 netlogon_dissect_netrlogongetdomaininfo_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
-	offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
-		pinfo, tree, drep);
+       /* Unlike the other NETLOGON RPCs, this is not a unique pointer. */
+       offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+               dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_REF,
+               "Server Handle", hf_netlogon_computer_name, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
