@@ -3,7 +3,7 @@
  * Based on 3GPP TS 25.413 V3.4.0
  * Copyright 2001, Martin Held <Martin.Held@icn.siemens.de>
  *
- * $Id: packet-ranap.c,v 1.4 2001/06/01 21:00:13 guy Exp $
+ * $Id: packet-ranap.c,v 1.5 2001/06/06 18:53:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4806,5 +4806,7 @@ void
 proto_reg_handoff_ranap(void)
 {
   dissector_add("sual.subsystem_number",  SCCP_SSN_RANAP, dissect_ranap, proto_ranap);
+  dissector_add("sual.subsystem_number",  SCCP_SSN_RANAP_C, dissect_ranap, proto_ranap);  
+  dissector_add("sual.subsystem_number",  SCCP_SSN_RANAP_D, dissect_ranap, proto_ranap); 
 }
 
