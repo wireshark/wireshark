@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.10 2004/02/03 18:57:26 guy Exp $
+# $Id: Makefile.common,v 1.11 2004/02/10 23:38:34 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -98,6 +98,7 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-icl_rpc.c	\
 	packet-dcerpc-initshutdown.c	\
 	packet-dcerpc-krb5rpc.c	\
+	packet-dcerpc-llb.c	\
 	packet-dcerpc-lsa-ds.c	\
 	packet-dcerpc-lsa.c	\
 	packet-dcerpc-mapi.c	\
@@ -107,6 +108,7 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-netlogon.c	\
 	packet-dcerpc-nspi.c	\
 	packet-dcerpc-oxid.c	\
+	packet-dcerpc-rdaclif.c	\
 	packet-dcerpc-reg.c	\
 	packet-dcerpc-remact.c	\
 	packet-dcerpc-rep_proc.c	\
@@ -114,13 +116,20 @@ DISSECTOR_SRC =	\
 	packet-dcerpc-rpriv.c	\
 	packet-dcerpc-rs_acct.c	\
 	packet-dcerpc-rs_attr.c	\
+	packet-dcerpc-rs_attr_schema.c	\
 	packet-dcerpc-rs_bind.c	\
 	packet-dcerpc-rs_misc.c	\
 	packet-dcerpc-rs_pgo.c	\
 	packet-dcerpc-rs_plcy.c	\
 	packet-dcerpc-rs_prop_acct.c	\
+	packet-dcerpc-rs_prop_acl.c	\
+	packet-dcerpc-rs_prop_attr.c	\
+	packet-dcerpc-rs_prop_pgo.c	\
+	packet-dcerpc-rs_prop_plcy.c	\
+	packet-dcerpc-rs_pwd_mgmt.c	\
 	packet-dcerpc-rs_repadm.c	\
 	packet-dcerpc-rs_replist.c	\
+	packet-dcerpc-rs_repmgr.c	\
 	packet-dcerpc-rs_unix.c	\
 	packet-dcerpc-rsec_login.c	\
 	packet-dcerpc-samr.c	\
