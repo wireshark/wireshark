@@ -1,7 +1,7 @@
 /* value_string.h
  * Definitions for value_string structures and routines
  *
- * $Id: value_string.h,v 1.4 2003/12/01 23:41:44 guy Exp $
+ * $Id: value_string.h,v 1.5 2004/02/22 22:45:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,9 @@ typedef struct _value_string {
   guint32  value;
   gchar   *strptr;
 } value_string;
+
+#define VS_DEF(x) { x, #x }
+#define VS_END    { 0, NULL }
 
 extern gchar*     match_strval(guint32, const value_string*);
 
