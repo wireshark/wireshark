@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.153 2000/01/15 08:08:19 guy Exp $
+# $Id: Makefile.am,v 1.154 2000/01/15 09:46:27 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -289,9 +289,9 @@ ethereal_DEPENDENCIES = \
 ethereal_LDADD = \
 	$(ethereal_optional_objects)	\
 	$(ethereal_additional_libs)	\
-	@SNMP_A@			\
+	@SNMP_LIBS@			\
 	@LIBLTDL@ "-dlopen" self	\
-	"-dlopen" plugins/gryphon/gryphon.la @GTK_LIBS@
+	"-dlopen" plugins/gryphon/gryphon.la @PCAP_LIBS@ @GTK_LIBS@
 
 ethereal_LDFLAGS = -export-dynamic
 
@@ -315,10 +315,10 @@ tethereal_DEPENDENCIES = \
 tethereal_LDADD = wiretap/libwiretap.a	\
 	$(ethereal_optional_objects)	\
 	$(tethereal_additional_libs)	\
-	@SNMP_A@			\
+	@SNMP_LIBS@			\
 	@LIBLTDL@ "-dlopen" self	\
 	"-dlopen" plugins/gryphon/gryphon.la @GLIB_LIBS@ -lm \
-	@SOCKET_LIBS@ @NSL_LIBS@
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@
 
 tethereal_LDFLAGS = -export-dynamic
 

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.75 2000/01/15 08:08:20 guy Exp $
+# $Id: configure.in,v 1.76 2000/01/15 09:46:28 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -50,18 +50,9 @@ CFLAGS="$CFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap -I/usr/local/include"
 CPPFLAGS="$CPPFLAGS -I\$(top_srcdir) -I\$(top_srcdir)/wiretap -I/usr/local/include"
 
 #
-# Arrange that we search for libraries in "/usr/local/lib", and set
-# a "-R" flag as appropriate.
+# Arrange that we search for libraries in "/usr/local/lib".
 #
-# XXX - IRIX, and other OSes, may require some flag equivalent to
-# "-R" here.
-#
-LIBS="$LIBS -L/usr/local/lib"
-case "$host_os" in
-  solaris*)
-    LIBS="$LIBS -R/usr/local/lib"
-  ;;
-esac
+AC_ETHEREAL_ADD_DASH_L(LIBS, /usr/local/lib)
 
 # Create DATAFILE_DIR #define for config.h
 DATAFILE_DIR=$sysconfdir
@@ -173,7 +164,7 @@ dnl SNMP Check
 AC_ARG_ENABLE(snmp,
 [  --enable-snmp           use SNMP library, if available.  [default=yes]],,enable_snmp=yes)
 
-SNMP_A=''
+SNMP_LIBS=''
 AC_MSG_CHECKING(whether to use SNMP library if available)
 if test "x$enable_snmp" = "xno" ; then
 	AC_MSG_RESULT(no)
@@ -181,12 +172,40 @@ else
 	AC_MSG_RESULT(yes)
 	AC_ETHEREAL_UCDSNMP_CHECK
 	AC_CHECK_HEADERS(ucd-snmp/snmp.h ucd-snmp/version.h snmp/snmp.h snmp/version.h)
+
+	#
+	# This may require "-lkstat" on Solaris, sigh.
+	#
 	AC_CHECK_LIB(snmp, sprint_objid,
-		[
-		SNMP_A=-lsnmp
-		], )
+	  SNMP_LIBS=-lsnmp,
+	  [
+	    #
+	    # Throw away the cached "we didn't find it" answer.
+	    #
+	    unset ac_cv_lib_snmp_sprint_objid
+	    AC_CHECK_LIB(snmp, sprint_objid,
+	      [
+		#
+		# Throw away the cached "we found it" answer, so that if
+		# we rerun "configure", we don't just blow off this check
+		# and blithely assume that we don't need "-lkstat".
+		#
+		# XXX - autoconf really needs a way to test for a given
+		# routine in a given library *and* to test whether additional
+		# "-L"/"-R"/whatever flags are needed *before* the "-l"
+		# flag for the library and to test whether additional libraries
+		# are needed after the library *and* to cache all that
+		# information.
+		#
+		unset ac_cv_lib_snmp_sprint_objid
+		SNMP_LIBS="-lsnmp -lkstat"
+	      ],,$SOCKET_LIBS $NSL_LIBS -lkstat
+	    )
+	  ], $SOCKET_LIBS $NSL_LIBS
+	)
+	
 fi
-AC_SUBST(SNMP_A)
+AC_SUBST(SNMP_LIBS)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
 # AC_C_CONST

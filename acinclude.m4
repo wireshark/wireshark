@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.16 2000/01/15 08:08:20 guy Exp $
+dnl $Id: acinclude.m4,v 1.17 2000/01/15 09:46:28 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -49,6 +49,26 @@ dnl
 dnl Written by David MacKenzie, with help from
 dnl Franc,ois Pinard, Karl Berry, Richard Pixley, Ian Lance Taylor,
 dnl Roland McGrath, Noah Friedman, david d zuhn, and many others.
+
+#
+# AC_ETHEREAL_ADD_DASH_L
+#
+# Add to the variable specified as the first argument a "-L" flag for the
+# directory specified as the second argument, and, on Solaris, add a
+# "-R" flag for it as well.
+#
+# XXX - IRIX, and other OSes, may require some flag equivalent to
+# "-R" here.
+#
+AC_DEFUN(AC_ETHEREAL_ADD_DASH_L,
+[$1="$$1 -L$2"
+case "$host_os" in
+  solaris*)
+    $1="$$1 -R$2"
+  ;;
+esac
+])
+
 
 #
 # AC_ETHEREAL_STRUCT_SA_LEN
@@ -228,25 +248,81 @@ AC_DEFUN(AC_ETHEREAL_PCAP_CHECK,
 	for pcap_dir in /usr/include/pcap /usr/local/include/pcap $prefix/include
 	do
 	  if test -d $pcap_dir ; then
-	    LIBS="$LIBS -L$pcap_dir"
 	    CFLAGS="$CFLAGS -I$pcap_dir"
 	    CPPFLAGS="$CPPFLAGS -I$pcap_dir"
-	    found_pcap_dir=" $found_pcap_dir -L$pcap_dir"
+	    found_pcap_dir=" $found_pcap_dir -I$pcap_dir"
 	  fi
 	done
 
 	if test "$found_pcap_dir" != "" ; then
-	  AC_MSG_RESULT(found --$found_pcap_dir added to LIBS and CFLAGS)
+	  AC_MSG_RESULT(found --$found_pcap_dir added to CFLAGS)
 	else
 	  AC_MSG_RESULT(not found)
 	fi
 
-	# Pcap checks
+	# Pcap header checks
 	AC_CHECK_HEADER(net/bpf.h,,
 	    AC_MSG_ERROR([[Header file net/bpf.h not found; if you installed libpcap from source, did you also do \"make install-incl\"?]]))
 	AC_CHECK_HEADER(pcap.h,, AC_MSG_ERROR(Header file pcap.h not found.))
-	AC_CHECK_LIB(pcap, pcap_open_live,, AC_MSG_ERROR(Library libpcap not found.),
-		$SOCKET_LIBS $NSL_LIBS)
+
+	#
+	# Try various directories to find libpcap
+	#
+	AC_CHECK_LIB(pcap, pcap_open_live,
+	  PCAP_LIBS=-lpcap,
+	  [
+	    #
+	    # Throw away the cached "we didn't find it"
+	    # answer, and see if it's in "/usr/local/lib".
+	    #
+	    unset ac_cv_lib_pcap_pcap_open_live
+	    save_LIBS="$LIBS"
+	    AC_ETHEREAL_ADD_DASH_L(LIBS, /usr/local/lib)
+	    AC_CHECK_LIB(pcap, pcap_open_live,
+	      [
+		#
+		# Throw away the cached "we found it" answer, so that if
+		# we rerun "configure", we don't just blow off the above
+		# checks and blithely assume that we don't need to search
+		# "/usr/local/lib".
+		#
+		# XXX - autoconf really needs a way to test for a given
+		# routine in a given library *and* to test whether additional
+		# "-L"/"-R"/whatever flags are needed *before* the "-l"
+		# flag for the library and to test whether additional libraries
+		# are needed after the library *and* to cache all that
+		# information.
+		#
+		unset ac_cv_lib_pcap_pcap_open_live
+		AC_ETHEREAL_ADD_DASH_L(PCAP_LIBS, /usr/local/lib)
+		PCAP_LIBS="$PCAP_LIBS -lpcap"
+		LIBS="$save_LIBS"
+	      ],
+	      [
+		#
+		# Throw away the cached "we didn't find it"
+		# answer, and see if it's in "$prefix/lib".
+		#
+		unset ac_cv_lib_pcap_pcap_open_live
+		LIBS="$save_LIBS -L$prefix/lib"
+		AC_CHECK_LIB(pcap, pcap_open_live,
+		  [
+		    #
+		    # Throw away the cached "we found it" answer, so that if
+		    # we rerun "configure", we don't just blow off the above
+		    # checks and blithely assume that we don't need to search
+		    # "$prefix/lib".
+		    #
+		    unset ac_cv_lib_pcap_pcap_open_live
+		    AC_ETHEREAL_ADD_DASH_L(PCAP_LIBS, $prefix/lib)
+		    PCAP_LIBS="$PCAP_LIBS -lpcap"
+		    LIBS="$save_LIBS"
+		  ],
+		  AC_MSG_ERROR(Library libpcap not found.),
+		  $SOCKET_LIBS $NSL_LIBS)
+	      ], $SOCKET_LIBS $NSL_LIBS)
+	  ], $SOCKET_LIBS $NSL_LIBS)
+	AC_SUBST(PCAP_LIBS)
 ])
 
 #
