@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.36 2003/12/17 23:35:29 ulfl Exp $
+ * $Id: packet-scsi.c,v 1.37 2004/05/13 21:56:19 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2637,8 +2637,8 @@ dissect_scsi_modeselect10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         desclen = tvb_get_guint8 (tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 1,
                              "Block Descriptor Length: %u", desclen);
-        offset += 1;
-        payload_len -= 1;
+        offset += 2;
+        payload_len -= 2;
 
         if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, payload_len,
                                      desclen, devtype, longlba))
@@ -2863,8 +2863,8 @@ dissect_scsi_modesense10 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         desclen = tvb_get_guint8 (tvb, offset);
         proto_tree_add_text (tree, tvb, offset, 1,
                              "Block Descriptor Length: %u", desclen);
-        offset += 1;
-        tot_len -= 1;
+        offset += 2;
+        tot_len -= 2;
 
         if (!dissect_scsi_blockdescs (tvb, pinfo, tree, offset, tot_len,
                                      desclen, devtype, longlba))
