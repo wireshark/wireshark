@@ -86,7 +86,7 @@ Using Ethereal:
    box popped up by "Capture->Start"? 
 
    5.6 I'm running Ethereal on Windows; why doesn't my serial port/ADSL
-   modem/ISDN modem/show up in the list of interfaces in the "Interface:"
+   modem/ISDN modem show up in the list of interfaces in the "Interface:"
    field in the dialog box popped up by "Capture->Start"? 
 
    5.7 I'm running Ethereal on a UNIX-flavored OS; why does some network
@@ -147,11 +147,12 @@ Using Ethereal:
    5.23 When I try to run Ethereal on Windows, it fails to run because it
    can't find packet.dll.
 
-   5.24 I'm running Ethereal on Windows NT/2000/XP/Server; my machine has
-   a PPP (dial-up POTS, ISDN, etc.) interface, and it shows up in the
-   "Interface" item in the "Capture Options" dialog box. Why can no
-   packets be sent on or received from that network while I'm trying to
-   capture traffic on that interface?
+   5.24 I'm running Ethereal on Windows NT 4.0/Windows 2000/Windows
+   XP/Windows Server 2003; my machine has a PPP (dial-up POTS, ISDN,
+   etc.) interface, and it shows up in the "Interface" item in the
+   "Capture Options" dialog box. Why can no packets be sent on or
+   received from that network while I'm trying to capture traffic on that
+   interface?
 
    5.25 I'm running Ethereal on Windows 95/98/Me, on a machine with more
    than one network adapter of the same type; Ethereal shows all of those
@@ -252,7 +253,7 @@ General Questions
 
    Q 1.4: Can I use Ethereal as part of my commercial product?
 
-   A: As noted, Ethereal is licended under the GNU General Public
+   A: As noted, Ethereal is licensed under the GNU General Public
    License. The GPL imposes conditions on your use of GPL'ed code in your
    own products; you cannot, for example, make a "derived work" from
    Ethereal, by making modifications to it, and then sell the resulting
@@ -271,7 +272,7 @@ General Questions
 
    Q 1.5: What protocols are currently supported?
 
-   A: There are currently 620 supported protocols and media, listed
+   A: There are currently 658 supported protocols and media, listed
    below. Descriptions can be found in the ethereal(1) man page.
 
             3GPP2 A11
@@ -320,6 +321,7 @@ General Questions
             AVS WLAN Capture header
             AX/4000 Test Block
             Ad hoc On-demand Distance Vector Routing Protocol
+            Adaptive Multi-Rate
             Address Resolution Protocol
             Aggregate Server Access Protocol
             Alert Standard Forum
@@ -334,6 +336,7 @@ General Questions
             Application Configuration Access Protocol
             Art-Net
             Async data over ISDN (V.120)
+            Asynchronous Layered Coding
             Authentication Header
             BACnet Virtual Link Control
             BEA Tuxedo
@@ -360,9 +363,12 @@ General Questions
             Border Gateway Protocol
             Building Automation and Control Network APDU
             Building Automation and Control Network NPDU
+            CBAPhysicalDevice
             CCSDS
             CDS Clerk Server Calls
             Cast Client Control Protocol
+            Certificate Management Protocol
+            Certificate Request Message Format
             Check Point High Availability Protocol
             Checkpoint FW-1
             Cisco Auto-RP
@@ -399,7 +405,7 @@ General Questions
             DCE/RPC Conversation Manager
             DCE/RPC Directory Acl Interface
             DCE/RPC Endpoint Mapper
-            DCE/RPC Endpoint Mapper4
+            DCE/RPC Endpoint Mapper v4
             DCE/RPC FLDB
             DCE/RPC FLDB UBIK TRANSFER
             DCE/RPC FLDB UBIKVOTE
@@ -423,8 +429,10 @@ cies
             DCE/RPC Repserver Calls
             DCE/RPC TokenServer Calls
             DCE/RPC UpServer
+            DCOM
+            DCOM IDispatch
+            DCOM IRemoteActivation
             DCOM OXID Resolver
-            DCOM Remote Activation
             DEC Spanning Tree Protocol
             DFS Calls
             DG Gryphon Protocol
@@ -507,27 +515,51 @@ cies
             GSM A-I/F BSSMAP
             GSM A-I/F DTAP
             GSM A-I/F RP
+            GSM Mobile Application Part
             GSM SMS TPDU (GSM 03.40)
             GSM Short Message Service User Data
-            GSM_MobileAPplication
             General Inter-ORB Protocol
             Generic Routing Encapsulation
             Generic Security Service Application Program Interface
             Gnutella Protocol
             H.248 MEGACO
-            H225
             H235-SECURITY-MESSAGES
-            H245
-            H4501
             HP Extended Local-Link Control
             HP Remote Maintenance Protocol
             Hummingbird NFS Daemon
             HyperSCSI
             Hypertext Transfer Protocol
+            ICBAAccoCallback
+            ICBAAccoCallback2
+            ICBAAccoMgt
+            ICBAAccoMgt2
+            ICBAAccoServer
+            ICBAAccoServer2
+            ICBAAccoServerSRT
+            ICBAAccoSync
+            ICBABrowse
+            ICBABrowse2
+            ICBAGroupError
+            ICBAGroupErrorEvent
+            ICBALogicalDevice
+            ICBALogicalDevice2
+            ICBAPersist
+            ICBAPersist2
+            ICBAPhysicalDevice
+            ICBAPhysicalDevice2
+            ICBAPhysicalDevicePC
+            ICBAPhysicalDevicePCEvent
+            ICBARTAuto
+            ICBARTAuto2
+            ICBAState
+            ICBAStateEvent
+            ICBASystemProperties
+            ICBATime
             ICQ Protocol
             IEEE 802.11 Radiotap Capture header
             IEEE 802.11 wireless LAN
             IEEE 802.11 wireless LAN management frame
+            IEEE802a OUI Extended Ethertype
             ILMI
             IP Device Control (SS7 over IP)
             IP Over FC
@@ -536,8 +568,8 @@ cies
             IPX Message
             IPX Routing Information Protocol
             IPX WAN
-            IRemUnknown IRemUnknown Resolver
-            IRemUnknown2 IRemUnknown2 Resolver
+            IRemUnknown
+            IRemUnknown2
             ISDN
             ISDN Q.921-User Adaptation Layer
             ISDN User Part
@@ -578,6 +610,7 @@ cies
             IrDA Link Access Protocol
             IrDA Link Management Protocol
             JPEG File Interchange Format
+            JXTA P2P
             Jabber XML Messaging
             Java RMI
             Java Serialization
@@ -628,6 +661,7 @@ cies
             Message Transfer Part Level 2
             Message Transfer Part Level 3
             Message Transfer Part Level 3 Management
+            Meta Analysis Tracing Engine
             Microsoft Directory Replication Service
             Microsoft Distributed File System
             Microsoft Distributed Link Tracking Server Service
@@ -668,6 +702,7 @@ cies
             NTLM Secure Service Provider
             Name Binding Protocol
             Name Management Protocol over IPX
+            Negative-acknowledgment Oriented Reliable Multicast
             NetBIOS
             NetBIOS Datagram Service
             NetBIOS Name Service
@@ -707,7 +742,6 @@ cies
             PKIX1Explitit
             PKIX1Implitit
             PKIXProxy (RFC3820)
-            POSTGRESQL
             PPP Bandwidth Allocation Control Protocol
             PPP Bandwidth Allocation Protocol
             PPP CDP Control Protocol
@@ -717,6 +751,7 @@ cies
             PPP Compression Control Protocol
             PPP IP Control Protocol
             PPP IPv6 Control Protocol
+            PPP In HDLC-Like Framing
             PPP Link Control Protocol
             PPP MPLS Control Protocol
             PPP Multilink Protocol
@@ -738,6 +773,7 @@ cies
             Port Aggregation Protocol
             Portmap
             Post Office Protocol
+            PostgreSQL
             Pragmatic General Multicast
             Precision Time Protocol (IEEE1588)
             Prism
@@ -893,6 +929,9 @@ cies
             Zone Information Protocol
             eDonkey Protocol
             giFT Internet File Transfer
+            h225
+            h245
+            h450
             iSCSI
             iSNS
 
@@ -1111,9 +1150,10 @@ Using Ethereal
    to see from or to the machine I'm trying to monitor.
 
    A: This might be because the interface on which you're capturing is
-   plugged into a switch; on a switched network, unicast traffic between
-   two ports will not necessarily appear on other ports - only broadcast
-   and multicast traffic will be sent to all ports.
+   plugged into an Ethernet or Token Ring switch; on a switched network,
+   unicast traffic between two ports will not necessarily appear on other
+   ports - only broadcast and multicast traffic will be sent to all
+   ports.
 
    Note that even if your machine is plugged into a hub, the "hub" may be
    a switched hub, in which case you're still on a switched network.
@@ -1182,11 +1222,8 @@ Using Ethereal
 
    In the case of token ring interfaces, the drivers for some of them, on
    Windows, may require you to enable promiscuous mode in order to
-   capture in promiscuous mode. Ask the vendor of the card how to do
-   this, or see, for example, this information on promiscuous mode on
-   some Madge token ring adapters (note that those cards can have
-   promiscuous mode disabled permanently, in which case you can't enable
-   it).
+   capture in promiscuous mode. See the Ethereal Wiki item on Token Ring
+   capturing for details.
 
    In the case of wireless LAN interfaces, it appears that, when those
    interfaces are promiscuously sniffing, they're running in a
@@ -1237,19 +1274,20 @@ Using Ethereal
    interface?
 
    A: If you are running Ethereal on Windows NT 4.0, Windows 2000,
-   Windows XP, or Windows Server, and this is the first time you have run
-   a WinPcap-based program (such as Ethereal, or Tethereal, or WinDump,
-   or Analyzer, or...) since the machine was rebooted, you need to run
-   that program from an account with administrator privileges; once you
-   have run such a program, you will not need administrator privileges to
-   run any such programs until you reboot.
+   Windows XP, or Windows Server 2003, and this is the first time you
+   have run a WinPcap-based program (such as Ethereal, or Tethereal, or
+   WinDump, or Analyzer, or...) since the machine was rebooted, you need
+   to run that program from an account with administrator privileges;
+   once you have run such a program, you will not need administrator
+   privileges to run any such programs until you reboot.
 
    If you are running on Windows 95/98/Me, or if you are running on
-   Windows NT 4.0/2000/XP/Server and have administrator privileges or a
-   WinPcap-based program has been run with those privileges since the
-   machine rebooted, then note that Ethereal relies on the WinPcap
-   library, on the WinPcap device driver, and on the facilities that come
-   with the OS on which it's running in order to do captures.
+   Windows NT 4.0/Windows 2000/Windows XP/Windows Server 2003 and have
+   administrator privileges or a WinPcap-based program has been run with
+   those privileges since the machine rebooted, then note that Ethereal
+   relies on the WinPcap library, on the WinPcap device driver, and on
+   the facilities that come with the OS on which it's running in order to
+   do captures.
 
    Therefore, if the OS, the WinPcap library, or the WinPcap driver don't
    support capturing on a particular network interface device, Ethereal
@@ -1276,14 +1314,22 @@ Using Ethereal
        capture on the interface you're currently using. In that case, you
        might, for example, have to remove the VPN interface from the
        system in order to capture on the PPP serial interface.
-    3. WinPcap 3.0 doesn't support PPP WAN interfaces, and WinPcap 2.3
-       doesn't support PPP WAN interfaces on Windows NT/2000/XP/Server,
-       so Ethereal cannot capture packets on those devices with WinPcap
-       3.0, or with WInPcap 2.x when running on Windows
-       NT/2000/XP/Server. Regular dial-up lines, ISDN lines, and various
-       other lines such as T1/E1 lines are all PPP interfaces. This may
-       cause the interface not to show up on the list of interfaces in
-       the "Capture Options" dialog.
+    3. WinPcap 2.3 has problems supporting PPP WAN interfaces on Windows
+       NT 4.0, Windows 2000, Windows XP, and Windows Server 2003, and, to
+       avoid those problems, support for PPP WAN interfaces on those
+       versions of Windows has been disabled in WinPcap 3.0. Regular
+       dial-up lines, ISDN lines, ADSL connections using PPPoE or PPPoA,
+       and various other lines such as T1/E1 lines are all PPP
+       interfaces, so those interfaces might not show up on the list of
+       interfaces in the "Capture Options" dialog on those OSes.
+       On Windows 2000 and later, installing the beta version of WinPcap
+       3.1 might help, although, as it's a beta version, that might cause
+       some other problems that don't occur with older versions of
+       WinPcap; you should report those problems to the WinPcap
+       developers, so that they can try to fix those problems before the
+       final version of WinPcap 3.1 is released. WinPcap 3.1 will not
+       support PPP captures on Windows NT 4.0. See the Ethereal Wiki item
+       on PPP capturing for details.
     4. WinPcap prior to 3.0 does not support multiprocessor machines
        (note that machines with a single multi-threaded processor, such
        as Intel's new multi-threaded x86 processors, are multiprocessor
@@ -1365,16 +1411,23 @@ Using Ethereal
    response to that question.
 
    Q 5.6: I'm running Ethereal on Windows; why doesn't my serial
-   port/ADSL modem/ISDN modem/show up in the list of interfaces in the
+   port/ADSL modem/ISDN modem show up in the list of interfaces in the
    "Interface:" field in the dialog box popped up by "Capture->Start"?
 
-   A: All of those devices support Internet access using the
-   Point-to-Point (PPP) protocol; WinPcap 3.0 doesn't support PPP
-   interfaces, and WinPcap 2.x doesn't support PPP interfaces on Windows
-   NT/2000/XP/Server, so Ethereal cannot capture packets on those devices
-   with WinPcap 3.0, or with WinPcap 2.x when running on Windows
-   NT/2000/XP/Server. This may cause the interface not to show up on the
-   list of interfaces in the "Capture Options" dialog.
+   A: Internet access on those devices is often done with the
+   Point-to-Point (PPP) protocol; WinPcap 2.3 has problems supporting PPP
+   WAN interfaces on Windows NT 4.0, Windows 2000, Windows XP, and
+   Windows Server 2003, and, to avoid those problems, support for PPP WAN
+   interfaces on those versions of Windows has been disabled in WinPcap
+   3.0.
+
+   On Windows 2000 and later, installing the beta version of WinPcap 3.1
+   might help, although, as it's a beta version, that might cause some
+   other problems that don't occur with older versions of WinPcap; you
+   should report those problems to the WinPcap developers, so that they
+   can try to fix those problems before the final version of WinPcap 3.1
+   is released. WinPcap 3.1 will not support PPP captures on Windows NT
+   4.0. See the Ethereal Wiki item on PPP capturing for details.
 
    Q 5.7: I'm running Ethereal on a UNIX-flavored OS; why does some
    network interface on my machine not show up in the list of interfaces
@@ -1383,31 +1436,27 @@ Using Ethereal
    to capture on that interface?
 
    A: You may need to run Ethereal from an account with sufficient
-   privileges to capture packets, such as the super-user account. Only
-   those interfaces that Ethereal can open for capturing show up in that
-   list; if you don't have sufficient privileges to capture on any
-   interfaces, no interfaces will show up in the list.
+   privileges to capture packets, such as the super-user account, or may
+   need to give your account sufficient privileges to capture packets.
+   Only those interfaces that Ethereal can open for capturing show up in
+   that list; if you don't have sufficient privileges to capture on any
+   interfaces, no interfaces will show up in the list. See the Ethereal
+   Wiki item on capture privileges for details on how to give a
+   particular account or account group capture privileges on platforms
+   where that can be done.
 
    If you are running Ethereal from an account with sufficient
    privileges, then note that Ethereal relies on the libpcap library, and
    on the facilities that come with the OS on which it's running in order
-   to do captures.
+   to do captures. On some OSes, those facilities aren't present by
+   default; see the Ethereal Wiki item on adding capture support for
+   details.
 
-   Therefore, if the OS or the libpcap library don't support capturing on
-   a particular network interface device, Ethereal won't be able to
-   capture on that device.
-
-   On Linux, note that you need to have "packet socket" support enabled
-   in your kernel; see the "Packet socket" item in the Linux
-   "Configure.help" file.
-
-   On BSD, note that you need to have BPF support enabled in your kernel;
-   see the documentation for your system for information on how to enable
-   BPF support (if it's not enabled by default on your system).
-
-   On DEC OSF/1, Digital UNIX, or Tru64 UNIX, note that you need to have
-   packet filtering support in your kernel; the doconfig command will
-   allow you to configure and build a new kernel with that option.
+   And, even if you're running with an account that has sufficient
+   privileges to capture, and capture support is present in your OS, if
+   the OS or the libpcap library don't support capturing on a particular
+   network interface device or particular types of devices, Ethereal
+   won't be able to capture on that device.
 
    On Solaris, note that libpcap 0.6.2 and earlier didn't support Token
    Ring interfaces; the current version, 0.7.2, does support Token Ring,
@@ -1716,19 +1765,29 @@ Using Ethereal
    Web site, the local mirror of the WinPcap Web site, or the
    Wiretapped.net mirror of the WinPcap site.
 
-   Q 5.24: I'm running Ethereal on Windows NT/2000/XP/Server; my machine
-   has a PPP (dial-up POTS, ISDN, etc.) interface, and it shows up in the
-   "Interface" item in the "Capture Options" dialog box. Why can no
-   packets be sent on or received from that network while I'm trying to
-   capture traffic on that interface?
+   Q 5.24: I'm running Ethereal on Windows NT 4.0/Windows 2000/Windows
+   XP/Windows Server 2003; my machine has a PPP (dial-up POTS, ISDN,
+   etc.) interface, and it shows up in the "Interface" item in the
+   "Capture Options" dialog box. Why can no packets be sent on or
+   received from that network while I'm trying to capture traffic on that
+   interface?
 
-   A: WinPcap doesn't support PPP WAN interfaces on Windows
-   NT/2000/XP/Server; one symptom that may be seen is that attempts to
-   capture in promiscuous mode on the interface cause the interface to be
-   incapable of sending or receiving packets. You can disable promiscuous
-   mode using the -p command-line flag or the item in the "Capture
-   Preferences" dialog box, but this may mean that outgoing packets, or
-   incoming packets, won't be seen in the capture.
+   A: Some versions of WinPcap have problems with PPP WAN interfaces on
+   Windows NT 4.0, Windows 2000, Windows XP, and Windows Server 2003; one
+   symptom that may be seen is that attempts to capture in promiscuous
+   mode on the interface cause the interface to be incapable of sending
+   or receiving packets. You can disable promiscuous mode using the -p
+   command-line flag or the item in the "Capture Preferences" dialog box,
+   but this may mean that outgoing packets, or incoming packets, won't be
+   seen in the capture.
+
+   On Windows 2000 and later, installing the beta version of WinPcap 3.1
+   might help, although, as it's a beta version, that might cause some
+   other problems that don't occur with older versions of WinPcap; you
+   should report those problems to the WinPcap developers, so that they
+   can try to fix those problems before the final version of WinPcap 3.1
+   is released. WinPcap 3.1 will not support PPP captures on Windows NT
+   4.0. See the Ethereal Wiki item on PPP capturing for details.
 
    Q 5.25: I'm running Ethereal on Windows 95/98/Me, on a machine with
    more than one network adapter of the same type; Ethereal shows all of
@@ -1900,7 +1959,8 @@ Using Ethereal
    In order to see the raw Ethernet packets, rather than "de-VLANized"
    packets, you would have to capture not on the virtual interface for
    the VLAN, but on the interface corresponding to the physical network
-   device, if possible.
+   device, if possible. See the Ethereal Wiki item on VLAN capturing for
+   details.
 
    Q 5.37: How can I capture raw 802.11 packets, including non-data
    (management, beacon) packets?
@@ -2304,13 +2364,13 @@ Using Ethereal
    or /var/tmp on UNIX-flavored OSes, \TEMP on the main system disk
    (normally C:) on Windows 9x/Me/NT 4.0, and \Documents and
    Settings\your login name\Local Settings\Temp on the main system disk
-   on Windows 2000/XP/Server 2003, so the capture file will probably be
-   there. It will have a name beginning with ether, with some mixture of
-   letters and numbers after that. Please don't send a trace file greater
-   than 1 MB when compressed; instead, make it available via FTP or HTTP,
-   or say it's available but leave it up to a developer to ask for it. If
-   the trace file contains sensitive information (e.g., passwords), then
-   please do not send it.
+   on Windows 2000/Windows XP/Windows Server 2003, so the capture file
+   will probably be there. It will have a name beginning with ether, with
+   some mixture of letters and numbers after that. Please don't send a
+   trace file greater than 1 MB when compressed; instead, make it
+   available via FTP or HTTP, or say it's available but leave it up to a
+   developer to ask for it. If the trace file contains sensitive
+   information (e.g., passwords), then please do not send it.
 
    Q 5.46: How can I search for, or filter, packets that have a
    particular string anywhere in them?
@@ -2353,4 +2413,4 @@ Using Ethereal
    For corrections/additions/suggestions for this web page (and not
    Ethereal support questions), please send email to
    ethereal-web[AT]ethereal.com .
-   Last modified: Fri, January 14 2005.
+   Last modified: Sun, February 27 2005.
