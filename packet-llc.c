@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gramirez@tivoli.com>
  *
- * $Id: packet-llc.c,v 1.49 2000/02/15 21:02:33 gram Exp $
+ * $Id: packet-llc.c,v 1.50 2000/04/08 07:55:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -165,14 +165,6 @@ static struct sap_info	saps[] = {
 	{ 0xFE,		NULL,		dissect_osi },
 	{ 0xFF,		NULL,		NULL },
 	{ 0x00,		NULL,		NULL}
-};
-
-static const value_string llc_ctrl_vals[] = {
-	{ 0, "Information Transfer" },
-	{ 1, "Supervisory" },
-	{ 2, "Unknown" },
-	{ 3, "Unnumbered Information" },
-	{ 0, NULL }
 };
 
 /*
@@ -499,7 +491,7 @@ proto_register_llc(void)
 
 		{ &hf_llc_ctrl,
 		{ "Control", "llc.control", FT_UINT8, BASE_HEX, 
-			VALS(llc_ctrl_vals), 0x0, "" }},
+			NULL, 0x0, "" }},
 
 		/* registered here but handled in ethertype.c */
 		{ &hf_llc_type,
