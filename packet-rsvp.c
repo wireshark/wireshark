@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.5 1999/08/12 05:19:05 gram Exp $
+ * $Id: packet-rsvp.c,v 1.6 1999/08/27 19:21:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,6 +69,7 @@
 
 #include <glib.h>
 #include "packet.h"
+#include "packet-ip.h"
 #include "packet-ipv6.h"
 #include "packet-rsvp.h"
 
@@ -91,6 +92,159 @@ static int proto_rsvp = -1;
 
 #define MINUS_INFINITY (signed)0x80000000L
 #define PLUS_INFINITY  0x7FFFFFFF
+
+static const value_string proto_vals[] = { {IP_PROTO_ICMP, "ICMP"},
+                                           {IP_PROTO_IGMP, "IGMP"},
+                                           {IP_PROTO_TCP,  "TCP" },
+                                           {IP_PROTO_UDP,  "UDP" },
+                                           {IP_PROTO_OSPF, "OSPF"},
+                                           {0,             NULL  } };
+
+/* Filter keys */
+enum rsvp_filter_keys {
+
+    /* Message types */
+    RSVPF_MSG,          /* Message type */
+    /* Shorthand for message types */
+    RSVPF_PATH,
+    RSVPF_RESV,
+    RSVPF_PATHERR,
+    RSVPF_RESVERR,
+    RSVPF_PATHTEAR,
+    RSVPF_RESVTEAR,
+    RSVPF_RCONFIRM,
+
+    /* Does the message contain an object of this type? */
+    RSVPF_OBJECT,
+    /* Object present shorthands */
+    RSVPF_SESSION,
+    RSVPF_DUMMY_1,
+    RSVPF_HOP,
+    RSVPF_INTEGRITY,
+    RSVPF_TIME_VALUES,
+    RSVPF_ERROR,
+    RSVPF_SCOPE,
+    RSVPF_STYLE,
+    RSVPF_FLOWSPEC,
+    RSVPF_FILTER_SPEC,
+    RSVPF_SENDER,
+    RSVPF_TSPEC,
+    RSVPF_ADSPEC,
+    RSVPF_POLICY,
+    RSVPF_CONFIRM,
+    RSVPF_UNKNOWN_OBJ, 
+
+    /* Session object */
+    RSVPF_SESSION_IP,
+    RSVPF_SESSION_PROTO,
+    RSVPF_SESSION_PORT,
+
+    /* Sender template */
+    RSVPF_SENDER_IP,
+    RSVPF_SENDER_PORT,
+
+    /* Sentinel */
+    RSVPF_MAX
+};
+
+static int rsvp_filter[RSVPF_MAX];
+
+static hf_register_info rsvpf_info[] = {
+
+    /* Message type number */
+    {&rsvp_filter[RSVPF_MSG], 
+     { "Message Type", "rsvp.msg", FT_VALS_UINT8, VALS(message_type_vals) }},
+
+    /* Message type shorthands */
+    {&rsvp_filter[RSVPF_PATH], 
+     { "Path Message", "rsvp.path", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_RESV], 
+     { "Resv Message", "rsvp.resv", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_PATHERR], 
+     { "Path Error Message", "rsvp.perr", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_RESVERR], 
+     { "Resv Error Message", "rsvp.rerr", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_PATHTEAR], 
+     { "Path Tear Message", "rsvp.ptear", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_RESVTEAR], 
+     { "Resv Tear Message", "rsvp.rtear", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_RCONFIRM], 
+     { "Resv Confirm Message", "rsvp.resvconf", FT_UINT8, NULL }},
+
+    /* Object present */
+    {&rsvp_filter[RSVPF_OBJECT], 
+     { "", "rsvp.object", FT_VALS_UINT8, VALS(rsvp_class_vals) }},
+
+    /* Object present shorthands */
+    {&rsvp_filter[RSVPF_SESSION], 
+     { "SESSION", "rsvp.session", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_HOP], 
+     { "HOP", "rsvp.hop", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_INTEGRITY], 
+     { "INTEGRITY", "rsvp.integrity", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_TIME_VALUES], 
+     { "TIME VALUES", "rsvp.time", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_ERROR], 
+     { "ERROR", "rsvp.error", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_SCOPE], 
+     { "SCOPE", "rsvp.scope", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_STYLE], 
+     { "STYLE", "rsvp.style", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_FLOWSPEC], 
+     { "FLOWSPEC", "rsvp.flowspec", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_FILTER_SPEC], 
+     { "FILTERSPEC", "rsvp.filter", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_SENDER], 
+     { "SENDER TEMPLATE", "rsvp.sender", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_TSPEC], 
+     { "SENDER TSPEC", "rsvp.tspec", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_ADSPEC], 
+     { "ADSPEC", "rsvp.adspec", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_POLICY], 
+     { "POLICY", "rsvp.policy", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_CONFIRM], 
+     { "CONFIRM", "rsvp.confirm", FT_UINT8, NULL }},
+    {&rsvp_filter[RSVPF_UNKNOWN_OBJ], 
+     { "Unknown object", "rsvp.obj_unknown", FT_UINT8, NULL }},
+
+    /* Session fields */
+    {&rsvp_filter[RSVPF_SESSION_IP], 
+     { "Destination address", "rsvp.session.ip", FT_IPv4, NULL }},
+    {&rsvp_filter[RSVPF_SESSION_PORT], 
+     { "Port number", "rsvp.session.port", FT_UINT16, NULL }},
+    {&rsvp_filter[RSVPF_SESSION_PROTO], 
+     { "Protocol", "rsvp.session.proto", FT_VALS_UINT8, VALS(proto_vals) }},
+
+    /* Sender template fields */
+    {&rsvp_filter[RSVPF_SENDER_IP], 
+     { "Sender Template IPv4 address", "rsvp.template.ip", FT_IPv4, NULL }},
+    {&rsvp_filter[RSVPF_SENDER_PORT], 
+     { "Sender Template port number", "rsvp.template.port", FT_UINT16, NULL }}
+};
+
+static inline int rsvp_class_to_filter_num(int classnum)
+{
+    switch(classnum) {
+    case RSVP_CLASS_SESSION :
+    case RSVP_CLASS_HOP :
+    case RSVP_CLASS_INTEGRITY :
+    case RSVP_CLASS_TIME_VALUES :
+    case RSVP_CLASS_ERROR :
+    case RSVP_CLASS_SCOPE :
+    case RSVP_CLASS_STYLE :
+    case RSVP_CLASS_FLOWSPEC :
+    case RSVP_CLASS_FILTER_SPEC :
+    case RSVP_CLASS_SENDER_TEMPLATE :
+    case RSVP_CLASS_SENDER_TSPEC :
+    case RSVP_CLASS_ADSPEC :
+    case RSVP_CLASS_POLICY :
+    case RSVP_CLASS_CONFIRM :
+	return classnum + RSVPF_OBJECT;
+	
+    default:
+	return RSVPF_UNKNOWN_OBJ;
+    }
+}
 
 static inline int ieee_float_is_zero (long number)
 {
@@ -177,9 +331,15 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			 (hdr->ver_flags & 0xf0)>>4);  
 	proto_tree_add_text(rsvp_header_tree, offset, 1, "Flags: %02X",
 			 hdr->ver_flags & 0xf);  
+	proto_tree_add_item(rsvp_header_tree, rsvp_filter[RSVPF_MSG], 
+			    offset+1, 1, hdr->message_type);
+	proto_tree_add_item_hidden(rsvp_header_tree, rsvp_filter[RSVPF_MSG + hdr->message_type], 
+			    offset+1, 1, 1);
+/*
 	proto_tree_add_text(rsvp_header_tree, offset+1, 1, "Message Type: %d - %s",
 			 hdr->message_type, 
 			 packet_type?packet_type:"Unknown");
+*/
 	proto_tree_add_text(rsvp_header_tree, offset + 2 , 2, "Message Checksum");
 	proto_tree_add_text(rsvp_header_tree, offset + 4 , 1, "Sending TTL: %d",
 			 hdr->sending_ttl);
@@ -199,9 +359,15 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    
 	    object_type = match_strval(obj->class, rsvp_class_vals);
 	    if (!object_type) object_type = "Unknown";
+	    /*
 	    ti = proto_tree_add_text(rsvp_tree, offset, 
 				  obj_length, 
 				  "%s (%d)", object_type, obj->class);
+	    */
+	    ti = proto_tree_add_item_hidden(rsvp_tree, rsvp_filter[RSVPF_OBJECT], 
+				     offset, obj_length, obj->class);
+	    ti = proto_tree_add_item(rsvp_tree, rsvp_filter[rsvp_class_to_filter_num(obj->class)], 
+				     offset, obj_length, obj->class);
 
 	    offset2 = offset + sizeof(rsvp_object);
 
@@ -219,16 +385,25 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    rsvp_session_ipv4 *sess = (rsvp_session_ipv4 *)obj;
 		    proto_tree_add_text(rsvp_object_tree, offset+3, 1, 
 					"C-type: 1 - IPv4");
+		    /*
 		    proto_tree_add_text(rsvp_object_tree, offset2, 4, 
 					"Destination address: %s", 
 					ip_to_str((guint8 *) &(sess->destination)));
-		    proto_tree_add_text(rsvp_object_tree, offset2+4, 1,
-					"Protocol: %d", sess->protocol);
+		    */
+		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_IP], 
+					offset2, 4, sess->destination);
+
+		    /* proto_tree_add_text(rsvp_object_tree, offset2+4, 1,
+		       "Protocol: %d", sess->protocol);*/
+		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_PROTO], 
+					offset2+4, 1, sess->protocol);
 		    proto_tree_add_text(rsvp_object_tree, offset2+5, 1,
 					"Flags: %d", sess->flags);
-		    proto_tree_add_text(rsvp_object_tree, offset2+6, 2,
+		    /* proto_tree_add_text(rsvp_object_tree, offset2+6, 2,
 					"Destination port: %d", 
-					pntohs(pd+offset2+6));
+					pntohs(pd+offset2+6)); */
+		    proto_tree_add_item(rsvp_object_tree, rsvp_filter[RSVPF_SESSION_PORT], 
+					offset2+6, 2, pntohs(pd+offset2+6));
 		    break;
 		}
 
@@ -949,11 +1124,6 @@ dissect_rsvp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 proto_register_rsvp(void)
 {
-/*        static hf_register_info hf[] = {
-                { &variable,
-                { "Name",           "rsvp.abbreviation", TYPE, VALS_POINTER }},
-        };*/
-
         proto_rsvp = proto_register_protocol("Resource ReserVation Protocol (RSVP)", "rsvp");
- /*       proto_register_field_array(proto_rsvp, hf, array_length(hf));*/
+        proto_register_field_array(proto_rsvp, rsvpf_info, array_length(rsvpf_info));
 }

@@ -4,7 +4,7 @@
  *
  * (C) Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.h,v 1.4 1999/08/22 07:27:06 guy Exp $
+ * $Id: packet-rsvp.h,v 1.5 1999/08/27 19:21:36 gram Exp $
  *
  * For license details, see the COPYING file with this distribution
  *
@@ -53,7 +53,7 @@ enum rsvp_classes {
     RSVP_CLASS_SENDER_TSPEC,
     RSVP_CLASS_ADSPEC,
     RSVP_CLASS_POLICY,
-    RSVP_CLASS_CONFIRM
+    RSVP_CLASS_CONFIRM,
 };
 
 static value_string rsvp_class_vals[] = { 
