@@ -2,7 +2,7 @@
  * Routines for AIM (OSCAR) dissection, SNAC Advertisements
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-adverts.c,v 1.2 2004/03/23 18:36:05 guy Exp $
+ * $Id: packet-aim-adverts.c,v 1.3 2004/04/20 04:48:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +75,7 @@ static int dissect_aim_adverts(tvbuff_t *tvb _U_,
 		break;
 		case FAMILY_ADVERTS_REQUEST:
 		case FAMILY_ADVERTS_DATA:
-		/* FIXME */
+		/* FIXME: */
 		return 0;
 	}
 

@@ -3,7 +3,7 @@
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim-ssi.c,v 1.1 2004/03/23 06:21:17 guy Exp $
+ * $Id: packet-aim-ssi.c,v 1.2 2004/04/20 04:48:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -147,7 +147,29 @@ static int dissect_aim_snac_ssi(tvbuff_t *tvb, packet_info *pinfo _U_,
       return dissect_aim_snac_error(tvb, pinfo, offset, ssi_tree);
     case FAMILY_SSI_LIST:
 	  return dissect_aim_snac_ssi_list(tvb, pinfo, offset, ssi_tree, aiminfo->subtype);
+	case FAMILY_SSI_REQRIGHTS:
+	case FAMILY_SSI_RIGHTSINFO:
+	case FAMILY_SSI_REQLIST_FIRSTTIME:
+	case FAMILY_SSI_REQLIST:
+	case FAMILY_SSI_ACTIVATE:
+	case FAMILY_SSI_ADD:
+	case FAMILY_SSI_MOD:
+	case FAMILY_SSI_DEL:
+	case FAMILY_SSI_SRVACK:
+	case FAMILY_SSI_NOLIST:
+	case FAMILY_SSI_EDITSTART:
+	case FAMILY_SSI_EDITSTOP:
+	case FAMILY_SSI_GRANT_FUTURE_AUTH:
+	case FAMILY_SSI_FUTUR_AUTH_GRANTED:
+	case FAMILY_SSI_SEND_AUTH_REQ: 
+	case FAMILY_SSI_AUTH_REQ:
+	case FAMILY_SSI_SEND_AUTH_REPLY:
+	case FAMILY_SSI_AUTH_REPLY:
+	case FAMILY_SSI_WAS_ADDED:
+
 	  /* FIXME */
+	  return 0;
+	 
     default:
 	  return 0;
     }

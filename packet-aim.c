@@ -3,7 +3,7 @@
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim.c,v 1.37 2004/04/11 20:57:10 guy Exp $
+ * $Id: packet-aim.c,v 1.38 2004/04/20 04:48:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -147,35 +147,34 @@ static const value_string aim_snac_errors[] = {
 #define AIM_TLV_CLIENTUSESSI   			0x004a
 
 const aim_tlv global_tlvs[] = {
-  {  AIM_TLV_SCREEN_NAME, "Screen name", FT_STRING },
-  {  AIM_TLV_ROASTED_PASSWORD, "Roasted password array", FT_BYTES },
-  {  AIM_TLV_CLIENT_ID_STRING, "Client id string (name, version)", FT_STRING },
-  {  AIM_TLV_CLIENT_ID, "Client id number", FT_UINT16 },
-  {  AIM_TLV_CLIENT_MAJOR_VERSION, "Client major version", FT_UINT16 },
-  {  AIM_TLV_CLIENT_MINOR_VERSION, "Client minor version", FT_UINT16 },
-  {  AIM_TLV_CLIENT_LESSER_VERSION, "Client lesser version", FT_UINT16 },
-  {  AIM_TLV_CLIENT_BUILD_NUMBER, "Client build number", FT_UINT16 },
-  {  AIM_TLV_CLIENT_DISTRIBUTION_NUM, "Client distribution number", FT_UINT16 },
-  {  AIM_TLV_CLIENT_LANGUAGE, "Client language", FT_STRING },
-  {  AIM_TLV_CLIENT_COUNTRY, "Client country", FT_STRING },
-  {  AIM_TLV_BOS_SERVER_STRING, "BOS server string", FT_STRING },
-  {  AIM_TLV_AUTH_COOKIE, "Authorization cookie", FT_BYTES },
-  {  AIM_TLV_ERRORURL, "Error URL", FT_STRING },
-  {  AIM_TLV_ERRORCODE, "Error Code", FT_UINT16 },
-  {  AIM_TLV_EMAILADDR, "Account Email address", FT_STRING },
-  {  AIM_TLV_REGSTATUS, "Registration Status", FT_UINT16 },
-  {  AIM_TLV_PASSWORD, "Password Hash", FT_BYTES },
-  {  AIM_TLV_LATESTBETABUILD, "Latest Beta Build", FT_UINT32 },
-  {  AIM_TLV_LATESTBETAURL, "Latest Beta URL", FT_STRING },
-  {  AIM_TLV_LATESTBETAINFO, "Latest Beta Info", FT_STRING },
-  {  AIM_TLV_LATESTBETANAME, "Latest Beta Name", FT_STRING },
-  {  AIM_TLV_LATESTRELEASEBUILD, "Latest Release Build", FT_UINT32 },
-  {  AIM_TLV_LATESTRELEASEURL, "Latest Release URL", FT_STRING },
-  {  AIM_TLV_LATESTRELEASEINFO, "Latest Release Info", FT_STRING },
-  {  AIM_TLV_LATESTRELEASENAME, "Latest Release Name", FT_STRING },
-  {  AIM_TLV_CLIENTUSESSI, "Use SSI", FT_UINT8 },
-  {  AIM_TLV_GENERIC_SERVICE_ID, "Service (Family) ID", FT_UINT16 },
-  { 0, "Unknown", 0 },
+  {  AIM_TLV_SCREEN_NAME, "Screen name", dissect_aim_tlv_value_string },
+  {  AIM_TLV_ROASTED_PASSWORD, "Roasted password array", dissect_aim_tlv_value_bytes  },
+  {  AIM_TLV_CLIENT_ID_STRING, "Client id string (name, version)", dissect_aim_tlv_value_string },
+  {  AIM_TLV_CLIENT_ID, "Client id number", dissect_aim_tlv_value_uint16 },
+  {  AIM_TLV_CLIENT_MAJOR_VERSION, "Client major version", dissect_aim_tlv_value_uint16 },
+  {  AIM_TLV_CLIENT_MINOR_VERSION, "Client minor version", dissect_aim_tlv_value_uint16 },
+  {  AIM_TLV_CLIENT_LESSER_VERSION, "Client lesser version", dissect_aim_tlv_value_uint16 },
+  {  AIM_TLV_CLIENT_BUILD_NUMBER, "Client build number", dissect_aim_tlv_value_uint16 },
+  {  AIM_TLV_CLIENT_DISTRIBUTION_NUM, "Client distribution number", dissect_aim_tlv_value_uint16 },
+  {  AIM_TLV_CLIENT_LANGUAGE, "Client language", dissect_aim_tlv_value_string },
+  {  AIM_TLV_CLIENT_COUNTRY, "Client country", dissect_aim_tlv_value_string },
+  {  AIM_TLV_BOS_SERVER_STRING, "BOS server string", dissect_aim_tlv_value_string },
+  {  AIM_TLV_AUTH_COOKIE, "Authorization cookie", dissect_aim_tlv_value_bytes },
+  {  AIM_TLV_ERRORURL, "Error URL", dissect_aim_tlv_value_string },
+  {  AIM_TLV_ERRORCODE, "Error Code", dissect_aim_tlv_value_uint16 },
+  {  AIM_TLV_EMAILADDR, "Account Email address", dissect_aim_tlv_value_string },
+  {  AIM_TLV_REGSTATUS, "Registration Status", dissect_aim_tlv_value_uint16 },
+  {  AIM_TLV_LATESTBETABUILD, "Latest Beta Build", dissect_aim_tlv_value_uint32 },
+  {  AIM_TLV_LATESTBETAURL, "Latest Beta URL", dissect_aim_tlv_value_string },
+  {  AIM_TLV_LATESTBETAINFO, "Latest Beta Info", dissect_aim_tlv_value_string },
+  {  AIM_TLV_LATESTBETANAME, "Latest Beta Name", dissect_aim_tlv_value_string },
+  {  AIM_TLV_LATESTRELEASEBUILD, "Latest Release Build", dissect_aim_tlv_value_uint32 },
+  {  AIM_TLV_LATESTRELEASEURL, "Latest Release URL", dissect_aim_tlv_value_string },
+  {  AIM_TLV_LATESTRELEASEINFO, "Latest Release Info", dissect_aim_tlv_value_string  },
+  {  AIM_TLV_LATESTRELEASENAME, "Latest Release Name", dissect_aim_tlv_value_string },
+  {  AIM_TLV_CLIENTUSESSI, "Use SSI", dissect_aim_tlv_value_uint8 },
+  {  AIM_TLV_GENERIC_SERVICE_ID, "Service (Family) ID", dissect_aim_tlv_value_uint16 },
+  { 0, "Unknown", NULL },
 };
 
                                                                                                                               
@@ -192,18 +191,18 @@ const aim_tlv global_tlvs[] = {
 #define FAMILY_BUDDYLIST_ICQSESSIONLEN  0x0010
                                                                                                                               
 static const aim_tlv buddylist_tlvs[] = {
-  { FAMILY_BUDDYLIST_USERFLAGS, "User flags", FT_UINT16 },
-  { FAMILY_BUDDYLIST_MEMBERSINCE, "Member since date", FT_UINT32 },
-  { FAMILY_BUDDYLIST_ONSINCE, "Online since", FT_UINT32 },
-  { FAMILY_BUDDYLIST_IDLETIME, "Idle time (sec)", FT_UINT16 },
-  { FAMILY_BUDDYLIST_ICQSTATUS, "ICQ Online status", FT_UINT16 },
-  { FAMILY_BUDDYLIST_ICQIPADDR, "ICQ User IP Address", FT_IPv4 },
-  { FAMILY_BUDDYLIST_ICQSTUFF, "ICQ Info", FT_BYTES },
-  { FAMILY_BUDDYLIST_CAPINFO, "Capability Info", FT_BYTES },
-  { FAMILY_BUDDYLIST_UNKNOWN, "Unknown", FT_UINT16 },
-  { FAMILY_BUDDYLIST_SESSIONLEN, "Session Length (sec)", FT_UINT32 },
-  { FAMILY_BUDDYLIST_SESSIONLEN, "ICQ Session Length (sec)", FT_UINT32 },
-  { 0, "Unknown", 0 }
+  { FAMILY_BUDDYLIST_USERFLAGS, "User flags", dissect_aim_tlv_value_uint16 },
+  { FAMILY_BUDDYLIST_MEMBERSINCE, "Member since date", dissect_aim_tlv_value_uint32 },
+  { FAMILY_BUDDYLIST_ONSINCE, "Online since", dissect_aim_tlv_value_uint32 },
+  { FAMILY_BUDDYLIST_IDLETIME, "Idle time (sec)", dissect_aim_tlv_value_uint16 },
+  { FAMILY_BUDDYLIST_ICQSTATUS, "ICQ Online status", dissect_aim_tlv_value_uint16 },
+  { FAMILY_BUDDYLIST_ICQIPADDR, "ICQ User IP Address", dissect_aim_tlv_value_ipv4 },
+  { FAMILY_BUDDYLIST_ICQSTUFF, "ICQ Info", dissect_aim_tlv_value_bytes },
+  { FAMILY_BUDDYLIST_CAPINFO, "Capability Info", dissect_aim_tlv_value_bytes },
+  { FAMILY_BUDDYLIST_UNKNOWN, "Unknown", dissect_aim_tlv_value_uint16 },
+  { FAMILY_BUDDYLIST_SESSIONLEN, "Session Length (sec)", dissect_aim_tlv_value_uint32 },
+  { FAMILY_BUDDYLIST_SESSIONLEN, "ICQ Session Length (sec)", dissect_aim_tlv_value_uint32 },
+  { 0, "Unknown", NULL }
 };
 
 struct aim_family {
@@ -217,8 +216,8 @@ static GList *families = NULL;
 #define FAMILY_GENERIC_MOTD_MOTD					   0x000B
 
 static const aim_tlv aim_fnac_family_generic_motd_tlv[] = {
-  { FAMILY_GENERIC_MOTD_MOTD, "Message of the day message", FT_STRING },
-  { 0, "Unknown", 0 }
+  { FAMILY_GENERIC_MOTD_MOTD, "Message of the day message", dissect_aim_tlv_value_string },
+  { 0, "Unknown", NULL }
 };
 
 #define FAMILY_GENERIC_REDIRECT_SERVER_ADDRESS		   0x0005
@@ -226,10 +225,10 @@ static const aim_tlv aim_fnac_family_generic_motd_tlv[] = {
 #define FAMILY_GENERIC_REDIRECT_FAMILY_ID              0x000D
 
 static const aim_tlv aim_fnac_family_generic_redirect_tlv[] = {
-  { FAMILY_GENERIC_REDIRECT_SERVER_ADDRESS, "Server address and (optional) port", FT_STRING },
-  { FAMILY_GENERIC_REDIRECT_AUTH_COOKIE, "Authorization cookie", FT_STRING },
-  { FAMILY_GENERIC_REDIRECT_FAMILY_ID, "Family ID", FT_UINT16 },
-  { 0, "Unknown", 0 }
+  { FAMILY_GENERIC_REDIRECT_SERVER_ADDRESS, "Server address and (optional) port", dissect_aim_tlv_value_string },
+  { FAMILY_GENERIC_REDIRECT_AUTH_COOKIE, "Authorization cookie", dissect_aim_tlv_value_string },
+  { FAMILY_GENERIC_REDIRECT_FAMILY_ID, "Family ID", dissect_aim_tlv_value_uint16 },
+  { 0, "Unknown", NULL }
 };
 
 #define FAMILY_GENERIC_MOTD_MOTDTYPE_MDT_UPGRADE       0x0001
@@ -253,7 +252,7 @@ static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 static void dissect_aim_newconn(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, 
-			     int offset, proto_tree *tree);
+			     int offset, proto_tree *tree, proto_tree *root_tree);
 static void dissect_aim_flap_err(tvbuff_t *tvb, packet_info *pinfo, 
 				 int offset, proto_tree *tree);
 static void dissect_aim_keep_alive(tvbuff_t *tvb, packet_info *pinfo, 
@@ -288,6 +287,7 @@ static int hf_aim_authcookie = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim          = -1;
+static gint ett_aim_buddyname= -1;
 static gint ett_aim_fnac     = -1;
 static gint ett_aim_tlv      = -1;
 
@@ -374,7 +374,7 @@ static void dissect_aim_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dissect_aim_newconn(tvb, pinfo, offset, aim_tree);
       break;
     case CHANNEL_SNAC_DATA:
-      dissect_aim_snac(tvb, pinfo, offset, aim_tree);
+      dissect_aim_snac(tvb, pinfo, offset, aim_tree, tree);
       break;
     case CHANNEL_FLAP_ERR:
       dissect_aim_flap_err(tvb, pinfo, offset, aim_tree);
@@ -550,7 +550,7 @@ int dissect_aim_snac_error(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo, 
-			     int offset, proto_tree *aim_tree)
+			     int offset, proto_tree *aim_tree, proto_tree *root_tree)
 {
   guint16 family;
   guint16 subtype;
@@ -614,7 +614,7 @@ static void dissect_aim_snac(tvbuff_t *tvb, packet_info *pinfo,
 	 else col_append_fstr(pinfo->cinfo, COL_INFO, ", Subtype: 0x%04x", subtype);
   }
 
-  if(tvb_length_remaining(tvb,offset) == 0 || !dissector_try_port(subdissector_table, family, subtvb, pinfo, aim_tree)) {
+  if(tvb_length_remaining(tvb,offset) == 0 || !dissector_try_port(subdissector_table, family, subtvb, pinfo, root_tree)) {
     /* Show the undissected payload */
     if (tvb_length_remaining(tvb, offset) > 0)
       proto_tree_add_item(aim_tree, hf_aim_data, tvb, offset, -1, FALSE);
@@ -669,6 +669,29 @@ static void dissect_aim_unknown_channel(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item(tree, hf_aim_data, tvb, offset, -1, FALSE);
 }
 
+int dissect_aim_buddyname(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
+                       proto_tree *tree)
+{
+  guint8 buddyname_length = 0;
+  char *buddyname;
+  proto_item *ti = NULL;
+  proto_tree *buddy_tree = NULL;
+                                                                                                                              
+  buddyname_length = tvb_get_guint8(tvb, offset);
+  offset++;
+  buddyname = tvb_get_string(tvb, offset, buddyname_length);
+                                                                                                                              
+  if(tree) {
+      ti = proto_tree_add_text(tree, tvb, offset-1, 1+buddyname_length,"Buddy: %s", buddyname);
+      buddy_tree = proto_item_add_subtree(ti, ett_aim_buddyname);
+  }
+                                                                                                                              
+   proto_tree_add_item(buddy_tree, hf_aim_buddyname_len, tvb, offset-1, 1, FALSE);
+   proto_tree_add_item(buddy_tree, hf_aim_buddyname, tvb, offset, buddyname_length, FALSE);
+   return offset+buddyname_length;
+}
+
+
 
 int dissect_aim_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, 
 			   int offset, proto_tree *tree)
@@ -684,6 +707,45 @@ int dissect_aim_tlv_buddylist(tvbuff_t *tvb, packet_info *pinfo _U_,
 	return dissect_aim_tlv_specific(tvb, pinfo, offset, tree, buddylist_tlvs);
 }
 
+int dissect_aim_tlv_value_string (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb)
+{
+   guint8 *buf;
+   buf = tvb_get_string(tvb, 0, tvb_length(tvb));
+   proto_item_set_text(ti, "Value: %s", buf);
+   g_free(buf);
+   return tvb_length(tvb);
+}
+
+int dissect_aim_tlv_value_bytes (proto_item *ti, guint16 valueid, tvbuff_t *tvb)
+{
+   return tvb_length(tvb);
+}
+
+int dissect_aim_tlv_value_uint8 (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb){
+  guint8 value8 = tvb_get_guint8(tvb, 0);
+  proto_item_set_text(ti, "Value: %d", value8);
+  return 1;
+}
+
+int dissect_aim_tlv_value_uint16 (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb){
+  guint16 value16 = tvb_get_ntohs(tvb, 0);
+  proto_item_set_text(ti, "Value: %d", value16);
+  return 2;
+}
+
+int dissect_aim_tlv_value_ipv4 (proto_item *ti, guint16 valueid, tvbuff_t *tvb){
+  /* FIXME: Somewhat more readable format ? */
+  guint32 value32 = tvb_get_ntoh24(tvb, 0);
+  proto_item_set_text(ti, "Value: %d", value32);
+  return 4;
+}
+
+int dissect_aim_tlv_value_uint32 (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb){
+  guint32 value32 = tvb_get_ntoh24(tvb, 0);
+  proto_item_set_text(ti, "Value: %d", value32);
+  return 4;
+}
+
 /* Dissect a TLV value */
 int dissect_aim_tlv_specific(tvbuff_t *tvb, packet_info *pinfo _U_, 
 			   int offset, proto_tree *tree, const aim_tlv *tlv)
@@ -695,8 +757,6 @@ int dissect_aim_tlv_specific(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_item *ti1;
   proto_tree *tlv_tree;
   int orig_offset;
-  guint16 value16;
-  guint32 value32;
 
   /* Record the starting offset so we can reuse it at the second pass */
   orig_offset = offset;
@@ -726,29 +786,7 @@ int dissect_aim_tlv_specific(tvbuff_t *tvb, packet_info *pinfo _U_,
   if (tree) {
     offset = orig_offset;
     
-    /* Show the info in the top of the tree if it's one of the standard
-       data types */
-    if (tmp[i].datatype == FT_STRING && length > 0) {
-      guint8 *buf;
-      buf = tvb_get_string(tvb, offset + 4, length);
-      ti1 = proto_tree_add_text(tree, tvb, offset, length + 4, 
-				"%s: %s", tmp[i].desc, buf);
-      g_free(buf);
-    }
-    else if (tmp[i].datatype == FT_UINT16) {
-      value16 = tvb_get_ntohs(tvb, offset + 4);
-      ti1 = proto_tree_add_text(tree, tvb, offset, length + 4, 
-				"%s: %d", tmp[i].desc, value16);
-    }
-    else if (tmp[i].datatype == FT_UINT32) {
-      value32 = tvb_get_ntohl(tvb, offset + 4);
-      ti1 = proto_tree_add_text(tree, tvb, offset, length + 4, 
-				"%s: %d", tmp[i].desc, value32);
-    }
-    else {
-      ti1 = proto_tree_add_text(tree, tvb, offset, length + 4, 
-				"%s", tmp[i].desc);
-    }
+	ti1 = proto_tree_add_text(tree, tvb, offset, length, "TLV: %s", tmp[i].desc);
 
     tlv_tree = proto_item_add_subtree(ti1, ett_aim_tlv);
 
@@ -762,6 +800,11 @@ int dissect_aim_tlv_specific(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     ti1 = proto_tree_add_text(tlv_tree, tvb, offset, length,
 			      "Value");
+	
+	if (tmp[i].dissector) {
+	   tmp[i].dissector(ti1, valueid, tvb_new_subset(tvb, offset, length, length));
+	} 
+
     offset += length;
   }
 
@@ -839,6 +882,7 @@ proto_register_aim(void)
     &ett_aim,
     &ett_aim_fnac,
     &ett_aim_tlv,
+	&ett_aim_buddyname
   };
   module_t *aim_module;
 

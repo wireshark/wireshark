@@ -2,7 +2,7 @@
  * Routines for AIM (OSCAR) dissection, SNAC BOS
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-bos.c,v 1.1 2004/03/23 06:21:16 guy Exp $
+ * $Id: packet-aim-bos.c,v 1.2 2004/04/20 04:48:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,6 +78,9 @@ static const value_string aim_fnac_family_bos[] = {
 #define CLASS_UNKNOWN400		     0x0400
 #define CLASS_UNKNOWN800		     0x0800
 
+static const aim_tlv bos_tlvs[] = {
+	{ 0, "Unknown", 0 },
+};
 
 /* Initialize the protocol and registered fields */
 static int proto_aim_bos = -1;
@@ -138,12 +141,18 @@ proto_tree_add_boolean(entry, hf_aim_bos_class_unknown800, tvb, offset, 4, flags
 			}
 			return 4;
 		case FAMILY_BOS_RIGHTS:
+			while(tvb_length_remaining(tvb, offset) > 0) {
+				offset = dissect_aim_tlv_specific(tvb, pinfo, offset, bos_tree, bos_tlvs);
+			}
+			return offset;
 		case FAMILY_BOS_ADD_TO_VISIBLE:
 		case FAMILY_BOS_DEL_FROM_VISIBLE:
 	  	case FAMILY_BOS_ADD_TO_INVISIBLE:
 	  	case FAMILY_BOS_DEL_FROM_INVISIBLE:
-			/* FIXME */
-			return 0;
+			while(tvb_length_remaining(tvb, offset) > 0) {
+				offset = dissect_aim_buddyname(tvb, pinfo, offset, bos_tree);
+			}
+			return offset;
 			
 		default:
 			return 0;

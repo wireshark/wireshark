@@ -4,7 +4,7 @@
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  * Copyright 2004, Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-aim-messaging.c,v 1.3 2004/04/02 07:59:22 guy Exp $
+ * $Id: packet-aim-messaging.c,v 1.4 2004/04/20 04:48:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,19 +85,26 @@ static const value_string aim_fnac_family_messaging[] = {
 #define INCOMING_CH1_TYPING            0x000b
 
 static const aim_tlv messaging_incoming_ch1_tlvs[] = {
-  { INCOMING_CH1_MESSAGE_BLOCK, "Message Block", FT_BYTES },
-  { INCOMING_CH1_SERVER_ACK_REQ, "Server Ack Requested", FT_BYTES },
-  { INCOMING_CH1_MESSAGE_AUTH_RESP, "Message is Auto Response", FT_BYTES },
-  { INCOMING_CH1_MESSAGE_OFFLINE, "Message was received offline", FT_BYTES },
-  { INCOMING_CH1_ICON_PRESENT, "Icon present", FT_BYTES },
-  { INCOMING_CH1_BUDDY_REQ, "Buddy Req", FT_BYTES },
-  { INCOMING_CH1_TYPING, "Non-direct connect typing notification", FT_BYTES },
-  { 0, "Unknown", 0 }
+  { INCOMING_CH1_MESSAGE_BLOCK, "Message Block", dissect_aim_tlv_value_bytes },
+  { INCOMING_CH1_SERVER_ACK_REQ, "Server Ack Requested", dissect_aim_tlv_value_bytes },
+  { INCOMING_CH1_MESSAGE_AUTH_RESP, "Message is Auto Response", dissect_aim_tlv_value_bytes },
+  { INCOMING_CH1_MESSAGE_OFFLINE, "Message was received offline", dissect_aim_tlv_value_bytes },
+  { INCOMING_CH1_ICON_PRESENT, "Icon present", dissect_aim_tlv_value_bytes },
+  { INCOMING_CH1_BUDDY_REQ, "Buddy Req", dissect_aim_tlv_value_bytes },
+  { INCOMING_CH1_TYPING, "Non-direct connect typing notification", dissect_aim_tlv_value_bytes },
+  { 0, "Unknown", NULL }
 };
 
 /* Initialize the protocol and registered fields */
 static int proto_aim_messaging = -1;
+static int hf_aim_icbm_channel = -1;
 static int hf_aim_icbm_cookie = -1;
+static int hf_aim_icbm_msg_flags = -1;
+static int hf_aim_icbm_max_sender_warnlevel = -1;
+static int hf_aim_icbm_max_receiver_warnlevel = -1;
+static int hf_aim_icbm_max_snac_size = -1;
+static int hf_aim_icbm_min_msg_interval = -1;
+static int hf_aim_icbm_unknown = -1;
 static int hf_aim_message_channel_id = -1;
 static int hf_aim_userinfo_warninglevel = -1;
 static int hf_aim_userinfo_tlvcount = -1;
@@ -110,15 +117,26 @@ static int dissect_aim_messaging(tvbuff_t *tvb, packet_info *pinfo,
 {
   guint8 buddyname_length = 0;
   char buddyname[MAX_BUDDYNAME_LENGTH + 1];
+  guint16 tlv_count = 0;
   guchar msg[1000];
   int offset = 0;
   struct aiminfo *aiminfo = pinfo->private_data;
-  guint16 tlv_count = 0;
+  proto_item *ti = NULL;
+  proto_tree *msg_tree = NULL;
+  
+    if(tree) {
+        ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Messaging Service");
+        msg_tree = proto_item_add_subtree(ti, ett_aim_messaging);
+    }
 
   switch(aiminfo->subtype)
     {    
 	case FAMILY_MESSAGING_ERROR:
-      return dissect_aim_snac_error(tvb, pinfo, offset, tree);
+      return dissect_aim_snac_error(tvb, pinfo, offset, msg_tree);
+	case FAMILY_MESSAGING_RESETICBMPARAM:
+	case FAMILY_MESSAGING_REQPARAMINFO:
+	  /* No data */
+	  return 0;
     case FAMILY_MESSAGING_OUTGOING:
 
       /* Unknown */
@@ -139,8 +157,8 @@ static int dissect_aim_messaging(tvbuff_t *tvb, packet_info *pinfo,
 	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
       }
       
-      if(tree) {
-	proto_tree_add_text(tree, tvb, offset, buddyname_length, 
+      if(msg_tree) {
+	proto_tree_add_text(msg_tree, tvb, 27, buddyname_length, 
 			    "Screen Name: %s", buddyname);
       }
       
@@ -167,9 +185,9 @@ static int dissect_aim_messaging(tvbuff_t *tvb, packet_info *pinfo,
 	
 	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
       }
-
-      if(tree) {
-	proto_tree_add_text(tree, tvb, offset, buddyname_length, 
+      
+      if(msg_tree) {
+	proto_tree_add_text(msg_tree, tvb, 27, buddyname_length, 
 			    "Screen Name: %s", buddyname);
       }
 
@@ -193,9 +211,15 @@ static int dissect_aim_messaging(tvbuff_t *tvb, packet_info *pinfo,
       
       return offset;
 	case FAMILY_MESSAGING_SETICBMPARAM:
-	case FAMILY_MESSAGING_RESETICBMPARAM:
-	case FAMILY_MESSAGING_REQPARAMINFO:
 	case FAMILY_MESSAGING_PARAMINFO:
+	  proto_tree_add_item(msg_tree, hf_aim_icbm_channel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+	  proto_tree_add_item(msg_tree, hf_aim_icbm_msg_flags, tvb, offset, 4, tvb_get_ntoh24(tvb, offset)); offset+=4;
+	  proto_tree_add_item(msg_tree, hf_aim_icbm_max_snac_size, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+	  proto_tree_add_item(msg_tree, hf_aim_icbm_max_sender_warnlevel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+	  proto_tree_add_item(msg_tree, hf_aim_icbm_max_receiver_warnlevel, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+	  proto_tree_add_item(msg_tree, hf_aim_icbm_min_msg_interval, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+	  proto_tree_add_item(msg_tree, hf_aim_icbm_unknown, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+	  return offset;
 	case FAMILY_MESSAGING_EVIL:
 	case FAMILY_MESSAGING_MISSEDCALL:
 	case FAMILY_MESSAGING_CLIENTAUTORESP:
@@ -216,6 +240,27 @@ proto_register_aim_messaging(void)
 
 /* Setup list of header fields */
   static hf_register_info hf[] = {
+	{ &hf_aim_icbm_channel,
+	   { "Channel to setup", "aim.icbm.channel", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_aim_icbm_msg_flags, 
+		{ "Message Flags", "aim.icbm.flags", FT_UINT32, BASE_HEX, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_aim_icbm_max_snac_size,
+		{ "Max SNAC Size", "aim.icbm.max_snac", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_aim_icbm_max_sender_warnlevel,
+		{ "Max sender warn level", "aim.icbm.max_sender_warn-level", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+	},
+    { &hf_aim_icbm_max_receiver_warnlevel,
+		{ "max receiver warn level", "aim.icbm.max_receiver_warnlevel", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_aim_icbm_min_msg_interval,
+		{ "Minimum message interval (seconds)", "aim.icbm.min_msg_interval", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+	},
+	{ &hf_aim_icbm_unknown,
+		{ "Uknown parameter", "aim.icbm.unknown", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
+	},
     { &hf_aim_icbm_cookie,
       { "ICBM Cookie", "aim.messaging.icbmcookie", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL }
     },
@@ -238,7 +283,7 @@ proto_register_aim_messaging(void)
 /* Register the protocol name and description */
   proto_aim_messaging = proto_register_protocol("AIM Messaging", "AIM Messaging", "aim_messaging");
 
-  /* Required function calls to register the header fields and subtrees used */
+/* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_aim_messaging, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }

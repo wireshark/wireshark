@@ -1,7 +1,7 @@
 /* packet-aim.h
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim.h,v 1.1 2004/03/23 06:21:17 guy Exp $
+ * $Id: packet-aim.h,v 1.2 2004/04/20 04:48:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,7 @@
 typedef struct _aim_tlv {
   guint16 valueid;
   char *desc;
-  int datatype;
+  int (*dissector) (proto_item *ti, guint16 value_id, tvbuff_t *tvb);
 } aim_tlv;
 
 struct aiminfo {
@@ -41,6 +41,7 @@ struct aiminfo {
 
 void aim_init_family(guint16 family, const char *name, const value_string *subtypes);
 
+int dissect_aim_buddyname(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 void aim_get_message( guchar *msg, tvbuff_t *tvb, int msg_offset, int msg_length);
 int aim_get_buddyname( char *name, tvbuff_t *tvb, int len_offset, int name_offset);
 
@@ -59,5 +60,11 @@ int dissect_aim_tlv_specific(tvbuff_t *tvb, packet_info *pinfo _U_,
 const char *aim_get_familyname( guint16 family );
 const char *aim_get_subtypename( guint16 family, guint16 subtype);
 
+int dissect_aim_tlv_value_string(proto_item *ti, guint16, tvbuff_t *);
+int dissect_aim_tlv_value_uint8(proto_item *ti, guint16, tvbuff_t *);
+int dissect_aim_tlv_value_uint16(proto_item *ti, guint16, tvbuff_t *);
+int dissect_aim_tlv_value_uint32(proto_item *ti, guint16, tvbuff_t *);
+int dissect_aim_tlv_value_bytes(proto_item *ti, guint16, tvbuff_t *);
+int dissect_aim_tlv_value_ipv4(proto_item *ti, guint16, tvbuff_t *);
 
 #endif

@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-chatnav.c,v 1.3 2004/03/24 06:36:32 ulfl Exp $
+ * $Id: packet-aim-chatnav.c,v 1.4 2004/04/20 04:48:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,6 +72,38 @@ static int proto_aim_chatnav = -1;
 
 int ett_aim_chatnav = -1;
 
+static int dissect_aim_chatnav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  struct aiminfo *aiminfo = pinfo->private_data;
+	
+  proto_item *ti;
+  proto_tree *chatnav_tree = NULL;
+
+  if(tree) {
+      ti = proto_tree_add_text(tree, tvb, 0, -1, "Chat Navigation Service");
+      chatnav_tree = proto_item_add_subtree(ti, ett_aim_chatnav);
+  }
+
+  switch(aiminfo->subtype) {
+	  case FAMILY_CHATNAV_ERROR:
+		  return dissect_aim_snac_error(tvb, pinfo, 0, chatnav_tree);
+	case FAMILY_CHATNAV_LIMITS_REQ:
+		  /* No data */
+		  return 0;
+	case FAMILY_CHATNAV_EXCHANGE_REQ:
+	case FAMILY_CHATNAV_ROOM_INFO_REQ:
+	case FAMILY_CHATNAV_ROOMIF_EXT_REQ:
+	case FAMILY_CHATNAV_MEMBERLIST_REQ:
+	case FAMILY_CHATNAV_SEARCH_ROOM:
+	case FAMILY_CHATNAV_CREATE_ROOM:
+	case FAMILY_CHATNAV_INFO_REPLY:
+	case FAMILY_CHATNAV_DEFAULT:
+  /* FIXME */
+	  return 0;
+	default: return 0;
+  }
+}
+
 /* Register the protocol with Ethereal */
 void
 proto_register_aim_chatnav(void)
@@ -98,11 +130,10 @@ proto_register_aim_chatnav(void)
 void
 proto_reg_handoff_aim_chatnav(void)
 {
-  /*dissector_handle_t aim_handle;*/
+  dissector_handle_t aim_handle;
 
-  /* FIXME: dissect
-   * aim_handle = new_create_dissector_handle(dissect_aim_chatnav, proto_aim_chatnav);
-   * dissector_add("aim.family", FAMILY_CHAT_NAV, aim_handle);
-   */
+  aim_handle = new_create_dissector_handle(dissect_aim_chatnav, proto_aim_chatnav);
+  dissector_add("aim.family", FAMILY_CHAT_NAV, aim_handle);
+  
   aim_init_family(FAMILY_CHAT_NAV, "Chat Navigation", aim_fnac_family_chatnav);
 }

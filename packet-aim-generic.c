@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection, SNAC Family Generic
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-generic.c,v 1.1 2004/03/23 06:21:16 guy Exp $
+ * $Id: packet-aim-generic.c,v 1.2 2004/04/20 04:48:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -205,12 +205,14 @@ static int dissect_generic_rateinfo(tvbuff_t *tvb, packet_info *pinfo _U_,
 	guint16 i;
 	proto_item *ti;
 	guint16 numclasses = tvb_get_ntohs(tvb, 0);	
-	proto_tree *classes_tree, *groups_tree, *group_tree;
+	proto_tree *classes_tree = NULL, *groups_tree, *group_tree;
     proto_tree_add_uint(tree, hf_generic_rateinfo_numclasses, tvb, 0, 2, numclasses );
 	offset+=2;
 
-	ti = proto_tree_add_text(tree, tvb, offset, 33*numclasses, "Available Rate Classes");
-	classes_tree = proto_item_add_subtree(ti, ett_generic_rateinfo_classes);
+	if(tree) {
+		ti = proto_tree_add_text(tree, tvb, offset, 33*numclasses, "Available Rate Classes");
+		classes_tree = proto_item_add_subtree(ti, ett_generic_rateinfo_classes);
+	}
 
 	for(i = 0; i < numclasses; i++) {
 		guint16 myid = tvb_get_ntohs(tvb, offset); 
@@ -252,35 +254,33 @@ static int dissect_generic_rateinfo(tvbuff_t *tvb, packet_info *pinfo _U_,
 static int dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo, 
 				    proto_tree *tree)
 {
-  int offset = 0;
-  const char *name;
-  struct aiminfo *aiminfo = pinfo->private_data;
-  guint16 n, i;
-  proto_item *ti = NULL;
-  proto_tree *gen_tree = NULL;
-  proto_tree *entry = NULL;
+	int offset = 0;
+	const char *name;
+	struct aiminfo *aiminfo = pinfo->private_data;
+	guint16 n, i;
+  	proto_item *ti = NULL;
+	proto_tree *gen_tree = NULL;
+	proto_tree *entry = NULL;
 
-  if(tree) {
-    ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Generic Service");
-    gen_tree = proto_item_add_subtree(ti, ett_generic);
-  }
+	if(tree) {
+		ti = proto_tree_add_text(tree, tvb, 0, -1,"AIM Generic Service");
+		gen_tree = proto_item_add_subtree(ti, ett_generic);
+	}
 	
-  if ((name = match_strval(aiminfo->subtype, aim_fnac_family_generic)) != NULL) {
-    if (ti)
-      proto_item_append_text(ti, ", %s", name);
+	if ((name = match_strval(aiminfo->subtype, aim_fnac_family_generic)) != NULL) {
+	  if (ti) proto_item_append_text(ti, ", %s", name);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO, name);
-  }
+      if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, name);
+	}
 
   switch(aiminfo->subtype)
     {
 	case FAMILY_GENERIC_ERROR:
-	   return dissect_aim_snac_error(tvb, pinfo, 0, gen_tree);
+      return dissect_aim_snac_error(tvb, pinfo, 0, gen_tree);
 	case FAMILY_GENERIC_CLIENTREADY:
-	   ti = proto_tree_add_text(gen_tree, tvb, 0, -1, "Supported services");
+	   ti = proto_tree_add_text(gen_tree, tvb, 0, tvb_length_remaining(tvb, 0), "Supported services");
 	   entry = proto_item_add_subtree(ti, ett_generic_clientready);
-	   while(tvb_reported_length_remaining(tvb, offset) > 0) {
+	   while(tvb_length_remaining(tvb, offset) > 0) {
 			guint16 famnum = tvb_get_ntohs(tvb, offset);
 			const char *famname = aim_get_familyname(famnum);
 			proto_tree *subentry;
@@ -289,7 +289,7 @@ static int dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo,
 			
 			subentry = proto_item_add_subtree(ti, ett_generic_clientready_item);
 
-			proto_tree_add_text(subentry, tvb, offset, 2, "Version: %u", tvb_get_ntohs(tvb, offset) ); offset += 2;
+			proto_tree_add_text(subentry, tvb, offset, 2, "Version: %d", tvb_get_ntohs(tvb, offset) ); offset += 2;
 			proto_tree_add_text(subentry, tvb, offset, 4, "DLL Version: %u", tvb_get_ntoh24(tvb, offset) ); offset += 4;
 	  }
 	  return offset;
@@ -305,7 +305,7 @@ static int dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo,
 	  return offset;
 	case FAMILY_GENERIC_SERVICEREQ:
 	  name = aim_get_familyname( tvb_get_ntohs(tvb, offset) );
-	  proto_tree_add_uint_format(gen_tree, hf_generic_servicereq_service, tvb, offset, 2, tvb_get_ntohs(tvb, offset), "%s (0x%04x)", name?name:"Unknown", tvb_get_ntohs(tvb, offset) );
+      proto_tree_add_uint_format(gen_tree, hf_generic_servicereq_service, tvb, offset, 2, tvb_get_ntohs(tvb, offset), "%s (0x%04x)", name?name:"Unknown", tvb_get_ntohs(tvb, offset) );
 	  offset+=2;
 	  return offset;
 	case FAMILY_GENERIC_REDIRECT:
@@ -336,7 +336,7 @@ static int dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo,
 
 
     case FAMILY_GENERIC_MOTD: 
-	  proto_tree_add_item(gen_tree, hf_generic_motd_motdtype, tvb, offset, 
+      proto_tree_add_item(gen_tree, hf_generic_motd_motdtype, tvb, offset, 
 			  2, tvb_get_ntohs(tvb, offset));
 	  offset+=2;
 	  while(tvb_length_remaining(tvb, offset) > 0) {
@@ -363,7 +363,7 @@ static int dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo,
 	  
 
 	case FAMILY_GENERIC_CLIENTPAUSEACK:
-	  while(tvb_length_remaining(tvb, offset) > 0) {
+	   while(tvb_length_remaining(tvb, offset) > 0) {
 			guint16 famnum = tvb_get_ntohs(tvb, offset);
 			const char *famname = aim_get_familyname(famnum);
 			proto_tree_add_text(gen_tree, tvb, offset, 4, "Family: %s (0x%x)", famname?famname:"Unknown Family", famnum);
@@ -404,8 +404,10 @@ static int dissect_aim_snac_generic(tvbuff_t *tvb, packet_info *pinfo,
 		  offset+=4;
 	  }
 	  return offset;
-	case FAMILY_GENERIC_SELFINFO:
 	case FAMILY_GENERIC_EVIL:
+	  /* FIXME */
+	  return offset;
+	case FAMILY_GENERIC_SELFINFO:
 	case FAMILY_GENERIC_SETIDLE:
 	case FAMILY_GENERIC_SETSTATUS:
 	case FAMILY_GENERIC_WELLKNOWNURL:

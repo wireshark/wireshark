@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection, SNAC ICQ
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-icq.c,v 1.2 2004/03/23 18:36:05 guy Exp $
+ * $Id: packet-aim-icq.c,v 1.3 2004/04/20 04:48:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,13 @@ static const value_string aim_fnac_family_icq[] = {
   { 0, NULL }
 };
 
+#define TLV_ICQ_META_DATA 			  0x0001
+
+static const aim_tlv icq_tlv[] = {
+   { TLV_ICQ_META_DATA, "Encapsulated ICQ Meta Data", dissect_aim_tlv_value_bytes },
+   { 0, "Unknown", NULL },
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_aim_icq = -1;
 
@@ -72,6 +79,7 @@ static int dissect_aim_icq(tvbuff_t *tvb, packet_info *pinfo,
    case FAMILY_ICQ_ERROR:
 	   return dissect_aim_snac_error(tvb, pinfo, offset, tree);
    case FAMILY_ICQ_LOGINREQUEST:
+	   return dissect_aim_tlv_specific(tvb, pinfo, offset, tree, icq_tlv);
    case FAMILY_ICQ_LOGINRESPONSE:
    case FAMILY_ICQ_AUTHREQUEST:
 	case FAMILY_ICQ_AUTHRESPONSE:
@@ -87,9 +95,8 @@ proto_register_aim_icq(void)
 {
 
 /* Setup list of header fields */
-/*FIXME
   static hf_register_info hf[] = {
-  };*/
+  };
 
 /* Setup protocol subtree array */
   static gint *ett[] = {
@@ -100,8 +107,7 @@ proto_register_aim_icq(void)
   proto_aim_icq = proto_register_protocol("AIM ICQ", "AIM ICQ", "aim_icq");
 
 /* Required function calls to register the header fields and subtrees used */
-/*FIXME
-  proto_register_field_array(proto_aim_icq, hf, array_length(hf));*/
+  proto_register_field_array(proto_aim_icq, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
 

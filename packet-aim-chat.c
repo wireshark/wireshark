@@ -3,7 +3,7 @@
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim-chat.c,v 1.2 2004/03/23 18:36:05 guy Exp $
+ * $Id: packet-aim-chat.c,v 1.3 2004/04/20 04:48:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,13 +82,27 @@ static int dissect_aim_snac_chat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   struct aiminfo *aiminfo = pinfo->private_data;
   char buddyname[MAX_BUDDYNAME_LENGTH + 1];
   guchar msg[1000];
+  proto_item *ti;
+  proto_tree *chat_tree = NULL;
+                                                                                                                              
+  if(tree) {
+      ti = proto_tree_add_text(tree, tvb, 0, -1, "Chat Service");
+      chat_tree = proto_item_add_subtree(ti, ett_aim_chat);
+  }
 
   switch(aiminfo->subtype)
     {
 	case FAMILY_CHAT_ERROR:
-      return dissect_aim_snac_error(tvb, pinfo, offset, tree);
+      return dissect_aim_snac_error(tvb, pinfo, offset, chat_tree);
 	case FAMILY_CHAT_ROOMINFOUPDATE:
+	  /* FIXME */
+	  return 0;
 	case FAMILY_CHAT_USERJOIN:
+	  while(tvb_length_remaining(tvb, offset) > 0) {
+		  offset = dissect_aim_buddyname(tvb, pinfo, offset, chat_tree);
+		  /* FIXME */
+	  }
+	  return offset;
 	case FAMILY_CHAT_USERLEAVE:
 	case FAMILY_CHAT_EVIL_REQ:
 	case FAMILY_CHAT_EVIL_REPLY:
@@ -114,8 +128,8 @@ static int dissect_aim_snac_chat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
       }
       
-      if(tree) {
-	proto_tree_add_text(tree, tvb, 31, buddyname_length, 
+      if(chat_tree) {
+	proto_tree_add_text(chat_tree, tvb, 31, buddyname_length, 
 			    "Screen Name: %s", buddyname);
       }
 	  return tvb_length(tvb);

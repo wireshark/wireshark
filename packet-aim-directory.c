@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection, SNAC Directory
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-directory.c,v 1.2 2004/03/23 18:36:05 guy Exp $
+ * $Id: packet-aim-directory.c,v 1.3 2004/04/20 04:48:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,32 @@ static const value_string aim_fnac_family_directory[] = {
 };
 
 static int proto_aim_directory = -1;
+static int ett_aim_directory = -1;
+
+static int dissect_aim_directory(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	struct aiminfo *aiminfo = pinfo->private_data;
+	proto_item *ti;
+	proto_tree *directory_tree = NULL;
+
+    if(tree) {
+    	ti = proto_tree_add_text(tree, tvb, 0, -1, "Directory Service");
+    	directory_tree = proto_item_add_subtree(ti, ett_aim_directory);
+   	}
+
+	switch(aiminfo->subtype) {
+	case FAMILY_DIRECTORY_ERROR:
+		return dissect_aim_snac_error(tvb, pinfo, 0, directory_tree);
+	case FAMILY_DIRECTORY_INTERESTS_LIST_REQ:
+		return 0;
+	case FAMILY_DIRECTORY_SEARCH_USER_REQ:
+	case FAMILY_DIRECTORY_SEARCH_USER_REPL:
+	case FAMILY_DIRECTORY_INTERESTS_LIST_REP:
+		/* FIXME */
+		return 0;
+	}
+	return 0;
+}
 
 /* Register the protocol with Ethereal */
 void
@@ -69,24 +95,23 @@ proto_register_aim_directory(void)
   };*/
 
 /* Setup protocol subtree array */
-/*FIXME
   static gint *ett[] = {
-  };*/
+	  &ett_aim_directory
+  };
 /* Register the protocol name and description */
   proto_aim_directory = proto_register_protocol("AIM Directory Search", "AIM Directory", "aim_dir");
 
 /* Required function calls to register the header fields and subtrees used */
 /*FIXME
   proto_register_field_array(proto_aim_directory, hf, array_length(hf));*/
-/*FIXME
-  proto_register_subtree_array(ett, array_length(ett));*/
+  proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_aim_directory(void)
 {
-/*FIXME:  dissector_handle_t aim_handle;
+  dissector_handle_t aim_handle;
   aim_handle = new_create_dissector_handle(dissect_aim_directory, proto_aim_directory);
-  dissector_add("aim.family", FAMILY_DIRECTORY, aim_handle); */
+  dissector_add("aim.family", FAMILY_DIRECTORY, aim_handle); 
   aim_init_family(FAMILY_DIRECTORY, "Directory", aim_fnac_family_directory);
 }

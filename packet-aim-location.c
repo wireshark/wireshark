@@ -3,7 +3,7 @@
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim-location.c,v 1.2 2004/03/30 17:38:45 guy Exp $
+ * $Id: packet-aim-location.c,v 1.3 2004/04/20 04:48:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -74,11 +74,11 @@ static const value_string aim_fnac_family_location[] = {
 #define FAMILY_LOCATION_USERINFO_CAPS          0x0005
                                                                                                                               
 static const aim_tlv aim_fnac_family_location_userinfo_tlv[] = {
-  { FAMILY_LOCATION_USERINFO_INFOENCODING, "Info Msg Encoding", FT_STRING },
-  { FAMILY_LOCATION_USERINFO_INFOMSG, "Info Message", FT_STRING },
-  { FAMILY_LOCATION_USERINFO_AWAYENCODING, "Away Msg Encoding", FT_STRING },
-  { FAMILY_LOCATION_USERINFO_AWAYMSG, "Away Message", FT_STRING },
-  { FAMILY_LOCATION_USERINFO_CAPS, "Capabilities", FT_BYTES },
+  { FAMILY_LOCATION_USERINFO_INFOENCODING, "Info Msg Encoding", dissect_aim_tlv_value_string},
+  { FAMILY_LOCATION_USERINFO_INFOMSG, "Info Message", dissect_aim_tlv_value_string },
+  { FAMILY_LOCATION_USERINFO_AWAYENCODING, "Away Msg Encoding", dissect_aim_tlv_value_string },
+  { FAMILY_LOCATION_USERINFO_AWAYMSG, "Away Message", dissect_aim_tlv_value_string },
+  { FAMILY_LOCATION_USERINFO_CAPS, "Capabilities", dissect_aim_tlv_value_bytes },
   { 0, "Unknown", 0 }
 };
 

@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection, SNAC Buddylist
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-buddylist.c,v 1.1 2004/03/23 06:21:16 guy Exp $
+ * $Id: packet-aim-buddylist.c,v 1.2 2004/04/20 04:48:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -86,6 +86,14 @@ static int dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo,
   guint16 tlv_count = 0;
   struct aiminfo *aiminfo = pinfo->private_data;
   int offset = 0;
+  proto_item *ti;
+  proto_tree *buddy_tree = NULL;
+
+  if(tree) {
+	  ti = proto_tree_add_text(tree, tvb, 0, -1, "Buddy List Service");
+	  buddy_tree = proto_item_add_subtree(ti, ett_aim_buddylist);   
+  }
+
 
   switch(aiminfo->subtype)
     {
@@ -93,15 +101,22 @@ static int dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo,
 	case FAMILY_BUDDYLIST_WATCHERS_REQ:
 		/* No data */
 		return 0;
-	case FAMILY_BUDDYLIST_ERROR:
-      return dissect_aim_snac_error(tvb, pinfo, offset, tree);
-	case FAMILY_BUDDYLIST_RIGHTSINFO:
-	case FAMILY_BUDDYLIST_ADDBUDDY:
 	case FAMILY_BUDDYLIST_REMBUDDY:
+	case FAMILY_BUDDYLIST_ADDBUDDY:
 	case FAMILY_BUDDYLIST_WATCHERS_REP:
+		while(tvb_length_remaining(tvb, offset) > 0) {
+			offset = dissect_aim_buddyname( tvb, pinfo, offset, buddy_tree);
+		}
+		return offset;
+	case FAMILY_BUDDYLIST_ERROR:
+      return dissect_aim_snac_error(tvb, pinfo, offset, buddy_tree);
+	case FAMILY_BUDDYLIST_RIGHTSINFO:
+		while(tvb_length_remaining(tvb, offset) > 0) {
+			offset = dissect_aim_tlv_buddylist( tvb, pinfo, offset, buddy_tree);
+		}
+		return offset;
 	case FAMILY_BUDDYLIST_REJECT:
-	  /* FIXME */
-	  return 0;
+		return dissect_aim_buddyname(tvb, pinfo, offset, buddy_tree);
     case FAMILY_BUDDYLIST_ONCOMING:
       buddyname_length = aim_get_buddyname( buddyname, tvb, offset, offset + 1 );
 
@@ -110,25 +125,25 @@ static int dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo,
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", buddyname);
       }
       
-      if (tree) {
-	proto_tree_add_text(tree, tvb, offset + 1, buddyname_length, 
+      if (buddy_tree) {
+	proto_tree_add_text(buddy_tree, tvb, offset + 1, buddyname_length, 
 			    "Screen Name: %s", buddyname);
       }
       offset += buddyname_length + 1;
 
       /* Warning level */
-      proto_tree_add_item(tree, hf_aim_userinfo_warninglevel, tvb, offset, 
+      proto_tree_add_item(buddy_tree, hf_aim_userinfo_warninglevel, tvb, offset, 
 			  2, FALSE);
       offset += 2;
       
       /* TLV Count */
       tlv_count = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_item(tree, hf_aim_userinfo_tlvcount, tvb, offset, 
+      proto_tree_add_item(buddy_tree, hf_aim_userinfo_tlvcount, tvb, offset, 
 			  2, FALSE);
       offset += 2;
 
       while (tvb_length_remaining(tvb, offset) > 0) {
-	offset = dissect_aim_tlv_buddylist(tvb, pinfo, offset, tree);
+	offset = dissect_aim_tlv_buddylist(tvb, pinfo, offset, buddy_tree);
       }
 
       return offset;
@@ -141,20 +156,20 @@ static int dissect_aim_snac_buddylist(tvbuff_t *tvb, packet_info *pinfo,
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", buddyname);
       }
       
-      if (tree) {
-	proto_tree_add_text(tree, tvb, offset + 1, buddyname_length, 
+      if (buddy_tree) {
+	proto_tree_add_text(buddy_tree, tvb, offset + 1, buddyname_length, 
 			    "Screen Name: %s", buddyname);
       }
       offset += buddyname_length + 1;
 
       /* Warning level */
-      proto_tree_add_item(tree, hf_aim_userinfo_warninglevel, tvb, offset, 
+      proto_tree_add_item(buddy_tree, hf_aim_userinfo_warninglevel, tvb, offset, 
 			  2, FALSE);
       offset += 2;
       
       /* TLV Count */
       tlv_count = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_item(tree, hf_aim_userinfo_tlvcount, tvb, offset, 
+      proto_tree_add_item(buddy_tree, hf_aim_userinfo_tlvcount, tvb, offset, 
 			  2, FALSE);
       offset += 2;
 

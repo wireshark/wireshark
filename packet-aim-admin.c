@@ -2,7 +2,7 @@
  * Routines for AIM (OSCAR) dissection, Administration Service
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-admin.c,v 1.1 2004/03/23 06:21:16 guy Exp $
+ * $Id: packet-aim-admin.c,v 1.2 2004/04/20 04:48:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,8 +39,6 @@
 
 #include "packet-aim.h"
 
-#define MAX_BUDDYNAME_LENGTH 30
-
 #define FAMILY_ADMIN      0x0007
 
 /* Family Admin */
@@ -65,11 +63,23 @@ static const value_string aim_fnac_family_admin[] = {
   { 0, NULL }
 };
 
+#define CONFIRM_STATUS_EMAIL_SENT 		 0x00
+#define CONFIRM_STATUS_ALREADY_CONFIRMED 0x1E
+#define CONFIRM_STATUS_SERVER_ERROR	     0x23
+
+static const value_string confirm_statusses[] = {
+	{ CONFIRM_STATUS_EMAIL_SENT, "A confirmation email has been sent" },
+	{ CONFIRM_STATUS_ALREADY_CONFIRMED, "Account was already confirmed" },
+	{ CONFIRM_STATUS_SERVER_ERROR, "Server couldn't start confirmation process" },
+	{ 0, NULL }
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_aim_admin = -1;
 static int hf_admin_acctinfo_code = -1;
 static int hf_admin_acctinfo_permissions = -1;
 static int hf_admin_acctinfo_tlvcount = -1;
+static int hf_admin_confirm_status = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_aim_admin          = -1;
@@ -86,11 +96,14 @@ static int dissect_aim_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 	
 	switch(aiminfo->subtype) {
+	case FAMILY_ADMIN_ERROR:
+		return dissect_aim_snac_error(tvb, pinfo, 0, admin_tree);
 	case FAMILY_ADMIN_ACCNT_INFO_REQ:
 		proto_tree_add_item(admin_tree, hf_admin_acctinfo_code, tvb, 0, 2, tvb_get_ntohs(tvb, 0)); 
 		proto_tree_add_text(admin_tree, tvb, 2, 2, "Unknown");
 		return 4;
 		
+	case FAMILY_ADMIN_INFOCHANGEREPLY:
     case FAMILY_ADMIN_ACCNT_INFO_REPL:
 		{
 			guint16 numtlvs, i;
@@ -103,11 +116,19 @@ static int dissect_aim_admin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		}
 		return offset;
 	case FAMILY_ADMIN_INFOCHANGEREQ:
-	case FAMILY_ADMIN_INFOCHANGEREPLY:
+		while(tvb_length_remaining(tvb, offset) > 0) {
+			offset = dissect_aim_tlv(tvb, pinfo, offset, admin_tree);
+		}
+		return offset;
 	case FAMILY_ADMIN_ACCT_CFRM_REQ:
-	case FAMILY_ADMIN_ACCT_CFRM_REPL:
-		/* FIXME */
+		/* No data */
 		return 0;
+	case FAMILY_ADMIN_ACCT_CFRM_REPL:
+		proto_tree_add_uint(admin_tree, hf_admin_confirm_status, tvb, offset, 2, tvb_get_ntohs(tvb, offset)); offset+=2;
+		while(tvb_length_remaining(tvb, offset) > 0) {
+			offset = dissect_aim_tlv(tvb, pinfo, offset, admin_tree);
+		}
+		return offset;
 
 	default: return 0;
 	}
@@ -130,6 +151,9 @@ proto_register_aim_admin(void)
 	  { &hf_admin_acctinfo_tlvcount,
 		  { "TLV Count", "aim.acctinfo.tlvcount", FT_UINT16, BASE_HEX, NULL, 0x0, "", HFILL },
 	  },
+	  { &hf_admin_confirm_status,
+		  { "Confirmation status", "admin.confirm_status", FT_UINT16, BASE_HEX, VALS(confirm_statusses), 0x0, "", HFILL },
+																					 },
   };
 
 /* Setup protocol subtree array */

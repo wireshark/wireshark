@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id: packet-aim-oft.c,v 1.3 2004/03/24 06:36:32 ulfl Exp $
+ * $Id: packet-aim-oft.c,v 1.4 2004/04/20 04:48:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,29 +51,25 @@ proto_register_aim_oft(void)
 {
 
 /* Setup list of header fields */
-/*FIXME
-  static hf_register_info hf[] = {
+/*  static hf_register_info hf[] = {
   };*/
 
 /* Setup protocol subtree array */
-/*FIXME
-  static gint *ett[] = {
+/*  static gint *ett[] = {
   };*/
 
 /* Register the protocol name and description */
   proto_aim_oft = proto_register_protocol("AIM OFT", "AIM OFT", "aim_oft");
 
 /* Required function calls to register the header fields and subtrees used */
-/*FIXME
-  proto_register_field_array(proto_aim_oft, hf, array_length(hf));*/
-/*FIXME
+/*  proto_register_field_array(proto_aim_oft, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));*/
 }
 
 void
 proto_reg_handoff_aim_oft(void)
 {
-  /*dissector_handle_t aim_handle;*/
+  dissector_handle_t aim_handle;
 
   /* FIXME 
   aim_handle = new_create_dissector_handle(dissect_aim, proto_aim);
