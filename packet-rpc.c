@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.88 2002/03/27 04:27:03 guy Exp $
+ * $Id: packet-rpc.c,v 1.89 2002/04/01 23:56:41 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -241,7 +241,7 @@ static void dissect_rpc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /***********************************/
 
 /* compare 2 keys */
-gint
+static gint
 rpc_proc_equal(gconstpointer k1, gconstpointer k2)
 {
 	rpc_proc_info_key* key1 = (rpc_proc_info_key*) k1;
@@ -254,7 +254,7 @@ rpc_proc_equal(gconstpointer k1, gconstpointer k2)
 }
 
 /* calculate a hash key */
-guint
+static guint
 rpc_proc_hash(gconstpointer k)
 {
 	rpc_proc_info_key* key = (rpc_proc_info_key*) k;
@@ -320,7 +320,7 @@ char *rpc_proc_name(guint32 prog, guint32 vers, guint32 proc)
 /*********************************/
 
 /* compare 2 keys */
-gint
+static gint
 rpc_prog_equal(gconstpointer k1, gconstpointer k2)
 {
 	rpc_prog_info_key* key1 = (rpc_prog_info_key*) k1;
@@ -332,7 +332,7 @@ rpc_prog_equal(gconstpointer k1, gconstpointer k2)
 
 
 /* calculate a hash key */
-guint
+static guint
 rpc_prog_hash(gconstpointer k)
 {
 	rpc_prog_info_key* key = (rpc_prog_info_key*) k;
@@ -396,7 +396,7 @@ static GHashTable *rpc_calls;
 static GHashTable *rpc_indir_calls;
 
 /* compare 2 keys */
-gint
+static gint
 rpc_call_equal(gconstpointer k1, gconstpointer k2)
 {
 	rpc_call_info_key* key1 = (rpc_call_info_key*) k1;
@@ -408,7 +408,7 @@ rpc_call_equal(gconstpointer k1, gconstpointer k2)
 
 
 /* calculate a hash key */
-guint
+static guint
 rpc_call_hash(gconstpointer k)
 {
 	rpc_call_info_key* key = (rpc_call_info_key*) k;
@@ -805,7 +805,7 @@ dissect_rpc_authgss_cred(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, in
 	return offset;
 }
 
-int
+static int
 dissect_rpc_authdes_desblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 int hfindex, int offset)
 {
