@@ -6,7 +6,7 @@
  * Optionally, may be compiled for compatibility with
  * draft-ietf-ips-iscsi-08.txt by defining DRAFT08
  *
- * $Id: packet-iscsi.c,v 1.23 2002/01/21 22:23:38 guy Exp $
+ * $Id: packet-iscsi.c,v 1.24 2002/01/31 00:44:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,12 +26,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
-
-#if 0
-#define ISCSI_CSG_DIGESTS_ACTIVE ISCSI_CSG_FULL_FEATURE_PHASE
-#else
-#define ISCSI_CSG_DIGESTS_ACTIVE ISCSI_CSG_OPERATIONAL_NEGOTIATION
-#endif
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -75,7 +69,7 @@ static int headerDigestIsCRC32 = TRUE;
 static int dataDigestSize = 4;
 static int headerDigestSize = 4;
 
-static guint iscsi_port = 5003;
+static guint iscsi_port = 3260;
 
 /* Initialize the protocol and registered fields */
 static int proto_iscsi = -1;
@@ -202,6 +196,8 @@ static guint32 iscsi_init_count = 25;
 #endif
 #define I_BIT 0x40
 
+#define OPCODE_MASK 0x3f
+
 #define TARGET_OPCODE_BIT 0x20
 
 #define ISCSI_OPCODE_NOP_OUT                  0x00
@@ -226,6 +222,7 @@ static guint32 iscsi_init_count = 25;
 
 #define CSG_SHIFT 2
 #define CSG_MASK  (0x03 << CSG_SHIFT)
+#define NSG_MASK  0x03
 
 #define ISCSI_CSG_SECURITY_NEGOTIATION    (0 << CSG_SHIFT)
 #define ISCSI_CSG_OPERATIONAL_NEGOTIATION (1 << CSG_SHIFT)
@@ -782,12 +779,21 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     if (check_col(pinfo->cinfo, COL_INFO)) {
 
         if (opcode != ISCSI_OPCODE_SCSI_COMMAND) {
+
             col_append_str(pinfo->cinfo, COL_INFO, (char *)opcode_str);
-        }
-        if (opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
-            col_append_fstr (pinfo->cinfo, COL_INFO, " %s",
-                             val_to_str (scsi_status, scsi_status_val, "0x%x"));
-        }
+
+	    if (opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
+		col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+				 val_to_str (scsi_status, scsi_status_val, "0x%x"));
+	    }
+	    else if (opcode == ISCSI_OPCODE_LOGIN_RESPONSE) {
+		if(end_offset > (offset + 38)) {
+		    guint16 login_status = tvb_get_ntohs(tvb, offset+36);
+		    col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
+				     val_to_str (login_status, iscsi_login_status, "0x%x"));
+		}
+	    }
+	}
     }
 
     /* In the interest of speed, if "tree" is NULL, don't do any
@@ -931,8 +937,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    int digestsActive = 0;
 	    {
 		gint b = tvb_get_guint8(tvb, offset + 1);
-#if ISCSI_CSG_DIGESTS_ACTIVE < ISCSI_CSG_FULL_FEATURE_PHASE
-		if((b & CSG_MASK) >= ISCSI_CSG_DIGESTS_ACTIVE)
+#ifdef DRAFT08
+		if((b & CSG_MASK) >= ISCSI_CSG_OPERATIONAL_NEGOTIATION)
 		    digestsActive = 1;
 #endif
 #if 0
@@ -980,8 +986,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    int digestsActive = 0;
 	    {
 		gint b = tvb_get_guint8(tvb, offset + 1);
-#if ISCSI_CSG_DIGESTS_ACTIVE < ISCSI_CSG_FULL_FEATURE_PHASE
-		if((b & CSG_MASK) >= ISCSI_CSG_DIGESTS_ACTIVE)
+#ifdef DRAFT08
+		if((b & CSG_MASK) >= ISCSI_CSG_OPERATIONAL_NEGOTIATION)
 		    digestsActive = 1;
 #endif
 #if 0
@@ -1249,13 +1255,8 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	guint8 secondPduByte = tvb_get_guint8(tvb, offset + 1);
 	int badPdu = FALSE;
 
-#ifdef DRAFT08
-	/* mask out X and I bits */
-	opcode &= ~(X_BIT | I_BIT);
-#else
-	/* mask out I bit */
-	opcode &= ~I_BIT;
-#endif
+	/* mask out any extra bits in the opcode byte */
+	opcode &= OPCODE_MASK;
 
 	opcode_str = match_strval(opcode, iscsi_opcodes);
 	if(opcode == ISCSI_OPCODE_TASK_MANAGEMENT_FUNCTION ||
@@ -1306,8 +1307,8 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	    if(opcode == ISCSI_OPCODE_LOGIN_COMMAND ||
 	       opcode == ISCSI_OPCODE_LOGIN_RESPONSE) {
-#if ISCSI_CSG_DIGESTS_ACTIVE < ISCSI_CSG_FULL_FEATURE_PHASE
-		if((secondPduByte & CSG_MASK) < ISCSI_CSG_DIGESTS_ACTIVE) {
+#ifdef DRAFT08
+		if((secondPduByte & CSG_MASK) < ISCSI_CSG_OPERATIONAL_NEGOTIATION) {
 		    /* digests are not yet turned on */
 		    digestsActive = 0;
 		}
@@ -1715,7 +1716,7 @@ proto_register_iscsi(void)
 	},
 	{ &hf_iscsi_Login_NSG,
 	  { "NSG", "iscsi.login.nsg",
-	    FT_UINT8, BASE_HEX, VALS(iscsi_login_stage), 0x03,          
+	    FT_UINT8, BASE_HEX, VALS(iscsi_login_stage), NSG_MASK,          
 	    "Next stage",  HFILL }
 	},
 	{ &hf_iscsi_Login_Status,
