@@ -14510,6 +14510,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	int offset = 0;
 	proto_item *item = NULL, *hitem = NULL;
 	proto_tree *tree = NULL, *htree = NULL;
+	proto_item *tmp_item=NULL;
 	guint8          flags;
 	guint16         flags2;
 	static smb_info_t 	si_arr[20];
@@ -14679,14 +14680,16 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		if(sip && sip->frame_req){
 			switch(si->cmd){
 			case SMB_COM_NT_CANCEL:
-				proto_tree_add_uint(htree, hf_smb_cancel_to,
+				tmp_item=proto_tree_add_uint(htree, hf_smb_cancel_to,
 						    tvb, 0, 0, sip->frame_req);
+				PROTO_ITEM_SET_GENERATED(tmp_item);
 				break;
 			case SMB_COM_TRANSACTION_SECONDARY:
 			case SMB_COM_TRANSACTION2_SECONDARY:
 			case SMB_COM_NT_TRANSACT_SECONDARY:
-				proto_tree_add_uint(htree, hf_smb_continuation_to,
+				tmp_item=proto_tree_add_uint(htree, hf_smb_continuation_to,
 						    tvb, 0, 0, sip->frame_req);
+				PROTO_ITEM_SET_GENERATED(tmp_item);
 				break;
 			}
 		} else {
@@ -14847,19 +14850,23 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		 * frame - if we know the frame number (i.e., it's not 0).
 		 */
 		if(si->request){
-			if (sip->frame_res != 0)
-				proto_tree_add_uint(htree, hf_smb_response_in, tvb, 0, 0, sip->frame_res);
+			if (sip->frame_res != 0) {
+				tmp_item=proto_tree_add_uint(htree, hf_smb_response_in, tvb, 0, 0, sip->frame_res);
+				PROTO_ITEM_SET_GENERATED(tmp_item);
+			}
 		} else {
 			if (sip->frame_req != 0) {
-				proto_tree_add_uint(htree, hf_smb_response_to, tvb, 0, 0, sip->frame_req);
+				tmp_item=proto_tree_add_uint(htree, hf_smb_response_to, tvb, 0, 0, sip->frame_req);
+				PROTO_ITEM_SET_GENERATED(tmp_item);
 				ns.secs = pinfo->fd->abs_secs - sip->req_time.secs;
 				ns.nsecs = pinfo->fd->abs_usecs*1000 - sip->req_time.nsecs;
 				if(ns.nsecs<0){
 					ns.nsecs+=1000000000;
 					ns.secs--;
 				}
-				proto_tree_add_time(htree, hf_smb_time, tvb,
+				tmp_item=proto_tree_add_time(htree, hf_smb_time, tvb,
 				    0, 0, &ns);
+				PROTO_ITEM_SET_GENERATED(tmp_item);
 			}
 		}
 	}
