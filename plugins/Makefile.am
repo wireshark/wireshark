@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.15 2003/06/11 09:17:01 guy Exp $
+# $Id: Makefile.am,v 1.16 2003/07/18 03:01:33 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -25,10 +25,23 @@ SUBDIRS = artnet docsis giop gryphon megaco mgcp pcli rtnet
 
 plugindir = @plugindir@
 
+Xplugin_api.c: plugin_gen.py plugin_api.c plugin_api_list.c
+	$(PYTHON) plugin_gen.py xyzzy
+
+xyzzy: plugin_api_list.c
+	gcc -aux-info xyzzy -DHAVE_CONFIG_H $(GLIB_CFLAGS) -I.. -c plugin_api_list.c
+
 EXTRA_DIST = \
 	plugin_api.c	\
 	plugin_api.h	\
 	plugin_api_decls.h	\
 	plugin_api_defs.h	\
+	plugin_api_list.c	\
+	plugin_gen.py	\
 	plugin_table.h	\
-	Makefile.nmake
+	Makefile.nmake	\
+	Xepan_plugins.c	\
+	Xplugin_api.c	\
+	Xplugin_api.h	\
+	Xplugin_api_decls.h	\
+	Xplugin_table.h

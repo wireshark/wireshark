@@ -1699,6 +1699,8 @@ Tony Schene <schene [AT] pcisys.net> {
 
 Matthijs Melchior <mmelchior [AT] xs4all.nl> {
 	TCP support in text2pcap
+	Support for automatically generating all declarations and
+	    definitions for plugin ABI from a single file
 }
 
 Garth Bushell <gbushell [AT] elipsan.com> {

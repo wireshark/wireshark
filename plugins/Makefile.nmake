@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.20 2003/06/17 04:06:12 guy Exp $
+# $Id: Makefile.nmake,v 1.21 2003/07/18 03:01:33 guy Exp $
 #
 
 include ..\config.nmake
@@ -11,7 +11,15 @@ CFLAGS=/DHAVE_CONFIG_H /I.. /I../wiretap /I. $(GLIB_CFLAGS) \
 
 OBJECTS=plugin_api.obj 
 
-all: plugin_api.obj artnet docsis giop gryphon megaco mgcp pcli rtnet
+all: $(OBJECTS) artnet docsis giop gryphon megaco mgcp pcli rtnet
+
+Xplugin_api.c: xyzzy plugin_gen.py plugin_api.c
+	$(PYTHON) plugin_gen.py xyzzy
+
+plugin_api.obj: plugin_api.c Xplugin_api.c
+
+xyzzy: plugin_api_list.c
+	gcc -aux-info xyzzy -DHAVE_CONFIG_H -I$(GLIB_DIR) -I.. -c plugin_api_list.c
 
 artnet:: 
 	cd artnet
