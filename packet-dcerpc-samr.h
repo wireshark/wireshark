@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\samr packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-samr.h,v 1.10 2003/07/24 20:33:22 guy Exp $
+ * $Id: packet-dcerpc-samr.h,v 1.11 2003/09/23 12:06:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +75,7 @@
 #define SAMR_GET_USRDOM_PWINFO 0x2c
 #define SAMR_REMOVE_MEMBER_FROM_FOREIGN_DOMAIN     0x2d
 #define SAMR_QUERY_INFORMATION_DOMAIN2    0x2e
-#define SAMR_UNKNOWN_2f        0x2f
+#define SAMR_QUERY_INFORMATION_USER2        0x2f
 #define SAMR_QUERY_DISPINFO2   0x30
 #define SAMR_GET_DISPLAY_ENUMERATION_INDEX2        0x31
 #define SAMR_CREATE_USER2_IN_DOMAIN       0x32
@@ -87,8 +87,8 @@
 #define SAMR_GET_DOM_PWINFO    0x38
 #define SAMR_CONNECT2          0x39
 #define SAMR_SET_USERINFO      0x3A
-#define SAMR_UNKNOWN_3B	       0x3B
-#define SAMR_UNKNOWN_3C	       0x3C
+#define SAMR_SET_BOOT_KEY_INFORMATION	       0x3B
+#define SAMR_GET_BOOT_KEY_INFORMATION	       0x3C
 #define SAMR_CONNECT3          0x3D
 #define SAMR_CONNECT4          0x3E
 

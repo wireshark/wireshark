@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.89 2003/09/03 09:48:50 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.90 2003/09/23 12:06:19 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -513,7 +513,7 @@ lsa_dissect_LSA_OBJECT_ATTRIBUTES(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaclose_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarclose_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -523,7 +523,7 @@ lsa_dissect_lsaclose_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaclose_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarclose_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -548,7 +548,7 @@ static int dissect_lsa_openpolicy_server(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaopenpolicy_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaropenpolicy_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -566,7 +566,7 @@ lsa_dissect_lsaopenpolicy_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaopenpolicy_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaropenpolicy_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	e_ctx_hnd policy_hnd;
@@ -591,7 +591,7 @@ lsa_dissect_lsaopenpolicy_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaopenpolicy2_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaropenpolicy2_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer_cb(tvb, offset, pinfo, tree, drep,
@@ -611,7 +611,7 @@ lsa_dissect_lsaopenpolicy2_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaopenpolicy2_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaropenpolicy2_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
@@ -662,7 +662,7 @@ static const value_string policy_information_class_vals[] = {
 };
 
 static int
-lsa_dissect_lsaqueryinformationpolicy_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarqueryinformationpolicy_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	guint16 level;
@@ -1117,7 +1117,7 @@ lsa_dissect_POLICY_INFORMATION(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaqueryinformationpolicy_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarqueryinformationpolicy_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* This is really a pointer to a pointer though the first level is REF
@@ -1133,7 +1133,7 @@ lsa_dissect_lsaqueryinformationpolicy_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsadelete_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsardelete_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -1143,7 +1143,7 @@ lsa_dissect_lsadelete_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsadelete_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsardelete_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -1154,7 +1154,7 @@ lsa_dissect_lsadelete_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaquerysecurityobject_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarquerysecurityobject_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -1168,7 +1168,7 @@ lsa_dissect_lsaquerysecurityobject_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaquerysecurityobject_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarquerysecurityobject_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -1183,7 +1183,7 @@ lsa_dissect_lsaquerysecurityobject_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsasetsecurityobject_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsetsecurityobject_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -1200,7 +1200,7 @@ lsa_dissect_lsasetsecurityobject_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsasetsecurityobject_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsetsecurityobject_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -1211,7 +1211,7 @@ lsa_dissect_lsasetsecurityobject_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsachangepassword_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarchangepassword_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* server */
@@ -1238,7 +1238,7 @@ lsa_dissect_lsachangepassword_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsachangepassword_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarchangepassword_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -1328,7 +1328,7 @@ lsa_dissect_LSA_TRANSLATED_NAMES(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsalookupsids_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarlookupsids_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -1617,7 +1617,7 @@ lsa_dissect_LSA_REFERENCED_DOMAIN_LIST(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsalookupsids_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarlookupsids_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -1639,7 +1639,7 @@ lsa_dissect_lsalookupsids_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsasetquotasforaccount_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsetquotasforaccount_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -1654,7 +1654,7 @@ lsa_dissect_lsasetquotasforaccount_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsasetquotasforaccount_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsetquotasforaccount_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -1665,7 +1665,7 @@ lsa_dissect_lsasetquotasforaccount_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsagetquotasforaccount_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsargetquotasforaccount_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -1676,7 +1676,7 @@ lsa_dissect_lsagetquotasforaccount_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsagetquotasforaccount_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsargetquotasforaccount_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -1691,7 +1691,7 @@ lsa_dissect_lsagetquotasforaccount_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsasetinformationpolicy_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsetinformationpolicy_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -1709,7 +1709,7 @@ lsa_dissect_lsasetinformationpolicy_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsasetinformationpolicy_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsetinformationpolicy_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -1720,7 +1720,7 @@ lsa_dissect_lsasetinformationpolicy_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaclearauditlog_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarclearauditlog_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -1738,7 +1738,7 @@ lsa_dissect_lsaclearauditlog_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaclearauditlog_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarclearauditlog_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -1751,7 +1751,7 @@ lsa_dissect_lsaclearauditlog_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsagetsystemaccessaccount_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsargetsystemaccessaccount_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -1762,7 +1762,7 @@ lsa_dissect_lsagetsystemaccessaccount_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsagetsystemaccessaccount_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsargetsystemaccessaccount_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
@@ -1776,7 +1776,7 @@ lsa_dissect_lsagetsystemaccessaccount_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsasetsystemaccessaccount_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsetsystemaccessaccount_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -1790,7 +1790,7 @@ lsa_dissect_lsasetsystemaccessaccount_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsasetsystemaccessaccount_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsetsystemaccessaccount_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -1801,7 +1801,7 @@ lsa_dissect_lsasetsystemaccessaccount_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaopentrusteddomain_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaropentrusteddomain_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -1818,7 +1818,7 @@ lsa_dissect_lsaopentrusteddomain_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaopentrusteddomain_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaropentrusteddomain_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -1832,7 +1832,7 @@ lsa_dissect_lsaopentrusteddomain_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsadeletetrusteddomain_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsardeletetrusteddomain_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -1846,7 +1846,7 @@ lsa_dissect_lsadeletetrusteddomain_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsadeletetrusteddomain_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsardeletetrusteddomain_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -1941,7 +1941,7 @@ lsa_dissect_LSA_PRIVILEGES(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaenumerateprivileges_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarenumerateprivileges_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -1957,7 +1957,7 @@ lsa_dissect_lsaenumerateprivileges_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaenumerateprivileges_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarenumerateprivileges_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -1974,7 +1974,7 @@ lsa_dissect_lsaenumerateprivileges_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsalookupprivilegevalue_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarlookupprivilegevalue_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -1990,7 +1990,7 @@ lsa_dissect_lsalookupprivilegevalue_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsalookupprivilegevalue_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarlookupprivilegevalue_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 
@@ -2005,7 +2005,7 @@ lsa_dissect_lsalookupprivilegevalue_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsalookupprivilegename_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarlookupprivilegename_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -2021,7 +2021,7 @@ lsa_dissect_lsalookupprivilegename_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsalookupprivilegename_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarlookupprivilegename_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out, ref] LSA_UNICODE_STRING **name */
@@ -2037,7 +2037,7 @@ lsa_dissect_lsalookupprivilegename_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaenumerateprivilegesaccount_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarenumerateprivilegesaccount_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -2110,7 +2110,7 @@ lsa_dissect_LUID_AND_ATTRIBUTES_ARRAY(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaenumerateprivilegesaccount_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarenumerateprivilegesaccount_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out, ref] LUID_AND_ATTRIBUTES_ARRAY * *privs */
@@ -2125,7 +2125,7 @@ lsa_dissect_lsaenumerateprivilegesaccount_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaaddprivilegestoaccount_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaraddprivilegestoaccount_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -2141,7 +2141,7 @@ lsa_dissect_lsaaddprivilegestoaccount_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaaddprivilegestoaccount_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaraddprivilegestoaccount_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -2151,7 +2151,7 @@ lsa_dissect_lsaaddprivilegestoaccount_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaremoveprivilegesfromaccount_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarremoveprivilegesfromaccount_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -2172,7 +2172,7 @@ lsa_dissect_lsaremoveprivilegesfromaccount_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaremoveprivilegesfromaccount_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarremoveprivilegesfromaccount_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -2182,7 +2182,7 @@ lsa_dissect_lsaremoveprivilegesfromaccount_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaenumerateaccounts_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarenumerateaccounts_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -2201,7 +2201,7 @@ lsa_dissect_lsaenumerateaccounts_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaenumerateaccounts_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarenumerateaccounts_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in,out, ref] LSA_ENUMERATION_HANDLE *resume_hnd */
@@ -2220,7 +2220,7 @@ lsa_dissect_lsaenumerateaccounts_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsacreatetrusteddomain_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarcreatetrusteddomain_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd_pol */
@@ -2240,7 +2240,7 @@ lsa_dissect_lsacreatetrusteddomain_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsacreatetrusteddomain_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarcreatetrusteddomain_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out] LSA_HANDLE *hnd */
@@ -2254,7 +2254,7 @@ lsa_dissect_lsacreatetrusteddomain_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaenumeratetrusteddomains_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarenumeratetrusteddomains_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -2335,7 +2335,7 @@ lsa_dissect_LSA_TRUSTED_DOMAIN_LIST(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaenumeratetrusteddomains_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarenumeratetrusteddomains_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in, out, ref] LSA_ENUMERATION_HANDLE *resume_hnd */
@@ -2454,7 +2454,7 @@ lsa_dissect_LSA_TRANSLATED_SIDS(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsalookupnames_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarlookupnames_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -2488,7 +2488,7 @@ lsa_dissect_lsalookupnames_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsalookupnames_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarlookupnames_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out] LSA_REFERENCED_DOMAIN_LIST *domains */
@@ -2512,7 +2512,7 @@ lsa_dissect_lsalookupnames_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsacreatesecret_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarcreatesecret_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd_pol */
@@ -2531,7 +2531,7 @@ lsa_dissect_lsacreatesecret_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsacreatesecret_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarcreatesecret_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 
@@ -2546,7 +2546,7 @@ lsa_dissect_lsacreatesecret_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaopenaccount_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaropenaccount_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd_pol */
@@ -2566,7 +2566,7 @@ lsa_dissect_lsaopenaccount_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaopenaccount_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaropenaccount_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out] LSA_HANDLE *hnd */
@@ -2667,7 +2667,7 @@ lsa_dissect_TRUSTED_DOMAIN_INFORMATION(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaqueryinfotrusteddomain_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarqueryinfotrusteddomain_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -2683,7 +2683,7 @@ lsa_dissect_lsaqueryinfotrusteddomain_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaqueryinfotrusteddomain_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarqueryinfotrusteddomain_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out, ref] TRUSTED_DOMAIN_INFORMATION *info */
@@ -2698,7 +2698,7 @@ lsa_dissect_lsaqueryinfotrusteddomain_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsasetinformationtrusteddomain_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsetinformationtrusteddomain_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -2719,7 +2719,7 @@ lsa_dissect_lsasetinformationtrusteddomain_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsasetinformationtrusteddomain_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsetinformationtrusteddomain_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -2729,7 +2729,7 @@ lsa_dissect_lsasetinformationtrusteddomain_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaopensecret_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaropensecret_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd_pol */
@@ -2751,7 +2751,7 @@ lsa_dissect_lsaopensecret_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaopensecret_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaropensecret_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out] LSA_HANDLE *hnd */
@@ -2765,7 +2765,7 @@ lsa_dissect_lsaopensecret_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsasetsecret_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsetsecret_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -2787,7 +2787,7 @@ lsa_dissect_lsasetsecret_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsasetsecret_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsetsecret_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -2797,7 +2797,7 @@ lsa_dissect_lsasetsecret_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaquerysecret_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarquerysecret_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -2829,7 +2829,7 @@ lsa_dissect_lsaquerysecret_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaquerysecret_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarquerysecret_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in, out, unique] LSA_SECRET **curr_val */
@@ -2859,7 +2859,7 @@ lsa_dissect_lsaquerysecret_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsadeleteobject_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsardeleteobject_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -2871,7 +2871,7 @@ lsa_dissect_lsadeleteobject_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsadeleteobject_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsardeleteobject_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -2881,7 +2881,7 @@ lsa_dissect_lsadeleteobject_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaenumerateaccountswithuserright_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarenumerateaccountswithuserright_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -2897,7 +2897,7 @@ lsa_dissect_lsaenumerateaccountswithuserright_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaenumerateaccountswithuserright_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarenumerateaccountswithuserright_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out, ref] LSA_UNICODE_STRING_ARRAY *accounts */
@@ -2912,7 +2912,7 @@ lsa_dissect_lsaenumerateaccountswithuserright_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaenumerateaccountrights_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarenumerateaccountrights_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -2928,7 +2928,7 @@ lsa_dissect_lsaenumerateaccountrights_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaenumerateaccountrights_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarenumerateaccountrights_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out, ref] LSA_UNICODE_STRING_ARRAY *rights */
@@ -2943,7 +2943,7 @@ lsa_dissect_lsaenumerateaccountrights_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaaddaccountrights_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaraddaccountrights_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -2964,7 +2964,7 @@ lsa_dissect_lsaaddaccountrights_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaaddaccountrights_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaraddaccountrights_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -2974,7 +2974,7 @@ lsa_dissect_lsaaddaccountrights_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaremoveaccountrights_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarremoveaccountrights_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -2999,7 +2999,7 @@ lsa_dissect_lsaremoveaccountrights_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaremoveaccountrights_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarremoveaccountrights_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -3010,7 +3010,7 @@ lsa_dissect_lsaremoveaccountrights_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaquerytrusteddomaininfobyname_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarquerytrusteddomaininfobyname_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE handle */
@@ -3031,7 +3031,7 @@ lsa_dissect_lsaquerytrusteddomaininfobyname_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaquerytrusteddomaininfobyname_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarquerytrusteddomaininfobyname_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out, ref] TRUSTED_DOMAIN_INFORMATION *info) */
@@ -3047,7 +3047,7 @@ lsa_dissect_lsaquerytrusteddomaininfobyname_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsasettrusteddomaininfobyname_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsettrusteddomaininfobyname_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE handle */
@@ -3073,7 +3073,7 @@ lsa_dissect_lsasettrusteddomaininfobyname_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsasettrusteddomaininfobyname_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsettrusteddomaininfobyname_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -3083,7 +3083,7 @@ lsa_dissect_lsasettrusteddomaininfobyname_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaquerytrusteddomaininfo_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarquerytrusteddomaininfo_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE handle */
@@ -3102,7 +3102,7 @@ lsa_dissect_lsaquerytrusteddomaininfo_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaopentrusteddomainbyname_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaropentrusteddomainbyname_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE handle */
@@ -3123,7 +3123,7 @@ lsa_dissect_lsaopentrusteddomainbyname_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaopentrusteddomainbyname_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsaropentrusteddomainbyname_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out] LSA_HANDLE handle */
@@ -3139,7 +3139,7 @@ lsa_dissect_lsaopentrusteddomainbyname_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaquerytrusteddomaininfo_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarquerytrusteddomaininfo_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out, ref] TRUSTED_DOMAIN_INFORMATION *info) */
@@ -3154,7 +3154,7 @@ lsa_dissect_lsaquerytrusteddomaininfo_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsasettrusteddomaininfo_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsettrusteddomaininfo_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE handle */
@@ -3179,7 +3179,7 @@ lsa_dissect_lsasettrusteddomaininfo_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsasettrusteddomaininfo_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsettrusteddomaininfo_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -3189,7 +3189,7 @@ lsa_dissect_lsasettrusteddomaininfo_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaqueryinformationpolicy2_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarqueryinformationpolicy2_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -3202,7 +3202,7 @@ lsa_dissect_lsaqueryinformationpolicy2_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaqueryinformationpolicy2_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarqueryinformationpolicy2_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* This is really a pointer to a pointer though the first level is REF
@@ -3218,7 +3218,7 @@ lsa_dissect_lsaqueryinformationpolicy2_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsasetinformationpolicy2_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsetinformationpolicy2_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -3235,7 +3235,7 @@ lsa_dissect_lsasetinformationpolicy2_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsasetinformationpolicy2_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsetinformationpolicy2_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -3245,7 +3245,7 @@ lsa_dissect_lsasetinformationpolicy2_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaquerydomaininformationpolicy_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarquerydomaininformationpolicy_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -3258,7 +3258,7 @@ lsa_dissect_lsaquerydomaininformationpolicy_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaquerydomaininformationpolicy_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarquerydomaininformationpolicy_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3272,7 +3272,7 @@ lsa_dissect_lsaquerydomaininformationpolicy_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsasetdomaininformationpolicy_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsetdomaininformationpolicy_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -3289,7 +3289,7 @@ lsa_dissect_lsasetdomaininformationpolicy_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsasetdomaininformationpolicy_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarsetdomaininformationpolicy_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -3299,7 +3299,7 @@ lsa_dissect_lsasetdomaininformationpolicy_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsalookupnames2_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarlookupnames2_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -3341,7 +3341,7 @@ lsa_dissect_lsalookupnames2_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsalookupnames2_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarlookupnames2_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out] LSA_REFERENCED_DOMAIN_LIST *domains */
@@ -3366,7 +3366,7 @@ lsa_dissect_lsalookupnames2_reply(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsacreateaccount_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarcreateaccount_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -3383,7 +3383,7 @@ lsa_dissect_lsacreateaccount_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsacreateaccount_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarcreateaccount_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -3396,7 +3396,7 @@ lsa_dissect_lsacreateaccount_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsalookupprivilegedisplayname_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarlookupprivilegedisplayname_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -3416,7 +3416,7 @@ lsa_dissect_lsalookupprivilegedisplayname_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsalookupprivilegedisplayname_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarlookupprivilegedisplayname_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out, ref] LSA_UNICODE_STRING **disp_name */
@@ -3435,7 +3435,7 @@ lsa_dissect_lsalookupprivilegedisplayname_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsastoreprivatedata_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarstoreprivatedata_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -3456,7 +3456,7 @@ lsa_dissect_lsastoreprivatedata_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsastoreprivatedata_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarstoreprivatedata_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ntstatus(
@@ -3466,7 +3466,7 @@ lsa_dissect_lsastoreprivatedata_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaretrieveprivatedata_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarretrieveprivatedata_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -3487,7 +3487,7 @@ lsa_dissect_lsaretrieveprivatedata_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaretrieveprivatedata_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarretrieveprivatedata_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in, out, ref] LSA_SECRET **data */
@@ -3502,7 +3502,7 @@ lsa_dissect_lsaretrieveprivatedata_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaclosetrusteddomainex_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarclosetrusteddomainex_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 
@@ -3515,7 +3515,7 @@ lsa_dissect_lsaclosetrusteddomainex_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsaclosetrusteddomainex_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarclosetrusteddomainex_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 
@@ -3589,7 +3589,7 @@ lsa_dissect_LSA_TRANSLATED_NAMES_EX(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsalookupsids2_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarlookupsids2_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
@@ -3621,7 +3621,7 @@ lsa_dissect_lsalookupsids2_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsalookupsids2_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarlookupsids2_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -3642,7 +3642,7 @@ lsa_dissect_lsalookupsids2_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsagetusername_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsargetusername_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 
@@ -3666,7 +3666,7 @@ lsa_dissect_lsagetusername_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsagetusername_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsargetusername_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in, out, ref] LSA_UNICODE_STRING **user */
@@ -3686,7 +3686,7 @@ lsa_dissect_lsagetusername_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsacreatetrusteddomainex_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarcreatetrusteddomainex_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -3712,7 +3712,7 @@ lsa_dissect_lsacreatetrusteddomainex_rqst(tvbuff_t *tvb, int offset,
 
 
 static int
-lsa_dissect_lsacreatetrusteddomainex_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarcreatetrusteddomainex_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [out] LSA_HANDLE *tdHnd) */
@@ -3726,7 +3726,7 @@ lsa_dissect_lsacreatetrusteddomainex_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaenumeratetrusteddomainsex_rqst(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarenumeratetrusteddomainsex_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in] LSA_HANDLE hnd */
@@ -3778,7 +3778,7 @@ lsa_dissect_LSA_TRUSTED_DOMAIN_INFORMATION_LIST_EX(tvbuff_t *tvb, int offset,
 }
 
 static int
-lsa_dissect_lsaenumeratetrusteddomainsex_reply(tvbuff_t *tvb, int offset,
+lsa_dissect_lsarenumeratetrusteddomainsex_reply(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	/* [in, out, ref] LSA_ENUMERATION_HANDLE *resume_hnd */
@@ -3874,183 +3874,183 @@ lsa_dissect_lsafunction_3b_reply(tvbuff_t *tvb, int offset,
 
 
 static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
-	{ LSA_LSACLOSE, "Close",
-		lsa_dissect_lsaclose_rqst,
-		lsa_dissect_lsaclose_reply },
-	{ LSA_LSADELETE, "Delete",
-		lsa_dissect_lsadelete_rqst,
-		lsa_dissect_lsadelete_reply },
-	{ LSA_LSAENUMERATEPRIVILEGES, "EnumPrivs",
-		lsa_dissect_lsaenumerateprivileges_rqst,
-		lsa_dissect_lsaenumerateprivileges_reply },
-	{ LSA_LSAQUERYSECURITYOBJECT, "QuerySecObject",
-		lsa_dissect_lsaquerysecurityobject_rqst,
-		lsa_dissect_lsaquerysecurityobject_reply },
-	{ LSA_LSASETSECURITYOBJECT, "SetSecObject",
-		lsa_dissect_lsasetsecurityobject_rqst,
-		lsa_dissect_lsasetsecurityobject_reply },
-	{ LSA_LSACHANGEPASSWORD, "ChangePassword",
-		lsa_dissect_lsachangepassword_rqst,
-		lsa_dissect_lsachangepassword_reply },
-	{ LSA_LSAOPENPOLICY, "OpenPolicy",
-		lsa_dissect_lsaopenpolicy_rqst,
-		lsa_dissect_lsaopenpolicy_reply },
-	{ LSA_LSAQUERYINFORMATIONPOLICY, "QueryInfoPolicy",
-		lsa_dissect_lsaqueryinformationpolicy_rqst,
-		lsa_dissect_lsaqueryinformationpolicy_reply },
-	{ LSA_LSASETINFORMATIONPOLICY, "SetInfoPolicy",
-		lsa_dissect_lsasetinformationpolicy_rqst,
-		lsa_dissect_lsasetinformationpolicy_reply },
-	{ LSA_LSACLEARAUDITLOG, "ClearAuditLog",
-		lsa_dissect_lsaclearauditlog_rqst,
-		lsa_dissect_lsaclearauditlog_reply },
-	{ LSA_LSACREATEACCOUNT, "CreateAccount",
-		lsa_dissect_lsacreateaccount_rqst,
-		lsa_dissect_lsacreateaccount_reply },
-	{ LSA_LSAENUMERATEACCOUNTS, "EnumAccounts",
-		lsa_dissect_lsaenumerateaccounts_rqst,
-		lsa_dissect_lsaenumerateaccounts_reply },
-	{ LSA_LSACREATETRUSTEDDOMAIN, "CreateTrustedDomain",
-		lsa_dissect_lsacreatetrusteddomain_rqst,
-		lsa_dissect_lsacreatetrusteddomain_reply },
-	{ LSA_LSAENUMERATETRUSTEDDOMAINS, "EnumTrustedDomains",
-		lsa_dissect_lsaenumeratetrusteddomains_rqst,
-		lsa_dissect_lsaenumeratetrusteddomains_reply },
-	{ LSA_LSALOOKUPNAMES, "LookupNames",
-		lsa_dissect_lsalookupnames_rqst,
-		lsa_dissect_lsalookupnames_reply },
-	{ LSA_LSALOOKUPSIDS, "LookupSIDs",
-		lsa_dissect_lsalookupsids_rqst,
-		lsa_dissect_lsalookupsids_reply },
-	{ LSA_LSACREATESECRET, "CreateSecret",
-		lsa_dissect_lsacreatesecret_rqst,
-		lsa_dissect_lsacreatesecret_reply },
-	{ LSA_LSAOPENACCOUNT, "OpenAccount",
-		lsa_dissect_lsaopenaccount_rqst,
-		lsa_dissect_lsaopenaccount_reply },
-	{ LSA_LSAENUMERATEPRIVILEGESACCOUNT, "EnumPrivsAccount",
-		lsa_dissect_lsaenumerateprivilegesaccount_rqst,
-		lsa_dissect_lsaenumerateprivilegesaccount_reply },
-	{ LSA_LSAADDPRIVILEGESTOACCOUNT, "AddPrivsToAccount",
-		lsa_dissect_lsaaddprivilegestoaccount_rqst,
-		lsa_dissect_lsaaddprivilegestoaccount_reply },
-	{ LSA_LSAREMOVEPRIVILEGESFROMACCOUNT, "MovePrivsFromAccount",
-		lsa_dissect_lsaremoveprivilegesfromaccount_rqst,
-		lsa_dissect_lsaremoveprivilegesfromaccount_reply },
-	{ LSA_LSAGETQUOTASFORACCOUNT, "GetQuotasForAccount",
-		lsa_dissect_lsagetquotasforaccount_rqst,
-		lsa_dissect_lsagetquotasforaccount_reply },
-	{ LSA_LSASETQUOTASFORACCOUNT, "SetQuotasForAccount",
-		lsa_dissect_lsasetquotasforaccount_rqst,
-		lsa_dissect_lsasetquotasforaccount_reply },
-	{ LSA_LSAGETSYSTEMACCESSACCOUNT, "GetSystemAccessAccount",
-		lsa_dissect_lsagetsystemaccessaccount_rqst,
-		lsa_dissect_lsagetsystemaccessaccount_reply },
-	{ LSA_LSASETSYSTEMACCESSACCOUNT, "SetSystemAccessAccount",
-		lsa_dissect_lsasetsystemaccessaccount_rqst,
-		lsa_dissect_lsasetsystemaccessaccount_reply },
-	{ LSA_LSAOPENTRUSTEDDOMAIN, "OpenTrustedDomain",
-		lsa_dissect_lsaopentrusteddomain_rqst,
-		lsa_dissect_lsaopentrusteddomain_reply },
-	{ LSA_LSAQUERYINFOTRUSTEDDOMAIN, "QueryInfoTrustedDomain",
-		lsa_dissect_lsaqueryinfotrusteddomain_rqst,
-		lsa_dissect_lsaqueryinfotrusteddomain_reply },
-	{ LSA_LSASETINFORMATIONTRUSTEDDOMAIN, "SetInfoTrustedDomain",
-		lsa_dissect_lsasetinformationtrusteddomain_rqst,
-		lsa_dissect_lsasetinformationtrusteddomain_reply },
-	{ LSA_LSAOPENSECRET, "OpenSecret",
-		lsa_dissect_lsaopensecret_rqst,
-		lsa_dissect_lsaopensecret_reply },
-	{ LSA_LSASETSECRET, "SetSecret",
-		lsa_dissect_lsasetsecret_rqst,
-		lsa_dissect_lsasetsecret_reply },
-	{ LSA_LSAQUERYSECRET, "QuerySecret",
-		lsa_dissect_lsaquerysecret_rqst,
-		lsa_dissect_lsaquerysecret_reply },
-	{ LSA_LSALOOKUPPRIVILEGEVALUE, "LookupPrivValue",
-		lsa_dissect_lsalookupprivilegevalue_rqst,
-		lsa_dissect_lsalookupprivilegevalue_reply },
-	{ LSA_LSALOOKUPPRIVILEGENAME, "LookupPrivName",
-		lsa_dissect_lsalookupprivilegename_rqst,
-		lsa_dissect_lsalookupprivilegename_reply },
-	{ LSA_LSALOOKUPPRIVILEGEDISPLAYNAME, "LookupPrivDispName",
-		lsa_dissect_lsalookupprivilegedisplayname_rqst,
-		lsa_dissect_lsalookupprivilegedisplayname_reply },
-	{ LSA_LSADELETEOBJECT, "DeleteObject",
-		lsa_dissect_lsadeleteobject_rqst,
-		lsa_dissect_lsadeleteobject_reply },
-	{ LSA_LSAENUMERATEACCOUNTSWITHUSERRIGHT, "EnumAccountsWithUserRight",
-		lsa_dissect_lsaenumerateaccountswithuserright_rqst,
-		lsa_dissect_lsaenumerateaccountswithuserright_reply },
-	{ LSA_LSAENUMERATEACCOUNTRIGHTS, "EnumAccountRights",
-		lsa_dissect_lsaenumerateaccountrights_rqst,
-		lsa_dissect_lsaenumerateaccountrights_reply },
-	{ LSA_LSAADDACCOUNTRIGHTS, "AddAccountRights",
-		lsa_dissect_lsaaddaccountrights_rqst,
-		lsa_dissect_lsaaddaccountrights_reply },
-	{ LSA_LSAREMOVEACCOUNTRIGHTS, "RemoveAccountRights",
-		lsa_dissect_lsaremoveaccountrights_rqst,
-		lsa_dissect_lsaremoveaccountrights_reply },
-	{ LSA_LSAQUERYTRUSTEDDOMAININFO, "QueryTrustedDomainInfo",
-		lsa_dissect_lsaquerytrusteddomaininfo_rqst,
-		lsa_dissect_lsaquerytrusteddomaininfo_reply },
-	{ LSA_LSASETTRUSTEDDOMAININFO, "SetTrustedDomainInfo",
-		lsa_dissect_lsasettrusteddomaininfo_rqst,
-		lsa_dissect_lsasettrusteddomaininfo_reply },
-	{ LSA_LSADELETETRUSTEDDOMAIN, "DeleteTrsutedDomain",
-		lsa_dissect_lsadeletetrusteddomain_rqst,
-		lsa_dissect_lsadeletetrusteddomain_reply },
-	{ LSA_LSASTOREPRIVATEDATA, "StorePrivateData",
-		lsa_dissect_lsastoreprivatedata_rqst,
-		lsa_dissect_lsastoreprivatedata_reply },
-	{ LSA_LSARETRIEVEPRIVATEDATA, "RetrievePrivateData",
-		lsa_dissect_lsaretrieveprivatedata_rqst,
-		lsa_dissect_lsaretrieveprivatedata_reply },
-	{ LSA_LSAOPENPOLICY2, "OpenPolicy2",
-		lsa_dissect_lsaopenpolicy2_rqst,
-		lsa_dissect_lsaopenpolicy2_reply },
-	{ LSA_LSAGETUSERNAME, "GetUsername",
-		lsa_dissect_lsagetusername_rqst,
-		lsa_dissect_lsagetusername_reply },
-	{ LSA_LSAQUERYINFORMATIONPOLICY2, "QueryInformationPolicy2",
-		lsa_dissect_lsaqueryinformationpolicy2_rqst,
-		lsa_dissect_lsaqueryinformationpolicy2_reply },
-	{ LSA_LSASETINFORMATIONPOLICY2, "SetInformationPolicy2",
-		lsa_dissect_lsasetinformationpolicy2_rqst,
-		lsa_dissect_lsasetinformationpolicy2_reply },
-	{ LSA_LSAQUERYTRUSTEDDOMAININFOBYNAME, "QueryTrustedDomainInfoByName",
-		lsa_dissect_lsaquerytrusteddomaininfobyname_rqst,
-		lsa_dissect_lsaquerytrusteddomaininfobyname_reply },
-	{ LSA_LSASETTRUSTEDDOMAININFOBYNAME, "SetTrustedDomainInfoByName",
-		lsa_dissect_lsasettrusteddomaininfobyname_rqst,
-		lsa_dissect_lsasettrusteddomaininfobyname_reply },
-	{ LSA_LSAENUMERATETRUSTEDDOMAINSEX, "EnumTrustedDomainsEx",
-		lsa_dissect_lsaenumeratetrusteddomainsex_rqst,
-		lsa_dissect_lsaenumeratetrusteddomainsex_reply },
-	{ LSA_LSACREATETRUSTEDDOMAINEX, "CreateTrustedDomainEx",
-		lsa_dissect_lsacreatetrusteddomainex_rqst,
-		lsa_dissect_lsacreatetrusteddomainex_reply },
-	{ LSA_LSACLOSETRUSTEDDOMAINEX, "CloseTrustedDomainEx",
-		lsa_dissect_lsaclosetrusteddomainex_rqst,
-		lsa_dissect_lsaclosetrusteddomainex_reply },
-	{ LSA_LSAQUERYDOMAININFORMATIONPOLICY, "QueryDomainInfoPolicy",
-		lsa_dissect_lsaquerydomaininformationpolicy_rqst,
-		lsa_dissect_lsaquerydomaininformationpolicy_reply },
-	{ LSA_LSASETDOMAININFORMATIONPOLICY, "SetDomainInfoPolicy",
-		lsa_dissect_lsasetdomaininformationpolicy_rqst,
-		lsa_dissect_lsasetdomaininformationpolicy_reply },
-	{ LSA_LSAOPENTRUSTEDDOMAINBYNAME, "OpenTrustedDomainByName",
-		lsa_dissect_lsaopentrusteddomainbyname_rqst,
-		lsa_dissect_lsaopentrusteddomainbyname_reply },
+	{ LSA_LSARCLOSE, "LsarClose",
+		lsa_dissect_lsarclose_rqst,
+		lsa_dissect_lsarclose_reply },
+	{ LSA_LSARDELETE, "LsarDelete",
+		lsa_dissect_lsardelete_rqst,
+		lsa_dissect_lsardelete_reply },
+	{ LSA_LSARENUMERATEPRIVILEGES, "LsarEnumeratePrivileges",
+		lsa_dissect_lsarenumerateprivileges_rqst,
+		lsa_dissect_lsarenumerateprivileges_reply },
+	{ LSA_LSARQUERYSECURITYOBJECT, "LsarQuerySecurityObject",
+		lsa_dissect_lsarquerysecurityobject_rqst,
+		lsa_dissect_lsarquerysecurityobject_reply },
+	{ LSA_LSARSETSECURITYOBJECT, "LsarSetSecurityObject",
+		lsa_dissect_lsarsetsecurityobject_rqst,
+		lsa_dissect_lsarsetsecurityobject_reply },
+	{ LSA_LSARCHANGEPASSWORD, "LsarChangePassword",
+		lsa_dissect_lsarchangepassword_rqst,
+		lsa_dissect_lsarchangepassword_reply },
+	{ LSA_LSAROPENPOLICY, "LsarOpenPolicy",
+		lsa_dissect_lsaropenpolicy_rqst,
+		lsa_dissect_lsaropenpolicy_reply },
+	{ LSA_LSARQUERYINFORMATIONPOLICY, "LsarQueryInformationPolicy",
+		lsa_dissect_lsarqueryinformationpolicy_rqst,
+		lsa_dissect_lsarqueryinformationpolicy_reply },
+	{ LSA_LSARSETINFORMATIONPOLICY, "LsarSetInformationPolicy",
+		lsa_dissect_lsarsetinformationpolicy_rqst,
+		lsa_dissect_lsarsetinformationpolicy_reply },
+	{ LSA_LSARCLEARAUDITLOG, "LsarClearAuditLog",
+		lsa_dissect_lsarclearauditlog_rqst,
+		lsa_dissect_lsarclearauditlog_reply },
+	{ LSA_LSARCREATEACCOUNT, "LsarCreateAccount",
+		lsa_dissect_lsarcreateaccount_rqst,
+		lsa_dissect_lsarcreateaccount_reply },
+	{ LSA_LSARENUMERATEACCOUNTS, "LsarEnumerateAccounts",
+		lsa_dissect_lsarenumerateaccounts_rqst,
+		lsa_dissect_lsarenumerateaccounts_reply },
+	{ LSA_LSARCREATETRUSTEDDOMAIN, "LsarCreateTrustedDomain",
+		lsa_dissect_lsarcreatetrusteddomain_rqst,
+		lsa_dissect_lsarcreatetrusteddomain_reply },
+	{ LSA_LSARENUMERATETRUSTEDDOMAINS, "LsarEnumerateTrustedDomains",
+		lsa_dissect_lsarenumeratetrusteddomains_rqst,
+		lsa_dissect_lsarenumeratetrusteddomains_reply },
+	{ LSA_LSARLOOKUPNAMES, "LsarLookupNames",
+		lsa_dissect_lsarlookupnames_rqst,
+		lsa_dissect_lsarlookupnames_reply },
+	{ LSA_LSARLOOKUPSIDS, "LsarLookupSids",
+		lsa_dissect_lsarlookupsids_rqst,
+		lsa_dissect_lsarlookupsids_reply },
+	{ LSA_LSARCREATESECRET, "LsarCreateSecret",
+		lsa_dissect_lsarcreatesecret_rqst,
+		lsa_dissect_lsarcreatesecret_reply },
+	{ LSA_LSAROPENACCOUNT, "LsarOpenAccount",
+		lsa_dissect_lsaropenaccount_rqst,
+		lsa_dissect_lsaropenaccount_reply },
+	{ LSA_LSARENUMERATEPRIVILEGESACCOUNT, "LsarEnumeratePrivilegesAccount",
+		lsa_dissect_lsarenumerateprivilegesaccount_rqst,
+		lsa_dissect_lsarenumerateprivilegesaccount_reply },
+	{ LSA_LSARADDPRIVILEGESTOACCOUNT, "LsarAddPrivilegesToAccount",
+		lsa_dissect_lsaraddprivilegestoaccount_rqst,
+		lsa_dissect_lsaraddprivilegestoaccount_reply },
+	{ LSA_LSARREMOVEPRIVILEGESFROMACCOUNT, "LsarRemovePrivilegesFromAccount",
+		lsa_dissect_lsarremoveprivilegesfromaccount_rqst,
+		lsa_dissect_lsarremoveprivilegesfromaccount_reply },
+	{ LSA_LSARGETQUOTASFORACCOUNT, "LsarGetQuotasForAccount",
+		lsa_dissect_lsargetquotasforaccount_rqst,
+		lsa_dissect_lsargetquotasforaccount_reply },
+	{ LSA_LSARSETQUOTASFORACCOUNT, "LsarSetQuotasForAccount",
+		lsa_dissect_lsarsetquotasforaccount_rqst,
+		lsa_dissect_lsarsetquotasforaccount_reply },
+	{ LSA_LSARGETSYSTEMACCESSACCOUNT, "LsarGetSystemAccessAccount",
+		lsa_dissect_lsargetsystemaccessaccount_rqst,
+		lsa_dissect_lsargetsystemaccessaccount_reply },
+	{ LSA_LSARSETSYSTEMACCESSACCOUNT, "LsarSetSystemAccessAccount",
+		lsa_dissect_lsarsetsystemaccessaccount_rqst,
+		lsa_dissect_lsarsetsystemaccessaccount_reply },
+	{ LSA_LSAROPENTRUSTEDDOMAIN, "LsarOpenTrustedDomain",
+		lsa_dissect_lsaropentrusteddomain_rqst,
+		lsa_dissect_lsaropentrusteddomain_reply },
+	{ LSA_LSARQUERYINFOTRUSTEDDOMAIN, "LsarQueryInfoTrustedDomain",
+		lsa_dissect_lsarqueryinfotrusteddomain_rqst,
+		lsa_dissect_lsarqueryinfotrusteddomain_reply },
+	{ LSA_LSARSETINFORMATIONTRUSTEDDOMAIN, "LsarSetInformationTrustedDomain",
+		lsa_dissect_lsarsetinformationtrusteddomain_rqst,
+		lsa_dissect_lsarsetinformationtrusteddomain_reply },
+	{ LSA_LSAROPENSECRET, "LsarOpenSecret",
+		lsa_dissect_lsaropensecret_rqst,
+		lsa_dissect_lsaropensecret_reply },
+	{ LSA_LSARSETSECRET, "LsarSetSecret",
+		lsa_dissect_lsarsetsecret_rqst,
+		lsa_dissect_lsarsetsecret_reply },
+	{ LSA_LSARQUERYSECRET, "LsarQuerySecret",
+		lsa_dissect_lsarquerysecret_rqst,
+		lsa_dissect_lsarquerysecret_reply },
+	{ LSA_LSARLOOKUPPRIVILEGEVALUE, "LsarLookupPrivilegeValue",
+		lsa_dissect_lsarlookupprivilegevalue_rqst,
+		lsa_dissect_lsarlookupprivilegevalue_reply },
+	{ LSA_LSARLOOKUPPRIVILEGENAME, "LsarLookupPrivilegeName",
+		lsa_dissect_lsarlookupprivilegename_rqst,
+		lsa_dissect_lsarlookupprivilegename_reply },
+	{ LSA_LSARLOOKUPPRIVILEGEDISPLAYNAME, "LsarLookupPrivilegeDisplayName",
+		lsa_dissect_lsarlookupprivilegedisplayname_rqst,
+		lsa_dissect_lsarlookupprivilegedisplayname_reply },
+	{ LSA_LSARDELETEOBJECT, "LsarDeleteObject",
+		lsa_dissect_lsardeleteobject_rqst,
+		lsa_dissect_lsardeleteobject_reply },
+	{ LSA_LSARENUMERATEACCOUNTSWITHUSERRIGHT, "LsarEnumerateAccountsWithUserRight",
+		lsa_dissect_lsarenumerateaccountswithuserright_rqst,
+		lsa_dissect_lsarenumerateaccountswithuserright_reply },
+	{ LSA_LSARENUMERATEACCOUNTRIGHTS, "LsarEnumerateAccountRights",
+		lsa_dissect_lsarenumerateaccountrights_rqst,
+		lsa_dissect_lsarenumerateaccountrights_reply },
+	{ LSA_LSARADDACCOUNTRIGHTS, "LsarAddAccountRights",
+		lsa_dissect_lsaraddaccountrights_rqst,
+		lsa_dissect_lsaraddaccountrights_reply },
+	{ LSA_LSARREMOVEACCOUNTRIGHTS, "LsarRemoveAccountRights",
+		lsa_dissect_lsarremoveaccountrights_rqst,
+		lsa_dissect_lsarremoveaccountrights_reply },
+	{ LSA_LSARQUERYTRUSTEDDOMAININFO, "LsarQueryTrustedDomainInfo",
+		lsa_dissect_lsarquerytrusteddomaininfo_rqst,
+		lsa_dissect_lsarquerytrusteddomaininfo_reply },
+	{ LSA_LSARSETTRUSTEDDOMAININFO, "LsarSetTrustedDomainInfo",
+		lsa_dissect_lsarsettrusteddomaininfo_rqst,
+		lsa_dissect_lsarsettrusteddomaininfo_reply },
+	{ LSA_LSARDELETETRUSTEDDOMAIN, "LsarDeleteTrustedDomain",
+		lsa_dissect_lsardeletetrusteddomain_rqst,
+		lsa_dissect_lsardeletetrusteddomain_reply },
+	{ LSA_LSARSTOREPRIVATEDATA, "LsarStorePrivateData",
+		lsa_dissect_lsarstoreprivatedata_rqst,
+		lsa_dissect_lsarstoreprivatedata_reply },
+	{ LSA_LSARRETRIEVEPRIVATEDATA, "LsarRetrievePrivateData",
+		lsa_dissect_lsarretrieveprivatedata_rqst,
+		lsa_dissect_lsarretrieveprivatedata_reply },
+	{ LSA_LSAROPENPOLICY2, "LsarOpenPolicy2",
+		lsa_dissect_lsaropenpolicy2_rqst,
+		lsa_dissect_lsaropenpolicy2_reply },
+	{ LSA_LSARGETUSERNAME, "LsarGetUsername",
+		lsa_dissect_lsargetusername_rqst,
+		lsa_dissect_lsargetusername_reply },
+	{ LSA_LSARQUERYINFORMATIONPOLICY2, "LsarQueryInformationPolicy2",
+		lsa_dissect_lsarqueryinformationpolicy2_rqst,
+		lsa_dissect_lsarqueryinformationpolicy2_reply },
+	{ LSA_LSARSETINFORMATIONPOLICY2, "LsarSetInformationPolicy2",
+		lsa_dissect_lsarsetinformationpolicy2_rqst,
+		lsa_dissect_lsarsetinformationpolicy2_reply },
+	{ LSA_LSARQUERYTRUSTEDDOMAININFOBYNAME, "LsarQueryTrustedDomainInfoByName",
+		lsa_dissect_lsarquerytrusteddomaininfobyname_rqst,
+		lsa_dissect_lsarquerytrusteddomaininfobyname_reply },
+	{ LSA_LSARSETTRUSTEDDOMAININFOBYNAME, "LsarSetTrustedDomainInfoByName",
+		lsa_dissect_lsarsettrusteddomaininfobyname_rqst,
+		lsa_dissect_lsarsettrusteddomaininfobyname_reply },
+	{ LSA_LSARENUMERATETRUSTEDDOMAINSEX, "LsarEnumerateTrustedDomainsEx",
+		lsa_dissect_lsarenumeratetrusteddomainsex_rqst,
+		lsa_dissect_lsarenumeratetrusteddomainsex_reply },
+	{ LSA_LSARCREATETRUSTEDDOMAINEX, "LsarCreateTrustedDomainEx",
+		lsa_dissect_lsarcreatetrusteddomainex_rqst,
+		lsa_dissect_lsarcreatetrusteddomainex_reply },
+	{ LSA_LSARCLOSETRUSTEDDOMAINEX, "LsarCloseTrustedDomainEx",
+		lsa_dissect_lsarclosetrusteddomainex_rqst,
+		lsa_dissect_lsarclosetrusteddomainex_reply },
+	{ LSA_LSARQUERYDOMAININFORMATIONPOLICY, "LsarQueryDomainInformationPolicy",
+		lsa_dissect_lsarquerydomaininformationpolicy_rqst,
+		lsa_dissect_lsarquerydomaininformationpolicy_reply },
+	{ LSA_LSARSETDOMAININFORMATIONPOLICY, "LsarSetDomainInformationPolicy",
+		lsa_dissect_lsarsetdomaininformationpolicy_rqst,
+		lsa_dissect_lsarsetdomaininformationpolicy_reply },
+	{ LSA_LSAROPENTRUSTEDDOMAINBYNAME, "LsarOpenTrustedDomainByName",
+		lsa_dissect_lsaropentrusteddomainbyname_rqst,
+		lsa_dissect_lsaropentrusteddomainbyname_reply },
 	{ LSA_LSAFUNCTION_38, "LSAFUNCTION_38",
 		lsa_dissect_lsafunction_38_rqst,
 		lsa_dissect_lsafunction_38_reply },
-	{ LSA_LSALOOKUPSIDS2, "LookupSIDs2",
-		lsa_dissect_lsalookupsids2_rqst,
-		lsa_dissect_lsalookupsids2_reply },
-	{ LSA_LSALOOKUPNAMES2, "LookupNames2",
-		lsa_dissect_lsalookupnames2_rqst,
-		lsa_dissect_lsalookupnames2_reply },
+	{ LSA_LSARLOOKUPSIDS2, "LsarLookupSids2",
+		lsa_dissect_lsarlookupsids2_rqst,
+		lsa_dissect_lsarlookupsids2_reply },
+	{ LSA_LSARLOOKUPNAMES2, "LsarLookupNames2",
+		lsa_dissect_lsarlookupnames2_rqst,
+		lsa_dissect_lsarlookupnames2_reply },
 	{ LSA_LSAFUNCTION_3B, "LSAFUNCTION_3B",
 		lsa_dissect_lsafunction_3b_rqst,
 		lsa_dissect_lsafunction_3b_reply },
