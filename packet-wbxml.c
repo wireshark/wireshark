@@ -3,7 +3,7 @@
  * Routines for WAP Binary XML dissection
  * Copyright 2003, 2004, Olivier Biot.
  *
- * $Id: packet-wbxml.c,v 1.35 2004/04/19 23:26:36 obiot Exp $
+ * $Id: packet-wbxml.c,v 1.36 2004/05/13 17:26:32 obiot Exp $
  *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
@@ -880,7 +880,7 @@ static const value_string vals_wbxml_public_ids[] = {
 	{ 0x05, "-//WAPFORUM//DTD SI 1.0//EN (Service Indication 1.0)" },
 	{ 0x06, "-//WAPFORUM//DTD SL 1.0//EN (Service Loading 1.0)" },
 	{ 0x07, "-//WAPFORUM//DTD CO 1.0//EN (Cache Operation 1.0)" },
-	{ 0x08, "-//WAPFORUM//DTD CHANNEL 1.0//EN (Channel 1.1)" },
+	{ 0x08, "-//WAPFORUM//DTD CHANNEL 1.1//EN (Channel 1.1)" },
 	{ 0x09, "-//WAPFORUM//DTD WML 1.2//EN (WML 1.2)" },
 	{ 0x0a, "-//WAPFORUM//DTD WML 1.3//EN (WML 1.3)" },
 	{ 0x0b, "-//WAPFORUM//DTD PROV 1.0//EN (Provisioning 1.0)" },
