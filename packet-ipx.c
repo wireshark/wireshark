@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ipx.c,v 1.28 1999/10/12 06:20:10 gram Exp $
+ * $Id: packet-ipx.c,v 1.29 1999/10/17 09:23:43 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -62,8 +62,21 @@ static int hf_ipx_snode = -1;
 static int hf_ipx_ssocket = -1;
 
 static int proto_spx = -1;
+static int hf_spx_connection_control = -1;
+static int hf_spx_datastream_type = -1;
+static int hf_spx_src_id = -1;
+static int hf_spx_dst_id = -1;
+static int hf_spx_seq_nr = -1;
+static int hf_spx_ack_nr = -1;
+static int hf_spx_all_nr = -1;
+
 static int proto_ipxrip = -1;
+static int hf_ipxrip_request = -1;
+static int hf_ipxrip_response = -1;
+
 static int proto_sap = -1;
+static int hf_sap_request = -1;
+static int hf_sap_response = -1;
 
 static void
 dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree);
@@ -365,7 +378,8 @@ spx_conn_ctrl(u_char ctrl)
 		{ 0x10, "End-of-Message" },
 		{ 0x20, "Attention" },
 		{ 0x40, "Acknowledgment Required"},
-		{ 0x80, "System Packet"}
+		{ 0x80, "System Packet"},
+		{ 0x00, NULL }
 	};
 
 	while (conns[i].text != NULL) {
@@ -404,28 +418,39 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		ti = proto_tree_add_item(tree, proto_spx, offset, 12, NULL);
 		spx_tree = proto_item_add_subtree(ti, ETT_SPX);
 
-		proto_tree_add_text(spx_tree, offset,      1,
-			"Connection Control: %s (0x%02X)",
-			spx_conn_ctrl(pd[offset]), pd[offset]);
+		proto_tree_add_item_format(spx_tree, hf_spx_connection_control,
+					   offset,      1,
+					   pd[offset],
+					   "Connection Control: %s (0x%02X)",
+					   spx_conn_ctrl(pd[offset]), 
+					   pd[offset]);
 
-		proto_tree_add_text(spx_tree, offset+1,     1,
-			"Datastream Type: %s (0x%02X)",
-			spx_datastream(pd[offset+1]), pd[offset+1]);
+		proto_tree_add_item_format(spx_tree, hf_spx_datastream_type,
+					   offset+1,     1,
+					   pd[offset+1],
+					   "Datastream Type: %s (0x%02X)",
+					   spx_datastream(pd[offset+1]), 
+					   pd[offset+1]);
 
-		proto_tree_add_text(spx_tree, offset+2,     2,
-			"Source Connection ID: %d", pntohs( &pd[offset+2] ) );
+		proto_tree_add_item(spx_tree, hf_spx_src_id, 
+				    offset+2,     2,
+				    pntohs( &pd[offset+2] ));
 
-		proto_tree_add_text(spx_tree, offset+4,     2,
-			"Destination Connection ID: %d", pntohs( &pd[offset+4] ) );
+		proto_tree_add_item(spx_tree, hf_spx_dst_id,
+				    offset+4,     2,
+				    pntohs( &pd[offset+4] ));
 
-		proto_tree_add_text(spx_tree, offset+6,     2,
-			"Sequence Number: %d", pntohs( &pd[offset+6] ) );
+		proto_tree_add_item(spx_tree, hf_spx_seq_nr, 
+				    offset+6,     2,
+				    pntohs( &pd[offset+6] ) );
 
-		proto_tree_add_text(spx_tree, offset+8,     2,
-			"Acknowledgment Number: %d", pntohs( &pd[offset+8] ) );
+		proto_tree_add_item(spx_tree, hf_spx_ack_nr,
+				    offset+8,     2,
+				    pntohs( &pd[offset+8] ) );
 
-		proto_tree_add_text(spx_tree, offset+10,     2,
-			"Allocation Number: %d", pntohs( &pd[offset+10] ) );
+		proto_tree_add_item(spx_tree, hf_spx_all_nr,
+				    offset+10,     2,
+				    pntohs( &pd[offset+10] ) );
 
 		offset += 12;
 		dissect_data(pd, offset, fd, tree);
@@ -465,6 +490,17 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		if (operation < 2) {
 			proto_tree_add_text(rip_tree, offset, 2,
 			"RIP packet type: %s", rip_type[operation]);
+
+			if (operation == 0) {
+			  proto_tree_add_item_hidden(rip_tree, 
+						     hf_ipxrip_request, 
+						     offset, 2, 1);
+			} else {
+			  proto_tree_add_item_hidden(rip_tree, 
+						     hf_ipxrip_response, 
+						     offset, 2, 1);
+			}
+
 		}
 		else {
 			proto_tree_add_text(rip_tree, offset, 2, "Unknown RIP packet type");
@@ -583,6 +619,15 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 		if (query.query_type >= 1 && query.query_type <= 4) {
 			proto_tree_add_text(sap_tree, offset, 2, sap_type[query.query_type - 1]);
+			if ((query.query_type - 1) % 2) {
+			  proto_tree_add_item_hidden(sap_tree, 
+						     hf_sap_response, 
+						     offset, 2, 1);
+			} else {
+			  proto_tree_add_item_hidden(sap_tree, 
+						     hf_sap_request, 
+						     offset, 2, 1);
+			}
 		}
 		else {
 			proto_tree_add_text(sap_tree, offset, 2,
@@ -670,13 +715,77 @@ proto_register_ipx(void)
 		{ "Source Socket",	"ipx.src.socket", FT_UINT16, BASE_HEX, NULL, 0x0,
 			"" }},
 	};
+
+	static hf_register_info hf_spx[] = {
+		{ &hf_spx_connection_control,
+		{ "Connection Control",		"spx.ctl", 
+		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
+		  "" }},
+
+		{ &hf_spx_datastream_type,
+		{ "Datastream type",	       	"spx.type", 
+		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
+		  "" }},
+
+		{ &hf_spx_src_id,
+		{ "Source Connection ID",	"spx.src", 
+		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
+		  "" }},
+
+		{ &hf_spx_dst_id,
+		{ "Destination Connection ID",	"spx.dst", 
+		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
+		  "" }},
+
+		{ &hf_spx_seq_nr,
+		{ "Sequence Number",		"spx.seq", 
+		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
+		  "" }},
+
+		{ &hf_spx_ack_nr,
+		{ "Acknowledgment Number",	"spx.ack", 
+		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
+		  "" }},
+
+		{ &hf_spx_all_nr,
+		{ "Allocation Number",		"spx.alloc", 
+		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
+		  "" }}
+	};
+
+	static hf_register_info hf_ipxrip[] = {
+		{ &hf_ipxrip_request,
+		{ "Request",			"ipxrip.request", 
+		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
+		  "TRUE if IPX RIP request" }},
+
+		{ &hf_ipxrip_response,
+		{ "Response",			"ipxrip.response", 
+		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
+		  "TRUE if IPX RIP response" }}
+	};
+
+	static hf_register_info hf_sap[] = {
+		{ &hf_sap_request,
+		{ "Request",			"sap.request", 
+		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
+		  "TRUE if SAP request" }},
+
+		{ &hf_sap_response,
+		{ "Response",			"sap.response", 
+		  FT_BOOLEAN,	BASE_NONE,	NULL,	0x0,
+		  "TRUE if SAP response" }}
+	};
 		
 	proto_ipx = proto_register_protocol ("Internetwork Packet eXchange", "ipx");
 	proto_register_field_array(proto_ipx, hf_ipx, array_length(hf_ipx));
 
 	proto_spx = proto_register_protocol ("Sequenced Packet eXchange", "spx");
-	
+	proto_register_field_array(proto_spx, hf_spx, array_length(hf_spx));
+
 	proto_ipxrip = proto_register_protocol ("IPX Routing Information Protocol", "ipxrip");
+	proto_register_field_array(proto_ipxrip, hf_ipxrip, array_length(hf_ipxrip));
 
 	proto_sap = proto_register_protocol ("Service Advertisement Protocol", "sap");
+	proto_register_field_array(proto_sap, hf_sap, array_length(hf_sap));
 }
