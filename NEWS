@@ -7,21 +7,22 @@ Ethereal 0.10.8 has been released.
 This release fixes the following security-related issues:
 
   Matthew Bing discovered a bug in DICOM dissection that could make
-  Ethereal crash.
+  Ethereal crash. (CAN-2004-1139)
 
   An invalid RTP timestamp could make Ethereal hang and create a large
-  temporary file, possibly filling available disk space.
+  temporary file, possibly filling available disk space. (CAN-2004-1140)
 
-  The HTTP dissector could access previously-freed memory, causing a crash.
+  The HTTP dissector could access previously-freed memory, causing a
+  crash. (CAN-2004-1141)
 
   Brian Caswell discovered that an improperly formatted SMB packet could
-  make Ethereal hang, maximizing CPU utilization.
+  make Ethereal hang, maximizing CPU utilization. (CAN-2004-1142)
 
-  Please see the advisory at
+Please see the following advisory for more information:
   
     http://www.ethereal.com/appnotes/enpa-sa-00016.html
     
-  for more information.
+Everyone is encouraged to upgrade.
 
 
 New and updated features
@@ -46,104 +47,29 @@ New and updated features
 
 New protocol support
 
-AoE (ATA over Ethernet),
-Bittorrent,
-CMIP,
-GPRS Mobility Management and Session Management,
-GSM MAP,
-Extended Security Services,
-Logotype Certificate Extensions,
-MAP Dialogue,
-Network Service Over IP,
-Online Certificate Status Protocol,
-PKIX Certificate,
-PKIX Qualified,
-PROFINET DCP, IO, Real-Time, 
-Short Message Relaying Service,
-SSCF-NNI,
+  AoE (ATA over Ethernet), Bittorrent, CMIP, GPRS Mobility Management
+  and Session Management, GSM MAP, Extended Security Services, Logotype
+  Certificate Extensions, MAP Dialogue, Network Service Over IP, Online
+  Certificate Status Protocol, PKIX Certificate, PKIX Qualified, PROFINET
+  DCP, IO, Real-Time, Short Message Relaying Service, SSCF-NNI,
+
 
 Updated protocol support
 
-3GPP2 A11,
-ACSE,
-AIM,
-AODV,
-ASN.1 BER,
-ASN.1 PER,
-BOOTP,
-BSSGP,
-BVLC,
-CMS,
-COPS,
-DCERPC,
-DCERPC ISystemActivator,
-DICOM,
-DHCPv6,
-DNS,
-eDonkey,
-ENTTEC,
-Etheric,
-Frame Relay,
-FTAM,
-FW1,
-GIOP,
-GPRS LLC,
-GRE,
-GSM A,
-GSM SMS,
-H.225,
-H.245,
-H.450,
-HTTP,
-IPAddress,
-IPDC,
-IPMI,
-IPsec,
-ISAKMP,
-ISUP,
-JFIF,
-Kerberos,
-MQ,
-MTP3,
-NMAS,
-OPSI,
-PKIX1EXPLICIT,
-PKIX1IMPLICIT,
-PKIXProxy,
-PPP,
-PRES,
-Radiotap,
-RADIUS,
-ONC RPC,
-RTnet,
-RTP,
-SAP,
-SDP,
-SIGCOMP,
-SIGCOMP UDVM,
-SIP,
-SMB,
-SNMP,
-SONMP,
-SSCOP,
-SSL,
-Symantec Firewall,
-T.38,
-TCP,
-TDS,
-TSP,
-UDP,
-WSP,
-WTP,
-X.25,
-X.509af,
-X.509ce,
-X.509if,
-X.509sat,
+  3GPP2 A11, ACSE, AIM, AODV, ASN.1 BER, ASN.1 PER, BOOTP, BSSGP, BVLC,
+  CMS, COPS, DCERPC, DCERPC ISystemActivator, DICOM, DHCPv6, DNS, eDonkey,
+  ENTTEC, Etheric, Frame Relay, FTAM, FW1, GIOP, GPRS LLC, GRE, GSM A,
+  GSM SMS, H.225, H.245, H.450, HTTP, IPAddress, IPDC, IPMI, IPsec,
+  ISAKMP, ISUP, JFIF, Kerberos, MQ, MTP3, NMAS, OPSI, PKIX1EXPLICIT,
+  PKIX1IMPLICIT, PKIXProxy, PPP, PRES, Radiotap, RADIUS, ONC RPC, RTnet,
+  RTP, SAP, SDP, SIGCOMP, SIGCOMP UDVM, SIP, SMB, SNMP, SONMP, SSCOP,
+  SSL, Symantec Firewall, T.38, TCP, TDS, TSP, UDP, WSP, WTP, X.25,
+  X.509af, X.509ce, X.509if, X.509sat,
+
 
 New and updated capture file support
 
-pppdump,
+  pppdump
 
 
 == October 20, 2004
