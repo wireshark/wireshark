@@ -2,7 +2,7 @@
  * Routines to Dissect Appendix C TLV's
  * Copyright 2002, Anand V. Narwani <anarwani@cisco.com>
  *
- * $Id: packet-tlv.c,v 1.8 2002/09/12 19:58:37 guy Exp $
+ * $Id: packet-tlv.c,v 1.9 2002/09/23 16:27:57 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -310,7 +310,7 @@ const value_string docsis_conf_code[] = {
   {1, "Reject: Other/Auth failure (1.0)"},
   {2, "Reject: Unrecognized configuration setting/COS failure (1.0)"},
   {3, "Reject: Temporary/Reject resource"},
-  {4, "Reject: Permanent/Reject rdmin"},
+  {4, "Reject: Permanent/Reject admin"},
   {5, "Reject: Not owner"},
   {6, "Reject: Service flow not found"},
   {7, "Reject: Service flow exists"},
@@ -2531,7 +2531,7 @@ proto_register_docsis_tlv (void)
      },
     {&hf_docsis_tlv_sflow_err_code,
      {"..2 Error Code", "docsis.tlv.sflow.err.code",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
+      FT_UINT8, BASE_DEC, VALS(docsis_conf_code), 0x0,
       "Error Code", HFILL}
      },
     {&hf_docsis_tlv_sflow_err_msg,
