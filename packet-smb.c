@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.305 2003/02/07 06:01:49 tpot Exp $
+ * $Id: packet-smb.c,v 1.306 2003/02/08 08:55:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7236,8 +7236,18 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	proto_tree *subtree, *generic, *standard, *specific;
 	guint32 access;
 
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
-				    hfindex, &access);
+	if (drep != NULL) {
+		/*
+		 * XXX - is this *ever* aligned with DCE RPC NDR
+		 * alignment rules?
+		 */
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
+					    hfindex, &access);
+	} else {
+		/* Assume little-endian */
+		access = tvb_get_letohl(tvb, offset);
+		offset += 4;
+	}
 
 	item = proto_tree_add_uint(tree, hfindex, tvb, offset - 4, 4, access);
 
@@ -7617,22 +7627,22 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	  /* offset to owner sid */
 	  owner_sid_offset = tvb_get_letohl(tvb, offset);
-	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to owner SID: %d", owner_sid_offset);
+	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to owner SID: %u", owner_sid_offset);
 	  offset += 4;
 
 	  /* offset to group sid */
 	  group_sid_offset = tvb_get_letohl(tvb, offset);
-	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to group SID: %d", group_sid_offset);
+	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to group SID: %u", group_sid_offset);
 	  offset += 4;
 
 	  /* offset to sacl */
 	  sacl_offset = tvb_get_letohl(tvb, offset);
-	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to SACL: %d", sacl_offset);
+	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to SACL: %u", sacl_offset);
 	  offset += 4;
 
 	  /* offset to dacl */
 	  dacl_offset = tvb_get_letohl(tvb, offset);
-	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to DACL: %d", dacl_offset);
+	  proto_tree_add_text(tree, tvb, offset, 4, "Offset to DACL: %u", dacl_offset);
 	  offset += 4;
 
 	  /*owner SID*/
@@ -7723,7 +7733,7 @@ dissect_nt_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 *bcp)
 
 
 static int
-dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, char *drep, int bc, nt_trans_data *ntd)
+dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int bc, nt_trans_data *ntd)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -7745,7 +7755,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		/* security descriptor */
 		if(ntd->sd_len){
 		        offset = dissect_nt_sec_desc(
-				tvb, offset, pinfo, tree, drep, ntd->sd_len, 
+				tvb, offset, pinfo, tree, NULL, ntd->sd_len, 
 				NULL);
 		}
 
@@ -7764,7 +7774,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		break;
 	case NT_TRANS_SSD:
 		offset = dissect_nt_sec_desc(
-			tvb, offset, pinfo, tree, drep, bc, NULL);
+			tvb, offset, pinfo, tree, NULL, bc, NULL);
 		break;
 	case NT_TRANS_NOTIFY:
 		break;
@@ -8193,11 +8203,9 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		COUNT_BYTES(padcnt);
 	}
 	if(dc){
-		char drep = 0x10; /* Assume little endian */
-
 		CHECK_BYTE_COUNT(dc);
 		dissect_nt_trans_data_request(
-			tvb, pinfo, offset, tree, &drep, dc, &ntd);
+			tvb, pinfo, offset, tree, dc, &ntd);
 		COUNT_BYTES(dc);
 	}
 
@@ -8262,14 +8270,13 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 		/* XXX not documented */
 		break;
 	case NT_TRANS_QSD: {
-		char drep = 0x10; /* Assume little-endian */
 		/*
 		 * XXX - this is probably a SECURITY_DESCRIPTOR structure,
 		 * which may be documented in the Win32 documentation
 		 * somewhere.
 		 */
 		offset = dissect_nt_sec_desc(
-			tvb, offset, pinfo, tree, &drep, len, NULL);
+			tvb, offset, pinfo, tree, NULL, len, NULL);
 		break;
 	}
 	case NT_TRANS_GET_USER_QUOTA:
