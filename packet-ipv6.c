@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.85 2002/08/02 23:35:51 jmayer Exp $
+ * $Id: packet-ipv6.c,v 1.86 2002/08/03 20:06:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,10 +26,6 @@
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
-#endif
-
-#ifdef HAVE_SYS_SOCKET_h
-#include <sys/socket.h>
 #endif
 
 #include <string.h>
