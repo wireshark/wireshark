@@ -2,7 +2,7 @@
  * Definitions for implementation of preference handling routines;
  * used by "friends" of the preferences type.
  *
- * $Id: prefs-int.h,v 1.10 2002/12/20 01:48:54 guy Exp $
+ * $Id: prefs-int.h,v 1.11 2003/12/13 17:24:47 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -88,5 +88,15 @@ struct preference {
 
 gint find_val_for_string(const char *needle, const enum_val_t *haystack,
     gint default_value);
+
+
+/* read_prefs_file: read in a generic config file and do a callback to */
+/* pref_set_pair_fct() for every key/value pair found */
+typedef int (*pref_set_pair_cb) (gchar *key, gchar *value);
+
+int
+read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fct);
+
+
 
 #endif /* prefs-int.h */

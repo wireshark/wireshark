@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.113 2003/11/16 23:17:22 guy Exp $
+ * $Id: prefs.c,v 1.114 2003/12/13 17:24:47 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -855,7 +855,6 @@ print.file: /a/very/long/path/
 
 #define DEF_NUM_COLS    6
 
-static int read_prefs_file(const char *pf_path, FILE *pf);
 
 /* Read the preferences file, fill in "prefs", and return a pointer to it.
 
@@ -1010,8 +1009,15 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
   /* Read the global preferences file, if it exists. */
   *gpf_path_return = NULL;
   if ((pf = fopen(gpf_path, "r")) != NULL) {
+    /*
+     * Start out the counters of "mgcp.{tcp,udp}.port" entries we've
+     * seen.
+     */
+    mgcp_tcp_port_count = 0;
+    mgcp_udp_port_count = 0;
+
     /* We succeeded in opening it; read it. */
-    err = read_prefs_file(gpf_path, pf);
+    err = read_prefs_file(gpf_path, pf, set_pref);
     if (err != 0) {
       /* We had an error reading the file; return the errno and the
          pathname, so our caller can report the error. */
@@ -1037,8 +1043,15 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
   /* Read the user's preferences file, if it exists. */
   *pf_path_return = NULL;
   if ((pf = fopen(pf_path, "r")) != NULL) {
+    /*
+     * Start out the counters of "mgcp.{tcp,udp}.port" entries we've
+     * seen.
+     */
+    mgcp_tcp_port_count = 0;
+    mgcp_udp_port_count = 0;
+
     /* We succeeded in opening it; read it. */
-    err = read_prefs_file(pf_path, pf);
+    err = read_prefs_file(pf_path, pf, set_pref);
     if (err != 0) {
       /* We had an error reading the file; return the errno and the
          pathname, so our caller can report the error. */
@@ -1062,8 +1075,10 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
   return &prefs;
 }
 
-static int
-read_prefs_file(const char *pf_path, FILE *pf)
+/* read the preferences file (or similiar) and call the callback 
+ * function to set each key/value pair found */
+int
+read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fct)
 {
   enum { START, IN_VAR, PRE_VAL, IN_VAL, IN_SKIP };
   gchar     cur_var[MAX_VAR_LEN], cur_val[MAX_VAL_LEN];
@@ -1071,12 +1086,6 @@ read_prefs_file(const char *pf_path, FILE *pf)
   gboolean  got_val = FALSE;
   gint      var_len = 0, val_len = 0, fline = 1, pline = 1;
 
-  /*
-   * Start out the counters of "mgcp.{tcp,udp}.port" entries we've
-   * seen.
-   */
-  mgcp_tcp_port_count = 0;
-  mgcp_udp_port_count = 0;
 
   while ((got_c = getc(pf)) != EOF) {
     if (got_c == '\n') {
@@ -1104,7 +1113,7 @@ read_prefs_file(const char *pf_path, FILE *pf)
             if (got_val) {
               cur_var[var_len] = '\0';
               cur_val[val_len] = '\0';
-              switch (set_pref(cur_var, cur_val)) {
+              switch (pref_set_pair_fct(cur_var, cur_val)) {
 
 	      case PREFS_SET_SYNTAX_ERR:
                 g_warning ("%s line %d: Syntax error", pf_path, pline);
@@ -1172,7 +1181,7 @@ read_prefs_file(const char *pf_path, FILE *pf)
     if (got_val) {
       cur_var[var_len] = '\0';
       cur_val[val_len] = '\0';
-      switch (set_pref(cur_var, cur_val)) {
+      switch (pref_set_pair_fct(cur_var, cur_val)) {
 
       case PREFS_SET_SYNTAX_ERR:
         g_warning ("%s line %d: Syntax error", pf_path, pline);
