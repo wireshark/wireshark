@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.239 2004/05/09 10:03:39 guy Exp $
+ * $Id: tethereal.c,v 1.240 2004/05/31 07:52:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,7 +120,7 @@ static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 static GString *comp_info_str, *runtime_info_str;
 static gboolean quiet;
-static gboolean decode;
+static gboolean print_packet_info;	/* TRUE if we're to print packet information */
 static gboolean verbose;
 static gboolean print_hex;
 static gboolean line_buffered;
@@ -166,18 +166,16 @@ static void report_counts_siginfo(int);
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
 
-typedef struct {
-  capture_file *cf;
-  wtap_dumper *pdh;
-} cb_args_t;
-
 static int load_cap_file(capture_file *, int);
-static void wtap_dispatch_cb_write(guchar *, const struct wtap_pkthdr *, long,
-    union wtap_pseudo_header *, const guchar *);
+static void process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
+    const struct wtap_pkthdr *whdr, union wtap_pseudo_header *pseudo_header,
+    const guchar *pd);
+static void write_packet(capture_file *cf, wtap_dumper *pdh,
+    const struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header,
+    const guchar *buf);
 static void show_capture_file_io_error(const char *, int, gboolean);
-static void wtap_dispatch_cb_print(guchar *, const struct wtap_pkthdr *, long,
-    union wtap_pseudo_header *, const guchar *);
 static void show_print_file_io_error(int err);
+static void print_packet(capture_file *cf, epan_dissect_t *edt);
 static char *cf_open_error_message(int err, gchar *err_info,
     gboolean for_writing, int file_type);
 #ifdef HAVE_LIBPCAP
@@ -1117,12 +1115,11 @@ main(int argc, char *argv[])
 	   is probably actually better for "-V", as it does fewer
 	   writes).
 
-	   See the comment in "wtap_dispatch_cb_print()" for an
-	   explanation of why we do that, and why we don't just
-	   use "setvbuf()" to make the standard output line-buffered
-	   (short version: in Windows, "line-buffered" is the same
-	   as "fully-buffered", and the output buffer is only flushed
-	   when it fills up). */
+	   See the comment in "print_packet()" for an explanation of
+	   why we do that, and why we don't just use "setvbuf()" to
+	   make the standard output line-buffered (short version: in
+	   Windows, "line-buffered" is the same as "fully-buffered",
+	   and the output buffer is only flushed when it fills up). */
 	line_buffered = TRUE;
 	break;
       case 'L':        /* Print list of link-layer types and exit */
@@ -1189,7 +1186,7 @@ main(int argc, char *argv[])
 #endif
         break;
       case 'S':        /* show packets in real time */
-        decode = TRUE;
+        print_packet_info = TRUE;
         break;
       case 't':        /* Time stamp type */
         if (strcmp(optarg, "r") == 0)
@@ -1345,6 +1342,9 @@ main(int argc, char *argv[])
       }
     }
 #endif
+  } else {
+    /* We're not writing to a file, so we should print packet information. */
+    print_packet_info = TRUE;
   }
 
 #ifndef HAVE_LIBPCAP
@@ -1618,7 +1618,7 @@ main(int argc, char *argv[])
 /* Do the low-level work of a capture.
    Returns TRUE if it succeeds, FALSE otherwise. */
 
-static condition  *volatile cnd_ring_timeout = NULL; /* this must be visible in wtap_dispatch_cb_write */
+static condition  *volatile cnd_ring_timeout = NULL; /* this must be visible in write_packet */
 
 static int
 capture(int out_file_type)
@@ -2098,7 +2098,6 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
   struct wtap_pkthdr whdr;
   union wtap_pseudo_header pseudo_header;
   loop_data *ld = (loop_data *) user;
-  cb_args_t args;
   int err;
 
   /* Convert from libpcap to Wiretap format.
@@ -2106,30 +2105,32 @@ capture_pcap_cb(guchar *user, const struct pcap_pkthdr *phdr,
      written an error message). */
   pd = wtap_process_pcap_packet(ld->linktype, phdr, pd, &pseudo_header,
 				&whdr, &err);
-  if (pd == NULL) {
+  if (pd == NULL)
     return;
-  }
 
-  args.cf = &cfile;
-  args.pdh = ld->pdh;
-  if (ld->pdh) {
-    wtap_dispatch_cb_write((guchar *)&args, &whdr, 0, &pseudo_header, pd);
-    /* Report packet capture count if not quiet */
-    if (!quiet) {
-      if (!decode) {
-         if (ld->packet_count != 0) {
-           fprintf(stderr, "\r%u ", ld->packet_count);
-           /* stderr could be line buffered */
-           fflush(stderr);
-         }
-      } else {
-           wtap_dispatch_cb_print((guchar *)&args, &whdr, 0,
-                                  &pseudo_header, pd);
-      }
-    }
-  } else {
-    wtap_dispatch_cb_print((guchar *)&args, &whdr, 0, &pseudo_header, pd);
-  }
+#ifdef SIGINFO
+  /*
+   * Prevent a SIGINFO handler from writing to stdout while we're
+   * doing so; instead, have it just set a flag telling us to print
+   * that information when we're done.
+   */
+  infodelay = TRUE;
+#endif /* SIGINFO */
+
+  process_packet(&cfile, ld->pdh, 0, &whdr, &pseudo_header, pd);
+
+#ifdef SIGINFO
+  /*
+   * Allow SIGINFO handlers to write.
+   */
+  infodelay = FALSE;
+
+  /*
+   * If a SIGINFO handler asked us to write out capture counts, do so.
+   */
+  if (infoprint)
+    report_counts();
+#endif /* SIGINFO */
 }
 
 #ifdef _WIN32
@@ -2183,10 +2184,9 @@ report_counts(void)
   signal(SIGINFO, report_counts_siginfo);
 #endif /* SIGINFO */
 
-  if (cfile.save_file != NULL && quiet) {
-    /* Report the count only if we're capturing to a file (rather
-       than printing captured packet information out) and aren't
-       updating a count as packets arrive. */
+  if (quiet || print_packet_info) {
+    /* Report the count only if we aren't printing a packet count
+       as packets arrive. */
     fprintf(stderr, "%u packets captured\n", ld.packet_count);
   }
 #ifdef SIGINFO
@@ -2219,8 +2219,7 @@ load_cap_file(capture_file *cf, int out_file_type)
   wtap_dumper *pdh;
   int          err;
   gchar        *err_info;
-  int          success;
-  cb_args_t    args;
+  long         data_offset;
 
   linktype = wtap_file_encap(cf->wth);
   if (cf->save_file != NULL) {
@@ -2271,10 +2270,6 @@ load_cap_file(capture_file *cf, int out_file_type)
       }
       goto out;
     }
-    args.cf = cf;
-    args.pdh = pdh;
-    success = wtap_loop(cf->wth, 0, wtap_dispatch_cb_write, (guchar *) &args,
- 			&err, &err_info);
   } else {
     print_preamble(stdout, print_format, cf->filename);
     if (ferror(stdout)) {
@@ -2282,24 +2277,13 @@ load_cap_file(capture_file *cf, int out_file_type)
       show_print_file_io_error(err);
       goto out;
     }
-    args.cf = cf;
-    args.pdh = NULL;
-    success = wtap_loop(cf->wth, 0, wtap_dispatch_cb_print, (guchar *) &args,
- 			&err, &err_info);
+    pdh = NULL;
   }
-  if (success) {
-    if (cf->save_file != NULL) {
-      /* Now close the capture file. */
-      if (!wtap_dump_close(args.pdh, &err))
-        show_capture_file_io_error(cfile.save_file, err, TRUE);
-    } else {
-      print_finale(stdout, print_format);
-      if (ferror(stdout)) {
-        err = errno;
-        show_print_file_io_error(err);
-      }
-    }
-  } else {
+  while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
+    process_packet(cf, pdh, data_offset, wtap_phdr(cf->wth),
+                   wtap_pseudoheader(cf->wth), wtap_buf_ptr(cf->wth));
+  }
+  if (err != 0) {
     /* Print a message noting that the read failed somewhere along the line. */
     switch (err) {
 
@@ -2335,8 +2319,20 @@ load_cap_file(capture_file *cf, int out_file_type)
     }
     if (cf->save_file != NULL) {
       /* Now close the capture file. */
-      if (!wtap_dump_close(args.pdh, &err))
+      if (!wtap_dump_close(pdh, &err))
         show_capture_file_io_error(cfile.save_file, err, TRUE);
+    }
+  } else {
+    if (cf->save_file != NULL) {
+      /* Now close the capture file. */
+      if (!wtap_dump_close(pdh, &err))
+        show_capture_file_io_error(cfile.save_file, err, TRUE);
+    } else {
+      print_finale(stdout, print_format);
+      if (ferror(stdout)) {
+        err = errno;
+        show_print_file_io_error(err);
+      }
     }
   }
 
@@ -2416,99 +2412,148 @@ clear_fdata(frame_data *fdata)
 }
 
 static void
-wtap_dispatch_cb_write(guchar *user, const struct wtap_pkthdr *phdr,
-  long offset, union wtap_pseudo_header *pseudo_header, const guchar *buf)
+process_packet(capture_file *cf, wtap_dumper *pdh, long offset,
+               const struct wtap_pkthdr *whdr,
+               union wtap_pseudo_header *pseudo_header, const guchar *pd)
 {
-  cb_args_t    *args = (cb_args_t *) user;
-  capture_file *cf = args->cf;
-  wtap_dumper  *pdh = args->pdh;
-  frame_data    fdata;
-  int           err;
-  gboolean      passed;
+  frame_data fdata;
+  gboolean create_proto_tree;
   epan_dissect_t *edt;
+  gboolean passed;
 
-#ifdef HAVE_LIBPCAP
-#ifdef SIGINFO
-  /*
-   * Prevent a SIGINFO handler from writing to stdout while we're
-   * doing so; instead, have it just set a flag telling us to print
-   * that information when we're done.
-   */
-  infodelay = TRUE;
-#endif /* SIGINFO */
-#endif /* HAVE_LIBPCAP */
-
+  /* Count this packet. */
   cf->count++;
-  if (cf->rfcode) {
-    fill_in_fdata(&fdata, cf, phdr, offset);
-    edt = epan_dissect_new(TRUE, FALSE);
-    epan_dissect_prime_dfilter(edt, cf->rfcode);
-    epan_dissect_run(edt, pseudo_header, buf, &fdata, NULL);
-    passed = dfilter_apply_edt(cf->rfcode, edt);
-  } else {
+
+  /* If we're going to print packet information, or we're going to
+     run a read filter, set up to do a dissection and do so. */
+  if (print_packet_info || cf->rfcode) {
+    fill_in_fdata(&fdata, cf, whdr, offset);
+
+    if (print_packet_info) {
+      /* Grab any resolved addresses */
+    
+      if (g_resolv_flags) {
+        host_name_lookup_process(NULL);
+      }
+    }
+
     passed = TRUE;
+    if (cf->rfcode || verbose || num_tap_filters!=0)
+      create_proto_tree = TRUE;
+    else
+      create_proto_tree = FALSE;
+    /* The protocol tree will be "visible", i.e., printed, only if we're
+       printing packet details, which is true if we're printing stuff
+       ("print_packet_info" is true) and we're in verbose mode ("verbose"
+       is true). */
+    edt = epan_dissect_new(create_proto_tree, print_packet_info && verbose);
+
+    /* If we're running a read filter, prime the epan_dissect_t with that
+       filter. */
+    if (cf->rfcode)
+      epan_dissect_prime_dfilter(edt, cf->rfcode);
+
+    tap_queue_init(edt);
+
+    /* We only need the columns if we're printing packet info but we're
+       *not* verbose; in verbose mode, we print the protocol tree, not
+       the protocol summary. */
+    epan_dissect_run(edt, pseudo_header, pd, &fdata,
+                     (print_packet_info && !verbose) ? &cf->cinfo : NULL);
+
+    tap_push_tapped_queue(edt);
+
+    /* Run the read filter if we have one. */
+    if (cf->rfcode)
+      passed = dfilter_apply_edt(cf->rfcode, edt);
+    else
+      passed = TRUE;
+  } else {
+    /* We're not running a display filter and we're not printing any
+       packet information, so we don't need to do a dissection, and all
+       packets are processed. */
     edt = NULL;
+    passed = TRUE;
   }
+
   if (passed) {
-    /* The packet passed the read filter. */
+    /* Count this packet. */
 #ifdef HAVE_LIBPCAP
-    int loop_err;
-
     ld.packet_count++;
+#endif
 
-    /* The current packet may have arrived after a very long silence,
-     * way past the time to switch files.  In order not to have
-     * the first packet of a new series of events as the last
-     * [or only] packet in the file, switch before writing!
-     */
-    if (cnd_ring_timeout != NULL && cnd_eval(cnd_ring_timeout)) {
-      /* time elasped for this ring file, switch to the next */
-      if (ringbuf_switch_file(&cfile, &ld.pdh, &loop_err)) {
-	/* File switch succeeded: reset the condition */
-	cnd_reset(cnd_ring_timeout);
-      } else {
-	/* File switch failed: stop here */
-	/* XXX - we should do something with "loop_err" */
-	ld.go = FALSE;
+    /* Process this packet. */
+    if (pdh != NULL) {
+      /* We're writing to a capture file; write this packet. */
+      write_packet(cf, pdh, whdr, pseudo_header, pd);
+      /* Report packet capture count if not quiet */
+      if (!quiet && !print_packet_info) {
+      	/* Don't print a packet count if we were asked not to with "-q"
+      	   or if we're also printing packet info. */
+        if (ld.packet_count != 0) {
+          fprintf(stderr, "\r%u ", ld.packet_count);
+          /* stderr could be line buffered */
+          fflush(stderr);
+        }
       }
     }
-#endif
-    if (!wtap_dump(pdh, phdr, pseudo_header, buf, &err)) {
-#ifdef HAVE_LIBPCAP
-      if (ld.pch != NULL && !quiet) {
-      	/* We're capturing packets, so (if -q not specified) we're printing
-           a count of packets captured; move to the line after the count. */
-        fprintf(stderr, "\n");
-      }
-#endif
-      show_capture_file_io_error(cf->save_file, err, FALSE);
-#ifdef HAVE_LIBPCAP
-      if (ld.pch != NULL)
-        pcap_close(ld.pch);
-#endif
-      wtap_dump_close(pdh, &err);
-      exit(2);
+    if (print_packet_info) {
+      /* We're printing packet information; print the information for
+         this packet. */
+      print_packet(cf, edt);
     }
   }
+
   if (edt != NULL)
     epan_dissect_free(edt);
-  if (cf->rfcode)
+
+  if (print_packet_info || cf->rfcode)
     clear_fdata(&fdata);
+}
+
+static void
+write_packet(capture_file *cf, wtap_dumper *pdh, const struct wtap_pkthdr *phdr,
+  union wtap_pseudo_header *pseudo_header, const guchar *buf)
+{
+  int           err;
+#ifdef HAVE_LIBPCAP
+  int loop_err;
+#endif
 
 #ifdef HAVE_LIBPCAP
-#ifdef SIGINFO
-  /*
-   * Allow SIGINFO handlers to write.
+  /* The current packet may have arrived after a very long silence,
+   * way past the time to switch files.  In order not to have
+   * the first packet of a new series of events as the last
+   * [or only] packet in the file, switch before writing!
    */
-  infodelay = FALSE;
-
-  /*
-   * If a SIGINFO handler asked us to write out capture counts, do so.
-   */
-  if (infoprint)
-    report_counts();
-#endif /* SIGINFO */
-#endif /* HAVE_LIBPCAP */
+  if (cnd_ring_timeout != NULL && cnd_eval(cnd_ring_timeout)) {
+    /* time elapsed for this ring file, switch to the next */
+    if (ringbuf_switch_file(&cfile, &ld.pdh, &loop_err)) {
+      /* File switch succeeded: reset the condition */
+      cnd_reset(cnd_ring_timeout);
+    } else {
+      /* File switch failed: stop here */
+      /* XXX - we should do something with "loop_err" */
+      ld.go = FALSE;
+    }
+  }
+#endif
+  if (!wtap_dump(pdh, phdr, pseudo_header, buf, &err)) {
+#ifdef HAVE_LIBPCAP
+    if (ld.pch != NULL && !quiet) {
+      /* We're capturing packets, so (if -q not specified) we're printing
+         a count of packets captured; move to the line after the count. */
+      fprintf(stderr, "\n");
+    }
+#endif
+    show_capture_file_io_error(cf->save_file, err, FALSE);
+#ifdef HAVE_LIBPCAP
+    if (ld.pch != NULL)
+      pcap_close(ld.pch);
+#endif
+    wtap_dump_close(pdh, &err);
+    exit(2);
+  }
 }
 
 static void
@@ -2562,261 +2607,216 @@ show_capture_file_io_error(const char *fname, int err, gboolean is_close)
 }
 
 static void
-wtap_dispatch_cb_print(guchar *user, const struct wtap_pkthdr *phdr,
-  long offset, union wtap_pseudo_header *pseudo_header, const guchar *buf)
+print_packet(capture_file *cf, epan_dissect_t *edt)
 {
-  cb_args_t    *args = (cb_args_t *) user;
-  capture_file *cf = args->cf;
-  frame_data    fdata;
-  gboolean      passed;
   print_args_t  print_args;
-  epan_dissect_t *edt;
-  gboolean      create_proto_tree;
   int           i;
 
-  cf->count++;
+  print_args.to_file = TRUE;
+  print_args.format = print_format;
+  print_args.print_summary = !verbose;
+  print_args.print_hex = verbose && print_hex;
+  print_args.print_formfeed = FALSE;
+  print_args.print_dissections = verbose ? print_dissections_expanded : print_dissections_none;
 
-  fill_in_fdata(&fdata, cf, phdr, offset);
+  /* init the packet range */
+  packet_range_init(&print_args.range);
 
-  /* Grab any resolved addresses */
-  if (g_resolv_flags) {
-    host_name_lookup_process(NULL);
-  }
+  if (verbose) {
+    /* Print the information in the protocol tree. */
+    proto_tree_print(&print_args, edt, stdout);
+    if (!print_hex) {
+      /* "print_hex_data()" will put out a leading blank line, as well
+       as a trailing one; print one here, to separate the packets,
+       only if "print_hex_data()" won't be called. */
+      printf("\n");
+    }
+  } else {
+    /* Just fill in the columns. */
+    epan_dissect_fill_in_columns(edt);
 
-  passed = TRUE;
-  if (cf->rfcode || verbose || num_tap_filters!=0)
-    create_proto_tree = TRUE;
-  else
-    create_proto_tree = FALSE;
-  /* The protocol tree will be "visible", i.e., printed, only if we're
-     not printing a summary.
+    /* Now print them. */
+    for (i = 0; i < cf->cinfo.num_cols; i++) {
+      switch (cf->cinfo.col_fmt[i]) {
+      case COL_NUMBER:
+	/*
+	 * Don't print this if we're doing a live capture from a network
+	 * interface - if we're doing a live capture, you won't be
+	 * able to look at the capture in the future (it's not being
+	 * saved anywhere), so the frame numbers are unlikely to be
+	 * useful.
+	 *
+	 * (XXX - it might be nice to be able to save and print at
+	 * the same time, sort of like an "Update list of packets
+	 * in real time" capture in Ethereal.)
+	 */
+        if (cf->iface != NULL)
+          continue;
+        printf("%3s", cf->cinfo.col_data[i]);
+        break;
 
-     We only need the columns if we're *not* verbose; in verbose mode,
-     we print the protocol tree, not the protocol summary. */
+      case COL_CLS_TIME:
+      case COL_REL_TIME:
+      case COL_ABS_TIME:
+      case COL_ABS_DATE_TIME:	/* XXX - wider */
+        printf("%10s", cf->cinfo.col_data[i]);
+        break;
 
-  edt = epan_dissect_new(create_proto_tree, verbose);
-  if (cf->rfcode) {
-    epan_dissect_prime_dfilter(edt, cf->rfcode);
-  }
+      case COL_DEF_SRC:
+      case COL_RES_SRC:
+      case COL_UNRES_SRC:
+      case COL_DEF_DL_SRC:
+      case COL_RES_DL_SRC:
+      case COL_UNRES_DL_SRC:
+      case COL_DEF_NET_SRC:
+      case COL_RES_NET_SRC:
+      case COL_UNRES_NET_SRC:
+        printf("%12s", cf->cinfo.col_data[i]);
+        break;
 
-  tap_queue_init(edt);
-  epan_dissect_run(edt, pseudo_header, buf, &fdata, verbose ? NULL : &cf->cinfo);
-  tap_push_tapped_queue(edt);
+      case COL_DEF_DST:
+      case COL_RES_DST:
+      case COL_UNRES_DST:
+      case COL_DEF_DL_DST:
+      case COL_RES_DL_DST:
+      case COL_UNRES_DL_DST:
+      case COL_DEF_NET_DST:
+      case COL_RES_NET_DST:
+      case COL_UNRES_NET_DST:
+        printf("%-12s", cf->cinfo.col_data[i]);
+        break;
 
-  if (cf->rfcode) {
-    passed = dfilter_apply_edt(cf->rfcode, edt);
-  }
-  if (passed) {
-    /* The packet passed the read filter. */
-#ifdef HAVE_LIBPCAP
-    ld.packet_count++;
-#endif
-    print_args.to_file = TRUE;
-    print_args.format = print_format;
-    print_args.print_summary = !verbose;
-    print_args.print_hex = verbose && print_hex;
-    print_args.print_formfeed = FALSE;
-    print_args.print_dissections = verbose ? print_dissections_expanded : print_dissections_none;
-
-    /* init the packet range */
-    packet_range_init(&print_args.range);
-
-    if (verbose) {
-      /* Print the information in the protocol tree. */
-      proto_tree_print(&print_args, edt, stdout);
-      if (!print_hex) {
-        /* "print_hex_data()" will put out a leading blank line, as well
-	   as a trailing one; print one here, to separate the packets,
-	   only if "print_hex_data()" won't be called. */
-        printf("\n");
+      default:
+        printf("%s", cf->cinfo.col_data[i]);
+        break;
       }
-    } else {
-      /* Just fill in the columns. */
-      epan_dissect_fill_in_columns(edt);
+      if (i != cf->cinfo.num_cols - 1) {
+        /*
+	 * This isn't the last column, so we need to print a
+	 * separator between this column and the next.
+	 *
+	 * If we printed a network source and are printing a
+	 * network destination of the same type next, separate
+	 * them with "->"; if we printed a network destination
+	 * and are printing a network source of the same type
+	 * next, separate them with "<-"; otherwise separate them
+	 * with a space.
+	 */
+	switch (cf->cinfo.col_fmt[i]) {
 
-      /* Now print them. */
-      for (i = 0; i < cf->cinfo.num_cols; i++) {
-        switch (cf->cinfo.col_fmt[i]) {
-	case COL_NUMBER:
-	  /*
-	   * Don't print this if we're doing a live capture from a network
-	   * interface - if we're doing a live capture, you won't be
-	   * able to look at the capture in the future (it's not being
-	   * saved anywhere), so the frame numbers are unlikely to be
-	   * useful.
-	   *
-	   * (XXX - it might be nice to be able to save and print at
-	   * the same time, sort of like an "Update list of packets
-	   * in real time" capture in Ethereal.)
-	   */
-          if (cf->iface != NULL)
-            continue;
-          printf("%3s", cf->cinfo.col_data[i]);
-          break;
-
-        case COL_CLS_TIME:
-        case COL_REL_TIME:
-        case COL_ABS_TIME:
-        case COL_ABS_DATE_TIME:	/* XXX - wider */
-          printf("%10s", cf->cinfo.col_data[i]);
-          break;
-
-        case COL_DEF_SRC:
-        case COL_RES_SRC:
-        case COL_UNRES_SRC:
-        case COL_DEF_DL_SRC:
-        case COL_RES_DL_SRC:
-        case COL_UNRES_DL_SRC:
-        case COL_DEF_NET_SRC:
-        case COL_RES_NET_SRC:
-        case COL_UNRES_NET_SRC:
-          printf("%12s", cf->cinfo.col_data[i]);
-          break;
-
-        case COL_DEF_DST:
-        case COL_RES_DST:
-        case COL_UNRES_DST:
-        case COL_DEF_DL_DST:
-        case COL_RES_DL_DST:
-        case COL_UNRES_DL_DST:
-        case COL_DEF_NET_DST:
-        case COL_RES_NET_DST:
-        case COL_UNRES_NET_DST:
-          printf("%-12s", cf->cinfo.col_data[i]);
-          break;
-
-        default:
-          printf("%s", cf->cinfo.col_data[i]);
-          break;
-        }
-        if (i != cf->cinfo.num_cols - 1) {
-          /*
-	   * This isn't the last column, so we need to print a
-	   * separator between this column and the next.
-	   *
-	   * If we printed a network source and are printing a
-	   * network destination of the same type next, separate
-	   * them with "->"; if we printed a network destination
-	   * and are printing a network source of the same type
-	   * next, separate them with "<-"; otherwise separate them
-	   * with a space.
-	   */
-	  switch (cf->cinfo.col_fmt[i]) {
-
-	  case COL_DEF_SRC:
-	  case COL_RES_SRC:
-	  case COL_UNRES_SRC:
-	    switch (cf->cinfo.col_fmt[i + 1]) {
-
-	    case COL_DEF_DST:
-	    case COL_RES_DST:
-	    case COL_UNRES_DST:
-	      printf(" -> ");
-	      break;
-
-	    default:
-	      putchar(' ');
-	      break;
-	    }
-	    break;
-
-	  case COL_DEF_DL_SRC:
-	  case COL_RES_DL_SRC:
-	  case COL_UNRES_DL_SRC:
-	    switch (cf->cinfo.col_fmt[i + 1]) {
-
-	    case COL_DEF_DL_DST:
-	    case COL_RES_DL_DST:
-	    case COL_UNRES_DL_DST:
-	      printf(" -> ");
-	      break;
-
-	    default:
-	      putchar(' ');
-	      break;
-	    }
-	    break;
-
-	  case COL_DEF_NET_SRC:
-	  case COL_RES_NET_SRC:
-	  case COL_UNRES_NET_SRC:
-	    switch (cf->cinfo.col_fmt[i + 1]) {
-
-	    case COL_DEF_NET_DST:
-	    case COL_RES_NET_DST:
-	    case COL_UNRES_NET_DST:
-	      printf(" -> ");
-	      break;
-
-	    default:
-	      putchar(' ');
-	      break;
-	    }
-	    break;
+	case COL_DEF_SRC:
+	case COL_RES_SRC:
+	case COL_UNRES_SRC:
+	  switch (cf->cinfo.col_fmt[i + 1]) {
 
 	  case COL_DEF_DST:
 	  case COL_RES_DST:
 	  case COL_UNRES_DST:
-	    switch (cf->cinfo.col_fmt[i + 1]) {
-
-	    case COL_DEF_SRC:
-	    case COL_RES_SRC:
-	    case COL_UNRES_SRC:
-	      printf(" <- ");
-	      break;
-
-	    default:
-	      putchar(' ');
-	      break;
-	    }
-	    break;
-
-	  case COL_DEF_DL_DST:
-	  case COL_RES_DL_DST:
-	  case COL_UNRES_DL_DST:
-	    switch (cf->cinfo.col_fmt[i + 1]) {
-
-	    case COL_DEF_DL_SRC:
-	    case COL_RES_DL_SRC:
-	    case COL_UNRES_DL_SRC:
-	      printf(" <- ");
-	      break;
-
-	    default:
-	      putchar(' ');
-	      break;
-	    }
-	    break;
-
-	  case COL_DEF_NET_DST:
-	  case COL_RES_NET_DST:
-	  case COL_UNRES_NET_DST:
-	    switch (cf->cinfo.col_fmt[i + 1]) {
-
-	    case COL_DEF_NET_SRC:
-	    case COL_RES_NET_SRC:
-	    case COL_UNRES_NET_SRC:
-	      printf(" <- ");
-	      break;
-
-	    default:
-	      putchar(' ');
-	      break;
-	    }
+	    printf(" -> ");
 	    break;
 
 	  default:
 	    putchar(' ');
 	    break;
 	  }
+	  break;
+
+	case COL_DEF_DL_SRC:
+	case COL_RES_DL_SRC:
+	case COL_UNRES_DL_SRC:
+	  switch (cf->cinfo.col_fmt[i + 1]) {
+
+	  case COL_DEF_DL_DST:
+	  case COL_RES_DL_DST:
+	  case COL_UNRES_DL_DST:
+	    printf(" -> ");
+	    break;
+
+	  default:
+	    putchar(' ');
+	    break;
+	  }
+	  break;
+
+	case COL_DEF_NET_SRC:
+	case COL_RES_NET_SRC:
+	case COL_UNRES_NET_SRC:
+	  switch (cf->cinfo.col_fmt[i + 1]) {
+
+	  case COL_DEF_NET_DST:
+	  case COL_RES_NET_DST:
+	  case COL_UNRES_NET_DST:
+	    printf(" -> ");
+	    break;
+
+	  default:
+	    putchar(' ');
+	    break;
+	  }
+	  break;
+
+	case COL_DEF_DST:
+	case COL_RES_DST:
+	case COL_UNRES_DST:
+	  switch (cf->cinfo.col_fmt[i + 1]) {
+
+	  case COL_DEF_SRC:
+	  case COL_RES_SRC:
+	  case COL_UNRES_SRC:
+	    printf(" <- ");
+	    break;
+
+	  default:
+	    putchar(' ');
+	    break;
+	  }
+	  break;
+
+	case COL_DEF_DL_DST:
+	case COL_RES_DL_DST:
+	case COL_UNRES_DL_DST:
+	  switch (cf->cinfo.col_fmt[i + 1]) {
+
+	  case COL_DEF_DL_SRC:
+	  case COL_RES_DL_SRC:
+	  case COL_UNRES_DL_SRC:
+	    printf(" <- ");
+	    break;
+
+	  default:
+	    putchar(' ');
+	    break;
+	  }
+	  break;
+
+	case COL_DEF_NET_DST:
+	case COL_RES_NET_DST:
+	case COL_UNRES_NET_DST:
+	  switch (cf->cinfo.col_fmt[i + 1]) {
+
+	  case COL_DEF_NET_SRC:
+	  case COL_RES_NET_SRC:
+	  case COL_UNRES_NET_SRC:
+	    printf(" <- ");
+	    break;
+
+	  default:
+	    putchar(' ');
+	    break;
+	  }
+	  break;
+
+	default:
+	  putchar(' ');
+	  break;
 	}
       }
-      putchar('\n');
     }
-    if (print_hex) {
-      print_hex_data(stdout, print_args.format, edt);
-      putchar('\n');
-    }
+    putchar('\n');
+  }
+  if (print_hex) {
+    print_hex_data(stdout, print_args.format, edt);
+    putchar('\n');
   }
 
   /* The ANSI C standard does not appear to *require* that a line-buffered
@@ -2846,9 +2846,6 @@ wtap_dispatch_cb_print(guchar *user, const struct wtap_pkthdr *phdr,
     show_print_file_io_error(errno);
     exit(2);
   }
-  epan_dissect_free(edt);
-
-  clear_fdata(&fdata);
 }
 
 static void
