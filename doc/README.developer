@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.22 2000/11/29 09:49:26 guy Exp $
+$Id: README.developer,v 1.23 2001/01/03 08:00:01 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -62,7 +62,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.22 2000/11/29 09:49:26 guy Exp $"
+The "$Id: README.developer,v 1.23 2001/01/03 08:00:01 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -72,7 +72,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.22 2000/11/29 09:49:26 guy Exp $
+ * $Id: README.developer,v 1.23 2001/01/03 08:00:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -212,7 +212,8 @@ proto_register_PROTOABBREV(void)
 	};
 
 /* Register the protocol name and description */
-	proto_PROTOABBREV = proto_register_protocol("PROTONAME", "PROTOABBREV");
+	proto_PROTOABBREV = proto_register_protocol("PROTONAME",
+	    "PROTOSHORTNAME", "PROTOABBREV");
 
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_PROTOABBREV, hf, array_length(hf));
@@ -496,8 +497,9 @@ Here is how the frame "protocol" is registered.
 	int proto_frame;
 
         proto_frame = proto_register_protocol (
-                /* name */      "Frame",
-                /* abbrev */    "frame" );
+                /* name */            "Frame",
+                /* short name */      "Frame",
+                /* abbrev */          "frame" );
 
 A header field is also registered with its name and abbreviation, but
 information about the its data type is needed. It helps to look at
@@ -711,7 +713,8 @@ the protocol that is the parent of the fields. Here is a complete example:
 			0x0, "Field B represents Bananas" }}
 	};
 
-	proto_eg = proto_register_protocol("Example Protocol", "proto");
+	proto_eg = proto_register_protocol("Example Protocol",
+	    "PROTO", "proto");
 	proto_register_field_array(proto_eg, hf, array_length(hf));
 
 Be sure that your array of hf_register_info structs is declared 'static',
@@ -1509,11 +1512,10 @@ to a configuration dialog.
 
 You must register the module with the preferences routine with -
 
-module_t *prefs_register_module(const char *name, const char *title,
-    void (*apply_cb)(void))
+module_t *prefs_register_protocol(proto_id, void (*apply_cb)(void))
 
-Where: name     - the module name in the preferences file
-	 title    - Title on the tab in the preferences dialog box
+Where: proto_id   - the value returned by "proto_register_protocol()" when
+		    the protocol was registered
 	 apply_cb - Callback routine that is call when preferences are applied
 
 
@@ -1536,7 +1538,7 @@ Then you can register the fields that can be configured by the user with these r
 	void prefs_register_string_preference(module_t *module, const char *name,
 	    const char *title, const char *description, char **var)
 
-Where: module - Returned by the prefs_register_module routine
+Where: module - Returned by the prefs_register_protocol routine
 	 name   - Appended to the module name to identify the field in the preference file
 	 title  - Field title in the preferences dialog
 	 description - Comments added to the preference file above the 
@@ -1549,10 +1551,12 @@ Where: module - Returned by the prefs_register_module routine
 
 An example from packet-bxxp.c -
 	
+  proto_bxxp = proto_register_protocol("Blocks eXtensible eXchange Protocol",
+				       "BXXP", "bxxp");
 
   /* Register our configuration options for BXXP, particularly our port */
 
-  bxxp_module = prefs_register_module("bxxp", "BXXP", proto_reg_handoff_bxxp);
+  bxxp_module = prefs_register_protocol(proto_bxxp, proto_reg_handoff_bxxp);
 
   prefs_register_uint_preference(bxxp_module, "tcp.port", "BXXP TCP Port",
 				 "Set the port for BXXP messages (if other"
@@ -1564,9 +1568,6 @@ An example from packet-bxxp.c -
 				 "Specifies that BXXP requires CRLF as a "
 				 "terminator, and not just CR or LF",
 				 &global_bxxp_strict_term);
-
-  proto_bxxp = proto_register_protocol("Blocks eXtensible eXchange Protocol",
-				       "bxxp");
 
 
 3. Plugins
@@ -1638,7 +1639,7 @@ Here is a sample code for the function:
 
 	/* register the new protocol, protocol fields, and subtrees */
 	if (proto_xxx == -1) { /* execute protocol initialization only once */
-	  proto_xxx = proto_register_protocol("XXX Protocol", "xxx");
+	  proto_xxx = proto_register_protocol("XXX Protocol", "XXX", "xxx");
 	  proto_register_field_array(proto_xxx, hf, array_length(hf));
 	  proto_register_subtree_array(ett, array_length(ett));
 	}
