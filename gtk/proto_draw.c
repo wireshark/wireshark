@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.50 2002/04/01 02:00:53 guy Exp $
+ * $Id: proto_draw.c,v 1.51 2002/04/08 19:10:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,28 +162,38 @@ static void
 expand_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data _U_)
 {
 	field_info	*finfo;
-	gboolean	*val;
 
 	finfo = gtk_ctree_node_get_row_data( ctree, node);
 	g_assert(finfo);
-	g_assert(finfo->tree_type >= 0 && finfo->tree_type < num_tree_types);
 
-	val = &tree_is_expanded[finfo->tree_type];
-	*val = TRUE;
+	/*
+	 * Nodes with "finfo->tree_type" of -1 have no ett_ value, and
+	 * are thus presumably leaf nodes and cannot be expanded.
+	 */
+	if (finfo->tree_type != -1) {
+		g_assert(finfo->tree_type >= 0 &&
+		    finfo->tree_type < num_tree_types);
+		tree_is_expanded[finfo->tree_type] = TRUE;
+	}
 }
 
 static void
 collapse_tree(GtkCTree *ctree, GtkCTreeNode *node, gpointer user_data _U_)
 {
 	field_info	*finfo;
-	gboolean	*val;
 
 	finfo = gtk_ctree_node_get_row_data( ctree, node);
 	g_assert(finfo);
-	g_assert(finfo->tree_type >= 0 && finfo->tree_type < num_tree_types);
 
-	val = &tree_is_expanded[finfo->tree_type];
-	*val = FALSE;
+	/*
+	 * Nodes with "finfo->tree_type" of -1 have no ett_ value, and
+	 * are thus presumably leaf nodes and cannot be collapsed.
+	 */
+	if (finfo->tree_type != -1) {
+		g_assert(finfo->tree_type >= 0 &&
+		    finfo->tree_type < num_tree_types);
+		tree_is_expanded[finfo->tree_type] = FALSE;
+	}
 }
 
 static void
