@@ -207,6 +207,7 @@ Heikki Vatiainen <hessu@cs.tut.fi> {
 	option to control whether to interpret the IPv4 TOS field as
 	    such or as the DiffServ field
 	COPS
+	SIP (Session Initiation Protocol)
 }
 
 Greg Hankins <gregh@twoguys.org> {
