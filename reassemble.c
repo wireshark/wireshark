@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.48 2004/05/15 00:41:27 ulfl Exp $
+ * $Id: reassemble.c,v 1.49 2004/06/20 19:20:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1545,21 +1545,22 @@ static void
 show_fragment(fragment_data *fd, int offset, const fragment_items *fit,
     proto_tree *ft, tvbuff_t *tvb)
 {
-	if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
-		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-		/* this fragment has some flags set, create a subtree
-		 * for it and display the flags.
-		 */
-		proto_tree *fet=NULL;
-		proto_item *fei=NULL;
-		int hf;
+	proto_item *fei=NULL;
+	int hf;
 
-		if (fd->flags & (FD_OVERLAPCONFLICT
-			|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-			hf = *(fit->hf_fragment_error);
-		} else {
-			hf = *(fit->hf_fragment);
-		}
+	if (fd->flags & (FD_OVERLAPCONFLICT
+		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+		hf = *(fit->hf_fragment_error);
+	} else {
+		hf = *(fit->hf_fragment);
+	}
+	if (fd->len == 0) {
+		fei = proto_tree_add_uint_format(ft, hf,
+			tvb, offset, fd->len,
+			fd->frame,
+			"Frame: %u (no data)",
+			fd->frame);
+	} else {
 		fei = proto_tree_add_uint_format(ft, hf,
 			tvb, offset, fd->len,
 			fd->frame,
@@ -1567,8 +1568,16 @@ show_fragment(fragment_data *fd, int offset, const fragment_items *fit,
 			fd->frame,
 			offset,
 			offset+fd->len-1,
-            fd->len);
-        PROTO_ITEM_SET_GENERATED(fei);
+			fd->len);
+	}
+	PROTO_ITEM_SET_GENERATED(fei);
+	if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
+		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+		/* this fragment has some flags set, create a subtree
+		 * for it and display the flags.
+		 */
+		proto_tree *fet=NULL;
+
 		fet = proto_item_add_subtree(fei, *(fit->ett_fragment));
 		if (fd->flags&FD_OVERLAP) {
 			fei=proto_tree_add_boolean(fet,
@@ -1598,19 +1607,6 @@ show_fragment(fragment_data *fd, int offset, const fragment_items *fit,
 				TRUE);
 			PROTO_ITEM_SET_GENERATED(fei);
 		}
-	} else {
-		proto_item *fei;
-		/* nothing of interest for this fragment */
-		fei=proto_tree_add_uint_format(ft, *(fit->hf_fragment),
-			tvb, offset, fd->len,
-			fd->frame,
-			"Frame: %u, payload: %u-%u (%u bytes)",
-			fd->frame,
-			offset,
-			offset+fd->len-1,
-            fd->len
-		);
-	    PROTO_ITEM_SET_GENERATED(fei);
 	}
 }
 
