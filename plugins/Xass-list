@@ -85,4 +85,5 @@ rpc_init_proc_table, rpc_init_prog, rpc_prog_name, rpc_proc_name,
 rpc_prog_hf, rpc_roundup, dissect_rpc_bool, dissect_rpc_string,
 dissect_rpc_opaque_data, dissect_rpc_data, dissect_rpc_bytes,
 dissect_rpc_list, dissect_rpc_array, dissect_rpc_uint32, dissect_rpc_uint64,
-dissect_rpc_indir_call, dissect_rpc_indir_reply, 
+dissect_rpc_indir_call, dissect_rpc_indir_reply, crc16_ccitt_tvb,
+

@@ -1,7 +1,7 @@
 /* plugin_api_list.c
  * Used to generate various included files for plugin API
  *
- * $Id: plugin_api_list.c,v 1.35 2004/06/19 10:13:27 guy Exp $
+ * $Id: plugin_api_list.c,v 1.36 2004/06/30 08:21:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -42,6 +42,7 @@
 #include "tap.h"
 #include "asn1.h"
 #include "xdlc.h"
+#include "crc16.h"
 
 gint check_col(column_info*, gint);
 void col_clear(column_info*, gint);
@@ -478,3 +479,4 @@ int dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo,
 int dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo,
  proto_tree *tree, int offset, int result_id, int prog_id, int vers_id,
  int proc_id);
+guint16 crc16_ccitt_tvb(tvbuff_t *tvb, unsigned int len);

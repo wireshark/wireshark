@@ -291,3 +291,4 @@ addr_dissect_rpc_uint32 p_dissect_rpc_uint32;
 addr_dissect_rpc_uint64 p_dissect_rpc_uint64;
 addr_dissect_rpc_indir_call p_dissect_rpc_indir_call;
 addr_dissect_rpc_indir_reply p_dissect_rpc_indir_reply;
+addr_crc16_ccitt_tvb p_crc16_ccitt_tvb;

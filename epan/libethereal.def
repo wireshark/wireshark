@@ -73,6 +73,7 @@ conversation_get_proto_data
 conversation_new
 conversation_set_dissector
 copy_prefs
+crc16_ccitt_tvb
 create_dissector_handle
 create_persconffile_dir
 create_tempfile

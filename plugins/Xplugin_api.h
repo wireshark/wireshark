@@ -291,3 +291,4 @@
 #define dissect_rpc_uint64 (*p_dissect_rpc_uint64)
 #define dissect_rpc_indir_call (*p_dissect_rpc_indir_call)
 #define dissect_rpc_indir_reply (*p_dissect_rpc_indir_reply)
+#define crc16_ccitt_tvb (*p_crc16_ccitt_tvb)

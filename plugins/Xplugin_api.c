@@ -291,3 +291,4 @@ p_dissect_rpc_uint32 = pat->p_dissect_rpc_uint32;
 p_dissect_rpc_uint64 = pat->p_dissect_rpc_uint64;
 p_dissect_rpc_indir_call = pat->p_dissect_rpc_indir_call;
 p_dissect_rpc_indir_reply = pat->p_dissect_rpc_indir_reply;
+p_crc16_ccitt_tvb = pat->p_crc16_ccitt_tvb;

@@ -291,3 +291,4 @@ typedef int (*addr_dissect_rpc_uint32) (tvbuff_t *, proto_tree *, int, int);
 typedef int (*addr_dissect_rpc_uint64) (tvbuff_t *, proto_tree *, int, int);
 typedef int (*addr_dissect_rpc_indir_call) (tvbuff_t *, packet_info *, proto_tree *, int, int, guint32, guint32, guint32);
 typedef int (*addr_dissect_rpc_indir_reply) (tvbuff_t *, packet_info *, proto_tree *, int, int, int, int, int);
+typedef guint16 (*addr_crc16_ccitt_tvb) (tvbuff_t *, unsigned int);
