@@ -198,11 +198,12 @@ matching the filter are discarded.
 =item File:Save, File:Save As
 
 Save the current capture, or the packets currently displayed from that
-capture, to a file.  A check box lets you select whether to save all
-packets, or just those that have passed the current display filter, and
-an option menu lets you select (from a list of file formats in which at
-particular capture, or the packets currently displayed from that
-capture, can be saved), a file format in which to save it.
+capture, to a file.  Check boxes let you select whether to save all
+packets, or just those that have passed the current display filter and/or
+those that are currently marked, and an option menu lets you select (from 
+a list of file formats in which at particular capture, or the packets 
+currently displayed from that capture, can be saved), a file format in 
+which to save it.
 
 =item File:Print
 
@@ -232,6 +233,18 @@ selected), for a packet matching a given display filter.
 =item Edit:Go To Frame
 
 Allows you to go to a particular numbered packet.
+
+=item Edit:Mark Frame
+
+Allows you to mark (or unmark if currently marked) the selected packet.
+
+=item Edit:Mark All Frames
+
+Allows you to mark all packets that are currently displayed.
+
+=item Edit:Unmark All Frames
+
+Allows you to unmark all packets that are currently displayed.
 
 =item Edit:Preferences
 
@@ -380,6 +393,8 @@ MAC layer address is displayed for unknown packet types.
 
 The right mouse button can be used to pop up a menu of operations.
 
+The middle mouse button can be used to mark a packet.
+
 =item Middle Pane
 
 The middle pane contains a I<protocol tree> for the currently-selected
@@ -392,6 +407,8 @@ menu of operations.
 The lowest pane contains a hex dump of the actual packet data. 
 Selecting a field in the I<protocol tree> highlights the corresponding
 bytes in this section.
+
+The right mouse button can be used to pop up a menu of operations.
 
 =item Current Filter
 
@@ -500,6 +517,11 @@ the selection to the new item in the packet list or protocol tree.
 =item Fonts
 
 The "Font..." button lets you select the font to be used for most text.
+
+=item Colors
+
+The "Colors..." button lets you select the colors to be used for instance
+for the marked frames.
 
 =back
 
