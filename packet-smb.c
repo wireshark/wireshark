@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.273 2002/07/27 03:18:29 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.274 2002/07/27 05:03:53 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -677,7 +677,7 @@ fragment_items smb_frag_items = {
 proto_tree *top_tree=NULL;     /* ugly */
 
 static char *decode_smb_name(unsigned char);
-static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *smb_tree, guint8 cmd);
+static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *smb_tree, guint8 cmd, gboolean first_pdu);
 static const gchar *get_unicode_or_ascii_string(tvbuff_t *tvb,
     int *offsetp, packet_info *pinfo, int *len, gboolean nopad,
     gboolean exactlen, guint16 *bcp);
@@ -4747,7 +4747,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	}
 
 	/* call AndXCommand (if there are any) */
-	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd);
+	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
 }
@@ -4784,7 +4784,7 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	END_OF_SMB
 
 	/* call AndXCommand (if there are any) */
-	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd);
+	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
 }
@@ -4958,7 +4958,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	END_OF_SMB
 
 	/* call AndXCommand (if there are any) */
-	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd);
+	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
 }
@@ -5087,7 +5087,7 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	END_OF_SMB
 
 	/* call AndXCommand (if there are any) */
-	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd);
+	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
 }
@@ -5169,7 +5169,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	END_OF_SMB
 
 	/* call AndXCommand (if there are any) */
-	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd);
+	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
 }
@@ -5302,7 +5302,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	END_OF_SMB
 
 	/* call AndXCommand (if there are any) */
-	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd);
+	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
 }
@@ -5441,7 +5441,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	END_OF_SMB
 
 	/* call AndXCommand (if there are any) */
-	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd);
+	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
 }
@@ -5497,7 +5497,7 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	END_OF_SMB
 
 	/* call AndXCommand (if there are any) */
-	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd);
+	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
 }
@@ -5780,7 +5780,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	END_OF_SMB
 
 	/* call AndXCommand (if there are any) */
-	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd);
+	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
 }
@@ -5871,7 +5871,7 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	END_OF_SMB
 
 	/* call AndXCommand (if there are any) */
-	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd);
+	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
 }
@@ -5909,7 +5909,7 @@ dissect_empty_andx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 	END_OF_SMB
 
 	/* call AndXCommand (if there are any) */
-	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd);
+	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
 }
@@ -6053,7 +6053,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	END_OF_SMB
 
 	/* call AndXCommand (if there are any) */
-	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd);
+	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
 }
@@ -6180,7 +6180,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	END_OF_SMB
 
 	/* call AndXCommand (if there are any) */
-	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd);
+	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
 }
@@ -8906,7 +8906,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	END_OF_SMB
 
 	/* call AndXCommand (if there are any) */
-	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd);
+	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
 }
@@ -8994,7 +8994,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	END_OF_SMB
 
 	/* call AndXCommand (if there are any) */
-	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd);
+	dissect_smb_command(tvb, pinfo, andxoffset, smb_tree, cmd, FALSE);
 
 	return offset;
 }
@@ -13336,7 +13336,7 @@ static smb_function smb_dissector[256] = {
 };
 
 static int
-dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *smb_tree, guint8 cmd)
+dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *smb_tree, guint8 cmd, gboolean first_pdu)
 {
 	int old_offset = offset;
 	smb_info_t *si;
@@ -13348,9 +13348,17 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *s
 		int (*dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree);
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-				decode_smb_name(cmd),
-				(si->request)? "Request" : "Response");
+			if(first_pdu){
+				col_append_fstr(pinfo->cinfo, COL_INFO, 
+					"%s %s",
+					decode_smb_name(cmd),
+					(si->request)? "Request" : "Response");
+			} else {
+				col_append_fstr(pinfo->cinfo, COL_INFO, 
+					"; %s",
+					decode_smb_name(cmd));
+			}
+			
 		}
 
 		cmd_item = proto_tree_add_text(smb_tree, tvb, offset, -1,
@@ -15591,7 +15599,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset += 2;
 
 	pinfo->private_data = &si;
-        dissect_smb_command(tvb, pinfo, offset, tree, si.cmd);
+        dissect_smb_command(tvb, pinfo, offset, tree, si.cmd, TRUE);
 
 	/* Append error info from this packet to info string. */
 	if (!si.request && check_col(pinfo->cinfo, COL_INFO)) {
