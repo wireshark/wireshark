@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.133 2002/03/22 23:42:22 guy Exp $
+ * $Id: tethereal.c,v 1.134 2002/03/23 00:20:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1027,7 +1027,6 @@ capture(volatile int packet_count, int out_file_type)
     fprintf(stderr, "tethereal: Can't get packet-drop statistics: %s\n",
 	pcap_geterr(ld.pch));
   }
-/* deicher */
 /* Report the number of captured packets if not reported during capture and
    we are not saving to a file. */
   if (quiet && (cfile.save_file != NULL)) {
@@ -1080,7 +1079,6 @@ capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   args.pdh = ld->pdh;
   if (ld->pdh) {
     wtap_dispatch_cb_write((u_char *)&args, &whdr, 0, NULL, pd);
-/* deicher */
 /* Report packet capture count if not quiet */
     if (!quiet) {
       fprintf(stderr, "\r%u ", cfile.count);
