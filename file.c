@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.364 2004/02/21 12:58:41 ulfl Exp $
+ * $Id: file.c,v 1.365 2004/02/22 22:22:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -140,7 +140,6 @@ typedef struct {
 	char_enc	encoding;
 	gint		format;		/* text or PostScript */
 } print_data;
-
 
 int
 cf_open(char *fname, gboolean is_tempfile, capture_file *cf)
@@ -2253,13 +2252,26 @@ find_packet(capture_file *cf,
       if (cf->sbackward) {
         /* Go on to the previous frame. */
         fdata = fdata->prev;
-        if (fdata == NULL)
+        if (fdata == NULL) {
+          /*
+           * XXX - other apps have a bit more of a detailed message
+           * for this, and instead of offering "OK" and "Cancel",
+           * they offer things such as "Continue" and "Cancel";
+           * we need an API for popping up alert boxes with
+           * {Verb} and "Cancel".
+           */
+          simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTN_OK,
+                        "We have reached the beginning of the file\n\n Click OK to continue the search from the end of the file.");
           fdata = cf->plist_end;	/* wrap around */
+        }
       } else {
         /* Go on to the next frame. */
         fdata = fdata->next;
-        if (fdata == NULL)
+        if (fdata == NULL) {
+          simple_dialog(ESD_TYPE_CONFIRMATION, ESD_BTN_OK,
+                      "We have reached the end of the file\n\n Click OK to continue the search from the beginning of the file.");
           fdata = cf->plist;	/* wrap around */
+        }
       }
 
       count++;
