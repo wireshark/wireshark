@@ -2,7 +2,7 @@
  * Structures and functions for NetWare Core Protocol.
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ncp-int.h,v 1.2 2000/08/11 13:34:06 deniel Exp $
+ * $Id: packet-ncp-int.h,v 1.3 2001/06/28 02:42:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,7 +41,7 @@ typedef struct {
 typedef struct {
 	guint8			func;
 	guint8			subfunc;
-	guint8			submask;
+	guint8			has_subfunc;
 	gchar*			name;
 	gint			group;
 	const ptvc_record	*request_ptvc;

@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ncp2222.inc,v 1.2 2000/10/21 05:52:21 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.3 2001/06/28 02:42:48 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,22 @@ ncp_requires_subfunc(guint8 func)
 	return FALSE;
 }
 
+/* Does the NCP func have a length parameter? */
+static gboolean
+ncp_has_length_parameter(guint8 func)
+{
+	const guint8 *ncp_func_requirement = ncp_func_has_no_length_parameter;
+
+	while (*ncp_func_requirement != 0) {
+		if (*ncp_func_requirement == func) {
+			return FALSE;
+		}
+		ncp_func_requirement++;
+	}
+	return TRUE;
+}
+		
+
 /* Return a ncp_record* based on func and possibly subfunc */
 static const ncp_record *
 ncp_record_find(guint8 func, guint8 subfunc)
@@ -51,9 +67,15 @@ ncp_record_find(guint8 func, guint8 subfunc)
 
 	while(ncp_rec->func != 0 || ncp_rec->subfunc != 0 ||
 		ncp_rec->name != NULL ) {
-		if (ncp_rec->func == func &&
-			ncp_rec->subfunc == (subfunc & ncp_rec->submask)) {
-			return ncp_rec;
+		if (ncp_rec->func == func) {
+			if (ncp_rec->has_subfunc) {
+				if (ncp_rec->subfunc == subfunc) {
+					return ncp_rec;
+				}
+			}
+			else {
+				return ncp_rec;
+			}
 		}
 		ncp_rec++;
 	}
@@ -87,6 +109,12 @@ ncp_error_string(const error_equivalency *errors, guint8 completion_code)
 	return "Unknown";
 }
 
+static const ncp_record ncp1111_request =
+	{ 0x01, 0x00, NO_SUBFUNC, "Create Connection Service", NCP_GROUP_CONNECTION,
+		NULL, NULL, NULL, NULL,
+		ncp_0x2_errors };
+
+
 void
 dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		guint16 nw_connection, guint8 sequence,
@@ -94,19 +122,37 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 {
 	guint8			func, subfunc = 0;
 	gboolean		requires_subfunc;
-	const ncp_record	*ncp_rec;
+	gboolean		has_length = TRUE;
+	const ncp_record	*ncp_rec = NULL;
 	conversation_t		*conversation;
 	ptvcursor_t		*ptvc = NULL;
 
 	func = tvb_get_guint8(tvb, 6);
 
 	requires_subfunc = ncp_requires_subfunc(func);
+	has_length = ncp_has_length_parameter(func);
 	if (requires_subfunc) {
-		subfunc = tvb_get_guint8(tvb, 9);
+		if (has_length) {
+			subfunc = tvb_get_guint8(tvb, 9);
+		}
+		else {
+			subfunc = tvb_get_guint8(tvb, 7);
+		}
 	}
 
-	ncp_rec = ncp_record_find(func, subfunc);
+	/* Determine which ncp_record to use. */
+	switch (type) {
+		case 0x1111:
+			ncp_rec = &ncp1111_request;
+			break;
+		case 0x2222:
+			ncp_rec = ncp_record_find(func, subfunc);
+			break;
+		default:
+			ncp_rec = NULL;
+	}
 
+	/* Fill in the INFO column. */
 	if (check_col(pinfo->fd, COL_INFO)) {
 		if (ncp_rec) {
 			col_add_fstr(pinfo->fd, COL_INFO, "C %s", ncp_rec->name);
@@ -114,13 +160,13 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		else {
 			if (requires_subfunc) {
 				col_add_fstr(pinfo->fd, COL_INFO,
-						"C Unknown Function 0x%02X/0x%02x",
-						func, subfunc);
+					"C Unknown Function 0x%02X/0x%02x (%d %d)",
+					func, subfunc, func, subfunc);
 			}
 			else {
 				col_add_fstr(pinfo->fd, COL_INFO,
-						"C Unknown Function 0x%02x",
-						func);
+					"C Unknown Function 0x%02x (%d)",
+					func, func);
 			}
 		}
 	}
@@ -145,16 +191,35 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	if (ncp_tree) {
-		proto_tree_add_uint_format(ncp_tree, hf_ncp_func, tvb, 6, 1,
-			func, "Function Code: 0x%02X (%s)",
-			func, ncp_rec ? ncp_rec->name : "Unknown");
+		switch (type) {
+			case 0x1111:
+				; /* nothing */
+				break;
+
+			case 0x2222:
+				proto_tree_add_uint_format(ncp_tree, hf_ncp_func, tvb, 6, 1,
+					func, "Function Code: 0x%02X (%s)",
+					func, ncp_rec ? ncp_rec->name : "Unknown");
+				break;
+
+			default:
+				; /* nothing */
+				break;
+		}
 
 		if (requires_subfunc) {
-			proto_tree_add_item(ncp_tree, hf_ncp_length, tvb, 7,
-					2, FALSE);
-			proto_tree_add_item(ncp_tree, hf_ncp_subfunc, tvb, 9,
-					1, FALSE);
-			ptvc = ptvcursor_new(ncp_tree, tvb, 10);
+			if (has_length) {
+				proto_tree_add_item(ncp_tree, hf_ncp_length, tvb, 7,
+						2, FALSE);
+				proto_tree_add_item(ncp_tree, hf_ncp_subfunc, tvb, 9,
+						1, FALSE);
+				ptvc = ptvcursor_new(ncp_tree, tvb, 10);
+			}
+			else {
+				proto_tree_add_item(ncp_tree, hf_ncp_subfunc, tvb, 7,
+						1, FALSE);
+				ptvc = ptvcursor_new(ncp_tree, tvb, 8);
+			}
 		}
 		else {
 			ptvc = ptvcursor_new(ncp_tree, tvb, 7);

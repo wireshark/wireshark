@@ -20,7 +20,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.9 2001/06/18 02:17:44 guy Exp $
+$Id: ncp2222.py,v 1.10 2001/06/28 02:42:48 gram Exp $
 
 Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
 
@@ -40,6 +40,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 """
 
 import sys
+import string
+
+errors 		= {}
+groups		= {}
+packets		= None
+compcode_lists	= None
+ptvc_lists	= None
 
 ##############################################################################
 # Global containers
@@ -82,9 +89,6 @@ class UniqueCollection:
 		return 0
 
 
-packets		= UniqueCollection('NCP Packet Descriptions')
-compcode_lists	= UniqueCollection('Completion Code Lists')
-ptvc_lists	= UniqueCollection('PTVC Lists')
 
 
 ##############################################################################
@@ -255,7 +259,7 @@ class PTVCRecord:
 
 class NCP:
 	"NCP Packet class"
-	def __init__(self, func_code, description, group):
+	def __init__(self, func_code, description, group, has_length=1):
 		"Constructor"
 		self.func_code		= func_code
 		self.description	= description
@@ -263,6 +267,7 @@ class NCP:
 		self.codes		= None
 		self.request_records	= None
 		self.reply_records	= None
+		self.has_length		= has_length
 
 		if not groups.has_key(group):
 			sys.stderr.write("NCP 0x%x has invalid group '%s'\n" % (self.func_code, group))
@@ -300,6 +305,9 @@ class NCP:
 		else:
 			return 1
 
+	def HasLength(self):
+		return self.has_length
+
 	def Description(self):
 		return self.description
 
@@ -316,7 +324,10 @@ class NCP:
 		self.request_size = size
 		self.request_records = records
 		if self.HasSubFunction():
-			self.CheckRecords(size, records, "Request", 10)
+			if self.HasLength():
+				self.CheckRecords(size, records, "Request", 10)
+			else:
+				self.CheckRecords(size, records, "Request", 8)
 		else:
 			self.CheckRecords(size, records, "Request", 7)
 		self.ptvc_request = self.MakePTVC(records, "request")
@@ -610,9 +621,17 @@ class bytes(Type):
 ##############################################################################
 # NCP Field Types. Defined in Appendix A of "Programmer's Guide..."
 ##############################################################################
+AcceptedMaxSize	= uint16("accepted_max_size", "Accepted Max Size")
+AcctVersion	= byte("acct_version", "Acct Version")
 BufferSize	= uint16("buffer_size", "Buffer Size")
 ConnectionNumber	= uint32("connection_number", "Connection Number")
+ConnectionsSupportedMax	= uint16("connections_supported_max", "Connections Supported Max")
+ConnectionsInUse	= uint16("connections_in_use", "Connections In Use")
+ConnectionsMaxUsed	= uint16("connections_max_used", "Connections Max Used")
 DirHandle	= byte("dir_handle", "Directory Handle")
+
+EchoSocket	= uint16("echo_socket", "Echo Socket")
+EchoSocket.Display('BASE_HEX')
 
 FileHandle	= bytes("file_handle", "File Handle", 6)
 
@@ -625,8 +644,10 @@ FileLock	= val_string8("file_lock", "File Lock", [
 FileOffset	= uint32("file_offset", "File Offset")
 FilePath	= nstring8("file_path", "File Path")
 FileSize	= uint32("file_size", "File Size")
+InternetBridgeVersion	= byte("internet_bridge_version", "Internet Bridge Version")
 JobType		= uint16("job_type", "Job Type")
 
+LocalLoginInfoCcode	= byte("local_login_info_ccode", "Local Login Info C Code")
 LogicalLockType	= val_string8("logical_lock_type", "Logical Lock Type", [
 	[ 0x00, "Log file" ],
 	[ 0x01, "Log and lock file for exclusive read/write use" ],
@@ -637,6 +658,7 @@ LogicalRecordName	= nstring8("logical_record_name", "Logical Record Name")
 LogLockType	= byte("log_lock_type", "Log Lock Type")
 
 MaxBytes	= uint16("max_bytes", "Maximum Number of Bytes")
+MixedModePathFlag	= byte("mixed_mode_path_flag", "Mixed Mode Path Flag")
 NumBytes	= uint16("num_bytes", "Number of Bytes")
 
 ObjectFlags	= val_string8("object_flags", "Object Flags", [
@@ -685,6 +707,18 @@ ObjectType	= val_string16("object_type", "Object Type", [
 	[ 0x0027,	"TCP/IP gateway" ],
 ])
 
+OSLanguageID	= byte("os_language_id", "OS Language ID")
+OSMajorVersion	= byte("os_major_version", "OS Major Version")
+OSMinorVersion	= byte("os_minor_version", "OS Minor Version")
+OSRevision	= byte("os_revision", "OS Revision")
+PingVersion	= uint16("ping_version", "Ping Version", endianness=LE)
+PingVersion.Display("BASE_HEX")
+
+PrintServerVersion	= byte("print_server_version", "Print Server Version")
+ProductMajorVersion	= uint16("product_major_version", "Product Major Version")
+ProductMinorVersion	= uint16("product_minor_version", "Product Minor Version")
+ProductRevisionVersion	= byte("product_revision_version", "Product Revision Version")
+
 PropertyHasMoreSegments	= val_string8("property_has_more_segments",
 	"Property Has More Segments", [
 	[ 0x00,	"Is last segment" ],
@@ -702,527 +736,326 @@ PropertyType	= val_string8("property_type", "Property Type", [
 	[ 0x03,	"Dynamic set" ],
 ])
 
+ProposedMaxSize	= uint16("proposed_max_size", "Proposed Max Size")
+
+Reserved3	= bytes("reserved3", "Reserved", 3)
+Reserved51	= bytes("reserved51", "Reserved", 51)
+
+QMSVersion	= byte("qms_version", "QMS Version")
+
+# XXX - needs bitfield
+SecurityFlag	= byte("security_flag", "Security Flag")
+SecurityRestrictionVersion	= byte("security_restriction_version", "Security Restriction Version")
+
+ServerName	= stringz("server_name", "Server Name")
+SFTLevel	= byte("sft_level", "SFT Level")
+
 TaskNumber	= uint32("task_number", "Task Number")
 TimeoutLimit	= uint16("timeout_limit", "Timeout Limit")
+TTSLevel	= byte("tts_level", "TTS Level")
 UnknownByte	= byte("unknown_byte", "Unknown Byte")
 
+VAPVersion	= byte("vap_version", "VAP Version")
+VirtualConsoleVersion	= byte("virtual_console_version", "Virtual Console Version")
+VolumesSupportedMax	= uint16("volumes_supported_max", "Volumes Supported Max")
 
 ##############################################################################
 # NCP Groups
 ##############################################################################
-groups = {}
-groups['accounting']	= "Accounting"
-groups['afp']		= "AFP"
-groups['auditing']	= "Auditing"
-groups['bindery']	= "Bindery"
-groups['connection']	= "Connection"
-groups['directory']	= "Directory"
-groups['extended']	= "Extended Attribute"
-groups['file']		= "File"
-groups['fileserver']	= "File Server"
-groups['message']	= "Message"
-groups['migration']	= "Data Migration"
-groups['misc']		= "Miscellaneous"
-groups['name']		= "Name Space"
-groups['nds']		= "NetWare Directory"
-groups['print']		= "Print"
-groups['queue']		= "Queue"
-groups['sync']		= "Synchronization"
-groups['tss']		= "Transaction Tracking"
+def define_groups():
+	groups['accounting']	= "Accounting"
+	groups['afp']		= "AFP"
+	groups['auditing']	= "Auditing"
+	groups['bindery']	= "Bindery"
+	groups['connection']	= "Connection"
+	groups['directory']	= "Directory"
+	groups['extended']	= "Extended Attribute"
+	groups['file']		= "File"
+	groups['fileserver']	= "File Server"
+	groups['message']	= "Message"
+	groups['migration']	= "Data Migration"
+	groups['misc']		= "Miscellaneous"
+	groups['name']		= "Name Space"
+	groups['nds']		= "NetWare Directory"
+	groups['print']		= "Print"
+	groups['queue']		= "Queue"
+	groups['sync']		= "Synchronization"
+	groups['tss']		= "Transaction Tracking"
+	groups['unknown']	= "Unknown"
 
 ##############################################################################
 # NCP Errors
 ##############################################################################
-errors = {}
-errors[0x0000] = "Ok"
-errors[0x0001] = "Transaction tracking is available"
-errors[0x0002] = "Ok. The data has been written"
+def define_errors():
+	errors[0x0000] = "Ok"
+	errors[0x0001] = "Transaction tracking is available"
+	errors[0x0002] = "Ok. The data has been written"
 
-errors[0x0100] = "One or more of the ConnectionNumbers in the send list are invalid"
-errors[0x0101] = "Invalid space limit"
-errors[0x0102] = "Insufficient disk space"
-errors[0x0103] = "Queue server cannot add jobs"
-errors[0x0104] = "Out of disk space"
-errors[0x0105] = "Semaphore overflow"
+	errors[0x0100] = "One or more of the ConnectionNumbers in the send list are invalid"
+	errors[0x0101] = "Invalid space limit"
+	errors[0x0102] = "Insufficient disk space"
+	errors[0x0103] = "Queue server cannot add jobs"
+	errors[0x0104] = "Out of disk space"
+	errors[0x0105] = "Semaphore overflow"
 
-errors[0x0200] = "One or more clients in the send list are not logged in"
-errors[0x0201] = "Queue server cannot attach"
+	errors[0x0200] = "One or more clients in the send list are not logged in"
+	errors[0x0201] = "Queue server cannot attach"
 
-errors[0x0300] = "One or more clients in the send list are not accepting messages"
+	errors[0x0300] = "One or more clients in the send list are not accepting messages"
 
-errors[0x0400] = "Client already has message"
-errors[0x0401] = "Queue server cannot service job"
+	errors[0x0400] = "Client already has message"
+	errors[0x0401] = "Queue server cannot service job"
 
-errors[0x7e00] = "NCP failed boundary check"
+	errors[0x7e00] = "NCP failed boundary check"
 
-errors[0x8000] = "Lock fail"
-errors[0x8100] = "A file handle could not be allocated by the file server"
-errors[0x8200] = "Unauthorized to open the file"
-errors[0x8300] = "Unable to read/write the volume. Possible bad sector on the file server"
+	errors[0x8000] = "Lock fail"
+	errors[0x8100] = "A file handle could not be allocated by the file server"
+	errors[0x8200] = "Unauthorized to open the file"
+	errors[0x8300] = "Unable to read/write the volume. Possible bad sector on the file server"
 
-errors[0x8400] = "Unauthorized to create the directory"
-errors[0x8401] = "Unauthorized to create the file"
+	errors[0x8400] = "Unauthorized to create the directory"
+	errors[0x8401] = "Unauthorized to create the file"
 
-errors[0x8500] = "Unauthorized to delete the specified file"
-errors[0x8501] = "Unauthorized to overwrite an existing file in this directory"
+	errors[0x8500] = "Unauthorized to delete the specified file"
+	errors[0x8501] = "Unauthorized to overwrite an existing file in this directory"
 
-errors[0x8700] = "An unexpected character was encountered in the filename"
-errors[0x8800] = "Invalid file handle"
-errors[0x8900] = "Unauthorized to search this directory"
-errors[0x8a00] = "Unauthorized to delete this directory"
-errors[0x8b00] = "Unauthorized to rename a file in this directory"
+	errors[0x8700] = "An unexpected character was encountered in the filename"
+	errors[0x8800] = "Invalid file handle"
+	errors[0x8900] = "Unauthorized to search this directory"
+	errors[0x8a00] = "Unauthorized to delete this directory"
+	errors[0x8b00] = "Unauthorized to rename a file in this directory"
 
-errors[0x8c00] = "No set privileges"
-errors[0x8c01] = "Unauthorized to modify a file in this directory"
-errors[0x8c02] = "Unauthorized to change the restriction on this volume"
+	errors[0x8c00] = "No set privileges"
+	errors[0x8c01] = "Unauthorized to modify a file in this directory"
+	errors[0x8c02] = "Unauthorized to change the restriction on this volume"
 
-errors[0x8d00] = "Some of the affected files are in use by another client"
-errors[0x8d01] = "The affected file is in use"
+	errors[0x8d00] = "Some of the affected files are in use by another client"
+	errors[0x8d01] = "The affected file is in use"
 
-errors[0x8e00] = "All of the affected files are in use by another client"
-errors[0x8f00] = "Some of the affected files are read-only"
+	errors[0x8e00] = "All of the affected files are in use by another client"
+	errors[0x8f00] = "Some of the affected files are read-only"
 
-errors[0x9000] = "An attempt to modify a read-only volume occurred"
-errors[0x9001] = "All of the affected files are read-only"
+	errors[0x9000] = "An attempt to modify a read-only volume occurred"
+	errors[0x9001] = "All of the affected files are read-only"
 
-errors[0x9100] = "Some of the affected files already exist"
+	errors[0x9100] = "Some of the affected files already exist"
 
-errors[0x9200] = "Directory with the new name already exists"
-errors[0x9201] = "All of the affected files already exist"
+	errors[0x9200] = "Directory with the new name already exists"
+	errors[0x9201] = "All of the affected files already exist"
 
-errors[0x9300] = "Unauthorized to read from this file"
-errors[0x9400] = "Unauthorized to write to this file"
-errors[0x9500] = "The affected file is detached"
+	errors[0x9300] = "Unauthorized to read from this file"
+	errors[0x9400] = "Unauthorized to write to this file"
+	errors[0x9500] = "The affected file is detached"
 
-errors[0x9600] = "The file server has run out of memory to service this request"
-errors[0x9601] = "No alloc space for message"
+	errors[0x9600] = "The file server has run out of memory to service this request"
+	errors[0x9601] = "No alloc space for message"
 
-errors[0x9800] = "The affected volume is not mounted"
-errors[0x9801] = "The volume associated with VolumeNumber is not mounted"
-errors[0x9802] = "The resulting voume does not exist"
-errors[0x9803] = "The destination volume is not mounted"
+	errors[0x9800] = "The affected volume is not mounted"
+	errors[0x9801] = "The volume associated with VolumeNumber is not mounted"
+	errors[0x9802] = "The resulting voume does not exist"
+	errors[0x9803] = "The destination volume is not mounted"
 
-errors[0x9900] = "The file server has run out of directory space on the affected volume"
-errors[0x9a00] = "The request attempted to rename the affected file to another volume"
+	errors[0x9900] = "The file server has run out of directory space on the affected volume"
+	errors[0x9a00] = "The request attempted to rename the affected file to another volume"
 
-errors[0x9b00] = "DirHandle is not associated with a valid directory path"
-errors[0x9b01] = "A resulting directory handle is not associated with a valid directory path"
-errors[0x9b02] = "The directory associated with DirHandle does not exist"
-errors[0x9b03] = "Bad directory handle"
+	errors[0x9b00] = "DirHandle is not associated with a valid directory path"
+	errors[0x9b01] = "A resulting directory handle is not associated with a valid directory path"
+	errors[0x9b02] = "The directory associated with DirHandle does not exist"
+	errors[0x9b03] = "Bad directory handle"
 
-errors[0x9c00] = "The resulting path is not valid"
-errors[0x9c01] = "The resulting file path is not valid"
-errors[0x9c02] = "The resulting directory path is not valid"
-errors[0x9c03] = "Invalid path"
+	errors[0x9c00] = "The resulting path is not valid"
+	errors[0x9c01] = "The resulting file path is not valid"
+	errors[0x9c02] = "The resulting directory path is not valid"
+	errors[0x9c03] = "Invalid path"
 
-errors[0x9d00] = "A directory handle was not available for allocation"
+	errors[0x9d00] = "A directory handle was not available for allocation"
 
-errors[0x9e00] = "The name of the directory does not conform to a legal name for this name space"
-errors[0x9e01] = "The new directory name does not conform to a legal name for this name space"
+	errors[0x9e00] = "The name of the directory does not conform to a legal name for this name space"
+	errors[0x9e01] = "The new directory name does not conform to a legal name for this name space"
 
-errors[0x9f00] = "The request attempted to delete a directory that is in use by another client"
+	errors[0x9f00] = "The request attempted to delete a directory that is in use by another client"
 
-errors[0xa000] = "The request attempted to delete a directory that is not empty"
-errors[0xa100] = "An unrecoverable error occured on the affected directory"
-errors[0xa200] = "The request attempted to read from a file region that is physically locked"
-errors[0xa400] = "Invalid directory rename attempted"
+	errors[0xa000] = "The request attempted to delete a directory that is not empty"
+	errors[0xa100] = "An unrecoverable error occured on the affected directory"
+	errors[0xa200] = "The request attempted to read from a file region that is physically locked"
+	errors[0xa400] = "Invalid directory rename attempted"
 
-errors[0xbf00] = "Requests for this name space are not valid on this volume"
+	errors[0xbf00] = "Requests for this name space are not valid on this volume"
 
-errors[0xc000] = "Unauthorized to retrieve accounting data"
-errors[0xc100] = "The ACCOUNT_BALANCE property does not exist"
-errors[0xc200] = "The object has exceeded its credit limit"
-errors[0xc300] = "Too many holds have been placed against this account"
-errors[0xc400] = "The client account has been disabled"
+	errors[0xc000] = "Unauthorized to retrieve accounting data"
+	errors[0xc100] = "The ACCOUNT_BALANCE property does not exist"
+	errors[0xc200] = "The object has exceeded its credit limit"
+	errors[0xc300] = "Too many holds have been placed against this account"
+	errors[0xc400] = "The client account has been disabled"
 
-errors[0xc500] = "Access to the account has been denied because of intruder detection"
-errors[0xc501] = "Login lockout"
+	errors[0xc500] = "Access to the account has been denied because of intruder detection"
+	errors[0xc501] = "Login lockout"
 
-errors[0xc600] = "The caller does not have operator priviliges"
-errors[0xc601] = "The client does not have operator priviliges"
+	errors[0xc600] = "The caller does not have operator priviliges"
+	errors[0xc601] = "The client does not have operator priviliges"
 
-errors[0xd000] = "Queue error"
-errors[0xd100] = "The queue does not exist"
+	errors[0xd000] = "Queue error"
+	errors[0xd100] = "The queue does not exist"
 
-errors[0xd200] = "A queue server is not associated with this queue"
-errors[0xd201] = "A queue server is not associated with the selected queue"
-errors[0xd202] = "No queue server"
+	errors[0xd200] = "A queue server is not associated with this queue"
+	errors[0xd201] = "A queue server is not associated with the selected queue"
+	errors[0xd202] = "No queue server"
 
-errors[0xd300] = "No queue rights"
+	errors[0xd300] = "No queue rights"
 
-errors[0xd400] = "The queue is full and cannot accept another request"
-errors[0xd401] = "The queue associated with ObjectId is full and cannot accept another request"
+	errors[0xd400] = "The queue is full and cannot accept another request"
+	errors[0xd401] = "The queue associated with ObjectId is full and cannot accept another request"
 
-errors[0xd500] = "A job does not exist in this queue"
-errors[0xd501] = "No queue job"
-errors[0xd502] = "The job associated with JobNumber does not exist in this queue"
+	errors[0xd500] = "A job does not exist in this queue"
+	errors[0xd501] = "No queue job"
+	errors[0xd502] = "The job associated with JobNumber does not exist in this queue"
 
-errors[0xd600] = "The file server does not allow unencrypted passwords"
-errors[0xd601] = "No job right"
+	errors[0xd600] = "The file server does not allow unencrypted passwords"
+	errors[0xd601] = "No job right"
 
-errors[0xd700] = "Bad account"
-errors[0xd701] = "The old and new password strings are identical"
-errors[0xd702] = "The job is currently being serviced"
-errors[0xd703] = "The queue is currently servicing a job"
-errors[0xd704] = "Queue servicing"
+	errors[0xd700] = "Bad account"
+	errors[0xd701] = "The old and new password strings are identical"
+	errors[0xd702] = "The job is currently being serviced"
+	errors[0xd703] = "The queue is currently servicing a job"
+	errors[0xd704] = "Queue servicing"
 
-errors[0xd800] = "Queue not active"
+	errors[0xd800] = "Queue not active"
+
+	errors[0xd900] = "The file server cannot accept another connection as it has reached its limit"
+	errors[0xd901] = "The client is not security equivalent to one of the objects in the Q_SERVERS group property of the target queue"
+	errors[0xd902] = "Station is not a server"
+
+	errors[0xda00] = "Attempted to login to the file server during a restricted time period"
+	errors[0xda01] = "Queue halted"
+
+	errors[0xdb00] = "Attempted to login to the file server from an unauthorized workstation or network"
+	errors[0xdb01] = "The queue cannot attach another queue server"
+	errors[0xdb02] = "Maximum queue servers"
+
+	errors[0xde00] = "Attempted to login to the file server with an incorrect password"
+	errors[0xdf00] = "Attempted to login to the file server with a password that has expired"
+
+	errors[0xe700] = "No disk track"
+	errors[0xe800] = "Write to group"
+	errors[0xe900] = "The object is already a member of the group property"
+
+	errors[0xea00] = "No such member"
+	errors[0xea01] = "The bindery object is not a member of the set"
+	errors[0xea02] = "Non-existent member"
+
+	errors[0xeb00] = "The property is not a set property"
+
+	errors[0xec00] = "No such set"
+	errors[0xec01] = "The set property does not exist"
+
+	errors[0xed00] = "Property exists"
+	errors[0xed01] = "The property already exists"
+	errors[0xed02] = "An attempt was made to create a bindery object property that already exists"
+
+	errors[0xee00] = "The object already exists"
+	errors[0xee01] = "The bindery object already exists"
+
+	errors[0xef00] = "Illegal name"
+	errors[0xef01] = "Illegal characters in ObjectName field"
+	errors[0xef02] = "Invalid name"
+
+	errors[0xf000] = "A wildcard was detected in a field that does not support wildcards"
+	errors[0xf001] = "An illegal wildcard was detected in ObjectName"
+
+	errors[0xf100] = "The client does not have the rights to access this bindery object"
+	errors[0xf101] = "Bindery security"
+	errors[0xf102] = "Invalid bindery security"
+
+	errors[0xf200] = "Unauthorized to read from this object"
+	errors[0xf300] = "Unauthorized to rename this object"
+
+	errors[0xf400] = "Unauthorized to delete this object"
+	errors[0xf401] = "No object delete privileges"
+	errors[0xf402] = "Unauthorized to delete this queue"
+
+	errors[0xf500] = "Unauthorized to create this object"
+	errors[0xf501] = "No object create"
+
+	errors[0xf600] = "No property delete"
+	errors[0xf601] = "Unauthorized to delete the property of this object"
+	errors[0xf602] = "Unauthorized to delete this property"
+
+	errors[0xf700] = "Unauthorized to create this property"
+	errors[0xf701] = "No property create privilege"
+
+	errors[0xf800] = "Unauthorized to write to this property"
+	errors[0xf900] = "Unauthorized to read this property"
+	errors[0xfa00] = "Temporary remap error"
+
+	errors[0xfb00] = "No such property"
+	errors[0xfb01] = "The file server does not support this request"
+	errors[0xfb02] = "The specified property does not exist"
+	errors[0xfb03] = "The PASSWORD property does not exist for this bindery object"
+	errors[0xfb04] = "NDS NCP not available"
+
+	errors[0xfc00] = "The message queue cannot accept another message"
+	errors[0xfc01] = "The trustee associated with ObjectId does not exist"
+	errors[0xfc02] = "The specified bindery object does not exist"
+	errors[0xfc03] = "The bindery object associated with ObjectID does not exist"
+	errors[0xfc04] = "A bindery object does not exist that matches"
+	errors[0xfc05] = "The specified queue does not exist"
+	errors[0xfc06] = "No such object"
+	errors[0xfc07] = "The queue associated with ObjectID does not exist"
+
+	errors[0xfd00] = "Bad station number"
+	errors[0xfd01] = "The connection associated with ConnectionNumber is not active"
+	errors[0xfd02] = "Lock collision"
+	errors[0xfd03] = "Transacktion tracking is disabled"
+
+	errors[0xfe00] = "I/O failure"
+	errors[0xfe01] = "The files containing the bindery on the file server are locked"
+	errors[0xfe02] = "A file with the specified name already exists in this directory"
+	errors[0xfe03] = "No more restrictions were found"
+	errors[0xfe04] = "The file server was unable to lock the file within the specified time limit"
+	errors[0xfe05] = "The file server was unable to lock all files within the specified time limit"
+	errors[0xfe06] = "The bindery object associated with ObjectID is not a valid trustee"
+	errors[0xfe07] = "Directory locked"
+	errors[0xfe08] = "Bindery locked"
+	errors[0xfe09] = "Invalid semaphore name length"
+	errors[0xfe0a] = "The file server was unable to complete the operation within the specified time limit"
+	errors[0xfe0b] = "Transaction restart"
+	errors[0xfe0c] = "Bad packet"
+
+	errors[0xff00] = "Failure"
+	errors[0xff01] = "Lock error"
+	errors[0xff02] = "File not found"
+	errors[0xff03] = "The file not found or cannot be unlocked"
+	errors[0xff04] = "Record not found"
+	errors[0xff05] = "The logical record was not found"
+	errors[0xff06] = "The printer associated with PrinterNumber does not exist"
+	errors[0xff07] = "No such printer"
+	errors[0xff08] = "Unable to complete the request"
+	errors[0xff09] = "Unauthorized to change privileges of this trustee"
+	errors[0xff0a] = "No files matching the search criteria were found"
+	errors[0xff0b] = "A file matching the search criteria was not found"
+	errors[0xff0c] = "Verification failed"
+	errors[0xff0d] = "Object associated with ObjectID is not a manager"
+	errors[0xff0e] = "Invalid initial semaphore value"
+	errors[0xff0f] = "The semaphore handle is not valid"
+	errors[0xff10] = "SemaphoreHandle is not associated with a valid sempahore"
+	errors[0xff11] = "Invalid semaphore handle"
+	errors[0xff12] = "Transaction tracking is not available"
+	errors[0xff13] = "The transaction has not yet been written to disk"
+	errors[0xff14] = "Directory already exists"
+	errors[0xff15] = "The file already exists and the deletion flag was not set"
+	errors[0xff16] = "No matching files or directories were found"
+	errors[0xff17] = "A file or directory matching the search criteria was not found"
+	errors[0xff18] = "The file already exists"
+	errors[0xff19] = "No files found"
 
-errors[0xd900] = "The file server cannot accept another connection as it has reached its limit"
-errors[0xd901] = "The client is not security equivalent to one of the objects in the Q_SERVERS group property of the target queue"
-errors[0xd902] = "Station is not a server"
-
-errors[0xda00] = "Attempted to login to the file server during a restricted time period"
-errors[0xda01] = "Queue halted"
-
-errors[0xdb00] = "Attempted to login to the file server from an unauthorized workstation or network"
-errors[0xdb01] = "The queue cannot attach another queue server"
-errors[0xdb02] = "Maximum queue servers"
-
-errors[0xde00] = "Attempted to login to the file server with an incorrect password"
-errors[0xdf00] = "Attempted to login to the file server with a password that has expired"
-
-errors[0xe700] = "No disk track"
-errors[0xe800] = "Write to group"
-errors[0xe900] = "The object is already a member of the group property"
-
-errors[0xea00] = "No such member"
-errors[0xea01] = "The bindery object is not a member of the set"
-errors[0xea02] = "Non-existent member"
-
-errors[0xeb00] = "The property is not a set property"
-
-errors[0xec00] = "No such set"
-errors[0xec01] = "The set property does not exist"
-
-errors[0xed00] = "Property exists"
-errors[0xed01] = "The property already exists"
-errors[0xed02] = "An attempt was made to create a bindery object property that already exists"
-
-errors[0xee00] = "The object already exists"
-errors[0xee01] = "The bindery object already exists"
-
-errors[0xef00] = "Illegal name"
-errors[0xef01] = "Illegal characters in ObjectName field"
-errors[0xef02] = "Invalid name"
-
-errors[0xf000] = "A wildcard was detected in a field that does not support wildcards"
-errors[0xf001] = "An illegal wildcard was detected in ObjectName"
-
-errors[0xf100] = "The client does not have the rights to access this bindery object"
-errors[0xf101] = "Bindery security"
-errors[0xf102] = "Invalid bindery security"
-
-errors[0xf200] = "Unauthorized to read from this object"
-errors[0xf300] = "Unauthorized to rename this object"
-
-errors[0xf400] = "Unauthorized to delete this object"
-errors[0xf401] = "No object delete privileges"
-errors[0xf402] = "Unauthorized to delete this queue"
-
-errors[0xf500] = "Unauthorized to create this object"
-errors[0xf501] = "No object create"
-
-errors[0xf600] = "No property delete"
-errors[0xf601] = "Unauthorized to delete the property of this object"
-errors[0xf602] = "Unauthorized to delete this property"
-
-errors[0xf700] = "Unauthorized to create this property"
-errors[0xf701] = "No property create privilege"
-
-errors[0xf800] = "Unauthorized to write to this property"
-errors[0xf900] = "Unauthorized to read this property"
-errors[0xfa00] = "Temporary remap error"
-
-errors[0xfb00] = "No such property"
-errors[0xfb01] = "The file server does not support this request"
-errors[0xfb02] = "The specified property does not exist"
-errors[0xfb03] = "The PASSWORD property does not exist for this bindery object"
-
-errors[0xfc00] = "The message queue cannot accept another message"
-errors[0xfc01] = "The trustee associated with ObjectId does not exist"
-errors[0xfc02] = "The specified bindery object does not exist"
-errors[0xfc03] = "The bindery object associated with ObjectID does not exist"
-errors[0xfc04] = "A bindery object does not exist that matches"
-errors[0xfc05] = "The specified queue does not exist"
-errors[0xfc06] = "No such object"
-errors[0xfc07] = "The queue associated with ObjectID does not exist"
-
-errors[0xfd00] = "Bad station number"
-errors[0xfd01] = "The connection associated with ConnectionNumber is not active"
-errors[0xfd02] = "Lock collision"
-errors[0xfd03] = "Transacktion tracking is disabled"
-
-errors[0xfe00] = "I/O failure"
-errors[0xfe01] = "The files containing the bindery on the file server are locked"
-errors[0xfe02] = "A file with the specified name already exists in this directory"
-errors[0xfe03] = "No more restrictions were found"
-errors[0xfe04] = "The file server was unable to lock the file within the specified time limit"
-errors[0xfe05] = "The file server was unable to lock all files within the specified time limit"
-errors[0xfe06] = "The bindery object associated with ObjectID is not a valid trustee"
-errors[0xfe07] = "Directory locked"
-errors[0xfe08] = "Bindery locked"
-errors[0xfe09] = "Invalid semaphore name length"
-errors[0xfe0a] = "The file server was unable to complete the operation within the specified time limit"
-errors[0xfe0b] = "Transaction restart"
-
-errors[0xff00] = "Failure"
-errors[0xff01] = "Lock error"
-errors[0xff02] = "File not found"
-errors[0xff03] = "The file not found or cannot be unlocked"
-errors[0xff04] = "Record not found"
-errors[0xff05] = "The logical record was not found"
-errors[0xff06] = "The printer associated with PrinterNumber does not exist"
-errors[0xff07] = "No such printer"
-errors[0xff08] = "Unable to complete the request"
-errors[0xff09] = "Unauthorized to change privileges of this trustee"
-errors[0xff0a] = "No files matching the search criteria were found"
-errors[0xff0b] = "A file matching the search criteria was not found"
-errors[0xff0c] = "Verification failed"
-errors[0xff0d] = "Object associated with ObjectID is not a manager"
-errors[0xff0e] = "Invalid initial semaphore value"
-errors[0xff0f] = "The semaphore handle is not valid"
-errors[0xff10] = "SemaphoreHandle is not associated with a valid sempahore"
-errors[0xff11] = "Invalid semaphore handle"
-errors[0xff12] = "Transaction tracking is not available"
-errors[0xff13] = "The transaction has not yet been written to disk"
-errors[0xff14] = "Directory already exists"
-errors[0xff15] = "The file already exists and the deletion flag was not set"
-errors[0xff16] = "No matching files or directories were found"
-errors[0xff17] = "A file or directory matching the search criteria was not found"
-errors[0xff18] = "The file already exists"
-errors[0xff19] = "No files found"
-
-##############################################################################
-# NCP Packets. Here I list functions and subfunctions in hexadecimal like the
-# NCP book (and I believe LanAlyzer does this too).
-# However, Novell lists these in decimal in their on-line documentation.
-##############################################################################
-# 2222/02
-pkt = NCP(0x02, "File Release Lock", 'sync')
-pkt.Request(7)
-pkt.Reply(8)
-pkt.CompletionCodes([0x0000, 0xff00])
-
-#
-# Untested
-#
-# 2222/03
-#pkt = NCP(0x03, "Log File", 'sync')
-#pkt.request( (12, 267), [
-#	[ 7, 1, DirHandle ],
-#	[ 8, 1, LogLockType ],
-#	[ 9, 2, TimeoutLimit, LE ],
-#	[ 11, (1, 256), FilePath ],
-#	])
-#pkt.completion_codes([0x0000, 0x8200, 0x9600, 0xfe00, 0xff01])
-#
-## 2222/04
-#pkt = NCP(0x04, "Lock File Set", 'sync')
-#pkt.request([
-#	[ 7, TimeoutLimit ],
-#	])
-#pkt.completion_codes([0xfe, 0xff01])
-#
-## 2222/05
-#pkt = NCP(0x05, "Release File", 'sync')
-#pkt.request([
-#	[ 7, DirHandle ],
-#	[ 8, FilePath ],
-#	])
-#pkt.completion_codes([0x7e, 0x98, 0x9b, 0x9c, 0xff02])
-#
-## 2222/06
-#pkt = NCP(0x06, "Release File Set", 'sync')
-#pkt.request([
-#	[ 7, UnknownByte ],
-#	])
-#pkt.completion_codes()
-#
-## 2222/07
-#pkt = NCP(0x07, "Clear File", 'sync')
-#pkt.request([
-#	[ 7, DirHandle ],
-#	[ 8, FilePath ],
-#	])
-#pkt.completion_codes([0x7e, 0x96, 0x98, 0x9b, 0x9c,
-#	0xa1, 0xfd, 0xff])
-#
-## 2222/08
-#pkt = NCP(0x08, "Clear File Set", 'sync')
-#pkt.request([
-#	[ 7, FileLock ],
-#	])
-#pkt.completion_codes([0x7e])
-#
-## 2222/09
-#pkt = NCP(0x09, "Log Logical Record", 'sync')
-#pkt.request([
-#	[ 7, LogicalLockType ],
-#	[ 8, TimeoutLimit_be ],
-#	[ 10, LogicalRecordName ],
-#	])
-#pkt.completion_codes([0x96, 0xfe, 0xff])
-#
-## 2222/0a
-#pkt = NCP(0x0a, "Lock Logical Record Set", 'sync')
-#pkt.request([
-#	[ 7, LogicalLockType ],
-#	[ 8, TimeoutLimit_le ],
-#	])
-#pkt.completion_codes([0xfe, 0xff])
-#
-## 2222/0b
-#pkt = NCP(0x0b, "Clear Logical Record", 'sync')
-#pkt.request([
-#	[7, LogicalRecordName ],
-#	])
-#pkt.completion_codes([0xff]
-## 2222/0c
-## 2222/0d
-## 2222/0e
-## 2222/0f
-## 2222/11
-#
-## 2222/1100
-#pkt = NCP(0x1100, "Lock Logical Record Set", 'sync')
-#pkt.request([
-#	[ 10, var_length_data("data").length_var("packetlength") ]
-#	])
-#pkt.completion_codes()
-#
-
-# 2222/1735
-pkt = NCP(0x1735, "Get Bindery Object ID", 'bindery')
-pkt.Request((13,60), [
-	[ 10, 2, ObjectType ],
-	[ 12, (1,48), ObjectName ],
-])
-pkt.Reply(62, [
-	[ 8, 4, ObjectID ],
-	[ 12, 2, ObjectType ],
-	[ 14, 48, ObjectName1 ],
-])
-pkt.CompletionCodes([0x0000, 0x9600, 0xef01, 0xf000, 0xfc02,
-	0xfe01, 0xff00])
-
-# 2222/1737
-pkt = NCP(0x1737, "Scan Bindery Object", 'bindery')
-pkt.Request((17,64), [
-	[ 10, 4, ObjectID ],
-	[ 14, 2, ObjectType ],
-	[ 16, (1,48), ObjectName ],
-])
-pkt.Reply(65, [
-	[ 8, 4, ObjectID ],
-	[ 12, 2, ObjectType ],
-	[ 14, 48, ObjectName1 ],
-	[ 62, 1, ObjectFlags ],
-	[ 63, 1, ObjectSecurity ],
-	[ 64, 1, ObjectHasProperties ],
-])
-pkt.CompletionCodes([0x0000, 0x9600, 0xef01, 0xfc02,
-	0xfe01, 0xff00])
-
-# 2222/173D
-pkt = NCP(0x173D, "Read Property Value", 'bindery')
-pkt.Request((15,77), [
-	[ 10, 2, ObjectType ],
-	[ 12, (1,48), ObjectName ],
-	[ -1, 1, PropertySegment ],
-	[ -1, (1,16), PropertyName ],
-])
-pkt.Reply(138, [
-	[ 8, 128, PropertyData ],
-	[ 136, 1, PropertyHasMoreSegments ],
-	[ 137, 1, PropertyType ],
-])
-pkt.CompletionCodes([0x0000, 0x8800, 0x9300, 0x9600, 0xec01,
-	0xf000, 0xf100, 0xf900, 0xfb02, 0xfc02, 0xfe01, 0xff00 ])
-
-# 2222/177C
-pkt = NCP(0x177C, "Service Queue Job", 'queue')
-pkt.Request(16, [
-	[ 10, 4, ObjectID ],
-	[ 14, 2, JobType ],
-])
-pkt.Reply(24, [ # XXX - 76, [
-	[ 8, 4, ConnectionNumber ],
-	[ 12, 4, TaskNumber ],
-	[ 16, 4, ObjectID ],
-	[ 20, 4, ObjectID ],
-	# XXX - DateTime
-])
-# These completion codes are not documented, but guessed.
-pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd201, 0xd300,
-	0xd401, 0xd502, 0xd601, 0xd704, 0xd800, 0xd901, 0xda01, 0xdb01,
-	0xff00 ])
-
-# 2222/18
-pkt = NCP(0x18, "End of Job", 'connection')
-pkt.Request(7)
-pkt.Reply(8)
-pkt.CompletionCodes([0x0000])
-
-# 2222/19
-pkt = NCP(0x19, "Logout", 'connection')
-pkt.Request(7)
-pkt.Reply(8)
-pkt.CompletionCodes([0x0000])
-
-# 2222/21
-pkt = NCP(0x21, "Negotiate Buffer Size", 'connection')
-pkt.Request(9, [
-	[ 7, 2, BufferSize ],
-])
-pkt.Reply(10, [
-	[ 8, 2, BufferSize ],
-])
-pkt.CompletionCodes([0x0000])
-
-# 2222/42
-pkt = NCP(0x42, "Close File", 'file')
-pkt.Request(13, [
-	[ 7, 6, FileHandle ],
-])
-pkt.Reply(8)
-pkt.CompletionCodes([0x0000, 0xff00])
-
-# 2222/47
-pkt = NCP(0x47, "Get Current Size of File", 'file')
-pkt.Request(13, [
-	[ 7, 6, FileHandle ],
-])
-pkt.Reply(12, [
-	[ 8, 4, FileSize ],
-])
-pkt.CompletionCodes([0x0000, 0x8800])
-
-# 2222/48
-pkt = NCP(0x48, "Read From A File", 'file')
-pkt.Request(20, [
-	[ 7, 1, UnknownByte ],
-	[ 8, 6, FileHandle ],
-	[ 14, 4, FileOffset ],	# my nomenclature
-	[ 18, 2, MaxBytes ],	# my nomenclature
-])
-pkt.Reply(10, [ # XXX - (10,-1), [
-	[ 8, 2, NumBytes ],	# my nomenclature
-	# XXX
-])
-pkt.CompletionCodes([0x0000, 0x8800, 0x9300, 0xff00])
-
-# 2222/5701	- no info
-# 2222/5702	- no info
-# 2222/5706	- no info
-# 2222/5714	- no info
-# 2222/68	- no info
-# 2222/72	- no info
 
 ##############################################################################
 # Produce C code
 ##############################################################################
-if __name__ == '__main__':
+def produce_code():
+
+	global errors
+
 	print "/*"
 	print " * Generated automatically from %s" % (sys.argv[0])
 	print " * Do not edit this file manually, as all changes will be lost."
@@ -1394,6 +1227,12 @@ proto_register_ncp2222(void)
 		print '\t/* %02d (%s) */ "%s",' % (groups_used_hash[group], group, groups[group])
 	print "};\n"
 
+	# Print the group macros
+	for group in groups_used_list:
+		name = string.upper(group)
+		print "#define NCP_GROUP_%s\t%d" % (name, groups_used_hash[group])
+	print "\n"
+
 	# Print PTVC's
 	print "/* PTVC records. These are re-used to save space. */"
 	for ptvc in ptvc_lists.Members():
@@ -1419,17 +1258,31 @@ proto_register_ncp2222(void)
 		print "\t{ 0x00, -1 }\n};\n"
 
 
+	# Functions without length parameter
+	funcs_without_length = {}
+
+
 	# Print ncp_record packet records
-	print "#define SUBFUNC 0xff"
-	print "#define NOSUB   0x00"
+	print "#define SUBFUNC_WITH_LENGTH	0x02"
+	print "#define SUBFUNC_NO_LENGTH	0x01"
+	print "#define NO_SUBFUNC		0x00"
 
 	print "/* ncp_record structs for packets */"
 	print "static const ncp_record ncp_packets[] = {"
 	for pkt in packets.Members():
 		if pkt.HasSubFunction():
-			subfunc_string = "SUBFUNC"
+			func = pkt.FunctionCode('high')
+			if pkt.HasLength():
+				subfunc_string = "SUBFUNC_WITH_LENGTH"
+				# Ensure that the function either has a length param or not
+				if funcs_without_length.has_key(func):
+					sys.exit("Function 0x%04x sometimes has length param, sometimes not." \
+						% (pkt.FunctionCode(),))
+			else:
+				subfunc_string = "SUBFUNC_NO_LENGTH"
+				funcs_without_length[func] = 1
 		else:
-			subfunc_string = "NOSUB"
+			subfunc_string = "NO_SUBFUNC"
 		print '\t{ 0x%02x, 0x%02x, %s, "%s",' % (pkt.FunctionCode('high'),
 			pkt.FunctionCode('low'), subfunc_string, pkt.Description()),
 
@@ -1467,6 +1320,316 @@ proto_register_ncp2222(void)
 	print "};\n"
 
 
+	print "/* ncp funs that have no length parameter */"
+	print "static const guint8 ncp_func_has_no_length_parameter[] = {"
+	funcs = funcs_without_length.keys()
+	funcs.sort()
+	for func in funcs:
+		print "\t0x%02x," % (func,)
+	print "\t0"
+	print "};\n"
+	
+
 	print '#include "packet-ncp2222.inc"'
 
 
+def main():
+	global packets
+	global compcode_lists
+	global ptvc_lists
+
+	packets		= UniqueCollection('NCP Packet Descriptions')
+	compcode_lists	= UniqueCollection('Completion Code Lists')
+	ptvc_lists	= UniqueCollection('PTVC Lists')
+
+	define_errors()
+	define_groups()
+	define_ncp2222()
+
+	produce_code()
+
+def define_ncp2222():
+	##############################################################################
+	# NCP Packets. Here I list functions and subfunctions in hexadecimal like the
+	# NCP book (and I believe LanAlyzer does this too).
+	# However, Novell lists these in decimal in their on-line documentation.
+	##############################################################################
+	# 2222/02
+	pkt = NCP(0x02, "File Release Lock", 'sync')
+	pkt.Request(7)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0xff00])
+
+	#
+	# Untested
+	#
+	# 2222/03
+	#pkt = NCP(0x03, "Log File", 'sync')
+	#pkt.request( (12, 267), [
+	#	[ 7, 1, DirHandle ],
+	#	[ 8, 1, LogLockType ],
+	#	[ 9, 2, TimeoutLimit, LE ],
+	#	[ 11, (1, 256), FilePath ],
+	#	])
+	#pkt.completion_codes([0x0000, 0x8200, 0x9600, 0xfe00, 0xff01])
+	#
+	## 2222/04
+	#pkt = NCP(0x04, "Lock File Set", 'sync')
+	#pkt.request([
+	#	[ 7, TimeoutLimit ],
+	#	])
+	#pkt.completion_codes([0xfe, 0xff01])
+	#
+	## 2222/05
+	#pkt = NCP(0x05, "Release File", 'sync')
+	#pkt.request([
+	#	[ 7, DirHandle ],
+	#	[ 8, FilePath ],
+	#	])
+	#pkt.completion_codes([0x7e, 0x98, 0x9b, 0x9c, 0xff02])
+	#
+	## 2222/06
+	#pkt = NCP(0x06, "Release File Set", 'sync')
+	#pkt.request([
+	#	[ 7, UnknownByte ],
+	#	])
+	#pkt.completion_codes()
+	#
+	## 2222/07
+	#pkt = NCP(0x07, "Clear File", 'sync')
+	#pkt.request([
+	#	[ 7, DirHandle ],
+	#	[ 8, FilePath ],
+	#	])
+	#pkt.completion_codes([0x7e, 0x96, 0x98, 0x9b, 0x9c,
+	#	0xa1, 0xfd, 0xff])
+	#
+	## 2222/08
+	#pkt = NCP(0x08, "Clear File Set", 'sync')
+	#pkt.request([
+	#	[ 7, FileLock ],
+	#	])
+	#pkt.completion_codes([0x7e])
+	#
+	## 2222/09
+	#pkt = NCP(0x09, "Log Logical Record", 'sync')
+	#pkt.request([
+	#	[ 7, LogicalLockType ],
+	#	[ 8, TimeoutLimit_be ],
+	#	[ 10, LogicalRecordName ],
+	#	])
+	#pkt.completion_codes([0x96, 0xfe, 0xff])
+	#
+	## 2222/0a
+	#pkt = NCP(0x0a, "Lock Logical Record Set", 'sync')
+	#pkt.request([
+	#	[ 7, LogicalLockType ],
+	#	[ 8, TimeoutLimit_le ],
+	#	])
+	#pkt.completion_codes([0xfe, 0xff])
+	#
+	## 2222/0b
+	#pkt = NCP(0x0b, "Clear Logical Record", 'sync')
+	#pkt.request([
+	#	[7, LogicalRecordName ],
+	#	])
+	#pkt.completion_codes([0xff]
+	## 2222/0c
+	## 2222/0d
+	## 2222/0e
+	## 2222/0f
+	## 2222/11
+	#
+	## 2222/1100
+	#pkt = NCP(0x1100, "Lock Logical Record Set", 'sync')
+	#pkt.request([
+	#	[ 10, var_length_data("data").length_var("packetlength") ]
+	#	])
+	#pkt.completion_codes()
+	#
+
+	# 2222/1711
+	pkt = NCP(0x1711, "Get File Server Information", 'fileserver')
+	pkt.Request(10)
+	pkt.Reply(136, [
+		[ 8, 48, ServerName ],
+		[ 56, 1, OSMajorVersion ],
+		[ 57, 1, OSMinorVersion ],
+		[ 58, 2, ConnectionsSupportedMax ],
+		[ 60, 2, ConnectionsInUse ],
+		[ 62, 2, VolumesSupportedMax ],
+		[ 64, 1, OSRevision ],
+		[ 65, 1, SFTLevel ],
+		[ 66, 1, TTSLevel ],
+		[ 67, 2, ConnectionsMaxUsed ],
+		[ 69, 1, AcctVersion ],
+		[ 70, 1, VAPVersion ],
+		[ 71, 1, QMSVersion ],
+		[ 72, 1, PrintServerVersion ],
+		[ 73, 1, VirtualConsoleVersion ],
+		[ 74, 1, SecurityRestrictionVersion ],
+		[ 75, 1, InternetBridgeVersion ],
+		[ 76, 1, MixedModePathFlag ],
+		[ 77, 1, LocalLoginInfoCcode ],
+		[ 78, 2, ProductMajorVersion ],
+		[ 80, 2, ProductMinorVersion ],
+		[ 82, 2, ProductRevisionVersion ],
+		[ 84, 1, OSLanguageID ],
+		[ 85, 51, Reserved51 ],
+	])
+	pkt.CompletionCodes([0x0000, 0x9600])
+
+
+	# 2222/1735
+	pkt = NCP(0x1735, "Get Bindery Object ID", 'bindery')
+	pkt.Request((13,60), [
+		[ 10, 2, ObjectType ],
+		[ 12, (1,48), ObjectName ],
+	])
+	pkt.Reply(62, [
+		[ 8, 4, ObjectID ],
+		[ 12, 2, ObjectType ],
+		[ 14, 48, ObjectName1 ],
+	])
+	pkt.CompletionCodes([0x0000, 0x9600, 0xef01, 0xf000, 0xfc02,
+		0xfe01, 0xff00])
+
+	# 2222/1737
+	pkt = NCP(0x1737, "Scan Bindery Object", 'bindery')
+	pkt.Request((17,64), [
+		[ 10, 4, ObjectID ],
+		[ 14, 2, ObjectType ],
+		[ 16, (1,48), ObjectName ],
+	])
+	pkt.Reply(65, [
+		[ 8, 4, ObjectID ],
+		[ 12, 2, ObjectType ],
+		[ 14, 48, ObjectName1 ],
+		[ 62, 1, ObjectFlags ],
+		[ 63, 1, ObjectSecurity ],
+		[ 64, 1, ObjectHasProperties ],
+	])
+	pkt.CompletionCodes([0x0000, 0x9600, 0xef01, 0xfc02,
+		0xfe01, 0xff00])
+
+	# 2222/173D
+	pkt = NCP(0x173D, "Read Property Value", 'bindery')
+	pkt.Request((15,77), [
+		[ 10, 2, ObjectType ],
+		[ 12, (1,48), ObjectName ],
+		[ -1, 1, PropertySegment ],
+		[ -1, (1,16), PropertyName ],
+	])
+	pkt.Reply(138, [
+		[ 8, 128, PropertyData ],
+		[ 136, 1, PropertyHasMoreSegments ],
+		[ 137, 1, PropertyType ],
+	])
+	pkt.CompletionCodes([0x0000, 0x8800, 0x9300, 0x9600, 0xec01,
+		0xf000, 0xf100, 0xf900, 0xfb02, 0xfc02, 0xfe01, 0xff00 ])
+
+	# 2222/177C
+	pkt = NCP(0x177C, "Service Queue Job", 'queue')
+	pkt.Request(16, [
+		[ 10, 4, ObjectID ],
+		[ 14, 2, JobType ],
+	])
+	pkt.Reply(24, [ # XXX - 76, [
+		[ 8, 4, ConnectionNumber ],
+		[ 12, 4, TaskNumber ],
+		[ 16, 4, ObjectID ],
+		[ 20, 4, ObjectID ],
+		# XXX - DateTime
+	])
+	# These completion codes are not documented, but guessed.
+	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd201, 0xd300,
+		0xd401, 0xd502, 0xd601, 0xd704, 0xd800, 0xd901, 0xda01, 0xdb01,
+		0xff00 ])
+
+	# 2222/18
+	pkt = NCP(0x18, "End of Job", 'connection')
+	pkt.Request(7)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000])
+
+	# 2222/19
+	pkt = NCP(0x19, "Logout", 'connection')
+	pkt.Request(7)
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000])
+
+	# 2222/21
+	pkt = NCP(0x21, "Negotiate Buffer Size", 'connection')
+	pkt.Request(9, [
+		[ 7, 2, BufferSize ],
+	])
+	pkt.Reply(10, [
+		[ 8, 2, BufferSize ],
+	])
+	pkt.CompletionCodes([0x0000])
+
+	# 2222/42
+	pkt = NCP(0x42, "Close File", 'file')
+	pkt.Request(13, [
+		[ 7, 6, FileHandle ],
+	])
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0xff00])
+
+	# 2222/47
+	pkt = NCP(0x47, "Get Current Size of File", 'file')
+	pkt.Request(13, [
+		[ 7, 6, FileHandle ],
+	])
+	pkt.Reply(12, [
+		[ 8, 4, FileSize ],
+	])
+	pkt.CompletionCodes([0x0000, 0x8800])
+
+	# 2222/48
+	pkt = NCP(0x48, "Read From A File", 'file')
+	pkt.Request(20, [
+		[ 7, 1, UnknownByte ],
+		[ 8, 6, FileHandle ],
+		[ 14, 4, FileOffset ],	# my nomenclature
+		[ 18, 2, MaxBytes ],	# my nomenclature
+	])
+	pkt.Reply(10, [ # XXX - (10,-1), [
+		[ 8, 2, NumBytes ],	# my nomenclature
+		# XXX
+	])
+	pkt.CompletionCodes([0x0000, 0x8800, 0x9300, 0xff00])
+
+	# 2222/5701	- no info
+	# 2222/5702	- no info
+	# 2222/5706	- no info
+	# 2222/5714	- no info
+	# 2222/72	- no info
+
+	# 2222/61
+	pkt = NCP(0x61, "Get Big Packet NCP Max Packet Size", 'unknown')
+	pkt.Request(10, [
+		[ 7, 2, ProposedMaxSize ],
+		[ 9, 1, SecurityFlag ],
+	])
+	pkt.Reply(13, [
+		[ 8, 2, AcceptedMaxSize ],
+		[ 10, 2, EchoSocket ],
+		[ 12, 1, SecurityFlag ],
+	])
+	pkt.CompletionCodes([0x0000])
+
+	# 2222/6801
+	pkt = NCP(0x6801, "Ping for NDS NCP", "nds", has_length=0)
+	pkt.Request(11, [
+		[ 8, 3, Reserved3 ]
+	])
+	# XXX - expand, Unicode
+	pkt.Reply(10, [
+		[ 8, 2, PingVersion ],
+	])
+	pkt.CompletionCodes([0x0000, 0xfb04, 0xfe0c])
+
+
+if __name__ == '__main__':
+	main()
