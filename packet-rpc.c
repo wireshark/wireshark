@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.125 2003/05/20 07:38:55 guy Exp $
+ * $Id: packet-rpc.c,v 1.126 2003/05/20 07:56:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -621,15 +621,10 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 
 	if (tree) {
 		string_item = proto_tree_add_text(tree, tvb,offset+0, -1,
-			"%s: %s", proto_registrar_get_name(hfindex), string_buffer_print);
-		if (string_data) {
-			proto_tree_add_string_hidden(tree, hfindex, tvb, 
-				(fixed_length)? offset : offset + 4,
-				string_length_copy, string_buffer);
-		}
-		if (string_item) {
-			string_tree = proto_item_add_subtree(string_item, ett_rpc_string);
-		}
+		    "%s: %s", proto_registrar_get_name(hfindex),
+		    string_buffer_print);
+		string_tree = proto_item_add_subtree(string_item,
+		    ett_rpc_string);
 	}
 	if (!fixed_length) {
 		if (string_tree)
@@ -642,13 +637,13 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 		if (string_data) {
 			proto_tree_add_string_format(string_tree,
 			    hfindex, tvb, offset, string_length_copy,
-				string_buffer,
-				"contents: %s", string_buffer_print);
+			    string_buffer,
+			    "contents: %s", string_buffer_print);
 		} else {
 			proto_tree_add_bytes_format(string_tree,
 			    hfindex, tvb, offset, string_length_copy,
-				string_buffer,
-				"contents: %s", string_buffer_print);
+			    string_buffer,
+			    "contents: %s", string_buffer_print);
 		}
 	}
 	offset += string_length_copy;
@@ -668,16 +663,16 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset,
 		offset += fill_length_copy;
 	}
 
-	if (string_item) {
+	if (string_item)
 		proto_item_set_end(string_item, tvb, offset);
-	}
 
-	if (string_buffer       != NULL) g_free (string_buffer      );
+	if (string_buffer != NULL)
+		g_free(string_buffer);
 	if (string_buffer_print != NULL) {
 		if (string_buffer_ret != NULL)
 			*string_buffer_ret = string_buffer_print;
 		else
-			g_free (string_buffer_print);
+			g_free(string_buffer_print);
 	}
 
 	/*
