@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.64 2004/05/07 18:15:24 obiot Exp $
+ * $Id: tvbuff.c,v 1.65 2004/05/10 22:14:07 obiot Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -2160,22 +2160,35 @@ tvb_find_tvb(tvbuff_t *haystack_tvb, tvbuff_t *needle_tvb, gint haystack_offset)
  * length comprlen.  Returns an uncompressed tvbuffer if uncompression
  * succeeded or NULL if uncompression failed.
  */
-#define TVB_Z_BUFSIZ 4096
+#define TVB_Z_MIN_BUFSIZ 32768
+#define TVB_Z_MAX_BUFSIZ 1048576 * 10
+/* #define TVB_Z_DEBUG 1 */
+#undef TVB_Z_DEBUG
+
 tvbuff_t *
 tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 {
 	
 
 	gint err = Z_OK;
-	gint bytes_out = 0;
+	guint bytes_out = 0;
 	guint8 *compr = NULL;
 	guint8 *uncompr = NULL;
 	tvbuff_t *uncompr_tvb = NULL;
 	z_streamp strm = NULL;
-	gchar strmbuf[TVB_Z_BUFSIZ];
-	gint inits_done = 0;
+	Bytef *strmbuf = NULL;
+	guint inits_done = 0;
 	gint wbits = MAX_WBITS;
 	guint8 *next = NULL;
+	guint bufsiz = TVB_Z_MIN_BUFSIZ;
+#ifdef TVB_Z_DEBUG
+	guint inflate_passes = 0;
+	guint bytes_in = tvb_length_remaining(tvb, offset);
+#endif
+
+	if (tvb == NULL) {
+		return NULL;
+	}
 
 	strm = g_malloc0(sizeof(z_stream));
 
@@ -2189,41 +2202,70 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 		return NULL;
 	}
 
+	/* 
+	 * Assume that the uncompressed data is at least twice as big as
+	 * the compressed size.
+	 */
+	bufsiz = tvb_length_remaining(tvb, offset) * 2;
+
+	if (bufsiz < TVB_Z_MIN_BUFSIZ) {
+		bufsiz = TVB_Z_MIN_BUFSIZ;
+	} else if (bufsiz > TVB_Z_MAX_BUFSIZ) {
+		bufsiz = TVB_Z_MIN_BUFSIZ;
+	}
+
+#ifdef TVB_Z_DEBUG
+	printf("bufsiz: %u bytes\n", bufsiz);
+#endif
+
 	next = compr;
 
 	strm->next_in = next;
 	strm->avail_in = comprlen;
 
-	memset(&strmbuf, 0, TVB_Z_BUFSIZ);
-	strm->next_out = (Bytef *)&strmbuf;
-	strm->avail_out = TVB_Z_BUFSIZ;
+
+	strmbuf = g_malloc0(bufsiz);
+
+	if(strmbuf == NULL) {
+		g_free(compr);
+		return NULL;
+	}
+
+	strm->next_out = strmbuf;
+	strm->avail_out = bufsiz;
 
 	err = inflateInit2(strm, wbits);
 	inits_done = 1;
 	if (err != Z_OK) {
 		g_free(strm);
 		g_free(compr);
+		g_free(strmbuf);
 		return NULL;
 	}
 
 	while (1) {
-		memset(&strmbuf, 0, TVB_Z_BUFSIZ);
-		strm->next_out = (Bytef *)&strmbuf;
-		strm->avail_out = TVB_Z_BUFSIZ;
+		memset(strmbuf, '\0', bufsiz);
+		strm->next_out = strmbuf;
+		strm->avail_out = bufsiz;
 
 		err = inflate(strm, Z_SYNC_FLUSH);
 
 		if (err == Z_OK || err == Z_STREAM_END) {
-			guint bytes_pass = TVB_Z_BUFSIZ - strm->avail_out;
+			guint bytes_pass = bufsiz - strm->avail_out;
+
+#ifdef TVB_Z_DEBUG
+			++inflate_passes;
+#endif
 
 			if (uncompr == NULL) {
-				uncompr = g_memdup(&strmbuf, bytes_pass);
+				uncompr = g_memdup(strmbuf, bytes_pass);
 			} else {
 				guint8 *new_data = g_malloc0(bytes_out +
 				    bytes_pass);
 
 				if (new_data == NULL) {
 					g_free(strm);
+					g_free(strmbuf);
 					g_free(compr);
 
 					if (uncompr != NULL) {
@@ -2234,7 +2276,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 				}
 				
 				g_memmove(new_data, uncompr, bytes_out);
-				g_memmove((new_data + bytes_out), &strmbuf,
+				g_memmove((new_data + bytes_out), strmbuf,
 				    bytes_pass);
 
 				g_free(uncompr);
@@ -2246,6 +2288,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			if ( err == Z_STREAM_END) {
 				inflateEnd(strm);
 				g_free(strm);
+				g_free(strmbuf);
 				break;
 			}
 		} else if (err == Z_BUF_ERROR) {
@@ -2256,6 +2299,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			 */
 
 			g_free(strm);
+			g_free(strmbuf);
 
 			if (uncompr != NULL) {
 				break;
@@ -2289,6 +2333,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			} else {
 				g_free(strm);
 				g_free(compr);
+				g_free(strmbuf);
 				return NULL;
 			}
 
@@ -2350,9 +2395,9 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			strm->next_in = next;
 			strm->avail_in = comprlen;
 
-			memset(&strmbuf, 0, TVB_Z_BUFSIZ);
-			strm->next_out = (Bytef *)&strmbuf;
-			strm->avail_out = TVB_Z_BUFSIZ;
+			memset(strmbuf, '\0', bufsiz);
+			strm->next_out = strmbuf;
+			strm->avail_out = bufsiz;
 
 			err = inflateInit2(strm, wbits);
 				
@@ -2360,6 +2405,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			
 			if (err != Z_OK) {
 				g_free(strm);
+				g_free(strmbuf);
 				g_free(compr);
 				g_free(uncompr);
 
@@ -2367,6 +2413,7 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			}
 		} else {
 			g_free(strm);
+			g_free(strmbuf);
 			g_free(compr);
 
 			if (uncompr == NULL) {
@@ -2376,6 +2423,11 @@ tvb_uncompress(tvbuff_t *tvb, int offset, int comprlen)
 			break;
 		}
 	}
+
+#ifdef TVB_Z_DEBUG
+	printf("inflate() total passes: %u\n", inflate_passes);
+	printf("bytes  in: %u\nbytes out: %u\n\n", bytes_in, bytes_out);
+#endif
 	
 	if (uncompr != NULL) {
 		uncompr_tvb =  tvb_new_real_data((guint8*) uncompr, bytes_out,
