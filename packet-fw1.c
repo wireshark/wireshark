@@ -2,7 +2,7 @@
  * Routines for Ethernet header disassembly of FW1 "monitor" files
  * Copyright 2002, Alfred Koebler <ak@icon-sult.de>
  *
- * $Id: packet-fw1.c,v 1.3 2002/08/08 21:42:05 jmayer Exp $
+ * $Id: packet-fw1.c,v 1.4 2002/08/11 22:34:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Alfred Koebler <ak@icon-sult.de>
@@ -108,7 +108,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item    *ti; 
   proto_tree    *volatile fh_tree = NULL;
   char		direction[3];
-  char		interface[20];
+  char		interface_name[20];
   guint16	etype;
   char		header[1000];
   char		*p_header;
@@ -133,24 +133,24 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* fetch info to local variable */
     direction[0] = tvb_get_guint8(tvb, 0);
     direction[1] = 0;
-    tvb_get_nstringz0(tvb, 2, 10, interface);
+    tvb_get_nstringz0(tvb, 2, 10, interface_name);
 
     if (fw1_summary_in_tree) {
       /* Known interface name - if not, remember it */
       found=1;
       for (i=0; i<interface_anzahl && i<MAX_INTERFACES; i++) {
-        if ( strcmp(p_interfaces[i], interface) == 0 ) {
+        if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
           found=0;
         }
       }
       if (found == 1 ) {
-        p_interfaces[interface_anzahl] = strdup(interface);
+        p_interfaces[interface_anzahl] = strdup(interface_name);
         interface_anzahl++;
       }
       /* display all interfaces always in the same order */
       for (i=0; i<interface_anzahl; i++) {
         found=1;
-        if ( strcmp(p_interfaces[i], interface) == 0 ) {
+        if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
           found=0;
         }
         p_header = header + strlen(header);
@@ -177,7 +177,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_string_format(fh_tree, hf_fw1_interface,
 	tvb, 2, 10,
-	interface, "Interface: %s", interface);
+	interface_name, "Interface: %s", interface_name);
   }
   ethertype(etype, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree, hf_fw1_type,
           hf_fw1_trailer);
