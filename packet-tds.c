@@ -3,7 +3,7 @@
  * Copyright 2000-2002, Brian Bruns <camber@ais.org>
  * Copyright 2002, Steve Langasek <vorlon@netexpress.net>
  *
- * $Id: packet-tds.c,v 1.13 2003/08/23 02:34:09 guy Exp $
+ * $Id: packet-tds.c,v 1.14 2003/08/23 05:19:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -318,14 +318,20 @@ static const value_string packet_type_names[] = {
 
 /* The status field */
 
-#define is_valid_tds_status(x) ((x) < 5)
+#define is_valid_tds_status(x) ((x) <= STATUS_EVENT_NOTIFICATION)
+
+#define STATUS_NOT_LAST_BUFFER		0x00
+#define STATUS_LAST_BUFFER		0x01
+#define STATUS_ATTN_REQUEST_ACK		0x02
+#define STATUS_ATTN_REQUEST		0x03
+#define STATUS_EVENT_NOTIFICATION	0x04
 
 static const value_string status_names[] = {
-	{0x00, "Not last buffer"},
-	{0x01, "Last buffer in request or response"},
-	{0x02, "Acknowledgment of last attention request"},
-	{0x03, "Attention request"},
-	{0x04, "Event notification"},
+	{STATUS_NOT_LAST_BUFFER,    "Not last buffer"},
+	{STATUS_LAST_BUFFER,        "Last buffer in request or response"},
+	{STATUS_ATTN_REQUEST_ACK,   "Acknowledgment of last attention request"},
+	{STATUS_ATTN_REQUEST,       "Attention request"},
+	{STATUS_EVENT_NOTIFICATION, "Event notification"},
 	{0, NULL},
 };
 
@@ -897,10 +903,15 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	save_fragmented = pinfo->fragmented;
 	if (tds_defragment) {
+		if (status == STATUS_NOT_LAST_BUFFER) {
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_append_str(pinfo->cinfo, COL_INFO,
+				    " (Not last buffer)");
+		}
 		len = tvb_reported_length_remaining(tvb, offset);
 		fd_head = fragment_add_seq_next(tvb, offset, pinfo, channel,
 		    tds_fragment_table, tds_reassembled_table,
-		    len, status == 0x00);
+		    len, status == STATUS_NOT_LAST_BUFFER);
 		if (fd_head != NULL) {
 			if (fd_head->next != NULL) {
 				next_tvb = tvb_new_real_data(fd_head->data,
@@ -922,7 +933,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	} else {
 		/*
-		 * If this isn't the last buffer,just show it as a fragment.
+		 * If this isn't the last buffer, just show it as a fragment.
 		 * (XXX - it'd be nice to dissect it if it's the first
 		 * buffer, but we'd need to do reassembly in order to
 		 * discover that.)
@@ -932,7 +943,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * of a fragmented message, but we'd need to do reassembly
 		 * in order to discover that.)
 		 */
-		if (status == 0x00)
+		if (status == STATUS_NOT_LAST_BUFFER)
 			next_tvb = NULL;
 		else {
 			next_tvb = tvb_new_subset(tvb, offset, -1, -1);
