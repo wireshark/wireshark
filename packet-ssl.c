@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.3 2001/07/16 01:38:34 guy Exp $
+ * $Id: packet-ssl.c,v 1.4 2001/07/16 04:02:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,20 +97,25 @@ static int hf_ssl_handshake_server_version   = -1;
 static int hf_ssl_handshake_random_time      = -1;
 static int hf_ssl_handshake_random_bytes     = -1;
 static int hf_ssl_handshake_cipher_suites_len = -1;
+static int hf_ssl_handshake_cipher_suites    = -1;
 static int hf_ssl_handshake_cipher_suite     = -1;
 static int hf_ssl_handshake_session_id       = -1;
 static int hf_ssl_handshake_comp_methods_len = -1;
+static int hf_ssl_handshake_comp_methods     = -1;
 static int hf_ssl_handshake_comp_method      = -1;
 static int hf_ssl_handshake_certificates_len = -1;
+static int hf_ssl_handshake_certificates     = -1;
 static int hf_ssl_handshake_certificate      = -1;
 static int hf_ssl_handshake_certificate_len  = -1;
 static int hf_ssl_handshake_cert_types_count = -1;
+static int hf_ssl_handshake_cert_types       = -1;
 static int hf_ssl_handshake_cert_type        = -1;
 static int hf_ssl_handshake_finished         = -1;
 static int hf_ssl_handshake_md5_hash         = -1;
 static int hf_ssl_handshake_sha_hash         = -1;
 static int hf_ssl_handshake_session_id_len   = -1;
 static int hf_ssl_handshake_dnames_len       = -1;
+static int hf_ssl_handshake_dnames           = -1;
 static int hf_ssl_handshake_dname_len        = -1;
 static int hf_ssl_handshake_dname            = -1;
 static int hf_ssl2_handshake_cipher_spec_len = -1;
@@ -1176,10 +1181,12 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
 
         if (cipher_suite_length > 0)
         {
-            ti = proto_tree_add_text(tree, tvb, offset, cipher_suite_length,
-                                     "Cipher Suites (%u suite%s)",
-                                     cipher_suite_length / 2,
-                                     plurality(cipher_suite_length/2, "", "s"));
+            ti = proto_tree_add_none_format(tree,
+                                            hf_ssl_handshake_cipher_suites,
+                                            tvb, offset, cipher_suite_length,
+                                            "Cipher Suites (%u suite%s)",
+                                            cipher_suite_length / 2,
+                                            plurality(cipher_suite_length/2, "", "s"));
 
             /* make this a subtree */
             cs_tree = proto_item_add_subtree(ti, ett_ssl_cipher_suites);
@@ -1205,12 +1212,13 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
 
         if (compression_methods_length > 0)
         {
-            ti = proto_tree_add_text(tree,
-                                     tvb, offset, compression_methods_length,
-                                     "Compression Methods (%u method%s)",
-                                     compression_methods_length,
-                                     plurality(compression_methods_length,
-                                               "", "s"));
+            ti = proto_tree_add_none_format(tree,
+                                            hf_ssl_handshake_comp_methods,
+                                            tvb, offset, compression_methods_length,
+                                            "Compression Methods (%u method%s)",
+                                            compression_methods_length,
+                                            plurality(compression_methods_length,
+                                              "", "s"));
 
             /* make this a subtree */
             cs_tree = proto_item_add_subtree(ti, ett_ssl_comp_methods);
@@ -1290,11 +1298,13 @@ dissect_ssl3_hnd_cert(tvbuff_t *tvb, packet_info *pinfo,
 
         if (certificate_list_length > 0)
         {
-            ti = proto_tree_add_text(tree,
-                                     tvb, offset, certificate_list_length,
-                                     "Certificates (%u byte%s)",
-                                     certificate_list_length,
-                                     plurality(certificate_list_length, "", "s"));
+            ti = proto_tree_add_none_format(tree,
+                                            hf_ssl_handshake_certificates,
+                                            tvb, offset, certificate_list_length,
+                                            "Certificates (%u byte%s)",
+                                            certificate_list_length,
+                                            plurality(certificate_list_length,
+                                              "", "s"));
 
             /* make it a subtree */
             subtree = proto_item_add_subtree(ti, ett_ssl_certs);
@@ -1360,11 +1370,12 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb, packet_info *pinfo,
 
         if (cert_types_count > 0)
         {
-            ti = proto_tree_add_text(tree,
-                                     tvb, offset, cert_types_count,
-                                     "Certificate types (%u type%s)",
-                                     cert_types_count,
-                                     plurality(cert_types_count, "", "s"));
+            ti = proto_tree_add_none_format(tree,
+                                            hf_ssl_handshake_cert_types,
+                                            tvb, offset, cert_types_count,
+                                            "Certificate types (%u type%s)",
+                                            cert_types_count,
+                                            plurality(cert_types_count, "", "s"));
             subtree = proto_item_add_subtree(ti, ett_ssl_cert_types);
             if (!subtree)
             {
@@ -1387,11 +1398,12 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb, packet_info *pinfo,
 
         if (dnames_length > 0)
         {
-            ti = proto_tree_add_text(tree,
-                                     tvb, offset, dnames_length,
-                                     "Distinguished Names (%d byte%s)",
-                                     dnames_length,
-                                     plurality(dnames_length, "", "s"));
+            ti = proto_tree_add_none_format(tree,
+                                            hf_ssl_handshake_dnames,
+                                            tvb, offset, dnames_length,
+                                            "Distinguished Names (%d byte%s)",
+                                            dnames_length,
+                                            plurality(dnames_length, "", "s"));
             subtree = proto_item_add_subtree(ti, ett_ssl_dnames);
             if (!subtree)
             {
@@ -1694,9 +1706,10 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
         offset += 2;
 
         /* tell the user how many cipher specs they've won */
-        ti = proto_tree_add_text(tree, tvb, offset, cipher_spec_length,
-                                 "Cipher Specs (%u specs)",
-                                 cipher_spec_length/3);
+        ti = proto_tree_add_none_format(tree, hf_ssl_handshake_cipher_suites,
+                                        tvb, offset, cipher_spec_length,
+                                        "Cipher Specs (%u specs)",
+                                        cipher_spec_length/3);
 
         /* make this a subtree and expand the actual specs below */
         cs_tree = proto_item_add_subtree(ti, ett_ssl_cipher_suites);
@@ -1900,9 +1913,12 @@ dissect_ssl2_hnd_server_hello(tvbuff_t *tvb, packet_info *pinfo,
     if (cipher_spec_length > 0)
     {
         /* provide a collapsing node for the cipher specs */
-        ti = proto_tree_add_text(tree, tvb, offset, cipher_spec_length,
-                                 "Cipher Specs (%u specs)",
-                                 cipher_spec_length/3);
+        ti = proto_tree_add_none_format(tree, 
+                                        hf_ssl_handshake_cipher_suites,
+                                        tvb, offset, cipher_spec_length,
+                                        "Cipher Specs (%u spec%s)",
+                                        cipher_spec_length/3,
+                                        plurality(cipher_spec_length/3, "", "s"));
         subtree = proto_item_add_subtree(ti, ett_ssl_cipher_suites);
         if (!subtree)
         {
@@ -2206,7 +2222,7 @@ proto_register_ssl(void)
         { & hf_ssl2_record,
           { "SSLv2 Record Header", "ssl.record",
             FT_NONE, BASE_DEC, NULL, 0x0,
-            "Length of SSLv2 record data", HFILL }
+            "SSLv2 record data", HFILL }
         },
         { &hf_ssl2_record_is_escape,
           { "Is Escape", "ssl.record.is_escape",
@@ -2278,6 +2294,11 @@ proto_register_ssl(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             "Length of cipher suites field", HFILL }
         },
+        { &hf_ssl_handshake_cipher_suites,
+          { "Cipher Suites", "ssl.handshake.ciphersuites",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "List of cipher suites supported by client", HFILL }
+        },
         { &hf_ssl_handshake_cipher_suite,
           { "Cipher Suite", "ssl.handshake.ciphersuite",
             FT_UINT16, BASE_HEX, VALS(ssl_31_ciphersuite), 0x0,
@@ -2298,15 +2319,25 @@ proto_register_ssl(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "Length of compression methods field", HFILL }
         },
+        { &hf_ssl_handshake_comp_methods,
+          { "Compression Methods", "ssl.handshake.comp_methods",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "List of compression methods supported by client", HFILL }
+        },
         { &hf_ssl_handshake_comp_method,
           { "Compression Method", "ssl.handshake.comp_method",
             FT_UINT8, BASE_DEC, VALS(ssl_31_compression_method), 0x0,
             "Compression Method", HFILL }
         },
         { &hf_ssl_handshake_certificates_len,
-          { "Certificates Length", "ssl.handshake.certificatess_length",
+          { "Certificates Length", "ssl.handshake.certificates_length",
             FT_UINT24, BASE_DEC, NULL, 0x0,
             "Length of certificates field", HFILL }
+        },
+        { &hf_ssl_handshake_certificates,
+          { "Certificates", "ssl.handshake.certificates",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "List of certificates", HFILL }
         },
         { &hf_ssl_handshake_certificate,
           { "Certificate", "ssl.handshake.certificate",
@@ -2322,6 +2353,11 @@ proto_register_ssl(void)
           { "Certificate types count", "ssl.handshake.cert_types_count",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             "Count of certificate types", HFILL }
+        },
+        { &hf_ssl_handshake_cert_types,
+          { "Certificate types", "ssl.handshake.cert_types",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "List of certificate types", HFILL }
         },
         { &hf_ssl_handshake_cert_type,
           { "Certificate type", "ssl.handshake.cert_type",
@@ -2352,6 +2388,11 @@ proto_register_ssl(void)
           { "Distinguished Names Length", "ssl.handshake.dnames_len",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             "Length of list of CAs that server trusts", HFILL }
+        },
+        { &hf_ssl_handshake_dnames,
+          { "Distinguished Names", "ssl.handshake.dnames",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "List of CAs that server trusts", HFILL }
         },
         { &hf_ssl_handshake_dname_len,
           { "Distinguished Name Length", "ssl.handshake.dname_len",
