@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.33 2001/12/03 03:59:40 guy Exp $
+ * $Id: packet-tftp.c,v 1.34 2001/12/10 00:25:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -129,14 +129,14 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  }
 	}
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "TFTP");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFTP");
 
 	opcode = tvb_get_ntohs(tvb, offset);
 
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 
-	  col_add_fstr(pinfo->fd, COL_INFO, "%s",
+	  col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
 	    val_to_str(opcode, tftp_opcode_vals, "Unknown (0x%04x)"));
 
 	}
@@ -160,8 +160,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_item(tftp_tree, hf_tftp_source_file,
 			    tvb, offset, i1, FALSE);
 	  }
-	  if (check_col(pinfo->fd, COL_INFO)) {
-	    col_append_fstr(pinfo->fd, COL_INFO, ", File: %s",
+	  if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
 			    tvb_get_ptr(tvb, offset, i1));
 	  }
 	  offset += i1;
@@ -171,8 +171,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    ti = proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
 			    tvb, offset, i1, FALSE);
 	  }
-	  if (check_col(pinfo->fd, COL_INFO)) {
-	    col_append_fstr(pinfo->fd, COL_INFO, ", Transfer type: %s",
+	  if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
 			    tvb_get_ptr(tvb, offset, i1));
 	  }
 	  offset += i1;
@@ -187,8 +187,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_item(tftp_tree, hf_tftp_destination_file,
 			    tvb, offset, i1, FALSE);
 	  }
-	  if (check_col(pinfo->fd, COL_INFO)) {
-	    col_append_fstr(pinfo->fd, COL_INFO, ", File: %s",
+	  if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
 			    tvb_get_ptr(tvb, offset, i1));
 	  }
 	  offset += i1;
@@ -198,8 +198,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    ti = proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
 			    tvb, offset, i1, FALSE);
 	  }
-	  if (check_col(pinfo->fd, COL_INFO)) {
-	    col_append_fstr(pinfo->fd, COL_INFO, ", Transfer type: %s",
+	  if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
 			    tvb_get_ptr(tvb, offset, i1));
 	  }
 	  offset += i1;
@@ -213,8 +213,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_item(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
 	    		    FALSE);
 	  }
-	  if (check_col(pinfo->fd, COL_INFO)) {
-	    col_append_fstr(pinfo->fd, COL_INFO, ", Block: %i",
+	  if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %i",
 			    tvb_get_ntohs(tvb, offset));
 	  }
 	  offset += 2;
@@ -230,8 +230,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_item(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
 	    		    FALSE);
 	  }
-	  if (check_col(pinfo->fd, COL_INFO)) {
-	    col_append_fstr(pinfo->fd, COL_INFO, ", Block: %i",
+	  if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %i",
 			    tvb_get_ntohs(tvb, offset));
 	  }
 	  break;
@@ -242,8 +242,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_uint(tftp_tree, hf_tftp_error_code, tvb, offset, 2,
 			    error);
 	  }
-	  if (check_col(pinfo->fd, COL_INFO)) {
-	    col_append_fstr(pinfo->fd, COL_INFO, ", Code: %s",
+	  if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Code: %s",
 			    val_to_str(error, tftp_error_code_vals, "Unknown (%u)"));
 	  }
 	  offset += 2;
@@ -253,8 +253,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_item(tftp_tree, hf_tftp_error_string, tvb, offset,
 	        i1, FALSE);
 	  }
-	  if (check_col(pinfo->fd, COL_INFO)) {
-	    col_append_fstr(pinfo->fd, COL_INFO, ", Message: %s",
+	  if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ", Message: %s",
 			    tvb_get_ptr(tvb, offset, i1));
 	  }
 	  break;

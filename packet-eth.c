@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.70 2001/12/03 03:59:34 guy Exp $
+ * $Id: packet-eth.c,v 1.71 2001/12/10 00:25:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -146,8 +146,8 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   volatile gboolean	is_802_2;
   proto_tree		*volatile fh_tree = NULL;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "Ethernet");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Ethernet");
 
   src = tvb_get_ptr(tvb, 6, 6);
   dst = tvb_get_ptr(tvb, 0, 6);
@@ -191,8 +191,8 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     ENDTRY;
 
-    if (check_col(pinfo->fd, COL_INFO)) {
-      col_add_fstr(pinfo->fd, COL_INFO, "IEEE 802.3 Ethernet %s",
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_add_fstr(pinfo->cinfo, COL_INFO, "IEEE 802.3 Ethernet %s",
 		(is_802_2 ? "" : "Raw "));
     }
     if (tree) {
@@ -212,8 +212,8 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_802_3(etype, is_802_2, tvb, ETH_HEADER_SIZE, pinfo, tree, fh_tree,
 		  hf_eth_len, hf_eth_trailer);
   } else {
-    if (check_col(pinfo->fd, COL_INFO))
-      col_set_str(pinfo->fd, COL_INFO, "Ethernet II");
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_set_str(pinfo->cinfo, COL_INFO, "Ethernet II");
     if (tree) {
       ti = proto_tree_add_protocol_format(tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
 		"Ethernet II");

@@ -3,7 +3,7 @@
  * to when it had only NBNS)
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.66 2001/12/03 03:59:37 guy Exp $
+ * $Id: packet-nbns.c,v 1.67 2001/12/10 00:25:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -331,7 +331,7 @@ add_name_and_type(proto_tree *tree, tvbuff_t *tvb, int offset, int len,
 
 static int
 dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
-    frame_data *fd, proto_tree *nbns_tree)
+    column_info *cinfo, proto_tree *nbns_tree)
 {
 	int len;
 	char name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME];
@@ -355,8 +355,8 @@ dissect_nbns_query(tvbuff_t *tvb, int offset, int nbns_data_offset,
 	type_name = nbns_type_name(type);
 	class_name = dns_class_name(class);
 
-	if (fd != NULL)
-		col_append_fstr(fd, COL_INFO, " %s %s", type_name, name);
+	if (cinfo != NULL)
+		col_append_fstr(cinfo, COL_INFO, " %s %s", type_name, name);
 	if (nbns_tree != NULL) {
 		tq = proto_tree_add_text(nbns_tree, tvb, offset, len,
 		    "%s: type %s, class %s",  name, type_name, class_name);
@@ -550,7 +550,7 @@ nbns_add_name_flags(proto_tree *rr_tree, tvbuff_t *tvb, int offset,
 
 static int
 dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
-    frame_data *fd, proto_tree *nbns_tree, int opcode)
+    column_info *cinfo, proto_tree *nbns_tree, int opcode)
 {
 	int len;
 	char name[(NETBIOS_NAME_LEN - 1)*4 + MAXDNAME + 64];
@@ -594,9 +594,9 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 
 	switch (type) {
 	case T_NB: 		/* "NB" record */
-		if (fd != NULL) {
+		if (cinfo != NULL) {
 			if (opcode != OPCODE_WACK) {
-				col_append_fstr(fd, COL_INFO, " %s %s",
+				col_append_fstr(cinfo, COL_INFO, " %s %s",
 				    type_name,
 				    ip_to_str(tvb_get_ptr(tvb, data_offset+2, 4)));
 			}
@@ -654,8 +654,8 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 		break;
 
 	case T_NBSTAT: 	/* "NBSTAT" record */
-		if (fd != NULL)
-			col_append_fstr(fd, COL_INFO, " %s", type_name);
+		if (cinfo != NULL)
+			col_append_fstr(cinfo, COL_INFO, " %s", type_name);
 		if (nbns_tree == NULL)
 			break;
 		trr = proto_tree_add_text(nbns_tree, tvb, offset,
@@ -898,8 +898,8 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 		break;
 
 	default:
-		if (fd != NULL)
-			col_append_fstr(fd, COL_INFO, " %s", type_name);
+		if (cinfo != NULL)
+			col_append_fstr(cinfo, COL_INFO, " %s", type_name);
 		if (nbns_tree == NULL)
 			break;
 		trr = proto_tree_add_text(nbns_tree, tvb, offset,
@@ -918,7 +918,7 @@ dissect_nbns_answer(tvbuff_t *tvb, int offset, int nbns_data_offset,
 
 static int
 dissect_query_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
-    int count, frame_data *fd, proto_tree *nbns_tree)
+    int count, column_info *cinfo, proto_tree *nbns_tree)
 {
 	int start_off, add_off;
 	proto_tree *qatree = NULL;
@@ -931,7 +931,7 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
 	}
 	while (count-- > 0) {
 		add_off = dissect_nbns_query(tvb, cur_off, nbns_data_offset,
-		    fd, qatree);
+		    cinfo, qatree);
 		if (add_off <= 0) {
 			/* We ran past the end of the captured data in the
 			   packet. */
@@ -949,7 +949,8 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
 
 static int
 dissect_answer_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
-    int count, frame_data *fd, proto_tree *nbns_tree, int opcode, char *name)
+    int count, column_info *cinfo, proto_tree *nbns_tree, int opcode,
+    char *name)
 {
 	int start_off, add_off;
 	proto_tree *qatree = NULL;
@@ -962,7 +963,7 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int nbns_data_offset,
 	}
 	while (count-- > 0) {
 		add_off = dissect_nbns_answer(tvb, cur_off, nbns_data_offset,
-					fd, qatree, opcode);
+					cinfo, qatree, opcode);
 		if (add_off <= 0) {
 			/* We ran past the end of the captured data in the
 			   packet. */
@@ -980,7 +981,7 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int			offset = 0;
 	int			nbns_data_offset;
-	frame_data		*fd;
+	column_info		*cinfo;
 	proto_tree		*nbns_tree = NULL;
 	proto_item		*ti;
 	guint16			id, flags, quest, ans, auth, add;
@@ -988,28 +989,28 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	nbns_data_offset = offset;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "NBNS");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBNS");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	/* To do: check for runts, errs, etc. */
 	id    = tvb_get_ntohs(tvb, offset + NBNS_ID);
 	flags = tvb_get_ntohs(tvb, offset + NBNS_FLAGS);
 
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO, "%s%s",
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s",
 		    val_to_str(flags & F_OPCODE, opcode_vals,
 		      "Unknown operation (%x)"),
 		    (flags & F_RESPONSE) ? " response" : "");
-		fd = pinfo->fd;
+		cinfo = pinfo->cinfo;
 	} else {
-		/* Set "fd" to NULL; we pass a NULL "fd" to the query and
-		   answer dissectors, as a way of saying that they shouldn't
-		   add stuff to the COL_INFO column (a call to
-		   "check_col(fd, COL_INFO)" is more expensive than a check
-		   that a pointer isn't NULL). */
-		fd = NULL;
+		/* Set "cinfo" to NULL; we pass a NULL "cinfo" to the query
+		   and answer dissectors, as a way of saying that they
+		   shouldn't add stuff to the COL_INFO column (a call to
+		   "check_col(cinfo, COL_INFO)" is more expensive than
+		   a check that a pointer isn't NULL). */
+		cinfo = NULL;
 	}
 
 	if (tree) {
@@ -1060,7 +1061,7 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		   answers. */
 		cur_off += dissect_query_records(tvb, cur_off,
 		    nbns_data_offset, quest,
-		    (!(flags & F_RESPONSE) ? fd : NULL), nbns_tree);
+		    (!(flags & F_RESPONSE) ? cinfo : NULL), nbns_tree);
 	}
 
 	if (ans > 0) {
@@ -1069,7 +1070,7 @@ dissect_nbns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		   queries. */
 		cur_off += dissect_answer_records(tvb, cur_off,
 			nbns_data_offset, ans,
-			((flags & F_RESPONSE) ? fd : NULL), nbns_tree,
+			((flags & F_RESPONSE) ? cinfo : NULL), nbns_tree,
 			flags & F_OPCODE, "Answers");
 	}
 
@@ -1169,10 +1170,10 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int name_type;
 	int len;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "NBDS");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBDS");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	header.msg_type = tvb_get_guint8(tvb, offset);
 	
@@ -1204,8 +1205,8 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		message_index = 0;
 	}
 
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_str(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(header.msg_type, nbds_msgtype_vals,
 		      "Unknown message type (0x%02X)"));
 	}
@@ -1515,10 +1516,10 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree	*nbss_tree;
 	proto_item	*ti;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "NBSS");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBSS");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	max_data = tvb_length(tvb);
 
@@ -1663,8 +1664,8 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
  
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 		    val_to_str(msg_type, message_types, "Unknown (%02x)"));
 	}
 
@@ -1681,8 +1682,8 @@ continuation:
 	/*
 	 * It looks like a continuation.
 	 */
-	if (check_col(pinfo->fd, COL_INFO))
-		col_add_fstr(pinfo->fd, COL_INFO, "NBSS Continuation Message");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, "NBSS Continuation Message");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nbss, tvb, 0,

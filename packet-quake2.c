@@ -7,7 +7,7 @@
  *	http://www.dgs.monash.edu.au/~timf/bottim/
  *	http://www.opt-sci.Arizona.EDU/Pandora/default.asp
  *
- * $Id: packet-quake2.c,v 1.6 2001/12/03 03:59:38 guy Exp $
+ * $Id: packet-quake2.c,v 1.7 2001/12/10 00:25:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -273,10 +273,10 @@ dissect_quake2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	direction = (pinfo->destport == gbl_quake2ServerPort) ?
 			DIR_C2S : DIR_S2C;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "QUAKE2");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_set_str(pinfo->fd, COL_INFO, val_to_str(direction,
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKE2");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, val_to_str(direction,
 			names_direction, "%u"));
 
 	if (tree) {
@@ -296,8 +296,8 @@ dissect_quake2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tvb_get_ntohl(tvb, 0) == 0xffffffff) {
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_append_str(pinfo->fd, COL_INFO, " Connectionless");
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_str(pinfo->cinfo, COL_INFO, " Connectionless");
 		}
 		if (quake2_tree)
 			proto_tree_add_uint_format(quake2_tree,
@@ -308,8 +308,8 @@ dissect_quake2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb, pinfo, quake2_tree, direction);
 	}
 	else {
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_append_str(pinfo->fd, COL_INFO, " Game");
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_str(pinfo->cinfo, COL_INFO, " Game");
 		}
 		if (quake2_tree)
 			proto_tree_add_uint_format(quake2_tree,

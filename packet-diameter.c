@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.36 2001/12/03 03:59:34 guy Exp $
+ * $Id: packet-diameter.c,v 1.37 2001/12/10 00:25:27 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -972,10 +972,10 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
   }
 	
   /* Make entries in Protocol column and Info column on summary display */
-  if (check_col(pinfo->fd, COL_PROTOCOL)) 
-	col_add_str(pinfo->fd, COL_PROTOCOL, "Diameter");
-  if (check_col(pinfo->fd, COL_INFO)) 
-	col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+	col_add_str(pinfo->cinfo, COL_PROTOCOL, "Diameter");
+  if (check_col(pinfo->cinfo, COL_INFO)) 
+	col_clear(pinfo->cinfo, COL_INFO);
 	
   /* Copy our header */
   tvb_memcpy(tvb, (guint8*) &dh, offset, sizeof(dh));
@@ -1002,7 +1002,7 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
   commandCode = DIAM_GET_COMMAND(dh);
 
   /* Set up our flags */
-  if (check_col(pinfo->fd, COL_INFO) || tree) {  
+  if (check_col(pinfo->cinfo, COL_INFO) || tree) {  
 	flagstr[0]=0;
 	for (i = 0; i < 8; i++) {
 	  bpos = 1 << i;
@@ -1040,8 +1040,8 @@ static guint32 dissect_diameter_common(tvbuff_t *tvb, size_t start, packet_info 
 	BadPacket = TRUE;
   }
 
-  if (check_col(pinfo->fd, COL_INFO)) {
-	col_add_fstr(pinfo->fd, COL_INFO,
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 				 "%s%s%s%s%s vendor=%s (hop-id=%d) (end-id=%d) RPE=%d%d%d",
 				 (BadPacket)?"***** Bad Packet!: ":"",
 				 (flags & DIAM_FLAGS_P)?"Proxyable ":"",
@@ -1222,7 +1222,7 @@ safe_dissect_mip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	
   /* The contained packet is a MIP registration request;
 	 dissect it with the MIP dissector. */
-  col_set_writable(pinfo->fd, FALSE);
+  col_set_writable(pinfo->cinfo, FALSE);
 
   /* Also, save the current values of the addresses, and restore
 	 them when we're finished dissecting the contained packet, so
@@ -1319,7 +1319,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	avpLength = avph.avp_flagsLength & 0x00ffffff;
 	
 	/* Set up our flags string */
-	if (check_col(pinfo->fd, COL_INFO) || avp_tree) {  
+	if (check_col(pinfo->cinfo, COL_INFO) || avp_tree) {  
 	  flagstr[0]=0;
 	  for (i = 0; i < 8; i++) {
 		bpos = 1 << i;

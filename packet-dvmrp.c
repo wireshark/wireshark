@@ -1,7 +1,7 @@
 /* packet-dvmrp.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP/DVMRP packet disassembly
  *
- * $Id: packet-dvmrp.c,v 1.3 2001/10/30 21:31:15 guy Exp $
+ * $Id: packet-dvmrp.c,v 1.4 2001/12/10 00:25:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -338,8 +338,8 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	code = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(parent_tree, hf_code_v3, tvb, offset, 1, code);
 	offset += 1;
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 			"V%d %s",3 ,val_to_str(code, code_v3, 
 				"Unknown Type:0x%02x"));
 	}
@@ -468,8 +468,8 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	code = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(parent_tree, hf_code_v1, tvb, offset, 1, code);
 	offset += 1;
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 			"V%d %s",1 ,val_to_str(code, code_v1, 
 				"Unknown Type:0x%02x"));
 	}
@@ -641,11 +641,11 @@ dissect_dvmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int of
 	tree = proto_item_add_subtree(item, ett_dvmrp);
 
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_set_str(pinfo->fd, COL_PROTOCOL, "DVMRP");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DVMRP");
 	}
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
 

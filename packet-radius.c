@@ -2,7 +2,7 @@
  * Routines for RADIUS packet disassembly
  * Copyright 1999 Johan Feyaerts
  *
- * $Id: packet-radius.c,v 1.39 2001/12/03 03:59:38 guy Exp $
+ * $Id: packet-radius.c,v 1.40 2001/12/10 00:25:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -891,10 +891,10 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   gchar *codestrval;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-        col_set_str(pinfo->fd, COL_PROTOCOL, "RADIUS");
-  if (check_col(pinfo->fd, COL_INFO))
-        col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "RADIUS");
+  if (check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
 
   tvb_memcpy(tvb,(guint8 *)&rh,0,sizeof(e_radiushdr));
 
@@ -906,9 +906,9 @@ static void dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   {
 	codestrval="Unknown Packet";
   }
-  if (check_col(pinfo->fd, COL_INFO))
+  if (check_col(pinfo->cinfo, COL_INFO))
   {
-        col_add_fstr(pinfo->fd,COL_INFO,"%s(%d) (id=%d, l=%d)",
+        col_add_fstr(pinfo->cinfo,COL_INFO,"%s(%d) (id=%d, l=%d)",
 		codestrval, rhcode, rhident, rhlength);
   }
 

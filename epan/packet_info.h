@@ -1,7 +1,7 @@
 /* packet_info.h
  * Definitions for packet info structures and routines
  *
- * $Id: packet_info.h,v 1.12 2001/11/29 09:05:25 guy Exp $
+ * $Id: packet_info.h,v 1.13 2001/12/10 00:26:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,6 +89,7 @@ typedef enum {
 
 typedef struct _packet_info {
   const char *current_proto;	/* name of protocol currently being dissected */
+  column_info *cinfo;		/* Column formatting information */
   frame_data *fd;
   union wtap_pseudo_header *pseudo_header;
   address dl_src;		/* link-layer source address */

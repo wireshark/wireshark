@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.58 2001/12/03 03:59:33 guy Exp $
+ * $Id: packet-bootp.c,v 1.59 2001/12/10 00:25:26 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -1068,33 +1068,33 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	const char	*dhcp_type = NULL;
 	const guint8	*vendor_class_id = NULL;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "BOOTP");
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BOOTP");
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/*
 		 * In case we throw an exception fetching the opcode, etc.
 		 */
-		col_clear(pinfo->fd, COL_INFO);
+		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
 	op = tvb_get_guint8(tvb, 0);
 	htype = tvb_get_guint8(tvb, 1);
 	hlen = tvb_get_guint8(tvb, 2);
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		switch (op) {
 
 		case BOOTREQUEST:
-			col_add_fstr(pinfo->fd, COL_INFO, "Boot Request from %s",
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Boot Request from %s",
 				arphrdaddr_to_str(tvb_get_ptr(tvb, 28, hlen),
 					hlen, htype));
 			break;
 
 		case BOOTREPLY:
-			col_set_str(pinfo->fd, COL_INFO, "Boot Reply");
+			col_set_str(pinfo->cinfo, COL_INFO, "Boot Reply");
 			break;
 
 		default:
-			col_add_fstr(pinfo->fd, COL_INFO, "Unknown BOOTP message type (%u)",
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown BOOTP message type (%u)",
 			    op);
 			break;
 		}
@@ -1207,10 +1207,10 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Yes, this is a DHCP packet, and "dhcp_type" is the
 		 * packet type.
 		 */
-		if (check_col(pinfo->fd, COL_PROTOCOL))
-			col_set_str(pinfo->fd, COL_PROTOCOL, "DHCP");
-		if (check_col(pinfo->fd, COL_INFO))
-			col_add_fstr(pinfo->fd, COL_INFO, "DHCP %-8s - Transaction ID 0x%x",
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCP");
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_fstr(pinfo->cinfo, COL_INFO, "DHCP %-8s - Transaction ID 0x%x",
 			    dhcp_type, tvb_get_ntohl(tvb, 4));
 		if (tree)
 			proto_tree_add_boolean_hidden(bp_tree, hf_bootp_dhcp,

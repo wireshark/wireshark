@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.6 2001/12/03 03:59:34 guy Exp $
+ * $Id: packet-dsi.c,v 1.7 2001/12/10 00:25:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -313,10 +313,10 @@ dissect_dsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 dsi_length;
 	guint32 dsi_reserved;
  
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "DSI");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "DSI");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	conversation = find_conversation(&pinfo->src, &pinfo->dst, PT_TCP,
 		pinfo->srcport, pinfo->destport, 0);
@@ -355,7 +355,7 @@ dissect_dsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dsi_reserved = hash_info->reserved;
 	}
 
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if ((func_str = match_strval(dsi_command, func_vals)))
 		{
 			flag_str = match_strval(dsi_flags, flag_vals);
@@ -369,7 +369,7 @@ dissect_dsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			{
 				cont_str[0]=0;
 			}
-			col_add_fstr(pinfo->fd, COL_INFO, "%s %s (%d) %s",
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s (%d) %s",
 				flag_str,func_str,dsi_requestid,
 				cont_str);
 		}

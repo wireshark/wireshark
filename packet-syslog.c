@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Gerald Combs <gerald@ethereal.com>
  *
- * $Id: packet-syslog.c,v 1.12 2001/12/03 03:59:40 guy Exp $
+ * $Id: packet-syslog.c,v 1.13 2001/12/10 00:25:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,10 +144,10 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *syslog_tree;
   gchar msg_str[COL_INFO_LEN];
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "Syslog");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Syslog");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
     
   msg_len = tvb_length(tvb);
   
@@ -175,13 +175,13 @@ static void dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     msg_str[msg_len] = '\0';
   }
     
-  if (check_col(pinfo->fd, COL_INFO)) {
+  if (check_col(pinfo->cinfo, COL_INFO)) {
     if (pri >= 0) {
-      col_add_fstr(pinfo->fd, COL_INFO, "%s.%s: %s", 
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s.%s: %s", 
         val_to_str(fac, short_fac, "UNKNOWN"),
         val_to_str(lev, short_lev, "UNKNOWN"), msg_str);
     } else {
-      col_add_fstr(pinfo->fd, COL_INFO, "%s", msg_str);
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s", msg_str);
     }
   }
   

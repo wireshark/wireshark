@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.42 2001/12/03 03:59:37 guy Exp $
+ * $Id: packet-netbios.c,v 1.43 2001/12/10 00:25:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -983,8 +983,8 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int offset = 0;
 
 					/* load the display labels 	*/
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "NetBIOS");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NetBIOS");
 
 
 /* Find NetBIOS marker EFFF, this is done because I have seen an extra LLC */
@@ -994,8 +994,8 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		++offset;
 		if ( 0xefff != tvb_get_letohs(tvb, 3)){
 
-			if (check_col( pinfo->fd, COL_INFO)) 	/* print bad packet */
-				col_set_str( pinfo->fd, COL_INFO, "Bad packet, no 0xEFFF marker");
+			if (check_col( pinfo->cinfo, COL_INFO)) 	/* print bad packet */
+				col_set_str( pinfo->cinfo, COL_INFO, "Bad packet, no 0xEFFF marker");
 
 			return;		/* this is an unknow packet, no marker */
 		}
@@ -1007,11 +1007,11 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* limit command so no table overflows */
 	command = MIN( command, sizeof( dissect_netb)/ sizeof(void *));
 
-        if (check_col( pinfo->fd, COL_INFO)) {              /* print command name */
+        if (check_col( pinfo->cinfo, COL_INFO)) {              /* print command name */
                 switch ( command ) {
                 case NB_NAME_QUERY:
                         name_type = get_netbios_name( tvb, offset + 12, name);
-                        col_add_fstr( pinfo->fd, COL_INFO, "%s for %s<%02x>",
+                        col_add_fstr( pinfo->cinfo, COL_INFO, "%s for %s<%02x>",
                             CommandName[ command], name, name_type);
                         break;
 
@@ -1019,12 +1019,12 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 case NB_ADD_NAME:
                 case NB_ADD_GROUP:
                         name_type = get_netbios_name( tvb, offset + 28, name);
-                        col_add_fstr( pinfo->fd, COL_INFO, "%s - %s<%02x>",
+                        col_add_fstr( pinfo->cinfo, COL_INFO, "%s - %s<%02x>",
                             CommandName[ command], name, name_type);
                         break;
 
 		default:
-			col_add_fstr( pinfo->fd, COL_INFO, "%s", CommandName[ command]);
+			col_add_fstr( pinfo->cinfo, COL_INFO, "%s", CommandName[ command]);
 			break;
 		}
 	}

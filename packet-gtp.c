@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.18 2001/12/03 03:59:34 guy Exp $
+ * $Id: packet-gtp.c,v 1.19 2001/12/10 00:25:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1591,7 +1591,7 @@ struct _stcdr {						/* STCDR 79B */
 	char		*yesno[] = { "False", "True" };
 	
 static void
-col_append_str_gtp(frame_data *fd, gint el, gchar *proto_name) {
+col_append_str_gtp(column_info *cinfo, gint el, gchar *proto_name) {
 	
 	int	i;
 	int	max_len;
@@ -1599,22 +1599,22 @@ col_append_str_gtp(frame_data *fd, gint el, gchar *proto_name) {
 
 	max_len = COL_MAX_LEN;
 
-	for (i = 0; i < fd->cinfo->num_cols; i++) {
-		if (fd->cinfo->fmt_matx[i][el]) {
-			if (fd->cinfo->col_data[i] != fd->cinfo->col_buf[i]) {
+	for (i = 0; i < cinfo->num_cols; i++) {
+		if (cinfo->fmt_matx[i][el]) {
+			if (cinfo->col_data[i] != cinfo->col_buf[i]) {
 				
-    				strncpy(fd->cinfo->col_buf[i], fd->cinfo->col_data[i], max_len);
-    				fd->cinfo->col_buf[i][max_len - 1] = '\0';
+    				strncpy(cinfo->col_buf[i], cinfo->col_data[i], max_len);
+    				cinfo->col_buf[i][max_len - 1] = '\0';
       			}
 	
 			_tmp[0] = '\0';
 			strcat(_tmp, proto_name);
 			strcat(_tmp, " <");
-			strcat(_tmp, fd->cinfo->col_buf[i]);
+			strcat(_tmp, cinfo->col_buf[i]);
 			strcat(_tmp, ">");
-			fd->cinfo->col_buf[i][0] = '\0';
-			strcat(fd->cinfo->col_buf[i], _tmp);
-			fd->cinfo->col_data[i] = fd->cinfo->col_buf[i];
+			cinfo->col_buf[i][0] = '\0';
+			strcat(cinfo->col_buf[i], _tmp);
+			cinfo->col_data[i] = cinfo->col_buf[i];
 		}
 	}
 }
@@ -3683,13 +3683,14 @@ decode_gtp_proto_conf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 			next_tvb = tvb_new_subset(tvb, offset + 5, proto_len + 2, proto_len + 2); 
 			call_dissector(ppp_handle, next_tvb, pinfo, ext_tree_proto); 
 				
-			if (check_col(pinfo->fd, COL_PROTOCOL)) col_set_str(pinfo->fd, COL_PROTOCOL, "GTP"); 
+			if (check_col(pinfo->cinfo, COL_PROTOCOL))
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP"); 
 				
-			if (check_col(pinfo->fd, COL_INFO)) { 
+			if (check_col(pinfo->cinfo, COL_INFO)) { 
 					
 				msg = tvb_get_guint8(tvb, 1); 
 						
-				col_set_str(pinfo->fd, COL_INFO, val_to_str(msg, message_type, "Unknown")); 
+				col_set_str(pinfo->cinfo, COL_INFO, val_to_str(msg, message_type, "Unknown")); 
 			} 
 		} 
 	}
@@ -4689,8 +4690,10 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gchar		*tid_str;
 	int		offset, length, i, mandatory, checked_field;
 	
-	if (check_col(pinfo->fd, COL_PROTOCOL)) col_set_str(pinfo->fd, COL_PROTOCOL, "GTP");
-	if (check_col(pinfo->fd, COL_INFO)) col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	tvb_memcpy(tvb, (guint8 *)&gtpv0_hdr, 0, 12); 
 	tid_val = tvb_get_ptr(tvb, 12, 8);
@@ -4698,22 +4701,23 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gtp_version = (gtpv0_hdr.flags >> 5) & 0x07;
 
 	if (!((gtpv0_hdr.flags >> 4) & 1)) {
-		if (check_col(pinfo->fd, COL_PROTOCOL))
-			col_set_str(pinfo->fd, COL_PROTOCOL, "GTP-CDR");
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP-CDR");
 	} else {
 		switch ((gtpv0_hdr.flags >> 5) & 0x07) {
-		case 0: if (check_col(pinfo->fd, COL_PROTOCOL))
-				col_set_str(pinfo->fd, COL_PROTOCOL, "GTP");
+		case 0: if (check_col(pinfo->cinfo, COL_PROTOCOL))
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP");
 			break;
-		case 1: if (check_col(pinfo->fd, COL_PROTOCOL))
-				col_set_str(pinfo->fd, COL_PROTOCOL, "GTPv1");
-		default: if (check_col(pinfo->fd, COL_PROTOCOL))
-				col_set_str(pinfo->fd, COL_PROTOCOL, "GTPv?");
+		case 1: if (check_col(pinfo->cinfo, COL_PROTOCOL))
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTPv1");
+		default: if (check_col(pinfo->cinfo, COL_PROTOCOL))
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTPv?");
 			break;
 		}
 	}
 
-	if (check_col(pinfo->fd, COL_INFO)) col_add_str(pinfo->fd, COL_INFO, val_to_str(gtpv0_hdr.message, message_type, "Unknown"));
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(gtpv0_hdr.message, message_type, "Unknown"));
 	
 	if (tree) {
 			
@@ -4777,7 +4781,8 @@ dissect_gtpv0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ((gtpv0_hdr.message == GTP_MSG_TPDU) && gtp_tpdu) {
 		next_tvb = tvb_new_subset(tvb, 20, -1, -1);
 		call_dissector(ip_handle, next_tvb, pinfo, tree);
-		if (check_col(pinfo->fd, COL_PROTOCOL)) col_append_str_gtp(pinfo->fd, COL_PROTOCOL, "GTP");
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP");
 	}
 	
 }
@@ -4794,13 +4799,16 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	tvbuff_t	*next_tvb;
 	int		offset, length, mandatory, checked_field;
 	
-	if (check_col(pinfo->fd, COL_PROTOCOL)) col_set_str(pinfo->fd, COL_PROTOCOL, "GTP-C");
-	if (check_col(pinfo->fd, COL_INFO)) col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "GTP-C");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	tvb_memcpy(tvb, (guint8 *)&gtpv1_hdr, 0, 8);
 	gtp_version = (gtpv1_hdr.flags >> 5) & 0x07;
 
-	if (check_col(pinfo->fd, COL_INFO)) col_add_str(pinfo->fd, COL_INFO, val_to_str(gtpv1_hdr.message, message_type, "Unknown"));
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(gtpv1_hdr.message, message_type, "Unknown"));
 
 	if (tree) {
 			
@@ -4881,7 +4889,8 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	}
 
 	if (gtpv1_hdr.message == GTP_MSG_ERR_IND)
-		if (check_col(pinfo->fd, COL_PROTOCOL)) col_add_str(pinfo->fd, COL_PROTOCOL, "GTP-U");
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_add_str(pinfo->cinfo, COL_PROTOCOL, "GTP-U");
 
 
 	if ((gtpv1_hdr.message == GTP_MSG_TPDU) && gtp_tpdu) {
@@ -4901,7 +4910,8 @@ dissect_gtpv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		
 		next_tvb = tvb_new_subset(tvb, GTPv1_HDR_LENGTH - hdr_offset, -1, -1);
 		call_dissector(ip_handle, next_tvb, pinfo, tree);
-		if (check_col(pinfo->fd, COL_PROTOCOL)) col_append_str_gtp(pinfo->fd, COL_PROTOCOL, "GTP-U");
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_append_str_gtp(pinfo->cinfo, COL_PROTOCOL, "GTP-U");
 	}
 }
 

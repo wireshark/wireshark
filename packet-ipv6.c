@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.70 2001/12/03 03:59:35 guy Exp $
+ * $Id: packet-ipv6.c,v 1.71 2001/12/10 00:25:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -198,8 +198,8 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
     frag.ip6f_offlg = ntohs(frag.ip6f_offlg);
     *offlg = frag.ip6f_offlg;
     *ident = frag.ip6f_ident;
-    if (check_col(pinfo->fd, COL_INFO)) {
-	col_add_fstr(pinfo->fd, COL_INFO,
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_add_fstr(pinfo->cinfo, COL_INFO,
 	    "IPv6 fragment (nxt=%s (0x%02x) off=%u id=0x%x)",
 	    ipprotostr(frag.ip6f_nxt), frag.ip6f_nxt,
 	    frag.ip6f_offlg & IP6F_OFF_MASK, frag.ip6f_ident);
@@ -660,10 +660,10 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   struct ip6_hdr ipv6;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "IPv6");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPv6");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   offset = 0;
   tvb_memcpy(tvb, (guint8 *)&ipv6, offset, sizeof(ipv6));
@@ -889,8 +889,8 @@ again:
       }
       if (ipfd_head->flags & (FD_OVERLAPCONFLICT
                         |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-        if (check_col(pinfo->fd, COL_INFO)) {
-          col_set_str(pinfo->fd, COL_INFO, "[Illegal fragments]");
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+          col_set_str(pinfo->cinfo, COL_INFO, "[Illegal fragments]");
           update_col_info = FALSE;
         }
       }
@@ -952,8 +952,8 @@ again:
   /* do lookup with the subdissector table */
   if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
     /* Unknown protocol */
-    if (check_col(pinfo->fd, COL_INFO))
-      col_add_fstr(pinfo->fd, COL_INFO, "%s (0x%02x)", ipprotostr(nxt),nxt);
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)", ipprotostr(nxt),nxt);
     call_dissector(data_handle,next_tvb, pinfo, tree);
   }
 }
@@ -962,11 +962,11 @@ static void
 dissect_ipv6_none(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     if (hf_ipv6_mipv6_length != -1) {
-	if (check_col(pinfo->fd, COL_INFO))
-	    col_add_fstr(pinfo->fd, COL_INFO, "Mobile IPv6 Destination Option");
+	if (check_col(pinfo->cinfo, COL_INFO))
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "Mobile IPv6 Destination Option");
     } else {
-	if (check_col(pinfo->fd, COL_INFO))
-	    col_add_fstr(pinfo->fd, COL_INFO, "IPv6 no next header");
+	if (check_col(pinfo->cinfo, COL_INFO))
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "IPv6 no next header");
     }
     /* XXX - dissect the payload as padding? */
 }

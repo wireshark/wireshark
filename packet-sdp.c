@@ -4,12 +4,11 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.20 2001/01/25 06:14:14 guy Exp $
+ * $Id: packet-sdp.c,v 1.21 2001/12/10 00:25:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,8 +23,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
- *
- *
  */
 
 #include "config.h"
@@ -75,12 +72,12 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * what the protocol inside which the SDP stuff resides
 	 * put there.
 	 */
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_append_str(pinfo->fd, COL_PROTOCOL, "/SDP");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_append_str(pinfo->cinfo, COL_PROTOCOL, "/SDP");
 
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/* XXX: Needs description. */
-		col_append_str(pinfo->fd, COL_INFO, ", with session description");
+		col_append_str(pinfo->cinfo, COL_INFO, ", with session description");
 	}
 
 	if (!tree)

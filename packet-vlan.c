@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.36 2001/12/03 03:59:40 guy Exp $
+ * $Id: packet-vlan.c,v 1.37 2001/12/10 00:25:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -79,15 +79,15 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   volatile gboolean is_802_2;
   proto_tree *volatile vlan_tree;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "VLAN");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "VLAN");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   tci = tvb_get_ntohs( tvb, 0 );
 
-  if (check_col(pinfo->fd, COL_INFO)) {
-    col_add_fstr(pinfo->fd, COL_INFO, "PRI: %d  CFI: %d  ID: %d",
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_fstr(pinfo->cinfo, COL_INFO, "PRI: %d  CFI: %d  ID: %d",
       (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
   }
 

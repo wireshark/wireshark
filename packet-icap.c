@@ -74,10 +74,10 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	icap_type_t     icap_type;
 	int		datalen;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "ICAP");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICAP");
 
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/*
 		 * Put the first line from the buffer into the summary
 		 * if it's an ICAP header (but leave out the
@@ -92,10 +92,10 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		line = tvb_get_ptr(tvb, offset, linelen);
 		icap_type = ICAP_OTHER;	/* type not known yet */
 		if (is_icap_message(line, linelen, &icap_type))
-			col_add_str(pinfo->fd, COL_INFO,
+			col_add_str(pinfo->cinfo, COL_INFO,
 			    format_text(line, linelen));
 		else
-			col_set_str(pinfo->fd, COL_INFO, "Continuation");
+			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 	}
 
 	if (tree) {

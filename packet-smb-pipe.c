@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.60 2001/12/09 00:07:37 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.61 2001/12/10 00:25:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1996,8 +1996,8 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	}
 	pinfo->current_proto = "LANMAN";
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_set_str(pinfo->fd, COL_PROTOCOL, "LANMAN");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LANMAN");
 	}
 
 	if (parent_tree) {
@@ -2009,8 +2009,8 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	if (smb_info->request) { /* this is a request */
 		/* function code */
 		cmd = tvb_get_letohs(p_tvb, offset);
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO, "%s Request", val_to_str(cmd, commands, "Unknown Command:0x%02x"));
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request", val_to_str(cmd, commands, "Unknown Command:0x%02x"));
 		}
 		proto_tree_add_uint(tree, hf_function_code, p_tvb, offset, 2,
 		    cmd);
@@ -2149,8 +2149,8 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		if( ( (p_tvb==NULL) || (tvb_reported_length(p_tvb)==0) )
 		&&  ( (d_tvb==NULL) || (tvb_reported_length(d_tvb)==0) ) ){
 			/* command */
-			if (check_col(pinfo->fd, COL_INFO)) {
-				col_add_fstr(pinfo->fd, COL_INFO, "%s Interim Response",
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_add_fstr(pinfo->cinfo, COL_INFO, "%s Interim Response",
 					     val_to_str(trp->lanman_cmd, commands, "Unknown Command (0x%02x)"));
 			}
 			proto_tree_add_uint(tree, hf_function_code, p_tvb, 0, 0, trp->lanman_cmd);
@@ -2158,8 +2158,8 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		}
 
 		/* command */
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO, "%s Response",
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response",
 				     val_to_str(trp->lanman_cmd, commands, "Unknown Command (0x%02x)"));
 		}
 		proto_tree_add_uint(tree, hf_function_code, p_tvb, 0, 0,
@@ -2692,11 +2692,11 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 	/*
 	 * Set the columns.
 	 */
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_set_str(pinfo->fd, COL_PROTOCOL, "SMB Pipe");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB Pipe");
 	}
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_set_str(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_set_str(pinfo->cinfo, COL_INFO,
 		    smb_info->request ? "Request" : "Response");
 	}
 
@@ -2731,8 +2731,8 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		proto_tree_add_uint(pipe_tree, hf_pipe_function, s_tvb,
 		    offset, 2, function);
 		offset += 2;
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO, "%s %s",
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 			    val_to_str(function, functions, "Unknown function (0x%04x)"),
 			    smb_info->request ? "Request" : "Response");
 		}
@@ -2791,8 +2791,8 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			function = tri->function;
 			proto_tree_add_uint(pipe_tree, hf_pipe_function, NULL,
 			    0, 0, function);
-			if (check_col(pinfo->fd, COL_INFO)) {
-				col_add_fstr(pinfo->fd, COL_INFO, "%s %s",
+			if (check_col(pinfo->cinfo, COL_INFO)) {
+				col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 				    val_to_str(function, functions, "Unknown function (0x%04x)"),
 				    smb_info->request ? "Request" : "Response");
 			}

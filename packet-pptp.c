@@ -2,7 +2,7 @@
  * Routines for the Point-to-Point Tunnelling Protocol (PPTP) (RFC 2637)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-pptp.c,v 1.21 2001/12/03 03:59:38 guy Exp $
+ * $Id: packet-pptp.c,v 1.22 2001/12/10 00:25:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -243,16 +243,16 @@ dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16		len;
   guint16		cntrl_type;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "PPTP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPTP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
   
   len	     = tvb_get_ntohs(tvb, offset);
   cntrl_type = tvb_get_ntohs(tvb, offset + 8);
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_fstr(pinfo->fd, COL_INFO, "%s", cntrltype2str(cntrl_type));
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", cntrltype2str(cntrl_type));
 
   if (tree) {
     guint32		cookie;

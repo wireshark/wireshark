@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.35 2001/12/03 03:59:38 guy Exp $
+ * $Id: packet-pim.c,v 1.36 2001/12/10 00:25:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -129,10 +129,10 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	return offset+tvb_length_remaining(tvb, offset);
     }
 
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-        col_set_str(pinfo->fd, COL_PROTOCOL, "PIMv1");
-    if (check_col(pinfo->fd, COL_INFO))
-	col_clear(pinfo->fd, COL_INFO);
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PIMv1");
+    if (check_col(pinfo->cinfo, COL_INFO))
+	col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_pim, tvb, offset,
@@ -146,8 +146,8 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 1;
 
     pim_type = tvb_get_guint8(tvb, offset);
-    if (check_col(pinfo->fd, COL_INFO))
-	col_add_str(pinfo->fd, COL_INFO,
+    if (check_col(pinfo->cinfo, COL_INFO))
+	col_add_str(pinfo->cinfo, COL_INFO,
 	    val_to_str(pim_type, type1vals, "Unknown (%u)"));
 
     if (tree) {
@@ -185,7 +185,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 * this register will overwrite the PIM info in the columns.
 	 */
 	pim_length = 8;
-	col_set_writable(pinfo->fd, FALSE);
+	col_set_writable(pinfo->cinfo, FALSE);
     } else {
 	/*
 	 * Other message - checksum the entire packet.
@@ -625,10 +625,10 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree *pimopt_tree = NULL;
     proto_item *tiopt; 
 
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-        col_set_str(pinfo->fd, COL_PROTOCOL, "PIM");
-    if (check_col(pinfo->fd, COL_INFO))
-	col_clear(pinfo->fd, COL_INFO);
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "PIM");
+    if (check_col(pinfo->cinfo, COL_INFO))
+	col_clear(pinfo->cinfo, COL_INFO);
 
     pim_typever = tvb_get_guint8(tvb, 0);
 
@@ -642,12 +642,12 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	break;
     }
 
-    if (check_col(pinfo->fd, COL_PROTOCOL)) {
-        col_add_fstr(pinfo->fd, COL_PROTOCOL, "PIMv%d",
+    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+        col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "PIMv%d",
 	    PIM_VER(pim_typever));
     }
-    if (check_col(pinfo->fd, COL_INFO))
-	col_add_str(pinfo->fd, COL_INFO, typestr); 
+    if (check_col(pinfo->cinfo, COL_INFO))
+	col_add_str(pinfo->cinfo, COL_INFO, typestr); 
 
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_pim, tvb, offset,
@@ -675,7 +675,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		 * this register will overwrite the PIM info in the columns.
 		 */
 		pim_length = 8;
-		col_set_writable(pinfo->fd, FALSE);
+		col_set_writable(pinfo->cinfo, FALSE);
 	    } else {
 		/*
 		 * Other message - checksum the entire packet.

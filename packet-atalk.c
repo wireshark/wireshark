@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.59 2001/12/08 06:41:41 guy Exp $
+ * $Id: packet-atalk.c,v 1.60 2001/12/10 00:25:26 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -195,15 +195,15 @@ dissect_rtmp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_item *ti;
   guint8 function;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "RTMP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   function = tvb_get_guint8(tvb, 0);
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_fstr(pinfo->fd, COL_INFO, "%s",
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
 	val_to_str(function, rtmp_function_vals, "Unknown function (%02)"));
   
   if (tree) {
@@ -224,10 +224,10 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint16 node; /* might be more than 8 bits */
   int i;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "RTMP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTMP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   net = tvb_get_ntohs(tvb, offset);
   nodelen_bits = tvb_get_guint8(tvb, offset+2);
@@ -239,8 +239,8 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     nodelen = 2;
   }
   
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_fstr(pinfo->fd, COL_INFO, "Net: %u  Node Len: %u  Node: %u",
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Net: %u  Node Len: %u  Node: %u",
 		net, nodelen_bits, node);
   
   if (tree) {
@@ -312,17 +312,17 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint op, count;
   unsigned int i;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "NBP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   info = tvb_get_guint8(tvb, offset);
   op = info >> 4;
   count = info & 0x0F;
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_fstr(pinfo->fd, COL_INFO, "Op: %s  Count: %u",
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Op: %s  Count: %u",
       val_to_str(op, nbp_op_vals, "Unknown (0x%01x)"), count);
   
   if (tree) {
@@ -382,10 +382,10 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
   static struct atalk_ddp_addr src, dst;
   tvbuff_t   *new_tvb;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "DDP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_ddp, tvb, 0, DDP_SHORT_HEADER_SIZE,
@@ -414,8 +414,8 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
   SET_ADDRESS(&pinfo->net_dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
   SET_ADDRESS(&pinfo->dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
 
-  if (check_col(pinfo->fd, COL_INFO)) {
-    col_add_str(pinfo->fd, COL_INFO,
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_str(pinfo->cinfo, COL_INFO,
       val_to_str(type, op_vals, "Unknown DDP protocol (%02x)"));
   }
   if (tree)
@@ -436,10 +436,10 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   static struct atalk_ddp_addr src, dst;
   tvbuff_t   *new_tvb;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "DDP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   tvb_memcpy(tvb, (guint8 *)&ddp, 0, sizeof(e_ddp));
   ddp.dnet=ntohs(ddp.dnet);
@@ -458,8 +458,8 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   SET_ADDRESS(&pinfo->net_dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
   SET_ADDRESS(&pinfo->dst, AT_ATALK, sizeof dst, (guint8 *)&dst);
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_str(pinfo->fd, COL_INFO,
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_str(pinfo->cinfo, COL_INFO,
       val_to_str(ddp.type, op_vals, "Unknown DDP protocol (%02x)"));
   
   if (tree) {
@@ -520,10 +520,10 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti;
   tvbuff_t   *new_tvb;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "LLAP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLAP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_llap, tvb, 0, 3, FALSE);
@@ -537,8 +537,8 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree)
     proto_tree_add_uint(llap_tree, hf_llap_src, tvb, 1, 1, snode);
   type = tvb_get_guint8(tvb, 2);
-  if (check_col(pinfo->fd, COL_INFO)) {
-    col_add_str(pinfo->fd, COL_INFO,
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_str(pinfo->cinfo, COL_INFO,
       val_to_str(type, llap_type_vals, "Unknown LLAP type (%02x)"));
   }
   if (tree)

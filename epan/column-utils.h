@@ -1,7 +1,7 @@
 /* column-utils.h
  * Definitions for column utility structures and routines
  *
- * $Id: column-utils.h,v 1.4 2001/11/21 23:16:23 gram Exp $
+ * $Id: column-utils.h,v 1.5 2001/12/10 00:26:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,7 +31,6 @@
 #define COL_MAX_INFO_LEN 4096
 
 #include "column_info.h"
-#include "frame_data.h"
 #include "packet_info.h"
 
 /* Allocate all the data structures for constructing column data, given
@@ -40,25 +39,22 @@ extern void	col_init(column_info *, gint);
 
 /* Utility routines used by packet*.c */
 
-extern void	col_set_writable(frame_data *fd, gboolean writable);
-extern gint	check_col(frame_data *, gint);
-extern void	col_clear(frame_data *, gint);
-extern void	col_set_str(frame_data *, gint, gchar *);
+extern void	col_set_writable(column_info *, gboolean);
+extern gint	check_col(column_info *, gint);
+extern void	col_clear(column_info *, gint);
+extern void	col_set_str(column_info *, gint, gchar *);
 #if __GNUC__ >= 2
-extern void	col_add_fstr(frame_data *, gint, gchar *, ...)
+extern void	col_add_fstr(column_info *, gint, gchar *, ...)
     __attribute__((format (printf, 3, 4)));
-extern void	col_append_fstr(frame_data *, gint, gchar *, ...)
+extern void	col_append_fstr(column_info *, gint, gchar *, ...)
     __attribute__((format (printf, 3, 4)));
 #else
-extern void	col_add_fstr(frame_data *, gint, gchar *, ...);
-extern void	col_append_fstr(frame_data *, gint, gchar *, ...);
+extern void	col_add_fstr(column_info *, gint, gchar *, ...);
+extern void	col_append_fstr(column_info *, gint, gchar *, ...);
 #endif
-extern void	col_add_str(frame_data *, gint, const gchar *);
-extern void	col_append_str(frame_data *, gint, gchar *);
-extern void	col_set_cls_time(frame_data *, int);
-extern void	fill_in_columns(frame_data *, packet_info *);
+extern void	col_add_str(column_info *, gint, const gchar *);
+extern void	col_append_str(column_info *, gint, gchar *);
+extern void	col_set_cls_time(frame_data *, column_info *, int);
+extern void	fill_in_columns(packet_info *);
 
 #endif /* __COLUMN_UTILS_H__ */
-
-
-

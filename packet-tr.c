@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-tr.c,v 1.67 2001/12/03 03:59:40 guy Exp $
+ * $Id: packet-tr.c,v 1.68 2001/12/10 00:25:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -326,8 +326,8 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Token-Ring Strings */
 	char *fc[] = { "MAC", "LLC", "Reserved", "Unknown" };
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "TR");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TR");
 
 	if ((x = check_for_old_linux_tvb((tvbuff_t*) tvb))) {
 		/* Actually packet starts x bytes into what we have got but with all
@@ -348,8 +348,8 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	trn_shost_nonsr[0] &= 127;
 	frame_type = (trn_fc & 192) >> 6;
 
-	if (check_col(pinfo->fd, COL_INFO))
-		col_add_fstr(pinfo->fd, COL_INFO, "Token-Ring %s", fc[frame_type]);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Token-Ring %s", fc[frame_type]);
 
 	/* if the high bit on the first byte of src hwaddr is 1, then
 		this packet is source-routed */

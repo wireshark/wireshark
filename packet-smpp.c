@@ -2,7 +2,7 @@
  * Routines for Short Message Peer to Peer dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-smpp.c,v 1.2 2001/12/04 06:35:51 guy Exp $
+ * $Id: packet-smpp.c,v 1.3 2001/12/10 00:25:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1355,22 +1355,22 @@ dissect_smpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     sequence_number = tvb_get_ntohl(tvb, offset);
     offset += 4;
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_set_str(pinfo->fd, COL_PROTOCOL, "SMPP");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMPP");
 
-    if (check_col(pinfo->fd, COL_INFO))
+    if (check_col(pinfo->cinfo, COL_INFO))
     {
-	col_clear(pinfo->fd, COL_INFO);
-	col_add_fstr(pinfo->fd, COL_INFO, "SMPP %s",
+	col_clear(pinfo->cinfo, COL_INFO);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "SMPP %s",
 		 val_to_str(command_id,vals_command_id,"unknown operation"));
 	if (command_id & 0x80000000)
-	    col_append_fstr(pinfo->fd, COL_INFO, ": \"%s\"",
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ": \"%s\"",
 			    val_to_str(command_status, vals_command_status,
 				       "reserved error"));
 	if (command_length > tvb_reported_length(tvb))
-	    col_append_str(pinfo->fd, COL_INFO, " [short packet]");
+	    col_append_str(pinfo->cinfo, COL_INFO, " [short packet]");
 	if (command_length < tvb_reported_length(tvb))
-	    col_append_str(pinfo->fd, COL_INFO, " [trailing data]");
+	    col_append_str(pinfo->cinfo, COL_INFO, " [trailing data]");
     }
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not

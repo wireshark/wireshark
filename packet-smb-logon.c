@@ -2,7 +2,7 @@
  * Routines for SMB net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.20 2001/11/19 10:23:38 guy Exp $
+ * $Id: packet-smb-logon.c,v 1.21 2001/12/10 00:25:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -804,16 +804,16 @@ dissect_smb_logon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	pinfo->current_proto = "NETLOGON";
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "NETLOGON");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NETLOGON");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	/* get the Command field */
    	cmd = tvb_get_guint8(tvb, offset);
 
-	if (check_col(pinfo->fd, COL_INFO))
-		col_add_str(pinfo->fd, COL_INFO, val_to_str(cmd, commands, "Unknown Command:%02x") );
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown Command:%02x") );
 
     	if (tree) {
 		item = proto_tree_add_item(tree, proto_smb_logon, tvb,

@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.43 2001/12/08 06:41:41 guy Exp $
+ * $Id: packet-http.c,v 1.44 2001/12/10 00:25:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -111,9 +111,9 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	}
 	
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, proto_tag);
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_tag);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/*
 		 * Put the first line from the buffer into the summary
 		 * if it's an HTTP request or reply (but leave out the
@@ -128,10 +128,10 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		line = tvb_get_ptr(tvb, offset, linelen);
 		http_type = HTTP_OTHERS;	/* type not known yet */
 		if (is_http_request_or_reply(line, linelen, &http_type))
-			col_add_str(pinfo->fd, COL_INFO,
+			col_add_str(pinfo->cinfo, COL_INFO,
 			    format_text(line, linelen));
 		else
-			col_set_str(pinfo->fd, COL_INFO, "Continuation");
+			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 	}
 
 	if (tree) {

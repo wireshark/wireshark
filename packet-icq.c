@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.36 2001/12/03 03:59:35 guy Exp $
+ * $Id: packet-icq.c,v 1.37 2001/12/10 00:25:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -464,11 +464,11 @@ dissect_icqv4(tvbuff_t *tvb,
 	      proto_tree *tree)
 {
     /* Not really implemented yet */
-    if (check_col(pinfo->fd, COL_PROTOCOL)) {
-	col_set_str(pinfo->fd, COL_PROTOCOL, "ICQv4 (UDP)");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQv4 (UDP)");
     }
-    if (check_col(pinfo->fd, COL_INFO)) {
-	col_set_str(pinfo->fd, COL_INFO, "ICQ Version 4 protocol");
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_set_str(pinfo->cinfo, COL_INFO, "ICQ Version 4 protocol");
     }
 }
 
@@ -478,11 +478,11 @@ dissect_icqv3(tvbuff_t *tvb,
 	      proto_tree *tree)
 {
     /* Not really implemented yet */
-    if (check_col(pinfo->fd, COL_PROTOCOL)) {
-	col_set_str(pinfo->fd, COL_PROTOCOL, "ICQv3 (UDP)");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQv3 (UDP)");
     }
-    if (check_col(pinfo->fd, COL_INFO)) {
-	col_set_str(pinfo->fd, COL_INFO, "ICQ Version 3 protocol");
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_set_str(pinfo->cinfo, COL_INFO, "ICQ Version 3 protocol");
     }
 }
 
@@ -492,11 +492,11 @@ dissect_icqv2(tvbuff_t *tvb,
 	      proto_tree *tree)
 {
     /* Not really implemented yet */
-    if (check_col(pinfo->fd, COL_PROTOCOL)) {
-	col_set_str(pinfo->fd, COL_PROTOCOL, "ICQv2 (UDP)");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQv2 (UDP)");
     }
-    if (check_col(pinfo->fd, COL_INFO)) {
-	col_set_str(pinfo->fd, COL_INFO, "ICQ Version 2 protocol");
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_set_str(pinfo->cinfo, COL_INFO, "ICQ Version 2 protocol");
     }
 }
 
@@ -1748,8 +1748,8 @@ dissect_icqv5Client(tvbuff_t *tvb,
 
     cmd = tvb_get_letohs(decr_tvb, ICQ5_CL_CMD);
 
-    if (check_col(pinfo->fd, COL_INFO))
-        col_add_fstr(pinfo->fd, COL_INFO, "ICQv5 %s", findClientCmd(cmd));
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_add_fstr(pinfo->cinfo, COL_INFO, "ICQv5 %s", findClientCmd(cmd));
     
     if (tree) {
         ti = proto_tree_add_protocol_format(tree,
@@ -1908,8 +1908,8 @@ dissect_icqv5Server(tvbuff_t *tvb,
     guint16 cmd;
     
     cmd = tvb_get_letohs(tvb, offset + ICQ5_SRV_CMD);
-    if (changeCol && check_col(pinfo->fd, COL_INFO))
-	col_add_fstr(pinfo->fd, COL_INFO, "ICQv5 %s", findServerCmd(cmd));
+    if (changeCol && check_col(pinfo->cinfo, COL_INFO))
+	col_add_fstr(pinfo->cinfo, COL_INFO, "ICQv5 %s", findServerCmd(cmd));
 
     if (pktsize == -1)
 	pktsize = tvb_reported_length(tvb);
@@ -2058,10 +2058,10 @@ static void dissect_icqv5(tvbuff_t *tvb,
 {
   guint32 unknown;
   
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-      col_set_str(pinfo->fd, COL_PROTOCOL, "ICQv5 (UDP)");
-  if (check_col(pinfo->fd, COL_INFO))
-      col_set_str(pinfo->fd, COL_INFO, "ICQv5 packet");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQv5 (UDP)");
+  if (check_col(pinfo->cinfo, COL_INFO))
+      col_set_str(pinfo->cinfo, COL_INFO, "ICQv5 packet");
 
   unknown = tvb_get_letohl(tvb, ICQ5_UNKNOWN);
 
@@ -2078,11 +2078,11 @@ static void dissect_icq(tvbuff_t *tvb,
 {
   int version;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL)) {
-    col_set_str(pinfo->fd, COL_PROTOCOL, "ICQ");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICQ");
   }
-  if (check_col(pinfo->fd, COL_INFO)) {
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_clear(pinfo->cinfo, COL_INFO);
   }
 
   version = tvb_get_letohs(tvb, ICQ_VERSION);

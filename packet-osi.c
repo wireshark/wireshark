@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly
  * Main entrance point and common functions
  *
- * $Id: packet-osi.c,v 1.51 2001/12/08 06:41:41 guy Exp $
+ * $Id: packet-osi.c,v 1.52 2001/12/10 00:25:31 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -152,23 +152,23 @@ static void dissect_osi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* ESIS (X.25) is not currently decoded */
 
     case NLPID_ISO9542X25_ESIS:
-      if (check_col(pinfo->fd, COL_PROTOCOL)) {
-	col_set_str(pinfo->fd, COL_PROTOCOL, "ESIS (X.25)");
+      if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESIS (X.25)");
       }
       call_dissector(data_handle,tvb, pinfo, tree);
       break;
     case NLPID_ISO10747_IDRP:
-      if (check_col(pinfo->fd, COL_PROTOCOL)) {
-        col_set_str(pinfo->fd, COL_PROTOCOL, "IDRP");
+      if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "IDRP");
       }
       call_dissector(data_handle,tvb, pinfo, tree);
       break;
     default:
-      if (check_col(pinfo->fd, COL_PROTOCOL)) {
-	col_set_str(pinfo->fd, COL_PROTOCOL, "ISO");
+      if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISO");
       }
-      if (check_col(pinfo->fd, COL_INFO)) {
-	col_add_fstr(pinfo->fd, COL_INFO, "Unknown ISO protocol (%02x)", nlpid);
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ISO protocol (%02x)", nlpid);
       }
       call_dissector(data_handle,tvb, pinfo, tree);
       break;

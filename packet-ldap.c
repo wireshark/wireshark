@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.29 2001/12/03 03:59:36 guy Exp $
+ * $Id: packet-ldap.c,v 1.30 2001/12/10 00:25:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -885,10 +885,10 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int first_time = 1;
   int ret;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "LDAP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDAP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) 
   {
@@ -908,8 +908,8 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     message_start = a.offset;
     if (read_sequence(&a, &messageLength))
     {
-      if (first_time && check_col(pinfo->fd, COL_INFO))
-        col_set_str(pinfo->fd, COL_INFO, "Invalid LDAP packet");
+      if (first_time && check_col(pinfo->cinfo, COL_INFO))
+        col_set_str(pinfo->cinfo, COL_INFO, "Invalid LDAP packet");
       if (ldap_tree)
         proto_tree_add_text(ldap_tree, tvb, offset, 1, "Invalid LDAP packet");
       break;
@@ -918,8 +918,8 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     message_id_start = a.offset;
     if (read_integer(&a, 0, -1, 0, &messageId, ASN1_INT))
     {
-      if (first_time && check_col(pinfo->fd, COL_INFO))
-        col_set_str(pinfo->fd, COL_INFO, "Invalid LDAP packet (No Message ID)");
+      if (first_time && check_col(pinfo->cinfo, COL_INFO))
+        col_set_str(pinfo->cinfo, COL_INFO, "Invalid LDAP packet (No Message ID)");
       if (ldap_tree)
         proto_tree_add_text(ldap_tree, tvb, message_id_start, 1,
                             "Invalid LDAP packet (No Message ID)");
@@ -936,8 +936,8 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (first_time)
     {
-      if (check_col(pinfo->fd, COL_INFO))
-        col_add_fstr(pinfo->fd, COL_INFO, "MsgId=%u MsgType=%s",
+      if (check_col(pinfo->cinfo, COL_INFO))
+        col_add_fstr(pinfo->cinfo, COL_INFO, "MsgId=%u MsgType=%s",
 		     messageId, typestr);
       first_time = 0;
       if (!tree)

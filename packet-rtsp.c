@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.44 2001/12/03 03:59:39 guy Exp $
+ * $Id: packet-rtsp.c,v 1.45 2001/12/10 00:25:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -106,8 +106,8 @@ dissect_rtspinterleaved(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	rf_chan = tvb_get_guint8(tvb, offset+1);
 	rf_len = tvb_get_ntohs(tvb, offset+2);
 
-	if (check_col(pinfo->fd, COL_INFO))
-		col_add_fstr(pinfo->fd, COL_INFO, 
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, 
 			"Interleaved channel 0x%02x, %u bytes",
 			rf_chan, rf_len);
 
@@ -418,7 +418,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		rtsp_tree = proto_item_add_subtree(ti, ett_rtsp);
 	}
 
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/*
 		 * Put the first line from the buffer into the summary
 		 * if it's an RTSP request or reply (but leave out the
@@ -431,12 +431,12 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		case RTSP_REQUEST:
 		case RTSP_REPLY:
-			col_add_str(pinfo->fd, COL_INFO,
+			col_add_str(pinfo->cinfo, COL_INFO,
 			    format_text(line, linelen));
 			break;
 
 		default:
-			col_set_str(pinfo->fd, COL_INFO, "Continuation");
+			col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 			break;
 		}
 	}
@@ -764,10 +764,10 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		offset = 0;
 	int		len;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "RTSP");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTSP");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	while (tvb_offset_exists(tvb, offset)) {
 		len = (tvb_get_guint8(tvb, offset) == RTSP_FRAMEHDR)
@@ -782,7 +782,7 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * first RTSP message; make the columns non-writable,
 		 * so that we don't change it for subsequent RTSP messages.
 		 */
-		col_set_writable(pinfo->fd, FALSE);
+		col_set_writable(pinfo->cinfo, FALSE);
 	}
 }
 

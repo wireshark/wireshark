@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTLS component of WAP traffic.
  * 
- * $Id: packet-wtls.c,v 1.15 2001/12/03 03:59:43 guy Exp $
+ * $Id: packet-wtls.c,v 1.16 2001/12/10 00:25:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -331,7 +331,6 @@ static void dissect_wtls_handshake (proto_tree *, tvbuff_t *, guint, guint);
 static void
 dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	frame_data *fdata = pinfo->fd;
 	int offset = 0;
 
 	char pdut;
@@ -345,22 +344,22 @@ dissect_wtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *wtls_rec_tree;
 	proto_tree *wtls_msg_type_tree;
 
-	if (check_col(fdata, COL_PROTOCOL)) 
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
 	{
 		switch ( pinfo->match_port )
 		{
 			case UDP_PORT_WTLS_WSP:
-				col_set_str(fdata, COL_PROTOCOL, "WTLS+WSP" );
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "WTLS+WSP" );
 				break;
 			case UDP_PORT_WTLS_WTP_WSP:
-				col_set_str(fdata, COL_PROTOCOL, "WTLS+WTP+WSP" );
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "WTLS+WTP+WSP" );
 				break;
 		}
 	}
 
 	/* Develop the string to put in the Info column */
-	if (check_col(fdata, COL_INFO)) {
-		col_set_str(fdata, COL_INFO, "WTLS" );
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_set_str(pinfo->cinfo, COL_INFO, "WTLS" );
 	};
 
 	/* In the interest of speed, if "tree" is NULL, don't do any work not

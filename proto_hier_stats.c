@@ -1,12 +1,11 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.5 2001/12/06 04:25:07 gram Exp $
+ * $Id: proto_hier_stats.c,v 1.6 2001/12/10 00:25:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -119,7 +118,7 @@ process_tree(proto_tree *protocol_tree, ph_stats_t* ps, guint pkt_len)
 }
 
 static void
-process_frame(frame_data *frame, ph_stats_t* ps)
+process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 {
 	epan_dissect_t			*edt;
 	union wtap_pseudo_header	phdr;
@@ -130,7 +129,7 @@ process_frame(frame_data *frame, ph_stats_t* ps)
 			pd, frame->cap_len);
 
 	/* Dissect the frame */
-	edt = epan_dissect_new(&phdr, pd, frame, TRUE);
+	edt = epan_dissect_new(&phdr, pd, frame, TRUE, cinfo);
 
 	/* Get stats from this protocol tree */
 	process_tree(edt->tree, ps, frame->pkt_len);
@@ -205,7 +204,7 @@ ph_stats_new(void)
 		   probably do so for other loops (see "file.c") that
 		   look only at those packets. */
 		if (frame->flags.passed_dfilter) {
-			process_frame(frame, ps);
+			process_frame(frame, &cfile.cinfo, ps);
 
 			tot_packets++;
 			tot_bytes += frame->pkt_len;

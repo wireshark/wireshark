@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-x25.c,v 1.61 2001/12/08 06:41:42 guy Exp $
+ * $Id: packet-x25.c,v 1.62 2001/12/10 00:25:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1294,7 +1294,7 @@ dump_facilities(proto_tree *tree, int *offset, tvbuff_t *tvb)
 
 static void
 x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
-	 frame_data *fd, gboolean toa)
+	 packet_info *pinfo, gboolean toa)
 {
     int len1, len2;
     int i;
@@ -1348,12 +1348,12 @@ x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
 
     if (len1) {
 	if (toa) {
-	    if (check_col(fd, COL_RES_DL_DST))
-		col_add_str(fd, COL_RES_DL_DST, addr1);
+	    if (check_col(pinfo->cinfo, COL_RES_DL_DST))
+		col_add_str(pinfo->cinfo, COL_RES_DL_DST, addr1);
 	}
 	else {
-	    if(check_col(fd, COL_RES_DL_SRC))
-		col_add_str(fd, COL_RES_DL_SRC, addr1);
+	    if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+		col_add_str(pinfo->cinfo, COL_RES_DL_SRC, addr1);
 	}
 	if (tree)
 	    proto_tree_add_text(tree, tvb, *offset,
@@ -1364,12 +1364,12 @@ x25_ntoa(proto_tree *tree, int *offset, tvbuff_t *tvb,
     }
     if (len2) {
 	if (toa) {
-	    if (check_col(fd, COL_RES_DL_SRC))
-		col_add_str(fd, COL_RES_DL_SRC, addr2);
+	    if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
+		col_add_str(pinfo->cinfo, COL_RES_DL_SRC, addr2);
 	}
 	else {
-	    if(check_col(fd, COL_RES_DL_DST))
-		col_add_str(fd, COL_RES_DL_DST, addr2);
+	    if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+		col_add_str(pinfo->cinfo, COL_RES_DL_DST, addr2);
 	}
 	if (tree)
 	    proto_tree_add_text(tree, tvb, *offset + len1/2,
@@ -1497,8 +1497,8 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t *next_tvb;
     gboolean q_bit_set = FALSE;
 
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_set_str(pinfo->fd, COL_PROTOCOL, "X.25");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "X.25");
 
     bytes0_1 = tvb_get_ntohs(tvb, 0);
 
@@ -1511,8 +1511,8 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     x25_pkt_len = get_x25_pkt_len(tvb);
     if (x25_pkt_len < 3) /* packet too short */
     {
-	if (check_col(pinfo->fd, COL_INFO))
-	    col_set_str(pinfo->fd, COL_INFO, "Invalid/short X.25 packet");
+	if (check_col(pinfo->cinfo, COL_INFO))
+	    col_set_str(pinfo->cinfo, COL_INFO, "Invalid/short X.25 packet");
 	if (tree)
 	    proto_tree_add_protocol_format(tree, proto_x25, tvb, 0,
 		    tvb_length(tvb), "Invalid/short X.25 packet");
@@ -1552,8 +1552,8 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     switch (pkt_type) {
     case X25_CALL_REQUEST:
-	if (check_col(pinfo->fd, COL_INFO))
-	    col_add_fstr(pinfo->fd, COL_INFO, "%s VC:%d",
+	if (check_col(pinfo->cinfo, COL_INFO))
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d",
 		    (pinfo->pseudo_header->x25.flags & FROM_DCE) ? "Inc. call"
 		                                                 : "Call req." ,
                     vc);
@@ -1567,7 +1567,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	localoffset = 3;
 	if (localoffset < x25_pkt_len) /* calling/called addresses */
-	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo->fd, toa);
+	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo, toa);
 
 	if (localoffset < x25_pkt_len) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, tvb);
@@ -1790,8 +1790,8 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	break;
     case X25_CALL_ACCEPTED:
-	if(check_col(pinfo->fd, COL_INFO))
-	    col_add_fstr(pinfo->fd, COL_INFO, "%s VC:%d",
+	if(check_col(pinfo->cinfo, COL_INFO))
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d",
 		    (pinfo->pseudo_header->x25.flags & FROM_DCE) ? "Call conn."
 			                                         : "Call acc." ,
 		    vc);
@@ -1804,7 +1804,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	localoffset = 3;
         if (localoffset < x25_pkt_len) /* calling/called addresses */
-	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo->fd, toa);
+	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo, toa);
 
 	if (localoffset < x25_pkt_len) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, tvb);
@@ -1817,8 +1817,8 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	break;
     case X25_CLEAR_REQUEST:
-	if(check_col(pinfo->fd, COL_INFO)) {
-	    col_add_fstr(pinfo->fd, COL_INFO, "%s VC:%d %s - %s",
+	if(check_col(pinfo->cinfo, COL_INFO)) {
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d %s - %s",
 		    (pinfo->pseudo_header->x25.flags & FROM_DCE) ? "Clear ind."
 			                                         : "Clear req." ,
 		    vc, clear_code(tvb_get_guint8(tvb, 3)),
@@ -1839,8 +1839,8 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	localoffset = x25_pkt_len;
 	break;
     case X25_CLEAR_CONFIRMATION:
-	if(check_col(pinfo->fd, COL_INFO))
-	    col_add_fstr(pinfo->fd, COL_INFO, "Clear Conf. VC:%d", vc);
+	if(check_col(pinfo->cinfo, COL_INFO))
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "Clear Conf. VC:%d", vc);
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);
 	    proto_tree_add_uint(x25_tree, hf_x25_type, tvb, 2, 1,
@@ -1849,14 +1849,14 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	localoffset = x25_pkt_len;
 
 	if (localoffset < tvb_reported_length(tvb)) /* extended clear conf format */
-	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo->fd, toa);
+	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo, toa);
 
 	if (localoffset < tvb_reported_length(tvb)) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, tvb);
 	break;
     case X25_DIAGNOSTIC:
-	if(check_col(pinfo->fd, COL_INFO)) {
-	    col_add_fstr(pinfo->fd, COL_INFO, "Diag. %d",
+	if(check_col(pinfo->cinfo, COL_INFO)) {
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "Diag. %d",
 		    (int)tvb_get_guint8(tvb, 3));
 	}
 	if (x25_tree) {
@@ -1868,8 +1868,8 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	localoffset = x25_pkt_len;
 	break;
     case X25_INTERRUPT:
-	if(check_col(pinfo->fd, COL_INFO))
-	    col_add_fstr(pinfo->fd, COL_INFO, "Interrupt VC:%d", vc);
+	if(check_col(pinfo->cinfo, COL_INFO))
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "Interrupt VC:%d", vc);
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);
 	    proto_tree_add_uint(x25_tree, hf_x25_type, tvb, 2, 1,
@@ -1878,8 +1878,8 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	localoffset = x25_pkt_len;
 	break;
     case X25_INTERRUPT_CONFIRMATION:
-	if(check_col(pinfo->fd, COL_INFO))
-	    col_add_fstr(pinfo->fd, COL_INFO, "Interrupt Conf. VC:%d", vc);
+	if(check_col(pinfo->cinfo, COL_INFO))
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "Interrupt Conf. VC:%d", vc);
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);
 	    proto_tree_add_uint(x25_tree, hf_x25_type, tvb, 2, 1,
@@ -1888,8 +1888,8 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	localoffset = x25_pkt_len;
 	break;
     case X25_RESET_REQUEST:
-	if(check_col(pinfo->fd, COL_INFO)) {
-	    col_add_fstr(pinfo->fd, COL_INFO, "%s VC:%d %s - Diag.:%d",
+	if(check_col(pinfo->cinfo, COL_INFO)) {
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s VC:%d %s - Diag.:%d",
 		    (pinfo->pseudo_header->x25.flags & FROM_DCE) ? "Reset ind."
 		                                                 : "Reset req.",
 		    vc, reset_code(tvb_get_guint8(tvb, 3)),
@@ -1910,8 +1910,8 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	localoffset = x25_pkt_len;
 	break;
     case X25_RESET_CONFIRMATION:
-	if(check_col(pinfo->fd, COL_INFO))
-	    col_add_fstr(pinfo->fd, COL_INFO, "Reset conf. VC:%d", vc);
+	if(check_col(pinfo->cinfo, COL_INFO))
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "Reset conf. VC:%d", vc);
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_lcn, tvb, 0, 2, bytes0_1);
 	    proto_tree_add_uint(x25_tree, hf_x25_type, tvb, 2, 1,
@@ -1920,8 +1920,8 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	localoffset = x25_pkt_len;
 	break;
     case X25_RESTART_REQUEST:
-	if(check_col(pinfo->fd, COL_INFO)) {
-	    col_add_fstr(pinfo->fd, COL_INFO, "%s %s - Diag.:%d",
+	if(check_col(pinfo->cinfo, COL_INFO)) {
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s - Diag.:%d",
 		    (pinfo->pseudo_header->x25.flags & FROM_DCE) ? "Restart ind."
 		                                                 : "Restart req.",
 		    restart_code(tvb_get_guint8(tvb, 3)),
@@ -1940,22 +1940,22 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	localoffset = x25_pkt_len;
 	break;
     case X25_RESTART_CONFIRMATION:
-	if(check_col(pinfo->fd, COL_INFO))
-	    col_set_str(pinfo->fd, COL_INFO, "Restart conf.");
+	if(check_col(pinfo->cinfo, COL_INFO))
+	    col_set_str(pinfo->cinfo, COL_INFO, "Restart conf.");
 	if (x25_tree)
 	    proto_tree_add_uint(x25_tree, hf_x25_type, tvb, 2, 1,
 		    X25_RESTART_CONFIRMATION);
 	localoffset = x25_pkt_len;
 	break;
     case X25_REGISTRATION_REQUEST:
-	if(check_col(pinfo->fd, COL_INFO))
-	    col_set_str(pinfo->fd, COL_INFO, "Registration req.");
+	if(check_col(pinfo->cinfo, COL_INFO))
+	    col_set_str(pinfo->cinfo, COL_INFO, "Registration req.");
 	if (x25_tree)
 	    proto_tree_add_uint(x25_tree, hf_x25_type, tvb, 2, 1,
 		    X25_REGISTRATION_REQUEST);
 	localoffset = 3;
 	if (localoffset < x25_pkt_len)
-	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo->fd, FALSE);
+	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo, FALSE);
 
 	if (x25_tree) {
 	    if (localoffset < x25_pkt_len)
@@ -1970,8 +1970,8 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	localoffset = tvb_reported_length(tvb);
 	break;
     case X25_REGISTRATION_CONFIRMATION:
-	if(check_col(pinfo->fd, COL_INFO))
-	    col_set_str(pinfo->fd, COL_INFO, "Registration conf.");
+	if(check_col(pinfo->cinfo, COL_INFO))
+	    col_set_str(pinfo->cinfo, COL_INFO, "Registration conf.");
 	if (x25_tree) {
 	    proto_tree_add_uint(x25_tree, hf_x25_type, tvb, 2, 1,
 		    X25_REGISTRATION_CONFIRMATION);
@@ -1982,7 +1982,7 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	localoffset = 5;
 	if (localoffset < x25_pkt_len)
-	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo->fd, TRUE);
+	    x25_ntoa(x25_tree, &localoffset, tvb, pinfo, TRUE);
 
 	if (x25_tree) {
 	    if (localoffset < x25_pkt_len)
@@ -2000,15 +2000,15 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	localoffset = 2;
 	if ((pkt_type & 0x01) == X25_DATA)
 	{
-	    if(check_col(pinfo->fd, COL_INFO)) {
+	    if(check_col(pinfo->cinfo, COL_INFO)) {
 		if (modulo == 8)
-		    col_add_fstr(pinfo->fd, COL_INFO,
+		    col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "Data VC:%d P(S):%d P(R):%d %s", vc,
 			    (pkt_type >> 1) & 0x07,
 			    (pkt_type >> 5) & 0x07,
 			    ((pkt_type >> 4) & 0x01) ? " M" : "");
 		else
-		    col_add_fstr(pinfo->fd, COL_INFO,
+		    col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "Data VC:%d P(S):%d P(R):%d %s", vc,
 			    tvb_get_guint8(tvb, localoffset+1) >> 1,
 			    pkt_type >> 1,
@@ -2049,12 +2049,12 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (pkt_type & 0x1F)
 	{
 	case X25_RR:
-	    if(check_col(pinfo->fd, COL_INFO)) {
+	    if(check_col(pinfo->cinfo, COL_INFO)) {
 		if (modulo == 8)
-		    col_add_fstr(pinfo->fd, COL_INFO, "RR VC:%d P(R):%d",
+		    col_add_fstr(pinfo->cinfo, COL_INFO, "RR VC:%d P(R):%d",
 			    vc, (pkt_type >> 5) & 0x07);
 		else
-		    col_add_fstr(pinfo->fd, COL_INFO, "RR VC:%d P(R):%d",
+		    col_add_fstr(pinfo->cinfo, COL_INFO, "RR VC:%d P(R):%d",
 			    vc, tvb_get_guint8(tvb, localoffset+1) >> 1);
 	    }
 	    if (x25_tree) {
@@ -2076,12 +2076,12 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
 
 	case X25_RNR:
-	    if(check_col(pinfo->fd, COL_INFO)) {
+	    if(check_col(pinfo->cinfo, COL_INFO)) {
 		if (modulo == 8)
-		    col_add_fstr(pinfo->fd, COL_INFO, "RNR VC:%d P(R):%d",
+		    col_add_fstr(pinfo->cinfo, COL_INFO, "RNR VC:%d P(R):%d",
 			    vc, (pkt_type >> 5) & 0x07);
 		else
-		    col_add_fstr(pinfo->fd, COL_INFO, "RNR VC:%d P(R):%d",
+		    col_add_fstr(pinfo->cinfo, COL_INFO, "RNR VC:%d P(R):%d",
 			    vc, tvb_get_guint8(tvb, localoffset+1) >> 1);
 	    }
 	    if (x25_tree) {
@@ -2103,12 +2103,12 @@ dissect_x25(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    break;
 
 	case X25_REJ:
-	    if(check_col(pinfo->fd, COL_INFO)) {
+	    if(check_col(pinfo->cinfo, COL_INFO)) {
 		if (modulo == 8)
-		    col_add_fstr(pinfo->fd, COL_INFO, "REJ VC:%d P(R):%d",
+		    col_add_fstr(pinfo->cinfo, COL_INFO, "REJ VC:%d P(R):%d",
 			    vc, (pkt_type >> 5) & 0x07);
 		else
-		    col_add_fstr(pinfo->fd, COL_INFO, "REJ VC:%d P(R):%d",
+		    col_add_fstr(pinfo->cinfo, COL_INFO, "REJ VC:%d P(R):%d",
 			    vc, tvb_get_guint8(tvb, localoffset+1) >> 1);
 	    }
 	    if (x25_tree) {

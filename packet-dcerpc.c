@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.20 2001/12/05 08:20:28 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.21 2001/12/10 00:25:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -480,13 +480,13 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     if (!name)
         name = "Unknown?!";
 
-    if (check_col (pinfo->fd, COL_INFO)) {
-        col_add_fstr (pinfo->fd, COL_INFO, "%s %s(...)",
+    if (check_col (pinfo->cinfo, COL_INFO)) {
+        col_add_fstr (pinfo->cinfo, COL_INFO, "%s %s(...)",
                       is_rqst ? "rqst" : "rply", name);
     }
 
-    if (check_col (pinfo->fd, COL_PROTOCOL)) {
-        col_set_str (pinfo->fd, COL_PROTOCOL, sub_proto->name);
+    if (check_col (pinfo->cinfo, COL_PROTOCOL)) {
+        col_set_str (pinfo->cinfo, COL_PROTOCOL, sub_proto->name);
     }
 
     sub_dissect = is_rqst ? proc->dissect_rqst : proc->dissect_resp;
@@ -662,8 +662,8 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
 
         g_hash_table_insert (dcerpc_convs, key, value);
 
-        if (check_col (pinfo->fd, COL_INFO)) {
-          col_add_fstr (pinfo->fd, COL_INFO, "%s: UUID %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x ver %d.%d",
+        if (check_col (pinfo->cinfo, COL_INFO)) {
+          col_add_fstr (pinfo->cinfo, COL_INFO, "%s: UUID %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x ver %d.%d",
                         hdr->ptype == PDU_BIND ? "Bind" : "Alter Ctx",
                         if_id.Data1, if_id.Data2, if_id.Data3,
                         if_id.Data4[0], if_id.Data4[1],
@@ -762,14 +762,14 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerp
     
     dissect_dcerpc_cn_auth (tvb, pinfo, dcerpc_tree, hdr);
 
-    if (check_col (pinfo->fd, COL_INFO)) {
+    if (check_col (pinfo->cinfo, COL_INFO)) {
         if (num_results != 0 && result == 0) {
-            col_add_fstr (pinfo->fd, COL_INFO, "%s ack: accept  max_xmit: %d  max_recv: %d",
+            col_add_fstr (pinfo->cinfo, COL_INFO, "%s ack: accept  max_xmit: %d  max_recv: %d",
                           hdr->ptype == PDU_BIND_ACK ? "Bind" : "Alter ctx",
                           max_xmit, max_recv);
         } else {
             /* FIXME: should put in reason */
-            col_add_fstr (pinfo->fd, COL_INFO, "%s ack: %s",
+            col_add_fstr (pinfo->cinfo, COL_INFO, "%s ack: %s",
                           hdr->ptype == PDU_BIND_ACK ? "Bind" : "Alter ctx",
                           result == 1 ? "User reject" :
                           result == 2 ? "Provider reject" :
@@ -798,8 +798,8 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_opnum, &opnum);
 
-    if (check_col (pinfo->fd, COL_INFO)) {
-        col_add_fstr (pinfo->fd, COL_INFO, "Request: opnum: %d  ctx_id:%d",
+    if (check_col (pinfo->cinfo, COL_INFO)) {
+        col_add_fstr (pinfo->cinfo, COL_INFO, "Request: opnum: %d  ctx_id:%d",
                          opnum, ctx_id);
     }
 
@@ -875,8 +875,8 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
     offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
                                     hf_dcerpc_cn_ctx_id, &ctx_id);
 
-    if (check_col (pinfo->fd, COL_INFO)) {
-        col_add_fstr (pinfo->fd, COL_INFO, "Response: call_id: %d  ctx_id:%d",
+    if (check_col (pinfo->cinfo, COL_INFO)) {
+        col_add_fstr (pinfo->cinfo, COL_INFO, "Response: call_id: %d  ctx_id:%d",
                       hdr->call_id, ctx_id);
     }
 
@@ -966,10 +966,10 @@ dissect_dcerpc_cn (tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (hdr.ptype > 19)
         return -1;
 
-    if (check_col (pinfo->fd, COL_PROTOCOL))
-        col_set_str (pinfo->fd, COL_PROTOCOL, "DCERPC");
-    if (check_col (pinfo->fd, COL_INFO))
-        col_set_str (pinfo->fd, COL_INFO, pckt_vals[hdr.ptype].strptr);
+    if (check_col (pinfo->cinfo, COL_PROTOCOL))
+        col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCERPC");
+    if (check_col (pinfo->cinfo, COL_INFO))
+        col_set_str (pinfo->cinfo, COL_INFO, pckt_vals[hdr.ptype].strptr);
 
     hdr.flags = tvb_get_guint8 (tvb, offset++);
     tvb_memcpy (tvb, (guint8 *)hdr.drep, offset, sizeof (hdr.drep));
@@ -1160,10 +1160,10 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (hdr.ptype > 19)
         return FALSE;
 
-    if (check_col (pinfo->fd, COL_PROTOCOL))
-        col_set_str (pinfo->fd, COL_PROTOCOL, "DCERPC");
-    if (check_col (pinfo->fd, COL_INFO))
-        col_set_str (pinfo->fd, COL_INFO, pckt_vals[hdr.ptype].strptr);
+    if (check_col (pinfo->cinfo, COL_PROTOCOL))
+        col_set_str (pinfo->cinfo, COL_PROTOCOL, "DCERPC");
+    if (check_col (pinfo->cinfo, COL_INFO))
+        col_set_str (pinfo->cinfo, COL_INFO, pckt_vals[hdr.ptype].strptr);
 
     hdr.flags1 = tvb_get_guint8 (tvb, offset++);
     hdr.flags2 = tvb_get_guint8 (tvb, offset++);

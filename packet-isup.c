@@ -2,7 +2,7 @@
  * Routines for ISUP dissection
  * Copyright 2001, Martina Obermeier <martina.obermeier@icn.siemens.de>
  *
- * $Id: packet-isup.c,v 1.6 2001/12/03 03:59:36 guy Exp $
+ * $Id: packet-isup.c,v 1.7 2001/12/10 00:25:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3690,9 +3690,9 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
   /* Extract message type field */
   message_type = tvb_get_guint8(message_tvb,0); 
 
-  if (check_col(pinfo->fd, COL_INFO)){
-    col_append_str(pinfo->fd, COL_INFO, val_to_str(message_type, isup_message_type_value, "reserved"));
-    col_append_str(pinfo->fd, COL_INFO, " ");
+  if (check_col(pinfo->cinfo, COL_INFO)){
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, isup_message_type_value, "reserved"));
+    col_append_str(pinfo->cinfo, COL_INFO, " ");
   }
  
    proto_tree_add_uint_format(isup_tree, hf_isup_message_type, message_tvb, 0, MESSAGE_TYPE_LENGTH, message_type, "Message type: %s (%u)", val_to_str(message_type, isup_message_type_value, "reserved"), message_type);
@@ -3908,11 +3908,11 @@ dissect_isup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 cic; 
 
 /* Make entries in Protocol column and Info column on summary display */
-	if (check_col(pinfo->fd, COL_PROTOCOL)) 
-		col_set_str(pinfo->fd, COL_PROTOCOL, "ISUP");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISUP");
 
-	if (check_col(pinfo->fd, COL_INFO)) 
-		col_add_str(pinfo->fd, COL_INFO, "ISUP message: ");
+	if (check_col(pinfo->cinfo, COL_INFO)) 
+		col_add_str(pinfo->cinfo, COL_INFO, "ISUP message: ");
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */

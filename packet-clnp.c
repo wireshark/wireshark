@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.42 2001/12/04 04:26:44 guy Exp $
+ * $Id: packet-clnp.c,v 1.43 2001/12/10 00:25:26 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -693,8 +693,8 @@ static int osi_decode_DR(tvbuff_t *tvb, int offset,
       break;
   }
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_fstr(pinfo->fd, COL_INFO,
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO,
 		"DR TPDU src-ref: 0x%04x dst-ref: 0x%04x",
 		 src_ref, dst_ref);
 
@@ -788,8 +788,8 @@ static int osi_decode_DT(tvbuff_t *tvb, int offset,
       break;
   }
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_fstr(pinfo->fd, COL_INFO, "DT TPDU (%u) dst-ref: 0x%04x %s", 
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, "DT TPDU (%u) dst-ref: 0x%04x %s", 
 		 tpdu_nr,
 		 dst_ref,
 		 (fragment)? "(fragment)" : "");
@@ -911,8 +911,8 @@ static int osi_decode_ED(tvbuff_t *tvb, int offset,
       break;
   } /* li */
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_fstr(pinfo->fd, COL_INFO, "ED TPDU (%u) dst-ref: 0x%04x", 
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, "ED TPDU (%u) dst-ref: 0x%04x", 
 		 tpdu_nr, dst_ref);
 
   if (tree) {
@@ -989,8 +989,8 @@ static int osi_decode_RJ(tvbuff_t *tvb, int offset,
       break;
   }
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_fstr(pinfo->fd, COL_INFO, "RJ TPDU (%u) dst-ref: 0x%04x", 
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, "RJ TPDU (%u) dst-ref: 0x%04x", 
 		 tpdu_nr, dst_ref);
 
   if (tree) {
@@ -1038,8 +1038,8 @@ static int osi_decode_CC(tvbuff_t *tvb, int offset,
   if (class_option > 4)
     return -1;
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_fstr(pinfo->fd, COL_INFO,
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO,
 		 "%s TPDU src-ref: 0x%04x dst-ref: 0x%04x",
 		 (tpdu == CR_TPDU) ? "CR" : "CC",
 		 src_ref,
@@ -1107,8 +1107,8 @@ static int osi_decode_DC(tvbuff_t *tvb, int offset,
 
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_fstr(pinfo->fd, COL_INFO,
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO,
 		 "DC TPDU src-ref: 0x%04x dst-ref: 0x%04x", 
 		 src_ref,
 		 dst_ref);
@@ -1165,8 +1165,8 @@ static int osi_decode_AK(tvbuff_t *tvb, int offset,
 
     tpdu_nr = tvb_get_guint8(tvb, offset + P_TPDU_NR_234);
 
-    if (check_col(pinfo->fd, COL_INFO))
-      col_append_fstr(pinfo->fd, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x", 
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_append_fstr(pinfo->cinfo, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x", 
 		   tpdu_nr, dst_ref);
 
     if (tree) {
@@ -1209,8 +1209,8 @@ static int osi_decode_AK(tvbuff_t *tvb, int offset,
     tpdu_nr   = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
     cdt_in_ak = tvb_get_ntohs(tvb, offset + P_CDT_IN_AK);
 
-    if (check_col(pinfo->fd, COL_INFO))
-      col_append_fstr(pinfo->fd, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x", 
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_append_fstr(pinfo->cinfo, COL_INFO, "AK TPDU (%u) dst-ref: 0x%04x", 
 		   tpdu_nr, dst_ref);
     
     if (tree) {
@@ -1303,8 +1303,8 @@ static int osi_decode_EA(tvbuff_t *tvb, int offset,
       break;
   } /* li */
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_fstr(pinfo->fd, COL_INFO, 
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, 
 		 "EA TPDU (%u) dst-ref: 0x%04x", tpdu_nr, dst_ref);
 
   if (tree) {
@@ -1382,8 +1382,8 @@ static int osi_decode_ER(tvbuff_t *tvb, int offset,
       break;
   }
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_fstr(pinfo->fd, COL_INFO, "ER TPDU dst-ref: 0x%04x", dst_ref);
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, "ER TPDU dst-ref: 0x%04x", dst_ref);
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cotp, tvb, offset, li + 1, FALSE);
@@ -1412,8 +1412,8 @@ static int osi_decode_UD(tvbuff_t *tvb, int offset,
   proto_tree *cltp_tree = NULL;
   tvbuff_t   *next_tvb;
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_str(pinfo->fd, COL_INFO, "UD TPDU");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "UD TPDU");
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_cltp, tvb, offset, li + 1, FALSE);
@@ -1469,17 +1469,17 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
 
   /* Initialize the COL_INFO field; each of the TPDUs will have its
      information appended. */
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_str(pinfo->fd, COL_INFO, "");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_str(pinfo->cinfo, COL_INFO, "");
 
   while (tvb_offset_exists(tvb, offset)) {
     if (!first_tpdu) {
-      if (check_col(pinfo->fd, COL_INFO))
-        col_append_str(pinfo->fd, COL_INFO, ", ");
+      if (check_col(pinfo->cinfo, COL_INFO))
+        col_append_str(pinfo->cinfo, COL_INFO, ", ");
     }
     if ((li = tvb_get_guint8(tvb, offset + P_LI)) == 0) {
-      if (check_col(pinfo->fd, COL_INFO))
-        col_append_str(pinfo->fd, COL_INFO, "Length indicator is zero");
+      if (check_col(pinfo->cinfo, COL_INFO))
+        col_append_str(pinfo->cinfo, COL_INFO, "Length indicator is zero");
       if (!first_tpdu)
         call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
       return found_ositp;
@@ -1527,8 +1527,8 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
         is_cltp = TRUE;
         break;
       default      :
-        if (first_tpdu && check_col(pinfo->fd, COL_INFO))
-          col_append_fstr(pinfo->fd, COL_INFO, "Unknown TPDU type (0x%x)", tpdu);
+        if (first_tpdu && check_col(pinfo->cinfo, COL_INFO))
+          col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown TPDU type (0x%x)", tpdu);
         new_offset = -1;	/* bad PDU type */
         break;
     }
@@ -1542,8 +1542,8 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
     if (first_tpdu) {
       /* Well, we found at least one valid COTP or CLTP PDU, so I guess this
          is either COTP or CLTP. */
-      if (!subdissector_found && check_col(pinfo->fd, COL_PROTOCOL))
-        col_set_str(pinfo->fd, COL_PROTOCOL, is_cltp ? "CLTP" : "COTP");
+      if (!subdissector_found && check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, is_cltp ? "CLTP" : "COTP");
       found_ositp = TRUE;
     }
 
@@ -1598,15 +1598,15 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t   *volatile next_tvb;
   gboolean update_col_info = TRUE;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "CLNP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CLNP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   cnf_proto_id = tvb_get_guint8(tvb, P_CLNP_PROTO_ID);
   if (cnf_proto_id == NLPID_NULL) {
-    if (check_col(pinfo->fd, COL_INFO))
-      col_set_str(pinfo->fd, COL_INFO, "Inactive subset");
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_set_str(pinfo->cinfo, COL_INFO, "Inactive subset");
     if (tree) {
       ti = proto_tree_add_item(tree, proto_clnp, tvb, P_CLNP_PROTO_ID, 1, FALSE);
       clnp_tree = proto_item_add_subtree(ti, ett_clnp);
@@ -1687,8 +1687,8 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      we set it otherwise. */
 
   if (!tvb_bytes_exist(tvb, 0, cnf_hdr_len)) {
-    if (check_col(pinfo->fd, COL_INFO))
-      col_add_fstr(pinfo->fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
   }
 
   segment_length = tvb_get_ntohs(tvb, P_CLNP_SEGLEN);
@@ -1903,8 +1903,8 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       if (fd_head->flags & (FD_OVERLAPCONFLICT
                         |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-        if (check_col(pinfo->fd, COL_INFO)) {
-          col_set_str(pinfo->fd, COL_INFO, "[Illegal segments]");
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+          col_set_str(pinfo->cinfo, COL_INFO, "[Illegal segments]");
           update_col_info = FALSE;
         }
       }
@@ -1955,8 +1955,8 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (next_tvb == NULL) {
     /* Just show this as a segment. */
-    if (check_col(pinfo->fd, COL_INFO))
-      col_add_fstr(pinfo->fd, COL_INFO, "Fragmented %s NPDU %s(off=%u)",
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented %s NPDU %s(off=%u)",
 		pdu_type_string, flag_string, segment_offset);
 
     /* As we haven't reassembled anything, we haven't changed "pi", so
@@ -1984,8 +1984,8 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* The payload is the header and "none, some, or all of the data
          part of the discarded PDU", i.e. it's like an ICMP error;
 	 dissect it as a CLNP PDU. */
-      if (check_col(pinfo->fd, COL_INFO))
-        col_add_fstr(pinfo->fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
+      if (check_col(pinfo->cinfo, COL_INFO))
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
       if (tree) {
         next_length = tvb_length_remaining(tvb, offset);
         if (next_length != 0) {
@@ -1993,7 +1993,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              Make the columns non-writable, so the packet isn't shown
              in the summary based on what the discarded PDU's contents
              are. */
-          col_set_writable(pinfo->fd, FALSE);
+          col_set_writable(pinfo->cinfo, FALSE);
 
           /* Also, save the current values of the addresses, and restore
              them when we're finished dissecting the contained packet, so
@@ -2051,8 +2051,8 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     }
   }
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_fstr(pinfo->fd, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
   call_dissector(data_handle,next_tvb, pinfo, tree);
 
 } /* dissect_clnp */

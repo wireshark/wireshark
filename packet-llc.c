@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-llc.c,v 1.92 2001/12/08 06:41:41 guy Exp $
+ * $Id: packet-llc.c,v 1.93 2001/12/10 00:25:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -280,11 +280,11 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		dsap, ssap;
 	tvbuff_t	*next_tvb;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_set_str(pinfo->fd, COL_PROTOCOL, "LLC");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLC");
 	}
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
 	dsap = tvb_get_guint8(tvb, 0);
@@ -331,8 +331,8 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    hf_llc_oui, hf_llc_type, hf_llc_pid, 2);
 	}
 	else {
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_append_fstr(pinfo->fd, COL_INFO, 
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, 
 			    "; DSAP %s %s, SSAP %s %s",
 			    val_to_str(dsap & SAP_MASK, sap_vals, "%02x"),
 			    dsap & DSAP_GI_BIT ?
@@ -372,8 +372,8 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 	oui =	tvb_get_ntoh24(tvb, offset);
 	etype = tvb_get_ntohs(tvb, offset+3);
 
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_append_fstr(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO,
 		    "; SNAP, OUI 0x%06X (%s), PID 0x%04X",
 		    oui, val_to_str(oui, oui_vals, "Unknown"), etype);
 	}

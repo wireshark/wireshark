@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.30 2001/12/03 08:47:27 guy Exp $
+ * $Id: packet-rtp.c,v 1.31 2001/12/10 00:25:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -355,12 +355,12 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		/*
 		 * Unknown or unsupported version.
 		 */
-		if ( check_col( pinfo->fd, COL_PROTOCOL ) )   {
-			col_set_str( pinfo->fd, COL_PROTOCOL, "RTP" );
+		if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
+			col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTP" );
 		}
 	
-		if ( check_col( pinfo->fd, COL_INFO) ) {
-			col_add_fstr( pinfo->fd, COL_INFO,
+		if ( check_col( pinfo->cinfo, COL_INFO) ) {
+			col_add_fstr( pinfo->cinfo, COL_INFO,
 			    "Unknown RTP version %u", version);
 		}
 
@@ -388,12 +388,12 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	timestamp = tvb_get_ntohl( tvb, offset + 4 );
 	sync_src = tvb_get_ntohl( tvb, offset + 8 );
 
-	if ( check_col( pinfo->fd, COL_PROTOCOL ) )   {
-		col_set_str( pinfo->fd, COL_PROTOCOL, "RTP" );
+	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
+		col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTP" );
 	}
 	
-	if ( check_col( pinfo->fd, COL_INFO) ) {
-		col_add_fstr( pinfo->fd, COL_INFO,
+	if ( check_col( pinfo->cinfo, COL_INFO) ) {
+		col_add_fstr( pinfo->cinfo, COL_INFO,
 		    "Payload type=%s, SSRC=%u, Seq=%u, Time=%u%s",
 		    val_to_str( payload_type, rtp_payload_type_vals,
 		        "Unknown (%u)" ),

@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.28 2001/12/03 03:59:39 guy Exp $
+ * $Id: packet-rx.c,v 1.29 2001/12/10 00:25:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -205,8 +205,8 @@ dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 	guint32 version, tl;
 	int old_offset=offset;
 
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 			"RESPONSE  "
 			"Seq: %lu  "
 			"Call: %lu  "
@@ -260,8 +260,8 @@ dissect_rx_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	guint32 version;
 	int old_offset=offset;
 
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 			"CHALLENGE  "
 			"Seq: %lu  "
 			"Call: %lu  "
@@ -302,8 +302,8 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 	guint8 num;
 	int old_offset = offset;
 
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 			"ACK  "
 			"Seq: %lu  "
 			"Call: %lu  "
@@ -433,10 +433,10 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	guint32 seq, callnumber;
 	guint16 serviceid;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "RX");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RX");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	item = proto_tree_add_protocol_format(parent_tree, proto_rx, tvb, 
 		offset,	28, "RX Protocol");
@@ -520,8 +520,8 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		break;
 	case RX_PACKET_TYPE_ACKALL:
 		/* does not contain any payload */
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO,
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO,
 				"ACKALL  "
 				"Seq: %lu  "
 				"Call: %lu  "

@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.103 2001/12/06 04:25:07 gram Exp $
+ * $Id: tethereal.c,v 1.104 2001/12/10 00:25:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1168,7 +1168,6 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
   fdata->pkt_len = phdr->len;
   fdata->cap_len = phdr->caplen;
   fdata->file_off = offset;
-  fdata->cinfo = NULL;
   fdata->lnk_t = phdr->pkt_encap;
   fdata->abs_secs  = phdr->ts.tv_sec;
   fdata->abs_usecs = phdr->ts.tv_usec;
@@ -1213,12 +1212,6 @@ fill_in_fdata(frame_data *fdata, capture_file *cf,
 		fdata->abs_secs, fdata->abs_usecs, prevsec, prevusec);
   prevsec = fdata->abs_secs;
   prevusec = fdata->abs_usecs;
-
-  fdata->cinfo = &cf->cinfo;
-  for (i = 0; i < fdata->cinfo->num_cols; i++) {
-    fdata->cinfo->col_buf[i][0] = '\0';
-    fdata->cinfo->col_data[i] = fdata->cinfo->col_buf[i];
-  }
 }
 
 /* Free up all data attached to a "frame_data" structure. */
@@ -1246,7 +1239,7 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
   cf->count++;
   if (cf->rfcode) {
     fill_in_fdata(&fdata, cf, phdr, pseudo_header, offset);
-    edt = epan_dissect_new(pseudo_header, buf, &fdata, TRUE);
+    edt = epan_dissect_new(pseudo_header, buf, &fdata, TRUE, &cf->cinfo);
     passed = dfilter_apply_edt(cf->rfcode, edt);
   } else {
     passed = TRUE;
@@ -1349,7 +1342,8 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
     create_proto_tree = TRUE;
   else
     create_proto_tree = FALSE;
-  edt = epan_dissect_new(pseudo_header, buf, &fdata, create_proto_tree);
+  edt = epan_dissect_new(pseudo_header, buf, &fdata, create_proto_tree,
+    &cf->cinfo);
   if (cf->rfcode)
     passed = dfilter_apply_edt(cf->rfcode, edt);
   if (passed) {
@@ -1372,7 +1366,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
       }
     } else {
       /* Just fill in the columns. */
-      fill_in_columns(&fdata, &edt->pi);
+      fill_in_columns(&edt->pi);
 
       /* Now print them. */
       for (i = 0; i < cf->cinfo.num_cols; i++) {
@@ -1557,7 +1551,6 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
       print_hex_data(stdout, print_args.format, &fdata);
       putchar('\n');
     }
-    fdata.cinfo = NULL;
   }
 
   /* The ANSI C standard does not appear to *require* that a line-buffered

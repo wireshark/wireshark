@@ -3,7 +3,7 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.22 2001/12/03 03:59:38 guy Exp $
+ * $Id: packet-ripng.c,v 1.23 2001/12/10 00:25:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,18 +67,18 @@ dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_tree *subtree = NULL;
     proto_item *ti; 
 
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-        col_set_str(pinfo->fd, COL_PROTOCOL, "RIPng");
-    if (check_col(pinfo->fd, COL_INFO))
-        col_clear(pinfo->fd, COL_INFO);
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "RIPng");
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
 
     /* avoid alignment problem */
     tvb_memcpy(tvb, (guint8 *)&rip6, offset, sizeof(rip6));
   
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-        col_add_fstr(pinfo->fd, COL_PROTOCOL, "RIPng version %u", rip6.rip6_vers);
-    if (check_col(pinfo->fd, COL_INFO))
-	col_add_str(pinfo->fd, COL_INFO,
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "RIPng version %u", rip6.rip6_vers);
+    if (check_col(pinfo->cinfo, COL_INFO))
+	col_add_str(pinfo->cinfo, COL_INFO,
 	    val_to_str(rip6.rip6_cmd, cmdvals, "Unknown command (%u)")); 
 
     if (tree) {

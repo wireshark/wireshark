@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.22 2001/12/03 03:59:43 guy Exp $
+ * $Id: packet-wtp.c,v 1.23 2001/12/10 00:25:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -190,8 +190,6 @@ static char retransmission_indicator(unsigned char octet);
 static void
 dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	frame_data *fdata = pinfo->fd;
-
 	char szInfo[ 50 ];
 	int offCur 			= 0; /* current offset from start of WTP data */
 
@@ -221,10 +219,6 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int i;
 	tvbuff_t *wsp_tvb = NULL;
 
-#ifdef DEBUG
-	fprintf( stderr, "dissect_wtp: (Entering) Frame data at %p\n", fdata ); 
-	fprintf( stderr, "dissect_wtp: tvb length is %d\n", tvb_reported_length( tvb ) ); 
-#endif
 	b0 = tvb_get_guint8 (tvb, offCur + 0);
 	/* Discover Concatenated PDUs */
 	if (b0 == 0) {
@@ -246,8 +240,8 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    if (tree) {
 				proto_tree_add_item(wtp_tree, hf_wtp_header_sub_pdu_size, tvb, offCur, vHeader, bo_big_endian);
 			}
-			if (i > 1 && check_col(fdata, COL_INFO)) {
-				col_append_str (fdata, COL_INFO, ", ");
+			if (i > 1 && check_col(pinfo->cinfo, COL_INFO)) {
+				col_append_str (pinfo->cinfo, COL_INFO, ", ");
 			}
 			wsp_tvb = tvb_new_subset(tvb,
 				offCur + vHeader, -1, cbHeader);
@@ -316,12 +310,12 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* This field shows up as the "Info" column in the display; you should make
    it, if possible, summarize what's in the packet, so that a user looking
    at the list of packets can tell what type of packet it is. */
-	if (check_col(fdata, COL_INFO) &&
+	if (check_col(pinfo->cinfo, COL_INFO) &&
 		tvb_reported_length (tvb) <= cbHeader + vHeader) {
 #ifdef DEBUG
 		fprintf( stderr, "dissect_wtp: (6) About to set info_col header to %s\n", szInfo );
 #endif
-		col_append_str(fdata, COL_INFO, szInfo );
+		col_append_str(pinfo->cinfo, COL_INFO, szInfo );
 	};
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
@@ -471,10 +465,6 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb_reported_length (tvb)-cbHeader-vHeader);
 		call_dissector(wsp_handle, wsp_tvb, pinfo, tree);
 	}
-
-#ifdef DEBUG
-	fprintf( stderr, "dissect_wtp: (leaving) fdata->cinfo is %p\n", fdata->cinfo ); 
-#endif
 }
 
 /*
@@ -484,10 +474,10 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_wtp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "WTP+WSP" );
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WTP+WSP" );
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
 	dissect_wtp_common(tvb, pinfo, tree);
@@ -505,10 +495,10 @@ dissect_wtp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_wtp_fromwap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "WTLS+WTP+WSP" );
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WTLS+WTP+WSP" );
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
 	dissect_wtp_common(tvb, pinfo, tree);

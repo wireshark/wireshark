@@ -2,7 +2,7 @@
  * Routines for v120 frame disassembly
  * Bert Driehuis <driehuis@playbeing.org>
  *
- * $Id: packet-v120.c,v 1.21 2001/12/03 03:59:40 guy Exp $
+ * $Id: packet-v120.c,v 1.22 2001/12/10 00:25:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -66,22 +66,22 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16	control;
     tvbuff_t	*next_tvb;
 
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_set_str(pinfo->fd, COL_PROTOCOL, "V.120");
-    if (check_col(pinfo->fd, COL_INFO))
-	col_clear(pinfo->fd, COL_INFO);
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "V.120");
+    if (check_col(pinfo->cinfo, COL_INFO))
+	col_clear(pinfo->cinfo, COL_INFO);
 
     byte0 = tvb_get_guint8(tvb, 0);
 
-    if(check_col(pinfo->fd, COL_RES_DL_SRC))
-	col_add_fstr(pinfo->fd, COL_RES_DL_SRC, "0x%02X", byte0);
+    if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+	col_add_fstr(pinfo->cinfo, COL_RES_DL_SRC, "0x%02X", byte0);
 
     byte1 = tvb_get_guint8(tvb, 1);
 
     if ((byte0 & 0x01) != 0x00 && (byte1 && 0x01) != 0x01)
     {
-	if (check_col(pinfo->fd, COL_INFO))
-	    col_set_str(pinfo->fd, COL_INFO, "Invalid V.120 frame");
+	if (check_col(pinfo->cinfo, COL_INFO))
+	    col_set_str(pinfo->cinfo, COL_INFO, "Invalid V.120 frame");
 	if (tree)
 	    ti = proto_tree_add_protocol_format(tree, proto_v120, tvb, 0, tvb_length(tvb),
 			                    "Invalid V.120 frame");
@@ -89,16 +89,16 @@ dissect_v120(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (pinfo->pseudo_header->x25.flags & FROM_DCE) {
-	if(check_col(pinfo->fd, COL_RES_DL_DST))
-	    col_set_str(pinfo->fd, COL_RES_DL_DST, "DTE");
-	if(check_col(pinfo->fd, COL_RES_DL_SRC))
-	    col_set_str(pinfo->fd, COL_RES_DL_SRC, "DCE");
+	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
+	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
     }
     else {
-	if(check_col(pinfo->fd, COL_RES_DL_DST))
-	    col_set_str(pinfo->fd, COL_RES_DL_DST, "DCE");
-	if(check_col(pinfo->fd, COL_RES_DL_SRC))
-	    col_set_str(pinfo->fd, COL_RES_DL_SRC, "DTE");
+	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
+	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
     }
 
     if (((pinfo->pseudo_header->x25.flags & FROM_DCE) && byte0 & 0x02) ||

@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.50 2001/12/03 03:59:35 guy Exp $
+ * $Id: packet-isakmp.c,v 1.51 2001/12/10 00:25:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -323,10 +323,10 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   static const guint8	non_ike_marker[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
   tvbuff_t *		next_tvb;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "ISAKMP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISAKMP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   hdr = (struct isakmp_hdr *)tvb_get_ptr(tvb, 0, sizeof (struct isakmp_hdr));
   len = pntohl(&hdr->length);
@@ -339,16 +339,16 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   encap_hdr = (struct udp_encap_hdr *)tvb_get_ptr(tvb, 0, sizeof(struct udp_encap_hdr));
   
   if (encap_hdr->non_ike_marker[0] == 0xFF) {
-    if (check_col(pinfo->fd, COL_INFO)) 
-      col_add_str(pinfo->fd, COL_INFO, "UDP encapsulated IPSec - NAT Keepalive");
+    if (check_col(pinfo->cinfo, COL_INFO)) 
+      col_add_str(pinfo->cinfo, COL_INFO, "UDP encapsulated IPSec - NAT Keepalive");
     return;
   }
   if (memcmp(encap_hdr->non_ike_marker,non_ike_marker,8) == 0) {
-    if (check_col(pinfo->fd, COL_INFO)) {
+    if (check_col(pinfo->cinfo, COL_INFO)) {
       if (encap_hdr->esp_SPI != 0)
-          col_add_str(pinfo->fd, COL_INFO, "UDP encapsulated IPSec - ESP");
+          col_add_str(pinfo->cinfo, COL_INFO, "UDP encapsulated IPSec - ESP");
       else
-         col_add_str(pinfo->fd, COL_INFO, "UDP encapsulated IPSec - AH");
+         col_add_str(pinfo->cinfo, COL_INFO, "UDP encapsulated IPSec - AH");
     } 
     if (tree)
       proto_tree_add_text(isakmp_tree, tvb, offset,
@@ -390,8 +390,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return;
   }
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_str(pinfo->fd, COL_INFO, exchtype2str(hdr->exch_type));
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_str(pinfo->cinfo, COL_INFO, exchtype2str(hdr->exch_type));
 
   if (tree) {
     proto_tree_add_text(isakmp_tree, tvb, offset, sizeof(hdr->icookie),

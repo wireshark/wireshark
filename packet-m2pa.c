@@ -6,7 +6,7 @@
  * Copyright 2001, Jeff Morriss <jeff.morriss[AT]ulticom.com>, 
  * updated by Michael Tuexen <michael.tuexen[AT]icn.siemens.de>
  *
- * $Id: packet-m2pa.c,v 1.3 2001/12/03 20:35:14 guy Exp $
+ * $Id: packet-m2pa.c,v 1.4 2001/12/10 00:25:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -228,9 +228,9 @@ dissect_m2pa_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
   type           = tvb_get_guint8(common_header_tvb, TYPE_OFFSET);
   length = tvb_get_ntohl(common_header_tvb,  LENGTH_OFFSET);
   
-  if (check_col(pinfo->fd, COL_INFO)) {
-    col_append_str(pinfo->fd, COL_INFO, val_to_str(type, m2pa_message_type_values, "Invalid"));
-    col_append_str(pinfo->fd, COL_INFO, " ");
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(type, m2pa_message_type_values, "Invalid"));
+    col_append_str(pinfo->cinfo, COL_INFO, " ");
   };
 
   if (m2pa_tree) {
@@ -289,8 +289,8 @@ dissect_m2pa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *m2pa_tree;
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "M2PA");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "M2PA");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */

@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-auto_rp.c,v 1.15 2001/12/03 03:59:33 guy Exp $
+ * $Id: packet-auto_rp.c,v 1.16 2001/12/10 00:25:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -123,15 +123,15 @@ static void dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         guint8 ver_type, rp_count;
 
-        if (check_col(pinfo->fd, COL_PROTOCOL))
-                col_set_str(pinfo->fd, COL_PROTOCOL, "Auto-RP");
-        if (check_col(pinfo->fd, COL_INFO))
-                col_clear(pinfo->fd, COL_INFO);
+        if (check_col(pinfo->cinfo, COL_PROTOCOL))
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, "Auto-RP");
+        if (check_col(pinfo->cinfo, COL_INFO))
+                col_clear(pinfo->cinfo, COL_INFO);
         
         ver_type = tvb_get_guint8(tvb, 0);
         rp_count = tvb_get_guint8(tvb, 1);
-        if (check_col(pinfo->fd, COL_INFO))
-                col_add_fstr(pinfo->fd, COL_INFO, "%s (v%s) for %u RP%s",
+        if (check_col(pinfo->cinfo, COL_INFO))
+                col_add_fstr(pinfo->cinfo, COL_INFO, "%s (v%s) for %u RP%s",
                              val_to_str(lo_nibble(ver_type), auto_rp_type_vals, "Unknown"),
                              val_to_str(hi_nibble(ver_type), auto_rp_ver_vals, "Unknown"),
                              rp_count, plurality(rp_count, "", "s"));

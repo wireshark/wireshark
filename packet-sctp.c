@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.23 2001/12/08 06:41:42 guy Exp $
+ * $Id: packet-sctp.c,v 1.24 2001/12/10 00:25:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -991,8 +991,8 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree,
     return TRUE;
   }
   else {
-    if (check_col(pinfo->fd, COL_INFO))
-      col_append_str(pinfo->fd, COL_INFO, "DATA ");
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_append_str(pinfo->cinfo, COL_INFO, "DATA ");
     proto_tree_add_text(chunk_tree, payload_tvb, 0, payload_length,
 			"Payload (%u byte%s)",
 			payload_length, plurality(payload_length, "", "s")); 
@@ -1070,11 +1070,11 @@ dissect_init_chunk(tvbuff_t *chunk_tvb,  packet_info *pinfo, proto_tree *tree,
 
   type                       = tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET);
   
-  if (check_col(pinfo->fd, COL_INFO)) {
+  if (check_col(pinfo->cinfo, COL_INFO)) {
     if (type == SCTP_INIT_CHUNK_ID) {
-      col_append_str(pinfo->fd, COL_INFO, "INIT ");
+      col_append_str(pinfo->cinfo, COL_INFO, "INIT ");
     } else {
-      col_append_str(pinfo->fd, COL_INFO, "INIT_ACK ");
+      col_append_str(pinfo->cinfo, COL_INFO, "INIT_ACK ");
     };
   };
   
@@ -1137,8 +1137,8 @@ dissect_sack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
   proto_item *block_item;
   proto_tree *block_tree;
   
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_str(pinfo->fd, COL_INFO, "SACK ");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "SACK ");
 
   if (chunk_tree) {
     cumulative_tsn_ack    = tvb_get_ntohl(chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
@@ -1211,8 +1211,8 @@ dissect_heartbeat_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tre
   tvbuff_t   *parameter_tvb;
   guint chunk_length, info_length, padding_length, total_length;
     
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_str(pinfo->fd, COL_INFO, "HEARTBEAT ");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "HEARTBEAT ");
 
   if (chunk_tree) {
     chunk_length   = tvb_get_ntohs(chunk_tvb,  CHUNK_LENGTH_OFFSET);
@@ -1234,8 +1234,8 @@ dissect_heartbeat_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree 
   tvbuff_t   *parameter_tvb;
   guint chunk_length, info_length, padding_length, total_length;
   
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_str(pinfo->fd, COL_INFO, "HEARTBEAT_ACK ");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "HEARTBEAT_ACK ");
 
   if (chunk_tree) {
     chunk_length   = tvb_get_ntohs(chunk_tvb,  CHUNK_LENGTH_OFFSET);
@@ -1259,8 +1259,8 @@ dissect_abort_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
   guint16 length, padding_length, total_length;
   tvbuff_t *cause_tvb;
   
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_str(pinfo->fd, COL_INFO, "ABORT ");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "ABORT ");
 
   if (chunk_tree) {
     number_of_causes = 0;
@@ -1288,8 +1288,8 @@ dissect_shutdown_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree
 { 
   guint32 cumulative_tsn_ack;
  
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_str(pinfo->fd, COL_INFO, "SHUTDOWN ");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "SHUTDOWN ");
 
   if (chunk_tree) {
     cumulative_tsn_ack = tvb_get_ntohl(chunk_tvb, SHUTDOWN_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
@@ -1308,8 +1308,8 @@ static void
 dissect_shutdown_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 			   proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 { 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_str(pinfo->fd, COL_INFO, "SHUTDOWN_ACK ");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "SHUTDOWN_ACK ");
 
   if (chunk_tree) {
     proto_item_set_text(chunk_item, "SHUTDOWN ACK chunk");
@@ -1324,8 +1324,8 @@ dissect_error_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
   guint16 length, padding_length, total_length;
   tvbuff_t *cause_tvb;
   
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_str(pinfo->fd, COL_INFO, "ERROR ");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "ERROR ");
 
   if (chunk_tree) {
     number_of_causes = 0;
@@ -1357,8 +1357,8 @@ dissect_cookie_echo_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *t
   padding_length = nr_of_padding_bytes(length);
   cookie_length  = length - CHUNK_HEADER_LENGTH;
  
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_str(pinfo->fd, COL_INFO, "COOKIE_ECHO ");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "COOKIE_ECHO ");
 
   if (chunk_tree) {  
     proto_tree_add_text(chunk_tree, chunk_tvb, COOKIE_ECHO_CHUNK_COOKIE_OFFSET, cookie_length,
@@ -1378,8 +1378,8 @@ static void
 dissect_cookie_ack_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 			 proto_tree *chunk_tree, proto_item *chunk_item, proto_item *flags_item)
 {  
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_str(pinfo->fd, COL_INFO, "COOKIE_ACK ");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "COOKIE_ACK ");
 
   if (chunk_tree) {
     proto_item_set_text(chunk_item, "COOKIE ACK chunk");
@@ -1392,8 +1392,8 @@ dissect_ecne_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 { 
   guint32 lowest_tsn;
  
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_str(pinfo->fd, COL_INFO, "ECNE ");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "ECNE ");
 
   if (chunk_tree) {
     lowest_tsn = tvb_get_ntohl(chunk_tvb, ECNE_CHUNK_LOWEST_TSN_OFFSET);
@@ -1412,8 +1412,8 @@ dissect_cwr_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
 { 
   guint32 lowest_tsn;
   
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_str(pinfo->fd, COL_INFO, "CWR ");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "CWR ");
 
   if (chunk_tree) {
     lowest_tsn = tvb_get_ntohl(chunk_tvb, CWR_CHUNK_LOWEST_TSN_OFFSET);
@@ -1434,8 +1434,8 @@ dissect_shutdown_complete_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_t
   guint16 length;
   proto_tree *flag_tree;
  
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_str(pinfo->fd, COL_INFO, "SHUTDOWN_COMPLETE ");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "SHUTDOWN_COMPLETE ");
 
   if (chunk_tree) {
     flags             = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET);
@@ -1456,8 +1456,8 @@ dissect_unknown_chunk(tvbuff_t *chunk_tvb, packet_info *pinfo, proto_tree *tree,
   guint length, chunk_value_length, padding_length;
   guint8 type;
   
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_str(pinfo->fd, COL_INFO, "UNKNOWN ");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_str(pinfo->cinfo, COL_INFO, "UNKNOWN ");
 
   if (chunk_tree) {
     length         = tvb_get_ntohs(chunk_tvb, CHUNK_LENGTH_OFFSET);
@@ -1641,12 +1641,12 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pinfo->destport = destination_port;
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->fd, COL_PROTOCOL)) 
-    col_set_str(pinfo->fd, COL_PROTOCOL, "SCTP");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCTP");
 
   /* Clear entries in Info column on summary display */
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_str(pinfo->fd, COL_INFO, "");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_str(pinfo->cinfo, COL_INFO, "");
   
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */

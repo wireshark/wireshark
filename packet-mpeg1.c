@@ -2,7 +2,7 @@
  *
  * Routines for RFC 2250 MPEG-1 dissection
  *
- * $Id: packet-mpeg1.c,v 1.3 2001/07/16 05:16:57 guy Exp $
+ * $Id: packet-mpeg1.c,v 1.4 2001/12/10 00:25:30 guy Exp $
  * 
  * Copyright 2001, 
  * Francisco Javier Cabello Torres, <fjcabello@vtools.es>
@@ -133,14 +133,14 @@ dissect_mpeg1( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	guint16     mpg_ffv;
 	guint16     mpg_ffc;	
 	
-	if ( check_col( pinfo->fd, COL_PROTOCOL ) )   
+	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   
 	  {
-	    col_set_str( pinfo->fd, COL_PROTOCOL, "MPEG-1" );
+	    col_set_str( pinfo->cinfo, COL_PROTOCOL, "MPEG-1" );
 	  }
 	
-	if ( check_col( pinfo->fd, COL_INFO) ) 
+	if ( check_col( pinfo->cinfo, COL_INFO) ) 
 	  {
-	    col_set_str( pinfo->fd, COL_INFO, "MPEG-1 message");
+	    col_set_str( pinfo->cinfo, COL_INFO, "MPEG-1 message");
 	  }
 	
 	/* Get MPEG-1  fields */

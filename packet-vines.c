@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.37 2001/12/08 06:41:42 guy Exp $
+ * $Id: packet-vines.c,v 1.38 2001/12/10 00:25:41 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -93,10 +93,10 @@ dissect_vines_frp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gchar	frp_flags_str[32];
 	tvbuff_t *next_tvb;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "Vines FRP");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines FRP");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vines_frp, tvb, 0, 2,
@@ -188,10 +188,10 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int  hops = 0;
 	tvbuff_t *next_tvb;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "Vines");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	/* To do: check for runts, errs, etc. */
 
@@ -207,40 +207,40 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	switch (viph.vip_proto) {
  	case VIP_PROTO_IPC:
-		if (check_col(pinfo->fd, COL_PROTOCOL))
-			col_set_str(pinfo->fd, COL_PROTOCOL, "Vines IPC");
-		if (check_col(pinfo->fd, COL_INFO))
-			col_add_fstr(pinfo->fd, COL_INFO, "IPC (%02x)", viph.vip_proto);
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines IPC");
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_fstr(pinfo->cinfo, COL_INFO, "IPC (%02x)", viph.vip_proto);
  		break;
  	case VIP_PROTO_SPP:      
-		if (check_col(pinfo->fd, COL_PROTOCOL))
-			col_set_str(pinfo->fd, COL_PROTOCOL, "Vines SPP");
-		if (check_col(pinfo->fd, COL_INFO))
-			col_add_fstr(pinfo->fd, COL_INFO, "SPP (%02x)", viph.vip_proto);
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines SPP");
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_fstr(pinfo->cinfo, COL_INFO, "SPP (%02x)", viph.vip_proto);
 		break;
 	case VIP_PROTO_ARP:
-		if (check_col(pinfo->fd, COL_PROTOCOL))
-			col_set_str(pinfo->fd, COL_PROTOCOL, "Vines ARP");
-		if (check_col(pinfo->fd, COL_INFO))
-			col_add_fstr(pinfo->fd, COL_INFO, "ARP (%02x)", viph.vip_proto);
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines ARP");
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_fstr(pinfo->cinfo, COL_INFO, "ARP (%02x)", viph.vip_proto);
 		break;
 	case VIP_PROTO_RTP:
-		if (check_col(pinfo->fd, COL_PROTOCOL))
-			col_set_str(pinfo->fd, COL_PROTOCOL, "Vines RTP");
-		if (check_col(pinfo->fd, COL_INFO))
-			col_add_fstr(pinfo->fd, COL_INFO, "RTP (%02x)", viph.vip_proto);
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines RTP");
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_fstr(pinfo->cinfo, COL_INFO, "RTP (%02x)", viph.vip_proto);
 		break;
 	case VIP_PROTO_ICP:
-		if (check_col(pinfo->fd, COL_PROTOCOL))
-			col_set_str(pinfo->fd, COL_PROTOCOL, "Vines ICP");
-		if (check_col(pinfo->fd, COL_INFO))
-			col_add_fstr(pinfo->fd, COL_INFO, "ICP (%02x)", viph.vip_proto);
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines ICP");
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_fstr(pinfo->cinfo, COL_INFO, "ICP (%02x)", viph.vip_proto);
 		break;
 	default:
-		if (check_col(pinfo->fd, COL_PROTOCOL))
-			col_set_str(pinfo->fd, COL_PROTOCOL, "Vines IP");
-		if (check_col(pinfo->fd, COL_INFO))
-			col_add_fstr(pinfo->fd, COL_INFO, "Unknown VIP protocol (%02x)", 
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "Vines IP");
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown VIP protocol (%02x)", 
 				     viph.vip_proto);
 	}
 
@@ -359,10 +359,10 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *vspp_tree;
 	proto_item *ti;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "VSPP");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	/* To do: check for runts, errs, etc. */
 
@@ -376,28 +376,28 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	switch (viph.vspp_pkttype) {
 	case VSPP_PKTTYPE_DATA:      
-		if (check_col(pinfo->fd, COL_PROTOCOL))
-			col_set_str(pinfo->fd, COL_PROTOCOL, "VSPP Data");
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP Data");
 		break;
 	case VSPP_PKTTYPE_DISC:      
-		if (check_col(pinfo->fd, COL_PROTOCOL))
-			col_set_str(pinfo->fd, COL_PROTOCOL, "VSPP Disconnect");
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP Disconnect");
 		break;
 	case VSPP_PKTTYPE_PROBE:      
-		if (check_col(pinfo->fd, COL_PROTOCOL))
-			col_set_str(pinfo->fd, COL_PROTOCOL, "VSPP Probe");
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP Probe");
 		break;
 	case VSPP_PKTTYPE_ACK:
-		if (check_col(pinfo->fd, COL_PROTOCOL))
- 			col_set_str(pinfo->fd, COL_PROTOCOL, "VSPP Ack");
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+ 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP Ack");
 		break;
 	default:
-		if (check_col(pinfo->fd, COL_PROTOCOL))
- 			col_set_str(pinfo->fd, COL_PROTOCOL, "VSPP Unknown");
+		if (check_col(pinfo->cinfo, COL_PROTOCOL))
+ 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP Unknown");
 	}
 
-	if (check_col(pinfo->fd, COL_INFO))
- 		col_add_fstr(pinfo->fd, COL_INFO, 
+	if (check_col(pinfo->cinfo, COL_INFO))
+ 		col_add_fstr(pinfo->cinfo, COL_INFO, 
 			     "NS=%04x NR=%04x Window=%04x RID=%04x LID=%04x D=%04x S=%04x", 
 			     viph.vspp_seqno, viph.vspp_ack, viph.vspp_win, 
 			     viph.vspp_rmtid, viph.vspp_lclid, viph.vspp_dport,

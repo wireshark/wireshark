@@ -1,7 +1,7 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.c,v 1.13 2001/12/03 03:59:35 guy Exp $
+ * $Id: packet-igmp.c,v 1.14 2001/12/10 00:25:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -298,8 +298,8 @@ static const value_string mtrace_fwd_code_vals[] = {
 };
 
 #define PRINT_IGMP_VERSION(version) 					\
-	if (check_col(pinfo->fd, COL_INFO)) {				\
-		col_add_fstr(pinfo->fd, COL_INFO,			\
+	if (check_col(pinfo->cinfo, COL_INFO)) {				\
+		col_add_fstr(pinfo->cinfo, COL_INFO,			\
 			"V%d %s",version,val_to_str(type, commands, 	\
 				"Unknown Type:0x%02x"));		\
 	}								\
@@ -357,8 +357,8 @@ dissect_igmp_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int ty
 {
 	int len;
 
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_str(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_str(pinfo->cinfo, COL_INFO,
 			val_to_str(type, commands, "Unknown Type:0x%02x"));
 	}
 
@@ -666,9 +666,9 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int typ
 	else
 		typestr = "Traceroute Request";
 
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_set_str(pinfo->fd, COL_INFO, typestr);
-		if (blocks) col_append_str(pinfo->fd, COL_INFO, blocks);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_set_str(pinfo->cinfo, COL_INFO, typestr);
+		if (blocks) col_append_str(pinfo->cinfo, COL_INFO, blocks);
 	}
 
 	proto_tree_add_uint_format(tree, hf_type, tvb, offset, 1, type,
@@ -788,11 +788,11 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	tree = proto_item_add_subtree(item, ett_igmp);
 
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_set_str(pinfo->fd, COL_PROTOCOL, "IGMP");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IGMP");
 	}
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
 

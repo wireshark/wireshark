@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.26 2001/12/03 08:47:27 guy Exp $
+ * $Id: packet-rtcp.c,v 1.27 2001/12/10 00:25:33 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -635,37 +635,37 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	unsigned int offset      = 0;
 	guint16 packet_length    = 0;
 
-	if ( check_col( pinfo->fd, COL_PROTOCOL ) )   {
-		col_set_str( pinfo->fd, COL_PROTOCOL, "RTCP" );
+	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) )   {
+		col_set_str( pinfo->cinfo, COL_PROTOCOL, "RTCP" );
 	}
 	
-	if ( check_col( pinfo->fd, COL_INFO) ) {
+	if ( check_col( pinfo->cinfo, COL_INFO) ) {
 		/* The second octet contains the packet type */
 		/* switch ( pd[ offset + 1 ] ) { */
 		switch ( tvb_get_guint8( tvb, 1 ) ) {
 			case RTCP_SR:
-				col_set_str( pinfo->fd, COL_INFO, "Sender Report");
+				col_set_str( pinfo->cinfo, COL_INFO, "Sender Report");
 				break;
 			case RTCP_RR:
-				col_set_str( pinfo->fd, COL_INFO, "Receiver Report");
+				col_set_str( pinfo->cinfo, COL_INFO, "Receiver Report");
 				break;
 			case RTCP_SDES:
-				col_set_str( pinfo->fd, COL_INFO, "Source Description");
+				col_set_str( pinfo->cinfo, COL_INFO, "Source Description");
 				break;
 			case RTCP_BYE:
-				col_set_str( pinfo->fd, COL_INFO, "Goodbye");
+				col_set_str( pinfo->cinfo, COL_INFO, "Goodbye");
 				break;
 			case RTCP_APP:
-				col_set_str( pinfo->fd, COL_INFO, "Application defined");
+				col_set_str( pinfo->cinfo, COL_INFO, "Application defined");
 				break;
 			case RTCP_FIR:
-				col_set_str( pinfo->fd, COL_INFO, "Full Intra-frame Request (H.261)");
+				col_set_str( pinfo->cinfo, COL_INFO, "Full Intra-frame Request (H.261)");
 				break;
 			case RTCP_NACK:
-				col_set_str( pinfo->fd, COL_INFO, "Negative Acknowledgement (H.261)");
+				col_set_str( pinfo->cinfo, COL_INFO, "Negative Acknowledgement (H.261)");
 				break;
 			default:
-				col_set_str( pinfo->fd, COL_INFO, "Unknown packet type");
+				col_set_str( pinfo->cinfo, COL_INFO, "Unknown packet type");
 				break;
 		}
 	}

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.251 2001/12/06 04:25:07 gram Exp $
+ * $Id: file.c,v 1.252 2001/12/10 00:25:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -630,12 +630,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     firstusec = fdata->abs_usecs;
   }
 
-  fdata->cinfo = &cf->cinfo;
-  for (i = 0; i < fdata->cinfo->num_cols; i++) {
-    fdata->cinfo->col_buf[i][0] = '\0';
-    fdata->cinfo->col_data[i] = fdata->cinfo->col_buf[i];
-  }
-
   /* If either
 
 	we have a display filter and are re-applying it;
@@ -649,7 +643,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 	  create_proto_tree = TRUE;
 
   /* Dissect the frame. */
-  edt = epan_dissect_new(pseudo_header, buf, fdata, create_proto_tree);
+  edt = epan_dissect_new(pseudo_header, buf, fdata, create_proto_tree,
+    &cf->cinfo);
 
   /* If we have a display filter, apply it if we're refiltering, otherwise
      leave the "passed_dfilter" flag alone.
@@ -707,7 +702,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     prevsec = fdata->abs_secs;
     prevusec = fdata->abs_usecs;
 
-    fill_in_columns(fdata, &edt->pi);
+    fill_in_columns(&edt->pi);
 
     /* If we haven't yet seen the first frame, this is it.
 
@@ -728,7 +723,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     /* This is the last frame we've seen so far. */
     cf->last_displayed = fdata;
 
-    row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
+    row = gtk_clist_append(GTK_CLIST(packet_list), cf->cinfo.col_data);
     gtk_clist_set_row_data(GTK_CLIST(packet_list), row, fdata);
 
     if (fdata->flags.marked) {
@@ -749,7 +744,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     row = -1;
   }
   epan_dissect_free(edt);
-  fdata->cinfo = NULL;
   return row;
 }
 
@@ -780,11 +774,10 @@ read_packet(capture_file *cf, long offset)
   fdata->flags.encoding = CHAR_ASCII;
   fdata->flags.visited = 0;
   fdata->flags.marked = 0;
-  fdata->cinfo = NULL;
 
   passed = TRUE;
   if (cf->rfcode) {
-    edt = epan_dissect_new(pseudo_header, buf, fdata, TRUE);
+    edt = epan_dissect_new(pseudo_header, buf, fdata, TRUE, NULL);
     passed = dfilter_apply_edt(cf->rfcode, edt);
     epan_dissect_free(edt);
   }   
@@ -1183,13 +1176,9 @@ print_packets(capture_file *cf, print_args_t *print_args)
       if (print_args->print_summary) {
         /* Fill in the column information, but don't bother creating
            the logical protocol tree. */
-        fdata->cinfo = &cf->cinfo;
-        for (i = 0; i < fdata->cinfo->num_cols; i++) {
-          fdata->cinfo->col_buf[i][0] = '\0';
-          fdata->cinfo->col_data[i] = fdata->cinfo->col_buf[i];
-        }
-        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, FALSE);
-        fill_in_columns(fdata, &edt->pi);
+        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, FALSE,
+          &cf->cinfo);
+        fill_in_columns(&edt->pi);
         cp = &line_buf[0];
         line_len = 0;
         for (i = 0; i < cf->cinfo.num_cols; i++) {
@@ -1224,7 +1213,8 @@ print_packets(capture_file *cf, print_args_t *print_args)
           print_line(cf->print_fh, print_args->format, "\n");
 
         /* Create the logical protocol tree. */
-        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, TRUE);
+        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, TRUE,
+          NULL);
 
         /* Print the information in that tree. */
         proto_tree_print(FALSE, print_args, (GNode *)edt->tree,
@@ -1334,8 +1324,7 @@ change_time_formats(capture_file *cf)
          the answer isn't going to change from packet to packet, so we should
          simply skip all the "change_time_formats()" work if we're not
          changing anything. */
-      fdata->cinfo = &cf->cinfo;
-      if (check_col(fdata, COL_CLS_TIME)) {
+      if (check_col(&cf->cinfo, COL_CLS_TIME)) {
         /* There are columns that show the time in the "command-line-specified"
            format; update them. */
         for (i = 0; i < cf->cinfo.num_cols; i++) {
@@ -1343,7 +1332,7 @@ change_time_formats(capture_file *cf)
             /* This is one of the columns that shows the time in
                "command-line-specified" format; update it. */
             cf->cinfo.col_buf[i][0] = '\0';
-            col_set_cls_time(fdata, i);
+            col_set_cls_time(fdata, &cf->cinfo, i);
             gtk_clist_set_text(GTK_CLIST(packet_list), row, i,
 			  cf->cinfo.col_data[i]);
 	  }
@@ -1446,7 +1435,8 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
         /* Yes.  Does it match the search filter? */
         wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
         		cf->pd, fdata->cap_len);
-        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, TRUE);
+        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, TRUE,
+          NULL);
         frame_matched = dfilter_apply_edt(sfcode, edt);
 	epan_dissect_free(edt);
         if (frame_matched) {
@@ -1555,7 +1545,8 @@ select_packet(capture_file *cf, int row)
     epan_dissect_free(cf->edt);
     cf->edt = NULL;
   }
-  cf->edt = epan_dissect_new(&cf->pseudo_header, cf->pd, cf->current_frame, TRUE);
+  cf->edt = epan_dissect_new(&cf->pseudo_header, cf->pd, cf->current_frame,
+    TRUE, NULL);
   proto_tree_is_visible = FALSE;
 
   /* Display the GUI protocol tree and hex dump.

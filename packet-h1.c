@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.21 2001/11/25 22:51:13 hagbard Exp $
+ * $Id: packet-h1.c,v 1.22 2001/12/10 00:25:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,10 +126,10 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       return FALSE;
     }
 
-  if (check_col (pinfo->fd, COL_PROTOCOL))
-    col_set_str (pinfo->fd, COL_PROTOCOL, "H1");
-  if (check_col (pinfo->fd, COL_INFO))
-    col_add_str (pinfo->fd, COL_INFO, "S5: ");
+  if (check_col (pinfo->cinfo, COL_PROTOCOL))
+    col_set_str (pinfo->cinfo, COL_PROTOCOL, "H1");
+  if (check_col (pinfo->cinfo, COL_INFO))
+    col_add_str (pinfo->cinfo, COL_INFO, "S5: ");
   if (tree)
     {
       ti = proto_tree_add_item (tree, proto_h1, tvb, offset, 16, FALSE);
@@ -159,9 +159,9 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				     offset + position + 2, 1,
 				     tvb_get_guint8(tvb,offset + position + 2));
 	      }
-	    if (check_col (pinfo->fd, COL_INFO))
+	    if (check_col (pinfo->cinfo, COL_INFO))
 	      {
-		col_append_str (pinfo->fd, COL_INFO,
+		col_append_str (pinfo->cinfo, COL_INFO,
 				val_to_str (tvb_get_guint8(tvb,offset + position + 2),
 					    opcode_vals,"Unknown Opcode (0x%2.2x)"));
 	      }
@@ -190,15 +190,15 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    offset + position + 6, 2,
 				    tvb_get_ntohs(tvb,offset+position+6));
 	      }
-	    if (check_col (pinfo->fd, COL_INFO))
+	    if (check_col (pinfo->cinfo, COL_INFO))
 	      {
-		col_append_fstr (pinfo->fd, COL_INFO, " %s %d",
+		col_append_fstr (pinfo->cinfo, COL_INFO, " %s %d",
 				 val_to_str (tvb_get_guint8(tvb,offset + position + 2),
 					     org_vals,"Unknown Type (0x%2.2x)"),
 				 tvb_get_guint8(tvb,offset + position + 3));
-		col_append_fstr (pinfo->fd, COL_INFO, " DW %d",
+		col_append_fstr (pinfo->cinfo, COL_INFO, " DW %d",
 				 tvb_get_ntohs(tvb,offset+position+4));
-		col_append_fstr (pinfo->fd, COL_INFO, " Count %d",
+		col_append_fstr (pinfo->cinfo, COL_INFO, " Count %d",
 				 tvb_get_ntohs(tvb,offset+position+6));
 	      }
 	    break;
@@ -217,9 +217,9 @@ static gboolean dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				     offset + position + 2, 1,
 				     tvb_get_guint8(tvb,offset + position+2));
 	      }
-	    if (check_col (pinfo->fd, COL_INFO))
+	    if (check_col (pinfo->cinfo, COL_INFO))
 	      {
-		col_append_fstr (pinfo->fd, COL_INFO, " %s",
+		col_append_fstr (pinfo->cinfo, COL_INFO, " %s",
 				 val_to_str (tvb_get_guint8(tvb,offset + position + 2),
 					     returncode_vals,"Unknown Returcode (0x%2.2x"));
 	      }

@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-ddtp.c,v 1.17 2001/12/03 03:59:34 guy Exp $
+ * $Id: packet-ddtp.c,v 1.18 2001/12/10 00:25:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -101,13 +101,13 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *ddtp_tree = NULL;
     proto_item *ti;
 
-    if (check_col(pinfo->fd, COL_PROTOCOL)) {
+    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 	/* Indicate what kind of message this is. */
-    	col_set_str (pinfo->fd, COL_PROTOCOL, "DDTP");
+    	col_set_str (pinfo->cinfo, COL_PROTOCOL, "DDTP");
     }
-    if (check_col(pinfo->fd, COL_INFO)) {
+    if (check_col(pinfo->cinfo, COL_INFO)) {
 	/* In case we throw an exception below. */
-    	col_clear (pinfo->fd, COL_INFO);
+    	col_clear (pinfo->cinfo, COL_INFO);
     }
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_ddtp, tvb, 0,
@@ -123,12 +123,12 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_item(ddtp_tree, hf_ddtp_msgtype, tvb, 12, 4, FALSE);
 	switch (tvb_get_ntohl(tvb, 12)) {
 	case DDTP_MESSAGE_ERROR :
-	    if (check_col(pinfo->fd, COL_INFO))
-		col_set_str (pinfo->fd, COL_INFO, "Message Error");
+	    if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str (pinfo->cinfo, COL_INFO, "Message Error");
 	    break;
 	case DDTP_UPDATE_QUERY :
-	    if (check_col(pinfo->fd, COL_INFO))
-		col_set_str (pinfo->fd, COL_INFO, "Update Query");
+	    if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str (pinfo->cinfo, COL_INFO, "Update Query");
 	    if (tree) {
 		proto_tree_add_item(ddtp_tree, hf_ddtp_opcode, tvb, 16, 4,
 			FALSE);
@@ -137,40 +137,40 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    }
 	    break;
 	case DDTP_UPDATE_REPLY :
-	    if (check_col(pinfo->fd, COL_INFO))
-		col_set_str (pinfo->fd, COL_INFO, "Update Reply");
+	    if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str (pinfo->cinfo, COL_INFO, "Update Reply");
 	    if (tree) {
 		proto_tree_add_item(ddtp_tree, hf_ddtp_status, tvb, 16, 4,
 			FALSE);
 	    }
 	    break;
 	case DDTP_ALIVE_QUERY :
-	    if (check_col(pinfo->fd, COL_INFO))
-		col_set_str (pinfo->fd, COL_INFO, "Alive Query");
+	    if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str (pinfo->cinfo, COL_INFO, "Alive Query");
 	    if (tree) {
 		proto_tree_add_text(ddtp_tree, tvb, 16, 4, "Dummy : %u",
 			tvb_get_ntohl(tvb, 16));
 	    }
 	    break;
 	case DDTP_ALIVE_REPLY :
-	    if (check_col(pinfo->fd, COL_INFO))
-		col_set_str (pinfo->fd, COL_INFO, "Alive Reply");
+	    if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str (pinfo->cinfo, COL_INFO, "Alive Reply");
 	    if (tree) {
 		proto_tree_add_text(ddtp_tree, tvb, 16, 4, "Dummy : %u",
 			tvb_get_ntohl(tvb, 16));
 	    }
 	    break;
 	default :
-	    if (check_col(pinfo->fd, COL_INFO))
-		col_set_str (pinfo->fd, COL_INFO, "Unknown type");
+	    if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str (pinfo->cinfo, COL_INFO, "Unknown type");
 	    if (tree) {
 		proto_tree_add_text(ddtp_tree, tvb, 12, 4, "Unknown type : %u",
 			tvb_get_ntohl(tvb, 12));
 	    }
 	}
     } else {
-	if (check_col(pinfo->fd, COL_INFO))
-	    col_set_str (pinfo->fd, COL_INFO, "Encrypted payload");
+	if (check_col(pinfo->cinfo, COL_INFO))
+	    col_set_str (pinfo->cinfo, COL_INFO, "Encrypted payload");
     }
 }
 

@@ -1,7 +1,7 @@
 /* packet-msnip.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP/MSNIP packet disassembly
  *
- * $Id: packet-msnip.c,v 1.1 2001/06/29 18:55:49 guy Exp $
+ * $Id: packet-msnip.c,v 1.2 2001/12/10 00:25:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -260,17 +260,17 @@ dissect_msnip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int of
 	tree = proto_item_add_subtree(item, ett_msnip);
 
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_set_str(pinfo->fd, COL_PROTOCOL, "MSNIP");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSNIP");
 	}
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
 
 	type = tvb_get_guint8(tvb, offset);
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 			"%s",val_to_str(type, msnip_types, 
 				"Unknown Type:0x%02x"));
 	}

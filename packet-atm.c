@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.38 2001/12/03 03:59:33 guy Exp $
+ * $Id: packet-atm.c,v 1.39 2001/12/10 00:25:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -262,8 +262,8 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 tlv_type;
   guint8 tlv_length;
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_set_str(pinfo->fd, COL_INFO, "LE Control");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_set_str(pinfo->cinfo, COL_INFO, "LE Control");
 
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_atm_lane, tvb, offset, 108, "ATM LANE");
@@ -380,10 +380,10 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t	*next_tvb;
   tvbuff_t	*next_tvb_le_client;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "ATM LANE");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_set_str(pinfo->fd, COL_INFO, "ATM LANE");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM LANE");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_set_str(pinfo->cinfo, COL_INFO, "ATM LANE");
 
   /* Is it LE Control, 802.3, 802.5, or "none of the above"? */
   switch (pinfo->pseudo_header->ngsniffer_atm.AppHLType) {
@@ -603,35 +603,35 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "ATM");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATM");
 
   switch (pinfo->pseudo_header->ngsniffer_atm.channel) {
 
   case 0:
     /* Traffic from DCE to DTE. */
-    if (check_col(pinfo->fd, COL_RES_DL_DST))
-      col_set_str(pinfo->fd, COL_RES_DL_DST, "DTE");
-    if (check_col(pinfo->fd, COL_RES_DL_SRC))
-      col_set_str(pinfo->fd, COL_RES_DL_SRC, "DCE");
+    if (check_col(pinfo->cinfo, COL_RES_DL_DST))
+      col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
+    if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
+      col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
     break;
 
   case 1:
     /* Traffic from DTE to DCE. */
-    if (check_col(pinfo->fd, COL_RES_DL_DST))
-      col_set_str(pinfo->fd, COL_RES_DL_DST, "DCE");
-    if (check_col(pinfo->fd, COL_RES_DL_SRC))
-      col_set_str(pinfo->fd, COL_RES_DL_SRC, "DTE");
+    if (check_col(pinfo->cinfo, COL_RES_DL_DST))
+      col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
+    if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
+      col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
     break;
   }
 
-  if (check_col(pinfo->fd, COL_INFO)) {
+  if (check_col(pinfo->cinfo, COL_INFO)) {
     if (aal_type == ATT_AAL5) {
-      col_add_fstr(pinfo->fd, COL_INFO, "AAL5 %s",
+      col_add_fstr(pinfo->cinfo, COL_INFO, "AAL5 %s",
 		val_to_str(hl_type, aal5_hltype_vals,
 				"Unknown traffic type (%x)"));
     } else {
-      col_add_str(pinfo->fd, COL_INFO,
+      col_add_str(pinfo->cinfo, COL_INFO,
 		val_to_str(aal_type, aal_vals, "Unknown AAL (%x)"));
     }
   }

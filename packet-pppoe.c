@@ -1,7 +1,7 @@
 /* packet-pppoe.c
  * Routines for PPP Over Ethernet (PPPoE) packet disassembly (RFC2516)
  *
- * $Id: packet-pppoe.c,v 1.19 2001/12/03 03:59:38 guy Exp $
+ * $Id: packet-pppoe.c,v 1.20 2001/12/10 00:25:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,11 +162,11 @@ dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	proto_tree  *pppoe_tree;
 	proto_item  *ti;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_set_str(pinfo->fd,COL_PROTOCOL, "PPPoED");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		col_set_str(pinfo->cinfo,COL_PROTOCOL, "PPPoED");
 	}
-	if (check_col(pinfo->fd,COL_INFO)) {
-		col_clear(pinfo->fd,COL_INFO);
+	if (check_col(pinfo->cinfo,COL_INFO)) {
+		col_clear(pinfo->cinfo,COL_INFO);
 	}
 
 	/* Start Decoding Here. */
@@ -175,8 +175,8 @@ dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	pppoe_type = pppoe_ver_type & 0x0f;
 	pppoe_code = tvb_get_guint8(tvb, 1);
 
-	if (check_col(pinfo->fd,COL_INFO)) {
-		col_add_fstr(pinfo->fd,COL_INFO,pppoecode_to_str(pppoe_code,"Unknown code (0x%02x)"));
+	if (check_col(pinfo->cinfo,COL_INFO)) {
+		col_add_fstr(pinfo->cinfo,COL_INFO,pppoecode_to_str(pppoe_code,"Unknown code (0x%02x)"));
 	}
 
 	pppoe_session_id = tvb_get_ntohs(tvb, 2);
@@ -236,11 +236,11 @@ dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	proto_item  *ti;
 	tvbuff_t    *next_tvb;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_set_str(pinfo->fd,COL_PROTOCOL, "PPPoES");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		col_set_str(pinfo->cinfo,COL_PROTOCOL, "PPPoES");
 	}
-	if (check_col(pinfo->fd,COL_INFO)) {
-		col_clear(pinfo->fd,COL_INFO);
+	if (check_col(pinfo->cinfo,COL_INFO)) {
+		col_clear(pinfo->cinfo,COL_INFO);
 	}
 
 	/* Start Decoding Here. */
@@ -249,8 +249,8 @@ dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	pppoe_type = pppoe_ver_type & 0x0f;
 	pppoe_code = tvb_get_guint8(tvb, 1);
 
-	if (check_col(pinfo->fd,COL_INFO)) {
-		col_add_fstr(pinfo->fd,COL_INFO,
+	if (check_col(pinfo->cinfo,COL_INFO)) {
+		col_add_fstr(pinfo->cinfo,COL_INFO,
 		    pppoecode_to_str(pppoe_code,"Unknown code (0x%02x)"));
 	}
 

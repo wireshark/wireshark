@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.18 2001/12/03 03:59:40 guy Exp $
+ * $Id: packet-vrrp.c,v 1.19 2001/12/10 00:25:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -97,14 +97,14 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint8  ver_type;
 	vec_t cksum_vec[1];
 
-        if (check_col(pinfo->fd, COL_PROTOCOL))
-                col_set_str(pinfo->fd, COL_PROTOCOL, "VRRP");
-        if (check_col(pinfo->fd, COL_INFO))
-                col_clear(pinfo->fd, COL_INFO);
+        if (check_col(pinfo->cinfo, COL_PROTOCOL))
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, "VRRP");
+        if (check_col(pinfo->cinfo, COL_INFO))
+                col_clear(pinfo->cinfo, COL_INFO);
         
 	ver_type = tvb_get_guint8(tvb, 0);
-        if (check_col(pinfo->fd, COL_INFO)) {
-                col_add_fstr(pinfo->fd, COL_INFO, "%s (v%u)",
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_add_fstr(pinfo->cinfo, COL_INFO, "%s (v%u)",
                              "Announcement", hi_nibble(ver_type));
         }
 

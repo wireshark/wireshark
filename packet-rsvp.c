@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.48 2001/12/03 03:59:38 guy Exp $
+ * $Id: packet-rsvp.c,v 1.49 2001/12/10 00:25:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -665,15 +665,15 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset2;
     char *objtype;
 
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-        col_set_str(pinfo->fd, COL_PROTOCOL, "RSVP");
-    if (check_col(pinfo->fd, COL_INFO))
-        col_clear(pinfo->fd, COL_INFO);
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "RSVP");
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
 
     ver_flags = tvb_get_guint8(tvb, offset+0);
     message_type = tvb_get_guint8(tvb, offset+1);
-    if (check_col(pinfo->fd, COL_INFO)) {
-        col_add_str(pinfo->fd, COL_INFO,
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_add_str(pinfo->cinfo, COL_INFO,
             val_to_str(message_type, message_type_vals, "Unknown (%u)")); 
     }
 

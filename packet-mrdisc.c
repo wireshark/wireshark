@@ -1,7 +1,7 @@
 /* packet-mrdisc.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP/MRDISC packet disassembly
  *
- * $Id: packet-mrdisc.c,v 1.2 2001/07/16 05:16:57 guy Exp $
+ * $Id: packet-mrdisc.c,v 1.3 2001/12/10 00:25:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -225,17 +225,17 @@ dissect_mrdisc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int o
 	tree = proto_item_add_subtree(item, ett_mrdisc);
 
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_set_str(pinfo->fd, COL_PROTOCOL, "MRDISC");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MRDISC");
 	}
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
 
 	type = tvb_get_guint8(tvb, offset);
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 			"%s",val_to_str(type, mrdisc_types, 
 				"Unknown Type:0x%02x"));
 	}

@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.35 2001/12/03 03:59:35 guy Exp $
+ * $Id: packet-ipsec.c,v 1.36 2001/12/10 00:25:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -119,7 +119,7 @@ dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     next_tvb = tvb_new_subset(tvb, advance, -1, -1);
 
     if (g_ah_payload_in_subtree) {
-	col_set_writable(pinfo->fd, FALSE);
+	col_set_writable(pinfo->cinfo, FALSE);
     }
 
     /* do lookup with the subdissector table */
@@ -137,16 +137,16 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     struct newah ah;
     int advance;
 
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_set_str(pinfo->fd, COL_PROTOCOL, "AH");
-    if (check_col(pinfo->fd, COL_INFO))
-	col_clear(pinfo->fd, COL_INFO);
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "AH");
+    if (check_col(pinfo->cinfo, COL_INFO))
+	col_clear(pinfo->cinfo, COL_INFO);
 
     tvb_memcpy(tvb, (guint8 *)&ah, 0, sizeof(ah)); 
     advance = sizeof(ah) + ((ah.ah_len - 1) << 2);
 
-    if (check_col(pinfo->fd, COL_INFO)) {
-	col_add_fstr(pinfo->fd, COL_INFO, "AH (SPI=0x%08x)",
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_add_fstr(pinfo->cinfo, COL_INFO, "AH (SPI=0x%08x)",
 	    (guint32)ntohl(ah.ah_spi));
     }
 
@@ -204,15 +204,15 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * load the top pane info. This should be overwritten by
      * the next protocol in the stack
      */
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_set_str(pinfo->fd, COL_PROTOCOL, "ESP");
-    if (check_col(pinfo->fd, COL_INFO))
-	col_clear(pinfo->fd, COL_INFO);
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESP");
+    if (check_col(pinfo->cinfo, COL_INFO))
+	col_clear(pinfo->cinfo, COL_INFO);
 
     tvb_memcpy(tvb, (guint8 *)&esp, 0, sizeof(esp)); 
 
-    if (check_col(pinfo->fd, COL_INFO)) {
-	col_add_fstr(pinfo->fd, COL_INFO, "ESP (SPI=0x%08x)",
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_add_fstr(pinfo->cinfo, COL_INFO, "ESP (SPI=0x%08x)",
 	    (guint32)ntohl(esp.esp_spi));
     }
 
@@ -246,20 +246,20 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * load the top pane info. This should be overwritten by
      * the next protocol in the stack
      */
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_set_str(pinfo->fd, COL_PROTOCOL, "IPComp");
-    if (check_col(pinfo->fd, COL_INFO))
-	col_clear(pinfo->fd, COL_INFO);
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPComp");
+    if (check_col(pinfo->cinfo, COL_INFO))
+	col_clear(pinfo->cinfo, COL_INFO);
 
     tvb_memcpy(tvb, (guint8 *)&ipcomp, 0, sizeof(ipcomp)); 
 
-    if (check_col(pinfo->fd, COL_INFO)) {
+    if (check_col(pinfo->cinfo, COL_INFO)) {
 	p = match_strval(ntohs(ipcomp.comp_cpi), cpi2val);
 	if (p == NULL) {
-	    col_add_fstr(pinfo->fd, COL_INFO, "IPComp (CPI=0x%04x)",
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "IPComp (CPI=0x%04x)",
 		ntohs(ipcomp.comp_cpi));
 	} else
-	    col_add_fstr(pinfo->fd, COL_INFO, "IPComp (CPI=%s)", p);
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "IPComp (CPI=%s)", p);
     }
 
     /*

@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.32 2001/12/03 03:59:33 guy Exp $
+ * $Id: packet-aarp.c,v 1.33 2001/12/10 00:25:25 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -145,10 +145,10 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   const guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
 
-  if(check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "AARP");
-  if(check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if(check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AARP");
+  if(check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   ar_hrd = tvb_get_ntohs(tvb, AR_HRD);
   ar_pro = tvb_get_ntohs(tvb, AR_PRO);
@@ -173,22 +173,22 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
   tpa_str = aarpproaddr_to_str(tpa_val, ar_pln, ar_pro);
   
-  if (check_col(pinfo->fd, COL_INFO)) {
+  if (check_col(pinfo->cinfo, COL_INFO)) {
     switch (ar_op) {
       case AARP_REQUEST:
       case AARP_REQUEST_SWAPPED:
-        col_add_fstr(pinfo->fd, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
         break;
       case AARP_REPLY:
       case AARP_REPLY_SWAPPED:
-        col_add_fstr(pinfo->fd, COL_INFO, "%s is at %s", spa_str, sha_str);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s", spa_str, sha_str);
         break;
       case AARP_PROBE:
       case AARP_PROBE_SWAPPED:
-        col_add_fstr(pinfo->fd, COL_INFO, "Is there a %s", tpa_str);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Is there a %s", tpa_str);
         break;
       default:
-        col_add_fstr(pinfo->fd, COL_INFO, "Unknown AARP opcode 0x%04x", ar_op);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown AARP opcode 0x%04x", ar_op);
         break;
     }
   }

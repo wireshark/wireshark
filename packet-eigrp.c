@@ -2,7 +2,7 @@
  * Routines for EIGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id: packet-eigrp.c,v 1.18 2001/12/03 03:59:34 guy Exp $
+ * $Id: packet-eigrp.c,v 1.19 2001/12/10 00:25:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -148,17 +148,17 @@ dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint16 tlv,size, offset = EIGRP_HEADER_LENGTH;
   guint32 ack;
       
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "EIGRP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "EIGRP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   opcode_tmp=opcode=tvb_get_guint8(tvb,1);
   ack = tvb_get_ntohl(tvb,12);
   if (opcode==EIGRP_HELLO) { if (ack == 0) opcode_tmp=EIGRP_HI; else opcode_tmp=EIGRP_ACK; }
   
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_str(pinfo->fd, COL_INFO,
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_str(pinfo->cinfo, COL_INFO,
 	val_to_str(opcode_tmp , eigrp_opcode_vals, "Unknown (0x%04x)"));
 
 

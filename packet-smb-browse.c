@@ -2,7 +2,7 @@
  * Routines for SMB Browser packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.18 2001/11/19 10:23:38 guy Exp $
+ * $Id: packet-smb-browse.c,v 1.19 2001/12/10 00:25:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -460,10 +460,10 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, packet_info *pinfo,
 
 	if (infoflag) {
 		/* Append the type(s) of the system to the COL_INFO line ... */
-		if (check_col(pinfo->fd, COL_INFO)) {
+		if (check_col(pinfo->cinfo, COL_INFO)) {
 			for (i = 0; i < 32; i++) {
 				if (flags & (1<<i)) {
-					col_append_fstr(pinfo->fd, COL_INFO, ", %s",
+					col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 						val_to_str(i, server_types,
 						"Unknown server type:%d"));
 				}
@@ -543,18 +543,18 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	pinfo->current_proto = "BROWSER";
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_set_str(pinfo->fd, COL_PROTOCOL, "BROWSER");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BROWSER");
 	}
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
 	cmd = tvb_get_guint8(tvb, offset);
 
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/* Put in something, and replace it later */
-		col_set_str(pinfo->fd, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
+		col_set_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
 	}
 
 
@@ -586,8 +586,8 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 		/* server name */
 		tvb_get_nstringz0(tvb, offset, 16, host_name);
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_append_fstr(pinfo->fd, COL_INFO, " %s", host_name);
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", host_name);
 		}
 		proto_tree_add_string_format(tree, hf_server_name,
 			tvb, offset, 16,
@@ -770,18 +770,18 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	pinfo->current_proto = "BROWSER";
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_set_str(pinfo->fd, COL_PROTOCOL, "BROWSER");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BROWSER");
 	}
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
 	cmd = tvb_get_guint8(tvb, offset);
 
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/* Put in something, and replace it later */
-		col_set_str(pinfo->fd, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
+		col_set_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
 	}
 
 
@@ -827,8 +827,8 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		/* server name */
 		namelen = tvb_strsize(tvb, offset);
 		host_name = tvb_get_ptr(tvb, offset, namelen);
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_append_fstr(pinfo->fd, COL_INFO, " %s", host_name);
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", host_name);
 		}
 		proto_tree_add_item(tree, hf_server_name,
 			tvb, offset, namelen, TRUE);

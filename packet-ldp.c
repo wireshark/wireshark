@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.22 2001/12/03 03:59:36 guy Exp $
+ * $Id: packet-ldp.c,v 1.23 2001/12/10 00:25:30 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -556,8 +556,8 @@ dissect_ldp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
   guint16        ldp_message = 0;
   guint          pdu_len;
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {  /* Build the tree info ..., this is wrong! FIXME */
 
@@ -621,13 +621,13 @@ dissect_ldp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 
     msg_len = tvb_get_ntohs(tvb, offset + 2);
 
-    if (check_col(pinfo->fd, COL_INFO)) {  /* Check the type ... */
+    if (check_col(pinfo->cinfo, COL_INFO)) {  /* Check the type ... */
 
       if (msg_cnt > 0) 
-	col_append_fstr(pinfo->fd, COL_INFO, ", %s",
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 			val_to_str(ldp_message, ldp_message_types, "Unknown Message (0x%04X)"));
       else
-	col_add_fstr(pinfo->fd, COL_INFO, "%s", 
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", 
 		     val_to_str(ldp_message, ldp_message_types, "Unknown Message (0x%04X)"));
 	
     }
@@ -754,8 +754,8 @@ next:
 static void
 dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "LDP");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_add_str(pinfo->cinfo, COL_PROTOCOL, "LDP");
 
   dissect_ldp_pdu(tvb, 0, pinfo, tree);
 }
@@ -765,8 +765,8 @@ dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int	         offset = 0;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "LDP");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_add_str(pinfo->cinfo, COL_PROTOCOL, "LDP");
 
   while (tvb_reported_length_remaining(tvb, offset) > 0) /* Dissect LDP PDUs */
     offset = dissect_ldp_pdu(tvb, offset, pinfo, tree);

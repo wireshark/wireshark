@@ -2,7 +2,7 @@
  * Routines for Microsoft Proxy packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-msproxy.c,v 1.24 2001/12/03 03:59:37 guy Exp $
+ * $Id: packet-msproxy.c,v 1.25 2001/12/10 00:25:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -226,11 +226,11 @@ static void msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 	redirect_info = conversation_get_proto_data(conversation,
 		proto_msproxy);
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "MS Proxy");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MS Proxy");
 
-	if (check_col(pinfo->fd, COL_INFO))
-		col_set_str(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO,
 			(( redirect_info->proto == PT_TCP) ? "TCP stream" :
 			 "UDP packets"));
 
@@ -1112,10 +1112,10 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	hash_entry_t *hash_info;
 	conversation_t *conversation;
 	
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "MSproxy");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSproxy");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	conversation = find_conversation( &pinfo->src, &pinfo->dst,
 		pinfo->ptype, pinfo->srcport, pinfo->destport, 0);
@@ -1131,15 +1131,15 @@ static void dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			hash_info);
 	}
 
-	if (check_col(pinfo->fd, COL_INFO)){
+	if (check_col(pinfo->cinfo, COL_INFO)){
 	
 		cmd = tvb_get_ntohs( tvb, 36);
 		
 		if ( pinfo->srcport == UDP_PORT_MSPROXY)
-			col_add_fstr( pinfo->fd, COL_INFO, "Server message: %s",
+			col_add_fstr( pinfo->cinfo, COL_INFO, "Server message: %s",
 				get_msproxy_cmd_name( cmd, FROM_SERVER));
 		else
-			col_add_fstr(pinfo->fd, COL_INFO, "Client message: %s",
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Client message: %s",
 				get_msproxy_cmd_name( cmd, FROM_CLIENT));
 		
 	}

@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.21 2001/12/03 03:59:37 guy Exp $
+ * $Id: packet-nntp.c,v 1.22 2001/12/10 00:25:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,10 +65,10 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         else
         	type = "Response";
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "NNTP");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NNTP");
 
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/*
 		 * Put the first line from the buffer into the summary
 		 * (but leave out the line terminator).
@@ -78,7 +78,7 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * "tvb_get_ptr()" call won't throw an exception.
 		 */
 		linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
-		col_add_fstr(pinfo->fd, COL_INFO, "%s: %s", type,
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", type,
 		    tvb_format_text(tvb, offset, linelen));
 	}
 

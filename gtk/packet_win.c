@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.27 2001/12/06 04:25:09 gram Exp $
+ * $Id: packet_win.c,v 1.28 2001/12/10 00:26:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -168,7 +168,7 @@ create_new_window(char *Title, gint tv_size, gint bv_size)
   memcpy(DataPtr->pd, cfile.pd, DataPtr->frame->cap_len);
   proto_tree_is_visible = TRUE;
   DataPtr->edt = epan_dissect_new(&DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame,
-		TRUE);
+		TRUE, &cfile.cinfo);
   proto_tree_is_visible = FALSE;
   DataPtr->main = main_w;
   DataPtr->tv_scrollw = tv_scrollw;

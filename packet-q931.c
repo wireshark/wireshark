@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.32 2001/09/14 07:10:05 guy Exp $
+ * $Id: packet-q931.c,v 1.33 2001/12/10 00:25:32 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -2222,8 +2222,8 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		return FALSE;
 	}
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "Q.931");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Q.931");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_q931, tvb, offset,
@@ -2245,8 +2245,8 @@ q931_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += call_ref_len;
 	}
 	message_type = tvb_get_guint8(tvb, offset);
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_str(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(message_type, q931_message_type_vals,
 		      "Unknown message type (0x%02X)"));
 	}

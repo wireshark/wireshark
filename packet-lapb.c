@@ -2,7 +2,7 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-lapb.c,v 1.31 2001/12/03 03:59:36 guy Exp $
+ * $Id: packet-lapb.c,v 1.32 2001/12/10 00:25:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,30 +56,30 @@ dissect_lapb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8		byte0;
     tvbuff_t		*next_tvb;
 
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_set_str(pinfo->fd, COL_PROTOCOL, "LAPB");
-    if (check_col(pinfo->fd, COL_INFO))
-	col_clear(pinfo->fd, COL_INFO);
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPB");
+    if (check_col(pinfo->cinfo, COL_INFO))
+	col_clear(pinfo->cinfo, COL_INFO);
 
     if (pinfo->pseudo_header->x25.flags & FROM_DCE) {
-	if(check_col(pinfo->fd, COL_RES_DL_DST))
-	    col_set_str(pinfo->fd, COL_RES_DL_DST, "DTE");
-	if(check_col(pinfo->fd, COL_RES_DL_SRC))
-	    col_set_str(pinfo->fd, COL_RES_DL_SRC, "DCE");
+	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
+	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
     }
     else {
-	if(check_col(pinfo->fd, COL_RES_DL_DST))
-	    col_set_str(pinfo->fd, COL_RES_DL_DST, "DCE");
-	if(check_col(pinfo->fd, COL_RES_DL_SRC))
-	    col_set_str(pinfo->fd, COL_RES_DL_SRC, "DTE");
+	if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
+	if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+	    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
     }
 
     byte0 = tvb_get_guint8(tvb, 0);
 
     if (byte0 != 0x01 && byte0 != 0x03) /* invalid LAPB frame */
     {
-	if (check_col(pinfo->fd, COL_INFO))
-	    col_set_str(pinfo->fd, COL_INFO, "Invalid LAPB frame");
+	if (check_col(pinfo->cinfo, COL_INFO))
+	    col_set_str(pinfo->cinfo, COL_INFO, "Invalid LAPB frame");
 	if (tree)
 	    ti = proto_tree_add_protocol_format(tree, proto_lapb, tvb, 0,
 			    tvb_length(tvb), "Invalid LAPB frame");

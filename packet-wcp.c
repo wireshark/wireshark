@@ -2,7 +2,7 @@
  * Routines for Wellfleet Compression frame disassembly
  * Copyright 2001, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-wcp.c,v 1.18 2001/12/03 03:59:42 guy Exp $
+ * $Id: packet-wcp.c,v 1.19 2001/12/10 00:25:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -308,10 +308,10 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	guint16		temp, cmd, ext_cmd, seq;
 	tvbuff_t	*next_tvb;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "WCP");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WCP");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	temp =tvb_get_ntohs(tvb, 0); 
 
@@ -327,10 +327,10 @@ static void dissect_wcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 /*XXX should test seq to be sure it the last + 1 !! */
 
-	if (check_col(pinfo->fd, COL_INFO)){
-		col_add_str(pinfo->fd, COL_INFO, val_to_str(cmd, cmd_string, "Unknown"));
+	if (check_col(pinfo->cinfo, COL_INFO)){
+		col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, cmd_string, "Unknown"));
 		if ( cmd == 0xf)
-			col_append_fstr(pinfo->fd, COL_INFO, ", %s",
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				val_to_str(ext_cmd, ext_cmd_string, "Unknown"));
 	}	
 

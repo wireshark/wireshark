@@ -2,7 +2,7 @@
  * Routines for SMB mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.28 2001/11/28 11:33:54 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.29 2001/12/10 00:25:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,18 +89,18 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 	}
 	pinfo->current_proto = "SMB Mailslot";
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_set_str(pinfo->fd, COL_PROTOCOL, "SMB Mailslot");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMB Mailslot");
 	}
 
 	if ((tvb==NULL) || (tvb_reported_length(tvb)==0)) {
 		/* Interim reply */
-		col_set_str(pinfo->fd, COL_INFO, "Interim reply");
+		col_set_str(pinfo->cinfo, COL_INFO, "Interim reply");
 		return TRUE;
 	}
 
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
 	smb_info = pinfo->private_data;
@@ -143,8 +143,8 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 		/* do the opcode field */
 		opcode = tvb_get_letohs(setup_tvb, offset);
 
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_str(pinfo->fd, COL_INFO,
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_str(pinfo->cinfo, COL_INFO,
 				    val_to_str(opcode, opcode_vals, "Unknown opcode: 0x%04x"));
 		}
 

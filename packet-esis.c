@@ -2,7 +2,7 @@
  * Routines for ISO/OSI End System to Intermediate System  
  * Routing Exchange Protocol ISO 9542.
  *
- * $Id: packet-esis.c,v 1.18 2001/12/03 03:59:34 guy Exp $
+ * $Id: packet-esis.c,v 1.19 2001/12/10 00:25:27 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -291,10 +291,10 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
    u_int       tmp_uint     = 0;
    char       *cksum_status;
 
-   if (check_col(pinfo->fd, COL_PROTOCOL))
-     col_set_str(pinfo->fd, COL_PROTOCOL, "ESIS");
-   if (check_col(pinfo->fd, COL_INFO))
-     col_clear(pinfo->fd, COL_INFO);
+   if (check_col(pinfo->cinfo, COL_PROTOCOL))
+     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESIS");
+   if (check_col(pinfo->cinfo, COL_INFO))
+     col_clear(pinfo->cinfo, COL_INFO);
 
    tvb_memcpy(tvb, (guint8 *)&ehdr, 0, sizeof ehdr);
    
@@ -368,8 +368,8 @@ dissect_esis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     * here.  First, dump the name into info column, and THEN
     * dispatch the sub-type.
     */
-   if (check_col(pinfo->fd, COL_INFO)) {
-     col_add_str(pinfo->fd, COL_INFO, 
+   if (check_col(pinfo->cinfo, COL_INFO)) {
+     col_add_str(pinfo->cinfo, COL_INFO, 
                  val_to_str( ehdr.esis_type&OSI_PDU_TYPE_MASK, esis_vals,
                              "Unknown (0x%x)" ) );
    } 

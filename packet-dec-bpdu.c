@@ -1,7 +1,7 @@
 /* packet-dec-bpdu.c
  * Routines for DEC BPDU (DEC Spanning Tree Protocol) disassembly
  *
- * $Id: packet-dec-bpdu.c,v 1.8 2001/12/03 03:59:34 guy Exp $
+ * $Id: packet-dec-bpdu.c,v 1.9 2001/12/10 00:25:27 guy Exp $
  *
  * Copyright 2001 Paul Ionescu <paul@acorp.ro>
  * 
@@ -77,21 +77,21 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       proto_tree *bpdu_tree;
       proto_item *ti;
 
-      if (check_col(pinfo->fd, COL_PROTOCOL)) {
-	    col_set_str(pinfo->fd, COL_PROTOCOL, "DEC_STP");
+      if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DEC_STP");
       }
-      if (check_col(pinfo->fd, COL_INFO)) {
-	    col_clear(pinfo->fd, COL_INFO);
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_clear(pinfo->cinfo, COL_INFO);
       }
 
       bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);
       flags=tvb_get_guint8(tvb,BPDU_FLAGS);
       
-      if (check_col(pinfo->fd, COL_INFO)) {
+      if (check_col(pinfo->cinfo, COL_INFO)) {
 	    if (bpdu_type == 25)
-		  col_add_fstr(pinfo->fd, COL_INFO, "Hello Packet");
+		  col_add_fstr(pinfo->cinfo, COL_INFO, "Hello Packet");
 	    else if (bpdu_type == 0x02)
-		  col_add_fstr(pinfo->fd, COL_INFO, "Topology Change Notification");
+		  col_add_fstr(pinfo->cinfo, COL_INFO, "Topology Change Notification");
       }
       
       tvb_set_reported_length(tvb, DEC_BPDU_SIZE);

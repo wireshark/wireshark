@@ -1,7 +1,7 @@
 /* packet-beep.c
  * Routines for BEEP packet disassembly
  *
- * $Id: packet-beep.c,v 1.1 2001/12/08 01:45:35 guy Exp $
+ * $Id: packet-beep.c,v 1.2 2001/12/10 00:25:26 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  * Modified 2001 Darren New <dnew@invisible.net> for BEEP.
@@ -906,14 +906,14 @@ dissect_beep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
     }
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "BEEP");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "BEEP");
 
-  if (check_col(pinfo->fd, COL_INFO)) {  /* Check the type ... */
+  if (check_col(pinfo->cinfo, COL_INFO)) {  /* Check the type ... */
 
     /* "tvb_format_text()" is passed a value that won't go past the end
      * of the packet, so it won't throw an exception. */
-    col_add_str(pinfo->fd, COL_INFO, tvb_format_text(tvb, offset, tvb_length_remaining(tvb, offset)));
+    col_add_str(pinfo->cinfo, COL_INFO, tvb_format_text(tvb, offset, tvb_length_remaining(tvb, offset)));
 
   }
 

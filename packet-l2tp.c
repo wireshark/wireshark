@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.28 2001/12/03 03:59:36 guy Exp $
+ * $Id: packet-l2tp.c,v 1.29 2001/12/10 00:25:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -334,16 +334,16 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint16	control;
   tvbuff_t	*next_tvb;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))	/* build output for closed L2tp frame displayed  */
-        col_set_str(pinfo->fd, COL_PROTOCOL, "L2TP"); 
-  if (check_col(pinfo->fd, COL_INFO))
-        col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))	/* build output for closed L2tp frame displayed  */
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "L2TP"); 
+  if (check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
 
   control = tvb_get_ntohs(tvb, 0);
 
   if (L2TP_VERSION(control) != 2) {
-	  if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO, "L2TP Version %u", L2TP_VERSION(control) );
+	  if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "L2TP Version %u", L2TP_VERSION(control) );
 	  }
 	  return;
   }
@@ -361,7 +361,7 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   index += 2;
   cid = tvb_get_ntohs(tvb, index);
 
-  if (check_col(pinfo->fd, COL_INFO)) {
+  if (check_col(pinfo->cinfo, COL_INFO)) {
         if (CONTROL_BIT(control)) {
             /* CONTROL MESSAGE */
             tmp_index = index;
@@ -406,7 +406,7 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                sprintf(textbuffer,"%s            (tunnel id=%d, session id=%d)",
                        data_msg, tid ,cid);
         }
-        col_add_fstr(pinfo->fd,COL_INFO,textbuffer);
+        col_add_fstr(pinfo->cinfo,COL_INFO,textbuffer);
   }
 
   if (LENGTH_BIT(control)) {

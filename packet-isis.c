@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.26 2001/12/03 03:59:36 guy Exp $
+ * $Id: packet-isis.c,v 1.27 2001/12/10 00:25:29 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -127,15 +127,15 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 isis_type;
 	guint8 isis_system_id_len;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "ISIS");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISIS");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	isis_version = tvb_get_guint8(tvb, 2);
 	if (isis_version != ISIS_REQUIRED_VERSION){
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO,
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO,
 				"Unknown ISIS version (%u vs %u)",
 				isis_version, ISIS_REQUIRED_VERSION );
 		}
@@ -179,8 +179,8 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	isis_type_reserved = tvb_get_guint8(tvb, 4);
 	isis_type = isis_type_reserved & ISIS_TYPE_MASK;
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_str(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_str(pinfo->cinfo, COL_INFO,
 			val_to_str ( isis_type, isis_vals, "Unknown (0x%x)" ) );
 	}
 	if (tree) {

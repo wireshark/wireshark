@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.50 2001/12/08 06:41:41 guy Exp $
+ * $Id: packet-null.c,v 1.51 2001/12/10 00:25:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -235,14 +235,14 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* load the top pane info. This should be overwritten by
        the next protocol in the stack */
-    if(check_col(pinfo->fd, COL_RES_DL_SRC))
-      col_set_str(pinfo->fd, COL_RES_DL_SRC, "N/A" );
-    if(check_col(pinfo->fd, COL_RES_DL_DST))
-      col_set_str(pinfo->fd, COL_RES_DL_DST, "N/A" );
-    if(check_col(pinfo->fd, COL_PROTOCOL))
-      col_set_str(pinfo->fd, COL_PROTOCOL, "N/A" );
-    if(check_col(pinfo->fd, COL_INFO))
-      col_set_str(pinfo->fd, COL_INFO, "Null/Loopback" );
+    if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+      col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A" );
+    if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+      col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A" );
+    if(check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "N/A" );
+    if(check_col(pinfo->cinfo, COL_INFO))
+      col_set_str(pinfo->cinfo, COL_INFO, "Null/Loopback" );
 
     /*
      * Treat it as a normal DLT_NULL header.

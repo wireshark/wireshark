@@ -2,7 +2,7 @@
  * Routines for BACnet (NPDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bacnet.c,v 1.7 2001/12/08 06:41:41 guy Exp $
+ * $Id: packet-bacnet.c,v 1.8 2001/12/10 00:25:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -197,11 +197,11 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 j;
 	tvbuff_t *next_tvb;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) 
-		col_set_str(pinfo->fd, COL_PROTOCOL, "BACnet-NPDU");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-NPDU");
 
-	if (check_col(pinfo->fd, COL_INFO)) 
-		col_set_str(pinfo->fd, COL_INFO, "Building Automation and Control Network NPDU");
+	if (check_col(pinfo->cinfo, COL_INFO)) 
+		col_set_str(pinfo->cinfo, COL_INFO, "Building Automation and Control Network NPDU");
 
 	offset = 0;
 	bacnet_version = tvb_get_guint8(tvb, offset);

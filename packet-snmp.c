@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.75 2001/12/03 03:59:39 guy Exp $
+ * $Id: packet-snmp.c,v 1.76 2001/12/10 00:25:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -554,8 +554,8 @@ dissect_snmp_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		break;
 	}
 
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 		    "ERROR: Couldn't parse %s: %s", field_name, errstr);
 	}
 	if (tree != NULL) {
@@ -569,8 +569,8 @@ static void
 dissect_snmp_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		   proto_tree *tree, const char *message)
 {
-	if (check_col(pinfo->fd, COL_INFO))
-		col_add_str(pinfo->fd, COL_INFO, message);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_str(pinfo->cinfo, COL_INFO, message);
 
 	if (tree != NULL) {
 		proto_tree_add_text(tree, tvb, offset, 0, "%s", message);
@@ -1000,8 +1000,8 @@ dissect_common_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	pdu_type_string = val_to_str(pdu_type, pdu_types,
 	    "Unknown PDU type %#x");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_add_str(pinfo->fd, COL_INFO, pdu_type_string);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
 	length = asn1.offset - start;
 	if (tree) {
 		proto_tree_add_text(tree, tvb, offset, length,
@@ -1476,8 +1476,8 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int ret;
 	guint cls, con, tag;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_add_str(pinfo->fd, COL_PROTOCOL, proto_name);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_add_str(pinfo->cinfo, COL_PROTOCOL, proto_name);
 
 	if (tree) {
 		item = proto_tree_add_item(tree, proto, tvb, offset,
@@ -1766,8 +1766,8 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_tree_add_text(snmp_tree, tvb, offset, length,
 			    "Encrypted PDU (%d bytes)", length);
 			g_free(cryptpdu);
-			if (check_col(pinfo->fd, COL_INFO))
-				col_set_str(pinfo->fd, COL_INFO, "Encrypted PDU");
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_set_str(pinfo->cinfo, COL_INFO, "Encrypted PDU");
 			return;
 		}
 		ret = asn1_sequence_decode(&asn1, &global_length, &length);
@@ -1863,8 +1863,8 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int ret;
 	guint cls, con;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "SMUX");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMUX");
 
 	if (tree) {
 		item = proto_tree_add_item(tree, proto, tvb, offset,
@@ -1891,8 +1891,8 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (cls == ASN1_APL && con == ASN1_CON && pdu_type == SMUX_MSG_OPEN) {
 		pdu_type_string = val_to_str(pdu_type, smux_types,
 		    "Unknown PDU type %#x");
-		if (check_col(pinfo->fd, COL_INFO))
-			col_add_str(pinfo->fd, COL_INFO, pdu_type_string);
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
 		length = asn1.offset - start;
 		if (tree) {
 			proto_tree_add_text(smux_tree, tvb, offset, length,
@@ -1960,8 +1960,8 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (cls == ASN1_APL && con == ASN1_PRI && pdu_type == SMUX_MSG_CLOSE) {
 		pdu_type_string = val_to_str(pdu_type, smux_types,
 		    "Unknown PDU type %#x");
-		if (check_col(pinfo->fd, COL_INFO))
-			col_add_str(pinfo->fd, COL_INFO, pdu_type_string);
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
 		length = asn1.offset - start;
 		if (tree) {
 			proto_tree_add_text(smux_tree, tvb, offset, length,
@@ -1986,8 +1986,8 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (cls == ASN1_APL && con == ASN1_CON && pdu_type == SMUX_MSG_RREQ) {
 		pdu_type_string = val_to_str(pdu_type, smux_types,
 		    "Unknown PDU type %#x");
-		if (check_col(pinfo->fd, COL_INFO))
-			col_add_str(pinfo->fd, COL_INFO, pdu_type_string);
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
 		length = asn1.offset - start;
 		if (tree) {
 			proto_tree_add_text(smux_tree, tvb, offset, length,
@@ -2039,8 +2039,8 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (cls == ASN1_APL && con == ASN1_PRI && pdu_type == SMUX_MSG_RRSP) {
 		pdu_type_string = val_to_str(pdu_type, smux_types,
 		    "Unknown PDU type %#x");
-		if (check_col(pinfo->fd, COL_INFO))
-			col_add_str(pinfo->fd, COL_INFO, pdu_type_string);
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
 		length = asn1.offset - start;
 		if (tree) {
 			proto_tree_add_text(smux_tree, tvb, offset, length,
@@ -2065,8 +2065,8 @@ dissect_smux_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (cls == ASN1_APL && con == ASN1_PRI && pdu_type == SMUX_MSG_SOUT) {
 		pdu_type_string = val_to_str(pdu_type, smux_types,
 		    "Unknown PDU type %#x");
-		if (check_col(pinfo->fd, COL_INFO))
-			col_add_str(pinfo->fd, COL_INFO, pdu_type_string);
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_str(pinfo->cinfo, COL_INFO, pdu_type_string);
 		length = asn1.offset - start;
 		if (tree) {
 			proto_tree_add_text(smux_tree, tvb, offset, length,

@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ipx.c,v 1.97 2001/12/08 06:41:41 guy Exp $
+ * $Id: packet-ipx.c,v 1.98 2001/12/10 00:25:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -212,10 +212,10 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	guint16		ipx_dsocket, ipx_ssocket;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "IPX");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Calculate here for use in pinfo and in tree */
 	ipx_dsocket	= tvb_get_ntohs(tvb, 16);
@@ -234,8 +234,8 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	SET_ADDRESS(&pinfo->net_dst,	AT_IPX, 10, dst_net_node);
 	SET_ADDRESS(&pinfo->dst,	AT_IPX, 10, dst_net_node);
 
-	if (check_col(pinfo->fd, COL_INFO))
-		col_add_fstr(pinfo->fd, COL_INFO, "%s (0x%04x)",
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%04x)",
 				socket_text(ipx_dsocket), ipx_dsocket);
 
 	if (tree) {
@@ -337,10 +337,10 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		conn_ctrl;
 	guint8		datastream_type;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "SPX");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_set_str(pinfo->fd, COL_INFO, "SPX");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPX");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "SPX");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_spx, tvb, 0, SPX_HEADER_LEN, FALSE);
@@ -379,16 +379,16 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti;
 	guint8		conn_number, sig_char;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "IPX MSG");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX MSG");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	conn_number = tvb_get_guint8(tvb, 0);
 	sig_char = tvb_get_guint8(tvb, 1);
 
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO, 
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, 
 			"%s, Connection %d", 
 			val_to_str(sig_char, ipxmsg_sigchar_vals, "Unknown Signature Char"), conn_number);
 	}
@@ -418,16 +418,16 @@ dissect_ipxrip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	char		*rip_type[3] = { "Request", "Response", "Unknown" };
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "IPX RIP");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX RIP");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	operation = tvb_get_ntohs(tvb, 0) - 1;
 
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/* rip_types 0 and 1 are valid, anything else becomes 2 or "Unknown" */
-		col_add_str(pinfo->fd, COL_INFO, rip_type[MIN(operation, 2)]);
+		col_add_str(pinfo->cinfo, COL_INFO, rip_type[MIN(operation, 2)]);
 	}
 
 	if (tree) {
@@ -744,20 +744,20 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	char		*sap_type[4] = { "General Query", "General Response",
 		"Nearest Query", "Nearest Response" };
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "IPX SAP");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPX SAP");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	query.query_type = tvb_get_ntohs(tvb, 0);
 	query.server_type = tvb_get_ntohs(tvb, 2);
 
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if (query.query_type >= 1 && query.query_type <= 4) {
-			col_add_str(pinfo->fd, COL_INFO, sap_type[query.query_type - 1]);
+			col_add_str(pinfo->cinfo, COL_INFO, sap_type[query.query_type - 1]);
 		}
 		else {
-			col_set_str(pinfo->fd, COL_INFO, "Unknown Packet Type");
+			col_set_str(pinfo->cinfo, COL_INFO, "Unknown Packet Type");
 		}
 	}
 

@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.53 2001/12/08 21:00:42 guy Exp $
+ * $Id: packet.c,v 1.54 2001/12/10 00:26:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -152,8 +152,10 @@ init_all_protocols(void)
 /* Creates the top-most tvbuff and calls dissect_frame() */
 void
 dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
-	       const u_char *pd, frame_data *fd)
+	       const u_char *pd, frame_data *fd, column_info *cinfo)
 {
+	int i;
+
 	edt->pi.dl_src.type = AT_NONE;
 	edt->pi.dl_dst.type = AT_NONE;
 	edt->pi.net_src.type = AT_NONE;
@@ -174,7 +176,15 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.fd = fd;
 	edt->pi.pseudo_header = pseudo_header;
 
-	col_set_writable(fd, TRUE);
+	edt->pi.cinfo = cinfo;
+	if (cinfo != NULL) {
+		for (i = 0; i < cinfo->num_cols; i++) {
+			cinfo->col_buf[i][0] = '\0';
+			cinfo->col_data[i] = cinfo->col_buf[i];
+		}
+
+		col_set_writable(cinfo, TRUE);
+	}
 
 	TRY {
 		edt->tvb = tvb_new_real_data(pd, fd->cap_len, fd->pkt_len, "Frame");

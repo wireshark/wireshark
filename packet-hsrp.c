@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.19 2001/12/03 03:59:34 guy Exp $
+ * $Id: packet-hsrp.c,v 1.20 2001/12/10 00:25:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,15 +107,15 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         guint8 opcode, state;
 
-        if (check_col(pinfo->fd, COL_PROTOCOL))
-                col_set_str(pinfo->fd, COL_PROTOCOL, "HSRP");
-        if (check_col(pinfo->fd, COL_INFO))
-                col_clear(pinfo->fd, COL_INFO);
+        if (check_col(pinfo->cinfo, COL_PROTOCOL))
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, "HSRP");
+        if (check_col(pinfo->cinfo, COL_INFO))
+                col_clear(pinfo->cinfo, COL_INFO);
         
         opcode = tvb_get_guint8(tvb, 1);
         state = tvb_get_guint8(tvb, 2);
-        if (check_col(pinfo->fd, COL_INFO)) {
-                col_add_fstr(pinfo->fd, COL_INFO, "%s (state %s)",
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_add_fstr(pinfo->cinfo, COL_INFO, "%s (state %s)",
                              val_to_str(opcode, hsrp_opcode_vals, "Unknown"),
                              val_to_str(state, hsrp_state_vals, "Unknown"));
         }

@@ -7,7 +7,7 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.8 2001/12/03 03:59:40 guy Exp $
+ * $Id: packet-tpkt.c,v 1.9 2001/12/10 00:25:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -108,14 +108,14 @@ dissect_tpkt_header( tvbuff_t *tvb, unsigned int* offset, packet_info *pinfo, pr
 
 	pinfo->current_proto = "TPKT";
 
-	if ( check_col( pinfo->fd, COL_PROTOCOL ) ) {
-		col_set_str( pinfo->fd, COL_PROTOCOL, "TPKT" );
+	if ( check_col( pinfo->cinfo, COL_PROTOCOL ) ) {
+		col_set_str( pinfo->cinfo, COL_PROTOCOL, "TPKT" );
 	}
 	
 	data_len = tvb_get_ntohs( tvb, (*offset) + 2 );
 
-	if ( check_col( pinfo->fd, COL_INFO) ) {
-		col_add_fstr( pinfo->fd, COL_INFO, "TPKT Data length = %u",
+	if ( check_col( pinfo->cinfo, COL_INFO) ) {
+		col_add_fstr( pinfo->cinfo, COL_INFO, "TPKT Data length = %u",
 		    data_len );
 	}
 

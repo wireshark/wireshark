@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-nbipx.c,v 1.43 2001/12/03 03:59:37 guy Exp $
+ * $Id: packet-nbipx.c,v 1.44 2001/12/10 00:25:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -223,10 +223,10 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean	has_payload;
 	tvbuff_t	*next_tvb;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "NBIPX");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBIPX");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	if (pinfo->ipxptype == IPX_PACKET_TYPE_WANBCAST) {
 		/*
@@ -288,8 +288,8 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case NBIPX_DEREGISTER_NAME:
 		name_type_flag = tvb_get_guint8(tvb, offset);
 		name_type = get_netbios_name(tvb, offset+2, name);
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO, "%s %s<%02x>",
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s<%02x>",
 				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
 				name, name_type);
 		}
@@ -337,8 +337,8 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case NBIPX_SESSION_DATA:
 	case NBIPX_SESSION_END:
 	case NBIPX_SESSION_END_ACK:
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO, "%s",
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
 				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
 		}
 		dissect_conn_control(tvb, offset, nbipx_tree);
@@ -410,8 +410,8 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	case NBIPX_DIRECTED_DATAGRAM:
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO, "%s",
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
 				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
 		}
 		dissect_conn_control(tvb, offset, nbipx_tree);
@@ -437,8 +437,8 @@ dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	default:
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO, "%s",
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
 				val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"));
 		}
 
@@ -678,10 +678,10 @@ dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		node_name_type = 0;
 	tvbuff_t	*next_tvb;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "NMPI");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NMPI");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nmpi, tvb, offset, 68,
@@ -700,51 +700,51 @@ dissect_nmpi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	name_type = get_netbios_name(tvb, offset+4, name);
 	node_name_type = get_netbios_name(tvb, offset+20, node_name);
 
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		switch (opcode) {
 
 		case INAME_CLAIM:
-			col_add_fstr(pinfo->fd, COL_INFO, "Claim name %s<%02x>",
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Claim name %s<%02x>",
 					name, name_type);
 			break;
 
 		case INAME_DELETE:
-			col_add_fstr(pinfo->fd, COL_INFO, "Delete name %s<%02x>",
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Delete name %s<%02x>",
 					name, name_type);
 			break;
 
 		case INAME_QUERY:
-			col_add_fstr(pinfo->fd, COL_INFO, "Query name %s<%02x>",
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Query name %s<%02x>",
 					name, name_type);
 			break;
 
 		case INAME_FOUND:
-			col_add_fstr(pinfo->fd, COL_INFO, "Name %s<%02x> found",
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Name %s<%02x> found",
 					name, name_type);
 			break;
 
 		case IMSG_HANGUP:
-			col_add_fstr(pinfo->fd, COL_INFO,
+			col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "Messenger hangup on %s<%02x>", name, name_type);
 			break;
 
 		case IMSLOT_SEND:
-			col_add_fstr(pinfo->fd, COL_INFO,
+			col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "Mailslot write to %s<%02x>", name, name_type);
 			break;
 
 		case IMSLOT_FIND:
-			col_add_fstr(pinfo->fd, COL_INFO,
+			col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "Find mailslot name %s<%02x>", name, name_type);
 			break;
 
 		case IMSLOT_NAME:
-			col_add_fstr(pinfo->fd, COL_INFO,
+			col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "Mailslot name %s<%02x> found", name, name_type);
 			break;
 
 		default:
-			col_add_fstr(pinfo->fd, COL_INFO,
+			col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "Unknown NMPI op 0x%02x: name %s<%02x>",
 			    opcode, name, name_type);
 			break;

@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.55 2001/12/03 03:59:35 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.56 2001/12/10 00:25:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -128,7 +128,7 @@ dissect_contained_icmpv6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	   Set the columns non-writable, so that the packet list
 	   shows this as an ICMPv6 packet, not as the type of packet
 	   for which the ICMPv6 packet was generated. */
-	col_set_writable(pinfo->fd, FALSE);
+	col_set_writable(pinfo->cinfo, FALSE);
 
 	/* Also, save the current values of the addresses, and restore
 	   them when we're finished dissecting the contained packet, so
@@ -980,10 +980,10 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int offset;
     tvbuff_t *next_tvb;
 
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_set_str(pinfo->fd, COL_PROTOCOL, "ICMPv6");
-    if (check_col(pinfo->fd, COL_INFO))
-	col_clear(pinfo->fd, COL_INFO);
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMPv6");
+    if (check_col(pinfo->cinfo, COL_INFO))
+	col_clear(pinfo->cinfo, COL_INFO);
 
     offset = 0;
     tvb_memcpy(tvb, (guint8 *)&icmp6_hdr, offset, sizeof icmp6_hdr);
@@ -1139,7 +1139,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
     }
 
-    if (check_col(pinfo->fd, COL_INFO)) {
+    if (check_col(pinfo->cinfo, COL_INFO)) {
 	char typebuf[256], codebuf[256];
 
 	if (coltypename && strcmp(coltypename, "Unknown") == 0) {
@@ -1153,9 +1153,9 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    colcodename = codebuf;
 	}
 	if (colcodename) {
-	    col_add_fstr(pinfo->fd, COL_INFO, "%s (%s)", coltypename, colcodename);
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)", coltypename, colcodename);
 	} else {
-	    col_add_fstr(pinfo->fd, COL_INFO, "%s", coltypename);
+	    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", coltypename);
 	}
     }
 

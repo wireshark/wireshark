@@ -6,7 +6,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sua.c,v 1.3 2001/12/08 06:41:42 guy Exp $
+ * $Id: packet-sua.c,v 1.4 2001/12/10 00:25:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -478,9 +478,9 @@ dissect_sua_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
   message_length = tvb_get_ntohl (common_header_tvb, MESSAGE_LENGTH_OFFSET);
 
-  if (check_col(pinfo->fd, COL_INFO)) {
-    col_append_str(pinfo->fd, COL_INFO, val_to_str(message_class * 256 + message_type, sua_message_class_type_acro_values, "reserved"));
-    col_append_str(pinfo->fd, COL_INFO, " ");
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(message_class * 256 + message_type, sua_message_class_type_acro_values, "reserved"));
+    col_append_str(pinfo->cinfo, COL_INFO, " ");
   };
 
   if (sua_tree) {
@@ -2058,9 +2058,9 @@ dissect_sua_light_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo,
   spare_2           = tvb_get_ntohs(common_header_tvb,  SUAL_SPARE_2_OFFSET);
   message_length    = tvb_get_ntohl(common_header_tvb,  SUAL_MESSAGE_LENGTH_OFFSET);
 
-  if (check_col(pinfo->fd, COL_INFO)) {
-    col_append_str(pinfo->fd, COL_INFO, val_to_str(message_type, sua_light_message_type_acro_values, "Unknown"));
-    col_append_str(pinfo->fd, COL_INFO, " ");
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(message_type, sua_light_message_type_acro_values, "Unknown"));
+    col_append_str(pinfo->cinfo, COL_INFO, " ");
   };
 
   if (sual_tree) {
@@ -2130,12 +2130,12 @@ dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   /* make entry in the Protocol column on summary display */
   switch(sua_version) {
     case IETF_VERSION08:
-      if (check_col(pinfo->fd, COL_PROTOCOL)) 
-        col_set_str(pinfo->fd, COL_PROTOCOL, "SUA");
+      if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SUA");
       break;
     case SIEMENS_VERSION: 
-      if (check_col(pinfo->fd, COL_PROTOCOL)) 
-        col_set_str(pinfo->fd, COL_PROTOCOL, "SUA-Light");
+      if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SUA-Light");
       break;
   }
   

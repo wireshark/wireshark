@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.27 2001/12/03 03:59:38 guy Exp $
+ * $Id: packet-rip.c,v 1.28 2001/12/10 00:25:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -96,19 +96,19 @@ dissect_rip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 version;
     guint16 family;
 
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-        col_set_str(pinfo->fd, COL_PROTOCOL, "RIP");
-    if (check_col(pinfo->fd, COL_INFO))
-        col_clear(pinfo->fd, COL_INFO);
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "RIP");
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
 
     command = tvb_get_guint8(tvb, 0);
     version = tvb_get_guint8(tvb, 1);
   
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-        col_add_str(pinfo->fd, COL_PROTOCOL,
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_add_str(pinfo->cinfo, COL_PROTOCOL,
 		    val_to_str(version, version_vals, "RIP"));
-    if (check_col(pinfo->fd, COL_INFO))
-        col_add_str(pinfo->fd, COL_INFO,
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_add_str(pinfo->cinfo, COL_INFO,
 		    val_to_str(command, command_vals, "Unknown command (%u)"));
 
     if (tree) {

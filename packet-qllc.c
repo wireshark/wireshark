@@ -2,7 +2,7 @@
  * Routines for QLLC protocol - Qualified? LLC
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-qllc.c,v 1.2 2001/11/15 21:32:18 guy Exp $
+ * $Id: packet-qllc.c,v 1.3 2001/12/10 00:25:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,10 +85,10 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean    command = FALSE;
 
 	/* Summary information */
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "QLLC");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "QLLC");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
 		qllc_ti = proto_tree_add_item(tree, proto_qllc, tvb, 0,
@@ -116,8 +116,8 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * a COMMAND or RESPONSE. */
     if (ctrl == QRD_QDISC_VALUE) {
         if (command) {
-            if (check_col(pinfo->fd, COL_INFO)) {
-                col_set_str(pinfo->fd, COL_INFO, QDISC_TEXT);
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_set_str(pinfo->cinfo, COL_INFO, QDISC_TEXT);
             }
             if (tree) {
                 proto_tree_add_text(qllc_tree, tvb,
@@ -125,8 +125,8 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
         }
         else {
-            if (check_col(pinfo->fd, COL_INFO)) {
-                col_set_str(pinfo->fd, COL_INFO, QRD_TEXT);
+            if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_set_str(pinfo->cinfo, COL_INFO, QRD_TEXT);
             }
             if (tree) {
                 proto_tree_add_text(qllc_tree, tvb,
@@ -142,8 +142,8 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     else {
         /* Non-ambiguous control field value */
-        if (check_col(pinfo->fd, COL_INFO)) {
-            col_set_str(pinfo->fd, COL_INFO, 
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+            col_set_str(pinfo->cinfo, COL_INFO, 
                     val_to_str(ctrl, qllc_control_vals,
                         "Control Field: 0x%02x (unknown)"));
         }

@@ -2,7 +2,7 @@
  * Routines for Universal Computer Protocol dissection
  * Copyright 2001, Tom Uijldert <tom.uijldert@cmg.nl>
  *
- * $Id: packet-ucp.c,v 1.7 2001/12/03 08:47:28 guy Exp $
+ * $Id: packet-ucp.c,v 1.8 2001/12/10 00:25:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1596,18 +1596,18 @@ dissect_ucp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     OT  = 10 * OT + (tvb_get_guint8(tvb, UCP_OT_OFFSET + 1) - '0');
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-	    col_set_str(pinfo->fd, COL_PROTOCOL, "UCP");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "UCP");
 
-    if (check_col(pinfo->fd, COL_INFO)) {
-	col_clear(pinfo->fd, COL_INFO);
-	col_append_fstr(pinfo->fd, COL_INFO, "%s (%s)",
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_clear(pinfo->cinfo, COL_INFO);
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
 		     val_to_str(OT,  vals_hdr_OT,  "unknown operation"),
 		     match_strval(O_R, vals_hdr_O_R));
 	if (result == UCP_SHORTENED)
-	    col_append_str(pinfo->fd, COL_INFO, " [short packet]");
+	    col_append_str(pinfo->cinfo, COL_INFO, " [short packet]");
 	else if (result == UCP_INV_CHK)
-	    col_append_str(pinfo->fd, COL_INFO, " [checksum invalid]");
+	    col_append_str(pinfo->cinfo, COL_INFO, " [checksum invalid]");
     }
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not

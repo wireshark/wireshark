@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.45 2001/12/03 03:59:35 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.46 2001/12/10 00:25:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -89,10 +89,6 @@
 #define COOK_FLAGS(x)           (((x) & 0xFF00) >> 8)
 #define COOK_DS_STATUS(x)       ((x) & 0x3)
 #define COOK_WEP_KEY(x)       (((x) & 0xC0) >> 6)
-#define COL_SHOW_INFO(fd,info) if (check_col(fd,COL_INFO)) \
-				col_add_str(fd,COL_INFO,info);
-#define COL_SHOW_INFO_CONST(fd,info) if (check_col(fd,COL_INFO)) \
-				col_set_str(fd,COL_INFO,info);
 
 #define FLAG_TO_DS		0x01
 #define FLAG_FROM_DS		0x02
@@ -1016,22 +1012,22 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 static void
 set_src_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
 {
-  if (check_col(pinfo->fd, COL_RES_DL_SRC))
-    col_add_fstr(pinfo->fd, COL_RES_DL_SRC, "%s (%s)",
+  if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
+    col_add_fstr(pinfo->cinfo, COL_RES_DL_SRC, "%s (%s)",
 		    get_ether_name(addr), type);
-  if (check_col(pinfo->fd, COL_UNRES_DL_SRC))
-    col_add_fstr(pinfo->fd, COL_UNRES_DL_SRC, "%s (%s)",
+  if (check_col(pinfo->cinfo, COL_UNRES_DL_SRC))
+    col_add_fstr(pinfo->cinfo, COL_UNRES_DL_SRC, "%s (%s)",
 		     ether_to_str(addr), type);
 }
 
 static void
 set_dst_addr_cols(packet_info *pinfo, const guint8 *addr, char *type)
 {
-  if (check_col(pinfo->fd, COL_RES_DL_DST))
-    col_add_fstr(pinfo->fd, COL_RES_DL_DST, "%s (%s)",
+  if (check_col(pinfo->cinfo, COL_RES_DL_DST))
+    col_add_fstr(pinfo->cinfo, COL_RES_DL_DST, "%s (%s)",
 		     get_ether_name(addr), type);
-  if (check_col(pinfo->fd, COL_UNRES_DL_DST))
-    col_add_fstr(pinfo->fd, COL_UNRES_DL_DST, "%s (%s)",
+  if (check_col(pinfo->cinfo, COL_UNRES_DL_DST))
+    col_add_fstr(pinfo->cinfo, COL_UNRES_DL_DST, "%s (%s)",
 		     ether_to_str(addr), type);
 }
 
@@ -1054,18 +1050,19 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   guint32 addr_type;
   volatile gboolean is_802_2;
 
-  if (check_col (pinfo->fd, COL_PROTOCOL))
-    col_set_str (pinfo->fd, COL_PROTOCOL, "IEEE 802.11");
-  if (check_col (pinfo->fd, COL_INFO))
-    col_clear (pinfo->fd, COL_INFO);
+  if (check_col (pinfo->cinfo, COL_PROTOCOL))
+    col_set_str (pinfo->cinfo, COL_PROTOCOL, "IEEE 802.11");
+  if (check_col (pinfo->cinfo, COL_INFO))
+    col_clear (pinfo->cinfo, COL_INFO);
 
   fcf = tvb_get_letohs (tvb, 0);
   hdr_len = find_header_length (fcf);
   frame_type_subtype = COMPOSE_FRAME_TYPE(fcf);
 
-  COL_SHOW_INFO_CONST (pinfo->fd,
-      val_to_str(frame_type_subtype, frame_type_subtype_vals,
-          "Unrecognized (Reserved frame)"));
+  if (check_col (pinfo->cinfo, COL_INFO))
+      col_set_str (pinfo->cinfo, COL_INFO,
+          val_to_str(frame_type_subtype, frame_type_subtype_vals,
+              "Unrecognized (Reserved frame)"));
 
   /* Add the FC to the current tree */
   if (tree)

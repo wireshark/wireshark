@@ -10,7 +10,7 @@
  *
  * for information on Modbus/TCP.
  *
- * $Id: packet-mbtcp.c,v 1.6 2001/12/03 03:59:37 guy Exp $
+ * $Id: packet-mbtcp.c,v 1.7 2001/12/10 00:25:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -230,11 +230,11 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		exception_code = 0, exception_returned = 0;
 	
 /* Make entries in Protocol column on summary display */
-	if (check_col(pinfo->fd, COL_PROTOCOL)) 
-		col_set_str(pinfo->fd, COL_PROTOCOL, "Modbus/TCP");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Modbus/TCP");
 
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 /* Make entries in Info column on summary display (updated after building proto tree) */
 	tvb_memcpy(tvb, (guint8 *)&mh, offset, sizeof(mbtcp_hdr));
@@ -246,7 +246,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		exception_returned = 1;
 	}
 	func_string = function_string(mh.mdbs_hdr.function_code);
-	if (check_col(pinfo->fd, COL_INFO))
+	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		packet_type = classify_packet(pinfo);
 		switch ( packet_type ) {
@@ -262,7 +262,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		if ( exception_returned )
 			strcpy(err_str, "Exception returned ");
-		col_add_fstr(pinfo->fd, COL_INFO, 
+		col_add_fstr(pinfo->cinfo, COL_INFO, 
 				"%8s [%2u pkt(s)]: trans: %5u; unit: %3u, func: %3u: %s. %s", 
 				pkt_type_str, 1, mh.transaction_id, (unsigned char) mh.mdbs_hdr.unit_id, 
 				(unsigned char) mh.mdbs_hdr.function_code, func_string, err_str);
@@ -327,7 +327,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	
 /* Update entries in Info column on summary display */
-	if (check_col(pinfo->fd, COL_INFO))
+	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		switch ( packet_type ) {
 			case query_packet : 			strcpy(pkt_type_str, "query");  
@@ -342,7 +342,7 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		if ( exception_returned )
 			strcpy(err_str, "Exception returned ");
-		col_add_fstr(pinfo->fd, COL_INFO, 
+		col_add_fstr(pinfo->cinfo, COL_INFO, 
 				"%8s [%2u pkt(s)]: trans: %5u; unit: %3u, func: %3u: %s. %s", 
 				pkt_type_str, packet_num, mh.transaction_id, (unsigned char) mh.mdbs_hdr.unit_id, 
 				(unsigned char) mh.mdbs_hdr.function_code, func_string, err_str); 

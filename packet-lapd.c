@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-lapd.c,v 1.26 2001/12/03 03:59:36 guy Exp $
+ * $Id: packet-lapd.c,v 1.27 2001/12/10 00:25:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,10 +94,10 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean	is_response;
 	tvbuff_t	*next_tvb;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "LAPD");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LAPD");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	address = tvb_get_ntohs(tvb, 0);
 	cr = address & LAPD_CR;
@@ -106,17 +106,17 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (pinfo->pseudo_header->p2p.sent) {
 		is_response = cr ? TRUE : FALSE;
-		if(check_col(pinfo->fd, COL_RES_DL_DST))
-			col_set_str(pinfo->fd, COL_RES_DL_DST, "Network");
-		if(check_col(pinfo->fd, COL_RES_DL_SRC))
-			col_set_str(pinfo->fd, COL_RES_DL_SRC, "User");
+		if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+			col_set_str(pinfo->cinfo, COL_RES_DL_DST, "Network");
+		if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+			col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "User");
 	}
 	else {
 		is_response = cr ? FALSE : TRUE;
-		if(check_col(pinfo->fd, COL_RES_DL_DST))
-		    col_set_str(pinfo->fd, COL_RES_DL_DST, "User");
-		if(check_col(pinfo->fd, COL_RES_DL_SRC))
-		    col_set_str(pinfo->fd, COL_RES_DL_SRC, "Network");
+		if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+		    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "User");
+		if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+		    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "Network");
 	}
 
 	if (tree) {

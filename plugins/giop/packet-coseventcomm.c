@@ -650,8 +650,8 @@ static gboolean dissect_coseventcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     pinfo->current_proto = "COSEVENTCOMM";
 
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-       col_add_str(pinfo->fd, COL_PROTOCOL, "COSEVENTCOMM");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+       col_add_str(pinfo->cinfo, COL_PROTOCOL, "COSEVENTCOMM");
 
     if (ptree) {
        ti = proto_tree_add_item(ptree, proto_coseventcomm, tvb, *offset, tvb_length(tvb) - *offset, FALSE);

@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.122 2001/12/08 06:41:42 guy Exp $
+ * $Id: packet-tcp.c,v 1.123 2001/12/10 00:25:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -526,11 +526,11 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			 * of the payload, and that's 0).
 			 * Just mark this as TCP.
 			 */
-			if (check_col(pinfo->fd, COL_PROTOCOL)){
-				col_set_str(pinfo->fd, COL_PROTOCOL, "TCP");
+			if (check_col(pinfo->cinfo, COL_PROTOCOL)){
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCP");
 			}
-			if (check_col(pinfo->fd, COL_INFO)){
-				col_set_str(pinfo->fd, COL_INFO, "[Desegmented TCP]");
+			if (check_col(pinfo->cinfo, COL_INFO)){
+				col_set_str(pinfo->cinfo, COL_INFO, "[Desegmented TCP]");
 			}
 		}
 
@@ -548,39 +548,39 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 
 static void
-tcp_info_append_uint(frame_data *fd, const char *abbrev, guint32 val)
+tcp_info_append_uint(packet_info *pinfo, const char *abbrev, guint32 val)
 {
-  if (check_col(fd, COL_INFO))
-    col_append_fstr(fd, COL_INFO, " %s=%u", abbrev, val);
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s=%u", abbrev, val);
 }
 
 static void
 dissect_tcpopt_maxseg(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, frame_data *fd, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
   guint16 mss;
 
   mss = tvb_get_ntohs(tvb, offset + 2);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: %u bytes", optp->name, mss);
-  tcp_info_append_uint(fd, "MSS", mss);
+  tcp_info_append_uint(pinfo, "MSS", mss);
 }
 
 static void
 dissect_tcpopt_wscale(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, frame_data *fd, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
   guint8 ws;
 
   ws = tvb_get_guint8(tvb, offset + 2);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: %u bytes", optp->name, ws);
-  tcp_info_append_uint(fd, "WS", ws);
+  tcp_info_append_uint(pinfo, "WS", ws);
 }
 
 static void
 dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, frame_data *fd, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf;
@@ -611,27 +611,27 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     optlen -= 4;
     proto_tree_add_text(field_tree, tvb, offset,      8,
         "left edge = %u, right edge = %u", leftedge, rightedge);
-    tcp_info_append_uint(fd, "SLE", leftedge);
-    tcp_info_append_uint(fd, "SRE", rightedge);
+    tcp_info_append_uint(pinfo, "SLE", leftedge);
+    tcp_info_append_uint(pinfo, "SRE", rightedge);
     offset += 8;
   }
 }
 
 static void
 dissect_tcpopt_echo(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, frame_data *fd, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
   guint32 echo;
 
   echo = tvb_get_ntohl(tvb, offset + 2);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: %u", optp->name, echo);
-  tcp_info_append_uint(fd, "ECHO", echo);
+  tcp_info_append_uint(pinfo, "ECHO", echo);
 }
 
 static void
 dissect_tcpopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, frame_data *fd, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
   guint32 tsv, tser;
 
@@ -639,20 +639,20 @@ dissect_tcpopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
   tser = tvb_get_ntohl(tvb, offset + 6);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
     "%s: tsval %u, tsecr %u", optp->name, tsv, tser);
-  tcp_info_append_uint(fd, "TSV", tsv);
-  tcp_info_append_uint(fd, "TSER", tser);
+  tcp_info_append_uint(pinfo, "TSV", tsv);
+  tcp_info_append_uint(pinfo, "TSER", tser);
 }
 
 static void
 dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, frame_data *fd, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
   guint32 cc;
 
   cc = tvb_get_ntohl(tvb, offset + 2);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: %u", optp->name, cc);
-  tcp_info_append_uint(fd, "CC", cc);
+  tcp_info_append_uint(pinfo, "CC", cc);
 }
 
 static const ip_tcp_opt tcpopts[] = {
@@ -835,17 +835,17 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint      length_remaining;
   struct tcpinfo tcpinfo;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "TCP");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "TCP");
 
   /* Clear out the Info column. */
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   th_sport = tvb_get_ntohs(tvb, offset);
   th_dport = tvb_get_ntohs(tvb, offset + 2);
-  if (check_col(pinfo->fd, COL_INFO)) {
-    col_append_fstr(pinfo->fd, COL_INFO, "%s > %s",
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s > %s",
       get_tcp_port(th_sport), get_tcp_port(th_dport));
   }
   
@@ -876,7 +876,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   th_flags = tvb_get_guint8(tvb, offset + 13);
   th_win = tvb_get_ntohs(tvb, offset + 14);
   
-  if (check_col(pinfo->fd, COL_INFO) || tree) {  
+  if (check_col(pinfo->cinfo, COL_INFO) || tree) {  
     for (i = 0; i < 8; i++) {
       bpos = 1 << i;
       if (th_flags & bpos) {
@@ -891,8 +891,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     flags[fpos] = '\0';
   }
 
-  if (check_col(pinfo->fd, COL_INFO)) {
-    col_append_fstr(pinfo->fd, COL_INFO, " [%s] Seq=%u Ack=%u Win=%u",
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] Seq=%u Ack=%u Win=%u",
       flags, th_seq, th_ack, th_win);
   }
 
@@ -909,8 +909,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        the tree, before fetching the header length, so that they'll
        show up if this is in the failing packet in an ICMP error packet,
        but it's now time to give up if the header length is bogus. */
-    if (check_col(pinfo->fd, COL_INFO))
-      col_append_fstr(pinfo->fd, COL_INFO, ", bogus TCP header length (%u, must be at least %u)",
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_append_fstr(pinfo->cinfo, COL_INFO, ", bogus TCP header length (%u, must be at least %u)",
         hlen, TCPH_MIN_LEN);
     if (tree) {
       proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, hlen,
@@ -1033,15 +1033,15 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        rlogin. */
     tcpinfo.urgent = TRUE;
     tcpinfo.urgent_pointer = th_urp;
-    if (check_col(pinfo->fd, COL_INFO))
-      col_append_fstr(pinfo->fd, COL_INFO, " Urg=%u", th_urp);
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_append_fstr(pinfo->cinfo, COL_INFO, " Urg=%u", th_urp);
     if (tcp_tree != NULL)
       proto_tree_add_uint(tcp_tree, hf_tcp_urgent_pointer, tvb, offset + 18, 2, th_urp);
   } else
     tcpinfo.urgent = FALSE;
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_append_fstr(pinfo->fd, COL_INFO, " Len=%d", seglen);
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_append_fstr(pinfo->cinfo, COL_INFO, " Len=%d", seglen);
 
   /* Decode TCP options, if any. */
   if (tree && hlen > TCPH_MIN_LEN) {
@@ -1052,7 +1052,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       "Options: (%d bytes)", optlen);
     field_tree = proto_item_add_subtree(tf, ett_tcp_options);
     dissect_ip_tcp_options(tvb, offset + 20, optlen,
-      tcpopts, N_TCP_OPTS, TCPOPT_EOL, pinfo->fd, field_tree);
+      tcpopts, N_TCP_OPTS, TCPOPT_EOL, pinfo, field_tree);
   }
 
   /* Skip over header + options */

@@ -3,7 +3,7 @@
  *
  * Uwe Girlich <uwe@planetquake.com>
  *
- * $Id: packet-quake3.c,v 1.7 2001/12/03 03:59:38 guy Exp $
+ * $Id: packet-quake3.c,v 1.8 2001/12/10 00:25:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -495,8 +495,8 @@ dissect_quake3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	direction = DIR_UNKNOWN;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "QUAKE3");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKE3");
 
 	if (tree) {
 		quake3_item = proto_tree_add_item(tree, proto_quake3,
@@ -516,8 +516,8 @@ dissect_quake3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tvb_get_ntohl(tvb, 0) == 0xffffffff) {
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_set_str(pinfo->fd, COL_INFO, "Connectionless ");
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_set_str(pinfo->cinfo, COL_INFO, "Connectionless ");
 		}
 		if (quake3_tree)
 			proto_tree_add_uint_format(quake3_tree,
@@ -528,8 +528,8 @@ dissect_quake3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb, pinfo, quake3_tree, &direction);
 	}
 	else {
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_set_str(pinfo->fd, COL_INFO, "Game ");
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_set_str(pinfo->cinfo, COL_INFO, "Game ");
 		}
 		if (quake3_tree)
 			proto_tree_add_uint_format(quake3_tree,
@@ -545,8 +545,8 @@ dissect_quake3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					val_to_str(direction,
 						names_direction, "%u"));
 
-	if (check_col(pinfo->fd, COL_INFO))
-		col_append_str(pinfo->fd, COL_INFO, val_to_str(direction,
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_str(pinfo->cinfo, COL_INFO, val_to_str(direction,
 			names_direction, "%u"));
 }
 

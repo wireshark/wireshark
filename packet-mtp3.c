@@ -2,7 +2,7 @@
  * Routines for Message Transfer Part Level 3 dissection
  * Copyright 2001, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-mtp3.c,v 1.6 2001/12/08 06:41:41 guy Exp $
+ * $Id: packet-mtp3.c,v 1.7 2001/12/10 00:25:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -300,10 +300,10 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *mtp3_tree;
 
   /* Make entries in Protocol column and Info column on summary display */
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "MTP3");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */

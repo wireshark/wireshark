@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.31 2001/06/18 02:17:50 guy Exp $
+ * $Id: packet-portmap.c,v 1.32 2001/12/10 00:25:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -239,7 +239,7 @@ int dissect_callit_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Dissect the arguments for this procedure.
 	   Make the columns non-writable, so the dissector won't change
 	   them out from under us. */
-	col_set_writable(pinfo->fd, FALSE);
+	col_set_writable(pinfo->cinfo, FALSE);
 	offset = dissect_rpc_indir_call(tvb, pinfo, tree, offset,
 		hf_portmap_args, prog, vers, proc);
 
@@ -260,7 +260,7 @@ int dissect_callit_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Dissect the result of this procedure.
 	   Make the columns non-writable, so the dissector won't change
 	   them out from under us. */
-	col_set_writable(pinfo->fd, FALSE);
+	col_set_writable(pinfo->cinfo, FALSE);
 	offset = dissect_rpc_indir_reply(tvb, pinfo, tree, offset,
 		hf_portmap_result, hf_portmap_prog, hf_portmap_version,
 		hf_portmap_proc);
@@ -381,7 +381,7 @@ int dissect_rpcb_rmtcallres(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* Dissect the result of this procedure.
 	   Make the columns non-writable, so the dissector won't change
 	   them out from under us. */
-	col_set_writable(pinfo->fd, FALSE);
+	col_set_writable(pinfo->cinfo, FALSE);
 	offset = dissect_rpc_indir_reply(tvb, pinfo, tree, offset,
 		hf_portmap_result, hf_portmap_prog, hf_portmap_version,
 		hf_portmap_proc);

@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.23 2001/12/03 03:59:38 guy Exp $
+ * $Id: packet-rlogin.c,v 1.24 2001/12/10 00:25:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -171,8 +171,8 @@ rlogin_state_machine( rlogin_hash_entry_t *hash_info, tvbuff_t *tvb,
 		tvb_memcpy(tvb, (guint8 *)hash_info->name, 0, stringlen);
 		hash_info->name[stringlen] = '\0';
 		
-		if (check_col(pinfo->fd, COL_INFO))	/* update summary */
-			col_append_str(pinfo->fd, COL_INFO,
+		if (check_col(pinfo->cinfo, COL_INFO))	/* update summary */
+			col_append_str(pinfo->cinfo, COL_INFO,
 			    ", User information");
 	}		
 }
@@ -365,14 +365,14 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			hash_info);
 	}
 	
-	if (check_col(pinfo->fd, COL_PROTOCOL))		/* update protocol  */
-		col_set_str(pinfo->fd, COL_PROTOCOL, "Rlogin");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))		/* update protocol  */
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Rlogin");
 
-	if (check_col(pinfo->fd, COL_INFO)){		/* display packet info*/
+	if (check_col(pinfo->cinfo, COL_INFO)){		/* display packet info*/
 
 		char temp[1000];
 		
-		col_clear(pinfo->fd, COL_INFO);
+		col_clear(pinfo->cinfo, COL_INFO);
 		if ( hash_info->name[0]) {
 			strcpy( temp, "User name: ");
 			strcat( temp, hash_info->name);
@@ -411,7 +411,7 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}		
 
-		col_add_str(pinfo->fd, COL_INFO, temp);
+		col_add_str(pinfo->cinfo, COL_INFO, temp);
 	}
 
 	rlogin_state_machine( hash_info, tvb, pinfo);

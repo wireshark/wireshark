@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.10 2001/12/03 03:59:39 guy Exp $
+ * $Id: packet-ssl.c,v 1.11 2001/12/10 00:25:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -562,14 +562,14 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Initialize the protocol column; we'll set it later when we
      * figure out what flavor of SSL it is (assuming we don't
      * throw an exception before we get the chance to do so). */
-    if (check_col(pinfo->fd, COL_PROTOCOL))
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_set_str(pinfo->fd, COL_PROTOCOL, "SSL");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSL");
     }
 
     /* clear the the info column */
-    if (check_col(pinfo->fd, COL_INFO))
-        col_clear(pinfo->fd, COL_INFO);
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
 
     /* TCP packets and SSL records are orthogonal.
      * A tcp packet may contain multiple ssl records and an ssl
@@ -600,9 +600,9 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * add a delimiter on info column
          */
         if (!first_record_in_frame
-            && check_col(pinfo->fd, COL_INFO))
+            && check_col(pinfo->cinfo, COL_INFO))
         {
-            col_append_str(pinfo->fd, COL_INFO, ", ");
+            col_append_str(pinfo->cinfo, COL_INFO, ", ");
         }
 
         /* first try to dispatch off the cached version
@@ -656,14 +656,14 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  * continuation data
                  */
                 offset = tvb_length(tvb);
-                if (check_col(pinfo->fd, COL_INFO))
-                    col_append_str(pinfo->fd, COL_INFO,
+                if (check_col(pinfo->cinfo, COL_INFO))
+                    col_append_str(pinfo->cinfo, COL_INFO,
                                    "Continuation Data");
 
                 /* Set the protocol column */
-                if (check_col(pinfo->fd, COL_PROTOCOL))
+                if (check_col(pinfo->cinfo, COL_PROTOCOL))
                 {
-                    col_set_str(pinfo->fd, COL_PROTOCOL,
+                    col_set_str(pinfo->cinfo, COL_PROTOCOL,
                          ssl_version_short_names[conv_version]);
                 }
             }
@@ -733,13 +733,13 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
      */
     if (!ssl_is_valid_content_type(content_type))
     {
-        if (check_col(pinfo->fd, COL_INFO))
-            col_append_str(pinfo->fd, COL_INFO, "Continuation Data");
+        if (check_col(pinfo->cinfo, COL_INFO))
+            col_append_str(pinfo->cinfo, COL_INFO, "Continuation Data");
 
         /* Set the protocol column */
-        if (check_col(pinfo->fd, COL_PROTOCOL))
+        if (check_col(pinfo->cinfo, COL_PROTOCOL))
         {
-            col_set_str(pinfo->fd, COL_PROTOCOL,
+            col_set_str(pinfo->cinfo, COL_PROTOCOL,
                         ssl_version_short_names[*conv_version]);
         }
         return offset + 5 + record_length;
@@ -802,21 +802,21 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             ssl_set_conv_version(pinfo, *conv_version);
         }
     }
-    if (check_col(pinfo->fd, COL_PROTOCOL))
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
         if (version == 0x0300)
         {
-            col_set_str(pinfo->fd, COL_PROTOCOL,
+            col_set_str(pinfo->cinfo, COL_PROTOCOL,
                         ssl_version_short_names[SSL_VER_SSLv3]);
         }
         else if (version == 0x0301)
         {
-            col_set_str(pinfo->fd, COL_PROTOCOL,
+            col_set_str(pinfo->cinfo, COL_PROTOCOL,
                         ssl_version_short_names[SSL_VER_TLS]);
         }
         else
         {
-            col_set_str(pinfo->fd, COL_PROTOCOL,
+            col_set_str(pinfo->cinfo, COL_PROTOCOL,
                         ssl_version_short_names[*conv_version]);
         }
     }
@@ -826,8 +826,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
      */
     switch (content_type) {
     case SSL_ID_CHG_CIPHER_SPEC:
-        if (check_col(pinfo->fd, COL_INFO))
-            col_append_str(pinfo->fd, COL_INFO, "Change Cipher Spec");
+        if (check_col(pinfo->cinfo, COL_INFO))
+            col_append_str(pinfo->cinfo, COL_INFO, "Change Cipher Spec");
         dissect_ssl3_change_cipher_spec(tvb, pinfo, ssl_record_tree,
                                         offset, conv_version);
         break;
@@ -840,8 +840,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                                record_length, conv_version);
         break;
     case SSL_ID_APP_DATA:
-        if (check_col(pinfo->fd, COL_INFO))
-            col_append_str(pinfo->fd, COL_INFO, "Application Data");
+        if (check_col(pinfo->cinfo, COL_INFO))
+            col_append_str(pinfo->cinfo, COL_INFO, "Application Data");
         if (ssl_record_tree)
         {
             proto_item_set_text(ssl_record_tree,
@@ -854,8 +854,8 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
     default:
         /* shouldn't get here since we check above for valid types */
-        if (check_col(pinfo->fd, COL_INFO))
-            col_append_str(pinfo->fd, COL_INFO, "Bad SSLv3 Content Type");
+        if (check_col(pinfo->cinfo, COL_INFO))
+            col_append_str(pinfo->cinfo, COL_INFO, "Bad SSLv3 Content Type");
         break;
     }
     offset += record_length; /* skip to end of record */
@@ -922,15 +922,15 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
     /* now set the text in the record layer line */
     if (level && desc)
     {
-        if (check_col(pinfo->fd, COL_INFO))
-            col_append_fstr(pinfo->fd, COL_INFO,
+        if (check_col(pinfo->cinfo, COL_INFO))
+            col_append_fstr(pinfo->cinfo, COL_INFO,
                             "Alert (Level: %s, Description: %s)",
                             level, desc);
     }
     else
     {
-        if (check_col(pinfo->fd, COL_INFO))
-            col_append_str(pinfo->fd, COL_INFO, "Encrypted Alert");
+        if (check_col(pinfo->cinfo, COL_INFO))
+            col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Alert");
     }
 
     if (tree)
@@ -1017,15 +1017,15 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
         /* on second and later iterations, add comma to info col */
         if (!first_iteration)
         {
-            if (check_col(pinfo->fd, COL_INFO))
-                col_append_fstr(pinfo->fd, COL_INFO, ", ");
+            if (check_col(pinfo->cinfo, COL_INFO))
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", ");
         }
 
         /*
          * Update our info string
          */
-        if (check_col(pinfo->fd, COL_INFO))
-            col_append_fstr(pinfo->fd, COL_INFO, "%s", (msg_type_str != NULL)
+        if (check_col(pinfo->cinfo, COL_INFO))
+            col_append_fstr(pinfo->cinfo, COL_INFO, "%s", (msg_type_str != NULL)
                             ? msg_type_str : "Encrypted Handshake Message");
 
         if (tree)
@@ -1522,9 +1522,9 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree
      * conversation, then set a version for just this frame
      * (e.g., on a client hello)
      */
-    if (check_col(pinfo->fd, COL_PROTOCOL))
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
     {
-        col_set_str(pinfo->fd, COL_PROTOCOL, "SSLv2");
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SSLv2");
     }
 
     /* pull first byte; if high bit is set, then record
@@ -1582,14 +1582,14 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             proto_item_set_text(ssl_record_tree, "SSLv2 Record Layer: %s",
                                 "Encrypted Data");
         }
-        if (check_col(pinfo->fd, COL_INFO))
-            col_append_str(pinfo->fd, COL_INFO, "Encrypted Data");
+        if (check_col(pinfo->cinfo, COL_INFO))
+            col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Data");
         return initial_offset + record_length_length + record_length;
     }
     else
     {
-        if (check_col(pinfo->fd, COL_INFO))
-            col_append_str(pinfo->fd, COL_INFO, msg_type_str);
+        if (check_col(pinfo->cinfo, COL_INFO))
+            col_append_str(pinfo->cinfo, COL_INFO, msg_type_str);
 
         if (ssl_record_tree)
         {

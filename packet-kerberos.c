@@ -3,7 +3,7 @@
  * Wes Hardaker (c) 2000
  * wjhardaker@ucdavis.edu
  *
- * $Id: packet-kerberos.c,v 1.18 2001/12/03 03:59:36 guy Exp $
+ * $Id: packet-kerberos.c,v 1.19 2001/12/10 00:25:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -395,14 +395,14 @@ krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
    start = asn1p->offset; \
    ret = asn1_header_decode (asn1p, &cls, &con, &tag, &def, &item_len); \
    if (ret != ASN1_ERR_NOERROR) {\
-       if (check_col(pinfo->fd, COL_INFO)) \
-           col_add_fstr(pinfo->fd, COL_INFO, "ERROR: Problem at %s: %s", \
+       if (check_col(pinfo->cinfo, COL_INFO)) \
+           col_add_fstr(pinfo->cinfo, COL_INFO, "ERROR: Problem at %s: %s", \
                     token, to_error_str(ret)); \
        return -1; \
    } \
    if (!def) {\
-       if (check_col(pinfo->fd, COL_INFO)) \
-           col_add_fstr(pinfo->fd, COL_INFO, "not definite: %s", token); \
+       if (check_col(pinfo->cinfo, COL_INFO)) \
+           col_add_fstr(pinfo->cinfo, COL_INFO, "not definite: %s", token); \
        fprintf(stderr,"not definite: %s\n", token); \
        return -1; \
    } \
@@ -424,8 +424,8 @@ krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
 
 #define DIE_WITH_BAD_TYPE(token, expected_tag) \
     { \
-      if (check_col(pinfo->fd, COL_INFO)) \
-         col_add_fstr(pinfo->fd, COL_INFO, "ERROR: Problem at %s: %s (tag=%d exp=%d)", \
+      if (check_col(pinfo->cinfo, COL_INFO)) \
+         col_add_fstr(pinfo->cinfo, COL_INFO, "ERROR: Problem at %s: %s (tag=%d exp=%d)", \
                       token, to_error_str(ASN1_ERR_WRONG_TYPE), tag, expected_tag); \
       return -1; \
     }
@@ -441,8 +441,8 @@ krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
 #define KRB_SEQ_HEAD_DECODE_OR_DIE(token) \
    ret = asn1_sequence_decode (asn1p, &item_len, &header_len); \
    if (ret != ASN1_ERR_NOERROR) {\
-       if (check_col(pinfo->fd, COL_INFO)) \
-           col_add_fstr(pinfo->fd, COL_INFO, "ERROR: Problem at %s: %s", \
+       if (check_col(pinfo->cinfo, COL_INFO)) \
+           col_add_fstr(pinfo->cinfo, COL_INFO, "ERROR: Problem at %s: %s", \
                     token, to_error_str(ret)); \
        return -1; \
    } \
@@ -451,8 +451,8 @@ krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
 #define KRB_DECODE_OR_DIE(token, fn, val) \
     ret = fn (asn1p, &val, &length); \
     if (ret != ASN1_ERR_NOERROR) { \
-       if (check_col(pinfo->fd, COL_INFO)) \
-         col_add_fstr(pinfo->fd, COL_INFO, "ERROR: Problem at %s: %s", \
+       if (check_col(pinfo->cinfo, COL_INFO)) \
+         col_add_fstr(pinfo->cinfo, COL_INFO, "ERROR: Problem at %s: %s", \
                      token, to_error_str(ret)); \
         return -1; \
     } \
@@ -463,8 +463,8 @@ krb_proto_tree_add_time(proto_tree *tree, tvbuff_t *tvb, int offset,
 #define KRB_DECODE_STRING_OR_DIE(token, expected_tag, val, val_len, item_len) \
     ret = asn1_string_decode (asn1p, &val, &val_len, &item_len, expected_tag); \
     if (ret != ASN1_ERR_NOERROR) { \
-       if (check_col(pinfo->fd, COL_INFO)) \
-         col_add_fstr(pinfo->fd, COL_INFO, "ERROR: Problem at %s: %s", \
+       if (check_col(pinfo->cinfo, COL_INFO)) \
+         col_add_fstr(pinfo->cinfo, COL_INFO, "ERROR: Problem at %s: %s", \
                      token, to_error_str(ret)); \
         return -1; \
     }
@@ -607,8 +607,8 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     offset += length;
 
-    if (check_col(pinfo->fd, COL_INFO))
-        col_add_str(pinfo->fd, COL_INFO, val_to_str(msg_type, krb5_msg_types,
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_add_str(pinfo->cinfo, COL_INFO, val_to_str(msg_type, krb5_msg_types,
                                              "Unknown msg type %#x"));
 
         /* is preauthentication present? */
@@ -1025,8 +1025,8 @@ dissect_kerberos_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_kerberos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-        col_set_str(pinfo->fd, COL_PROTOCOL, "KRB5");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "KRB5");
 
     dissect_kerberos_main(tvb, pinfo, tree);
 }

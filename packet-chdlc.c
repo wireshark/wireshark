@@ -1,7 +1,7 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.8 2001/12/08 06:41:41 guy Exp $
+ * $Id: packet-chdlc.c,v 1.9 2001/12/10 00:25:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -133,8 +133,8 @@ chdlctype(guint16 chdlctype, tvbuff_t *tvb, int offset_after_chdlctype,
 
   /* do lookup with the subdissector table */
   if (!dissector_try_port(subdissector_table, chdlctype, next_tvb, pinfo, tree)) {
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-      col_add_fstr(pinfo->fd, COL_PROTOCOL, "0x%04x", chdlctype);
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", chdlctype);
     call_dissector(data_handle,next_tvb, pinfo, tree);
   }
 }
@@ -147,14 +147,14 @@ dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8     addr;
   guint16    proto;
 
-  if (check_col(pinfo->fd, COL_RES_DL_SRC))
-    col_set_str(pinfo->fd, COL_RES_DL_SRC, "N/A");
-  if (check_col(pinfo->fd, COL_RES_DL_DST))
-    col_set_str(pinfo->fd, COL_RES_DL_DST, "N/A");
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "CHDLC");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_RES_DL_SRC))
+    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A");
+  if (check_col(pinfo->cinfo, COL_RES_DL_DST))
+    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "CHDLC");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   addr = tvb_get_guint8(tvb, 0);
   proto = tvb_get_ntohs(tvb, 2);
@@ -225,10 +225,10 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 mysequence;
   guint32 yoursequence;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "SLARP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SLARP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   code = tvb_get_ntohl(tvb, 0);
 
@@ -241,8 +241,8 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   case SLARP_REQUEST:
   case SLARP_REPLY:
-    if (check_col(pinfo->fd, COL_INFO)) {
-      col_add_fstr(pinfo->fd, COL_INFO, "%s, from %s, mask %s",
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s, from %s, mask %s",
         match_strval(code, slarp_ptype_vals),
         get_hostname(htonl(tvb_get_ntohl(tvb, 4))),
         ip_to_str(tvb_get_ptr(tvb, 8, 4)));
@@ -258,8 +258,8 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case SLARP_LINECHECK:
     mysequence = tvb_get_ntohl(tvb, 4);
     yoursequence = tvb_get_ntohl(tvb, 8);
-    if (check_col(pinfo->fd, COL_INFO)) {
-      col_add_fstr(pinfo->fd, COL_INFO,
+    if (check_col(pinfo->cinfo, COL_INFO)) {
+      col_add_fstr(pinfo->cinfo, COL_INFO,
         "%s, outgoing sequence %u, returned sequence %u",
 	match_strval(code, slarp_ptype_vals),
         mysequence, yoursequence);
@@ -274,8 +274,8 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     break;
 
   default:
-    if (check_col(pinfo->fd, COL_INFO))
-      col_add_fstr(pinfo->fd, COL_INFO, "Unknown packet type 0x%08X", code);
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown packet type 0x%08X", code);
     if (tree) {
       proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
       call_dissector(data_handle,tvb_new_subset(tvb, 4,-1,tvb_reported_length_remaining(tvb,4)), pinfo, slarp_tree);

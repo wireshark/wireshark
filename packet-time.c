@@ -3,7 +3,7 @@
  *
  * Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-time.c,v 1.15 2001/12/03 03:59:40 guy Exp $
+ * $Id: packet-time.c,v 1.16 2001/12/10 00:25:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -45,11 +45,11 @@ dissect_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree	*time_tree;
   proto_item	*ti;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "TIME");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "TIME");
   
-  if (check_col(pinfo->fd, COL_INFO)) {
-    col_add_fstr(pinfo->fd, COL_INFO, "TIME %s",
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_fstr(pinfo->cinfo, COL_INFO, "TIME %s",
 		 pinfo->srcport == pinfo->match_port ? "Response":"Request");
   }
   

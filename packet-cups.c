@@ -5,7 +5,7 @@
 * Charles Levert <charles@comm.polymtl.ca>
 * Copyright 2001 Charles Levert
 *
-* $Id: packet-cups.c,v 1.7 2001/12/03 03:59:34 guy Exp $
+* $Id: packet-cups.c,v 1.8 2001/12/10 00:25:27 guy Exp $
 * 
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -164,10 +164,10 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	cups_ptype_t	ptype;
 	unsigned int	state;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, PROTO_TAG_CUPS);
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, PROTO_TAG_CUPS);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_cups, tvb, offset,
@@ -222,8 +222,8 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(cups_tree, tvb, offset, len,
 		    "URI: %.*s",
 		    (guint16) len, str);
-	if (check_col(pinfo->fd, COL_INFO))
-		col_add_fstr(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO,
 		    "%.*s (%s)",
 		    (guint16) len, str,
 		    val_to_str(state, cups_state_values, "0x%x"));

@@ -2,7 +2,7 @@
  * Routines for SNA
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-sna.c,v 1.35 2001/12/03 03:59:39 guy Exp $
+ * $Id: packet-sna.c,v 1.36 2001/12/10 00:25:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -328,10 +328,10 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		sna_header_len = 0, th_header_len = 0;
 	int		offset;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "SNA");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SNA");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	/* SNA data should be printed in EBCDIC, not ASCII */
 	pinfo->fd->flags.encoding = CHAR_EBCDIC;
@@ -340,8 +340,8 @@ dissect_sna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	th_fid = hi_nibble(tvb_get_guint8(tvb, 0));
 
 	/* Summary information */
-	if (check_col(pinfo->fd, COL_INFO))
-		col_add_str(pinfo->fd, COL_INFO,
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_str(pinfo->cinfo, COL_INFO,
 				val_to_str(th_fid, sna_th_fid_vals, "Unknown FID: %01x"));
 
 	if (tree) {

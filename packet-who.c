@@ -2,7 +2,7 @@
  * Routines for who protocol (see man rwhod)
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-who.c,v 1.20 2001/12/03 03:59:42 guy Exp $
+ * $Id: packet-who.c,v 1.21 2001/12/10 00:25:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -104,10 +104,10 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	nstime_t	ts;
 
 	/* Summary information */
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "WHO");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WHO");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	ts.nsecs = 0;
 
@@ -167,8 +167,8 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 4;
 
 	/* Summary information */
-	if (check_col(pinfo->fd, COL_INFO))
-		col_add_fstr(pinfo->fd, COL_INFO, "%s: %.02f %.02f %.02f",
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %.02f %.02f %.02f",
 				server_name, loadav_5, loadav_10, loadav_15);
 
 	if (tree) {

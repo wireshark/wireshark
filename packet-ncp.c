@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.51 2001/12/03 03:59:37 guy Exp $
+ * $Id: packet-ncp.c,v 1.52 2001/12/10 00:25:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -260,10 +260,10 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int				commhdr;
 	tvbuff_t       			*next_tvb;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "NCP");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "NCP");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	if ( pinfo->ptype == PT_TCP || pinfo->ptype == PT_UDP ) {
 		ncpiph.signature	= tvb_get_ntohl(tvb, 0);
@@ -320,8 +320,8 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			header.type == 0x7777 ||
 			header.type == 0x9999		) {
 
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO, "Type 0x%04x", header.type);
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Type 0x%04x", header.type);
 		}
 
 		if (tree) {

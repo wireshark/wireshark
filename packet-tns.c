@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.23 2001/12/03 03:59:40 guy Exp $
+ * $Id: packet-tns.c,v 1.24 2001/12/10 00:25:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -210,15 +210,15 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	offset += 2;
 
-	if ( check_col(pinfo->fd, COL_INFO) )
+	if ( check_col(pinfo->cinfo, COL_INFO) )
 	{
 		if ( is_sns )
 		{
-			col_append_fstr(pinfo->fd, COL_INFO, ", SNS");
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", SNS");
 		}
 		else
 		{
-			col_append_fstr(pinfo->fd, COL_INFO, ", Data");
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", Data");
 		}	
 	}
 	
@@ -248,9 +248,9 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    0, 0, TRUE);
 	}
 		
-	if ( check_col(pinfo->fd, COL_INFO) )
+	if ( check_col(pinfo->cinfo, COL_INFO) )
 	{
-		col_append_str(pinfo->fd, COL_INFO, ", Connect");
+		col_append_str(pinfo->cinfo, COL_INFO, ", Connect");
 	}
 
 	if ( connect_tree )
@@ -396,9 +396,9 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    0, 0, TRUE);
 	}
 		
-	if ( check_col(pinfo->fd, COL_INFO) )
+	if ( check_col(pinfo->cinfo, COL_INFO) )
 	{
-		col_append_str(pinfo->fd, COL_INFO, ", Accept");
+		col_append_str(pinfo->cinfo, COL_INFO, ", Accept");
 	}
 
 	if ( accept_tree )
@@ -492,9 +492,9 @@ static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    0, 0, TRUE);
 	}
 		
-	if ( check_col(pinfo->fd, COL_INFO) )
+	if ( check_col(pinfo->cinfo, COL_INFO) )
 	{
-		col_append_str(pinfo->fd, COL_INFO, ", Refuse");
+		col_append_str(pinfo->cinfo, COL_INFO, ", Refuse");
 	}
 
 	if ( refuse_tree )
@@ -543,9 +543,9 @@ static void dissect_tns_abort(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    0, 0, TRUE);
 	}
 		
-	if ( check_col(pinfo->fd, COL_INFO) )
+	if ( check_col(pinfo->cinfo, COL_INFO) )
 	{
-		col_append_str(pinfo->fd, COL_INFO, ", Abort");
+		col_append_str(pinfo->cinfo, COL_INFO, ", Abort");
 	}
 
 	if ( abort_tree )
@@ -595,15 +595,15 @@ static void dissect_tns_marker(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    0, 0, TRUE);
 	}
 		
-	if ( check_col(pinfo->fd, COL_INFO) )
+	if ( check_col(pinfo->cinfo, COL_INFO) )
 	{
 		if ( is_attention )
 		{
-			col_append_str(pinfo->fd, COL_INFO, ", Marker");
+			col_append_str(pinfo->cinfo, COL_INFO, ", Marker");
 		}
 		else
 		{
-			col_append_str(pinfo->fd, COL_INFO, ", Attention");
+			col_append_str(pinfo->cinfo, COL_INFO, ", Attention");
 		}
 	}
 
@@ -646,9 +646,9 @@ static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    0, 0, TRUE);
 	}
 		
-	if ( check_col(pinfo->fd, COL_INFO) )
+	if ( check_col(pinfo->cinfo, COL_INFO) )
 	{
-		col_append_str(pinfo->fd, COL_INFO, ", Redirect");
+		col_append_str(pinfo->cinfo, COL_INFO, ", Redirect");
 	}
 
 	if ( redirect_tree )
@@ -682,9 +682,9 @@ static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    0, 0, TRUE);
 	}
 		
-	if ( check_col(pinfo->fd, COL_INFO) )
+	if ( check_col(pinfo->cinfo, COL_INFO) )
 	{
-		col_append_str(pinfo->fd, COL_INFO, ", Control");
+		col_append_str(pinfo->cinfo, COL_INFO, ", Control");
 	}
 
 	if ( control_tree )
@@ -713,12 +713,12 @@ dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 length;
 	guint16 type;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "TNS");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TNS");
 
-	if (check_col(pinfo->fd, COL_INFO))
+	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-		col_add_str(pinfo->fd, COL_INFO,
+		col_add_str(pinfo->cinfo, COL_INFO,
 			(pinfo->match_port == pinfo->destport) ? "Request" : "Response");	  
 	}
 
@@ -763,9 +763,9 @@ dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	offset += 1;
 
-	if ( check_col(pinfo->fd, COL_INFO))
+	if ( check_col(pinfo->cinfo, COL_INFO))
 	{
-		col_append_fstr(pinfo->fd, COL_INFO, ", %s (%u)",
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s (%u)",
 			val_to_str(type, tns_type_vals, "Unknown"), type);
 	}
 

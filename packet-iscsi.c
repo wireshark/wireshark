@@ -4,7 +4,7 @@
  *
  * Conforms to the protocol described in: draft-ietf-ips-iscsi-08.txt
  *
- * $Id: packet-iscsi.c,v 1.17 2001/11/04 02:50:19 guy Exp $
+ * $Id: packet-iscsi.c,v 1.18 2001/12/10 00:25:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -685,12 +685,12 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     guint end_offset = offset + tvb_length_remaining(tvb, offset);
 
     /* Make entries in Protocol column and Info column on summary display */
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_set_str(pinfo->fd, COL_PROTOCOL, "iSCSI");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "iSCSI");
 
-    if (check_col(pinfo->fd, COL_INFO)) {
+    if (check_col(pinfo->cinfo, COL_INFO)) {
 
-	col_append_str(pinfo->fd, COL_INFO, (char *)opcode_str);
+	col_append_str(pinfo->cinfo, COL_INFO, (char *)opcode_str);
 
 	if((opcode & ~(X_BIT | I_BIT)) == ISCSI_OPCODE_SCSI_COMMAND) {
 	    /* SCSI Command */
@@ -700,16 +700,16 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		/* READ_6 and WRITE_6 */
 		guint lba = tvb_get_ntohl(tvb, cdb_offset) & 0x1fffff;
 		guint len = tvb_get_guint8(tvb, cdb_offset + 4);
-		col_append_fstr(pinfo->fd, COL_INFO, " (%s LBA 0x%06x len 0x%02x)", scsi_command_name, lba, len);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s LBA 0x%06x len 0x%02x)", scsi_command_name, lba, len);
 	    }
 	    else if(cdb0 == 0x28 || cdb0 == 0x2a) {
 		/* READ_10 and WRITE_10 */
 		guint lba = tvb_get_ntohl(tvb, cdb_offset + 2);
 		guint len = tvb_get_ntohs(tvb, cdb_offset + 7);
-		col_append_fstr(pinfo->fd, COL_INFO, " (%s LBA 0x%08x len 0x%04x)", scsi_command_name, lba, len);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s LBA 0x%08x len 0x%04x)", scsi_command_name, lba, len);
 	    }
 	    else if(scsi_command_name != NULL)
-		col_append_fstr(pinfo->fd, COL_INFO, " (%s)", scsi_command_name);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", scsi_command_name);
 	}
 	else if(opcode == ISCSI_OPCODE_SCSI_RESPONSE) {
 	    /* SCSI Command Response */
@@ -722,7 +722,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    else
 		blurb = "Target Failure";
 	    if(blurb != NULL)
-		col_append_fstr(pinfo->fd, COL_INFO, " (%s)", blurb);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", blurb);
 	}
     }
 
@@ -1228,11 +1228,11 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		}
 	    }
 
-	    if(check_col(pinfo->fd, COL_INFO)) {
+	    if(check_col(pinfo->cinfo, COL_INFO)) {
 		if(iSCSIPdusDissected == 0)
-		    col_set_str(pinfo->fd, COL_INFO, "");
+		    col_set_str(pinfo->cinfo, COL_INFO, "");
 		else
-		    col_append_str(pinfo->fd, COL_INFO, ", ");
+		    col_append_str(pinfo->cinfo, COL_INFO, ", ");
 	    }
 
 	    dissect_iscsi_pdu(tvb, pinfo, tree, offset, opcode, opcode_str, data_segment_len);

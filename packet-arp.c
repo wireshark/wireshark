@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.47 2001/12/03 03:59:33 guy Exp $
+ * $Id: packet-arp.c,v 1.48 2001/12/10 00:25:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -481,41 +481,41 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_tpln);
   tpa_str = arpproaddr_to_str(tpa_val, ar_tpln, ar_pro);
 
-  if (check_col(pinfo->fd, COL_PROTOCOL)) {
+  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
     switch (ar_op) {
 
     case ARPOP_REQUEST:
     case ARPOP_REPLY:
     case ATMARPOP_NAK:
     default:
-      col_set_str(pinfo->fd, COL_PROTOCOL, "ATMARP");
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATMARP");
       break;
 
     case ARPOP_RREQUEST:
     case ARPOP_RREPLY:
-      col_set_str(pinfo->fd, COL_PROTOCOL, "ATMRARP");
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATMRARP");
       break;
 
     case ARPOP_IREQUEST:
     case ARPOP_IREPLY:
-      col_set_str(pinfo->fd, COL_PROTOCOL, "Inverse ATMARP");
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "Inverse ATMARP");
       break;
     }
   }
 
-  if (check_col(pinfo->fd, COL_INFO)) {
+  if (check_col(pinfo->cinfo, COL_INFO)) {
     switch (ar_op) {
       case ARPOP_REQUEST:
-        col_add_fstr(pinfo->fd, COL_INFO, "Who has %s?  Tell %s",
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
 		tpa_str, spa_str);
         break;
       case ARPOP_REPLY:
-        col_add_fstr(pinfo->fd, COL_INFO, "%s is at %s%s%s", spa_str, sha_str,
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s%s%s", spa_str, sha_str,
 		((ssa_str != NULL) ? "," : ""),
 		((ssa_str != NULL) ? ssa_str : ""));
         break;
       case ARPOP_IREQUEST:
-        col_add_fstr(pinfo->fd, COL_INFO, "Who is %s%s%s?  Tell %s%s%s",
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s%s%s?  Tell %s%s%s",
 		tha_str,
 		((tsa_str != NULL) ? "," : ""),
 		((tsa_str != NULL) ? tsa_str : ""),
@@ -524,17 +524,17 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		((ssa_str != NULL) ? ssa_str : ""));
         break;
       case ARPOP_IREPLY:
-        col_add_fstr(pinfo->fd, COL_INFO, "%s%s%s is at %s",
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s%s is at %s",
 		sha_str,
 		((ssa_str != NULL) ? "," : ""),
 		((ssa_str != NULL) ? ssa_str : ""),
 		spa_str);
         break;
       case ATMARPOP_NAK:
-        col_add_fstr(pinfo->fd, COL_INFO, "I don't know where %s is", spa_str);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "I don't know where %s is", spa_str);
         break;
       default:
-        col_add_fstr(pinfo->fd, COL_INFO, "Unknown ATMARP opcode 0x%04x", ar_op);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ATMARP opcode 0x%04x", ar_op);
         break;
     }
   }
@@ -655,10 +655,10 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
      Clear the Info column so that, if we throw an exception, it
      shows up as a short or malformed ARP frame. */
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-      col_set_str(pinfo->fd, COL_PROTOCOL, "ARP");
-  if (check_col(pinfo->fd, COL_INFO))
-      col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+      col_clear(pinfo->cinfo, COL_INFO);
 
   ar_hrd = tvb_get_ntohs(tvb, AR_HRD);
   if (ar_hrd == ARPHRD_ATM2225) {
@@ -694,45 +694,45 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_pln);
   tpa_str = arpproaddr_to_str(tpa_val, ar_pln, ar_pro);
   
-  if (check_col(pinfo->fd, COL_PROTOCOL)) {
+  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
     switch (ar_op) {
 
     case ARPOP_REQUEST:
     case ARPOP_REPLY:
     default:
-      col_set_str(pinfo->fd, COL_PROTOCOL, "ARP");
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARP");
       break;
 
     case ARPOP_RREQUEST:
     case ARPOP_RREPLY:
-      col_set_str(pinfo->fd, COL_PROTOCOL, "RARP");
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "RARP");
       break;
 
     case ARPOP_IREQUEST:
     case ARPOP_IREPLY:
-      col_set_str(pinfo->fd, COL_PROTOCOL, "Inverse ARP");
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "Inverse ARP");
       break;
     }
   }
 
-  if (check_col(pinfo->fd, COL_INFO)) {
+  if (check_col(pinfo->cinfo, COL_INFO)) {
     switch (ar_op) {
       case ARPOP_REQUEST:
-        col_add_fstr(pinfo->fd, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s", tpa_str, spa_str);
         break;
       case ARPOP_REPLY:
-        col_add_fstr(pinfo->fd, COL_INFO, "%s is at %s", spa_str, sha_str);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s", spa_str, sha_str);
         break;
       case ARPOP_RREQUEST:
       case ARPOP_IREQUEST:
-        col_add_fstr(pinfo->fd, COL_INFO, "Who is %s?  Tell %s", tha_str, sha_str);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s?  Tell %s", tha_str, sha_str);
         break;
       case ARPOP_RREPLY:
       case ARPOP_IREPLY:
-        col_add_fstr(pinfo->fd, COL_INFO, "%s is at %s", sha_str, spa_str);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s", sha_str, spa_str);
         break;
       default:
-        col_add_fstr(pinfo->fd, COL_INFO, "Unknown ARP opcode 0x%04x", ar_op);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ARP opcode 0x%04x", ar_op);
         break;
     }
   }

@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quake.c,v 1.22 2001/12/03 03:59:38 guy Exp $
+ * $Id: packet-quake.c,v 1.23 2001/12/10 00:25:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -445,8 +445,8 @@ dissect_quake_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	command = tvb_get_guint8(tvb, 0);
 	direction = (command & 0x80) ? CCREP : CCREQ;
 
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO, "%s %s",
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 			val_to_str(command,names_control_command, "%u"),
 			val_to_str(direction,names_control_direction,"%u"));
 	}
@@ -520,10 +520,10 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint		rest_length;
 	tvbuff_t	*next_tvb;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "QUAKE");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUAKE");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	length = tvb_get_ntohl(tvb, 0);
 	flags = length & (~NETFLAG_LENGTH_MASK);
@@ -578,8 +578,8 @@ dissect_quake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	sequence = tvb_get_ntohl(tvb, 4);
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO, "seq 0x%x", sequence);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "seq 0x%x", sequence);
 	}
 	if (quake_tree) {
 		proto_tree_add_uint(quake_tree, hf_quake_header_sequence,

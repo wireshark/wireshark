@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.5 2001/11/13 23:55:30 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.6 2001/12/10 00:25:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -153,18 +153,18 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	/* Fill in the INFO column. */
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if (ncp_rec) {
-			col_add_fstr(pinfo->fd, COL_INFO, "C %s", ncp_rec->name);
+			col_add_fstr(pinfo->cinfo, COL_INFO, "C %s", ncp_rec->name);
 		}
 		else {
 			if (requires_subfunc) {
-				col_add_fstr(pinfo->fd, COL_INFO,
+				col_add_fstr(pinfo->cinfo, COL_INFO,
 					"C Unknown Function 0x%02X/0x%02x (%d %d)",
 					func, subfunc, func, subfunc);
 			}
 			else {
-				col_add_fstr(pinfo->fd, COL_INFO,
+				col_add_fstr(pinfo->cinfo, COL_INFO,
 					"C Unknown Function 0x%02x (%d)",
 					func, func);
 			}
@@ -280,8 +280,8 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 		error_string = "Not OK";
 	}
 
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO, "R %s", error_string);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "R %s", error_string);
 	}
 
 	if (ncp_tree) {

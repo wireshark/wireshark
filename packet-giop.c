@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.49 2001/11/26 04:52:49 hagbard Exp $
+ * $Id: packet-giop.c,v 1.50 2001/12/10 00:25:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3080,8 +3080,8 @@ static void dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
 
-  if (check_col(pinfo->fd, COL_INFO)) {
-    col_append_fstr(pinfo->fd, COL_INFO, " %u", request_id);
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %u", request_id);
   }
 
   if (tree) {
@@ -3091,8 +3091,8 @@ static void dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
   reply_status = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
 
-  if (check_col(pinfo->fd, COL_INFO)) {
-    col_append_fstr(pinfo->fd, COL_INFO, ": %s",
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
                     val_to_str(reply_status, reply_status_types, "Unknown (%u)"));
 
   }
@@ -3156,8 +3156,8 @@ static void dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
   
-  if (check_col(pinfo->fd, COL_INFO)) {
-    col_append_fstr(pinfo->fd, COL_INFO, " %u", request_id);
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %u", request_id);
   }
 
   if (tree) {
@@ -3167,8 +3167,8 @@ static void dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
 
   reply_status = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
   
-  if (check_col(pinfo->fd, COL_INFO)) {
-    col_append_fstr(pinfo->fd, COL_INFO, ": %s",
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
                     val_to_str(reply_status, reply_status_types, "Unknown (%u)"));
 
   }
@@ -3235,8 +3235,8 @@ static void dissect_giop_cancel_request (tvbuff_t * tvb, packet_info * pinfo,
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
   
-  if (check_col(pinfo->fd, COL_INFO)) {
-    col_append_fstr(pinfo->fd, COL_INFO, " %u", request_id);
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %u", request_id);
   }
 
   if (tree) {
@@ -3308,9 +3308,9 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
-  if (check_col(pinfo->fd, COL_INFO))
+  if (check_col(pinfo->cinfo, COL_INFO))
     {
-      col_append_fstr(pinfo->fd, COL_INFO, " %u", request_id);
+      col_append_fstr(pinfo->cinfo, COL_INFO, " %u", request_id);
     }
   if (tree)
     {
@@ -3320,9 +3320,9 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
   response_expected = tvb_get_guint8( tvb, offset );
   offset += 1;
-  if (check_col(pinfo->fd, COL_INFO))
+  if (check_col(pinfo->cinfo, COL_INFO))
     {
-      col_append_fstr(pinfo->fd, COL_INFO, " (%s)",
+      col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
 		response_expected ? "two-way" : "one-way");
     }
   if (tree)
@@ -3386,9 +3386,9 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
   if( len > 0)
   {
-       if (check_col(pinfo->fd, COL_INFO))
+       if (check_col(pinfo->cinfo, COL_INFO))
        {
-         col_append_fstr(pinfo->fd, COL_INFO, ": %s", operation);
+         col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", operation);
        }
        if(tree)
        {
@@ -3518,9 +3518,9 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
     }
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
-  if (check_col(pinfo->fd, COL_INFO))
+  if (check_col(pinfo->cinfo, COL_INFO))
     {
-      col_append_fstr(pinfo->fd, COL_INFO, " %u", request_id);
+      col_append_fstr(pinfo->cinfo, COL_INFO, " %u", request_id);
     }
   if (request_tree)
     {
@@ -3558,9 +3558,9 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
 
   if( len > 0)
   {
-       if (check_col(pinfo->fd, COL_INFO))
+       if (check_col(pinfo->cinfo, COL_INFO))
        {
-         col_append_fstr(pinfo->fd, COL_INFO, ": %s", operation);
+         col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", operation);
        }
        if(request_tree)
        {
@@ -3652,9 +3652,9 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
     }
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
-  if (check_col(pinfo->fd, COL_INFO))
+  if (check_col(pinfo->cinfo, COL_INFO))
     {
-      col_append_fstr(pinfo->fd, COL_INFO, " %u", request_id);
+      col_append_fstr(pinfo->cinfo, COL_INFO, " %u", request_id);
     }
   if (locate_request_tree)
     {
@@ -3721,9 +3721,9 @@ dissect_giop_locate_reply( tvbuff_t * tvb, packet_info * pinfo,
     }
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
-  if (check_col(pinfo->fd, COL_INFO))
+  if (check_col(pinfo->cinfo, COL_INFO))
     {
-      col_append_fstr(pinfo->fd, COL_INFO, " %u", request_id);
+      col_append_fstr(pinfo->cinfo, COL_INFO, " %u", request_id);
     }
   if (locate_reply_tree)
     {
@@ -3795,9 +3795,9 @@ dissect_giop_fragment( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     }
 
   request_id = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
-  if (check_col(pinfo->fd, COL_INFO))
+  if (check_col(pinfo->cinfo, COL_INFO))
     {
-      col_append_fstr(pinfo->fd, COL_INFO, " %u", request_id);
+      col_append_fstr(pinfo->cinfo, COL_INFO, " %u", request_id);
     }
   if (fragment_tree )
     {
@@ -3864,9 +3864,9 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
       return FALSE;
     }
 
-  if (check_col (pinfo->fd, COL_PROTOCOL))
+  if (check_col (pinfo->cinfo, COL_PROTOCOL))
     {
-      col_set_str (pinfo->fd, COL_PROTOCOL, "GIOP");
+      col_set_str (pinfo->cinfo, COL_PROTOCOL, "GIOP");
     }
 
   if (header.GIOP_version.major != GIOP_MAJOR ||
@@ -3880,9 +3880,9 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
          the "Info" column, *without* setting the "Protocol" column,
          and *without* adding anything to the protocol tree. */
 
-      if (check_col (pinfo->fd, COL_INFO))
+      if (check_col (pinfo->cinfo, COL_INFO))
 	{
-	  col_add_fstr (pinfo->fd, COL_INFO, "Version %u.%u",
+	  col_add_fstr (pinfo->cinfo, COL_INFO, "Version %u.%u",
 			header.GIOP_version.major, header.GIOP_version.minor);
 	}
       if (tree)
@@ -3900,9 +3900,9 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
       return TRUE;
     }
 
-  if (check_col (pinfo->fd, COL_INFO)) 
+  if (check_col (pinfo->cinfo, COL_INFO)) 
   { 
-      col_add_fstr (pinfo->fd, COL_INFO, "GIOP %u.%u %s",
+      col_add_fstr (pinfo->cinfo, COL_INFO, "GIOP %u.%u %s",
                     header.GIOP_version.major, header.GIOP_version.minor,
                     val_to_str(header.message_type, giop_message_types,
                     	       "Unknown message type (0x%02x)"));
@@ -3957,9 +3957,9 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
     }				/* tree */
 
 #if 0
-  if (check_col (pinfo->fd, COL_INFO)) 
+  if (check_col (pinfo->cinfo, COL_INFO)) 
   { 
-      col_add_fstr (pinfo->fd, COL_INFO, "GIOP %u.%u %s",
+      col_add_fstr (pinfo->cinfo, COL_INFO, "GIOP %u.%u %s",
                     header.GIOP_version.major, header.GIOP_version.minor,
                     match_strval(header.message_type, giop_message_types));
   }

@@ -8,7 +8,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m3ua.c,v 1.9 2001/12/03 03:59:37 guy Exp $
+ * $Id: packet-m3ua.c,v 1.10 2001/12/10 00:25:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -416,9 +416,9 @@ dissect_m3ua_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, prot
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
   message_length = tvb_get_ntohl (common_header_tvb, MESSAGE_LENGTH_OFFSET);
 
-  if (check_col(pinfo->fd, COL_INFO)) {
-    col_append_str(pinfo->fd, COL_INFO, val_to_str(message_class * 256 + message_type, m3ua_message_class_type_acro_values, "reserved"));
-    col_append_str(pinfo->fd, COL_INFO, " ");
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(message_class * 256 + message_type, m3ua_message_class_type_acro_values, "reserved"));
+    col_append_str(pinfo->cinfo, COL_INFO, " ");
   };
 
   if (m3ua_tree) {
@@ -822,8 +822,8 @@ dissect_m3ua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *m3ua_tree;
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->fd, COL_PROTOCOL)) 
-    col_set_str(pinfo->fd, COL_PROTOCOL, "M3UA");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "M3UA");
   
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */

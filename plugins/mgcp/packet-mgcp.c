@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.28 2001/12/03 04:00:26 guy Exp $
+ * $Id: packet-mgcp.c,v 1.29 2001/12/10 00:26:21 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -217,10 +217,10 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * Set the columns now, so that they'll be set correctly if we throw
    * an exception.  We can set them later as well....
    */
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_add_str(pinfo->fd, COL_PROTOCOL, "MGCP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_add_str(pinfo->cinfo, COL_PROTOCOL, "MGCP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   /* 
    * Check to see whether we're really dealing with MGCP by looking 
@@ -266,24 +266,24 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * in order to prevent the column info changing to reflect the SDP.
      */
     tvb_sectionbegin = 0;
-    if (check_col(pinfo->fd, COL_PROTOCOL)){
+    if (check_col(pinfo->cinfo, COL_PROTOCOL)){
       if( global_mgcp_message_count == TRUE ){
 	if(num_messages > 1){
-	  col_add_fstr(pinfo->fd, COL_PROTOCOL, "MGCP (%i messages)",num_messages);
+	  col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MGCP (%i messages)",num_messages);
 	}
 	else {
-	  col_add_fstr(pinfo->fd, COL_PROTOCOL, "MGCP (%i message)",num_messages);
+	  col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "MGCP (%i message)",num_messages);
 	}
       }
       else {
-	  col_add_str(pinfo->fd, COL_PROTOCOL, "MGCP");
+	  col_add_str(pinfo->cinfo, COL_PROTOCOL, "MGCP");
       }
     }
 	
-    if (check_col(pinfo->fd, COL_INFO) ){
+    if (check_col(pinfo->cinfo, COL_INFO) ){
       sectionlen = tvb_find_line_end(tvb, tvb_sectionbegin,-1,
 				     &tvb_sectionend);
-      col_add_fstr(pinfo->fd,COL_INFO, "%s", 
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s", 
 		   tvb_format_text(tvb,tvb_sectionbegin,sectionlen));
     } 
   }  

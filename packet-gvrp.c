@@ -2,7 +2,7 @@
  * Routines for GVRP (GARP VLAN Registration Protocol) dissection
  * Copyright 2000, Kevin Shi <techishi@ms22.hinet.net>
  *
- * $Id: packet-gvrp.c,v 1.7 2001/11/26 04:52:49 hagbard Exp $
+ * $Id: packet-gvrp.c,v 1.8 2001/12/10 00:25:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,11 +116,11 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8        octet;
     int           msg_index, attr_index, offset = 0, length = tvb_reported_length(tvb);
 
-    if (check_col(pinfo->fd, COL_PROTOCOL)) 
-	col_set_str(pinfo->fd, COL_PROTOCOL, "GVRP");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "GVRP");
     
-    if (check_col(pinfo->fd, COL_INFO)) 
-	col_set_str(pinfo->fd, COL_INFO, "GVRP");
+    if (check_col(pinfo->cinfo, COL_INFO)) 
+	col_set_str(pinfo->cinfo, COL_INFO, "GVRP");
 
     if (tree)
     {

@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.29 2001/12/03 03:59:33 guy Exp $
+ * $Id: packet-bpdu.c,v 1.30 2001/12/10 00:25:26 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -133,13 +133,13 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 	    pinfo->current_proto = "GARP";
 
-	    if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		    col_set_str(pinfo->fd, COL_PROTOCOL, "GARP");
+	    if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		    col_set_str(pinfo->cinfo, COL_PROTOCOL, "GARP");
 		    /* Generic Attribute Registration Protocol */
 	    }
 
-	    if (check_col(pinfo->fd, COL_INFO)) {
-		    col_add_fstr(pinfo->fd, COL_INFO,
+	    if (check_col(pinfo->cinfo, COL_INFO)) {
+		    col_add_fstr(pinfo->cinfo, COL_INFO,
 		        "Unknown GARP application (0x%02X)",
 			pinfo->dl_dst.data[5]);
             }
@@ -147,11 +147,11 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    return;
       }
 
-      if (check_col(pinfo->fd, COL_PROTOCOL)) {
-	    col_set_str(pinfo->fd, COL_PROTOCOL, "STP"); /* Spanning Tree Protocol */
+      if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "STP"); /* Spanning Tree Protocol */
       }
-      if (check_col(pinfo->fd, COL_INFO)) {
-	    col_clear(pinfo->fd, COL_INFO);
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+	    col_clear(pinfo->cinfo, COL_INFO);
       }
 
       bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);
@@ -173,14 +173,14 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	    port_identifier = 0;
       }
 
-      if (check_col(pinfo->fd, COL_INFO)) {
+      if (check_col(pinfo->cinfo, COL_INFO)) {
 	    if (bpdu_type == 0)
-		  col_add_fstr(pinfo->fd, COL_INFO, "Conf. %sRoot = %d/%s  Cost = %d  Port = 0x%04x", 
+		  col_add_fstr(pinfo->cinfo, COL_INFO, "Conf. %sRoot = %d/%s  Cost = %d  Port = 0x%04x", 
 			       flags & 0x1 ? "TC + " : "",
 			       root_identifier_bridge_priority, root_identifier_mac_str, root_path_cost,
 			       port_identifier);
 	    else if (bpdu_type == 0x80)
-		  col_add_fstr(pinfo->fd, COL_INFO, "Topology Change Notification");
+		  col_add_fstr(pinfo->cinfo, COL_INFO, "Topology Change Notification");
       }
 
       if (tree) {

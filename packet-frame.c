@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.14 2001/12/08 21:03:41 guy Exp $
+ * $Id: packet-frame.c,v 1.15 2001/12/10 00:25:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -136,22 +136,23 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (!dissector_try_port(wtap_encap_dissector_table, pinfo->fd->lnk_t,
 					tvb, pinfo, tree)) {
 
-			if (check_col(pinfo->fd, COL_PROTOCOL))
-				col_set_str(pinfo->fd, COL_PROTOCOL, "UNKNOWN");
-			if (check_col(pinfo->fd, COL_INFO))
-				col_add_fstr(pinfo->fd, COL_INFO, "WTAP_ENCAP = %u", pinfo->fd->lnk_t);
+			if (check_col(pinfo->cinfo, COL_PROTOCOL))
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %u",
+				    pinfo->fd->lnk_t);
 			call_dissector(data_handle,tvb, pinfo, tree);
 		}
 	}
 	CATCH(BoundsError) {
-		if (check_col(pinfo->fd, COL_INFO))
-			col_append_str(pinfo->fd, COL_INFO, "[Short Frame]");
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_str(pinfo->cinfo, COL_INFO, "[Short Frame]");
 		proto_tree_add_protocol_format(tree, proto_short, tvb, 0, 0,
 				"[Short Frame: %s]", pinfo->current_proto );
 	}
 	CATCH(ReportedBoundsError) {
-		if (check_col(pinfo->fd, COL_INFO))
-			col_append_str(pinfo->fd, COL_INFO, "[Malformed Frame]");
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Frame]");
 		proto_tree_add_protocol_format(tree, proto_malformed, tvb, 0, 0,
 				"[Malformed Frame: %s]", pinfo->current_proto );
 	}

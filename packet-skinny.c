@@ -7,7 +7,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.6 2001/12/03 03:59:39 guy Exp $
+ * $Id: packet-skinny.c,v 1.7 2001/12/10 00:25:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -211,11 +211,11 @@ static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   
   /* Make entries in Protocol column and Info column on summary display */
-  if (check_col(pinfo->fd, COL_PROTOCOL)) 
-    col_set_str(pinfo->fd, COL_PROTOCOL, "SKINNY");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SKINNY");
     
-  if (check_col(pinfo->fd, COL_INFO)) 
-    col_add_str(pinfo->fd, COL_INFO, "Skinny Client Control Protocol");
+  if (check_col(pinfo->cinfo, COL_INFO)) 
+    col_add_str(pinfo->cinfo, COL_INFO, "Skinny Client Control Protocol");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
    * necessary to generate protocol tree items. */
@@ -229,8 +229,8 @@ static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		4, 4, hdr_reserved);
   }
   messageid_str = val_to_str(data_messageid, message_id, "0x%08X (Unknown)");
-  if (check_col(pinfo->fd, COL_INFO)) {
-	col_add_str(pinfo->fd, COL_INFO, messageid_str);
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+	col_add_str(pinfo->cinfo, COL_INFO, messageid_str);
   }
   if (tree) {
     proto_tree_add_uint(skinny_tree, hf_skinny_messageid, tvb,

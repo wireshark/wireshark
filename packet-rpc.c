@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.76 2001/11/27 07:13:26 guy Exp $
+ * $Id: packet-rpc.c,v 1.77 2001/12/10 00:25:33 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1372,10 +1372,10 @@ dissect_rpc_continuation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *rpc_item;
 	proto_tree *rpc_tree;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "RPC");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_set_str(pinfo->fd, COL_INFO, "Continuation");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 
 	if (tree) {
 		rpc_item = proto_tree_add_item(tree, proto_rpc, tvb, 0,
@@ -1528,10 +1528,10 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		return FALSE;
 	}
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "RPC");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPC");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	if (tree) {
 		rpc_item = proto_tree_add_item(tree, proto_rpc, tvb, 0,
@@ -1585,10 +1585,10 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				"Program: %s (%u)", progname, prog);
 		}
 		
-		if (check_col(pinfo->fd, COL_PROTOCOL)) {
+		if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 			/* Set the protocol name to the underlying
 			   program name. */
-			col_set_str(pinfo->fd, COL_PROTOCOL, progname);
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, progname);
 		}
 
 		vers = tvb_get_ntohl(tvb, offset+8);
@@ -1623,8 +1623,8 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				"Procedure: %s (%u)", procname, proc);
 		}
 
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO,"V%u %s %s XID 0x%x",
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s XID 0x%x",
 				vers,
 				procname,
 				msg_type_name,
@@ -1728,8 +1728,8 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (pinfo->fd->num != rpc_call->req_num) {
 				/* No, so it's a duplicate request.
 				   Mark it as such. */
-				if (check_col(pinfo->fd, COL_INFO)) {
-					col_append_fstr(pinfo->fd, COL_INFO,
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					col_append_fstr(pinfo->cinfo, COL_INFO,
 						" dup XID 0x%x", xid);
 					if (rpc_tree) {
 						proto_tree_add_uint_hidden(rpc_tree,
@@ -1816,15 +1816,15 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			ett = rpc_prog->ett;
 			progname = rpc_prog->progname;
 
-			if (check_col(pinfo->fd, COL_PROTOCOL)) {
+			if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
 				/* Set the protocol name to the underlying
 				   program name. */
-				col_set_str(pinfo->fd, COL_PROTOCOL, progname);
+				col_set_str(pinfo->cinfo, COL_PROTOCOL, progname);
 			}
 		}
 
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO,"V%u %s %s XID 0x%x",
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO,"V%u %s %s XID 0x%x",
 				vers,
 				procname,
 				msg_type_name,
@@ -1853,8 +1853,8 @@ dissect_rpc_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			if (rpc_call->rep_num != pinfo->fd->num) {
 				/* No, so it's a duplicate reply.
 				   Mark it as such. */
-				if (check_col(pinfo->fd, COL_INFO)) {
-					col_append_fstr(pinfo->fd, COL_INFO,
+				if (check_col(pinfo->cinfo, COL_INFO)) {
+					col_append_fstr(pinfo->cinfo, COL_INFO,
 						" dup XID 0x%x", xid);
 					if (rpc_tree) {
 						proto_tree_add_uint_hidden(rpc_tree,

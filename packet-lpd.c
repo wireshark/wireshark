@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-lpd.c,v 1.31 2001/12/03 03:59:37 guy Exp $
+ * $Id: packet-lpd.c,v 1.32 2001/12/10 00:25:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,10 +80,10 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		"Bad job format, do not retry"
 	};
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "LPD");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LPD");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	/* rfc1179 states that all responses are 1 byte long */
 	code = tvb_get_guint8(tvb, 0);
@@ -97,15 +97,15 @@ dissect_lpd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		lpr_packet_type = unknown;
 	}
 
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if (lpr_packet_type == request) {
-			col_add_str(pinfo->fd, COL_INFO, lpd_client_code[code]);
+			col_add_str(pinfo->cinfo, COL_INFO, lpd_client_code[code]);
 		}
 		else if (lpr_packet_type == response) {
-			col_set_str(pinfo->fd, COL_INFO, "LPD response");
+			col_set_str(pinfo->cinfo, COL_INFO, "LPD response");
 		}
 		else {
-			col_set_str(pinfo->fd, COL_INFO, "LPD continuation");
+			col_set_str(pinfo->cinfo, COL_INFO, "LPD continuation");
 		}
 	}
 

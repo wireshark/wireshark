@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.38 2001/12/03 03:59:34 guy Exp $
+ * $Id: packet-ftp.c,v 1.39 2001/12/10 00:25:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -225,8 +225,8 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	else
 		is_request = FALSE;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "FTP");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTP");
 
 	/*
 	 * Find the end of the first line.
@@ -238,12 +238,12 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset);
 	line = tvb_get_ptr(tvb, offset, linelen);
 
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		/*
 		 * Put the first line from the buffer into the summary
 		 * (but leave out the line terminator).
 		 */
-		col_add_fstr(pinfo->fd, COL_INFO, "%s: %s",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
 		    is_request ? "Request" : "Response",
 		    format_text(line, linelen));
 	}
@@ -366,11 +366,11 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree      *ti, *ftp_data_tree;
         int		data_length;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "FTP-DATA");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTP-DATA");
 
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_add_fstr(pinfo->fd, COL_INFO, "FTP Data: %u bytes",
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_add_fstr(pinfo->cinfo, COL_INFO, "FTP Data: %u bytes",
 		    tvb_length(tvb));
 	}
 

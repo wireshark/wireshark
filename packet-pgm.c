@@ -1,7 +1,7 @@
 /* packet-pgm.c
  * Routines for pgm packet disassembly
  *
- * $Id: packet-pgm.c,v 1.11 2001/12/08 06:41:41 guy Exp $
+ * $Id: packet-pgm.c,v 1.12 2001/12/10 00:25:31 guy Exp $
  * 
  * Copyright (c) 2000 by Talarian Corp
  *
@@ -625,12 +625,12 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	char *gsi;
 	int isdata = 0;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "PGM");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "PGM");
 
 	/* Clear out the Info column. */
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	tvb_memcpy(tvb, (guint8 *)&pgmhdr, offset, sizeof(pgm_type));
 	hlen = sizeof(pgm_type);
@@ -646,8 +646,8 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		plen = sizeof(pgm_spm_t);
 		tvb_memcpy(tvb, (guint8 *)&spm, sizeof(pgm_type), plen);
 		spm_ntoh(&spm);
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO,
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO,
 				"%-5s sqn 0x%x gsi %s", pktname, spm.sqn, gsi);
 		}
 		break;
@@ -657,8 +657,8 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		plen = sizeof(pgm_data_t);
 		tvb_memcpy(tvb, (guint8 *)&data, sizeof(pgm_type), plen);
 		data_ntoh(&data);
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO,
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "%-5s sqn 0x%x gsi %s tsdulen %d", pktname, data.sqn, gsi,
 			    pgmhdr.tsdulen);
 		}
@@ -671,8 +671,8 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		plen = sizeof(pgm_nak_t);
 		tvb_memcpy(tvb, (guint8 *)&nak, sizeof(pgm_type), plen);
 		nak_ntoh(&nak);
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO,
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO,
 				"%-5s sqn 0x%x gsi %s", pktname, nak.sqn, gsi);
 		}
 		break;
@@ -680,8 +680,8 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		plen = sizeof(pgm_ack_t);
 		tvb_memcpy(tvb, (guint8 *)&ack, sizeof(pgm_type), plen);
 		ack_ntoh(&ack);
-		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO,
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "%-5s sqn 0x%x gsi %s", pktname, ack.rx_max_sqn, gsi);
 		}
 		break;

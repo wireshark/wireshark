@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.27 2001/12/03 03:59:33 guy Exp $
+ * $Id: packet-ascend.c,v 1.28 2001/12/10 00:25:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -61,14 +61,14 @@ dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* load the top pane info. This should be overwritten by
      the next protocol in the stack */
-  if(check_col(pinfo->fd, COL_RES_DL_SRC))
-    col_set_str(pinfo->fd, COL_RES_DL_SRC, "N/A" );
-  if(check_col(pinfo->fd, COL_RES_DL_DST))
-    col_set_str(pinfo->fd, COL_RES_DL_DST, "N/A" );
-  if(check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "N/A" );
-  if(check_col(pinfo->fd, COL_INFO))
-    col_set_str(pinfo->fd, COL_INFO, "Lucent/Ascend packet trace" );
+  if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+    col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "N/A" );
+  if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+    col_set_str(pinfo->cinfo, COL_RES_DL_DST, "N/A" );
+  if(check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "N/A" );
+  if(check_col(pinfo->cinfo, COL_INFO))
+    col_set_str(pinfo->cinfo, COL_INFO, "Lucent/Ascend packet trace" );
 
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */

@@ -2,7 +2,7 @@
  * Routines for IGRP dissection
  * Copyright 2000, Paul Ionescu <paul@acorp.ro>
  * 
- * $Id: packet-igrp.c,v 1.9 2001/12/03 03:59:35 guy Exp $
+ * $Id: packet-igrp.c,v 1.10 2001/12/10 00:25:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,26 +60,26 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *igrp_tree, *igrp_vektor_tree;
   tvbuff_t   *next_tvb; 
   
-  if (check_col(pinfo->fd, COL_PROTOCOL)) 
-    col_set_str(pinfo->fd, COL_PROTOCOL, "IGRP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IGRP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
     
   ver_and_opcode = tvb_get_guint8(tvb,0);
   update 	 = tvb_get_guint8(tvb,1);
   as		 = tvb_get_ntohs(tvb,2);
   
   
-  if (check_col(pinfo->fd, COL_INFO)) {
+  if (check_col(pinfo->cinfo, COL_INFO)) {
     switch (ver_and_opcode) {
     case 0x11:
-	col_add_fstr(pinfo->fd, COL_INFO, "Response" );
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Response" );
 	break;
     case 0x12:
-    	col_add_fstr(pinfo->fd, COL_INFO, "Request" );
+    	col_add_fstr(pinfo->cinfo, COL_INFO, "Request" );
         break;
     default:	        
-        col_add_fstr(pinfo->fd, COL_INFO, "Unknown version or opcode"); 
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown version or opcode"); 
     }
   }
 

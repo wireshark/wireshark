@@ -2,12 +2,11 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-trmac.c,v 1.33 2001/11/13 23:55:30 gram Exp $
+ * $Id: packet-trmac.c,v 1.34 2001/12/10 00:25:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -280,18 +279,18 @@ dissect_trmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		mv_val;
 	char		*mv_text;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "TR MAC");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "TR MAC");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	mv_val = tvb_get_guint8(tvb, 3);
 
 	/* Interpret the major vector */
 	mv_text = val_to_str(mv_val, major_vector_vs, "Unknown Major Vector: %d\n");
 
-	if (check_col(pinfo->fd, COL_INFO))
-		col_add_str(pinfo->fd, COL_INFO, mv_text);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_str(pinfo->cinfo, COL_INFO, mv_text);
 
 	if (tree) {
 		mv_length = tvb_get_ntohs(tvb, 0);

@@ -2,7 +2,7 @@
  * Routines for BACnet (APDU) dissection
  * Copyright 2001, Hartmut Mueller <hartmut@abmlinux.org>, FH Dortmund
  *
- * $Id: packet-bacapp.c,v 1.7 2001/12/08 06:41:41 guy Exp $
+ * $Id: packet-bacapp.c,v 1.8 2001/12/10 00:25:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -80,16 +80,16 @@ dissect_bacapp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8 bacapp_type;
 	tvbuff_t *next_tvb;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "BACnet-APDU");
-	if (check_col(pinfo->fd, COL_INFO))
-		col_add_str(pinfo->fd, COL_INFO, "BACnet APDU ");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "BACnet-APDU");
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_add_str(pinfo->cinfo, COL_INFO, "BACnet APDU ");
 
 	offset  = 0;
 	bacapp_type = (tvb_get_guint8(tvb, offset) >> 4) & 0x0f;
 
-	if (check_col(pinfo->fd, COL_INFO))
-		col_append_fstr(pinfo->fd, COL_INFO, "(%s)",
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, "(%s)",
 		bacapp_type_name(bacapp_type));
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_bacapp, tvb, offset, tvb_length(tvb), FALSE);

@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.49 2001/12/03 03:59:33 guy Exp $
+ * $Id: packet-bgp.c,v 1.50 2001/12/10 00:25:26 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -1661,10 +1661,10 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int           hlen;          /* BGP header length                */
     char          *typ;          /* BGP message type                 */
 
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_set_str(pinfo->fd, COL_PROTOCOL, "BGP");
-    if (check_col(pinfo->fd, COL_INFO))
-	col_clear(pinfo->fd, COL_INFO);
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BGP");
+    if (check_col(pinfo->cinfo, COL_INFO))
+	col_clear(pinfo->cinfo, COL_INFO);
 
     l = tvb_length(tvb);
     i = 0;
@@ -1685,11 +1685,11 @@ dissect_bgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	hlen = ntohs(bgp.bgp_len);
 	typ = val_to_str(bgp.bgp_type, bgptypevals, "Unknown Message");
 
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    if (found == 0)
-		col_add_fstr(pinfo->fd, COL_INFO, "%s", typ);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s", typ);
 	    else
-		col_append_fstr(pinfo->fd, COL_INFO, ", %s", typ);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", typ);
 	}
 
 	i += hlen;

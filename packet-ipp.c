@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.26 2001/12/03 03:59:35 guy Exp $
+ * $Id: packet-ipp.c,v 1.27 2001/12/10 00:25:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -168,13 +168,13 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 status_code;
 	gchar *status_fmt;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "IPP");
-	if (check_col(pinfo->fd, COL_INFO)) {
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "IPP");
+	if (check_col(pinfo->cinfo, COL_INFO)) {
 		if (is_request)
-			col_set_str(pinfo->fd, COL_INFO, "IPP request");
+			col_set_str(pinfo->cinfo, COL_INFO, "IPP request");
 		else
-			col_set_str(pinfo->fd, COL_INFO, "IPP response");
+			col_set_str(pinfo->cinfo, COL_INFO, "IPP response");
 	}
 
 	if (tree) {

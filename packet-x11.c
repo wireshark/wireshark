@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.26 2001/12/03 03:59:43 guy Exp $
+ * $Id: packet-x11.c,v 1.27 2001/12/10 00:25:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2847,8 +2847,8 @@ dissect_x11_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* This field shows up as the "Info" column in the display; you should make
    it, if possible, summarize what's in the packet, so that a user looking
    at the list of packets can tell what type of packet it is. */
-      if (check_col(pinfo->fd, COL_INFO)) 
-	    col_set_str(pinfo->fd, COL_INFO, "X11 request");
+      if (check_col(pinfo->cinfo, COL_INFO)) 
+	    col_set_str(pinfo->cinfo, COL_INFO, "X11 request");
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
@@ -2874,8 +2874,8 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* This field shows up as the "Info" column in the display; you should make
    it, if possible, summarize what's in the packet, so that a user looking
    at the list of packets can tell what type of packet it is. */
-      if (check_col(pinfo->fd, COL_INFO)) 
-	    col_set_str(pinfo->fd, COL_INFO, "X11 event");
+      if (check_col(pinfo->cinfo, COL_INFO)) 
+	    col_set_str(pinfo->cinfo, COL_INFO, "X11 event");
 
 /* In the interest of speed, if "tree" is NULL, don't do any work not
    necessary to generate protocol tree items. */
@@ -2893,8 +2893,8 @@ dissect_x11_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_x11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-      if (check_col(pinfo->fd, COL_PROTOCOL)) 
-	    col_set_str(pinfo->fd, COL_PROTOCOL, "X11");
+      if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+	    col_set_str(pinfo->cinfo, COL_PROTOCOL, "X11");
     
       if (pinfo->match_port == pinfo->destport)
 	    dissect_x11_request(tvb, pinfo, tree);

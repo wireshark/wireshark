@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.35 2001/11/03 00:58:49 guy Exp $
+ * $Id: packet-afs.c,v 1.36 2001/12/10 00:25:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -196,11 +196,11 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	void (*dissector)(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int offset, int opcode);
 
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) {
-		col_set_str(pinfo->fd, COL_PROTOCOL, "AFS (RX)");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "AFS (RX)");
 	}
-	if (check_col(pinfo->fd, COL_INFO)) {
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_clear(pinfo->cinfo, COL_INFO);
 	}
 
 	reply = (rxinfo->flags & RX_CLIENT_INITIATED) == 0;
@@ -334,23 +334,23 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if ( VALID_OPCODE(opcode) ) {
 		if ( vals ) {
-			if (check_col(pinfo->fd, COL_INFO))
-				col_add_fstr(pinfo->fd, COL_INFO, "%s%s %s: %s (%d)",
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s %s: %s (%d)",
 				typenode == hf_afs_ubik ? "UBIK-" : "",
 				val_to_str(port, port_types_short, "Unknown(%d)"),
 				reply ? "Reply" : "Request",
 				val_to_str(opcode, vals, "Unknown(%d)"), opcode);
 		} else {
-			if (check_col(pinfo->fd, COL_INFO))
-				col_add_fstr(pinfo->fd, COL_INFO, "%s%s %s: Unknown(%d)",
+			if (check_col(pinfo->cinfo, COL_INFO))
+				col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s %s: Unknown(%d)",
 				typenode == hf_afs_ubik ? "UBIK-" : "",
 				val_to_str(port, port_types_short, "Unknown(%d)"),
 				reply ? "Reply" : "Request",
 				opcode);
 		}
 	} else {
-		if (check_col(pinfo->fd, COL_INFO))
-			col_add_fstr(pinfo->fd, COL_INFO, "Encrypted %s %s",
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_add_fstr(pinfo->cinfo, COL_INFO, "Encrypted %s %s",
 			val_to_str(port, port_types_short, "Unknown(%d)"),
 			reply ? "Reply" : "Request"
 			);

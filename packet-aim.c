@@ -2,7 +2,7 @@
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-aim.c,v 1.10 2001/12/03 03:59:33 guy Exp $
+ * $Id: packet-aim.c,v 1.11 2001/12/10 00:25:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -127,11 +127,11 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   
 /* Make entries in Protocol column and Info column on summary display */
-  if (check_col(pinfo->fd, COL_PROTOCOL)) 
-    col_set_str(pinfo->fd, COL_PROTOCOL, "AIM");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AIM");
     
-  if (check_col(pinfo->fd, COL_INFO)) 
-    col_add_str(pinfo->fd, COL_INFO, "AOL Instant Messenger");
+  if (check_col(pinfo->cinfo, COL_INFO)) 
+    col_add_str(pinfo->cinfo, COL_INFO, "AOL Instant Messenger");
 
 /* get relevant header information */
 
@@ -158,7 +158,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   {
     /* New connection request */
     case CHANNEL_NEW_CONN:
-      if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "New Connection");
+      if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "New Connection");
       break;
      
     /* SNAC channel. Most packets are of this type, such as messages or buddy list
@@ -168,8 +168,8 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       family = tvb_get_ntohs(tvb, 6);     
       subtype = tvb_get_ntohs(tvb, 8);     
 
-      if (check_col(pinfo->fd, COL_INFO)) {
-        col_add_fstr(pinfo->fd, COL_INFO, "SNAC data");
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "SNAC data");
       }        
       if( tree )
       {
@@ -181,7 +181,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 
-      if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Family: %d - Subtype: %d (unknown)", family, subtype);
+      if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Family: %d - Subtype: %d (unknown)", family, subtype);
       
         switch(family)
         {
@@ -191,9 +191,9 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               case 0x0002:
                 buddyname_length = get_buddyname( buddyname, tvb, 19, 20 );
 
-                if (check_col(pinfo->fd, COL_INFO)) {
-                  col_add_fstr(pinfo->fd, COL_INFO, "Login");
-                  col_append_fstr(pinfo->fd, COL_INFO, ": %s", buddyname);
+                if (check_col(pinfo->cinfo, COL_INFO)) {
+                  col_add_fstr(pinfo->cinfo, COL_INFO, "Login");
+                  col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", buddyname);
                 }        
 
                 if( tree  )
@@ -203,14 +203,14 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 break;
               case 0x0003:
-                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Login information reply");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Login information reply");        
                 break;
               case 0x0006:
                 buddyname_length = get_buddyname( buddyname, tvb, 19, 20 );
 
-                if (check_col(pinfo->fd, COL_INFO)) {
-                  col_add_fstr(pinfo->fd, COL_INFO, "Sign-on");
-                  col_append_fstr(pinfo->fd, COL_INFO, ": %s", buddyname);
+                if (check_col(pinfo->cinfo, COL_INFO)) {
+                  col_add_fstr(pinfo->cinfo, COL_INFO, "Sign-on");
+                  col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", buddyname);
                 }        
                 
                 if( tree )
@@ -220,7 +220,7 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 break;
               case 0x0007:
-                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Sign-on reply");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Sign-on reply");        
                 break;
             }
             break;
@@ -229,28 +229,28 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             switch(subtype)
             {
               case 0x0002:
-                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Client is now online and ready for normal function");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Client is now online and ready for normal function");        
                 break;
               case 0x0003:
-                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Server is now ready for normal functions");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Server is now ready for normal functions");        
                 break;
               case 0x0004:
-                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Request for new service (server will redirect client)");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Request for new service (server will redirect client)");        
                 break;
               case 0x0005:
-                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Redirect response");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Redirect response");        
                 break;
               case 0x0006:
-                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Request Rate Information");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Request Rate Information");        
                 break;
               case 0x0007:
-                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Rate information response");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Rate information response");        
                 break;
               case 0x0008:
-                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Rate Information Response Ack");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Rate Information Response Ack");        
                 break;
               case 0x0016:
-                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "No-op");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "No-op");        
                 break;
             }
             break;
@@ -259,31 +259,31 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             switch(subtype)
             {
               case 0x0001:
-                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Buddylist - Error");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Buddylist - Error");        
                 break;
 
               case 0x0002:
-                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Request Rights information");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Request Rights information");        
                 break;
 
               case 0x0003:
-                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Rights information");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Rights information");        
                 break;
 
               case 0x0004:
-                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Add to Buddylist");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Add to Buddylist");        
                 break;
 
               case 0x0005:
-                if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Remove from Buddylist");        
+                if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Remove from Buddylist");        
                 break;
 
               case 0x000b:
                 buddyname_length = get_buddyname( buddyname, tvb, 16, 17 );
 
-                if (check_col(pinfo->fd, COL_INFO)) {
-                  col_add_fstr(pinfo->fd, COL_INFO, "Oncoming Buddy");
-                  col_append_fstr(pinfo->fd, COL_INFO, ": %s", buddyname);
+                if (check_col(pinfo->cinfo, COL_INFO)) {
+                  col_add_fstr(pinfo->cinfo, COL_INFO, "Oncoming Buddy");
+                  col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", buddyname);
                 }        
                 
                 if( tree )
@@ -297,9 +297,9 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 buddyname_length = get_buddyname( buddyname, tvb, 16, 17 );
 
-                if (check_col(pinfo->fd, COL_INFO)) {
-                  col_add_fstr(pinfo->fd, COL_INFO, "Offgoing Buddy");
-                  col_append_fstr(pinfo->fd, COL_INFO, ": %s", buddyname);
+                if (check_col(pinfo->cinfo, COL_INFO)) {
+                  col_add_fstr(pinfo->cinfo, COL_INFO, "Offgoing Buddy");
+                  col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", buddyname);
                 }        
                 
                 if( tree )
@@ -316,28 +316,28 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           switch(subtype)
           {
             case 0x0001:
-              if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Location - Error");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Location - Error");        
               break;
             case 0x0002:
-              if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Request Rights Information");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Request Rights Information");        
               break;
             case 0x0003:
-              if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Rights Information");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Rights Information");        
               break;
             case 0x0004:
-              if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Set User Information");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Set User Information");        
               break;
             case 0x0005:
-              if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Request User Information");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Request User Information");        
               break;
             case 0x0006:
-              if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "User Information");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "User Information");        
               break;
             case 0x0007:
-              if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Watcher Subrequest");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Watcher Subrequest");        
               break;
             case 0x0008:
-              if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Watcher Notification");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Watcher Notification");        
               break;
           }
           break;
@@ -346,13 +346,13 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           switch(subtype)
           {
             case 0x0001:
-              if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Advertisements - Error");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Advertisements - Error");        
               break;
             case 0x0002:
-              if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Advertisement Request");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Advertisement Request");        
               break;
             case 0x0003:
-              if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Advertisement data (GIF)");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Advertisement data (GIF)");        
               break;
           }
           break;
@@ -361,13 +361,13 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           switch(subtype)
           {
             case 0x0001:
-              if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Search - Error (could be: not found)");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Search - Error (could be: not found)");        
               break;
             case 0x0002:
-              if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Search for Screen Name by e-mail");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Search for Screen Name by e-mail");        
               break;
             case 0x0003:
-              if (check_col(pinfo->fd, COL_INFO)) col_add_fstr(pinfo->fd, COL_INFO, "Screen Name Search Result");        
+              if (check_col(pinfo->cinfo, COL_INFO)) col_add_fstr(pinfo->cinfo, COL_INFO, "Screen Name Search Result");        
               break;
           }
           break;
@@ -379,9 +379,9 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               /* channel message from client */
               get_message( msg, tvb, 40 + buddyname_length, tvb_length(tvb) - 40 - buddyname_length );
 
-              if (check_col(pinfo->fd, COL_INFO)) {
-                col_add_fstr(pinfo->fd, COL_INFO, "Chat Message ");
-                col_append_fstr(pinfo->fd, COL_INFO, " -> %s", msg);
+              if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_add_fstr(pinfo->cinfo, COL_INFO, "Chat Message ");
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
               }        
               break;
             
@@ -390,10 +390,10 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               buddyname_length = get_buddyname( buddyname, tvb, 30, 31 );
               get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb) - 36 - buddyname_length );
               
-              if (check_col(pinfo->fd, COL_INFO)) {
-                col_add_fstr(pinfo->fd, COL_INFO, "Chat Message ");
-                col_append_fstr(pinfo->fd, COL_INFO, "from: %s", buddyname);
-                col_append_fstr(pinfo->fd, COL_INFO, " -> %s", msg);
+              if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_add_fstr(pinfo->cinfo, COL_INFO, "Chat Message ");
+                col_append_fstr(pinfo->cinfo, COL_INFO, "from: %s", buddyname);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
               }        
               
               if( tree )
@@ -413,10 +413,10 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
               get_message( msg, tvb, 36 + buddyname_length, tvb_length(tvb) - 36 - buddyname_length );
               
-              if (check_col(pinfo->fd, COL_INFO)) {
-                col_add_fstr(pinfo->fd, COL_INFO, "Message ");
-                col_append_fstr(pinfo->fd, COL_INFO, "to: %s", buddyname);
-                col_append_fstr(pinfo->fd, COL_INFO, " -> %s", msg);
+              if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_add_fstr(pinfo->cinfo, COL_INFO, "Message ");
+                col_append_fstr(pinfo->cinfo, COL_INFO, "to: %s", buddyname);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
               }        
 
               if( tree )
@@ -431,11 +431,11 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
               get_message( msg, tvb, 36 + buddyname_length,  tvb_length(tvb) - 36 - buddyname_length);
 
-              if (check_col(pinfo->fd, COL_INFO)) {
-                col_add_fstr(pinfo->fd, COL_INFO, "Message");
-                col_append_fstr(pinfo->fd, COL_INFO, " from: %s", buddyname);
+              if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_add_fstr(pinfo->cinfo, COL_INFO, "Message");
+                col_append_fstr(pinfo->cinfo, COL_INFO, " from: %s", buddyname);
 
-                col_append_fstr(pinfo->fd, COL_INFO, " -> %s", msg);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s", msg);
               }        
               
               if( tree )
@@ -453,20 +453,20 @@ static void dissect_aim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     
     case CHANNEL_FLAP_ERR:
-      if (check_col(pinfo->fd, COL_INFO)) {
-        col_add_fstr(pinfo->fd, COL_INFO, "FLAP error");
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "FLAP error");
       }        
       break;
     
     case CHANNEL_CLOSE_CONN:
-      if (check_col(pinfo->fd, COL_INFO)) {
-        col_add_fstr(pinfo->fd, COL_INFO, "Close Connection");
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Close Connection");
       }        
       break;
     
     default:
-      if (check_col(pinfo->fd, COL_INFO)) {
-        col_add_fstr(pinfo->fd, COL_INFO, "Unknown Channel: %d", hdr_channel );
+      if (check_col(pinfo->cinfo, COL_INFO)) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown Channel: %d", hdr_channel );
       }        
       break;
   }

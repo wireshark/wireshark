@@ -2,7 +2,7 @@
  * Routines for gnutella dissection
  * Copyright 2001, B. Johannessen <bob@havoq.com>
  *
- * $Id: packet-gnutella.c,v 1.9 2001/12/03 03:59:34 guy Exp $
+ * $Id: packet-gnutella.c,v 1.10 2001/12/10 00:25:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -380,23 +380,23 @@ static void dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	unsigned int size;
 	char *payload_descriptor_text;
 
-	if (check_col(pinfo->fd, COL_PROTOCOL)) 
-		col_set_str(pinfo->fd, COL_PROTOCOL, "Gnutella");
+	if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gnutella");
     
-	if (check_col(pinfo->fd, COL_INFO)) 
-		col_set_str(pinfo->fd, COL_INFO, "Gnutella");
+	if (check_col(pinfo->cinfo, COL_INFO)) 
+		col_set_str(pinfo->cinfo, COL_INFO, "Gnutella");
 
 	snap_len = tvb_length(tvb);
 
 	if(snap_len < GNUTELLA_HEADER_LENGTH) {
-		if (check_col(pinfo->fd, COL_INFO)) 
-			col_append_fstr(pinfo->fd, COL_INFO,
+		if (check_col(pinfo->cinfo, COL_INFO)) 
+			col_append_fstr(pinfo->cinfo, COL_INFO,
 					", %i bytes [INCOMPLETE]", snap_len);
 		return;
 	}
 	else {
-		if (check_col(pinfo->fd, COL_INFO)) 
-			col_append_fstr(pinfo->fd, COL_INFO,
+		if (check_col(pinfo->cinfo, COL_INFO)) 
+			col_append_fstr(pinfo->cinfo, COL_INFO,
 					", %i bytes", snap_len);
 	}
 

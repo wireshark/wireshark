@@ -4,7 +4,7 @@
  * By Peter Torvals
  * Copyright 1999 Peter Torvals
  *
- * $Id: packet-icp.c,v 1.19 2001/12/03 03:59:35 guy Exp $
+ * $Id: packet-icp.c,v 1.20 2001/12/10 00:25:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -160,18 +160,18 @@ static void dissect_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 options;
   guint32 option_data;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-        col_set_str(pinfo->fd, COL_PROTOCOL, "ICP");
-  if (check_col(pinfo->fd, COL_INFO))
-        col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+        col_clear(pinfo->cinfo, COL_INFO);
 
   opcode=tvb_get_guint8(tvb, 0);
   message_length=tvb_get_ntohs(tvb, 2);
   request_number=tvb_get_ntohl(tvb, 4);
 
-  if (check_col(pinfo->fd, COL_INFO))
+  if (check_col(pinfo->cinfo, COL_INFO))
   {
-        col_add_fstr(pinfo->fd,COL_INFO,"Opcode: %s (%u), Req Nr: %u",
+        col_add_fstr(pinfo->cinfo,COL_INFO,"Opcode: %s (%u), Req Nr: %u",
 		val_to_str(opcode, opcode_vals, "Unknown"), opcode,
 		request_number);
   }

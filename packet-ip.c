@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.151 2001/12/08 06:41:41 guy Exp $
+ * $Id: packet-ip.c,v 1.152 2001/12/10 00:25:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -368,7 +368,7 @@ capture_ip(const u_char *pd, int offset, int len, packet_counts *ld) {
 
 static void
 dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-			guint optlen, frame_data *fd, proto_tree *opt_tree)
+			guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf;
@@ -420,7 +420,7 @@ dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 static void
 dissect_ipopt_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-			guint optlen, frame_data *fd, proto_tree *opt_tree)
+			guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf;
@@ -465,7 +465,7 @@ dissect_ipopt_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 static void
 dissect_ipopt_sid(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-			guint optlen, frame_data *fd, proto_tree *opt_tree)
+			guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
     "%s: %u", optp->name, tvb_get_ntohs(tvb, offset + 2));
@@ -474,7 +474,7 @@ dissect_ipopt_sid(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 static void
 dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, frame_data *fd, proto_tree *opt_tree)
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf;
@@ -545,7 +545,7 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
 static void
 dissect_ipopt_ra(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-		guint optlen, frame_data *fd, proto_tree *opt_tree)
+		guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
   /* Router-Alert, as defined by RFC2113 */
   int opt = tvb_get_ntohs(tvb, offset + 2);
@@ -640,7 +640,7 @@ static const ip_tcp_opt ipopts[] = {
 void
 dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
 			const ip_tcp_opt *opttab, int nopts, int eol,
-			frame_data *fd, proto_tree *opt_tree)
+			packet_info *pinfo, proto_tree *opt_tree)
 {
   u_char            opt;
   const ip_tcp_opt *optp;
@@ -649,7 +649,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
   char             *name;
   char              name_str[7+1+1+2+2+1+1];	/* "Unknown (0x%02x)" */
   void            (*dissect)(const struct ip_tcp_opt *, tvbuff_t *,
-				int, guint, frame_data *, proto_tree *);
+				int, guint, packet_info *, proto_tree *);
   guint             len;
 
   while (length > 0) {
@@ -721,7 +721,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
         } else {
           if (dissect != NULL) {
             /* Option has a dissector. */
-            (*dissect)(optp, tvb, offset,          len, fd, opt_tree);
+            (*dissect)(optp, tvb, offset,          len, pinfo, opt_tree);
           } else {
             /* Option has no data, hence no dissector. */
             proto_tree_add_text(opt_tree, tvb, offset,  len, "%s", name);
@@ -824,10 +824,10 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tvbuff_t   *next_tvb;
   gboolean update_col_info = TRUE;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "IP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   /* Avoids alignment problems on many architectures. */
   tvb_memcpy(tvb, (guint8 *)&iph, offset, sizeof(e_ip));
@@ -862,8 +862,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (hlen < IPH_MIN_LEN) {
-    if (check_col(pinfo->fd, COL_INFO))
-      col_add_fstr(pinfo->fd, COL_INFO, "Bogus IP header length (%u, must be at least %u)",
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Bogus IP header length (%u, must be at least %u)",
        hlen, IPH_MIN_LEN);
     if (tree) {
       proto_tree_add_uint_format(ip_tree, hf_ip_hdr_len, tvb, offset, 1, hlen,
@@ -946,7 +946,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         "Options: (%u bytes)", optlen);
       field_tree = proto_item_add_subtree(tf, ett_ip_options);
       dissect_ip_tcp_options(tvb, offset + 20, optlen,
-         ipopts, N_IP_OPTS, IPOPT_END, pinfo->fd, field_tree);
+         ipopts, N_IP_OPTS, IPOPT_END, pinfo, field_tree);
     }
   }
 
@@ -1049,8 +1049,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       if (ipfd_head->flags & (FD_OVERLAPCONFLICT
                         |FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
-        if (check_col(pinfo->fd, COL_INFO)) {
-          col_set_str(pinfo->fd, COL_INFO, "[Illegal fragments]");
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+          col_set_str(pinfo->cinfo, COL_INFO, "[Illegal fragments]");
           update_col_info = FALSE;
         }
       }
@@ -1101,8 +1101,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (next_tvb == NULL) {
     /* Just show this as a fragment. */
-    if (check_col(pinfo->fd, COL_INFO))
-      col_add_fstr(pinfo->fd, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u)",
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u)",
 	ipprotostr(iph.ip_p), iph.ip_p, (iph.ip_off & IP_OFFSET) * 8);
     call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
     return;
@@ -1118,8 +1118,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (!dissector_try_port(ip_dissector_table, nxt, next_tvb, pinfo, tree)) {
     /* Unknown protocol */
     if (update_col_info) {
-      if (check_col(pinfo->fd, COL_INFO))
-        col_add_fstr(pinfo->fd, COL_INFO, "%s (0x%02x)", ipprotostr(iph.ip_p), iph.ip_p);
+      if (check_col(pinfo->cinfo, COL_INFO))
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s (0x%02x)", ipprotostr(iph.ip_p), iph.ip_p);
     }
     call_dissector(data_handle,next_tvb, pinfo, tree);
   }
@@ -1338,10 +1338,10 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean   save_in_error_pkt;
   tvbuff_t   *next_tvb;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "ICMP");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ICMP");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   /* To do: check for runts, errs, etc. */
   icmp_type = tvb_get_guint8(tvb, 0);
@@ -1426,8 +1426,8 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
   }
 
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_str(pinfo->fd, COL_INFO, type_str);
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_str(pinfo->cinfo, COL_INFO, type_str);
 
   if (tree) {
     length = tvb_length(tvb);
@@ -1525,7 +1525,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	   Set the columns non-writable, so that the packet list
 	   shows this as an ICMP packet, not as the type of packet
 	   for which the ICMP packet was generated. */
-	col_set_writable(pinfo->fd, FALSE);
+	col_set_writable(pinfo->cinfo, FALSE);
 
 	/* Also, save the current values of the addresses, and restore
 	   them when we're finished dissecting the contained packet, so

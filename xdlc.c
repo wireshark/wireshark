@@ -2,12 +2,11 @@
  * Routines for use by various SDLC-derived protocols, such as HDLC
  * and its derivatives LAPB, IEEE 802.2 LLC, etc..
  *
- * $Id: xdlc.c,v 1.15 2000/05/31 03:58:55 gram Exp $
+ * $Id: xdlc.c,v 1.16 2001/12/10 00:25:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -245,8 +244,8 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 	    ""),
 			(control & XDLC_N_R_MASK) >> XDLC_N_R_SHIFT);
 	}
-	if (check_col(pinfo->fd, COL_INFO))
-	    col_add_str(pinfo->fd, COL_INFO, info);
+	if (check_col(pinfo->cinfo, COL_INFO))
+	    col_add_str(pinfo->cinfo, COL_INFO, info);
 	if (xdlc_tree) {
 	    if (is_extended) {
 		tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
@@ -320,8 +319,8 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		    (is_response ? " F" : " P") :
 		    ""),
 		modifier);
-	if (check_col(pinfo->fd, COL_INFO))
-	    col_add_str(pinfo->fd, COL_INFO, info);
+	if (check_col(pinfo->cinfo, COL_INFO))
+	    col_add_str(pinfo->cinfo, COL_INFO, info);
 	if (xdlc_tree) {
 	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
 			offset, 1,
@@ -363,8 +362,8 @@ dissect_xdlc_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			(control & XDLC_N_R_MASK) >> XDLC_N_R_SHIFT,
 			(control & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT);
 	}
-	if (check_col(pinfo->fd, COL_INFO))
-	    col_add_str(pinfo->fd, COL_INFO, info);
+	if (check_col(pinfo->cinfo, COL_INFO))
+	    col_add_str(pinfo->cinfo, COL_INFO, info);
 	if (xdlc_tree) {
 	    tc = proto_tree_add_uint_format(xdlc_tree, hf_xdlc_control, tvb,
 			offset, (is_extended) ? 2 : 1,

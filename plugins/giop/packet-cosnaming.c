@@ -1685,8 +1685,8 @@ static gboolean dissect_cosnaming(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     pinfo->current_proto = "COSNAMING";
 
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-       col_add_str(pinfo->fd, COL_PROTOCOL, "COSNAMING");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+       col_add_str(pinfo->cinfo, COL_PROTOCOL, "COSNAMING");
 
     if (ptree) {
        ti = proto_tree_add_item(ptree, proto_cosnaming, tvb, *offset, tvb_length(tvb) - *offset, FALSE);

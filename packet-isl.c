@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.28 2001/11/25 22:51:13 hagbard Exp $
+ * $Id: packet-isl.c,v 1.29 2001/12/10 00:25:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -152,10 +152,10 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint captured_length;
   tvbuff_t *next_tvb;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "ISL");
-  if (check_col(pinfo->fd, COL_INFO))
-    col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL))
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISL");
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_clear(pinfo->cinfo, COL_INFO);
 
   type = (tvb_get_guint8(tvb, 5) >> 4)&0x0F;
 
@@ -194,8 +194,8 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        field (which is, admittedly, an OUI). */
     proto_tree_add_item(fh_tree, hf_isl_hsa, tvb, 17, 3, FALSE);
   }
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_fstr(pinfo->fd, COL_INFO, "VLAN ID: 0x%04X",
+  if (check_col(pinfo->cinfo, COL_INFO))
+    col_add_fstr(pinfo->cinfo, COL_INFO, "VLAN ID: 0x%04X",
 		 tvb_get_ntohs(tvb, 20) >> 1);
   if (tree) {
     proto_tree_add_item(fh_tree, hf_isl_vlan_id, tvb, 20, 2, FALSE);

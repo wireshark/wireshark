@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.22 2001/12/03 03:59:39 guy Exp $
+ * $Id: packet-smtp.c,v 1.23 2001/12/10 00:25:36 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -307,10 +307,10 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * fields ...
      */
 
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-      col_set_str(pinfo->fd, COL_PROTOCOL, "SMTP");
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMTP");
 
-    if (check_col(pinfo->fd, COL_INFO)) {  /* Add the appropriate type here */
+    if (check_col(pinfo->cinfo, COL_INFO)) {  /* Add the appropriate type here */
 
       /*
        * If it is a request, we have to look things up, otherwise, just
@@ -324,18 +324,18 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	switch (frame_data->pdu_type) {
 	case SMTP_PDU_MESSAGE:
 
-	  col_set_str(pinfo->fd, COL_INFO, "Message Body");
+	  col_set_str(pinfo->cinfo, COL_INFO, "Message Body");
 	  break;
 
 	case SMTP_PDU_EOM:
 
-	  col_add_fstr(pinfo->fd, COL_INFO, "EOM: %s",
+	  col_add_fstr(pinfo->cinfo, COL_INFO, "EOM: %s",
 	      format_text(line, linelen));
 	  break;
 
 	case SMTP_PDU_CMD:
 
-	  col_add_fstr(pinfo->fd, COL_INFO, "Command: %s",
+	  col_add_fstr(pinfo->cinfo, COL_INFO, "Command: %s",
 	      format_text(line, linelen));
 	  break;
 
@@ -344,7 +344,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
       else {
 
-	col_add_fstr(pinfo->fd, COL_INFO, "Response: %s",
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Response: %s",
 	    format_text(line, linelen));
 
       }

@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.24 2001/12/03 03:59:39 guy Exp $
+ * $Id: packet-sap.c,v 1.25 2001/12/10 00:25:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -142,10 +142,10 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_item *si, *sif;
         proto_tree *sap_tree, *sap_flags_tree;
 
-        if (check_col(pinfo->fd, COL_PROTOCOL))
-                col_set_str(pinfo->fd, COL_PROTOCOL, "SAP");
-        if (check_col(pinfo->fd, COL_INFO))
-                col_clear(pinfo->fd, COL_INFO);
+        if (check_col(pinfo->cinfo, COL_PROTOCOL))
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, "SAP");
+        if (check_col(pinfo->cinfo, COL_INFO))
+                col_clear(pinfo->cinfo, COL_INFO);
         
 	vers_flags = tvb_get_guint8(tvb, offset);
         is_ipv6 = vers_flags&MCAST_SAP_BIT_A;
@@ -156,8 +156,8 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         sap_version = (vers_flags&MCAST_SAP_VERSION_MASK)>>MCAST_SAP_VERSION_SHIFT;
         addr_len = (is_ipv6) ? sizeof(struct e_in6_addr) : 4;
 
-        if (check_col(pinfo->fd, COL_INFO)) {
-                col_add_fstr(pinfo->fd, COL_INFO, "%s (v%u)",
+        if (check_col(pinfo->cinfo, COL_INFO)) {
+                col_add_fstr(pinfo->cinfo, COL_INFO, "%s (v%u)",
                              (is_del) ? "Deletion" : "Announcement", sap_version);
         }
 

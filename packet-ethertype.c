@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.23 2001/12/08 06:41:41 guy Exp $
+ * $Id: packet-ethertype.c,v 1.24 2001/12/10 00:25:27 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -185,22 +185,22 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 		switch (etype) {
 
 		case ETHERTYPE_LOOP:
-			if (check_col(pinfo->fd, COL_PROTOCOL)) {
-				col_add_fstr(pinfo->fd, COL_PROTOCOL, "LOOP");
+			if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+				col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "LOOP");
 			}
 			break;
 
 		default:
-			if (check_col(pinfo->fd, COL_PROTOCOL)) {
-				col_add_fstr(pinfo->fd, COL_PROTOCOL, "0x%04x",
+			if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
+				col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x",
 				    etype);
 			}
 			break;
 		}
-		if (check_col(pinfo->fd, COL_INFO)) {
+		if (check_col(pinfo->cinfo, COL_INFO)) {
 			description = match_strval(etype, etype_vals);
 			if (description) {
-				col_add_fstr(pinfo->fd, COL_INFO, "%s",
+				col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
 				    description);
 			}
 		}

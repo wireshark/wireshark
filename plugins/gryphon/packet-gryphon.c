@@ -3,7 +3,7 @@
  * By Steve Limkemann <stevelim@dgtech.com>
  * Copyright 1998 Steve Limkemann
  *
- * $Id: packet-gryphon.c,v 1.25 2001/12/03 04:00:24 guy Exp $
+ * $Id: packet-gryphon.c,v 1.26 2001/12/10 00:26:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -157,24 +157,24 @@ dissect_gryphon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *gryphon_tree;
     guint8 frmtyp;
 
-    if (check_col(pinfo->fd, COL_PROTOCOL))
-	col_set_str(pinfo->fd, COL_PROTOCOL, "Gryphon");
-    if (check_col(pinfo->fd, COL_INFO))
-	col_clear(pinfo->fd, COL_INFO);
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Gryphon");
+    if (check_col(pinfo->cinfo, COL_INFO))
+	col_clear(pinfo->cinfo, COL_INFO);
 
     ti = proto_tree_add_item(tree, proto_gryphon, tvb, 0,
 	    	    tvb_length(tvb), FALSE);
     gryphon_tree = proto_item_add_subtree(ti, ett_gryphon);
 
-    if (check_col(pinfo->fd, COL_INFO)) {
+    if (check_col(pinfo->cinfo, COL_INFO)) {
 	/*
 	 * Indicate what kind of message the first message is.
 	 */
 	frmtyp = tvb_get_guint8(tvb, 6) & ~RESPONSE_FLAGS;
 	if (frmtyp >= SIZEOF (frame_type))
-    	    col_set_str(pinfo->fd, COL_INFO, "- Invalid -");
+    	    col_set_str(pinfo->cinfo, COL_INFO, "- Invalid -");
 	else
-    	    col_set_str(pinfo->fd, COL_INFO, frame_type[frmtyp]);
+    	    col_set_str(pinfo->cinfo, COL_INFO, frame_type[frmtyp]);
     }
 
     if (tree) {

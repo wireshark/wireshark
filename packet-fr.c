@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.26 2001/12/08 06:41:41 guy Exp $
+ * $Id: packet-fr.c,v 1.27 2001/12/10 00:25:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -147,20 +147,20 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   char    buf[32];
   guint8  fr_ctrl;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL)) 
-      col_set_str(pinfo->fd, COL_PROTOCOL, "FR");
+  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR");
 
   if (pinfo->pseudo_header->x25.flags & FROM_DCE) {
-        if(check_col(pinfo->fd, COL_RES_DL_DST))
-            col_set_str(pinfo->fd, COL_RES_DL_DST, "DTE");
-        if(check_col(pinfo->fd, COL_RES_DL_SRC))
-            col_set_str(pinfo->fd, COL_RES_DL_SRC, "DCE");
+        if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+            col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DTE");
+        if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+            col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DCE");
     }
     else {
-        if(check_col(pinfo->fd, COL_RES_DL_DST))
-            col_set_str(pinfo->fd, COL_RES_DL_DST, "DCE");
-        if(check_col(pinfo->fd, COL_RES_DL_SRC))
-            col_set_str(pinfo->fd, COL_RES_DL_SRC, "DTE");
+        if(check_col(pinfo->cinfo, COL_RES_DL_DST))
+            col_set_str(pinfo->cinfo, COL_RES_DL_DST, "DCE");
+        if(check_col(pinfo->cinfo, COL_RES_DL_SRC))
+            col_set_str(pinfo->cinfo, COL_RES_DL_SRC, "DTE");
     }
 
 /*XXX We should check the EA bits and use that to generate the address. */
@@ -169,8 +169,8 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   fr_ctrl = tvb_get_guint8( tvb, 2);
   address = EXTRACT_DLCI(fr_header);
 
-  if (check_col(pinfo->fd, COL_INFO)) 
-      col_add_fstr(pinfo->fd, COL_INFO, "DLCI %u", address);
+  if (check_col(pinfo->cinfo, COL_INFO)) 
+      col_add_fstr(pinfo->cinfo, COL_INFO, "DLCI %u", address);
 
   if (tree) {
       ti = proto_tree_add_protocol_format(tree, proto_fr, tvb, 0, 3, "Frame Relay");
@@ -237,10 +237,10 @@ static void dissect_fr_uncompressed(tvbuff_t *tvb, packet_info *pinfo,
   proto_item *ti = NULL;
   proto_tree *fr_tree = NULL;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL)) 
-      col_set_str(pinfo->fd, COL_PROTOCOL, "FR");
-  if (check_col(pinfo->fd, COL_INFO)) 
-      col_clear(pinfo->fd, COL_INFO);
+  if (check_col(pinfo->cinfo, COL_PROTOCOL)) 
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR");
+  if (check_col(pinfo->cinfo, COL_INFO)) 
+      col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
       ti = proto_tree_add_protocol_format(tree, proto_fr, tvb, 0, 4, "Frame Relay");

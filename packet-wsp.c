@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.49 2001/12/08 06:41:42 guy Exp $
+ * $Id: packet-wsp.c,v 1.50 2001/12/10 00:25:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -757,7 +757,7 @@ typedef enum {
 static dissector_table_t wsp_dissector_table;
 static heur_dissector_list_t heur_subdissector_list;
 
-static void add_uri (proto_tree *, frame_data *, tvbuff_t *, guint, guint);
+static void add_uri (proto_tree *, packet_info *, tvbuff_t *, guint, guint);
 static void add_headers (proto_tree *, tvbuff_t *);
 static int add_well_known_header (proto_tree *, tvbuff_t *, int, guint8);
 static int add_unknown_header (proto_tree *, tvbuff_t *, int, guint8);
@@ -993,7 +993,6 @@ static void
 dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     dissector_handle_t dissector_handle, gboolean is_connectionless)
 {
-	frame_data *fdata = pinfo->fd;
 	int offset = 0;
 
 	guint8 pdut;
@@ -1031,9 +1030,9 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	pdut = tvb_get_guint8 (tvb, offset);
 
 	/* Develop the string to put in the Info column */
-	if (check_col(fdata, COL_INFO))
+	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-		col_append_fstr(fdata, COL_INFO, "WSP %s",
+		col_append_fstr(pinfo->cinfo, COL_INFO, "WSP %s",
 			val_to_str (pdut, vals_pdu_type, "Unknown PDU type (0x%02x)"));
 	};
 
@@ -1141,7 +1140,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				/* Length of URI and size of URILen field */
 			value = tvb_get_guintvar (tvb, offset, &count);
 			nextOffset = offset + count;
-			add_uri (wsp_tree, fdata, tvb, offset, nextOffset);
+			add_uri (wsp_tree, pinfo, tvb, offset, nextOffset);
 			if (tree) {
 				offset += (value+count); /* VERIFY */
 				tmp_tvb = tvb_new_subset (tvb, offset, -1, -1);
@@ -1158,7 +1157,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			headersLength = tvb_get_guintvar (tvb, headerStart, &count);
 			offset = headerStart + count;
 
-			add_uri (wsp_tree, fdata, tvb, uriStart, offset);
+			add_uri (wsp_tree, pinfo, tvb, uriStart, offset);
 			if (tree) {
 				offset += uriLength;
 
@@ -1290,10 +1289,10 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_wsp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if (check_col(pinfo->fd, COL_PROTOCOL))
-		col_set_str(pinfo->fd, COL_PROTOCOL, "WSP" );
-	if (check_col(pinfo->fd, COL_INFO))
-		col_clear(pinfo->fd, COL_INFO);
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "WSP" );
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	dissect_wsp_common(tvb, pinfo, tree, wsp_fromudp_handle, TRUE);
 }
@@ -1323,15 +1322,15 @@ dissect_wsp_fromwap_cl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/*
 	 * XXX - what about WTLS->WSP?
 	 */
-	if (check_col(pinfo->fd, COL_INFO))
+	if (check_col(pinfo->cinfo, COL_INFO))
 	{
-		col_clear(pinfo->fd, COL_INFO);
+		col_clear(pinfo->cinfo, COL_INFO);
 	}
 	dissect_wsp_common(tvb, pinfo, tree, wtp_fromudp_handle, TRUE);
 }
 
 static void
-add_uri (proto_tree *tree, frame_data *fdata, tvbuff_t *tvb, guint URILenOffset, guint URIOffset)
+add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint URILenOffset, guint URIOffset)
 {
 	proto_item *ti;
 	char *newBuffer;
@@ -1348,8 +1347,8 @@ add_uri (proto_tree *tree, frame_data *fdata, tvbuff_t *tvb, guint URILenOffset,
 	newBuffer[uriLen+1] = 0;
 	if (tree)
 		ti = proto_tree_add_string (tree, hf_wsp_header_uri,tvb,URIOffset,uriLen,newBuffer+1);
-	if (check_col(fdata, COL_INFO)) {
-		col_append_str(fdata, COL_INFO, newBuffer);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_str(pinfo->cinfo, COL_INFO, newBuffer);
 	};
 	g_free (newBuffer);
 }
