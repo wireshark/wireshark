@@ -1,12 +1,238 @@
-$Id: ChangeLog,v 1.27 2003/08/24 01:43:59 sahlberg Exp $
+$Id: ChangeLog,v 1.28 2003/09/08 03:13:14 gerald Exp $
  
-Overview of changes in Ethereal 0.0.2:
+Overview of changes in Ethereal 0.9.15:
+
+* Initial Laplink support (Brad Hards)
+* Add descriptions of permissions for SAM_SERVER and SAM_USER objects in
+  SAMR (Jean-Baptiste Marchand)
+* Check the correct byte for IGMPv1/v2 host membership queries 
+  (Markus Seehofer)
+* Add preferences to TCP and UDP to check heuristic dissectors first 
+  (Lars Roland, Guy)
+* Prepare the scanner and parser for the "contains" operator (Gilbert)
+* Fix signed/unsigned comparison warnings in various places (Gilbert)
+* Fix some gcc warnings in various dissectors (Gilbert)
+* Get rid of carriage returns in packet-mgcp.h and file.h (Guy)
+* Update MEGACO to call H.245 (Ronnie)
+* Fix NetInfo parent server address, parent server tag, and capitalization
+  (Guy)
+* Update to PER to decode PrintableString properly (Ronnie)
+* Prettify the presentation of RPC duplicates (Ronnie)
+* Add extension encoding display to ASN.1 PER CHOICE fields (Ronnie)
+* Fix minor bugs in h245 decoding (Ronnie)
+* Add support for reading files from Accellent 5Views LAN agents 
+  (Thierry Martin)
+* Integer size and byte order fixes for 5Views (Guy)
+* Memory freeing and header writing fix for LANalyzer (Guy)
+* Use GLib's byte order macros and clean up argument names in wtap-int.h
+  and pint.h (Guy)
+* Check the validity of WSP URIs. (Guy)
+* Fix segmented data passing and payload fragment display in WTP
+  (Georg von Zezschwitz)
+* Tweak WTP column display (Guy)
+* Add a workaround for MEGACO TransactionResponseAcks parsing (Guy)
+* Check for a null string pointer in LDAP (Guy)
+* Fix a typo, add a note about escaping backslashes in the man pages (Guy)
+* Escape backslashes  and double quotes in strings when generating the
+  dfilter representation of the string (Guy)
+* Improve absolute and relative time display filter construction (Guy)
+* Improve float display filter creation (Guy)
+* Improve IPv4 display filter creation (Guy)
+* Update ASN.1 PER string handling (Ronnie)
+* Update some H.245 restricted character set alphabets (Ronnie)
+* Add an H.225 dissector (Ronnie)
+* Add another null string check to LDAP (Bernd Leibing)
+* Add "UPDATE" as a valid SIP method, register the SIP decoder
+  (Ruud Linders)
+* Export a pile of routines in packet.h to plugins (Tomas Kukosa)
+* Set FD_DEGRAGMENTED even if there's only one fragment (Tomas)
+* Improve printable character checking under Windows (Chris Heath)
+* Fix some H.225 bugs, make it compile in by default (Ronnie)
+* Make H.225 register any H.245 TCP ports it finds (Ronnie)
+* Add a heuristic dissector list for SCTP (Guy)
+* Add packet-h245.h to the distribution (Gerald)
+* Update and improve the DCE/RPC value_string code (Tim)
+* Convert UCD SNMP column info newlines to spaces (Guy)
+* Add support for GTK+ 1.3 + GLIB 2.0 (Lars)
+* Build with Glib 2.0 and GTK+ 1.3 by default under Windows (Gerald)
+* Allow hyphens in preference module names (Guy)
+* Dissect some more SMB set attr calls (Richard)
+* Register SIP as a heuristic subdissector of SCTP (Guy)
+* Fix "x-wap.tod" decoding in WSP (Loi"c Minier)
+* Add "ipx.net", "ipx.node", and "ipx.socket" hidden fields (Greg, Guy)
+* Add support for case-insensitive full-text searches (Greg)
+* LWRES (Oleg Terletsky)
+* Make IPX source and destination networks FT_IPXNET (Guy)
+* Update the LWRES Makefile.nmake (Lars)
+* Get rid of unneccessary ip_to_str() in LWRES (Lars)
+* Codeset fixes and enhancements for Q.931 (Tomas)
+* Make WLAN signal strength signed (Solomon)
+* Remove the reference to the nonexistent packet-lwres.h (Gerald)
+* More vigourously check the SCTP DATA payload length (Guy)
+* Add two GIOP routines to the exported functions list (Guy)
+* Add the ability to have a preferences file containing
+  a list of disabled protocols (Michael Lum, Guy)
+* Document the disabled_protos file (Guy)
+* Fix end-of-line comment handling in disabled_protos (Guy)
+* Allow zero-length payload packets to participate in reassembly (Loi"c)
+* Supply the full list of IP protocol numbers from IANA (Brad)
+* Use conversations for RTP/RTCP port numbers in H.225 (Ronnie)
+* Tweaks and improvements for tvb_get_nstringz0() (Guy)
+* Update InterSwitch Link Frame Format documentation URL (Guy)
+* Fixes for the SUA subdissection code (Niels Koot)
+* Change Loi"c Minier's e-mail address (Guy)
+* Handle IPsec-over-UDP NAT-keepalive packets, other fixes (Guy)
+* Register ISAKMP by name (Guy)
+* Add the non-ESP marker to the IPsec-over-UDP protocol tree, fix
+  the length (Guy)
+* Support H.225 faststart elements, make the display look more like the
+  old dissector (Lars)
+* Update and enhance the find capabilities (Greg)
+* Change PPTP strings to more closely match the RFC (Gerald)
+* Save and restore the value of pinfo->current_proto when calling a
+  dissector in call_dissector_through_handle() (Tim)
+* Put CLDAP instead of LDAP in COL_INFO for LDAP over UDP (Tim)
+* Fixes for testing all variations of query fsinfo in SMB (Tim)
+* Abbreviate some SMB info column data (Tim)
+* Removed references to CIFS TR section numbers from various value_strings
+  (Tim)
+* Add buffer overflow prevention to the recent Find enhancements (Greg)
+* Some fixes for UNIX CIFS extensions in SMB (Tim)
+* Fix offset checking in SMB (Guy)
+* Make the AH and ESP sequence numbers BASE_DEC (Gerald)
+* Add chain position interpretation and new file format prefs to FW-1
+  (Alfred Koebler)
+* Get rid of an unused variable in SMB (Guy)
+* Removed an invalid GIOP function from the exported list (Guy)
+* Set up conversations to use RTP and RTCP based on H.245 information
+  (Ronnie)
+* Various fixes and cleanups for ENIP (Joakim Widberg)
+* Fix a const cast in LDAP (Guy)
+* Add STUN (RFC 3489) support (Shiang-Ming Huang)
+* Register the ARP dissector, as the RT-Net dissector uses it (Erwin Rol)
+* Change the SMB AndX command fields to support smb.cmd!=0xXY (Ronnie)
+* Prettify the RPC and NFS (v3) layer (Richard)
+* Change a NULL to an empty string in STUN (Gerald)
+* Add SRVLOC-over-TCP support (Greg)
+* Update DHCPv6 to support a pile of new(er) drafts (Tony Lindstrom)
+* Add checks for read errors in "read_prefs()" (Guy)
+* Several updates to support MingW + gcc 3.3.1 (Gisle Vanem)
+* Slightly overhaul the automatic generation of exported functions
+  (Matthijs Melchior, Guy)
+* Check in Xass-list, so the CVS tree can be built on Windows (Guy)
+* Add the ability to import/export color filters from Ethereal
+  (Richard Urwin)
+* Get plugins/README.interface into the source tarball (Guy)
+* Improve the generation of the xyzzy file (Guy)
+* Decode the HighLen 16 bit integer in SMB (Ronnie)
+* Update to the Response Time Statistics taps (Ronnie)
+* Void functions don't return values, even though GCC likes to pretend
+  that they do (Guy)
+* Construct the About box ourselves (Guy)
+* Remove an offending bit in DCE/RPC LSA (Richard)
+* Fix the length and offset for large file support in SMB (Ronnie)
+* Don't do a check inside an AC_MSG_CHECKING/AC_MSG_RESULT pair (Guy)
+* Fix the handling of a MaxCountHigh field in an SMB READ_ANDX (Guy)
+* Clean up configure.in (Guy)
+* Clean up acinclude.m4 (Guy)
+* Label the Count field in a Write AndX response as such in SMB (Guy)
+* Rework the statistics windows (Lars)
+* Allow subdissectors to be registered for NonStandardParameter data in
+  the H.245 dissector (Tomas)
+* Improve FCS handling in Ethernet frames (Guy)
+* Support in SMPP for GSM SMS and GSM CBS, fix reassembly (Ronnie)
+* Data name, string display and reassembly updates for TDS (Guy)
+* Add H.263 support (Niklas Ogren)
+* Flag Netlib "not last buffer" packets as such (Guy)
+* Update TDS to match the FreeTDS documentation (Guy)
+* Add a dissector table for RTP payload types (Guy)
+* Export PER, H.225, and H.245 routines to plugins (Tomas)
+* Take _U_ out of declarations in packet-per.h (Guy)
+* Fix plugin_gen.py for Python < 2.0
+* Enhance the Statistics/Endpoint Talkers code (Ronnie)
+* Add Fibre Channel to the conversation list protocols (Ronnie)
+* Update UDP and TCP to handle IPv6 conversations (Ronnie)
+* Remove fc32_to_str(), since it's no longer needed (Guy)
+* Add blurbs for the hF fields in the H.263 dissector (Niklas Ogren)
+* Update to NTLMSSP to better handle address lists (Devin Heitmuller)
+* Constify a variable in packet-eth.c (Guy)
+* Fix address string representationin endpoint talkers (Guy)
+* Fix casts and signedness in enpoint talkers code (Guy)
+* Updates to the ArtNet plugin dissector (Erwin Rol)
+* Add address_to_str() and use it in the talkers code (Ronnie)
+* Update address_to_str to handle FC and ETH addresses (Ronnie)
+* Update talkers documentation, rename -z io,users to -z talkers (Ronnie)
+* Add support for Fibre Channel talker statistics for tethereal (Ronnie)
+* Add a tap to the IPX protocol (Ronnie)
+* Rearrange the IPX tree slightly (Ronnie)
+* Add endpoint talker support for IPX (Ronnie)
+* Update to_str.c (Guy)
+* Clean up some of the talkers documentation (Guy)
+* Get rid of the wrappers around "address_to_str()" (Guy)
+* "P" in "PER" stands for "Packed", not "Packet" (Matthijs Melchior)
+* Allow fields to be registered after the fact, fix a dialog name
+  (Matthijs)
+* Update the title of tethereal's talker output (Guy)
+* Tweak heuristic RPC detection (Ronnie)
+* Put the capture filename on the titlebar of stat and talker windows
+  (Ronnie)
+* Include the header files required by new APIs in the plugin API table
+  (Guy)
+* Update the menu bar and protocol and display filter windows (Matthijs)
+* H.263 updates (Niklas)
+* Don't use global variables for NDPS reassembly, and catch the SPX EOM
+  flag (Greg Morris)
+* Add a pile of NCP updates, support NDS defragmentation (Greg)
+* Update address display in SNA (Guy)
+* Include "osi-utils.h" to define "print_nsap_net_buf()" in to_str.c (Guy)
+* Use "address_to_str_buf()" to generate column data for non-resolved
+  addresses (Guy)
+* Wire address_to_str() into the talkers display code (Guy)
+* Handle snapshot lengths that cut off *part* of the Ethernet FCS (Guy)
+* Extract the CRC-32 code from the 802.11 dissector into a separate file,
+  and use it in the Ethernet dissector (Guy)
+* Extract the FCS decoding section of the PPP_HDLC dissector to allow the
+  CHDLC dissector to use the same routine (Jesper Peterson, Guy)
+* Fix a typo in prefs.c (Guy)
+* Make the CRC-32 routines take a tvbuff and a length as arguments (Guy)
+* Handle AT_NONE addresses better in col_set_addr() (Guy)
+* Support for Endace ERF file format (Jesper)
+* Fix pointer passing in packet-ip.c (Guy)
+* Fix macro logic to allow classical resolution even if we have
+  HAVE_GNU_ADNS defined (Gerald)
+* Make the option to display the internal PER fields default to FALSE
+  (Ronnie)
+* Updates and fixes to MEGACO (Anders Broman)
+* Handle the different NonStandardParameters of H.225 and H.245 (Ronnie)
+* Update the default ATM encapsulation for ERF files, other fixes (Jesper)
+* Add filter popup to endpoint talkers (Ronnie)
+* Add a "contains" operator (yay!) (Gilbert)
+* Include <string.h> in ftype-tvbuff.c (Guy)
+* Fix a typo in packet-eth.c (Jesper)
+* Update to the talkers popup list (Ronnie)
+* Properly label color filter export/import buttons, other fixes, color
+  filter documentation updates (Richard Urwin, Guy)
+* Use "GPOINTER_TO_INT()" to squelch talker compiler warnings (Guy)
+* Don't create a Fibre Channel dissector handle (Guy)
+* Fix the dissection of TDS7 login packets, and add dissection for several
+  fields in that packet (Yaniv Kaul)
+* Make various lengths unsigned in "dissect_fhandle_data_unknown()" (Guy)
+* 
+
+
+
+
+
+Left off at http://www.ethereal.com/lists/ethereal-cvs/200308/msg00221.html
+
+
+
  
 * Number of new packets
 * Added strings for several fields
 * Use "Art-Net" instead of "ArtNET"
 * Number of (endian) bugs fixed
-$Id: ChangeLog,v 1.27 2003/08/24 01:43:59 sahlberg Exp $
+
 
 Overview of changes in Ethereal 0.9.14:
 

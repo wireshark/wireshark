@@ -1,4 +1,70 @@
-$Id: NEWS,v 1.133 2003/07/24 01:41:34 gerald Exp $
+$Id: NEWS,v 1.134 2003/09/08 03:13:14 gerald Exp $
+
+== September 9, 2003
+
+Ethereal 0.9.15 has been released.
+
+New and updated features
+
+  Endpoint Talker (aka "top talker") support has been added.  Protocol 
+  statistics in general have been updated.
+
+  Searching capture files has been improved even more -- a new "contains"
+  display filter that searches for strings in PDUs has been added.  The
+  Find dialog now supports case-insensitive searches, hex data searches,
+  and more.
+
+  An H.225 dissector has been added.  It can automatically recognize RTP
+  and RTCP conversations.
+
+  A preference file has been added for disabled protocols.
+  
+  Color filters may now be imported and exported from within Ethereal.
+  
+
+New protocols
+
+H.225,
+H.263,
+Laplink,
+STUN,
+
+
+Updated protocols
+
+ArtNet,
+DCE/RPC,
+DHCPv6,
+ENIP,
+Ethernet,
+H.245,
+IPsec,
+LDAP,
+LWRES,
+MEGACO,
+NCP,
+NDPS,
+NFS,
+PPTP,
+Q.931,
+RPC,
+SAMR,
+SCTP,
+SMB,
+SMPP,
+SNA,
+SRVLOC,
+SIP,
+SUA,
+TCP,
+TDS,
+UDP,
+WSP,
+
+Updated capture file support
+
+  Accellent 5Views, CheckPoint FW-1, Endace ERF, LANalyzer, 
+
 
 == July 23, 2003
 
@@ -18,7 +84,7 @@ New and updated features
   without capture support.
   
 
-New protocols
+New and updated features
 
   Echo, eDonkey, Jabber, MS Messenger, sFlow
 
