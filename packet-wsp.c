@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.40 2001/10/07 08:49:46 guy Exp $
+ * $Id: packet-wsp.c,v 1.41 2001/10/18 08:23:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1049,69 +1049,49 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	switch (pdut)
 	{
 		case CONNECT:
-			if (tree) {
-				ti = proto_tree_add_item (wsp_tree, hf_wsp_version_major,tvb,offset,1,bo_little_endian);
-				ti = proto_tree_add_item (wsp_tree, hf_wsp_version_minor,tvb,offset,1,bo_little_endian);
-				offset++;
-				capabilityStart = offset;
-				count = 0;	/* Initialise count */
-				capabilityLength = tvb_get_guintvar (tvb, offset, &count);
-				offset += count;
-				ti = proto_tree_add_uint (wsp_tree, hf_wsp_capability_length,tvb,capabilityStart,count,capabilityLength);
-
-				headerStart = offset;
-				count = 0;	/* Initialise count */
-				headerLength = tvb_get_guintvar (tvb, offset, &count);
-				offset += count;
-				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,headerLength);
-				if (capabilityLength > 0)
-				{
-					tmp_tvb = tvb_new_subset (tvb, offset, capabilityLength, capabilityLength);
-					add_capabilities (wsp_tree, tmp_tvb, CONNECT);
-					offset += capabilityLength;
-				}
-
-				if (headerLength > 0)
-				{
-					tmp_tvb = tvb_new_subset (tvb, offset, headerLength, headerLength);
-					add_headers (wsp_tree, tmp_tvb);
-				}
-			}
-
-			break;
-
 		case CONNECTREPLY:
+		case RESUME:
 			if (tree) {
-				count = 0;	/* Initialise count */
-				value = tvb_get_guintvar (tvb, offset, &count);
-				ti = proto_tree_add_uint (wsp_tree, hf_wsp_server_session_id,tvb,offset,count,value);
-				offset += count;
-
+				if (pdut == CONNECT)
+				{
+					ti = proto_tree_add_item (wsp_tree, hf_wsp_version_major,tvb,offset,1,bo_little_endian);
+					ti = proto_tree_add_item (wsp_tree, hf_wsp_version_minor,tvb,offset,1,bo_little_endian);
+					offset++;
+				} else {
+					count = 0;	/* Initialise count */
+					value = tvb_get_guintvar (tvb, offset, &count);
+					ti = proto_tree_add_uint (wsp_tree, hf_wsp_server_session_id,tvb,offset,count,value);
+					offset += count;
+				}
 				capabilityStart = offset;
 				count = 0;	/* Initialise count */
 				capabilityLength = tvb_get_guintvar (tvb, offset, &count);
 				offset += count;
 				ti = proto_tree_add_uint (wsp_tree, hf_wsp_capability_length,tvb,capabilityStart,count,capabilityLength);
 
-				headerStart = offset;
-				count = 0;	/* Initialise count */
-				headerLength = tvb_get_guintvar (tvb, offset, &count);
-				offset += count;
-				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,headerStart,count,headerLength);
+				if (pdut != RESUME)
+				{
+					count = 0;	/* Initialise count */
+					headerLength = tvb_get_guintvar (tvb, offset, &count);
+					ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,offset,count,headerLength);
+					offset += count;
+					capabilityStart = offset;
+					headerStart = capabilityStart + capabilityLength;
+				} else {
+						/* Resume computes the headerlength by remaining bytes */
+					capabilityStart = offset;
+					headerStart = capabilityStart + capabilityLength;
+					headerLength = tvb_reported_length_remaining (tvb, headerStart);
+				}
 				if (capabilityLength > 0)
 				{
 					tmp_tvb = tvb_new_subset (tvb, offset, capabilityLength, capabilityLength);
-					add_capabilities (wsp_tree, tmp_tvb, CONNECTREPLY);
+					add_capabilities (wsp_tree, tmp_tvb, pdut);
 					offset += capabilityLength;
 				}
 
 				if (headerLength > 0)
 				{
-
-					/*
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_headers_section,tvb,offset,headerLength,bo_little_endian);
-					wsp_headers = proto_item_add_subtree( ti, ett_headers );
-					*/
 					tmp_tvb = tvb_new_subset (tvb, offset, headerLength, headerLength);
 					add_headers (wsp_tree, tmp_tvb);
 				}
@@ -1125,6 +1105,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 
 		case DISCONNECT:
+		case SUSPEND:
 			if (tree) {
 				count = 0;	/* Initialise count */
 				value = tvb_get_guintvar (tvb, offset, &count);
@@ -1354,7 +1335,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb)
 	proto_tree *wsp_headers;
 	guint offset = 0;
 	guint headersLen = tvb_reported_length (tvb);
-	guint8 headerStart = 0;
+	guint headerStart = 0;
 	guint peek = 0;
 	guint pageCode = 1;
 

@@ -821,6 +821,8 @@ Georg von Zezschwitz <gvz[AT]2scale.net> {
 	WSP fixes
 	Support for concatenated PDUs
 	Put URL of WSP GET/POST in the Info column
+	Fix a bug with WSP Connect requests with headers > 256 bytes
+	Implement attributes of WSP Suspend/Resume
 }
 
 Steffen Weinreich <steve[AT]weinreich.org> {
