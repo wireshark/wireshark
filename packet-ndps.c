@@ -3,7 +3,7 @@
  * Greg Morris <gmorris@novell.com>
  * Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ndps.c,v 1.17 2003/04/09 08:51:18 guy Exp $
+ * $Id: packet-ndps.c,v 1.18 2003/04/09 20:45:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3330,8 +3330,8 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     spx_info        *spx_data;
 
     spx_data = pinfo->private_data;
-    if (!ndps_defragment || spx_data->num != pinfo->fd->num) {
-        if (spx_data->num != pinfo->fd->num) {
+    if (!ndps_defragment || spx_data != NULL) {
+        if (spx_data != NULL) {
             if (check_col(pinfo->cinfo, COL_INFO))
             {
                 col_add_fstr(pinfo->cinfo, COL_INFO, "[Retransmission] Original Packet %d", spx_data->num);
