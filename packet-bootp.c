@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.33 2000/05/19 04:54:32 gram Exp $
+ * $Id: packet-bootp.c,v 1.34 2000/05/31 05:06:54 guy Exp $
  *
  * The information used comes from:
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
@@ -583,7 +583,7 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_bootp, NullTVB, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_bootp, NullTVB, offset, END_OF_FRAME, FALSE);
 		bp_tree = proto_item_add_subtree(ti, ett_bootp);
 
 		proto_tree_add_uint_format(bp_tree, hf_bootp_type, NullTVB, 
@@ -597,28 +597,28 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 					   "Hardware type: %s",
 					   arphrdtype_to_str(pd[offset+1],
 							     "Unknown (0x%02x)"));
-		proto_tree_add_item(bp_tree, hf_bootp_hw_len, NullTVB,
+		proto_tree_add_uint(bp_tree, hf_bootp_hw_len, NullTVB,
 				    offset + 2, 1, pd[offset+2]);
-		proto_tree_add_item(bp_tree, hf_bootp_hops, NullTVB,
+		proto_tree_add_uint(bp_tree, hf_bootp_hops, NullTVB,
 				    offset + 3, 1, pd[offset+3]);
-		proto_tree_add_item(bp_tree, hf_bootp_id, NullTVB,
+		proto_tree_add_uint(bp_tree, hf_bootp_id, NullTVB,
 				   offset + 4, 4, pntohl(&pd[offset+4]));
-		proto_tree_add_item(bp_tree, hf_bootp_secs, NullTVB,
+		proto_tree_add_uint(bp_tree, hf_bootp_secs, NullTVB,
 				    offset + 8, 2, pntohs(&pd[offset+8]));
-		proto_tree_add_item(bp_tree, hf_bootp_flag, NullTVB,
+		proto_tree_add_uint(bp_tree, hf_bootp_flag, NullTVB,
 				    offset + 10, 2, pntohs(&pd[offset+10]) & 0x8000);
 
 		memcpy(&ip_addr, &pd[offset+12], sizeof(ip_addr));
-		proto_tree_add_item(bp_tree, hf_bootp_ip_client, NullTVB, 
+		proto_tree_add_ipv4(bp_tree, hf_bootp_ip_client, NullTVB, 
 				    offset + 12, 4, ip_addr);
 		memcpy(&ip_addr, &pd[offset+16], sizeof(ip_addr));
-		proto_tree_add_item(bp_tree, hf_bootp_ip_your, NullTVB, 
+		proto_tree_add_ipv4(bp_tree, hf_bootp_ip_your, NullTVB, 
 				    offset + 16, 4, ip_addr);
 		memcpy(&ip_addr, &pd[offset+20], sizeof(ip_addr));
-		proto_tree_add_item(bp_tree, hf_bootp_ip_server, NullTVB,
+		proto_tree_add_ipv4(bp_tree, hf_bootp_ip_server, NullTVB,
 				    offset + 20, 4, ip_addr);
 		memcpy(&ip_addr, &pd[offset+24], sizeof(ip_addr));
-		proto_tree_add_item(bp_tree, hf_bootp_ip_relay, NullTVB,
+		proto_tree_add_ipv4(bp_tree, hf_bootp_ip_relay, NullTVB,
 				    offset + 24, 4, ip_addr);
 
 		if (pd[offset+2] > 0) {
@@ -630,7 +630,7 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 								     pd[offset+2], pd[offset+1]));
 		}
 		else {
-			proto_tree_add_item(bp_tree, hf_bootp_hw_addr, NullTVB, 
+			proto_tree_add_bytes(bp_tree, hf_bootp_hw_addr, NullTVB, 
 						   offset + 28, 0, NULL);
 		}
 
@@ -672,7 +672,7 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		}
 		else {
 			memcpy(&ip_addr, &pd[offset + 236], sizeof(ip_addr));
-			proto_tree_add_item(bp_tree, hf_bootp_cookie, NullTVB,
+			proto_tree_add_ipv4(bp_tree, hf_bootp_cookie, NullTVB,
 					    offset + 236, 4, ip_addr);
 		}
 
@@ -687,7 +687,7 @@ dissect_bootp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				col_add_str(fd, COL_PROTOCOL, "DHCP");
 			if (check_col(fd, COL_INFO))
 				col_add_fstr(fd, COL_INFO, "DHCP %-8s - Trans. ID 0x%x", is_dhcp, pntohl(&pd[offset+4]) );
-			proto_tree_add_item_hidden(bp_tree, hf_bootp_dhcp, NullTVB, 0, 0, 1);
+			proto_tree_add_boolean_hidden(bp_tree, hf_bootp_dhcp, NullTVB, 0, 0, 1);
 			}
 	}
 }

@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.18 2000/05/11 08:15:10 gram Exp $
+ * $Id: packet-http.c,v 1.19 2000/05/31 05:07:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,7 +92,7 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_http, NullTVB, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_http, NullTVB, offset, END_OF_FRAME, FALSE);
 		http_tree = proto_item_add_subtree(ti, ett_http);
 
 		while (data < dataend) {
@@ -189,12 +189,12 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 		switch (http_type) {
 
 		case HTTP_RESPONSE:
-			proto_tree_add_item_hidden(http_tree, 
+			proto_tree_add_boolean_hidden(http_tree, 
 					       hf_http_response, NullTVB, 0, 0, 1);
 			break;
 
 		case HTTP_REQUEST:
-			proto_tree_add_item_hidden(http_tree, 
+			proto_tree_add_boolean_hidden(http_tree, 
 					       hf_http_request, NullTVB, 0, 0, 1);
 			break;
 

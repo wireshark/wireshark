@@ -3,7 +3,7 @@
  *
  * Jason Lango <jal@netapp.com>
  *
- * $Id: packet-rtp.c,v 1.3 2000/05/11 08:15:43 gram Exp $
+ * $Id: packet-rtp.c,v 1.4 2000/05/31 05:07:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -108,7 +108,7 @@ dissect_rtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_rtp, NullTVB, offset, END_OF_FRAME,
-			NULL);
+			FALSE);
 		rtp_tree = proto_item_add_subtree(ti, ett_rtp);
 	}
 

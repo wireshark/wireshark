@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.6 2000/05/11 08:15:16 gram Exp $
+ * $Id: packet-isis-lsp.c,v 1.7 2000/05/31 05:07:12 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -791,20 +791,20 @@ isis_dissect_isis_lsp(int lsp_type, int header_length,
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isis_lsp, NullTVB,
-			offset, END_OF_FRAME, NULL);
+			offset, END_OF_FRAME, FALSE);
 		lsp_tree = proto_item_add_subtree(ti, ett_isis_lsp);
-		proto_tree_add_item(lsp_tree, hf_isis_lsp_pdu_length, NullTVB,
+		proto_tree_add_uint(lsp_tree, hf_isis_lsp_pdu_length, NullTVB,
 			offset, 2, pntohs(&ilp->isis_lsp_pdu_length));
-		proto_tree_add_item(lsp_tree, hf_isis_lsp_remaining_life, NullTVB,
+		proto_tree_add_uint(lsp_tree, hf_isis_lsp_remaining_life, NullTVB,
 			offset + 2, 2, pntohs(&ilp->isis_lsp_remaining_life));
 		isis_lsp_decode_lsp_id("LSP ID", lsp_tree, offset + 4, 
 			&ilp->isis_lsp_id );
-		proto_tree_add_item(lsp_tree, hf_isis_lsp_sequence_number, NullTVB,
+		proto_tree_add_uint(lsp_tree, hf_isis_lsp_sequence_number, NullTVB,
 			offset + 12, 4, 
 			pntohl(&ilp->isis_lsp_sequence_number));
 
 		/* XXX -> we could validate the cksum here! */
-		proto_tree_add_item(lsp_tree, hf_isis_lsp_checksum, NullTVB,
+		proto_tree_add_uint(lsp_tree, hf_isis_lsp_checksum, NullTVB,
 			offset + 16, 2, pntohs(&ilp->isis_lsp_checksum));
 
 		/*

@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.5 2000/05/11 08:15:55 gram Exp $
+ * $Id: packet-vrrp.c,v 1.6 2000/05/31 05:07:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -132,7 +132,7 @@ dissect_vrrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                         return;
                 }
 
-                ti = proto_tree_add_item(tree, proto_vrrp, NullTVB, offset, END_OF_FRAME, NULL);
+                ti = proto_tree_add_item(tree, proto_vrrp, NullTVB, offset, END_OF_FRAME, FALSE);
                 vrrp_tree = proto_item_add_subtree(ti, ett_vrrp);
 
                 tv = proto_tree_add_uint_format(vrrp_tree, hf_vrrp_ver_type, NullTVB, offset, 1,
@@ -140,8 +140,8 @@ dissect_vrrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                                                 hi_nibble(vrh.ver_type), lo_nibble(vrh.ver_type),
                                                 val_to_str(lo_nibble(vrh.ver_type), vrrp_type_vals, "Unknown"));
                 ver_type_tree = proto_item_add_subtree(tv, ett_vrrp_ver_type);
-                proto_tree_add_item(ver_type_tree, hf_vrrp_version, NullTVB, offset, 1, vrh.ver_type);
-                proto_tree_add_item(ver_type_tree, hf_vrrp_type, NullTVB, offset, 1, vrh.ver_type);
+                proto_tree_add_uint(ver_type_tree, hf_vrrp_version, NullTVB, offset, 1, vrh.ver_type);
+                proto_tree_add_uint(ver_type_tree, hf_vrrp_type, NullTVB, offset, 1, vrh.ver_type);
                 offset++;
                 
                 proto_tree_add_text(vrrp_tree, NullTVB, offset++, 1, "Virtual Router ID: %u", vrh.vrouter_id);

@@ -1,6 +1,6 @@
 /* packet-eigrp.c
  *
- * $Id: packet-eigrp.c,v 1.3 2000/05/30 03:35:51 guy Exp $
+ * $Id: packet-eigrp.c,v 1.4 2000/05/31 05:07:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -104,7 +104,7 @@ dissect_eigrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	val_to_str( ih.eigrp_opcode, eigrp_opcode_vals, "Unknown (0x%04x)"));
   if (tree) {
 
-     ti = proto_tree_add_item(tree, proto_eigrp, NullTVB, offset, END_OF_FRAME, NULL);
+     ti = proto_tree_add_item(tree, proto_eigrp, NullTVB, offset, END_OF_FRAME, FALSE);
      eigrp_tree = proto_item_add_subtree(ti, ett_eigrp);
   
      proto_tree_add_text(eigrp_tree, NullTVB, offset, 1, "Version: %u", ih.eigrp_version); 

@@ -3,7 +3,7 @@
  *
  * Jason Lango <jal@netapp.com>
  *
- * $Id: packet-rtcp.c,v 1.2 2000/05/11 08:15:42 gram Exp $
+ * $Id: packet-rtcp.c,v 1.3 2000/05/31 05:07:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -342,7 +342,7 @@ dissect_one_rtcp(const u_char *pd, int offset, frame_data *fd,
 	start_packet = offset;
 	end_offset = offset + END_OF_FRAME;
 
-	ti = proto_tree_add_item(tree, proto_rtcp, NullTVB, offset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(tree, proto_rtcp, NullTVB, offset, END_OF_FRAME, FALSE);
 	rtcp_tree = proto_item_add_subtree(ti, ett_rtcp);
 
 	memcpy(&hdr, data, END_OF_FRAME < sizeof(rtcp_hdr_t) ?

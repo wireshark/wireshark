@@ -2,7 +2,7 @@
  * Routines for Mobile IP dissection
  * Copyright 2000, Stefan Raab <Stefan.Raab@nextel.com>
  *
- * $Id: packet-mip.c,v 1.3 2000/05/27 17:51:15 guy Exp $
+ * $Id: packet-mip.c,v 1.4 2000/05/31 05:07:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -165,23 +165,23 @@ dissect_mip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		 col_add_str(fd, COL_INFO, "Mobile IP Registration Request");
 	
 	  if (tree) {
-		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, tvb_length(tvb), NULL);
+		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, tvb_length(tvb), FALSE);
 	   	 mip_tree = proto_item_add_subtree(ti, ett_mip);
-		 proto_tree_add_item(mip_tree, hf_mip_type, 0, 1, type);
+		 proto_tree_add_int(mip_tree, hf_mip_type, tvb, 0, 1, type);
 
 		 code = tvb_get_guint8(tvb, 1);
-		 proto_tree_add_item(mip_tree, hf_mip_s, tvb, 1, 1, code);
-		 proto_tree_add_item(mip_tree, hf_mip_b, tvb, 1, 1, code);
-		 proto_tree_add_item(mip_tree, hf_mip_d, tvb, 1, 1, code);
-		 proto_tree_add_item(mip_tree, hf_mip_m, tvb, 1, 1, code);
-		 proto_tree_add_item(mip_tree, hf_mip_g, tvb, 1, 1, code);
-		 proto_tree_add_item(mip_tree, hf_mip_v, tvb, 1, 1, code);
+		 proto_tree_add_boolean(mip_tree, hf_mip_s, tvb, 1, 1, code);
+		 proto_tree_add_boolean(mip_tree, hf_mip_b, tvb, 1, 1, code);
+		 proto_tree_add_boolean(mip_tree, hf_mip_d, tvb, 1, 1, code);
+		 proto_tree_add_boolean(mip_tree, hf_mip_m, tvb, 1, 1, code);
+		 proto_tree_add_boolean(mip_tree, hf_mip_g, tvb, 1, 1, code);
+		 proto_tree_add_boolean(mip_tree, hf_mip_v, tvb, 1, 1, code);
 
-		 proto_tree_add_item(mip_tree, hf_mip_life, tvb, 2, 2, tvb_get_ntohs(tvb, 2));
-		 proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, 4, 4, tvb_get_letohl(tvb, 4));
-		 proto_tree_add_item(mip_tree, hf_mip_haaddr, tvb, 8, 4, tvb_get_letohl(tvb, 8));
-		 proto_tree_add_item(mip_tree, hf_mip_coa, tvb, 12, 4, tvb_get_letohl(tvb, 12));
-		 proto_tree_add_item(mip_tree, hf_mip_ident, tvb, 16, 8, tvb_get_ptr(tvb, 16, 8));
+		 proto_tree_add_int(mip_tree, hf_mip_life, tvb, 2, 2, tvb_get_ntohs(tvb, 2));
+		 proto_tree_add_ipv4(mip_tree, hf_mip_homeaddr, tvb, 4, 4, tvb_get_letohl(tvb, 4));
+		 proto_tree_add_ipv4(mip_tree, hf_mip_haaddr, tvb, 8, 4, tvb_get_letohl(tvb, 8));
+		 proto_tree_add_ipv4(mip_tree, hf_mip_coa, tvb, 12, 4, tvb_get_letohl(tvb, 12));
+		 proto_tree_add_bytes(mip_tree, hf_mip_ident, tvb, 16, 8, tvb_get_ptr(tvb, 16, 8));
 	  }
 	}
 
@@ -191,16 +191,16 @@ dissect_mip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		 col_add_str(fd, COL_INFO, "Mobile IP Registration Reply");
 
 	  if (tree) {
-		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, tvb_length(tvb), NULL);
+		 ti = proto_tree_add_item(tree, proto_mip, tvb, 0, tvb_length(tvb), FALSE);
 	   	 mip_tree = proto_item_add_subtree(ti, ett_mip);
-		 proto_tree_add_item(mip_tree, hf_mip_type, tvb, 0, 1, type);
+		 proto_tree_add_int(mip_tree, hf_mip_type, tvb, 0, 1, type);
 
 		 code = tvb_get_guint8(tvb, 1);
-		 proto_tree_add_item(mip_tree, hf_mip_code, tvb, 1, 1, code);
-		 proto_tree_add_item(mip_tree, hf_mip_life, tvb, 2, 2, tvb_get_ntohs(tvb, 2));
-		 proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, 4, 4, tvb_get_letohl(tvb, 4));
-		 proto_tree_add_item(mip_tree, hf_mip_haaddr, tvb, 8, 4, tvb_get_letohl(tvb, 8));
-		 proto_tree_add_item(mip_tree, hf_mip_ident, tvb, 12, 8, tvb_get_ptr(tvb, 12, 8));
+		 proto_tree_add_uint(mip_tree, hf_mip_code, tvb, 1, 1, code);
+		 proto_tree_add_int(mip_tree, hf_mip_life, tvb, 2, 2, tvb_get_ntohs(tvb, 2));
+		 proto_tree_add_ipv4(mip_tree, hf_mip_homeaddr, tvb, 4, 4, tvb_get_letohl(tvb, 4));
+		 proto_tree_add_ipv4(mip_tree, hf_mip_haaddr, tvb, 8, 4, tvb_get_letohl(tvb, 8));
+		 proto_tree_add_bytes(mip_tree, hf_mip_ident, tvb, 12, 8, tvb_get_ptr(tvb, 12, 8));
 	  }
 	}
 }

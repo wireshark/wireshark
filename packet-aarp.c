@@ -1,7 +1,7 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id: packet-aarp.c,v 1.19 2000/05/11 08:14:49 gram Exp $
+ * $Id: packet-aarp.c,v 1.20 2000/05/31 05:06:48 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -200,15 +200,15 @@ dissect_aarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				      2*ar_pln,
 				      "AppleTalk Address Resolution Protocol (opcode 0x%04x)", ar_op);
     aarp_tree = proto_item_add_subtree(ti, ett_aarp);
-    proto_tree_add_item(aarp_tree, hf_aarp_hard_type, NullTVB, offset + AR_HRD, 2,
+    proto_tree_add_uint(aarp_tree, hf_aarp_hard_type, NullTVB, offset + AR_HRD, 2,
 			       ar_hrd);
-    proto_tree_add_item(aarp_tree, hf_aarp_proto_type, NullTVB, offset + AR_PRO, 2, 
+    proto_tree_add_uint(aarp_tree, hf_aarp_proto_type, NullTVB, offset + AR_PRO, 2, 
 			       ar_pro);
-    proto_tree_add_item(aarp_tree, hf_aarp_hard_size, NullTVB, offset + AR_HLN, 1,
+    proto_tree_add_uint(aarp_tree, hf_aarp_hard_size, NullTVB, offset + AR_HLN, 1,
 			       ar_hln);
-    proto_tree_add_item(aarp_tree, hf_aarp_proto_size, NullTVB, offset + AR_PLN, 1,
+    proto_tree_add_uint(aarp_tree, hf_aarp_proto_size, NullTVB, offset + AR_PLN, 1,
 			       ar_pln);
-    proto_tree_add_item(aarp_tree, hf_aarp_opcode, NullTVB, offset + AR_OP, 2,
+    proto_tree_add_uint(aarp_tree, hf_aarp_opcode, NullTVB, offset + AR_OP, 2,
 			       ar_op);
     proto_tree_add_bytes_format(aarp_tree, hf_aarp_src_ether, NullTVB, sha_offset, ar_hln,
 			       &pd[sha_offset],

@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-tr.c,v 1.42 2000/05/19 05:29:43 guy Exp $
+ * $Id: packet-tr.c,v 1.43 2000/05/31 05:07:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -451,45 +451,45 @@ dissect_tr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* protocol analysis tree */
 	if (tree) {
 		/* Create Token-Ring Tree */
-		ti = proto_tree_add_item(tree, proto_tr, tr_tvb, 0, TR_MIN_HEADER_LEN + actual_rif_bytes, NULL);
+		ti = proto_tree_add_item(tree, proto_tr, tr_tvb, 0, TR_MIN_HEADER_LEN + actual_rif_bytes, FALSE);
 		tr_tree = proto_item_add_subtree(ti, ett_token_ring);
 
 		/* Create the Access Control bitfield tree */
 		trn_ac = tvb_get_guint8(tr_tvb, 0);
-		ti = proto_tree_add_item(tr_tree, hf_tr_ac, tr_tvb, 0, 1, trn_ac);
+		ti = proto_tree_add_uint(tr_tree, hf_tr_ac, tr_tvb, 0, 1, trn_ac);
 		bf_tree = proto_item_add_subtree(ti, ett_token_ring_ac);
 
-		proto_tree_add_item(bf_tree, hf_tr_priority, tr_tvb, 0, 1, trn_ac);
-		proto_tree_add_item(bf_tree, hf_tr_frame, tr_tvb, 0, 1, trn_ac);
-		proto_tree_add_item(bf_tree, hf_tr_monitor_cnt, tr_tvb, 0, 1, trn_ac);
-		proto_tree_add_item(bf_tree, hf_tr_priority_reservation, tr_tvb, 0, 1, trn_ac);
+		proto_tree_add_uint(bf_tree, hf_tr_priority, tr_tvb, 0, 1, trn_ac);
+		proto_tree_add_boolean(bf_tree, hf_tr_frame, tr_tvb, 0, 1, trn_ac);
+		proto_tree_add_uint(bf_tree, hf_tr_monitor_cnt, tr_tvb, 0, 1, trn_ac);
+		proto_tree_add_uint(bf_tree, hf_tr_priority_reservation, tr_tvb, 0, 1, trn_ac);
 
 		/* Create the Frame Control bitfield tree */
-		ti = proto_tree_add_item(tr_tree, hf_tr_fc, tr_tvb, 1, 1, trn_fc);
+		ti = proto_tree_add_uint(tr_tree, hf_tr_fc, tr_tvb, 1, 1, trn_fc);
 		bf_tree = proto_item_add_subtree(ti, ett_token_ring_fc);
 
-		proto_tree_add_item(bf_tree, hf_tr_fc_type, tr_tvb, 1, 1, trn_fc);
-		proto_tree_add_item(bf_tree, hf_tr_fc_pcf, tr_tvb,  1, 1, trn_fc);
-		proto_tree_add_item(tr_tree, hf_tr_dst, tr_tvb, 2, 6, trn_dhost);
-		proto_tree_add_item(tr_tree, hf_tr_src, tr_tvb, 8, 6, trn_shost);
-		proto_tree_add_item_hidden(tr_tree, hf_tr_addr, tr_tvb, 2, 6, trn_dhost);
-		proto_tree_add_item_hidden(tr_tree, hf_tr_addr, tr_tvb, 8, 6, trn_shost);
+		proto_tree_add_uint(bf_tree, hf_tr_fc_type, tr_tvb, 1, 1, trn_fc);
+		proto_tree_add_uint(bf_tree, hf_tr_fc_pcf, tr_tvb,  1, 1, trn_fc);
+		proto_tree_add_ether(tr_tree, hf_tr_dst, tr_tvb, 2, 6, trn_dhost);
+		proto_tree_add_ether(tr_tree, hf_tr_src, tr_tvb, 8, 6, trn_shost);
+		proto_tree_add_ether_hidden(tr_tree, hf_tr_addr, tr_tvb, 2, 6, trn_dhost);
+		proto_tree_add_ether_hidden(tr_tree, hf_tr_addr, tr_tvb, 8, 6, trn_shost);
 
-		proto_tree_add_item(tr_tree, hf_tr_sr, tr_tvb, 8, 1, source_routed);
+		proto_tree_add_boolean(tr_tree, hf_tr_sr, tr_tvb, 8, 1, source_routed);
 
 		/* non-source-routed version of src addr */
-		proto_tree_add_item_hidden(tr_tree, hf_tr_src, tr_tvb, 8, 6, trn_shost_nonsr);
+		proto_tree_add_ether_hidden(tr_tree, hf_tr_src, tr_tvb, 8, 6, trn_shost_nonsr);
 
 		if (source_routed) {
 			/* RCF Byte 1 */
 			rcf1 = tvb_get_guint8(tr_tvb, 14);
-			proto_tree_add_item(tr_tree, hf_tr_rif_bytes, tr_tvb, 14, 1, trn_rif_bytes);
-			proto_tree_add_item(tr_tree, hf_tr_broadcast, tr_tvb, 14, 1, rcf1 & 224);
+			proto_tree_add_uint(tr_tree, hf_tr_rif_bytes, tr_tvb, 14, 1, trn_rif_bytes);
+			proto_tree_add_uint(tr_tree, hf_tr_broadcast, tr_tvb, 14, 1, rcf1 & 224);
 
 			/* RCF Byte 2 */
 			rcf2 = tvb_get_guint8(tr_tvb, 15);
-			proto_tree_add_item(tr_tree, hf_tr_max_frame_size, tr_tvb, 15, 1, rcf2 & 112);
-			proto_tree_add_item(tr_tree, hf_tr_direction, tr_tvb, 15, 1, rcf2 & 128);
+			proto_tree_add_uint(tr_tree, hf_tr_max_frame_size, tr_tvb, 15, 1, rcf2 & 112);
+			proto_tree_add_uint(tr_tree, hf_tr_direction, tr_tvb, 15, 1, rcf2 & 128);
 
 			/* if we have more than 2 bytes of RIF, then we have
 				ring/bridge pairs */
@@ -564,17 +564,17 @@ add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 		if (j==1) {
 			segment = tvb_get_ntohs(tvb, RIF_OFFSET) >> 4;
 			size = sprintf(buffer, "%03X",segment);
-			proto_tree_add_item_hidden(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 2, 2, segment);
+			proto_tree_add_uint_hidden(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 2, 2, segment);
 			buff_offset += size;
 		}
 		segment = tvb_get_ntohs(tvb, RIF_OFFSET + 1 + j) >> 4;
 		brdgnmb = tvb_get_guint8(tvb, RIF_OFFSET + j) & 0x0f;
 		size = sprintf(buffer+buff_offset, "-%01X-%03X",brdgnmb,segment);
-		proto_tree_add_item_hidden(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 3 + j, 2, segment);
-		proto_tree_add_item_hidden(tree, hf_tr_rif_bridge, tvb, TR_MIN_HEADER_LEN + 2 + j, 1, brdgnmb);
+		proto_tree_add_uint_hidden(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 3 + j, 2, segment);
+		proto_tree_add_uint_hidden(tree, hf_tr_rif_bridge, tvb, TR_MIN_HEADER_LEN + 2 + j, 1, brdgnmb);
 		buff_offset += size;	
 	}
-	proto_tree_add_item(tree, hf_tr_rif, tvb, TR_MIN_HEADER_LEN + 2, rcf_len, buffer);
+	proto_tree_add_string(tree, hf_tr_rif, tvb, TR_MIN_HEADER_LEN + 2, rcf_len, buffer);
 
 	if (unprocessed_rif > 0) {
 		proto_tree_add_text(tree, tvb, TR_MIN_HEADER_LEN + RIF_BYTES_TO_PROCESS, unprocessed_rif,

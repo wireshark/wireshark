@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.4 2000/05/11 08:15:49 gram Exp $
+ * $Id: packet-socks.c,v 1.5 2000/05/31 05:07:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -308,7 +308,7 @@ static int display_address( const u_char *pd, int offset,
 	   	if ( (offset + 4) > fd->cap_len) 
        			proto_tree_add_text(tree, NullTVB, offset, 0, "*** FRAME TOO SHORT ***");
 
-		proto_tree_add_item( tree, hf_socks_ip_dst, NullTVB, offset,
+		proto_tree_add_ipv4( tree, hf_socks_ip_dst, NullTVB, offset,
 					4, GWORD( pd, offset));
 		offset += 4;
 	}	
@@ -321,8 +321,8 @@ static int display_address( const u_char *pd, int offset,
 		if ((offset + 16) > fd->cap_len) 
        			proto_tree_add_text(tree, NullTVB, offset, 0, "*** FRAME TOO SHORT ***");
 
-		proto_tree_add_item( tree, hf_socks_ip6_dst, NullTVB, offset,
-				4, GWORD( pd, offset));
+		proto_tree_add_ipv6( tree, hf_socks_ip6_dst, NullTVB, offset,
+				4, &pd[offset]);
 		offset += 16;
 	}
 
@@ -385,8 +385,8 @@ static void socks_udp_dissector( const u_char *pd, int offset, frame_data *fd,
 		col_add_fstr(fd, COL_INFO, "Version: 5, UDP Associated packet");
 			
 	if ( tree) {
-    		ti = proto_tree_add_item( tree, proto_socks, NullTVB, offset,
-    			END_OF_FRAME, NULL, "Socks:" );
+    		ti = proto_tree_add_protocol_format( tree, proto_socks, NullTVB, offset,
+    			END_OF_FRAME, "Socks" );
 
 		socks_tree = proto_item_add_subtree(ti, ett_socks);
 
@@ -403,7 +403,7 @@ static void socks_udp_dissector( const u_char *pd, int offset, frame_data *fd,
 		hash_info->udp_remote_port = pntohs( &pd[ offset]);
 		
 		CHECK_PACKET_LENGTH( 2);
-		proto_tree_add_item( socks_tree, hf_socks_dstport, NullTVB,
+		proto_tree_add_uint( socks_tree, hf_socks_dstport, NullTVB,
 			offset, 2, hash_info->udp_remote_port);
 			
 		offset += 2;
@@ -475,19 +475,19 @@ void display_socks_v4( const u_char *pd, int offset, frame_data *fd,
 		++offset;
 
 						/* Do remote port	*/
-		proto_tree_add_item( tree, hf_socks_dstport, NullTVB, offset, 2,
+		proto_tree_add_uint( tree, hf_socks_dstport, NullTVB, offset, 2,
 				pntohs( &pd[ offset]));
 		offset += 2;
 
 						/* Do destination address */
-		proto_tree_add_item( tree, hf_socks_ip_dst, NullTVB, offset,
+		proto_tree_add_ipv4( tree, hf_socks_ip_dst, NullTVB, offset,
 				4, GWORD( pd, offset));
 
 		offset += 4;
 
 /*$$ check this, needs to do length checking	 */		
 						/* display user name 	*/
-			proto_tree_add_item( tree, hf_user_name, NullTVB, offset, 
+			proto_tree_add_string( tree, hf_user_name, NullTVB, offset, 
 				strlen( &pd[offset]) + 1,
 				&pd[offset]);
 
@@ -507,11 +507,11 @@ void display_socks_v4( const u_char *pd, int offset, frame_data *fd,
 		++offset;
 
 						/* Do remote port	*/
-		proto_tree_add_item( tree, hf_socks_dstport, NullTVB, offset, 2,
+		proto_tree_add_uint( tree, hf_socks_dstport, NullTVB, offset, 2,
 				pntohs( &pd[ offset]));
 		offset += 2;;
 						/* Do remote address	*/
-		proto_tree_add_item( tree, hf_socks_ip_dst, NullTVB, offset, 4,
+		proto_tree_add_ipv4( tree, hf_socks_ip_dst, NullTVB, offset, 4,
 			GWORD( pd, offset));
 	}
 	
@@ -546,7 +546,7 @@ void display_socks_v5( const u_char *pd, int offset, frame_data *fd,
 
 		CHECK_PACKET_LENGTH( 2);
 						/* Do version 	*/
-		proto_tree_add_item( tree, hf_socks_ver, NullTVB, offset, 1,
+		proto_tree_add_uint( tree, hf_socks_ver, NullTVB, offset, 1,
 				hash_info->version);
 		++offset;
 
@@ -1025,7 +1025,7 @@ dissect_socks(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	if (tree) {			
     		ti = proto_tree_add_item( tree, proto_socks, NullTVB, offset,
-    			END_OF_FRAME, NULL, "Socks:" );
+    			END_OF_FRAME, FALSE );
 
 		socks_tree = proto_item_add_subtree(ti, ett_socks);
 
@@ -1044,14 +1044,14 @@ dissect_socks(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         			"Command: %d (%s)", hash_info->command,
 				get_command_name(hash_info->command));
 
-			proto_tree_add_item( socks_tree, hf_socks_ip_dst, NullTVB,
+			proto_tree_add_ipv4( socks_tree, hf_socks_ip_dst, NullTVB,
 					offset, 0, hash_info->dst_addr);
 
 				/* no fake address for ping & traceroute */
 				
 			if (( hash_info->command != PING_COMMAND) &&
 			    ( hash_info->command != TRACERT_COMMAND)){
-				proto_tree_add_item( socks_tree, hf_socks_dstport, NullTVB,
+				proto_tree_add_uint( socks_tree, hf_socks_dstport, NullTVB,
 					offset, 0, hash_info->port);
 			}
 		}
@@ -1152,5 +1152,3 @@ proto_reg_handoff_socks(void) {
  
  	dissector_add("tcp.port", TCP_PORT_SOCKS, dissect_socks);
 }
-
-

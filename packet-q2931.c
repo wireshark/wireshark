@@ -2,7 +2,7 @@
  * Routines for Q.2931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q2931.c,v 1.9 2000/05/29 08:57:37 guy Exp $
+ * $Id: packet-q2931.c,v 1.10 2000/05/31 05:07:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1995,21 +1995,21 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_q2931, tvb, offset,
-		    tvb_length(tvb), NULL);
+		    tvb_length(tvb), FALSE);
 		q2931_tree = proto_item_add_subtree(ti, ett_q2931);
 
-		proto_tree_add_item(q2931_tree, hf_q2931_discriminator, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+		proto_tree_add_uint(q2931_tree, hf_q2931_discriminator, tvb, offset, 1, tvb_get_guint8(tvb, offset));
 	}
 	offset += 1;
 	call_ref_len = tvb_get_guint8(tvb, offset) & 0xF;	/* XXX - do as a bit field? */
 	if (q2931_tree != NULL)
-		proto_tree_add_item(q2931_tree, hf_q2931_call_ref_len, tvb, offset, 1, call_ref_len);
+		proto_tree_add_uint(q2931_tree, hf_q2931_call_ref_len, tvb, offset, 1, call_ref_len);
 	offset += 1;
 	if (call_ref_len != 0) {
 		/* XXX - split this into flag and value */
 		tvb_memcpy(tvb, call_ref, offset, call_ref_len);
 		if (q2931_tree != NULL)
-			proto_tree_add_item(q2931_tree, hf_q2931_call_ref, tvb, offset, call_ref_len, call_ref);
+			proto_tree_add_bytes(q2931_tree, hf_q2931_call_ref, tvb, offset, call_ref_len, call_ref);
 		offset += call_ref_len;
 	}
 	message_type = tvb_get_guint8(tvb, offset);
@@ -2019,18 +2019,18 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      "Unknown message type (0x%02X)"));
 	}
 	if (q2931_tree != NULL)
-		proto_tree_add_item(q2931_tree, hf_q2931_message_type, tvb, offset, 1, message_type);
+		proto_tree_add_uint(q2931_tree, hf_q2931_message_type, tvb, offset, 1, message_type);
 	offset += 1;
 
 	message_type_ext = tvb_get_guint8(tvb, offset);
 	if (q2931_tree != NULL) {
-		ti = proto_tree_add_item(q2931_tree, hf_q2931_message_type_ext, tvb,
+		ti = proto_tree_add_uint(q2931_tree, hf_q2931_message_type_ext, tvb,
 		    offset, 1, message_type_ext);
 		ext_tree = proto_item_add_subtree(ti, ett_q2931_ext);
-		proto_tree_add_item(ext_tree, hf_q2931_message_flag, tvb,
+		proto_tree_add_boolean(ext_tree, hf_q2931_message_flag, tvb,
 		    offset, 1, message_type_ext);
 		if (message_type_ext & Q2931_MSG_TYPE_EXT_FOLLOW_INST) {
-			proto_tree_add_item(ext_tree, hf_q2931_message_action_indicator, tvb,
+			proto_tree_add_uint(ext_tree, hf_q2931_message_action_indicator, tvb,
 			    offset, 1, message_type_ext);
 		}
 	}
@@ -2038,7 +2038,7 @@ dissect_q2931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	message_len = tvb_get_ntohs(tvb, offset);
 	if (q2931_tree != NULL)
-		proto_tree_add_item(q2931_tree, hf_q2931_message_len, tvb, offset, 2, message_len);
+		proto_tree_add_uint(q2931_tree, hf_q2931_message_len, tvb, offset, 2, message_len);
 	offset += 2;
 
 	/*

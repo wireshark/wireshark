@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.13 2000/05/11 08:15:33 gram Exp $
+ * $Id: packet-pim.c,v 1.14 2000/05/31 05:07:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -218,16 +218,16 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	col_add_fstr(fd, COL_INFO, "%s", typestr); 
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_pim, NullTVB, offset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(tree, proto_pim, NullTVB, offset, END_OF_FRAME, FALSE);
 	pim_tree = proto_item_add_subtree(ti, ett_pim);
 
-	proto_tree_add_item(pim_tree, hf_pim_version, NullTVB, offset, 1,
+	proto_tree_add_uint(pim_tree, hf_pim_version, NullTVB, offset, 1,
 	    PIM_VER(pim.pim_typever)); 
 	proto_tree_add_uint_format(pim_tree, hf_pim_type, NullTVB, offset, 1,
 	    PIM_TYPE(pim.pim_typever),
 	    "Type: %s (%u)", typestr, PIM_TYPE(pim.pim_typever)); 
 
-	proto_tree_add_item(pim_tree, hf_pim_cksum, NullTVB,
+	proto_tree_add_uint(pim_tree, hf_pim_cksum, NullTVB,
 	    offset + offsetof(struct pim, pim_cksum), sizeof(pim.pim_cksum),
 	    ntohs(pim.pim_cksum));
 

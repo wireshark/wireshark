@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.67 2000/05/25 08:38:54 guy Exp $
+ * $Id: packet-smb.c,v 1.68 2000/05/31 05:07:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -10351,7 +10351,7 @@ dissect_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int 
 
 	if (tree) {
 
-	  ti = proto_tree_add_item(tree, proto_smb, NullTVB, offset, END_OF_FRAME, NULL);
+	  ti = proto_tree_add_item(tree, proto_smb, NullTVB, offset, END_OF_FRAME, FALSE);
 	  smb_tree = proto_item_add_subtree(ti, ett_smb);
 
 	  /* 0xFFSMB is actually a 1 byte msg type and 3 byte server

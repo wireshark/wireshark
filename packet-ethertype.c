@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.4 2000/05/19 04:54:33 gram Exp $
+ * $Id: packet-ethertype.c,v 1.5 2000/05/31 05:07:03 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -97,7 +97,7 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype, packet_info *pin
 	
 	/* Add to proto_tree */
 	if (tree) {
-		proto_tree_add_item(fh_tree, item_id, tvb, offset_after_etype - 2, 2, etype);
+		proto_tree_add_uint(fh_tree, item_id, tvb, offset_after_etype - 2, 2, etype);
 	}
 
 	next_tvb = tvb_new_subset(tvb, offset_after_etype, -1, -1);

@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.15 2000/05/11 08:15:14 gram Exp $
+ * $Id: packet-ipsec.c,v 1.16 2000/05/31 05:07:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -120,17 +120,17 @@ dissect_ah(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     if (tree) {
 	/* !!! specify length */
-	ti = proto_tree_add_item(tree, proto_ah, NullTVB, offset, advance, NULL);
+	ti = proto_tree_add_item(tree, proto_ah, NullTVB, offset, advance, FALSE);
 	ah_tree = proto_item_add_subtree(ti, ett_ah);
 
 	proto_tree_add_text(ah_tree, NullTVB, offset + offsetof(struct newah, ah_nxt), 1,
 	    "Next Header: %s (0x%02x)", ipprotostr(ah.ah_nxt), ah.ah_nxt);
 	proto_tree_add_text(ah_tree, NullTVB, offset + offsetof(struct newah, ah_len), 1,
 	    "Length: %d", ah.ah_len << 2);
-	proto_tree_add_item(ah_tree, hf_ah_spi, NullTVB,
+	proto_tree_add_uint(ah_tree, hf_ah_spi, NullTVB,
 			    offset + offsetof(struct newah, ah_spi), 4,
 			    (guint32)ntohl(ah.ah_spi));
-	proto_tree_add_item(ah_tree, hf_ah_sequence, NullTVB,
+	proto_tree_add_uint(ah_tree, hf_ah_sequence, NullTVB,
 			    offset + offsetof(struct newah, ah_seq), 4,
 			    (guint32)ntohl(ah.ah_seq));
 	proto_tree_add_text(ah_tree, NullTVB, offset + sizeof(ah), (ah.ah_len - 1) << 2,
@@ -166,12 +166,12 @@ dissect_esp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
      * (ie none)
      */
     if(tree) {
-	ti = proto_tree_add_item(tree, proto_esp, NullTVB, offset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(tree, proto_esp, NullTVB, offset, END_OF_FRAME, FALSE);
 	esp_tree = proto_item_add_subtree(ti, ett_esp);
-	proto_tree_add_item(esp_tree, hf_esp_spi, NullTVB, 
+	proto_tree_add_uint(esp_tree, hf_esp_spi, NullTVB, 
 			    offset + offsetof(struct newesp, esp_spi), 4,
 			    (guint32)ntohl(esp.esp_spi));
-	proto_tree_add_item(esp_tree, hf_esp_sequence, NullTVB,
+	proto_tree_add_uint(esp_tree, hf_esp_sequence, NullTVB,
 			    offset + offsetof(struct newesp, esp_seq), 4,
 			    (guint32)ntohl(esp.esp_seq));
 	dissect_data(pd, offset + sizeof(struct newesp), fd, esp_tree);
@@ -209,19 +209,19 @@ dissect_ipcomp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
      */
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_ipcomp, NullTVB, offset, END_OF_FRAME,
-	    NULL);
+	    FALSE);
 	ipcomp_tree = proto_item_add_subtree(ti, ett_ipcomp);
 
 	proto_tree_add_text(ipcomp_tree, NullTVB,
 	    offset + offsetof(struct ipcomp, comp_nxt), 1,
 	    "Next Header: %s (0x%02x)",
 	    ipprotostr(ipcomp.comp_nxt), ipcomp.comp_nxt);
-	proto_tree_add_item(ipcomp_tree, hf_ipcomp_flags, NullTVB,
+	proto_tree_add_uint(ipcomp_tree, hf_ipcomp_flags, NullTVB,
 	    offset + offsetof(struct ipcomp, comp_flags), 1,
 	    ipcomp.comp_flags);
 	p = val_to_str(ntohs(ipcomp.comp_cpi), cpi2val, "");
 	if (p[0] == '\0') {
-	    proto_tree_add_item(ipcomp_tree, hf_ipcomp_cpi, NullTVB, 
+	    proto_tree_add_uint(ipcomp_tree, hf_ipcomp_cpi, NullTVB, 
 		offset + offsetof(struct ipcomp, comp_cpi), 2,
 		ntohs(ipcomp.comp_cpi));
 	} else {

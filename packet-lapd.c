@@ -2,7 +2,7 @@
  * Routines for LAPD frame disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lapd.c,v 1.10 2000/05/31 03:58:54 gram Exp $
+ * $Id: packet-lapd.c,v 1.11 2000/05/31 05:07:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -121,17 +121,17 @@ dissect_lapd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_lapd, tvb, 0, 3, NULL);
+		ti = proto_tree_add_item(tree, proto_lapd, tvb, 0, 3, FALSE);
 		lapd_tree = proto_item_add_subtree(ti, ett_lapd);
 
-		ti = proto_tree_add_item(lapd_tree, hf_lapd_address, tvb, 0, 2, address);
+		ti = proto_tree_add_uint(lapd_tree, hf_lapd_address, tvb, 0, 2, address);
 		addr_tree = proto_item_add_subtree(ti, ett_lapd_address);
 
-		proto_tree_add_item(addr_tree, hf_lapd_sapi,tvb, 0, 1, address);
-		proto_tree_add_item(addr_tree, hf_lapd_cr,  tvb, 0, 1, address);
-		proto_tree_add_item(addr_tree, hf_lapd_ea1, tvb, 0, 1, address);
-		proto_tree_add_item(addr_tree, hf_lapd_tei, tvb, 1, 1, address);
-		proto_tree_add_item(addr_tree, hf_lapd_ea2, tvb, 1, 1, address);
+		proto_tree_add_uint(addr_tree, hf_lapd_sapi,tvb, 0, 1, address);
+		proto_tree_add_uint(addr_tree, hf_lapd_cr,  tvb, 0, 1, address);
+		proto_tree_add_uint(addr_tree, hf_lapd_ea1, tvb, 0, 1, address);
+		proto_tree_add_uint(addr_tree, hf_lapd_tei, tvb, 1, 1, address);
+		proto_tree_add_uint(addr_tree, hf_lapd_ea2, tvb, 1, 1, address);
 	}
 	else {
 		lapd_tree = NULL;

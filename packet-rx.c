@@ -4,7 +4,7 @@
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  *
- * $Id: packet-rx.c,v 1.11 2000/05/11 08:15:43 gram Exp $
+ * $Id: packet-rx.c,v 1.12 2000/05/31 05:07:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -119,41 +119,41 @@ dissect_rx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			val_to_str(rxh->type,rx_types,"unknown (%d)"));
 		rx_tree = proto_item_add_subtree(ti, ett_rx);
 
-		proto_tree_add_item(rx_tree, hf_rx_epoch, NullTVB,
+		proto_tree_add_uint(rx_tree, hf_rx_epoch, NullTVB,
 			offset, 4, pntohl(&rxh->epoch));
-		proto_tree_add_item(rx_tree, hf_rx_cid, NullTVB,
+		proto_tree_add_uint(rx_tree, hf_rx_cid, NullTVB,
 			offset+4, 4, pntohl(&rxh->cid));
-		proto_tree_add_item(rx_tree, hf_rx_callnumber, NullTVB,
+		proto_tree_add_uint(rx_tree, hf_rx_callnumber, NullTVB,
 			offset+8, 4, pntohl(&rxh->callNumber));
-		proto_tree_add_item(rx_tree, hf_rx_seq, NullTVB,
+		proto_tree_add_uint(rx_tree, hf_rx_seq, NullTVB,
 			offset+12, 4, pntohl(&rxh->seq));
-		proto_tree_add_item(rx_tree, hf_rx_serial, NullTVB,
+		proto_tree_add_uint(rx_tree, hf_rx_serial, NullTVB,
 			offset+16, 4, pntohl(&rxh->serial));
 
-		proto_tree_add_item(rx_tree, hf_rx_type, NullTVB,
+		proto_tree_add_uint(rx_tree, hf_rx_type, NullTVB,
 			offset+20, 1, rxh->type);
 
-		rx_flags = proto_tree_add_item(rx_tree, hf_rx_flags, NullTVB,
+		rx_flags = proto_tree_add_uint(rx_tree, hf_rx_flags, NullTVB,
 			offset+21, 1, rxh->flags);
 		rx_tree_flags = proto_item_add_subtree(rx_flags, ett_rx_flags);
-		proto_tree_add_item(rx_tree_flags, hf_rx_flags_free_packet, NullTVB,
+		proto_tree_add_uint(rx_tree_flags, hf_rx_flags_free_packet, NullTVB,
 			offset+21, 1, rxh->flags);
-		proto_tree_add_item(rx_tree_flags, hf_rx_flags_more_packets, NullTVB,
+		proto_tree_add_uint(rx_tree_flags, hf_rx_flags_more_packets, NullTVB,
 			offset+21, 1, rxh->flags);
-		proto_tree_add_item(rx_tree_flags, hf_rx_flags_last_packet, NullTVB,
+		proto_tree_add_uint(rx_tree_flags, hf_rx_flags_last_packet, NullTVB,
 			offset+21, 1, rxh->flags);
-		proto_tree_add_item(rx_tree_flags, hf_rx_flags_request_ack, NullTVB,
+		proto_tree_add_uint(rx_tree_flags, hf_rx_flags_request_ack, NullTVB,
 			offset+21, 1, rxh->flags);
-		proto_tree_add_item(rx_tree_flags, hf_rx_flags_clientinit, NullTVB,
+		proto_tree_add_uint(rx_tree_flags, hf_rx_flags_clientinit, NullTVB,
 			offset+21, 1, rxh->flags);
 
-		proto_tree_add_item(rx_tree, hf_rx_userstatus, NullTVB,
+		proto_tree_add_uint(rx_tree, hf_rx_userstatus, NullTVB,
 			offset+22, 1, rxh->userStatus);
-		proto_tree_add_item(rx_tree, hf_rx_securityindex, NullTVB,
+		proto_tree_add_uint(rx_tree, hf_rx_securityindex, NullTVB,
 			offset+23, 1, rxh->securityIndex);
-		proto_tree_add_item(rx_tree, hf_rx_spare, NullTVB,
+		proto_tree_add_uint(rx_tree, hf_rx_spare, NullTVB,
 			offset+24, 2, pntohs(&rxh->spare));
-		proto_tree_add_item(rx_tree, hf_rx_serviceid, NullTVB,
+		proto_tree_add_uint(rx_tree, hf_rx_serviceid, NullTVB,
 			offset+26, 2, pntohs(&rxh->serviceId));
 	}
 

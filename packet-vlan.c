@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.15 2000/05/19 04:54:34 gram Exp $
+ * $Id: packet-vlan.c,v 1.16 2000/05/31 05:07:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,12 +90,12 @@ dissect_vlan(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_vlan, NullTVB, offset, 4);
+    ti = proto_tree_add_item(tree, proto_vlan, NullTVB, offset, 4, FALSE);
     vlan_tree = proto_item_add_subtree(ti, ett_vlan);
 
-    proto_tree_add_item(vlan_tree, hf_vlan_priority, NullTVB, offset, 2, tci);
-    proto_tree_add_item(vlan_tree, hf_vlan_cfi, NullTVB, offset, 2, tci);
-    proto_tree_add_item(vlan_tree, hf_vlan_id, NullTVB, offset, 2, tci);
+    proto_tree_add_uint(vlan_tree, hf_vlan_priority, NullTVB, offset, 2, tci);
+    proto_tree_add_uint(vlan_tree, hf_vlan_cfi, NullTVB, offset, 2, tci);
+    proto_tree_add_uint(vlan_tree, hf_vlan_id, NullTVB, offset, 2, tci);
   }
 
   next_tvb = tvb_new_subset(pi.compat_top_tvb, offset+4, -1, -1); /* XXX - should TRY() like dissect_eth() */

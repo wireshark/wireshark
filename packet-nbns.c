@@ -4,7 +4,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Much stuff added by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-nbns.c,v 1.42 2000/05/11 08:15:24 gram Exp $
+ * $Id: packet-nbns.c,v 1.43 2000/05/31 05:07:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1167,28 +1167,28 @@ dissect_nbns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbns, NullTVB, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_nbns, NullTVB, offset, END_OF_FRAME, FALSE);
 		nbns_tree = proto_item_add_subtree(ti, ett_nbns);
 
 		if (flags & F_RESPONSE) {
-			proto_tree_add_item_hidden(nbns_tree, hf_nbns_response, NullTVB, 
+			proto_tree_add_boolean_hidden(nbns_tree, hf_nbns_response, NullTVB, 
 					     0, 0, TRUE);
 		} else {
-			proto_tree_add_item_hidden(nbns_tree, hf_nbns_query, NullTVB, 
+			proto_tree_add_boolean_hidden(nbns_tree, hf_nbns_query, NullTVB, 
 					     0, 0, TRUE);
 		}
 
-		proto_tree_add_item(nbns_tree, hf_nbns_transaction_id, NullTVB,
+		proto_tree_add_uint(nbns_tree, hf_nbns_transaction_id, NullTVB,
 				    offset + NBNS_ID, 2, id);
 
 		nbns_add_nbns_flags(nbns_tree, offset + NBNS_FLAGS, flags, 0);
-		proto_tree_add_item(nbns_tree, hf_nbns_count_questions, NullTVB,
+		proto_tree_add_uint(nbns_tree, hf_nbns_count_questions, NullTVB,
 				    offset + NBNS_QUEST, 2, quest);
-		proto_tree_add_item(nbns_tree, hf_nbns_count_answers, NullTVB,
+		proto_tree_add_uint(nbns_tree, hf_nbns_count_answers, NullTVB,
 				    offset + NBNS_ANS, 2, ans);
-		proto_tree_add_item(nbns_tree, hf_nbns_count_auth_rr, NullTVB,
+		proto_tree_add_uint(nbns_tree, hf_nbns_count_auth_rr, NullTVB,
 				    offset + NBNS_AUTH, 2, auth);
-		proto_tree_add_item(nbns_tree, hf_nbns_count_add_rr, NullTVB,
+		proto_tree_add_uint(nbns_tree, hf_nbns_count_add_rr, NullTVB,
 				    offset + NBNS_ADD, 2, add);
 	}
 
@@ -1325,7 +1325,7 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbdgm, NullTVB, offset, header.dgm_length, NULL);
+		ti = proto_tree_add_item(tree, proto_nbdgm, NullTVB, offset, header.dgm_length, FALSE);
 		nbdgm_tree = proto_item_add_subtree(ti, ett_nbdgm);
 
 		proto_tree_add_uint_format(nbdgm_tree, hf_nbdgm_type, NullTVB,
@@ -1349,11 +1349,11 @@ dissect_nbdgm(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 					   "Node Type: %s",
 					   node[header.flags.node_type]);
 
-		proto_tree_add_item(nbdgm_tree, hf_nbdgm_datagram_id, NullTVB,
+		proto_tree_add_uint(nbdgm_tree, hf_nbdgm_datagram_id, NullTVB,
 				    offset+2, 2, header.dgm_id);
-		proto_tree_add_item(nbdgm_tree, hf_nbdgm_src_ip, NullTVB,
+		proto_tree_add_ipv4(nbdgm_tree, hf_nbdgm_src_ip, NullTVB,
 				    offset+4, 4, header.src_ip);
-		proto_tree_add_item(nbdgm_tree, hf_nbdgm_src_port, NullTVB,
+		proto_tree_add_uint(nbdgm_tree, hf_nbdgm_src_port, NullTVB,
 				    offset+8, 2, header.src_port);
 
 	}
@@ -1490,7 +1490,7 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 	}
 
 	if (tree) {
-	  ti = proto_tree_add_item(tree, proto_nbss, NullTVB, offset, length + 4, NULL);
+	  ti = proto_tree_add_item(tree, proto_nbss, NullTVB, offset, length + 4, FALSE);
 	  nbss_tree = proto_item_add_subtree(ti, ett_nbss);
 	  
 	  proto_tree_add_uint_format(nbss_tree, hf_nbss_type, NullTVB,
@@ -1510,7 +1510,7 @@ dissect_nbss_packet(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 		offset += 3;
 	} else {
 		if (tree) {
-		  tf = proto_tree_add_item(nbss_tree, hf_nbss_flags, NullTVB, offset, 1, flags);
+		  tf = proto_tree_add_uint(nbss_tree, hf_nbss_flags, NullTVB, offset, 1, flags);
 		  field_tree = proto_item_add_subtree(tf, ett_nbss_flags);
 		  proto_tree_add_text(field_tree, NullTVB, offset, 1, "%s",
 			      decode_boolean_bitfield(flags, NBSS_FLAGS_E,

@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lpd.c,v 1.19 2000/05/11 08:15:23 gram Exp $
+ * $Id: packet-lpd.c,v 1.20 2000/05/31 05:07:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -105,13 +105,13 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_lpd, NullTVB, offset, 
-					 END_OF_FRAME, NULL);
+					 END_OF_FRAME, FALSE);
 		lpd_tree = proto_item_add_subtree(ti, ett_lpd);
 
 		if (lpr_packet_type == response) {
-		  proto_tree_add_item_hidden(lpd_tree, hf_lpd_response, NullTVB, 0, 0, TRUE);
+		  proto_tree_add_boolean_hidden(lpd_tree, hf_lpd_response, NullTVB, 0, 0, TRUE);
 		} else {
-		  proto_tree_add_item_hidden(lpd_tree, hf_lpd_request, NullTVB, 0, 0, TRUE);
+		  proto_tree_add_boolean_hidden(lpd_tree, hf_lpd_request, NullTVB, 0, 0, TRUE);
 		}
 
 		if (lpr_packet_type == request) {

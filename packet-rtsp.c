@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.13 2000/05/11 08:15:43 gram Exp $
+ * $Id: packet-rtsp.c,v 1.14 2000/05/31 05:07:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -154,7 +154,7 @@ static void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
 	rtsp_tree = NULL;
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_rtsp, NullTVB, offset, 
-			END_OF_FRAME, NULL);
+			END_OF_FRAME, FALSE);
 		rtsp_tree = proto_item_add_subtree(ti, ett_rtsp);
 	}
 
@@ -318,7 +318,7 @@ process_rtsp_request_or_reply(const u_char *data, int offset, int linelen,
 			status_start = status;
 			while (status < lineend && isdigit(*status))
 				status_i = status_i * 10 + *status++ - '0';
-			proto_tree_add_item_hidden(tree, hf_rtsp_status, NullTVB,
+			proto_tree_add_uint_hidden(tree, hf_rtsp_status, NullTVB,
 				offset + (status_start - data),
 				status - status_start, status_i);
 		}
@@ -340,7 +340,7 @@ process_rtsp_request_or_reply(const u_char *data, int offset, int linelen,
 		u_char *tmp_url;
 
 		/* method name */
-		proto_tree_add_item_hidden(tree, hf_rtsp_method, NullTVB, offset,
+		proto_tree_add_string_hidden(tree, hf_rtsp_method, NullTVB, offset,
 			strlen(rtsp_methods[ii]), rtsp_methods[ii]);
 
 		/* URL */
@@ -355,7 +355,7 @@ process_rtsp_request_or_reply(const u_char *data, int offset, int linelen,
 		tmp_url = g_malloc(url - url_start + 1);
 		memcpy(tmp_url, url_start, url - url_start);
 		tmp_url[url - url_start] = 0;
-		proto_tree_add_item_hidden(tree, hf_rtsp_url, NullTVB,
+		proto_tree_add_string_hidden(tree, hf_rtsp_url, NullTVB,
 			offset + (url_start - data), url - url_start, tmp_url);
 		g_free(tmp_url);
 	}

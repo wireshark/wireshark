@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.9 2000/05/11 08:15:17 gram Exp $
+ * $Id: packet-l2tp.c,v 1.10 2000/05/31 05:07:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -336,7 +336,7 @@ dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         col_add_fstr(fd,COL_INFO,textbuffer);
   }
   if (tree) {
-        ti = proto_tree_add_item(tree,proto_l2tp, NullTVB, offset, length , NULL);
+        ti = proto_tree_add_item(tree,proto_l2tp, NullTVB, offset, length, FALSE);
 	l2tp_tree = proto_item_add_subtree(ti, ett_l2tp);
 	proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, NullTVB, offset ,1,
  	rhcode, "Packet Type: %s Tunnel Id=%d Session Id=%d",( CONTROL_BIT(ver) ? control_msg : data_msg) ,tid,cid);

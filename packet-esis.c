@@ -2,7 +2,7 @@
  * Routines for ISO/OSI End System to Intermediate System  
  * Routeing Exchange Protocol ISO 9542.
  *
- * $Id: packet-esis.c,v 1.3 2000/05/11 08:15:07 gram Exp $
+ * $Id: packet-esis.c,v 1.4 2000/05/31 05:07:02 guy Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -319,15 +319,15 @@ dissect_esis(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
    }
 
    if (tree) {
-     ti = proto_tree_add_item(tree, proto_esis, NullTVB, offset, END_OF_FRAME, NULL );
+     ti = proto_tree_add_item(tree, proto_esis, NullTVB, offset, END_OF_FRAME, FALSE);
      esis_tree = proto_item_add_subtree(ti, ett_esis);
 
-     proto_tree_add_item( esis_tree, hf_esis_nlpi, NullTVB, offset, 1, ehdr->esis_nlpi );
-     proto_tree_add_item( esis_tree, hf_esis_length, NullTVB,
+     proto_tree_add_uint( esis_tree, hf_esis_nlpi, NullTVB, offset, 1, ehdr->esis_nlpi );
+     proto_tree_add_uint( esis_tree, hf_esis_length, NullTVB,
                           offset + 1, 1, ehdr->esis_length );
-     proto_tree_add_item( esis_tree, hf_esis_version, NullTVB, offset + 2, 1, 
+     proto_tree_add_uint( esis_tree, hf_esis_version, NullTVB, offset + 2, 1, 
                           ehdr->esis_version );
-     proto_tree_add_item( esis_tree, hf_esis_reserved, NullTVB, offset + 3, 1, 
+     proto_tree_add_uint( esis_tree, hf_esis_reserved, NullTVB, offset + 3, 1, 
                           ehdr->esis_reserved );
 
      pdu_type_string = val_to_str(ehdr->esis_type&OSI_PDU_TYPE_MASK,

@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.12 2000/05/11 08:15:30 gram Exp $
+ * $Id: packet-ntp.c,v 1.13 2000/05/31 05:07:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -255,9 +255,9 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 		/* Adding NTP item and subtree */
-		ti = proto_tree_add_item(tree, proto_ntp, NullTVB, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_ntp, NullTVB, offset, END_OF_FRAME, FALSE);
 		ntp_tree = proto_item_add_subtree(ti, ett_ntp);
-		tf = proto_tree_add_item(ntp_tree, hf_ntp_flags, NullTVB, offset, 1, pkt->flags);
+		tf = proto_tree_add_bytes(ntp_tree, hf_ntp_flags, NullTVB, offset, 1, pkt->flags);
 
 		/* Adding flag subtree and items */
 		flags_tree = proto_item_add_subtree(tf, ett_ntp_flags);
@@ -368,9 +368,9 @@ dissect_ntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		 * hex code for now.
 		 */
 		if ( BYTES_ARE_IN_FRAME(offset, 50) )
-			proto_tree_add_item(ntp_tree, hf_ntp_keyid, NullTVB, offset+48, 4, pkt->keyid);
+			proto_tree_add_bytes(ntp_tree, hf_ntp_keyid, NullTVB, offset+48, 4, pkt->keyid);
 		if ( BYTES_ARE_IN_FRAME(offset, 53) )
-			proto_tree_add_item(ntp_tree, hf_ntp_mac, NullTVB, offset+52, END_OF_FRAME, pkt->mac);
+			proto_tree_add_bytes(ntp_tree, hf_ntp_mac, NullTVB, offset+52, END_OF_FRAME, pkt->mac);
 
 	}
 }

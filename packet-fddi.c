@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.35 2000/05/28 22:02:16 guy Exp $
+ * $Id: packet-fddi.c,v 1.36 2000/05/31 05:07:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -279,7 +279,7 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_protocol_format(tree, proto_fddi, tvb, 0, FDDI_HEADER_SIZE,
 		"Fiber Distributed Data Interface, %s", fc_str);
     fh_tree = proto_item_add_subtree(ti, ett_fddi);
-    proto_tree_add_item(fh_tree, hf_fddi_fc, tvb, FDDI_P_FC, 1, fc);
+    proto_tree_add_uint(fh_tree, hf_fddi_fc, tvb, FDDI_P_FC, 1, fc);
   }
 
   /* Extract the destination address, possibly bit-swapping it. */
@@ -295,12 +295,12 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   SET_ADDRESS(&pi.dst, AT_ETHER, 6, &dst[0]);
 
   if (fh_tree) {
-    proto_tree_add_item(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST, 6, dst);
-    proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST, 6, dst);
+    proto_tree_add_ether(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST, 6, dst);
+    proto_tree_add_ether_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST, 6, dst);
 
     /* hide some bit-swapped mac address fields in the proto_tree, just in case */
-    proto_tree_add_item_hidden(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST, 6, dst_swapped);
-    proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST, 6, dst_swapped);
+    proto_tree_add_ether_hidden(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST, 6, dst_swapped);
+    proto_tree_add_ether_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST, 6, dst_swapped);
   }
 
   /* Extract the source address, possibly bit-swapping it. */
@@ -316,12 +316,12 @@ dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   SET_ADDRESS(&pi.src, AT_ETHER, 6, &src[0]);
 
   if (fh_tree) {
-      proto_tree_add_item(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST, 6, src);
-      proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_SHOST, 6, src);
+      proto_tree_add_ether(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST, 6, src);
+      proto_tree_add_ether_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_SHOST, 6, src);
 
       /* hide some bit-swapped mac address fields in the proto_tree, just in case */
-      proto_tree_add_item_hidden(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST, 6, src_swapped);
-      proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_SHOST, 6, src_swapped);
+      proto_tree_add_ether_hidden(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST, 6, src_swapped);
+      proto_tree_add_ether_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_SHOST, 6, src_swapped);
   }
 
   next_tvb = tvb_new_subset(tvb, FDDI_HEADER_SIZE, -1, -1);

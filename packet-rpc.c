@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.30 2000/05/11 08:15:41 gram Exp $
+ * $Id: packet-rpc.c,v 1.31 2000/05/31 05:07:35 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -338,7 +338,7 @@ int hfindex)
 	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 	value = EXTRACT_UINT(pd, offset+0);
 	if (tree)
-		proto_tree_add_item(tree, hfindex, NullTVB, offset, 4, value);
+		proto_tree_add_boolean(tree, hfindex, NullTVB, offset, 4, value);
 	offset += 4;
 
 	return offset;
@@ -499,7 +499,7 @@ dissect_rpc_opaque_data(const u_char *pd, int offset, frame_data *fd,
 		string_item = proto_tree_add_text(tree, NullTVB,offset+0, END_OF_FRAME,
 			"%s: %s", proto_registrar_get_name(hfindex), string_buffer_print);
 		if (string_data) {
-			proto_tree_add_item_hidden(tree, hfindex, NullTVB, offset+4,
+			proto_tree_add_string_hidden(tree, hfindex, NullTVB, offset+4,
 				string_length_copy, string_buffer);
 		}
 		if (string_item) {
@@ -585,7 +585,7 @@ dissect_rpc_list(const u_char *pd, int offset, frame_data *fd,
 	while (1) {
 		if (!BYTES_ARE_IN_FRAME(offset,4)) break;
 		value_follows = EXTRACT_UINT(pd, offset+0);
-		proto_tree_add_item(tree,hf_rpc_value_follows, NullTVB,
+		proto_tree_add_boolean(tree,hf_rpc_value_follows, NullTVB,
 			offset+0, 4, value_follows);
 		offset += 4;
 		if (value_follows == 1) {
@@ -615,9 +615,9 @@ dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	/* if (!BYTES_ARE_IN_FRAME(offset+8,full_length)) return; */
 
 	if (tree) {
-		proto_tree_add_item(tree, hf_rpc_auth_flavor, NullTVB, offset+0, 4,
+		proto_tree_add_uint(tree, hf_rpc_auth_flavor, NullTVB, offset+0, 4,
 			flavor);
-		proto_tree_add_item(tree, hf_rpc_auth_length, NullTVB, offset+4, 4,
+		proto_tree_add_uint(tree, hf_rpc_auth_length, NullTVB, offset+4, 4,
 			length);
 	}
 
@@ -637,7 +637,7 @@ dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
 			stamp = EXTRACT_UINT(pd,offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_rpc_auth_stamp, NullTVB,
+				proto_tree_add_uint(tree, hf_rpc_auth_stamp, NullTVB,
 					offset+0, 4, stamp);
 			offset += 4;
 
@@ -647,14 +647,14 @@ dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
 			uid = EXTRACT_UINT(pd,offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_rpc_auth_uid, NullTVB,
+				proto_tree_add_uint(tree, hf_rpc_auth_uid, NullTVB,
 					offset+0, 4, uid);
 			offset += 4;
 
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return;
 			gid = EXTRACT_UINT(pd,offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_rpc_auth_gid, NullTVB,
+				proto_tree_add_uint(tree, hf_rpc_auth_gid, NullTVB,
 					offset+0, 4, gid);
 			offset += 4;
 
@@ -670,7 +670,7 @@ dissect_rpc_auth( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			for (gids_i = 0 ; gids_i < gids_count ; gids_i++) {
 				gids_entry = EXTRACT_UINT(pd,offset+0);
 				if (gtree)
-				proto_tree_add_item(gtree, hf_rpc_auth_gid, NullTVB,
+				proto_tree_add_uint(gtree, hf_rpc_auth_gid, NullTVB,
 					offset, 4, gids_entry);
 				offset+=4;
 			}
@@ -882,16 +882,16 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		col_add_str(fd, COL_PROTOCOL, "RPC");
 
 	if (tree) {
-		rpc_item = proto_tree_add_item(tree, proto_rpc, NullTVB, offset, END_OF_FRAME, NULL);
+		rpc_item = proto_tree_add_item(tree, proto_rpc, NullTVB, offset, END_OF_FRAME, FALSE);
 		if (rpc_item) {
 			rpc_tree = proto_item_add_subtree(rpc_item, ett_rpc);
 		}
 	}
 
 	if (use_rm && rpc_tree) {
-		proto_tree_add_item(rpc_tree,hf_rpc_lastfrag, NullTVB,
+		proto_tree_add_boolean(rpc_tree,hf_rpc_lastfrag, NullTVB,
 			offset-4, 4, (rpc_rm >> 31) & 0x1);
-		proto_tree_add_item(rpc_tree,hf_rpc_fraglen, NullTVB,
+		proto_tree_add_uint(rpc_tree,hf_rpc_fraglen, NullTVB,
 			offset-4, 4, rpc_rm & RPC_RM_FRAGLEN);
 	}
 
@@ -903,7 +903,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	msg_type_name = val_to_str(msg_type,rpc_msg_type,"%u");
 	if (rpc_tree) {
-		proto_tree_add_item(rpc_tree, hf_rpc_msgtype, NullTVB,
+		proto_tree_add_uint(rpc_tree, hf_rpc_msgtype, NullTVB,
 			offset+4, 4, msg_type);
 	}
 
@@ -918,7 +918,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 		rpcvers = EXTRACT_UINT(pd,offset+0);
 		if (rpc_tree) {
-			proto_tree_add_item(rpc_tree,
+			proto_tree_add_uint(rpc_tree,
 				hf_rpc_version, NullTVB, offset+0, 4, rpcvers);
 		}
 
@@ -940,7 +940,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			return TRUE;
 		vers = EXTRACT_UINT(pd,offset+8);
 		if (rpc_tree) {
-			proto_tree_add_item(rpc_tree,
+			proto_tree_add_uint(rpc_tree,
 				hf_rpc_programversion, NullTVB, offset+8, 4, vers);
 		}
 
@@ -1003,9 +1003,9 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			if (check_col(fd, COL_INFO)) {
 				col_append_fstr(fd, COL_INFO, " dup XID 0x%x", xid);
 				if (rpc_tree) {
-					proto_tree_add_item_hidden(rpc_tree,
+					proto_tree_add_uint_hidden(rpc_tree,
 						hf_rpc_dup, NullTVB, 0,0, xid);
-					proto_tree_add_item_hidden(rpc_tree,
+					proto_tree_add_uint_hidden(rpc_tree,
 						hf_rpc_call_dup, NullTVB, 0,0, xid);
 				}
 			}
@@ -1085,7 +1085,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			proto_tree_add_uint_format(rpc_tree,
 				hf_rpc_program, NullTVB, 0, 0, prog,
 				"Program: %s (%u)", progname, prog);
-			proto_tree_add_item(rpc_tree,
+			proto_tree_add_uint(rpc_tree,
 				hf_rpc_programversion, NullTVB, 0, 0, vers);
 			proto_tree_add_uint_format(rpc_tree,
 				hf_rpc_procedure, NullTVB, 0, 0, proc,
@@ -1096,9 +1096,9 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			if (check_col(fd, COL_INFO)) {
 				col_append_fstr(fd, COL_INFO, " dup XID 0x%x", xid);
 				if (rpc_tree) {
-					proto_tree_add_item_hidden(rpc_tree,
+					proto_tree_add_uint_hidden(rpc_tree,
 						hf_rpc_dup, NullTVB, 0,0, xid);
-					proto_tree_add_item_hidden(rpc_tree,
+					proto_tree_add_uint_hidden(rpc_tree,
 						hf_rpc_reply_dup, NullTVB, 0,0, xid);
 				}
 			}
@@ -1108,7 +1108,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			return TRUE;
 		reply_state = EXTRACT_UINT(pd,offset+0);
 		if (rpc_tree) {
-			proto_tree_add_item(rpc_tree, hf_rpc_state_reply, NullTVB,
+			proto_tree_add_uint(rpc_tree, hf_rpc_state_reply, NullTVB,
 				offset+0, 4, reply_state);
 		}
 		offset += 4;
@@ -1119,7 +1119,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				return TRUE;
 			accept_state = EXTRACT_UINT(pd,offset+0);
 			if (rpc_tree) {
-				proto_tree_add_item(rpc_tree, hf_rpc_state_accept, NullTVB,
+				proto_tree_add_uint(rpc_tree, hf_rpc_state_accept, NullTVB,
 					offset+0, 4, accept_state);
 			}
 			offset += 4;
@@ -1134,10 +1134,10 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 					vers_low = EXTRACT_UINT(pd,offset+0);
 					vers_high = EXTRACT_UINT(pd,offset+4);
 					if (rpc_tree) {
-						proto_tree_add_item(rpc_tree,
+						proto_tree_add_uint(rpc_tree,
 							hf_rpc_programversion_min,
 							NullTVB, offset+0, 4, vers_low);
-						proto_tree_add_item(rpc_tree,
+						proto_tree_add_uint(rpc_tree,
 							hf_rpc_programversion_max,
 							NullTVB, offset+4, 4, vers_high);
 					}
@@ -1152,7 +1152,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				return TRUE;
 			reject_state = EXTRACT_UINT(pd,offset+0);
 			if (rpc_tree) {
-				proto_tree_add_item(rpc_tree,
+				proto_tree_add_uint(rpc_tree,
 					hf_rpc_state_reject, NullTVB, offset+0, 4,
 					reject_state);
 			}
@@ -1164,10 +1164,10 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				vers_low = EXTRACT_UINT(pd,offset+0);
 				vers_high = EXTRACT_UINT(pd,offset+4);
 				if (rpc_tree) {
-					proto_tree_add_item(rpc_tree,
+					proto_tree_add_uint(rpc_tree,
 						hf_rpc_version_min,
 						NullTVB, offset+0, 4, vers_low);
-					proto_tree_add_item(rpc_tree,
+					proto_tree_add_uint(rpc_tree,
 						hf_rpc_version_max,
 						NullTVB, offset+4, 4, vers_high);
 				}
@@ -1177,7 +1177,7 @@ dissect_rpc( const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 					return TRUE;
 				auth_state = EXTRACT_UINT(pd,offset+0);
 				if (rpc_tree) {
-					proto_tree_add_item(rpc_tree,
+					proto_tree_add_uint(rpc_tree,
 						hf_rpc_state_auth, NullTVB, offset+0, 4,
 						auth_state);
 				}
@@ -1196,13 +1196,13 @@ dissect_rpc_prog:
 
 	/* create here the program specific sub-tree */
 	if (tree) {
-		pitem = proto_tree_add_item(tree, proto, NullTVB, offset, END_OF_FRAME);
+		pitem = proto_tree_add_item(tree, proto, NullTVB, offset, END_OF_FRAME, FALSE);
 		if (pitem) {
 			ptree = proto_item_add_subtree(pitem, ett);
 		}
 
 		if (ptree) {
-			proto_tree_add_item(ptree,
+			proto_tree_add_uint(ptree,
 				hf_rpc_programversion, NullTVB, 0, 0, vers);
 			proto_tree_add_uint_format(ptree,
 				hf_rpc_procedure, NullTVB, 0, 0, proc,

@@ -2,7 +2,7 @@
  * Routines for smb net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.4 2000/05/11 08:15:45 gram Exp $
+ * $Id: packet-smb-logon.c,v 1.5 2000/05/31 05:07:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -531,7 +531,7 @@ static void (*dissect_smb_logon_cmds[])(const u_char *, int, frame_data *,
 
     	if (tree) {
 		ti = proto_tree_add_item( parent, proto_smb_logon, NullTVB, offset,
-			END_OF_FRAME, NULL);
+			END_OF_FRAME, FALSE);
 		smb_logon_tree = proto_item_add_subtree(ti, ett_smb_logon);
 
 		proto_tree_add_text(smb_logon_tree, NullTVB, offset, 1,

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.89 2000/05/28 22:59:18 guy Exp $
+ * $Id: packet-ip.c,v 1.90 2000/05/31 05:07:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -861,10 +861,10 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         break;
     }
 
-    ti = proto_tree_add_item(tree, proto_ip, NullTVB, offset, hlen, NULL);
+    ti = proto_tree_add_item(tree, proto_ip, NullTVB, offset, hlen, FALSE);
     ip_tree = proto_item_add_subtree(ti, ett_ip);
 
-    proto_tree_add_item(ip_tree, hf_ip_version, NullTVB, offset, 1, hi_nibble(iph.ip_v_hl));
+    proto_tree_add_uint(ip_tree, hf_ip_version, NullTVB, offset, 1, hi_nibble(iph.ip_v_hl));
     proto_tree_add_uint_format(ip_tree, hf_ip_hdr_len, NullTVB, offset, 1, hlen,
 	"Header length: %u bytes", hlen);
 
@@ -875,40 +875,40 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	   "Unknown DSCP"));
 
       field_tree = proto_item_add_subtree(tf, ett_ip_dsfield);
-      proto_tree_add_item(field_tree, hf_ip_dsfield_dscp, NullTVB, offset + 1, 1, iph.ip_tos);
-      proto_tree_add_item(field_tree, hf_ip_dsfield_cu, NullTVB, offset + 1, 1, iph.ip_tos);
+      proto_tree_add_uint(field_tree, hf_ip_dsfield_dscp, NullTVB, offset + 1, 1, iph.ip_tos);
+      proto_tree_add_uint(field_tree, hf_ip_dsfield_cu, NullTVB, offset + 1, 1, iph.ip_tos);
     } else {
       tf = proto_tree_add_uint_format(ip_tree, hf_ip_tos, NullTVB, offset + 1, 1, iph.ip_tos,
 	  "Type of service: 0x%02x (%s)", iph.ip_tos,
 	  val_to_str( IPTOS_TOS(iph.ip_tos), iptos_vals, "Unknown") );
 
       field_tree = proto_item_add_subtree(tf, ett_ip_tos);
-      proto_tree_add_item(field_tree, hf_ip_tos_precedence, NullTVB, offset + 1, 1, iph.ip_tos);
-      proto_tree_add_item(field_tree, hf_ip_tos_delay, NullTVB, offset + 1, 1, iph.ip_tos);
-      proto_tree_add_item(field_tree, hf_ip_tos_throughput, NullTVB, offset + 1, 1, iph.ip_tos);
-      proto_tree_add_item(field_tree, hf_ip_tos_reliability, NullTVB, offset + 1, 1, iph.ip_tos);
-      proto_tree_add_item(field_tree, hf_ip_tos_cost, NullTVB, offset + 1, 1, iph.ip_tos);
+      proto_tree_add_uint(field_tree, hf_ip_tos_precedence, NullTVB, offset + 1, 1, iph.ip_tos);
+      proto_tree_add_boolean(field_tree, hf_ip_tos_delay, NullTVB, offset + 1, 1, iph.ip_tos);
+      proto_tree_add_boolean(field_tree, hf_ip_tos_throughput, NullTVB, offset + 1, 1, iph.ip_tos);
+      proto_tree_add_boolean(field_tree, hf_ip_tos_reliability, NullTVB, offset + 1, 1, iph.ip_tos);
+      proto_tree_add_boolean(field_tree, hf_ip_tos_cost, NullTVB, offset + 1, 1, iph.ip_tos);
     }
-    proto_tree_add_item(ip_tree, hf_ip_len, NullTVB, offset +  2, 2, iph.ip_len);
-    proto_tree_add_item(ip_tree, hf_ip_id, NullTVB, offset +  4, 2, iph.ip_id);
+    proto_tree_add_uint(ip_tree, hf_ip_len, NullTVB, offset +  2, 2, iph.ip_len);
+    proto_tree_add_uint(ip_tree, hf_ip_id, NullTVB, offset +  4, 2, iph.ip_id);
 
     flags = (iph.ip_off & (IP_DF|IP_MF)) >> 12;
-    tf = proto_tree_add_item(ip_tree, hf_ip_flags, NullTVB, offset +  6, 1, flags);
+    tf = proto_tree_add_uint(ip_tree, hf_ip_flags, NullTVB, offset +  6, 1, flags);
     field_tree = proto_item_add_subtree(tf, ett_ip_off);
-    proto_tree_add_item(field_tree, hf_ip_flags_df, NullTVB, offset + 6, 1, flags),
-    proto_tree_add_item(field_tree, hf_ip_flags_mf, NullTVB, offset + 6, 1, flags),
+    proto_tree_add_boolean(field_tree, hf_ip_flags_df, NullTVB, offset + 6, 1, flags),
+    proto_tree_add_boolean(field_tree, hf_ip_flags_mf, NullTVB, offset + 6, 1, flags),
 
-    proto_tree_add_item(ip_tree, hf_ip_frag_offset, NullTVB, offset +  6, 2,
+    proto_tree_add_uint(ip_tree, hf_ip_frag_offset, NullTVB, offset +  6, 2,
       (iph.ip_off & IP_OFFSET)*8);
-    proto_tree_add_item(ip_tree, hf_ip_ttl, NullTVB, offset +  8, 1, iph.ip_ttl);
+    proto_tree_add_uint(ip_tree, hf_ip_ttl, NullTVB, offset +  8, 1, iph.ip_ttl);
     proto_tree_add_uint_format(ip_tree, hf_ip_proto, NullTVB, offset +  9, 1, iph.ip_p,
 	"Protocol: %s (0x%02x)", ipprotostr(iph.ip_p), iph.ip_p);
     proto_tree_add_uint_format(ip_tree, hf_ip_checksum, NullTVB, offset + 10, 2, iph.ip_sum,
         "Header checksum: 0x%04x (%s)", iph.ip_sum, ip_checksum_state((e_ip*) &pd[offset]));
-    proto_tree_add_item(ip_tree, hf_ip_src, NullTVB, offset + 12, 4, iph.ip_src);
-    proto_tree_add_item(ip_tree, hf_ip_dst, NullTVB, offset + 16, 4, iph.ip_dst);
-    proto_tree_add_item_hidden(ip_tree, hf_ip_addr, NullTVB, offset + 12, 4, iph.ip_src);
-    proto_tree_add_item_hidden(ip_tree, hf_ip_addr, NullTVB, offset + 16, 4, iph.ip_dst);
+    proto_tree_add_ipv4(ip_tree, hf_ip_src, NullTVB, offset + 12, 4, iph.ip_src);
+    proto_tree_add_ipv4(ip_tree, hf_ip_dst, NullTVB, offset + 16, 4, iph.ip_dst);
+    proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, NullTVB, offset + 12, 4, iph.ip_src);
+    proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, NullTVB, offset + 16, 4, iph.ip_dst);
 
     /* Decode IP options, if any. */
     if (hlen > sizeof (e_ip)) {
@@ -1093,7 +1093,7 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     col_add_str(fd, COL_INFO, type_str);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_icmp, NullTVB, offset, 4, NULL);
+    ti = proto_tree_add_item(tree, proto_icmp, NullTVB, offset, 4, FALSE);
     icmp_tree = proto_item_add_subtree(ti, ett_icmp);
     proto_tree_add_uint_format(icmp_tree, hf_icmp_type, NullTVB, offset,      1, 
 			       ih.icmp_type,
@@ -1103,7 +1103,7 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			       ih.icmp_code,
 			       "Code: %u %s",
 			       ih.icmp_code, code_str);
-    proto_tree_add_item(icmp_tree, hf_icmp_checksum, NullTVB, offset +  2, 2, 
+    proto_tree_add_uint(icmp_tree, hf_icmp_checksum, NullTVB, offset +  2, 2, 
 			cksum);
 
     /* Decode the second 4 bytes of the packet. */
@@ -1252,9 +1252,9 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (check_col(fd, COL_INFO))
     col_add_str(fd, COL_INFO, type_str);
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_igmp, NullTVB, offset, 8, NULL);
+    ti = proto_tree_add_item(tree, proto_igmp, NullTVB, offset, 8, FALSE);
     igmp_tree = proto_item_add_subtree(ti, ett_igmp);
-    proto_tree_add_item(igmp_tree, hf_igmp_version, NullTVB, offset,     1, 
+    proto_tree_add_uint(igmp_tree, hf_igmp_version, NullTVB, offset,     1, 
 			hi_nibble(ih.igmp_v_t));
     proto_tree_add_uint_format(igmp_tree, hf_igmp_type, NullTVB,  offset    , 1, 
 			       lo_nibble(ih.igmp_v_t),
@@ -1264,9 +1264,9 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			       ih.igmp_unused,
 			       "Unused: 0x%02x",
 			       ih.igmp_unused);
-    proto_tree_add_item(igmp_tree, hf_igmp_checksum, NullTVB, offset + 2, 2, 
+    proto_tree_add_uint(igmp_tree, hf_igmp_checksum, NullTVB, offset + 2, 2, 
 			cksum);
-    proto_tree_add_item(igmp_tree, hf_igmp_group, NullTVB, offset + 4, 4, 
+    proto_tree_add_ipv4(igmp_tree, hf_igmp_group, NullTVB, offset + 4, 4, 
 			ih.igmp_gaddr);
   }
 }

@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.12 2000/05/11 08:15:40 gram Exp $
+ * $Id: packet-radius.c,v 1.13 2000/05/31 05:07:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -704,7 +704,7 @@ proto_tree
   {
 	
         ti = proto_tree_add_item(tree,proto_radius, NullTVB, offset, rhlength,
-			NULL);
+			FALSE);
 
         radius_tree = proto_item_add_subtree(ti, ett_radius);
 

@@ -1,7 +1,7 @@
 /* packet-mapi.c
  * Routines for MSX mapi packet dissection
  *
- * $Id: packet-mapi.c,v 1.6 2000/05/11 08:15:23 gram Exp $
+ * $Id: packet-mapi.c,v 1.7 2000/05/31 05:07:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,19 +66,19 @@ dissect_mapi(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) 
 	{
-		ti = proto_tree_add_item(tree, proto_mapi, NullTVB, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_mapi, NullTVB, offset, END_OF_FRAME, FALSE);
 		mapi_tree = proto_item_add_subtree(ti, ett_mapi);
 
 		if (pi.match_port == pi.destport)
 		{
-		        proto_tree_add_item_hidden(mapi_tree, hf_mapi_request, NullTVB,
+		        proto_tree_add_boolean_hidden(mapi_tree, hf_mapi_request, NullTVB,
 						   offset, END_OF_FRAME, TRUE);
 			proto_tree_add_text(mapi_tree, NullTVB, offset, 
 				END_OF_FRAME, "Request: <opaque data>" );
 		}
 		else
 		{
-		        proto_tree_add_item_hidden(mapi_tree, hf_mapi_response, NullTVB,
+		        proto_tree_add_boolean_hidden(mapi_tree, hf_mapi_response, NullTVB,
 						   offset, END_OF_FRAME, TRUE);
 			proto_tree_add_text(mapi_tree, NullTVB, offset, 
 				END_OF_FRAME, "Response: <opaque data>");

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.31 2000/05/30 09:52:30 guy Exp $
+ * $Id: proto.h,v 1.32 2000/05/31 05:08:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -197,13 +197,24 @@ proto_register_subtree_array(gint **indices, int num_indices);
 
 /* Add item's value to proto_tree, using label registered to that field */
 proto_item *
-proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+proto_tree_add_item_old(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, ...);
 
 proto_item *
-proto_tree_add_item_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+proto_tree_add_item_hidden_old(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, ...);
 
+/* Add an item to a proto_tree, using the text label registered to that item;
+   the item is extracted from the tvbuff handed to it. */
+proto_item *
+proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    gint start, gint length, gboolean little_endian);
+
+proto_item *
+proto_tree_add_item_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    gint start, gint length, gboolean little_endian);
+
+/* Add a FT_NONE to a proto_tree */
 #if __GNUC__ == 2
 proto_item *
 proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
@@ -215,6 +226,14 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gin
 	gint length, const char *format, ...);
 #endif
 
+/* Add a FT_BYTES to a proto_tree */
+proto_item *
+proto_tree_add_bytes(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, const guint8* start_ptr);
+
+proto_item *
+proto_tree_add_bytes_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, const guint8* start_ptr);
 
 #if __GNUC__ == 2
 proto_item *
@@ -227,6 +246,15 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 	gint length, const guint8* start_ptr, const char *format, ...);
 #endif
 
+/* Add a FT_*TIME to a proto_tree */
+proto_item *
+proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, struct timeval* value_ptr);
+
+proto_item *
+proto_tree_add_time_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, struct timeval* value_ptr);
+
 #if __GNUC__ == 2
 proto_item *
 proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
@@ -238,6 +266,15 @@ proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 	gint length, struct timeval* value_ptr, const char *format, ...);
 #endif
 
+/* Add a FT_IPXNET to a proto_tree */
+proto_item *
+proto_tree_add_ipxnet(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, guint32 value);
+
+proto_item *
+proto_tree_add_ipxnet_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, guint32 value);
+
 #if __GNUC__ == 2
 proto_item *
 proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
@@ -248,6 +285,15 @@ proto_item *
 proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value, const char *format, ...);
 #endif
+
+/* Add a FT_IPv4 to a proto_tree */
+proto_item *
+proto_tree_add_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, guint32 value);
+
+proto_item *
+proto_tree_add_ipv4_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, guint32 value);
 
 #if __GNUC__ == 2
 proto_item *
@@ -260,27 +306,54 @@ proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint st
 	gint length, guint32 value, const char *format, ...);
 #endif
 
+/* Add a FT_IPv6 to a proto_tree */
+proto_item *
+proto_tree_add_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, const guint8* value_ptr);
+
+proto_item *
+proto_tree_add_ipv6_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, const guint8* value_ptr);
+
 #if __GNUC__ == 2
 proto_item *
 proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint8* value_ptr, const char *format, ...)
+	gint length, const guint8* value_ptr, const char *format, ...)
 	__attribute__((format (printf, 7, 8)));
 #else
 proto_item *
 proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint8* value_ptr, const char *format, ...);
+	gint length, const guint8* value_ptr, const char *format, ...);
 #endif
+
+/* Add a FT_ETHER to a proto_tree */
+proto_item *
+proto_tree_add_ether(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, const guint8* value);
+
+proto_item *
+proto_tree_add_ether_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, const guint8* value);
 
 #if __GNUC__ == 2
 proto_item *
 proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, guint8* value, const char *format, ...)
+	gint length, const guint8* value, const char *format, ...)
 	__attribute__((format (printf, 7, 8)));
 #else
 proto_item *
 proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint8* value, const char *format, ...);
 #endif
+
+/* Add a FT_STRING to a proto_tree */
+proto_item *
+proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, const char* value);
+
+proto_item *
+proto_tree_add_string_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, const char* value);
 
 #if __GNUC__ == 2
 proto_item *
@@ -293,6 +366,15 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
 	gint length, const char* value, const char *format, ...);
 #endif
 
+/* Add a FT_BOOLEAN to a proto_tree */
+proto_item *
+proto_tree_add_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, guint32 value);
+
+proto_item *
+proto_tree_add_boolean_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, guint32 value);
+
 #if __GNUC__ == 2
 proto_item *
 proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
@@ -304,6 +386,35 @@ proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint
 	gint length, guint32 value, const char *format, ...);
 #endif
 
+/* Add a FT_DOUBLE to a proto_tree */
+proto_item *
+proto_tree_add_double(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, double value);
+
+proto_item *
+proto_tree_add_double_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, double value);
+
+#if __GNUC__ == 2
+proto_item *
+proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, double value, const char *format, ...)
+	__attribute__((format (printf, 7, 8)));
+#else
+proto_item *
+proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, double value, const char *format, ...);
+#endif
+
+/* Add any FT_UINT* to a proto_tree */
+proto_item *
+proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, guint32 value);
+
+proto_item *
+proto_tree_add_uint_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, guint32 value);
+
 #if __GNUC__ == 2
 proto_item *
 proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
@@ -314,6 +425,15 @@ proto_item *
 proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, guint32 value, const char *format, ...);
 #endif
+
+/* Add any FT_INT* to a proto_tree */
+proto_item *
+proto_tree_add_int(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, gint32 value);
+
+proto_item *
+proto_tree_add_int_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, gint32 value);
 
 #if __GNUC__ == 2
 proto_item *
@@ -327,6 +447,7 @@ proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint sta
 #endif
 
 
+/* Add a text-only node to the proto_tree */
 #if __GNUC__ == 2
 proto_item *
 proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, const char *,
@@ -338,6 +459,7 @@ proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length, co
 #endif
 
 
+/* Add a node with no text */
 proto_item *
 proto_tree_add_notext(proto_tree *tree, tvbuff_t *tvb, gint start, gint length);
 

@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.11 2000/05/12 08:04:29 guy Exp $
+ * $Id: packet-ldap.c,v 1.12 2000/05/31 05:07:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -152,7 +152,7 @@ static int read_length(ASN1_SCK *a, proto_tree *tree, int hf_id, guint *len)
     *len = length;
 
   if (tree)
-    proto_tree_add_item(tree, hf_id, NullTVB, start-a->begin, a->pointer-start, length);
+    proto_tree_add_uint(tree, hf_id, NullTVB, start-a->begin, a->pointer-start, length);
 
   return 0;
 }
@@ -204,7 +204,7 @@ static int read_integer_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   if (tree)
   {
     proto_tree *temp_tree = 0;
-    temp_tree = proto_tree_add_item(tree, hf_id, NullTVB, start-a->begin, a->pointer-start, integer);
+    temp_tree = proto_tree_add_uint(tree, hf_id, NullTVB, start-a->begin, a->pointer-start, integer);
     if (new_tree)
       *new_tree = temp_tree;
   }
@@ -228,6 +228,43 @@ static int read_integer(ASN1_SCK *a, proto_tree *tree, int hf_id,
   return read_integer_value(a, tree, hf_id, new_tree, i, start, length);
 }
 
+static int read_boolean_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
+	proto_tree **new_tree, guint *i, const guchar *start, guint length)
+{
+  guint integer = 0;
+
+  asn1_uint32_value_decode(a, length, &integer);
+
+  if (i)
+    *i = integer;
+
+  if (tree)
+  {
+    proto_tree *temp_tree = 0;
+    temp_tree = proto_tree_add_boolean(tree, hf_id, NullTVB, start-a->begin, a->pointer-start, integer);
+    if (new_tree)
+      *new_tree = temp_tree;
+  }
+
+  return 0;
+}
+
+static int read_boolean(ASN1_SCK *a, proto_tree *tree, int hf_id,
+	proto_tree **new_tree, guint *i)
+{
+  guint cls, con, tag;
+  gboolean def;
+  guint length;
+  const guchar *start = a->pointer;
+  
+  if (asn1_header_decode(a, &cls, &con, &tag, &def, &length) != ASN1_ERR_NOERROR)
+    return 1;
+  if (cls != ASN1_UNI || con != ASN1_PRI || tag != ASN1_BOL)
+    return 1;
+
+  return read_boolean_value(a, tree, hf_id, new_tree, i, start, length);
+}
+
 static void read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
 	proto_tree **new_tree, char **s, const guchar *start, guint length)
 {
@@ -245,7 +282,7 @@ static void read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   if (tree)
   {
     proto_tree *temp_tree;
-    temp_tree = proto_tree_add_item(tree, hf_id, NullTVB, start - a->begin, a->pointer - start, string);
+    temp_tree = proto_tree_add_string(tree, hf_id, NullTVB, start - a->begin, a->pointer - start, string);
     if (new_tree)
       *new_tree = temp_tree;
   }
@@ -535,7 +572,7 @@ static int read_filter(ASN1_SCK *a, proto_tree *tree, int hf_id)
       proto_tree_add_text(tree, NullTVB, start-a->begin, 0,
         "Error parsing filter (%d)", ret);
     } else
-      proto_tree_add_item(tree, hf_id, NullTVB, start-a->begin, a->pointer-start, filter);
+      proto_tree_add_string(tree, hf_id, NullTVB, start-a->begin, a->pointer-start, filter);
   }
 
   g_free(filter);
@@ -586,7 +623,7 @@ static int dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree)
     return 1;	/* XXX - right return value for an error? */
   if (cls != ASN1_CTX)
     return 1;	/* RFCs 1777 and 2251 say these are context-specific types */
-  proto_tree_add_item(tree, hf_ldap_message_bind_auth, NullTVB, start - a->begin,
+  proto_tree_add_uint(tree, hf_ldap_message_bind_auth, NullTVB, start - a->begin,
 			a->pointer - start, tag);
   switch (tag)
   {
@@ -620,7 +657,7 @@ static int dissect_ldap_request_search(ASN1_SCK *a, proto_tree *tree)
   read_integer(a, tree, hf_ldap_message_search_deref, 0, 0, ASN1_ENUM);
   read_integer(a, tree, hf_ldap_message_search_sizeLimit, 0, 0, ASN1_INT);
   read_integer(a, tree, hf_ldap_message_search_timeLimit, 0, 0, ASN1_INT);
-  read_integer(a, tree, hf_ldap_message_search_typesOnly, 0, 0, ASN1_BOL);
+  read_boolean(a, tree, hf_ldap_message_search_typesOnly, 0, 0);
   ret = read_filter(a, tree, hf_ldap_message_search_filter);
   if (ret != ASN1_ERR_NOERROR)
     return ret;
@@ -704,7 +741,7 @@ static int dissect_ldap_request_modifyrdn(ASN1_SCK *a, proto_tree *tree,
 
   read_string(a, tree, hf_ldap_message_dn, 0, 0, ASN1_UNI, ASN1_OTS);
   read_string(a, tree, hf_ldap_message_modrdn_name, 0, 0, ASN1_UNI, ASN1_OTS);
-  read_integer(a, tree, hf_ldap_message_modrdn_delete, 0, 0, ASN1_BOL);
+  read_boolean(a, tree, hf_ldap_message_modrdn_delete, 0, 0);
   
   if (a->pointer < (start + length)) {
     /* LDAP V3 Modify DN operation, with newSuperior */
@@ -732,7 +769,7 @@ static int dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
   length = 2 + strlen(string1) + strlen(string2);
   compare = g_malloc0(length);
   snprintf(compare, length, "%s=%s", string1, string2);
-  proto_tree_add_item(tree, hf_ldap_message_compare, NullTVB, start-a->begin, a->pointer-start, compare);
+  proto_tree_add_string(tree, hf_ldap_message_compare, NullTVB, start-a->begin, a->pointer-start, compare);
   
   g_free(string1);
   g_free(string2);
@@ -807,7 +844,7 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
   if (tree) 
   {
-    ti = proto_tree_add_item(tree, proto_ldap, NullTVB, offset, END_OF_FRAME, NULL);
+    ti = proto_tree_add_item(tree, proto_ldap, NullTVB, offset, END_OF_FRAME, FALSE);
     ldap_tree = proto_item_add_subtree(ti, ett_ldap);
   }
 
@@ -862,8 +899,8 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     if (ldap_tree) 
     {
-      proto_tree_add_item_hidden(ldap_tree, hf_ldap_message_id, NullTVB, message_id_start, message_id_length, messageId);
-      proto_tree_add_item_hidden(ldap_tree, hf_ldap_message_type, NullTVB,
+      proto_tree_add_uint_hidden(ldap_tree, hf_ldap_message_id, NullTVB, message_id_start, message_id_length, messageId);
+      proto_tree_add_uint_hidden(ldap_tree, hf_ldap_message_type, NullTVB,
 			         start - a.begin, a.pointer - start, protocolOpTag);
       ti = proto_tree_add_text(ldap_tree, NullTVB, message_id_start, messageLength, "Message: Id=%u  %s", messageId, typestr);
       msg_tree = proto_item_add_subtree(ti, ett_ldap_message);
@@ -985,12 +1022,12 @@ proto_register_ldap(void)
   static hf_register_info hf[] = {
     { &hf_ldap_length,
       { "Length",		"ldap.length",
-	FT_INT32, BASE_DEC, NULL, 0x0,
+	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"LDAP Length" }},
 	  
     { &hf_ldap_message_id,
       { "Message Id",		"ldap.message_id",
-	FT_INT32, BASE_DEC, NULL, 0x0,
+	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"LDAP Message Id" }},
     { &hf_ldap_message_type,
       { "Message Type",		"ldap.message_type",
@@ -998,12 +1035,12 @@ proto_register_ldap(void)
 	"LDAP Message Type" }},
     { &hf_ldap_message_length,
       { "Message Length",		"ldap.message_length",
-	FT_INT32, BASE_DEC, NULL, 0x0,
+	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"LDAP Message Length" }},
 
     { &hf_ldap_message_result,
       { "Result Code",		"ldap.result.code",
-	FT_INT8, BASE_HEX, result_codes, 0x0,
+	FT_UINT8, BASE_HEX, result_codes, 0x0,
 	"LDAP Result Code" }},
     { &hf_ldap_message_result_matcheddn,
       { "Matched DN",		"ldap.result.matcheddn",
@@ -1020,7 +1057,7 @@ proto_register_ldap(void)
 
     { &hf_ldap_message_bind_version,
       { "Version",		"ldap.bind.version",
-	FT_INT32, BASE_DEC, NULL, 0x0,
+	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"LDAP Bind Version" }},
     { &hf_ldap_message_bind_dn,
       { "DN",			"ldap.bind.dn",
@@ -1049,11 +1086,11 @@ proto_register_ldap(void)
 	"LDAP Search Dereference" }},
     { &hf_ldap_message_search_sizeLimit,
       { "Size Limit",		"ldap.search.sizelimit",
-	FT_INT32, BASE_DEC, NULL, 0x0,
+	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"LDAP Search Size Limit" }},
     { &hf_ldap_message_search_timeLimit,
       { "Time Limit",		"ldap.search.timelimit",
-	FT_INT32, BASE_DEC, NULL, 0x0,
+	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"LDAP Search Time Limit" }},
     { &hf_ldap_message_search_typesOnly,
       { "Attributes Only",	"ldap.search.typesonly",
@@ -1109,7 +1146,7 @@ proto_register_ldap(void)
 
     { &hf_ldap_message_abandon_msgid,
       { "Abandon Msg Id",	"ldap.abandon.msgid",
-	FT_INT32, BASE_DEC, NULL, 0x0,
+	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"LDAP Abandon Msg Id" }},
   };
 
@@ -1130,4 +1167,3 @@ proto_reg_handoff_ldap(void)
 {
   dissector_add("tcp.port", TCP_PORT_LDAP, dissect_ldap);
 }
-

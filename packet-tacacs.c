@@ -1,7 +1,7 @@
 /* packet-tacacs.c
  * Routines for cisco tacacs/tacplus/AAA packet dissection
  *
- * $Id: packet-tacacs.c,v 1.4 2000/05/11 08:15:52 gram Exp $
+ * $Id: packet-tacacs.c,v 1.5 2000/05/31 05:07:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,21 +68,21 @@ dissect_tacacs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) 
 	{
-		ti = proto_tree_add_item(tree, proto_tacacs, NullTVB, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_tacacs, NullTVB, offset, END_OF_FRAME, FALSE);
 		tacacs_tree = proto_item_add_subtree(ti, ett_tacacs);
 
-		proto_tree_add_item(tacacs_tree, hf_tacacs_version, NullTVB, 0, 0, "XTacacs");
+		proto_tree_add_string(tacacs_tree, hf_tacacs_version, NullTVB, 0, 0, "XTacacs");
 
 		if (pi.match_port == pi.destport)
 		{
-		        proto_tree_add_item_hidden(tacacs_tree, hf_tacacs_request, NullTVB,
+		        proto_tree_add_boolean_hidden(tacacs_tree, hf_tacacs_request, NullTVB,
 						   offset, END_OF_FRAME, TRUE);
 			proto_tree_add_text(tacacs_tree, NullTVB, offset, 
 				END_OF_FRAME, "Request: <opaque data>" );
 		}
 		else
 		{
-		        proto_tree_add_item_hidden(tacacs_tree, hf_tacacs_response, NullTVB,
+		        proto_tree_add_boolean_hidden(tacacs_tree, hf_tacacs_response, NullTVB,
 						   offset, END_OF_FRAME, TRUE);
 			proto_tree_add_text(tacacs_tree, NullTVB, offset, 
 				END_OF_FRAME, "Response: <opaque data>");
@@ -106,21 +106,21 @@ dissect_tacplus(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) 
 	{
-		ti = proto_tree_add_item(tree, proto_tacacs, NullTVB, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_tacacs, NullTVB, offset, END_OF_FRAME, FALSE);
 		tacacs_tree = proto_item_add_subtree(ti, ett_tacacs);
 
-		proto_tree_add_item(tacacs_tree, hf_tacacs_version, NullTVB, 0, 0, "Tacacs+");
+		proto_tree_add_string(tacacs_tree, hf_tacacs_version, NullTVB, 0, 0, "Tacacs+");
 
 		if (pi.match_port == pi.destport)
 		{
-		        proto_tree_add_item_hidden(tacacs_tree, hf_tacacs_request, NullTVB,
+		        proto_tree_add_boolean_hidden(tacacs_tree, hf_tacacs_request, NullTVB,
 						   offset, END_OF_FRAME, TRUE);
 			proto_tree_add_text(tacacs_tree, NullTVB, offset, 
 				END_OF_FRAME, "Request: <opaque data>" );
 		}
 		else
 		{
-		        proto_tree_add_item_hidden(tacacs_tree, hf_tacacs_response, NullTVB,
+		        proto_tree_add_boolean_hidden(tacacs_tree, hf_tacacs_response, NullTVB,
 						   offset, END_OF_FRAME, TRUE);
 			proto_tree_add_text(tacacs_tree, NullTVB, offset, 
 				END_OF_FRAME, "Response: <opaque data>");

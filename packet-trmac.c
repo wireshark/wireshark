@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-trmac.c,v 1.21 2000/05/11 08:15:54 gram Exp $
+ * $Id: packet-trmac.c,v 1.22 2000/05/31 05:07:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -119,7 +119,7 @@ sv_text(const u_char *pd, int pkt_offset, proto_tree *tree)
 	proto_tree_add_text(tree, NullTVB, pkt_offset, 1,
 		"Subvector Length: %d bytes", sv_length);*/
 
-	proto_tree_add_item_hidden(tree, hf_trmac_sv, NullTVB, pkt_offset+1, 1, pd[1]);
+	proto_tree_add_uint_hidden(tree, hf_trmac_sv, NullTVB, pkt_offset+1, 1, pd[1]);
 
 	switch(pd[1]) {
 		case 0x01: /* Beacon Type */
@@ -134,7 +134,7 @@ sv_text(const u_char *pd, int pkt_offset, proto_tree *tree)
 			break;
 
 		case 0x02: /* NAUN */
-			proto_tree_add_item(tree, hf_trmac_naun, NullTVB, pkt_offset+1, sv_length-1, (guint8*)&pd[2]);
+			proto_tree_add_ether(tree, hf_trmac_naun, NullTVB, pkt_offset+1, sv_length-1, (guint8*)&pd[2]);
 			break;
 
 		case 0x03: /* Local Ring Number */
@@ -232,29 +232,29 @@ sv_text(const u_char *pd, int pkt_offset, proto_tree *tree)
 
 		case 0x2D: /* Isolating Error Counts */
 			memcpy(errors, &pd[2], 6);
-			ti = proto_tree_add_item(tree, hf_trmac_errors_iso, NullTVB, pkt_offset+1, sv_length-1,
+			ti = proto_tree_add_uint(tree, hf_trmac_errors_iso, NullTVB, pkt_offset+1, sv_length-1,
 				errors[0] + errors[1] + errors[2] + errors[3] + errors[4]);
 			sv_tree = proto_item_add_subtree(ti, ett_tr_ierr_cnt);
 
-			proto_tree_add_item(sv_tree, hf_trmac_errors_line, NullTVB, pkt_offset+2, 1, errors[0]);
-			proto_tree_add_item(sv_tree, hf_trmac_errors_internal, NullTVB, pkt_offset+3, 1, errors[1]);
-			proto_tree_add_item(sv_tree, hf_trmac_errors_burst, NullTVB, pkt_offset+4, 1, errors[2]);
-			proto_tree_add_item(sv_tree, hf_trmac_errors_ac, NullTVB, pkt_offset+5, 1, errors[3]);
-			proto_tree_add_item(sv_tree, hf_trmac_errors_abort, NullTVB, pkt_offset+6, 1, errors[4]);
+			proto_tree_add_uint(sv_tree, hf_trmac_errors_line, NullTVB, pkt_offset+2, 1, errors[0]);
+			proto_tree_add_uint(sv_tree, hf_trmac_errors_internal, NullTVB, pkt_offset+3, 1, errors[1]);
+			proto_tree_add_uint(sv_tree, hf_trmac_errors_burst, NullTVB, pkt_offset+4, 1, errors[2]);
+			proto_tree_add_uint(sv_tree, hf_trmac_errors_ac, NullTVB, pkt_offset+5, 1, errors[3]);
+			proto_tree_add_uint(sv_tree, hf_trmac_errors_abort, NullTVB, pkt_offset+6, 1, errors[4]);
 
 			break;
 
 		case 0x2E: /* Non-Isolating Error Counts */
 			memcpy(errors, &pd[2], 6);
-			ti = proto_tree_add_item(tree, hf_trmac_errors_noniso, NullTVB, pkt_offset+1, sv_length-1,
+			ti = proto_tree_add_uint(tree, hf_trmac_errors_noniso, NullTVB, pkt_offset+1, sv_length-1,
 				errors[0] + errors[1] + errors[2] + errors[3] + errors[4]);
 			sv_tree = proto_item_add_subtree(ti, ett_tr_nerr_cnt);
 
-			proto_tree_add_item(sv_tree, hf_trmac_errors_lost, NullTVB, pkt_offset+2, 1, errors[0]);
-			proto_tree_add_item(sv_tree, hf_trmac_errors_congestion, NullTVB, pkt_offset+3, 1, errors[1]);
-			proto_tree_add_item(sv_tree, hf_trmac_errors_fc, NullTVB, pkt_offset+4, 1, errors[2]);
-			proto_tree_add_item(sv_tree, hf_trmac_errors_freq, NullTVB, pkt_offset+5, 1, errors[3]);
-			proto_tree_add_item(sv_tree, hf_trmac_errors_token, NullTVB, pkt_offset+6, 1, errors[4]);
+			proto_tree_add_uint(sv_tree, hf_trmac_errors_lost, NullTVB, pkt_offset+2, 1, errors[0]);
+			proto_tree_add_uint(sv_tree, hf_trmac_errors_congestion, NullTVB, pkt_offset+3, 1, errors[1]);
+			proto_tree_add_uint(sv_tree, hf_trmac_errors_fc, NullTVB, pkt_offset+4, 1, errors[2]);
+			proto_tree_add_uint(sv_tree, hf_trmac_errors_freq, NullTVB, pkt_offset+5, 1, errors[3]);
+			proto_tree_add_uint(sv_tree, hf_trmac_errors_token, NullTVB, pkt_offset+6, 1, errors[4]);
 			break;
 
 		case 0x30: /* Error Code */
@@ -292,14 +292,14 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	if (tree) {
 
-		ti = proto_tree_add_item(tree, proto_trmac, NullTVB, offset, mv_length, NULL);
+		ti = proto_tree_add_item(tree, proto_trmac, NullTVB, offset, mv_length, FALSE);
 		mac_tree = proto_item_add_subtree(ti, ett_tr_mac);
 
-		proto_tree_add_item(mac_tree, hf_trmac_mv, NullTVB, offset+3, 1, mv_val);
+		proto_tree_add_uint(mac_tree, hf_trmac_mv, NullTVB, offset+3, 1, mv_val);
 		proto_tree_add_uint_format(mac_tree, hf_trmac_length, NullTVB, offset, 2, mv_length,
 				"Total Length: %d bytes", mv_length);
-		proto_tree_add_item(mac_tree, hf_trmac_srcclass, NullTVB, offset+2, 1, pd[offset+2] & 0x0f);
-		proto_tree_add_item(mac_tree, hf_trmac_dstclass, NullTVB, offset+2, 1, pd[offset+2] >> 4 );
+		proto_tree_add_uint(mac_tree, hf_trmac_srcclass, NullTVB, offset+2, 1, pd[offset+2] & 0x0f);
+		proto_tree_add_uint(mac_tree, hf_trmac_dstclass, NullTVB, offset+2, 1, pd[offset+2] >> 4 );
 
 		/* interpret the subvectors */
 		sv_offset = 0;

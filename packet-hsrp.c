@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.4 2000/05/11 08:15:10 gram Exp $
+ * $Id: packet-hsrp.c,v 1.5 2000/05/31 05:07:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -120,7 +120,7 @@ dissect_hsrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                         return;
                 }
 
-                ti = proto_tree_add_item(tree, proto_hsrp, NullTVB, offset, END_OF_FRAME, NULL);
+                ti = proto_tree_add_item(tree, proto_hsrp, NullTVB, offset, END_OF_FRAME, FALSE);
                 hsrp_tree = proto_item_add_subtree(ti, ett_hsrp);
 
                 proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "Version: %u", hsrp.version);

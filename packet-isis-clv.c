@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.4 2000/05/11 08:15:16 gram Exp $
+ * $Id: packet-isis-clv.c,v 1.5 2000/05/31 05:07:12 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -212,7 +212,7 @@ isis_dissect_ip_int_clv(const u_char *pd, int offset,
 		}
 		memcpy(&addr, &pd[offset], sizeof(addr));
 		if ( tree ) {
-			proto_tree_add_item(tree, tree_id, NullTVB, offset, 4, addr);
+			proto_tree_add_ipv4(tree, tree_id, NullTVB, offset, 4, addr);
 		}
 		offset += 4;
 		length -= 4;

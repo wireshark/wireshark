@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.93 2000/05/31 03:58:55 gram Exp $
+ * $Id: packet.c,v 1.94 2000/05/31 05:07:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1139,16 +1139,16 @@ dissect_packet(union wtap_pseudo_header *pseudo_header, const u_char *pd,
 	  tv.tv_sec = fd->abs_secs;
 	  tv.tv_usec = fd->abs_usecs;
 
-	  proto_tree_add_item(fh_tree, hf_frame_arrival_time, NullTVB,
+	  proto_tree_add_time(fh_tree, hf_frame_arrival_time, NullTVB,
 		0, 0, &tv);
 
 	  tv.tv_sec = fd->del_secs;
 	  tv.tv_usec = fd->del_usecs;
 
-	  proto_tree_add_item(fh_tree, hf_frame_time_delta, NullTVB,
+	  proto_tree_add_time(fh_tree, hf_frame_time_delta, NullTVB,
 		0, 0, &tv);
 
-	  proto_tree_add_item(fh_tree, hf_frame_number, NullTVB,
+	  proto_tree_add_uint(fh_tree, hf_frame_number, NullTVB,
 		0, 0, fd->num);
 
 	  proto_tree_add_uint_format(fh_tree, hf_frame_packet_len, NullTVB,

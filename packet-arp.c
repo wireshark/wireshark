@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.29 2000/05/11 08:14:51 gram Exp $
+ * $Id: packet-arp.c,v 1.30 2000/05/31 05:06:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -285,9 +285,9 @@ dissect_atm_number(const u_char *pd, int offset, int tl, int hf_e164,
 	proto_tree *nsap_tree;
 
 	if (tl & ATMARP_IS_E164)
-		proto_tree_add_item(tree, hf_e164, NullTVB, offset, len, &pd[offset]);
+		proto_tree_add_string(tree, hf_e164, NullTVB, offset, len, &pd[offset]);
 	else {
-		ti = proto_tree_add_item(tree, hf_nsap, NullTVB, offset, len,
+		ti = proto_tree_add_bytes(tree, hf_nsap, NullTVB, offset, len,
 		    &pd[offset]);
 		if (len >= 20) {
 			nsap_tree = proto_item_add_subtree(ti, ett_atmarp_nsap);
@@ -503,23 +503,23 @@ dissect_atmarp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
       ti = proto_tree_add_protocol_format(tree, proto_arp, NullTVB, offset, tot_len,
 				      "ATM Address Resolution Protocol (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ett_arp);
-    proto_tree_add_item(arp_tree, hf_arp_hard_type, NullTVB, offset + ATM_AR_HRD, 2,
+    proto_tree_add_uint(arp_tree, hf_arp_hard_type, NullTVB, offset + ATM_AR_HRD, 2,
 			       ar_hrd);
-    proto_tree_add_item(arp_tree, hf_arp_proto_type, NullTVB, offset + ATM_AR_PRO, 2,
+    proto_tree_add_uint(arp_tree, hf_arp_proto_type, NullTVB, offset + ATM_AR_PRO, 2,
 			       ar_pro);
-    proto_tree_add_item(arp_tree, hf_atmarp_shtl, NullTVB, offset + ATM_AR_SHTL, 1,
+    proto_tree_add_uint(arp_tree, hf_atmarp_shtl, NullTVB, offset + ATM_AR_SHTL, 1,
 			       ar_shtl);
-    proto_tree_add_item(arp_tree, hf_atmarp_ssl, NullTVB, offset + ATM_AR_SSL, 1,
+    proto_tree_add_uint(arp_tree, hf_atmarp_ssl, NullTVB, offset + ATM_AR_SSL, 1,
 			       ar_ssl);
-    proto_tree_add_item(arp_tree, hf_arp_opcode, NullTVB, offset + AR_OP,  2,
+    proto_tree_add_uint(arp_tree, hf_arp_opcode, NullTVB, offset + AR_OP,  2,
 			       ar_op);
-    proto_tree_add_item(arp_tree, hf_atmarp_spln, NullTVB, offset + ATM_AR_SPLN, 1,
+    proto_tree_add_uint(arp_tree, hf_atmarp_spln, NullTVB, offset + ATM_AR_SPLN, 1,
 			       ar_spln);
-    proto_tree_add_item(arp_tree, hf_atmarp_thtl, NullTVB, offset + ATM_AR_THTL, 1,
+    proto_tree_add_uint(arp_tree, hf_atmarp_thtl, NullTVB, offset + ATM_AR_THTL, 1,
 			       ar_thtl);
-    proto_tree_add_item(arp_tree, hf_atmarp_tsl, NullTVB, offset + ATM_AR_TSL, 1,
+    proto_tree_add_uint(arp_tree, hf_atmarp_tsl, NullTVB, offset + ATM_AR_TSL, 1,
 			       ar_tsl);
-    proto_tree_add_item(arp_tree, hf_atmarp_tpln, NullTVB, offset + ATM_AR_TPLN, 1,
+    proto_tree_add_uint(arp_tree, hf_atmarp_tpln, NullTVB, offset + ATM_AR_TPLN, 1,
 			       ar_tpln);
     if (ar_shl != 0)
       dissect_atm_number(pd, sha_offset, ar_shtl, hf_atmarp_src_atm_num_e164,
@@ -645,15 +645,15 @@ dissect_arp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
       ti = proto_tree_add_protocol_format(tree, proto_arp, NullTVB, offset, tot_len,
 				      "Address Resolution Protocol (opcode 0x%04x)", ar_op);
     arp_tree = proto_item_add_subtree(ti, ett_arp);
-    proto_tree_add_item(arp_tree, hf_arp_hard_type, NullTVB, offset + AR_HRD, 2,
+    proto_tree_add_uint(arp_tree, hf_arp_hard_type, NullTVB, offset + AR_HRD, 2,
 			       ar_hrd);
-    proto_tree_add_item(arp_tree, hf_arp_proto_type, NullTVB, offset + AR_PRO, 2,
+    proto_tree_add_uint(arp_tree, hf_arp_proto_type, NullTVB, offset + AR_PRO, 2,
 			       ar_pro);
-    proto_tree_add_item(arp_tree, hf_arp_hard_size, NullTVB, offset + AR_HLN, 1,
+    proto_tree_add_uint(arp_tree, hf_arp_hard_size, NullTVB, offset + AR_HLN, 1,
 			       ar_hln);
-    proto_tree_add_item(arp_tree, hf_arp_proto_size, NullTVB, offset + AR_PLN, 1,
+    proto_tree_add_uint(arp_tree, hf_arp_proto_size, NullTVB, offset + AR_PLN, 1,
 			       ar_pln);
-    proto_tree_add_item(arp_tree, hf_arp_opcode, NullTVB, offset + AR_OP,  2,
+    proto_tree_add_uint(arp_tree, hf_arp_opcode, NullTVB, offset + AR_OP,  2,
 			       ar_op);
     if (ar_hln != 0)
       proto_tree_add_bytes_format(arp_tree, hf_arp_src_ether, NullTVB, sha_offset, ar_hln,

@@ -2,7 +2,7 @@
  * Routines for who protocol (see man rwhod)
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-who.c,v 1.6 2000/05/11 08:15:56 gram Exp $
+ * $Id: packet-who.c,v 1.7 2000/05/31 05:07:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -137,41 +137,41 @@ dissect_who(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		/* We already know that the packet has enough data to fill in
 		 * the summary info. Retrieve that data */
 
-		who_ti = proto_tree_add_item(tree, proto_who, NullTVB, offset, END_OF_FRAME, NULL);
+		who_ti = proto_tree_add_item(tree, proto_who, NullTVB, offset, END_OF_FRAME, FALSE);
 		who_tree = proto_item_add_subtree(who_ti, ett_who);
 
-		proto_tree_add_item(who_tree, hf_who_vers, NullTVB, offset, 1, pd[offset]);
+		proto_tree_add_uint(who_tree, hf_who_vers, NullTVB, offset, 1, pd[offset]);
 		offset += 1;
 
 
-		proto_tree_add_item(who_tree, hf_who_type, NullTVB, offset, 1, pd[offset]);
+		proto_tree_add_uint(who_tree, hf_who_type, NullTVB, offset, 1, pd[offset]);
 		offset += 1;
 
 		/* 2 filler bytes */
 		offset += 2;
 
 		tv.tv_sec = pntohl(&pd[offset]);
-		proto_tree_add_item(who_tree, hf_who_sendtime, NullTVB, offset, 4, &tv);
+		proto_tree_add_time(who_tree, hf_who_sendtime, NullTVB, offset, 4, &tv);
 		offset += 4;
 
 		tv.tv_sec = pntohl(&pd[offset]);
-		proto_tree_add_item(who_tree, hf_who_recvtime, NullTVB, offset, 4, &tv);
+		proto_tree_add_time(who_tree, hf_who_recvtime, NullTVB, offset, 4, &tv);
 		offset += 4;
 
-		proto_tree_add_item(who_tree, hf_who_hostname, NullTVB, offset, 32, server_name);
+		proto_tree_add_string(who_tree, hf_who_hostname, NullTVB, offset, 32, server_name);
 		offset += 32;
 
-		proto_tree_add_item(who_tree, hf_who_loadav_5, NullTVB, offset, 4, loadav_5);
+		proto_tree_add_double(who_tree, hf_who_loadav_5, NullTVB, offset, 4, loadav_5);
 		offset += 4;
 
-		proto_tree_add_item(who_tree, hf_who_loadav_10, NullTVB, offset, 4, loadav_10);
+		proto_tree_add_double(who_tree, hf_who_loadav_10, NullTVB, offset, 4, loadav_10);
 		offset += 4;
 
-		proto_tree_add_item(who_tree, hf_who_loadav_15, NullTVB, offset, 4, loadav_15);
+		proto_tree_add_double(who_tree, hf_who_loadav_15, NullTVB, offset, 4, loadav_15);
 		offset += 4;
 
 		tv.tv_sec = pntohl(&pd[offset]);
-		proto_tree_add_item(who_tree, hf_who_boottime, NullTVB, offset, 4, &tv);
+		proto_tree_add_time(who_tree, hf_who_boottime, NullTVB, offset, 4, &tv);
 		offset += 4;
 
 		dissect_whoent(pd, offset, fd, who_tree);
@@ -203,17 +203,17 @@ dissect_whoent(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		memcpy(out_line, &pd[line_offset], 8);
 		memcpy(out_name, &pd[line_offset+8], 8);
 
-		whoent_ti = proto_tree_add_item(tree, hf_who_whoent, NullTVB, line_offset, SIZE_OF_WHOENT, NULL);
+		whoent_ti = proto_tree_add_item(tree, hf_who_whoent, NullTVB, line_offset, SIZE_OF_WHOENT, FALSE);
 		whoent_tree = proto_item_add_subtree(whoent_ti, ett_whoent);
 
-		proto_tree_add_item(whoent_tree, hf_who_tty, NullTVB, line_offset, 8, out_line);
+		proto_tree_add_string(whoent_tree, hf_who_tty, NullTVB, line_offset, 8, out_line);
 		line_offset += 8;
 
-		proto_tree_add_item(whoent_tree, hf_who_uid, NullTVB, line_offset, 8, out_name);
+		proto_tree_add_string(whoent_tree, hf_who_uid, NullTVB, line_offset, 8, out_name);
 		line_offset += 8;
 
 		tv.tv_sec = pntohl(&pd[line_offset]);
-		proto_tree_add_item(whoent_tree, hf_who_timeon, NullTVB, line_offset, 4, &tv);
+		proto_tree_add_time(whoent_tree, hf_who_timeon, NullTVB, line_offset, 4, &tv);
 		line_offset += 4;
 
 		idle_secs = pntohl(&pd[line_offset]);

@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.22 2000/05/11 08:15:04 gram Exp $
+ * $Id: packet-cdp.c,v 1.23 2000/05/31 05:06:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -107,11 +107,11 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         col_add_str(fd, COL_INFO, "Cisco Discovery Protocol"); 
 
     if(tree){
-        ti = proto_tree_add_item(tree, proto_cdp, NullTVB, offset, END_OF_FRAME, NULL);
+        ti = proto_tree_add_item(tree, proto_cdp, NullTVB, offset, END_OF_FRAME, FALSE);
 	cdp_tree = proto_item_add_subtree(ti, ett_cdp);
 	
 	/* CDP header */
-	proto_tree_add_item(cdp_tree, hf_cdp_version, NullTVB, offset, 1, pd[offset]);
+	proto_tree_add_uint(cdp_tree, hf_cdp_version, NullTVB, offset, 1, pd[offset]);
 	offset += 1;
 	proto_tree_add_uint_format(cdp_tree, hf_cdp_ttl, NullTVB, offset, 1,
 				   pntohs(&pd[offset]),
@@ -136,9 +136,9 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				    &pd[offset+4]);
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ett_cdp_tlv);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, NullTVB,
+				proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, NullTVB,
 				    offset + TLV_TYPE, 2, type);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, NullTVB,
+				proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, NullTVB,
 				    offset + TLV_LENGTH, 2, length);
 				proto_tree_add_text(tlv_tree, NullTVB, offset + 4,
 				    length - 4, "Device ID: %s",
@@ -151,9 +151,9 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				    length, "Addresses");
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ett_cdp_tlv);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, NullTVB,
+				proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, NullTVB,
 				    offset + TLV_TYPE, 2, type);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, NullTVB,
+				proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, NullTVB,
 				    offset + TLV_LENGTH, 2, length);
 				offset += 4;
 				length -= 4;
@@ -194,9 +194,9 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				    &pd[offset+4]);
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ett_cdp_tlv);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, NullTVB,
+				proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, NullTVB,
 				    offset + TLV_TYPE, 2, type);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, NullTVB,
+				proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, NullTVB,
 				    offset + TLV_LENGTH, 2, length);
 				proto_tree_add_text(tlv_tree, NullTVB, offset + 4,
 				    real_length - 4,
@@ -209,9 +209,9 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				    length, "Capabilities");
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ett_cdp_tlv);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, NullTVB,
+				proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, NullTVB,
 				    offset + TLV_TYPE, 2, type);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, NullTVB,
+				proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, NullTVB,
 				    offset + TLV_LENGTH, 2, length);
 				offset += 4;
 				length -= 4;
@@ -224,9 +224,9 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				    length, "Software Version");
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ett_cdp_tlv);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, NullTVB,
+				proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, NullTVB,
 				    offset + TLV_TYPE, 2, type);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, NullTVB,
+				proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, NullTVB,
 				    offset + TLV_LENGTH, 2, length);
 				add_multi_line_string_to_tree(tlv_tree,
 				    offset + 4, length - 4, "Software Version: ",
@@ -243,9 +243,9 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				    stringmem);
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ett_cdp_tlv);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, NullTVB,
+				proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, NullTVB,
 				    offset + TLV_TYPE, 2, type);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, NullTVB,
+				proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, NullTVB,
 				    offset + TLV_LENGTH, 2, length);
 				proto_tree_add_text(tlv_tree, NullTVB, offset + 4,
 				    length - 4, "Platform: %s", stringmem);
@@ -258,9 +258,9 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				    type_str, length);
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ett_cdp_tlv);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, NullTVB,
+				proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, NullTVB,
 				    offset + TLV_TYPE, 2, type);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, NullTVB,
+				proto_tree_add_uint(tlv_tree, hf_cdp_tlvlength, NullTVB,
 				    offset + TLV_LENGTH, 2, length);
 				if (length > 4) {
 					proto_tree_add_text(tlv_tree, NullTVB,

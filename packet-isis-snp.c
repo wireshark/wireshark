@@ -1,7 +1,7 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.4 2000/05/11 08:15:17 gram Exp $
+ * $Id: packet-isis-snp.c,v 1.5 2000/05/31 05:07:14 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -254,9 +254,9 @@ isis_dissect_isis_csnp(int type, int header_length, const u_char *pd,
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isis_csnp, NullTVB,
-			offset, END_OF_FRAME, NULL);
+			offset, END_OF_FRAME, FALSE);
 		csnp_tree = proto_item_add_subtree(ti, ett_isis_csnp);
-		proto_tree_add_item(csnp_tree, hf_isis_csnp_pdu_length, NullTVB,
+		proto_tree_add_uint(csnp_tree, hf_isis_csnp_pdu_length, NullTVB,
 			offset, 2, pntohs(&ilp->isis_csnp_pdu_length));
 		proto_tree_add_text(csnp_tree, NullTVB, offset + 2, 7, 
 			"Source id    : %s",
@@ -322,9 +322,9 @@ isis_dissect_isis_psnp(int type, int header_length, const u_char *pd,
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isis_psnp, NullTVB,
-			offset, END_OF_FRAME, NULL);
+			offset, END_OF_FRAME, FALSE);
 		psnp_tree = proto_item_add_subtree(ti, ett_isis_psnp);
-		proto_tree_add_item(psnp_tree, hf_isis_psnp_pdu_length, NullTVB,
+		proto_tree_add_uint(psnp_tree, hf_isis_psnp_pdu_length, NullTVB,
 			offset, 2, pntohs(&ilp->isis_psnp_pdu_length));
 		proto_tree_add_text(psnp_tree, NullTVB, offset + 2, 7, 
 			"Source id: %s",

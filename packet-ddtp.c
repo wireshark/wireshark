@@ -3,7 +3,7 @@
  * see http://ddt.sourceforge.net/
  * Olivier Abad <oabad@cybercable.fr>
  *
- * $Id: packet-ddtp.c,v 1.4 2000/05/28 17:04:09 oabad Exp $
+ * $Id: packet-ddtp.c,v 1.5 2000/05/31 05:07:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -111,32 +111,32 @@ dissect_ddtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     }
     if (tree) {
 	ti = proto_tree_add_item(tree, proto_ddtp, NullTVB, offset,
-		END_OF_FRAME - offset, NULL);
+		END_OF_FRAME - offset, FALSE);
 	ddtp_tree = proto_item_add_subtree(ti, ett_ddtp);
 
 	if (!BYTES_ARE_IN_FRAME(offset, 4)) {
 	    proto_tree_add_text(ddtp_tree, NullTVB, offset, END_OF_FRAME-offset, "Frame too short");
 	    return;
 	}
-	proto_tree_add_item(ddtp_tree, hf_ddtp_version, NullTVB, offset, 4, pntohl(pd+offset));
+	proto_tree_add_uint(ddtp_tree, hf_ddtp_version, NullTVB, offset, 4, pntohl(pd+offset));
 	offset += 4;
 	if (!BYTES_ARE_IN_FRAME(offset, 4)) {
 	    proto_tree_add_text(ddtp_tree, NullTVB, offset, END_OF_FRAME-offset, "Frame too short");
 	    return;
 	}
-	proto_tree_add_item(ddtp_tree, hf_ddtp_encrypt, NullTVB, offset, 4, pntohl(pd+offset));
+	proto_tree_add_uint(ddtp_tree, hf_ddtp_encrypt, NullTVB, offset, 4, pntohl(pd+offset));
 	if (!BYTES_ARE_IN_FRAME(offset+4, 4)) {
 	    proto_tree_add_text(ddtp_tree, NullTVB, offset+4, END_OF_FRAME-offset-4, "Frame too short");
 	    return;
 	}
-	proto_tree_add_item(ddtp_tree, hf_ddtp_hostid, NullTVB, offset+4, 4, pntohl(pd+offset+4));
+	proto_tree_add_uint(ddtp_tree, hf_ddtp_hostid, NullTVB, offset+4, 4, pntohl(pd+offset+4));
 	if (pntohl(pd+offset) == DDTP_ENCRYPT_PLAINTEXT) {
 	    offset += 8;
 	    if (!BYTES_ARE_IN_FRAME(offset, 4)) {
 		proto_tree_add_text(ddtp_tree, NullTVB, offset, END_OF_FRAME-offset, "Frame too short");
 		return;
 	    }
-	    proto_tree_add_item(ddtp_tree, hf_ddtp_msgtype, NullTVB, offset, 4, pntohl(pd+offset));
+	    proto_tree_add_uint(ddtp_tree, hf_ddtp_msgtype, NullTVB, offset, 4, pntohl(pd+offset));
 	    switch (pntohl(pd+offset)) {
 	    case DDTP_MESSAGE_ERROR :
 		offset += 4;
@@ -149,13 +149,13 @@ dissect_ddtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    proto_tree_add_text(ddtp_tree, NullTVB, offset, END_OF_FRAME-offset, "Frame too short");
 		    return;
 		}
-		proto_tree_add_item(ddtp_tree, hf_ddtp_opcode, NullTVB, offset, 4, pntohl(pd+offset));
+		proto_tree_add_uint(ddtp_tree, hf_ddtp_opcode, NullTVB, offset, 4, pntohl(pd+offset));
 		offset += 4;
 		if (!BYTES_ARE_IN_FRAME(offset, 4)) {
 		    proto_tree_add_text(ddtp_tree, NullTVB, offset, END_OF_FRAME-offset, "Frame too short");
 		    return;
 		}
-		proto_tree_add_item(ddtp_tree, hf_ddtp_ipaddr, NullTVB, offset, 4, pntohl(pd+offset));
+		proto_tree_add_ipv4(ddtp_tree, hf_ddtp_ipaddr, NullTVB, offset, 4, pntohl(pd+offset));
 		break;
 	    case DDTP_UPDATE_REPLY :
 		offset += 4;
@@ -164,7 +164,7 @@ dissect_ddtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		    proto_tree_add_text(ddtp_tree, NullTVB, offset, END_OF_FRAME-offset, "Frame too short");
 		    return;
 		}
-		proto_tree_add_item(ddtp_tree, hf_ddtp_status, NullTVB, offset, 4, pntohl(pd+offset));
+		proto_tree_add_uint(ddtp_tree, hf_ddtp_status, NullTVB, offset, 4, pntohl(pd+offset));
 		break;
 	    case DDTP_ALIVE_QUERY :
 		offset += 4;

@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.7 2000/05/11 08:15:43 gram Exp $
+ * $Id: packet-sap.c,v 1.8 2000/05/31 05:07:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -154,17 +154,17 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         }
 
 	if (tree) {
-	  si = proto_tree_add_item(tree, proto_sap, NullTVB, offset, END_OF_FRAME, NULL);
+	  si = proto_tree_add_item(tree, proto_sap, NullTVB, offset, END_OF_FRAME, FALSE);
 	  sap_tree = proto_item_add_subtree(si, ett_sap);
 
-	  sif = proto_tree_add_item(sap_tree, hf_sap_flags, NullTVB, offset, 1, pd[offset]);
+	  sif = proto_tree_add_uint(sap_tree, hf_sap_flags, NullTVB, offset, 1, pd[offset]);
           sap_flags_tree = proto_item_add_subtree(sif, ett_sap_flags);
-          proto_tree_add_item(sap_flags_tree, hf_sap_flags_v, NullTVB, offset, 1, pd[offset]);
-          proto_tree_add_item(sap_flags_tree, hf_sap_flags_a, NullTVB, offset, 1, pd[offset]);
-          proto_tree_add_item(sap_flags_tree, hf_sap_flags_r, NullTVB, offset, 1, pd[offset]);
-          proto_tree_add_item(sap_flags_tree, hf_sap_flags_t, NullTVB, offset, 1, pd[offset]);
-          proto_tree_add_item(sap_flags_tree, hf_sap_flags_e, NullTVB, offset, 1, pd[offset]);
-          proto_tree_add_item(sap_flags_tree, hf_sap_flags_c, NullTVB, offset, 1, pd[offset]);
+          proto_tree_add_uint(sap_flags_tree, hf_sap_flags_v, NullTVB, offset, 1, pd[offset]);
+          proto_tree_add_boolean(sap_flags_tree, hf_sap_flags_a, NullTVB, offset, 1, pd[offset]);
+          proto_tree_add_boolean(sap_flags_tree, hf_sap_flags_r, NullTVB, offset, 1, pd[offset]);
+          proto_tree_add_boolean(sap_flags_tree, hf_sap_flags_t, NullTVB, offset, 1, pd[offset]);
+          proto_tree_add_boolean(sap_flags_tree, hf_sap_flags_e, NullTVB, offset, 1, pd[offset]);
+          proto_tree_add_boolean(sap_flags_tree, hf_sap_flags_c, NullTVB, offset, 1, pd[offset]);
           offset++;
 
           proto_tree_add_text(sap_tree, NullTVB, offset, 1, "Authentication Length: %u", pd[offset]);
@@ -189,14 +189,14 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
                   auth_data_len = auth_len * sizeof(guint32);
 
-                  sdi = proto_tree_add_item(sap_tree, hf_auth_data, NullTVB, offset, auth_data_len, pd[offset]);
+                  sdi = proto_tree_add_item(sap_tree, hf_auth_data, NullTVB, offset, auth_data_len, FALSE);
                   sa_tree = proto_item_add_subtree(sdi, ett_sap_auth);
 
-                  sai = proto_tree_add_item(sa_tree, hf_auth_flags, NullTVB, offset, 1, pd[offset]);
+                  sai = proto_tree_add_uint(sa_tree, hf_auth_flags, NullTVB, offset, 1, pd[offset]);
                   saf_tree = proto_item_add_subtree(sai, ett_sap_authf);
-                  proto_tree_add_item(saf_tree, hf_auth_flags_v, NullTVB, offset, 1, pd[offset]);
-                  proto_tree_add_item(saf_tree, hf_auth_flags_p, NullTVB, offset, 1, pd[offset]);
-                  proto_tree_add_item(saf_tree, hf_auth_flags_t, NullTVB, offset, 1, pd[offset]);
+                  proto_tree_add_uint(saf_tree, hf_auth_flags_v, NullTVB, offset, 1, pd[offset]);
+                  proto_tree_add_boolean(saf_tree, hf_auth_flags_p, NullTVB, offset, 1, pd[offset]);
+                  proto_tree_add_uint(saf_tree, hf_auth_flags_t, NullTVB, offset, 1, pd[offset]);
 
                   has_pad = pd[offset]&MCAST_SAP_AUTH_BIT_P;
                   if (has_pad) pad_len = *(pd+offset+auth_data_len-1);

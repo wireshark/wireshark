@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.9 2000/05/11 08:15:13 gram Exp $
+ * $Id: packet-ipp.c,v 1.10 2000/05/31 05:07:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -177,7 +177,7 @@ void dissect_ipp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ipp, NullTVB, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_ipp, NullTVB, offset, END_OF_FRAME, FALSE);
 		ipp_tree = proto_item_add_subtree(ti, ett_ipp);
 
 		proto_tree_add_text(ipp_tree, NullTVB, offset, 2, "Version: %u.%u",

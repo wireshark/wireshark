@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.37 2000/05/30 03:35:51 guy Exp $
+ * $Id: packet-atalk.c,v 1.38 2000/05/31 05:06:51 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -168,7 +168,7 @@ int dissect_pascal_string(const u_char *pd, int offset, frame_data *fd,
 		tmp = g_malloc( len+1 );
 		memcpy(tmp, &pd[offset], len);
 		tmp[len] = 0;
-		item = proto_tree_add_item(tree, hf_index, NullTVB, offset-1, len+1, tmp);
+		item = proto_tree_add_string(tree, hf_index, NullTVB, offset-1, len+1, tmp);
 
 		subtree = proto_item_add_subtree(item, ett_pstring);
 		proto_tree_add_text(subtree, NullTVB, offset-1, 1, "Length: %d", len);
@@ -219,12 +219,12 @@ dissect_rtmp_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 		net, nodelen_bits, node);
   
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_rtmp, NullTVB, offset, END_OF_FRAME, NULL);
+    ti = proto_tree_add_item(tree, proto_rtmp, NullTVB, offset, END_OF_FRAME, FALSE);
     rtmp_tree = proto_item_add_subtree(ti, ett_rtmp);
 
-	proto_tree_add_item(rtmp_tree, hf_rtmp_net, NullTVB, offset, 2, net);
-	proto_tree_add_item(rtmp_tree, hf_rtmp_node_len, NullTVB, offset+2, 1, nodelen_bits);
-	proto_tree_add_item(rtmp_tree, hf_rtmp_node, NullTVB, offset+3, nodelen, nodelen);
+	proto_tree_add_uint(rtmp_tree, hf_rtmp_net, NullTVB, offset, 2, net);
+	proto_tree_add_uint(rtmp_tree, hf_rtmp_node_len, NullTVB, offset+2, 1, nodelen_bits);
+	proto_tree_add_uint(rtmp_tree, hf_rtmp_node, NullTVB, offset+3, nodelen, nodelen);
     offset += 3 + nodelen;
 
     i = 1;
@@ -248,9 +248,9 @@ dissect_rtmp_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			i, tuple_net, tuple_dist);
 		tuple_tree = proto_item_add_subtree(tuple_item, ett_rtmp_tuple);
 
-		proto_tree_add_item(tuple_tree, hf_rtmp_tuple_net, NullTVB, offset, 2, 
+		proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_net, NullTVB, offset, 2, 
 			tuple_net);
-		proto_tree_add_item(tuple_tree, hf_rtmp_tuple_dist, NullTVB, offset+2, 1,
+		proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_dist, NullTVB, offset+2, 1,
 			tuple_dist);
 
 		if ( tuple_dist == 0 || tuple_dist & 0x80 ) /* phase 1/2 */
@@ -264,9 +264,9 @@ dissect_rtmp_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			tuple_net2 = pntohs(&pd[offset+3]);
 			tuple_dist2 = pd[offset+5];
 
-			proto_tree_add_item(tuple_tree, hf_rtmp_tuple_net, NullTVB, offset, 2, 
+			proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_net, NullTVB, offset, 2, 
 				tuple_net2);
-			proto_tree_add_item(tuple_tree, hf_rtmp_tuple_dist, NullTVB, offset+2, 1,
+			proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_dist, NullTVB, offset+2, 1,
 				tuple_dist2);
 				
 			proto_item_set_len(tuple_item, 6);
@@ -308,7 +308,7 @@ dissect_nbp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       val_to_str(op, nbp_op_vals, "unknown (%1x)"), count);
   
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_nbp, NullTVB, offset, END_OF_FRAME, NULL);
+    ti = proto_tree_add_item(tree, proto_nbp, NullTVB, offset, END_OF_FRAME, FALSE);
     nbp_tree = proto_item_add_subtree(ti, ett_nbp);
 
     info_item = proto_tree_add_uint_format(nbp_tree, hf_nbp_info, NullTVB, offset, 1,
@@ -317,9 +317,9 @@ dissect_nbp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		val_to_str(op, nbp_op_vals, "unknown"),
 		count);
 	nbp_info_tree = proto_item_add_subtree(info_item, ett_nbp_info);
-    proto_tree_add_item(nbp_info_tree, hf_nbp_op, NullTVB, offset, 1, pd[offset]);
-    proto_tree_add_item(nbp_info_tree, hf_nbp_count, NullTVB, offset, 1, pd[offset]);
-    proto_tree_add_item(nbp_tree, hf_nbp_tid, NullTVB, offset+1, 1, pd[offset+1]);
+    proto_tree_add_uint(nbp_info_tree, hf_nbp_op, NullTVB, offset, 1, pd[offset]);
+    proto_tree_add_uint(nbp_info_tree, hf_nbp_count, NullTVB, offset, 1, pd[offset]);
+    proto_tree_add_uint(nbp_tree, hf_nbp_tid, NullTVB, offset+1, 1, pd[offset+1]);
 	offset += 2;
 
     for (i=0; i<count; i++) {
@@ -343,13 +343,13 @@ dissect_nbp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		/* note, this is probably wrong, I need to look at my info at work
 			tomorrow to straighten it out */
 
-		proto_tree_add_item(node_tree, hf_nbp_node_net, NullTVB, offset, 2, addr.net);
+		proto_tree_add_uint(node_tree, hf_nbp_node_net, NullTVB, offset, 2, addr.net);
 		offset += 2;
-		proto_tree_add_item(node_tree, hf_nbp_node_node, NullTVB, offset, 1, addr.node);
+		proto_tree_add_uint(node_tree, hf_nbp_node_node, NullTVB, offset, 1, addr.node);
 		offset++;
-		proto_tree_add_item(node_tree, hf_nbp_node_port, NullTVB, offset, 1, addr.port);
+		proto_tree_add_uint(node_tree, hf_nbp_node_port, NullTVB, offset, 1, addr.port);
 		offset++;
-		proto_tree_add_item(node_tree, hf_nbp_node_enum, NullTVB, offset, 1, pd[offset]);
+		proto_tree_add_uint(node_tree, hf_nbp_node_enum, NullTVB, offset, 1, pd[offset]);
 		offset++;
 
 		offset = dissect_pascal_string(pd,offset,fd,node_tree,hf_nbp_node_object);
@@ -398,20 +398,20 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       val_to_str(ddp.type, op_vals, "Unknown DDP protocol (%02x)"));
   
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_ddp, NullTVB, offset, DDP_HEADER_SIZE, NULL);
+    ti = proto_tree_add_item(tree, proto_ddp, NullTVB, offset, DDP_HEADER_SIZE, FALSE);
     ddp_tree = proto_item_add_subtree(ti, ett_ddp);
-    proto_tree_add_item(ddp_tree, hf_ddp_hopcount, NullTVB, offset,      1, 
+    proto_tree_add_uint(ddp_tree, hf_ddp_hopcount, NullTVB, offset,      1, 
 			ddp_hops(ddp.hops_len));
-    proto_tree_add_item(ddp_tree, hf_ddp_len, NullTVB, offset,	    2, 
+    proto_tree_add_uint(ddp_tree, hf_ddp_len, NullTVB, offset,	    2, 
 			ddp_len(ddp.hops_len));
-    proto_tree_add_item(ddp_tree, hf_ddp_checksum, NullTVB, offset + 2,  2, ddp.sum);
-    proto_tree_add_item(ddp_tree, hf_ddp_dst_net, NullTVB, offset + 4,  2, ddp.dnet);
-    proto_tree_add_item(ddp_tree, hf_ddp_src_net, NullTVB,  offset + 6,  2, ddp.snet);
-    proto_tree_add_item(ddp_tree, hf_ddp_dst_node, NullTVB, offset + 8,  1, ddp.dnode);
-    proto_tree_add_item(ddp_tree, hf_ddp_src_node, NullTVB, offset + 9,  1, ddp.snode);
-    proto_tree_add_item(ddp_tree, hf_ddp_dst_socket, NullTVB, offset + 10, 1, ddp.dport);
-    proto_tree_add_item(ddp_tree, hf_ddp_src_socket, NullTVB, offset + 11, 1, ddp.sport);
-    proto_tree_add_item(ddp_tree, hf_ddp_type, NullTVB, offset + 12, 1, ddp.type);  
+    proto_tree_add_uint(ddp_tree, hf_ddp_checksum, NullTVB, offset + 2,  2, ddp.sum);
+    proto_tree_add_uint(ddp_tree, hf_ddp_dst_net, NullTVB, offset + 4,  2, ddp.dnet);
+    proto_tree_add_uint(ddp_tree, hf_ddp_src_net, NullTVB,  offset + 6,  2, ddp.snet);
+    proto_tree_add_uint(ddp_tree, hf_ddp_dst_node, NullTVB, offset + 8,  1, ddp.dnode);
+    proto_tree_add_uint(ddp_tree, hf_ddp_src_node, NullTVB, offset + 9,  1, ddp.snode);
+    proto_tree_add_uint(ddp_tree, hf_ddp_dst_socket, NullTVB, offset + 10, 1, ddp.dport);
+    proto_tree_add_uint(ddp_tree, hf_ddp_src_socket, NullTVB, offset + 11, 1, ddp.sport);
+    proto_tree_add_uint(ddp_tree, hf_ddp_type, NullTVB, offset + 12, 1, ddp.type);  
   }
 
   offset += DDP_HEADER_SIZE;

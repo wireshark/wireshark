@@ -1,7 +1,7 @@
 /* packet-mount.c
  * Routines for mount dissection
  *
- * $Id: packet-mount.c,v 1.14 2000/05/11 08:15:23 gram Exp $
+ * $Id: packet-mount.c,v 1.15 2000/05/31 05:07:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -86,7 +86,7 @@ dissect_fhstatus(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 	status = EXTRACT_UINT(pd, offset+0);
 	if (tree) {
-		proto_tree_add_item(tree, hf_mount_status, NullTVB, offset, 4, status);
+		proto_tree_add_uint(tree, hf_mount_status, NullTVB, offset, 4, status);
 	}
 	offset += 4;
 
@@ -140,7 +140,7 @@ dissect_mountlist(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 	if (tree) {
 		mountlist_item = proto_tree_add_item(tree, hf_mount_mountlist, NullTVB,
-					offset+0, END_OF_FRAME, NULL);
+					offset+0, END_OF_FRAME, FALSE);
 		if (mountlist_item)
 			mountlist_tree = proto_item_add_subtree(mountlist_item, ett_mount_mountlist);
 	}
@@ -199,7 +199,7 @@ dissect_exportlist(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 
 	if (tree) {
 		exportlist_item = proto_tree_add_item(tree, hf_mount_exportlist, NullTVB,
-					offset+0, END_OF_FRAME, NULL);
+					offset+0, END_OF_FRAME, FALSE);
 		if (exportlist_item)
 			exportlist_tree = proto_item_add_subtree(exportlist_item, ett_mount_exportlist);
 	}
@@ -208,7 +208,7 @@ dissect_exportlist(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 	groups_offset = offset;
 	if (tree) {
 		groups_item = proto_tree_add_item(exportlist_tree, hf_mount_groups, NullTVB,
-				offset+0, END_OF_FRAME, NULL);
+				offset+0, END_OF_FRAME, FALSE);
 		if (groups_item)
 			groups_tree = proto_item_add_subtree(groups_item, ett_mount_groups);
 	}
@@ -330,7 +330,7 @@ dissect_mount_pathconf_reply(const u_char *pd, int offset, frame_data *fd,
 		return offset;
 	if (!(pc_mask & (PC_ERROR_LINK_MAX|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_item(tree,
+			proto_tree_add_uint(tree,
 			    hf_mount_pathconf_link_max, NullTVB, offset, 4,
 			    EXTRACT_UINT(pd, offset+0));
 		}
@@ -341,7 +341,7 @@ dissect_mount_pathconf_reply(const u_char *pd, int offset, frame_data *fd,
 		return offset;
 	if (!(pc_mask & (PC_ERROR_MAX_CANON|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_item(tree,
+			proto_tree_add_uint(tree,
 			    hf_mount_pathconf_max_canon, NullTVB, offset + 2, 2,
 			    (EXTRACT_UINT(pd, offset+0)) & 0xFFFF);
 		}
@@ -353,7 +353,7 @@ dissect_mount_pathconf_reply(const u_char *pd, int offset, frame_data *fd,
 		return offset;
 	if (!(pc_mask & (PC_ERROR_MAX_INPUT|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_item(tree,
+			proto_tree_add_uint(tree,
 			    hf_mount_pathconf_max_input, NullTVB, offset + 2, 2,
 			    (EXTRACT_UINT(pd, offset+0)) & 0xFFFF);
 		}
@@ -364,7 +364,7 @@ dissect_mount_pathconf_reply(const u_char *pd, int offset, frame_data *fd,
 		return offset;
 	if (!(pc_mask & (PC_ERROR_NAME_MAX|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_item(tree,
+			proto_tree_add_uint(tree,
 			    hf_mount_pathconf_name_max, NullTVB, offset + 2, 2,
 			    (EXTRACT_UINT(pd, offset+0)) & 0xFFFF);
 		}
@@ -375,7 +375,7 @@ dissect_mount_pathconf_reply(const u_char *pd, int offset, frame_data *fd,
 		return offset;
 	if (!(pc_mask & (PC_ERROR_PATH_MAX|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_item(tree,
+			proto_tree_add_uint(tree,
 			    hf_mount_pathconf_path_max, NullTVB, offset + 2, 2,
 			    (EXTRACT_UINT(pd, offset+0)) & 0xFFFF);
 		}
@@ -386,7 +386,7 @@ dissect_mount_pathconf_reply(const u_char *pd, int offset, frame_data *fd,
 		return offset;
 	if (!(pc_mask & (PC_ERROR_PIPE_BUF|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_item(tree,
+			proto_tree_add_uint(tree,
 			    hf_mount_pathconf_pipe_buf, NullTVB, offset + 2, 2,
 			    (EXTRACT_UINT(pd, offset+0)) & 0xFFFF);
 		}
@@ -399,7 +399,7 @@ dissect_mount_pathconf_reply(const u_char *pd, int offset, frame_data *fd,
 		return offset;
 	if (!(pc_mask & (PC_ERROR_VDISABLE|PC_ERROR_ALL))) {
 		if (tree) {
-			proto_tree_add_item(tree,
+			proto_tree_add_uint(tree,
 			    hf_mount_pathconf_vdisable, NullTVB, offset + 3, 1,
 			    (EXTRACT_UINT(pd, offset+0)) & 0xFF);
 		}
@@ -407,28 +407,28 @@ dissect_mount_pathconf_reply(const u_char *pd, int offset, frame_data *fd,
 	offset += 4;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, hf_mount_pathconf_mask, NullTVB,
+		ti = proto_tree_add_uint(tree, hf_mount_pathconf_mask, NullTVB,
 		    offset + 2, 2, pc_mask);
 		mask_tree = proto_item_add_subtree(ti, ett_mount_pathconf_mask);
-		proto_tree_add_item(mask_tree, hf_mount_pathconf_error_all, NullTVB,
+		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_error_all, NullTVB,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_item(mask_tree, hf_mount_pathconf_error_link_max, NullTVB,
+		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_error_link_max, NullTVB,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_item(mask_tree, hf_mount_pathconf_error_max_canon, NullTVB,
+		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_error_max_canon, NullTVB,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_item(mask_tree, hf_mount_pathconf_error_max_input, NullTVB,
+		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_error_max_input, NullTVB,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_item(mask_tree, hf_mount_pathconf_error_name_max, NullTVB,
+		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_error_name_max, NullTVB,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_item(mask_tree, hf_mount_pathconf_error_path_max, NullTVB,
+		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_error_path_max, NullTVB,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_item(mask_tree, hf_mount_pathconf_error_pipe_buf, NullTVB,
+		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_error_pipe_buf, NullTVB,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_item(mask_tree, hf_mount_pathconf_chown_restricted, NullTVB,
+		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_chown_restricted, NullTVB,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_item(mask_tree, hf_mount_pathconf_no_trunc, NullTVB,
+		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_no_trunc, NullTVB,
 		    offset + 2, 2, pc_mask);
-		proto_tree_add_item(mask_tree, hf_mount_pathconf_error_vdisable, NullTVB,
+		proto_tree_add_boolean(mask_tree, hf_mount_pathconf_error_vdisable, NullTVB,
 		    offset + 2, 2, pc_mask);
 	}
 	offset += 4;
@@ -510,7 +510,7 @@ dissect_mountstat3(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 	mountstat3 = EXTRACT_UINT(pd, offset+0);
 
 	if (tree) {
-		proto_tree_add_item(tree, hfindex, NullTVB, offset, 4, mountstat3);
+		proto_tree_add_uint(tree, hfindex, NullTVB, offset, 4, mountstat3);
 	}
 	
 	offset += 4;
@@ -535,13 +535,13 @@ dissect_mount3_mnt_reply(const u_char *pd, int offset, frame_data *fd,
 			offset = dissect_nfs_fh3(pd,offset,fd,tree,"fhandle");
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			auth_flavors = EXTRACT_UINT(pd,offset+0);
-			proto_tree_add_item(tree,hf_mount_flavors, NullTVB,
+			proto_tree_add_uint(tree,hf_mount_flavors, NullTVB,
 				offset, 4, auth_flavors);
 			offset += 4;
 			for (auth_flavor_i = 0 ; auth_flavor_i < hf_mount_flavors ; auth_flavor_i++) {
 				if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 				auth_flavor = EXTRACT_UINT(pd,offset+0);
-				proto_tree_add_item(tree,hf_mount_flavor, NullTVB,
+				proto_tree_add_uint(tree,hf_mount_flavor, NullTVB,
 					offset, 4, auth_flavor);
 				offset += 4;
 			}

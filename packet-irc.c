@@ -1,7 +1,7 @@
 /* packet-irc.c
  * Routines for MSX irc packet dissection
  *
- * $Id: packet-irc.c,v 1.5 2000/05/11 08:15:15 gram Exp $
+ * $Id: packet-irc.c,v 1.6 2000/05/31 05:07:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,7 +55,7 @@ static gint ett_irc = -1;
 static void
 dissect_irc_request(proto_tree *tree, char *line, int offset, int len)
 {
-	proto_tree_add_item_hidden(tree, hf_irc_request, NullTVB,
+	proto_tree_add_boolean_hidden(tree, hf_irc_request, NullTVB,
 		offset, len, TRUE);
 	proto_tree_add_text(tree, NullTVB, offset, 
 		len, "Request Line: %s", line);
@@ -64,7 +64,7 @@ dissect_irc_request(proto_tree *tree, char *line, int offset, int len)
 static void
 dissect_irc_response(proto_tree *tree, char *line, int offset, int len)
 {
-	proto_tree_add_item_hidden(tree, hf_irc_response, NullTVB,
+	proto_tree_add_boolean_hidden(tree, hf_irc_response, NullTVB,
 		offset, len, TRUE);
 	proto_tree_add_text(tree, NullTVB, offset, 
 		len, "Response Line: %s", line);
@@ -89,7 +89,7 @@ dissect_irc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) 
 	{
-		ti = proto_tree_add_item(tree, proto_irc, NullTVB, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_irc, NullTVB, offset, END_OF_FRAME, FALSE);
 		irc_tree = proto_item_add_subtree(ti, ett_irc);
 
 		tmpline = (char *)g_malloc( pi.captured_len );

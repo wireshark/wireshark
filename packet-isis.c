@@ -2,7 +2,7 @@
  * Routines for ISO/OSI network and transport protocol packet disassembly, core
  * bits.
  *
- * $Id: packet-isis.c,v 1.9 2000/05/11 08:15:17 gram Exp $
+ * $Id: packet-isis.c,v 1.10 2000/05/31 05:07:15 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -160,15 +160,15 @@ dissect_isis(const u_char *pd, int offset, frame_data *fd,
 	
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_isis, NullTVB, offset, 
-			END_OF_FRAME, NULL );
+			END_OF_FRAME, FALSE );
 		isis_tree = proto_item_add_subtree(ti, ett_isis);
-		proto_tree_add_item(isis_tree, hf_isis_irpd, NullTVB, offset, 1,
+		proto_tree_add_uint(isis_tree, hf_isis_irpd, NullTVB, offset, 1,
 			ihdr->isis_irpd );
-		proto_tree_add_item(isis_tree, hf_isis_header_length, NullTVB,
+		proto_tree_add_uint(isis_tree, hf_isis_header_length, NullTVB,
 			offset + 1, 1, ihdr->isis_header_length );
-		proto_tree_add_item(isis_tree, hf_isis_version, NullTVB,
+		proto_tree_add_uint(isis_tree, hf_isis_version, NullTVB,
 			offset + 2, 1, ihdr->isis_version );
-		proto_tree_add_item(isis_tree, hf_isis_system_id_length, NullTVB,
+		proto_tree_add_uint(isis_tree, hf_isis_system_id_length, NullTVB,
 			offset + 3, 1, ihdr->isis_system_id_len );
 		proto_tree_add_uint_format(isis_tree, hf_isis_type, NullTVB,
 			offset + 4, 1, ihdr->isis_type,
@@ -178,11 +178,11 @@ dissect_isis(const u_char *pd, int offset, frame_data *fd,
 			(ihdr->isis_type & ISIS_R8_MASK) ? "1" : "0",
 			(ihdr->isis_type & ISIS_R7_MASK) ? "1" : "0",
 			(ihdr->isis_type & ISIS_R6_MASK) ? "1" : "0");
-		proto_tree_add_item(isis_tree, hf_isis_version2, NullTVB,
+		proto_tree_add_uint(isis_tree, hf_isis_version2, NullTVB,
 			offset + 5, 1, ihdr->isis_version2 );
-		proto_tree_add_item(isis_tree, hf_isis_reserved, NullTVB,
+		proto_tree_add_uint(isis_tree, hf_isis_reserved, NullTVB,
 			offset + 6, 1, ihdr->isis_reserved );
-		proto_tree_add_item(isis_tree, hf_isis_max_area_adr, NullTVB,
+		proto_tree_add_uint(isis_tree, hf_isis_max_area_adr, NullTVB,
 			offset + 7, 1, ihdr->isis_max_area_adr );
 	}
 

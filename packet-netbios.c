@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.19 2000/05/11 08:15:28 gram Exp $
+ * $Id: packet-netbios.c,v 1.20 2000/05/31 05:07:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -986,7 +986,7 @@ static void dissect_netbios(const u_char *pd, int offset, frame_data *fd,
 
 			if (tree) {
 				ti = proto_tree_add_item(tree, proto_netbios, NullTVB,
-					offset, END_OF_FRAME, NULL);
+					offset, END_OF_FRAME, FALSE);
 				netb_tree = proto_item_add_subtree(ti, ett_netb);
 				
 				proto_tree_add_text( netb_tree, NullTVB, offset,
@@ -1030,7 +1030,7 @@ static void dissect_netbios(const u_char *pd, int offset, frame_data *fd,
 
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_netbios, NullTVB, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_netbios, NullTVB, offset, END_OF_FRAME, FALSE);
 
 		netb_tree = proto_item_add_subtree(ti, ett_netb);
 

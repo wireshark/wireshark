@@ -2,7 +2,7 @@
  * Routines for pop packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-pop.c,v 1.14 2000/05/11 08:15:33 gram Exp $
+ * $Id: packet-pop.c,v 1.15 2000/05/31 05:07:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -101,11 +101,11 @@ dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 
-	  ti = proto_tree_add_item(tree, proto_pop, NullTVB, offset, END_OF_FRAME, NULL);
+	  ti = proto_tree_add_item(tree, proto_pop, NullTVB, offset, END_OF_FRAME, FALSE);
 	  pop_tree = proto_item_add_subtree(ti, ett_pop);
 
 	  if (pi.match_port == pi.destport) { /* Request */
-	    proto_tree_add_item_hidden(pop_tree, hf_pop_request, NullTVB, offset, i1, TRUE);
+	    proto_tree_add_boolean_hidden(pop_tree, hf_pop_request, NullTVB, offset, i1, TRUE);
 	    proto_tree_add_text(pop_tree, NullTVB, offset, i1, "Request: %s", rr);
 
 	    if (strlen(rd) != 0)
@@ -113,7 +113,7 @@ dissect_pop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	  }
 	  else {
-	    proto_tree_add_item_hidden(pop_tree, hf_pop_response, NullTVB, offset, i1, TRUE);
+	    proto_tree_add_boolean_hidden(pop_tree, hf_pop_response, NullTVB, offset, i1, TRUE);
 
 	    if (is_continuation(pd+offset))
 	      dissect_data(pd, offset, fd, pop_tree);

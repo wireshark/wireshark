@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-auto_rp.c,v 1.5 2000/05/11 08:14:57 gram Exp $
+ * $Id: packet-auto_rp.c,v 1.6 2000/05/31 05:06:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -151,7 +151,7 @@ static void dissect_auto_rp(const u_char *pd, int offset, frame_data *fd, proto_
                         return;
                 }
 
-                ti = proto_tree_add_item(tree, proto_auto_rp, NullTVB, offset, END_OF_FRAME, NULL);
+                ti = proto_tree_add_item(tree, proto_auto_rp, NullTVB, offset, END_OF_FRAME, FALSE);
                 auto_rp_tree = proto_item_add_subtree(ti, ett_auto_rp);
 
                 tv = proto_tree_add_uint_format(auto_rp_tree, hf_auto_rp_ver_type, NullTVB, offset, 1,
@@ -159,8 +159,8 @@ static void dissect_auto_rp(const u_char *pd, int offset, frame_data *fd, proto_
                                                 val_to_str(hi_nibble(arh.ver_type), auto_rp_ver_vals, "Unknown"),
                                                 val_to_str(lo_nibble(arh.ver_type), auto_rp_type_vals, "Unknown"));
                 ver_type_tree = proto_item_add_subtree(tv, ett_auto_rp_ver_type);
-                proto_tree_add_item(ver_type_tree, hf_auto_rp_version, NullTVB, offset, 1, arh.ver_type);
-                proto_tree_add_item(ver_type_tree, hf_auto_rp_type, NullTVB, offset, 1, arh.ver_type);
+                proto_tree_add_uint(ver_type_tree, hf_auto_rp_version, NullTVB, offset, 1, arh.ver_type);
+                proto_tree_add_uint(ver_type_tree, hf_auto_rp_type, NullTVB, offset, 1, arh.ver_type);
                 offset++;
 
                 proto_tree_add_text(auto_rp_tree, NullTVB, offset++, 1, "RP Count: %u", arh.rp_count);
@@ -270,7 +270,7 @@ static int do_auto_rp_map(const u_char *pd, int offset, frame_data *fd, proto_tr
         proto_tree_add_text(map_tree, NullTVB, offset, 4, "Unicast IP address of this RP: %s (%s)",
                             ip_to_str((void *)&m.rp_address), get_hostname(m.rp_address));
         offset +=4;
-        proto_tree_add_item(map_tree, hf_auto_rp_pim_ver, NullTVB, offset, 1, pd[offset]);
+        proto_tree_add_uint(map_tree, hf_auto_rp_pim_ver, NullTVB, offset, 1, pd[offset]);
         offset++;
         proto_tree_add_text(map_tree, NullTVB, offset, 1, "Number of groups this RP maps to: %u", m.group_count);
         offset++;
@@ -287,7 +287,7 @@ static int do_auto_rp_map(const u_char *pd, int offset, frame_data *fd, proto_tr
                                                 val_to_str(pd[offset]&AUTO_RP_SIGN_MASK, auto_rp_mask_sign_vals, ""));
                 grp_tree = proto_item_add_subtree(gi, ett_auto_rp_group);
 
-                proto_tree_add_item(grp_tree, hf_auto_rp_mask_sgn, NullTVB, offset, 1, pd[offset]);
+                proto_tree_add_uint(grp_tree, hf_auto_rp_mask_sgn, NullTVB, offset, 1, pd[offset]);
                 offset++;
                 proto_tree_add_text(grp_tree, NullTVB, offset, 1, "Group mask length: %u", pd[offset]);
                 offset++;

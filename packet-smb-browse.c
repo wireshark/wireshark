@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.3 2000/05/11 08:15:44 gram Exp $
+ * $Id: packet-smb-browse.c,v 1.4 2000/05/31 05:07:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -167,7 +167,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
     
   if (tree) {  /* Add the browse tree */
 
-    ti = proto_tree_add_item(parent, proto_smb_browse, NullTVB, DataOffset, DataCount, NULL);
+    ti = proto_tree_add_item(parent, proto_smb_browse, NullTVB, DataOffset, DataCount, FALSE);
     browse_tree = proto_item_add_subtree(ti, ett_browse);
 
     proto_tree_add_text(browse_tree, NullTVB, loc_offset, 1, "OpCode: %s", (OpCode > (sizeof(browse_commands)/sizeof(char *))) ? "Error, No Such Command" : browse_commands[OpCode]);

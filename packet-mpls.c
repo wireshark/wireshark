@@ -3,7 +3,7 @@
  * 
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-mpls.c,v 1.6 2000/05/11 08:15:23 gram Exp $
+ * $Id: packet-mpls.c,v 1.7 2000/05/31 05:07:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -153,7 +153,7 @@ dissect_mpls(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 
-	    ti = proto_tree_add_item(tree, proto_mpls, NullTVB, offset, 4, NULL);
+	    ti = proto_tree_add_item(tree, proto_mpls, NullTVB, offset, 4, FALSE);
 	    mpls_tree = proto_item_add_subtree(ti, ett_mpls);
 
 	    if (label <= MAX_RESERVED)
@@ -162,14 +162,14 @@ dissect_mpls(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				    label, val_to_str(label, special_labels, 
 						      "Reserved - Unknown"));
 	    else
-		proto_tree_add_item(mpls_tree, mpls_filter[MPLSF_LABEL], NullTVB,
+		proto_tree_add_uint(mpls_tree, mpls_filter[MPLSF_LABEL], NullTVB,
 				    offset, 3, label);
 
-	    proto_tree_add_item(mpls_tree,mpls_filter[MPLSF_EXP], NullTVB, 
+	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_EXP], NullTVB, 
 				offset+2,1, exp);
-	    proto_tree_add_item(mpls_tree,mpls_filter[MPLSF_BOTTOM_OF_STACK], NullTVB, 
+	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_BOTTOM_OF_STACK], NullTVB, 
 				offset+2,1, bos);
-	    proto_tree_add_item(mpls_tree,mpls_filter[MPLSF_TTL], NullTVB, 
+	    proto_tree_add_uint(mpls_tree,mpls_filter[MPLSF_TTL], NullTVB, 
 				offset+3,1, ttl);
 	}
 	offset += 4;

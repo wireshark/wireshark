@@ -2,7 +2,7 @@
  * Routines for smb mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.4 2000/05/11 08:15:45 gram Exp $
+ * $Id: packet-smb-mailslot.c,v 1.5 2000/05/31 05:07:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,7 +92,7 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
 
     	if (tree) {
 		ti = proto_tree_add_item( parent, proto_smb_msp, NullTVB, offset,
-			END_OF_FRAME, NULL);
+			END_OF_FRAME, FALSE);
 		smb_msp_tree = proto_item_add_subtree(ti, ett_smb_msp);
 
  		proto_tree_add_text(smb_msp_tree, NullTVB, offset, 2, "Op code: %u (%s)",

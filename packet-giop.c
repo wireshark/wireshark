@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-giop.c,v 1.13 2000/05/11 08:15:09 gram Exp $
+ * $Id: packet-giop.c,v 1.14 2000/05/31 05:07:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -271,7 +271,7 @@ dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_giop, NullTVB, offset, 
-			  GIOP_HEADER_SIZE + message_size, NULL);
+			  GIOP_HEADER_SIZE + message_size, FALSE);
     clnp_tree = proto_item_add_subtree(ti, ett_giop);
     proto_tree_add_text(clnp_tree, NullTVB, offset,      4,
 		     "Magic number: %s", GIOP_MAGIC);
@@ -310,7 +310,7 @@ dissect_giop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			       (header.message_type == MessageError) ? "MessageError" :
 			       (header.message_type == Fragment) ? "Fragment" : "?");
 
-    proto_tree_add_item(clnp_tree, 
+    proto_tree_add_uint(clnp_tree, 
 			hf_giop_message_size,
 			NullTVB, offset +  8, 4, 
 			message_size);

@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.15 2000/05/29 08:57:38 guy Exp $
+ * $Id: packet-q931.c,v 1.16 2000/05/31 05:07:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -2074,21 +2074,21 @@ dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_q931, tvb, offset,
-		    END_OF_FRAME, NULL);
+		    tvb_length(tvb), FALSE);
 		q931_tree = proto_item_add_subtree(ti, ett_q931);
 
-		proto_tree_add_item(q931_tree, hf_q931_discriminator, tvb, offset, 1, tvb_get_guint8(tvb, offset));
+		proto_tree_add_uint(q931_tree, hf_q931_discriminator, tvb, offset, 1, tvb_get_guint8(tvb, offset));
 	}
 	offset += 1;
 	call_ref_len = tvb_get_guint8(tvb, offset) & 0xF;	/* XXX - do as a bit field? */
 	if (q931_tree != NULL)
-		proto_tree_add_item(q931_tree, hf_q931_call_ref_len, tvb, offset, 1, call_ref_len);
+		proto_tree_add_uint(q931_tree, hf_q931_call_ref_len, tvb, offset, 1, call_ref_len);
 	offset += 1;
 	if (call_ref_len != 0) {
 		/* XXX - split this into flag and value */
 		tvb_memcpy(tvb, call_ref, offset, call_ref_len);
 		if (q931_tree != NULL)
-			proto_tree_add_item(q931_tree, hf_q931_call_ref, tvb, offset, call_ref_len, call_ref);
+			proto_tree_add_bytes(q931_tree, hf_q931_call_ref, tvb, offset, call_ref_len, call_ref);
 		offset += call_ref_len;
 	}
 	message_type = tvb_get_guint8(tvb, offset);
@@ -2098,7 +2098,7 @@ dissect_q931(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      "Unknown message type (0x%02X)"));
 	}
 	if (q931_tree != NULL)
-		proto_tree_add_item(q931_tree, hf_q931_message_type, tvb, offset, 1, message_type);
+		proto_tree_add_uint(q931_tree, hf_q931_message_type, tvb, offset, 1, message_type);
 	offset += 1;
 
 	/*

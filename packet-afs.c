@@ -1,12 +1,12 @@
-/* packet-rx.c
- * Routines for RX packet dissection
+/* packet-afs.c
+ * Routines for AFS packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  * Based on routines from tcpdump patches by
  *   Ken Hornstein <kenh@cmf.nrl.navy.mil>
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  *
- * $Id: packet-afs.c,v 1.10 2000/05/11 08:14:49 gram Exp $
+ * $Id: packet-afs.c,v 1.11 2000/05/31 05:06:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -886,7 +886,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_afs, NullTVB, doffset, END_OF_FRAME);
+		ti = proto_tree_add_item(tree, proto_afs, NullTVB, doffset, END_OF_FRAME, FALSE);
 		afs_tree = proto_item_add_subtree(ti, ett_afs);
 
 		if ( !BYTES_ARE_IN_FRAME(offset, sizeof(struct rx_header) +
@@ -910,13 +910,13 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		ti = NULL;
 		if ( !reply && node != 0 )
 		{
-			ti = proto_tree_add_item(afs_tree,
+			ti = proto_tree_add_uint(afs_tree,
 				node, NullTVB, doffset, 4, opcode);
 		}
 		else if ( reply && node != 0 )
 		{
 			/* the opcode isn't in this packet */
-			ti = proto_tree_add_item(afs_tree,
+			ti = proto_tree_add_uint(afs_tree,
 				node, NullTVB, doffset, 0, opcode);
 		}
 		else
@@ -931,7 +931,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		if ( typenode != 0 )
 		{
 			/* indicate the type of request */
-			proto_tree_add_item_hidden(afs_tree, typenode, NullTVB, doffset, 0, 1);
+			proto_tree_add_boolean_hidden(afs_tree, typenode, NullTVB, doffset, 0, 1);
 		}
 
 		/* Process the packet according to what service it is */
@@ -972,34 +972,33 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
    Assumes it is in network byte order, converts to host before using */
 #define UINTOUT(field) \
 	TRUNC(sizeof(guint32)) \
-	proto_tree_add_item(tree,field, NullTVB,curoffset,sizeof(guint32), GETINT()); \
+	proto_tree_add_uint(tree,field, NullTVB,curoffset,sizeof(guint32), GETINT()); \
 	curoffset += 4;
 
-/* Output a unsigned integer, stored into field 'field'
-   Assumes it is in network byte order, converts to host before using */
+/* Output an IPv4 address, stored into field 'field' */
 #define IPOUT(field) \
 	TRUNC(sizeof(gint32)) \
-	proto_tree_add_item(tree,field, NullTVB,curoffset,sizeof(gint32),\
+	proto_tree_add_ipv4(tree,field, NullTVB,curoffset,sizeof(gint32),\
 		*((int*)&pd[curoffset]));\
 	curoffset += 4;
 
-/* Output a unix timestamp, after converting to a timeval */
+/* Output a UNIX seconds/microseconds timestamp, after converting to a timeval */
 #define BIGDATEOUT(field) \
 	{ struct timeval tv; \
 	TRUNC(2*sizeof(guint32)); \
 	tv.tv_sec = GETINT(); \
 	tv.tv_usec = GETINT(); \
-	proto_tree_add_item(tree,field, NullTVB,curoffset,2*sizeof(guint32),&tv); \
+	proto_tree_add_time(tree,field, NullTVB,curoffset,2*sizeof(guint32),&tv); \
 	curoffset += 8; \
 	}
 
-/* Output a unix timestamp, after converting to a timeval */
+/* Output a UNIX seconds-only timestamp, after converting to a timeval */
 #define DATEOUT(field) \
 	{ struct timeval tv; \
 	TRUNC(sizeof(guint32)); \
 	tv.tv_sec = GETINT(); \
 	tv.tv_usec = 0; \
-	proto_tree_add_item(tree,field, NullTVB,curoffset,sizeof(guint32),&tv); \
+	proto_tree_add_time(tree,field, NullTVB,curoffset,sizeof(guint32),&tv); \
 	curoffset += 4; \
 	}
 
@@ -1075,16 +1074,16 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			who, tmp, positive ? "" : " (negative)"); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_acl); \
-		proto_tree_add_item(tree,hf_afs_fs_acl_entity, NullTVB,curoffset,strlen(who), who);\
+		proto_tree_add_string(tree,hf_afs_fs_acl_entity, NullTVB,curoffset,strlen(who), who);\
 		tmpoffset = curoffset + strlen(who) + 1; \
 		acllen = bytes - strlen(who) - 1; \
-		proto_tree_add_item(tree,hf_afs_fs_acl_r, NullTVB,tmpoffset,acllen,acl);\
-		proto_tree_add_item(tree,hf_afs_fs_acl_l, NullTVB,tmpoffset,acllen,acl);\
-		proto_tree_add_item(tree,hf_afs_fs_acl_i, NullTVB,tmpoffset,acllen,acl);\
-		proto_tree_add_item(tree,hf_afs_fs_acl_d, NullTVB,tmpoffset,acllen,acl);\
-		proto_tree_add_item(tree,hf_afs_fs_acl_w, NullTVB,tmpoffset,acllen,acl);\
-		proto_tree_add_item(tree,hf_afs_fs_acl_k, NullTVB,tmpoffset,acllen,acl);\
-		proto_tree_add_item(tree,hf_afs_fs_acl_a, NullTVB,tmpoffset,acllen,acl);\
+		proto_tree_add_uint(tree,hf_afs_fs_acl_r, NullTVB,tmpoffset,acllen,acl);\
+		proto_tree_add_uint(tree,hf_afs_fs_acl_l, NullTVB,tmpoffset,acllen,acl);\
+		proto_tree_add_uint(tree,hf_afs_fs_acl_i, NullTVB,tmpoffset,acllen,acl);\
+		proto_tree_add_uint(tree,hf_afs_fs_acl_d, NullTVB,tmpoffset,acllen,acl);\
+		proto_tree_add_uint(tree,hf_afs_fs_acl_w, NullTVB,tmpoffset,acllen,acl);\
+		proto_tree_add_uint(tree,hf_afs_fs_acl_k, NullTVB,tmpoffset,acllen,acl);\
+		proto_tree_add_uint(tree,hf_afs_fs_acl_a, NullTVB,tmpoffset,acllen,acl);\
 		tree = save; \
 	}
 
@@ -1099,7 +1098,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 /* Raw data */
 #define BYTESOUT(field, bytes) \
 	TRUNC(bytes); \
-	proto_tree_add_item(tree,field, NullTVB,curoffset,bytes,\
+	proto_tree_add_bytes(tree,field, NullTVB,curoffset,bytes,\
 		(void *)&pd[curoffset]); \
 	curoffset += bytes;
 
@@ -1112,10 +1111,10 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		curoffset += 4; \
 		TRUNC(i); \
 		if ( i > 0 ) { \
-			proto_tree_add_item(tree, field, NullTVB, curoffset-4, i+4, \
+			proto_tree_add_string(tree, field, NullTVB, curoffset-4, i+4, \
 			(void *)&pd[curoffset]); \
 		} else { \
-			proto_tree_add_item(tree, field, NullTVB, curoffset-4, 4, \
+			proto_tree_add_string(tree, field, NullTVB, curoffset-4, 4, \
 			""); \
 		} \
 		curoffset += i; \
@@ -1133,7 +1132,7 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			curoffset += sizeof(guint32);\
 		}\
 		tmp[length] = '\0';\
-		proto_tree_add_item(tree, field, NullTVB, soff, length, tmp);\
+		proto_tree_add_string(tree, field, NullTVB, soff, length, tmp);\
 	}
 
 /* Output a UBIK version code */
@@ -1152,9 +1151,9 @@ dissect_afs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			"UBIK Version (%s): %u.%u", label, epoch, counter ); \
 		save = tree; \
 		tree = proto_item_add_subtree(ti, ett_afs_ubikver); \
-		proto_tree_add_item(tree,hf_afs_ubik_version_epoch, NullTVB,curoffset-8, \
+		proto_tree_add_time(tree,hf_afs_ubik_version_epoch, NullTVB,curoffset-8, \
 			sizeof(guint32),&tv); \
-		proto_tree_add_item(tree,hf_afs_ubik_version_counter, NullTVB,curoffset-4, \
+		proto_tree_add_uint(tree,hf_afs_ubik_version_counter, NullTVB,curoffset-4, \
 			sizeof(guint32),counter); \
 		tree = save; \
 	}
@@ -1203,14 +1202,14 @@ static void dissect_acl(const u_char *pd, int offset, frame_data *fd, proto_tree
 		return;
 	s += n;
 	TRUNC(1);
-	proto_tree_add_item(tree, hf_afs_fs_acl_count_positive, NullTVB, curoffset, n, pos);
+	proto_tree_add_uint(tree, hf_afs_fs_acl_count_positive, NullTVB, curoffset, n, pos);
 	curoffset += n;
 
 	if (sscanf((char *) s, "%d %n", &neg, &n) != 1)
 		return;
 	s += n;
 	TRUNC(1);
-	proto_tree_add_item(tree, hf_afs_fs_acl_count_negative, NullTVB, curoffset, n, neg);
+	proto_tree_add_uint(tree, hf_afs_fs_acl_count_negative, NullTVB, curoffset, n, neg);
 	curoffset += n;
 
 
@@ -1887,7 +1886,7 @@ dissect_vldb_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 						if ( i<nservers && j<=26 )
 						{
 							part[6] = (char) j;
-							proto_tree_add_item(tree, hf_afs_vldb_partition, NullTVB,
+							proto_tree_add_string(tree, hf_afs_vldb_partition, NullTVB,
 								curoffset, 4, part);
 						}
 						SKIP(4);
@@ -1934,7 +1933,7 @@ dissect_vldb_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 						if ( i<nservers && j<=26 )
 						{
 							part[6] = (char) j;
-							proto_tree_add_item(tree, hf_afs_vldb_partition, NullTVB,
+							proto_tree_add_string(tree, hf_afs_vldb_partition, NullTVB,
 								curoffset, 4, part);
 						}
 						SKIP(4);
@@ -1973,7 +1972,7 @@ dissect_vldb_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 						if ( i<nservers && j<=26 )
 						{
 							part[6] = (char) j;
-							proto_tree_add_item(tree, hf_afs_vldb_partition, NullTVB,
+							proto_tree_add_string(tree, hf_afs_vldb_partition, NullTVB,
 								curoffset, 4, part);
 						}
 						SKIP(4);
@@ -2064,7 +2063,7 @@ dissect_ubik_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 		switch ( opcode )
 		{
 			case 10000: /* beacon */
-				proto_tree_add_item(tree,hf_afs_ubik_votetype, NullTVB,0,0,0);
+				proto_tree_add_boolean(tree,hf_afs_ubik_votetype, NullTVB,0,0,0);
 				break;
 			case 20004: /* get version */
 				UBIK_VERSIONOUT("DB Version");
@@ -2076,7 +2075,7 @@ dissect_ubik_reply(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 		switch ( opcode )
 		{
 			case 10000:
-				proto_tree_add_item(tree,hf_afs_ubik_votetype, NullTVB,0,0,1);
+				proto_tree_add_boolean(tree,hf_afs_ubik_votetype, NullTVB,0,0,1);
 				DATEOUT(hf_afs_ubik_voteend);
 				break;
 			default:

@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.44 2000/05/11 08:15:05 gram Exp $
+ * $Id: packet-dns.c,v 1.45 2000/05/31 05:07:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1573,11 +1573,11 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     dns_tree = proto_item_add_subtree(ti, ett_dns);
 
     if (flags & F_RESPONSE)
-      proto_tree_add_item_hidden(dns_tree, hf_dns_response, NullTVB, offset, 4, 1);
+      proto_tree_add_boolean_hidden(dns_tree, hf_dns_response, NullTVB, offset, 4, 1);
     else
-      proto_tree_add_item_hidden(dns_tree, hf_dns_query, NullTVB, offset, 4, 1);
+      proto_tree_add_boolean_hidden(dns_tree, hf_dns_query, NullTVB, offset, 4, 1);
 
-    proto_tree_add_item(dns_tree, hf_dns_transaction_id, NullTVB, 
+    proto_tree_add_uint(dns_tree, hf_dns_transaction_id, NullTVB, 
 			offset + DNS_ID, 2, id);
 
     strcpy(buf, val_to_str(flags & F_OPCODE, opcode_vals, "Unknown operation"));
@@ -1640,13 +1640,13 @@ dissect_dns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
          decode_enumerated_bitfield(flags, F_RCODE,
               2*8, rcode_vals, "%s"));
     }
-    proto_tree_add_item(dns_tree, hf_dns_count_questions, NullTVB, 
+    proto_tree_add_uint(dns_tree, hf_dns_count_questions, NullTVB, 
 			offset + DNS_QUEST, 2, quest);
-    proto_tree_add_item(dns_tree, hf_dns_count_answers, NullTVB, 
+    proto_tree_add_uint(dns_tree, hf_dns_count_answers, NullTVB, 
 			offset + DNS_ANS, 2, ans);
-    proto_tree_add_item(dns_tree, hf_dns_count_auth_rr, NullTVB, 
+    proto_tree_add_uint(dns_tree, hf_dns_count_auth_rr, NullTVB, 
 			offset + DNS_AUTH, 2, auth);
-    proto_tree_add_item(dns_tree, hf_dns_count_add_rr, NullTVB, 
+    proto_tree_add_uint(dns_tree, hf_dns_count_add_rr, NullTVB, 
 			offset + DNS_ADD, 2, add);
 
   }

@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.37 2000/05/24 07:52:31 guy Exp $
+ * $Id: packet-ipv6.c,v 1.38 2000/05/31 05:07:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -268,16 +268,16 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
   if (tree) {
     /* !!! specify length */
-    ti = proto_tree_add_item(tree, proto_ipv6, NullTVB, offset, 40, NULL);
+    ti = proto_tree_add_item(tree, proto_ipv6, NullTVB, offset, 40, FALSE);
     ipv6_tree = proto_item_add_subtree(ti, ett_ipv6);
 
     /* !!! warning: version also contains 4 Bit priority */
-    proto_tree_add_item(ipv6_tree, hf_ipv6_version, NullTVB,
+    proto_tree_add_uint(ipv6_tree, hf_ipv6_version, NullTVB,
 		offset + offsetof(struct ip6_hdr, ip6_vfc), 1,
 		(ipv6.ip6_vfc >> 4) & 0x0f);
 
 
-    proto_tree_add_item(ipv6_tree, hf_ipv6_class, NullTVB,
+    proto_tree_add_uint(ipv6_tree, hf_ipv6_class, NullTVB,
 		offset + offsetof(struct ip6_hdr, ip6_flow), 4,
 		(guint8)((ntohl(ipv6.ip6_flow) >> 20) & 0xff));
 
@@ -291,7 +291,7 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		"Flowlabel: 0x%05lx",
 		(unsigned long)(ntohl(ipv6.ip6_flow & IPV6_FLOWLABEL_MASK)));
 
-    proto_tree_add_item(ipv6_tree, hf_ipv6_plen, NullTVB,
+    proto_tree_add_uint(ipv6_tree, hf_ipv6_plen, NullTVB,
 		offset + offsetof(struct ip6_hdr, ip6_plen), 2,
 		ntohs(ipv6.ip6_plen));
 
@@ -301,7 +301,7 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		"Next header: %s (0x%02x)",
 		ipprotostr(ipv6.ip6_nxt), ipv6.ip6_nxt);
 
-    proto_tree_add_item(ipv6_tree, hf_ipv6_hlim, NullTVB,
+    proto_tree_add_uint(ipv6_tree, hf_ipv6_hlim, NullTVB,
 		offset + offsetof(struct ip6_hdr, ip6_hlim), 1,
 		ipv6.ip6_hlim);
 
@@ -363,7 +363,7 @@ again:
     }
 
 #ifdef TEST_FINALHDR
-  proto_tree_add_item_hidden(ipv6_tree, hf_ipv6_final, NullTVB, poffset, 1, nxt);
+  proto_tree_add_uint_hidden(ipv6_tree, hf_ipv6_final, NullTVB, poffset, 1, nxt);
 #endif
   if (frag) {
     /* fragmented */

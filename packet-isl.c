@@ -1,7 +1,7 @@
 /* packet-isl.c
  * Routines for Cisco ISL Ethernet header disassembly
  *
- * $Id: packet-isl.c,v 1.11 2000/05/16 06:21:32 gram Exp $
+ * $Id: packet-isl.c,v 1.12 2000/05/31 05:07:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -162,26 +162,26 @@ dissect_isl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     ti = proto_tree_add_protocol_format(tree, proto_isl, NullTVB, offset, ISL_HEADER_SIZE,
 		"ISL");
     fh_tree = proto_item_add_subtree(ti, ett_isl);
-    proto_tree_add_item(fh_tree, hf_isl_dst, NullTVB, offset+0, 6, &pd[offset+0]);
-    proto_tree_add_item_hidden(fh_tree, hf_isl_addr, NullTVB, offset+0, 6, &pd[offset+0]);
-    proto_tree_add_item(fh_tree, hf_isl_type, NullTVB, offset+5, 1, pd[offset+5]);
+    proto_tree_add_ether(fh_tree, hf_isl_dst, NullTVB, offset+0, 6, &pd[offset+0]);
+    proto_tree_add_ether_hidden(fh_tree, hf_isl_addr, NullTVB, offset+0, 6, &pd[offset+0]);
+    proto_tree_add_uint(fh_tree, hf_isl_type, NullTVB, offset+5, 1, pd[offset+5]);
     switch (type) {
 
     case TYPE_ETHER:
-      proto_tree_add_item(fh_tree, hf_isl_user_eth, NullTVB, offset+5, 1,
+      proto_tree_add_uint(fh_tree, hf_isl_user_eth, NullTVB, offset+5, 1,
 			pd[offset+5]&0x03);
       break;
 
     default:
       /* XXX - the spec appears to indicate that the "User" field is
          used for TYPE_TR to distinguish between types of packets. */
-      proto_tree_add_item(fh_tree, hf_isl_user, NullTVB, offset+5, 1, pd[offset+5]);
+      proto_tree_add_uint(fh_tree, hf_isl_user, NullTVB, offset+5, 1, pd[offset+5]);
       break;
     }
-    proto_tree_add_item(fh_tree, hf_isl_src, NullTVB, offset+6, 6, &pd[offset+6]);
-    proto_tree_add_item_hidden(fh_tree, hf_isl_addr, NullTVB, offset+6, 6, &pd[offset+6]);
+    proto_tree_add_ether(fh_tree, hf_isl_src, NullTVB, offset+6, 6, &pd[offset+6]);
+    proto_tree_add_ether_hidden(fh_tree, hf_isl_addr, NullTVB, offset+6, 6, &pd[offset+6]);
     length = pntohs(&pd[offset+12]);
-    proto_tree_add_item(fh_tree, hf_isl_len, NullTVB, offset+12, 2, length);
+    proto_tree_add_uint(fh_tree, hf_isl_len, NullTVB, offset+12, 2, length);
 
     /* This part looks sort of like a SNAP-encapsulated LLC header... */
     proto_tree_add_text(fh_tree, NullTVB, offset+14, 1, "DSAP: 0x%X", pd[offset+14]);
@@ -190,18 +190,18 @@ dissect_isl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     /* ...but this is the manufacturer's ID portion of the source address
        field (which is, admittedly, an OUI). */
-    proto_tree_add_item(fh_tree, hf_isl_hsa, NullTVB, offset+17, 3,
+    proto_tree_add_uint(fh_tree, hf_isl_hsa, NullTVB, offset+17, 3,
 		pd[offset+17] << 16 | pd[offset+18] << 8 | pd[offset+19]);
-    proto_tree_add_item(fh_tree, hf_isl_vlan_id, NullTVB, offset+20, 2,
+    proto_tree_add_uint(fh_tree, hf_isl_vlan_id, NullTVB, offset+20, 2,
 			pntohs(&pd[offset+20]));
-    proto_tree_add_item(fh_tree, hf_isl_bpdu, NullTVB, offset+20, 2,
+    proto_tree_add_boolean(fh_tree, hf_isl_bpdu, NullTVB, offset+20, 2,
 			pntohs(&pd[offset+20]));
-    proto_tree_add_item(fh_tree, hf_isl_index, NullTVB, offset+22, 2,
+    proto_tree_add_uint(fh_tree, hf_isl_index, NullTVB, offset+22, 2,
 	pntohs(&pd[offset+22]));
 
     /* Now for the CRC, which is at the *end* of the packet. */
     if (BYTES_ARE_IN_FRAME(pi.len - 4, 4)) {
-      proto_tree_add_item(fh_tree, hf_isl_crc, NullTVB, pi.len - 4, 4,
+      proto_tree_add_uint(fh_tree, hf_isl_crc, NullTVB, pi.len - 4, 4,
 	pntohl(&pd[END_OF_FRAME - 4]));
     }
   }
@@ -214,17 +214,17 @@ dissect_isl(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     break;
 
   case TYPE_TR:
-    proto_tree_add_item(fh_tree, hf_isl_src_vlan_id, NullTVB, offset+24, 2,
+    proto_tree_add_uint(fh_tree, hf_isl_src_vlan_id, NullTVB, offset+24, 2,
 			pntohs(&pd[offset+24]));
-    proto_tree_add_item(fh_tree, hf_isl_explorer, NullTVB, offset+24, 2,
+    proto_tree_add_boolean(fh_tree, hf_isl_explorer, NullTVB, offset+24, 2,
 			pntohs(&pd[offset+24]));
-    proto_tree_add_item(fh_tree, hf_isl_dst_route_descriptor, NullTVB, offset+26, 2,
+    proto_tree_add_uint(fh_tree, hf_isl_dst_route_descriptor, NullTVB, offset+26, 2,
 			pntohs(&pd[offset+26]));
-    proto_tree_add_item(fh_tree, hf_isl_src_route_descriptor, NullTVB, offset+28, 2,
+    proto_tree_add_uint(fh_tree, hf_isl_src_route_descriptor, NullTVB, offset+28, 2,
 			pntohs(&pd[offset+28]));
-    proto_tree_add_item(fh_tree, hf_isl_fcs_not_incl, NullTVB, offset+30, 1,
+    proto_tree_add_boolean(fh_tree, hf_isl_fcs_not_incl, NullTVB, offset+30, 1,
 			pd[offset+30]);
-    proto_tree_add_item(fh_tree, hf_isl_esize, NullTVB, offset+16, 1,
+    proto_tree_add_uint(fh_tree, hf_isl_esize, NullTVB, offset+16, 1,
 			pd[offset+30]);
     next_tvb = tvb_new_subset(pi.compat_top_tvb, offset+31, -1, -1);
     dissect_tr(next_tvb, &pi, tree);

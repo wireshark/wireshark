@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.27 2000/05/11 08:15:28 gram Exp $
+ * $Id: packet-nfs.c,v 1.28 2000/05/31 05:07:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -663,11 +663,11 @@ dissect_nfs2_read_call(const u_char *pd, int offset, frame_data *fd, proto_tree 
 	count        = EXTRACT_UINT(pd, offset+4);
 	totalcount   = EXTRACT_UINT(pd, offset+8);
 	if (tree) {
-		proto_tree_add_item(tree, hf_nfs_read_offset, NullTVB, 
+		proto_tree_add_uint(tree, hf_nfs_read_offset, NullTVB, 
 		offset+0, 4, offset_value);
-		proto_tree_add_item(tree, hf_nfs_read_count, NullTVB, 
+		proto_tree_add_uint(tree, hf_nfs_read_count, NullTVB, 
 		offset+4, 4, count);
-		proto_tree_add_item(tree, hf_nfs_read_totalcount, NullTVB, 
+		proto_tree_add_uint(tree, hf_nfs_read_totalcount, NullTVB, 
 		offset+8, 4, totalcount);
 	}
 	offset += 12;
@@ -711,11 +711,11 @@ dissect_nfs2_write_call(const u_char *pd, int offset, frame_data *fd, proto_tree
 	offset_value = EXTRACT_UINT(pd, offset+4);
 	totalcount   = EXTRACT_UINT(pd, offset+8);
 	if (tree) {
-		proto_tree_add_item(tree, hf_nfs_write_beginoffset, NullTVB, 
+		proto_tree_add_uint(tree, hf_nfs_write_beginoffset, NullTVB, 
 		offset+0, 4, beginoffset);
-		proto_tree_add_item(tree, hf_nfs_write_offset, NullTVB, 
+		proto_tree_add_uint(tree, hf_nfs_write_offset, NullTVB, 
 		offset+4, 4, offset_value);
-		proto_tree_add_item(tree, hf_nfs_write_totalcount, NullTVB, 
+		proto_tree_add_uint(tree, hf_nfs_write_totalcount, NullTVB, 
 		offset+8, 4, totalcount);
 	}
 	offset += 12;
@@ -783,9 +783,9 @@ dissect_nfs2_readdir_call(const u_char *pd, int offset, frame_data *fd, proto_tr
 	cookie  = EXTRACT_UINT(pd, offset+ 0);
 	count = EXTRACT_UINT(pd, offset+ 4);
 	if (tree) {
-		proto_tree_add_item(tree, hf_nfs_readdir_cookie, NullTVB,
+		proto_tree_add_uint(tree, hf_nfs_readdir_cookie, NullTVB,
 			offset+ 0, 4, cookie);
-		proto_tree_add_item(tree, hf_nfs_readdir_count, NullTVB,
+		proto_tree_add_uint(tree, hf_nfs_readdir_count, NullTVB,
 			offset+ 4, 4, count);
 	}
 	offset += 8;
@@ -807,7 +807,7 @@ dissect_readdir_entry(const u_char* pd, int offset, frame_data* fd, proto_tree* 
 
 	if (tree) {
 		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, NullTVB,
-			offset+0, END_OF_FRAME, NULL);
+			offset+0, END_OF_FRAME, FALSE);
 		if (entry_item)
 			entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
 	}
@@ -818,7 +818,7 @@ dissect_readdir_entry(const u_char* pd, int offset, frame_data* fd, proto_tree* 
 	}
 	fileid = EXTRACT_UINT(pd, offset + 0);
 	if (entry_tree)
-		proto_tree_add_item(entry_tree, hf_nfs_readdir_entry_fileid, NullTVB,
+		proto_tree_add_uint(entry_tree, hf_nfs_readdir_entry_fileid, NullTVB,
 			offset+0, 4, fileid);
 	offset += 4;
 
@@ -832,7 +832,7 @@ dissect_readdir_entry(const u_char* pd, int offset, frame_data* fd, proto_tree* 
 	if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 	cookie = EXTRACT_UINT(pd, offset + 0);
 	if (entry_tree)
-		proto_tree_add_item(entry_tree, hf_nfs_readdir_entry_cookie, NullTVB,
+		proto_tree_add_uint(entry_tree, hf_nfs_readdir_entry_cookie, NullTVB,
 			offset+0, 4, cookie);
 	offset += 4;
 
@@ -858,7 +858,7 @@ dissect_nfs2_readdir_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 			while (1) {
 				if (!BYTES_ARE_IN_FRAME(offset,4)) break;
 				value_follows = EXTRACT_UINT(pd, offset+0);
-				proto_tree_add_item(tree,hf_nfs_readdir_value_follows, NullTVB,
+				proto_tree_add_boolean(tree,hf_nfs_readdir_value_follows, NullTVB,
 					offset+0, 4, value_follows);
 				offset += 4;
 				if (value_follows == 1) {
@@ -871,7 +871,7 @@ dissect_nfs2_readdir_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			eof_value = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_readdir_eof, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_readdir_eof, NullTVB,
 					offset+ 0, 4, eof_value);
 			offset += 4;
 		break;
@@ -905,15 +905,15 @@ dissect_nfs2_statfs_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 			bfree  = EXTRACT_UINT(pd, offset+12);
 			bavail = EXTRACT_UINT(pd, offset+16);
 			if (tree) {
-				proto_tree_add_item(tree, hf_nfs_statfs_tsize, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_statfs_tsize, NullTVB,
 					offset+ 0, 4, tsize);
-				proto_tree_add_item(tree, hf_nfs_statfs_bsize, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_statfs_bsize, NullTVB,
 					offset+ 4, 4, bsize);
-				proto_tree_add_item(tree, hf_nfs_statfs_blocks, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_statfs_blocks, NullTVB,
 					offset+ 8, 4, blocks);
-				proto_tree_add_item(tree, hf_nfs_statfs_bfree, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_statfs_bfree, NullTVB,
 					offset+12, 4, bfree);
-				proto_tree_add_item(tree, hf_nfs_statfs_bavail, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_statfs_bavail, NullTVB,
 					offset+16, 4, bavail);
 			}
 			offset += 20;
@@ -1219,7 +1219,7 @@ dissect_nfsstat3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	nfsstat3 = EXTRACT_UINT(pd, offset+0);
 	
 	if (tree) {
-		proto_tree_add_item(tree, hf_nfs_nfsstat3, NullTVB,
+		proto_tree_add_uint(tree, hf_nfs_nfsstat3, NullTVB,
 			offset, 4, nfsstat3);
 	}
 
@@ -1253,7 +1253,7 @@ int hf, guint32* ftype3)
 	type = EXTRACT_UINT(pd, offset+0);
 	
 	if (tree) {
-		proto_tree_add_item(tree, hf, NullTVB, offset, 4, type);
+		proto_tree_add_uint(tree, hf, NullTVB, offset, 4, type);
 	}
 
 	offset += 4;
@@ -2249,7 +2249,7 @@ dissect_stable_how(const u_char* pd, int offset, frame_data* fd, proto_tree* tre
 	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 	stable_how = EXTRACT_UINT(pd,offset+0);
 	if (tree) {
-		proto_tree_add_item(tree, hfindex, NullTVB,
+		proto_tree_add_uint(tree, hfindex, NullTVB,
 			offset, 4, stable_how); 
 	}
 	offset += 4;
@@ -2313,7 +2313,7 @@ dissect_createmode3(const u_char* pd, int offset, frame_data* fd, proto_tree* tr
 	if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 	mode_value = EXTRACT_UINT(pd, offset + 0);
 	if (tree) {
-		proto_tree_add_item(tree, hf_nfs_createmode3, NullTVB,
+		proto_tree_add_uint(tree, hf_nfs_createmode3, NullTVB,
 		offset+0, 4, mode_value);
 	}
 	offset += 4;
@@ -2527,7 +2527,7 @@ dissect_entry3(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 
 	if (tree) {
 		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, NullTVB,
-			offset+0, END_OF_FRAME, NULL);
+			offset+0, END_OF_FRAME, FALSE);
 		if (entry_item)
 			entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
 	}
@@ -2567,7 +2567,7 @@ dissect_nfs3_readdir_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 			while (1) {
 				if (!BYTES_ARE_IN_FRAME(offset,4)) break;
 				value_follows = EXTRACT_UINT(pd, offset+0);
-				proto_tree_add_item(tree,hf_nfs_readdir_value_follows, NullTVB,
+				proto_tree_add_boolean(tree,hf_nfs_readdir_value_follows, NullTVB,
 					offset+0, 4, value_follows);
 				offset += 4;
 				if (value_follows == 1) {
@@ -2580,7 +2580,7 @@ dissect_nfs3_readdir_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			eof_value = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_readdir_eof, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_readdir_eof, NullTVB,
 					offset+ 0, 4, eof_value);
 			offset += 4;
 		break;
@@ -2618,7 +2618,7 @@ dissect_entryplus3(const u_char* pd, int offset, frame_data* fd, proto_tree* tre
 
 	if (tree) {
 		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, NullTVB,
-			offset+0, END_OF_FRAME, NULL);
+			offset+0, END_OF_FRAME, FALSE);
 		if (entry_item)
 			entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
 	}
@@ -2661,7 +2661,7 @@ dissect_nfs3_readdirplus_reply(const u_char* pd, int offset, frame_data* fd, pro
 			while (1) {
 				if (!BYTES_ARE_IN_FRAME(offset,4)) break;
 				value_follows = EXTRACT_UINT(pd, offset+0);
-				proto_tree_add_item(tree,hf_nfs_readdir_value_follows, NullTVB,
+				proto_tree_add_boolean(tree,hf_nfs_readdir_value_follows, NullTVB,
 					offset+0, 4, value_follows);
 				offset += 4;
 				if (value_follows == 1) {
@@ -2674,7 +2674,7 @@ dissect_nfs3_readdirplus_reply(const u_char* pd, int offset, frame_data* fd, pro
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			eof_value = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_readdir_eof, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_readdir_eof, NullTVB,
 					offset+ 0, 4, eof_value);
 			offset += 4;
 		break;
@@ -2707,7 +2707,7 @@ dissect_nfs3_fsstat_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 			invarsec = EXTRACT_UINT(pd, offset + 0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_fsstat_invarsec, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_fsstat_invarsec, NullTVB,
 				offset+0, 4, invarsec);
 			offset += 4;
 		break;
@@ -2749,43 +2749,43 @@ dissect_nfs3_fsinfo_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			rtmax = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_fsinfo_rtmax, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_fsinfo_rtmax, NullTVB,
 				offset+0, 4, rtmax);
 			offset += 4;
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			rtpref = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_fsinfo_rtpref, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_fsinfo_rtpref, NullTVB,
 				offset+0, 4, rtpref);
 			offset += 4;
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			rtmult = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_fsinfo_rtmult, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_fsinfo_rtmult, NullTVB,
 				offset+0, 4, rtmult);
 			offset += 4;
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			wtmax = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_fsinfo_wtmax, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_fsinfo_wtmax, NullTVB,
 				offset+0, 4, wtmax);
 			offset += 4;
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			wtpref = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_fsinfo_wtpref, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_fsinfo_wtpref, NullTVB,
 				offset+0, 4, wtpref);
 			offset += 4;
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			wtmult = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_fsinfo_wtmult, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_fsinfo_wtmult, NullTVB,
 				offset+0, 4, wtmult);
 			offset += 4;
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			dtpref = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_fsinfo_dtpref, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_fsinfo_dtpref, NullTVB,
 				offset+0, 4, dtpref);
 			offset += 4;
 
@@ -2794,7 +2794,7 @@ dissect_nfs3_fsinfo_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			properties = EXTRACT_UINT(pd, offset+0);
 			if (tree) {
-				properties_item = proto_tree_add_item(tree,
+				properties_item = proto_tree_add_uint(tree,
 				hf_nfs_fsinfo_properties,
 				NullTVB, offset+0, 4, properties);
 				if (properties_item) 
@@ -2855,13 +2855,13 @@ dissect_nfs3_pathconf_reply(const u_char* pd, int offset, frame_data* fd, proto_
 			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 			linkmax = EXTRACT_UINT(pd, offset + 0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_pathconf_linkmax, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_pathconf_linkmax, NullTVB,
 				offset+0, 4, linkmax);
 			offset += 4;
 			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 			name_max = EXTRACT_UINT(pd, offset + 0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_pathconf_name_max, NullTVB,
+				proto_tree_add_uint(tree, hf_nfs_pathconf_name_max, NullTVB,
 				offset+0, 4, name_max);
 			offset += 4;
 			offset = dissect_rpc_bool(pd, offset, fd, tree, hf_nfs_pathconf_no_trunc);

@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.64 2000/05/31 03:58:54 gram Exp $
+ * $Id: packet-llc.c,v 1.65 2000/05/31 05:07:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -286,20 +286,20 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	dsap = tvb_get_guint8(tvb, 0);
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_llc, tvb, 0, 0, NULL);
+		ti = proto_tree_add_item(tree, proto_llc, tvb, 0, 0, FALSE);
 		llc_tree = proto_item_add_subtree(ti, ett_llc);
-		proto_tree_add_item(llc_tree, hf_llc_dsap, tvb, 0, 
+		proto_tree_add_uint(llc_tree, hf_llc_dsap, tvb, 0, 
 			1, dsap & SAP_MASK);
-		proto_tree_add_item(llc_tree, hf_llc_dsap_ig, tvb, 0, 
+		proto_tree_add_boolean(llc_tree, hf_llc_dsap_ig, tvb, 0, 
 			1, dsap & DSAP_GI_BIT);
 	} else
 		llc_tree = NULL;
 
 	ssap = tvb_get_guint8(tvb, 1);
 	if (tree) {
-		proto_tree_add_item(llc_tree, hf_llc_ssap, tvb, 1, 
+		proto_tree_add_uint(llc_tree, hf_llc_ssap, tvb, 1, 
 			1, ssap & SAP_MASK);
-		proto_tree_add_item(llc_tree, hf_llc_ssap_cr, tvb, 1, 
+		proto_tree_add_boolean(llc_tree, hf_llc_ssap_cr, tvb, 1, 
 			1, ssap & SSAP_CR_BIT);
 	} else
 		llc_tree = NULL;
@@ -315,7 +315,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	control = dissect_xdlc_control(tvb, 2, pinfo, llc_tree,
 				hf_llc_ctrl, ett_llc_ctrl,
-				tvb_get_guint8(tvb, 1) & SSAP_CR_BIT, TRUE);
+				ssap & SSAP_CR_BIT, TRUE);
 	llc_header_len += XDLC_CONTROL_LEN(control, TRUE);
 	if (is_snap)
 		llc_header_len += 5;	/* 3 bytes of OUI, 2 bytes of protocol ID */
@@ -338,7 +338,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    etype);
 		}
 		if (tree) {
-			proto_tree_add_item(llc_tree, hf_llc_oui, tvb, 3, 3,
+			proto_tree_add_uint(llc_tree, hf_llc_oui, tvb, 3, 3,
 				oui);
 		}
 
@@ -370,7 +370,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			   are some of them raw or encapsulated
 			   Ethernet? */
 			if (tree) {
-				proto_tree_add_item(llc_tree,
+				proto_tree_add_uint(llc_tree,
 				    hf_llc_pid, tvb, 6, 2, etype);
 			}
 			if (XDLC_IS_INFORMATION(control)) {
@@ -404,7 +404,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case OUI_CABLE_BPDU:    /* DOCSIS cable modem spanning tree BPDU */
 			if (tree) {
-				proto_tree_add_item(llc_tree,
+				proto_tree_add_uint(llc_tree,
 				hf_llc_pid, tvb, 6, 2, etype);
 			}
 			dissect_bpdu(pd, offset, pinfo->fd, tree);
@@ -412,7 +412,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		default:
 			if (tree) {
-				proto_tree_add_item(llc_tree,
+				proto_tree_add_uint(llc_tree,
 				    hf_llc_pid, tvb, 6, 2, etype);
 			}
 			dissect_data_tvb(next_tvb, pinfo, tree);

@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.41 2000/05/19 05:29:44 guy Exp $
+ * $Id: packet-eth.c,v 1.42 2000/05/31 05:07:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -223,14 +223,14 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	fh_tree = proto_item_add_subtree(ti, ett_ieee8023);
 
-	proto_tree_add_item(fh_tree, hf_eth_dst, tvb, 0, 6, dst);
-	proto_tree_add_item(fh_tree, hf_eth_src, tvb, 6, 6, src);
+	proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, dst);
+	proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src);
 
 /* add items for eth.addr filter */
-	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, dst);
-	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src);
+	proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, dst);
+	proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src);
 
-	proto_tree_add_item(fh_tree, hf_eth_len, tvb, 12, 2, length);
+	proto_tree_add_uint(fh_tree, hf_eth_len, tvb, 12, 2, length);
     }
 
     /* Convert the LLC length from the 802.3 header to a total
@@ -254,11 +254,11 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	fh_tree = proto_item_add_subtree(ti, ett_ether2);
 
-	proto_tree_add_item(fh_tree, hf_eth_dst, tvb, 0, 6, dst);
-	proto_tree_add_item(fh_tree, hf_eth_src, tvb, 6, 6, src);
+	proto_tree_add_ether(fh_tree, hf_eth_dst, tvb, 0, 6, dst);
+	proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src);
 /* add items for eth.addr filter */
-	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, dst);
-	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src);
+	proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 0, 6, dst);
+	proto_tree_add_ether_hidden(fh_tree, hf_eth_addr, tvb, 6, 6, src);
     }
   }
   eth_offset += ETH_HEADER_SIZE;
@@ -298,7 +298,7 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  trailer_length = tvb_length(trailer_tvb);
 	  if (trailer_length > 0) {
 		  ptr = tvb_get_ptr(trailer_tvb, 0, trailer_length);
-		  proto_tree_add_item(fh_tree, hf_eth_trailer, tvb, ETH_HEADER_SIZE + etype,
+		  proto_tree_add_bytes(fh_tree, hf_eth_trailer, tvb, ETH_HEADER_SIZE + etype,
 			  trailer_length, ptr);
 	  }
   }

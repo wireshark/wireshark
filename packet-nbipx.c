@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-nbipx.c,v 1.20 2000/05/30 03:35:52 guy Exp $
+ * $Id: packet-nbipx.c,v 1.21 2000/05/31 05:07:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -187,7 +187,7 @@ dissect_nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbipx, NullTVB, offset, 50, NULL);
+		ti = proto_tree_add_item(tree, proto_nbipx, NullTVB, offset, 50, FALSE);
 		nbipx_tree = proto_item_add_subtree(ti, ett_nbipx);
 
 		add_routers(nbipx_tree, pd, offset);
@@ -239,7 +239,7 @@ dissect_nbipx_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_nbipx, NullTVB, offset,
-		    2+NETBIOS_NAME_LEN+NETBIOS_NAME_LEN, NULL);
+		    2+NETBIOS_NAME_LEN+NETBIOS_NAME_LEN, FALSE);
 		nbipx_tree = proto_item_add_subtree(ti, ett_nbipx);
 
 		proto_tree_add_text(nbipx_tree, NullTVB, offset, 1,
@@ -341,7 +341,7 @@ dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbipx, NullTVB, offset, 68, NULL);
+		ti = proto_tree_add_item(tree, proto_nbipx, NullTVB, offset, 68, FALSE);
 		nbipx_tree = proto_item_add_subtree(ti, ett_nbipx);
 
 		add_routers(nbipx_tree, pd, offset);

@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.21 2000/05/29 08:57:36 guy Exp $
+ * $Id: packet-atm.c,v 1.22 2000/05/31 05:06:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -668,9 +668,9 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
       }
     }
-    proto_tree_add_item(atm_tree, hf_atm_vpi, tvb, 0, 0,
+    proto_tree_add_uint(atm_tree, hf_atm_vpi, tvb, 0, 0,
 		pinfo->pseudo_header->ngsniffer_atm.Vpi);
-    proto_tree_add_item(atm_tree, hf_atm_vci, tvb, 0, 0,
+    proto_tree_add_uint(atm_tree, hf_atm_vci, tvb, 0, 0,
 		pinfo->pseudo_header->ngsniffer_atm.Vci);
     switch (pinfo->pseudo_header->ngsniffer_atm.channel) {
 

@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.24 2000/05/25 07:42:24 gram Exp $
+ * $Id: packet-null.c,v 1.25 2000/05/31 05:07:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -272,7 +272,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      */
     if (null_header > IEEE_802_3_MAX_LEN) {
       if (tree) {
-        ti = proto_tree_add_item(tree, proto_null, tvb, 0, 4, NULL);
+        ti = proto_tree_add_item(tree, proto_null, tvb, 0, 4, FALSE);
         fh_tree = proto_item_add_subtree(ti, ett_null);
       } else
       	fh_tree = NULL;
@@ -281,9 +281,9 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* populate a tree in the second pane with the status of the link
          layer (ie none) */
       if (tree) {
-        ti = proto_tree_add_item(tree, proto_null, tvb, 0, 4, NULL);
+        ti = proto_tree_add_item(tree, proto_null, tvb, 0, 4, FALSE);
         fh_tree = proto_item_add_subtree(ti, ett_null);
-        proto_tree_add_item(fh_tree, hf_null_family, tvb, 0, 4, null_header);
+        proto_tree_add_uint(fh_tree, hf_null_family, tvb, 0, 4, null_header);
       }
 
       next_tvb = tvb_new_subset(tvb, 4, -1, -1);

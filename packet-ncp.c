@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@xiexie.org>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.36 2000/05/30 03:35:53 guy Exp $
+ * $Id: packet-ncp.c,v 1.37 2000/05/31 05:07:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -575,14 +575,14 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	nw_ncp_type = header.type;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ncp, NullTVB, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_ncp, NullTVB, offset, END_OF_FRAME, FALSE);
 		ncp_tree = proto_item_add_subtree(ti, ett_ncp);
 
 		if ( pi.ptype == PT_TCP || pi.ptype == PT_UDP ) {
-			proto_tree_add_item(ncp_tree, hf_ncp_ip_sig, NullTVB, offset - 16, 4, ncpiph.signature);
+			proto_tree_add_uint(ncp_tree, hf_ncp_ip_sig, NullTVB, offset - 16, 4, ncpiph.signature);
 			proto_tree_add_text(ncp_tree, NullTVB, offset - 12, 4, "Length: %d", ncpiph.length);
 			if ( ncpiph.signature == NCPIP_RQST ) {
-				proto_tree_add_item(ncp_tree, hf_ncp_ip_ver, NullTVB, offset - 8, 4, ncpiphrq.version);
+				proto_tree_add_uint(ncp_tree, hf_ncp_ip_ver, NullTVB, offset - 8, 4, ncpiphrq.version);
 				proto_tree_add_text(ncp_tree, NullTVB, offset - 4, 4, "Reply buffer size: %d", ncpiphrq.rplybufsize);
 			};
 		};
@@ -594,13 +594,13 @@ dissect_ncp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 						       request_reply_values,
 						       "Unknown (%04X)"));
 
-		proto_tree_add_item(ncp_tree, hf_ncp_seq, NullTVB, 
+		proto_tree_add_uint(ncp_tree, hf_ncp_seq, NullTVB, 
 				    offset+2,    1, header.sequence);
 
-		proto_tree_add_item(ncp_tree, hf_ncp_connection, NullTVB,
+		proto_tree_add_uint(ncp_tree, hf_ncp_connection, NullTVB,
 				    offset+3,    3, nw_connection);
 
-		proto_tree_add_item(ncp_tree, hf_ncp_task, NullTVB, 
+		proto_tree_add_uint(ncp_tree, hf_ncp_task, NullTVB, 
 				    offset+4,    1, header.task);
 	}
 

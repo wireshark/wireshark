@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.2 2000/05/11 08:15:41 gram Exp $
+ * $Id: packet-rlogin.c,v 1.3 2000/05/31 05:07:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -211,7 +211,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, const u_char *pd,
 	proto_item      *user_info_item,  *window_info_item;
 
  	ti = proto_tree_add_item( tree, proto_rlogin, NullTVB, offset,
-    			END_OF_FRAME, NULL, "Rlogin:" );
+    			END_OF_FRAME, FALSE);
 
 	rlogin_tree = proto_item_add_subtree(ti, ett_rlogin);
 
@@ -252,7 +252,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, const u_char *pd,
 	if ( compare_packet_ptr( hash_info->info_row)){		/* user info ?*/
 
 		user_info_item = proto_tree_add_item( rlogin_tree, hf_user_info, NullTVB,
-			offset, END_OF_FRAME, NULL );
+			offset, END_OF_FRAME, FALSE);
 
 		str = &pd[ offset];		/* do server user name */
 
@@ -297,7 +297,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, const u_char *pd,
 		        	
 		CHECK_PACKET_LENGTH( 12);
 		window_info_item = proto_tree_add_item( rlogin_tree,
-				hf_window_info, NullTVB, offset, 12, NULL );
+				hf_window_info, NullTVB, offset, 12, FALSE );
     			
 		window_tree = proto_item_add_subtree( window_info_item,
 			                 ett_rlogin_window);
@@ -313,22 +313,22 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, const u_char *pd,
 		offset += 2;
 
 		CHECK_PACKET_LENGTH( 2);
-	 	proto_tree_add_item( window_tree, hf_window_info_rows, NullTVB, offset,
+	 	proto_tree_add_uint( window_tree, hf_window_info_rows, NullTVB, offset,
 		    	2, pntohs( &pd[offset]));
 		offset += 2;
 
 		CHECK_PACKET_LENGTH( 2);
- 		proto_tree_add_item( window_tree, hf_window_info_cols, NullTVB, offset,
+ 		proto_tree_add_uint( window_tree, hf_window_info_cols, NullTVB, offset,
 		    	2, pntohs( &pd[offset]) );
 		offset += 2;
 
 		CHECK_PACKET_LENGTH( 2);
- 		proto_tree_add_item( window_tree, hf_window_info_x_pixels, NullTVB,
+ 		proto_tree_add_uint( window_tree, hf_window_info_x_pixels, NullTVB,
  			offset, 2, pntohs( &pd[offset]));
 		offset += 2;
 
 		CHECK_PACKET_LENGTH( 2);
-		proto_tree_add_item( window_tree, hf_window_info_y_pixels, NullTVB,
+		proto_tree_add_uint( window_tree, hf_window_info_y_pixels, NullTVB,
 			offset, 2, pntohs( &pd[offset]) );
 		offset += 2;
 	}

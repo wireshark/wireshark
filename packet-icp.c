@@ -2,7 +2,7 @@
  * Routines for ICP (internet cache protocol) packet disassembly
  * RFC 2186 && RFC 2187
  *
- * $Id: packet-icp.c,v 1.7 2000/05/11 08:15:10 gram Exp $
+ * $Id: packet-icp.c,v 1.8 2000/05/31 05:07:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Peter Torvals
@@ -209,8 +209,7 @@ static void dissect_icp(const u_char *pd, int offset, frame_data *fd,
   if (tree)
   {
 
-        ti = proto_tree_add_item(tree,proto_icp , NullTVB,offset,fd->pkt_len-offset,
-			NULL);
+        ti = proto_tree_add_item(tree,proto_icp, NullTVB,offset,fd->pkt_len-offset, FALSE);
 
         icp_tree = proto_item_add_subtree(ti, ett_icp);
         proto_tree_add_uint_format(icp_tree,hf_icp_opcode, NullTVB, offset,      1,

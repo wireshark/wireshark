@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.11 2000/05/11 08:15:53 gram Exp $
+ * $Id: packet-tftp.c,v 1.12 2000/05/31 05:07:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,11 +97,11 @@ dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 
-	  ti = proto_tree_add_item(tree, proto_tftp, NullTVB, offset, END_OF_FRAME, NULL);
+	  ti = proto_tree_add_item(tree, proto_tftp, NullTVB, offset, END_OF_FRAME, FALSE);
 	  tftp_tree = proto_item_add_subtree(ti, ett_tftp);
 
 	  i1 = pntohs(pd+offset);
-	  proto_tree_add_item_hidden(tftp_tree, hf_tftp_type, NullTVB, offset, 2, i1);
+	  proto_tree_add_uint_hidden(tftp_tree, hf_tftp_type, NullTVB, offset, 2, i1);
 	    
 	  switch (i1) {
 	  case RRQ:
@@ -159,7 +159,7 @@ dissect_tftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    proto_tree_add_text(tftp_tree, NullTVB, offset, 2, "Error Code");
 	    offset += 2;
 	    i1 = pntohs(pd+offset);
-	    proto_tree_add_item_hidden(tftp_tree, hf_tftp_error_code, NullTVB, offset, 2, i1);
+	    proto_tree_add_uint_hidden(tftp_tree, hf_tftp_error_code, NullTVB, offset, 2, i1);
 	    proto_tree_add_text(tftp_tree, NullTVB, offset, 2, "Code = %s", tftp_errors[i1 % 8]);
 	    offset += 2;
 	    proto_tree_add_text(tftp_tree, NullTVB, offset, END_OF_FRAME, "Error Message: %s", pd + offset);

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.8 2000/05/14 20:50:03 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.9 2000/05/31 05:07:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -593,7 +593,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, ParameterCount, NULL);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, ParameterCount, FALSE);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
 
 	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Function Code: NetShareEnum");
@@ -666,7 +666,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, ParameterCount, NULL);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, ParameterCount, FALSE);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
       
 	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Function Code: NetServerEnum2");
@@ -762,7 +762,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, ParameterCount, NULL);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, ParameterCount, FALSE);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
 
 	if (lanman) {
@@ -851,7 +851,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
       
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + DataOffset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + DataOffset, END_OF_FRAME, FALSE);
 
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
 
@@ -878,7 +878,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, END_OF_FRAME, FALSE);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
       
 	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 0, "Function Code: NetShareEnum");
@@ -1003,7 +1003,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, END_OF_FRAME, FALSE);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
       
 	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Function Code: NetServerEnum2");
@@ -1166,7 +1166,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, END_OF_FRAME, FALSE);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
 	if (lanman) {
 	  proto_tree_add_text(lanman_tree, NullTVB, 0, 0, "%s Response", lanman -> lanman_name);

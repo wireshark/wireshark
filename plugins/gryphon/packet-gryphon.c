@@ -1,7 +1,7 @@
 /* packet-gryphon.c
  * Routines for Gryphon protocol packet disassembly
  *
- * $Id: packet-gryphon.c,v 1.9 2000/05/11 08:18:09 gram Exp $
+ * $Id: packet-gryphon.c,v 1.10 2000/05/31 05:09:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Steve Limkemann <stevelim@dgtech.com>
@@ -141,7 +141,7 @@ dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     if (tree) {
     	if (fd) {
 	    ti = proto_tree_add_item(tree, proto_gryphon, NullTVB, offset,
-	    	    end_of_frame, NULL);
+	    	    end_of_frame, FALSE);
 	    gryphon_tree = proto_item_add_subtree(ti, ett_gryphon);
 	} else
 	    gryphon_tree = tree;
@@ -164,8 +164,8 @@ dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     		i = SIZEOF(src_dest) - 1;
  	    proto_tree_add_text(header_tree, NullTVB, offset, 2,
 	    	    "Source: %s, channel %hd", src_dest[i].strptr, data[1]);
-    	    proto_tree_add_item_hidden(header_tree, hf_gryph_src, NullTVB, offset, 1, src);
-    	    proto_tree_add_item_hidden(header_tree, hf_gryph_srcchan, NullTVB, offset+1, 1, data[1]);
+    	    proto_tree_add_uint_hidden(header_tree, hf_gryph_src, NullTVB, offset, 1, src);
+    	    proto_tree_add_uint_hidden(header_tree, hf_gryph_srcchan, NullTVB, offset+1, 1, data[1]);
 
 	    for (i = 0; i < SIZEOF(src_dest); i++) {
     		if (src_dest[i].value == dest)
@@ -175,8 +175,8 @@ dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     		i = SIZEOF(src_dest) - 1;
   	    proto_tree_add_text(header_tree, NullTVB, offset+2, 2,
 	    	    "Destination: %s, channel %hd", src_dest[i].strptr, data[3]);
-    	    proto_tree_add_item_hidden(header_tree, hf_gryph_dest, NullTVB, offset+2, 1, dest);
-    	    proto_tree_add_item_hidden(header_tree, hf_gryph_destchan, NullTVB, offset+3, 1, data[3]);
+    	    proto_tree_add_uint_hidden(header_tree, hf_gryph_dest, NullTVB, offset+2, 1, dest);
+    	    proto_tree_add_uint_hidden(header_tree, hf_gryph_destchan, NullTVB, offset+3, 1, data[3]);
 
 	    proto_tree_add_text(header_tree, NullTVB, offset+4, 2,
 	    	    "Data length: %d bytes", msglen);
@@ -184,7 +184,7 @@ dissector(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    	    "Frame type: %s", frame_type[frmtyp]);
 	    proto_tree_add_text(header_tree, NullTVB, offset+7, 1, "reserved");
 
-    	    proto_tree_add_item_hidden(header_tree, hf_gryph_type, NullTVB, offset+6, 1, frmtyp);
+    	    proto_tree_add_uint_hidden(header_tree, hf_gryph_type, NullTVB, offset+6, 1, frmtyp);
 	    msgpad = 3 - (msglen + 3) % 4;
 	    msgend = data + msglen + msgpad + MSG_HDR_SZ;
 
@@ -446,7 +446,7 @@ decode_command (int dst, const u_char **data, const u_char *dataend, int *offset
     proto_item	    *ti;
 
     cmd = (*data)[0];
-    proto_tree_add_item_hidden(pt, hf_gryph_cmd, NullTVB, *offset, 1, cmd);
+    proto_tree_add_uint_hidden(pt, hf_gryph_cmd, NullTVB, *offset, 1, cmd);
     if (cmd > 0x3F)
     	cmd += dst * 256;
 

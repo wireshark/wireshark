@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.35 2000/05/30 03:35:54 guy Exp $
+ * $Id: packet-snmp.c,v 1.36 2000/05/31 05:07:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1217,7 +1217,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 
 	if (tree) {
 		item = proto_tree_add_item(tree, proto, NullTVB, offset,
-		    END_OF_FRAME, NULL);
+		    END_OF_FRAME, FALSE);
 		snmp_tree = proto_item_add_subtree(item, ett);
 	}
 
@@ -1325,11 +1325,11 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 			    hf_snmpv3_flags, NullTVB, offset, length,
 			    msgflags[0], "Flags: 0x%02x", msgflags[0]);
 			flags_tree = proto_item_add_subtree(item, ett_flags);
-			proto_tree_add_item(flags_tree, hf_snmpv3_flags_report,
+			proto_tree_add_boolean(flags_tree, hf_snmpv3_flags_report,
 			    NullTVB, offset, length, msgflags[0]);
-			proto_tree_add_item(flags_tree, hf_snmpv3_flags_crypt,
+			proto_tree_add_boolean(flags_tree, hf_snmpv3_flags_crypt,
 			    NullTVB, offset, length, msgflags[0]);
-			proto_tree_add_item(flags_tree, hf_snmpv3_flags_auth,
+			proto_tree_add_boolean(flags_tree, hf_snmpv3_flags_auth,
 			    NullTVB, offset, length, msgflags[0]);
 		}
 		encrypted = msgflags[0] & TH_CRYPT;
@@ -1610,7 +1610,7 @@ dissect_smux_pdu(const u_char *pd, int offset, frame_data *fd,
 
 	if (tree) {
 		item = proto_tree_add_item(tree, proto, NullTVB, offset,
-		    END_OF_FRAME, NULL);
+		    END_OF_FRAME, FALSE);
 		smux_tree = proto_item_add_subtree(item, ett);
 	}
 

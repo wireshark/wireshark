@@ -6,7 +6,7 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.8 2000/05/11 08:15:52 gram Exp $
+ * $Id: packet-srvloc.c,v 1.9 2000/05/31 05:07:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -192,7 +192,7 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         col_add_str(fd, COL_INFO, val_to_str(pd[offset + 1], srvloc_functions, "Unknown Function (%d)"));
         
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_srvloc, NullTVB, offset, END_OF_FRAME, NULL);
+        ti = proto_tree_add_item(tree, proto_srvloc, NullTVB, offset, END_OF_FRAME, FALSE);
         srvloc_tree = proto_item_add_subtree(ti, ett_srvloc);
     
         if ( END_OF_FRAME > sizeof(srvloc_hdr) ) {
@@ -200,10 +200,10 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
             srvloc_hdr.length = pntohs(&srvloc_hdr.length);
             srvloc_hdr.encoding = pntohs(&srvloc_hdr.encoding);
             srvloc_hdr.xid = pntohs(&srvloc_hdr.xid);
-            proto_tree_add_item(srvloc_tree, hf_srvloc_version, NullTVB, offset, 1, srvloc_hdr.version);
-            proto_tree_add_item(srvloc_tree, hf_srvloc_function, NullTVB, offset + 1, 1, srvloc_hdr.function);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_version, NullTVB, offset, 1, srvloc_hdr.version);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_function, NullTVB, offset + 1, 1, srvloc_hdr.function);
             proto_tree_add_text(srvloc_tree, NullTVB, offset + 2, 2, "Length: %d",srvloc_hdr.length);
-            tf = proto_tree_add_item(srvloc_tree, hf_srvloc_flags, NullTVB, offset + 4, 1, srvloc_hdr.flags);
+            tf = proto_tree_add_uint(srvloc_tree, hf_srvloc_flags, NullTVB, offset + 4, 1, srvloc_hdr.flags);
             srvloc_flags = proto_item_add_subtree(tf, ett_srvloc_flags);
             proto_tree_add_text(srvloc_flags, NullTVB, offset + 4, 0, "Overflow                          %d... .xxx", (srvloc_hdr.flags & FLAG_O) >> 7 );
             proto_tree_add_text(srvloc_flags, NullTVB, offset + 4, 0, "Monolingual                       .%d.. .xxx", (srvloc_hdr.flags & FLAG_M) >> 6 ); 
@@ -237,7 +237,7 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
             
                 case SRVRPLY:
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Reply");
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);;
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);;
                     offset += 2;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL Count: %d", pntohs(&pd[offset]));
                     offset += 2;
@@ -294,7 +294,7 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
             
                 case SRVACK:
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Acknowledge");
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);;
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);;
                     offset += 2;
                 break;
 
@@ -324,7 +324,7 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
             
                 case ATTRRPLY:
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Attribute Reply");
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);;
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);;
                     offset += 2;
                     length = pntohs(&pd[offset]);
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Attribute List length: %d", length);
@@ -337,7 +337,7 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
             
                 case DAADVERT:
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "DA Advertisement");
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);;
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);;
                     offset += 2;
                     length = pntohs(&pd[offset]);
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "URL length: %d", length);
@@ -372,7 +372,7 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
                 case SRVTYPERPLY:
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 0, "Service Type Reply");
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);;
+                    proto_tree_add_uint(srvloc_tree, hf_srvloc_error, NullTVB, offset, 2, pd[offset]);;
                     offset += 2;
                     proto_tree_add_text(srvloc_tree, NullTVB, offset, 2, "Service Type Count: %d", pntohs(&pd[offset]));
                     offset += 2;

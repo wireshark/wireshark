@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.15 2000/05/11 08:15:40 gram Exp $
+ * $Id: packet-rip.c,v 1.16 2000/05/31 05:07:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,7 +97,7 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         col_add_str(fd, COL_INFO, packet_type[rip_header.command]); 
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_rip, NullTVB, offset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(tree, proto_rip, NullTVB, offset, END_OF_FRAME, FALSE);
 	rip_tree = proto_item_add_subtree(ti, ett_rip);
 
 	proto_tree_add_text(rip_tree, NullTVB, offset, 1, "Command: %d (%s)", rip_header.command, packet_type[rip_header.command]); 

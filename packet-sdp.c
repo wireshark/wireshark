@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.7 2000/05/11 08:15:43 gram Exp $
+ * $Id: packet-sdp.c,v 1.8 2000/05/31 05:07:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,7 +72,7 @@ void dissect_sdp(const u_char *pd, int offset, frame_data *fd,
 	if (!tree)
 		return;
 
-	ti = proto_tree_add_item(tree, proto_sdp, NullTVB, offset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(tree, proto_sdp, NullTVB, offset, END_OF_FRAME, FALSE);
 	sdp_tree = proto_item_add_subtree(ti, ett_sdp);
 
 	section = 0;

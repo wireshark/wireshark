@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.7 2000/05/11 08:15:04 gram Exp $
+ * $Id: packet-clnp.c,v 1.8 2000/05/31 05:06:58 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -272,7 +272,7 @@ static int osi_decode_DR(const u_char *pd, int offset,
 		 src_ref, dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, NULL);
+    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, NullTVB, offset,      1,
 			"Length indicator: %u", li);
@@ -364,7 +364,7 @@ static gboolean osi_decode_DT(const u_char *pd, int offset,
 		 (fragment)? "(fragment)" : "");
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, NULL);
+    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, NullTVB, offset,      1,
 			"Length indicator: %u", li);
@@ -506,7 +506,7 @@ static int osi_decode_ED(const u_char *pd, int offset,
 		 tpdu_nr, dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, NULL);
+    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, NullTVB, offset,      1,
 			"Length indicator: %u", li);
@@ -587,7 +587,7 @@ static int osi_decode_RJ(const u_char *pd, int offset,
 		 tpdu_nr, dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, NULL);
+    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, NullTVB, offset,      1,
 			"Length indicator: %u", li);
@@ -686,7 +686,7 @@ static int osi_decode_CC(const u_char *pd, int offset,
 		 dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, NULL);
+    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, NullTVB, offset,      1,
 			"Length indicator: %u", li);
@@ -970,7 +970,7 @@ static int osi_decode_DC(const u_char *pd, int offset,
 		 dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, NULL);
+    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, NullTVB, offset,      1,
 			"Length indicator: %u", li);
@@ -1020,7 +1020,7 @@ static int osi_decode_AK(const u_char *pd, int offset,
 		   tpdu_nr, dst_ref);
     
     if (tree) {
-      ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, NULL);
+      ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
       cotp_tree = proto_item_add_subtree(ti, ett_cotp);
       proto_tree_add_text(cotp_tree, NullTVB, offset,      1,
 			  "Length indicator: %u", li);
@@ -1124,7 +1124,7 @@ static int osi_decode_AK(const u_char *pd, int offset,
 		   tpdu_nr, dst_ref);
     
     if (tree) {
-      ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, NULL);
+      ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
       cotp_tree = proto_item_add_subtree(ti, ett_cotp);
       proto_tree_add_text(cotp_tree, NullTVB, offset,      1,
 			  "Length indicator: %u", li);
@@ -1274,7 +1274,7 @@ static int osi_decode_EA(const u_char *pd, int offset,
 		 "EA TPDU (%u) dst-ref: 0x%04x", tpdu_nr, dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, NULL);
+    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, NullTVB, offset,      1,
 			"Length indicator: %u", li);
@@ -1356,7 +1356,7 @@ static int osi_decode_ER(const u_char *pd, int offset,
     col_append_fstr(fd, COL_INFO, "ER TPDU dst-ref: 0x%04x", dst_ref);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, NULL);
+    ti = proto_tree_add_item(tree, proto_cotp, NullTVB, offset, li + 1, FALSE);
     cotp_tree = proto_item_add_subtree(ti, ett_cotp);
     proto_tree_add_text(cotp_tree, NullTVB, offset,      1,
 			"Length indicator: %u", li);
@@ -1509,7 +1509,7 @@ static void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
     if (check_col(fd, COL_INFO))
       col_add_str(fd, COL_INFO, "Inactive subset");
     if (tree) {
-      ti = proto_tree_add_item(tree, proto_clnp, NullTVB, offset, 1, NULL);
+      ti = proto_tree_add_item(tree, proto_clnp, NullTVB, offset, 1, FALSE);
       clnp_tree = proto_item_add_subtree(ti, ett_clnp);
       proto_tree_add_uint_format(clnp_tree, hf_clnp_id, NullTVB, offset, 1, 
 				 clnp.cnf_proto_id,
@@ -1544,13 +1544,13 @@ static void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
   pdu_type_string = val_to_str(clnp.cnf_type & CNF_TYPE, npdu_type_vals,
 				"Unknown (0x%02x)");
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_clnp, NullTVB, offset, clnp.cnf_hdr_len, NULL);
+    ti = proto_tree_add_item(tree, proto_clnp, NullTVB, offset, clnp.cnf_hdr_len, FALSE);
     clnp_tree = proto_item_add_subtree(ti, ett_clnp);
-    proto_tree_add_item(clnp_tree, hf_clnp_id, NullTVB, offset, 1, 
+    proto_tree_add_uint(clnp_tree, hf_clnp_id, NullTVB, offset, 1, 
 			       clnp.cnf_proto_id);
-    proto_tree_add_item(clnp_tree, hf_clnp_length, NullTVB, offset +  1, 1, 
+    proto_tree_add_uint(clnp_tree, hf_clnp_length, NullTVB, offset +  1, 1, 
 			clnp.cnf_hdr_len); 
-    proto_tree_add_item(clnp_tree, hf_clnp_version, NullTVB, offset +  2, 1, 
+    proto_tree_add_uint(clnp_tree, hf_clnp_version, NullTVB, offset +  2, 1, 
 			clnp.cnf_vers);
     proto_tree_add_uint_format(clnp_tree, hf_clnp_ttl, NullTVB, offset +  3, 1, 
 			       clnp.cnf_ttl,
@@ -1562,7 +1562,7 @@ static void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 			       clnp.cnf_type,
 			       flag_string,
 			       pdu_type_string);
-    proto_tree_add_item(clnp_tree, hf_clnp_pdu_length, NullTVB, offset +  5, 2, 
+    proto_tree_add_uint(clnp_tree, hf_clnp_pdu_length, NullTVB, offset +  5, 2, 
 			segment_length);
     proto_tree_add_uint_format(clnp_tree, hf_clnp_checksum, NullTVB, offset +  7, 2,
 			       EXTRACT_SHORT(&clnp.cnf_cksum_msb),
@@ -1588,13 +1588,13 @@ static void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
   src_len = pd[offset + dst_len + 1];
 
   if (tree) {
-    proto_tree_add_item(clnp_tree, hf_clnp_dest_length, NullTVB, offset, 1, 
+    proto_tree_add_uint(clnp_tree, hf_clnp_dest_length, NullTVB, offset, 1, 
 			dst_len);
     proto_tree_add_bytes_format(clnp_tree, hf_clnp_dest, NullTVB, offset + 1 , dst_len, 
 			       &pd[offset + 1],
 			       " DA : %s", 
 			       print_nsap_net(&pd[offset + 1], dst_len));
-    proto_tree_add_item(clnp_tree, hf_clnp_src_length, NullTVB, 
+    proto_tree_add_uint(clnp_tree, hf_clnp_src_length, NullTVB, 
 			offset + 1 + dst_len, 1, src_len);
     proto_tree_add_bytes_format(clnp_tree, hf_clnp_src, NullTVB, 
 			       offset + dst_len + 2, src_len,

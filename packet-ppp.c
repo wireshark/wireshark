@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.35 2000/05/25 07:42:25 gram Exp $
+ * $Id: packet-ppp.c,v 1.36 2000/05/31 05:07:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1069,7 +1069,7 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         flag_str = "Unknown";
         break;
     }
-    ti = proto_tree_add_item(tree, proto_mp, tvb, 0, 4, NULL);
+    ti = proto_tree_add_item(tree, proto_mp, tvb, 0, 4, FALSE);
     mp_tree = proto_item_add_subtree(ti, ett_mp);
     ti = proto_tree_add_text(mp_tree, tvb, 0, 1, "Fragment: 0x%2X (%s)",
       flags, flag_str);
@@ -1083,14 +1083,14 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_text(hdr_tree, tvb, 0, 1, "%s",
       decode_boolean_bitfield(flags, MP_FRAG_RESERVED, sizeof(flags) * 8,
         "reserved", "reserved"));
-    proto_tree_add_item(mp_tree, hf_mp_sequence_num, tvb,  1, 3, seq);
+    proto_tree_add_uint(mp_tree, hf_mp_sequence_num, tvb,  1, 3, seq);
  }
 
   next_tvb = tvb_new_subset(tvb, 4, -1, -1);
 
   if (tvb_length(next_tvb) > 0) {
 	  if (tree) {
-	    ti = proto_tree_add_item(tree, proto_ppp, next_tvb, 0, 1, NULL);
+	    ti = proto_tree_add_item(tree, proto_ppp, next_tvb, 0, 1, FALSE);
 	    fh_tree = proto_item_add_subtree(ti, ett_ppp);
 	  }
 	  dissect_ppp_stuff(next_tvb, pinfo, tree, fh_tree);
@@ -1106,7 +1106,7 @@ dissect_payload_ppp( const u_char *pd, int offset, frame_data *fd, proto_tree *t
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
-    ti = proto_tree_add_item(tree, proto_ppp, NullTVB, 0+offset, 2, NULL);
+    ti = proto_tree_add_item(tree, proto_ppp, NullTVB, 0+offset, 2, FALSE);
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
   }
 
@@ -1151,7 +1151,7 @@ dissect_ppp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
-    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, 4, NULL);
+    ti = proto_tree_add_item(tree, proto_ppp, tvb, 0, 4, FALSE);
     fh_tree = proto_item_add_subtree(ti, ett_ppp);
     if (byte0 == 0xff) {
       proto_tree_add_text(fh_tree, tvb, 0, 1, "Address: %02x", ph.ppp_addr);

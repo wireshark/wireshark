@@ -3,7 +3,7 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.11 2000/05/17 04:09:32 gram Exp $
+ * $Id: packet-ripng.c,v 1.12 2000/05/31 05:07:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -78,13 +78,13 @@ dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	col_add_fstr(fd, COL_INFO, "%s", cmd); 
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_ripng, NullTVB, offset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(tree, proto_ripng, NullTVB, offset, END_OF_FRAME, FALSE);
 	ripng_tree = proto_item_add_subtree(ti, ett_ripng);
 
 	proto_tree_add_uint_format(ripng_tree, hf_ripng_cmd, NullTVB, offset, 1,
 	    rip6.rip6_cmd,
 	    "Command: %s (%u)", cmd, rip6.rip6_cmd); 
-	proto_tree_add_item(ripng_tree, hf_ripng_version, NullTVB, offset + 1, 1,
+	proto_tree_add_uint(ripng_tree, hf_ripng_version, NullTVB, offset + 1, 1,
 	    rip6.rip6_vers);
 
 	offset += 4;
