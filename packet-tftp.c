@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.37 2002/05/24 22:50:55 guy Exp $
+ * $Id: packet-tftp.c,v 1.38 2002/06/13 08:48:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -85,6 +85,7 @@ static const value_string tftp_error_code_vals[] = {
   { 5, "Unknown transfer ID" },
   { 6, "File already exists" },
   { 7, "No such user" },
+  { 8, "Option negotiation failed" },
   { 0, NULL }
 };
 
