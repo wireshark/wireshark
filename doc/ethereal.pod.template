@@ -466,7 +466,7 @@ digits may be separated by colons, periods, or hyphens:
 
     fddi.dst eq ff:ff:ff:ff:ff:ff
     ipx.srcnode == 0.0.0.0.0.1
-    ether.src == aa-aa-aa-aa-aa-aa
+    eth.src == aa-aa-aa-aa-aa-aa
 
 If a string of bytes contains only one byte, then it is represented as an unsigned integer.
 That is, if you are testing for hex value 'ff' in a one-byte byte-string, you must compare
@@ -486,7 +486,7 @@ A substring operator also exists. You can check the substring (byte-string) of a
 or field. For example, you can filter on the vendor portion of an ethernet address (the first
 three bytes) like this:
 
-    ether.src[0:3] == 00:00:83
+    eth.src[0:3] == 00:00:83
 
 You can use the substring operator on a protocol name, too. And remember, the "frame" protocol
 encompasses the entire packet, allowing you to look at the nth byte of a packet regardless
