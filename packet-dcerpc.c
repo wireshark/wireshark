@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.35 2002/02/13 04:12:42 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.36 2002/03/06 08:28:57 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -706,9 +706,8 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	}
 
 	/*TOP LEVEL FULL POINTER*/
-	/*TOP LEVEL UNIQUE POINTER*/
 	if( pointers_are_top_level
-	&& ((type==NDR_POINTER_PTR)||(type==NDR_POINTER_UNIQUE)) ){
+	&& (type==NDR_POINTER_PTR) ){
 		int idx;
 		guint32 id;
 		proto_item *item;
@@ -730,7 +729,7 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		/* we have seen this pointer before */
 		if(idx>=0){
 			proto_tree_add_text(tree, tvb, offset-4, 4,
-				"(duplicate) %s",text);
+				"(duplicate PTR) %s",text);
 			goto after_ref_id;
 		}
 
@@ -740,6 +739,32 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
 		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb, offset-4, 4, id);
 		add_pointer_to_list(pinfo, tr, fnct, id, hf_index, levels);
+		goto after_ref_id;
+	}
+	/*TOP LEVEL UNIQUE POINTER*/
+	if( pointers_are_top_level
+	&& (type==NDR_POINTER_UNIQUE) ){
+		int idx;
+		guint32 id;
+		proto_item *item;
+		proto_tree *tr;
+
+		/* get the referent id */
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep, -1, &id);
+	
+		/* we got a NULL pointer */
+		if(id==0){
+			proto_tree_add_text(tree, tvb, offset-4, 4,
+				"(NULL pointer)%s",text);
+			goto after_ref_id;
+		}
+
+		/* new pointer */
+		item=proto_tree_add_text(tree, tvb, offset-4, 4, 
+			"%s", text);
+		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
+		proto_tree_add_uint(tr, hf_dcerpc_referent_id, tvb, offset-4, 4, id);
+		add_pointer_to_list(pinfo, tr, fnct, 0xffffffff, hf_index, levels);
 		goto after_ref_id;
 	}
 
@@ -812,7 +837,8 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 		/* we have seen this pointer before */
 		if(idx>=0){
-			proto_tree_add_uint(tree, hf_dcerpc_referent_id, tvb, offset-4, 4, id);
+			proto_tree_add_text(tree, tvb, offset-4, 4,
+				"(duplicate PTR) %s",text);
 			goto after_ref_id;
 		}
 
