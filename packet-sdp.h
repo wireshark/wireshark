@@ -1,6 +1,6 @@
 /* packet-sdp.h
  *
- * $Id: packet-sdp.h,v 1.2 2000/08/11 13:34:00 deniel Exp $
+ * $Id: packet-sdp.h,v 1.3 2000/11/10 06:50:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -25,6 +25,6 @@
 #ifndef __PACKET_SDP_H__
 #define __PACKET_SDP_H__
 
-void dissect_sdp(const u_char *, int, frame_data *, proto_tree *);
+void dissect_sdp(tvbuff_t *, packet_info *, proto_tree *);
 
 #endif

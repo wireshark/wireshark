@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.2 2000/11/10 04:58:29 guy Exp $
+ * $Id: packet-mgcp.c,v 1.3 2000/11/10 06:50:37 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -194,8 +194,6 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gint sectionlen;
   gint tvb_sectionend,tvb_sectionbegin, tvb_len, tvb_current_len;
   tvbuff_t *next_tvb;
-  const guint8 *next_pd;
-  int next_offset;
 
   CHECK_DISPLAY_AS_DATA(proto_mgcp, tvb, pinfo, tree);
 
@@ -275,9 +273,8 @@ dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					       tvb_current_len,'\n')) != -1){
 	tvb_sectionbegin++;
 	next_tvb = tvb_new_subset(tvb, tvb_sectionbegin, -1, -1);
-	tvb_compat(next_tvb, &next_pd, &next_offset);
 	
-	dissect_sdp(next_pd, next_offset,pinfo->fd,tree);
+	dissect_sdp(next_tvb, pinfo, tree);
       }
     }
     /* 

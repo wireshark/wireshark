@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.12 2000/10/17 11:03:24 gram Exp $
+ * $Id: packet-sap.c,v 1.13 2000/11/10 06:50:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -127,57 +127,65 @@ static gint ett_sap_auth = -1;
 static gint ett_sap_authf = -1;
 
 static void
-dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
+dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	int offset = 0;
         int sap_version, is_ipv6, is_del, is_enc, is_comp, addr_len;
+        guint8 vers_flags;
         guint8 auth_len;
         guint16 tmp1;
+        guint8 *addr;
+        guint8 auth_flags;
 
         proto_item *si, *sif;
         proto_tree *sap_tree, *sap_flags_tree;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_sap, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_sap, tvb, pinfo, tree);
 
-        is_ipv6 = pd[offset]&MCAST_SAP_BIT_A;
-        is_del = pd[offset]&MCAST_SAP_BIT_T;
-        is_enc = pd[offset]&MCAST_SAP_BIT_E;
-        is_comp = pd[offset]&MCAST_SAP_BIT_C;
+	vers_flags = tvb_get_guint8(tvb, offset);
+        is_ipv6 = vers_flags&MCAST_SAP_BIT_A;
+        is_del = vers_flags&MCAST_SAP_BIT_T;
+        is_enc = vers_flags&MCAST_SAP_BIT_E;
+        is_comp = vers_flags&MCAST_SAP_BIT_C;
 
-        sap_version = (pd[offset]&MCAST_SAP_VERSION_MASK)>>MCAST_SAP_VERSION_SHIFT;
+        sap_version = (vers_flags&MCAST_SAP_VERSION_MASK)>>MCAST_SAP_VERSION_SHIFT;
         addr_len = (is_ipv6) ? sizeof(struct e_in6_addr) : 4;
 
-        if (check_col(fd, COL_PROTOCOL))
-                col_add_str(fd, COL_PROTOCOL, "SAP");
+	pinfo->current_proto = "SAP";
+
+        if (check_col(pinfo->fd, COL_PROTOCOL))
+                col_add_str(pinfo->fd, COL_PROTOCOL, "SAP");
         
-        if (check_col(fd, COL_INFO)) {
-                col_add_fstr(fd, COL_INFO, "%s (v%u)",
+        if (check_col(pinfo->fd, COL_INFO)) {
+                col_add_fstr(pinfo->fd, COL_INFO, "%s (v%u)",
                              (is_del) ? "Deletion" : "Announcement", sap_version);
         }
 
 	if (tree) {
-	  si = proto_tree_add_item(tree, proto_sap, NullTVB, offset, END_OF_FRAME, FALSE);
+	  si = proto_tree_add_item(tree, proto_sap, tvb, offset, END_OF_FRAME, FALSE);
 	  sap_tree = proto_item_add_subtree(si, ett_sap);
 
-	  sif = proto_tree_add_uint(sap_tree, hf_sap_flags, NullTVB, offset, 1, pd[offset]);
+	  sif = proto_tree_add_uint(sap_tree, hf_sap_flags, tvb, offset, 1, vers_flags);
           sap_flags_tree = proto_item_add_subtree(sif, ett_sap_flags);
-          proto_tree_add_uint(sap_flags_tree, hf_sap_flags_v, NullTVB, offset, 1, pd[offset]);
-          proto_tree_add_boolean(sap_flags_tree, hf_sap_flags_a, NullTVB, offset, 1, pd[offset]);
-          proto_tree_add_boolean(sap_flags_tree, hf_sap_flags_r, NullTVB, offset, 1, pd[offset]);
-          proto_tree_add_boolean(sap_flags_tree, hf_sap_flags_t, NullTVB, offset, 1, pd[offset]);
-          proto_tree_add_boolean(sap_flags_tree, hf_sap_flags_e, NullTVB, offset, 1, pd[offset]);
-          proto_tree_add_boolean(sap_flags_tree, hf_sap_flags_c, NullTVB, offset, 1, pd[offset]);
+          proto_tree_add_uint(sap_flags_tree, hf_sap_flags_v, tvb, offset, 1, vers_flags);
+          proto_tree_add_boolean(sap_flags_tree, hf_sap_flags_a, tvb, offset, 1, vers_flags);
+          proto_tree_add_boolean(sap_flags_tree, hf_sap_flags_r, tvb, offset, 1, vers_flags);
+          proto_tree_add_boolean(sap_flags_tree, hf_sap_flags_t, tvb, offset, 1, vers_flags);
+          proto_tree_add_boolean(sap_flags_tree, hf_sap_flags_e, tvb, offset, 1, vers_flags);
+          proto_tree_add_boolean(sap_flags_tree, hf_sap_flags_c, tvb, offset, 1, vers_flags);
           offset++;
 
-          proto_tree_add_text(sap_tree, NullTVB, offset, 1, "Authentication Length: %u", pd[offset]);
-          auth_len = pd[offset];
+          auth_len = tvb_get_guint8(tvb, offset);
+          proto_tree_add_text(sap_tree, tvb, offset, 1, "Authentication Length: %u", auth_len);
           offset++;
 
-          tmp1 = pntohs(pd+offset);
-          proto_tree_add_text(sap_tree, NullTVB, offset, 2, "Message Identifier Hash: 0x%x", tmp1);
+          tmp1 = tvb_get_ntohs(tvb, offset);
+          proto_tree_add_text(sap_tree, tvb, offset, 2, "Message Identifier Hash: 0x%x", tmp1);
           offset +=2;
 
-          proto_tree_add_text(sap_tree, NullTVB, offset, addr_len, "Originating Source: %s",
-                              (is_ipv6) ? ip6_to_str((struct e_in6_addr*)(pd+offset)) : ip_to_str(pd+offset));
+          addr = tvb_get_ptr(tvb, offset, addr_len);
+          proto_tree_add_text(sap_tree, tvb, offset, addr_len, "Originating Source: %s",
+              (is_ipv6) ? ip6_to_str((struct e_in6_addr*)addr) : ip_to_str(addr));
           offset += addr_len;
 
           /* Authentication data lives in its own subtree */
@@ -190,26 +198,28 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
                   auth_data_len = auth_len * sizeof(guint32);
 
-                  sdi = proto_tree_add_item(sap_tree, hf_auth_data, NullTVB, offset, auth_data_len, FALSE);
+                  sdi = proto_tree_add_item(sap_tree, hf_auth_data, tvb, offset, auth_data_len, FALSE);
                   sa_tree = proto_item_add_subtree(sdi, ett_sap_auth);
 
-                  sai = proto_tree_add_uint(sa_tree, hf_auth_flags, NullTVB, offset, 1, pd[offset]);
+                  auth_flags = tvb_get_guint8(tvb, offset);
+                  sai = proto_tree_add_uint(sa_tree, hf_auth_flags, tvb, offset, 1, auth_flags);
                   saf_tree = proto_item_add_subtree(sai, ett_sap_authf);
-                  proto_tree_add_uint(saf_tree, hf_auth_flags_v, NullTVB, offset, 1, pd[offset]);
-                  proto_tree_add_boolean(saf_tree, hf_auth_flags_p, NullTVB, offset, 1, pd[offset]);
-                  proto_tree_add_uint(saf_tree, hf_auth_flags_t, NullTVB, offset, 1, pd[offset]);
+                  proto_tree_add_uint(saf_tree, hf_auth_flags_v, tvb, offset, 1, auth_flags);
+                  proto_tree_add_boolean(saf_tree, hf_auth_flags_p, tvb, offset, 1, auth_flags);
+                  proto_tree_add_uint(saf_tree, hf_auth_flags_t, tvb, offset, 1, auth_flags);
 
-                  has_pad = pd[offset]&MCAST_SAP_AUTH_BIT_P;
-                  if (has_pad) pad_len = *(pd+offset+auth_data_len-1);
+                  has_pad = auth_flags&MCAST_SAP_AUTH_BIT_P;
+                  if (has_pad)
+                         pad_len = tvb_get_guint8(tvb, offset+auth_data_len-1);
 
-                  proto_tree_add_text(sa_tree, NullTVB, offset+1, auth_data_len-pad_len-1,
+                  proto_tree_add_text(sa_tree, tvb, offset+1, auth_data_len-pad_len-1,
                                       "Authentication subheader: (%u byte%s)",
                                       auth_data_len-1, plurality(auth_data_len-1, "", "s"));
                   if (has_pad) {
-                          proto_tree_add_text(sa_tree, NullTVB, offset+auth_data_len-pad_len, pad_len,
+                          proto_tree_add_text(sa_tree, tvb, offset+auth_data_len-pad_len, pad_len,
                                               "Authentication data padding: (%u byte%s)",
                                               pad_len, plurality(pad_len, "", "s"));
-                          proto_tree_add_text(sa_tree, NullTVB, offset+auth_data_len-1, 1,
+                          proto_tree_add_text(sa_tree, tvb, offset+auth_data_len-1, 1,
                                               "Authentication data pad count: %u byte%s",
                                               pad_len, plurality(pad_len, "", "s"));
                   }
@@ -221,22 +231,53 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                   if (is_enc && is_comp) mangle = "compressed and encrypted";
                   else if (is_enc) mangle = "encrypted";
                   else mangle = "compressed";
-                  proto_tree_add_text(sap_tree, NullTVB, offset, END_OF_FRAME,
+                  proto_tree_add_text(sap_tree, tvb, offset,
+                                      tvb_length_remaining(tvb, offset),
                                       "The rest of the packet is %s", mangle);
                   return;
           }
 
           /* Do we have the optional payload type aka. MIME content specifier */
-          if (strncasecmp(pd+offset, "v=", strlen("v="))) {
-                  guint32 pt_len = strlen(pd+offset); /* BUG: should use strnlen */
-                  proto_tree_add_text(sap_tree, NullTVB, offset, pt_len, "Payload type: %s", pd+offset);
+          if (!tvb_strneql(tvb, offset, "v=", strlen("v="))) {
+                  gint remaining_len;
+                  guint32 pt_len;
+                  int pt_string_len;
+
+                  remaining_len = tvb_length_remaining(tvb, offset);
+                  if (remaining_len == 0) {
+                      /*
+                       * "tvb_strneql()" failed because there was no
+		       * data left in the packet.
+		       *
+		       * Set the remaining length to 1, so that
+		       * we throw the appropriate exception in
+		       * "tvb_get_ptr()", rather than displaying
+		       * the payload type.
+		       */
+		      remaining_len = 1;
+		  }
+                  pt_string_len = tvb_strnlen(tvb, offset, remaining_len);
+                  if (pt_string_len == -1) {
+                      /*
+                       * We didn't find a terminating '\0'; run to the
+                       * end of the buffer.
+                       */
+                      pt_string_len = remaining_len;
+                      pt_len = pt_string_len;
+                  } else {
+                      /*
+                       * Include the '\0' in the total item length.
+                       */
+                      pt_len = pt_string_len + 1;
+                  }
+                  proto_tree_add_text(sap_tree, tvb, offset, pt_len,
+                      "Payload type: %.*s", pt_string_len,
+                      tvb_get_ptr(tvb, offset, pt_string_len));
                   offset += pt_len;
-                  if (pd[offset] == '\0')
-                          offset++; /* Skip possible '\0' */
           }
           
           /* Done with SAP */
-          dissect_sdp(pd, offset, fd, tree);
+          dissect_sdp(tvb, pinfo, tree);
 	}
 
         return;
@@ -321,5 +362,5 @@ void proto_register_sap(void)
 void
 proto_reg_handoff_sap(void)
 {
-  old_dissector_add("udp.port", UDP_PORT_SAP, dissect_sap);
+  dissector_add("udp.port", UDP_PORT_SAP, dissect_sap);
 }

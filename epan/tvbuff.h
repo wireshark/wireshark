@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.h,v 1.2 2000/11/09 10:56:33 guy Exp $
+ * $Id: tvbuff.h,v 1.3 2000/11/10 06:50:37 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -252,6 +252,13 @@ guint8* tvb_get_ptr(tvbuff_t*, gint offset, gint length);
  * reached before finding needle. */
 gint tvb_find_guint8(tvbuff_t*, gint offset, guint maxlength, guint8 needle);
 
+/* Find first occurence of any of the needles in tvbuff, starting at offset.
+ * Searches at most maxlength number of bytes. Returns the offset of the
+ * found needle, or -1 if not found. Will not throw an exception, even if
+ * maxlength exceeds boundary of tvbuff; in that case, -1 will be returned if
+ * the boundary is reached before finding needle. */
+gint tvb_pbrk_guint8(tvbuff_t *, gint offset, guint maxlength, guint8 *needles);
+
 /* Find length of string by looking for end of string ('\0'), up to
  * 'max_length' characters'. Returns -1 if 'max_length' reached
  * before finding EOS. */
@@ -283,6 +290,27 @@ gint tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buff
  * and return the offset of the EOL character(s) in "*eol".
  */
 gint tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *eol);
+
+/*
+ * Given a tvbuff, an offset into the tvbuff, and a length that starts
+ * at that offset (which may be -1 for "all the way to the end of the
+ * tvbuff"), find the end of the (putative) line that starts at the
+ * specified offset in the tvbuff, going no further than the specified
+ * length.
+ *
+ * However, treat quoted strings inside the buffer specially - don't
+ * treat newlines in quoted strings as line terminators.
+ *
+ * Return the length of the line (not counting the line terminator at
+ * the end), or the amount of data remaining in the buffer if we don't
+ * find a line terminator.
+ *
+ * Set "*next_offset" to the offset of the character past the line
+ * terminator, or past the end of the buffer if we don't find a line
+ * terminator.
+ */
+gint tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
+    gint *next_offset);
 
 /* Call strncmp after checking if enough chars left, otherwise return -1 */
 gint tvb_strneql(tvbuff_t *tvb, gint offset, guint8 *str, gint size);

@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.22 2000/11/09 10:56:32 guy Exp $
+ * $Id: packet-rtsp.c,v 1.23 2000/11/10 06:50:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -345,8 +345,7 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	datalen = tvb_length_remaining(tvb, offset);
 	if (is_sdp) {
 		if (datalen > 0) {
-			tvbuff_t *new_tvb = tvb_new_subset(tvb, offset, -1, -1);
-			const guint8 *pd;
+			tvbuff_t *new_tvb;
 
 			/*
 			 * Fix up the top-level item so that it doesn't
@@ -356,11 +355,11 @@ dissect_rtsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_item_set_len(ti, offset);
 
 			/*
-			 * Now create a tvbuff for the SDP stuff, and dissect
-			 * it.
+			 * Now creat a tvbuff for the SDP stuff and
+			 * dissect it.
 			 */
-			tvb_compat(new_tvb, &pd, &offset);
-			dissect_sdp(pd, offset, pinfo->fd, tree);
+			new_tvb = tvb_new_subset(tvb, offset, -1, -1);
+			dissect_sdp(new_tvb, pinfo, tree);
 		}
 		if (check_col(pinfo->fd, COL_PROTOCOL))
 			col_add_str(pinfo->fd, COL_PROTOCOL, "RTSP/SDP");

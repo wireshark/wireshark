@@ -8,7 +8,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sip.c,v 1.1 2000/11/04 07:50:47 guy Exp $
+ * $Id: packet-sip.c,v 1.2 2000/11/10 06:50:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -75,8 +75,6 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint32 offset;
         gint eol, msg_offset;
         tvbuff_t *next_tvb;
-        const guint8 *next_pd;
-        int next_offset;
 
 	CHECK_DISPLAY_AS_DATA(proto_sip, tvb, pinfo, tree);
 
@@ -131,8 +129,7 @@ static void dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (tvb_length_remaining(tvb, offset) > 0) {
                 next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-                tvb_compat(next_tvb, &next_pd, &next_offset);
-                dissect_sdp(next_pd, next_offset, pinfo->fd, tree);
+                dissect_sdp(next_tvb, pinfo, tree);
         }
 
         return;

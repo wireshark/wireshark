@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.3 2000/11/09 10:56:33 guy Exp $
+ * $Id: tvbuff.c,v 1.4 2000/11/10 06:50:37 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  *
@@ -763,6 +763,26 @@ guint8_find(const guint8* haystack, size_t haystacklen, guint8 needle)
 	return NULL;
 }
 
+static const guint8*
+guint8_pbrk(const guint8* haystack, size_t haystacklen, guint8 *needles)
+{
+	const guint8	*b;
+	int		i;
+	guint8		item, *needlep, needle;
+
+	for (b = haystack, i = 0; i < haystacklen; i++, b++) {
+		item = *b;
+		needlep = needles;
+		while ((needle = *needlep) != '\0') {
+			if (item == needle)
+				return b;
+			needlep++;
+		}
+	}
+
+	return NULL;
+}
+
 
 
 /************** ACCESSORS **************/
@@ -1012,6 +1032,57 @@ tvb_find_guint8(tvbuff_t *tvb, gint offset, guint maxlength, guint8 needle)
 	return -1;
 }
 
+/* Find first occurence of any of the needles in tvbuff, starting at offset.
+ * Searches at most maxlength number of bytes. Returns the offset of the
+ * found needle, or -1 if not found. Will not throw an exception, even if
+ * maxlength exceeds boundary of tvbuff; in that case, -1 will be returned if
+ * the boundary is reached before finding needle. */
+gint
+tvb_pbrk_guint8(tvbuff_t *tvb, gint offset, guint maxlength, guint8 *needles)
+{
+	guint		abs_offset, junk_length;
+	const guint8	*result;
+	guint		limit;
+
+	check_offset_length(tvb, offset, 0, &abs_offset, &junk_length);
+
+	/* Only search to end of tvbuff, w/o throwing exception. */
+	if (tvb_length_remaining(tvb, abs_offset) < maxlength) {
+		limit = maxlength - (tvb_length(tvb) - abs_offset);
+	}
+	else {
+		limit = maxlength;
+	}
+
+	/* If we have real data, perform our search now. */
+	if (tvb->real_data) {
+		result = guint8_pbrk(tvb->real_data + abs_offset, limit, needles);
+		if (result == NULL) {
+			return -1;
+		}
+		else {
+			return result - tvb->real_data;
+		}
+	}
+
+	switch(tvb->type) {
+		case TVBUFF_REAL_DATA:
+			g_assert_not_reached();
+
+		case TVBUFF_SUBSET:
+			return tvb_pbrk_guint8(tvb->tvbuffs.subset.tvb,
+					abs_offset - tvb->tvbuffs.subset.offset,
+					limit, needles);
+
+		case TVBUFF_COMPOSITE:
+			g_assert_not_reached();
+			/* XXX - return composite_pbrk_guint8(tvb, offset, limit, needle); */
+	}
+
+	g_assert_not_reached();
+	return -1;
+}
+
 /* Find length of string by looking for end of string ('\0'), up to
  * 'max_length' characters'. Returns -1 if 'max_length' reached
  * before finding EOS. */
@@ -1182,7 +1253,7 @@ tvb_get_nstringz0(tvbuff_t *tvb, gint offset, guint maxlength, guint8* buffer)
  * terminator, or past the end of the buffer if we don't find a line
  * terminator.
  */
-int
+gint
 tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset)
 {
 	gint eob_offset;
@@ -1203,8 +1274,8 @@ tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset)
 		 * No LF - line is presumably continued in next packet.
 		 * We pretend the line runs to the end of the tvbuff.
 		 */
-		*next_offset = eob_offset;
 		linelen = eob_offset - offset;
+		*next_offset = eob_offset;
 	} else {
 		/*
 		 * Find the number of bytes between the starting offset
@@ -1259,10 +1330,148 @@ tvb_find_line_end(tvbuff_t *tvb, gint offset, int len, gint *next_offset)
 		}
 
 		/*
-		 * Point to the character after the last character.
+		 * Return the offset of the character after the last
+		 * character in the line.
 		 */
-		eol_offset++;
-		*next_offset = eol_offset;
+		*next_offset = eol_offset + 1;
+	}
+	return linelen;
+}
+
+/*
+ * Given a tvbuff, an offset into the tvbuff, and a length that starts
+ * at that offset (which may be -1 for "all the way to the end of the
+ * tvbuff"), find the end of the (putative) line that starts at the
+ * specified offset in the tvbuff, going no further than the specified
+ * length.
+ *
+ * However, treat quoted strings inside the buffer specially - don't
+ * treat newlines in quoted strings as line terminators.
+ *
+ * Return the length of the line (not counting the line terminator at
+ * the end), or the amount of data remaining in the buffer if we don't
+ * find a line terminator.
+ *
+ * Set "*next_offset" to the offset of the character past the line
+ * terminator, or past the end of the buffer if we don't find a line
+ * terminator.
+ */
+gint
+tvb_find_line_end_unquoted(tvbuff_t *tvb, gint offset, int len,
+    gint *next_offset)
+{
+	gint cur_offset, char_offset;
+	gboolean is_quoted;
+	u_char c;
+	gint eob_offset;
+	int linelen;
+
+	if (len == -1)
+		len = tvb_length_remaining(tvb, offset);
+	/*
+	 * XXX - what if "len" is still -1, meaning "offset is past the
+	 * end of the tvbuff"?
+	 */
+	eob_offset = offset + len;
+
+	cur_offset = offset;
+	is_quoted = FALSE;
+	for (;;) {
+	    	/*
+		 * Is this part of the string quoted?
+		 */
+		if (is_quoted) {
+			/*
+			 * Yes - look only for the terminating quote.
+			 */
+			char_offset = tvb_find_guint8(tvb, cur_offset, len,
+			    '"');
+		} else {
+			/*
+			 * Look either for an LF or a '"'.
+			 */
+			char_offset = tvb_pbrk_guint8(tvb, cur_offset, len,
+			    "\n\"");
+		}
+		if (cur_offset == -1) {
+			/*
+			 * Not found - line is presumably continued in
+			 * next packet.
+			 * We pretend the line runs to the end of the tvbuff.
+			 */
+			linelen = eob_offset - offset;
+			*next_offset = eob_offset;
+			break;
+		}
+			
+		/*
+		 * OK, which is it?
+		 */
+		c = tvb_get_guint8(tvb, char_offset);
+		if (c == '\n') {
+			if (is_quoted) {
+				/*
+				 * Quoted LF; it's part of the string, not
+				 * a line terminator.
+				 * Do nothing. Wait for next quote.
+				 */
+			} else {
+				/*
+				 * Un-quoted LF; it's a line terminator.
+				 * Find the number of bytes between the
+				 * starting offset and the LF.
+				 */
+				linelen = char_offset - offset;
+
+				/*
+				 * Is the LF at the beginning of the line?
+				 */
+				if (linelen > 0) {
+					/*
+					 * No - is it preceded by a carriage
+					 * return?
+					 * (Perhaps it's supposed to be, but
+					 * that's not guaranteed....)
+					 */
+					if (tvb_get_guint8(tvb, char_offset-1)
+					    == '\r') {
+						/*
+						 * Yes.  The EOL starts with
+						 * the CR; don't count it as
+						 * part of the data in the
+						 * line.
+						 */
+						linelen--;
+					}
+				}
+
+				/*
+				 * Return the offset of the character after
+				 * the last character in the line, and
+				 * quit.
+				 */
+				*next_offset = char_offset + 1;
+				break;
+			}
+		} else if (c == '"') {
+			is_quoted = !is_quoted;
+		}
+
+		/*
+		 * Step past the character we found.
+		 */
+		cur_offset = char_offset + 1;
+		if (cur_offset >= eob_offset) {
+			/*
+			 * The character we found was the last character
+			 * in the tvbuff - line is presumably continued in
+			 * next packet.
+			 * We pretend the line runs to the end of the tvbuff.
+			 */
+			linelen = eob_offset - offset;
+			*next_offset = eob_offset;
+			break;
+		}
 	}
 	return linelen;
 }

@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.11 2000/11/09 02:42:31 guy Exp $
+ * $Id: packet-sdp.c,v 1.12 2000/11/10 06:50:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,47 +45,51 @@ static int proto_sdp = -1;
 
 static int ett_sdp = -1;
 
-void dissect_sdp(const u_char *pd, int offset, frame_data *fd,
-	proto_tree *tree)
+void
+dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree	*sdp_tree;
 	proto_item	*ti;
-	const u_char	*data, *dataend;
-	const u_char	*lineend, *eol;
+	gint		offset = 0;
+	const u_char	*line;
+	gint		next_offset;
 	int		linelen;
 	u_char		section;
 	u_char		type;
 	const u_char	*value;
 	int		valuelen;
 	const char	*typename;
+	int		datalen;
 
-	OLD_CHECK_DISPLAY_AS_DATA(proto_sdp, pd, offset, fd, tree);
+	CHECK_DISPLAY_AS_DATA(proto_sdp, tvb, pinfo, tree);
 
-	data = &pd[offset];
-	dataend = data + END_OF_FRAME;
+	pinfo->current_proto = "SDP";
 
-	if (check_col(fd, COL_PROTOCOL))
-		col_add_str(fd, COL_PROTOCOL, "SDP");
+	if (check_col(pinfo->fd, COL_PROTOCOL))
+		col_add_str(pinfo->fd, COL_PROTOCOL, "SDP");
 
-	if (check_col(fd, COL_INFO)) {
+	if (check_col(pinfo->fd, COL_INFO)) {
 		/* XXX: Needs description. */
-		col_add_str(fd, COL_INFO, "Session Description");
+		col_add_str(pinfo->fd, COL_INFO, "Session Description");
 	}
 
 	if (!tree)
 		return;
 
-	ti = proto_tree_add_item(tree, proto_sdp, NullTVB, offset,
-	    END_OF_FRAME, FALSE);
+	ti = proto_tree_add_item(tree, proto_sdp, tvb, offset,
+	    tvb_length_remaining(tvb, offset), FALSE);
 	sdp_tree = proto_item_add_subtree(ti, ett_sdp);
 
+	/*
+	 * Show the SDP message a line at a time.
+	 */
 	section = 0;
-	for (; data < dataend; offset += linelen, data = lineend) {
+	while (tvb_length_remaining(tvb, offset)) {
 		/*
 		 * Find the end of the line.
 		 */
-		lineend = find_line_end_unquoted(data, dataend, &eol);
-		linelen = lineend - data;
+		linelen = tvb_find_line_end_unquoted(tvb, offset, -1,
+		    &next_offset);
 
 		/*
 		 * Line must contain at least e.g. "v=".
@@ -93,14 +97,16 @@ void dissect_sdp(const u_char *pd, int offset, frame_data *fd,
 		if (linelen < 2)
 			break;
 
-		type = data[0];
-		if (data[1] != '=') {
-			proto_tree_add_text(sdp_tree, NullTVB, offset, linelen,
-				"Invalid line: %s",
-				format_text(data, linelen));
+		line = tvb_get_ptr(tvb, offset, next_offset - offset);
+		type = line[0];
+		if (line[1] != '=') {
+			proto_tree_add_text(sdp_tree, tvb, offset,
+			    next_offset - offset,
+			    "Invalid line: %s",
+			    tvb_format_text(tvb, offset, next_offset - offset));
 			continue;
 		}
-		value = data + 2;
+		value = line + 2;
 		valuelen = linelen - 2;
 
 		/*
@@ -170,14 +176,17 @@ void dissect_sdp(const u_char *pd, int offset, frame_data *fd,
 			break;
 		}
 
-		proto_tree_add_text(sdp_tree, NullTVB, offset, linelen,
-			"%s (%c): %s", typename, type,
-			format_text(value, valuelen));
+		proto_tree_add_text(sdp_tree, tvb, offset,
+		    next_offset - offset,
+		    "%s (%c): %s", typename, type,
+		    format_text(value, valuelen));
+		offset = next_offset;
 	}
 
-	if (data < dataend) {
-		proto_tree_add_text(sdp_tree, NullTVB, offset, END_OF_FRAME,
-		    "Data (%d bytes)", END_OF_FRAME);
+	datalen = tvb_length_remaining(tvb, offset);
+	if (datalen > 0) {
+		proto_tree_add_text(sdp_tree, tvb, offset, datalen,
+		    "Data (%d bytes)", datalen);
 	}
 }
 
