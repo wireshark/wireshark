@@ -1349,9 +1349,21 @@ main_cf_cb_file_read_finished(capture_file *cf)
 
 #ifdef HAVE_LIBPCAP
 static void
+main_cf_cb_live_capture_prepare(capture_options *capture_opts)
+{
+    gchar *title;
+
+
+    title = g_strdup_printf("%s: Capturing - Ethereal",
+                            get_interface_descriptive_name(capture_opts->iface));
+    set_main_window_name(title);
+    g_free(title);
+}
+
+static void
 main_cf_cb_live_capture_started(capture_options *capture_opts)
 {
-    gchar *capture_msg, *title;
+    gchar *capture_msg;
 
     /* Disable menu items that make no sense if you're currently running
        a capture. */
@@ -1366,11 +1378,6 @@ main_cf_cb_live_capture_started(capture_options *capture_opts)
     statusbar_push_file_msg(capture_msg);
 
     g_free(capture_msg);
-
-    title = g_strdup_printf("%s: Capturing - Ethereal",
-                            get_interface_descriptive_name(capture_opts->iface));
-    set_main_window_name(title);
-    g_free(title);
 
     /* Set up main window for a capture file. */
     main_set_for_capture_file(TRUE);
@@ -1477,6 +1484,9 @@ void main_cf_callback(gint event, gpointer data, gpointer user_data _U_)
         main_cf_cb_file_read_finished(data);
         break;
 #ifdef HAVE_LIBPCAP
+    case(cf_cb_live_capture_prepare):
+        main_cf_cb_live_capture_prepare(data);
+        break;
     case(cf_cb_live_capture_started):
         main_cf_cb_live_capture_started(data);
         break;

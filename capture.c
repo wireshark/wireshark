@@ -426,10 +426,10 @@ do_capture(capture_options *capture_opts)
     /* sync mode: do the capture in a child process */
     ret = sync_pipe_do_capture(capture_opts, is_tempfile);
     /* capture is still running */
-    cf_callback_invoke(cf_cb_live_capture_started, capture_opts);
+    cf_callback_invoke(cf_cb_live_capture_prepare, capture_opts);
   } else {
     /* normal mode: do the capture synchronously */
-    cf_callback_invoke(cf_cb_live_capture_started, capture_opts);
+    cf_callback_invoke(cf_cb_live_capture_prepare, capture_opts);
     ret = normal_do_capture(capture_opts, is_tempfile);
     /* capture is finished here */
   }

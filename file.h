@@ -60,6 +60,7 @@ typedef enum {
     cf_cb_file_read_start,
     cf_cb_file_read_finished,
 #ifdef HAVE_LIBPCAP
+    cf_cb_live_capture_prepare,
     cf_cb_live_capture_started,
     cf_cb_live_capture_finished,
 #endif
