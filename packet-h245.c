@@ -67,7 +67,7 @@ All in all a lot of work.
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.20 2003/07/16 08:38:16 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.21 2003/07/16 08:53:08 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -15876,6 +15876,14 @@ dissect_h245_MultiplexEntrySendAck(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 
 static int
+dissect_h245_RMErejectionDescriptions(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+{
+	offset=dissect_per_constrained_set_of(tvb, offset, pinfo, tree, hf_h245_rejectionDescriptions, ett_h245_rejectionDescriptions, dissect_h245_RequestMultiplexEntryRejectionDescriptions, 1, 15);
+	return offset;
+}
+
+
+static int
 dissect_h245_rejectionDescriptions(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset=dissect_per_constrained_set_of(tvb, offset, pinfo, tree, hf_h245_rejectionDescriptions, ett_h245_rejectionDescriptions, dissect_h245_MultiplexEntryRejectionDescriptions, 1, 15);
@@ -15950,7 +15958,7 @@ static per_sequence_t RequestMultiplexEntryReject_sequence[] = {
 	{ "entryNumbers", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h245_entryNumbers },
 	{ "rejectionDescriptions", EXTENSION_ROOT, NOT_OPTIONAL,
-		dissect_h245_rejectionDescriptions },
+		dissect_h245_RMErejectionDescriptions },
 	{ NULL, 0, 0, NULL }
 };
 static int
@@ -16639,13 +16647,6 @@ static per_sequence_t MultipointCapability_sequence[] = {
 		dissect_h245_mediaDistributionCapability_sequence_of },
 	{ NULL, 0, 0, NULL }
 };
-static int
-dissect_h245_MultipointCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
-{
-	offset=dissect_per_sequence(tvb, offset, pinfo, tree, hf_h245_MultipointCapability, ett_h245_MultipointCapability, MultipointCapability_sequence);
-
-	return offset;
-}
 static int
 dissect_h245_receiveMultipointCapability(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
