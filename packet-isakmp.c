@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.70 2003/10/08 05:36:19 guy Exp $
+ * $Id: packet-isakmp.c,v 1.71 2003/10/09 22:40:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -298,6 +298,104 @@ static const guint8 VID_CP[VID_CP_LEN] = {0xF4, 0xED, 0x19, 0xE0, 0xC1, 0x14, 0x
 static const guint8 VID_CYBERGUARD[VID_LEN] = {0x9A, 0xA1, 0xF3, 0xB4, 0x34, 0x72, 0xA4, 0x5D, 0x5F, 0x50, 0x6A, 0xEB, 0x26, 0xC, 0xF2, 0x14};
 
 static const guint8 VID_draft_ietf_ipsec_nat_t_ike_03[VID_LEN] = {0x7D, 0x94, 0x19, 0xA6, 0x53, 0x10, 0xCA, 0x6F, 0x2C, 0x17, 0x9D, 0x92, 0x15, 0x52, 0x9d, 0x56}; /* according to http://www.ietf.org/internet-drafts/draft-ietf-ipsec-nat-t-ike-03.txt */
+
+static const guint8 VID_SSH_IPSEC_EXPRESS_1_1_0[VID_LEN] = {0xfB, 0xF4, 0x76, 0x14, 0x98, 0x40, 0x31, 0xFA, 0x8E, 0x3B, 0xB6, 0x19, 0x80, 0x89, 0xB2, 0x23}; /* Ssh Communications Security IPSEC Express version 1.1.0 */
+
+static const guint8 VID_SSH_IPSEC_EXPRESS_1_1_1[VID_LEN] = {0x19, 0x52, 0xDC, 0x91, 0xAC, 0x20, 0xF6, 0x46, 0xFB, 0x01, 0xCF, 0x42, 0xA3, 0x3A, 0xEE, 0x30}; /* Ssh Communications Security IPSEC Express version 1.1.1 */
+   
+static const guint8 VID_SSH_IPSEC_EXPRESS_1_1_2[VID_LEN] = {0xE8, 0xBF, 0xFA, 0x64, 0x3E, 0x5C, 0x8F, 0x2C, 0xD1, 0x0F, 0xDA, 0x73, 0x70, 0xB6, 0xEB, 0xE5}; /* Ssh Communications Security IPSEC Express version 1.1.2 */
+
+static const guint8 VID_SSH_IPSEC_EXPRESS_1_2_1[VID_LEN] = {0xC1, 0x11, 0x1B, 0x2D, 0xEE, 0x8C, 0xBC, 0x3D, 0x62, 0x05, 0x73, 0xEC, 0x57, 0xAA, 0xB9, 0xCB}; /* Ssh Communications Security IPSEC Express version 1.2.1 */
+
+static const guint8 VID_SSH_IPSEC_EXPRESS_1_2_2[VID_LEN] = {0x09, 0xEC, 0x27, 0xBF, 0xBC, 0x09, 0xC7, 0x58, 0x23, 0xCF, 0xEC, 0xBF, 0xFE, 0x56, 0x5A, 0x2E}; /* Ssh Communications Security IPSEC Express version 1.2.2 */
+   
+static const guint8 VID_SSH_IPSEC_EXPRESS_2_0_0[VID_LEN] = {0x7F, 0x21, 0xA5, 0x96, 0xE4, 0xE3, 0x18, 0xF0, 0xB2, 0xF4, 0x94, 0x4C, 0x23, 0x84, 0xCB, 0x84};  /* SSH Communications Security IPSEC Express version 2.0.0 */
+   
+static const guint8 VID_SSH_IPSEC_EXPRESS_2_1_0[VID_LEN] = {0x28, 0x36, 0xD1, 0xFD, 0x28, 0x07, 0xBC, 0x9E, 0x5A, 0xE3, 0x07, 0x86, 0x32, 0x04, 0x51, 0xEC}; /* SSH Communications Security IPSEC Express version 2.1.0 */
+   
+static const guint8 VID_SSH_IPSEC_EXPRESS_2_1_1[VID_LEN] = {0xA6, 0x8D, 0xE7, 0x56, 0xA9, 0xC5, 0x22, 0x9B, 0xAE, 0x66, 0x49, 0x80, 0x40, 0x95, 0x1A, 0xD5}; /* SSH Communications Security IPSEC Express version 2.1.1 */
+
+static const guint8 VID_SSH_IPSEC_EXPRESS_2_1_2[VID_LEN] = {0x3F, 0x23, 0x72, 0x86, 0x7E, 0x23, 0x7C, 0x1C, 0xD8, 0x25, 0x0A, 0x75, 0x55, 0x9C, 0xAE, 0x20}; /* SSH Communications Security IPSEC Express version 2.1.2 */
+
+static const guint8 VID_SSH_IPSEC_EXPRESS_3_0_0[VID_LEN] = {0x0E, 0x58, 0xD5, 0x77, 0x4D, 0xF6, 0x02, 0x00, 0x7D, 0x0B, 0x02, 0x44, 0x36, 0x60, 0xF7, 0xEB}; /* SSH Communications Security IPSEC Express version 3.0.0 */
+
+static const guint8 VID_SSH_IPSEC_EXPRESS_3_0_1[VID_LEN] = {0xF5, 0xCE, 0x31, 0xEB, 0xC2, 0x10, 0xF4, 0x43, 0x50, 0xCF, 0x71, 0x26, 0x5B, 0x57, 0x38, 0x0F}; /* SSH Communications Security IPSEC Express version 3.0.1 */
+
+static const guint8 VID_SSH_IPSEC_EXPRESS_4_0_0[VID_LEN] = {0xF6, 0x42, 0x60, 0xAF, 0x2E, 0x27, 0x42, 0xDA, 0xDD, 0xD5, 0x69, 0x87, 0x06, 0x8A, 0x99, 0xA0}; /* SSH Communications Security IPSEC Express version 4.0.0 */
+
+static const guint8 VID_SSH_IPSEC_EXPRESS_4_0_1[VID_LEN] = {0x7A, 0x54, 0xD3, 0xBD, 0xB3, 0xB1, 0xE6, 0xD9, 0x23, 0x89, 0x20, 0x64, 0xBE, 0x2D, 0x98, 0x1C}; /* SSH Communications Security IPSEC Express version 4.0.1 */
+
+static const guint8 VID_SSH_IPSEC_EXPRESS_4_1_0[VID_LEN] = {0x9A, 0xA1, 0xF3, 0xB4, 0x34, 0x72, 0xA4, 0x5D, 0x5F, 0x50, 0x6A, 0xEB, 0x26, 0x0C, 0xF2, 0x14}; /* SSH Communications Security IPSEC Express version 4.1.0 */
+
+static const guint8 VID_SSH_IPSEC_EXPRESS_4_1_1[VID_LEN] = {0x89, 0xF7, 0xB7, 0x60, 0xD8, 0x6B, 0x01, 0x2A, 0xCF, 0x26, 0x33, 0x82, 0x39, 0x4D, 0x96, 0x2F}; /* SSH Communications Security IPSEC Express version 4.1.1 */
+
+static const guint8 VID_SSH_IPSEC_EXPRESS_5_0[VID_LEN] = {0xB0, 0x37, 0xA2, 0x1A, 0xCE, 0xCC, 0xB5, 0x57, 0x0F, 0x60, 0x25, 0x46, 0xF9, 0x7B, 0xDE, 0x8C}; /* SSH Communications Security IPSEC Express version 5.0 */
+
+static const guint8 VID_SSH_IPSEC_EXPRESS_5_0_0[VID_LEN] = {0x2B, 0x2D, 0xAD, 0x97, 0xC4, 0xD1, 0x40, 0x93, 0x00, 0x53, 0x28, 0x7F, 0x99, 0x68, 0x50, 0xB0}; /* SSH Communications Security IPSEC Express version 5.0.0 */
+
+static const guint8 VID_SSH_IPSEC_EXPRESS_5_1_0[VID_LEN] = {0x45, 0xE1, 0x7F, 0x3A, 0xBE, 0x93, 0x94, 0x4C, 0xB2, 0x02, 0x91, 0x0C, 0x59, 0xEF, 0x80, 0x6B}; /* SSH Communications Security IPSEC Express version 5.1.0 */
+
+static const guint8 VID_SSH_IPSEC_EXPRESS_5_1_1[VID_LEN] = {0x59, 0x25, 0x85, 0x9F, 0x73, 0x77, 0xED, 0x78, 0x16, 0xD2, 0xFB, 0x81, 0xC0, 0x1F, 0xA5, 0x51}; /* SSH Communications Security IPSEC Express version 5.1.1 */
+
+static const guint8 VID_SSH_SENTINEL[VID_LEN] = {0x05, 0x41, 0x82, 0xA0, 0x7C, 0x7A, 0xE2, 0x06, 0xF9, 0xD2, 0xCF, 0x9D, 0x24, 0x32, 0xC4, 0x82}; /* SSH Sentinel */
+
+static const guint8 VID_SSH_SENTINEL_1_1[VID_LEN] = {0xB9, 0x16, 0x23, 0xE6, 0x93, 0xCA, 0x18, 0xA5, 0x4C, 0x6A, 0x27, 0x78, 0x55, 0x23, 0x05, 0xE8}; /* SSH Sentinel 1.1 */
+
+static const guint8 VID_SSH_SENTINEL_1_2[VID_LEN] = {0x54, 0x30, 0x88, 0x8D, 0xE0, 0x1A, 0x31, 0xA6, 0xFA, 0x8F, 0x60, 0x22, 0x4E, 0x44, 0x99, 0x58}; /* SSH Sentinel 1.2 */
+
+static const guint8 VID_SSH_SENTINEL_1_3[VID_LEN] = {0x7E, 0xE5, 0xCB, 0x85, 0xF7, 0x1C, 0xE2, 0x59, 0xC9, 0x4A, 0x5C, 0x73, 0x1E, 0xE4, 0xE7, 0x52}; /* SSH Sentinel 1.3 */
+
+static const guint8 VID_SSH_QUICKSEC_0_9_0[VID_LEN] = {0x37, 0xEB, 0xA0, 0xC4, 0x13, 0x61, 0x84, 0xE7, 0xDA, 0xF8, 0x56, 0x2A, 0x77, 0x06, 0x0B, 0x4A}; /* SSH Communications Security QuickSec 0.9.0 */
+
+static const guint8 VID_SSH_QUICKSEC_1_1_0[VID_LEN] = {0x5D, 0x72, 0x92, 0x5E, 0x55, 0x94, 0x8A, 0x96, 0x61, 0xA7, 0xFC, 0x48, 0xFD, 0xEC, 0x7F, 0xF9}; /* SSH Communications Security QuickSec 1.1.0 */
+
+static const guint8 VID_SSH_QUICKSEC_1_1_1[VID_LEN] = {0x77, 0x7F, 0xBF, 0x4C, 0x5A, 0xF6, 0xD1, 0xCD, 0xD4, 0xB8, 0x95, 0xA0, 0x5B, 0xF8, 0x25, 0x94}; /* SSH Communications Security QuickSec 1.1.1 */
+
+static const guint8 VID_SSH_QUICKSEC_1_1_2[VID_LEN] = {0x2C, 0xDF, 0x08, 0xE7, 0x12, 0xED, 0xE8, 0xA5, 0x97, 0x87, 0x61, 0x26, 0x7C, 0xD1, 0x9B, 0x91}; /* SSH Communications Security QuickSec 1.1.2 */
+
+static const guint8 VID_SSH_QUICKSEC_1_1_3[VID_LEN] = {0x59, 0xE4, 0x54, 0xA8, 0xC2, 0xCF, 0x02, 0xA3, 0x49, 0x59, 0x12, 0x1F, 0x18, 0x90, 0xBC, 0x87}; /* SSH Communications Security QuickSec 1.1.3 */
+
+static const guint8 VID_draft_huttunen_ipsec_esp_in_udp_01[VID_LEN] = {0x50, 0x76, 0x0F, 0x62, 0x4C, 0x63, 0xE5, 0xC5, 0x3E, 0xEA, 0x38, 0x6C, 0x68, 0x5C, 0xA0, 0x83}; /* draft-huttunen-ipsec-esp-in-udp-01.txt */
+
+static const guint8 VID_draft_stenberg_ipsec_nat_traversal_01[VID_LEN] = {0x27, 0xBA, 0xB5, 0xDC, 0x01, 0xEA, 0x07, 0x60, 0xEA, 0x4E, 0x31, 0x90, 0xAC, 0x27, 0xC0, 0xD0}; /* draft-stenberg-ipsec-nat-traversal-01 */
+
+static const guint8 VID_draft_stenberg_ipsec_nat_traversal_02[VID_LEN]= {0x61, 0x05, 0xC4, 0x22, 0xE7, 0x68, 0x47, 0xE4, 0x3F, 0x96, 0x84, 0x80, 0x12, 0x92, 0xAE, 0xCD}; /* draft-stenberg-ipsec-nat-traversal-02 */
+
+static const guint8 VID_draft_ietf_ipsec_nat_t_ike_00[VID_LEN]= {0x44, 0x85, 0x15, 0x2D, 0x18, 0xB6, 0xBB, 0xCD, 0x0B, 0xE8, 0xA8, 0x46, 0x95, 0x79, 0xDD, 0xCC}; /* draft-ietf-ipsec-nat-t-ike-00 */
+
+static const guint8 VID_draft_ietf_ipsec_nat_t_ike_02a[VID_LEN]= {0xCD, 0x60, 0x46, 0x43, 0x35, 0xDF, 0x21, 0xF8, 0x7C, 0xFD, 0xB2, 0xFC, 0x68, 0xB6, 0xA4, 0x48}; /* draft-ietf-ipsec-nat-t-ike-02 */
+
+static const guint8 VID_draft_ietf_ipsec_nat_t_ike_02b[VID_LEN]= {0x90, 0xCB, 0x80, 0x91, 0x3E, 0xBB, 0x69, 0x6E, 0x08, 0x63, 0x81, 0xB5, 0xEC, 0x42, 0x7B, 0x1F}; /* draft-ietf-ipsec-nat-t-ike-02 */
+
+static const guint8 VID_draft_beaulieu_ike_xauth_02[VID_LEN]= {0x09, 0x00, 0x26, 0x89, 0xDF, 0xD6, 0xB7, 0x12, 0x80, 0xA2, 0x24, 0xDE, 0xC3, 0x3B, 0x81, 0xE5}; /* draft-beaulieu-ike-xauth-02.txt */
+
+
+static const guint8 VID_draft_ietf_ipsec_dpd_00[VID_LEN]= {0xAF, 0xCA,0xD7, 0x13, 0x68, 0xA1, 0xF1, 0xC9, 0x6B, 0x86, 0x96, 0xFC, 0x77, 0x57, 0x01, 0x00}; /* draft-ietf-ipsec-dpd-00.txt */
+
+static const guint8 VID_IKE_CHALLENGE_RESPONSE_1[VID_LEN]= {0xBA, 0x29, 0x04, 0x99, 0xC2, 0x4E, 0x84, 0xE5, 0x3A, 0x1D, 0x83, 0xA0, 0x5E, 0x5F, 0x00, 0xC9}; /* IKE Challenge/Response for Authenticated Cryptographic Keys */
+
+static const guint8 VID_IKE_CHALLENGE_RESPONSE_2[VID_LEN]= {0x0D, 0x33, 0x61, 0x1A, 0x5D, 0x52, 0x1B, 0x5E, 0x3C, 0x9C, 0x03, 0xD2, 0xFC, 0x10, 0x7E, 0x12}; /* IKE Challenge/Response for Authenticated Cryptographic Keys */
+
+static const guint8 VID_IKE_CHALLENGE_RESPONSE_REV_1[VID_LEN]= {0xAD, 0x32, 0x51, 0x04, 0x2C, 0xDC, 0x46, 0x52, 0xC9, 0xE0, 0x73, 0x4C, 0xE5, 0xDE, 0x4C, 0x7D}; /* IKE Challenge/Response for Authenticated Cryptographic Keys (Revised) */
+
+static const guint8 VID_IKE_CHALLENGE_RESPONSE_REV_2[VID_LEN]= {0x01, 0x3F, 0x11, 0x82, 0x3F, 0x96, 0x6F, 0xA9, 0x19, 0x00, 0xF0, 0x24, 0xBA, 0x66, 0xA8, 0x6B}; /* IKE Challenge/Response for Authenticated Cryptographic Keys (Revised) */
+
+static const guint8 VID_MS_L2TP_IPSEC_VPN_CLIENT[VID_LEN]= {0x40, 0x48, 0xB7, 0xD5, 0x6E, 0xBC, 0xE8, 0x85, 0x25, 0xE7, 0xDE, 0x7F, 0x00, 0xD6, 0xC2, 0xD3}; /* Microsoft L2TP/IPSec VPN Client */
+
+static const guint8 VID_GSS_API_1[VID_LEN]= {0xB4, 0x6D, 0x89, 0x14, 0xF3, 0xAA, 0xA3, 0xF2, 0xFE, 0xDE, 0xB7, 0xC7, 0xDB, 0x29, 0x43, 0xCA}; /* A GSS-API Authentication Method for IKE */
+
+static const guint8 VID_GSS_API_2[VID_LEN]= {0xAD, 0x2C, 0x0D, 0xD0, 0xB9, 0xC3, 0x20, 0x83, 0xCC, 0xBA, 0x25, 0xB8, 0x86, 0x1E, 0xC4, 0x55}; /* A GSS-API Authentication Method for IKE */
+
+static const guint8 VID_GSSAPI[VID_LEN]= {0x62, 0x1B, 0x04, 0xBB, 0x09, 0x88, 0x2A, 0xC1, 0xE1, 0x59, 0x35, 0xFE, 0xFA, 0x24, 0xAE, 0xEE}; /* GSSAPI */
+
+static const guint8 VID_MS_NT5_ISAKMPOAKLEY[VID_LEN]= {0x1E, 0x2B, 0x51, 0x69, 0x05, 0x99, 0x1C, 0x7D, 0x7C, 0x96, 0xFC, 0xBF, 0xB5, 0x87, 0xE4, 0x61}; /* MS NT5 ISAKMPOAKLEY */
+
+static const guint8 VID_CISCO_UNITY[VID_LEN]= {0x12, 0xF5, 0xF2, 0x8C, 0x45, 0x71, 0x68, 0xA9, 0x70, 0x2D, 0x9F, 0xE2, 0x74, 0xCC, 0x02, 0xD4}; /* CISCO-UNITY */
+
+#define VID_LEN_8 8
+static const guint8 VID_draft_ietf_ipsec_antireplay_00[VID_LEN_8]= {0x32, 0x5D, 0xF2, 0x9A, 0x23, 0x19, 0xF2, 0xDD}; /* draft-ietf-ipsec-antireplay-00.txt */
+
+static const guint8 VID_draft_ietf_ipsec_heartbeats_00[VID_LEN_8]= {0x8D, 0xB7, 0xA4, 0x18, 0x11, 0x22, 0x16, 0x60}; /* draft-ietf-ipsec-heartbeats-00.txt */
 
 /* 
 *  Seen in Netscreen. Suppose to be ASCII HeartBeat_Notify - but I don't know the rest yet. I suspect it then proceeds with
@@ -969,7 +1067,151 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree,
   if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_03, isakmp_min(VID_LEN, length)) == 0)
         proto_item_append_text(pt, "draft-ietf-ipsec-nat-t-ike-03");
   else
-	proto_item_append_text(pt, "unknown vendor ID: 0x%s",tvb_bytes_to_str(tvb, offset, length));
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_1_0, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 1.1.0");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_1_1, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 1.1.1");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_1_2, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 1.1.2");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_2_1, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 1.2.1");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_1_2_2, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 1.2.2");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_2_0_0, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 2.0.0");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_2_1_0, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 2.1.0");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_2_1_1, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 2.1.1");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_2_1_2, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 2.1.2");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_3_0_0, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 3.0.0");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_3_0_1, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 3.0.1");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_4_0_0, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 4.0.0");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_4_0_1, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 4.0.1");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_4_1_0, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 4.1.0");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_4_1_1, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 4.1.1");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_5_0, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 5.0");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_5_0_0, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 5.0.0");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_5_1_0, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 5.1.0");
+  else
+  if (memcmp(pVID,  VID_SSH_IPSEC_EXPRESS_5_1_1, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Ssh Communications Security IPSEC Express version 5.1.1");
+  else
+  if (memcmp(pVID,  VID_SSH_SENTINEL, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "SSH Sentinel");
+  else
+  if (memcmp(pVID,  VID_SSH_SENTINEL_1_1, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "SSH Sentinel 1.1");
+  else
+  if (memcmp(pVID,  VID_SSH_SENTINEL_1_2, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "SSH Sentinel 1.2");
+  else
+  if (memcmp(pVID,  VID_SSH_SENTINEL_1_3, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "SSH Sentinel 1.3");
+  else
+  if (memcmp(pVID,  VID_SSH_QUICKSEC_0_9_0, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "SSH Communications Security QuickSec 0.9.0");
+  else
+  if (memcmp(pVID,  VID_SSH_QUICKSEC_1_1_0, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "SSH Communications Security QuickSec 1.1.0");
+  else
+  if (memcmp(pVID,  VID_SSH_QUICKSEC_1_1_1, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "SSH Communications Security QuickSec 1.1.1");
+  else
+  if (memcmp(pVID,  VID_SSH_QUICKSEC_1_1_2, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "SSH Communications Security QuickSec 1.1.2");
+  else
+  if (memcmp(pVID,  VID_SSH_QUICKSEC_1_1_3, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "SSH Communications Security QuickSec 1.1.3");
+  else
+  if (memcmp(pVID,  VID_draft_huttunen_ipsec_esp_in_udp_01, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "draft-huttunen-ipsec-esp-in-udp-01.txt");
+  else
+  if (memcmp(pVID,  VID_draft_stenberg_ipsec_nat_traversal_01, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "draft-stenberg-ipsec-nat-traversal-01");
+  else
+  if (memcmp(pVID,  VID_draft_stenberg_ipsec_nat_traversal_02, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "draft-stenberg-ipsec-nat-traversal-02");
+  else
+  if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_00, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "draft-ietf-ipsec-nat-t-ike-00");
+  else
+  if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_02a, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "draft-ietf-ipsec-nat-t-ike-02");
+  else
+  if (memcmp(pVID,  VID_draft_ietf_ipsec_nat_t_ike_02b, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "draft-ietf-ipsec-nat-t-ike-02");
+  else
+  if (memcmp(pVID,  VID_draft_beaulieu_ike_xauth_02, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "draft-beaulieu-ike-xauth-02.txt");
+  else
+  if (memcmp(pVID,  VID_draft_ietf_ipsec_dpd_00, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "draft-ietf-ipsec-dpd-00.txt");
+  else
+  if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_1, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "IKE Challenge/Response for Authenticated Cryptographic Keys");
+  else
+  if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_2, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "IKE Challenge/Response for Authenticated Cryptographic Keys");
+  else
+  if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_REV_1, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "IKE Challenge/Response for Authenticated Cryptographic Keys (Revised)");
+  else
+  if (memcmp(pVID,  VID_IKE_CHALLENGE_RESPONSE_REV_2, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "IKE Challenge/Response for Authenticated Cryptographic Keys (Revised)");
+  else
+  if (memcmp(pVID,  VID_MS_L2TP_IPSEC_VPN_CLIENT, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "Microsoft L2TP/IPSec VPN Client");
+  else
+  if (memcmp(pVID,  VID_GSS_API_1, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "A GSS-API Authentication Method for IKE");
+  else
+  if (memcmp(pVID,  VID_GSS_API_2, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "A GSS-API Authentication Method for IKE");
+  else
+  if (memcmp(pVID,  VID_GSSAPI, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "GSSAPI");
+  else
+  if (memcmp(pVID,  VID_MS_NT5_ISAKMPOAKLEY, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "MS NT5 ISAKMPOAKLEY");
+  else
+  if (memcmp(pVID,  VID_CISCO_UNITY, isakmp_min(VID_LEN, length)) == 0)
+        proto_item_append_text(pt, "CISCO-UNITY");
+  else
+  if (memcmp(pVID,  VID_draft_ietf_ipsec_antireplay_00, isakmp_min(VID_LEN_8, length)) == 0)
+        proto_item_append_text(pt, "draft-ietf-ipsec-antireplay-00.txt");
+  else
+  if (memcmp(pVID,  VID_draft_ietf_ipsec_heartbeats_00, isakmp_min(VID_LEN_8, length)) == 0)
+        proto_item_append_text(pt, "draft-ietf-ipsec-heartbeats-00.txt");
+  else
+        proto_item_append_text(pt, "unknown vendor ID: 0x%s",tvb_bytes_to_str(tvb, offset, length));
 }
 
 static void
