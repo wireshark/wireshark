@@ -346,6 +346,7 @@ Jochen Friedrich <jochen+ethereal[AT]scram.de> {
 	Zebra
 	SNA HPR-over-PPP and SNA-over-LLC-over-PPP (RFC 2043)
 	HPR/UDP (RFC 2353, Enterprise Extender)
+	RPL support.
 }
 
 Paul Welchinski <paul.welchinski[AT]telusplanet.net> {
