@@ -164,10 +164,10 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   chain[1] = 0;
 
   if (!fw1_with_uuid) {
-    tvb_get_nstringz0(tvb, 2, 6, interface_name);
+    tvb_get_nstringz0(tvb, 2, 10, interface_name);
     uuid = 0;
   } else {
-    tvb_get_nstringz0(tvb, 2, sizeof interface_name, interface_name);
+    tvb_get_nstringz0(tvb, 2, 6, interface_name);
     uuid = tvb_get_ntohl(tvb, 8);
   }
 
@@ -277,12 +277,12 @@ proto_register_fw1(void)
 	    "Whether the FireWall-1 summary line should be shown in the protocol tree",
             &fw1_summary_in_tree);
   prefs_register_bool_preference(fw1_module, "with_uuid",
-            "fw monitor file includes UUID",
-	    "Whether the fw monitor file includes information of UUID",
+            "Monitor file includes UUID",
+	    "Whether the Firewall-1 monitor file includes UUID information",
             &fw1_with_uuid);
   prefs_register_bool_preference(fw1_module, "iflist_with_chain",
-            "Interface list with chain position",
-	    "Whether the interface list includes chain position",
+            "Interface list includes chain position",
+	    "Whether the interface list includes the chain position",
             &fw1_iflist_with_chain);
 
   register_dissector("fw1", dissect_fw1, proto_fw1);
