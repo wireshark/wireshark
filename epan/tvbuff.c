@@ -9,9 +9,12 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.32 2002/04/12 23:25:24 guy Exp $
+ * $Id: tvbuff.c,v 1.33 2002/04/24 21:19:38 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
+ *
+ * Code to convert IEEE floating point formats to native floating point
+ * derived from code Copyright (c) Ashok Narayanan, 2000
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1006,6 +1009,152 @@ tvb_get_ntohl(tvbuff_t *tvb, gint offset)
 }
 
 /*
+ * Stuff for IEEE float handling on platforms that don't have IEEE
+ * format as the native floating-point format.
+ *
+ * For now, we treat only the VAX as such a platform.
+ *
+ * XXX - other non-IEEE boxes that can run UNIX include some Crays,
+ * and possibly other machines.
+ *
+ * It appears that the official Linux port to System/390 and
+ * zArchitecture uses IEEE format floating point (not a
+ * huge surprise).
+ *
+ * I don't know whether there are any other machines that
+ * could run Ethereal and that don't use IEEE format.
+ * As far as I know, all of the main commercial microprocessor
+ * families on which OSes that support Ethereal can run
+ * use IEEE format (x86, 68k, SPARC, MIPS, PA-RISC, Alpha,
+ * IA-64, and so on).
+ */
+
+#if defined(vax)
+
+#include <math.h>
+
+/*
+ * Single-precision.
+ */
+#define IEEE_SP_NUMBER_WIDTH	32	/* bits in number */
+#define IEEE_SP_EXP_WIDTH	8	/* bits in exponent */
+#define IEEE_SP_MANTISSA_WIDTH	23	/* IEEE_SP_NUMBER_WIDTH - 1 - IEEE_SP_EXP_WIDTH */
+
+#define IEEE_SP_SIGN_MASK	0x80000000
+#define IEEE_SP_EXPONENT_MASK	0x7F800000
+#define IEEE_SP_MANTISSA_MASK	0x007FFFFF
+#define IEEE_SP_INFINITY	IEEE_SP_EXPONENT_MASK
+
+#define IEEE_SP_IMPLIED_BIT (1 << IEEE_SP_MANTISSA_WIDTH)
+#define IEEE_SP_INFINITE ((1 << IEEE_SP_EXP_WIDTH) - 1)
+#define IEEE_SP_BIAS ((1 << (IEEE_SP_EXP_WIDTH - 1)) - 1)
+
+static int
+ieee_float_is_zero(guint32 w)
+{
+	return ((w & ~IEEE_SP_SIGN_MASK) == 0);
+}
+
+static float
+get_ieee_float(guint32 w)
+{
+	long sign;
+	long exponent;
+	long mantissa;
+
+	sign = w & IEEE_SP_SIGN_MASK;
+	exponent = w & IEEE_SP_EXPONENT_MASK;
+	mantissa = w & IEEE_SP_MANTISSA_MASK;
+
+	if (ieee_float_is_zero(w)) {
+		/* number is zero, unnormalized, or not-a-number */
+		return 0.0;
+	}
+#if 0
+	/*
+	 * XXX - how to handle this?
+	 */
+	if (IEEE_SP_INFINITY == exponent) {
+		/*
+		 * number is positive or negative infinity, or a special value
+		 */
+		return (sign? MINUS_INFINITY: PLUS_INFINITY);
+	}
+#endif
+
+	exponent = ((exponent >> IEEE_SP_MANTISSA_WIDTH) - IEEE_SP_BIAS) -
+	    IEEE_SP_MANTISSA_WIDTH;
+	mantissa |= IEEE_SP_IMPLIED_BIT;
+
+	if (sign)
+		return -mantissa * pow(2, exponent);
+	else
+		return mantissa * pow(2, exponent);
+}
+
+/*
+ * Double-precision.
+ * We assume that if you don't have IEEE floating-point, you have a
+ * compiler that understands 64-bit integral quantities.
+ */
+#define IEEE_DP_NUMBER_WIDTH	64	/* bits in number */
+#define IEEE_DP_EXP_WIDTH	11	/* bits in exponent */
+#define IEEE_DP_MANTISSA_WIDTH	52	/* IEEE_DP_NUMBER_WIDTH - 1 - IEEE_DP_EXP_WIDTH */
+
+#define IEEE_DP_SIGN_MASK	0x8000000000000000LL
+#define IEEE_DP_EXPONENT_MASK	0x7FF0000000000000LL
+#define IEEE_DP_MANTISSA_MASK	0x000FFFFFFFFFFFFFLL
+#define IEEE_DP_INFINITY	IEEE_DP_EXPONENT_MASK
+
+#define IEEE_DP_IMPLIED_BIT (1LL << IEEE_DP_MANTISSA_WIDTH)
+#define IEEE_DP_INFINITE ((1 << IEEE_DP_EXP_WIDTH) - 1)
+#define IEEE_DP_BIAS ((1 << (IEEE_DP_EXP_WIDTH - 1)) - 1)
+
+static int
+ieee_double_is_zero(guint64 w)
+{
+	return ((w & ~IEEE_SP_SIGN_MASK) == 0);
+}
+
+static double
+get_ieee_double(guint64 w)
+{
+	gint64 sign;
+	gint64 exponent;
+	gint64 mantissa;
+
+	sign = w & IEEE_DP_SIGN_MASK;
+	exponent = w & IEEE_DP_EXPONENT_MASK;
+	mantissa = w & IEEE_DP_MANTISSA_MASK;
+
+	if (ieee_double_is_zero(w)) {
+		/* number is zero, unnormalized, or not-a-number */
+		return 0.0;
+	}
+#if 0
+	/*
+	 * XXX - how to handle this?
+	 */
+	if (IEEE_DP_INFINITY == exponent) {
+		/*
+		 * number is positive or negative infinity, or a special value
+		 */
+		return (sign? MINUS_INFINITY: PLUS_INFINITY);
+	}
+#endif
+
+	exponent = ((exponent >> IEEE_DP_MANTISSA_WIDTH) - IEEE_DP_BIAS) -
+	    IEEE_DP_MANTISSA_WIDTH;
+	mantissa |= IEEE_DP_IMPLIED_BIT;
+
+	if (sign)
+		return -mantissa * pow(2, exponent);
+	else
+		return mantissa * pow(2, exponent);
+}
+#endif
+
+/*
  * Fetches an IEEE single-precision floating-point number, in
  * big-endian form, and returns a "float".
  *
@@ -1016,23 +1165,8 @@ tvb_get_ntohl(tvbuff_t *tvb, gint offset)
 float
 tvb_get_ntohieee_float(tvbuff_t *tvb, int offset)
 {
-	/*
-	 * XXX - other non-IEEE boxes that can run UNIX include some
-	 * Crays, and possibly other machines.
-	 *
-	 * It appears that the official Linux port to System/390 and
-	 * zArchitecture uses IEEE format floating point (not a
-	 * huge surprise).
-	 *
-	 * I don't know whether there are any other machines that
-	 * could run Ethereal and that don't use IEEE format.
-	 * As far as I know, all of the main commercial microprocessor
-	 * families on which OSes that support Ethereal can run
-	 * use IEEE format (x86, 68k, SPARC, MIPS, PA-RISC, Alpha,
-	 * IA-64, and so on).
-	 */
 #if defined(vax)
-#error "Sorry, you'll have to write code to translate to VAX format"
+	return get_ieee_float(tvb_get_ntohl(tvb, offset));
 #else
 	union {
 		float f;
@@ -1052,12 +1186,17 @@ double
 tvb_get_ntohieee_double(tvbuff_t *tvb, int offset)
 {
 #if defined(vax)
-#error "Sorry, you'll have to write code to translate to VAX format"
+	union {
+		double d;
+		guint32 w[2];
+		guint64 dw;
+	} ieee_fp_union;
 #else
 	union {
 		double d;
 		guint32 w[2];
 	} ieee_fp_union;
+#endif
 
 #ifdef WORDS_BIGENDIAN
 	ieee_fp_union.w[0] = tvb_get_ntohl(tvb, offset);
@@ -1066,6 +1205,9 @@ tvb_get_ntohieee_double(tvbuff_t *tvb, int offset)
 	ieee_fp_union.w[0] = tvb_get_ntohl(tvb, offset+4);
 	ieee_fp_union.w[1] = tvb_get_ntohl(tvb, offset);
 #endif
+#if defined(vax)
+	return get_ieee_double(dw);
+#else
 	return ieee_fp_union.d;
 #endif
 }
@@ -1108,17 +1250,8 @@ tvb_get_letohl(tvbuff_t *tvb, gint offset)
 float
 tvb_get_letohieee_float(tvbuff_t *tvb, int offset)
 {
-	/*
-	 * XXX - other non-IEEE boxes that can run UNIX include Crays
-	 * and System/3x0 and zArchitecture, although later S/390
-	 * and zArchitecture machines also support IEEE floating
-	 * point; I don't know what the compilers used by Linux
-	 * for S/390 and zArchitecture use - they might have chosen
-	 * to support only machines with IEEE format, and used IEEE
-	 * format to avoid portability headaches.
-	 */
 #if defined(vax)
-#error "Sorry, you'll have to write code to translate to VAX format"
+	return get_ieee_float(tvb_get_letohl(tvb, offset));
 #else
 	union {
 		float f;
@@ -1138,12 +1271,17 @@ double
 tvb_get_letohieee_double(tvbuff_t *tvb, int offset)
 {
 #if defined(vax)
-#error "Sorry, you'll have to write code to translate to VAX format"
+	union {
+		double d;
+		guint32 w[2];
+		guint64 dw;
+	} ieee_fp_union;
 #else
 	union {
 		double d;
 		guint32 w[2];
 	} ieee_fp_union;
+#endif
 
 #ifdef WORDS_BIGENDIAN
 	ieee_fp_union.w[0] = tvb_get_letohl(tvb, offset+4);
@@ -1152,6 +1290,9 @@ tvb_get_letohieee_double(tvbuff_t *tvb, int offset)
 	ieee_fp_union.w[0] = tvb_get_letohl(tvb, offset);
 	ieee_fp_union.w[1] = tvb_get_letohl(tvb, offset+4);
 #endif
+#if defined(vax)
+	return get_ieee_double(dw);
+#else
 	return ieee_fp_union.d;
 #endif
 }

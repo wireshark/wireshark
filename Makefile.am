@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.422 2002/04/18 00:29:16 guy Exp $
+# $Id: Makefile.am,v 1.423 2002/04/24 21:19:37 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -841,7 +841,6 @@ EXTRA_DIST = \
 	getopt.c		\
 	getopt.h		\
 	idl2eth.sh		\
-	ieee-float.h		\
 	image/Makefile.nmake	\
 	image/README.image	\
 	image/clist_ascend.xpm	\
