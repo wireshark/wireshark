@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.13 1999/08/22 03:50:31 guy Exp $
+ * $Id: libpcap.c,v 1.14 1999/08/22 19:08:40 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -76,8 +76,9 @@ static int libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 static int libpcap_dump_close(wtap_dumper *wdh, int *err);
 
 /*
- * XXX - this is a bit of a mess.  OpenBSD, and perhaps NetBSD, have
- * different DLT_ codes from FreeBSD (and from the LBL BPF code).
+ * XXX - this is a bit of a mess.  OpenBSD, and perhaps NetBSD, and
+ * BSD/OS have different DLT_ codes from FreeBSD (and from the LBL
+ * BPF code), and, at least in some cases, from each other.
  * For now, we simply treat those type values with different
  * meanings on different platforms, except for DLT_RAW, as "unknown";
  * this means you won't be able to capture from a network using those
@@ -108,12 +109,20 @@ static const int pcap_encap[] = {
 	WTAP_ENCAP_SLIP,
 	WTAP_ENCAP_PPP,
 	WTAP_ENCAP_FDDI,
-	WTAP_ENCAP_ATM_RFC1483,
-	WTAP_ENCAP_RAW_IP,	/* or, on OpenBSD, DLT_LOOP */
-	WTAP_ENCAP_UNKNOWN,	/* BSD/OS SLIP *and* OpenBSD DLT_ENC */
-	WTAP_ENCAP_UNKNOWN,	/* BSD/OS PPP *and* OpenBSD DLT_RAW */
-	WTAP_ENCAP_UNKNOWN,	/* OpenBSD BSD/OS SLIP */
-	WTAP_ENCAP_UNKNOWN,	/* OpenBSD BSD/OS PPP */
+	WTAP_ENCAP_ATM_RFC1483,	/* or, on BSD/OS, Frame Relay */
+	WTAP_ENCAP_RAW_IP,	/* or, on OpenBSD, DLT_LOOP, and on BSD/OS,
+				   Cisco HDLC */
+	WTAP_ENCAP_UNKNOWN,	/* In LBL BPF and FreeBSD, BSD/OS SLIP;
+				   on OpenBSD, DLT_ENC; on BSD/OS,
+				   DLT_ATM_RFC1483 */
+	WTAP_ENCAP_UNKNOWN,	/* In LBL BPF and FreeBSD, BSD/OS PPP;
+				   on OpenBSD and BSD/OS, DLT_RAW */
+	WTAP_ENCAP_UNKNOWN,	/* In OpenBSD and BSD/OS, BSD/OS SLIP,
+				   but the BSD/OS header says "internal
+				   to libpcap", whatever that means */
+	WTAP_ENCAP_UNKNOWN,	/* In OpenBSD and BSD/OS, BSD/OS PPP,
+				   but the BSD/OS header says "internal
+				   to libpcap", whatever that means */
 	WTAP_ENCAP_UNKNOWN,
 	WTAP_ENCAP_UNKNOWN,
 	WTAP_ENCAP_LINUX_ATM_CLIP
