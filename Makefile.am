@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.710 2004/02/20 11:06:20 guy Exp $
+# $Id: Makefile.am,v 1.711 2004/02/22 08:30:41 ulfl Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -82,6 +82,8 @@ pkgdata_DATA = manuf
 diameterdir = $(pkgdatadir)/diameter
 diameter_DATA = dictionary.dtd dictionary.xml mobileipv4.xml \
 	nasreq.xml sunping.xml
+
+PLATFORM_SRC = pcap-util-unix.c
 
 include Makefile.common
 

@@ -3,7 +3,7 @@
 #     a) common to both files and
 #     b) portable between both files
 #
-# $Id: Makefile.common,v 1.18 2004/02/21 02:15:05 guy Exp $
+# $Id: Makefile.common,v 1.19 2004/02/22 08:30:41 ulfl Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
+# the dissector sources (without any helpers)
 DISSECTOR_SRC =	\
 	packet-aarp.c	\
 	packet-acap.c	\
@@ -446,7 +447,8 @@ DISSECTOR_SRC =	\
 	packet-ypxfr.c	\
 	packet-zebra.c
 
-noinst_HEADERS =	\
+# corresponding headers
+DISSECTOR_HEADERS =	\
 	packet-acse.h	\
 	packet-afp.h	\
 	packet-afs-defs.h	\
@@ -613,110 +615,121 @@ noinst_HEADERS =	\
 	packet-ypserv.h	\
 	packet-ypxfr.h
 
+# dissector helpers (needed from the dissectors, but not a dissector itself)
 DISSECTOR_SUPPORT_SRC =	\
 	adler32.c	\
-	adler32.h	\
 	afn.c	\
+	asn1.c	\
+	column.c	\
+	crc32.c	\
+	crypt-des.c	\
+	crypt-md4.c	\
+	crypt-md5.c	\
+	crypt-rc4.c	\
+	follow.c	\
+	g711.c	\
+	h225-persistentdata.c	\
+	in_cksum.c	\
+	ipproto.c	\
+	packet-dcerpc-nt.c	\
+	prefs.c	\
+	ptvcursor.c	\
+	reassemble.c	\
+	req_resp_hdrs.c	\
+	t35.c	\
+	tap.c	\
+	util.c	\
+	xdlc.c	\
+	xmlstub.c
+
+# corresponding headers
+DISSECTOR_SUPPORT_HEADERS =	\
+	adler32.h	\
 	afn.h	\
 	aftypes.h	\
 	arcnet_pids.h	\
-	asn1.c	\
 	asn1.h	\
 	bridged_pids.h	\
 	chdlctypes.h	\
-	column.c	\
 	column.h	\
-	crc32.c	\
 	crc32.h	\
-	crypt-des.c	\
 	crypt-des.h	\
-	crypt-md4.c	\
 	crypt-md4.h	\
-	crypt-md5.c	\
 	crypt-md5.h	\
-	crypt-rc4.c	\
 	crypt-rc4.h	\
 	etypes.h	\
-	follow.c	\
 	follow.h	\
 	format-oid.h	\
-	g711.c	\
 	g711.h	\
 	greproto.h	\
-	h225-persistentdata.c	\
 	h225-persistentdata.h	\
-	in_cksum.c	\
 	in_cksum.h	\
 	ip_opts.h	\
-	ipproto.c	\
 	ipproto.h	\
 	lapd_sapi.h	\
 	llcsaps.h	\
 	nlpid.h	\
 	oui.h	\
-	packet-dcerpc-nt.c	\
 	ppptypes.h	\
 	prefs-int.h	\
-	prefs.c	\
 	prefs.h	\
-	ptvcursor.c	\
 	ptvcursor.h	\
-	reassemble.c	\
 	reassemble.h	\
-	req_resp_hdrs.c	\
 	req_resp_hdrs.h	\
 	rpc_defrag.h	\
 	rtp_pt.h	\
 	sctpppids.h	\
 	smb.h	\
-	t35.c	\
 	t35.h	\
-	tap.c	\
 	tap.h	\
-	util.c	\
 	util.h	\
 	x264_prt_id.h	\
-	xdlc.c	\
 	xdlc.h	\
-	xmlstub.c	\
 	xmlstub.h
 
-BUILT_SOURCES =	\
+# headers needed for the generation process
+BUILT_HEADERS =	\
 	cvsversion.h	\
 	x11-declarations.h	\
 	x11-register-info.h
 
+# sources common for ethereal and tethereal
 ETHEREAL_COMMON_SRC =	\
+	$(PLATFORM_SRC) \
 	$(DISSECTOR_SUPPORT_SRC)	\
-	$(BUILT_SOURCES)	\
 	capture_stop_conditions.c	\
-	capture_stop_conditions.h	\
 	cfile.c	\
+	conditions.c	\
+	disabled_protos.c	\
+	pcap-util.c	\
+	print.c	\
+	ps.c	\
+	range.c	\
+	ringbuffer.c	\
+	timestats.c	\
+	version_info.c
+
+# corresponding headers
+ETHEREAL_COMMON_HEADERS =	\
+	$(DISSECTOR_SUPPORT_HEADERS)	\
+	$(BUILT_HEADERS)	\
+	capture_stop_conditions.h	\
 	cfile.h	\
 	color.h	\
-	conditions.c	\
 	conditions.h	\
-	disabled_protos.c	\
 	disabled_protos.h	\
 	file.h	\
-	pcap-util.c	\
 	pcap-util.h	\
 	pcap-util-int.h	\
-	pcap-util-unix.c	\
-	print.c	\
 	print.h	\
-	ps.c	\
 	ps.h	\
-	range.c	\
 	range.h	\
 	register.h	\
-	ringbuffer.c	\
 	ringbuffer.h	\
-	timestats.c	\
 	timestats.h	\
-	version_info.c	\
 	version_info.h
 
+# ???
 TETHEREAL_TAP_SRC =	\
 	tap-ansi_astat.c	\
 	tap-bootpstat.c	\
@@ -736,43 +749,52 @@ TETHEREAL_TAP_SRC =	\
 	tap-smbstat.c	\
 	tap-wspstat.c
 
+# helpers alraedy available on some platforms (and on others not)
+EXTRA_ethereal_SOURCES =	\
+	snprintf.c	\
+	strerror.c	\
+	strcasecmp.c	\
+	strncasecmp.c	\
+	mkstemp.c	\
+	strptime.c
+
+# corresponding headers
+EXTRA_ethereal_HEADERS =	\
+	snprintf.h	\
+	snprintf-imp.h	\
+	strerror.h	\
+	mkstemp.h	\
+	strptime.h
+
+# ethereal specifics
 ethereal_SOURCES =	\
 	$(DISSECTOR_SRC)	\
 	$(ETHEREAL_COMMON_SRC)	\
 	register.c	\
 	alert_box.c	\
-	alert_box.h	\
 	capture.c	\
-	capture.h	\
 	file.c	\
 	filters.c	\
+	proto_hier_stats.c	\
+	summary.c
+
+# corresponding headers
+ethereal_HEADERS =	\
+	alert_box.h	\
+	capture.h	\
 	filters.h	\
 	globals.h	\
 	menu.h	\
 	progress_dlg.h	\
 	proto_hier_stats.h	\
-	proto_hier_stats.c	\
 	report_err.h	\
 	simple_dialog.h	\
 	statusbar.h	\
-	summary.c	\
 	summary.h	\
 	tap_dfilter_dlg.h	\
 	ui_util.h
 
-EXTRA_ethereal_SOURCES =	\
-	snprintf.c	\
-	snprintf.h	\
-	snprintf-imp.h	\
-	strerror.c	\
-	strerror.h	\
-	strcasecmp.c	\
-	strncasecmp.c	\
-	mkstemp.c	\
-	mkstemp.h	\
-	strptime.c	\
-	strptime.h
-
+# tethereal specifics
 tethereal_SOURCES =	\
 	$(DISSECTOR_SRC)	\
 	$(ETHEREAL_COMMON_SRC)	\
@@ -781,16 +803,37 @@ tethereal_SOURCES =	\
 	register.c	\
 	tethereal.c
 
-text2pcap_SOURCES = text2pcap.c text2pcap-scanner.l
+# text2pcap specifics
+text2pcap_SOURCES = \
+	text2pcap.c \
+	text2pcap-scanner.l
 
-mergecap_SOURCES = mergecap.c cvsversion.h
+# mergecap specifics
+mergecap_SOURCES = \
+	mergecap.c \
+	cvsversion.h
 
-editcap_SOURCES = editcap.c
+# editcap specifics
+editcap_SOURCES = \
+	editcap.c
 
+# dftest specifics
 dftest_SOURCES =	\
 	$(DISSECTOR_SRC)	\
 	$(DISSECTOR_SUPPORT_SRC)	\
-	$(BUILT_SOURCES)	\
 	register.c	\
 	dftest.c
+
+# randpkt specifics
+randpkt_SOURCES = \
+	randpkt.c
+
+# this target needed for distribution only
+noinst_HEADERS =	\
+	$(DISSECTOR_HEADERS) \
+	$(DISSECTOR_SUPPORT_HEADERS) \
+	$(BUILT_HEADERS) \
+	$(ETHEREAL_COMMON_HEADERS) \
+	$(ethereal_HEADERS) \
+	$(EXTRA_ethereal_HEADERS)
 
