@@ -1,7 +1,7 @@
 /* print_dlg.c
  * Dialog boxes for printing
  *
- * $Id: print_dlg.c,v 1.41 2003/02/21 21:06:27 guy Exp $
+ * $Id: print_dlg.c,v 1.42 2003/09/10 22:23:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -83,7 +83,7 @@ static gint	print_format = PR_FMT_TEXT;
 #define PRINT_HEX_CB_KEY          "printer_hex_check_button"
 #define PRINT_EXPAND_ALL_RB_KEY   "printer_expand_all_radio_button"
 #define PRINT_AS_DISPLAYED_RB_KEY "printer_as_displayed_radio_button"
-#define PRINT_SUPPRESS_UNMARKED_CB_KEY "printer_suppress_unmarked_check_button"
+#define PRINT_PRINT_ONLY_MARKED_CB_KEY "printer_print_only_marked_check_button"
 
 #define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
 #define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
@@ -338,12 +338,12 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   gtk_container_add(GTK_CONTAINER(print_type_vb), hex_cb);
   gtk_widget_show(hex_cb);
 
-  /* "Suppress Unmarked" check button. */
+  /* "Print only marked packets" check button. */
 #if GTK_MAJOR_VERSION < 2
-  marked_cb = dlg_check_button_new_with_label_with_mnemonic("Suppress _unmarked frames",
+  marked_cb = dlg_check_button_new_with_label_with_mnemonic("Print only _marked frames",
                                                             accel_group);
 #else
-  marked_cb = gtk_check_button_new_with_mnemonic("Suppress _unmarked frames");
+  marked_cb = gtk_check_button_new_with_mnemonic("Print only _marked frames");
 #endif
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(marked_cb), FALSE);
   gtk_container_add(GTK_CONTAINER(print_type_vb), marked_cb);
@@ -408,7 +408,7 @@ file_print_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   OBJECT_SET_DATA(ok_bt, PRINT_SUMMARY_RB_KEY, summary_rb);
   OBJECT_SET_DATA(ok_bt, PRINT_HEX_CB_KEY, hex_cb);
   OBJECT_SET_DATA(ok_bt, PRINT_EXPAND_ALL_RB_KEY, expand_all_rb);
-  OBJECT_SET_DATA(ok_bt, PRINT_SUPPRESS_UNMARKED_CB_KEY, marked_cb);
+  OBJECT_SET_DATA(ok_bt, PRINT_PRINT_ONLY_MARKED_CB_KEY, marked_cb);
   SIGNAL_CONNECT(ok_bt, "clicked", print_ok_cb, print_w);
   GTK_WIDGET_SET_FLAGS(ok_bt, GTK_CAN_DEFAULT);
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
@@ -671,8 +671,8 @@ print_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_EXPAND_ALL_RB_KEY);
   print_args.expand_all = GTK_TOGGLE_BUTTON (button)->active;
 
-  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_SUPPRESS_UNMARKED_CB_KEY);
-  print_args.suppress_unmarked = GTK_TOGGLE_BUTTON (button)->active;
+  button = (GtkWidget *)OBJECT_GET_DATA(ok_bt, PRINT_PRINT_ONLY_MARKED_CB_KEY);
+  print_args.print_only_marked = GTK_TOGGLE_BUTTON (button)->active;
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
 
@@ -781,7 +781,7 @@ file_print_packet_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
   print_args.print_summary = FALSE;
   print_args.print_hex = FALSE;
   print_args.expand_all = TRUE;
-  print_args.suppress_unmarked = FALSE;
+  print_args.print_only_marked = FALSE;
   proto_tree_print(&print_args, cfile.edt, fh);
   print_finale(fh, prefs.pr_format);
   close_print_dest(print_args.to_file, fh);

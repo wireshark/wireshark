@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.308 2003/09/08 21:08:43 sahlberg Exp $
+ * $Id: file.c,v 1.309 2003/09/10 22:23:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1273,8 +1273,8 @@ print_packets(capture_file *cf, print_args_t *print_args)
     /* Check to see if we are suppressing unmarked packets, if so,
      * suppress them and then proceed to check for visibility.
      */
-    if (((print_args->suppress_unmarked && fdata->flags.marked ) ||
-        !(print_args->suppress_unmarked)) && fdata->flags.passed_dfilter) {
+    if (((print_args->print_only_marked && fdata->flags.marked ) ||
+        !(print_args->print_only_marked)) && fdata->flags.passed_dfilter) {
       if (!wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
       			   cf->pd, fdata->cap_len, &err)) {
         simple_dialog(ESD_TYPE_CRIT, NULL,

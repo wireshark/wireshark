@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.195 2003/09/10 05:35:24 guy Exp $
+ * $Id: tethereal.c,v 1.196 2003/09/10 22:23:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2350,7 +2350,7 @@ wtap_dispatch_cb_print(guchar *user, const struct wtap_pkthdr *phdr,
       print_args.print_summary = FALSE;
       print_args.print_hex = print_hex;
       print_args.expand_all = TRUE;
-      print_args.suppress_unmarked = FALSE;
+      print_args.print_only_marked = FALSE;
       proto_tree_print(&print_args, edt, stdout);
       if (!print_hex) {
         /* "print_hex_data()" will put out a leading blank line, as well
