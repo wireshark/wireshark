@@ -1,7 +1,7 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.25 2002/10/23 21:17:03 guy Exp $
+ * $Id: packet-ypserv.c,v 1.26 2002/10/24 20:59:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -322,21 +322,6 @@ dissect_ypresp_maplist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 
 /* someone please get me a version 1 trace */
 
-static const value_string ypserv1_proc_vals[] = {
-    { YPPROC_DOMAIN, "DOMAIN" },
-    { YPPROC_DOMAIN_NONACK, "DOMAIN_NONACK" },
-    { YPPROC_MATCH, "MATCH" },
-    { YPPROC_FIRST, "FIRST" },
-    { YPPROC_NEXT,  "NEXT" },
-    { YPPROC_XFR,   "XFR" },
-    { YPPROC_CLEAR, "CLEAR" },
-    { YPPROC_ALL,   "ALL" },
-    { YPPROC_MASTER,    "MASTER" },
-    { YPPROC_ORDER, "ORDER" },
-    { YPPROC_MAPLIST,   "MAPLIST" },
-    { 0, NULL }
-};
-
 static const vsff ypserv1_proc[] = {
     { 0, "NULL", NULL, NULL },
     { YPPROC_DOMAIN, "DOMAIN",
@@ -363,9 +348,8 @@ static const vsff ypserv1_proc[] = {
 		NULL, NULL },
     { 0, NULL, NULL, NULL }
 };
-/* end of YPServ version 1 */
 
-static const value_string ypserv2_proc_vals[] = {
+static const value_string ypserv1_proc_vals[] = {
     { YPPROC_DOMAIN, "DOMAIN" },
     { YPPROC_DOMAIN_NONACK, "DOMAIN_NONACK" },
     { YPPROC_MATCH, "MATCH" },
@@ -379,6 +363,11 @@ static const value_string ypserv2_proc_vals[] = {
     { YPPROC_MAPLIST,   "MAPLIST" },
     { 0, NULL }
 };
+
+/* end of YPServ version 1 */
+
+/* proc number, "proc name", dissect_request, dissect_reply */
+/* NULL as function pointer means: type of arguments is "void". */
 
 static const vsff ypserv2_proc[] = {
     { 0, "NULL", NULL, NULL },
@@ -406,6 +395,22 @@ static const vsff ypserv2_proc[] = {
 		dissect_domain_call, dissect_ypresp_maplist },
     { 0, NULL, NULL, NULL }
 };
+
+static const value_string ypserv2_proc_vals[] = {
+    { YPPROC_DOMAIN, "DOMAIN" },
+    { YPPROC_DOMAIN_NONACK, "DOMAIN_NONACK" },
+    { YPPROC_MATCH, "MATCH" },
+    { YPPROC_FIRST, "FIRST" },
+    { YPPROC_NEXT,  "NEXT" },
+    { YPPROC_XFR,   "XFR" },
+    { YPPROC_CLEAR, "CLEAR" },
+    { YPPROC_ALL,   "ALL" },
+    { YPPROC_MASTER,    "MASTER" },
+    { YPPROC_ORDER, "ORDER" },
+    { YPPROC_MAPLIST,   "MAPLIST" },
+    { 0, NULL }
+};
+
 /* end of YPServ version 2 */
 
 
