@@ -1,3 +1,11 @@
+/* TODO for the cases where one just can not autodetect whether header digest 
+   is used or not we might need a new preference 
+   HeaderDigest : 
+       Automatic (default)
+       None
+       CRC32
+*/
+ 
 /* packet-iscsi.c
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
@@ -1777,9 +1785,6 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 	if((pduLen & 3) != 0)
 	    pduLen += 4 - (pduLen & 3);
 
-	if(digestsActive) {
-		pduLen += 4;
-	}
 
 	if(digestsActive && data_segment_len > 0 && enableDataDigests) {
 	    if(dataDigestIsCRC32)
@@ -1825,6 +1830,23 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
             }
 	}
 
+
+	/* Add header digest length to pdulen */
+	if(digestsActive){
+		switch(iscsi_session->header_digest){
+		case ISCSI_HEADER_DIGEST_CRC32:
+			pduLen += 4;
+			break;
+		case ISCSI_HEADER_DIGEST_NONE:
+			break;
+		case ISCSI_HEADER_DIGEST_AUTO:
+			/* oops we didnt know what digest is used yet */
+			/* here we should use some default */
+			break;
+		default:
+			g_assert_not_reached();
+		}
+	}
 
 	/*
 	 * Desegmentation check.
