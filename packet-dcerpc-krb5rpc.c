@@ -5,7 +5,7 @@
  * This information is based off the released idl files from opengroup.
  * ftp://ftp.opengroup.org/pub/dce122/dce/src/security.tar.gz security/idl/krb5rpc.idl
  *
- * $Id: packet-dcerpc-krb5rpc.c,v 1.3 2003/01/11 07:11:21 guy Exp $
+ * $Id: packet-dcerpc-krb5rpc.c,v 1.4 2003/01/11 07:40:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -60,7 +60,6 @@ static int hf_krb5rpc_sendto_kdc_resp_max = -1;
 static int hf_krb5rpc_sendto_kdc_resp_spare1 = -1;
 static int hf_krb5rpc_sendto_kdc_resp_keysize = -1;
 static int hf_krb5rpc_sendto_kdc_resp_st = -1;
-static int hf_krb5rpc_sendto_kdc_rqst_out_buf_len = -1;
 static int hf_krb5rpc_krb5 = -1;
 static gint ett_krb5rpc_krb5 = -1;
 
@@ -69,7 +68,7 @@ krb5rpc_dissect_sendto_kdc_rqst (tvbuff_t * tvb, int offset,
 				 packet_info * pinfo, proto_tree * tree,
 				 char *drep)
 {
-  guint32 keysize, spare1, out_buf_len, remain;
+  guint32 keysize, spare1, remain;
   proto_item *item;
   tvbuff_t *krb5_tvb;
   proto_tree *subtree;
