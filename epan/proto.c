@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.113 2003/11/25 14:11:44 sahlberg Exp $
+ * $Id: proto.c,v 1.114 2003/11/25 14:16:30 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -380,13 +380,10 @@ free_node_tree_data(tree_data_t *tree_data)
         g_free(tree_data);
 }
 
-static void
-free_node_field_info(field_info* finfo)
-{
-	ITEM_LABEL_FREE(finfo->rep);
-	FVALUE_FREE(finfo->value);
+#define FREE_NODE_FIELD_INFO(finfo)	\
+	ITEM_LABEL_FREE(finfo->rep);	\
+	FVALUE_FREE(finfo->value);	\
 	FIELD_INFO_FREE(finfo);
-}
 
 static gboolean
 proto_tree_free_node(GNode *node, gpointer data _U_)
@@ -401,7 +398,7 @@ proto_tree_free_node(GNode *node, gpointer data _U_)
 	else {
 		/* This is a child GNode. Don't free the per-tree data, but
 		 * do free the field_info data. */
-		free_node_field_info(finfo);
+		FREE_NODE_FIELD_INFO(finfo);
 	}
 
 	/* Free the proto_node. */
