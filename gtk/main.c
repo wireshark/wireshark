@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.85 2000/01/10 01:43:59 guy Exp $
+ * $Id: main.c,v 1.86 2000/01/12 22:07:56 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -129,7 +129,7 @@ field_info *finfo_selected = NULL;
 
 static void follow_destroy_cb(GtkWidget *win, gpointer data);
 static void follow_charset_toggle_cb(GtkWidget *w, gpointer parent_w);
-static void follow_load_text(GtkWidget *text, char *filename, gboolean show_ascii);
+static void follow_load_text(GtkWidget *text, char *filename, guint8 show_type);
 static void follow_print_stream(GtkWidget *w, gpointer parent_w);
 static char* hfinfo_numeric_format(header_field_info *hfinfo);
 
@@ -156,7 +156,8 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
   char      filename1[128+1];
   GtkWidget *streamwindow, *box, *text, *vscrollbar, *table,
   		*filter_te;
-  GtkWidget *hbox, *close_bt, *print_bt, *button;
+  GtkWidget *hbox, *close_bt, *print_bt;
+  GtkWidget *b_ascii, *b_ebcdic, *b_hexdump;
   int        tmp_fd;
   gchar     *follow_filter;
 
@@ -244,23 +245,40 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
     gtk_widget_show(hbox);
 
 #define E_FOLLOW_ASCII_KEY "follow_ascii_key"
+#define E_FOLLOW_EBCDIC_KEY "follow_ebcdic_key"
+#define E_FOLLOW_HEXDUMP_KEY "follow_hexdump_key"
 
     /* Create Radio Buttons */
-    button = gtk_radio_button_new_with_label(NULL, "ASCII");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-    gtk_object_set_data(GTK_OBJECT(streamwindow), E_FOLLOW_ASCII_KEY, button);
-    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-    gtk_signal_connect(GTK_OBJECT(button), "toggled",
+    b_ascii = gtk_radio_button_new_with_label(NULL, "ASCII");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(b_ascii), TRUE);
+    gtk_object_set_data(GTK_OBJECT(streamwindow), E_FOLLOW_ASCII_KEY, b_ascii);
+    gtk_box_pack_start(GTK_BOX(hbox), b_ascii, FALSE, FALSE, 0);
+    gtk_signal_connect(GTK_OBJECT(b_ascii), "toggled",
 		    GTK_SIGNAL_FUNC(follow_charset_toggle_cb),
 		    GTK_OBJECT(streamwindow));
-    gtk_widget_show(button);
+    gtk_widget_show(b_ascii);
 
-    button = gtk_radio_button_new_with_label(
-		    gtk_radio_button_group(GTK_RADIO_BUTTON(button)),
+    b_ebcdic = gtk_radio_button_new_with_label(
+		    gtk_radio_button_group(GTK_RADIO_BUTTON(b_ascii)),
 		    "EBCDIC");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), FALSE);
-    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-    gtk_widget_show(button);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(b_ebcdic), FALSE);
+    gtk_object_set_data(GTK_OBJECT(streamwindow), E_FOLLOW_EBCDIC_KEY, b_ebcdic);
+    gtk_box_pack_start(GTK_BOX(hbox), b_ebcdic, FALSE, FALSE, 0);
+    gtk_signal_connect(GTK_OBJECT(b_ebcdic), "toggled",
+		    GTK_SIGNAL_FUNC(follow_charset_toggle_cb),
+		    GTK_OBJECT(streamwindow));
+    gtk_widget_show(b_ebcdic);
+
+    b_hexdump = gtk_radio_button_new_with_label(
+		    gtk_radio_button_group(GTK_RADIO_BUTTON(b_ascii)),
+		    "Hex. Dump");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(b_hexdump), FALSE);
+    gtk_object_set_data(GTK_OBJECT(streamwindow), E_FOLLOW_HEXDUMP_KEY, b_hexdump);
+    gtk_box_pack_start(GTK_BOX(hbox), b_hexdump, FALSE, FALSE, 0);
+    gtk_signal_connect(GTK_OBJECT(b_hexdump), "toggled",
+		    GTK_SIGNAL_FUNC(follow_charset_toggle_cb),
+		    GTK_OBJECT(streamwindow));
+    gtk_widget_show(b_hexdump);
 
     /* Create Close Button */
     close_bt = gtk_button_new_with_label("Close");
@@ -293,7 +311,7 @@ follow_stream_cb( GtkWidget *w, gpointer data ) {
 		    g_strdup(filename1));
     gtk_object_set_data(GTK_OBJECT(streamwindow), E_FOLLOW_TEXT_KEY, text);
 
-    follow_load_text(text, filename1, TRUE);
+    follow_load_text(text, filename1, 0);
 
     data_out_file = NULL;
     gtk_widget_show( streamwindow );
@@ -319,40 +337,55 @@ follow_destroy_cb(GtkWidget *win, gpointer data)
 	gtk_widget_destroy(win);
 }
 
+#define E_FOLLOW_ASCII_TYPE	0
+#define E_FOLLOW_EBCDIC_TYPE	1
+#define E_FOLLOW_HEXDUMP_TYPE	2
+
 /* Handles the ASCII/EBCDIC toggling */
 static void
 follow_charset_toggle_cb(GtkWidget *w, gpointer parent_w)
 {
-	gboolean	show_ascii = FALSE;
-	GtkWidget	*button, *text;
+	guint8		show_type = E_FOLLOW_ASCII_TYPE;
+	GtkWidget	*b_ascii, *b_ebcdic, *b_hexdump, *text;
 	char		*filename;
 
-	button = (GtkWidget*) gtk_object_get_data(GTK_OBJECT(parent_w),
-						E_FOLLOW_ASCII_KEY);
+	b_ascii = (GtkWidget*) gtk_object_get_data(GTK_OBJECT(parent_w),
+						   E_FOLLOW_ASCII_KEY);
+	b_ebcdic = (GtkWidget*) gtk_object_get_data(GTK_OBJECT(parent_w),
+						    E_FOLLOW_EBCDIC_KEY);
+	b_hexdump = (GtkWidget*) gtk_object_get_data(GTK_OBJECT(parent_w),
+						     E_FOLLOW_HEXDUMP_KEY);
 	text = (GtkWidget*) gtk_object_get_data(GTK_OBJECT(parent_w),
 						E_FOLLOW_TEXT_KEY);
 	filename = (char*) gtk_object_get_data(GTK_OBJECT(parent_w),
 						E_FOLLOW_FILENAME_KEY);
 
-	g_assert(button);
+	g_assert(b_ascii);
+	g_assert(b_ebcdic);
+	g_assert(b_hexdump);
 	g_assert(text);
 	g_assert(filename);
 
-	if (GTK_TOGGLE_BUTTON(button)->active)
-		show_ascii = TRUE;
+	if (GTK_TOGGLE_BUTTON(b_ebcdic)->active)
+		show_type = E_FOLLOW_EBCDIC_TYPE;
+	else if (GTK_TOGGLE_BUTTON(b_hexdump)->active)
+		show_type = E_FOLLOW_HEXDUMP_TYPE;
 
-	follow_load_text(text, filename, show_ascii);
+	follow_load_text(text, filename, show_type);
 }
 
 #define FLT_BUF_SIZE 1024
 static void
-follow_read_stream(char *filename, gboolean show_ascii,
+follow_read_stream(char *filename, guint8 show_type,
    void (*print_line)(char *, int, gboolean, void *), void *arg)
 {
   tcp_stream_chunk sc;
   int bcount;
   guint32 client_addr = 0;
   guint16 client_port = 0;
+  gboolean is_server;
+  guint16 current_pos, global_client_pos = 0, global_server_pos = 0;
+  guint16 *global_pos;
 
   data_out_file = fopen( filename, "r" );
   if( data_out_file ) {
@@ -363,6 +396,14 @@ follow_read_stream(char *filename, gboolean show_ascii,
         client_addr = sc.src_addr;
         client_port = sc.src_port;
       }
+      if (client_addr == sc.src_addr && client_port == sc.src_port) {
+	is_server = FALSE;
+	global_pos = &global_client_pos;
+      }
+      else {
+	is_server = TRUE;
+	global_pos = &global_server_pos;
+      }
         
       while (sc.dlen > 0) {
         bcount = (sc.dlen < FLT_BUF_SIZE) ? sc.dlen : FLT_BUF_SIZE;
@@ -370,19 +411,47 @@ follow_read_stream(char *filename, gboolean show_ascii,
         if (nchars == 0)
           break;
         sc.dlen -= bcount;
-        if (show_ascii) {
+	switch (show_type) {
+	case E_FOLLOW_EBCDIC_TYPE:
+		/* If our native arch is ASCII, call: */
+		EBCDIC_to_ASCII(buffer, nchars);
+	case E_FOLLOW_ASCII_TYPE:
 		/* If our native arch is EBCDIC, call:
 		 * ASCII_TO_EBCDIC(buffer, nchars);
 		 */
+	  	(*print_line)( buffer, nchars, is_server, arg );
+		break;
+	case E_FOLLOW_HEXDUMP_TYPE:
+		current_pos = 0;
+		while (current_pos < nchars)
+		{
+		    gchar hexbuf[256];
+		    gchar hexchars[] = "0123456789abcdef";
+		    int i, cur;
+		    /* is_server indentation : put 63 spaces at the begenning
+		     * of the string */
+		    sprintf(hexbuf, is_server ?
+			    "                                 "
+			    "                              %08X  " :
+			    "%08X  ", *global_pos);
+		    cur = strlen(hexbuf);
+		    for (i=0; i < 16 && current_pos+i < nchars; i++) {
+			hexbuf[cur++] = hexchars[(buffer[current_pos+i] & 0xf0) >> 4];
+			hexbuf[cur++] = hexchars[buffer[current_pos+i] & 0x0f];
+			if (i == 7) {
+			    hexbuf[cur++] = ' '; hexbuf[cur++] = ' ';
+			}
+			else if (i != 15)
+			    hexbuf[cur++] = ' ';
+		    }
+		    current_pos += i;
+		    (*global_pos) += i;
+		    hexbuf[cur++] = '\n';
+		    hexbuf[cur] = 0;
+		    (*print_line)( hexbuf, strlen(hexbuf), is_server, arg );
+		}
+		break;
 	}
-	else {
-		/* If our native arch is ASCII, call: */
-		EBCDIC_to_ASCII(buffer, nchars);
-	}
-        if (client_addr == sc.src_addr && client_port == sc.src_port)
-	  (*print_line)( buffer, nchars, FALSE, arg );
-	else
-	  (*print_line)( buffer, nchars, TRUE, arg );
       }
     }
     if( ferror( data_out_file ) ) {
@@ -420,7 +489,7 @@ follow_print_stream(GtkWidget *w, gpointer parent_w)
        gboolean to_file;
        char* print_dest;
        char* filename;
-       gboolean show_ascii = FALSE;
+       guint8 show_type = E_FOLLOW_ASCII_TYPE;
        GtkWidget *button;
 
        switch (prefs.pr_dest) {
@@ -458,16 +527,20 @@ follow_print_stream(GtkWidget *w, gpointer parent_w)
        }
 
        button = (GtkWidget*) gtk_object_get_data(GTK_OBJECT(parent_w),
-                       E_FOLLOW_ASCII_KEY);
+                       E_FOLLOW_EBCDIC_KEY);
        if (GTK_TOGGLE_BUTTON(button)->active)
-               show_ascii = TRUE;
+               show_type = E_FOLLOW_EBCDIC_TYPE;
+       button = (GtkWidget*) gtk_object_get_data(GTK_OBJECT(parent_w),
+                       E_FOLLOW_HEXDUMP_KEY);
+       if (GTK_TOGGLE_BUTTON(button)->active)
+               show_type = E_FOLLOW_HEXDUMP_TYPE;
 
        filename = (char*) gtk_object_get_data(GTK_OBJECT(parent_w),
                        E_FOLLOW_FILENAME_KEY);
 
        if (filename != NULL) {
                print_preamble(fh, PR_FMT_TEXT);
-               follow_read_stream(filename, show_ascii, follow_print_text, fh);
+               follow_read_stream(filename, show_type, follow_print_text, fh);
                print_finale(fh, PR_FMT_TEXT);
                close_print_dest(to_file, fh);
        }
@@ -490,7 +563,7 @@ follow_add_to_gtk_text(char *buffer, int nchars, gboolean is_server, void *arg)
 }
 
 static void
-follow_load_text(GtkWidget *text, char *filename, gboolean show_ascii)
+follow_load_text(GtkWidget *text, char *filename, guint8 show_type)
 {
   int bytes_already;
 
@@ -503,7 +576,7 @@ follow_load_text(GtkWidget *text, char *filename, gboolean show_ascii)
 
   /* stop the updates while we fill the text box */
   gtk_text_freeze( GTK_TEXT(text) );
-  follow_read_stream(filename, show_ascii, follow_add_to_gtk_text, text);
+  follow_read_stream(filename, show_type, follow_add_to_gtk_text, text);
   gtk_text_thaw( GTK_TEXT(text) );
 }
 
