@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.604 2003/08/01 09:16:47 sahlberg Exp $
+# $Id: Makefile.am,v 1.605 2003/08/04 00:17:55 gerald Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -595,6 +595,7 @@ noinst_HEADERS = \
 	packet-gnutella.h \
 	packet-gssapi.h \
 	packet-gtp.h    \
+	packet-h245.h    \
 	packet-hclnfsd.h  \
 	packet-hpext.h	\
 	packet-http.h  \
