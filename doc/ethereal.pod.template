@@ -1727,11 +1727,12 @@ B<http://www.ethereal.com>.
   Todd Montgomery          <tmontgom [AT] tibco.com>
   emre                     <emre [AT] flash.net>
   Stephen Shelley          <steve.shelley [AT] attbi.com>
+  Erwin Rol                <erwin [AT] muffin.org>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>
   Eric Perie               <eric.perie [AT] colubris.com>
-  Erwin Rol                <erwin [AT] muffin.org>
+  David Yon                <yon [AT] tacticalsoftware.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

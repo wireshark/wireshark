@@ -2,7 +2,7 @@
  * Routines for Telnet packet dissection; see RFC 854 and RFC 855
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.37 2003/04/22 19:57:33 sharpe Exp $
+ * $Id: packet-telnet.c,v 1.38 2003/04/22 20:35:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -296,7 +296,7 @@ dissect_naws_subopt(const char *optname _U_, tvbuff_t *tvb, int offset,
                       tvb_get_ntohs(tvb, offset));
 }
 
-// BEGIN RFC-2217 (COM Port Control) Definitions
+/* BEGIN RFC-2217 (COM Port Control) Definitions */
 
 #define TNCOMPORT_SIGNATURE		0
 #define TNCOMPORT_SETBAUDRATE		1
@@ -312,7 +312,7 @@ dissect_naws_subopt(const char *optname _U_, tvbuff_t *tvb, int offset,
 #define TNCOMPORT_SETMODEMSTATEMASK	11
 #define TNCOMPORT_PURGEDATA		12
 
-// END RFC-2217 (COM Port Control) Definitions
+/* END RFC-2217 (COM Port Control) Definitions */
 
 static void
 dissect_comport_subopt(const char *optname, tvbuff_t *tvb, int offset, int len,
@@ -915,9 +915,9 @@ telnet_sub_option(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
   gint ett;
   int iac_offset;
   guint len;
-  gint cur_offset = 0;
-  gint iac_found = 0;
   void (*dissect)(const char *, tvbuff_t *, int, int, proto_tree *);
+  gint cur_offset;
+  gboolean iac_found;
 
   offset += 2;	/* skip IAC and SB */
 
@@ -937,24 +937,27 @@ telnet_sub_option(proto_tree *telnet_tree, tvbuff_t *tvb, int start_offset)
   }
   offset++;
 
-  /* Search for an unpadded IAC. */
+  /* Search for an unescaped IAC. */
   cur_offset = offset;
+  iac_found = FALSE;
   len = tvb_length_remaining(tvb, offset);
   do {
       iac_offset = tvb_find_guint8(tvb, cur_offset, len, TN_IAC);
-      iac_found = 1;
+      iac_found = TRUE;
       if (iac_offset == -1) {
         /* None found - run to the end of the packet. */
         offset += len;
       } else {
-
-        /* If we really found a single IAC, we're done */
-        if (((iac_offset + 1) >= len) || (tvb_get_guint8(tvb, iac_offset + 1) != TN_IAC)) {
+        if (((guint)(iac_offset + 1) >= len) ||
+             (tvb_get_guint8(tvb, iac_offset + 1) != TN_IAC)) {
+            /* We really found a single IAC, so we're done */
             offset = iac_offset;
-
-        /* Otherwise we have to move ahead to the next section */
         } else {
-            iac_found = 0;
+            /*
+             * We saw an escaped IAC, so we have to move ahead to the
+             * next section
+             */
+            iac_found = FALSE;
             cur_offset = iac_offset + 2;
         }
       }
