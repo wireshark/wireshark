@@ -1,3 +1,10 @@
+Overview of changes in Ethereal 0.7.1:
+* Fixed big memory leaks in dfilter code (Guy)
+* Enhanced xdlc, llc, and x25 (Guy, Olivier)
+* Made glossary-dump option not initialize X11 (Guy)
+* Fixed logical operands in dfilter code (Gilbert)
+* Added progress bar to display filter (Gilbert)
+
 Overview of changes in Ethereal 0.7.0:
 * Addition of RTSP and SDP dissectors (Jason)
 * New proto_tree and display filter system (Gilbert)

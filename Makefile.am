@@ -142,9 +142,7 @@ EXTRA_DIST = \
 	doc/configure           \
 	doc/configure.in        \
 	doc/dfilter2pod.in      \
-	doc/ethereal.pod        \
 	doc/ethereal.pod.template \
-	ethereal.1              \
 	ethereal.spec           \
 	image/icon-excl.xpm     \
 	image/icon-ethereal.xpm \
