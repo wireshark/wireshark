@@ -1,6 +1,6 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Ethereal dissector compiler    */
-/* .\packet-h225.c                                                            */
+/* ./packet-h225.c                                                            */
 /* ../../tools/asn2eth.py -X -e -p h225 -c h225.cnf -s packet-h225-template h225.asn */
 
 /* Input file: packet-h225-template.c */
@@ -123,7 +123,7 @@ static int hf_h225_information = -1;              /* Information_UUIE */
 static int hf_h225_releaseComplete = -1;          /* ReleaseComplete_UUIE */
 static int hf_h225_facility = -1;                 /* Facility_UUIE */
 static int hf_h225_progress = -1;                 /* Progress_UUIE */
-static int hf_h225_empty_flg = -1;                /* NULL */
+static int hf_h225_empty_flg = -1;                /* T_empty */
 static int hf_h225_status = -1;                   /* Status_UUIE */
 static int hf_h225_statusInquiry = -1;            /* StatusInquiry_UUIE */
 static int hf_h225_setupAcknowledge = -1;         /* SetupAcknowledge_UUIE */
@@ -1343,11 +1343,7 @@ dissect_h225_NULL(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
   proto_item_append_text(ti_tmp, ": NULL");
   }
 
-  if (h225_pi->cs_type == H225_OTHER) h225_pi->cs_type = H225_EMPTY;
   return offset;
-}
-static int dissect_empty_flg(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
-  return dissect_h225_NULL(tvb, offset, pinfo, tree, hf_h225_empty_flg);
 }
 static int dissect_tunnellingRequired(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h225_NULL(tvb, offset, pinfo, tree, hf_h225_tunnellingRequired);
@@ -5813,6 +5809,21 @@ dissect_h225_Progress_UUIE(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 }
 static int dissect_progress(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   return dissect_h225_Progress_UUIE(tvb, offset, pinfo, tree, hf_h225_progress);
+}
+
+
+static int
+dissect_h225_T_empty(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index) {
+  { proto_item *ti_tmp;
+  ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset>>8, 0, FALSE);
+  proto_item_append_text(ti_tmp, ": NULL");
+  }
+
+  h225_pi->cs_type = H225_EMPTY;
+  return offset;
+}
+static int dissect_empty_flg(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
+  return dissect_h225_T_empty(tvb, offset, pinfo, tree, hf_h225_empty_flg);
 }
 
 static const per_sequence_t Status_UUIE_sequence[] = {

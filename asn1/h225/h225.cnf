@@ -249,8 +249,8 @@ guint32 value_len;
 
 #.END
 #----------------------------------------------------------------------------------------
-#.FN_FTR NULL
-  if (h225_pi->cs_type == H225_OTHER) h225_pi->cs_type = H225_EMPTY;
+#.FN_FTR H323-UU-PDU/h323-message-body/empty
+  h225_pi->cs_type = H225_EMPTY;
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_FTR Status-UUIE
