@@ -1,7 +1,7 @@
 /* to_str.c
  * Routines for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.36 2003/08/26 01:00:30 guy Exp $
+ * $Id: to_str.c,v 1.37 2003/08/26 01:28:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -62,6 +62,7 @@
 #include "pint.h"
 #include "atalk-utils.h"
 #include "sna-utils.h"
+#include "osi-utils.h"
 #include <stdio.h>
 #include <time.h>
 
