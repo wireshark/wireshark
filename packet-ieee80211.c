@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.36 2001/06/22 08:12:11 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.37 2001/07/21 06:30:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,6 +65,7 @@
 #include "proto.h"
 #include "packet.h"
 #include "resolv.h"
+#include "packet-ipx.h"
 #include "packet-llc.h"
 #include "packet-ieee80211.h"
 #include "etypes.h"
@@ -338,6 +339,7 @@ static gint ett_tagged_parameters = -1;
 static gint ett_wep_parameters = -1;
 
 static dissector_handle_t llc_handle;
+static dissector_handle_t ipx_handle;
 
 /* ************************************************************************* */
 /*            Return the length of the current header (in bytes)             */
@@ -398,7 +400,23 @@ capture_ieee80211 (const u_char * pd, int offset, packet_counts * ld)
     case DATA_CF_POLL:
     case DATA_CF_ACK_POLL:
       hdr_length = find_header_length (fcf);
-      capture_llc (pd, offset + hdr_length, ld);
+      /* I guess some bridges take Netware Ethernet_802_3 frames,
+         which are 802.3 frames (with a length field rather than
+         a type field, but with no 802.2 header in the payload),
+         and just stick the payload into an 802.11 frame.  I've seen
+         captures that show frames of that sort.
+
+         This means we have to do the same check for Netware 802.3 -
+         or, if you will, "Netware 802.11" - that we do in the
+         Ethernet dissector, i.e. checking for 0xffff as the first
+         four bytes of the payload and, if we find it, treating it
+         as an IPX frame. */
+      if (pd[offset+hdr_length] == 0xff && pd[offset+hdr_length+1] == 0xff) {
+        capture_ipx (pd, offset + hdr_length, ld);
+      }
+      else {
+        capture_llc (pd, offset + hdr_length, ld);
+      }
       break;
 
     default:
@@ -1016,6 +1034,7 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   guint16 hdr_len;
   tvbuff_t *next_tvb;
   guint32 addr_type;
+  volatile gboolean is_802_2;
 
   if (check_col (pinfo->fd, COL_PROTOCOL))
     col_set_str (pinfo->fd, COL_PROTOCOL, "IEEE 802.11");
@@ -1411,7 +1430,32 @@ dissect_ieee80211 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 
     case DATA_FRAME:
-      call_dissector (llc_handle, next_tvb, pinfo, tree);
+      /* I guess some bridges take Netware Ethernet_802_3 frames,
+         which are 802.3 frames (with a length field rather than
+         a type field, but with no 802.2 header in the payload),
+         and just stick the payload into an 802.11 frame.  I've seen
+         captures that show frames of that sort.
+
+         This means we have to do the same check for Netware 802.3 -
+         or, if you will, "Netware 802.11" - that we do in the
+         Ethernet dissector, i.e. checking for 0xffff as the first
+         four bytes of the payload and, if we find it, treating it
+         as an IPX frame. */
+      is_802_2 = TRUE;
+      TRY {
+        if (tvb_get_ntohs(next_tvb, 0) == 0xffff)
+          is_802_2 = FALSE;
+      }
+      CATCH2(BoundsError, ReportedBoundsError) {
+	    ; /* do nothing */
+
+      }
+      ENDTRY;
+
+      if (is_802_2)
+        call_dissector(llc_handle, next_tvb, pinfo, tree);
+      else
+        call_dissector(ipx_handle, next_tvb, pinfo, tree);
       break;
     }
 }
@@ -1812,9 +1856,10 @@ void
 proto_reg_handoff_wlan(void)
 {
   /*
-   * Get a handle for the LLC dissector.
+   * Get handles for the LLC and IPX dissectors.
    */
   llc_handle = find_dissector("llc");
+  ipx_handle = find_dissector("ipx");
 
   dissector_add("wtap_encap", WTAP_ENCAP_IEEE_802_11, dissect_ieee80211,
 		proto_wlan);
