@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.26 2001/04/01 03:18:41 hagbard Exp $
+ * $Id: packet.c,v 1.27 2001/04/01 04:11:51 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -83,42 +83,10 @@
 #include "tvbuff.h"
 #include "plugins.h"
 
-/* Protocol-specific data attached to a frame_data structure - protocol
-   index and opaque pointer. */
-typedef struct _frame_proto_data {
-  int proto;
-  void *proto_data;
-} frame_proto_data;
-
-static GMemChunk *frame_proto_data_area = NULL;
-
-
-/* 
- * Free up any space allocated for frame proto data areas and then 
- * allocate a new area.
- *
- * We can free the area, as the structures it contains are pointed to by
- * frames, that will be freed as well.
- */
-static void
-packet_init_protocol(void)
-{
-
-  if (frame_proto_data_area)
-    g_mem_chunk_destroy(frame_proto_data_area);
-
-  frame_proto_data_area = g_mem_chunk_new("frame_proto_data_area",
-					  sizeof(frame_proto_data),
-					  20 * sizeof(frame_proto_data), /* FIXME*/
-					  G_ALLOC_ONLY);
-
-}
-
-	
 void
 packet_init(void)
 {
-	register_init_routine(&packet_init_protocol);
+  /* nothing */
 }
 
 void
@@ -718,78 +686,6 @@ dissect_packet(tvbuff_t **p_tvb, union wtap_pseudo_header *pseudo_header,
 
 	fd->flags.visited = 1;
 }
-
-
-
-gint p_compare(gconstpointer a, gconstpointer b)
-{
-
-  if (((frame_proto_data *)a) -> proto > ((frame_proto_data *)b) -> proto)
-    return 1;
-  else if (((frame_proto_data *)a) -> proto == ((frame_proto_data *)b) -> proto)
-    return 0;
-  else
-    return -1;
-
-}
-
-void
-p_add_proto_data(frame_data *fd, int proto, void *proto_data)
-{
-  frame_proto_data *p1 = g_mem_chunk_alloc(frame_proto_data_area);
- 
-  g_assert(p1 != NULL);
-
-  p1 -> proto = proto;
-  p1 -> proto_data = proto_data;
-
-  /* Add it to the GSLIST */
-
-  fd -> pfd = g_slist_insert_sorted(fd -> pfd,
-				    (gpointer *)p1,
-				    p_compare);
-
-}
-
-void *
-p_get_proto_data(frame_data *fd, int proto)
-{
-  frame_proto_data temp, *p1;
-  GSList *item;
-
-  temp.proto = proto;
-  temp.proto_data = NULL;
-
-  item = g_slist_find_custom(fd->pfd, (gpointer *)&temp, p_compare);
-
-  if (item) {
-    p1 = (frame_proto_data *)item->data;
-    return p1->proto_data;
-  }
-
-  return NULL;
-
-}
-
-void
-p_rem_proto_data(frame_data *fd, int proto)
-{
-  frame_proto_data temp;
-  GSList *item;
-
-  temp.proto = proto;
-  temp.proto_data = NULL;
-
-  item = g_slist_find_custom(fd->pfd, (gpointer *)&temp, p_compare);
-
-  if (item) {
-
-    fd->pfd = g_slist_remove(fd->pfd, item);
-
-  }
-
-}
-
 
 /*********************** code added for sub-dissector lookup *********************/
 

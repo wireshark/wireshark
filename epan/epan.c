@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.7 2001/03/23 14:44:01 jfoster Exp $
+ * $Id: epan.c,v 1.8 2001/04/01 04:11:50 hagbard Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -47,6 +47,7 @@ epan_init(const char *plugin_dir)
 	except_init();
 	tvbuff_init();
 	packet_init();
+	frame_data_init();
 	proto_init(plugin_dir);
 	dfilter_init();
 }
@@ -57,6 +58,7 @@ epan_cleanup(void)
 	dfilter_cleanup();
 	proto_cleanup();
 	packet_cleanup();
+	frame_data_cleanup();
 	tvbuff_cleanup();
 	except_deinit();
 }

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.27 2001/04/01 03:42:00 hagbard Exp $
+ * $Id: packet.h,v 1.28 2001/04/01 04:11:51 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,7 @@
 #include "to_str.h"
 #include "value_string.h"
 #include "column_info.h"
+#include "frame_data.h"
 
 #define hi_nibble(b) (((b) & 0xf0) >> 4)
 #define lo_nibble(b) ((b) & 0x0f)
@@ -81,34 +82,6 @@ typedef enum {
 	CHAR_ASCII	 = 0,	/* ASCII */
 	CHAR_EBCDIC	 = 1	/* EBCDIC */
 } char_enc;
-
-/* XXX - some of this stuff is used only while a packet is being dissected;
-   should we keep that stuff in the "packet_info" structure, instead, to
-   save memory? */
-typedef struct _frame_data {
-  struct _frame_data *next; /* Next element in list */
-  struct _frame_data *prev; /* Previous element in list */
-  GSList *pfd;              /* Per frame proto data */
-  GSList *data_src;         /* Frame data sources */
-  guint32      num;       /* Frame number */
-  guint32      pkt_len;   /* Packet length */
-  guint32      cap_len;   /* Amount actually captured */
-  gint32       rel_secs;  /* Relative seconds (yes, it can be negative) */
-  gint32       rel_usecs; /* Relative microseconds (yes, it can be negative) */
-  guint32      abs_secs;  /* Absolute seconds */
-  guint32      abs_usecs; /* Absolute microseconds */
-  gint32       del_secs;  /* Delta seconds (yes, it can be negative) */
-  gint32       del_usecs; /* Delta microseconds (yes, it can be negative) */
-  long         file_off;  /* File offset */
-  column_info *cinfo;     /* Column formatting information */
-  int          lnk_t;     /* Per-packet encapsulation/data-link type */
-  struct {
-	unsigned int passed_dfilter	: 1; /* 1 = display, 0 = no display */
-  	unsigned int encoding		: 2; /* Character encoding (ASCII, EBCDIC...) */
-	unsigned int visited		: 1; /* Has this packet been visited yet? 1=Yes,0=No*/
-	unsigned int marked             : 1; /* 1 = marked by user, 0 = normal */
-  } flags;
-} frame_data;
 
 /* Types of addresses Ethereal knows about. */
 typedef enum {
@@ -327,9 +300,6 @@ void       col_add_str(frame_data *, gint, const gchar *);
 void       col_append_str(frame_data *, gint, gchar *);
 void       col_set_cls_time(frame_data *, int);
 void       fill_in_columns(frame_data *);
-
-void       p_add_proto_data(frame_data *, int, void *);
-void       *p_get_proto_data(frame_data *, int);
 
 void blank_packetinfo(void);
 
