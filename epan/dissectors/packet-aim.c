@@ -1189,6 +1189,11 @@ int dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvb
     
     /* Block length (includes charset and charsubset) */
     blocklen = tvb_get_ntohs(tvb, offset);
+    if (blocklen <= 4) {
+      proto_tree_add_text(entry, tvb, offset, 2, "Invalid block length: %d",
+        blocklen);
+      break;
+    }
     proto_tree_add_item(entry, hf_aim_messageblock_len, tvb, offset, 2,
 			FALSE);
     offset += 2;

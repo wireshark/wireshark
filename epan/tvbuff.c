@@ -1711,12 +1711,16 @@ guint8 *
 tvb_get_string(tvbuff_t *tvb, gint offset, gint length)
 {
 	const guint8 *ptr;
-	guint8 *strbuf;
+	guint8 *strbuf = NULL;
+
+	if (length < 0)
+		THROW(DissectorError);
 
 	ptr = ensure_contiguous(tvb, offset, length);
 	strbuf = g_malloc(length + 1);
-	if (length != 0)
+	if (length != 0) {
 		memcpy(strbuf, ptr, length);
+	}
 	strbuf[length] = '\0';
 	return strbuf;
 }
