@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.44 2003/10/15 08:41:41 sahlberg Exp $
+ * $Id: io_stat.c,v 1.45 2003/10/15 13:10:54 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -90,13 +90,14 @@ static char *count_type_names[MAX_COUNT_TYPES] = {"frames/tick", "bytes/tick", "
 #define DEFAULT_TICK_VALUE 2
 static guint tick_interval_values[MAX_TICK_VALUES] = { 10, 100, 1000, 10000 };
 
-#define MAX_CALC_TYPES 5
 #define CALC_TYPE_SUM	0
 #define CALC_TYPE_COUNT	1
 #define CALC_TYPE_MAX	2
 #define CALC_TYPE_MIN	3
 #define CALC_TYPE_AVG	4
-static char *calc_type_names[MAX_CALC_TYPES] = {"SUM(*)", "COUNT(*)", "MAX(*)", "MIN(*)", "AVG(*)"};
+#define CALC_TYPE_LOAD	5
+#define MAX_CALC_TYPES 6
+static char *calc_type_names[MAX_CALC_TYPES] = {"SUM(*)", "COUNT(*)", "MAX(*)", "MIN(*)", "AVG(*)", "LOAD(*)"};
 
 
 typedef struct _io_stat_calc_type_t {
@@ -302,25 +303,68 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy 
 			case FT_RELATIVE_TIME:
 				new_time=fvalue_get(((field_info *)gp->pdata[0])->value);
 
-				if( (new_time->secs>it->time_max.secs)
-				||( (new_time->secs==it->time_max.secs)
-				  &&(new_time->nsecs>it->time_max.nsecs))
-				||(it->frames==0)){
-					it->time_max.secs=new_time->secs;
-					it->time_max.nsecs=new_time->nsecs;
-				}
-				if( (new_time->secs<it->time_min.secs)
-				||( (new_time->secs==it->time_min.secs)
-				  &&(new_time->nsecs<it->time_min.nsecs))
-				||(it->frames==0)){
-					it->time_min.secs=new_time->secs;
-					it->time_min.nsecs=new_time->nsecs;
-				}
-				it->time_tot.secs+=new_time->secs;
-				it->time_tot.nsecs+=new_time->nsecs;
-				if(it->time_tot.nsecs>=1000000000){
-					it->time_tot.nsecs-=1000000000;
-					it->time_tot.secs++;
+				switch(git->calc_type){
+#ifdef G_HAVE_UINT64
+					guint64 t, pt; /* time in us */
+#else
+					guint32 t, pt;
+#endif
+					int i;
+				case CALC_TYPE_LOAD:
+					/* it is a LOAD calculation of a relative time field. 
+					 * add the time this call spanned to each
+					 * interval it spanned according to its contribution 
+					 * to that interval.
+					 */
+					t=new_time->secs;
+					t=t*1000000+new_time->nsecs/1000;
+					i=idx;
+					/* handle current interval */
+					pt=pinfo->fd->rel_secs*1000000+pinfo->fd->rel_usecs;
+					pt=pt%(git->io->interval*1000);
+					if(pt>t){
+						pt=t;
+					}
+					while(t){
+						git->items[i].time_tot.nsecs+=pt*1000;
+						if(git->items[i].time_tot.nsecs>1000000000){
+							git->items[i].time_tot.secs++;
+							git->items[i].time_tot.nsecs-=1000000000;
+						}
+
+						if(i==0){
+							break;
+						}
+						i--;
+						t-=pt;
+						if(t>(git->io->interval*1000)){
+							pt=git->io->interval*1000;
+						} else {
+							pt=t;
+						}
+					}
+					break;
+				default:
+					if( (new_time->secs>it->time_max.secs)
+					||( (new_time->secs==it->time_max.secs)
+					  &&(new_time->nsecs>it->time_max.nsecs))
+					||(it->frames==0)){
+						it->time_max.secs=new_time->secs;
+						it->time_max.nsecs=new_time->nsecs;
+					}
+					if( (new_time->secs<it->time_min.secs)
+					||( (new_time->secs==it->time_min.secs)
+					  &&(new_time->nsecs<it->time_min.nsecs))
+					||(it->frames==0)){
+						it->time_min.secs=new_time->secs;
+						it->time_min.nsecs=new_time->nsecs;
+					}
+					it->time_tot.secs+=new_time->secs;
+					it->time_tot.nsecs+=new_time->nsecs;
+					if(it->time_tot.nsecs>=1000000000){
+						it->time_tot.nsecs-=1000000000;
+						it->time_tot.secs++;
+					}
 				}
 
 			}
@@ -408,16 +452,19 @@ get_it_value(io_stat_t *io, int graph_id, int idx)
 		case CALC_TYPE_AVG:
 			if(it->frames){
 #ifdef G_HAVE_UINT64
-				guint64 tmp;
+				guint64 t; /* time in us */
 #else
-				guint32 tmp;
+				guint32 t;
 #endif
-				tmp=it->time_tot.secs;
-				tmp=tmp*1000000+it->time_tot.nsecs/1000;
-				value=tmp/it->frames;
+				t=it->time_tot.secs;
+				t=t*1000000+it->time_tot.nsecs/1000;
+				value=t/it->frames;
 			} else {
 				value=0;
 			}
+			break;
+		case CALC_TYPE_LOAD:
+			value=(it->time_tot.secs*1000000+it->time_tot.nsecs/1000)/io->interval;
 			break;
 		default:
 			break;
@@ -778,7 +825,6 @@ gtk_iostat_draw(void *g)
 		/* initialize prev x/y to the low left corner of the graph */
 		prev_x_pos=draw_width-1-io->pixels_per_tick*((last_interval-first_interval)/io->interval+1)+left_x_border;
 		prev_y_pos=draw_height-1+top_y_border;
-
 
 		for(interval=first_interval+io->interval;interval<=last_interval;interval+=io->interval){
 			guint32 val;
@@ -1363,6 +1409,17 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 		case FT_INT16:
 		case FT_INT24:
 		case FT_INT32:
+			/* these values support all calculations except LOAD */
+			switch(gio->calc_type){
+			case CALC_TYPE_LOAD:
+				simple_dialog(ESD_TYPE_WARN, NULL,
+				    "LOAD(*) is only supported for relative-time fields.");
+				gio->display=0;
+				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
+				gio->io->needs_redraw=TRUE;
+				gtk_iostat_draw(gio);
+				return 0;
+			}
 			/* these types support all calculations */
 			break;
 		case FT_RELATIVE_TIME:
@@ -1372,6 +1429,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 			case CALC_TYPE_MAX:
 			case CALC_TYPE_MIN:
 			case CALC_TYPE_AVG:
+			case CALC_TYPE_LOAD:
 				break;
 			default:
 				simple_dialog(ESD_TYPE_WARN, NULL,

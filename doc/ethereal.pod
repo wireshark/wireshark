@@ -951,7 +951,7 @@ automatically.
 "advanced..." If Unit:advanced...  is selected the window will display
 two more controls for each of the five graphs.  One control will be a
 menu where the type of calculation can be selected from
-SUM,COUNT,MAX,MIN and AVG, and one control, textbox, where the name of a
+SUM,COUNT,MAX,MIN,AVG and LOAD, and one control, textbox, where the name of a
 single display filter field can be specified.
 
 The following restrictions apply to type and field combinations:
@@ -960,6 +960,7 @@ COUNT: available for all field types.
 MAX: available for all integer and relative time fields.
 MIN: available for all integer and relative time fields.
 AVG: available for all integer and relative time fields.
+LOAD: available only for relative time fields (response times).
 
 NOTE: due to the way this is implemented in B<Ethereal> there is a
 requirement that whatever field is specified in the textbox, that field
@@ -978,6 +979,37 @@ Example of advanced:
 Display how the average packetsize from host a.b.c.d changes over time.
 
 Set first graph to   filter:ip.addr==a.b.c.d&&frame.pkt_len  Calc:AVG frame.pkt_len
+
+
+LOAD:
+The LOAD io-stat type is very different from anything you have ever seen 
+before! While the response times themself as plotted by MIN,MAX,AVG are 
+indications on the Server load (which affects the Server response time),  
+the LOAD measurement measures the Client LOAD.
+What this measures is how much workload the client generates, 
+i.e. how fast will the client issue new commands when the previous ones 
+completed.
+i.e. the level of concurrency the client can maintain.
+The higher the number, the more and faster is the client issuing new
+commands. When the LOAD goes down, it may be due to client load making
+the client slower in issuing new commands (there may be other reasons as
+well, maybe the client just dont have any commands it wants to issue
+right then).
+
+Load is measured in concurrency/number of overlapping i/o and the value
+1000 means there is a constant load of one i/o.
+
+In each tick interval the amount of overlap is measured.
+See the graph below containing three commands:
+Below the graph are the LOAD values for each interval that would be calculated.
+|     |     |     |     |     |     |     |     |
+|     |     |     |     |     |     |     |     |
+|     |  o=====*  |     |     |     |     |     |
+|     |     |     |     |     |     |     |     |
+|  o========*     | o============*  |     |     |
+|     |     |     |     |     |     |     |     |
+--------------------------------------------------> Time
+ 500   1500   500  750   1000   500    0     0
 
 
 =item Tools:Statistics:Service Response Time:MGCP
