@@ -16,6 +16,32 @@ SelectedAttributeTypes x509sat
 
 GeneralNames
 
+#.PDU
+AttributesSyntax
+AuthorityKeyIdentifier
+BaseCRLNumber
+BasicConstraintsSyntax
+CertificatePoliciesSyntax
+CRLDistPointsSyntax
+CRLNumber
+CRLReason
+CRLScopeSyntax
+CRLStreamIdentifier
+DeltaInformation
+GeneralNames
+HoldInstruction
+IssuingDistPointSyntax
+KeyPurposeIDs
+KeyUsage
+NameConstraintsSyntax
+OrderedListSyntax
+PolicyConstraintsSyntax
+PolicyMappingsSyntax
+PrivateKeyUsagePeriod
+SkipCerts
+StatusReferrals
+SubjectKeyIdentifier
+
 #.NO_EMIT
 
 #.TYPE_RENAME
