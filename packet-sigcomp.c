@@ -2,7 +2,7 @@
  * Routines for Signaling Compression (SigComp) dissection.
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id: packet-sigcomp.c,v 1.2 2004/06/29 05:50:18 guy Exp $
+ * $Id: packet-sigcomp.c,v 1.3 2004/06/29 20:40:12 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -57,6 +57,8 @@ static int hf_sigcomp_destination					= -1;
 static int hf_sigcomp_partial_state					= -1;
 static int hf_sigcomp_udvm_instr					= -1;
 static int hf_udvm_multitype_bytecode				= -1;
+static int hf_udvm_reference_bytecode				= -1;
+static int hf_udvm_literal_bytecode					= -1;
 static int hf_udvm_operand							= -1;
 static int hf_udvm_length							= -1;
 static int hf_udvm_destination						= -1;
@@ -205,7 +207,35 @@ static const value_string display_bytecode_vals[] = {
 	{ 0x81,	"10000001 nnnnnnnn nnnnnnnn, memory[N], 0 - 65535" },
 	{ 0,	NULL }
 };
+/* RFC3320
+ * 0nnnnnnn                        memory[2 * N]       0 - 65535
+ * 10nnnnnn nnnnnnnn               memory[2 * N]       0 - 65535
+ * 11000000 nnnnnnnn nnnnnnnn      memory[N]           0 - 65535
+ */
+static const value_string display_ref_bytecode_vals[] = {
+	{ 0x00,	"0nnnnnnn memory[2 * N] 0 - 65535" },
+	{ 0x80,	"10nnnnnn nnnnnnnn memory[2 * N] 0 - 65535" },
+	{ 0xc0,	"11000000 nnnnnnnn nnnnnnnn memory[N] 0 - 65535" },
+	{ 0,	NULL }
+};
+ /*  The simplest operand type is the literal (#), which encodes a
+  * constant integer from 0 to 65535 inclusive.  A literal operand may
+  * require between 1 and 3 bytes depending on its value.
+  * Bytecode:                       Operand value:      Range:
+  * 0nnnnnnn                        N                   0 - 127
+  * 10nnnnnn nnnnnnnn               N                   0 - 16383
+  * 11000000 nnnnnnnn nnnnnnnn      N                   0 - 65535
+  *
+  *            Figure 8: Bytecode for a literal (#) operand
+  *
+  */
 
+static const value_string display_lit_bytecode_vals[] = {
+	{ 0x00,	"0nnnnnnn N 0 - 127" },
+	{ 0x80,	"10nnnnnn nnnnnnnn N 0 - 16383" },
+	{ 0xc0,	"11000000 nnnnnnnn nnnnnnnn N 0 - 65535" },
+	{ 0,	NULL }
+};
 
 static void dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree, guint destination);
 
@@ -825,7 +855,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
 			 /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
-			value = ( value + start_address + offset) & 0xffff;
+			value = ( value + UDVM_address ) & 0xffff;
 			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_at_address, 
 				udvm_tvb, start_offset, len, value);
 			break;
@@ -855,22 +885,11 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 					udvm_tvb, start_offset, len, value);
 			}
 
-			/* %value_3 */
-			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, FALSE,&start_offset, &value, &is_memory_address);
-			len = offset - start_offset;
-			if ( is_memory_address ){
-				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_addr_value, 
-					udvm_tvb, start_offset, len, value);
-			}else{
-				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_value, 
-					udvm_tvb, start_offset, len, value);
-			}
-
 			/* @address_1 */
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
 			 /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
-			value = ( value + start_address + offset) & 0xffff;
+			value = ( value + UDVM_address ) & 0xffff;
 			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_at_address, 
 				udvm_tvb, start_offset, len, value);
 
@@ -878,7 +897,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
 			 /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
-			value = ( value + start_address + offset) & 0xffff;
+			value = ( value + UDVM_address ) & 0xffff;
 			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_at_address, 
 				udvm_tvb, start_offset, len, value);
 
@@ -886,7 +905,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
 			 /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
-			value = ( value + start_address + offset) & 0xffff;
+			value = ( value + UDVM_address ) & 0xffff;
 			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_at_address, 
 				udvm_tvb, start_offset, len, value);
 			break;
@@ -896,7 +915,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
 			 /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
-			value = ( value + start_address + offset) & 0xffff;
+			value = ( value + UDVM_address ) & 0xffff;
 			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_at_address, 
 				udvm_tvb, start_offset, len, value);
 			break;
@@ -929,7 +948,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 				offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE,&start_offset, &value, &is_memory_address);
 				len = offset - start_offset;
 				 /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
-				value = ( value + start_address + offset) & 0xffff;
+				value = ( value + UDVM_address ) & 0xffff;
 				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_at_address, 
 					udvm_tvb, start_offset, len, value);
 			}
@@ -962,7 +981,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
 			 /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
-			value = ( value + start_address + offset) & 0xffff;
+			value = ( value + UDVM_address ) & 0xffff;
 			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_at_address, 
 				udvm_tvb, start_offset, len, value);
 			break;
@@ -985,7 +1004,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
 			 /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
-			value = ( value + start_address + offset) & 0xffff;
+			value = ( value + UDVM_address ) & 0xffff;
 			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_at_address, 
 				udvm_tvb, start_offset, len, value);
 			break;
@@ -1006,7 +1025,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
 			 /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
-			value = ( value + start_address + offset) & 0xffff;
+			value = ( value + UDVM_address ) & 0xffff;
 			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_at_address, 
 				udvm_tvb, start_offset, len, value);
 			break;
@@ -1026,7 +1045,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, TRUE, &start_offset, &value, &is_memory_address);
 			len = offset - start_offset;
 			 /* operand_value = (memory_address_of_instruction + D) modulo 2^16 */
-			value = ( value + start_address + offset) & 0xffff;
+			value = ( value + UDVM_address ) & 0xffff;
 			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_at_address, 
 				udvm_tvb, start_offset, len, value);
 			/* #n */
@@ -1289,8 +1308,9 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,guint st
 			}
 			if ( tvb_reported_length_remaining(udvm_tvb, offset) != 0 ){
 				len = tvb_reported_length_remaining(udvm_tvb, offset);
+				UDVM_address = start_address + offset;
 				proto_tree_add_text(sigcomp_udvm_tree, udvm_tvb, offset, len,
-						"Remaning %u bytes starting at UDVM addr %u (0x%x)- State information ?",len, offset,offset);
+						"Remaning %u bytes starting at UDVM addr %u (0x%x)- State information ?",len, UDVM_address, UDVM_address);
 			}
 			offset = offset + tvb_reported_length_remaining(udvm_tvb, offset);			
 			break;
@@ -1323,6 +1343,8 @@ dissect_udvm_literal_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,
 	guint bytecode;
 	guint16 operand;
 	guint test_bits;
+	guint display_bytecode;
+
 	bytecode = tvb_get_guint8(udvm_tvb, offset);
 	test_bits = bytecode >> 7;
 	if (test_bits == 1){
@@ -1331,6 +1353,10 @@ dissect_udvm_literal_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,
 			/*
 			 * 10nnnnnn nnnnnnnn               N                   0 - 16383
 			 */
+			display_bytecode = bytecode & 0xc0;
+			if ( display_udvm_bytecode )
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_literal_bytecode,
+					udvm_tvb, offset, 1, display_bytecode);
 			operand = tvb_get_ntohs(udvm_tvb, offset) & 0x3fff;
 			*value = operand;
 			*start_offset = offset;
@@ -1340,6 +1366,10 @@ dissect_udvm_literal_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,
 			/*
 			 * 111000000 nnnnnnnn nnnnnnnn      N                   0 - 65535
 			 */
+			display_bytecode = bytecode & 0xc0;
+			if ( display_udvm_bytecode )
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_literal_bytecode,
+					udvm_tvb, offset, 1, display_bytecode);
 			offset ++;
 			operand = tvb_get_ntohs(udvm_tvb, offset);
 			*value = operand;
@@ -1351,6 +1381,10 @@ dissect_udvm_literal_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree,
 		/*
 		 * 0nnnnnnn                        N                   0 - 127
 		 */
+		display_bytecode = bytecode & 0xc0;
+		if ( display_udvm_bytecode )
+			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_literal_bytecode,
+				udvm_tvb, offset, 1, display_bytecode);
 		operand = ( bytecode & 0x7f);
 		*value = operand;
 		*start_offset = offset;
@@ -1381,6 +1415,8 @@ dissect_udvm_reference_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree
 	guint bytecode;
 	guint16 operand;
 	guint test_bits;
+	guint display_bytecode;
+
 	bytecode = tvb_get_guint8(udvm_tvb, offset);
 	test_bits = bytecode >> 7;
 	if (test_bits == 1){
@@ -1389,6 +1425,10 @@ dissect_udvm_reference_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree
 			/*
 			 * 10nnnnnn nnnnnnnn               memory[2 * N]       0 - 65535
 			 */
+			display_bytecode = bytecode & 0xc0;
+			if ( display_udvm_bytecode )
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_reference_bytecode,
+					udvm_tvb, offset, 1, display_bytecode);
 			operand = tvb_get_ntohs(udvm_tvb, offset) & 0x3fff;
 			*value = (operand * 2);
 			*start_offset = offset;
@@ -1398,6 +1438,10 @@ dissect_udvm_reference_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree
 			/*
 			 * 11000000 nnnnnnnn nnnnnnnn      memory[N]           0 - 65535
 			 */
+			display_bytecode = bytecode & 0xc0;
+			if ( display_udvm_bytecode )
+				proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_reference_bytecode,
+					udvm_tvb, offset, 1, display_bytecode);
 			offset ++;
 			operand = tvb_get_ntohs(udvm_tvb, offset);
 			*value = operand;
@@ -1409,6 +1453,10 @@ dissect_udvm_reference_operand(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree
 		/*
 		 * 0nnnnnnn                        memory[2 * N]       0 - 65535
 		 */
+		display_bytecode = bytecode & 0xc0;
+		if ( display_udvm_bytecode )
+			proto_tree_add_uint(sigcomp_udvm_tree, hf_udvm_reference_bytecode,
+				udvm_tvb, offset, 1, display_bytecode);
 		operand = ( bytecode & 0x3f);
 		*value = (operand * 2);
 		*start_offset = offset;
@@ -1685,13 +1733,23 @@ proto_register_sigcomp(void)
 			"UDVM instruction code", HFILL }
 		},
 		{ &hf_udvm_multitype_bytecode,
-			{ "UDVM bytecode", "sigcomp.udvm.bytecode",
+			{ "UDVM bytecode", "sigcomp.udvm.multyt.bytecode",
 			FT_UINT8, BASE_HEX, VALS(&display_bytecode_vals), 0x0,          
+			"UDVM bytecode", HFILL }
+		},
+		{ &hf_udvm_reference_bytecode,
+			{ "UDVM bytecode", "sigcomp.udvm.ref.bytecode",
+			FT_UINT8, BASE_HEX, VALS(&display_ref_bytecode_vals), 0x0,          
+			"UDVM bytecode", HFILL }
+		},
+		{ &hf_udvm_literal_bytecode,
+			{ "UDVM bytecode", "sigcomp.udvm.lit.bytecode",
+			FT_UINT8, BASE_HEX, VALS(&display_lit_bytecode_vals), 0x0,          
 			"UDVM bytecode", HFILL }
 		},
 		{ &hf_udvm_operand,
 			{ "UDVM operand", "sigcomp.udvm.operand",
-			FT_UINT16, BASE_HEX, NULL, 0x0,          
+			FT_UINT16, BASE_DEC, NULL, 0x0,          
 			"UDVM operand", HFILL }
 		},
 		{ &hf_udvm_length,
@@ -1706,12 +1764,12 @@ proto_register_sigcomp(void)
 		},
 		{ &hf_udvm_at_address,
 			{ " @Address(mem_add_of_inst + D) mod 2^16)", "sigcomp.udvm.at.address",
-			FT_UINT16, BASE_HEX, NULL, 0x0,          
+			FT_UINT16, BASE_DEC, NULL, 0x0,          
 			"Address", HFILL }
 		},
 		{ &hf_udvm_address,
 			{ " %Address", "sigcomp.udvm.length",
-			FT_UINT16, BASE_HEX, NULL, 0x0,          
+			FT_UINT16, BASE_DEC, NULL, 0x0,          
 			"Address", HFILL }
 		},
 		{ &hf_udvm_literal_num,
