@@ -1050,14 +1050,27 @@ proto_reg_handoff_sflow(void)
 {
 	dissector_handle_t sflow_handle;
 
+	/*
+	 * XXX - should this be done with a dissector table?
+	 */
 	eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
 	tr_handle = find_dissector("tr");
 	fddi_handle = find_dissector("fddi");
 	fr_handle = find_dissector("fr");
-	x25_handle = find_dissector("x25");
+	x25_handle = find_dissector("x.25");
 	ppp_handle = find_dissector("ppp");
+#if 0
 	smds_handle = find_dissector("smds");
+#else
+	/* We don't have an SMDS dissector yet */
+	smds_handle = find_dissector("data");
+#endif
+#if 0
 	aal5_handle = find_dissector("atm");
+#else
+	/* What dissector should be used here? */
+	aal5_handle = find_dissector("data");
+#endif
 	ipv4_handle = find_dissector("ip");
 	ipv6_handle = find_dissector("ipv6");
 	mpls_handle = find_dissector("mpls");
