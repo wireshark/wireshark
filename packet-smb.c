@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.201 2002/01/29 21:37:58 guy Exp $
+ * $Id: packet-smb.c,v 1.202 2002/01/29 21:49:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4787,11 +4787,13 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* is this part of DCERPC over SMB reassembly?*/
 	if(smb_dcerpc_reassembly && !pinfo->fd->flags.visited
 	    && (bc<=tvb_length_remaining(tvb, offset)) ){
-		guint32 frame;
-		if (si->sip != NULL && (frame=(guint32)g_hash_table_lookup(
+		gpointer hash_value;
+		if (si->sip != NULL && (hash_value = g_hash_table_lookup(
 						si->ct->dcerpc_fid_to_frame,
-						si->sip->extra_info)) != 0) {
+						si->sip->extra_info)) != NULL) {
 			fragment_data *fd_head;
+			guint32 frame = GPOINTER_TO_UINT(hash_value);
+
 			/* first fragment is always from a SMB Trans command and
 			   offset 0 of the following read/write SMB commands start
 			   BEYOND the first Trans SMB payload. Look for offset
@@ -4910,11 +4912,13 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* is this part of DCERPC over SMB reassembly?*/
 	if(smb_dcerpc_reassembly && !pinfo->fd->flags.visited && (bc<=tvb_length_remaining(tvb, offset)) ){
-		guint32 frame;
-		frame=(guint32)g_hash_table_lookup(si->ct->dcerpc_fid_to_frame,
+		gpointer hash_value;
+		hash_value = g_hash_table_lookup(si->ct->dcerpc_fid_to_frame,
 			si->sip->extra_info);
-		if(frame){
+		if(hash_value){
 			fragment_data *fd_head;
+			guint32 frame = GPOINTER_TO_UINT(hash_value);
+
 			/* first fragment is always from a SMB Trans command and
 			   offset 0 of the following read/write SMB commands start
 			   BEYOND the first Trans SMB payload. Look for offset
