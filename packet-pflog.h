@@ -1,6 +1,6 @@
 /* packet-pflog.h
  *
- * $Id: packet-pflog.h,v 1.2 2002/01/29 10:44:43 guy Exp $
+ * $Id: packet-pflog.h,v 1.3 2002/02/05 00:43:59 guy Exp $
  *
  * Copyright 2001 Mike Frantzen
  * All rights reserved.
@@ -41,18 +41,6 @@ struct pfloghdr {
   guint16       dir;
 };
 #define PFLOG_HDRLEN    sizeof(struct pfloghdr)
-
-/* Named reasons */
-#define PFRES_NAMES  { \
-  "match", \
-  "bad-offset", \
-  "fragment", \
-  "short", \
-  "normalize", \
-  "memory", \
-  NULL \
-}
-#define PFRES_MAX 6
 
 /* Actions */
 #define PF_PASS  0

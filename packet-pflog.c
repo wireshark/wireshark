@@ -1,7 +1,7 @@
 /* packet-pflog.c
  * Routines for pflog (OpenBSD Firewall Logging) packet disassembly
  *
- * $Id: packet-pflog.c,v 1.2 2002/01/30 23:08:26 guy Exp $
+ * $Id: packet-pflog.c,v 1.3 2002/02/05 00:43:59 guy Exp $
  *
  * Copyright 2001 Mike Frantzen
  * All rights reserved.
@@ -63,9 +63,6 @@ static int hf_pflog_dir = -1;
 
 static gint ett_pflog = -1;
 
-static char *pf_reasons[PFRES_MAX+2] = PFRES_NAMES;
-
-
 void
 capture_pflog(const u_char *pd, int offset, int len, packet_counts *ld)
 {
@@ -82,15 +79,52 @@ capture_pflog(const u_char *pd, int offset, int len, packet_counts *ld)
   memcpy(&pflogh, pd, sizeof(pflogh));
   NTOHL(pflogh.af);
 
-  if (pflogh.af == BSD_PF_INET)
+  switch (pflogh.af) {
+
+  case BSD_PF_INET:
     capture_ip(pd, offset, len, ld);
+    break;
+
 #ifdef notyet
-  else if (pflogh.af == BSD_PF_INET6)
+  case BSD_PF_INET6:
     capture_ipv6(pd, offset, len, ld);
+    break;
 #endif
-  else
+
+  default:
     ld->other++;
+    break;
+  }
 }
+
+static const value_string af_vals[] = {
+  { BSD_PF_INET,  "IPv4" },
+  { BSD_PF_INET6, "IPv6" },
+  { 0,            NULL }
+};
+
+static const value_string reason_vals[] = {
+  { 0, "match" },
+  { 1, "bad-offset" },
+  { 2, "fragment" },
+  { 3, "short" },
+  { 4, "normalize" },
+  { 5, "memory" },
+  { 0, NULL }
+};
+
+static const value_string action_vals[] = {
+  { PF_PASS,  "passed" },
+  { PF_DROP,  "dropped" },
+  { PF_SCRUB, "scrubbed" },
+  { 0,        NULL }
+};
+
+static const value_string dir_vals[] = {
+  { PF_IN,  "in" },
+  { PF_OUT, "out" },
+  { 0,      NULL }
+};
 
 static void
 dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -98,11 +132,10 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   struct pfloghdr pflogh;
   tvbuff_t *next_tvb;
   proto_tree *pflog_tree;
-  proto_item *ti, *tf;
-  char *why;
+  proto_item *ti;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "pflog");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PFLOG");
 
   /* Copy out the pflog header to insure alignment */
   tvb_memcpy(tvb, (guint8 *)&pflogh, 0, sizeof(pflogh));
@@ -114,55 +147,57 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   NTOHS(pflogh.action);
   NTOHS(pflogh.dir);
 
-  why = (pflogh.reason < PFRES_MAX) ? pf_reasons[pflogh.reason] : "unkn";
-
   if (tree) {
     ti = proto_tree_add_protocol_format(tree, proto_pflog, tvb, 0,
              PFLOG_HDRLEN,
-             "PF Log %s %s on %s by rule %d", pflogh.af == BSD_PF_INET ? "IPv4" :
-             pflogh.af == BSD_PF_INET6 ? "IPv6" : "unkn",
-             pflogh.action == PF_PASS  ? "passed" :
-             pflogh.action == PF_DROP  ? "dropped" :
-             pflogh.action == PF_SCRUB ? "scrubbed" : "unkn",
+             "PF Log %s %s on %s by rule %d",
+             val_to_str(pflogh.af, af_vals, "unknown (%u)"),
+             val_to_str(pflogh.action, action_vals, "unknown (%u)"),
              pflogh.ifname,
              pflogh.rnr);
     pflog_tree = proto_item_add_subtree(ti, ett_pflog);
 
-    tf = proto_tree_add_uint_format(pflog_tree, hf_pflog_rnr, tvb,
+    proto_tree_add_uint(pflog_tree, hf_pflog_af, tvb,
+             offsetof(struct pfloghdr, af), sizeof(pflogh.af),
+             pflogh.af);
+    proto_tree_add_int(pflog_tree, hf_pflog_rnr, tvb,
              offsetof(struct pfloghdr, rnr), sizeof(pflogh.rnr),
-             pflogh.rnr, "Rule Number: %d", pflogh.rnr);
-    tf = proto_tree_add_string(pflog_tree, hf_pflog_ifname, tvb,
-             offsetof(struct pfloghdr, reason), sizeof(pflogh.reason),
+             pflogh.rnr);
+    proto_tree_add_string(pflog_tree, hf_pflog_ifname, tvb,
+             offsetof(struct pfloghdr, ifname), sizeof(pflogh.ifname),
              pflogh.ifname);
-    tf = proto_tree_add_string(pflog_tree, hf_pflog_reason, tvb,
+    proto_tree_add_uint(pflog_tree, hf_pflog_reason, tvb,
              offsetof(struct pfloghdr, reason), sizeof(pflogh.reason),
-             why);
-    tf = proto_tree_add_string(pflog_tree, hf_pflog_action, tvb,
+             pflogh.reason);
+    proto_tree_add_uint(pflog_tree, hf_pflog_action, tvb,
              offsetof(struct pfloghdr, action), sizeof(pflogh.action),
-             pflogh.action == PF_PASS  ? "pass" :
-             pflogh.action == PF_DROP  ? "drop" :
-             pflogh.action == PF_SCRUB ? "scrub" : "unkn");
-    tf = proto_tree_add_string(pflog_tree, hf_pflog_dir, tvb,
+             pflogh.action);
+    proto_tree_add_uint(pflog_tree, hf_pflog_dir, tvb,
              offsetof(struct pfloghdr, dir), sizeof(pflogh.dir),
-             pflogh.dir == PF_IN ? "in" : "out");
+             pflogh.dir);
   }
 
   /* Set the tvbuff for the payload after the header */
   next_tvb = tvb_new_subset(tvb, PFLOG_HDRLEN, -1, -1);
 
-  pinfo->ethertype = (hf_pflog_af == BSD_PF_INET) ? ETHERTYPE_IP : ETHERTYPE_IPv6;
-  if (pflogh.af == BSD_PF_INET)
+  switch (pflogh.af) {
+
+  case BSD_PF_INET:
     call_dissector(ip_handle, next_tvb, pinfo, tree);
-  else if (pflogh.af == BSD_PF_INET6)
+    break;
+
+  case BSD_PF_INET6:
     call_dissector(ipv6_handle, next_tvb, pinfo, tree);
-  else
+    break;
+
+  default:
     call_dissector(data_handle, next_tvb, pinfo, tree);
+    break;
+  }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
     col_prepend_fstr(pinfo->cinfo, COL_INFO, "[%s %s/#%d] ",
-        pflogh.action == PF_PASS  ? "passed" :
-        pflogh.action == PF_DROP  ? "dropped" :
-        pflogh.action == PF_SCRUB ? "scrubbed" : "unkn",
+        val_to_str(pflogh.action, action_vals, "unknown (%u)"),
         pflogh.ifname,
         pflogh.rnr);
   }
@@ -173,27 +208,28 @@ proto_register_pflog(void)
 {
   static hf_register_info hf[] = {
     { &hf_pflog_af,
-      { "Address Family", "pflog.af", FT_UINT32, BASE_DEC, NULL, 0x0,
+      { "Address Family", "pflog.af", FT_UINT32, BASE_DEC, VALS(af_vals), 0x0,
         "Protocol (IPv4 vs IPv6)", HFILL }},
     { &hf_pflog_ifname,
       { "Interface", "pflog.ifname", FT_STRING, BASE_NONE, NULL, 0x0,
         "Interface", HFILL }},
     { &hf_pflog_rnr,
-      { "Rule Number", "pflog.rnr", FT_UINT16, BASE_DEC, NULL, 0x0,
+      { "Rule Number", "pflog.rnr", FT_INT16, BASE_DEC, NULL, 0x0,
         "Last matched firewall rule number", HFILL }},
     { &hf_pflog_reason,
-      { "Reason", "pflog.reason", FT_STRING, BASE_NONE, NULL, 0x0,
+      { "Reason", "pflog.reason", FT_UINT16, BASE_DEC, VALS(reason_vals), 0x0,
         "Reason for logging the packet", HFILL }},
     { &hf_pflog_action,
-      { "Action", "pflog.action", FT_STRING, BASE_NONE, NULL, 0x0,
+      { "Action", "pflog.action", FT_UINT16, BASE_DEC, VALS(action_vals), 0x0,
         "Action taken by PF on the packet", HFILL }},
     { &hf_pflog_dir,
-      { "Direction", "pflog.dir", FT_STRING, BASE_NONE, NULL, 0x0,
+      { "Direction", "pflog.dir", FT_UINT16, BASE_DEC, VALS(dir_vals), 0x0,
         "Direction of packet in stack (inbound versus outbound)", HFILL }},
   };
   static gint *ett[] = { &ett_pflog };
 
-  proto_pflog = proto_register_protocol("pflog", "pflog", "pflog");
+  proto_pflog = proto_register_protocol("OpenBSD Packet Filter log file",
+					"PFLOG", "pflog");
   proto_register_field_array(proto_pflog, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
