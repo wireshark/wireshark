@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.47 2002/06/04 07:03:47 guy Exp $
+ * $Id: print.c,v 1.48 2002/06/21 23:04:30 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -378,7 +378,7 @@ void print_hex_data_ps(FILE *fh, register const u_char *cp,
 {
         register unsigned int ad, i, j, k;
         u_char c;
-        u_char line[60];
+        u_char line[50+16+1];
 	static u_char binhex[16] = {
 		'0', '1', '2', '3', '4', '5', '6', '7',
 		'8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
@@ -391,14 +391,14 @@ void print_hex_data_ps(FILE *fh, register const u_char *cp,
                 c = *cp++;
                 line[j++] = binhex[c>>4];
                 line[j++] = binhex[c&0xf];
-                if (i&1) j++;
+                j++;
 		if (encoding == CHAR_EBCDIC) {
 			c = EBCDIC_to_ASCII1(c);
 		}
-                line[42+k++] = c >= ' ' && c < 0x7f ? c : '.';
+                line[50+k++] = c >= ' ' && c < 0x7f ? c : '.';
                 if ((i & 15) == 15) {
 			ps_clean_string(psline, line, MAX_LINE_LENGTH);
-                        fprintf (fh, "(%4x  %s) hexdump\n", ad, psline);
+                        fprintf (fh, "(%04x  %s) hexdump\n", ad, psline);
                         memset (line, ' ', sizeof line);
                         line[sizeof (line)-1] = j = k = 0;
                         ad += 16;
@@ -407,7 +407,7 @@ void print_hex_data_ps(FILE *fh, register const u_char *cp,
 
         if (line[0] != ' ') {
 		ps_clean_string(psline, line, MAX_LINE_LENGTH);
-		fprintf (fh, "(%4x  %s) hexdump\n", ad, psline);
+		fprintf (fh, "(%04x  %s) hexdump\n", ad, psline);
 	}
         return;
 
