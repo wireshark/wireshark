@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.39 1999/11/19 22:32:00 gram Exp $
+ * $Id: main.c,v 1.40 1999/11/19 23:01:26 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -515,13 +515,10 @@ match_selected_cb(GtkWidget *w, gpointer data)
 			break;
 
 		case FT_IPv4:
-			dfilter_len = abbrev_len + 21;
+			dfilter_len = abbrev_len + 4 + 15 + 1;
 		        buf = g_malloc0(dfilter_len);
-			                      /* xxx.xxx.xxx.xxx */
-			format = g_strdup("%s ==                ");
-			ipv4_addr_sprintf(&(finfo_selected->value.ipv4), &format[6]),
-		        snprintf(buf, dfilter_len, format, hfinfo->abbrev);
-			g_free(format);
+		        snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,
+					ipv4_addr_str(&(finfo_selected->value.ipv4)));
 			break;
 
 		case FT_IPXNET:

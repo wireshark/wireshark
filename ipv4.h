@@ -5,7 +5,7 @@
  *
  * Gilbert Ramirez <gramirez@tivoli.cm>
  *
- * $Id: ipv4.h,v 1.2 1999/11/19 22:31:50 gram Exp $
+ * $Id: ipv4.h,v 1.3 1999/11/19 23:01:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -48,8 +48,9 @@ void ipv4_addr_set_netmask_bits(ipv4_addr *ipv4, guint new_nmask_bits);
 guint32 ipv4_get_net_order_addr(ipv4_addr *ipv4);
 guint32 ipv4_get_host_order_addr(ipv4_addr *ipv4);
 
-/* Print and IPv4 address in dotted decimal notation to an already-allocated string */
-void ipv4_addr_sprintf(ipv4_addr *ipv4, char *target_string);
+/* Returns a string pointer to a dotted-decimal notation representation of an IPv4
+ * address. The pointer points to a internal buffer, so don't try to g_free() it */
+gchar* ipv4_addr_str(ipv4_addr *ipv4);
 
 /* Compares two ipv4_addrs, taking into account the less restrictive of the
  * two netmasks, applying that netmask to both addrs.

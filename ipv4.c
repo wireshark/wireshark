@@ -5,7 +5,7 @@
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: ipv4.c,v 1.3 1999/11/19 22:31:50 gram Exp $
+ * $Id: ipv4.c,v 1.4 1999/11/19 23:01:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -43,6 +43,7 @@
 #endif
 
 #include "ipv4.h"
+#include "packet.h" /* for ip_to_str */
 
 static guint32 create_nmask(gint net_bits);
 
@@ -93,19 +94,11 @@ ipv4_get_host_order_addr(ipv4_addr *ipv4)
 	return ipv4->addr;
 }
 
-#define OCTET_0(x)	( ( x & 0xff000000 ) >> 24 )
-#define OCTET_1(x)	( ( x & 0x00ff0000 ) >> 16 )
-#define OCTET_2(x)	( ( x & 0x0000ff00 ) >>  8 )
-#define OCTET_3(x)	  ( x & 0x000000ff )
-
-void
-ipv4_addr_sprintf(ipv4_addr *ipv4, char *target_string)
+gchar*
+ipv4_addr_str(ipv4_addr *ipv4)
 {
-	sprintf(target_string, "%d.%d.%d.%d",
-			OCTET_0(ipv4->addr),
-			OCTET_1(ipv4->addr),
-			OCTET_2(ipv4->addr),
-			OCTET_3(ipv4->addr) );
+	guint32	ipv4_host_order = htonl(ipv4->addr);
+	return ip_to_str((gchar*)&ipv4_host_order);
 }
 
 static guint32
