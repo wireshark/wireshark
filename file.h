@@ -199,6 +199,22 @@ void cf_set_drops_known(capture_file *cf, gboolean drops_known);
 void cf_set_drops(capture_file *cf, guint32 drops);
 
 /**
+ * Get flag state, if the number of packet drops while capturing are known or not.
+ * 
+ * @param cf the capture file
+ * @return TRUE if the number of packet drops are known, FALSE otherwise
+ */
+gboolean cf_get_drops_known(capture_file *cf);
+
+/**
+ * Get the number of packet drops while capturing.
+ * 
+ * @param cf the capture file
+ * @return the number of packet drops occured while capturing
+ */
+guint32 cf_get_drops(capture_file *cf);
+
+/**
  * Set the read filter.
  * @todo this shouldn't be required, remove it somehow
  * 

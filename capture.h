@@ -104,6 +104,12 @@ capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt
  */
 extern gboolean do_capture(capture_options *capture_opts);
 
+/**
+ * Read in the newly captured data into the capture_file. 
+ */
+extern gboolean capture_read(capture_options *capture_opts, gboolean is_tempfile, gboolean drops_known,
+guint32 drops);
+
 /** Do the low-level work of a capture (start the capture child).
  *  Returns TRUE if it succeeds, FALSE otherwise. */
 extern int  capture_child_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats);

@@ -165,7 +165,15 @@ do_capture(capture_options *capture_opts)
   /* close the currently loaded capture file */
   cf_close(capture_opts->cf);
 
-  if (capture_opts->sync_mode) {	
+  /* We could simply use TRUE for this expression now, this will work for all 
+   * captures except for some of the multiple files options, as these capture 
+   * options currently cannot be passed through the command line to the 
+   * capture child.
+   *
+   * If this is fixed, we could always use the sync mode, throwing away the 
+   * normal mode completely and doing some more cleanup. */
+/*  if (TRUE) {*/
+  if (capture_opts->sync_mode) {
     /* sync mode: do the capture in a child process */
     ret = sync_pipe_do_capture(capture_opts, is_tempfile);
     /* capture is still running */
@@ -182,9 +190,9 @@ do_capture(capture_options *capture_opts)
 
 
 /* we've succeeded a capture, try to read it into a new capture file */
-static gboolean
-capture_read(capture_options *capture_opts, gboolean is_tempfile, gboolean stats_known,
-struct pcap_stat stats)
+gboolean
+capture_read(capture_options *capture_opts, gboolean is_tempfile, gboolean drops_known,
+guint32 drops)
 {
     int err;
 
@@ -218,7 +226,7 @@ struct pcap_stat stats)
        we'll put them into the capture file that we write, and will
        thus not have to set them here - "cf_read()" will get them from
        the file and use them. */
-    if (stats_known) {
+    if (drops_known) {
       cf_set_drops_known(capture_opts->cf, TRUE);
 
       /* XXX - on some systems, libpcap doesn't bother filling in
@@ -229,7 +237,7 @@ struct pcap_stat stats)
          several statistics - perhaps including various interface
          error statistics - and would tell us which of them it
          supplies, allowing us to display only the ones it does. */
-      cf_set_drops(capture_opts->cf, stats.ps_drop);
+      cf_set_drops(capture_opts->cf, drops);
     }
     switch (cf_read(capture_opts->cf)) {
 
@@ -277,7 +285,7 @@ normal_do_capture(capture_options *capture_opts, gboolean is_tempfile)
     }
     if (succeeded) {
         /* We succeed in doing the capture, try to read it in. */
-        succeeded = capture_read(capture_opts, is_tempfile, stats_known, stats);
+        succeeded = capture_read(capture_opts, is_tempfile, stats_known, stats.ps_drop);
     }
 
     /* wether the capture suceeded or not, we have to close the output file here */
@@ -325,7 +333,7 @@ void
 capture_stop(capture_options *capture_opts)
 {
   /* stop the capture child, if we have one */
-  if (capture_opts->sync_mode) {	
+  if (!capture_opts->capture_child) {	
     sync_pipe_stop(capture_opts);
   }
 
@@ -337,7 +345,7 @@ void
 capture_kill_child(capture_options *capture_opts)
 {
   /* kill the capture child, if we have one */
-  if (capture_opts->sync_mode) {	
+  if (!capture_opts->capture_child) {	
     sync_pipe_kill(capture_opts);
   }
 }

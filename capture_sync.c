@@ -490,34 +490,88 @@ sync_pipe_do_capture(capture_options *capture_opts, gboolean is_tempfile) {
       return FALSE;
     }
 
-    /* The child process started a capture.
-       Attempt to open the capture file and set up to read it. */
-    switch(cf_start_tail(capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
-    case CF_OK:
-        /* We were able to open and set up to read the capture file;
-           arrange that our callback be called whenever it's possible
-           to read from the sync pipe, so that it's called when
-           the child process wants to tell us something. */
+    if(capture_opts->sync_mode) {
+        /* The child process started a capture.
+           Attempt to open the capture file and set up to read it. */
+        switch(cf_start_tail(capture_opts->cf, capture_opts->save_file, is_tempfile, &err)) {
+        case CF_OK:
+            /* We were able to open and set up to read the capture file;
+               arrange that our callback be called whenever it's possible
+               to read from the sync pipe, so that it's called when
+               the child process wants to tell us something. */
+            pipe_input_set_handler(sync_pipe[PIPE_READ], (gpointer) capture_opts, &capture_opts->fork_child, sync_pipe_input_cb);
+
+            return TRUE;
+            break;
+        case CF_ERROR:
+            /* We weren't able to open the capture file; user has been
+            alerted. Close the sync pipe. */
+
+            close(sync_pipe[PIPE_READ]);
+
+            /* Don't unlink the save file - leave it around, for debugging
+            purposes. */
+            g_free(capture_opts->save_file);
+            capture_opts->save_file = NULL;
+            return FALSE;
+            break;
+        }
+
+        g_assert_not_reached();
+        return FALSE;
+    } else {
         pipe_input_set_handler(sync_pipe[PIPE_READ], (gpointer) capture_opts, &capture_opts->fork_child, sync_pipe_input_cb);
-
         return TRUE;
-        break;
-    case CF_ERROR:
-        /* We weren't able to open the capture file; user has been
-        alerted. Close the sync pipe. */
+    }
+}
 
-        close(sync_pipe[PIPE_READ]);
 
-        /* Don't unlink the save file - leave it around, for debugging
-        purposes. */
+static void
+sync_pipe_closed(capture_options *capture_opts)
+{
+    int  err;
+
+
+    /* The child has closed the sync pipe, meaning it's not going to be
+       capturing any more packets.  Pick up its exit status, and
+       complain if it did anything other than exit with status 0. */
+    sync_pipe_wait_for_child(capture_opts, FALSE);
+
+    if(capture_opts->sync_mode) {
+        /* Read what remains of the capture file, and finish the capture.
+           XXX - do something if this fails? */
+        switch (cf_finish_tail(capture_opts->cf, &err)) {
+
+        case CF_READ_OK:
+            if(cf_packet_count(capture_opts->cf) == 0) {
+              simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
+              "%sNo packets captured!%s\n\n"
+              "As no data was captured, closing the %scapture file!",
+              simple_dialog_primary_start(), simple_dialog_primary_end(),
+              cf_is_tempfile(capture_opts->cf) ? "temporary " : "");
+              cf_close(capture_opts->cf);
+            }
+            break;
+        case CF_READ_ERROR:
+          /* Just because we got an error, that doesn't mean we were unable
+             to read any of the file; we handle what we could get from the
+             file. */
+          break;
+
+        case CF_READ_ABORTED:
+          /* Exit by leaving the main loop, so that any quit functions
+             we registered get called. */
+          main_window_quit();
+        }
+
+        /* We're not doing a capture any more, so we don't have a save
+           file. */
         g_free(capture_opts->save_file);
         capture_opts->save_file = NULL;
-        return FALSE;
-        break;
+    } else {
+        /* this is a normal mode capture, read in the capture file data */
+        capture_read(capture_opts, cf_is_tempfile(capture_opts->cf), cf_get_drops_known(capture_opts->cf), cf_get_drops(capture_opts->cf));
     }
-
-    g_assert_not_reached();
-    return FALSE;
 }
 
 
@@ -542,40 +596,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     /* The child has closed the sync pipe, meaning it's not going to be
        capturing any more packets.  Pick up its exit status, and
        complain if it did anything other than exit with status 0. */
-    sync_pipe_wait_for_child(capture_opts, FALSE);
-
-    /* Read what remains of the capture file, and finish the capture.
-       XXX - do something if this fails? */
-    switch (cf_finish_tail(capture_opts->cf, &err)) {
-
-    case CF_READ_OK:
-        if(cf_packet_count(capture_opts->cf) == 0) {
-          simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, 
-          "%sNo packets captured!%s\n\n"
-          "As no data was captured, closing the %scapture file!",
-          simple_dialog_primary_start(), simple_dialog_primary_end(),
-          cf_is_tempfile(capture_opts->cf) ? "temporary " : "");
-          cf_close(capture_opts->cf);
-        }
-        break;
-    case CF_READ_ERROR:
-      /* Just because we got an error, that doesn't mean we were unable
-         to read any of the file; we handle what we could get from the
-         file. */
-      break;
-
-    case CF_READ_ABORTED:
-      /* Exit by leaving the main loop, so that any quit functions
-         we registered get called. */
-      main_window_quit();
-      return FALSE;
-    }
-
-    /* We're not doing a capture any more, so we don't have a save
-       file. */
-    g_free(capture_opts->save_file);
-    capture_opts->save_file = NULL;
-
+    sync_pipe_closed(capture_opts);
     return FALSE;
   }
 
@@ -673,25 +694,27 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     }
   }
 
-  /* Read from the capture file the number of records the child told us
-     it added.
-     XXX - do something if this fails? */
-  switch (cf_continue_tail(capture_opts->cf, to_read, &err)) {
+  if(capture_opts->sync_mode) {
+      /* Read from the capture file the number of records the child told us
+         it added.
+         XXX - do something if this fails? */
+      switch (cf_continue_tail(capture_opts->cf, to_read, &err)) {
 
-  case CF_READ_OK:
-  case CF_READ_ERROR:
-    /* Just because we got an error, that doesn't mean we were unable
-       to read any of the file; we handle what we could get from the
-       file.
+      case CF_READ_OK:
+      case CF_READ_ERROR:
+        /* Just because we got an error, that doesn't mean we were unable
+           to read any of the file; we handle what we could get from the
+           file.
 
-       XXX - abort on a read error? */
-    break;
+           XXX - abort on a read error? */
+        break;
 
-  case CF_READ_ABORTED:
-    /* Kill the child capture process; the user wants to exit, and we
-       shouldn't just leave it running. */
-    capture_kill_child(capture_opts);
-    break;
+      case CF_READ_ABORTED:
+        /* Kill the child capture process; the user wants to exit, and we
+           shouldn't just leave it running. */
+        capture_kill_child(capture_opts);
+        break;
+      }
   }
 
   return TRUE;

@@ -669,6 +669,18 @@ void cf_set_drops(capture_file *cf, guint32 drops)
     cf->drops = drops;
 }
 
+/* XXX - use a macro instead? */
+gboolean cf_get_drops_known(capture_file *cf)
+{
+    return cf->drops_known;
+}
+
+/* XXX - use a macro instead? */
+guint32 cf_get_drops(capture_file *cf)
+{
+    return cf->drops;
+}
+
 void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode)
 {
     cf->rfcode = rfcode;
