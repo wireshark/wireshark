@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.72 2003/04/28 19:24:48 guy Exp $
+ * $Id: packet-icmpv6.c,v 1.73 2003/05/28 22:40:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -228,7 +228,7 @@ again:
 	}
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + sizeof(*opt), len, "Link-layer address: %s", t);
-	free(t);
+	g_free(t);
 	break;
       }
     case ND_OPT_PREFIX_INFORMATION:

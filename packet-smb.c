@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.343 2003/05/23 01:45:27 tpot Exp $
+ * $Id: packet-smb.c,v 1.344 2003/05/28 22:40:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1063,7 +1063,7 @@ TimeZoneFaster(time_t t)
 			tdt = g_realloc(dst_table, sizeof(dst_table[0])*(i+1));
 		if (tdt == NULL) {
 			if (dst_table)
-				free(dst_table);
+				g_free(dst_table);
 			table_size = 0;
 		} else {
 			dst_table = tdt;

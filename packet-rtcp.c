@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.36 2003/04/27 20:57:58 deniel Exp $
+ * $Id: packet-rtcp.c,v 1.37 2003/05/28 22:40:19 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -390,7 +390,7 @@ dissect_rtcp_bye( tvbuff_t *tvb, int offset, proto_tree *tree,
 		/* strncpy( reason_text, pd + offset, reason_length ); */
 		reason_text[ reason_length ] = '\0';
 		proto_tree_add_string( tree, hf_rtcp_ssrc_text, tvb, offset, reason_length, reason_text );
-		free( reason_text );
+		g_free( reason_text );
 		offset += reason_length;
 	}
 
@@ -469,7 +469,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 				/* strncpy( prefix_string, pd + offset, prefix_len ); */
 				prefix_string[ prefix_len ] = '\0';
 				proto_tree_add_string( sdes_item_tree, hf_rtcp_ssrc_prefix_string, tvb, offset, prefix_len, prefix_string );
-				free( prefix_string );
+				g_free( prefix_string );
 				offset += prefix_len;
 			}
 			prefix_string = g_malloc( item_len + 1 );
@@ -479,7 +479,7 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 			/* strncpy( prefix_string, pd + offset, item_len ); */
 			prefix_string[ item_len] = 0;
 			proto_tree_add_string( sdes_item_tree, hf_rtcp_ssrc_text, tvb, offset, item_len, prefix_string );
-			free( prefix_string );
+			g_free( prefix_string );
 			offset += item_len;
 		}
 

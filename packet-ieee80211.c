@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.88 2003/05/25 19:35:33 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.89 2003/05/28 22:40:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2546,7 +2546,7 @@ static tvbuff_t *try_decrypt_wep(tvbuff_t *tvb, guint32 offset, guint32 len) {
   }
 
  done:
-  if ((!decr_tvb) && (tmp))    free(tmp);
+  if ((!decr_tvb) && (tmp))    g_free(tmp);
 
 #if 0
   printf("de-wep %p\n", decr_tvb);
