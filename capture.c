@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.154 2001/10/25 06:41:48 guy Exp $
+ * $Id: capture.c,v 1.155 2001/10/25 08:06:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1441,7 +1441,7 @@ capture(gboolean *stats_known, struct pcap_stat *stats)
   /* Does "open_err_str" contain a non-empty string?  If so, "pcap_open_live()"
      returned a warning; print it, but keep capturing. */
   if (open_err_str[0] != '\0')
-    fprintf(stderr, "ethereal: WARNING: %s.\n", open_err_str);
+    g_warning("%s.", open_err_str);
 
   /* XXX - capture SIGTERM and close the capture, in case we're on a
      Linux 2.0[.x] system and you have to explicitly close the capture
