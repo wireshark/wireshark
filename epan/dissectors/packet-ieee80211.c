@@ -1687,7 +1687,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   char out_buff[SHORT_STR];
   gint is_iv_bad;
   guchar iv_buff[4];
-  wlan_hdr *whdr;
+  wlan_hdr *volatile whdr;
   static wlan_hdr whdrs[4];
 
   whdr= &whdrs[0];
