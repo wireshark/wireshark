@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.55 2002/02/14 02:32:14 ashokn Exp $
+ * $Id: packet-rsvp.c,v 1.56 2002/03/01 21:39:01 ashokn Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -108,6 +108,8 @@ static gint ett_rsvp_explicit_route_subobj = -1;
 static gint ett_rsvp_record_route = -1;
 static gint ett_rsvp_record_route_subobj = -1;
 static gint ett_rsvp_hop_subobj = -1;
+static gint ett_rsvp_admin_status = -1;
+static gint ett_rsvp_admin_status_flags = -1;
 static gint ett_rsvp_unknown_class = -1;
 
 
@@ -185,6 +187,7 @@ enum rsvp_classes {
     RSVP_CLASS_SUGGESTED_LABEL = 140,  /* Number is TBA */
 
     RSVP_CLASS_SESSION_ATTRIBUTE = 207,
+    RSVP_CLASS_ADMIN_STATUS = 210,     /* Number is TBA */
     RSVP_CLASS_DCLASS = 225,
     RSVP_CLASS_LSP_TUNNEL_IF_ID = 227,
 };
@@ -219,6 +222,7 @@ static value_string rsvp_class_vals[] = {
     {RSVP_CLASS_SUGGESTED_LABEL, "SUGGESTED-LABEL object"},
     {RSVP_CLASS_DCLASS, "DCLASS object"},
     {RSVP_CLASS_LSP_TUNNEL_IF_ID, "LSP-TUNNEL INTERFACE-ID object"},
+    {RSVP_CLASS_ADMIN_STATUS, "ADNUM-STATUS object"},
     {0, NULL}
 };
 
@@ -500,6 +504,7 @@ enum rsvp_filter_keys {
     RSVPF_SESSION_ATTRIBUTE,
     RSVPF_DCLASS,
     RSVPF_LSP_TUNNEL_IF_ID,
+    RSVPF_ADMIN_STATUS,
     RSVPF_UNKNOWN_OBJ, 
 
     /* Session object */
@@ -686,6 +691,10 @@ static hf_register_info rsvpf_info[] = {
      { "LSP INTERFACE-ID", "rsvp.lsp_tunnel_if_id", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
 
+    {&rsvp_filter[RSVPF_ADMIN_STATUS], 
+     { "ADMIN STATUS", "rsvp.admin-status", FT_NONE, BASE_NONE, NULL, 0x0,
+     	"", HFILL }},
+
     {&rsvp_filter[RSVPF_UNKNOWN_OBJ], 
      { "Unknown object", "rsvp.obj_unknown", FT_NONE, BASE_NONE, NULL, 0x0,
      	"", HFILL }},
@@ -757,6 +766,8 @@ static inline int rsvp_class_to_filter_num(int classnum)
 
     case RSVP_CLASS_SUGGESTED_LABEL :
 	return RSVPF_SUGGESTED_LABEL;
+    case RSVP_CLASS_ADMIN_STATUS :
+	return RSVPF_ADMIN_STATUS;
     case RSVP_CLASS_SESSION_ATTRIBUTE :
 	return RSVPF_SESSION_ATTRIBUTE;
     case RSVP_CLASS_DCLASS :
@@ -860,6 +871,7 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *rsvp_object_tree;
     proto_tree *rsvp_sa_flags_tree;
     proto_tree *rsvp_ero_subtree;
+    proto_tree *rsvp_admin_subtree;
     proto_tree *rsvp_hop_subtree;
     guint8 ver_flags;
     guint8 message_type;
@@ -2644,6 +2656,59 @@ dissect_rsvp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 }
                 break;
 
+	    case RSVP_CLASS_ADMIN_STATUS: {
+		ulong status = 0;
+		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_admin_status);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
+				    "Length: %u", obj_length);
+		proto_tree_add_text(rsvp_object_tree, tvb, offset+2, 1, 
+				    "Class number: %u - %s", 
+				    class, object_type);
+		proto_item_set_text(ti, "ADMIN STATUS: ");
+                switch(type) {
+                case 1: 
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: 1");
+		    status = tvb_get_ntohl(tvb, offset2);
+		    ti2 = proto_tree_add_text(rsvp_object_tree, tvb, offset2, 4,
+					      "Admin Status: 0x%04lx", status);
+		    rsvp_admin_subtree = 
+			proto_item_add_subtree(ti2, ett_rsvp_admin_status_flags); 
+		    proto_tree_add_text(rsvp_admin_subtree, tvb, offset2, 1,
+					(status & (1<<31)) ? 
+					"R: 1. Reflect" : 
+					"R: 0. Do not reflect");
+		    proto_tree_add_text(rsvp_admin_subtree, tvb, offset2+3, 1,
+					(status & (1<<2)) ? 
+					"T: 1. Testing" : 
+					"T: 0. ");
+		    proto_tree_add_text(rsvp_admin_subtree, tvb, offset2+3, 1,
+					(status & (1<<1)) ? 
+					"A: 1. Administratively down" : 
+					"A: 0. ");
+		    proto_tree_add_text(rsvp_admin_subtree, tvb, offset2+3, 1,
+					(status & 1) ? 
+					"D: 1. Deletion in progress" : 
+					"D: 0. ");
+                    proto_item_set_text(ti, "ADMIN-STATUS: %s %s %s %s", 
+					(status & (1<<31)) ? "Reflect" : "",
+					(status & (1<<2))  ? "Testing" : "",
+					(status & (1<<1))  ? "Admin-Down" : "",
+					(status & (1<<0))  ? "Deleting" : "");
+		    break;
+
+                default:
+                    mylen = obj_length - 4;
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1, 
+					"C-type: Unknown (%u)",
+					type);
+		    proto_tree_add_text(rsvp_object_tree, tvb, offset2, mylen,
+					"Data (%d bytes)", mylen);
+		    break;
+                }
+	    }
+                break;
+
 	    case RSVP_CLASS_LSP_TUNNEL_IF_ID:
 		rsvp_object_tree = proto_item_add_subtree(ti, ett_rsvp_lsp_tunnel_if_id);
 		proto_tree_add_text(rsvp_object_tree, tvb, offset, 2,
@@ -2736,6 +2801,8 @@ proto_register_rsvp(void)
 		&ett_rsvp_hello_obj,
 		&ett_rsvp_dclass,
 		&ett_rsvp_lsp_tunnel_if_id,
+		&ett_rsvp_admin_status,
+		&ett_rsvp_admin_status_flags,
 		&ett_rsvp_unknown_class,
 	};
 
