@@ -6,7 +6,7 @@
 #
 # Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
 #
-# $Id: process-x11-fields.pl,v 1.3 2001/04/20 19:20:31 guy Exp $
+# $Id: process-x11-fields.pl,v 1.4 2001/04/21 08:04:43 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,16 @@ while(<>) {
     }
 
     @fields = split /\s+/o ;
+    if ($fields[0] eq '#') {
+	#
+	# If the line begins with "#", treat it as a comment, by
+	# ignoring it.
+	#
+	# (We don't support comments at the end of a line; that would
+	# require some more pain in our simple parser.)
+	#
+	next;
+    }
     $abbrev = shift @fields;
     $type = shift @fields;
     $lastAbbrev = $abbrev;
