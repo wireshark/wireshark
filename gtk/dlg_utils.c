@@ -1,7 +1,7 @@
 /* dlg_utils.c
  * Utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.c,v 1.14 2003/12/13 03:36:17 guy Exp $
+ * $Id: dlg_utils.c,v 1.15 2004/01/07 00:10:51 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -198,5 +198,16 @@ dlg_check_button_new_with_label_with_mnemonic(const gchar *label,
   check_button = gtk_check_button_new_with_label (label);
   dlg_fix_button_label(check_button, accel_group);
   return check_button;
+}
+
+GtkWidget *
+dlg_toggle_button_new_with_label_with_mnemonic(const gchar *label,
+			GtkAccelGroup *accel_group)
+{
+  GtkWidget *toggle_button;
+
+  toggle_button = gtk_toggle_button_new_with_label (label);
+  dlg_fix_button_label(toggle_button, accel_group);
+  return toggle_button;
 }
 #endif

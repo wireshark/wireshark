@@ -1,7 +1,7 @@
 /* range.c
  * Packet range routines (save, print, ...)
  *
- * $Id: range.c,v 1.4 2004/01/05 22:21:53 ulfl Exp $
+ * $Id: range.c,v 1.5 2004/01/07 00:10:17 ulfl Exp $
  *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
@@ -57,12 +57,25 @@ static guint         GLnrange=0;
 struct range_admin   GLrange[MaxRange];
 static guint32       max_packets;
 
-void packet_range_init(packet_range_t *range) {
+
+void packet_range_calc(packet_range_t *range) {
   guint32       current_count;
-  guint32       displayed_count;
   guint32       mark_low;
   guint32       mark_high;
+  guint32       displayed_mark_low;
+  guint32       displayed_mark_high;
   frame_data    *packet;
+
+  
+  mark_low              = 0L;
+  mark_high             = 0L;
+  range->mark_range     = 0L;
+
+  displayed_mark_low    = 0L;
+  displayed_mark_high   = 0L;
+  range->displayed_cnt  = 0L;
+  range->displayed_marked_cnt = 0L;
+  range->displayed_mark_range = 0L;
 
   /* The next for-loop is used to obtain the amount of packets to be saved
    * and is used to present the information in the Save/Print As widget.
@@ -72,16 +85,6 @@ void packet_range_init(packet_range_t *range) {
    * data must be entered in the widget by the user.
    */
 
-  /* "enumeration" values */
-  range->markers            = cfile.marked_count;
-  range->range_active       = FALSE;
-  range->process_curr_done  = FALSE;
-
-  displayed_count   = 0L;
-  mark_low          = 0L;
-  mark_high         = 0L;
-  range->mark_range = 0L;
-
   current_count = 0;
   for(packet = cfile.plist; packet != NULL; packet = packet->next) {
       current_count++;
@@ -89,9 +92,19 @@ void packet_range_init(packet_range_t *range) {
           range->selected_packet = current_count;
       }
       if (packet->flags.passed_dfilter) {
-          displayed_count++;
+          range->displayed_cnt++;
       }
       if (packet->flags.marked) {
+            if (packet->flags.passed_dfilter) {
+                range->displayed_marked_cnt++;
+                if (displayed_mark_low == 0) {
+                   displayed_mark_low = current_count;
+                }
+                if (current_count > displayed_mark_high) {
+                   displayed_mark_high = current_count;
+                }
+            }
+
             if (mark_low == 0) {
                mark_low = current_count;
             }
@@ -101,13 +114,47 @@ void packet_range_init(packet_range_t *range) {
       }
   }
         
-  /* in case we marked just one packet, we add 1. */
-  if (cfile.marked_count != 0) {
-    range->mark_range = mark_high - mark_low + 1;
+  current_count = 0;
+  for(packet = cfile.plist; packet != NULL; packet = packet->next) {
+      current_count++;
+
+      if (current_count >= mark_low && 
+          current_count <= mark_high)
+      {
+          range->mark_range++;
+      }
+
+      if (current_count >= displayed_mark_low && 
+          current_count <= displayed_mark_high)
+      {
+          if (packet->flags.passed_dfilter) {
+            range->displayed_mark_range++;
+          }
+      }
   }
+
+  /* in case we marked just one packet, we add 1. */
+  /*if (cfile.marked_count != 0) {
+    range->mark_range = mark_high - mark_low + 1;
+  }*/
+        
+  /* in case we marked just one packet, we add 1. */
+  /*if (range->displayed_marked_cnt != 0) {
+    range->displayed_mark_range = displayed_mark_high - displayed_mark_low + 1;
+  }*/
         
   /* make this global, to be used in function packet_range_convert_str()  */
   max_packets = cfile.count;
+}
+
+void packet_range_init(packet_range_t *range) {
+
+  /* "enumeration" values */
+  range->markers            = cfile.marked_count;
+  range->range_active       = FALSE;
+  range->process_curr_done  = FALSE;
+
+  packet_range_calc(range);
 }
 
 

@@ -1,7 +1,7 @@
 /* range.h
  * Packet range routines (save, print, ...)
  *
- * $Id: range.h,v 1.4 2004/01/05 22:21:53 ulfl Exp $
+ * $Id: range.h,v 1.5 2004/01/07 00:10:17 ulfl Exp $
  *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
@@ -51,6 +51,10 @@ typedef struct packet_range_tag {
     /* calculated values */
     guint32  mark_range;
     guint32  selected_packet;
+
+    guint32  displayed_cnt;
+    guint32  displayed_marked_cnt;
+    guint32  displayed_mark_range;
 
     /* "enumeration" values */
     gboolean range_active;

@@ -1,7 +1,7 @@
 /* dlg_utils.h
  * Declarations of utilities to use when constructing dialogs
  *
- * $Id: dlg_utils.h,v 1.7 2003/09/24 08:43:34 guy Exp $
+ * $Id: dlg_utils.h,v 1.8 2004/01/07 00:10:51 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -26,24 +26,26 @@
 #define __DLG_UTILS_H__
 
 /* Create a dialog box window that belongs to Ethereal's main window. */
-GtkWidget *dlg_window_new(const gchar *);
+extern GtkWidget *dlg_window_new(const gchar *);
 
 /* Create a file selection dialog box window that belongs to Ethereal's
    main window. */
-GtkWidget *file_selection_new(const gchar *);
+extern GtkWidget *file_selection_new(const gchar *);
 
 /* Set the "activate" signal for a widget to call a routine to
    activate the "OK" button for a dialog box. */
-void dlg_set_activate(GtkWidget *widget, GtkWidget *ok_button);
+extern void dlg_set_activate(GtkWidget *widget, GtkWidget *ok_button);
 
 /* Set the "key_press_event" signal for a top-level dialog window to
    call a routine to activate the "Cancel" button for a dialog box if
    the key being pressed is the <Esc> key. */
-void dlg_set_cancel(GtkWidget *widget, GtkWidget *cancel_button);
+extern void dlg_set_cancel(GtkWidget *widget, GtkWidget *cancel_button);
 
-GtkWidget *dlg_radio_button_new_with_label_with_mnemonic(GSList *group,
+extern GtkWidget *dlg_radio_button_new_with_label_with_mnemonic(GSList *group,
     const gchar *label, GtkAccelGroup *accel_group);
-GtkWidget *dlg_check_button_new_with_label_with_mnemonic(const gchar *label,
+extern GtkWidget *dlg_check_button_new_with_label_with_mnemonic(const gchar *label,
     GtkAccelGroup *accel_group);
+extern GtkWidget *dlg_toggle_button_new_with_label_with_mnemonic(const gchar *label,
+			GtkAccelGroup *accel_group);
 
 #endif
