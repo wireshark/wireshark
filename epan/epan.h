@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.h,v 1.4 2000/10/16 23:17:39 guy Exp $
+ * $Id: epan.h,v 1.5 2001/02/01 20:21:16 gram Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -44,7 +44,10 @@ epan_free(epan_t*);
  * as the structures that the epan_dissect_t contains might have pointers
  * to addresses in your byte array.
  */
-typedef struct epan_dissect epan_dissect_t;
+typedef struct {
+	tvbuff_t	*tvb;
+	proto_tree	*tree;
+} epan_dissect_t;
 
 epan_dissect_t*
 epan_dissect_new(void* pseudo_header, const guint8* data, frame_data *fd, proto_tree *tree);

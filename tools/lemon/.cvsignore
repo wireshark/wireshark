@@ -1,0 +1,8 @@
+.cvsignore
+.deps
+Makefile
+lemon
+lemon.exe
+lemon.obj
+.libs
+Makefile.in

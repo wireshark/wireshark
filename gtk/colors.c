@@ -1,7 +1,7 @@
 /* colors.c
  * Definitions for color structures and routines
  *
- * $Id: colors.c,v 1.6 2000/09/28 03:16:29 gram Exp $
+ * $Id: colors.c,v 1.7 2001/02/01 20:21:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,7 +44,7 @@
 #include "packet.h"
 #include "colors.h"
 #include "file.h"
-#include "dfilter.h"
+#include "dfilter/dfilter.h"
 #include "simple_dialog.h"
 #include "util.h"
 
@@ -120,8 +120,8 @@ colfilter_new(void)
 	    default_colors[i].proto);
 	colorf->bg_color = color;
 
-	if (dfilter_compile(default_colors[i].proto,
-	    &colorf->c_colorfilter) != 0) {
+	if (!dfilter_compile(default_colors[i].proto,
+	    &colorf->c_colorfilter)) {
 		simple_dialog(ESD_TYPE_WARN, NULL,
 		  "Cannot compile default color filter %s.\n%s",
 		  default_colors[i].proto, dfilter_error_msg);
@@ -158,7 +158,7 @@ delete_color_filter(color_filter_t *colorf)
 	if (colorf->filter_text != NULL)
 	  g_free(colorf->filter_text);
 	if (colorf->c_colorfilter != NULL)
-	  dfilter_destroy(colorf->c_colorfilter);
+	  dfilter_free(colorf->c_colorfilter);
 	filter_list = g_slist_remove(filter_list, colorf);
 	g_free(colorf);
 }
@@ -177,7 +177,7 @@ read_filters(colfilter *filter)
 	FILE *f;
 	gchar *path;
 	gchar *fname = PF_DIR "/colorfilters";
-	dfilter *temp_dfilter;
+	dfilter_t *temp_dfilter;
 
 	/* decide what file to open (from dfilter code) */
 
@@ -217,7 +217,7 @@ read_filters(colfilter *filter)
 		name, filter_exp, &bg_r, &bg_g, &bg_b, &fg_r, &fg_g, &fg_b) == 8){
 		/* we got a filter */
 
-	    if(dfilter_compile(filter_exp, &temp_dfilter) != 0){
+	    if(!dfilter_compile(filter_exp, &temp_dfilter)) {
 		simple_dialog(ESD_TYPE_CRIT, NULL,
 		 "Could not compile color filter %s from saved filters.\n%s",
 		 name, dfilter_error_msg);

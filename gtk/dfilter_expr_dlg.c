@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.5 2001/01/10 23:36:35 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.6 2001/02/01 20:21:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -139,7 +139,7 @@ field_select_row_cb(GtkWidget *tree, GList *node, gint column,
 	    E_DFILTER_EXPR_ACCEPT_BT_KEY);
 	header_field_info *hfinfo, *cur_hfinfo;
 	guint32 relations;
-	char *value_type;
+	const char *value_type;
 	char value_label_string[1024+1];	/* XXX - should be large enough */
 
 	hfinfo = gtk_ctree_node_get_row_data(GTK_CTREE(tree),
@@ -246,95 +246,7 @@ field_select_row_cb(GtkWidget *tree, GList *node, gint column,
 	 * Set the label for the value to indicate what type of value
 	 * it is.
 	 */
-	switch (hfinfo->type) {
-
-	case FT_NONE:
-		/*
-		 * You can only test for the field's presence; hide
-		 * the value stuff.
-		 */
-		value_type = NULL;
-		break;
-
-	case FT_BOOLEAN:
-		value_type = "Boolean";
-		break;
-
-	case FT_UINT8:
-		value_type = "unsigned, byte";
-		break;
-
-	case FT_UINT16:
-		value_type = "unsigned, 2 bytes";
-		break;
-
-	case FT_UINT24:
-		value_type = "unsigned, 3 bytes";
-		break;
-
-	case FT_UINT32:
-		value_type = "unsigned, 4 bytes";
-		break;
-
-	case FT_INT8:
-		value_type = "signed, byte";
-		break;
-
-	case FT_INT16:
-		value_type = "signed, 2 bytes";
-		break;
-
-	case FT_INT24:
-		value_type = "signed, 3 bytes";
-		break;
-
-	case FT_INT32:
-		value_type = "signed, 4 bytes";
-		break;
-
-	case FT_DOUBLE:
-		value_type = "floating point";
-		break;
-
-	case FT_ABSOLUTE_TIME:
-		value_type = "date and time";
-		break;
-
-	case FT_RELATIVE_TIME:
-		value_type = "time";
-		break;
-
-	case FT_STRING:
-	case FT_STRINGZ:
-	case FT_UINT_STRING:
-		value_type = "character string";
-		break;
-
-	case FT_ETHER:
-		value_type = "Ethernet or other MAC address";
-		break;
-
-	case FT_BYTES:
-		value_type = "sequence of bytes";
-		break;
-
-	case FT_IPv4:
-		value_type = "IPv4 address";
-		break;
-
-	case FT_IPv6:
-		value_type = "IPv6 address";
-		break;
-
-	case FT_IPXNET:
-		value_type = "IPX network address";
-		break;
-
-	default:
-		g_assert_not_reached();
-		value_type = NULL;
-		break;
-	}
+	value_type = ftype_pretty_name(hfinfo->type);
 	if (value_type != NULL) {
 		/*
 		 * Indicate what type of value it is.

@@ -1,7 +1,7 @@
 /* colors.h
  * Definitions for color structures and routines
  *
- * $Id: colors.h,v 1.3 2000/08/11 13:33:00 deniel Exp $
+ * $Id: colors.h,v 1.4 2001/02/01 20:21:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,7 +26,7 @@
 #define  __COLORS_H__
 
 #include  "proto.h"
-#include  "dfilter.h"
+#include  "dfilter/dfilter.h"
 #include <gtk/gtk.h>
 
 #define MAXCOLORS	255
@@ -45,7 +45,7 @@ typedef struct _color_filter {
 	gchar *filter_text;	/* text of the filter expression */
 	GdkColor bg_color;	/* background color for packets that match */
 	GdkColor fg_color;	/* foreground color for packets that match */
-	dfilter *c_colorfilter;	/* compiled filter expression */
+	dfilter_t *c_colorfilter;	/* compiled filter expression */
 	GtkWidget *edit_dialog;	/* if filter is being edited, dialog box for it */
 } color_filter_t;
 

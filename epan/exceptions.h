@@ -11,6 +11,7 @@
 /* Ethereal's exceptions */
 #define BoundsError		1	/* Index is out of range */
 #define ReportedBoundsError	2	/* Index is beyond reported length (not cap_len) */
+#define TypeError		3	/* During dfilter parsing */
 
 /* Usage:
  *

@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.280 2001/01/28 04:43:24 guy Exp $
+# $Id: Makefile.am,v 1.281 2001/02/01 20:21:13 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -61,11 +61,11 @@ ACLOCAL_AMFLAGS = `./aclocal-flags`
 # automake will arrange that the Makefile define it as the union of all
 # the "man{section}_MANS" variables.
 #
-bin_PROGRAMS = @ethereal_bin@ @editcap_bin@ @tethereal_bin@
+bin_PROGRAMS = @ethereal_bin@ @editcap_bin@ @tethereal_bin@ @dftest_bin@ @randpkt_bin@
 man1_MANS = @ethereal_man@ @editcap_man@ @tethereal_man@
 man_MANS = 
 
-EXTRA_PROGRAMS = ethereal ethereal_static tethereal tethereal_static editcap
+EXTRA_PROGRAMS = ethereal ethereal_static tethereal tethereal_static editcap dftest
 
 sysconf_DATA = manuf
 
@@ -388,7 +388,12 @@ ethereal_optional_objects = @SNPRINTF_O@ @STRERROR_O@ \
 
 # Additional libs that I know how to build. These will be
 # linked into the ethereal executable.
-ethereal_additional_libs = wiretap/libwiretap.a gtk/libui.a epan/libethereal.a
+ethereal_additional_libs = \
+	wiretap/libwiretap.a	\
+	gtk/libui.a		\
+	epan/libethereal.a	\
+	epan/ftypes/libftypes.a \
+	epan/dfilter/libdfilter.a
 
 # This is the automake dependency variable for the executable
 ethereal_DEPENDENCIES = \
@@ -435,7 +440,11 @@ tethereal_static_SOURCES = \
 
 # Additional libs that I know how to build. These will be
 # linked into the tethereal executable.
-tethereal_additional_libs = wiretap/libwiretap.a epan/libethereal.a
+tethereal_additional_libs =		\
+	wiretap/libwiretap.a		\
+	epan/libethereal.a		\
+	epan/ftypes/libftypes.a		\
+	epan/dfilter/libdfilter.a
 
 # This is the automake dependency variable for the executable
 tethereal_DEPENDENCIES = \
@@ -515,6 +524,35 @@ randpkt.o: randpkt.c
 
 randpkt: randpkt.o wiretap/libwiretap.a
 	$(LINK) -o randpkt randpkt.o wiretap/libwiretap.a `glib-config --libs` -lz
+
+
+dftest_SOURCES = \
+	$(DISSECTOR_SOURCES) \
+	$(ETHEREAL_COMMON_SOURCES) \
+	dftest.c
+
+dftest_additional_libs =		\
+	epan/libethereal.a		\
+	epan/ftypes/libftypes.a		\
+	epan/dfilter/libdfilter.a
+
+dftest_DEPENDENCIES = \
+	$(ethereal_optional_objects)	\
+	$(dftest_additional_libs)	\
+	plugins/gryphon/gryphon.la \
+	plugins/mgcp/mgcp.la
+
+# This automake variable adds to the link-line for the executable
+dftest_LDADD = \
+	$(ethereal_optional_objects)	\
+	$(dftest_additional_libs)	\
+	@SNMP_LIBS@			\
+	"-dlopen" self	\
+	"-dlopen" plugins/gryphon/gryphon.la @GLIB_LIBS@ -lm \
+	"-dlopen" plugins/mgcp/mgcp.la @GLIB_LIBS@ -lm \
+	@PCAP_LIBS@ @SOCKET_LIBS@ @NSL_LIBS@
+
+dftest_LDFLAGS = -export-dynamic
 
 DISTCLEANFILES =	\
 	register.c	\
@@ -608,7 +646,7 @@ endif
 #dist-hook:
 #	@rm -f $(distdir)/register.c
 
-SUBDIRS = wiretap epan plugins packaging @ethereal_SUBDIRS@
+SUBDIRS = tools wiretap epan plugins packaging @ethereal_SUBDIRS@
 
 ethereal.1: ethereal doc/ethereal.pod.template
 	(cd doc ; \

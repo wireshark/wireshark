@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.12 2000/11/22 04:07:00 gram Exp $
+ * $Id: help_dlg.c,v 1.13 2001/02/01 20:21:21 gram Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -378,7 +378,7 @@ static void set_help_text(GtkWidget *w, help_type_t type)
 	nb_lines += 2;
       } else {
 
-	type_name = proto_registrar_ftype_name(hfinfo->type);
+	type_name = ftype_name(hfinfo->type);
 	snprintf(buffer, BUFF_LEN, "%s%s%s%s(%s)\n",
 		 hfinfo->abbrev, 
 		 &blanks[B_LEN - (maxlen - strlen(hfinfo->abbrev)) - 2],

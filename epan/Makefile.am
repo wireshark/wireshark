@@ -2,7 +2,7 @@
 # Automake file for the EPAN library
 # (Ethereal Protocol ANalyzer Library)
 #
-# $Id: Makefile.am,v 1.15 2001/01/17 06:13:39 guy Exp $
+# $Id: Makefile.am,v 1.16 2001/02/01 20:21:15 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -23,9 +23,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-
-# Any POSIX-compatible YACC should honor the -p flag
-YFLAGS=-d -p dfilter_
+SUBDIRS = ftypes dfilter
 
 # EPAN will eventually be a shared library. While I move source code around,
 # however, it is an archive library.
@@ -41,11 +39,6 @@ libethereal_a_SOURCES = \
 	bitswap.h		\
 	conversation.c		\
 	conversation.h		\
-	dfilter-int.h		\
-	dfilter-grammar.y	\
-	dfilter-scanner.l	\
-	dfilter.c		\
-	dfilter.h		\
 	epan.c			\
 	epan.h			\
 	except.c		\
@@ -53,6 +46,7 @@ libethereal_a_SOURCES = \
 	exceptions.h		\
 	filesystem.c		\
 	filesystem.h		\
+	gdebug.h		\
 	ipv4.c			\
 	ipv4.h			\
 	packet.c		\
@@ -78,9 +72,6 @@ EXTRA_libethereal_a_SOURCES =	\
 
 EXTRA_DIST = \
 	config.h.win32		\
-	dfilter-grammar.c	\
-	dfilter-grammar.h	\
-	dfilter-scanner.c	\
 	Makefile.nmake		\
 	tvbtest.c
 
@@ -94,8 +85,6 @@ CLEANFILES = \
 libethereal_a_LIBADD = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@
 libethereal_a_DEPENDENCIES = @INET_ATON_O@ @INET_PTON_O@ @INET_NTOP_O@
 
-dfilter-scanner.c : dfilter-scanner.l
-	$(LEX) -Pdfilter_ -odfilter-scanner.c $(srcdir)/dfilter-scanner.l
 
 tvbtest: tvbtest.o tvbuff.o except.o strutil.o
 	$(LINK) -o tvbtest tvbtest.o tvbuff.o except.o strutil.o `glib-config --libs`

@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.16 2001/01/22 08:03:46 guy Exp $
+ * $Id: packet-x11.c,v 1.17 2001/02/01 20:21:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -692,7 +692,7 @@ static void atom(tvbuff_t *tvb, proto_tree *t, int hf)
       else if (v)
 	    interpretation = "Not a predefined atom";
       else {
-	    struct header_field_info *hfi = proto_registrar_get_nth(hf);
+	    header_field_info *hfi = proto_registrar_get_nth(hf);
 	    if (hfi -> strings)
 		  interpretation = match_strval(v, cVALS(hfi -> strings));
       }
@@ -793,7 +793,7 @@ static void listOfArc(tvbuff_t *tvb, int hf, int length)
 	    gint16 angle1 = VALUE16(tvb, cur_offset + 8);
 	    gint16 angle2 = VALUE16(tvb, cur_offset + 10);
 
-	    proto_tree *ttt = proto_tree_add_protocol_format(tt, hf_x11_arc, tvb, cur_offset, 12, 
+	    proto_tree *ttt = proto_tree_add_none_format(tt, hf_x11_arc, tvb, cur_offset, 12, 
 							     "arc: %dx%d+%d+%d, angle %d -> %d (%f° -> %f°)",
 							     width, height, x, y, angle1, angle2,
 							     angle1 / 64.0, angle2 / 64.0);
@@ -868,7 +868,7 @@ static void listOfColorItem(tvbuff_t *tvb, int hf, int length)
 	    if (do_red_green_blue & 0x2) { bp += sprintf(bp, "%sgreen = %d", sep, green); sep = ", "; }
 	    if (do_red_green_blue & 0x4) bp += sprintf(bp, "%sblue = %d", sep, blue);
 
-	    ttt = proto_tree_add_protocol_format(tt, hf_x11_coloritem, tvb, cur_offset, 12, "%s", buffer);
+	    ttt = proto_tree_add_none_format(tt, hf_x11_coloritem, tvb, cur_offset, 12, "%s", buffer);
 	    proto_tree_add_item(ttt, hf_x11_coloritem_pixel, tvb, cur_offset, 4, little_endian); cur_offset += 4;
 	    proto_tree_add_item(ttt, hf_x11_coloritem_red, tvb, cur_offset, 2, little_endian); cur_offset += 2;
 	    proto_tree_add_item(ttt, hf_x11_coloritem_green, tvb, cur_offset, 2, little_endian); cur_offset += 2;
@@ -945,7 +945,7 @@ static void listOfKeysyms(tvbuff_t *tvb, int hf, int hf_item, int keycode_count,
 		  bp += sprintf(bp, " %s", keysymString(VALUE32(tvb, cur_offset + i * 4)));
 	    }
 	    *bp = '\0';
-	    ttt = proto_tree_add_protocol_format(tt, hf_item, tvb, cur_offset, keysyms_per_keycode * 4,
+	    ttt = proto_tree_add_none_format(tt, hf_item, tvb, cur_offset, keysyms_per_keycode * 4,
 						 "%s", buffer);
 	    for(i = keysyms_per_keycode; i; i--) {
 		  guint32 v = VALUE32(tvb, cur_offset);
@@ -970,7 +970,7 @@ static void listOfPoint(tvbuff_t *tvb, int hf, int length)
 	    x = VALUE16(tvb, cur_offset);
 	    y = VALUE16(tvb, cur_offset + 2);
 
-	    ttt = proto_tree_add_protocol_format(tt, hf_x11_point, tvb, cur_offset, 4, "point: (%d,%d)", x, y);
+	    ttt = proto_tree_add_none_format(tt, hf_x11_point, tvb, cur_offset, 4, "point: (%d,%d)", x, y);
 	    proto_tree_add_int(ttt, hf_x11_point_x, tvb, cur_offset, 2, x); cur_offset += 2;
 	    proto_tree_add_int(ttt, hf_x11_point_y, tvb, cur_offset, 2, y); cur_offset += 2;
       }
@@ -993,7 +993,7 @@ static void listOfRectangle(tvbuff_t *tvb, int hf, int length)
 	    width = VALUE16(tvb, cur_offset + 4);
 	    height = VALUE16(tvb, cur_offset + 6);
 
-	    ttt = proto_tree_add_protocol_format(tt, hf_x11_rectangle, tvb, cur_offset, 8, 
+	    ttt = proto_tree_add_none_format(tt, hf_x11_rectangle, tvb, cur_offset, 8, 
 						 "rectangle: %dx%d+%d+%d", width, height, x, y);
 	    proto_tree_add_int(ttt, hf_x11_rectangle_x, tvb, cur_offset, 2, x); cur_offset += 2;
 	    proto_tree_add_int(ttt, hf_x11_rectangle_y, tvb, cur_offset, 2, y); cur_offset += 2;
@@ -1018,7 +1018,7 @@ static void listOfSegment(tvbuff_t *tvb, int hf, int length)
 	    x2 = VALUE16(tvb, cur_offset + 4);
 	    y2 = VALUE16(tvb, cur_offset + 6);
 
-	    ttt = proto_tree_add_protocol_format(tt, hf_x11_segment, tvb, cur_offset, 8, 
+	    ttt = proto_tree_add_none_format(tt, hf_x11_segment, tvb, cur_offset, 8, 
 						 "segment: (%d,%d)-(%d,%d)", x1, y1, x2, y2);
 	    proto_tree_add_item(ttt, hf_x11_segment_x1, tvb, cur_offset, 2, little_endian); cur_offset += 2;
 	    proto_tree_add_item(ttt, hf_x11_segment_y1, tvb, cur_offset, 2, little_endian); cur_offset += 2;
@@ -1170,7 +1170,7 @@ static void listOfTextItem(tvbuff_t *tvb, int hf, int sizeIs16)
 			allocated = l + 1;
 		  }
 		  stringCopy(s, tvb_get_ptr(tvb, cur_offset + 2, l), l);
-		  ttt = proto_tree_add_protocol_format(tt, hf_x11_textitem_string, tvb, cur_offset, l + 2,
+		  ttt = proto_tree_add_none_format(tt, hf_x11_textitem_string, tvb, cur_offset, l + 2,
 						       "textitem (string): delta = %d, \"%s\"",
 						       delta, s);
 		  proto_tree_add_item(ttt, hf_x11_textitem_string_delta, tvb, cur_offset + 1, 1, little_endian);
@@ -1191,7 +1191,7 @@ static void listOfTextItem(tvbuff_t *tvb, int hf, int sizeIs16)
 static guint32 field8(tvbuff_t *tvb, int hf)
 {
       guint32 v = VALUE8(tvb, cur_offset);
-      struct header_field_info *hfi = proto_registrar_get_nth(hf);
+      header_field_info *hfi = proto_registrar_get_nth(hf);
       gchar *enumValue = NULL;
       gchar *nameAsChar = hfi -> name;
 
@@ -1216,7 +1216,7 @@ static guint32 field16(tvbuff_t *tvb, int hf)
 static guint32 field32(tvbuff_t *tvb, int hf)
 {
       guint32 v = VALUE32(tvb, cur_offset);
-      struct header_field_info *hfi = proto_registrar_get_nth(hf);
+      header_field_info *hfi = proto_registrar_get_nth(hf);
       gchar *enumValue = NULL;
       gchar *nameAsChar = hfi -> name;
 

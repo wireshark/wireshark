@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.176 2001/01/28 23:56:29 guy Exp $
+ * $Id: main.c,v 1.177 2001/02/01 20:21:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -120,7 +120,7 @@
 #include "util.h"
 #include "simple_dialog.h"
 #include "proto_draw.h"
-#include "dfilter.h"
+#include "dfilter/dfilter.h"
 #include "keys.h"
 #include "packet_win.h"
 #include "gtkglobals.h"
@@ -146,7 +146,6 @@ GtkStyle *item_style;
 /* Specifies the field currently selected in the GUI protocol tree */
 field_info *finfo_selected = NULL;
 
-static char* hfinfo_numeric_format(header_field_info *hfinfo);
 static void create_main_window(gint, gint, gint, e_prefs*);
 
 /* About Ethereal window */
@@ -171,10 +170,6 @@ match_selected_cb(GtkWidget *w, gpointer data)
 {
     char		*buf;
     GtkWidget		*filter_te;
-    char		*ptr, *format, *stringified;
-    int			i, dfilter_len, abbrev_len;
-    guint8		*c;
-    header_field_info	*hfinfo;
 
     filter_te = gtk_object_get_data(GTK_OBJECT(w), E_DFILTER_TE_KEY);
 
@@ -186,123 +181,7 @@ match_selected_cb(GtkWidget *w, gpointer data)
 	return;
     }
 
-    hfinfo = finfo_selected->hfinfo;
-    g_assert(hfinfo);
-    abbrev_len = strlen(hfinfo->abbrev);
-
-	switch(hfinfo->type) {
-
-		case FT_BOOLEAN:
-		        dfilter_len = abbrev_len + 2;
-		        buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s%s", finfo_selected->value.numeric ? "" : "!",
-					hfinfo->abbrev);
-			break;
-
-		case FT_UINT8:
-		case FT_UINT16:
-		case FT_UINT24:
-		case FT_UINT32:
-		case FT_INT8:
-		case FT_INT16:
-		case FT_INT24:
-		case FT_INT32:
-			dfilter_len = abbrev_len + 20;
-		        buf = g_malloc0(dfilter_len);
-			format = hfinfo_numeric_format(hfinfo);
-		        snprintf(buf, dfilter_len, format, hfinfo->abbrev, finfo_selected->value.numeric);
-			break;
-
-		case FT_IPv4:
-			dfilter_len = abbrev_len + 4 + 15 + 1;
-		        buf = g_malloc0(dfilter_len);
-		        snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,
-					ipv4_addr_str(&(finfo_selected->value.ipv4)));
-			break;
-
-		case FT_IPXNET:
-			dfilter_len = abbrev_len + 15;
-			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == 0x%08x", hfinfo->abbrev,
-					finfo_selected->value.numeric);
-			break;
-
-		case FT_IPv6:
-			stringified = ip6_to_str((struct e_in6_addr*) &(finfo_selected->value.ipv6));
-			dfilter_len = abbrev_len + 4 + strlen(stringified) + 1;
-			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %s", hfinfo->abbrev,
-					stringified);
-			break;
-
-		case FT_DOUBLE:
-			dfilter_len = abbrev_len + 30;
-			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %f", hfinfo->abbrev,
-					finfo_selected->value.floating);
-			break;
-
-		case FT_ETHER:
-			dfilter_len = abbrev_len + 22;
-			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %s",
-					hfinfo->abbrev,
-					ether_to_str(finfo_selected->value.ether));
-			break;
-#if 0
-
-		case FT_ABSOLUTE_TIME:
-		case FT_RELATIVE_TIME:
-			memcpy(&fi->value.time, va_arg(ap, struct timeval*),
-				sizeof(struct timeval));
-			break;
-
-		case FT_TEXT_ONLY:
-			; /* nothing */
-			break;
-#endif
-
-		case FT_STRING:
-		        dfilter_len = abbrev_len + 
-			  strlen(finfo_selected->value.string) + 7;
-			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == \"%s\"",
-				 hfinfo->abbrev,
-				 finfo_selected->value.string);
-			break;
-
-	        case FT_BYTES:
-		        dfilter_len = finfo_selected->length*3 - 1;
-		        dfilter_len += abbrev_len + 7;
-			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %s",
-				 hfinfo->abbrev,
-				 bytes_to_str_punct(finfo_selected->value.bytes, finfo_selected->length,':'));
-			break;                       
-		default:
-		    c = cfile.pd + finfo_selected->start;
-		    buf = g_malloc0(32 + finfo_selected->length * 3);
-		    ptr = buf;
-
-		    sprintf(ptr, "frame[%d] == ", finfo_selected->start);
-		    ptr = buf+strlen(buf);
-
-		    if (finfo_selected->length == 1) {
-			sprintf(ptr, "0x%02x", *c++);
-		    }
-		    else {
-			    for (i=0;i<finfo_selected->length; i++) {
-				if (i == 0 ) {
-					sprintf(ptr, "%02x", *c++);
-				}
-				else {
-					sprintf(ptr, ":%02x", *c++);
-				}
-				ptr = buf+strlen(buf);
-			    }
-		    }
-		    break;
-	}
+    buf = proto_alloc_dfilter_string(finfo_selected, cfile.pd);
 
     /* create a new one and set the display filter entry accordingly */
     gtk_entry_set_text(GTK_ENTRY(filter_te), buf);
@@ -313,60 +192,6 @@ match_selected_cb(GtkWidget *w, gpointer data)
     /* Don't g_free(buf) here. filter_packets() will do it the next time it's called */
 }
 
-static char*
-hfinfo_numeric_format(header_field_info *hfinfo)
-{
-	char *format = NULL;
-
-	/* Pick the proper format string */
-	switch(hfinfo->display) {
-		case BASE_DEC:
-		case BASE_NONE:
-		case BASE_OCT: /* I'm lazy */
-		case BASE_BIN: /* I'm lazy */
-			switch(hfinfo->type) {
-				case FT_UINT8:
-				case FT_UINT16:
-				case FT_UINT24:
-				case FT_UINT32:
-					format = "%s == %u";
-					break;
-				case FT_INT8:
-				case FT_INT16:
-				case FT_INT24:
-				case FT_INT32:
-					format = "%s == %d";
-					break;
-				default:
-					g_assert_not_reached();
-					;
-			}
-			break;
-		case BASE_HEX:
-			switch(hfinfo->type) {
-				case FT_UINT8:
-					format = "%s == 0x%02x";
-					break;
-				case FT_UINT16:
-					format = "%s == 0x%04x";
-					break;
-				case FT_UINT24:
-					format = "%s == 0x%06x";
-					break;
-				case FT_UINT32:
-					format = "%s == 0x%08x";
-					break;
-				default:
-					g_assert_not_reached();
-					;
-			}
-			break;
-		default:
-			g_assert_not_reached();
-			;
-	}
-	return format;
-}
 
 
 /* Run the current display filter on the current packet set, and
@@ -585,7 +410,8 @@ tree_view_select_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer user
 
 	set_menus_for_selected_tree_row(TRUE);
 
-	if (finfo->hfinfo && finfo->hfinfo->type != FT_TEXT_ONLY) {
+	/*if (finfo->hfinfo && finfo->hfinfo->type != FT_TEXT_ONLY) {*/
+	if (finfo->hfinfo) {
 	  if (finfo->hfinfo->blurb != NULL && 
 	      finfo->hfinfo->blurb[0] != '\0') {
 	    has_blurb = TRUE;
@@ -872,7 +698,7 @@ main(int argc, char *argv[])
 #endif
   gint                 pl_size = 280, tv_size = 95, bv_size = 75;
   gchar               *rc_file, *cf_name = NULL, *rfilter = NULL;
-  dfilter             *rfcode = NULL;
+  dfilter_t           *rfcode = NULL;
   gboolean             rfilter_parse_failed = FALSE;
   e_prefs             *prefs;
   char                *bold_font_name;
@@ -1312,7 +1138,7 @@ main(int argc, char *argv[])
        up on top of us. */
     if (cf_name) {
       if (rfilter != NULL) {
-        if (dfilter_compile(rfilter, &rfcode) != 0) {
+        if (!dfilter_compile(rfilter, &rfcode)) {
           simple_dialog(ESD_TYPE_CRIT, NULL, dfilter_error_msg);
           rfilter_parse_failed = TRUE;
         }
@@ -1345,7 +1171,7 @@ main(int argc, char *argv[])
           if (s != NULL)
             last_open_dir = s;
         } else {
-          dfilter_destroy(rfcode);
+          dfilter_free(rfcode);
           cfile.rfcode = NULL;
         }
       }

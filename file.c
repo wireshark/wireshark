@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.228 2001/01/28 21:17:26 guy Exp $
+ * $Id: file.c,v 1.229 2001/02/01 20:21:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,7 +84,7 @@
 #include "ui_util.h"
 #include "prefs.h"
 #include "gtk/proto_draw.h"
-#include "dfilter.h"
+#include "dfilter/dfilter.h"
 #include "conversation.h"
 #include "globals.h"
 #include "gtk/colors.h"
@@ -224,7 +224,7 @@ close_cap_file(capture_file *cf, void *w)
     cf->plist_chunk = NULL;
   }
   if (cf->rfcode != NULL) {
-    dfilter_destroy(cf->rfcode);
+    dfilter_free(cf->rfcode);
     cf->rfcode = NULL;
   }
   cf->plist = NULL;
@@ -575,9 +575,8 @@ finish_tail_cap_file(capture_file *cf, int *err)
 
 typedef struct {
   color_filter_t *colorf;
+  tvbuff_t	*tvb;
   proto_tree	*protocol_tree;
-  const guint8	*pd;
-  frame_data	*fdata;
 } apply_color_filter_args;
 
 /*
@@ -592,7 +591,7 @@ apply_color_filter(gpointer filter_arg, gpointer argp)
   apply_color_filter_args *args = argp;
 
   if (colorf->c_colorfilter != NULL && args->colorf == NULL) {
-    if (dfilter_apply(colorf->c_colorfilter, args->protocol_tree, args->pd, args->fdata->cap_len))
+    if (dfilter_apply(colorf->c_colorfilter, args->tvb, args->protocol_tree))
       args->colorf = colorf;
   }
 }
@@ -647,7 +646,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
   if (cf->dfcode != NULL) {
     if (refilter) {
       if (cf->dfcode != NULL)
-        fdata->flags.passed_dfilter = dfilter_apply(cf->dfcode, protocol_tree, buf, fdata->cap_len) ? 1 : 0;
+        fdata->flags.passed_dfilter = dfilter_apply(cf->dfcode, edt->tvb, protocol_tree) ? 1 : 0;
       else
         fdata->flags.passed_dfilter = 1;
     }
@@ -658,9 +657,8 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      the color filters. */
   if (fdata->flags.passed_dfilter) {
     if (filter_list != NULL) {
+      args.tvb = edt->tvb;
       args.protocol_tree = protocol_tree;
-      args.pd = buf;
-      args.fdata = fdata;
       g_slist_foreach(filter_list, apply_color_filter, &args);
     }
   }
@@ -782,7 +780,7 @@ read_packet(capture_file *cf, int offset)
   if (cf->rfcode) {
     protocol_tree = proto_tree_create_root();
     edt = epan_dissect_new(pseudo_header, buf, fdata, protocol_tree);
-    passed = dfilter_apply(cf->rfcode, protocol_tree, buf, fdata->cap_len);
+    passed = dfilter_apply(cf->rfcode, edt->tvb, protocol_tree);
     proto_tree_free(protocol_tree);
     epan_dissect_free(edt);
   }   
@@ -814,7 +812,7 @@ read_packet(capture_file *cf, int offset)
 int
 filter_packets(capture_file *cf, gchar *dftext)
 {
-  dfilter *dfcode;
+  dfilter_t *dfcode;
 
   if (dftext == NULL) {
     /* The new filter is an empty filter (i.e., display all packets). */
@@ -823,7 +821,7 @@ filter_packets(capture_file *cf, gchar *dftext)
     /*
      * We have a filter; try to compile it.
      */
-    if (dfilter_compile(dftext, &dfcode) != 0) {
+    if (!dfilter_compile(dftext, &dfcode)) {
       /* The attempt failed; report an error. */
       simple_dialog(ESD_TYPE_CRIT, NULL, dfilter_error_msg);
       return 0;
@@ -842,7 +840,7 @@ filter_packets(capture_file *cf, gchar *dftext)
     g_free(cf->dfilter);
   cf->dfilter = dftext;
   if (cf->dfcode != NULL)
-    dfilter_destroy(cf->dfcode);
+    dfilter_free(cf->dfcode);
   cf->dfcode = dfcode;
 
   /* Now rescan the packet list, applying the new filter, but not
@@ -1372,7 +1370,7 @@ clear_tree_and_hex_views(void)
 }
 
 gboolean
-find_packet(capture_file *cf, dfilter *sfcode)
+find_packet(capture_file *cf, dfilter_t *sfcode)
 {
   frame_data *start_fd;
   frame_data *fdata;
@@ -1451,7 +1449,7 @@ find_packet(capture_file *cf, dfilter *sfcode)
         wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
         		cf->pd, fdata->cap_len);
         edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, protocol_tree);
-        frame_matched = dfilter_apply(sfcode, protocol_tree, cf->pd, fdata->cap_len);
+        frame_matched = dfilter_apply(sfcode, edt->tvb, protocol_tree);
         proto_tree_free(protocol_tree);
 	epan_dissect_free(edt);
         if (frame_matched) {
@@ -2077,3 +2075,4 @@ copy_binary_file(char *from_filename, char *to_filename)
    done:
       return FALSE;
 }
+

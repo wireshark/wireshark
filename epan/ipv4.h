@@ -5,7 +5,7 @@
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: ipv4.h,v 1.1 2000/09/28 03:52:12 gram Exp $
+ * $Id: ipv4.h,v 1.2 2001/02/01 20:21:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -29,6 +29,8 @@
 
 #ifndef __IPV4_H__
 #define __IPV4_H__
+
+#include <glib.h>
 
 typedef struct {
 	guint32	addr;	/* stored in host order */

@@ -1,0 +1,185 @@
+/* $Id: grammar.lemon,v 1.1 2001/02/01 20:21:18 gram Exp $ */
+
+%include {
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include "dfilter-int.h"
+#include "syntax-tree.h"
+#include "sttype-range.h"
+#include "sttype-test.h"
+
+/*extern char *df_text;*/
+
+/* End of C code */
+}
+
+/* Parser Information */
+%name		Dfilter
+%token_prefix	TOKEN_
+%extra_argument	{dfwork_t *dfw}
+
+/* Terminal and Non-Terminal types and destructors */
+%token_type			{stnode_t*}
+%token_destructor		{stnode_free($$);}
+
+%type		sentence	{stnode_t*}
+%destructor	sentence	{stnode_free($$);}
+
+%type		expr		{stnode_t*}
+%destructor	expr		{stnode_free($$);}
+
+%type		entity		{stnode_t*}
+%destructor	entity		{stnode_free($$);}
+
+%type		relation_test	{stnode_t*}
+%destructor	relation_test	{stnode_free($$);}
+
+%type		logical_test	{stnode_t*}
+%destructor	logical_test	{stnode_free($$);}
+
+%type		rel_op2		{test_op_t}
+
+%type		range		{stnode_t*}
+%destructor	range		{stnode_free($$);}
+
+/* This is called as soon as a syntax error happens. After that, 
+any "error" symbols are shifted, if possible. */
+%syntax_error {
+
+	header_field_info	*hfinfo;
+
+	if (!TOKEN) {
+		dfilter_fail("Unexpected end of filter string.");
+		return;
+	}
+
+	switch(stnode_type_id(TOKEN)) {
+	        case STTYPE_UNINITIALIZED:
+			dfilter_fail("Syntax error.");
+			break;
+		case STTYPE_TEST:
+			dfilter_fail("Syntax error, TEST.");
+			break;
+		case STTYPE_STRING:
+			dfilter_fail("The string \"%s\" was unexpected in this context.",
+				stnode_data(TOKEN));
+			break;
+		case STTYPE_FIELD:
+			hfinfo = stnode_data(TOKEN);
+			dfilter_fail("Syntax error near \"%s\".", hfinfo->abbrev);
+			break;
+
+		/* These aren't handed to use as terminal tokens from
+		   the scanner, so was can assert that we'll never
+		   see them here. */
+		case STTYPE_NUM_TYPES:
+		case STTYPE_RANGE:
+		case STTYPE_FVALUE:
+			g_assert_not_reached();
+			break;
+	}
+}
+
+/* When a parse fails, mark an error. This occurs after
+the above syntax_error code and after the parser fails to
+use error recovery, shifting an "error" symbol and successfully
+shifting 3 more symbols. */
+%parse_failure {
+	dfw->syntax_error = TRUE;
+}
+
+/* ----------------- The grammar -------------- */
+
+/* Associativity */
+%left TEST_AND.
+%left TEST_OR.
+%nonassoc TEST_EQ TEST_NE TEST_LT TEST_LE TEST_GT TEST_GE.
+%right TEST_NOT.
+
+/* Top-level targets */
+sentence ::= expr(X).  		{ dfw->st_root = X; }
+sentence ::= .  		{ dfw->st_root = NULL; }
+
+expr(X) ::= relation_test(R).	{ X = R; }
+expr(X) ::= logical_test(L).	{ X = L; }
+
+expr(X) ::= LPAREN expr(Y) RPAREN.
+{
+	X = Y;
+}
+
+
+/* Logical tests */
+logical_test(T) ::= expr(E) TEST_AND expr(F).
+{
+	T = stnode_new(STTYPE_TEST, NULL);
+	sttype_test_set2(T, TEST_OP_AND, E, F);
+}
+
+logical_test(T) ::= expr(E) TEST_OR expr(F).
+{
+	T = stnode_new(STTYPE_TEST, NULL);
+	sttype_test_set2(T, TEST_OP_OR, E, F);
+}
+
+logical_test(T) ::= TEST_NOT expr(E).
+{
+	T = stnode_new(STTYPE_TEST, NULL);
+	sttype_test_set1(T, TEST_OP_NOT, E);
+}
+
+logical_test(T) ::= FIELD(F).
+{
+	T = stnode_new(STTYPE_TEST, NULL);
+	sttype_test_set1(T, TEST_OP_EXISTS, F);
+}
+
+
+
+/* Entities, or things that can be compared/tested/checked */
+entity(E) ::= FIELD(F).		{ E = F; }
+entity(E) ::= STRING(S).	{ E = S; }
+entity(E) ::= range(R).		{ E = R; }
+
+range(R) ::= FIELD(F) LBRACKET STRING(X) COLON STRING(Y) RBRACKET.
+{
+	R = stnode_new(STTYPE_RANGE, NULL);
+	sttype_range_set(R, F, X, Y);
+}
+
+range(R) ::= FIELD(F) LBRACKET STRING(X) COLON RBRACKET.
+{
+	R = stnode_new(STTYPE_RANGE, NULL);
+	sttype_range_set(R, F, X, NULL);
+}
+
+range(R) ::= FIELD(F) LBRACKET COLON STRING(Y) RBRACKET.
+{
+	R = stnode_new(STTYPE_RANGE, NULL);
+	sttype_range_set(R, F, NULL, Y);
+}
+
+range(R) ::= FIELD(F) LBRACKET STRING(Y) RBRACKET.
+{
+	R = stnode_new(STTYPE_RANGE, NULL);
+	sttype_range_set1(R, F, Y);
+}
+
+/* Relational tests */
+relation_test(T) ::= entity(E) rel_op2(O) entity(F).
+{
+	T = stnode_new(STTYPE_TEST, NULL);
+	sttype_test_set2(T, O, E, F);
+}
+
+rel_op2(O) ::= TEST_EQ.  { O = TEST_OP_EQ; }
+rel_op2(O) ::= TEST_NE.  { O = TEST_OP_NE; }
+rel_op2(O) ::= TEST_GT.  { O = TEST_OP_GT; }
+rel_op2(O) ::= TEST_GE.  { O = TEST_OP_GE; }
+rel_op2(O) ::= TEST_LT.  { O = TEST_OP_LT; }
+rel_op2(O) ::= TEST_LE.  { O = TEST_OP_LE; }
+
+
+

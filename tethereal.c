@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.63 2001/01/29 00:09:38 guy Exp $
+ * $Id: tethereal.c,v 1.64 2001/02/01 20:21:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -192,7 +192,7 @@ main(int argc, char *argv[])
 #endif
   int                 out_file_type = WTAP_FILE_PCAP;
   gchar               *cf_name = NULL, *rfilter = NULL;
-  dfilter             *rfcode = NULL;
+  dfilter_t           *rfcode = NULL;
   e_prefs             *prefs;
 
   /* Register all dissectors; we must do this before checking for the
@@ -470,7 +470,7 @@ main(int argc, char *argv[])
     cfile.snap = MIN_PACKET_SIZE;
   
   if (rfilter != NULL) {
-    if (dfilter_compile(rfilter, &rfcode) != 0) {
+    if (!dfilter_compile(rfilter, &rfcode)) {
       fprintf(stderr, "tethereal: %s\n", dfilter_error_msg);
       epan_cleanup();
       exit(2);
@@ -908,7 +908,7 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     fill_in_fdata(&fdata, cf, phdr, pseudo_header, offset);
     protocol_tree = proto_tree_create_root();
     edt = epan_dissect_new(pseudo_header, buf, &fdata, protocol_tree);
-    passed = dfilter_apply(cf->rfcode, protocol_tree, buf, fdata.cap_len);
+    passed = dfilter_apply_edt(cf->rfcode, edt);
   } else {
     protocol_tree = NULL;
     passed = TRUE;
@@ -952,7 +952,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr, int offset,
     protocol_tree = NULL;
   edt = epan_dissect_new(pseudo_header, buf, &fdata, protocol_tree);
   if (cf->rfcode)
-    passed = dfilter_apply(cf->rfcode, protocol_tree, buf, fdata.cap_len);
+    passed = dfilter_apply_edt(cf->rfcode, edt);
   if (passed) {
     /* The packet passed the read filter. */
     if (verbose) {

@@ -1,0 +1,8 @@
+.cvsignore
+.deps
+scanner.c
+Makefile
+grammar.h
+grammar.out
+Makefile.in
+grammar.c

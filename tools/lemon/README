@@ -1,0 +1,15 @@
+$Id: README,v 1.1 2001/02/01 20:21:25 gram Exp $
+
+The Lemon Parser Generator's home page is:
+
+http://www.hwaci.com/sw/lemon/index.html
+
+The file in this directory, lemon.html, was obtained from:
+
+http://www.hwaci.com/sw/lemon/lemon.html
+
+lemon.c has been modified to include the t= and d= command-line
+arguments. The changes were submitted to the Lemon maintainer,
+but have not appeared in the official Lemon distribution.
+
+

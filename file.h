@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.79 2001/01/28 23:56:27 guy Exp $
+ * $Id: file.h,v 1.80 2001/02/01 20:21:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -31,12 +31,9 @@
 #endif
 
 #include "wiretap/wtap.h"
-
-#include "dfilter.h"
+#include "dfilter/dfilter.h"
 #include "print.h"
-
 #include <errno.h>
-
 #include <epan.h>
 
 #ifdef HAVE_LIBZ
@@ -81,10 +78,10 @@ typedef struct _capture_file {
   gchar       *save_file; /* File that user saved capture to */
   int          save_file_fd; /* File descriptor for saved file */
   wtap        *wth;       /* Wiretap session */
-  dfilter     *rfcode;    /* Compiled read filter program */ 
+  dfilter_t   *rfcode;    /* Compiled read filter program */ 
   gchar       *dfilter;   /* Display filter string */
   struct _colfilter   *colors;	  /* Colors for colorizing packet window */
-  dfilter     *dfcode;    /* Compiled display filter program */ 
+  dfilter_t   *dfcode;    /* Compiled display filter program */ 
 #ifdef HAVE_LIBPCAP
   gchar       *cfilter;   /* Capture filter string */
 #endif
@@ -126,7 +123,7 @@ void colorize_packets(capture_file *);
 void redissect_packets(capture_file *cf);
 int print_packets(capture_file *cf, print_args_t *print_args);
 void change_time_formats(capture_file *);
-gboolean find_packet(capture_file *cf, dfilter *sfcode);
+gboolean find_packet(capture_file *cf, dfilter_t *sfcode);
 
 typedef enum {
   FOUND_FRAME,		/* found the frame */

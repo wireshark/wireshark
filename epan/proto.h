@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.5 2001/02/01 07:34:30 guy Exp $
+ * $Id: proto.h,v 1.6 2001/02/01 20:21:16 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,6 +43,7 @@
 
 #include "ipv4.h"
 #include "tvbuff.h"
+#include "ftypes/ftypes.h"
 
 /* needs glib.h */
 typedef GNode proto_tree;
@@ -73,34 +74,6 @@ struct value_string;
 	}							\
   }
 
-/* field types */
-enum ftenum {
-	FT_NONE,	/* used for protocol labels (thus no field type) */
-	FT_BOOLEAN,	/* TRUE and FALSE come from <glib.h> */
-	FT_UINT8,
-	FT_UINT16,
-	FT_UINT24,	/* really a UINT32, but displayed as 3 hex-digits if FD_HEX*/
-	FT_UINT32,
-	FT_INT8,
-	FT_INT16,
-	FT_INT24,
-	FT_INT32,
-	FT_DOUBLE,
-	FT_ABSOLUTE_TIME,
-	FT_RELATIVE_TIME,
-	FT_STRING,
-	FT_STRINGZ,	/* for use with proto_tree_add_item() */
-	FT_UINT_STRING,	/* for use with proto_tree_add_item() */
-	FT_ETHER,
-	FT_BYTES,
-	FT_IPv4,
-	FT_IPv6,
-	FT_IPXNET,
-	FT_TEXT_ONLY,	/* non-filterable, used when converting ethereal
-				from old-style proto_tree to new-style proto_tree */
-	NUM_FIELD_TYPES /* last item number plus one */
-};
-
 enum {
 	BASE_NONE,
 	BASE_DEC,
@@ -109,8 +82,11 @@ enum {
 	BASE_BIN
 };
 
+typedef struct _header_field_info header_field_info;
+
 /* information describing a header field */
-typedef struct header_field_info {
+struct _header_field_info {
+	/* ---------- set by dissector --------- */
 	char				*name;
 	char				*abbrev;
 	enum ftenum			type;
@@ -119,10 +95,12 @@ typedef struct header_field_info {
 	guint32				bitmask;
 	char				*blurb;		/* Brief description of field. */
 
-	int				id;		/* assigned by registration function, not programmer */
+	/* ---------- set by proto routines --------- */
+	int				id;		/* Field ID */
 	int				parent;		/* parent protocol */
 	int				bitshift;	/* bits to shift */
-} header_field_info;
+	header_field_info		*same_name;	/* Link to next hfinfo with same abbrev*/
+};
 
 
 
@@ -135,22 +113,13 @@ typedef struct hf_register_info {
 
 /* Info stored in each proto_item GNode */
 typedef struct field_info {
-	struct header_field_info	*hfinfo;
+	header_field_info		*hfinfo;
 	gint				start;
 	gint				length;
 	gint				tree_type; /* ETT_* */
 	char				*representation; /* for GUI tree */
 	int				visible;
-	union {
-		guint32		numeric;
-		struct timeval	time; /* the whole struct, not a pointer */
-		gdouble		floating;
-		gchar		*string;
-		guint8		*bytes;
-		guint8		ether[6];
-		ipv4_addr	ipv4;
-		guint8		ipv6[16];
-	}				value;
+	fvalue_t			*value;
 } field_info;
 
 
@@ -211,6 +180,18 @@ proto_tree_add_item_hidden(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     gint start, gint length, gboolean little_endian);
 
 /* Add a FT_NONE to a proto_tree */
+#if __GNUC__ == 2
+proto_item *
+proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, const char *format, ...)
+	__attribute__((format (printf, 6, 7)));
+#else
+proto_item *
+proto_tree_add_none_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+	gint length, const char *format, ...);
+#endif
+
+/* Add a FT_PROTOCOL to a proto_tree */
 #if __GNUC__ == 2
 proto_item *
 proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
@@ -487,7 +468,7 @@ char* proto_registrar_get_name(int n);
 char* proto_registrar_get_abbrev(int n);
 
 /* get the header field information based upon a field or protocol id */
-struct header_field_info* proto_registrar_get_nth(int hfindex);
+header_field_info* proto_registrar_get_nth(int hfindex);
 
 /* Returns enum ftenum for item # n */
 int proto_registrar_get_ftype(int n);
@@ -569,7 +550,10 @@ extern int           num_tree_types;
 #define g_ptr_array_len(a)      ((a)->len)
 #endif
 
-/* Returns a string representing the field type */
-const char* proto_registrar_ftype_name(enum ftenum ftype);
+int
+hfinfo_bitwidth(header_field_info *hfinfo);
+
+char*
+proto_alloc_dfilter_string(field_info *finfo, guint8 *pd);
 
 #endif /* proto.h */

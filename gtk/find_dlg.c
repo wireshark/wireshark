@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.18 2001/01/21 02:27:24 guy Exp $
+ * $Id: find_dlg.c,v 1.19 2001/02/01 20:21:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,7 +37,7 @@
 #include <glib.h>
 
 #include "proto.h"
-#include "dfilter.h"
+#include "dfilter/dfilter.h"
 #include "globals.h"
 
 #include "ui_util.h"
@@ -187,7 +187,7 @@ find_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
 {
   GtkWidget *filter_te, *backward_rb;
   gchar *filter_text;
-  dfilter *sfcode;
+  dfilter_t *sfcode;
 
   filter_te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_FIND_FILT_KEY);
   backward_rb = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w), E_FIND_BACKWARD_KEY);
@@ -197,7 +197,7 @@ find_frame_ok_cb(GtkWidget *ok_bt, gpointer parent_w)
   /*
    * Try to compile the filter.
    */
-  if (dfilter_compile(filter_text, &sfcode) != 0) {
+  if (!dfilter_compile(filter_text, &sfcode)) {
     /* The attempt failed; report an error. */
     simple_dialog(ESD_TYPE_CRIT, NULL, dfilter_error_msg);
     return;

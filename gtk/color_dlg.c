@@ -1,7 +1,7 @@
 /* color_dlg.c
  * Definitions for dialog boxes for color filters
  *
- * $Id: color_dlg.c,v 1.8 2000/08/24 13:21:29 deniel Exp $
+ * $Id: color_dlg.c,v 1.9 2001/02/01 20:21:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -43,7 +43,7 @@
 #include "colors.h"
 #include "color_dlg.h"
 #include "file.h"
-#include "dfilter.h"
+#include "dfilter/dfilter.h"
 #include "simple_dialog.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
@@ -884,7 +884,7 @@ edit_color_filter_ok_cb                (GtkButton       *button,
   gchar *filter_name;
   gchar *filter_text;
   color_filter_t *colorf;
-  dfilter *compiled_filter;
+  dfilter_t *compiled_filter;
   GtkWidget *color_filters;
 
   dialog = (GtkWidget *)user_data;
@@ -904,7 +904,7 @@ edit_color_filter_ok_cb                (GtkButton       *button,
 	return;
   }
 
-  if(dfilter_compile(filter_text, &compiled_filter) != 0 ){
+  if(!dfilter_compile(filter_text, &compiled_filter)) {
 	simple_dialog(ESD_TYPE_CRIT, NULL, "Filter \"%s\" did not compile correctly.\n"
 		" Please try again. Filter unchanged.\n%s\n", filter_name,
 		dfilter_error_msg);
@@ -927,7 +927,7 @@ edit_color_filter_ok_cb                (GtkButton       *button,
 	gtk_clist_set_background(GTK_CLIST(color_filters),
 	    cfile.colors->row_selected, &new_bg_color);
 	if(colorf->c_colorfilter != NULL)
-	    dfilter_destroy(colorf->c_colorfilter);
+	    dfilter_free(colorf->c_colorfilter);
 	colorf->c_colorfilter = compiled_filter;
 	/* gtk_clist_set_text frees old text (if any) and allocates new space */
 	gtk_clist_set_text(GTK_CLIST(color_filters),

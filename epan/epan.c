@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.5 2001/01/26 06:14:50 guy Exp $
+ * $Id: epan.c,v 1.6 2001/02/01 20:21:16 gram Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -14,7 +14,7 @@
 #include <epan.h>
 
 #include "conversation.h"
-#include "dfilter.h"
+#include "dfilter/dfilter.h"
 #include "except.h"
 #include "packet.h"
 #include "proto.h"
@@ -69,11 +69,6 @@ epan_conversation_init(void)
 }
 
 
-struct epan_dissect {
-
-	tvbuff_t	*tvb;
-	proto_tree	*tree;
-};
 
 epan_dissect_t*
 epan_dissect_new(void* pseudo_header, const guint8* data, frame_data *fd, proto_tree *tree)
@@ -83,6 +78,8 @@ epan_dissect_new(void* pseudo_header, const guint8* data, frame_data *fd, proto_
 	edt = g_new(epan_dissect_t, 1);
 
 	/* XXX - init tree */
+	edt->tree = tree;
+
 	dissect_packet(&edt->tvb, pseudo_header, data, fd, tree);
 
 	return edt;

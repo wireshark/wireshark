@@ -14,6 +14,7 @@ configure
 dfilter-grammar.c
 dfilter-grammar.h
 dfilter-scanner.c
+dftest
 editcap
 editcap.1
 ethereal
