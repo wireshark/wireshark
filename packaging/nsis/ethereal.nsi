@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.37 2003/12/26 11:36:43 ulfl Exp $
+; $Id: ethereal.nsi,v 1.38 2003/12/26 12:27:47 ulfl Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -20,6 +20,55 @@ UninstallIcon "..\..\image\ethereal.ico"
 UninstallText "This will uninstall Ethereal. Hit 'Next' to continue."
 
 XPStyle on
+
+
+!ifdef MAKENSIS_MODERN_UI
+
+; ============================================================================
+; Modern UI
+; ============================================================================
+; The modern user interface will look much better than the common one.
+; However, as the development of the modern UI is still going on, and the script
+; syntax changes, you will need exactly that NSIS version, which this script is
+; made for. This is the current (December 2003) latest version: V2.0b4
+; If you are using a different version, it's not predictable what will happen.
+
+!include "MUI.nsh"
+
+!define MUI_ICON "..\..\image\ethereal.ico"
+!define MUI_UNICON "..\..\image\ethereal.ico"
+
+!define MUI_COMPONENTSPAGE_SMALLDESC
+!define MUI_WELCOMEPAGE_TEXT "This wizard will guide you through the installation of Ethereal.\r\n\r\nBefore starting the installation, make sure Ethereal is not running.\r\n\r\nClick next to continue."
+!define MUI_FINISHPAGE_LINK "Install WinPcap to be able to capture packets from a network!"
+!define MUI_FINISHPAGE_LINK_LOCATION "http://winpcap.polito.it"
+; show readme doesn't seem to work with NSIS 2.0b4
+;!define MUI_FINISHPAGE_SHOWREADME "..\..\README.win32"
+;!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
+
+; ============================================================================
+; MUI Pages
+; ============================================================================
+
+!insertmacro MUI_PAGE_WELCOME
+!insertmacro MUI_PAGE_LICENSE "GPL.txt"
+!insertmacro MUI_PAGE_COMPONENTS
+!insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_PAGE_FINISH
+ 
+!insertmacro MUI_UNPAGE_WELCOME
+!insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_INSTFILES
+!insertmacro MUI_UNPAGE_FINISH
+
+; ============================================================================
+; MUI Languages
+; ============================================================================
+ 
+!insertmacro MUI_LANGUAGE "English"
+
+!endif ; MAKENSIS_MODERN_UI
 
 ; ============================================================================
 ; License page configuration
@@ -116,7 +165,7 @@ WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Unin
 WriteUninstaller "uninstall.exe"
 SectionEnd
 
-Section "Ethereal"
+Section "Ethereal" SecEthereal
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "..\..\ethereal.exe"
@@ -153,28 +202,28 @@ File "..\..\help\well_known.txt"
 File "..\..\help\faq.txt"
 SectionEnd
 
-Section "Tethereal"
+Section "Tethereal" SecTethereal
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "..\..\tethereal.exe"
 File "..\..\doc\tethereal.html"
 SectionEnd
 
-Section "Editcap"
+Section "Editcap" SecEditcap
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "..\..\editcap.exe"
 File "..\..\doc\editcap.html"
 SectionEnd
 
-Section "Text2Pcap"
+Section "Text2Pcap" SecText2Pcap
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "..\..\text2pcap.exe"
 File "..\..\doc\text2pcap.html"
 SectionEnd
 
-Section "Mergecap"
+Section "Mergecap" SecMergecap
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "..\..\mergecap.exe"
@@ -182,7 +231,7 @@ File "..\..\doc\mergecap.html"
 SectionEnd
 
 
-Section "Plugins"
+Section "Plugins" SecPlugins
 ;-------------------------------------------
 SetOutPath $INSTDIR\plugins\${VERSION}
 File "..\..\plugins\acn\acn.dll"
@@ -203,7 +252,7 @@ File "..\..\plugins\rtnet\rtnet.dll"
 File "..\..\plugins\v5ua\v5ua.dll"
 SectionEnd
 
-Section "SNMP MIBs"
+Section "SNMP MIBs" SecMIBs
 ;-------------------------------------------
 SetOutPath $INSTDIR\snmp\mibs
 File "${NET_SNMP_DIR}\mibs\*.txt"
@@ -212,7 +261,7 @@ SectionEnd
 ; SectionDivider
 ;-------------------------------------------
 
-Section "Start Menu Shortcuts"
+Section "Start Menu Shortcuts" SecShortcuts
 ;-------------------------------------------
 CreateDirectory "$SMPROGRAMS\Ethereal"
 
@@ -227,7 +276,7 @@ CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Program Directory.lnk" \
           "$INSTDIR"
 SectionEnd
 
-Section "Desktop Icon"
+Section "Desktop Icon" SecDesktopIcon
 ;-------------------------------------------
 CreateShortCut "$DESKTOP\Ethereal.lnk" "$INSTDIR\Ethereal.exe"
 SectionEnd
@@ -283,3 +332,19 @@ RMDir "$INSTDIR\snmp"
 RMDir "$INSTDIR"
 
 SectionEnd
+
+
+!ifdef MAKENSIS_MODERN_UI
+!insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecEthereal} "Ethereal is a GUI network protocol analyzer."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecTethereal} "Tethereal is a network protocol analyzer."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Editcap is a program that reads a capture file and writes some or all of the packets into another capture file."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Text2pcap is a program that reads in an ASCII hex dump and writes the data into a libpcap-style capture file."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Mergecap is a program that combines multiple saved capture files into a single output file."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecPlugins} "Plugins with some extended dissections."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecMIBs} "SNMP MIBs for better SNMP dissection."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecShortcuts} "Start menu shortcuts."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecDesktopIcon} "Ethereal desktop icon."
+!insertmacro MUI_FUNCTION_DESCRIPTION_END
+!endif ; MAKENSIS_MODERN_UI
+
