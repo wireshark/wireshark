@@ -22,6 +22,7 @@ AttributeCertificate
 #.NO_EMIT
 
 AlgorithmIdentifier
+Extension
 
 #.TYPE_RENAME
 AttributeCertificateInfo/subject	InfoSubject
