@@ -1512,6 +1512,13 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 
 	field=(char *)gtk_entry_get_text(GTK_ENTRY(gio->calc_field));
 
+	/* this graph is not active, just update display and redraw */
+	if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gio->display_button))){
+		disable_graph(gio);
+		io_stat_redraw(gio->io);
+		return 0;
+	}
+
 	/* first check if the field string is valid */
 	if(gio->io->count_type==COUNT_TYPE_ADVANCED){
 		/* warn and bail out if there was no field specified */
@@ -1614,13 +1621,6 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	}
 	if (dfilter != NULL)
 		dfilter_free(dfilter);
-
-	/* this graph is not active, just update display and redraw */
-	if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gio->display_button))){
-		disable_graph(gio);
-		io_stat_redraw(gio->io);
-		return 0;
-	}
 
 	/* ok, we have a valid filter and the graph is active.
 	   first just try to delete any previous settings and then apply
