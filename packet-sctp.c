@@ -10,7 +10,7 @@
  * - support for reassembly
  * - code cleanup
  *
- * $Id: packet-sctp.c,v 1.41 2002/08/28 21:00:30 jmayer Exp $
+ * $Id: packet-sctp.c,v 1.42 2002/10/17 18:44:10 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -512,7 +512,7 @@ sctp_adler32(const unsigned char* buf, unsigned int len)
  */
 
 #define CRC32C(c,d) (c=(c>>8)^crc_c[(c^(d))&0xFF])
-static unsigned long crc_c[256] =
+static guint32 crc_c[256] =
 {
 0x00000000L, 0xF26B8303L, 0xE13B70F7L, 0x1350F3F4L,
 0xC79A971FL, 0x35F1141CL, 0x26A1E7E8L, 0xD4CA64EBL,
@@ -580,12 +580,12 @@ static unsigned long crc_c[256] =
 0xBE2DA0A5L, 0x4C4623A6L, 0x5F16D052L, 0xAD7D5351L,
 };
 
-static unsigned int
+static guint32
 sctp_crc32c(const unsigned char* buf, unsigned int len)
 {
   unsigned int i;
-  unsigned long crc32 = ~0L;
-  unsigned long result;
+  guint32 crc32 = ~0L;
+  guint32 result;
   unsigned char byte0,byte1,byte2,byte3;
 
   for (i = 0; i < SOURCE_PORT_LENGTH + DESTINATION_PORT_LENGTH + VERIFICATION_TAG_LENGTH; i++)
