@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.359 2003/11/16 23:11:17 sahlberg Exp $
+# $Id: Makefile.nmake,v 1.360 2003/11/18 23:40:12 ulfl Exp $
 
 include config.nmake
 include <win32.mak>
@@ -704,6 +704,8 @@ clean:
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../packaging/nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../help
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../..
 
 # Call distclean only, if you would like to remove ALL generated files.
@@ -727,6 +729,8 @@ distclean: clean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../packaging/nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../help
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../..
 
 tools::
@@ -744,7 +748,7 @@ wiretap::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-gtk:: config.h
+gtk:: help config.h
 	cd gtk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
@@ -756,5 +760,10 @@ epan::
 
 plugins::
 	cd plugins
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+help::
+	cd help
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
