@@ -1,6 +1,6 @@
 # -*- python -*-
 #
-# $Id: ethereal_gen.py,v 1.13 2001/10/18 21:49:58 guy Exp $
+# $Id: ethereal_gen.py,v 1.14 2001/10/25 19:57:06 guy Exp $
 #                           
 # ethereal_gen.py (part of idl2eth)           
 #
@@ -1099,9 +1099,7 @@ class ethereal_gen_C:
             sys.stderr.write( "Error: idl2eth does not handle recursive unions yet \n")
             sys.exit(1)
             
-        st = ntype.switchType()
-
-            
+        st = ntype.switchType().unalias() # may be typedef switch type, so find real type
 
         #std = st.decl()
 
@@ -1133,7 +1131,11 @@ class ethereal_gen_C:
             self.addvar(self.c_s_disc + pn + ";")            
 
         elif (st.kind() == idltype.tk_long):
-            self.st.out(self.template_union_code_save_discriminant_integer, discname=pn )
+            self.st.out(self.template_union_code_save_discriminant_long, discname=pn )
+            self.addvar(self.c_s_disc + pn + ";")            
+
+        elif (st.kind() == idltype.tk_short):
+            self.st.out(self.template_union_code_save_discriminant_short, discname=pn )
             self.addvar(self.c_s_disc + pn + ";")            
 
         elif (st.kind() == idltype.tk_boolean):
@@ -1176,9 +1178,18 @@ class ethereal_gen_C:
                 #    
                 # if char, dont convert to int, but put inside single quotes so that it is understood by C.
                 # eg: if (disc == 'b')..
+                #
+                # TODO : handle \xxx chars generically from a function or table lookup rather than
+                #        a whole bunch of "if" statements. -- FS
+                
                                           
-                if (st.kind() == idltype.tk_char):      
-                    string_clv = "'" + clv + "'"
+                if (st.kind() == idltype.tk_char):
+                    if (clv == '\n'):          # newline
+                        string_clv = "'\\n'" 
+                    elif (clv == '\t'):        # tab
+                        string_clv = "'\\t'"
+                    else:
+                        string_clv = "'" + clv + "'"
                 else:                    
                     string_clv = '%i ' % clv
 
@@ -2523,9 +2534,13 @@ stream_is_big_endian = is_big_endian(header);  /* get stream endianess */
 disc_s_@discname@ = (gint32) u_octet4;     /* save Enum Value  discriminant and cast to gint32 */
 """
     
-    template_union_code_save_discriminant_integer = """\
+    template_union_code_save_discriminant_long = """\
 disc_s_@discname@ = (gint32) s_octet4;     /* save gint32 discriminant and cast to gint32 */
 """
+
+    template_union_code_save_discriminant_short = """\
+disc_s_@discname@ = (gint32) s_octet2;     /* save gint16 discriminant and cast to gint32 */
+"""    
     
     template_union_code_save_discriminant_char = """\
 disc_s_@discname@ = (gint32) u_octet1;     /* save guint1 discriminant and cast to gint32 */
