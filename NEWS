@@ -1,4 +1,4 @@
-$Id: NEWS,v 1.147 2004/05/13 20:20:33 gerald Exp $
+$Id: NEWS,v 1.148 2004/05/13 20:45:00 obiot Exp $
 
 == May ??, 2004
 
@@ -34,7 +34,7 @@ New and updated features
 New protocol support
 
   ANSI IS-801, BEA Tuxedo, DCERPC EFS, DICOM, GPRS LLC, GPRS SNDCP,
-  IEEE 1588/PTP, PVSTP, MPLS Echo, RTPS, WBXML OPAQUE
+  IEEE 1588/PTP, PVSTP, MPLS Echo, RTPS
 
 
 Updated protocol support
@@ -75,6 +75,7 @@ MTP3,
 NTLMSSP,
 RADIUS,
 RPC,
+RTCP,
 RTPS,
 RUDP,
 SCTP,
