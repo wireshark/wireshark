@@ -9,7 +9,7 @@
  * 2002, some share information levels implemented based on samba
  * sources.
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.62 2003/11/20 23:21:19 guy Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.63 2003/11/21 21:33:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -187,6 +187,7 @@ static int hf_srvsvc_scavqosinfoupdatetime = -1;
 static int hf_srvsvc_maxworkitemidletime = -1;
 static int hf_srvsvc_disk_name = -1;
 static int hf_srvsvc_disk_name_len = -1;
+static int hf_srvsvc_disk_inf0_unknown = -1;
 static int hf_srvsvc_service = -1;
 static int hf_srvsvc_service_options = -1;
 static int hf_srvsvc_transport_numberofvcs = -1;
@@ -5401,6 +5402,10 @@ srvsvc_dissect_DISK_INFO_0(tvbuff_t *tvb, int offset,
 
 		return offset;
 	}
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_srvsvc_disk_inf0_unknown, &len);
+
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_srvsvc_disk_name_len, &len);
 
@@ -5491,6 +5496,9 @@ srvsvc_dissect_netrserverdiskenum_reply(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		srvsvc_dissect_ENUM_HANDLE,
 		NDR_POINTER_UNIQUE, "Enum Handle", -1);
+
+	offset = dissect_doserror(tvb, offset, pinfo, tree, drep,
+			hf_srvsvc_rc, NULL);
 
 	return offset;
 }
@@ -7251,6 +7259,9 @@ proto_register_dcerpc_srvsvc(void)
 	  { &hf_srvsvc_disk_name_len,
 	    { "Disk Name Length", "srvsvc.disk_name_len", FT_UINT32,
 	      BASE_DEC, NULL, 0x0, "Length of Disk Name", HFILL}},
+	  { &hf_srvsvc_disk_inf0_unknown,
+	    { "Disk_Info0 unknown", "srvsvc.disk_info0_unknown1", FT_UINT32,
+	      BASE_DEC, NULL, 0x0, "Disk Info 0 unknown uint32", HFILL}},
 	  { &hf_srvsvc_service,
 	    { "Service", "srvsvc.service", FT_STRING,
 	      BASE_DEC, NULL, 0x0, "Service", HFILL}},
