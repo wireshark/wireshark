@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.17 2000/08/13 14:08:35 deniel Exp $
+ * $Id: packet-radius.c,v 1.18 2000/11/17 21:00:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -35,6 +35,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 #include <glib.h>
 #include "packet.h"

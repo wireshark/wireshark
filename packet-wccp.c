@@ -2,7 +2,7 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.10 2000/08/13 14:09:09 deniel Exp $
+ * $Id: packet-wccp.c,v 1.11 2000/11/17 21:00:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -36,6 +36,7 @@
 #include <netinet/in.h>
 #endif
 
+#include <string.h>
 #include <glib.h>
 #include "packet.h"
 

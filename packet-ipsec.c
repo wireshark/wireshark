@@ -1,7 +1,7 @@
 /* packet-ipsec.c
  * Routines for IPsec/IPComp packet disassembly 
  *
- * $Id: packet-ipsec.c,v 1.20 2000/08/13 14:08:17 deniel Exp $
+ * $Id: packet-ipsec.c,v 1.21 2000/11/17 21:00:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,7 @@
 # include <netinet/in.h>
 #endif
 
+#include <string.h>
 #include <glib.h>
 #include "packet.h"
 #include "packet-ipsec.h"

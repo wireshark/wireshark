@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.40 2000/11/16 07:35:37 guy Exp $
+ * $Id: packet-fddi.c,v 1.41 2000/11/17 21:00:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,7 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
 #include <glib.h>
 #include "bitswap.h"
 #include "packet.h"

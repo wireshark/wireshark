@@ -2,7 +2,7 @@
  * Routines for who protocol (see man rwhod)
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-who.c,v 1.9 2000/08/13 14:09:09 deniel Exp $
+ * $Id: packet-who.c,v 1.10 2000/11/17 21:00:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,6 +32,7 @@
 # include <sys/types.h>
 #endif
 
+#include <string.h>
 #include <time.h>
 #include <glib.h>
 #include "packet.h"

@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.3 2000/09/21 04:41:35 gram Exp $
+ * $Id: pppdump.c,v 1.4 2000/11/17 21:00:40 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@xiexie.org>
  * 
@@ -30,6 +30,7 @@
 #include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /*
 pppdump records

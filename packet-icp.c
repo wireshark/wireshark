@@ -2,7 +2,7 @@
  * Routines for ICP (internet cache protocol) packet disassembly
  * RFC 2186 && RFC 2187
  *
- * $Id: packet-icp.c,v 1.11 2000/08/13 14:08:14 deniel Exp $
+ * $Id: packet-icp.c,v 1.12 2000/11/17 21:00:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Peter Torvals
@@ -38,6 +38,7 @@
 
 #include <stdio.h>
 #include <stdlib.h> 
+#include <string.h>
 #include <glib.h>
 #include "packet.h"
 #include "resolv.h"

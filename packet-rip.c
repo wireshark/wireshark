@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.18 2000/08/13 14:08:42 deniel Exp $
+ * $Id: packet-rip.c,v 1.19 2000/11/17 21:00:36 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -34,6 +34,7 @@
 #include <netinet/in.h>
 #endif
 
+#include <string.h>
 #include <glib.h>
 #include "packet.h"
 #include "packet-rip.h"

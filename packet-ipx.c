@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.68 2000/11/17 06:02:20 guy Exp $
+ * $Id: packet-ipx.c,v 1.69 2000/11/17 21:00:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,7 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
 #include <glib.h>
 #include "etypes.h"
 #include "ppptypes.h"

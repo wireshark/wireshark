@@ -1,7 +1,7 @@
 /* packet-diameter.c
  * Routines for DIAMETER packet disassembly
  *
- * $Id: packet-diameter.c,v 1.6 2000/10/21 03:24:37 guy Exp $
+ * $Id: packet-diameter.c,v 1.7 2000/11/17 21:00:35 gram Exp $
  *
  * Copyright (c) 2000 by David Frascone <chaos@mindspring.com>
  *
@@ -37,6 +37,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 #include <time.h>
 #include <glib.h>

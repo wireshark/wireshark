@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-nbipx.c,v 1.27 2000/11/16 07:35:38 guy Exp $
+ * $Id: packet-nbipx.c,v 1.28 2000/11/17 21:00:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,6 +32,7 @@
 # include <sys/types.h>
 #endif
 
+#include <string.h>
 #include <glib.h>
 #include "packet.h"
 #include "packet-ipx.h"

@@ -1,6 +1,6 @@
 /* nettl.c
  *
- * $Id: nettl.c,v 1.17 2000/11/13 23:02:24 oabad Exp $
+ * $Id: nettl.c,v 1.18 2000/11/17 21:00:40 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -26,6 +26,7 @@
 
 #include <stdlib.h>
 #include <errno.h>
+#include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"

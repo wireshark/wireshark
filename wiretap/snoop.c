@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.32 2000/09/21 04:41:36 gram Exp $
+ * $Id: snoop.c,v 1.33 2000/11/17 21:00:40 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -24,6 +24,7 @@
 #include "config.h"
 #endif
 #include <errno.h>
+#include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"

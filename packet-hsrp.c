@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.8 2000/10/21 09:46:21 guy Exp $
+ * $Id: packet-hsrp.c,v 1.9 2000/11/17 21:00:35 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,6 +39,7 @@
 #include <netinet/in.h>
 #endif
 
+#include <string.h>
 #include <glib.h>
 #include "packet.h"
 
