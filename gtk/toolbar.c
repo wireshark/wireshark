@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.9 2003/10/17 17:28:38 oabad Exp $
+ * $Id: toolbar.c,v 1.10 2003/10/20 19:07:18 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -81,7 +81,7 @@
 #include "../image/toolbar/stock_help_24.xpm"
 /* this icons are derived from the original stock icons */
 #include "../image/toolbar/capture_24.xpm"
-#endif
+#endif /* GTK_MAJOR_VERSION */
 
 #ifdef HAVE_LIBPCAP
 #include "../image/toolbar/cfilter_24.xpm"
@@ -89,6 +89,7 @@
 #include "../image/toolbar/dfilter_24.xpm"
 
 
+/* XXX: add this key to some .h file, as it adds a key to the top level Widget? */
 #define E_TB_MAIN_KEY             "toolbar_main"
 #define E_TB_MAIN_HB_KEY          "toolbar_main_handlebox"
 
@@ -178,7 +179,7 @@ toolbar_redraw_all(void)
      *
      * In GTK+ 2.x, this isn't necessary - it does the right thing. */
     gtk_container_queue_resize(GTK_CONTAINER(top_level));
-#endif
+#endif /* GTK_MAJOR_VERSION */
 }
 
 
@@ -213,7 +214,7 @@ void set_toolbar_for_capture_in_progress(gboolean capture_in_progress) {
         }
 #else
         gtk_widget_set_sensitive(new_button, !capture_in_progress);
-#endif
+#endif /* _WIN32 */
     }
 }
 
@@ -236,12 +237,16 @@ void set_toolbar_for_captured_packets(gboolean have_captured_packets) {
 
 /* helper function: add a separator to the toolbar */
 static void toolbar_append_separator(GtkWidget *toolbar) {
+#if GTK_MAJOR_VERSION < 2
     /* XXX - the usage of a gtk_separator doesn't seem to work for a toolbar.
      * (at least in the win32 port of gtk 1.3)
      * So simply add a few spaces */
     gtk_toolbar_append_space(GTK_TOOLBAR(toolbar)); /* space after item */
     gtk_toolbar_append_space(GTK_TOOLBAR(toolbar)); /* space after item */
-    gtk_toolbar_append_space(GTK_TOOLBAR(toolbar)); /* space after item */
+#else
+    /* GTK 2 uses (as it should be) a seperator when adding this space */
+    gtk_toolbar_append_space(GTK_TOOLBAR(toolbar));
+#endif /* GTK_MAJOR_VERSION */
 }
 
 
@@ -279,7 +284,7 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
     *toolbar = gtk_toolbar_new();
     gtk_toolbar_set_orientation(GTK_TOOLBAR(*toolbar),
                                 GTK_ORIENTATION_HORIZONTAL);
-#endif
+#endif /* GTK_MAJOR_VERSION */
 
 #ifdef HAVE_LIBPCAP
 
@@ -303,12 +308,13 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                           "Start new capture...", "Private",
                                           G_CALLBACK(capture_prep_cb), NULL,
                                           -1);
-#endif
+#endif /* GTK_MAJOR_VERSION */
 
     /* either start OR stop button can be valid at a time, so no space needed
      * here */
 
     /* stop capture button (hidden by default) */
+#ifndef _WIN32
 #if GTK_MAJOR_VERSION < 2
     icon = gdk_pixmap_create_from_xpm_d(window->window, &mask,
                                         &window->style->white,
@@ -320,16 +326,15 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                           "Private", iconw,
                                           GTK_SIGNAL_FUNC(capture_stop_cb),
                                           NULL);
-    toolbar_append_separator(*toolbar);
 #else
     stop_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
                                            GTK_STOCK_STOP,
                                            "Stop running capture...", "Private",
                                            G_CALLBACK(capture_stop_cb), NULL,
                                            -1);
-    gtk_toolbar_append_space(GTK_TOOLBAR(*toolbar));
-#endif
-
+#endif /* GTK_MAJOR_VERSION */
+#endif /* _WIN32 */
+    toolbar_append_separator(*toolbar);
 #endif /* HAVE_LIBPCAP */
 
     /* open capture button */
@@ -344,14 +349,13 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                           "Private", iconw,
                                           GTK_SIGNAL_FUNC(file_open_cmd_cb),
                                           NULL);
-    gtk_toolbar_append_space(GTK_TOOLBAR(*toolbar));
 #else
     open_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
                                            GTK_STOCK_OPEN,
                                            "Open capture file...", "Private",
                                            G_CALLBACK(file_open_cmd_cb), NULL,
                                            -1);
-#endif
+#endif /* GTK_MAJOR_VERSION */
 
     /* save capture button */
 #if GTK_MAJOR_VERSION < 2
@@ -365,14 +369,13 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                           "Private", iconw,
                                           GTK_SIGNAL_FUNC(file_save_cmd_cb),
                                           NULL);
-    gtk_toolbar_append_space(GTK_TOOLBAR(*toolbar));
 #else
     save_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
                                            GTK_STOCK_SAVE,
                                            "Save capture file...", "Private",
                                            G_CALLBACK(file_save_cmd_cb), NULL,
                                            -1);
-#endif
+#endif /* GTK_MAJOR_VERSION */
 
     /* close capture button */
 #if GTK_MAJOR_VERSION < 2
@@ -386,14 +389,13 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                            "Private", iconw,
                                            GTK_SIGNAL_FUNC(file_close_cmd_cb),
                                            NULL);
-    gtk_toolbar_append_space(GTK_TOOLBAR(*toolbar));
 #else
     close_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
                                             GTK_STOCK_CLOSE,
                                             "Close capture file...", "Private",
                                             G_CALLBACK(file_close_cmd_cb), NULL,
                                             -1);
-#endif
+#endif /* GTK_MAJOR_VERSION */
 
     /* reload capture file button */
 #if GTK_MAJOR_VERSION < 2
@@ -407,7 +409,6 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                             "Private", iconw,
                                             GTK_SIGNAL_FUNC(file_reload_cmd_cb),
                                             NULL);
-    toolbar_append_separator(*toolbar);
 #else
     reload_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
                                              GTK_STOCK_REFRESH,
@@ -415,8 +416,8 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                              "Private",
                                              G_CALLBACK(file_reload_cmd_cb),
                                              NULL, -1);
-    gtk_toolbar_append_space(GTK_TOOLBAR(*toolbar));
-#endif
+#endif /* GTK_MAJOR_VERSION */
+    toolbar_append_separator(*toolbar);
 
     /* print frame(s) button */
 #if GTK_MAJOR_VERSION < 2
@@ -430,14 +431,13 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                            "Private", iconw,
                                            GTK_SIGNAL_FUNC(file_print_cmd_cb),
                                            NULL);
-    gtk_toolbar_append_space (GTK_TOOLBAR(*toolbar));
 #else
     print_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
                                             GTK_STOCK_PRINT, "Print frame(s)",
                                             "Private",
                                             G_CALLBACK(file_print_cmd_cb),
                                             NULL, -1);
-#endif
+#endif /* GTK_MAJOR_VERSION */
 
     /* find frame button */
 #if GTK_MAJOR_VERSION < 2
@@ -450,14 +450,13 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                           "Find frame...",
                                           "Private", iconw,
                                           GTK_SIGNAL_FUNC(find_frame_cb), NULL);
-    gtk_toolbar_append_space (GTK_TOOLBAR(*toolbar));
 #else
     find_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
                                            GTK_STOCK_FIND,
                                            "Find frame...",
                                            "Private", G_CALLBACK(find_frame_cb),
                                            NULL, -1);
-#endif
+#endif /* GTK_MAJOR_VERSION */
 
     /* find next frame button */
 #if GTK_MAJOR_VERSION < 2
@@ -471,14 +470,13 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                                iconw,
                                                GTK_SIGNAL_FUNC(find_next_cb),
                                                NULL);
-    gtk_toolbar_append_space (GTK_TOOLBAR(*toolbar));
 #else
     find_next_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
                                                 GTK_STOCK_GO_FORWARD,
                                                 "Find next frame", "Private",
                                                 G_CALLBACK(find_next_cb), NULL,
                                                 -1);
-#endif
+#endif /* GTK_MAJOR_VERSION */
 
     /* go to frame button */
 #if GTK_MAJOR_VERSION < 2
@@ -492,16 +490,15 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                            iconw,
                                            GTK_SIGNAL_FUNC(goto_frame_cb),
                                            NULL);
-    toolbar_append_separator(*toolbar);
 #else
     go_to_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
                                             GTK_STOCK_JUMP_TO,
                                             "Go to frame number...", "Private",
                                             G_CALLBACK(goto_frame_cb), NULL,
                                             -1);
-    gtk_toolbar_append_space(GTK_TOOLBAR(*toolbar));
-#endif
-
+#endif /* GTK_MAJOR_VERSION */
+    toolbar_append_separator(*toolbar);
+    
 #ifdef HAVE_LIBPCAP
 
     /* capture filter button */
@@ -513,10 +510,6 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
         gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar), "CFilter",
                                 "Edit Capture Filters...", "Private", iconw,
                                 GTK_SIGNAL_FUNC(cfilter_dialog_cb), NULL);
-#if GTK_MAJOR_VERSION < 2
-    gtk_toolbar_append_space (GTK_TOOLBAR(*toolbar));
-#endif
-
 #endif /* HAVE_LIBPCAP */
 
     /* display filter button */
@@ -529,9 +522,6 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                 "Edit Display Filters...", "Private", iconw,
                                 GTK_SIGNAL_FUNC(display_filter_construct_cb),
                                 &args);
-#if GTK_MAJOR_VERSION < 2
-    gtk_toolbar_append_space(GTK_TOOLBAR(*toolbar));
-#endif
 
     /* color filter button */
 #if GTK_MAJOR_VERSION < 2
@@ -544,13 +534,12 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
         gtk_toolbar_append_item(GTK_TOOLBAR(*toolbar), "Color",
                                 "Apply Color Filters...", "Private", iconw,
                                 GTK_SIGNAL_FUNC(color_display_cb), NULL);
-    gtk_toolbar_append_space (GTK_TOOLBAR(*toolbar));
 #else
     color_display_button =
         gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar), GTK_STOCK_SELECT_COLOR,
                                  "Apply color filters...", "Private",
                                  G_CALLBACK(color_display_cb), NULL, -1);
-#endif
+#endif /* GTK_MAJOR_VERSION */
 
     /* preferences button */
 #if GTK_MAJOR_VERSION < 2
@@ -563,14 +552,13 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                            "Edit Preferences...", "Private",
                                            iconw, GTK_SIGNAL_FUNC(prefs_cb),
                                            NULL);
-    toolbar_append_separator(*toolbar);
 #else
     prefs_button = gtk_toolbar_insert_stock(GTK_TOOLBAR(*toolbar),
                                             GTK_STOCK_PREFERENCES,
                                             "Edit preferences...", "Private",
                                             G_CALLBACK(prefs_cb), NULL, -1);
-    gtk_toolbar_append_space(GTK_TOOLBAR(*toolbar));
-#endif
+#endif /* GTK_MAJOR_VERSION */
+    toolbar_append_separator(*toolbar);
 
     /* help button */
 #if GTK_MAJOR_VERSION < 2
@@ -588,7 +576,7 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
                                            GTK_STOCK_HELP,
                                            "Show help dialog...", "Private",
                                            G_CALLBACK(help_cb), NULL, -1);
-#endif
+#endif /* GTK_MAJOR_VERSION */
 
     /* disable all "sensitive" items by default */
     toolbar_init = TRUE;
@@ -596,7 +584,7 @@ static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar)
     set_toolbar_for_capture_file(FALSE);
 #ifdef HAVE_LIBPCAP
     set_toolbar_for_capture_in_progress(FALSE);
-#endif
+#endif /* HAVE_LIBPCAP */
     /* everything is well done here :-) */
     gtk_widget_show (*toolbar);
 }
