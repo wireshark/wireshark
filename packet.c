@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.73 2000/04/04 07:02:56 guy Exp $
+ * $Id: packet.c,v 1.74 2000/04/04 16:33:57 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,6 +89,8 @@
 #ifndef __RESOLV_H__
 #include "resolv.h"
 #endif
+
+#include "plugins.h"
 
 extern capture_file  cf;
 
