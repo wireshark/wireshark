@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.72 1999/08/15 07:28:23 gram Exp $
+ * $Id: file.c,v 1.73 1999/08/15 19:18:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,8 +89,6 @@ guint cap_input_id;
 static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 
-static dfilter *rfcode = NULL; 
-
 static void wtap_dispatch_cb(u_char *, const struct wtap_pkthdr *, int,
     const u_char *);
 
@@ -167,6 +165,10 @@ close_cap_file(capture_file *cf, void *w, guint context) {
     fd_next = fd->next;
     g_free(fd);
   }
+  if (cf->rfcode != NULL) {
+    dfilter_destroy(cf->rfcode);
+    cf->rfcode = NULL;
+  }
   cf->plist = NULL;
   cf->plist_end = NULL;
   unselect_packet(cf);	/* nothing to select */
@@ -187,10 +189,12 @@ close_cap_file(capture_file *cf, void *w, guint context) {
 }
 
 int
-read_cap_file(char *rfilter, capture_file *cf) {
+read_cap_file(capture_file *cf) {
   gchar  *name_ptr, *load_msg, *load_fmt = " Loading: %s...";
   gchar  *done_fmt = " File: %s  Drops: %d";
+#if 0
   gchar  *err_fmt  = " Error: Could not load '%s'";
+#endif
   gint    timeout;
   size_t  msg_len;
 
@@ -198,15 +202,6 @@ read_cap_file(char *rfilter, capture_file *cf) {
     name_ptr = cf->filename;
   else
     name_ptr++;
-
-  if (rfilter) {
-    rfcode = dfilter_new();
-    if (dfilter_compile(rfcode, rfilter) != 0) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
-        "Unable to parse filter string \"%s\".", rfilter);
-      goto fail;
-    }
-  }
 
   load_msg = g_malloc(strlen(name_ptr) + strlen(load_fmt) + 2);
   sprintf(load_msg, load_fmt, name_ptr);
@@ -237,13 +232,6 @@ read_cap_file(char *rfilter, capture_file *cf) {
   gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
   g_free(load_msg);
 
-/*  name_ptr[-1] = '\0';  Why is this here? It causes problems with capture files */
-
-  /* Remember the new read filter string. */
-  if (cf->rfilter != NULL)
-    g_free(cf->rfilter);
-  cf->rfilter = rfilter;
-
   /* Enable menu items that make sense if you have a capture. */
   set_menu_sensitivity("/File/Close", TRUE);
   set_menu_sensitivity("/File/Reload", TRUE);
@@ -252,15 +240,17 @@ read_cap_file(char *rfilter, capture_file *cf) {
   set_menu_sensitivity("/Tools/Summary", TRUE);
   return 0;
 
+#if 0
+  /* XXX - need to check whether the read succeeded. */
 fail:
   msg_len = strlen(name_ptr) + strlen(err_fmt) + 2;
   load_msg = g_malloc(msg_len);
   snprintf(load_msg, msg_len, err_fmt, name_ptr);
   gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, load_msg);
   g_free(load_msg);
-  if (rfilter != NULL)
-    g_free(rfilter);	/* assumed to be "g_strdup()"ed, if not null */
+  close_cap_file(cf);	/* Close the capture file. */
   return -1;
+#endif
 }
 
 #ifdef HAVE_LIBPCAP
@@ -546,11 +536,11 @@ wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
   fdata->cinfo = NULL;
 
   passed = TRUE;
-  if (rfcode) {
-	  if (DFILTER_CONTAINS_FILTER(rfcode)) {
+  if (cf->rfcode) {
+	  if (DFILTER_CONTAINS_FILTER(cf->rfcode)) {
 	    protocol_tree = proto_tree_create_root();
 	    dissect_packet(buf, fdata, protocol_tree);
-	    passed = dfilter_apply(rfcode, protocol_tree, cf->pd);
+	    passed = dfilter_apply(cf->rfcode, protocol_tree, cf->pd);
 	    proto_tree_free(protocol_tree);
 	  }
   }   

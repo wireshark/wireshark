@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.35 1999/08/15 06:59:04 guy Exp $
+ * $Id: file.h,v 1.36 1999/08/15 19:18:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -67,7 +67,7 @@ typedef struct _capture_file {
   gchar       *save_file; /* File that user saved capture to */
   gint         user_saved;/* Was capture file saved by user yet? */
   wtap        *wth;       /* Wiretap session */
-  gchar       *rfilter;   /* Read filter string */
+  dfilter     *rfcode;    /* Compiled read filter program */ 
   gchar       *dfilter;   /* Display filter string */
   dfilter     *dfcode;    /* Compiled display filter program */ 
 #ifdef HAVE_LIBPCAP
@@ -93,7 +93,7 @@ typedef struct _capture_file {
 
 int  open_cap_file(char *, capture_file *);
 void close_cap_file(capture_file *, void *, guint);
-int  read_cap_file(char *, capture_file *);
+int  read_cap_file(capture_file *);
 int  tail_cap_file(char *, capture_file *);
 /* size_t read_frame_header(capture_file *); */
 

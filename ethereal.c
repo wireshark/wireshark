@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.89 1999/08/15 07:28:22 gram Exp $
+ * $Id: ethereal.c,v 1.90 1999/08/15 19:18:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -395,8 +395,6 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
   filter_te = gtk_entry_new();
   gtk_object_set_data(GTK_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
   gtk_box_pack_start(GTK_BOX(filter_hbox), filter_te, TRUE, TRUE, 3);
-  if (cf.rfilter != NULL)
-    gtk_entry_set_text(GTK_ENTRY(filter_te), cf.rfilter);
   gtk_widget_show(filter_te);
 
   gtk_object_set_data(GTK_OBJECT(GTK_FILE_SELECTION(file_sel)->ok_button),
@@ -421,18 +419,23 @@ file_open_cmd_cb(GtkWidget *w, gpointer data) {
 
 static void
 file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
-  gchar     *cf_name, *s;
+  gchar     *cf_name, *rfilter, *s;
   GtkWidget *filter_te;
-  gchar     *rfilter;
+  dfilter   *rfcode = NULL;
   int        err;
 
   cf_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
   filter_te = gtk_object_get_data(GTK_OBJECT(w), E_RFILTER_TE_KEY);
-  s = gtk_entry_get_text(GTK_ENTRY(filter_te));
-  if (s[0] == '\0')
-	  rfilter = g_strdup(s);
-  else
-	  rfilter = NULL;
+  rfilter = gtk_entry_get_text(GTK_ENTRY(filter_te));
+  if (rfilter[0] != '\0') {
+	rfcode = dfilter_new();
+	if (dfilter_compile(rfcode, rfilter) != 0) {
+		simple_dialog(ESD_TYPE_WARN, NULL,
+		    "Unable to parse filter string \"%s\".", rfilter);
+		dfilter_destroy(rfcode);
+		return;
+	}
+  }
 
   /* Try to open the capture file. */
   if ((err = open_cap_file(cf_name, &cf)) != 0) {
@@ -440,14 +443,23 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
        just leave it around so that the user can, after they
        dismiss the alert box popped up for the open error,
        try again. */
+    if (rfcode != NULL)
+      dfilter_destroy(rfcode);
     return;
   }
 
+  /* Attach the new read filter to "cf" ("open_cap_file()" succeeded, so
+     it closed the previous capture file, and thus destroyed any
+     previous read filter attached to "cf"). */
+  cf.rfcode = rfcode;
+
+  /* We've crossed the Rubicon; get rid of the file selection box. */
   gtk_widget_hide(GTK_WIDGET (fs));
   gtk_widget_destroy(GTK_WIDGET (fs));
 
-  /* save the directory name. We can write over cf_name */
-  if ((err = read_cap_file(rfilter, &cf)) == 0) {
+  if ((err = read_cap_file(&cf)) == 0) {
+	  /* The read succeeded.  Save the directory name; we can
+	     write over cf_name. */
 	  s = strrchr(cf_name, '/');
 	  if (s && last_open_dir) {
 		  *s = '\0';
@@ -463,8 +475,8 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	  else {
 		  last_open_dir = NULL;
 	  }
-    set_menu_sensitivity("/File/Save", FALSE);
-    set_menu_sensitivity("/File/Save As...", TRUE);
+	  set_menu_sensitivity("/File/Save", FALSE);
+	  set_menu_sensitivity("/File/Save As...", TRUE);
   }
   g_free(cf_name);
 }
@@ -528,7 +540,7 @@ file_save_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	cf.save_file = g_strdup(cf_name);
 	cf.user_saved = 1;
         if ((err = open_cap_file(cf_name, &cf)) == 0 &&
-	    (err = read_cap_file(g_strdup(cf.rfilter), &cf)) == 0) {
+	    (err = read_cap_file(&cf)) == 0) {
 		set_menu_sensitivity("/File/Save", FALSE);
 		set_menu_sensitivity("/File/Save As...", TRUE);
 	}
@@ -548,7 +560,7 @@ file_save_as_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
 	cf.filename = g_strdup(cf_name);
 	cf.user_saved = 1;
         if ((err = open_cap_file(cf.filename, &cf)) == 0 &&
-	    (err = read_cap_file(g_strdup(cf.rfilter), &cf)) == 0) {
+	    (err = read_cap_file(&cf)) == 0) {
 		set_menu_sensitivity("/File/Save", FALSE);
 		set_menu_sensitivity("/File/Save As...", TRUE);
 	}
@@ -565,7 +577,7 @@ file_reload_cmd_cb(GtkWidget *w, gpointer data) {
   if (cf.dfilter) g_free(cf.dfilter);
   cf.dfilter = g_strdup(gtk_entry_get_text(GTK_ENTRY(filter_te)));
   if (open_cap_file(cf.filename, &cf) == 0)
-    read_cap_file(g_strdup(cf.rfilter), &cf);
+    read_cap_file(&cf);
   /* XXX - change the menu if it fails? */
 }
 
@@ -1034,6 +1046,8 @@ main(int argc, char *argv[])
   GtkWidget	      *packet_sw;
   gint                 pl_size = 280, tv_size = 95, bv_size = 75;
   gchar               *rc_file, *cf_name = NULL, *rfilter = NULL;
+  dfilter             *rfcode = NULL;
+  gboolean             rfilter_parse_failed = FALSE;
   e_prefs             *prefs;
   gchar              **col_title;
 
@@ -1072,7 +1086,7 @@ main(int argc, char *argv[])
   cf.plist_end		= NULL;
   cf.wth		= NULL;
   cf.fh			= NULL;
-  cf.rfilter		= NULL;
+  cf.rfcode		= NULL;
   cf.dfilter		= NULL;
   cf.dfcode		= dfilter_new();
 #ifdef HAVE_LIBPCAP
@@ -1157,7 +1171,7 @@ main(int argc, char *argv[])
         cf_name = g_strdup(optarg);
         break;
       case 'R':        /* Read file filter */
-        rfilter = g_strdup(optarg);
+        rfilter = optarg;
         break;
 #ifdef HAVE_LIBPCAP
       case 's':        /* Set the snapshot (capture) length */
@@ -1411,15 +1425,27 @@ main(int argc, char *argv[])
      alert box, so, if we get one of those, it's more likely to come
      up on top of us. */
   if (cf_name) {
-    if ((err = open_cap_file(cf_name, &cf)) == 0)
-	err = read_cap_file(rfilter, &cf);
-    if (err == 0) {
-      s = strrchr(cf_name, '/');
-      if (s) {
-        last_open_dir = cf_name;
-        *s = '\0';
+    if (rfilter != NULL) {
+      rfcode = dfilter_new();
+      if (dfilter_compile(rfcode, rfilter) != 0) {
+        simple_dialog(ESD_TYPE_WARN, NULL,
+	    "Unable to parse filter string \"%s\".", rfilter);
+        dfilter_destroy(rfcode);
+        rfilter_parse_failed = TRUE;
       }
-      set_menu_sensitivity("/File/Save As...", TRUE);
+    }
+    if (!rfilter_parse_failed) {
+      cf.rfcode = rfcode;
+      if ((err = open_cap_file(cf_name, &cf)) == 0)
+        err = read_cap_file(&cf);
+      if (err == 0) {
+        s = strrchr(cf_name, '/');
+        if (s) {
+          last_open_dir = cf_name;
+          *s = '\0';
+        }
+        set_menu_sensitivity("/File/Save As...", TRUE);
+      }
     }
   }
 
