@@ -1454,6 +1454,8 @@ B<http://www.ethereal.com>.
   Solomon Peachy           <pizza[AT]shaftnet.org>
   Jaime Fournier           <jafour1[AT]yahoo.com>
   Markus Steinmann         <ms[AT]seh.de>
+  Tsutomu Mieno            <iitom[AT]utouto.com>
+  Yasuhiro Shirasaki       <yasuhiro@gnome[AT]gr.jp>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

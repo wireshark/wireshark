@@ -1280,6 +1280,14 @@ Markus Steinmann <ms[AT]seh.de> {
 	Add IPX SAP for SEH's InterCon Printserver
 }
 
+Tsutomu Mieno <iitom[AT]utouto.com> {
+	DHCPv6 updates
+}
+
+Yasuhiro Shirasaki <yasuhiro@gnome[AT[gr.jp> {
+	DHCPv6 updates
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
