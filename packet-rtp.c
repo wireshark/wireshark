@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.41 2003/08/23 06:36:46 guy Exp $
+ * $Id: packet-rtp.c,v 1.42 2003/11/09 22:55:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -289,7 +289,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	proto_item *ti            = NULL;
 	proto_tree *rtp_tree      = NULL;
 	proto_tree *rtp_csrc_tree = NULL;
-	guint8      octet;
+	guint8      octet1, octet2;
 	unsigned int version;
 	gboolean    padding_set;
 	gboolean    extension_set;
@@ -309,8 +309,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	static struct _rtp_info rtp_info;
 
 	/* Get the fields in the first octet */
-	octet = tvb_get_guint8( tvb, offset );
-	version = RTP_VERSION( octet );
+	octet1 = tvb_get_guint8( tvb, offset );
+	version = RTP_VERSION( octet1 );
 
 	if (version != 2) {
 		/*
@@ -330,19 +330,19 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			rtp_tree = proto_item_add_subtree( ti, ett_rtp );
 
 			proto_tree_add_uint( rtp_tree, hf_rtp_version, tvb,
-			    offset, 1, version );
+			    offset, 1, octet1);
 		}
 		return;
 	}
 
-	padding_set = RTP_PADDING( octet );
-	extension_set = RTP_EXTENSION( octet );
-	csrc_count = RTP_CSRC_COUNT( octet );
+	padding_set = RTP_PADDING( octet1 );
+	extension_set = RTP_EXTENSION( octet1 );
+	csrc_count = RTP_CSRC_COUNT( octet1 );
 
 	/* Get the fields in the second octet */
-	octet = tvb_get_guint8( tvb, offset + 1 );
-	marker_set = RTP_MARKER( octet );
-	payload_type = RTP_PAYLOAD_TYPE( octet );
+	octet2 = tvb_get_guint8( tvb, offset + 1 );
+	marker_set = RTP_MARKER( octet2 );
+	payload_type = RTP_PAYLOAD_TYPE( octet2 );
 
 	/* Get the subsequent fields */
 	seq_num = tvb_get_ntohs( tvb, offset + 2 );
@@ -378,19 +378,19 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		rtp_tree = proto_item_add_subtree( ti, ett_rtp );
 
 		proto_tree_add_uint( rtp_tree, hf_rtp_version, tvb,
-		    offset, 1, version );
+		    offset, 1, octet1 );
 		proto_tree_add_boolean( rtp_tree, hf_rtp_padding, tvb,
-		    offset, 1, padding_set );
+		    offset, 1, octet1 );
 		proto_tree_add_boolean( rtp_tree, hf_rtp_extension, tvb,
-		    offset, 1, extension_set );
+		    offset, 1, octet1 );
 		proto_tree_add_uint( rtp_tree, hf_rtp_csrc_count, tvb,
-		    offset, 1, csrc_count );
+		    offset, 1, octet1 );
 		offset++;
 
 		proto_tree_add_boolean( rtp_tree, hf_rtp_marker, tvb, offset,
-		    1, marker_set );
+		    1, octet2 );
 		proto_tree_add_uint( rtp_tree, hf_rtp_payload_type, tvb,
-		    offset, 1, payload_type );
+		    offset, 1, octet2 );
 		offset++;
 
 		/* Sequence number 16 bits (2 octets) */
@@ -550,7 +550,7 @@ proto_register_rtp(void)
 				FT_UINT8,
 				BASE_DEC,
 				VALS(rtp_version_vals),
-				0x0,
+				0xC0,
 				"", HFILL
 			}
 		},
@@ -560,9 +560,9 @@ proto_register_rtp(void)
 				"Padding",
 				"rtp.padding",
 				FT_BOOLEAN,
-				BASE_NONE,
+				8,
 				NULL,
-				0x0,
+				0x20,
 				"", HFILL
 			}
 		},
@@ -572,9 +572,9 @@ proto_register_rtp(void)
 				"Extension",
 				"rtp.ext",
 				FT_BOOLEAN,
-				BASE_NONE,
+				8,
 				NULL,
-				0x0,
+				0x10,
 				"", HFILL
 			}
 		},
@@ -586,7 +586,7 @@ proto_register_rtp(void)
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
-				0x0,
+				0x0F,
 				"", HFILL
 			}
 		},
@@ -596,9 +596,9 @@ proto_register_rtp(void)
 				"Marker",
 				"rtp.marker",
 				FT_BOOLEAN,
-				BASE_NONE,
+				8,
 				NULL,
-				0x0,
+				0x80,
 				"", HFILL
 			}
 		},
@@ -610,7 +610,7 @@ proto_register_rtp(void)
 				FT_UINT8,
 				BASE_DEC,
 				VALS(rtp_payload_type_vals),
-				0x0,
+				0x7F,
 				"", HFILL
 			}
 		},

@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.37 2003/05/28 22:40:19 guy Exp $
+ * $Id: packet-rtcp.c,v 1.38 2003/11/09 22:55:34 guy Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -282,7 +282,7 @@ static int
 dissect_rtcp_nack( tvbuff_t *tvb, int offset, proto_tree *tree )
 {
 	/* Packet type = FIR (H261) */
-	proto_tree_add_uint( tree, hf_rtcp_rc, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 31 );
+	proto_tree_add_uint( tree, hf_rtcp_rc, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
 	offset++;
 	/* Packet type, 8 bits  = APP */
 	proto_tree_add_item( tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
@@ -311,7 +311,7 @@ static int
 dissect_rtcp_fir( tvbuff_t *tvb, int offset, proto_tree *tree )
 {
 	/* Packet type = FIR (H261) */
-	proto_tree_add_uint( tree, hf_rtcp_rc, tvb, offset, 1, tvb_get_guint8( tvb, offset ) & 31 );
+	proto_tree_add_uint( tree, hf_rtcp_rc, tvb, offset, 1, tvb_get_guint8( tvb, offset ) );
 	offset++;
 	/* Packet type, 8 bits  = APP */
 	proto_tree_add_item( tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
@@ -693,17 +693,17 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			temp_byte = tvb_get_guint8( tvb, offset );
 
 			proto_tree_add_uint( rtcp_tree, hf_rtcp_version, tvb,
-			    offset, 1, RTCP_VERSION( temp_byte ) );
+			    offset, 1, temp_byte);
 			padding_set = RTCP_PADDING( temp_byte );
 			proto_tree_add_boolean( rtcp_tree, hf_rtcp_padding, tvb,
-			    offset, 1, padding_set );
+			    offset, 1, temp_byte );
 			elem_count = RTCP_COUNT( temp_byte );
 
 			switch ( packet_type ) {
 				case RTCP_SR:
 				case RTCP_RR:
 					/* Receiver report count, 5 bits */
-					proto_tree_add_uint( rtcp_tree, hf_rtcp_rc, tvb, offset, 1, elem_count );
+					proto_tree_add_uint( rtcp_tree, hf_rtcp_rc, tvb, offset, 1, temp_byte );
 					offset++;
 					/* Packet type, 8 bits */
 					proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
@@ -720,7 +720,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 					break;
 				case RTCP_SDES:
 					/* Source count, 5 bits */
-					proto_tree_add_uint( rtcp_tree, hf_rtcp_sc, tvb, offset, 1, elem_count );
+					proto_tree_add_uint( rtcp_tree, hf_rtcp_sc, tvb, offset, 1, temp_byte );
 					offset++;
 					/* Packet type, 8 bits */
 					proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
@@ -733,7 +733,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 					break;
 				case RTCP_BYE:
 					/* Source count, 5 bits */
-					proto_tree_add_uint( rtcp_tree, hf_rtcp_sc, tvb, offset, 1, elem_count );
+					proto_tree_add_uint( rtcp_tree, hf_rtcp_sc, tvb, offset, 1, temp_byte );
 					offset++;
 					/* Packet type, 8 bits */
 					proto_tree_add_item( rtcp_tree, hf_rtcp_pt, tvb, offset, 1, FALSE );
@@ -800,7 +800,7 @@ proto_register_rtcp(void)
 				FT_UINT8,
 				BASE_DEC,
 				VALS(rtcp_version_vals),
-				0x0,
+				0xC0,
 				"", HFILL
 			}
 		},
@@ -810,9 +810,9 @@ proto_register_rtcp(void)
 				"Padding",
 				"rtcp.padding",
 				FT_BOOLEAN,
-				BASE_NONE,
+				8,
 				NULL,
-				0x0,
+				0x20,
 				"", HFILL
 			}
 		},
@@ -824,7 +824,7 @@ proto_register_rtcp(void)
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
-				0x0,
+				0x1F,
 				"", HFILL
 			}
 		},
@@ -836,7 +836,7 @@ proto_register_rtcp(void)
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
-				0x0,
+				0x1F,
 				"", HFILL
 			}
 		},
