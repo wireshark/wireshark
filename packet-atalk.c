@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.27 1999/12/09 04:02:50 nneul Exp $
+ * $Id: packet-atalk.c,v 1.28 1999/12/09 07:37:13 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -134,7 +134,6 @@ int dissect_pascal_string(const u_char *pd, int offset, frame_data *fd,
 	proto_tree *tree, int hf_index)
 {
 	int len;
-	char *tmp;
 	
 	if ( ! BYTES_ARE_IN_FRAME(offset,1) ) {
 		dissect_data(pd,offset,fd,tree);
