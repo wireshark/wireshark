@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.222 2004/01/19 03:46:41 ulfl Exp $
+ * $Id: tethereal.c,v 1.223 2004/01/19 18:21:18 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -242,7 +242,9 @@ print_usage(gboolean print_ver)
 #ifdef CVSVERSION
 	" (cvs " CVSVERSION ")"
 #endif
+        "\n (C) 1998-2004 Gerald Combs <gerald@ethereal.com>"
 	"\n%s\n%s\n",
+
 	comp_info_str->str, runtime_info_str->str);
   } else {
     output = stderr;

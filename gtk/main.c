@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.359 2004/01/19 03:46:42 ulfl Exp $
+ * $Id: main.c,v 1.360 2004/01/19 18:21:18 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -217,7 +217,7 @@ about_ethereal( GtkWidget *w _U_, gpointer data _U_ ) {
 #ifdef CVSVERSION
 	   " (cvs " CVSVERSION ")"
 #endif
-	   " (C) 1998-2003 Gerald Combs <gerald@ethereal.com>\n\n"
+	   " (C) 1998-2004 Gerald Combs <gerald@ethereal.com>\n\n"
 
        "%s\n"
        "%s\n\n"
