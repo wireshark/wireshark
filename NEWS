@@ -1,5 +1,53 @@
-$Id: NEWS,v 1.138 2003/12/13 00:55:11 gerald Exp $
+$Id: NEWS,v 1.139 2004/02/19 02:26:48 gerald Exp $
 
+== February 18, 2004
+
+Ethereal 0.10.0 has been released.
+
+
+New and updated features
+
+  The Windows installer now lets you choose between the traditional GTK+
+  version 1 interface and a new GTK+ 2 interface.
+
+  Several updates were made to Ethereal's user interface.  The "File" menu
+  now has a "most recently used" list.  The help menu was greatly expanded.
+  
+  The "matches" operator now handles more data types.  For example, you can
+  now use
+  
+      smtp matches joespammer@example.com
+      
+  as a display filter.
+
+  I/O statistics now support 1ms resolution.
+
+Bug fixes
+
+  A column resorting crash on the Windows platform was fixed.
+
+New protocol support
+
+  EDP, IAX2, IrDA, ISMP, OLSR, PostgreSQL, PRES, V5UA
+
+Updated protocol support
+
+  ACSE, AFP, AIM, ANSI MAP, ARCNET, ASN.1, BEEP, BGP, BPDU, BSSAP, CLNP,
+  COPS, CPHA, DCERPC AFS4INT, FLDB, RPRIV, RS_REPADM, STAT, SVCCTL,
+  TRKSVR, WKSSVC, DCERPC, DHCPv6, DNS, DOCSIS, EAP, ENIP, ESIS, FC, FC-IP,
+  FC-SB3, FW-1, GIF (OK, so it's a file format and not a protocol per se),
+  GIOP, GRE, GSM MAP, GSM SMS, GTP, H.225, H.245, H.450, HTTP, ICMPv6,
+  IEEE 802.11, IPMI, IPv4, IPv6, IPX, ISAKMP, iSCSI, ISDN, ISUP, JFIF,
+  Kerberos, KPASSWD, L2TP, LDAP, LDP, LWAPP, MGCP, MLD, MMSE, Mobile IPv6,
+  MSPROXY, MTP3, NBNS, NCP, NDMP, NFS, OSI, OSPF, PER, PGM, Q.931, RADIUS,
+  RMI, RSTAT, RTP, RTSP, SCCP, SDP, SES, SIP, SLL, SLSK, SMB, SMPP, SNMP,
+  SOCKS, SRVLOC, SSH, SSL, STUN, T.38, TACACS, TCAP, TDS, Telnet, Teredo,
+  Text, TFTP, TZSP, UDP, Vines, WAP, WBXML, WSP, WTP, X11
+
+
+Updated capture file support
+
+  DBS EtherWatch, EtherPeek/AiroPeek, EyeSDN, LANAlzyer, NetXRay, Snoop
 
 
 == December 12, 2003
