@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.60 2002/11/14 18:54:52 guy Exp $
+ * $Id: plugins.c,v 1.61 2002/11/16 21:32:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,10 +58,10 @@
 
 #include "filesystem.h"
 
-#include "prefs.h"
-
 #ifdef PLUGINS_NEED_ADDRESS_TABLE
 #include "conversation.h"
+#include "reassemble.h"
+#include "prefs.h"
 #include "packet-giop.h"
 #include "packet-tpkt.h"
 #include "packet-tcp.h"
@@ -470,16 +470,16 @@ init_plugins(const char *plugin_dir)
 	patable.p_time_secs_to_str		= time_secs_to_str;
 	patable.p_time_msecs_to_str		= time_msecs_to_str;
 	patable.p_abs_time_to_str		= abs_time_to_str;
-                                                                                         
+
 	patable.p_proto_get_id_by_filter_name	= proto_get_id_by_filter_name;
 	patable.p_proto_get_protocol_name	= proto_get_protocol_name;
 	patable.p_proto_get_protocol_short_name	= proto_get_protocol_short_name;
 	patable.p_proto_get_protocol_filter_name	= proto_get_protocol_filter_name;
-                                                                                         
-	patable.p_prefs_register_obsolete_preference	= p_prefs_register_obsolete_preference;
-                                                                                         
+
+	patable.p_prefs_register_obsolete_preference	= prefs_register_obsolete_preference;
+
 	patable.p_add_new_data_source		= add_new_data_source;
-                                                                                         
+
 	patable.p_fragment_table_init		= fragment_table_init;
 	patable.p_reassembled_table_init	= reassembled_table_init;
 	patable.p_fragment_add			= fragment_add;
