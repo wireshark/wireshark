@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.107 2001/09/13 07:53:51 guy Exp $
+ * $Id: packet-tcp.c,v 1.108 2001/09/27 10:10:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -749,7 +749,7 @@ static const ip_tcp_opt tcpopts[] = {
     "CC.NEW",
     NULL,
     FIXED_LENGTH,
-    TCPOPT_CCNEW,
+    TCPOLEN_CCNEW,
     dissect_tcpopt_cc
   },
   {
