@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lpd.c,v 1.17 2000/04/08 07:07:28 guy Exp $
+ * $Id: packet-lpd.c,v 1.18 2000/04/20 15:24:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,9 +61,9 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		RFC 1179. http://www.astart.com/lprng/LPRng-HOWTO.html */
 	char		*lpd_client_code[] = {
 		"Unknown command",
-		"LPC: start print",
-		"LPR: transfer a printer job",
-		"LPQ: print short form of queue status",
+		"LPC: start print / jobcmd: abort",
+		"LPR: transfer a printer job / jobcmd: receive control file",
+		"LPQ: print short form of queue status / jobcmd: receive data file",
 		"LPQ: print long form of queue status",
 		"LPRM: remove jobs",
 		"LPRng lpc: do control operation",
@@ -78,8 +78,8 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		"Bad job format, do not retry"
 	};
 
-
-	if (pd[offset+1] == '\n') {
+	/* rfc1179 states that all responses are 1 byte long */
+	if (END_OF_FRAME == 1) {
 		lpr_packet_type = response;
 	}
 	else if (pd[offset] <= 9) {
@@ -134,7 +134,7 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			int response = pd[offset];
 
 			if (response <= 3) {
-				proto_tree_add_text(lpd_tree, offset, 2, "Response: %s",
+				proto_tree_add_text(lpd_tree, offset, 1, "Response: %s",
 					lpd_server_code[response]);
 			}
 			else {
