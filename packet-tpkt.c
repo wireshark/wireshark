@@ -7,7 +7,7 @@
  * Routine to dissect RFC 1006 TPKT packet containing OSI TP PDU
  * Copyright 2001, Martin Thomas <Martin_A_Thomas@yahoo.com>
  *
- * $Id: packet-tpkt.c,v 1.17 2002/03/05 22:15:21 guy Exp $
+ * $Id: packet-tpkt.c,v 1.18 2002/03/25 20:17:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -116,6 +116,19 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	tvbuff_t *next_tvb;
 	const char *saved_proto;
 
+	/*
+	 * If we're reassembling segmented TPKT PDUs, empty the COL_INFO
+	 * column, so subdissectors can append information
+	 * without having to worry about emptying the column.
+	 *
+	 * We use "col_add_str()" because the subdissector
+	 * might be appending information to the column, in
+	 * which case we'd have to zero the buffer out explicitly
+	 * anyway.
+	 */
+	if (tpkt_desegment && check_col(pinfo->cinfo, COL_INFO))
+		col_add_str(pinfo->cinfo, COL_INFO, "");
+  
 	while (tvb_reported_length_remaining(tvb, offset) != 0) {
 		length_remaining = tvb_length_remaining(tvb, offset);
 
@@ -176,7 +189,17 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "TPKT");
-		if (check_col(pinfo->cinfo, COL_INFO)) {
+		/*
+		 * Don't add the TPKT header information if we're
+		 * reassembling segmented TPKT PDUs or if this
+		 * PDU isn't reassembled.
+		 *
+		 * XXX - the first is so that subdissectors can append
+		 * information without getting TPKT stuff in the middle;
+		 * why the second?
+		 */
+		if (!tpkt_desegment && !pinfo->fragmented
+		    && check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO,
 			    "TPKT Data length = %u", data_len);
 		}
