@@ -3554,6 +3554,18 @@ static void rd_add_field_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
  *
  * At last, forgive me if I've messed up some indentation...
  * */
+static gboolean avp_length_check(gchar *cont, const e_avphdr *avph, size_t len)
+{
+  if (avph->avp_length < 2 + len) {
+    /*
+     * This AVP is too short.  (2 is for the length and type fields.)
+     */
+    sprintf(cont, "Incomplete (length not >= %lu)", 2 + (unsigned long)len);
+    return FALSE;
+  }
+  return TRUE;
+}
+
 static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 			    const e_avphdr *avph, tvbuff_t *tvb,
 			    int offset, const radius_attr_info *attr_info,
@@ -3612,6 +3624,8 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
                 break;
 
         case( RADIUS_INTEGER2 ):
+                if (!avp_length_check(cont, avph, 2))
+                  return;
         	intval = tvb_get_ntohs(tvb,offset+2);
         	if (attr_info->vs != NULL)
 			sprintf(cont, "%s(%u)", rd_match_strval(intval, attr_info->vs), intval);
@@ -3621,6 +3635,8 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
                 break;
 
         case( RADIUS_INTEGER4 ):
+                if (!avp_length_check(cont, avph, 4))
+                  return;
         	intval = tvb_get_ntohl(tvb,offset+2);
         	if (attr_info->vs != NULL)
 			sprintf(cont, "%s(%u)", rd_match_strval(intval, attr_info->vs), intval);
@@ -3630,54 +3646,73 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
                 break;
 
 	case( RADIUS_INTEGER8 ):
+                if (!avp_length_check(cont, avph, 8))
+                  return;
 		sprintf(cont, "%" PRIx64, tvb_get_ntoh64(tvb, offset+2));
 		rd_add_field_to_tree(tree, tvb, offset+2, 8, attr_info);
 		break;
 
         case( RADIUS_IP_ADDRESS ):
+                if (!avp_length_check(cont, avph, 4))
+                  return;
                 ip_to_str_buf(tvb_get_ptr(tvb,offset+2,4),cont);
 		rd_add_field_to_tree(tree, tvb, offset+2, 4, attr_info);
 		break;
 
         case( RADIUS_IP6_ADDRESS ):
+                if (!avp_length_check(cont, avph, 16))
+                  return;
                 ip6_to_str_buf((const struct e_in6_addr *)tvb_get_ptr(tvb,offset+2,16),cont);
                 break;
 
         case( RADIUS_IP6_PREFIX ):
+                if (!avp_length_check(cont, avph, 1))
+                  return;
                 ipv6_prefix_length = tvb_get_guint8(tvb,offset+3);
-                memset(ipv6_addr_temp, 0, 16);
                 if (ipv6_prefix_length > 16) ipv6_prefix_length = 16;
+                if (!avp_length_check(cont, avph, 1 + ipv6_prefix_length))
+                  return;
+                memset(ipv6_addr_temp, 0, 16);
                 tvb_memcpy(tvb, ipv6_addr_temp, offset+4, ipv6_prefix_length);
                 ip6_to_str_buf((const struct e_in6_addr *)ipv6_addr_temp, cont);
                 break;
 
         case( RADIUS_IP6_INTF_ID ):
+                if (!avp_length_check(cont, avph, 1))
+                  return;
                 ipv6_prefix_length = tvb_get_guint8(tvb,offset+1);
-                memset(ipv6_addr_temp, 0, 16);
                 if (ipv6_prefix_length > 16) ipv6_prefix_length = 16;
+                if (!avp_length_check(cont, avph, 1 + ipv6_prefix_length))
+                  return;
+                memset(ipv6_addr_temp, 0, 16);
                 tvb_memcpy(tvb, ipv6_addr_temp, offset+2, ipv6_prefix_length);
                 ip6_to_str_buf((const struct e_in6_addr *)ipv6_addr_temp, cont);
                 break;
 
         case( RADIUS_IPX_ADDRESS ):
+                if (!avp_length_check(cont, avph, 4))
+                  return;
                 pd = tvb_get_ptr(tvb,offset+2,4);
                 sprintf(cont,"%u:%u:%u:%u",pd[0],pd[1],pd[2],pd[3]);
 		break;
 
         case( RADIUS_STRING_TAGGED ):
 		/* Tagged ? */
-		tag = tvb_get_guint8(tvb,offset+2);
-		if (tag > 0 && tag <= 0x1f) {
-			sprintf(dest, "Tag:%u, Value:",
-					tag);
-			cont=&cont[strlen(cont)];
-			rdconvertbufftostr(cont,tvb,offset+3,avph->avp_length-3);
-			break;
+                if (avph->avp_length > 2) {
+			tag = tvb_get_guint8(tvb,offset+2);
+			if (tag > 0 && tag <= 0x1f) {
+				sprintf(dest, "Tag:%u, Value:", tag);
+				cont=&cont[strlen(cont)];
+				rdconvertbufftostr(cont,tvb,offset+3,avph->avp_length-3);
+				break;
+			}
 		}
 		rdconvertbufftostr(cont,tvb,offset+2,avph->avp_length-2);
                 break;
 
 	case ( RADIUS_VENDOR_SPECIFIC ):
+                if (!avp_length_check(cont, avph, 4))
+                  return;
 		intval = tvb_get_ntohl(tvb,offset+2);
 		sprintf(dest, "Vendor:%s(%u)", rd_match_strval(intval,sminmpec_values), intval);
 		cont = &dest[strlen(dest)];
@@ -3727,6 +3762,8 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		break;
 
 	case( COSINE_VPI_VCI ):
+                if (!avp_length_check(cont, avph, 4))
+                  return;
 		sprintf(cont,"%u/%u",
 			tvb_get_ntohs(tvb,offset+2),
 			tvb_get_ntohs(tvb,offset+4));
@@ -3750,6 +3787,8 @@ static void rd_value_to_str(gchar *dest, rd_vsa_buffer (*vsabuffer)[VSABUFFER],
 		/* XXX - this is described as a list of IPv6 addresses of
 		   DNS servers, so we probably need to process more than
 		   one IPv6 address. */
+                if (!avp_length_check(cont, avph, 16))
+                  return;
 		ip6_to_str_buf((const struct e_in6_addr *)tvb_get_ptr(tvb,offset+2,16),cont);
 		break;
 
