@@ -9,7 +9,7 @@
  * 		the data of a backing tvbuff, or can be a composite of
  * 		other tvbuffs.
  *
- * $Id: tvbuff.c,v 1.53 2003/12/03 09:50:40 sahlberg Exp $
+ * $Id: tvbuff.c,v 1.54 2003/12/03 10:14:34 sahlberg Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -125,15 +125,6 @@ tvb_new(tvbuff_type type)
 
 	return tvb;
 }
-
-/* We accept a void* instead of a field_info* to satisfy CLEANUP_POP */
-static void
-tvb_free_void(void *tvb)
-{
-	tvb_free((tvbuff_t*)tvb);
-}
-
-
 
 void
 tvb_free(tvbuff_t* tvb)
@@ -268,11 +259,18 @@ tvb_set_real_data(tvbuff_t* tvb, const guint8* data, guint length, gint reported
 tvbuff_t*
 tvb_new_real_data(const guint8* data, guint length, gint reported_length)
 {
+	static tvbuff_t	*last_tvb=NULL;
 	tvbuff_t	*tvb;
 
 	tvb = tvb_new(TVBUFF_REAL_DATA);
 
-	CLEANUP_PUSH(tvb_free_void, tvb);
+	if(last_tvb){
+		tvb_free(last_tvb);
+	}
+	/* remember this tvb in case we throw an exception and
+	 * lose the pointer to it.
+	 */
+	last_tvb=tvb;
 
 	tvb_set_real_data(tvb, data, length, reported_length);
 
@@ -282,7 +280,8 @@ tvb_new_real_data(const guint8* data, guint length, gint reported_length)
 	 */
 	tvb->ds_tvb = tvb;
 
-	CLEANUP_POP;
+	/* ok no exception so we dont need to remember it any longer */
+	last_tvb=NULL;
 
 	return tvb;
 }
@@ -470,11 +469,18 @@ tvb_set_subset(tvbuff_t *tvb, tvbuff_t *backing,
 tvbuff_t*
 tvb_new_subset(tvbuff_t *backing, gint backing_offset, gint backing_length, gint reported_length)
 {
+	static tvbuff_t	*last_tvb=NULL;
 	tvbuff_t	*tvb;
 
 	tvb = tvb_new(TVBUFF_SUBSET);
 
-	CLEANUP_PUSH(tvb_free_void, tvb);
+	if(last_tvb){
+		tvb_free(last_tvb);
+	}
+	/* remember this tvb in case we throw an exception and
+	 * lose the pointer to it.
+	 */
+	last_tvb=tvb;
 
 	tvb_set_subset(tvb, backing, backing_offset, backing_length, reported_length);
 
@@ -484,7 +490,8 @@ tvb_new_subset(tvbuff_t *backing, gint backing_offset, gint backing_length, gint
 	 */
 	tvb->ds_tvb = backing->ds_tvb;
 
-	CLEANUP_POP;
+	/* ok no exception so we dont need to remember it any longer */
+	last_tvb=NULL;
 
 	return tvb;
 }
