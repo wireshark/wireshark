@@ -100,6 +100,8 @@ static guint32 firstsec, firstusec;
 static guint32 prevsec, prevusec;
 static guint32 cum_bytes = 0;
 
+static void cf_reset_state(capture_file *cf);
+
 static void read_packet(capture_file *cf, long offset);
 
 static void rescan_packets(capture_file *cf, const char *action, const char *action_item,
@@ -141,8 +143,8 @@ static   gboolean copy_binary_file(const char *from_filename, const char *to_fil
 
 
 /* one callback for now, we could have a list later */
-cf_callback_t cf_cb = NULL;
-gpointer cf_cb_user_data = NULL;
+static cf_callback_t cf_cb = NULL;
+static gpointer cf_cb_user_data = NULL;
 
 void
 cf_callback_invoke(int event, gpointer data)
@@ -193,7 +195,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
   /* The open succeeded.  Close whatever capture file we had open,
      and fill in the information for this file. */
-  cf_close(cf);
+  cf_reset_state(cf);
 
   /* Initialize all data structures used for dissection. */
   init_dissection();
@@ -247,9 +249,15 @@ fail:
   return CF_ERROR;
 }
 
-/* Reset everything to a pristine state */
-void
-cf_close(capture_file *cf)
+/*
+ * Reset the state for the currently closed file, but don't do the
+ * UI callbacks; this is for use in "cf_open()", where we don't
+ * want the UI to go from "file open" to "file closed" back to
+ * "file open", we want it to go from "old file open" to "new file
+ * open and being read".
+ */
+static void
+cf_reset_state(capture_file *cf)
 {
   /* Die if we're in the middle of reading a file. */
   g_assert(cf->state != FILE_READ_IN_PROGRESS);
@@ -297,12 +305,19 @@ cf_close(capture_file *cf)
   cf->esec  = 0;
   cf->eusec = 0;
 
-  cf_callback_invoke(cf_cb_file_closed, cf);
-
   reset_tap_listeners();
 
   /* We have no file open. */
   cf->state = FILE_CLOSED;
+}
+
+/* Reset everything to a pristine state */
+void
+cf_close(capture_file *cf)
+{
+  cf_reset_state(cf);
+
+  cf_callback_invoke(cf_cb_file_closed, cf);
 }
 
 cf_read_status_t
@@ -487,13 +502,7 @@ cf_read(capture_file *cf)
 cf_status_t
 cf_start_tail(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 {
-  cf_status_t cf_status;
-
-  cf_status = cf_open(cf, fname, is_tempfile, err);
-  if (cf_status == CF_OK) {
-    cf_callback_invoke(cf_cb_live_capture_started, cf);
-  }
-  return cf_status;
+  return cf_open(cf, fname, is_tempfile, err);
 }
 
 cf_read_status_t

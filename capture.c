@@ -414,27 +414,23 @@ do_capture(capture_options *capture_opts)
 {
   gboolean is_tempfile;
   gboolean ret;
-  gchar *title;
 
   /* open the output file (temporary/specified name/ringbuffer) and close the old one */
   if(!capture_open_output(capture_opts, &is_tempfile)) {
     return FALSE;
   }
 
-  title = g_strdup_printf("%s: Capturing - Ethereal",
-                          get_interface_descriptive_name(capture_opts->iface));
   if (capture_opts->sync_mode) {	
     /* sync mode: do the capture in a child process */
     ret = sync_pipe_do_capture(capture_opts, is_tempfile);
     /* capture is still running */
-    set_main_window_name(title);
+    cf_callback_invoke(cf_cb_live_capture_started, capture_opts);
   } else {
     /* normal mode: do the capture synchronously */
-    set_main_window_name(title);
+    cf_callback_invoke(cf_cb_live_capture_started, capture_opts);
     ret = normal_do_capture(capture_opts, is_tempfile);
     /* capture is finished here */
   }
-  g_free(title);
 
   return ret;
 }

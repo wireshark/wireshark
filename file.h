@@ -73,6 +73,9 @@ typedef enum {
 typedef void (*cf_callback_t) (gint event, gpointer data, gpointer user_data);
 
 extern void
+cf_callback_invoke(int event, gpointer data);
+
+extern void
 cf_callback_add(cf_callback_t func, gpointer user_data);
 
 extern void

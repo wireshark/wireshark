@@ -191,7 +191,8 @@ capture_options *capture_opts = &global_capture_opts;
 
 
 static void create_main_window(gint, gint, gint, e_prefs*);
-static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _U_);
+static void show_main_window(gboolean);
+static void file_quit_answered_cb(gpointer dialog, gint btn, gpointer data);
 static void main_save_window_geometry(GtkWidget *widget);
 
 #define E_DFILTER_CM_KEY          "display_filter_combo"
@@ -1288,7 +1289,7 @@ set_display_filename(capture_file *cf)
 }
 
 
-void
+static void
 main_cf_cb_file_closed(capture_file *cf)
 {
     /* Destroy all windows, which refer to the
@@ -1315,7 +1316,7 @@ main_cf_cb_file_closed(capture_file *cf)
     main_set_for_capture_file(FALSE);
 }
 
-void
+static void
 main_cf_cb_file_read_start(capture_file *cf)
 {
   const gchar *name_ptr;
@@ -1328,7 +1329,7 @@ main_cf_cb_file_read_start(capture_file *cf)
   g_free(load_msg);
 }
 
-void
+static void
 main_cf_cb_file_read_finished(capture_file *cf)
 {
     statusbar_pop_file_msg();
@@ -1346,10 +1347,10 @@ main_cf_cb_file_read_finished(capture_file *cf)
     main_set_for_capture_file(TRUE);
 }
 
-void
+static void
 main_cf_cb_live_capture_started(capture_options *capture_opts)
 {
-    gchar *capture_msg;
+    gchar *capture_msg, *title;
 
     /* Disable menu items that make no sense if you're currently running
        a capture. */
@@ -1365,11 +1366,16 @@ main_cf_cb_live_capture_started(capture_options *capture_opts)
 
     g_free(capture_msg);
 
+    title = g_strdup_printf("%s: Capturing - Ethereal",
+                            get_interface_descriptive_name(capture_opts->iface));
+    set_main_window_name(title);
+    g_free(title);
+
     /* Set up main window for a capture file. */
     main_set_for_capture_file(TRUE);
 }
 
-void
+static void
 main_cf_cb_live_capture_finished(capture_file *cf)
 {
     /* Pop the "<live capture in progress>" message off the status bar. */
@@ -1390,7 +1396,7 @@ main_cf_cb_live_capture_finished(capture_file *cf)
     main_set_for_capture_file(TRUE);
 }
 
-void
+static void
 main_cf_cb_packet_selected(gpointer data)
 {
     capture_file *cf = data;
@@ -1405,7 +1411,7 @@ main_cf_cb_packet_selected(gpointer data)
     set_menus_for_selected_packet(cf);
 }
 
-void
+static void
 main_cf_cb_packet_unselected(capture_file *cf)
 {
     /* Clear out the display of that packet. */
@@ -1415,14 +1421,14 @@ main_cf_cb_packet_unselected(capture_file *cf)
     set_menus_for_selected_packet(cf);
 }
 
-void
+static void
 main_cf_cb_field_unselected(capture_file *cf)
 {
     statusbar_pop_field_msg();
     set_menus_for_selected_tree_row(cf);
 }
 
-void
+static void
 main_cf_cb_file_safe_started(gchar * filename)
 {
     const gchar  *name_ptr;
@@ -1436,21 +1442,21 @@ main_cf_cb_file_safe_started(gchar * filename)
     g_free(save_msg);
 }
 
-void
+static void
 main_cf_cb_file_safe_finished(gpointer data _U_)
 {
     /* Pop the "Saving:" message off the status bar. */
     statusbar_pop_file_msg();
 }
 
-void
+static void
 main_cf_cb_file_safe_failed(gpointer data _U_)
 {
     /* Pop the "Saving:" message off the status bar. */
     statusbar_pop_file_msg();
 }
 
-void
+static void
 main_cf_cb_file_safe_reload_finished(gpointer data _U_)
 {
     set_menus_for_unsaved_capture_file(FALSE);
@@ -2308,18 +2314,6 @@ main(int argc, char *argv[])
   /* the window can be sized only, if it's not already shown, so do it now! */
   main_load_window_geometry(top_level);
 
-  /*** we have finished all init things, show the main window ***/
-  gtk_widget_show(top_level);
-
-  /* the window can be maximized only, if it's visible, so do it after show! */
-  main_load_window_geometry(top_level);
-
-  /* process all pending GUI events before continue */
-  while (gtk_events_pending()) gtk_main_iteration();
-
-  /* Pop up any queued-up alert boxes. */
-  display_queued_messages();
-
   /* If we were given the name of a capture file, read it in now;
      we defer it until now, so that, if we can't open it, and pop
      up an alert box, the alert box is more likely to come up on
@@ -2327,6 +2321,7 @@ main(int argc, char *argv[])
      alert box, so, if we get one of those, it's more likely to come
      up on top of us. */
   if (cf_name) {
+    show_main_window(TRUE);
     if (rfilter != NULL) {
       if (!dfilter_compile(rfilter, &rfcode)) {
         bad_dfilter_alert_box(rfilter);
@@ -2379,43 +2374,45 @@ main(int argc, char *argv[])
         cfile.rfcode = NULL;
       }
     }
-  }
-
+  } else {
 #ifdef HAVE_LIBPCAP
-  if (start_capture) {
-    if (capture_opts->save_file != NULL) {
-      /* Save the directory name for future file dialogs. */
-      /* (get_dirname overwrites filename) */
-      s = get_dirname(g_strdup(capture_opts->save_file));  
-      set_last_open_dir(s);
-      g_free(s);
-    }
-    /* "-k" was specified; start a capture. */
-    if (do_capture(capture_opts)) {
-      /* The capture started.  Open tap windows; we do so after creating
-         the main window, to avoid GTK warnings, and after starting the
-         capture, so we know we have something to tap. */
-      if (tap_opt && tli) {
-        (*tli->func)(tap_opt);
-        g_free(tap_opt);
+    if (start_capture) {
+      if (capture_opts->save_file != NULL) {
+        /* Save the directory name for future file dialogs. */
+        /* (get_dirname overwrites filename) */
+        s = get_dirname(g_strdup(capture_opts->save_file));  
+        set_last_open_dir(s);
+        g_free(s);
+      }
+      /* "-k" was specified; start a capture. */
+      show_main_window(TRUE);
+      if (do_capture(capture_opts)) {
+        /* The capture started.  Open tap windows; we do so after creating
+           the main window, to avoid GTK warnings, and after starting the
+           capture, so we know we have something to tap. */
+        if (tap_opt && tli) {
+          (*tli->func)(tap_opt);
+          g_free(tap_opt);
+        }
       }
     }
-  }
-  else {
-    set_menus_for_capture_in_progress(FALSE);
-  }
-
-  /* if the user didn't supplied a capture filter, use the one to filter out remote connections like SSH */
-  if (!start_capture && (capture_opts->cfilter == NULL || strlen(capture_opts->cfilter) == 0)) {
-    if (capture_opts->cfilter) {
-      g_free(capture_opts->cfilter);
+    else {
+      show_main_window(FALSE);
+      set_menus_for_capture_in_progress(FALSE);
     }
-    capture_opts->cfilter = g_strdup(get_conn_cfilter());
-  }
 
+    /* if the user didn't supplied a capture filter, use the one to filter out remote connections like SSH */
+    if (!start_capture && (capture_opts->cfilter == NULL || strlen(capture_opts->cfilter) == 0)) {
+      if (capture_opts->cfilter) {
+        g_free(capture_opts->cfilter);
+      }
+      capture_opts->cfilter = g_strdup(get_conn_cfilter());
+    }
 #else /* HAVE_LIBPCAP */
-  set_menus_for_capture_in_progress(FALSE);
+    show_main_window(FALSE);
+    set_menus_for_capture_in_progress(FALSE);
 #endif /* HAVE_LIBPCAP */
+  }
 
   gtk_main();
 
@@ -3176,4 +3173,22 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
     /* Pane for the welcome screen */
     welcome_pane = welcome_new();
     gtk_widget_show(welcome_pane);
+}
+
+static void
+show_main_window(gboolean doing_work)
+{
+  main_set_for_capture_file(doing_work);
+
+  /*** we have finished all init things, show the main window ***/
+  gtk_widget_show(top_level);
+
+  /* the window can be maximized only, if it's visible, so do it after show! */
+  main_load_window_geometry(top_level);
+
+  /* process all pending GUI events before continue */
+  while (gtk_events_pending()) gtk_main_iteration();
+
+  /* Pop up any queued-up alert boxes. */
+  display_queued_messages();
 }
