@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.83 2003/06/26 04:30:28 tpot Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.84 2003/07/16 04:20:33 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5941,22 +5941,21 @@ static int hf_netlogon_secchan_bind_ack_unknown1 = -1;
 static int hf_netlogon_secchan_bind_ack_unknown2 = -1;
 static int hf_netlogon_secchan_bind_ack_unknown3 = -1;
 
-static gint ett_secchan = -1;
+static gint ett_secchan_verf = -1;
 static gint ett_secchan_bind_creds = -1;
 static gint ett_secchan_bind_ack_creds = -1;
 
-int netlogon_dissect_secchan_bind_creds(tvbuff_t *tvb, int offset,
-					packet_info *pinfo, proto_tree *tree,
-					char *drep)
+static int dissect_secchan_bind_creds(tvbuff_t *tvb, int offset,
+				      packet_info *pinfo, 
+				      proto_tree *tree, char *drep)
 {
-	int start_offset = offset;
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
 	int len;
 
 	if (tree) {
 		item = proto_tree_add_text(
-			tree, tvb, offset, 0,
+			tree, tvb, offset, tvb_length(tvb),
 			"Secure Channel Bind Credentials");
 		subtree = proto_item_add_subtree(
 			item, ett_secchan_bind_creds);
@@ -5988,14 +5987,12 @@ int netlogon_dissect_secchan_bind_creds(tvbuff_t *tvb, int offset,
 
 	offset += len;
 
-	proto_item_set_len(item, offset - start_offset);
-
 	return offset;
 }
 
-int netlogon_dissect_secchan_bind_ack_creds(tvbuff_t *tvb, int offset,
-					    packet_info *pinfo, 
-					    proto_tree *tree, char *drep)
+static int dissect_secchan_bind_ack_creds(tvbuff_t *tvb, int offset,
+					  packet_info *pinfo, 
+					  proto_tree *tree, char *drep)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -6022,40 +6019,6 @@ int netlogon_dissect_secchan_bind_ack_creds(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, subtree, drep, 
 		hf_netlogon_secchan_bind_ack_unknown3, NULL);
 
-	return offset;
-}
-
-static int hf_netlogon_secchan = -1;
-static int hf_netlogon_secchan_sig = -1;
-static int hf_netlogon_secchan_unk = -1;
-static int hf_netlogon_secchan_seq = -1;
-static int hf_netlogon_secchan_nonce = -1;
-
-int netlogon_dissect_secchan_verf(tvbuff_t *tvb, int offset, 
-				  packet_info *pinfo _U_, proto_tree *tree, 
-				  char *drep _U_)
-{
-	proto_item *vf;
-	proto_tree *sec_chan_tree;
-	/*
-         * Create a new tree, and split into 4 components ...
-         */
-	vf = proto_tree_add_item(tree, hf_netlogon_secchan, tvb, 
-				 offset, -1, FALSE);
-	sec_chan_tree = proto_item_add_subtree(vf, ett_secchan);
-	
-	proto_tree_add_item(sec_chan_tree, hf_netlogon_secchan_sig, tvb, 
-			    offset, 8, FALSE);
-	
-	proto_tree_add_item(sec_chan_tree, hf_netlogon_secchan_unk, tvb, 
-			    offset + 8, 8, FALSE);
-	
-	proto_tree_add_item(sec_chan_tree, hf_netlogon_secchan_seq, tvb, 
-			    offset + 16, 8, FALSE);
-	
-	proto_tree_add_item(sec_chan_tree, hf_netlogon_secchan_nonce, tvb, 
-			    offset + 24, 8, FALSE);
-	
 	return offset;
 }
 
@@ -6190,6 +6153,45 @@ static dcerpc_sub_dissector dcerpc_netlogon_dissectors[] = {
 		netlogon_dissect_dsrderegisterdnshostrecords_reply },
         {0, NULL, NULL,  NULL }
 };
+
+static int hf_netlogon_secchan_verf = -1;
+static int hf_netlogon_secchan_verf_sig = -1;
+static int hf_netlogon_secchan_verf_unk = -1;
+static int hf_netlogon_secchan_verf_seq = -1;
+static int hf_netlogon_secchan_verf_nonce = -1;
+
+static int
+dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
+		     proto_tree *tree, char *drep _U_)
+{
+          proto_item *vf = NULL;
+          proto_tree *subtree = NULL;
+	  
+          /*
+           * Create a new tree, and split into 4 components ...
+           */
+          vf = proto_tree_add_item(tree, hf_netlogon_secchan_verf, tvb,
+              offset, -1, FALSE);
+          subtree = proto_item_add_subtree(vf, ett_secchan_verf);
+                                                                                
+          proto_tree_add_item(subtree, hf_netlogon_secchan_verf_sig, tvb,
+              offset, 8, FALSE);
+	  offset += 8;
+                                                                                
+          proto_tree_add_item(subtree, hf_netlogon_secchan_verf_unk, tvb,
+              offset, 8, FALSE);
+	  offset += 8;
+                                                                                
+          proto_tree_add_item(subtree, hf_netlogon_secchan_verf_seq, tvb,
+              offset, 8, FALSE);
+	  offset += 8;
+                                                                                
+          proto_tree_add_item(subtree, hf_netlogon_secchan_verf_nonce, tvb,
+              offset, 8, FALSE);
+	  offset += 8;
+
+	  return offset;
+}
 
 /* Secure channel types */
 
@@ -7008,26 +7010,25 @@ static hf_register_info hf[] = {
 	  { "Unknown3", "netlogon.secchan.bind_ack.unknown3", FT_UINT32, 
 	    BASE_HEX, NULL, 0x0, "", HFILL }},
 
-        { &hf_netlogon_secchan,
-          { "Verifier", "netlogon.secchan.verifier", FT_NONE, BASE_NONE, 
+        { &hf_netlogon_secchan_verf,
+          { "Secure channel Verifier", "netlogon.secchan.verifier", FT_NONE, BASE_NONE, 
 	    NULL, 0x0, "Verifier", HFILL }},
 
-        { &hf_netlogon_secchan_sig,
+        { &hf_netlogon_secchan_verf_sig,
           { "Signature", "netlogon.secchan.sig", FT_BYTES, BASE_HEX, NULL, 
 	    0x0, "Signature", HFILL }}, 
 
-        { &hf_netlogon_secchan_unk,
+        { &hf_netlogon_secchan_verf_unk,
           { "Unknown", "netlogon.secchan.unk", FT_BYTES, BASE_HEX, NULL, 
           0x0, "Unknown", HFILL }}, 
 
-        { &hf_netlogon_secchan_seq,
+        { &hf_netlogon_secchan_verf_seq,
           { "Sequence No", "netlogon.secchan.seq", FT_BYTES, BASE_HEX, NULL, 
           0x0, "Sequence No", HFILL }}, 
 
-        { &hf_netlogon_secchan_nonce,
+        { &hf_netlogon_secchan_verf_nonce,
           { "Nonce", "netlogon.secchan.nonce", FT_BYTES, BASE_HEX, NULL, 
           0x0, "Nonce", HFILL }}, 
-
 	};
 
         static gint *ett[] = {
@@ -7055,7 +7056,7 @@ static hf_register_info hf[] = {
 		&ett_dc_flags,
 		&ett_secchan_bind_creds,
 		&ett_secchan_bind_ack_creds,
-		&ett_secchan,
+		&ett_secchan_verf
         };
 
         proto_dcerpc_netlogon = proto_register_protocol(
@@ -7065,6 +7066,16 @@ static hf_register_info hf[] = {
 				   array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 }
+
+static dcerpc_auth_subdissector_fns secchan_auth_fns = {
+	dissect_secchan_bind_creds,	        /* Bind */
+	dissect_secchan_bind_ack_creds,	        /* Bind ACK */
+	NULL,			                /* AUTH3 */
+	dissect_secchan_verf, 		        /* Request verifier */
+	dissect_secchan_verf,		        /* Response verifier */
+	NULL,			                /* Request data */
+	NULL			                /* Response data */
+};
 
 void
 proto_reg_handoff_dcerpc_netlogon(void)
@@ -7082,4 +7093,8 @@ proto_reg_handoff_dcerpc_netlogon(void)
 	hf_info = proto_registrar_get_nth(hf_netlogon_opnum);
 	hf_info->strings = value_string_from_subdissectors(
 		dcerpc_netlogon_dissectors, array_length(dcerpc_netlogon_dissectors));
+
+	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_PRIVACY,
+					  DCE_C_RPC_AUTHN_PROTOCOL_SEC_CHAN,
+					  &secchan_auth_fns);	
 }

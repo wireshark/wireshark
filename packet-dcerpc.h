@@ -1,7 +1,8 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
+ * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.h,v 1.32 2003/06/26 04:30:31 tpot Exp $
+ * $Id: packet-dcerpc.h,v 1.33 2003/07/16 04:20:32 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -279,5 +280,41 @@ typedef struct _dcerpc_uuid_value {
     int opnum_hf;
 } dcerpc_uuid_value;
 
+/* Authenticated pipe registration functions and miscellanea */
+
+typedef struct _decrpc_auth_subdissector_fns {
+	dcerpc_dissect_fnct_t *bind_fn;
+	dcerpc_dissect_fnct_t *bind_ack_fn;
+	dcerpc_dissect_fnct_t *auth3_fn;
+	dcerpc_dissect_fnct_t *req_verf_fn;
+	dcerpc_dissect_fnct_t *resp_verf_fn;
+	dcerpc_dissect_fnct_t *req_data_fn;
+	dcerpc_dissect_fnct_t *resp_data_fn;
+} dcerpc_auth_subdissector_fns;
+
+void register_dcerpc_auth_subdissector(guint8 auth_level, guint8 auth_type,
+				       dcerpc_auth_subdissector_fns *fns);
+
+/* Authentication services */
+
+#define DCE_C_RPC_AUTHN_PROTOCOL_NONE		0
+#define DCE_C_RPC_AUTHN_PROTOCOL_KRB5		1
+#define DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO         9
+#define DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP	10
+#define DCE_C_RPC_AUTHN_PROTOCOL_SEC_CHAN       68
+
+/* Protection levels */
+
+#define DCE_C_AUTHN_LEVEL_NONE		1
+#define DCE_C_AUTHN_LEVEL_CONNECT	2
+#define DCE_C_AUTHN_LEVEL_CALL		3
+#define DCE_C_AUTHN_LEVEL_PKT		4
+#define DCE_C_AUTHN_LEVEL_PKT_INTEGRITY	5
+#define DCE_C_AUTHN_LEVEL_PKT_PRIVACY	6
+
+typedef struct _decrypted_info_t {
+	tvbuff_t *decr_tvb;
+	proto_tree *decr_tree;
+} decrypted_info_t;
 
 #endif /* packet-dcerpc.h */

@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@samba.org> Added a few 
  *		   bits and pieces ...
  *
- * $Id: packet-gssapi.c,v 1.26 2002/12/02 20:04:07 guy Exp $
+ * $Id: packet-gssapi.c,v 1.27 2003/07/16 04:20:32 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,6 +40,7 @@
 
 #include "asn1.h"
 #include "format-oid.h"
+#include "packet-dcerpc.h"
 #include "packet-gssapi.h"
 #include "packet-frame.h"
 #include "epan/conversation.h"
@@ -402,7 +403,7 @@ dissect_gssapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static int
-dissect_gssapi_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_gssapi_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	return dissect_gssapi_work(tvb, pinfo, tree, TRUE);
 }
@@ -428,13 +429,55 @@ proto_register_gssapi(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("gssapi", dissect_gssapi, proto_gssapi);
-	new_register_dissector("gssapi_verf", dissect_gssapi_wrap, proto_gssapi);
+	new_register_dissector("gssapi_verf", dissect_gssapi_verf, proto_gssapi);
 
 	gssapi_oids = g_hash_table_new(gssapi_oid_hash, gssapi_oid_equal);
 }
+
+static int wrap_dissect_gssapi(tvbuff_t *tvb, int offset, 
+			       packet_info *pinfo, 
+			       proto_tree *tree, char *drep _U_)
+{
+	tvbuff_t *auth_tvb;
+
+	auth_tvb = tvb_new_subset(
+		tvb, offset, tvb_length_remaining(tvb, offset),
+		tvb_length_remaining(tvb, offset));
+
+	dissect_gssapi(auth_tvb, pinfo, tree);
+
+	return tvb_length_remaining(tvb, offset);
+}
+
+static int wrap_dissect_gssapi_verf(tvbuff_t *tvb, int offset, 
+				    packet_info *pinfo, 
+				    proto_tree *tree, char *drep _U_)
+{
+	tvbuff_t *auth_tvb;
+
+	auth_tvb = tvb_new_subset(
+		tvb, offset, tvb_length_remaining(tvb, offset),
+		tvb_length_remaining(tvb, offset));
+
+	return dissect_gssapi_verf(auth_tvb, pinfo, tree);
+}
+
+static dcerpc_auth_subdissector_fns gssapi_auth_fns = {
+	wrap_dissect_gssapi,		        /* Bind */
+	wrap_dissect_gssapi,	 	        /* Bind ACK */
+	wrap_dissect_gssapi,			/* AUTH3 */
+	wrap_dissect_gssapi_verf, 		/* Request verifier */
+	wrap_dissect_gssapi_verf,		/* Response verifier */
+	NULL,			                /* Request data */
+	NULL			                /* Response data */
+};
 
 void
 proto_reg_handoff_gssapi(void)
 {
 	data_handle = find_dissector("data");
+
+	register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_PRIVACY,
+					  DCE_C_RPC_AUTHN_PROTOCOL_SPNEGO,
+					  &gssapi_auth_fns);
 }

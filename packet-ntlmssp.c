@@ -1,8 +1,9 @@
 /* packet-ntlmssp.c
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
+ * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-ntlmssp.c,v 1.40 2003/05/09 01:41:28 tpot Exp $
+ * $Id: packet-ntlmssp.c,v 1.41 2003/07/16 04:20:32 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -38,7 +39,7 @@
 #include "crypt-rc4.h"
 #include "crypt-md4.h"
 #include "crypt-des.h"
-#include "packet-ntlmssp.h"
+#include "packet-dcerpc.h"
 
 /* Message types */
 
@@ -1186,7 +1187,7 @@ dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb,
   ntlmssp_info *conv_ntlmssp_info = NULL;
   ntlmssp_packet_info *packet_ntlmssp_info = NULL;
   proto_item *it;
-  static ntlmssp_decrypted_info_t ndi;
+  static decrypted_info_t ndi;
 
   encrypted_block_length = tvb_length_remaining (tvb, offset);
 
@@ -1503,6 +1504,65 @@ proto_register_ntlmssp(void)
 			 dissect_ntlmssp_encrypted_payload, proto_ntlmssp);
 }
 
+static int wrap_dissect_ntlmssp(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+				proto_tree *tree, char *drep _U_)
+{
+	tvbuff_t *auth_tvb;
+
+	auth_tvb = tvb_new_subset(
+		tvb, offset, tvb_length_remaining(tvb, offset),
+		tvb_length_remaining(tvb, offset));
+	
+	dissect_ntlmssp(auth_tvb, pinfo, tree);
+
+	return tvb_length_remaining(tvb, offset);
+}
+
+static int wrap_dissect_ntlmssp_verf(tvbuff_t *tvb, int offset, packet_info *pinfo, 
+				     proto_tree *tree, char *drep _U_)
+{
+	tvbuff_t *auth_tvb;
+
+	auth_tvb = tvb_new_subset(
+		tvb, offset, tvb_length_remaining(tvb, offset),
+		tvb_length_remaining(tvb, offset));
+	
+	return dissect_ntlmssp_verf(auth_tvb, pinfo, tree);
+}
+
+static int wrap_dissect_ntlmssp_encrypted_payload(tvbuff_t *tvb, int offset, 
+						  packet_info *pinfo, 
+						  proto_tree *tree, char *drep _U_)
+{
+	tvbuff_t *auth_tvb;
+
+	auth_tvb = tvb_new_subset(
+		tvb, offset, tvb_length_remaining(tvb, offset),
+		tvb_length_remaining(tvb, offset));
+	
+	return dissect_ntlmssp_encrypted_payload(auth_tvb, pinfo, tree);
+}
+
+static dcerpc_auth_subdissector_fns ntlmssp_sign_fns = {
+	wrap_dissect_ntlmssp, 			/* Bind */
+	wrap_dissect_ntlmssp,			/* Bind ACK */
+	wrap_dissect_ntlmssp,			/* AUTH3 */
+	wrap_dissect_ntlmssp_verf,		/* Request verifier */
+	wrap_dissect_ntlmssp_verf,		/* Response verifier */
+	NULL,			                /* Request data */
+	NULL			                /* Response data */
+};
+
+static dcerpc_auth_subdissector_fns ntlmssp_seal_fns = {
+	wrap_dissect_ntlmssp, 			/* Bind */
+	wrap_dissect_ntlmssp,			/* Bind ACK */
+	wrap_dissect_ntlmssp,			/* AUTH3 */
+	wrap_dissect_ntlmssp_verf, 		/* Request verifier */
+	wrap_dissect_ntlmssp_verf,		/* Response verifier */
+	wrap_dissect_ntlmssp_encrypted_payload,	/* Request data */
+	wrap_dissect_ntlmssp_encrypted_payload	/* Response data */
+};
+
 void
 proto_reg_handoff_ntlmssp(void)
 {     
@@ -1515,4 +1575,14 @@ proto_reg_handoff_ntlmssp(void)
   gssapi_init_oid("1.3.6.1.4.1.311.2.2.10", proto_ntlmssp, ett_ntlmssp, 
 		  ntlmssp_handle, ntlmssp_wrap_handle,
 		  "NTLMSSP - Microsoft NTLM Security Support Provider");
+
+  /* Register authenticated pipe dissector */
+
+  register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_INTEGRITY,
+				    DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
+				    &ntlmssp_sign_fns);
+
+  register_dcerpc_auth_subdissector(DCE_C_AUTHN_LEVEL_PKT_PRIVACY,
+				    DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
+				    &ntlmssp_seal_fns);
 }
