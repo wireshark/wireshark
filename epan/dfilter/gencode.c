@@ -1,5 +1,5 @@
 /*
- * $Id: gencode.c,v 1.9 2002/11/01 17:37:25 gram Exp $
+ * $Id: gencode.c,v 1.10 2003/06/13 10:03:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -199,6 +199,9 @@ gen_relation(dfwork_t *dfw, dfvm_opcode_t op, stnode_t *st_arg1, stnode_t *st_ar
 	}
 	else if (type2 == STTYPE_FVALUE) {
 		reg2 = dfw_append_put_fvalue(dfw, stnode_data(st_arg2));
+	}
+	else if (type2 == STTYPE_RANGE) {
+		reg2 = dfw_append_mk_range(dfw, st_arg2);
 	}
 	else {
 		g_assert_not_reached();
