@@ -1,7 +1,7 @@
 /* to_str.h
  * Routines  for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.5 2001/04/02 09:59:41 guy Exp $
+ * $Id: to_str.c,v 1.6 2001/04/02 10:44:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,9 +28,18 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
+#endif
+
+#ifdef HAVE_SYS_TIME_H
+# include <sys/time.h>
+#endif
+
+#ifdef HAVE_WINSOCK_H
+# include <winsock.h>   /* for "struct timeval" and "u_char" */
 #endif
 
 #ifdef NEED_SNPRINTF_H
@@ -51,10 +60,6 @@
 
 #ifdef NEED_INET_V6DEFS_H
 # include "inet_v6defs.h"
-#endif
-
-#ifdef HAVE_SYS_TIME_H
-# include <sys/time.h>
 #endif
 
 #include "to_str.h"
