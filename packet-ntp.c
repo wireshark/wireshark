@@ -2,7 +2,7 @@
  * Routines for NTP packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-ntp.c,v 1.37 2002/08/28 21:00:24 jmayer Exp $
+ * $Id: packet-ntp.c,v 1.38 2003/07/08 01:52:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -320,7 +320,7 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * local clock, in seconds to the nearest power of two.
 		 */
 		precision = tvb_get_guint8(tvb, 3);
-		proto_tree_add_uint_format(ntp_tree, hf_ntp_precision, tvb, 3, 1,
+		proto_tree_add_int_format(ntp_tree, hf_ntp_precision, tvb, 3, 1,
 					   precision,
 					   "Peer Clock Precision: %8.6f sec",
 					   pow(2, precision));
@@ -451,7 +451,7 @@ proto_register_ntp(void)
 			"Peer Polling Interval", "ntp.ppoll", FT_UINT8, BASE_DEC,
 			NULL, 0, "Peer Polling Interval", HFILL }},
 		{ &hf_ntp_precision, {
-			"Peer Clock Precision", "ntp.precision", FT_UINT8, BASE_DEC,
+			"Peer Clock Precision", "ntp.precision", FT_INT8, BASE_DEC,
 			NULL, 0, "Peer Clock Precision", HFILL }},
 		{ &hf_ntp_rootdelay, {
 			"Root Delay", "ntp.rootdelay", FT_DOUBLE, BASE_DEC,
