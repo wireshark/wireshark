@@ -1,7 +1,7 @@
-$Id: README.bsd,v 1.1 2000/02/19 21:54:07 guy Exp $
+$Id: README.bsd,v 1.2 2002/04/24 23:19:38 guy Exp $
 
 In order to capture packets (with Ethereal/Tethereal, tcpdump, or any
-other packet capture program) on a Linux system, your kernel must have
+other packet capture program) on a BSD system, your kernel must have
 the Berkeley packet Filter mechanism enabled.  On some BSDs (recent
 versions of FreeBSD, for example), it's enabled by default in the
 generic kernel; it's not enabled by default in older FreeBSD kernels,
