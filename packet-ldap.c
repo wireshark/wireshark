@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.59 2003/07/14 23:47:32 tpot Exp $
+ * $Id: packet-ldap.c,v 1.60 2003/07/18 06:12:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1629,6 +1629,10 @@ dissect_ldap_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
       dissect_ldap_response_bind(&a, ldap_tree, start, opLen, tvb, pinfo);
       break;
      case LDAP_RES_SEARCH_ENTRY: {
+	    /*
+	     * XXX - this assumes that the LDAP_RES_SEARCH_ENTRY and
+	     * LDAP_RES_SEARCH_RESULT appear in the same frame.
+	     */
 	    guint32 *num_results = p_get_proto_data(pinfo->fd, proto_ldap);
 
 	    if (!num_results) {
