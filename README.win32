@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.53 2003/12/10 23:21:51 gerald Exp $
+$Id: README.win32,v 1.54 2003/12/12 16:06:29 gerald Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -167,16 +167,16 @@ package is as follows:
 
     Package                             Default Location
     -------                             ----------------
-    adns-1.0-win32-01.zip               C:\ethereal-win32-libs
-    glib-2.2.1.zip                      C:\ethereal-win32-libs\glib
-    glib-dev-2.2.1.zip                  C:\ethereal-win32-libs\glib
-    gtk+-1.3.0-20030216.zip             C:\ethereal-win32-libs\gtk+
-    gtk+-dev-1.3.0-20030115.zip         C:\ethereal-win32-libs\gtk+
-    libiconv-1.9.1.bin.woe32.zip        C:\ethereal-win32-libs\gtk+
-    gettext-runtime-0.13.bin.woe32.zip  [ None ]
-    net-snmp-5.1.zip                    C:\ethereal-win32-libs
-    pcre-4.4.zip                        C:\ethereal-win32-libs
-    zlib121-dll.zip                     C:\ethereal-win32-libs\zlib121-dll
+    adns-1.0-win32-01.zip                 C:\ethereal-win32-libs
+    glib-2.2.1.zip                        C:\ethereal-win32-libs\glib
+    glib-dev-2.2.1.zip                    C:\ethereal-win32-libs\glib
+    gtk+-1.3.0-20030216.zip               C:\ethereal-win32-libs\gtk+
+    gtk+-dev-1.3.0-20030115.zip           C:\ethereal-win32-libs\gtk+
+    libiconv-1.9.1.bin.woe32.zip          C:\ethereal-win32-libs\gtk+
+    gettext-runtime-0.12.1.bin.woe32.zip  [ None ]
+    net-snmp-5.1.zip                      C:\ethereal-win32-libs
+    pcre-4.4.zip                          C:\ethereal-win32-libs
+    zlib121-dll.zip                       C:\ethereal-win32-libs\zlib121-dll
 
 The gettext runtime package provides intl.dll, which is needed by
 GLib 2.2.3.
