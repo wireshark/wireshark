@@ -9,7 +9,7 @@
  * This file is based on packet-aim.c, which is
  * Copyright 2000, Ralf Hoelzer <ralf@well.com>
  *
- * $Id: packet-skinny.c,v 1.10 2002/03/18 00:45:10 guy Exp $
+ * $Id: packet-skinny.c,v 1.11 2002/03/19 06:31:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,9 @@
 #include <string.h>
 
 #include <epan/packet.h>
+#include "prefs.h"
+
+#include "packet-frame.h"
 
 #define TCP_PORT_SKINNY 2000
 
@@ -182,16 +185,15 @@ static int hf_skinny_dialedDigit = -1;
 /* Initialize the subtree pointers */
 static gint ett_skinny          = -1;
 
+/* desegmentation of SCCP */
+static gboolean skinny_desegment = TRUE;
+
 static dissector_handle_t data_handle;
 
-/* Code to actually dissect the packets */
-static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+/* Dissect a single SCCP PDU */
+static void dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  /* The general structure of a packet: {IP-Header|TCP-Header|n*SKINNY}
-   * SKINNY-Packet: {Header(Size, Reserved)|Data(MessageID, Message-Data)}
-   */
-  
-
+  int offset = 0;
 
   /* Header fields */
   guint32 hdr_data_length;
@@ -199,30 +201,6 @@ static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 data_messageid;
   gchar   *messageid_str;
   /*  guint32 data_size; */
-
-  guint32 offset = 0;
-
-  guint32 callIdentifier = 0;
-  guint32 packetsSent = 0;
-  guint32 octetsSent = 0;
-  guint32 packetsRecv = 0;
-  guint32 octetsRecv = 0;
-  guint32 packetsLost = 0; 
-  guint32 latency = 0;
-  guint32 jitter = 0;
-  guint32 timeStamp = 0;
-  guint32 ipSrc = 0;
-  guint32 ipDest = 0;
-  guint32 year = 0;
-  guint32 month = 0;
-  guint32 day = 0;
-  guint32 hour = 0;
-  guint32 minute = 0;
-  guint32 destPort = 0;
-  guint32 srcPort = 0;
-  guint32 softKeyNumber = 0;
-  guint32 line = 0;
-  guint32 dialedDigit = 0;
 
   guint32 unknown1 = 0;
   guint32 unknown2 = 0;
@@ -246,13 +224,418 @@ static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_item *ti;
   proto_tree *skinny_tree = NULL;
   
+  hdr_data_length = tvb_get_letohl(tvb, offset);
+  hdr_reserved    = tvb_get_letohl(tvb, offset+4);
+  data_messageid  = tvb_get_letohl(tvb, offset+8);
+
+  /* In the interest of speed, if "tree" is NULL, don't do any work not
+   * necessary to generate protocol tree items. */
+  if (tree) {
+    ti = proto_tree_add_item(tree, proto_skinny, tvb, offset, hdr_data_length+8, FALSE); 
+    skinny_tree = proto_item_add_subtree(ti, ett_skinny);
+    proto_tree_add_uint(skinny_tree, hf_skinny_data_length, tvb, offset, 4, hdr_data_length);  
+    proto_tree_add_uint(skinny_tree, hf_skinny_reserved, tvb, offset+4, 4, hdr_reserved);
+  }
+
+  messageid_str = val_to_str(data_messageid, message_id, "0x%08X (Unknown)");
+
+  if (check_col(pinfo->cinfo, COL_INFO)) {
+    col_add_str(pinfo->cinfo, COL_INFO, messageid_str);
+  }
+
+  if (tree) {
+    proto_tree_add_uint(skinny_tree, hf_skinny_messageid, tvb,offset+8, 4, data_messageid );
+  }
+
+  if (tree) {
+    switch(data_messageid) {
+
+    /* cases that do not need to be decoded */
+    case 0x0 :    /* keepAlive */
+      break;
+
+    case 0x6 :    /* offHook */
+      break;
+
+    case 0x7 :    /* onHook    */
+      break;
+
+    case 0xd :    /* timeDateReqMessage */
+      break;
+
+    case 0xe :    /* buttoneTemplateReqMessage */
+      break;
+
+    case 0x25 :   /* softKeySetReqMessage */
+      break;
+
+    case 0x27 :   /* unregisterMessage */
+      break;
+
+    case 0x28 :   /* softKeyEventMessage */
+      break;
+
+    case 0x83 :   /* stopTone */
+      break;
+
+    case 0x9b :   /* capabilitiesReqMessage */
+      break;
+
+    case 0x100 :    /* keepAliveAck */
+      break;
+	
+    /*
+     ** cases that need decode
+     **
+     */
+
+    case 0x1 :   /* register message */
+      memset(displayMessage, '\0', displayLength);
+      tvb_memcpy(tvb, displayMessage, offset+12, 15); /* Note hack on field size ^_^ */
+      proto_tree_add_string(skinny_tree, hf_skinny_displayMessage, tvb, offset+12, strlen(displayMessage), displayMessage);
+      unknown1 = tvb_get_letohl(tvb, offset+28);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+28, 4, unknown1);
+      unknown2 = tvb_get_letohl(tvb, offset+32);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+32, 4, unknown2);
+      proto_tree_add_item(skinny_tree, hf_skinny_ipSrc, tvb, offset+36, 4, TRUE);
+      unknown4 = tvb_get_letohl(tvb, offset+40);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+40, 4, unknown4);
+      unknown5 = tvb_get_letohl(tvb, offset+44);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+44, 4, unknown5);
+      unknown6 = tvb_get_letohl(tvb, offset+48);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+48, 4, unknown6);
+      unknown7 = tvb_get_letohl(tvb, offset+52);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+52, 4, unknown7);
+      break;
+
+    case 0x2 :  /* ipPortMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_srcPort, tvb, offset+12, 2, FALSE);
+      break;
+
+    case 0x3 :  /* keyPadButtonMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_dialedDigit, tvb, offset+12, 4, TRUE);
+      break;
+
+    case 0x5 :
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      unknown2 = tvb_get_letohl(tvb, offset+16);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
+      break;
+
+    case 0xa :  /* speedDialStatReqMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_line, tvb, offset+12, 4, TRUE);
+      break;
+
+    case 0xb :  /* LineStatReqMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_line, tvb, offset+12, 4, TRUE);
+      break;
+
+    case 0x10 :  /* capabilitiesResMessage ===== LOTS to decode here, check jtapi */
+      break;
+
+    case 0x20 :   /* alarmMessage */
+      unknown1   = tvb_get_letohl(tvb,offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      memset(displayMessage, '\0', displayLength);
+      tvb_memcpy(tvb, displayMessage, offset+16, 76); /* Note hack on field size ^_^ */
+      proto_tree_add_string(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, strlen(displayMessage), displayMessage);
+      unknown2 = tvb_get_letohl(tvb, offset+92);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+92, 4, unknown2);
+      unknown3 = tvb_get_letohl(tvb, offset+96);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+96, 4, unknown3);
+      unknown4 = tvb_get_letohl(tvb, offset+100);
+      proto_tree_add_item(skinny_tree, hf_skinny_ipSrc,   tvb, offset+100, 4, TRUE);
+      break;
+
+    case 0x22 :
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      proto_tree_add_item(skinny_tree, hf_skinny_ipSrc,   tvb, offset+16, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_srcPort, tvb, offset+20, 4, TRUE);
+      unknown3 = tvb_get_letohl(tvb, offset+24);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+24, 4, unknown3);
+      break;	
+
+    case 0x26 :  /* softKeyEventMessage */
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      unknown2 = tvb_get_letohl(tvb, offset+16);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, TRUE);
+      break;
+
+    case 0x2b :  /* unknownClientMessage1 */
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      break;
+
+    case 0x2d :  /* unknownClientMessage2 */
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      break;
+
+    case 0x81 :  /* registerAck */
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      unknown2 = tvb_get_letohl(tvb, offset+16);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
+      unknown3 = tvb_get_letohl(tvb, offset+20);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, unknown3);
+      unknown4 = tvb_get_letohl(tvb, offset+24);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+24, 4, unknown4);
+      break;
+
+    case 0x82 :  /* startTone */
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      break;
+
+    case 0x85 :
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      break;
+	
+    case 0x86 :
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      unknown2 = tvb_get_letohl(tvb, offset+16);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
+      unknown3 = tvb_get_letohl(tvb, offset+20);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, unknown3);
+      break;
+
+    case 0x88 :
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      break;
+	
+    case 0x8a :
+      unknown1  = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      unknown2  = tvb_get_letohl(tvb, offset+16);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
+      proto_tree_add_item(skinny_tree, hf_skinny_ipDest,   tvb, offset+20, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_destPort,tvb, offset+24, 4, TRUE);
+      unknown5  = tvb_get_letohl(tvb, offset+28);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+28, 4, unknown5);
+      unknown6  = tvb_get_letohl(tvb, offset+32);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+32, 4, unknown6);
+      unknown7  = tvb_get_letohl(tvb, offset+36);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+36, 4, unknown7);
+      unknown8  = tvb_get_letohl(tvb, offset+40);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+40, 4, unknown8);
+      unknown9  = tvb_get_letohl(tvb, offset+44);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+44, 4, unknown9);
+      unknown10 = tvb_get_letohl(tvb, offset+48);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+48, 4, unknown10);
+      break;
+
+    case 0x8b :  /* stopMediaTransmission */
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      unknown2 = tvb_get_letohl(tvb, offset+16);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
+      break;
+
+    case 0x91 : /* speedDialStatMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_line, tvb, offset+12, 4, TRUE);
+      break;
+
+    case 0x92 : /* lineStatMessage */
+      proto_tree_add_item(skinny_tree, hf_skinny_line, tvb, offset+12, 4, TRUE);
+      break;
+
+    case 0x94 :
+      proto_tree_add_item(skinny_tree, hf_skinny_dateYear,  tvb, offset+12, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_dateMonth, tvb, offset+16, 4, TRUE);
+      unknown1  = tvb_get_letohl(tvb, offset+20);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown,   tvb, offset+20, 4, unknown1);
+      proto_tree_add_item(skinny_tree, hf_skinny_dateDay,   tvb, offset+24, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_dateHour,  tvb, offset+28, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_dateMinute,tvb, offset+32, 4, TRUE);
+      unknown2  = tvb_get_letohl(tvb, offset+36);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown,   tvb, offset+36, 4, unknown2);
+      unknown3  = tvb_get_letohl(tvb, offset+40);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown,   tvb, offset+40, 4, unknown3);
+      proto_tree_add_item(skinny_tree, hf_skinny_timeStamp, tvb, offset+44, 4, TRUE);
+      break;
+      
+    case 0x97 :  /* buttonTemplateMessage === LOTS here check jtapi for hints */
+      break;
+
+    case 0x99 :  /* displayTextMessage */
+      memset(displayMessage, '\0', displayLength);
+      tvb_memcpy(tvb, displayMessage, offset+12, 32);
+      proto_tree_add_string(skinny_tree, hf_skinny_displayMessage, tvb, offset+12, strlen(displayMessage), displayMessage);        
+      unknown1  = tvb_get_letohl(tvb, offset+44);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+44, 4, unknown1);
+      break;
+
+    case 0x9f :   /* reset */
+      unknown1  = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      break;
+
+    case 0x106 :  /* closeReceiveChannel */
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      unknown2 = tvb_get_letohl(tvb, offset+16);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
+      break;
+
+    case 0x105 :
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      unknown2 = tvb_get_letohl(tvb, offset+16);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
+      unknown3 = tvb_get_letohl(tvb, offset+20);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, unknown3);
+      unknown4 = tvb_get_letohl(tvb, offset+24);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+24, 4, unknown4);
+      unknown5 = tvb_get_letohl(tvb, offset+28);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+28, 4, unknown5);
+      unknown6 = tvb_get_letohl(tvb, offset+32);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+32, 4, unknown6);
+      break;
+
+    case 0x107 :      
+      memset(extension, '\0', extensionLength);
+      tvb_get_nstringz0(tvb, offset+12, extensionLength, extension);
+      proto_tree_add_string(skinny_tree, hf_skinny_extension, tvb, offset+12, strlen(extension), extension);
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+36, 4, TRUE);
+      break;
+
+    case 0x108 :   /* softkeyTemplateResMessage == Jtapi again :P, can decode some*/
+      unknown1  = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+
+      unknown2  = tvb_get_letohl(tvb, offset+16);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
+
+      unknown3  = tvb_get_letohl(tvb, offset+20);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, unknown3);
+
+      softKeyLoop = 0;
+      /* NOTE ***** This loop *MIGHT* need to revolve around the unknow1/2 properties, not sure though */
+      while (softKeyLoop < 18) {
+        int softOffset = offset+(softKeyLoop*20);
+        memset(displayMessage, '\0', displayLength);
+        tvb_memcpy(tvb, displayMessage, softOffset+24, 16);
+        proto_tree_add_string(skinny_tree, hf_skinny_displayMessage, tvb, softOffset+24, strlen(displayMessage), displayMessage);
+        proto_tree_add_item(skinny_tree, hf_skinny_softKeyNumber, tvb, softOffset+40, 4, TRUE);
+
+        softKeyLoop++;
+      }
+
+      break;
+
+    case 0x110 :
+      unknown1       = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
+      unknown2       = tvb_get_letohl(tvb, offset+20);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, unknown2);
+      unknown3       = tvb_get_letohl(tvb, offset+24);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+24, 4, unknown3);
+      break;
+      
+    case 0x111 :
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      unknown2 = tvb_get_letohl(tvb, offset+16);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, FALSE);
+      break;
+      
+    case 0x112 :
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      memset(displayMessage,'\0',displayLength);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      tvb_get_nstringz0(tvb,offset+16,displayLength, displayMessage);
+      proto_tree_add_string(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, strlen(displayMessage), displayMessage);
+      unknown2 = tvb_get_letohl(tvb, offset+48);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+48, 4, unknown2);
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+52, 4, TRUE);
+      break;
+      
+    case 0x113:
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, TRUE);
+      break;
+      
+    case 0x114 :
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      memset(displayMessage,'\0',displayLength);
+      tvb_memcpy(tvb, displayMessage, offset+16, 16);
+      proto_tree_add_string(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, strlen(displayMessage), displayMessage);
+      unknown2 = tvb_get_letohl(tvb, offset+32);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+32, 4, unknown2);
+      unknown3 = tvb_get_letohl(tvb, offset+36);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+36, 4, unknown3);
+      unknown4 = tvb_get_letohl(tvb, offset+40);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+40, 4, unknown4);
+      unknown5 = tvb_get_letohl(tvb, offset+44);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+44, 4, unknown5);
+      break;
+      
+    case 0x116 :
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      break;
+
+    case 0x118 :    /* unregisterAckMessage */
+      unknown1 = tvb_get_letohl(tvb, offset+12);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
+      break;
+
+    case 0x0023    :
+      memset(extension,'\0', extensionLength);
+      tvb_get_nstringz0(tvb,offset+12,extensionLength,extension);
+      proto_tree_add_string(skinny_tree, hf_skinny_extension, tvb, offset+12, strlen(extension), extension);
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+36, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_packetsSent, tvb, offset+44, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_octetsSent, tvb, offset+48, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_packetsRecv, tvb, offset+52, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_octetsRecv, tvb, offset+56, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_packetsLost, tvb, offset+60, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_latency, tvb, offset+64, 4, TRUE);
+      proto_tree_add_item(skinny_tree, hf_skinny_jitter, tvb, offset+68, 4, TRUE);
+      break;
+      
+    case 0x11D :
+      unknown1       = tvb_get_letohl(tvb, offset+36);
+      proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+36, 4, unknown1);
+      proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+40, 4, TRUE);
+      break;
+      
+    default:
+      break;
+    }
+  }
+}
+
+/* Code to actually dissect the packets */
+static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  /* The general structure of a packet: {IP-Header|TCP-Header|n*SKINNY}
+   * SKINNY-Packet: {Header(Size, Reserved)|Data(MessageID, Message-Data)}
+   */
+  
+  volatile int offset = 0;
+  int length_remaining;
+  int length;
+  tvbuff_t *next_tvb;
+
+  /* Header fields */
+  volatile guint32 hdr_data_length;
+  guint32 hdr_reserved;
+
   /* check, if this is really an SKINNY packet, they start with a length + 0 */
   
   /* get relevant header information */
   hdr_data_length = tvb_get_letohl(tvb, 0);
   hdr_reserved    = tvb_get_letohl(tvb, 4);
-  data_messageid   = tvb_get_letohl(tvb, 8);
-
 
   /*  data_size       = MIN(8+hdr_data_length, tvb_length(tvb)) - 0xC; */
   
@@ -273,470 +656,98 @@ static void dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   
   while (tvb_reported_length_remaining(tvb, offset) != 0) {
+    length_remaining = tvb_length_remaining(tvb, offset);
 
-    hdr_data_length = tvb_get_letohl(tvb, offset);
-    hdr_reserved    = tvb_get_letohl(tvb, offset+4);
-    data_messageid  = tvb_get_letohl(tvb, offset+8);
-
-    /* In the interest of speed, if "tree" is NULL, don't do any work not
-     * necessary to generate protocol tree items. */
-    if (tree) {
-      ti = proto_tree_add_item(tree, proto_skinny, tvb, offset, hdr_data_length+8, FALSE); 
-      skinny_tree = proto_item_add_subtree(ti, ett_skinny);
-      proto_tree_add_uint(skinny_tree, hf_skinny_data_length, tvb, offset, 4, hdr_data_length);  
-      proto_tree_add_uint(skinny_tree, hf_skinny_reserved, tvb, offset+4, 4, hdr_reserved);
-    }
-
-    messageid_str = val_to_str(data_messageid, message_id, "0x%08X (Unknown)");
-
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_str(pinfo->cinfo, COL_INFO, messageid_str);
-    }
-
-    if (tree) {
-      proto_tree_add_uint(skinny_tree, hf_skinny_messageid, tvb,offset+8, 4, data_messageid );
-    }
-
-    if (tree) {
-      switch(data_messageid) {
-
-	/* cases that do not need to be decoded */
-      case 0x0 :    /* keepAlive */
-	break;
-
-      case 0x6 :    /* offHook */
-	break;
-
-      case 0x7 :    /* onHook    */
-	break;
-
-      case 0xd :    /* timeDateReqMessage */
-	break;
-
-      case 0xe :    /* buttoneTemplateReqMessage */
-	break;
-
-      case 0x25 :   /* softKeySetReqMessage */
-	break;
-
-      case 0x27 :   /* unregisterMessage */
-	break;
-
-      case 0x28 :   /* softKeyEventMessage */
-	break;
-
-      case 0x83 :   /* stopTone */
-	break;
-
-      case 0x9b :   /* capabilitiesReqMessage */
-	break;
-
-      case 0x100 :    /* keepAliveAck */
-	break;
-	
+    /*
+     * Can we do reassembly?
+     */
+    if (skinny_desegment && pinfo->can_desegment) {
+      /*
+       * Yes - is the length field in the SCCP header split across
+       * segment boundaries?
+       */
+      if (length_remaining < 4) {
 	/*
-	** cases that need decode
-	**
-	*/
-
-      case 0x1 :   /* register message */
-	memset(displayMessage, '\0', displayLength);
-	tvb_memcpy(tvb, displayMessage, offset+12, 15); /* Note hack on field size ^_^ */
-	unknown1 = tvb_get_letohl(tvb, offset+28);
-	unknown2 = tvb_get_letohl(tvb, offset+32);
-	tvb_memcpy(tvb, (guint8 *)&ipSrc, offset+36,4);
-	unknown4 = tvb_get_letohl(tvb, offset+40);
-	unknown5 = tvb_get_letohl(tvb, offset+44);
-	unknown6 = tvb_get_letohl(tvb, offset+48);
-	unknown7 = tvb_get_letohl(tvb, offset+52);
-
-	proto_tree_add_string(skinny_tree, hf_skinny_displayMessage, tvb, offset+12, strlen(displayMessage), displayMessage);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+28, 4, unknown1);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+32, 4, unknown2);
-	proto_tree_add_ipv4(skinny_tree, hf_skinny_ipSrc, tvb, offset+36, 4, ipSrc);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+40, 4, unknown4);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+44, 4, unknown5);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+48, 4, unknown6);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+52, 4, unknown7);
-	break;
-
-      case 0x2 :  /* ipPortMessage */
-	srcPort = tvb_get_ntohs(tvb, offset+12);
-	
-	proto_tree_add_uint(skinny_tree, hf_skinny_srcPort, tvb, offset+12, 4, srcPort);
-	break;
-
-      case 0x3 :  /* keyPadButtonMessage */
-	dialedDigit = tvb_get_letohl(tvb, offset+12);
-	
-	proto_tree_add_uint(skinny_tree, hf_skinny_dialedDigit, tvb, offset+12, 4, dialedDigit);
-	break;
-
-      case 0x5 :
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-	unknown2 = tvb_get_letohl(tvb, offset+16);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
-	break;
-
-      case 0xa :  /* speedDialStatReqMessage */
-	line = tvb_get_letohl(tvb, offset+12);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_line, tvb, offset+12, 4, line);
-	break;
-
-      case 0xb :  /* LineStatReqMessage */
-	line = tvb_get_letohl(tvb, offset+12);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_line, tvb, offset+12, 4, line);
-	break;
-
-      case 0x10 :  /* capabilitiesResMessage ===== LOTS to decode here, check jtapi */
-	break;
-
-      case 0x20 :   /* alarmMessage */
-	unknown1   = tvb_get_letohl(tvb,offset+12);
-	memset(displayMessage, '\0', displayLength);
-	tvb_memcpy(tvb, displayMessage, offset+16, 76); /* Note hack on field size ^_^ */
-	unknown2 = tvb_get_letohl(tvb, offset+92);
-	unknown3 = tvb_get_letohl(tvb, offset+96);
-	unknown4 = tvb_get_letohl(tvb, offset+100);
-	tvb_memcpy(tvb, (guint8 *)&ipSrc, offset+100,4);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	proto_tree_add_string(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, strlen(displayMessage), displayMessage);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+92, 4, unknown2);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+96, 4, unknown3);
-	proto_tree_add_ipv4(skinny_tree, hf_skinny_ipSrc,   tvb, offset+100, 4, ipSrc);
-	break;
-
-      case 0x22 :
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-	tvb_memcpy(tvb, (guint8 *)&ipSrc, offset+16,4);
-	srcPort  = tvb_get_letohl(tvb, offset+20);
-	unknown3 = tvb_get_letohl(tvb, offset+24);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	proto_tree_add_ipv4(skinny_tree, hf_skinny_ipSrc,   tvb, offset+16, 4, ipSrc);
-	proto_tree_add_uint(skinny_tree, hf_skinny_srcPort, tvb, offset+20, 4, srcPort);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+24, 4, unknown3);
-	break;	
-
-      case 0x26 :  /* softKeyEventMessage */
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-	unknown2 = tvb_get_letohl(tvb, offset+16);
-	callIdentifier = tvb_get_letohl(tvb, offset+20);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
-	proto_tree_add_uint(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, callIdentifier);
-	break;
-
-      case 0x2b :  /* unknownClientMessage1 */
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	break;
-
-      case 0x2d :  /* unknownClientMessage2 */
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	break;
-
-      case 0x81 :  /* registerAck */
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-	unknown2 = tvb_get_letohl(tvb, offset+16);
-	unknown3 = tvb_get_letohl(tvb, offset+20);
-	unknown4 = tvb_get_letohl(tvb, offset+24);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, unknown3);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+24, 4, unknown4);
-	break;
-
-      case 0x82 :  /* startTone */
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-	
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	break;
-
-      case 0x85 :
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	break;
-	
-      case 0x86 :
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-	unknown2 = tvb_get_letohl(tvb, offset+16);
-	unknown3 = tvb_get_letohl(tvb, offset+20);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, unknown3);
-	break;
-
-      case 0x88 :
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	break;
-	
-      case 0x8a :
-	unknown1  = tvb_get_letohl(tvb, offset+12);
-	unknown2  = tvb_get_letohl(tvb, offset+16);
-	tvb_memcpy(tvb, (guint8 *)&ipDest, offset+20,4);
-	destPort  = tvb_get_letohl(tvb, offset+24);
-	unknown5  = tvb_get_letohl(tvb, offset+28);
-	unknown6  = tvb_get_letohl(tvb, offset+32);
-	unknown7  = tvb_get_letohl(tvb, offset+36);
-	unknown8  = tvb_get_letohl(tvb, offset+40);
-	unknown9  = tvb_get_letohl(tvb, offset+44);
-	unknown10 = tvb_get_letohl(tvb, offset+48);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
-	proto_tree_add_ipv4(skinny_tree, hf_skinny_ipDest,   tvb, offset+20, 4, ipDest);
-	proto_tree_add_uint(skinny_tree, hf_skinny_destPort,tvb, offset+24, 4, destPort);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+28, 4, unknown5);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+32, 4, unknown6);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+36, 4, unknown7);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+40, 4, unknown8);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+44, 4, unknown9);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+48, 4, unknown10);
-	break;
-
-      case 0x8b :  /* stopMediaTransmission */
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-	unknown2 = tvb_get_letohl(tvb, offset+16);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
-	break;
-
-      case 0x91 : /* speedDialStatMessage */
-	line = tvb_get_letohl(tvb, offset+12);
-	
-	proto_tree_add_uint(skinny_tree, hf_skinny_line, tvb, offset+12, 4, line);
-	break;
-
-      case 0x92 : /* lineStatMessage */
-	line = tvb_get_letohl(tvb, offset+12);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_line, tvb, offset+12, 4, line);
-	break;
-
-      case 0x94 :
-	year      = tvb_get_letohl(tvb, offset+12);
-	month     = tvb_get_letohl(tvb, offset+16);
-	unknown1  = tvb_get_letohl(tvb, offset+20);
-	day       = tvb_get_letohl(tvb, offset+24);
-	hour      = tvb_get_letohl(tvb, offset+28);
-	minute    = tvb_get_letohl(tvb, offset+32);
-	unknown2  = tvb_get_letohl(tvb, offset+36);
-	unknown3  = tvb_get_letohl(tvb, offset+40);
-	timeStamp = tvb_get_letohl(tvb, offset+44);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_dateYear,  tvb, offset+12, 4, year);
-	proto_tree_add_uint(skinny_tree, hf_skinny_dateMonth, tvb, offset+16, 4, month);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown,   tvb, offset+20, 4, unknown1);
-	proto_tree_add_uint(skinny_tree, hf_skinny_dateDay,   tvb, offset+24, 4, day);
-	proto_tree_add_uint(skinny_tree, hf_skinny_dateHour,  tvb, offset+28, 4, hour);
-	proto_tree_add_uint(skinny_tree, hf_skinny_dateMinute,tvb, offset+32, 4, minute);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown,   tvb, offset+36, 4, unknown2);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown,   tvb, offset+40, 4, unknown3);
-	proto_tree_add_uint(skinny_tree, hf_skinny_timeStamp, tvb, offset+44, 4, timeStamp);
-	break;
-	
-      case 0x97 :  /* buttonTemplateMessage === LOTS here check jtapi for hints */
-	break;
-
-      case 0x99 :  /* displayTextMessage */
-	memset(displayMessage, '\0', displayLength);
-	tvb_memcpy(tvb, displayMessage, offset+12, 32);
-	unknown1  = tvb_get_letohl(tvb, offset+44);
-
-	proto_tree_add_string(skinny_tree, hf_skinny_displayMessage, tvb, offset+12, strlen(displayMessage), displayMessage);	  
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+44, 4, unknown1);
-	break;
-
-      case 0x9f :   /* reset */
-	unknown1  = tvb_get_letohl(tvb, offset+12);
-	
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	break;
-
-      case 0x106 :  /* closeReceiveChannel */
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-	unknown2 = tvb_get_letohl(tvb, offset+16);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
-	break;
-
-      case 0x105 :
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-	unknown2 = tvb_get_letohl(tvb, offset+16);
-	unknown3 = tvb_get_letohl(tvb, offset+20);
-	unknown4 = tvb_get_letohl(tvb, offset+24);
-	unknown5 = tvb_get_letohl(tvb, offset+28);
-	unknown6 = tvb_get_letohl(tvb, offset+32);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, unknown3);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+24, 4, unknown4);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+28, 4, unknown5);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+32, 4, unknown6);
-	break;
-
-      case 0x107 :	
-	memset(extension, '\0', extensionLength);
-	tvb_get_nstringz0(tvb, offset+12, extensionLength, extension);
-	callIdentifier = tvb_get_letohl(tvb, offset+36);
-
-	proto_tree_add_string(skinny_tree, hf_skinny_extension, tvb, offset+12, strlen(extension), extension);
-	proto_tree_add_uint(skinny_tree, hf_skinny_callIdentifier, tvb, offset+36, 4, callIdentifier);
-	break;
-
-      case 0x108 :   /* softkeyTemplateResMessage == Jtapi again :P, can decode some*/
-	unknown1  = tvb_get_letohl(tvb, offset+12);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-
-	unknown2  = tvb_get_letohl(tvb, offset+16);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
-
-	unknown3  = tvb_get_letohl(tvb, offset+20);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, unknown3);
-
-	softKeyNumber = 0;
-	softKeyLoop = 0;
-	/* NOTE ***** This loop *MIGHT* need to revolve around the unknow1/2 properties, not sure though */
-	while (softKeyLoop < 18) {
-	  int softOffset = offset+(softKeyLoop*20);
-	  memset(displayMessage, '\0', displayLength);
-	  tvb_memcpy(tvb, displayMessage, softOffset+24, 16);
-	  proto_tree_add_string(skinny_tree, hf_skinny_displayMessage, tvb, softOffset+24, strlen(displayMessage), displayMessage);
-	  softKeyNumber = tvb_get_letohl(tvb, softOffset+40);
-	  proto_tree_add_uint(skinny_tree, hf_skinny_softKeyNumber, tvb, softOffset+40, 4, softKeyNumber);
-
-	  softKeyLoop++;
-	}
-
-	break;
-
-      case 0x110 :
-	unknown1       = tvb_get_letohl(tvb, offset+12);
-	callIdentifier = tvb_get_letohl(tvb, offset+16);
-	unknown2       = tvb_get_letohl(tvb, offset+20);
-        unknown3       = tvb_get_letohl(tvb, offset+24);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	proto_tree_add_uint(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, callIdentifier);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, unknown2);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+24, 4, unknown3);
-	break;
-	
-      case 0x111 :
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-	unknown2 = tvb_get_letohl(tvb, offset+16);
-	callIdentifier = tvb_get_letohl(tvb, offset+20);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+16, 4, unknown2);
-	proto_tree_add_uint(skinny_tree, hf_skinny_callIdentifier, tvb, offset+20, 4, callIdentifier);
-	break;
-	
-      case 0x112 :
-	memset(displayMessage,'\0',displayLength);
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-	tvb_get_nstringz0(tvb,offset+16,displayLength, displayMessage);
-	unknown2 = tvb_get_letohl(tvb, offset+48);
-	callIdentifier = tvb_get_letohl(tvb, offset+52);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	proto_tree_add_string(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, strlen(displayMessage), displayMessage);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+48, 4, unknown2);
-	proto_tree_add_uint(skinny_tree, hf_skinny_callIdentifier, tvb, offset+52, 4, callIdentifier);
-	break;
-	
-      case 0x113:
-	callIdentifier = tvb_get_letohl(tvb, offset+16);
-	proto_tree_add_uint(skinny_tree, hf_skinny_callIdentifier, tvb, offset+16, 4, callIdentifier);
-	break;
-	
-      case 0x114 :
-	
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-	memset(displayMessage,'\0',displayLength);
-	tvb_memcpy(tvb, displayMessage, offset+16, 16);
-	unknown2 = tvb_get_letohl(tvb, offset+32);
-	unknown3 = tvb_get_letohl(tvb, offset+36);
-	unknown4 = tvb_get_letohl(tvb, offset+40);
-	unknown5 = tvb_get_letohl(tvb, offset+44);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	proto_tree_add_string(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, strlen(displayMessage), displayMessage);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+32, 4, unknown2);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+36, 4, unknown3);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+40, 4, unknown4);
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+44, 4, unknown5);
-	break;
-	
-      case 0x116 :
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	break;
-
-      case 0x118 :    /* unregisterAckMessage */
-	unknown1 = tvb_get_letohl(tvb, offset+12);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+12, 4, unknown1);
-	break;
-
-      case 0x0023    :
-	
-	memset(extension,'\0', extensionLength);
-	tvb_get_nstringz0(tvb,offset+12,extensionLength,extension);
-	callIdentifier = tvb_get_letohl(tvb,offset+36);
-	packetsSent    = tvb_get_letohl(tvb,offset+44);
-	octetsSent     = tvb_get_letohl(tvb,offset+48);
-	packetsRecv    = tvb_get_letohl(tvb,offset+52);
-	octetsRecv     = tvb_get_letohl(tvb,offset+56);
-	packetsLost    = tvb_get_letohl(tvb,offset+60);
-	jitter         = tvb_get_letohl(tvb,offset+64);
-	latency        = tvb_get_letohl(tvb,offset+68);
-
-	proto_tree_add_string(skinny_tree, hf_skinny_extension, tvb, offset+12, strlen(extension), extension);
-	proto_tree_add_uint(skinny_tree, hf_skinny_callIdentifier, tvb, offset+36, 4, callIdentifier);
-	proto_tree_add_uint(skinny_tree, hf_skinny_packetsSent, tvb, offset+44, 4, packetsSent);
-	proto_tree_add_uint(skinny_tree, hf_skinny_octetsSent, tvb, offset+48, 4, octetsSent);
-	proto_tree_add_uint(skinny_tree, hf_skinny_packetsRecv, tvb, offset+52, 4, packetsRecv);
-	proto_tree_add_uint(skinny_tree, hf_skinny_octetsRecv, tvb, offset+56, 4, octetsRecv);
-	proto_tree_add_uint(skinny_tree, hf_skinny_packetsLost, tvb, offset+60, 4, packetsLost);
-	proto_tree_add_uint(skinny_tree, hf_skinny_latency, tvb, offset+64, 4, latency);
-	proto_tree_add_uint(skinny_tree, hf_skinny_jitter, tvb, offset+68, 4, jitter);
-	break;
-	
-      case 0x11D :
-	unknown1       = tvb_get_letohl(tvb, offset+36);
-	callIdentifier = tvb_get_letohl(tvb, offset+40);
-
-	proto_tree_add_uint(skinny_tree, hf_skinny_unknown, tvb, offset+36, 4, unknown1);
-	proto_tree_add_uint(skinny_tree, hf_skinny_callIdentifier, tvb, offset+40, 4, callIdentifier);
-	break;
-
-	
-      default:
-	break;
+	 * Yes.  Tell the TCP dissector where the data for this message
+	 * starts in the data it handed us, and how many more bytes we
+	 * need, and return.
+	 */
+	pinfo->desegment_offset = offset;
+	pinfo->desegment_len = 4 - length_remaining;
+	return;
       }
-      
     }
-    offset = offset + hdr_data_length+8;
+
+    /*
+     * Get the length of the SCCP packet.
+     */
+    hdr_data_length = tvb_get_letohl(tvb, offset);
+
+    /*
+     * Can we do reassembly?
+     */
+    if (skinny_desegment && pinfo->can_desegment) {
+      /*
+       * Yes - is the SCCP packet split across segment boundaries?
+       */
+      if ((guint32)length_remaining < hdr_data_length + 8) {
+	/*
+	 * Yes.  Tell the TCP dissector where the data for this message
+	 * starts in the data it handed us, and how many more bytes we
+	 * need, and return.
+	 */
+	pinfo->desegment_offset = offset;
+	pinfo->desegment_len = (hdr_data_length + 8) - length_remaining;
+	return;
+      }
+    }
+
+    /*
+     * Construct a tvbuff containing the amount of the payload we have
+     * available.  Make its reported length the amount of data in the
+     * SCCP packet.
+     *
+     * XXX - if reassembly isn't enabled. the subdissector will throw a
+     * BoundsError exception, rather than a ReportedBoundsError exception.
+     * We really want a tvbuff where the length is "length", the reported
+     * length is "hdr_data_length + 8", and the "if the snapshot length
+     * were infinite" length is the minimum of the reported length of
+     * the tvbuff handed to us and "hdr_data_length + 8", with a new type
+     * of exception thrown if the offset is within the reported length but
+     * beyond that third length, with that exception getting the
+     * "Unreassembled Packet" error.
+     */
+    length = length_remaining;
+    if ((guint32)length > hdr_data_length + 8)
+      length = hdr_data_length + 8;
+    next_tvb = tvb_new_subset(tvb, offset, length, hdr_data_length + 8);
+
+    /*
+     * Dissect the SCCP packet.
+     *
+     * Catch the ReportedBoundsError exception; if this particular message
+     * happens to get a ReportedBoundsError exception, that doesn't mean
+     * that we should stop dissecting SCCP messages within this frame or
+     * chunk of reassembled data.
+     *
+     * If it gets a BoundsError, we can stop, as there's nothing more to
+     * see, so we just re-throw it.
+     */
+    TRY {
+      dissect_skinny_pdu(next_tvb, pinfo, tree);
+    }
+    CATCH(BoundsError) {
+      RETHROW;
+    }
+    CATCH(ReportedBoundsError) {
+      show_reported_bounds_error(tvb, pinfo, tree);
+    }
+    ENDTRY;
+
+    /*
+     * Skip the SCCP header and the payload.
+     */
+    offset += hdr_data_length + 8;
   }
 }
 
@@ -756,7 +767,7 @@ proto_register_skinny(void)
     { &hf_skinny_reserved,
       { "Reserved", "skinny.reserved",
 	FT_UINT32, BASE_HEX, NULL, 0x0,
-	"Reserved for furture(?) use.",
+	"Reserved for future(?) use.",
 	HFILL }
     },
     /* FIXME: Enable use of message name ???  */
@@ -857,7 +868,7 @@ proto_register_skinny(void)
     { &hf_skinny_ipSrc,
       { "IP Source", "skinny.ipSrc",
 	FT_IPv4, BASE_NONE, NULL, 0x0,
-	"Ip source address",
+	"IP source address",
 	HFILL }
     },
 
@@ -944,7 +955,9 @@ proto_register_skinny(void)
   static gint *ett[] = {
     &ett_skinny,
   };
-  
+
+  module_t *skinny_module;
+
   /* Register the protocol name and description */
   proto_skinny = proto_register_protocol("Skinny Client Control Protocol",
 					 "SKINNY", "skinny");
@@ -952,6 +965,12 @@ proto_register_skinny(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_skinny, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  skinny_module = prefs_register_protocol(proto_skinny, NULL);
+  prefs_register_bool_preference(skinny_module, "desegment",
+    "Desegment all SCCP messages spanning multiple TCP segments",
+    "Whether the SCCP dissector should desegment all messages spanning multiple TCP segments",
+    &skinny_desegment);
 };
 
 void
