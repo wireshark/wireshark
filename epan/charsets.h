@@ -1,5 +1,5 @@
-/* util.h
- * Utility definitions
+/* charsets.h
+ * Routines for handling character sets
  *
  * $Id$
  *
@@ -21,32 +21,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
-#ifndef __UTIL_H__
-#define __UTIL_H__
+#ifndef __CHARSETS_H__
+#define __CHARSETS_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-int create_tempfile(char *, int, const char *);
-
-/*
- * Collect command-line arguments as a string consisting of the arguments,
- * separated by spaces.
- */
-char *get_args_as_string(int argc, char **argv, int optind);
-
-/* Compute the difference between two seconds/microseconds time stamps. */
-void compute_timestamp_diff(gint *, gint *, guint32, guint32, guint32, guint32);
-/* In-place decoding of a base64 string. */
-size_t epan_base64_decode(char *s);
-
-/* Create a capture filter for the connection */
-char *get_conn_cfilter(void);
+#if 0
+void ASCII_to_EBCDIC(guint8 *buf, guint bytes);
+guint8 ASCII_to_EBCDIC1(guint8 c);
+#endif
+void EBCDIC_to_ASCII(guint8 *buf, guint bytes);
+guint8 EBCDIC_to_ASCII1(guint8 c);
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __UTIL_H__ */
+#endif /* __CHARSETS_H__ */

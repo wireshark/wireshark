@@ -28,6 +28,7 @@ LIBETHEREAL_SRC = 		\
 	addr_resolv.c		\
 	atalk-utils.c		\
 	bitswap.c		\
+	charsets.c		\
 	circuit.c		\
 	column-utils.c		\
 	conversation.c		\
@@ -54,6 +55,7 @@ LIBETHEREAL_INCLUDES = 		\
 	address.h		\
 	atalk-utils.h		\
 	bitswap.h		\
+	charsets.h		\
 	circuit.h		\
 	column_info.h		\
 	conversation.h		\

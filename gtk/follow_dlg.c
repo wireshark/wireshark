@@ -56,6 +56,7 @@
 #include <epan/dissectors/packet-ipv6.h>
 #include "prefs.h"
 #include <epan/addr_resolv.h>
+#include <epan/charsets.h>
 #include "util.h"
 #include "ui_util.h"
 #include <epan/epan_dissect.h>

@@ -43,7 +43,7 @@
 #include "packet-range.h"
 #include "print.h"
 #include "ps.h"
-#include "util.h"
+#include <epan/charsets.h>
 #include <epan/dissectors/packet-data.h>
 #include <epan/dissectors/packet-frame.h>
 

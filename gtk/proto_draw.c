@@ -54,7 +54,7 @@
 
 #include "main.h"
 #include <epan/packet.h>
-#include "util.h"
+#include <epan/charsets.h>
 #include "menu.h"
 #include "keys.h"
 
