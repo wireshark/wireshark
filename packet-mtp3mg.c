@@ -1,14 +1,16 @@
 /* packet-mtp3mg.c
  * Routines for Message Transfer Part Level 3 Management and Test dissection
+ *
  * It is (hopefully) compliant to:
  *   ANSI T1.111.4-1996
  *   ITU-T Q.704 7/1996
  *   ITU-T Q.707 7/1996 and ANSI T1.111.7-1996 (for SLT message formats)
- *   and portions of ITU-T Q.2210 7/1996 (for XCO/XCA message formats)
+ *   portions of ITU-T Q.2210 7/1996 (for XCO/XCA message formats)
+ *   GF 001-9001 (Chinese ITU variant)
  *
  * Copyright 2003, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-mtp3mg.c,v 1.3 2003/01/31 03:17:46 guy Exp $
+ * $Id: packet-mtp3mg.c,v 1.4 2003/04/10 18:52:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -363,16 +365,19 @@ static int hf_mtp3mg_tfc_apc_network = -1;
 static int hf_mtp3mg_tfc_ansi_status = -1;
 static int hf_mtp3mg_tfc_itu_apc = -1;
 static int hf_mtp3mg_tfc_itu_status = -1;
+static int hf_mtp3mg_tfc_chinese_apc = -1;
 static int hf_mtp3mg_tfm_ansi_apc = -1;
 static int hf_mtp3mg_tfm_apc_member = -1;
 static int hf_mtp3mg_tfm_apc_cluster = -1;
 static int hf_mtp3mg_tfm_apc_network = -1;
 static int hf_mtp3mg_tfm_itu_apc = -1;
+static int hf_mtp3mg_tfm_chinese_apc = -1;
 static int hf_mtp3mg_rsm_ansi_apc = -1;
 static int hf_mtp3mg_rsm_apc_member = -1;
 static int hf_mtp3mg_rsm_apc_cluster = -1;
 static int hf_mtp3mg_rsm_apc_network = -1;
 static int hf_mtp3mg_rsm_itu_apc = -1;
+static int hf_mtp3mg_rsm_chinese_apc = -1;
 static int hf_mtp3mg_mim_ansi_slc = -1;
 static int hf_mtp3mg_dlc_ansi_slc = -1;
 static int hf_mtp3mg_dlc_ansi_link = -1;
@@ -382,6 +387,7 @@ static int hf_mtp3mg_upu_apc_member = -1;
 static int hf_mtp3mg_upu_apc_cluster = -1;
 static int hf_mtp3mg_upu_apc_network = -1;
 static int hf_mtp3mg_upu_itu_apc = -1;
+static int hf_mtp3mg_upu_chinese_apc = -1;
 static int hf_mtp3mg_upu_user = -1;
 static int hf_mtp3mg_upu_cause = -1;
 static int hf_mtp3test_h0 = -1;
@@ -424,7 +430,7 @@ dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				COO_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_coo_ansi_fsn, tvb, 0,
 				COO_LENGTH, TRUE);
-	} else {
+	} else /* ITU_STANDARD and CHINESE_ITU_STANDARD */ {
 	    proto_tree_add_item(tree, hf_mtp3mg_coo_itu_fsn, tvb, 0,
 				COO_LENGTH, TRUE);
 	}
@@ -438,7 +444,7 @@ dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				ANSI_XCO_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_xco_ansi_fsn, tvb, 0,
 				ANSI_XCO_LENGTH, TRUE);
-	} else {
+	} else /* ITU_STANDARD and CHINESE_ITU_STANDARD */ {
 	    proto_tree_add_item(tree, hf_mtp3mg_xco_itu_fsn, tvb, 0,
 				ITU_XCO_LENGTH, TRUE);
 	}
@@ -452,7 +458,7 @@ dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				ANSI_CBD_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_cbd_ansi_cbc, tvb, 0,
 				ANSI_CBD_LENGTH, TRUE);
-	} else {
+	} else /* ITU_STANDARD and CHINESE_ITU_STANDARD */ {
 	    proto_tree_add_item(tree, hf_mtp3mg_cbd_itu_cbc, tvb, 0,
 				ITU_CBD_LENGTH, TRUE);
 	}
@@ -489,14 +495,41 @@ dissect_mtp3mg_ecm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-		   guint8 h1)
+dissect_mtp3mg_3byte_pc(tvbuff_t *tvb, proto_tree *tree, gint *ett_pc,
+			int *hf_pc, int *hf_pc_member, int *hf_pc_cluster,
+			int *hf_pc_network)
 {
     guint32 apc;
     proto_item *apc_item;
     proto_tree *apc_tree;
     char pc[ANSI_PC_STRING_LENGTH];
 
+    apc = tvb_get_ntoh24(tvb, 0);
+
+    snprintf(pc, sizeof(pc), "%d-%d-%d",
+	     (apc & ANSI_NETWORK_MASK),
+	     ((apc & ANSI_CLUSTER_MASK) >> 8),
+	     ((apc & ANSI_MEMBER_MASK) >> 16));
+
+    apc_item = proto_tree_add_string_format(tree, *hf_pc, tvb, 0,
+					    ANSI_PC_LENGTH, pc,
+					    "Affected PC (%s)", pc);
+
+    apc_tree = proto_item_add_subtree(apc_item, *ett_pc);
+
+    proto_tree_add_uint(apc_tree, *hf_pc_member, tvb,
+			ANSI_MEMBER_OFFSET, ANSI_NCM_LENGTH, apc);
+    proto_tree_add_uint(apc_tree, *hf_pc_cluster, tvb,
+			ANSI_CLUSTER_OFFSET, ANSI_NCM_LENGTH, apc);
+    proto_tree_add_uint(apc_tree, *hf_pc_network, tvb,
+			ANSI_NETWORK_OFFSET, ANSI_NCM_LENGTH, apc);
+
+}
+
+static void
+dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		   guint8 h1)
+{
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(h1, fcm_h1_message_type_acro_values, "Unknown"));
@@ -508,39 +541,40 @@ dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	break;
 
     case FCM_H1_TFC:
-	if (mtp3_standard == ANSI_STANDARD)
-	{
-	    apc = tvb_get_ntoh24(tvb, 0);
+	if (mtp3_standard == ITU_STANDARD) {
 
-	    snprintf(pc, sizeof(pc), "%d-%d-%d",
-		     (apc & ANSI_NETWORK_MASK),
-		     ((apc & ANSI_CLUSTER_MASK) >> 8),
-		     ((apc & ANSI_MEMBER_MASK) >> 16));
-
-	    apc_item = proto_tree_add_string_format(tree,
-						    hf_mtp3mg_tfc_ansi_apc,
-						    tvb, 0, ANSI_PC_LENGTH, pc,
-						    "Affected PC (%s)", pc);
-
-	    apc_tree = proto_item_add_subtree(apc_item, ett_mtp3mg_fcm_apc);
-
-	    proto_tree_add_uint(apc_tree, hf_mtp3mg_tfc_apc_member, tvb,
-				ANSI_MEMBER_OFFSET, ANSI_NCM_LENGTH, apc);
-	    proto_tree_add_uint(apc_tree, hf_mtp3mg_tfc_apc_cluster, tvb,
-				ANSI_CLUSTER_OFFSET, ANSI_NCM_LENGTH, apc);
-	    proto_tree_add_uint(apc_tree, hf_mtp3mg_tfc_apc_network, tvb,
-				ANSI_NETWORK_OFFSET, ANSI_NCM_LENGTH, apc);
-
-	    proto_tree_add_item(tree, hf_mtp3mg_tfc_ansi_status, tvb,
-				ANSI_TFC_STATUS_OFFSET, ANSI_TFC_STATUS_LENGTH,
-				TRUE);
-	} else {
 	    proto_tree_add_item(tree, hf_mtp3mg_tfc_itu_apc, tvb, 0,
 				ITU_PC_LENGTH, TRUE);
 
 	    /* Congestion level is a national option */
 	    proto_tree_add_item(tree, hf_mtp3mg_tfc_itu_status, tvb, 0,
 				ITU_TFC_STATUS_LENGTH, TRUE);
+
+
+
+	} else /* ANSI_STANDARD and CHINESE_ITU_STANDARD */ {
+
+	    int *hf_apc_string;
+
+	    if (mtp3_standard == ANSI_STANDARD) {
+
+		hf_apc_string = &hf_mtp3mg_tfc_ansi_apc;
+
+	    } else /* CHINESE_ITU_STANDARD */ {
+
+		hf_apc_string = &hf_mtp3mg_tfc_chinese_apc;
+	    }
+
+	    dissect_mtp3mg_3byte_pc(tvb, tree, &ett_mtp3mg_fcm_apc,
+				    hf_apc_string,
+				    &hf_mtp3mg_tfc_apc_member,
+				    &hf_mtp3mg_tfc_apc_cluster,
+				    &hf_mtp3mg_tfc_apc_network);
+
+	    proto_tree_add_item(tree, hf_mtp3mg_tfc_ansi_status, tvb,
+				ANSI_TFC_STATUS_OFFSET, ANSI_TFC_STATUS_LENGTH,
+				TRUE);
+
 	}
 	break;
 
@@ -553,11 +587,6 @@ static void
 dissect_mtp3mg_tfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
-    guint32 apc;
-    proto_item *apc_item;
-    proto_tree *apc_tree;
-    char pc[ANSI_PC_STRING_LENGTH];
-
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(h1, tfm_h1_message_type_acro_values, "Unknown"));
@@ -572,32 +601,25 @@ dissect_mtp3mg_tfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case TFM_H1_TCA:
 	if (mtp3_standard == ANSI_STANDARD)
 	{
-	    apc = tvb_get_ntoh24(tvb, 0);
+	    dissect_mtp3mg_3byte_pc(tvb, tree, &ett_mtp3mg_tfm_apc,
+				    &hf_mtp3mg_tfm_ansi_apc,
+				    &hf_mtp3mg_tfm_apc_member,
+				    &hf_mtp3mg_tfm_apc_cluster,
+				    &hf_mtp3mg_tfm_apc_network);
 
-	    snprintf(pc, sizeof(pc), "%d-%d-%d",
-		     (apc & ANSI_NETWORK_MASK),
-		     ((apc & ANSI_CLUSTER_MASK) >> 8),
-		     ((apc & ANSI_MEMBER_MASK) >> 16));
+	} else /* ITU_STANDARD and CHINESE_ITU_STANDARD */ {
 
-	    apc_item = proto_tree_add_string_format(tree,
-						    hf_mtp3mg_tfm_ansi_apc,
-						    tvb, 0, ANSI_PC_LENGTH, pc,
-						    "Affected PC (%s)", pc);
-
-	    apc_tree = proto_item_add_subtree(apc_item, ett_mtp3mg_tfm_apc);
-
-	    proto_tree_add_uint(apc_tree, hf_mtp3mg_tfm_apc_member, tvb,
-				ANSI_MEMBER_OFFSET, ANSI_NCM_LENGTH, apc);
-	    proto_tree_add_uint(apc_tree, hf_mtp3mg_tfm_apc_cluster, tvb,
-				ANSI_CLUSTER_OFFSET, ANSI_NCM_LENGTH, apc);
-	    proto_tree_add_uint(apc_tree, hf_mtp3mg_tfm_apc_network, tvb,
-				ANSI_NETWORK_OFFSET, ANSI_NCM_LENGTH, apc);
-	} else {
 	    if (h1 == TFM_H1_TCP || h1 == TFM_H1_TCR || h1 == TFM_H1_TCA)
 		dissect_mtp3mg_unknown_message(tvb, tree);
-	    else
+	    else if (mtp3_standard == ITU_STANDARD)
 		proto_tree_add_item(tree, hf_mtp3mg_tfm_itu_apc, tvb, 0,
 				    ITU_PC_LENGTH, TRUE);
+	    else /* CHINESE_ITU_STANDARD */
+		dissect_mtp3mg_3byte_pc(tvb, tree, &ett_mtp3mg_tfm_apc,
+					&hf_mtp3mg_tfm_chinese_apc,
+					&hf_mtp3mg_tfm_apc_member,
+					&hf_mtp3mg_tfm_apc_cluster,
+					&hf_mtp3mg_tfm_apc_network);
 	}
 	break;
 
@@ -610,11 +632,6 @@ static void
 dissect_mtp3mg_rsm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
-    guint32 apc;
-    proto_item *apc_item;
-    proto_tree *apc_tree;
-    char pc[ANSI_PC_STRING_LENGTH];
-
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(h1, rsm_h1_message_type_acro_values, "Unknown"));
@@ -627,31 +644,27 @@ dissect_mtp3mg_rsm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case RSM_H1_RCR:
 	if (mtp3_standard == ANSI_STANDARD)
 	{
-	    apc = tvb_get_ntoh24(tvb, 0);
+	    dissect_mtp3mg_3byte_pc(tvb, tree, &ett_mtp3mg_rsm_apc,
+				    &hf_mtp3mg_rsm_ansi_apc,
+				    &hf_mtp3mg_rsm_apc_member,
+				    &hf_mtp3mg_rsm_apc_cluster,
+				    &hf_mtp3mg_rsm_apc_network);
 
-	    snprintf(pc, sizeof(pc), "%d-%d-%d",
-		     (apc & ANSI_NETWORK_MASK),
-		     ((apc & ANSI_CLUSTER_MASK) >> 8),
-		     ((apc & ANSI_MEMBER_MASK) >> 16));
+	} else /* ITU_STANDARD and CHINESE_ITU_STANDARD */ {
 
-	    apc_item = proto_tree_add_string_format(tree,
-						    hf_mtp3mg_rsm_ansi_apc,
-						    tvb, 0, ANSI_PC_LENGTH, pc,
-						    "Affected PC (%s)", pc);
-
-	    apc_tree = proto_item_add_subtree(apc_item, ett_mtp3mg_rsm_apc);
-
-	    proto_tree_add_uint(apc_tree, hf_mtp3mg_rsm_apc_member, tvb,
-				ANSI_MEMBER_OFFSET, ANSI_NCM_LENGTH, apc);
-	    proto_tree_add_uint(apc_tree, hf_mtp3mg_rsm_apc_cluster, tvb,
-				ANSI_CLUSTER_OFFSET, ANSI_NCM_LENGTH, apc);
-	    proto_tree_add_uint(apc_tree, hf_mtp3mg_rsm_apc_network, tvb,
-				ANSI_NETWORK_OFFSET, ANSI_NCM_LENGTH, apc);
-	} else {
 	    if (h1 == RSM_H1_RST || h1 == RSM_H1_RSR)
-		proto_tree_add_item(tree, hf_mtp3mg_rsm_itu_apc, tvb, 0,
-				    ITU_PC_LENGTH, TRUE);
-	    else
+	    {
+		if (mtp3_standard == ITU_STANDARD)
+		    proto_tree_add_item(tree, hf_mtp3mg_rsm_itu_apc, tvb, 0,
+					ITU_PC_LENGTH, TRUE);
+
+		else /* CHINESE_ITU_STANDARD */
+		    dissect_mtp3mg_3byte_pc(tvb, tree, &ett_mtp3mg_rsm_apc,
+					    &hf_mtp3mg_rsm_chinese_apc,
+					    &hf_mtp3mg_rsm_apc_member,
+					    &hf_mtp3mg_rsm_apc_cluster,
+					    &hf_mtp3mg_rsm_apc_network);
+	    } else
 		dissect_mtp3mg_unknown_message(tvb, tree);
 	}
 	break;
@@ -733,7 +746,7 @@ dissect_mtp3mg_dlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				ANSI_DLC_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_dlc_ansi_link, tvb, 0,
 				ANSI_DLC_LENGTH, TRUE);
-	} else {
+	} else /* ITU_STANDARD and CHINESE_ITU_STANDARD */ {
 	    proto_tree_add_item(tree, hf_mtp3mg_dlc_itu_link, tvb, 0,
 				ITU_DLC_LENGTH, TRUE);
 	}
@@ -753,11 +766,6 @@ static void
 dissect_mtp3mg_ufc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
-    guint32 apc;
-    proto_item *apc_item;
-    proto_tree *apc_tree;
-    char pc[ANSI_PC_STRING_LENGTH];
-
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			val_to_str(h1, ufc_h1_message_type_acro_values, "Unknown"));
@@ -765,34 +773,27 @@ dissect_mtp3mg_ufc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch (h1)
     {
     case UFC_H1_UPU:
-	if (mtp3_standard == ANSI_STANDARD)
+	if (mtp3_standard == ANSI_STANDARD
+	    || mtp3_standard == CHINESE_ITU_STANDARD)
 	{
-	    apc = tvb_get_ntoh24(tvb, 0);
+	    int *hf_apc;
 
-	    snprintf(pc, sizeof(pc), "%d-%d-%d",
-		     (apc & ANSI_NETWORK_MASK),
-		     ((apc & ANSI_CLUSTER_MASK) >> 8),
-		     ((apc & ANSI_MEMBER_MASK) >> 16));
+	    if (mtp3_standard == ANSI_STANDARD)
+		hf_apc = &hf_mtp3mg_upu_ansi_apc;
+	    else /* CHINESE_ITU_STANDARD */
+		hf_apc = &hf_mtp3mg_upu_chinese_apc;
 
-	    apc_item = proto_tree_add_string_format(tree,
-						    hf_mtp3mg_upu_ansi_apc,
-						    tvb, 0, ANSI_PC_LENGTH, pc,
-						    "Affected PC (%s)", pc);
-
-	    apc_tree = proto_item_add_subtree(apc_item, ett_mtp3mg_upu_apc);
-
-	    proto_tree_add_uint(apc_tree, hf_mtp3mg_upu_apc_member, tvb,
-				ANSI_MEMBER_OFFSET, ANSI_NCM_LENGTH, apc);
-	    proto_tree_add_uint(apc_tree, hf_mtp3mg_upu_apc_cluster, tvb,
-				ANSI_CLUSTER_OFFSET, ANSI_NCM_LENGTH, apc);
-	    proto_tree_add_uint(apc_tree, hf_mtp3mg_upu_apc_network, tvb,
-				ANSI_NETWORK_OFFSET, ANSI_NCM_LENGTH, apc);
+	    dissect_mtp3mg_3byte_pc(tvb, tree, &ett_mtp3mg_upu_apc,
+				    hf_apc,
+				    &hf_mtp3mg_rsm_apc_member,
+				    &hf_mtp3mg_rsm_apc_cluster,
+				    &hf_mtp3mg_rsm_apc_network);
 
 	    proto_tree_add_item(tree, hf_mtp3mg_upu_user, tvb,
 				ANSI_UPU_USER_OFFSET, UPU_USER_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_upu_cause, tvb,
 				ANSI_UPU_USER_OFFSET, UPU_USER_LENGTH, TRUE);
-	} else {
+	} else /* ITU_STANDARD */ {
 	    proto_tree_add_item(tree, hf_mtp3mg_upu_itu_apc, tvb, 0,
 				ITU_PC_LENGTH, TRUE);
 	    proto_tree_add_item(tree, hf_mtp3mg_upu_user, tvb,
@@ -1071,6 +1072,10 @@ proto_register_mtp3mg(void)
 	    { "Status", "mtp3mg.status",
 	      FT_UINT8, BASE_DEC, NULL, ITU_TFC_STATUS_MASK,
 	      "Congestion status", HFILL }},
+	{ &hf_mtp3mg_tfc_chinese_apc,
+	    { "Affected Point Code", "mtp3mg.chinese_apc",
+	      FT_STRING, BASE_NONE, NULL, 0x0,
+	      "", HFILL }},
 	{ &hf_mtp3mg_tfm_ansi_apc,
 	    { "Affected Point Code", "mtp3mg.ansi_apc",
 	      FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1091,6 +1096,10 @@ proto_register_mtp3mg(void)
 	    { "Affected Point Code (ITU)", "mtp3mg.apc",
 	      FT_UINT8, BASE_DEC, NULL, ITU_PC_MASK,
 	      "", HFILL }},
+	{ &hf_mtp3mg_tfm_chinese_apc,
+	    { "Affected Point Code", "mtp3mg.chinese_apc",
+	      FT_STRING, BASE_NONE, NULL, 0x0,
+	      "", HFILL }},
 	{ &hf_mtp3mg_rsm_ansi_apc,
 	    { "Affected Point Code", "mtp3mg.ansi_apc",
 	      FT_STRING, BASE_NONE, NULL, 0x0,
@@ -1110,6 +1119,10 @@ proto_register_mtp3mg(void)
 	{ &hf_mtp3mg_rsm_itu_apc,
 	    { "Affected Point Code (ITU)", "mtp3mg.apc",
 	      FT_UINT8, BASE_DEC, NULL, ITU_PC_MASK,
+	      "", HFILL }},
+	{ &hf_mtp3mg_rsm_chinese_apc,
+	    { "Affected Point Code", "mtp3mg.chinese_apc",
+	      FT_STRING, BASE_NONE, NULL, 0x0,
 	      "", HFILL }},
 	{ &hf_mtp3mg_mim_ansi_slc,
 	    { "Signalling Link Code", "mtp3mg.slc",
@@ -1146,6 +1159,10 @@ proto_register_mtp3mg(void)
 	{ &hf_mtp3mg_upu_itu_apc,
 	    { "Affected Point Code", "mtp3mg.apc",
 	      FT_UINT8, BASE_DEC, NULL, ITU_PC_MASK,
+	      "", HFILL }},
+	{ &hf_mtp3mg_upu_chinese_apc,
+	    { "Affected Point Code", "mtp3mg.chinese_apc",
+	      FT_STRING, BASE_NONE, NULL, 0x0,
 	      "", HFILL }},
 	{ &hf_mtp3mg_upu_user,
 	    { "User", "mtp3mg.user",

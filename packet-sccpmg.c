@@ -1,12 +1,14 @@
 /* packet-sccp.c
  * Routines for Signalling Connection Control Part (SCCP) Management dissection
+ *
  * It is hopefully compliant to:
  *   ANSI T1.112.3-1996
  *   ITU-T Q.713 7/1996
+ *   YDN 038-1997 (Chinese ITU variant)
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccpmg.c,v 1.2 2003/01/02 20:44:32 guy Exp $
+ * $Id: packet-sccpmg.c,v 1.3 2003/04/10 18:52:15 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -103,6 +105,7 @@ static const value_string sccpmg_message_type_acro_values[] = {
 #define ITU_SCCPMG_CONGESTION_OFFSET (ITU_SCCPMG_SMI_OFFSET + SCCPMG_SMI_LENGTH)
 #define ITU_SCCPMG_CONGESTION_LENGTH 1
 #define ITU_SCCPMG_CONGESTION_MASK 0x0f
+#define CHINESE_ITU_SCCPMG_CONGESTION_OFFSET (ANSI_SCCPMG_SMI_OFFSET + SCCPMG_SMI_LENGTH)
 
 #define SCCPMG_SSN_LENGTH    1
 
@@ -112,6 +115,7 @@ static int hf_sccpmg_message_type = -1;
 static int hf_sccpmg_affected_ssn = -1;
 static int hf_sccpmg_affected_pc = -1;
 static int hf_sccpmg_affected_ansi_pc = -1;
+static int hf_sccpmg_affected_chinese_pc = -1;
 static int hf_sccpmg_affected_pc_member = -1;
 static int hf_sccpmg_affected_pc_cluster = -1;
 static int hf_sccpmg_affected_pc_network = -1;
@@ -154,7 +158,16 @@ dissect_sccpmg_affected_pc(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 	if (mtp3_standard == ITU_STANDARD) {
 		proto_tree_add_item(sccpmg_tree, hf_sccpmg_affected_pc, tvb,
 				    offset, ITU_PC_LENGTH, TRUE);
-	} else if (mtp3_standard == ANSI_STANDARD) {
+	} else /* ANSI_STANDARD and CHINESE_ITU_STANDARD */ {
+		int *hf_affected_pc;
+
+		if (mtp3_standard == ANSI_STANDARD)
+		{
+			hf_affected_pc = &hf_sccpmg_affected_ansi_pc;
+		} else /* CHINESE_ITU_STANDARD */ {
+			hf_affected_pc = &hf_sccpmg_affected_chinese_pc;
+		}
+
 		/* create the DPC tree; modified from that in packet-sccp.c */
 		dpc = tvb_get_ntoh24(tvb, offset);
 		snprintf(pc, sizeof(pc), "%d-%d-%d",
@@ -163,7 +176,7 @@ dissect_sccpmg_affected_pc(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 			 ((dpc & ANSI_MEMBER_MASK) >> 16));
 
 		pc_item = proto_tree_add_string_format(sccpmg_tree,
-						       hf_sccpmg_affected_ansi_pc,
+						       *hf_affected_pc,
 						       tvb, offset,
 						       ANSI_PC_LENGTH, pc,
 						       "PC (%s)", pc);
@@ -189,7 +202,7 @@ dissect_sccpmg_smi(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 
 	if (mtp3_standard == ITU_STANDARD)
 		offset = ITU_SCCPMG_SMI_OFFSET;
-	else
+	else /* ANSI_STANDARD and CHINESE_ITU_STANDARD */
 		offset = ANSI_SCCPMG_SMI_OFFSET;
 
 	proto_tree_add_item(sccpmg_tree, hf_sccpmg_smi, tvb, offset,
@@ -199,9 +212,15 @@ dissect_sccpmg_smi(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 static void
 dissect_sccpmg_congestion_level(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 {
+	guint8 offset = 0;
+
+	if (mtp3_standard == CHINESE_ITU_STANDARD)
+		offset = CHINESE_ITU_SCCPMG_CONGESTION_OFFSET;
+	else /* ITU_STANDARD */
+		offset = ITU_SCCPMG_CONGESTION_OFFSET;
+
 	proto_tree_add_item(sccpmg_tree, hf_sccpmg_congestion_level, tvb,
-			    ITU_SCCPMG_CONGESTION_OFFSET,
-			    ITU_SCCPMG_CONGESTION_LENGTH, FALSE);
+			    offset, ITU_SCCPMG_CONGESTION_LENGTH, FALSE);
 }
 
 static void
@@ -232,7 +251,7 @@ dissect_sccpmg_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccpmg_tre
 	case SCCPMG_MESSAGE_TYPE_SBR:
 	case SCCPMG_MESSAGE_TYPE_SNR:
 	case SCCPMG_MESSAGE_TYPE_SRT:
-		if (mtp3_standard == ITU_STANDARD)
+		if (mtp3_standard != ANSI_STANDARD)
 		{
 			dissect_sccpmg_unknown_message(tvb, sccpmg_tree);
 			break;
@@ -249,7 +268,7 @@ dissect_sccpmg_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccpmg_tre
 
 		break;
 	case SCCPMG_MESSAGE_TYPE_SSC:
-		if (mtp3_standard == ITU_STANDARD)
+		if (mtp3_standard != ANSI_STANDARD)
 		{
 			dissect_sccpmg_affected_ssn(tvb, sccpmg_tree);
 			dissect_sccpmg_affected_pc(tvb, sccpmg_tree);
@@ -306,6 +325,10 @@ proto_register_sccpmg(void)
 	      "", HFILL}},
 	  { &hf_sccpmg_affected_ansi_pc,
 	    { "Affected Point Code", "sccpmg.ansi_pc",
+	      FT_STRING, BASE_NONE, NULL, 0x0,
+	      "", HFILL}},
+	  { &hf_sccpmg_affected_chinese_pc,
+	    { "Affected Point Code", "sccpmg.chinese_pc",
 	      FT_STRING, BASE_NONE, NULL, 0x0,
 	      "", HFILL}},
 	  { &hf_sccpmg_affected_pc_network,

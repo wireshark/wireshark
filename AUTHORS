@@ -832,6 +832,7 @@ Jeff Morriss <jeff.morriss[AT]ulticom.com> {
 	MTP3 Management support
 	Fix M3UA to dissect other protocols even when not building a
 	    protocol tree
+	Support for Chinese ITU SS7 variant
 }
 
 Aamer Akhter <aakhter[AT]cisco.com> {

@@ -1,6 +1,6 @@
 /* packet-mtp3.h
  *
- * $Id: packet-mtp3.h,v 1.2 2003/01/02 20:44:32 guy Exp $
+ * $Id: packet-mtp3.h,v 1.3 2003/04/10 18:52:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -23,7 +23,8 @@
 
 typedef enum {
   ITU_STANDARD  = 1,
-  ANSI_STANDARD = 2
+  ANSI_STANDARD = 2,
+  CHINESE_ITU_STANDARD = 3
 } Standard_Type;
 
 extern Standard_Type mtp3_standard;

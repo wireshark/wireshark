@@ -1,12 +1,14 @@
 /* packet-sccp.c
  * Routines for Signalling Connection Control Part (SCCP) dissection
+ *
  * It is hopefully compliant to:
  *   ANSI T1.112.3-1996
  *   ITU-T Q.713 7/1996
+ *   YDN 038-1997 (Chinese ITU variant)
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccp.c,v 1.8 2003/03/21 23:05:25 guy Exp $
+ * $Id: packet-sccp.c,v 1.9 2003/04/10 18:52:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -571,6 +573,7 @@ static int hf_sccp_called_pc_member = -1;
 static int hf_sccp_called_pc_cluster = -1;
 static int hf_sccp_called_pc_network = -1;
 static int hf_sccp_called_ansi_pc = -1;
+static int hf_sccp_called_chinese_pc = -1;
 static int hf_sccp_called_itu_pc = -1;
 static int hf_sccp_called_gt_nai = -1;
 static int hf_sccp_called_gt_oe = -1;
@@ -593,6 +596,7 @@ static int hf_sccp_calling_pc_member = -1;
 static int hf_sccp_calling_pc_cluster = -1;
 static int hf_sccp_calling_pc_network = -1;
 static int hf_sccp_calling_ansi_pc = -1;
+static int hf_sccp_calling_chinese_pc = -1;
 static int hf_sccp_calling_itu_pc = -1;
 static int hf_sccp_calling_gt_nai = -1;
 static int hf_sccp_calling_gt_oe = -1;
@@ -819,6 +823,59 @@ dissect_sccp_global_title(tvbuff_t *tvb, proto_tree *tree, guint8 length,
 				      called);
 }
 
+static int
+dissect_sccp_3byte_pc(tvbuff_t *tvb, proto_tree *call_tree, guint8 offset,
+                     gboolean called)
+{
+  guint32 dpc;
+  proto_item *call_pc_item = 0;
+  proto_tree *call_pc_tree = 0;
+  char pc[ANSI_PC_STRING_LENGTH];
+  int *hf_pc;
+
+  if (mtp3_standard == ANSI_STANDARD)
+  {
+    if (called)
+      hf_pc = &hf_sccp_called_ansi_pc;
+    else
+      hf_pc = &hf_sccp_calling_ansi_pc;
+  } else /* CHINESE_ITU_STANDARD */ {
+    if (called)
+      hf_pc = &hf_sccp_called_chinese_pc;
+    else
+      hf_pc = &hf_sccp_calling_chinese_pc;
+  }
+
+  /* create the DPC tree; modified from that in packet-mtp3.c */
+  dpc = tvb_get_ntoh24(tvb, offset);
+  snprintf(pc, sizeof(pc), "%d-%d-%d", (dpc & ANSI_NETWORK_MASK),
+				       ((dpc & ANSI_CLUSTER_MASK) >> 8),
+				       ((dpc & ANSI_MEMBER_MASK) >> 16));
+
+  call_pc_item = proto_tree_add_string_format(call_tree, *hf_pc,
+					      tvb, offset, ANSI_PC_LENGTH,
+					      pc, "PC (%s)", pc);
+
+  call_pc_tree = proto_item_add_subtree(call_pc_item,
+					  called ? ett_sccp_called_pc
+						 : ett_sccp_calling_pc);
+
+  proto_tree_add_uint(call_pc_tree, called ? hf_sccp_called_pc_member
+					   : hf_sccp_calling_pc_member,
+		      tvb, offset, ANSI_NCM_LENGTH, dpc);
+  offset += ANSI_NCM_LENGTH;
+  proto_tree_add_uint(call_pc_tree, called ? hf_sccp_called_pc_cluster
+					   : hf_sccp_calling_pc_cluster,
+		      tvb, offset, ANSI_NCM_LENGTH, dpc);
+  offset += ANSI_NCM_LENGTH;
+  proto_tree_add_uint(call_pc_tree, called ? hf_sccp_called_pc_network
+					   : hf_sccp_calling_pc_network,
+		      tvb, offset, ANSI_NCM_LENGTH, dpc);
+  offset += ANSI_NCM_LENGTH;
+
+  return(offset);
+}
+
 /*  FUNCTION dissect_sccp_called_calling_param():
  *  Dissect the Calling or Called Party Address parameters.
  *
@@ -837,13 +894,12 @@ static void
 dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 				  guint8 length, gboolean called)
 {
-  proto_item *call_item = 0, *call_ai_item = 0, *call_pc_item = 0;
-  proto_tree *call_tree = 0, *call_ai_tree = 0, *call_pc_tree = 0;
+  proto_item *call_item = 0, *call_ai_item = 0;
+  proto_tree *call_tree = 0, *call_ai_tree = 0;
   guint8 offset;
   guint8 national = -1, routing_ind, gti, pci, ssni, ssn;
   guint32 dpc;
   tvbuff_t *gt_tvb;
-  char pc[ANSI_PC_STRING_LENGTH];
 
   call_item = proto_tree_add_text(tree, tvb, 0, length,
 				    "%s Party address (%u byte%s)",
@@ -873,7 +929,9 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 
   gti = tvb_get_guint8(tvb, 0) & GTI_MASK;
 
-  if (mtp3_standard == ITU_STANDARD || national == 0) {
+  if (mtp3_standard == ITU_STANDARD ||
+      mtp3_standard == CHINESE_ITU_STANDARD ||
+      national == 0) {
 
     proto_tree_add_uint(call_ai_tree, called ? hf_sccp_called_itu_global_title_indicator
 					     : hf_sccp_called_itu_global_title_indicator,
@@ -893,11 +951,20 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 
     /* Dissect PC (if present) */
     if (pci) {
-      dpc = tvb_get_letohs(tvb, offset) & ITU_PC_MASK;
-      proto_tree_add_uint(call_tree, called ? hf_sccp_called_itu_pc
-					    : hf_sccp_calling_itu_pc,
-			  tvb, offset, ITU_PC_LENGTH, dpc);
-      offset += ITU_PC_LENGTH;
+      if (mtp3_standard == ITU_STANDARD)
+      {
+
+	dpc = tvb_get_letohs(tvb, offset) & ITU_PC_MASK;
+	proto_tree_add_uint(call_tree, called ? hf_sccp_called_itu_pc
+					      : hf_sccp_calling_itu_pc,
+			    tvb, offset, ITU_PC_LENGTH, dpc);
+	offset += ITU_PC_LENGTH;
+
+      } else /* CHINESE_ITU_STANDARD */ {
+
+	offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
+
+      }
     }
 
     /* Dissect SSN (if present) */
@@ -970,34 +1037,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree,
 
     /* Dissect PC (if present) */
     if (pci) {
-      /* create the DPC tree; modified from that in packet-mtp3.c */
-      dpc = tvb_get_ntoh24(tvb, offset);
-      snprintf(pc, sizeof(pc), "%d-%d-%d", (dpc & ANSI_NETWORK_MASK),
-					   ((dpc & ANSI_CLUSTER_MASK) >> 8),
-					   ((dpc & ANSI_MEMBER_MASK) >> 16));
-
-      call_pc_item = proto_tree_add_string_format(call_tree,
-						  called ? hf_sccp_called_ansi_pc
-							 : hf_sccp_calling_ansi_pc,
-						  tvb, offset, ANSI_PC_LENGTH,
-						  pc, "PC (%s)", pc);
-
-      call_pc_tree = proto_item_add_subtree(call_pc_item,
-					      called ? ett_sccp_called_pc
-						     : ett_sccp_calling_pc);
-
-      proto_tree_add_uint(call_pc_tree, called ? hf_sccp_called_pc_member
-					       : hf_sccp_calling_pc_member,
-			  tvb, offset, ANSI_NCM_LENGTH, dpc);
-      offset += ANSI_NCM_LENGTH;
-      proto_tree_add_uint(call_pc_tree, called ? hf_sccp_called_pc_cluster
-					       : hf_sccp_calling_pc_cluster,
-			  tvb, offset, ANSI_NCM_LENGTH, dpc);
-      offset += ANSI_NCM_LENGTH;
-      proto_tree_add_uint(call_pc_tree, called ? hf_sccp_called_pc_network
-					       : hf_sccp_calling_pc_network,
-			  tvb, offset, ANSI_NCM_LENGTH, dpc);
-      offset += ANSI_NCM_LENGTH;
+      offset = dissect_sccp_3byte_pc(tvb, call_tree, offset, called);
     }
 
     /* Dissect GT (if present) */
@@ -1366,7 +1406,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       break;
 
     case PARAMETER_IMPORTANCE:
-      if (mtp3_standard == ITU_STANDARD)
+      if (mtp3_standard != ANSI_STANDARD)
 	dissect_sccp_importance_param(parameter_tvb, sccp_tree, parameter_length);
       else
 	dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
@@ -1374,7 +1414,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       break;
 
     case PARAMETER_LONG_DATA:
-      if (mtp3_standard == ITU_STANDARD)
+      if (mtp3_standard != ANSI_STANDARD)
 	dissect_sccp_data_param(parameter_tvb, pinfo, sccp_tree, tree);
       else
 	dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
@@ -1382,11 +1422,11 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
       break;
 
     case PARAMETER_ISNI:
-      if (mtp3_standard == ANSI_STANDARD)
-	dissect_sccp_isni_param(parameter_tvb, sccp_tree, parameter_length);
-      else
+      if (mtp3_standard != ANSI_STANDARD)
 	dissect_sccp_unknown_param(parameter_tvb, sccp_tree, parameter_type,
 				   parameter_length);
+      else
+	dissect_sccp_isni_param(parameter_tvb, sccp_tree, parameter_length);
       break;
 
     default:
@@ -1783,7 +1823,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   case MESSAGE_TYPE_LUDT:
-    if (mtp3_standard == ITU_STANDARD)
+    if (mtp3_standard != ANSI_STANDARD)
     {
       offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				       PARAMETER_CLASS, offset,
@@ -1810,7 +1850,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     break;
 
   case MESSAGE_TYPE_LUDTS:
-    if (mtp3_standard == ITU_STANDARD)
+    if (mtp3_standard != ANSI_STANDARD)
     {
       offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				       PARAMETER_RETURN_CAUSE, offset,
@@ -1948,6 +1988,10 @@ proto_register_sccp(void)
       { "PC", "sccp.called.ansi_pc",
 	FT_STRING, BASE_NONE, NULL, 0x0,
 	"", HFILL}},
+    { &hf_sccp_called_chinese_pc,
+      { "PC", "sccp.called.chinese_pc",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"", HFILL}},
     { &hf_sccp_called_pc_network,
       { "PC Network",
 	"sccp.called.network",
@@ -2036,6 +2080,10 @@ proto_register_sccp(void)
 	"", HFILL}},
     { &hf_sccp_calling_ansi_pc,
       { "PC", "sccp.calling.ansi_pc",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"", HFILL}},
+    { &hf_sccp_calling_chinese_pc,
+      { "PC", "sccp.calling.chinese_pc",
 	FT_STRING, BASE_NONE, NULL, 0x0,
 	"", HFILL}},
     { &hf_sccp_calling_pc_network,
