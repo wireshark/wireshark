@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.5 1999/05/10 21:36:40 guy Exp $
+ * $Id: packet-smb.c,v 1.6 1999/05/11 00:00:40 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -50,6 +50,7 @@
 extern packet_info pi;
 
 char *decode_smb_name(unsigned char);
+void (*dissect[256])(const u_char *, int, frame_data *, proto_tree *, int, int);
 
 char *SMB_names[256] = {
   "unknown-0x00",
@@ -316,7 +317,7 @@ dissect_unknown_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
   if (tree) {
 
-    proto_tree_add_item(tree, offset, END_OF_FRAME, "Data (%d bytes)", 
+    proto_tree_add_item(tree, offset, END_OF_FRAME, "Data (%u bytes)", 
 			END_OF_FRAME); 
 
   }
@@ -332,7 +333,7 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
 {
   guint8      wct, andxcmd;
-  guint16     andxoffs, flags, passwdlen, bcc;
+  guint16     andxoffs, flags, passwdlen, bcc, optionsup;
   const char  *str;
   proto_tree  *flags_tree;
   proto_item  *ti;
@@ -348,7 +349,7 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 1, "Invalid TCON_ANDX format. WCT should be 2, 3, or 4 ..., not %d", wct);
+      proto_tree_add_item(tree, offset, 1, "Invalid TCON_ANDX format. WCT should be 2, 3, or 4 ..., not %u", wct);
 
       proto_tree_add_item(tree, offset, END_OF_FRAME, "Data");
 
@@ -360,7 +361,7 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
   if (tree) {
 
-    proto_tree_add_item(tree, offset, 1, "Word Count (WCT): %d", wct);
+    proto_tree_add_item(tree, offset, 1, "Word Count (WCT): %u", wct);
 
   }
 
@@ -374,7 +375,7 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 			(andxcmd == 0xFF) ? "No further commands":
 			decode_smb_name(andxcmd));
 		
-    proto_tree_add_item(tree, offset + 1, 1, "Reserved (MBZ): %d", pd[offset+1]);
+    proto_tree_add_item(tree, offset + 1, 1, "Reserved (MBZ): %u", pd[offset+1]);
 
   }
 
@@ -384,7 +385,7 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
   if (tree) {
 
-    proto_tree_add_item(tree, offset, 2, "Offset to next command: %d", andxoffs);
+    proto_tree_add_item(tree, offset, 2, "Offset to next command: %u", andxoffs);
 
   }
 
@@ -414,7 +415,7 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Password Length: %d", passwdlen);
+      proto_tree_add_item(tree, offset, 2, "Password Length: %u", passwdlen);
 
     }
 
@@ -424,7 +425,7 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Byte Count (BCC): %d", bcc);
+      proto_tree_add_item(tree, offset, 2, "Byte Count (BCC): %u", bcc);
 
     }
 
@@ -462,23 +463,92 @@ dissect_tcon_andx_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
   case 2:
 
+    offset += 2;
+
+    bcc = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, 2, "Byte Count (BCC): %u", bcc);
+
+    }
+
+    offset += 2;
+
+    str = pd + offset;
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, strlen(str) + 1, "Service Type: %s",
+			  str);
+
+    }
+
+    offset += strlen(str) + 1;
+
     break;
 
   case 3:
 
+    optionsup = GSHORT(pd, offset);
+
+    if (tree) {  /* Should break out the bits */
+
+      proto_tree_add_item(tree, offset, 2, "Optional Support: 0x%04x", 
+			  optionsup);
+
+    }
+
+    offset += 2;
+
+    bcc = GSHORT(pd, offset);
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, 2, "Byte Count (BCC): %u", bcc);
+
+    }
+
+    offset += 2;
+
+    str = pd + offset;
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, strlen(str) + 1, "Service: %s", str);
+
+    }
+
+    offset += strlen(str) + 1;
+
+    str = pd + offset;
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, strlen(str) + 1, "Native File System: %s", str);
+
+    }
+
+    offset += strlen(str) + 1;
+
+    
     break;
 
   default:
 
   }
 
+  if (andxcmd != 0xFF) /* Process that next command ... ??? */
+
+    (dissect[andxcmd])(pd, offset, fd, tree, max_data - offset, dirn);
+
 }
 
 void 
 dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int max_data, int dirn)
 {
-  guint8        wct;
-  guint16       bcc, mode, rawmode, enckeylen;
+  guint8        wct, enckeylen;
+  guint16       bcc, mode, rawmode, dialect;
   guint32       caps;
   proto_tree    *dialects = NULL, *mode_tree, *caps_tree, *rawmode_tree;
   proto_item    *ti;
@@ -490,7 +560,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
       !((wct == 13) && (dirn == 0)) && !((wct == 17) && (dirn == 0))) {
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 1, "Invalid Negotiate Protocol format. WCT should be zero or 1 or 13 or 17 ..., not %d", wct);
+      proto_tree_add_item(tree, offset, 1, "Invalid Negotiate Protocol format. WCT should be zero or 1 or 13 or 17 ..., not %u", wct);
 
       proto_tree_add_item(tree, offset, END_OF_FRAME, "Data");
 
@@ -556,9 +626,20 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
   case 1:     /* PC NETWORK PROGRAM 1.0 */
 
-    if (tree) {
+    dialect = GSHORT(pd, offset);
 
-      proto_tree_add_item(tree, offset, 2, "Dialect Index: %d, PC NETWORK PROTGRAM 1.0", GSHORT(pd, offset));
+    if (tree) {  /* Hmmmm, what if none of the dialects is recognized */
+
+      if (dialect == 0xFFFF) { /* Server didn't like them dialects */
+
+	proto_tree_add_item(tree, offset, 2, "Dialect Index: %u, Supplied dialects not recognized");
+
+      }
+      else {
+
+	proto_tree_add_item(tree, offset, 2, "Dialect Index: %u, PC NETWORK PROTGRAM 1.0", dialect);
+
+      }
 
     }
 
@@ -586,7 +667,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     offset += 2;
 
-    mode = GSHORT(pd, offset);
+    mode = GBYTE(pd, offset);
 
     if (tree) {
 
@@ -604,11 +685,11 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     }
 
-    offset += 2;
+    offset += 1;
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Max buffer size:     %u", GSHORT(pd, offset));
+      proto_tree_add_item(tree, offset, 2, "Max multiplex count: %d", GSHORT(pd, offset));
 
     }
     
@@ -616,15 +697,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Max multiplex count: %u", GSHORT(pd, offset));
-
-    }
-    
-    offset += 2;
-
-     if (tree) {
-
-      proto_tree_add_item(tree, offset, 2, "Max vcs:             %u", GSHORT(pd, offset));
+      proto_tree_add_item(tree, offset, 2, "Max vcs:             %d", GSHORT(pd, offset));
 
     }
 
@@ -650,27 +723,24 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     offset += 2;
 
-    /* Session key */
+    /* Now the server time, two short parameters ... */
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 4, "Session key: %08x", GWORD(pd, offset));
+      proto_tree_add_item(tree, offset, 2, "Server Time: 0x%04x", GSHORT(pd, offset));
+      proto_tree_add_item(tree, offset + 2, 2, "Server Date: 0x%04x", GSHORT(pd, offset + 2));
+
+      proto_tree_add_item(tree, offset + 4, 2, "Server Time Zone: 0x%04x", GSHORT(pd, offset + 4));
 
     }
 
-    offset += 4;
-
-    /* Now the server date/time/time zone ... skip 6 bytes ... pick up later */
-
     offset += 6;
 
-    /* Encryption Key Length, should be zero (if not LanMan 2.1) */
-
-    enckeylen = GSHORT(pd, offset);
+    /* Encryption Key Length, should be zero */
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Encryption Key Length: %u (should be zero)", enckeylen);
+      proto_tree_add_item(tree, offset, 2, "Encryption Key Length: %u (should be zero)", GSHORT(pd, offset));
 
     }
 
@@ -722,7 +792,7 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
     if (tree) {
 
-      proto_tree_add_item(tree, offset, 2, "Dialect Index: %d, Greater than LANMAN2.1", GSHORT(pd, offset));
+      proto_tree_add_item(tree, offset, 2, "Dialect Index: %u, Greater than LANMAN2.1", GSHORT(pd, offset));
 
     }
 
@@ -848,6 +918,13 @@ dissect_negprot_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
     offset += 4;
 
     /* Server time, 2 WORDS */
+
+    if (tree) {
+
+      proto_tree_add_item(tree, offset, 4, "System Time Low: 0x%08x", GWORD(pd, offset));
+      proto_tree_add_item(tree, offset + 4, 4, "System Time High: 0x%08x", GWORD(pd, offset + 4)); 
+
+    }
 
     offset += 8;
 
