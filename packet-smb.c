@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.75 2000/11/22 21:19:38 sharpe Exp $
+ * $Id: packet-smb.c,v 1.76 2000/12/17 03:48:44 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -707,12 +707,16 @@ static char *
 dissect_smbu_date(guint16 date, guint16 time)
 
 {
-  static char         datebuf[4+2+2+2+1];
+  static char         datebuf[4+2+2+2+1+10];
   time_t              ltime = (date << 16) + time;
 
   _gtime = gmtime(&ltime);
-  sprintf(datebuf, "%04d-%02d-%02d",
-	  1900 + (_gtime -> tm_year), 1 + (_gtime -> tm_mon), _gtime -> tm_mday);
+
+  if (_gtime)
+    sprintf(datebuf, "%04d-%02d-%02d",
+	    1900 + (_gtime -> tm_year), 1 + (_gtime -> tm_mon), _gtime -> tm_mday);
+  else 
+    sprintf(datebuf, "Bad date format");
 
   return datebuf;
 
@@ -725,10 +729,13 @@ static char *
 dissect_smbu_time(guint16 date, guint16 time)
 
 {
-  static char timebuf[2+2+2+2+1];
+  static char timebuf[2+2+2+2+1+10];
 
-  sprintf(timebuf, "%02d:%02d:%02d",
-          _gtime -> tm_hour, _gtime -> tm_min, _gtime -> tm_sec);
+  if (_gtime)
+    sprintf(timebuf, "%02d:%02d:%02d",
+	    _gtime -> tm_hour, _gtime -> tm_min, _gtime -> tm_sec);
+  else
+    sprintf(timebuf, "Bad time format");
 
   return timebuf;
 
@@ -8220,7 +8227,7 @@ dissect_get_file_attr_smb(const u_char *pd, int offset, frame_data *fd, proto_tr
 
 	proto_tree_add_text(tree, NullTVB, offset, 2, "Last Write Date: %s", dissect_smbu_date(LastWriteDate, LastWriteTime));
 
-	proto_tree_add_text(tree, NullTVB, offset, 2, "Last Write Time: %s", dissect_smbu_time(LastWriteDate, LastWriteTime));
+	proto_tree_add_text(tree, NullTVB, offset - 2, 2, "Last Write Time: %s", dissect_smbu_time(LastWriteDate, LastWriteTime));
 
       }
 
