@@ -1,11 +1,10 @@
 /* packet-eth.h
  *
- * $Id: packet-eth.h,v 1.4 2001/01/21 20:16:01 guy Exp $
+ * $Id: packet-eth.h,v 1.5 2001/06/29 09:42:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,4 +27,3 @@
 void capture_eth(const u_char *, int, packet_counts *);
 
 #endif
-
