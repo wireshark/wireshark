@@ -2614,7 +2614,8 @@ dissect_dcerpc_cn_stub (tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     length = tvb_length_remaining(tvb, offset);
     reported_length = tvb_reported_length_remaining(tvb, offset);
-    if (reported_length < auth_info->auth_size) {
+    if (reported_length < 0 ||
+	(guint32)reported_length < auth_info->auth_size) {
 	/* We don't even have enough bytes for the authentication
 	   stuff. */
 	return;
