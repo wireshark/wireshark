@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.36 2000/08/15 20:41:59 deniel Exp $
+ * $Id: menu.c,v 1.37 2000/08/15 21:03:55 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -220,6 +220,7 @@ menus_init(void) {
     set_menu_sensitivity("/Edit/Paste", FALSE);
     set_menus_for_captured_packets(FALSE);
     set_menus_for_selected_packet(FALSE);
+    set_menus_for_selected_tree_row(FALSE);
   }
 }
 

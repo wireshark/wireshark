@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.205 2000/08/11 13:34:20 deniel Exp $
+ * $Id: file.c,v 1.206 2000/08/15 21:03:16 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -249,6 +249,7 @@ close_cap_file(capture_file *cf, void *w)
   set_menus_for_captured_packets(FALSE);
   set_menus_for_selected_packet(FALSE);
   set_menus_for_capture_in_progress(FALSE);
+  set_menus_for_selected_tree_row(FALSE);
 
   /* We have no file open. */
   cf->state = FILE_CLOSED;
