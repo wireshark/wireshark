@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.11 1999/07/29 05:46:56 gram Exp $
+ * $Id: packet-ipv6.c,v 1.12 1999/08/03 03:48:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -139,13 +139,15 @@ dissect_ipv6(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
     proto_tree_add_text(ipv6_tree,
 		offset + offsetof(struct ip6_hdr, ip6_flow), 4,
-		"Traffic class: 0x%02x", (ntohl(ipv6.ip6_flow) >> 20) & 0xff);
+		"Traffic class: 0x%02lx",
+		(unsigned long)((ntohl(ipv6.ip6_flow) >> 20) & 0xff));
 
     /* there should be no alignment problems for ip6_flow, since it's the first
     guint32 in the ipv6 struct */
     proto_tree_add_text(ipv6_tree,
 		offset + offsetof(struct ip6_hdr, ip6_flow), 4,
-		"Flowlabel: 0x%05x", ntohl(ipv6.ip6_flow & IPV6_FLOWLABEL_MASK));
+		"Flowlabel: 0x%05lx",
+		(unsigned long)(ntohl(ipv6.ip6_flow & IPV6_FLOWLABEL_MASK)));
 
     proto_tree_add_text(ipv6_tree,
 		offset + offsetof(struct ip6_hdr, ip6_plen), 2,
