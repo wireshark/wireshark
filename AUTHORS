@@ -904,6 +904,7 @@ Tom Uijldert <Tom.Uijldert[AT]cmg.nl> {
 	SMPP support
 	multipart-content support in WSP/MMSE
 	WTP reassembly
+	WTP TPI dissection
 }
 
 Endoh Akira <endoh[AT]netmarks.co.jp> {
