@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.233 2004/05/14 15:55:36 ulfl Exp $
+ * $Id: packet-tcp.c,v 1.234 2004/05/14 17:34:51 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1557,6 +1557,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	int deseg_offset;
 	guint32 deseg_seq;
 	gint nbytes;
+    proto_item *item;
 
 	/*
 	 * Initialize these to assume no desegmentation.
@@ -1876,8 +1877,10 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			 * We know what frame this PDU is reassembled in;
 			 * let the user know.
 			 */
-			proto_tree_add_uint(tcp_tree, hf_tcp_reassembled_in,
+			item=proto_tree_add_uint(tcp_tree, hf_tcp_reassembled_in,
 			    tvb, 0, 0, ipfd_head->reassembled_in);
+            PROTO_ITEM_SET_GENERATED(item);
+            PROTO_ITEM_SET_LINK(item);
 		}
 
 		/*

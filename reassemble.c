@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.46 2004/04/24 06:46:04 ulfl Exp $
+ * $Id: reassemble.c,v 1.47 2004/05/14 17:34:51 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1568,34 +1568,41 @@ show_fragment(fragment_data *fd, int offset, const fragment_items *fit,
 			offset,
 			offset+fd->len-1,
             fd->len);
+        PROTO_ITEM_SET_GENERATED(fei);
+	    PROTO_ITEM_SET_LINK(fei);
 		fet = proto_item_add_subtree(fei, *(fit->ett_fragment));
 		if (fd->flags&FD_OVERLAP) {
-			proto_tree_add_boolean(fet,
+			fei=proto_tree_add_boolean(fet,
 				*(fit->hf_fragment_overlap),
 				tvb, 0, 0,
 				TRUE);
+			PROTO_ITEM_SET_GENERATED(fei);
 		}
 		if (fd->flags&FD_OVERLAPCONFLICT) {
-			proto_tree_add_boolean(fet,
+			fei=proto_tree_add_boolean(fet,
 				*(fit->hf_fragment_overlap_conflict),
 				tvb, 0, 0,
 				TRUE);
+			PROTO_ITEM_SET_GENERATED(fei);
 		}
 		if (fd->flags&FD_MULTIPLETAILS) {
-			proto_tree_add_boolean(fet,
+			fei=proto_tree_add_boolean(fet,
 				*(fit->hf_fragment_multiple_tails),
 				tvb, 0, 0,
 				TRUE);
+			PROTO_ITEM_SET_GENERATED(fei);
 		}
 		if (fd->flags&FD_TOOLONGFRAGMENT) {
-			proto_tree_add_boolean(fet,
+			fei=proto_tree_add_boolean(fet,
 				*(fit->hf_fragment_too_long_fragment),
 				tvb, 0, 0,
 				TRUE);
+			PROTO_ITEM_SET_GENERATED(fei);
 		}
 	} else {
+		proto_item *fei;
 		/* nothing of interest for this fragment */
-		proto_tree_add_uint_format(ft, *(fit->hf_fragment),
+		fei=proto_tree_add_uint_format(ft, *(fit->hf_fragment),
 			tvb, offset, fd->len,
 			fd->frame,
 			"Frame: %u, payload: %u-%u (%u bytes)",
@@ -1604,6 +1611,8 @@ show_fragment(fragment_data *fd, int offset, const fragment_items *fit,
 			offset+fd->len-1,
             fd->len
 		);
+	    PROTO_ITEM_SET_GENERATED(fei);
+	    PROTO_ITEM_SET_LINK(fei);
 	}
 }
 
@@ -1642,6 +1651,8 @@ show_fragment_tree(fragment_data *fd_head, const fragment_items *fit,
 
 	fi = proto_tree_add_item(tree, *(fit->hf_fragments),
 	    tvb, 0, -1, FALSE);
+	PROTO_ITEM_SET_GENERATED(fi);
+
 	ft = proto_item_add_subtree(fi, *(fit->ett_fragments));
 	for (fd = fd_head->next; fd != NULL; fd = fd->next)
 		show_fragment(fd, fd->offset, fit, ft, tvb);
@@ -1669,6 +1680,7 @@ show_fragment_seq_tree(fragment_data *fd_head, const fragment_items *fit,
 
 	fi = proto_tree_add_item(tree, *(fit->hf_fragments),
 	    tvb, 0, -1, FALSE);
+	PROTO_ITEM_SET_GENERATED(fi);
 	ft = proto_item_add_subtree(fi, *(fit->ett_fragments));
 	offset = 0;
 	next_offset = 0;
