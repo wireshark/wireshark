@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.23 2000/09/30 05:37:07 guy Exp $
+ * $Id: packet-http.c,v 1.24 2000/10/19 07:38:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -223,47 +223,44 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 static int
 is_http_request_or_reply(const u_char *data, int linelen, http_type_t *type)
 {
-	if (linelen >= 3) {
-		if (strncasecmp(data, "GET", 3) == 0 ||
-		    strncasecmp(data, "PUT", 3) == 0) {
-			if (*type == HTTP_OTHERS)
-				*type = HTTP_REQUEST;
-			return TRUE;
-		}
-	}
 	if (linelen >= 4) {
-		if (strncasecmp(data, "HEAD", 4) == 0 ||
-		    strncasecmp(data, "POST", 4) == 0) {
+		if (strncmp(data, "GET ", 4) == 0 ||
+		    strncmp(data, "PUT ", 4) == 0) {
 			if (*type == HTTP_OTHERS)
 				*type = HTTP_REQUEST;
 			return TRUE;
 		}
 	}
 	if (linelen >= 5) {
-		if (strncasecmp(data, "TRACE", 5) == 0)
+		if (strncmp(data, "HEAD ", 5) == 0 ||
+		    strncmp(data, "POST ", 5) == 0) {
+			if (*type == HTTP_OTHERS)
+				*type = HTTP_REQUEST;
 			return TRUE;
-		if (strncasecmp(data, "HTTP/", 5) == 0) {
+		}
+		if (strncmp(data, "HTTP/", 5) == 0) {
 			if (*type == HTTP_OTHERS)
 				*type = HTTP_RESPONSE;
 			return TRUE;	/* response */
 		}
 	}
 	if (linelen >= 6) {
-		if (strncasecmp(data, "DELETE", 6) == 0) {
+		if (strncmp(data, "TRACE ", 6) == 0) {
 			if (*type == HTTP_OTHERS)
 				*type = HTTP_REQUEST;
 			return TRUE;
 		}
 	}
 	if (linelen >= 7) {
-		if (strncasecmp(data, "OPTIONS", 7) == 0) {
+		if (strncmp(data, "DELETE ", 7) == 0) {
 			if (*type == HTTP_OTHERS)
 				*type = HTTP_REQUEST;
 			return TRUE;
 		}
 	}
-	if (linelen >= 7) {
-		if (strncasecmp(data, "CONNECT", 7) == 0) {
+	if (linelen >= 8) {
+		if (strncmp(data, "OPTIONS ", 8) == 0 ||
+		    strncmp(data, "CONNECT ", 8) == 0) {
 			if (*type == HTTP_OTHERS)
 				*type = HTTP_REQUEST;
 			return TRUE;
