@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.57 2004/04/14 18:42:19 obiot Exp $
+# $Id: configure.in,v 1.58 2004/06/01 00:15:38 jmayer Exp $
 #
 AC_INIT(wtap.c)
 
@@ -123,7 +123,7 @@ else
 fi
 	
 AC_ARG_ENABLE(gtk2,
-[  --enable-gtk2           build Glib2/Gtk2+-based (t)ethereal.  [default=no]],enable_gtk2=$enableval,enable_gtk2=no)
+[  --disable-gtk2           build Glib1/Gtk1+-based (t)ethereal.  [default=no]],enable_gtk2=$enableval,enable_gtk2=yes)
 
 if test "x$enable_gtk2" = "xyes" ; then
 	AM_PATH_GLIB_2_0(2.0.0, CFLAGS="$CFLAGS $GLIB_CFLAGS" LIBS="$LIBS $GLIB_LIBS", , gmodule)
