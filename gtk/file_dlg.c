@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.116 2004/06/20 07:28:02 guy Exp $
+ * $Id: file_dlg.c,v 1.117 2004/06/20 09:35:51 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -102,7 +102,9 @@ static GtkWidget *file_save_as_w;
 #ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
 #endif
-#define SUM_STR_MAX     1024
+
+#define PREVIEW_STR_MAX         200
+#define PREVIEW_TIMEOUT_SECS    3
 
 static double
 secs_usecs( guint32 s, guint32 us)
@@ -118,11 +120,11 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     GtkWidget  *label;
     wtap       *wth;
     const struct wtap_pkthdr *phdr;
-    int         err;
+    int         err = 0;
     gchar      *err_info;
     struct stat cf_stat;
     long        data_offset;
-    gchar       string_buff[SUM_STR_MAX];
+    gchar       string_buff[PREVIEW_STR_MAX];
     unsigned int packet = 0;
     double      start_time = 0;	/* seconds, with msec resolution */
     double      stop_time = 0;	/* seconds, with msec resolution */
@@ -130,6 +132,10 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     time_t      ti_time;
     struct tm  *ti_tm;
     unsigned int elapsed_time;
+    time_t      time_preview;
+    time_t      time_current;
+    gboolean    is_breaked = FALSE;
+    guint64     filesize;
 
     label = OBJECT_GET_DATA(prev, PREVIEW_FILENAME_KEY);
     gtk_label_set_text(GTK_LABEL(label), get_basename((char *)cf_name));
@@ -168,16 +174,17 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     }
 
     /* size */
-    g_snprintf(string_buff, SUM_STR_MAX, "%" PRIu64 " bytes",
-               (guint64)cf_stat.st_size);
+    filesize = cf_stat.st_size;
+    g_snprintf(string_buff, PREVIEW_STR_MAX, "%" PRIu64 " bytes", filesize);
     label = OBJECT_GET_DATA(prev, PREVIEW_SIZE_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
     /* type */
-    g_snprintf(string_buff, SUM_STR_MAX, "%s", wtap_file_type_string(wtap_file_type(wth)));
+    g_snprintf(string_buff, PREVIEW_STR_MAX, "%s", wtap_file_type_string(wtap_file_type(wth)));
     label = OBJECT_GET_DATA(prev, PREVIEW_FORMAT_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
+    time(&time_preview);
     while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
         phdr = wtap_phdr(wth);        
         cur_time = secs_usecs(phdr->ts.tv_sec, phdr->ts.tv_usec);
@@ -192,10 +199,17 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
             stop_time = cur_time;
         }
         packet++;
+        if(packet%100) {
+            time(&time_current);
+            if(time_current-time_preview >= PREVIEW_TIMEOUT_SECS) {
+                is_breaked = TRUE;
+                break;
+            }
+        }
     }
 
     if(err != 0) {
-        g_snprintf(string_buff, SUM_STR_MAX, "error after reading %u packets", packet);
+        g_snprintf(string_buff, PREVIEW_STR_MAX, "error after reading %u packets", packet);
         label = OBJECT_GET_DATA(prev, PREVIEW_PACKETS_KEY);
         gtk_label_set_text(GTK_LABEL(label), string_buff);
         wtap_close(wth);
@@ -203,14 +217,18 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     }
 
     /* packet count */
-    g_snprintf(string_buff, SUM_STR_MAX, "%u", packet);
+    if(is_breaked) {
+        g_snprintf(string_buff, PREVIEW_STR_MAX, "more than %u packets (preview timeout)", packet);
+    } else {
+        g_snprintf(string_buff, PREVIEW_STR_MAX, "%u", packet);
+    }
     label = OBJECT_GET_DATA(prev, PREVIEW_PACKETS_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
 
     /* first packet */
     ti_time = (long)start_time;
     ti_tm = localtime( &ti_time );
-    g_snprintf(string_buff, SUM_STR_MAX,
+    g_snprintf(string_buff, PREVIEW_STR_MAX,
              "%04d-%02d-%02d %02d:%02d:%02d",
              ti_tm->tm_year + 1900,
              ti_tm->tm_mon + 1,
@@ -224,11 +242,14 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     /* elapsed time */
     elapsed_time = (unsigned int)(stop_time-start_time);
     if(elapsed_time/86400) {
-      g_snprintf(string_buff, SUM_STR_MAX, "%02u days %02u:%02u:%02u", 
+      g_snprintf(string_buff, PREVIEW_STR_MAX, "%02u days %02u:%02u:%02u", 
         elapsed_time/86400, elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
     } else {
-      g_snprintf(string_buff, SUM_STR_MAX, "%02u:%02u:%02u", 
+      g_snprintf(string_buff, PREVIEW_STR_MAX, "%02u:%02u:%02u", 
         elapsed_time%86400/3600, elapsed_time%3600/60, elapsed_time%60);
+    }
+    if(is_breaked) {
+      g_snprintf(string_buff, PREVIEW_STR_MAX, "unknown");
     }
     label = OBJECT_GET_DATA(prev, PREVIEW_ELAPSED_KEY);
     gtk_label_set_text(GTK_LABEL(label), string_buff);
