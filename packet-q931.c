@@ -2,7 +2,7 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-q931.c,v 1.70 2004/02/20 10:34:42 guy Exp $
+ * $Id: packet-q931.c,v 1.71 2004/02/20 22:32:36 guy Exp $
  *
  * Modified by Andreas Sikkema for possible use with H.323
  *
@@ -3032,45 +3032,36 @@ proto_register_q931(void)
 			"", HFILL }},
     /* desegmentation fields */
 		{ &hf_q931_segment_overlap,
-			{ "Segment overlap",	"q931.segment.overlap",
-			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"Fragment overlaps with other fragments"}
-		},
+		  { "Segment overlap", "q931.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Fragment overlaps with other fragments", HFILL }},
+
 		{ &hf_q931_segment_overlap_conflict,
-			{ "Conflicting data in fragment overlap", "q931.segment.overlap.conflict",
-			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"Overlapping fragments contained conflicting data"}
-		},
+		  { "Conflicting data in fragment overlap", "q931.segment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Overlapping fragments contained conflicting data", HFILL }},
+
 		{ &hf_q931_segment_multiple_tails,
-			{ "Multiple tail fragments found", "q931.segment.multipletails",
-			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"Several tails were found when defragmenting the packet"}
-		},
+		  { "Multiple tail fragments found", "q931.segment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Several tails were found when defragmenting the packet", HFILL }},
+
 		{ &hf_q931_segment_too_long_segment,
-			{ "Segment too long",	"q931.segment.toolongfragment",
-			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-			"Segment contained data past end of packet"}
-		},
+		  { "Segment too long", "q931.segment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+			"Segment contained data past end of packet", HFILL }},
+
 		{ &hf_q931_segment_error,
-			{ "Defragmentation error",	"q931.segment.error",
-			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-			"Defragmentation error due to illegal fragments"}
-		},
+		  { "Defragmentation error", "q931.segment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"Defragmentation error due to illegal fragments", HFILL }},
+
 		{ &hf_q931_segment,
-			{ "Q.931 Segment",	"q931.segment",
-			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-			"Q.931 Segment"}
-		},
+		  { "Q.931 Segment", "q931.segment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"Q.931 Segment", HFILL }},
+
 		{ &hf_q931_segments,
-			{ "Q.931 Segments",	"q931.segments",
-			FT_NONE, BASE_NONE, NULL, 0x0,
-			"Q.931 Segments"}
-		},
-        { &hf_q931_reassembled_in,
-            { "Reassembled Q.931 in frame", "q931.reassembled_in", 
-            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-            "This Q.931 message is reassembled in this frame"}
-        }, 
+		  { "Q.931 Segments", "q931.segments", FT_NONE, BASE_NONE, NULL, 0x0,
+			"Q.931 Segments", HFILL }},
+
+		{ &hf_q931_reassembled_in,
+		  { "Reassembled Q.931 in frame", "q931.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"This Q.931 message is reassembled in this frame", HFILL}}, 
 	};
 	static gint *ett[] = {
 		&ett_q931,
