@@ -4,7 +4,9 @@ Makefile.in
 stamp-h.in
 config.status
 aclocal.m4
+doxygen.cfg
 ethereal-tap-register.c
+html
 *.obj
 *.lib
 *.pdb
