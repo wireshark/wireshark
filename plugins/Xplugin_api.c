@@ -244,3 +244,6 @@ p_get_tempfile_path = pat->p_get_tempfile_path;
 p_register_heur_dissector_list = pat->p_register_heur_dissector_list;
 p_dissector_try_heuristic = pat->p_dissector_try_heuristic;
 p_asn1_id_decode1 = pat->p_asn1_id_decode1;
+p_col_get_writable = pat->p_col_get_writable;
+p_col_set_writable = pat->p_col_set_writable;
+p_col_set_fence = pat->p_col_set_fence;

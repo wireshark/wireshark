@@ -244,3 +244,6 @@ typedef char *(*addr_get_tempfile_path) (const char *);
 typedef void (*addr_register_heur_dissector_list) (const char *, heur_dissector_list_t *);
 typedef gboolean (*addr_dissector_try_heuristic) (heur_dissector_list_t, tvbuff_t *, packet_info *, proto_tree *);
 typedef int (*addr_asn1_id_decode1) (ASN1_SCK *, guint *);
+typedef gboolean (*addr_col_get_writable) (column_info *);
+typedef void (*addr_col_set_writable) (column_info *, gboolean);
+typedef void (*addr_col_set_fence) (column_info *, gint);

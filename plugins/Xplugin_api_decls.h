@@ -244,3 +244,6 @@ addr_get_tempfile_path p_get_tempfile_path;
 addr_register_heur_dissector_list p_register_heur_dissector_list;
 addr_dissector_try_heuristic p_dissector_try_heuristic;
 addr_asn1_id_decode1 p_asn1_id_decode1;
+addr_col_get_writable p_col_get_writable;
+addr_col_set_writable p_col_set_writable;
+addr_col_set_fence p_col_set_fence;

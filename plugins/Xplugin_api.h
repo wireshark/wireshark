@@ -244,3 +244,6 @@
 #define register_heur_dissector_list (*p_register_heur_dissector_list)
 #define dissector_try_heuristic (*p_dissector_try_heuristic)
 #define asn1_id_decode1 (*p_asn1_id_decode1)
+#define col_get_writable (*p_col_get_writable)
+#define col_set_writable (*p_col_set_writable)
+#define col_set_fence (*p_col_set_fence)
