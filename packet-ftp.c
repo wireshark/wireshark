@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.23 2000/11/19 08:53:57 guy Exp $
+ * $Id: packet-ftp.c,v 1.24 2000/12/19 02:57:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -186,6 +186,8 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
         proto_tree      *ti, *ftp_data_tree;
         int		data_length;
+
+	CHECK_DISPLAY_AS_DATA(proto_ftp_data, tvb, pinfo, tree);
 
 	pinfo->current_proto = "FTP-DATA";
 
