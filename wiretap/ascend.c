@@ -1,6 +1,6 @@
 /* ascend.c
  *
- * $Id: ascend.c,v 1.6 1999/09/22 07:37:46 ashokn Exp $
+ * $Id: ascend.c,v 1.7 1999/09/23 04:56:52 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -132,7 +132,6 @@ static int ascend_seek(wtap *wth, int max_seek)
 int ascend_open(wtap *wth, int *err)
 {
   int offset;
-  struct stat statbuf;
 
   file_seek(wth->fh, 0, SEEK_SET);
   offset = ascend_seek(wth, ASCEND_MAX_SEEK);
