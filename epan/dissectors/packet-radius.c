@@ -3320,6 +3320,26 @@ static const radius_attr_info radius_vendor_3gpp2_attrib[] =
    {0, 0, NULL, NULL, NULL},
 };
 
+static const value_string netscreen_admin_priv_vals[] = {
+	{1,  "Root Admin"},
+	{2,  "All VSys Root Admin"},
+	{3,  "VSys Admin"},
+	{4,  "Read-Only Admin"},
+	{5,  "Read-Only VSys Admin"},
+	{0, NULL}
+};
+
+static const radius_attr_info radius_vendor_netscreen_attrib[] = {
+	{1,         RADIUS_INTEGER4,                "Admin Privilege", netscreen_admin_priv_vals, NULL},
+	{2,         RADIUS_STRING,                  "VSys Name", NULL, NULL},
+	{3,         RADIUS_STRING,                  "User Group", NULL, NULL},
+	{4,         RADIUS_IP_ADDRESS,              "Primary-DNS", NULL, NULL},
+	{5,         RADIUS_IP_ADDRESS,              "Secondary-DNS", NULL, NULL},
+	{6,         RADIUS_IP_ADDRESS,              "Primary-WINS", NULL, NULL},
+	{7,         RADIUS_IP_ADDRESS,              "Secondary-WINS", NULL, NULL},
+	{0, 0, NULL, NULL, NULL},
+};
+
 static const radius_attr_info radius_vendor_gemtek_systems_attrib[] =
 {
    {21, RADIUS_INTEGER4,	"Acct-Session-Input-Octets", NULL, NULL},
@@ -3377,6 +3397,7 @@ static rd_vsa_table radius_vsa_table[] =
   {VENDOR_GEMTEK_SYSTEMS,	radius_vendor_gemtek_systems_attrib},
   {VENDOR_WIFI_ALLIANCE,	radius_vendor_wifi_alliance_attrib},
   {VENDOR_THE3GPP2,			 radius_vendor_3gpp2_attrib},
+  {VENDOR_NETSCREEN,           radius_vendor_netscreen_attrib},
   {0, NULL},
 };
 

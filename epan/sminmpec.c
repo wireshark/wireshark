@@ -1,4 +1,4 @@
-/* sminmpec.h
+/* sminmpec.c
  * SMI Network Management Private Enterprise Codes for organizations
  *
  * $Id$
@@ -61,6 +61,7 @@ const value_string sminmpec_values[] = {
   {VENDOR_APTIS,		"Aptis"},
   {VENDOR_CISCO_VPN3000,	"Cisco VPN 3000"},
   {VENDOR_COSINE,		"CoSine Communications"},
+  {VENDOR_NETSCREEN,           "Netscreen"},
   {VENDOR_SHASTA,		"Shasta"},
   {VENDOR_NOMADIX,		"Nomadix"},
   {VENDOR_SIEMENS,		"SIEMENS"},
