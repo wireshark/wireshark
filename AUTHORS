@@ -278,6 +278,7 @@ Florian Lohoff <flo@rfc822.org> {
 Jochen Friedrich <jochen+ethereal@scram.de> {
 	Fix to IPv6 fragment handling
 	SMUX and SNMPv3 support
+	Zebra
 }
 
 Paul Welchinski <paul.welchinski@telusplanet.net> {
