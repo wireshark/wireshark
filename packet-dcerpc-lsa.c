@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.21 2002/04/22 02:08:17 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.22 2002/04/22 07:45:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -270,7 +270,7 @@ lsa_dissect_LPSTR(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
-static const value_string lsa_impersionation_level_vals[] = {
+static const value_string lsa_impersonation_level_vals[] = {
 	{0,	"Anonymous"},
 	{1,	"Identification"},
 	{2,	"Impersonation"},
@@ -2324,8 +2324,8 @@ proto_register_dcerpc_lsa(void)
 		NULL, 0x0, "Length of quality of service structure", HFILL }},
 
 	{ &hf_lsa_qos_impersonation_level,
-		{ "Impersionation", "lsa.qos.imp_lev", FT_UINT16, BASE_DEC, 
-		VALS(lsa_impersionation_level_vals), 0x0, "QOS Impersionation Level", HFILL }},
+		{ "Impersonation level", "lsa.qos.imp_lev", FT_UINT16, BASE_DEC, 
+		VALS(lsa_impersonation_level_vals), 0x0, "QOS Impersonation Level", HFILL }},
 
 	{ &hf_lsa_qos_track_context,
 		{ "Context Tracking", "lsa.qos.track_ctx", FT_UINT8, BASE_DEC, 
