@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.31 2001/08/11 17:17:42 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.32 2001/08/27 08:42:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1871,7 +1871,7 @@ register_proto_smb_pipe(void)
 
 
     	proto_smb_lanman = proto_register_protocol(
-    		"Microsoft Windows Lanman Protocol", "LANMAN", "lanman");
+    		"Microsoft Windows Lanman Remote API Protocol", "LANMAN", "lanman");
 
 	proto_register_field_array(proto_smb_lanman, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
