@@ -2,7 +2,7 @@
  * Routines for arcnet dissection
  * Copyright 2001-2002, Peter Fales <ethereal@fales-lorenz.net>
  *
- * $Id: packet-arcnet.c,v 1.6 2003/01/23 07:55:28 guy Exp $
+ * $Id: packet-arcnet.c,v 1.7 2003/01/23 09:04:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -56,7 +56,7 @@ static dissector_handle_t data_handle;
 
 void
 capture_arcnet (const guchar *pd, int len, packet_counts *ld,
-		gboolean has_offset)
+		gboolean has_offset, gboolean has_exception)
 {
   int offset = has_offset ? 2 : 4;
 
@@ -73,13 +73,38 @@ capture_arcnet (const guchar *pd, int len, packet_counts *ld,
     break;
 
   case ARCNET_PROTO_IP_1201:
-    /* There's fragmentation stuff in the header */
+    /*
+     * There's fragmentation stuff in the header.
+     *
+     * XXX - on at least some versions of NetBSD, it appears that we
+     * might we get ARCNET frames, not reassembled packets; we should
+     * perhaps bump "ld->other" for all but the first frame of a packet.
+     *
+     * XXX - but on FreeBSD it appears that we get reassembled packets
+     * on input (but apparently we get frames on output - or maybe
+     * we get the packet *and* all its frames!); how to tell the
+     * difference?  It looks from the FreeBSD reassembly code as if
+     * the reassembled packet arrives with the header for the first
+     * frame.  It also looks as if, on output, we first get the
+     * full packet, with a header containing none of the fragmentation
+     * stuff, and then get the frames.
+     *
+     * On Linux, we get only reassembled packets, and the exception
+     * frame stuff is hidden - there's a split flag and sequence
+     * number, but it appears that it will never have the exception
+     * frame stuff.
+     *
+     * XXX - what about OpenBSD?  And, for that matter, what about
+     * Windows?  (I suspect Windows supplies reassembled frames,
+     * as WinPcap, like PF_PACKET sockets, taps into the networking
+     * stack just as other protocols do.)
+     */
     offset++;
     if (!BYTES_ARE_IN_FRAME(offset, len, 1)) {
       ld->other++;
       return;
     }
-    if (pd[offset] == 0xff) {
+    if (has_exception && pd[offset] == 0xff) {
       /* This is an exception packet.  The flag value there is the
          "this is an exception flag" packet; the next two bytes
          after it are padding, and another copy of the packet
@@ -91,6 +116,9 @@ capture_arcnet (const guchar *pd, int len, packet_counts *ld,
 
   case ARCNET_PROTO_ARP_1051:
   case ARCNET_PROTO_ARP_1201:
+    /*
+     * XXX - do we have to worry about fragmentation for ARP?
+     */
     ld->arp++;
     break;
 
@@ -102,7 +130,7 @@ capture_arcnet (const guchar *pd, int len, packet_counts *ld,
 
 static void
 dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
-		       gboolean has_offset)
+		       gboolean has_offset, gboolean has_exception)
 {
   int offset = 0;
   guint8 dst, src, protID, split_flag;
@@ -158,9 +186,34 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     break;
 
   default:
-    /* Show the fragmentation stuff - flag and sequence ID */
+    /*
+     * Show the fragmentation stuff - flag and sequence ID.
+     *
+     * XXX - on at least some versions of NetBSD, it appears that
+     * we might get ARCNET frames, not reassembled packets; if so,
+     * we should reassemble them.
+     *
+     * XXX - but on FreeBSD it appears that we get reassembled packets
+     * on input (but apparently we get frames on output - or maybe
+     * we get the packet *and* all its frames!); how to tell the
+     * difference?  It looks from the FreeBSD reassembly code as if
+     * the reassembled packet arrives with the header for the first
+     * frame.  It also looks as if, on output, we first get the
+     * full packet, with a header containing none of the fragmentation
+     * stuff, and then get the frames.
+     *
+     * On Linux, we get only reassembled packets, and the exception
+     * frame stuff is hidden - there's a split flag and sequence
+     * number, but it appears that it will never have the exception
+     * frame stuff.
+     *
+     * XXX - what about OpenBSD?  And, for that matter, what about
+     * Windows?  (I suspect Windows supplies reassembled frames,
+     * as WinPcap, like PF_PACKET sockets, taps into the networking
+     * stack just as other protocols do.)
+     */
     split_flag = tvb_get_guint8 (tvb, offset);
-    if (split_flag == 0xff) {
+    if (has_exception && split_flag == 0xff) {
       /* This is an exception packet.  The flag value there is the
          "this is an exception flag" packet; the next two bytes
          after it are padding. */
@@ -215,22 +268,23 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 /*
  * BSD-style ARCNET headers - they don't have the offset field from the
- * ARCNET hardware packet.
+ * ARCNET hardware packet, but we might get an exception frame header.
  */
 static void
 dissect_arcnet (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-	dissect_arcnet_common (tvb, pinfo, tree, FALSE);
+	dissect_arcnet_common (tvb, pinfo, tree, FALSE, TRUE);
 }
 
 /*
  * Linux-style ARCNET headers - they *do* have the offset field from the
- * ARCNET hardware packet.
+ * ARCNET hardware packet, but we should never see an exception frame
+ * header.
  */
 static void
 dissect_arcnet_linux (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-	dissect_arcnet_common (tvb, pinfo, tree, TRUE);
+	dissect_arcnet_common (tvb, pinfo, tree, TRUE, FALSE);
 }
 
 static const value_string arcnet_prot_id_vals[] = {

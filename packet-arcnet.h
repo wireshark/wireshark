@@ -1,6 +1,6 @@
 /* packet-arcnet.h
  *
- * $Id: packet-arcnet.h,v 1.1 2003/01/23 06:57:37 guy Exp $
+ * $Id: packet-arcnet.h,v 1.2 2003/01/23 09:04:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,6 @@
 #ifndef __PACKET_ARCNET_H__
 #define __PACKET_ARCNET_H__
 
-void capture_arcnet (const guchar *, int, packet_counts *, gboolean);
+void capture_arcnet (const guchar *, int, packet_counts *, gboolean, gboolean);
 
 #endif
