@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.8 2002/02/27 09:42:47 guy Exp $
+# $Id: Makefile.nmake,v 1.9 2003/06/12 10:12:21 guy Exp $
 #
 
 include ..\..\config.nmake
@@ -14,7 +14,8 @@ CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap \
 OBJECTS=packet-gryphon.obj 
 
 gryphon.dll gryphon.exp gryphon.lib : packet-gryphon.obj ..\plugin_api.obj
-	link -dll /out:gryphon.dll packet-gryphon.obj ..\plugin_api.obj
+	link -dll /out:gryphon.dll packet-gryphon.obj ..\plugin_api.obj \
+	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib
 
 clean:
 	rm -f $(OBJECTS) gryphon.dll gryphon.exp gryphon.lib $(PDB_FILE)
