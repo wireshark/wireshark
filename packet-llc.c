@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.68 2000/08/13 14:08:26 deniel Exp $
+ * $Id: packet-llc.c,v 1.69 2000/08/25 06:31:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -325,17 +325,12 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree)
 		proto_item_set_len(ti, llc_header_len);
 
-	/*
-	 * XXX - do we want to append the SAP information to the stuff
-	 * "dissect_xdlc_control()" put in the COL_INFO column, rather
-	 * than overwriting it?
-	 */
 	if (is_snap) {
 		oui =	tvb_get_ntoh24(tvb, 3);
 		etype = tvb_get_ntohs(tvb, 6);
 
 		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO, "SNAP, OUI 0x%06X (%s), PID 0x%04X",
+			col_append_fstr(pinfo->fd, COL_INFO, "; SNAP, OUI 0x%06X (%s), PID 0x%04X",
 			    oui, val_to_str(oui, oui_vals, "Unknown"),
 			    etype);
 		}
@@ -423,8 +418,8 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	else {
 		if (check_col(pinfo->fd, COL_INFO)) {
-			col_add_fstr(pinfo->fd, COL_INFO, 
-			    "DSAP %s %s, SSAP %s %s",
+			col_append_fstr(pinfo->fd, COL_INFO, 
+			    "; DSAP %s %s, SSAP %s %s",
 			    val_to_str(dsap & SAP_MASK, sap_vals, "%02x"),
 			    dsap & DSAP_GI_BIT ?
 			      "Group" : "Individual",
