@@ -69,6 +69,7 @@
 #include "etypes.h"
 #include <epan/crc32.h>
 
+#include <ctype.h>
 #include "isprint.h"
 
 /* Defragment fragmented 802.11 datagrams */
