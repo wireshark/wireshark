@@ -2783,14 +2783,14 @@ welcome_new(void)
 #if GTK_MAJOR_VERSION >= 2
     gtk_label_set_markup(GTK_LABEL(w), message);
 #endif
-	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
+    gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.5);
     gtk_box_pack_start(GTK_BOX(item_hb), w, TRUE, TRUE, 5);
 
     gtk_box_pack_start(GTK_BOX(welcome_vb), item_hb, TRUE, FALSE, 5);
 
     w = gtk_label_new("What would you like to do?");
     gtk_box_pack_start(GTK_BOX(welcome_vb), w, FALSE, FALSE, 10);
-	gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
+    gtk_misc_set_alignment (GTK_MISC(w), 0.0, 0.0);
 
     item_hb = welcome_item(ETHEREAL_STOCK_CAPTURE_START, 
         "Capture",
@@ -2826,7 +2826,8 @@ welcome_new(void)
 
     gtk_widget_show_all(welcome_hb);
 
-    gtk_container_add(GTK_CONTAINER(welcome_scrollw), welcome_hb);
+    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(welcome_scrollw),
+                                          welcome_hb);
     gtk_widget_show_all(welcome_scrollw);
 
     return welcome_scrollw;
