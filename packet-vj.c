@@ -1,7 +1,7 @@
 /* packet-vj.c
  * Routines for Van Jacobson header decompression. 
  *
- * $Id: packet-vj.c,v 1.12 2002/06/04 07:03:47 guy Exp $
+ * $Id: packet-vj.c,v 1.13 2002/07/14 08:57:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -381,7 +381,7 @@ dissect_vjuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree * tree)
    * Set up tvbuff containing packet with protocol type.
    * Neither header checksum is recalculated.
    */
-  next_tvb = tvb_new_real_data(buffer, isize, pntohs(&buffer[IP_FIELD_TOT_LEN]));
+  next_tvb = tvb_new_real_data(buffer, isize, tvb_reported_length(tvb));
   tvb_set_child_real_data_tvbuff(tvb, next_tvb);
   add_new_data_source(pinfo, next_tvb, "VJ Uncompressed");
 
