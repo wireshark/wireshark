@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-bootp.c,v 1.55 2001/10/29 21:56:47 guy Exp $
+ * $Id: packet-bootp.c,v 1.56 2001/10/31 08:43:09 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -11,8 +11,9 @@
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
  * RFC 2489: Procedure for Defining New DHCP Options
  * RFC 3046: DHCP Relay Agent Information Option
+ * RFC 3118: Authentication for DHCP Messages
  * BOOTP and DHCP Parameters
- *     http://www.isi.edu/in-notes/iana/assignments/bootp-dhcp-parameters
+ *     http://www.iana.org/assignments/bootp-dhcp-parameters
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -113,6 +114,16 @@ get_dhcp_type(guint8 byte)
 	return opt53_text[i];
 }
 
+/* DHCP Authentication protocols */
+#define AUTHEN_PROTO_CONFIG_TOKEN	0
+#define AUTHEN_PROTO_DELAYED_AUTHEN	1
+
+/* DHCP Authentication algorithms for delayed authentication */
+#define AUTHEN_DELAYED_ALGO_HMAC_MD5	1
+
+/* DHCP Authentication Replay Detection Methods */
+#define AUTHEN_RDM_MONOTONIC_COUNTER	0x00
+
 /* Returns the number of bytes consumed by this option. */
 static int
 bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
@@ -128,8 +139,9 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	u_long			time_secs;
 	proto_tree		*v_tree;
 	proto_item		*vti;
-	const char              *md5_ptr;
-	char                    md5_str[50];
+	guint8			protocol;
+	guint8			algorithm;
+	guint8			rdm;
 
 	static const value_string nbnt_vals[] = {
 	    {0x1,   "B-node" },
@@ -137,6 +149,19 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	    {0x4,   "M-node" },
 	    {0x8,   "H-node" },
 	    {0,     NULL     } };
+
+	static const value_string authen_protocol_vals[] = {
+	    {AUTHEN_PROTO_CONFIG_TOKEN,   "configuration token" },
+	    {AUTHEN_PROTO_DELAYED_AUTHEN, "delayed authentication" },
+	    {0,                           NULL     } };
+
+	static const value_string authen_da_algo_vals[] = {
+	    {AUTHEN_DELAYED_ALGO_HMAC_MD5, "HMAC_MD5" },
+	    {0,                            NULL     } };
+
+	static const value_string authen_rdm_vals[] = {
+	    {AUTHEN_RDM_MONOTONIC_COUNTER, "Monotonically-increasing counter" },
+	    {0,                            NULL     } };
 
 	static struct opt_info opt[] = {
 		/*   0 */ { "Padding",								none },
@@ -229,7 +254,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		/*  87 */ { "Novell Directory Services Context",	opaque },
 		/*  88 */ { "IEEE 1003.1 POSIX Timezone",			opaque },
 		/*  89 */ { "Fully Qualified Domain Name",			opaque },
-		/*  90 */ { "Authentication",						opaque },
+		/*  90 */ { "Authentication",				special },
 		/*  91 */ { "Vines TCP/IP Server Option",			opaque },
 		/*  92 */ { "Server Selection Option",				opaque },
 		/*  93 */ { "Client System Architecture",			opaque },
@@ -577,26 +602,81 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		}
 		break;
 
-	case 210:	/* DHCP Authentication */
+	case 90:	/* DHCP Authentication */
+	case 210:	/* Was this used for authentication at one time? */
 		vti = proto_tree_add_text(bp_tree, tvb, voff,
 			vlen + 2, "Option %d: %s", code, text);
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-		proto_tree_add_text(v_tree, tvb, voff+2, 1, "Protocol: %d", 
-				    tvb_get_guint8(tvb, voff+2));
-		proto_tree_add_text(v_tree, tvb, voff+3, 1, "Algorithm: %d", 
-				    tvb_get_guint8(tvb, voff+3));
-		proto_tree_add_text(v_tree, tvb, voff+4, 1, "Replay Detection Method: %d", 
-				    tvb_get_guint8(tvb, voff+4));
-		proto_tree_add_text(v_tree, tvb, voff+5, 8, "Replay Detection Value: %s", 
+
+		protocol = tvb_get_guint8(tvb, voff+2);
+		proto_tree_add_text(v_tree, tvb, voff+2, 1, "Protocol: %s (%u)", 
+				    val_to_str(protocol, authen_protocol_vals, "Unknown"),
+				    protocol);
+
+		algorithm = tvb_get_guint8(tvb, voff+3);
+		switch (protocol) {
+
+		case AUTHEN_PROTO_DELAYED_AUTHEN:
+			proto_tree_add_text(v_tree, tvb, voff+3, 1,
+				    "Algorithm: %s (%u)",
+				    val_to_str(algorithm, authen_da_algo_vals, "Unknown"),
+				    algorithm);
+			break;
+
+		default:
+			proto_tree_add_text(v_tree, tvb, voff+3, 1,
+				    "Algorithm: %u", algorithm);
+			break;
+		}
+
+		rdm = tvb_get_guint8(tvb, voff+4);
+		proto_tree_add_text(v_tree, tvb, voff+4, 1,
+				    "Replay Detection Method: %s (%u)",
+				    val_to_str(rdm, authen_rdm_vals, "Unknown"),
+				    rdm);
+
+		switch (rdm) {
+
+		case AUTHEN_RDM_MONOTONIC_COUNTER:
+			proto_tree_add_text(v_tree, tvb, voff+5, 8,
+				    "Replay Detection Value: %s", 
 				    u64toh(tvb_get_ptr(tvb, voff+5, 8)));
-		if (vlen > 11) {
-		    proto_tree_add_text(v_tree, tvb, voff+13, 4, "Secret ID: %0X", 
+			break;
+
+		default:
+			proto_tree_add_text(v_tree, tvb, voff+5, 8,
+				    "Replay Detection Value: %s", 
+				    tvb_bytes_to_str(tvb, voff+5, 8));
+			break;
+		}
+
+		switch (protocol) {
+
+		case AUTHEN_PROTO_DELAYED_AUTHEN:
+			switch (algorithm) {
+
+			case AUTHEN_DELAYED_ALGO_HMAC_MD5:
+				proto_tree_add_text(v_tree, tvb, voff+13, 4,
+					"Secret ID: 0x%08x", 
 					tvb_get_ntohl(tvb, voff+13));
-		    md5_ptr = tvb_get_ptr(tvb, voff+17, 16);
-		    for (i=0; i<16; i++)
-			sprintf(&(md5_str[i*3]), "%02X ", (guint8) md5_ptr[i]);
-		    md5_str[48] = 0;
-		    proto_tree_add_text(v_tree, tvb, voff+17, 16, "HMAC MD5 Hash: %s", md5_str);
+				proto_tree_add_text(v_tree, tvb, voff+17, 16,
+					"HMAC MD5 Hash: %s",
+					tvb_bytes_to_str(tvb, voff+17, 16));
+				break;
+
+			default:
+				proto_tree_add_text(v_tree, tvb, voff+13, vlen-11,
+					"Authentication Information: %s",
+					tvb_bytes_to_str(tvb, voff+17, vlen-11));
+				break;
+			}
+			break;
+
+		default:
+			proto_tree_add_text(v_tree, tvb, voff+13, vlen-11,
+				"Authentication Information: %s",
+				tvb_bytes_to_str(tvb, voff+17, vlen-11));
+			break;
 		}
 		break;
 
