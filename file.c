@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.177 2000/04/03 22:28:51 gram Exp $
+ * $Id: file.c,v 1.178 2000/04/04 05:14:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -169,6 +169,11 @@ open_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   firstsec = 0, firstusec = 0;
   prevsec = 0, prevusec = 0;
  
+  cf->plist_chunk = g_mem_chunk_new("frame_data_chunk",
+	sizeof(frame_data),
+	FRAME_DATA_CHUNK_SIZE * sizeof(frame_data),
+	G_ALLOC_AND_FREE);
+
   return (0);
 
 fail:
@@ -304,10 +309,6 @@ read_cap_file(capture_file *cf)
 
   freeze_clist(cf);
   proto_tree_is_visible = FALSE;
-  cf->plist_chunk = g_mem_chunk_new("frame_data_chunk",
-	sizeof(frame_data),
-	FRAME_DATA_CHUNK_SIZE * sizeof(frame_data),
-	G_ALLOC_AND_FREE);
   success = wtap_loop(cf->wth, 0, wtap_dispatch_cb, (u_char *) cf, &err);
   /* Set the file encapsulation type now; we don't know what it is until
      we've looked at all the packets, as we don't know until then whether
@@ -385,10 +386,6 @@ start_tail_cap_file(char *fname, gboolean is_tempfile, capture_file *cf)
   int     i;
 
   err = open_cap_file(fname, is_tempfile, cf);
-  cf->plist_chunk = g_mem_chunk_new("frame_data_chunk",
-	sizeof(frame_data),
-	FRAME_DATA_CHUNK_SIZE * sizeof(frame_data),
-	G_ALLOC_AND_FREE);
   if (err == 0) {
     /* Disable menu items that make no sense if you're currently running
        a capture. */
