@@ -395,6 +395,8 @@ static int proto_giop = -1;
 static int hf_giop_message_type = -1;
 static int hf_giop_message_size = -1;
 static int hf_giop_repoid = -1;
+static int hf_giop_req_id = -1;
+static int hf_giop_req_operation = -1;
 static int hf_giop_string_length = -1;
 static int hf_giop_sequence_length = -1;
 static int hf_giop_profile_id = -1;
@@ -3039,8 +3041,7 @@ static void dissect_giop_reply (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
   }
 
   if (tree) {
-    proto_tree_add_text (reply_tree, tvb, offset-4, 4,
-			 "Request id: %u", request_id);
+    proto_tree_add_uint(reply_tree, hf_giop_req_id, tvb, offset-4, 4, request_id);
   }
 
   reply_status = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
@@ -3114,8 +3115,7 @@ static void dissect_giop_reply_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   }
 
   if (tree) {
-    proto_tree_add_text (reply_tree, tvb, offset-4, 4,
-			 "Request id: %u", request_id);
+    proto_tree_add_uint (reply_tree, hf_giop_req_id, tvb, offset-4, 4, request_id);
   }
 
   reply_status = get_CDR_ulong(tvb, &offset, stream_is_big_endian,GIOP_HEADER_SIZE);
@@ -3192,8 +3192,7 @@ static void dissect_giop_cancel_request (tvbuff_t * tvb, packet_info * pinfo,
   }
 
   if (tree) {
-    proto_tree_add_text (cancel_request_tree, tvb, offset-4, 4,
-			 "Request id: %u", request_id);
+    proto_tree_add_uint (cancel_request_tree,hf_giop_req_id, tvb, offset-4, 4,  request_id);
   }
 
 
@@ -3264,8 +3263,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
     }
   if (tree)
     {
-      proto_tree_add_text (request_tree, tvb, offset-4, 4,
-			   "Request id: %u", request_id);
+      proto_tree_add_uint (request_tree,hf_giop_req_id, tvb, offset-4, 4,  request_id);
     }
 
   response_expected = tvb_get_guint8( tvb, offset );
@@ -3342,8 +3340,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
        }
        if(tree)
        {
-         proto_tree_add_text (request_tree, tvb, offset - len, len,
-         /**/                 "Operation: %s", operation);
+         proto_tree_add_string (request_tree, hf_giop_req_operation,tvb, offset - len, len, operation);
 
        }
   }
@@ -3473,8 +3470,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
     }
   if (request_tree)
     {
-      proto_tree_add_text (request_tree, tvb, offset-4, 4,
-			   "Request id: %u", request_id);
+      proto_tree_add_uint (request_tree, hf_giop_req_id, tvb, offset-4, 4, request_id);
     }
 
   response_flags = tvb_get_guint8( tvb, offset );
@@ -3513,8 +3509,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
        }
        if(request_tree)
        {
-         proto_tree_add_text (request_tree, tvb, offset - len, len,
-         /**/                 "Operation: %s", operation);
+         proto_tree_add_string (request_tree,hf_giop_req_operation, tvb, offset - len, len, operation);
 
        }
 
@@ -3747,8 +3742,7 @@ dissect_giop_fragment( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     }
   if (fragment_tree )
     {
-      proto_tree_add_text (fragment_tree, tvb, offset-4, 4,
-			   "Request id: %u", request_id);
+      proto_tree_add_uint (fragment_tree, hf_giop_req_id, tvb, offset-4, 4,request_id);
     }
 
 }
@@ -3767,7 +3761,7 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
   guint message_size;
   guint minor_version;
   gboolean stream_is_big_endian;
-
+  guint tot_len;
 
   /* DEBUG */
 
@@ -3786,7 +3780,9 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 
   /*define END_OF_GIOP_MESSAGE (offset - first_offset - GIOP_HEADER_SIZE) */
 
-  if (tvb_length_remaining(tvb, 0) < GIOP_HEADER_SIZE)
+  tot_len = tvb_length_remaining(tvb, 0);
+  
+  if (tot_len < GIOP_HEADER_SIZE)
     {
       /* Not enough data captured to hold the GIOP header; don't try
          to interpret it as GIOP. */
@@ -3833,7 +3829,7 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 	}
       if (tree)
 	{
-	  ti = proto_tree_add_item (tree, proto_giop, tvb, 0, -1, FALSE);
+	  ti = proto_tree_add_item (tree, proto_giop, tvb, 0, tot_len, FALSE);
 	  clnp_tree = proto_item_add_subtree (ti, ett_giop);
 	  proto_tree_add_text (clnp_tree, giop_header_tvb, 0, -1,
 			       "Version %u.%u not supported",
@@ -3861,7 +3857,7 @@ gboolean dissect_giop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 
   if (tree)
     {
-      ti = proto_tree_add_item (tree, proto_giop, tvb, 0, 12, FALSE);
+      ti = proto_tree_add_item (tree, proto_giop, tvb, 0, tot_len, FALSE);
       clnp_tree = proto_item_add_subtree (ti, ett_giop);
       proto_tree_add_text (clnp_tree, giop_header_tvb, offset, 4,
 			   "Magic number: %s", GIOP_MAGIC);
@@ -4186,9 +4182,21 @@ proto_register_giop (void)
     }
     ,
 
+  { &hf_giop_req_id,
+  { "Request id", "giop.request_id",
+	  FT_UINT32, BASE_DEC, NULL, 0, "", HFILL }
+  },
+	  
+  { &hf_giop_req_operation,
+  { "Request operation", "giop.request_op",
+	  FT_STRING, BASE_DEC, NULL, 0x0, "", HFILL }
+  },
+	  
 
   };
-
+	
+		
+		
   static gint *ett[] = {
     &ett_giop,
     &ett_giop_reply,
