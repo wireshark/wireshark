@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.244 2004/06/12 07:47:13 guy Exp $
+ * $Id: tethereal.c,v 1.245 2004/07/08 07:47:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2346,7 +2346,7 @@ load_cap_file(capture_file *cf, int out_file_type)
 
     case WTAP_ERR_UNSUPPORTED_ENCAP:
       fprintf(stderr,
-"tethereal: \"%s\" is a capture file is for a network type that Tethereal doesn't support.\n(%s)\n",
+"tethereal: \"%s\" has a packet with a network type that Tethereal doesn't support.\n(%s)\n",
 	cf->filename, err_info);
       break;
 
