@@ -10,7 +10,11 @@
  *
  *	http://www.isi.edu/people/bcn/krb-revisions/
  *
- * $Id: packet-kerberos.c,v 1.37 2003/04/25 21:29:19 guy Exp $
+ * and
+ *
+ *	http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-03.txt
+ *
+ * $Id: packet-kerberos.c,v 1.38 2003/04/25 21:30:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
