@@ -1,4 +1,4 @@
-
+﻿
 
 Original Author
 -------- ------
@@ -1690,6 +1690,7 @@ Anders Broman           <anders.broman [AT] ericsson.com> {
 	Assorted DIAMETER enhancements
 	SIP-T dissection
 	PoC1 Application dissection in RTCP
+	Initial SIGCOMP support
 }
 
 Christian Falckenberg   <christian.falckenberg [AT] nortelnetworks.com> {
@@ -2060,6 +2061,7 @@ Sam Leffler             <sam [AT] errno.com> {
 Martin Mathieson        <martin [AT] arca-technologies.com> {
 	SIP sipfrag support
 	SIP statistics tap
+	Show setupframe in RTP and RTCP
 }
 
 Christian Wagner        <Christian.Wagner [AT] stud.uni-karlsruhe.de> {
