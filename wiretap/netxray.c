@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.66 2003/01/03 07:54:01 guy Exp $
+ * $Id: netxray.c,v 1.67 2003/01/03 08:00:51 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -547,7 +547,8 @@ netxray_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header,
     union netxrayrec_hdr *hdr)
 {
 	/*
-	 * If this is 802.11, or ISDN, set the pseudo-header.
+	 * If this is 802.11, ISDN, or ATM, set the pseudo-header.
+	 * XXX - what about X.25?
 	 */
 	if (wth->capture.netxray->version_major == 2) {
 		switch (wth->file_encap) {
@@ -575,6 +576,8 @@ netxray_set_pseudo_header(wtap *wth, union wtap_pseudo_header *pseudo_header,
 			 * the bottom 5 bits are the channel number, which
 			 * is enough for European PRI.  (XXX - maybe the
 			 * whole byte is the channel number?)
+			 *
+			 * XXX - is that direction flag right?
 			 */
 			pseudo_header->isdn.uton =
 			    (hdr->hdr_2_x.xxx[10] & 0x80);
