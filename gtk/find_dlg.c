@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.17 2001/01/21 01:45:07 guy Exp $
+ * $Id: find_dlg.c,v 1.18 2001/01/21 02:27:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -76,7 +76,11 @@ find_frame_cb(GtkWidget *w, gpointer d)
   GtkAccelGroup *accel_group;
   /* No Apply button, but "OK" not only sets our text widget, it
      activates it (i.e., it causes us to do the search). */
-  static construct_args_t args = {FALSE, TRUE};
+  static construct_args_t args = {
+  	"Ethereal: Search Filter",
+  	FALSE,
+  	TRUE
+  };
 
   if (find_frame_w != NULL) {
     /* There's already a "Find Frame" dialog box; reactivate it. */

@@ -1,7 +1,7 @@
 /* file_dlg.c
  * Dialog boxes for handling files
  *
- * $Id: file_dlg.c,v 1.34 2001/01/21 01:45:06 guy Exp $
+ * $Id: file_dlg.c,v 1.35 2001/01/21 02:27:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,7 +73,11 @@ file_open_cmd_cb(GtkWidget *w, gpointer data)
   		*resolv_cb;
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
-  static construct_args_t args = {FALSE, FALSE};
+  static construct_args_t args = {
+  	"Ethereal: Read Filter",
+  	FALSE,
+  	FALSE
+  };
 
   if (file_open_w != NULL) {
     /* There's already an "Open Capture File" dialog box; reactivate it. */

@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.h,v 1.8 2001/01/21 01:45:07 guy Exp $
+ * $Id: filter_prefs.h,v 1.9 2001/01/21 02:27:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,6 +33,7 @@
  * created.
  */
 typedef struct {
+	gchar    *title;		/* title of dialog box */
 	gboolean wants_apply_button;	/* if it should have an Apply button */
 	gboolean activate_on_ok;	/* if parent text widget should be
 					   activated on "Ok" or "Apply" */

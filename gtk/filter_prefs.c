@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.21 2001/01/21 01:45:07 guy Exp $
+ * $Id: filter_prefs.c,v 1.22 2001/01/21 02:27:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -195,7 +195,11 @@ capture_filter_construct_cb(GtkWidget *w, gpointer user_data)
 	GtkWidget *parent_filter_te;
 	/* No Apply button, and "OK" just sets our text widget, it doesn't
 	   activate it (i.e., it doesn't cause us to try to open the file). */
-	static construct_args_t args = {FALSE, FALSE};
+	static construct_args_t args = {
+		"Ethereal: Capture Filter",
+		FALSE,
+		FALSE
+	};
 
 	/* Has a filter dialog box already been opened for that top-level
 	   widget? */
@@ -287,7 +291,11 @@ filter_dialog_cb(GtkWidget *w)
 {
 	/* No Apply button, and there's no text widget to set, much less
 	   activate, on "OK". */
-	static construct_args_t args = {FALSE, FALSE};
+	static construct_args_t args = {
+		"Ethereal: Edit Filter List",
+		FALSE,
+		FALSE
+	};
 
 	/* Has a filter dialog box already been opened for editing? */
 	if (global_filter_w != NULL) {
@@ -338,7 +346,7 @@ filter_dialog_new(GtkWidget *caller, GtkWidget *parent_filter_te,
 	filter_def	*filt;
 	gchar		*filter_te_str = NULL;
 
-	main_w = dlg_window_new("Ethereal: Filters");
+	main_w = dlg_window_new(construct_args->title);
 	gtk_object_set_data(GTK_OBJECT(main_w), E_FILT_CONSTRUCT_ARGS_KEY,
 	    construct_args);
 

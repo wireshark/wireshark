@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.172 2001/01/21 01:45:07 guy Exp $
+ * $Id: main.c,v 1.173 2001/01/21 02:27:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1492,7 +1492,11 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
   /* Display filter construct dialog has an Apply button, and "OK" not
      only sets our text widget, it activates it (i.e., it causes us to
      filter the capture). */
-  static construct_args_t args = {TRUE, TRUE};
+  static construct_args_t args = {
+  	"Ethereal: Display Filter",
+  	TRUE,
+  	TRUE
+  };
 
   /* Main window */  
   top_level = gtk_window_new(GTK_WINDOW_TOPLEVEL);
