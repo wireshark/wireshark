@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.68 2002/04/30 22:05:33 guy Exp $
+ * $Id: packet-atalk.c,v 1.69 2002/05/01 07:26:45 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -121,6 +121,14 @@ static int hf_atp_treltimer = -1; /* bits 2,1,0  TRel timeout indicator */
 static int hf_atp_bitmap = -1;   /* u_int8_t  bitmap or sequence number */
 static int hf_atp_tid = -1;      /* u_int16_t transaction id. */
 
+static int hf_atp_segments = -1;
+static int hf_atp_segment = -1;
+static int hf_atp_segment_overlap = -1;
+static int hf_atp_segment_overlap_conflict = -1;
+static int hf_atp_segment_multiple_tails = -1;
+static int hf_atp_segment_too_long_segment = -1;
+static int hf_atp_segment_error = -1;
+
 /* --------------------------------
  * from netatalk/include/atalk/ats.h
  */
@@ -212,6 +220,7 @@ static int hf_rtmp_function = -1;
 
 static gint ett_atp = -1;
 
+static gint ett_atp_segments = -1;
 static gint ett_atp_segment = -1;
 static gint ett_atp_info = -1;
 static gint ett_asp = -1;
@@ -593,16 +602,55 @@ show_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree *ft;
   proto_item *fi;
 
-
-  fi = proto_tree_add_text(tree, tvb, 0, -1, "Segments");
-  ft = proto_item_add_subtree(fi, ett_atp_segment);
+  fi = proto_tree_add_item(tree, hf_atp_segments, tvb, 0, -1, FALSE);
+  ft = proto_item_add_subtree(fi, ett_atp_segments);
   offset = 0;
   for (fd = fd_head->next; fd != NULL; fd = fd->next){
-      	proto_tree_add_text (ft, tvb, offset, fd->len,
-				 "Frame:%u payload:%u-%u",
-				 fd->frame, offset, offset+fd->len-1);
+    if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+      /*
+       * This segment has some flags set; create a subtree for it and
+       * display the flags.
+       */
+      proto_tree *fet = NULL;
+      proto_item *fei = NULL;
+      int hf;
 
-    	offset += fd->len;
+      if (fd->flags & (FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+	hf = hf_atp_segment_error;
+      } else {
+	hf = hf_atp_segment;
+      }
+      fei = proto_tree_add_none_format(ft, hf, tvb, offset, fd->len,
+				       "Frame:%u payload:%u-%u",
+				       fd->frame, offset, offset+fd->len-1);
+      fet = proto_item_add_subtree(fei, ett_atp_segment);
+      if (fd->flags&FD_OVERLAP)
+	proto_tree_add_boolean(fet, hf_atp_segment_overlap, tvb, 0, 0, TRUE);
+      if (fd->flags&FD_OVERLAPCONFLICT) {
+	proto_tree_add_boolean(fet, hf_atp_segment_overlap_conflict, tvb, 0, 0,
+			       TRUE);
+      }
+      if (fd->flags&FD_MULTIPLETAILS) {
+	proto_tree_add_boolean(fet, hf_atp_segment_multiple_tails, tvb, 0, 0,
+			       TRUE);
+      }
+      if (fd->flags&FD_TOOLONGFRAGMENT) {
+	proto_tree_add_boolean(fet, hf_atp_segment_too_long_segment, tvb, 0, 0,
+			       TRUE);
+      }
+    } else {
+      /*
+       * Nothing of interest for this segment.
+       */
+      proto_tree_add_text (ft, tvb, offset, fd->len,
+			   "Frame:%u payload:%u-%u",
+			   fd->frame, offset, offset+fd->len-1);
+    }
+    offset += fd->len;
+  }
+  if (fd_head->flags & (FD_OVERLAPCONFLICT|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_set_str(pinfo->cinfo, COL_INFO, "[Illegal segments]");
   }
 }
 
@@ -1215,10 +1263,41 @@ proto_register_atalk(void)
 
     { &hf_atp_bitmap,
       { "Bitmap",		"atp.bitmap",	FT_UINT8,  BASE_HEX, 
-		NULL, 0x0, "bitmap or sequence number", HFILL }},
+		NULL, 0x0, "Bitmap or sequence number", HFILL }},
+
     { &hf_atp_tid,
-      { "tid",		"atp.tid",	FT_UINT16,  BASE_DEC, 
-		NULL, 0,   "transaction id", HFILL }},
+      { "TID",			"atp.tid",	FT_UINT16,  BASE_DEC, 
+		NULL, 0x0, "Transaction id", HFILL }},
+
+    { &hf_atp_segment_overlap,
+      { "Segment overlap",	"atp.segment.overlap", FT_BOOLEAN, BASE_NONE,
+		NULL, 0x0, "Segment overlaps with other segments", HFILL }},
+
+    { &hf_atp_segment_overlap_conflict,
+      { "Conflicting data in seagment overlap", "atp.segment.overlap.conflict",
+	FT_BOOLEAN, BASE_NONE,
+		NULL, 0x0, "Overlapping segments contained conflicting data", HFILL }},
+
+    { &hf_atp_segment_multiple_tails,
+      { "Multiple tail segments found", "atp.segment.multipletails",
+	FT_BOOLEAN, BASE_NONE,
+		NULL, 0x0, "Several tails were found when desegmenting the packet", HFILL }},
+
+    { &hf_atp_segment_too_long_segment,
+      { "Segment too long",	"atp.segment.toolongsegment", FT_BOOLEAN, BASE_NONE,
+		NULL, 0x0, "Segment contained data past end of packet", HFILL }},
+
+    { &hf_atp_segment_error,
+      {" Desegmentation error",	"atp.segment.error", FT_NONE, BASE_NONE,
+		NULL, 0x0, "Desegmentation error due to illegal segments", HFILL }},
+
+    { &hf_atp_segment,
+      { "ATP Fragment",		"atp.fragment", FT_NONE, BASE_NONE,
+		NULL, 0x0, "ATP Fragment", HFILL }},
+
+    { &hf_atp_segments,
+      { "ATP Fragments",	"atp.fragments", FT_NONE, BASE_NONE,
+		NULL, 0x0, "ATP Fragments", HFILL }},
   };
 
   static hf_register_info hf_asp[] = {
@@ -1236,6 +1315,7 @@ proto_register_atalk(void)
 	&ett_ddp,
 	&ett_atp,
 	&ett_atp_info,
+	&ett_atp_segments,
 	&ett_atp_segment,
 	&ett_asp,
 	&ett_nbp,
