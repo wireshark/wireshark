@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.91 2004/04/23 19:43:06 ulfl Exp $
+ * $Id: proto_draw.c,v 1.92 2004/04/28 20:56:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -964,6 +964,19 @@ savehex_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 #define N_PROGBAR_UPDATES	100
 
 
+/*
+ * XXX - at least in GTK+ 2.x, this is not fast - in one capture with a
+ * 64K-or-so reassembled HTTP reply, it takes about 3 seconds to construct
+ * the hex dump pane on a 1.4 GHz G4 PowerMac on OS X 10.3.3.  (That's
+ * presumably why there's a progress bar for it.)
+ *
+ * Perhaps what's needed is a custom widget (either one that lets you stuff
+ * text into it more quickly, or one that's a "virtual" widget so that the
+ * text for a row is constructed, via a callback, when the row is to be
+ * displayed).  A custom widget might also let us treat the offset, hex
+ * data, and ASCII data as three columns, so you can select purely in
+ * the hex dump column.
+ */
 #if GTK_MAJOR_VERSION < 2
 static void
 packet_hex_print_common(GtkText *bv, const guint8 *pd, int len, int bstart,
