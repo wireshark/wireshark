@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.110 2003/12/12 23:23:57 guy Exp $
+ * $Id: packet-dns.c,v 1.111 2003/12/17 08:34:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1755,6 +1755,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 		val_to_str(tkey_error, tsigerror_vals, "Unknown error (%x)")));
 
 	tkey_keylen = tvb_get_ntohs(tvb, cur_offset);
+        proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Key length: %u",
+            tkey_keylen);
 	cur_offset += 2;
 	rr_len -= 2;
 
@@ -1802,6 +1804,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offset, int dns_data_offset,
 	if (rr_len < 2)
 	  goto bad_rr;
 	tkey_otherlen = tvb_get_ntohs(tvb, cur_offset);
+        proto_tree_add_text(rr_tree, tvb, cur_offset, 2, "Other length: %u",
+            tkey_otherlen);
 	cur_offset += 2;
 	rr_len -= 2;
 
