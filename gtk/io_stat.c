@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.73 2004/03/13 15:15:24 ulfl Exp $
+ * $Id: io_stat.c,v 1.74 2004/04/17 01:01:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1519,7 +1519,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	if(gio->io->count_type==COUNT_TYPE_ADVANCED){
 		/* warn and bail out if there was no field specified */
 		if(field==NULL || field[0]==0){
-			simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "You did not specify a field name.");
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "You did not specify a field name.");
 			disable_graph(gio);
 			io_stat_redraw(gio->io);
 			return 0;
@@ -1527,7 +1527,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 		/* warn and bail out if the field could not be found */
 		hfi=proto_registrar_get_byname(field);
 		if(hfi==NULL){
-			simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "'%s' is not a valid field name.", field);
+			simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "'%s' is not a valid field name.", field);
 			disable_graph(gio);
 			io_stat_redraw(gio->io);
 			return 0;
@@ -1546,7 +1546,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 			/* these values support all calculations except LOAD */
 			switch(gio->calc_type){
 			case CALC_TYPE_LOAD:
-				simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				    "LOAD(*) is only supported for relative-time fields.");
 				disable_graph(gio);
 				io_stat_redraw(gio->io);
@@ -1564,7 +1564,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 			case CALC_TYPE_LOAD:
 				break;
 			default:
-				simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				    "%s is a relative-time field, so %s calculations are not supported on it.",
 				    field,
 				    calc_type_names[gio->calc_type]);
@@ -1580,7 +1580,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 			 * available?
 			 */
 			if(gio->calc_type!=CALC_TYPE_COUNT){
-				simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				    "%s is a 64-bit integer, so %s calculations are not supported on it.",
 				    field,
 				    calc_type_names[gio->calc_type]);
@@ -1595,7 +1595,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 			 * numbers?
 			 */
 			if(gio->calc_type!=CALC_TYPE_COUNT){
-				simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+				simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 				    "%s doesn't have integral values, so %s calculations are not supported on it.",
 				    field,
 				    calc_type_names[gio->calc_type]);
