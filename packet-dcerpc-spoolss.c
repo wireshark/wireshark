@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2002, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.68 2003/01/10 05:01:48 tpot Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.69 2003/01/10 05:41:29 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4102,6 +4102,7 @@ static int SpoolssEnumPrinterData_r(tvbuff_t *tvb, int offset,
 
 static gint ett_enumprinters_flags = -1;
 
+static int hf_enumprinters_flags = -1;
 static int hf_enumprinters_flags_local = -1;
 static int hf_enumprinters_flags_name = -1;
 static int hf_enumprinters_flags_shared = -1;
@@ -4115,7 +4116,7 @@ static int SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	dcerpc_info *di = (dcerpc_info *)pinfo->private_data;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
-	guint32 ptr, level, flags;
+	guint32 level, flags;
 	proto_tree *flags_subtree;
 	proto_item *flags_item;
 
@@ -4125,7 +4126,9 @@ static int SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	offset = prs_uint32(tvb, offset, pinfo, NULL, &flags, "Flags");
+        offset = dissect_ndr_uint32(
+                tvb, offset, pinfo, NULL, drep,
+                hf_enumprinters_flags, &flags);
 
 	flags_item = proto_tree_add_text(tree, tvb, offset - 4, 4,
 					 "Flags: 0x%08x", flags);
@@ -4161,19 +4164,20 @@ static int SpoolssEnumPrinters_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		flags_subtree, hf_enumprinters_flags_default, tvb,
 		offset - 4, 4, flags);
 
-	offset = prs_ptr(tvb, offset, pinfo, tree, &ptr, "Name");
+	offset = dissect_ndr_pointer(
+		tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"Server name", hf_spoolss_servername, 0);
 
-	if (ptr)
-		offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-						  prs_UNISTR2_dp, NULL, NULL);
-
-	offset = prs_uint32(tvb, offset, pinfo, tree, &level, "Level");
+        offset = dissect_ndr_uint32(
+                tvb, offset, pinfo, tree, drep,
+                hf_spoolss_level, &level);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", level, %d", level);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", level %d", level);
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-					  prs_BUFFER, NULL, NULL);
+	offset = dissect_spoolss_buffer(
+		tvb, offset, pinfo, tree, drep, NULL);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 				    hf_spoolss_offered, NULL);
@@ -4196,8 +4200,8 @@ static int SpoolssEnumPrinters_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* Parse packet */
 
-	offset = prs_struct_and_referents(tvb, offset, pinfo, tree,
-					  prs_BUFFER, NULL, NULL);
+	offset = dissect_spoolss_buffer(
+		tvb, offset, pinfo, tree, drep, NULL);
 
 	offset = dissect_ndr_uint32(
 		tvb, offset, pinfo, tree, drep, hf_spoolss_needed, NULL);
@@ -6484,10 +6488,10 @@ dissect_spoolss_keybuffer(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		 */
 		end_offset = tvb_reported_length_remaining(tvb, offset) + 1;
 	}
-	while (offset < end_offset) {
-		offset = prs_uint16uni(tvb, offset, pinfo, tree,
-				       NULL, "Key");
-	}
+
+	while (offset < end_offset)
+		offset = dissect_spoolss_uint16uni(
+			tvb, offset, pinfo, tree, drep, NULL, "Key");
 
 	return offset;
 }
@@ -6515,8 +6519,14 @@ static int SpoolssEnumPrinterKey_q(tvbuff_t *tvb, int offset,
 		tvb, offset, pinfo, tree, drep, hf_spoolss_printerdata_key,
 		&key_name);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", key_name);
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		char *kn = key_name;
+
+		if (!key_name[0])
+			kn = "\"\"";
+
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", kn);
+	}
 
 	g_free(key_name);
 
@@ -7743,6 +7753,10 @@ proto_register_dcerpc_spoolss(void)
 		    JOB_ACCESS_ADMINISTER, "Job admin", HFILL }},
 
 		/* Enumprinters */
+
+		{ &hf_enumprinters_flags,
+		  { "Flags", "spoolss.enumprinters.flags",
+		    FT_UINT32, BASE_HEX, NULL, 0, "Flags", HFILL }},
 
 		{ &hf_enumprinters_flags_local,
 		  { "Enum local", "spoolss.enumprinters.flags.enum_local",
