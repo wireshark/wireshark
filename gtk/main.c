@@ -1717,9 +1717,7 @@ main(int argc, char *argv[])
 		    console_log_handler, NULL);
 #endif
 
-#ifndef HAVE_LIBPCAP
-  capture_opts->capture_child = FALSE;
-#else
+#ifdef HAVE_LIBPCAP
   command_name = get_basename(ethereal_path);
   /* Set "capture_child" to indicate whether this is going to be a child
      process for a "-S" capture. */
@@ -2476,7 +2474,11 @@ main(int argc, char *argv[])
   rc_file = get_persconffile_path(RC_FILE, FALSE);
   gtk_rc_parse(rc_file);
 
+#ifdef HAVE_LIBPCAP
   font_init(capture_opts->capture_child);
+#else
+  font_init(FALSE);
+#endif
 
   /* close the splash screen, as we are going to open the main window now */
   splash_destroy(splash_win);
