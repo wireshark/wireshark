@@ -35,7 +35,7 @@
  ** are dissected as vendor specific fields.
  **
  ** $Yahoo: //depot/fumerola/packet-netflow/packet-netflow.c#14 $
- ** $Id: packet-netflow.c,v 1.8 2003/02/12 08:36:48 guy Exp $
+ ** $Id: packet-netflow.c,v 1.9 2003/03/04 03:37:12 guy Exp $
  */
 
 #ifdef HAVE_CONFIG_H
@@ -46,7 +46,12 @@
 #include <epan/packet.h>
 #include <string.h>
 
+#include "prefs.h"
+
 #define UDP_PORT_NETFLOW	2055
+
+static guint global_netflow_udp_port = UDP_PORT_NETFLOW;
+static guint netflow_udp_port = 0;
 
 /*
  * pdu identifiers & sizes 
@@ -106,6 +111,26 @@ static const value_string v8_agg[] = {
 	{0, NULL}
 };
 
+/* Version 9 template cache structures */
+#define V9TEMPLATE_MAX_ENTRIES		64
+#define V9TEMPLATE_CACHE_MAX_ENTRIES	100
+
+struct v9_template_entry {
+	guint16	type;
+	guint16	length;
+};
+
+struct v9_template {
+	guint16	id;
+	guint16	count;
+	guint32	length;
+	guint32 source_id;
+	guint32	source_addr;
+	struct v9_template_entry entries[V9TEMPLATE_MAX_ENTRIES];
+};
+
+static struct v9_template v9_template_cache[V9TEMPLATE_CACHE_MAX_ENTRIES];
+
 /*
  * ethereal tree identifiers
  */
@@ -115,6 +140,7 @@ static int      ett_netflow = -1;
 static int      ett_unixtime = -1;
 static int      ett_flow = -1;
 static int      ett_template = -1;
+static int      ett_dataflowset = -1;
 
 /*
  * cflow header 
@@ -155,15 +181,23 @@ static int	hf_cflow_template_field_length = -1;
  * pdu storage
  */
 static int      hf_cflow_srcaddr = -1;
+static int      hf_cflow_srcaddr_v6 = -1;
 static int      hf_cflow_srcnet = -1;
 static int      hf_cflow_dstaddr = -1;
+static int      hf_cflow_dstaddr_v6 = -1;
 static int      hf_cflow_dstnet = -1;
 static int      hf_cflow_nexthop = -1;
+static int      hf_cflow_nexthop_v6 = -1;
+static int      hf_cflow_bgpnexthop = -1;
+static int      hf_cflow_bgpnexthop_v6 = -1;
 static int      hf_cflow_inputint = -1;
 static int      hf_cflow_outputint = -1;
 static int      hf_cflow_flows = -1;
 static int      hf_cflow_packets = -1;
+static int      hf_cflow_packets64 = -1;
+static int      hf_cflow_packetsout = -1;
 static int      hf_cflow_octets = -1;
+static int      hf_cflow_octets64 = -1;
 static int      hf_cflow_timestart = -1;
 static int      hf_cflow_timeend = -1;
 static int      hf_cflow_srcport = -1;
@@ -177,6 +211,13 @@ static int      hf_cflow_srcas = -1;
 static int      hf_cflow_dstmask = -1;
 static int      hf_cflow_srcmask = -1;
 static int      hf_cflow_routersc = -1;
+static int      hf_cflow_mulpackets = -1;
+static int      hf_cflow_muloctets = -1;
+static int      hf_cflow_octets_exp = -1;
+static int      hf_cflow_packets_exp = -1;
+static int      hf_cflow_flows_exp = -1;
+
+void		proto_reg_handoff_netflow(void);
 
 typedef int     dissect_pdu_t(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 			      int verspec);
@@ -186,17 +227,21 @@ static int      dissect_v8_aggpdu(proto_tree * pdutree, tvbuff_t * tvb,
 				  int offset, int verspec);
 static int      dissect_v8_flowpdu(proto_tree * pdutree, tvbuff_t * tvb,
 				   int offset, int verspec);
-static int	dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb,
-			       int offset, int verspec);
-#if 0
+static int	dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb,
+				   int offset, int verspec);
 static int	dissect_v9_data(proto_tree * pdutree, tvbuff_t * tvb,
-			       int offset);
+			       int offset, guint16 id, int length);
+static void	dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb,
+			       int offset, struct v9_template * template);
+#if 0
 static int	dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb,
 			       int offset);
 #endif
 static int	dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb,
-			       int offset);
-static gchar   *v9_template_type_to_string(guint16 type);
+				    int offset);
+static void	v9_template_add(struct v9_template * template);
+static struct v9_template *v9_template_get(guint16 id, guint32 src_addr,
+					   guint32 src_id);
 
 static gchar   *getprefix(const guint32 * address, int prefix);
 static void     dissect_netflow(tvbuff_t * tvb, packet_info * pinfo,
@@ -261,7 +306,7 @@ dissect_netflow(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		break;
 	case 9:
 		pdusize = -1;	/* deferred */
-		pduptr = &dissect_v9_pdu;
+		pduptr = &dissect_v9_flowset;
 		break;
 	default:
 		return;
@@ -732,12 +777,13 @@ dissect_v8_aggpdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
 	return (offset - startoffset);
 }
 
-/* Dissect a version 9 PDU and return the length of the PDU we processed. */
+/* Dissect a version 9 FlowSet and return the length we processed. */
 
 static int
-dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset, int ver)
+dissect_v9_flowset(proto_tree * pdutree, tvbuff_t * tvb, int offset, int ver)
 {
-	guint16	flowset_id, length;
+	int length;
+	guint16	flowset_id;
 
 	if (ver != 9)
 		return (0);
@@ -788,19 +834,280 @@ dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset, int ver)
 		    offset, 2, FALSE);
 		offset += 2;
 
-		/* dissect_v9_data(pdutree, tvb, offset) */
+		dissect_v9_data(pdutree, tvb, offset, flowset_id, length);
 	}
 
 	return (length);
 }
 
-#if 0
 static int
-dissect_v9_data(proto_tree * pdutree, tvbuff_t * tvb, int offset)
+dissect_v9_data(proto_tree * pdutree, tvbuff_t * tvb, int offset,
+    guint16 id, int length)
 {
+	struct v9_template *template;
+	proto_tree *data_tree;
+	proto_item *data_item;
+
+	template = v9_template_get(id, 0, 0);
+	if (template != NULL && template->length > 0) {
+		int count;
+
+		count = 1;
+		while (length > 0) {
+			int available_length;
+
+			available_length = tvb_length(tvb) - offset;
+			if (available_length < template->length) {
+				break;
+			}
+
+			data_item = proto_tree_add_text(pdutree, tvb,
+			    offset, template->length, "pdu %d", count++);
+			data_tree = proto_item_add_subtree(data_item,
+			    ett_dataflowset);
+
+			dissect_v9_pdu(data_tree, tvb, offset, template);
+
+			offset += template->length;
+			length -= template->length;
+		}
+	}
+
 	return (0);
 }
 
+static void
+dissect_v9_pdu(proto_tree * pdutree, tvbuff_t * tvb, int offset,
+    struct v9_template * template)
+{
+	int i;
+
+	for (i = 0; i < template->count; i++) {
+		guint32	ipv4addr;
+		guint8	ipv6addr[16];
+		guint16 type, length;
+		nstime_t ts;
+
+		type = template->entries[i].type;
+		length = template->entries[i].length;
+
+		switch (type) {
+		case 1: /* bytes */
+			if (length == 4) {
+				proto_tree_add_item(pdutree, hf_cflow_octets,
+				    tvb, offset, length, FALSE);
+			} else if (length == 8) {
+				proto_tree_add_item(pdutree, hf_cflow_octets64,
+				    tvb, offset, length, FALSE);
+			} else {
+				proto_tree_add_text(pdutree,
+				    tvb, offset, length,
+				    "Octets: length %u", length);
+			}
+			break;
+
+		case 2: /* packets */
+			if (length == 4) {
+				proto_tree_add_item(pdutree, hf_cflow_packets,
+				    tvb, offset, length, FALSE);
+			} else if (length == 8) {
+				proto_tree_add_item(pdutree, hf_cflow_packets64,
+				    tvb, offset, length, FALSE);
+			} else {
+				proto_tree_add_text(pdutree,
+				    tvb, offset, length,
+				    "Packets: length %u", length);
+			}
+			break;
+
+		case 3: /* flows */
+			if (length == 4) {
+				proto_tree_add_item(pdutree, hf_cflow_flows,
+				    tvb, offset, length, FALSE);
+			} else {
+				proto_tree_add_text(pdutree,
+				    tvb, offset, length,
+				    "Flows: length %u", length);
+			}
+			break;
+
+		case 4: /* proto */
+			proto_tree_add_item(pdutree, hf_cflow_prot,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 5: /* TOS */
+			proto_tree_add_item(pdutree, hf_cflow_tos,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 6: /* TCP flags */
+			proto_tree_add_item(pdutree, hf_cflow_tcpflags,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 7: /* source port */
+			proto_tree_add_item(pdutree, hf_cflow_srcport,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 8: /* source IP */
+			if (length == 4) {
+				tvb_memcpy(tvb, (guint8 *)&ipv4addr, offset,
+				    sizeof(ipv4addr));
+				proto_tree_add_ipv4(pdutree, hf_cflow_srcaddr,
+				    tvb, offset, length, ipv4addr);
+			} else if (length == 16) {
+				tvb_memcpy(tvb, ipv6addr, offset,
+				    sizeof(ipv6addr));
+				proto_tree_add_ipv6(pdutree, hf_cflow_srcaddr_v6,
+				    tvb, offset, length, ipv6addr);
+			} else {
+				proto_tree_add_text(pdutree,
+				    tvb, offset, length,
+				    "SrcAddr: length %u", length);
+			}
+			break;
+
+		case 9: /* source mask */
+			proto_tree_add_item(pdutree, hf_cflow_srcmask,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 10: /* input SNMP */
+			proto_tree_add_item(pdutree, hf_cflow_inputint,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 11: /* dest port */
+			proto_tree_add_item(pdutree, hf_cflow_dstport,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 12: /* dest IP */
+			if (length == 4) {
+				tvb_memcpy(tvb, (guint8 *)&ipv4addr, offset,
+				    sizeof(ipv4addr));
+				proto_tree_add_ipv4(pdutree, hf_cflow_dstaddr,
+				    tvb, offset, length, ipv4addr);
+			} else if (length == 16) {
+				tvb_memcpy(tvb, ipv6addr, offset,
+				    sizeof(ipv6addr));
+				proto_tree_add_ipv6(pdutree, hf_cflow_dstaddr_v6,
+				    tvb, offset, length, ipv6addr);
+			} else {
+				proto_tree_add_text(pdutree,
+				    tvb, offset, length,
+				    "DstAddr: length %u", length);
+			}
+			break;
+
+		case 13: /* dest mask */
+			proto_tree_add_item(pdutree, hf_cflow_dstmask,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 14: /* output SNMP */
+			proto_tree_add_item(pdutree, hf_cflow_outputint,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 15: /* nexthop IP */
+			if (length == 4) {
+				tvb_memcpy(tvb, (guint8 *)&ipv4addr, offset,
+				    sizeof(ipv4addr));
+				proto_tree_add_ipv4(pdutree, hf_cflow_nexthop,
+				    tvb, offset, length, ipv4addr);
+			} else if (length == 16) {
+				tvb_memcpy(tvb, ipv6addr, offset,
+				    sizeof(ipv6addr));
+				proto_tree_add_ipv6(pdutree, hf_cflow_nexthop_v6,
+				    tvb, offset, length, ipv6addr);
+			} else {
+				proto_tree_add_text(pdutree,
+				    tvb, offset, length,
+				    "NextHop: length %u", length);
+			}
+			break;
+
+		case 16: /* source AS */
+			proto_tree_add_item(pdutree, hf_cflow_srcas,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 17: /* dest AS */
+			proto_tree_add_item(pdutree, hf_cflow_dstas,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 18: /* BGP nexthop IP */
+			if (length == 4) {
+				tvb_memcpy(tvb, (guint8 *)&ipv4addr, offset,
+				    sizeof(ipv4addr));
+				proto_tree_add_ipv4(pdutree, hf_cflow_bgpnexthop,
+				    tvb, offset, length, ipv4addr);
+			} else if (length == 16) {
+				tvb_memcpy(tvb, ipv6addr, offset,
+				    sizeof(ipv6addr));
+				proto_tree_add_ipv6(pdutree, hf_cflow_bgpnexthop_v6,
+				    tvb, offset, length, ipv6addr);
+			} else {
+				proto_tree_add_text(pdutree,
+				    tvb, offset, length,
+				    "BGPNextHop: length %u", length);
+			}
+			break;
+
+		case 19: /* multicast packets */
+			proto_tree_add_item(pdutree, hf_cflow_mulpackets,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 20: /* multicast octets */
+			proto_tree_add_item(pdutree, hf_cflow_muloctets,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 21: /* last switched */
+			ts.secs = tvb_get_ntohl(tvb, offset) / 1000;
+			ts.nsecs = 0;
+			proto_tree_add_time(pdutree, hf_cflow_timeend,
+			    tvb, offset, length, &ts);
+			break;
+
+		case 22: /* first switched */
+			ts.secs = tvb_get_ntohl(tvb, offset) / 1000;
+			ts.nsecs = 0;
+			proto_tree_add_time(pdutree, hf_cflow_timestart,
+			    tvb, offset, length, &ts);
+			break;
+
+		case 40: /* bytes exported */
+			proto_tree_add_item(pdutree, hf_cflow_octets_exp,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 41: /* packets exported */
+			proto_tree_add_item(pdutree, hf_cflow_packets_exp,
+			    tvb, offset, length, FALSE);
+			break;
+
+		case 42: /* flows exported */
+			proto_tree_add_item(pdutree, hf_cflow_flows_exp,
+			    tvb, offset, length, FALSE);
+			break;
+
+		default:
+			proto_tree_add_text(pdutree, tvb, offset, length,
+			    "Type %u", type);
+			break;
+		}
+
+		offset += length;
+	}
+}
+
+#if 0
 static int
 dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset)
 {
@@ -811,11 +1118,13 @@ dissect_v9_options(proto_tree * pdutree, tvbuff_t * tvb, int offset)
 static int
 dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset)
 {
+	struct v9_template template;
 	proto_tree *template_tree;
 	proto_item *template_item;
-	guint16 count;
+	guint16 id, count;
 	gint32 i;
 
+	id = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(pdutree, hf_cflow_template_id, tvb,
 	    offset, 2, FALSE);
 	offset += 2;
@@ -825,6 +1134,16 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset)
 	    offset, 2, FALSE);
 	offset += 2;
 
+	/* Cache template */
+	memset(&template, 0, sizeof(template));
+	template.id = id;
+	template.count = count;
+	template.source_addr = 0;	/* XXX */
+	template.source_id = 0;		/* XXX */
+	tvb_memcpy(tvb, (guint8 *)template.entries, offset,
+	    count * sizeof(struct v9_template_entry));
+	v9_template_add(&template);
+
 	for (i = 1; i <= count; i++) {
 		guint16 type, length;
 
@@ -832,8 +1151,7 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset)
 		length = tvb_get_ntohs(tvb, offset + 2);
 
 		template_item = proto_tree_add_text(pdutree, tvb,
-		    offset, 4, "Field (%u/%u) %s", i, count,
-		    v9_template_type_to_string(type));
+		    offset, 4, "Field (%u/%u)", i, count);
 		template_tree = proto_item_add_subtree(template_item, ett_template);
 
 		proto_tree_add_item(template_tree,
@@ -848,12 +1166,7 @@ dissect_v9_template(proto_tree * pdutree, tvbuff_t * tvb, int offset)
 	return (0);
 }
 
-struct _v9_template_type {
-	guint16	type;
-	gchar	*name;
-};
-
-static struct _v9_template_type v9_template_types[] = {
+static value_string v9_template_types[] = {
 	{ 1, "BYTES" },
 	{ 2, "PKTS" },
 	{ 3, "FLOWS" },
@@ -880,20 +1193,41 @@ static struct _v9_template_type v9_template_types[] = {
 	{ 40, "TOTAL_BYTES_EXP" },
 	{ 41, "TOTAL_PKTS_EXP" },
 	{ 42, "TOTAL_FLOWS_EXP" },
-	{ 0, "UNKNOWN" }
+	{ 0, NULL },
 };
 
-static gchar *
-v9_template_type_to_string(guint16 type)
+static void
+v9_template_add(struct v9_template *template)
 {
-	struct _v9_template_type *p;
+	int i;
 
-	for (p = v9_template_types; p->type != 0; p++) {
-		if (type == p->type)
-			break;
+	/* Add up the actual length of the data and store in proper byte order */
+	template->length = 0;
+	for (i = 0; i < template->count; i++) {
+		template->entries[i].type = g_ntohs(template->entries[i].type);
+		template->entries[i].length = g_ntohs(template->entries[i].length);
+		template->length += template->entries[i].length;
 	}
 
-	return (p->name);
+	memmove(&v9_template_cache[template->id % V9TEMPLATE_CACHE_MAX_ENTRIES],
+	    template, sizeof(*template));
+}
+
+static struct v9_template *
+v9_template_get(guint16 id, guint32 src_addr, guint32 src_id)
+{
+	struct v9_template *template;
+
+	src_addr = 0;
+	template = &v9_template_cache[id % V9TEMPLATE_CACHE_MAX_ENTRIES];
+
+	if (template->id != id ||
+	    template->source_addr != src_addr ||
+	    template->source_id != src_id) {
+		template = NULL;
+	}
+
+	return (template);
 }
 
 /*
@@ -1135,7 +1469,7 @@ proto_register_netflow(void)
 		 },
 		{&hf_cflow_template_field_type,
 		 {"Type", "cflow.template_field_type",
-		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  FT_UINT16, BASE_DEC, VALS(v9_template_types), 0x0,
 		  "Template field type", HFILL}
 		 },
 		{&hf_cflow_template_field_length,
@@ -1151,6 +1485,11 @@ proto_register_netflow(void)
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
 		  "Flow Source Address", HFILL}
 		 },
+		{&hf_cflow_srcaddr_v6,
+		 {"SrcAddr", "cflow.srcaddrv6",
+		  FT_IPv6, BASE_NONE, NULL, 0x0,
+		  "Flow Source Address", HFILL}
+		 },
 		{&hf_cflow_srcnet,
 		 {"SrcNet", "cflow.srcnet",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
@@ -1159,6 +1498,11 @@ proto_register_netflow(void)
 		{&hf_cflow_dstaddr,
 		 {"DstAddr", "cflow.dstaddr",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		  "Flow Destination Address", HFILL}
+		 },
+		{&hf_cflow_dstaddr_v6,
+		 {"DstAddr", "cflow.dstaddrv6",
+		  FT_IPv6, BASE_NONE, NULL, 0x0,
 		  "Flow Destination Address", HFILL}
 		 },
 		{&hf_cflow_dstnet,
@@ -1170,6 +1514,21 @@ proto_register_netflow(void)
 		 {"NextHop", "cflow.nexthop",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
 		  "Router nexthop", HFILL}
+		 },
+		{&hf_cflow_nexthop_v6,
+		 {"NextHop", "cflow.nexthopv6",
+		  FT_IPv6, BASE_NONE, NULL, 0x0,
+		  "Router nexthop", HFILL}
+		 },
+		{&hf_cflow_bgpnexthop,
+		 {"BGPNextHop", "cflow.bgpnexthop",
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		  "BGP Router Nexthop", HFILL}
+		 },
+		{&hf_cflow_bgpnexthop_v6,
+		 {"BGPNextHop", "cflow.bgpnexthopv6",
+		  FT_IPv6, BASE_NONE, NULL, 0x0,
+		  "BGP Router Nexthop", HFILL}
 		 },
 		{&hf_cflow_inputint,
 		 {"InputInt", "cflow.inputint",
@@ -1191,9 +1550,24 @@ proto_register_netflow(void)
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
 		  "Count of packets", HFILL}
 		 },
+		{&hf_cflow_packets64,
+		 {"Packets", "cflow.packets64",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  "Count of packets", HFILL}
+		 },
+		{&hf_cflow_packetsout,
+		 {"PacketsOut", "cflow.packetsout",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  "Count of packets going out", HFILL}
+		 },
 		{&hf_cflow_octets,
 		 {"Octets", "cflow.octets",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Count of bytes", HFILL}
+		 },
+		{&hf_cflow_octets64,
+		 {"Octets", "cflow.octets64",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
 		  "Count of bytes", HFILL}
 		 },
 		{&hf_cflow_timestart,
@@ -1260,6 +1634,31 @@ proto_register_netflow(void)
 		 {"Router Shortcut", "cflow.routersc",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
 		  "Router shortcut by switch", HFILL}
+		 },
+		{&hf_cflow_mulpackets,
+		 {"MulticastPackets", "cflow.mulpackets",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Count of multicast packets", HFILL}
+		 },
+		{&hf_cflow_muloctets,
+		 {"MulticastOctets", "cflow.muloctets",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Count of multicast octets", HFILL}
+		 },
+		{&hf_cflow_octets_exp,
+		 {"OctetsExp", "cflow.octetsexp",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Octets exported", HFILL}
+		 },
+		{&hf_cflow_packets_exp,
+		 {"PacketsExp", "cflow.packetsexp",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Packets exported", HFILL}
+		 },
+		{&hf_cflow_flows_exp,
+		 {"FlowsExp", "cflow.flowsexp",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Flows exported", HFILL}
 		 }
 		/*
 		 * end pdu content storage 
@@ -1270,14 +1669,25 @@ proto_register_netflow(void)
 		&ett_netflow,
 		&ett_unixtime,
 		&ett_flow,
-		&ett_template
+		&ett_template,
+		&ett_dataflowset
 	};
+
+	module_t *netflow_module;
 
 	proto_netflow = proto_register_protocol("Cisco NetFlow", "CFLOW",
 						"cflow");
 
 	proto_register_field_array(proto_netflow, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* Register our configuration options for NetFlow */
+	netflow_module = prefs_register_protocol(proto_netflow,
+	    proto_reg_handoff_netflow);
+
+	prefs_register_uint_preference(netflow_module, "udp.port",
+	    "NetFlow UDP Port", "Set the port for NetFlow messages",
+	    10, &global_netflow_udp_port);
 
 	register_dissector("cflow", dissect_netflow, proto_netflow);
 }
@@ -1289,9 +1699,19 @@ proto_register_netflow(void)
 void
 proto_reg_handoff_netflow(void)
 {
-	dissector_handle_t netflow_handle;
+	static int netflow_prefs_initialized = FALSE;
+	static dissector_handle_t netflow_handle;
 
-	netflow_handle = create_dissector_handle(dissect_netflow,
-						 proto_netflow);
-	dissector_add("udp.port", UDP_PORT_NETFLOW, netflow_handle);
+	if (!netflow_prefs_initialized) {
+		netflow_handle = create_dissector_handle(dissect_netflow,
+		    proto_netflow);
+		netflow_prefs_initialized = TRUE;
+	} else {
+		dissector_delete("udp.port", netflow_udp_port, netflow_handle);
+	}
+
+	/* Set out port number for future use */
+	netflow_udp_port = global_netflow_udp_port;
+
+	dissector_add("udp.port", netflow_udp_port, netflow_handle);
 }
