@@ -1,0 +1,245 @@
+<?xml version="1.0"?>
+<dialog
+  id="capture-info-dialog"
+  title="Ethereal: Capture"
+  >
+
+  <vbox id="debug-element">
+    <groupbox orient="vertical">
+      <caption>Captured Packets</caption>
+
+      <hbox>
+        <description>Total: </description>
+        <description id="capture-count-total" flex="1">0</description>
+      </hbox>
+
+      <hbox>
+        <description>Running: </description>
+        <description id="capture-run-time" flex="1">Unknown</description>
+      </hbox>
+
+      <grid> <!-- Protocol-specific counts -->
+        <columns>
+          <column/>           <!-- Protocol name -->
+          <column/>           <!-- Count -->
+          <column flex="1" /> <!-- Progress meter -->
+          <column/>           <!-- Percentage -->
+        </columns>
+
+        <rows>
+          <row>
+            <description flex="1">SCTP: </description>
+            <description 
+              id="capture-sctp-count" 
+              flex="1"
+              style="text-align: right;"
+            >
+              0000
+            </description>
+            <progressmeter id="capture-sctp-progress" />
+            <description
+              id="capture-sctp-percent"
+              flex="1"
+              style="text-align: right;"
+            >
+              000.0%
+            </description>
+          </row>
+
+          <row>
+            <description>TCP: </description>
+            <description
+              id="capture-tcp-count"
+              flex="1"
+              style="text-align: right;"
+            >
+              0
+            </description>
+            <progressmeter id="capture-tcp-progress" />
+            <description
+              id="capture-tcp-percent"
+              style="text-align: right;"
+            >
+              0.0%
+            </description>
+          </row>
+
+          <row>
+            <description>UDP: </description>
+            <description
+              id="capture-udp-count"
+              flex="1"
+              style="text-align: right;"
+            >
+              0
+            </description>
+            <progressmeter id="capture-udp-progress" />
+            <description
+              id="capture-udp-percent"
+              style="text-align: right;"
+            >
+              0.0%
+            </description>
+          </row>
+
+          <row>
+            <description>ICMP: </description>
+            <description
+              id="capture-icmp-count"
+              flex="1"
+              style="text-align: right;"
+            >
+              0
+            </description>
+            <progressmeter id="capture-icmp-progress" />
+            <description
+              id="capture-icmp-percent"
+              style="text-align: right;"
+            >
+              0.0%
+            </description>
+          </row>
+
+          <row>
+            <description>ARP: </description>
+            <description
+              id="capture-arp-count"
+              flex="1"
+              style="text-align: right;"
+            >
+              0
+            </description>
+            <progressmeter id="capture-arp-progress" />
+            <description
+              id="capture-arp-percent"
+              style="text-align: right;"
+            >
+              0.0%
+            </description>
+          </row>
+
+          <row>
+            <description>OSPF: </description>
+            <description
+              id="capture-ospf-count"
+              flex="1"
+              style="text-align: right;"
+            >
+              0
+            </description>
+            <progressmeter id="capture-ospf-progress" />
+            <description
+              id="capture-ospf-percent"
+              style="text-align: right;"
+            >
+              0.0%
+            </description>
+          </row>
+
+          <row>
+            <description>GRE: </description>
+            <description
+              id="capture-gre-count"
+              flex="1"
+              style="text-align: right;"
+            >
+              0
+            </description>
+            <progressmeter id="capture-gre-progress" />
+            <description
+              id="capture-gre-percent"
+              style="text-align: right;"
+            >
+              0.0%
+            </description>
+          </row>
+
+          <row>
+            <description>NetBIOS: </description>
+            <description
+              id="capture-netbios-count"
+              flex="1"
+              style="text-align: right;"
+            >
+              0
+            </description>
+            <progressmeter id="capture-netbios-progress" />
+            <description
+              id="capture-netbios-percent"
+              style="text-align: right;"
+            >
+              0.0%
+            </description>
+          </row>
+
+          <row>
+            <description>IPX: </description>
+            <description
+              id="capture-ipx-count"
+              flex="1"
+              style="text-align: right;"
+            >
+              0
+            </description>
+            <progressmeter id="capture-ipx-progress" />
+            <description
+              id="capture-ipx-percent"
+              style="text-align: right;"
+            >
+              0.0%
+            </description>
+          </row>
+
+          <row>
+            <description>VINES: </description>
+            <description
+              id="capture-vines-count"
+              flex="1"
+              style="text-align: right;"
+            >
+              0
+            </description>
+            <progressmeter id="capture-vines-progress" />
+            <description
+              id="capture-vines-percent"
+              style="text-align: right;"
+            >
+              0.0%
+            </description>
+          </row>
+
+          <row>
+            <description>Other: </description>
+            <description
+              id="capture-other-count"
+              flex="1"
+              style="text-align: right;"
+            >
+              0
+            </description>
+            <progressmeter id="capture-other-progress" />
+            <description
+              id="capture-other-percent"
+              style="text-align: right;"
+            >
+              0.0%
+            </description>
+          </row>
+
+        </rows>
+      </grid>
+    </groupbox>
+
+    <hbox>
+      <spacer flex="1" />
+      <button
+        id="capture-info-stop"
+        label="Stop"
+        default="True"
+        oncommand="capture_info_dialog_stop_capture"
+       />
+      <spacer flex="1" />
+    </hbox>
+
+  </vbox>
+</dialog>

@@ -38,6 +38,7 @@ BUILT_SOURCES =	$(BUILT_SOURCES) \
 
 ethereal_OBJECTS = $(ethereal_SOURCES:.c=.obj)
 tethereal_OBJECTS = $(tethereal_SOURCES:.c=.obj)
+wethereal_OBJECTS = $(wethereal_SOURCES:.c=.obj)
 dftest_OBJECTS = $(dftest_SOURCES:.c=.obj)
 
 randpkt_OBJECTS = $(randpkt_SOURCES:.c=.obj)
@@ -65,6 +66,21 @@ ethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 
 tethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	wsock32.lib user32.lib \
+	$(GLIB_LIBS) \
+	$(NET_SNMP_DIR)\win32\lib\netsnmp.lib \
+!IFDEF ENABLE_LIBETHEREAL
+	epan\libethereal.lib \
+!ELSE
+	epan\dissectors\dissectors.lib \
+	epan\ethereal.lib \
+	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
+	$(ADNS_LIBS) \
+	$(PCRE_LIBS) \
+	$(ZLIB_LIBS)
+!ENDIF
+
+wethereal_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
+	wsock32.lib user32.lib comctl32.lib \
 	$(GLIB_LIBS) \
 	$(NET_SNMP_DIR)\win32\lib\netsnmp.lib \
 !IFDEF ENABLE_LIBETHEREAL
@@ -106,9 +122,11 @@ randpkt_LIBS= wiretap\wiretap-$(WTAP_VERSION).lib \
 	$(GLIB_LIBS) \
 	$(NET_SNMP_DIR)\win32\lib\netsnmp.lib
 
-EXECUTABLES=ethereal.exe ethereal-gtk2.exe tethereal.exe editcap.exe mergecap.exe text2pcap.exe
+EXECUTABLES=ethereal.exe ethereal-gtk2.exe tethereal.exe wethereal.exe editcap.exe mergecap.exe text2pcap.exe
 
 RESOURCES=image\ethereal.res image\libethereal.res image\tethereal.res image\editcap.res image\mergecap.res image\text2pcap.res image\wiretap.res
+
+wethereal_RESOURCES=xulender\win32-c-sdk\win32-main.res
 
 all: config.h tools image wiretap epan $(EXECUTABLES) $(RESOURCES) doc
 
@@ -133,7 +151,11 @@ separate_packaging: all
 
 $(RESOURCES): image
 
+$(wethereal_RESOURCES): xulender\win32-c-sdk
+
 wiretap\wiretap-$(WTAP_VERSION).lib: wiretap
+
+xulender\win32-c-sdk\win32-c-sdk.lib: xulender\win32-c-sdk
 
 !IFNDEF GTK1_DIR
 ethereal.exe	: 
@@ -159,6 +181,12 @@ tethereal.exe	: config.h svnversion.h $(tethereal_OBJECTS) $(EXTRA_OBJECTS) epan
 	@echo Linking $@
 	$(LINK) @<<
 		/OUT:tethereal.exe $(conflags) $(conlibsdll) $(LDFLAGS) /SUBSYSTEM:console $(tethereal_LIBS) $(tethereal_OBJECTS) $(EXTRA_OBJECTS) image\tethereal.res
+<<
+
+wethereal.exe	: config.h svnversion.h $(wethereal_OBJECTS) $(EXTRA_OBJECTS) epan xulender\win32-c-sdk $(wethereal_RESOURCES) wiretap\wiretap-$(WTAP_VERSION).lib xulender\win32-c-sdk\win32-c-sdk.lib plugins
+	@echo Linking $@
+	$(LINK) @<<
+		/OUT:wethereal.exe $(guiflags) $(guilibsdll) $(LDFLAGS) /SUBSYSTEM:windows $(wethereal_LIBS) xulender\win32-c-sdk\win32-c-sdk.lib $(wethereal_OBJECTS) $(EXTRA_OBJECTS) $(wethereal_RESOURCES)
 <<
 
 editcap.exe	: config.h editcap.obj getopt.obj wiretap\wiretap-$(WTAP_VERSION).lib image\editcap.res
@@ -270,6 +298,8 @@ clean: gtk2_distclean
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../packaging/nsis
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../../xulender/win32-c-sdk
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../..
 
 # Call distclean only, if you would like to remove ALL generated files.
@@ -294,6 +324,8 @@ distclean: clean gtk2_distclean
 	cd ../help
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../packaging/nsis
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../../xulender/win32-c-sdk
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../..
 
@@ -335,6 +367,12 @@ plugins::
 	cd plugins
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
+
+# XXX - Go to ui instead of leapfrogging over it.
+xulender/win32-c-sdk::
+	cd xulender/win32-c-sdk
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ../..
 
 doc::
 	cd doc

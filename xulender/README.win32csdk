@@ -1,0 +1,33 @@
+Overall architecture
+
+The win32csdk.py module generates native Windows interface code using
+the Win32 C SDK.  XUL elements are implemented using common controls,
+custom controls, and plain windows.  
+
+
+Bugs/Caveats
+
+- Markup in <description> text isn't handled at all.
+
+
+To do:
+
+- Is it the responsibility of each element to set its min/normal/max width
+  and height?  It would seem so.
+
+- We treat dialogs as normal windows.  That is, we don't use CreateDialog(),
+  nor do we use the normal dialog event/lifecycle mechanism.
+  Instead we use CreateWindow() and try to fake it as best we can.  We may
+  want to switch to using normal Windows dialogs at some point.  This means
+  that for each element we'd have to have "window" code and "dialog template"
+  code.  That just seems messy.
+
+- Some of our element constructors return HWNDs and some return
+  win32_element_t *'s.  We should standardize on the latter.
+
+- Once in a while, clicking in the packet list causes a crash for
+  some reason.  The MS debugger doesn't give much helpful information
+  when this happens.
+
+- Function names and parameters need to be normalized, e.g.
+  win32_menulist_get_selection() vs win32_listbox_set_selected().

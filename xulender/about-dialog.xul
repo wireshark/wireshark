@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<dialog
+  id="about-dialog"
+  title="About Ethereal"
+  width="250"
+  height="100"
+  >
+
+  <vbox
+    id="about-dlg.vbox"
+    >
+    <hbox>
+
+      <spacer flex="1" />
+      <button
+        id="about-ok"
+        label="OK"
+        default="True"
+        oncommand="about_dialog_hide"
+       />
+
+    </hbox>
+  </vbox>
+</dialog>

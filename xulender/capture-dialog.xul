@@ -1,0 +1,223 @@
+<?xml version="1.0"?>
+<dialog
+  id="capture-dialog"
+  title="Capture Options"
+  >
+
+  <vbox>
+    <groupbox>
+      <caption>Capture</caption>
+      <hbox>
+        <description>Interface:</description>
+        <ethereal:combobox id="capture-dialog.interface-combo" flex="1" />
+      </hbox>
+      <hbox>
+        <description>Link-layer header type:</description>
+        <description>Buffer size:</description>
+        <ethereal:spinner id="capture-dialog.buffer-size" />
+        <description>megabyte(s)</description>
+      </hbox>
+      <checkbox
+        id="capture-dialog.promiscuous"
+        label="Capture packets in promiscuous mode"
+      />
+      <hbox>
+        <checkbox
+          id="capture-dialog.packet-size-cb"
+          label="Limit each packet to"
+          oncommand="capture_dialog_limit_packet_size"
+        />
+        <ethereal:spinner id="capture-dialog.packet-size-spinner" />
+        <description>bytes</description>
+      </hbox>
+      <hbox>
+        <button
+          label="Capture Filter:"
+        />
+        <textbox id="capture-dialog.capture-filter" flex="1" />
+      </hbox>
+    </groupbox>
+
+    <hbox>
+      <vbox>
+        <groupbox>
+          <caption>Capture File(s)</caption>
+          <hbox>
+	    <description>File:</description>
+            <textbox id="capture-dialog.save-file" flex="1" />
+            <button
+              label="..."
+             />
+          </hbox>
+          <checkbox
+            id="capture-dialog.use-multiple-files"
+            label="Use multiple files"
+            oncommand="capture_dialog_adjust_sensitivity"
+          />
+          <grid>
+            <columns>
+              <column/>
+              <column/>
+              <column/>
+            </columns>
+
+            <rows>
+              <row>
+                <checkbox
+                  id="capture-dialog.next-file-every-size-cb"
+                  label="Next file every"
+                  oncommand="capture_dialog_adjust_sensitivity"
+                />
+                <ethereal:spinner id="capture-dialog.next-file-every-size-spinner" />
+                <menulist id="capture-dialog.next-file-every-size-ml">
+                  <menupopup>
+                    <menuitem label="byte(s)" />
+                    <menuitem label="kilobyte(s)" />
+                    <menuitem label="megabyte(s)" selected="true" />
+                    <menuitem label="gigabyte(s)" />
+                  </menupopup>
+                </menulist>
+              </row>
+              <row>
+                <checkbox
+                  id="capture-dialog.next-file-every-time-cb"
+                  label="Next file every"
+                  oncommand="capture_dialog_adjust_sensitivity"
+                />
+                <ethereal:spinner id="capture-dialog.next-file-every-time-spinner" />
+                <menulist id="capture-dialog.next-file-every-time-ml">
+                  <menupopup>
+                    <menuitem label="second(s)" />
+                    <menuitem label="minute(s)" selected="true" />
+                    <menuitem label="hour(s)" />
+                    <menuitem label="day(s)" />
+                  </menupopup>
+                </menulist>
+              </row>
+              <row>
+                <checkbox
+                  id="capture-dialog.ring-buffer-with-cb"
+                  label="Ring buffer with"
+                  oncommand="capture_dialog_adjust_sensitivity"
+                />
+                <ethereal:spinner id="capture-dialog.ring-buffer-with-spinner" />
+                <description id="capture-dialog.ring-buffer-with-descr">
+                  Files
+                </description>
+              </row>
+              <row>
+                <checkbox
+                  id="capture-dialog.stop-capture-after-cb"
+                  label="Stop capture after"
+                  oncommand="capture_dialog_adjust_sensitivity"
+                />
+                <ethereal:spinner id="capture-dialog.stop-capture-after-spinner" />
+                <description id="capture-dialog.stop-capture-after-descr">
+                  File(s)
+                </description>
+              </row>
+            </rows>
+          </grid>
+        </groupbox>
+        <groupbox>
+          <caption>Stop Capture ...</caption>
+          <hbox>
+            <checkbox
+              id="capture-dialog.stop-after-packets-cb"
+              label="... after"
+              oncommand="capture_dialog_adjust_sensitivity"
+            />
+            <ethereal:spinner id="capture-dialog.stop-after-packets-spinner" />
+            <description id="capture-dialog.stop-after-packets-descr">
+              File(s)
+            </description>
+          </hbox>
+          <hbox>
+            <checkbox
+              id="capture-dialog.stop-after-size-cb"
+              label="... after"
+              oncommand="capture_dialog_adjust_sensitivity"
+            />
+            <ethereal:spinner id="capture-dialog.stop-after-size-spinner" />
+            <menulist id="capture-dialog.stop-after-size-ml">
+              <menupopup>
+                <menuitem label="byte(s)" />
+                <menuitem label="kilobyte(s)" />
+                <menuitem label="megabyte(s)" selected="true" />
+                <menuitem label="gigabyte(s)" />
+              </menupopup>
+            </menulist>
+          </hbox>
+          <hbox>
+            <checkbox
+              id="capture-dialog.stop-after-time-cb"
+              label="... after"
+              oncommand="capture_dialog_adjust_sensitivity"
+            />
+            <ethereal:spinner id="capture-dialog.stop-after-time-spinner" />
+            <menulist id="capture-dialog.stop-after-time-ml">
+              <menupopup>
+                <menuitem label="second(s)" />
+                <menuitem label="minute(s)" selected="true" />
+                <menuitem label="hour(s)" />
+                <menuitem label="day(s)" />
+              </menupopup>
+            </menulist>
+          </hbox>
+        </groupbox>
+      </vbox>
+
+      <vbox>
+        <groupbox flex="1">
+          <caption>Display Options</caption>
+          <checkbox
+            id="capture-dialog.update-real-time"
+            label="Update list of packets in real time"
+            oncommand="capture_dialog_adjust_sensitivity"
+          />
+          <checkbox
+            id="capture-dialog.auto-scroll-live"
+            label="Automatic scrolling in live capture"
+          />
+          <checkbox
+            id="capture-dialog.show_info"
+            label="Hide capture info window"
+          />
+        </groupbox>
+        <groupbox flex="1">
+          <caption>Name Resolution</caption>
+          <checkbox
+            id="capture-mac-resolution"
+            label="Enable MAC name resolution"
+          />
+          <checkbox
+            id="capture-network-resolution"
+            label="Enable network name resolution"
+          />
+          <checkbox
+            id="capture-transport-resolution"
+            label="Enable transport name resolution"
+          />
+        </groupbox>
+      </vbox>
+    </hbox>
+
+    <hbox>
+
+      <spacer flex="1" />
+      <button
+        id="capture-ok"
+        label="OK"
+        default="True"
+        oncommand="capture_dialog_start_capture"
+       />
+
+      <button
+        id="capture-cancel"
+        label="Cancel"
+        oncommand="capture_dialog_hide"
+       />
+
+    </hbox>
+  </vbox>
+</dialog>

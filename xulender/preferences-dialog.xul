@@ -1,0 +1,540 @@
+<?xml version="1.0"?>
+<dialog
+  id="preferences-dialog"
+  title="Ethereal: Preferences"
+  width="250"
+  height="100"
+  >
+
+  <!--
+    Preferences dialog.  Each row in the tree corresponds to a panel in
+    the deck.  To make things easy code-wise, tree row IDs are in the 
+    form "prefs-dialog.tree.[unique name]" and panel IDs are in the form
+    "prefs-dialog.deck.[unique name]".
+  -->
+
+  <vbox>
+    <hbox>
+      <tree
+        id="prefs-dialog.tree"
+        onselect="prefs_tree_select"
+      >
+        <treecols>
+          <treecol id="prefs-dialog.tree" primary="true" hideheader="true" />
+        </treecols>
+        <treechildren>
+          <treeitem container="true" open="true">
+            <treerow id="prefs-dialog.tree.user-interface">
+	      <treecell label="User Interface" />
+            </treerow>
+            <treechildren>
+              <treeitem>
+                <treerow id="prefs-dialog.tree.columns">
+	          <treecell label="Columns" />
+                </treerow>
+              </treeitem>
+              <treeitem>
+                <treerow id="prefs-dialog.tree.font">
+	          <treecell label="Font" />
+                </treerow>
+              </treeitem>              <treeitem>
+                <treerow id="prefs-dialog.tree.colors">
+	          <treecell label="Colors" />
+                </treerow>
+              </treeitem>
+            </treechildren>
+          </treeitem>
+          <treeitem>
+            <treerow id="prefs-dialog.tree.capture">
+	      <treecell label="Capture" />
+            </treerow>
+          </treeitem>
+          <treeitem>
+            <treerow id="prefs-dialog.tree.printing">
+	      <treecell label="Printing" />
+            </treerow>
+          </treeitem>
+          <treeitem>
+            <treerow id="prefs-dialog.tree.name-resolution">
+	      <treecell label="Name Resolution" />
+            </treerow>
+          </treeitem>
+        </treechildren>
+      </tree>
+
+      <deck id="prefs-dialog.deck">
+
+        <!-- User Interface -->
+        <groupbox id="prefs-dialog.deck.user-interface">
+          <caption>User Interface</caption>
+          <grid>
+            <columns>
+              <column/>
+              <column/>
+            </columns>
+            <rows>
+              <row>
+                <description style="text-align: right;">
+                  Packet list selection mode:
+                </description>
+                <menulist id="prefs.gui_plist_sel_browse">
+		  <menupopup>
+		    <menuitem label="Selects" />
+		    <menuitem label="Browses" />
+		  </menupopup>
+                </menulist>
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Protocol tree selection mode:
+                </description>
+                <menulist id="prefs.gui_ptree_sel_browse">
+		  <menupopup>
+		    <menuitem label="Selects" />
+		    <menuitem label="Browses" />
+		  </menupopup>
+                </menulist>
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Hex display highlight style:
+                </description>
+                <menulist id="prefs.gui_hex_dump_highlight_style">
+		  <menupopup>
+		    <menuitem label="Bold" />
+		    <menuitem label="Inverse" />
+		  </menupopup>
+                </menulist>
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Toolbar style:
+                </description>
+                <menulist id="prefs.gui_toolbar_main_style">
+		  <menupopup>
+		    <menuitem label="Icons only" />
+		    <menuitem label="Text only" />
+		    <menuitem label="Icons &amp; Text" />
+		  </menupopup>
+                </menulist>
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Filter toolbar placement:
+                </description>
+                <menulist id="prefs.filter_toolbar_show_in_statusbar">
+		  <menupopup>
+		    <menuitem label="Below main toolbar" />
+		    <menuitem label="Inside status bar" />
+		  </menupopup>
+                </menulist>
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Save window position:
+                </description>
+                <checkbox id="prefs.gui_geometry_save_position" />
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Save window size:
+                </description>
+                <checkbox id="prefs.gui_geometry_save_size" />
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Save maximized state:
+                </description>
+                <checkbox id="prefs.gui_geometry_save_maximized" />
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Open a console window:
+                </description>
+                <menulist id="prefs.gui_console_open">
+		  <menupopup>
+		    <menuitem label="Never" />
+		    <menuitem label="Automatic (advanced users)" />
+		    <menuitem label="Always (debugging)" />
+		  </menupopup>
+                </menulist>
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  \"File Open\" dialog behavior:
+                </description>
+                <radiogroup orient="horizontal">
+                  <radio 
+                    label="Remember last directory"
+                    id="prefs.gui_fo_style_last_opened"
+		    oncommand="prefs_fileopen_style"
+                  />
+                  <radio
+                    label="Always start in:"
+                    id="prefs.gui_fo_style_specified"
+		    oncommand="prefs_fileopen_style"
+                  />
+                </radiogroup>
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Directory:
+                </description>
+                <textbox flex="1" id="prefs.gui_fileopen_dir" />
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  \"Open Recent\" maximum entries:
+                </description>
+                <ethereal:spinner id="prefs.gui_recent_files_count_max" />
+              </row>
+            </rows>
+          </grid>
+        </groupbox>
+        
+        <!-- Columns -->
+        <groupbox id="prefs-dialog.deck.columns">
+          <caption>Columns</caption>
+          <hbox flex="1">
+            <groupbox>
+              <caption>Edit</caption>
+              <spacer flex="1.5" />
+              <button
+		id="prefs-dialog.cols.new"
+		label="New"
+		oncommand="prefs_dialog_new_column"
+	      />
+              <spacer flex="1" />
+              <button
+		id="prefs-dialog.cols.delete"
+		label="Delete"
+		oncommand="prefs_dialog_delete_column"
+	      />
+              <spacer flex="1.5" />
+            </groupbox>
+            <groupbox flex="1">
+              <caption>Columns</caption>
+              <listbox
+                id="prefs-dialog.cols.list"
+                flex="1"
+                onselect="prefs_col_list_select"
+              >
+                <listhead>
+                  <listheader label="Title" />
+                  <listheader label="Format" />
+                </listhead>
+              </listbox>
+            </groupbox>
+            <groupbox>
+              <caption>Order</caption>
+              <spacer flex="1.5" />
+              <button
+		id="prefs-dialog.cols.up"
+		label="Up"
+		oncommand="prefs_dialog_move_column"
+	      />
+              <spacer flex="1" />
+              <button
+		id="prefs-dialog.cols.down"
+		label="Down"
+		oncommand="prefs_dialog_move_column"
+	      />
+              <spacer flex="1.5" />
+            </groupbox>
+          </hbox>
+          <groupbox>
+            <caption>Properties</caption>
+	    <grid flex="1">
+	      <columns>
+		<column />
+		<column />
+	      </columns>
+	      <rows>
+		<row>
+		  <description style="text-align: right;">Title:</description>
+		  <textbox
+		    flex="1"
+		    id="prefs-dialog.cols.title"
+		    oninput="prefs_dialog_set_column_title"
+		  />
+		</row>
+		<row>
+		  <description style="text-align: right;">Format:</description>
+		  <menulist
+		    id="prefs-dialog.cols.format"
+		    oncommand="prefs_dialog_set_column_format"
+		  >
+		    <menupopup>
+		    </menupopup>
+		  </menulist>
+		</row>
+	      </rows>
+	    </grid>
+          </groupbox>
+        </groupbox>
+        
+        <!-- Font -->
+        <groupbox id="prefs-dialog.deck.font">
+          <caption>Font</caption>
+          <grid flex="1">
+            <columns>
+              <column flex="3.5" />
+              <column flex="2.0" />
+              <column flex="1.0" />
+            </columns>
+            <rows>
+              <row>
+                <description>Font</description>
+                <description>Font style</description>
+                <description>Size</description>
+              </row>
+              <row>
+                <textbox id="prefs-dialog.font.tb.name" />
+                <textbox id="prefs-dialog.font.tb.style" />
+                <textbox id="prefs-dialog.font.tb.size" />
+              </row>
+              <row flex="1">
+                <listbox
+                  id="prefs-dialog.font.lb.name"
+                  onselect="prefs_font_name_list_select"
+                  sortdirection="ascending"
+                />
+                <listbox
+                  id="prefs-dialog.font.lb.style"
+                  onselect="prefs_font_style_list_select"
+                />
+                <listbox
+                  id="prefs-dialog.font.lb.size"
+                  onselect="prefs_font_size_list_select"
+                />
+              </row>
+            </rows>
+          </grid>
+          <groupbox>
+            <caption>Preview</caption>
+            <textbox
+              flex="1" 
+              id="prefs-dialog.font.tb.sample"
+              minheight="40"
+              value="abcdefghijk ABCDEFGHIJK"
+            />
+          </groupbox>
+        </groupbox>
+        
+        <!-- Colors -->
+        <groupbox id="prefs-dialog.deck.colors">
+          <caption>Colors</caption>
+          <hbox>
+            <!-- This should be better, but we haven't implemented 
+                 <colorpicker> yet. -->
+            <button
+	      id="prefs-dialog.color.set"
+	      label="Set..."
+	      oncommand="prefs_dialog_set_color"
+	     />
+	    <menulist id="prefs-dialog.color.select">
+	      <menupopup>
+		<menuitem label="Marked packet foreground" />
+		<menuitem label="Marked packet background" />
+		<menuitem label="TCP stream client foreground" />
+		<menuitem label="TCP stream client background" />
+		<menuitem label="TCP stream server foreground" />
+		<menuitem label="TCP stream server background" />
+	      </menupopup>
+	    </menulist>
+            <textbox
+              flex="1"
+              id="prefs-dialog.color.sample"
+              multiline="true"
+              rows="3"
+            />
+          </hbox>
+        </groupbox>
+        
+        <!-- Capture -->
+        <groupbox id="prefs-dialog.deck.capture">
+          <caption>Capture</caption>
+          <grid>
+            <columns>
+              <column/>
+              <column flex="1" />
+            </columns>
+
+            <rows>
+              <row>
+                <description style="text-align: right;">
+                  Default interface:
+                </description>
+                <!-- XXX - this should be a combobox -->
+                <menulist
+                  flex="1"
+                  id="prefs-dialog.capture.iflist"
+                >
+		  <menupopup>
+		  </menupopup>
+                </menulist>
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Interface:
+                </description>
+                <button
+                  label="Edit..."
+                />
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Capture packets in promiscuous mode:
+                </description>
+                <checkbox id="prefs.capture_prom_mode" />
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Update list of packets in real time:
+                </description>
+                <checkbox id="prefs.capture_real_time" />
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Automatic scrolling in live capture:
+                </description>
+                <checkbox id="prefs.capture_auto_scroll" />
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Hide capture info window:
+                </description>
+                <checkbox id="prefs.capture_show_info" />
+              </row>
+            </rows>
+          </grid>
+        </groupbox>
+
+        <!-- Printing -->
+        <groupbox id="prefs-dialog.deck.printing">
+          <caption>Printing</caption>
+          <grid>
+            <columns>
+              <column/>
+              <column flex="1" />
+            </columns>
+            <rows>
+              <row>
+                <description style="text-align: right;">
+                  Format:
+                </description>
+                <radiogroup orient="horizontal">
+                  <radio
+                    id="prefs.pr_format_plain"
+                    label="Plain text"
+                  />
+                  <radio
+                    id="prefs.pr_format_ps"
+                    label="Postscript"
+                  />
+                </radiogroup>
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Print to:
+                </description>
+                <radiogroup orient="horizontal">
+                  <radio
+                    id="prefs.pr_dest_printer"
+                    label="Printer"
+                  />
+                  <radio
+                    id="prefs.pr_dest_file"
+                    label="File"
+                  />
+                </radiogroup>
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  File:
+                </description>
+                <hbox>
+                  <textbox flex="1" id="prefs.pr_file" />
+                  <button label="..." />
+                </hbox>
+              </row>
+            </rows>
+          </grid>
+        </groupbox>
+
+        <!-- Name Resolution -->
+        <groupbox id="prefs-dialog.deck.name-resolution">
+          <caption>Name Resolution</caption>
+          <grid>
+            <columns>
+              <column/>
+              <column/>
+            </columns>
+            <rows>
+              <row>
+                <description style="text-align: right;">
+                Enable MAC name resolution:
+                </description>
+                <checkbox id="prefs.name_resolve_mac" />
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Enable network name resolution:
+                </description>
+                <checkbox id="prefs.name_resolve_network" />
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Enable transport name resolution:
+                </description>
+                <checkbox id="prefs.name_resolve_transport" />
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Enable concurrent DNS name resolution:
+                </description>
+                <checkbox id="prefs.name_resolve_concurrent" />
+              </row>
+              <row>
+                <description style="text-align: right;">
+                  Maximumn concurrent requests:
+                </description>
+                <ethereal:spinner id="prefs.name_resolve_concurrency" />
+              </row>
+            </rows>
+          </grid>
+        </groupbox>
+      </deck>
+    </hbox>
+
+    <hbox>
+      <spacer flex="1" />
+      
+      <button
+        id="prefs-dialog.ok"
+        label="OK"
+        default="True"
+        oncommand="prefs_dialog_ok"
+       />
+
+      <button
+        id="prefs-dialog.apply"
+        label="Apply"
+        oncommand="prefs_dialog_apply"
+       />
+
+      <button
+        id="prefs-dialog.save"
+        label="Save"
+        oncommand="prefs_dialog_save"
+       />
+
+      <button
+        id="prefs-dialog.cancel"
+        label="Cancel"
+        oncommand="prefs_dialog_cancel"
+       />
+
+    </hbox>
+  </vbox>
+</dialog>

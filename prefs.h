@@ -119,6 +119,9 @@ typedef struct _e_prefs {
   gint     gui_toolbar_main_style;
   gchar   *gui_font_name1;
   gchar   *gui_font_name2;
+  gchar   *gui_win32_font_name;
+  gchar   *gui_win32_font_style;
+  guint    gui_win32_font_size;
   color_t  gui_marked_fg;
   color_t  gui_marked_bg;
   gboolean gui_geometry_save_position;

@@ -1,0 +1,136 @@
+<?xml version="1.0"?>
+<window
+  title="Ethereal"
+  id="ethereal-main"
+  width="620"
+  height="420"
+  xmlns:ethereal="http://www.ethereal.com/development.html"
+  >
+
+  <menubar autostretch="always">
+    <menu label="File">
+      <menupopup>
+        <menuitem
+          label="Open..."
+          command="ethereal-main-open"
+        />
+        <menuitem
+          label="Open Recent"
+          command="ethereal-main-open-recent"
+        />
+        <menuitem
+          label="Close"
+          command="ethereal-main-close"
+        />
+        <menuseparator/>
+        <menuitem
+          label="Save"
+          command="ethereal-main-save"
+        />
+        <menuitem
+          label="Save As..."
+          command="ethereal-main-save-as"
+        />
+        <menuseparator/>
+        <menuitem
+          label="Export"
+          command="ethereal-main-export"
+        />
+        <menuseparator/>
+        <menuitem
+          label="Print..."
+          command="ethereal-main-print"
+        />
+        <menuseparator/>
+        <menuitem
+          label="Exit"
+          command="ethereal-main-exit"
+        />
+      </menupopup>
+    </menu>
+
+    <menu label="Edit">
+      <menupopup>
+        <menuitem
+          label="Preferences..."
+          command="ethereal-main-edit-preferences"
+        />
+      </menupopup>
+    </menu>
+
+    <menu label="Capture">
+      <menupopup>
+        <menuitem
+          label="Start"
+          command="ethereal-main-capture-start"
+        />
+        <menuitem
+          label="Stop"
+          command="ethereal-main-capture-stop"
+        />
+        <menuitem
+          label="Capture Filters..."
+          command="ethereal-main-capture-filters"
+        />
+      </menupopup>
+    </menu>
+
+    <menu label="Help">
+      <menupopup>
+        <menuitem
+          label="Contents"
+          command="ethereal-main-about-contents"
+        />
+        <menuitem
+          label="Supported Protocols"
+          command="ethereal-main-about-supported-protocols"
+        />
+        <menuseparator/>
+        <menuitem
+          label="About Plugins"
+          command="ethereal-main-about-plugins"
+        />
+        <menuitem
+          label="About Ethereal"
+          command="ethereal-main-about-ethereal"
+        />
+      </menupopup>
+    </menu>
+
+  </menubar>
+
+  <vbox
+    flex="1"
+  >
+
+    <ethereal:packetlist flex="1" />
+
+    <splitter />
+
+    <ethereal:treeview id="main-treeview" flex="1" />
+
+    <splitter />
+
+    <ethereal:byteview id="main-byteview" flex="1" />
+
+    <!-- Should we use a statusbar instead? -->
+    <hbox>
+      <button label="Filter:" />
+      <ethereal:combobox id="dfilter-entry" flex="1"/>
+      <button
+        label="Clear"
+        oncommand="filter_clear_cb"
+      />
+      <button
+        label="Apply"
+        oncommand="filter_apply_cb"
+      />
+<!--
+      <textbox readonly="True" id="statusbar" />
+-->
+    </hbox>
+
+  </vbox>
+
+</window>
+

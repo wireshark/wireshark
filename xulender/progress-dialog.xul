@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<dialog
+  id="progress-dialog"
+  title=""
+  width="250"
+  height="100"
+  >
+
+  <vbox>
+    <grid> <!-- Labels -->
+      <columns>
+	<column/>           <!-- Static labels -->
+	<column flex="1" /> <!-- Dynamic labels -->
+      </columns>
+
+      <rows>
+	<row>
+	  <description
+	    flex="1"
+	    id="progress-dlg.task_title"
+	    style="text-align: right;"
+	  > </description>
+	  <description 
+	    id="progress-dlg.item_title" 
+	    flex="1"
+	  > </description>
+	</row>
+
+	<row>
+	  <description
+	    flex="1"
+	    style="text-align: right;"
+	  >Status: </description>
+	  <description 
+	    id="progress-dlg.status" 
+	    flex="1"
+	  > </description>
+	</row>
+
+	<row>
+	  <description
+	    flex="1"
+	    style="text-align: right;"
+	  >Elapsed Time: </description>
+	  <description 
+	    id="progress-dlg.time.elapsed" 
+	    flex="1"
+	  >00:00</description>
+	</row>
+
+	<row>
+	  <description
+	    flex="1"
+	    style="text-align: right;"
+	  >Time Left: </description>
+	  <description 
+	    id="progress-dlg.time.left" 
+	    flex="1"
+	  >--:--</description>
+	</row>
+
+	<row>
+	  <description
+	    flex="1"
+	    style="text-align: right;"
+	  >Progress: </description>
+	  <hbox>
+	    <progressmeter 
+	      id="progress-dlg.progress" 
+	    />
+	    <description
+	      id="progress-dlg.percentage"
+	    >0%</description>
+	  </hbox>
+	</row>
+      </rows>
+    </grid>
+    
+    <hbox>
+      <spacer flex="1" />
+      <button
+        id="progress-dlg.cancel"
+        label="Cancel"
+        oncommand="progress_dialog_destroy"
+      />
+      <spacer flex="1" />
+    </hbox>
+
+  </vbox>
+</dialog>

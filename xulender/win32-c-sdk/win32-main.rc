@@ -1,0 +1,20 @@
+/*************************************************************\
+* generic.rc: Resource script for Generic                     *
+*                                                             *
+*                                                             *
+\*************************************************************/
+
+#include <windows.h>
+#include "win32-main.h"
+#include "generated\about-dialog.rc"
+#include "generated\capture-dialog.rc"
+#include "generated\capture-info-dialog.rc"
+#include "generated\ethereal-main.rc"
+#include "generated\preferences-dialog.rc"
+#include "generated\progress-dialog.rc"
+#include "win32-file-dlg.rc"
+
+#define MANIFEST_RESOURCE_ID 1
+#define RT_MANIFEST 24
+
+MANIFEST_RESOURCE_ID RT_MANIFEST "wethereal.exe.manifest"

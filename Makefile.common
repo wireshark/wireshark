@@ -188,6 +188,15 @@ tethereal_SOURCES =	\
 	tethereal-tap-register.c	\
 	tethereal.c
 
+# wethereal specifics
+wethereal_SOURCES =	\
+	$(ETHEREAL_COMMON_SRC) \
+	alert_box.c	\
+	capture.c	\
+	color_filters.c	\
+	file.c		\
+	filters.c
+
 # text2pcap specifics
 text2pcap_SOURCES = \
 	text2pcap.c \
