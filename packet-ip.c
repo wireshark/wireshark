@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.183 2003/01/28 23:56:39 guy Exp $
+ * $Id: packet-ip.c,v 1.184 2003/03/03 23:20:57 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -831,6 +831,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      eip_current=0;
   }
   iph=&eip_arr[eip_current];
+  pinfo->private_data=iph;
 
   if (check_col(pinfo->cinfo, COL_PROTOCOL))
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IP");

@@ -1,7 +1,7 @@
 /* tap-iousers.c
  * iostat   2003 Ronnie Sahlberg
  *
- * $Id: tap-iousers.c,v 1.2 2003/01/22 07:28:29 guy Exp $
+ * $Id: tap-iousers.c,v 1.3 2003/03/03 23:20:57 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,6 +39,7 @@
 #include "tap.h"
 #include "register.h"
 #include "packet-ip.h"
+#include "packet-tcp.h"
 #include "packet-eth.h"
 #include "packet-tr.h"
 #include <string.h>
@@ -60,6 +61,68 @@ typedef struct _io_users_item_t {
 	guint32 bytes1;
 	guint32 bytes2;
 } io_users_item_t;
+
+
+/* XXX for now we only handle ipv4 as transport for tcp.
+   should extend in the future to also handle ipv6
+*/
+static int
+iousers_tcpip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *vtcph)
+{
+	struct tcpheader *tcph=vtcph;
+	char name1[256],name2[256];
+	io_users_item_t *iui;
+	e_ip *ipv4_header;
+	int direction=0;
+
+	ipv4_header=tcph->ip_header;
+	switch(ipv4_header->ip_v_hl>>4){
+	case 4:
+		if(ipv4_header->ip_src>ipv4_header->ip_dst){
+			snprintf(name1,256,"%s:%s",get_hostname(ipv4_header->ip_src),get_tcp_port(tcph->th_sport));
+			snprintf(name2,256,"%s:%s",get_hostname(ipv4_header->ip_dst),get_tcp_port(tcph->th_dport));
+		} else {
+			direction=1;
+			snprintf(name2,256,"%s:%s",get_hostname(ipv4_header->ip_src),get_tcp_port(tcph->th_sport));
+			snprintf(name1,256,"%s:%s",get_hostname(ipv4_header->ip_dst),get_tcp_port(tcph->th_dport));
+		}
+		break;
+	default:
+		return 0;
+	}
+
+	for(iui=iu->items;iui;iui=iui->next){
+		if((!strcmp(iui->name1, name1))
+		&& (!strcmp(iui->name2, name2)) ){
+			break;
+		}
+	}
+
+	if(!iui){
+		iui=g_malloc(sizeof(io_users_item_t));
+		iui->next=iu->items;
+		iu->items=iui;
+		iui->addr1=NULL;
+		iui->name1=strdup(name1);
+		iui->addr2=NULL;
+		iui->name2=strdup(name2);
+		iui->frames1=0;
+		iui->frames2=0;
+		iui->bytes1=0;
+		iui->bytes2=0;
+	}
+
+	if(direction){
+		iui->frames1++;
+		iui->bytes1+=pinfo->fd->pkt_len;
+	} else {
+		iui->frames2++;
+		iui->bytes2+=pinfo->fd->pkt_len;
+	}
+
+	return 1;
+}
+
 
 static int
 iousers_ip_packet(io_users_t *iu, packet_info *pinfo, epan_dissect_t *edt _U_, void *vip)
@@ -268,6 +331,14 @@ iousers_init(char *optarg)
 		}
 		tap_type="eth";
 		packet_func=iousers_eth_packet;
+	} else if(!strncmp(optarg,"io,users,tcpip",14)){
+		if(optarg[14]==','){
+			filter=optarg+15;
+		} else {
+			filter=NULL;
+		}
+		tap_type="tcp";
+		packet_func=iousers_tcpip_packet;
 	} else if(!strncmp(optarg,"io,users,tr",11)){
 		if(optarg[11]==','){
 			filter=optarg+12;
@@ -289,6 +360,7 @@ iousers_init(char *optarg)
 		fprintf(stderr,"   <type> must be one of\n");
 		fprintf(stderr,"      \"eth\"\n");
 		fprintf(stderr,"      \"ip\"\n");
+		fprintf(stderr,"      \"tcpip\"\n");
 		fprintf(stderr,"      \"tr\"\n");
 		exit(1);
 	}

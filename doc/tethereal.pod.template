@@ -363,6 +363,7 @@ I<type> specifies which type of conversation we want to generate the
 statistics for, currently the supported ones are
   "eth"   Ethernet
   "ip"    IP addresses
+  "tcpip" TCP/IP socketpairs
   "tr"    TokenRing
 
 If the optional filter string is specified, only those packets that match the
