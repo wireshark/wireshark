@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.30 2003/05/15 05:53:43 guy Exp $
+ * $Id: packet-afp.c,v 1.31 2003/06/07 08:49:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -653,7 +653,10 @@ static const value_string map_id_type_vals[] = {
 #define kFPGroupIDBit 			(1 << 11)
 #define kFPAccessRightsBit 		(1 << 12)
 #define kFPUTF8NameBit 			(1 << 13)
-#define kFPUnixPrivsBit 		(1 << 14)
+
+/* FIXME AFP3.0 bit 14, AFP3.1 bit 15 */
+
+#define kFPUnixPrivsBit 		(1 << 15)
 
 /*
 	directory Access Rights parameter AFP3.0.pdf
@@ -732,7 +735,6 @@ kFPUTF8NameBit 			(bit 13)
 #define kFPLaunchLimitBit 		(1 << 12)
 
 #define kFPExtRsrcForkLenBit 		(1 << 14)
-#define kFPUnixPrivsBit_file 		(1 << 15)	/* :( */
 
 /*
   file attribute AFP3.0.pdf
@@ -1224,7 +1226,7 @@ parse_file_bitmap (proto_tree *tree, tvbuff_t *tvb, gint offset, guint16 bitmap,
 		offset += 8;
 	}
 
-	if ((bitmap & kFPUnixPrivsBit_file)) {
+	if ((bitmap & kFPUnixPrivsBit)) {
 		/*
 		 * XXX - the AFP 3.0 spec says this is "Four bytes", but
 		 * also says the privileges are "stored in an FPUnixPrivs
@@ -3890,7 +3892,7 @@ proto_register_afp(void)
 
     { &hf_afp_file_bitmap_UnixPrivs,
       { "UNIX privileges",    "afp.file_bitmap.unix_privs",
-	    FT_BOOLEAN, 16, NULL,  kFPUnixPrivsBit_file,
+	    FT_BOOLEAN, 16, NULL,  kFPUnixPrivsBit,
       	"Return UNIX privileges if file", HFILL }},
 
 	/* ---------- */
