@@ -1,7 +1,7 @@
 /* packet-atalk.c
  * Routines for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.c,v 1.40 2000/08/13 14:08:00 deniel Exp $
+ * $Id: packet-atalk.c,v 1.41 2000/11/11 09:18:15 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -81,16 +81,15 @@ static gint ett_pstring = -1;
 
 static dissector_table_t ddp_dissector_table;
 
-/* P = Padding, H = Hops, L = Len */
-#if BYTE_ORDER == BIG_ENDIAN
- /* PPHHHHLL LLLLLLLL */
-# define ddp_hops(x)	( ( x >> 10) & 0x3C )
-# define ddp_len(x)		( x & 0x03ff )
-#else
- /* LLLLLLLL PPHHHHLL*/
-# define ddp_hops(x)	( x & 0x3C )
-# define ddp_len(x)		( ntohs(x) & 0x03ff )
-#endif
+/*
+ * P = Padding, H = Hops, L = Len
+ *
+ * PPHHHHLL LLLLLLLL
+ *
+ * Assumes the argument is in host byte order.
+ */
+#define ddp_hops(x)	( ( x >> 10) & 0x3C )
+#define ddp_len(x)		( x & 0x03ff )
 typedef struct _e_ddp {
   guint16	hops_len; /* combines pad, hops, and len */
   guint16	sum,dnet,snet;
@@ -385,6 +384,7 @@ dissect_ddp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   ddp.dnet=ntohs(ddp.dnet);
   ddp.snet=ntohs(ddp.snet);
   ddp.sum=ntohs(ddp.sum);
+  ddp.hops_len=ntohs(ddp.hops_len);
   
   src.net = ddp.snet;
   src.node = ddp.snode;
