@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.43 2002/08/28 21:00:36 jmayer Exp $
+ * $Id: packet-vines.c,v 1.44 2003/01/23 09:39:33 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -36,6 +36,7 @@
 #include "etypes.h"
 #include "ppptypes.h"
 #include "ipproto.h"
+#include "arcnet_pids.h"
 
 #define UDP_PORT_VINES	573
 
@@ -340,6 +341,7 @@ proto_reg_handoff_vines(void)
 {
 	dissector_add("ethertype", ETHERTYPE_VINES, vines_handle);
 	dissector_add("ppp.protocol", PPP_VINES, vines_handle);
+	dissector_add("arcnet.protocol_id", ARCNET_PROTO_BANYAN, vines_handle);
 	data_handle = find_dissector("data");
 }
 

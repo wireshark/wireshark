@@ -2,7 +2,7 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP.
  *
- * $Id: packet-atalk.c,v 1.85 2002/12/19 11:22:03 sahlberg Exp $
+ * $Id: packet-atalk.c,v 1.86 2003/01/23 09:39:32 guy Exp $
  *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
@@ -36,6 +36,7 @@
 #include "etypes.h"
 #include "ppptypes.h"
 #include "aftypes.h"
+#include "arcnet_pids.h"
 #include <epan/atalk-utils.h>
 #include <epan/conversation.h>
 
@@ -2271,6 +2272,7 @@ proto_reg_handoff_atalk(void)
   dissector_add("chdlctype", ETHERTYPE_ATALK, ddp_handle);
   dissector_add("ppp.protocol", PPP_AT, ddp_handle);
   dissector_add("null.type", BSD_AF_APPLETALK, ddp_handle);
+  dissector_add("arcnet.protocol_id", ARCNET_PROTO_APPLETALK, ddp_handle);
 
   nbp_handle = create_dissector_handle(dissect_nbp, proto_nbp);
   dissector_add("ddp.type", DDP_NBP, nbp_handle);

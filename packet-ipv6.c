@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly
  *
- * $Id: packet-ipv6.c,v 1.91 2002/12/19 11:22:29 sahlberg Exp $
+ * $Id: packet-ipv6.c,v 1.92 2003/01/23 09:39:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,7 @@
 #include "ppptypes.h"
 #include "aftypes.h"
 #include "nlpid.h"
+#include "arcnet_pids.h"
 
 /*
  * NOTE: ipv6.nxt is not very useful as we will have chained header.
@@ -1210,4 +1211,5 @@ proto_reg_handoff_ipv6(void)
   dissector_add("chdlctype", ETHERTYPE_IPv6, ipv6_handle);
   dissector_add("fr.ietf", NLPID_IP6, ipv6_handle);
   dissector_add("x.25.spi", NLPID_IP6, ipv6_handle);
+  dissector_add("arcnet.protocol_id", ARCNET_PROTO_IPv6, ipv6_handle);
 }
