@@ -35,7 +35,6 @@ ethereal-tap-register.c: $(ETHEREAL_TAP_SRC) $(top_srcdir)/make-tapreg-dotc
 
 noinst_HEADERS = \
 	about_dlg.h	\
-	capture_combo_utils.h \
 	capture_dlg.h	\
 	capture_prefs.h	\
 	color_dlg.h	\

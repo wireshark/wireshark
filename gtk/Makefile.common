@@ -30,7 +30,6 @@
 #
 ETHEREAL_GTK_SRC = \
 	about_dlg.c	\
-	capture_combo_utils.c	\
 	capture_dlg.c	\
 	capture_if_dlg.c	\
 	capture_info_dlg.c	\

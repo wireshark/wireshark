@@ -153,6 +153,7 @@ ethereal_SOURCES =	\
 	$(ETHEREAL_COMMON_SRC)	\
 	alert_box.c	\
 	capture.c	\
+	capture_combo_utils.c	\
 	file.c	\
 	filters.c	\
 	g711.c \
@@ -164,6 +165,7 @@ ethereal_SOURCES =	\
 ethereal_INCLUDES =	\
 	alert_box.h	\
 	capture.h	\
+	capture_combo_utils.h	\
 	filters.h	\
 	g711.h	\
 	globals.h	\
