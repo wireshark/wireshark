@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.31 2003/10/04 03:10:18 sahlberg Exp $
+ * $Id: io_stat.c,v 1.32 2003/10/06 22:10:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,7 +68,7 @@ static guint32 pixels_per_tick[MAX_PIXELS_PER_TICK] = {1, 2, 5, 10};
 
 #define MAX_COUNT_TYPES 3
 #define COUNT_TYPE_ADVANCED 2
-static char *max_count_types[MAX_COUNT_TYPES] = {"frames/tick", "bytes/tick", "advanced..."};
+static char *count_type_names[MAX_COUNT_TYPES] = {"frames/tick", "bytes/tick", "advanced..."};
 
 /* unit is in ms */
 #define MAX_TICK_VALUES 4
@@ -81,7 +81,7 @@ static guint max_tick_values[MAX_TICK_VALUES] = { 10, 100, 1000, 10000 };
 #define CALC_TYPE_MAX	2
 #define CALC_TYPE_MIN	3
 #define CALC_TYPE_AVG	4
-static char *max_calc_types[MAX_CALC_TYPES] = {"SUM(*)", "COUNT(*)", "MAX(*)", "MIN(*)", "AVG(*)"};
+static char *calc_type_names[MAX_CALC_TYPES] = {"SUM(*)", "COUNT(*)", "MAX(*)", "MIN(*)", "AVG(*)"};
 
 
 typedef struct _io_stat_item_t {
@@ -143,7 +143,7 @@ typedef struct _io_stat_tick_interval_t {
 
 
 typedef struct _io_stat_t {
-	int needs_redraw;
+	gboolean needs_redraw;
 	gint32 interval;    /* measurement interval in ms */
 	guint32 last_interval; 
 	guint32 max_interval;
@@ -210,7 +210,7 @@ gtk_iostat_reset(void *g)
 	io_stat_graph_t *gio=g;
 	io_stat_item_t *it;
 
-	gio->io->needs_redraw=1;
+	gio->io->needs_redraw=TRUE;
 
 	while(gio->counts->next){
 		it=gio->counts->next;
@@ -248,7 +248,7 @@ gtk_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, void *dummy 
 		return 0;
 	}
 
-	git->io->needs_redraw=1;
+	git->io->needs_redraw=TRUE;
 
 	/* the prev item before the main one is always the last interval we saw packets for */
 	it=git->counts->prev;
@@ -522,7 +522,7 @@ gtk_iostat_draw(void *g)
 	if(!git->io->needs_redraw){
 		return;
 	}
-	git->io->needs_redraw=0;
+	git->io->needs_redraw=FALSE;
 
 	/* if we havent specified the last_interval via the gui,
 	   then just pick the most recent one */
@@ -847,7 +847,7 @@ gtk_iostat_init(char *optarg _U_)
 	GString *error_string;
 
 	io=g_malloc(sizeof(io_stat_t));
-	io->needs_redraw=1;
+	io->needs_redraw=TRUE;
 	io->interval=1000;
 	io->window=NULL;
 	io->draw_area=NULL;
@@ -910,7 +910,7 @@ gtk_iostat_init(char *optarg _U_)
 	init_io_stat_window(io);
 
 	redissect_packets(&cfile);
-	io->needs_redraw=1;
+	io->needs_redraw=TRUE;
 	gtk_iostat_draw(&io->graphs[0]);
 }
 
@@ -1010,7 +1010,7 @@ configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 		
 	}
 
-	io->needs_redraw=1;
+	io->needs_redraw=TRUE;
 	gtk_iostat_draw(&io->graphs[0]);
 	return TRUE;
 }
@@ -1031,7 +1031,7 @@ scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 	}
 
 	io->last_interval=(mi/io->interval)*io->interval;
-	io->needs_redraw=1;
+	io->needs_redraw=TRUE;
 	gtk_iostat_draw(&io->graphs[0]);
 
 	return TRUE;
@@ -1091,7 +1091,7 @@ tick_interval_select(GtkWidget *item _U_, gpointer key)
 
 	tiv->io->interval=tiv->interval;
 	redissect_packets(&cfile);
-	tiv->io->needs_redraw=1;
+	tiv->io->needs_redraw=TRUE;
 	gtk_iostat_draw(&tiv->io->graphs[0]);
 }
 
@@ -1101,7 +1101,7 @@ pixels_per_tick_select(GtkWidget *item _U_, gpointer key)
 	io_stat_pixels_per_tick_t *ppt=(io_stat_pixels_per_tick_t *)key;
 
 	ppt->io->pixels_per_tick=ppt->pixels_per_tick;
-	ppt->io->needs_redraw=1;
+	ppt->io->needs_redraw=TRUE;
 	gtk_iostat_draw(&ppt->io->graphs[0]);
 }
 
@@ -1132,7 +1132,7 @@ yscale_select(GtkWidget *item _U_, gpointer key)
 	io_stat_yscale_t *ys=(io_stat_yscale_t *)key;
 
 	ys->io->max_y_units=ys->yscale;
-	ys->io->needs_redraw=1;
+	ys->io->needs_redraw=TRUE;
 	gtk_iostat_draw(&ys->io->graphs[0]);
 }
 
@@ -1217,7 +1217,7 @@ gtk_widget_draw(ct->io->window, &update_rect);
 		}
 	}
 
-	ct->io->needs_redraw=1;
+	ct->io->needs_redraw=TRUE;
 	gtk_iostat_draw(&ct->io->graphs[0]);
 }
 
@@ -1228,7 +1228,7 @@ create_frames_or_bytes_menu_items(io_stat_t *io, GtkWidget *menu)
 	int i;
 
 	for(i=0;i<MAX_COUNT_TYPES;i++){
-		menu_item=gtk_menu_item_new_with_label(max_count_types[i]);
+		menu_item=gtk_menu_item_new_with_label(count_type_names[i]);
 		io->counttype[i].io=io;
 		io->counttype[i].count_type=i;
 		SIGNAL_CONNECT(menu_item, "activate", count_type_select, &io->counttype[i]);
@@ -1295,20 +1295,20 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 		field=(char *)gtk_entry_get_text(GTK_ENTRY(gio->calc_field));
 		/* warn and bail out if there was no field specified */
 		if(field==NULL || field[0]==0){
-			simple_dialog(ESD_TYPE_WARN, NULL, "'%s' is not a valid field name", field);
+			simple_dialog(ESD_TYPE_WARN, NULL, "You did not specify a field name.");
 			gio->display=0;
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
-			gio->io->needs_redraw=1;
+			gio->io->needs_redraw=TRUE;
 			gtk_iostat_draw(gio);
 			return 0;
 		}
 		/* warn and bail out if the field could not be found */
 		hfi=proto_registrar_get_byname(field);
 		if(hfi==NULL){
-			simple_dialog(ESD_TYPE_WARN, NULL, "'%s' is not a valid field name", field);
+			simple_dialog(ESD_TYPE_WARN, NULL, "'%s' is not a valid field name.", field);
 			gio->display=0;
 			gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
-			gio->io->needs_redraw=1;
+			gio->io->needs_redraw=TRUE;
 			gtk_iostat_draw(gio);
 			return 0;
 		}
@@ -1326,7 +1326,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 			/* these types support all calculations */
 			break;
 		case FT_RELATIVE_TIME:
-			/* this type only support COUNT, MAX, MIN, AVG */
+			/* this type only supports COUNT, MAX, MIN, AVG */
 			switch(gio->calc_type){
 			case CALC_TYPE_COUNT:
 			case CALC_TYPE_MAX:
@@ -1334,26 +1334,53 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 			case CALC_TYPE_AVG:
 				break;
 			default:
-				simple_dialog(ESD_TYPE_WARN, NULL, "%s is not supported for %s's type", max_calc_types[gio->calc_type], field);
+				simple_dialog(ESD_TYPE_WARN, NULL,
+				    "%s is a relative-time field, so %s calculations are not supported on it.",
+				    field,
+				    calc_type_names[gio->calc_type]);
 				gio->display=0;
 				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
-				gio->io->needs_redraw=1;
+				gio->io->needs_redraw=TRUE;
+				gtk_iostat_draw(gio);
+				return 0;
+			}
+			break;
+		case FT_UINT64:
+		case FT_INT64:
+			/*
+			 * XXX - support this if gint64/guint64 are
+			 * available?
+			 */
+			if(gio->calc_type!=CALC_TYPE_COUNT){
+				simple_dialog(ESD_TYPE_WARN, NULL,
+				    "%s is a 64-bit integer, so %s calculations are not supported on it.",
+				    field,
+				    calc_type_names[gio->calc_type]);
+				gio->display=0;
+				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
+				gio->io->needs_redraw=TRUE;
 				gtk_iostat_draw(gio);
 				return 0;
 			}
 			break;
 		default:
+			/*
+			 * XXX - support all operations on floating-point
+			 * numbers?
+			 */
 			if(gio->calc_type!=CALC_TYPE_COUNT){
-				simple_dialog(ESD_TYPE_WARN, NULL, "Stat calculations is not supported for %s's type", field);
+				simple_dialog(ESD_TYPE_WARN, NULL,
+				    "%s doesn't have integral values, so %s calculations are not supported on it.",
+				    field,
+				    calc_type_names[gio->calc_type]);
 				gio->display=0;
 				gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
-				gio->io->needs_redraw=1;
+				gio->io->needs_redraw=TRUE;
 				gtk_iostat_draw(gio);
 				return 0;
 			}
+			break;
 		}
-
-
 	}
 
 	/* first check if the filter string is valid.  Do this by just trying
@@ -1369,7 +1396,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 		remove_tap_listener(gio);
 		unprotect_thread_critical_region();
 
-		gio->io->needs_redraw=1;
+		gio->io->needs_redraw=TRUE;
 		gtk_iostat_draw(gio);
 
 		return 0;
@@ -1382,7 +1409,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	/* this graph is not active, just update display and redraw */
 	if(!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gio->display_button))){
 		gio->display=0;
-		gio->io->needs_redraw=1;
+		gio->io->needs_redraw=TRUE;
 		gtk_iostat_draw(gio);
 		return 0;
 	}
@@ -1403,7 +1430,7 @@ filter_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 	}
 	register_tap_listener("frame", gio, filter, gtk_iostat_reset, gtk_iostat_packet, gtk_iostat_draw);
 	redissect_packets(&cfile);
-	gio->io->needs_redraw=1;
+	gio->io->needs_redraw=TRUE;
 	gtk_iostat_draw(gio);
 
 	return 0;
@@ -1421,7 +1448,7 @@ calc_type_select(GtkWidget *item _U_, gpointer key)
 	ct->gio->display=0;
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ct->gio->display_button), ct->gio->display);
 
-	ct->gio->io->needs_redraw=1;
+	ct->gio->io->needs_redraw=TRUE;
 	gtk_iostat_draw(&ct->gio->io->graphs[0]);
 }
 
@@ -1435,7 +1462,7 @@ create_calc_types_menu_items(io_stat_graph_t *gio, GtkWidget *menu)
 	for(i=0;i<MAX_CALC_TYPES;i++){
 		gio->calc_types[i].gio=gio;
 		gio->calc_types[i].calc_type=i;
-		menu_item=gtk_menu_item_new_with_label(max_calc_types[i]);
+		menu_item=gtk_menu_item_new_with_label(calc_type_names[i]);
 		SIGNAL_CONNECT(menu_item, "activate", calc_type_select, &gio->calc_types[i]);
 		gtk_widget_show(menu_item);
 		gtk_menu_append(GTK_MENU(menu), menu_item);
@@ -1475,7 +1502,7 @@ field_callback(GtkWidget *widget _U_, io_stat_graph_t *gio)
 {
 	gio->display=0;
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gio->display_button), gio->display);
-	gio->io->needs_redraw=1;
+	gio->io->needs_redraw=TRUE;
 	gtk_iostat_draw(gio);
 	return 0;
 }
@@ -1503,6 +1530,7 @@ create_advanced_box(io_stat_graph_t *gio, GtkWidget *box)
 	gtk_box_set_child_packing(GTK_BOX(box), hbox, FALSE, FALSE, 0, GTK_PACK_START);
 	gtk_widget_hide(hbox);
 
+	gio->calc_type=CALC_TYPE_SUM;
 	create_advanced_menu(gio, hbox, "Calc:", create_calc_types_menu_items);
 	create_advanced_field(gio, hbox);
 }
