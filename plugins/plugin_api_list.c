@@ -53,7 +53,7 @@ void col_append_fstr(column_info*, gint, const gchar*, ...);
 void col_prepend_fstr(column_info*, gint, const gchar*, ...);
 void col_add_str(column_info*, gint, const gchar*);
 void col_append_str(column_info*, gint, const gchar*);
-void col_set_str(column_info*, gint, gchar*);
+void col_set_str(column_info*, gint, const gchar*);
 
 void register_init_routine(void (*func)(void));
 void register_postseq_cleanup_routine(void (*func)(void));
@@ -503,7 +503,7 @@ void rtcp_add_address(packet_info *pinfo, address *addr, int port, int other_por
 GString *register_tap_listener(char *, void *, char *, tap_reset_cb, tap_packet_cb, tap_draw_cb);
 const char *get_datafile_dir(void);
 char* proto_registrar_get_abbrev(int n);
-header_field_info* proto_registrar_get_byname(char *field_name);
+header_field_info* proto_registrar_get_byname(const char *field_name);
 double fvalue_get_floating(fvalue_t *fv);
 char *fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf);
 guint32 fvalue_get_integer(fvalue_t *fv);
