@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.108 2001/12/21 19:51:03 guy Exp $
+ * $Id: tethereal.c,v 1.109 2001/12/21 19:58:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -622,6 +622,13 @@ main(int argc, char *argv[])
     }
   }
 
+  /* If they didn't specify a "-w" flag, but specified a maximum capture
+     file size, tell them that this doesn't work, and exit. */
+  if (cfile.autostop_filesize != 0 && cfile.save_file == NULL) {
+    fprintf(stderr, "tethereal: Maximum capture file size specified, but capture isn't being saved to a file.\n");
+    exit(2);
+  }
+
 #ifdef WIN32
   /* Start windows sockets */
   WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
@@ -913,7 +920,7 @@ capture(int packet_count, int out_file_type)
 
   /* initialize capture stop conditions */ 
   init_capture_stop_conditions();
-  /* create stop conditions */ 
+  /* create stop conditions */
   cnd_stop_capturesize = cnd_new((char*)CND_CLASS_CAPTURESIZE,
                                  (long)cfile.autostop_filesize * 1000);
   cnd_stop_timeout = cnd_new((char*)CND_CLASS_TIMEOUT,
