@@ -9,26 +9,26 @@ still unknown.
 This is NOT the intention to write a file importer in
 the forseeable future.
 
-From looking at a picture in the user guide, it seems that
-the following information should be stored somewhere:
-- Channel (perhaps with crc error status?)
-- Speed
-- Signalstrength
+From a decoded examples:
+06 51 49 1b   Timestamp   (105990427)  03:30:27.497544
+06 51 4a cd     Timestamp  (105990861)  =  03:30:27.497978  (+434)
+06 51 4b ce     Timestamp  (105991118)  =  03:30:27.498235  (+257)
+
 
 Unknown stuff:
-Header: 0000 0002 1545 5198 3b93 d886
-Frame1: 0000 0002 15a5 2fb4 0206 6401 | da9d
-Frame2: 0000 0002 15a5 3a8e 1606 3c00 | bf9c
-Frame3: 0000 0002 15a5 3c50 0206 6400 | d59c
-Frame4: 0000 0002 15a5 487d 1606 3e00 | c09c
-Frame5: 0000 0002 15a5 49d9 1606 3e00 | c09c
-Frame6: 0000 0002 15a5 4bcf 0206 6400 | d69c
-Frame7: 0000 0002 15a5 53da 0206 6400 | d79c
-Frame8: 0000 0002 15a5 59e4 1606 3e00 | c09c
-Frame9: 0000 0002 15cc 9da8 1606 6400 | d79c
-FrameA: 0000 0002 15db dd60 1606 6400 | d89c
-FrameB: 0000 0002 15dc 04f6 1606 6401 | d69d
-FrameC: 0000 0002 15df 5d29 1606 6400 | d79c
+Header: 0000 0000 0002 | 3b93 d886
+Frame1: da9d | 0000 0000 0002
+Frame2: bf9c | 0000 0000 0002
+Frame3: d59c | 0000 0000 0002
+Frame4: c09c | 0000 0000 0002
+Frame5: c09c | 0000 0000 0002
+Frame6: d69c | 0000 0000 0002
+Frame7: d79c | 0000 0000 0002
+Frame8: c09c | 0000 0000 0002
+Frame9: d79c | 0000 0000 0002
+FrameA: d89c | 0000 0000 0002
+FrameB: d69d | 0000 0000 0002
+FrameC: d79c | 0000 0000 0002
 
 Headerstructure:
  6 Bytes: 'N2GINC'
@@ -38,18 +38,23 @@ Headerstructure:
  2 Bytes: #Frames (BE)
  2 Bytes: unknown (0x0)
  2 Bytes: unknown (0x0002)
- 8 Bytes: unknown (file creation time?)
+ 4 Bytes: Timestamp
+ 4 Bytes: unknown (Timestamp date part ?)
 28 Bytes: unknown (0x0)
 ==================
 Total: 100 Bytes
 
 Recordstructure:
  2 Bytes: unknown
- 2 Bytes: Bytes on wire (BE)
+ 2 Bytes: Bytes "on wire" (BE)
  2 Bytes: LL Bytes in capturefile (BE)
- 4 Bytes: unknown (0x0)
+ 4 Bytes: unknown (0x0) (02 00 00 00 = Frame displayed in RED)
  2 Bytes: unknown (0x0002)
- 8 Bytes: unknown (frame capture time?)
+ 4 Bytes: Timestamp
+ 1 Byte:  DataRate ((AND 7f) / 2 in Mbit/s)
+ 1 Byte:  Channel (1-13: Chan 1-13, 14: Chan 36, 15: Chan 40, ..., 19: Chan 52, ...)
+ 1 Byte:  SignalStrength (%)
+ 1 Byte:  NoiseLevel (%)
 LL Bytes: Capturedata
  6 Bytes: unknown
  4 Bytes: 0x33333333
@@ -68,8 +73,14 @@ Filelength: 0x57e Bytes
 ============== Frame 1 ==================
 Length: 0x36
 -------- ???
-0000064: da9d 0026 0026
-000006a: 0000 0000 0002 15a5 2fb4 0206 6401
+0000064: da9d
+0000066: 0026 0026
+000006a: 0000 0000 0002
+0000070: 15a5 2fb4		Timestamp
+0000074: 02			DataRate
+0000075: 06			Channel
+0000076: 64			SignalStrengthi (%)
+0000077: 01			NoiseLevel (%)
 -------- ieee 802.11
 0000078: b000			Type/Subtype/Frame Control
 000007a: 3a01			Duration
