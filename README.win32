@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.54 2003/12/12 16:06:29 gerald Exp $
+$Id: README.win32,v 1.55 2003/12/31 22:17:28 guy Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -168,9 +168,9 @@ package is as follows:
     Package                             Default Location
     -------                             ----------------
     adns-1.0-win32-01.zip                 C:\ethereal-win32-libs
-    glib-2.2.1.zip                        C:\ethereal-win32-libs\glib
-    glib-dev-2.2.1.zip                    C:\ethereal-win32-libs\glib
-    gtk+-1.3.0-20030216.zip               C:\ethereal-win32-libs\gtk+
+    glib-2.2.3.zip                        C:\ethereal-win32-libs\glib
+    glib-dev-2.2.3.zip                    C:\ethereal-win32-libs\glib
+    gtk+-1.3.0-20030717.zip               C:\ethereal-win32-libs\gtk+
     gtk+-dev-1.3.0-20030115.zip           C:\ethereal-win32-libs\gtk+
     libiconv-1.9.1.bin.woe32.zip          C:\ethereal-win32-libs\gtk+
     gettext-runtime-0.12.1.bin.woe32.zip  [ None ]
