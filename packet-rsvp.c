@@ -3,7 +3,7 @@
  *
  * (c) Copyright Ashok Narayanan <ashokn@cisco.com>
  *
- * $Id: packet-rsvp.c,v 1.78 2002/12/02 23:43:29 guy Exp $
+ * $Id: packet-rsvp.c,v 1.79 2003/01/24 02:14:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -123,7 +123,7 @@ enum {
     TT_DETOUR,
     TT_UNKNOWN_CLASS,
 
-    TT_MAX,
+    TT_MAX
 };
 static gint ett_treelist[TT_MAX];
 static gint *ett_tree[TT_MAX];
@@ -233,7 +233,7 @@ enum rsvp_classes {
     RSVP_CLASS_LSP_TUNNEL_IF_ID = 227,
 
     RSVP_CLASS_FAST_REROUTE = 228, /* TBD */
-    RSVP_CLASS_DETOUR = 229, /* TBD */
+    RSVP_CLASS_DETOUR = 229 /* TBD */
 };
 
 static value_string rsvp_class_vals[] = {
