@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.22 2000/05/03 07:09:40 guy Exp $
+ * $Id: capture_dlg.c,v 1.23 2000/05/08 05:42:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,6 +70,9 @@
 #define E_CAP_AUTO_SCROLL_KEY "cap_auto_scroll"
 #define E_CAP_RESOLVE_KEY     "cap_resolve"
 
+#define E_FS_CALLER_PTR_KEY       "fs_caller_ptr"
+#define E_FILE_SEL_DIALOG_PTR_KEY "file_sel_dialog_ptr"
+
 static void
 capture_prep_file_cb(GtkWidget *w, gpointer te);
 
@@ -78,6 +81,9 @@ cap_prep_fs_ok_cb(GtkWidget *w, gpointer data);
 
 static void
 cap_prep_fs_cancel_cb(GtkWidget *w, gpointer data);
+
+static void
+cap_prep_fs_destroy_cb(GtkWidget *win, gpointer data);
 
 static void
 capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w);
@@ -324,11 +330,33 @@ capture_prep_cb(GtkWidget *w, gpointer d)
 static void
 capture_prep_file_cb(GtkWidget *w, gpointer file_te)
 {
+  GtkWidget *caller = gtk_widget_get_toplevel(w);
   GtkWidget *fs;
+
+  /* Has a file selection dialog box already been opened for that top-level
+     widget? */
+  fs = gtk_object_get_data(GTK_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY);
+
+  if (fs != NULL) {
+    /* Yes.  Just re-activate that dialog box. */
+    reactivate_window(fs);
+    return;
+  }
 
   fs = gtk_file_selection_new ("Ethereal: Capture File");
 
   gtk_object_set_data(GTK_OBJECT(fs), E_CAP_FILE_TE_KEY, file_te);
+
+  /* Set the E_FS_CALLER_PTR_KEY for the new dialog to point to our caller. */
+  gtk_object_set_data(GTK_OBJECT(fs), E_FS_CALLER_PTR_KEY, caller);
+
+  /* Set the E_FILE_SEL_DIALOG_PTR_KEY for the caller to point to us */
+  gtk_object_set_data(GTK_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, fs);
+
+  /* Call a handler when the file selection box is destroyed, so we can inform
+     our caller, if any, that it's been destroyed. */
+  gtk_signal_connect(GTK_OBJECT(fs), "destroy",
+	    GTK_SIGNAL_FUNC(cap_prep_fs_destroy_cb), NULL);
 
   gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(fs)->ok_button),
     "clicked", (GtkSignalFunc) cap_prep_fs_ok_cb, fs);
@@ -354,6 +382,24 @@ cap_prep_fs_cancel_cb(GtkWidget *w, gpointer data)
 {
   gtk_widget_destroy(GTK_WIDGET(data));
 }  
+
+static void
+cap_prep_fs_destroy_cb(GtkWidget *win, gpointer data)
+{
+  GtkWidget *caller;
+
+  /* Get the widget that requested that we be popped up.
+     (It should arrange to destroy us if it's destroyed, so
+     that we don't get a pointer to a non-existent window here.) */
+  caller = gtk_object_get_data(GTK_OBJECT(win), E_FS_CALLER_PTR_KEY);
+
+  /* Tell it we no longer exist. */
+  gtk_object_set_data(GTK_OBJECT(caller), E_FILE_SEL_DIALOG_PTR_KEY, NULL);
+
+  /* Now nuke this window. */
+  gtk_grab_remove(GTK_WIDGET(win));
+  gtk_widget_destroy(GTK_WIDGET(win));
+}
 
 static void
 capture_prep_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
@@ -440,6 +486,7 @@ static void
 capture_prep_destroy_cb(GtkWidget *win, gpointer user_data)
 {
   GtkWidget *capture_prep_filter_w;
+  GtkWidget *fs;
 
   /* Is there a filter edit/selection dialog associated with this
      Capture Preferences dialog? */
@@ -448,6 +495,15 @@ capture_prep_destroy_cb(GtkWidget *win, gpointer user_data)
   if (capture_prep_filter_w != NULL) {
     /* Yes.  Destroy it. */
     gtk_widget_destroy(capture_prep_filter_w);
+  }
+
+  /* Is there a file selection dialog associated with this
+     Print File dialog? */
+  fs = gtk_object_get_data(GTK_OBJECT(win), E_FILE_SEL_DIALOG_PTR_KEY);
+
+  if (fs != NULL) {
+    /* Yes.  Destroy it. */
+    gtk_widget_destroy(fs);
   }
 
   /* Note that we no longer have a "Capture Preferences" dialog box. */
