@@ -1,7 +1,7 @@
 
 =head1 NAME
 
-mergecap - Merges two capture files into one
+mergecap - Merges two or more capture files into one
 
 =head1 SYNOPSYS
 
