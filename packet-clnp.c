@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.66 2003/02/04 21:43:56 deniel Exp $
+ * $Id: packet-clnp.c,v 1.67 2003/02/25 18:59:47 guy Exp $
  * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -278,6 +278,8 @@ static const value_string tp_vpart_type_vals[] = {
 static heur_dissector_list_t cotp_is_heur_subdissector_list;
 /* List of dissectors to call for COTP packets put atop CLNP */
 static heur_dissector_list_t cotp_heur_subdissector_list;
+/* List of dissectors to call for CLNP packets */
+static heur_dissector_list_t clnp_heur_subdissector_list;
 
 /*
  * Reassembly of CLNP.
@@ -1054,7 +1056,9 @@ static int ositp_decode_RJ(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 } /* ositp_decode_RJ */
 
 static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
-			 packet_info *pinfo, proto_tree *tree)
+			 packet_info *pinfo, proto_tree *tree,
+			 gboolean uses_inactive_subset,
+			 gboolean *subdissector_found)
 {
 
   /* CC & CR decoding in the same function */
@@ -1063,6 +1067,7 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   proto_item *ti;
   guint16 dst_ref, src_ref;
   guchar  class_option;
+  tvbuff_t *next_tvb;
 
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
   class_option = (tvb_get_guint8(tvb, offset + P_CLASS_OPTION) >> 4 ) & 0x0F;
@@ -1118,8 +1123,17 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
     ositp_decode_var_part(tvb, offset, li, class_option, cotp_tree);
   offset += li;
 
-  /* User data */
-  call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
+  next_tvb = tvb_new_subset(tvb, offset, -1, -1);
+  if (!uses_inactive_subset){
+    if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb,
+				pinfo, tree)) {
+      *subdissector_found = TRUE;
+    } else {
+      call_dissector(data_handle,next_tvb, pinfo, tree);
+    }
+  }
+  else
+    call_dissector(data_handle, next_tvb, pinfo, tree);
   offset += tvb_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
 
@@ -1534,7 +1548,8 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
     switch (tpdu) {
       case CC_TPDU :
       case CR_TPDU :
-        new_offset = ositp_decode_CC(tvb, offset, li, tpdu, pinfo, tree);
+        new_offset = ositp_decode_CC(tvb, offset, li, tpdu, pinfo, tree,
+				     uses_inactive_subset, &subdissector_found);
         break;
       case DR_TPDU :
         new_offset = ositp_decode_DR(tvb, offset, li, tpdu, pinfo, tree);
@@ -1936,6 +1951,12 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           return;	/* yes, it appears to be COTP or CLTP */
         }
       }
+      if (dissector_try_heuristic(clnp_heur_subdissector_list, next_tvb,
+				  pinfo, tree))	{
+          pinfo->fragmented = save_fragmented;
+          return;	/* yes, it appears to be COTP or CLTP */
+      }
+	
       break;
 
     case ER_NPDU:
@@ -2065,6 +2086,7 @@ void proto_register_clnp(void)
   proto_register_field_array(proto_clnp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   register_dissector("clnp", dissect_clnp, proto_clnp);
+  register_heur_dissector_list("clnp", &clnp_heur_subdissector_list);  
 
   clnp_module = prefs_register_protocol(proto_clnp, NULL);
   prefs_register_uint_preference(clnp_module, "tp_nsap_selector",
