@@ -75,7 +75,7 @@ Ethereal Info
   <!ENTITY EtherealWebSite "http://www.ethereal.com">
   <!ENTITY EtherealUsersGuidePage "&EtherealWebSite;/docs/#usersguide">
   <!ENTITY EtherealDownloadPage "&EtherealWebSite;/download.html">
-  <!ENTITY EtherealBinariesPage "&EtherealWebSite;/download.html#binaries">
+  <!ENTITY EtherealBinariesPage "&EtherealWebSite;/download.html#releases">
   <!ENTITY EtherealAuthorsPage "&EtherealWebSite;/introduction.html#authors">
   <!ENTITY EtherealProtocolsPage "&EtherealWebSite;/docs/dfref/">
   <!ENTITY EtherealFAQPage "&EtherealWebSite;/faq.html">

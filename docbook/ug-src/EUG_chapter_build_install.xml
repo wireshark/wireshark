@@ -422,9 +422,7 @@ apt-get install ethereal
       used by the <command>libtool</command> script to construct the final 
       link command, this leads to mysterious problems.  This can be 
       resolved by downloading a recent version of sed from 
-      <ulink url="http://www.gnu.org/directory/sed.html">
-	http://www.gnu.org/directory/sed.html
-      </ulink>.
+      <ulink url="http://directory.fsf.org/GNU/sed.html"/>.
     </para>
     <para>
       If you cannot determine what the problems are, send mail to the 

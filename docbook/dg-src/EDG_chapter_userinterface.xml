@@ -32,7 +32,8 @@
 	<itemizedlist>
 	  <listitem><para>
 	  Packetyzer (Win32 native interface, written in Delphi and released
-	  under the GPL, see: <ulink url="http://www.packetyzer.com"/>)
+	  under the GPL, see: 
+	  <ulink url="http://www.networkchemistry.com/products/packetyzer/"/>)
 	  </para></listitem>
 	  <listitem><para>
 	  hethereal (web based frontend, not actively maintained and not
@@ -239,7 +240,7 @@
 	<itemizedlist>
 	  <listitem><para>
 	  GNOME Human Interface Guidelines at:
-	  <ulink url="http://developer.gnome.org/projects/gup/hig"/>
+	  <ulink url="http://developer.gnome.org/projects/gup/hig/"/>
 	  </para></listitem>
 	  <listitem><para>
 	  KDE user interface related documents at:

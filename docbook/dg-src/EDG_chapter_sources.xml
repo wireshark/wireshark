@@ -172,7 +172,7 @@
 	You can use a Subversion client to download the source code from 
 	Ethereal's anonymous Subversion repository. The URL for the repository 
 	trunk is:
-	<ulink url="http://anonsvn.ethereal.com/ethereal/trunk"/>.
+	<ulink url="http://anonsvn.ethereal.com/ethereal/trunk/"/>.
 	</para>
 	<tip><title>Tip!</title>
 	<para>
