@@ -1100,6 +1100,7 @@ B<http://www.ethereal.com>.
   Riaan Swart              <rswart@cs.sun.ac.za>
   Christian Lacunza        <celacunza@gmx.net>
   Michael Rozhavsky        <mike@tochna.technion.ac.il>
+  Scott Renfro             <scott@renfro.org>
 
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.24 2001/04/15 07:35:26 guy Exp $
+ * $Id: packet-ldap.c,v 1.25 2001/05/08 19:46:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -804,6 +804,9 @@ static int dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
   read_string(a, 0, -1, 0, &string1, ASN1_UNI, ASN1_OTS);
   read_string(a, 0, -1, 0, &string2, ASN1_UNI, ASN1_OTS);
 
+  if (string1 == 0 && string2 == 0) /* read_string failed */
+    return 1;
+
   length = 2 + strlen(string1) + strlen(string2);
   compare = g_malloc0(length);
   snprintf(compare, length, "%s=%s", string1, string2);
@@ -882,6 +885,11 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   int first_time = 1;
   int ret;
 
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL, "LDAP");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
+
   if (tree) 
   {
     ti = proto_tree_add_item(tree, proto_ldap, tvb, offset, tvb_length(tvb),
@@ -900,13 +908,23 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     message_start = a.offset;
     if (read_sequence(&a, &messageLength))
     {
+      if (check_col(pinfo->fd, COL_INFO))
+        col_set_str(pinfo->fd, COL_INFO, "Invalid LDAP packet");
       if (ldap_tree)
         proto_tree_add_text(ldap_tree, tvb, offset, 1, "Invalid LDAP packet");
       break;
     }
 
     message_id_start = a.offset;
-    read_integer(&a, 0, -1, 0, &messageId, ASN1_INT);
+    if (read_integer(&a, 0, -1, 0, &messageId, ASN1_INT))
+    {
+      if (check_col(pinfo->fd, COL_INFO))
+        col_set_str(pinfo->fd, COL_INFO, "Invalid LDAP packet (No Message ID)");
+      if (ldap_tree)
+        proto_tree_add_text(ldap_tree, tvb, message_id_start, 1,
+                            "Invalid LDAP packet (No Message ID)");
+      break;
+    }
     message_id_length = a.offset - message_id_start;
 
     start = a.offset;
@@ -918,9 +936,6 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (first_time)
     {
-      if (check_col(pinfo->fd, COL_PROTOCOL))
-        col_set_str(pinfo->fd, COL_PROTOCOL, "LDAP");
-
       if (check_col(pinfo->fd, COL_INFO))
         col_add_fstr(pinfo->fd, COL_INFO, "MsgId=%u MsgType=%s",
 		     messageId, typestr);
