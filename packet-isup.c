@@ -9,7 +9,7 @@
  * Modified 2004-01-10 by Anders Broman to add abillity to dissect
  * Content type application/ISUP RFC 3204 used in SIP-T
  *
- * $Id: packet-isup.c,v 1.58 2004/03/31 21:04:16 guy Exp $
+ * $Id: packet-isup.c,v 1.59 2004/04/01 20:34:51 etxrab Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5992,15 +5992,14 @@ proto_register_isup(void)
 			FT_UINT8, BASE_DEC, VALS(isup_UUI_response_service_values), ED_8BIT_MASK,
 			"", HFILL }},
 
-		{ &hf_isup_UUI_network_discard_ind,
-			{ "User-to-User indicator network discard indicator",  "isup.UUI_network_discard_ind",
-			FT_BOOLEAN, 8, TFS(&isup_MLPP_user_ind_value), H_8BIT_MASK,
-			"", HFILL }},
-
-
 		{ &hf_isup_UUI_res_service3,
 			{ "User-to-User response service 3",  "isup.UUI_res_service3",
 			FT_UINT8, BASE_DEC, VALS(isup_UUI_response_service_values), GF_8BIT_MASK,
+			"", HFILL }},
+
+		{ &hf_isup_UUI_network_discard_ind,
+			{ "User-to-User indicator network discard indicator",  "isup.UUI_network_discard_ind",
+			FT_BOOLEAN, 8, TFS(&isup_UUI_network_discard_ind_value), H_8BIT_MASK,
 			"", HFILL }},
 
 		{ &hf_isup_access_delivery_ind,
@@ -6346,3 +6345,4 @@ proto_reg_handoff_bicc(void)
   dissector_add("mtp3.service_indicator", MTP3_BICC_SERVICE_INDICATOR, bicc_handle);
   dissector_add("m3ua.protocol_data_si", MTP3_BICC_SERVICE_INDICATOR, bicc_handle);
 }
+=
