@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.119 1999/11/08 01:03:31 guy Exp $
+ * $Id: file.c,v 1.120 1999/11/17 21:58:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,8 +93,6 @@
 
 #include "packet-ipv6.h"
 
-#include "packet-ncp.h"
-
 #include "packet-sna.h"
 
 #include "packet-vines.h"
@@ -147,10 +145,7 @@ open_cap_file(char *fname, capture_file *cf) {
   conversation_init();
 
   /* Initialize protocol-specific variables */
-  afs_init_protocol();
-  ncp_init_protocol();
-  rpc_init_protocol();
-  smb_init_protocol();
+  init_all_protocols();
 
   cf->wth = wth;
   cf->fh = fh;
@@ -861,8 +856,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf
   }
 
   /* Apply the filters */
-  if (cf->dfcode != NULL ||
-      CFILTERS_CONTAINS_FILTER(cf)) {
+  if (cf->dfcode != NULL || CFILTERS_CONTAINS_FILTER(cf)) {
 	protocol_tree = proto_tree_create_root();
 	dissect_packet(buf, fdata, protocol_tree);
 	if (cf->dfcode != NULL)
@@ -1063,6 +1057,15 @@ colorize_packets(capture_file *cf)
   frame_data *fd;
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
+
+  /* We need to re-initialize all the state information that protocols
+     keep, because we're making a fresh pass through all the packets. */
+
+  /* Initialize the table of conversations. */
+  conversation_init();
+
+  /* Initialize protocol-specific variables */
+  init_all_protocols();
 
   gtk_progress_set_activity_mode(GTK_PROGRESS(prog_bar), FALSE);
 

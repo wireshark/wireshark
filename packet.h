@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.143 1999/11/17 02:17:07 guy Exp $
+ * $Id: packet.h,v 1.144 1999/11/17 21:58:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -245,9 +245,14 @@ void       col_append_str(frame_data *, gint, gchar *);
 
 void blank_packetinfo(void);
 
-void afs_init_protocol(void);
-void rpc_init_protocol(void);
-void smb_init_protocol(void);
+/* Allow protocols to register "init" routines, which are called before
+   we make a pass through a capture file and dissect all its packets
+   (e.g., when we read in a new capture file, or run a "filter packets"
+   or "colorize packets" pass over the current capture file). */
+void register_init_routine(void (*func)(void));
+
+/* Call all the registered "init" routines. */
+void init_all_protocols(void);
 
 void dissect_packet(const u_char *, frame_data *, proto_tree *);
 

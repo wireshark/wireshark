@@ -6,7 +6,7 @@
  * Portions based on information retrieved from the RX definitions
  *   in Arla, the free AFS client at http://www.stacken.kth.se/project/arla/
  *
- * $Id: packet-afs.c,v 1.6 1999/11/16 11:42:23 guy Exp $
+ * $Id: packet-afs.c,v 1.7 1999/11/17 21:58:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -685,7 +685,7 @@ afs_hash (gconstpointer v)
 /*
  * Protocol initialization
  */
-void
+static void
 afs_init_protocol(void)
 {
 	if (afs_request_hash)
@@ -2607,4 +2607,5 @@ proto_register_afs(void)
 	proto_afs = proto_register_protocol("Andrew File System (AFS)", "afs");
 	proto_register_field_array(proto_afs, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	register_init_routine(&afs_init_protocol);
 }

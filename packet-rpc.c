@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.16 1999/11/16 11:42:51 guy Exp $
+ * $Id: packet-rpc.c,v 1.17 1999/11/17 21:58:32 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -1015,10 +1015,11 @@ dissect_rpc_prog:
 	return TRUE;
 }
 
-/* will be called from file.c on every new file open */
-void
+/* Discard any state we've saved. */
+static void
 rpc_init_protocol(void)
 {
+	memset(rpc_call_table, '\0', sizeof rpc_call_table);
 	rpc_call_index = 0;
 	rpc_call_firstfree = 0;
 }
@@ -1101,4 +1102,5 @@ proto_register_rpc(void)
 	proto_rpc = proto_register_protocol("Remote Procedure Call", "rpc");
 	proto_register_field_array(proto_rpc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	register_init_routine(&rpc_init_protocol);
 }

@@ -2,7 +2,7 @@
  * Routines for NetWare Core Protocol
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-ncp.c,v 1.21 1999/11/16 11:42:40 guy Exp $
+ * $Id: packet-ncp.c,v 1.22 1999/11/17 21:58:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -388,7 +388,7 @@ guint ncp_hash  (gconstpointer v)
 
 /* Initializes the hash table and the mem_chunk area each time a new
  * file is loaded or re-loaded in ethereal */
-void
+static void
 ncp_init_protocol(void)
 {
 	#if defined(DEBUG_NCP_HASH)
@@ -891,4 +891,5 @@ proto_register_ncp(void)
   proto_ncp = proto_register_protocol("NetWare Core Protocol", "ncp");
   proto_register_field_array(proto_ncp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  register_init_routine(&ncp_init_protocol);
 }

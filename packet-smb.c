@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.40 1999/11/16 17:03:36 gram Exp $
+ * $Id: packet-smb.c,v 1.41 1999/11/17 21:58:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -139,10 +139,10 @@ smb_hash (gconstpointer v)
 }
 
 /*
- * Initialize some variables every time a file is loaded or re-loaded
+ * Free up any state information we've saved, and re-initialize the
+ * tables of state information.
  */
-
-void
+static void
 smb_init_protocol(void)
 {
 #if defined(DEBUG_SMB_HASH)
@@ -10624,4 +10624,5 @@ proto_register_smb(void)
 	proto_browse = proto_register_protocol("Microsoft Windows Browser Protocol", "browser");
  /*       proto_register_field_array(proto_smb, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
+	register_init_routine(&smb_init_protocol);
 }

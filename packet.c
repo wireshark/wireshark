@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.54 1999/11/16 11:43:04 guy Exp $
+ * $Id: packet.c,v 1.55 1999/11/17 21:58:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -720,6 +720,33 @@ void blank_packetinfo(void)
   pi.ptype = PT_NONE;
   pi.srcport  = 0;
   pi.destport = 0;
+}
+
+/* Allow protocols to register "init" routines, which are called before
+   we make a pass through a capture file and dissect all its packets
+   (e.g., when we read in a new capture file, or run a "filter packets"
+   or "colorize packets" pass over the current capture file). */
+static GSList *init_routines;
+
+void
+register_init_routine(void (*func)(void))
+{
+	init_routines = g_slist_append(init_routines, func);
+}
+
+/* Call all the registered "init" routines. */
+static void
+call_init_routine(gpointer routine, gpointer dummy)
+{
+	void (*func)(void) = routine;
+
+	(*func)();
+}
+
+void
+init_all_protocols(void)
+{
+	g_slist_foreach(init_routines, &call_init_routine, NULL);
 }
 
 /* this routine checks the frame type from the cf structure */
