@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.152 2001/11/16 09:27:03 guy Exp $
+ * $Id: packet-smb.c,v 1.153 2001/11/16 09:52:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12367,13 +12367,9 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					if (si.cmd != 0xa4) {
 						/*
 						 * Not NT Cancel.
-						 * Remove the old entry,
-						 * and set "sip" to null
-						 * so that we allocate
-						 * a new one.
+						 * Remove the old entry.
 						 */
 						g_hash_table_remove(ct->unmatched, (void *)si.mid);
-						sip = NULL;
 					}
 				} else {
 					/* we have found a response to some request we have seen earlier.
@@ -12393,7 +12389,14 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 					}
 				}
 			}
-			if(si.request && sip == NULL){
+			if(si.request && si.cmd != 0xa4){
+				/*
+				 * A request, and not an NT Cancel request.
+				 * If we found a "smb_saved_info_t"
+				 * for this request, we removed it, and
+				 * we should allocate and fill in a new
+				 * one.
+				 */
 				sip = g_mem_chunk_alloc(smb_saved_info_chunk);
 				sip->frame_req = pinfo->fd->num;
 				sip->frame_res = 0;
