@@ -1,8 +1,9 @@
 /* packet-bootp.c
  * Routines for BOOTP/DHCP packet disassembly
- * Gilbert Ramirez <gram@alumni.rice.edu>
+ * Copyright 1998, Gilbert Ramirez <gram@alumni.rice.edu>
+ * Copyright 2004, Thomas Anders <thomas.anders [AT] blue-cable.de>
  *
- * $Id: packet-bootp.c,v 1.77 2003/12/03 20:01:20 guy Exp $
+ * $Id: packet-bootp.c,v 1.78 2004/05/07 08:02:22 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -15,6 +16,8 @@
  * RFC 3046: DHCP Relay Agent Information Option
  * RFC 3118: Authentication for DHCP Messages
  * RFC 3203: DHCP reconfigure extension
+ * RFC 3495: DHCP Option (122) for CableLabs Client Configuration
+ * RFC 3594: PacketCable Security Ticket Control Sub-Option (122.9)
  * BOOTP and DHCP Parameters
  *     http://www.iana.org/assignments/bootp-dhcp-parameters
  *
@@ -46,6 +49,7 @@
 #include <epan/int-64bit.h>
 #include <epan/packet.h>
 #include "packet-arp.h"
+#include "packet-dns.h"				/* for get_dns_name() */
 
 #include "prefs.h"
 #include "tap.h"
@@ -84,10 +88,12 @@ gboolean novell_string = FALSE;
 #define BOOTP_BC	0x8000
 #define BOOTP_MBZ	0x7FFF
 
+#define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
+
 enum field_type { none, ipv4, string, toggle, yes_no, special, opaque,
 	time_in_secs,
 	val_u_byte, val_u_short, val_u_le_short, val_u_long,
-	val_s_long };
+	val_s_long, fqdn, ipv4_or_fqdn };
 
 struct opt_info {
 	char	*text;
@@ -99,10 +105,12 @@ static const true_false_string flag_set_broadcast = {
   "Unicast"
 };
 
-#define NUM_OPT_INFOS 211
-#define NUM_O63_SUBOPTS 11
 
 static int dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb,
+    int optp);
+static int dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb,
+    int optp);
+static int dissect_cablelabs_clientconfig_suboption(proto_tree *v_tree, tvbuff_t *tvb,
     int optp);
 static int dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb,
     int optp);
@@ -216,7 +224,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	static struct opt_info opt[] = {
 		/*   0 */ { "Padding",					none },
 		/*   1 */ { "Subnet Mask",				ipv4 },
-		/*   2 */ { "Time Offset",				val_s_long },
+		/*   2 */ { "Time Offset",				time_in_secs },
 		/*   3 */ { "Router",					ipv4 },
 		/*   4 */ { "Time Server",				ipv4 },
 		/*   5 */ { "Name Server",				ipv4 },
@@ -331,12 +339,12 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		/* 114 */ { "URL",					opaque },
 		/* 115 */ { "DHCP Failover Protocol",			opaque },
 		/* 116 */ { "DHCP Auto-Configuration",			opaque },
-		/* 117 */ { "Unassigned",				opaque },
-		/* 118 */ { "Unassigned",				opaque },
-		/* 119 */ { "Unassigned",				opaque },
-		/* 120 */ { "Unassigned",				opaque },
-		/* 121 */ { "Unassigned",				opaque },
-		/* 122 */ { "Unassigned",				opaque },
+		/* 117 */ { "Name Service Search",		       	opaque },
+		/* 118 */ { "Subnet Selection Option",		       	opaque },
+		/* 119 */ { "Domain Search",				opaque },
+		/* 120 */ { "SIP Servers",				opaque },
+		/* 121 */ { "Classless Static Route",		       	opaque },
+		/* 122 */ { "CableLabs Client Configuration",		special },
 		/* 123 */ { "Unassigned",				opaque },
 		/* 124 */ { "Unassigned",				opaque },
 		/* 125 */ { "Unassigned",				opaque },
@@ -588,6 +596,20 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 				optp = dissect_vendor_pxeclient_suboption(v_tree,
 					tvb, optp);
 			}
+		} else if (*vendor_class_id_p != NULL && 
+			   ((strncmp(*vendor_class_id_p, "pktc", strlen("pktc")) == 0) || 
+                            (strncmp(*vendor_class_id_p, "docsis", strlen("docsis")) == 0) || 
+                            (strncmp(*vendor_class_id_p, "CableHome", strlen("CableHome")) == 0))) {
+		        /* CableLabs standard - see www.cablelabs.com/projects */
+		        vti = proto_tree_add_text(bp_tree, tvb, voff,
+				consumed, "Option %d: %s (CableLabs)", code, text);
+			v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+
+			optp = voff+2;
+			while (optp < voff+consumed) {
+			        optp = dissect_vendor_cablelabs_suboption(v_tree,
+					tvb, optp);
+			}
 		} else {
 			proto_tree_add_text(bp_tree, tvb, voff, consumed,
 				"Option %d: %s (%d bytes)", code, text, vlen);
@@ -658,7 +680,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
 		for (i = 0; i < vlen; i++) {
 			byte = tvb_get_guint8(tvb, voff+2+i);
-			if (byte < NUM_OPT_INFOS) {
+			if (byte < array_length(opt)) {
 				proto_tree_add_text(v_tree, tvb, voff+2+i, 1, "%d = %s",
 						byte, opt[byte].text);
 			} else {
@@ -781,6 +803,16 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
         }
         break;
 
+	case 122:       /* CableLabs Client Configuration */
+	        vti = proto_tree_add_text(bp_tree, tvb, voff,
+			vlen + 2, "Option %d: %s", code, text);
+		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+		optp = voff+2;
+		while (optp < voff+consumed) {
+		        optp = dissect_cablelabs_clientconfig_suboption(v_tree, tvb, optp);
+		}	        
+		break;
+
 	case 90:	/* DHCP Authentication */
 	case 210:	/* Was this used for authentication at one time? */
 		vti = proto_tree_add_text(bp_tree, tvb, voff,
@@ -864,7 +896,7 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	}
 
 	/* Normal cases */
-	if (code < NUM_OPT_INFOS) {
+	if (code < array_length(opt)) {
 		text = opt[code].text;
 		ftype = opt[code].ftype;
 
@@ -994,15 +1026,18 @@ bootp_dhcp_decode_agent_info(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 	switch (subopt) {
 	case 1:
 		proto_tree_add_text(v_tree, tvb, optp, subopt_len + 2,
-				    "Agent Circuit ID (%d bytes)", subopt_len);
+				    "Agent Circuit ID: %s",
+				    tvb_bytes_to_str(tvb, optp+2, subopt_len));
 		break;
 	case 2:
 		proto_tree_add_text(v_tree, tvb, optp, subopt_len + 2,
-				    "Agent Remote ID (%d bytes)", subopt_len);
+				    "Agent Remote ID: %s",
+				    tvb_bytes_to_str(tvb, optp+2, subopt_len));
 		break;
 	default:
 		proto_tree_add_text(v_tree, tvb, optp, subopt_len + 2,
-				    "Unknown agent option: %d", subopt);
+				    "Invalid agent suboption %d (%d bytes)", 
+				    subopt, subopt_len);
 		break;
 	}
 	optp += (subopt_len + 2);
@@ -1046,7 +1081,6 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		/* 71 {"PXE boot item", special} */
 		/* 255 {"PXE end options", special} */
 	};
-#define NUM_O43PXECLIENT_SUBOPTS (12)
 
 	subopt = tvb_get_guint8(tvb, optp);
 
@@ -1067,11 +1101,11 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 		proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
 			"Suboption %d: %s (%d byte%s)" ,
 	 		subopt, "PXE boot item",
-			subopt_len, (subopt_len != 1)?"s":"");
-	} else if ( (subopt < 1 ) || (subopt > NUM_O43PXECLIENT_SUBOPTS) ) {
+			subopt_len, PLURALIZE(subopt_len));
+	} else if ((subopt < 1 ) || (subopt > array_length(o43pxeclient_opt))) {
 		proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
 			"Unknown suboption %d (%d byte%s)", subopt, subopt_len,
-			(subopt_len != 1)?"s":"");
+			PLURALIZE(subopt_len));
 	} else {
 		switch (o43pxeclient_opt[subopt].ft) {
 
@@ -1085,7 +1119,7 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
 				"Suboption %d: %s (%d byte%s)" ,
 		 		subopt, o43pxeclient_opt[subopt].text,
-				subopt_len, (subopt_len != 1)?"s":"");
+				subopt_len, PLURALIZE(subopt_len));
 			break;
 
 		case val_u_le_short:
@@ -1129,6 +1163,104 @@ dissect_vendor_pxeclient_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 }
 
 static int
+dissect_vendor_cablelabs_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
+{
+	guint8 subopt;
+	guint8 subopt_len;
+
+	struct o43cablelabs_opt_info {
+		char	*text;
+		enum field_type	ft;
+	};
+
+	static struct o43cablelabs_opt_info o43cablelabs_opt[]= {
+		/* 0 */ {"nop", special},	/* dummy */
+		/* 1 */ {"Suboption Request List", string},
+		/* 2 */ {"Device Type", string},
+		/* 3 */ {"eSAFE Types", string},
+		/* 4 */ {"Serial Number", string},
+		/* 5 */ {"Hardware Version", string},
+		/* 6 */ {"Software Version", string},
+		/* 7 */ {"Boot ROM version", string},
+		/* 8 */ {"Organizational Unique Identifier", string},
+		/* 9 */ {"Model Number", string},
+		/* 10 */ {"Vendor Name", string},
+		/* *** 11-30: CableHome *** */
+		/* 11 */ {"PS WAN-Man", special},
+		/* 12 */ {"CM/PS System Description", string},
+		/* 13 */ {"CM/PS Firmware Revision", string},
+		/* 14 */ {"Firewall Policy File Version", string},
+		/* 15 */ {"Unassigned (CableHome)", special},
+		/* 16 */ {"Unassigned (CableHome)", special},
+		/* 17 */ {"Unassigned (CableHome)", special},
+		/* 18 */ {"Unassigned (CableHome)", special},
+		/* 19 */ {"Unassigned (CableHome)", special},
+		/* 20 */ {"Unassigned (CableHome)", special},
+		/* 21 */ {"Unassigned (CableHome)", special},
+		/* 22 */ {"Unassigned (CableHome)", special},
+		/* 23 */ {"Unassigned (CableHome)", special},
+		/* 24 */ {"Unassigned (CableHome)", special},
+		/* 25 */ {"Unassigned (CableHome)", special},
+		/* 26 */ {"Unassigned (CableHome)", special},
+		/* 27 */ {"Unassigned (CableHome)", special},
+		/* 28 */ {"Unassigned (CableHome)", special},
+		/* 29 */ {"Unassigned (CableHome)", special},
+		/* 30 */ {"Unassigned (CableHome)", special},
+		/* *** 31-50: PacketCable *** */
+		/* 31 */ {"MTA MAC Address", string},
+		/* 32 */ {"Correlation ID", string},
+		/* 33-50 {"Unassigned (PacketCable)", special}, */
+		/* *** 51-127: CableLabs *** */
+		/* 51-127 {"Unassigned (CableLabs)", special}, */
+		/* *** 128-254: Vendors *** */
+		/* 128-254 {"Unassigned (Vendors)", special}, */
+		/* 255 {"end options", special} */
+	};
+
+	subopt = tvb_get_guint8(tvb, optp);
+
+	if (subopt == 0 ) {
+		proto_tree_add_text(v_tree, tvb, optp, 1, "Padding");
+                return (optp+1);
+	} else if (subopt == 255) {	/* End Option */
+		proto_tree_add_text(v_tree, tvb, optp, 1, "End option");
+		/* Make sure we skip any junk left this option */
+		return (optp+255);
+	}
+
+	subopt_len = tvb_get_guint8(tvb, optp+1);
+
+	if ( (subopt < 1 ) || (subopt > array_length(o43cablelabs_opt)) ) {
+		proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+			"Suboption %d: Unassigned (%d byte%s)", subopt, subopt_len,
+			PLURALIZE(subopt_len));
+	} else {
+		switch (o43cablelabs_opt[subopt].ft) {
+
+		case string:
+			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+				"Suboption %d: %s = \"%.*s\"", subopt, 
+				o43cablelabs_opt[subopt].text, subopt_len,
+				tvb_get_ptr(tvb, optp+2, subopt_len));
+			break;
+    
+		case special:
+			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+				"Suboption %d: %s (%d byte%s)" ,
+		 		subopt, o43cablelabs_opt[subopt].text,
+				subopt_len, PLURALIZE(subopt_len));
+			break;
+
+		default:
+			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,"ERROR, please report: Unknown subopt type handler %d", subopt);
+			break;
+		}
+	}
+	optp += (subopt_len + 2);
+	return optp;
+}
+
+static int
 dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 {
 	guint8 subopt;
@@ -1159,7 +1291,7 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 	};
 
 	subopt = tvb_get_guint8(tvb, optp);
-	if (subopt > NUM_O63_SUBOPTS) {
+	if (subopt > array_length(o63_opt)) {
 		proto_tree_add_text(v_tree, tvb,optp,1,"Unknown suboption %d", subopt);
 		optp++;
 	} else {
@@ -1224,6 +1356,113 @@ dissect_netware_ip_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
 	}
 	return optp;
 }
+
+static int
+dissect_cablelabs_clientconfig_suboption(proto_tree *v_tree, tvbuff_t *tvb, int optp)
+{
+	guint8 subopt;
+	guint8 subopt_len;
+	guint8 flag;
+	char dname[MAXDNAME];
+	int dname_len;
+
+	struct o122cablelabs_opt_info {
+		char	*text;
+		enum field_type	ft;
+	};
+
+	static struct o122cablelabs_opt_info o122cablelabs_opt[]= {
+		/* 0 */ {"nop", special},	/* dummy */
+		/* 1 */ {"TSP's Primary DHCP Server Address", ipv4},
+		/* 2 */ {"TSP's Secondary DHCP Server Address", ipv4},
+		/* 3 */ {"TSP's Provisioning Server Address", ipv4_or_fqdn},
+		/* 4 */ {"TSP's AS-REQ/AS-REP Backoff and Retry", special},
+		/* 5 */ {"TSP's AP-REQ/AP-REP Backoff and Retry", special},
+		/* 6 */ {"TSP's Kerberos Realm Name", fqdn},
+		/* 7 */ {"TSP's Ticket Granting Server Utilization", special},
+		/* 8 */ {"TSP's Provisioning Timer Value", special},
+		/* 9 */ {"PacketCable Security Ticket Control", special},
+		/* *** 10-255: Reserved for future use *** */
+	};
+
+	subopt = tvb_get_guint8(tvb, optp);
+	subopt_len = tvb_get_guint8(tvb, optp+1);
+
+	if ((subopt < 1 ) || (subopt > array_length(o122cablelabs_opt))) {
+		proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+			"Suboption %d: Unassigned (%d byte%s)", subopt, subopt_len,
+			PLURALIZE(subopt_len));
+	} else {
+		switch (o122cablelabs_opt[subopt].ft) {
+
+		case string:
+			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+				"Suboption %d: %s = \"%.*s\"", subopt, 
+				o122cablelabs_opt[subopt].text, subopt_len,
+				tvb_get_ptr(tvb, optp+2, subopt_len));
+			break;
+    
+		case special:
+			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+				"Suboption %d: %s (%d byte%s)" ,
+		 		subopt, o122cablelabs_opt[subopt].text,
+				subopt_len, PLURALIZE(subopt_len));
+			break;
+		case ipv4:
+			proto_tree_add_text(v_tree, tvb, optp, 6,
+				"Suboption %d: %s = %s",
+				subopt, o122cablelabs_opt[subopt].text,
+				ip_to_str(tvb_get_ptr(tvb, optp+2, 4)));
+			break;
+		case fqdn:
+		        dname_len = get_dns_name(tvb, optp+2, optp+2, dname, sizeof(dname));
+			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+				"Suboption %d: %s = %.*s", subopt, 
+				o122cablelabs_opt[subopt].text, 
+				dname_len, dname);
+		        break;
+		case ipv4_or_fqdn:
+		        flag = tvb_get_guint8(tvb, optp+2);
+			if (flag == 0) { /* FQDN */
+			        dname_len = get_dns_name(tvb, optp+3, optp+3, dname, sizeof(dname));
+				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+				        "Suboption %d: %s = %.*s", subopt, 
+				        o122cablelabs_opt[subopt].text, 
+					dname_len, dname);
+			} else if (flag == 1) { /* IPv4 */
+			        proto_tree_add_text(v_tree, tvb, optp, 6,
+			                "Suboption %d: %s = %s",
+					subopt, o122cablelabs_opt[subopt].text,
+				        ip_to_str(tvb_get_ptr(tvb, optp+3, 4)));
+			} else {
+			        proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+					"Suboption %d: %s = Invalid Value (%d byte%s)", 
+					subopt, o122cablelabs_opt[subopt].text, 
+					subopt_len, PLURALIZE(subopt_len));
+			}
+			break;
+		case yes_no:
+			flag = tvb_get_guint8(tvb, optp+2);
+			if (flag == 0 || flag == 1) {
+				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+					"Suboption %d: %s = %s", subopt,
+					o122cablelabs_opt[subopt].text,    
+					flag == 0 ? "No" : "Yes");
+			} else {
+				proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,
+					"Suboption %d: %s = Invalid Value %d",
+					subopt, o122cablelabs_opt[subopt].text, flag);
+			}
+			break;
+		default:
+			proto_tree_add_text(v_tree, tvb, optp, subopt_len+2,"ERROR, please report: Unknown subopt type handler %d", subopt);
+			break;
+		}
+	}
+	optp += (subopt_len + 2);
+	return optp;
+}
+
 
 #define BOOTREQUEST	1
 #define BOOTREPLY	2
