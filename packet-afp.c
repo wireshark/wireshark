@@ -2,7 +2,7 @@
  * Routines for afp packet dissection
  * Copyright 2002, Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id: packet-afp.c,v 1.29 2003/03/30 22:14:06 guy Exp $
+ * $Id: packet-afp.c,v 1.30 2003/05/15 05:53:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1112,9 +1112,21 @@ parse_UTF8_filename(proto_tree *tree, tvbuff_t *tvb, gint offset, gint org_offse
 	unameoff = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(tree, hf_afp_unicode_name_offset,tvb, offset, 2, FALSE);
 	offset += 2;
-	PAD(4);
 	if (unameoff) {
+	      /* FIXME AFP3.x reuses PDINFO bit for UTF8. 
+	       * In enumerate_ext it's pad with 4 bytes, PDINFO was 6 bytes,
+	       * but not in catsearch_ext. 
+	       * Last but not least there's a bug in OSX catsearch_ext for spec2
+	       * offset is off by 2 bytes.
+	       */
+	       
 		tp_ofs = unameoff +org_offset;
+	       if (tp_ofs > offset) {
+	           PAD(4);
+	        }
+	        else if (tp_ofs < offset) {
+	            tp_ofs = offset;
+	        }
 		proto_tree_add_item( tree, hf_afp_path_unicode_hint, tvb, tp_ofs, 4,FALSE);
 		tp_ofs += 4;
 
@@ -1855,7 +1867,7 @@ loop_record(tvbuff_t *tvb, proto_tree *ptree, gint offset,
 	for (i = 0; i < count; i++) {
 		org = offset;
 		if (ext) {
-			size = tvb_get_ntohs(tvb, offset);
+			size = tvb_get_ntohs(tvb, offset) +add *2;
 			decal = 2;
 		}
 		else {
@@ -1949,17 +1961,53 @@ dissect_reply_afp_enumerate_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 {
 	return reply_enumerate(tvb, tree, offset, 1);
 }
+
 /* **************************/
 static gint
-dissect_query_afp_cat_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ptree, gint offset)
+catsearch_spec(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext, guint32	bitmap, const gchar *label)
+{
+  	proto_tree *tree = NULL;
+  	proto_item *item;
+	guint16	size;
+	gint	org;
+
+	org = offset;
+
+	if (ext) {
+		size = tvb_get_ntohs(tvb, offset) +2;
+	}
+	else {
+		size = tvb_get_guint8(tvb, offset) +2;
+	}
+
+	item = proto_tree_add_text(ptree, tvb, offset, size, label);
+	tree = proto_item_add_subtree(item, ett_afp_cat_spec);
+
+	if (ext) {
+		proto_tree_add_item(tree, hf_afp_struct_size16, tvb, offset, 2,FALSE);
+		offset += 2;
+	}
+	else {
+		proto_tree_add_item(tree, hf_afp_struct_size, tvb, offset, 1,FALSE);
+		offset++;
+		PAD(1);
+	}
+
+	offset = parse_file_bitmap(tree, tvb, offset, bitmap,0);
+	offset = org +size;
+
+	return offset;
+}
+
+/* ------------------------- */
+static gint
+query_catsearch(tvbuff_t *tvb, proto_tree *ptree, gint offset, int ext)
 {
   	proto_tree *tree = NULL;
   	proto_item *item;
 	guint16 f_bitmap;
 	guint16 d_bitmap;
 	guint32	r_bitmap;
-	guint8	size;
-	gint	org;
 
 	if (!ptree)
 		return offset;
@@ -1983,46 +2031,39 @@ dissect_query_afp_cat_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	d_bitmap = decode_dir_bitmap(ptree, tvb, offset);
 	offset += 2;
 
-	/* FIXME req bitmap */
+	/* FIXME it's req bitmap and first bit is for partial match */
 	item = proto_tree_add_text(ptree, tvb, offset, 4, "Request bitmap");
 	tree = proto_item_add_subtree(item, ett_afp_cat_r_bitmap);
 	r_bitmap = decode_file_bitmap(tree, tvb, offset+2);
 	offset += 4;
 
 	/* spec 1 */
-	org = offset;
-	size = tvb_get_guint8(tvb, offset) +2;
-
-	item = proto_tree_add_text(ptree, tvb, offset, size, "Spec 1");
-	tree = proto_item_add_subtree(item, ett_afp_cat_spec);
-
-	proto_tree_add_item(tree, hf_afp_struct_size, tvb, offset, 1,FALSE);
-	offset++;
-	PAD(1);
-
-	offset = parse_file_bitmap(tree, tvb, offset, r_bitmap,0);
-	offset = org +size;
+	offset = catsearch_spec(tvb, ptree, offset, ext, r_bitmap, "Spec 1");
 
 	/* spec 2 */
-	org = offset;
-	size = tvb_get_guint8(tvb, offset) +2;
-
-	item = proto_tree_add_text(ptree, tvb, offset, size, "Spec 2");
-	tree = proto_item_add_subtree(item, ett_afp_cat_spec);
-
-	proto_tree_add_item(tree, hf_afp_struct_size, tvb, offset, 1,FALSE);
-	offset++;
-	PAD(1);
-
-	offset = parse_file_bitmap(tree, tvb, offset, r_bitmap,0);
-	offset = org +size;
-
+	offset = catsearch_spec(tvb, ptree, offset, ext, r_bitmap, "Spec 2");
+	
 	return offset;
 }
 
-/* -------------------------- */
+/* ------------------------- */
 static gint
-dissect_reply_afp_cat_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+dissect_query_afp_cat_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ptree, gint offset)
+{
+	return query_catsearch(tvb, ptree, offset, 0);
+
+}
+/* **************************/
+static gint
+dissect_query_afp_cat_search_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ptree, gint offset)
+{
+	return query_catsearch(tvb, ptree, offset, 1);
+
+}
+
+/* **************************/
+static gint
+reply_catsearch(tvbuff_t *tvb, proto_tree *tree, gint offset, int ext)
 {
   	proto_tree *sub_tree = NULL;
   	proto_item *item;
@@ -2046,7 +2087,21 @@ dissect_reply_afp_cat_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	}
 	offset += 4;
 
-	return loop_record(tvb,sub_tree, offset, count, d_bitmap, f_bitmap, 2, 0);
+	return loop_record(tvb,sub_tree, offset, count, d_bitmap, f_bitmap, 2, ext);
+}
+
+/* -------------------------- */
+static gint
+dissect_reply_afp_cat_search(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+	return reply_catsearch(tvb, tree, offset, 0);
+}
+
+/* **************************/
+static gint
+dissect_reply_afp_cat_search_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+	return reply_catsearch(tvb, tree, offset, 1);
 }
 
 /* **************************/
@@ -3362,6 +3417,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case AFP_EXCHANGEFILE:
 			offset = dissect_query_afp_exchange_file(tvb, pinfo, afp_tree, offset);break;
 		case AFP_CATSEARCH_EXT:
+			offset = dissect_query_afp_cat_search_ext(tvb, pinfo, afp_tree, offset);break;
 		case AFP_CATSEARCH:
 			offset = dissect_query_afp_cat_search(tvb, pinfo, afp_tree, offset);break;
 		case AFP_GETICON:
@@ -3429,8 +3485,8 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  			offset = dissect_reply_afp_get_fldr_param(tvb, pinfo, afp_tree, offset);break;
 		case AFP_OPENDT:
 			offset = dissect_reply_afp_open_dt(tvb, pinfo, afp_tree, offset);break;
-
 		case AFP_CATSEARCH_EXT:
+			offset = dissect_reply_afp_cat_search_ext(tvb, pinfo, afp_tree, offset);break;
 		case AFP_CATSEARCH:
 			offset = dissect_reply_afp_cat_search(tvb, pinfo, afp_tree, offset);break;
 		case AFP_GTICNINFO:
