@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.91 2002/05/09 12:10:05 sahlberg Exp $
+ * $Id: packet-rpc.c,v 1.92 2002/05/11 18:55:22 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2910,8 +2910,6 @@ proto_register_rpc(void)
 	proto_register_field_array(proto_rpc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_init_routine(&rpc_init_protocol);
-	rpc_tcp_handle = create_dissector_handle(dissect_rpc_tcp, proto_rpc);
-	rpc_handle = create_dissector_handle(dissect_rpc, proto_rpc);
 
 	rpc_module = prefs_register_protocol(proto_rpc, NULL);
 	prefs_register_bool_preference(rpc_module, "desegment_rpc_over_tcp",
@@ -2924,7 +2922,9 @@ proto_register_rpc(void)
 		&rpc_defragment);
 
 	register_dissector("rpc", dissect_rpc, proto_rpc);
+	rpc_handle = find_dissector("rpc");
 	register_dissector("rpc-tcp", dissect_rpc_tcp, proto_rpc);
+	rpc_tcp_handle = find_dissector("rpc-tcp");
 
 	/*
 	 * Init the hash tables.  Dissectors for RPC protocols must
