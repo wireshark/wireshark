@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.35 2002/01/24 09:20:51 guy Exp $
+ * $Id: packet-socks.c,v 1.36 2002/03/09 22:54:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -525,7 +525,7 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		++offset;
 						/* Do results code	*/
 		proto_tree_add_item( tree, hf_socks_results_4, tvb, offset, 1, FALSE);
-                proto_tree_add_uint_hidden(tree, hf_socks_results, tvb, offset, 1, FALSE);
+		proto_tree_add_item_hidden(tree, hf_socks_results, tvb, offset, 1, FALSE);
 
 		++offset;
 
@@ -631,11 +631,12 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		command = tvb_get_guint8(tvb, offset);
 		
 		if (compare_packet( hash_info->command_row))
-			proto_tree_add_uint( tree, hf_socks_cmd, tvb, offset, 1, FALSE);
+			proto_tree_add_uint( tree, hf_socks_cmd, tvb, offset, 1,
+			    command);
 
 		else {
 			proto_tree_add_item( tree, hf_socks_results_5, tvb, offset, 1, FALSE);
-                	proto_tree_add_uint_hidden(tree, hf_socks_results, tvb, offset, 1, FALSE);
+			proto_tree_add_item_hidden(tree, hf_socks_results, tvb, offset, 1, FALSE);
 		}
 
 		++offset;
@@ -1137,7 +1138,7 @@ proto_register_socks( void){
 			}
 		},
 		{ &hf_socks_cmd,
-			{ "Command", "socks.command", FT_UINT16,
+			{ "Command", "socks.command", FT_UINT8,
 				BASE_DEC,  VALS(cmd_strings), 0x0, "", HFILL
 			}
 		},

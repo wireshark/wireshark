@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.30 2002/01/21 07:36:36 guy Exp $
+ * $Id: packet-l2tp.c,v 1.31 2002/03/09 22:54:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -27,7 +27,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
-
 
 static int proto_l2tp = -1;
 static int hf_l2tp_type = -1;
@@ -462,7 +461,8 @@ dissect_l2tp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (OFFSET_BIT(control)) {
 	offset_size = tvb_get_ntohs(tvb, index);
 	if (tree) {
-		proto_tree_add_uint(l2tp_tree, hf_l2tp_offset, tvb, index, 2, FALSE);
+		proto_tree_add_uint(l2tp_tree, hf_l2tp_offset, tvb, index, 2,
+		    offset_size);
 	}
 	index += 2;
 	if (tree) {
