@@ -661,7 +661,7 @@ decrypt_arcfour(packet_info *pinfo,
 
 
 
-#ifdef HAVE_HEIMDAL_KERBEROS
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 
 static void
 decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int keytype)
@@ -738,7 +738,7 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 	}
 	return;
 }
-#endif /* HAVE_HEIMDAL_KERBEROS */
+#endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 
 
 #endif
@@ -848,12 +848,12 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 					GSS_ARCFOUR_WRAP_TOKEN_SIZE,
 					GSS_ARCFOUR_WRAP_TOKEN_SIZE);
 			}
-#ifdef HAVE_HEIMDAL_KERBEROS
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 			decrypt_gssapi_krb_arcfour_wrap(tree,
 				pinfo,
 				tvb,
 				23 /* rc4-hmac */);
-#endif
+#endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 		}
 	}	
 #endif

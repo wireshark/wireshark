@@ -56,7 +56,7 @@ int dissect_krb5_realm(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 #ifdef HAVE_KERBEROS
 #define KRB_MAX_ORIG_LEN	256
 
-#ifdef HAVE_HEIMDAL_KERBEROS
+#if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 typedef struct _enc_key_t {
 	struct _enc_key_t	*next;
 	int keytype;
@@ -66,7 +66,7 @@ typedef struct _enc_key_t {
 } enc_key_t;
 extern enc_key_t *enc_key_list;
 
-#endif /* HAVE_HEIMDAL_KERBEROS */
+#endif /* HAVE_HEIMDAL_KERBEROS || HAVE_MIT_KERBEROS */
 
 #endif /* HAVE_KERBEROS */
 
