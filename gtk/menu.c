@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.14 2000/01/03 04:06:09 guy Exp $
+ * $Id: menu.c,v 1.15 2000/01/08 23:34:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -190,7 +190,6 @@ set_menus_for_capture_file(gboolean have_capture_file)
   set_menu_sensitivity("/File/Save As...", have_capture_file);
   set_menu_sensitivity("/File/Close", have_capture_file);
   set_menu_sensitivity("/File/Reload", have_capture_file);
-  set_menu_sensitivity("/File/Print...", have_capture_file);
 }
 
 /* Enable or disable menu items based on whether you have an unsaved
@@ -215,6 +214,7 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
 void
 set_menus_for_captured_packets(gboolean have_captured_packets)
 {
+  set_menu_sensitivity("/File/Print...", have_captured_packets);
   set_menu_sensitivity("/Display/Match Selected", have_captured_packets);
   set_menu_sensitivity("/Display/Colorize Display...", have_captured_packets);
   set_menu_sensitivity("/Display/Find Frame...", have_captured_packets);
