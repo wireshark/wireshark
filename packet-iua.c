@@ -8,7 +8,7 @@
  *
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-iua.c,v 1.7 2001/06/18 02:17:48 guy Exp $
+ * $Id: packet-iua.c,v 1.8 2001/10/23 05:23:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -913,27 +913,27 @@ proto_register_iua(void)
 	"", HFILL }
     }, 
     { &hf_iua_spare_bit,
-      { "Spare bit", "hf.iua.spare_bit",
+      { "Spare bit", "iua.spare_bit",
 	FT_BOOLEAN, 8, NULL, SPARE_BIT_MASK,          
 	"", HFILL }
     }, 
     { &hf_iua_sapi,
-      { "SAPI", "hf.iua.sapi",
+      { "SAPI", "iua.sapi",
 	FT_UINT8, BASE_HEX, NULL, SAPI_MASK,          
 	"", HFILL }
     }, 
     { &hf_iua_zero_bit,
-      { "Zero bit", "hf.iua.zero_bit",
+      { "Zero bit", "iua.zero_bit",
 	FT_BOOLEAN, 8, NULL, ZERO_BIT_MASK,          
 	"", HFILL }
     }, 
     { &hf_iua_one_bit,
-      { "One bit", "hf.iua.one_bit",
+      { "One bit", "iua.one_bit",
 	FT_BOOLEAN, 8, NULL, ONE_BIT_MASK,          
 	"", HFILL }
     }, 
     { &hf_iua_tei,
-      { "TEI", "hf.iua.tei",
+      { "TEI", "iua.tei",
 	FT_UINT8, BASE_HEX, NULL, TEI_MASK,          
 	"", HFILL }
     },
