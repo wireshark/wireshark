@@ -1,8 +1,8 @@
 /* packet-nfs.c
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
- * Copyright 2000-2002, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
- * $Id: packet-nfs.c,v 1.96 2004/02/25 09:31:06 guy Exp $
+ * Copyright 2000-2004, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
+ * $Id: packet-nfs.c,v 1.97 2004/06/02 06:50:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -378,6 +378,8 @@ static gint ett_nfs_setclientid4 = -1;
 static gint ett_nfs_setclientid_confirm4 = -1;
 static gint ett_nfs_verify4 = -1;
 static gint ett_nfs_write4 = -1;
+static gint ett_nfs_release_lockowner4 = -1;
+static gint ett_nfs_illegal4 = -1;
 static gint ett_nfs_verifier4 = -1;
 static gint ett_nfs_opaque = -1;
 static gint ett_nfs_dirlist4 = -1;
@@ -6668,6 +6670,8 @@ static const value_string names_nfsv4_operation[] = {
 	{	NFS4_OP_SETCLIENTID_CONFIRM,	"SETCLIENTID_CONFIRM"	},
 	{	NFS4_OP_VERIFY,					"VERIFY"	},
 	{	NFS4_OP_WRITE,						"WRITE"	},
+	{	NFS4_OP_RELEASE_LOCKOWNER,		"RELEASE_LOCKOWNER"	},
+	{	NFS4_OP_ILLEGAL,					"ILLEGAL"	},
 	{ 0, NULL }
 };
 
@@ -6708,7 +6712,8 @@ gint *nfsv4_operation_ett[] =
 	 &ett_nfs_setclientid4 ,
 	 &ett_nfs_setclientid_confirm4 ,
 	 &ett_nfs_verify4 ,
-	 &ett_nfs_write4
+	 &ett_nfs_write4,
+    &ett_nfs_release_lockowner4,
 };
 
 static int
@@ -7080,12 +7085,20 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			opcode);
 		offset += 4;
 
-		if (opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_WRITE)
+		/* the opcodes are not contiguous */
+		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_WRITE)	&&
+			(opcode != NFS4_OP_ILLEGAL))
 			break;
 
 		if (fitem == NULL)	break;
 
-		newftree = proto_item_add_subtree(fitem, *nfsv4_operation_ett[opcode-3]);
+		/* all of the V4 ops are contiguous, except for NFS4_OP_ILLEGAL */
+		if (opcode == NFS4_OP_ILLEGAL)
+			newftree = proto_item_add_subtree(fitem, ett_nfs_illegal4);
+		else
+			newftree = proto_item_add_subtree(fitem, 
+				*nfsv4_operation_ett[opcode - 3]);
+
 		if (newftree == NULL)	break;
 
 		switch(opcode)
@@ -7334,6 +7347,14 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_data);
 			break;
 
+		case NFS4_OP_RELEASE_LOCKOWNER:
+			offset = dissect_nfs_lock_owner4(tvb, offset, newftree);
+			break;
+
+		/* In theory, it's possible to get this opcode */
+		case NFS4_OP_ILLEGAL:
+			break;
+
 		default:
 			break;
 		}
@@ -7412,7 +7433,9 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		opcode = tvb_get_ntohl(tvb, offset);
 
 		/* sanity check for bogus packets */
-		if (opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_WRITE)	break;
+		if ((opcode < NFS4_OP_ACCESS || opcode > NFS4_OP_WRITE) &&
+			(opcode != NFS4_OP_ILLEGAL))
+			break;
 
 		fitem = proto_tree_add_uint(ftree, hf_nfs_resop4, tvb, offset, 4,
 			opcode);
@@ -7420,7 +7443,12 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		if (fitem == NULL)	break;		/* error adding new item to tree */
 
-		newftree = proto_item_add_subtree(fitem, *nfsv4_operation_ett[opcode-3]);
+		/* all of the V4 ops are contiguous, except for NFS4_OP_ILLEGAL */
+		if (opcode == NFS4_OP_ILLEGAL)
+			newftree = proto_item_add_subtree(fitem, ett_nfs_illegal4);
+		else
+			newftree = proto_item_add_subtree(fitem, 
+				*nfsv4_operation_ett[opcode - 3]);
 
 		if (newftree == NULL)
 			break;		/* error adding new subtree to operation item */
@@ -7665,9 +7693,12 @@ static const value_string nfsv3_proc_vals[] = {
 
 /* end of NFS Version 3 */
 
+/* the call to dissect_nfs3_null_call & dissect_nfs3_null_reply is 
+ * intentional.  The V4 NULLPROC is the same as V3.
+ */
 static const vsff nfs4_proc[] = {
 	{ 0, "NULL",
-	NULL, NULL },
+	dissect_nfs3_null_call,		dissect_nfs3_null_reply },
 	{ 1, "COMPOUND",
 	dissect_nfs4_compound_call, dissect_nfs4_compound_reply },
 	{ 0, NULL, NULL, NULL }
@@ -8697,6 +8728,8 @@ proto_register_nfs(void)
 		&ett_nfs_setclientid_confirm4,
 		&ett_nfs_verify4,
 		&ett_nfs_write4,
+		&ett_nfs_release_lockowner4,
+		&ett_nfs_illegal4,
 		&ett_nfs_verifier4,
 		&ett_nfs_opaque,
 		&ett_nfs_dirlist4,

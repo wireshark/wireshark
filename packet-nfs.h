@@ -1,5 +1,5 @@
 /* packet-nfs.h (c) 1999 Uwe Girlich */
-/* $Id: packet-nfs.h,v 1.17 2003/09/28 01:52:57 sahlberg Exp $ */
+/* $Id: packet-nfs.h,v 1.18 2004/06/02 06:50:28 guy Exp $ */
 
 #ifndef __PACKET_NFS_H__
 #define __PACKET_NFS_H__
@@ -84,6 +84,8 @@
 #define NFS4_OP_SETCLIENTID_CONFIRM		36
 #define NFS4_OP_VERIFY						37
 #define NFS4_OP_WRITE						38
+#define NFS4_OP_RELEASE_LOCKOWNER		39
+#define NFS4_OP_ILLEGAL						10044
 
 /* for write */
 #define UNSTABLE 0
