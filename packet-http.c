@@ -6,7 +6,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 1999, Andrew Tridgell <tridge@samba.org>
  *
- * $Id: packet-http.c,v 1.57 2002/09/23 22:45:25 tpot Exp $
+ * $Id: packet-http.c,v 1.58 2002/10/15 22:28:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,15 +70,6 @@ static dissector_handle_t http_handle;
 #define UDP_PORT_SSDP			1900
 
 /*
- * Some headers that we dissect more deeply - Microsoft's abomination
- * called NTLMSSP over HTTP.
- */
-#define NTLMSSP_AUTH_NTLM     "Authorization: NTLM "
-#define NTLMSSP_WWWAUTH_NTLM  "WWW-Authenticate: NTLM "
-#define NTLMSSP_AUTH_NEG      "Authorization: Negotiate "
-#define NTLMSSP_WWWAUTH_NEG   "WWW-Authenticate: Negotiate "
-
-/*
  * Protocols implemented atop HTTP.
  */
 typedef enum {
@@ -99,7 +90,7 @@ static dissector_handle_t ntlmssp_handle=NULL;
 
 static size_t base64_decode(char *s)
 {
-	const char *b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	static const char b64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 	int bit_offset, byte_offset, idx, i, n;
 	unsigned char *d = (unsigned char *)s;
 	char *p;
@@ -130,7 +121,7 @@ static size_t base64_decode(char *s)
    string */
 
 static tvbuff_t *
-base64_to_tvb(char *base64)
+base64_to_tvb(const char *base64)
 {
 	tvbuff_t *tvb;
 	char *data = g_strdup(base64);
@@ -145,7 +136,8 @@ base64_to_tvb(char *base64)
 }
 
 static void
-dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, char *line)
+dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    const char *line)
 {
 	tvbuff_t *ntlmssp_tvb;
 
@@ -154,6 +146,40 @@ dissect_http_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, char *
 	add_new_data_source(pinfo, ntlmssp_tvb, "NTLMSSP Data");
 
 	call_dissector(ntlmssp_handle, ntlmssp_tvb, pinfo, tree);
+}
+
+/*
+ * Some headers that we dissect more deeply - Microsoft's abomination
+ * called NTLMSSP over HTTP.
+ */
+static gboolean
+check_ntlmssp_auth(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo,
+    const char *text)
+{
+	static const char *headers[] = {
+		"Authorization: NTLM ",
+		"Authorization: Negotiate ",
+		"WWW-Authenticate: NTLM ",
+		"WWW-Authenticate: Negotiate ",
+		"Proxy-Authenticate: NTLM ",
+		"Proxy-Authorization: NTLM ",
+		NULL
+	};
+	const char **header;
+	size_t hdrlen;
+	proto_tree *hdr_tree;
+
+	for (header = &headers[0]; *header != NULL; header++) {
+		hdrlen = strlen(*header);
+		if (strncmp(text, *header, hdrlen) == 0) {
+			hdr_tree = proto_item_add_subtree(hdr_item,
+			    ett_http_ntlmssp);
+			text += hdrlen;
+			dissect_http_ntlmssp(tvb, pinfo, hdr_tree, text);
+			return TRUE;
+		}
+	}
+	return FALSE;
 }
 
 static void
@@ -301,7 +327,6 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		 * Put this line.
 		 */
 		if (tree) {
-			proto_tree *hdr_tree;
 			proto_item *hdr_item;
 			char *text;
 
@@ -310,27 +335,7 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			hdr_item = proto_tree_add_text(http_tree, tvb, offset,
 			    next_offset - offset, "%s", text);
 
-			if (!strncmp(text, NTLMSSP_AUTH_NTLM, strlen(NTLMSSP_AUTH_NTLM)) ||
-			    !strncmp(text, NTLMSSP_AUTH_NEG, strlen(NTLMSSP_AUTH_NEG))) {
-				hdr_tree = proto_item_add_subtree(
-					hdr_item, ett_http_ntlmssp);
-				if (!strncmp(text, NTLMSSP_AUTH_NTLM, strlen(NTLMSSP_AUTH_NTLM)))
-					text += strlen(NTLMSSP_AUTH_NTLM);
-				if (!strncmp(text, NTLMSSP_AUTH_NEG, strlen(NTLMSSP_AUTH_NEG)))
-					text += strlen(NTLMSSP_AUTH_NEG);
-				dissect_http_ntlmssp(tvb, pinfo, hdr_tree, text);
-			}
-
-			if (!strncmp(text, NTLMSSP_WWWAUTH_NTLM, strlen(NTLMSSP_WWWAUTH_NTLM)) ||
-			    !strncmp(text, NTLMSSP_WWWAUTH_NEG, strlen(NTLMSSP_WWWAUTH_NEG))) {
-				hdr_tree = proto_item_add_subtree(
-					hdr_item, ett_http_ntlmssp);
-				if (!strncmp(text, NTLMSSP_WWWAUTH_NTLM, strlen(NTLMSSP_WWWAUTH_NTLM)))
-					text += strlen(NTLMSSP_WWWAUTH_NTLM);
-				if (!strncmp(text, NTLMSSP_WWWAUTH_NEG, strlen(NTLMSSP_WWWAUTH_NEG)))
-					text += strlen(NTLMSSP_WWWAUTH_NEG);
-				dissect_http_ntlmssp(tvb, pinfo, hdr_tree, text);
-			}
+			check_ntlmssp_auth(hdr_item, tvb, pinfo, text);
 		}
 		offset = next_offset;
 	}
@@ -529,7 +534,6 @@ is_http_request_or_reply(const guchar *data, int linelen, http_type_t *type)
 
 	return isHttpRequestOrReply;
 }
-
 
 void
 proto_register_http(void)
