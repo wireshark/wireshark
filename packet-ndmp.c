@@ -12,7 +12,7 @@
  * Routines for NDMP dissection
  * 2001 Ronnie Sahlberg (see AUTHORS for email)
  *
- * $Id: packet-ndmp.c,v 1.3 2002/01/04 23:53:40 guy Exp $
+ * $Id: packet-ndmp.c,v 1.4 2002/01/05 20:05:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -225,8 +225,18 @@ static gint ett_ndmp_file_stats = -1;
 static gint ett_ndmp_file_invalids = -1;
 static gint ett_ndmp_state_invalids = -1;
 
+struct ndmp_header {
+	guint32	seq;
+	guint32 time;
+	guint32 type;
+	guint32 msg;
+	guint32 rep_seq;
+	guint32 err;
+};
+
 /* desegmentation of NDMP packets */
 static gboolean ndmp_desegment = FALSE;
+
 
 
 #define NDMP_MESSAGE_REQUEST	0x00
@@ -2230,11 +2240,10 @@ static const ndmp_command ndmp_commands[] = {
 
 
 static int
-dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
+dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, struct ndmp_header *nh)
 {
 	proto_item* item = NULL;
 	proto_tree* tree = NULL;
-	guint32 msgtype, msg;
 	nstime_t ns;
 
 	if (parent_tree) {
@@ -2244,38 +2253,36 @@ dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 	}
 
 	/* sequence number */
-	proto_tree_add_item(tree, hf_ndmp_sequence, tvb, offset, 4, FALSE);
+	proto_tree_add_uint(tree, hf_ndmp_sequence, tvb, offset, 4, nh->seq);
 	offset += 4;
 
 	/* timestamp */
-	ns.secs=tvb_get_ntohl(tvb, offset);
+	ns.secs=nh->time;
 	ns.nsecs=0;
 	proto_tree_add_time(tree, hf_ndmp_timestamp, tvb, offset, 4, &ns);
 	offset += 4;
 
 	/* Message Type */
-	msgtype = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_item(tree, hf_ndmp_msgtype, tvb, offset, 4, FALSE);
+	proto_tree_add_uint(tree, hf_ndmp_msgtype, tvb, offset, 4, nh->type);
 	offset += 4;
 
 	/* Message */
-	msg = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_item(tree, hf_ndmp_msg, tvb, offset, 4, FALSE);
+	proto_tree_add_uint(tree, hf_ndmp_msg, tvb, offset, 4, nh->msg);
 	offset += 4;
 
 	/* Reply sequence number */
-	proto_tree_add_item(tree, hf_ndmp_reply_sequence, tvb, offset, 4, FALSE);
+	proto_tree_add_uint(tree, hf_ndmp_reply_sequence, tvb, offset, 4, nh->rep_seq);
 	offset += 4;
 
 	/* error */
-	proto_tree_add_item(tree, hf_ndmp_error, tvb, offset, 4, FALSE);
+	proto_tree_add_uint(tree, hf_ndmp_error, tvb, offset, 4, nh->err);
 	offset += 4;
 
 	if (check_col(pinfo->cinfo, COL_INFO)){
 		col_clear(pinfo->cinfo, COL_INFO);
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-			val_to_str(msg, msg_vals, "Unknown Message (0x%02x)"),
-			val_to_str(msgtype, msg_type_vals, "Unknown Type (0x%02x)")
+			val_to_str(nh->msg, msg_vals, "Unknown Message (0x%02x)"),
+			val_to_str(nh->type, msg_type_vals, "Unknown Type (0x%02x)")
 			);
 	}
 
@@ -2284,11 +2291,10 @@ dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 
 
 static int
-dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree)
+dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, struct ndmp_header *nh)
 {
 	int i;
 	int old_offset=offset;
-	guint32 msg, msgtype;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	proto_item *cmd_item=NULL;
@@ -2310,15 +2316,10 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pare
 	proto_tree_add_uint(tree, hf_ndmp_size, tvb, offset, 4, size&NDMP_FRAGLEN);
 	offset += 4;
 
-
-	msg=tvb_get_ntohl(tvb, offset+12);
-	msgtype=tvb_get_ntohl(tvb, offset+8);
-
-	offset=dissect_ndmp_header(tvb, offset, pinfo, tree);
-
+	offset=dissect_ndmp_header(tvb, offset, pinfo, tree, nh);
 
 	for(i=0;ndmp_commands[i].cmd!=0;i++){
-		if(ndmp_commands[i].cmd==msg){
+		if(ndmp_commands[i].cmd==nh->msg){
 			break;
 		}
 	}
@@ -2326,7 +2327,7 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pare
 
 	if(ndmp_commands[i].cmd==0){
 		/* we do not know this message */
-		proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Unknown type of NDMP message: 0x%02x", msg);
+		proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Unknown type of NDMP message: 0x%02x", nh->msg);
 		offset+=tvb_length_remaining(tvb, offset);
 		proto_item_set_len(item, offset-old_offset);
 		return offset;
@@ -2338,7 +2339,7 @@ dissect_ndmp_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pare
 		cmd_tree = proto_item_add_subtree(cmd_item, ett_ndmp);
 	}
 
-	if(msgtype==NDMP_MESSAGE_REQUEST){
+	if(nh->type==NDMP_MESSAGE_REQUEST){
 		if(ndmp_commands[i].request){
 			offset=ndmp_commands[i].request(tvb, offset, pinfo, cmd_tree);
 		}
@@ -2357,13 +2358,38 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int offset = 0;
 	guint32 size, available_bytes;
+	struct ndmp_header nh;
 
 	/* loop through the packet, dissecting multiple NDMP pdus*/
 	do {
 		available_bytes = tvb_length_remaining(tvb, offset);
 
 		/* size of this NDMP PDU */
-		size = (tvb_get_ntohl(tvb, offset)&NDMP_FRAGLEN) + 4;
+		size = (tvb_get_ntohl(tvb, offset)&NDMP_FRAGLEN) + 4;	
+		if(size<24){
+			/* too short to be NDMP */
+			return;
+		}
+
+		/* check the ndmp header, if we have it */
+		if(available_bytes>=28){
+			nh.seq=tvb_get_ntohl(tvb, offset+4);
+			nh.time=tvb_get_ntohl(tvb, offset+8);
+			nh.type=tvb_get_ntohl(tvb, offset+12);
+			nh.msg=tvb_get_ntohl(tvb, offset+16);
+			nh.rep_seq=tvb_get_ntohl(tvb, offset+20);
+			nh.err=tvb_get_ntohl(tvb, offset+24);
+
+			if(nh.type>1){
+				return;
+			}
+			if((nh.msg>0xa09)||(nh.msg==0)){
+				return;
+			}
+			if(nh.err>0x17){
+				return;
+			}
+		}
 
 		/* desegmentation */
 		if(ndmp_desegment){
@@ -2375,7 +2401,12 @@ dissect_ndmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 		}
 
-		offset = dissect_ndmp_cmd(tvb, offset, pinfo, tree);
+		if(available_bytes<28){
+			/* too short to be a NDMP packet */
+			return;
+		}
+
+		offset = dissect_ndmp_cmd(tvb, offset, pinfo, tree, &nh);
 	} while(offset<(int)tvb_reported_length(tvb));
 
 }
