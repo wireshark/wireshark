@@ -1,7 +1,7 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.15 2002/08/28 21:00:08 jmayer Exp $
+ * $Id: packet-chdlc.c,v 1.16 2002/09/20 09:17:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -94,6 +94,7 @@ const value_string chdlc_vals[] = {
 	{ETHERTYPE_AARP,      "AARP"},
 	{ETHERTYPE_IPX,       "Netware IPX/SPX"},
 	{ETHERTYPE_ETHBRIDGE, "Transparent Ethernet bridging" },
+	{ETHERTYPE_OSI,       "OSI" },
 	{0,                   NULL}
 };
 

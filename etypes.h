@@ -1,7 +1,7 @@
 /* etypes.h
  * Defines ethernet packet types, similar to tcpdump's ethertype.h
  *
- * $Id: etypes.h,v 1.26 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: etypes.h,v 1.27 2002/09/20 09:17:38 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -181,6 +181,10 @@
 
 #ifndef ETHERTYPE_LOOP
 #define ETHERTYPE_LOOP		0x9000 	/* used for layer 2 testing (do i see my own frames on the wire) */
+#endif
+
+#ifndef ETHERTYPE_OSI
+#define ETHERTYPE_OSI 	        0xfefe  /* used in Cisco HDLC only */
 #endif
 
 extern const value_string etype_vals[];
