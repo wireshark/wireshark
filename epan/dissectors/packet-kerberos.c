@@ -222,6 +222,7 @@ static gint hf_krb_PRIV_BODY = -1;
 static gint hf_krb_ENC_PRIV = -1;
 static gint hf_krb_authenticator_enc = -1;
 static gint hf_krb_ticket_enc = -1;
+static gint hf_krb_e_checksum = -1;
 
 static gint ett_krb_kerberos = -1;
 static gint ett_krb_TransitedEncoding = -1;
@@ -263,7 +264,7 @@ static gint ett_krb_ticket = -1;
 static gint ett_krb_ticket_enc = -1;
 static gint ett_krb_PRIV = -1;
 static gint ett_krb_PRIV_enc = -1;
-
+static gint ett_krb_e_checksum = -1;
 
 guint32 krb5_errorcode;
 
@@ -516,6 +517,11 @@ printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 #define KRB5_CHKSUM_KRB_DES_MAC_K       5
 #define KRB5_CHKSUM_MD5                 7
 #define KRB5_CHKSUM_MD5_DES             8
+/* the following four comes from packetcable */
+#define KRB5_CHKSUM_MD5_DES3            9
+#define KRB5_CHKSUM_HMAC_SHA1_DES3_KD   12
+#define KRB5_CHKSUM_HMAC_SHA1_DES3      13
+#define KRB5_CHKSUM_SHA1_UNKEYED        14
 #define KRB5_CHKSUM_HMAC_MD5            0xffffff76
 #define KRB5_CHKSUM_MD5_HMAC            0xffffff77
 #define KRB5_CHKSUM_RC4_MD5             0xffffff78
@@ -857,6 +863,10 @@ static const value_string krb5_checksum_types[] = {
     { KRB5_CHKSUM_KRB_DES_MAC_K   , "krb-des-mac-k" },
     { KRB5_CHKSUM_MD5             , "md5" },
     { KRB5_CHKSUM_MD5_DES         , "md5-des" },
+    { KRB5_CHKSUM_MD5_DES3        , "md5-des3" },
+    { KRB5_CHKSUM_HMAC_SHA1_DES3_KD, "hmac-sha1-des3-kd" },
+    { KRB5_CHKSUM_HMAC_SHA1_DES3  , "hmac-sha1-des3" },
+    { KRB5_CHKSUM_SHA1_UNKEYED    , "sha1 (unkeyed)" },
     { KRB5_CHKSUM_HMAC_MD5        , "hmac-md5" },
     { KRB5_CHKSUM_MD5_HMAC        , "md5-hmac" },
     { KRB5_CHKSUM_RC4_MD5         , "rc5-md5" },
@@ -3209,6 +3219,18 @@ dissect_krb5_e_data(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int off
 }
 
 
+/* This optional field in KRB_ERR is used by the early drafts which 
+ * PacketCable still use.
+ */
+static int 
+dissect_krb5_e_checksum(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	offset=dissect_ber_sequence(FALSE, pinfo, tree, tvb, offset, Checksum_sequence, hf_krb_e_checksum, ett_krb_e_checksum);
+
+	return offset;
+}
+
+
 /*
  *  KRB-ERROR ::=   [APPLICATION 30] SEQUENCE {
  *                  pvno[0]               INTEGER,
@@ -3261,6 +3283,8 @@ static ber_sequence ERROR_sequence[] = {
 		dissect_krb5_e_text },
 	{ BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL,
 		dissect_krb5_e_data },
+	{ BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL,
+		dissect_krb5_e_checksum }, /* used by PacketCable */
 	{ 0, 0, 0, NULL }
 };
 static int
@@ -3825,6 +3849,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_pac_namelen, { 
 	    "Name Length", "kerberos.pac.namelen", FT_UINT16, BASE_DEC,
 	    NULL, 0, "Length of client name", HFILL }},
+	{ &hf_krb_e_checksum, {
+	    "e-checksum", "kerberos.e_checksum", FT_NONE, BASE_DEC,
+	    NULL, 0, "This is a Kerberos e-checksum", HFILL }},
     };
 
     static gint *ett[] = {
@@ -3868,6 +3895,7 @@ proto_register_kerberos(void)
 	&ett_krb_PAC_PRIVSVR_CHECKSUM,
 	&ett_krb_PAC_CLIENT_INFO_TYPE,
 	&ett_krb_signedAuthPack,
+	&ett_krb_e_checksum,
     };
     module_t *krb_module;
 
