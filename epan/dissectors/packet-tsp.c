@@ -1,4 +1,4 @@
-/* packet-quake.c
+/* packet-tsp.c
  * Routines for Time Synchronization Protocol (TSP) packet dissection
  *
  * Uwe Girlich <Uwe.Girlich@philosys.de>
