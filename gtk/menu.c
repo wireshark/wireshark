@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.187 2004/05/03 23:34:27 guy Exp $
+ * $Id: menu.c,v 1.188 2004/05/03 23:48:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -212,7 +212,7 @@ static GtkItemFactoryEntry menu_items[] =
     ITEM_FACTORY_ENTRY("/_View", NULL, NULL, 0, "<Branch>", NULL),
     ITEM_FACTORY_ENTRY("/View/_Main Toolbar", NULL, main_toolbar_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/_Filter Toolbar", NULL, filter_toolbar_show_cb, 0, "<CheckItem>", NULL),
-    ITEM_FACTORY_ENTRY("/View/_Status Bar", NULL, statusbar_show_cb, 0, "<CheckItem>", NULL),
+    ITEM_FACTORY_ENTRY("/View/_Statusbar", NULL, statusbar_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/<separator>", NULL, NULL, 0, "<Separator>", NULL),
     ITEM_FACTORY_ENTRY("/View/Packet _List", NULL, packet_list_show_cb, 0, "<CheckItem>", NULL),
     ITEM_FACTORY_ENTRY("/View/Packet _Details", NULL, tree_view_show_cb, 0, "<CheckItem>", NULL),
@@ -1280,7 +1280,7 @@ menu_recent_read_finished(void) {
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Filter Toolbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.filter_toolbar_show);
 
-    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Status Bar");
+    menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Statusbar");
     gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), recent.statusbar_show);
 
     menu = gtk_item_factory_get_widget(main_menu_factory, "/View/Packet List");

@@ -694,7 +694,7 @@ protocols last.
 
 =item View:Main Toolbar
 =item View:Filter Toolbar
-=item View:Status Bar
+=item View:Statusbar
 
 Show or hide the main window controls.
 
