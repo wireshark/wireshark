@@ -1,7 +1,7 @@
 /*
  * tap_rtp.c
  *
- * $Id: tap_rtp.c,v 1.7 2003/03/10 02:09:29 guy Exp $
+ * $Id: tap_rtp.c,v 1.8 2003/03/11 08:46:26 sahlberg Exp $
  *
  * RTP analysing addition for ethereal
  *
@@ -1609,11 +1609,12 @@ static void get_reversed_ssrc(void *prs)
 	}
 }
 
+/* XXX only handles RTP over IPv4, should add IPv6 support */
 /* when the user clicks the RTP dialog button */
 void rtp_analyse_cb(GtkWidget *w _U_, gpointer data _U_) 
 { 
   info_stat *rs;
-  gchar filter_text[]="rtp";
+  gchar filter_text[256];
   dfilter_t *sfcode;
   capture_file *cf;
   epan_dissect_t *edt;
@@ -1628,6 +1629,7 @@ void rtp_analyse_cb(GtkWidget *w _U_, gpointer data _U_)
   }
 
   /* Try to compile the filter. */
+  strcpy(filter_text,"rtp && ip");
   if (!dfilter_compile(filter_text, &sfcode)) {
 	simple_dialog(ESD_TYPE_CRIT, NULL, dfilter_error_msg);
 	return;
@@ -1681,8 +1683,18 @@ void rtp_analyse_cb(GtkWidget *w _U_, gpointer data _U_)
   rs->reversed_ip_and_port = 0;
   rs->ssrc_tmp = NULL;
 
+  sprintf(filter_text,"rtp && ip && !icmp && (( ip.src==%s && udp.srcport==%d && ip.dst==%s && udp.dstport==%d ) || ( ip.src==%s && udp.srcport==%d && ip.dst==%s && udp.dstport==%d ))",
+	  ip_to_str(edt->pi.src.data),
+	  edt->pi.srcport,
+	  ip_to_str(edt->pi.dst.data),
+	  edt->pi.destport,
+	  ip_to_str(edt->pi.dst.data),
+	  edt->pi.destport,
+	  ip_to_str(edt->pi.src.data),
+	  edt->pi.srcport
+	  );
 /* XXX compiler warning:passing arg 5 of `register_tap_listener' from incompatible pointer type */
-  if(register_tap_listener("rtp", rs, NULL, rtp_reset, rtp_packet, rtp_draw)){
+  if(register_tap_listener("rtp", rs, filter_text, rtp_reset, rtp_packet, rtp_draw)){
 	printf("ethereal: rtp_init() failed to attach the tap.\n");
 	/* XXX is this enough or do I have to free anything else? */
 	g_free(rs);
