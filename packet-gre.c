@@ -2,7 +2,7 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.31 2000/11/29 07:42:35 guy Exp $
+ * $Id: packet-gre.c,v 1.32 2000/12/15 00:03:09 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -40,6 +40,7 @@
 #include "packet-ip.h"
 #include "packet-ipx.h"
 #include "packet-wccp.h"
+#include "in_cksum.h"
 
 static int proto_gre = -1;
 static int hf_gre_proto = -1;
@@ -98,12 +99,12 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (check_col(pinfo->fd, COL_PROTOCOL))
     col_set_str(pinfo->fd, COL_PROTOCOL, "GRE");
-	
+
   if (check_col(pinfo->fd, COL_INFO)) {
     col_add_fstr(pinfo->fd, COL_INFO, "Encapsulated %s",
         val_to_str(type, typevals, "0x%04X (unknown)"));
   }
-		
+
   if (tree) {
     gboolean		is_ppp = FALSE;
     gboolean		is_wccp2 = FALSE;
@@ -147,10 +148,34 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += sizeof(type);
 
     if (flags_and_ver & GH_B_C || flags_and_ver & GH_B_R) {
-      guint16 checksum = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_text(gre_tree, tvb, offset, sizeof(checksum),
-			  "Checksum: %u", checksum);
-      offset += sizeof(checksum);
+      guint length, reported_length;
+      vec_t cksum_vec[1];
+      guint16 cksum, computed_cksum;
+
+      cksum = tvb_get_ntohs(tvb, offset);
+      length = tvb_length(tvb);
+      reported_length = tvb_reported_length(tvb);
+      if ((flags_and_ver & GH_B_C) && !pinfo->fragmented
+		&& length >= reported_length) {
+	/* The Checksum Present bit is set, and the packet isn't part of a
+	   fragmented datagram and isn't truncated, so we can checksum it. */
+
+	cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, reported_length);
+	cksum_vec[0].len = reported_length;
+	computed_cksum = in_cksum(cksum_vec, 1);
+	if (computed_cksum == 0) {
+	  proto_tree_add_text(gre_tree, tvb, offset, sizeof(cksum),
+			"Checksum: 0x%04x (correct)", cksum);
+	} else {
+	  proto_tree_add_text(gre_tree, tvb, offset, sizeof(cksum),
+			"Checksum: 0x%04x (incorrect, should be 0x%04x)",
+			cksum, in_cksum_shouldbe(cksum, computed_cksum));
+	}
+      } else {
+	proto_tree_add_text(gre_tree, tvb, offset, sizeof(cksum),
+			  "Checksum: 0x%04x", cksum);
+      }
+      offset += sizeof(cksum);
     }
     
     if (flags_and_ver & GH_B_C || flags_and_ver & GH_B_R) {
