@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.8 1999/11/27 01:55:29 guy Exp $
+ * $Id: packet-atm.c,v 1.9 1999/11/27 06:17:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -41,6 +41,8 @@
 #endif
 
 static int proto_atm = -1;
+static int hf_atm_vpi = -1;
+static int hf_atm_vci = -1;
 static int proto_atm_lane = -1;
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
 static int proto_ilmi = -1;
@@ -594,9 +596,9 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
         break;
       }
     }
-    proto_tree_add_text(atm_tree, 0, 0, "VPI: %u",
+    proto_tree_add_item(atm_tree, hf_atm_vpi, 0, 0,
 		fd->pseudo_header.ngsniffer_atm.Vpi);
-    proto_tree_add_text(atm_tree, 0, 0, "VCI: %u",
+    proto_tree_add_item(atm_tree, hf_atm_vci, 0, 0,
 		fd->pseudo_header.ngsniffer_atm.Vci);
     switch (fd->pseudo_header.ngsniffer_atm.channel) {
 
@@ -688,6 +690,15 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
 void
 proto_register_atm(void)
 {
+	static hf_register_info hf[] = {
+		{ &hf_atm_vpi,
+		{ "VPI",		"atm.vpi", FT_UINT8, BASE_DEC, NULL, 0x0,
+			"" }},
+
+		{ &hf_atm_vci,
+		{ "VCI",		"atm.vci", FT_UINT16, BASE_DEC, NULL, 0x0,
+			"" }},
+	};
 	static gint *ett[] = {
 		&ett_atm,
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
@@ -699,6 +710,7 @@ proto_register_atm(void)
 		&ett_atm_lane_lc_flags,
 	};
 	proto_atm = proto_register_protocol("ATM", "atm");
+	proto_register_field_array(proto_atm, hf, array_length(hf));
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
 	proto_ilmi = proto_register_protocol("ILMI", "ilmi");
 #endif
