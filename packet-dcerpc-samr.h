@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\samr packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-samr.h,v 1.4 2002/01/29 09:13:28 guy Exp $
+ * $Id: packet-dcerpc-samr.h,v 1.5 2002/02/08 06:34:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -30,7 +30,7 @@
 
 #define SAMR_CONNECT_ANON      0x00
 #define SAMR_CLOSE_HND         0x01
-#define SAMR_UNKNOWN_2         0x02
+#define SAMR_SET_SEC_OBJECT         0x02
 #define SAMR_QUERY_SEC_OBJECT  0x03
 #define SAMR_SHUTDOWN_SAM_SERVER         0x04
 #define SAMR_LOOKUP_DOMAIN     0x05
