@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.36 2002/05/09 12:10:05 sahlberg Exp $
+ * $Id: packet-portmap.c,v 1.37 2002/05/11 18:52:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,7 +84,7 @@ dissect_getport_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		rpc_call_info_value *rpc_call=pinfo->private_data;
 		if(rpc_call){
 			proto = tvb_get_ntohl(tvb, offset+8);
-			if(proto==17){  /* only do this for UDP */
+			if(proto==IP_PROTO_UDP){  /* only do this for UDP */
 				rpc_call->private_data=(void *)PT_UDP;
 			}
 		}
