@@ -217,8 +217,8 @@ void proto_register_h225(void) {
 		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&h225_reassembly);
 
-  register_dissector("h225", dissect_h225_H323UserInformation, proto_h225);
-  register_dissector("h323ui",dissect_h225_H323UserInformation, proto_h225);
+  new_register_dissector("h225", dissect_h225_H323UserInformation, proto_h225);
+  new_register_dissector("h323ui",dissect_h225_H323UserInformation, proto_h225);
 
   nsp_object_dissector_table = register_dissector_table("h225.nsp.object", "H.225 NonStandardParameter (object)", FT_STRING, BASE_NONE);
   nsp_h221_dissector_table = register_dissector_table("h225.nsp.h221", "H.225 NonStandardParameter (h221)", FT_UINT32, BASE_HEX);
@@ -237,7 +237,7 @@ void
 proto_reg_handoff_h225(void)
 {
 	h225ras_handle=new_create_dissector_handle(dissect_h225_h225_RasMessage, proto_h225);
-	H323UserInformation_handle=new_create_dissector_handle(dissect_h225_H323UserInformation, proto_h225);
+	H323UserInformation_handle=find_dissector("h323ui");
 
 	h245_handle = find_dissector("h245");
 	h245dg_handle = find_dissector("h245dg");
