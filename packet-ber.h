@@ -2,7 +2,7 @@
  * Helpers for ASN.1/BER dissection
  * Ronnie Sahlberg (C) 2004
  *
- * $Id: packet-ber.h,v 1.5 2004/03/26 00:21:53 guy Exp $
+ * $Id: packet-ber.h,v 1.6 2004/05/14 23:38:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,14 @@
 
 #ifndef __PACKET_BER_H__
 #define __PACKET_BER_H__
+
+#define NOT_DECODED_YET(x) \
+proto_tree_add_text(tree, tvb, offset, 0, "something unknown here [%s]",x); \
+fprintf(stderr,"Not decoded yet in packet : %d  [%s]\n", pinfo->fd->num,x); \
+if (check_col(pinfo->cinfo, COL_INFO)){ \
+	col_append_fstr(pinfo->cinfo, COL_INFO, "[UNKNOWN BER: %s]", x); \
+} \
+tvb_get_guint8(tvb, 9999);
 
 typedef int (*ber_callback)(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset);
 

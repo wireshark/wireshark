@@ -23,7 +23,7 @@
  *
  * Some structures from RFC2630
  *
- * $Id: packet-kerberos.c,v 1.60 2004/05/14 03:19:02 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.61 2004/05/14 23:38:39 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -117,7 +117,7 @@ static gint hf_krb_crealm = -1;
 static gint hf_krb_sname = -1;
 static gint hf_krb_cname = -1;
 static gint hf_krb_name_string = -1;
-static gint hf_krb_srv_location = -1;
+static gint hf_krb_provsrv_location = -1;
 static gint hf_krb_e_text = -1;
 static gint hf_krb_name_type = -1;
 static gint hf_krb_lr_type = -1;
@@ -1365,13 +1365,35 @@ dissect_krb5_PA_PK_AS_REQ_signedAuthPack(packet_info *pinfo, proto_tree *tree, t
 	return offset;
 }
 
+static int
+dissect_krb5_PA_PK_AS_REQ_trustedCertifiers(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	NOT_DECODED_YET("trustedCertifiers");
+
+	return offset;
+}
+static int
+dissect_krb5_PA_PK_AS_REQ_kdcCert(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	NOT_DECODED_YET("kdcCert");
+
+	return offset;
+}
+static int
+dissect_krb5_PA_PK_AS_REQ_encryptionCert(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+	NOT_DECODED_YET("encryptionCert");
+
+	return offset;
+}
+
 
 
 static ber_sequence PA_PK_AS_REQ_sequence[] = {
 	{ BER_CLASS_CON, 0, 0, dissect_krb5_PA_PK_AS_REQ_signedAuthPack },
-/* XXX
- * the other three optional arms not implemented yet, please provide examples of them
-*/
+	{ BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_krb5_PA_PK_AS_REQ_trustedCertifiers },
+	{ BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_krb5_PA_PK_AS_REQ_kdcCert },
+	{ BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_krb5_PA_PK_AS_REQ_encryptionCert },
 	{ 0, 0, 0, NULL }
 };
 static int
@@ -1387,7 +1409,7 @@ dissect_krb5_PA_PK_AS_REQ(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 static int
 dissect_krb5_PA_PROV_SRV_LOCATION(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	offset=dissect_ber_GeneralString(pinfo, tree, tvb, offset, hf_krb_srv_location, NULL, 0);
+	offset=dissect_ber_GeneralString(pinfo, tree, tvb, offset, hf_krb_provsrv_location, NULL, 0);
 
 	return offset;
 }
@@ -2477,7 +2499,12 @@ static ber_sequence KDC_REQ_BODY_sequence[] = {
 		dissect_krb5_sname },
 	{ BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL,
 		dissect_krb5_from },
-	{ BER_CLASS_CON, 5, 0,
+		/* this field is not optional in the kerberos spec, 
+		 * however, in the packetcable spec it is optional.
+		 * make it optional here since normal kerberos will
+		 * still decode the pdu correctly.
+		 */
+	{ BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL,
 		dissect_krb5_till },
 	{ BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL,
 		dissect_krb5_rtime },
@@ -3288,9 +3315,9 @@ proto_register_kerberos(void)
 	{ &hf_krb_name_string, {
 	    "Name", "kerberos.name_string", FT_STRING, BASE_NONE,
 	    NULL, 0, "String component that is part of a PrincipalName", HFILL }},
-	{ &hf_krb_srv_location, {
-	    "SRV Location", "kerberos.srv_location", FT_STRING, BASE_NONE,
-	    NULL, 0, "PacketCable SRV Location", HFILL }},
+	{ &hf_krb_provsrv_location, {
+	    "PROVSRV Location", "kerberos.provsrv_location", FT_STRING, BASE_NONE,
+	    NULL, 0, "PacketCable PROV SRV Location", HFILL }},
 	{ &hf_krb_e_text, {
 	    "e-text", "kerberos.e_text", FT_STRING, BASE_NONE,
 	    NULL, 0, "Additional (human readable) error description", HFILL }},
