@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.56 2003/08/26 05:52:45 guy Exp $
+ * $Id: packet-gtp.c,v 1.57 2003/09/14 20:59:31 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2910,7 +2910,7 @@ decode_gtp_ranap_cause(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 	if(ranap > 112 && ranap <=128)
 	proto_tree_add_uint_format(tree, hf_gtpv1_ranap_cause, tvb, offset, 2, ranap, "%s (Miscellaneous Cause) : %s (%u)", val_to_str(GTP_EXT_RANAP_CAUSE, gtp_val, "Unknown"), val_to_str(ranap, ranap_cause_type, "Unknown RANAP Cause"), ranap);
 
-	if(ranap > 128 && ranap <=255)
+	if(ranap > 128 /* && ranap <=255 */)
 	proto_tree_add_uint_format(tree, hf_gtpv1_ranap_cause, tvb, offset, 2, ranap, "%s (Non-standard Cause) : %s (%u)", val_to_str(GTP_EXT_RANAP_CAUSE, gtp_val, "Unknown"), val_to_str(ranap, ranap_cause_type, "Unknown RANAP Cause"), ranap);
 
 	return 2;
