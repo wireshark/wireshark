@@ -2,7 +2,7 @@
  * Routines for raw data (default case)
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-data.c,v 1.23 2001/11/13 23:55:29 gram Exp $
+ * $Id: packet-data.c,v 1.24 2001/11/25 21:44:57 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +55,12 @@ dissect_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+void 
+dissect_data_wrapper(tvbuff_t *tvb,packet_info *pinfo, proto_tree *tree)
+{
+  dissect_data(tvb,0,pinfo,tree);
+}
+
 void
 proto_register_data(void)
 {
@@ -63,6 +69,8 @@ proto_register_data(void)
 		"Data",		/* short name */
 		"data"		/* abbrev */
 		);
+
+	register_dissector("data",dissect_data_wrapper,proto_data);
 
 	/*
 	 * "Data" is used to dissect something whose normal dissector
