@@ -28,6 +28,9 @@
 
 #ifdef HAVE_LIBPCAP
 
+#include <string.h>
+#include <ctype.h>
+
 #ifdef HAVE_IO_H
 # include <io.h>
 #endif
@@ -297,7 +300,7 @@ capture_opts_add_opt(capture_options *capture_opts, const char *appname, int opt
         }
 #else /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
         /* XXX - just treat it as a number */
-        capture_opts->linktype = get_natural_int(optarg, "data link type");
+        capture_opts->linktype = get_natural_int(appname, optarg, "data link type");
 #endif /* HAVE_PCAP_DATALINK_NAME_TO_VAL */
         break;
 #ifdef _WIN32
