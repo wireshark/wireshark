@@ -152,6 +152,8 @@ sub print_svn_version
 	my $svn_version;
 	my $needs_update = 1;
 
+	if ($pkg_version) { return; }
+
 	if ($last && $revision) {
 		$svn_version = "#define SVNVERSION \"" . 
 			$version_string . "\"\n";
@@ -187,7 +189,11 @@ sub get_config {
 	}
 
 
-	open(FILE, "<$vconf_file") || print STDERR "Version configuration file $vconf_file not found.  Using defaults.\n" && return 1;
+	if (! open(FILE, "<$vconf_file")) {
+		print STDERR "Version configuration file $vconf_file not "
+		. "found.  Using defaults.\n";
+		return 1;
+	}
 
 	while (<FILE>) {
 		chomp;
@@ -209,17 +215,18 @@ if (-d "./.svn") {
 	print "This is a build from SVN (or a SVN snapshot).\n";
 	&read_svn_info(".");
 	if ($pkg_version) {
-		print "Generating package version.  Ignoring $vconf_file.\n";
+		print "Generating package version.  Ignoring $version_file\n";
 		&update_configure_in;
 		&update_config_nmake;
 	} elsif ($version_pref{"enable"} == 0) {
 		print "Version tag disabled in $vconf_file.\n";
 	} else {
 		print "SVN version tag will be computed.\n";
-		&print_svn_version;
 	}
 } else {
 	print "This is not a SVN build.\n";
 }
+
+&print_svn_version;
 
 __END__
