@@ -6,7 +6,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp-int.h,v 1.14 2003/04/25 20:36:28 guy Exp $
+ * $Id: packet-ncp-int.h,v 1.15 2003/08/25 22:16:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,6 +49,8 @@ struct _ptvc_record {
 #define NCP_FMT_NW_TIME			2
 #define NCP_FMT_UNICODE         3
 
+extern gboolean nds_defragment;
+
 struct _sub_ptvc_record {
 	gint			*ett;
 	const char		*descr;
@@ -85,7 +87,6 @@ typedef struct {
 	const info_string_t	*req_info_str;
 } ncp_record;
 
-
 typedef struct {
 	const ncp_record	*ncp_rec;
 	gboolean		*req_cond_results;
@@ -95,6 +96,8 @@ typedef struct {
 	guint8			nds_request_verb;
 	guint8			nds_version;
 	char			object_name[256];
+	gboolean		nds_frag;
+	guint32			nds_end_frag;
 } ncp_req_hash_value;
 
 void dissect_ncp_request(tvbuff_t*, packet_info*, guint16,
@@ -109,14 +112,19 @@ void dissect_ping_req(tvbuff_t *, packet_info*, guint16, guint8,
 void dissect_nds_request(tvbuff_t*, packet_info*, guint16,
 		guint8, guint16, proto_tree*);
 
-void dissect_nmas_request(tvbuff_t*, packet_info*, proto_tree*, ncp_req_hash_value*);
-
-void dissect_nmas_reply(tvbuff_t*, packet_info*, proto_tree*, guint8, guint8, ncp_req_hash_value*);
+void nds_defrag(tvbuff_t*, packet_info*, guint16,
+		guint8, guint16, proto_tree*);
 
 extern int proto_ncp;
 extern gint ett_ncp;
 extern gint ett_nds;
+extern gint ett_nds_segments;
+extern gint ett_nds_segment;
 
+
+extern GHashTable *nds_fragment_table;
+extern GHashTable *nds_reassembled_table;
+extern dissector_handle_t nds_data_handle;
 /*
  * NCP packet types.
  */
