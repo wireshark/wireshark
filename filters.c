@@ -1,7 +1,7 @@
 /* filters.c
  * Code for reading and writing the filters file.
  *
- * $Id: filters.c,v 1.15 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: filters.c,v 1.16 2003/12/04 00:45:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -364,7 +364,8 @@ get_filter_list_first(filter_list_type_t list)
  * Returns a pointer to the newly-added entry.
  */
 GList *
-add_to_filter_list(filter_list_type_t list, char *name, char *expression)
+add_to_filter_list(filter_list_type_t list, const char *name,
+    const char *expression)
 {
   GList      **flp;
   filter_def *filt;

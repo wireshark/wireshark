@@ -2,7 +2,7 @@
  * mgcp-statistics for ethereal
  * Copyright 2003 Lars Roland
  *
- * $Id: mgcp_stat.c,v 1.17 2003/09/26 02:09:44 guy Exp $
+ * $Id: mgcp_stat.c,v 1.18 2003/12/04 00:45:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -343,7 +343,7 @@ mgcpstat_start_button_clicked(GtkWidget *item _U_, gpointer data _U_)
 static void
 gtk_mgcpstat_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-	char *filter;
+	const char *filter;
 	char *title;
 	GtkWidget *dlg_box;
 	GtkWidget *filter_box, *filter_label;

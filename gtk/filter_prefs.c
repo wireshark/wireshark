@@ -3,7 +3,7 @@
  * (This used to be a notebook page under "Preferences", hence the
  * "prefs" in the file name.)
  *
- * $Id: filter_prefs.c,v 1.45 2003/04/21 19:43:44 guy Exp $
+ * $Id: filter_prefs.c,v 1.46 2003/12/04 00:45:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1109,7 +1109,7 @@ filter_new_bt_clicked_cb(GtkWidget *w, gpointer data)
   GtkWidget  *filter_l = OBJECT_GET_DATA(main_w, E_FILT_FILTER_L_KEY);
   filter_list_type_t list = *(filter_list_type_t *)data;
   GList      *fl_entry;
-  gchar      *name, *strval;
+  const gchar *name, *strval;
   new_filter_cb_args_t args;
 
   name   = gtk_entry_get_text(GTK_ENTRY(name_te));

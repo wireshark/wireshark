@@ -1,7 +1,7 @@
 /* dcerpc_stat.c
  * dcerpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: dcerpc_stat.c,v 1.28 2003/11/10 07:44:47 sahlberg Exp $
+ * $Id: dcerpc_stat.c,v 1.29 2003/12/04 00:45:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -512,7 +512,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	GtkWidget *vers_label;
 	GtkWidget *filter_box, *filter_bt;
 	GtkWidget *bbox, *start_button, *cancel_button;
-	char *filter;
+	const char *filter;
 	static construct_args_t args = {
 	  "Service Response Time Statistics Filter",
 	  TRUE,

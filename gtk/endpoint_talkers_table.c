@@ -4,7 +4,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers tap.
  *
- * $Id: endpoint_talkers_table.c,v 1.23 2003/10/07 17:29:45 guy Exp $
+ * $Id: endpoint_talkers_table.c,v 1.24 2003/12/04 00:45:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -345,7 +345,7 @@ ett_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callba
 	endpoints_table *et = (endpoints_table *)callback_data;
 	char dirstr[128];
 	char str[256];
-	char *current_filter;
+	const char *current_filter;
 	char *sport, *dport;
 
 	action=(callback_action>>16)&0xff;

@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.67 2003/12/03 09:28:25 guy Exp $
+ * $Id: prefs_dlg.c,v 1.68 2003/12/04 00:45:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -846,7 +846,7 @@ create_preference_entry(GtkWidget *main_tb, int table_position,
 static guint
 pref_fetch(pref_t *pref, gpointer user_data)
 {
-  char *str_val;
+  const char *str_val;
   char *p;
   guint uval;
   gboolean bval;

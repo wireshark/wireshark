@@ -1,7 +1,7 @@
 /* rpc_stat.c
  * rpc_stat   2002 Ronnie Sahlberg
  *
- * $Id: rpc_stat.c,v 1.24 2003/10/27 01:20:16 sharpe Exp $
+ * $Id: rpc_stat.c,v 1.25 2003/12/04 00:45:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -387,7 +387,7 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	GtkWidget *filter_box, *filter_bt;
 	GtkWidget *bbox, *start_button, *cancel_button;
 	int i;
-	char *filter;
+	const char *filter;
 	static construct_args_t args = {
 	  "Service Response Time Statistics Filter",
 	  TRUE,

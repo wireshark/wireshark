@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.13 2003/10/27 01:35:53 sharpe Exp $
+ * $Id: fc_stat.c,v 1.14 2003/12/04 00:45:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -227,7 +227,7 @@ gtk_fcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 	GtkWidget *dlg_box;
 	GtkWidget *filter_box, *filter_bt;
 	GtkWidget *bbox, *start_button, *cancel_button;
-	char *filter;
+	const char *filter;
 	static construct_args_t args = {
 	  "Service Response Time Statistics Filter",
 	  TRUE,

@@ -1,7 +1,7 @@
 /* filters.c
  * Declarations of routines for reading and writing the filters file.
  *
- * $Id: filters.h,v 1.3 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: filters.h,v 1.4 2003/12/04 00:45:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -59,8 +59,8 @@ GList *get_filter_list_first(filter_list_type_t list);
  * Add a new filter to the end of a list.
  * Returns a pointer to the newly-added entry.
  */
-GList *add_to_filter_list(filter_list_type_t list, char *name,
-    char *expression);
+GList *add_to_filter_list(filter_list_type_t list, const char *name,
+    const char *expression);
 
 /*
  * Remove a filter from a list.

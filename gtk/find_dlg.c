@@ -1,7 +1,7 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id: find_dlg.c,v 1.39 2003/11/28 19:01:43 ulfl Exp $
+ * $Id: find_dlg.c,v 1.40 2003/12/04 00:45:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -579,7 +579,7 @@ find_frame_ok_cb(GtkWidget *ok_bt _U_, gpointer parent_w)
 {
   GtkWidget       *filter_te, *backward_rb, *hex_rb, *ascii_rb, *combo_cb,
                   *case_cb, *decode_data_rb, *summary_data_rb;
-  gchar           *filter_text, *string_type;
+  const gchar     *filter_text, *string_type;
   search_charset_t scs_type = SCS_ASCII_AND_UNICODE;
   guint8          *bytes = NULL;
   size_t           nbytes;
