@@ -17,7 +17,7 @@
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  * Copyright 2001, Jean-Francois Mule <jfm@cablelabs.com>
  *
- * $Id: packet-sip.c,v 1.39 2003/06/12 08:33:29 guy Exp $
+ * $Id: packet-sip.c,v 1.40 2003/07/31 18:14:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,7 +82,8 @@ static const char *sip_methods[] = {
         "REFER",
         "REGISTER",
         "SPRACK",
-        "SUBSCRIBE"
+        "SUBSCRIBE",
+        "UPDATE"
 };
 
 /* from RFC 3261 */
@@ -954,6 +955,9 @@ void proto_register_sip(void)
         /* Required function calls to register the header fields and subtrees used */
         proto_register_field_array(proto_sip, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
+
+        /* Register the dissector so it can be called from other protocols */
+        register_dissector("sip", dissect_sip, proto_sip);
 }
 
 void
