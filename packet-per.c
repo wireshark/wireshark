@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.16 2003/09/01 23:47:01 guy Exp $
+ * $Id: packet-per.c,v 1.17 2003/09/23 18:36:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -917,6 +917,8 @@ dissect_per_choice(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, proto_tree
 	proto_item *it=NULL;
 	proto_tree *tr=NULL;
 	guint32 old_offset=offset;
+   int min_choice=INT_MAX;
+   int max_choice=-1;
 
 DEBUG_ENTRY("dissect_per_choice");
 
@@ -946,6 +948,12 @@ DEBUG_ENTRY("dissect_per_choice");
 		switch(choice[i].extension){
 		case NO_EXTENSIONS:
 		case EXTENSION_ROOT:
+         if(choice[i].value<min_choice){
+            min_choice=choice[i].value;
+         }
+         if(choice[i].value>max_choice){
+            max_choice=choice[i].value;
+         }
 			extension_root_entries++;
 			break;
 		}
@@ -962,7 +970,7 @@ DEBUG_ENTRY("dissect_per_choice");
 		/* 22.7 */
 /*qqq  make it similar to the section below instead */
 		offset=dissect_per_constrained_integer(tvb, offset, pinfo, 
-			tr, hf_index, 0, extension_root_entries-1, 
+			tr, hf_index, min_choice, max_choice, 
 			&choice_index, &choiceitem, FALSE);
 		if(value){
 			*value=choice_index;
