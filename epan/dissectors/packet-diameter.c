@@ -33,6 +33,7 @@
  * http://www.ietf.org/html.charters/aaa-charter.html
  * http://www.iana.org/assignments/address-family-numbers
  * http://www.iana.org/assignments/enterprise-numbers
+ * http://www.iana.org/assignments/aaa-parameters
 */
 
 #ifdef HAVE_CONFIG_H
@@ -84,7 +85,7 @@ typedef enum {
   DIAMETER_QOS_FILTER_RULE,    /* OctetString */
   DIAMETER_MIP_REG_REQ,        /* OctetString */
   DIAMETER_VENDOR_ID,          /* Integer32  */
-  DIAMETER_APPLICATION_ID,
+  DIAMETER_APPLICATION_ID,     /* Integer32  */
   DIAMETER_URI,                /* OctetString */
   DIAMETER_SESSION_ID          /* OctetString */
 
@@ -184,6 +185,7 @@ static int hf_diameter_hopbyhopid =-1;
 static int hf_diameter_endtoendid =-1;
 static int hf_diameter_version = -1;
 static int hf_diameter_vendor_id = -1;
+static int hf_diameter_application_id = -1;
 static int hf_diameter_flags = -1;
 static int hf_diameter_flags_request = -1;
 static int hf_diameter_flags_proxyable = -1;
@@ -240,13 +242,21 @@ static gboolean suppress_console_output = TRUE;
 #define DICT_FN  "diameter/dictionary.xml"
 static gchar *gbl_diameterDictionary;
 
-typedef struct _e_diameterhdr {
+typedef struct _e_diameterhdr_v16 {
   guint32  versionLength;
   guint32  flagsCmdCode;
   guint32  vendorId;
   guint32  hopByHopId;
   guint32  endToEndId;
-} e_diameterhdr;
+} e_diameterhdr_v16;
+
+typedef struct _e_diameterhdr_rfc {
+  guint32  versionLength;
+  guint32  flagsCmdCode;
+  guint32  applicationId;
+  guint32  hopByHopId;
+  guint32  endToEndId;
+} e_diameterhdr_rfc;
 
 typedef struct _e_avphdr {
   guint32 avp_code;
@@ -285,7 +295,7 @@ typedef struct _e_avphdr {
 #define AVP_FLAGS_RESERVED 0x1f          /* 00011111  -- V M P X X X X X */
 
 #define MIN_AVP_SIZE (sizeof(e_avphdr) - sizeof(guint32))
-#define MIN_DIAMETER_SIZE (sizeof(e_diameterhdr))
+#define MIN_DIAMETER_SIZE (sizeof(e_diameterhdr_rfc))
 
 static Version_Type gbl_version = DIAMETER_RFC;
 
@@ -343,8 +353,7 @@ xmlParseFilePush( char *filename, int checkValid) {
  * only called when the XML dictionary fails to load properly.
  */
 static int
-addStaticAVP(int code, gchar *name, diameterDataType type,
-             const value_string *values)
+addStaticAVP(int code, gchar *name, diameterDataType type, const value_string *values)
 {
   avpInfo *entry;
   ValueName *vEntry=NULL;
@@ -778,6 +787,7 @@ initializeDictionaryDefaults(void)
 	addVendor(sminmpec_values[i].value,
 			  sminmpec_values[i].strptr,
 			  sminmpec_values[i].strptr);
+
   }
   /* Add static commands to list. */
   for(i=0; diameter_command_code_vals[i].strptr; i++) {
@@ -850,6 +860,9 @@ diameter_command_to_str(guint32 commandCode, guint32 vendorId)
   static gchar buffer[64];
   gchar *vendorName=NULL;
 
+  switch(gbl_version) {
+    case DIAMETER_V16:
+      /* In draft-v16 version, command code is depending on vendorID */
   if (vendorId)
 	vendorName = diameter_vendor_to_str(vendorId, FALSE);
 
@@ -878,24 +891,39 @@ diameter_command_to_str(guint32 commandCode, guint32 vendorId)
 			commandCode, vendorId);
   snprintf(buffer, sizeof(buffer),
 		   "Cmd-0x%08x", commandCode);
+    break;
+    case DIAMETER_RFC:
+      /* In RFC3588 version, command code is independant on vendorID */
+      for (probe=commandListHead; probe; probe=probe->next) {
+        if (commandCode == probe->code) {
+          /* We found it */
+          return probe->name;
+        }
+      }
   
+    if ( suppress_console_output == FALSE )
+          g_warning("Diameter: Unable to find name for command code 0x%08x!",
+                        commandCode);
+    snprintf(buffer, sizeof(buffer),
+                   "Cmd-0x%08x", commandCode);
+    break;
+  }
   return buffer;
 }/*diameter_command_to_str */
 
 /* return application string, based on the id */
 static gchar *
-diameter_app_to_str(guint32 vendorId) {
+diameter_app_to_str(guint32 appId) {
   ApplicationId *probe;
   static gchar buffer[64];
 
   for (probe=ApplicationIdHead; probe; probe=probe->next) {
-	if (vendorId == probe->id) {
+	if (appId == probe->id) {
 	  return probe->name;
 	}
   }
 
-  snprintf(buffer, sizeof(buffer),
-		   "AppId 0x%08x", vendorId);
+  snprintf(buffer, sizeof(buffer), "Unknown");
   return buffer;
 } /*diameter_app_to_str */
 
@@ -1044,17 +1072,18 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree      *flags_tree;
   tvbuff_t        *avp_tvb;
   proto_tree      *diameter_tree;
-  e_diameterhdr    dh;
+  e_diameterhdr_v16   dh;
+  e_diameterhdr_rfc   dh2;
   int              offset=0;
-  size_t           avplength;
+  size_t           avplength=0;
   proto_tree      *avp_tree;
   proto_item      *avptf;
   int              BadPacket = FALSE;
-  guint32          commandCode, pktLength;
-  guint8           version, flags;
+  guint32          commandCode=0, pktLength=0;
+  guint8           version=0, flags=0;
   gchar            flagstr[64] = "<None>";
   gchar           *fstr[] = {"RSVD7", "RSVD6", "RSVD5", "RSVD4", "RSVD3", "Error", "Proxyable", "Request" };
-  gchar            commandString[64], vendorName[64];
+  gchar            commandString[64], vendorName[64], applicationName[64];
   gint        i;
   guint      bpos;
   static  int initialized=FALSE;
@@ -1076,28 +1105,49 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
   /* Copy our header */
+  switch(gbl_version) {
+    case DIAMETER_V16:
   tvb_memcpy(tvb, (guint8*) &dh, offset, sizeof(dh));
-
   /* Fix byte ordering in our static structure */
   dh.versionLength = g_ntohl(dh.versionLength);
   dh.flagsCmdCode = g_ntohl(dh.flagsCmdCode);
   dh.vendorId = g_ntohl(dh.vendorId);
   dh.hopByHopId = g_ntohl(dh.hopByHopId);
   dh.endToEndId = g_ntohl(dh.endToEndId);
-
   if (dh.vendorId) {
 	strcpy(vendorName,
 		   diameter_vendor_to_str(dh.vendorId, TRUE));
   } else {
 	strcpy(vendorName, "None");
   }
-
-
   /* Do the bit twiddling */
   version = DIAM_GET_VERSION(dh);
   pktLength = DIAM_GET_LENGTH(dh);
   flags = DIAM_GET_FLAGS(dh);
   commandCode = DIAM_GET_COMMAND(dh);
+    break;
+    case DIAMETER_RFC:
+      tvb_memcpy(tvb, (guint8*) &dh2, offset, sizeof(dh2));
+      /* Fix byte ordering in our static structure */
+      dh2.versionLength = g_ntohl(dh2.versionLength);
+      dh2.flagsCmdCode = g_ntohl(dh2.flagsCmdCode);
+      dh2.applicationId = g_ntohl(dh2.applicationId);
+      dh2.hopByHopId = g_ntohl(dh2.hopByHopId);
+      dh2.endToEndId = g_ntohl(dh2.endToEndId);
+      if (dh2.applicationId) {
+ 	strcpy(applicationName,
+		   diameter_app_to_str(dh2.applicationId));
+      } else {
+  	strcpy(applicationName, "None");
+      }
+      /* Do the bit twiddling */
+      version = DIAM_GET_VERSION(dh2);
+      pktLength = DIAM_GET_LENGTH(dh2);
+      flags = DIAM_GET_FLAGS(dh2);
+      commandCode = DIAM_GET_COMMAND(dh2);
+    break;
+  }
+
 
   /* Set up our flags */
   if (check_col(pinfo->cinfo, COL_INFO) || tree) {
@@ -1117,7 +1167,16 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Set up our commandString */
+  switch(gbl_version) {
+    case DIAMETER_V16:
   strcpy(commandString, diameter_command_to_str(commandCode, dh.vendorId));
+    break;
+    case DIAMETER_RFC:
+      /* FIXME: in RFC, is applicationID needed to decode the command code?  */
+      strcpy(commandString, diameter_command_to_str(commandCode, dh2.applicationId));
+    break;
+  }
+
   if (flags & DIAM_FLAGS_R)
 	strcat(commandString, "-Request");
   else
@@ -1141,6 +1200,8 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
+    switch(gbl_version) {
+      case DIAMETER_V16:
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 				 "%s%s%s%s%s vendor=%s (hop-id=%u) (end-id=%u) RPE=%d%d%d",
 				 (BadPacket)?"***** Bad Packet!: ":"",
@@ -1154,6 +1215,23 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 (flags & DIAM_FLAGS_R)?1:0,
 				 (flags & DIAM_FLAGS_P)?1:0,
 				 (flags & DIAM_FLAGS_E)?1:0);
+      break;
+      case DIAMETER_RFC:
+	col_add_fstr(pinfo->cinfo, COL_INFO,
+				 "%s%s%s%s%s app=%s (hop-id=%u) (end-id=%u) RPE=%d%d%d",
+				 (BadPacket)?"***** Bad Packet!: ":"",
+				 (flags & DIAM_FLAGS_P)?"Proxyable ":"",
+				 (flags & DIAM_FLAGS_E)?" Error":"",
+				 ((BadPacket ||
+				   (flags & (DIAM_FLAGS_P|DIAM_FLAGS_E))) ?
+				   ": " : ""),
+				 commandString, applicationName,
+				 dh2.hopByHopId, dh2.endToEndId,
+				 (flags & DIAM_FLAGS_R)?1:0,
+				 (flags & DIAM_FLAGS_P)?1:0,
+				 (flags & DIAM_FLAGS_E)?1:0);
+      break;
+    }
   }
 
 
@@ -1201,20 +1279,37 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							   tvb, offset, 3, commandCode, "Command Code: %s", commandString);
 	offset += 3;
 
+        switch(gbl_version) {
+          case DIAMETER_V16:
 	/* Vendor Id */
 	proto_tree_add_uint_format(diameter_tree,hf_diameter_vendor_id,
 							   tvb, offset, 4,	dh.vendorId, "Vendor-Id: %s", vendorName);
 	offset += 4;
-
 	/* Hop-by-hop Identifier */
 	proto_tree_add_uint(diameter_tree, hf_diameter_hopbyhopid,
 						tvb, offset, 4, dh.hopByHopId);
 	offset += 4;
-
 	/* End-to-end Identifier */
 	proto_tree_add_uint(diameter_tree, hf_diameter_endtoendid,
 						tvb, offset, 4, dh.endToEndId);
 	offset += 4;
+          break;
+          case DIAMETER_RFC:
+	    /* Application Id */
+	    proto_tree_add_uint_format(diameter_tree,hf_diameter_application_id,
+                                       tvb, offset, 4,	dh2.applicationId, "Application-Id: %s", applicationName);
+	    offset += 4;
+	    /* Hop-by-hop Identifier */
+	    proto_tree_add_uint(diameter_tree, hf_diameter_hopbyhopid,
+						tvb, offset, 4, dh2.hopByHopId);
+	    offset += 4;
+	    /* End-to-end Identifier */
+	    proto_tree_add_uint(diameter_tree, hf_diameter_endtoendid,
+						tvb, offset, 4, dh2.endToEndId);
+	    offset += 4;
+          break;
+        }
+
 
 	/* If we have a bad packet, don't bother trying to parse the AVPs */
 	if (BadPacket) {
@@ -1225,7 +1320,14 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Make the next tvbuff */
 
 	/* Update the lengths */
-	avplength= pktLength - sizeof(e_diameterhdr);
+        switch(gbl_version) {
+          case DIAMETER_V16:
+	    avplength= pktLength - sizeof(e_diameterhdr_v16);
+	  break;
+	  case DIAMETER_RFC:
+	    avplength= pktLength - sizeof(e_diameterhdr_rfc);
+	  break;
+	}
 
 	avp_tvb = tvb_new_subset(tvb, offset, avplength, avplength);
 	avptf = proto_tree_add_text(diameter_tree,
@@ -1510,7 +1612,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 	  if (flags & AVP_FLAGS_V) {
 		proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_vendor_id,
-								   tvb, offset, 4, vendorId, vendorName);
+								   tvb, offset, 4, vendorId, "Vendor-Id: %s", vendorName);
 		offset += 4;
 	  }
 
@@ -1844,6 +1946,9 @@ proto_register_diameter(void)
 		    NULL, 0x0, "", HFILL }},
 		{ &hf_diameter_vendor_id,
 		  { "VendorId",	"diameter.vendorId", FT_UINT32, BASE_DEC, NULL,
+			0x0,"", HFILL }},
+		{ &hf_diameter_application_id,
+		  { "ApplicationId",	"diameter.applicationId", FT_UINT32, BASE_DEC, NULL,
 			0x0,"", HFILL }},
 		{ &hf_diameter_hopbyhopid,
 		  { "Hop-by-Hop Identifier", "diameter.hopbyhopid", FT_UINT32,

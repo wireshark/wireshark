@@ -15,6 +15,7 @@
  * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-mobileip-16.txt
  * http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-sip-app-01.txt
  * http://www.ietf.org/html.charters/aaa-charter.html
+ * http://www.iana.org/assignments/aaa-parameters
  */
 
 #ifndef _PACKET_DIAMETER_DEFS_H
@@ -343,14 +344,17 @@ static const value_string diameter_mip_replay_type[] = {
 	{3, "Timestamp"},
 	{0, NULL}
 };
-/* XXX TODO correct these values to IANA assigned ones */
+
 static const value_string diameter_application_id_vals[] = {
+	{0, "Diameter Common Messages"},
 	{1, "Diameter NASREQ Application"},
 	{2, "Diameter Mobile IPv4 Application"},
-	{4, "Diameter Credit-Control Application"},
-/*	{x, "Diameter Session Initiation Protocol (SIP) Application"},
- */
-  {2000, "Diameter EAP Application"},
+	{3, "Diameter Base Accounting"},
+	{16777216, "3GPP Cx"},
+	{16777217, "3GPP Sh"},
+	{16777218, "3GPP Rf/Ro"},
+	{4294967295, "Relay Application"},
+	
 	{0, NULL}
 
 };
@@ -512,6 +516,26 @@ static const value_string diameter_result_code_vals[] = {
 	{0, NULL}
 };
 
+static const value_string diameter_exp_result_code_vals[] = {
+        {2001, "DIAMETER_FIRST_REGISTRATION"},
+        {2002, "DIAMETER_SUBSEQUENT_REGISTRATION"},
+        {2003, "DIAMETER_UNREGISTERED_SERVICE"},
+        {2004, "DIAMETER_SUCCESS_SERVER_NAME_NOT_STORED"},
+        {2005, "DIAMETER_SERVER_SELECTION"},
+        {5001, "DIAMETER_ERROR_USER_UNKNOWN"},
+        {5002, "DIAMETER_ERROR_IDENTITIES_DONT_MATCH"},
+        {5003, "DIAMETER_ERROR_IDENTITY_NOT_REGISTERED"},
+        {5004, "DIAMETER_ERROR_ROAMING_NOT_ALLOWED"},
+        {5005, "DIAMETER_ERROR_ROAMING_IDENTITY_ALREADY_REGISTERED"},
+        {5006, "DIAMETER_ERROR_ROAMING_AUTH_SCHEME_NOT_SUPPORTED"},
+        {5007, "DIAMETER_ERROR_IN_ASSIGNMENT_TYPE"},
+        {5008, "DIAMETER_ERROR_TOO_MUCH_DATA"},
+        {5009, "DIAMETER_ERROR_NOT_SUPPORTED_USER_DATA"},
+
+	{0, NULL}
+};
+	 
+
 
 static struct old_avp_info old_diameter_avps[] = {
 	/* Radius Attributes */
@@ -664,6 +688,9 @@ static struct old_avp_info old_diameter_avps[] = {
     { 295, "Termination-Cause",           DIAMETER_ENUMERATED,  diameter_termination_cause_vals},
     { 266, "Vendor-Id",                   DIAMETER_ENUMERATED,  sminmpec_values},
     { 260, "Vendor-Specific-Application-Id", DIAMETER_GROUPED, (value_string *)NULL},
+    { 297, "Experimental-Result",          DIAMETER_GROUPED,     (value_string *)NULL},
+    { 298, "Experimental-Result-Code",     DIAMETER_ENUMERATED,  diameter_exp_result_code_vals},
+
 /* Diameter Mobile IP AVPs */
     { 318, "MIP-FA-to-HA-SPI",            DIAMETER_UNSIGNED32,     (value_string *)NULL},
     { 319, "MIP-FA-to-MN-SPI",            DIAMETER_UNSIGNED32,     (value_string *)NULL},
