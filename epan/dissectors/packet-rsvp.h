@@ -28,5 +28,6 @@
 extern const value_string gmpls_switching_type_str[];
 extern const value_string gmpls_lsp_enc_str[];
 extern const value_string gmpls_protection_cap_str[];
+extern const value_string gmpls_sonet_signal_type_str[];
 
 #endif

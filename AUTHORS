@@ -2167,6 +2167,11 @@ Henry Ptasinski		<henryp [AT] broadcom.com> {
 	Support for 802.11e WME/QoS info
 }
 
+Roberto Morro		<Roberto.Morro [AT] TILAB.COM> {
+	Support for GMPLS UNI and E-NNI objects/TLVs
+	    in RSVP and OSPF
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 

@@ -11,6 +11,9 @@
  * Furthermore RFC2740 (OSPFv3 - OSPF for IPv6) is now supported
  *   - (c) 2001 Palle Lyckegaard <palle[AT]lyckegaard.dk>
  *
+ * Added support to E-NNI routing (OIF2003.259.02)
+ *   - (c) 2004 Roberto Morro <roberto.morro[AT]tilab.com>
+
  * TOS - support is not fully implemented
  *
  * Ethereal - Network traffic analyzer
@@ -205,6 +208,8 @@ static gint ett_ospf_lsa_mpls = -1;
 static gint ett_ospf_lsa_mpls_router = -1;
 static gint ett_ospf_lsa_mpls_link = -1;
 static gint ett_ospf_lsa_mpls_link_stlv = -1;
+static gint ett_ospf_lsa_oif_tna = -1;
+static gint ett_ospf_lsa_oif_tna_stlv = -1;
 
 /*-----------------------------------------------------------------------
  * OSPF Filtering
@@ -896,6 +901,7 @@ is_opaque(int lsa_type)
 /* MPLS/TE TLV types */
 #define MPLS_TLV_ROUTER    1
 #define MPLS_TLV_LINK      2
+#define OIF_TLV_TNA    32768
 
 /* MPLS/TE Link STLV types */
 enum {
@@ -908,11 +914,21 @@ enum {
     MPLS_LINK_MAX_RES_BW,
     MPLS_LINK_UNRES_BW,
     MPLS_LINK_COLOR,
-    MPLS_LINK_LOCAL_ID = 11,
-    MPLS_LINK_REMOTE_ID,
+    MPLS_LINK_LOCAL_REMOTE_ID = 11,
     MPLS_LINK_PROTECTION = 14,
     MPLS_LINK_IF_SWITCHING_DESC,
     MPLS_LINK_SHARED_RISK_GROUP
+};
+
+/* OIF TLV types */
+enum {
+    OIF_LOCAL_NODE_ID = 32773,
+    OIF_REMOTE_NODE_ID,
+    OIF_SONET_SDH_SWITCHING_CAPABILITY,
+    OIF_TNA_IPv4_ADDRESS,
+    OIF_NODE_ID,
+    OIF_TNA_IPv6_ADDRESS,
+    OIF_TNA_NSAP_ADDRESS
 };
 
 static const value_string mpls_link_stlv_str[] = {
@@ -925,11 +941,21 @@ static const value_string mpls_link_stlv_str[] = {
     {MPLS_LINK_MAX_RES_BW, "Maximum Reservable Bandwidth"},
     {MPLS_LINK_UNRES_BW, "Unreserved Bandwidth"},
     {MPLS_LINK_COLOR, "Resource Class/Color"},
-    {MPLS_LINK_LOCAL_ID, "Link Local Identifier"},
-    {MPLS_LINK_REMOTE_ID, "Link Remote Identifier"},
+    {MPLS_LINK_LOCAL_REMOTE_ID, "Link Local/Remote Identifier"},
     {MPLS_LINK_PROTECTION, "Link Protection Type"},
     {MPLS_LINK_IF_SWITCHING_DESC, "Interface Switching Capability Descriptor"},
     {MPLS_LINK_SHARED_RISK_GROUP, "Shared Risk Link Group"},
+    {OIF_LOCAL_NODE_ID, "Local Node ID"},
+    {OIF_REMOTE_NODE_ID, "Remote Node ID"},
+    {OIF_SONET_SDH_SWITCHING_CAPABILITY, "Sonet/SDH Interface Switching Capability"},
+    {0, NULL},
+};
+
+static const value_string oif_stlv_str[] = {
+    {OIF_TNA_IPv4_ADDRESS, "TNA address"},
+    {OIF_NODE_ID, "Node ID"},
+    {OIF_TNA_IPv6_ADDRESS, "TNA address"},
+    {OIF_TNA_NSAP_ADDRESS, "TNA address"},
     {0, NULL},
 };
 
@@ -952,6 +978,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
     int stlv_type, stlv_len, stlv_offset;
     char *stlv_name;
     int i;
+    guint8 switch_cap;
 
     ti = proto_tree_add_text(tree, tvb, offset, length,
 			     "MPLS Traffic Engineering LSA");
@@ -1084,20 +1111,25 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 		    }
 		    break;
 
-		case MPLS_LINK_LOCAL_ID:
-		case MPLS_LINK_REMOTE_ID:
+		case MPLS_LINK_LOCAL_REMOTE_ID:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
-		    			     "Link Local/Remote Identifier");
+		    			     "%s: %d (0x%x) - %d (0x%x)", stlv_name,
+                                             tvb_get_ntohl(tvb, stlv_offset + 4),
+                                             tvb_get_ntohl(tvb, stlv_offset + 4),
+                                             tvb_get_ntohl(tvb, stlv_offset + 8),
+                                             tvb_get_ntohl(tvb, stlv_offset + 8));
 		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
 		    
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 					stlv_len);			
-		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 4, "Local ID: %s",
-					ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
-		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+8, 4, "Remote ID: %s",
-					ip_to_str(tvb_get_ptr(tvb, stlv_offset + 8, 4)));
+                    proto_tree_add_item(stlv_tree,
+                                        ospf_filter[OSPFF_LS_MPLS_LOCAL_IFID],
+                                        tvb, stlv_offset+4, 4, FALSE);
+                    proto_tree_add_item(stlv_tree,
+                                        ospf_filter[OSPFF_LS_MPLS_REMOTE_IFID],
+                                        tvb, stlv_offset+8, 4, FALSE);
 		    break;
 
 		case MPLS_LINK_IF_SWITCHING_DESC:
@@ -1108,6 +1140,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 					"TLV Type: %u: %s", stlv_type, stlv_name);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
 					stlv_len);
+                    switch_cap = tvb_get_guint8 (tvb, stlv_offset+4);
 		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 1, "Switching Type: %s",
 					val_to_str(tvb_get_guint8(tvb,stlv_offset+4),
 						   gmpls_switching_type_str, "Unknown (%d)"));
@@ -1120,6 +1153,25 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 					    tvb_get_ntohieee_float(tvb, stlv_offset + 8 + i*4),
 					    tvb_get_ntohieee_float(tvb, stlv_offset + 8 + i*4) * 8.0);
 		    }
+                    if (switch_cap >=1 && switch_cap <=4) {           // PSC-1 .. PSC-4
+                        proto_tree_add_text(stlv_tree, tvb, stlv_offset+40, 4,
+                                            "Minimum LSP bandwidth: %.10g bytes/s (%.0f bits/s)",
+                                            tvb_get_ntohieee_float(tvb, stlv_offset + 40),
+                                            tvb_get_ntohieee_float(tvb, stlv_offset + 40) * 8.0);
+                        proto_tree_add_text(stlv_tree, tvb, stlv_offset+44, 2,
+                                            "Interface MTU: %d", tvb_get_ntohs(tvb, stlv_offset+44));
+                    }
+
+                    if (switch_cap == 100) {                         // TDM
+                        proto_tree_add_text(stlv_tree, tvb, stlv_offset+40, 4,
+                                            "Minimum LSP bandwidth: %.10g bytes/s (%.0f bits/s)",
+                                            tvb_get_ntohieee_float(tvb, stlv_offset + 40),
+                                            tvb_get_ntohieee_float(tvb, stlv_offset + 40) * 8.0);
+                        proto_tree_add_text(stlv_tree, tvb, stlv_offset+44, 2,
+                                            "SONET/SDH: %s",
+                                            tvb_get_guint8(tvb, stlv_offset+44) ?
+                                            "Arbitrary" : "Standard");
+                    }
 		    break;
 		case MPLS_LINK_PROTECTION:
 		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
@@ -1146,6 +1198,55 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 			                tvb_get_ntohl(tvb,stlv_offset+4+i)); 
 		    break;
 
+		case OIF_LOCAL_NODE_ID:
+		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
+					     "%s: %s", stlv_name,
+					     ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
+					"TLV Type: %u: %s", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
+					stlv_len);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 4, "Local Node ID: %s",
+					ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
+		    break;
+
+		case OIF_REMOTE_NODE_ID:
+		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
+					     "%s: %s", stlv_name,
+					     ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
+					"TLV Type: %u: %s", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
+					stlv_len);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 4, "Remote Node ID: %s",
+					ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
+		    break;
+
+		case OIF_SONET_SDH_SWITCHING_CAPABILITY:
+		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4, "%s", stlv_name);
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_mpls_link_stlv);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
+					"TLV Type: %u: %s", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
+					stlv_len);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 1, "Switching Cap: %s",
+					val_to_str(tvb_get_guint8 (tvb, stlv_offset+4),
+						   gmpls_switching_type_str, "Unknown (%d)"));
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+5, 1, "Encoding: %s",
+					val_to_str(tvb_get_guint8(tvb,stlv_offset+5),
+						   gmpls_lsp_enc_str, "Unknown (%d)"));
+		    for (i = 0; i < (stlv_len - 4) / 4; i++) {
+			proto_tree_add_text(stlv_tree, tvb, stlv_offset+8+(i*4), 4,
+					    "%s: %d free timeslots",
+                                            val_to_str(tvb_get_guint8(tvb, stlv_offset+8+(i*4)),
+                                                       gmpls_sonet_signal_type_str,
+                                                       "Unknown Signal Type (%d)"),
+					    tvb_get_ntoh24(tvb, stlv_offset + 9 + i*4));
+		    }
+
+		    break;
 		default:
 		    proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
 					"Unknown Link sub-TLV: %u", stlv_type);
@@ -1155,6 +1256,87 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, int offset, proto_tree *tree,
 	    }
 	    break;
 
+	case OIF_TLV_TNA:
+	    ti = proto_tree_add_text(mpls_tree, tvb, offset, tlv_length+4,
+				     "TNA Information");
+	    tlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_oif_tna);
+	    proto_tree_add_text(tlv_tree, tvb, offset, 2, "TLV Type: 32768 - TNA Information");
+	    proto_tree_add_text(tlv_tree, tvb, offset+2, 2, "TLV Length: %u",
+				tlv_length);
+	    stlv_offset = offset + 4;
+
+	    /* Walk down the sub-TLVs for TNA information */
+	    while (stlv_offset < tlv_end_offset) {
+		stlv_type = tvb_get_ntohs(tvb, stlv_offset);
+		stlv_len = tvb_get_ntohs(tvb, stlv_offset + 2);
+		stlv_name = val_to_str(stlv_type, oif_stlv_str, "Unknown sub-TLV");
+		switch (stlv_type) {
+
+		case OIF_NODE_ID:
+		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
+					     "%s: %s", stlv_name,
+					     ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_oif_tna_stlv);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
+					"TLV Type: %u: %s", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u",
+		    			stlv_len);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 4, "%s: %s", stlv_name,
+					ip_to_str(tvb_get_ptr(tvb, stlv_offset + 4, 4)));
+		    break;
+
+		case OIF_TNA_IPv4_ADDRESS:
+		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
+
+					     ip_to_str(tvb_get_ptr(tvb, stlv_offset + 8, 4)));
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_oif_tna_stlv);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
+					"TLV Type: %u: %s (IPv4)", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u", stlv_len);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 1, "Addr Length: %u",
+					tvb_get_guint8 (tvb, stlv_offset+4));
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+8, stlv_len - 4, "TNA Addr: %s",
+					ip_to_str(tvb_get_ptr(tvb, stlv_offset + 8, 4)));
+		    break;
+
+		case OIF_TNA_IPv6_ADDRESS:
+		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
+					     "%s (IPv6): %s", stlv_name,
+					     ip6_to_str((const struct e_in6_addr *)
+							 tvb_get_ptr(tvb, stlv_offset + 8, 16)));
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_oif_tna_stlv);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
+					"TLV Type: %u: %s (IPv6)", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u", stlv_len);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 1, "Addr Length: %u",
+					tvb_get_guint8 (tvb, stlv_offset+4));
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+8, stlv_len - 4, "TNA Addr: %s",
+					ip6_to_str((const struct e_in6_addr *)
+						    tvb_get_ptr(tvb, stlv_offset + 8, 16)));
+		    break;
+
+		case OIF_TNA_NSAP_ADDRESS:
+		    ti = proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
+					     "%s (NSAP): %s", stlv_name,
+					     tvb_bytes_to_str (tvb, stlv_offset + 8, stlv_len - 4));
+		    stlv_tree = proto_item_add_subtree(ti, ett_ospf_lsa_oif_tna_stlv);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset, 2,
+					"TLV Type: %u: %s (NSAP)", stlv_type, stlv_name);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+2, 2, "TLV Length: %u", stlv_len);
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+4, 1, "Addr Length: %u",
+					    tvb_get_guint8 (tvb, stlv_offset+4));
+		    proto_tree_add_text(stlv_tree, tvb, stlv_offset+8, stlv_len - 4, "TNA Addr: %s",
+					tvb_bytes_to_str(tvb, stlv_offset+8, stlv_len - 4));
+		    break;
+
+		default:
+		    proto_tree_add_text(tlv_tree, tvb, stlv_offset, stlv_len+4,
+					"Unknown Link sub-TLV: %u", stlv_type);
+		    break;
+		}
+		stlv_offset += ((stlv_len+4+3)/4)*4;
+	    }
+	    break;
 	default:
 	    ti = proto_tree_add_text(mpls_tree, tvb, offset, tlv_length+4,
 				     "Unknown LSA: %u", tlv_type);
@@ -2125,7 +2307,9 @@ proto_register_ospf(void)
 	&ett_ospf_lsa_mpls,
 	&ett_ospf_lsa_mpls_router,
 	&ett_ospf_lsa_mpls_link,
-	&ett_ospf_lsa_mpls_link_stlv
+	&ett_ospf_lsa_mpls_link_stlv,
+        &ett_ospf_lsa_oif_tna,
+        &ett_ospf_lsa_oif_tna_stlv
     };
 
     proto_ospf = proto_register_protocol("Open Shortest Path First",
