@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.41 2001/11/21 23:16:23 gram Exp $
+ * $Id: packet.c,v 1.42 2001/11/26 05:41:12 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -82,11 +82,13 @@
 
 static gint proto_malformed = -1;
 static dissector_handle_t frame_handle = NULL;
+static dissector_handle_t data_handle = NULL;
 
 void
 packet_init(void)
 {
   frame_handle = find_dissector("frame");
+  data_handle = find_dissector("data");
   proto_malformed = proto_get_id_by_filter_name("malformed");
 }
 
@@ -824,7 +826,9 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 		/*
 		 * No - just dissect this packet as data.
 		 */
-		dissect_data(tvb, 0, pinfo, tree);
+	        g_assert(data_handle != NULL);
+		g_assert(data_handle->proto_index != -1);
+		call_dissector(data_handle,tvb, pinfo, tree);
 		return;
 	}
 

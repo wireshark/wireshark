@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.41 2001/11/21 23:34:08 gram Exp $
+ * $Id: plugins.c,v 1.42 2001/11/26 05:41:13 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -311,8 +311,6 @@ init_plugins(const char *plugin_dir)
 	patable.p_register_dissector		= register_dissector;
 	patable.p_find_dissector		= find_dissector;
 	patable.p_call_dissector		= call_dissector;
-
-	patable.p_dissect_data			= dissect_data;
 
 	patable.p_proto_is_protocol_enabled	= proto_is_protocol_enabled;
 

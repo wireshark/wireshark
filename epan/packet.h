@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.40 2001/11/21 23:16:23 gram Exp $
+ * $Id: packet.h,v 1.41 2001/11/26 05:41:13 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -227,9 +227,6 @@ extern void init_all_protocols(void);
 extern void dissect_packet(struct _epan_dissect_t *edt,
     union wtap_pseudo_header *pseudo_header, const u_char *pd,
     frame_data *fd);
-extern void dissect_data(tvbuff_t *tvb, int, packet_info *pinfo,
-    proto_tree *tree);
-
 
 /* These functions are in packet-ethertype.c */
 extern void capture_ethertype(guint16 etype, const u_char *pd, int offset,

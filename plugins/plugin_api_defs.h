@@ -1,7 +1,7 @@
 /* plugin_api_defs.h
  * Define the variables that hold pointers to plugin API functions
  *
- * $Id: plugin_api_defs.h,v 1.5 2001/11/13 23:55:40 gram Exp $
+ * $Id: plugin_api_defs.h,v 1.6 2001/11/26 05:41:15 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -50,8 +50,6 @@ addr_heur_dissector_add			p_heur_dissector_add;
 addr_register_dissector			p_register_dissector;
 addr_find_dissector			p_find_dissector;
 addr_call_dissector			p_call_dissector;
-
-addr_dissect_data			p_dissect_data;
 
 addr_proto_is_protocol_enabled		p_proto_is_protocol_enabled;
 

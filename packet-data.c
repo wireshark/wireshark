@@ -2,7 +2,7 @@
  * Routines for raw data (default case)
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-data.c,v 1.24 2001/11/25 21:44:57 hagbard Exp $
+ * $Id: packet-data.c,v 1.25 2001/11/26 05:41:11 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -40,25 +40,19 @@
 int proto_data = -1;
 
 void
-dissect_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
+dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	int bytes;
 
 	if (tree) {
-		bytes = tvb_length_remaining(tvb, offset);
+		bytes = tvb_length_remaining(tvb, 0);
 		if (bytes > 0) {
 			proto_tree_add_protocol_format(tree, proto_data, tvb,
-				offset,
+				0,
 				bytes, "Data (%d byte%s)", bytes,
 				plurality(bytes, "", "s"));
 		}
 	}
-}
-
-void 
-dissect_data_wrapper(tvbuff_t *tvb,packet_info *pinfo, proto_tree *tree)
-{
-  dissect_data(tvb,0,pinfo,tree);
 }
 
 void
@@ -70,7 +64,7 @@ proto_register_data(void)
 		"data"		/* abbrev */
 		);
 
-	register_dissector("data",dissect_data_wrapper,proto_data);
+	register_dissector("data",dissect_data,proto_data);
 
 	/*
 	 * "Data" is used to dissect something whose normal dissector
