@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.9 2000/03/23 10:25:38 guy Exp $
+ * $Id: packet-telnet.c,v 1.10 2000/03/23 10:49:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -182,8 +182,7 @@ telnet_will_wont_do_dont(proto_tree *telnet_tree, const u_char *pd,
 }
 
 static int
-telnet_command(proto_tree *telnet_tree, const u_char *pd,
-		int start_offset, int max_data) 
+telnet_command(proto_tree *telnet_tree, const u_char *pd, int start_offset)
 {
   int offset = start_offset;
   u_char optcode;
@@ -295,16 +294,12 @@ void
 dissect_telnet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
         proto_tree      *telnet_tree, *ti;
-	int max_data = pi.captured_len - offset;
 
 	if (check_col(fd, COL_PROTOCOL))
 		col_add_str(fd, COL_PROTOCOL, "TELNET");
 
-	if (check_col(fd, COL_INFO)) {
-
+	if (check_col(fd, COL_INFO))
 	  col_add_fstr(fd, COL_INFO, "Telnet Data ...");
-
-	}
 
 	if (tree) {
 	  int data_offset;
@@ -336,7 +331,7 @@ dissect_telnet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	      /*
 	       * Now interpret the command.
 	       */
-	      offset = telnet_command(telnet_tree, pd, offset, max_data);
+	      offset = telnet_command(telnet_tree, pd, offset);
 	      data_offset = offset;
 	    }
 	    else {
