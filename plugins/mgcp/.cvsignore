@@ -10,6 +10,7 @@ config.status
 configure
 mgcp.la
 packet-mgcp.lo
+packet-mgcp-static.lo
 stamp-h
 *.obj
 *.dll

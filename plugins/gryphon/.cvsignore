@@ -10,6 +10,7 @@ config.status
 configure
 gryphon.la
 packet-gryphon.lo
+packet-gryphon-static.lo
 stamp-h
 *.obj
 *.dll
