@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.50 2001/03/09 04:35:22 guy Exp $
+ * $Id: packet-nfs.c,v 1.51 2001/05/23 19:13:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1192,7 +1192,7 @@ dissect_diropres(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 }
 
 
-/* nfsdata is simply a RPC string (length, data, fill bytes) */
+/* nfsdata is simply a chunk of RPC opaque data (length, data, fill bytes) */
 int
 dissect_nfsdata(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 int hf)
@@ -5647,7 +5647,7 @@ proto_register_nfs(void)
 			"Total Count", "nfs.read.totalcount", FT_UINT32, BASE_DEC,
 			NULL, 0, "Total Count (obsolete)" }},
 		{ &hf_nfs_data, {
-			"Data", "nfs.data", FT_STRING, BASE_DEC,
+			"Data", "nfs.data", FT_BYTES, BASE_DEC,
 			NULL, 0, "Data" }},
 		{ &hf_nfs_write_beginoffset, {
 			"Begin Offset", "nfs.write.beginoffset", FT_UINT32, BASE_DEC,
@@ -5853,7 +5853,7 @@ proto_register_nfs(void)
 			VALS(names_time_how4), 0, "How To Set Time" }},
 
 		{ &hf_nfs_attrlist4, {
-			"attr_vals", "nfs.fattr4.attr_vals", FT_STRING, BASE_DEC,
+			"attr_vals", "nfs.fattr4.attr_vals", FT_BYTES, BASE_DEC,
 			NULL, 0, "attr_vals" }},
 
 		{ &hf_nfs_fattr4_expire_type, {
