@@ -88,7 +88,8 @@ browser_open_url (const gchar *url)
   CFRelease(url_CFString);
   return (status == 0);
 
-#else
+#elif (GLIB_MAJOR_VERSION >= 2)
+
 
   GError    *error = NULL;
   gchar     *browser;
@@ -100,6 +101,7 @@ browser_open_url (const gchar *url)
   g_return_val_if_fail (url != NULL, FALSE);
 
 /*  browser = gimp_gimprc_query ("web-browser");*/
+  /* XXX - use Preference setting for this */
   browser = g_strdup("mozilla %s");
 
   if (browser == NULL || ! strlen (browser))
@@ -148,6 +150,11 @@ browser_open_url (const gchar *url)
 
   return retval;
 
+#else
+  /* GLIB version 1.x doesn't support the functions used above,
+     so simply do nothing for now, to be able to compile.
+     XXX - has to be improved */
+  return FALSE;
 #endif
 }
 
