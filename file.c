@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.211 2000/08/24 06:45:37 guy Exp $
+ * $Id: file.c,v 1.212 2000/08/24 09:16:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -979,8 +979,11 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
 
     if (redissect) {
       /* Since all state for the frame was destroyed, mark the frame
-       * as not visited. */
+       * as not visited, and null out the pointer to the per-frame
+       * data (the per-frame data itself was freed by
+       * "init_all_protocols()"). */
       fdata->flags.visited = 0;
+      fdata->pfd = NULL;
     }
 
     wtap_seek_read (cf->wth, fdata->file_off, &cf->pseudo_header,
@@ -992,6 +995,22 @@ rescan_packets(capture_file *cf, const char *action, gboolean refilter,
       selected_row = row;
   }
  
+  if (redissect) {
+    /* Clear out what remains of the visited flags and per-frame data
+       pointers.
+
+       XXX - that may cause various forms of bogosity when dissecting
+       these frames, as they won't have been seen by this sequential
+       pass, but the only alternative I see is to keep scanning them
+       even though the user requested that the scan stop, and that
+       would leave the user stuck with an Ethereal grinding on
+       until it finishes.  Should we just stick them with that? */
+    for (; fdata != NULL; fdata = fdata->next) {
+      fdata->flags.visited = 0;
+      fdata->pfd = NULL;
+    }
+  }
+
   /* We're done filtering the packets; destroy the progress bar. */
   destroy_progress_dlg(progbar);
 
