@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.8 2004/01/20 02:21:17 ulfl Exp $
+ * $Id: compat_macros.h,v 1.9 2004/01/20 02:35:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -105,6 +105,7 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define GTK_STOCK_SAVE_AS           "Save As"
 #define GTK_STOCK_SELECT_COLOR      "Color"
 #define GTK_STOCK_SELECT_FONT       "Font"
+#define GTK_STOCK_STOP              "Stop"
 
 #ifdef HAVE_LIBPCAP
 #define ETHEREAL_STOCK_CAPTURE_START            ETHEREAL_STOCK_LABEL_CAPTURE_START
