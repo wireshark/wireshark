@@ -1,7 +1,7 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id: print.h,v 1.2 1998/09/16 03:22:16 gerald Exp $
+ * $Id: print.h,v 1.3 1998/09/26 19:28:51 gerald Exp $
  *
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
@@ -35,15 +35,16 @@ typedef struct pr_opts {
 	char	*cmd;
 
 	/* for the dialogue box */
-	GtkWidget	*window;
 	GtkWidget	*cmd_te;
 	GtkWidget	*file_te;
 } pr_opts;
 
 /* Functions in print.h */
 
-void printer_opts_cb(GtkWidget *, gpointer);
+GtkWidget * printer_opts_pg();
 void print_tree_text(FILE *fh, const u_char *pd, frame_data *fd, GtkTree *tree);
 void print_tree_ps(FILE *fh, const u_char *pd, frame_data *fd, GtkTree *tree);
+void printer_opts_ok(GtkWidget *w);
+void printer_opts_close(GtkWidget *w);
 
 #endif /* print.h */

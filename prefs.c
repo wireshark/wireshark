@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.1 1998/09/25 23:24:04 gerald Exp $
+ * $Id: prefs.c,v 1.2 1998/09/26 19:28:49 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,17 +33,21 @@
 
 #include <gtk/gtk.h>
 
-#include <packet.h>
-#include <file.h>
-#include <prefs.h>
+#include "packet.h"
+#include "file.h"
+#include "print.h"
+#include "prefs.h"
 
 extern capture_file  cf;
+
+const gchar *print_page_key = "printer_options_page";
 
 void
 prefs_cb() {
   GtkWidget *prefs_w, *main_vb, *top_hb, *bbox, *prefs_nb,
             *ok_bt, *cancel_bt;
-  GtkWidget *checkbutton, *label;
+  GtkWidget *pr_opt_pg;
+  GtkWidget *nlabel, *label;
 
   prefs_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(prefs_w), "Ethereal: Preferences");
@@ -63,14 +67,18 @@ prefs_cb() {
   gtk_container_add(GTK_CONTAINER(main_vb), prefs_nb);
   gtk_widget_show(prefs_nb);
   
-  checkbutton = gtk_check_button_new_with_label ("Check me please!");
-  gtk_widget_show (checkbutton);
+  /* General prefs */
+  nlabel = gtk_label_new("Nothing here yet");
+  gtk_widget_show (nlabel);
 
-  label = gtk_label_new ("Add spot");
-  gtk_container_add (GTK_CONTAINER (checkbutton), label);
-  gtk_widget_show (label);
   label = gtk_label_new ("General");
-  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), checkbutton, label);
+  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), nlabel, label);
+  
+  /* Printing prefs */
+  pr_opt_pg = printer_opts_pg();
+  gtk_object_set_data(GTK_OBJECT(prefs_w), print_page_key, pr_opt_pg);
+  label = gtk_label_new ("Printing");
+  gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), pr_opt_pg, label);
     
   /* Button row: OK and cancel buttons */
   bbox = gtk_hbutton_box_new();
@@ -97,13 +105,15 @@ prefs_cb() {
 
 void
 prefs_main_ok_cb(GtkWidget *w, gpointer win) {
-
+  
+  printer_opts_ok(gtk_object_get_data(GTK_OBJECT(win), print_page_key));
   gtk_widget_destroy(GTK_WIDGET(win));
 }
 
 void
 prefs_main_cancel_cb(GtkWidget *w, gpointer win) {
 
+  printer_opts_close(gtk_object_get_data(GTK_OBJECT(win), print_page_key));
   gtk_widget_destroy(GTK_WIDGET(win));
 }
 
