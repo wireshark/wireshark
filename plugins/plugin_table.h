@@ -1,7 +1,7 @@
 /* plugin_table.h
  * Table of exported addresses for Ethereal plugins.
  *
- * $Id: plugin_table.h,v 1.59 2003/04/24 21:15:13 guy Exp $
+ * $Id: plugin_table.h,v 1.60 2003/04/29 21:27:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -85,7 +85,6 @@ typedef void (*addr_proto_item_append_text)(proto_item*, const char*, ...);
 typedef proto_tree* (*addr_proto_item_add_subtree)(proto_item*, gint);
 typedef proto_item* (*addr_proto_tree_add_item)(proto_tree*, int, tvbuff_t*, gint, gint, gboolean);
 typedef proto_item* (*addr_proto_tree_add_item_hidden)(proto_tree*, int, tvbuff_t*, gint, gint, gboolean);
-typedef proto_item* (*addr_proto_tree_add_none_format)(proto_tree*, int, tvbuff_t*, gint, gint, const char*, ...);
 typedef proto_item* (*addr_proto_tree_add_protocol_format)(proto_tree*, int, tvbuff_t*, gint, gint, const char*, ...);
 
 typedef proto_item* (*addr_proto_tree_add_bytes)(proto_tree*, int, tvbuff_t*, gint, gint, const guint8*);
@@ -314,6 +313,10 @@ typedef int (*addr_asn1_oid_decode)( ASN1_SCK *, subid_t **, guint *, guint *);
 typedef int (*addr_asn1_sequence_decode)( ASN1_SCK *, guint *, guint *);
 
 typedef char *(*addr_asn1_err_to_str)(int );
+
+typedef void (*addr_proto_item_set_end)(proto_item*, tvbuff_t *, gint);
+
+typedef proto_item* (*addr_proto_tree_add_none_format)(proto_tree*, int, tvbuff_t*, gint, gint, const char*, ...);
 
 typedef struct  {
 

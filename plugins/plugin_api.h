@@ -1,7 +1,7 @@
 /* plugin_api.h
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.h,v 1.47 2003/04/24 21:15:13 guy Exp $
+ * $Id: plugin_api.h,v 1.48 2003/04/29 21:27:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -76,13 +76,12 @@
 #define proto_is_protocol_enabled	(*p_proto_is_protocol_enabled)
 
 #define proto_item_get_len		(*p_proto_item_get_len)
-#define proto_item_set_len		(*p_proto_item_set_len)
+#define proto_item_set_end		(*p_proto_item_set_end)
 #define proto_item_set_text		(*p_proto_item_set_text)
 #define proto_item_append_text		(*p_proto_item_append_text)
 #define	proto_item_add_subtree		(*p_proto_item_add_subtree)
 #define	proto_tree_add_item		(*p_proto_tree_add_item)
 #define	proto_tree_add_item_hidden	(*p_proto_tree_add_item_hidden)
-#define	proto_tree_add_none_format	(*p_proto_tree_add_none_format)
 #define	proto_tree_add_protocol_format	(*p_proto_tree_add_protocol_format)
 #define	proto_tree_add_bytes		(*p_proto_tree_add_bytes)
 #define	proto_tree_add_bytes_hidden	(*p_proto_tree_add_bytes_hidden)
@@ -269,6 +268,9 @@
 #define	asn1_oid_decode			(*p_asn1_oid_decode)
 #define	asn1_sequence_decode		(*p_asn1_sequence_decode)
 #define	asn1_err_to_str			(*p_asn1_err_to_str)
+
+#define proto_item_set_len		(*p_proto_item_set_len)
+#define	proto_tree_add_none_format	(*p_proto_tree_add_none_format)
 
 #endif
 

@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.336 2003/04/28 10:42:14 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.337 2003/04/29 21:27:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -13838,7 +13838,6 @@ static smb_function smb_dissector[256] = {
 static int
 dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *smb_tree, guint8 cmd, gboolean first_pdu)
 {
-	int old_offset = offset;
 	smb_info_t *si;
 
 	si = pinfo->private_data;
@@ -13873,7 +13872,7 @@ dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *s
 			smb_dissector[cmd].request:smb_dissector[cmd].response;
 
 		offset = (*dissector)(tvb, pinfo, cmd_tree, offset, smb_tree);
-		proto_item_set_len(cmd_item, offset-old_offset);
+		proto_item_set_end(cmd_item, tvb, offset);
 	}
 	return offset;
 }

@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.38 2003/01/31 03:17:52 guy Exp $
+ * $Id: proto.h,v 1.39 2003/04/29 21:27:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -162,6 +162,15 @@ extern void proto_item_append_text(proto_item *ti, const char *format, ...);
 
 /* Set length of proto_item after having already been created. */
 extern void proto_item_set_len(proto_item *ti, gint length);
+
+/*
+ * Sets the length of the item based on its start and on the specified
+ * offset, which is the offset past the end of the item; as the start
+ * in the item is relative to the beginning of the data source tvbuff,
+ * we need to pass in a tvbuff - the end offset is relative to the beginning
+ * of that tvbuff.
+ */
+extern void proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end);
 
 /* Get length of proto_item. Useful after using proto_tree_add_item()
  * to add a variable-length field (e.g., FT_NSTRING_UINT8) */

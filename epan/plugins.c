@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.65 2003/04/24 21:15:12 guy Exp $
+ * $Id: plugins.c,v 1.66 2003/04/29 21:27:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -333,7 +333,6 @@ init_plugins(const char *plugin_dir)
 	patable.p_proto_item_add_subtree	= proto_item_add_subtree;
 	patable.p_proto_tree_add_item		= proto_tree_add_item;
 	patable.p_proto_tree_add_item_hidden	= proto_tree_add_item_hidden;
-	patable.p_proto_tree_add_none_format	= proto_tree_add_none_format;
 	patable.p_proto_tree_add_protocol_format = proto_tree_add_protocol_format;
 	patable.p_proto_tree_add_bytes		= proto_tree_add_bytes;
 	patable.p_proto_tree_add_bytes_hidden	= proto_tree_add_bytes_hidden;
@@ -519,6 +518,8 @@ init_plugins(const char *plugin_dir)
 	patable.p_asn1_sequence_decode		= asn1_sequence_decode;
 	patable.p_asn1_err_to_str		= asn1_err_to_str;
 	
+	patable.p_proto_item_set_end		= proto_item_set_end;
+	patable.p_proto_tree_add_none_format	= proto_tree_add_none_format;
 #endif
 
 #ifdef WIN32

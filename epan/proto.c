@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.82 2003/02/08 04:22:30 gram Exp $
+ * $Id: proto.c,v 1.83 2003/04/29 21:27:14 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1943,6 +1943,25 @@ proto_item_set_len(proto_item *pi, gint length)
 		return;
 	fi = PITEM_FINFO(pi);
 	fi->length = length;
+}
+
+/*
+ * Sets the length of the item based on its start and on the specified
+ * offset, which is the offset past the end of the item; as the start
+ * in the item is relative to the beginning of the data source tvbuff,
+ * we need to pass in a tvbuff - the end offset is relative to the beginning
+ * of that tvbuff.
+ */
+void
+proto_item_set_end(proto_item *pi, tvbuff_t *tvb, gint end)
+{
+	field_info *fi;
+
+	if (pi == NULL)
+		return;
+	fi = PITEM_FINFO(pi);
+	end += tvb_raw_offset(tvb);
+	fi->length = end - fi->start;
 }
 
 int
