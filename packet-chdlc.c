@@ -1,7 +1,7 @@
 /* packet-chdlc.c
  * Routines for Cisco HDLC packet disassembly
  *
- * $Id: packet-chdlc.c,v 1.12 2002/04/13 09:22:39 guy Exp $
+ * $Id: packet-chdlc.c,v 1.13 2002/05/30 01:56:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -280,7 +280,8 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown packet type 0x%08X", code);
     if (tree) {
       proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
-      call_dissector(data_handle,tvb_new_subset(tvb, 4,-1,tvb_reported_length_remaining(tvb,4)), pinfo, slarp_tree);
+      call_dissector(data_handle, tvb_new_subset(tvb, 4, -1, -1), pinfo,
+		     slarp_tree);
     }
     break;
   }

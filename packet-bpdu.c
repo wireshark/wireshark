@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.35 2002/03/31 21:33:51 guy Exp $
+ * $Id: packet-bpdu.c,v 1.36 2002/05/30 01:56:54 guy Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -313,7 +313,9 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				       bpdu_type);
 
 	    if (bpdu_type != BPDU_TYPE_CONF && bpdu_type != BPDU_TYPE_RST) {
-	      call_dissector(data_handle,tvb_new_subset(tvb, BPDU_TYPE + 1,-1,tvb_reported_length_remaining(tvb,BPDU_TYPE + 1)), pinfo, tree);
+	      call_dissector(data_handle,
+			     tvb_new_subset(tvb, BPDU_TYPE + 1, -1, -1),
+			     pinfo, tree);
 	      return;
 	    }
 

@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.33 2002/01/24 09:20:51 guy Exp $
+ * $Id: packet-rtp.c,v 1.34 2002/05/30 01:56:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -493,7 +493,9 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 				 */
 				proto_tree_add_text(rtp_tree, tvb, 0, 0,
 				    "Frame has padding, but not all the frame data was captured");
-				call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, rtp_tree);
+				call_dissector(data_handle,
+				    tvb_new_subset(tvb, offset, -1, -1),
+				    pinfo, rtp_tree);
 				return;
 			}
 

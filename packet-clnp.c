@@ -1,7 +1,7 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-clnp.c,v 1.54 2002/04/30 23:56:58 guy Exp $
+ * $Id: packet-clnp.c,v 1.55 2002/05/30 01:56:54 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
@@ -716,7 +716,7 @@ static int osi_decode_DR(tvbuff_t *tvb, int offset,
   offset += li + 1;
 
   /* User data */
-  call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+  call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
   offset += tvb_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
 
@@ -1087,7 +1087,7 @@ static int osi_decode_CC(tvbuff_t *tvb, int offset,
   offset += li;
 
   /* User data */
-  call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+  call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
   offset += tvb_length_remaining(tvb, offset);
      /* we dissected all of the containing PDU */
 
@@ -1480,7 +1480,8 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
       if (check_col(pinfo->cinfo, COL_INFO))
         col_append_str(pinfo->cinfo, COL_INFO, "Length indicator is zero");
       if (!first_tpdu)
-        call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+        call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1),
+                       pinfo, tree);
       return found_ositp;
     }
 
@@ -1533,7 +1534,8 @@ static gboolean dissect_ositp_internal(tvbuff_t *tvb, packet_info *pinfo,
 
     if (new_offset == -1) { /* incorrect TPDU */
       if (!first_tpdu)
-        call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+        call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1),
+                       pinfo, tree);
       break;
     }
 
@@ -1949,7 +1951,8 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* As we haven't reassembled anything, we haven't changed "pi", so
        we don't have to restore it. */
-    call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+    call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo,
+                   tree);
     pinfo->fragmented = save_fragmented;
     return;
   }

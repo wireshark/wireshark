@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB 
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.61 2002/05/01 07:21:19 guy Exp $
+ * $Id: packet-ieee80211.c,v 1.62 2002/05/30 01:56:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1607,7 +1607,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
 	    cap_len -= 4 - (pkt_len - cap_len);
 	  pkt_len -= 4;
 	  if (cap_len > 0 && pkt_len > 0)
-	    call_dissector(data_handle,tvb_new_subset(tvb, hdr_len + 4, -1,tvb_reported_length_remaining(tvb,hdr_len + 4)),pinfo, tree);
+	    call_dissector(data_handle,
+			   tvb_new_subset(tvb, hdr_len + 4, -1, -1),
+			   pinfo, tree);
 	}
 	return;
     }

@@ -2,7 +2,7 @@
  * Routines for dsi packet dissection
  * Copyright 2001, Randy McEoin <rmceoin@pe.com>
  *
- * $Id: packet-dsi.c,v 1.21 2002/05/10 23:20:38 guy Exp $
+ * $Id: packet-dsi.c,v 1.22 2002/05/30 01:56:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -539,7 +539,9 @@ dissect_dsi_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
   	default:
 		if (tree) {	
- 			call_dissector(data_handle,tvb_new_subset(tvb, DSI_BLOCKSIZ,-1,tvb_reported_length_remaining(tvb,DSI_BLOCKSIZ)), pinfo, dsi_tree); 
+ 			call_dissector(data_handle,
+ 			    tvb_new_subset(tvb, DSI_BLOCKSIZ, -1, -1),
+ 			    pinfo, dsi_tree);
 		}
 		break;
 	}

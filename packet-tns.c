@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.29 2002/02/01 04:34:15 gram Exp $
+ * $Id: packet-tns.c,v 1.30 2002/05/30 01:56:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -224,7 +224,8 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	
 	if ( data_tree )
 	{
-		call_dissector(data_handle,tvb_new_subset(tvb,offset,-1,tvb_reported_length_remaining(tvb,offset)),pinfo,data_tree);
+		call_dissector(data_handle,
+		    tvb_new_subset(tvb, offset, -1, -1), pinfo, data_tree);
 	}
 
 	return;
@@ -804,7 +805,10 @@ dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dissect_tns_data(tvb,offset,pinfo,tree,tns_tree);
 			break;
 		default:
-			call_dissector(data_handle,tvb_new_subset(tvb,offset,-1,tvb_reported_length_remaining(tvb,offset)),pinfo,tns_tree);
+			call_dissector(data_handle,
+			    tvb_new_subset(tvb, offset, -1, -1), pinfo,
+			    tns_tree);
+			break;
 	}
 }
 

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.165 2002/03/31 21:43:51 guy Exp $
+ * $Id: packet-ip.c,v 1.166 2002/05/30 01:56:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1104,7 +1104,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (check_col(pinfo->cinfo, COL_INFO))
       col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented IP protocol (proto=%s 0x%02x, off=%u)",
 	ipprotostr(iph.ip_p), iph.ip_p, (iph.ip_off & IP_OFFSET) * 8);
-    call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+    call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1), pinfo,
+                   tree);
     pinfo->fragmented = save_fragmented;
     return;
   }
@@ -1576,7 +1577,8 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       case ICMP_ECHOREPLY:
       case ICMP_ECHO:
-	call_dissector(data_handle,tvb_new_subset(tvb, 8,-1,tvb_reported_length_remaining(tvb,8)), pinfo, icmp_tree);
+	call_dissector(data_handle, tvb_new_subset(tvb, 8, -1, -1), pinfo,
+	               icmp_tree);
 	break;
 
       case ICMP_RTRADVERT:
@@ -1593,7 +1595,8 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dissect_mip_extensions(tvb, 8 + i*8, icmp_tree);
 	  }
 	} else
-	  call_dissector(data_handle,tvb_new_subset(tvb, 8,-1,tvb_reported_length_remaining(tvb,8)), pinfo, icmp_tree);
+	  call_dissector(data_handle, tvb_new_subset(tvb, 8, -1, -1), pinfo,
+	                 icmp_tree);
 	break;
 
       case ICMP_TSTAMP:

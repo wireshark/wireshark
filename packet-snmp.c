@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.92 2002/04/08 01:55:05 guy Exp $
+ * $Id: packet-snmp.c,v 1.93 2002/05/30 01:56:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -441,7 +441,8 @@ dissect_snmp_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree != NULL) {
 		proto_tree_add_text(tree, tvb, offset, 0, "%s", message);
-		call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+		call_dissector(data_handle,
+		    tvb_new_subset(tvb, offset, -1, -1), pinfo, tree);
 	}
 }
 

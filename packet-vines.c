@@ -1,7 +1,7 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.40 2002/04/24 06:03:34 guy Exp $
+ * $Id: packet-vines.c,v 1.41 2002/05/30 01:56:55 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
@@ -314,7 +314,7 @@ dissect_vines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	next_tvb = tvb_new_subset(tvb, offset, -1, -1);
 	if (!dissector_try_port(vines_dissector_table, viph.vip_proto,
 	    next_tvb, pinfo, tree))
-		call_dissector(data_handle,next_tvb, pinfo, tree);
+		call_dissector(data_handle, next_tvb, pinfo, tree);
 }
 
 void
@@ -455,7 +455,8 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    "Window: 0x%04x", viph.vspp_win);
 	}
 	offset += 16; /* sizeof SPP */
-	call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,tvb_reported_length_remaining(tvb,offset)), pinfo, tree);
+	call_dissector(data_handle, tvb_new_subset(tvb, offset, -1, -1),
+	    pinfo, tree);
 }
 
 void
