@@ -80,7 +80,7 @@ delete_color_filter(color_filter_t *colorf)
 	g_free(colorf);
 }
 
-/* delete the specified filter as an iterator*/
+/* delete the specified filter as an iterator */
 static void
 delete_color_filter_it(gpointer filter_arg, gpointer unused _U_)
 {
@@ -350,8 +350,7 @@ read_global_filters(void)
 	return ret;
 }
 
-/* save filters in some other filter file */
-
+/* read filters from some other filter file (import) */
 gboolean
 read_other_filters(gchar *path, gpointer arg)
 {
@@ -376,6 +375,7 @@ struct write_filter_data
   gboolean only_marked;
 };
 
+/* save a single filter */
 static void
 write_filter(gpointer filter_arg, gpointer data_arg)
 {
@@ -411,7 +411,6 @@ write_filters_file(FILE *f, gboolean only_marked)
 }
 
 /* save filters in users filter file */
-
 gboolean
 write_filters(void)
 {
@@ -441,8 +440,7 @@ write_filters(void)
 	return TRUE;
 }
 
-/* delete users filter file and reload global filters*/
-
+/* delete users filter file and reload global filters */
 gboolean
 revert_filters(void)
 {
@@ -473,8 +471,7 @@ revert_filters(void)
 }
 
 
-/* save filters in some other filter file */
-
+/* save filters in some other filter file (export) */
 gboolean
 write_other_filters(gchar *path, gboolean only_marked)
 {
