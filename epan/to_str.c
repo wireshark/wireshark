@@ -1,7 +1,7 @@
 /* to_str.h
  * Routines  for utilities to convert various other types to strings.
  *
- * $Id: to_str.c,v 1.4 2001/04/02 02:30:06 guy Exp $
+ * $Id: to_str.c,v 1.5 2001/04/02 09:59:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -26,6 +26,8 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
+
+#include <stdlib.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
