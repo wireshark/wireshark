@@ -1,7 +1,7 @@
 /* fc_stat.c
  * fc_stat   2003 Ronnie Sahlberg
  *
- * $Id: fc_stat.c,v 1.22 2004/01/31 03:22:39 guy Exp $
+ * $Id: fc_stat.c,v 1.23 2004/02/11 04:17:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,7 @@
 #include <string.h>
 #include "../epan/packet_info.h"
 #include "../epan/epan.h"
-#include "menu.h"
+#include "tap_menu.h"
 #include "../tap.h"
 #include "../epan/value_string.h"
 #include "../packet-fc.h"

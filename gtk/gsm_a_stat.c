@@ -5,7 +5,7 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id: gsm_a_stat.c,v 1.11 2004/02/06 19:19:10 ulfl Exp $
+ * $Id: gsm_a_stat.c,v 1.12 2004/02/11 04:17:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,7 @@
 #include "epan/packet_info.h"
 #include "epan/epan.h"
 #include "epan/value_string.h"
-#include "menu.h"
+#include "tap_menu.h"
 #include "image/clist_ascend.xpm"
 #include "image/clist_descend.xpm"
 #include "simple_dialog.h"

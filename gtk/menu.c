@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.160 2004/02/11 03:55:48 guy Exp $
+ * $Id: menu.c,v 1.161 2004/02/11 04:17:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,6 +33,7 @@
 
 #include "main.h"
 #include "menu.h"
+#include "tap_menu.h"
 #include <epan/packet.h>
 #include <epan/resolv.h>
 #include "prefs.h"

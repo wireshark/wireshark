@@ -1,7 +1,7 @@
 /* io_stat.c
  * io_stat   2002 Ronnie Sahlberg
  *
- * $Id: io_stat.c,v 1.60 2004/02/11 00:55:28 guy Exp $
+ * $Id: io_stat.c,v 1.61 2004/02/11 04:17:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,7 +41,7 @@
 #include "gtkglobals.h"
 #include "epan/epan_dissect.h"
 #include "epan/packet_info.h"
-#include "menu.h"
+#include "tap_menu.h"
 #include "../tap.h"
 #include "../register.h"
 #include "alert_box.h"

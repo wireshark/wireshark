@@ -1,7 +1,7 @@
 /* endpoint_talkers_tcpip.c
  * endpoint_talkers_tcpip   2003 Ronnie Sahlberg
  *
- * $Id: endpoint_talkers_tcpip.c,v 1.22 2004/01/03 18:05:56 sharpe Exp $
+ * $Id: endpoint_talkers_tcpip.c,v 1.23 2004/02/11 04:17:02 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,7 +35,7 @@
 #include <gtk/gtk.h>
 #include <string.h>
 #include "epan/packet.h"
-#include "menu.h"
+#include "tap_menu.h"
 #include "../tap.h"
 #include "../register.h"
 #include "endpoint_talkers_table.h"

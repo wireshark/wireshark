@@ -1,7 +1,7 @@
 /* rtp_stream_dlg.c
  * RTP streams summary addition for ethereal
  *
- * $Id: rtp_stream_dlg.c,v 1.13 2004/02/06 19:19:11 ulfl Exp $
+ * $Id: rtp_stream_dlg.c,v 1.14 2004/02/11 04:17:04 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -36,7 +36,7 @@
 #include "globals.h"
 #include "epan/filesystem.h"
 
-#include "menu.h"
+#include "tap_menu.h"
 #include "dlg_utils.h"
 #include "ui_util.h"
 #include "main.h"

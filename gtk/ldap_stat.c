@@ -1,7 +1,7 @@
 /* ldap_stat.c
  * ldap_stat   2003 Ronnie Sahlberg
  *
- * $Id: ldap_stat.c,v 1.10 2004/01/31 03:22:41 guy Exp $
+ * $Id: ldap_stat.c,v 1.11 2004/02/11 04:17:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,7 +36,7 @@
 #include <string.h>
 #include "../epan/packet_info.h"
 #include "../epan/epan.h"
-#include "menu.h"
+#include "tap_menu.h"
 #include "../tap.h"
 #include "../epan/value_string.h"
 #include "../packet-ldap.h"

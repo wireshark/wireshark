@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.34 2004/02/11 01:37:13 guy Exp $
+ * $Id: rtp_analysis.c,v 1.35 2004/02/11 04:17:04 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -62,7 +62,7 @@
 #include "ui_util.h"
 #include "alert_box.h"
 #include "simple_dialog.h"
-#include "menu.h"
+#include "tap_menu.h"
 #include "main.h"
 #include "progress_dlg.h"
 #include "compat_macros.h"
