@@ -3124,7 +3124,8 @@ static const value_string the3gpp_pdp_type_vals[] = {
 
 static const radius_attr_info radius_vendor_3gpp_attrib[] =
 {
-   /* According to 3GPP TS 29.061 V6.3.1 (2005-01 */
+   /* According to 3GPP TS 29.061 V6.3.1 (2005-01) */
+   /* The strings are in UTF-8 */
    {1,  RADIUS_STRING,			"IMSI", NULL, NULL},
    {2,  RADIUS_INTEGER4,		"Charging ID", NULL, NULL},
    {3,  RADIUS_INTEGER4,		"PDP Type", the3gpp_pdp_type_vals, NULL},
