@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.11 1999/11/30 07:45:41 guy Exp $
+ * $Id: packet-netbios.c,v 1.12 2000/01/14 17:08:41 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -192,7 +192,7 @@ process_netbios_name(const u_char *name_ptr, char *name_ret)
 	int i;
 	int name_type = *(name_ptr + NETBIOS_NAME_LEN - 1);
 	u_char name_char;
-	static const char hex_digits[16] = "0123456780abcdef";
+	static const char hex_digits[16] = "0123456789abcdef";
 
 	for (i = 0; i < NETBIOS_NAME_LEN - 1; i++) {
 		name_char = *name_ptr++;
