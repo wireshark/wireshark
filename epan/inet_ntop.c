@@ -20,7 +20,7 @@
 #endif
 
 #if defined(LIBC_SCCS) && !defined(lint)
-static char rcsid[] = "$Id: inet_ntop.c,v 1.1 2000/10/14 04:31:26 gram Exp $";
+static char rcsid[] = "$Id: inet_ntop.c,v 1.2 2001/10/28 01:55:10 guy Exp $";
 #endif /* LIBC_SCCS and not lint */
 
 #ifdef HAVE_SYS_PARAM_H
@@ -126,8 +126,12 @@ inet_ntop4(src, dst, size)
 {
 	static const char fmt[] = "%u.%u.%u.%u";
 	char tmp[sizeof "255.255.255.255"];
+	int nprinted;
 
-	if (snprintf(tmp, sizeof(tmp), fmt, src[0], src[1], src[2], src[3]) > size) {
+	nprinted = snprintf(tmp, sizeof(tmp), fmt, src[0], src[1], src[2], src[3]);
+	if (nprinted < 0)
+		return (NULL);	/* we assume "errno" was set by "snprintf()" */
+	if ((size_t)nprinted > size) {
 		errno = ENOSPC;
 		return (NULL);
 	}
