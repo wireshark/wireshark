@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.160 2004/02/18 05:55:15 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.161 2004/02/18 19:44:51 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -935,7 +935,7 @@ dissect_dcerpc_float(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 		default:
 			/* ToBeDone: non IEEE floating formats */
 			/* Set data to a negative infinity value */
-			data = -1.0 * 1e100 * 1e100;
+			data = -G_MAXFLOAT;
 			if (tree) {
 				proto_tree_add_debug_text(tree, "DCE RPC: dissection of non IEEE floating formats currently not implemented (drep=%u)!", drep[1]);
 			}
@@ -969,7 +969,7 @@ dissect_dcerpc_double(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 		default:
 			/* ToBeDone: non IEEE double formats */
 			/* Set data to a negative infinity value */
-			data = -1.0 * 1e100 * 1e100;
+			data = -G_MAXDOUBLE;
 			if (tree) {
 				proto_tree_add_debug_text(tree, "DCE RPC: dissection of non IEEE double formats currently not implemented (drep=%u)!", drep[1]);
 			}
@@ -1806,7 +1806,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
 
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_add_fstr (pinfo->cinfo, COL_INFO, "%s %s",
-                      name, info->request ? "request" : "reply");
+                      name, info->request ? "request" : "response");
     }
 
     if (tree) {
@@ -4514,7 +4514,7 @@ proto_register_dcerpc (void)
 	  { "Defragmentation error", "dcerpc.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "Defragmentation error due to illegal fragments", HFILL }},
 
 	{ &hf_dcerpc_time, 
-	  { "Time from request", "dcerpc.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Reply for DCE-RPC calls", HFILL }},
+	  { "Time from request", "dcerpc.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0, "Time between Request and Response for DCE-RPC calls", HFILL }},
 
 	{ &hf_dcerpc_reassembled_in,
 	  { "This PDU is reassembled in", "dcerpc.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0, "The DCE/RPC PDU is completely reassembled in this frame", HFILL }},
