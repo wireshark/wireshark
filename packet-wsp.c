@@ -3,7 +3,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.9 2001/01/09 06:31:45 guy Exp $
+ * $Id: packet-wsp.c,v 1.10 2001/01/16 23:02:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -385,7 +385,7 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	char szInfo[ 50 ];
 	int cchInfo;
-	char pdut;
+	guint8 pdut;
 	guint count = 0;
 	guint value = 0;
 	guint uriLength = 0;
@@ -439,7 +439,7 @@ dissect_wsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Develop the string to put in the Info column */
 	cchInfo = snprintf( szInfo, sizeof( szInfo ), "WSP %s",
-		match_strval (( int )pdut, vals_pdu_type));
+		val_to_str (pdut, vals_pdu_type, "Unknown PDU type (0x%02x)"));
 	if (check_col(fdata, COL_INFO)) {
 		col_add_str(fdata, COL_INFO, szInfo );
 	};
