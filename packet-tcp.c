@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.188 2003/03/27 09:40:27 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.189 2003/03/27 19:55:59 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2300,7 +2300,7 @@ proto_register_tcp(void)
 			"This is duplicate ACK number #", HFILL }},
 
 		{ &hf_tcp_analysis_duplicate_ack_frame,
-		{ "Duplicate to the ACK in frame",		"tcp.analysis.duplicate_ack_frame", FT_UINT32, BASE_DEC, NULL, 0x0,
+		{ "Duplicate to the ACK in frame",		"tcp.analysis.duplicate_ack_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"This is a duplicate to the ACK in frame #", HFILL }},
 
 		{ &hf_tcp_analysis_zero_window_violation,
@@ -2320,7 +2320,7 @@ proto_register_tcp(void)
 		    "", HFILL}},
 
 		{ &hf_tcp_analysis_acks_frame,
-		  { "This is an ACK to the segment in frame",            "tcp.analysis.acks_frame", FT_UINT32, BASE_DEC, NULL, 0x0,
+		  { "This is an ACK to the segment in frame",            "tcp.analysis.acks_frame", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 		    "Which previous segment is this an ACK for", HFILL}},
 
 		{ &hf_tcp_analysis_ack_rtt,
