@@ -1,7 +1,7 @@
 /* packet-icq.c
  * Routines for ICQ packet disassembly
  *
- * $Id: packet-icq.c,v 1.16 2000/08/04 23:12:21 guy Exp $
+ * $Id: packet-icq.c,v 1.17 2000/08/05 00:55:55 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -2249,7 +2249,7 @@ dissect_icqv5Server(const u_char *pd,
 
     guint16 version, cmd;
     guint32 uin, sessionid;
-    guint16 seq_num1, seq_num2;
+    guint16 seqnum1, seqnum2;
     guint32 checkcode;
     
     uin = pletohl(&pd[ICQ5_SRV_UIN]);
@@ -2257,8 +2257,8 @@ dissect_icqv5Server(const u_char *pd,
     cmd = pletohs(&pd[ICQ5_SRV_CMD]);
     version = pletohs(&pd[ICQ_VERSION]);
     checkcode = pletohl(&pd[ICQ5_SRV_CHECKCODE]);
-    seq_num1 = pletohs(&pd[ICQ5_SRV_SEQNUM1]);
-    seq_num2 = pletohs(&pd[ICQ5_SRV_SEQNUM2]);
+    seqnum1 = pletohs(&pd[ICQ5_SRV_SEQNUM1]);
+    seqnum2 = pletohs(&pd[ICQ5_SRV_SEQNUM2]);
     if (pktsize == -1)
 	pktsize = fd->pkt_len - offset;
     decr_pd = pd;
@@ -2304,15 +2304,13 @@ dissect_icqv5Server(const u_char *pd,
 			    2,
 			    "Command: %s (%u)", findServerCmd(cmd), cmd);
 	proto_tree_add_text(icq_header_tree, NullTVB,
-			    offset+ICQ5_SRV_SEQNUM1,
+			    offset + ICQ5_SRV_SEQNUM1,
 			    2,
-			    "Seq Number1: 0x%04x",
-			    seq_num1);
+			    "Seq Number 1: 0x%04x", seqnum1);
 	proto_tree_add_text(icq_header_tree, NullTVB,
-			    offset+ICQ5_SRV_SEQNUM2,
+			    offset + ICQ5_SRV_SEQNUM2,
 			    2,
-			    "Seq Number2: 0x%04x",
-			    seq_num2);
+			    "Seq Number 2: 0x%04x", seqnum2);
 	proto_tree_add_uint_format(icq_header_tree,
 				   hf_icq_uin,
 				   NullTVB,
