@@ -153,9 +153,6 @@ PYTHON="C:/python23/python.exe"
 LEX=flex
 YACC=bison
 
-# Set YACC_OPTS if cygnus bison can't find template file.
-#YACC_OPTS=-S t:\w32-ix86\cygnus\cygwin-b20\share\bison.simple 
-
 # To build the installer
 MAKENSIS="C:/program files/nsis/makensis.exe"
 
