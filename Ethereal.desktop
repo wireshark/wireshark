@@ -1,5 +1,5 @@
 [Desktop Entry]
-# $Id: Ethereal.desktop,v 1.1 2001/12/15 23:56:04 guy Exp $
+# $Id: Ethereal.desktop,v 1.2 2004/02/01 21:48:35 guy Exp $
 Name=Ethereal
 Type=Application
 TryExec=ethereal
@@ -7,7 +7,7 @@ BinaryPattern=ethereal;ethereal-static
 Comment=Network traffic analyzer
 Comment[fi]=Verkkoliikenne analysaattori
 Exec=ethereal
-Icon=hi32-app-ethereal.png
+Icon=ethereal.png
 Path=
 Terminal=0
 TerminalOptions=
