@@ -2,7 +2,7 @@
  * implementor's API for stats_tree
  * 2005, Luis E. G. Ontanon
  *
- * $Id: $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -142,7 +142,10 @@ extern void stats_tree_presentation(void (*registry_iterator)(gpointer,gpointer,
 extern int  stats_tree_packet(void*, packet_info*, epan_dissect_t*, const void *);
 
 /* callback for reset */
-extern void reset_stats_tree(void*);
+extern void reset_stats_tree(void* p_st);
+
+/* callback for clear */
+extern void reinit_stats_tree(void* p_st);
 
 /* callback for destoy */
 extern void free_stats_tree(stats_tree* st);

@@ -2,7 +2,7 @@
  * A counter tree API for ethereal dissectors
  * 2005, Luis E. G. Ontanon
  *
- * $Id: $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>

@@ -42,7 +42,7 @@ G_MODULE_EXPORT void plugin_init(plugin_address_table_t *pat _U_ ) {
 	/* initialise the table of pointers needed in Win32 DLLs */
 	plugin_address_table_init(pat);
 
-	register_stats_tree("eth","Ethernet", pinfo_stats_tree_packet, pinfo_stats_tree_init );
+	register_stats_tree("frame","Frame counters", pinfo_stats_tree_packet, pinfo_stats_tree_init );
 
 }
 

@@ -2,7 +2,7 @@
  * GTK Tap implementation of stats_tree
  * 2005, Luis E. G. Ontanon
  *
- * $Id: $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -93,6 +93,7 @@ static void setup_gtk_node_pr(stat_node* node) {
 
 	if (node->st->pr->store) {
 		gtk_tree_store_append (node->st->pr->store, node->pr->iter, parent);
+		g_message("setup_gtk_node_pr: %s",node->name);
 		gtk_tree_store_set(node->st->pr->store, node->pr->iter, TITLE_COLUMN, node->name, RATE_COLUMN, "", COUNT_COLUMN, "", -1);
 	}
 #else
@@ -110,12 +111,14 @@ static void draw_gtk_node(stat_node* node) {
 	
 	get_strings_from_node(node, value, rate, percent);
 	
-	if (node->st->pr->store)
+	if (node->st->pr->store) {
+		g_message("draw_gtk_node: %s",node->name);
 		gtk_tree_store_set(node->st->pr->store, node->pr->iter,
 						   RATE_COLUMN, rate,
 						   COUNT_COLUMN, value,
 						   PERCENT_COLUMN, percent,
 						   -1);
+	}
 	
 	if (node->children) {
 		for (child = node->children; child; child = child->next )
@@ -159,8 +162,9 @@ static void free_gtk_tree(GtkWindow *win _U_, stats_tree *st)
 	protect_thread_critical_region();
 	remove_tap_listener(st);
 	unprotect_thread_critical_region();
-		
-	free_stats_tree(st);
+	
+	if (st->root.pr)
+		st->root.pr->iter = NULL;
 }
 
 
@@ -261,7 +265,7 @@ static void init_gtk_tree(char* optarg) {
 	error_string = register_tap_listener( st->abbr,
 										  st,
 										  st->filter,
-										  reset_stats_tree,
+										  /* reinit_stats_tree*/ NULL,
 										  stats_tree_packet,
 										  draw_gtk_tree);
 	
@@ -269,8 +273,8 @@ static void init_gtk_tree(char* optarg) {
 		/* error, we failed to attach to the tap. clean up */
 		simple_dialog( ESD_TYPE_ERROR, ESD_BTN_OK, error_string->str );
 		/* destroy_stat_tree_window(st); */
-		g_string_free(error_string, TRUE);
 		g_error("stats_tree for: %s failed to attach to the tap: %s",st->name,error_string->str);
+		g_string_free(error_string, TRUE);
 	}
 		
 	SIGNAL_CONNECT(GTK_WINDOW(st->pr->win), "delete_event", window_delete_event_cb, NULL);
@@ -286,7 +290,7 @@ static void init_gtk_tree(char* optarg) {
 }
 
 
-void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_) {
+static void register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_) {
 	stats_tree* st = v;
 	guint8* s;
 

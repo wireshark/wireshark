@@ -2,7 +2,7 @@
  * API for a counter tree for ethereal
  * 2004, Luis E. G. Ontanon
  *
- * $Id: $
+ * $Id$
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -152,15 +152,25 @@ static void reset_stat_node(stat_node* node) {
 }
 
 /* reset the whole stats_tree */
-extern void reset_stats_tree(void *psp  ) {
- 	stats_tree *st=psp;
-	
-	if (st) {
-		reset_stat_node(&st->root);
-	}
+extern void reset_stats_tree(void* p) {
+	stats_tree* st = p;
+	reset_stat_node(&st->root);
 	
 	if (st->reset_tree) {
 		st->reset_tree(st);
+	}
+}
+
+extern void reinit_stats_tree(void* p) {
+	stats_tree* st = p;
+	stat_node* child;
+	
+	for (child = st->root.children; child; child = child->next) {
+		free_stat_node(child);
+	}
+	
+	if (st->init) {
+		st->init(st);
 	}
 }
 
