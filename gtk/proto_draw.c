@@ -1,7 +1,7 @@
 /* proto_draw.c
  * Routines for GTK+ packet display
  *
- * $Id: proto_draw.c,v 1.30 2001/03/23 17:14:40 jfoster Exp $
+ * $Id: proto_draw.c,v 1.31 2001/03/23 22:26:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -618,13 +618,12 @@ packet_hex_print_common(GtkText *bv, guint8 *pd, int len, int bstart, int bend, 
   /* scroll text into position */
   gtk_text_thaw(bv); /* must thaw before adjusting scroll bars */
   if ( bstart > 0 ) {
-    int lineheight, linenum;
+    int linenum;
     float scrollval;
 
     linenum = bstart / BYTE_VIEW_WIDTH;
-    /* This is the lineheight that the GtkText widget uses when drawing text. */
-    lineheight = m_b_font->ascent + m_b_font->descent;
-    scrollval = MIN(linenum * lineheight,bv->vadj->upper - bv->vadj->page_size);
+    scrollval = MIN(linenum * m_font_height,
+		    bv->vadj->upper - bv->vadj->page_size);
 
     gtk_adjustment_set_value(bv->vadj, scrollval);
   }
@@ -814,7 +813,7 @@ create_tree_view(gint tv_size, e_prefs *prefs, GtkWidget *pane,
   /* Tree view */
   tv_scrollw = gtk_scrolled_window_new(NULL, NULL);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW(tv_scrollw),
-    GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
   set_scrollbar_placement_scrollw(tv_scrollw, pos);
   remember_scrolled_window(tv_scrollw);
   gtk_paned_pack1(GTK_PANED(pane), tv_scrollw, TRUE, TRUE);
