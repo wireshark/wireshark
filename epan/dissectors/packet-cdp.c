@@ -444,8 +444,20 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += length;
 		break;
 	    case TYPE_VOIP_VLAN_REPLY:
-	      tlvi = proto_tree_add_text(cdp_tree, tvb,
-					 offset, length, "VoIP VLAN Reply: %u", tvb_get_ntohs(tvb, offset + 5));
+	      if (length >= 7) {
+	        tlvi = proto_tree_add_text(cdp_tree, tvb,
+					   offset, length, "VoIP VLAN Reply: %u", tvb_get_ntohs(tvb, offset + 5));
+	      } else {
+	      	/*
+	      	 * XXX - what are these?  I've seen them in some captures;
+	      	 * they have a length of 6, and run up to the end of
+	      	 * the packet, so if we try to dissect it the same way
+	      	 * we dissect the 7-byte ones, we report a malformed
+	      	 * frame.
+	      	 */
+	        tlvi = proto_tree_add_text(cdp_tree, tvb,
+					   offset, length, "VoIP VLAN Reply");
+	      }
 	      tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
 				  offset + TLV_TYPE, 2, type);
@@ -453,14 +465,28 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				  offset + TLV_LENGTH, 2, length);
 	      proto_tree_add_text(tlv_tree, tvb, offset + 4,
 				  1, "Data");
-	      proto_tree_add_text(tlv_tree, tvb, offset + 5,
-				  2, "Voice VLAN: %u",
-				  tvb_get_ntohs(tvb, offset + 5));
+	      if (length >= 7) {
+	        proto_tree_add_text(tlv_tree, tvb, offset + 5,
+				    2, "Voice VLAN: %u",
+				    tvb_get_ntohs(tvb, offset + 5));
+	      }
 	      offset += length;
 	      break;
 	    case TYPE_VOIP_VLAN_QUERY:
-	      tlvi = proto_tree_add_text(cdp_tree, tvb,
-					 offset, length, "VoIP VLAN Query: %u", tvb_get_ntohs(tvb, offset + 5));
+	      if (length >= 7) {
+	        tlvi = proto_tree_add_text(cdp_tree, tvb,
+					   offset, length, "VoIP VLAN Query: %u", tvb_get_ntohs(tvb, offset + 5));
+	      } else {
+	      	/*
+	      	 * XXX - what are these?  I've seen them in some captures;
+	      	 * they have a length of 6, and run up to the end of
+	      	 * the packet, so if we try to dissect it the same way
+	      	 * we dissect the 7-byte ones, we report a malformed
+	      	 * frame.
+	      	 */
+	        tlvi = proto_tree_add_text(cdp_tree, tvb,
+					   offset, length, "VoIP VLAN Query");
+	      }
 	      tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 	      proto_tree_add_uint(tlv_tree, hf_cdp_tlvtype, tvb,
 				  offset + TLV_TYPE, 2, type);
@@ -468,9 +494,11 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				  offset + TLV_LENGTH, 2, length);
 	      proto_tree_add_text(tlv_tree, tvb, offset + 4,
 				  1, "Data");
-	      proto_tree_add_text(tlv_tree, tvb, offset + 5,
-				  2, "Voice VLAN: %u",
-				  tvb_get_ntohs(tvb, offset + 5));
+	      if (length >= 7) {
+	        proto_tree_add_text(tlv_tree, tvb, offset + 5,
+				    2, "Voice VLAN: %u",
+				    tvb_get_ntohs(tvb, offset + 5));
+	      }
 	      offset += length;
 	      break;
 	    case TYPE_MTU:
