@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.40 1999/11/02 07:04:46 guy Exp $
+ * $Id: packet-tcp.c,v 1.41 1999/11/10 14:44:57 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,6 +89,7 @@ static int hf_tcp_urgent_pointer = -1;
 #define TCP_PORT_NNTP     119
 #define TCP_PORT_NTP      123
 #define TCP_PORT_NBSS     139
+#define TCP_PORT_IMAP     143
 #define TCP_PORT_BGP      179
 #define TCP_PORT_PRINTER  515
 #define TCP_ALT_PORT_HTTP 8080
@@ -485,6 +486,9 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     } else if (PORT_IS(TCP_PORT_POP)) {
       pi.match_port = TCP_PORT_POP;
       dissect_pop(pd, offset, fd, tree);
+    } else if (PORT_IS(TCP_PORT_IMAP)) {
+      pi.match_port = TCP_PORT_IMAP;
+      dissect_imap(pd, offset, fd, tree);
     } else if (PORT_IS(TCP_PORT_NNTP)) {
       pi.match_port = TCP_PORT_NNTP;
       dissect_nntp(pd, offset, fd, tree);

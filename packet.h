@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.128 1999/11/06 06:26:57 guy Exp $
+ * $Id: packet.h,v 1.129 1999/11/10 14:44:58 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -326,6 +326,7 @@ enum {
  	ETT_ICMPv6OPT,
  	ETT_ICMPv6FLAG,
 	ETT_POP,
+	ETT_IMAP,
 	ETT_FTP,
 	ETT_TELNET,
 	ETT_TELNET_SUBOPT,
