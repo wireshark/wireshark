@@ -23,7 +23,7 @@
  *
  * Some structures from RFC2630
  *
- * $Id: packet-kerberos.c,v 1.70 2004/06/10 13:33:50 sahlberg Exp $
+ * $Id: packet-kerberos.c,v 1.71 2004/06/15 09:50:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -481,7 +481,7 @@ printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 #define KRB5_ENCTYPE_RSA_ES_OEAP_ENV     14
 #define KRB5_ENCTYPE_DES_EDE3_CBC_ENV    15
 #define KRB5_ENCTYPE_DES3_CBC_SHA1       16
-#define KRB5_ENCTYPE_DES_CBC_MD5         20
+#define KRB5_ENCTYPE_DES_CBC_MD5_NT      20
 #define KERB_ENCTYPE_RC4_HMAC            23 
 #define KERB_ENCTYPE_RC4_HMAC_EXP        24
 #define KRB5_ENCTYPE_UNKNOWN                0x1ff
@@ -495,7 +495,7 @@ printf("woohoo decrypted keytype:%d in frame:%d\n", keytype, pinfo->fd->num);
 #define KRB5_ENCTYPE_DES_PLAIN		0xffffff7c
 #define KRB5_ENCTYPE_RC4_SHA		0xffffff7d
 #define KRB5_ENCTYPE_RC4_LM		0xffffff7e
-#define KRB5_ENCTYPE_RC4_PLAIN		0xffffff7f
+#define KRB5_ENCTYPE_RC4_PLAIN2		0xffffff7f
 #define KRB5_ENCTYPE_RC4_MD4		0xffffff80
 
 /* checksum types */
@@ -804,7 +804,7 @@ static const value_string krb5_encryption_types[] = {
     { KRB5_ENCTYPE_RSA_ES_OEAP_ENV, "rsa-es-oeap-env" },
     { KRB5_ENCTYPE_DES_EDE3_CBC_ENV, "des-ede3-cbc-env" },
     { KRB5_ENCTYPE_DES3_CBC_SHA1  , "des3-cbc-sha1" },
-    { KRB5_ENCTYPE_DES_CBC_MD5    , "des-cbc-md5" },
+    { KRB5_ENCTYPE_DES_CBC_MD5_NT  , "des-cbc-md5-nt" },
     { KERB_ENCTYPE_RC4_HMAC       , "rc4-hmac" },
     { KERB_ENCTYPE_RC4_HMAC_EXP   , "rc4-hmac-exp" },
     { KRB5_ENCTYPE_UNKNOWN        , "unknown" },
@@ -818,7 +818,7 @@ static const value_string krb5_encryption_types[] = {
     { KRB5_ENCTYPE_DES_PLAIN      , "des-plain" },
     { KRB5_ENCTYPE_RC4_SHA        , "rc4-sha" },
     { KRB5_ENCTYPE_RC4_LM         , "rc4-lm" },
-    { KRB5_ENCTYPE_RC4_PLAIN      , "rc4-plain" },
+    { KRB5_ENCTYPE_RC4_PLAIN2     , "rc4-plain2" },
     { KRB5_ENCTYPE_RC4_MD4        , "rc4-md4" },
     { 0                           , NULL },
 };
