@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.87 2002/03/11 01:51:37 guy Exp $
+ * $Id: packet-snmp.c,v 1.88 2002/03/12 10:37:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,10 +51,6 @@
 # include <netinet/in.h>
 #endif
 
-#ifdef linux
-#include <dlfcn.h>
-#endif
-
 #include <glib.h>
 
 #include <epan/packet.h>
@@ -63,7 +59,7 @@
 #include "etypes.h"
 #include "packet-ipx.h"
 
-#ifdef HAVE_UCD_SNMP_SNMP_H
+#ifdef HAVE_UCD_SNMP
 # include <ucd-snmp/asn1.h>
 # include <ucd-snmp/snmp_api.h>
 # include <ucd-snmp/snmp_impl.h>
@@ -455,7 +451,7 @@ format_oid(subid_t *oid, guint oid_length)
 	int len;
 	unsigned int i;
 	char *buf;
-#ifdef HAVE_UCD_SNMP_SNMP_H
+#ifdef HAVE_UCD_SNMP
 	u_char *oid_string;
 	size_t oid_string_len;
 	size_t oid_out_len;
@@ -463,7 +459,7 @@ format_oid(subid_t *oid, guint oid_length)
 
 	result_len = oid_length * 22;
 
-#ifdef HAVE_UCD_SNMP_SNMP_H
+#ifdef HAVE_UCD_SNMP
 	/*
 	 * Get the decoded form of the OID, and add its length to the
 	 * length of the result string.
@@ -488,7 +484,7 @@ format_oid(subid_t *oid, guint oid_length)
 		buf += len;
 	}
 
-#ifdef HAVE_UCD_SNMP_SNMP_H
+#ifdef HAVE_UCD_SNMP
 	/*
 	 * Append the decoded form of the OID.
 	 */
@@ -499,7 +495,7 @@ format_oid(subid_t *oid, guint oid_length)
 	return result;
 }
 
-#ifdef HAVE_UCD_SNMP_SNMP_H
+#ifdef HAVE_UCD_SNMP
 static u_char *
 check_var_length(guint vb_length, guint required_length)
 {
@@ -632,10 +628,10 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 
 	gchar *vb_display_string;
 
-#ifdef HAVE_UCD_SNMP_SNMP_H
+#ifdef HAVE_UCD_SNMP
 	struct variable_list variable;
 	long value;
-#endif	/* HAVE_UCD_SNMP_SNMP_H */
+#endif	/* HAVE_UCD_SNMP */
 	unsigned int i;
 	gchar *buf;
 	int len;
@@ -669,7 +665,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			return ret;
 		length = asn1->offset - start;
 		if (snmp_tree) {
-#ifdef HAVE_UCD_SNMP_SNMP_H
+#ifdef HAVE_UCD_SNMP
 			value = vb_integer_value;
 			variable.val.integer = &value;
 			vb_display_string = format_var(&variable,
@@ -679,12 +675,12 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			    length,
 			    "Value: %s", vb_display_string);
 			free(vb_display_string);
-#else /* HAVE_UCD_SNMP_SNMP_H */
+#else /* HAVE_UCD_SNMP */
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s: %d (%#x)", vb_type_name,
 			    vb_integer_value, vb_integer_value);
-#endif /* HAVE_UCD_SNMP_SNMP_H */
+#endif /* HAVE_UCD_SNMP */
 		}
 		break;
 
@@ -697,7 +693,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			return ret;
 		length = asn1->offset - start;
 		if (snmp_tree) {
-#ifdef HAVE_UCD_SNMP_SNMP_H
+#ifdef HAVE_UCD_SNMP
 			value = vb_uinteger_value;
 			variable.val.integer = &value;
 			vb_display_string = format_var(&variable,
@@ -707,12 +703,12 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			    length,
 			    "Value: %s", vb_display_string);
 			free(vb_display_string);
-#else /* HAVE_UCD_SNMP_SNMP_H */
+#else /* HAVE_UCD_SNMP */
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s: %u (%#x)", vb_type_name,
 			    vb_uinteger_value, vb_uinteger_value);
-#endif /* HAVE_UCD_SNMP_SNMP_H */
+#endif /* HAVE_UCD_SNMP */
 		}
 		break;
 
@@ -728,7 +724,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			return ret;
 		length = asn1->offset - start;
 		if (snmp_tree) {
-#ifdef HAVE_UCD_SNMP_SNMP_H
+#ifdef HAVE_UCD_SNMP
 			variable.val.string = vb_octet_string;
 			vb_display_string = format_var(&variable,
 			    variable_oid, variable_oid_length, vb_type,
@@ -737,7 +733,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			    length,
 			    "Value: %s", vb_display_string);
 			free(vb_display_string);
-#else /* HAVE_UCD_SNMP_SNMP_H */
+#else /* HAVE_UCD_SNMP */
 			/*
 			 * If some characters are not printable, display
 			 * the string as bytes.
@@ -774,7 +770,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 				    (int)vb_length,
 				    SAFE_STRING(vb_octet_string));
 			}
-#endif /* HAVE_UCD_SNMP_SNMP_H */
+#endif /* HAVE_UCD_SNMP */
 		}
 		g_free(vb_octet_string);
 		break;
@@ -797,7 +793,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			return ret;
 		length = asn1->offset - start;
 		if (snmp_tree) {
-#ifdef HAVE_UCD_SNMP_SNMP_H
+#ifdef HAVE_UCD_SNMP
 			variable.val.objid = vb_oid;
 			vb_display_string = format_var(&variable,
 			    variable_oid, variable_oid_length, vb_type,
@@ -806,13 +802,13 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			    length,
 			    "Value: %s", vb_display_string);
 			free(vb_display_string);
-#else /* HAVE_UCD_SNMP_SNMP_H */
+#else /* HAVE_UCD_SNMP */
 			vb_display_string = format_oid(vb_oid, vb_oid_length);
 			proto_tree_add_text(snmp_tree, asn1->tvb, offset,
 			    length,
 			    "Value: %s: %s", vb_type_name, vb_display_string);
 			g_free(vb_display_string);
-#endif /* HAVE_UCD_SNMP_SNMP_H */
+#endif /* HAVE_UCD_SNMP */
 		}
 		g_free(vb_oid);
 		break;
@@ -2016,10 +2012,10 @@ proto_register_snmp(void)
 		&ett_secur,
 	};
 
-#ifdef HAVE_UCD_SNMP_SNMP_H
+#ifdef HAVE_UCD_SNMP
 	init_mib();
 	ds_set_int(DS_LIBRARY_ID, DS_LIB_PRINT_SUFFIX_ONLY, 2);
-#endif /* HAVE_UCD_SNMP_SNMP_H */
+#endif /* HAVE_UCD_SNMP */
         proto_snmp = proto_register_protocol("Simple Network Management Protocol",
 	    "SNMP", "snmp");
         proto_smux = proto_register_protocol("SNMP Multiplex Protocol",

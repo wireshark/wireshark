@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.158 2002/03/11 07:02:47 guy Exp $
+# $Id: configure.in,v 1.159 2002/03/12 10:37:01 guy Exp $
 dnl
 dnl Process this file with autoconf 2.13 or later to produce a
 dnl configure script; 2.12 doesn't generate a "configure" script that
@@ -359,7 +359,7 @@ AC_SUBST(text2pcap_man)
 # Enable/disable idl2eth
 
 AC_ARG_ENABLE(idl2eth,
-[  --enable-idl2eth      build idl2eth.  [default=yes]],,enable_idl2eth=yes)
+[  --enable-idl2eth        build idl2eth.  [default=yes]],,enable_idl2eth=yes)
 
 if test "x$enable_idl2eth" = "xyes" ; then
 	idl2eth_bin="idl2eth"
@@ -497,60 +497,33 @@ else
 fi
 AC_SUBST(SSL_LIBS)
 
-dnl SNMP Check
-AC_ARG_ENABLE(snmp,
-[  --enable-snmp           use UCD SNMP/NET-SNMP library, if available.  [default=yes]],,enable_snmp=yes)
-
+dnl UCD SNMP Check
 SNMP_LIBS=''
-AC_MSG_CHECKING(whether to use UCD SNMP library if available)
-if test "x$enable_snmp" = "xno" ; then
+AC_MSG_CHECKING(whether to use UCD SNMP/NET-SNMP library if available)
+
+AC_ARG_WITH(ucdsnmp,
+[  --with-ucdsnmp[=DIR]    use UCD SNMP/NET-SNMP client library (located in directory DIR, if supplied).  [default=yes, if present]],
+[
+	if test $withval = no
+	then
+		want_ucdsnmp=no
+	elif test $withval = yes
+	then
+		want_ucdsnmp=yes
+	else
+		want_ucdsnmp=yes
+		ucdsnmp_dir=$withval
+	fi
+],[
+	want_ucdsnmp=ifpresent
+	ucdsnmp_dir=
+])
+
+if test "x$want_ucdsnmp" = "xno" ; then
 	AC_MSG_RESULT(no)
 else
 	AC_MSG_RESULT(yes)
 	AC_ETHEREAL_UCDSNMP_CHECK
-	AC_CHECK_HEADERS(ucd-snmp/snmp.h ucd-snmp/version.h)
-
-	#
-	# This may require "-lkstat" on Solaris, sigh.
-	#
-	AC_CHECK_LIB(snmp, sprint_realloc_objid,
-	  SNMP_LIBS=-lsnmp,
-	  [
-	    #
-	    # Throw away the cached "we didn't find it" answer.
-	    #
-	    unset ac_cv_lib_snmp_sprint_realloc_objid
-	    AC_CHECK_LIB(snmp, sprint_realloc_objid,
-	      [
-		#
-		# Throw away the cached "we found it" answer, so that if
-		# we rerun "configure", we don't just blow off this check
-		# and blithely assume that we don't need "-lkstat".
-		#
-		# XXX - autoconf really needs a way to test for a given
-		# routine in a given library *and* to test whether additional
-		# "-L"/"-R"/whatever flags are needed *before* the "-l"
-		# flag for the library and to test whether additional libraries
-		# are needed after the library *and* to cache all that
-		# information.
-		#
-		unset ac_cv_lib_snmp_sprint_realloc_objid
-		SNMP_LIBS="-lsnmp -lkstat"
-	      ],,$SOCKET_LIBS $NSL_LIBS $SSL_LIBS -lkstat
-	    )
-	  ], $SOCKET_LIBS $NSL_LIBS $SSL_LIBS
-	)
-
-	#
-	# If we have UCD SNMP header files but didn't find
-	# "sprint_realloc_objid()", fail.  Either the user needs a
-	# newer version of UCD SNMP with "sprint_realloc_objid()",
-	# or they may need to specify "--with-ssl".
-	#
-	if test "$ac_cv_header_ucd_snmp_snmp_h" = yes -a \
-	   "$ac_cv_lib_snmp_sprint_realloc_objid" = no; then
-	    AC_MSG_ERROR([UCD SNMP header files found, but sprint_realloc_objid not found in SNMP library.])
-	fi
 fi
 AC_SUBST(SNMP_LIBS)
 

@@ -4,7 +4,7 @@
  *
  * Copyright 2000, Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-cops.c,v 1.23 2002/03/11 01:48:08 guy Exp $
+ * $Id: packet-cops.c,v 1.24 2002/03/12 10:37:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -39,28 +39,13 @@
 #include "packet-ipv6.h"
 #include "packet-frame.h"
 
-#ifdef HAVE_UCD_SNMP_SNMP_H
+#ifdef HAVE_UCD_SNMP
 # include <ucd-snmp/asn1.h>
 # include <ucd-snmp/snmp_api.h>
 # include <ucd-snmp/snmp_impl.h>
 # include <ucd-snmp/mib.h>
 # include <ucd-snmp/default_store.h>
 # include <ucd-snmp/tools.h>
-
-   /*
-    * Define values "sprint_realloc_value()" expects.
-    */
-# define VALTYPE_INTEGER	ASN_INTEGER
-# define VALTYPE_COUNTER	ASN_COUNTER
-# define VALTYPE_GAUGE		ASN_GAUGE
-# define VALTYPE_TIMETICKS	ASN_TIMETICKS
-# define VALTYPE_STRING		ASN_OCTET_STR
-# define VALTYPE_IPADDR		ASN_IPADDRESS
-# define VALTYPE_OPAQUE		ASN_OPAQUE
-# define VALTYPE_NSAP		ASN_NSAP
-# define VALTYPE_OBJECTID	ASN_OBJECT_ID
-# define VALTYPE_BITSTR		ASN_BIT_STR
-# define VALTYPE_COUNTER64	ASN_COUNTER64
 #endif
 
 #include "asn1.h"

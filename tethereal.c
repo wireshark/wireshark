@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.131 2002/03/10 23:19:43 guy Exp $
+ * $Id: tethereal.c,v 1.132 2002/03/12 10:37:01 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -68,11 +68,9 @@
 # include "snprintf.h"
 #endif
 
-#if defined(HAVE_UCD_SNMP_SNMP_H)
 #ifdef HAVE_UCD_SNMP_VERSION_H
 #include <ucd-snmp/version.h>
 #endif /* HAVE_UCD_SNMP_VERSION_H */
-#endif /* HAVE_UCD_SNMP_SNMP_H */
 
 #ifdef NEED_STRERROR_H
 #include "strerror.h"
@@ -418,7 +416,7 @@ main(int argc, char *argv[])
 #endif /* HAVE_LIBZ */
 
 /* Oh, this is pretty */
-#if defined(HAVE_UCD_SNMP_SNMP_H)
+#ifdef HAVE_UCD_SNMP
   g_string_append(comp_info_str, ", with UCD SNMP ");
 #ifdef HAVE_UCD_SNMP_VERSION_H
   g_string_append(comp_info_str, VersionInfo);
@@ -426,7 +424,7 @@ main(int argc, char *argv[])
   g_string_append(comp_info_str, "(version unknown)");
 #endif /* HAVE_UCD_SNMP_VERSION_H */
 #else /* no SNMP library */
-  g_string_append(comp_info_str, ", without SNMP MIB support");
+  g_string_append(comp_info_str, ", without UCD SNMP");
 #endif
     
   /* Now get our args */

@@ -1,4 +1,4 @@
-/* $Id: config.h.win32,v 1.33 2001/11/02 10:01:00 guy Exp $ */
+/* $Id: config.h.win32,v 1.34 2002/03/12 10:37:01 guy Exp $ */
 /* config.h.win32 Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
@@ -42,6 +42,8 @@
 #define NEED_MKSTEMP 1
 
 #define HAVE_LIBPCAP 1
+
+/* #undef HAVE_UCD_SNMP */
 
 /* Define if you have the gethostbyname2 function.  */
 /* #undef HAVE_GETHOSTBYNAME2 */
@@ -96,9 +98,6 @@
 
 /* Define if you have the <sys/wait.h> header file.  */
 /* #undef HAVE_SYS_WAIT_H */
-
-/* Define if you have the <ucd-snmp/snmp.h> header file.  */
-/* #undef HAVE_UCD_SNMP_SNMP_H */
 
 /* Define if you have the <ucd-snmp/version.h> header file.  */
 /* #undef HAVE_UCD_SNMP_VERSION_H */

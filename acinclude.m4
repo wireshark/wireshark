@@ -2,7 +2,7 @@ dnl Macros that test for specific features.
 dnl This file is part of the Autoconf packaging for Ethereal.
 dnl Copyright (C) 1998-2000 by Gerald Combs.
 dnl
-dnl $Id: acinclude.m4,v 1.42 2002/02/06 09:58:29 guy Exp $
+dnl $Id: acinclude.m4,v 1.43 2002/03/12 10:37:01 guy Exp $
 dnl
 dnl This program is free software; you can redistribute it and/or modify
 dnl it under the terms of the GNU General Public License as published by
@@ -429,48 +429,98 @@ AC_DEFUN(AC_ETHEREAL_ZLIB_CHECK,
 #
 AC_DEFUN(AC_ETHEREAL_UCDSNMP_CHECK,
 [
-	want_ucdsnmp=yes
-
-	AC_ARG_WITH(ucdsnmp,
-	[  --with-ucdsnmp=DIR      use UCD SNMP client library, located in directory DIR.], [
-	if test $withval = no
+	if test "x$ucdsnmp_dir" != "x"
 	then
-		want_ucdsnmp=no
-	else
-		want_ucdsnmp=yes
-		ucdsnmp_user_dir=$withval
+		#
+		# The user specified a directory in which UCD SNMP resides,
+		# so add the "include" subdirectory of that directory to
+		# the include file search path and the "lib" subdirectory
+		# of that directory to the library search path.
+		#
+		# XXX - if there's also a libpcap in a directory that's
+		# already in CFLAGS, CPPFLAGS, or LDFLAGS, this won't
+		# make us find the version in the specified directory,
+		# as the compiler and/or linker will search that other
+		# directory before it searches the specified directory.
+		#
+		CFLAGS="$CFLAGS -I$ucdsnmp_dir/include"
+		CPPFLAGS="$CPPFLAGS -I$ucdsnmp_dir/include"
+		AC_ETHEREAL_ADD_DASH_L(LDFLAGS, $ucdsnmp_dir/lib)
 	fi
-	])
 
-	if test $want_ucdsnmp = yes
-	then
-		ucdsnmpdir=""
+	#
+	# Check for the UCD SNMP header file, to see whether we
+	# have UCD SNMP installed.
+	#
+	AC_CHECK_HEADER(ucd-snmp/snmp.h,
+	[
+		#
+		# Yup, we have it.
+		# Do we have <ucd-snmp/version.h>?  It's not required,
+		# but if it's not present we can't report the version number.
+		#
+		AC_CHECK_HEADERS(ucd-snmp/version.h)
 
-		for d in $ucdsnmp_user_dir $prefix
-		do
-			if test x$d != xNONE 
-			then
-				AC_MSG_CHECKING($d for ucd-snmp)
+		#
+		# UCD SNMP may require "-lkstat" on Solaris, sigh.
+		# XXX - it may also require "-lcrypto" on some platforms;
+		# we should check for that as well, rather than requiring
+		# users to explicitly indicate whether it's required.
+		#
+		AC_CHECK_LIB(snmp, sprint_realloc_objid,
+		  SNMP_LIBS=-lsnmp,
+		  [
+		    #
+		    # Throw away the cached "we didn't find it" answer.
+		    #
+		    unset ac_cv_lib_snmp_sprint_realloc_objid
+		    AC_CHECK_LIB(snmp, sprint_realloc_objid,
+		      [
+			#
+			# Throw away the cached "we found it" answer, so
+			# that if we rerun "configure", we don't just blow
+			# off this check and blithely assume that we don't
+			# need "-lkstat".
+			#
+			# XXX - autoconf really needs a way to test for
+			# a given routine in a given library *and* to test
+			# whether additional "-L"/"-R"/whatever flags are
+			# needed *before* the "-l" flag for the library
+			# and to test whether additional libraries are
+			# needed after the library *and* to cache all that
+			# information.
+			#
+			unset ac_cv_lib_snmp_sprint_realloc_objid
+			SNMP_LIBS="-lsnmp -lkstat"
+		      ],,$SOCKET_LIBS $NSL_LIBS $SSL_LIBS -lkstat
+		    )
+		  ], $SOCKET_LIBS $NSL_LIBS $SSL_LIBS
+		)
 
-				if test x$d != x/usr/local && test -f $d/include/ucd-snmp/snmp.h
-				then
-					AC_MSG_RESULT(found)
-					ucdsnmpdir=$d
-					break
-				else
-					AC_MSG_RESULT(not found)
-				fi
-			fi
-		done
-
-		if test x$ucdsnmpdir != x
-		then
-			AC_MSG_RESULT(added $d to paths)
-			CFLAGS="$CFLAGS -I${ucdsnmpdir}/include"
-			CPPFLAGS="$CPPFLAGS -I${ucdsnmpdir}/include"
-			AC_ETHEREAL_ADD_DASH_L(LDFLAGS, ${ucdsnmpdir}/lib)
+		#
+		# If we didn't find "sprint_realloc_objid()", fail.
+		# Either the user needs a newer version of UCD SNMP
+		# with "sprint_realloc_objid()", or they may need to
+		# specify "--with-ssl".
+		#
+		if test "$ac_cv_lib_snmp_sprint_realloc_objid" = no; then
+		    AC_MSG_ERROR([UCD SNMP header files found, but sprint_realloc_objid not found in SNMP library.])
 		fi
-	fi
+
+		#
+		# We found it, so we have UCD SNMP.
+		#
+		AC_DEFINE(HAVE_UCD_SNMP)
+	],[
+		#
+		# No, we don't have it.
+		# If the user explicitly asked for UCD SNMP, fail,
+		# otherwise just don't use the UCD SNMP library.
+		#
+		if test "x$want_ucdsnmp" = "xyes" ; then
+			AC_MSG_ERROR(Header file ucd-snmp/snmp.h not found.)
+		fi
+	])
 ])
 
 #
