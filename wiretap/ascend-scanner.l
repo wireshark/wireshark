@@ -1,7 +1,7 @@
 %{
 /* ascend-scanner.l
  *
- * $Id: ascend-scanner.l,v 1.17 2000/11/12 04:57:39 guy Exp $
+ * $Id: ascend-scanner.l,v 1.18 2001/04/09 03:32:34 gerald Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -49,9 +49,7 @@ result = (c==EOF) ? YY_NULL : (buf[0] = c, 1); }
 int at_eof;
 int mul, scratch;
 
-/* We don't need yyunput, so use this macro to get it out of the
- * generated C file, avoiding a compiler warning about its lack of use */
-#define YY_NO_UNPUT 1
+#define NO_USER "<none>"
 
 %}
 
@@ -110,15 +108,32 @@ WDD_TYPE    "type "[^\n\r\t ]+
 }
 
 <sc_wds_user>[^:]+ {
-  BEGIN(sc_wds_sess);
-  if (pseudo_header != NULL) {
-    strncpy(pseudo_header->user, ascendtext, ASCEND_MAX_STR_LEN);
-    pseudo_header->user[ASCEND_MAX_STR_LEN - 1] = '\0';
+  char *atcopy = strdup(ascendtext);
+  char colon = input();
+  char after = input();
+  int retval = STRING;
+
+  unput(after); unput(colon);
+
+  if (after != '(') {
+    BEGIN(sc_wds_sess);
+    if (pseudo_header != NULL) {
+      strncpy(pseudo_header->user, atcopy, ASCEND_MAX_STR_LEN);
+      pseudo_header->user[ASCEND_MAX_STR_LEN - 1] = '\0';
+    }
+  } else {	/* We have a version 7 file */
+    BEGIN(sc_gen_task);
+    if (pseudo_header != NULL) {
+      strncpy(pseudo_header->user, NO_USER, ASCEND_MAX_STR_LEN);
+    }
+    ascendlval.d = strtol(ascendtext, NULL, 10);
+    retval = DECNUM;
   }
-  return STRING;
+  free (atcopy);
+  return retval;
 }
 
-<sc_wds_sess>{D}+ {
+<sc_wds_sess>{D}* {
   BEGIN(sc_gen_task);
   ascendlval.d = strtol(ascendtext, NULL, 10);
   return DECNUM;

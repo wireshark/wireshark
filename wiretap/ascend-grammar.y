@@ -1,7 +1,7 @@
 %{
 /* ascend-grammar.y
  *
- * $Id: ascend-grammar.y,v 1.17 2000/11/12 04:57:39 guy Exp $
+ * $Id: ascend-grammar.y,v 1.18 2001/04/09 03:32:34 gerald Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -45,7 +45,25 @@ WD_DIALOUT_DISP: chunk 2515EE type IP.
   [0000]: 00 C0 7B 71 45 6C 00 60 08 16 AA 51 08 00 45 00
   [0010]: 00 2C 66 1C 40 00 80 06 53 F6 AC 14 00 18 CC 47
   [0020]: C8 45 0A 31 00 50 3B D9 5B 75 00 00
- 
+
+    The following output comes from a MAX with Software 7.2.3:
+
+RECV-187:(task: B050B480, time: 18042248.03) 100 octets @ 800012C0
+  [0000]: FF 03 00 21 45 00 00 60 E3 49 00 00 7F 11 FD 7B
+  [0010]: C0 A8 F7 05 8A C8 18 51 00 89 00 89 00 4C C7 C1
+  [0020]: CC 8E 40 00 00 01 00 00 00 00 00 01 20 45 4A 45
+  [0030]: 42 45 43 45 48 43 4E 46 43 46 41 43 41 43 41 43
+  [0040]: 41 43 41 43 41 43 41 43 41 43 41 42 4E 00 00 20
+  [0050]: 00 01 C0 0C 00 20 00 01 00 04 93 E0 00 06 60 00
+  [0060]: C0 A8 F7 05
+XMIT-187:(task: B0292CA0, time: 18042248.04) 60 octets @ 800AD576
+  [0000]: FF 03 00 21 45 00 00 38 D7 EE 00 00 0F 01 11 2B
+  [0010]: 0A FF FF FE C0 A8 F7 05 03 0D 33 D3 00 00 00 00
+  [0020]: 45 00 00 60 E3 49 00 00 7E 11 FE 7B C0 A8 F7 05
+  [0030]: 8A C8 18 51 00 89 00 89 00 4C C7 C1
+RECV-187:(task: B0292CA0, time: 18042251.92) 16 octets @ 800018E8
+  [0000]: FF 03 C0 21 09 01 00 0C DE 61 96 4B 00 30 94 92
+
 
  */
 
@@ -61,6 +79,7 @@ WD_DIALOUT_DISP: chunk 2515EE type IP.
 #include "ascend-int.h"
 
 #define NFH_PATH "/dev/null"
+#define NO_USER "<none>"
 
 extern int at_eof;
 
@@ -94,6 +113,7 @@ char    b;
 
 data_packet:
   | wds_hdr datagroup
+  | wds7_hdr datagroup
   | wdd_date wdd_hdr datagroup
   | wdd_hdr datagroup
 ;
@@ -106,6 +126,7 @@ decnum: DECNUM;
 
 hexnum: HEXNUM;
 
+/* RECV-iguana:241:(task: B02614C0, time: 1975432.85) 49 octets @ 8003BD94 */
 /*            1        2      3      4       5      6       7      8      9      10     11 */
 wds_hdr: wds_prefix string decnum KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
   wirelen = $9;
@@ -124,6 +145,32 @@ wds_hdr: wds_prefix string decnum KEYWORD hexnum KEYWORD decnum decnum decnum KE
     pseudo_header->call_num[0] = '\0';
     pseudo_header->chunk = 0;
     pseudo_header->task = $5;
+  }
+  
+  bcur = 0;
+}
+;
+
+
+/* RECV-187:(task: B050B480, time: 18042248.03) 100 octets @ 800012C0 */
+/*            1        2       3      4       5       6      7      8      9      10    */
+wds7_hdr: wds_prefix decnum KEYWORD hexnum KEYWORD decnum decnum decnum KEYWORD HEXNUM {
+  wirelen = $8;
+  caplen = ($8 < ASCEND_MAX_PKT_LEN) ? $8 : ASCEND_MAX_PKT_LEN;
+  /* If we don't have as many bytes of data as the octet count in
+     the header, make the capture length the number of bytes we
+     actually have. */
+  if (bcount > 0 && bcount <= caplen)
+    caplen = bcount;
+  secs = $6;
+  usecs = $7;
+  if (pseudo_header != NULL) {
+    /* pseudo_header->user is set in ascend-scanner.l */
+    pseudo_header->type = $1;
+    pseudo_header->sess = $2;
+    pseudo_header->call_num[0] = '\0';
+    pseudo_header->chunk = 0;
+    pseudo_header->task = $4;
   }
   
   bcur = 0;
