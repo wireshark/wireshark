@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.37 2001/06/23 19:14:42 guy Exp $
+ * $Id: packet-giop.c,v 1.38 2001/06/27 20:38:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -312,13 +312,14 @@
 
 
 /*
- * Set to 1 for DEBUG output
+ * Set to 1 for DEBUG output - TODO make this a runtime option
  */
 
 #define DEBUG   0
 
 /*
  * To allow calling (or not) of subdissectors, for testing buggy stuff.
+ * TODO - make this a runtime option in GUI
  */
 
 #define DEBUG_CALL_SUB_DISSECTORS  1
@@ -1556,7 +1557,7 @@ static void display_complete_reply_hash(gpointer key, gpointer val, gpointer use
  */
 
 static void display_objkey_hash(gpointer key, gpointer val, gpointer user_data) {
-  int i;
+  guint32 i;
   struct giop_object_val *mv = (struct giop_object_val *) val;
   struct giop_object_key *mk = (struct giop_object_key *) key;
 
@@ -1722,7 +1723,7 @@ static void giop_dump_collection(collection_data_t collection_type) {
  * it return FALSE
  */
 
-gboolean try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset,
+static gboolean try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset,
 		MessageHeader *header, gchar *operation  ) {
 
   int i,len;
@@ -1758,11 +1759,11 @@ gboolean try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_t
  *
  */
 
-static void  try_explicit_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset,
-					 MessageHeader *header, gchar *operation, gchar *repoid ) {
+static gboolean try_explicit_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset,
+					    MessageHeader *header, gchar *operation, gchar *repoid ) {
 
   giop_sub_handle_t *subdiss = NULL; /* handle */
-  gboolean res;
+  gboolean res = FALSE;
   gchar *modname = NULL;
   struct giop_module_key module_key;
   struct giop_module_val *module_val = NULL;
@@ -1781,7 +1782,7 @@ static void  try_explicit_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, prot
   module_val = (struct giop_module_val *)g_hash_table_lookup(giop_module_hash, &module_key);
 
   if (module_val == NULL) {
-    return;			/* module not registered */
+    return res;			/* module not registered */
   }
   
   subdiss = (giop_sub_handle_t *) module_val->subh; /* grab dissector handle */
@@ -1805,7 +1806,7 @@ static void  try_explicit_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, prot
     } /* offset exists */
   } /* subdiss */
   
-  return;
+  return res;			/* return result */
 }
 
 
@@ -2035,27 +2036,193 @@ guint32 get_CDR_enum(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian, 
 
 
 /*
- * Copy an "n" octet sequence from the tvbuff
- * which represents a Fixed point decimal type, and convert
- * it to a Fixed point decimal type. There are no alignment restrictions.
- * Size of fixed decimal type is determined by IDL, but this routine
- * will just process octets until it hits the "sign configuration" as
- * the last octet.
+ * Copy an octet sequence from the tvbuff
+ * which represents a Fixed point decimal type, and create a string representing
+ * a Fixed point decimal type. There are no alignment restrictions.
+ * Size and scale of fixed decimal type is determined by IDL.
+ * 
+ * digits - IDL specified number of "digits" for this fixed type
+ * scale  - IDL specified "scale" for this fixed type
  *
- * This value is either 
- *    0xd - positive value
- *    0xc - negative value
  *
- * offset is then incremented past the sign octet.
+ * eg: typedef fixed <5,2> fixed_t;
+ *     could represent numbers like 123.45, 789.12, 
  *
- * TODO - pass in parameters from IDL, eg: scale etc..
+ *
+ * As the fixed type could be any size, I will not try to fit it into our
+ * simple types like gdouble or glong etc. I will just create a string buffer holding
+ * a  representation (after scale is applied), and with a decimal point or zero padding
+ * inserted at the right place if necessary. The string is null terminated
+ *
+ * so string may look like 
+ *
+ *
+ *  "+1.234" or "-3456.78" or "1234567309475760377365465897891" or "-2789000000" etc
+ *
+ * According to spec, digits <= 31
+ * and scale is positive (except for constants eg: 1000 has digit=1 and implied scale = -3)
+ * or <4,0> ?
+ *
+ * User must remember to free the buffer
  *
  */
 
-void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset, guint32 n) {
 
+void get_CDR_fixed(tvbuff_t *tvb, gchar **seq, gint *offset, guint32 digits, gint32 scale) {
+
+  guint8 sign;			/* 0x0c is positive, 0x0d is negative */
+  guint32 i ;			/* loop */
+  guint32 slen;			/* number of bytes to hold digits + extra 0's if scale <0 */
+				/* this does not include sign, decimal point and \0 */
+  guint32 sindex = 0;		/* string index */
+  gchar *tmpbuf = NULL;		/* temp buff, holds string without scaling */
+  guint8 tval;			/* temp val storage */
+
+  /*
+   * how many bytes to hold digits and scale (if scale <0) 
+   *
+   * eg: fixed <5,2> = 5 digits
+   *     fixed <5,-2> = 7 digits (5 + 2 added 0's)
+   */
+
+#if DEBUG
+    printf("giop:get_CDR_fixed() called , digits = %u, scale = %u \n", digits, scale);
+#endif
+
+  if (scale <0) {
+    slen = digits - scale;	/* allow for digits + padding 0's for negative scal */
+  } else {
+    slen = digits;		/*  digits */
+  }
+
+#if DEBUG
+    printf("giop:get_CDR_fixed(): slen =  %.2x \n", slen);
+#endif
+  
+  tmpbuf = g_new0(gchar, slen);	/* allocate temp buffer */ 
+  
+  /* If even , grab 1st dig */
+
+  if (!(digits & 0x01)) {
+    tval = get_CDR_octet(tvb,offset);
+#if DEBUG
+    printf("giop:get_CDR_fixed():even: octet = %.2x \n", tval);
+#endif
+    tmpbuf[sindex] = (tval & 0x0f) + 0x30; /* convert top nibble to ascii */
+    sindex++;
+  }
+
+  /*
+   * Loop, but stop BEFORE we hit last digit and sign 
+   * if digits = 1 or 2, then this part is skipped 
+   */
+
+  if (digits>2) {
+    for(i=0; i< ((digits-1)/2 ); i++) {
+      tval = get_CDR_octet(tvb,offset);
+#if DEBUG
+      printf("giop:get_CDR_fixed():odd: octet = %.2x \n", tval);
+#endif
+      
+      tmpbuf[sindex] = ((tval & 0xf0) >> 4) + 0x30; /* convert top nibble to ascii */
+      sindex++;
+      tmpbuf[sindex] = (tval & 0x0f)  + 0x30; /* convert bot nibble to ascii */
+      sindex++;
+      
+    }
+  } /* digits > 3 */
+
+#if DEBUG
+    printf("giop:get_CDR_fixed(): before last digit \n");
+#endif
+  
+
+  /* Last digit and sign if digits >1, or 1st dig and sign if digits = 1 */
+
+    tval = get_CDR_octet(tvb,offset);
+#if DEBUG
+    printf("giop:get_CDR_fixed(): octet = %.2x \n", tval);
+#endif
+    tmpbuf[sindex] = (( tval & 0xf0)>> 4) + 0x30; /* convert top nibble to ascii */
+    sindex++;
+
+    sign = tval & 0x0f; /* get sign */
+
+    /* So now, we have all digits in an array, and the sign byte 
+     * so lets generate a printable string, taking into account the scale
+     * and sign values.
+     */
+ 
+    sindex = 0;			        /* reset */
+    *seq = g_new0(gchar, slen + 3);	/* allocate temp buffer , including space for sign, decimal point and 
+					 * \0 -- TODO check slen is reasonable first */
+#if DEBUG
+    printf("giop:get_CDR_fixed(): sign =  %.2x \n", sign);
+#endif					
+    
+    switch(sign) {
+    case 0x0c:
+      (*seq)[sindex] = '+';	/* put sign in first string position */
+      break;			
+    case 0x0d:
+      (*seq)[sindex] = '-';
+      break;
+    default:
+      g_warning("giop: Unknown sign value in fixed type %u \n", sign);
+      (*seq)[sindex] = '*';	/* flag as sign unkown */
+      break;
+    }
+
+    sindex++;
+
+    /* Add decimal point or padding 0's, depending if scale is positive or
+     * negative, respectively
+     */
+
+    if (scale>0) {
+      for (i=0; i<digits-scale; i++) {
+	(*seq)[sindex] = tmpbuf[i]; /* digits to the left of the decimal point */	
+	sindex++;
+      }
+      
+      (*seq)[sindex] = '.'; /* decimal point */	
+      sindex++;
+      
+      for (i=digits-scale; i<digits; i++) {
+	(*seq)[sindex] = tmpbuf[i]; /* remaining digits to the right of the decimal point */	
+	sindex++;
+      }
+
+      (*seq)[sindex] = '\0'; /* string terminator */	
+
+    } else {
+
+      /* negative scale, dump digits and  pad out with 0's */
+
+      for (i=0; i<digits-scale; i++) {
+	if (i<digits) {
+	  (*seq)[sindex] = tmpbuf[i]; /* save digits */	
+	} else {
+	  (*seq)[sindex] = '0'; /* all digits used up, so pad with 0's */	
+	}
+	sindex++;
+      }
+
+      (*seq)[sindex] = '\0'; /* string terminator */	
+      
+    }
+    
+    g_free(tmpbuf);		/* release temp buffer */
+
+
+#if DEBUG
+    printf("giop:get_CDR_fixed(): value = %s \n", *seq);
+#endif
+
+    return; 
 
 }
+
 
 
 /*
@@ -2693,7 +2860,7 @@ dissect_reply_body (tvbuff_t *tvb, u_int offset, packet_info *pinfo,
 		    guint32 reply_status, MessageHeader *header, proto_tree *clnp_tree) {
 
   u_int sequence_length;
-
+  gboolean exres = FALSE;		/* result of trying explicit dissectors */
   gchar * repoid = NULL;	/* Repositor ID looked up from  objkey */
   
   /*
@@ -2792,12 +2959,14 @@ dissect_reply_body (tvbuff_t *tvb, u_int offset, packet_info *pinfo,
 #if DEBUG_CALL_SUB_DISSECTORS
 
       if(entry->repoid) {    
-	try_explicit_giop_dissector(tvb,pinfo,clnp_tree, &offset, header, entry->operation, entry->repoid );
-	break;
-	
-      } else {	
+	exres = try_explicit_giop_dissector(tvb,pinfo,clnp_tree, &offset, header, entry->operation, entry->repoid );
+      }
+
+      /* Only call heuristic if no explicit dixxector was found */
+
+      if(! exres) {
 	try_heuristic_giop_dissector(tvb,pinfo,clnp_tree,&offset,header,entry->operation);
-      } /* repoid */
+      } 
 
 
 #endif
@@ -3068,6 +3237,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
   guint32 objkey_len = 0;	/* object key length */
   gchar *objkey = NULL;		/* object key sequence */
   gchar *print_objkey = NULL;	/* printable object key sequence */
+  gboolean exres = FALSE;		/* result of trying explicit dissectors */
 
   gchar *operation = NULL;
   gchar *requesting_principal = NULL;
@@ -3219,7 +3389,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
   
   /*
    * Call subdissector here before freeing "operation" and "key"
-   * pass request_id also. But only if anything remains in tvbuff.
+   * pass request_id also. 
    * First try an find an explicit sub_dissector, then if that
    * fails, try the heuristic method.
    *
@@ -3232,8 +3402,12 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 #if DEBUG_CALL_SUB_DISSECTORS
 
   if(repoid) {    
-    try_explicit_giop_dissector(tvb,pinfo,tree,&offset,header,operation,repoid);
-  } else {
+    exres = try_explicit_giop_dissector(tvb,pinfo,tree,&offset,header,operation,repoid);
+  }
+
+  /* Only call heuristic if no explicit dissector was found */
+
+  if (! exres) {
     try_heuristic_giop_dissector(tvb,pinfo,tree,&offset,header,operation);
   }
   
@@ -3273,6 +3447,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   gchar *operation = NULL;
   proto_tree *request_tree = NULL;
   proto_item *tf;
+  gboolean exres = FALSE;		/* result of trying explicit dissectors */
 
   gchar *repoid = NULL;
 
@@ -3360,12 +3535,23 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   if (! pinfo->fd->flags.visited)
     giop_complete_request_list = insert_in_comp_req_list(giop_complete_request_list,pinfo->fd->num,
 							 request_id,operation,NULL);
+
+  /*
+   *
+   * Call sub dissector.
+   * First try an find a explicit sub_dissector, then if that
+   * fails, try the heuristic method.
+   */
   
 #if DEBUG_CALL_SUB_DISSECTORS
 
   if(repoid) {    
-    try_explicit_giop_dissector(tvb,pinfo,tree,&offset,header,operation,repoid);
-  } else {
+    exres = try_explicit_giop_dissector(tvb,pinfo,tree,&offset,header,operation,repoid);
+  }
+
+  /* Only call heuristic if no explicit dissector was found */
+
+  if (! exres) {
     try_heuristic_giop_dissector(tvb,pinfo,tree,&offset,header,operation);
   }
   

@@ -4,7 +4,7 @@
  *
  * Based on CORBAv2.4.2  Chapter 15 GIOP Description.
  *
- * $Id: packet-giop.h,v 1.3 2001/06/18 05:27:16 guy Exp $
+ * $Id: packet-giop.h,v 1.4 2001/06/27 20:38:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -220,23 +220,40 @@ gdouble get_CDR_double(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian
 guint32 get_CDR_enum(tvbuff_t *tvb, int *offset, gboolean stream_is_big_endian, int boundary);
 
 
+
 /*
- * Copy an "n" octet sequence from the tvbuff
- * which represents a Fixed point decimal type, and convert
- * it to a Fixed point decimal type. There are no alignment restrictions.
- * Size of fixed decimal type is determined by IDL, but this routine
- * will just process octets until it hits the "sign configuration" as
- * the last octet.
+ * Copy an octet sequence from the tvbuff
+ * which represents a Fixed point decimal type, and create a string representing
+ * a Fixed point decimal type. There are no alignment restrictions.
+ * Size and scale of fixed decimal type is determined by IDL.
+ * 
+ * digits - IDL specified number of "digits" for this fixed type
+ * scale  - IDL specified "scale" for this fixed type
  *
- * This value is either 
- *    0xd - positive value
- *    0xc - negative value
  *
- * offset is then incremented past the sign octet.
+ * eg: typedef fixed <5,2> fixed_t;
+ *     could represent numbers like 123.45, 789.12, 
+ *
+ *
+ * As the fixed type could be any size, I will not try to fit it into our
+ * simple types like gdouble or glong etc. I will just create a string buffer holding
+ * a  representation (after scale is applied), and with a decimal point or zero padding
+ * inserted at the right place if necessary. The string is null terminated
+ *
+ * so string may look like 
+ *
+ *
+ *  "+1.234" or "-3456.78" or "1234567309475760377365465897891" or "-2789000000" etc
+ *
+ * According to spec, digits <= 31
+ * and scale is positive (except for constants eg: 1000 has digit=1 and implied scale = -3)
+ * or <4,0> ?
+ *
+ * User must remember to free the buffer
  *
  */
 
-void get_CDR_fixed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset, guint32 n);
+void get_CDR_fixed(tvbuff_t *tvb, gchar **seq, gint *offset, guint32 digits, gint32 scale);
 
 
 
