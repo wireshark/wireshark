@@ -418,7 +418,7 @@ void create_h225_dialog(user_data_t* user_data)
 {
         GtkWidget *window = NULL;
         GtkWidget *clist_h225;
-        GtkWidget *label_stats;
+        /*GtkWidget *label_stats;*/
 
         GtkWidget *main_vb;
         GtkWidget *label;
