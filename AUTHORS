@@ -434,6 +434,10 @@ Ed Warnicke <hagbard@physics.rutgers.edu> {
 	MGCP dissector plugin
 }
 
+Johan Jorgensen <johan.jorgensen@axis.com> {
+	IEEE 802.11 support
+}
+
 Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

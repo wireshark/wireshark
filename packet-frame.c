@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.c,v 1.1 2000/10/06 10:10:49 gram Exp $
+ * $Id: packet-frame.c,v 1.2 2000/11/15 05:41:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,7 +51,7 @@
 #include "packet-tr.h"
 #include "packet-v120.h"
 #include "packet-vines.h"
-
+#include "packet-ieee80211.h"
 
 static int proto_frame = -1;
 static int hf_frame_arrival_time = -1;
@@ -173,6 +173,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 			case WTAP_ENCAP_ATM_RFC1483:
 				dissect_llc(tvb, pinfo, tree);
+				break;
+			case WTAP_ENCAP_IEEE_802_11 :
+				dissect_ieee80211(tvb,pinfo,tree);
 				break;
 			default:
 				g_assert_not_reached();

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.43 2000/09/21 04:41:31 gram Exp $
+ * $Id: libpcap.c,v 1.44 2000/11/15 05:41:47 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -300,9 +300,44 @@ static const struct {
 	 * These are the values that libpcap 0.5 uses, in an attempt
 	 * to work around the confusion decried above, and that Wiretap
 	 * and Ethereal currently support.
+	 *
+	 * The next version of libpcap will probably not use them as
+	 * DLT_ values in its API, but will probably use them in capture
+	 * file headers.
 	 */
 	{ 100,		WTAP_ENCAP_ATM_RFC1483 },
-	{ 101,		WTAP_ENCAP_RAW_IP }
+	{ 101,		WTAP_ENCAP_RAW_IP },
+#if 0
+	/*
+	 * More values used by libpcap 0.5 as DLT_ values and used by the
+	 * current CVS version of libpcap in capture file headers.
+	 * They are not yet handled in Ethereal.
+	 * If we get a capture that contains them, we'll implement them.
+	 */
+	{ 102,		WTAP_ENCAP_SLIP_BSDOS },
+	{ 103,		WTAP_ENCAP_PPP_BSDOS },
+	{ 104,		WTAP_ENCAP_C_HDLC },	/* Cisco HDLC */
+#endif
+	/* This one is handled in Ethereal, though. */
+	{ 106,		WTAP_ENCAP_LINUX_ATM_CLIP },
+
+	/*
+	 * Values not yet used by the current CVS version of libpcap,
+	 * but reserved for future use; the IEEE 802.11 value is
+	 * there for use with a capture program from Axis Communications.
+	 */
+	{ 105,		WTAP_ENCAP_IEEE_802_11 },
+#if 0
+	/* Not yet handled in Ethereal. */
+	{ 107,		WTAP_ENCAP_FR },	/* Frame Relay */
+#endif
+	{ 108,		WTAP_ENCAP_NULL },	/* OpenBSD loopback */
+#if 0
+	{ 109,		WTAP_ENCAP_ENC },	/* OpenBSD IPSEC enc */
+	{ 110,		WTAP_ENCAP_LANE_802_3 },/* ATM LANE 802.3 */
+	{ 111,		WTAP_ENCAP_HIPPI },	/* NetBSD HIPPI */
+	{ 112,		WTAP_ENCAP_HDLC },	/* NetBSD HDLC framing */
+#endif
 };
 #define NUM_PCAP_ENCAPS (sizeof pcap_to_wtap_map / sizeof pcap_to_wtap_map[0])
 

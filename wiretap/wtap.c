@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.48 2000/09/28 04:19:09 gram Exp $
+ * $Id: wtap.c,v 1.49 2000/11/15 05:41:48 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -118,6 +118,9 @@ const static struct encap_type_info {
 
 	/* WTAP_ENCAP_PPP_WITH_PHDR */
 	{ "PPP with Directional Info", "ppp-with-direction" },
+
+	/* WTAP_ENCAP_IEEE_802_11 */
+	{ "IEEE 802.11 Wireless LAN", "ieee-802-11" },
 
 };
 
