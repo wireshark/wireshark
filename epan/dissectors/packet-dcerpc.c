@@ -234,6 +234,7 @@ static const value_string reject_reason_vals[] = {
  */
 static const value_string reject_status_vals[] = {
 	{ 0,          "Stub-defined exception" },
+	{ 0x00000005, "logon failure" },
 	{ 0x1c000001, "nca_s_fault_int_div_by_zero" },
 	{ 0x1c000002, "nca_s_fault_addr_error" },
 	{ 0x1c000003, "nca_s_fault_fp_div_zero" },
