@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.60 2001/03/30 06:15:47 guy Exp $
+ * $Id: packet-ppp.c,v 1.61 2001/03/31 10:35:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1177,9 +1177,10 @@ dissect_ppp_common( tvbuff_t *tvb, int offset, packet_info *pinfo,
   /* If "ti" is not null, it refers to the top-level "proto_ppp" item
      for PPP, and was given a length equal to the length of any
      stuff in the header preceding the protocol type, e.g. an HDLC
-     header; add the length of the protocol type field to it. */
+     header, which is just "offset"; add the length of the protocol
+     type field to it. */
   if (ti != NULL)
-    proto_item_set_len(ti, proto_item_get_len(ti) + proto_len);
+    proto_item_set_len(ti, offset + proto_len);
 
   if (tree) {
     proto_tree_add_text(fh_tree, tvb, offset, proto_len, "Protocol: %s (0x%04x)",

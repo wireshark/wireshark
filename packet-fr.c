@@ -3,7 +3,7 @@
  *
  * Copyright 2001, Paul Ionescu	<paul@acorp.ro>
  *
- * $Id: packet-fr.c,v 1.15 2001/03/30 11:14:41 guy Exp $
+ * $Id: packet-fr.c,v 1.16 2001/03/31 10:35:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -222,9 +222,9 @@ static void dissect_fr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_text(fr_tree, tvb, offset, 0, "------- Cisco Encapsulation -------");
       fr_type  = tvb_get_ntohs(tvb, offset);
       if (ti != NULL) {
-		/* Include the second byte of the Cisco HDLC type
-		   in the top-level protocol tree item. */
-		proto_item_set_len(ti, proto_item_get_len(ti) + 1);
+		/* Include the Cisco HDLC type in the top-level protocol
+		   tree item. */
+		proto_item_set_len(ti, offset+2);
       }
       chdlctype(fr_type, tvb, offset+2, pinfo, tree, fr_tree, hf_fr_chdlctype);
   }
@@ -265,7 +265,7 @@ static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset++;
 	if (ti != NULL) {
 		/* Include the padding in the top-level protocol tree item. */
-		proto_item_set_len(ti, proto_item_get_len(ti) + 1);
+		proto_item_set_len(ti, offset);
 	}
 	fr_nlpid=tvb_get_guint8( tvb,offset);
   }
@@ -327,23 +327,24 @@ static void dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
   if (tree)
 	proto_tree_add_uint(fr_tree, hf_fr_nlpid, tvb, offset, 1, fr_nlpid );
   offset++;
-  if (ti != NULL) {
-	/* Include the NLPID in the top-level protocol tree item. */
-	proto_item_set_len(ti, proto_item_get_len(ti) + 1);
-  }
 
   switch (fr_nlpid) {
 
   case NLPID_SNAP:
 	if (ti != NULL) {
-		/* Include the SNAP header in the top-level protocol tree item. */
-		proto_item_set_len(ti, proto_item_get_len(ti) + 5);
+		/* Include the NLPID and SNAP header in the top-level
+		   protocol tree item. */
+		proto_item_set_len(ti, offset+5);
 	}
 	dissect_snap(tvb, offset, pinfo, tree, fr_tree, fr_ctrl,
 	      hf_fr_oui, hf_fr_snaptype, hf_fr_pid, 0);
 	return;
 
   default:
+	if (ti != NULL) {
+		/* Include the NLPID in the top-level protocol tree item. */
+		proto_item_set_len(ti, offset);
+	}
 	next_tvb = tvb_new_subset(tvb,offset,-1,-1);
 	if (!dissector_try_port(fr_subdissector_table,fr_nlpid,
 				next_tvb, pinfo, tree))
