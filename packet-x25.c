@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-x25.c,v 1.20 2000/02/19 14:00:35 oabad Exp $
+ * $Id: packet-x25.c,v 1.21 2000/02/22 07:42:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -200,8 +200,8 @@ free_vc_info(vc_info *pt)
   }
 }
 
-void
-reinit_x25_hashtable()
+static void
+reinit_x25_hashtable(void)
 {
   int i;
 
