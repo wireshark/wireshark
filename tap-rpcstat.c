@@ -1,7 +1,7 @@
 /* tap-rpcstat.c
  * rpcstat   2002 Ronnie Sahlberg
  *
- * $Id: tap-rpcstat.c,v 1.5 2002/10/31 22:16:01 guy Exp $
+ * $Id: tap-rpcstat.c,v 1.6 2002/11/01 01:11:59 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -286,6 +286,7 @@ rpcstat_init(char *optarg)
 	int pos=0;
 	char *filter=NULL;
 
+
 	if(sscanf(optarg,"rpc,rtt,%d,%d,%n",&program,&version,&pos)==2){
 		if(pos){
 			filter=optarg+pos;
@@ -296,7 +297,6 @@ rpcstat_init(char *optarg)
 		fprintf(stderr, "tethereal: invalid \"-z rpc,rtt,<program>,<version>[,<filter>]\" argument\n");
 		exit(1);
 	}
-
 
 	rs=g_malloc(sizeof(rpcstat_t));
 	rs->prog=rpc_prog_name(program);
