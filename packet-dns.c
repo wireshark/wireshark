@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.99 2003/01/31 08:29:09 guy Exp $
+ * $Id: packet-dns.c,v 1.100 2003/05/05 08:14:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -803,7 +803,8 @@ add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
   const char *name, int namelen, const char *type_name, int class,
   guint ttl, gushort data_len)
 {
-  proto_tree *rr_tree;
+  proto_tree *rr_tree, *Z_tree;
+  proto_item *Z_item = NULL;
 
   rr_tree = proto_item_add_subtree(trr, rr_type);
   proto_tree_add_text(rr_tree, tvb, offset, namelen, "Name: %s", name);
@@ -819,7 +820,12 @@ add_opt_rr_to_tree(proto_item *trr, int rr_type, tvbuff_t *tvb, int offset,
   proto_tree_add_text(rr_tree, tvb, offset, 1, "EDNS0 version: %u",
       (ttl >> 16) & 0xff);
   offset++;
-  proto_tree_add_text(rr_tree, tvb, offset, 2, "Must be zero: 0x%x", ttl & 0xffff);
+  Z_item = proto_tree_add_text(rr_tree, tvb, offset, 2, "Z: 0x%x", ttl & 0xffff);
+  if (ttl & 0x8000) {
+     Z_tree = proto_item_add_subtree(Z_item, rr_type);
+     proto_tree_add_text(Z_tree, tvb, offset, 2, "Bit 0 (DO bit): 1 (Accepts DNSSEC security RRs)");
+     proto_tree_add_text(Z_tree, tvb, offset, 2, "Bits 1-15: 0x%x (reserved)", (ttl >> 17) & 0xff);
+  }
   offset += 2;
   proto_tree_add_text(rr_tree, tvb, offset, 2, "Data length: %u", data_len);
   return rr_tree;
