@@ -3,7 +3,7 @@
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * Copyright 2000-2001, Mike Frisch <frisch@hummingbird.com> (NFSv4 decoding)
  *
- * $Id: packet-nfs.c,v 1.56 2001/06/19 08:33:00 guy Exp $
+ * $Id: packet-nfs.c,v 1.57 2001/09/14 08:22:29 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -121,6 +121,22 @@ static int hf_nfs_pathconf_chown_restricted = -1;
 static int hf_nfs_pathconf_case_insensitive = -1;
 static int hf_nfs_pathconf_case_preserving = -1;
 static int hf_nfs_data_follows = -1;
+
+static int hf_nfs_atime = -1;
+static int hf_nfs_atime_sec = -1;
+static int hf_nfs_atime_nsec = -1;
+static int hf_nfs_atime_usec = -1;
+static int hf_nfs_mtime = -1;
+static int hf_nfs_mtime_sec = -1;
+static int hf_nfs_mtime_nsec = -1;
+static int hf_nfs_mtime_usec = -1;
+static int hf_nfs_ctime = -1;
+static int hf_nfs_ctime_sec = -1;
+static int hf_nfs_ctime_nsec = -1;
+static int hf_nfs_ctime_usec = -1;
+static int hf_nfs_dtime = -1;
+static int hf_nfs_dtime_sec = -1;
+static int hf_nfs_dtime_nsec = -1;
 
 static int hf_nfs_fattr_type = -1;
 static int hf_nfs_fattr_nlink = -1;
@@ -1179,29 +1195,32 @@ dissect_nfs2_fhandle_call(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 /* RFC 1094, Page 15 */
 int
-dissect_timeval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, char* name)
+dissect_timeval(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, int hf_time, int hf_time_sec, int hf_time_usec)
 {
 	guint32	seconds;
-	guint32 mseconds;
+	guint32 useconds;
+	nstime_t ts;
 
 	proto_item* time_item;
 	proto_tree* time_tree = NULL;
 
 	seconds = tvb_get_ntohl(tvb, offset+0);
-	mseconds = tvb_get_ntohl(tvb, offset+4);
-	
+	useconds = tvb_get_ntohl(tvb, offset+4);
+	ts.secs = seconds;
+	ts.nsecs = useconds*1000;
+
 	if (tree) {
-		time_item = proto_tree_add_text(tree, tvb, offset, 8,
-			"%s: %u.%06u", name, seconds, mseconds);
+		time_item = proto_tree_add_time(tree, hf_time, tvb, offset, 8,
+				&ts);
 		if (time_item)
 			time_tree = proto_item_add_subtree(time_item, ett_nfs_timeval);
 	}
 
 	if (time_tree) {
-		proto_tree_add_text(time_tree, tvb,offset+0,4,
-					"seconds: %u", seconds);
-		proto_tree_add_text(time_tree, tvb,offset+4,4,
-					"micro seconds: %u", mseconds);
+		proto_tree_add_uint(time_tree, hf_time_sec, tvb, offset, 4,
+					seconds);
+		proto_tree_add_uint(time_tree, hf_time_usec, tvb, offset+4, 4,
+					useconds);
 	}
 	offset += 8;
 	return offset;
@@ -1296,9 +1315,10 @@ dissect_fattr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, c
 	offset = dissect_rpc_uint32(tvb, pinfo, fattr_tree, hf_nfs_fattr_blocks, offset);
 	offset = dissect_rpc_uint32(tvb, pinfo, fattr_tree, hf_nfs_fattr_fsid, offset);
 	offset = dissect_rpc_uint32(tvb, pinfo, fattr_tree, hf_nfs_fattr_fileid, offset);
-	offset = dissect_timeval(tvb, offset, pinfo, fattr_tree, "atime");
-	offset = dissect_timeval(tvb, offset, pinfo, fattr_tree, "mtime");
-	offset = dissect_timeval(tvb, offset, pinfo, fattr_tree, "ctime");
+
+	offset = dissect_timeval(tvb, offset, pinfo, fattr_tree, hf_nfs_atime, hf_nfs_atime_sec, hf_nfs_atime_usec);
+	offset = dissect_timeval(tvb, offset, pinfo, fattr_tree, hf_nfs_mtime, hf_nfs_mtime_sec, hf_nfs_mtime_usec);
+	offset = dissect_timeval(tvb, offset, pinfo, fattr_tree, hf_nfs_ctime, hf_nfs_ctime_sec, hf_nfs_ctime_usec);
 
 	/* now we know, that fattr is shorter */
 	if (fattr_item) {
@@ -1354,16 +1374,16 @@ dissect_sattr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, c
 		offset += 4;
 	}
 
-	if (tvb_get_ntohl(tvb, offset+0) != 0xffffffff)
-		offset = dissect_timeval(tvb, offset, pinfo, sattr_tree, "atime");
-	else {
+	if (tvb_get_ntohl(tvb, offset+0) != 0xffffffff) {
+		offset = dissect_timeval(tvb, offset, pinfo, sattr_tree, hf_nfs_atime, hf_nfs_atime_sec, hf_nfs_atime_usec);
+	} else {
 		proto_tree_add_text(sattr_tree, tvb, offset, 8, "atime: no value");
 		offset += 8;
 	}
 
-	if (tvb_get_ntohl(tvb, offset+0) != 0xffffffff)
-		offset = dissect_timeval(tvb, offset, pinfo, sattr_tree, "mtime");
-	else {
+	if (tvb_get_ntohl(tvb, offset+0) != 0xffffffff) {
+		offset = dissect_timeval(tvb, offset, pinfo, sattr_tree, hf_nfs_mtime, hf_nfs_mtime_sec, hf_nfs_mtime_usec);
+	} else {
 		proto_tree_add_text(sattr_tree, tvb, offset, 8, "mtime: no value");
 		offset += 8;
 	}
@@ -2111,29 +2131,32 @@ dissect_nfs_fh3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* RFC 1813, Page 21 */
 int
 dissect_nfstime3(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-	proto_tree *tree,char* name)
+	proto_tree *tree, int hf_time, int hf_time_sec, int hf_time_nsec)
 {
 	guint32	seconds;
 	guint32 nseconds;
+	nstime_t ts;
 
 	proto_item* time_item;
 	proto_tree* time_tree = NULL;
 
 	seconds = tvb_get_ntohl(tvb, offset+0);
 	nseconds = tvb_get_ntohl(tvb, offset+4);
+	ts.secs = seconds;
+	ts.nsecs = nseconds;
 	
 	if (tree) {
-		time_item = proto_tree_add_text(tree, tvb, offset, 8,
-			"%s: %u.%09u", name, seconds, nseconds);
+		time_item = proto_tree_add_time(tree, hf_time, tvb, offset, 8,
+				&ts);
 		if (time_item)
 			time_tree = proto_item_add_subtree(time_item, ett_nfs_nfstime3);
 	}
 
 	if (time_tree) {
-		proto_tree_add_text(time_tree, tvb,offset+0,4,
-					"seconds: %u", seconds);
-		proto_tree_add_text(time_tree, tvb,offset+4,4,
-					"nano seconds: %u", nseconds);
+		proto_tree_add_uint(time_tree, hf_time_sec, tvb, offset, 4,
+					seconds);
+		proto_tree_add_uint(time_tree, hf_time_nsec, tvb, offset+4, 4,
+					nseconds);
 	}
 	offset += 8;
 	return offset;
@@ -2173,9 +2196,9 @@ dissect_fattr3(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		offset);
 	offset = dissect_rpc_uint64(tvb, pinfo, fattr3_tree, hf_nfs_fattr3_fileid,
 		offset);
-	offset = dissect_nfstime3 (tvb,offset,pinfo,fattr3_tree,"atime");
-	offset = dissect_nfstime3 (tvb,offset,pinfo,fattr3_tree,"mtime");
-	offset = dissect_nfstime3 (tvb,offset,pinfo,fattr3_tree,"ctime");
+	offset = dissect_nfstime3 (tvb,offset,pinfo,fattr3_tree,hf_nfs_atime,hf_nfs_atime_sec,hf_nfs_atime_nsec);
+	offset = dissect_nfstime3 (tvb,offset,pinfo,fattr3_tree,hf_nfs_mtime,hf_nfs_mtime_sec,hf_nfs_mtime_nsec);
+	offset = dissect_nfstime3 (tvb,offset,pinfo,fattr3_tree,hf_nfs_ctime,hf_nfs_ctime_sec,hf_nfs_ctime_nsec);
 
 	/* now we know, that fattr3 is shorter */
 	if (fattr3_item) {
@@ -2253,9 +2276,8 @@ dissect_wcc_attr(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_rpc_uint64(tvb, pinfo, wcc_attr_tree, hf_nfs_wcc_attr_size, 
 		offset);
-	offset = dissect_nfstime3(tvb, offset, pinfo, wcc_attr_tree, "mtime");
-	offset = dissect_nfstime3(tvb, offset, pinfo, wcc_attr_tree, "ctime");
-	
+	offset = dissect_nfstime3(tvb, offset, pinfo, wcc_attr_tree, hf_nfs_mtime, hf_nfs_mtime_sec, hf_nfs_mtime_nsec);
+	offset = dissect_nfstime3(tvb, offset, pinfo, wcc_attr_tree, hf_nfs_ctime, hf_nfs_ctime_sec, hf_nfs_ctime_nsec);
 	/* now we know, that wcc_attr_tree is shorter */
 	if (wcc_attr_item) {
 		proto_item_set_len(wcc_attr_item, offset - old_offset);
@@ -2607,9 +2629,10 @@ dissect_set_atime(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	switch (set_it) {
 		case SET_TO_CLIENT_TIME:
-			if (set_atime_item)
-			offset = dissect_nfstime3(tvb, offset, pinfo, set_atime_tree,
-					"atime");
+			if (set_atime_item) {
+				offset = dissect_nfstime3(tvb, offset, pinfo, set_atime_tree,
+					hf_nfs_atime, hf_nfs_atime_sec, hf_nfs_atime_nsec);
+			}
 		break;
 		default:
 			/* void */
@@ -2655,9 +2678,10 @@ dissect_set_mtime(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	switch (set_it) {
 		case SET_TO_CLIENT_TIME:
-			if (set_mtime_item)
-			offset = dissect_nfstime3(tvb, offset, pinfo, set_mtime_tree,
-					"atime");
+			if (set_mtime_item) {
+				offset = dissect_nfstime3(tvb, offset, pinfo, set_mtime_tree,
+					hf_nfs_atime, hf_nfs_atime_sec, hf_nfs_atime_nsec);
+			}
 		break;
 		default:
 			/* void */
@@ -2868,7 +2892,7 @@ dissect_sattrguard3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	switch (check) {
 		case TRUE:
 			offset = dissect_nfstime3(tvb, offset, pinfo, sattrguard3_tree,
-					"obj_ctime");
+					hf_nfs_ctime, hf_nfs_ctime_sec, hf_nfs_ctime_nsec);
 		break;
 		case FALSE:
 			/* void */
@@ -3623,7 +3647,7 @@ dissect_nfs3_fsinfo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 			offset = dissect_rpc_uint64(tvb, pinfo, tree, 
 				hf_nfs_fsinfo_maxfilesize, offset);
-			offset = dissect_nfstime3(tvb, offset, pinfo, tree, "time_delta");
+			offset = dissect_nfstime3(tvb, offset, pinfo, tree, hf_nfs_dtime, hf_nfs_dtime_sec, hf_nfs_dtime_nsec);
 			properties = tvb_get_ntohl(tvb, offset+0);
 			if (tree) {
 				properties_item = proto_tree_add_uint(tree,
@@ -6626,6 +6650,67 @@ proto_register_nfs(void)
 		{ &hf_nfs_minorversion, {
 			"minorversion", "nfs.minorversion", FT_UINT32, BASE_DEC,
 			NULL, 0, "nfs.minorversion", HFILL }},
+
+		{ &hf_nfs_atime, {
+			"atime", "nfs.atime", FT_ABSOLUTE_TIME, BASE_NONE,
+			NULL, 0, "Access Time", HFILL }},
+
+		{ &hf_nfs_atime_sec, {
+			"seconds", "nfs.atime.sec", FT_UINT32, BASE_DEC,
+			NULL, 0, "Access Time, Seconds", HFILL }},
+
+		{ &hf_nfs_atime_nsec, {
+			"nano seconds", "nfs.atime.nsec", FT_UINT32, BASE_DEC,
+			NULL, 0, "Access Time, Nano-seconds", HFILL }},
+
+		{ &hf_nfs_atime_usec, {
+			"micro seconds", "nfs.atime.usec", FT_UINT32, BASE_DEC,
+			NULL, 0, "Access Time, Micro-seconds", HFILL }},
+
+		{ &hf_nfs_mtime, {
+			"mtime", "nfs.mtime", FT_ABSOLUTE_TIME, BASE_NONE,
+			NULL, 0, "Modify Time", HFILL }},
+
+		{ &hf_nfs_mtime_sec, {
+			"seconds", "nfs.mtime.sec", FT_UINT32, BASE_DEC,
+			NULL, 0, "Modify Seconds", HFILL }},
+
+		{ &hf_nfs_mtime_nsec, {
+			"nano seconds", "nfs.mtime.nsec", FT_UINT32, BASE_DEC,
+			NULL, 0, "Modify Time, Nano-seconds", HFILL }},
+
+		{ &hf_nfs_mtime_usec, {
+			"micro seconds", "nfs.mtime.usec", FT_UINT32, BASE_DEC,
+			NULL, 0, "Modify Time, Micro-seconds", HFILL }},
+
+		{ &hf_nfs_ctime, {
+			"ctime", "nfs.ctime", FT_ABSOLUTE_TIME, BASE_NONE,
+			NULL, 0, "Creation Time", HFILL }},
+
+		{ &hf_nfs_ctime_sec, {
+			"seconds", "nfs.ctime.sec", FT_UINT32, BASE_DEC,
+			NULL, 0, "Creation Time, Seconds", HFILL }},
+
+		{ &hf_nfs_ctime_nsec, {
+			"nano seconds", "nfs.ctime.nsec", FT_UINT32, BASE_DEC,
+			NULL, 0, "Creation Time, Nano-seconds", HFILL }},
+
+		{ &hf_nfs_ctime_usec, {
+			"micro seconds", "nfs.ctime.usec", FT_UINT32, BASE_DEC,
+			NULL, 0, "Creation Time, Micro-seconds", HFILL }},
+
+		{ &hf_nfs_dtime, {
+			"time delta", "nfs.dtime", FT_RELATIVE_TIME, BASE_NONE,
+			NULL, 0, "Time Delta", HFILL }},
+
+		{ &hf_nfs_dtime_sec, {
+			"seconds", "nfs.dtime.sec", FT_UINT32, BASE_DEC,
+			NULL, 0, "Time Delta, Seconds", HFILL }},
+
+		{ &hf_nfs_dtime_nsec, {
+			"nano seconds", "nfs.dtime.nsec", FT_UINT32, BASE_DEC,
+			NULL, 0, "Time Delta, Nano-seconds", HFILL }},
+
 	};
 
 	static gint *ett[] = {
