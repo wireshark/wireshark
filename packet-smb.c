@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.136 2001/11/07 20:30:43 guy Exp $
+ * $Id: packet-smb.c,v 1.137 2001/11/08 08:21:12 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -226,6 +226,7 @@ static int hf_smb_data_len = -1;
 static int hf_smb_seek_mode = -1;
 static int hf_smb_data_size = -1;
 static int hf_smb_alloc_size = -1;
+static int hf_smb_alloc_size64 = -1;
 static int hf_smb_max_count = -1;
 static int hf_smb_min_count = -1;
 static int hf_smb_timeout = -1;
@@ -274,6 +275,101 @@ static int hf_smb_fs = -1;
 static int hf_smb_connect_flags_dtid = -1;
 static int hf_smb_connect_support_search = -1;
 static int hf_smb_connect_support_in_dfs = -1;
+static int hf_smb_max_setup_count = -1;
+static int hf_smb_total_param_count = -1;
+static int hf_smb_total_data_count = -1;
+static int hf_smb_max_param_count = -1;
+static int hf_smb_max_data_count = -1;
+static int hf_smb_param_disp32 = -1;
+static int hf_smb_param_count32 = -1;
+static int hf_smb_param_offset32 = -1;
+static int hf_smb_data_disp32 = -1;
+static int hf_smb_data_count32 = -1;
+static int hf_smb_data_offset32 = -1;
+static int hf_smb_setup_count = -1;
+static int hf_smb_nt_trans_subcmd = -1;
+static int hf_smb_nt_ioctl_function_code = -1;
+static int hf_smb_nt_ioctl_isfsctl = -1;
+static int hf_smb_nt_ioctl_flags_root_handle = -1;
+static int hf_smb_nt_ioctl_data = -1;
+static int hf_smb_nt_security_information = -1;
+static int hf_smb_nt_notify_action = -1;
+static int hf_smb_nt_notify_watch_tree = -1;
+static int hf_smb_nt_notify_stream_write = -1;
+static int hf_smb_nt_notify_stream_size = -1;
+static int hf_smb_nt_notify_stream_name = -1;
+static int hf_smb_nt_notify_security = -1;
+static int hf_smb_nt_notify_ea = -1;
+static int hf_smb_nt_notify_creation = -1;
+static int hf_smb_nt_notify_last_access = -1;
+static int hf_smb_nt_notify_last_write = -1;
+static int hf_smb_nt_notify_size = -1;
+static int hf_smb_nt_notify_attributes = -1;
+static int hf_smb_nt_notify_dir_name = -1;
+static int hf_smb_nt_notify_file_name = -1;
+static int hf_smb_root_dir_fid = -1;
+static int hf_smb_nt_create_disposition = -1;
+static int hf_smb_nt_create_options = -1;
+static int hf_smb_sd_length = -1;
+static int hf_smb_ea_length = -1;
+static int hf_smb_file_name_len = -1;
+static int hf_smb_nt_impersonation_level = -1;
+static int hf_smb_nt_security_flags_context_tracking = -1;
+static int hf_smb_nt_security_flags_effective_only = -1;
+static int hf_smb_nt_create_bits_oplock = -1;
+static int hf_smb_nt_create_bits_boplock = -1;
+static int hf_smb_nt_create_bits_dir = -1;
+static int hf_smb_nt_access_mask_generic_read = -1;
+static int hf_smb_nt_access_mask_generic_write = -1;
+static int hf_smb_nt_access_mask_generic_execute = -1;
+static int hf_smb_nt_access_mask_generic_all = -1;
+static int hf_smb_nt_access_mask_maximum_allowed = -1;
+static int hf_smb_nt_access_mask_system_security = -1;
+static int hf_smb_nt_access_mask_synchronize = -1;
+static int hf_smb_nt_access_mask_write_owner = -1;
+static int hf_smb_nt_access_mask_write_dac = -1;
+static int hf_smb_nt_access_mask_read_control = -1;
+static int hf_smb_nt_access_mask_delete = -1;
+static int hf_smb_nt_share_access_read = -1;
+static int hf_smb_nt_share_access_write = -1;
+static int hf_smb_nt_share_access_delete = -1;
+static int hf_smb_file_eattr_read_only = -1;
+static int hf_smb_file_eattr_hidden = -1;
+static int hf_smb_file_eattr_system = -1;
+static int hf_smb_file_eattr_volume = -1;
+static int hf_smb_file_eattr_directory = -1;
+static int hf_smb_file_eattr_archive = -1;
+static int hf_smb_file_eattr_device = -1;
+static int hf_smb_file_eattr_normal = -1;
+static int hf_smb_file_eattr_temporary = -1;
+static int hf_smb_file_eattr_sparse = -1;
+static int hf_smb_file_eattr_reparse = -1;
+static int hf_smb_file_eattr_compressed = -1;
+static int hf_smb_file_eattr_offline = -1;
+static int hf_smb_file_eattr_not_content_indexed = -1;
+static int hf_smb_file_eattr_encrypted = -1;
+static int hf_smb_file_eattr_write_through = -1;
+static int hf_smb_file_eattr_no_buffering = -1;
+static int hf_smb_file_eattr_random_access = -1;
+static int hf_smb_file_eattr_sequential_scan = -1;
+static int hf_smb_file_eattr_delete_on_close = -1;
+static int hf_smb_file_eattr_backup_semantics = -1;
+static int hf_smb_file_eattr_posix_semantics = -1;
+static int hf_smb_security_descriptor_len = -1;
+static int hf_smb_security_descriptor = -1;
+static int hf_smb_nt_qsd_owner = -1;
+static int hf_smb_nt_qsd_group = -1;
+static int hf_smb_nt_qsd_dacl = -1;
+static int hf_smb_nt_qsd_sacl = -1;
+static int hf_smb_extended_attributes = -1;
+static int hf_smb_oplock_level = -1;
+static int hf_smb_create_action = -1;
+static int hf_smb_ea_error_offset = -1;
+static int hf_smb_end_of_file = -1;
+static int hf_smb_device_type = -1;
+static int hf_smb_is_directory = -1;
+static int hf_smb_next_entry_offset = -1;
+static int hf_smb_change_time = -1;
 
 static gint ett_smb = -1;
 static gint ett_smb_hdr = -1;
@@ -312,6 +408,14 @@ static gint ett_smb_open_action = -1;
 static gint ett_smb_setup_action = -1;
 static gint ett_smb_connect_flags = -1;
 static gint ett_smb_connect_support_bits = -1;
+static gint ett_smb_nt_create_bits = -1;
+static gint ett_smb_nt_access_mask = -1;
+static gint ett_smb_nt_share_access = -1;
+static gint ett_smb_nt_security_flags = -1;
+static gint ett_smb_nt_trans_setup = -1;
+static gint ett_smb_nt_notify_completion_filter = -1;
+static gint ett_smb_nt_ioctl_flags = -1;
+static gint ett_smb_security_information_mask = -1;
 
 
 static char *decode_smb_name(unsigned char);
@@ -892,7 +996,7 @@ static const true_false_string tfs_file_attribute_backup_semantics = {
 };
 static const true_false_string tfs_file_attribute_posix_semantics = {
 	"This object supports POSIX SEMANTICS",
-	"This object does NOT support posix semantics",
+	"This object does NOT support POSIX semantics",
 };
 static const true_false_string tfs_file_attribute_read_only = {
 	"This file is READ ONLY",
@@ -983,6 +1087,72 @@ dissect_file_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		tvb, offset, 2, mask);
 
 	offset += 2;
+
+	return offset;
+}
+
+/* 3.11 */
+static int
+dissect_file_ext_attr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohl(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
+			"File Attributes: 0x%08x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_file_attributes);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_write_through,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_no_buffering,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_random_access,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_sequential_scan,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_delete_on_close,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_backup_semantics,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_posix_semantics,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_encrypted,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_not_content_indexed,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_offline,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_compressed,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_reparse,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_sparse,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_temporary,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_normal,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_device,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_archive,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_directory,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_volume,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_system,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_hidden,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_file_eattr_read_only,
+		tvb, offset, 4, mask);
+
+	offset += 4;
 
 	return offset;
 }
@@ -4820,6 +4990,1318 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 
 
+/* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+   NT Transaction command  begins here
+   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+#define NT_TRANS_CREATE		1
+#define NT_TRANS_IOCTL		2
+#define NT_TRANS_SSD		3
+#define NT_TRANS_NOTIFY		4
+#define NT_TRANS_RENAME		5
+#define NT_TRANS_QSD		6
+static const value_string nt_cmd_vals[] = {
+	{NT_TRANS_CREATE,	"NT CREATE"},
+	{NT_TRANS_IOCTL,	"NT IOCTL"},
+	{NT_TRANS_SSD,		"NT SET SECURITY DESC"},
+	{NT_TRANS_NOTIFY,	"NT NOTIFY"},
+	{NT_TRANS_RENAME,	"NT RENAME"},
+	{NT_TRANS_QSD,		"NT QUERY SECURITY DESC"},
+	{0, NULL}
+};
+
+static const value_string nt_ioctl_isfsctl_vals[] = {
+	{0,	"Device IOCTL"},
+	{1,	"FS control : FSCTL"},
+	{0, NULL}
+};
+
+#define NT_IOCTL_FLAGS_ROOT_HANDLE	0x01
+static const true_false_string tfs_nt_ioctl_flags_root_handle = {
+	"Apply the command to share root handle (MUST BE DFS)",
+	"Apply to this share",
+};
+
+static const value_string nt_notify_action_vals[] = {
+	{1,	"ADDED (object was added"},
+	{2,	"REMOVED (object was removed)"},
+	{3,	"MODIFIED (object was modified)"},
+	{4,	"RENAMED_OLD_NAME (this is the old name of object)"},
+	{5,	"RENAMED_NEW_NAME (this is the new name of object)"},
+	{6,	"ADDED_STREAM (a stream was added)"},
+	{7,	"REMOVED_STREAM (a stream was removed)"},
+	{8,	"MODIFIED_STREAM (a stream was modified)"},
+	{0, NULL}
+};
+
+static const value_string watch_tree_vals[] = {
+	{0,	"Current directory only"},
+	{1,	"Subdirectories also"},
+	{0, NULL}
+};
+
+#define NT_NOTIFY_STREAM_WRITE	0x00000800
+#define NT_NOTIFY_STREAM_SIZE	0x00000400
+#define NT_NOTIFY_STREAM_NAME	0x00000200
+#define NT_NOTIFY_SECURITY	0x00000100
+#define NT_NOTIFY_EA		0x00000080
+#define NT_NOTIFY_CREATION	0x00000040
+#define NT_NOTIFY_LAST_ACCESS	0x00000020
+#define NT_NOTIFY_LAST_WRITE	0x00000010
+#define NT_NOTIFY_SIZE		0x00000008
+#define NT_NOTIFY_ATTRIBUTES	0x00000004
+#define NT_NOTIFY_DIR_NAME	0x00000002
+#define NT_NOTIFY_FILE_NAME	0x00000001
+static const true_false_string tfs_nt_notify_stream_write = {
+	"Notify on changes to STREAM WRITE",
+	"Do NOT notify on changes to stream write",
+};
+static const true_false_string tfs_nt_notify_stream_size = {
+	"Notify on changes to STREAM SIZE",
+	"Do NOT notify on changes to stream size",
+};
+static const true_false_string tfs_nt_notify_stream_name = {
+	"Notify on changes to STREAM NAME",
+	"Do NOT notify on changes to stream name",
+};
+static const true_false_string tfs_nt_notify_security = {
+	"Notify on changes to SECURITY",
+	"Do NOT notify on changes to security",
+};
+static const true_false_string tfs_nt_notify_ea = {
+	"Notify on changes to EA",
+	"Do NOT notify on changes to EA",
+};
+static const true_false_string tfs_nt_notify_creation = {
+	"Notify on changes to CREATION TIME",
+	"Do NOT notify on changes to creation time",
+};
+static const true_false_string tfs_nt_notify_last_access = {
+	"Notify on changes to LAST ACCESS TIME",
+	"Do NOT notify on changes to last access time",
+};
+static const true_false_string tfs_nt_notify_last_write = {
+	"Notify on changes to LAST WRITE TIME",
+	"Do NOT notify on changes to last write time",
+};
+static const true_false_string tfs_nt_notify_size = {
+	"Notify on changes to SIZE",
+	"Do NOT notify on changes to size",
+};
+static const true_false_string tfs_nt_notify_attributes = {
+	"Notify on changes to ATTRIBUTES",
+	"Do NOT notify on changes to attributes",
+};
+static const true_false_string tfs_nt_notify_dir_name = {
+	"Notify on changes to DIR NAME",
+	"Do NOT notify on changes to dir name",
+};
+static const true_false_string tfs_nt_notify_file_name = {
+	"Notify on changes to FILE NAME",
+	"Do NOT notify on changes to file name",
+};
+
+static const value_string create_disposition_vals[] = {
+	{0,	"Supersede (supersede existing file (if it exists))"},
+	{1,	"Open (if file exists open it, else fail)"},
+	{2,	"Create (if file exists fail, else create it)"},
+	{3,	"Open If (if file exists open it, else create it)"},
+	{4,	"Overwrite (if file exists overwrite, else fail)"},
+	{5,	"Overwrite If (if file exists overwrite, else create it)"},
+	{0, NULL}
+};
+
+static const value_string impersonation_level_vals[] = {
+	{0,	"Anonymous"},
+	{1,	"Identification"},
+	{2,	"Impersonation"},
+	{3,	"Delegation"},
+	{0, NULL}
+};
+
+static const true_false_string tfs_nt_security_flags_context_tracking = {
+	"Security tracking mode is DYNAMIC",
+	"Security tracking mode is STATIC",
+};
+
+static const true_false_string tfs_nt_security_flags_effective_only = {
+	"ONLY ENABLED aspects of the clients security context are available",
+	"ALL aspects of the clients security context are available",
+};
+
+static const true_false_string tfs_nt_create_bits_oplock = {
+	"Requesting OPLOCK",
+	"Does NOT request oplock"
+};
+
+static const true_false_string tfs_nt_create_bits_boplock = {
+	"Requesting BATCH OPLOCK",
+	"Does NOT request batch oplock"
+};
+
+static const true_false_string tfs_nt_create_bits_dir = {
+	"Target of open MUST be a DIRECTORY",
+	"Target of open can be a file"
+};
+
+static const true_false_string tfs_nt_access_mask_generic_read = {
+	"GENERIC READ is set",
+	"Generic read in NOT set"
+};
+static const true_false_string tfs_nt_access_mask_generic_write = {
+	"GENERIC WRITE is set",
+	"Generic write is NOT set"
+};
+static const true_false_string tfs_nt_access_mask_generic_execute = {
+	"GENERIC EXECUTE is set",
+	"Generic execute is NOT set"
+};
+static const true_false_string tfs_nt_access_mask_generic_all = {
+	"GENERIC ALL is set",
+	"Generic all is NOT set"
+};
+static const true_false_string tfs_nt_access_mask_maximum_allowed = {
+	"MAXIMUM ALLOWED is set",
+	"Maximum allowed is NOT set"
+};
+static const true_false_string tfs_nt_access_mask_system_security = {
+	"SYSTEM SECURITY is set",
+	"System security is NOT set"
+};
+static const true_false_string tfs_nt_access_mask_synchronize = {
+	"SYNCHRONIZE access",
+	"Do NOT synchronize access"
+};
+static const true_false_string tfs_nt_access_mask_write_owner = {
+	"OWNER may WRITE to the file",
+	"Owner can NOT write to the file"
+};
+static const true_false_string tfs_nt_access_mask_write_dac = {
+	"OWNER may WRITE the DAC",
+	"Owner may NOT write to the DAC"
+};
+static const true_false_string tfs_nt_access_mask_read_control = {
+	"READ ACCESS to owner, group and ACL of the SID",
+	"Read access is NOT granted to owner, group and ACL of the SID"
+};
+static const true_false_string tfs_nt_access_mask_delete = {
+	"DELETE access",
+	"NO delete access"
+};
+
+static const true_false_string tfs_nt_share_access_delete = {
+	"Object can be shared for DELETE",
+	"Object can NOT be shared for delete"
+};
+static const true_false_string tfs_nt_share_access_write = {
+	"Object can be shared for WRITE",
+	"Object can NOT be shared for write"
+};
+static const true_false_string tfs_nt_share_access_read = {
+	"Object can be shared for READ",
+	"Object can NOT be shared for delete"
+};
+
+static const value_string oplock_level_vals[] = {
+	{0,	"No oplock granted"},
+	{1,	"Exclusive oplock granted"},
+	{2,	"Batch oplock granted"},
+	{3,	"Level II oplock granted"},
+	{0, NULL}
+};
+
+static const value_string device_type_vals[] = {
+	{0x00000001,	"Beep"},
+	{0x00000002,	"CDROM"},
+	{0x00000003,	"CDROM Filesystem"},
+	{0x00000004,	"Controller"},
+	{0x00000005,	"Datalink"},
+	{0x00000006,	"DFS"},
+	{0x00000007,	"Disk"},
+	{0x00000008,	"Disk Filesystem"},
+	{0x00000009,	"Filesystem"},
+	{0x0000000a,	"Inport Port"},
+	{0x0000000b,	"Keyboard"},
+	{0x0000000c,	"Mailslot"},
+	{0x0000000d,	"MIDI-In"},
+	{0x0000000e,	"MIDI-Out"},
+	{0x0000000f,	"Mouse"},
+	{0x00000010,	"Multi UNC Provider"},
+	{0x00000011,	"Named Pipe"},
+	{0x00000012,	"Network"},
+	{0x00000013,	"Network Browser"},
+	{0x00000014,	"Network Filesystem"},
+	{0x00000015,	"NULL"},
+	{0x00000016,	"Parallel Port"},
+	{0x00000017,	"Physical card"},
+	{0x00000018,	"Printer"},
+	{0x00000019,	"Scanner"},
+	{0x0000001a,	"Serial Mouse port"},
+	{0x0000001b,	"Serial port"},
+	{0x0000001c,	"Screen"},
+	{0x0000001d,	"Sound"},
+	{0x0000001e,	"Streams"},
+	{0x0000001f,	"Tape"},
+	{0x00000020,	"Tape Filesystem"},
+	{0x00000021,	"Transport"},
+	{0x00000022,	"Unknown"},
+	{0x00000023,	"Video"},
+	{0x00000024,	"Virtual Disk"},
+	{0x00000025,	"WAVE-In"},
+	{0x00000026,	"WAVE-Out"},
+	{0x00000027,	"8042 Port"},
+	{0x00000028,	"Network Redirector"},
+	{0x00000029,	"Battery"},
+	{0x0000002a,	"Bus Extender"},
+	{0x0000002b,	"Modem"},
+	{0x0000002c,	"VDM"},
+	{0,	NULL}
+};
+
+static const value_string is_directory_vals[] = {
+	{0,	"This is NOT a directory"},
+	{1,	"This is a DIRECTORY"},
+	{0, NULL}
+};
+
+typedef struct _nt_trans_data {
+	guint32 sd_len;
+	guint32 ea_len;
+} nt_trans_data;
+
+
+
+static int
+dissect_nt_security_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint8 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_guint8(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
+			"Security Flags: 0x%02x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_nt_security_flags);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_nt_security_flags_context_tracking,
+		tvb, offset, 1, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_security_flags_effective_only,
+		tvb, offset, 1, mask);
+
+	offset += 1;
+
+	return offset;
+}
+
+static int
+dissect_nt_share_access(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohl(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
+			"Share Access: 0x%08x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_nt_share_access);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_nt_share_access_delete,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_share_access_write,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_share_access_read,
+		tvb, offset, 4, mask);
+
+	offset += 4;
+
+	return offset;
+}
+
+
+static int
+dissect_nt_access_mask(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohl(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
+			"Access Mask: 0x%08x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_nt_access_mask);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_read,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_write,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_execute,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_generic_all,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_maximum_allowed,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_system_security,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_synchronize,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_owner,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_write_dac,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_read_control,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_access_mask_delete,
+		tvb, offset, 4, mask);
+
+	offset += 4;
+
+	return offset;
+}
+
+static int
+dissect_nt_create_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohl(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
+			"Create Flags: 0x%04x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_nt_create_bits);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_dir,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_boplock,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_create_bits_oplock,
+		tvb, offset, 4, mask);
+
+	offset += 4;
+
+	return offset;
+}
+ 
+static int
+dissect_nt_notify_completion_filter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohl(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
+			"Completion Filter: 0x%08x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_nt_notify_completion_filter);
+	}
+ 
+	proto_tree_add_boolean(tree, hf_smb_nt_notify_stream_write,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_notify_stream_size,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_notify_stream_name,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_notify_security,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_notify_ea,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_notify_creation,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_notify_last_access,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_notify_last_write,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_notify_size,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_notify_attributes,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_notify_dir_name,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_notify_file_name,
+		tvb, offset, 4, mask);
+
+	offset += 4;
+	return offset;
+}
+ 
+static int
+dissect_nt_ioctl_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint8 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_guint8(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 1,
+			"Completion Filter: 0x%02x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_nt_ioctl_flags);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_nt_ioctl_flags_root_handle,
+		tvb, offset, 1, mask);
+
+	offset += 1;
+	return offset;
+}
+
+/*
+ * From the section on ZwQuerySecurityObject in "Windows(R) NT(R)/2000
+ * Native API Reference".
+ */
+static const true_false_string tfs_nt_qsd_owner = {
+	"Requesting OWNER security information",
+	"NOT requesting owner security information",
+};
+
+static const true_false_string tfs_nt_qsd_group = {
+	"Requesting GROUP security information",
+	"NOT requesting group security information",
+};
+
+static const true_false_string tfs_nt_qsd_dacl = {
+	"Requesting DACL security information",
+	"NOT requesting DACL security information",
+};
+
+static const true_false_string tfs_nt_qsd_sacl = {
+	"Requesting SACL security information",
+	"NOT requesting SACL security information",
+};
+
+#define NT_QSD_OWNER	0x00000001
+#define NT_QSD_GROUP	0x00000002
+#define NT_QSD_DACL	0x00000004
+#define NT_QSD_SACL	0x00000008
+
+static int
+dissect_security_information_mask(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+
+	mask = tvb_get_letohl(tvb, offset);
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, 4,
+			"Security Information: 0x%08x", mask);
+		tree = proto_item_add_subtree(item, ett_smb_security_information_mask);
+	}
+
+	proto_tree_add_boolean(tree, hf_smb_nt_qsd_owner,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_qsd_group,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_qsd_dacl,
+		tvb, offset, 4, mask);
+	proto_tree_add_boolean(tree, hf_smb_nt_qsd_sacl,
+		tvb, offset, 4, mask);
+
+	offset += 4;
+
+	return offset;
+}
+
+
+static int
+dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, nt_trans_data *ntd)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	smb_info_t *si;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, len,
+				"%s Data",
+				val_to_str(si->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
+		tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
+	}
+
+	switch(si->subcmd){
+	case NT_TRANS_CREATE:
+		/* security descriptor */
+		if(ntd->sd_len){
+			proto_tree_add_item(tree, hf_smb_security_descriptor, tvb, offset, ntd->sd_len, TRUE);
+			offset += ntd->sd_len;
+		}
+
+		/* extended attributes */
+		if(ntd->ea_len){
+			proto_tree_add_item(tree, hf_smb_extended_attributes, tvb, offset, ntd->ea_len, TRUE);
+			offset += ntd->ea_len;
+		}
+
+		break;
+	case NT_TRANS_IOCTL:
+		/* ioctl data */
+		proto_tree_add_item(tree, hf_smb_nt_ioctl_data, tvb, offset, len, TRUE);
+		offset += len;
+
+		break;
+	case NT_TRANS_SSD:
+		proto_tree_add_item(tree, hf_smb_security_descriptor, tvb, offset, len, TRUE);
+		offset += len;
+		break;
+	case NT_TRANS_NOTIFY:
+		break;
+	case NT_TRANS_RENAME:
+		/* XXX not documented */
+		break;
+	case NT_TRANS_QSD:
+		break;
+	}
+
+	return offset;
+}
+
+static int
+dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, nt_trans_data *ntd, guint16 bc)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	smb_info_t *si;
+	guint32 fn_len;
+	const char *fn;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, len,
+				"%s Parameters",
+				val_to_str(si->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
+		tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
+	}
+
+	switch(si->subcmd){
+	case NT_TRANS_CREATE:
+		/* Create flags */
+		offset = dissect_nt_create_bits(tvb, pinfo, tree, offset);
+
+		/* root directory fid */
+		proto_tree_add_item(tree, hf_smb_root_dir_fid, tvb, offset, 4, TRUE);
+		offset += 4;
+
+		/* nt access mask */
+		offset = dissect_nt_access_mask(tvb, pinfo, tree, offset);
+	
+		/* allocation size */
+		proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+		offset += 8;
+	
+		/* Extended File Attributes */
+		offset = dissect_file_ext_attr(tvb, pinfo, tree, offset);
+
+		/* share access */
+		offset = dissect_nt_share_access(tvb, pinfo, tree, offset);
+	
+		/* create disposition */
+		proto_tree_add_item(tree, hf_smb_nt_create_disposition, tvb, offset, 4, TRUE);
+		offset += 4;
+
+		/* create options */
+		proto_tree_add_item(tree, hf_smb_nt_create_options, tvb, offset, 4, TRUE);
+		offset += 4;
+
+		/* sd length */
+		ntd->sd_len = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_sd_length, tvb, offset, 4, ntd->sd_len);
+		offset += 4;
+
+		/* ea length */
+		ntd->ea_len = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_ea_length, tvb, offset, 4, ntd->ea_len);
+		offset += 4;
+
+		/* file name len */
+		fn_len = (guint32)tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 4, fn_len);
+		offset += 4;
+
+		/* impersonation level */
+		proto_tree_add_item(tree, hf_smb_nt_impersonation_level, tvb, offset, 4, TRUE);
+		offset += 4;
+	
+		/* security flags */
+		offset = dissect_nt_security_flags(tvb, pinfo, tree, offset);
+
+		/* file name */
+		fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, TRUE, TRUE, &bc);
+		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+			fn);
+		offset += fn_len;
+
+		break;
+	case NT_TRANS_IOCTL:
+		break;
+	case NT_TRANS_SSD:
+		/* fid */
+		proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		/* 2 reserved bytes */
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		/* security information */
+		offset = dissect_security_information_mask(tvb, pinfo, tree, offset);
+		break;
+	case NT_TRANS_NOTIFY:
+		break;
+	case NT_TRANS_RENAME:
+		/* XXX not documented */
+		break;
+	case NT_TRANS_QSD:
+		/* fid */
+		proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		/* 2 reserved bytes */
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		/* security information */
+		offset = dissect_security_information_mask(tvb, pinfo, tree, offset);
+		break;
+	}
+
+	return offset;
+}
+
+static int
+dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, nt_trans_data *ntd)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	smb_info_t *si;
+	int old_offset = offset;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, len,
+				"%s Setup",
+				val_to_str(si->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
+		tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
+	}
+ 
+	switch(si->subcmd){
+	case NT_TRANS_CREATE:
+		break;
+	case NT_TRANS_IOCTL:
+		/* function code */
+		proto_tree_add_item(tree, hf_smb_nt_ioctl_function_code, tvb, offset, 4, TRUE);
+		offset += 4;
+
+		/* fid */
+		proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		/* isfsctl */
+		proto_tree_add_item(tree, hf_smb_nt_ioctl_isfsctl, tvb, offset, 1, TRUE);
+		offset += 1;
+
+		/* isflags */
+		offset = dissect_nt_ioctl_flags(tvb, pinfo, tree, offset);
+
+		break;
+	case NT_TRANS_SSD:
+		break;
+	case NT_TRANS_NOTIFY:
+		/* completion filter */
+		offset = dissect_nt_notify_completion_filter(tvb, pinfo, tree, offset);
+
+		/* fid */
+		proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		/* watch tree */
+		proto_tree_add_item(tree, hf_smb_nt_notify_watch_tree, tvb, offset, 1, TRUE);
+		offset += 1;
+
+		/* reserved byte */
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+		offset += 1;
+
+		break;
+	case NT_TRANS_RENAME:
+		/* XXX not documented */
+		break;
+	case NT_TRANS_QSD:
+		break;
+	}
+ 
+	return old_offset+len;
+}
+
+
+static int
+dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
+{
+	guint8 wc, sc;
+	guint32 pc=0, po=0, pd, dc=0, od=0, dd;
+	smb_info_t *si;
+	static nt_trans_data ntd;
+	guint16 bc;
+	int padcnt;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	WORD_COUNT;
+
+	if(wc>=19){
+		/* primary request */
+		/* max setup count */
+		proto_tree_add_item(tree, hf_smb_max_setup_count, tvb, offset, 1, TRUE);
+		offset += 1;
+
+		/* 2 reserved bytes */
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+		offset += 2;
+	} else {
+		/* secondary request */
+		/* 3 reserved bytes */
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 3, TRUE);
+		offset += 3;
+	}
+
+
+	/* total param count */
+	proto_tree_add_item(tree, hf_smb_total_param_count, tvb, offset, 4, TRUE);
+	offset += 4;
+	
+	/* total data count */
+	proto_tree_add_item(tree, hf_smb_total_data_count, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	if(wc>=19){
+		/* primary request */
+		/* max param count */
+		proto_tree_add_item(tree, hf_smb_max_param_count, tvb, offset, 4, TRUE);
+		offset += 4;
+
+		/* max data count */
+		proto_tree_add_item(tree, hf_smb_max_data_count, tvb, offset, 4, TRUE);
+		offset += 4;
+	}
+
+	/* param count */
+	pc = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_param_count32, tvb, offset, 4, pc);
+	offset += 4;
+	
+	/* param offset */
+	po = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_param_offset32, tvb, offset, 4, po);
+	offset += 4;
+
+	/* param displacement */
+	if(wc>=19){
+		/* primary request*/
+		pd = 0;
+	} else {
+		/* secondary request */
+		pd = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_param_disp32, tvb, offset, 4, pd);
+		offset += 4;
+	}
+
+	/* data count */
+	dc = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_count32, tvb, offset, 4, dc);
+	offset += 4;
+
+	/* data offset */
+	od = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_offset32, tvb, offset, 4, od);
+	offset += 4;
+
+	/* data displacement */
+	if(wc>=19){
+		/* primary request */
+		dd = 0;
+	} else {
+		/* secondary request */
+		dd = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_data_disp32, tvb, offset, 4, dd);
+		offset += 4;
+	}
+
+	/* setup count */
+	if(wc>=19){
+		/* primary request */
+		sc = tvb_get_guint8(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_setup_count, tvb, offset, 1, sc);
+		offset += 1;
+	} else {
+		/* secondary request */
+		sc = 0;
+	}
+
+	/* function */
+	if(wc>=19){
+		/* primary request */
+		si->subcmd = tvb_get_letohs(tvb, offset);
+		proto_tree_add_uint(tree, hf_smb_nt_trans_subcmd, tvb, offset, 2, si->subcmd);
+		if(check_col(pinfo->fd, COL_INFO)){
+			col_append_fstr(pinfo->fd, COL_INFO, ", %s",
+				val_to_str(si->subcmd, nt_cmd_vals, "<unknown>"));
+		}
+	} else {
+		/* secondary request */
+		if(check_col(pinfo->fd, COL_INFO)){
+			col_append_fstr(pinfo->fd, COL_INFO, " (secondary request)");
+		}
+	}
+	offset += 2;
+
+	/* this is a padding byte */
+	if(offset%1){
+		/* pad byte */
+	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, 1, TRUE);
+		offset += 1;
+	}
+
+	/* if there were any setup bytes, decode them */
+	if(sc){
+		dissect_nt_trans_setup_request(tvb, pinfo, offset, tree, sc*2, &ntd);
+		offset += sc*2;
+	}
+
+	BYTE_COUNT;
+	
+	/* parameters */
+	if(po>(guint32)offset){
+		/* We have some initial padding bytes.
+		*/
+		padcnt = po-offset;
+		if (padcnt > bc)
+			padcnt = bc;
+	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+		COUNT_BYTES(padcnt);
+	}
+	if(pc){
+		CHECK_BYTE_COUNT(pc);
+		dissect_nt_trans_param_request(tvb, pinfo, offset, tree, pc, &ntd, bc);
+		COUNT_BYTES(pc);
+	}
+
+	/* data */
+	if(od>(guint32)offset){
+		/* We have some initial padding bytes.
+		*/
+		padcnt = od-offset;
+		if (padcnt > bc)
+			padcnt = bc;
+	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+		COUNT_BYTES(padcnt);
+	}
+	if(dc){
+		CHECK_BYTE_COUNT(dc);
+		dissect_nt_trans_data_request(tvb, pinfo, offset, tree, dc, &ntd);
+		COUNT_BYTES(dc);
+	}
+
+	END_OF_SMB
+
+	return offset;
+}
+
+
+
+static int
+dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, nt_trans_data *ntd)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	smb_info_t *si;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	if(parent_tree){
+		if(si->frame_req != 0){
+			item = proto_tree_add_text(parent_tree, tvb, offset, len,
+				"%s Data",
+				val_to_str(si->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
+		} else {
+			/*
+			 * We never saw the request to which this is a
+			 * response.
+			 */
+			item = proto_tree_add_text(parent_tree, tvb, offset, len,
+				"%s Data",
+				val_to_str(si->subcmd, nt_cmd_vals, "Unknown NT transaction (matching request not seen)"));
+		}
+		tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
+	}
+
+	switch(si->subcmd){
+	case NT_TRANS_CREATE:
+		break;
+	case NT_TRANS_IOCTL:
+		/* ioctl data */
+		proto_tree_add_item(tree, hf_smb_nt_ioctl_data, tvb, offset, len, TRUE);
+		offset += len;
+
+		break;
+	case NT_TRANS_SSD:
+		break;
+	case NT_TRANS_NOTIFY:
+		break;
+	case NT_TRANS_RENAME:
+		/* XXX not documented */
+		break;
+	case NT_TRANS_QSD:
+		/*
+		 * XXX - this is probably a SECURITY_DESCRIPTOR structure,
+		 * which may be documented in the Win32 documentation
+		 * somewhere.
+		 */
+		proto_tree_add_item(tree, hf_smb_security_descriptor, tvb, offset, len, TRUE);
+		offset += len;
+		break;
+	}
+
+	return offset;
+}
+ 
+static int
+dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, nt_trans_data *ntd, guint16 bc)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	guint32 fn_len;
+	const char *fn;
+	smb_info_t *si;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	if(parent_tree){
+		if(si->frame_req != 0){
+			item = proto_tree_add_text(parent_tree, tvb, offset, len,
+				"%s Parameters",
+				val_to_str(si->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
+		} else {
+			/*
+			 * We never saw the request to which this is a
+			 * response.
+			 */
+			item = proto_tree_add_text(parent_tree, tvb, offset, len,
+				"%s Parameters",
+				val_to_str(si->subcmd, nt_cmd_vals, "Unknown NT transaction (matching request not seen)"));
+		}
+		tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
+	}
+
+	switch(si->subcmd){
+	case NT_TRANS_CREATE:
+		/* oplock level */
+	        proto_tree_add_item(tree, hf_smb_oplock_level, tvb, offset, 1, TRUE);
+		offset += 1;
+
+		/* reserved byte */
+	        proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+		offset += 1;
+		
+		/* fid */
+		proto_tree_add_item(tree, hf_smb_fid, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		/* create action */
+		proto_tree_add_item(tree, hf_smb_create_action, tvb, offset, 4, TRUE);
+		offset += 4;
+
+		/* ea error offset */
+		proto_tree_add_item(tree, hf_smb_ea_error_offset, tvb, offset, 4, TRUE);
+		offset += 4;
+
+		/* create time */
+		offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+			"Create Time", hf_smb_create_time);
+	
+		/* access time */
+		offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+			"Access Time", hf_smb_access_time);
+	
+		/* last write time */
+		offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+			"Write Time", hf_smb_last_write_time);
+	
+		/* last change time */
+		offset = dissect_smb_64bit_time(tvb, pinfo, tree, offset,
+			"Change Time", hf_smb_change_time);
+	
+		/* Extended File Attributes */
+		offset = dissect_file_ext_attr(tvb, pinfo, tree, offset);
+
+		/* allocation size */
+		proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+		offset += 8;
+
+		/* end of file */
+		proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+		offset += 8;
+
+		/* File Type */
+		proto_tree_add_item(tree, hf_smb_file_type, tvb, offset, 2, TRUE);
+		offset += 2;
+
+		/* device type */
+		/* XXX is this a 16 or 32 bit integer? need to check the spec*/
+		proto_tree_add_item(tree, hf_smb_device_type, tvb, offset, 4, TRUE);
+		offset += 4;
+
+		/* is directory */
+		proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, TRUE);
+		offset += 1;
+		break;
+	case NT_TRANS_IOCTL:
+		break;
+	case NT_TRANS_SSD:
+		break;
+	case NT_TRANS_NOTIFY:
+		while(len){
+			/* next entry offset */
+			proto_tree_add_item(tree, hf_smb_next_entry_offset, tvb, offset, 4, TRUE);
+			offset += 4;
+			len -= 4;
+			/* broken implementations */
+			if(len<0)break;
+	
+			/* action */
+			proto_tree_add_item(tree, hf_smb_nt_notify_action, tvb, offset, 4, TRUE);
+			offset += 4;
+			len -= 4;
+			/* broken implementations */
+			if(len<0)break;
+
+			/* file name len */
+			fn_len = (guint32)tvb_get_letohl(tvb, offset);
+			proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 4, fn_len);
+			offset += 4;
+			len -= 4;
+			/* broken implementations */
+			if(len<0)break;
+
+			/* file name */
+			fn = get_unicode_or_ascii_string_tvb(tvb, &offset, pinfo, &fn_len, TRUE, TRUE, &bc);
+			proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+				fn);
+			offset += fn_len;
+			len -= fn_len;
+			/* broken implementations */
+			if(len<0)break;
+
+		}
+		break;
+	case NT_TRANS_RENAME:
+		/* XXX not documented */
+		break;
+	case NT_TRANS_QSD:
+		/*
+		 * This appears to be the size of the security
+		 * descriptor; the calling sequence of
+		 * "ZwQuerySecurityObject()" suggests that it would
+		 * be.  The actual security descriptor wouldn't
+		 * follow if the max data count in the request
+		 * was smaller; this lets the client know how
+		 * big a buffer it needs to provide.
+		 */
+		proto_tree_add_item(tree, hf_smb_security_descriptor_len, tvb, offset, 4, TRUE);
+		offset += 4;
+		break;
+	}
+
+	return offset;
+}
+ 
+static int
+dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, nt_trans_data *ntd)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	smb_info_t *si;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	if(parent_tree){
+		if(si->frame_req != 0){
+			item = proto_tree_add_text(parent_tree, tvb, offset, len,
+				"%s Setup",
+				val_to_str(si->subcmd, nt_cmd_vals, "Unknown NT transaction (%u)"));
+		} else {
+			/*
+			 * We never saw the request to which this is a
+			 * response.
+			 */
+			item = proto_tree_add_text(parent_tree, tvb, offset, len,
+				"%s Setup",
+				val_to_str(si->subcmd, nt_cmd_vals, "Unknown NT transaction (matching request not seen)"));
+		}
+		tree = proto_item_add_subtree(item, ett_smb_nt_trans_setup);
+	}
+
+	switch(si->subcmd){
+	case NT_TRANS_CREATE:
+		break;
+	case NT_TRANS_IOCTL:
+		break;
+	case NT_TRANS_SSD:
+		break;
+	case NT_TRANS_NOTIFY:
+		break;
+	case NT_TRANS_RENAME:
+		/* XXX not documented */
+		break;
+	case NT_TRANS_QSD:
+		break;
+	}
+
+	return offset;
+}
+
+static int
+dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
+{
+	guint8 wc, sc;
+	guint32 pc=0, po=0, pd, dc=0, od=0, dd;
+	smb_info_t *si;
+	static nt_trans_data ntd;
+	guint16 bc;
+	int padcnt;
+
+	si = (smb_info_t *)pinfo->private_data;
+
+	/* primary request */
+	if(si->frame_req != 0){
+		proto_tree_add_uint(tree, hf_smb_nt_trans_subcmd, tvb, 0, 0, si->subcmd);
+		if(check_col(pinfo->fd, COL_INFO)){
+			col_append_fstr(pinfo->fd, COL_INFO, ", %s",
+				val_to_str(si->subcmd, nt_cmd_vals, "<unknown (%u)>"));
+		}
+	} else {
+		proto_tree_add_text(tree, tvb, offset, 0,
+			"Function: <unknown function - could not find matching request>");
+		if(check_col(pinfo->fd, COL_INFO)){
+			col_append_fstr(pinfo->fd, COL_INFO, ", <unknown>");
+		}
+	}
+
+	WORD_COUNT;
+
+	/* 3 reserved bytes */
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 3, TRUE);
+	offset += 3;
+
+	/* total param count */
+	proto_tree_add_item(tree, hf_smb_total_param_count, tvb, offset, 4, TRUE);
+	offset += 4;
+	
+	/* total data count */
+	proto_tree_add_item(tree, hf_smb_total_data_count, tvb, offset, 4, TRUE);
+	offset += 4;
+
+	/* param count */
+	pc = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_param_count32, tvb, offset, 4, pc);
+	offset += 4;
+	
+	/* param offset */
+	po = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_param_offset32, tvb, offset, 4, po);
+	offset += 4;
+
+	/* param displacement */
+	pd = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_param_disp32, tvb, offset, 4, pd);
+	offset += 4;
+
+	/* data count */
+	dc = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_count32, tvb, offset, 4, dc);
+	offset += 4;
+
+	/* data offset */
+	od = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_offset32, tvb, offset, 4, od);
+	offset += 4;
+
+	/* data displacement */
+	dd = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_disp32, tvb, offset, 4, dd);
+	offset += 4;
+
+	/* setup count */
+	sc = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_setup_count, tvb, offset, 1, sc);
+	offset += 1;
+
+	/* setup data */	
+	if(sc){
+		dissect_nt_trans_setup_response(tvb, pinfo, offset, tree, sc*2, &ntd);
+		offset += sc*2;
+	}
+
+	BYTE_COUNT;
+	
+	/* parameters */
+	if(po>(guint32)offset){
+		/* We have some initial padding bytes.
+		*/
+		padcnt = po-offset;
+		if (padcnt > bc)
+			padcnt = bc;
+	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+		COUNT_BYTES(padcnt);
+	}
+	if(pc){
+		CHECK_BYTE_COUNT(pc);
+		dissect_nt_trans_param_response(tvb, pinfo, offset, tree, pc, &ntd, bc);
+		COUNT_BYTES(pc);
+	}
+
+	/* data */
+	if(od>(guint32)offset){
+		/* We have some initial padding bytes.
+		*/
+		padcnt = od-offset;
+		if (padcnt > bc)
+			padcnt = bc;
+	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+		COUNT_BYTES(padcnt);
+	}
+	if(dc){
+		CHECK_BYTE_COUNT(dc);
+		dissect_nt_trans_data_response(tvb, pinfo, offset, tree, dc, &ntd);
+		COUNT_BYTES(dc);
+	}
+
+	END_OF_SMB
+
+	return offset;
+}
+
+/* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+   NT Transaction command  ends here
+   XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+
+
 
 typedef struct _smb_function {
        int (*request)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree);
@@ -4996,9 +6478,8 @@ smb_function smb_dissector[256] = {
   /* 0x9d */  {NULL, NULL},
   /* 0x9e */  {NULL, NULL},
   /* 0x9f */  {NULL, NULL},
-
-  /* 0xa0 */  {NULL, NULL},
-  /* 0xa1 */  {NULL, NULL},
+  /* 0xa0 NT Transaction*/  	{dissect_nt_transaction_request, dissect_nt_transaction_response},
+  /* 0xa1 NT Trans secondary*/	{dissect_nt_transaction_request, dissect_nt_transaction_response},
   /* 0xa2 */  {NULL, NULL},
   /* 0xa3 */  {NULL, NULL},
   /* 0xa4 */  {NULL, NULL},
@@ -10016,7 +11497,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_file_attr_volume_8bit,
 		{ "Volume ID", "smb.file.attribute.volume", FT_BOOLEAN, 8,
-		TFS(&tfs_file_attribute_volume), FILE_ATTRIBUTE_VOLUME, "VOLUME file attribute", HFILL }},
+		TFS(&tfs_file_attribute_volume), FILE_ATTRIBUTE_VOLUME, "VOLUME ID file attribute", HFILL }},
 
 	{ &hf_smb_file_attr_directory_16bit,
 		{ "Directory", "smb.file.attribute.directory", FT_BOOLEAN, 16,
@@ -10088,7 +11569,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_search_attribute_volume,
 		{ "Volume ID", "smb.search.attribute.volume", FT_BOOLEAN, 16,
-		TFS(&tfs_file_attribute_volume), FILE_ATTRIBUTE_VOLUME, "VOLUME search attribute", HFILL }},
+		TFS(&tfs_file_attribute_volume), FILE_ATTRIBUTE_VOLUME, "VOLUME ID search attribute", HFILL }},
 
 	{ &hf_smb_search_attribute_directory,
 		{ "Directory", "smb.search.attribute.directory", FT_BOOLEAN, 16,
@@ -10394,6 +11875,386 @@ proto_register_smb(void)
 		{ "In Dfs", "smb.connect.support.dfs", FT_BOOLEAN, 16,
 		TFS(&tfs_connect_support_in_dfs), 0x0002, "Is this in a Dfs tree?", HFILL }},
 
+	{ &hf_smb_max_setup_count,
+		{ "Max Setup Count", "smb.msc", FT_UINT8, BASE_DEC,
+		NULL, 0, "Maximum number of setup words to return", HFILL }},
+
+	{ &hf_smb_total_param_count,
+		{ "Total Param Count", "smb.tpc", FT_UINT32, BASE_DEC,
+		NULL, 0, "Total number of parameter bytes", HFILL }},
+
+	{ &hf_smb_total_data_count,
+		{ "Total Data Count", "smb.tdc", FT_UINT32, BASE_DEC,
+		NULL, 0, "Total number of data bytes", HFILL }},
+
+	{ &hf_smb_max_param_count,
+		{ "Max Param Count", "smb.mpc", FT_UINT32, BASE_DEC,
+		NULL, 0, "Maximum number of parameter bytes to return", HFILL }},
+
+	{ &hf_smb_max_data_count,
+		{ "Max Data Count", "smb.mdc", FT_UINT32, BASE_DEC,
+		NULL, 0, "Maximum number of data bytes to return", HFILL }},
+
+	{ &hf_smb_param_disp32,
+		{ "Param Disp", "smb.pd", FT_UINT32, BASE_DEC,
+		NULL, 0, "Displacement of these parameter bytes", HFILL }},
+
+	{ &hf_smb_param_count32,
+		{ "Param Count", "smb.pc", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of parameter bytes in this buffer", HFILL }},
+
+	{ &hf_smb_param_offset32,
+		{ "Param Offset", "smb.po", FT_UINT32, BASE_DEC,
+		NULL, 0, "Offset (from header start) to parameters", HFILL }},
+
+	{ &hf_smb_data_count32,
+		{ "Data Count", "smb.dc", FT_UINT32, BASE_DEC,
+		NULL, 0, "Number of data bytes in this buffer", HFILL }},
+
+	{ &hf_smb_data_disp32,
+		{ "Data Disp", "smb.data_disp", FT_UINT32, BASE_DEC,
+		NULL, 0, "Data Displacement", HFILL }},
+
+	{ &hf_smb_data_offset32,
+		{ "Data Offset", "smb.data_offset", FT_UINT32, BASE_DEC,
+		NULL, 0, "Data Offset", HFILL }},
+
+	{ &hf_smb_setup_count,
+		{ "Setup Count", "smb.sc", FT_UINT8, BASE_DEC,
+		NULL, 0, "Number of setup words in this buffer", HFILL }},
+
+	{ &hf_smb_nt_trans_subcmd,
+		{ "Function", "smb.nt.function", FT_UINT16, BASE_DEC,
+		VALS(nt_cmd_vals), 0, "Function for NT Transaction", HFILL }},
+
+	{ &hf_smb_nt_ioctl_function_code,
+		{ "Function", "smb.nt.ioctl.function", FT_UINT32, BASE_HEX,
+		NULL, 0, "NT IOCTL function code", HFILL }},
+
+	{ &hf_smb_nt_ioctl_isfsctl,
+		{ "IsFSctl", "smb.nt.ioctl.isfsctl", FT_UINT8, BASE_DEC,
+		VALS(nt_ioctl_isfsctl_vals), 0, "Is this a device IOCTL (FALSE) or FS Control (TRUE)", HFILL }},
+
+	{ &hf_smb_nt_ioctl_flags_root_handle,
+		{ "Root Handle", "smb.nt.ioctl.flags.root_handle", FT_BOOLEAN, 8,
+		TFS(&tfs_nt_ioctl_flags_root_handle), NT_IOCTL_FLAGS_ROOT_HANDLE, "Apply to this share or root DFS share", HFILL }},
+
+	{ &hf_smb_nt_ioctl_data,
+		{ "IOCTL Data", "smb.nt.ioctl.data", FT_BYTES, BASE_HEX,
+		NULL, 0, "Data for the IOCTL call", HFILL }},
+
+	{ &hf_smb_nt_notify_action,
+		{ "Action", "smb.nt.notify.action", FT_UINT32, BASE_DEC,
+		VALS(nt_notify_action_vals), 0, "Which action caused this notify response", HFILL }},
+
+	{ &hf_smb_nt_notify_watch_tree,
+		{ "Watch Tree", "smb.nt.notify.watch_tree", FT_UINT8, BASE_DEC,
+		VALS(watch_tree_vals), 0, "Should Notify watch subdirectories also?", HFILL }},
+
+	{ &hf_smb_nt_notify_stream_write,
+		{ "Stream Write", "smb.nt.notify.stream_write", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_stream_write), NT_NOTIFY_STREAM_WRITE, "Notify on stream write?", HFILL }},
+
+	{ &hf_smb_nt_notify_stream_size,
+		{ "Stream Size Change", "smb.nt.notify.stream_size", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_stream_size), NT_NOTIFY_STREAM_SIZE, "Notify on changes of stream size", HFILL }},
+
+	{ &hf_smb_nt_notify_stream_name,
+		{ "Stream Name Change", "smb.nt.notify.stream_name", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_stream_name), NT_NOTIFY_STREAM_NAME, "Notify on changes to stream name?", HFILL }},
+
+	{ &hf_smb_nt_notify_security,
+		{ "Security Change", "smb.nt.notify.security", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_security), NT_NOTIFY_SECURITY, "Notify on changes to security settings", HFILL }},
+
+	{ &hf_smb_nt_notify_ea,
+		{ "EA Change", "smb.nt.notify.ea", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_ea), NT_NOTIFY_EA, "Notify on changes to Extended Attributes", HFILL }},
+
+	{ &hf_smb_nt_notify_creation,
+		{ "Created Change", "smb.nt.notify.creation", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_creation), NT_NOTIFY_CREATION, "Notify on changes to creation time", HFILL }},
+
+	{ &hf_smb_nt_notify_last_access,
+		{ "Last Access Change", "smb.nt.notify.last_access", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_last_access), NT_NOTIFY_LAST_ACCESS, "Notify on changes to last access", HFILL }},
+
+	{ &hf_smb_nt_notify_last_write,
+		{ "Last Write Change", "smb.nt.notify.last_write", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_last_write), NT_NOTIFY_LAST_WRITE, "Notify on changes to last write", HFILL }},
+
+	{ &hf_smb_nt_notify_size,
+		{ "Size Change", "smb.nt.notify.size", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_size), NT_NOTIFY_SIZE, "Notify on changes to size", HFILL }},
+
+	{ &hf_smb_nt_notify_attributes,
+		{ "Attribute Change", "smb.nt.notify.attributes", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_attributes), NT_NOTIFY_ATTRIBUTES, "Notify on changes to attributes", HFILL }},
+
+	{ &hf_smb_nt_notify_dir_name,
+		{ "Directory Name Change", "smb.nt.notify.dir_name", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_dir_name), NT_NOTIFY_DIR_NAME, "Notify on changes to directory name", HFILL }},
+
+	{ &hf_smb_nt_notify_file_name,
+		{ "File Name Change", "smb.nt.notify.file_name", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_notify_file_name), NT_NOTIFY_FILE_NAME, "Notify on changes to file name", HFILL }},
+
+	{ &hf_smb_root_dir_fid,
+		{ "Root FID", "smb.rfid", FT_UINT32, BASE_HEX,
+		NULL, 0, "Open is relative to this FID (if nonzero)", HFILL }},
+
+	{ &hf_smb_alloc_size64,
+		{ "Allocation Size", "smb.alloc_size", FT_UINT64, BASE_DEC,
+		NULL, 0, "Number of bytes to reserve on create or truncate", HFILL }},
+
+	{ &hf_smb_nt_create_disposition,
+		{ "Disposition", "smb.create.disposition", FT_UINT32, BASE_DEC,
+		VALS(create_disposition_vals), 0, "Create disposition, what to do if the file does/does not exist", HFILL }},
+
+	{ &hf_smb_nt_create_options,
+		{ "Options", "smb.create.options", FT_UINT32, BASE_DEC,
+		NULL, 0, "What to do if creating a file", HFILL }},
+
+	{ &hf_smb_sd_length,
+		{ "SD Length", "smb.sd.length", FT_UINT32, BASE_DEC,
+		NULL, 0, "Total length of security descriptor", HFILL }},
+
+	{ &hf_smb_ea_length,
+		{ "EA Length", "smb.ea.length", FT_UINT32, BASE_DEC,
+		NULL, 0, "Total EA length for opened file", HFILL }},
+
+	{ &hf_smb_file_name_len,
+		{ "File Name Len", "smb.file_name_len", FT_UINT32, BASE_DEC,
+		NULL, 0, "Length of File Name", HFILL }},
+
+	{ &hf_smb_nt_impersonation_level,
+		{ "Impersonation", "smb.impersonation.level", FT_UINT32, BASE_DEC,
+		VALS(impersonation_level_vals), 0, "Impersonation level", HFILL }},
+
+	{ &hf_smb_nt_security_flags_context_tracking,
+		{ "Context Tracking", "smb.security.flags.context_tracking", FT_BOOLEAN, 8,
+		TFS(&tfs_nt_security_flags_context_tracking), 0x01, "Is security tracking static or dynamic?", HFILL }},
+
+	{ &hf_smb_nt_security_flags_effective_only,
+		{ "Effective Only", "smb.security.flags.effective_only", FT_BOOLEAN, 8,
+		TFS(&tfs_nt_security_flags_effective_only), 0x02, "Are only enabled or all aspects uf the users SID available?", HFILL }},
+
+	{ &hf_smb_nt_create_bits_oplock,
+		{ "Exclusive Oplock", "smb.nt.create.oplock", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_bits_oplock), 0x00000002, "Is an oplock requested", HFILL }},
+
+	{ &hf_smb_nt_create_bits_boplock,
+		{ "Batch Oplock", "smb.nt.create.batch_oplock", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_bits_boplock), 0x00000004, "Is a batch oplock requested?", HFILL }},
+
+	{ &hf_smb_nt_create_bits_dir,
+		{ "Create Directory", "smb.nt.create.dir", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_create_bits_dir), 0x00000008, "Must target of open be a directory?", HFILL }},
+
+	{ &hf_smb_nt_access_mask_generic_read,
+		{ "Generic Read", "smb.access.generic_read", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_generic_read), 0x80000000, "Is generic read allowed for this object?", HFILL }},
+
+	{ &hf_smb_nt_access_mask_generic_write,
+		{ "Generic Write", "smb.access.generic_write", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_generic_write), 0x40000000, "Is generic write allowed for this object?", HFILL }},
+
+	{ &hf_smb_nt_access_mask_generic_execute,
+		{ "Generic Execute", "smb.access.generic_execute", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_generic_execute), 0x20000000, "Is generic execute allowed for this object?", HFILL }},
+
+	{ &hf_smb_nt_access_mask_generic_all,
+		{ "Generic All", "smb.access.generic_all", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_generic_all), 0x10000000, "Is generic all allowed for this attribute", HFILL }},
+
+	{ &hf_smb_nt_access_mask_maximum_allowed,
+		{ "Maximum Allowed", "smb.access.maximum_allowed", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_maximum_allowed), 0x02000000, "?", HFILL }},
+
+	{ &hf_smb_nt_access_mask_system_security,
+		{ "System Security", "smb.access.system_security", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_system_security), 0x01000000, "Access to a system ACL?", HFILL }},
+
+	{ &hf_smb_nt_access_mask_synchronize,
+		{ "Synchronize", "smb.access.synchronize", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_synchronize), 0x00100000, "Windows NT: synchronize access", HFILL }},
+
+	{ &hf_smb_nt_access_mask_write_owner,
+		{ "Write Owner", "smb.access.write_owner", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_write_owner), 0x00080000, "Can owner write to the object?", HFILL }},
+
+	{ &hf_smb_nt_access_mask_write_dac,
+		{ "Write DAC", "smb.access.write_dac", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_write_dac), 0x00040000, "Is write allowed to the owner group or ACLs?", HFILL }},
+
+	{ &hf_smb_nt_access_mask_read_control,
+		{ "Read Control", "smb.access.read_control", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_read_control), 0x00020000, "Are reads allowed of owner, group and ACL data of the SID?", HFILL }},
+
+	{ &hf_smb_nt_access_mask_delete,
+		{ "Delete", "smb.access.delete", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_access_mask_delete), 0x00010000, "Can object be deleted", HFILL }},
+
+	{ &hf_smb_nt_share_access_read,
+		{ "Read", "smb.share.access.read", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_share_access_read), 0x00000001, "Can the object be shared for reading?", HFILL }},
+
+	{ &hf_smb_nt_share_access_write,
+		{ "Write", "smb.share.access.write", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_share_access_write), 0x00000002, "Can the object be shared for write?", HFILL }},
+
+	{ &hf_smb_nt_share_access_delete,
+		{ "Delete", "smb.share.access.delete", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_share_access_delete), 0x00000004, "", HFILL }},
+
+	{ &hf_smb_file_eattr_read_only,
+		{ "Read Only", "smb.file.attribute.read_only", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_read_only), FILE_ATTRIBUTE_READ_ONLY, "READ ONLY file attribute", HFILL }},
+
+	{ &hf_smb_file_eattr_hidden,
+		{ "Hidden", "smb.file.attribute.hidden", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_hidden), FILE_ATTRIBUTE_HIDDEN, "HIDDEN file attribute", HFILL }},
+
+	{ &hf_smb_file_eattr_system,
+		{ "System", "smb.file.attribute.system", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_system), FILE_ATTRIBUTE_SYSTEM, "SYSTEM file attribute", HFILL }},
+
+	{ &hf_smb_file_eattr_volume,
+		{ "Volume ID", "smb.file.attribute.volume", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_volume), FILE_ATTRIBUTE_VOLUME, "VOLUME file attribute", HFILL }},
+
+	{ &hf_smb_file_eattr_directory,
+		{ "Directory", "smb.file.attribute.directory", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_directory), FILE_ATTRIBUTE_DIRECTORY, "DIRECTORY file attribute", HFILL }},
+
+	{ &hf_smb_file_eattr_archive,
+		{ "Archive", "smb.file.attribute.archive", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_archive), FILE_ATTRIBUTE_ARCHIVE, "ARCHIVE file attribute", HFILL }},
+
+	{ &hf_smb_file_eattr_device,
+		{ "Device", "smb.file.attribute.device", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_device), FILE_ATTRIBUTE_DEVICE, "Is this file a device?", HFILL }},
+
+	{ &hf_smb_file_eattr_normal,
+		{ "Normal", "smb.file.attribute.normal", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_normal), FILE_ATTRIBUTE_NORMAL, "Is this a normal file?", HFILL }},
+
+	{ &hf_smb_file_eattr_temporary,
+		{ "Temporary", "smb.file.attribute.temporary", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_temporary), FILE_ATTRIBUTE_TEMPORARY, "Is this a temporary file?", HFILL }},
+
+	{ &hf_smb_file_eattr_sparse,
+		{ "Sparse", "smb.file.attribute.sparse", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_sparse), FILE_ATTRIBUTE_SPARSE, "Is this a sparse file?", HFILL }},
+
+	{ &hf_smb_file_eattr_reparse,
+		{ "Reparse Point", "smb.file.attribute.reparse", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_reparse), FILE_ATTRIBUTE_REPARSE, "Does this file have an associated reparse point?", HFILL }},
+
+	{ &hf_smb_file_eattr_compressed,
+		{ "Compressed", "smb.file.attribute.compressed", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_compressed), FILE_ATTRIBUTE_COMPRESSED, "Is this file compressed?", HFILL }},
+
+	{ &hf_smb_file_eattr_offline,
+		{ "Offline", "smb.file.attribute.offline", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_offline), FILE_ATTRIBUTE_OFFLINE, "Is this file offline?", HFILL }},
+
+	{ &hf_smb_file_eattr_not_content_indexed,
+		{ "Content Indexed", "smb.file.attribute.not_content_indexed", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_not_content_indexed), FILE_ATTRIBUTE_NOT_CONTENT_INDEXED, "May this file be indexed by the content indexing service", HFILL }},
+
+	{ &hf_smb_file_eattr_encrypted,
+		{ "Encrypted", "smb.file.attribute.encrypted", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_encrypted), FILE_ATTRIBUTE_ENCRYPTED, "Is this file encrypted?", HFILL }},
+
+	{ &hf_smb_file_eattr_write_through,
+		{ "Write Through", "smb.file.attribute.write_through", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_write_through), FILE_ATTRIBUTE_WRITE_THROUGH, "Does this object need write through?", HFILL }},
+
+	{ &hf_smb_file_eattr_no_buffering,
+		{ "No Buffering", "smb.file.attribute.no_buffering", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_no_buffering), FILE_ATTRIBUTE_NO_BUFFERING, "May the server buffer this object?", HFILL }},
+
+	{ &hf_smb_file_eattr_random_access,
+		{ "Random Access", "smb.file.attribute.random_access", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_random_access), FILE_ATTRIBUTE_RANDOM_ACCESS, "Optimize for random access", HFILL }},
+
+	{ &hf_smb_file_eattr_sequential_scan,
+		{ "Sequential Scan", "smb.file.attribute.sequential_scan", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_sequential_scan), FILE_ATTRIBUTE_SEQUENTIAL_SCAN, "Optimize for sequential scan", HFILL }},
+
+	{ &hf_smb_file_eattr_delete_on_close,
+		{ "Delete on Close", "smb.file.attribute.delete_on_close", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_delete_on_close), FILE_ATTRIBUTE_DELETE_ON_CLOSE, "Should this object be deleted on close?", HFILL }},
+
+	{ &hf_smb_file_eattr_backup_semantics,
+		{ "Backup", "smb.file.attribute.backup_semantics", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_backup_semantics), FILE_ATTRIBUTE_BACKUP_SEMANTICS, "Does this object need/support backup semantics", HFILL }},
+
+	{ &hf_smb_file_eattr_posix_semantics,
+		{ "Posix", "smb.file.attribute.posix_semantics", FT_BOOLEAN, 32,
+		TFS(&tfs_file_attribute_posix_semantics), FILE_ATTRIBUTE_POSIX_SEMANTICS, "Does this object need/support POSIX semantics?", HFILL }},
+
+	{ &hf_smb_security_descriptor_len,
+		{ "Security Descriptor Length", "smb.sec_desc_len", FT_UINT32, BASE_DEC,
+		NULL, 0, "Security Descriptor Length", HFILL }},
+
+	{ &hf_smb_security_descriptor,
+		{ "Security Descriptor", "smb.sec_desc", FT_BYTES, BASE_HEX,
+		NULL, 0, "Security Descriptor", HFILL }},
+
+	{ &hf_smb_nt_qsd_owner,
+		{ "Owner", "smb.nt_qsd.owner", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_qsd_owner), NT_QSD_OWNER, "Is owner security informaton being queried?", HFILL }},
+
+	{ &hf_smb_nt_qsd_group,
+		{ "Group", "smb.nt_qsd.group", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_qsd_group), NT_QSD_GROUP, "Is group security informaton being queried?", HFILL }},
+
+	{ &hf_smb_nt_qsd_dacl,
+		{ "DACL", "smb.nt_qsd.dacl", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_qsd_dacl), NT_QSD_DACL, "Is DACL security informaton being queried?", HFILL }},
+
+	{ &hf_smb_nt_qsd_sacl,
+		{ "SACL", "smb.nt_qsd.sacl", FT_BOOLEAN, 32,
+		TFS(&tfs_nt_qsd_sacl), NT_QSD_SACL, "Is SACL security informaton being queried?", HFILL }},
+
+	{ &hf_smb_extended_attributes,
+		{ "Extended Attributes", "smb.ext_attr", FT_BYTES, BASE_HEX,
+		NULL, 0, "Extended Attributes", HFILL }},
+
+	{ &hf_smb_oplock_level,
+		{ "Oplock level", "smb.oplock.level", FT_UINT8, BASE_DEC,
+		VALS(oplock_level_vals), 0, "Level of oplock granted", HFILL }},
+
+	{ &hf_smb_create_action,
+		{ "Create action", "smb.create.action", FT_UINT32, BASE_DEC,
+		VALS(create_disposition_vals), 0, "Type of action taken", HFILL }},
+
+	{ &hf_smb_ea_error_offset,
+		{ "EA Error offset", "smb.ea.error_offset", FT_UINT32, BASE_DEC,
+		NULL, 0, "Offset into EA list if EA error", HFILL }},
+
+	{ &hf_smb_end_of_file,
+		{ "End Of File", "smb.end_of_file", FT_UINT64, BASE_DEC,
+		NULL, 0, "Offset to the first free byte in the file", HFILL }},
+
+	{ &hf_smb_device_type,
+		{ "Device Type", "smb.device.type", FT_UINT32, BASE_HEX,
+		VALS(device_type_vals), 0, "Type of device", HFILL }},
+
+	{ &hf_smb_is_directory,
+		{ "Is Directory", "smb.is_directory", FT_UINT8, BASE_DEC,
+		VALS(is_directory_vals), 0, "Is this object a directory?", HFILL }},
+
+	{ &hf_smb_next_entry_offset,
+		{ "Next Entry Offset", "smb.next_entry_offset", FT_UINT32, BASE_DEC,
+		NULL, 0, "Offset to next entry", HFILL }},
+
+	{ &hf_smb_change_time,
+		{ "Change", "smb.change.time", FT_ABSOLUTE_TIME, BASE_NONE,
+		NULL, 0, "Last Change Time", HFILL }},
+
 
 	};
 	static gint *ett[] = {
@@ -10434,6 +12295,14 @@ proto_register_smb(void)
 		&ett_smb_setup_action,
 		&ett_smb_connect_flags,
 		&ett_smb_connect_support_bits,
+		&ett_smb_nt_create_bits,
+		&ett_smb_nt_access_mask,
+		&ett_smb_nt_share_access,
+		&ett_smb_nt_security_flags,
+		&ett_smb_nt_trans_setup,
+		&ett_smb_nt_notify_completion_filter,
+		&ett_smb_nt_ioctl_flags,
+		&ett_smb_security_information_mask,
 	};
 
 	proto_smb = proto_register_protocol("SMB (Server Message Block Protocol)",

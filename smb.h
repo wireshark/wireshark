@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.15 2001/11/03 06:56:56 guy Exp $
+ * $Id: smb.h,v 1.16 2001/11/08 08:21:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -663,6 +663,7 @@ typedef struct smb_info {
   address *src, *dst;
   int frame_req, frame_res;
   gboolean unidir;
+  int subcmd;
 
 
   conversation_t *conversation;
