@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.2 2000/08/20 02:16:23 guy Exp $
+ * $Id: packet-smtp.c,v 1.3 2000/08/20 15:25:17 deniel Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -100,6 +100,12 @@ dissect_smtp(const u_char *pd, int offset, frame_data *fd,
     int             request = 0;
     const u_char            *cmd = NULL, *data = NULL;
 
+#if 0
+    CHECK_DISPLAY_AS_DATA(proto_smtp, tvb, pinfo, tree);
+#else
+    OLD_CHECK_DISPLAY_AS_DATA(proto_smtp, pd, offset, fd, tree);
+#endif
+
     /* Let's figure out this packet ... First check if we have done it 
        all before ... */
 
@@ -179,7 +185,7 @@ proto_register_smtp(void)
 
   /* No Configuration options to register? */
 
-  proto_smtp = proto_register_protocol("Simple Message Transfer Protocol", "smtp");
+  proto_smtp = proto_register_protocol("Simple Mail Transfer Protocol", "smtp");
 
   proto_register_field_array(proto_smtp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
