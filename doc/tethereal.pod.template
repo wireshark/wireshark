@@ -563,7 +563,7 @@ For example, these four lines are valid lines of an ipxnets file.
 
 =head1 SEE ALSO
 
-L<ethereal(1)>, L<editcap(1)>, L<tcpdump(8)>, L<pcap(3)>
+I<ethereal(1)>, I<editcap(1)>, I<tcpdump(8)>, I<pcap(3)>
 
 =head1 NOTES
 

@@ -70,7 +70,7 @@ eg:  PYTHONPATH=/usr/lib/python1.5/
 
 =head1 SEE ALSO
 
-L<ethereal(1)>
+I<ethereal(1)>
 
 
 =head1 NOTES
