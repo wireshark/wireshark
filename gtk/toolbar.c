@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.21 2004/01/20 02:21:17 ulfl Exp $
+ * $Id: toolbar.c,v 1.22 2004/01/20 02:36:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -107,10 +107,6 @@ static GtkWidget *open_button, *save_button, *save_as_button, *close_button, *re
 static GtkWidget *print_button, *find_button, *find_next_button, *go_to_button;
 static GtkWidget *display_filter_button;
 static GtkWidget *color_display_button, *prefs_button, *help_button;
-
-static void get_main_toolbar(GtkWidget *window, GtkWidget **toolbar);
-
-
 
 #if GTK_MAJOR_VERSION >= 2
 typedef struct stock_pixmap_tag{
