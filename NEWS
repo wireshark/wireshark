@@ -1,8 +1,8 @@
 Overview of changes in Ethereal 0.8.0:
 * RPC and NFS updates, complete NFSv2 support (Uwe, Gilbert)
 * Initial TNS support (Nathan)
-* Documenatation and distribution updates (Gilbert, Guy)
-* SMB fixes (Gilbert, Richard, Olivier)
+* Documenatation and distribution updates (Gilbert, Guy, Itojun, Gerald)
+* SMB fixes (Gilbert, Richard, Olivier, Greg Kilfoyle)
 * Color preference fixes and updates (Guy)
 * NetBIOS fixes (Guy)
 * IPX fixes and updates (Guy, Nathan)
@@ -60,6 +60,9 @@ Overview of changes in Ethereal 0.8.0:
 * Win32 port updates (Guy)
 * LPD segfault fixes reported by Gregor Glomm (Gilbert)
 * GUI page added to preferences (Gilbert)
+* Libtool integrated with the distribution (Gerald, Guy, Itojun)
+* OUI updates (Guy)
+* Summary-dialog-on-empty-capture segfault bug squished (Guy)
 
 Overview of changes in Ethereal 0.7.9:
 * Compilation warning fix (Guy)
