@@ -7,6 +7,16 @@
 
 #.EXPORTS
 
+#.PDU
+BaseUrl
+CaPolicyUrl
+CaRevocationUrl
+CertRenewalUrl
+CertType
+Comment
+RevocationUrl
+SslServerName
+
 #.NO_EMIT
 
 #.TYPE_RENAME
