@@ -3,7 +3,7 @@
  * Copyright 2000, Axis Communications AB
  * Inquiries/bugreports should be sent to Johan.Jorgensen@axis.com
  *
- * $Id: packet-ieee80211.c,v 1.79 2002/12/19 11:22:23 sahlberg Exp $
+ * $Id: packet-ieee80211.c,v 1.80 2003/01/22 17:11:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -222,6 +222,8 @@ static char *wep_keystr[] = {NULL, NULL, NULL, NULL};
 #define TAG_TIM            0x05
 #define TAG_IBSS_PARAMETER 0x06
 #define TAG_CHALLENGE_TEXT 0x10
+#define TAG_ERP_INFO       0x2F
+#define TAG_EXT_SUPP_RATES 0x32
 
 /* ************************************************************************* */
 /*                         Frame types, and their names                      */
@@ -354,6 +356,8 @@ static int ff_cf_privacy = -1;
 static int ff_cf_preamble = -1;
 static int ff_cf_pbcc = -1;
 static int ff_cf_agility = -1;
+static int ff_short_slot_time = -1;
+static int ff_dsss_ofdm = -1;
 
 /* ************************************************************************* */
 /*                       Tagged value format fields                          */
@@ -616,6 +620,10 @@ add_fixed_field (proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 			      capability);
       proto_tree_add_boolean (cap_tree, ff_cf_agility, tvb, offset, 1,
 			      capability);
+      proto_tree_add_boolean (cap_tree, ff_short_slot_time, tvb, offset + 1, 1,
+			      capability);
+      proto_tree_add_boolean (cap_tree, ff_dsss_ofdm, tvb, offset + 1, 1,
+			      capability);
       if (ESS_SET (capability) != 0)	/* This is an AP */
 	proto_tree_add_uint (cap_tree, ff_cf_ap_poll, tvb, offset, 2,
 			     ((capability & 0xC) >> 2));
@@ -689,7 +697,8 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
   /* Next See if tag is reserved - if true, skip it! */
   if (((tag_no >= 7) && (tag_no <= 15))
-      || ((tag_no >= 32) && (tag_no <= 255)))
+      || ((tag_no >= 32) && (tag_no <= 255) && (tag_no != TAG_ERP_INFO) &&
+	  (tag_no != TAG_EXT_SUPP_RATES)))
     {
       proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
 				  "Tag Number: %u (Reserved tag number)",
@@ -726,8 +735,12 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 
 
     case TAG_SUPP_RATES:
+    case TAG_EXT_SUPP_RATES:
       proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
-				  "Tag Number: %u (Supported Rates)", tag_no);
+				  "Tag Number: %u (%sSupported Rates)",
+				  tag_no,
+				  tag_no == TAG_EXT_SUPP_RATES ? "Extended " :
+				  "");
 
       proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
 
@@ -851,6 +864,27 @@ add_tagged_field (proto_tree * tree, tvbuff_t * tvb, int offset)
 			     tag_len, out_buff);
 
       break;
+
+
+
+    case TAG_ERP_INFO:
+      proto_tree_add_uint_format (tree, tag_number, tvb, offset, 1, tag_no,
+				  "Tag Number: %u (ERP Information)",
+				  tag_no);
+
+      proto_tree_add_uint (tree, tag_length, tvb, offset + 1, 1, tag_len);
+      memset (out_buff, 0, SHORT_STR);
+
+      snprintf (out_buff, SHORT_STR,
+		"ERP info: 0x%x (%sNon-ERP STAs, %suse protection)",
+		tag_data_ptr[0],
+		tag_data_ptr[0] & 0x01 ? "" : "no ",
+		tag_data_ptr[0] & 0x02 ? "" : "do not ");
+      proto_tree_add_string (tree, tag_interpretation, tvb, offset + 2,
+			     tag_len, out_buff);
+      break;
+
+
 
     default:
       return 0;
@@ -1956,6 +1990,16 @@ proto_register_ieee80211 (void)
     "Channel agility not in use"
   };
 
+  static const true_false_string short_slot_time_flags = {
+    "Short slot time in use",
+    "Short slot time not in use"
+  };
+
+  static const true_false_string dsss_ofdm_flags = {
+    "DSSS-OFDM modulation allowed",
+    "DSSS-OFDM modulation not allowed"
+  };
+
 
   static const true_false_string cf_ibss_flags = {
     "Transmitter belongs to an IBSS",
@@ -2249,6 +2293,16 @@ proto_register_ieee80211 (void)
     {&ff_cf_agility,
      {"Channel Agility", "wlan_mgt.fixed.capabilities.agility",
       FT_BOOLEAN, 8, TFS (&cf_agility_flags), 0x0080, "Channel Agility", HFILL }},
+
+    {&ff_short_slot_time,
+     {"Short Slot Time", "wlan_mgt.fixed.capabilities.short_slot_time",
+      FT_BOOLEAN, 8, TFS (&short_slot_time_flags), 0x0400, "Short Slot Time",
+      HFILL }},
+
+    {&ff_dsss_ofdm,
+     {"DSSS-OFDM", "wlan_mgt.fixed.capabilities.dsss_ofdm",
+      FT_BOOLEAN, 8, TFS (&dsss_ofdm_flags), 0x2000, "DSSS-OFDM Modulation",
+      HFILL }},
 
     {&ff_auth_seq,
      {"Authentication SEQ", "wlan_mgt.fixed.auth_seq",
