@@ -1318,6 +1318,7 @@ static dissector_handle_t q931_ie_handle = NULL;
 /* Info for the tap that must be passed between procedures */
 gchar *tap_called_number = NULL;
 gchar *tap_calling_number = NULL;
+guint8 tap_cause_value = 0;
 
 /* ------------------------------------------------------------------
   Mapping number to ASCII-character
@@ -1684,7 +1685,7 @@ dissect_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *par
   proto_tree_add_text(parameter_tree, parameter_tvb,0, -1, "Cause indicators (-> Q.850)");
   dissect_q931_cause_ie(parameter_tvb,0,length,
 					    parameter_tree,
-					    hf_isup_cause_indicator);
+					    hf_isup_cause_indicator, &tap_cause_value);
   proto_item_set_text(parameter_item, "Cause indicators, see Q.850 (%u byte%s length)", length , plurality(length, "", "s"));
 }
 
@@ -5368,6 +5369,7 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
 
    tap_rec.calling_number=tap_calling_number;
    tap_rec.called_number=tap_called_number;
+   tap_rec.cause_value=tap_cause_value;
    tap_queue_packet(isup_tap, pinfo, &tap_rec);
 }
 

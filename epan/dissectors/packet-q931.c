@@ -1173,10 +1173,9 @@ static const value_string q931_rejection_reason_vals[] = {
 
 void
 dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree, int hf_cause_value)
+    proto_tree *tree, int hf_cause_value, guint8 *cause_value)
 {
 	guint8 octet;
-	guint8 cause_value;
 	guint8 coding_standard;
 	guint8 rejection_reason;
 
@@ -1217,21 +1216,21 @@ dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	octet = tvb_get_guint8(tvb, offset);
-	cause_value = octet & 0x7F;
+	*cause_value = octet & 0x7F;
 
 	/* add cause value to packet info for use in tap */
 	if(have_valid_q931_pi) {
-		q931_pi->cause_value = cause_value;
+		q931_pi->cause_value = *cause_value;
 	}
 
-	proto_tree_add_uint(tree, hf_cause_value, tvb, offset, 1, cause_value);
+	proto_tree_add_uint(tree, hf_cause_value, tvb, offset, 1, *cause_value);
 	proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
 	offset += 1;
 	len -= 1;
 
 	if (len == 0)
 		return;
-	switch (cause_value) {
+	switch (*cause_value) {
 
 	case Q931_CAUSE_UNALLOC_NUMBER:
 	case Q931_CAUSE_NO_ROUTE_TO_DEST:
@@ -2499,6 +2498,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 	proto_item	*ti;
 	proto_tree	*ie_tree = NULL;
 	guint8		info_element;
+	guint8		dummy;
 	guint16		info_element_len;
 	int		codeset, locked_codeset;
 	gboolean	non_locking_shift, first_segment;
@@ -2741,7 +2741,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 						dissect_q931_cause_ie(tvb,
 							offset + 2, info_element_len,
 							ie_tree,
-							hf_q931_cause_value);
+							hf_q931_cause_value, &dummy);
 						break;
 				}
 				if (q931_tree != NULL) {

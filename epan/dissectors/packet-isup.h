@@ -31,6 +31,7 @@ typedef struct _isup_tap_rec_t {
     /* added for VoIP calls analysis, see gtk/voip_calls.c*/
     gchar           *called_number;
     gchar           *calling_number;
+    guint8			cause_value;
 } isup_tap_rec_t;
 
 
