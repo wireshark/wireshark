@@ -1,6 +1,6 @@
 /* toshiba.c
  *
- * $Id: toshiba.c,v 1.16 2001/10/04 08:30:36 guy Exp $
+ * $Id: toshiba.c,v 1.17 2001/10/25 20:29:24 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -107,7 +107,7 @@ static const char toshiba_rec_magic[]  = { '[', 'N', 'o', '.' };
 static gboolean toshiba_read(wtap *wth, int *err, long *data_offset);
 static int toshiba_seek_read(wtap *wth, long seek_off,
 	union wtap_pseudo_header *pseudo_header, guint8 *pd, int len);
-static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf, int byte_offset);
+static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset);
 static int parse_toshiba_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err);
 static int parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err);
@@ -118,7 +118,7 @@ static int parse_toshiba_rec_hdr(wtap *wth, FILE_T fh,
 static long toshiba_seek_next_packet(wtap *wth)
 {
   int byte;
-  int level = 0;
+  guint level = 0;
 
   while ((byte = file_getc(wth->fh)) != EOF) {
     if (byte == toshiba_rec_magic[level]) {
@@ -145,7 +145,8 @@ static long toshiba_seek_next_packet(wtap *wth)
 static gboolean toshiba_check_file_type(wtap *wth)
 {
 	char	buf[TOSHIBA_LINE_LENGTH];
-	int	reclen, i, line, byte, level;
+	guint	i, reclen, level, line;
+    char    byte;
 
 	buf[TOSHIBA_LINE_LENGTH-1] = 0;
 
@@ -386,7 +387,7 @@ parse_toshiba_hex_dump(FILE_T fh, int pkt_len, guint8* buf, int *err)
  * Returns TRUE if good hex dump, FALSE if bad.
  */
 static gboolean
-parse_single_hex_dump_line(char* rec, guint8 *buf, int byte_offset) {
+parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset) {
 
 	int		pos, i;
 	char		*s;

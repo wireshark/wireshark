@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.67 2001/10/04 08:30:36 guy Exp $
+ * $Id: ngsniffer.c,v 1.68 2001/10/25 20:29:23 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -1139,7 +1139,7 @@ int ngsniffer_dump_can_write_encap(int filetype, int encap)
     if (encap == WTAP_ENCAP_PER_PACKET)
 	return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 
-    if (encap < 0 || encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
+    if (encap < 0 || (unsigned)encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
 	return WTAP_ERR_UNSUPPORTED_ENCAP;
 
     return 0;
@@ -1712,7 +1712,7 @@ ng_file_seek_seq(wtap *wth, long offset, int whence)
     /* Ok, now read and discard "delta" bytes. */
     while (delta != 0) {
 	amount_to_read = delta;
-	if (amount_to_read > sizeof buf)
+	if ((unsigned long)amount_to_read > sizeof buf)
 	    amount_to_read = sizeof buf;
 	if (ng_file_read(buf, 1, amount_to_read, wth, FALSE, &err) < 0)
 	    return -1;	/* error */
@@ -1765,7 +1765,7 @@ ng_file_seek_rand(wtap *wth, long offset, int whence)
     if (delta > 0) {
 	/* We're going forwards.
 	   Is the place to which we're seeking within the current buffer? */
-	if (ngsniffer->rand.nextout + delta >= ngsniffer->rand.nbytes) {
+	if ((unsigned)ngsniffer->rand.nextout + delta >= ngsniffer->rand.nbytes) {
 	    /* No.  Search for a blob that contains the target offset in
 	       the uncompressed byte stream, starting with the blob
 	       following the current blob. */
@@ -1834,7 +1834,7 @@ ng_file_seek_rand(wtap *wth, long offset, int whence)
 	   the blob, as otherwise it'd mean we need to seek before
 	   the beginning or after the end of this blob. */
 	delta = offset - ngsniffer->rand.uncomp_offset;
-	g_assert(delta >= 0 && delta < ngsniffer->rand.nbytes);
+	g_assert(delta >= 0 && (unsigned long)delta < ngsniffer->rand.nbytes);
     }
 
     /* OK, the place to which we're seeking is in the buffer; adjust

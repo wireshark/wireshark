@@ -1,6 +1,6 @@
 /* netmon.c
  *
- * $Id: netmon.c,v 1.41 2001/10/04 08:30:36 guy Exp $
+ * $Id: netmon.c,v 1.42 2001/10/25 20:29:23 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -252,7 +252,7 @@ int netmon_open(wtap *wth, int *err)
 	errno = WTAP_ERR_CANT_READ;
 	file_seek(wth->fh, frame_table_offset, SEEK_SET);
 	bytes_read = file_read(frame_table, 1, frame_table_length, wth->fh);
-	if (bytes_read != frame_table_length) {
+	if ((guint32)bytes_read != frame_table_length) {
 		*err = file_error(wth->fh);
 		if (*err != 0)
 			return -1;
@@ -361,7 +361,7 @@ static gboolean netmon_read(wtap *wth, int *err, long *data_offset)
 	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
 
-	if (bytes_read != packet_size) {
+	if ((guint32)bytes_read != packet_size) {
 		*err = file_error(wth->fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -435,7 +435,7 @@ int netmon_dump_can_write_encap(int filetype, int encap)
 	if (encap == WTAP_ENCAP_PER_PACKET)
 		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 
-	if (encap < 0 || encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
+	if (encap < 0 || (unsigned) encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
 		return WTAP_ERR_UNSUPPORTED_ENCAP;
 
 	return 0;

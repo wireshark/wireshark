@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.51 2001/10/04 08:30:36 guy Exp $
+ * $Id: libpcap.c,v 1.52 2001/10/25 20:29:23 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -728,7 +728,7 @@ static gboolean libpcap_read(wtap *wth, int *err, long *data_offset)
 	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer), 1,
 			packet_size, wth->fh);
 
-	if (bytes_read != packet_size) {
+	if ((guint)bytes_read != packet_size) {
 		*err = file_error(wth->fh);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;

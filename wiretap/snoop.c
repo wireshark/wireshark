@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.37 2001/10/04 08:30:36 guy Exp $
+ * $Id: snoop.c,v 1.38 2001/10/25 20:29:24 gram Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@xiexie.org>
@@ -385,7 +385,7 @@ static gboolean snoop_read(wtap *wth, int *err, long *data_offset)
 	padbytes = rec_size - (sizeof hdr + packet_size);
 	while (padbytes != 0) {
 		bytes_to_read = padbytes;
-		if (bytes_to_read > sizeof padbuf)
+		if ((unsigned)bytes_to_read > sizeof padbuf)
 			bytes_to_read = sizeof padbuf;
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = file_read(padbuf, 1, bytes_to_read, wth->fh);
@@ -510,7 +510,7 @@ int snoop_dump_can_write_encap(int filetype, int encap)
 	if (encap == WTAP_ENCAP_PER_PACKET)
 		return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 
-	if (encap < 0 || encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
+	if (encap < 0 || (unsigned)encap >= NUM_WTAP_ENCAPS || wtap_encap[encap] == -1)
 		return WTAP_ERR_UNSUPPORTED_ENCAP;
 
 	return 0;
@@ -560,7 +560,7 @@ static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	struct snooprec_hdr rec_hdr;
 	size_t nwritten;
 	int reclen;
-	int padlen;
+	guint padlen;
 	static char zeroes[4];
 
 	/* Record length = header length plus data length... */
