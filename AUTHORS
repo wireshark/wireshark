@@ -1366,6 +1366,11 @@ Alfred Koebler <ak[AT]icon-sult.de> {
 	    files for Ethernet)
 }
 
+Vassilii Khachaturov <Vassilii.Khachaturov@comverse.com> {
+	Put protocol blurbs into tables generated with the "-G fields"
+	    flag
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 

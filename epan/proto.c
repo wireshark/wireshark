@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.71 2002/08/02 21:29:39 jmayer Exp $
+ * $Id: proto.c,v 1.72 2002/08/18 19:08:30 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3044,8 +3044,8 @@ proto_registrar_dump_fields(void)
 			g_assert(parent_hfinfo);
 
 			enum_name = ftype_name(hfinfo->type);
-			printf("F\t%s\t%s\t%s\t%s\n", hfinfo->name, hfinfo->abbrev,
-				enum_name,parent_hfinfo->abbrev);
+			printf("F\t%s\t%s\t%s\t%s\t%s\n", hfinfo->name, hfinfo->abbrev,
+				enum_name,parent_hfinfo->abbrev, hfinfo->blurb);
 		}
 	}
 }

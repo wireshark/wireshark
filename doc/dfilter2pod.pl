@@ -9,25 +9,28 @@
 #	will be replaced by the pod-formatted glossary
 # STDOUT is the output
 #
-# $Id: dfilter2pod.pl,v 1.2 2001/04/19 23:17:30 guy Exp $
+# $Id: dfilter2pod.pl,v 1.3 2002/08/18 19:08:23 guy Exp $
 
 %ftenum_names = (
 	'FT_NONE',		'No value',
-	'FT_PROTOCOL',	'Protocol',
+	'FT_PROTOCOL',		'Protocol',
 	'FT_BOOLEAN',		'Boolean',
 	'FT_UINT8',		'Unsigned 8-bit integer',
 	'FT_UINT16',		'Unsigned 16-bit integer',
 	'FT_UINT24',		'Unsigned 24-bit integer',
 	'FT_UINT32',		'Unsigned 32-bit integer',
+	'FT_UINT64',		'Unsigned 64-bit integer',
 	'FT_INT8',		'Signed 8-bit integer',
 	'FT_INT16',		'Signed 16-bit integer',
 	'FT_INT24',		'Signed 24-bit integer',
 	'FT_INT32',		'Signed 32-bit integer',
+	'FT_INT64',		'Signed 64-bit integer',
 	'FT_DOUBLE',		'Double-precision floating point',
 	'FT_ABSOLUTE_TIME',	'Date/Time stamp',
 	'FT_RELATIVE_TIME',	'Time duration',
 	'FT_STRING',		'String',
 	'FT_STRINGZ',		'String',
+	'FT_UINT_STRING',	'String',
 	'FT_ETHER',		'6-byte Hardware (MAC) Address',
 	'FT_BYTES',		'Byte array',
 	'FT_IPv4',		'IPv4 address',
@@ -49,10 +52,10 @@ while (<STDIN>) {
 	}
 	# Store header field information
 	else {
-		($junk, $name, $abbrev, $type, $parent) =
+		($junk, $name, $abbrev, $type, $parent, $blurb) =
 			split(/\t+/, $_);
 		push(@{$field_abbrev{$parent}}, $abbrev);
-		$field_info{$abbrev} = [ $name, $type ];
+		$field_info{$abbrev} = [ $name, $type, $blurb ];
 	}
 }
 
@@ -87,8 +90,12 @@ sub create_dfilter_table {
 		if ($field_abbrev{$proto_abbrev{$proto_name}}) {
 
 			for $field_abbrev (sort @{$field_abbrev{$proto_abbrev{$proto_name}}}) {
-				print "    $field_abbrev  ", $field_info{$field_abbrev}[0],"\n";
-				print "        ", $ftenum_names{$field_info{$field_abbrev}[1]}, "\n\n";
+				print "    $field_abbrev  ", $field_info{$field_abbrev}[0],"\n",
+				      "        ", $ftenum_names{$field_info{$field_abbrev}[1]},
+				   "\n";
+				print "        ", $field_info{$field_abbrev}[2], "\n"
+					if $field_info{$field_abbrev}[2];
+				print "\n";
 			}
 		}
 	}
