@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.95 2003/01/06 11:27:00 sahlberg Exp $
+ * $Id: packet-dcerpc.c,v 1.96 2003/01/14 22:03:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -37,6 +37,7 @@
 #include "prefs.h"
 #include "reassemble.h"
 #include "tap.h"
+#include "packet-frame.h"
 #include "packet-ntlmssp.h"
 
 static int dcerpc_tap = -1;
@@ -1332,9 +1333,9 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     proto_tree *sub_tree = NULL;
     dcerpc_sub_dissector *proc;
     gchar *name = NULL;
-    dcerpc_dissect_fnct_t *sub_dissect;
-    const char *saved_proto;
-    void *saved_private_data;
+    dcerpc_dissect_fnct_t *volatile sub_dissect;
+    const char *volatile saved_proto;
+    void *volatile saved_private_data;
 
     key.uuid = info->call_data->uuid;
     key.ver = info->call_data->ver;
@@ -1436,7 +1437,20 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
         		    pinfo->private_data = (void *)info;
 
         		    init_ndr_pointer_list(pinfo);
-        		    offset = sub_dissect (ndi->decr_tvb, 0, pinfo, ndi->decr_tree, drep);
+
+                            /*
+                             * Catch ReportedBoundsError, as that could
+                             * be due to the decryption being bad,
+                             * and doesn't mean that the tvbuff we were
+                             * handed has a malformed packet.
+                             */
+                            TRY {
+                                offset = sub_dissect (ndi->decr_tvb, 0, pinfo, ndi->decr_tree, drep);
+                            } CATCH(BoundsError) {
+                                RETHROW;
+                            } CATCH(ReportedBoundsError) {
+                                show_reported_bounds_error(tvb, pinfo, tree);
+                            } ENDTRY;
 
         		    pinfo->current_proto = saved_proto;
         		    pinfo->private_data = saved_private_data;
