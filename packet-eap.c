@@ -2,7 +2,7 @@
  * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.29 2002/09/07 23:49:58 sahlberg Exp $
+ * $Id: packet-eap.c,v 1.30 2002/09/08 00:07:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -415,8 +415,7 @@ dissect_eap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       case EAP_TYPE_NAK:
 	if (tree) {
 	  proto_tree_add_item(eap_tree, hf_eap_type_nak, tvb,
-			      offset, 1, TRUE);
-	  offset++;
+			      offset, 1, FALSE);
 	}
 	break;
       /*********************************************************************
