@@ -112,9 +112,6 @@ static gint ett_fw1 = -1;
 
 #define ETH_HEADER_SIZE	14
 
-static dissector_handle_t eth_handle;
-
-
 #define	MAX_INTERFACES	20
 static char	*p_interfaces[MAX_INTERFACES];
 static int	interface_anzahl=0;
@@ -288,13 +285,4 @@ proto_register_fw1(void)
   register_dissector("fw1", dissect_fw1, proto_fw1);
 
   register_init_routine(fw1_init);
-}
-
-void
-proto_reg_handoff_fw1(void)
-{
-  /*
-   * Get handles for the Ethernet dissectors.
-   */
-  eth_handle = find_dissector("eth");
 }
