@@ -1038,11 +1038,15 @@ decode_pdu(guint8 pdu_type, build_info_t *bi) {
 static void
 dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   guint8 pdu_type;
-  build_info_t bi = { tvb, 0, pinfo, NULL, tree };
+  build_info_t bi = { NULL, 0, NULL, NULL, NULL };
   proto_item *ti;
   proto_tree *nsip_tree;
   char ericsson_src[ERICSSON_DESCR_LEN];
   char ericsson_dst[ERICSSON_DESCR_LEN];
+
+  bi.tvb = tvb;
+  bi.pinfo = pinfo;
+  bi.parent_tree = tree;
 
   pinfo->current_proto = "NSIP";
 

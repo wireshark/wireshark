@@ -54,7 +54,7 @@
 #define BSSGP_MOBILE_IDENTITY_TYPE_NO_IDENTITY 0
 #define BSSGP_SEP ", "
 #define BSSGP_NOT_DECODED "< Not decoded yet >"
-const guint16 BSSGP_UNKNOWN = -1;
+#define BSSGP_UNKNOWN -1
 
 static dissector_handle_t bssgp_handle;
 static dissector_handle_t llc_handle;
@@ -5561,10 +5561,14 @@ static void
 dissect_bssgp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint8 pdutype;
-  build_info_t bi = { tvb, 0, pinfo, NULL, tree, FALSE, FALSE };
+  build_info_t bi = { NULL, 0, NULL, NULL, NULL, FALSE, FALSE };
 
   proto_item *ti;
   proto_tree *bssgp_tree;
+
+  bi.tvb = tvb;
+  bi.pinfo = pinfo;
+  bi.parent_tree = tree;
 
   pinfo->current_proto = "BSSGP";
 
