@@ -239,4 +239,4 @@ p_dissector_change_string = pat->p_dissector_change_string;
 p_dissector_reset_string = pat->p_dissector_reset_string;
 p_dissector_try_string = pat->p_dissector_try_string;
 p_dissector_get_string_handle = pat->p_dissector_get_string_handle;
-p_get_datafile_dir = pat->p_get_datafile_dir;
+p_get_datafile_path = pat->p_get_datafile_path;
