@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.15 2001/06/14 20:05:12 guy Exp $
+ * $Id: packet-ethertype.c,v 1.16 2001/06/14 20:37:07 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -40,6 +40,7 @@
 #include "packet-vlan.h"
 #include "packet-vines.h"
 #include "etypes.h"
+#include "ppptypes.h"
 
 static dissector_table_t ethertype_dissector_table;
 
@@ -72,7 +73,15 @@ const value_string etype_vals[] = {
     {ETHERTYPE_DEC_CUST,	"DEC Customer use"		},
     {ETHERTYPE_DEC_SCA,		"DEC LAVC/SCA"			},
     {ETHERTYPE_ETHBRIDGE,	"Transparent Ethernet bridging" },
-    {ETHERTYPE_PAP,		"PPP Password Authentication Protocol" },
+
+    /*
+     * XXX - is there a standard for running PPP protocols atop
+     * Ethernet, using the PPP protocol type value as the
+     * Ethernet protocol type value?
+     */
+    {PPP_IPCP,			"PPP IP Control Protocol" },
+    {PPP_LCP,			"PPP Link Control Protocol" },
+    {PPP_PAP,			"PPP Password Authentication Protocol" },
     {0,				NULL				} };
 
 static void add_trailer(proto_tree *fh_tree, int trailer_id, tvbuff_t *tvb,
