@@ -530,7 +530,7 @@
     <note>
       <title>Note!</title>
       <para>
-	All filter expressions are entered in lowercase.  Also, don't 
+	All protocol and field names are entered in lowercase.  Also, don't 
 	forget to press enter after entering the filter expression.
       </para>
     </note>
@@ -863,7 +863,7 @@ eth.src[1-2] == 00:83
 	  <para>
 	  Then they use <command>ip.addr != 1.2.3.4</command> to see all packets 
 	  not containing the IP address 1.2.3.4 in it. Unfortunately, this does 
-	  *not* do the expected.
+	  <command>not</command> do the expected.
 	  </para>
 	  <para>
 	Instead, that expression will even be true for packets where either

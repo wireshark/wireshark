@@ -1114,7 +1114,7 @@
 		<entry><command>Endpoint List</command></entry>
 		<entry></entry>
 		<entry><para>
-		    Display a list of endpoints, obsoleted be the combined window 
+		    Display a list of endpoints, obsoleted by the combined window 
 			of Endpoints above, see 
 			<xref linkend="ChStatEndpointListWindow"/>.
 		  </para></entry>
@@ -1628,7 +1628,7 @@
 	the "Packet Details" and "Packet Bytes" panes.
     </para>
     <para>
-	While dissecting a packet, Ethereal will place informations from the 
+	While dissecting a packet, Ethereal will place information from the 
 	protocol dissectors into the columns. As higher level protocols might
 	overwrite information from lower levels, you will typically see the 
 	information from the highest possible level only. 
@@ -1636,7 +1636,7 @@
     <para>	
 	For example, let's look at a packet containing TCP inside IP inside
 	an Ethernet packet. The Ethernet dissector will write its data (like the 
-	Ethernet addresses), the IP dissector will overwrite this by it's own 
+	Ethernet addresses), the IP dissector will overwrite this by its own 
 	(like the IP addresses), the TCP dissector will overwrite the IP 
 	information and so on.
     </para>

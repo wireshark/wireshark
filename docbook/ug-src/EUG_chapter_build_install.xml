@@ -20,7 +20,7 @@
       </itemizedlist>
     </para>
     <para>
-      Currently, only two or three Linux distributions ship ethereal, and 
+      Currently, only two or three Linux distributions ship Ethereal, and 
       they are commonly shipping an out-of-date version.  No other versions 
       of UNIX ship Ethereal so far, and Microsoft does not ship it with any 
       version of Windows.  For that reason, you will need to know where to 
@@ -182,9 +182,9 @@ make install
 	<example id="Ch2Ex2">
 	  <title>Building and installing libpcap</title>
 	  <programlisting>
-gzip -dc libpcap-0.5.tar.Z | tar xvf -
+gzip -dc libpcap-0.8.3.tar.Z | tar xvf -
 &lt;much output removed>
-cd libpcap_0_5rel2
+cd libpcap_0_8_3
 ./configure
 &lt;much output removed>
 make
@@ -258,7 +258,7 @@ rpm -ivh libpcap-0.4-19.i386.rpm
       </para>
     </note>
     <para> 
-      Under Debian you can install ethereal using apt-get.  apt-get will
+      Under Debian you can install Ethereal using apt-get.  apt-get will
       handle any dependency issues for you. <xref linkend="Ch02Ex5"/> shows 
 	how to do this.
 	<example id="Ch02Ex5">
@@ -314,7 +314,7 @@ tar xvf ethereal-&EtherealCurrentVersionTarFile;-tar
 	</listitem>
 	<listitem>
 	  <para>
-	    Change directory to the ethereal source directory.
+	    Change directory to the Ethereal source directory.
 	  </para>
 	</listitem>
 	<listitem>

@@ -179,7 +179,7 @@
     </para>
 	<section id="ChStatEndpointDefinition"><title>What is an Endpoint?</title>
     <para>
-	A network endpoint is the logical endpoint of seperate protocol traffic of 
+	A network endpoint is the logical endpoint of separate protocol traffic of 
 	a specific protocol layer. The endpoint statistics of Ethereal will take 
 	the following endpoints into account:
     </para>
@@ -280,8 +280,8 @@
     <title>The protocol specific "Endpoint List" windows</title>
 	<para>
 	Before the combined window described above was available, each of its 
-	pages were shown as seperate windows. Even as the combined window is 
-	much more convenient to use, these seperate windows are still 
+	pages were shown as separate windows. Even as the combined window is 
+	much more convenient to use, these separate windows are still 
 	available. The main reason is, they might process faster for 
 	very large capture files. However, as the functionality is exactly the 
 	same as in the combined window, they won't be discussed in detail here.
@@ -316,8 +316,8 @@
 	<title>The protocol specific "Conversation List" windows</title>
     <para>
 	Before the combined window described above was available, each of its 
-	pages were shown as seperate windows. Even as the combined window is 
-	much more convenient to use, these seperate windows are still 
+	pages were shown as separate windows. Even as the combined window is 
+	much more convenient to use, these separate windows are still 
 	available. The main reason is, they might process faster for 
 	very large capture files. However, as the functionality is exactly the 
 	same as in the combined window, they won't be discussed in detail here.

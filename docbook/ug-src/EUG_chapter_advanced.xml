@@ -232,7 +232,7 @@
     </para>
     </note>
     <para>
-	The name resolution feature can be en-/disabled seperately for the 
+	The name resolution feature can be en-/disabled separately for the 
 	following protocol layers:
     </para>
 	<section><title>MAC Layer</title>
@@ -254,9 +254,10 @@
 	<warning>
 	  <title>Warning!</title>
 	  <para>
-		Enabling network name resolution when your DNS server is 
-		unavailable may significantly slow ethereal while it waits 
-		for all of the DNS requests to time out. Use ADNS in that case.
+		Enabling network name resolution when your name server is 
+		unavailable may significantly slow Ethereal while it waits 
+		for all of the name server requests to time out. Use ADNS in that 
+		case.
 	  </para>
 	</warning>	
 	</section>

@@ -112,7 +112,7 @@
 	<section>
 	<title>Live capture from many different network media</title>
 	<para>
-	  Unlike it's name suggests, Ethereal can capture traffic from 
+	  Unlike its name suggests, Ethereal can capture traffic from 
 	  some other network media than Ethernet too. Which media types are 
 	  supported, depends on many things like the operating system you are 
 	  using. An overview of the supported media types can be found at: 
@@ -268,7 +268,7 @@
     </para>
     <para>
       You are welcome to call it what you like, as long as you find it 
-      useful, the FAQ gives the official pronounciation as "e-the-real".
+      useful. The FAQ gives the official pronounciation as "e-the-real".
     </para>
   </section>
   
@@ -497,7 +497,7 @@
 	<section><title>Reporting Crashes on UNIX/Linux platforms</title>
     <para>
       When reporting crashes with Ethereal, it is helpful if you supply the 
-      traceback information (beside the informations mentioned in "Reporting 
+      traceback information (beside the information mentioned in "Reporting 
 	  Problems").
     </para>
 	  <para>

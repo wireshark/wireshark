@@ -73,7 +73,7 @@
 		  Ethereal uses the open dialog box from the version of the GTK+ 
 		  toolkit that it's using. This dialog was completely redesigned in 
 		  the GTK version 2.4. Depending on the installed GTK version, 
-		  your dialog box might be looking different. However, as the 
+		  your dialog box might look different. However, as the 
 		  functionality remains almost the same, much of this description 
 		  will work with your version of Ethereal.
 	      </para>
@@ -184,7 +184,7 @@
     </para>
     <note><title>Note!</title>
 	<para>
-	It may not be possible to read some formats dependant on the packet types 
+	It may not be possible to read some formats dependent on the packet types 
 	captured. Ethernet captures are usually supported for most file formats, 
 	but other packet types (e.g. token ring packets) may not be possible to 
 	read from all file formats.
@@ -215,7 +215,7 @@
 		  Ethereal uses the open dialog box from the version of the GTK+ 
 		  toolkit that it's using. This dialog was completely redesigned in 
 		  the GTK version 2.4. Depending on the installed GTK version, 
-		  your dialog box might be looking different. However, as the 
+		  your dialog box might look different. However, as the 
 		  functionality remains almost the same, much of this description 
 		  will work with your version of Ethereal.
 	      </para>
@@ -439,6 +439,13 @@
 	  <para>
 	    Export packet data into PostScript, much like the format used 
 		to print packets.
+	<tip><title>Tip!</title>
+	<para>
+	You can easily convert PostScript files to PDF files using ghostscript.
+	For example: export to a file named foo.ps and then call: 
+	<command>ps2pdf foo.ps</command>
+	</para>
+	</tip>
     <figure>
       <title>The "Export as PostScript File" dialog box</title>
       <graphic entityref="EtherealExportPSDialog" format="PNG"/>
@@ -703,7 +710,7 @@ lpr -Pmypostscript
 		<listitem>
 		  <para>
 		  <command>Packet summary line</command> enable the output of the 
-		  summary line, just like in the "Packet List" pane.
+		  summary line, just as in the "Packet List" pane.
 		  </para>
 		</listitem>
 		<listitem>
