@@ -2,7 +2,7 @@
  * Routines for X11 dissection
  * Copyright 2000, Christophe Tronche <ch.tronche@computer.org>
  *
- * $Id: packet-x11.c,v 1.22 2001/07/16 05:16:58 guy Exp $
+ * $Id: packet-x11.c,v 1.23 2001/10/04 00:30:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -794,7 +794,7 @@ static void listOfArc(tvbuff_t *tvb, int hf, int length)
 	    gint16 angle2 = VALUE16(tvb, cur_offset + 10);
 
 	    proto_tree *ttt = proto_tree_add_none_format(tt, hf_x11_arc, tvb, cur_offset, 12, 
-							     "arc: %dx%d+%d+%d, angle %d -> %d (%f° -> %f°)",
+							     "arc: %dx%d+%d+%d, angle %d -> %d (%f degrees -> %f degrees)",
 							     width, height, x, y, angle1, angle2,
 							     angle1 / 64.0, angle2 / 64.0);
 	    proto_tree_add_int(ttt, hf_x11_arc_x, tvb, cur_offset, 2, x); cur_offset += 2;

@@ -4,7 +4,7 @@
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>
  *
- * $Id: packet-gtp.c,v 1.10 2001/09/27 10:01:07 guy Exp $
+ * $Id: packet-gtp.c,v 1.11 2001/10/04 00:25:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4050,7 +4050,7 @@ decode_gtp_hdr_list(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	for(i=0 ; i<length ; i++) {
 		hdr = tvb_get_guint8(tvb, offset+2+i);
 
-		proto_tree_add_text(ext_tree_hdr_list, tvb, offset+2+i, 1, "N°%u --> Extension Header Type value : %s (%u)", i+1, val_to_str(hdr, gtp_val, "Unknown Extension Header Type"), hdr);
+		proto_tree_add_text(ext_tree_hdr_list, tvb, offset+2+i, 1, "No. %u --> Extension Header Type value : %s (%u)", i+1, val_to_str(hdr, gtp_val, "Unknown Extension Header Type"), hdr);
 	}
 
 	return 2 + length;
