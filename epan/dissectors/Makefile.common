@@ -320,6 +320,7 @@ DISSECTOR_SRC =	\
 	packet-laplink.c	\
 	packet-ldap.c	\
 	packet-ldp.c	\
+	packet-logotypecertextn.c	\
 	packet-llc.c	\
 	packet-lmi.c	\
 	packet-lmp.c	\
@@ -653,6 +654,7 @@ DISSECTOR_INCLUDES =	\
 	packet-ldap.h	\
 	packet-ldp.h	\
 	packet-llc.h	\
+	packet-logotypecertextn.h	\
 	packet-MAP_DialoguePDU.h	\
 	packet-mip6.h	\
 	packet-mount.h	\
