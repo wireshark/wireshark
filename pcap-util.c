@@ -1,7 +1,7 @@
 /* pcap-util.c
  * Utility routines for packet capture
  *
- * $Id: pcap-util.c,v 1.23 2003/12/21 12:18:59 ulfl Exp $
+ * $Id: pcap-util.c,v 1.24 2004/02/24 01:11:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -342,7 +342,11 @@ free_pcap_linktype_list(GList *linktype_list)
 
 /* Set the data link type on a pcap. */
 const char *
-set_pcap_linktype(pcap_t *pch, char *devname, int dlt)
+set_pcap_linktype(pcap_t *pch, char *devname
+#ifdef HAVE_PCAP_SET_DATALINK
+	_U_
+#endif
+	, int dlt)
 {
 #ifdef HAVE_PCAP_SET_DATALINK
 	if (pcap_set_datalink(pch, dlt) == 0)
