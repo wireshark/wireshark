@@ -1,6 +1,6 @@
 /* cosine.c
  *
- * $Id: cosine.c,v 1.5 2002/08/28 20:30:44 jmayer Exp $
+ * $Id: cosine.c,v 1.6 2003/11/25 05:58:56 guy Exp $
  *
  * CoSine IPNOS L2 debug output parsing
  * Copyright (c) 2002 by Motonori Shindo <mshindo@mshindo.net>
@@ -289,10 +289,8 @@ int cosine_open(wtap *wth, int *err)
 			return -1;
 	}
 
-	if (file_seek(wth->fh, 0L, SEEK_SET, err) == -1) {	/* rewind */
-		*err = file_error(wth->fh);
+	if (file_seek(wth->fh, 0L, SEEK_SET, err) == -1)	/* rewind */
 		return -1;
-	}
 
 	wth->data_offset = 0;
 	wth->file_encap = WTAP_ENCAP_COSINE;
@@ -343,10 +341,8 @@ cosine_seek_read (wtap *wth, long seek_off,
 {
 	char	line[COSINE_LINE_LENGTH];
 
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
-		*err = file_error(wth->random_fh);
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
-	}
 
 	if (file_gets(line, COSINE_LINE_LENGTH, wth->random_fh) == NULL) {
 		*err = file_error(wth->random_fh);
@@ -356,13 +352,8 @@ cosine_seek_read (wtap *wth, long seek_off,
 		return FALSE;
 	}
 
-	if (parse_cosine_rec_hdr(NULL, line, pseudo_header, err) == -1) {
-		*err = file_error(wth->random_fh);
-		if (*err == 0) {
-			*err = WTAP_ERR_BAD_RECORD;
-		}
+	if (parse_cosine_rec_hdr(NULL, line, pseudo_header, err) == -1)
 		return FALSE;
-	}
 
 	return parse_cosine_hex_dump(wth->random_fh, len, pd, err);
 }
