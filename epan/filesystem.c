@@ -1,7 +1,7 @@
 /* filesystem.c
  * Filesystem utility routines
  *
- * $Id: filesystem.c,v 1.15 2001/10/24 09:22:23 guy Exp $
+ * $Id: filesystem.c,v 1.16 2002/01/04 21:50:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -405,6 +405,7 @@ create_persconffile_dir(char **pf_dir_path_return)
 	const char *pf_dir_path;
 #ifdef WIN32
 	char *pf_dir_path_copy, *pf_dir_parent_path;
+	size_t pf_dir_parent_path_len;
 #endif
 	struct stat s_buf;
 	int ret;
@@ -416,12 +417,21 @@ create_persconffile_dir(char **pf_dir_path_return)
 		 * Does the parent directory of that directory
 		 * exist?  %APPDATA% may not exist even though
 		 * %USERPROFILE% does.
+		 *
+		 * We check for the existence of the directory
+		 * by first checking whether the parent directory
+		 * is just a drive letter and, if it's not, by
+		 * doing a "stat()" on it.  If it's a drive letter,
+		 * or if the "stat()" succeeds, we assume it exists.
 		 */
 		pf_dir_path_copy = g_strdup(pf_dir_path);
 		pf_dir_parent_path = get_dirname(pf_dir_path_copy);
-		if (stat(pf_dir_parent_path, &s_buf) != 0) {
+		pf_dir_parent_path_len = strlen(pf_dir_parent_path);
+		if (pf_dir_parent_path_len > 0
+		    && pf_dir_parent_path[pf_dir_parent_path_len - 1] != ':'
+		    && stat(pf_dir_parent_path, &s_buf) != 0) {
 			/*
-			 * No - make it first.
+			 * No, it doesn't exist - make it first.
 			 */
 			ret = mkdir(pf_dir_parent_path);
 			if (ret == -1) {
