@@ -1,7 +1,7 @@
 /* asn1.c
  * Routines for ASN.1 BER dissection
  *
- * $Id: asn1.c,v 1.3 2000/01/15 00:22:29 gram Exp $
+ * $Id: asn1.c,v 1.4 2000/03/27 08:26:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -700,6 +700,7 @@ asn1_octet_string_decode ( ASN1_SCK *asn1, guchar **octets, guint *str_len,
     if (ret != ASN1_ERR_NOERROR)
 	goto done;
     if (cls != ASN1_UNI || con != ASN1_PRI || tag != ASN1_OTS) {
+    	/* XXX - handle the constructed encoding? */
 	ret = ASN1_ERR_WRONG_TYPE;
 	goto done;
     }
@@ -865,7 +866,7 @@ done:
  *                  (
  *                      ASN1_SCK  *asn1,
  *                      guint     *seq_len,
- *                      guint     *nbytes,
+ *                      guint     *nbytes
  *                  )
  * DESCRIPTION: Decodes header for SEQUENCE.
  *              Parameters:
