@@ -1,7 +1,7 @@
 /* display.c
  * Routines for packet display windows
  *
- * $Id: display.c,v 1.5 1999/06/22 03:39:05 guy Exp $
+ * $Id: display.c,v 1.6 1999/06/22 22:43:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -73,11 +73,12 @@ extern GtkWidget *packet_list;
 #define E_DISPLAY_TIME_DELTA_KEY "display_time_delta"
 
 static void display_opt_ok_cb(GtkWidget *, gpointer);
+static void display_opt_apply_cb(GtkWidget *, gpointer);
 static void display_opt_close_cb(GtkWidget *, gpointer);
 
 void
 display_opt_cb(GtkWidget *w, gpointer d) {
-  GtkWidget     *display_opt_w, *button, *main_vb, *bbox, *ok_bt, *cancel_bt;
+  GtkWidget     *display_opt_w, *button, *main_vb, *bbox, *ok_bt, *apply_bt, *cancel_bt;
 
   display_opt_w = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   gtk_window_set_title(GTK_WINDOW(display_opt_w), "Ethereal: Display Options");
@@ -116,7 +117,7 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   gtk_box_pack_start(GTK_BOX(main_vb), button, TRUE, TRUE, 0);
   gtk_widget_show(button);
   
-  /* Button row: OK and cancel buttons */
+  /* Button row: OK, Apply, and Cancel buttons */
   bbox = gtk_hbutton_box_new();
   gtk_button_box_set_layout (GTK_BUTTON_BOX (bbox), GTK_BUTTONBOX_END);
   gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
@@ -130,6 +131,13 @@ display_opt_cb(GtkWidget *w, gpointer d) {
   gtk_box_pack_start (GTK_BOX (bbox), ok_bt, TRUE, TRUE, 0);
   gtk_widget_grab_default(ok_bt);
   gtk_widget_show(ok_bt);
+
+  apply_bt = gtk_button_new_with_label ("Apply");
+  gtk_signal_connect(GTK_OBJECT(apply_bt), "clicked",
+    GTK_SIGNAL_FUNC(display_opt_apply_cb), GTK_OBJECT(display_opt_w));
+  GTK_WIDGET_SET_FLAGS(apply_bt, GTK_CAN_DEFAULT);
+  gtk_box_pack_start (GTK_BOX (bbox), apply_bt, TRUE, TRUE, 0);
+  gtk_widget_show(apply_bt);
 
   cancel_bt = gtk_button_new_with_label ("Cancel");
   gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
@@ -161,6 +169,28 @@ display_opt_ok_cb(GtkWidget *ok_bt, gpointer parent_w) {
     timestamp_type = DELTA;
 
   gtk_widget_destroy(GTK_WIDGET(parent_w));
+
+  change_time_formats(&cf);
+}
+
+static void
+display_opt_apply_cb(GtkWidget *ok_bt, gpointer parent_w) {
+  GtkWidget *button;
+
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
+                                              E_DISPLAY_TIME_ABS_KEY);
+  if (GTK_TOGGLE_BUTTON (button)->active)
+    timestamp_type = ABSOLUTE;
+
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
+                                              E_DISPLAY_TIME_REL_KEY);
+  if (GTK_TOGGLE_BUTTON (button)->active)
+    timestamp_type = RELATIVE;
+
+  button = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(parent_w),
+                                              E_DISPLAY_TIME_DELTA_KEY);
+  if (GTK_TOGGLE_BUTTON (button)->active)
+    timestamp_type = DELTA;
 
   change_time_formats(&cf);
 }
