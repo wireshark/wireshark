@@ -3,7 +3,7 @@
  *
  * Duncan Laurie <duncan@sun.com>
  *
- * $Id: packet-ipmi.c,v 1.3 2003/10/30 00:39:51 tpot Exp $
+ * $Id: packet-ipmi.c,v 1.4 2003/12/13 01:08:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -211,7 +211,7 @@ static const value_string ipmi_bridge_cmd_vals[] = {
 	{ 0x32,	"Set Event Reception State" },
 	{ 0x33,	"Send ICMB Event Message" },
 	{ 0x34,	"Get Event Destination" },
-	{ 0x35,	"Get Event Recption State" },
+	{ 0x35,	"Get Event Reception State" },
 	{ 0x00,	NULL },
 };
 
