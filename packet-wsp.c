@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.64 2003/02/06 01:23:32 guy Exp $
+ * $Id: packet-wsp.c,v 1.65 2003/03/26 19:45:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -230,12 +230,45 @@ static const value_string vals_pdu_type[] = {
 
 	/* 0x45 - 0x4F Unassigned (Get PDU) */
 	/* 0x50 - 0x5F Extended method (Get PDU) */
+	{ 0x50, "Extended Get Method 0"},
+	{ 0x51, "Extended Get Method 1"},
+	{ 0x52, "Extended Get Method 2"},
+	{ 0x53, "Extended Get Method 3"},
+	{ 0x54, "Extended Get Method 4"},
+	{ 0x55, "Extended Get Method 5"},
+	{ 0x56, "Extended Get Method 6"},
+	{ 0x57, "Extended Get Method 7"},
+	{ 0x58, "Extended Get Method 8"},
+	{ 0x59, "Extended Get Method 9"},
+	{ 0x5A, "Extended Get Method 10"},
+	{ 0x5B, "Extended Get Method 11"},
+	{ 0x5C, "Extended Get Method 12"},
+	{ 0x5D, "Extended Get Method 13"},
+	{ 0x5E, "Extended Get Method 14"},
+	{ 0x5F, "Extended Get Method 15"},
 
 	{ 0x60, "Post" },
 	{ 0x61, "Put" },
 
 	/* 0x62 - 0x6F Unassigned (Post PDU) */
 	/* 0x70 - 0x7F Extended method (Post PDU) */
+	{ 0x70, "Extended Post Method 0"},
+	{ 0x71, "Extended Post Method 1"},
+	{ 0x72, "Extended Post Method 2"},
+	{ 0x73, "Extended Post Method 3"},
+	{ 0x74, "Extended Post Method 4"},
+	{ 0x75, "Extended Post Method 5"},
+	{ 0x76, "Extended Post Method 6"},
+	{ 0x77, "Extended Post Method 7"},
+	{ 0x78, "Extended Post Method 8"},
+	{ 0x79, "Extended Post Method 9"},
+	{ 0x7A, "Extended Post Method 10"},
+	{ 0x7B, "Extended Post Method 11"},
+	{ 0x7C, "Extended Post Method 12"},
+	{ 0x7D, "Extended Post Method 13"},
+	{ 0x7E, "Extended Post Method 14"},
+	{ 0x7F, "Extended Post Method 15"},
+
 	/* 0x80 - 0xFF Reserved */
 
 	{ 0x00, NULL }
@@ -1187,6 +1220,11 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* Find the PDU type */
 	pdut = tvb_get_guint8 (tvb, offset);
+	/* Map extended methods to the main method */
+	if ((pdut >= 0x50) && (pdut <= 0x5F))
+		pdut = GET;
+	else if ((pdut >= 0x70) && (pdut <= 0x7F))
+		pdut = POST;
 
 	/* Develop the string to put in the Info column */
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -3069,11 +3107,11 @@ add_capability_vals(tvbuff_t *tvb, gboolean add_string, int offsetStr,
 		if (add_string)
 		{
 			ret = snprintf(valString+i,valStringSize-i,
-			    "(%d - ",value);
+			    "(0x%02x - ",value);
 		}
 		else
 		{
-			ret = snprintf(valString+i,valStringSize-i,"(%d) ",
+			ret = snprintf(valString+i,valStringSize-i,"(0x%02x) ",
 			    value);
 		}
 		if (ret == -1) {
