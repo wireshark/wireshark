@@ -2,7 +2,7 @@
  * Definitions for routines common to multiple modules in the display
  * filter code, but not used outside that code.
  *
- * $Id: dfilter-int.h,v 1.12 2000/07/22 15:58:53 gram Exp $
+ * $Id: dfilter-int.h,v 1.13 2000/08/01 18:10:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,6 +62,7 @@ gboolean check_relation_ether(gint operand, GArray *a, GArray *b);
 gboolean check_relation_ipv4(gint operand, GArray *a, GArray *b);
 gboolean check_relation_ipv6(gint operand, GArray *a, GArray *b);
 gboolean check_relation_bytes(gint operand, GArray *a, GArray *b);
+gboolean check_relation_string(gint operand, GArray *a, GArray *b);
 
 void fill_array_numeric_variable(field_info*, GArray*, const guint8*);
 void fill_array_floating_variable(field_info*, GArray*, const guint8*);
@@ -69,6 +70,7 @@ void fill_array_ether_variable(field_info*, GArray*, const guint8*);
 void fill_array_ipv4_variable(field_info*, GArray*, const guint8*);
 void fill_array_ipv6_variable(field_info*, GArray*, const guint8*);
 void fill_array_bytes_variable(field_info*, GArray*, const guint8*);
+void fill_array_string_variable(field_info*, GArray*, const guint8*);
 
 gboolean fill_array_numeric_value(GNode *gnode, gpointer data);
 gboolean fill_array_floating_value(GNode *gnode, gpointer data);
@@ -76,6 +78,7 @@ gboolean fill_array_ether_value(GNode *gnode, gpointer data);
 gboolean fill_array_ipv4_value(GNode *gnode, gpointer data);
 gboolean fill_array_ipv6_value(GNode *gnode, gpointer data);
 gboolean fill_array_bytes_value(GNode *gnode, gpointer data);
+gboolean fill_array_string_value(GNode *gnode, gpointer data);
 
 #ifdef WIN32
 #define boolean truth_value

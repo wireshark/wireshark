@@ -1,7 +1,7 @@
 /* dfilter.h
  * Definitions for display filters
  *
- * $Id: dfilter.h,v 1.16 2000/04/14 05:39:38 gram Exp $
+ * $Id: dfilter.h,v 1.17 2000/08/01 18:10:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,6 +45,10 @@ typedef struct {
 	/* list of byte arrays we allocate during parse. We can traverse this list
 	 * faster than the tree when we go back and free the byte arrays */
 	GSList *list_of_byte_arrays;
+
+	/* List of strings allocated during parse. */
+	GSList *list_of_strings;
+
 } dfilter;
 
 /* Initialization of the symbol table. Called once during program startup */

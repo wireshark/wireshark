@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.30 2000/03/23 05:43:57 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.31 2000/08/01 18:10:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -274,6 +274,20 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 [0-9\:\.]+ {
 	dfilter_lval.string = g_strdup(yytext);
 	return T_VAL_UNQUOTED_STRING;
+}
+
+\"[^"]+\" {
+	int length;
+
+	/* Don't copy the first quote. */
+	dfilter_lval.string = g_strdup(&yytext[1]);
+
+	/* Chop of the final quote mark. */
+	length = strlen(dfilter_lval.string);
+	g_assert(length > 0);
+	dfilter_lval.string[length - 1] = 0;
+
+	return T_VAL_QUOTED_STRING;
 }
 
 .	return yytext[0];

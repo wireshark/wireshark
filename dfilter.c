@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.35 2000/07/22 15:58:53 gram Exp $
+ * $Id: dfilter.c,v 1.36 2000/08/01 18:10:05 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -225,8 +225,17 @@ dfilter_new(void)
 	df->node_memchunk = g_mem_chunk_new("df->node_memchunk",
 		sizeof(dfilter_node), 20 * sizeof(dfilter_node), G_ALLOC_ONLY);
 	df->list_of_byte_arrays = NULL;
+	df->list_of_strings = NULL;
 
 	return df;
+}
+
+static void
+free_string(gpointer data, gpointer user_data)
+{
+	char *string = data;
+	if (string)
+		g_free(string);
 }
 
 /* Frees all memory used by dfilter, and frees dfilter itself */
@@ -249,8 +258,15 @@ dfilter_destroy(dfilter *df)
 		g_slist_free(df->list_of_byte_arrays);
 	}
 
+	/* clear the allocated strings */
+	if (df->list_of_strings) {
+		g_slist_foreach(df->list_of_strings, free_string, NULL);
+		g_slist_free(df->list_of_strings);
+	}
+
 	df->dftree = NULL;
 	df->list_of_byte_arrays = NULL;
+	df->list_of_strings = NULL;
 
 	/* Git rid of memchunk */
 	if (df->node_memchunk)
@@ -537,6 +553,12 @@ fill_array_ipv6_variable(field_info *finfo, GArray *array, const guint8 *pd)
 }
 
 void
+fill_array_string_variable(field_info *finfo, GArray *array, const guint8 *pd)
+{
+	g_array_append_val(array, finfo->value.string);
+}
+
+void
 fill_array_bytes_variable(field_info *finfo, GArray *array, const guint8 *pd)
 {
 	GByteArray		*barray;
@@ -636,6 +658,16 @@ gboolean fill_array_bytes_value(GNode *gnode, gpointer data)
 	GByteArray	*barray = dnode->value.bytes;
 
 	g_array_append_val(array, barray);
+
+	return FALSE; /* FALSE = do not end traversal of GNode tree */
+}
+
+gboolean fill_array_string_value(GNode *gnode, gpointer data)
+{
+	GArray		*array = (GArray*)data;
+	dfilter_node	*dnode = (dfilter_node*) (gnode->data);
+
+	g_array_append_val(array, dnode->value.string);
 
 	return FALSE; /* FALSE = do not end traversal of GNode tree */
 }
@@ -1009,3 +1041,41 @@ gboolean check_relation_bytes(gint operand, GArray *a, GArray *b)
 	g_assert_not_reached();
 	return FALSE;
 }
+
+gboolean check_relation_string(gint operand, GArray *a, GArray *b)
+{
+	int	i, j, len_a, len_b;
+	char	*ptr_a, *ptr_b;
+
+	len_a = a->len;
+	len_b = b->len;
+
+
+	switch(operand) {
+	case TOK_EQ:
+		for(i = 0; i < len_a; i++) {
+			ptr_a = g_array_index(a, char*, i);
+			for (j = 0; j < len_b; j++) {
+				ptr_b = g_array_index(b, char*, j);
+				if (strcmp(ptr_a, ptr_b) == 0)
+					return TRUE;
+			}
+		}
+		return FALSE;
+
+	case TOK_NE:
+		for(i = 0; i < len_a; i++) {
+			ptr_a = g_array_index(a, char*, i);
+			for (j = 0; j < len_b; j++) {
+				ptr_b = g_array_index(b, char*, j);
+				if (strcmp(ptr_a, ptr_b) != 0)
+					return TRUE;
+			}
+		}
+		return FALSE;
+	}
+
+	g_assert_not_reached();
+	return FALSE;
+}
+

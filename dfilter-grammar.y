@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.39 2000/07/22 15:58:52 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.40 2000/08/01 18:10:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -93,6 +93,8 @@ static GNode* dfilter_mknode_ipv6_variable(gint id);
 static GNode* dfilter_mknode_existence(gint id);
 static GNode* dfilter_mknode_bytes_value(GByteArray *barray);
 static GNode* dfilter_mknode_bytes_variable(gint id, gint offset, guint length);
+static GNode* dfilter_mknode_string_value(char *s);
+static GNode* dfilter_mknode_string_variable(gint id);
 
 static guint32 string_to_guint32(char *s, gboolean *success);
 static double string_to_double(char *s, gboolean *success);
@@ -133,6 +135,7 @@ dfilter *global_df = NULL;
 %type <node>	ipxnet_value ipxnet_variable
 %type <node>	ipv4_value ipv4_variable
 %type <node>	ipv6_value ipv6_variable
+%type <node>	string_value string_variable
 %type <node>	variable_name
 %type <node>	bytes_value bytes_variable
 
@@ -161,6 +164,7 @@ dfilter *global_df = NULL;
 %token <variable>	T_FT_DOUBLE
 
 %token <string>	 	T_VAL_UNQUOTED_STRING
+%token <string>	 	T_VAL_QUOTED_STRING
 %token <string>		T_VAL_BYTE_STRING
 %token <byte_range>	T_VAL_BYTE_RANGE
 
@@ -223,6 +227,15 @@ relation:	numeric_variable numeric_relation numeric_value
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
 	|	ipxnet_variable equality_relation ipxnet_variable
+		{
+			$$ = dfilter_mknode_join($1, relation, $2, $3);
+		}
+
+	|	string_variable equality_relation string_value
+		{
+			$$ = dfilter_mknode_join($1, relation, $2, $3);
+		}
+	|	string_variable equality_relation string_variable
 		{
 			$$ = dfilter_mknode_join($1, relation, $2, $3);
 		}
@@ -319,6 +332,24 @@ numeric_value:	T_VAL_UNQUOTED_STRING
 ether_value:	T_VAL_BYTE_STRING
 	{
 		$$ = dfilter_mknode_ether_value($1);
+		g_free($1);
+		if ($$ == NULL) {
+			YYERROR;
+		}
+	}
+	;
+
+string_value:	T_VAL_UNQUOTED_STRING
+	{
+		$$ = dfilter_mknode_string_value($1);
+		g_free($1);
+		if ($$ == NULL) {
+			YYERROR;
+		}
+	}
+	|	T_VAL_QUOTED_STRING
+	{
+		$$ = dfilter_mknode_string_value($1);
 		g_free($1);
 		if ($$ == NULL) {
 			YYERROR;
@@ -513,6 +544,9 @@ ipv4_variable:		T_FT_IPv4	{ $$ = dfilter_mknode_ipv4_variable($1.id); }
 	;
 
 ipv6_variable:		T_FT_IPv6	{ $$ = dfilter_mknode_ipv6_variable($1.id); }
+	;
+
+string_variable:	T_FT_STRING	{ $$ = dfilter_mknode_string_variable($1.id); }
 	;
 
 variable_name:		any_variable_type
@@ -736,6 +770,24 @@ dfilter_mknode_ipv6_variable(gint id)
 }
 
 static GNode*
+dfilter_mknode_string_variable(gint id)
+{
+	dfilter_node	*node;
+	GNode		*gnode;
+
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
+	node->ntype = variable;
+	node->elem_size = sizeof(char*);
+	node->fill_array_variable_func = fill_array_string_variable;
+	node->fill_array_value_func = NULL;
+	node->check_relation_func = check_relation_string; 
+	node->value.variable = id;
+	gnode = g_node_new(node);
+
+	return gnode;
+}
+
+static GNode*
 dfilter_mknode_bytes_variable(gint id, gint offset, guint length)
 {
 	dfilter_node	*node;
@@ -947,6 +999,28 @@ dfilter_mknode_ipv6_value(char *host)
 	gnode = g_node_new(node);
 	return gnode;
 }
+
+
+static GNode*
+dfilter_mknode_string_value(char *s)
+{
+	dfilter_node	*node;
+	GNode		*gnode;
+
+	node = g_mem_chunk_alloc(global_df->node_memchunk);
+	node->ntype = string;
+	node->elem_size = sizeof(char*);
+	node->fill_array_variable_func = NULL;
+	node->fill_array_value_func = fill_array_string_value;
+	node->check_relation_func = check_relation_string;
+	node->value.string = g_strdup(s);
+	global_df->list_of_strings = g_slist_append(global_df->list_of_strings, 
+		node->value.string);
+	gnode = g_node_new(node);
+
+	return gnode;
+}
+
 
 static GNode*
 dfilter_mknode_bytes_value(GByteArray *barray)
