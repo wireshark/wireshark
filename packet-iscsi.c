@@ -1,8 +1,9 @@
 /* packet-iscsi.c
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
+ *  2004 Request/Response matching and Service Response Time: ronnie sahlberg
  *
- * $Id: packet-iscsi.c,v 1.48 2003/11/16 23:17:19 guy Exp $
+ * $Id: packet-iscsi.c,v 1.49 2004/02/18 09:10:02 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -804,6 +805,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     guint original_offset = offset;
     proto_tree *ti = NULL;
     guint8 scsi_status = 0;
+    gboolean S_bit=FALSE;
     guint cdb_offset = offset + 32; /* offset of CDB from start of PDU */
     guint end_offset = offset + tvb_length_remaining(tvb, offset);
     conversation_t *conversation = NULL;
@@ -846,6 +848,10 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
                         cdata->response_frame=pinfo->fd->num;
                         break;
                     case ISCSI_OPCODE_SCSI_DATA_IN:
+                        /* a bit ugly but we need to check the S bit here */
+                        if(tvb_get_guint8(tvb, offset+1)&ISCSI_SCSI_DATA_FLAG_S){
+                            cdata->response_frame=pinfo->fd->num;
+                        }
                         cdata->data_in_frame=pinfo->fd->num;
                         break;
                     case ISCSI_OPCODE_SCSI_DATA_OUT:
@@ -911,7 +917,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
                 g_hash_table_remove(iscsi_req_unmatched, &ckey);
             }
 
-            /* add this new transaction to teh unmatched table */
+            /* add this new transaction to the unmatched table */
             cdata = g_mem_chunk_alloc (iscsi_req_vals);
             cdata->conv_idx = conversation->index;
             cdata->itt = tvb_get_ntohl (tvb, offset+16);
@@ -1031,53 +1037,6 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_tree_add_boolean(ti, hf_iscsi_I, tvb, offset + 0, 1, b);
     }
 
-    /* handle request/response matching */
-    if (cdata){
-        switch(opcode){
-        case ISCSI_OPCODE_SCSI_RESPONSE:
-            if (cdata->request_frame){
-                nstime_t delta_time;
-                proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->request_frame);
-                delta_time.secs = pinfo->fd->abs_secs - cdata->req_time.secs;
-                delta_time.nsecs = pinfo->fd->abs_usecs*1000 - cdata->req_time.nsecs;
-                if (delta_time.nsecs<0){
-                    delta_time.nsecs+=1000000000;
-                    delta_time.secs--;
-                }
-                proto_tree_add_time(ti, hf_iscsi_time, tvb, 0, 0, &delta_time);
-                
-            }
-            if (cdata->data_in_frame)
-                proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
-            if (cdata->data_out_frame)
-                proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
-            break;
-        case ISCSI_OPCODE_SCSI_DATA_IN:
-            if (cdata->request_frame)
-                proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->request_frame);
-            if (cdata->data_out_frame)
-                proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
-            if (cdata->response_frame)
-                proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->response_frame);
-            break;
-        case ISCSI_OPCODE_SCSI_DATA_OUT:
-            if (cdata->request_frame)
-                proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->request_frame);
-            if (cdata->data_in_frame)
-                proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
-            if (cdata->response_frame)
-                proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->response_frame);
-            break;
-        case ISCSI_OPCODE_SCSI_COMMAND:
-            if (cdata->data_in_frame)
-                proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
-            if (cdata->data_out_frame)
-                proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
-            if (cdata->response_frame)
-                proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->response_frame);
-            break;
-        }
-    }
 
     if(opcode == ISCSI_OPCODE_NOP_OUT) {
 	    /* NOP Out */
@@ -1421,6 +1380,9 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
 
+                if(b&ISCSI_SCSI_DATA_FLAG_S){
+                   S_bit=TRUE;
+                }
 		proto_tree_add_boolean(tt, hf_iscsi_SCSIData_F, tvb, offset + 1, 1, b);
 		if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT08) {
 		    proto_tree_add_boolean(tt, hf_iscsi_SCSIData_A, tvb, offset + 1, 1, b);
@@ -1583,6 +1545,75 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    offset = handleHeaderDigest(ti, tvb, offset, 48);
 	    offset = handleDataSegment(ti, tvb, offset, data_segment_len, end_offset, hf_iscsi_vendor_specific_data);
     }
+
+
+
+    /* handle request/response matching */
+    if (cdata){
+        switch(opcode){
+        case ISCSI_OPCODE_SCSI_RESPONSE:
+            if (cdata->request_frame){
+                nstime_t delta_time;
+                proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->request_frame);
+                delta_time.secs = pinfo->fd->abs_secs - cdata->req_time.secs;
+                delta_time.nsecs = pinfo->fd->abs_usecs*1000 - cdata->req_time.nsecs;
+                if (delta_time.nsecs<0){
+                    delta_time.nsecs+=1000000000;
+                    delta_time.secs--;
+                }
+                proto_tree_add_time(ti, hf_iscsi_time, tvb, 0, 0, &delta_time);
+                
+            }
+            if (cdata->data_in_frame)
+                proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
+            if (cdata->data_out_frame)
+                proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
+            break;
+        case ISCSI_OPCODE_SCSI_DATA_IN:
+            /* if we have phase collaps then we might have the
+               response embedded in the last DataIn segment */
+            if(!S_bit){
+                if (cdata->request_frame)
+                    proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->request_frame);
+                if (cdata->response_frame)
+                    proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->response_frame);
+            } else {
+                if (cdata->request_frame){
+                     nstime_t delta_time;
+                     proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->request_frame);
+                     delta_time.secs = pinfo->fd->abs_secs - cdata->req_time.secs;
+                     delta_time.nsecs = pinfo->fd->abs_usecs*1000 - cdata->req_time.nsecs;
+                     if (delta_time.nsecs<0){
+                          delta_time.nsecs+=1000000000;
+                          delta_time.secs--;
+                     }
+                     proto_tree_add_time(ti, hf_iscsi_time, tvb, 0, 0, &delta_time);
+                
+                }
+            }
+            if (cdata->data_out_frame)
+                proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
+            break;
+        case ISCSI_OPCODE_SCSI_DATA_OUT:
+            if (cdata->request_frame)
+                proto_tree_add_uint(ti, hf_iscsi_request_frame, tvb, 0, 0, cdata->request_frame);
+            if (cdata->data_in_frame)
+                proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
+            if (cdata->response_frame)
+                proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->response_frame);
+            break;
+        case ISCSI_OPCODE_SCSI_COMMAND:
+            if (cdata->data_in_frame)
+                proto_tree_add_uint(ti, hf_iscsi_data_in_frame, tvb, 0, 0, cdata->data_in_frame);
+            if (cdata->data_out_frame)
+                proto_tree_add_uint(ti, hf_iscsi_data_out_frame, tvb, 0, 0, cdata->data_out_frame);
+            if (cdata->response_frame)
+                proto_tree_add_uint(ti, hf_iscsi_response_frame, tvb, 0, 0, cdata->response_frame);
+            break;
+        }
+    }
+
+
 
     proto_item_set_len(ti, offset - original_offset);
 
