@@ -6,11 +6,13 @@
  *       In particular I have not had an opportunity to see how it 
  *       responds to SRVLOC over TCP.
  *
- * $Id: packet-srvloc.c,v 1.2 1999/12/09 20:46:28 guy Exp $
+ * $Id: packet-srvloc.c,v 1.3 1999/12/15 01:48:58 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
  * Copyright 1998 Gerald Combs
+ *
+ * Service Location Protocol is RFC 2165
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -63,6 +65,7 @@ int hf_srvloc_flags = -1;
 int hf_srvloc_error = -1;
 
 static gint ett_srvloc = -1;
+gint ett_srvloc_flags = -1;
 
 /* Define function types */
 
@@ -92,7 +95,7 @@ struct srvloc_hdr {
 
 /* List to resolve function numbers to names */
 
-static const value_string srvlocfunctionvals[] = {
+static const value_string srvloc_functions[] = {
     { SRVREQ, "Service Request" }, 
     { SRVRPLY, "Service Reply" }, 
     { SRVREG, "Service Registration" }, 
@@ -171,8 +174,8 @@ dissect_authblk(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 void
 dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
-    proto_item *ti;
-    proto_tree *srvloc_tree;
+    proto_item *ti, *tf;
+    proto_tree *srvloc_tree, *srvloc_flags;
     struct srvloc_hdr srvloc_hdr;
     int count;
     int length;
@@ -181,7 +184,7 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         col_add_str(fd, COL_PROTOCOL, "SRVLOC");
     
     if (check_col(fd, COL_INFO))
-        col_add_str(fd, COL_INFO, "Service Location Protocol");
+        col_add_str(fd, COL_INFO, val_to_str(pd[offset + 1], srvloc_functions, "Unknown Function (%d)"));
         
     if (tree) {
         ti = proto_tree_add_item(tree, proto_srvloc, offset, END_OF_FRAME, NULL);
@@ -195,12 +198,13 @@ dissect_srvloc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
             proto_tree_add_item(srvloc_tree, hf_srvloc_version, offset, 1, srvloc_hdr.version);
             proto_tree_add_item(srvloc_tree, hf_srvloc_function, offset + 1, 1, srvloc_hdr.function);
             proto_tree_add_text(srvloc_tree, offset + 2, 2, "Length: %d",srvloc_hdr.length);
-            proto_tree_add_item(srvloc_tree, hf_srvloc_flags, offset + 4, 1, srvloc_hdr.flags);
-            proto_tree_add_text(srvloc_tree, offset + 4, 0, "Overflow                          %d... .xxx", (srvloc_hdr.flags & FLAG_O) >> 7 );
-            proto_tree_add_text(srvloc_tree, offset + 4, 0, "Monolingual                       .%d.. .xxx", (srvloc_hdr.flags & FLAG_M) >> 6 ); 
-            proto_tree_add_text(srvloc_tree, offset + 4, 0, "URL Authentication Present        ..%d. .xxx", (srvloc_hdr.flags & FLAG_U) >> 5 );
-            proto_tree_add_text(srvloc_tree, offset + 4, 0, "Attribute Authentication Present  ...%d .xxx", (srvloc_hdr.flags & FLAG_A) >> 4 );
-            proto_tree_add_text(srvloc_tree, offset + 4, 0, "Fresh Service Entry               .... %dxxx", (srvloc_hdr.flags & FLAG_F) >> 3 );
+            tf = proto_tree_add_item(srvloc_tree, hf_srvloc_flags, offset + 4, 1, srvloc_hdr.flags);
+            srvloc_flags = proto_item_add_subtree(tf, ett_srvloc_flags);
+            proto_tree_add_text(srvloc_flags, offset + 4, 0, "Overflow                          %d... .xxx", (srvloc_hdr.flags & FLAG_O) >> 7 );
+            proto_tree_add_text(srvloc_flags, offset + 4, 0, "Monolingual                       .%d.. .xxx", (srvloc_hdr.flags & FLAG_M) >> 6 ); 
+            proto_tree_add_text(srvloc_flags, offset + 4, 0, "URL Authentication Present        ..%d. .xxx", (srvloc_hdr.flags & FLAG_U) >> 5 );
+            proto_tree_add_text(srvloc_flags, offset + 4, 0, "Attribute Authentication Present  ...%d .xxx", (srvloc_hdr.flags & FLAG_A) >> 4 );
+            proto_tree_add_text(srvloc_flags, offset + 4, 0, "Fresh Service Entry               .... %dxxx", (srvloc_hdr.flags & FLAG_F) >> 3 );
             proto_tree_add_text(srvloc_tree, offset + 5, 1, "Dialect: %d",srvloc_hdr.dialect); 
             proto_tree_add_text(srvloc_tree, offset + 6, 2, "Language: %s", format_text(srvloc_hdr.language,2));
             proto_tree_add_text(srvloc_tree, offset + 8, 2, "Encoding: %d", srvloc_hdr.encoding);
@@ -398,7 +402,7 @@ proto_register_srvloc(void)
       
         {&hf_srvloc_function,
             {"Function", "srvloc.function", 
-            FT_UINT8, BASE_DEC, VALS(srvlocfunctionvals), 0x0, 
+            FT_UINT8, BASE_DEC, VALS(srvloc_functions), 0x0, 
             ""}
         },
 
@@ -417,6 +421,7 @@ proto_register_srvloc(void)
                   
    static gint *ett[] = {
       &ett_srvloc,
+      &ett_srvloc_flags,
    };
 
     proto_srvloc = proto_register_protocol("Service Location Protocol", "srvloc");
