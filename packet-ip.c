@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.95 2000/07/05 09:40:38 guy Exp $
+ * $Id: packet-ip.c,v 1.96 2000/08/04 04:54:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -776,27 +776,46 @@ static const true_false_string flags_set_truth = {
   "Not set"
 };
 
-static char *ip_checksum_state(e_ip *iph)
+static gboolean ip_checksum_state(e_ip *iph)
 {
     unsigned long Sum;
     unsigned char *Ptr, *PtrEnd;
-    unsigned short word;
 
     Sum    = 0;
     PtrEnd = (lo_nibble(iph->ip_v_hl) * 4 + (char *)iph);
     for (Ptr = (unsigned char *) iph; Ptr < PtrEnd; Ptr += 2) {
-	memcpy(&word, Ptr, sizeof word);
-        Sum += word;
+        Sum += pntohs(Ptr);
     }
 
     Sum = (Sum & 0xFFFF) + (Sum >> 16);
     Sum = (Sum & 0xFFFF) + (Sum >> 16);
 
     if (Sum != 0xffff)
-        return "incorrect";
+        return FALSE;
 
-    return "correct";
+    return TRUE;
 }
+
+static unsigned short ip_checksum(e_ip *iph)
+{
+	unsigned long Sum;
+	unsigned char *Ptr, *PtrEnd;
+	guint16 ipsum;
+
+	Sum    = 0;
+	ipsum = iph->ip_sum;
+	iph->ip_sum = 0;
+	PtrEnd = (lo_nibble(iph->ip_v_hl) * 4 + (char *)iph);
+	for (Ptr = (unsigned char *) iph; Ptr < PtrEnd; Ptr += 2) {
+		Sum += pntohs(Ptr);
+	}
+	iph->ip_sum = ipsum;
+	Sum = (Sum & 0xFFFF) + (Sum >> 16);
+	Sum = (Sum & 0xFFFF) + (Sum >> 16);
+
+	return((unsigned short)~Sum);
+}
+
 
 void
 dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
@@ -877,8 +896,17 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     proto_tree_add_uint(ip_tree, hf_ip_ttl, NullTVB, offset +  8, 1, iph.ip_ttl);
     proto_tree_add_uint_format(ip_tree, hf_ip_proto, NullTVB, offset +  9, 1, iph.ip_p,
 	"Protocol: %s (0x%02x)", ipprotostr(iph.ip_p), iph.ip_p);
-    proto_tree_add_uint_format(ip_tree, hf_ip_checksum, NullTVB, offset + 10, 2, iph.ip_sum,
-        "Header checksum: 0x%04x (%s)", iph.ip_sum, ip_checksum_state((e_ip*) &pd[offset]));
+
+    if (ip_checksum_state((e_ip*) &pd[offset])) {
+	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, NullTVB, offset + 10, 2, iph.ip_sum,
+            "Header checksum: 0x%04x (correct)", iph.ip_sum);
+    }
+    else {
+	proto_tree_add_uint_format(ip_tree, hf_ip_checksum, NullTVB, offset + 10, 2, iph.ip_sum,
+            "Header checksum: 0x%04x (incorrect, should be 0x%04x)", iph.ip_sum,
+	    ip_checksum((e_ip*) &pd[offset]));
+    }
+
     proto_tree_add_ipv4(ip_tree, hf_ip_src, NullTVB, offset + 12, 4, iph.ip_src);
     proto_tree_add_ipv4(ip_tree, hf_ip_dst, NullTVB, offset + 16, 4, iph.ip_dst);
     proto_tree_add_ipv4_hidden(ip_tree, hf_ip_addr, NullTVB, offset + 12, 4, iph.ip_src);
