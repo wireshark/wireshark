@@ -1,7 +1,7 @@
 /* packet-igmp.c   2001 Ronnie Sahlberg <rsahlber@bigpond.net.au>
  * Routines for IGMP packet disassembly
  *
- * $Id: packet-igmp.c,v 1.9 2001/07/10 20:55:54 guy Exp $
+ * $Id: packet-igmp.c,v 1.10 2001/07/11 04:02:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -176,7 +176,9 @@ static int ett_mtrace_block = -1;
 #define IGMP_V2_MEMBERSHIP_REPORT	0x16
 #define IGMP_V2_LEAVE_GROUP		0x17
 #define IGMP_V1_TRACEROUTE_RESPONSE	0x1e
+#define IGMP_TRACEROUTE_RESPONSE        0x1e
 #define IGMP_V1_TRACEROUTE_MESSAGE	0x1f
+#define IGMP_TRACEROUTE_QUERY_REQ       0x1f
 #define IGMP_V3_MEMBERSHIP_REPORT	0x22
 #define IGMP_TYPE_0x23			0x23
 #define IGMP_TYPE_0x24			0x24
@@ -185,8 +187,6 @@ static int ett_mtrace_block = -1;
 	
 #define IGMP_TRACEROUTE_HDR_LEN           24
 #define IGMP_TRACEROUTE_RSP_LEN           32
-#define IGMP_TRACEROUTE_RESPONSE        0x1e
-#define IGMP_TRACEROUTE_QUERY_REQ       0x1f
 
 static const value_string commands[] = {
 	{IGMP_V0_CREATE_GROUP_REQUEST,	"Create Group Request"		},
@@ -647,9 +647,8 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int typ
 		if (blocks) col_append_str(pinfo->fd, COL_INFO, blocks);
 	}
 
-	/* First add hidden for filtering, then add text for display purposes */
-	proto_tree_add_uint_hidden(tree, hf_type, tvb, offset, 1, type);
-	proto_tree_add_text(tree, tvb, offset, 1, "Type: %s (0x%x)", typestr, type);
+	proto_tree_add_uint_format(tree, hf_type, tvb, offset, 1, type,
+	    "Type: %s (0x%02x)", typestr, type);
 	offset += 1;
 
 	/* maximum number of hops that the requester wants to trace */
