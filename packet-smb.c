@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.189 2001/12/18 08:55:49 guy Exp $
+ * $Id: packet-smb.c,v 1.190 2002/01/03 20:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -12343,7 +12343,9 @@ static const value_string errcls_types[] = {
   { 0, NULL }
 };
 
-static const value_string DOS_errors[] = {
+const value_string DOS_errors[] = {
+  {0, "Success"},
+  {SMBE_insufficientbuffer, "Insufficient buffer"},
   {SMBE_badfunc, "Invalid function (or system call)"},
   {SMBE_badfile, "File not found (pathname error)"},
   {SMBE_badpath, "Directory not found"},
@@ -12379,6 +12381,13 @@ static const value_string DOS_errors[] = {
   {SMBE_unknownipc, "Unknown IPC Operation"},
   {SMBE_noipc, "Don't support ipc"},
   {SMBE_alreadyexists, "File already exists"},
+  {SMBE_unknownprinterdriver, "Unknown printer driver"},
+  {SMBE_invalidprintername, "Invalid printer name"},
+  {SMBE_printeralreadyexists, "Printer already exists"},
+  {SMBE_invaliddatatype, "Invalid data type"},
+  {SMBE_invalidenvironment, "Invalid environment"},
+  {SMBE_printerdriverinuse, "Printer driver in use"},
+  {SMBE_invalidparam, "Invalid parameter"},
   {0, NULL}
   };
 

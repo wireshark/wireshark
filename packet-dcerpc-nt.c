@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.1 2001/12/16 20:17:10 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.2 2002/01/03 20:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -314,7 +314,7 @@ guint32 prs_pop_ptr(GList **ptr_list, char *name)
    fake it by taking every odd byte.  )-:  The caller must free the
    result returned. */
 
-static char *fake_unicode(guint16 *data, int len)
+char *fake_unicode(guint16 *data, int len)
 {
 	char *buffer;
 	int i;
@@ -360,11 +360,18 @@ int prs_UNISTR2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* Parse a policy handle. */
 
 int prs_policy_hnd(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-		   proto_tree *tree)
+		   proto_tree *tree, const guint8 **data)
 {
+	const guint8 *data8;
+
 	offset = prs_align(offset, 4);
 
 	proto_tree_add_text(tree, tvb, offset, 20, "Policy Handle");
+
+	data8 = tvb_get_ptr(tvb, offset, 20);
+	
+	if (data)
+		*data = data8;
 
 	return offset + 20;
 }

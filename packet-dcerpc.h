@@ -1,7 +1,7 @@
 /* packet-dcerpc.h
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.h,v 1.5 2001/12/06 23:30:35 guy Exp $
+ * $Id: packet-dcerpc.h,v 1.6 2002/01/03 20:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -24,6 +24,8 @@
 
 #ifndef __PACKET_DCERPC_H__
 #define __PACKET_DCERPC_H__
+
+#include "conversation.h"
 
 typedef struct _e_uuid_t {
     guint32 Data1;
@@ -154,5 +156,13 @@ typedef struct _dcerpc_private_info {
 	} smb;
     } data;
 } dcerpc_private_info;
+
+/* Private data passed to subdissectors from the main DCERPC dissector. */
+
+typedef struct _dcerpc_info {
+	conversation_t *conv;	/* Which TCP stream we are in */
+	guint32 call_id;	/* Context id for this call */
+	guint16 smb_fid;	/* FID for DCERPC over SMB */
+} dcerpc_info;
 
 #endif /* packet-dcerpc.h */

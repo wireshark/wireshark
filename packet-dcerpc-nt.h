@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.h,v 1.1 2001/12/16 20:17:10 guy Exp $
+ * $Id: packet-dcerpc-nt.h,v 1.2 2002/01/03 20:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,11 +55,13 @@ int prs_ntstatus(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /* Parse some common RPC structures */
 
+char *fake_unicode(guint16 *data, int len);
+
 int prs_UNISTR2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *tree, int flags, char **data, char *name);
 
 int prs_policy_hnd(tvbuff_t *tvb, int offset, packet_info *pinfo, 
-		   proto_tree *tree);
+		   proto_tree *tree, const guint8 **data);
 
 /* Routines for handling deferral of referants in NDR */
 

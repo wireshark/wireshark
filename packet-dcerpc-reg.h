@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\winreg packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.h,v 1.3 2001/12/16 20:08:22 guy Exp $
+ * $Id: packet-dcerpc-reg.h,v 1.4 2002/01/03 20:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,5 +55,22 @@
 #define REG_SHUTDOWN		0x18
 #define REG_ABORT_SHUTDOWN	0x19
 #define REG_UNK_1A		0x1a
+
+/* Registry data types */
+
+#define REG_NONE                       0
+#define REG_SZ		               1
+#define REG_EXPAND_SZ                  2
+#define REG_BINARY 	               3
+#define REG_DWORD	               4
+#define REG_DWORD_LE	               4	/* DWORD, little endian */
+#define REG_DWORD_BE	               5	/* DWORD, big endian */
+#define REG_LINK                       6
+#define REG_MULTI_SZ  	               7
+#define REG_RESOURCE_LIST              8
+#define REG_FULL_RESOURCE_DESCRIPTOR   9
+#define REG_RESOURCE_REQUIREMENTS_LIST 10
+
+extern const value_string reg_datatypes[];
 
 #endif /* packet-dcerpc-reg.h */

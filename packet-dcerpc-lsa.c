@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\lsarpc packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-lsa.c,v 1.5 2001/12/17 08:31:26 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.6 2002/01/03 20:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -46,24 +46,6 @@
  *  } UNICODE_STRING;
  *
  */
-
-/* Convert a (little endian) unicode string to ASCII.  We fake it by just
-   taking every odd byte. */
-
-static char *fake_unicode(guint16 *data, int len)
-{
-	char *buffer;
-	int i;
-
-	buffer = malloc(len + 1);
-
-	for (i = 0; i < len; i++)
-		buffer[i] = data[i] & 0xff;
-
-	buffer[len] = 0;
-
-	return buffer;
-}
 
 static int ett_UNISTR = -1;
 static int ett_UNISTR_hdr = -1;
@@ -257,7 +239,7 @@ static int LsaClose_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "ClosePolicy request");
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, tree);
+	offset = prs_policy_hnd(tvb, offset, pinfo, tree, NULL);
 
 	return offset;
 }
@@ -268,7 +250,7 @@ static int LsaClose_r(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "ClosePolicy reply");
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, tree);
+	offset = prs_policy_hnd(tvb, offset, pinfo, tree, NULL);
 	offset = prs_ntstatus(tvb, offset, pinfo, tree);
 
 	return offset;
@@ -456,7 +438,7 @@ static int LsaOpenPolicy_r(tvbuff_t * tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "OpenPolicy reply");
 
-        offset = prs_policy_hnd(tvb, offset, pinfo, tree);
+        offset = prs_policy_hnd(tvb, offset, pinfo, tree, NULL);
         offset = prs_ntstatus(tvb, offset, pinfo, tree);
 
         return offset;
@@ -601,7 +583,7 @@ static int LsaQueryInfoPolicy_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "QueryInfo request");
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, tree);
+	offset = prs_policy_hnd(tvb, offset, pinfo, tree, NULL);
 	offset = prs_uint16(tvb, offset, pinfo, tree, NULL, "Info level");
 
 	return offset;
@@ -864,7 +846,7 @@ static int LsaLookupNames_q(tvbuff_t *tvb, int offset,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "LookupNames request");
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, tree);
+	offset = prs_policy_hnd(tvb, offset, pinfo, tree, NULL);
 
 	offset = prs_uint32(tvb, offset, pinfo, tree, &count, "Num names");
 
@@ -1092,7 +1074,7 @@ static int LsaLookupSids_q(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_str(pinfo->cinfo, COL_INFO, "LookupSids request");
 
-	offset = prs_policy_hnd(tvb, offset, pinfo, tree);
+	offset = prs_policy_hnd(tvb, offset, pinfo, tree, NULL);
 
 	offset = prs_SID_ARRAY(tvb, offset, pinfo, tree, flags, &ptr_list);
 

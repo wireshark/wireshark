@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.22 2001/12/17 23:08:51 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.23 2002/01/03 20:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -436,7 +436,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                     tvbuff_t *tvb, gint offset,
                     e_uuid_t *uuid, guint16 ver, 
                     guint16 opnum, gboolean is_rqst,
-                    char *drep)
+                    char *drep, dcerpc_info *info)
 {
     dcerpc_uuid_key key;
     dcerpc_uuid_value *sub_proto;
@@ -446,6 +446,7 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     gchar *name = NULL;
     dcerpc_dissect_fnct_t *sub_dissect;
     const char *saved_proto;
+    void *saved_private_data;
 
     key.uuid = *uuid;
     key.ver = ver;
@@ -498,9 +499,14 @@ dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
     sub_dissect = is_rqst ? proc->dissect_rqst : proc->dissect_resp;
     if (sub_dissect) {
         saved_proto = pinfo->current_proto;
+	saved_private_data = pinfo->private_data;
         pinfo->current_proto = sub_proto->name;
+	pinfo->private_data = (void *)info;
+
         sub_dissect (tvb, offset, pinfo, sub_tree, drep);
+
         pinfo->current_proto = saved_proto;
+	pinfo->private_data = saved_private_data;
     } else {
         length = tvb_length_remaining (tvb, offset);
         if (length > 0) {
@@ -841,6 +847,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
         dcerpc_conv_key key;
         dcerpc_conv_value *value;
         int length, reported_length, stub_length;
+	dcerpc_info di;
 
         key.conv = conv;
         key.ctx_id = ctx_id;
@@ -860,11 +867,14 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
               length = stub_length;
             if (reported_length > stub_length)
               reported_length = stub_length;
+	    di.conv = conv;
+	    di.call_id = hdr->call_id;
+	    di.smb_fid = key.smb_fid;
             dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                                 tvb_new_subset (tvb, offset, length,
                                                 reported_length),
                                 0, &value->uuid, value->ver,
-                                opnum, TRUE, hdr->drep);
+                                opnum, TRUE, hdr->drep, &di);
         }
     }
 }
@@ -905,6 +915,8 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
         int length, reported_length, stub_length;
 
         if (value) {
+            dcerpc_info di;
+
             /* handoff this call */
             length = tvb_length_remaining(tvb, offset);
             reported_length = tvb_reported_length_remaining(tvb, offset);
@@ -913,11 +925,14 @@ dissect_dcerpc_cn_resp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *dcerpc_tr
               length = stub_length;
             if (reported_length > stub_length)
               reported_length = stub_length;
+	    di.conv = conv;
+	    di.call_id = hdr->call_id;
+	    di.smb_fid = get_smb_fid(pinfo->private_data);
             dcerpc_try_handoff (pinfo, tree, dcerpc_tree,
                                 tvb_new_subset (tvb, offset, length,
                                                 reported_length),
                                 0, &value->uuid, value->ver,
-                                value->opnum, FALSE, hdr->drep);
+                                value->opnum, FALSE, hdr->drep, &di);
         }
     }
 }
@@ -1346,22 +1361,26 @@ dissect_dcerpc_dg (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*
      * Packet type specific stuff is next.
      */
+
     switch (hdr.ptype) {
     case PDU_REQ:
         dcerpc_call_add_map (hdr.seqnum, conv, hdr.opnum,
                              hdr.if_ver, &hdr.if_id);
         dcerpc_try_handoff (pinfo, tree, dcerpc_tree, tvb, offset,
-                            &hdr.if_id, hdr.if_ver, hdr.opnum, TRUE, hdr.drep);
+                            &hdr.if_id, hdr.if_ver, hdr.opnum, TRUE,
+			    hdr.drep, NULL);
         break;
     case PDU_RESP:
         {
             dcerpc_call_value *v = dcerpc_call_lookup (hdr.seqnum, conv);
             if (v) {
                 dcerpc_try_handoff (pinfo, tree, dcerpc_tree, tvb, offset,
-                                    &v->uuid, v->ver, v->opnum, FALSE, hdr.drep);
+                                    &v->uuid, v->ver, v->opnum, FALSE, 
+				    hdr.drep, NULL);
             } else {
                 dcerpc_try_handoff (pinfo, tree, dcerpc_tree, tvb, offset,
-                                    &hdr.if_id, hdr.if_ver, hdr.opnum, FALSE, hdr.drep);
+                                    &hdr.if_id, hdr.if_ver, hdr.opnum, FALSE, 
+				    hdr.drep, NULL);
             }
         }
         break;

@@ -2,7 +2,7 @@
  * Routines for SMB \\PIPE\\winreg packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-reg.c,v 1.1 2001/11/21 02:08:57 guy Exp $
+ * $Id: packet-dcerpc-reg.c,v 1.2 2002/01/03 20:42:40 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,24 @@
 #include "packet.h"
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-reg.h"
+
+/* Registry data types */
+
+const value_string reg_datatypes[] = {
+	{ REG_NONE, "REG_NONE" },
+	{ REG_SZ, "REG_SZ" },
+	{ REG_EXPAND_SZ, "REG_EXPAND_SZ" },
+	{ REG_BINARY, "REG_BINARY" },
+	{ REG_DWORD, "REG_DWORD" },
+	{ REG_DWORD_LE, "REG_DWORD_LE" },
+	{ REG_DWORD_BE, "REG_DWORD_BE" },
+	{ REG_LINK, "REG_LINK" },
+	{ REG_MULTI_SZ, "REG_MULTI_SZ" },
+	{ REG_RESOURCE_LIST, "REG_RESOURCE_LIST" },
+	{ REG_FULL_RESOURCE_DESCRIPTOR, "REG_FULL_RESOURCE_DESCRIPTOR" },
+	{ REG_RESOURCE_REQUIREMENTS_LIST, "REG_RESOURCE_REQUIREMENTS_LIST" },
+	{0, NULL }
+};
 
 static int proto_dcerpc_reg = -1;
 static gint ett_dcerpc_reg = -1;

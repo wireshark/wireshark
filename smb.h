@@ -2,7 +2,7 @@
  * Defines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: smb.h,v 1.30 2001/12/06 23:30:36 guy Exp $
+ * $Id: smb.h,v 1.31 2002/01/03 20:42:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -136,7 +136,9 @@
 #define SMBE_unsup 50              /* Request unsupported, returned by Win 95, RJS 20Jun98 */
 #define SMBE_nosuchshare 67        /* Share does not exits */
 #define SMBE_filexists 80          /* File in operation already exists */
+#define SMBE_invalidparam 87	   /* Invalid parameter */
 #define SMBE_cannotopen 110        /* Cannot open the file specified */
+#define SMBE_insufficientbuffer 122/* Insufficient buffer size */
 #define SMBE_unknownlevel 124
 #define SMBE_alreadyexists 183     /* File already exists */
 #define SMBE_badpipe 230           /* Named pipe invalid */
@@ -150,6 +152,15 @@
 #define SMBE_notify_buf_small 1022 /* Buffer too small to return change notify. */
 #define SMBE_unknownipc 2142
 #define SMBE_noipc 66              /* don't support ipc */
+
+/* These errors seem to be only returned by the NT printer driver system */
+
+#define SMBE_unknownprinterdriver 1797 /* Unknown printer driver */
+#define SMBE_invalidprintername 1801   /* Invalid printer name */
+#define SMBE_printeralreadyexists 1802 /* Printer already exists */
+#define SMBE_invaliddatatype 1804      /* Invalid datatype */
+#define SMBE_invalidenvironment 1805   /* Invalid environment */
+#define SMBE_printerdriverinuse 3001   /* Printer driver in use */
 
 /* Error codes for the ERRSRV class */
 
@@ -284,7 +295,8 @@ extern gboolean smb_dcerpc_reassembly;
 extern GHashTable *dcerpc_fragment_table;
 
 /*
- * NT error codes.
+ * NT and DOS error codes used by other dissectors.
  */
 extern const value_string NT_errors[];
+extern const value_string DOS_errors[];
 #endif
