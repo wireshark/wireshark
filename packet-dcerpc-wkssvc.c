@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  * Copyright 2003, Richard Sharpe <rsharpe@richardsharpe.com>
  *
- * $Id: packet-dcerpc-wkssvc.c,v 1.28 2003/09/27 23:43:29 guy Exp $
+ * $Id: packet-dcerpc-wkssvc.c,v 1.29 2003/11/19 07:13:01 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -793,7 +793,7 @@ wkssvc_dissect_USER_ENUM_UNION(tvbuff_t *tvb, int offset,
  * IDL      [in] long prefmaxlen,
  * IDL      [out] long *entriesread,
  * IDL      [out] long *totalentries,
- * IDL      [in] [out] [ref] *resumehandle
+ * IDL      [in] [out] [ref] long *resumehandle
  * IDL );
  */
 static int
@@ -963,7 +963,7 @@ wkssvc_dissect_TRANSPORT_ENUM_UNION(tvbuff_t *tvb, int offset,
  * IDL      [in] long prefmaxlen,
  * IDL      [out] long *entriesread,
  * IDL      [out] long *totalentries,
- * IDL      [in] [out] [ref] *resumehandle
+ * IDL      [in] [out] [ref] long *resumehandle
  * IDL );
  */
 static int
