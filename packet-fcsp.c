@@ -3,7 +3,7 @@
  * This decoder is for FC-SP version 1.1
  * Copyright 2003, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcsp.c,v 1.1 2003/10/30 02:06:12 guy Exp $
+ * $Id: packet-fcsp.c,v 1.2 2003/11/07 08:47:53 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -174,10 +174,7 @@ void dissect_fcsp_dhchap_auth_param (tvbuff_t *tvb, proto_tree *tree,
     guint16 param_len = 0, i;
     
     if (tree) {
-        proto_tree_add_item (tree, hf_auth_proto_type, tvb, offset, 4, 0);
-
-        auth_param_tag = tvb_get_ntohs (tvb, offset+4);
-        offset += 4;
+        auth_param_tag = tvb_get_ntohs (tvb, offset);
         total_len -= 4;
         
         while (total_len > 0) {
@@ -187,7 +184,7 @@ void dissect_fcsp_dhchap_auth_param (tvbuff_t *tvb, proto_tree *tree,
                                  2, 0);
 
             auth_param_tag = tvb_get_ntohs (tvb, offset);
-            param_len = tvb_get_ntohs (tvb, offset+2);
+            param_len = tvb_get_ntohs (tvb, offset+2)*4;
 
             switch (auth_param_tag) {
             case FC_AUTH_DHCHAP_PARAM_HASHLIST:
@@ -347,12 +344,14 @@ void dissect_fcsp_auth_negotiate (tvbuff_t *tvb, proto_tree *tree)
         offset += 4;
         
         for (i = 0; i < num_protos; i++) {
-            proto_type = tvb_get_ntohs (tvb, offset);
-            proto_tree_add_item (tree, hf_auth_proto_type, tvb, offset, 2, 0);
-            proto_tree_add_item (tree, hf_auth_proto_param_len, tvb, offset+2, 2, 0);
-            param_len = tvb_get_ntohs (tvb, offset+2)*4;
-
+            proto_tree_add_item (tree, hf_auth_proto_param_len, tvb, offset, 4, 0);
+            param_len = tvb_get_ntohl (tvb, offset);
+            offset += 4;
+            
             if (tvb_bytes_exist (tvb, offset, param_len)) {
+                proto_type = tvb_get_ntohl (tvb, offset);
+
+                proto_tree_add_item (tree, hf_auth_proto_type, tvb, offset, 4, 0);
                 switch (proto_type) {
                 case FC_AUTH_PROTO_TYPE_DHCHAP:
                     dissect_fcsp_dhchap_auth_param (tvb, tree, offset+4, param_len);
