@@ -1,8 +1,9 @@
 /* packet-dcerpc-lsa-ds.c
  * Routines for SMB \PIPE\lsarpc packet disassembly
  * Copyright 2002, Tim Potter <tpot@samba.org>
+ * Copyright 2002, Jim McDonough <jmcd@samba.org>
  *
- * $Id: packet-dcerpc-lsa-ds.c,v 1.2 2002/11/02 22:55:49 guy Exp $
+ * $Id: packet-dcerpc-lsa-ds.c,v 1.3 2002/11/14 04:39:39 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,21 +34,184 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
+#include "smb.h"
+
+#define LSA_DS_DSROLEGETDOMINFO 0x0000
+
+#define LSA_DS_DSROLE_BASIC_INFO 0x0001
 
 static int proto_dcerpc_lsa_ds = -1;
 
+static int hf_lsa_ds_opnum = -1;
+static int hf_lsa_ds_dominfo_level = -1;
+static int hf_lsa_ds_machine_role = -1;
+static int hf_lsa_ds_dominfo_flags = -1;
+static int hf_lsa_ds_dominfo_netb_name = -1;
+static int hf_lsa_ds_dominfo_dns_name = -1;
+static int hf_lsa_ds_dominfo_forest_name = -1;
+static int hf_lsa_ds_rc = -1;
+
 static gint ett_dcerpc_lsa_ds = -1;
+static gint ett_lsa_ds_domain_info = -1;
+static gint ett_lsa_ds_basic_domain_info = -1;
+
+static int
+lsa_ds_dissect_DSROLE_BASIC_INFO(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"DSROLE_BASIC__DOMAIN_INFO:");
+		tree = proto_item_add_subtree(item, 
+					      ett_lsa_ds_basic_domain_info);
+	}
+
+	/* role */
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+				    hf_lsa_ds_machine_role, 0);
+
+	ALIGN_TO_4_BYTES;
+	/* flags */
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+				    hf_lsa_ds_dominfo_flags, 0);
+
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"NetBIOS domain name pointer", hf_lsa_ds_dominfo_netb_name, 0);
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"DNS domain pointer", hf_lsa_ds_dominfo_dns_name, 0);
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		"DNS forest name pointer", hf_lsa_ds_dominfo_forest_name, 0);
+
+	/* GUID */
+	offset = dissect_nt_GUID(tvb, offset, pinfo, tree, drep);
+
+	proto_item_set_len(item, offset-old_offset);
+	return offset;
+}
+
+
+static int
+lsa_ds_dissect_DS_DOMINFO_CTR(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, char *drep)
+{
+	proto_item *item=NULL;
+	proto_tree *tree=NULL;
+	int old_offset=offset;
+	guint16 level;
+
+	if(parent_tree){
+		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+			"DOMAIN_INFO:");
+		tree = proto_item_add_subtree(item, ett_lsa_ds_domain_info);
+	}
+
+        offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
+                                     hf_lsa_ds_dominfo_level, &level);
+	ALIGN_TO_4_BYTES; 
+	/* We only know one level so far */
+	switch(level){
+	case LSA_DS_DSROLE_BASIC_INFO:
+		offset = lsa_ds_dissect_DSROLE_BASIC_INFO(
+			tvb, offset, pinfo, tree, drep);
+		break;
+	}
+
+	proto_item_set_len(item, offset-old_offset);
+
+	return offset;
+}
+
+static int
+lsa_ds_dissect_role_get_dom_info_rqst(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
+				    hf_lsa_ds_dominfo_level, NULL);
+	return offset;
+}
+
+static int
+lsa_ds_dissect_role_get_dom_info_reply(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *tree, char *drep)
+{
+	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+		lsa_ds_dissect_DS_DOMINFO_CTR, NDR_POINTER_UNIQUE,
+		"DOMAIN_INFORMATION pointer", -1, 0);
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+		hf_lsa_ds_rc, NULL);
+
+	return offset;
+}
+
+
+static const value_string lsa_ds_opnum_vals[] = {
+	{ LSA_DS_DSROLEGETDOMINFO, "DsRoleGetDomInfo" },
+	{ 0, NULL }
+};
+
+static const value_string lsa_ds_dominfo_levels[] = {
+	{ LSA_DS_DSROLE_BASIC_INFO, "DsRoleBasicInfo"},
+	{ 0, NULL }
+};
+
 
 void
 proto_register_dcerpc_lsa_ds(void)
 {
+        static hf_register_info hf[] = {
+
+	{ &hf_lsa_ds_opnum,
+	  { "Operation", "ls_ads.opnum", FT_UINT16, BASE_DEC,
+	    VALS(lsa_ds_opnum_vals), 0x0, "Operation", HFILL }},
+	
+	{ &hf_lsa_ds_dominfo_level,
+	  { "Level", "lsa_ds.dominfo.level", FT_UINT16, BASE_DEC,
+	    VALS(lsa_ds_dominfo_levels), 0x0, 
+	    "Information level of requested data", HFILL }},
+
+	{ &hf_lsa_ds_machine_role,
+	  { "Machine role", "lsa_ds.role", FT_UINT16, BASE_HEX,
+	    NULL, 0x0, "Role of machine in domain", HFILL}},
+
+	{ &hf_lsa_ds_dominfo_flags,
+	  { "Flags", "lsa_ds.dominfo.flags", FT_UINT32, BASE_HEX,
+	    NULL, 0x0, "Machine flags", HFILL }},
+
+	{ &hf_lsa_ds_dominfo_netb_name,
+	  { "Netbios name", "lsa_ds.dominfo.nbname", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "Netbios Domain Name", HFILL}},
+
+	{ &hf_lsa_ds_dominfo_dns_name,
+	  { "DNS name", "lsa_ds.dominfo.dnsname", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "DNS Domain Name", HFILL}},
+
+	{ &hf_lsa_ds_dominfo_forest_name,
+	  { "Forest name", "lsa_ds.dominfo.forest", FT_STRING, BASE_NONE,
+	    NULL, 0x0, "DNS Forest Name", HFILL}},
+
+	{ &hf_lsa_ds_rc,
+	  { "Return code", "lsa_ds.rc", FT_UINT32, BASE_HEX,
+	  VALS (NT_errors), 0x0, "LSA_DS return status code", HFILL }},
+	};
+
         static gint *ett[] = {
-                &ett_dcerpc_lsa_ds
+                &ett_dcerpc_lsa_ds,
+		&ett_lsa_ds_domain_info,
+		&ett_lsa_ds_basic_domain_info
         };
 
         proto_dcerpc_lsa_ds = proto_register_protocol(
                 "Microsoft Local Security Architecture (Directory Services)", 
 		"LSA_DS", "lsa_ds");
+	proto_register_field_array(proto_dcerpc_lsa_ds, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
 }
 
@@ -61,7 +225,10 @@ static e_uuid_t uuid_dcerpc_lsa_ds = {
 static guint16 ver_dcerpc_lsa_ds = 0;
 
 static dcerpc_sub_dissector lsa_ds_dissectors[] = {
-    { 0, NULL, NULL, NULL },
+	{ LSA_DS_DSROLEGETDOMINFO, "DsRoleGetDomInfo", 
+	  lsa_ds_dissect_role_get_dom_info_rqst, 
+	  lsa_ds_dissect_role_get_dom_info_reply },
+	{ 0, NULL, NULL, NULL },
 };
 
 void
