@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.19 2001/10/06 16:48:00 nneul Exp $
+ * $Id: packet-tns.c,v 1.20 2001/10/06 17:58:56 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -51,8 +51,6 @@ static int hf_tns_packet_checksum = -1;
 static int hf_tns_header_checksum = -1;
 static int hf_tns_packet_type = -1;
 static int hf_tns_reserved_byte = -1;
-static int hf_tns_data_flag = -1;
-static int hf_tns_sns = -1;
 static int hf_tns_connect = -1;
 static int hf_tns_version = -1;
 static int hf_tns_compat_version = -1;
@@ -86,81 +84,119 @@ static int hf_tns_refuse_data = -1;
 static int hf_tns_redirect = -1;
 static int hf_tns_redirect_data_length = -1;
 static int hf_tns_redirect_data = -1;
+
+static int hf_tns_data_flag = -1;
+static int hf_tns_data_flag_send = -1;
+static int hf_tns_data_flag_rc = -1;
+static int hf_tns_data_flag_c = -1;
+static int hf_tns_data_flag_reserved = -1;
+static int hf_tns_data_flag_more = -1;
+static int hf_tns_data_flag_eof = -1;
+static int hf_tns_data_flag_dic = -1;
+static int hf_tns_data_flag_rts = -1;
+static int hf_tns_data_flag_sntt = -1;
+static int hf_tns_data = -1;
+
+
+
 static gint ett_tns = -1;
-static gint ett_tns_sns = -1;
 static gint ett_tns_connect = -1;
 static gint ett_tns_accept = -1;
+static gint ett_tns_refuse = -1;
+static gint ett_tns_redirect = -1;
+static gint ett_tns_data = -1;
+static gint ett_tns_data_flag = -1;
 static gint ett_sql = -1;
 
 #define TCP_PORT_TNS			1521
 
 static const value_string tns_type_vals[] = {
-		{TNS_TYPE_CONNECT,   "Connect" },
-		{TNS_TYPE_ACCEPT,    "Accept" },
-		{TNS_TYPE_ACK,       "Acknowledge" },
-		{TNS_TYPE_REFUSE,    "Refuse" },
-		{TNS_TYPE_REDIRECT,  "Redirect" },
-		{TNS_TYPE_DATA,      "Data" },
-		{TNS_TYPE_NULL,      "Null" },
-		{TNS_TYPE_ABORT,     "Abort" },
-		{TNS_TYPE_RESEND,    "Resend"},
-		{TNS_TYPE_MARKER,    "Marker"},
-		{TNS_TYPE_ATTENTION, "Attention"},
-		{TNS_TYPE_CONTROL,   "Control"},
-		{0, NULL}
+	{TNS_TYPE_CONNECT,   "Connect" },
+	{TNS_TYPE_ACCEPT,    "Accept" },
+	{TNS_TYPE_ACK,       "Acknowledge" },
+	{TNS_TYPE_REFUSE,    "Refuse" },
+	{TNS_TYPE_REDIRECT,  "Redirect" },
+	{TNS_TYPE_DATA,      "Data" },
+	{TNS_TYPE_NULL,      "Null" },
+	{TNS_TYPE_ABORT,     "Abort" },
+	{TNS_TYPE_RESEND,    "Resend"},
+	{TNS_TYPE_MARKER,    "Marker"},
+	{TNS_TYPE_ATTENTION, "Attention"},
+	{TNS_TYPE_CONTROL,   "Control"},
+	{0, NULL}
 };
-
-
-static void dissect_tns_sns(tvbuff_t *tvb, int offset, packet_info *pinfo,
-	proto_tree *tree, proto_tree *tns_tree)
-{
-	proto_tree *sns_tree = NULL, *ti;
-
-	if ( tree )
-	{
-		ti = proto_tree_add_text(tns_tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), "Secure Network Services");
-		sns_tree = proto_item_add_subtree(ti, ett_tns_sns);
-
-		proto_tree_add_boolean_hidden(tns_tree, hf_tns_sns, tvb, 0, 0,
-		    TRUE);
-	}
-
-	if ( check_col(pinfo->fd, COL_INFO) )
-	{
-		col_append_fstr(pinfo->fd, COL_INFO, ", SNS");
-	}
-
-	if ( sns_tree )
-	{
-		dissect_data(tvb,offset,pinfo,sns_tree);
-	}
-}
 
 static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree)
 {
+	proto_tree *data_tree = NULL, *ti;
+	int is_sns = 0;
+	
+	if ( tvb_bytes_exist(tvb, offset+2, 4) )
+	{
+		if ( tvb_get_guint8(tvb, offset+2) == 0xDE &&
+		     tvb_get_guint8(tvb, offset+3) == 0xAD &&
+		     tvb_get_guint8(tvb, offset+4) == 0xBE &&
+		     tvb_get_guint8(tvb, offset+5) == 0xEF )
+		{
+			is_sns = 1;
+		}
+	}
 
 	if ( tree )
 	{
-		proto_tree_add_uint(tns_tree, hf_tns_data_flag, tvb,
-			offset, 2, FALSE);
+		if ( is_sns )
+		{
+			ti = proto_tree_add_text(tns_tree, tvb, offset,
+			    tvb_length_remaining(tvb, offset), "Secure Network Services");
+		}
+		else
+		{
+			ti = proto_tree_add_text(tns_tree, tvb, offset,
+			    tvb_length_remaining(tvb, offset), "Data");		
+		}
+		data_tree = proto_item_add_subtree(ti, ett_tns_data);
+
+		proto_tree_add_boolean_hidden(tns_tree, hf_tns_data, tvb, 0, 0,
+				TRUE);
+	}
+
+	if ( tree )
+	{
+		proto_tree *df_tree = NULL;
+		
+		ti = proto_tree_add_uint(data_tree, hf_tns_data_flag, tvb, offset, 2, FALSE);
+		
+		df_tree = proto_item_add_subtree(ti, ett_tns_data_flag);
+		proto_tree_add_uint(df_tree, hf_tns_data_flag_send, tvb, offset, 2, FALSE);
+		proto_tree_add_uint(df_tree, hf_tns_data_flag_rc, tvb, offset, 2, FALSE);
+		proto_tree_add_uint(df_tree, hf_tns_data_flag_c, tvb, offset, 2, FALSE);
+		proto_tree_add_uint(df_tree, hf_tns_data_flag_reserved, tvb, offset, 2, FALSE);
+		proto_tree_add_uint(df_tree, hf_tns_data_flag_more, tvb, offset, 2, FALSE);
+		proto_tree_add_uint(df_tree, hf_tns_data_flag_eof, tvb, offset, 2, FALSE);
+		proto_tree_add_uint(df_tree, hf_tns_data_flag_dic, tvb, offset, 2, FALSE);
+		proto_tree_add_uint(df_tree, hf_tns_data_flag_rts, tvb, offset, 2, FALSE);
+		proto_tree_add_uint(df_tree, hf_tns_data_flag_sntt, tvb, offset, 2, FALSE);
 	}
 	offset += 2;
 
-	if ( tvb_bytes_exist(tvb, offset, 4) )
+	if ( check_col(pinfo->fd, COL_INFO) )
 	{
-		if ( tvb_get_guint8(tvb, offset) == 0xDE &&
-		     tvb_get_guint8(tvb, offset+1) == 0xAD &&
-		     tvb_get_guint8(tvb, offset+2) == 0xBE &&
-		     tvb_get_guint8(tvb, offset+3) == 0xEF )
+		if ( is_sns )
 		{
-			dissect_tns_sns(tvb,offset,pinfo,tree,tns_tree);
-			return;
+			col_append_fstr(pinfo->fd, COL_INFO, ", SNS");
 		}
+		else
+		{
+			col_append_fstr(pinfo->fd, COL_INFO, ", Data");
+		}	
 	}
 	
-	dissect_data(tvb,offset,pinfo,tree);
+	if ( data_tree )
+	{
+		dissect_data(tvb,offset,pinfo,data_tree);
+	}
+
 	return;
 }
 
@@ -420,7 +456,7 @@ static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	{
 		ti = proto_tree_add_text(tns_tree, tvb, offset,
 		    tvb_length_remaining(tvb, offset), "Accept");
-		refuse_tree = proto_item_add_subtree(ti, ett_tns_accept);
+		refuse_tree = proto_item_add_subtree(ti, ett_tns_refuse);
 
 		proto_tree_add_boolean_hidden(tns_tree, hf_tns_refuse, tvb,
 		    0, 0, TRUE);
@@ -470,7 +506,7 @@ static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	{
 		ti = proto_tree_add_text(tns_tree, tvb, offset,
 		    tvb_length_remaining(tvb, offset), "Accept");
-		redirect_tree = proto_item_add_subtree(ti, ett_tns_accept);
+		redirect_tree = proto_item_add_subtree(ti, ett_tns_redirect);
 
 		proto_tree_add_boolean_hidden(tns_tree, hf_tns_redirect, tvb,
 		    0, 0, TRUE);
@@ -605,9 +641,6 @@ dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void proto_register_tns(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_tns_sns, { 
-			"Secure Network Services", "tns.sns", FT_BOOLEAN, BASE_NONE, 
-			NULL, 0x0, "Secure Network Services", HFILL }},
 		{ &hf_tns_connect, { 
 			"Connect", "tns.connect", FT_BOOLEAN, BASE_NONE, 
 			NULL, 0x0, "Connect", HFILL }},
@@ -620,6 +653,10 @@ void proto_register_tns(void)
 		{ &hf_tns_redirect, { 
 			"Redirect", "tns.redirect", FT_BOOLEAN, BASE_NONE, 
 			NULL, 0x0, "Redirect", HFILL }},		
+		{ &hf_tns_data, { 
+			"Data", "tns.data", FT_BOOLEAN, BASE_NONE, 
+			NULL, 0x0, "Data", HFILL }},		
+
 		{ &hf_tns_response, { 
 			"Response", "tns.response", FT_BOOLEAN, BASE_NONE, 
 			NULL, 0x0, "TRUE if TNS response", HFILL }},
@@ -635,9 +672,7 @@ void proto_register_tns(void)
 		{ &hf_tns_header_checksum, { 	
 			"Header Checksum", "tns.header_checksum", FT_UINT16, BASE_HEX, 
 			NULL, 0x0, "Checksum of Header Data", HFILL }},
-		{ &hf_tns_data_flag, { 	
-			"Data Flag", "tns.data_flag", FT_UINT16, BASE_HEX, 
-			NULL, 0x0, "Data Flag", HFILL }},
+			
 		{ &hf_tns_version, { 	
 			"Version", "tns.version", FT_UINT16, BASE_DEC, 
 			NULL, 0x0, "Version", HFILL }},
@@ -721,19 +756,55 @@ void proto_register_tns(void)
 			"Redirect Data", "tns.redirect_data", FT_STRING, BASE_NONE, 
 			NULL, 0x0, "Redirect Data", HFILL }},
 
+		{ &hf_tns_data_flag, { 	
+			"Data Flag", "tns.data_flag", FT_UINT16, BASE_HEX, 
+			NULL, 0x0, "Data Flag", HFILL }},
+		{ &hf_tns_data_flag_send, { 	
+			"Send Token", "tns.data_flag.send", FT_UINT16, BASE_BIN, 
+			NULL, 0x1, "Send Token", HFILL }},
+		{ &hf_tns_data_flag_rc, { 	
+			"Request Confirmation", "tns.data_flag.rc", FT_UINT16, BASE_BIN, 
+			NULL, 0x2, "Request Confirmation", HFILL }},
+		{ &hf_tns_data_flag_c, { 	
+			"Confirmation", "tns.data_flag.c", FT_UINT16, BASE_BIN, 
+			NULL, 0x4, "Confirmation", HFILL }},
+		{ &hf_tns_data_flag_reserved, { 	
+			"Reserved", "tns.data_flag.reserved", FT_UINT16, BASE_BIN, 
+			NULL, 0x8, "Reserved", HFILL }},
+		{ &hf_tns_data_flag_more, { 	
+			"More Data to Come", "tns.data_flag.more", FT_UINT16, BASE_BIN, 
+			NULL, 0x20, "More Data to Come", HFILL }},
+		{ &hf_tns_data_flag_eof, { 	
+			"End of File", "tns.data_flag.eof", FT_UINT16, BASE_BIN, 
+			NULL, 0x40, "End of File", HFILL }},
+		{ &hf_tns_data_flag_dic, { 	
+			"Do Immediate Confirmation", "tns.data_flag.dic", FT_UINT16, BASE_BIN, 
+			NULL, 0x80, "Do Immediate Confirmation", HFILL }},
+		{ &hf_tns_data_flag_rts, { 	
+			"Request To Send", "tns.data_flag.rts", FT_UINT16, BASE_BIN, 
+			NULL, 0x100, "Request To Send", HFILL }},
+		{ &hf_tns_data_flag_sntt, { 	
+			"Send NT Trailer", "tns.data_flag.sntt", FT_UINT16, BASE_BIN, 
+			NULL, 0x200, "Send NT Trailer", HFILL }},
+
+
 		{ &hf_tns_reserved_byte, { 	
 			"Reserved Byte", "tns.reserved_byte", FT_BYTES, BASE_HEX, 
 			NULL, 0x0, "Reserved Byte", HFILL }},
 		{ &hf_tns_packet_type, { 	
 			"Packet Type", "tns.type", FT_UINT8, BASE_DEC, 
 			VALS(tns_type_vals), 0x0, "Type of TNS packet", HFILL }}	
+
 	};
 
 	static gint *ett[] = {
 		&ett_tns,
-		&ett_tns_sns,
 		&ett_tns_connect,
 		&ett_tns_accept,
+		&ett_tns_refuse,
+		&ett_tns_redirect,
+		&ett_tns_data,
+		&ett_tns_data_flag,
 		&ett_sql
 	};
 	proto_tns = proto_register_protocol(
