@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.20 1999/01/04 07:39:14 guy Exp $
+ * $Id: ethereal.c,v 1.21 1999/02/09 00:35:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -65,8 +65,8 @@
 #endif
 
 #include "ethereal.h"
-#include "capture.h"
 #include "packet.h"
+#include "capture.h"
 #include "file.h"
 #include "menu.h"
 #include "etypes.h"

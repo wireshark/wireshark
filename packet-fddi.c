@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.8 1998/11/17 04:28:53 gerald Exp $
+ * $Id: packet-fddi.c,v 1.9 1999/02/09 00:35:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -133,6 +133,49 @@ static void get_mac_addr(u_char *swapped_addr, const u_char *addr)
   }
 }
 
+void
+capture_fddi(const u_char *pd, guint32 cap_len, packet_counts *ld) {
+  int        offset = 0, fc;
+
+  if (cap_len < FDDI_HEADER_SIZE) {
+    ld->other++;
+    return;
+  }
+  offset = FDDI_HEADER_SIZE;
+
+  fc = (int) pd[FDDI_P_FC];
+
+  switch (fc) {
+
+    /* From now, only 802.2 SNAP (Async. LCC frame) is supported */
+
+    case FDDI_FC_LLC_ASYNC + 0  :
+    case FDDI_FC_LLC_ASYNC + 1  :
+    case FDDI_FC_LLC_ASYNC + 2  :
+    case FDDI_FC_LLC_ASYNC + 3  :
+    case FDDI_FC_LLC_ASYNC + 4  :
+    case FDDI_FC_LLC_ASYNC + 5  :
+    case FDDI_FC_LLC_ASYNC + 6  :
+    case FDDI_FC_LLC_ASYNC + 7  :
+    case FDDI_FC_LLC_ASYNC + 8  :
+    case FDDI_FC_LLC_ASYNC + 9  :
+    case FDDI_FC_LLC_ASYNC + 10 :
+    case FDDI_FC_LLC_ASYNC + 11 :
+    case FDDI_FC_LLC_ASYNC + 12 :
+    case FDDI_FC_LLC_ASYNC + 13 :
+    case FDDI_FC_LLC_ASYNC + 14 :
+    case FDDI_FC_LLC_ASYNC + 15 :
+      capture_llc(pd, offset, cap_len, ld);
+      return;
+      
+    default :
+      ld->other++;
+      return;
+
+  } /* fc */
+
+} /* capture_fddi */
+
 void dissect_fddi(const u_char *pd, frame_data *fd, GtkTree *tree) 
 {
   int        offset = 0, fc;
@@ -211,4 +254,3 @@ void dissect_fddi(const u_char *pd, frame_data *fd, GtkTree *tree)
   } /* fc */
 
 } /* dissect_fddi */
-

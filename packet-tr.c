@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.9 1999/01/08 04:42:43 gram Exp $
+ * $Id: packet-tr.c,v 1.10 1999/02/09 00:35:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -71,6 +71,100 @@ sr_frame(u_char val) {
 		return -1;
 	}
 	else return rc_frame[val];
+}
+
+
+void
+capture_tr(const u_char *pd, guint32 cap_len, packet_counts *ld) {
+
+	int			offset = 14;
+
+	int			source_routed = 0;
+	int			frame_type;
+	guint8			trn_rif_bytes;
+	guint8			actual_rif_bytes;
+
+	/* The trn_hdr struct, as separate variables */
+	guint8			trn_fc;		/* field control field */
+	guint8			trn_shost[6];	/* source host */
+
+	/* get the data */
+	memcpy(&trn_fc, &pd[1], sizeof(guint8));
+	memcpy(trn_shost, &pd[8], 6 * sizeof(guint8));
+
+	frame_type = (trn_fc & 192) >> 6;
+
+	/* if the high bit on the first byte of src hwaddr is 1, then
+		this packet is source-routed */
+	source_routed = trn_shost[0] & 128;
+
+	trn_rif_bytes = pd[14] & 31;
+
+	/* sometimes we have a RCF but no RIF... half source-routed? */
+	/* I'll check for 2 bytes of RIF and the 0x70 byte */
+	if (!source_routed) {
+		if (trn_rif_bytes == 2) {
+			source_routed = 1;
+		}
+		/* the Linux 2.0 TR code strips source-route bits in
+		 * order to test for SR. This can be removed from most
+		 * packets with oltr, but not all. So, I try to figure out
+		 * which packets should have been SR here. I'll check to
+		 * see if there's a SNAP or IPX field right after
+		 * my RIF fields.
+		 */
+		else if ( (
+			pd[0x0e + trn_rif_bytes] == 0xaa &&
+			pd[0x0f + trn_rif_bytes] == 0xaa &&
+			pd[0x10 + trn_rif_bytes] == 0x03) ||
+			  (
+			pd[0x0e + trn_rif_bytes] == 0xe0 &&
+			pd[0x0f + trn_rif_bytes] == 0xe0) ) {
+
+			source_routed = 1;
+		}
+/*		else {
+			printf("0e+%d = %02X   0f+%d = %02X\n", trn_rif_bytes, pd[0x0e + trn_rif_bytes],
+					trn_rif_bytes, pd[0x0f + trn_rif_bytes]);
+		} */
+
+	}
+
+	if (source_routed) {
+		actual_rif_bytes = trn_rif_bytes;
+	}
+	else {
+		trn_rif_bytes = 0;
+		actual_rif_bytes = 0;
+	}
+
+	/* this is a silly hack for Linux 2.0.x. Read the comment below,
+	in front of the other #ifdef linux. If we're sniffing our own NIC,
+	 we get a full RIF, sometimes with garbage */
+	if ((source_routed && trn_rif_bytes == 2 && frame_type == 1) ||
+		(!source_routed && frame_type == 1)) {
+		/* look for SNAP or IPX only */
+		if ( (pd[0x20] == 0xaa && pd[0x21] == 0xaa && pd[0x22] == 03) ||
+			 (pd[0x20] == 0xe0 && pd[0x21] == 0xe0) ) {
+			actual_rif_bytes = 18;
+		}
+	}
+	offset += actual_rif_bytes;
+
+	/* The package is either MAC or LLC */
+	switch (frame_type) {
+		/* MAC */
+		case 0:
+			ld->other++;
+			break;
+		case 1:
+			capture_llc(pd, offset, cap_len, ld);
+			break;
+		default:
+			/* non-MAC, non-LLC, i.e., "Reserved" */
+			ld->other++;
+			break;
+	}
 }
 
 

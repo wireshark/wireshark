@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-llc.c,v 1.10 1998/11/17 04:28:56 gerald Exp $
+ * $Id: packet-llc.c,v 1.11 1999/02/09 00:35:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -43,36 +43,37 @@
 
 struct sap_info {
 	guint8	sap;
-	void	(*func) (const u_char *, int, frame_data *, GtkTree *);
+	void	(*capture_func) (const u_char *, int, guint32, packet_counts *);
+	void	(*dissect_func) (const u_char *, int, frame_data *, GtkTree *);
 	char	*text;
 };
 
 static struct sap_info	saps[] = {
-	{ 0x00, NULL,		"NULL LSAP" },
-	{ 0x02, NULL,		"LLC Sub-Layer Management Individual" },
-	{ 0x03, NULL,		"LLC Sub-Layer Management Group" },
-	{ 0x04, NULL,		"SNA Path Control Individual" },
-	{ 0x05, NULL,		"SNA Path Control Group" },
-	{ 0x06, dissect_ip,	"TCP/IP" },
-	{ 0x08, NULL,		"SNA" },
-	{ 0x0C, NULL,		"SNA" },
-	{ 0x42, NULL,		"Spanning Tree BPDU" },
-	{ 0x7F, NULL,		"ISO 802.2" },
-	{ 0x80, NULL,		"XNS" },
-	{ 0xAA, NULL,		"SNAP" },
-	/*{ 0xBA, dissect_vines,	"Banyan Vines" },
-	{ 0xBC, dissect_vines,	"Banyan Vines" },*/
-	{ 0xBA, NULL,		"Banyan Vines" },
-	{ 0xBC, NULL,		"Banyan Vines" },
-	{ 0xE0, dissect_ipx,	"NetWare" },
-	{ 0xF0, NULL,		"NetBIOS" },
-	{ 0xF4, NULL,		"IBM Net Management Individual" },
-	{ 0xF5, NULL,		"IBM Net Management Group" },
-	{ 0xF8, NULL,		"Remote Program Load" },
-	{ 0xFC, NULL,		"Remote Program Load" },
-	{ 0xFE, dissect_osi,	"ISO Network Layer" },
-	{ 0xFF, NULL,		"Global LSAP" },
-	{ 0x00, NULL,		NULL }
+	{ 0x00, NULL,		NULL,		"NULL LSAP" },
+	{ 0x02, NULL,		NULL,		"LLC Sub-Layer Management Individual" },
+	{ 0x03, NULL,		NULL,		"LLC Sub-Layer Management Group" },
+	{ 0x04, NULL,		NULL,		"SNA Path Control Individual" },
+	{ 0x05, NULL,		NULL,		"SNA Path Control Group" },
+	{ 0x06, capture_ip,	dissect_ip,	"TCP/IP" },
+	{ 0x08, NULL,		NULL,		"SNA" },
+	{ 0x0C, NULL,		NULL,		"SNA" },
+	{ 0x42, NULL,		NULL,		"Spanning Tree BPDU" },
+	{ 0x7F, NULL,		NULL,		"ISO 802.2" },
+	{ 0x80, NULL,		NULL,		"XNS" },
+	{ 0xAA, NULL,		NULL,		"SNAP" },
+	/*{ 0xBA, NULL,		dissect_vines,	"Banyan Vines" },
+	{ 0xBC, NULL,		dissect_vines,	"Banyan Vines" },*/
+	{ 0xBA, NULL,		NULL,		"Banyan Vines" },
+	{ 0xBC, NULL,		NULL,		"Banyan Vines" },
+	{ 0xE0, NULL,		dissect_ipx,	"NetWare" },
+	{ 0xF0, NULL,		NULL,		"NetBIOS" },
+	{ 0xF4, NULL,		NULL,		"IBM Net Management Individual" },
+	{ 0xF5, NULL,		NULL,		"IBM Net Management Group" },
+	{ 0xF8, NULL,		NULL,		"Remote Program Load" },
+	{ 0xFC, NULL,		NULL,		"Remote Program Load" },
+	{ 0xFE, NULL,		dissect_osi,	"ISO Network Layer" },
+	{ 0xFF, NULL,		NULL,		"Global LSAP" },
+	{ 0x00, NULL,		NULL,		NULL }
 };
 
 
@@ -90,12 +91,25 @@ sap_text(u_char sap) {
 }
 
 static void*
-sap_func(u_char sap) {
+sap_capture_func(u_char sap) {
 	int i=0;
 
 	while (saps[i].text != NULL) {
 		if (saps[i].sap == sap) {
-			return saps[i].func;
+			return saps[i].capture_func;
+		}
+		i++;
+	}
+	return dissect_data;
+}
+
+static void*
+sap_dissect_func(u_char sap) {
+	int i=0;
+
+	while (saps[i].text != NULL) {
+		if (saps[i].sap == sap) {
+			return saps[i].dissect_func;
 		}
 		i++;
 	}
@@ -114,6 +128,35 @@ llc_org(const u_char *ptr) {
 	}
 	else {
 		return llc_org[org];
+	}
+}
+
+void
+capture_llc(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
+
+	guint16		etype;
+	int		is_snap;
+	void		(*capture) (const u_char *, int, guint32, packet_counts *);
+
+	is_snap = (pd[offset] == 0xAA) && (pd[offset+1] == 0xAA);
+	if (is_snap) {
+		etype  = (pd[offset+6] << 8) | pd[offset+7];
+		offset += 8;
+		capture_ethertype(etype, offset, pd, cap_len, ld);
+	}		
+	else {
+		capture = sap_capture_func(pd[offset]);
+
+		/* non-SNAP */
+		offset += 3;
+
+		if (capture) {
+			capture(pd, offset, cap_len, ld);
+		}
+		else {
+			ld->other++;
+		}
+
 	}
 }
 
@@ -168,7 +211,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 			col_add_fstr(fd, COL_INFO, "802.2 LLC (%s)", sap_text(pd[offset]));
 		}
 
-		dissect = sap_func(pd[offset]);
+		dissect = sap_dissect_func(pd[offset]);
 
 		/* non-SNAP */
 		offset += 3;

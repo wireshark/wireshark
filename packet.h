@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.35 1999/02/08 20:02:33 gram Exp $
+ * $Id: packet.h,v 1.36 1999/02/09 00:35:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,6 +70,14 @@ typedef struct _column_info {
 } column_info;
 
 #define COL_MAX_LEN 256
+
+typedef struct _packet_counts {
+  gint           tcp;
+  gint           udp;
+  gint           ospf;
+  gint           other;
+  gint           total;
+} packet_counts;
 
 typedef struct _frame_data {
   guint32      pkt_len;   /* Packet length */
@@ -514,6 +522,27 @@ void collapse_tree(GtkWidget *, gpointer);
 
 /*
  * Routines in packet-*.c
+ * Routines should take three args: packet data *, cap_len, packet_counts *
+ * They should never modify the packet data.
+ */
+void capture_eth(const u_char *, guint32, packet_counts *);
+void capture_fddi(const u_char *, guint32, packet_counts *);
+void capture_null(const u_char *, guint32, packet_counts *);
+void capture_ppp(const u_char *, guint32, packet_counts *);
+void capture_raw(const u_char *, guint32, packet_counts *);
+void capture_tr(const u_char *, guint32, packet_counts *);
+
+/*
+ * Routines in packet-*.c
+ * Routines should take four args: packet data *, offset, cap_len,
+ * packet_counts *
+ * They should never modify the packet data.
+ */
+void capture_llc(const u_char *, int, guint32, packet_counts *);
+void capture_ip(const u_char *, int, guint32, packet_counts *);
+
+/*
+ * Routines in packet-*.c
  * Routines should take three args: packet data *, frame_data *, tree *
  * They should never modify the packet data.
  */
@@ -567,6 +596,8 @@ void dissect_vines_spp(const u_char *, int, frame_data *, GtkTree *);
 
 /* These functions are in ethertype.c */
 gchar *ethertype_to_str(guint16 etype, const char *fmt);
+void capture_ethertype(guint16 etype, int offset,
+		const u_char *pd, guint32 cap_len, packet_counts *ld);
 void ethertype(guint16 etype, int offset,
 		const u_char *pd, frame_data *fd, GtkTree *tree,
 		GtkWidget *fh_tree);

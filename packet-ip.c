@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.14 1999/02/08 20:02:34 gram Exp $
+ * $Id: packet-ip.c,v 1.15 1999/02/09 00:35:37 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -46,6 +46,23 @@
 #include "util.h"
 
 extern packet_info pi;
+
+void
+capture_ip(const u_char *pd, int offset, guint32 cap_len, packet_counts *ld) {
+  switch (pd[offset + 9]) {
+    case IP_PROTO_TCP:
+      ld->tcp++;
+      break;
+    case IP_PROTO_UDP:
+      ld->udp++;
+      break;
+    case IP_PROTO_OSPF:
+      ld->ospf++;
+      break;
+    default:
+      ld->other++;
+  }
+}
 
 static void
 dissect_ipopt_security(GtkWidget *opt_tree, const char *name,

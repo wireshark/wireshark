@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.8 1998/11/17 04:29:03 gerald Exp $
+ * $Id: packet-ppp.c,v 1.9 1999/02/09 00:35:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,6 +60,18 @@
 #define PPP_LQR		0xc025	/* Link Quality Report protocol */
 #define PPP_CHAP	0xc223	/* Cryptographic Handshake Auth. Protocol */
 #define PPP_CBCP	0xc029	/* Callback Control Protocol */
+
+void
+capture_ppp( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
+  switch (pntohs(&pd[2])) {
+    case PPP_IP:
+      capture_ip(pd, 4, cap_len, ld);
+      break;
+    default:
+      ld->other++;
+      break;
+  }
+}
 
 void
 dissect_ppp( const u_char *pd, frame_data *fd, GtkTree *tree ) {

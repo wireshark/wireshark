@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.5 1998/11/17 04:29:00 gerald Exp $
+ * $Id: packet-null.c,v 1.6 1999/02/09 00:35:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,37 @@
 
 #include "ethereal.h"
 #include "packet.h"
+
+void
+capture_null( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
+  e_nullhdr  nh;
+
+  memcpy((char *)&nh.null_family, (char *)&pd[2], sizeof(nh.null_family));
+
+  /* 
+  From what I've read in various sources, this is supposed to be an
+  address family, e.g. AF_INET.  However, a FreeBSD ISDN PPP dump that
+  Andreas Klemm sent to ethereal-dev has a packet type of DLT_NULL, and
+  the family bits look like PPP's protocol field.  A dump of the loopback
+  interface on my Linux box also has a link type of DLT_NULL (as it should
+  be), but the family bits look like ethernet's protocol type.  To
+  further  confuse matters, nobody seems to be paying attention to byte
+  order.
+  - gcc
+  */  
+   
+  switch (nh.null_family) {
+    case 0x0008:
+    case 0x0800:
+    case 0x0021:
+    case 0x2100:
+      capture_ip(pd, 4, cap_len, ld);
+      break;
+    default:
+      ld->other++;
+      break;
+  }
+}
 
 void
 dissect_null( const u_char *pd, frame_data *fd, GtkTree *tree ) {

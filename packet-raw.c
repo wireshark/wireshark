@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.7 1998/11/17 04:29:04 gerald Exp $
+ * $Id: packet-raw.c,v 1.8 1999/02/09 00:35:38 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -37,6 +37,23 @@
 
 #include "ethereal.h"
 #include "packet.h"
+
+void
+capture_raw( const u_char *pd, guint32 cap_len, packet_counts *ld ) {
+
+  /* So far, the only time we get raw connection types are with Linux and
+   * Irix PPP connections.  We can't tell what type of data is coming down
+   * the line, so our safest bet is IP. - GCC
+   */
+   
+  /* Currently, the Linux 2.1.xxx PPP driver passes back some of the header
+   * sometimes.  This check should be removed when 2.2 is out.
+   */
+  if (pd[0] == 0xff && pd[1] == 0x03)
+    capture_ip(pd, 4, cap_len, ld);
+  else
+    capture_ip(pd, 0, cap_len, ld);
+}
 
 void
 dissect_raw( const u_char *pd, frame_data *fd, GtkTree *tree ) {
@@ -76,4 +93,4 @@ dissect_raw( const u_char *pd, frame_data *fd, GtkTree *tree ) {
   else
     dissect_ip(pd, 0, fd, tree);
 }
-    
+

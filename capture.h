@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.3 1998/09/29 21:39:29 hannes Exp $
+ * $Id: capture.h,v 1.4 1999/02/09 00:35:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,12 +28,9 @@
 
 typedef struct _loop_data {
   gint           go;
-  gint           count;
   gint           max;
-  gint           tcp;
-  gint           udp;
-  gint           ospf;
-  gint           other;
+  gint           linktype;
+  packet_counts  counts;
   pcap_dumper_t *pdh;
 } loop_data;
 

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.17 1999/02/02 02:53:24 guy Exp $
+ * $Id: capture.c,v 1.18 1999/02/09 00:35:35 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -394,14 +394,15 @@ capture(gint open) {
   bpf_u_int32 netnum, netmask;
   time_t      upd_time, cur_time;
   
-  ld.go    = TRUE;
-  ld.count = 0;
-  ld.max   = cf.count;
-  ld.tcp   = 0;
-  ld.udp   = 0;
-  ld.ospf  = 0;
-  ld.other = 0;
-  ld.pdh   = NULL;
+  ld.go           = TRUE;
+  ld.counts.total = 0;
+  ld.max          = cf.count;
+  ld.linktype     = DLT_NULL;
+  ld.counts.tcp   = 0;
+  ld.counts.udp   = 0;
+  ld.counts.ospf  = 0;
+  ld.counts.other = 0;
+  ld.pdh          = NULL;
 
   close_cap_file(&cf, info_bar, file_ctx);
 
@@ -420,6 +421,7 @@ capture(gint open) {
         return;
       }
     }
+    ld.linktype = pcap_datalink(pch);
 
     if (cf.cfilter) {
       if (pcap_lookupnet (cf.iface, &netnum, &netmask, err_str) < 0) {
@@ -488,20 +490,23 @@ capture(gint open) {
 
         upd_time = cur_time;
 
-        sprintf(label_str, "Count: %d", ld.count);
+        sprintf(label_str, "Count: %d", ld.counts.total);
         gtk_label_set(GTK_LABEL(count_lb), label_str);
 
-        sprintf(label_str, "TCP: %d (%.1f%%)", ld.tcp, pct(ld.tcp, ld.count));
+        sprintf(label_str, "TCP: %d (%.1f%%)", ld.counts.tcp,
+	   pct(ld.counts.tcp, ld.counts.total));
         gtk_label_set(GTK_LABEL(tcp_lb), label_str);
 
-        sprintf(label_str, "UDP: %d (%.1f%%)", ld.udp, pct(ld.udp, ld.count));
+        sprintf(label_str, "UDP: %d (%.1f%%)", ld.counts.udp,
+	  pct(ld.counts.udp, ld.counts.total));
         gtk_label_set(GTK_LABEL(udp_lb), label_str);
 
-        sprintf(label_str, "OSPF: %d (%.1f%%)", ld.ospf, pct(ld.ospf, ld.count));
+        sprintf(label_str, "OSPF: %d (%.1f%%)", ld.counts.ospf,
+	  pct(ld.counts.ospf, ld.counts.total));
         gtk_label_set(GTK_LABEL(ospf_lb), label_str);
 
-        sprintf(label_str, "Other: %d (%.1f%%)", ld.other,
-          pct(ld.other, ld.count));
+        sprintf(label_str, "Other: %d (%.1f%%)", ld.counts.other,
+          pct(ld.counts.other, ld.counts.total));
         gtk_label_set(GTK_LABEL(other_lb), label_str);
       }
     }
@@ -544,48 +549,33 @@ void
 capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *pd) {
   
-  guint16 etype;
-  guint8  iptype = 0;
-  gint    offset = 14;
-  
   loop_data *ld = (loop_data *) user;
   
-  if ((++ld->count >= ld->max) && (ld->max > 0)) 
+  if ((++ld->counts.total >= ld->max) && (ld->max > 0)) 
   {
      ld->go = FALSE;
   }
   /* Currently, pcap_dumper_t is a FILE *.  Let's hope that doesn't change. */
   if (ld->pdh) pcap_dump((u_char *) ld->pdh, phdr, pd);
   
-  etype = etype = (pd[12] << 8) | pd[13];
-  if (etype <= IEEE_802_3_MAX_LEN) {
-    etype = (pd[20] << 8) | pd[21];
-    offset = 22;
-  }
-  
-  switch(etype){ 
-    case ETHERTYPE_IP:
-      iptype = pd[offset + 9];
-      switch (iptype) {
-        case IP_PROTO_TCP:
-          ld->tcp++;
-          break;
-        case IP_PROTO_UDP:
-          ld->udp++;
-          break;
-        case IP_PROTO_OSPF:
-          ld->ospf++;
-          break;
-        default:
-          ld->other++;
-        }
-        break;
-      case ETHERTYPE_IPX:
-      case ETHERTYPE_IPv6:
-      case ETHERTYPE_ATALK:
-      case ETHERTYPE_VINES:
-      case ETHERTYPE_ARP:
-      default:
-        ld->other++;
+  switch (ld->linktype) {
+    case DLT_EN10MB :
+      capture_eth(pd, phdr->caplen, &ld->counts);
+      break;
+    case DLT_FDDI :
+      capture_fddi(pd, phdr->caplen, &ld->counts);
+      break;
+    case DLT_IEEE802 :
+      capture_tr(pd, phdr->caplen, &ld->counts);
+      break;
+    case DLT_NULL :
+      capture_null(pd, phdr->caplen, &ld->counts);
+      break;
+    case DLT_PPP :
+      capture_ppp(pd, phdr->caplen, &ld->counts);
+      break;
+    case DLT_RAW :
+      capture_raw(pd, phdr->caplen, &ld->counts);
+      break;
   }
 }

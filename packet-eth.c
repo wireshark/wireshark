@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.7 1998/11/17 04:28:52 gerald Exp $
+ * $Id: packet-eth.c,v 1.8 1999/02/09 00:35:36 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -54,6 +54,46 @@
 #define ETHERNET_802_2	1
 #define ETHERNET_802_3	2
 #define ETHERNET_SNAP	3
+
+void
+capture_eth(const u_char *pd, guint32 cap_len, packet_counts *ld) {
+  guint16 etype;
+  int        offset = 14;
+  int   	ethhdr_type;	/* the type of ethernet frame */
+  
+  etype = (pd[12] << 8) | pd[13];
+
+	/* either ethernet802.3 or ethernet802.2 */
+  if (etype <= IEEE_802_3_MAX_LEN) {
+
+  /* Is there an 802.2 layer? I can tell by looking at the first 2
+     bytes after the 802.3 header. If they are 0xffff, then what
+     follows the 802.3 header is an IPX payload, meaning no 802.2.
+     (IPX/SPX is they only thing that can be contained inside a
+     straight 802.3 packet). A non-0xffff value means that there's an
+     802.2 layer inside the 802.3 layer */
+    if (pd[14] == 0xff && pd[15] == 0xff) {
+      ethhdr_type = ETHERNET_802_3;
+    }
+    else {
+      ethhdr_type = ETHERNET_802_2;
+    }
+  } else {
+    ethhdr_type = ETHERNET_II;
+  }
+
+  switch (ethhdr_type) {
+    case ETHERNET_802_3:
+      ld->other++;	/* IPX */
+      break;
+    case ETHERNET_802_2:
+      capture_llc(pd, offset, cap_len, ld);
+      break;
+    case ETHERNET_II:
+      capture_ethertype(etype, offset, pd, cap_len, ld);
+      break;
+  }
+}
 
 void
 dissect_eth(const u_char *pd, frame_data *fd, GtkTree *tree) {
@@ -126,17 +166,16 @@ dissect_eth(const u_char *pd, frame_data *fd, GtkTree *tree) {
     }
   }
 
-	/* either ethernet802.3 or ethernet802.2 */
   switch (ethhdr_type) {
-  	case ETHERNET_802_3:
-  		dissect_ipx(pd, offset, fd, tree);
-  		return;
-  	case ETHERNET_802_2:
-  		dissect_llc(pd, offset, fd, tree);
-  		return;
+    case ETHERNET_802_3:
+      dissect_ipx(pd, offset, fd, tree);
+      break;
+    case ETHERNET_802_2:
+      dissect_llc(pd, offset, fd, tree);
+      break;
+    case ETHERNET_II:
+      ethertype(etype, offset, pd, fd, tree, fh_tree);
+      break;
   }
-
- 	/* Ethernet_II */
- 	ethertype(etype, offset, pd, fd, tree, fh_tree);
 }
 
