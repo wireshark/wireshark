@@ -4,7 +4,7 @@
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.28 2003/08/01 10:11:54 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.29 2003/08/16 00:51:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -31,6 +31,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/conversation.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -38,6 +39,9 @@
 #include "prefs.h"
 #include "packet-tpkt.h"
 #include "packet-per.h"
+
+static dissector_handle_t rtp_handle=NULL;
+static dissector_handle_t rtcp_handle=NULL;
 
 static dissector_handle_t h245_handle;
 static dissector_handle_t MultimediaSystemControlMessage_handle;
@@ -1453,6 +1457,9 @@ static gint ett_h245_TerminalInformationSO = -1;
 static gint ett_h245_lostPicture = -1;
 static gint ett_h245_recoveryReferencePicture = -1;
 static gint ett_h245_iPSourceRouteAddress_route = -1;
+
+static guint32 ipv4_address;
+static guint32 ipv4_port;
 
 
 
@@ -11014,7 +11021,7 @@ dissect_h245_tsapIdentifier(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 {
 	offset=dissect_per_constrained_integer(tvb, offset, pinfo, tree,
 		hf_h245_tsapIdentifier,  0,  65535,
-		NULL, NULL, FALSE);
+		&ipv4_port, NULL, FALSE);
 
 	return offset;
 }
@@ -12542,14 +12549,12 @@ dissect_h245_streamDescriptors(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 static int
 dissect_h245_ipv4network(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	guint32 ip;
-
 	/* byte aligned */
 	if(offset&0x07){
 		offset=(offset&0xfffffff8)+8;
 	}
-	ip=tvb_get_letohl(tvb, offset>>3);
-	proto_tree_add_ipv4(tree, hf_h245_ipv4network, tvb, offset>>3, 4, ip);
+	tvb_memcpy(tvb, (char *)&ipv4_address, offset>>3, 4);
+	proto_tree_add_ipv4(tree, hf_h245_ipv4network, tvb, offset>>3, 4, ipv4_address);
 	
 	offset+=32;
 	return offset;
@@ -14307,15 +14312,49 @@ dissect_h245_localAreaAddress(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 static int
 dissect_h245_mediaChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
+	ipv4_address=0;
+	ipv4_port=0;
+
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_mediaChannel, ett_h245_TransportAddress, TransportAddress_choice, "mediaChannel", NULL);
 
+	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && rtp_handle){
+		address src_addr;
+		conversation_t *conv=NULL;
+
+		src_addr.type=AT_IPv4;
+		src_addr.len=4;
+		src_addr.data=(char *)&ipv4_address;
+
+		conv=find_conversation(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+		if(!conv){
+			conv=conversation_new(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+			conversation_set_dissector(conv, rtp_handle);
+		}
+	}
 	return offset;
 }
 static int
 dissect_h245_mediaControlChannel(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
+	ipv4_address=0;
+	ipv4_port=0;
+
 	offset=dissect_per_choice(tvb, offset, pinfo, tree, hf_h245_mediaControlChannel, ett_h245_TransportAddress, TransportAddress_choice, "mediaControlChannel", NULL);
 
+	if((!pinfo->fd->flags.visited) && ipv4_address!=0 && ipv4_port!=0 && rtcp_handle){
+		address src_addr;
+		conversation_t *conv=NULL;
+
+		src_addr.type=AT_IPv4;
+		src_addr.len=4;
+		src_addr.data=(char *)&ipv4_address;
+
+		conv=find_conversation(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+		if(!conv){
+			conv=conversation_new(&src_addr, &src_addr, PT_UDP, ipv4_port, ipv4_port, NO_ADDR_B|NO_PORT_B);
+			conversation_set_dissector(conv, rtcp_handle);
+		}
+	}
 	return offset;
 }
 static int
@@ -22212,11 +22251,11 @@ proto_register_h245(void)
 void
 proto_reg_handoff_h245(void)
 {
+	rtp_handle = find_dissector("rtp");
+	rtcp_handle = find_dissector("rtcp");
+
 	h245_handle=create_dissector_handle(dissect_h245, proto_h245);
-	MultimediaSystemControlMessage_handle=create_dissector_handle(dissect_h245_MultimediaSystemControlMessage, proto_h245);
-
-
 	dissector_add_handle("tcp.port", h245_handle);
+	MultimediaSystemControlMessage_handle=create_dissector_handle(dissect_h245_MultimediaSystemControlMessage, proto_h245);
 	dissector_add_handle("udp.port", MultimediaSystemControlMessage_handle);
-
 }
