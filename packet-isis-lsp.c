@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.35 2002/08/29 18:52:51 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.36 2002/09/02 22:10:15 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -1479,33 +1479,6 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, proto_tree *tree, int offset,
 }
 
 /*
- * Name: isis_lsp_decode_lsp_id()
- *
- * Description:
- *	Display a LSP id into the display tree.
- *
- * Input:
- *	tvbuff_t * : tvbuffer for packet data
- *	proto_tree * : tree to display into. REQUIRED
- *	int : offset into packet data where we are.
- *	char * : title string
- *	int : length of IDs in packet.
- *
- * Output:
- *      void, but we will add to proto tree
- */
-void
-isis_lsp_decode_lsp_id(tvbuff_t *tvb, proto_tree *tree, int offset,
-	char *tstr, int id_length)
-{
-	proto_tree_add_text(tree, tvb, offset, id_length + 2,
-		"%s: %s.%02x-%02x", tstr,
-			print_system_id( tvb_get_ptr(tvb, offset, id_length), id_length ),
-			tvb_get_guint8(tvb, offset+id_length),
-			tvb_get_guint8(tvb, offset+id_length+1) );
-}
-
-/*
  * Name: isis_dissect_isis_lsp()
  *
  * Description:
@@ -1547,15 +1520,18 @@ isis_dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 	offset += 2;
 
 	if (tree) {
-		proto_tree_add_uint(lsp_tree, hf_isis_lsp_remaining_life, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+		proto_tree_add_text(lsp_tree, tvb, offset, 2,
+                                    "Remaining Lifetime: %us",
+                                    tvb_get_ntohs(tvb, offset));
 	}
 	offset += 2;
 
 	if (tree) {
-		isis_lsp_decode_lsp_id(tvb, lsp_tree, offset,
-			"LSP-ID", id_length);
+		proto_tree_add_text(lsp_tree, tvb, offset, id_length + 2,
+                                    "LSP-ID: %s",
+                                    print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );                
 	}
+
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 	    col_append_fstr(pinfo->cinfo, COL_INFO, ", LSP-ID: %s",
 			print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );

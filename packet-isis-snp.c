@@ -1,7 +1,7 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.19 2002/08/29 18:52:51 guy Exp $
+ * $Id: packet-isis-snp.c,v 1.20 2002/09/02 22:10:15 guy Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -55,7 +55,9 @@ static void dissect_l1_snp_authentication_clv(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length, int length);
 static void dissect_l2_snp_authentication_clv(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length, int length);
-static void dissect_snp_lsp_entries(tvbuff_t *tvb,
+static void dissect_csnp_lsp_entries(tvbuff_t *tvb,
+	proto_tree *tree, int offset, int id_length, int length);
+static void dissect_psnp_lsp_entries(tvbuff_t *tvb,
 	proto_tree *tree, int offset, int id_length, int length);
 
 static const isis_clv_handle_t clv_l1_csnp_opts[] = {
@@ -63,7 +65,7 @@ static const isis_clv_handle_t clv_l1_csnp_opts[] = {
 		ISIS_CLV_L1_CSNP_LSP_ENTRIES,
 		"LSP entries",
 		&ett_isis_csnp_lsp_entries,
-		dissect_snp_lsp_entries
+		dissect_csnp_lsp_entries
 	},
 	{
 		ISIS_CLV_L1_CSNP_AUTHENTICATION_NS,
@@ -87,7 +89,7 @@ static const isis_clv_handle_t clv_l2_csnp_opts[] = {
 		ISIS_CLV_L2_CSNP_LSP_ENTRIES,
 		"LSP entries",
 		&ett_isis_csnp_lsp_entries,
-		dissect_snp_lsp_entries
+		dissect_csnp_lsp_entries
 	},
 	{
 		ISIS_CLV_L2_CSNP_AUTHENTICATION_NS,
@@ -111,7 +113,7 @@ static const isis_clv_handle_t clv_l1_psnp_opts[] = {
 		ISIS_CLV_L1_PSNP_LSP_ENTRIES,
 		"LSP entries",
 		&ett_isis_psnp_lsp_entries,
-		dissect_snp_lsp_entries
+		dissect_psnp_lsp_entries
 	},
 	{
 		ISIS_CLV_L1_PSNP_AUTHENTICATION_NS,
@@ -135,7 +137,7 @@ static const isis_clv_handle_t clv_l2_psnp_opts[] = {
 		ISIS_CLV_L2_PSNP_LSP_ENTRIES,
 		"LSP entries",
 		&ett_isis_psnp_lsp_entries,
-		dissect_snp_lsp_entries
+		dissect_psnp_lsp_entries
 	},
 	{
 		ISIS_CLV_L2_PSNP_AUTHENTICATION,
@@ -153,6 +155,7 @@ static const isis_clv_handle_t clv_l2_psnp_opts[] = {
 		0, "", NULL, NULL
 	}
 };
+
 /*
  * Name: dissect_snp_lsp_entries()
  *
@@ -175,9 +178,11 @@ static const isis_clv_handle_t clv_l2_psnp_opts[] = {
  *      void, but we will add to proto tree if !NULL.
  */
 static void
-dissect_snp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
+dissect_csnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 	int id_length, int length)
 {
+        proto_tree *subtree,*ti;
+
 	while ( length > 0 ) {
 		if ( length < 2+id_length+2+4+2 ) {
 			isis_dissect_unknown(tvb, tree, offset,
@@ -186,27 +191,77 @@ dissect_snp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
 			return;
 		}
 
-		proto_tree_add_text(tree, tvb, offset, 2, "Remaining life      : %d",
+	        ti = proto_tree_add_text(tree, tvb, offset, 16,
+                                    "LSP-ID: %s, Sequence: 0x%08x, Lifetime: %5us, Checksum: 0x%04x",
+                                           print_system_id( tvb_get_ptr(tvb, offset+2, id_length+2), id_length+2 ),
+                                           tvb_get_ntohl(tvb, offset+10),
+                                           tvb_get_ntohs(tvb, offset),
+                                           tvb_get_ntohs(tvb, offset+14));
+
+                subtree = proto_item_add_subtree(ti,ett_isis_csnp_lsp_entries);
+
+		proto_tree_add_text(subtree, tvb, offset+2, 8,
+			"LSP-ID:             : %s",
+			print_system_id( tvb_get_ptr(tvb, offset+2, id_length+2), id_length+2 ));
+
+		proto_tree_add_text(subtree, tvb, offset+10, 4,
+			"LSP Sequence Number : 0x%08x",
+			tvb_get_ntohl(tvb, offset+10));
+
+		proto_tree_add_text(subtree, tvb, offset, 2,
+			"Remaining Lifetime  : %us",
 			tvb_get_ntohs(tvb, offset));
-		length -= 2;
-		offset += 2;
 
-		isis_lsp_decode_lsp_id(tvb, tree, offset,
-			 "LSP ID              ", id_length);
-		length -= id_length + 2;
-		offset += id_length + 2;
+		proto_tree_add_text(subtree, tvb, offset+14, 2,
+			"LSP checksum        : 0x%04x",
+			tvb_get_ntohs(tvb, offset+14));
 
-		proto_tree_add_text(tree, tvb, offset, 4,
-			"LSP Sequence Number : 0x%04x",
-			tvb_get_ntohl(tvb, offset));
-		length -= 4;
-		offset += 4;
+		length -= 16;
+		offset += 16;
+	}
 
-		proto_tree_add_text(tree, tvb, offset, 2,
-			"LSP checksum        : 0x%02x",
+}
+static void
+dissect_psnp_lsp_entries(tvbuff_t *tvb, proto_tree *tree, int offset,
+	int id_length, int length)
+{
+        proto_tree *subtree,*ti;
+
+	while ( length > 0 ) {
+		if ( length < 2+id_length+2+4+2 ) {
+			isis_dissect_unknown(tvb, tree, offset,
+				"Short SNP header entry (%d vs %d)", length,
+				2+id_length+2+4+2 );
+			return;
+		}
+
+	        ti = proto_tree_add_text(tree, tvb, offset, 16,
+                                    "LSP-ID: %s, Sequence: 0x%08x, Lifetime: %5us, Checksum: 0x%04x",
+                                           print_system_id( tvb_get_ptr(tvb, offset+2, id_length+2), id_length+2 ),
+                                           tvb_get_ntohl(tvb, offset+10),
+                                           tvb_get_ntohs(tvb, offset),
+                                           tvb_get_ntohs(tvb, offset+14));
+
+                subtree = proto_item_add_subtree(ti,ett_isis_psnp_lsp_entries);
+
+		proto_tree_add_text(subtree, tvb, offset+2, 8,
+			"LSP-ID:             : %s",
+			print_system_id( tvb_get_ptr(tvb, offset+2, id_length+2), id_length+2 ));
+
+		proto_tree_add_text(subtree, tvb, offset+10, 4,
+			"LSP Sequence Number : 0x%08x",
+			tvb_get_ntohl(tvb, offset+10));
+
+		proto_tree_add_text(subtree, tvb, offset, 2,
+			"Remaining Lifetime  : %us",
 			tvb_get_ntohs(tvb, offset));
-		length -= 2;
-		offset += 2;
+
+		proto_tree_add_text(subtree, tvb, offset+14, 2,
+			"LSP checksum        : 0x%04x",
+			tvb_get_ntohs(tvb, offset+14));
+
+		length -= 16;
+		offset += 16;
 	}
 
 }
@@ -263,8 +318,9 @@ isis_dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	offset += id_length + 1;
 
 	if (tree) {
-		isis_lsp_decode_lsp_id(tvb, csnp_tree, offset,
-			"Start LSP-ID", id_length );
+		proto_tree_add_text(csnp_tree, tvb, offset, id_length + 2,
+			"Start LSP-ID: %s",
+                                    print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );                
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Start LSP-ID: %s",
@@ -273,8 +329,9 @@ isis_dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	offset += id_length + 2;
 
 	if (tree) {
-		isis_lsp_decode_lsp_id(tvb, csnp_tree, offset,
-			 "End LSP-ID  ", id_length );
+		proto_tree_add_text(csnp_tree, tvb, offset, id_length + 2,
+			"End LSP-ID: %s",
+                                    print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ) );  
 	}
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", End LSP-ID: %s",
