@@ -1,7 +1,7 @@
 /* packet-icmpv6.c
  * Routines for ICMPv6 packet disassembly
  *
- * $Id: packet-icmpv6.c,v 1.71 2003/04/27 20:57:58 deniel Exp $
+ * $Id: packet-icmpv6.c,v 1.72 2003/04/28 19:24:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -147,6 +147,8 @@ dissect_icmpv6opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
     struct nd_opt_hdr nd_opt_hdr, *opt;
     int len;
     char *typename;
+    static const guint8 nd_redirect_reserved[6] = {0, 0, 0, 0, 0, 0};
+    guint8 nd_redirect_res[6];
 
     if (!tree)
 	return;
@@ -272,6 +274,13 @@ again:
 	break;
       }
     case ND_OPT_REDIRECTED_HEADER:
+	tvb_memcpy(tvb, (guint8 *)&nd_redirect_res, offset + 2, 6);
+	if (memcmp(nd_redirect_res, nd_redirect_reserved, 6) == 0)
+	   proto_tree_add_text(icmp6opt_tree, tvb,
+	    offset + 2, 6, "Reserved: 0 (correct)");
+	else
+	   proto_tree_add_text(icmp6opt_tree, tvb,
+	    offset +2, 6, "Reserved: MUST be 0 (incorrect!)");	
 	proto_tree_add_text(icmp6opt_tree, tvb,
 	    offset + 8, (opt->nd_opt_len << 3) - 8, "Redirected packet");
 	dissect_contained_icmpv6(tvb, offset + 8, pinfo, icmp6opt_tree);
