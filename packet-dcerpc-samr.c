@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *   2002 Added all command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-samr.c,v 1.97 2003/07/14 19:51:42 sharpe Exp $
+ * $Id: packet-dcerpc-samr.c,v 1.98 2003/07/15 01:37:27 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2814,7 +2814,6 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
 			char *drep)
 {
-	guint32 count;
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
 	int old_offset=offset;
