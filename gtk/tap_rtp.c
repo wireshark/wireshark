@@ -1,7 +1,7 @@
 /*
  * tap_rtp.c
  *
- * $Id: tap_rtp.c,v 1.6 2003/03/07 19:47:07 guy Exp $
+ * $Id: tap_rtp.c,v 1.7 2003/03/10 02:09:29 guy Exp $
  *
  * RTP analysing addition for ethereal
  *
@@ -130,8 +130,7 @@
 #endif
 
 static GtkWidget *rtp_w = NULL;
-static GtkWidget *voice_w = NULL;
-static GtkWidget *save_w = NULL;
+static GtkWidget *save_voice_as_w = NULL;
 static GtkWidget *main_vb;
 static GtkWidget *clist;
 static GtkWidget *clist_r;
@@ -1009,13 +1008,9 @@ static void rtp_destroy_cb(GtkWidget *win _U_, gpointer data _U_)
   remove(f_tempname);
   remove(r_tempname);
 
-  /* is there a save window open */
-  if (save_w != NULL)
-	gtk_widget_destroy(save_w);
-
   /* Is there a save voice window open? */
-  if (voice_w != NULL)
-	gtk_widget_destroy(voice_w);
+  if (save_voice_as_w != NULL)
+	gtk_widget_destroy(save_voice_as_w);
 
   /* Note that we no longer have a "RTP Analyse" dialog box. */
   rtp_w = NULL;
@@ -1092,40 +1087,41 @@ static void refresh_cb(GtkWidget *w _U_, void *pri)
   draw_stat(rs);
 }
 
-/* when the user clicks the close button */
-static void voice_close_cb(GtkWidget *close_bt _U_, gpointer parent_w _U_)
+static void save_voice_as_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
-  gtk_widget_destroy(GTK_WIDGET(parent_w));
-}
-
-static void voice_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
-{
-  if (save_w != NULL)
-  	gtk_widget_destroy(GTK_WIDGET(save_w));
-
   /* Note that we no longer have a Save voice info dialog box. */
-  voice_w = NULL;
+  save_voice_as_w = NULL;
 }
-
 
 /* the user wants to save in a file */
 /* XXX support for different formats is currently commented out */
-static void ok_button_cb(GtkWidget *ok_bt, gpointer data)
+static void save_voice_as_ok_cb(GtkWidget *ok_bt, gpointer fs)
 {
-  info_stat *rs=(info_stat *)data;
-  GtkWidget *entry, *rev, *forw, *both;
-  /*GtkWidget *wav, *au, *sw;*/
   gchar *g_dest;
+  /*GtkWidget *wav, *au, *sw;*/
+  GtkWidget *rev, *forw, *both;
+  info_stat *rs;
   gint channels /*, format*/;
 
-  entry = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "file_entry");
+  g_dest = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (fs)));
+
+  /* Perhaps the user specified a directory instead of a file.
+     Check whether they did. */
+  if (test_for_directory(g_dest) == EISDIR) {
+	/* It's a directory - set the file selection box to display it. */
+	set_last_open_dir(g_dest);
+	g_free(g_dest);
+	gtk_file_selection_set_filename(GTK_FILE_SELECTION(fs), last_open_dir);
+	return;
+  }
+
   /*wav = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "wav_rb");
   au = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "au_rb");
   sw = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "sw_rb");*/
   rev = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "reversed_rb");
   forw = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "forward_rb");
   both = (GtkWidget *)OBJECT_GET_DATA(ok_bt, "both_rb");
-  g_dest = gtk_entry_get_text(GTK_ENTRY(entry));
+  rs = (info_stat *)OBJECT_GET_DATA(ok_bt, "info_stat");
 
   /* XXX user clicks the ok button, but we know we can't save the voice info because f.e.
    * we don't support that codec. So we pop up a warning. Maybe it would be better to
@@ -1190,12 +1186,6 @@ static void ok_button_cb(GtkWidget *ok_bt, gpointer data)
         return;
   }
 
-  /* if the file text entry is empty */
-  if (!g_dest[0]) {
-	simple_dialog(ESD_TYPE_CRIT, NULL, "Saving to file, but no file specified.");
-	return;
-  }
-
   /*if (GTK_TOGGLE_BUTTON (wav)->active)
 	format = 1;
   else if (GTK_TOGGLE_BUTTON (au)->active)
@@ -1215,72 +1205,13 @@ static void ok_button_cb(GtkWidget *ok_bt, gpointer data)
 	return;
   }
 
-  if (save_w != NULL)
-  	gtk_widget_destroy(GTK_WIDGET(save_w));
-
   /* XXX I get GTK warning (sometimes?)!!! */
-  gtk_widget_destroy(GTK_WIDGET(voice_w));
-}
-
-static void save_ok_button_cb(GtkWidget *w _U_, gpointer data)
-{
-  gchar     *f_name;
-
-  f_name = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION (data)));
-
-  /* Perhaps the user specified a directory instead of a file.
-     Check whether they did. */
-  if (test_for_directory(f_name) == EISDIR) {
-	/* It's a directory - set the file selection box to display it. */
-	set_last_open_dir(f_name);
-	g_free(f_name);
-	gtk_file_selection_set_filename(GTK_FILE_SELECTION(data), last_open_dir);
-	return;
-  }
-
-  gtk_entry_set_text(GTK_ENTRY(OBJECT_GET_DATA(data, "file_entry")), f_name);
-  gtk_widget_destroy(GTK_WIDGET(data));
-
-  g_free(f_name);
-}
-
-static void save_cancel_button_cb(GtkWidget *w _U_, gpointer data)
-{
-  gtk_widget_destroy(GTK_WIDGET(data));
-}
-
-static void save_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
-{
-  /* Note that we no longer have a Save voice info dialog box. */
-  save_w = NULL;
-}
-
-/* file selection window */
-static void file_selection_cb(GtkWidget *w _U_, gpointer file_entry)
-{
- if (save_w != NULL) {
-	/* Yes.  Just re-activate that dialog box. */
-	reactivate_window(save_w);
-	return;
-  }
-
-  save_w = gtk_file_selection_new ("Ethereal: Save to File");
-  gtk_signal_connect(GTK_OBJECT(save_w), "destroy", GTK_SIGNAL_FUNC(save_destroy_cb), NULL);
-
-  OBJECT_SET_DATA(save_w, "file_entry", file_entry);
-
-  gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(save_w)->cancel_button), "clicked", 
-		GTK_SIGNAL_FUNC(save_cancel_button_cb), GTK_OBJECT(save_w));
-  
-  gtk_signal_connect(GTK_OBJECT(GTK_FILE_SELECTION(save_w)->ok_button), "clicked",
-		GTK_SIGNAL_FUNC(save_ok_button_cb), GTK_OBJECT(save_w));
-  
-  gtk_widget_show(save_w);
+  gtk_widget_destroy(GTK_WIDGET(save_voice_as_w));
 }
 
 /* when the user wants to save the voice information in a file */
 /* XXX support for different formats is currently commented out */
-static void voice_cb(GtkWidget *w _U_, gpointer data)
+static void save_voice_as_cb(GtkWidget *w _U_, gpointer data)
 {
   info_stat *rs=(info_stat *)data;
 
@@ -1294,31 +1225,27 @@ static void voice_cb(GtkWidget *w _U_, gpointer data)
   GtkWidget *reversed_rb;
   GtkWidget *both_rb;
   /*GtkWidget *wav_rb; GtkWidget *au_rb; GtkWidget *sw_rb;*/
-  GtkWidget *hbox3;
-  GtkWidget *file_button;
-  GtkWidget *file_entry;
-  GtkWidget *hbox4;
   GtkWidget *ok_bt;
-  GtkWidget *cancel_bt;
 
   /* if we can't save in a file: wrong codec, cut packets or other errors */
   /* shold the error arise here or later when you click ok button ? 
    * if we do it here, then we must disable the refresh button, so we don't do it here */
 
-  if (voice_w != NULL) {
+  if (save_voice_as_w != NULL) {
 	/* There's already a Save voice info dialog box; reactivate it. */
-	reactivate_window(voice_w);
+	reactivate_window(save_voice_as_w);
 	return;
   }
   
-  voice_w = dlg_window_new("Ethereal: Save voice data");
-  gtk_signal_connect(GTK_OBJECT(voice_w), "destroy",
-       GTK_SIGNAL_FUNC(voice_destroy_cb), NULL);
+  save_voice_as_w = gtk_file_selection_new("Ethereal: Save Voice Data As");
+  gtk_signal_connect(GTK_OBJECT(save_voice_as_w), "destroy",
+       GTK_SIGNAL_FUNC(save_voice_as_destroy_cb), NULL);
 
   /* Container for each row of widgets */
   vertb = gtk_vbox_new(FALSE, 0);
   gtk_container_border_width(GTK_CONTAINER(vertb), 5);
-  gtk_container_add(GTK_CONTAINER(voice_w), vertb);
+  gtk_box_pack_start(GTK_BOX(GTK_FILE_SELECTION(save_voice_as_w)->action_area),
+    vertb, FALSE, FALSE, 0);
   gtk_widget_show (vertb);
 
   table1 = gtk_table_new (2, 4, FALSE);
@@ -1399,51 +1326,30 @@ static void voice_cb(GtkWidget *w _U_, gpointer data)
 	gtk_widget_set_sensitive(both_rb, FALSE);
   }
   */
-  hbox3 = gtk_hbox_new (FALSE, 0);
-  gtk_widget_show (hbox3);
-  gtk_box_pack_start (GTK_BOX (vertb), hbox3, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (hbox3), 10);
 
-  file_button = gtk_button_new_with_label ("File:");
-  gtk_widget_show (file_button);
-  gtk_box_pack_start (GTK_BOX (hbox3), file_button, FALSE, FALSE, 0);
-
-  file_entry = gtk_entry_new ();
-  gtk_widget_show (file_entry);
-  gtk_box_pack_start (GTK_BOX (hbox3), file_entry, TRUE, TRUE, 10);
-
-  hbox4 = gtk_hbox_new (FALSE, 0);
-  gtk_widget_show (hbox4);
-  gtk_box_pack_start (GTK_BOX (vertb), hbox4, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (hbox4), 10);
-
-  ok_bt = gtk_button_new_with_label ("OK");
-  gtk_widget_show (ok_bt);
-  gtk_box_pack_start (GTK_BOX (hbox4), ok_bt, TRUE, FALSE, 0);
-  gtk_widget_set_usize (ok_bt, 60, -2);
-  OBJECT_SET_DATA(ok_bt, "file_entry", file_entry);
+  ok_bt = GTK_FILE_SELECTION(save_voice_as_w)->ok_button;
   /*OBJECT_SET_DATA(ok_bt, "wav_rb", wav_rb);
   OBJECT_SET_DATA(ok_bt, "au_rb", au_rb);
   OBJECT_SET_DATA(ok_bt, "sw_rb", sw_rb);*/
   OBJECT_SET_DATA(ok_bt, "forward_rb", forward_rb);
   OBJECT_SET_DATA(ok_bt, "reversed_rb", reversed_rb);
   OBJECT_SET_DATA(ok_bt, "both_rb", both_rb);
+  OBJECT_SET_DATA(ok_bt, "info_stat", rs);
 
-  cancel_bt = gtk_button_new_with_label (" Cancel ");
-  gtk_widget_show (cancel_bt);
-  gtk_box_pack_start (GTK_BOX (hbox4), cancel_bt, TRUE, FALSE, 0);
-  gtk_widget_set_usize (cancel_bt, 60, -2);
-  
-  gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
-		GTK_SIGNAL_FUNC(voice_close_cb), GTK_OBJECT(voice_w));
+  /* Connect the cancel_button to destroy the widget */
+  SIGNAL_CONNECT_OBJECT(GTK_FILE_SELECTION(save_voice_as_w)->cancel_button,
+                        "clicked", (GtkSignalFunc)gtk_widget_destroy,
+                        save_voice_as_w);
+
+  /* Catch the "key_press_event" signal in the window, so that we can catch
+     the ESC key being pressed and act as if the "Cancel" button had
+     been selected. */
+  dlg_set_cancel(save_voice_as_w, GTK_FILE_SELECTION(save_voice_as_w)->cancel_button);
   
   gtk_signal_connect(GTK_OBJECT(ok_bt), "clicked",
-		GTK_SIGNAL_FUNC(ok_button_cb), rs);
+		GTK_SIGNAL_FUNC(save_voice_as_ok_cb), save_voice_as_w);
   
-  gtk_signal_connect(GTK_OBJECT(file_button), "clicked",
-		GTK_SIGNAL_FUNC(file_selection_cb), file_entry);
-  
-  gtk_widget_show(voice_w);
+  gtk_widget_show(save_voice_as_w);
 }
 
 /* all the graphics on the window is done here */
@@ -1569,11 +1475,11 @@ static void add_rtp_notebook(void *pri)
   gtk_button_box_set_layout(GTK_BUTTON_BOX(box4), GTK_BUTTONBOX_SPREAD);
   gtk_widget_show(box4);
 
-  voice_bt = gtk_button_new_with_label("Save voice data");
+  voice_bt = gtk_button_new_with_label("Save voice data as...");
   gtk_container_add(GTK_CONTAINER(box4), voice_bt);
   gtk_widget_show(voice_bt);
   gtk_signal_connect(GTK_OBJECT(voice_bt), "clicked",
-		GTK_SIGNAL_FUNC(voice_cb), rs);
+		GTK_SIGNAL_FUNC(save_voice_as_cb), rs);
 
   refresh_bt = gtk_button_new_with_label("Refresh");
   gtk_container_add(GTK_CONTAINER(box4), refresh_bt);
