@@ -2,7 +2,7 @@
  * 4.4-Lite-2 Internet checksum routine, modified to take a vector of
  * pointers/lengths giving the pieces to be checksummed.
  *
- * $Id: in_cksum.c,v 1.2 2000/12/14 17:51:51 gram Exp $
+ * $Id: in_cksum.c,v 1.3 2001/01/10 23:34:06 guy Exp $
  */
 
 /*
@@ -109,7 +109,7 @@ in_cksum(const vec_t *vec, int veclen)
 		/*
 		 * Force to even boundary.
 		 */
-		if ((1 & (int) w) && (mlen > 0)) {
+		if ((1 & (unsigned long) w) && (mlen > 0)) {
 			REDUCE;
 			sum <<= 8;
 			s_util.c[0] = *(const guint8 *)w;
