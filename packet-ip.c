@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.107 2000/11/19 08:53:58 guy Exp $
+ * $Id: packet-ip.c,v 1.108 2000/12/04 06:37:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -339,7 +339,7 @@ capture_ip(const u_char *pd, int offset, packet_counts *ld) {
 
 static void
 dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-			guint optlen, proto_tree *opt_tree)
+			guint optlen, frame_data *fd, proto_tree *opt_tree)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf;
@@ -391,7 +391,7 @@ dissect_ipopt_security(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 static void
 dissect_ipopt_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-			guint optlen, proto_tree *opt_tree)
+			guint optlen, frame_data *fd, proto_tree *opt_tree)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf;
@@ -436,7 +436,7 @@ dissect_ipopt_route(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 static void
 dissect_ipopt_sid(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
-			guint optlen, proto_tree *opt_tree)
+			guint optlen, frame_data *fd, proto_tree *opt_tree)
 {
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
     "%s: %u", optp->name, tvb_get_ntohs(tvb, offset + 2));
@@ -445,7 +445,7 @@ dissect_ipopt_sid(const ip_tcp_opt *optp, tvbuff_t *tvb, int offset,
 
 static void
 dissect_ipopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, proto_tree *opt_tree)
+    int offset, guint optlen, frame_data *fd, proto_tree *opt_tree)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf;
@@ -587,7 +587,7 @@ static const ip_tcp_opt ipopts[] = {
 void
 dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
 			const ip_tcp_opt *opttab, int nopts, int eol,
-			proto_tree *opt_tree)
+			frame_data *fd, proto_tree *opt_tree)
 {
   u_char            opt;
   const ip_tcp_opt *optp;
@@ -596,7 +596,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
   char             *name;
   char              name_str[7+1+1+2+2+1+1];	/* "Unknown (0x%02x)" */
   void            (*dissect)(const struct ip_tcp_opt *, tvbuff_t *,
-				int, guint, proto_tree *);
+				int, guint, frame_data *, proto_tree *);
   guint             len;
 
   while (length > 0) {
@@ -668,7 +668,7 @@ dissect_ip_tcp_options(tvbuff_t *tvb, int offset, guint length,
         } else {
           if (dissect != NULL) {
             /* Option has a dissector. */
-            (*dissect)(optp, tvb, offset,          len, opt_tree);
+            (*dissect)(optp, tvb, offset,          len, fd, opt_tree);
           } else {
             /* Option has no data, hence no dissector. */
             proto_tree_add_text(opt_tree, tvb, offset,  len, "%s", name);
@@ -919,7 +919,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         "Options: (%u bytes)", optlen);
       field_tree = proto_item_add_subtree(tf, ett_ip_options);
       dissect_ip_tcp_options(tvb, offset + 20, optlen,
-         ipopts, N_IP_OPTS, IPOPT_END, field_tree);
+         ipopts, N_IP_OPTS, IPOPT_END, pinfo->fd, field_tree);
     }
   }
 

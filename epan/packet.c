@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.10 2000/12/03 22:32:10 guy Exp $
+ * $Id: packet.c,v 1.11 2000/12/04 06:37:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -536,6 +536,24 @@ check_col(frame_data *fd, gint el) {
     }
   }
   return FALSE;
+}
+
+/* Use this to clear out a column, especially if you're going to be
+   appending to it later; at least on some platforms, it's more
+   efficient than using "col_add_str()" with a null string, and
+   more efficient than "col_set_str()" with a null string if you
+   later append to it, as the later append will cause a string
+   copy to be done. */
+void
+col_clear(frame_data *fd, gint el) {
+  int    i;
+
+  for (i = 0; i < fd->cinfo->num_cols; i++) {
+    if (fd->cinfo->fmt_matx[i][el]) {
+      fd->cinfo->col_buf[i][0] = 0;
+      fd->cinfo->col_data[i] = fd->cinfo->col_buf[i];
+    }
+  }
 }
 
 /* Use this if "str" points to something that will stay around (and thus

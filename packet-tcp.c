@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.90 2000/11/20 16:17:43 gram Exp $
+ * $Id: packet-tcp.c,v 1.91 2000/12/04 06:37:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -59,9 +59,6 @@ gboolean g_tcp_summary_in_tree = TRUE;
 extern FILE* data_out_file;
 
 guint16 tcp_urgent_pointer;
-
-static gchar info_str[COL_MAX_LEN];
-static int   info_len;
 
 static int proto_tcp = -1;
 static int hf_tcp_srcport = -1;
@@ -151,44 +148,39 @@ typedef struct _e_tcphdr {
 #define TCPOLEN_CCECHO         6
 
 static void
-tcp_info_append_uint(const char *abbrev, guint32 val) {
-  int add_len = 0;
-  
-  if (info_len > 0)
-  if(info_len > 0)
-    add_len = snprintf(&info_str[info_len], COL_MAX_LEN - info_len, " %s=%u",
-      abbrev, val);
-  if (add_len > 0)
-    info_len += add_len;
+tcp_info_append_uint(frame_data *fd, const char *abbrev, guint32 val)
+{
+  if (check_col(fd, COL_INFO))
+    col_append_fstr(fd, COL_INFO, " %s=%u", abbrev, val);
 }
 
 static void
 dissect_tcpopt_maxseg(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, proto_tree *opt_tree)
+    int offset, guint optlen, frame_data *fd, proto_tree *opt_tree)
 {
   guint16 mss;
 
   mss = tvb_get_ntohs(tvb, offset + 2);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: %u bytes", optp->name, mss);
-  tcp_info_append_uint("MSS", mss);
+  tcp_info_append_uint(fd, "MSS", mss);
 }
 
 static void
 dissect_tcpopt_wscale(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, proto_tree *opt_tree)
+    int offset, guint optlen, frame_data *fd, proto_tree *opt_tree)
 {
   guint8 ws;
 
   ws = tvb_get_guint8(tvb, offset + 2);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: %u bytes", optp->name, ws);
-  tcp_info_append_uint("WS", ws);
+  tcp_info_append_uint(fd, "WS", ws);
 }
 
 static void
 dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, proto_tree *opt_tree)
+    int offset, guint optlen, frame_data *fd, proto_tree *opt_tree)
 {
   proto_tree *field_tree = NULL;
   proto_item *tf;
@@ -219,27 +211,27 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     optlen -= 4;
     proto_tree_add_text(field_tree, tvb, offset,      8,
         "left edge = %u, right edge = %u", leftedge, rightedge);
-    tcp_info_append_uint("SLE", leftedge);
-    tcp_info_append_uint("SRE", rightedge);
+    tcp_info_append_uint(fd, "SLE", leftedge);
+    tcp_info_append_uint(fd, "SRE", rightedge);
     offset += 8;
   }
 }
 
 static void
 dissect_tcpopt_echo(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, proto_tree *opt_tree)
+    int offset, guint optlen, frame_data *fd, proto_tree *opt_tree)
 {
   guint32 echo;
 
   echo = tvb_get_ntohl(tvb, offset + 2);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: %u", optp->name, echo);
-  tcp_info_append_uint("ECHO", echo);
+  tcp_info_append_uint(fd, "ECHO", echo);
 }
 
 static void
 dissect_tcpopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, proto_tree *opt_tree)
+    int offset, guint optlen, frame_data *fd, proto_tree *opt_tree)
 {
   guint32 tsv, tser;
 
@@ -247,20 +239,20 @@ dissect_tcpopt_timestamp(const ip_tcp_opt *optp, tvbuff_t *tvb,
   tser = tvb_get_ntohl(tvb, offset + 6);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
     "%s: tsval %u, tsecr %u", optp->name, tsv, tser);
-  tcp_info_append_uint("TSV", tsv);
-  tcp_info_append_uint("TSER", tser);
+  tcp_info_append_uint(fd, "TSV", tsv);
+  tcp_info_append_uint(fd, "TSER", tser);
 }
 
 static void
 dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
-    int offset, guint optlen, proto_tree *opt_tree)
+    int offset, guint optlen, frame_data *fd, proto_tree *opt_tree)
 {
   guint32 cc;
 
   cc = tvb_get_ntohl(tvb, offset + 2);
   proto_tree_add_text(opt_tree, tvb, offset,      optlen,
 			"%s: %u", optp->name, cc);
-  tcp_info_append_uint("CC", cc);
+  tcp_info_append_uint(fd, "CC", cc);
 }
 
 static const ip_tcp_opt tcpopts[] = {
@@ -448,6 +440,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   pinfo->current_proto = "TCP";
 
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_set_str(pinfo->fd, COL_PROTOCOL, "TCP");
+
+  /* Clear out the Info column. */
+  if (check_col(pinfo->fd, COL_INFO))
+    col_clear(pinfo->fd, COL_INFO);
+
   /* Avoids alignment problems on many architectures. */
   tvb_memcpy(tvb, (guint8 *)&th, offset, sizeof(e_tcphdr));
   th.th_sport = ntohs(th.th_sport);
@@ -462,8 +461,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      rlogin. */
   tcp_urgent_pointer = th.th_urp;
  
-  info_len = 0;
-
   if (check_col(pinfo->fd, COL_INFO) || tree) {  
     for (i = 0; i < 8; i++) {
       bpos = 1 << i;
@@ -487,20 +484,15 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Compute the sequence number of next octet after this segment. */
   nxtseq = th.th_seq + seglen;
 
-  if (check_col(pinfo->fd, COL_PROTOCOL))
-    col_set_str(pinfo->fd, COL_PROTOCOL, "TCP");
   if (check_col(pinfo->fd, COL_INFO)) {
-    /* Copy the data into info_str in case one of the option handling
-       routines needs to append to it. */
     if (th.th_flags & TH_URG)
-      info_len = snprintf(info_str, COL_MAX_LEN, "%s > %s [%s] Seq=%u Ack=%u Win=%u Urg=%u Len=%d",
+      col_append_fstr(pinfo->fd, COL_INFO, "%s > %s [%s] Seq=%u Ack=%u Win=%u Urg=%u Len=%d",
         get_tcp_port(th.th_sport), get_tcp_port(th.th_dport), flags,
         th.th_seq, th.th_ack, th.th_win, th.th_urp, seglen);
     else
-      info_len = snprintf(info_str, COL_MAX_LEN, "%s > %s [%s] Seq=%u Ack=%u Win=%u Len=%d",
+      col_append_fstr(pinfo->fd, COL_INFO, "%s > %s [%s] Seq=%u Ack=%u Win=%u Len=%d",
         get_tcp_port(th.th_sport), get_tcp_port(th.th_dport), flags,
         th.th_seq, th.th_ack, th.th_win, seglen);
-    /* The info column is actually written after the options are decoded */
   }
   
   if (tree) {
@@ -550,11 +542,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       "Options: (%d bytes)", optlen);
     field_tree = proto_item_add_subtree(tf, ett_tcp_options);
     dissect_ip_tcp_options(tvb, offset + 20, optlen,
-      tcpopts, N_TCP_OPTS, TCPOPT_EOL, field_tree);
+      tcpopts, N_TCP_OPTS, TCPOPT_EOL, pinfo->fd, field_tree);
   }
-
-  if (check_col(pinfo->fd, COL_INFO))
-    col_add_str(pinfo->fd, COL_INFO, info_str);
 
   /* Skip over header + options */
   offset += hlen;

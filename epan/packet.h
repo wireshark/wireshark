@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.13 2000/12/03 22:53:09 guy Exp $
+ * $Id: packet.h,v 1.14 2000/12/04 06:37:46 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -291,6 +291,7 @@ const char *decode_numeric_bitfield(guint32 val, guint32 mask, int width,
 
 void	   col_set_writable(frame_data *fd, gboolean writable);
 gint       check_col(frame_data *, gint);
+void       col_clear(frame_data *, gint);
 void       col_set_str(frame_data *, gint, gchar *);
 #if __GNUC__ == 2
 void       col_add_fstr(frame_data *, gint, gchar *, ...)
