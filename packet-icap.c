@@ -3,7 +3,7 @@
  *
  * Srishylam Simharajan simha@netapp.com
  *
- * packet-icap.c Mon Aug 13 17:50:19 PDT 2001 simha 
+ * $Id: packet-icap.c,v 1.9 2002/06/28 23:59:47 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
