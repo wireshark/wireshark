@@ -1,8 +1,8 @@
-# $Id: configure.in,v 1.16 1998/11/18 01:40:09 gerald Exp $
+# $Id: configure.in,v 1.17 1998/11/18 04:02:17 gerald Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
-AM_INIT_AUTOMAKE(ethereal, 0.4.2)
+AM_INIT_AUTOMAKE(ethereal, 0.5.0)
 
 dnl Check for CPU / vendor / OS
 AC_CANONICAL_HOST
@@ -81,15 +81,18 @@ AC_ARG_WITH(wiretap,
 			AC_DEFINE(WITH_WIRETAP)
 			CFLAGS="$CFLAGS -Iwiretap"
 			LIBWIRETAP_A="wiretap/libwiretap.a"
+			WIRETAP_DIR="wiretap"
 			;;
 		*)
 			AC_MSG_RESULT(no)
 			LIBWIRETAP_A=""
+			WIRETAP_DIR=""
 			;;
 	esac ],
 	AC_MSG_RESULT(no)
 )
 AC_SUBST(LIBWIRETAP_A)
+AC_SUBST(WIRETAP_DIR)
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -126,5 +129,7 @@ AC_SUBST(SNPRINTF_C)
 AC_SUBST(SNPRINTF_O)
 
 AM_CONFIG_HEADER(config.h)
-AC_CONFIG_SUBDIRS(wiretap)
+if test x$WIRETAP_DIR != x ; then
+  AC_CONFIG_SUBDIRS(wiretap)
+fi
 AC_OUTPUT(Makefile)

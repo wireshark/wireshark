@@ -98,4 +98,4 @@ EXTRA_DIST =                \
 	print.ps                \
 	rdps.c
 
-SUBDIRS=wiretap
+SUBDIRS=@WIRETAP_DIR@

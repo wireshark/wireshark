@@ -71,6 +71,7 @@ RANLIB = @RANLIB@
 SNPRINTF_C = @SNPRINTF_C@
 SNPRINTF_O = @SNPRINTF_O@
 VERSION = @VERSION@
+WIRETAP_DIR = @WIRETAP_DIR@
 
 bin_PROGRAMS = ethereal
 
@@ -166,7 +167,7 @@ EXTRA_DIST =                \
 	print.ps                \
 	rdps.c
 
-SUBDIRS=wiretap
+SUBDIRS=@WIRETAP_DIR@
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = config.h
