@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.131 2001/11/05 05:24:17 guy Exp $
+ * $Id: packet-smb.c,v 1.132 2001/11/05 05:39:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -52,6 +52,31 @@
 #include "packet-smb-mailslot.h"
 #include "packet-smb-pipe.h"
 
+/*
+ * Various specifications and documents about SMB can be found in
+ *
+ *	ftp://ftp.microsoft.com/developr/drg/CIFS/
+ *
+ * and a CIFS draft from the Storage Networking Industry Association
+ * can be found on a link from the page at
+ *
+ *	http://www.snia.org/English/Work_Groups/NAS/CIFS/WG_CIFS_Docs.html
+ *
+ * (it supercedes the document at
+ *
+ *	ftp://ftp.microsoft.com/developr/drg/CIFS/draft-leach-cifs-v1-spec-01.txt
+ *
+ * ).
+ *
+ * There are also some Open Group publications documenting CIFS for sale;
+ * catalog entries for them are at:
+ *
+ *	http://www.opengroup.org/products/publications/catalog/c209.htm
+ *
+ *	http://www.opengroup.org/products/publications/catalog/c195.htm
+ *
+ * Beware - these specs may have errors.
+ */
 static int proto_smb = -1;
 static int hf_smb_cmd = -1;
 static int hf_smb_pid = -1;
