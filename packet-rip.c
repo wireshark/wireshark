@@ -1,8 +1,8 @@
-/* packet-ospf.c
+/* packet-rip.c
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.10 1999/07/29 05:47:02 gram Exp $
+ * $Id: packet-rip.c,v 1.11 1999/08/04 00:33:11 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
