@@ -1,4 +1,4 @@
-# $Id: config.nmake,v 1.68 2003/12/10 21:50:04 gerald Exp $
+# $Id: config.nmake,v 1.69 2003/12/22 21:34:13 ulfl Exp $
 
 VERSION=0.10.0
 #
@@ -100,8 +100,8 @@ PATH=c:\cygnus\cygwin-b20\H-i586-cygwin32\bin;c:\python22;c:\ethereal\wiretap;$(
 
 SH=bash
 PERL=perl
-POD2MAN=pod2man
-POD2HTML=pod2html
+POD2MAN=$(SH) pod2man
+POD2HTML=$(SH) pod2html
 PYTHON="C:/python22/python.exe"
 LEX=flex
 YACC=bison
