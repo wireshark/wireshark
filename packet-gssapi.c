@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@samba.org> Added a few 
  *		   bits and pieces ...
  *
- * $Id: packet-gssapi.c,v 1.21 2002/11/05 21:41:27 guy Exp $
+ * $Id: packet-gssapi.c,v 1.22 2002/11/06 23:36:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -155,7 +155,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	subid_t *oid;
 	gchar *oid_string;
 	gssapi_oid_value *value;
-	volatile dissector_handle_t handle = NULL;
+	volatile dissector_handle_t handle;
 	conversation_t *volatile conversation;
 	tvbuff_t *oid_tvb;
 
@@ -202,20 +202,37 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   * If we do not recognise an Application class,
 		   * then we are probably dealing with an inner context
 		   * token, and we should retrieve the dissector from
-		   * the conversation that exists or we created from pinfo
+		   * the per-frame data or, if there is no per-frame data
+		   * (as would be the case the first time we dissect this
+		   * frame), from the conversation that exists or that we
+		   * created from pinfo (and then make it per-frame data).
+		   * We need to make it per-frame data as there can be
+		   * more than one GSS-API negotiation in a conversation.
 		   *
 		   * Note! We cheat. Since we only need the dissector handle,
-		   * We store that as the conversation data ... 
+		   * we store that as the data.
 		   */
-
-		  if (conversation && 
-		      !(handle = conversation_get_proto_data(conversation, 
-							     proto_gssapi))){
-			proto_tree_add_text(
-				subtree, tvb, offset, 0,
-				"Unknown header (cls=%d, con=%d, tag=%d)",
-				cls, con, tag);
-			goto done;
+		  handle = p_get_proto_data(pinfo->fd, proto_gssapi);
+		  if (!handle && !pinfo->fd->flags.visited)
+		  {
+		    /* No handle attached to this frame, but it's the first */
+		    /* pass, so it'd be attached to the conversation. */
+		    /* If we have a conversation, try to get the handle, */
+		    /* and if we get one, attach it to the frame. */
+		    if (conversation)
+		    {
+		      handle = conversation_get_proto_data(conversation, 
+							   proto_gssapi);
+		      if (handle)
+			p_add_proto_data(pinfo->fd, proto_gssapi, handle);
+		    }
+		  }
+		  if (!handle)
+		  {
+		    proto_tree_add_text(subtree, tvb, offset, 0,
+			"Unknown header (cls=%d, con=%d, tag=%d)",
+			cls, con, tag);
+		    goto done;
 		  }
 		  else 
 		  {
