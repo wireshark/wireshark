@@ -48,7 +48,7 @@ LIBETHEREAL_SRC = 		\
 	tvbuff.c		\
 	value_string.c
 
-LIBETHEREAL_INCLUDESS = 		\
+LIBETHEREAL_INCLUDES = 		\
 	addr_and_mask.h		\
 	addr_resolv.h		\
 	address.h		\
