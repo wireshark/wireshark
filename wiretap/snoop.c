@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.41 2002/02/27 08:57:25 guy Exp $
+ * $Id: snoop.c,v 1.42 2002/03/02 20:41:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -554,8 +554,10 @@ gboolean snoop_dump_open(wtap_dumper *wdh, int *err)
 
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err)
+static gboolean snoop_dump(wtap_dumper *wdh,
+	const struct wtap_pkthdr *phdr,
+	const union wtap_pseudo_header *pseudo_header _U_,
+	const u_char *pd, int *err)
 {
 	struct snooprec_hdr rec_hdr;
 	size_t nwritten;

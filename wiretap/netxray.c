@@ -1,6 +1,6 @@
 /* netxray.c
  *
- * $Id: netxray.c,v 1.45 2002/02/27 08:57:25 guy Exp $
+ * $Id: netxray.c,v 1.46 2002/03/02 20:41:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -377,8 +377,10 @@ gboolean netxray_dump_open_1_1(wtap_dumper *wdh, int *err)
 
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean netxray_dump_1_1(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const u_char *pd, int *err)
+static gboolean netxray_dump_1_1(wtap_dumper *wdh,
+	const struct wtap_pkthdr *phdr,
+	const union wtap_pseudo_header *pseudo_header _U_,
+	const u_char *pd, int *err)
 {
     netxray_dump_t *netxray = wdh->dump.netxray;
     guint32 timestamp;

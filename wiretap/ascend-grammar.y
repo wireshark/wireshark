@@ -1,7 +1,7 @@
 %{
 /* ascend-grammar.y
  *
- * $Id: ascend-grammar.y,v 1.23 2001/12/06 08:25:51 guy Exp $
+ * $Id: ascend-grammar.y,v 1.24 2002/03/02 20:41:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -409,7 +409,6 @@ parse_ascend(FILE_T fh, void *pd, struct ascend_phdr *phdr,
 }
 
 void
-yyerror (char *s)
+yyerror (char *s _U_)
 {
-  /* fprintf (stderr, "%s\n", s); */
 }

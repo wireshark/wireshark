@@ -1,6 +1,6 @@
 /* vms.c
  *
- * $Id: vms.c,v 1.6 2002/02/08 10:07:41 guy Exp $
+ * $Id: vms.c,v 1.7 2002/03/02 20:41:08 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -206,7 +206,8 @@ static gboolean vms_read(wtap *wth, int *err, long *data_offset)
 
 /* Used to read packets in random-access fashion */
 static int
-vms_seek_read (wtap *wth, long seek_off, union wtap_pseudo_header *pseudo_header,
+vms_seek_read (wtap *wth, long seek_off,
+    union wtap_pseudo_header *pseudo_header _U_,
     guint8 *pd, int len)
 {
     int    pkt_len;

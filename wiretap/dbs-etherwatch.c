@@ -1,6 +1,6 @@
 /* dbs-etherwatch.c
  *
- * $Id: dbs-etherwatch.c,v 1.3 2002/02/08 10:07:40 guy Exp $
+ * $Id: dbs-etherwatch.c,v 1.4 2002/03/02 20:41:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <mmilgram@arrayinc.com>
@@ -199,7 +199,7 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, long *data_offset)
 /* Used to read packets in random-access fashion */
 static int
 dbs_etherwatch_seek_read (wtap *wth, long seek_off,
-	union wtap_pseudo_header *pseudo_header,
+	union wtap_pseudo_header *pseudo_header _U_,
 	guint8 *pd, int len)
 {
 	int	pkt_len;

@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.13 2001/12/17 22:22:42 guy Exp $
+ * $Id: pppdump.c,v 1.14 2002/03/02 20:41:07 guy Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
@@ -566,7 +566,7 @@ pppdump_seek_read (wtap *wth,
 }
 
 static void
-simple_g_free(gpointer data, gpointer junk)
+simple_g_free(gpointer data, gpointer dummy _U_)
 {
 	if (data)
 		g_free(data);

@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.72 2002/02/27 08:57:25 guy Exp $
+ * $Id: ngsniffer.c,v 1.73 2002/03/02 20:41:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -1049,8 +1049,9 @@ static int ngsniffer_read_frame6(wtap *wth, gboolean is_random,
 	return 0;
 }
 
-static void set_pseudo_header_frame6(union wtap_pseudo_header *pseudo_header,
-    struct frame6_rec *frame6)
+static void set_pseudo_header_frame6(
+	union wtap_pseudo_header *pseudo_header _U_,
+	struct frame6_rec *frame6 _U_)
 {
 	/* XXX - Once the frame format is divined, something will most likely go here */
 }
@@ -1094,7 +1095,7 @@ static void ngsniffer_sequential_close(wtap *wth)
 	}
 }
 
-static void free_blob(gpointer data, gpointer user_data)
+static void free_blob(gpointer data, gpointer user_data _U_)
 {
 	g_free(data);
 }

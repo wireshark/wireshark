@@ -1,6 +1,6 @@
 /* csids.c
  *
- * $Id: csids.c,v 1.9 2002/02/08 10:07:40 guy Exp $
+ * $Id: csids.c,v 1.10 2002/03/02 20:41:07 guy Exp $
  *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) 2000 by Cisco Systems
@@ -195,7 +195,7 @@ static gboolean csids_read(wtap *wth, int *err, long *data_offset)
 static int
 csids_seek_read (wtap *wth,
 		 long seek_off,
-		 union wtap_pseudo_header *pseudo_header,
+		 union wtap_pseudo_header *pseudo_header _U_,
 		 guint8 *pd,
 		 int len)
 {
