@@ -1,7 +1,7 @@
 /* prefs.h
  * Definitions for preference handling routines
  *
- * $Id: prefs.h,v 1.54 2004/01/19 00:42:08 ulfl Exp $
+ * $Id: prefs.h,v 1.55 2004/01/20 18:47:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -36,6 +36,13 @@
 #define DEF_HEIGHT 550
 
 #define MAX_VAL_LEN  1024
+
+/* only GTK1 *or* GTK2 font_name should be used */
+#if GTK_MAJOR_VERSION < 2
+#define PREFS_GUI_FONT_NAME gui_font_name1
+#else
+#define PREFS_GUI_FONT_NAME gui_font_name2
+#endif
 
 /*
  * Convert a string listing name resolution types to a bitmask of
@@ -75,7 +82,8 @@ typedef struct _e_prefs {
   gint     gui_ptree_expander_style;
   gboolean gui_hex_dump_highlight_style;
   gint     gui_toolbar_main_style;
-  gchar   *gui_font_name;
+  gchar   *gui_font_name1;
+  gchar   *gui_font_name2;
   color_t  gui_marked_fg;
   color_t  gui_marked_bg;
   gboolean gui_geometry_save_position;

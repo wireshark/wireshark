@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.36 2004/01/19 00:42:09 ulfl Exp $
+ * $Id: main.h,v 1.37 2004/01/20 18:47:24 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -64,6 +64,11 @@ extern GtkStyle *item_style;
 
 void about_ethereal( GtkWidget *, gpointer);
 void goto_framenum_cb(GtkWidget *, gpointer);
+void goto_top_frame_cb(GtkWidget *w _U_, gpointer d _U_);
+void goto_bottom_frame_cb(GtkWidget *w _U_, gpointer d _U_);
+void view_zoom_in_cb(GtkWidget *w _U_, gpointer d _U_);
+void view_zoom_out_cb(GtkWidget *w _U_, gpointer d _U_);
+void view_zoom_100_cb(GtkWidget *w _U_, gpointer d _U_);
 void match_selected_cb_replace_ptree( GtkWidget *, gpointer);
 void match_selected_cb_and_ptree( GtkWidget *, gpointer);
 void match_selected_cb_or_ptree( GtkWidget *, gpointer);
@@ -101,8 +106,9 @@ extern void dfilter_recent_combo_write_all(FILE *rf);
 
 extern void main_widgets_rearrange(void);
 
-char *boldify(const char *);
+extern void font_apply(void);
 #if GTK_MAJOR_VERSION < 2
+char *font_boldify(const char *);
 void set_fonts(GdkFont *regular, GdkFont *bold);
 #else
 void set_fonts(PangoFontDescription *regular, PangoFontDescription *bold);

@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.222 2004/01/18 04:13:44 guy Exp $
+ * $Id: capture.c,v 1.223 2004/01/20 18:47:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -428,7 +428,7 @@ do_capture(const char *save_file)
 
     /* Convert font name to a quote-encapsulated string and pass to child */
     argv = add_arg(argv, &argc, "-m");
-    fontstring = quote_encapsulate(prefs.gui_font_name);
+    fontstring = quote_encapsulate(prefs.PREFS_GUI_FONT_NAME);
     argv = add_arg(argv, &argc, fontstring);
 
     /* Convert pipe write handle to a string and pass to child */
@@ -465,7 +465,7 @@ do_capture(const char *save_file)
     }
 
     argv = add_arg(argv, &argc, "-m");
-    argv = add_arg(argv, &argc, prefs.gui_font_name);
+    argv = add_arg(argv, &argc, prefs.PREFS_GUI_FONT_NAME);
 
     if (cfile.cfilter != NULL && strlen(cfile.cfilter) != 0) {
       argv = add_arg(argv, &argc, "-f");

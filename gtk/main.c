@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.362 2004/01/20 02:26:00 ulfl Exp $
+ * $Id: main.c,v 1.363 2004/01/20 18:47:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -124,6 +124,7 @@
 #include "find_dlg.h"
 #include "packet_list.h"
 #include "recent.h"
+#include "follow_dlg.h"
 
 #ifdef WIN32
 #include "capture-wpcap.h"
@@ -177,6 +178,7 @@ static gboolean list_link_layer_types;
 #endif
 
 static void create_main_window(gint, gint, gint, e_prefs*);
+static void try_to_get_windows_font_gtk2 (void);
 
 #define E_DFILTER_CM_KEY          "display_filter_combo"
 #define E_DFILTER_FL_KEY          "display_filter_list"
@@ -295,6 +297,44 @@ goto_framenum_cb(GtkWidget *w _U_, gpointer data _U_)
 	}
     }
 }
+
+void
+goto_top_frame_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    goto_top_frame(&cfile);
+}
+
+void
+goto_bottom_frame_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+    goto_bottom_frame(&cfile);
+}
+
+
+void
+view_zoom_in_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+
+    recent.gui_zoom_level++;
+    font_apply();
+}
+
+void
+view_zoom_out_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+
+    recent.gui_zoom_level--;
+    font_apply();
+}
+
+void
+view_zoom_100_cb(GtkWidget *w _U_, gpointer d _U_)
+{
+
+    recent.gui_zoom_level = 0;
+    font_apply();
+}
+
 
 /* Match selected byte pattern */
 static void
@@ -1726,9 +1766,9 @@ main(int argc, char *argv[])
 #endif
         break;
       case 'm':        /* Fixed-width font for the display */
-        if (prefs->gui_font_name != NULL)
-          g_free(prefs->gui_font_name);
-        prefs->gui_font_name = g_strdup(optarg);
+        if (prefs->PREFS_GUI_FONT_NAME != NULL)
+          g_free(prefs->PREFS_GUI_FONT_NAME);
+        prefs->PREFS_GUI_FONT_NAME = g_strdup(optarg);
         break;
       case 'n':        /* No name resolution */
         g_resolv_flags = RESOLV_NONE;
@@ -2127,16 +2167,24 @@ main(int argc, char *argv[])
 #endif
 #endif
 
+#ifdef WIN32
+#if GTK_MAJOR_VERSION >= 2
+  try_to_get_windows_font_gtk2();
+#endif
+#endif
+    
+  /* read in rc file from global and personal configuration paths. */
+  gtk_rc_parse(RC_FILE);
   rc_file = get_persconffile_path(RC_FILE, FALSE);
   gtk_rc_parse(rc_file);
 
   /* Try to load the regular and boldface fixed-width fonts */
 #if GTK_MAJOR_VERSION < 2
-  bold_font_name = boldify(prefs->gui_font_name);
-  m_r_font = gdk_font_load(prefs->gui_font_name);
+  bold_font_name = font_boldify(prefs->PREFS_GUI_FONT_NAME);
+  m_r_font = gdk_font_load(prefs->PREFS_GUI_FONT_NAME);
   m_b_font = gdk_font_load(bold_font_name);
 #else
-  m_r_font = pango_font_description_from_string(prefs->gui_font_name);
+  m_r_font = pango_font_description_from_string(prefs->PREFS_GUI_FONT_NAME);
   m_b_font = pango_font_description_copy(m_r_font);
   pango_font_description_set_weight(m_b_font, PANGO_WEIGHT_BOLD);
 #endif
@@ -2151,7 +2199,7 @@ main(int argc, char *argv[])
 #else
 	fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to Monospace 9\n",
 #endif
-		prefs->gui_font_name);
+		prefs->PREFS_GUI_FONT_NAME);
     } else {
 #if GTK_MAJOR_VERSION < 2
       gdk_font_unref(m_r_font);
@@ -2168,7 +2216,7 @@ main(int argc, char *argv[])
 		bold_font_name);
 #else
         fprintf(stderr, "ethereal: Warning: bold font %s not found - defaulting"
-                        " to Monospace 9\n", prefs->gui_font_name);
+                        " to Monospace 9\n", prefs->PREFS_GUI_FONT_NAME);
 #endif
     } else {
 #if GTK_MAJOR_VERSION < 2
@@ -2197,12 +2245,12 @@ main(int argc, char *argv[])
 #endif
       exit(1);
     }
-    g_free(prefs->gui_font_name);
+    g_free(prefs->PREFS_GUI_FONT_NAME);
 #if GTK_MAJOR_VERSION < 2
-    prefs->gui_font_name = g_strdup("6x13");
+    prefs->PREFS_GUI_FONT_NAME = g_strdup("6x13");
 #else
     pango_font_description_set_weight(m_b_font, PANGO_WEIGHT_BOLD);
-    prefs->gui_font_name = g_strdup("Monospace 9");
+    prefs->PREFS_GUI_FONT_NAME = g_strdup("Monospace 9");
 #endif
   }
 
@@ -2644,7 +2692,7 @@ static const struct {
 #define	N_WEIGHTS	(sizeof weight_map / sizeof weight_map[0])
 
 char *
-boldify(const char *font_name)
+font_boldify(const char *font_name)
 {
 	char *bold_font_name;
 	gchar **xlfd_tokens;
@@ -2690,6 +2738,353 @@ not_xlfd:
 	return bold_font_name;
 }
 #endif
+
+
+char *font_zoom(char *gui_font_name)
+{
+    char new_font_name[200];
+    char *font_name_dup;
+    char *font_name_p;
+    long font_point_size_l;
+#if GTK_MAJOR_VERSION < 2
+    int minus_chars;
+    char *font_foundry;
+    char *font_family;
+    char *font_weight;
+    char *font_slant;
+    char *font_set_width;
+    char *font_add_style;
+    char *font_pixel_size;
+    char *font_point_size;
+    char *font_res_x;
+    char *font_res_y;
+    char *font_spacing;
+    char *font_aver_width;
+    char *font_charset_reg;
+    char *font_charset_encoding;
+#endif
+
+#if GTK_MAJOR_VERSION >= 2
+    font_name_dup = strdup(gui_font_name);
+    font_name_p = font_name_dup;
+
+    /* find the start of the font_size string */
+    font_name_p = strrchr(font_name_dup, ' ');
+    *font_name_p = 0;
+    font_name_p++;
+
+    /* calculate the new font size */
+    font_point_size_l = strtoul(font_name_p, NULL, 10);
+    font_point_size_l += recent.gui_zoom_level;
+
+    /* build a new font name */
+    sprintf(new_font_name, "%s %u", font_name_dup, font_point_size_l);
+    g_free(font_name_dup);
+
+    return strdup(new_font_name);
+#else
+    font_name_dup = strdup(gui_font_name);
+    font_name_p = font_name_dup;
+
+    minus_chars = 0;
+    /* replace all '-' chars by 0 and count them */
+    while (font_name_p = strchr(font_name_p, '-')) {
+        *font_name_p = 0;
+        font_name_p++;
+        minus_chars++;
+    }
+
+    if (minus_chars != 14) {
+        return NULL;
+    }
+
+    /* first element empty */
+    font_name_p = font_name_dup;
+    font_name_p += strlen(font_name_p);
+    font_name_p++;
+
+    /* get pointers to all font name elements */
+    font_foundry = font_name_p;
+    font_name_p += strlen(font_name_p);
+    font_name_p++;
+
+    font_family = font_name_p;
+    font_name_p += strlen(font_name_p);
+    font_name_p++;
+
+    font_weight = font_name_p;
+    font_name_p += strlen(font_name_p);
+    font_name_p++;
+
+    font_slant = font_name_p;
+    font_name_p += strlen(font_name_p);
+    font_name_p++;
+
+    font_set_width = font_name_p;
+    font_name_p += strlen(font_name_p);
+    font_name_p++;
+
+    font_add_style = font_name_p;
+    font_name_p += strlen(font_name_p);
+    font_name_p++;
+
+    font_pixel_size = font_name_p;
+    font_name_p += strlen(font_name_p);
+    font_name_p++;
+
+    font_point_size = font_name_p;
+    font_name_p += strlen(font_name_p);
+    font_name_p++;
+
+    font_res_x = font_name_p;
+    font_name_p += strlen(font_name_p);
+    font_name_p++;
+
+    font_res_y = font_name_p;
+    font_name_p += strlen(font_name_p);
+    font_name_p++;
+
+    font_spacing = font_name_p;
+    font_name_p += strlen(font_name_p);
+    font_name_p++;
+
+    font_aver_width = font_name_p;
+    font_name_p += strlen(font_name_p);
+    font_name_p++;
+
+    font_charset_reg = font_name_p;
+    font_name_p += strlen(font_name_p);
+    font_name_p++;
+
+    font_charset_encoding = font_name_p;
+    font_name_p += strlen(font_name_p);
+    font_name_p++;
+
+    /* calculate the new font size */
+    font_point_size_l = strtoul(font_point_size, NULL, 10);
+    font_point_size_l += recent.gui_zoom_level*10;
+    if (font_point_size_l < 0)
+        font_point_size_l = 0;
+
+    /* build a new font name */
+    sprintf(new_font_name, "-%s-%s-%s-%s-%s--%s-%u-%s-%s-%s-%s-%s-%s", 
+        font_foundry, font_family, font_weight, font_slant, font_set_width, 
+        font_pixel_size, font_point_size_l, font_res_x, font_res_y,
+        font_spacing, font_aver_width, font_charset_reg, font_charset_encoding);
+    g_free(font_name_dup);
+
+    return strdup(new_font_name);
+#endif
+}
+
+
+void
+font_apply(void) {
+    char *gui_font_name;
+#if GTK_MAJOR_VERSION < 2
+	GdkFont *new_r_font, *new_b_font;
+	char *bold_font_name;
+	GdkFont *old_r_font = NULL, *old_b_font = NULL;
+#else
+	PangoFontDescription *new_r_font, *new_b_font;
+	PangoFontDescription *old_r_font = NULL, *old_b_font = NULL;
+#endif
+
+
+    /* convert font name to reflect the zoom level */
+    gui_font_name = font_zoom(prefs.PREFS_GUI_FONT_NAME);
+    if (gui_font_name == NULL) {
+        simple_dialog(ESD_TYPE_WARN, NULL,
+            "Font name: \"%s\" invalid, please update font setting in Edit->Preferences",
+            gui_font_name);
+        return;
+    }
+
+	/* XXX - what if the world changed out from under
+	   us, so that one or both of these fonts cannot
+	   be loaded? */
+#if GTK_MAJOR_VERSION < 2
+	new_r_font = gdk_font_load(gui_font_name);
+	bold_font_name = font_boldify(gui_font_name);
+	new_b_font = gdk_font_load(bold_font_name);
+#else
+	new_r_font = pango_font_description_from_string(gui_font_name);
+	new_b_font = pango_font_description_copy(new_r_font);
+	pango_font_description_set_weight(new_b_font,
+		PANGO_WEIGHT_BOLD);
+#endif
+	set_plist_font(new_r_font);
+	set_ptree_font_all(new_r_font);
+	old_r_font = m_r_font;
+	old_b_font = m_b_font;
+	set_fonts(new_r_font, new_b_font);
+#if GTK_MAJOR_VERSION < 2
+	g_free(bold_font_name);
+#endif
+
+	/* Redraw the hex dump windows. */
+	redraw_hex_dump_all();
+
+    /* Redraw the "Follow TCP Stream" windows. */
+	follow_redraw_all();
+
+    /* We're no longer using the old fonts; unreference them. */
+#if GTK_MAJOR_VERSION < 2
+	if (old_r_font != NULL)
+		gdk_font_unref(old_r_font);
+	if (old_b_font != NULL)
+		gdk_font_unref(old_b_font);
+#else
+	if (old_r_font != NULL)
+		pango_font_description_free(old_r_font);
+	if (old_b_font != NULL)
+		pango_font_description_free(old_b_font);
+#endif
+    g_free(gui_font_name);
+}
+
+
+
+
+#ifdef WIN32
+
+#define NAME_BUFFER_LEN 32
+
+#if GTK_MAJOR_VERSION < 2
+
+
+/* coming from: Allin Cottrell, http://www.ecn.wfu.edu/~cottrell/gtk_win32 */
+int get_windows_font_gtk1(char *fontspec)
+{
+    HDC h_dc;
+    HGDIOBJ h_font;
+    TEXTMETRIC tm;
+    char name[NAME_BUFFER_LEN];
+    int len, pix_height;
+
+    h_dc = CreateDC("DISPLAY", NULL, NULL, NULL);
+    if (h_dc == NULL) return 1;
+    h_font = GetStockObject(DEFAULT_GUI_FONT);
+    if (h_font == NULL || !SelectObject(h_dc, h_font)) {
+        DeleteDC(h_dc);
+        return 1;
+    }
+    len = GetTextFace(h_dc, NAME_BUFFER_LEN, name);
+    if (len <= 0) {
+        DeleteDC(h_dc);
+        return 1;
+    }
+    if (!GetTextMetrics(h_dc, &tm)) {
+        DeleteDC(h_dc);
+        return 1;
+    }
+    pix_height = tm.tmHeight;
+    DeleteDC(h_dc);
+    sprintf(fontspec, "-*-%s-*-*-*-*-%i-*-*-*-p-*-iso8859-1", name,
+            pix_height);
+    return 0;
+}
+
+void set_app_font_gtk1(GtkWidget *top_level_w)
+{
+    GtkStyle *style;
+    char winfont[80];
+ 
+    style = gtk_widget_get_style(top_level);
+    if (get_windows_font_gtk1(winfont) == 0)
+        style->font = gdk_font_load(winfont);
+    if (style->font) gtk_widget_set_style(top_level, style);
+}
+
+#else /* GTK_MAJOR_VERSION */
+static char appfontname[128] = "tahoma 8";
+
+void set_app_font_gtk2(const char *fontname)
+{
+    GtkSettings *settings;
+
+    if (fontname != NULL && *fontname == 0) return;
+
+    settings = gtk_settings_get_default();
+
+    if (fontname == NULL) {
+	g_object_set(G_OBJECT(settings), "gtk-font-name", appfontname, NULL);
+    } else {
+	GtkWidget *w;
+	PangoFontDescription *pfd;
+	PangoContext *pc;
+	PangoFont *pfont;
+
+	w = gtk_label_new(NULL);
+	pfd = pango_font_description_from_string(fontname);
+	pc = gtk_widget_get_pango_context(w);
+	pfont = pango_context_load_font(pc, pfd);
+
+	if (pfont != NULL) {
+	    strcpy(appfontname, fontname);
+	    g_object_set(G_OBJECT(settings), "gtk-font-name", appfontname, NULL);
+	}
+
+	gtk_widget_destroy(w);
+	pango_font_description_free(pfd);
+    }
+}
+
+char *default_windows_menu_fontspec_gtk2(void)
+{
+    gchar *fontspec = NULL;
+    NONCLIENTMETRICS ncm;
+
+    memset(&ncm, 0, sizeof ncm);
+    ncm.cbSize = sizeof ncm;
+
+    if (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0)) {
+	HDC screen = GetDC(0);
+	double y_scale = 72.0 / GetDeviceCaps(screen, LOGPIXELSY);
+	int point_size = (int) (ncm.lfMenuFont.lfHeight * y_scale);
+
+	if (point_size < 0) point_size = -point_size;
+	fontspec = g_strdup_printf("%s %d", ncm.lfMenuFont.lfFaceName,
+				   point_size);
+	ReleaseDC(0, screen);
+    }
+
+    return fontspec;
+}
+
+static void try_to_get_windows_font_gtk2(void)
+{
+    gchar *fontspec;
+
+    fontspec = default_windows_menu_fontspec_gtk2();
+
+    if (fontspec != NULL) {
+	int match = 0;
+	PangoFontDescription *pfd;
+	PangoFont *pfont;
+	PangoContext *pc;
+	GtkWidget *w;
+
+	pfd = pango_font_description_from_string(fontspec);
+
+	w = gtk_label_new(NULL);
+	pc = gtk_widget_get_pango_context(w);
+	pfont = pango_context_load_font(pc, pfd);
+	match = (pfont != NULL);
+
+	pango_font_description_free(pfd);
+	g_object_unref(G_OBJECT(pc));
+	gtk_widget_destroy(w);
+
+	if (match) set_app_font_gtk2(fontspec);
+	g_free(fontspec);
+    }
+}
+#endif /* GTK_MAJOR_VERSION */
+
+#endif /* WIN32 */
+
+
 
 
 /*
@@ -2802,6 +3197,13 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
 
     /* Main window */
     top_level = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+
+#ifdef WIN32 
+#if GTK_MAJOR_VERSION < 2
+    set_app_font_gtk1(top_level);
+#endif
+#endif
+    
     gtk_widget_set_name(top_level, "main window");
     SIGNAL_CONNECT(top_level, "delete_event", main_window_delete_event_cb,
                    NULL);

@@ -2,7 +2,7 @@
  * Recent "preference" handling routines
  * Copyright 2004, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: recent.c,v 1.4 2004/01/19 23:03:20 guy Exp $
+ * $Id: recent.c,v 1.5 2004/01/20 18:47:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,6 +141,11 @@ write_recent(char **rf_path_return)
   fprintf(rf, RECENT_GUI_TIME_FORMAT ": %s\n",
           ts_type_text[recent.gui_time_format]);
 
+  fprintf(rf, "\n# Zoom level.\n");
+  fprintf(rf, "# A decimal number.\n");
+  fprintf(rf, RECENT_GUI_ZOOM_LEVEL ": %d\n",
+		  recent.gui_zoom_level);
+
   fclose(rf);
 
   /* XXX - catch I/O errors (e.g. "ran out of disk space") and return
@@ -203,8 +208,10 @@ read_set_recent_pair(gchar *key, gchar *value)
         recent.statusbar_show = FALSE;
     }
   } else if (strcmp(key, RECENT_GUI_TIME_FORMAT) == 0) {
-        recent.gui_time_format =
-	    find_index_from_string_array(value, ts_type_text, TS_RELATIVE);
+    recent.gui_time_format =
+	find_index_from_string_array(value, ts_type_text, TS_RELATIVE);
+  } else if (strcmp(key, RECENT_GUI_ZOOM_LEVEL) == 0) {
+    recent.gui_zoom_level = strtol(value, NULL, 0);
   }
 
   return PREFS_SET_OK;
@@ -227,6 +234,7 @@ read_recent(char **rf_path_return, int *rf_errno_return)
   recent.byte_view_show         = TRUE;
   recent.statusbar_show         = TRUE;
   recent.gui_time_format        = TS_RELATIVE;
+  recent.gui_zoom_level         = 0;
 
   /* Construct the pathname of the user's recent file. */
   rf_path = get_persconffile_path(RECENT_FILE_NAME, FALSE);
@@ -252,6 +260,7 @@ read_recent(char **rf_path_return, int *rf_errno_return)
   }
 
   menu_recent_read_finished();
+  font_apply();
 }
 
 

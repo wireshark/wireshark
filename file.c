@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.342 2004/01/16 19:35:32 guy Exp $
+ * $Id: file.c,v 1.343 2004/01/20 18:47:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2260,6 +2260,61 @@ goto_frame(capture_file *cf, guint fnumber)
   /* We found that packet, and it's currently being displayed.
      Find what row it's in. */
   row = packet_list_find_row_from_data(fdata);
+  g_assert(row != -1);
+
+  /* Select that row, make it the focus row, and make it visible. */
+  packet_list_set_selected_row(row);
+  return TRUE;	/* we got to that packet */
+}
+
+gboolean
+goto_top_frame(capture_file *cf)
+{
+  frame_data *fdata;
+  int row;
+  frame_data *lowest_fdata = NULL;
+
+  for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
+    if (fdata->flags.passed_dfilter) {
+        lowest_fdata = fdata;
+        break;
+    }
+  }
+
+  if (lowest_fdata == NULL) {
+      return FALSE;
+  }
+
+  /* We found that packet, and it's currently being displayed.
+     Find what row it's in. */
+  row = packet_list_find_row_from_data(lowest_fdata);
+  g_assert(row != -1);
+
+  /* Select that row, make it the focus row, and make it visible. */
+  packet_list_set_selected_row(row);
+  return TRUE;	/* we got to that packet */
+}
+
+gboolean
+goto_bottom_frame(capture_file *cf)
+{
+  frame_data *fdata;
+  int row;
+  frame_data *highest_fdata = NULL;
+
+  for (fdata = cf->plist; fdata != NULL; fdata = fdata->next) {
+    if (fdata->flags.passed_dfilter) {
+        highest_fdata = fdata;
+    }
+  }
+
+  if (highest_fdata == NULL) {
+      return FALSE;
+  }
+
+  /* We found that packet, and it's currently being displayed.
+     Find what row it's in. */
+  row = packet_list_find_row_from_data(highest_fdata);
   g_assert(row != -1);
 
   /* Select that row, make it the focus row, and make it visible. */

@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.121 2004/01/19 00:42:08 ulfl Exp $
+ * $Id: prefs.c,v 1.122 2004/01/20 18:47:22 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -923,7 +923,8 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
     prefs.gui_hex_dump_highlight_style = 1;
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
 #ifdef WIN32
-    prefs.gui_font_name = g_strdup("-*-lucida console-medium-r-*-*-*-100-*-*-*-*-*-*");
+    prefs.gui_font_name1 = g_strdup("-*-lucida console-medium-r-*-*-*-100-*-*-*-*-*-*");
+    prefs.gui_font_name2 = g_strdup("Lucida Console 10");
 #else
     /*
      * XXX - for now, we make the initial font name a pattern that matches
@@ -970,7 +971,9 @@ read_prefs(int *gpf_errno_return, int *gpf_read_errno_return,
      * protocol-tree, and hex-dump windows involves a lot more than, say,
      * just using font sets rather than fonts.
      */
-    prefs.gui_font_name = g_strdup("-*-fixed-medium-r-semicondensed-*-*-120-*-*-*-*-iso8859-1");
+    prefs.gui_font_name1 = g_strdup("-*-fixed-medium-r-semicondensed-*-*-120-*-*-*-*-iso8859-1");
+    /* XXX- is this the correct default font name for GTK2 none win32? */
+    prefs.gui_font_name2 = g_strdup("fixed medium 12");
 #endif
     prefs.gui_marked_fg.pixel        =     65535;
     prefs.gui_marked_fg.red          =     65535;
@@ -1275,7 +1278,8 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_PTREE_LINE_STYLE         "gui.protocol_tree_line_style"
 #define PRS_GUI_PTREE_EXPANDER_STYLE     "gui.protocol_tree_expander_style"
 #define PRS_GUI_HEX_DUMP_HIGHLIGHT_STYLE "gui.hex_dump_highlight_style"
-#define PRS_GUI_FONT_NAME                "gui.font_name"
+#define PRS_GUI_FONT_NAME_1              "gui.font_name"
+#define PRS_GUI_FONT_NAME_2              "gui.gtk2.font_name"
 #define PRS_GUI_MARKED_FG                "gui.marked_frame.fg"
 #define PRS_GUI_MARKED_BG                "gui.marked_frame.bg"
 #define PRS_GUI_FILEOPEN_STYLE           "gui.fileopen.style"
@@ -1530,10 +1534,14 @@ set_pref(gchar *pref_name, gchar *value)
 	prefs.gui_toolbar_main_style =
 	    find_index_from_string_array(value, gui_toolbar_style_text,
 				     TB_STYLE_ICONS);
-  } else if (strcmp(pref_name, PRS_GUI_FONT_NAME) == 0) {
-    if (prefs.gui_font_name != NULL)
-      g_free(prefs.gui_font_name);
-    prefs.gui_font_name = g_strdup(value);
+  } else if (strcmp(pref_name, PRS_GUI_FONT_NAME_1) == 0) {
+    if (prefs.gui_font_name1 != NULL)
+      g_free(prefs.gui_font_name1);
+    prefs.gui_font_name1 = g_strdup(value);
+  } else if (strcmp(pref_name, PRS_GUI_FONT_NAME_2) == 0) {
+    if (prefs.gui_font_name2 != NULL)
+      g_free(prefs.gui_font_name2);
+    prefs.gui_font_name2 = g_strdup(value);
   } else if (strcmp(pref_name, PRS_GUI_MARKED_FG) == 0) {
     cval = strtoul(value, NULL, 16);
     prefs.gui_marked_fg.pixel = 0;
@@ -2116,8 +2124,11 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_TOOLBAR_MAIN_STYLE ": %s\n",
 		  gui_toolbar_style_text[prefs.gui_toolbar_main_style]);
 
-  fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes.\n");
-  fprintf(pf, PRS_GUI_FONT_NAME ": %s\n", prefs.gui_font_name);
+  fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes (GTK version 1).\n");
+  fprintf(pf, PRS_GUI_FONT_NAME_1 ": %s\n", prefs.gui_font_name1);
+
+  fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes (GTK version 2).\n");
+  fprintf(pf, PRS_GUI_FONT_NAME_2 ": %s\n", prefs.gui_font_name2);
 
   fprintf (pf, "\n# Color preferences for a marked frame.\n");
   fprintf (pf, "# Each value is a six digit hexadecimal color value in the form rrggbb.\n");
@@ -2262,7 +2273,8 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_fileopen_dir = g_strdup(src->gui_fileopen_dir);
   dest->gui_fileopen_remembered_dir = g_strdup(src->gui_fileopen_remembered_dir);
   dest->gui_fileopen_style = src->gui_fileopen_style;
-  dest->gui_font_name = g_strdup(src->gui_font_name);
+  dest->gui_font_name1 = g_strdup(src->gui_font_name1);
+  dest->gui_font_name2 = g_strdup(src->gui_font_name2);
   dest->gui_marked_fg = src->gui_marked_fg;
   dest->gui_marked_bg = src->gui_marked_bg;
   dest->gui_geometry_save_position = src->gui_geometry_save_position;
@@ -2296,9 +2308,13 @@ free_prefs(e_prefs *pr)
     pr->pr_cmd = NULL;
   }
   free_col_info(pr);
-  if (pr->gui_font_name != NULL) {
-    g_free(pr->gui_font_name);
-    pr->gui_font_name = NULL;
+  if (pr->gui_font_name1 != NULL) {
+    g_free(pr->gui_font_name1);
+    pr->gui_font_name1 = NULL;
+  }
+  if (pr->gui_font_name2 != NULL) {
+    g_free(pr->gui_font_name2);
+    pr->gui_font_name2 = NULL;
   }
   if (pr->gui_fileopen_dir != NULL) {
     g_free(pr->gui_fileopen_dir);

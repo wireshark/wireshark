@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.54 2004/01/17 03:09:24 guy Exp $
+ * $Id: gui_prefs.c,v 1.55 2004/01/20 18:47:23 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -33,7 +33,6 @@
 #include "globals.h"
 #include "gui_prefs.h"
 #include "gtkglobals.h"
-#include "follow_dlg.h"
 #include "help_dlg.h"
 #include "supported_protos_dlg.h"
 #include "prefs.h"
@@ -321,7 +320,7 @@ gui_font_prefs_show(void)
 	   a fix; hopefully, it'll show up in 1.2.9 if, as, and when
 	   they put out a 1.2.9 release. */
 	gtk_font_selection_set_font_name(
-	    GTK_FONT_SELECTION(font_browse_w), prefs.gui_font_name);
+	    GTK_FONT_SELECTION(font_browse_w), prefs.PREFS_GUI_FONT_NAME);
 
 	gtk_widget_show(font_browse_w);
 
@@ -353,7 +352,7 @@ font_fetch(void)
 
 #if GTK_MAJOR_VERSION < 2
 	/* Get the name that the boldface version of that font would have. */
-	bold_font_name = boldify(font_name);
+	bold_font_name = font_boldify(font_name);
 
 	/* Now load those fonts, just to make sure we can. */
 	new_r_font = gdk_font_load(font_name);
@@ -453,62 +452,32 @@ gui_prefs_fetch(GtkWidget *w)
 	 * places where there *can* be a bad preference value.
 	 */
 	if (font_fetch()) {
-		if (strcmp(new_font_name, prefs.gui_font_name) != 0) {
+		if (strcmp(new_font_name, prefs.PREFS_GUI_FONT_NAME) != 0) {
 			font_changed = TRUE;
-			if (prefs.gui_font_name != NULL)
-				g_free(prefs.gui_font_name);
-			prefs.gui_font_name = g_strdup(new_font_name);
+			if (prefs.PREFS_GUI_FONT_NAME != NULL)
+				g_free(prefs.PREFS_GUI_FONT_NAME);
+			prefs.PREFS_GUI_FONT_NAME = g_strdup(new_font_name);
 		}
 	}
 }
 
+
+
 void
 gui_prefs_apply(GtkWidget *w _U_)
 {
-#if GTK_MAJOR_VERSION < 2
-	GdkFont *new_r_font, *new_b_font;
-	char *bold_font_name;
-	GdkFont *old_r_font = NULL, *old_b_font = NULL;
-#else
-	PangoFontDescription *new_r_font, *new_b_font;
-	PangoFontDescription *old_r_font = NULL, *old_b_font = NULL;
-#endif
 
-	if (font_changed) {
-		/* XXX - what if the world changed out from under
-		   us, so that one or both of these fonts cannot
-		   be loaded? */
-#if GTK_MAJOR_VERSION < 2
-		new_r_font = gdk_font_load(prefs.gui_font_name);
-		bold_font_name = boldify(prefs.gui_font_name);
-		new_b_font = gdk_font_load(bold_font_name);
-#else
-		new_r_font = pango_font_description_from_string(prefs.gui_font_name);
-		new_b_font = pango_font_description_copy(new_r_font);
-		pango_font_description_set_weight(new_b_font,
-		    PANGO_WEIGHT_BOLD);
-#endif
-		set_plist_font(new_r_font);
-		set_ptree_font_all(new_r_font);
-		old_r_font = m_r_font;
-		old_b_font = m_b_font;
-		set_fonts(new_r_font, new_b_font);
-#if GTK_MAJOR_VERSION < 2
-		g_free(bold_font_name);
-#endif
+    if (font_changed) {
+        font_apply();
 	}
 
-	/* Redraw the hex dump windows, in case either the font or the
+	/* Redraw the hex dump windows, in case the
 	   highlight style changed. */
 	redraw_hex_dump_all();
 
 	/* Redraw the help window(s). */
 	supported_redraw();
 	help_redraw();
-
-	/* Redraw the "Follow TCP Stream" windows, if the font changed. */
-	if (font_changed)
-		follow_redraw_all();
 
 	/* XXX: redraw the toolbar only, if style changed */
 	toolbar_redraw_all();
@@ -517,19 +486,6 @@ gui_prefs_apply(GtkWidget *w _U_)
 	set_plist_sel_browse(prefs.gui_plist_sel_browse);
 	set_ptree_sel_browse_all(prefs.gui_ptree_sel_browse);
 	set_tree_styles_all();
-
-	/* We're no longer using the old fonts; unreference them. */
-#if GTK_MAJOR_VERSION < 2
-	if (old_r_font != NULL)
-		gdk_font_unref(old_r_font);
-	if (old_b_font != NULL)
-		gdk_font_unref(old_b_font);
-#else
-	if (old_r_font != NULL)
-		pango_font_description_free(old_r_font);
-	if (old_b_font != NULL)
-		pango_font_description_free(old_b_font);
-#endif
 }
 
 void

@@ -2,7 +2,7 @@
  * The main toolbar
  * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
  *
- * $Id: toolbar.c,v 1.22 2004/01/20 02:36:04 guy Exp $
+ * $Id: toolbar.c,v 1.23 2004/01/20 18:47:25 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -78,8 +78,14 @@
 #include "../image/toolbar/stock_refresh_24.xpm"
 #include "../image/toolbar/stock_print_24.xpm"
 #include "../image/toolbar/stock_search_24.xpm"
+#include "../image/toolbar/stock_left_arrow_24.xpm"
 #include "../image/toolbar/stock_right_arrow_24.xpm"
 #include "../image/toolbar/stock_jump_to_24.xpm"
+#include "../image/toolbar/stock_top_24.xpm"
+#include "../image/toolbar/stock_bottom_24.xpm"
+#include "../image/toolbar/stock_zoom_in_24.xpm"
+#include "../image/toolbar/stock_zoom_out_24.xpm"
+#include "../image/toolbar/stock_zoom_1_24.xpm"
 #include "../image/toolbar/stock_colorselector_24.xpm"
 #include "../image/toolbar/stock_help_24.xpm"
 #endif /* GTK_MAJOR_VERSION */
@@ -104,8 +110,10 @@ static GtkWidget *new_button, *stop_button;
 static GtkWidget *capture_filter_button;
 #endif /* HAVE_LIBPCAP */
 static GtkWidget *open_button, *save_button, *save_as_button, *close_button, *reload_button;
-static GtkWidget *print_button, *find_button, *find_next_button, *go_to_button;
+static GtkWidget *print_button, *find_button, *find_next_button, *find_prev_button;
+static GtkWidget *go_to_button, *go_to_top_button, *go_to_bottom_button;
 static GtkWidget *display_filter_button;
+static GtkWidget *zoom_in_button, *zoom_out_button, *zoom_100_button;
 static GtkWidget *color_display_button, *prefs_button, *help_button;
 
 #if GTK_MAJOR_VERSION >= 2
@@ -256,7 +264,13 @@ void set_toolbar_for_captured_packets(gboolean have_captured_packets) {
         gtk_widget_set_sensitive(print_button, have_captured_packets);
         gtk_widget_set_sensitive(find_button, have_captured_packets);
         gtk_widget_set_sensitive(find_next_button, have_captured_packets);
+        gtk_widget_set_sensitive(find_prev_button, have_captured_packets);
         gtk_widget_set_sensitive(go_to_button, have_captured_packets);
+        gtk_widget_set_sensitive(go_to_top_button, have_captured_packets);
+        gtk_widget_set_sensitive(go_to_bottom_button, have_captured_packets);
+        gtk_widget_set_sensitive(zoom_in_button, have_captured_packets);
+        gtk_widget_set_sensitive(zoom_out_button, have_captured_packets);
+        gtk_widget_set_sensitive(zoom_100_button, have_captured_packets);        
         /* XXX - I don't see a reason why this should be done (as it is in the
          * menus) */
         /* gtk_widget_set_sensitive(color_display_button, have_captured_packets);*/
@@ -367,10 +381,26 @@ toolbar_new(void)
 
     toolbar_item(find_button, window, main_tb, 
         GTK_STOCK_FIND, "Find a packet...", stock_search_24_xpm, find_frame_cb);
+    toolbar_item(find_prev_button, window, main_tb, 
+        GTK_STOCK_GO_BACK, "Find the previous matching packet", stock_left_arrow_24_xpm, find_previous_cb);
     toolbar_item(find_next_button, window, main_tb, 
         GTK_STOCK_GO_FORWARD, "Find the next matching packet", stock_right_arrow_24_xpm, find_next_cb);
+    toolbar_append_separator(main_tb);
+
     toolbar_item(go_to_button, window, main_tb, 
         GTK_STOCK_JUMP_TO, "Go to the packet with number...", stock_jump_to_24_xpm, goto_frame_cb);
+    toolbar_item(go_to_top_button, window, main_tb, 
+        GTK_STOCK_GOTO_TOP, "Go to the first packet", stock_top_24_xpm, goto_top_frame_cb);
+    toolbar_item(go_to_bottom_button, window, main_tb, 
+        GTK_STOCK_GOTO_BOTTOM, "Go to the last packet", stock_bottom_24_xpm, goto_bottom_frame_cb);
+    toolbar_append_separator(main_tb);
+
+    toolbar_item(zoom_in_button, window, main_tb, 
+        GTK_STOCK_ZOOM_IN, "Zoom in", stock_zoom_in_24_xpm, view_zoom_in_cb);
+    toolbar_item(zoom_out_button, window, main_tb, 
+        GTK_STOCK_ZOOM_OUT, "Zoom out", stock_zoom_out_24_xpm, view_zoom_out_cb);
+    toolbar_item(zoom_100_button, window, main_tb, 
+        GTK_STOCK_ZOOM_100, "Zoom 100%", stock_zoom_1_24_xpm, view_zoom_100_cb);
     toolbar_append_separator(main_tb);
     
 #ifdef HAVE_LIBPCAP

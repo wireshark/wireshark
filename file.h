@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.110 2004/01/13 22:33:26 guy Exp $
+ * $Id: file.h,v 1.111 2004/01/20 18:47:21 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -70,6 +70,9 @@ guint8 get_int_value(char char_val);
 gboolean find_ascii(capture_file *cf, char *ascii_text, gboolean ascii_search, char *ftype, gboolean case_type);
 gboolean find_in_gtk_data(capture_file *cf, gpointer *data, char *ascii_text, gboolean case_type, gboolean search_type);
 gboolean goto_frame(capture_file *cf, guint fnumber);
+gboolean goto_bottom_frame(capture_file *cf);
+gboolean goto_top_frame(capture_file *cf);
+
 
 void select_packet(capture_file *, int);
 void unselect_packet(capture_file *);
