@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.37 2002/03/02 21:07:31 guy Exp $
+ * $Id: packet-ldap.c,v 1.38 2002/03/02 21:28:19 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1098,7 +1098,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (protocolOpCls != ASN1_APL)
       typestr = "Bad message type (not Application)";
     else
-      typestr = val_to_str(protocolOpTag, msgTypes, "Bad message type (%u)");
+      typestr = val_to_str(protocolOpTag, msgTypes, "Unknown message type (%u)");
 
     if (first_time)
     {
@@ -1123,54 +1123,63 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
       }
 
-      switch (protocolOpTag)
+      if (protocolOpCls != ASN1_APL)
       {
-       case LDAP_REQ_BIND:
-        ret = dissect_ldap_request_bind(&a, msg_tree);
-        break;
-       case LDAP_REQ_UNBIND:
-        /* Nothing to dissect */
-        break;
-       case LDAP_REQ_SEARCH:
-        ret = dissect_ldap_request_search(&a, msg_tree);
-        break;
-       case LDAP_REQ_MODIFY:
-        ret = dissect_ldap_request_modify(&a, msg_tree);
-        break;
-       case LDAP_REQ_ADD:
-        ret = dissect_ldap_request_add(&a, msg_tree);
-        break;
-       case LDAP_REQ_DELETE:
-        ret = dissect_ldap_request_delete(&a, msg_tree, start, opLen);
-        break;
-       case LDAP_REQ_MODRDN:
-        ret = dissect_ldap_request_modifyrdn(&a, msg_tree, opLen);
-        break;
-       case LDAP_REQ_COMPARE:
-        ret = dissect_ldap_request_compare(&a, msg_tree);
-        break;
-       case LDAP_REQ_ABANDON:
-        ret = dissect_ldap_request_abandon(&a, msg_tree, start, opLen);
-        break;
-       case LDAP_RES_BIND:
-        dissect_ldap_response_bind(&a, msg_tree);
-        break;
-       case LDAP_RES_SEARCH_ENTRY:
-        ret = dissect_ldap_response_search_entry(&a, msg_tree);
-        break;
-       case LDAP_RES_SEARCH_RESULT:
-       case LDAP_RES_MODIFY:
-       case LDAP_RES_ADD:
-       case LDAP_RES_DELETE:
-       case LDAP_RES_MODRDN:
-       case LDAP_RES_COMPARE:
-        ret = dissect_ldap_result(&a, msg_tree);
-        break;
-       default:
-         proto_tree_add_text(msg_tree, a.tvb, start, 0,
-            "Unknown LDAP operation (%u)", protocolOpTag);
-         ret = ASN1_ERR_NOERROR;
-         break;
+        proto_tree_add_text(msg_tree, a.tvb, a.offset, opLen,
+			    "%s", typestr);
+        ret = ASN1_ERR_NOERROR;
+      }
+      else
+      {
+        switch (protocolOpTag)
+        {
+         case LDAP_REQ_BIND:
+          ret = dissect_ldap_request_bind(&a, msg_tree);
+          break;
+         case LDAP_REQ_UNBIND:
+          /* Nothing to dissect */
+          break;
+         case LDAP_REQ_SEARCH:
+          ret = dissect_ldap_request_search(&a, msg_tree);
+          break;
+         case LDAP_REQ_MODIFY:
+          ret = dissect_ldap_request_modify(&a, msg_tree);
+          break;
+         case LDAP_REQ_ADD:
+          ret = dissect_ldap_request_add(&a, msg_tree);
+          break;
+         case LDAP_REQ_DELETE:
+          ret = dissect_ldap_request_delete(&a, msg_tree, start, opLen);
+          break;
+         case LDAP_REQ_MODRDN:
+          ret = dissect_ldap_request_modifyrdn(&a, msg_tree, opLen);
+          break;
+         case LDAP_REQ_COMPARE:
+          ret = dissect_ldap_request_compare(&a, msg_tree);
+          break;
+         case LDAP_REQ_ABANDON:
+          ret = dissect_ldap_request_abandon(&a, msg_tree, start, opLen);
+          break;
+         case LDAP_RES_BIND:
+          dissect_ldap_response_bind(&a, msg_tree);
+          break;
+         case LDAP_RES_SEARCH_ENTRY:
+          ret = dissect_ldap_response_search_entry(&a, msg_tree);
+          break;
+         case LDAP_RES_SEARCH_RESULT:
+         case LDAP_RES_MODIFY:
+         case LDAP_RES_ADD:
+         case LDAP_RES_DELETE:
+         case LDAP_RES_MODRDN:
+         case LDAP_RES_COMPARE:
+          ret = dissect_ldap_result(&a, msg_tree);
+          break;
+         default:
+          proto_tree_add_text(msg_tree, a.tvb, a.offset, opLen,
+			      "Unknown LDAP operation (%u)", protocolOpTag);
+          ret = ASN1_ERR_NOERROR;
+          break;
+        }
       }
 
       if (ret != ASN1_ERR_NOERROR) {
