@@ -1,6 +1,6 @@
 /* wtap.c
  *
- * $Id: wtap.c,v 1.87 2004/01/25 21:55:17 guy Exp $
+ * $Id: wtap.c,v 1.88 2004/01/28 01:24:29 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -190,6 +190,54 @@ static const struct encap_type_info {
 
 	/* WTAP_ENCAP_IRDA */
 	{ "IrDA", "irda" },
+
+	/* WTAP_ENCAP_USER0 */
+	{ "USER 0", "user0" },
+
+	/* WTAP_ENCAP_USER1 */
+	{ "USER 1", "user1" },
+
+	/* WTAP_ENCAP_USER2 */
+	{ "USER 2", "user2" },
+
+	/* WTAP_ENCAP_USER3 */
+	{ "USER 3", "user3" },
+
+	/* WTAP_ENCAP_USER4 */
+	{ "USER 4", "user4" },
+
+	/* WTAP_ENCAP_USER5 */
+	{ "USER 5", "user5" },
+
+	/* WTAP_ENCAP_USER6 */
+	{ "USER 6", "user6" },
+
+	/* WTAP_ENCAP_USER7 */
+	{ "USER 7", "user7" },
+
+	/* WTAP_ENCAP_USER8 */
+	{ "USER 8", "user8" },
+
+	/* WTAP_ENCAP_USER9 */
+	{ "USER 9", "user9" },
+
+	/* WTAP_ENCAP_USER10 */
+	{ "USER 10", "user10" },
+
+	/* WTAP_ENCAP_USER11 */
+	{ "USER 11", "user11" },
+
+	/* WTAP_ENCAP_USER12 */
+	{ "USER 12", "user12" },
+
+	/* WTAP_ENCAP_USER13 */
+	{ "USER 13", "user13" },
+
+	/* WTAP_ENCAP_USER14 */
+	{ "USER 14", "user14" },
+
+	/* WTAP_ENCAP_USER15 */
+	{ "USER 15", "user15" },
 };
 
 /* Name that should be somewhat descriptive. */

@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.109 2004/01/27 08:06:12 guy Exp $
+ * $Id: libpcap.c,v 1.110 2004/01/28 01:24:29 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -287,6 +287,24 @@ static const struct {
 	{ 141,		WTAP_ENCAP_MTP3 },
 
 	{ 143,		WTAP_ENCAP_DOCSIS },
+
+	/* Reserved for private use. */
+	{ 147,		WTAP_ENCAP_USER0 },
+	{ 148,		WTAP_ENCAP_USER1 },
+	{ 149,		WTAP_ENCAP_USER2 },
+	{ 150,		WTAP_ENCAP_USER3 },
+	{ 151,		WTAP_ENCAP_USER4 },
+	{ 152,		WTAP_ENCAP_USER5 },
+	{ 153,		WTAP_ENCAP_USER6 },
+	{ 154,		WTAP_ENCAP_USER7 },
+	{ 155,		WTAP_ENCAP_USER8 },
+	{ 156,		WTAP_ENCAP_USER9 },
+	{ 157,		WTAP_ENCAP_USER10 },
+	{ 158,		WTAP_ENCAP_USER11 },
+	{ 159,		WTAP_ENCAP_USER12 },
+	{ 160,		WTAP_ENCAP_USER13 },
+	{ 161,		WTAP_ENCAP_USER14 },
+	{ 162,		WTAP_ENCAP_USER15 },
 
 	/*
 	 * To repeat:
