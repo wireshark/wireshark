@@ -1,6 +1,6 @@
 /* libpcap.c
  *
- * $Id: libpcap.c,v 1.68 2002/03/04 00:25:35 guy Exp $
+ * $Id: libpcap.c,v 1.69 2002/03/07 21:31:12 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -504,7 +504,7 @@ int libpcap_open(wtap *wth, int *err)
 			aix = TRUE;
 			break;
 
-		case 8:
+		case 9:
 			hdr.network = 6;	/* DLT_IEEE802, Token Ring */
 			aix = TRUE;
 			break;
