@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.191 2003/04/23 10:20:29 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.192 2003/05/16 10:35:19 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -585,8 +585,22 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
 
 	/* keep-alives are empty semgents with a sequence number -1 of what
 	 * we would expect.
+         *
+	 * Solaris is an exception, Solaris does not really use KeepAlives
+	 * according to RFC793, instead they move the left window edge one
+	 * byte to the left and makes up a fake byte to fill in this position
+	 * of the enlarged window.
+	 * This means that Solaris will do "weird" KeepAlives that actually
+	 * contains a one-byte segment with "random" junk data which the
+	 * Solaris host then will try to transmit, and posisbly retransmit
+	 * to the other side. Of course the other side will ignore this junk
+	 * byte since it is outside (left of) the window.
+	 * This is actually a brilliant trick that gives them, for free, 
+	 * semi-reliable KeepAlives.
+	 * (since normal retransmission will handle any lost keepalive segments
+	 * , brilliant)
 	 */
-	if( (!seglen) && EQ_SEQ(seq, (ual1->nextseq-1)) ){
+	if( (seglen<=1) && EQ_SEQ(seq, (ual1->nextseq-1)) ){
 		struct tcp_acked *ta;
 
 		ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
