@@ -1,7 +1,7 @@
 /* prefs_dlg.c
  * Routines for handling preferences
  *
- * $Id: prefs_dlg.c,v 1.59 2003/03/11 23:14:42 guy Exp $
+ * $Id: prefs_dlg.c,v 1.60 2003/09/01 01:49:20 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -512,13 +512,13 @@ prefs_cb(GtkWidget *w _U_, gpointer dummy _U_)
 #endif /* HAVE_LIBPCAP */
 
   /* Name resolution prefs */
-  frame = gtk_frame_new("Name resolution");
+  frame = gtk_frame_new("Name Resolution");
   gtk_widget_show(GTK_WIDGET(frame));
   nameres_pg = nameres_prefs_show();
   gtk_container_add(GTK_CONTAINER(frame), nameres_pg);
   OBJECT_SET_DATA(prefs_w, E_NAMERES_PAGE_KEY, nameres_pg);
   gtk_notebook_append_page (GTK_NOTEBOOK(prefs_nb), frame, NULL);
-  strcpy(label_str, "Name resolution");
+  strcpy(label_str, "Name Resolution");
 #if GTK_MAJOR_VERSION < 2
   ct_node = gtk_ctree_insert_node(GTK_CTREE(cts.tree), NULL, NULL,
   		&label_ptr, 5, NULL, NULL, NULL, NULL, TRUE, TRUE);
