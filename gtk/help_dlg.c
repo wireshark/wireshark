@@ -1,6 +1,6 @@
 /* help_dlg.c
  *
- * $Id: help_dlg.c,v 1.15 2001/03/02 23:10:12 gram Exp $
+ * $Id: help_dlg.c,v 1.16 2001/03/06 21:07:13 guy Exp $
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
@@ -289,6 +289,8 @@ static void set_help_text(GtkWidget *w, help_type_t type)
   int width, height;
   const char *type_name;
   char blanks[B_LEN];
+  int blks;
+  void *cookie;
 
   /*
    * XXX quick hack:
@@ -311,12 +313,11 @@ static void set_help_text(GtkWidget *w, help_type_t type)
 
   case PROTOCOL_HELP :    
     /* first pass to know the maximum length of first field */
-    for (i = 0; i < proto_registrar_n() ; i++) {
-      if (proto_registrar_is_protocol(i)) {
-	hfinfo = proto_registrar_get_nth(i);
-	if ((len = strlen(hfinfo->abbrev)) > maxlen)
-	  maxlen = len;
-      }
+    for (i = proto_get_first_protocol(&cookie); i != -1;
+	    i = proto_get_next_protocol(&cookie)) {
+      hfinfo = proto_registrar_get_nth(i);
+      if ((len = strlen(hfinfo->abbrev)) > maxlen)
+	maxlen = len;
     }
 
     maxlen++;
@@ -326,23 +327,21 @@ static void set_help_text(GtkWidget *w, help_type_t type)
     set_text(w, proto_help, maxlen2);
     
     /* ok, display the correctly aligned strings */
-    for (i = 0; i < proto_registrar_n() ; i++) {
-      if (proto_registrar_is_protocol(i)) {
-	int blks;
-	hfinfo = proto_registrar_get_nth(i);
-	blks = maxlen - strlen(hfinfo->abbrev);
-	snprintf(buffer, BUFF_LEN, "%s%s%s\n",
-		 hfinfo->abbrev,
-		 &blanks[B_LEN - blks - 2],
-		 hfinfo->name);
-	if ((len = strlen(buffer)) > maxlen2) {
-	  maxlen2 = len;
-	  if ((len = gdk_string_width(m_r_font, buffer)) > width)
-	    width = len;
-	}
-	set_text(w, buffer, strlen(buffer));
-	nb_lines++;
+    for (i = proto_get_first_protocol(&cookie); i != -1;
+	    i = proto_get_next_protocol(&cookie)) {
+      hfinfo = proto_registrar_get_nth(i);
+      blks = maxlen - strlen(hfinfo->abbrev);
+      snprintf(buffer, BUFF_LEN, "%s%s%s\n",
+	       hfinfo->abbrev,
+	       &blanks[B_LEN - blks - 2],
+	       hfinfo->name);
+      if ((len = strlen(buffer)) > maxlen2) {
+	maxlen2 = len;
+	if ((len = gdk_string_width(m_r_font, buffer)) > width)
+	  width = len;
       }
+      set_text(w, buffer, strlen(buffer));
+      nb_lines++;
     }
 
     height = (2 + nb_lines) * m_font_height;
