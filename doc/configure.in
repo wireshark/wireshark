@@ -1,0 +1,10 @@
+# $Id: configure.in,v 1.1 1999/07/20 08:02:23 guy Exp $
+
+AC_INIT(dfilter2pod.in)
+
+dnl Checks for programs.
+AC_PATH_PROG(PERL_PATH, perl)
+
+AC_SUBST(PERL_PATH)
+
+AC_OUTPUT(dfilter2pod, [chmod +x dfilter2pod])

@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.31 1999/07/13 03:31:39 guy Exp $
+# $Id: configure.in,v 1.32 1999/07/20 08:02:15 guy Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -144,5 +144,5 @@ dnl blank for now, but will be used in future
 AC_SUBST(SUBDIRS)
 
 AM_CONFIG_HEADER(config.h)
-AC_CONFIG_SUBDIRS(wiretap)
+AC_CONFIG_SUBDIRS(wiretap doc)
 AC_OUTPUT(Makefile)

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!@PERL_PATH@
 #
 # Reads the display filter keyword dump produced by 'ethereal -G' and
 # formats it for a pod document. The pod document is then used to
@@ -9,7 +9,7 @@
 #	will be replaced by the pod-formatted glossary
 # STDOUT is the output
 #
-# $Id: dfilter2pod,v 1.1 1999/07/15 15:33:07 gram Exp $
+# $Id: dfilter2pod.in,v 1.1 1999/07/20 08:02:24 guy Exp $
 
 %ftenum_names = (
 	'FT_NONE',	'No value',
