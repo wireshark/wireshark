@@ -24,7 +24,7 @@ http://developer.novell.com/ndk/doc/docui/index.htm#../ncp/ncp__enu/data/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.19 2002/05/16 03:31:33 gram Exp $
+$Id: ncp2222.py,v 1.20 2002/05/16 09:59:51 guy Exp $
 
 
 Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -5611,6 +5611,29 @@ proto_register_ncp2222(void)
 	{ &hf_ncp_completion_code,
 	{ "Completion Code", "ncp.completion_code", FT_UINT8, BASE_HEX, NULL, 0x0, "", HFILL }},
 
+	/*
+	 * XXX - the page at
+	 *
+	 *	http://www.odyssea.com/whats_new/tcpipnet/tcpipnet.html
+	 *
+	 * says of the connection status "The Connection Code field may
+	 * contain values that indicate the status of the client host to
+	 * server connection.  A value of 1 in the fourth bit of this data
+	 * byte indicates that the server is unavailable (server was
+	 * downed).
+	 *
+	 * The page at
+	 *
+	 *	http://www.unm.edu/~network/presentations/course/appendix/appendix_f/tsld088.htm
+	 *
+	 * says that bit 0 is "bad service", bit 2 is "no connection
+	 * available", bit 4 is "service down", and bit 6 is "server
+	 * has a broadcast message waiting for the client".
+	 *
+	 * Should it be displayed in hex, and should those bits (and any
+	 * other bits with significance) be displayed as bitfields
+	 * underneath it?
+	 */
 	{ &hf_ncp_connection_status,
 	{ "Connection Status", "ncp.connection_status", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL }},
 

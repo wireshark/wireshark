@@ -2,12 +2,11 @@
  * Structures and functions for NetWare Core Protocol.
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp-int.h,v 1.7 2002/05/09 23:50:25 gram Exp $
+ * $Id: packet-ncp-int.h,v 1.8 2002/05/16 09:59:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 2000 Gerald Combs
- *
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -85,10 +84,21 @@ typedef struct {
 void dissect_ncp_request(tvbuff_t*, packet_info*, guint16,
 		guint8, guint16, proto_tree*);
 
-void dissect_ncp_reply(tvbuff_t *, packet_info*, guint16,
-		guint8, proto_tree*);
+void dissect_ncp_reply(tvbuff_t *, packet_info*, guint16, guint8,
+		guint16, proto_tree*);
 
 extern int proto_ncp;
 extern gint ett_ncp;
+
+/*
+ * NCP packet types.
+ */
+#define NCP_ALLOCATE_SLOT	0x1111
+#define NCP_SERVICE_REQUEST	0x2222
+#define NCP_SERVICE_REPLY	0x3333
+#define NCP_WATCHDOG		0x3e3e
+#define NCP_DEALLOCATE_SLOT	0x5555
+#define NCP_BURST_MODE_XFER	0x7777
+#define NCP_POSITIVE_ACK	0x9999
 
 #endif

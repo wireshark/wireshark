@@ -7,7 +7,7 @@
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-ncp2222.inc,v 1.12 2002/05/16 03:31:34 gram Exp $
+ * $Id: packet-ncp2222.inc,v 1.13 2002/05/16 09:59:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -598,6 +598,10 @@ static const ncp_record ncp1111_request =
 	{ 0x01, 0x00, NO_SUBFUNC, "Create Connection Service", NCP_GROUP_CONNECTION,
 		NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
 
+static const ncp_record ncp5555_request =
+	{ 0x01, 0x00, NO_SUBFUNC, "Destroy Connection Service", NCP_GROUP_CONNECTION,
+		NULL, NULL, ncp_0x2_errors, NULL, NO_REQ_COND_SIZE, NULL };
+
 /* Wrapper around proto_tree_free() */
 void free_proto_tree(void *tree)
 {
@@ -637,11 +641,14 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* Determine which ncp_record to use. */
 	switch (type) {
-		case 0x1111:
+		case NCP_ALLOCATE_SLOT:
 			ncp_rec = &ncp1111_request;
 			break;
-		case 0x2222:
+		case NCP_SERVICE_REQUEST:
 			ncp_rec = ncp_record_find(func, subfunc);
+			break;
+		case NCP_DEALLOCATE_SLOT:
+			ncp_rec = &ncp5555_request;
 			break;
 		default:
 			ncp_rec = NULL;
@@ -750,11 +757,11 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 		    PT_NCP, nw_connection, nw_connection, 0);
 
 		switch (type) {
-			case 0x1111:
+			case NCP_ALLOCATE_SLOT:
 				; /* nothing */
 				break;
 
-			case 0x2222:
+			case NCP_SERVICE_REQUEST:
 				proto_tree_add_uint_format(ncp_tree, hf_ncp_func, tvb, 6, 1,
 					func, "Function: %d (0x%02X), %s",
 					func, func, ncp_rec ? ncp_rec->name : "Unknown");
@@ -860,7 +867,8 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
 
 void
 dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
-	guint16 nw_connection, guint8 sequence, proto_tree *ncp_tree)
+	guint16 nw_connection, guint8 sequence, guint16 type,
+	proto_tree *ncp_tree)
 {
 	conversation_t			*conversation;
 	ncp_req_hash_value		*request_value = NULL;
@@ -909,7 +917,9 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "R %s", error_string);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+		    type == NCP_SERVICE_REPLY ? "R" : "ACK",
+		    error_string);
 	}
 
 	if (ncp_tree) {
@@ -940,6 +950,12 @@ dissect_ncp_reply(tvbuff_t *tvb, packet_info *pinfo,
 			completion_code, completion_code, error_string);
 
 		proto_tree_add_item(ncp_tree, hf_ncp_connection_status, tvb, 7, 1, FALSE);
+
+		/*
+		 * Unless this is a reply, that's all there is to parse.
+		 */
+		if (type != NCP_SERVICE_REPLY)
+			return;
 
 		length = tvb_length(tvb);
 		if (!ncp_rec && length > 8) {

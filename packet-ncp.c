@@ -3,7 +3,7 @@
  * Gilbert Ramirez <gram@alumni.rice.edu>
  * Modified to allow NCP over TCP/IP decodes by James Coe <jammer@cin.net>
  *
- * $Id: packet-ncp.c,v 1.60 2002/05/15 21:37:19 guy Exp $
+ * $Id: packet-ncp.c,v 1.61 2002/05/16 09:59:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -141,14 +141,6 @@ struct ncp_common_header {
 };
 
 
-#define NCP_ALLOCATE_SLOT	0x1111
-#define NCP_SERVICE_REQUEST	0x2222
-#define NCP_SERVICE_REPLY	0x3333
-#define NCP_WATCHDOG		0x3e3e
-#define NCP_DEALLOCATE_SLOT	0x5555
-#define NCP_BURST_MODE_XFER	0x7777
-#define NCP_POSITIVE_ACK	0x9999
-
 static value_string ncp_type_vals[] = {
 	{ NCP_ALLOCATE_SLOT,	"Create a service connection" },
 	{ NCP_SERVICE_REQUEST,	"Service request" },
@@ -243,7 +235,7 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	switch (header.type) {
 
-	case NCP_ALLOCATE_SLOT:		/* "Allocate Slot Request"? */
+	case NCP_ALLOCATE_SLOT:		/* Allocate Slot Request */
 	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
 	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
 	case NCP_WATCHDOG:		/* Watchdog Packet */
@@ -356,20 +348,27 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 */
 	switch (header.type) {
 
-	case NCP_ALLOCATE_SLOT:		/* "Allocate Slot Request"? */
+	case NCP_ALLOCATE_SLOT:		/* Allocate Slot Request */
 	case NCP_SERVICE_REQUEST:	/* Server NCP Request */
+	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
 		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
 		dissect_ncp_request(next_tvb, pinfo, nw_connection,
 			header.sequence, header.type, ncp_tree);
 		break;
 
 	case NCP_SERVICE_REPLY:		/* Server NCP Reply */
+	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
 		next_tvb = tvb_new_subset(tvb, hdr_offset, -1, -1);
 		dissect_ncp_reply(next_tvb, pinfo, nw_connection,
-			header.sequence, ncp_tree);
+			header.sequence, header.type, ncp_tree);
 		break;
 
 	case NCP_WATCHDOG:		/* Watchdog Packet */
+		/*
+		 * XXX - should the completion code be interpreted as
+		 * it is in "packet-ncp2222.inc"?  If so, this
+		 * packet should be handled by "dissect_ncp_reply()".
+		 */
 		proto_tree_add_item(ncp_tree, hf_ncp_completion_code,
 		    tvb, commhdr + 6, 1, TRUE);
 		proto_tree_add_item(ncp_tree, hf_ncp_connection_status,
@@ -423,8 +422,6 @@ dissect_ncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		break;
 
-	case NCP_DEALLOCATE_SLOT:	/* Deallocate Slot Request */
-	case NCP_POSITIVE_ACK:		/* Positive Acknowledgement */
 	default:
 		if (tree) {
 			proto_tree_add_text(ncp_tree, tvb, commhdr + 6, -1,
