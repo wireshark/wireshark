@@ -9,7 +9,7 @@
  * Routines for RFC2630 Cryptographic Message Syntax packet dissection
  *   Ronnie Sahlberg 2004
  *
- * $Id: packet-cms-template.c 12573 2004-11-22 03:36:26Z sahlberg $
+ * $Id: packet-cms-template.c 12740 2004-12-13 08:15:34Z sahlberg $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1153,7 +1153,7 @@ static const ber_sequence_t EnvelopedData_sequence[] = {
   { 0, 0, 0, NULL }
 };
 
-static int
+int
 dissect_cms_EnvelopedData(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, pinfo, tree, tvb, offset,
                                 EnvelopedData_sequence, hf_index, ett_cms_EnvelopedData);

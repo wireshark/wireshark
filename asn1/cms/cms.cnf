@@ -16,6 +16,7 @@ ContentType
 Countersignature
 DigestAlgorithmIdentifiers
 EncapsulatedContentInfo
+EnvelopedData
 IssuerAndSerialNumber
 SignedAttributes
 SignedData
