@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-time.c,v 1.17 2002/08/28 20:41:00 jmayer Exp $
+ * $Id: ftype-time.c,v 1.18 2003/02/08 04:22:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -308,6 +308,8 @@ ftype_register_time(void)
 		time_fvalue_new,
 		NULL,
 		absolute_val_from_string,
+		NULL,				/* val_to_string_repr */
+		NULL,				/* len_string_repr */
 
 		time_fvalue_set,
 		NULL,
@@ -333,6 +335,8 @@ ftype_register_time(void)
 		time_fvalue_new,
 		NULL,
 		relative_val_from_string,
+		NULL,				/* val_to_string_repr */
+		NULL,				/* len_string_repr */
 
 		time_fvalue_set,
 		NULL,

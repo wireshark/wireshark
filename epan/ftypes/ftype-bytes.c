@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-bytes.c,v 1.13 2002/08/28 20:41:00 jmayer Exp $
+ * $Id: ftype-bytes.c,v 1.14 2003/02/08 04:22:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +55,40 @@ bytes_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
 	g_assert(already_copied);
 	fv->value.bytes = value;
+}
+
+static int
+bytes_strlen(fvalue_t *fv)
+{
+	/* 3 bytes for each byte of the byte "NN:" minus 1 byte
+	 * as there's no trailing ":" */
+	return fv->value.bytes->len * 3 - 1;
+}
+
+static char *
+bytes_to_string(fvalue_t *fv)
+{
+	guint8 *c;
+	char *buf;
+	char *write_cursor;
+	unsigned int i;
+
+	c = fv->value.bytes->data;
+	buf = g_malloc0(bytes_strlen(fv));
+	write_cursor = buf;
+
+	for (i = 0; i < fv->value.bytes->len; i++) {
+		if (i == 0) {
+			sprintf(write_cursor, "%02x", *c++);
+			write_cursor += 2;
+			
+		}
+		else {
+			sprintf(write_cursor, ":%02x", *c++);
+			write_cursor += 3;
+		}
+	}
+	return buf;
 }
 
 static void
@@ -557,6 +591,8 @@ ftype_register_bytes(void)
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
 		val_from_string,		/* val_from_string */
+		bytes_to_string,		/* val_to_string_repr */
+		bytes_strlen,			/* len_string_repr */
 
 		bytes_fvalue_set,		/* set_value */
 		NULL,				/* set_value_integer */
@@ -564,7 +600,7 @@ ftype_register_bytes(void)
 
 		value_get,			/* get_value */
 		NULL,				/* get_value_integer */
-		NULL,
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -584,6 +620,8 @@ ftype_register_bytes(void)
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
 		val_from_string,		/* val_from_string */
+		bytes_to_string,		/* val_to_string_repr */
+		bytes_strlen,			/* len_string_repr */
 
 		bytes_fvalue_set,		/* set_value */
 		NULL,				/* set_value_integer */
@@ -591,7 +629,7 @@ ftype_register_bytes(void)
 
 		value_get,			/* get_value */
 		NULL,				/* get_value_integer */
-		NULL,
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -605,20 +643,22 @@ ftype_register_bytes(void)
 	};
 
 	static ftype_t ether_type = {
-		"FT_ETHER",
-		"Ethernet or other MAC address",
-		ETHER_LEN,
-		bytes_fvalue_new,
-		bytes_fvalue_free,
-		ether_from_string,
+		"FT_ETHER",			/* name */
+		"Ethernet or other MAC address",/* pretty_name */
+		ETHER_LEN,			/* wire_size */
+		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_free,		/* free_value */
+		ether_from_string,		/* val_from_string */
+		bytes_to_string,		/* val_to_string_repr */
+		bytes_strlen,			/* len_string_repr */
 
-		ether_fvalue_set,
-		NULL,
-		NULL,
+		ether_fvalue_set,		/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_floating */
 
-		value_get,
-		NULL,
-		NULL,
+		value_get,			/* get_value */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -632,20 +672,22 @@ ftype_register_bytes(void)
 	};
 
 	static ftype_t ipv6_type = {
-		"FT_IPv6",
-		"IPv6 address",
-		IPv6_LEN,
-		bytes_fvalue_new,
-		bytes_fvalue_free,
-		ipv6_from_string,
+		"FT_IPv6",			/* name */
+		"IPv6 address",			/* pretty_name */
+		IPv6_LEN,			/* wire_size */
+		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_free,		/* free_value */
+		ipv6_from_string,		/* val_from_string */
+		NULL,				/* val_to_string_repr */
+		NULL,				/* len_string_repr */
 
-		ipv6_fvalue_set,
-		NULL,
-		NULL,
+		ipv6_fvalue_set,		/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_floating */
 
-		value_get,
-		NULL,
-		NULL,
+		value_get,			/* get_value */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -659,20 +701,22 @@ ftype_register_bytes(void)
 	};
 
 	static ftype_t u64_type = {
-		"FT_UINT64",
-		"Unsigned 64-bit integer",
-		U64_LEN,
-		bytes_fvalue_new,
-		bytes_fvalue_free,
-		u64_from_string,
+		"FT_UINT64",			/* name */
+		"Unsigned 64-bit integer",	/* pretty_name */
+		U64_LEN,			/* wire_size */
+		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_free,		/* free_value */
+		u64_from_string,		/* val_from_string */
+		NULL,				/* val_to_string_repr */
+		NULL,				/* len_string_repr */
 
-		u64_fvalue_set,
-		NULL,
-		NULL,
+		u64_fvalue_set,			/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_floating */
 
-		value_get,
-		NULL,
-		NULL,
+		value_get,			/* get_value */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -686,20 +730,22 @@ ftype_register_bytes(void)
 	};
 
 	static ftype_t i64_type = {
-		"FT_INT64",
-		"Signed 64-bit integer",
-		U64_LEN,
-		bytes_fvalue_new,
-		bytes_fvalue_free,
-		i64_from_string,
+		"FT_INT64",			/* name */
+		"Signed 64-bit integer",	/* pretty_name */
+		U64_LEN,			/* wire_size */
+		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_free,		/* free_value */
+		i64_from_string,		/* val_from_string */
+		NULL,				/* val_to_string_repr */
+		NULL,				/* len_string_repr */
 
-		u64_fvalue_set,
-		NULL,
-		NULL,
+		u64_fvalue_set,			/* set_value */
+		NULL,				/* set_value_integer */
+		NULL,				/* set_value_floating */
 
-		value_get,
-		NULL,
-		NULL,
+		value_get,			/* get_value */
+		NULL,				/* get_value_integer */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,

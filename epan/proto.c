@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.81 2003/01/31 03:17:52 guy Exp $
+ * $Id: proto.c,v 1.82 2003/02/08 04:22:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3505,18 +3505,6 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 					fvalue_get_floating(finfo->value));
 			break;
 
-		case FT_ETHER:
-			/*
-			 * 4 bytes for " == ".
-			 * 17 bytes for "NN:NN:NN:NN:NN:NN".
-			 * 1 byte for the trailing '\0'.
-			 */
-			dfilter_len = abbrev_len + 4 + 17 + 1;
-			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %s",
-					hfinfo->abbrev,
-					ether_to_str(fvalue_get(finfo->value)));
-			break;
 
 		case FT_ABSOLUTE_TIME:
 			/*
@@ -3561,24 +3549,21 @@ proto_alloc_dfilter_string(field_info *finfo, guint8 *pd)
 				 hfinfo->abbrev, value_str);
 			break;
 
+		case FT_ETHER:
 		case FT_BYTES:
 		case FT_UINT_BYTES:
 			/*
 			 * 4 bytes for " == ".
-			 * 3 bytes for each byte of the byte string, as
-			 * "NN:", minus 1 byte as there's no trailing ":".
 			 * 1 byte for the trailing '\0'.
 			 *
-			 * XXX - what are the other 2 bytes for?
 			 */
-			dfilter_len = fvalue_length(finfo->value)*3 - 1;
-			dfilter_len += abbrev_len + 4 + 2 + 1;
+			dfilter_len = fvalue_string_repr_len(finfo->value);
+			dfilter_len += abbrev_len + 4 + 1;
 			buf = g_malloc0(dfilter_len);
-			snprintf(buf, dfilter_len, "%s == %s",
-				 hfinfo->abbrev,
-				 /* XXX - bytes_to_str_punct() will truncate long strings with '...' */
-				 bytes_to_str_punct(fvalue_get(finfo->value),
-					 fvalue_length(finfo->value),':'));
+			snprintf(buf, dfilter_len, "%s == ", hfinfo->abbrev);
+            stringified = fvalue_to_string_repr(finfo->value);
+            strcat(buf, stringified);
+            g_free(stringified);
 			break;
 
 		default:

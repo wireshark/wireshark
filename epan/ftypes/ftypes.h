@@ -1,7 +1,7 @@
 /* ftypes.h
  * Definitions for field types
  *
- * $Id: ftypes.h,v 1.15 2002/12/19 02:58:51 guy Exp $
+ * $Id: ftypes.h,v 1.16 2003/02/08 04:22:37 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -144,6 +144,12 @@ typedef void (*LogFunc)(char*,...);
 
 fvalue_t*
 fvalue_from_string(ftenum_t ftype, char *s, LogFunc log);
+
+int
+fvalue_string_repr_len(fvalue_t *fv);
+
+char *
+fvalue_to_string_repr(fvalue_t *fv);
 
 const char*
 fvalue_type_name(fvalue_t *fv);
