@@ -1,12 +1,12 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id: packet-vines.c,v 1.29 2001/04/17 06:43:19 guy Exp $
+ * $Id: packet-vines.c,v 1.30 2001/04/23 17:51:34 guy Exp $
  *
  * Don Lafontaine <lafont02@cn.ca>
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  * Joerg Mayer <jmayer@loplof.de>
  *
@@ -42,9 +42,9 @@
 #include <glib.h>
 #include "packet.h"
 #include "packet-vines.h"
-#include "packet-ip.h"
 #include "etypes.h"
 #include "ppptypes.h"
+#include "ipproto.h"
 
 #define UDP_PORT_VINES	573
 

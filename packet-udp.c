@@ -1,10 +1,10 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.89 2001/03/28 21:33:31 guy Exp $
+ * $Id: packet-udp.c,v 1.90 2001/04/23 17:51:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * Richard Sharpe, 13-Feb-1999, added dispatch table support and 
@@ -44,6 +44,7 @@
 #include <glib.h>
 #include "globals.h"
 #include "resolv.h"
+#include "ipproto.h"
 #include "in_cksum.h"
 
 #include "packet-udp.h"

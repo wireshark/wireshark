@@ -2,7 +2,7 @@
  * Routines for OSPF packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-ospf.c,v 1.37 2001/02/04 08:21:35 guy Exp $
+ * $Id: packet-ospf.c,v 1.38 2001/04/23 17:51:33 guy Exp $
  *
  * At this time, this module is able to analyze OSPF
  * packets as specified in RFC2328. MOSPF (RFC1584) and other
@@ -12,7 +12,7 @@
  * TOS - support is not fully implemented
  * 
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  * 
  * 
@@ -48,7 +48,7 @@
 
 #include <glib.h>
 #include "packet.h"
-#include "packet-ip.h"
+#include "ipproto.h"
 #include "in_cksum.h"
 #include "ieee-float.h"
 

@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.5 2001/03/26 10:28:34 guy Exp $
+ * $Id: decode_as_dlg.c,v 1.6 2001/04/23 17:51:37 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -44,7 +44,7 @@
 #include "globals.h"
 #include "simple_dialog.h"
 #include "packet.h"
-#include "packet-ip.h"
+#include "ipproto.h"
 #include "ui_util.h"
 
 #undef DEBUG

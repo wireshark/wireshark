@@ -4,10 +4,10 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.14 2001/01/22 03:33:45 guy Exp $
+ * $Id: packet-vrrp.c,v 1.15 2001/04/23 17:51:34 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * 
@@ -41,7 +41,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
-#include "packet-ip.h"
+#include "ipproto.h"
 #include "in_cksum.h"
 
 static gint proto_vrrp = -1;

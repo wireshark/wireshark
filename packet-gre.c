@@ -2,10 +2,10 @@
  * Routines for the Generic Routing Encapsulation (GRE) protocol
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-gre.c,v 1.41 2001/04/17 06:43:18 guy Exp $
+ * $Id: packet-gre.c,v 1.42 2001/04/23 17:51:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * 
@@ -37,12 +37,12 @@
 #endif
 #include <glib.h>
 #include "packet.h"
-#include "packet-ip.h"
 #include "packet-ipx.h"
 #include "packet-wccp.h"
 #include "in_cksum.h"
 #include "etypes.h"
 #include "greproto.h"
+#include "ipproto.h"
 
 static int proto_gre = -1;
 static int hf_gre_proto = -1;

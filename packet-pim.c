@@ -2,10 +2,10 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.26 2001/04/23 03:56:57 guy Exp $
+ * $Id: packet-pim.c,v 1.27 2001/04/23 17:51:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  * 
  * 
@@ -44,7 +44,7 @@
 #endif
 
 #include "packet.h"
-#include "packet-ip.h"
+#include "ipproto.h"
 #include "in_cksum.h"
 
 #define PIM_TYPE(x)	((x) & 0x0f)

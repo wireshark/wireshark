@@ -2,7 +2,7 @@
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000, Michael Tüxen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-sctp.c,v 1.15 2001/04/20 20:34:29 guy Exp $
+ * $Id: packet-sctp.c,v 1.16 2001/04/23 17:51:33 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -49,7 +49,7 @@
 #endif
 
 #include "packet.h"
-#include "packet-ip.h"
+#include "ipproto.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_sctp = -1;
