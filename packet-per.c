@@ -7,7 +7,7 @@ proper helper routines
  * Routines for dissection of ASN.1 Aligned PER
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-per.c,v 1.13 2003/08/26 21:30:08 sahlberg Exp $
+ * $Id: packet-per.c,v 1.14 2003/08/28 14:41:20 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -999,9 +999,10 @@ DEBUG_ENTRY("dissect_per_choice");
 				choice_index--;
 			}
 		}
+
 		if(index!=-1){
 			if(value){
-				*value=choice_index;
+				*value=index;
 			}
 		}
 
