@@ -2239,9 +2239,23 @@ dis_msg_submit_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     pi = tvb_get_guint8(tvb, offset);
 
     dis_field_pi(tvb, tree, offset, pi);
-
     offset++;
+
     dis_field_scts(tvb, tree, &offset);
+
+    if (pi & 0x01) {
+	if (length <= (offset - saved_offset)) {
+	    proto_tree_add_text(tree,
+		tvb, offset, -1,
+		"Short Data (?)");
+	    return;
+	}
+
+	oct = tvb_get_guint8(tvb, offset);
+
+	dis_field_pid(tvb, tree, offset, oct);
+	offset++;
+    }
 
     if (pi & 0x02)
     {
@@ -2253,10 +2267,10 @@ dis_msg_submit_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 	    return;
 	}
 
-	offset++;
 	oct = tvb_get_guint8(tvb, offset);
 
 	dis_field_dcs(tvb, tree, offset, oct, &seven_bit, &eight_bit, &ucs2, &compressed);
+	offset++;
     }
 
     if (pi & 0x04)
@@ -2269,17 +2283,15 @@ dis_msg_submit_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 	    return;
 	}
 
-	offset++;
 	oct = tvb_get_guint8(tvb, offset);
 	udl = oct;
 
 	DIS_FIELD_UDL(tree, offset);
+	offset++;
     }
 
     if (udl > 0)
     {
-	offset++;
-
 	dis_field_ud(tvb, tree, offset, length - (offset - saved_offset), udhi, udl,
 	    seven_bit, eight_bit, ucs2, compressed);
     }
