@@ -2,7 +2,7 @@
 #
 # Run this to generate all the initial makefiles.
 #
-# $Id: autogen.sh,v 1.23 2003/02/15 03:17:17 jmayer Exp $
+# $Id: autogen.sh,v 1.24 2003/06/19 00:28:14 guy Exp $
 
 DIE=true
 PROJECT="Ethereal"
@@ -51,8 +51,23 @@ _EOF_
 esac
 
 
-LTVER=`libtool --version | grep ' libtool)' | \
-sed 's/.*) \([0-9][0-9.]*\) .*/\1/' `
+#
+# Apple's Developer Tools have a "libtool" that has nothing to do with
+# the GNU libtool; they call the latter "glibtool".  They also call
+# libtoolize "glibtoolize".
+#
+# Check for "glibtool" first.
+#
+LTVER=`glibtool --version | grep ' libtool)' | \
+    sed 's/.*) \([0-9][0-9.]*\) .*/\1/' `
+if test -z "$LTVER"
+then
+	LTVER=`libtool --version | grep ' libtool)' | \
+	    sed 's/.*) \([0-9][0-9.]*\) .*/\1/' `
+	LIBTOOLIZE=libtoolize
+else
+	LIBTOOLIZE=glibtoolize
+fi
 case "$LTVER" in
 0* | 1\.[0-2] | 1\.[0-2][a-z]* | \
 1\.3\.[0-2] | 1\.3\.[0-2][a-z]* )
@@ -77,7 +92,7 @@ $DIE
 #
 mv config.guess config.guess.save-libtool
 mv config.sub config.sub.save-libtool
-libtoolize --copy --force || exit 1
+$LIBTOOLIZE --copy --force || exit 1
 rm -f config.guess config.sub
 mv config.guess.save-libtool config.guess
 mv config.sub.save-libtool config.sub
