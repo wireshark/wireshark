@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.187 2003/03/26 08:00:24 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.188 2003/03/27 09:40:27 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -93,6 +93,8 @@ static int hf_tcp_analysis_lost_packet = -1;
 static int hf_tcp_analysis_ack_lost_packet = -1;
 static int hf_tcp_analysis_keep_alive = -1;
 static int hf_tcp_analysis_duplicate_ack = -1;
+static int hf_tcp_analysis_duplicate_ack_num = -1;
+static int hf_tcp_analysis_duplicate_ack_frame = -1;
 static int hf_tcp_analysis_zero_window = -1;
 static int hf_tcp_analysis_zero_window_probe = -1;
 static int hf_tcp_analysis_zero_window_violation = -1;
@@ -198,6 +200,8 @@ struct tcp_acked {
 	guint32 frame_acked;
 	nstime_t ts;
 	guint8 flags;
+	guint32 dupack_num;	/* dup ack number */
+	guint32 dupack_frame;	/* dup ack to frame # */
 };
 static GHashTable *tcp_analyze_acked_table = NULL;
 
@@ -257,6 +261,8 @@ tcp_analyze_get_acked_struct(guint32 frame, gboolean createflag)
 		ta->ts.secs=0;
 		ta->ts.nsecs=0;
 		ta->flags=0;
+		ta->dupack_num=0;
+		ta->dupack_frame=0;
 		g_hash_table_insert(tcp_analyze_acked_table, (void *)frame, ta);
 	}
 	return ta;
@@ -594,6 +600,8 @@ ack_finished:
 				struct tcp_acked *ta;
 				ta=tcp_analyze_get_acked_struct(pinfo->fd->num, TRUE);
 				ta->flags|=TCP_A_DUPLICATE_ACK;
+				ta->dupack_num=ual->num_acks-1;
+				ta->dupack_frame=ual->ack_frame;
 			}
 		}		
 
@@ -723,11 +731,17 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Keep-Alive] ");
 			}
 		}
-		if( ta->flags&TCP_A_DUPLICATE_ACK ){
-			proto_tree_add_none_format(flags_tree, hf_tcp_analysis_duplicate_ack, tvb, 0, 0, "This is a TCP duplicate ack");
-			if(check_col(pinfo->cinfo, COL_INFO)){
-				col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Duplicate ACK] ");
+		if( ta->dupack_num){
+			if( ta->flags&TCP_A_DUPLICATE_ACK ){
+				proto_tree_add_none_format(flags_tree, hf_tcp_analysis_duplicate_ack, tvb, 0, 0, "This is a TCP duplicate ack");
+				if(check_col(pinfo->cinfo, COL_INFO)){
+					col_prepend_fstr(pinfo->cinfo, COL_INFO, "[TCP Dup ACK %d#%d] ", ta->dupack_frame, ta->dupack_num);
+				}
 			}
+			proto_tree_add_uint(tree, hf_tcp_analysis_duplicate_ack_num,
+				tvb, 0, 0, ta->dupack_num);
+			proto_tree_add_uint(tree, hf_tcp_analysis_duplicate_ack_frame,
+				tvb, 0, 0, ta->dupack_frame);
 		}
 		if( ta->flags&TCP_A_ZERO_WINDOW_PROBE ){
 			proto_tree_add_none_format(flags_tree, hf_tcp_analysis_zero_window_probe, tvb, 0, 0, "This is a TCP zero-window-probe");
@@ -2280,6 +2294,14 @@ proto_register_tcp(void)
 		{ &hf_tcp_analysis_duplicate_ack,
 		{ "Duplicate ACK",		"tcp.analysis.duplicate_ack", FT_NONE, BASE_NONE, NULL, 0x0,
 			"This is a duplicate ACK", HFILL }},
+
+		{ &hf_tcp_analysis_duplicate_ack_num,
+		{ "Duplicate ACK #",		"tcp.analysis.duplicate_ack_num", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"This is duplicate ACK number #", HFILL }},
+
+		{ &hf_tcp_analysis_duplicate_ack_frame,
+		{ "Duplicate to the ACK in frame",		"tcp.analysis.duplicate_ack_frame", FT_UINT32, BASE_DEC, NULL, 0x0,
+			"This is a duplicate to the ACK in frame #", HFILL }},
 
 		{ &hf_tcp_analysis_zero_window_violation,
 		{ "Zero Window Violation",		"tcp.analysis.zero_window_violation", FT_NONE, BASE_NONE, NULL, 0x0,
