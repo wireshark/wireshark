@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.4 1999/10/14 03:50:30 itojun Exp $
+ * $Id: packet-pim.c,v 1.5 1999/10/15 13:14:43 itojun Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -64,6 +64,9 @@ enum pimv2_addrtype {
 };
 
 static int proto_pim = -1;
+static int hf_pim_version = -1;
+static int hf_pim_type = -1;
+static int hf_pim_cksum = -1;
 
 static const char *
 dissect_pim_addr(const u_char *bp, const u_char *ep, enum pimv2_addrtype at,
@@ -215,14 +218,15 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	ti = proto_tree_add_item(tree, proto_pim, offset, END_OF_FRAME, NULL);
 	pim_tree = proto_item_add_subtree(ti, ETT_PIM);
 
-	proto_tree_add_text(pim_tree, offset, 1,
-	    "Version: %d", PIM_VER(pim.pim_typever)); 
-	proto_tree_add_text(pim_tree, offset, 1,
+	proto_tree_add_item(pim_tree, hf_pim_version, offset, 1,
+	    PIM_VER(pim.pim_typever)); 
+	proto_tree_add_item_format(pim_tree, hf_pim_type, offset, 1,
+	    PIM_TYPE(pim.pim_typever),
 	    "Type: %s (%u)", typestr, PIM_TYPE(pim.pim_typever)); 
 
-	proto_tree_add_text(pim_tree, offset + offsetof(struct pim, pim_cksum),
-	    sizeof(pim.pim_cksum),
-	    "Checksum: 0x%04x", ntohs(pim.pim_cksum));
+	proto_tree_add_item(pim_tree, hf_pim_cksum,
+	    offset + offsetof(struct pim, pim_cksum), sizeof(pim.pim_cksum),
+	    ntohs(pim.pim_cksum));
 
 	if (sizeof(struct pim) < END_OF_FRAME) {
 	    tiopt = proto_tree_add_text(pim_tree,
@@ -275,10 +279,18 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    ip = &pd[flagoff + sizeof(guint32)];
 	    switch((*ip & 0xf0) >> 4) {
 	    case 4:	/* IPv4 */
+#if 0
+		    dissect_ip(pd, ip - pd, fd, pimopt_tree);
+#else
 		    dissect_ip(pd, ip - pd, fd, tree);
+#endif
 		    break;
 	    case 6:	/* IPv6 */
+#if 0
+		    dissect_ipv6(pd, ip - pd, fd, pimopt_tree);
+#else
 		    dissect_ipv6(pd, ip - pd, fd, tree);
+#endif
 		    break;
 	    default:
 		    proto_tree_add_text(pimopt_tree,
@@ -566,6 +578,19 @@ done:;
 void
 proto_register_pim(void)
 {
+    static hf_register_info hf[] = {
+      { &hf_pim_version,
+	{ "Version",		"pim.version",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+      { &hf_pim_type,
+	{ "Type",			"pim.type",
+				FT_UINT8, BASE_DEC, NULL, 0x0, "" }},
+      { &hf_pim_cksum,
+	{ "Checksum",		"pim.cksum",
+				FT_UINT16, BASE_HEX, NULL, 0x0, "" }},
+    };
+
     proto_pim = proto_register_protocol("Protocol Independent Multicast",
 	"pim");
+    proto_register_field_array(proto_pim, hf, array_length(hf));
 }
