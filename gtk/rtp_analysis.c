@@ -1,7 +1,7 @@
 /* rtp_analysis.c
  * RTP analysis addition for ethereal
  *
- * $Id: rtp_analysis.c,v 1.25 2004/01/25 01:58:58 guy Exp $
+ * $Id: rtp_analysis.c,v 1.26 2004/01/25 02:14:05 guy Exp $
  *
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>
@@ -204,6 +204,19 @@ typedef struct _user_data_t {
 	time_series_t series_rev;
 #endif
 } user_data_t;
+
+
+/* Column titles. */
+static gchar *titles[8] =  {
+	"Packet",
+	"Sequence",
+	"Delay (s)",
+	"Jitter (s)",
+	"Marker",
+	"Status",
+	"Date",
+	"Length"
+};
 
 
 typedef const guint8 * ip_addr_p;
@@ -964,16 +977,28 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 		
 		if (GTK_TOGGLE_BUTTON(both)->active) {
 			fprintf(fp, "Forward\n");
+			if (ferror(fp)) {
+				simple_dialog(ESD_TYPE_CRIT, NULL,
+				    file_write_error_message(errno), g_dest);
+				fclose(fp);
+				return;
+			}
 		}
 		
-		for(j = 0; j < GTK_CLIST(user_data->dlg.clist_fwd)->columns; j++) {
+		for(j = 0; j < 8; j++) {
 			if (j == 0) {
-				fprintf(fp,"%s",GTK_CLIST(user_data->dlg.clist_fwd)->column[j].title);
+				fprintf(fp,"%s",titles[j]);
 			} else {
-				fprintf(fp,",%s",GTK_CLIST(user_data->dlg.clist_fwd)->column[j].title);
+				fprintf(fp,",%s",titles[j]);
 			}
 		}
 		fprintf(fp,"\n");
+		if (ferror(fp)) {
+			simple_dialog(ESD_TYPE_CRIT, NULL,
+			    file_write_error_message(errno), g_dest);
+			fclose(fp);
+			return;
+		}
 		for (i = 0; i < GTK_CLIST(user_data->dlg.clist_fwd)->rows; i++) {
 			for(j = 0; j < GTK_CLIST(user_data->dlg.clist_fwd)->columns; j++) {
 				gtk_clist_get_text(GTK_CLIST(user_data->dlg.clist_fwd),i,j,&columnText);
@@ -984,27 +1009,61 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 				}
 			}
 			fprintf(fp,"\n");
+			if (ferror(fp)) {
+				simple_dialog(ESD_TYPE_CRIT, NULL,
+				    file_write_error_message(errno), g_dest);
+				fclose(fp);
+				return;
+			}
 		}
 		
-		fclose(fp);
+		if (fclose(fp) == EOF) {
+			simple_dialog(ESD_TYPE_CRIT, NULL,
+			    file_write_error_message(errno), g_dest);
+			return;
+		}
 	}
 	
 	if (GTK_TOGGLE_BUTTON(rev)->active || GTK_TOGGLE_BUTTON(both)->active) {
 		
 		if (GTK_TOGGLE_BUTTON(both)->active) {
 			fp = fopen(g_dest, "a");
+			if (fp == NULL) {
+				simple_dialog(ESD_TYPE_CRIT, NULL,
+				    file_open_error_message(errno, TRUE),
+				    g_dest);
+				return;
+			}
 			fprintf(fp, "\nReverse\n");
+			if (ferror(fp)) {
+				simple_dialog(ESD_TYPE_CRIT, NULL,
+				    file_write_error_message(errno), g_dest);
+				fclose(fp);
+				return;
+			}
 		} else {
 			fp = fopen(g_dest, "w");
+			if (fp == NULL) {
+				simple_dialog(ESD_TYPE_CRIT, NULL,
+				    file_open_error_message(errno, TRUE),
+				    g_dest);
+				return;
+			}
 		}
-		for(j = 0; j < GTK_CLIST(user_data->dlg.clist_rev)->columns; j++) {
+		for(j = 0; j < 8; j++) {
 			if (j == 0) {
-				fprintf(fp,"%s",GTK_CLIST(user_data->dlg.clist_rev)->column[j].title);
+				fprintf(fp,"%s",titles[j]);
 			} else {
-				fprintf(fp,",%s",GTK_CLIST(user_data->dlg.clist_rev)->column[j].title);
+				fprintf(fp,",%s",titles[j]);
 			}
 		}
 		fprintf(fp,"\n");
+		if (ferror(fp)) {
+			simple_dialog(ESD_TYPE_CRIT, NULL,
+			    file_write_error_message(errno), g_dest);
+			fclose(fp);
+			return;
+		}
 		for (i = 0; i < GTK_CLIST(user_data->dlg.clist_rev)->rows; i++) {
 			for(j = 0; j < GTK_CLIST(user_data->dlg.clist_rev)->columns; j++) {
 				gtk_clist_get_text(GTK_CLIST(user_data->dlg.clist_rev),i,j,&columnText);
@@ -1015,8 +1074,18 @@ static void save_csv_as_ok_cb(GtkWidget *bt _U_, gpointer fs /*user_data_t *user
 				}
 			}
 			fprintf(fp,"\n");
+			if (ferror(fp)) {
+				simple_dialog(ESD_TYPE_CRIT, NULL,
+				    file_write_error_message(errno), g_dest);
+				fclose(fp);
+				return;
+			}
 		}
-		fclose(fp);
+		if (fclose(fp) == EOF) {
+			simple_dialog(ESD_TYPE_CRIT, NULL,
+			    file_write_error_message(errno), g_dest);
+			return;
+		}
 	}
 
 	gtk_widget_destroy(GTK_WIDGET(user_data->dlg.save_csv_as_w));
@@ -1762,7 +1831,6 @@ static
 column_arrows* add_sort_by_column(GtkWidget* window, GtkWidget* clist,
 								  user_data_t* user_data _U_)
 {
-	gchar *titles[8] =  {"Packet", "Sequence",  "Delay (s)", "Jitter (s)", "Marker", "Status", "Date", "Length"};
 	column_arrows *col_arrows;
 	GdkBitmap *ascend_bm, *descend_bm;
 	GdkPixmap *ascend_pm, *descend_pm;
