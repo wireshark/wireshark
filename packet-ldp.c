@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.36 2002/04/25 06:34:41 guy Exp $
+ * $Id: packet-ldp.c,v 1.37 2002/04/28 00:18:50 guy Exp $
  * 
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -49,6 +49,8 @@
 #include <epan/resolv.h>
 #include "prefs.h"
 #include "afn.h"
+
+#include "packet-frame.h"
 
 #define TCP_PORT_LDP 646
 #define UDP_PORT_LDP 646
@@ -1818,15 +1820,14 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 /* Dissect a Message and return the number of bytes consumed ... */
 
 static int
-dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, int rem)
+dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 {
 	guint16 type, typebak;
 	guint8	extra=0;
-	int length, ao=0, co;
+	int length, rem, ao=0, co;
 	proto_tree *ti = NULL, *msg_tree = NULL;
 
-	length=tvb_reported_length_remaining(tvb, offset);
-	rem=MIN(rem, length);
+	rem=tvb_reported_length_remaining(tvb, offset);
 
 	if( rem < 8 ) {/*chk for minimum header = type + length + msg_id*/
 		if( check_col(pinfo->cinfo, COL_INFO) )
@@ -1908,120 +1909,219 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, i
 	return length+8+extra;
 }
 
-/* Dissect a PDU and return the number of bytes consumed ... */
-
-static int
-dissect_ldp_pdu(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree, int rem, guint ix)
+/* Dissect a PDU */
+static void
+dissect_ldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	int length, ao=0, co;
+	int offset = 0, co;
+	int rem, length;
 	proto_tree *ti=NULL, *pdu_tree = NULL;
 	
-	length=tvb_reported_length_remaining(tvb, offset);
-	rem=MIN(rem, length);
-	
-	if( rem < 10 ){/*don't even have a PDU header*/
-/*XXX Need changes in desegment_tcp to handle multiple requests*/
-#if 0
-		if( pinfo->can_desegment && (pinfo->ptype==PT_TCP) && ldp_desegment ){
-			pinfo->desegment_offset=offset;
-			pinfo->desegment_len=10-rem;
-		}
-#else
-		if(tree)
-			proto_tree_add_text(tree, tvb, offset, rem,"Not enough bytes for PDU Hdr in TCP segment");
-#endif
-		return rem;
-	}
+	if (check_col(pinfo->cinfo, COL_PROTOCOL))
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDP");
 
-	if( (length = tvb_get_ntohs(tvb, offset + 2)) < 6 ) {/*not enough*/
-		if( check_col(pinfo->cinfo, COL_INFO) && ix )
-			col_append_fstr(pinfo->cinfo, COL_INFO, "PDU %u: ", ix);
-		if( check_col(pinfo->cinfo, COL_INFO) ){
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Bad PDU Length ");
-		}
-		if(tree)
-			proto_tree_add_text(tree, tvb, offset, rem,
-			    "Error processing PDU Length: length is %d, should be >= 6",
-			    length);
-		return rem;
-	}
-
-	rem -=4;
-	if( length>rem ){
-		if( pinfo->can_desegment && (pinfo->ptype==PT_TCP) && ldp_desegment ){/*ask for more*/
-			pinfo->desegment_offset=offset;
-			pinfo->desegment_len=length-rem;
-		}else {
-			if( check_col(pinfo->cinfo, COL_INFO) && ix )
-				col_append_fstr(pinfo->cinfo, COL_INFO, "PDU %u: ", ix);
-			if( check_col(pinfo->cinfo, COL_INFO) )
-				col_append_fstr(pinfo->cinfo, COL_INFO, "Bad PDU Length ");
-			if(tree)
-				proto_tree_add_text(tree, tvb, offset, rem+4,
-				    "Error processing PDU Length: length is %d, should be <= %d",
-				    length, rem);
-		}
-		return rem+4;
-	}
-	
-	if( check_col(pinfo->cinfo, COL_INFO) && ix )
-		col_append_fstr(pinfo->cinfo, COL_INFO, "PDU %u: ", ix);
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_clear(pinfo->cinfo, COL_INFO);
 
 	if( tree ){
-		ti=proto_tree_add_protocol_format(tree, proto_ldp, tvb, offset,
-		    length+4, ix?"LDP PDU %u":"LDP PDU", ix);
+		ti=proto_tree_add_item(tree, proto_ldp, tvb, 0, -1, FALSE);
 		pdu_tree = proto_item_add_subtree(ti, ett_ldp);
+
+		proto_tree_add_item(pdu_tree, hf_ldp_version, tvb, offset, 2, FALSE);
 	}
 
-	if(pdu_tree){
-		proto_tree_add_item(pdu_tree, hf_ldp_version, tvb, offset, 2, FALSE);
-		proto_tree_add_item(pdu_tree, hf_ldp_pdu_len, tvb, offset+2, 2, FALSE);
+	length = tvb_get_ntohs(tvb, offset+2);
+	if( tree )
+		proto_tree_add_uint(pdu_tree, hf_ldp_pdu_len, tvb, offset+2, 2, length);
+
+	length += 4;	/* add the version and type sizes */
+	rem = tvb_reported_length_remaining(tvb, offset);
+	if (length < rem)
+		tvb_set_reported_length(tvb, length);
+
+	if( tree ){
 		proto_tree_add_item(pdu_tree, hf_ldp_lsr, tvb, offset+4, 4, FALSE);
 		proto_tree_add_item(pdu_tree, hf_ldp_ls_id, tvb, offset+8, 2, FALSE);
 	}
 	offset += 10;
-	length -= 6;
 
-	while( (length-ao) > 0 ) {
-		co=dissect_msg(tvb, offset, pinfo, pdu_tree, length-ao);
+	while( tvb_reported_length_remaining(tvb, offset) > 0 ) {
+		co=dissect_msg(tvb, offset, pinfo, pdu_tree);
 		offset += co;
-		ao += co;
 	}
-	
-	return length+10;
 }
 
-static void
+static int
 dissect_ldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDP");
+	/*
+	 * Make sure the first PDU has a version number of 1;
+	 * if not, reject this, so we don't get confused by
+	 * packets that happen to be going to or from the
+	 * LDP port but that aren't LDP packets.
+	 */
+	if (!tvb_bytes_exist(tvb, 0, 2)) {
+		/*
+		 * Not enough information to tell.
+		 */
+		return 0;
+	}
+	if (tvb_get_ntohs(tvb, 0) != 1) {
+		/*
+		 * Not version 1.
+		 */
+		return 0;
+	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+	dissect_ldp_pdu(tvb, pinfo, tree);
 
-	dissect_ldp_pdu(tvb, 0, pinfo, tree, tvb_reported_length(tvb), 0);
+	/*
+	 * XXX - return minimum of this and the length of the PDU?
+	 */
+	return tvb_length(tvb);
 }
 
-static void
+static int
 dissect_ldp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 { 
-	int offset=0, length, rtn;
-	guint ix=1;
+	volatile gboolean first = TRUE;
+	volatile int offset = 0;
+	int length_remaining;
+	guint16 plen;
+	int length;
+	tvbuff_t *next_tvb;
   
+	while (tvb_reported_length_remaining(tvb, offset) != 0) {
+		length_remaining = tvb_length_remaining(tvb, offset);
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "LDP");
+		/*
+		 * Make sure the first PDU has a version number of 1;
+		 * if not, reject this, so we don't get confused by
+		 * packets that happen to be going to or from the
+		 * LDP port but that aren't LDP packets.
+		 *
+		 * XXX - this means we can't handle an LDP PDU of which
+		 * only one byte appears in a TCP segment.  If that's
+		 * a problem, we'll either have to completely punt on
+		 * rejecting non-LDP packets, or will have to assume
+		 * that if we have only one byte, it's an LDP packet.
+		 */
+		if (first) {
+			if (length_remaining < 2) {
+				/*
+				 * Not enough information to tell.
+				 */
+				return 0;
+			}
+			if (tvb_get_ntohs(tvb, offset) != 1) {
+				/*
+				 * Not version 1.
+				 */
+				return 0;
+			}
+			first = FALSE;
+		}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_clear(pinfo->cinfo, COL_INFO);
+		/*
+		 * Can we do reassembly?
+		 */
+		if (ldp_desegment && pinfo->can_desegment) {
+			/*
+			 * Yes - is the LDP header split across segment
+			 * boundaries?
+			 */
+			if (length_remaining < 4) {
+				/*
+				 * Yes.  Tell the TCP dissector where
+				 * the data for this message starts in
+				 * the data it handed us, and how many
+				 * more bytes we need, and return.
+				 */
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len = 4 - length_remaining;
+				return -pinfo->desegment_len;
+			}
+		}
 
-	length=tvb_reported_length(tvb);
-	while (length > 0){
-		rtn = dissect_ldp_pdu(tvb, offset, pinfo, tree, length, ix++);
-		offset += rtn;
-		length -= rtn;
+		/*
+		 * Get the length of the rest of the LDP packet.
+		 * XXX - check for a version of 1 first?
+		 */
+		plen = tvb_get_ntohs(tvb, offset + 2);
+
+		/*
+		 * Can we do reassembly?
+		 */
+		if (ldp_desegment && pinfo->can_desegment) {
+			/*
+			 * Yes - is the LDP packet split across segment
+			 * boundaries?
+			 */
+			if (length_remaining < plen + 4) {
+				/*
+				 * Yes.  Tell the TCP dissector where the
+				 * data for this message starts in the data
+				 * it handed us, and how many more bytes we
+				 * need, and return.
+				 */
+				pinfo->desegment_offset = offset;
+				pinfo->desegment_len =
+				    (plen + 4) - length_remaining;
+				return -pinfo->desegment_len;
+			}
+		}
+
+		/*
+		 * Construct a tvbuff containing the amount of the payload
+		 * we have available.  Make its reported length the
+		 * amount of data in the DNS-over-TCP packet.
+		 *
+		 * XXX - if reassembly isn't enabled. the subdissector
+		 * will throw a BoundsError exception, rather than a
+		 * ReportedBoundsError exception.  We really want
+		 * a tvbuff where the length is "length", the reported
+		 * length is "plen + 4", and the "if the snapshot length
+		 * were infinite" length is the minimum of the
+		 * reported length of the tvbuff handed to us and "plen+4",
+		 * with a new type of exception thrown if the offset is
+		 * within the reported length but beyond that third length,
+		 * with that exception getting the "Unreassembled Packet"
+		 * error.
+		 */
+		length = length_remaining;
+		if (length > plen + 4)
+			length = plen + 4;
+		next_tvb = tvb_new_subset(tvb, offset, length, plen + 4);
+
+		/*
+		 * Dissect the LDP packet.
+		 *
+		 * Catch the ReportedBoundsError exception; if this
+		 * particular message happens to get a ReportedBoundsError
+		 * exception, that doesn't mean that we should stop
+		 * dissecting LDP messages within this frame or chunk of
+		 * reassembled data.
+		 *
+		 * If it gets a BoundsError, we can stop, as there's nothing
+		 * more to see, so we just re-throw it.
+		 */
+		TRY {
+			dissect_ldp_pdu(next_tvb, pinfo, tree);
+		}
+		CATCH(BoundsError) {
+			RETHROW;
+		}
+		CATCH(ReportedBoundsError) {
+			show_reported_bounds_error(tvb, pinfo, tree);
+		}
+		ENDTRY;
+
+		/*
+		 * Skip the LDP header and the payload.
+		 */
+		offset += plen + 4;
 	}
+	return tvb_length(tvb);
 }
 
 /* Register all the bits needed with the filtering engine */
@@ -2421,13 +2521,13 @@ proto_register_ldp(void)
 void
 proto_reg_handoff_ldp(void)
 {
-  static int ldp_prefs_initialized = FALSE;
+  static gboolean ldp_prefs_initialized = FALSE;
   static dissector_handle_t ldp_tcp_handle, ldp_handle;
 
   if (!ldp_prefs_initialized) {
 
-    ldp_tcp_handle = create_dissector_handle(dissect_ldp_tcp, proto_ldp);
-    ldp_handle = create_dissector_handle(dissect_ldp, proto_ldp);
+    ldp_tcp_handle = new_create_dissector_handle(dissect_ldp_tcp, proto_ldp);
+    ldp_handle = new_create_dissector_handle(dissect_ldp, proto_ldp);
 
     ldp_prefs_initialized = TRUE;
 
