@@ -4,7 +4,7 @@
  *   Copyright 2003  Ronnie Sahlberg, exchange first/last matching and 
  *                                    tap listener and misc updates
  *
- * $Id: packet-fc.c,v 1.16 2003/10/30 02:06:11 guy Exp $
+ * $Id: packet-fc.c,v 1.17 2003/12/17 23:35:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1045,7 +1045,7 @@ dissect_fc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint_format (fc_tree, hf_fc_type, tvb,
                                         offset+8, FC_TYPE_SIZE,
                                         fchdr.type,"Type: 0x%x(%s)", fchdr.type, 
-                                        fclctl_get_typestr (fchdr.r_ctl & 0x0F,
+                                        fclctl_get_typestr ((guint8) (fchdr.r_ctl & 0x0F),
                                                             fchdr.type));
         } else {
             proto_tree_add_item (fc_tree, hf_fc_type, tvb, offset+8, 1, FALSE);

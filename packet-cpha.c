@@ -2,7 +2,7 @@
  * Routines for the Check Point High-Availability Protocol (CPHAP)
  * Copyright 2002, Yaniv Kaul <ykaul-at-netvision.net.il>
  *
- * $Id: packet-cpha.c,v 1.7 2003/06/03 02:21:08 gerald Exp $
+ * $Id: packet-cpha.c,v 1.8 2003/12/17 23:35:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -187,7 +187,7 @@ static void dissect_conf_reply(tvbuff_t *, int, proto_tree *);
 int is_report_ifs(guint16);
 static const char *report_code2str(guint16);
 static const char *ha_mode2str(guint16);
-static const char *status2str(guint16);
+static const char *status2str(guint32);
 static const char *state2str(guint8);
 
 static int
@@ -474,7 +474,7 @@ ha_mode2str(guint16 hamode) {
 }
 
 static const char *
-status2str(guint16 status) {
+status2str(guint32 status) {
   if(status <= NUM_STATUS)
 	return status_str[status];
   return status_str[0];

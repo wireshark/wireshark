@@ -2,7 +2,7 @@
  * Routines for decoding SCSI CDBs and responses
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id: packet-scsi.c,v 1.35 2003/10/28 17:27:56 guy Exp $
+ * $Id: packet-scsi.c,v 1.36 2003/12/17 23:35:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2450,7 +2450,7 @@ dissect_scsi_modepage (tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (!(*dissect_modepage)(tvb, pinfo, tree, offset,
-                             pcode & SCSI_MS_PCODE_BITS)) {
+                             (guint8) (pcode & SCSI_MS_PCODE_BITS))) {
         proto_tree_add_text (tree, tvb, offset+2, plen,
                              "Unknown Page");
     }

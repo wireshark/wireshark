@@ -7,7 +7,7 @@
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
  * In association with Telos Technology Inc.
  *
- * $Id: packet-bssap.c,v 1.7 2003/12/13 01:57:27 guy Exp $
+ * $Id: packet-bssap.c,v 1.8 2003/12/17 23:35:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -271,7 +271,7 @@ dissect_bssap_var_parameter(tvbuff_t *tvb, packet_info *pinfo,
     offset += length_length;
 
     dissect_bssap_parameter(tvb, pinfo, bssap_tree, tree, parameter_type,
-	offset, parameter_length);
+	(guint8) offset, parameter_length);
 
     return(parameter_length + length_length);
 }

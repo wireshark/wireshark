@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.377 2003/12/03 08:43:59 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.378 2003/12/17 23:35:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3333,7 +3333,7 @@ dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	add_fid(tvb, pinfo, tree, offset, 2, fid);
+	add_fid(tvb, pinfo, tree, offset, 2, (guint16) fid);
 	offset += 2;
 	if (!pinfo->fd->flags.visited) {
 		/* remember the FID for the processing of the response */
@@ -3464,7 +3464,7 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	/* first check if we have seen the request */
 	if(si->sip != NULL && si->sip->frame_req>0){
 		fid=(int)si->sip->extra_info;
-		add_fid(tvb, pinfo, tree, 0, 0, fid);
+		add_fid(tvb, pinfo, tree, 0, 0, (guint16) fid);
 	}
 
 	BYTE_COUNT;
@@ -3482,7 +3482,7 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	/* file data, might be DCERPC on a pipe */
 	if(bc){
 		offset = dissect_file_data_maybe_dcerpc(tvb, pinfo, tree,
-		    top_tree, offset, bc, bc, 0, fid);
+		    top_tree, offset, bc, bc, 0, (guint16) fid);
 		bc = 0;
 	}
 
@@ -5294,7 +5294,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	add_fid(tvb, pinfo, tree, offset, 2, fid);
+	add_fid(tvb, pinfo, tree, offset, 2, (guint16) fid);
 	offset += 2;
 	if (!pinfo->fd->flags.visited) {
 		/* remember the FID for the processing of the response */
@@ -5410,7 +5410,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* first check if we have seen the request */
 	if(si->sip != NULL && si->sip->frame_req>0){
 		fid=(int)si->sip->extra_info;
-		add_fid(tvb, pinfo, tree, 0, 0, fid);
+		add_fid(tvb, pinfo, tree, 0, 0, (guint16) fid);
 	}
 
 	/* remaining */
@@ -5464,7 +5464,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* file data, might be DCERPC on a pipe */
 	if(bc){
 		offset = dissect_file_data_maybe_dcerpc(tvb, pinfo, tree,
-		    top_tree, offset, bc, datalen, 0, fid);
+		    top_tree, offset, bc, (guint16) datalen, 0, (guint16) fid);
 		bc = 0;
 	}
 
@@ -5509,7 +5509,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* fid */
 	fid = tvb_get_letohs(tvb, offset);
-	add_fid(tvb, pinfo, tree, offset, 2, fid);
+	add_fid(tvb, pinfo, tree, offset, 2, (guint16) fid);
 	offset += 2;
 	if (!pinfo->fd->flags.visited) {
 		/* remember the FID for the processing of the response */
@@ -5585,7 +5585,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	/* file data, might be DCERPC on a pipe */
 	if (bc != 0) {
 		offset = dissect_file_data_maybe_dcerpc(tvb, pinfo, tree,
-		    top_tree, offset, bc, datalen, 0, fid);
+		    top_tree, offset, bc, (guint16) datalen, 0, (guint16) fid);
 		bc = 0;
 	}
 
@@ -5629,7 +5629,7 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	si = (smb_info_t *)pinfo->private_data;
 	/* first check if we have seen the request */
 	if(si->sip != NULL && si->sip->frame_req>0){
-		add_fid(tvb, pinfo, tree, 0, 0, (int)si->sip->extra_info);
+		add_fid(tvb, pinfo, tree, 0, 0, (guint16) si->sip->extra_info);
 	}
 
 	/* write count low */
@@ -8960,7 +8960,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	if(pd_tvb){
 	  /* we have reassembled data, grab param and data from there */
 	  dissect_nt_trans_param_response(pd_tvb, pinfo, 0, tree, tp,
-					  &ntd, tvb_length(pd_tvb));
+					  &ntd, (guint16) tvb_length(pd_tvb));
 	  dissect_nt_trans_data_response(pd_tvb, pinfo, tp, tree, td, &ntd);
 	} else {
 	  /* we do not have reassembled data, just use what we have in the
@@ -9082,7 +9082,7 @@ dissect_write_print_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	COUNT_BYTES(2);
 
 	/* file data */
-	offset = dissect_file_data(tvb, tree, offset, cnt, cnt);
+	offset = dissect_file_data(tvb, tree, offset, (guint16) cnt, (guint16) cnt);
 
 	END_OF_SMB
 
@@ -16629,7 +16629,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	/* smb command */
-	proto_tree_add_uint_format(htree, hf_smb_cmd, tvb, offset, 1, si->cmd, "SMB Command: %s (0x%02x)", decode_smb_name(si->cmd), si->cmd);
+	proto_tree_add_uint_format(htree, hf_smb_cmd, tvb, offset, 1, si->cmd, "SMB Command: %s (0x%02x)", decode_smb_name((unsigned char) si->cmd), si->cmd);
 	offset += 1;
 
 	if(flags2 & 0x4000){
@@ -16767,7 +16767,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	   the tap listener called even if there is an exception.
 	*/
 	tap_queue_packet(smb_tap, pinfo, si);
-        dissect_smb_command(tvb, pinfo, offset, tree, si->cmd, TRUE);
+        dissect_smb_command(tvb, pinfo, offset, tree, (guint8) si->cmd, TRUE);
 
 	/* Append error info from this packet to info string. */
 	if (!si->request && check_col(pinfo->cinfo, COL_INFO)) {

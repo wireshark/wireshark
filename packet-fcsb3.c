@@ -3,7 +3,7 @@
  * This decoder is for FC-SB3 version 1.4
  * Copyright 2003, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id: packet-fcsb3.c,v 1.1 2003/10/30 02:06:12 guy Exp $
+ * $Id: packet-fcsb3.c,v 1.2 2003/12/17 23:35:28 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -644,7 +644,7 @@ static void dissect_fc_sbccs_dib_ctl_hdr (tvbuff_t *tvb, packet_info *pinfo,
                                         tvb_get_ntoh24 (tvb, offset+1),
                                         "Control Parameter: 0x%x(%s)",
                                         tvb_get_ntoh24 (tvb, offset+1),
-                                        get_sel_rst_param_string (ctlfn,
+                                        get_sel_rst_param_string ((guint8) ctlfn,
                                                                   buffer));
             break;
         case FC_SBCCS_CTL_FN_DEV_XCP:

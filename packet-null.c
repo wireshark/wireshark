@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.62 2003/11/14 10:11:11 guy Exp $
+ * $Id: packet-null.c,v 1.63 2003/12/17 23:35:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -321,7 +321,7 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
      * BSD derivatives have different values?).
      */
     if (null_header > IEEE_802_3_MAX_LEN)
-      capture_ethertype(null_header, pd, 4, len, ld);
+      capture_ethertype((guint16) null_header, pd, 4, len, ld);
     else {
 
       switch (null_header) {
@@ -424,7 +424,7 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         fh_tree = proto_item_add_subtree(ti, ett_null);
       } else
       	fh_tree = NULL;
-      ethertype(null_header, tvb, 4, pinfo, tree, fh_tree, hf_null_etype, -1,
+      ethertype((guint16) null_header, tvb, 4, pinfo, tree, fh_tree, hf_null_etype, -1,
 	0);
     } else {
       /* populate a tree in the second pane with the status of the link

@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.97 2003/11/16 23:17:22 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.98 2003/12/17 23:35:29 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3575,7 +3575,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			 * It's a FID.
 			 */
 			fid = tvb_get_letohs(s_tvb, 2);
-			add_fid(s_tvb, pinfo, pipe_tree, offset, 2, fid);
+			add_fid(s_tvb, pinfo, pipe_tree, offset, 2, (guint16) fid);
 			if (tri != NULL)
 				tri->fid = fid;
 			break;
@@ -3609,7 +3609,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			}
 			fid = tri->fid;
 			if (fid != -1)
-				add_fid(NULL, pinfo, pipe_tree, 0, 0, fid);
+				add_fid(NULL, pinfo, pipe_tree, 0, 0, (guint16) fid);
 		} else {
 			function = -1;
 			fid = -1;
@@ -3788,8 +3788,8 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 				return FALSE;
 
 			offset = dissect_file_data(d_tvb, pipe_tree, 0,
-			    tvb_reported_length(d_tvb),
-			    tvb_reported_length(d_tvb));
+			    (guint16) tvb_reported_length(d_tvb),
+			    (guint16) tvb_reported_length(d_tvb));
 		}
 		break;
 
@@ -3800,8 +3800,8 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 				return FALSE;
 
 			offset = dissect_file_data(d_tvb, pipe_tree,
-			    offset, tvb_reported_length(d_tvb),
-			    tvb_reported_length(d_tvb));
+			    offset, (guint16) tvb_reported_length(d_tvb),
+			    (guint16) tvb_reported_length(d_tvb));
 		} else {
 			if (p_tvb == NULL)
 				return FALSE;
