@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTLS component of WAP traffic.
  * 
- * $Id: packet-wtls.c,v 1.10 2001/07/03 09:53:22 guy Exp $
+ * $Id: packet-wtls.c,v 1.11 2001/07/20 09:10:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1637,10 +1637,10 @@ void
 proto_reg_handoff_wtls(void)
 {
 	/*
-	 * Get handles for the IP WTP and WSP dissectors
+	 * Get handles for the WTP and connectionless WSP dissectors.
 	 */
 	wtp_handle = find_dissector("wtp");
-	wsp_handle = find_dissector("wsp");
+	wsp_handle = find_dissector("wsp-cl");
 
 	dissector_add("udp.port", UDP_PORT_WTLS_WSP,     dissect_wtls, proto_wtls); 
 	dissector_add("udp.port", UDP_PORT_WTLS_WTP_WSP, dissect_wtls, proto_wtls);

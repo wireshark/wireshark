@@ -2,7 +2,7 @@
  *
  * Routines to dissect WTP component of WAP traffic.
  * 
- * $Id: packet-wtp.c,v 1.16 2001/07/20 04:39:07 guy Exp $
+ * $Id: packet-wtp.c,v 1.17 2001/07/20 09:10:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -661,9 +661,10 @@ void
 proto_reg_handoff_wtp(void)
 {
 	/*
-	 * Get a handle for the IP WSP dissector - if WTP PDUs have data, it is WSP
+	 * Get a handle for the connection-oriented WSP dissector - if WTP
+	 * PDUs have data, it is WSP.
 	 */
-	wsp_handle = find_dissector("wsp");
+	wsp_handle = find_dissector("wsp-co");
 
 	dissector_add("udp.port", UDP_PORT_WTP_WSP, dissect_wtp_fromudp,
 	    proto_wtp);

@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.28 2001/07/20 08:40:54 guy Exp $
+ * $Id: packet-wsp.c,v 1.29 2001/07/20 09:10:16 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -940,7 +940,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 static void
 dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-    dissector_t dissector)
+    dissector_t dissector, gboolean is_connectionless)
 {
 	frame_data *fdata = pinfo->fd;
 	int offset = 0;
@@ -977,8 +977,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	/* Connection-less mode has a TID first */
-	if (	(pinfo->match_port == UDP_PORT_WSP) ||
-			(pinfo->match_port == UDP_PORT_WTLS_WSP))
+	if (is_connectionless)
 	{
 		offset++;
 	};
@@ -1008,8 +1007,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* Add common items: only TID and PDU Type */
 
 		/* If this is connectionless, then the TID Field is always first */
-		if (	(pinfo->match_port == UDP_PORT_WSP) ||
-				(pinfo->match_port == UDP_PORT_WTLS_WSP))
+		if (is_connectionless)
 		{
 			ti = proto_tree_add_item (wsp_tree, hf_wsp_header_tid,tvb,
 				0,1,bo_little_endian);
@@ -1213,21 +1211,35 @@ dissect_wsp_fromudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_set_str(pinfo->fd, COL_PROTOCOL, "WSP" );
 
-	dissect_wsp_common(tvb, pinfo, tree, dissect_wsp_fromudp);
+	dissect_wsp_common(tvb, pinfo, tree, dissect_wsp_fromudp, TRUE);
 }
 
 /*
- * Called from a higher-level WAP dissector.
+ * Called from a higher-level WAP dissector, in connection-oriented mode.
  * Leave the "Protocol" column alone - the dissector calling us should
  * have set it.
  */
 static void
-dissect_wsp_fromwap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_wsp_fromwap_co(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	/*
 	 * XXX - what about WTLS->WTP->WSP?
 	 */
-	dissect_wsp_common(tvb, pinfo, tree, dissect_wtp_fromudp);
+	dissect_wsp_common(tvb, pinfo, tree, dissect_wtp_fromudp, FALSE);
+}
+
+/*
+ * Called from a higher-level WAP dissector, in connectionless mode.
+ * Leave the "Protocol" column alone - the dissector calling us should
+ * have set it.
+ */
+static void
+dissect_wsp_fromwap_cl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	/*
+	 * XXX - what about WTLS->WTP->WSP?
+	 */
+	dissect_wsp_common(tvb, pinfo, tree, dissect_wtp_fromudp, TRUE);
 }
 
 static void
@@ -3824,7 +3836,8 @@ proto_register_wsp(void)
 	proto_register_field_array(proto_wsp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("wsp", dissect_wsp_fromwap, proto_wsp);
+	register_dissector("wsp-co", dissect_wsp_fromwap_co, proto_wsp);
+	register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
 };
 
 void
