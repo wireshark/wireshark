@@ -2742,9 +2742,9 @@ guint8	i;
 				}
 				*input_address = *input_address + 1;
 
-				if ( ( bit_order ) == 0 ){
+				if ( ( input_bit_order & 0x0001 ){
 					/* 
-					 * F/H bit = 0
+					 * P bit = 0
 					 */
 					/* borrow value */
 					value = octet & 0x00ff;
@@ -2752,7 +2752,7 @@ guint8	i;
 					*remaining_bits = *remaining_bits + 8;
 				}else{
 					/*
-					 * F/H bit = 1
+					 * P bit = 1
 					 */
 					/* borrow value */
 					value =  ( octet << 7) & 0x80;
