@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.131 2003/06/19 01:22:03 gerald Exp $
+ * $Id: packet-dcerpc.c,v 1.132 2003/06/19 10:01:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1590,7 +1590,7 @@ show_stub_data (tvbuff_t *tvb, gint offset, proto_tree *dcerpc_tree,
 static int
 dcerpc_try_handoff (packet_info *pinfo, proto_tree *tree,
                     proto_tree *dcerpc_tree,
-                    tvbuff_t *tvb, gint offset,
+                    tvbuff_t *tvb, volatile gint offset,
                     char *drep, dcerpc_info *info,
                     dcerpc_auth_info *auth_info)
 {
