@@ -1,7 +1,7 @@
 /* plugin_api.c
  * Routines for Ethereal plugins.
  *
- * $Id: plugin_api.c,v 1.3 2000/02/09 19:32:28 gram Exp $
+ * $Id: plugin_api.c,v 1.4 2000/02/12 11:24:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * Copyright 2000 by Gilbert Ramirez <gram@xiexie.org>
@@ -97,10 +97,10 @@ proto_register_subtree_array(int** indices, int num_indices)
 	patable->proto_register_subtree_array(indices, num_indices);
 }
 
-proto_tree*
+proto_tree *
 proto_item_add_subtree(proto_item* pi, gint idx)
 {
-	patable->proto_item_add_subtree(pi, idx);
+	return patable->proto_item_add_subtree(pi, idx);
 }
 
 proto_item *
