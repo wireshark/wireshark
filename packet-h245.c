@@ -1,4 +1,3 @@
-/*XXX fix   all the IA5String types */
 /*
 Alternative H245 dissector.
 This is an alternative dissector for the H.245 protocol.  The aim
@@ -26,26 +25,6 @@ without the other support protocols such as I guess H225 and H235
 so you will have to select packets you know are H245 and   specify H245
 with DecodeAs.
 
-This file currently contains two sections:
-One rather small section that consists of helper routines  dissect_per...()
-that are helper subroutines to dissect various PER types.
-This is not aimed at being able to be PER complete, only aimed at being
-able to dissect those parts of PER that are relevant to the actual dissectors.
-This part will when the dissector is production quality be broken out into
-a separate file asn1-per.c  or something to be available for all PER
-dissectors.
-The other section is the dissector for H245   in this temporary work version
-called altH245  which is mainly table driven.  It should be realtively easy
-to see how the mapping from the H245 idl file into the dissector functions
-actually works.
-
-
-Due to it being a temporary work version, there are no preference settings
-created to handle tcp reassembly. Instead the dissector is hardcoded to
-ask the TCP dissector (through the encapsulating protocol) for reassembly.
-It may be wise to always have the reassembly setting in the TCP preferences
-activated.
-
 
 There are several places in the dissector where it is known the functionality
 is not implemented yet.  These are indicated by the presence of the 
@@ -58,11 +37,7 @@ just random dissection junk.
 
 There is a flag which controls whether internal PER bits will be placed in
 the tree or not.
-Currently it is enabled which is why all those Extension Bit... etc
-that are just internal PER stuff are placed in the tree.
-To get rid of these ones just change display_internal_per_fields to FALSE
-below.
-This will be a preference later and will default to FALSE.
+This is controlled by a preference
 
 
 What needs to be done?
@@ -92,7 +67,7 @@ All in all a lot of work.
  *       with great support with testing and providing capturefiles
  *       from Martin Regner
  *
- * $Id: packet-h245.c,v 1.19 2003/07/16 08:17:14 sahlberg Exp $
+ * $Id: packet-h245.c,v 1.20 2003/07/16 08:38:16 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -436,7 +411,6 @@ static int hf_h245_MiscellaneousCommand_type_progressiveRefinementStart_repeatCo
 static int hf_h245_MiscellaneousCommand_type = -1;
 static int hf_h245_ConferenceCommand = -1;
 static int hf_h245_EndSessionCommand_gstnOptions = -1;
-static int hf_h245_EndSessionCommand = -1;
 static int hf_h245_EndSessionCommand_isdnOptions = -1;
 static int hf_h245_FlowControlCommand_restriction = -1;
 static int hf_h245_FlowControlCommand_scope = -1;
@@ -1542,6 +1516,9 @@ static gint ett_h245_lostPicture = -1;
 static gint ett_h245_recoveryReferencePicture = -1;
 static gint ett_h245_iPSourceRouteAddress_route = -1;
 
+
+
+static gboolean h245_reassembly = TRUE;
 
 static int
 dissect_h245_NULL(tvbuff_t *tvb _U_, int offset, packet_info *pinfo _U_, proto_tree *tree _U_)
@@ -18977,8 +18954,7 @@ dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb, packet_info *pinfo, p
 void
 dissect_h245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-/*XXX add desegmentation option */
-	dissect_tpkt_encap(tvb, pinfo, tree, TRUE, MultimediaSystemControlMessage_handle);
+	dissect_tpkt_encap(tvb, pinfo, tree, h245_reassembly, MultimediaSystemControlMessage_handle);
 }
 
 void
@@ -22255,10 +22231,16 @@ proto_register_h245(void)
 		&ett_h245_recoveryReferencePicture,
 		&ett_h245_iPSourceRouteAddress_route,
 	};
+	module_t *h245_module;
 
 	proto_h245 = proto_register_protocol("H245", "H245", "h245");
 	proto_register_field_array(proto_h245, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	h245_module = prefs_register_protocol(proto_h245, NULL);
+	prefs_register_bool_preference(h245_module, "reassembly",
+		"Reassemble H.245 over TCP",
+		"Whether the dissector should reassemble H.245 PDUs spanning multiple TCP segments",
+		&h245_reassembly);
 }
 
 void
@@ -22270,9 +22252,5 @@ proto_reg_handoff_h245(void)
 
 	dissector_add_handle("tcp.port", h245_handle);
 	dissector_add_handle("udp.port", MultimediaSystemControlMessage_handle);
-/*qqq
-	dissector_handle_t h245_handle;
-	offset=dissect_h245_MultimediaSystemControlMessage(tvb, offset, pinfo, tr);
-*/
 
 }
