@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.45 1999/11/21 11:17:13 deniel Exp $
+ * $Id: packet-smb.c,v 1.46 1999/11/22 10:30:22 sharpe Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -79,6 +79,7 @@ static int proto_lanman = -1;
 
 static gint ett_lanman = -1;
 static gint ett_lanman_servers = -1;
+static gint ett_lanman_server = -1;
 
 /*
  * Struct passed to each SMB decode routine of info it may need
@@ -8878,14 +8879,146 @@ dissect_transact2_smb(const u_char *pd, int offset, frame_data *fd, proto_tree *
 
 }
 
+char *p_desc = NULL, *d_desc = NULL, *data = NULL, *params = NULL;
+int p_count, d_count, p_offset, d_offset, d_current = 0, p_current = 0;
+int pd_p_current = 0, pd_d_current = 0, in_params = 0, need_data = 0;
+
+/* Initialize the various data structure */
 void 
-dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, int DataOffset, int DataCount, int ParameterOffset, int ParameterCount, char *TransactName)
+dissect_transact_engine_init(const u_char *pd, const char *param_desc, const char *data_desc, int ParameterOffset, int ParameterCount, int DataOffset, int DataCount)
+{
+
+  d_count = DataCount;
+  p_count = ParameterCount;
+  d_offset = 0;
+  p_offset = 0;
+  d_current = 0;
+  p_current = 0;
+  pd_d_current = DataOffset;
+  pd_p_current = ParameterOffset;
+  in_params = need_data = 0;
+
+  if (p_desc) g_free(p_desc);
+  p_desc = g_malloc(strlen(param_desc) + 1);
+  strcpy(p_desc, param_desc);
+
+  if (d_desc) g_free(d_desc);
+  d_desc= g_malloc(strlen(data_desc) + 1);
+  strcpy(d_desc, data_desc);
+
+  if (params) g_free(params);
+  params = g_malloc(p_count);
+  memcpy(params, pd + ParameterOffset, ParameterCount);
+
+  if (data) g_free(data);
+  data = g_malloc(d_count);
+  memcpy(data, pd + DataOffset, DataCount);
+
+}
+
+/* Dissect the next item, if Name is null, call it by its data type  */
+/* We pull out the next item in the appropriate place and display it */
+/* We display the parameters first, then the data, then any auxilliary data */
+
+int dissect_transact_next(u_char *pd, char *Name, int dirn, proto_tree *tree)
+{
+  /*  guint8        BParam; */
+  guint16       WParam = 0;
+  guint32       LParam;
+
+
+  while (1) {
+    switch (in_params) {
+
+    case 0:   /* We are in the params area ... */
+
+      switch (params[p_offset++]) {
+
+      case 'r':
+
+	break;   /* Do nothing about the above */
+
+      case 'W':  /* Word Parameter */
+
+	/* Insert a word param */
+
+	WParam = GSHORT(pd, pd_p_current);
+
+	proto_tree_add_text(tree, pd_p_current, 2, "Word Param: %u", WParam);
+
+	pd_p_current += 2;
+
+	break;
+
+      case 'D':  /* Double Word parameter */
+
+	LParam = GWORD(pd, pd_p_current);
+
+	proto_tree_add_text(tree, pd_p_current, 4, "DWord Param: %u", LParam);
+
+	pd_p_current += 2;
+
+
+	break;
+
+      case 'b':  /* A byte or series of bytes */
+
+	break;
+
+      case 'O': /* A null pointer */
+
+	break;
+
+      case 'z': /* An AsciiZ string */
+
+	break;
+
+      case 'F': /* One or more pad bytes */
+
+	break;
+
+      case 'L': /* Receive buffer len: Short */
+
+	break;
+
+      case 's': /* Send buf ... */
+
+	need_data = 1;
+
+	break;
+
+      case 'T':
+
+	break;
+	
+      default:
+
+	break;
+
+      }
+
+      break;
+
+    case 1:   /* We are in the data area ... */
+
+
+      break;
+
+    }
+
+  }
+  return 0;
+
+}
+
+void 
+dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree *parent, proto_tree *tree, struct smb_info si, int max_data, int SMB_offset, int errcode, int dirn, int DataOffset, int DataCount, int ParameterOffset, int ParameterCount, const char *TransactName)
 {
   char             *TransactNameCopy;
   char             *trans_type = NULL, *trans_cmd, *loc_of_slash;
   int              index;
   guint8           Pad2;
-  gchar            *Data;
+  const gchar      *Data;
 
   TransactNameCopy = g_malloc(strlen(TransactName) + 1);
 
@@ -8942,7 +9075,7 @@ dissect_transact_params(const u_char *pd, int offset, frame_data *fd, proto_tree
 
       /* Build display for: Data */
 
-      Data = GBYTE(pd, offset);
+      Data = pd + SMB_offset + DataOffset;
 
       if (tree) {
 
@@ -9586,8 +9719,8 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
   guint16             Level;
   guint16             RecvBufLen;
   guint16             Flags;
-  char                *ParameterDescriptor;
-  char                *ReturnDescriptor;
+  const char          *ParameterDescriptor;
+  const char          *ReturnDescriptor;
   proto_tree          *lanman_tree = NULL, *flags_tree = NULL;
   proto_item          *ti;
 
@@ -9777,16 +9910,25 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
       }
 
       for (i = 1; i <= EntCount; i++) {
-	gchar       *Server = pd + loc_offset;
+	const gchar *Server = pd + loc_offset;
 	gint8       ServerMajor;
 	guint       ServerMinor;
 	guint32     ServerFlags;
-	gchar       *Comment;
+	const gchar *Comment;
+	proto_tree  *server = NULL;
+	proto_item  *ti;
+
+	if (tree) {
+
+	  ti = proto_tree_add_text(server_tree, loc_offset, 26, "Server %s", Server);
+	  server = proto_item_add_subtree(ti, ett_lanman_server);
+
+
+	}
 
 	if (tree) {
 	  
-	  proto_tree_add_text(server_tree, loc_offset, strlen(Server) + 1, "Server Name: %s", Server);
-
+	  proto_tree_add_text(server, loc_offset, strlen(Server) + 1, "Server Name: %s", Server);
 
 	}
 
@@ -9796,7 +9938,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
 	if (tree) {
 
-	  proto_tree_add_text(server_tree, loc_offset, 1, "Major Version: %u", ServerMajor);
+	  proto_tree_add_text(server, loc_offset, 1, "Major Version: %u", ServerMajor);
 
 	}
 
@@ -9806,7 +9948,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
 	if (tree) {
 
-	  proto_tree_add_text(server_tree, loc_offset, 1, "Minor Version: %u", ServerMinor);
+	  proto_tree_add_text(server, loc_offset, 1, "Minor Version: %u", ServerMinor);
 
 	}
 
@@ -9816,7 +9958,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
 	if (tree) {
 
-	  ti = proto_tree_add_text(server_tree, loc_offset, 4, "Server Type: 0x%08X", ServerFlags);
+	  ti = proto_tree_add_text(server, loc_offset, 4, "Server Type: 0x%08X", ServerFlags);
 	  flags_tree = proto_item_add_subtree(ti, ett_browse_flags);
 	  dissect_server_flags(flags_tree, loc_offset, 4, ServerFlags);
 
@@ -9828,7 +9970,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd, proto_tree *pa
 
 	if (tree) {
 
-	  proto_tree_add_text(server_tree, loc_offset, 4, "Server Comment: %s", Comment);
+	  proto_tree_add_text(server, loc_offset, 4, "Server Comment: %s", Comment);
 
 	}
 
@@ -11066,7 +11208,8 @@ proto_register_smb(void)
 		&ett_browse_election_os,
 		&ett_browse_election_desire,
 		&ett_lanman,
-		&ett_lanman_servers
+		&ett_lanman_servers,
+		&ett_lanman_server
 	};
 
         proto_smb = proto_register_protocol("Server Message Block Protocol", "smb");
