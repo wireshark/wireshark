@@ -2,7 +2,7 @@
  * Routines for Token-Ring packet disassembly
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-tr.c,v 1.24 1999/09/09 04:47:16 gram Exp $
+ * $Id: packet-tr.c,v 1.25 1999/09/15 06:13:20 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -180,8 +180,9 @@ capture_tr(const u_char *pd, guint32 cap_len, packet_counts *ld) {
 	trn_rif_bytes = pd[offset + 14] & 31;
 
 	/* sometimes we have a RCF but no RIF... half source-routed? */
-	/* I'll check for 2 bytes of RIF and the 0x70 byte */
 	if (!source_routed && trn_rif_bytes > 0) {
+		 /* I'll check for 2 bytes of RIF and mark the packet as source
+		  * routed even though I'm not sure _what_ that kind of packet is */
 		if (trn_rif_bytes == 2) {
 			source_routed = 1;
 		}
@@ -435,8 +436,7 @@ dissect_tr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		proto_tree_add_item(tr_tree, hf_tr_dst, offset + 2, 6, trn_dhost);
 		proto_tree_add_item(tr_tree, hf_tr_src, offset + 8, 6, trn_shost);
 
-		if (source_routed)
-			proto_tree_add_item_hidden(tr_tree, hf_tr_sr, offset + 8, 1, source_routed);
+		proto_tree_add_item_hidden(tr_tree, hf_tr_sr, offset + 8, 1, source_routed);
 
 		/* non-source-routed version of src addr */
 		proto_tree_add_item_hidden(tr_tree, hf_tr_src, offset + 8, 6, trn_shost_nonsr);

@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.17 1999/08/29 04:06:42 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.18 1999/09/15 06:13:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -107,7 +107,10 @@ GSList *gnode_slist = NULL;
 
 %union {
 	gint		operand;	/* logical, relation, alternation */
-	gint		variable;
+	struct {
+		gint	id;
+		gint	type;		/* using macros defined below, in this yacc grammar */
+	} variable;
 	GNode*		node;
 	gchar*		string;
 	struct {
@@ -271,26 +274,40 @@ bytes_value:	T_VAL_BYTE_STRING
 	;
 
 
-numeric_variable:	T_FT_UINT8	{ $$ = dfilter_mknode_numeric_variable($1); }
-	|		T_FT_UINT16	{ $$ = dfilter_mknode_numeric_variable($1); }
-	|		T_FT_UINT32	{ $$ = dfilter_mknode_numeric_variable($1); }
+numeric_variable:	T_FT_UINT8	{ $$ = dfilter_mknode_numeric_variable($1.id); }
+	|		T_FT_UINT16	{ $$ = dfilter_mknode_numeric_variable($1.id); }
+	|		T_FT_UINT32	{ $$ = dfilter_mknode_numeric_variable($1.id); }
 	;
 
-ether_variable:		T_FT_ETHER	{ $$ = dfilter_mknode_ether_variable($1); }
+ether_variable:		T_FT_ETHER	{ $$ = dfilter_mknode_ether_variable($1.id); }
 	;
 
-ipxnet_variable:	T_FT_IPXNET	{ $$ = dfilter_mknode_ipxnet_variable($1); }
+ipxnet_variable:	T_FT_IPXNET	{ $$ = dfilter_mknode_ipxnet_variable($1.id); }
 	;
 
-ipv4_variable:		T_FT_IPv4	{ $$ = dfilter_mknode_ipv4_variable($1); }
+ipv4_variable:		T_FT_IPv4	{ $$ = dfilter_mknode_ipv4_variable($1.id); }
 	;
 
-variable_name:		any_variable_type	{ $$ = dfilter_mknode_existence($1); }
+variable_name:		any_variable_type
+	{
+		GNode	*variable;
+		GNode	*value;
+
+		if ($1.type == T_FT_BOOLEAN) {
+			/* Make "variable == TRUE" for BOOLEAN variable */
+			variable = dfilter_mknode_numeric_variable($1.id);
+			value = dfilter_mknode_numeric_value(TRUE);
+			$$ = dfilter_mknode_join(variable, relation, TOK_EQ, value);
+		}
+		else {
+			$$ = dfilter_mknode_existence($1.id);
+		}
+	}
 	;
 
 bytes_variable:		any_variable_type T_VAL_BYTE_RANGE
 		{
-			$$ = dfilter_mknode_bytes_variable($1, $2.offset, $2.length);
+			$$ = dfilter_mknode_bytes_variable($1.id, $2.offset, $2.length);
 		}
 	;
 
@@ -600,6 +617,7 @@ dfilter_mknode_existence(gint id)
 	gnode_slist = g_slist_append(gnode_slist, gnode);
 	return gnode;
 }
+
 
 /* converts a string representing an ether HW address
  * to a guint8 array.

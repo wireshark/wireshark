@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.26 1999/09/14 08:06:22 guy Exp $
+ * $Id: proto.c,v 1.27 1999/09/15 06:13:20 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -398,7 +398,7 @@ NOTES
 			break;
 
 		case FT_BOOLEAN:
-			fi->value.boolean = va_arg(ap, unsigned int) ? TRUE : FALSE;
+			fi->value.numeric = va_arg(ap, unsigned int) ? TRUE : FALSE;
 			break;
 
 		case FT_UINT8:
@@ -551,7 +551,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_BOOLEAN:
 			snprintf(label_str, ITEM_LABEL_LENGTH,
 				"%s: %s", fi->hfinfo->name,
-				fi->value.boolean == TRUE ? "True" : "False");
+				fi->value.numeric == TRUE ? "True" : "False");
 			break;
 
 		case FT_UINT8:

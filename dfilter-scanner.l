@@ -3,7 +3,7 @@
 /* dfilter-scanner.l
  * Scanner for display filters
  *
- * $Id: dfilter-scanner.l,v 1.11 1999/08/27 19:27:10 gram Exp $
+ * $Id: dfilter-scanner.l,v 1.12 1999/09/15 06:13:20 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -143,13 +143,13 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 
 	int retval = 0;
 	enum ftenum ftype;
-	dfilter_lval.variable = dfilter_lookup_token(yytext);
-	if (dfilter_lval.variable == 0) {
+	dfilter_lval.variable.id = dfilter_lookup_token(yytext);
+	if (dfilter_lval.variable.id == 0) {
 		dfilter_lval.string = g_strdup(yytext);
 		return T_VAL_UNQUOTED_STRING;
 	}
 	
-	ftype = proto_registrar_get_ftype(dfilter_lval.variable);
+	ftype = proto_registrar_get_ftype(dfilter_lval.variable.id);
 	switch (ftype) {
 		case FT_UINT8:
 		case FT_VALS_UINT8:
@@ -187,6 +187,7 @@ le|\<\=		{ dfilter_lval.operand = TOK_LE; return TOK_LE; }
 			retval = 0;
 			break;
 	}
+	dfilter_lval.variable.type = retval;
 	return retval;
 }
 
