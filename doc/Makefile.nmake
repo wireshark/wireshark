@@ -83,9 +83,9 @@ ethereal-filter.html: ethereal-filter.pod ../config.h
 
 ethereal-filter.pod: ethereal-filter.pod.template  ../tethereal.exe
 	cd ..
-	cp --update --preserve wiretap/wiretap-$(WTAP_VERSION).dll wiretap-$(WTAP_VERSION).dll
+	xcopy wiretap\wiretap-$(WTAP_VERSION).dll . /d /y
 !IFDEF ENABLE_LIBETHEREAL
-	cp --update --preserve epan/libethereal.dll libethereal.dll
+	xcopy epan\libethereal.dll . /d /y
 !ENDIF
 	tethereal.exe -G | $(PERL) doc\dfilter2pod.pl doc\ethereal-filter.pod.template > doc\ethereal-filter.pod
 	rm -f libethereal.dll wiretap-$(WTAP_VERSION).dll
