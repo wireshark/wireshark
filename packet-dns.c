@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.69 2001/07/02 07:11:38 guy Exp $
+ * $Id: packet-dns.c,v 1.70 2001/07/02 07:29:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -41,6 +41,7 @@
 #include "packet-dns.h"
 
 static int proto_dns = -1;
+static int hf_dns_length = -1;
 static int hf_dns_response = -1;
 static int hf_dns_query = -1;
 static int hf_dns_flags = -1;
@@ -1799,7 +1800,7 @@ dissect_answer_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
 
 static void
 dissect_dns_common(tvbuff_t *tvb, int offset, int cap_len, packet_info *pinfo,
-	proto_tree *tree)
+	proto_tree *tree, gboolean is_tcp)
 {
   int dns_data_offset;
   frame_data *fd;
@@ -1857,6 +1858,11 @@ dissect_dns_common(tvbuff_t *tvb, int offset, int cap_len, packet_info *pinfo,
       "Domain Name System (%s)", (flags & F_RESPONSE) ? "response" : "query");
     
     dns_tree = proto_item_add_subtree(ti, ett_dns);
+
+    if (is_tcp) {
+      /* Put the length indication into the tree. */
+      proto_tree_add_uint(dns_tree, hf_dns_length, tvb, offset - 2, 2, cap_len);
+    }
 
     if (flags & F_RESPONSE)
       proto_tree_add_boolean_hidden(dns_tree, hf_dns_response, tvb, offset, 4, 1);
@@ -1985,7 +1991,7 @@ dissect_dns_common(tvbuff_t *tvb, int offset, int cap_len, packet_info *pinfo,
 static void
 dissect_dns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	dissect_dns_common(tvb, 0, tvb_length(tvb), pinfo, tree);
+	dissect_dns_common(tvb, 0, tvb_length(tvb), pinfo, tree, FALSE);
 }
 
 static void
@@ -2009,7 +2015,7 @@ dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Yes - dissect it.
 		 */
-		dissect_dns_common(tvb, offset, plen, pinfo, tree);
+		dissect_dns_common(tvb, offset, plen, pinfo, tree, TRUE);
 	}
 }
 
@@ -2017,6 +2023,10 @@ void
 proto_register_dns(void)
 {
   static hf_register_info hf[] = {
+    { &hf_dns_length,
+      { "Length",		"dns.length",  
+	FT_UINT16, BASE_DEC, NULL, 0x0,
+	"Length of DNS-over-TCP request or response", HFILL }},
     { &hf_dns_response,
       { "Response",		"dns.response",  
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
