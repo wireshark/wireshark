@@ -289,7 +289,9 @@ int get_ber_identifier(tvbuff_t *tvb, int offset, gint8 *class, gboolean *pc, gi
 
 	id = tvb_get_guint8(tvb, offset);
 	offset += 1;
-	
+#ifdef DEBUG_BER
+printf ("BER ID=%02x", id);
+#endif
 	/* 8.1.2.2 */
 	tmp_class = (id>>6) & 0x03;
 	tmp_pc = (id>>5) & 0x01;
@@ -299,13 +301,19 @@ int get_ber_identifier(tvbuff_t *tvb, int offset, gint8 *class, gboolean *pc, gi
 		tmp_tag = 0;
 		while (tvb_length_remaining(tvb, offset) > 0) {
 			t = tvb_get_guint8(tvb, offset);
+#ifdef DEBUG_BER
+printf (" %02x", t);
+#endif
 			offset += 1;
 			tmp_tag <<= 7;       
 			tmp_tag |= t & 0x7F;
-			if (t & 0x80) break;
+			if (!(t & 0x80)) break;
 		}
 	}
 
+#ifdef DEBUG_BER
+printf ("\n");
+#endif
 	if (class)
 		*class = tmp_class;
 	if (pc)
@@ -423,6 +431,7 @@ dissect_ber_octet_string(gboolean implicit_tag, packet_info *pinfo, proto_tree *
 	guint32 len;
 	int end_offset;
 	proto_item *it;
+  guint32 i;
 
 #ifdef DEBUG_BER
 {
@@ -466,12 +475,23 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 	if (pc) {
 		/* constructed */
 		/* TO DO */
+    printf("TODO: handle constructed type in packet-ber.c, dissect_ber_octet_string\n");
 	} else {
 		/* primitive */
 		if (hf_id != -1) {
 			it = proto_tree_add_item(tree, hf_id, tvb, offset, len, FALSE);
 			ber_last_created_item = it;
-		}
+		} else {
+      proto_item *pi;
+      
+      pi=proto_tree_add_text(tree, tvb, offset, len, "Unknown OctetString: Length: 0x%02x, Value: 0x", len);
+      if(pi){
+        for(i=0;i<len;i++){
+          proto_item_append_text(pi,"%02x",tvb_get_guint8(tvb, offset));
+          offset++;
+        }
+      }
+    }
 		if (out_tvb) {
 			if(len<=(guint32)tvb_length_remaining(tvb, offset)){
 				*out_tvb = tvb_new_subset(tvb, offset, len, len);
