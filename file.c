@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.297 2003/03/02 22:07:21 guy Exp $
+ * $Id: file.c,v 1.298 2003/03/02 22:37:03 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1564,16 +1564,16 @@ goto_frame(capture_file *cf, guint fnumber)
     ;
 
   if (fdata == NULL) {
-    /* we didn't find that frame */
+    /* we didn't find a frame with that frame number */
     simple_dialog(ESD_TYPE_CRIT, NULL,
 	 	  "There is no frame with that frame number.");
     return FALSE;	/* we failed to go to that frame */
   }
   if (!fdata->flags.passed_dfilter) {
-    /* the frame with that number isn't displayed */
+    /* that frame currently isn't displayed */
     /* XXX - add it to the set of displayed frames? */
     simple_dialog(ESD_TYPE_CRIT, NULL,
-		  "The frame with that frame number is not currently being displayed.");
+		  "That frame is not currently being displayed.");
     return FALSE;	/* we failed to go to that frame */
   }
 
