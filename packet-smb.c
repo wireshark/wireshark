@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.298 2002/11/14 23:14:14 tpot Exp $
+ * $Id: packet-smb.c,v 1.299 2002/12/05 22:15:54 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -11366,6 +11366,16 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				dissected_trans = dissect_pipe_smb(sp_tvb,
 				    s_tvb, pd_tvb, p_tvb, d_tvb, an+6, pinfo,
 				    top_tree);
+
+				/* In case we did not see the TreeConnect call,
+				   store this TID here as well as a IPC TID 
+				   so we know that future Read/Writes to this 
+				   TID is (probably) DCERPC.
+				*/
+				if(g_hash_table_lookup(si->ct->tid_service, (void *)si->tid)){
+					g_hash_table_remove(si->ct->tid_service, (void *)si->tid);
+				}
+				g_hash_table_insert(si->ct->tid_service, (void *)si->tid, (void *)TID_IPC);
 			} else if(strncmp("\\MAILSLOT\\", an, 10) == 0){
 				if (tri != NULL)
 					tri->subcmd=TRANSACTION_MAILSLOT;
