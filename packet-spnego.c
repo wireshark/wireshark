@@ -4,7 +4,7 @@
  * Copyright 2002, Tim Potter <tpot@samba.org>
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-spnego.c,v 1.38 2002/11/07 05:25:37 guy Exp $
+ * $Id: packet-spnego.c,v 1.39 2002/11/28 06:48:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -67,8 +67,14 @@ static int hf_spnego_negtokentarg_negresult = -1;
 static int hf_spnego_mechlistmic = -1;
 static int hf_spnego_responsetoken = -1;
 static int hf_spnego_reqflags = -1;
+static int hf_spnego_wraptoken = -1;
 static int hf_spnego_krb5 = -1;
 static int hf_spnego_krb5_tok_id = -1;
+static int hf_spnego_krb5_sgn_alg = -1;
+static int hf_spnego_krb5_seal_alg = -1;
+static int hf_spnego_krb5_snd_seq = -1;
+static int hf_spnego_krb5_sgn_cksum = -1;
+static int hf_spnego_krb5_confounder = -1;
 
 static gint ett_spnego = -1;
 static gint ett_spnego_negtokeninit = -1;
@@ -77,6 +83,7 @@ static gint ett_spnego_mechtype = -1;
 static gint ett_spnego_mechtoken = -1;
 static gint ett_spnego_mechlistmic = -1;
 static gint ett_spnego_responsetoken = -1;
+static gint ett_spnego_wraptoken = -1;
 static gint ett_spnego_krb5 = -1;
 
 static const value_string spnego_negResult_vals[] = {
@@ -112,19 +119,57 @@ dissect_parse_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
  * by the looks of it.
  */ 
 
-#define KRB_TOKEN_AP_REQ 0x0001
-#define KRB_TOKEN_AP_REP 0x0002
-#define KRB_TOKEN_AP_ERR 0x0003
+#define KRB_TOKEN_AP_REQ		0x0001
+#define KRB_TOKEN_AP_REP		0x0002
+#define KRB_TOKEN_AP_ERR		0x0003
+#define KRB_TOKEN_AP_ERR		0x0003
+#define KRB_TOKEN_GETMIC		0x0101
+#define KRB_TOKEN_WRAP			0x0102
+#define KRB_TOKEN_DELETE_SEC_CONTEXT	0x0201
 
 static const value_string spnego_krb5_tok_id_vals[] = {
-  { KRB_TOKEN_AP_REQ, "KRB5_AP_REQ"},
-  { KRB_TOKEN_AP_REP, "KRB5_AP_REP"},
-  { KRB_TOKEN_AP_ERR, "KRB5_ERROR"},
+  { KRB_TOKEN_AP_REQ,             "KRB5_AP_REQ"},
+  { KRB_TOKEN_AP_REP,             "KRB5_AP_REP"},
+  { KRB_TOKEN_AP_ERR,             "KRB5_ERROR"},
+  { KRB_TOKEN_GETMIC,             "KRB5_GSS_GetMIC" },
+  { KRB_TOKEN_WRAP,               "KRB5_GSS_Wrap" },
+  { KRB_TOKEN_DELETE_SEC_CONTEXT, "KRB5_GSS_Delete_sec_context" },
   { 0, NULL}
 };
 
+#define KRB_SGN_ALG_DES_MAC_MD5	0x0000
+#define KRB_SGN_ALG_MD2_5	0x0001
+#define KRB_SGN_ALG_DES_MAC	0x0002
+#define KRB_SGN_ALG_HMAC	0x0011
+
+static const value_string spnego_krb5_sgn_alg_vals[] = {
+  { KRB_SGN_ALG_DES_MAC_MD5, "DES MAC MD5"},
+  { KRB_SGN_ALG_MD2_5,       "MD2.5"},
+  { KRB_SGN_ALG_DES_MAC,     "DES MAC"},
+  { KRB_SGN_ALG_HMAC,        "HMAC"},
+  { 0, NULL}
+};
+
+#define KRB_SEAL_ALG_DES_CBC	0x0000
+#define KRB_SEAL_ALG_RC4	0x0010
+#define KRB_SEAL_ALG_NONE	0xffff
+
+static const value_string spnego_krb5_seal_alg_vals[] = {
+  { KRB_SEAL_ALG_DES_CBC, "DES CBC"},
+  { KRB_SEAL_ALG_RC4,     "RC4"},
+  { KRB_SEAL_ALG_NONE,    "None"},
+  { 0, NULL}
+};
+
+/*
+ * XXX - is this for SPNEGO or just GSS-API?
+ * RFC 1964 is "The Kerberos Version 5 GSS-API Mechanism"; presumably one
+ * can directly designate Kerberos V5 as a mechanism in GSS-API, rather
+ * than designating SPNEGO as the mechanism, offering Kerberos V5, and
+ * getting it accepted.
+ */
 static void
-dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -263,12 +308,99 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	return;
 }
 
+/*
+ * XXX - is this for SPNEGO or just GSS-API?
+ * RFC 1964 is "The Kerberos Version 5 GSS-API Mechanism"; presumably one
+ * can directly designate Kerberos V5 as a mechanism in GSS-API, rather
+ * than designating SPNEGO as the mechanism, offering Kerberos V5, and
+ * getting it accepted.
+ */
+static int
+dissect_spnego_krb5_wrap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	int offset = 0;
+	guint16 sgn_alg;
+
+	item = proto_tree_add_item(tree, hf_spnego_krb5, tvb, 0, -1, FALSE);
+
+	subtree = proto_item_add_subtree(item, ett_spnego_krb5);
+
+	/*
+	 * The KRB5 blob conforms to RFC1964:
+	 *   USHORT (0x0102 == GSS_Wrap)
+	 *   and so on } 
+	 */
+
+	/* First, the token ID ... */
+
+	proto_tree_add_item(subtree, hf_spnego_krb5_tok_id, tvb, offset, 2,
+			    TRUE);
+
+	offset += 2;
+
+	/* Now, the sign and seal algorithms ... */
+
+	sgn_alg = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(subtree, hf_spnego_krb5_sgn_alg, tvb, offset, 2,
+			    sgn_alg);
+
+	offset += 2;
+
+	proto_tree_add_item(subtree, hf_spnego_krb5_seal_alg, tvb, offset, 2,
+			    TRUE);
+
+	offset += 2;
+
+	/* Skip the filler */
+
+	offset += 2;
+
+	/* Encrypted sequence number */
+
+	proto_tree_add_item(subtree, hf_spnego_krb5_snd_seq, tvb, offset, 8,
+			    TRUE);
+
+	offset += 8;
+
+	/* Checksum of plaintext padded data */
+
+	proto_tree_add_item(subtree, hf_spnego_krb5_sgn_cksum, tvb, offset, 8,
+			    TRUE);
+
+	offset += 8;
+
+	/*
+	 * At least according to draft-brezak-win2k-krb-rc4-hmac-04,
+	 * if the signing algorithm is KRB_SGN_ALG_HMAC, there's an
+	 * extra 8 bytes of "Random confounder" after the checksum.
+	 * It certainly confounds code expecting all Kerberos 5
+	 * GSS_Wrap() tokens to look the same....
+	 */
+	if (sgn_alg == KRB_SGN_ALG_HMAC) {
+	  proto_tree_add_item(subtree, hf_spnego_krb5_confounder, tvb, offset, 8,
+			      TRUE);
+
+	  offset += 8;
+	}
+
+	/*
+	 * Return the offset past the checksum, so that we know where
+	 * the data we're wrapped around starts.  Also, set the length
+	 * of our top-level item to that offset, so it doesn't cover
+	 * the data we're wrapped around.
+	 */
+	proto_item_set_len(item, offset);
+	return offset;
+}
+
 /* Spnego stuff from here */
 
 static int
-dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 proto_tree *tree, ASN1_SCK *hnd,
-			 dissector_handle_t *next_level_dissector_p)
+			 gssapi_oid_value **next_level_value_p)
 {
 	proto_item *item = NULL;
 	proto_tree *subtree = NULL;
@@ -344,7 +476,7 @@ dissect_spnego_mechTypes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	   */
 	  if (!saw_mechanism) {
 	    if (value)
-	      *next_level_dissector_p = value->handle;
+	      *next_level_value_p = value;
 	    saw_mechanism = TRUE;
 	  }
 
@@ -530,7 +662,7 @@ dissect_spnego_mechListMIC(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 static int
 dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			    proto_tree *tree, ASN1_SCK *hnd,
-			    dissector_handle_t *next_level_dissector_p)
+			    gssapi_oid_value **next_level_value_p)
 {
 	proto_item *item;
 	proto_tree *subtree;
@@ -602,7 +734,7 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	    offset = dissect_spnego_mechTypes(tvb, offset, pinfo,
 					      subtree, hnd,
-					      next_level_dissector_p);
+					      next_level_value_p);
 
 	    break;
 
@@ -615,13 +747,13 @@ dissect_spnego_negTokenInit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  case SPNEGO_mechToken:
 
 	    offset = dissect_spnego_mechToken(tvb, offset, pinfo, subtree, 
-					      hnd, *next_level_dissector_p);
+					      hnd, (*next_level_value_p)->handle);
 	    break;
 
 	  case SPNEGO_mechListMIC:
 
 	    offset = dissect_spnego_mechListMIC(tvb, offset, pinfo, subtree,
-						hnd, *next_level_dissector_p);
+						hnd, (*next_level_value_p)->handle);
 	    break;
 
 	  default:
@@ -686,7 +818,7 @@ dissect_spnego_negResult(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 static int
 dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			     proto_tree *tree, ASN1_SCK *hnd,
-			     dissector_handle_t *next_level_dissector_p)
+			     gssapi_oid_value **next_level_value_p)
 {
 	int ret;
 	guint oid_len, nbytes;
@@ -727,7 +859,7 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	/* Should check for an unrecognized OID ... */
 
 	if (value)
-	  *next_level_dissector_p = value->handle;
+	  *next_level_value_p = value;
 
 	/*
 	 * Now, we need to save this in per proto info in the
@@ -745,7 +877,7 @@ dissect_spnego_supportedMech(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 
 	  conversation_add_proto_data(conversation, proto_spnego, 
-				      *next_level_dissector_p);
+				      *next_level_value_p);
 	}
 	else {
 
@@ -807,7 +939,7 @@ dissect_spnego_responseToken(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 static int
 dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			    proto_tree *tree, ASN1_SCK *hnd,
-			    dissector_handle_t *next_level_dissector_p)
+			    gssapi_oid_value **next_level_value_p)
 
 {
 	proto_item *item;
@@ -888,20 +1020,20 @@ dissect_spnego_negTokenTarg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  case SPNEGO_supportedMech:
 
 	    offset = dissect_spnego_supportedMech(tvb, offset, pinfo, subtree,
-						  hnd, next_level_dissector_p);
+						  hnd, next_level_value_p);
 
 	    break;
 
 	  case SPNEGO_responseToken:
 
 	    offset = dissect_spnego_responseToken(tvb, offset, pinfo, subtree,
-						  hnd, *next_level_dissector_p);
+						  hnd, (*next_level_value_p)->handle);
 	    break;
 
 	  case SPNEGO_mechListMIC:
 
 	    offset = dissect_spnego_mechListMIC(tvb, offset, pinfo, subtree, 
-						hnd, *next_level_dissector_p);
+						hnd, (*next_level_value_p)->handle);
 	    break;
 
 	  default:
@@ -928,7 +1060,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean def;
 	guint len1, cls, con, tag;
 	conversation_t *conversation;
-	dissector_handle_t next_level_dissector;
+	gssapi_oid_value *next_level_value;
 
 	/*
 	 * We need this later, so lets get it now ...
@@ -936,8 +1068,8 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * negotiation in a conversation.
 	 */
 
-	next_level_dissector = p_get_proto_data(pinfo->fd, proto_spnego);
-	if (!next_level_dissector && !pinfo->fd->flags.visited) {
+	next_level_value = p_get_proto_data(pinfo->fd, proto_spnego);
+	if (!next_level_value && !pinfo->fd->flags.visited) {
 	    /*
 	     * No handle attached to this frame, but it's the first
 	     * pass, so it'd be attached to the conversation.
@@ -949,10 +1081,10 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					     pinfo->destport, 0);
 
 	    if (conversation) {
-		next_level_dissector = conversation_get_proto_data(conversation, 
-								   proto_spnego);
-		if (next_level_dissector)
-		    p_add_proto_data(pinfo->fd, proto_spnego, next_level_dissector);
+		next_level_value = conversation_get_proto_data(conversation, 
+							       proto_spnego);
+		if (next_level_value)
+		    p_add_proto_data(pinfo->fd, proto_spnego, next_level_value);
 	    }
 	}
 
@@ -1023,7 +1155,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	  offset = dissect_spnego_negTokenInit(tvb, offset, pinfo,
 					       subtree, &hnd,
-					       &next_level_dissector);
+					       &next_level_value);
 
 	  break;
 
@@ -1031,7 +1163,7 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	  offset = dissect_spnego_negTokenTarg(tvb, offset, pinfo,
 					       subtree, &hnd,
-					       &next_level_dissector);
+					       &next_level_value);
 	  break;
 
 	default: /* Broken, what to do? */
@@ -1043,6 +1175,154 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  done:
 	asn1_close(&hnd, &offset);
 
+}
+
+static int
+dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *item;
+	proto_tree *subtree;
+	int ret, offset = 0;
+	int return_offset;
+	ASN1_SCK hnd;
+	gboolean def;
+	guint len1, cls, con, tag, nbytes;
+	guint oid_len;
+	subid_t *oid;
+	gchar *oid_string;
+	conversation_t *conversation;
+	gssapi_oid_value *next_level_value;
+	tvbuff_t *token_tvb;
+	int len;
+
+	/*
+	 * We need this later, so lets get it now ...
+	 * It has to be per-frame as there can be more than one GSS-API
+	 * negotiation in a conversation.
+	 */
+
+	next_level_value = p_get_proto_data(pinfo->fd, proto_spnego);
+	if (!next_level_value && !pinfo->fd->flags.visited) {
+	    /*
+	     * No handle attached to this frame, but it's the first
+	     * pass, so it'd be attached to the conversation.
+	     * If we have a conversation, try to get the handle,
+	     * and if we get one, attach it to the frame.
+	     */
+	    conversation = find_conversation(&pinfo->src, &pinfo->dst,
+					     pinfo->ptype, pinfo->srcport,
+					     pinfo->destport, 0);
+
+	    if (conversation) {
+		next_level_value = conversation_get_proto_data(conversation, 
+							       proto_spnego);
+		if (next_level_value)
+		    p_add_proto_data(pinfo->fd, proto_spnego, next_level_value);
+	    }
+	}
+
+	item = proto_tree_add_item(tree, hf_spnego, tvb, offset, 
+				   -1, FALSE);
+
+	subtree = proto_item_add_subtree(item, ett_spnego);
+
+	/*
+	 * The TVB contains a [0] header and a sequence that consists of an
+	 * object ID and a blob containing the data ...
+	 * XXX - is this RFC 2743's "Mechanism-Independent Token Format",
+	 * with the "optional" "use in non-initial tokens" being chosen.
+	 */
+
+	asn1_open(&hnd, tvb, offset);
+
+	/*
+	 * Get the first header ...
+	 */
+
+	ret = asn1_header_decode(&hnd, &cls, &con, &tag, &def, &len1);
+
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_parse_error(tvb, offset, pinfo, subtree,
+				    "SPNEGO context header", ret);
+		return_offset = tvb_length(tvb);
+		goto done;
+	}
+
+	if (!(cls == ASN1_APL && con == ASN1_CON && tag == 0)) {
+		proto_tree_add_text(
+			subtree, tvb, offset, 0,
+			"Unknown header (cls=%d, con=%d, tag=%d)",
+			cls, con, tag);
+		return_offset = tvb_length(tvb);
+		goto done;
+	}
+
+	offset = hnd.offset;
+
+	/*
+	 * Get the OID, and find the handle, if any
+	 */
+
+	ret = asn1_oid_decode(&hnd, &oid, &oid_len, &nbytes);
+
+	if (ret != ASN1_ERR_NOERROR) {
+		dissect_parse_error(tvb, offset, pinfo, tree,
+				    "SPNEGO wrap token", ret);
+		return_offset = tvb_length(tvb);
+		goto done;
+	}
+
+	oid_string = format_oid(oid, oid_len);
+	next_level_value = gssapi_lookup_oid(oid, oid_len);
+
+	/*
+	 * XXX - what should we do if this doesn't match the value
+	 * attached to the frame or conversation?  (That would be
+	 * bogus, but that's not impossible - some broken implementation
+	 * might negotiate some security mechanism but put the OID
+	 * for some other security mechanism in GSS_Wrap tokens.)
+	 */
+	if (next_level_value)
+	  proto_tree_add_text(tree, tvb, offset, nbytes, 
+			      "thisMech: %s (%s)",
+			      oid_string, next_level_value->comment);
+	else
+	  proto_tree_add_text(tree, tvb, offset, nbytes, "thisMech: %s",
+			      oid_string);
+
+	g_free(oid_string);
+
+	offset += nbytes;
+
+	/*
+	 * Now dissect the GSS_Wrap token; it's assumed to be in the
+	 * rest of the tvbuff.
+	 */
+	item = proto_tree_add_item(tree, hf_spnego_wraptoken, tvb, offset, 
+				   -1, FALSE); 
+
+	subtree = proto_item_add_subtree(item, ett_spnego_wraptoken);
+
+	/*
+	 * Now, we should be able to dispatch after creating a new TVB.
+	 * The subdissector must return the length of the part of the
+	 * token it dissected, so we can return the length of the part
+	 * we (and it) dissected.
+	 */
+
+	token_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	if (next_level_value->wrap_handle) {
+	  len = call_dissector(next_level_value->wrap_handle, token_tvb, pinfo, subtree);
+	  if (len == 0)
+	    return_offset = tvb_length(tvb);
+	  else
+	    return_offset = offset + len;
+	} else
+	  return_offset = tvb_length(tvb);
+ done:
+	asn1_close(&hnd, &offset);
+
+	return return_offset;
 }
 
 void
@@ -1077,12 +1357,31 @@ proto_register_spnego(void)
 		{ &hf_spnego_reqflags, 
 		  { "reqFlags", "spnego.negtokeninit.reqflags", FT_BYTES,
 		    BASE_HEX, NULL, 0, "reqFlags", HFILL }},
+		{ &hf_spnego_wraptoken,
+		  { "wrapToken", "spnego.wraptoken",
+		    FT_NONE, BASE_NONE, NULL, 0x0, "SPNEGO wrapToken",
+		    HFILL}},
 		{ &hf_spnego_krb5,
 		  { "krb5_blob", "spnego.krb5.blob", FT_BYTES,
-		    BASE_HEX, NULL, 0, "krb5_blob", HFILL }},
+		    BASE_NONE, NULL, 0, "krb5_blob", HFILL }},
 		{ &hf_spnego_krb5_tok_id,
 		  { "krb5_tok_id", "spnego.krb5.tok_id", FT_UINT16, BASE_HEX,
-		    VALS(spnego_krb5_tok_id_vals), 0, "KRB5 Token Ids", HFILL}},
+		    VALS(spnego_krb5_tok_id_vals), 0, "KRB5 Token Id", HFILL}},
+		{ &hf_spnego_krb5_sgn_alg,
+		  { "krb5_sgn_alg", "spnego.krb5.sgn_alg", FT_UINT16, BASE_HEX,
+		    VALS(spnego_krb5_sgn_alg_vals), 0, "KRB5 Signing Algorithm", HFILL}},
+		{ &hf_spnego_krb5_seal_alg,
+		  { "krb5_seal_alg", "spnego.krb5.seal_alg", FT_UINT16, BASE_HEX,
+		    VALS(spnego_krb5_seal_alg_vals), 0, "KRB5 Sealing Algorithm", HFILL}},
+		{ &hf_spnego_krb5_snd_seq,
+		  { "krb5_snd_seq", "spnego.krb5.snd_seq", FT_BYTES, BASE_NONE,
+		    NULL, 0, "KRB5 Encrypted Sequence Number", HFILL}},
+		{ &hf_spnego_krb5_sgn_cksum,
+		  { "krb5_sgn_cksum", "spnego.krb5.sgn_cksum", FT_BYTES, BASE_NONE,
+		    NULL, 0, "KRB5 Data Checksum", HFILL}},
+		{ &hf_spnego_krb5_confounder,
+		  { "krb5_confounder", "spnego.krb5.confounder", FT_BYTES, BASE_NONE,
+		    NULL, 0, "KRB5 Confounder", HFILL}},
 	};
 
 	static gint *ett[] = {
@@ -1093,6 +1392,7 @@ proto_register_spnego(void)
 		&ett_spnego_mechtoken,
 		&ett_spnego_mechlistmic,
 		&ett_spnego_responsetoken,
+		&ett_spnego_wraptoken,
 		&ett_spnego_krb5,
 	};
 
@@ -1109,19 +1409,27 @@ proto_register_spnego(void)
 void
 proto_reg_handoff_spnego(void)
 {
-	dissector_handle_t spnego_handle, spnego_krb5_handle;
+	dissector_handle_t spnego_handle, spnego_wrap_handle;
+	dissector_handle_t spnego_krb5_handle, spnego_krb5_wrap_handle;
 
 	/* Register protocol with GSS-API module */
 
 	spnego_handle = create_dissector_handle(dissect_spnego, proto_spnego);
-	spnego_krb5_handle = create_dissector_handle(dissect_spnego_krb5,
-						     proto_spnego_krb5);
+	spnego_wrap_handle = new_create_dissector_handle(dissect_spnego_wrap,
+							 proto_spnego);
 	gssapi_init_oid("1.3.6.1.5.5.2", proto_spnego, ett_spnego,
-	    spnego_handle, "SPNEGO - Simple Protected Negotiation");
+	    spnego_handle, spnego_wrap_handle,
+	    "SPNEGO - Simple Protected Negotiation");
 
 	/* Register both the one MS created and the real one */
+	spnego_krb5_handle = create_dissector_handle(dissect_spnego_krb5,
+						     proto_spnego_krb5);
+	spnego_krb5_wrap_handle = new_create_dissector_handle(dissect_spnego_krb5_wrap,
+							      proto_spnego_krb5);
 	gssapi_init_oid("1.2.840.48018.1.2.2", proto_spnego_krb5, ett_spnego_krb5,
-			spnego_krb5_handle, "MS KRB5 - Microsoft Kerberos 5");
+			spnego_krb5_handle, spnego_krb5_wrap_handle,
+			"MS KRB5 - Microsoft Kerberos 5");
 	gssapi_init_oid("1.2.840.113554.1.2.2", proto_spnego_krb5, ett_spnego_krb5,
-			spnego_krb5_handle, "KRB5 - Kerberos 5");
+			spnego_krb5_handle, spnego_krb5_wrap_handle,
+			"KRB5 - Kerberos 5");
 }

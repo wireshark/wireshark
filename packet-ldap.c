@@ -3,7 +3,7 @@
  *
  * See RFC 1777 (LDAP v2), RFC 2251 (LDAP v3), and RFC 2222 (SASL).
  *
- * $Id: packet-ldap.c,v 1.50 2002/11/27 04:59:56 guy Exp $
+ * $Id: packet-ldap.c,v 1.51 2002/11/28 06:48:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -126,6 +126,7 @@ static gboolean ldap_desegment = TRUE;
 #define UDP_PORT_CLDAP			389
 
 static dissector_handle_t gssapi_handle;
+static dissector_handle_t gssapi_wrap_handle;
 
 /*
  * Data structure attached to a conversation, giving authentication
@@ -753,7 +754,7 @@ static int parse_filter(ASN1_SCK *a, char **filter, guint *filter_length,
   if (a->offset == *end)
     return -1;
   else
-    return ret;
+    return ASN1_ERR_NOERROR;
 }
 
 static gboolean read_filter(ASN1_SCK *a, proto_tree *tree, int hf_id)
@@ -1596,7 +1597,7 @@ static void
 dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   int offset = 0;
-  gboolean first_time = FALSE;
+  gboolean first_time = TRUE;
   conversation_t *conversation;
   ldap_auth_info_t *auth_info;
   gboolean doing_sasl_security = FALSE;
@@ -1604,13 +1605,17 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint32 sasl_length;
   guint32 message_data_len;
   proto_item *ti;
-  proto_tree *ldap_tree;
+  proto_tree *ldap_tree = NULL;
   ASN1_SCK a;
   int ret;
   guint messageLength;
   int messageOffset;
   guint headerLength;
   guint length;
+  gint available_length, reported_length;
+  int len;
+  proto_item *gitem = NULL;
+  proto_tree *gtree = NULL;
   tvbuff_t *next_tvb;
 
   /*
@@ -1760,11 +1765,6 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           col_clear(pinfo->cinfo, COL_INFO);
       }
 
-      /*
-       * XXX - for now, just show the SASL length and payload; we
-       * eventually should show the GSS-API GSS_Wrap token and
-       * dissect the stuff after it as an LDAP message.
-       */
       if (tree)
       {
         ti = proto_tree_add_item(tree, proto_ldap, next_tvb, 0, -1, FALSE);
@@ -1772,8 +1772,38 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         proto_tree_add_uint(ldap_tree, hf_ldap_sasl_buffer_length, tvb, 0, 4,
                             sasl_length);
-        proto_tree_add_text(ldap_tree, tvb, 4, -1, "SASL buffer");
       }
+
+      /*
+       * Now dissect the GSS_Wrap() token; it'll return the length of
+       * the token, from which we compute the offset in the tvbuff at
+       * which the plaintext data, i.e. the LDAP message, begins.
+       */
+      available_length = tvb_length_remaining(tvb, 4);
+      reported_length = tvb_reported_length_remaining(tvb, 4);
+      g_assert(available_length >= 0);
+      g_assert(reported_length >= 0);
+      if (available_length > reported_length)
+        available_length = reported_length;
+      if ((guint)available_length > sasl_length - 4)
+        available_length = sasl_length - 4;
+      if ((guint)reported_length > sasl_length - 4)
+        reported_length = sasl_length - 4;
+      next_tvb = tvb_new_subset(tvb, 4, available_length, reported_length);
+      if (tree)
+      {
+        gitem = proto_tree_add_text(ldap_tree, next_tvb, 0, -1, "GSS-API Token");
+        gtree = proto_item_add_subtree(gitem, ett_ldap_gssapi_token);
+      }
+      len = call_dissector(gssapi_wrap_handle, next_tvb, pinfo, gtree);
+      g_assert(len != 0);	/* GSS_Wrap() dissectors can't reject data */
+      if (gitem != NULL)
+	proto_item_set_len(gitem, len);
+
+      /*
+       * Now dissect the LDAP message.
+       */
+      dissect_ldap_message(tvb, 4 + len, pinfo, ldap_tree, first_time);
       offset += message_data_len;
     } else {
       /*
@@ -2178,4 +2208,5 @@ proto_reg_handoff_ldap(void)
   dissector_add("udp.port", UDP_PORT_CLDAP, ldap_handle);
 
   gssapi_handle = find_dissector("gssapi");
+  gssapi_wrap_handle = find_dissector("gssapi_verf");
 }

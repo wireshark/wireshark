@@ -2,7 +2,7 @@
  * Routines for NTLM Secure Service Provider
  * Devin Heitmueller <dheitmueller@netilla.com>
  *
- * $Id: packet-ntlmssp.c,v 1.31 2002/11/10 09:38:22 guy Exp $
+ * $Id: packet-ntlmssp.c,v 1.32 2002/11/28 06:48:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -770,7 +770,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*
  * See page 45 of "DCE/RPC over SMB" by Luke Kenneth Casson Leighton.
  */
-static void
+static int
 dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   volatile int offset = 0;
@@ -814,6 +814,8 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } CATCH(ReportedBoundsError) {
     show_reported_bounds_error(tvb, pinfo, tree);
   } ENDTRY;
+
+  return offset;
 }
 
 static void
@@ -996,17 +998,19 @@ proto_register_ntlmssp(void)
   register_init_routine(&ntlmssp_init_protocol);
 
   register_dissector("ntlmssp", dissect_ntlmssp, proto_ntlmssp);
-  register_dissector("ntlmssp_verf", dissect_ntlmssp_verf, proto_ntlmssp);
+  new_register_dissector("ntlmssp_verf", dissect_ntlmssp_verf, proto_ntlmssp);
 }
 
 void
 proto_reg_handoff_ntlmssp(void)
 {     
-  dissector_handle_t ntlmssp_handle;
+  dissector_handle_t ntlmssp_handle, ntlmssp_wrap_handle;
 
   /* Register protocol with the GSS-API module */
 
   ntlmssp_handle = find_dissector("ntlmssp");
+  ntlmssp_wrap_handle = find_dissector("ntlmssp_verf");
   gssapi_init_oid("1.3.6.1.4.1.311.2.2.10", proto_ntlmssp, ett_ntlmssp, 
-		  ntlmssp_handle, "NTLMSSP - Microsoft NTLM Security Support Provider");
+		  ntlmssp_handle, ntlmssp_wrap_handle,
+		  "NTLMSSP - Microsoft NTLM Security Support Provider");
 }
