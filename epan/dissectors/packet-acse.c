@@ -1099,6 +1099,8 @@ show_disconnect_pdu(ASN1_SCK *asn,proto_tree *acse_tree,tvbuff_t
 							*offset = asn->offset;
 							return;
 			}
+			if( *offset == RELEASE_REQUEST_OR_RESPONSE_REASON )  /* is it a reason ? */
+			{
 			itu = proto_tree_add_text(acse_tree, tvb, *offset,ABORT_REASON_LEN,
 					"Reason");
 			acse_tree_pc = proto_item_add_subtree(itu, ett_acse_ms);
@@ -1120,6 +1122,7 @@ show_disconnect_pdu(ASN1_SCK *asn,proto_tree *acse_tree,tvbuff_t
 			item_len-=(asn->offset-*offset)+new_item_len;
 			*offset = asn->offset+new_item_len;
 			asn->offset = *offset;
+			}
 			/*  do we have User information field  ?  */
 			if(item_len > 0)
 			{
