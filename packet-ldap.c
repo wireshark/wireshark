@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.44 2002/08/21 02:18:34 tpot Exp $
+ * $Id: packet-ldap.c,v 1.45 2002/08/26 09:21:54 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -72,6 +72,9 @@ static int hf_ldap_message_bind_version = -1;
 static int hf_ldap_message_bind_dn = -1;
 static int hf_ldap_message_bind_auth = -1;
 static int hf_ldap_message_bind_auth_password = -1;
+static int hf_ldap_message_bind_auth_mechanism = -1;
+static int hf_ldap_message_bind_auth_credentials = -1;
+static int hf_ldap_message_bind_server_credentials = -1;
 
 static int hf_ldap_message_search_base = -1;
 static int hf_ldap_message_search_scope = -1;
@@ -99,6 +102,7 @@ static int hf_ldap_message_abandon_msgid = -1;
 
 static gint ett_ldap = -1;
 static gint ett_ldap_message = -1;
+static gint ett_ldap_gssapi_token = -1;
 static gint ett_ldap_referrals = -1;
 static gint ett_ldap_attribute = -1;
 
@@ -107,6 +111,8 @@ static gboolean ldap_desegment = TRUE;
 
 #define TCP_PORT_LDAP			389
 #define UDP_PORT_CLDAP			389
+
+static dissector_handle_t gssapi_handle;
 
 static value_string msgTypes [] = {
   {LDAP_REQ_BIND, "Bind Request"},
@@ -368,6 +374,69 @@ static int read_string(ASN1_SCK *a, proto_tree *tree, int hf_id,
   }
 
   return read_string_value(a, tree, hf_id, new_item, s, start, length);
+}
+
+static int read_bytestring_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
+	proto_item **new_item, char **s, int start, guint length)
+{
+  guchar *string;
+  proto_item *temp_item = NULL;
+  int ret;
+  
+  if (length)
+  {
+    ret = asn1_string_value_decode(a, length, &string);
+    if (ret != ASN1_ERR_NOERROR) {
+      if (tree) {
+        proto_tree_add_text(tree, a->tvb, start, 0,
+          "%s: ERROR: Couldn't parse value: %s",
+          proto_registrar_get_name(hf_id), asn1_err_to_str(ret));
+      }
+      return ret;
+    }
+    string = g_realloc(string, length + 1);
+    string[length] = '\0';
+  }
+  else
+    string = "(null)";
+    
+  if (tree)
+    temp_item = proto_tree_add_bytes(tree, hf_id, a->tvb, start, a->offset - start, string);
+  if (new_item)
+    *new_item = temp_item;
+
+  if (s && length)
+    *s = string;
+  else if (length)
+    g_free(string);
+
+  return ASN1_ERR_NOERROR;
+}
+
+static int read_bytestring(ASN1_SCK *a, proto_tree *tree, int hf_id,
+	proto_item **new_item, char **s, guint expected_cls, guint expected_tag)
+{
+  guint cls, con, tag;
+  gboolean def;
+  guint length;
+  int start = a->offset;
+  int ret;
+  
+  ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
+  if (ret == ASN1_ERR_NOERROR) {
+    if (cls != expected_cls || con != ASN1_PRI || tag != expected_tag)
+      ret = ASN1_ERR_WRONG_TYPE;
+  }
+  if (ret != ASN1_ERR_NOERROR) {
+    if (tree) {
+      proto_tree_add_text(tree, a->tvb, start, 0,
+        "%s: ERROR: Couldn't parse header: %s",
+        proto_registrar_get_name(hf_id), asn1_err_to_str(ret));
+    }
+    return ret;
+  }
+
+  return read_bytestring_value(a, tree, hf_id, new_item, s, start, length);
 }
 
 static int parse_filter_strings(ASN1_SCK *a, char **filter, guint *filter_length, const guchar *operation)
@@ -723,12 +792,21 @@ static void dissect_ldap_result(ASN1_SCK *a, proto_tree *tree)
   }
 }
 
-static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree)
+static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree,
+    tvbuff_t *tvb, packet_info *pinfo)
 {
   guint cls, con, tag;
-  guint def, length;
+  gboolean def;
+  guint length;
   int start;
+  int end;
   int ret;
+  char *mechanism;
+  int token_offset;
+  gint available_length, reported_length;
+  tvbuff_t *new_tvb;
+  proto_item *gitem;
+  proto_tree *gtree = NULL;
 
   if (read_integer(a, tree, hf_ldap_message_bind_version, 0, 0, ASN1_INT) != ASN1_ERR_NOERROR)
     return;
@@ -752,6 +830,7 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree)
   }
   proto_tree_add_uint(tree, hf_ldap_message_bind_auth, a->tvb, start,
 			a->offset - start, tag);
+  end = a->offset + length;
   switch (tag)
   {
    case LDAP_AUTH_SIMPLE:
@@ -761,14 +840,67 @@ static void dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree)
     break;
 
     /* For Kerberos V4, dissect it as a ticket. */
-    /* For SASL, dissect it as SaslCredentials. */
+
+   case LDAP_AUTH_SASL:
+    if (read_string(a, tree, hf_ldap_message_bind_auth_mechanism, NULL,
+                    &mechanism, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+      return;
+    if (a->offset < end) {
+      if (strcmp(mechanism, "GSS-SPNEGO") == 0) {
+        /*
+         * This is a GSS-API token.
+         * Find out how big it is by parsing the ASN.1 header for the
+         * OCTET STREAM that contains it.
+         */
+        token_offset = a->offset;
+        ret = asn1_header_decode(a, &cls, &con, &tag, &def, &length);
+        if (ret != ASN1_ERR_NOERROR) {
+          proto_tree_add_text(tree, a->tvb, token_offset, 0,
+            "%s: ERROR: Couldn't parse header: %s",
+            proto_registrar_get_name(hf_ldap_message_bind_auth_credentials),
+            asn1_err_to_str(ret));
+          return;
+        }
+        if (tree) {
+          gitem = proto_tree_add_text(tree, tvb, token_offset,
+            (a->offset + length) - token_offset, "GSS-API Token");
+          gtree = proto_item_add_subtree(gitem, ett_ldap_gssapi_token);
+        }
+        available_length = tvb_length_remaining(tvb, token_offset);
+        reported_length = tvb_reported_length_remaining(tvb, token_offset);
+        g_assert(available_length >= 0);
+        g_assert(reported_length >= 0);
+        if (available_length > reported_length)
+          available_length = reported_length;
+        if ((guint)available_length > length)
+          available_length = length;
+        if ((guint)reported_length > length)
+          reported_length = length;
+        new_tvb = tvb_new_subset(tvb, a->offset, available_length, reported_length);
+        call_dissector(gssapi_handle, new_tvb, pinfo, gtree);
+        a->offset += length;
+      } else {
+        if (read_bytestring(a, tree, hf_ldap_message_bind_auth_credentials,
+                            NULL, NULL, ASN1_UNI, ASN1_OTS) != ASN1_ERR_NOERROR)
+          return;
+      }
+    }
+    break;
   }
 }
 
-static void dissect_ldap_response_bind(ASN1_SCK *a, proto_tree *tree)
+static void dissect_ldap_response_bind(ASN1_SCK *a, proto_tree *tree,
+		int start, guint length)
 {
-  /* FIXME: handle SASL data */
+  int end;
+
+  end = start + length;
   dissect_ldap_result(a, tree);
+  if (a->offset < end) {
+    if (read_bytestring(a, tree, hf_ldap_message_bind_server_credentials,
+                        NULL, NULL, ASN1_CTX, 7) != ASN1_ERR_NOERROR)
+      return;
+  }
 }
 
 static void dissect_ldap_request_search(ASN1_SCK *a, proto_tree *tree)
@@ -1248,7 +1380,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         switch (protocolOpTag)
         {
          case LDAP_REQ_BIND:
-          dissect_ldap_request_bind(&a, msg_tree);
+          dissect_ldap_request_bind(&a, msg_tree, tvb, pinfo);
           break;
          case LDAP_REQ_UNBIND:
           /* Nothing to dissect */
@@ -1275,7 +1407,7 @@ dissect_ldap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           dissect_ldap_request_abandon(&a, msg_tree, start, opLen);
           break;
          case LDAP_RES_BIND:
-          dissect_ldap_response_bind(&a, msg_tree);
+          dissect_ldap_response_bind(&a, msg_tree, start, opLen);
           break;
          case LDAP_RES_SEARCH_ENTRY:
           dissect_ldap_response_search_entry(&a, msg_tree);
@@ -1425,6 +1557,18 @@ proto_register_ldap(void)
       { "Password",		"ldap.bind.password",
 	FT_STRING, BASE_NONE, NULL, 0x0,
 	"LDAP Bind Password", HFILL }},
+    { &hf_ldap_message_bind_auth_mechanism,
+      { "Mechanism",		"ldap.bind.mechanism",
+	FT_STRING, BASE_NONE, NULL, 0x0,
+	"LDAP Bind Mechanism", HFILL }},
+    { &hf_ldap_message_bind_auth_credentials,
+      { "Credentials",		"ldap.bind.credentials",
+	FT_BYTES, BASE_NONE, NULL, 0x0,
+	"LDAP Bind Credentials", HFILL }},
+    { &hf_ldap_message_bind_server_credentials,
+      { "Server Credentials",	"ldap.bind.server_credentials",
+	FT_BYTES, BASE_NONE, NULL, 0x0,
+	"LDAP Bind Server Credentials", HFILL }},
 
     { &hf_ldap_message_search_base,
       { "Base DN",		"ldap.search.basedn",
@@ -1519,6 +1663,7 @@ proto_register_ldap(void)
   static gint *ett[] = {
     &ett_ldap,
     &ett_ldap_message,
+    &ett_ldap_gssapi_token,
     &ett_ldap_referrals,
     &ett_ldap_attribute
   };
@@ -1544,4 +1689,6 @@ proto_reg_handoff_ldap(void)
   ldap_handle = create_dissector_handle(dissect_ldap, proto_ldap);
   dissector_add("tcp.port", TCP_PORT_LDAP, ldap_handle);
   dissector_add("udp.port", UDP_PORT_CLDAP, ldap_handle);
+
+  gssapi_handle = find_dissector("gssapi");
 }
