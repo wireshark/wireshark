@@ -1,7 +1,7 @@
 /* capture_dlg.c
  * Routines for packet capture windows
  *
- * $Id: capture_dlg.c,v 1.25 2000/05/08 07:13:39 guy Exp $
+ * $Id: capture_dlg.c,v 1.26 2000/06/15 08:02:42 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -246,18 +246,12 @@ capture_prep_cb(GtkWidget *w, gpointer d)
   sync_cb = dlg_check_button_new_with_label_with_mnemonic(
 		"_Update list of packets in real time", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(sync_cb), sync_mode);
-#ifdef _WIN32
-  gtk_widget_set_sensitive(sync_cb, FALSE);
-#endif
   gtk_container_add(GTK_CONTAINER(main_vb), sync_cb);
   gtk_widget_show(sync_cb);
 
   auto_scroll_cb = dlg_check_button_new_with_label_with_mnemonic(
 		"_Automatic scrolling in live capture", accel_group);
   gtk_toggle_button_set_state(GTK_TOGGLE_BUTTON(auto_scroll_cb), auto_scroll_live);
-#ifdef _WIN32
-  gtk_widget_set_sensitive(auto_scroll_cb, FALSE);
-#endif
   gtk_container_add(GTK_CONTAINER(main_vb), auto_scroll_cb);
   gtk_widget_show(auto_scroll_cb);
 

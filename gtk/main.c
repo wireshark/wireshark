@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.120 2000/06/05 03:09:21 gram Exp $
+ * $Id: main.c,v 1.121 2000/06/15 08:02:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -1299,7 +1299,7 @@ main(int argc, char *argv[])
    );
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "b:B:c:Df:hi:km:nP:Qr:R:Ss:t:T:w:W:v")) != EOF) {
+  while ((opt = getopt(argc, argv, "b:B:c:Df:hi:km:nP:Qr:R:Ss:t:T:w:W:vZ:")) != EOF) {
     switch (opt) {
       case 'b':	       /* Bold font */
 	bold_font = g_strdup(optarg);
@@ -1429,6 +1429,23 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
 	break;
+
+#ifdef _WIN32
+      case 'Z':        /* Write to pipe FD XXX */
+#ifdef HAVE_LIBPCAP
+        /* associate stdout with pipe */
+        i = atoi(optarg);
+        if (dup2(i, 1) < 0) {
+          fprintf(stderr, "Unable to dup pipe handle\n");
+          exit(1);
+        }
+#else
+        capture_option_specified = TRUE;
+        arg_error = TRUE;
+#endif /* HAVE_LIBPCAP */
+        break;
+#endif /* _WIN32 */
+
       default:
       case '?':        /* Bad flag - print usage message */
         arg_error = TRUE;

@@ -299,6 +299,8 @@ Graham Bloice <graham.bloice@trihedral.com> {
 	    add version/copyright/etc. information to Win32 executables
 	Support for sorting columns in the summary by clicking on them
 	Win32 Makefile improvements
+	Support for "Update list of packets in real time" during capture
+	on Win32
 }
 
 Ralf Schneider <ralf.schneider@alcatel.se> {

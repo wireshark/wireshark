@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.107 2000/06/15 04:22:58 guy Exp $
+ * $Id: capture.c,v 1.108 2000/06/15 08:02:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -86,6 +86,10 @@
 #include <pcap.h>
 #endif
 
+#ifdef _WIN32
+#include <process.h>    /* For spawning child process */
+#endif
+
 #include "gtk/main.h"
 #include "gtk/gtkglobals.h"
 #include "packet.h"
@@ -106,9 +110,15 @@
 
 int sync_mode;	/* fork a child to do the capture, and sync between them */
 static int sync_pipe[2]; /* used to sync father */
+enum PIPES { READ, WRITE }; /* Constants 0 and 1 for READ and WRITE */
 int quit_after_cap; /* Makes a "capture only mode". Implies -k */
 gboolean capture_child;	/* if this is the child for "-S" */
 static guint cap_input_id;
+
+#ifdef _WIN32
+static guint cap_timer_id;
+static int cap_timer_cb(gpointer); /* Win32 kludge to check for pipe input */
+#endif
 
 static void cap_file_input_cb(gpointer, gint, GdkInputCondition);
 static void capture_delete_cb(GtkWidget *, GdkEvent *, gpointer);
@@ -130,6 +140,11 @@ typedef struct _loop_data {
 /* Win32 needs the O_BINARY flag for open() */
 #ifndef O_BINARY
 #define O_BINARY	0
+#endif
+
+#ifdef _WIN32
+/* Win32 needs a handle to the child capture process */
+int child_process;
 #endif
 
 /* Open a specified file, or create a temporary file, and start a capture
@@ -167,17 +182,53 @@ do_capture(char *capfile_name)
   cf.save_file = capfile_name;
 
   if (sync_mode) {	/* do the capture in a child process */
-#ifndef _WIN32
     int  fork_child;
     char ssnap[24];
     char scount[24];	/* need a constant for len of numbers */
     char save_file_fd[24];
     char errmsg[1024+1];
     int error;
+#ifdef _WIN32
+    char sync_pipe_fd[24];
+    char *filterstring;
+#endif
 
     sprintf(ssnap,"%d",cf.snap); /* in lieu of itoa */
     sprintf(scount,"%d",cf.count);
     sprintf(save_file_fd,"%d",cf.save_file_fd);
+
+#ifdef _WIN32
+    /* Create a pipe for the child process */
+
+    if(_pipe(sync_pipe, 512, O_BINARY) < 0) {
+      /* Couldn't create the pipe between parent and child. */
+      error = errno;
+      unlink(cf.save_file);
+      g_free(cf.save_file);
+      cf.save_file = NULL;
+      simple_dialog(ESD_TYPE_WARN, NULL, "Couldn't create sync pipe: %s",
+                        strerror(error));
+      return;
+    }
+
+    /* Convert pipe write handle to a string and pass to child */
+    itoa(sync_pipe[WRITE], sync_pipe_fd, 10);
+    /* Convert filter string to a quote delimited string */
+    filterstring = g_new(char, strlen(cf.cfilter) + 3);
+    sprintf(filterstring, "\"%s\"", cf.cfilter);
+    filterstring[strlen(cf.cfilter) + 2] = 0;
+    /* Spawn process */
+    fork_child = spawnlp(_P_NOWAIT, ethereal_path, CHILD_NAME, "-i", cf.iface,
+                         "-w", cf.save_file, "-W", save_file_fd,
+                         "-c", scount, "-s", ssnap,
+                         "-Z", sync_pipe_fd,
+                         strlen(cf.cfilter) == 0 ? (const char *)NULL : "-f",
+                         strlen(cf.cfilter) == 0 ? (const char *)NULL : filterstring,
+                         (const char *)NULL);
+    g_free(filterstring);
+    /* Keep a copy for later evaluation by _cwait() */
+    child_process = fork_child;
+#else
     signal(SIGCHLD, SIG_IGN);
     if (pipe(sync_pipe) < 0) {
       /* Couldn't create the pipe between parent and child. */
@@ -204,8 +255,8 @@ do_capture(char *capfile_name)
        * -f "filter expression"
        */
       close(1);
-      dup(sync_pipe[1]);
-      close(sync_pipe[0]);
+      dup(sync_pipe[WRITE]);
+      close(sync_pipe[READ]);
       execlp(ethereal_path, CHILD_NAME, "-i", cf.iface,
 		"-w", cf.save_file, "-W", save_file_fd,
 		"-c", scount, "-s", ssnap, 
@@ -223,6 +274,7 @@ do_capture(char *capfile_name)
 	 our parent). */
       _exit(2);
     }
+#endif
 
     /* Parent process - read messages from the child process over the
        sync pipe. */
@@ -231,7 +283,7 @@ do_capture(char *capfile_name)
        open, and thus it completely closes, and thus returns to us
        an EOF indication, if the child closes it (either deliberately
        or by exiting abnormally). */
-    close(sync_pipe[1]);
+    close(sync_pipe[WRITE]);
 
     /* Close the save file FD, as we won't be using it - we'll be opening
        it and reading the save file through Wiretap. */
@@ -240,7 +292,7 @@ do_capture(char *capfile_name)
     if (fork_child == -1) {
       /* We couldn't even create the child process. */
       error = errno;
-      close(sync_pipe[0]);
+      close(sync_pipe[READ]);
       unlink(cf.save_file);
       g_free(cf.save_file);
       cf.save_file = NULL;
@@ -249,20 +301,20 @@ do_capture(char *capfile_name)
       return;
     }
 
-    /* Read a byte count from "sync_pipe[0]", terminated with a
+    /* Read a byte count from "sync_pipe[READ]", terminated with a
        colon; if the count is 0, the child process created the
        capture file and we should start reading from it, otherwise
        the capture couldn't start and the count is a count of bytes
        of error message, and we should display the message. */
     byte_count = 0;
     for (;;) {
-      i = read(sync_pipe[0], &c, 1);
+      i = read(sync_pipe[READ], &c, 1);
       if (i == 0) {
 	/* EOF - the child process died.
 	   Close the read side of the sync pipe, remove the capture file,
 	   and report the failure.
 	   XXX - reap the child process and report the status in detail. */
-	close(sync_pipe[0]);
+	close(sync_pipe[READ]);
 	unlink(cf.save_file);
 	g_free(cf.save_file);
 	cf.save_file = NULL;
@@ -275,7 +327,7 @@ do_capture(char *capfile_name)
 	/* Child process handed us crap.
 	   Close the read side of the sync pipe, remove the capture file,
 	   and report the failure. */
-	close(sync_pipe[0]);
+	close(sync_pipe[READ]);
 	unlink(cf.save_file);
 	g_free(cf.save_file);
 	cf.save_file = NULL;
@@ -293,12 +345,21 @@ do_capture(char *capfile_name)
 	   arrange that our callback be called whenever it's possible
 	   to read from the sync pipe, so that it's called when
 	   the child process wants to tell us something. */
-	cap_input_id = gtk_input_add_full(sync_pipe[0],
+#ifdef _WIN32
+	/* Tricky to use pipes in win9x, as no concept of wait.  NT can
+	   do this but that doesn't cover all win32 platforms.  GTK can do
+	   this but doesn't seem to work over processes.  Attempt to do
+	   something similar here, start a timer and check for data on every
+	   timeout. */
+	cap_timer_id = gtk_timeout_add(1000, cap_timer_cb, NULL);
+#else
+	cap_input_id = gtk_input_add_full(sync_pipe[READ],
 				       GDK_INPUT_READ|GDK_INPUT_EXCEPTION,
 				       cap_file_input_cb,
 				       NULL,
 				       (gpointer) &cf,
 				       NULL);
+#endif
       } else {
 	/* We weren't able to open the capture file; complain, and
 	   close the sync pipe. */
@@ -306,7 +367,7 @@ do_capture(char *capfile_name)
 			file_open_error_message(err, FALSE), cf.save_file);
 
 	/* Close the sync pipe. */
-	close(sync_pipe[0]);
+	close(sync_pipe[READ]);
 
 	/* Don't unlink the save file - leave it around, for debugging
 	   purposes. */
@@ -321,7 +382,7 @@ do_capture(char *capfile_name)
 	simple_dialog(ESD_TYPE_WARN, NULL,
 		"Capture child process failed, but its error message was too big.");
       } else {
-	i = read(sync_pipe[0], msg, byte_count);
+	i = read(sync_pipe[READ], msg, byte_count);
 	if (i < 0) {
 	  simple_dialog(ESD_TYPE_WARN, NULL,
 		  "Capture child process failed: Error %s reading its error message.",
@@ -334,7 +395,7 @@ do_capture(char *capfile_name)
 	g_free(msg);
 
 	/* Close the sync pipe. */
-	close(sync_pipe[0]);
+	close(sync_pipe[READ]);
 
 	/* Get rid of the save file - the capture never started. */
 	unlink(cf.save_file);
@@ -342,7 +403,6 @@ do_capture(char *capfile_name)
 	cf.save_file = NULL;
       }
     }
-#endif
   } else {
     /* Not sync mode. */
     capture_succeeded = capture();
@@ -365,7 +425,46 @@ do_capture(char *capfile_name)
   }
 }
 
-#ifndef _WIN32
+#ifdef _WIN32
+/* The timer has expired, see if there's stuff to read from the pipe,
+   if so call the cap_file_input_cb */
+static gint
+cap_timer_cb(gpointer data)
+{
+  HANDLE handle;
+  DWORD avail = 0;
+  gboolean result, result1;
+  DWORD childstatus;
+
+  /* Oddly enough although Named pipes don't work on win9x,
+     PeekNamedPipe does !!! */
+  handle = (HANDLE) _get_osfhandle (sync_pipe[READ]);
+  result = PeekNamedPipe(handle, NULL, 0, NULL, &avail, NULL);
+
+  /* Get the child process exit status */
+  result1 = GetExitCodeProcess((HANDLE)child_process, &childstatus);
+
+  /* If the Peek returned an error, or there are bytes to be read
+     or the childwatcher thread has terminated then call the normal
+     callback */
+  if (!result || avail > 0 || childstatus != STILL_ACTIVE) {
+
+    /* avoid reentrancy problems and stack overflow */
+    gtk_timeout_remove(cap_timer_id);
+
+    /* And call the real handler */
+    cap_file_input_cb((gpointer) &cf, 0, 0);
+
+    /* Return false so that the timer is not run again */
+    return FALSE;
+  }
+  else {
+    /* No data so let timer run again */
+    return TRUE;
+  }
+}
+#endif
+
 /* There's stuff to read from the sync pipe, meaning the child has sent
    us a message, or the sync pipe has closed, meaning the child has
    closed it (perhaps because it exited). */
@@ -385,13 +484,22 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
   char sigmsg_buf[6+1+3+1];
   char *coredumped;
 
+#ifndef _WIN32
   /* avoid reentrancy problems and stack overflow */
   gtk_input_remove(cap_input_id);
+#endif
 
-  if ((nread = read(sync_pipe[0], buffer, 256)) <= 0) {
+  if ((nread = read(sync_pipe[READ], buffer, 256)) <= 0) {
     /* The child has closed the sync pipe, meaning it's not going to be
        capturing any more packets.  Pick up its exit status, and
        complain if it died of a signal. */
+#ifdef _WIN32
+    /* XXX - analyze the wait stuatus and display more information
+       in the dialog box? */
+    if (_cwait(&wstatus, child_process, _WAIT_CHILD) == -1) {
+      simple_dialog(ESD_TYPE_WARN, NULL, "Child capture process stopped unexpectedly");
+    }
+#else
     if (wait(&wstatus) != -1) {
       /* XXX - are there any platforms on which we can run that *don't*
          support POSIX.1's <sys/wait.h> and macros therein? */
@@ -489,6 +597,7 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
 		"Child capture process %s: %s%s", msg, sigmsg, coredumped);
       }
     }
+#endif
       
     /* Read what remains of the capture file, and finish the capture.
        XXX - do something if this fails? */
@@ -528,14 +637,17 @@ cap_file_input_cb(gpointer data, gint source, GdkInputCondition condition)
   err = continue_tail_cap_file(cf, to_read);
 
   /* restore pipe handler */
-  cap_input_id = gtk_input_add_full (sync_pipe[0],
+#ifdef _WIN32
+  cap_timer_id = gtk_timeout_add(1000, cap_timer_cb, NULL);
+#else
+  cap_input_id = gtk_input_add_full (sync_pipe[READ],
 				     GDK_INPUT_READ|GDK_INPUT_EXCEPTION,
 				     cap_file_input_cb,
 				     NULL,
 				     (gpointer) cf,
 				     NULL);
+#endif
 }
-#endif /* _WIN32 */
 
 /*
  * Timeout, in milliseconds, for reads from the stream of captured packets.
