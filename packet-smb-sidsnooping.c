@@ -2,7 +2,7 @@
  * Routines for snooping SID to name mappings
  * Copyright 2003, Ronnie Sahlberg
  *
- * $Id: packet-smb-sidsnooping.c,v 1.11 2004/05/07 12:29:03 tpot Exp $
+ * $Id: packet-smb-sidsnooping.c,v 1.12 2004/06/04 00:05:56 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,7 +43,7 @@ static int hf_lsa = -1;
 static int hf_lsa_info_level = -1;
 static int hf_lsa_opnum = -1;
 static int hf_lsa_domain = -1;
-static int hf_lsa_domain_sid = -1;
+static int hf_nt_domain_sid = -1;
 static int hf_samr_hnd = -1;
 static int hf_samr_rid = -1;
 static int hf_samr_acct_name = -1;
@@ -250,7 +250,7 @@ lsa_policy_information(void *dummy _U_, packet_info *pinfo _U_, epan_dissect_t *
 		fi=gp->pdata[0];
 		domain=fi->value.value.string;
 
-		gp=proto_get_finfo_ptr_array(edt->tree, hf_lsa_domain_sid);
+		gp=proto_get_finfo_ptr_array(edt->tree, hf_nt_domain_sid);
 		if(!gp || gp->len!=1){
 			return 0;
 		}
@@ -384,9 +384,9 @@ sid_snooping_init(void)
 		hf_lsa_opnum=hfi->id;
 	}
 
-	hfi=proto_registrar_get_byname("lsa.domain_sid");
+	hfi=proto_registrar_get_byname("nt.domain_sid");
 	if(hfi){
-		hf_lsa_domain_sid=hfi->id;
+		hf_nt_domain_sid=hfi->id;
 	}
 
 	hfi=proto_registrar_get_byname("lsa.domain");
@@ -418,7 +418,7 @@ sid_snooping_init(void)
 
 
 
-	error_string=register_tap_listener("dcerpc", lsa_policy_information, "lsa.policy_information and ( lsa.info.level or lsa.domain or lsa.domain_sid )", NULL, lsa_policy_information, NULL);
+	error_string=register_tap_listener("dcerpc", lsa_policy_information, "lsa.policy_information and ( lsa.info.level or lsa.domain or nt.domain_sid )", NULL, lsa_policy_information, NULL);
 	if(error_string){
 		/* error, we failed to attach to the tap. clean up */
 
