@@ -145,10 +145,10 @@ static dissector_handle_t ntlmssp_handle;
 #define T_DNAME         39              /* Non-terminal DNS name redirection (RFC 2672) */
 #define T_OPT		41		/* OPT pseudo-RR (RFC 2671) */
 #define T_DS            43		/* Delegation Signature(RFC 3658) */
+#define T_IPSECKEY      45              /* draft-ietf-ipseckey-rr */
 #define T_RRSIG         46              /* future RFC 2535bis */
 #define T_NSEC          47              /* future RFC 2535bis */
 #define T_DNSKEY        48              /* future RFC 2535bis */
-#define T_IPSECKEY      49              /* still TBD draft-ietf-ipseckey-rr */
 #define T_TKEY		249		/* Transaction Key (RFC 2930) */
 #define T_TSIG		250		/* Transaction Signature (RFC 2845) */
 #define T_WINS		65281		/* Microsoft's WINS RR */
@@ -344,11 +344,10 @@ dns_type_name (guint type)
     NULL,
     "DS",				/* RFC 3658 */
     NULL,
-    NULL,
+    "IPSECKEY",                         /* draft-ietf-ipseckey-rr */
     "RRSIG",                            /* future RFC 2535bis */
     "NSEC",                             /* future RFC 2535bis */
-    "DNSKEY",                           /* future RFC 2535bis */
-    "IPSECKEY"                          /* draft-ietf-ipseckey-rr */
+    "DNSKEY"                            /* future RFC 2535bis */
   };
 
   if (type < sizeof(type_names)/sizeof(type_names[0]))
@@ -444,11 +443,10 @@ dns_long_type_name (guint type)
     NULL,
     "Delegation Signer",                /* RFC 3658 */
     NULL,
-    NULL,
+    "key to use with IPSEC",            /* draft-ietf-ipseckey-rr */
     "RR signature",                     /* future RFC 2535bis */
     "Next secured",                     /* future RFC 2535bis */
-    "DNS public key",                   /* future RFC 2535bis */
-    "key to use with IPSEC"             /* draft-ietf-ipseckey-rr */
+    "DNS public key"                    /* future RFC 2535bis */
   };
   static char unkbuf[7+1+2+1+4+1+1+10+1+1];	/* "Unknown RR type (%u)" */
 
