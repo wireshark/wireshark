@@ -261,6 +261,7 @@ Fred Reimer <fwr@ga.prestige.net> {
 
 Florian Lohoff <flo@rfc822.org> {
 	Various enhancements to RADIUS support
+	Fixes to L2TP result and error code dissection
 }
 
 Jochen Friedrich <jochen+ethereal@scram.de> {

@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.5 2000/03/14 06:03:23 guy Exp $
+ * $Id: packet-l2tp.c,v 1.6 2000/03/22 23:49:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -253,7 +253,8 @@ void dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   unsigned short avp_type;
   unsigned short msg_type;
   unsigned short avp_len;
-  unsigned short error_type;
+  unsigned short result_code;
+  unsigned short error_code;
   unsigned short avp_ver;
   unsigned short avp_rev;
   unsigned short framing;
@@ -395,20 +396,25 @@ void dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
                             break;
 
 			case RESULT_ERROR_CODE:
-				if ( avp_len >= 10 ) {
-					memcpy(&error_type,(tmp_ptr+=2),sizeof(unsigned short));
-					error_type=htons(error_type);
+				if ( avp_len >= 8 ) {
+					memcpy(&result_code,(tmp_ptr+=2),sizeof(unsigned short));
+					result_code=htons(result_code);
 					proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
 					  2, rhcode,
-					  " Error Type: %d",  error_type  );
+					  " Result code: %d",  result_code  );
 			
 				}
-
+				if ( avp_len >= 10 ) {
+					memcpy(&error_code,(tmp_ptr+=2),sizeof(unsigned short));
+					error_code=htons(error_code);
+					proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 8,
+					  2, rhcode,
+					  " Error code: %d", error_code);
+				}
 				if ( avp_len > 10 ) {
 					memset(error_string,'\0' ,sizeof(error_string));
-					tmp_ptr+=4;
 					strncpy(error_string,(tmp_ptr),(avp_len - 10));
-					proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 9, (avp_len - 10),
+					proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 10, (avp_len - 10),
 					  rhcode, " Error Message: %s",  error_string  );
 				}
 				break;
