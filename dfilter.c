@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.26 1999/10/11 06:39:05 guy Exp $
+ * $Id: dfilter.c,v 1.27 1999/10/11 14:58:00 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -87,10 +87,10 @@ YYSTYPE yylval;
 gchar dfilter_error_msg_buf[1024];
 gchar *dfilter_error_msg;	/* NULL when no error resulted */
 
-static gboolean dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8 *pd);
-static gboolean check_relation(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 *pd);
-static gboolean check_logical(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 *pd);
-static GArray* get_values_from_ptree(dfilter_node *dnode, proto_tree *ptree, const guint8 *pd);
+static gboolean dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8 *pd, guint len);
+static gboolean check_relation(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 *pd, guint len);
+static gboolean check_logical(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 *pd, guint len);
+static GArray* get_values_from_ptree(dfilter_node *dnode, proto_tree *ptree, const guint8 *pd, guint len);
 static GArray* get_values_from_dfilter(dfilter_node *dnode, GNode *gnode);
 static gboolean check_existence_in_ptree(dfilter_node *dnode, proto_tree *ptree);
 static void clear_byte_array(gpointer data, gpointer user_data);
@@ -293,17 +293,17 @@ g_strcmp(gconstpointer a, gconstpointer b)
 
 
 gboolean
-dfilter_apply(dfilter *dfcode, proto_tree *ptree, const guint8* pd)
+dfilter_apply(dfilter *dfcode, proto_tree *ptree, const guint8* pd, guint len)
 {
 	gboolean retval;
 	if (dfcode == NULL)
 		return FALSE;
-	retval = dfilter_apply_node(dfcode->dftree, ptree, pd);
+	retval = dfilter_apply_node(dfcode->dftree, ptree, pd, len);
 	return retval;
 }
 
 static gboolean
-dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8* pd)
+dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8* pd, guint len)
 {
 	GNode		*gnode_a, *gnode_b;
 	dfilter_node	*dnode = (dfilter_node*) (gnode->data);
@@ -321,11 +321,11 @@ dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8* pd)
 
 	case logical:
 		g_assert(gnode_a);
-		return check_logical(dnode->value.logical, gnode_a, gnode_b, ptree, pd);
+		return check_logical(dnode->value.logical, gnode_a, gnode_b, ptree, pd, len);
 
 	case relation:
 		g_assert(gnode_a && gnode_b);
-		return check_relation(dnode->value.relation, gnode_a, gnode_b, ptree, pd);
+		return check_relation(dnode->value.relation, gnode_a, gnode_b, ptree, pd, len);
 
 	case alternation:
 		g_assert_not_reached();
@@ -355,21 +355,21 @@ dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8* pd)
 }
 
 static gboolean
-check_logical(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 *pd)
+check_logical(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 *pd, guint len)
 {
-	gboolean val_a = dfilter_apply_node(a, ptree, pd);
+	gboolean val_a = dfilter_apply_node(a, ptree, pd, len);
 	gboolean val_b;
 
 	switch(operand) {
 	case TOK_AND:
 		g_assert(b);
-		return (val_a && dfilter_apply_node(b, ptree, pd));
+		return (val_a && dfilter_apply_node(b, ptree, pd, len));
 	case TOK_OR:
 		g_assert(b);
-		return (val_a || dfilter_apply_node(b, ptree, pd));
+		return (val_a || dfilter_apply_node(b, ptree, pd, len));
 	case TOK_XOR:
 		g_assert(b);
-		val_b = dfilter_apply_node(b, ptree, pd);
+		val_b = dfilter_apply_node(b, ptree, pd, len);
 		return ( ( val_a || val_b ) && ! ( val_a && val_b ) );
 	case TOK_NOT:
 		return (!val_a);
@@ -387,7 +387,7 @@ check_logical(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 
  * faster.
  */
 static gboolean
-check_relation(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8* pd)
+check_relation(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8* pd, guint len)
 {
 	dfilter_node	*node_a = (dfilter_node*) (a->data);
 	dfilter_node	*node_b = (dfilter_node*) (b->data);
@@ -398,12 +398,12 @@ check_relation(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8
 	bytes_length = MIN(node_a->length, node_b->length);
 	bytes_offset = MIN(node_a->offset, node_b->offset);
 	if (node_a->ntype == variable)
-		vals_a = get_values_from_ptree(node_a, ptree, pd);
+		vals_a = get_values_from_ptree(node_a, ptree, pd, len);
 	else
 		vals_a = get_values_from_dfilter(node_a, a);
 
 	if (node_b->ntype == variable)
-		vals_b = get_values_from_ptree(node_b, ptree, pd);
+		vals_b = get_values_from_ptree(node_b, ptree, pd, len);
 	else
 		vals_b = get_values_from_dfilter(node_b, b);
 
@@ -425,7 +425,7 @@ check_existence_in_ptree(dfilter_node *dnode, proto_tree *ptree)
 }
 
 static GArray*
-get_values_from_ptree(dfilter_node *dnode, proto_tree *ptree, const guint8 *pd)
+get_values_from_ptree(dfilter_node *dnode, proto_tree *ptree, const guint8 *pd, guint len)
 {
 	GArray		*array;
 	int		parent_protocol;
@@ -437,6 +437,7 @@ get_values_from_ptree(dfilter_node *dnode, proto_tree *ptree, const guint8 *pd)
 	sinfo.target = dnode->value.variable;
 	sinfo.result.array = array;
 	sinfo.packet_data = pd;
+	sinfo.packet_len = len;
 	sinfo.traverse_func = dnode->fill_array_func;
 
 	/* Find the proto_tree subtree where we should start searching.*/
@@ -497,12 +498,14 @@ gboolean fill_array_bytes_variable(GNode *gnode, gpointer data)
 	proto_tree_search_info	*sinfo = (proto_tree_search_info*)data;
 	field_info		*fi = (field_info*) (gnode->data);
 	GByteArray		*barray;
+	guint			start_of_data = fi->start + bytes_offset;
 
 	if (fi->hfinfo->id == sinfo->target) {
-		barray = g_byte_array_new();
-		/*list_of_byte_arrays = g_slist_append(list_of_byte_arrays, barray);*/
-		g_byte_array_append(barray, sinfo->packet_data + fi->start + bytes_offset, bytes_length);
-		g_array_append_val(sinfo->result.array, barray);
+		if (sinfo->packet_len >= start_of_data + bytes_length) {
+			barray = g_byte_array_new();
+			g_byte_array_append(barray, sinfo->packet_data + start_of_data, bytes_length);
+			g_array_append_val(sinfo->result.array, barray);
+		}
 	}
 
 	return FALSE; /* FALSE = do not end traversal of GNode tree */

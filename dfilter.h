@@ -1,7 +1,7 @@
 /* dfilter.h
  * Definitions for display filters
  *
- * $Id: dfilter.h,v 1.11 1999/10/11 06:39:04 guy Exp $
+ * $Id: dfilter.h,v 1.12 1999/10/11 14:58:01 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,6 +61,6 @@ void dfilter_destroy(dfilter *df);
 dfilter* dfilter_compile(gchar* dfilter_text);
 
 /* Apply compiled dfilter to a proto_tree */
-gboolean dfilter_apply(dfilter *df, proto_tree *ptree, const guint8* pd);
+gboolean dfilter_apply(dfilter *df, proto_tree *ptree, const guint8* pd, guint len);
 
 #endif /* ! __DFILTER_H__ */

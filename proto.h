@@ -1,7 +1,7 @@
 /* proto.h
  * Definitions for protocol display
  *
- * $Id: proto.h,v 1.13 1999/09/18 15:44:40 deniel Exp $
+ * $Id: proto.h,v 1.14 1999/10/11 14:58:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -119,6 +119,7 @@ typedef struct proto_tree_search_info {
 	int			target;
 	int			parent;
 	const guint8		*packet_data;
+	guint			packet_len;
 	GNodeTraverseFunc	traverse_func;
 	union {
 		GArray			*array;
