@@ -2,7 +2,7 @@
  * Routines for mgcp packet disassembly
  * RFC 2705
  *
- * $Id: packet-mgcp.c,v 1.19 2001/03/15 19:46:35 oabad Exp $
+ * $Id: packet-mgcp.c,v 1.20 2001/03/22 06:12:03 guy Exp $
  * 
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
@@ -182,8 +182,6 @@ static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint len,
 			       gint* next_offset); 
 static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset, 
 			      gint len, gint* next_offset);
-static gint tvb_section_length(tvbuff_t* tvb, gint tvb_sectionbegin, 
-			       gint tvb_sectionend);
 static gboolean is_rfc2234_alpha(guint8 c);
 
 static dissector_handle_t sdp_handle;
@@ -1242,17 +1240,6 @@ static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset,
   }
   return tvb_current_len;  
 }
-
-static gint tvb_section_length(tvbuff_t* tvb, gint tvb_sectionbegin, 
-			   gint tvb_sectionend){
-  gint sectionlen,remaininglen;
-  
-  sectionlen = tvb_sectionend - tvb_sectionbegin + 1;
-  remaininglen = tvb_length_remaining(tvb,tvb_sectionbegin);
-  g_assert(sectionlen <= remaininglen);
-  return sectionlen;
-}
-
 
 /* Start the functions we need for the plugin stuff */
 G_MODULE_EXPORT void
