@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.85 2002/01/21 07:36:41 guy Exp $
+ * $Id: packet-rpc.c,v 1.86 2002/02/01 07:07:46 guy Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -562,7 +562,7 @@ dissect_rpc_opaque_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	if (tree) {
-		string_item = proto_tree_add_text(tree, tvb,offset+0, tvb_length_remaining(tvb, offset),
+		string_item = proto_tree_add_text(tree, tvb,offset+0, -1,
 			"%s: %s", proto_registrar_get_name(hfindex), string_buffer_print);
 		if (string_data) {
 			proto_tree_add_string_hidden(tree, hfindex, tvb, offset+4,
