@@ -4,9 +4,9 @@
  * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-common-param-02.txt
  * http://www.ietf.org/internet-drafts/draft-ietf-rserpool-asap-05.txt
  *
- * Copyright 2002, Michael Tuexen <Michael.Tuexen@siemens.com>
+ * Copyright 2002, Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
- * $Id: packet-asap.c,v 1.8 2003/01/20 22:49:36 tuexen Exp $
+ * $Id: packet-asap.c,v 1.9 2003/04/19 20:14:35 tuexen Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -539,8 +539,8 @@ dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *asap
   tvbuff_t *parameters_tvb;
 
   if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET), message_type_values, "Unknown ASAP type"));
-    col_append_str(pinfo->cinfo, COL_INFO, " ");
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET), message_type_values, "Unknown ASAP type"));
+    col_set_fence(pinfo->cinfo, COL_INFO);
   }
   if (asap_tree) {
     proto_tree_add_item(asap_tree, hf_message_type,   message_tvb, MESSAGE_TYPE_OFFSET,   MESSAGE_TYPE_LENGTH,   NETWORK_BYTE_ORDER);
