@@ -1,7 +1,0 @@
-$Id: README,v 1.1 2001/04/04 04:50:05 gram Exp $
-
-http://www.nullsoft.com/free/nsis/
-
-NSIS is a free packager/installer/uninstaller program for Win32.
-It was originally written for the Winamp package, but various
-freeware and non-freeware packages are using it, too.

@@ -1,1 +1,1 @@
-SUBDIRS = rpm svr4
+SUBDIRS = rpm svr4 nsis
