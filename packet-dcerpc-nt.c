@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.30 2002/05/04 09:05:43 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.31 2002/05/07 00:35:14 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -945,10 +945,12 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	e_ctx_hnd hnd;
 	guint32 open_frame = 0, close_frame = 0;
 	char *name;
+	int old_offset = offset;
 
 	/* Add to proto tree */
 
-	item = proto_tree_add_text(tree, tvb, offset, 0, "Policy Handle");
+	item = proto_tree_add_text(tree, tvb, offset, sizeof(e_ctx_hnd), 
+				   "Policy Handle");
 
 	subtree = proto_item_add_subtree(item, ett_nt_policy_hnd);
 
@@ -961,11 +963,13 @@ dissect_nt_policy_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 				 &close_frame)) {
 
 		if (open_frame)
-			proto_tree_add_text(subtree, tvb, offset, 0,
+			proto_tree_add_text(subtree, tvb, old_offset,
+					    sizeof(e_ctx_hnd),
 					    "Opened in frame %u", open_frame);
 
 		if (close_frame)
-			proto_tree_add_text(subtree, tvb, offset, 0,
+			proto_tree_add_text(subtree, tvb, old_offset,
+					    sizeof(e_ctx_hnd),
 					    "Closed in frame %u", close_frame);
 	}
 
