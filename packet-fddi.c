@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.12 1999/07/07 22:51:42 gram Exp $
+ * $Id: packet-fddi.c,v 1.13 1999/07/08 03:18:19 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -279,42 +279,16 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree)
 void
 proto_register_fddi(void)
 {
-	proto_fddi = proto_register_protocol (
-		/* name */	"Fiber Distributed Data Interface",
-		/* abbrev */	"fddi" );
+	const hf_register_info hf[] = {
+		{ "Frame Control",	"fddi.fc", &hf_fddi_fc, FT_UINT8, NULL },
+		{ "Destination",	"fddi.dst", &hf_fddi_dst, FT_ETHER, NULL },
+		{ "Source",		"fddi.src", &hf_fddi_src, FT_ETHER, NULL },
+		{ "Destination Hardware Vendor",
+					"fddi.dst_vendor", &hf_fddi_dst_vendor, FT_ETHER_VENDOR, NULL },
+		{ "Source Hardware Vendor",
+					"fddi.src_vendor", &hf_fddi_src_vendor, FT_ETHER_VENDOR, NULL }
+	};
 
-	hf_fddi_fc = proto_register_field (
-		/* name */	"Frame Control",
-		/* abbrev */	"fddi.fc",
-		/* ftype */	FT_UINT8,
-		/* parent */	proto_fddi,
-		/* vals[] */	NULL );
-
-	hf_fddi_dst = proto_register_field (
-		/* name */	"Destination",
-		/* abbrev */	"fddi.dst",
-		/* ftype */	FT_ETHER,
-		/* parent */	proto_fddi,
-		/* vals[] */	NULL );
-
-	hf_fddi_src = proto_register_field (
-		/* name */	"Source",
-		/* abbrev */	"fddi.src",
-		/* ftype */	FT_ETHER,
-		/* parent */	proto_fddi,
-		/* vals[] */	NULL );
-
-	hf_fddi_dst_vendor = proto_register_field (
-		/* name */	"Destination Hardware Vendor",
-		/* abbrev */	"fddi.dst_vendor",
-		/* ftype */	FT_ETHER_VENDOR,
-		/* parent */	proto_fddi,
-		/* vals[] */	NULL );
-
-	hf_fddi_src_vendor = proto_register_field (
-		/* name */	"Source Hardware Vendor",
-		/* abbrev */	"fddi.src_vendor",
-		/* ftype */	FT_ETHER_VENDOR,
-		/* parent */	proto_fddi,
-		/* vals[] */	NULL );
+	proto_fddi = proto_register_protocol ("Fiber Distributed Data Interface", "fddi" );
+	proto_register_field_array(proto_fddi, hf, array_length(hf));
 }

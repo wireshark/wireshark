@@ -101,6 +101,24 @@ during registration.
                 /* parent */    proto_frame,
                 /* vals[] */    NULL );
 
+Groups of header fields can be registered with one call to
+proto_register_field_array(). An const array of hf_register_info
+structs is declared, then passed to proto_register_field_array, along
+with a count of the number of records. You can use the handy
+array_length() macro found in packet.h to have the compiler compute
+the array length for you at compile time:
+
+	int hf_field_a = -1;
+	int hf_field_b = -1;
+
+	const hf_register_info hf[] = {
+		{ "Field A",	"proto.field_a", &hf_field_a, FT_UINT8, NULL },
+		{ "Field B",	"proto.field_a", &hf_field_a, FT_VALS_UINT16, VALS(vs) },
+	};
+
+	proto_tr = proto_register_protocol("Token-Ring", "tr");
+	proto_register_field_array(proto_tr, hf, array_length(hf));
+
 The name can be used in any type of display, either in the GUI tree, or
 in a display filter UI. The abbreviation is used when representing a
 display filter as a string. For example, the following strings could be a
@@ -131,6 +149,7 @@ enum ftenum {
         FT_VALS_UINT16,
         FT_VALS_UINT24,
         FT_VALS_UINT32,
+	FT_TEXT_ONLY,	 /* used internally, but should be used by dissectors */
         NUM_FIELD_TYPES /* last item number plus one */
 };
 
