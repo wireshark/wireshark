@@ -1,10 +1,10 @@
-/* packet-tftp.c
+/* packet-sap.c
  * Routines for sap packet dissection
  * <draft-ietf-mmusic-sap-v2-03.txt>
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.10 2000/08/13 14:08:44 deniel Exp $
+ * $Id: packet-sap.c,v 1.11 2000/08/25 13:05:32 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
