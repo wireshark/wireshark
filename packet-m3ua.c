@@ -9,7 +9,7 @@
  *
  * Copyright 2000, 2001, 2002, Michael Tuexen <Michael.Tuexen@icn.siemens.de>
  *
- * $Id: packet-m3ua.c,v 1.14 2002/02/25 23:41:58 guy Exp $
+ * $Id: packet-m3ua.c,v 1.15 2002/02/26 10:18:22 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -228,6 +228,7 @@ static const value_string m3ua_message_class_values[] = {
 #define MESSAGE_TYPE_DAUD                 3
 #define MESSAGE_TYPE_SCON                 4
 #define MESSAGE_TYPE_DUPU                 5
+#define MESSAGE_TYPE_DRST                 6
 
 #define MESSAGE_TYPE_UP                   1
 #define MESSAGE_TYPE_DOWN                 2
@@ -256,6 +257,7 @@ static const value_string m3ua_message_class_type_values[] = {
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DAUD,          "Destination state audit (DAUD)" },
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_SCON,          "SS7 Network congestion state (SCON)" },
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DUPU,          "Destination userpart unavailable (DUPU)" },
+  { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DRST,          "Destination Restricted (DRST)" },
   { MESSAGE_CLASS_ASPSM_MESSAGE * 256 + MESSAGE_TYPE_UP,            "ASP up (UP)" },
   { MESSAGE_CLASS_ASPSM_MESSAGE * 256 + MESSAGE_TYPE_DOWN,          "ASP down (DOWN)" },
   { MESSAGE_CLASS_ASPSM_MESSAGE * 256 + MESSAGE_TYPE_BEAT,          "Heartbeat (BEAT)" },
@@ -281,6 +283,7 @@ static const value_string m3ua_message_class_type_acro_values[] = {
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DAUD,          "DAUD" },
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_SCON,          "SCON" },
   { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DUPU,          "DUPU" },
+  { MESSAGE_CLASS_SSNM_MESSAGE  * 256 + MESSAGE_TYPE_DRST,          "DRST" },
   { MESSAGE_CLASS_ASPSM_MESSAGE * 256 + MESSAGE_TYPE_UP,            "ASP_UP" },
   { MESSAGE_CLASS_ASPSM_MESSAGE * 256 + MESSAGE_TYPE_DOWN,          "ASP_DOWN" },
   { MESSAGE_CLASS_ASPSM_MESSAGE * 256 + MESSAGE_TYPE_BEAT,          "BEAT" },
