@@ -1,7 +1,7 @@
 /* column.c
  * Routines for handling column preferences
  *
- * $Id: column.c,v 1.10 1999/03/23 03:14:32 gram Exp $
+ * $Id: column.c,v 1.11 1999/06/19 01:14:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -39,7 +39,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-#include "ethereal.h"
+#include "timestamp.h"
 #include "prefs.h"
 #include "column.h"
 #include "packet.h"
@@ -118,19 +118,6 @@ get_column_format_matches(gboolean *fmt_list, gint format) {
       fmt_list[i] = TRUE;
     /* Get any formats lower down on the chain */
     switch (format) {
-      case COL_CLS_TIME:
-        switch (timestamp_type) {
-          case ABSOLUTE:
-            fmt_list[COL_ABS_TIME] = TRUE;
-            break;
-          case DELTA:
-            fmt_list[COL_DELTA_TIME] = TRUE;
-            break;
-          default:
-            fmt_list[COL_REL_TIME] = TRUE;
-            break;
-        }
-        break;
       case COL_DEF_SRC:
         fmt_list[COL_RES_DL_SRC] = TRUE;
         fmt_list[COL_RES_NET_SRC] = TRUE;

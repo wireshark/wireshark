@@ -1,7 +1,7 @@
-/* capture.h
- * Definitions for packet capture windows
+/* display.h
+ * Definitions for display option window
  *
- * $Id: capture.h,v 1.7 1999/06/19 01:14:49 guy Exp $
+ * $Id: display.h,v 1.1 1999/06/19 01:14:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -23,20 +23,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __CAPTURE_H__
-#define __CAPTURE_H__
+#ifndef __DISPLAY_H__
+#define __DISPLAY_H__
 
-typedef struct _loop_data {
-  gint           go;
-  gint           max;
-  gint           linktype;
-  gint           signal_sent;
-  time_t         sync_time;
-  packet_counts  counts;
-  pcap_dumper_t *pdh;
-} loop_data;
+void   display_opt_cb(GtkWidget *, gpointer);
 
-void   capture_prep_cb(GtkWidget *, gpointer);
-void   capture(void);
-
-#endif /* capture.h */
+#endif /* display.h */

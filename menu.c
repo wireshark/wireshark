@@ -1,7 +1,7 @@
 /* menu.c
  * Menu routines
  *
- * $Id: menu.c,v 1.19 1999/06/15 04:48:57 guy Exp $
+ * $Id: menu.c,v 1.20 1999/06/19 01:14:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -38,6 +38,7 @@
 #include "menu.h"
 #include "packet.h"
 #include "capture.h"
+#include "display.h"
 #include "prefs.h"
 #include "print.h"
 #include "follow.h"
@@ -93,8 +94,12 @@ static GtkItemFactoryEntry menu_items[] =
   {"/Edit/Find", "<control>F", NULL, 0, NULL},
   {"/Edit/<separator>", NULL, NULL, 0, "<Separator>"},
   {"/Edit/_Preferences...", NULL, GTK_MENU_FUNC(prefs_cb), E_PR_PG_NONE, NULL},
+  {"/_Capture", NULL, NULL, 0, "<Branch>" },
+  {"/Capture/_Start...", "<control>K", GTK_MENU_FUNC(capture_prep_cb), 0, NULL},
+  {"/_Display", NULL, NULL, 0, "<Branch>" },
+  {"/Display/_Options...", NULL, GTK_MENU_FUNC(display_opt_cb), 0, NULL},
   {"/_Tools", NULL, NULL, 0, "<Branch>" },
-  {"/Tools/_Capture...", "<control>K", GTK_MENU_FUNC(capture_prep_cb), 0, NULL},
+  {"/Tools/_Capture...", NULL, GTK_MENU_FUNC(capture_prep_cb), 0, NULL},
   {"/Tools/_Follow TCP Stream", NULL, GTK_MENU_FUNC(follow_stream_cb), 0, NULL},
   {"/Tools/Graph", NULL, NULL, 0, NULL},
   {"/_Help", NULL, NULL, 0, "<LastBranch>" },
@@ -126,7 +131,9 @@ static GtkMenuEntry menu_items[] =
   {"<Main>/Edit/Find", "<control>F", NULL, NULL},
   {"<Main>/Edit/<separator>", NULL, NULL, NULL},
   {"<Main>/Edit/Preferences...", NULL, prefs_cb, (gpointer) E_PR_PG_NONE},
-  {"<Main>/Tools/Capture...", "<control>K", capture_prep_cb, NULL},
+  {"<Main>/Capture/Start...", "<control>K", capture_prep_cb, NULL},
+  {"<Main>/Display/Options...", NULL, display_opt_cb, NULL},
+  {"<Main>/Tools/Capture...", NULL, capture_prep_cb, NULL},
   {"<Main>/Tools/Follow TCP Stream", NULL, follow_stream_cb, NULL},
   {"<Main>/Tools/Graph", NULL, NULL, NULL},
   {"<Main>/Help/About Ethereal...", NULL, about_ethereal, NULL}

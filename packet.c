@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.26 1999/06/12 04:21:08 guy Exp $
+ * $Id: packet.c,v 1.27 1999/06/19 01:14:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,6 +50,7 @@
 
 #include "packet.h"
 #include "file.h"
+#include "timestamp.h"
 
 extern capture_file  cf;
 
@@ -546,15 +547,36 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 	time_t then;
 
 	/* Put in frame header information. */
+	if (check_col(fd, COL_CLS_TIME)) {
+	  switch (timestamp_type) {
+	    case ABSOLUTE:
+	      then = fd->abs_secs;
+	      tmp = localtime(&then);
+	      col_add_fstr(fd, COL_CLS_TIME, "%02d:%02d:%02d.%04ld",
+		tmp->tm_hour,
+		tmp->tm_min,
+		tmp->tm_sec,
+		(long)fd->abs_usecs/100);
+	      break;
+
+	    case RELATIVE:
+	      col_add_fstr(fd, COL_CLS_TIME, "%d.%06d", fd->rel_secs, fd->rel_usecs);
+	      break;
+
+	    case DELTA:
+	      col_add_fstr(fd, COL_CLS_TIME, "%d.%06d", fd->del_secs, fd->del_usecs);
+	      break;
+	  }
+	}
 	if (check_col(fd, COL_ABS_TIME)) {
 	  then = fd->abs_secs;
 	  tmp = localtime(&then);
 	  col_add_fstr(fd, COL_ABS_TIME, "%02d:%02d:%02d.%04ld",
 	    tmp->tm_hour,
-	    tmp->tm_min,                                                      
+	    tmp->tm_min,
 	    tmp->tm_sec,
 	    (long)fd->abs_usecs/100);
-  }
+	}
 	if (check_col(fd, COL_REL_TIME)) {
 	    col_add_fstr(fd, COL_REL_TIME, "%d.%06d", fd->rel_secs, fd->rel_usecs);
 	}

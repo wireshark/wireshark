@@ -1,7 +1,7 @@
 /* capture.c
  * Routines for packet capture windows
  *
- * $Id: capture.c,v 1.26 1999/06/12 09:10:19 guy Exp $
+ * $Id: capture.c,v 1.27 1999/06/19 01:14:48 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,10 +81,6 @@ extern int sync_mode;
 extern int sigusr2_received;
 extern int quit_after_cap;
 
-/* File selection data keys */
-#define E_CAP_PREP_FS_KEY "cap_prep_fs"
-#define E_CAP_PREP_TE_KEY "cap_prep_te"
-
 /* Capture callback data keys */
 #define E_CAP_IFACE_KEY "cap_iface"
 #define E_CAP_FILT_KEY  "cap_filter"
@@ -95,7 +91,14 @@ extern int quit_after_cap;
 /* Capture filter key */
 #define E_CAP_FILT_TE_KEY "cap_filt_te"
 
-GList *
+static void capture_prep_ok_cb(GtkWidget *, gpointer);
+static void capture_prep_close_cb(GtkWidget *, gpointer);
+static float pct(gint, gint);
+static void capture_stop_cb(GtkWidget *, gpointer);
+static void capture_pcap_cb(u_char *, const struct pcap_pkthdr *,
+  const u_char *);
+
+static GList *
 get_interface_list() {
   GList  *il = NULL;
   struct  ifreq *ifr, *last;
@@ -285,47 +288,7 @@ capture_prep_cb(GtkWidget *w, gpointer d) {
   gtk_widget_show(cap_open_w);
 }
 
-void
-capture_prep_file_cb(GtkWidget *w, gpointer te) {
-  GtkWidget *fs;
-
-  fs = gtk_file_selection_new ("Ethereal: Open Save File");
-
-  gtk_object_set_data(GTK_OBJECT(w), E_CAP_PREP_FS_KEY, fs);
-  gtk_object_set_data(GTK_OBJECT(w), E_CAP_PREP_TE_KEY, (GtkWidget *) te);
-  
-  gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(fs)->ok_button),
-    "clicked", (GtkSignalFunc) cap_prep_fs_ok_cb, w);
-
-  /* Connect the cancel_button to destroy the widget */
-  gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(fs)->cancel_button),
-    "clicked", (GtkSignalFunc) cap_prep_fs_cancel_cb, w);
-  
-  gtk_widget_show(fs);
-}
-
-void
-cap_prep_fs_ok_cb(GtkWidget *w, gpointer data) {
-  GtkWidget *fs, *te;
-  
-  fs = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_PREP_FS_KEY);
-  te = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_PREP_TE_KEY);
-
-  gtk_entry_set_text(GTK_ENTRY(te),
-    gtk_file_selection_get_filename (GTK_FILE_SELECTION(fs)));
-  cap_prep_fs_cancel_cb(w, data);
-}
-
-void
-cap_prep_fs_cancel_cb(GtkWidget *w, gpointer data) {
-  GtkWidget *fs;
-  
-  fs = (GtkWidget *) gtk_object_get_data(GTK_OBJECT(data), E_CAP_PREP_FS_KEY);
-
-  gtk_widget_destroy(fs);
-}  
-
-void
+static void
 capture_prep_ok_cb(GtkWidget *w, gpointer data) {
   GtkWidget *if_cb, *filter_te, *count_cb, *snap_sb;
 
@@ -428,7 +391,7 @@ capture_prep_ok_cb(GtkWidget *w, gpointer data) {
     capture();
 }
 
-void
+static void
 capture_prep_close_cb(GtkWidget *w, gpointer win) {
 
 #ifdef GTK_HAVE_FEATURES_1_1_0
@@ -609,7 +572,7 @@ capture(void) {
 #endif
 }
 
-float
+static float
 pct(gint num, gint denom) {
   if (denom) {
     return (float) num * 100.0 / (float) denom;
@@ -618,14 +581,14 @@ pct(gint num, gint denom) {
   }
 }
 
-void
+static void
 capture_stop_cb(GtkWidget *w, gpointer data) {
   loop_data *ld = (loop_data *) data;
   
   ld->go = FALSE;
 }
 
-void
+static void
 capture_pcap_cb(u_char *user, const struct pcap_pkthdr *phdr,
   const u_char *pd) {
   

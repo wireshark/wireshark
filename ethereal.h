@@ -1,7 +1,7 @@
 /* ethereal.h
  * Global defines, etc.
  *
- * $Id: ethereal.h,v 1.13 1999/04/06 16:24:48 gram Exp $
+ * $Id: ethereal.h,v 1.14 1999/06/19 01:14:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -88,18 +88,6 @@ typedef struct _selection_info {
   GtkWidget *tree;
   GtkWidget *text;
 } selection_info;
-
-
-/*
- * Type of time-stamp shown in the summary display.
- */
-typedef enum {
-	RELATIVE,
-	ABSOLUTE,
-	DELTA
-} ts_type;
-
-extern ts_type timestamp_type;
 
 extern GtkStyle *item_style;
 

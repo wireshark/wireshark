@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.28 1999/06/15 04:48:57 guy Exp $
+ * $Id: file.c,v 1.29 1999/06/19 01:14:50 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -135,13 +135,6 @@ open_cap_file(char *fname, capture_file *cf) {
   cf->esec  = 0;
   cf->eusec = 0;
   cf->snap  = 0;
-  if (cf->plist == NULL) {
-    cf->plist       = g_list_alloc();
-    cf->plist_first = cf->plist;
-    cf->plist->data = (frame_data *) g_malloc(sizeof(frame_data));
-  } else {
-    cf->plist = g_list_first(cf->plist);
-  }
   firstsec = 0, firstusec = 0;
   lastsec = 0, lastusec = 0;
  
@@ -206,6 +199,12 @@ open_cap_file(char *fname, capture_file *cf) {
   return (0);
 }
 
+static void
+free_packets_cb(gpointer data, gpointer user_data)
+{
+  g_free(data);
+}
+
 /* Reset everything to a pristine state */
 void
 close_cap_file(capture_file *cf, void *w, guint context) {
@@ -215,15 +214,20 @@ close_cap_file(capture_file *cf, void *w, guint context) {
   }
 #ifdef WITH_WIRETAP
   if (cf->wth) {
-	  wtap_close(cf->wth);
-	  cf->wth = NULL;
-	}
+    wtap_close(cf->wth);
+    cf->wth = NULL;
+  }
 #else
   if (cf->pfh) {
     pcap_close(cf->pfh);
     cf->pfh = NULL;
   }
 #endif
+  if (cf->plist) {
+    g_list_foreach(cf->plist, free_packets_cb, NULL);
+    g_list_free(cf->plist);
+    cf->plist = NULL;
+  }
   gtk_text_freeze(GTK_TEXT(byte_view));
   gtk_text_set_point(GTK_TEXT(byte_view), 0);
   gtk_text_forward_delete(GTK_TEXT(byte_view),
@@ -278,7 +282,6 @@ load_cap_file(char *fname, capture_file *cf) {
     pcap_close(cf->pfh);
     cf->pfh = NULL;
 #endif
-    cf->plist = g_list_first(cf->plist);
     cf->fh = fopen(fname, "r");
     gtk_clist_thaw(GTK_CLIST(packet_list));
   }
@@ -357,18 +360,19 @@ cap_file_input_cb (gpointer data, gint source, GdkInputCondition condition) {
     pcap_close(cf->pfh);
     cf->pfh = NULL;
 #endif
-    cf->plist = g_list_first(cf->plist);
 #ifdef USE_ITEM
     set_menu_sensitivity("/File/Open...", TRUE);
     set_menu_sensitivity("/File/Close", TRUE);
     set_menu_sensitivity("/File/Save As...", TRUE);
     set_menu_sensitivity("/File/Reload", TRUE);
+    set_menu_sensitivity("/Capture/Start...", TRUE);
     set_menu_sensitivity("/Tools/Capture...", TRUE);
 #else
     set_menu_sensitivity("<Main>/File/Open...", TRUE);
     set_menu_sensitivity("<Main>/File/Close", TRUE);
     set_menu_sensitivity("<Main>/File/Save As...", TRUE);
     set_menu_sensitivity("<Main>/File/Reload", TRUE);
+    set_menu_sensitivity("<Main>/Capture/Start...", TRUE);
     set_menu_sensitivity("<Main>/Tools/Capture...", TRUE);
 #endif
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), file_ctx, " File: <none>");
@@ -442,11 +446,13 @@ tail_cap_file(char *fname, capture_file *cf) {
     set_menu_sensitivity("/File/Open...", FALSE);
     set_menu_sensitivity("/File/Close", FALSE);
     set_menu_sensitivity("/File/Reload", FALSE);
+    set_menu_sensitivity("/Capture/Start...", FALSE);
     set_menu_sensitivity("/Tools/Capture...", FALSE);
 #else
     set_menu_sensitivity("<Main>/File/Open...", FALSE);
     set_menu_sensitivity("<Main>/File/Close", FALSE);
     set_menu_sensitivity("<Main>/File/Reload", FALSE);
+    set_menu_sensitivity("<Main>/Capture/Start...", FALSE);
     set_menu_sensitivity("<Main>/Tools/Capture...", FALSE);
 #endif
     cf->fh = fopen(fname, "r");
@@ -477,35 +483,10 @@ tail_cap_file(char *fname, capture_file *cf) {
   return err;
 }
 
-
 static void
-#ifdef WITH_WIRETAP
-wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
-#else
-pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
-#endif
-  const u_char *buf) {
-  frame_data   *fdata;
+add_packet_to_packet_list(frame_data *fdata, capture_file *cf, const u_char *buf)
+{
   gint          i, row;
-  capture_file *cf = (capture_file *) user;
-
-  while (gtk_events_pending())
-    gtk_main_iteration();
-
-  fdata   = cf->plist->data;
-  cf->cur = fdata;
-  cf->count++;
-
-  fdata->pkt_len  = phdr->len;
-  fdata->cap_len  = phdr->caplen;
-#ifdef WITH_WIRETAP
-  fdata->file_off = offset;
-  fdata->lnk_t = phdr->pkt_encap;
-#else
-  fdata->file_off = ftell(pcap_file(cf->pfh)) - phdr->caplen;
-#endif
-  fdata->abs_secs  = phdr->ts.tv_sec;
-  fdata->abs_usecs = phdr->ts.tv_usec;
 
   /* If we don't have the time stamp of the first packet, it's because this
      is the first packet.  Save the time stamp of this packet as the time
@@ -552,14 +533,81 @@ pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
   dissect_packet(buf, fdata, NULL);
   row = gtk_clist_append(GTK_CLIST(packet_list), fdata->cinfo->col_data);
   fdata->cinfo = NULL;
+}
 
-  /* Make sure we always have an available list entry */
-  if (cf->plist->next == NULL) {
-    fdata = (frame_data *) g_malloc(sizeof(frame_data));
-    g_list_append(cf->plist, (gpointer) fdata);
-  }
-  cf->plist = cf->plist->next;
+static void
+#ifdef WITH_WIRETAP
+wtap_dispatch_cb(u_char *user, const struct wtap_pkthdr *phdr, int offset,
+#else
+pcap_dispatch_cb(u_char *user, const struct pcap_pkthdr *phdr,
+#endif
+  const u_char *buf) {
+  frame_data   *fdata;
+  capture_file *cf = (capture_file *) user;
 
+  while (gtk_events_pending())
+    gtk_main_iteration();
+
+  /* Allocate the next list entry, and add it to the list. */
+  fdata = (frame_data *) g_malloc(sizeof(frame_data));
+  cf->plist = g_list_append(cf->plist, (gpointer) fdata);
+
+  cf->cur = fdata;
+  cf->count++;
+
+  fdata->pkt_len  = phdr->len;
+  fdata->cap_len  = phdr->caplen;
+#ifdef WITH_WIRETAP
+  fdata->file_off = offset;
+  fdata->lnk_t = phdr->pkt_encap;
+#else
+  fdata->file_off = ftell(pcap_file(cf->pfh)) - phdr->caplen;
+#endif
+  fdata->abs_secs  = phdr->ts.tv_sec;
+  fdata->abs_usecs = phdr->ts.tv_usec;
+
+  add_packet_to_packet_list(fdata, cf, buf);
+}
+
+static void
+redisplay_packets_cb(gpointer data, gpointer user_data)
+{
+  frame_data *fd = data;
+  capture_file *cf = user_data;
+
+  cf->cur = fd;
+  cf->count++;
+
+  fseek(cf->fh, fd->file_off, SEEK_SET);
+  fread(cf->pd, sizeof(guint8), fd->cap_len, cf->fh);
+
+  add_packet_to_packet_list(fd, cf, cf->pd);
+}
+
+void
+redisplay_packets(capture_file *cf)
+{
+  /* Freeze the packet list while we redo it, so we don't get any
+     screen updates while it happens. */
+  gtk_clist_freeze(GTK_CLIST(packet_list));
+
+  /* Clear it out. */
+  gtk_clist_clear(GTK_CLIST(packet_list));
+
+  /*
+   * Iterate through the list of packets, calling a routine
+   * to run the filter on the packet, see if it matches, and
+   * put it in the display list if so.
+   */
+  firstsec = 0;
+  firstusec = 0;
+  lastsec = 0;
+  lastusec = 0;
+  cf->count = 0;
+  g_list_foreach(cf->plist, redisplay_packets_cb, cf);
+
+  /* Unfreeze the packet list. */
+  gtk_clist_thaw(GTK_CLIST(packet_list));
 }
 
 /* Tries to mv a file. If unsuccessful, tries to cp the file.

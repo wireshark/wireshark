@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.14 1999/06/12 09:10:19 guy Exp $
+ * $Id: file.h,v 1.15 1999/06/19 01:14:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,9 +92,8 @@ typedef struct _capture_file {
    */
   /*guint8      pd[MAX_PACKET_SIZE];*/  /* Packet data */
   guint8      pd[65536];  /* Packet data */
-  GList      *plist_first;/* First packet in list */
   GList      *plist;     /* Packet list */
-  frame_data *cur;       /* Current list item */
+  frame_data *cur;       /* Frame data for current list item */
   column_info  cinfo;    /* Column formatting information */
 } capture_file;
 
@@ -135,6 +134,8 @@ void close_cap_file(capture_file *, void *, guint);
 int  load_cap_file(char *, capture_file *);
 int  tail_cap_file(char *, capture_file *);
 /* size_t read_frame_header(capture_file *); */
+
+void redisplay_packets(capture_file *cf);
 
 /* Moves or copies a file. Returns 0 on failure, 1 on success */
 int file_mv(char *from, char *to);

@@ -11,6 +11,8 @@ ethereal_SOURCES = \
 	column.c       \
 	column.h       \
 	config.h       \
+	display.c      \
+	display.h      \
 	ethereal.c     \
 	ethereal.h     \
 	ethertype.c    \
