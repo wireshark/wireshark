@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.h,v 1.6 2000/09/08 10:59:19 guy Exp $
+ * $Id: packet_win.h,v 1.7 2001/03/24 02:14:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,7 +27,13 @@
 #ifndef __PACKET_WIN_H__
 #define __PACKET_WIN_H__
 
+/* Create a new packet window. */
 extern void new_window_cb(GtkWidget *w);
+
+/* Destroy all popup packet windows. */
+void destroy_packet_wins(void);
+
+/* Redraw the hex dump panes of all packet windows. */
 void redraw_hex_dump_packet_wins(void);
 
 #endif

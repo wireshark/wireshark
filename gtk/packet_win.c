@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.19 2001/03/23 14:44:04 jfoster Exp $
+ * $Id: packet_win.c,v 1.20 2001/03/24 02:14:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -61,7 +61,6 @@
 #include "util.h"
 #include "packet_win.h"
 #include "simple_dialog.h"
-#include "ui_util.h"
 #include "proto_draw.h"
 #include "keys.h"
 #include "gtkglobals.h"
