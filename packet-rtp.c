@@ -6,7 +6,7 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *
- * $Id: packet-rtp.c,v 1.26 2001/11/26 04:52:51 hagbard Exp $
+ * $Id: packet-rtp.c,v 1.27 2001/11/26 05:13:12 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -345,7 +345,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	guint32     sync_src;
 	guint32     csrc_item;
 
-	CHECK_DISPLAY_AS_DATA(proto_rtp, tvb, pinfo, tree);
+	CHECK_DISPLAY_AS_X(data_handle,proto_rtp, tvb, pinfo, tree);
 
 	pinfo->current_proto = "RTP";
 

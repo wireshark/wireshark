@@ -1,6 +1,6 @@
 /* packet-rtcp.c
  *
- * $Id: packet-rtcp.c,v 1.22 2001/09/08 00:43:51 guy Exp $
+ * $Id: packet-rtcp.c,v 1.23 2001/11/26 05:13:12 hagbard Exp $
  *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
@@ -177,6 +177,8 @@ static gint ett_sdes_item      = -1;
 
 static address fake_addr;
 static int heur_init = FALSE;
+
+static dissector_handle_t data_handle;
 
 static gboolean dissect_rtcp_heur( tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree );
@@ -636,7 +638,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	unsigned int offset      = 0;
 	guint16 packet_length    = 0;
 
-	CHECK_DISPLAY_AS_DATA(proto_rtcp, tvb, pinfo, tree);
+	CHECK_DISPLAY_AS_X(data_handle,proto_rtcp, tvb, pinfo, tree);
 
 	pinfo->current_proto = "RTCP";
 
@@ -1228,6 +1230,7 @@ proto_register_rtcp(void)
 void
 proto_reg_handoff_rtcp(void)
 {
+        data_handle = find_dissector("data");
 	/*
 	 * Register this dissector as one that can be assigned to a
 	 * UDP conversation.

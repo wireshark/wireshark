@@ -1,7 +1,7 @@
 /* packet-arp.c
  * Routines for ARP packet disassembly
  *
- * $Id: packet-arp.c,v 1.44 2001/06/18 02:17:44 guy Exp $
+ * $Id: packet-arp.c,v 1.45 2001/11/26 05:13:11 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -69,6 +69,8 @@ static int hf_atmarp_dst_atm_subaddr = -1;
 static gint ett_arp = -1;
 static gint ett_atmarp_nsap = -1;
 static gint ett_atmarp_tl = -1;
+
+static dissector_handle_t data_handle;
 
 /* Definitions taken from Linux "linux/if_arp.h" header file, and from
 
@@ -410,7 +412,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree  *tl_tree;
   proto_item  *tl;
 
-  CHECK_DISPLAY_AS_DATA(proto_arp, tvb, pinfo, tree);
+  CHECK_DISPLAY_AS_X(data_handle,proto_arp, tvb, pinfo, tree);
 
   /* Override the setting to "ARP/RARP". */
   pinfo->current_proto = "ATMARP";
@@ -650,7 +652,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   const guint8      *sha_val, *spa_val, *tha_val, *tpa_val;
   gchar       *sha_str, *spa_str, *tha_str, *tpa_str;
 
-  CHECK_DISPLAY_AS_DATA(proto_arp, tvb, pinfo, tree);
+  CHECK_DISPLAY_AS_X(data_handle,proto_arp, tvb, pinfo, tree);
 
   pinfo->current_proto = "ARP";
 
@@ -943,6 +945,7 @@ proto_register_arp(void)
 void
 proto_reg_handoff_arp(void)
 {
+  data_handle = find_dissector("data");
   dissector_add("ethertype", ETHERTYPE_ARP, dissect_arp, proto_arp);
   dissector_add("ethertype", ETHERTYPE_REVARP, dissect_arp, proto_arp);
 }

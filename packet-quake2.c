@@ -7,7 +7,7 @@
  *	http://www.dgs.monash.edu.au/~timf/bottim/
  *	http://www.opt-sci.Arizona.EDU/Pandora/default.asp
  *
- * $Id: packet-quake2.c,v 1.3 2001/11/25 22:19:24 hagbard Exp $
+ * $Id: packet-quake2.c,v 1.4 2001/11/26 05:13:11 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -275,7 +275,7 @@ dissect_quake2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * call a conversation dissector doesn't check for disabled
 	 * protocols or set "pinfo->current_proto".
 	 */
-	CHECK_DISPLAY_AS_DATA(proto_quake2, tvb, pinfo, tree);
+	CHECK_DISPLAY_AS_X(data_handle,proto_quake2, tvb, pinfo, tree);
 
 	direction = (pinfo->destport == gbl_quake2ServerPort) ?
 			DIR_C2S : DIR_S2C;

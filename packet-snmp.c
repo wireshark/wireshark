@@ -8,7 +8,7 @@
  *
  * See RFCs 1905, 1906, 1909, and 1910 for SNMPv2u.
  *
- * $Id: packet-snmp.c,v 1.72 2001/11/26 04:52:51 hagbard Exp $
+ * $Id: packet-snmp.c,v 1.73 2001/11/26 05:13:12 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2105,7 +2105,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * call a conversation dissector doesn't check for disabled
 	 * protocols or set "pinfo->current_proto".
 	 */
-	CHECK_DISPLAY_AS_DATA(proto_snmp, tvb, pinfo, tree);
+	CHECK_DISPLAY_AS_X(data_handle,proto_snmp, tvb, pinfo, tree);
 
 	pinfo->current_proto = "SNMP";
 

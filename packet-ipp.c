@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.23 2001/11/26 04:52:50 hagbard Exp $
+ * $Id: packet-ipp.c,v 1.24 2001/11/26 05:13:11 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -171,7 +171,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 status_code;
 	gchar *status_fmt;
 
-	CHECK_DISPLAY_AS_DATA(proto_ipp, tvb, pinfo, tree);
+	CHECK_DISPLAY_AS_X(data_handle,proto_ipp, tvb, pinfo, tree);
 
 	pinfo->current_proto = "IPP";
 

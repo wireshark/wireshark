@@ -4,7 +4,7 @@
  * Uwe Girlich <uwe@planetquake.com>
  *	http://www.idsoftware.com/q1source/q1source.zip
  *
- * $Id: packet-quakeworld.c,v 1.5 2001/11/25 22:19:24 hagbard Exp $
+ * $Id: packet-quakeworld.c,v 1.6 2001/11/26 05:13:12 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -725,7 +725,7 @@ dissect_quakeworld(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * call a conversation dissector doesn't check for disabled
 	 * protocols or set "pinfo->current_proto".
 	 */
-	CHECK_DISPLAY_AS_DATA(proto_quakeworld, tvb, pinfo, tree);
+	CHECK_DISPLAY_AS_X(data_handle,proto_quakeworld, tvb, pinfo, tree);
 
 	direction = (pinfo->destport == gbl_quakeworldServerPort) ?
 			DIR_C2S : DIR_S2C;

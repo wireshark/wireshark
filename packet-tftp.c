@@ -5,7 +5,7 @@
  * Craig Newell <CraigN@cheque.uq.edu.au>
  *	RFC2347 TFTP Option Extension
  *
- * $Id: packet-tftp.c,v 1.30 2001/11/03 02:25:26 guy Exp $
+ * $Id: packet-tftp.c,v 1.31 2001/11/26 05:13:12 hagbard Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -55,6 +55,8 @@ static int hf_tftp_error_string = -1;
 
 static gint ett_tftp = -1;
 
+static dissector_handle_t data_handle;
+
 #define UDP_PORT_TFTP    69
 
 #define	TFTP_RRQ	1
@@ -99,7 +101,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	u_int           i1;
 	guint16         error;
 
-	CHECK_DISPLAY_AS_DATA(proto_tftp, tvb, pinfo, tree);
+	CHECK_DISPLAY_AS_X(data_handle,proto_tftp, tvb, pinfo, tree);
 
 	pinfo->current_proto = "TFTP";
 
@@ -346,5 +348,6 @@ proto_register_tftp(void)
 void
 proto_reg_handoff_tftp(void)
 {
+  data_handle = find_dissector("data");
   dissector_add("udp.port", UDP_PORT_TFTP, dissect_tftp, proto_tftp);
 }
