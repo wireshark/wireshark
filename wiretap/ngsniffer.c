@@ -1,6 +1,6 @@
 /* ngsniffer.c
  *
- * $Id: ngsniffer.c,v 1.87 2002/11/01 01:49:39 guy Exp $
+ * $Id: ngsniffer.c,v 1.88 2002/11/01 08:18:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -271,11 +271,20 @@ struct frame6_rec {
 
 /*
  * Network type values in type 7 records.
+ *
+ * Note: captures with a major version number of 2 appear to have
+ * type 7 records with text in them (at least one I have does); captures
+ * with a major version number of 5 appear not to have type 7 records
+ * at all (at least one I have doesn't), but do appear to put
+ * non-zero values in the "rsvd" field of the version header (at least
+ * one I have does) - at least some other captures with smaller version
+ * numbers appear to put 0 there, so *maybe* that's where the network
+ * (sub)type is hidden.
  */
 #define NET_SDLC	0
-#define NET_HDLC	1
+#define NET_HDLC	1	/* is this X.25? */
 #define NET_FRAME_RELAY	2
-#define NET_ROUTER	3	/* what's this? */
+#define NET_ROUTER	3	/* what's this? Is this ISDN? */
 #define NET_PPP		4
 #define NET_SMDS	5
 
@@ -283,7 +292,8 @@ struct frame6_rec {
 #define NUM_NGSNIFF_TIMEUNITS 7
 static double Usec[] = { 15.0, 0.838096, 15.0, 0.5, 2.0, 1.0, 0.1 };
 
-static int skip_header_records(wtap *wth, int *err, gint16 version);
+static int process_header_records(wtap *wth, int *err, gint16 version,
+    gboolean *is_router);
 static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset);
 static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
     union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
@@ -292,7 +302,7 @@ static int ngsniffer_read_rec_header(wtap *wth, gboolean is_random,
     guint16 *typep, guint16 *lengthp, int *err);
 static gboolean ngsniffer_read_frame2(wtap *wth, gboolean is_random,
     struct frame2_rec *frame2, int *err);
-static void set_pseudo_header_frame2(wtap *wth,
+static int set_pseudo_header_frame2(wtap *wth,
     union wtap_pseudo_header *pseudo_header, struct frame2_rec *frame2);
 static gboolean ngsniffer_read_frame4(wtap *wth, gboolean is_random,
     struct frame4_rec *frame4, int *err);
@@ -345,6 +355,7 @@ int ngsniffer_open(wtap *wth, int *err)
 		WTAP_ENCAP_ATM_SNIFFER
 	};
 	#define NUM_NGSNIFF_ENCAPS (sizeof sniffer_encap / sizeof sniffer_encap[0])
+	gboolean is_router;
 	struct tm tm;
 
 	/* Read in the string that should be at the start of a Sniffer file */
@@ -431,7 +442,8 @@ int ngsniffer_open(wtap *wth, int *err)
 	 * we look at, for "Internetwork analyzer" captures, to attempt to
 	 * determine what the link-layer encapsulation is.
 	 */
-	if (skip_header_records(wth, err, pletohs(&version.maj_vers)) < 0)
+	if (process_header_records(wth, err, pletohs(&version.maj_vers),
+	    &is_router) < 0)
 		return -1;
 
 	/*
@@ -475,6 +487,7 @@ int ngsniffer_open(wtap *wth, int *err)
 	wth->capture.ngsniffer->timeunit = Usec[version.timeunit];
 	wth->capture.ngsniffer->is_atm =
 	    (wth->file_encap == WTAP_ENCAP_ATM_SNIFFER);
+	wth->capture.ngsniffer->is_router = is_router;
 
 	/* Get capture start time */
 	start_time = pletohs(&version.time);
@@ -511,7 +524,7 @@ int ngsniffer_open(wtap *wth, int *err)
 }
 
 static int
-skip_header_records(wtap *wth, int *err, gint16 version)
+process_header_records(wtap *wth, int *err, gint16 version, gboolean *is_router)
 {
 	int bytes_read;
 	char record_type[2];
@@ -521,6 +534,7 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 	int bytes_to_read;
 	unsigned char buffer[32];
 
+	*is_router = FALSE;
 	for (;;) {
 		errno = WTAP_ERR_CANT_READ;
 		bytes_read = file_read(record_type, 1, 2, wth->fh);
@@ -566,18 +580,21 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 		length = pletohs(record_length);
 
 		/*
-		 * Is this a REC_HEADER2 record, and do we not yet know
-		 * the encapsulation type (i.e., is this is an
-		 * "Internetwork analyzer" capture?
+		 * Is this a version 4 capture, is this a REC_HEADER2
+		 * record, and do we not yet know the encapsulation
+		 * type (i.e., is this is an "Internetwork analyzer"
+		 * capture?
 		 *
 		 * If so, the 5th byte of the record appears to specify
 		 * the particular type of network we're on.
 		 */
-		if (type == REC_HEADER2 &&
+		if (version == 4 && type == REC_HEADER2 &&
 		    wth->file_encap == WTAP_ENCAP_PER_PACKET) {
 			/*
 			 * Yes, get the first 32 bytes of the record
-			 * data.
+			 * data.  (The record appears to have only
+			 * 8 bytes of data in all the captures I've
+			 * seen.)
 			 */
 			bytes_to_read = MIN(length, sizeof buffer);
 			bytes_read = file_read(buffer, 1, bytes_to_read,
@@ -599,31 +616,48 @@ skip_header_records(wtap *wth, int *err, gint16 version)
 			}
 
 			/*
-			 * XXX - what about LAPB and LAPD?  At least one
-			 * X.25 capture has a type of NET_HDLC, but one
-			 * might also consider LAPD to be an HDLC
-			 * variant; if it also has a type of NET_HDLC,
-			 * we'd have to look at some other data to
-			 * distinguish them.
+			 * The X.25 captures I've seen have a type of
+			 * NET_HDLC; however, I've seen both PPP and
+			 * ISDN captures with a type of NET_ROUTER.
 			 *
-			 * I have no LAPD captures, so I can't check
-			 * various fields of this record (and I'd
-			 * need multiple captures of both LAPB/X.25
-			 * and LAPD/ISDN to be reasonably certain
-			 * where the magic key is).
-			 *
-			 * So, for now, we leave the encapsulation for
-			 * NET_HDLC as WTAP_ENCAP_PER_PACKET.
+			 * For now, we interpret NET_HDLC as X.25 (LAPB)
+			 * and NET_ROUTER as "per-packet encapsulation".
+			 * We remember that we saw NET_ROUTER, though,
+			 * as it appears that we can infer whether
+			 * a packet is PPP or ISDN based on the
+			 * channel number subfield of the frame error
+			 * status bits - if it's 0, it's PPP, otherwise
+			 * it's ISDN and the channel number indicates
+			 * which channel it is.
 			 */
 			switch (buffer[4]) {
+
+			case NET_HDLC:
+				wth->file_encap = WTAP_ENCAP_LAPB;
+				break;
 
 			case NET_FRAME_RELAY:
 				wth->file_encap = WTAP_ENCAP_FRELAY;
 				break;
 
+			case NET_ROUTER:
+				wth->file_encap = WTAP_ENCAP_PER_PACKET;
+				*is_router = TRUE;
+				break;
+
 			case NET_PPP:
 				wth->file_encap = WTAP_ENCAP_PPP_WITH_PHDR;
 				break;
+
+			default:
+				/*
+				 * Reject these until we can figure them
+				 * out.
+				 */
+				g_message("ngsniffer: WAN network subtype %u unknown or unsupported",
+				    buffer[4]);
+				*err = WTAP_ERR_UNSUPPORTED_ENCAP;
+				return -1;
 			}
 		} else {
 			/* Nope, just skip over the data. */
@@ -645,6 +679,7 @@ static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset)
 	double	t;
 	guint16	time_low, time_med, time_high, true_size, size;
 	guchar	*pd;
+	int pkt_encap = wth->file_encap;
 
 	for (;;) {
 		/*
@@ -689,8 +724,8 @@ static gboolean ngsniffer_read(wtap *wth, int *err, long *data_offset)
 			t = (double)time_low+(double)(time_med)*65536.0 +
 			    (double)time_high*4294967296.0;
 
-			set_pseudo_header_frame2(wth, &wth->pseudo_header,
-			    &frame2);
+			pkt_encap = set_pseudo_header_frame2(wth,
+			    &wth->pseudo_header, &frame2);
 			goto found;
 
 		case REC_FRAME4:
@@ -807,20 +842,21 @@ found:
 		return FALSE;	/* Read error */
 	wth->data_offset += length;
 
-	if (wth->file_encap == WTAP_ENCAP_PER_PACKET) {
+	wth->phdr.pkt_encap = pkt_encap;
+	if (pkt_encap == WTAP_ENCAP_PER_PACKET) {
 		/*
 		 * Infer the packet type from the first byte.
 		 */
 		wth->phdr.pkt_encap = infer_pkt_encap(pd[0]);
-	} else
-		wth->phdr.pkt_encap = wth->file_encap;
 
-	/*
-	 * Fix up the pseudo-header; we may have set "x25.flags",
-	 * but, for some traffic, we should set "isdn.uton" instead,
-	 * and set the channel number.
-	 */
-	fix_pseudo_header(wth->phdr.pkt_encap, &wth->pseudo_header);
+		/*
+		 * Fix up the pseudo-header; we may have set
+		 * "x25.flags", but, for some traffic, we should
+		 * set "isdn.uton" instead, and set the channel
+		 * number.
+		 */
+		fix_pseudo_header(wth->phdr.pkt_encap, &wth->pseudo_header);
+	}
 
 	t = t/1000000.0 * wth->capture.ngsniffer->timeunit; /* t = # of secs */
 	t += wth->capture.ngsniffer->start;
@@ -839,7 +875,7 @@ static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
 	struct frame2_rec frame2;
 	struct frame4_rec frame4;
 	struct frame6_rec frame6;
-	int	pkt_encap;
+	int	pkt_encap = wth->file_encap;
 
 	if (ng_file_seek_rand(wth, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -865,7 +901,8 @@ static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
 
 		length -= sizeof frame2;	/* we already read that much */
 
-		set_pseudo_header_frame2(wth, pseudo_header, &frame2);
+		pkt_encap = set_pseudo_header_frame2(wth, pseudo_header,
+		    &frame2);
 		break;
 
 	case REC_FRAME4:
@@ -906,17 +943,20 @@ static gboolean ngsniffer_seek_read(wtap *wth, long seek_off,
 	if (!ngsniffer_read_rec_data(wth, TRUE, pd, packet_size, err))
 		return FALSE;
 
-	/*
-	 * Infer the packet type from the first byte.
-	 */
-	pkt_encap = infer_pkt_encap(pd[0]);
+	if (pkt_encap == WTAP_ENCAP_PER_PACKET) {
+		/*
+		 * Infer the packet type from the first byte.
+		 */
+		pkt_encap = infer_pkt_encap(pd[0]);
 
-	/*
-	 * Fix up the pseudo-header; we may have set "x25.flags",
-	 * but, for some traffic, we should set "isdn.uton" instead,
-	 * and set the channel number.
-	 */
-	fix_pseudo_header(pkt_encap, pseudo_header);
+		/*
+		 * Fix up the pseudo-header; we may have set
+		 * "x25.flags", but, for some traffic, we should
+		 * set "isdn.uton" instead, and set the channel
+		 * number.
+		 */
+		fix_pseudo_header(pkt_encap, pseudo_header);
+	}
 
 	return TRUE;
 }
@@ -969,31 +1009,69 @@ static gboolean ngsniffer_read_frame2(wtap *wth, gboolean is_random,
 	return TRUE;
 }
 
-static void set_pseudo_header_frame2(wtap *wth,
+static int set_pseudo_header_frame2(wtap *wth,
     union wtap_pseudo_header *pseudo_header, struct frame2_rec *frame2)
 {
+	int pkt_encap;
+
 	/*
-	 * In one PPP "Internetwork analyzer" capture,
-	 * the only bit seen in "fs" is the 0x80 bit,
-	 * which probably indicates the packet's
-	 * direction; all other bits were zero.
-	 * All bits in "frame2.flags" were zero.
+	 * In one PPP "Internetwork analyzer" capture:
 	 *
-	 * In one X.25 "Interenetwork analyzer" capture,
-	 * the only bit seen in "fs" is the 0x80 bit,
-	 * which probably indicates the packet's
-	 * direction; all other bits were zero.
-	 * "frame2.flags" was always 0x18.
+	 *	The only bit seen in "frame2.fs" is the 0x80 bit, which
+	 *	probably indicates the packet's direction; all other
+	 *	bits were zero.  The Expert Sniffer Network Analyzer
+	 *	5.50 Operations manual says that bit is the FS_DTE bit
+	 *	for async/PPP data.  The other bits are error bits
+	 *	plus bits indicating whether the frame is PPP or SLIP,
+	 *	but the PPP bit isn't set.
 	 *
-	 * In one Ethernet capture, "fs" was always 0,
-	 * and "flags" was either 0 or 0x18, with no
-	 * obvious correlation with anything.
+	 *	All bits in "frame2.flags" were zero.
 	 *
-	 * In one Token Ring capture, "fs" was either 0
-	 * or 0xcc, and "flags" was either 0 or 0x18,
-	 * with no obvious correlation with anything.
+	 * In one X.25 "Internetwork analyzer" capture:
+	 *
+	 *	The only bit seen in "frame2.fs" is the 0x80 bit, which
+	 *	probably indicates the packet's direction; all other
+	 *	bits were zero.
+	 *
+	 *	"frame2.flags" was always 0x18; however, the Sniffer
+	 *	manual says that just means that a display filter was
+	 *	calculated for the frame, and it should be displayed,
+	 *	so perhaps that's just a quirk of that particular capture.
+	 *
+	 * In one Ethernet capture:
+	 *
+	 *	"frame2.fs" was always 0; the Sniffer manual says they're
+	 *	error bits of various sorts.
+	 *
+	 *	"frame2.flags" was either 0 or 0x18, with no obvious
+	 *	correlation with anything.  See previous comment
+	 *	about display filters.
+	 *
+	 * In one Token Ring capture:
+	 *
+	 *	"frame2.fs" was either 0 or 0xcc; the Sniffer manual says
+	 *	nothing about those bits for Token Ring captures.
+	 *
+	 *	"frame2.flags" was either 0 or 0x18, with no obvious
+	 *	correlation with anything.  See previous comment
+	 *	about display filters.
+	 *
+	 * In some PPP and ISDN captures, with subtype NET_ROUTER,
+	 * the 0x18 bits in "frame2.fs" are 0 for frames in a PPP
+	 * capture and non-zero for frames in an ISDN capture, specifying
+	 * the channel number in the fashion described in the Sniffer
+	 * manual.
 	 */
-	switch (wth->file_encap) {
+	if (wth->file_encap == WTAP_ENCAP_PER_PACKET &&
+	    wth->capture.ngsniffer->is_router) {
+		if ((frame2->fs & 0x18) == 0)
+			pkt_encap = WTAP_ENCAP_PPP_WITH_PHDR;
+		else
+			pkt_encap = WTAP_ENCAP_ISDN;
+	} else
+		pkt_encap = wth->file_encap;
+
+	switch (pkt_encap) {
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
 		pseudo_header->p2p.sent = (frame2->fs & 0x80) ? TRUE : FALSE;
@@ -1004,7 +1082,29 @@ static void set_pseudo_header_frame2(wtap *wth,
 	case WTAP_ENCAP_PER_PACKET:
 		pseudo_header->x25.flags = (frame2->fs & 0x80) ? 0x00 : FROM_DCE;
 		break;
+
+	case WTAP_ENCAP_ISDN:
+		pseudo_header->isdn.uton = (frame2->fs & 0x80) ? TRUE : FALSE;
+		switch (frame2->fs & 0x18) {
+
+		case 0x18:
+			pseudo_header->isdn.channel = 0;	/* D-channel */
+			break;
+
+		case 0x08:
+			pseudo_header->isdn.channel = 1;	/* B1-channel */
+			break;
+
+		case 0x10:
+			pseudo_header->isdn.channel = 2;	/* B1-channel */
+			break;
+
+		default:
+			pseudo_header->isdn.channel = 30;	/* XXX */
+			break;
+		}
 	}
+	return pkt_encap;
 }
 
 static gboolean ngsniffer_read_frame4(wtap *wth, gboolean is_random,

@@ -1,6 +1,6 @@
 /* wtap-int.h
  *
- * $Id: wtap-int.h,v 1.30 2002/10/31 07:12:42 guy Exp $
+ * $Id: wtap-int.h,v 1.31 2002/11/01 08:18:36 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -55,7 +55,8 @@ typedef struct {
 typedef struct {
 	double	timeunit;
 	time_t	start;
-	int	is_atm;
+	gboolean is_atm;
+	gboolean is_router;
 	ngsniffer_comp_stream_t seq;	/* sequential access */
 	ngsniffer_comp_stream_t rand;	/* random access */
 	GList	*first_blob;		/* list element for first blob */
