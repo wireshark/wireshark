@@ -1,7 +1,7 @@
 /* ethertype.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id: packet-ethertype.c,v 1.16 2001/06/14 20:37:07 guy Exp $
+ * $Id: packet-ethertype.c,v 1.17 2001/06/15 20:23:41 guy Exp $
  *
  * Gilbert Ramirez <gram@xiexie.org>
  *
@@ -75,9 +75,19 @@ const value_string etype_vals[] = {
     {ETHERTYPE_ETHBRIDGE,	"Transparent Ethernet bridging" },
 
     /*
-     * XXX - is there a standard for running PPP protocols atop
-     * Ethernet, using the PPP protocol type value as the
-     * Ethernet protocol type value?
+     * NDISWAN on Windows translates Ethernet frames from higher-level
+     * protocols into PPP frames to hand to the PPP driver, and translates
+     * PPP frames from the PPP driver to hand to the higher-level protocols.
+     *
+     * Apparently the PPP driver, on at least some versions of Windows,
+     * passes frames for internal-to-PPP protocols up through NDISWAN;
+     * the protocol type field appears to be passed through unchanged
+     * (unlike what's done with, for example, the protocol type field
+     * for IP, which is mapped from its PPP value to its Ethernet value).
+     *
+     * This means that we may see, on Ethernet captures, frames for
+     * protocols internal to PPP, so we list as "Ethernet" protocol
+     * types the PPP protocol types we've seen.
      */
     {PPP_IPCP,			"PPP IP Control Protocol" },
     {PPP_LCP,			"PPP Link Control Protocol" },

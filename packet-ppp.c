@@ -1,7 +1,7 @@
 /* packet-ppp.c
  * Routines for ppp packet disassembly
  *
- * $Id: packet-ppp.c,v 1.64 2001/06/14 20:05:12 guy Exp $
+ * $Id: packet-ppp.c,v 1.65 2001/06/15 20:23:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1492,6 +1492,23 @@ void
 proto_reg_handoff_lcp(void)
 {
   dissector_add("ppp.protocol", PPP_LCP, dissect_lcp, proto_lcp);
+
+  /*
+   * NDISWAN on Windows translates Ethernet frames from higher-level
+   * protocols into PPP frames to hand to the PPP driver, and translates
+   * PPP frames from the PPP driver to hand to the higher-level protocols.
+   *
+   * Apparently the PPP driver, on at least some versions of Windows,
+   * passes frames for internal-to-PPP protocols up through NDISWAN;
+   * the protocol type field appears to be passed through unchanged
+   * (unlike what's done with, for example, the protocol type field
+   * for IP, which is mapped from its PPP value to its Ethernet value).
+   *
+   * This means that we may see, on Ethernet captures, frames for
+   * protocols internal to PPP, so we register PPP_LCP with the
+   * "ethertype" dissector table as well as the PPP protocol dissector
+   * table.
+   */
   dissector_add("ethertype", PPP_LCP, dissect_lcp, proto_lcp);
 }
 
@@ -1514,5 +1531,10 @@ void
 proto_reg_handoff_ipcp(void)
 {
   dissector_add("ppp.protocol", PPP_IPCP, dissect_ipcp, proto_ipcp);
+
+  /*
+   * See above comment about NDISWAN for an explanation of why we're
+   * registering with the "ethertype" dissector table.
+   */
   dissector_add("ethertype", PPP_IPCP, dissect_ipcp, proto_ipcp);
 }
