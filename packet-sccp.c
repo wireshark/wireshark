@@ -6,7 +6,7 @@
  *
  * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
  *
- * $Id: packet-sccp.c,v 1.7 2003/01/02 20:44:32 guy Exp $
+ * $Id: packet-sccp.c,v 1.8 2003/03/21 23:05:25 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,7 @@
 #define MESSAGE_TYPE_OFFSET 0
 #define MESSAGE_TYPE_LENGTH 1
 #define POINTER_LENGTH      1
+#define POINTER_LENGTH_LONG 2
 
 #define MESSAGE_TYPE_CR    0x01
 #define MESSAGE_TYPE_CC    0x02
@@ -678,7 +679,7 @@ dissect_sccp_dlr_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
 {
   guint32 reference;
 
-  reference = tvb_get_ntoh24(tvb, 0);
+  reference = tvb_get_letoh24(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_dlr, tvb, 0, length, reference);
 }
 
@@ -687,7 +688,7 @@ dissect_sccp_slr_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
 {
   guint32 reference;
 
-  reference = tvb_get_ntoh24(tvb, 0);
+  reference = tvb_get_letoh24(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_slr, tvb, 0, length, reference);
 }
 
@@ -1167,7 +1168,7 @@ dissect_sccp_segmentation_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
   class = tvb_get_guint8(tvb, 0) & SEGMENTATION_CLASS_MASK;
   remaining = tvb_get_guint8(tvb, 0) & SEGMENTATION_REMAINING_MASK;
 
-  slr = tvb_get_ntoh24(tvb, 1);
+  slr = tvb_get_letoh24(tvb, 1);
 
   param_item = proto_tree_add_text(tree, tvb, 0, length,
 				   val_to_str(PARAMETER_SEGMENTATION,
@@ -1257,7 +1258,7 @@ dissect_sccp_isni_param(tvbuff_t *tvb, proto_tree *tree, guint8 length)
  */
 static guint16
 dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
-		       proto_tree *tree, guint8 parameter_type, guint8 offset,
+		       proto_tree *tree, guint8 parameter_type, guint16 offset,
 		       guint16 parameter_length)
 {
     tvbuff_t *parameter_tvb;
@@ -1405,7 +1406,7 @@ dissect_sccp_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 static guint16
 dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
 				proto_tree *sccp_tree, proto_tree *tree,
-				guint8 parameter_type, guint8 offset)
+				guint8 parameter_type, guint16 offset)
 {
   guint16 parameter_length;
   guint8 length_length;
@@ -1418,7 +1419,7 @@ dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
   else
   {
     /* Long data parameter has 16 bit length */
-    parameter_length = tvb_get_ntohs(tvb, offset);
+    parameter_length = tvb_get_letohs(tvb, offset);
     length_length = PARAMETER_LONG_DATA_LENGTH_LENGTH;
   }
 
@@ -1447,7 +1448,7 @@ dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_sccp_optional_parameters(tvbuff_t *tvb, packet_info *pinfo,
 				 proto_tree *sccp_tree, proto_tree *tree,
-				 guint8 offset)
+				 guint16 offset)
 {
   guint8 parameter_type;
 
@@ -1471,25 +1472,32 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 		     proto_tree *tree)
 {
   guint8 message_type;
-  guint8 variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
-  guint8 optional_pointer = 0;
-  guint8 offset = 0;
+  guint16 variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
+  guint16 optional_pointer = 0;
+  guint16 offset = 0;
 
 /* Macro for getting pointer to mandatory variable parameters */
-#define VARIABLE_POINTER(var, hf_var) \
-    var = tvb_get_guint8(tvb, offset); \
+#define VARIABLE_POINTER(var, hf_var, ptr_size) \
+    if (ptr_size == POINTER_LENGTH) \
+	var = tvb_get_guint8(tvb, offset); \
+    else \
+	var = tvb_get_letohs(tvb, offset); \
     proto_tree_add_uint(sccp_tree, hf_var, tvb, \
-			offset, POINTER_LENGTH, var); \
+			offset, ptr_size, var); \
     var += offset; \
-    offset += POINTER_LENGTH;
+    offset += ptr_size;
 
 /* Macro for getting pointer to optional parameters */
-#define OPTIONAL_POINTER \
-    optional_pointer = tvb_get_guint8(tvb, offset); \
+#define OPTIONAL_POINTER(ptr_size) \
+    if (ptr_size == POINTER_LENGTH) \
+	optional_pointer = tvb_get_guint8(tvb, offset); \
+    else \
+	optional_pointer = tvb_get_letohs(tvb, offset); \
     proto_tree_add_uint(sccp_tree, hf_sccp_optional_pointer, tvb, \
-			offset, POINTER_LENGTH, optional_pointer); \
+			offset, ptr_size, optional_pointer); \
     optional_pointer += offset; \
-    offset += POINTER_LENGTH;
+    offset += ptr_size;
+
 
   /* Extract the message type;  all other processing is based on this */
   message_type   = tvb_get_guint8(tvb, MESSAGE_TYPE_OFFSET);
@@ -1520,8 +1528,8 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_CLASS, offset,
 				     PROTOCOL_CLASS_LENGTH);
 
-    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1)
-    OPTIONAL_POINTER
+    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH)
+    OPTIONAL_POINTER(POINTER_LENGTH)
 
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLED_PARTY_ADDRESS,
@@ -1545,7 +1553,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CLASS, offset,
 				     PROTOCOL_CLASS_LENGTH);
-    OPTIONAL_POINTER
+    OPTIONAL_POINTER(POINTER_LENGTH)
     break;
 
   case MESSAGE_TYPE_CREF:
@@ -1556,7 +1564,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_REFUSAL_CAUSE, offset,
 				     REFUSAL_CAUSE_LENGTH);
-    OPTIONAL_POINTER
+    OPTIONAL_POINTER(POINTER_LENGTH)
     break;
 
   case MESSAGE_TYPE_RLSD:
@@ -1571,7 +1579,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_RELEASE_CAUSE, offset,
 				     RELEASE_CAUSE_LENGTH);
 
-    OPTIONAL_POINTER
+    OPTIONAL_POINTER(POINTER_LENGTH)
     break;
 
   case MESSAGE_TYPE_RLC:
@@ -1593,7 +1601,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_SEGMENTING_REASSEMBLING,
 				     offset, SEGMENTING_REASSEMBLING_LENGTH);
 
-    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1)
+    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH)
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree, PARAMETER_DATA,
 				    variable_pointer1);
     break;
@@ -1624,9 +1632,9 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
     offset += dissect_sccp_parameter(tvb, pinfo, sccp_tree, tree,
 				     PARAMETER_CLASS, offset,
 				     PROTOCOL_CLASS_LENGTH);
-    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1)
-    VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2)
-    VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3)
+    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH)
+    VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH)
+    VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH)
 
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLED_PARTY_ADDRESS,
@@ -1643,9 +1651,9 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_RETURN_CAUSE, offset,
 				     RETURN_CAUSE_LENGTH);
 
-    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1)
-    VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2)
-    VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3)
+    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH)
+    VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH)
+    VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH)
 
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLED_PARTY_ADDRESS,
@@ -1665,7 +1673,7 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     offset,
 				     DESTINATION_LOCAL_REFERENCE_LENGTH);
 
-    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1)
+    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH)
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree, PARAMETER_DATA,
 				    variable_pointer1);
     break;
@@ -1736,10 +1744,10 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_HOP_COUNTER, offset,
 				     HOP_COUNTER_LENGTH);
 
-    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1)
-    VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2)
-    VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3)
-    OPTIONAL_POINTER
+    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH)
+    VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH)
+    VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH)
+    OPTIONAL_POINTER(POINTER_LENGTH)
 
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLED_PARTY_ADDRESS,
@@ -1759,10 +1767,10 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				     PARAMETER_HOP_COUNTER, offset,
 				     HOP_COUNTER_LENGTH);
 
-    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1)
-    VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2)
-    VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3)
-    OPTIONAL_POINTER
+    VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH)
+    VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH)
+    VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH)
+    OPTIONAL_POINTER(POINTER_LENGTH)
 
     dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				    PARAMETER_CALLED_PARTY_ADDRESS,
@@ -1784,10 +1792,10 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				       PARAMETER_HOP_COUNTER, offset,
 				       HOP_COUNTER_LENGTH);
 
-      VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1)
-      VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2)
-      VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3)
-      OPTIONAL_POINTER
+      VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH_LONG)
+      VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH_LONG)
+      VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH_LONG)
+      OPTIONAL_POINTER(POINTER_LENGTH_LONG)
 
       dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				      PARAMETER_CALLED_PARTY_ADDRESS,
@@ -1811,10 +1819,10 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
 				       PARAMETER_HOP_COUNTER, offset,
 				       HOP_COUNTER_LENGTH);
 
-      VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1)
-      VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2)
-      VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3)
-      OPTIONAL_POINTER
+      VARIABLE_POINTER(variable_pointer1, hf_sccp_variable_pointer1, POINTER_LENGTH_LONG)
+      VARIABLE_POINTER(variable_pointer2, hf_sccp_variable_pointer2, POINTER_LENGTH_LONG)
+      VARIABLE_POINTER(variable_pointer3, hf_sccp_variable_pointer3, POINTER_LENGTH_LONG)
+      OPTIONAL_POINTER(POINTER_LENGTH_LONG)
 
       dissect_sccp_variable_parameter(tvb, pinfo, sccp_tree, tree,
 				      PARAMETER_CALLED_PARTY_ADDRESS,
@@ -1872,19 +1880,19 @@ proto_register_sccp(void)
 	"", HFILL}},
     { &hf_sccp_variable_pointer1,
       { "Pointer to first Mandatory Variable parameter", "sccp.variable_pointer1",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL}},
     { &hf_sccp_variable_pointer2,
       { "Pointer to second Mandatory Variable parameter", "sccp.variable_pointer2",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL}},
     { &hf_sccp_variable_pointer3,
       { "Pointer to third Mandatory Variable parameter", "sccp.variable_pointer3",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL}},
     { &hf_sccp_optional_pointer,
       { "Pointer to Optional parameter", "sccp.optional_pointer",
-	FT_UINT8, BASE_DEC, NULL, 0x0,
+	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"", HFILL}},
     { &hf_sccp_ssn,
       { "Called or Calling SubSystem Number", "sccp.ssn",
