@@ -261,6 +261,7 @@ Heikki Vatiainen <hessu[AT]cs.tut.fi> {
 	    really be quads
 	CGMP-over-Ethernet II support
 	Fix the test for IS-IS virtual links
+	Documentation improvements
 }
 
 Greg Hankins <gregh[AT]twoguys.org> {

@@ -470,9 +470,9 @@ two expressions are not equivalent:
         ip.addr ne 192.168.4.1
     not ip.addr eq 192.168.4.1
 
-The first filter says "show me all packets where an ip.addr exists that
+The first filter says "show me IP packets where an ip.addr exists that
 does not equal 192.168.4.1".  That is, as long as one ip.addr in the
-packet does not equal 192.168.44.1, the packet passes the display
+packet does not equal 192.168.44.1, the packet passes the read
 filter.  The second filter "don't show me any packets that have at least
 one ip.addr field equal to 192.168.4.1".  If one ip.addr is 192.168.4.1,
 the packet does not pass.  If B<neither> ip.addr fields is 192.168.4.1,
@@ -484,6 +484,25 @@ ne 192.168.4.1" can be thought of as "there exists an ip.addr that does
 not equal 192.168.4.1".
 
 Be careful with multiply-recurring fields; they can be confusing.
+
+Care must also be taken when using the read filter to remove noise
+from the packet trace. If you want to e.g. filter out all IP multicast
+packets to address 224.1.2.3, then using:
+
+    ip.dst ne 224.1.2.3
+
+may be too restrictive. Filtering with "ip.dst" selects only those
+B<IP> packets that satisfy the rule. Any other packets, including all
+non-IP packets, will not printed. For printing also the non-IP
+packets, you can use one of the following two expressions:
+
+    not ip or ip.dst ne 224.1.2.3
+    not ip.addr eq 224.1.2.3
+
+The first filter uses "not ip" to include all non-IP packets and then
+lets "ip.dst ne 224.1.2.3" to filter out the unwanted IP packets. The
+second filter has already been explained above where filtering with
+multiply occuring fields was discussed.
 
 The following is a table of protocol and protocol fields that are
 filterable in B<Tethereal>.  The abbreviation of the protocol or field is
