@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.31 1999/07/29 05:46:55 gram Exp $
+ * $Id: packet-ip.c,v 1.32 1999/07/31 11:21:05 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -734,12 +734,11 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     }
   }
 
-  pi.srcip = ip_to_str( (guint8 *) &iph.ip_src);
-  pi.destip = ip_to_str( (guint8 *) &iph.ip_dst);
   pi.ipproto = iph.ip_p;
   pi.iplen = iph.ip_len;
   pi.iphdrlen = lo_nibble(iph.ip_v_hl);
   pi.ip_src = iph.ip_src;
+  pi.ip_dst = iph.ip_dst;
   pi.payload = pi.iplen - hlen;
 
   offset += hlen;

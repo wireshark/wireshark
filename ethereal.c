@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.67 1999/07/28 23:16:32 guy Exp $
+ * $Id: ethereal.c,v 1.68 1999/07/31 11:21:04 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -917,8 +917,8 @@ file_quit_cmd_cb (GtkWidget *widget, gpointer data) {
 }
 
 void blank_packetinfo() {
-  pi.srcip    = 0;
-  pi.destip   = 0;
+  pi.ip_src   = 0;
+  pi.ip_dst   = 0;
   pi.ipproto  = 0;
   pi.srcport  = 0;
   pi.destport = 0;

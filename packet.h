@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.75 1999/07/28 23:16:33 guy Exp $
+ * $Id: packet.h,v 1.76 1999/07/31 11:21:06 deniel Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -117,9 +117,8 @@ typedef struct _frame_data {
 } frame_data;
 
 typedef struct _packet_info {
-  char *srcip;
   int ip_src;
-  char *destip;
+  int ip_dst;
   int ipproto;
   int srcport;
   int destport;

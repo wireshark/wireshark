@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.12 1999/07/17 04:19:02 gram Exp $
+ * $Id: follow.c,v 1.13 1999/07/31 11:21:05 deniel Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -62,8 +62,11 @@ build_follow_filter( packet_info *pi ) {
   char* buf = malloc(1024);
   if( pi->ipproto == 6 ) {
     /* TCP */
-    sprintf( buf, "(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
-		pi->srcip, pi->destip, pi->srcport, pi->destport );
+    sprintf( buf, 
+	     "(ip.addr eq %s and ip.addr eq %s) and (tcp.port eq %d and tcp.port eq %d)",
+	     ip_to_str( (guint8 *) &pi->ip_src), 
+	     ip_to_str( (guint8 *) &pi->ip_dst), 
+	     pi->srcport, pi->destport );
   }
   else { 
     free( buf );
