@@ -1,7 +1,7 @@
 /* packet-dns.c
  * Routines for DNS packet disassembly
  *
- * $Id: packet-dns.c,v 1.34 2000/01/16 02:54:45 guy Exp $
+ * $Id: packet-dns.c,v 1.35 2000/03/07 05:57:13 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -575,8 +575,8 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
   const u_char *data_start;
   u_int ttl;
   u_short data_len;
-  proto_tree *rr_tree;
-  proto_item *trr;
+  proto_tree *rr_tree = NULL;
+  proto_item *trr = NULL;
 
   data_start = dptr = pd + offset;
   cur_offset = offset;
@@ -803,14 +803,18 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       int os_len;
 
       cpu_offset = cur_offset;
+      if (dns_tree != NULL) {
+        trr = proto_tree_add_notext(dns_tree, offset,
+				(dptr - data_start) + data_len);
+	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
+		       long_type_name, class_name, ttl, data_len);
+      }
       if (!BYTES_ARE_IN_FRAME(cpu_offset, 1)) {
 	/* We ran past the end of the captured data in the packet. */
       	if (dns_tree != NULL) {
-	  trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+	  proto_item_set_text(trr,
 		       "%s: type %s, class %s, <CPU goes past end of captured data in packet>",
 		       name, type_name, class_name);
-	  rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
 	}
 	return 0;
       }
@@ -818,11 +822,9 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       if (!BYTES_ARE_IN_FRAME(cpu_offset + 1, cpu_len)) {
 	/* We ran past the end of the captured data in the packet. */
       	if (dns_tree != NULL) {
-	  trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+	  proto_item_set_text(trr,
 		       "%s: type %s, class %s, <CPU goes past end of captured data in packet>",
 		       name, type_name, class_name);
-	  rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
 	}
 	return 0;
       }
@@ -830,11 +832,9 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       if (!BYTES_ARE_IN_FRAME(os_offset, 1)) {
 	/* We ran past the end of the captured data in the packet. */
       	if (dns_tree != NULL) {
-	  trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+	  proto_item_set_text(trr,
 		       "%s: type %s, class %s, CPU %.*s, <OS goes past end of captured data in packet>",
 		       name, type_name, class_name, cpu_len, &pd[cpu_offset + 1]);
-	  rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
 	}
 	return 0;
       }
@@ -842,11 +842,9 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       if (!BYTES_ARE_IN_FRAME(os_offset + 1, os_len)) {
 	/* We ran past the end of the captured data in the packet. */
       	if (dns_tree != NULL) {
-	  trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
-		       "%s: type %s, class %s, CPU %*.s, <OS goes past end of captured data in packet>",
+	  proto_item_set_text(trr,
+		       "%s: type %s, class %s, CPU %.*s, <OS goes past end of captured data in packet>",
 		       name, type_name, class_name, cpu_len, &pd[cpu_offset + 1]);
-	  rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
 	}
 	return 0;
       }
@@ -854,12 +852,10 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
 	col_append_fstr(fd, COL_INFO, " %s %.*s %.*s", type_name, cpu_len,
 	    &pd[cpu_offset + 1], os_len, &pd[os_offset + 1]);
       if (dns_tree != NULL) {
-	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+	proto_item_set_text(trr,
 		     "%s: type %s, class %s, CPU %.*s, OS %.*s",
 		     name, type_name, class_name,
 		     cpu_len, &pd[cpu_offset + 1], os_len, &pd[os_offset + 1]);
-	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
 	proto_tree_add_text(rr_tree, cpu_offset, 1 + cpu_len, "CPU: %.*s",
 			cpu_len, &pd[cpu_offset + 1]);
 	proto_tree_add_text(rr_tree, os_offset, 1 + os_len, "OS: %.*s",
@@ -875,14 +871,18 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       char mx_name[MAXDNAME];
       int mx_name_len;
       
+      if (dns_tree != NULL) {
+	trr = proto_tree_add_notext(dns_tree, offset,
+				(dptr - data_start) + data_len);
+	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
+		       long_type_name, class_name, ttl, data_len);
+      }
       if (!BYTES_ARE_IN_FRAME(cur_offset, 2)) {
 	/* We ran past the end of the captured data in the packet. */
       	if (dns_tree != NULL) {
-	  trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+	  proto_item_set_text(trr,
 		       "%s: type %s, class %s, <preference goes past end of captured data in packet>",
 		       name, type_name, class_name);
-	  rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
 	}
 	return 0;
       }
@@ -891,22 +891,18 @@ dissect_dns_answer(const u_char *pd, int offset, int dns_data_offset,
       if (mx_name_len < 0) {
 	/* We ran past the end of the captured data in the packet. */
 	if (dns_tree != NULL) {
-	  trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+	  proto_item_set_text(trr,
 		       "%s: type %s, class %s, preference %u, <mx goes past end of captured data in packet>",
 		       name, type_name, class_name, preference);
-	  rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
 	}
 	return 0;
       }
       if (fd != NULL)
 	col_append_fstr(fd, COL_INFO, " %s %u %s", type_name, preference, mx_name);
       if (dns_tree != NULL) {
-	trr = proto_tree_add_text(dns_tree, offset, (dptr - data_start) + data_len,
+	proto_item_set_text(trr,
 		       "%s: type %s, class %s, preference %u, mx %s",
 		       name, type_name, class_name, preference, mx_name);
-	rr_tree = add_rr_to_tree(trr, ett_dns_rr, offset, name, name_len,
-		       long_type_name, class_name, ttl, data_len);
 	proto_tree_add_text(rr_tree, cur_offset, 2, "Preference: %u", preference);
 	proto_tree_add_text(rr_tree, cur_offset + 2, mx_name_len, "Mail exchange: %s",
 			mx_name);
