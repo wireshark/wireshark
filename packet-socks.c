@@ -2,7 +2,7 @@
  * Routines for socks versions 4 &5  packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-socks.c,v 1.32 2001/12/10 00:25:36 guy Exp $
+ * $Id: packet-socks.c,v 1.33 2001/12/11 21:35:01 jfoster Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -119,7 +119,10 @@ static int hf_socks_ip_dst = -1;
 static int hf_socks_ip6_dst = -1;
 static int hf_user_name = -1;
 static int hf_socks_dstport = -1;
-static int hf_socks_command = -1;
+static int hf_socks_cmd = -1;
+static int hf_socks_results = -1;
+static int hf_socks_results_4 = -1;
+static int hf_socks_results_5 = -1;
 
 
 /************* Dissector handles ***********/
@@ -183,6 +186,7 @@ static char *address_type_table[] = {
 
 /* String table for the V4 reply status messages */
 
+#ifdef __JUNK__
 static char *reply_table_v4[] = {
 	"Granted",
 	"Rejected or Failed",
@@ -190,10 +194,19 @@ static char *reply_table_v4[] = {
 	"Rejected because the client program and identd report different user-ids",
 	"Unknown"
 };
+#endif
 
+static const value_string reply_table_v4[] = {
+	{90, "Granted"},
+	{91, "Rejected or Failed"},
+	{92, "Rejected because SOCKS server cannot connect to identd on the client"},
+	{93, "Rejected because the client program and identd report different user-ids"},
+	{0, NULL}
+};
 
 /* String table for the V5 reply status messages */
 
+#ifdef __JUNK__
 static char *reply_table_v5[] = {
 	"Succeeded",
 	"General SOCKS server failure",
@@ -206,7 +219,29 @@ static char *reply_table_v5[] = {
 	"Address type not supported",
 	"Unknown"
 };
+#endif 
 
+static const value_string reply_table_v5[] = {
+	{0, "Succeeded"},
+	{1, "General SOCKS server failure"},
+	{2, "Connection not allowed by ruleset"},
+	{3, "Network unreachable"},
+	{4, "Host unreachable"},
+	{5, "Connection refused"},
+	{6, "TTL expired"},
+	{7, "Command not supported"},
+	{8, "Address type not supported"}
+};
+
+static const value_string cmd_strings[] = {
+	{0, "Unknow"},
+	{1, "Connect"},
+	{2, "Bind"}, 
+	{3, "UdpAssociate"},
+	{0x80, "Ping"},
+	{0x81, "Traceroute"},
+	{0, NULL}
+};
 
 #define socks_hash_init_count 20
 #define socks_hash_val_length (sizeof(socks_hash_entry_t))
@@ -438,14 +473,14 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *parent, proto_tree *tree, socks_hash_entry_t *hash_info) {
 
 
-/* Display the protocol tree for the V5 version. This routine uses the	*/
+/* Display the protocol tree for the V4 version. This routine uses the	*/
 /* stored conversation information to decide what to do with the row.	*/
 /* Per packet information would have been better to do this, but we	*/
 /* didn't have that when I wrote this. And I didn't expect this to get	*/
 /* so messy.								*/
 
 
-	int command;
+	guint command;
 
 					/* Display command from client */
 	if (compare_packet( hash_info->connect_row)){
@@ -485,13 +520,13 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	
 	else if ( compare_packet( hash_info->cmd_reply_row)){
 				 
-		proto_tree_add_text( tree, tvb, offset, 1,
-			"Version: %u (should be 0) ", tvb_get_guint8(tvb, offset));
+		proto_tree_add_item( tree, hf_socks_ver, tvb, offset, 1,
+				FALSE);
 		++offset;
 						/* Do results code	*/
-		proto_tree_add_text( tree, tvb, offset, 1,
-			"Result Code: %u (%s)", tvb_get_guint8(tvb, offset) ,
-			reply_table_v4[ MAX(0, MIN( tvb_get_guint8(tvb, offset) - 90, 4))]);
+		proto_tree_add_item( tree, hf_socks_results_4, tvb, offset, 1, FALSE);
+                proto_tree_add_uint_hidden(tree, hf_socks_results, tvb, offset, 1, FALSE);
+
 		++offset;
 
 						/* Do remote port	*/
@@ -537,7 +572,7 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_item      *ti;
 
 						/* Do version 	*/
-		proto_tree_add_uint( tree, hf_socks_ver, tvb, offset, 1,
+		proto_tree_add_item( tree, hf_socks_ver, tvb, offset, 1,
 				hash_info->version);
 		++offset;
 
@@ -574,8 +609,7 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}					/* handle user/password auth */
 	else if (compare_packet( hash_info->user_name_auth_row)) {
 
-		proto_tree_add_text( tree, tvb, offset, 1,
-				"Version: %u ", hash_info->version);
+		proto_tree_add_item( tree, hf_socks_ver, tvb, offset, 1, FALSE);
 		++offset;
 						/* process user name	*/
 		offset += display_string( tvb, offset, pinfo, tree,
@@ -590,20 +624,20 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	         (compare_packet( hash_info->cmd_reply_row)) ||
 	         (compare_packet( hash_info->bind_reply_row))){
 
-		proto_tree_add_text( tree, tvb, offset, 1,
-			"Version: %u ", hash_info->version);
+		proto_tree_add_item( tree, hf_socks_ver, tvb, offset, 1, FALSE);
 
 		++offset;
 
 		command = tvb_get_guint8(tvb, offset);
 		
 		if (compare_packet( hash_info->command_row))
-			proto_tree_add_text( tree, tvb, offset, 1, "Command: %u (%s)",
-				command,  get_command_name( command));
-		else
-			proto_tree_add_text( tree, tvb, offset, 1, "Status: %d (%s)",
-				tvb_get_guint8(tvb, offset), reply_table_v5[ MAX( 0,
-				MIN(tvb_get_guint8(tvb, offset) - 90, 9))]);
+			proto_tree_add_uint( tree, hf_socks_cmd, tvb, offset, 1, FALSE);
+
+		else {
+			proto_tree_add_item( tree, hf_socks_results_5, tvb, offset, 1, FALSE);
+                	proto_tree_add_uint_hidden(tree, hf_socks_results, tvb, offset, 1, FALSE);
+		}
+
 		++offset;
 
 		proto_tree_add_text( tree, tvb, offset, 1,
@@ -611,7 +645,7 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		++offset;
 
 		offset = display_address(tvb, offset, pinfo, tree);
-
+/*XXX Add remote port for search somehow */
 						/* Do remote port	*/
 		proto_tree_add_text( tree, tvb, offset, 2,
 				"%sPort: %d",
@@ -943,7 +977,6 @@ dissect_socks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     		hash_info = g_mem_chunk_alloc(socks_vals);
 		hash_info->start_done_row = G_MAXINT;
     		hash_info->state = None;
-//XX		hash_info->port = -1;
 		hash_info->port = 0;
 		hash_info->version = tvb_get_guint8(tvb, offset); /* get version*/
 
@@ -1079,7 +1112,7 @@ proto_register_socks( void){
     
 
 		{ &hf_socks_ver,
-			{ "Version", "socks.ver", FT_UINT8, BASE_DEC, NULL,
+			{ "Version", "socks.version", FT_UINT8, BASE_DEC, NULL,
 			 	0x0, "", HFILL
 			}
 		},
@@ -1089,7 +1122,7 @@ proto_register_socks( void){
 			}
 		},
 		{ &hf_socks_ip6_dst,
-			{ "Remote Address", "socks.dstV6", FT_IPv6, BASE_NONE, NULL,
+			{ "Remote Address(ipv6)", "socks.dstV6", FT_IPv6, BASE_NONE, NULL,
 			 	0x0, "", HFILL
 			}
 		},
@@ -1104,8 +1137,23 @@ proto_register_socks( void){
 				BASE_DEC, NULL, 0x0, "", HFILL
 			}
 		},
-		{ &hf_socks_command,
+		{ &hf_socks_cmd,
 			{ "Command", "socks.command", FT_UINT16,
+				BASE_DEC,  VALS(cmd_strings), 0x0, "", HFILL
+			}
+		},
+		{ &hf_socks_results_4,
+			{ "Results(V4)", "socks.results_v4", FT_UINT8,
+				BASE_DEC, VALS(reply_table_v4), 0x0, "", HFILL
+			}
+		},
+		{ &hf_socks_results_5,
+			{ "Results(V5)", "socks.results_v5", FT_UINT8,
+				BASE_DEC, VALS(reply_table_v5), 0x0, "", HFILL
+			}
+		},
+		{ &hf_socks_results,
+			{ "Results(V5)", "socks.results", FT_UINT8,
 				BASE_DEC, NULL, 0x0, "", HFILL
 			}
 		}
