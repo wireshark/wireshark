@@ -1,7 +1,7 @@
 /* main.h
  * Global defines, etc.
  *
- * $Id: main.h,v 1.16 2000/08/11 13:32:58 deniel Exp $
+ * $Id: main.h,v 1.17 2000/08/20 07:53:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,13 +32,6 @@
 
 #include "globals.h"
 
-#ifdef WIN32
-#define MONO_MEDIUM_FONT "-*-lucida console-medium-*-*-*-*-100-*-*-*-*-*-*"
-#define MONO_BOLD_FONT "-*-lucida console-bold-*-*-*-*-100-*-*-*-*-*-*"
-#else
-#define MONO_MEDIUM_FONT "-*-lucidatypewriter-medium-r-normal-*-*-120-*-*-*-*-iso8859-1"
-#define MONO_BOLD_FONT "-*-lucidatypewriter-bold-r-normal-*-*-120-*-*-*-*-iso8859-1"
-#endif
 #define RC_FILE PF_DIR "/gtkrc"
 #define DEF_WIDTH 750
 #define DEF_HEIGHT 550

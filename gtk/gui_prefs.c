@@ -1,7 +1,7 @@
 /* gui_prefs.c
  * Dialog box for GUI preferences
  *
- * $Id: gui_prefs.c,v 1.5 2000/08/11 13:33:02 deniel Exp $
+ * $Id: gui_prefs.c,v 1.6 2000/08/20 07:53:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -33,18 +33,27 @@
 #include "gui_prefs.h"
 #include "gtkglobals.h"
 #include "prefs_dlg.h"
+#include "ui_util.h"
+#include "dlg_utils.h"
 
 static void scrollbar_menu_item_cb(GtkWidget *w, gpointer data);
 static void plist_sel_browse_cb(GtkWidget *w, gpointer data);
 static void ptree_sel_browse_cb(GtkWidget *w, gpointer data);
 static void ptree_line_style_cb(GtkWidget *w, gpointer data);
 static void ptree_expander_style_cb(GtkWidget *w, gpointer data);
+static void font_browse_cb(GtkWidget *w, gpointer data);
+static void font_browse_ok_cb(GtkWidget *w, GtkFontSelectionDialog *fs);
+static void font_browse_destroy(GtkWidget *win, gpointer data);
 
 static gboolean temp_gui_scrollbar_on_right;
 static gboolean temp_gui_plist_sel_browse;
 static gboolean temp_gui_ptree_sel_browse;
 static gint temp_gui_ptree_line_style;
 static gint temp_gui_ptree_expander_style;
+static gchar *temp_gui_font_name;
+
+#define E_FONT_DIALOG_PTR_KEY	"font_dialog_ptr"
+#define E_FONT_CALLER_PTR_KEY	"font_caller_ptr"
 
 GtkWidget*
 gui_prefs_show(void)
@@ -52,20 +61,21 @@ gui_prefs_show(void)
 	GtkWidget	*main_tb, *main_vb, *label;
 	GtkWidget	*menu_item_false, *menu_item_true,
 			*menu_item_0, *menu_item_1, *menu_item_2, *menu_item_3,
-			*scrollbar_menu, *scrollbar_option_menu;
+			*scrollbar_menu, *scrollbar_option_menu, *font_bt;
 
 	temp_gui_scrollbar_on_right = prefs.gui_scrollbar_on_right;
 	temp_gui_plist_sel_browse = prefs.gui_plist_sel_browse;
 	temp_gui_ptree_sel_browse = prefs.gui_ptree_sel_browse;
 	temp_gui_ptree_line_style = prefs.gui_ptree_line_style;
 	temp_gui_ptree_expander_style = prefs.gui_ptree_expander_style;
+	temp_gui_font_name = g_strdup(prefs.gui_font_name);
 
 	/* Main vertical box */
 	main_vb = gtk_vbox_new(FALSE, 5);
 	gtk_container_border_width( GTK_CONTAINER(main_vb), 5 );
 
 	/* Main table */
-	main_tb = gtk_table_new(5, 2, FALSE);
+	main_tb = gtk_table_new(6, 2, FALSE);
 	gtk_box_pack_start( GTK_BOX(main_vb), main_tb, FALSE, FALSE, 0 );
 	gtk_table_set_row_spacings( GTK_TABLE(main_tb), 10 );
 	gtk_table_set_col_spacings( GTK_TABLE(main_tb), 15 );
@@ -222,6 +232,12 @@ gui_prefs_show(void)
 	gtk_table_attach_defaults( GTK_TABLE(main_tb), scrollbar_option_menu,
 			1, 2, 4, 5 );
 
+	/* "Font..." button - click to open a font selection dialog box. */
+	font_bt = gtk_button_new_with_label("Font...");
+	gtk_signal_connect(GTK_OBJECT(font_bt), "clicked",
+	    GTK_SIGNAL_FUNC(font_browse_cb), NULL);
+	gtk_table_attach_defaults( GTK_TABLE(main_tb), font_bt, 1, 2, 5, 6 );
+
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);
 
@@ -274,6 +290,119 @@ ptree_expander_style_cb(GtkWidget *w, gpointer data)
 	set_ptree_expander_style_all(value);
 }
 
+/* XXX - need a way to set this on the fly, so that a font change takes
+   effect immediately, rather than requiring the user to exit and restart
+   Ethereal. */
+
+/* Create a font dialog for browsing. */
+static void
+font_browse_cb(GtkWidget *w, gpointer data)
+{
+	GtkWidget *caller = gtk_widget_get_toplevel(w);
+	GtkWidget *font_browse_w;
+	static gchar *fixedwidths[] = { "c", "m", NULL };
+
+	/* Has a font dialog box already been opened for that top-level
+	   widget? */
+	font_browse_w = gtk_object_get_data(GTK_OBJECT(caller),
+	    E_FONT_DIALOG_PTR_KEY);
+
+	if (font_browse_w != NULL) {
+		/* Yes.  Just re-activate that dialog box. */
+		reactivate_window(font_browse_w);
+		return;
+	}
+
+	/* Now create a new dialog. */
+	font_browse_w = gtk_font_selection_dialog_new("Ethereal: Select Font");
+	gtk_window_set_transient_for(GTK_WINDOW(font_browse_w),
+	    GTK_WINDOW(top_level));
+
+	/* Call a handler when we're destroyed, so we can inform
+	   our caller, if any, that we've been destroyed. */
+	gtk_signal_connect(GTK_OBJECT(font_browse_w), "destroy",
+	    GTK_SIGNAL_FUNC(font_browse_destroy), NULL);
+
+	/* Set its filter to show only fixed_width fonts. */
+	gtk_font_selection_dialog_set_filter(
+	    GTK_FONT_SELECTION_DIALOG(font_browse_w),
+	    GTK_FONT_FILTER_BASE,	/* user can't change the filter */
+	    GTK_FONT_ALL,		/* bitmap or scalable are fine */
+	    NULL,			/* all foundries are OK */
+	    NULL,			/* all weights are OK (XXX - normal only?) */
+	    NULL,			/* all slants are OK (XXX - Roman only?) */
+	    NULL,			/* all setwidths are OK */
+	    fixedwidths,		/* ONLY fixed-width fonts */
+	    NULL);			/* all charsets are OK (XXX - ISO 8859/1 only?) */
+
+	/* Set the font to the current font.
+	   XXX - this doesn't seem to work right. */
+	gtk_font_selection_dialog_set_font_name(
+	    GTK_FONT_SELECTION_DIALOG(font_browse_w), prefs.gui_font_name);
+
+	/* Set the E_FONT_CALLER_PTR_KEY for the new dialog to point to
+	   our caller. */
+	gtk_object_set_data(GTK_OBJECT(font_browse_w), E_FONT_CALLER_PTR_KEY,
+	    caller);
+
+	/* Set the E_FONT_DIALOG_PTR_KEY for the caller to point to us */
+	gtk_object_set_data(GTK_OBJECT(caller), E_FONT_DIALOG_PTR_KEY,
+	    font_browse_w);
+  
+	/* Connect the ok_button to font_browse_ok_cb function and pass along a
+	   pointer to the font selection box widget */
+	gtk_signal_connect(
+	    GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(font_browse_w)->ok_button),
+	    "clicked", (GtkSignalFunc)font_browse_ok_cb, font_browse_w);
+
+	/* Connect the cancel_button to destroy the widget */
+	gtk_signal_connect_object(
+	    GTK_OBJECT(GTK_FONT_SELECTION_DIALOG(font_browse_w)->cancel_button),
+	    "clicked", (GtkSignalFunc)gtk_widget_destroy,
+	    GTK_OBJECT(font_browse_w));
+
+	/* Catch the "key_press_event" signal in the window, so that we can
+	   catch the ESC key being pressed and act as if the "Cancel" button
+	   had been selected. */
+	dlg_set_cancel(font_browse_w,
+	    GTK_FONT_SELECTION_DIALOG(font_browse_w)->cancel_button);
+
+	gtk_widget_show(font_browse_w);
+}
+
+static void
+font_browse_ok_cb(GtkWidget *w, GtkFontSelectionDialog *fs)
+{
+	if (temp_gui_font_name != NULL)
+		g_free(temp_gui_font_name);
+	temp_gui_font_name =
+	    g_strdup(gtk_font_selection_dialog_get_font_name(
+	      GTK_FONT_SELECTION_DIALOG(fs)));
+
+	gtk_widget_hide(GTK_WIDGET(fs));
+	gtk_widget_destroy(GTK_WIDGET(fs));
+}
+
+static void
+font_browse_destroy(GtkWidget *win, gpointer data)
+{
+	GtkWidget *caller;
+
+	/* Get the widget that requested that we be popped up, if any.
+	   (It should arrange to destroy us if it's destroyed, so
+	   that we don't get a pointer to a non-existent window here.) */
+	caller = gtk_object_get_data(GTK_OBJECT(win), E_FONT_CALLER_PTR_KEY);
+
+	if (caller != NULL) {
+		/* Tell it we no longer exist. */
+		gtk_object_set_data(GTK_OBJECT(caller), E_FONT_DIALOG_PTR_KEY,
+		    NULL);
+	}
+
+	/* Now nuke this window. */
+	gtk_grab_remove(GTK_WIDGET(win));
+	gtk_widget_destroy(GTK_WIDGET(win));
+}
 
 void
 gui_prefs_ok(GtkWidget *w)
@@ -283,6 +412,9 @@ gui_prefs_ok(GtkWidget *w)
 	prefs.gui_ptree_sel_browse = temp_gui_ptree_sel_browse;
 	prefs.gui_ptree_line_style = temp_gui_ptree_line_style;
 	prefs.gui_ptree_expander_style = temp_gui_ptree_expander_style;
+	if (prefs.gui_font_name != NULL)
+		g_free(prefs.gui_font_name);
+	prefs.gui_font_name = g_strdup(temp_gui_font_name);
 
 	gui_prefs_delete(w);
 }
@@ -303,6 +435,9 @@ gui_prefs_cancel(GtkWidget *w)
 	temp_gui_ptree_sel_browse = prefs.gui_ptree_sel_browse;
 	temp_gui_ptree_line_style = prefs.gui_ptree_line_style;
 	temp_gui_ptree_expander_style = prefs.gui_ptree_expander_style;
+	if (temp_gui_font_name != NULL)
+		g_free(temp_gui_font_name);
+	temp_gui_font_name = g_strdup(prefs.gui_font_name);
 
 	set_scrollbar_placement_all(prefs.gui_scrollbar_on_right);
 	set_plist_sel_browse(prefs.gui_plist_sel_browse);
@@ -316,4 +451,20 @@ gui_prefs_cancel(GtkWidget *w)
 void
 gui_prefs_delete(GtkWidget *w)
 {
+	GtkWidget *caller = gtk_widget_get_toplevel(w);
+	GtkWidget *fs;
+
+	/* Is there a font selection dialog associated with this
+	   Preferences dialog? */
+	fs = gtk_object_get_data(GTK_OBJECT(caller), E_FONT_DIALOG_PTR_KEY);
+
+	if (fs != NULL) {
+		/* Yes.  Destroy it. */
+		gtk_widget_destroy(fs);
+	}
+
+	if (temp_gui_font_name != NULL) {
+		g_free(temp_gui_font_name);
+		temp_gui_font_name = NULL;
+	}
 }

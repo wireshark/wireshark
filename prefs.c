@@ -1,7 +1,7 @@
 /* prefs.c
  * Routines for handling preferences
  *
- * $Id: prefs.c,v 1.36 2000/08/15 20:53:30 deniel Exp $
+ * $Id: prefs.c,v 1.37 2000/08/20 07:53:31 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -515,6 +515,11 @@ read_prefs(int *gpf_errno_return, char **gpf_path_return,
     prefs.gui_ptree_sel_browse = FALSE;
     prefs.gui_ptree_line_style = 0;
     prefs.gui_ptree_expander_style = 1;
+#ifdef WIN32
+    prefs.gui_font_name = g_strdup("-*-lucida console-medium-r-*-*-*-100-*-*-*-*-*-*");
+#else
+    prefs.gui_font_name = g_strdup("-*-fixed-medium-r-semicondensed-*-*-120-*-*-*-*-*-");
+#endif
   }
 
   /* Read the global preferences file, if it exists. */
@@ -727,6 +732,7 @@ prefs_set_pref(char *prefarg)
 #define PRS_GUI_PTREE_SEL_BROWSE "gui.protocol_tree_sel_browse"
 #define PRS_GUI_PTREE_LINE_STYLE "gui.protocol_tree_line_style"
 #define PRS_GUI_PTREE_EXPANDER_STYLE "gui.protocol_tree_expander_style"
+#define PRS_GUI_FONT_NAME "gui.font_name"
 
 #define RED_COMPONENT(x)   ((((x) >> 16) & 0xff) * 65535 / 255)
 #define GREEN_COMPONENT(x) ((((x) >>  8) & 0xff) * 65535 / 255)
@@ -846,6 +852,10 @@ set_pref(gchar *pref_name, gchar *value)
   } else if (strcmp(pref_name, PRS_GUI_PTREE_EXPANDER_STYLE) == 0) {
 	  prefs.gui_ptree_expander_style =
 		  find_index_from_string_array(value, gui_ptree_expander_style_text, 1);
+  } else if (strcmp(pref_name, PRS_GUI_FONT_NAME) == 0) {
+	  if (prefs.gui_font_name != NULL)
+		g_free(prefs.gui_font_name);
+	  prefs.gui_font_name = g_strdup(value);
   } else {
     /* To which module does this preference belong? */
     dotp = strchr(pref_name, '.');
@@ -1090,6 +1100,9 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "\n# Protocol-tree expander style. One of: NONE, SQUARE, TRIANGLE, CIRCULAR\n");
   fprintf(pf, PRS_GUI_PTREE_EXPANDER_STYLE ": %s\n",
 		  gui_ptree_expander_style_text[prefs.gui_ptree_expander_style]);
+
+  fprintf(pf, "\n# Font name for packet list, protocol tree, and hex dump panes.\n");
+  fprintf(pf, PRS_GUI_FONT_NAME ": %s\n", prefs.gui_font_name);
 
   g_list_foreach(modules, write_module_prefs, pf);
 

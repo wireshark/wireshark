@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.136 2000/08/17 07:56:37 guy Exp $
+ * $Id: main.c,v 1.137 2000/08/20 07:53:43 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -126,8 +126,6 @@ GdkFont     *m_r_font, *m_b_font;
 guint        main_ctx, file_ctx;
 gchar        comp_info_str[256];
 gchar       *ethereal_path = NULL;
-gchar       *medium_font = MONO_MEDIUM_FONT;
-gchar       *bold_font = MONO_BOLD_FONT;
 gchar       *last_open_dir = NULL;
 
 ts_type timestamp_type = RELATIVE;
@@ -138,6 +136,7 @@ GtkStyle *item_style;
 field_info *finfo_selected = NULL;
 
 static char* hfinfo_numeric_format(header_field_info *hfinfo);
+static char *boldify(const char *font_name);
 static void create_main_window(gint, gint, gint, e_prefs*);
 
 /* About Ethereal window */
@@ -791,6 +790,7 @@ main(int argc, char *argv[])
   dfilter             *rfcode = NULL;
   gboolean             rfilter_parse_failed = FALSE;
   e_prefs             *prefs;
+  char                *bold_font_name;
 
   ethereal_path = argv[0];
 
@@ -915,11 +915,8 @@ main(int argc, char *argv[])
    );
 
   /* Now get our args */
-  while ((opt = getopt(argc, argv, "b:B:c:Df:hi:km:no:P:Qr:R:Ss:t:T:w:W:vZ:")) != EOF) {
+  while ((opt = getopt(argc, argv, "B:c:Df:hi:km:no:P:Qr:R:Ss:t:T:w:W:vZ:")) != EOF) {
     switch (opt) {
-      case 'b':	       /* Bold font */
-	bold_font = g_strdup(optarg);
-	break;
       case 'B':        /* Byte view pane height */
         bv_size = atoi(optarg);
         break;
@@ -964,8 +961,10 @@ main(int argc, char *argv[])
         arg_error = TRUE;
 #endif
         break;
-      case 'm':        /* Medium font */
-	medium_font = g_strdup(optarg);
+      case 'm':        /* Fixed-width font for the display */
+        if (prefs->gui_font_name != NULL)
+          g_free(prefs->gui_font_name);
+	prefs->gui_font_name = g_strdup(optarg);
 	break;
       case 'n':        /* No name resolution */
 	g_resolving_actif = 0;
@@ -1152,14 +1151,31 @@ main(int argc, char *argv[])
   sprintf(rc_file, "%s/%s", get_home_dir(), RC_FILE);
   gtk_rc_parse(rc_file);
 
-  if ((m_r_font = gdk_font_load(medium_font)) == NULL) {
-    fprintf(stderr, "ethereal: Error font %s not found (use -m option)\n", medium_font);
-    exit(1);
-  }
-
-  if ((m_b_font = gdk_font_load(bold_font)) == NULL) {
-    fprintf(stderr, "ethereal: Error font %s not found (use -b option)\n", bold_font);
-    exit(1);
+  /* Try to load the regular and boldface fixed-width fonts */
+  bold_font_name = boldify(prefs->gui_font_name);
+  m_r_font = gdk_font_load(prefs->gui_font_name);
+  m_b_font = gdk_font_load(bold_font_name);
+  if (m_r_font == NULL || m_b_font == NULL) {
+    /* XXX - pop this up as a dialog box? */
+    if (m_r_font == NULL)
+      fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
+		prefs->gui_font_name);
+    else
+      gdk_font_unref(m_r_font);
+    if (m_b_font == NULL)
+      fprintf(stderr, "ethereal: Warning: font %s not found - defaulting to 6x13 and 6x13bold\n",
+		bold_font_name);
+    else
+      gdk_font_unref(m_b_font);
+    g_free(bold_font_name);
+    if ((m_r_font = gdk_font_load("6x13")) == NULL) {
+      fprintf(stderr, "ethereal: Error: font 6x13 not found\n");
+      exit(1);
+    }
+    if ((m_b_font = gdk_font_load("6x13bold")) == NULL) {
+      fprintf(stderr, "ethereal: Error: font 6x13 not found\n");
+      exit(1);
+    }
   }
 
   create_main_window(pl_size, tv_size, bv_size, prefs);
@@ -1305,6 +1321,59 @@ WinMain (struct HINSTANCE__ *hInstance,
 }
 
 #endif
+
+/* Given a font name, construct the name of the next heavier version of
+   that font. */
+
+#define	XLFD_WEIGHT	3	/* index of the "weight" field */
+
+/* Map from a given weight to the appropriate weight for the "bold"
+   version of a font.
+   XXX - the XLFD says these strings shouldn't be used for font matching;
+   can we get the weight, as a number, from GDK, and ask GDK to find us
+   a font just like the given font, but with the appropriate higher
+   weight? */
+static const struct {
+	char	*light;
+	char	*heavier;
+} weight_map[] = {
+	{ "ultralight", "light" },
+	{ "extralight", "semilight" },
+	{ "light",      "medium" },
+	{ "semilight",  "semibold" },
+	{ "medium",     "bold" },
+	{ "semibold",   "extrabold" },
+	{ "bold",       "ultrabold" }
+};
+#define	N_WEIGHTS	(sizeof weight_map / sizeof weight_map[0])
+	
+static char *
+boldify(const char *font_name)
+{
+	char *bold_font_name;
+	gchar **xlfd_tokens;
+	int i;
+
+	/* Is this an XLFD font?  If it begins with "-", yes, otherwise no. */
+	if (font_name[0] == '-') {
+		xlfd_tokens = g_strsplit(font_name, "-", XLFD_WEIGHT+1);
+		for (i = 0; i < N_WEIGHTS; i++) {
+			if (strcmp(xlfd_tokens[XLFD_WEIGHT],
+			    weight_map[i].light) == 0) {
+				g_free(xlfd_tokens[XLFD_WEIGHT]);
+				xlfd_tokens[XLFD_WEIGHT] =
+				    g_strdup(weight_map[i].heavier);
+				break;
+			}
+		}
+		bold_font_name = g_strjoinv("-", xlfd_tokens);
+		g_strfreev(xlfd_tokens);
+	} else {
+		/* Append "bold" to the name of the font. */
+		bold_font_name = g_strconcat(font_name, "bold", NULL);
+	}
+	return bold_font_name;
+}
 
 static void
 create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs)
