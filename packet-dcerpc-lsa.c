@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.78 2003/05/21 09:34:53 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.79 2003/05/21 10:06:29 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1717,7 +1717,7 @@ lsa_dissect_lsaclearauditlog_rqst(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	/* unknown */
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
@@ -1798,7 +1798,7 @@ lsa_dissect_lsaopentrusteddomain_rqst(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
 		pinfo, tree, drep);
@@ -1829,7 +1829,7 @@ lsa_dissect_lsadeletetrusteddomain_rqst(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	return offset;
 }
@@ -2545,7 +2545,7 @@ lsa_dissect_lsaopenaccount_rqst(tvbuff_t *tvb, int offset,
 
 	/* [in, ref] SID *account */
 	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	/* [in] ACCESS_MASK access */
 	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
@@ -2908,7 +2908,7 @@ lsa_dissect_lsaenumerateaccountrights_rqst(tvbuff_t *tvb, int offset,
 
 	/* [in, ref] SID *account */
 	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	return offset;
 }
@@ -2939,7 +2939,7 @@ lsa_dissect_lsaaddaccountrights_rqst(tvbuff_t *tvb, int offset,
 
 	/* [in, ref] SID *account */
 	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	/* [in, ref] LSA_UNICODE_STRING_ARRAY *rights */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -2970,7 +2970,7 @@ lsa_dissect_lsaremoveaccountrights_rqst(tvbuff_t *tvb, int offset,
 
 	/* [in, ref] SID *account */
 	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	/* remove all */
 	offset = dissect_ndr_uint8 (tvb, offset, pinfo, tree, drep,
@@ -3079,7 +3079,7 @@ lsa_dissect_lsaquerytrusteddomaininfo_rqst(tvbuff_t *tvb, int offset,
 
 	/* [in, ref] SID *sid */
 	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	/* [in] TRUSTED_INFORMATION_CLASS level */
         offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
@@ -3150,7 +3150,7 @@ lsa_dissect_lsasettrusteddomaininfo_rqst(tvbuff_t *tvb, int offset,
 
 	/* [in, ref] SID *sid */
 	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	/* [in] TRUSTED_INFORMATION_CLASS level */
         offset = dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
@@ -3365,7 +3365,7 @@ lsa_dissect_lsacreateaccount_rqst(tvbuff_t *tvb, int offset,
 		pinfo, tree, drep);
 
 	offset = dissect_ndr_nt_SID(tvb, offset,
-		pinfo, tree, drep);
+		pinfo, tree, drep, -1);
 
 	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
 		pinfo, tree, drep);
