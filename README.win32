@@ -1,4 +1,4 @@
-$Id: README.win32,v 1.38 2002/07/06 19:51:25 guy Exp $
+$Id: README.win32,v 1.39 2002/07/08 21:03:04 guy Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
@@ -177,12 +177,16 @@ downloaded from:
 
 	http://www.ethereal.com/distribution/win32/zlib-1.1.3-fixed.zip
 
-Many of the file and directory names used in the build process go past the
-old 8.3 naming limitations.  As a result, you should use the newer
-"cmd.exe" interpreter instead of the old "command.com"; this may mean
-it's not possible to build Ethereal, at least not from the command line,
-on Windows 95/98/Me - you might have to do it on Windows NT/2000/XP/.NET
-Server.
+Many of the file and directory names used in the build process go past
+the old 8.3 naming limitations.  As a result, at least on Windows NT
+4.0, Windows 2000, Windows XP, and Windows .NET Server, you should use
+the newer "cmd.exe" command interpreter instead of the old
+"command.com", as the "command.com" on Windows 2000, at least, can't
+handle non-8.3 directory names.  (It may be that the "command.com" in
+Windows 95, Windows 98, and Windows Me, as it's the only command
+interpreter in those systems, can handle those directories.  If not, it
+may not be possible to build Ethereal from the command line on those
+versions of Windows.)
 
 Be sure that your command-line environment is set up to compile
 and link with MSVC. When installing MSVC, you can have your
