@@ -2,7 +2,7 @@
  * Routines for opening EtherPeek (and TokenPeek?) files
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id: etherpeek.c,v 1.11 2002/01/21 23:45:58 guy Exp $
+ * $Id: etherpeek.c,v 1.12 2002/01/22 20:01:07 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
@@ -323,6 +323,7 @@ static gboolean etherpeek_read_m7(wtap *wth, int *err, long *data_offset)
 	wth->phdr.ts.tv_usec = (guint32) (t - (double) wth->phdr.ts.tv_sec *
 	                                               1000000.0);
 
+	wth->phdr.pkt_encap = wth->file_encap;
 	return TRUE;
 }
 
