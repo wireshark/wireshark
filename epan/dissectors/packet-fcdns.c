@@ -59,6 +59,10 @@
 #include "packet-fcdns.h"
 #include "packet-fcswils.h"
 
+/*
+ * See FC-GS-2.
+ */
+
 /* Initialize the protocol and registered fields */
 static int proto_fcdns              = -1;
 static int hf_fcdns_gssubtype       = -1;
@@ -137,8 +141,8 @@ static dissector_handle_t data_handle;
 static gint
 fcdns_equal(gconstpointer v, gconstpointer w)
 {
-  fcdns_conv_key_t *v1 = (fcdns_conv_key_t *)v;
-  fcdns_conv_key_t *v2 = (fcdns_conv_key_t *)w;
+  const fcdns_conv_key_t *v1 = v;
+  const fcdns_conv_key_t *v2 = w;
 
   return (v1->conv_idx == v2->conv_idx);
 }
@@ -146,7 +150,7 @@ fcdns_equal(gconstpointer v, gconstpointer w)
 static guint
 fcdns_hash (gconstpointer v)
 {
-	fcdns_conv_key_t *key = (fcdns_conv_key_t *)v;
+	const fcdns_conv_key_t *key = v;
 	guint val;
 
 	val = key->conv_idx;
@@ -1135,26 +1139,30 @@ dissect_fcdns_daid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
     }
 }
 
-static gchar *
+static guint8 *
 zonenm_to_str (tvbuff_t *tvb, gint offset)
 {
     int len = tvb_get_guint8 (tvb, offset);
-    return ((gchar *)tvb_get_ptr (tvb, offset+4, len));
+    return tvb_get_string (tvb, offset+4, len);
 }
 
 static void
 dissect_fcdns_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
 {
-    int mbrlen = 4 + tvb_get_guint8 (tvb, offset+3);
+    guint8 mbrtype;
+    int idlen;
+    char dpbuf[2+8+1];
+    char *str;
 
-    proto_tree_add_item (zmbr_tree, hf_fcdns_zone_mbrtype, tvb,
-                         offset, 1, 0);
+    mbrtype = tvb_get_guint8 (tvb, offset);
+    proto_tree_add_uint (zmbr_tree, hf_fcdns_zone_mbrtype, tvb,
+                         offset, 1, mbrtype);
     proto_tree_add_text (zmbr_tree, tvb, offset+2, 1, "Flags: 0x%x",
                          tvb_get_guint8 (tvb, offset+2));
+    idlen = tvb_get_guint8 (tvb, offset+3);
     proto_tree_add_text (zmbr_tree, tvb, offset+3, 1,
-                         "Identifier Length: %d",
-                         tvb_get_guint8 (tvb, offset+3));
-    switch (tvb_get_guint8 (tvb, offset)) {
+                         "Identifier Length: %d", idlen);
+    switch (mbrtype) {
     case FC_SWILS_ZONEMBR_WWN:
         proto_tree_add_string (zmbr_tree, hf_fcdns_zone_mbrid, tvb,
                                offset+4, 8,
@@ -1163,29 +1171,26 @@ dissect_fcdns_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
                                                           8)));
         break;
     case FC_SWILS_ZONEMBR_DP:
-        proto_tree_add_string_format (zmbr_tree,
-                                      hf_fcdns_zone_mbrid,
-                                      tvb, offset+4, 4, " ",
-                                      "0x%x",
-                                      tvb_get_ntohl (tvb,
-                                                     offset+4));
+        sprintf(dpbuf, "0x%08x", tvb_get_ntohl (tvb, offset+4));
+        proto_tree_add_string (zmbr_tree, hf_fcdns_zone_mbrid, tvb,
+                               offset+4, 4, dpbuf);
         break;
     case FC_SWILS_ZONEMBR_FCID:
         proto_tree_add_string (zmbr_tree, hf_fcdns_zone_mbrid, tvb,
                                offset+4, 4,
                                fc_to_str (tvb_get_ptr (tvb,
-                                                       offset+4,
+                                                       offset+5,
                                                        3)));
         break;
     case FC_SWILS_ZONEMBR_ALIAS:
+        str = zonenm_to_str (tvb, offset+4);
         proto_tree_add_string (zmbr_tree, hf_fcdns_zone_mbrid, tvb,
-                               offset+4,
-                               tvb_get_guint8 (tvb, offset+3),
-                               zonenm_to_str (tvb, offset+4));
+                               offset+4, idlen, str);
+        g_free (str);
         break;
     default:
         proto_tree_add_string (zmbr_tree, hf_fcdns_zone_mbrid, tvb,
-                               offset+4, mbrlen,
+                               offset+4, idlen,
                                "Unknown member type format");
             
     }
@@ -1935,5 +1940,3 @@ proto_reg_handoff_fcdns (void)
 
     data_handle = find_dissector ("data");
 }
-
-
