@@ -25,7 +25,7 @@ http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id: ncp2222.py,v 1.62 2003/08/25 22:06:38 guy Exp $
+$Id: ncp2222.py,v 1.63 2003/11/01 04:42:19 guy Exp $
 
 
 Portions Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>.
@@ -1175,6 +1175,10 @@ def endian(field, endianness):
 ##############################################################################
 # NCP Field Types. Defined in Appendix A of "Programmer's Guide..."
 ##############################################################################
+FileSize64bit       = bytes("f_size_64bit", "64bit File Size", 64)
+Length64bit         = bytes("length_64bit", "64bit Length", 64)
+StartOffset64bit    = bytes("s_offset_64bit", "64bit Starting Offset", 64)
+
 AbortQueueFlag  		= val_string8("abort_q_flag", "Abort Queue Flag", [
 	[ 0x00, "Place at End of Queue" ],
 	[ 0x01, "Do Not Place Spool File, Examine Flags" ],
@@ -2350,14 +2354,14 @@ JobControlFlagsWord		= bitfield16("job_control_flags_word", "Job Control Flags",
 ])
 JobCount			= uint32("job_count", "Job Count")
 JobFileHandle			= bytes("job_file_handle", "Job File Handle", 6)
-JobFileHandleLong		= uint32("job_file_handle_long", "Job File Handle")
+JobFileHandleLong		= uint32("job_file_handle_long", "Job File Handle", BE)
 JobFileHandleLong.Display("BASE_HEX")
 JobFileName			= fw_string("job_file_name", "Job File Name", 14)
 JobPosition			= uint8("job_position", "Job Position")
 JobPositionWord			= uint16("job_position_word", "Job Position")
 JobNumber			= uint16("job_number", "Job Number", BE )
 JobNumberLong			= uint32("job_number_long", "Job Number", BE )
-JobNumberList			= uint32("job_number_list", "Job Number List")
+JobNumberLong.Display("BASE_HEX")
 JobType				= uint16("job_type", "Job Type", BE )
 
 LANCustomVariablesCount         = uint32("lan_cust_var_count", "LAN Custom Variables Count")
@@ -3500,7 +3504,7 @@ SequenceNumber			= uint32("sequence_number", "Sequence Number")
 SequenceNumber.Display("BASE_HEX")
 ServerAddress                   = bytes("server_address", "Server Address", 12)
 ServerAppNumber			= uint16("server_app_num", "Server App Number")
-ServerIDList			= uint32("server_id_list", "Server ID List")
+#ServerIDList			= uint32("server_id_list", "Server ID List")
 ServerID			= uint32("server_id_number", "Server ID", BE )
 ServerID.Display("BASE_HEX")
 ServerInfoFlags                 = val_string16("server_info_flags", "Server Information Flags", [
@@ -4467,6 +4471,28 @@ JobEntryTime			= struct("job_entry_time", [
 	Minute,
 	Second,
 ], "Job Entry Time")
+JobStruct3x                       = struct("job_struct_3x", [
+    RecordInUseFlag,
+    PreviousRecord,
+    NextRecord,
+	ClientStationLong,
+        ClientTaskNumberLong,
+        ClientIDNumber,
+	TargetServerIDNumber,
+	TargetExecutionTime,
+        JobEntryTime,
+	JobNumberLong,
+	JobType,
+	JobPositionWord,
+	JobControlFlagsWord,
+	JobFileName,
+	JobFileHandleLong,
+	ServerStationLong,
+	ServerTaskNumberLong,
+	ServerID,
+        TextJobDescription,
+        ClientRecordArea,
+], "Job Information")
 JobStruct                       = struct("job_struct", [
 	ClientStation,
         ClientTaskNumber,
@@ -8806,7 +8832,7 @@ def define_ncp2222():
 		#
 		# XXX - why does this not display anything at all
 		# if the stuff after the first IndexNumber is
-		# un-commented?
+		# un-commented?  That stuff really is there....
 		#
 		rec( 8, 1, DefinedNameSpaces, var="v" ),
 		rec( 9, (1,255), NameSpaceName, repeat="v" ),
@@ -8819,7 +8845,7 @@ def define_ncp2222():
 #		rec( -1, 1, VolumeDataStreams, var="z" ),
 #		rec( -1, 1, IndexNumber, repeat="z" ),
 	])
-	pkt.CompletionCodes([0x0000, 0xff00])
+	pkt.CompletionCodes([0x0000, 0x9802, 0xff00])
 	# 2222/1630, 22/48
 	pkt = NCP(0x1630, "Get Name Space Directory Entry", 'file')
 	pkt.Request( 16, [
@@ -9573,7 +9599,7 @@ def define_ncp2222():
 		rec( 12, 1, QueueStatus ),
 		rec( 13, 1, CurrentEntries ),
 		rec( 14, 1, CurrentServers, var="x" ),
-		rec( 15, 4, ServerIDList, repeat="x" ),
+		rec( 15, 4, ServerID, repeat="x" ),
 		rec( 19, 1, ServerStationList, repeat="x" ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
@@ -9804,14 +9830,14 @@ def define_ncp2222():
 	pkt = NCP(0x1779, "Create Queue Job And File", 'qms')
 	pkt.Request(264, [
 		rec( 10, 4, QueueID ),
-                rec( 14, 250, JobStruct ),
+                rec( 14, 250, JobStruct3x ),
 	])
 	pkt.Reply(94, [
 		rec( 8, 86, JobStructNew ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
 			     0xd300, 0xd400, 0xd500, 0xd601, 0xd703,
-			     0xd800, 0xd902, 0xda01, 0xdb02, 0xff00])
+			     0xd800, 0xd902, 0xda01, 0xdb02, 0xfc07, 0xff00])
 	# 2222/177A, 23/122
 	pkt = NCP(0x177A, "Read Queue Job Entry", 'qms')
 	pkt.Request(18, [
@@ -9819,7 +9845,7 @@ def define_ncp2222():
 		rec( 14, 4, JobNumberLong ),
 	])
 	pkt.Reply(258, [
-            rec( 8, 250, JobStruct ),
+            rec( 8, 250, JobStruct3x ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
 			     0xd300, 0xd400, 0xd500, 0xd601, 0xd703,
@@ -9857,8 +9883,8 @@ def define_ncp2222():
 		rec( 13, 3, Reserved3 ),
 		rec( 16, 4, CurrentEntries ),
 		rec( 20, 4, CurrentServers, var="x" ),
-		rec( 24, 4, ServerIDList, repeat="x" ),
-		rec( 28, 4, ServerStationList, repeat="x" ),
+		rec( 24, 4, ServerID, repeat="x" ),
+		rec( 28, 4, ServerStationLong, LE, repeat="x" ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
 			     0xd300, 0xd400, 0xd500, 0xd601, 0xd703,
@@ -9882,7 +9908,7 @@ def define_ncp2222():
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
 			     0xd300, 0xd400, 0xd500, 0xd601, 0xd703,
-			     0xd800, 0xd902, 0xda01, 0xdb02, 0xff00])
+			     0xd800, 0xd902, 0xda01, 0xdb02, 0xfc07, 0xff00])
 	# 2222/1780, 23/128
 	pkt = NCP(0x1780, "Remove Job From Queue", 'qms')
 	pkt.Request(18, [
@@ -9902,7 +9928,7 @@ def define_ncp2222():
 	pkt.Reply(20, [
 		rec( 8, 4, TotalQueueJobs ),
 		rec( 12, 4, ReplyQueueJobNumbers, var="x" ),
-		rec( 16, 4, JobNumberList, repeat="x" ),
+		rec( 16, 4, JobNumberLong, repeat="x" ),
 	])
 	pkt.CompletionCodes([0x0000, 0x9900, 0xd000, 0xd100, 0xd200,
 			     0xd300, 0xd400, 0xd500, 0xd601, 0xd703,
@@ -9998,7 +10024,7 @@ def define_ncp2222():
 	pkt.Reply(20, [
 		rec( 8, 4, TotalQueueJobs ),
 		rec( 12, 4, JobCount, var="x" ),
-		rec( 16, 4, JobNumberList, repeat="x" ),
+		rec( 16, 4, JobNumberLong, repeat="x" ),
 	])
 	pkt.CompletionCodes([0x0000, 0x7e01, 0xfc06])
 	# 2222/178A, 23/138
@@ -11560,7 +11586,7 @@ def define_ncp2222():
 		rec( 16, 2, FileDate, BE ),
 	], info_str=(FileHandle, "Set Time and Date Stamp for File - 0x%s", ", %s"))
 	pkt.Reply(8)
-	pkt.CompletionCodes([0x0000, 0x8800, 0x9600])
+	pkt.CompletionCodes([0x0000, 0x8800, 0x9400, 0x9600, 0xfb08])
 	# 2222/4C, 76
 	pkt = NCP(0x4C, "Open File", 'file')
 	pkt.Request((11, 265), [
@@ -11672,9 +11698,9 @@ def define_ncp2222():
 		rec( 18, 4, TtlWriteDataSize ),
 		rec( 22, 4, FileOffset ),
 		rec( 26, 4, EAAccessFlag ),
-                rec( 30, 2, EAValueLength, var='x' ),
-                rec( 32, (2,64), EAKey ),
-                rec( -1, 1, EAValueRep, repeat='x' ),
+		rec( 30, 2, EAValueLength, var='x' ),
+		rec( 32, (2,64), EAKey ),
+		rec( -1, 1, EAValueRep, repeat='x' ),
 	], info_str=(EAKey, "Write Extended Attribute: %s", ", %s"))
 	pkt.Reply(20, [
 		rec( 8, 4, EAErrorCodes ),
@@ -12949,13 +12975,68 @@ def define_ncp2222():
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
 			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+	# 2222/5740, 87/64
+	pkt = NCP(0x5740, "Read from File", 'file', has_length=0)
+	pkt.Request(22, [
+        rec( 8, 4, FileHandle, BE ),
+        rec( 12, 8, StartOffset64bit, BE ),
+        rec( 20, 2, NumBytes, BE ),
+    ])
+	pkt.Reply(10, [
+        rec( 8, 2, NumBytes, BE),
+    ])
+	pkt.CompletionCodes([0x0000, 0x8300, 0x8800, 0x9300, 0x9500, 0xa201, 0xfd00, 0xff1b])
+	# 2222/5741, 87/65
+	pkt = NCP(0x5741, "Write to File", 'file', has_length=0)
+	pkt.Request(22, [
+        rec( 8, 4, FileHandle, BE ),
+        rec( 12, 8, StartOffset64bit, BE ),
+        rec( 20, 2, NumBytes, BE ),
+    ])
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x8300, 0x8800, 0x9400, 0x9500, 0xa201, 0xfd00, 0xff1b])
 	# 2222/5742, 87/66
-	pkt = NCP(0x5742, "Novell Advanced Auditing Service (NAAS)", 'auditing', has_length=0)
-	pkt.Request(8)
+	pkt = NCP(0x5742, "Get Current Size of File", 'file', has_length=0)
+	pkt.Request(12, [
+        rec( 8, 4, FileHandle, BE ),
+    ])
+	pkt.Reply(16, [
+        rec( 8, 8, FileSize64bit, BE ),
+    ])
+	pkt.CompletionCodes([0x0000, 0x7f00, 0x8800, 0x9600, 0xfd02, 0xff01])
+	# 2222/5743, 87/67
+	pkt = NCP(0x5743, "Log Physical Record", 'file', has_length=0)
+	pkt.Request(36, [
+        rec( 8, 4, LockFlag, BE ),
+        rec(12, 4, FileHandle, BE ),
+        rec(16, 8, StartOffset64bit, BE ),
+        rec(24, 8, Length64bit, BE ),
+        rec(32, 4, LockTimeout, BE),
+    ])
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7f00, 0x8800, 0x9600, 0xfb08, 0xfd02, 0xff01])
+	# 2222/5744, 87/68
+	pkt = NCP(0x5744, "Release Physical Record", 'file', has_length=0)
+	pkt.Request(28, [
+        rec(8, 4, FileHandle, BE ),
+        rec(12, 8, StartOffset64bit, BE ),
+        rec(20, 8, Length64bit, BE ),
+    ])
 	pkt.Reply(8)
 	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
 			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
-			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff16])
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff1a])
+	# 2222/5745, 87/69
+	pkt = NCP(0x5745, "Clear Physical Record", 'file', has_length=0)
+	pkt.Request(28, [
+        rec(8, 4, FileHandle, BE ),
+        rec(12, 8, StartOffset64bit, BE ),
+        rec(20, 8, Length64bit, BE ),
+    ])
+	pkt.Reply(8)
+	pkt.CompletionCodes([0x0000, 0x7300, 0x8000, 0x8101, 0x8401, 0x8501,
+			     0x8701, 0x8800, 0x8d00, 0x8f00, 0x9001, 0x9600,
+			     0x9804, 0x9b03, 0x9c03, 0xbf00, 0xfd00, 0xff1a])
 	# 2222/5801, 8801
 	pkt = NCP(0x5801, "Query Volume Audit Status", "auditing", has_length=0)
 	pkt.Request(12, [
