@@ -1,7 +1,7 @@
 /* column-utils.c
  * Routines for column utilities.
  *
- * $Id: column-utils.c,v 1.29 2002/12/10 00:12:59 guy Exp $
+ * $Id: column-utils.c,v 1.30 2002/12/10 01:17:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -43,6 +43,7 @@
 #include "resolv.h"
 #include "ipv6-utils.h"
 #include "osi-utils.h"
+#include "value_string.h"
 
 /* Allocate all the data structures for constructing column data, given
    the number of columns. */
@@ -501,12 +502,17 @@ col_set_addr(packet_info *pinfo, int col, address *addr, gboolean is_res,
 }
 
 static void
-col_set_port(packet_info *pinfo, int col, port_type ptype, guint32 port,
-		gboolean is_res, gboolean is_src)
+col_set_port(packet_info *pinfo, int col, gboolean is_res, gboolean is_src)
 {
+  guint32 port;
+
+  if (is_src)
+    port = pinfo->srcport;
+  else
+    port = pinfo->destport;
   pinfo->cinfo->col_expr[col][0] = '\0';
   pinfo->cinfo->col_expr_val[col][0] = '\0';
-  switch (ptype) {
+  switch (pinfo->ptype) {
 
   case PT_SCTP:
     if (is_res)
@@ -560,6 +566,78 @@ col_set_port(packet_info *pinfo, int col, port_type ptype, guint32 port,
       strcpy(pinfo->cinfo->col_expr[col], "ipx.dst.socket");
     snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "0x%04x", port);
     pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
+    break;
+
+  default:
+    break;
+  }
+  pinfo->cinfo->col_buf[col][COL_MAX_LEN - 1] = '\0';
+  pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
+}
+
+/*
+ * XXX - this should be in some common code in the epan directory, shared
+ * by this code and packet-isdn.c.
+ */
+static const value_string channel_vals[] = {
+	{ 0,	"D" },
+	{ 1,	"B1" },
+	{ 2,	"B2" },
+	{ 3,	"B3" },
+	{ 4,	"B4" },
+	{ 5,	"B5" },
+	{ 6,	"B6" },
+	{ 7,	"B7" },
+	{ 8,	"B8" },
+	{ 9,	"B9" },
+	{ 10,	"B10" },
+	{ 11,	"B11" },
+	{ 12,	"B12" },
+	{ 13,	"B13" },
+	{ 14,	"B14" },
+	{ 15,	"B15" },
+	{ 16,	"B16" },
+	{ 17,	"B17" },
+	{ 18,	"B19" },
+	{ 19,	"B19" },
+	{ 20,	"B20" },
+	{ 21,	"B21" },
+	{ 22,	"B22" },
+	{ 23,	"B23" },
+	{ 24,	"B24" },
+	{ 25,	"B25" },
+	{ 26,	"B26" },
+	{ 27,	"B27" },
+	{ 28,	"B29" },
+	{ 29,	"B29" },
+	{ 30,	"B30" },
+	{ 0,	NULL }
+};
+
+static void
+col_set_circuit_id(packet_info *pinfo, int col)
+{
+  pinfo->cinfo->col_expr[col][0] = '\0';
+  pinfo->cinfo->col_expr_val[col][0] = '\0';
+  switch (pinfo->ctype) {
+
+  case CT_DLCI:
+    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
+    strcpy(pinfo->cinfo->col_expr[col], "fr.dlci");
+    snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
+    pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
+    break;
+
+  case CT_ISDN:
+    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%s",
+	     val_to_str(pinfo->circuit_id, channel_vals, "Unknown (%u)"));
+    strcpy(pinfo->cinfo->col_expr[col], "isdn.channel");
+    snprintf(pinfo->cinfo->col_expr_val[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
+    pinfo->cinfo->col_expr_val[col][COL_MAX_LEN - 1] = '\0';
+    break;
+
+  case CT_X25:
+    snprintf(pinfo->cinfo->col_buf[col], COL_MAX_LEN, "%u", pinfo->circuit_id);
     break;
 
   default:
@@ -660,25 +738,24 @@ fill_in_columns(packet_info *pinfo)
 
     case COL_DEF_SRC_PORT:
     case COL_RES_SRC_PORT:	/* COL_DEF_SRC_PORT is currently just like COL_RES_SRC_PORT */
-      col_set_port(pinfo, i, pinfo->ptype, pinfo->srcport, TRUE, TRUE);
+      col_set_port(pinfo, i, TRUE, TRUE);
       break;
 
     case COL_UNRES_SRC_PORT:
-      col_set_port(pinfo, i, pinfo->ptype, pinfo->srcport, FALSE, TRUE);
+      col_set_port(pinfo, i, FALSE, TRUE);
       break;
 
     case COL_DEF_DST_PORT:
     case COL_RES_DST_PORT:	/* COL_DEF_DST_PORT is currently just like COL_RES_DST_PORT */
-      col_set_port(pinfo, i, pinfo->ptype, pinfo->destport, TRUE, FALSE);
+      col_set_port(pinfo, i, TRUE, FALSE);
       break;
 
     case COL_UNRES_DST_PORT:
-      col_set_port(pinfo, i, pinfo->ptype, pinfo->destport, FALSE, FALSE);
+      col_set_port(pinfo, i, FALSE, FALSE);
       break;
 
     case COL_PROTOCOL:	/* currently done by dissectors */
     case COL_INFO:	/* currently done by dissectors */
-    case COL_IF_DIR:	/* currently done by dissectors */
       break;
 
     case COL_PACKET_LENGTH:
@@ -689,16 +766,23 @@ fill_in_columns(packet_info *pinfo)
       break;
 
     case COL_OXID:
-        snprintf (pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->oxid);
-        pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
-        pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-        break;
+      snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->oxid);
+      pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
+      pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+      break;
 
     case COL_RXID:
-        snprintf (pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->rxid);
-        pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
-        pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
-        break;
+      snprintf(pinfo->cinfo->col_buf[i], COL_MAX_LEN, "0x%x", pinfo->rxid);
+      pinfo->cinfo->col_buf[i][COL_MAX_LEN - 1] = '\0';
+      pinfo->cinfo->col_data[i] = pinfo->cinfo->col_buf[i];
+      break;
+
+    case COL_IF_DIR:	/* currently done by dissectors */
+      break;
+
+    case COL_CIRCUIT_ID:
+      col_set_circuit_id(pinfo, i);
+      break;
 
     case NUM_COL_FMTS:	/* keep compiler happy - shouldn't get here */
       g_assert_not_reached();
