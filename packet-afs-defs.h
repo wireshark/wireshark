@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-defs.h,v 1.9 2002/02/03 15:57:22 nneul Exp $
+ * $Id: packet-afs-defs.h,v 1.10 2002/02/03 18:12:04 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -655,6 +655,11 @@ static int hf_afs_vldb_rwvol = -1;
 static int hf_afs_vldb_bkvol = -1;
 static int hf_afs_vldb_clonevol = -1;
 static int hf_afs_vldb_flags = -1;
+static int hf_afs_vldb_flags_rwexists = -1;
+static int hf_afs_vldb_flags_roexists = -1;
+static int hf_afs_vldb_flags_bkexists = -1;
+static int hf_afs_vldb_flags_dfsfileset = -1;
+
 static int hf_afs_vldb_spare1 = -1;
 static int hf_afs_vldb_spare2 = -1;
 static int hf_afs_vldb_spare3 = -1;
@@ -757,3 +762,4 @@ static gint ett_afs_status_mask = -1;
 static gint ett_afs_volsync = -1;
 static gint ett_afs_volumeinfo = -1;
 static gint ett_afs_vicestat = -1;
+static gint ett_afs_vldb_flags = -1;

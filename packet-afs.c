@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.41 2002/02/01 04:34:14 gram Exp $
+ * $Id: packet-afs.c,v 1.42 2002/02/03 18:12:04 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1330,6 +1330,7 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 				{
 					int nservers,i,j;
 					VECOUT(hf_afs_vldb_name, VLNAMEMAX);
+					SKIP(4);
 					nservers = tvb_get_ntohl(tvb, offset);
 					OUT_UINT(hf_afs_vldb_numservers);
 					for (i=0; i<8; i++)
@@ -1360,6 +1361,8 @@ dissect_vldb_reply(tvbuff_t *tvb, struct rxinfo *rxinfo, proto_tree *tree, int o
 					OUT_UINT(hf_afs_vldb_rwvol);
 					OUT_UINT(hf_afs_vldb_rovol);
 					OUT_UINT(hf_afs_vldb_bkvol);
+					OUT_UINT(hf_afs_vldb_clonevol);
+					OUT_VLDB_Flags();
 				}
 				break;
 			case 505: /* get new volume id */
@@ -1701,6 +1704,7 @@ proto_register_afs(void)
 		&ett_afs_volsync,
 		&ett_afs_volumeinfo,
 		&ett_afs_vicestat,
+		&ett_afs_vldb_flags,
 	};
 
 	proto_afs = proto_register_protocol("Andrew File System (AFS)",

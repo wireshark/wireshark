@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-register-info.h,v 1.10 2002/01/18 21:46:51 nneul Exp $
+ * $Id: packet-afs-register-info.h,v 1.11 2002/02/03 18:12:04 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -174,6 +174,7 @@
 	FT_UINT32, BASE_BIN, 0, 16, "Set Segment Size", HFILL }},
 { &hf_afs_fs_status_mask_fsync, { "FSync", "afs.fs.status.mask.fsync", 
 	FT_UINT32, BASE_BIN, 0, 1024, "FSync", HFILL }},
+
 { &hf_afs_fs_status_clientmodtime, { "Client Modification Time", "afs.fs.status.clientmodtime", 
 	FT_ABSOLUTE_TIME, BASE_DEC, 0, 0, "Client Modification Time", HFILL }},
 { &hf_afs_fs_status_servermodtime, { "Server Modification Time", "afs.fs.status.servermodtime", 
@@ -397,6 +398,16 @@
 	FT_UINT32, BASE_HEX, 0, 0, "Server Flags", HFILL }},
 { &hf_afs_vldb_flags, { "Flags", "afs.vldb.flags", 
 	FT_UINT32, BASE_DEC, 0, 0, "Flags", HFILL }},
+	
+{ &hf_afs_vldb_flags_rwexists, { "Read/Write Exists", "afs.vldb.flags.rwexists", 
+	FT_UINT32, BASE_BIN, 0, 0x1000, "Read/Write Exists", HFILL }},
+{ &hf_afs_vldb_flags_roexists, { "Read-Only Exists", "afs.vldb.flags.roexists", 
+	FT_UINT32, BASE_BIN, 0, 0x2000, "Read-Only Exists", HFILL }},
+{ &hf_afs_vldb_flags_bkexists, { "Backup Exists", "afs.vldb.flags.bkexists", 
+	FT_UINT32, BASE_BIN, 0, 0x4000, "Backup Exists", HFILL }},
+{ &hf_afs_vldb_flags_dfsfileset, { "DFS Fileset", "afs.vldb.flags.dfsfileset", 
+	FT_UINT32, BASE_BIN, 0, 0x8000, "DFS Fileset", HFILL }},
+	
 { &hf_afs_vldb_spare1, { "Spare 1", "afs.vldb.spare1", 
 	FT_UINT32, BASE_DEC, 0, 0, "Spare 1", HFILL }},
 { &hf_afs_vldb_spare2, { "Spare 2", "afs.vldb.spare2", 

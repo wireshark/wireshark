@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs-macros.h,v 1.14 2002/02/03 16:54:49 nneul Exp $
+ * $Id: packet-afs-macros.h,v 1.15 2002/02/03 18:12:04 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -147,6 +147,29 @@
 		offset += 4; \
 		tree = save; \
 	}
+
+/* Output vldb flags */
+#define OUT_VLDB_Flags() \
+	{ 	proto_tree *save, *ti; \
+		guint32 flags; \
+		flags = tvb_get_ntohl(tvb, offset); \
+		ti = proto_tree_add_uint(tree, hf_afs_vldb_flags, tvb, offset, \
+			sizeof(guint32), flags); \
+		save = tree; \
+		tree = proto_item_add_subtree(ti, ett_afs_vldb_flags); \
+		proto_tree_add_uint(tree, hf_afs_vldb_flags_rwexists, \
+			tvb,offset,sizeof(guint32), flags); \
+		proto_tree_add_uint(tree, hf_afs_vldb_flags_roexists, \
+			tvb,offset,sizeof(guint32), flags); \
+		proto_tree_add_uint(tree, hf_afs_vldb_flags_bkexists, \
+			tvb,offset,sizeof(guint32), flags); \
+		proto_tree_add_uint(tree, hf_afs_vldb_flags_dfsfileset, \
+			tvb,offset,sizeof(guint32), flags); \
+		offset += 4; \
+		tree = save; \
+	}
+
+
 
 /* Output a File ID */
 #define OUT_CB_AFSFid(label) \
@@ -450,7 +473,7 @@
 			offset += sizeof(guint32);\
 		}\
 		tmp[length] = '\0';\
-		proto_tree_add_string(tree, field, tvb, soff, length, tmp);\
+		proto_tree_add_string(tree, field, tvb, soff, length*sizeof(guint32), tmp);\
 	}
 
 /* Skip the opcode */
