@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.111 2003/03/05 07:17:50 guy Exp $
+ * $Id: packet-dcerpc.c,v 1.112 2003/03/10 02:06:31 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -571,7 +571,8 @@ static guint
 dcerpc_bind_hash (gconstpointer k)
 {
     const dcerpc_bind_key *key = (const dcerpc_bind_key *)k;
-    return ((guint)key->conv) + key->ctx_id + key->smb_fid;
+    return GPOINTER_TO_UINT(key->conv) + key->ctx_id + key->smb_fid;
+
 }
 
 /*

@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.25 2003/01/27 19:50:05 guy Exp $
+ * $Id: packet-ssl.c,v 1.26 2003/03/10 02:06:31 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -611,7 +611,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conv_data = conversation_get_proto_data(conversation, proto_ssl);
     if (conv_data != NULL)
     {
-        conv_version = (guint)conv_data;
+        conv_version = GPOINTER_TO_UINT(conv_data);
     }
 
     /* Initialize the protocol column; we'll set it later when we
@@ -743,7 +743,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * this conversation, do so. */
         if (conv_data == NULL)
         {
-            conv_data = (void *)conv_version;
+            conv_data = GINT_TO_POINTER(conv_version);
             conversation_add_proto_data(conversation, proto_ssl, conv_data);
         }
 
@@ -2211,7 +2211,7 @@ ssl_set_conv_version(packet_info *pinfo, guint version)
         /* get rid of the current data */
         conversation_delete_proto_data(conversation, proto_ssl);
     }
-    conversation_add_proto_data(conversation, proto_ssl, (void *)version);
+    conversation_add_proto_data(conversation, proto_ssl, GINT_TO_POINTER(version));
 }
 
 static int

@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.32 2003/01/31 03:17:54 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.33 2003/03/10 02:06:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1333,7 +1333,7 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
            under its parent protocol. */
 #if GTK_MAJOR_VERSION < 2
         protocol_node = g_hash_table_lookup(proto_array,
-                                            (gpointer)proto_registrar_get_parent(i));
+                                            GINT_TO_POINTER(proto_registrar_get_parent(i)));
         item_node = gtk_ctree_insert_node(GTK_CTREE(tree),
                                           protocol_node, NULL,
                                           &hfinfo->name, 5,

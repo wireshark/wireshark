@@ -1,7 +1,7 @@
 /* column_prefs.c
  * Dialog box for column preferences
  *
- * $Id: column_prefs.c,v 1.15 2002/11/09 20:52:39 oabad Exp $
+ * $Id: column_prefs.c,v 1.16 2003/03/10 02:06:33 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -239,7 +239,7 @@ column_prefs_show() {
   for (i = 0; i < NUM_COL_FMTS; i++) {
     mitem = gtk_menu_item_new_with_label(col_format_desc(i));
     gtk_menu_append(GTK_MENU(menu), mitem);
-    SIGNAL_CONNECT(mitem, "activate", column_menu_changed_cb, (gpointer) i);
+    SIGNAL_CONNECT(mitem, "activate", column_menu_changed_cb, GINT_TO_POINTER(i));
     gtk_widget_show(mitem);
   }
   gtk_option_menu_set_menu(GTK_OPTION_MENU(fmt_m), menu);

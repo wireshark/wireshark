@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-rpc.c,v 1.114 2002/12/31 07:49:14 guy Exp $
+ * $Id: packet-rpc.c,v 1.115 2003/03/10 02:06:31 jmayer Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -433,7 +433,7 @@ rpc_call_hash(gconstpointer k)
 {
 	const rpc_call_info_key* key = (const rpc_call_info_key*) k;
 
-	return key->xid + (guint32)(key->conversation);
+	return key->xid + GPOINTER_TO_UINT(key->conversation);
 }
 
 
