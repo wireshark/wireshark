@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@verdict.uthscsa.edu>
  *
- * $Id: packet-llc.c,v 1.3 1998/09/17 02:01:47 gerald Exp $
+ * $Id: packet-llc.c,v 1.4 1998/09/17 18:43:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -40,38 +40,40 @@
 
 struct sap_info {
 	u_char	sap;
+	void	(*func) (const u_char *, int, frame_data *, GtkTree *);
 	char	*text;
 };
+
+static struct sap_info	saps[] = {
+	{ 0x00, NULL,		"NULL LSAP" },
+	{ 0x02, NULL,		"LLC Sub-Layer Management Individual" },
+	{ 0x03, NULL,		"LLC Sub-Layer Management Group" },
+	{ 0x04, NULL,		"SNA Path Control Individual" },
+	{ 0x05, NULL,		"SNA Path Control Group" },
+	{ 0x06, dissect_ip,	"TCP/IP" },
+	{ 0x08, NULL,		"SNA" },
+	{ 0x0C, NULL,		"SNA" },
+	{ 0x42, NULL,		"Spanning Tree BPDU" },
+	{ 0x7F, NULL,		"ISO 802.2" },
+	{ 0x80, NULL,		"XNS" },
+	{ 0xAA, NULL,		"SNAP" },
+	{ 0xBA, dissect_vines,	"Banyan Vines" },
+	{ 0xBC, dissect_vines,	"Banyan Vines" },
+	{ 0xE0, dissect_ipx,	"NetWare" },
+	{ 0xF0, NULL,		"NetBIOS" },
+	{ 0xF4, NULL,		"IBM Net Management Individual" },
+	{ 0xF5, NULL,		"IBM Net Management Group" },
+	{ 0xF8, NULL,		"Remote Program Load" },
+	{ 0xFC, NULL,		"Remote Program Load" },
+	{ 0xFE, dissect_osi,	"ISO Network Layer" },
+	{ 0xFF, NULL,		"Global LSAP" },
+	{ 0x00, NULL,		NULL }
+};
+
 
 static char*
 sap_text(u_char sap) {
 	int i=0;
-
-	static struct sap_info	saps[] = {
-		{ 0x00, "NULL LSAP" },
-		{ 0x02, "LLC Sub-Layer Management Individual" },
-		{ 0x03, "LLC Sub-Layer Management Group" },
-		{ 0x04, "SNA Path Control Individual" },
-		{ 0x05, "SNA Path Control Group" },
-		{ 0x06, "TCP/IP" },
-		{ 0x08, "SNA" },
-		{ 0x0C, "SNA" },
-		{ 0x42, "Spanning Tree BPDU" },
-		{ 0x7F, "ISO 802.2" },
-		{ 0x80, "XNS" },
-		{ 0xAA, "SNAP" },
-		{ 0xBA, "Banyan Vines" },
-		{ 0xBC, "Banyan Vines" },
-		{ 0xE0, "NetWare" },
-		{ 0xF0, "NetBIOS" },
-		{ 0xF4, "IBM Net Management Individual" },
-		{ 0xF5, "IBM Net Management Group" },
-		{ 0xF8, "Remote Program Load" },
-		{ 0xFC, "Remote Program Load" },
-		{ 0xFE, "ISO Network Layer" },
-		{ 0xFF, "Global LSAP" },
-		{ 0x00, NULL }
-	};
 
 	while (saps[i].text != NULL) {
 		if (saps[i].sap == sap) {
@@ -80,6 +82,19 @@ sap_text(u_char sap) {
 		i++;
 	}
 	return "Unknown";
+}
+
+static void*
+sap_func(u_char sap) {
+	int i=0;
+
+	while (saps[i].text != NULL) {
+		if (saps[i].sap == sap) {
+			return saps[i].func;
+		}
+		i++;
+	}
+	return dissect_data;
 }
 
 static char*
@@ -102,7 +117,8 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 
 	GtkWidget	*llc_tree, *ti;
 	guint16		etype;
-	int			is_snap;
+	int		is_snap;
+	void		(*dissect) (const u_char *, int, frame_data *, GtkTree *);
 
 	/* LLC Strings */
 	char *llc_ctrl[4] = {
@@ -147,22 +163,17 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, GtkTree *tree) {
 			sprintf(fd->win_info[4], "802.2 LLC (%s)", sap_text(pd[offset]));
 		}
 
+		dissect = sap_func(pd[offset]);
+
 		/* non-SNAP */
 		offset += 3;
 
-		switch (pd[offset-3]) {
-			case 0x06:	/* TCP/IP */
-				dissect_ip(pd, offset, fd, tree);
-				break;
-			case 0xe0:	/* NetWare (IPX) */
-				dissect_ipx(pd, offset, fd, tree);
-				break;
-			case 0xfe:      /* ISO Network Layer */
-				dissect_osi(pd, offset, fd, tree);
-				break;
-			default:
-				dissect_data(pd, offset, fd, tree);
-				break;
-		  }
+		if (dissect) {
+			dissect(pd, offset, fd, tree);
+		}
+		else {
+			dissect_data(pd, offset, fd, tree);
+		}
+
 	}
 }
