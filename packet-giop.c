@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.41 2001/07/03 23:30:01 guy Exp $
+ * $Id: packet-giop.c,v 1.42 2001/07/05 20:54:56 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -317,12 +317,6 @@
 
 #define DEBUG   0
 
-/*
- * To allow calling (or not) of subdissectors, for testing buggy stuff.
- * TODO - make this a runtime option in GUI
- */
-
-#define DEBUG_CALL_SUB_DISSECTORS  1
 
 
 /*
@@ -2976,7 +2970,6 @@ dissect_reply_body (tvbuff_t *tvb, u_int offset, packet_info *pinfo,
        * fails, try the heuristic method.
        */
 
-#if DEBUG_CALL_SUB_DISSECTORS
 
       if(entry->repoid) {    
 	exres = try_explicit_giop_dissector(tvb,pinfo,clnp_tree, &offset, header, entry->operation, entry->repoid );
@@ -2989,7 +2982,6 @@ dissect_reply_body (tvbuff_t *tvb, u_int offset, packet_info *pinfo,
       } 
 
 
-#endif
       break;
       
     case LOCATION_FORWARD:
@@ -3419,7 +3411,6 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
   header->req_id = request_id;	        /* save for sub dissector */
   repoid = get_repoid_from_objkey(giop_objkey_hash,objkey,objkey_len);
 
-#if DEBUG_CALL_SUB_DISSECTORS
 
   if(repoid) {    
     exres = try_explicit_giop_dissector(tvb,pinfo,tree,&offset,header,operation,repoid);
@@ -3431,7 +3422,6 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
     try_heuristic_giop_dissector(tvb,pinfo,tree,&offset,header,operation);
   }
   
-#endif
 
   g_free( print_objkey );  
   g_free( objkey );
@@ -3563,7 +3553,6 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
    * fails, try the heuristic method.
    */
   
-#if DEBUG_CALL_SUB_DISSECTORS
 
   if(repoid) {    
     exres = try_explicit_giop_dissector(tvb,pinfo,tree,&offset,header,operation,repoid);
@@ -3576,7 +3565,6 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   }
   
 
-#endif
 
   g_free(operation);
   g_free(reserved);
