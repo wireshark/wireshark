@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.60 2003/10/01 07:11:44 guy Exp $
+ * $Id: packet-null.c,v 1.61 2003/11/11 20:49:45 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -179,6 +179,19 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
     if ((null_header & 0xFFFF0000) != 0) {
       /* Byte-swap it. */
       null_header = BSWAP32(null_header);
+
+      /*
+       * It is possible that the AF_ type was only a 16 bit value.
+       * IRIX and UNICOS/mp loopback snoop use a 4 byte header with
+       * AF_ type in the first 2 bytes!
+       * BSD AF_ types will always have the upper 8 bits as 0.
+       */
+      if ((null_header & 0x0000FF00) != 0) {
+        guint16 aftype;
+
+        memcpy((char *)&aftype, (const char *)&pd[0], sizeof(aftype));
+        null_header = g_ntohl(aftype);
+      }
     }
 
     /*
@@ -194,6 +207,7 @@ capture_null( const guchar *pd, int len, packet_counts *ld )
     if (null_header > IEEE_802_3_MAX_LEN)
       capture_ethertype(null_header, pd, 4, len, ld);
     else {
+
       switch (null_header) {
 
       case BSD_AF_INET:
@@ -246,6 +260,18 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if ((null_header & 0xFFFF0000) != 0) {
       /* Byte-swap it. */
       null_header = BSWAP32(null_header);
+      /*
+       * It is possible that the AF_ type was only a 16 bit value.
+       * IRIX and UNICOS/mp loopback snoop use a 4 byte header with
+       * AF_ type in the first 2 bytes!
+       * BSD AF_ types will always have the upper 8 bits as 0.
+       */
+      if ((null_header & 0x0000FF00) != 0) {
+        guint16 aftype;
+
+        tvb_memcpy(tvb, (guint8 *)&aftype, 0, sizeof(aftype));
+        null_header = g_ntohl(aftype);
+      }
     }
 
     /*
