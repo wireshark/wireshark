@@ -6,7 +6,7 @@
  * Portions Copyright (c) 2000-2002 by Gilbert Ramirez.
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id: packet-ipx.c,v 1.127 2003/04/12 05:36:10 guy Exp $
+ * $Id: packet-ipx.c,v 1.128 2003/04/12 07:35:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -357,11 +357,11 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 typedef struct {
 	conversation_t	*conversation;
-	guint32		    spx_src;
+	guint32         spx_src;
+	guint16         spx_seq;
 } spx_hash_key;
 
 typedef struct {
-        guint16             spx_seq;
         guint16             spx_ack;
         guint16             spx_all;
         guint32             num;
@@ -388,7 +388,8 @@ spx_equal(gconstpointer v, gconstpointer v2)
 	const spx_hash_key	*val2 = (const spx_hash_key*)v2;
 
 	if (val1->conversation == val2->conversation &&
-	    val1->spx_src  == val2->spx_src ) {
+	    val1->spx_src == val2->spx_src &&
+	    val1->spx_seq == val2->spx_seq) {
 		return 1;
 	}
 	return 0;
@@ -456,7 +457,7 @@ spx_postseq_cleanup(void)
 }
 
 spx_hash_value*
-spx_hash_insert(conversation_t *conversation, guint32 spx_src)
+spx_hash_insert(conversation_t *conversation, guint32 spx_src, guint16 spx_seq)
 {
 	spx_hash_key		*key;
 	spx_hash_value		*value;
@@ -465,9 +466,9 @@ spx_hash_insert(conversation_t *conversation, guint32 spx_src)
 	key = g_mem_chunk_alloc(spx_hash_keys);
 	key->conversation = conversation;
 	key->spx_src = spx_src;
+	key->spx_seq = spx_seq;
 
 	value = g_mem_chunk_alloc(spx_hash_values);
-	value->spx_seq = 0;
 	value->spx_ack = 0;
 	value->spx_all = 0;
 	value->num = 0;
@@ -479,12 +480,13 @@ spx_hash_insert(conversation_t *conversation, guint32 spx_src)
 
 /* Returns the spx_hash_value*, or NULL if not found. */
 spx_hash_value*
-spx_hash_lookup(conversation_t *conversation, guint32 spx_src)
+spx_hash_lookup(conversation_t *conversation, guint32 spx_src, guint32 spx_seq)
 {
 	spx_hash_key		key;
 
 	key.conversation = conversation;
 	key.spx_src = spx_src;
+	key.spx_seq = spx_seq;
 
 	return g_hash_table_lookup(spx_hash, &key);
 }
@@ -547,6 +549,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint8		conn_ctrl;
 	proto_tree	*cc_tree;
 	guint8		datastream_type;
+	guint16         spx_seq;
 	const char	*spx_msg_string;
 	guint16		low_socket, high_socket;
 	guint32		src;
@@ -594,7 +597,10 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(spx_tree, hf_spx_src_id, tvb,  2, 2, FALSE);
 		proto_tree_add_item(spx_tree, hf_spx_dst_id, tvb,  4, 2, FALSE);
-		proto_tree_add_item(spx_tree, hf_spx_seq_nr, tvb,  6, 2, FALSE);
+	}
+	spx_seq = tvb_get_ntohs(tvb, 6);
+	if (tree) {
+		proto_tree_add_uint(spx_tree, hf_spx_seq_nr, tvb,  6, 2, spx_seq);
 		proto_tree_add_item(spx_tree, hf_spx_ack_nr, tvb,  8, 2, FALSE);
 		proto_tree_add_item(spx_tree, hf_spx_all_nr, tvb, 10, 2, FALSE);
 	}
@@ -614,67 +620,94 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * we should probably use the direction, as well as the conversation,
 	 * as part of the hash key; if we do that, we can probably just
 	 * use PT_IPX as the port type, and possibly get rid of PT_NCP.
+	 *
+	 * According to
+	 *
+	 *	http://developer.novell.com/research/appnotes/1995/december/03/apv.htm
+	 *
+	 * the sequence number is not incremented for system packets, so
+	 * presumably that means there is no notion of a system packet
+	 * being retransmitted; that document also says that system
+	 * packets are used as "I'm still here" keepalives and as
+	 * acknowledgements (presumably meaning ACK-only packets), which
+	 * suggests that they might not be ACKed and thus might not
+	 * be retransmitted.
 	 */
-	if (!pinfo->fd->flags.visited) {
-		conversation = find_conversation(&pinfo->src, &pinfo->dst,
-		    PT_NCP, pinfo->srcport, pinfo->srcport, 0);
-		if (conversation == NULL) {
-			/*
-			 * It's not part of any conversation - create a new
-			 * one.
-			 */
-			conversation = conversation_new(&pinfo->src,
-			    &pinfo->dst, PT_NCP, pinfo->srcport,
-			    pinfo->srcport, 0);
-		}
-
+	if (conn_ctrl & SPX_SYS_PACKET) {
 		/*
-		 * Now we'll hash the SPX header and use the result of that,
-		 * plus the conversation, as a hash key to identify this
-		 * packet.
-		 *
-		 * If we don't find it in the hash table, it's not a
-		 * retransmission, otherwise it is.  If we don't find it,
-		 * we enter it into the hash table, with the frame number.
-		 * If we do, we attach to this frame a structure giving
-		 * the frame number of the original transmission, so that
-		 * we, and subdissectors, know it's a retransmission.
+		 * It's a system packet, so it isn't a retransmission.
 		 */
-		src = tvb_get_ntohs(tvb, 0)+tvb_get_ntohs(tvb, 2)+tvb_get_ntohs(tvb, 4)+tvb_get_ntohs(tvb, 6)+tvb_get_ntohs(tvb, 8);
-		pkt_value = spx_hash_lookup(conversation, src);
-		if (pkt_value == NULL) {
-			/*
-			 * Not found in the hash table.
-			 * Enter it into the hash table.
-			 */
-			pkt_value = spx_hash_insert(conversation, src);
-			pkt_value->spx_seq = tvb_get_ntohs(tvb, 6);
-			pkt_value->spx_ack = tvb_get_ntohs(tvb, 8);
-			pkt_value->spx_all = tvb_get_ntohs(tvb, 10);
-			pkt_value->num = pinfo->fd->num;
-
-			/*
-			 * This is not a retransmission, so we shouldn't
-			 * have any retransmission indicator.
-			 */
-			spx_rexmit_info = NULL;
-		} else {
-			/*
-			 * Found in the hash table.  Mark this frame as
-			 * a retransmission.
-			 */
-			spx_rexmit_info = g_mem_chunk_alloc(spx_rexmit_infos);
-			spx_rexmit_info->num = pkt_value->num;
-			p_add_proto_data(pinfo->fd, proto_spx, spx_rexmit_info);
-		}
+		spx_rexmit_info = NULL;
 	} else {
 		/*
-		 * Do we have per-packet SPX data for this frame?
-		 * If so, it's a retransmission, and the per-packet
-		 * data indicates which frame had the original
-		 * transmission.
+		 * Not a system packet - check for retransmissions.
 		 */
-		spx_rexmit_info = p_get_proto_data(pinfo->fd, proto_spx);
+		if (!pinfo->fd->flags.visited) {
+			conversation = find_conversation(&pinfo->src,
+			    &pinfo->dst, PT_NCP, pinfo->srcport,
+			    pinfo->srcport, 0);
+			if (conversation == NULL) {
+				/*
+				 * It's not part of any conversation - create
+				 * a new one.
+				 */
+				conversation = conversation_new(&pinfo->src,
+				    &pinfo->dst, PT_NCP, pinfo->srcport,
+				    pinfo->srcport, 0);
+			}
+
+			/*
+			 * Now we'll hash the SPX header and use the result
+			 * of that, plus the conversation, as a hash key to
+			 * identify this packet.
+			 *
+			 * If we don't find it in the hash table, it's not a
+			 * retransmission, otherwise it is.  If we don't find
+			 * it, we enter it into the hash table, with the
+			 * frame number.
+			 * If we do, we attach to this frame a structure giving
+			 * the frame number of the original transmission, so
+			 * that we, and subdissectors, know it's a
+			 * retransmission.
+			 */
+			src = tvb_get_ntohs(tvb, 0)+tvb_get_ntohs(tvb, 2)+tvb_get_ntohs(tvb, 4)+tvb_get_ntohs(tvb, 6)+tvb_get_ntohs(tvb, 8);
+			pkt_value = spx_hash_lookup(conversation, src, spx_seq);
+			if (pkt_value == NULL) {
+				/*
+				 * Not found in the hash table.
+				 * Enter it into the hash table.
+				 */
+				pkt_value = spx_hash_insert(conversation, src,
+				    spx_seq);
+				pkt_value->spx_ack = tvb_get_ntohs(tvb, 8);
+				pkt_value->spx_all = tvb_get_ntohs(tvb, 10);
+				pkt_value->num = pinfo->fd->num;
+
+				/*
+				 * This is not a retransmission, so we shouldn't
+				 * have any retransmission indicator.
+				 */
+				spx_rexmit_info = NULL;
+			} else {
+				/*
+				 * Found in the hash table.  Mark this frame as
+				 * a retransmission.
+				 */
+				spx_rexmit_info = g_mem_chunk_alloc(spx_rexmit_infos);
+				spx_rexmit_info->num = pkt_value->num;
+				p_add_proto_data(pinfo->fd, proto_spx,
+				    spx_rexmit_info);
+			}
+		} else {
+			/*
+			 * Do we have per-packet SPX data for this frame?
+			 * If so, it's a retransmission, and the per-packet
+			 * data indicates which frame had the original
+			 * transmission.
+			 */
+			spx_rexmit_info = p_get_proto_data(pinfo->fd,
+			    proto_spx);
+		}
 	}
 
 	/*
