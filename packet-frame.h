@@ -2,7 +2,7 @@
  *
  * Top-most dissector. Decides dissector based on Wiretap Encapsulation Type.
  *
- * $Id: packet-frame.h,v 1.5 2002/08/28 21:00:13 jmayer Exp $
+ * $Id: packet-frame.h,v 1.6 2003/10/23 05:01:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -22,6 +22,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+
+/*
+ * Routine used to add an indication of an arbitrary exception to the tree.
+ */
+void show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+    unsigned long exception);
 
 /*
  * Routine used to add an indication of a ReportedBoundsError exception
