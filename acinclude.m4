@@ -1116,11 +1116,11 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 			AC_MSG_RESULT(Usable Heimdal not found - disabling dissection for some kerberos data in packet decoding)
 			CFLAGS="$ethereal_save_CFLAGS"
 			CPPFLAGS="$ethereal_save_CPPFLAGS"
-			LIBS="$ethereal_save_LIBS"
 			KRB5_LIBS=""
 			want_krb5=no
 		    fi
 		fi
+		LIBS="$ethereal_save_LIBS"
 	    else
 		#
 		# It's not Heimdal.
