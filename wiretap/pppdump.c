@@ -1,6 +1,6 @@
 /* pppdump.c
  *
- * $Id: pppdump.c,v 1.11 2001/12/13 05:49:12 gram Exp $
+ * $Id: pppdump.c,v 1.12 2001/12/13 05:50:51 gram Exp $
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  * 
@@ -589,7 +589,7 @@ pppdump_close(wtap *wth)
 	}
 
 	if (state->pids) { /* should always be TRUE */
-        int i;
+        unsigned int i;
         for (i = 0; i < g_ptr_array_len(state->pids); i++) {
             g_free(g_ptr_array_index(state->pids, i));
         }
