@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002 structure and command dissectors by Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-netlogon.c,v 1.99 2004/04/08 09:34:47 sahlberg Exp $
+ * $Id: packet-dcerpc-netlogon.c,v 1.100 2004/04/08 10:21:10 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -170,6 +170,24 @@ static int hf_netlogon_trust_flags_native_mode = -1;
 static int hf_netlogon_trust_flags_primary = -1;
 static int hf_netlogon_trust_flags_tree_root = -1;
 static int hf_netlogon_trust_parent_index = -1;
+static int hf_netlogon_user_account_control = -1;
+static int hf_netlogon_user_account_control_dont_require_preauth = -1;
+static int hf_netlogon_user_account_control_use_des_key_only = -1;
+static int hf_netlogon_user_account_control_not_delegated = -1;
+static int hf_netlogon_user_account_control_trusted_for_delegation = -1;
+static int hf_netlogon_user_account_control_smartcard_required = -1;
+static int hf_netlogon_user_account_control_encrypted_text_password_allowed = -1;
+static int hf_netlogon_user_account_control_account_auto_locked = -1;
+static int hf_netlogon_user_account_control_dont_expire_password = -1;
+static int hf_netlogon_user_account_control_server_trust_account = -1;
+static int hf_netlogon_user_account_control_workstation_trust_account = -1;
+static int hf_netlogon_user_account_control_interdomain_trust_account = -1;
+static int hf_netlogon_user_account_control_mns_logon_account = -1;
+static int hf_netlogon_user_account_control_normal_account = -1;
+static int hf_netlogon_user_account_control_temp_duplicate_account = -1;
+static int hf_netlogon_user_account_control_password_not_required = -1;
+static int hf_netlogon_user_account_control_home_directory_required = -1;
+static int hf_netlogon_user_account_control_account_disabled = -1;
 static int hf_netlogon_user_flags = -1;
 static int hf_netlogon_user_flags_extra_sids = -1;
 static int hf_netlogon_user_flags_resource_groups = -1;
@@ -234,6 +252,7 @@ static int hf_netlogon_dc_flags_dns_forest_flag = -1;
 static gint ett_dcerpc_netlogon = -1;
 static gint ett_group_attrs = -1;
 static gint ett_user_flags = -1;
+static gint ett_user_account_control = -1;
 static gint ett_QUOTA_LIMITS = -1;
 static gint ett_IDENTITY_INFO = -1;
 static gint ett_DELTA_ENUM = -1;
@@ -263,6 +282,135 @@ static e_uuid_t uuid_dcerpc_netlogon = {
 
 static guint16 ver_dcerpc_netlogon = 1;
 
+
+static const true_false_string user_account_control_dont_require_preauth= {
+	"This account DONT_REQUIRE_PREAUTHENTICATION",
+	"This account REQUIRES preauthentication",
+};
+static const true_false_string user_account_control_use_des_key_only= {
+	"This account must USE_DES_KEY_ONLY for passwords",
+	"This account does NOT have to use_des_key_only",
+};
+static const true_false_string user_account_control_not_delegated= {
+	"This account is NOT_DELEGATED",
+	"This might have been delegated",
+};
+static const true_false_string user_account_control_trusted_for_delegation= {
+	"This account is TRUSTED_FOR_DELEGATION",
+	"This account is NOT trusted_for_delegation",
+};
+static const true_false_string user_account_control_smartcard_required= {
+	"This account REQUIRES_SMARTCARD to authenticate",
+	"This account does NOT require_smartcard to authenticate",
+};
+static const true_false_string user_account_control_encrypted_text_password_allowed= {
+	"This account allows ENCRYPTED_TEXT_PASSWORD",
+	"This account does NOT allow encrypted_text_password",
+};
+static const true_false_string user_account_control_account_auto_locked= {
+	"This account is AUTO_LOCKED",
+	"This account is NOT auto_locked",
+};
+static const true_false_string user_account_control_dont_expire_password= {
+	"This account DONT_EXPIRE_PASSWORDs",
+	"This account might expire_passwords",
+};
+static const true_false_string user_account_control_server_trust_account= {
+	"This account is a SERVER_TRUST_ACCOUNT",
+	"This account is NOT a server_trust_account",
+};
+static const true_false_string user_account_control_workstation_trust_account= {
+	"This account is a WORKSTATION_TRUST_ACCOUNT",
+	"This account is NOT a workstation_trust_account",
+};
+static const true_false_string user_account_control_interdomain_trust_account= {
+	"This account is an INTERDOMAIN_TRUST_ACCOUNT",
+	"This account is NOT an interdomain_trust_account",
+};
+static const true_false_string user_account_control_mns_logon_account= {
+	"This account is a MNS_LOGON_ACCOUNT",
+	"This account is NOT a mns_logon_account",
+};
+static const true_false_string user_account_control_normal_account= {
+	"This account is a NORMAL_ACCOUNT",
+	"This account is NOT a normal_account",
+};
+static const true_false_string user_account_control_temp_duplicate_account= {
+	"This account is a TEMP_DUPLICATE_ACCOUNT",
+	"This account is NOT a temp_duplicate_account",
+};
+static const true_false_string user_account_control_password_not_required= {
+	"This account REQUIRES_NO_PASSWORD",
+	"This account REQUIRES a password",
+};
+static const true_false_string user_account_control_home_directory_required= {
+	"This account REQUIRES_HOME_DIRECTORY",
+	"This account does NOT require_home_directory",
+};
+static const true_false_string user_account_control_account_disabled= {
+	"This account is DISABLED",
+	"This account is NOT disabled",
+};
+static int
+netlogon_dissect_USER_ACCOUNT_CONTROL(tvbuff_t *tvb, int offset,
+	packet_info *pinfo, proto_tree *parent_tree, guint8 *drep)
+{
+	guint32 mask;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	dcerpc_info *di;
+
+	di=pinfo->private_data;
+	if(di->conformant_run){
+		/*just a run to handle conformant arrays, nothing to dissect */
+		return offset;
+	}
+
+	offset=dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
+			hf_netlogon_user_account_control, &mask);
+
+	if(parent_tree){
+		item = proto_tree_add_uint(parent_tree, hf_netlogon_user_account_control,
+			tvb, offset-4, 4, mask);
+		tree = proto_item_add_subtree(item, ett_user_account_control);
+	}
+
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_dont_require_preauth,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_use_des_key_only,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_not_delegated,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_trusted_for_delegation,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_smartcard_required,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_encrypted_text_password_allowed,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_account_auto_locked,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_dont_expire_password,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_server_trust_account,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_workstation_trust_account,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_interdomain_trust_account,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_mns_logon_account,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_normal_account,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_temp_duplicate_account,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_password_not_required,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_home_directory_required,
+		tvb, offset-4, 4, mask);
+	proto_tree_add_boolean(tree, hf_netlogon_user_account_control_account_disabled,
+		tvb, offset-4, 4, mask);
+	return offset;
+}
 
 
 static int
@@ -1005,7 +1153,9 @@ netlogon_dissect_USER_FLAGS(tvbuff_t *tvb, int offset,
  * IDL   unicodestring logonserver;
  * IDL   unicodestring domainname;
  * IDL   [unique] SID logondomainid;
- * IDL   long expansionroom[10];
+ * IDL   long expansionroom[2];
+ * IDL   long useraccountcontrol;
+ * IDL   long expansionroom[7];
  * IDL } VALIDATION_SAM_INFO;
  */
 static int
@@ -1085,9 +1235,16 @@ netlogon_dissect_VALIDATION_SAM_INFO(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_nt_PSID(tvb, offset,
 		pinfo, tree, drep, -1);
 
-	for(i=0;i<10;i++){
+	for(i=0;i<2;i++){
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
-			hf_netlogon_reserved, NULL);
+			hf_netlogon_unknown_long, NULL);
+	}
+	offset = netlogon_dissect_USER_ACCOUNT_CONTROL(tvb, offset,
+			pinfo, tree, drep);
+
+	for(i=0;i<7;i++){
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_netlogon_unknown_long, NULL);
 	}
 
 	return offset;
@@ -1120,7 +1277,9 @@ netlogon_dissect_VALIDATION_SAM_INFO(tvbuff_t *tvb, int offset,
  * IDL   unicodestring logonserver;
  * IDL   unicodestring domainname;
  * IDL   [unique] SID logondomainid;
- * IDL   long expansionroom[10];
+ * IDL   long expansionroom[2];
+ * IDL   long useraccountcontrol;
+ * IDL   long expansionroom[7];
  * IDL   long sidcount;
  * IDL   [unique] SID_AND_ATTRIBS;
  * IDL } VALIDATION_SAM_INFO2;
@@ -1202,7 +1361,14 @@ netlogon_dissect_VALIDATION_SAM_INFO2(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_nt_PSID(tvb, offset,
 		pinfo, tree, drep, -1);
 
-	for(i=0;i<10;i++){
+	for(i=0;i<2;i++){
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_netlogon_unknown_long, NULL);
+	}
+	offset = netlogon_dissect_USER_ACCOUNT_CONTROL(tvb, offset,
+			pinfo, tree, drep);
+
+	for(i=0;i<7;i++){
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_netlogon_unknown_long, NULL);
 	}
@@ -1246,7 +1412,9 @@ netlogon_dissect_VALIDATION_SAM_INFO2(tvbuff_t *tvb, int offset,
  * IDL   unicodestring logonserver;
  * IDL   unicodestring domainname;
  * IDL   [unique] SID logondomainid;
- * IDL   long expansionroom[10];
+ * IDL   long expansionroom[2];
+ * IDL   long useraccountcontrol;
+ * IDL   long expansionroom[7];
  * IDL   long sidcount;
  * IDL   [unique] SID_AND_ATTRIBS;
  * IDL   [unique] SID resourcegroupdomainsid;
@@ -1332,7 +1500,14 @@ netlogon_dissect_PAC_LOGON_INFO(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_nt_PSID(tvb, offset,
 		pinfo, tree, drep, -1);
 
-	for(i=0;i<10;i++){
+	for(i=0;i<2;i++){
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_netlogon_unknown_long, NULL);
+	}
+	offset = netlogon_dissect_USER_ACCOUNT_CONTROL(tvb, offset,
+			pinfo, tree, drep);
+
+	for(i=0;i<7;i++){
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_netlogon_unknown_long, NULL);
 	}
@@ -1418,7 +1593,9 @@ netlogon_dissect_AUTH(tvbuff_t *tvb, int offset,
  * IDL   long auth_size;
  * IDL   [unique][size_is(auth_size)] char *auth;
  * IDL   USER_SESSION_KEY user_session_key;
- * IDL   long expansionroom[10];
+ * IDL   long expansionroom[2];
+ * IDL   long useraccountcontrol;
+ * IDL   long expansionroom[7];
  * IDL   UNICODESTRING dummy1;
  * IDL   UNICODESTRING dummy2;
  * IDL   UNICODESTRING dummy3;
@@ -1456,7 +1633,14 @@ netlogon_dissect_VALIDATION_PAC_INFO(tvbuff_t *tvb, int offset,
 	offset = netlogon_dissect_USER_SESSION_KEY(tvb, offset,
 		pinfo, tree, drep);
 
-	for(i=0;i<10;i++){
+	for(i=0;i<2;i++){
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
+			hf_netlogon_unknown_long, NULL);
+	}
+	offset = netlogon_dissect_USER_ACCOUNT_CONTROL(tvb, offset,
+			pinfo, tree, drep);
+
+	for(i=0;i<7;i++){
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 			hf_netlogon_unknown_long, NULL);
 	}
@@ -6906,6 +7090,10 @@ static hf_register_info hf[] = {
 		{ "Flags", "netlogon.flags", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "", HFILL }},
 
+	{ &hf_netlogon_user_account_control,
+		{ "User Account Control", "netlogon.user_account_control", FT_UINT32, BASE_HEX,
+		NULL, 0x0, "User Account control", HFILL }},
+
 	{ &hf_netlogon_user_flags,
 		{ "User Flags", "netlogon.user_flags", FT_UINT32, BASE_HEX,
 		NULL, 0x0, "User flags", HFILL }},
@@ -7321,6 +7509,91 @@ static hf_register_info hf[] = {
 		  FT_BOOLEAN, 32, TFS(&user_flags_resource_groups), 0x00000200,
 		  "The user flags RESOURCE_GROUPS", HFILL }},
 
+	{ &hf_netlogon_user_account_control_dont_require_preauth,
+	        { "Dont Require PreAuth", "netlogon.user.account_control.dont_require_preauth",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_dont_require_preauth), 0x00010000,
+		  "The user account control DONT_REQUIRE_PREAUTH flag ", HFILL }},
+
+	{ &hf_netlogon_user_account_control_use_des_key_only,
+	        { "Use DES Key Only", "netlogon.user.account_control.use_des_key_only",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_use_des_key_only), 0x00008000,
+		  "The user account control use_des_key_only flag ", HFILL }},
+
+	{ &hf_netlogon_user_account_control_not_delegated,
+	        { "Not Delegated", "netlogon.user.account_control.not_delegated",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_not_delegated), 0x00004000,
+		  "The user account control not_delegated flag ", HFILL }},
+
+	{ &hf_netlogon_user_account_control_trusted_for_delegation,
+	        { "Trusted For Delegation", "netlogon.user.account_control.trusted_for_delegation",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_trusted_for_delegation), 0x00002000,
+		  "The user account control trusted_for_delegation flag ", HFILL }},
+
+	{ &hf_netlogon_user_account_control_smartcard_required,
+	        { "SmartCard Required", "netlogon.user.account_control.smartcard_required",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_smartcard_required), 0x00001000,
+		  "The user account control smartcard_required flag ", HFILL }},
+
+	{ &hf_netlogon_user_account_control_encrypted_text_password_allowed,
+	        { "Encrypted Text Password Allowed", "netlogon.user.account_control.encrypted_text_password_allowed",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_encrypted_text_password_allowed), 0x00000800,
+		  "The user account control encrypted_text_password_allowed flag ", HFILL }},
+
+	{ &hf_netlogon_user_account_control_account_auto_locked,
+	        { "Account Auto Locked", "netlogon.user.account_control.account_auto_locked",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_account_auto_locked), 0x00000400,
+		  "The user account control account_auto_locked flag ", HFILL }},
+
+	{ &hf_netlogon_user_account_control_dont_expire_password,
+	        { "Dont Expire Password", "netlogon.user.account_control.dont_expire_password",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_dont_expire_password), 0x00000200,
+		  "The user account control dont_expire_password flag ", HFILL }},
+
+	{ &hf_netlogon_user_account_control_server_trust_account,
+	        { "Server Trust Account", "netlogon.user.account_control.server_trust_account",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_server_trust_account), 0x00000100,
+		  "The user account control server_trust_account flag ", HFILL }},
+
+	{ &hf_netlogon_user_account_control_workstation_trust_account,
+	        { "Workstation Trust Account", "netlogon.user.account_control.workstation_trust_account",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_workstation_trust_account), 0x00000080,
+		  "The user account control workstation_trust_account flag ", HFILL }},
+
+	{ &hf_netlogon_user_account_control_interdomain_trust_account,
+	        { "Interdomain trust Account", "netlogon.user.account_control.interdomain_trust_account",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_interdomain_trust_account), 0x00000040,
+		  "The user account control interdomain_trust_account flag ", HFILL }},
+
+	{ &hf_netlogon_user_account_control_mns_logon_account,
+	        { "MNS Logon Account", "netlogon.user.account_control.mns_logon_account",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_mns_logon_account), 0x00000020,
+		  "The user account control mns_logon_account flag ", HFILL }},
+
+	{ &hf_netlogon_user_account_control_normal_account,
+	        { "Normal Account", "netlogon.user.account_control.normal_account",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_normal_account), 0x00000010,
+		  "The user account control normal_account flag ", HFILL }},
+
+	{ &hf_netlogon_user_account_control_temp_duplicate_account,
+	        { "Temp Duplicate Account", "netlogon.user.account_control.temp_duplicate_account",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_temp_duplicate_account), 0x00000008,
+		  "The user account control temp_duplicate_account flag ", HFILL }},
+
+	{ &hf_netlogon_user_account_control_password_not_required,
+	        { "Password Not Required", "netlogon.user.account_control.password_not_required",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_password_not_required), 0x00000004,
+		  "The user account control password_not_required flag ", HFILL }},
+
+	{ &hf_netlogon_user_account_control_home_directory_required,
+	        { "Home Directory Required", "netlogon.user.account_control.home_directory_required",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_home_directory_required), 0x00000002,
+		  "The user account control home_directory_required flag ", HFILL }},
+
+	{ &hf_netlogon_user_account_control_account_disabled,
+	        { "Account Disabled", "netlogon.user.account_control.account_disabled",
+		  FT_BOOLEAN, 32, TFS(&user_account_control_account_disabled), 0x00000001,
+		  "The user account control account_disabled flag ", HFILL }},
+
 	};
 
         static gint *ett[] = {
@@ -7350,7 +7623,8 @@ static hf_register_info hf[] = {
 		&ett_secchan_bind_ack_creds,
 		&ett_secchan_verf,
 		&ett_group_attrs,
-		&ett_user_flags
+		&ett_user_flags,
+		&ett_user_account_control
         };
 
         proto_dcerpc_netlogon = proto_register_protocol(
