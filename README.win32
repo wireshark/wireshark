@@ -1,10 +1,14 @@
-$Id: README.win32,v 1.56 2004/01/07 07:17:47 guy Exp $
+$Id: README.win32,v 1.57 2004/01/07 12:12:09 ulfl Exp $
 
 Installing Ethereal, Tethereal, and Editcap on Win32
 ====================================================
 These are the instructions for installing Ethereal
 from the installation executable that is provided on
-the Ethereal website and any of its mirrors.
+the Ethereal website at:
+
+http://www.ethereal.com/distribution/win32
+
+and any of its mirrors.
 
 The installation package allows you to install:
 
@@ -19,7 +23,7 @@ The installation package allows you to install:
 	  capture files into one
 
 Additionally, the installation package contains a "plugins"
-option, which installs the Gryphon, MGCP and GIOP dissector plugins
+option, which installs some additional dissector plugins
 for use with Ethereal and Tethereal.
 
 All binaries in Ethereal package are now built with debugging
@@ -135,7 +139,7 @@ Capturing Packets
 -----------------
 In order to capture with Win32, you need to install the NDIS
 packet capture driver for your particular Win32 OS; drivers for Windows
-9x, Windows NT 4.0, and Windows 2000 can be downloaded from the
+9x, Windows NT 4.0, Windows 2000 and Windows XP can be downloaded from the
 WinPcap home page:
 
 	http://winpcap.polito.it/
