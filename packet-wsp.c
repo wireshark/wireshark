@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id: packet-wsp.c,v 1.70 2003/06/30 23:24:39 guy Exp $
+ * $Id: packet-wsp.c,v 1.71 2003/07/08 18:10:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -337,6 +337,24 @@ static const value_string vals_status[] = {
 	{ 0x65, "HTTP Version Not Supported" },
 
 	{ 0x00, NULL }
+};
+
+const value_string vals_wsp_reason_codes[] = {
+	{ 0xE0, "Protocol Error (Illegal PDU)" },
+	{ 0xE1, "Session disconnected" },
+	{ 0xE2, "Session suspended" },
+	{ 0xE3, "Session resumed" },
+	{ 0xE4, "Peer congested" },
+	{ 0xE5, "Session connect failed" },
+	{ 0xE6, "Maximum receive unit size exceeded" },
+	{ 0xE7, "Maximum outstanding requests exceeded" },
+	{ 0xE8, "Peer request" },
+	{ 0xE9, "Network error" },
+	{ 0xEA, "User request" },
+	{ 0xEB, "No specific cause, no retries" },
+	{ 0xEC, "Push message cannot be delivered" },
+	{ 0xED, "Push message discarded" },
+	{ 0xEE, "Content type cannot be processed" },
 };
 
 /*

@@ -2,10 +2,10 @@
  *
  * Declarations for disassembly of WSP component of WAP traffic.
  *
- * $Id: packet-wsp.h,v 1.6 2002/08/28 21:00:37 jmayer Exp $
+ * $Id: packet-wsp.h,v 1.7 2003/07/08 18:10:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
- * By Gerald Combs <gerald@zing.org>
+ * By Gerald Combs <gerald@ethereal.com>
  * Copyright 1998 Gerald Combs
  *
  * WAP dissector based on original work by Ben Fowler
@@ -41,25 +41,9 @@
  *	Remaining PDUs
  */
 
-/* These reason codes are also used in the WTP dissector as the WTP user is
+/* These reason codes are used in the WTP dissector as the WTP user is
  * assumed to be WSP */
-static const value_string vals_wsp_reason_codes[] = {
-	{ 0xE0, "Protocol Error (Illegal PDU)" },
-	{ 0xE1, "Session disconnected" },
-	{ 0xE2, "Session suspended" },
-	{ 0xE3, "Session resumed" },
-	{ 0xE4, "Peer congested" },
-	{ 0xE5, "Session connect failed" },
-	{ 0xE6, "Maximum receive unit size exceeded" },
-	{ 0xE7, "Maximum outstanding requests exceeded" },
-	{ 0xE8, "Peer request" },
-	{ 0xE9, "Network error" },
-	{ 0xEA, "User request" },
-	{ 0xEB, "No specific cause, no retries" },
-	{ 0xEC, "Push message cannot be delivered" },
-	{ 0xED, "Push message discarded" },
-	{ 0xEE, "Content type cannot be processed" },
-};
+extern const value_string vals_wsp_reason_codes[];
 
 /*
  * exported functionality
