@@ -41,6 +41,7 @@ Laurent Deniel       <deniel@worldnet.fr> {
     FDDI support
     OMG GIOP/IIOP support
     ISO/OSI CLNP/COTP support
+    Real time capture and display enhancement
     Miscellaneous enhancements and fixes
 }
 
