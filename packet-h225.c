@@ -1,10 +1,8 @@
-/*this is very incomplete,   please report problems, bugs, suggestions for
-  cosmetic enhancements   etc */
 /* packet-h225.c
  * Routines for H.225 packet dissection
  * 2003  Ronnie Sahlberg
  *
- * $Id: packet-h225.c,v 1.1 2003/07/31 10:35:07 sahlberg Exp $
+ * $Id: packet-h225.c,v 1.2 2003/08/01 09:16:46 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -6835,7 +6833,7 @@ static per_choice_t h323_message_body_choice[] = {
 		dissect_h225_InformationUUIE },
 	{ 5, "releaseComplete", EXTENSION_ROOT,
 		dissect_h225_ReleaseCompleteUUIE },
-	{ 6, "facility", NOT_EXTENSION_ROOT,
+	{ 6, "facility", EXTENSION_ROOT,
 		dissect_h225_FacilityUUIE },
 	{ 7, "progress", NOT_EXTENSION_ROOT,
 		dissect_h225_ProgressUUIE },
@@ -8105,7 +8103,7 @@ dissect_h225_RasMessage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static per_sequence_t H323_UserInformation_sequence[] = {
 	{ "h323_uu_pdu", EXTENSION_ROOT, NOT_OPTIONAL,
 		dissect_h225_H323_UU_PDU },
-	{ "user_data", EXTENSION_ROOT, NOT_OPTIONAL,
+	{ "user_data", EXTENSION_ROOT, OPTIONAL,
 		dissect_h225_user_data },
 	{ NULL, 0, 0, NULL }
 };
@@ -9789,6 +9787,7 @@ proto_register_h225(void)
 		"Reassemble H.225 over TCP",
 		"Whether the dissector should reassemble H.225 PDUs spanning multiple TCP segments",
 		&h225_reassembly);
+	register_dissector("h225", dissect_h225_H323UserInformation, proto_h225);
 }
 
 void
@@ -9798,9 +9797,6 @@ proto_reg_handoff_h225(void)
 	H323UserInformation_handle=create_dissector_handle(dissect_h225_H323UserInformation, proto_h225);
 
 
-	dissector_add("tcp.port", TCP_PORT_CS, H323UserInformation_handle);
-
 	dissector_add("udp.port", UDP_PORT_RAS1, h225ras_handle);
 	dissector_add("udp.port", UDP_PORT_RAS2, h225ras_handle);
-
 }
