@@ -1,6 +1,6 @@
 /* follow.c
  *
- * $Id: follow.c,v 1.6 1999/03/23 20:25:49 deniel Exp $
+ * $Id: follow.c,v 1.7 1999/06/23 20:09:58 gram Exp $
  *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
@@ -195,7 +195,7 @@ check_fragments( int index ) {
       if( prev ) {
 	prev->next = current->next;
       } else {
-	src[index] = current->next;
+	src[index] = GPOINTER_TO_INT(current->next);
       }
       free( current->data );
       free( current );
