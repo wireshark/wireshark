@@ -1,7 +1,7 @@
 /* print.c
  * Routines for printing packet analysis trees.
  *
- * $Id: print.c,v 1.53 2002/06/22 22:31:29 guy Exp $
+ * $Id: print.c,v 1.54 2002/06/23 23:43:32 guy Exp $
  *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -295,10 +295,9 @@ print_hex_data_buffer(FILE *fh, register const u_char *cp,
 	print_line(fh, format, "");
 
 	/*
-	 * How many of the leading bits of the offset will we supply?
-	 * We always supply at least 4 digits, i.e. 16 bits, but if
-	 * the maximum offset won't fit in 4 digits, we use as many
-	 * digits as will be needed.
+	 * How many of the leading digits of the offset will we supply?
+	 * We always supply at least 4 digits, but if the maximum offset
+	 * won't fit in 4 digits, we use as many digits as will be needed.
 	 */
 	if (((length - 1) & 0xF0000000) != 0)
 		use_digits = 8;	/* need all 8 digits */
