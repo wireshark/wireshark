@@ -1,8 +1,8 @@
 /* packet-eap.c
- * Routines for EAP Extensible Authentication Protocol header disassembly,
+ * Routines for EAP Extensible Authentication Protocol dissection
  * RFC 2284
  *
- * $Id: packet-eap.c,v 1.11 2002/02/24 08:10:07 guy Exp $
+ * $Id: packet-eap.c,v 1.12 2002/02/25 23:28:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -51,6 +51,8 @@ static int hf_eap_type = -1;
 
 static gint ett_eap = -1;
 
+static dissector_handle_t ssl_handle;
+
 #define EAP_REQUEST	1
 #define EAP_RESPONSE	2
 #define EAP_SUCCESS	3
@@ -64,19 +66,22 @@ static const value_string eap_code_vals[] = {
     { 0,            NULL }
 };
 
+#define EAP_TYPE_TLS	13
+
 static const value_string eap_type_vals[] = { 
-    { 1, "Identity" },
-    { 2, "Notification" },
-    { 3, "Nak (Response only)" },
-    { 4, "MD5-Challenge" },
-    { 5, "One-Time Password (OTP) (RFC 1938)" },
-    { 6, "Generic Token Card" },
-    { 13, "EAP/TLS (RFC2716)" },
-    { 0, NULL }
+    { 1,            "Identity" },
+    { 2,            "Notification" },
+    { 3,            "Nak (Response only)" },
+    { 4,            "MD5-Challenge" },
+    { 5,            "One-Time Password (OTP) (RFC 1938)" },
+    { 6,            "Generic Token Card" },
+    { EAP_TYPE_TLS, "EAP/TLS (RFC2716)" },
+    { 0,            NULL }
 };
 
 static void
-dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_eap_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+		gboolean top_level)
 {
   guint8      eap_code;
   guint8      eap_id;
@@ -86,18 +91,33 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *ti;
   proto_tree *eap_tree = NULL;
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_clear(pinfo->cinfo, COL_INFO);
+  if (top_level) {
+    if (check_col(pinfo->cinfo, COL_PROTOCOL))
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAP");
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_clear(pinfo->cinfo, COL_INFO);
+  }
 
   eap_code = tvb_get_guint8(tvb, 0);
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO,
-		val_to_str(eap_code, eap_code_vals, "Unknown code (0x%02X)"));
+  if (top_level) {
+    if (check_col(pinfo->cinfo, COL_INFO))
+      col_add_str(pinfo->cinfo, COL_INFO,
+		  val_to_str(eap_code, eap_code_vals, "Unknown code (0x%02X)"));
+  }
+
+  eap_len = tvb_get_ntohs(tvb, 2);
+  len = eap_len;
+
+  /* at least for now, until we get defragmentation support */
+  if (len>tvb_length(tvb))
+    len=tvb_length(tvb);
+
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_eap, tvb, 0, 4, FALSE);
-    eap_tree = proto_item_add_subtree(ti, ett_eap);
+    if (top_level) {
+      ti = proto_tree_add_item(tree, proto_eap, tvb, 0, len, FALSE);
+      eap_tree = proto_item_add_subtree(ti, ett_eap);
+    } else
+      eap_tree = tree;
 
     proto_tree_add_uint(eap_tree, hf_eap_code, tvb, 0, 1, eap_code);
   }
@@ -105,9 +125,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree)
     proto_tree_add_item(eap_tree, hf_eap_identifier, tvb, 1, 1, FALSE);
 
-  eap_len = tvb_get_ntohs(tvb, 2);
-  len = eap_len;
-  set_actual_length(tvb, len);
   if (tree)
     proto_tree_add_uint(eap_tree, hf_eap_len, tvb, 2, 2, eap_len);
 
@@ -116,17 +133,73 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case EAP_REQUEST:
   case EAP_RESPONSE:
     eap_type = tvb_get_guint8(tvb, 4);
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-		val_to_str(eap_type, eap_type_vals, "Unknown type (0x%02X)"));
+    if (top_level) {
+      if (check_col(pinfo->cinfo, COL_INFO))
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+			val_to_str(eap_type, eap_type_vals,
+				   "Unknown type (0x%02X)"));
+    }
     if (tree) {
       proto_tree_add_uint(eap_tree, hf_eap_type, tvb, 4, 1, eap_type);
+
       if (len > 5) {
-        proto_tree_add_text(eap_tree, tvb, 5, len - 5, "Type-Data (%d byte%s)",
-          len - 5, plurality(len - 5, "", "s"));
+	guint   offset = 5;
+	guint   size   = len - offset;
+
+	switch (eap_type) {
+
+	case EAP_TYPE_TLS:
+	  {
+	  guint8 flags = tvb_get_guint8(tvb, offset);
+
+	  proto_tree_add_text(eap_tree, tvb, offset, 1, "Flags(%i): %s%s%s",
+			      flags,
+			      flags & 128 ? "Length " : "",
+			      flags &  64 ? "More " : "",
+			      flags &  32 ? "Start " : "");
+	  size--;
+	  offset++;
+
+	  if (flags >> 7) {
+	    guint32 length = tvb_get_ntohl(tvb, offset);
+	    proto_tree_add_text(eap_tree, tvb, offset, 4, "Length: %i",
+				length);
+	    size   -= 4;
+	    offset += 4;
+	  }
+
+	  if (size>0) {
+	    tvbuff_t   *next_tvb;
+	    proto_tree_add_text(eap_tree, tvb, offset, size, 
+				"Data (%i)",size);
+	    next_tvb = tvb_new_subset(tvb, offset, size, size);
+	    call_dissector(ssl_handle, next_tvb, pinfo, tree);
+	  }
+	  }
+	  break;
+
+	default:
+	  proto_tree_add_text(eap_tree, tvb, offset, size, 
+			      "Type-Data (%d byte%s) Value: %s",
+			      size, plurality(size, "", "s"),
+			      tvb_format_text(tvb, offset, size));
+	  break;
+	}
       }
     }
   }
+}
+
+static void
+dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_eap_pdu(tvb, pinfo, tree, TRUE);
+}
+
+static void
+dissect_encapsulated_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_eap_pdu(tvb, pinfo, tree, FALSE);
 }
 
 void
@@ -156,12 +229,18 @@ proto_register_eap(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   register_dissector("eap", dissect_eap, proto_eap);
+  register_dissector("eap_encap", dissect_encapsulated_eap, proto_eap);
 }
 
 void
 proto_reg_handoff_eap(void)
 {
   dissector_handle_t eap_handle;
+
+  /*
+   * Get a handle for the SSL/TLS dissector.
+   */
+  ssl_handle = find_dissector("ssl");
 
   eap_handle = find_dissector("eap");
   dissector_add("ppp.protocol", PPP_EAP, eap_handle);

@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.17 2002/02/07 18:56:55 guy Exp $
+ * $Id: packet-ssl.c,v 1.18 2002/02/25 23:28:32 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2597,6 +2597,9 @@ proto_register_ssl(void)
                                      "When enabled, SSL records that span multiple TCP segments are desegmented",
                                      &ssl_desegment);
     }
+  
+    register_dissector("ssl", dissect_ssl, proto_ssl);
+
 }
 
 /* If this dissector uses sub-dissector registration add a registration
@@ -2608,7 +2611,7 @@ proto_reg_handoff_ssl(void)
 {
     dissector_handle_t ssl_handle;
 
-    ssl_handle = create_dissector_handle(dissect_ssl, proto_ssl);
+    ssl_handle = find_dissector("ssl");
     dissector_add("tcp.port", TCP_PORT_SSL, ssl_handle);
     dissector_add("tcp.port", TCP_PORT_SSL_LDAP, ssl_handle);
     dissector_add("tcp.port", TCP_PORT_SSL_IMAP, ssl_handle);
