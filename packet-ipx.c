@@ -2,7 +2,7 @@
  * Routines for NetWare's IPX
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-ipx.c,v 1.56 2000/04/18 04:46:05 guy Exp $
+ * $Id: packet-ipx.c,v 1.57 2000/05/11 08:15:14 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -399,22 +399,22 @@ dissect_ipx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		ipx_checksum = pntohs(&pd[offset]);
 		ipx_hops = pd[offset+4];
 
-		ti = proto_tree_add_item(tree, proto_ipx, offset, 30, NULL);
+		ti = proto_tree_add_item(tree, proto_ipx, NullTVB, offset, 30, NULL);
 		ipx_tree = proto_item_add_subtree(ti, ett_ipx);
-		proto_tree_add_item(ipx_tree, hf_ipx_checksum, offset, 2, ipx_checksum);
-		proto_tree_add_uint_format(ipx_tree, hf_ipx_len, offset+2, 2, ipx_length,
+		proto_tree_add_item(ipx_tree, hf_ipx_checksum, NullTVB, offset, 2, ipx_checksum);
+		proto_tree_add_uint_format(ipx_tree, hf_ipx_len, NullTVB, offset+2, 2, ipx_length,
 			"Length: %d bytes", ipx_length);
-		proto_tree_add_uint_format(ipx_tree, hf_ipx_hops, offset+4, 1, ipx_hops,
+		proto_tree_add_uint_format(ipx_tree, hf_ipx_hops, NullTVB, offset+4, 1, ipx_hops,
 			"Transport Control: %d hops", ipx_hops);
-		proto_tree_add_item(ipx_tree, hf_ipx_packet_type, offset+5, 1, ipx_type);
-		proto_tree_add_item(ipx_tree, hf_ipx_dnet, offset+6, 4, ipx_dnet_val);
-		proto_tree_add_item(ipx_tree, hf_ipx_dnode, offset+10, 6, ipx_dnode);
-		proto_tree_add_uint_format(ipx_tree, hf_ipx_dsocket, offset+16, 2,
+		proto_tree_add_item(ipx_tree, hf_ipx_packet_type, NullTVB, offset+5, 1, ipx_type);
+		proto_tree_add_item(ipx_tree, hf_ipx_dnet, NullTVB, offset+6, 4, ipx_dnet_val);
+		proto_tree_add_item(ipx_tree, hf_ipx_dnode, NullTVB, offset+10, 6, ipx_dnode);
+		proto_tree_add_uint_format(ipx_tree, hf_ipx_dsocket, NullTVB, offset+16, 2,
 			ipx_dsocket, "Destination Socket: %s (0x%04X)",
 			port_text(ipx_dsocket), ipx_dsocket);
-		proto_tree_add_item(ipx_tree, hf_ipx_snet, offset+18, 4, ipx_snet_val);
-		proto_tree_add_item(ipx_tree, hf_ipx_snode, offset+22, 6, ipx_snode);
-		proto_tree_add_uint_format(ipx_tree, hf_ipx_ssocket, offset+28, 2,
+		proto_tree_add_item(ipx_tree, hf_ipx_snet, NullTVB, offset+18, 4, ipx_snet_val);
+		proto_tree_add_item(ipx_tree, hf_ipx_snode, NullTVB, offset+22, 6, ipx_snode);
+		proto_tree_add_uint_format(ipx_tree, hf_ipx_ssocket, NullTVB, offset+28, 2,
 			ipx_ssocket, "Source Socket: %s (0x%04X)", port_text(ipx_ssocket),
 			ipx_ssocket);
 	}
@@ -508,40 +508,40 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		col_add_str(fd, COL_INFO, "SPX");
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_spx, offset, 12, NULL);
+		ti = proto_tree_add_item(tree, proto_spx, NullTVB, offset, 12, NULL);
 		spx_tree = proto_item_add_subtree(ti, ett_spx);
 
-		proto_tree_add_uint_format(spx_tree, hf_spx_connection_control,
+		proto_tree_add_uint_format(spx_tree, hf_spx_connection_control, NullTVB,
 					   offset,      1,
 					   pd[offset],
 					   "Connection Control: %s (0x%02X)",
 					   spx_conn_ctrl(pd[offset]), 
 					   pd[offset]);
 
-		proto_tree_add_uint_format(spx_tree, hf_spx_datastream_type,
+		proto_tree_add_uint_format(spx_tree, hf_spx_datastream_type, NullTVB,
 					   offset+1,     1,
 					   pd[offset+1],
 					   "Datastream Type: %s (0x%02X)",
 					   spx_datastream(pd[offset+1]), 
 					   pd[offset+1]);
 
-		proto_tree_add_item(spx_tree, hf_spx_src_id, 
+		proto_tree_add_item(spx_tree, hf_spx_src_id, NullTVB, 
 				    offset+2,     2,
 				    pntohs( &pd[offset+2] ));
 
-		proto_tree_add_item(spx_tree, hf_spx_dst_id,
+		proto_tree_add_item(spx_tree, hf_spx_dst_id, NullTVB,
 				    offset+4,     2,
 				    pntohs( &pd[offset+4] ));
 
-		proto_tree_add_item(spx_tree, hf_spx_seq_nr, 
+		proto_tree_add_item(spx_tree, hf_spx_seq_nr, NullTVB, 
 				    offset+6,     2,
 				    pntohs( &pd[offset+6] ) );
 
-		proto_tree_add_item(spx_tree, hf_spx_ack_nr,
+		proto_tree_add_item(spx_tree, hf_spx_ack_nr, NullTVB,
 				    offset+8,     2,
 				    pntohs( &pd[offset+8] ) );
 
-		proto_tree_add_item(spx_tree, hf_spx_all_nr,
+		proto_tree_add_item(spx_tree, hf_spx_all_nr, NullTVB,
 				    offset+10,     2,
 				    pntohs( &pd[offset+10] ) );
 
@@ -551,7 +551,7 @@ dissect_spx(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 }
 
 /* ================================================================= */
-/* IPX Message                                                           */
+/* IPX Message                                                       */
 /* ================================================================= */
 static void
 dissect_ipxmsg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
@@ -576,11 +576,11 @@ dissect_ipxmsg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ipxmsg, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_ipxmsg, NullTVB, offset, END_OF_FRAME, NULL);
 		msg_tree = proto_item_add_subtree(ti, ett_ipxmsg);
 
-		proto_tree_add_item(msg_tree, hf_msg_conn, offset, 1, conn_number);
-		proto_tree_add_item(msg_tree, hf_msg_sigchar, offset+1, 1, sig_char);
+		proto_tree_add_item(msg_tree, hf_msg_conn, NullTVB, offset, 1, conn_number);
+		proto_tree_add_item(msg_tree, hf_msg_sigchar, NullTVB, offset+1, 1, sig_char);
 	}
 }
 
@@ -612,26 +612,26 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ipxrip, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_ipxrip, NullTVB, offset, END_OF_FRAME, NULL);
 		rip_tree = proto_item_add_subtree(ti, ett_ipxrip);
 
 		if (operation < 2) {
-			proto_tree_add_text(rip_tree, offset, 2,
+			proto_tree_add_text(rip_tree, NullTVB, offset, 2,
 			"RIP packet type: %s", rip_type[operation]);
 
 			if (operation == 0) {
 			  proto_tree_add_item_hidden(rip_tree, 
 						     hf_ipxrip_request, 
-						     offset, 2, 1);
+						     NullTVB, offset, 2, 1);
 			} else {
 			  proto_tree_add_item_hidden(rip_tree, 
 						     hf_ipxrip_response, 
-						     offset, 2, 1);
+						     NullTVB, offset, 2, 1);
 			}
 
 		}
 		else {
-			proto_tree_add_text(rip_tree, offset, 2, "Unknown RIP packet type");
+			proto_tree_add_text(rip_tree, NullTVB, offset, 2, "Unknown RIP packet type");
 		}
 
 		for (cursor = offset + 2; cursor < pi.captured_len; cursor += 8) {
@@ -640,14 +640,14 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			route.ticks = pntohs(&pd[cursor+6]);
 
 			if (operation == IPX_RIP_REQUEST - 1) {
-				proto_tree_add_text(rip_tree, cursor,      8,
+				proto_tree_add_text(rip_tree, NullTVB, cursor,      8,
 					"Route Vector: %s, %d hop%s, %d tick%s",
 					ipxnet_to_string((guint8*)&route.network),
 					route.hops,  route.hops  == 1 ? "" : "s",
 					route.ticks, route.ticks == 1 ? "" : "s");
 			}
 			else {
-				proto_tree_add_text(rip_tree, cursor,      8,
+				proto_tree_add_text(rip_tree, NullTVB, cursor,      8,
 					"Route Vector: %s, %d hop%s, %d tick%s (%d ms)",
 					ipxnet_to_string((guint8*)&route.network),
 					route.hops,  route.hops  == 1 ? "" : "s",
@@ -661,7 +661,7 @@ dissect_ipxrip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 
 /* ================================================================= */
-/* SAP																 */
+/* SAP	        							 */
 /* ================================================================= */
 static char*
 server_type(guint16 type)
@@ -760,23 +760,23 @@ dissect_ipxsap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_sap, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_sap, NullTVB, offset, END_OF_FRAME, NULL);
 		sap_tree = proto_item_add_subtree(ti, ett_ipxsap);
 
 		if (query.query_type >= 1 && query.query_type <= 4) {
-			proto_tree_add_text(sap_tree, offset, 2, sap_type[query.query_type - 1]);
+			proto_tree_add_text(sap_tree, NullTVB, offset, 2, sap_type[query.query_type - 1]);
 			if ((query.query_type - 1) % 2) {
 			  proto_tree_add_item_hidden(sap_tree, 
 						     hf_sap_response, 
-						     offset, 2, 1);
+						     NullTVB, offset, 2, 1);
 			} else {
 			  proto_tree_add_item_hidden(sap_tree, 
 						     hf_sap_request, 
-						     offset, 2, 1);
+						     NullTVB, offset, 2, 1);
 			}
 		}
 		else {
-			proto_tree_add_text(sap_tree, offset, 2,
+			proto_tree_add_text(sap_tree, NullTVB, offset, 2,
 					"Unknown SAP Packet Type %d", query.query_type);
 		}
 
@@ -791,25 +791,25 @@ dissect_ipxsap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				server.server_port = pntohs(&pd[cursor+60]);
 				server.intermediate_network = pntohs(&pd[cursor+62]);
 
-				ti = proto_tree_add_text(sap_tree, cursor+2, 48,
+				ti = proto_tree_add_text(sap_tree, NullTVB, cursor+2, 48,
 					"Server Name: %s", server.server_name);
 				s_tree = proto_item_add_subtree(ti, ett_ipxsap_server);
 
-				proto_tree_add_text(s_tree, cursor, 2, "Server Type: %s (0x%04X)",
+				proto_tree_add_text(s_tree, NullTVB, cursor, 2, "Server Type: %s (0x%04X)",
 						server_type(server.server_type), server.server_type);
-				proto_tree_add_text(s_tree, cursor+50, 4, "Network: %s",
+				proto_tree_add_text(s_tree, NullTVB, cursor+50, 4, "Network: %s",
 						ipxnet_to_string((guint8*)&pd[cursor+50]));
-				proto_tree_add_text(s_tree, cursor+54, 6, "Node: %s",
+				proto_tree_add_text(s_tree, NullTVB, cursor+54, 6, "Node: %s",
 						ether_to_str((guint8*)&pd[cursor+54]));
-				proto_tree_add_text(s_tree, cursor+60, 2, "Socket: %s (0x%04X)",
+				proto_tree_add_text(s_tree, NullTVB, cursor+60, 2, "Socket: %s (0x%04X)",
 						port_text(server.server_port), server.server_port);
-				proto_tree_add_text(s_tree, cursor+62, 2,
+				proto_tree_add_text(s_tree, NullTVB, cursor+62, 2,
 						"Intermediate Networks: %d",
 						server.intermediate_network);
 			}
 		}
 		else {  /* queries */
-			proto_tree_add_text(sap_tree, offset+2, 2, "Server Type: %s (0x%04X)",
+			proto_tree_add_text(sap_tree, NullTVB, offset+2, 2, "Server Type: %s (0x%04X)",
 					server_type(query.server_type), query.server_type);
 		}
 	}

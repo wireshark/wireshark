@@ -1,7 +1,7 @@
 /* packet-radius.c
  * Routines for RADIUS packet disassembly
  *
- * $Id: packet-radius.c,v 1.11 2000/04/08 07:07:34 guy Exp $
+ * $Id: packet-radius.c,v 1.12 2000/05/11 08:15:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Johan Feyaerts
@@ -641,7 +641,7 @@ void dissect_attribute_value_pairs(const u_char *pd, int offset, frame_data
   gchar *valstr;
   if (avplength==0)
   {
-        proto_tree_add_text(tree,offset,0,"No Attribute Value Pairs Found");
+        proto_tree_add_text(tree, NullTVB,offset,0,"No Attribute Value Pairs Found");
         return;
   }
 
@@ -656,7 +656,7 @@ void dissect_attribute_value_pairs(const u_char *pd, int offset, frame_data
      if (!BYTES_ARE_IN_FRAME(offset, avph.avp_length)) {
 	break;
      }
-     proto_tree_add_text(tree,offset,avph.avp_length,
+     proto_tree_add_text(tree, NullTVB,offset,avph.avp_length,
         "t:%s(%d) l:%d, %s",
         avptpstrval,avph.avp_type,avph.avp_length,valstr);
      offset=offset+avph.avp_length;
@@ -703,22 +703,22 @@ proto_tree
   if (tree)
   {
 	
-        ti = proto_tree_add_item(tree,proto_radius, offset, rhlength,
+        ti = proto_tree_add_item(tree,proto_radius, NullTVB, offset, rhlength,
 			NULL);
 
         radius_tree = proto_item_add_subtree(ti, ett_radius);
 
-	proto_tree_add_uint_format(radius_tree,hf_radius_code, offset,      1,
+	proto_tree_add_uint_format(radius_tree,hf_radius_code, NullTVB, offset,      1,
                 rh.rh_code, "Packet code:0x%01x (%s)",rhcode, codestrval);
-        proto_tree_add_uint_format(radius_tree,hf_radius_id, offset+1, 1,
+        proto_tree_add_uint_format(radius_tree,hf_radius_id, NullTVB, offset+1, 1,
                 rh.rh_ident, "Packet identifier: 0x%01x (%d)",
 			rhident,rhident);         
 
-	proto_tree_add_uint_format(radius_tree, hf_radius_length,
+	proto_tree_add_uint_format(radius_tree, hf_radius_length, NullTVB,
 			offset+2, 2,
                  (guint16)rhlength, 
 		"Packet length: 0x%02x(%d)",rhlength,rhlength); 
-         proto_tree_add_text(radius_tree, offset+4,
+         proto_tree_add_text(radius_tree, NullTVB, offset+4,
 			AUTHENTICATOR_LENGTH,
                          "Authenticator");
    
@@ -730,8 +730,8 @@ proto_tree
 
         /* list the attribute value pairs */
 
-        avptf = proto_tree_add_text(radius_tree
-                        ,offset+hdrlength,avplength,
+        avptf = proto_tree_add_text(radius_tree,
+                        NullTVB,offset+hdrlength,avplength,
                         "Attribute value pairs");
         avptree = proto_item_add_subtree(avptf, ett_radius_avp);
 

@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-sap.c,v 1.6 2000/04/08 07:07:35 guy Exp $
+ * $Id: packet-sap.c,v 1.7 2000/05/11 08:15:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -154,28 +154,28 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         }
 
 	if (tree) {
-	  si = proto_tree_add_item(tree, proto_sap, offset, END_OF_FRAME, NULL);
+	  si = proto_tree_add_item(tree, proto_sap, NullTVB, offset, END_OF_FRAME, NULL);
 	  sap_tree = proto_item_add_subtree(si, ett_sap);
 
-	  sif = proto_tree_add_item(sap_tree, hf_sap_flags, offset, 1, pd[offset]);
+	  sif = proto_tree_add_item(sap_tree, hf_sap_flags, NullTVB, offset, 1, pd[offset]);
           sap_flags_tree = proto_item_add_subtree(sif, ett_sap_flags);
-          proto_tree_add_item(sap_flags_tree, hf_sap_flags_v, offset, 1, pd[offset]);
-          proto_tree_add_item(sap_flags_tree, hf_sap_flags_a, offset, 1, pd[offset]);
-          proto_tree_add_item(sap_flags_tree, hf_sap_flags_r, offset, 1, pd[offset]);
-          proto_tree_add_item(sap_flags_tree, hf_sap_flags_t, offset, 1, pd[offset]);
-          proto_tree_add_item(sap_flags_tree, hf_sap_flags_e, offset, 1, pd[offset]);
-          proto_tree_add_item(sap_flags_tree, hf_sap_flags_c, offset, 1, pd[offset]);
+          proto_tree_add_item(sap_flags_tree, hf_sap_flags_v, NullTVB, offset, 1, pd[offset]);
+          proto_tree_add_item(sap_flags_tree, hf_sap_flags_a, NullTVB, offset, 1, pd[offset]);
+          proto_tree_add_item(sap_flags_tree, hf_sap_flags_r, NullTVB, offset, 1, pd[offset]);
+          proto_tree_add_item(sap_flags_tree, hf_sap_flags_t, NullTVB, offset, 1, pd[offset]);
+          proto_tree_add_item(sap_flags_tree, hf_sap_flags_e, NullTVB, offset, 1, pd[offset]);
+          proto_tree_add_item(sap_flags_tree, hf_sap_flags_c, NullTVB, offset, 1, pd[offset]);
           offset++;
 
-          proto_tree_add_text(sap_tree, offset, 1, "Authentication Length: %u", pd[offset]);
+          proto_tree_add_text(sap_tree, NullTVB, offset, 1, "Authentication Length: %u", pd[offset]);
           auth_len = pd[offset];
           offset++;
 
           tmp1 = pntohs(pd+offset);
-          proto_tree_add_text(sap_tree, offset, 2, "Message Identifier Hash: 0x%x", tmp1);
+          proto_tree_add_text(sap_tree, NullTVB, offset, 2, "Message Identifier Hash: 0x%x", tmp1);
           offset +=2;
 
-          proto_tree_add_text(sap_tree, offset, addr_len, "Originating Source: %s",
+          proto_tree_add_text(sap_tree, NullTVB, offset, addr_len, "Originating Source: %s",
                               (is_ipv6) ? ip6_to_str((struct e_in6_addr*)(pd+offset)) : ip_to_str(pd+offset));
           offset += addr_len;
 
@@ -189,26 +189,26 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
                   auth_data_len = auth_len * sizeof(guint32);
 
-                  sdi = proto_tree_add_item(sap_tree, hf_auth_data, offset, auth_data_len, pd[offset]);
+                  sdi = proto_tree_add_item(sap_tree, hf_auth_data, NullTVB, offset, auth_data_len, pd[offset]);
                   sa_tree = proto_item_add_subtree(sdi, ett_sap_auth);
 
-                  sai = proto_tree_add_item(sa_tree, hf_auth_flags, offset, 1, pd[offset]);
+                  sai = proto_tree_add_item(sa_tree, hf_auth_flags, NullTVB, offset, 1, pd[offset]);
                   saf_tree = proto_item_add_subtree(sai, ett_sap_authf);
-                  proto_tree_add_item(saf_tree, hf_auth_flags_v, offset, 1, pd[offset]);
-                  proto_tree_add_item(saf_tree, hf_auth_flags_p, offset, 1, pd[offset]);
-                  proto_tree_add_item(saf_tree, hf_auth_flags_t, offset, 1, pd[offset]);
+                  proto_tree_add_item(saf_tree, hf_auth_flags_v, NullTVB, offset, 1, pd[offset]);
+                  proto_tree_add_item(saf_tree, hf_auth_flags_p, NullTVB, offset, 1, pd[offset]);
+                  proto_tree_add_item(saf_tree, hf_auth_flags_t, NullTVB, offset, 1, pd[offset]);
 
                   has_pad = pd[offset]&MCAST_SAP_AUTH_BIT_P;
                   if (has_pad) pad_len = *(pd+offset+auth_data_len-1);
 
-                  proto_tree_add_text(sa_tree, offset+1, auth_data_len-pad_len-1,
+                  proto_tree_add_text(sa_tree, NullTVB, offset+1, auth_data_len-pad_len-1,
                                       "Authentication subheader: (%u byte%s)",
                                       auth_data_len-1, plurality(auth_data_len-1, "", "s"));
                   if (has_pad) {
-                          proto_tree_add_text(sa_tree, offset+auth_data_len-pad_len, pad_len,
+                          proto_tree_add_text(sa_tree, NullTVB, offset+auth_data_len-pad_len, pad_len,
                                               "Authentication data padding: (%u byte%s)",
                                               pad_len, plurality(pad_len, "", "s"));
-                          proto_tree_add_text(sa_tree, offset+auth_data_len-1, 1,
+                          proto_tree_add_text(sa_tree, NullTVB, offset+auth_data_len-1, 1,
                                               "Authentication data pad count: %u byte%s",
                                               pad_len, plurality(pad_len, "", "s"));
                   }
@@ -218,12 +218,12 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
           if (is_enc) { /* Encrypted payload implies valid timeout in the SAP header */
                   tmp2 = pntohl(pd+offset);
-                  proto_tree_add_text(sap_tree, offset, 4, "Timeout: %u", tmp2);
+                  proto_tree_add_text(sap_tree, NullTVB, offset, 4, "Timeout: %u", tmp2);
                   offset += sizeof(guint32);
           }
 
           if (is_enc || is_comp) {
-                  proto_tree_add_text(sap_tree, offset, END_OF_FRAME,
+                  proto_tree_add_text(sap_tree, NullTVB, offset, END_OF_FRAME,
                                       "Rest of the packet is encrypted or compressed");
                   return;
           }
@@ -231,7 +231,7 @@ dissect_sap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
           /* Do we have the optional payload type aka. MIME content specifier */
           if (strncasecmp(pd+offset, "v=", strlen("v="))) {
                   guint32 pt_len = strlen(pd+offset); /* BUG: should use strnlen */
-                  proto_tree_add_text(sap_tree, offset, pt_len, "Payload type: %s", pd+offset);
+                  proto_tree_add_text(sap_tree, NullTVB, offset, pt_len, "Payload type: %s", pd+offset);
                   offset += pt_len;
                   if (pd[offset] == '\0')
                           offset++; /* Skip possible '\0' */

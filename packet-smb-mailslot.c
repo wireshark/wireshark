@@ -2,7 +2,7 @@
  * Routines for smb mailslot packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-mailslot.c,v 1.3 2000/02/14 04:21:04 guy Exp $
+ * $Id: packet-smb-mailslot.c,v 1.4 2000/05/11 08:15:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,18 +91,18 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
 
 
     	if (tree) {
-		ti = proto_tree_add_item( parent, proto_smb_msp, offset,
+		ti = proto_tree_add_item( parent, proto_smb_msp, NullTVB, offset,
 			END_OF_FRAME, NULL);
 		smb_msp_tree = proto_item_add_subtree(ti, ett_smb_msp);
 
- 		proto_tree_add_text(smb_msp_tree, offset, 2, "Op code: %u (%s)",
+ 		proto_tree_add_text(smb_msp_tree, NullTVB, offset, 2, "Op code: %u (%s)",
  			Temp16, ( Temp16 == 1 ? "Write Mail slot" : "Unknown"));
 
 	  	offset += 2;
  
    						/* do the Priority field */
      		Temp16 = GSHORT(pd, offset);
-     		proto_tree_add_text(smb_msp_tree, offset, 2,
+     		proto_tree_add_text(smb_msp_tree, NullTVB, offset, 2,
      			"Priority of transaction: %u", Temp16);
     	
    		offset += 2;
@@ -110,7 +110,7 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
     						/* do the Class field */
       		Temp16 = GSHORT(pd, offset);
      
-      		proto_tree_add_text(smb_msp_tree, offset, 2, "Class: %u (%s)",
+      		proto_tree_add_text(smb_msp_tree, NullTVB, offset, 2, "Class: %u (%s)",
       			Temp16, ( Temp16 == 1) ? "Reliable" : (( Temp16 == 2) ?
       			"Unreliable & Broadcast" : "Unknown"));
 	
@@ -118,7 +118,7 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
 
      			 			/* do the data size field */
      		Temp16 = GSHORT(pd, offset);
-     		proto_tree_add_text(smb_msp_tree, offset, 2,
+     		proto_tree_add_text(smb_msp_tree, NullTVB, offset, 2,
      			"Total size of mail data: %u", Temp16);
 
 	   	offset += 2;
@@ -131,7 +131,7 @@ dissect_mailslot_smb(const u_char *pd, int offset, frame_data *fd,
     	StrPtr = &pd[offset];		/* load pointer to name	*/
 
  	if (smb_msp_tree) {
-		proto_tree_add_text(smb_msp_tree, offset, strlen( StrPtr) + 1,
+		proto_tree_add_text(smb_msp_tree, NullTVB, offset, strlen( StrPtr) + 1,
 			"Mailslot Name: %s", StrPtr);
     	}
 

@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-pipe.c,v 1.4 2000/03/06 20:03:07 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.5 2000/05/11 08:15:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -151,53 +151,53 @@ find_lanman(int lanman_num)
 
 void dissect_server_flags(proto_tree *tree, int offset, int length, int flags)
 {
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x0001, length*8, "Workstation", "Not Workstation"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x0002, length*8, "Server", "Not Server"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x0004, length*8, "SQL Server", "Not SQL Server"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x0008, length*8, "Domain Controller", "Not Domain Controller"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x0010, length*8, "Backup Controller", "Not Backup Controller"));
-  proto_tree_add_text(tree, offset, 4, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, 4, "%s",
 		      decode_boolean_bitfield(flags, 0x0020, length*8, "Time Source", "Not Time Source"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x0040, length*8, "Apple Server", "Not Apple Server"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x0080, length*8, "Novell Server", "Not Novell Server"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x0100, length*8, "Domain Member Server", "Not Domain Member Server"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x0200, length*8, "Print Queue Server", "Not Print Queue Server"));      
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x0400, length*8, "Dialin Server", "Not Dialin Server"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x0800, length*8, "Xenix Server", "Not Xenix Server"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x1000, length*8, "NT Workstation", "Not NT Workstation"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x2000, length*8, "Windows for Workgroups", "Not Windows for Workgroups"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x8000, length*8, "NT Server", "Not NT Server"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x10000, length*8, "Potential Browser", "Not Potential Browser"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x20000, length*8, "Backup Browser", "Not Backup Browser"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x40000, length*8, "Master Browser", "Not Master Browser"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x80000, length*8, "Domain Master Browser", "Not Domain Master Browser"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x100000, length*8, "OSF", "Not OSF"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x200000, length*8, "VMS", "Not VMS"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x400000, length*8, "Windows 95 or above", "Not Windows 95 or above"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x40000000, length*8, "Local List Only", "Not Local List Only"));
-  proto_tree_add_text(tree, offset, length, "%s",
+  proto_tree_add_text(tree, NullTVB, offset, length, "%s",
 		      decode_boolean_bitfield(flags, 0x80000000, length*8, "Domain Enum", "Not Domain Enum"));
 
 }
@@ -310,7 +310,7 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 
 	  WParam = GSHORT(pd, pd_p_current);
 
-	  proto_tree_add_text(tree, pd_p_current, 2, "%s: %u (%04X)", (Name) ? Name : "Returned Word", WParam, WParam);
+	  proto_tree_add_text(tree, NullTVB, pd_p_current, 2, "%s: %u (%04X)", (Name) ? Name : "Returned Word", WParam, WParam);
 
 	  pd_p_current += 2;
 
@@ -328,7 +328,7 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 
 	  WParam = GSHORT(pd, pd_p_current);
 
-	  proto_tree_add_text(tree, pd_p_current, 2, "%s: (%04X)", (Name) ? Name : "Entry Count", WParam);
+	  proto_tree_add_text(tree, NullTVB, pd_p_current, 2, "%s: (%04X)", (Name) ? Name : "Entry Count", WParam);
 
 	  pd_p_current += 2;
 
@@ -348,7 +348,7 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 
 	  WParam = GSHORT(pd, pd_p_current);
 
-	  proto_tree_add_text(tree, pd_p_current, 2, "%s: %u (%04X)", (Name) ? Name : "Word Param", WParam, WParam);
+	  proto_tree_add_text(tree, NullTVB, pd_p_current, 2, "%s: %u (%04X)", (Name) ? Name : "Word Param", WParam, WParam);
 
 	  pd_p_current += 2;
 
@@ -364,7 +364,7 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 
 	  LParam = GWORD(pd, pd_p_current);
 
-	  proto_tree_add_text(tree, pd_p_current, 4, "%s: %u (0x%08X)", (Name) ? Name : "Returned Long Word", LParam, LParam);
+	  proto_tree_add_text(tree, NullTVB, pd_p_current, 4, "%s: %u (0x%08X)", (Name) ? Name : "Returned Long Word", LParam, LParam);
 
 	  pd_p_current += 2;
 
@@ -380,7 +380,7 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 
 	  LParam = GWORD(pd, pd_p_current);
 
-	  proto_tree_add_text(tree, pd_p_current, 4, "%s: %u (0x%08X)", (Name) ? Name : "DWord Param", LParam, LParam);
+	  proto_tree_add_text(tree, NullTVB, pd_p_current, 4, "%s: %u (0x%08X)", (Name) ? Name : "DWord Param", LParam, LParam);
 
 	  pd_p_current += 4;
 	  
@@ -396,7 +396,7 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
  
 	  bc = get_byte_count(p_desc + p_offset);
 
-	  proto_tree_add_text(tree, pd_p_current, bc, "%s%u: %s", (Name) ? Name : "B", (bc) ? bc : 1, format_text( pd + pd_p_current, (bc) ? bc : 1));
+	  proto_tree_add_text(tree, NullTVB, pd_p_current, bc, "%s%u: %s", (Name) ? Name : "B", (bc) ? bc : 1, format_text( pd + pd_p_current, (bc) ? bc : 1));
 
 	  pd_p_current += (bc) ? bc : 1;
 
@@ -414,7 +414,7 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 
 	  /*Bytes = g_malloc(bc + 1); / * Is this needed ? */
 
-	  proto_tree_add_text(tree, pd_p_current, bc, "%s%u: %s", (Name) ? Name : "B", (bc) ? bc : 1, format_text(pd + pd_p_current, (bc) ? bc : 1));
+	  proto_tree_add_text(tree, NullTVB, pd_p_current, bc, "%s%u: %s", (Name) ? Name : "B", (bc) ? bc : 1, format_text(pd + pd_p_current, (bc) ? bc : 1));
 
 	  pd_p_current += (bc) ? bc : 1;
 
@@ -428,7 +428,7 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 
 	if (dirn == 1) {
 
-	  proto_tree_add_text(tree, pd_p_current, 0, "%s: Null Pointer", (Name) ? Name : "Unknown");
+	  proto_tree_add_text(tree, NullTVB, pd_p_current, 0, "%s: Null Pointer", (Name) ? Name : "Unknown");
 
 	  return 1;  /* That's it here */
 
@@ -442,7 +442,7 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 
 	  AsciiZ = pd + pd_p_current;
 
-	  proto_tree_add_text(tree, pd_p_current, strlen(AsciiZ) + 1, "%s: %s", (Name) ? Name : "AsciiZ", AsciiZ);
+	  proto_tree_add_text(tree, NullTVB, pd_p_current, strlen(AsciiZ) + 1, "%s: %s", (Name) ? Name : "AsciiZ", AsciiZ);
 
 	  pd_p_current += strlen(AsciiZ) + 1;
 
@@ -458,7 +458,7 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 
 	  bc = get_byte_count(pd);
 
-	  proto_tree_add_text(tree, pd_p_current, bc, "%s%u: %s", (Name) ? Name : "Pad", bc, format_text(pd + pd_p_current, bc));
+	  proto_tree_add_text(tree, NullTVB, pd_p_current, bc, "%s%u: %s", (Name) ? Name : "Pad", bc, format_text(pd + pd_p_current, bc));
 
 	  pd_p_current += bc;
 
@@ -474,7 +474,7 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 
 	  WParam = GSHORT(pd, pd_p_current);
 
-	  proto_tree_add_text(tree, pd_p_current, 2, "%s: %u (0x%04X)", (Name) ? Name : "Receive Buffer Len", WParam, WParam);
+	  proto_tree_add_text(tree, NullTVB, pd_p_current, 2, "%s: %u (0x%04X)", (Name) ? Name : "Receive Buffer Len", WParam, WParam);
 
 	  pd_p_current += 2;
 
@@ -492,7 +492,7 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 
 	  LParam = GWORD(pd, pd_p_current);
 
-	  proto_tree_add_text(tree, pd_p_current, 4, "%s: %u", (Name) ? Name : "Send Buffer Ptr", LParam);
+	  proto_tree_add_text(tree, NullTVB, pd_p_current, 4, "%s: %u", (Name) ? Name : "Send Buffer Ptr", LParam);
 
 	  pd_p_current += 4;
 
@@ -508,7 +508,7 @@ int dissect_transact_next(const u_char *pd, char *Name, int dirn, proto_tree *tr
 
 	  WParam = GSHORT(pd, pd_p_current);
 
-	  proto_tree_add_text(tree, pd_p_current, 2, "%s: %u", (Name) ? Name : "Send Buffer Len", WParam);
+	  proto_tree_add_text(tree, NullTVB, pd_p_current, 2, "%s: %u", (Name) ? Name : "Send Buffer Len", WParam);
 
 	  pd_p_current += 2;
 
@@ -580,10 +580,10 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, SMB_offset + ParameterOffset, ParameterCount, NULL);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, ParameterCount, NULL);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
 
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Function Code: NetShareEnum");
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Function Code: NetShareEnum");
 
       }
 
@@ -600,7 +600,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, strlen(ParameterDescriptor) + 1, "Parameter Descriptor: %s", ParameterDescriptor);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, strlen(ParameterDescriptor) + 1, "Parameter Descriptor: %s", ParameterDescriptor);
 
       }
 
@@ -615,7 +615,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, strlen(ReturnDescriptor) + 1, "Return Descriptor: %s", ReturnDescriptor);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, strlen(ReturnDescriptor) + 1, "Return Descriptor: %s", ReturnDescriptor);
 
       }
 
@@ -625,7 +625,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
       
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Detail Level: %u", Level);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Detail Level: %u", Level);
 
       }
 
@@ -635,7 +635,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
       
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Receive Buffer Length: %u", RecvBufLen);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Receive Buffer Length: %u", RecvBufLen);
 
       }
 
@@ -653,10 +653,10 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, SMB_offset + ParameterOffset, ParameterCount, NULL);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, ParameterCount, NULL);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
       
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Function Code: NetServerEnum2");
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Function Code: NetServerEnum2");
 
       }
 
@@ -675,7 +675,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, strlen(ParameterDescriptor) + 1, "Parameter Descriptor: %s", ParameterDescriptor);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, strlen(ParameterDescriptor) + 1, "Parameter Descriptor: %s", ParameterDescriptor);
 
       }
 
@@ -691,7 +691,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
       
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, strlen(ReturnDescriptor) + 1, "Return Descriptor: %s", ReturnDescriptor);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, strlen(ReturnDescriptor) + 1, "Return Descriptor: %s", ReturnDescriptor);
 
       }
 
@@ -702,7 +702,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Info Detail Level: %u", Level);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Info Detail Level: %u", Level);
 
       }
 
@@ -712,7 +712,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
       
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Receive Buffer Length: %u", RecvBufLen);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Receive Buffer Length: %u", RecvBufLen);
 
       }
 
@@ -722,7 +722,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_text(lanman_tree, loc_offset, 4, "Server Types Required: 0x%08X", Flags);
+	ti = proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 4, "Server Types Required: 0x%08X", Flags);
 	flags_tree = proto_item_add_subtree(ti, ett_lanman_flags);
 	dissect_server_flags(flags_tree, loc_offset, 4, Flags);
 
@@ -749,14 +749,14 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, SMB_offset + ParameterOffset, ParameterCount, NULL);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, ParameterCount, NULL);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
 
 	if (lanman) {
-	  proto_tree_add_text(lanman_tree, loc_offset, 2, "%s Request", lanman -> lanman_name);
+	  proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "%s Request", lanman -> lanman_name);
 	}
 	else {
-	  proto_tree_add_text(lanman_tree, loc_offset, 2, "Function Code: Unknown LANMAN Request: %u", FunctionCode);
+	  proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Function Code: Unknown LANMAN Request: %u", FunctionCode);
 	}
 
       }
@@ -774,7 +774,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, strlen(ParameterDescriptor) + 1, "Parameter Descriptor: %s", ParameterDescriptor);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, strlen(ParameterDescriptor) + 1, "Parameter Descriptor: %s", ParameterDescriptor);
 
       }
 
@@ -789,7 +789,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, strlen(ReturnDescriptor) + 1, "Return Descriptor: %s", ReturnDescriptor);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, strlen(ReturnDescriptor) + 1, "Return Descriptor: %s", ReturnDescriptor);
 
       }
 
@@ -838,11 +838,11 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
       
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, SMB_offset + DataOffset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + DataOffset, END_OF_FRAME, NULL);
 
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
 
-	proto_tree_add_text(lanman_tree, loc_offset, END_OF_FRAME, "Payload: %s", format_text(pd + SMB_offset + DataOffset, END_OF_FRAME));
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, END_OF_FRAME, "Payload: %s", format_text(pd + SMB_offset + DataOffset, END_OF_FRAME));
 
       }
 
@@ -865,10 +865,10 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, SMB_offset + ParameterOffset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, END_OF_FRAME, NULL);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
       
-	proto_tree_add_text(lanman_tree, loc_offset, 0, "Function Code: NetShareEnum");
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 0, "Function Code: NetShareEnum");
 
       }
 
@@ -880,7 +880,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Status: %u", Status);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Status: %u", Status);
 
       }
 
@@ -890,7 +890,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Convert: %u", Convert);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Convert: %u", Convert);
 
       }
 
@@ -900,7 +900,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Entry Count: %u", EntCount);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Entry Count: %u", EntCount);
 
       }
 
@@ -910,7 +910,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Available Entries: %u", AvailCount);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Available Entries: %u", AvailCount);
 
       }
 
@@ -918,7 +918,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_text(lanman_tree, loc_offset, AvailCount * 20, "Available Shares");
+	ti = proto_tree_add_text(lanman_tree, NullTVB, loc_offset, AvailCount * 20, "Available Shares");
 
 	share_tree = proto_item_add_subtree(ti, ett_lanman_shares);
 
@@ -933,7 +933,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
 	if (tree) {
 
-	  ti = proto_tree_add_text(share_tree, loc_offset, 20, "Share %s", Share);
+	  ti = proto_tree_add_text(share_tree, NullTVB, loc_offset, 20, "Share %s", Share);
 	  share = proto_item_add_subtree(ti, ett_lanman_share);
 
 
@@ -941,7 +941,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
 	if (tree) {
 	  
-	  proto_tree_add_text(share, loc_offset, 13, "Share Name: %s", Share);
+	  proto_tree_add_text(share, NullTVB, loc_offset, 13, "Share Name: %s", Share);
 
 	}
 
@@ -954,7 +954,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
 	if (tree) {
 
-	  proto_tree_add_text(share, loc_offset, 2, "Share Type: %u", Flags);
+	  proto_tree_add_text(share, NullTVB, loc_offset, 2, "Share Type: %u", Flags);
 
 	}
 
@@ -964,7 +964,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
 	if (tree) {
 
-	  proto_tree_add_text(share, loc_offset, 4, "Share Comment: %s", Comment);
+	  proto_tree_add_text(share, NullTVB, loc_offset, 4, "Share Comment: %s", Comment);
 
 	}
 
@@ -984,10 +984,10 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, SMB_offset + ParameterOffset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, END_OF_FRAME, NULL);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
       
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Function Code: NetServerEnum2");
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Function Code: NetServerEnum2");
 
       }
 
@@ -996,7 +996,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Status: %u", Status);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Status: %u", Status);
 
       }
 
@@ -1006,7 +1006,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Convert: %u", Convert);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Convert: %u", Convert);
 
       }
 
@@ -1016,7 +1016,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Entry Count: %u", EntCount);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Entry Count: %u", EntCount);
 
       }
 
@@ -1026,7 +1026,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Available Entries: %u", AvailCount);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Available Entries: %u", AvailCount);
 
       }
 
@@ -1034,7 +1034,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_text(lanman_tree, loc_offset, 26 * AvailCount, "Servers");
+	ti = proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 26 * AvailCount, "Servers");
 	if (ti == NULL) { 
 
 	  printf("Null value returned from proto_tree_add_text\n");
@@ -1059,7 +1059,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
 	if (tree) {
 
-	  ti = proto_tree_add_text(server_tree, loc_offset, 
+	  ti = proto_tree_add_text(server_tree, NullTVB, loc_offset, 
 				   (si.request_val -> last_level) ? 26 : 16,
 				   "Server %s", Server);
 	  server = proto_item_add_subtree(ti, ett_lanman_server);
@@ -1069,7 +1069,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
 	if (tree) {
 	  
-	  proto_tree_add_text(server, loc_offset, 16, "Server Name: %s", Server);
+	  proto_tree_add_text(server, NullTVB, loc_offset, 16, "Server Name: %s", Server);
 
 	}
 
@@ -1081,7 +1081,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
 	  if (tree) {
 
-	    proto_tree_add_text(server, loc_offset, 1, "Major Version: %u", ServerMajor);
+	    proto_tree_add_text(server, NullTVB, loc_offset, 1, "Major Version: %u", ServerMajor);
 
 	  }
 
@@ -1091,7 +1091,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
 	  if (tree) {
 
-	    proto_tree_add_text(server, loc_offset, 1, "Minor Version: %u", ServerMinor);
+	    proto_tree_add_text(server, NullTVB, loc_offset, 1, "Minor Version: %u", ServerMinor);
 
 	  }
 
@@ -1101,7 +1101,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
 	  if (tree) {
 
-	    ti = proto_tree_add_text(server, loc_offset, 4, "Server Type: 0x%08X", ServerFlags);
+	    ti = proto_tree_add_text(server, NullTVB, loc_offset, 4, "Server Type: 0x%08X", ServerFlags);
 	    flags_tree = proto_item_add_subtree(ti, ett_lanman_flags);
 	    dissect_server_flags(flags_tree, loc_offset, 4, ServerFlags);
 
@@ -1113,7 +1113,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
 	  if (tree) {
 
-	    proto_tree_add_text(server, loc_offset, 4, "Server Comment: %s", Comment);
+	    proto_tree_add_text(server, NullTVB, loc_offset, 4, "Server Comment: %s", Comment);
 
 	  }
 
@@ -1141,13 +1141,13 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	ti = proto_tree_add_item(parent, proto_smb_lanman, SMB_offset + ParameterOffset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(parent, proto_smb_lanman, NullTVB, SMB_offset + ParameterOffset, END_OF_FRAME, NULL);
 	lanman_tree = proto_item_add_subtree(ti, ett_lanman);
 	if (lanman) {
-	  proto_tree_add_text(lanman_tree, 0, 0, "%s Response", lanman -> lanman_name);
+	  proto_tree_add_text(lanman_tree, NullTVB, 0, 0, "%s Response", lanman -> lanman_name);
 	}
 	else {
-	  proto_tree_add_text(lanman_tree, loc_offset, 0, "Function Code: Unknown LANMAN Response: %u", FunctionCode);
+	  proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 0, "Function Code: Unknown LANMAN Response: %u", FunctionCode);
 	}
       }
 
@@ -1157,7 +1157,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Status: %u", Status);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Status: %u", Status);
 
       }
 
@@ -1167,7 +1167,7 @@ dissect_pipe_lanman(const u_char *pd, int offset, frame_data *fd,
 
       if (tree) {
 
-	proto_tree_add_text(lanman_tree, loc_offset, 2, "Convert: %u", Convert);
+	proto_tree_add_text(lanman_tree, NullTVB, loc_offset, 2, "Convert: %u", Convert);
 
       }
 

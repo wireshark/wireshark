@@ -2,7 +2,7 @@
  * Routines for x25 packet disassembly
  * Olivier Abad <abad@daba.dhis.net>
  *
- * $Id: packet-x25.c,v 1.24 2000/04/15 22:11:12 guy Exp $
+ * $Id: packet-x25.c,v 1.25 2000/05/11 08:15:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -631,10 +631,10 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 
     len = *ptr++;
     if (len && tree) {
-	ti = proto_tree_add_text(tree, *offset, len + 1,
+	ti = proto_tree_add_text(tree, NullTVB, *offset, len + 1,
 		                 "Facilities");
 	fac_tree = proto_item_add_subtree(ti, ett_x25_fac);
-	proto_tree_add_text(fac_tree, *offset, 1,
+	proto_tree_add_text(fac_tree, NullTVB, *offset, 1,
 			    "Facilities length: %d", len);
     }
     (*offset)++;
@@ -645,13 +645,13 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 	    switch (*ptr) {
 	    case X25_FAC_COMP_MARK:
 		if (fac_tree)
-		    ti = proto_tree_add_text(fac_tree, *offset, 1,
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1,
 			    "Code : 00 (Marker)");
 		switch (ptr[1]) {
 		case 0x00:
 		    if (fac_tree) {
 			fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_mark);
-			proto_tree_add_text(fac_subtree, *offset+1, 1,
+			proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 					    "Parameter : 00 (Network complementary "
 					    "services - calling DTE)");
 		    }
@@ -659,7 +659,7 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 		case 0xFF:
 		    if (fac_tree) {
 			fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_mark);
-			proto_tree_add_text(fac_subtree, *offset+1, 1,
+			proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 					    "Parameter : FF (Network complementary "
 					    "services - called DTE)");
 		    }
@@ -667,7 +667,7 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 		case 0x0F:
 		    if (fac_tree) {
 			fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_mark);
-			proto_tree_add_text(fac_subtree, *offset+1, 1,
+			proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 					    "Parameter : 0F (DTE complementary "
 					    "services)");
 		    }
@@ -675,7 +675,7 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 		default:
 		    if (fac_tree) {
 			fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_mark);
-			proto_tree_add_text(fac_subtree, *offset+1, 1,
+			proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 					    "Parameter : %02X (Unknown marker)",
 					    ptr[1]);
 		    }
@@ -684,21 +684,21 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 		break;
 	    case X25_FAC_REVERSE:
 		if (fac_tree) {
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(Reverse charging / Fast select)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_reverse);
-		    proto_tree_add_text(fac_subtree, *offset+1, 1, "Parameter : %02X",
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1, "Parameter : %02X",
 			    ptr[1]);
 		    if (ptr[1] & 0xC0)
-			proto_tree_add_text(fac_subtree, *offset+1, 1,
+			proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 				"11.. .... = Fast select with restriction");
 		    else if (ptr[1] & 0x80)
-			proto_tree_add_text(fac_subtree, *offset+1, 1,
+			proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 				"10.. .... = Fast select - no restriction");
 		    else
-			proto_tree_add_text(fac_subtree, *offset+1, 1,
+			proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 				"00.. .... = Fast select not requested");
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    decode_boolean_bitfield(ptr[1], 0x01, 1*8,
 				"Reverse charging requested",
 				"Reverse charging not requested"));
@@ -708,7 +708,7 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 		if (fac_tree) {
 		    char tmpbuf[80];
 
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(Throughput class negociation)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_throughput);
 		    switch (ptr[1] >> 4)
@@ -734,7 +734,7 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 		    default:
 			sprintf(tmpbuf, "From the called DTE : %%u (Reserved)");
 		    }
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    decode_numeric_bitfield(ptr[1], 0xF0, 1*8, tmpbuf));
 		    switch (ptr[1] & 0x0F)
 		    {
@@ -759,66 +759,66 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 		    default:
 			sprintf(tmpbuf, "From the calling DTE : %%u (Reserved)");
 		    }
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    decode_numeric_bitfield(ptr[1], 0x0F, 1*8, tmpbuf));
 		}
 		break;
 	    case X25_FAC_CUG:
 		if (fac_tree) {
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(Closed user group selection)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_cug);
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    "Closed user group: %02X", ptr[1]);
 		}
 		break;
 	    case X25_FAC_CALLED_MODIF:
 		if (fac_tree) {
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(Called address modified)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti,
 			    ett_x25_fac_called_modif);
-		    proto_tree_add_text(fac_tree, *offset, 2,
+		    proto_tree_add_text(fac_tree, NullTVB, *offset, 2,
 			    "Parameter %02X", ptr[1]);
 		}
 		break;
 	    case X25_FAC_CUG_OUTGOING_ACC:
 		if (fac_tree) {
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(Closed user group with outgoing access selection)",
 			    *ptr);
 		    fac_subtree = proto_item_add_subtree(ti,
 			    ett_x25_fac_cug_outgoing_acc);
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    "Closed user group: %02X", ptr[1]);
 		}
 		break;
 	    case X25_FAC_THROUGHPUT_MIN:
 		if (fac_tree) {
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(Minimum throughput class)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti,
 			    ett_x25_fac_throughput_min);
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    "Parameter %02X", ptr[1]);
 		}
 		break;
 	    case X25_FAC_EXPRESS_DATA:
 		if (fac_tree) {
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(Negociation of express data)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti,
 			    ett_x25_fac_express_data);
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    "Parameter %02X", ptr[1]);
 		}
 		break;
 	    default:
 		if (fac_tree) {
-		    ti = proto_tree_add_text(fac_tree, *offset, 1,
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1,
 			    "Code : %02X (Unknown class A)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_unknown);
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    "Parameter %02X", ptr[1]);
 		}
 		break;
@@ -831,11 +831,11 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 	    switch (*ptr) {
 	    case X25_FAC_BILATERAL_CUG:
 		if (fac_tree) {
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(Bilateral closed user group selection)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti,
 			    ett_x25_fac_bilateral_cug);
-		    proto_tree_add_text(fac_subtree, *offset+1, 2,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 2,
 					"Bilateral CUG: %02X%02X",
 					ptr[1], ptr[2]);
 		}
@@ -845,7 +845,7 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 		{
 		    char tmpbuf[80];
 
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(Packet size)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_packet_size);
 		    switch (ptr[1])
@@ -881,7 +881,7 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 			sprintf(tmpbuf, "From the called DTE : %%u (Unknown)");
 			break;
 		    }
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    decode_numeric_bitfield(ptr[1], 0x0F, 1*8, tmpbuf));
 
 		    switch (ptr[2])
@@ -917,51 +917,51 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 			sprintf(tmpbuf, "From the calling DTE : %%u (Unknown)");
 			break;
 		    }
-		    proto_tree_add_text(fac_subtree, *offset+2, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+2, 1,
 			    decode_numeric_bitfield(ptr[2], 0x0F, 1*8, tmpbuf));
 		}
 		break;
 	    case X25_FAC_WINDOW_SIZE:
 		if (fac_tree) {
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(Window size)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_window_size);
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    decode_numeric_bitfield(ptr[1], 0x7F, 1*8,
 			    "From the called DTE: %u"));
-		    proto_tree_add_text(fac_subtree, *offset+2, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+2, 1,
 			    decode_numeric_bitfield(ptr[2], 0x7F, 1*8,
 			    "From the calling DTE: %u"));
 		}
 		break;
 	    case X25_FAC_RPOA_SELECTION:
 		if (fac_tree) {
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(RPOA selection)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti,
 			    ett_x25_fac_rpoa_selection);
-		    proto_tree_add_text(fac_subtree, *offset+1, 2,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 2,
 					"Data network identification code : %02X%02X",
 					ptr[1], ptr[2]);
 		}
 		break;
 	    case X25_FAC_TRANSIT_DELAY:
 		if (fac_tree) {
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(Transit delay selection and indication)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti,
 			    ett_x25_fac_transit_delay);
-		    proto_tree_add_text(fac_subtree, *offset+1, 2,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 2,
 					"Transit delay: %d ms",
 					(ptr[1]<<8) + ptr[2]);
 		}
 		break;
 	    default:
 		if (fac_tree) {
-		    ti = proto_tree_add_text(fac_tree, *offset, 1,
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1,
 			    "Code : %02X (Unknown class B)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_unknown);
-		    proto_tree_add_text(fac_subtree, *offset+1, 2,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 2,
 			    "Parameter %02X%02X", ptr[1], ptr[2]);
 		}
 		break;
@@ -972,10 +972,10 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 	    break;
 	case X25_FAC_CLASS_C:
 	    if (fac_tree) {
-		ti = proto_tree_add_text(fac_tree, *offset, 1,
+		ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1,
 			"Code : %02X (Unknown class C)", *ptr);
 		fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_unknown);
-		proto_tree_add_text(fac_subtree, *offset+1, 3,
+		proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 3,
 			"Parameter %02X%02X%02X",
 			ptr[1], ptr[2], ptr[3]);
 	    }
@@ -990,41 +990,41 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 		    int i;
 		    char tmpbuf[256];
 
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(Call redirection or deflection notification)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_call_transfer);
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    "Length : %u", ptr[1]);
 		    if ((ptr[2] & 0xC0) == 0xC0) {
-			proto_tree_add_text(fac_subtree, *offset+2, 1,
+			proto_tree_add_text(fac_subtree, NullTVB, *offset+2, 1,
 				"Reason : call deflection by the originally "
 				"called DTE address");
 		    }
 		    else {
 			switch (ptr[2]) {
 			case 0x01:
-			    proto_tree_add_text(fac_subtree, *offset+2, 1,
+			    proto_tree_add_text(fac_subtree, NullTVB, *offset+2, 1,
 				    "Reason : originally called DTE busy");
 			    break;
 			case 0x07:
-			    proto_tree_add_text(fac_subtree, *offset+2, 1,
+			    proto_tree_add_text(fac_subtree, NullTVB, *offset+2, 1,
 				    "Reason : call dist. within a hunt group");
 			    break;
 			case 0x09:
-			    proto_tree_add_text(fac_subtree, *offset+2, 1,
+			    proto_tree_add_text(fac_subtree, NullTVB, *offset+2, 1,
 				    "Reason : originally called DTE out of order");
 			    break;
 			case 0x0F:
-			    proto_tree_add_text(fac_subtree, *offset+2, 1,
+			    proto_tree_add_text(fac_subtree, NullTVB, *offset+2, 1,
 				    "Reason : systematic call redirection");
 			    break;
 			default:
-			    proto_tree_add_text(fac_subtree, *offset+2, 1,
+			    proto_tree_add_text(fac_subtree, NullTVB, *offset+2, 1,
 				    "Reason : unknown");
 			    break;
 			}
 		    }
-		    proto_tree_add_text(fac_subtree, *offset+3, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+3, 1,
 			    "Number of semi-octets in DTE address : %u", ptr[3]);
 		    for (i = 0; i < ptr[3]; i++) {
 			if (i % 2 == 0) {
@@ -1038,7 +1038,7 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 			}
 		    }
 		    tmpbuf[i] = 0;
-		    proto_tree_add_text(fac_subtree, *offset+4, ptr[1] - 2,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+4, ptr[1] - 2,
 			    "DTE address : %s", tmpbuf);
 		}
 		break;
@@ -1047,13 +1047,13 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 		    int i;
 		    char tmpbuf[256];
 
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(Calling address extension)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti,
 			    ett_x25_fac_calling_addr_ext);
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    "Length : %u", ptr[1]);
-		    proto_tree_add_text(fac_subtree, *offset+2, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+2, 1,
 			    "Number of semi-octets in DTE address : %u", ptr[2]);
 		    for (i = 0; i < ptr[2]; i++) {
 			if (i % 2 == 0) {
@@ -1067,7 +1067,7 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 			}
 		    }
 		    tmpbuf[i] = 0;
-		    proto_tree_add_text(fac_subtree, *offset+3, ptr[1] - 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+3, ptr[1] - 1,
 			    "DTE address : %s", tmpbuf);
 		}
 		break;
@@ -1076,13 +1076,13 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 		    int i;
 		    char tmpbuf[256];
 
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(Called address extension)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti,
 			    ett_x25_fac_called_addr_ext);
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    "Length : %u", ptr[1]);
-		    proto_tree_add_text(fac_subtree, *offset+2, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+2, 1,
 			    "Number of semi-octets in DTE address : %u", ptr[2]);
 		    for (i = 0; i < ptr[2]; i++) {
 			if (i % 2 == 0) {
@@ -1096,19 +1096,19 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 			}
 		    }
 		    tmpbuf[i] = 0;
-		    proto_tree_add_text(fac_subtree, *offset+3, ptr[1] - 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+3, ptr[1] - 1,
 			    "DTE address : %s", tmpbuf);
 		}
 		break;
 	    case X25_FAC_ETE_TRANSIT_DELAY:
 		if (fac_tree) {
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(End to end transit delay)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti,
 			    ett_x25_fac_ete_transit_delay);
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    "Length : %u", ptr[1]);
-		    proto_tree_add_text(fac_subtree, *offset+2, ptr[1], "Value");
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+2, ptr[1], "Value");
 		}
 		break;
 	    case X25_FAC_CALL_DEFLECT:
@@ -1116,19 +1116,19 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 		    int i;
 		    char tmpbuf[256];
 
-		    ti = proto_tree_add_text(fac_tree, *offset, 1, "Code : %02X "
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1, "Code : %02X "
 			    "(Call deflection selection)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti,
 			    ett_x25_fac_call_deflect);
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    "Length : %u", ptr[1]);
 		    if ((ptr[2] & 0xC0) == 0xC0)
-			proto_tree_add_text(fac_subtree, *offset+2, 1,
+			proto_tree_add_text(fac_subtree, NullTVB, *offset+2, 1,
 				"Reason : call DTE originated");
 		    else
-			proto_tree_add_text(fac_subtree, *offset+2, 1,
+			proto_tree_add_text(fac_subtree, NullTVB, *offset+2, 1,
 				"Reason : unknown");
-		    proto_tree_add_text(fac_subtree, *offset+3, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+3, 1,
 			    "Number of semi-octets in the alternative DTE address : %u",
 			    ptr[3]);
 		    for (i = 0; i < ptr[3]; i++) {
@@ -1143,28 +1143,28 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 			}
 		    }
 		    tmpbuf[i] = 0;
-		    proto_tree_add_text(fac_subtree, *offset+4, ptr[1] - 2,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+4, ptr[1] - 2,
 			    "Alternative DTE address : %s", tmpbuf);
 		}
 		break;
 	    case X25_FAC_PRIORITY:
 		if (fac_tree) {
-		    ti = proto_tree_add_text(fac_tree, *offset, 1,
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1,
 			    "Code : %02X (Priority)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_priority);
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    "Length : %u", ptr[1]);
-		    proto_tree_add_text(fac_subtree, *offset+2, ptr[1], "Value");
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+2, ptr[1], "Value");
 		}
 		break;
 	    default:
 		if (fac_tree) {
-		    ti = proto_tree_add_text(fac_tree, *offset, 1,
+		    ti = proto_tree_add_text(fac_tree, NullTVB, *offset, 1,
 			    "Code : %02X (Unknown class D)", *ptr);
 		    fac_subtree = proto_item_add_subtree(ti, ett_x25_fac_unknown);
-		    proto_tree_add_text(fac_subtree, *offset+1, 1,
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+1, 1,
 			    "Length : %u", ptr[1]);
-		    proto_tree_add_text(fac_subtree, *offset+2, ptr[1], "Value");
+		    proto_tree_add_text(fac_subtree, NullTVB, *offset+2, ptr[1], "Value");
 		}
 	    }
 	    (*offset) += ptr[1]+2;
@@ -1187,11 +1187,11 @@ x25_ntoa(proto_tree *tree, int *offset, const guint8 *p,
     len1  = (*p >> 4) & 0x0F;
     len2 = (*p >> 0) & 0x0F;
     if (tree) {
-	proto_tree_add_text(tree, *offset, 1,
+	proto_tree_add_text(tree, NullTVB, *offset, 1,
 		decode_numeric_bitfield(*p, 0xF0, 1*8,
 		    toa ? "Called address length : %u" :
 		          "Calling address length : %u"));
-	proto_tree_add_text(tree, *offset, 1,
+	proto_tree_add_text(tree, NullTVB, *offset, 1,
 		decode_numeric_bitfield(*p, 0x0F, 1*8,
 		    toa ? "Calling address length : %u" :
 		          "Called address length : %u"));
@@ -1233,7 +1233,7 @@ x25_ntoa(proto_tree *tree, int *offset, const guint8 *p,
 		col_add_str(fd, COL_RES_DL_SRC, addr1);
 	}
 	if (tree)
-	    proto_tree_add_text(tree, *offset,
+	    proto_tree_add_text(tree, NullTVB, *offset,
 				(len1 + 1) / 2,
 				"%s address : %s",
 				toa ? "Called" : "Calling",
@@ -1249,7 +1249,7 @@ x25_ntoa(proto_tree *tree, int *offset, const guint8 *p,
 		col_add_str(fd, COL_RES_DL_DST, addr2);
 	}
 	if (tree)
-	    proto_tree_add_text(tree, *offset + len1/2,
+	    proto_tree_add_text(tree, NullTVB, *offset + len1/2,
 				(len2+1)/2+(len1%2+(len2+1)%2)/2,
 				"%s address : %s",
 				toa ? "Calling" : "Called",
@@ -1389,23 +1389,23 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if (check_col(fd, COL_INFO))
 	    col_add_str(fd, COL_INFO, "Invalid/short X.25 packet");
 	if (tree)
-	    proto_tree_add_protocol_format(tree, (modulo == 8 ? proto_x25 : proto_ex25),
+	    proto_tree_add_protocol_format(tree, (modulo == 8 ? proto_x25 : proto_ex25), NullTVB,
 			    localoffset, END_OF_FRAME,
 			    "Invalid/short X.25 packet");
 	return;
     }
     vc = (int)(pd[localoffset] & 0x0F)*256 + (int)pd[localoffset+1];
     if (tree) {
-	ti = proto_tree_add_item(tree, (modulo == 8) ? proto_x25 : proto_ex25,
+	ti = proto_tree_add_item(tree, (modulo == 8) ? proto_x25 : proto_ex25, NullTVB,
 		localoffset, x25_pkt_len, NULL);
 	x25_tree = proto_item_add_subtree(ti, ett_x25);
 	if (pd[localoffset] & 0x80)
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_qbit : hf_ex25_qbit,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_qbit : hf_ex25_qbit, NullTVB,
 		    localoffset, 2, pd[localoffset]*256+pd[localoffset+1]);
 	if (pd[localoffset] & 0x40)
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_dbit : hf_ex25_dbit,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_dbit : hf_ex25_dbit, NullTVB,
 		    localoffset, 2, pd[localoffset]*256+pd[localoffset+1]);
-	proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_mod : hf_ex25_mod,
+	proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_mod : hf_ex25_mod, NullTVB,
 		localoffset, 2, pd[localoffset]*256+pd[localoffset+1]);
     }
     switch (pd[localoffset+2]) {
@@ -1416,11 +1416,11 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		                                             : "Call req." ,
                     vc);
 	if (x25_tree) {
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn, NullTVB,
 		    localoffset, 2, pd[localoffset]*256+pd[localoffset+1]);
 	    proto_tree_add_uint_format(x25_tree,
 		    (modulo == 8) ? hf_x25_type : hf_ex25_type,
-		    localoffset+2, 1, X25_CALL_REQUEST,
+		    NullTVB, localoffset+2, 1, X25_CALL_REQUEST,
 		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Incoming call"
 			                                     : "Call request");
 	}
@@ -1447,7 +1447,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		x25_hash_add_proto_start(vc, fd->abs_secs,
 					 fd->abs_usecs, dissect_ip);
 		if (x25_tree)
-		    proto_tree_add_text(x25_tree, localoffset, 1,
+		    proto_tree_add_text(x25_tree, NullTVB, localoffset, 1,
 					"X.224 secondary protocol ID: IP");
 		localoffset++;
 		break;
@@ -1479,16 +1479,16 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		       field is 0x01. */
 		    prt_id = pd[localoffset+2];
 		    if (x25_tree) {
-		        proto_tree_add_text(x25_tree, localoffset, 1,
+		        proto_tree_add_text(x25_tree, NullTVB, localoffset, 1,
 					"X.264 length indicator: %u",
 					pd[localoffset]);
-		        proto_tree_add_text(x25_tree, localoffset+1, 1,
+		        proto_tree_add_text(x25_tree, NullTVB, localoffset+1, 1,
 		        		"X.264 UN TPDU identifier: 0x%02X",
 		        		pd[localoffset+1]);
-		        proto_tree_add_text(x25_tree, localoffset+2, 1,
+		        proto_tree_add_text(x25_tree, NullTVB, localoffset+2, 1,
 		        		"X.264 protocol identifier: %s",
 					val_to_str(prt_id, prt_id_vals, "Unknown (0x%02X)"));
-		        proto_tree_add_text(x25_tree, localoffset+3, 1,
+		        proto_tree_add_text(x25_tree, NullTVB, localoffset+3, 1,
 		        		"X.264 sharing strategy: %s",
 					val_to_str(pd[localoffset+3], sharing_strategy_vals, "Unknown (0x%02X)"));
 		    }
@@ -1513,7 +1513,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		unknown:
 		    if (x25_tree) {
 			if (IS_DATA_IN_FRAME(localoffset))
-			   proto_tree_add_text(x25_tree, localoffset,
+			   proto_tree_add_text(x25_tree, NullTVB, localoffset,
 					pi.captured_len-localoffset, "Data");
 		    }
 		    localoffset = pi.captured_len;
@@ -1528,11 +1528,11 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			                                     : "Call acc." ,
 		    vc);
 	if (x25_tree) {
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn, NullTVB,
 		    localoffset, 2, pd[localoffset]*256+pd[localoffset+1]);
 	    proto_tree_add_uint_format(x25_tree,
 		    (modulo == 8) ? hf_x25_type : hf_ex25_type,
-		    localoffset+2, 1, X25_CALL_ACCEPTED,
+		    NullTVB, localoffset+2, 1, X25_CALL_ACCEPTED,
 		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Call connected"
 		                                             : "Call accepted");
 	}
@@ -1545,7 +1545,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (IS_DATA_IN_FRAME(localoffset)) { /* user data */
 	    if (x25_tree)
-	        proto_tree_add_text(x25_tree, localoffset,
+	        proto_tree_add_text(x25_tree, NullTVB, localoffset,
 				    pi.captured_len-localoffset, "Data");
 	    localoffset=pi.captured_len;
 	}
@@ -1560,18 +1560,18 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 	x25_hash_add_proto_end(vc, fd->abs_secs, fd->abs_usecs);
 	if (x25_tree) {
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn, NullTVB,
 		    localoffset, 2, pd[localoffset]*256+pd[localoffset+1]);
 	    proto_tree_add_uint_format(x25_tree,
 		    (modulo == 8) ? hf_x25_type : hf_ex25_type,
-		    localoffset+2, 1, X25_CLEAR_REQUEST,
+		    NullTVB, localoffset+2, 1, X25_CLEAR_REQUEST,
 		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Clear indication"
 		                                             : "Clear request");
 	    if (localoffset+3 < x25_pkt_len+offset)
-		proto_tree_add_text(x25_tree, localoffset+3, 1,
+		proto_tree_add_text(x25_tree, NullTVB, localoffset+3, 1,
 			"Cause : %s", clear_code(pd[localoffset+3]));
 	    if (localoffset+4 < x25_pkt_len+offset)
-		proto_tree_add_text(x25_tree, localoffset+4, 1,
+		proto_tree_add_text(x25_tree, NullTVB, localoffset+4, 1,
 			"Diagnostic : %s",
 			clear_diag(pd[localoffset+4]));
 	}
@@ -1581,9 +1581,9 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if(check_col(fd, COL_INFO))
 	    col_add_fstr(fd, COL_INFO, "Clear Conf. VC:%d", vc);
 	if (x25_tree) {
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn, NullTVB,
 		    localoffset, 2, pd[localoffset]*256+pd[localoffset+1]);
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type, NullTVB,
 		    localoffset+2, 1, X25_CLEAR_CONFIRMATION);
 	}
 	localoffset += x25_pkt_len;
@@ -1599,10 +1599,10 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    col_add_fstr(fd, COL_INFO, "Diag. %d", (int)pd[localoffset+3]);
 	}
 	if (x25_tree) {
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type, NullTVB,
 		    localoffset+2, 1, X25_DIAGNOSTIC);
 	    if (localoffset+3 < x25_pkt_len+offset)
-		proto_tree_add_text(x25_tree, localoffset+3, 1,
+		proto_tree_add_text(x25_tree, NullTVB, localoffset+3, 1,
 			"Diagnostic : %d", (int)pd[localoffset+3]);
 	}
 	localoffset += x25_pkt_len;
@@ -1611,9 +1611,9 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if(check_col(fd, COL_INFO))
 	    col_add_fstr(fd, COL_INFO, "Interrupt VC:%d", vc);
 	if (x25_tree) {
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn, NullTVB,
 		    localoffset, 2, pd[localoffset]*256+pd[localoffset+1]);
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type, NullTVB,
 		    localoffset+2, 1, X25_INTERRUPT);
 	}
 	localoffset += x25_pkt_len;
@@ -1622,9 +1622,9 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if(check_col(fd, COL_INFO))
 	    col_add_fstr(fd, COL_INFO, "Interrupt Conf. VC:%d", vc);
 	if (x25_tree) {
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn, NullTVB,
 		    localoffset, 2, pd[localoffset]*256+pd[localoffset+1]);
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type, NullTVB,
 		    localoffset+2, 1, X25_INTERRUPT_CONFIRMATION);
 	}
 	localoffset += x25_pkt_len;
@@ -1639,18 +1639,18 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 	x25_hash_add_proto_end(vc, fd->abs_secs, fd->abs_usecs);
 	if (x25_tree) {
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn, NullTVB,
 		    localoffset, 2, pd[localoffset]*256+pd[localoffset+1]);
 	    proto_tree_add_uint_format(x25_tree,
-		    (modulo == 8) ? hf_x25_type : hf_ex25_type, localoffset+2, 1,
+		    (modulo == 8) ? hf_x25_type : hf_ex25_type, NullTVB, localoffset+2, 1,
 		    X25_RESET_REQUEST,
 		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Reset indication"
                                                              : "Reset request");
 	    if (localoffset+3 < x25_pkt_len+offset)
-		proto_tree_add_text(x25_tree, localoffset+3, 1,
+		proto_tree_add_text(x25_tree, NullTVB, localoffset+3, 1,
 			"Cause : %s", reset_code(pd[localoffset+3]));
 	    if (localoffset+4 < x25_pkt_len+offset)
-		proto_tree_add_text(x25_tree, localoffset+4, 1,
+		proto_tree_add_text(x25_tree, NullTVB, localoffset+4, 1,
 			"Diagnostic : %d", (int)pd[localoffset+4]);
 	}
 	localoffset += x25_pkt_len;
@@ -1659,9 +1659,9 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if(check_col(fd, COL_INFO))
 	    col_add_fstr(fd, COL_INFO, "Reset conf. VC:%d", vc);
 	if (x25_tree) {
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn, NullTVB,
 		    localoffset, 2, pd[localoffset]*256+pd[localoffset+1]);
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type, NullTVB,
 		    localoffset+2, 1, X25_RESET_CONFIRMATION);
 	}
 	localoffset += x25_pkt_len;
@@ -1676,15 +1676,15 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 	if (x25_tree) {
 	    proto_tree_add_uint_format(x25_tree,
-		    (modulo == 8) ? hf_x25_type : hf_ex25_type, localoffset+2, 1,
+		    (modulo == 8) ? hf_x25_type : hf_ex25_type, NullTVB, localoffset+2, 1,
 		    X25_RESTART_REQUEST,
 		    (fd->pseudo_header.x25.flags & FROM_DCE) ? "Restart indication"
 		                                             : "Restart request");
 	    if (localoffset+3 < x25_pkt_len+offset)
-		proto_tree_add_text(x25_tree, localoffset+3, 1,
+		proto_tree_add_text(x25_tree, NullTVB, localoffset+3, 1,
 			"Cause : %s", restart_code(pd[localoffset+3]));
 	    if (localoffset+4 < x25_pkt_len+offset)
-		proto_tree_add_text(x25_tree, localoffset+4, 1,
+		proto_tree_add_text(x25_tree, NullTVB, localoffset+4, 1,
 			"Diagnostic : %d", (int)pd[localoffset+4]);
 	}
 	localoffset += x25_pkt_len;
@@ -1693,7 +1693,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if(check_col(fd, COL_INFO))
 	    col_add_str(fd, COL_INFO, "Restart conf.");
 	if (x25_tree)
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type, NullTVB,
 		    localoffset+2, 1, X25_RESTART_CONFIRMATION);
 	localoffset += x25_pkt_len;
 	break;
@@ -1701,7 +1701,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if(check_col(fd, COL_INFO))
 	    col_add_str(fd, COL_INFO, "Registration req.");
 	if (x25_tree)
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type, NullTVB,
 		    localoffset+2, 1, X25_REGISTRATION_REQUEST);
 	localoffset += 3;
 	if (localoffset < x25_pkt_len+offset)
@@ -1709,10 +1709,10 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (x25_tree) {
 	    if (localoffset < x25_pkt_len+offset)
-		proto_tree_add_text(x25_tree, localoffset, 1,
+		proto_tree_add_text(x25_tree, NullTVB, localoffset, 1,
 			"Registration length: %d", pd[localoffset] & 0x7F);
 	    if (localoffset+1 < x25_pkt_len+offset)
-		proto_tree_add_text(x25_tree, localoffset+1,
+		proto_tree_add_text(x25_tree, NullTVB, localoffset+1,
 			pd[localoffset] & 0x7F, "Registration");
 	}
 	localoffset = pi.captured_len;
@@ -1721,13 +1721,13 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	if(check_col(fd, COL_INFO))
 	    col_add_str(fd, COL_INFO, "Registration conf.");
 	if (x25_tree) {
-	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type,
+	    proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_type : hf_ex25_type, NullTVB,
 		    localoffset+2, 1, X25_REGISTRATION_CONFIRMATION);
 	    if (localoffset+3 < x25_pkt_len+offset)
-		proto_tree_add_text(x25_tree, localoffset+3, 1,
+		proto_tree_add_text(x25_tree, NullTVB, localoffset+3, 1,
 			"Cause: %s", registration_code(pd[localoffset+3]));
 	    if (localoffset+4 < x25_pkt_len+offset)
-		proto_tree_add_text(x25_tree, localoffset+4, 1,
+		proto_tree_add_text(x25_tree, NullTVB, localoffset+4, 1,
 			"Diagnostic: %s", registration_code(pd[localoffset+4]));
 	}
 	localoffset += 5;
@@ -1736,10 +1736,10 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (x25_tree) {
 	    if (localoffset < x25_pkt_len+offset)
-		proto_tree_add_text(x25_tree, localoffset, 1,
+		proto_tree_add_text(x25_tree, NullTVB, localoffset, 1,
 			"Registration length: %d", pd[localoffset] & 0x7F);
 	    if (localoffset+1 < x25_pkt_len+offset)
-		proto_tree_add_text(x25_tree, localoffset+1,
+		proto_tree_add_text(x25_tree, NullTVB, localoffset+1,
 			pd[localoffset] & 0x7F, "Registration");
 	}
 	localoffset = pi.captured_len;
@@ -1763,31 +1763,31 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			    (pd[localoffset+1] & 0x01) ? " M" : "");
 	    }
 	    if (x25_tree) {
-		proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn,
+		proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn, NullTVB,
 			localoffset-2, 2, pd[localoffset-2]*256+pd[localoffset-1]);
 		if (modulo == 8) {
-		    proto_tree_add_item_hidden(x25_tree, hf_x25_type, localoffset, 1,
+		    proto_tree_add_item_hidden(x25_tree, hf_x25_type, NullTVB, localoffset, 1,
 			    X25_DATA);
-		    proto_tree_add_item(x25_tree, hf_x25_p_r, localoffset, 1,
+		    proto_tree_add_item(x25_tree, hf_x25_p_r, NullTVB, localoffset, 1,
 			    pd[localoffset]);
 		    if (pd[localoffset] & 0x10)
-			proto_tree_add_item(x25_tree, hf_x25_mbit, localoffset, 1,
+			proto_tree_add_item(x25_tree, hf_x25_mbit, NullTVB, localoffset, 1,
 			    pd[localoffset]);
-		    proto_tree_add_item(x25_tree, hf_x25_p_s, localoffset, 1,
+		    proto_tree_add_item(x25_tree, hf_x25_p_s, NullTVB, localoffset, 1,
 			    pd[localoffset]);
-		    proto_tree_add_text(x25_tree, localoffset, 1,
+		    proto_tree_add_text(x25_tree, NullTVB, localoffset, 1,
 			    decode_boolean_bitfield(pd[localoffset], 0x01, 1*8,
 				NULL, "DATA"));
 		}
 		else {
-		    proto_tree_add_item_hidden(x25_tree, hf_ex25_type, localoffset, 1,
+		    proto_tree_add_item_hidden(x25_tree, hf_ex25_type, NullTVB, localoffset, 1,
 			    X25_DATA);
-		    proto_tree_add_item(x25_tree, hf_x25_p_r, localoffset, 1,
+		    proto_tree_add_item(x25_tree, hf_x25_p_r, NullTVB, localoffset, 1,
 			    pd[localoffset]);
-		    proto_tree_add_item(x25_tree, hf_x25_p_s, localoffset+1, 1,
+		    proto_tree_add_item(x25_tree, hf_x25_p_s, NullTVB, localoffset+1, 1,
 			    pd[localoffset+1]);
 		    if (pd[localoffset+1] & 0x01)
-			proto_tree_add_item(x25_tree, hf_ex25_mbit, localoffset+1, 1,
+			proto_tree_add_item(x25_tree, hf_ex25_mbit, NullTVB, localoffset+1, 1,
 			    pd[localoffset+1]);
 		}
 	    }
@@ -1806,16 +1806,16 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			    vc, pd[localoffset+1] >> 1);
 	    }
 	    if (x25_tree) {
-		proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn,
+		proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn, NullTVB,
 			localoffset-2, 2, pd[localoffset-2]*256+pd[localoffset-1]);
 		if (modulo == 8) {
-		    proto_tree_add_item(x25_tree, hf_x25_p_r,
+		    proto_tree_add_item(x25_tree, hf_x25_p_r, NullTVB,
 			    localoffset, 1, pd[localoffset]);
-		    proto_tree_add_item(x25_tree, hf_x25_type, localoffset, 1, X25_RR);
+		    proto_tree_add_item(x25_tree, hf_x25_type, NullTVB, localoffset, 1, X25_RR);
 		}
 		else {
-		    proto_tree_add_item(x25_tree, hf_ex25_type, localoffset, 1, X25_RR);
-		    proto_tree_add_item(x25_tree, hf_ex25_p_r,
+		    proto_tree_add_item(x25_tree, hf_ex25_type, NullTVB, localoffset, 1, X25_RR);
+		    proto_tree_add_item(x25_tree, hf_ex25_p_r, NullTVB,
 			    localoffset+1, 1, pd[localoffset+1]);
 		}
 	    }
@@ -1831,16 +1831,16 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			    vc, pd[localoffset+1] >> 1);
 	    }
 	    if (x25_tree) {
-		proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn,
+		proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn, NullTVB,
 			localoffset-2, 2, pd[localoffset-2]*256+pd[localoffset-1]);
 		if (modulo == 8) {
-		    proto_tree_add_item(x25_tree, hf_x25_p_r,
+		    proto_tree_add_item(x25_tree, hf_x25_p_r, NullTVB,
 			    localoffset, 1, pd[localoffset]);
-		    proto_tree_add_item(x25_tree, hf_x25_type, localoffset, 1, X25_RNR);
+		    proto_tree_add_item(x25_tree, hf_x25_type, NullTVB, localoffset, 1, X25_RNR);
 		}
 		else {
-		    proto_tree_add_item(x25_tree, hf_ex25_type, localoffset, 1, X25_RNR);
-		    proto_tree_add_item(x25_tree, hf_ex25_p_r,
+		    proto_tree_add_item(x25_tree, hf_ex25_type, NullTVB, localoffset, 1, X25_RNR);
+		    proto_tree_add_item(x25_tree, hf_ex25_p_r, NullTVB,
 			    localoffset+1, 1, pd[localoffset+1]);
 		}
 	    }
@@ -1856,16 +1856,16 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			    vc, pd[localoffset+1] >> 1);
 	    }
 	    if (x25_tree) {
-		proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn,
+		proto_tree_add_item(x25_tree, (modulo == 8) ? hf_x25_lcn : hf_ex25_lcn, NullTVB,
 			localoffset-2, 2, pd[localoffset-2]*256+pd[localoffset-1]);
 		if (modulo == 8) {
-		    proto_tree_add_item(x25_tree, hf_x25_p_r,
+		    proto_tree_add_item(x25_tree, hf_x25_p_r, NullTVB,
 			    localoffset, 1, pd[localoffset]);
-		    proto_tree_add_item(x25_tree, hf_x25_type, localoffset, 1, X25_REJ);
+		    proto_tree_add_item(x25_tree, hf_x25_type, NullTVB, localoffset, 1, X25_REJ);
 		}
 		else {
-		    proto_tree_add_item(x25_tree, hf_ex25_type, localoffset, 1, X25_REJ);
-		    proto_tree_add_item(x25_tree, hf_ex25_p_r,
+		    proto_tree_add_item(x25_tree, hf_ex25_type, NullTVB, localoffset, 1, X25_REJ);
+		    proto_tree_add_item(x25_tree, hf_ex25_p_r, NullTVB,
 			    localoffset+1, 1, pd[localoffset+1]);
 		}
 	    }

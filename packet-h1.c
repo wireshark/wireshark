@@ -2,7 +2,7 @@
  * Routines for Sinec H1 packet disassembly
  * Gerrit Gehnen <G.Gehnen@atrie.de>
  *
- * $Id: packet-h1.c,v 1.7 2000/05/08 17:19:42 guy Exp $
+ * $Id: packet-h1.c,v 1.8 2000/05/11 08:15:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -122,11 +122,11 @@ dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
 	col_add_str (fd, COL_INFO, "S5: ");
       if (tree)
 	{
-	  ti = proto_tree_add_item (tree, proto_h1, offset, 16, NULL);
+	  ti = proto_tree_add_item (tree, proto_h1, NullTVB, offset, 16, NULL);
 	  h1_tree = proto_item_add_subtree (ti, ett_h1);
-	  proto_tree_add_item (h1_tree, hf_h1_header, offset, 2,
+	  proto_tree_add_item (h1_tree, hf_h1_header, NullTVB, offset, 2,
 			       pd[offset] * 0x100 + pd[offset + 1]);
-	  proto_tree_add_item (h1_tree, hf_h1_len, offset + 2, 1,
+	  proto_tree_add_item (h1_tree, hf_h1_len, NullTVB, offset + 2, 1,
 			       pd[offset + 2]);
 	}
 
@@ -137,15 +137,15 @@ dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
 	    case OPCODE_BLOCK:
 	      if (h1_tree)
 		{
-		  ti = proto_tree_add_item (h1_tree, hf_h1_opfield,
+		  ti = proto_tree_add_item (h1_tree, hf_h1_opfield, NullTVB,
 					    offset + position,
 					    pd[offset + position + 1],
 					    pd[offset + position]);
 		  opcode_tree = proto_item_add_subtree (ti, ett_opcode);
-		  proto_tree_add_item (opcode_tree, hf_h1_oplen,
+		  proto_tree_add_item (opcode_tree, hf_h1_oplen, NullTVB,
 				       offset + position + 1, 1,
 				       pd[offset + position + 1]);
-		  proto_tree_add_item (opcode_tree, hf_h1_opcode,
+		  proto_tree_add_item (opcode_tree, hf_h1_opcode, NullTVB,
 				       offset + position + 2, 1,
 				       pd[offset + position + 2]);
 		}
@@ -159,25 +159,25 @@ dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
 	    case REQUEST_BLOCK:
 	      if (h1_tree)
 		{
-		  ti = proto_tree_add_item (h1_tree, hf_h1_requestblock,
+		  ti = proto_tree_add_item (h1_tree, hf_h1_requestblock, NullTVB,
 					    offset + position,
 					    pd[offset + position + 1],
 					    pd[offset + position]);
 		  org_tree = proto_item_add_subtree (ti, ett_org);
-		  proto_tree_add_item (org_tree, hf_h1_requestlen,
+		  proto_tree_add_item (org_tree, hf_h1_requestlen, NullTVB,
 				       offset + position + 1, 1,
 				       pd[offset + position + 1]);
-		  proto_tree_add_item (org_tree, hf_h1_org,
+		  proto_tree_add_item (org_tree, hf_h1_org, NullTVB,
 				       offset + position + 2, 1,
 				       pd[offset + position + 2]);
-		  proto_tree_add_item (org_tree, hf_h1_dbnr,
+		  proto_tree_add_item (org_tree, hf_h1_dbnr, NullTVB,
 				       offset + position + 3, 1,
 				       pd[offset + position + 3]);
-		  proto_tree_add_item (org_tree, hf_h1_dwnr,
+		  proto_tree_add_item (org_tree, hf_h1_dwnr, NullTVB,
 				       offset + position + 4, 2,
 				       pd[offset + position + 4] * 0x100 +
 				       pd[offset + position + 5]);
-		  proto_tree_add_item (org_tree, hf_h1_dlen,
+		  proto_tree_add_item (org_tree, hf_h1_dlen, NullTVB,
 				       offset + position + 6, 2,
 				       pd[offset + position + 6] * 0x100 +
 				       pd[offset + position + 7]);
@@ -199,15 +199,15 @@ dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
 	    case RESPONSE_BLOCK:
 	      if (h1_tree)
 		{
-		  ti = proto_tree_add_item (h1_tree, hf_h1_response,
+		  ti = proto_tree_add_item (h1_tree, hf_h1_response, NullTVB,
 					    offset + position,
 					    pd[offset + position + 1],
 					    pd[offset + position]);
 		  response_tree = proto_item_add_subtree (ti, ett_response);
-		  proto_tree_add_item (response_tree, hf_h1_response_len,
+		  proto_tree_add_item (response_tree, hf_h1_response_len, NullTVB,
 				       offset + position + 1, 1,
 				       pd[offset + position + 1]);
-		  proto_tree_add_item (response_tree, hf_h1_response_value,
+		  proto_tree_add_item (response_tree, hf_h1_response_value, NullTVB,
 				       offset + position + 2, 1,
 				       pd[offset + position + 2]);
 		}
@@ -221,13 +221,13 @@ dissect_h1 (const u_char * pd, int offset, frame_data * fd, proto_tree * tree)
 	    case EMPTY_BLOCK:
 	      if (h1_tree)
 		{
-		  ti = proto_tree_add_item (h1_tree, hf_h1_empty,
+		  ti = proto_tree_add_item (h1_tree, hf_h1_empty, NullTVB,
 					    offset + position,
 					    pd[offset + position + 1],
 					    pd[offset + position]);
 		  empty_tree = proto_item_add_subtree (ti, ett_empty);
 
-		  proto_tree_add_item (empty_tree, hf_h1_empty_len,
+		  proto_tree_add_item (empty_tree, hf_h1_empty_len, NullTVB,
 				       offset + position + 1, 1,
 				       pd[offset + position + 1]);
 		}

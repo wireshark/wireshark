@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.79 2000/05/05 09:32:07 guy Exp $
+ * $Id: packet.c,v 1.80 2000/05/11 08:15:58 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -88,6 +88,10 @@
 
 #ifndef __RESOLV_H__
 #include "resolv.h"
+#endif
+
+#ifndef __TVBUFF_H__
+#include "tvbuff.h"
 #endif
 
 #include "plugins.h"
@@ -1060,12 +1064,15 @@ void blank_packetinfo(void)
   pi.ptype = PT_NONE;
   pi.srcport  = 0;
   pi.destport = 0;
+  pi.current_proto = "";
 }
 
 /* Do all one-time initialization. */
 void
 dissect_init(void)
 {
+	except_init();
+	tvbuff_init();
 	proto_init();
 	dfilter_init();
 #ifdef HAVE_PLUGINS
@@ -1076,8 +1083,10 @@ dissect_init(void)
 void
 dissect_cleanup(void)
 {
-	proto_cleanup();
 	dfilter_cleanup();
+	proto_cleanup();
+	tvbuff_cleanup();
+	except_deinit();
 }
 
 /* Allow protocols to register "init" routines, which are called before
@@ -1114,10 +1123,11 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 	proto_tree *fh_tree;
 	proto_item *ti;
 	struct timeval tv;
+	tvbuff_t *tvb;
 
 	/* Put in frame header information. */
 	if (tree) {
-	  ti = proto_tree_add_protocol_format(tree, proto_frame, 0, fd->cap_len,
+	  ti = proto_tree_add_protocol_format(tree, proto_frame, NullTVB, 0, fd->cap_len,
 	    "Frame %u (%u on wire, %u captured)", fd->num,
 	    fd->pkt_len, fd->cap_len);
 
@@ -1126,23 +1136,23 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 	  tv.tv_sec = fd->abs_secs;
 	  tv.tv_usec = fd->abs_usecs;
 
-	  proto_tree_add_item(fh_tree, hf_frame_arrival_time,
+	  proto_tree_add_item(fh_tree, hf_frame_arrival_time, NullTVB,
 		0, 0, &tv);
 
 	  tv.tv_sec = fd->del_secs;
 	  tv.tv_usec = fd->del_usecs;
 
-	  proto_tree_add_item(fh_tree, hf_frame_time_delta,
+	  proto_tree_add_item(fh_tree, hf_frame_time_delta, NullTVB,
 		0, 0, &tv);
 
-	  proto_tree_add_item(fh_tree, hf_frame_number,
+	  proto_tree_add_item(fh_tree, hf_frame_number, NullTVB,
 		0, 0, fd->num);
 
-	  proto_tree_add_uint_format(fh_tree, hf_frame_packet_len,
+	  proto_tree_add_uint_format(fh_tree, hf_frame_packet_len, NullTVB,
 		0, 0, fd->pkt_len, "Packet Length: %d byte%s", fd->pkt_len,
 		plurality(fd->pkt_len, "", "s"));
 		
-	  proto_tree_add_uint_format(fh_tree, hf_frame_capture_len,
+	  proto_tree_add_uint_format(fh_tree, hf_frame_capture_len, NullTVB,
 		0, 0, fd->cap_len, "Capture Length: %d byte%s", fd->cap_len,
 		plurality(fd->cap_len, "", "s"));
 	}
@@ -1155,47 +1165,63 @@ dissect_packet(const u_char *pd, frame_data *fd, proto_tree *tree)
 	pi.len = fd->pkt_len;
 	pi.captured_len = fd->cap_len;
 
-	switch (fd->lnk_t) {
-		case WTAP_ENCAP_ETHERNET :
-			dissect_eth(pd, 0, fd, tree);
-			break;
-		case WTAP_ENCAP_FDDI :
-			dissect_fddi(pd, fd, tree, FALSE);
-			break;
-		case WTAP_ENCAP_FDDI_BITSWAPPED :
-			dissect_fddi(pd, fd, tree, TRUE);
-			break;
-		case WTAP_ENCAP_TR :
-			dissect_tr(pd, 0, fd, tree);
-			break;
-		case WTAP_ENCAP_NULL :
-			dissect_null(pd, fd, tree);
-			break;
-		case WTAP_ENCAP_PPP :
-			dissect_ppp(pd, 0, fd, tree);
-			break;
-		case WTAP_ENCAP_LAPB :
-			dissect_lapb(pd, fd, tree);
-			break;
-		case WTAP_ENCAP_RAW_IP :
-			dissect_raw(pd, fd, tree);
-			break;
-		case WTAP_ENCAP_LINUX_ATM_CLIP :
-			dissect_clip(pd, fd, tree);
-			break;
-		case WTAP_ENCAP_ATM_SNIFFER :
-			dissect_atm(pd, fd, tree);
-			break;
-		case WTAP_ENCAP_ASCEND :
-			dissect_ascend(pd, fd, tree);
-			break;
-		case WTAP_ENCAP_LAPD :
-			dissect_lapd(pd, fd, tree);
-			break;
- 		case WTAP_ENCAP_V120 :
- 			dissect_v120(pd, fd, tree);
- 			break;
+	tvb = tvb_new_real_data(pd, fd->cap_len);
+	pi.fd = fd;
+	pi.compat_top_tvb = tvb;
+
+	TRY {
+		switch (fd->lnk_t) {
+			case WTAP_ENCAP_ETHERNET :
+				/*dissect_eth(tvb, &pi, tree);*/
+				dissect_eth(pd, 0, fd, tree);
+				break;
+			case WTAP_ENCAP_FDDI :
+				dissect_fddi(tvb, &pi, tree, FALSE);
+				break;
+			case WTAP_ENCAP_FDDI_BITSWAPPED :
+				dissect_fddi(tvb, &pi, tree, TRUE);
+				break;
+			case WTAP_ENCAP_TR :
+				dissect_tr(pd, 0, fd, tree);
+				break;
+			case WTAP_ENCAP_NULL :
+				dissect_null(pd, fd, tree);
+				break;
+			case WTAP_ENCAP_PPP :
+				dissect_ppp(pd, 0, fd, tree);
+				break;
+			case WTAP_ENCAP_LAPB :
+				dissect_lapb(pd, fd, tree);
+				break;
+			case WTAP_ENCAP_RAW_IP :
+				dissect_raw(pd, fd, tree);
+				break;
+			case WTAP_ENCAP_LINUX_ATM_CLIP :
+				dissect_clip(pd, fd, tree);
+				break;
+			case WTAP_ENCAP_ATM_SNIFFER :
+				dissect_atm(pd, fd, tree);
+				break;
+			case WTAP_ENCAP_ASCEND :
+				dissect_ascend(pd, fd, tree);
+				break;
+			case WTAP_ENCAP_LAPD :
+				dissect_lapd(pd, fd, tree);
+				break;
+			case WTAP_ENCAP_V120 :
+				dissect_v120(pd, fd, tree);
+				break;
+		}
 	}
+	CATCH(BoundsError) {
+		proto_tree_add_text(tree, NullTVB, 0, 0, "Short Frame: [%s]", pi.current_proto );
+	}
+	ENDTRY;
+
+	/* Free all tvb's created from this tvb, unless dissector
+	 * wanted to store the pointer (in which case, the dissector
+	 * would have incremented the usage count on that tvbuff_t*) */
+	tvb_free_chain(tvb);
 
 	fd->flags.visited = 1;
 }

@@ -2,7 +2,7 @@
  * Routines for yahoo messenger packet dissection
  * Copyright 1999, Nathan Neulinger <nneul@umr.edu>
  *
- * $Id: packet-yhoo.c,v 1.6 2000/05/05 09:32:06 guy Exp $
+ * $Id: packet-yhoo.c,v 1.7 2000/05/11 08:15:57 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -143,28 +143,28 @@ dissect_yhoo(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		);
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_yhoo, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_yhoo, NullTVB, offset, END_OF_FRAME, NULL);
 		yhoo_tree = proto_item_add_subtree(ti, ett_yhoo);
 
-		proto_tree_add_item(yhoo_tree, hf_yhoo_version, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_version, NullTVB, 
 			offset, 8, pkt->version);
-		proto_tree_add_item(yhoo_tree, hf_yhoo_len, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_len, NullTVB, 
 			offset+8, 4, pletohl(pkt->len));
-		proto_tree_add_item(yhoo_tree, hf_yhoo_service, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_service, NullTVB, 
 			offset+12, 4, pletohl(pkt->service));
-		proto_tree_add_item(yhoo_tree, hf_yhoo_connection_id, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_connection_id, NullTVB, 
 			offset+16, 4, pletohl(pkt->connection_id));
-		proto_tree_add_item(yhoo_tree, hf_yhoo_magic_id, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_magic_id, NullTVB, 
 			offset+20, 4, pletohl(pkt->magic_id));
-		proto_tree_add_item(yhoo_tree, hf_yhoo_unknown1, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_unknown1, NullTVB, 
 			offset+24, 4, pletohl(pkt->unknown1));
-		proto_tree_add_item(yhoo_tree, hf_yhoo_msgtype, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_msgtype, NullTVB, 
 			offset+28, 4, pletohl(pkt->msgtype));
-		proto_tree_add_item(yhoo_tree, hf_yhoo_nick1, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_nick1, NullTVB, 
 			offset+32, 36, pkt->nick1);
-		proto_tree_add_item(yhoo_tree, hf_yhoo_nick2, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_nick2, NullTVB, 
 			offset+68, 36, pkt->nick2);
-		proto_tree_add_item(yhoo_tree, hf_yhoo_content, 
+		proto_tree_add_item(yhoo_tree, hf_yhoo_content, NullTVB, 
 			offset+104, END_OF_FRAME, pkt->content);
 	}
 

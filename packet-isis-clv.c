@@ -1,7 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
- * $Id: packet-isis-clv.c,v 1.3 2000/04/15 22:11:09 guy Exp $
+ * $Id: packet-isis-clv.c,v 1.4 2000/05/11 08:15:16 gram Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -98,7 +98,7 @@ isis_dissect_area_address_clv(const u_char *pd, int offset,
       sbuf = print_nsap_net( pd + offset + 1, mylen );
 		/* and spit it out */
 		if ( tree ) {
-			proto_tree_add_text ( tree, offset, mylen + 1,  
+			proto_tree_add_text ( tree, NullTVB, offset, mylen + 1,  
 				"Area address (%d): %s", mylen, sbuf );
 		}
 		offset += mylen + 1;
@@ -167,7 +167,7 @@ isis_dissect_authentication_clv(const u_char *pd, int offset, guint length,
 		}
 	/* NOTE, s no longer valid */
 	}
-	proto_tree_add_text ( tree, offset - 1, length + 1,
+	proto_tree_add_text ( tree, NullTVB, offset - 1, length + 1,
 			"%s %s", meaning, sbuf );
 	if ( !use_cleartext ) {
 		if ( length ) {
@@ -212,7 +212,7 @@ isis_dissect_ip_int_clv(const u_char *pd, int offset,
 		}
 		memcpy(&addr, &pd[offset], sizeof(addr));
 		if ( tree ) {
-			proto_tree_add_item(tree, tree_id, offset, 4, addr);
+			proto_tree_add_item(tree, tree_id, NullTVB, offset, 4, addr);
 		}
 		offset += 4;
 		length -= 4;
@@ -258,7 +258,7 @@ isis_dissect_nlpid_clv(const u_char *pd, int offset,
 		sprintf ( sbuf, "--none--" );
 	}
 
-	proto_tree_add_text ( tree, old_offset, hlen,
+	proto_tree_add_text ( tree, NullTVB, old_offset, hlen,
 			"NLPID: %s", sbuf );
 }
 
@@ -319,7 +319,7 @@ isis_dissect_clvs(const isis_clv_handle_t *opts, int len,
 				/* adjust by 2 for code/len octets */
 				snprintf ( sbuf, sizeof(sbuf), "%s (%d)", 
 					opts[q].tree_text, length ); 
-				ti = proto_tree_add_text(tree, offset - 2, 
+				ti = proto_tree_add_text(tree, NullTVB, offset - 2, 
 					length + 2, sbuf);
 				clv_tree = proto_item_add_subtree(ti, 
 					*opts[q].tree_id );
@@ -331,7 +331,7 @@ isis_dissect_clvs(const isis_clv_handle_t *opts, int len,
 			if (tree) { 
 				snprintf ( sbuf, sizeof(sbuf), 
 					"Unknown code (%d:%d)", code, length ); 
-				ti = proto_tree_add_text(tree, offset - 2, 
+				ti = proto_tree_add_text(tree, NullTVB, offset - 2, 
 					length + 2, sbuf);
 				clv_tree = proto_item_add_subtree(ti, 
 					unknown_tree_id );

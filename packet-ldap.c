@@ -1,7 +1,7 @@
 /* packet-ldap.c
  * Routines for ldap packet dissection
  *
- * $Id: packet-ldap.c,v 1.9 2000/04/08 07:07:26 guy Exp $
+ * $Id: packet-ldap.c,v 1.10 2000/05/11 08:15:21 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -152,7 +152,7 @@ static int read_length(ASN1_SCK *a, proto_tree *tree, int hf_id, guint *len)
     *len = length;
 
   if (tree)
-    proto_tree_add_item(tree, hf_id, start-a->begin, a->pointer-start, length);
+    proto_tree_add_item(tree, hf_id, NullTVB, start-a->begin, a->pointer-start, length);
 
   return 0;
 }
@@ -204,7 +204,7 @@ static int read_integer_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   if (tree)
   {
     proto_tree *temp_tree = 0;
-    temp_tree = proto_tree_add_item(tree, hf_id, start-a->begin, a->pointer-start, integer);
+    temp_tree = proto_tree_add_item(tree, hf_id, NullTVB, start-a->begin, a->pointer-start, integer);
     if (new_tree)
       *new_tree = temp_tree;
   }
@@ -245,7 +245,7 @@ static void read_string_value(ASN1_SCK *a, proto_tree *tree, int hf_id,
   if (tree)
   {
     proto_tree *temp_tree;
-    temp_tree = proto_tree_add_item(tree, hf_id, start - a->begin, a->pointer - start, string);
+    temp_tree = proto_tree_add_item(tree, hf_id, NullTVB, start - a->begin, a->pointer - start, string);
     if (new_tree)
       *new_tree = temp_tree;
   }
@@ -446,10 +446,10 @@ static int read_filter(ASN1_SCK *a, proto_tree *tree, int hf_id)
 
   if (tree) {
     if (ret != -1) {
-      proto_tree_add_text(tree, start-a->begin, 0,
+      proto_tree_add_text(tree, NullTVB, start-a->begin, 0,
         "Error parsing filter (%d)", ret);
     } else
-      proto_tree_add_item(tree, hf_id, start-a->begin, a->pointer-start, filter);
+      proto_tree_add_item(tree, hf_id, NullTVB, start-a->begin, a->pointer-start, filter);
   }
 
   g_free(filter);
@@ -475,7 +475,7 @@ static int dissect_ldap_result(ASN1_SCK *a, proto_tree *tree)
     proto_tree *t, *referralTree;
     
     read_sequence(a, &length);
-    t = proto_tree_add_text(tree, start-a->begin, length, "Referral URLs");
+    t = proto_tree_add_text(tree, NullTVB, start-a->begin, length, "Referral URLs");
     referralTree = proto_item_add_subtree(t, ett_ldap_referrals);
 
     end = a->pointer + length;;
@@ -500,7 +500,7 @@ static int dissect_ldap_request_bind(ASN1_SCK *a, proto_tree *tree)
     return 1;	/* XXX - right return value for an error? */
   if (cls != ASN1_CTX)
     return 1;	/* RFCs 1777 and 2251 say these are context-specific types */
-  proto_tree_add_item(tree, hf_ldap_message_bind_auth, start - a->begin,
+  proto_tree_add_item(tree, hf_ldap_message_bind_auth, NullTVB, start - a->begin,
 			a->pointer - start, tag);
   switch (tag)
   {
@@ -646,7 +646,7 @@ static int dissect_ldap_request_compare(ASN1_SCK *a, proto_tree *tree)
   length = 2 + strlen(string1) + strlen(string2);
   compare = g_malloc0(length);
   snprintf(compare, length, "%s=%s", string1, string2);
-  proto_tree_add_item(tree, hf_ldap_message_compare, start-a->begin, a->pointer-start, compare);
+  proto_tree_add_item(tree, hf_ldap_message_compare, NullTVB, start-a->begin, a->pointer-start, compare);
   
   g_free(string1);
   g_free(string2);
@@ -721,7 +721,7 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
   if (tree) 
   {
-    ti = proto_tree_add_item(tree, proto_ldap, offset, END_OF_FRAME, NULL);
+    ti = proto_tree_add_item(tree, proto_ldap, NullTVB, offset, END_OF_FRAME, NULL);
     ldap_tree = proto_item_add_subtree(ti, ett_ldap);
   }
 
@@ -738,14 +738,14 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     if (read_sequence(&a, &messageLength))
     {
       if (ldap_tree)
-        proto_tree_add_text(ldap_tree, offset, 1, "Invalid LDAP packet");
+        proto_tree_add_text(ldap_tree, NullTVB, offset, 1, "Invalid LDAP packet");
       break;
     }
 
     if (messageLength > (a.end - a.pointer))
     {
       if (ldap_tree)
-        proto_tree_add_text(ldap_tree, message_start, END_OF_FRAME, "Short message! (expected: %u, actual: %u)",
+        proto_tree_add_text(ldap_tree, NullTVB, message_start, END_OF_FRAME, "Short message! (expected: %u, actual: %u)",
 			    messageLength, a.end - a.pointer);
       break;
     }
@@ -776,10 +776,10 @@ dissect_ldap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
     if (ldap_tree) 
     {
-      proto_tree_add_item_hidden(ldap_tree, hf_ldap_message_id, message_id_start, message_id_length, messageId);
-      proto_tree_add_item_hidden(ldap_tree, hf_ldap_message_type,
+      proto_tree_add_item_hidden(ldap_tree, hf_ldap_message_id, NullTVB, message_id_start, message_id_length, messageId);
+      proto_tree_add_item_hidden(ldap_tree, hf_ldap_message_type, NullTVB,
 			         start - a.begin, a.pointer - start, protocolOpTag);
-      ti = proto_tree_add_text(ldap_tree, message_id_start, messageLength, "Message: Id=%u  %s", messageId, typestr);
+      ti = proto_tree_add_text(ldap_tree, NullTVB, message_id_start, messageLength, "Message: Id=%u  %s", messageId, typestr);
       msg_tree = proto_item_add_subtree(ti, ett_ldap_message);
       start = a.pointer;
       read_length(&a, msg_tree, hf_ldap_message_length, &opLen);

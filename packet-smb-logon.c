@@ -2,7 +2,7 @@
  * Routines for smb net logon packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-logon.c,v 1.3 2000/02/21 23:50:15 sharpe Exp $
+ * $Id: packet-smb-logon.c,v 1.4 2000/05/11 08:15:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -59,7 +59,7 @@ dissect_account_control( const u_char *pd, int offset, frame_data *fd,
 	};
 
 
-	ti = proto_tree_add_text( tree, offset, 4,
+	ti = proto_tree_add_text( tree, NullTVB, offset, 4,
 		"Account control  = 0x%04x", flags);
 		
      	flags_tree = proto_item_add_subtree( ti, ett_smb_account_flags);
@@ -78,14 +78,14 @@ display_LM_token( const u_char *pd, int *offset, frame_data *fd,
 	guint16 Token = GSHORT( pd, *offset);
 	
 	if ( Token && 0x01) 
-		proto_tree_add_text( tree, *offset, 2,
+		proto_tree_add_text( tree, NullTVB, *offset, 2,
 			"LM20 Token: 0x%x (LanMan 2.0 or higher)", Token);
 	else
-		proto_tree_add_text( tree, *offset, 2,
+		proto_tree_add_text( tree, NullTVB, *offset, 2,
 			"LM10 Token: 0x%x (WFW Networking)", Token);
 
 	if (( *offset + 2) > fd->cap_len)
-		proto_tree_add_text(tree, *offset, 0,"****FRAME TOO SHORT***");
+		proto_tree_add_text(tree, NullTVB, *offset, 0,"****FRAME TOO SHORT***");
 	else
 		*offset += 2;
 	
@@ -104,11 +104,11 @@ display_NT_version( const u_char *pd, int *offset, frame_data *fd,
 	else
 		Version  = GWORD( pd, *offset);
 	
-	proto_tree_add_text( tree, *offset, length, "NT Version: 0x%x ",
+	proto_tree_add_text( tree, NullTVB, *offset, length, "NT Version: 0x%x ",
 		Version);
 
 	if (( *offset + length) > fd->cap_len)
-		proto_tree_add_text(tree, *offset, 0, "****FRAME TOO SHORT***");
+		proto_tree_add_text(tree, NullTVB, *offset, 0, "****FRAME TOO SHORT***");
 	else
 		*offset += length;
 	
@@ -207,7 +207,7 @@ dissect_smb_pdc_query(const u_char *pd, int offset, frame_data *fd,
 
 	display_NT_version( pd, &offset, fd, tree, 4);
 
-	proto_tree_add_text( tree, offset, 2, "LMNT Token: 0x%x",
+	proto_tree_add_text( tree, NullTVB, offset, 2, "LMNT Token: 0x%x",
 		GWORD(pd, offset));
 	MoveAndCheckOffset( 2);
 	
@@ -309,7 +309,7 @@ dissect_smb_sam_logon_req(const u_char *pd, int offset, frame_data *fd,
 /*** Netlogon command 0x12 - decode the SAM logon request from client ***/
 
 
-	proto_tree_add_text( tree, offset, 2, "Request Count  = %x",
+	proto_tree_add_text( tree, NullTVB, offset, 2, "Request Count  = %x",
 		GSHORT(pd, offset));
 
 	MoveAndCheckOffset( 2);
@@ -325,7 +325,7 @@ dissect_smb_sam_logon_req(const u_char *pd, int offset, frame_data *fd,
 
 	dissect_account_control( pd, offset, fd, tree);
 		
-	proto_tree_add_text( tree, offset, 2, "Domain SID Size = %x",
+	proto_tree_add_text( tree, NullTVB, offset, 2, "Domain SID Size = %x",
 		GWORD(pd, offset));
 
 }
@@ -377,7 +377,7 @@ dissect_smb_acc_update( const u_char *pd, int offset, frame_data *fd,
 
 	Temp2 = GWORD( pd, offset + 4);
 	
-	proto_tree_add_text( tree, offset, 2, "Signature: 0x%04x%04x",
+	proto_tree_add_text( tree, NullTVB, offset, 2, "Signature: 0x%04x%04x",
 		Temp1, Temp2);
 
 	MoveAndCheckOffset( 8);
@@ -440,7 +440,7 @@ void dissect_smb_sam_logon_resp(const u_char *pd, int offset, frame_data *fd,
 
 	display_NT_version( pd, &offset, fd, tree, 4);
 
-	proto_tree_add_text( tree, offset, 2, "LMNT Token: 0x%x",
+	proto_tree_add_text( tree, NullTVB, offset, 2, "LMNT Token: 0x%x",
 		GSHORT(pd, offset));
 	MoveAndCheckOffset( 2);
 
@@ -530,11 +530,11 @@ static void (*dissect_smb_logon_cmds[])(const u_char *, int, frame_data *,
 		col_add_fstr(fd, COL_INFO, "%s", CommandName[ cmd]);
 
     	if (tree) {
-		ti = proto_tree_add_item( parent, proto_smb_logon, offset,
+		ti = proto_tree_add_item( parent, proto_smb_logon, NullTVB, offset,
 			END_OF_FRAME, NULL);
 		smb_logon_tree = proto_item_add_subtree(ti, ett_smb_logon);
 
-		proto_tree_add_text(smb_logon_tree, offset, 1,
+		proto_tree_add_text(smb_logon_tree, NullTVB, offset, 1,
 			"Command: %u (%s)", cmd, CommandName[ cmd]);
 			
 		offset += 2;			/* skip to name field */

@@ -2,7 +2,7 @@
  * Routines for Web Cache Coordination Protocol dissection
  * Jerry Talkington <jerryt@netapp.com>
  *
- * $Id: packet-wccp.c,v 1.6 2000/04/08 07:07:41 guy Exp $
+ * $Id: packet-wccp.c,v 1.7 2000/05/11 08:15:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -114,11 +114,11 @@ dissect_wccp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if(tree != NULL) {
-		wccp_tree_item = proto_tree_add_item(tree, proto_wccp, offset,
+		wccp_tree_item = proto_tree_add_item(tree, proto_wccp, NullTVB, offset,
 		    END_OF_FRAME, NULL);
 		wccp_tree = proto_item_add_subtree(wccp_tree_item, ett_wccp);
 
-		proto_tree_add_item(wccp_tree, hf_wccp_message_type, offset,
+		proto_tree_add_item(wccp_tree, hf_wccp_message_type, NullTVB, offset,
 		    sizeof(wccp_message_type), wccp_message_type);
 		offset += sizeof(wccp_message_type);
 
@@ -126,29 +126,29 @@ dissect_wccp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 		case WCCP_HERE_I_AM:
 			wccp_version = pntohl(&pd[offset]);
-			proto_tree_add_item(wccp_tree, hf_wccp_version,
+			proto_tree_add_item(wccp_tree, hf_wccp_version, NullTVB,
 			    offset, 4, wccp_version);
 			offset += 4;
 			dissect_hash_data(pd, offset, wccp_tree);
 			offset += HASH_INFO_SIZE;
-			proto_tree_add_item(wccp_tree, hf_recvd_id, offset,
+			proto_tree_add_item(wccp_tree, hf_recvd_id, NullTVB, offset,
 			    4, pntohl(&pd[offset]));
 			offset += 4;
 			break;
 
 		case WCCP_I_SEE_YOU:
 			wccp_version = pntohl(&pd[offset]);
-			proto_tree_add_item(wccp_tree, hf_wccp_version,
+			proto_tree_add_item(wccp_tree, hf_wccp_version, NullTVB,
 			    offset, 4, wccp_version);
 			offset += 4;
-			proto_tree_add_item(wccp_tree, hf_change_num, offset,
+			proto_tree_add_item(wccp_tree, hf_change_num, NullTVB, offset,
 			    4, pntohl(&pd[offset]));
 			offset += 4;
-			proto_tree_add_item(wccp_tree, hf_recvd_id, offset,
+			proto_tree_add_item(wccp_tree, hf_recvd_id, NullTVB, offset,
 			    4, pntohl(&pd[offset]));
 			offset += 4;
 			cache_count = pntohl(&pd[offset]);
-			proto_tree_add_text(wccp_tree, offset, 4,
+			proto_tree_add_text(wccp_tree, NullTVB, offset, 4,
 			    "Number of Web Caches: %u", cache_count);
 			offset += 4;
 			for (i = 0; i < cache_count; i++) {
@@ -163,23 +163,23 @@ dissect_wccp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			 * This hasn't been tested, since I don't have any
 			 * traces with this in it.
 			 */
-			proto_tree_add_item(wccp_tree, hf_recvd_id, offset,
+			proto_tree_add_item(wccp_tree, hf_recvd_id, NullTVB, offset,
 			    4, pntohl(&pd[offset]));
 			offset += 4;
 			cache_count = pntohl(&pd[offset]);
-			proto_tree_add_text(wccp_tree, offset, 4,
+			proto_tree_add_text(wccp_tree, NullTVB, offset, 4,
 			    "Number of Web Caches: %u", cache_count);
 			offset += 4;
 			for (i = 0; i < cache_count; i++) {
 				proto_tree_add_ipv4_format(wccp_tree,
-				    hf_cache_ip, offset, 4,
+				    hf_cache_ip, NullTVB, offset, 4,
 				    pntohl(&pd[offset]),
 				    "Web Cache %d IP Address: %s", i,
 				    ip_to_str((guint8 *) &pd[offset]));
 				offset += 4;
 			}
 			for (i = 0; i < 256; i += 4) {
-				proto_tree_add_text(wccp_tree, offset, 4,
+				proto_tree_add_text(wccp_tree, NullTVB, offset, 4,
 				    "Buckets %d - %d: %10s %10s %10s %10s",
 				    i, i + 3,
 				    bucket_name(pd[offset]),
@@ -192,7 +192,7 @@ dissect_wccp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 		default:
 			wccp_version = pntohl(&pd[offset]);
-			proto_tree_add_item(wccp_tree, hf_wccp_version,
+			proto_tree_add_item(wccp_tree, hf_wccp_version, NullTVB,
 			    offset, 4, wccp_version);
 			offset += 4;
 			dissect_data(pd, offset, fd, wccp_tree);
@@ -213,11 +213,11 @@ dissect_hash_data(const u_char *pd, int offset, proto_tree *wccp_tree)
 	int n;
 	guint32 flags;
 
-	proto_tree_add_item(wccp_tree, hf_hash_revision, offset, 4,
+	proto_tree_add_item(wccp_tree, hf_hash_revision, NullTVB, offset, 4,
 	    pntohl(&pd[offset]));
 	offset += 4;
 
-	bucket_item = proto_tree_add_text(wccp_tree, offset, 32,
+	bucket_item = proto_tree_add_text(wccp_tree, NullTVB, offset, 32,
 	    "Hash information");
 	bucket_tree = proto_item_add_subtree(bucket_item, ett_buckets);
 
@@ -227,13 +227,13 @@ dissect_hash_data(const u_char *pd, int offset, proto_tree *wccp_tree)
 		offset += 1;
 	}
 	flags = pntohl(&pd[offset]);
-	tf = proto_tree_add_text(wccp_tree, offset, 4,
+	tf = proto_tree_add_text(wccp_tree, NullTVB, offset, 4,
 	    "Flags: 0x%08X (%s)", flags,
 	    ((flags & WCCP_U_FLAG) ?
 	      "Hash information is historical" :
 	      "Hash information is current"));
 	field_tree = proto_item_add_subtree(tf, ett_flags);
-	proto_tree_add_text(field_tree, offset, 4, "%s",
+	proto_tree_add_text(field_tree, NullTVB, offset, 4, "%s",
 	    decode_boolean_bitfield(flags, WCCP_U_FLAG,
 	      sizeof (flags)*8,
 	      "Hash information is historical",
@@ -247,11 +247,11 @@ dissect_web_cache_list_entry(const u_char *pd, int offset, int index,
 	proto_item *tl;
 	proto_tree *list_entry_tree;
 
-	tl = proto_tree_add_text(wccp_tree, offset, 4 + HASH_INFO_SIZE,
+	tl = proto_tree_add_text(wccp_tree, NullTVB, offset, 4 + HASH_INFO_SIZE,
 	    "Web-Cache List Entry(%d)", index);
 	list_entry_tree = proto_item_add_subtree(tl,
 	    ett_cache_info);
-	proto_tree_add_item(list_entry_tree, hf_cache_ip, offset, 4,
+	proto_tree_add_item(list_entry_tree, hf_cache_ip, NullTVB, offset, 4,
 	    pntohl(&pd[offset]));
 	dissect_hash_data(pd, offset + 4, list_entry_tree);
 }
@@ -268,7 +268,7 @@ wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree, guint32 start,
 	guint32 i;
 
 	for(i = 0; i < 8; i++) {
-		proto_tree_add_text(bucket_tree, offset, sizeof(bucket_info), "Bucket %3d: %s", start, (bucket_info & 1<<i ? "Assigned" : "Not Assigned") );
+		proto_tree_add_text(bucket_tree, NullTVB, offset, sizeof(bucket_info), "Bucket %3d: %s", start, (bucket_info & 1<<i ? "Assigned" : "Not Assigned") );
 		start++;
 	}
 	return(start);

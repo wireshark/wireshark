@@ -3,7 +3,7 @@
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  * derived from packet-rip.c
  *
- * $Id: packet-ripng.c,v 1.9 2000/04/08 07:07:35 guy Exp $
+ * $Id: packet-ripng.c,v 1.10 2000/05/11 08:15:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -78,46 +78,46 @@ dissect_ripng(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	col_add_fstr(fd, COL_INFO, "%s", cmd); 
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_ripng, offset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(tree, proto_ripng, NullTVB, offset, END_OF_FRAME, NULL);
 	ripng_tree = proto_item_add_subtree(ti, ett_ripng);
 
-	proto_tree_add_uint_format(ripng_tree, hf_ripng_cmd, offset, 1,
+	proto_tree_add_uint_format(ripng_tree, hf_ripng_cmd, NullTVB, offset, 1,
 	    rip6.rip6_cmd,
 	    "Command: %s (%u)", cmd, rip6.rip6_cmd); 
-	proto_tree_add_item(ripng_tree, hf_ripng_version, offset + 1, 1,
+	proto_tree_add_item(ripng_tree, hf_ripng_version, NullTVB, offset + 1, 1,
 	    rip6.rip6_vers);
 
 	offset += 4;
 	while ((pi.captured_len - offset) >= sizeof(struct netinfo6)){
 	    memcpy(&ni6, &pd[offset], sizeof(ni6));
 	    if (ni6.rip6_tag) {
-		ti = proto_tree_add_text(ripng_tree, offset,
+		ti = proto_tree_add_text(ripng_tree, NullTVB, offset,
 				sizeof(ni6), "IP Address: %s/%u, Metric: %u, tag: 0x%04x",
 				ip6_to_str(&ni6.rip6_dest),
 				ni6.rip6_plen,
 				ni6.rip6_metric,
 				ntohs(ni6.rip6_tag));
 	    } else {
-		ti = proto_tree_add_text(ripng_tree, offset,
+		ti = proto_tree_add_text(ripng_tree, NullTVB, offset,
 				sizeof(ni6), "IP Address: %s/%u, Metric: %u",
 				ip6_to_str(&ni6.rip6_dest),
 				ni6.rip6_plen,
 				ni6.rip6_metric);
 	    }
 	    subtree = proto_item_add_subtree(ti, ett_ripng_addr);
-	    proto_tree_add_text(subtree,
+	    proto_tree_add_text(subtree, NullTVB,
 			offset + offsetof(struct netinfo6, rip6_dest),
 			sizeof(ni6.rip6_dest), "IP Address: %s",
 			ip6_to_str(&ni6.rip6_dest));
-	    proto_tree_add_text(subtree,
+	    proto_tree_add_text(subtree, NullTVB,
 			offset + offsetof(struct netinfo6, rip6_tag),
 			sizeof(ni6.rip6_tag), "Tag: 0x%04x",
 			ntohs(ni6.rip6_tag));
-	    proto_tree_add_text(subtree,
+	    proto_tree_add_text(subtree, NullTVB,
 			offset + offsetof(struct netinfo6, rip6_plen),
 			sizeof(ni6.rip6_plen), "Prefix length: %u",
 			ni6.rip6_plen);
-	    proto_tree_add_text(subtree,
+	    proto_tree_add_text(subtree, NullTVB,
 			offset + offsetof(struct netinfo6, rip6_metric),
 			sizeof(ni6.rip6_metric), "Metric: %u",
 			ni6.rip6_metric);

@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-rtsp.c,v 1.12 2000/04/21 07:43:53 guy Exp $
+ * $Id: packet-rtsp.c,v 1.13 2000/05/11 08:15:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -153,7 +153,7 @@ static void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
 
 	rtsp_tree = NULL;
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rtsp, offset, 
+		ti = proto_tree_add_item(tree, proto_rtsp, NullTVB, offset, 
 			END_OF_FRAME, NULL);
 		rtsp_tree = proto_item_add_subtree(ti, ett_rtsp);
 	}
@@ -263,7 +263,7 @@ static void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
 		 * Put this line.
 		 */
 		if (rtsp_tree) {
-			proto_tree_add_text(rtsp_tree, offset, linelen, "%s",
+			proto_tree_add_text(rtsp_tree, NullTVB, offset, linelen, "%s",
 				format_text(data, linelen));
 		}
 		if (linelen > strlen(rtsp_transport) &&
@@ -280,13 +280,13 @@ static void dissect_rtsp(const u_char *pd, int offset, frame_data *fd,
 			col_add_str(fd, COL_PROTOCOL, "RTSP/SDP");
 	}
 	else if (data < dataend) {
-		proto_tree_add_text(rtsp_tree, offset, END_OF_FRAME,
+		proto_tree_add_text(rtsp_tree, NullTVB, offset, END_OF_FRAME,
 		    "Data (%d bytes)", END_OF_FRAME);
 	}
 	return;
 
 bad_len:
-	proto_tree_add_text(rtsp_tree, end_offset, 0,
+	proto_tree_add_text(rtsp_tree, NullTVB, end_offset, 0,
 		"Unexpected end of packet");
 }
 
@@ -318,7 +318,7 @@ process_rtsp_request_or_reply(const u_char *data, int offset, int linelen,
 			status_start = status;
 			while (status < lineend && isdigit(*status))
 				status_i = status_i * 10 + *status++ - '0';
-			proto_tree_add_item_hidden(tree, hf_rtsp_status,
+			proto_tree_add_item_hidden(tree, hf_rtsp_status, NullTVB,
 				offset + (status_start - data),
 				status - status_start, status_i);
 		}
@@ -340,7 +340,7 @@ process_rtsp_request_or_reply(const u_char *data, int offset, int linelen,
 		u_char *tmp_url;
 
 		/* method name */
-		proto_tree_add_item_hidden(tree, hf_rtsp_method, offset,
+		proto_tree_add_item_hidden(tree, hf_rtsp_method, NullTVB, offset,
 			strlen(rtsp_methods[ii]), rtsp_methods[ii]);
 
 		/* URL */
@@ -355,7 +355,7 @@ process_rtsp_request_or_reply(const u_char *data, int offset, int linelen,
 		tmp_url = g_malloc(url - url_start + 1);
 		memcpy(tmp_url, url_start, url - url_start);
 		tmp_url[url - url_start] = 0;
-		proto_tree_add_item_hidden(tree, hf_rtsp_url,
+		proto_tree_add_item_hidden(tree, hf_rtsp_url, NullTVB,
 			offset + (url_start - data), url - url_start, tmp_url);
 		g_free(tmp_url);
 	}

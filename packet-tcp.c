@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.73 2000/05/05 09:32:05 guy Exp $
+ * $Id: packet-tcp.c,v 1.74 2000/05/11 08:15:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -161,7 +161,7 @@ static void
 dissect_tcpopt_maxseg(const ip_tcp_opt *optp, const u_char *opd,
     int offset, guint optlen, proto_tree *opt_tree)
 {
-  proto_tree_add_text(opt_tree, offset,      optlen,
+  proto_tree_add_text(opt_tree, NullTVB, offset,      optlen,
 			"%s: %u bytes", optp->name, pntohs(opd));
   tcp_info_append_uint("MSS", pntohs(opd));
 }
@@ -170,7 +170,7 @@ static void
 dissect_tcpopt_wscale(const ip_tcp_opt *optp, const u_char *opd,
     int offset, guint optlen, proto_tree *opt_tree)
 {
-  proto_tree_add_text(opt_tree, offset,      optlen,
+  proto_tree_add_text(opt_tree, NullTVB, offset,      optlen,
 			"%s: %u bytes", optp->name, *opd);
   tcp_info_append_uint("WS", *opd);
 }
@@ -183,7 +183,7 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, const u_char *opd,
   proto_item *tf;
   guint leftedge, rightedge;
 
-  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s:", optp->name);
+  tf = proto_tree_add_text(opt_tree, NullTVB, offset,      optlen, "%s:", optp->name);
   offset += 2;	/* skip past type and length */
   optlen -= 2;	/* subtract size of type and length */
   while (optlen > 0) {
@@ -192,7 +192,7 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, const u_char *opd,
       field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
     }
     if (optlen < 4) {
-      proto_tree_add_text(field_tree, offset,      optlen,
+      proto_tree_add_text(field_tree, NullTVB, offset,      optlen,
         "(suboption would go past end of option)");
       break;
     }
@@ -201,7 +201,7 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, const u_char *opd,
     opd += 4;
     optlen -= 4;
     if (optlen < 4) {
-      proto_tree_add_text(field_tree, offset,      optlen,
+      proto_tree_add_text(field_tree, NullTVB, offset,      optlen,
         "(suboption would go past end of option)");
       break;
     }
@@ -209,7 +209,7 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, const u_char *opd,
     rightedge = pntohl(opd);
     opd += 4;
     optlen -= 4;
-    proto_tree_add_text(field_tree, offset,      8,
+    proto_tree_add_text(field_tree, NullTVB, offset,      8,
         "left edge = %u, right edge = %u", leftedge, rightedge);
     tcp_info_append_uint("SLE", leftedge);
     tcp_info_append_uint("SRE", rightedge);
@@ -221,7 +221,7 @@ static void
 dissect_tcpopt_echo(const ip_tcp_opt *optp, const u_char *opd,
     int offset, guint optlen, proto_tree *opt_tree)
 {
-  proto_tree_add_text(opt_tree, offset,      optlen,
+  proto_tree_add_text(opt_tree, NullTVB, offset,      optlen,
 			"%s: %u", optp->name, pntohl(opd));
   tcp_info_append_uint("ECHO", pntohl(opd));
 }
@@ -230,7 +230,7 @@ static void
 dissect_tcpopt_timestamp(const ip_tcp_opt *optp, const u_char *opd,
     int offset, guint optlen, proto_tree *opt_tree)
 {
-  proto_tree_add_text(opt_tree, offset,      optlen,
+  proto_tree_add_text(opt_tree, NullTVB, offset,      optlen,
     "%s: tsval %u, tsecr %u", optp->name, pntohl(opd), pntohl(opd + 4));
   tcp_info_append_uint("TSV", pntohl(opd));
   tcp_info_append_uint("TSER", pntohl(opd + 4));
@@ -240,7 +240,7 @@ static void
 dissect_tcpopt_cc(const ip_tcp_opt *optp, const u_char *opd,
     int offset, guint optlen, proto_tree *opt_tree)
 {
-  proto_tree_add_text(opt_tree, offset,      optlen,
+  proto_tree_add_text(opt_tree, NullTVB, offset,      optlen,
 			"%s: %u", optp->name, pntohl(opd));
   tcp_info_append_uint("CC", pntohl(opd));
 }
@@ -474,32 +474,32 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
   
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_tcp, offset, hlen, "Transmission Control Protocol, Src Port: %s (%u), Dst Port: %s (%u), Seq: %u, Ack: %u", get_tcp_port(th.th_sport), th.th_sport, get_tcp_port(th.th_dport), th.th_dport, th.th_seq, th.th_ack);
+    ti = proto_tree_add_protocol_format(tree, proto_tcp, NullTVB, offset, hlen, "Transmission Control Protocol, Src Port: %s (%u), Dst Port: %s (%u), Seq: %u, Ack: %u", get_tcp_port(th.th_sport), th.th_sport, get_tcp_port(th.th_dport), th.th_dport, th.th_seq, th.th_ack);
     tcp_tree = proto_item_add_subtree(ti, ett_tcp);
-    proto_tree_add_uint_format(tcp_tree, hf_tcp_srcport, offset, 2, th.th_sport,
+    proto_tree_add_uint_format(tcp_tree, hf_tcp_srcport, NullTVB, offset, 2, th.th_sport,
 	"Source port: %s (%u)", get_tcp_port(th.th_sport), th.th_sport);
-    proto_tree_add_uint_format(tcp_tree, hf_tcp_dstport, offset + 2, 2, th.th_dport,
+    proto_tree_add_uint_format(tcp_tree, hf_tcp_dstport, NullTVB, offset + 2, 2, th.th_dport,
 	"Destination port: %s (%u)", get_tcp_port(th.th_dport), th.th_dport);
-    proto_tree_add_item_hidden(tcp_tree, hf_tcp_port, offset, 2, th.th_sport);
-    proto_tree_add_item_hidden(tcp_tree, hf_tcp_port, offset + 2, 2, th.th_dport);
-    proto_tree_add_item(tcp_tree, hf_tcp_seq, offset + 4, 4, th.th_seq);
+    proto_tree_add_item_hidden(tcp_tree, hf_tcp_port, NullTVB, offset, 2, th.th_sport);
+    proto_tree_add_item_hidden(tcp_tree, hf_tcp_port, NullTVB, offset + 2, 2, th.th_dport);
+    proto_tree_add_item(tcp_tree, hf_tcp_seq, NullTVB, offset + 4, 4, th.th_seq);
     if (th.th_flags & TH_ACK)
-      proto_tree_add_item(tcp_tree, hf_tcp_ack, offset + 8, 4, th.th_ack);
-    proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, offset + 12, 1, hlen,
+      proto_tree_add_item(tcp_tree, hf_tcp_ack, NullTVB, offset + 8, 4, th.th_ack);
+    proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, NullTVB, offset + 12, 1, hlen,
 	"Header length: %u bytes", hlen);
-    tf = proto_tree_add_uint_format(tcp_tree, hf_tcp_flags, offset + 13, 1,
+    tf = proto_tree_add_uint_format(tcp_tree, hf_tcp_flags, NullTVB, offset + 13, 1,
 	th.th_flags, "Flags: 0x%04x (%s)", th.th_flags, flags);
     field_tree = proto_item_add_subtree(tf, ett_tcp_flags);
-    proto_tree_add_item(field_tree, hf_tcp_flags_urg, offset + 13, 1, th.th_flags);
-    proto_tree_add_item(field_tree, hf_tcp_flags_ack, offset + 13, 1, th.th_flags);
-    proto_tree_add_item(field_tree, hf_tcp_flags_push, offset + 13, 1, th.th_flags);
-    proto_tree_add_item(field_tree, hf_tcp_flags_reset, offset + 13, 1, th.th_flags);
-    proto_tree_add_item(field_tree, hf_tcp_flags_syn, offset + 13, 1, th.th_flags);
-    proto_tree_add_item(field_tree, hf_tcp_flags_fin, offset + 13, 1, th.th_flags);
-    proto_tree_add_item(tcp_tree, hf_tcp_window_size, offset + 14, 2, th.th_win);
-    proto_tree_add_item(tcp_tree, hf_tcp_checksum, offset + 16, 2, th.th_sum);
+    proto_tree_add_item(field_tree, hf_tcp_flags_urg, NullTVB, offset + 13, 1, th.th_flags);
+    proto_tree_add_item(field_tree, hf_tcp_flags_ack, NullTVB, offset + 13, 1, th.th_flags);
+    proto_tree_add_item(field_tree, hf_tcp_flags_push, NullTVB, offset + 13, 1, th.th_flags);
+    proto_tree_add_item(field_tree, hf_tcp_flags_reset, NullTVB, offset + 13, 1, th.th_flags);
+    proto_tree_add_item(field_tree, hf_tcp_flags_syn, NullTVB, offset + 13, 1, th.th_flags);
+    proto_tree_add_item(field_tree, hf_tcp_flags_fin, NullTVB, offset + 13, 1, th.th_flags);
+    proto_tree_add_item(tcp_tree, hf_tcp_window_size, NullTVB, offset + 14, 2, th.th_win);
+    proto_tree_add_item(tcp_tree, hf_tcp_checksum, NullTVB, offset + 16, 2, th.th_sum);
     if (th.th_flags & TH_URG)
-      proto_tree_add_item(tcp_tree, hf_tcp_urgent_pointer, offset + 18, 2, th.th_urp);
+      proto_tree_add_item(tcp_tree, hf_tcp_urgent_pointer, NullTVB, offset + 18, 2, th.th_urp);
   }
 
   /* Decode TCP options, if any. */
@@ -507,7 +507,7 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     /* There's more than just the fixed-length header.  Decode the
        options. */
     optlen = hlen - sizeof (e_tcphdr); /* length of options, in bytes */
-    tf = proto_tree_add_text(tcp_tree, offset +  20, optlen,
+    tf = proto_tree_add_text(tcp_tree, NullTVB, offset +  20, optlen,
       "Options: (%d bytes)", optlen);
     field_tree = proto_item_add_subtree(tf, ett_tcp_options);
     dissect_ip_tcp_options(&pd[offset + 20], offset + 20, optlen,

@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-nbipx.c,v 1.18 2000/02/15 21:02:35 gram Exp $
+ * $Id: packet-nbipx.c,v 1.19 2000/05/11 08:15:24 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -144,7 +144,7 @@ add_routers(proto_tree *tree, const u_char *pd, int offset)
 		rtr_offset = offset + (i << 2);
 		memcpy(&router, &pd[rtr_offset], 4);
 		if (router != 0) {
-			proto_tree_add_text(tree, rtr_offset, 4, "IPX Network: %s",
+			proto_tree_add_text(tree, NullTVB, rtr_offset, 4, "IPX Network: %s",
 					ipxnet_to_string((guint8*)&router));
 		}
 	}
@@ -187,37 +187,37 @@ dissect_nbipx_ns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbipx, offset, 50, NULL);
+		ti = proto_tree_add_item(tree, proto_nbipx, NullTVB, offset, 50, NULL);
 		nbipx_tree = proto_item_add_subtree(ti, ett_nbipx);
 
 		add_routers(nbipx_tree, pd, offset);
 
-		tf = proto_tree_add_text(nbipx_tree, offset+32, 1,
+		tf = proto_tree_add_text(nbipx_tree, NullTVB, offset+32, 1,
 			"Name type flag: 0x%02x", name_type_flag);
 		name_type_flag_tree = proto_item_add_subtree(tf,
 				ett_nbipx_name_type_flags);
-		proto_tree_add_text(name_type_flag_tree, offset+32,
+		proto_tree_add_text(name_type_flag_tree, NullTVB, offset+32,
 		    1, "%s",
 		    decode_boolean_bitfield(name_type_flag, 0x80, 8,
 		      "Group name", "Unique name"));
-		proto_tree_add_text(name_type_flag_tree, offset+32,
+		proto_tree_add_text(name_type_flag_tree, NullTVB, offset+32,
 		    1, "%s",
 		    decode_boolean_bitfield(name_type_flag, 0x40, 8,
 		      "Name in use", "Name not used"));
-		proto_tree_add_text(name_type_flag_tree, offset+32,
+		proto_tree_add_text(name_type_flag_tree, NullTVB, offset+32,
 		    1, "%s",
 		    decode_boolean_bitfield(name_type_flag, 0x04, 8,
 		      "Name registered", "Name not registered"));
-		proto_tree_add_text(name_type_flag_tree, offset+32,
+		proto_tree_add_text(name_type_flag_tree, NullTVB, offset+32,
 		    1, "%s",
 		    decode_boolean_bitfield(name_type_flag, 0x02, 8,
 		      "Name duplicated", "Name not duplicated"));
-		proto_tree_add_text(name_type_flag_tree, offset+32,
+		proto_tree_add_text(name_type_flag_tree, NullTVB, offset+32,
 		    1, "%s",
 		    decode_boolean_bitfield(name_type_flag, 0x01, 8,
 		      "Name deregistered", "Name not deregistered"));
 
-		proto_tree_add_text(nbipx_tree, offset+33, 1,
+		proto_tree_add_text(nbipx_tree, NullTVB, offset+33, 1,
 			"Packet Type: %s (%02X)",
 			val_to_str(packet_type, nbipx_data_stream_type_vals, "Unknown"),
 			packet_type);
@@ -238,18 +238,18 @@ dissect_nbipx_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 		col_add_fstr(fd, COL_INFO, "NetBIOS datagram over NBIPX");
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbipx, offset,
+		ti = proto_tree_add_item(tree, proto_nbipx, NullTVB, offset,
 		    2+NETBIOS_NAME_LEN+NETBIOS_NAME_LEN, NULL);
 		nbipx_tree = proto_item_add_subtree(ti, ett_nbipx);
 
-		proto_tree_add_text(nbipx_tree, offset, 1,
+		proto_tree_add_text(nbipx_tree, NullTVB, offset, 1,
 		    "Connection control: 0x%02x", pd[offset]);
 		offset += 1;
 		max_data -= 1;
 
 		if (!BYTES_ARE_IN_FRAME(offset, 1))
 			return;
-		proto_tree_add_text(nbipx_tree, offset, 1,
+		proto_tree_add_text(nbipx_tree, NullTVB, offset, 1,
 				"Packet Type: %s (%02X)",
 				val_to_str(pd[offset], nbipx_data_stream_type_vals, "Unknown"),
 				pd[offset]);
@@ -341,7 +341,7 @@ dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_nbipx, offset, 68, NULL);
+		ti = proto_tree_add_item(tree, proto_nbipx, NullTVB, offset, 68, NULL);
 		nbipx_tree = proto_item_add_subtree(ti, ett_nbipx);
 
 		add_routers(nbipx_tree, pd, offset);
@@ -352,28 +352,28 @@ dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 		 */
 		if (packet_type != NWLINK_SMB &&
 		      packet_type != NWLINK_NETBIOS_DATAGRAM) {
-			tf = proto_tree_add_text(nbipx_tree, offset+32, 1,
+			tf = proto_tree_add_text(nbipx_tree, NullTVB, offset+32, 1,
 				"Name type flag: 0x%02x",
 				name_type_flag);
 			name_type_flag_tree = proto_item_add_subtree(tf,
 					ett_nbipx_name_type_flags);
-			proto_tree_add_text(name_type_flag_tree, offset+32,
+			proto_tree_add_text(name_type_flag_tree, NullTVB, offset+32,
 			    1, "%s",
 			    decode_boolean_bitfield(name_type_flag, 0x80, 8,
 			      "Group name", "Unique name"));
-			proto_tree_add_text(name_type_flag_tree, offset+32,
+			proto_tree_add_text(name_type_flag_tree, NullTVB, offset+32,
 			    1, "%s",
 			    decode_boolean_bitfield(name_type_flag, 0x40, 8,
 			      "Name in use", "Name not used"));
-			proto_tree_add_text(name_type_flag_tree, offset+32,
+			proto_tree_add_text(name_type_flag_tree, NullTVB, offset+32,
 			    1, "%s",
 			    decode_boolean_bitfield(name_type_flag, 0x04, 8,
 			      "Name registered", "Name not registered"));
-			proto_tree_add_text(name_type_flag_tree, offset+32,
+			proto_tree_add_text(name_type_flag_tree, NullTVB, offset+32,
 			    1, "%s",
 			    decode_boolean_bitfield(name_type_flag, 0x02, 8,
 			      "Name duplicated", "Name not duplicated"));
-			proto_tree_add_text(name_type_flag_tree, offset+32,
+			proto_tree_add_text(name_type_flag_tree, NullTVB, offset+32,
 			    1, "%s",
 			    decode_boolean_bitfield(name_type_flag, 0x01, 8,
 			      "Name deregistered", "Name not deregistered"));
@@ -384,18 +384,18 @@ dissect_nwlink_dg(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			if (!netbios_add_name("Node name", pd, offset+52,
 			    nbipx_tree))
 				return;
-			proto_tree_add_text(nbipx_tree, offset+33, 1,
+			proto_tree_add_text(nbipx_tree, NullTVB, offset+33, 1,
 			    "Packet Type: %s (%02X)",
 			    val_to_str(packet_type, nwlink_data_stream_type_vals, "Unknown"),
 			    packet_type);
 		} else {
-			proto_tree_add_text(nbipx_tree, offset+32, 1,
+			proto_tree_add_text(nbipx_tree, NullTVB, offset+32, 1,
 			    "Packet type: 0x%02x", name_type_flag);
-			proto_tree_add_text(nbipx_tree, offset+33, 1,
+			proto_tree_add_text(nbipx_tree, NullTVB, offset+33, 1,
 			    "Name Type: %s (0x%02x)",
 			    netbios_name_type_descr(packet_type),
 			    packet_type);
-			proto_tree_add_text(nbipx_tree, offset+34, 2,
+			proto_tree_add_text(nbipx_tree, NullTVB, offset+34, 2,
 			    "Message ID: 0x%04x", pletohs(&pd[offset+34]));
 			if (!netbios_add_name("Requested name", pd, offset+36,
 			    nbipx_tree))

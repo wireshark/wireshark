@@ -2,7 +2,7 @@
  * Common routines for smb packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-smb-common.c,v 1.3 2000/02/14 04:22:22 guy Exp $
+ * $Id: packet-smb-common.c,v 1.4 2000/05/11 08:15:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,7 +49,7 @@ int display_ms_value( char *Name, int len, const u_char *pd, int offset,
   	else 
 		return 0;
 
-	proto_tree_add_text( tree, offset, len, "%s: %u", Name, Temp32);
+	proto_tree_add_text( tree, NullTVB, offset, len, "%s: %u", Name, Temp32);
 	
 	return len;
 }	
@@ -59,7 +59,7 @@ int display_ms_string( char *Name, const u_char *pd, int offset,
 
 {/* display a string from the tree and return the amount to move offset */
   	
-	proto_tree_add_text( tree, offset, strlen( &pd[offset]) + 1, "%s: %s ",
+	proto_tree_add_text( tree, NullTVB, offset, strlen( &pd[offset]) + 1, "%s: %s ",
 			Name, &pd[offset]);
 	
 	return 	strlen( &pd[offset]) + 1;
@@ -83,7 +83,7 @@ int display_unicode_string( char *Name, const u_char *pd, int offset,
 	} 
 	*OutPtr = 0;			/* terminate out string */	
 	  	
-	proto_tree_add_text( tree, offset, strlen( Temp) * 2 + 2, "%s: %s ",
+	proto_tree_add_text( tree, NullTVB, offset, strlen( Temp) * 2 + 2, "%s: %s ",
 			Name, Temp);
 	
 	return 	strlen( Temp) * 2 + 2;
@@ -96,7 +96,7 @@ dissect_smb_unknown( const u_char *pd, int offset, frame_data *fd,
 
 /* display data as unknown */
   	
-    proto_tree_add_text(tree, offset, END_OF_FRAME, "Data (%u bytes)",
+    proto_tree_add_text(tree, NullTVB, offset, END_OF_FRAME, "Data (%u bytes)",
                         END_OF_FRAME);
 
 }
@@ -142,7 +142,7 @@ display_flags( struct flag_array_type *flag_array, int length,
 	}
 
 	while( array_ptr->mask) {
-		proto_tree_add_text( tree, offset, 2, "%s%s%s%s",
+		proto_tree_add_text( tree, NullTVB, offset, 2, "%s%s%s%s",
 			decode_boolean_bitfield( flags, array_ptr->mask,
 				length * 8, "",""),
 			array_ptr->pre_string,

@@ -1,7 +1,7 @@
 /* packet-bootparams.c
  * Routines for bootparams dissection
  *
- * $Id: packet-bootparams.c,v 1.9 2000/04/04 06:46:24 guy Exp $
+ * $Id: packet-bootparams.c,v 1.10 2000/05/11 08:15:03 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -62,7 +62,7 @@ int dissect_bp_address(const u_char *pd, int offset, frame_data *fd,
 	if ( !BYTES_ARE_IN_FRAME(offset, 1)) return offset;
 	type = pntohl(&pd[offset]); /* type of address */
 #if 0
-	proto_tree_add_item(tree, hf_bootparams_addresstype,
+	proto_tree_add_item(tree, hf_bootparams_addresstype, NullTVB,
 		offset, 4, type);
 #endif
 	offset += 4;
@@ -76,7 +76,7 @@ int dissect_bp_address(const u_char *pd, int offset, frame_data *fd,
 	if ( ! BYTES_ARE_IN_FRAME(offset, 16)) return offset;
 	ipaddr = (pd[offset+3]<<24) + (pd[offset+7]<<16) +
 		(pd[offset+11]<<8) + (pd[offset+15]);
-	proto_tree_add_item(tree, hfindex, 
+	proto_tree_add_item(tree, hfindex, NullTVB, 
 		offset, 16, ntohl(ipaddr));
 	offset += 16;
 

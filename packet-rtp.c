@@ -3,7 +3,7 @@
  *
  * Jason Lango <jal@netapp.com>
  *
- * $Id: packet-rtp.c,v 1.2 2000/05/09 06:28:05 guy Exp $
+ * $Id: packet-rtp.c,v 1.3 2000/05/11 08:15:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -107,7 +107,7 @@ dissect_rtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	rtp_tree = NULL;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rtp, offset, END_OF_FRAME,
+		ti = proto_tree_add_item(tree, proto_rtp, NullTVB, offset, END_OF_FRAME,
 			NULL);
 		rtp_tree = proto_item_add_subtree(ti, ett_rtp);
 	}
@@ -117,43 +117,43 @@ dissect_rtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (offset >= end_offset)
 		goto bad_len;
-	proto_tree_add_text(rtp_tree, offset, 1, "Version: %u (%s)",
+	proto_tree_add_text(rtp_tree, NullTVB, offset, 1, "Version: %u (%s)",
 		RTP_VERSION(&hdr),
 		RTP_VERSION(&hdr) == 3 ? "New Unknown Version" :
 		RTP_VERSION(&hdr) == 2 ? "RFC 1889 Version" :
 		RTP_VERSION(&hdr) == 1 ? "First Draft Version" :
 		"Old Vat Version");
-	proto_tree_add_text(rtp_tree, offset, 1, "Padding: %u",
+	proto_tree_add_text(rtp_tree, NullTVB, offset, 1, "Padding: %u",
 		RTP_PADDING(&hdr));
-	proto_tree_add_text(rtp_tree, offset, 1, "Extension: %u",
+	proto_tree_add_text(rtp_tree, NullTVB, offset, 1, "Extension: %u",
 		RTP_EXTENSION(&hdr));
-	proto_tree_add_text(rtp_tree, offset, 1, "CSRC Count: %u",
+	proto_tree_add_text(rtp_tree, NullTVB, offset, 1, "CSRC Count: %u",
 		RTP_CSRC_COUNT(&hdr));
 	offset++;
 
 	if (offset >= end_offset)
 		goto bad_len;
-	proto_tree_add_text(rtp_tree, offset, 1, "Marker: %u",
+	proto_tree_add_text(rtp_tree, NullTVB, offset, 1, "Marker: %u",
 		RTP_MARKER(&hdr));
-	proto_tree_add_text(rtp_tree, offset, 1, "Payload Type: %u",
+	proto_tree_add_text(rtp_tree, NullTVB, offset, 1, "Payload Type: %u",
 		RTP_PAYLOAD_TYPE(&hdr));
 	offset++;
 
 	if (offset >= end_offset)
 		goto bad_len;
-	proto_tree_add_text(rtp_tree, offset, 2, "Seq: %u",
+	proto_tree_add_text(rtp_tree, NullTVB, offset, 2, "Seq: %u",
 		(u_int) hdr.rtp_seq);
 	offset += 2;
 
 	if (offset >= end_offset)
 		goto bad_len;
-	proto_tree_add_text(rtp_tree, offset, 4, "Timestamp: %lu",
+	proto_tree_add_text(rtp_tree, NullTVB, offset, 4, "Timestamp: %lu",
 		(u_long) hdr.rtp_timestamp);
 	offset += 4;
 
 	if (offset >= end_offset)
 		goto bad_len;
-	proto_tree_add_text(rtp_tree, offset, 4, "SSRC: %lu",
+	proto_tree_add_text(rtp_tree, NullTVB, offset, 4, "SSRC: %lu",
 		(u_long) hdr.rtp_ssrc);
 	offset += 4;
 
@@ -163,7 +163,7 @@ dissect_rtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		if (offset >= end_offset)
 			goto bad_len;
 		csrc = pntohl(csrc_ptr);
-		proto_tree_add_text(rtp_tree, offset, 4, "CSRC %d: %lu",
+		proto_tree_add_text(rtp_tree, NullTVB, offset, 4, "CSRC %d: %lu",
 			ii + 1, (u_long) csrc);
 		offset += 4;
 		csrc_ptr++;
@@ -176,25 +176,25 @@ dissect_rtp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		ext.rtp_ext_app = ntohs(ext.rtp_ext_app);
 		ext.rtp_ext_length = ntohs(ext.rtp_ext_length);
 
-		proto_tree_add_text(rtp_tree, offset, 2,
+		proto_tree_add_text(rtp_tree, NullTVB, offset, 2,
 			"Extension-defined: %x", (u_int) ext.rtp_ext_app);
 		offset += 2;
-		proto_tree_add_text(rtp_tree, offset, 2,
+		proto_tree_add_text(rtp_tree, NullTVB, offset, 2,
 			"Extension length: %u", (u_int) ext.rtp_ext_length);
 		offset += 2;
-		proto_tree_add_text(rtp_tree, offset, 4 * ext.rtp_ext_length,
+		proto_tree_add_text(rtp_tree, NullTVB, offset, 4 * ext.rtp_ext_length,
 			"Extension Data (%d bytes)",
 			(int) 4 * ext.rtp_ext_length);
 		offset += 4 * ext.rtp_ext_length;
 	}
 
-	proto_tree_add_text(rtp_tree, offset, END_OF_FRAME,
+	proto_tree_add_text(rtp_tree, NullTVB, offset, END_OF_FRAME,
 		"Data (%d bytes)", END_OF_FRAME);
 
 	return;
 
 bad_len:
-	proto_tree_add_text(rtp_tree, end_offset, 0,
+	proto_tree_add_text(rtp_tree, NullTVB, end_offset, 0,
 		"Unexpected end of packet");
 }
 

@@ -1,7 +1,7 @@
 /* packet.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id: packet.h,v 1.183 2000/05/05 09:32:09 guy Exp $
+ * $Id: packet.h,v 1.184 2000/05/11 08:15:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,6 +35,11 @@
 #include "proto.h"
 #endif
 
+#ifndef __TVBUFF_H__
+#include "tvbuff.h"
+#endif
+
+
 /* Pointer versions of ntohs and ntohl.  Given a pointer to a member of a
  * byte array, returns the value of the two or four bytes at the pointer.
  * The pletoh[sl] versions return the little-endian representation.
@@ -64,7 +69,6 @@
 
 /* Useful when you have an array whose size you can tell at compile-time */
 #define array_length(x)	(sizeof x / sizeof x[0])
-
 
 /* Useful when highlighting regions inside a dissect_*() function. With this
  * macro, you can highlight from an arbitrary offset to the end of the
@@ -182,6 +186,9 @@ typedef enum {
 } port_type;
 
 typedef struct _packet_info {
+  const char *current_proto;	/* name of protocol currently being dissected */
+  frame_data *fd;
+  tvbuff_t *compat_top_tvb;	/* only needed while converting Ethereal to use tvbuffs */
   int     len;
   int     captured_len;
   address dl_src;		/* link-layer source address */

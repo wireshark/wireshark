@@ -2,7 +2,7 @@
  * Routines for SSCOP (Q.2110, Q.SAAL) frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sscop.c,v 1.6 2000/03/12 04:47:50 gram Exp $
+ * $Id: packet-sscop.c,v 1.7 2000/05/11 08:15:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -192,11 +192,11 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     break;
   }
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_sscop, pi.len - pdu_len,
+    ti = proto_tree_add_protocol_format(tree, proto_sscop, NullTVB, pi.len - pdu_len,
     					pdu_len, "SSCOP");
     sscop_tree = proto_item_add_subtree(ti, ett_sscop);
 
-    proto_tree_add_text(sscop_tree, SSCOP_PDU_TYPE, 1,
+    proto_tree_add_text(sscop_tree, NullTVB, SSCOP_PDU_TYPE, 1,
 			"PDU Type: %s",
 			val_to_str(pdu_type, sscop_type_vals,
 				"Unknown (0x%02x)"));
@@ -206,30 +206,30 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     case SSCOP_BGN:
     case SSCOP_RS:
     case SSCOP_ER:
-      proto_tree_add_text(sscop_tree, SSCOP_N_SQ, 1,
+      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_N_SQ, 1,
           "N(SQ): %u", pd[SSCOP_N_SQ]);
-      proto_tree_add_text(sscop_tree, SSCOP_N_MR + 1, 3,
+      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_N_MR + 1, 3,
           "N(MR): %u", pntohl(&pd[SSCOP_N_MR]) & 0xFFFFFF);
       break;
 
     case SSCOP_END:
-      proto_tree_add_text(sscop_tree, SSCOP_PDU_TYPE, 1,
+      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_PDU_TYPE, 1,
           "Source: %s", (pd[SSCOP_PDU_TYPE] & SSCOP_S) ? "SSCOP" : "User");
       break;
 
     case SSCOP_BGAK:
     case SSCOP_RSAK:
-      proto_tree_add_text(sscop_tree, SSCOP_N_MR + 1, 3,
+      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_N_MR + 1, 3,
           "N(MR): %u", pntohl(&pd[SSCOP_N_MR]) & 0xFFFFFF);
       break;
 
     case SSCOP_ERAK:
-      proto_tree_add_text(sscop_tree, SSCOP_N_MR + 3, 3,
+      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_N_MR + 3, 3,
           "N(MR): %u", pntohl(&pd[SSCOP_N_MR]) & 0xFFFFFF);
       break;
 
     case SSCOP_SD:
-      proto_tree_add_text(sscop_tree, SSCOP_N_S + 1, 3,
+      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_N_S + 1, 3,
           "N(S): %u", pntohl(&pd[SSCOP_N_S]) & 0xFFFFFF);
       break;
 
@@ -237,9 +237,9 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     case SSCOP_SDP:
 #endif
     case SSCOP_POLL:
-      proto_tree_add_text(sscop_tree, SSCOP_N_PS + 1, 3,
+      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_N_PS + 1, 3,
           "N(PS): %u", pntohl(&pd[SSCOP_N_PS]) & 0xFFFFFF);
-      proto_tree_add_text(sscop_tree, SSCOP_N_S + 1, 3,
+      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_N_S + 1, 3,
           "N(S): %u", pntohl(&pd[SSCOP_N_S]) & 0xFFFFFF);
       break;
 
@@ -247,11 +247,11 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
       /*
        * XXX - dissect the list elements....
        */
-      proto_tree_add_text(sscop_tree, SSCOP_SS_N_PS + 1, 3,
+      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_SS_N_PS + 1, 3,
           "N(PS): %u", pntohl(&pd[SSCOP_SS_N_PS]) & 0xFFFFFF);
-      proto_tree_add_text(sscop_tree, SSCOP_SS_N_MR + 1, 3,
+      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_SS_N_MR + 1, 3,
           "N(MR): %u", pntohl(&pd[SSCOP_SS_N_MR]) & 0xFFFFFF);
-      proto_tree_add_text(sscop_tree, SSCOP_SS_N_R + 1, 3,
+      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_SS_N_R + 1, 3,
           "N(R): %u", pntohl(&pd[SSCOP_SS_N_R]) & 0xFFFFFF);
       break;
 
@@ -259,9 +259,9 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
       /*
        * XXX - dissect the list elements....
        */
-      proto_tree_add_text(sscop_tree, SSCOP_SS_N_MR + 1, 3,
+      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_SS_N_MR + 1, 3,
           "N(MR): %u", pntohl(&pd[SSCOP_SS_N_MR]) & 0xFFFFFF);
-      proto_tree_add_text(sscop_tree, SSCOP_SS_N_R + 1, 3,
+      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_SS_N_R + 1, 3,
           "N(R): %u", pntohl(&pd[SSCOP_SS_N_R]) & 0xFFFFFF);
       break;
     }
@@ -285,7 +285,7 @@ dissect_sscop(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
   case SSCOP_SDP:
 #endif
     if (tree) {
-      proto_tree_add_text(sscop_tree, SSCOP_PDU_TYPE, 1,
+      proto_tree_add_text(sscop_tree, NullTVB, SSCOP_PDU_TYPE, 1,
 			"Pad length: %u", pad_len);
     }
 

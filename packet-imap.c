@@ -2,7 +2,7 @@
  * Routines for imap packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-imap.c,v 1.5 2000/04/08 07:07:19 guy Exp $
+ * $Id: packet-imap.c,v 1.6 2000/05/11 08:15:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -91,23 +91,23 @@ dissect_imap(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 
-	  ti = proto_tree_add_item(tree, proto_imap, offset, END_OF_FRAME, NULL);
+	  ti = proto_tree_add_item(tree, proto_imap, NullTVB, offset, END_OF_FRAME, NULL);
 	  imap_tree = proto_item_add_subtree(ti, ett_imap);
 
 	  if (pi.match_port == pi.destport) { /* Request */
 
-	    proto_tree_add_item_hidden(imap_tree, hf_imap_request, offset, i1, TRUE);
-	    proto_tree_add_text(imap_tree, offset, i1, "Request Tag: %s", rr);
+	    proto_tree_add_item_hidden(imap_tree, hf_imap_request, NullTVB, offset, i1, TRUE);
+	    proto_tree_add_text(imap_tree, NullTVB, offset, i1, "Request Tag: %s", rr);
 
-	    proto_tree_add_text(imap_tree, offset + i1 + 1, END_OF_FRAME, "Request: %s", rd);
+	    proto_tree_add_text(imap_tree, NullTVB, offset + i1 + 1, END_OF_FRAME, "Request: %s", rd);
 
 	  }
 	  else {
 
-	    proto_tree_add_item_hidden(imap_tree, hf_imap_response, offset, i1, TRUE);
-	    proto_tree_add_text(imap_tree, offset, i1, "Response Tag: %s", rr);
+	    proto_tree_add_item_hidden(imap_tree, hf_imap_response, NullTVB, offset, i1, TRUE);
+	    proto_tree_add_text(imap_tree, NullTVB, offset, i1, "Response Tag: %s", rr);
 
-	    proto_tree_add_text(imap_tree, offset + i1 + 1, END_OF_FRAME, "Response: %s", rd);
+	    proto_tree_add_text(imap_tree, NullTVB, offset + i1 + 1, END_OF_FRAME, "Response: %s", rd);
 	  }
 
 	}

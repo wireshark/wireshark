@@ -2,7 +2,7 @@
  * Routines for telnet packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-telnet.c,v 1.11 2000/04/08 07:07:40 guy Exp $
+ * $Id: packet-telnet.c,v 1.12 2000/05/11 08:15:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -149,16 +149,16 @@ telnet_sub_option(proto_tree *telnet_tree, const u_char *pd,
 
   subneg_len = offset - start_offset;
 
-  ti = proto_tree_add_text(telnet_tree, start_offset, subneg_len,
+  ti = proto_tree_add_text(telnet_tree, NullTVB, start_offset, subneg_len,
 			"Suboption Begin: %s", opt);
 
   option_tree = proto_item_add_subtree(ti, ett_telnet_subopt);
 
-  proto_tree_add_text(option_tree, start_offset + 2, 2,
+  proto_tree_add_text(option_tree, NullTVB, start_offset + 2, 2,
 			"%s %s", (req ? "Send your" : "Here's my"), opt);
 
   if (req == 0) {  /* Add the value */
-    proto_tree_add_text(option_tree, start_offset + 4, subneg_len - 4,
+    proto_tree_add_text(option_tree, NullTVB, start_offset + 4, subneg_len - 4,
 	"Value: %s", format_text(&pd[start_offset + 4], subneg_len - 4));
   }
   return offset;
@@ -178,7 +178,7 @@ telnet_will_wont_do_dont(proto_tree *telnet_tree, const u_char *pd,
     opt = options[pd[offset]];
   offset++;
 		      
-  proto_tree_add_text(telnet_tree, start_offset, 3,
+  proto_tree_add_text(telnet_tree, NullTVB, start_offset, 3,
 			"Command: %s %s", type, opt);
   return offset;
 }
@@ -195,72 +195,72 @@ telnet_command(proto_tree *telnet_tree, const u_char *pd, int start_offset)
   switch(optcode) {
 
   case TN_EOF:
-    proto_tree_add_text(telnet_tree, start_offset, 2,
+    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
 			"Command: End of File");
     break;
 
   case TN_SUSP:
-    proto_tree_add_text(telnet_tree, start_offset, 2,
+    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
 			"Command: Suspend Current Process");
     break;
 
   case TN_ABORT:
-    proto_tree_add_text(telnet_tree, start_offset, 2,
+    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
 			"Command: Abort Process");
     break;
 
   case TN_EOR:
-    proto_tree_add_text(telnet_tree, start_offset, 2,
+    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
 			"Command: End of Record");
     break;
 
   case TN_SE:
-    proto_tree_add_text(telnet_tree, start_offset, 2,
+    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
 			"Command: Suboption End");
     break;
 
   case TN_NOP:
-    proto_tree_add_text(telnet_tree, start_offset, 2,
+    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
 			"Command: No Operation");
     break;
 
   case TN_DM:
-    proto_tree_add_text(telnet_tree, start_offset, 2,
+    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
 			"Command: Data Mark");
     break;
 
   case TN_BRK:
-    proto_tree_add_text(telnet_tree, start_offset, 2,
+    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
 			"Command: Break");
     break;
 
   case TN_IP:
-    proto_tree_add_text(telnet_tree, start_offset, 2,
+    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
 			"Command: Interrupt Process");
     break;
 
   case TN_AO:
-    proto_tree_add_text(telnet_tree, start_offset, 2,
+    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
 			"Command: Abort Output");
     break;
 
   case TN_AYT:
-    proto_tree_add_text(telnet_tree, start_offset, 2,
+    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
 			"Command: Are You There?");
     break;
 
   case TN_EC:
-    proto_tree_add_text(telnet_tree, start_offset, 2,
+    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
 			"Command: Escape Character");
     break;
 
   case TN_EL:
-    proto_tree_add_text(telnet_tree, start_offset, 2,
+    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
 			"Command: Erase Line");
     break;
 
   case TN_GA:
-    proto_tree_add_text(telnet_tree, start_offset, 2,
+    proto_tree_add_text(telnet_tree, NullTVB, start_offset, 2,
 			"Command: Go Ahead");
     break;
 
@@ -307,7 +307,7 @@ dissect_telnet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	  int data_offset;
 	  int data_len;
 
-	  ti = proto_tree_add_item(tree, proto_telnet, offset, END_OF_FRAME, NULL);
+	  ti = proto_tree_add_item(tree, proto_telnet, NullTVB, offset, END_OF_FRAME, NULL);
 	  telnet_tree = proto_item_add_subtree(ti, ett_telnet);
 
 	  data_offset = offset;
@@ -324,7 +324,7 @@ dissect_telnet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	       * tree.
 	       */
 	      if (data_len > 0) {
-		proto_tree_add_text(telnet_tree, data_offset, data_len,
+		proto_tree_add_text(telnet_tree, NullTVB, data_offset, data_len,
 			"Data: %s", format_text(&pd[data_offset], data_len));
 		data_len = 0;
 		data_offset = offset;
@@ -347,7 +347,7 @@ dissect_telnet(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	   * If there's any data left, add it to the tree.
 	   */
 	  if (data_len > 0) {
-	    proto_tree_add_text(telnet_tree, data_offset, data_len, "Data: %s",
+	    proto_tree_add_text(telnet_tree, NullTVB, data_offset, data_len, "Data: %s",
 	    		format_text(&pd[data_offset], data_len));
 	  }
 	}

@@ -2,7 +2,7 @@
  * Routines for ICP (internet cache protocol) packet disassembly
  * RFC 2186 && RFC 2187
  *
- * $Id: packet-icp.c,v 1.6 2000/04/08 07:07:18 guy Exp $
+ * $Id: packet-icp.c,v 1.7 2000/05/11 08:15:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Peter Torvals
@@ -114,7 +114,7 @@ guint16 objectlength;
   {
 	case CODE_ICP_OP_QUERY:
 	 	/* 4 byte requester host address */
-		proto_tree_add_text(pload_tree,offset,4,
+		proto_tree_add_text(pload_tree, NullTVB,offset,4,
 			"Requester Host Address %u.%u.%u.%u",
 			(guint8)pd[offset],
 			(guint8)pd[offset+1],
@@ -129,7 +129,7 @@ guint16 objectlength;
 		}
 		textbuf[i]=0;
 		i++;
-		proto_tree_add_text(pload_tree, offset+4,i,
+		proto_tree_add_text(pload_tree, NullTVB, offset+4,i,
 			"URL: %s", textbuf);
 		break;
 	case CODE_ICP_OP_HIT_OBJ:
@@ -141,17 +141,17 @@ guint16 objectlength;
 		}
 		textbuf[i]=0;
 		i++;
-		proto_tree_add_text(pload_tree, offset,i,
+		proto_tree_add_text(pload_tree, NullTVB, offset,i,
 			"URL: %s", textbuf);
 		/* 2 byte object size */
 		/* object data not recommended by standard*/
 		objectlength=pntohs(&pd[offset]);
-		proto_tree_add_text(pload_tree,offset,2,"object length: %u", objectlength);
+		proto_tree_add_text(pload_tree, NullTVB,offset,2,"object length: %u", objectlength);
 		/* object data not recommended by standard*/
-		proto_tree_add_text(pload_tree,offset+2, maxlength-2,"object data");
+		proto_tree_add_text(pload_tree, NullTVB,offset+2, maxlength-2,"object data");
 		if (objectlength > maxlength-2)
 		{
-			proto_tree_add_text(pload_tree,offset,0,
+			proto_tree_add_text(pload_tree, NullTVB,offset,0,
 				"Packet is fragmented, rest of object is in next udp packet");
 		}
 	case CODE_ICP_OP_MISS:
@@ -163,7 +163,7 @@ guint16 objectlength;
 		}
 		textbuf[i]=0;
 		i++;
-		proto_tree_add_text(pload_tree, offset,i,
+		proto_tree_add_text(pload_tree, NullTVB, offset,i,
 			"URL: %s", textbuf);	
 	default: 
 		/* check for fragmentation and add message if next part
@@ -209,47 +209,47 @@ static void dissect_icp(const u_char *pd, int offset, frame_data *fd,
   if (tree)
   {
 
-        ti = proto_tree_add_item(tree,proto_icp ,offset,fd->pkt_len-offset,
+        ti = proto_tree_add_item(tree,proto_icp , NullTVB,offset,fd->pkt_len-offset,
 			NULL);
 
         icp_tree = proto_item_add_subtree(ti, ett_icp);
-        proto_tree_add_uint_format(icp_tree,hf_icp_opcode, offset,      1,
+        proto_tree_add_uint_format(icp_tree,hf_icp_opcode, NullTVB, offset,      1,
                icph.opcode, "Opcode:0x%01x (%s)",icph.opcode, opcodestrval);
 
-        proto_tree_add_uint_format(icp_tree,hf_icp_version, offset+1, 1,
+        proto_tree_add_uint_format(icp_tree,hf_icp_version, NullTVB, offset+1, 1,
                 icph.version,"Version: 0x%01x (%d)", icph.version, (int)icph.version);
 
-        proto_tree_add_uint_format(icp_tree,hf_icp_length, offset+2, 2,
+        proto_tree_add_uint_format(icp_tree,hf_icp_length, NullTVB, offset+2, 2,
                 icph.message_length,
 		"Length: 0x%02x (%d)", icph.message_length,(int)icph.message_length);
-        proto_tree_add_uint_format(icp_tree,hf_icp_request_nr, offset+4, 4,
+        proto_tree_add_uint_format(icp_tree,hf_icp_request_nr, NullTVB, offset+4, 4,
                 icph.request_number,
 		"Request Number: 0x%04x (%u)", icph.request_number,icph.request_number);
 		
 	if ( (icph.opcode == CODE_ICP_OP_QUERY) && ((icph.options & 0x80000000 ) != 0) )
 	{
-		proto_tree_add_text(icp_tree,offset+8,4,
+		proto_tree_add_text(icp_tree, NullTVB,offset+8,4,
 			"option: ICP_FLAG_HIT_OBJ");
   	}
 	if ( (icph.opcode == CODE_ICP_OP_QUERY)&& ((icph.options & 0x40000000 ) != 0) )
 	{
-		proto_tree_add_text(icp_tree,offset+8,4,
+		proto_tree_add_text(icp_tree, NullTVB,offset+8,4,
 			"option:ICP_FLAG_SRC_RTT");
   	}
 	if ((icph.opcode != CODE_ICP_OP_QUERY)&& ((icph.options & 0x40000000 ) != 0))
 	{
-		proto_tree_add_text(icp_tree,offset+8,8,
+		proto_tree_add_text(icp_tree, NullTVB,offset+8,8,
 			"option: ICP_FLAG_SCR_RTT RTT=%u", icph.option_data & 0x0000ffff);
 	}
 	
-	proto_tree_add_text(icp_tree,offset+16, 4, 
+	proto_tree_add_text(icp_tree, NullTVB,offset+16, 4, 
 			"Sender Host IP address %u.%u.%u.%u",
 			(guint8)icph.sender_address[0],
 			(guint8)icph.sender_address[1],
 			(guint8)icph.sender_address[2],
 			(guint8)icph.sender_address[3]);
 
-        payloadtf = proto_tree_add_text(icp_tree,
+        payloadtf = proto_tree_add_text(icp_tree, NullTVB,
                         offset+20,icph.message_length - 20,
                         "Payload");
         payload_tree = proto_item_add_subtree(payloadtf, ett_icp_payload);

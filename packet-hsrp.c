@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-hsrp.c,v 1.3 2000/04/08 07:07:17 guy Exp $
+ * $Id: packet-hsrp.c,v 1.4 2000/05/11 08:15:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -120,31 +120,31 @@ dissect_hsrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                         return;
                 }
 
-                ti = proto_tree_add_item(tree, proto_hsrp, offset, END_OF_FRAME, NULL);
+                ti = proto_tree_add_item(tree, proto_hsrp, NullTVB, offset, END_OF_FRAME, NULL);
                 hsrp_tree = proto_item_add_subtree(ti, ett_hsrp);
 
-                proto_tree_add_text(hsrp_tree, offset++, 1, "Version: %u", hsrp.version);
-                proto_tree_add_text(hsrp_tree, offset++, 1, "Opcode: %u (%s)", hsrp.opcode,
+                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "Version: %u", hsrp.version);
+                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "Opcode: %u (%s)", hsrp.opcode,
                                     val_to_str(hsrp.opcode, hsrp_opcode_vals, "Unknown"));
-                proto_tree_add_text(hsrp_tree, offset++, 1, "State: %u (%s)", hsrp.state,
+                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "State: %u (%s)", hsrp.state,
                                     val_to_str(hsrp.state, hsrp_state_vals, "Unknown"));
                 
-                proto_tree_add_text(hsrp_tree, offset++, 1, "Hellotime: %u second%s (%sdefault)",
+                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "Hellotime: %u second%s (%sdefault)",
                                     hsrp.hellotime, plurality(hsrp.hellotime, "", "s"),
                                     (hsrp.hellotime == HSRP_DEFAULT_HELLOTIME) ? "" : "non-");
-                proto_tree_add_text(hsrp_tree, offset++, 1, "Holdtime: %u second%s (%sdefault)",
+                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "Holdtime: %u second%s (%sdefault)",
                                     hsrp.holdtime, plurality(hsrp.holdtime, "", "s"),
                                     (hsrp.holdtime == HSRP_DEFAULT_HOLDTIME) ? "" : "non-");
-                proto_tree_add_text(hsrp_tree, offset++, 1, "Priority: %u", hsrp.priority);
-                proto_tree_add_text(hsrp_tree, offset++, 1, "Group: %u", hsrp.group);
-                proto_tree_add_text(hsrp_tree, offset++, 1, "Reserved: 0x%x", hsrp.reserved);
+                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "Priority: %u", hsrp.priority);
+                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "Group: %u", hsrp.group);
+                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 1, "Reserved: 0x%x", hsrp.reserved);
 
                 memcpy(auth_buf, hsrp.auth_data, sizeof(hsrp.auth_data));
                 auth_buf[sizeof(auth_buf)] = '\0';
-                proto_tree_add_text(hsrp_tree, offset, 8, "Authentication Data: `%s'", auth_buf);
+                proto_tree_add_text(hsrp_tree, NullTVB, offset, 8, "Authentication Data: `%s'", auth_buf);
                 offset+=8;
 
-                proto_tree_add_text(hsrp_tree, offset++, 4, "Virtual IP address: %s",
+                proto_tree_add_text(hsrp_tree, NullTVB, offset++, 4, "Virtual IP address: %s",
                                     ip_to_str((guint8 *)&hsrp.virt_ip_addr));
                 
         }

@@ -2,7 +2,7 @@
  * Routines for ftp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-ftp.c,v 1.14 2000/04/15 02:26:17 guy Exp $
+ * $Id: packet-ftp.c,v 1.15 2000/05/11 08:15:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -108,31 +108,31 @@ dissect_ftp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 
-	  ti = proto_tree_add_item(tree, proto_ftp, offset, END_OF_FRAME, NULL);
+	  ti = proto_tree_add_item(tree, proto_ftp, NullTVB, offset, END_OF_FRAME, NULL);
 	  ftp_tree = proto_item_add_subtree(ti, ett_ftp);
 
 	  if (pi.match_port == pi.destport) { /* Request */
 
-	    proto_tree_add_item_hidden(ftp_tree, hf_ftp_request,
+	    proto_tree_add_item_hidden(ftp_tree, hf_ftp_request, NullTVB,
 				       offset, i1, TRUE);
-	    proto_tree_add_item_hidden(ftp_tree, hf_ftp_response,
+	    proto_tree_add_item_hidden(ftp_tree, hf_ftp_response, NullTVB,
 				       offset, i1, FALSE);
-	    proto_tree_add_string_format(ftp_tree, hf_ftp_request_command,
+	    proto_tree_add_string_format(ftp_tree, hf_ftp_request_command, NullTVB,
 				       offset, i1, rr, "Request: %s", rr);
-	    proto_tree_add_string_format(ftp_tree, hf_ftp_request_data,
+	    proto_tree_add_string_format(ftp_tree, hf_ftp_request_data, NullTVB,
 				       offset + i1 + 1, END_OF_FRAME, 
 				       rd, "Request Arg: %s", rd);
 	  }
 	  else {
 
-	    proto_tree_add_item_hidden(ftp_tree, hf_ftp_request,
+	    proto_tree_add_item_hidden(ftp_tree, hf_ftp_request, NullTVB,
 				       offset, i1, FALSE);
-	    proto_tree_add_item_hidden(ftp_tree, hf_ftp_response,
+	    proto_tree_add_item_hidden(ftp_tree, hf_ftp_response, NullTVB,
 				       offset, i1, TRUE);
-	    proto_tree_add_uint_format(ftp_tree, hf_ftp_response_code, 
+	    proto_tree_add_uint_format(ftp_tree, hf_ftp_response_code, NullTVB, 
 				       offset, i1, 
 				       atoi(rr), "Response: %s", rr);
-	    proto_tree_add_string_format(ftp_tree, hf_ftp_response_data,
+	    proto_tree_add_string_format(ftp_tree, hf_ftp_response_data, NullTVB,
 				       offset + i1 + 1, END_OF_FRAME,
 				       rd, "Response Arg: %s", rd);
 	  }
@@ -156,7 +156,7 @@ dissect_ftpdata(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 
-	  ti = proto_tree_add_text(tree, offset, END_OF_FRAME,
+	  ti = proto_tree_add_text(tree, NullTVB, offset, END_OF_FRAME,
 				   "FTP Data: %s", 
 				   format_text(&pd[offset], pi.captured_len - offset));
 

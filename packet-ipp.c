@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-ipp.c,v 1.8 2000/04/08 07:07:20 guy Exp $
+ * $Id: packet-ipp.c,v 1.9 2000/05/11 08:15:13 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -177,15 +177,15 @@ void dissect_ipp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ipp, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_ipp, NullTVB, offset, END_OF_FRAME, NULL);
 		ipp_tree = proto_item_add_subtree(ti, ett_ipp);
 
-		proto_tree_add_text(ipp_tree, offset, 2, "Version: %u.%u",
+		proto_tree_add_text(ipp_tree, NullTVB, offset, 2, "Version: %u.%u",
 		    pd[offset], pd[offset + 1]);
 		offset += 2;
 
 		if (is_request) {
-			proto_tree_add_text(ipp_tree, offset, 2, "Operation-id: %s",
+			proto_tree_add_text(ipp_tree, NullTVB, offset, 2, "Operation-id: %s",
 			    val_to_str(pntohs(&pd[offset]), operation_vals,
 			        "Unknown (0x%04x)"));
 		} else {
@@ -216,12 +216,12 @@ void dissect_ipp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				status_fmt = "Unknown (0x%04x)";
 				break;
 			}
-			proto_tree_add_text(ipp_tree, offset, 2, "Status-code: %s",
+			proto_tree_add_text(ipp_tree, NullTVB, offset, 2, "Status-code: %s",
 			    val_to_str(status_code, status_vals, status_fmt));
 		}
 		offset += 2;
 
-		proto_tree_add_text(ipp_tree, offset, 4, "Request ID: %u",
+		proto_tree_add_text(ipp_tree, NullTVB, offset, 4, "Request ID: %u",
 		    pntohl(&pd[offset]));
 		offset += 4;
 
@@ -335,7 +335,7 @@ parse_attributes(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			/*
 			 * Now create a new item for this tag.
 			 */
-			tas = proto_tree_add_text(tree, offset, 1,
+			tas = proto_tree_add_text(tree, NullTVB, offset, 1,
 			    "%s", tag_desc);
 			offset++;
 			if (tag == TAG_END_OF_ATTRIBUTES) {
@@ -459,13 +459,13 @@ add_integer_tree(proto_tree *tree, const u_char *pd, int offset,
 	proto_item *ti;
 
 	if (value_length != 4) {
-		ti = proto_tree_add_text(tree, offset,
+		ti = proto_tree_add_text(tree, NullTVB, offset,
 		    1 + 2 + name_length + 2 + value_length,
 		    "%.*s: Invalid integer (length is %u, should be 4)",
 		    name_length, &pd[offset + 1 + 2],
 		    value_length);
 	} else {
-		ti = proto_tree_add_text(tree, offset,
+		ti = proto_tree_add_text(tree, NullTVB, offset,
 		    1 + 2 + name_length + 2 + value_length,
 		    "%.*s: %u",
 		    name_length, &pd[offset + 1 + 2],
@@ -481,7 +481,7 @@ add_integer_value(guint tag, gchar *tag_desc, proto_tree *tree,
 	offset = add_value_head(tag, tag_desc, tree, pd, offset,
 	    name_length, value_length);
 	if (value_length == 4) {
-		proto_tree_add_text(tree, offset, value_length,
+		proto_tree_add_text(tree, NullTVB, offset, value_length,
 		    "Value: %u", pntohl(&pd[offset]));
 	}
 }
@@ -492,7 +492,7 @@ add_octetstring_tree(proto_tree *tree, const u_char *pd, int offset,
 {
 	proto_item *ti;
 
-	ti = proto_tree_add_text(tree, offset,
+	ti = proto_tree_add_text(tree, NullTVB, offset,
 	    1 + 2 + name_length + 2 + value_length,
 	    "%.*s: %s",
 	    name_length,
@@ -507,7 +507,7 @@ add_octetstring_value(guint tag, gchar *tag_desc, proto_tree *tree,
 {
 	offset = add_value_head(tag, tag_desc, tree, pd, offset,
 	    name_length, value_length);
-	proto_tree_add_text(tree, offset, value_length,
+	proto_tree_add_text(tree, NullTVB, offset, value_length,
 	    "Value: %s", bytes_to_str(&pd[offset], value_length));
 }
 
@@ -517,7 +517,7 @@ add_charstring_tree(proto_tree *tree, const u_char *pd, int offset,
 {
 	proto_item *ti;
 
-	ti = proto_tree_add_text(tree, offset,
+	ti = proto_tree_add_text(tree, NullTVB, offset,
 	    1 + 2 + name_length + 2 + value_length,
 	    "%.*s: %.*s",
 	    name_length, &pd[offset + 1 + 2],
@@ -531,7 +531,7 @@ add_charstring_value(guint tag, gchar *tag_desc, proto_tree *tree,
 {
 	offset = add_value_head(tag, tag_desc, tree, pd, offset,
 	    name_length, value_length);
-	proto_tree_add_text(tree, offset, value_length,
+	proto_tree_add_text(tree, NullTVB, offset, value_length,
 	    "Value: %.*s", value_length, &pd[offset]);
 }
 
@@ -539,17 +539,17 @@ static int
 add_value_head(guint tag, gchar *tag_desc, proto_tree *tree,
     const u_char *pd, int offset, int name_length, int value_length)
 {
-	proto_tree_add_text(tree, offset, 1, "Tag: %s", tag_desc);
+	proto_tree_add_text(tree, NullTVB, offset, 1, "Tag: %s", tag_desc);
 	offset += 1;
-	proto_tree_add_text(tree, offset, 2, "Name length: %u",
+	proto_tree_add_text(tree, NullTVB, offset, 2, "Name length: %u",
 	    name_length);
 	offset += 2;
 	if (name_length != 0) {
-		proto_tree_add_text(tree, offset, name_length,
+		proto_tree_add_text(tree, NullTVB, offset, name_length,
 		    "Name: %.*s", name_length, &pd[offset]);
 	}
 	offset += name_length;
-	proto_tree_add_text(tree, offset, 2, "Value length: %u",
+	proto_tree_add_text(tree, NullTVB, offset, 2, "Value length: %u",
 	    value_length);
 	offset += 2;
 	return offset;

@@ -1,7 +1,7 @@
 /* packet-ascend.c
  * Routines for decoding Lucent/Ascend packet traces
  *
- * $Id: packet-ascend.c,v 1.10 2000/03/27 17:53:18 gram Exp $
+ * $Id: packet-ascend.c,v 1.11 2000/05/11 08:14:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -70,24 +70,24 @@ dissect_ascend( const u_char *pd, frame_data *fd, proto_tree *tree ) {
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
-    ti = proto_tree_add_text(tree, 0, 0, "Lucent/Ascend packet trace" );
+    ti = proto_tree_add_text(tree, NullTVB, 0, 0, "Lucent/Ascend packet trace" );
     fh_tree = proto_item_add_subtree(ti, ett_raw);
-    proto_tree_add_item(fh_tree, hf_link_type, 0, 0, 
+    proto_tree_add_item(fh_tree, hf_link_type, NullTVB, 0, 0, 
 			fd->pseudo_header.ascend.type);
     if (fd->pseudo_header.ascend.type == ASCEND_PFX_WDD) {
-      proto_tree_add_item(fh_tree, hf_called_number, 0, 0, 
+      proto_tree_add_item(fh_tree, hf_called_number, NullTVB, 0, 0, 
 			  fd->pseudo_header.ascend.call_num);
-      proto_tree_add_item(fh_tree, hf_chunk, 0, 0,
+      proto_tree_add_item(fh_tree, hf_chunk, NullTVB, 0, 0,
 			  fd->pseudo_header.ascend.chunk);
-      proto_tree_add_item_hidden(fh_tree, hf_session_id, 0, 0, 0);
+      proto_tree_add_item_hidden(fh_tree, hf_session_id, NullTVB, 0, 0, 0);
     } else {  /* It's wandsession data */
-      proto_tree_add_item(fh_tree, hf_user_name, 0, 0, 
+      proto_tree_add_item(fh_tree, hf_user_name, NullTVB, 0, 0, 
 			  fd->pseudo_header.ascend.user);
-      proto_tree_add_item(fh_tree, hf_session_id, 0, 0,
+      proto_tree_add_item(fh_tree, hf_session_id, NullTVB, 0, 0,
 			  fd->pseudo_header.ascend.sess);
-      proto_tree_add_item_hidden(fh_tree, hf_chunk, 0, 0, 0);
+      proto_tree_add_item_hidden(fh_tree, hf_chunk, NullTVB, 0, 0, 0);
     }
-    proto_tree_add_item(fh_tree, hf_task, 0, 0, fd->pseudo_header.ascend.task);
+    proto_tree_add_item(fh_tree, hf_task, NullTVB, 0, 0, fd->pseudo_header.ascend.task);
   }
 
   switch (fd->pseudo_header.ascend.type) {

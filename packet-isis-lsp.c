@@ -1,7 +1,7 @@
 /* packet-isis-lsp.c
  * Routines for decoding isis lsp packets and their CLVs
  *
- * $Id: packet-isis-lsp.c,v 1.5 2000/04/15 22:11:09 guy Exp $
+ * $Id: packet-isis-lsp.c,v 1.6 2000/05/11 08:15:16 gram Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -267,7 +267,7 @@ dissect_metric(proto_tree *tree, int offset, guint8 value,
 	if ( !tree ) return;
 
 	s = ISIS_LSP_CLV_METRIC_SUPPORTED(value);
-	proto_tree_add_text ( tree, offset, 1, 
+	proto_tree_add_text ( tree, NullTVB, offset, 1, 
 		"%s Metric: %s%s %s%d:%d", pstr,
 		s ? "Not supported" : "Supported",
 		(s && force_supported) ? "(but is required to be)":"",
@@ -314,7 +314,7 @@ dissect_lsp_ip_reachability_clv(const u_char *pd, int offset,
 		if ( tree ) {
 			memcpy(&src, &pd[offset+4], 4);
 			memcpy(&mask, &pd[offset+8], 4);
-			ti = proto_tree_add_text ( tree, offset, 12, 
+			ti = proto_tree_add_text ( tree, NullTVB, offset, 12, 
 				"IP prefix: %s (%s) : %s",
 				get_hostname(src), ip_to_str((guint8*)&src),
 				ip_to_str((guint8*)&mask) );
@@ -490,10 +490,10 @@ dissect_lsp_eis_neighbors_clv_inner(const u_char *pd, int offset,
 		if ( tree ) {
 			if ( show_virtual ) {
 				/* virtual path flag */
-				proto_tree_add_text ( tree, offset, 1, 
+				proto_tree_add_text ( tree, NullTVB, offset, 1, 
 				   &pd[offset] ? "IsNotVirtual" : "IsVirtual" );
 			} else {
-				proto_tree_add_text ( tree, offset, 1, 
+				proto_tree_add_text ( tree, NullTVB, offset, 1, 
 					"Reserved value 0x%02x, must == 0",
 					pd[offset]  );
 			}
@@ -515,11 +515,11 @@ dissect_lsp_eis_neighbors_clv_inner(const u_char *pd, int offset,
 		 */
 		if ( tree ) {
 			if ( is_eis ) {
-				ti = proto_tree_add_text ( tree, offset, 11, 
+				ti = proto_tree_add_text ( tree, NullTVB, offset, 11, 
 					"ES Neighbor: %s",
 					print_system_id( pd + offset + 4, 6 ) );
 			} else {
-				ti = proto_tree_add_text ( tree, offset, 11, 
+				ti = proto_tree_add_text ( tree, NullTVB, offset, 11, 
 					"IS Neighbor:  %s",
                print_system_id( pd + offset + 4, 6 ) );
 			}
@@ -643,7 +643,7 @@ dissect_lsp_partition_dis_clv(const u_char *pd, int offset,
 	 * Gotta build a sub-tree for all our pieces
 	 */
 	if ( tree ) {
-		proto_tree_add_text ( tree, offset+4, 6, 
+		proto_tree_add_text ( tree, NullTVB, offset+4, 6, 
 			"Partition designated L2 IS: %s",
 			print_system_id( pd + offset, 6 ) );
 	}
@@ -718,7 +718,7 @@ dissect_lsp_prefix_neighbors_clv(const u_char *pd, int offset,
 		sbuf =  print_area( pd + offset + 1, mylen );
 		/* and spit it out */
 		if ( tree ) {
-			proto_tree_add_text ( tree, offset, mylen + 1, 
+			proto_tree_add_text ( tree, NullTVB, offset, mylen + 1, 
 				"Area address (%d): %s", mylen, sbuf );
 		}
 		offset += mylen + 1;
@@ -744,7 +744,7 @@ dissect_lsp_prefix_neighbors_clv(const u_char *pd, int offset,
 void
 isis_lsp_decode_lsp_id(char *tstr, proto_tree *tree, int offset, 
 		isis_lsp_id_t *id ) {
-	proto_tree_add_text(tree, offset, 8, 
+	proto_tree_add_text(tree, NullTVB, offset, 8, 
 		"%s: %s.%02x-%02x", tstr,
 			print_system_id( id->source_id, 6 ),
 			id->psuodonode_id,
@@ -790,21 +790,21 @@ isis_dissect_isis_lsp(int lsp_type, int header_length,
 	ilp = (isis_lsp_t *) &pd[offset];
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_isis_lsp,
+		ti = proto_tree_add_item(tree, proto_isis_lsp, NullTVB,
 			offset, END_OF_FRAME, NULL);
 		lsp_tree = proto_item_add_subtree(ti, ett_isis_lsp);
-		proto_tree_add_item(lsp_tree, hf_isis_lsp_pdu_length,
+		proto_tree_add_item(lsp_tree, hf_isis_lsp_pdu_length, NullTVB,
 			offset, 2, pntohs(&ilp->isis_lsp_pdu_length));
-		proto_tree_add_item(lsp_tree, hf_isis_lsp_remaining_life,
+		proto_tree_add_item(lsp_tree, hf_isis_lsp_remaining_life, NullTVB,
 			offset + 2, 2, pntohs(&ilp->isis_lsp_remaining_life));
 		isis_lsp_decode_lsp_id("LSP ID", lsp_tree, offset + 4, 
 			&ilp->isis_lsp_id );
-		proto_tree_add_item(lsp_tree, hf_isis_lsp_sequence_number,
+		proto_tree_add_item(lsp_tree, hf_isis_lsp_sequence_number, NullTVB,
 			offset + 12, 4, 
 			pntohl(&ilp->isis_lsp_sequence_number));
 
 		/* XXX -> we could validate the cksum here! */
-		proto_tree_add_item(lsp_tree, hf_isis_lsp_checksum,
+		proto_tree_add_item(lsp_tree, hf_isis_lsp_checksum, NullTVB,
 			offset + 16, 2, pntohs(&ilp->isis_lsp_checksum));
 
 		/*
@@ -826,7 +826,7 @@ isis_dissect_isis_lsp(int lsp_type, int header_length,
 		if (!some) { 
 			strcat ( sbuf, "<none set!>" );
 		}
-		proto_tree_add_text(lsp_tree, offset + 18, 1, 
+		proto_tree_add_text(lsp_tree, NullTVB, offset + 18, 1, 
 			"Type block(0x%02x): P:%d, Supported metric(s): %s, OL:%d, istype:%s",
 			ilp->isis_lsp_type_block, 
 			ISIS_LSP_PARTITION(ilp->isis_lsp_type_block) ? 1 : 0,

@@ -1,7 +1,7 @@
 /* packet-portmap.c
  * Routines for portmap dissection
  *
- * $Id: packet-portmap.c,v 1.14 2000/04/04 06:46:27 guy Exp $
+ * $Id: packet-portmap.c,v 1.15 2000/05/11 08:15:34 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,17 +74,17 @@ int dissect_getport_call(const u_char *pd, int offset, frame_data *fd,
 	if ( tree )
 	{
 		prog = pntohl(&pd[offset+0]);
-		proto_tree_add_uint_format(tree, hf_portmap_prog,
+		proto_tree_add_uint_format(tree, hf_portmap_prog, NullTVB,
 			offset, 4, prog, "Program: %s (%u)",
 			rpc_prog_name(prog), prog);
-		proto_tree_add_item(tree, hf_portmap_version,
+		proto_tree_add_item(tree, hf_portmap_version, NullTVB,
 			offset+4, 4, pntohl(&pd[offset+4]));
 
 		proto = pntohl(&pd[offset+8]);
-		proto_tree_add_uint_format(tree, hf_portmap_proto,
+		proto_tree_add_uint_format(tree, hf_portmap_proto, NullTVB,
 			offset+8, 4, proto, "Proto: %s (%u)", ipprotostr(proto), proto);
 
-		proto_tree_add_item(tree, hf_portmap_port,
+		proto_tree_add_item(tree, hf_portmap_port, NullTVB,
 			offset+12, 4, pntohl(&pd[offset+12]));
 	}
 	
@@ -97,7 +97,7 @@ int dissect_getport_reply(const u_char *pd, int offset, frame_data *fd,
 	if ( !BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 	if ( tree )
 	{
-		proto_tree_add_item(tree, hf_portmap_port,
+		proto_tree_add_item(tree, hf_portmap_port, NullTVB,
 			offset, 4, pntohl(&pd[offset+0]));
 	}
     return offset+=4;
@@ -114,17 +114,17 @@ int dissect_set_call(const u_char *pd, int offset, frame_data *fd,
 	if ( tree )
 	{
 		prog = pntohl(&pd[offset+0]);
-		proto_tree_add_uint_format(tree, hf_portmap_prog,
+		proto_tree_add_uint_format(tree, hf_portmap_prog, NullTVB,
 			offset, 4, prog, "Program: %s (%d)",
 			rpc_prog_name(prog), prog);
-		proto_tree_add_item(tree, hf_portmap_version,
+		proto_tree_add_item(tree, hf_portmap_version, NullTVB,
 			offset+4, 4, pntohl(&pd[offset+4]));
 
 		proto = pntohl(&pd[offset+8]);
-		proto_tree_add_uint_format(tree, hf_portmap_proto,
+		proto_tree_add_uint_format(tree, hf_portmap_proto, NullTVB,
 			offset+8, 4, proto, "Proto: %s (%d)", ipprotostr(proto), proto);
 
-		proto_tree_add_item(tree, hf_portmap_port,
+		proto_tree_add_item(tree, hf_portmap_port, NullTVB,
 			offset+12, 4, pntohl(&pd[offset+12]));
 	}
 	
@@ -142,17 +142,17 @@ int dissect_unset_call(const u_char *pd, int offset, frame_data *fd,
 	if ( tree )
 	{
 		prog = pntohl(&pd[offset+0]);
-		proto_tree_add_uint_format(tree, hf_portmap_prog,
+		proto_tree_add_uint_format(tree, hf_portmap_prog, NullTVB,
 			offset, 4, prog, "Program: %s (%d)",
 			rpc_prog_name(prog), prog);
-		proto_tree_add_item(tree, hf_portmap_version,
+		proto_tree_add_item(tree, hf_portmap_version, NullTVB,
 			offset+4, 4, pntohl(&pd[offset+4]));
 
 		proto = pntohl(&pd[offset+8]);
-		proto_tree_add_item(tree, hf_portmap_proto,
+		proto_tree_add_item(tree, hf_portmap_proto, NullTVB,
 			offset+8, 4, proto);
 
-		proto_tree_add_item(tree, hf_portmap_port,
+		proto_tree_add_item(tree, hf_portmap_port, NullTVB,
 			offset+12, 4, pntohl(&pd[offset+12]));
 	}
 	
@@ -166,7 +166,7 @@ int dissect_set_reply(const u_char *pd, int offset, frame_data *fd,
 	{
 		if ( !BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 
-		proto_tree_add_item(tree, hf_portmap_answer,
+		proto_tree_add_item(tree, hf_portmap_answer, NullTVB,
 			offset, 4, pntohl(&pd[offset+0]));
 		offset += 4;
 	}
@@ -184,7 +184,7 @@ int dissect_dump_reply(const u_char *pd, int offset, frame_data *fd,
 		value_follows = pntohl(&pd[offset+0]);
 		if ( tree )
 		{
-			proto_tree_add_item(tree, hf_portmap_value_follows,
+			proto_tree_add_item(tree, hf_portmap_value_follows, NullTVB,
 				offset, 4, value_follows);
 		}
 		offset += 4;
@@ -202,19 +202,19 @@ int dissect_dump_reply(const u_char *pd, int offset, frame_data *fd,
 
 			if ( tree )
 			{
-				ti = proto_tree_add_text(tree, offset, 16, "Map Entry: %s (%u) V%d",
+				ti = proto_tree_add_text(tree, NullTVB, offset, 16, "Map Entry: %s (%u) V%d",
 					rpc_prog_name(prog), prog, version);
 				subtree = proto_item_add_subtree(ti, ett_portmap_entry);
 
-				proto_tree_add_uint_format(subtree, hf_portmap_prog,
+				proto_tree_add_uint_format(subtree, hf_portmap_prog, NullTVB,
 					offset+0, 4, prog,
 					"Program: %s (%u)", rpc_prog_name(prog), prog);
-				proto_tree_add_item(subtree, hf_portmap_version,
+				proto_tree_add_item(subtree, hf_portmap_version, NullTVB,
 					offset+4, 4, version);
-				proto_tree_add_uint_format(subtree, hf_portmap_proto,
+				proto_tree_add_uint_format(subtree, hf_portmap_proto, NullTVB,
 					offset+8, 4, proto, 
 					"Protocol: %s (0x%02x)", ipprotostr(proto), proto);
-				proto_tree_add_item(subtree, hf_portmap_port,
+				proto_tree_add_item(subtree, hf_portmap_port, NullTVB,
 					offset+12, 4, port);
 			}
 			offset += 16;
@@ -264,7 +264,7 @@ int dissect_rpcb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	guint32 version;
 
 	if (tree) {
-		rpcb_item = proto_tree_add_item(tree, hfindex,
+		rpcb_item = proto_tree_add_item(tree, hfindex, NullTVB,
 			offset+0, END_OF_FRAME, NULL);
 		if (rpcb_item)
 			rpcb_tree = proto_item_add_subtree(rpcb_item, ett_portmap_rpcb);
@@ -273,7 +273,7 @@ int dissect_rpcb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 	prog = EXTRACT_UINT(pd, offset + 0);
 	if (rpcb_tree)
-		proto_tree_add_uint_format(rpcb_tree, hf_portmap_rpcb_prog,
+		proto_tree_add_uint_format(rpcb_tree, hf_portmap_rpcb_prog, NullTVB,
 			offset+0, 4, prog, 
 			"Program: %s (%u)", rpc_prog_name(prog), prog);
 	offset += 4;
@@ -281,7 +281,7 @@ int dissect_rpcb(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 	version = EXTRACT_UINT(pd, offset + 0);
 	if (rpcb_tree)
-		proto_tree_add_item(rpcb_tree, hf_portmap_rpcb_version,
+		proto_tree_add_item(rpcb_tree, hf_portmap_rpcb_version, NullTVB,
 			offset+0, 4, version);
 	offset += 4;
 
@@ -328,7 +328,7 @@ int dissect_rpcb3_dump_reply(const u_char *pd, int offset, frame_data *fd,
 	while (1) {
 		if (!BYTES_ARE_IN_FRAME(offset,4)) break;
 		value_follows = EXTRACT_UINT(pd, offset+0);
-		proto_tree_add_item(tree,hf_portmap_value_follows,
+		proto_tree_add_item(tree,hf_portmap_value_follows, NullTVB,
 			offset+0, 4, value_follows);
 		offset += 4;
 		if (value_follows == 1) {

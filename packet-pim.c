@@ -2,7 +2,7 @@
  * Routines for PIM disassembly
  * (c) Copyright Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-pim.c,v 1.12 2000/04/20 07:05:56 guy Exp $
+ * $Id: packet-pim.c,v 1.13 2000/05/11 08:15:33 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -218,21 +218,21 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	col_add_fstr(fd, COL_INFO, "%s", typestr); 
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_pim, offset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(tree, proto_pim, NullTVB, offset, END_OF_FRAME, NULL);
 	pim_tree = proto_item_add_subtree(ti, ett_pim);
 
-	proto_tree_add_item(pim_tree, hf_pim_version, offset, 1,
+	proto_tree_add_item(pim_tree, hf_pim_version, NullTVB, offset, 1,
 	    PIM_VER(pim.pim_typever)); 
-	proto_tree_add_uint_format(pim_tree, hf_pim_type, offset, 1,
+	proto_tree_add_uint_format(pim_tree, hf_pim_type, NullTVB, offset, 1,
 	    PIM_TYPE(pim.pim_typever),
 	    "Type: %s (%u)", typestr, PIM_TYPE(pim.pim_typever)); 
 
-	proto_tree_add_item(pim_tree, hf_pim_cksum,
+	proto_tree_add_item(pim_tree, hf_pim_cksum, NullTVB,
 	    offset + offsetof(struct pim, pim_cksum), sizeof(pim.pim_cksum),
 	    ntohs(pim.pim_cksum));
 
 	if (sizeof(struct pim) < END_OF_FRAME) {
-	    tiopt = proto_tree_add_text(pim_tree,
+	    tiopt = proto_tree_add_text(pim_tree, NullTVB,
 		offset + sizeof(struct pim), END_OF_FRAME,
 		"PIM parameters");
 	    pimopt_tree = proto_item_add_subtree(tiopt, ett_pim);
@@ -251,7 +251,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    while ((guint8 *)w < &pd[offset + END_OF_FRAME]) {
 		if (pntohs(&w[0]) == 1 && pntohs(&w[1]) == 2
 		 && (guint8 *)&w[3] <= &pd[offset + END_OF_FRAME]) {
-		    proto_tree_add_text(pimopt_tree, (guint8 *)w - pd, 6,
+		    proto_tree_add_text(pimopt_tree, NullTVB, (guint8 *)w - pd, 6,
 			"Holdtime: %u%s", pntohs(&w[2]),
 			pntohs(&w[2]) == 0xffff ? " (infty)" : "");
 		    w += 3;
@@ -269,13 +269,13 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    int flagoff;
 
 	    flagoff = offset + sizeof(struct pim);
-	    tiflag = proto_tree_add_text(pimopt_tree, flagoff, 4,
+	    tiflag = proto_tree_add_text(pimopt_tree, NullTVB, flagoff, 4,
 		"Flags: 0x%08x", pntohl(&pd[flagoff]));
 	    flag_tree = proto_item_add_subtree(tiflag, ett_pim);
-	    proto_tree_add_text(flag_tree, flagoff, 1, "%s",
+	    proto_tree_add_text(flag_tree, NullTVB, flagoff, 1, "%s",
 		decode_boolean_bitfield(pd[flagoff], 0x80000000, 32,
 		    "Border", "Not border"));
-	    proto_tree_add_text(flag_tree, flagoff, 1, "%s",
+	    proto_tree_add_text(flag_tree, NullTVB, flagoff, 1, "%s",
 		decode_boolean_bitfield(pd[flagoff], 0x40000000, 32,
 		    "Null-Register", "Not Null-Register"));
 
@@ -296,7 +296,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 #endif
 		    break;
 	    default:
-		    proto_tree_add_text(pimopt_tree,
+		    proto_tree_add_text(pimopt_tree, NullTVB,
 			ip - pd, END_OF_FRAME,
 			"Unknown IP version %d", (*ip & 0xf0) >> 4);
 		    break;
@@ -315,12 +315,12 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    s = dissect_pim_addr(&pd[offset], ep, pimv2_group, &advance);
 	    if (s == NULL)
 		break;
-	    proto_tree_add_text(pimopt_tree, offset, advance, "Group: %s", s);
+	    proto_tree_add_text(pimopt_tree, NullTVB, offset, advance, "Group: %s", s);
 	    offset += advance;
 	    s = dissect_pim_addr(&pd[offset], ep, pimv2_unicast, &advance);
 	    if (s == NULL)
 		break;
-	    proto_tree_add_text(pimopt_tree, offset, advance, "Source: %s", s);
+	    proto_tree_add_text(pimopt_tree, NullTVB, offset, advance, "Source: %s", s);
 	    break;
 	  }
 
@@ -345,7 +345,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		s = dissect_pim_addr(&pd[offset], ep, pimv2_unicast, &advance);
 		if (s == NULL)
 		    break;
-		proto_tree_add_text(pimopt_tree, offset, advance,
+		proto_tree_add_text(pimopt_tree, NullTVB, offset, advance,
 		    "Upstream-neighbor: %s", s);
 		offset += advance;
 	    }
@@ -353,7 +353,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    if (&pd[offset + 2] > ep)
 		break;
 	    ngroup = pd[offset + 1];
-	    proto_tree_add_text(pimopt_tree, offset + 1, 1,
+	    proto_tree_add_text(pimopt_tree, NullTVB, offset + 1, 1,
 		"Groups: %u", pd[offset + 1]);
 	    offset += 2;
 
@@ -361,7 +361,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		break;
 	    if (PIM_TYPE(pim.pim_typever) != 7)	{
 		/* not graft-ack */
-		proto_tree_add_text(pimopt_tree, offset, 2,
+		proto_tree_add_text(pimopt_tree, NullTVB, offset, 2,
 		    "Holdtime: %u%s", pntohs(&pd[offset]),
 		    pntohs(&pd[offset]) == 0xffff ? " (infty)" : "");
 	    }
@@ -374,7 +374,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		s = dissect_pim_addr(&pd[offset], ep, pimv2_group, &advance);
 		if (s == NULL)
 		    goto breakbreak3;
-		tigroup = proto_tree_add_text(pimopt_tree, offset, advance,
+		tigroup = proto_tree_add_text(pimopt_tree, NullTVB, offset, advance,
 		    "Group %d: %s", i, s);
 		grouptree = proto_item_add_subtree(tigroup, ett_pim);
 		offset += advance;
@@ -384,7 +384,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		njoin = pntohs(&pd[offset]);
 		nprune = pntohs(&pd[offset + 2]);
 
-		tisub = proto_tree_add_text(grouptree, offset, 2,
+		tisub = proto_tree_add_text(grouptree, NullTVB, offset, 2,
 		    "Join: %d", njoin);
 		subtree = proto_item_add_subtree(tisub, ett_pim);
 		off = offset + 4;
@@ -393,12 +393,12 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			&advance);
 		    if (s == NULL)
 			goto breakbreak3;
-		    proto_tree_add_text(subtree, off, advance,
+		    proto_tree_add_text(subtree, NullTVB, off, advance,
 			"IP address: %s", s);
 		    off += advance;
 		}
 
-		tisub = proto_tree_add_text(grouptree, offset + 2, 2,
+		tisub = proto_tree_add_text(grouptree, NullTVB, offset + 2, 2,
 		    "Prune: %d", nprune);
 		subtree = proto_item_add_subtree(tisub, ett_pim);
 		for (j = 0; j < nprune; j++) {
@@ -406,7 +406,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			&advance);
 		    if (s == NULL)
 			goto breakbreak3;
-		    proto_tree_add_text(subtree, off, advance,
+		    proto_tree_add_text(subtree, NullTVB, off, advance,
 			"IP address: %s", s);
 		    off += advance;
 		}
@@ -428,15 +428,15 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	    if (END_OF_FRAME < 2)
 		break;
-	    proto_tree_add_text(pimopt_tree, offset, 2,
+	    proto_tree_add_text(pimopt_tree, NullTVB, offset, 2,
 		"Fragment tag: 0x%04x", pntohs(&pd[offset]));
 	    offset += 2;
 
 	    if (END_OF_FRAME < 2)
 		break;
-	    proto_tree_add_text(pimopt_tree, offset, 1,
+	    proto_tree_add_text(pimopt_tree, NullTVB, offset, 1,
 		"Hash mask len: %u", pd[offset]);
-	    proto_tree_add_text(pimopt_tree, offset + 1, 1,
+	    proto_tree_add_text(pimopt_tree, NullTVB, offset + 1, 1,
 		"BSR priority: %u", pd[offset + 1]);
 	    offset += 2;
 
@@ -444,7 +444,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		pimv2_unicast, &advance);
 	    if (s == NULL)
 		break;
-	    proto_tree_add_text(pimopt_tree, offset, advance, "BSR: %s", s);
+	    proto_tree_add_text(pimopt_tree, NullTVB, offset, advance, "BSR: %s", s);
 	    offset += advance;
 
 	    for (i = 0; END_OF_FRAME > 0; i++) {
@@ -452,16 +452,16 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		    pimv2_group, &advance);
 		if (s == NULL)
 		    goto breakbreak4;
-		tigroup = proto_tree_add_text(pimopt_tree, offset, advance,
+		tigroup = proto_tree_add_text(pimopt_tree, NullTVB, offset, advance,
 		    "Group %d: %s", i, s);
 		grouptree = proto_item_add_subtree(tigroup, ett_pim);
 		offset += advance;
 
 		if (END_OF_FRAME < 2)
 		    goto breakbreak4;
-		proto_tree_add_text(grouptree, offset, 1,
+		proto_tree_add_text(grouptree, NullTVB, offset, 1,
 		    "RP count: %u", pd[offset]);
-		proto_tree_add_text(grouptree, offset + 1, 1,
+		proto_tree_add_text(grouptree, NullTVB, offset + 1, 1,
 		    "FRP count: %u", pd[offset + 1]);
 		frpcnt = pd[offset + 1];
 		offset += 4;
@@ -471,16 +471,16 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			&pd[offset + END_OF_FRAME], pimv2_unicast, &advance);
 		    if (s == NULL)
 			goto breakbreak4;
-		    proto_tree_add_text(grouptree, offset, advance,
+		    proto_tree_add_text(grouptree, NullTVB, offset, advance,
 			"RP %d: %s", j, s);
 		    offset += advance;
 
 		    if (END_OF_FRAME < 4)
 			goto breakbreak4;
-		    proto_tree_add_text(grouptree, offset, 2,
+		    proto_tree_add_text(grouptree, NullTVB, offset, 2,
 			"Holdtime: %u%s", pntohs(&pd[offset]),
 			pntohs(&pd[offset]) == 0xffff ? " (infty)" : "");
-		    proto_tree_add_text(grouptree, offset + 3, 1,
+		    proto_tree_add_text(grouptree, NullTVB, offset + 3, 1,
 			"Priority: %u", pd[offset + 3]);
 
 		    offset += 4;
@@ -502,28 +502,28 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		pimv2_group, &advance);
 	    if (s == NULL)
 		break;
-	    proto_tree_add_text(pimopt_tree, offset, advance, "Group: %s", s);
+	    proto_tree_add_text(pimopt_tree, NullTVB, offset, advance, "Group: %s", s);
 	    offset += advance;
 
 	    s = dissect_pim_addr(&pd[offset], &pd[offset + END_OF_FRAME],
 		pimv2_unicast, &advance);
 	    if (s == NULL)
 		break;
-	    proto_tree_add_text(pimopt_tree, offset, advance, "Source: %s", s);
+	    proto_tree_add_text(pimopt_tree, NullTVB, offset, advance, "Source: %s", s);
 	    offset += advance;
 
 	    if (END_OF_FRAME < 4)
 		break;
-	    proto_tree_add_text(pimopt_tree, offset, 1, "%s",
+	    proto_tree_add_text(pimopt_tree, NullTVB, offset, 1, "%s",
 		decode_boolean_bitfield(pd[offset], 0x80, 8,
 		    "RP Tree", "Not RP Tree"));
-	    proto_tree_add_text(pimopt_tree, offset, 4, "Preference: %u",
+	    proto_tree_add_text(pimopt_tree, NullTVB, offset, 4, "Preference: %u",
 		pntohl(&pd[offset]) & 0x7fffffff);
 	    offset += 4;
 
 	    if (END_OF_FRAME < 4)
 		break;
-	    proto_tree_add_text(pimopt_tree, offset, 4, "Metric: %u",
+	    proto_tree_add_text(pimopt_tree, NullTVB, offset, 4, "Metric: %u",
 		pntohl(&pd[offset]));
 
 	    break;
@@ -540,11 +540,11 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    if (END_OF_FRAME < 4)
 		break;
 	    pfxcnt = pd[offset];
-	    proto_tree_add_text(pimopt_tree, offset, 1,
+	    proto_tree_add_text(pimopt_tree, NullTVB, offset, 1,
 		"Prefix-count: %u", pd[offset]);
-	    proto_tree_add_text(pimopt_tree, offset + 1, 1,
+	    proto_tree_add_text(pimopt_tree, NullTVB, offset + 1, 1,
 		"Priority: %u", pd[offset + 1]);
-	    proto_tree_add_text(pimopt_tree, offset + 2, 2,
+	    proto_tree_add_text(pimopt_tree, NullTVB, offset + 2, 2,
 		"Holdtime: %u%s", pntohs(&pd[offset + 2]),
 		pntohs(&pd[offset + 2]) == 0xffff ? " (infty)" : "");
 	    offset += 4;
@@ -555,7 +555,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		pimv2_unicast, &advance);
 	    if (s == NULL)
 		break;
-	    proto_tree_add_text(pimopt_tree, offset, advance, "RP: %s", s);
+	    proto_tree_add_text(pimopt_tree, NullTVB, offset, advance, "RP: %s", s);
 	    offset += advance;
 
 	    for (i = 0; i < pfxcnt && END_OF_FRAME > 0; i++) {
@@ -563,7 +563,7 @@ dissect_pim(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		    pimv2_group, &advance);
 		if (s == NULL)
 		    goto breakbreak8;
-		proto_tree_add_text(pimopt_tree, offset, advance,
+		proto_tree_add_text(pimopt_tree, NullTVB, offset, advance,
 		    "Group %d: %s", i, s);
 		offset += advance;
 	    }

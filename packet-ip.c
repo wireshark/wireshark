@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.84 2000/05/10 21:36:55 gerald Exp $
+ * $Id: packet-ip.c,v 1.85 2000/05/11 08:15:11 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -410,28 +410,28 @@ dissect_ipopt_security(const ip_tcp_opt *optp, const u_char *opd, int offset,
     {IPSEC_RESERVED8,    "Reserved"    },
     {0,                  NULL          } };
 
-  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s:", optp->name);
+  tf = proto_tree_add_text(opt_tree, NullTVB, offset,      optlen, "%s:", optp->name);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
   offset += 2;
 
   val = pntohs(opd);
-  proto_tree_add_text(field_tree, offset,       2,
+  proto_tree_add_text(field_tree, NullTVB, offset,       2,
               "Security: %s", val_to_str(val, secl_vals, "Unknown (0x%x)"));
   offset += 2;
   opd += 2;
 
   val = pntohs(opd);
-  proto_tree_add_text(field_tree, offset,         2,
+  proto_tree_add_text(field_tree, NullTVB, offset,         2,
               "Compartments: %u", val);
   offset += 2;
   opd += 2;
 
-  proto_tree_add_text(field_tree, offset,         2,
+  proto_tree_add_text(field_tree, NullTVB, offset,         2,
               "Handling restrictions: %c%c", opd[0], opd[1]);
   offset += 2;
   opd += 2;
 
-  proto_tree_add_text(field_tree, offset,         3,
+  proto_tree_add_text(field_tree, NullTVB, offset,         3,
               "Transmission control code: %c%c%c", opd[0], opd[1], opd[2]);
 }
 
@@ -445,7 +445,7 @@ dissect_ipopt_route(const ip_tcp_opt *optp, const u_char *opd, int offset,
   int optoffset = 0;
   struct in_addr addr;
 
-  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s (%u bytes)",
+  tf = proto_tree_add_text(opt_tree, NullTVB, offset,      optlen, "%s (%u bytes)",
 				optp->name, optlen);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
 
@@ -453,7 +453,7 @@ dissect_ipopt_route(const ip_tcp_opt *optp, const u_char *opd, int offset,
   optlen -= 2;		/* subtract size of type and length */
 
   ptr = *opd;
-  proto_tree_add_text(field_tree, offset + optoffset, 1,
+  proto_tree_add_text(field_tree, NullTVB, offset + optoffset, 1,
               "Pointer: %d%s", ptr,
               ((ptr < 4) ? " (points before first address)" :
                ((ptr & 3) ? " (points to middle of address)" : "")));
@@ -464,7 +464,7 @@ dissect_ipopt_route(const ip_tcp_opt *optp, const u_char *opd, int offset,
 
   while (optlen > 0) {
     if (optlen < 4) {
-      proto_tree_add_text(field_tree, offset,      optlen,
+      proto_tree_add_text(field_tree, NullTVB, offset,      optlen,
         "(suboption would go past end of option)");
       break;
     }
@@ -472,7 +472,7 @@ dissect_ipopt_route(const ip_tcp_opt *optp, const u_char *opd, int offset,
     /* Avoids alignment problems on many architectures. */
     memcpy((char *)&addr, (char *)opd, sizeof(addr));
 
-    proto_tree_add_text(field_tree, offset + optoffset, 4,
+    proto_tree_add_text(field_tree, NullTVB, offset + optoffset, 4,
               "%s%s",
               ((addr.s_addr == 0) ? "-" : (char *)get_hostname(addr.s_addr)),
               ((optoffset == ptr) ? " <- (current)" : ""));
@@ -486,7 +486,7 @@ static void
 dissect_ipopt_sid(const ip_tcp_opt *optp, const u_char *opd, int offset,
 			guint optlen, proto_tree *opt_tree)
 {
-  proto_tree_add_text(opt_tree, offset,      optlen,
+  proto_tree_add_text(opt_tree, NullTVB, offset,      optlen,
     "%s: %d", optp->name, pntohs(opd));
   return;
 }
@@ -508,14 +508,14 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, const u_char *opd,
   struct in_addr addr;
   guint ts;
 
-  tf = proto_tree_add_text(opt_tree, offset,      optlen, "%s:", optp->name);
+  tf = proto_tree_add_text(opt_tree, NullTVB, offset,      optlen, "%s:", optp->name);
   field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
 
   optoffset += 2;	/* skip past type and length */
   optlen -= 2;		/* subtract size of type and length */
 
   ptr = *opd;
-  proto_tree_add_text(field_tree, offset + optoffset, 1,
+  proto_tree_add_text(field_tree, NullTVB, offset + optoffset, 1,
               "Pointer: %d%s", ptr,
               ((ptr < 5) ? " (points before first address)" :
                (((ptr - 1) & 3) ? " (points to middle of address)" : "")));
@@ -525,10 +525,10 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, const u_char *opd,
   ptr--;	/* ptr is 1-origin */
 
   flg = *opd;
-  proto_tree_add_text(field_tree, offset + optoffset,   1,
+  proto_tree_add_text(field_tree, NullTVB, offset + optoffset,   1,
         "Overflow: %d", flg >> 4);
   flg &= 0xF;
-  proto_tree_add_text(field_tree, offset + optoffset, 1,
+  proto_tree_add_text(field_tree, NullTVB, offset + optoffset, 1,
         "Flag: %s", val_to_str(flg, flag_vals, "Unknown (0x%x)"));
   optoffset++;
   opd++;
@@ -538,7 +538,7 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, const u_char *opd,
     if (flg == IPOPT_TS_TSANDADDR) {
       /* XXX - check whether it goes past end of packet */
       if (optlen < 8) {
-        proto_tree_add_text(field_tree, offset + optoffset, optlen,
+        proto_tree_add_text(field_tree, NullTVB, offset + optoffset, optlen,
           "(suboption would go past end of option)");
         break;
       }
@@ -547,14 +547,14 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, const u_char *opd,
       ts = pntohl(opd);
       opd += 4;
       optlen -= 8;
-      proto_tree_add_text(field_tree, offset + optoffset,      8,
+      proto_tree_add_text(field_tree, NullTVB, offset + optoffset,      8,
           "Address = %s, time stamp = %u",
           ((addr.s_addr == 0) ? "-" :  (char *)get_hostname(addr.s_addr)),
           ts);
       optoffset += 8;
     } else {
       if (optlen < 4) {
-        proto_tree_add_text(field_tree, offset + optoffset, optlen,
+        proto_tree_add_text(field_tree, NullTVB, offset + optoffset, optlen,
           "(suboption would go past end of option)");
         break;
       }
@@ -562,7 +562,7 @@ dissect_ipopt_timestamp(const ip_tcp_opt *optp, const u_char *opd,
       ts = pntohl(opd);
       opd += 4;
       optlen -= 4;
-      proto_tree_add_text(field_tree, offset + optoffset, 4,
+      proto_tree_add_text(field_tree, NullTVB, offset + optoffset, 4,
           "Time stamp = %u", ts);
       optoffset += 4;
     }
@@ -683,7 +683,7 @@ dissect_ip_tcp_options(const u_char *opd, int offset, guint length,
       if (length == 0) {
         /* Bogus - packet must at least include option code byte and
            length byte! */
-        proto_tree_add_text(opt_tree, offset,      1,
+        proto_tree_add_text(opt_tree, NullTVB, offset,      1,
               "%s (length byte past end of options)", name);
         return;
       }
@@ -692,33 +692,33 @@ dissect_ip_tcp_options(const u_char *opd, int offset, guint length,
       if (len < 2) {
         /* Bogus - option length is too short to include option code and
            option length. */
-        proto_tree_add_text(opt_tree, offset,      2,
+        proto_tree_add_text(opt_tree, NullTVB, offset,      2,
               "%s (with too-short option length = %u byte%s)", name,
               len, plurality(len, "", "s"));
         return;
       } else if (len - 2 > length) {
         /* Bogus - option goes past the end of the header. */
-        proto_tree_add_text(opt_tree, offset,      length,
+        proto_tree_add_text(opt_tree, NullTVB, offset,      length,
               "%s (option length = %u byte%s says option goes past end of options)",
 	      name, len, plurality(len, "", "s"));
         return;
       } else if (len_type == FIXED_LENGTH && len != optlen) {
         /* Bogus - option length isn't what it's supposed to be for this
            option. */
-        proto_tree_add_text(opt_tree, offset,      len,
+        proto_tree_add_text(opt_tree, NullTVB, offset,      len,
               "%s (with option length = %u byte%s; should be %u)", name,
               len, plurality(len, "", "s"), optlen);
         return;
       } else if (len_type == VARIABLE_LENGTH && len < optlen) {
         /* Bogus - option length is less than what it's supposed to be for
            this option. */
-        proto_tree_add_text(opt_tree, offset,      len,
+        proto_tree_add_text(opt_tree, NullTVB, offset,      len,
               "%s (with option length = %u byte%s; should be >= %u)", name,
               len, plurality(len, "", "s"), optlen);
         return;
       } else {
         if (optp == NULL) {
-          proto_tree_add_text(opt_tree, offset,    len, "%s (%u byte%s)",
+          proto_tree_add_text(opt_tree, NullTVB, offset,    len, "%s (%u byte%s)",
 				name, len, plurality(len, "", "s"));
         } else {
           if (dissect != NULL) {
@@ -726,7 +726,7 @@ dissect_ip_tcp_options(const u_char *opd, int offset, guint length,
             (*dissect)(optp, opd, offset,          len, opt_tree);
           } else {
             /* Option has no data, hence no dissector. */
-            proto_tree_add_text(opt_tree, offset,  len, "%s", name);
+            proto_tree_add_text(opt_tree, NullTVB, offset,  len, "%s", name);
           }
         }
         len -= 2;	/* subtract size of type and length */
@@ -735,7 +735,7 @@ dissect_ip_tcp_options(const u_char *opd, int offset, guint length,
       opd += len;
       length -= len;
     } else {
-      proto_tree_add_text(opt_tree, offset,      1, "%s", name);
+      proto_tree_add_text(opt_tree, NullTVB, offset,      1, "%s", name);
       offset += 1;
     }
     if (opt == eol)
@@ -889,61 +889,61 @@ dissect_ip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         break;
     }
 
-    ti = proto_tree_add_item(tree, proto_ip, offset, hlen, NULL);
+    ti = proto_tree_add_item(tree, proto_ip, NullTVB, offset, hlen, NULL);
     ip_tree = proto_item_add_subtree(ti, ett_ip);
 
-    proto_tree_add_item(ip_tree, hf_ip_version, offset, 1, hi_nibble(iph.ip_v_hl));
-    proto_tree_add_uint_format(ip_tree, hf_ip_hdr_len, offset, 1, hlen,
+    proto_tree_add_item(ip_tree, hf_ip_version, NullTVB, offset, 1, hi_nibble(iph.ip_v_hl));
+    proto_tree_add_uint_format(ip_tree, hf_ip_hdr_len, NullTVB, offset, 1, hlen,
 	"Header length: %u bytes", hlen);
 
     if (g_ip_dscp_actif) {
-      tf = proto_tree_add_uint_format(ip_tree, hf_ip_dsfield, offset + 1, 1, iph.ip_tos,
+      tf = proto_tree_add_uint_format(ip_tree, hf_ip_dsfield, NullTVB, offset + 1, 1, iph.ip_tos,
 	   "Differentiated Services Field: 0x%02x (DSCP 0x%02x: %s)", iph.ip_tos,
 	   IPDSFIELD_DSCP(iph.ip_tos), val_to_str(IPDSFIELD_DSCP(iph.ip_tos), dscp_vals,
 	   "Unknown DSCP"));
 
       field_tree = proto_item_add_subtree(tf, ett_ip_dsfield);
-      proto_tree_add_item(field_tree, hf_ip_dsfield_dscp, offset + 1, 1, iph.ip_tos);
-      proto_tree_add_item(field_tree, hf_ip_dsfield_cu, offset + 1, 1, iph.ip_tos);
+      proto_tree_add_item(field_tree, hf_ip_dsfield_dscp, NullTVB, offset + 1, 1, iph.ip_tos);
+      proto_tree_add_item(field_tree, hf_ip_dsfield_cu, NullTVB, offset + 1, 1, iph.ip_tos);
     } else {
-      tf = proto_tree_add_uint_format(ip_tree, hf_ip_tos, offset + 1, 1, iph.ip_tos,
+      tf = proto_tree_add_uint_format(ip_tree, hf_ip_tos, NullTVB, offset + 1, 1, iph.ip_tos,
 	  "Type of service: 0x%02x (%s)", iph.ip_tos,
 	  val_to_str( IPTOS_TOS(iph.ip_tos), iptos_vals, "Unknown") );
 
       field_tree = proto_item_add_subtree(tf, ett_ip_tos);
-      proto_tree_add_item(field_tree, hf_ip_tos_precedence, offset + 1, 1, iph.ip_tos);
-      proto_tree_add_item(field_tree, hf_ip_tos_delay, offset + 1, 1, iph.ip_tos);
-      proto_tree_add_item(field_tree, hf_ip_tos_throughput, offset + 1, 1, iph.ip_tos);
-      proto_tree_add_item(field_tree, hf_ip_tos_reliability, offset + 1, 1, iph.ip_tos);
-      proto_tree_add_item(field_tree, hf_ip_tos_cost, offset + 1, 1, iph.ip_tos);
+      proto_tree_add_item(field_tree, hf_ip_tos_precedence, NullTVB, offset + 1, 1, iph.ip_tos);
+      proto_tree_add_item(field_tree, hf_ip_tos_delay, NullTVB, offset + 1, 1, iph.ip_tos);
+      proto_tree_add_item(field_tree, hf_ip_tos_throughput, NullTVB, offset + 1, 1, iph.ip_tos);
+      proto_tree_add_item(field_tree, hf_ip_tos_reliability, NullTVB, offset + 1, 1, iph.ip_tos);
+      proto_tree_add_item(field_tree, hf_ip_tos_cost, NullTVB, offset + 1, 1, iph.ip_tos);
     }
-    proto_tree_add_item(ip_tree, hf_ip_len, offset +  2, 2, iph.ip_len);
-    proto_tree_add_item(ip_tree, hf_ip_id, offset +  4, 2, iph.ip_id);
+    proto_tree_add_item(ip_tree, hf_ip_len, NullTVB, offset +  2, 2, iph.ip_len);
+    proto_tree_add_item(ip_tree, hf_ip_id, NullTVB, offset +  4, 2, iph.ip_id);
 
     flags = (iph.ip_off & (IP_DF|IP_MF)) >> 12;
-    tf = proto_tree_add_item(ip_tree, hf_ip_flags, offset +  6, 1, flags);
+    tf = proto_tree_add_item(ip_tree, hf_ip_flags, NullTVB, offset +  6, 1, flags);
     field_tree = proto_item_add_subtree(tf, ett_ip_off);
-    proto_tree_add_item(field_tree, hf_ip_flags_df, offset + 6, 1, flags),
-    proto_tree_add_item(field_tree, hf_ip_flags_mf, offset + 6, 1, flags),
+    proto_tree_add_item(field_tree, hf_ip_flags_df, NullTVB, offset + 6, 1, flags),
+    proto_tree_add_item(field_tree, hf_ip_flags_mf, NullTVB, offset + 6, 1, flags),
 
-    proto_tree_add_item(ip_tree, hf_ip_frag_offset, offset +  6, 2,
+    proto_tree_add_item(ip_tree, hf_ip_frag_offset, NullTVB, offset +  6, 2,
       iph.ip_off & IP_OFFSET);
-    proto_tree_add_item(ip_tree, hf_ip_ttl, offset +  8, 1, iph.ip_ttl);
-    proto_tree_add_uint_format(ip_tree, hf_ip_proto, offset +  9, 1, iph.ip_p,
+    proto_tree_add_item(ip_tree, hf_ip_ttl, NullTVB, offset +  8, 1, iph.ip_ttl);
+    proto_tree_add_uint_format(ip_tree, hf_ip_proto, NullTVB, offset +  9, 1, iph.ip_p,
 	"Protocol: %s (0x%02x)", ipprotostr(iph.ip_p), iph.ip_p);
-    proto_tree_add_uint_format(ip_tree, hf_ip_checksum, offset + 10, 2, iph.ip_sum,
+    proto_tree_add_uint_format(ip_tree, hf_ip_checksum, NullTVB, offset + 10, 2, iph.ip_sum,
         "Header checksum: 0x%04x (%s)", iph.ip_sum, ip_checksum_state((e_ip*) &pd[offset]));
-    proto_tree_add_item(ip_tree, hf_ip_src, offset + 12, 4, iph.ip_src);
-    proto_tree_add_item(ip_tree, hf_ip_dst, offset + 16, 4, iph.ip_dst);
-    proto_tree_add_item_hidden(ip_tree, hf_ip_addr, offset + 12, 4, iph.ip_src);
-    proto_tree_add_item_hidden(ip_tree, hf_ip_addr, offset + 16, 4, iph.ip_dst);
+    proto_tree_add_item(ip_tree, hf_ip_src, NullTVB, offset + 12, 4, iph.ip_src);
+    proto_tree_add_item(ip_tree, hf_ip_dst, NullTVB, offset + 16, 4, iph.ip_dst);
+    proto_tree_add_item_hidden(ip_tree, hf_ip_addr, NullTVB, offset + 12, 4, iph.ip_src);
+    proto_tree_add_item_hidden(ip_tree, hf_ip_addr, NullTVB, offset + 16, 4, iph.ip_dst);
 
     /* Decode IP options, if any. */
     if (hlen > sizeof (e_ip)) {
       /* There's more than just the fixed-length header.  Decode the
          options. */
       optlen = hlen - sizeof (e_ip);	/* length of options, in bytes */
-      tf = proto_tree_add_text(ip_tree, offset +  20, optlen,
+      tf = proto_tree_add_text(ip_tree, NullTVB, offset +  20, optlen,
         "Options: (%u bytes)", optlen);
       field_tree = proto_item_add_subtree(tf, ett_ip_options);
       dissect_ip_tcp_options(&pd[offset + 20], offset + 20, optlen,
@@ -1121,17 +1121,17 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     col_add_str(fd, COL_INFO, type_str);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_icmp, offset, 4, NULL);
+    ti = proto_tree_add_item(tree, proto_icmp, NullTVB, offset, 4, NULL);
     icmp_tree = proto_item_add_subtree(ti, ett_icmp);
-    proto_tree_add_uint_format(icmp_tree, hf_icmp_type, offset,      1, 
+    proto_tree_add_uint_format(icmp_tree, hf_icmp_type, NullTVB, offset,      1, 
 			       ih.icmp_type,
 			       "Type: %u (%s)",
 			       ih.icmp_type, type_str);
-    proto_tree_add_uint_format(icmp_tree, hf_icmp_code,	offset +  1, 1, 
+    proto_tree_add_uint_format(icmp_tree, hf_icmp_code, NullTVB,	offset +  1, 1, 
 			       ih.icmp_code,
 			       "Code: %u %s",
 			       ih.icmp_code, code_str);
-    proto_tree_add_item(icmp_tree, hf_icmp_checksum, offset +  2, 2, 
+    proto_tree_add_item(icmp_tree, hf_icmp_checksum, NullTVB, offset +  2, 2, 
 			cksum);
 
     /* Decode the second 4 bytes of the packet. */
@@ -1144,16 +1144,16 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       case ICMP_IREQREPLY:
       case ICMP_MASKREQ:
       case ICMP_MASKREPLY:
-	proto_tree_add_text(icmp_tree, offset +  4, 2, "Identifier: 0x%04x",
+	proto_tree_add_text(icmp_tree, NullTVB, offset +  4, 2, "Identifier: 0x%04x",
 	  pntohs(&pd[offset +  4]));
-	proto_tree_add_text(icmp_tree, offset +  6, 2, "Sequence number: %u",
+	proto_tree_add_text(icmp_tree, NullTVB, offset +  6, 2, "Sequence number: %u",
 	  pntohs(&pd[offset +  6]));
 	break;
 
        case ICMP_UNREACH:
          switch (ih.icmp_code) {
            case ICMP_FRAG_NEEDED:
-                 proto_tree_add_text(icmp_tree, offset +  6, 2, "MTU of next hop: %u",
+                 proto_tree_add_text(icmp_tree, NullTVB, offset +  6, 2, "MTU of next hop: %u",
                    pntohs(&pd[offset + 6]));
                  break;
            }
@@ -1161,22 +1161,22 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
       case ICMP_RTRADVERT:
         num_addrs = pd[offset + 4];
-	proto_tree_add_text(icmp_tree, offset +  4, 1, "Number of addresses: %u",
+	proto_tree_add_text(icmp_tree, NullTVB, offset +  4, 1, "Number of addresses: %u",
 	  num_addrs);
 	addr_entry_size = pd[offset + 5];
-	proto_tree_add_text(icmp_tree, offset +  5, 1, "Address entry size: %u",
+	proto_tree_add_text(icmp_tree, NullTVB, offset +  5, 1, "Address entry size: %u",
 	  addr_entry_size);
-	proto_tree_add_text(icmp_tree, offset +  6, 2, "Lifetime: %s",
+	proto_tree_add_text(icmp_tree, NullTVB, offset +  6, 2, "Lifetime: %s",
 	  time_secs_to_str(pntohs(&pd[offset +  6])));
 	break;
 
       case ICMP_PARAMPROB:
-	proto_tree_add_text(icmp_tree, offset +  4, 1, "Pointer: %u",
+	proto_tree_add_text(icmp_tree, NullTVB, offset +  4, 1, "Pointer: %u",
 	  pd[offset +  4]);
 	break;
 
       case ICMP_REDIRECT:
-	proto_tree_add_text(icmp_tree, offset +  4, 4, "Gateway address: %s",
+	proto_tree_add_text(icmp_tree, NullTVB, offset +  4, 4, "Gateway address: %s",
 	  ip_to_str((guint8 *)&pd[offset +  4]));
 	break;
     }
@@ -1204,10 +1204,10 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
       case ICMP_RTRADVERT:
         if (addr_entry_size == 2) {
 	  for (i = 0; i < num_addrs; i++) {
-	    proto_tree_add_text(icmp_tree, offset + 8 + (i*8), 4,
+	    proto_tree_add_text(icmp_tree, NullTVB, offset + 8 + (i*8), 4,
 	      "Router address: %s",
 	      ip_to_str((guint8 *)&pd[offset +  8 + (i*8)]));
-	    proto_tree_add_text(icmp_tree, offset + 12 + (i*8), 4,
+	    proto_tree_add_text(icmp_tree, NullTVB, offset + 12 + (i*8), 4,
 	      "Preference level: %u", pntohl(&pd[offset + 12 + (i*8)]));
 	  }
 	} else
@@ -1216,17 +1216,17 @@ dissect_icmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
       case ICMP_TSTAMP:
       case ICMP_TSTAMPREPLY:
-	proto_tree_add_text(icmp_tree, offset +  8, 4, "Originate timestamp: %u",
+	proto_tree_add_text(icmp_tree, NullTVB, offset +  8, 4, "Originate timestamp: %u",
 	  pntohl(&pd[offset +  8]));
-	proto_tree_add_text(icmp_tree, offset + 12, 4, "Receive timestamp: %u",
+	proto_tree_add_text(icmp_tree, NullTVB, offset + 12, 4, "Receive timestamp: %u",
 	  pntohl(&pd[offset + 12]));
-	proto_tree_add_text(icmp_tree, offset + 16, 4, "Transmit timestamp: %u",
+	proto_tree_add_text(icmp_tree, NullTVB, offset + 16, 4, "Transmit timestamp: %u",
 	  pntohl(&pd[offset + 16]));
 	break;
 
     case ICMP_MASKREQ:
     case ICMP_MASKREPLY:
-	proto_tree_add_text(icmp_tree, offset +  8, 4, "Address mask: %s (0x%8x)",
+	proto_tree_add_text(icmp_tree, NullTVB, offset +  8, 4, "Address mask: %s (0x%8x)",
 	  ip_to_str((guint8 *)&pd[offset +  8]), pntohl(&pd[offset +  8]));
 	break;
     }
@@ -1280,21 +1280,21 @@ dissect_igmp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   if (check_col(fd, COL_INFO))
     col_add_str(fd, COL_INFO, type_str);
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_igmp, offset, 8, NULL);
+    ti = proto_tree_add_item(tree, proto_igmp, NullTVB, offset, 8, NULL);
     igmp_tree = proto_item_add_subtree(ti, ett_igmp);
-    proto_tree_add_item(igmp_tree, hf_igmp_version, offset,     1, 
+    proto_tree_add_item(igmp_tree, hf_igmp_version, NullTVB, offset,     1, 
 			hi_nibble(ih.igmp_v_t));
-    proto_tree_add_uint_format(igmp_tree, hf_igmp_type,  offset    , 1, 
+    proto_tree_add_uint_format(igmp_tree, hf_igmp_type, NullTVB,  offset    , 1, 
 			       lo_nibble(ih.igmp_v_t),
 			       "Type: %u (%s)",
 			       lo_nibble(ih.igmp_v_t), type_str);
-    proto_tree_add_uint_format(igmp_tree, hf_igmp_unused, offset + 1, 1,
+    proto_tree_add_uint_format(igmp_tree, hf_igmp_unused, NullTVB, offset + 1, 1,
 			       ih.igmp_unused,
 			       "Unused: 0x%02x",
 			       ih.igmp_unused);
-    proto_tree_add_item(igmp_tree, hf_igmp_checksum, offset + 2, 2, 
+    proto_tree_add_item(igmp_tree, hf_igmp_checksum, NullTVB, offset + 2, 2, 
 			cksum);
-    proto_tree_add_item(igmp_tree, hf_igmp_group, offset + 4, 4, 
+    proto_tree_add_item(igmp_tree, hf_igmp_group, NullTVB, offset + 4, 4, 
 			ih.igmp_gaddr);
   }
 }
@@ -1537,17 +1537,17 @@ dissect_eigrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	val_to_str( ih.eigrp_opcode, eigrp_opcode_vals, "Unknown (0x%04x)"));
   if (tree) {
 
-     ti = proto_tree_add_item(tree, proto_eigrp, offset, END_OF_FRAME, NULL);
+     ti = proto_tree_add_item(tree, proto_eigrp, NullTVB, offset, END_OF_FRAME, NULL);
      eigrp_tree = proto_item_add_subtree(ti, ett_eigrp);
   
-     proto_tree_add_text(eigrp_tree, offset, 1, "Version: %u", ih.eigrp_version); 
-     proto_tree_add_text(eigrp_tree, offset + 1, 1, "Opcode: %u (%s)", ih.eigrp_opcode,
+     proto_tree_add_text(eigrp_tree, NullTVB, offset, 1, "Version: %u", ih.eigrp_version); 
+     proto_tree_add_text(eigrp_tree, NullTVB, offset + 1, 1, "Opcode: %u (%s)", ih.eigrp_opcode,
          val_to_str( ih.eigrp_opcode, eigrp_opcode_vals, "Unknown") );
-     proto_tree_add_text(eigrp_tree, offset + 2, 2, "Checksum: 0x%x", cksum); 
-     proto_tree_add_text(eigrp_tree, offset + 4, 2, "Subnets in local net: %u", ih.eigrp_subnets); 
-     proto_tree_add_text(eigrp_tree, offset + 6, 2, "Networks in Autonomous System: %d", ih.eigrp_networks); 
-     proto_tree_add_text(eigrp_tree, offset + 8, 4, "Sequence Number: 0x%x", ih.eigrp_sequence); 
-     proto_tree_add_text(eigrp_tree, offset + 12, 4, "Autonomous System number: %u", ih.eigrp_asnumber); 
+     proto_tree_add_text(eigrp_tree, NullTVB, offset + 2, 2, "Checksum: 0x%x", cksum); 
+     proto_tree_add_text(eigrp_tree, NullTVB, offset + 4, 2, "Subnets in local net: %u", ih.eigrp_subnets); 
+     proto_tree_add_text(eigrp_tree, NullTVB, offset + 6, 2, "Networks in Autonomous System: %d", ih.eigrp_networks); 
+     proto_tree_add_text(eigrp_tree, NullTVB, offset + 8, 4, "Sequence Number: 0x%x", ih.eigrp_sequence); 
+     proto_tree_add_text(eigrp_tree, NullTVB, offset + 12, 4, "Autonomous System number: %u", ih.eigrp_asnumber); 
    }
 }
 

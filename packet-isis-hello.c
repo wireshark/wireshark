@@ -1,7 +1,7 @@
 /* packet-isis-hello.c
  * Routines for decoding isis hello packets and their CLVs
  *
- * $Id: packet-isis-hello.c,v 1.6 2000/04/15 22:11:09 guy Exp $
+ * $Id: packet-isis-hello.c,v 1.7 2000/05/11 08:15:16 gram Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -360,7 +360,7 @@ dissect_hello_is_neighbors_clv(const u_char *pd, int offset,
 		 * format string.  
 		 */
 		if ( tree ) {
-			proto_tree_add_text ( tree, offset, 6, 
+			proto_tree_add_text ( tree, NullTVB, offset, 6, 
 				"IS Neighbor: %s", print_system_id( pd + offset, 6 ) ); 
 		}
 		offset += 6;
@@ -436,12 +436,12 @@ isis_dissect_isis_hello(int hello_type, int header_length,
 	ihp = (isis_hello_t *) &pd[offset];	
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_isis_hello,
+		ti = proto_tree_add_item(tree, proto_isis_hello, NullTVB,
 			offset, END_OF_FRAME, NULL);
 		hello_tree = proto_item_add_subtree(ti, ett_isis_hello);
 		proto_tree_add_uint_format(hello_tree, 
 			hf_isis_hello_circuit_reserved,
-			offset, 1, ihp->isis_hello_circuit_reserved,
+			NullTVB, offset, 1, ihp->isis_hello_circuit_reserved,
 			"Circuit type              : %s, reserved(0x%02x == 0)",
 				val_to_str(ihp->isis_hello_circuit, 
 					isis_hello_circuit_type_vals,
@@ -449,23 +449,23 @@ isis_dissect_isis_hello(int hello_type, int header_length,
 				ihp->isis_hello_creserved
 			);
 
-		proto_tree_add_string_format(hello_tree, hf_isis_hello_lan_id,
+		proto_tree_add_string_format(hello_tree, hf_isis_hello_lan_id, NullTVB,
 			            offset + 1, 6, ihp->isis_hello_source_id,
 			            "SystemID{ Sender of PDU } : %s", 
                      print_system_id( pd + offset + 1, 6 ) );
-		proto_tree_add_item(hello_tree, hf_isis_hello_holding_timer,
+		proto_tree_add_item(hello_tree, hf_isis_hello_holding_timer, NullTVB,
 			            offset + 7, 2,pntohs(&ihp->isis_hello_holding_timer[0]));
-		proto_tree_add_item(hello_tree, hf_isis_hello_pdu_length,
+		proto_tree_add_item(hello_tree, hf_isis_hello_pdu_length, NullTVB,
 			            offset + 9, 2,pntohs(&ihp->isis_hello_pdu_length[0]));
-		proto_tree_add_uint_format(hello_tree, hf_isis_hello_priority_reserved,
+		proto_tree_add_uint_format(hello_tree, hf_isis_hello_priority_reserved, NullTVB,
 			            offset + 11, 1, ihp->isis_hello_priority_reserved,
 			            "Priority                  : %d, reserved(0x%02x == 0)",
 				         ihp->isis_hello_priority, ihp->isis_hello_preserved );
 		if (hello_type == ISIS_TYPE_PTP_HELLO) {
-			proto_tree_add_item(hello_tree, hf_isis_hello_local_circuit_id,
+			proto_tree_add_item(hello_tree, hf_isis_hello_local_circuit_id, NullTVB,
 				         offset + 12, 1, ihp->isis_hello_lan_id[0] );
 		} else { 
-			proto_tree_add_string_format(hello_tree, hf_isis_hello_lan_id, 
+			proto_tree_add_string_format(hello_tree, hf_isis_hello_lan_id, NullTVB, 
                      offset + 12, 7, ihp->isis_hello_lan_id,
 				         "SystemID{ Designated IS } : %s",
 					      print_system_id( pd + offset + 12, 7 ) );

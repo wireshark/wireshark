@@ -1,7 +1,7 @@
 /* proto.c
  * Routines for protocol tree
  *
- * $Id: proto.c,v 1.63 2000/04/25 21:43:49 gram Exp $
+ * $Id: proto.c,v 1.64 2000/05/11 08:15:59 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,13 +90,13 @@ static gboolean check_for_protocol_or_field_id(GNode *node, gpointer data);
 static gboolean check_for_field_within_protocol(GNode *node, gpointer data);
 
 static field_info*
-proto_tree_add_field_info(int hfindex, gint start, gint length, int visible);
+proto_tree_add_field_info(int hfindex, tvbuff_t *tvb, gint start, gint length, int visible);
 
 static proto_item*
 proto_tree_add_node(proto_tree *tree, field_info *fi);
 
 static proto_item *
-proto_tree_add_pi(proto_tree *tree, int hfindex, gint start, gint length,
+proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		const char *format, gboolean visible, field_info **pfi, va_list ap);
 
 static void
@@ -265,7 +265,7 @@ proto_registrar_get_nth(int hfindex)
 
 /* Add a node with no text */
 proto_item *
-proto_tree_add_notext(proto_tree *tree, gint start, gint length)
+proto_tree_add_notext(proto_tree *tree, tvbuff_t *tvb, gint start, gint length)
 {
 	field_info	*fi;
 	proto_item	*pi;
@@ -273,7 +273,7 @@ proto_tree_add_notext(proto_tree *tree, gint start, gint length)
 	if (!tree)
 		return(NULL);
 
-	fi = proto_tree_add_field_info(hf_text_only, start, length,
+	fi = proto_tree_add_field_info(hf_text_only, tvb, start, length,
 	    proto_tree_is_visible);
 	pi = proto_tree_add_node(tree, fi);
 	fi->representation = NULL;
@@ -283,7 +283,7 @@ proto_tree_add_notext(proto_tree *tree, gint start, gint length)
 
 /* Add a text-only node to the proto_tree */
 proto_item *
-proto_tree_add_text(proto_tree *tree, gint start, gint length,
+proto_tree_add_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length,
 	const char *format, ...)
 {
 	field_info	*fi;
@@ -293,7 +293,7 @@ proto_tree_add_text(proto_tree *tree, gint start, gint length,
 	if (!tree)
 		return(NULL);
 
-	fi = proto_tree_add_field_info(hf_text_only, start, length,
+	fi = proto_tree_add_field_info(hf_text_only, tvb, start, length,
 	    proto_tree_is_visible);
 	pi = proto_tree_add_node(tree, fi);
 
@@ -313,7 +313,7 @@ proto_tree_add_text(proto_tree *tree, gint start, gint length,
 
 /* Add an item to a proto_tree, using the text label registered to that item. */
 proto_item *
-proto_tree_add_item(proto_tree *tree, int hfindex, gint start, gint length, ...)
+proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length, ...)
 {
 	proto_item	*pi;
 	va_list		ap;
@@ -324,7 +324,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, gint start, gint length, ...)
 
 	va_start(ap, length);
 	/* ap won't be used since format is NULL */
-	pi = proto_tree_add_pi(tree, hfindex, start, length,
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length,
 			NULL, TRUE, &new_fi, ap);
 	proto_tree_set_value(new_fi, length, ap);
 	va_end(ap);
@@ -335,7 +335,7 @@ proto_tree_add_item(proto_tree *tree, int hfindex, gint start, gint length, ...)
 /* Add an item to a proto_tree, but make it invisible in GUI. The field is
  * still searchable, though. */
 proto_item *
-proto_tree_add_item_hidden(proto_tree *tree, int hfindex, gint start, gint length, ...)
+proto_tree_add_item_hidden(proto_tree *tree, int hfindex, tvbuff_t* tvb, gint start, gint length, ...)
 {
 	proto_item	*pi;
 	va_list		ap;
@@ -346,7 +346,7 @@ proto_tree_add_item_hidden(proto_tree *tree, int hfindex, gint start, gint lengt
 
 	va_start(ap, length);
 	/* ap won't be used since format is NULL */
-	pi = proto_tree_add_pi(tree, hfindex, start, length,
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length,
 			NULL, FALSE, &new_fi, ap);
 	proto_tree_set_value(new_fi, length, ap);
 	va_end(ap);
@@ -445,8 +445,8 @@ proto_tree_set_value(field_info *fi, gint length, va_list ap)
 
 /* Add a FT_NONE to a proto_tree */
 proto_item *
-proto_tree_add_protocol_format(proto_tree *tree, int hfindex, gint start, gint length,
-		const char *format, ...)
+proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+		gint length, const char *format, ...)
 {
 	proto_item		*pi;
 	va_list			ap;
@@ -459,7 +459,7 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, gint start, gint l
 	g_assert(hfinfo->type == FT_NONE);
 
 	va_start(ap, format);
-	pi = proto_tree_add_pi(tree, hfindex, start, length,
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length,
 			format, TRUE, NULL, ap);
 	/* no value to set for FT_NONE */
 	va_end(ap);
@@ -469,8 +469,8 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, gint start, gint l
 
 /* Add a FT_BYTES to a proto_tree */
 proto_item *
-proto_tree_add_bytes_format(proto_tree *tree, int hfindex, gint start, gint length,
-		const guint8 *start_ptr, const char *format, ...)
+proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+		gint length, const guint8 *start_ptr, const char *format, ...)
 {
 	proto_item		*pi;
 	va_list			ap;
@@ -484,7 +484,7 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, gint start, gint leng
 	g_assert(hfinfo->type == FT_BYTES);
 
 	va_start(ap, format);
-	pi = proto_tree_add_pi(tree, hfindex, start, length,
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length,
 			format, TRUE, &new_fi, ap);
 	proto_tree_set_bytes(new_fi, start_ptr, length);
 	va_end(ap);
@@ -506,7 +506,7 @@ proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length)
 
 /* Add a FT_*TIME to a proto_tree */
 proto_item *
-proto_tree_add_time_format(proto_tree *tree, int hfindex, gint start, gint length,
+proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		struct timeval *value_ptr, const char *format, ...)
 {
 	proto_item		*pi;
@@ -522,7 +522,7 @@ proto_tree_add_time_format(proto_tree *tree, int hfindex, gint start, gint lengt
 				hfinfo->type == FT_RELATIVE_TIME);
 
 	va_start(ap, format);
-	pi = proto_tree_add_pi(tree, hfindex, start, length,
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length,
 			format, TRUE, &new_fi, ap);
 	proto_tree_set_time(new_fi, value_ptr);
 	va_end(ap);
@@ -539,7 +539,7 @@ proto_tree_set_time(field_info *fi, struct timeval *value_ptr)
 
 /* Add a FT_IPXNET to a proto_tree */
 proto_item *
-proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, gint start, gint length,
+proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		guint32 value, const char *format, ...)
 {
 	proto_item		*pi;
@@ -554,7 +554,7 @@ proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, gint start, gint len
 	g_assert(hfinfo->type == FT_IPXNET);
 
 	va_start(ap, format);
-	pi = proto_tree_add_pi(tree, hfindex, start, length,
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length,
 			format, TRUE, &new_fi, ap);
 	proto_tree_set_ipxnet(new_fi, value);
 	va_end(ap);
@@ -571,7 +571,7 @@ proto_tree_set_ipxnet(field_info *fi, guint32 value)
 
 /* Add a FT_IPv4 to a proto_tree */
 proto_item *
-proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, gint start, gint length,
+proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		guint32 value, const char *format, ...)
 {
 	proto_item		*pi;
@@ -586,7 +586,7 @@ proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, gint start, gint lengt
 	g_assert(hfinfo->type == FT_IPv4);
 
 	va_start(ap, format);
-	pi = proto_tree_add_pi(tree, hfindex, start, length,
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length,
 			format, TRUE, &new_fi, ap);
 	proto_tree_set_ipv4(new_fi, value);
 	va_end(ap);
@@ -604,7 +604,7 @@ proto_tree_set_ipv4(field_info *fi, guint32 value)
 
 /* Add a FT_IPv6 to a proto_tree */
 proto_item *
-proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, gint start, gint length,
+proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		guint8* value_ptr, const char *format, ...)
 {
 	proto_item		*pi;
@@ -619,7 +619,7 @@ proto_tree_add_ipv6_format(proto_tree *tree, int hfindex, gint start, gint lengt
 	g_assert(hfinfo->type == FT_IPv6);
 
 	va_start(ap, format);
-	pi = proto_tree_add_pi(tree, hfindex, start, length,
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length,
 			format, TRUE, &new_fi, ap);
 	proto_tree_set_ipv6(new_fi, value_ptr);
 	va_end(ap);
@@ -636,8 +636,8 @@ proto_tree_set_ipv6(field_info *fi, guint8* value_ptr)
 
 /* Add a FT_STRING to a proto_tree */
 proto_item *
-proto_tree_add_string_format(proto_tree *tree, int hfindex, gint start, gint length,
-		const char* value, const char *format, ...)
+proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
+		gint length, const char* value, const char *format, ...)
 {
 	proto_item		*pi;
 	va_list			ap;
@@ -651,7 +651,7 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, gint start, gint len
 	g_assert(hfinfo->type == FT_STRING);
 
 	va_start(ap, format);
-	pi = proto_tree_add_pi(tree, hfindex, start, length,
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length,
 			format, TRUE, &new_fi, ap);
 	proto_tree_set_string(new_fi, value);
 	va_end(ap);
@@ -669,7 +669,7 @@ proto_tree_set_string(field_info *fi, const char* value)
 
 /* Add a FT_ETHER to a proto_tree */
 proto_item *
-proto_tree_add_ether_format(proto_tree *tree, int hfindex, gint start, gint length,
+proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		guint8* value, const char *format, ...)
 {
 	proto_item		*pi;
@@ -684,7 +684,7 @@ proto_tree_add_ether_format(proto_tree *tree, int hfindex, gint start, gint leng
 	g_assert(hfinfo->type == FT_ETHER);
 
 	va_start(ap, format);
-	pi = proto_tree_add_pi(tree, hfindex, start, length,
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length,
 			format, TRUE, &new_fi, ap);
 	proto_tree_set_ether(new_fi, value);
 	va_end(ap);
@@ -701,7 +701,7 @@ proto_tree_set_ether(field_info *fi, guint8* value)
 
 /* Add a FT_BOOLEAN to a proto_tree */
 proto_item *
-proto_tree_add_boolean_format(proto_tree *tree, int hfindex, gint start, gint length,
+proto_tree_add_boolean_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		guint32 value, const char *format, ...)
 {
 	proto_item		*pi;
@@ -716,7 +716,7 @@ proto_tree_add_boolean_format(proto_tree *tree, int hfindex, gint start, gint le
 	g_assert(hfinfo->type == FT_BOOLEAN);
 
 	va_start(ap, format);
-	pi = proto_tree_add_pi(tree, hfindex, start, length,
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length,
 			format, TRUE, &new_fi, ap);
 	proto_tree_set_boolean(new_fi, value);
 	va_end(ap);
@@ -733,7 +733,7 @@ proto_tree_set_boolean(field_info *fi, guint32  value)
 
 /* Add a FT_DOUBLE to a proto_tree */
 proto_item *
-proto_tree_add_double_format(proto_tree *tree, int hfindex, gint start, gint length,
+proto_tree_add_double_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		double value, const char *format, ...)
 {
 	proto_item		*pi;
@@ -748,7 +748,7 @@ proto_tree_add_double_format(proto_tree *tree, int hfindex, gint start, gint len
 	g_assert(hfinfo->type == FT_DOUBLE);
 
 	va_start(ap, format);
-	pi = proto_tree_add_pi(tree, hfindex, start, length,
+	pi = proto_tree_add_pi(tree, hfindex, tvb, start, length,
 			format, TRUE, &new_fi, ap);
 	proto_tree_set_double(new_fi, value);
 	va_end(ap);
@@ -765,7 +765,7 @@ proto_tree_set_double(field_info *fi, double value)
 
 /* Add any FT_UINT* to a proto_tree */
 proto_item *
-proto_tree_add_uint_format(proto_tree *tree, int hfindex, gint start, gint length,
+proto_tree_add_uint_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		guint32 value, const char *format, ...)
 {
 	proto_item		*pi = NULL;
@@ -783,7 +783,7 @@ proto_tree_add_uint_format(proto_tree *tree, int hfindex, gint start, gint lengt
 		case FT_UINT24:
 		case FT_UINT32:
 			va_start(ap, format);
-			pi = proto_tree_add_pi(tree, hfindex, start, length,
+			pi = proto_tree_add_pi(tree, hfindex, tvb, start, length,
 					format, TRUE, &new_fi, ap);
 			proto_tree_set_uint(new_fi, value);
 			va_end(ap);
@@ -817,7 +817,7 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 
 /* Add any FT_INT* to a proto_tree */
 proto_item *
-proto_tree_add_int_format(proto_tree *tree, int hfindex, gint start, gint length,
+proto_tree_add_int_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		gint32 value, const char *format, ...)
 {
 	proto_item		*pi = NULL;
@@ -835,7 +835,7 @@ proto_tree_add_int_format(proto_tree *tree, int hfindex, gint start, gint length
 		case FT_INT24:
 		case FT_INT32:
 			va_start(ap, format);
-			pi = proto_tree_add_pi(tree, hfindex, start, length,
+			pi = proto_tree_add_pi(tree, hfindex, tvb, start, length,
 					format, TRUE, &new_fi, ap);
 			proto_tree_set_int(new_fi, value);
 			va_end(ap);
@@ -870,7 +870,7 @@ proto_tree_set_int(field_info *fi, gint32 value)
 
 /* Create a new field_info struct, and initialize it */
 static field_info *
-proto_tree_add_field_info(int hfindex, gint start, gint length, int visible)
+proto_tree_add_field_info(int hfindex, tvbuff_t *tvb, gint start, gint length, int visible)
 {
 	field_info *fi;
 
@@ -880,6 +880,9 @@ proto_tree_add_field_info(int hfindex, gint start, gint length, int visible)
 	fi->hfinfo = proto_registrar_get_nth(hfindex);
 	g_assert(fi->hfinfo != NULL);
 	fi->start = start;
+	if (tvb) {
+		fi->start += tvb_raw_offset(tvb);
+	}
 	fi->length = length;
 	fi->tree_type = ETT_NONE;
 	fi->visible = visible;
@@ -903,7 +906,7 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 /* Generic way to allocate field_info, add to proto_tree, and set representation.
  * Sets *pfi to address of newly-allocated field_info struct, if pfi is non-NULL. */
 static proto_item *
-proto_tree_add_pi(proto_tree *tree, int hfindex, gint start, gint length,
+proto_tree_add_pi(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gint length,
 		const char *format, gboolean visible, field_info **pfi, va_list ap)
 {
 	proto_item	*pi;
@@ -915,7 +918,7 @@ proto_tree_add_pi(proto_tree *tree, int hfindex, gint start, gint length,
 	/* either visibility flag can nullify the other */
 	visible = proto_tree_is_visible && visible;
 
-	fi = proto_tree_add_field_info(hfindex, start, length, visible);
+	fi = proto_tree_add_field_info(hfindex, tvb, start, length, visible);
 
 	pi = proto_tree_add_node(tree, fi);
 

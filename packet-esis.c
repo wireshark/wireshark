@@ -2,7 +2,7 @@
  * Routines for ISO/OSI End System to Intermediate System  
  * Routeing Exchange Protocol ISO 9542.
  *
- * $Id: packet-esis.c,v 1.2 2000/04/17 01:36:30 guy Exp $
+ * $Id: packet-esis.c,v 1.3 2000/05/11 08:15:07 gram Exp $
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Ethereal - Network traffic analyzer
@@ -166,7 +166,7 @@ esis_dissect_unknown(int offset,guint length,proto_tree *tree,frame_data *fd,
   }
 
   va_start(ap, fmat);
-  proto_tree_add_text(tree, offset, length, fmat, ap);
+  proto_tree_add_text(tree, NullTVB, offset, length, fmat, ap);
   va_end(ap);
 }
 
@@ -186,14 +186,14 @@ esis_dissect_esh_pdu( u_char len, const u_char *pd, int offset,
     no_sa  = pd[offset];
     len   -= 1;
 
-    ti = proto_tree_add_text( tree, offset++, END_OF_FRAME, 
+    ti = proto_tree_add_text( tree, NullTVB, offset++, END_OF_FRAME, 
             "Number of Source Addresses (SA, Format: NSAP) : %u", no_sa );
     
     esis_area_tree = proto_item_add_subtree( ti, ett_esis_area_addr );
     while ( no_sa-- > 0 ) {
        sal = (int) pd[offset++];
-       proto_tree_add_text(esis_area_tree, offset, 1, "SAL: %2u Octets", sal);
-       proto_tree_add_text(esis_area_tree, offset + 1, sal,
+       proto_tree_add_text(esis_area_tree, NullTVB, offset, 1, "SAL: %2u Octets", sal);
+       proto_tree_add_text(esis_area_tree, NullTVB, offset + 1, sal,
                            " SA: %s", print_nsap_net( &pd[offset], sal ) );
        offset += sal;
        len    -= ( sal + 1 );
@@ -212,10 +212,10 @@ esis_dissect_ish_pdu( u_char len, const u_char *pd, int offset,
     offset += ESIS_HDR_FIXED_LENGTH;
 
     netl = (int) pd[ offset ];
-    proto_tree_add_text( tree, offset, netl + 1, 
+    proto_tree_add_text( tree, NullTVB, offset, netl + 1, 
                          "### Network Entity Titel Section ###");
-    proto_tree_add_text( tree, offset++, 1, "NETL: %2u Octets", netl);
-    proto_tree_add_text( tree, offset, netl,
+    proto_tree_add_text( tree, NullTVB, offset++, 1, "NETL: %2u Octets", netl);
+    proto_tree_add_text( tree, NullTVB, offset, netl,
                            " NET: %s", print_nsap_net( &pd[offset], netl ) );
     offset += netl;
     len    -= ( netl + 1 );
@@ -234,35 +234,35 @@ esis_dissect_redirect_pdu( u_char len, const u_char *pd, int offset,
     offset += ESIS_HDR_FIXED_LENGTH;
 
     tmpl = (int) pd[ offset ];
-    proto_tree_add_text( tree, offset, tmpl + 1, 
+    proto_tree_add_text( tree, NullTVB, offset, tmpl + 1, 
                          "### Destination Address Section ###" );
-    proto_tree_add_text( tree, offset++, 1, "DAL: %2u Octets", tmpl);
-    proto_tree_add_text( tree, offset, tmpl,
+    proto_tree_add_text( tree, NullTVB, offset++, 1, "DAL: %2u Octets", tmpl);
+    proto_tree_add_text( tree, NullTVB, offset, tmpl,
                          " DA : %s", print_nsap_net( &pd[offset], tmpl ) );
     offset += tmpl;
     len    -= ( tmpl + 1 );
     tmpl    = (int) pd[ offset ];
 
-    proto_tree_add_text( tree, offset, tmpl + 1, 
+    proto_tree_add_text( tree, NullTVB, offset, tmpl + 1, 
                          "###  Subnetwork Address Section ###");
-    proto_tree_add_text( tree, offset++, 1, "BSNPAL: %2u Octets", tmpl);
-    proto_tree_add_text( tree, offset, tmpl,
+    proto_tree_add_text( tree, NullTVB, offset++, 1, "BSNPAL: %2u Octets", tmpl);
+    proto_tree_add_text( tree, NullTVB, offset, tmpl,
                            " BSNPA: %s", print_system_id( &pd[offset], tmpl ) );
     offset += tmpl;
     len    -= ( tmpl + 1 );
     tmpl    = (int) pd[ offset ];
 
     if ( 0 == tmpl ) {
-      proto_tree_add_text( tree, offset, 1, 
+      proto_tree_add_text( tree, NullTVB, offset, 1, 
                            "### No Network Entity Title Section ###" );
       offset++;
       len--;
     }
     else {
-      proto_tree_add_text( tree, offset, 1,
+      proto_tree_add_text( tree, NullTVB, offset, 1,
                            "### Network Entity Title Section ###" );
-      proto_tree_add_text( tree, offset++, 1, "NETL: %2u Octets", tmpl );
-      proto_tree_add_text( tree, offset, tmpl,
+      proto_tree_add_text( tree, NullTVB, offset++, 1, "NETL: %2u Octets", tmpl );
+      proto_tree_add_text( tree, NullTVB, offset, tmpl,
                            " NET: %s", print_nsap_net( &pd[offset], tmpl ) );
       offset += tmpl;
       len    -= ( tmpl + 1 );
@@ -319,21 +319,21 @@ dissect_esis(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
    }
 
    if (tree) {
-     ti = proto_tree_add_item(tree, proto_esis, offset, END_OF_FRAME, NULL );
+     ti = proto_tree_add_item(tree, proto_esis, NullTVB, offset, END_OF_FRAME, NULL );
      esis_tree = proto_item_add_subtree(ti, ett_esis);
 
-     proto_tree_add_item( esis_tree, hf_esis_nlpi, offset, 1, ehdr->esis_nlpi );
-     proto_tree_add_item( esis_tree, hf_esis_length,
+     proto_tree_add_item( esis_tree, hf_esis_nlpi, NullTVB, offset, 1, ehdr->esis_nlpi );
+     proto_tree_add_item( esis_tree, hf_esis_length, NullTVB,
                           offset + 1, 1, ehdr->esis_length );
-     proto_tree_add_item( esis_tree, hf_esis_version, offset + 2, 1, 
+     proto_tree_add_item( esis_tree, hf_esis_version, NullTVB, offset + 2, 1, 
                           ehdr->esis_version );
-     proto_tree_add_item( esis_tree, hf_esis_reserved, offset + 3, 1, 
+     proto_tree_add_item( esis_tree, hf_esis_reserved, NullTVB, offset + 3, 1, 
                           ehdr->esis_reserved );
 
      pdu_type_string = val_to_str(ehdr->esis_type&OSI_PDU_TYPE_MASK,
                                   esis_vals, "Unknown (0x%x)");
 
-     proto_tree_add_uint_format( esis_tree, hf_esis_type, offset + 4, 1, 
+     proto_tree_add_uint_format( esis_tree, hf_esis_type, NullTVB, offset + 4, 1, 
                                  ehdr->esis_type, 
                                  pdu_type_format_string,
                                  pdu_type_string,
@@ -342,13 +342,13 @@ dissect_esis(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
                                  (ehdr->esis_type&BIT_6) ? "1" : "0");
 
      tmp_uint = pntohs( ehdr->esis_holdtime );
-     proto_tree_add_uint_format(esis_tree, hf_esis_holdtime, offset + 5, 2, 
+     proto_tree_add_uint_format(esis_tree, hf_esis_holdtime, NullTVB, offset + 5, 2, 
                                 tmp_uint, "Holding Time  : %u seconds",
                                 tmp_uint );
 
      tmp_uint = pntohs( ehdr->esis_checksum );
      
-     proto_tree_add_uint_format( esis_tree, hf_esis_checksum, offset + 7, 2,
+     proto_tree_add_uint_format( esis_tree, hf_esis_checksum, NullTVB, offset + 7, 2,
                                  tmp_uint, "Checksum      : 0x%x ( %s )", 
                                  tmp_uint, calc_checksum( &pd[offset], 
                                                           ehdr->esis_length ,

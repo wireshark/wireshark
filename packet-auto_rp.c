@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-auto_rp.c,v 1.4 2000/04/08 07:07:08 guy Exp $
+ * $Id: packet-auto_rp.c,v 1.5 2000/05/11 08:14:57 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -151,24 +151,24 @@ static void dissect_auto_rp(const u_char *pd, int offset, frame_data *fd, proto_
                         return;
                 }
 
-                ti = proto_tree_add_item(tree, proto_auto_rp, offset, END_OF_FRAME, NULL);
+                ti = proto_tree_add_item(tree, proto_auto_rp, NullTVB, offset, END_OF_FRAME, NULL);
                 auto_rp_tree = proto_item_add_subtree(ti, ett_auto_rp);
 
-                tv = proto_tree_add_uint_format(auto_rp_tree, hf_auto_rp_ver_type, offset, 1,
+                tv = proto_tree_add_uint_format(auto_rp_tree, hf_auto_rp_ver_type, NullTVB, offset, 1,
                                                 arh.ver_type, "Version: %s, Packet type: %s",
                                                 val_to_str(hi_nibble(arh.ver_type), auto_rp_ver_vals, "Unknown"),
                                                 val_to_str(lo_nibble(arh.ver_type), auto_rp_type_vals, "Unknown"));
                 ver_type_tree = proto_item_add_subtree(tv, ett_auto_rp_ver_type);
-                proto_tree_add_item(ver_type_tree, hf_auto_rp_version, offset, 1, arh.ver_type);
-                proto_tree_add_item(ver_type_tree, hf_auto_rp_type, offset, 1, arh.ver_type);
+                proto_tree_add_item(ver_type_tree, hf_auto_rp_version, NullTVB, offset, 1, arh.ver_type);
+                proto_tree_add_item(ver_type_tree, hf_auto_rp_type, NullTVB, offset, 1, arh.ver_type);
                 offset++;
 
-                proto_tree_add_text(auto_rp_tree, offset++, 1, "RP Count: %u", arh.rp_count);
-                proto_tree_add_text(auto_rp_tree, offset, 2, "Holdtime: %u second%s",
+                proto_tree_add_text(auto_rp_tree, NullTVB, offset++, 1, "RP Count: %u", arh.rp_count);
+                proto_tree_add_text(auto_rp_tree, NullTVB, offset, 2, "Holdtime: %u second%s",
                                     ntohs(arh.holdtime),
                                     plurality(ntohs(arh.holdtime), "", "s"));
                 offset+=2;
-                proto_tree_add_text(auto_rp_tree, offset, 4, "Reserved: 0x%x", arh.reserved);
+                proto_tree_add_text(auto_rp_tree, NullTVB, offset, 4, "Reserved: 0x%x", arh.reserved);
                 offset+=4;
 
                 for (i = 0; i < arh.rp_count; i++) {
@@ -262,17 +262,17 @@ static int do_auto_rp_map(const u_char *pd, int offset, frame_data *fd, proto_tr
                 return -1;
         memcpy(&m, pd+offset, sizeof(struct auto_rp_map_hdr));
 
-        ti = proto_tree_add_uint_format(auto_rp_tree, hf_auto_rp_map, offset,
+        ti = proto_tree_add_uint_format(auto_rp_tree, hf_auto_rp_map, NullTVB, offset,
                                         MIN(sizeof(m) + m.group_count*sizeof(g), END_OF_FRAME), 1,
                                         "RP %s: %u group%s", ip_to_str((void *)&m.rp_address),
                                         m.group_count, plurality(m.group_count, "", "s"));
         map_tree = proto_item_add_subtree(ti, ett_auto_rp_map);
-        proto_tree_add_text(map_tree, offset, 4, "Unicast IP address of this RP: %s (%s)",
+        proto_tree_add_text(map_tree, NullTVB, offset, 4, "Unicast IP address of this RP: %s (%s)",
                             ip_to_str((void *)&m.rp_address), get_hostname(m.rp_address));
         offset +=4;
-        proto_tree_add_item(map_tree, hf_auto_rp_pim_ver, offset, 1, pd[offset]);
+        proto_tree_add_item(map_tree, hf_auto_rp_pim_ver, NullTVB, offset, 1, pd[offset]);
         offset++;
-        proto_tree_add_text(map_tree, offset, 1, "Number of groups this RP maps to: %u", m.group_count);
+        proto_tree_add_text(map_tree, NullTVB, offset, 1, "Number of groups this RP maps to: %u", m.group_count);
         offset++;
 
         for (i = 0; i < m.group_count; i++) {
@@ -281,17 +281,17 @@ static int do_auto_rp_map(const u_char *pd, int offset, frame_data *fd, proto_tr
                 if (2*sizeof(guint8) + sizeof(guint32) > END_OF_FRAME) /* struct auto_rp_enc_grp_hdr */
                         return -1;
 
-                gi = proto_tree_add_uint_format(map_tree, hf_auto_rp_group, offset, 6, 1,
+                gi = proto_tree_add_uint_format(map_tree, hf_auto_rp_group, NullTVB, offset, 6, 1,
                                                 "group %s/%u (%s)", ip_to_str(pd + offset + 2),
                                                 pd[offset + 1],
                                                 val_to_str(pd[offset]&AUTO_RP_SIGN_MASK, auto_rp_mask_sign_vals, ""));
                 grp_tree = proto_item_add_subtree(gi, ett_auto_rp_group);
 
-                proto_tree_add_item(grp_tree, hf_auto_rp_mask_sgn, offset, 1, pd[offset]);
+                proto_tree_add_item(grp_tree, hf_auto_rp_mask_sgn, NullTVB, offset, 1, pd[offset]);
                 offset++;
-                proto_tree_add_text(grp_tree, offset, 1, "Group mask length: %u", pd[offset]);
+                proto_tree_add_text(grp_tree, NullTVB, offset, 1, "Group mask length: %u", pd[offset]);
                 offset++;
-                proto_tree_add_text(grp_tree, offset, 4, "Group prefix: %s", ip_to_str(pd + offset));
+                proto_tree_add_text(grp_tree, NullTVB, offset, 4, "Group prefix: %s", ip_to_str(pd + offset));
                 offset +=4;
          
         }

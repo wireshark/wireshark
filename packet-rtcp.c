@@ -3,7 +3,7 @@
  *
  * Jason Lango <jal@netapp.com>
  *
- * $Id: packet-rtcp.c,v 1.1 2000/04/21 01:45:56 guy Exp $
+ * $Id: packet-rtcp.c,v 1.2 2000/05/11 08:15:42 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -98,40 +98,40 @@ dissect_rtcp_report(rtcp_hdr_t *hdr, int sn, const u_char *pd, int offset,
 	rep.rtcp_rr_dlsr = ntohl(rep.rtcp_rr_dlsr);
 
 	if ((offset + sizeof(rtcp_report_t)) > end_offset) {
-		proto_tree_add_text(rtcp_tree, offset, 0,
+		proto_tree_add_text(rtcp_tree, NullTVB, offset, 0,
 			"Warning: Bad packet length -- "
 			"data might be incorrect");
 	}
 
-	proto_tree_add_text(rtcp_tree, offset, 4,
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4,
 		"Source %d SSRC: %u", sn + 1, rep.rtcp_rr_ssrc);
 	offset += 4;
 
-	proto_tree_add_text(rtcp_tree, offset, 1,
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 1,
 		"Fraction lost: %u / 256", (unsigned) rep.rtcp_rr_flt);
 	offset += 1;
 
-	proto_tree_add_text(rtcp_tree, offset, 3,
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 3,
 		"Cumulative Packets Lost: %lu",
 		(((unsigned long) rep.rtcp_rr_cplthi) << 16) +
 		(unsigned long) rep.rtcp_rr_cplt);
 	offset += 3;
 
-	proto_tree_add_text(rtcp_tree, offset, 4,
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4,
 		"Extended Highest Seq #: %lu",
 		(unsigned long) rep.rtcp_rr_xhiseq);
 	offset += 4;
 
-	proto_tree_add_text(rtcp_tree, offset, 4,
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4,
 		"Jitter: %lu", (unsigned long) rep.rtcp_rr_jitter);
 	offset += 4;
 
-	proto_tree_add_text(rtcp_tree, offset, 4,
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4,
 		"Last SR timestamp (middle): %lu",
 		(unsigned long) rep.rtcp_rr_lsr);
 	offset += 4;
 
-	proto_tree_add_text(rtcp_tree, offset, 4,
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4,
 		"Delay Since Last SR: %lu",
 		(unsigned long) rep.rtcp_rr_dlsr);
 	offset += 4;
@@ -157,7 +157,7 @@ dissect_rtcp_rr(rtcp_hdr_t *hdr, const u_char *pd, int offset,
 
 	if ((offset + sizeof(rtcp_rr_t)) >= end_offset)
 		return -1;
-	proto_tree_add_text(rtcp_tree, offset, 4, "Sender SSRC: %u",
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4, "Sender SSRC: %u",
 		rr.rtcp_rr_ssrc);
 	offset += 4;
 
@@ -196,27 +196,27 @@ dissect_rtcp_sr(rtcp_hdr_t *hdr, const u_char *pd, int offset,
 	sr.rtcp_sr_nbytes = ntohl(sr.rtcp_sr_nbytes);
 
 	if ((offset + sizeof(rtcp_sr_t)) > end_offset) {
-		proto_tree_add_text(rtcp_tree, offset, 0,
+		proto_tree_add_text(rtcp_tree, NullTVB, offset, 0,
 			"Warning: Bad packet length -- "
 			"data might be incorrect");
 	}
 
-	proto_tree_add_text(rtcp_tree, offset, 4, "Sender's SSRC: %u",
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4, "Sender's SSRC: %u",
 		sr.rtcp_sr_ssrc);
 	offset += 4;
-	proto_tree_add_text(rtcp_tree, offset, 4, "NTP timestamp, MSW: %u",
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4, "NTP timestamp, MSW: %u",
 		sr.rtcp_sr_ntp_hi);
 	offset += 4;
-	proto_tree_add_text(rtcp_tree, offset, 4, "NTP timestamp, LSW: %u",
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4, "NTP timestamp, LSW: %u",
 		sr.rtcp_sr_ntp_lo);
 	offset += 4;
-	proto_tree_add_text(rtcp_tree, offset, 4, "RTP timestamp: %u",
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4, "RTP timestamp: %u",
 		sr.rtcp_sr_rtp_time);
 	offset += 4;
-	proto_tree_add_text(rtcp_tree, offset, 4, "Sender's packet count: %u",
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4, "Sender's packet count: %u",
 		sr.rtcp_sr_npackets);
 	offset += 4;
-	proto_tree_add_text(rtcp_tree, offset, 4, "Sender's octet count: %u",
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4, "Sender's octet count: %u",
 		sr.rtcp_sr_nbytes);
 	offset += 4;
 
@@ -265,7 +265,7 @@ dissect_rtcp_sdes_chunk(rtcp_hdr_t *hdr, int cn, const u_char *pd, int offset,
 
 	if ((offset + 4) > end_packet)
 		return -1;
-	proto_tree_add_text(rtcp_tree, offset, 4, "Chunk %d SSRC: %u",
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 4, "Chunk %d SSRC: %u",
 		cn + 1, pntohl(&pd[offset]));
 	offset += 4;
 
@@ -281,7 +281,7 @@ dissect_rtcp_sdes_chunk(rtcp_hdr_t *hdr, int cn, const u_char *pd, int offset,
 			if ((offset - start_packet) & 3) {
 				offset += 4 - ((offset - start_packet) & 3);
 			}
-			proto_tree_add_text(rtcp_tree, pad_start,
+			proto_tree_add_text(rtcp_tree, NullTVB, pad_start,
 				offset - pad_start,
 				"(end of chunk and alignment padding)");
 			break;
@@ -289,7 +289,7 @@ dissect_rtcp_sdes_chunk(rtcp_hdr_t *hdr, int cn, const u_char *pd, int offset,
 
 		ctype = rtcp_find_chunk_type(type);
 
-		proto_tree_add_text(rtcp_tree, offset, 1, "Chunk type: %s",
+		proto_tree_add_text(rtcp_tree, NullTVB, offset, 1, "Chunk type: %s",
 			ctype->name);
 		offset++;
 
@@ -297,14 +297,14 @@ dissect_rtcp_sdes_chunk(rtcp_hdr_t *hdr, int cn, const u_char *pd, int offset,
 			return -1;
 
 		len = pd[offset];
-		proto_tree_add_text(rtcp_tree, offset, 1, "Chunk length: %u",
+		proto_tree_add_text(rtcp_tree, NullTVB, offset, 1, "Chunk length: %u",
 			(unsigned) len);
 		offset++;
 
 		if ((offset + len) > end_packet)
 			return -1;
 
-		proto_tree_add_text(rtcp_tree, offset, len, "Chunk string: %s",
+		proto_tree_add_text(rtcp_tree, NullTVB, offset, len, "Chunk string: %s",
 			format_text(&pd[offset], len));
 		offset += len;
 	}
@@ -342,7 +342,7 @@ dissect_one_rtcp(const u_char *pd, int offset, frame_data *fd,
 	start_packet = offset;
 	end_offset = offset + END_OF_FRAME;
 
-	ti = proto_tree_add_item(tree, proto_rtcp, offset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(tree, proto_rtcp, NullTVB, offset, END_OF_FRAME, NULL);
 	rtcp_tree = proto_item_add_subtree(ti, ett_rtcp);
 
 	memcpy(&hdr, data, END_OF_FRAME < sizeof(rtcp_hdr_t) ?
@@ -351,15 +351,15 @@ dissect_one_rtcp(const u_char *pd, int offset, frame_data *fd,
 
 	if (offset >= end_offset)
 		return -1;
-	proto_tree_add_text(rtcp_tree, offset, 1, "Version: %u (%s)",
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 1, "Version: %u (%s)",
 		RTCP_VERSION(&hdr),
 		RTCP_VERSION(&hdr) == 3 ? "New Unknown Version" :
 		RTCP_VERSION(&hdr) == 2 ? "RFC 1889 Version" :
 		RTCP_VERSION(&hdr) == 1 ? "First Draft Version" :
 		"Old Vat Version");
-	proto_tree_add_text(rtcp_tree, offset, 1, "Padding: %u",
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 1, "Padding: %u",
 		RTCP_PADDING(&hdr));
-	proto_tree_add_text(rtcp_tree, offset, 1, "Count: %u",
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 1, "Count: %u",
 		RTCP_COUNT(&hdr));
 	offset++;
 
@@ -373,13 +373,13 @@ dissect_one_rtcp(const u_char *pd, int offset, frame_data *fd,
 	case RTCP_TYPE_APP:	ptype = "APP: Application-defined"; break;
 	default:		ptype = "Unknown"; break;
 	}
-	proto_tree_add_text(rtcp_tree, offset, 1, "Type: %u (%s)",
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 1, "Type: %u (%s)",
 		(u_int) hdr.rtcp_type, ptype);
 	offset++;
 
 	if (offset >= end_offset)
 		return -1;
-	proto_tree_add_text(rtcp_tree, offset, 2, "Length / 4 - 1: %u",
+	proto_tree_add_text(rtcp_tree, NullTVB, offset, 2, "Length / 4 - 1: %u",
 		(unsigned) hdr.rtcp_length);
 	offset += 2;
 
@@ -402,14 +402,14 @@ dissect_one_rtcp(const u_char *pd, int offset, frame_data *fd,
 			end_packet, rtcp_tree);
 		break;
 	default:
-		proto_tree_add_text(rtcp_tree, offset, END_OF_FRAME,
+		proto_tree_add_text(rtcp_tree, NullTVB, offset, END_OF_FRAME,
 			"TYPE NOT HANDLED YET");
 		offset = end_packet;
 		break;
 	}
 
 	if (offset > 0 && offset < end_packet) {
-		proto_tree_add_text(rtcp_tree, offset, end_packet - offset,
+		proto_tree_add_text(rtcp_tree, NullTVB, offset, end_packet - offset,
 			"Extra data (%d bytes)", end_packet - offset);
 	}
 	if (offset < 0)
@@ -433,7 +433,7 @@ dissect_rtcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		offset = dissect_one_rtcp(pd, offset, fd, tree);
 	}
 	if (offset < 0) {
-		proto_tree_add_text(tree, end_offset, 0,
+		proto_tree_add_text(tree, NullTVB, end_offset, 0,
 			"Unexpected end of packet");
 	}
 }

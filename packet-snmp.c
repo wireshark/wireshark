@@ -2,7 +2,7 @@
  * Routines for SNMP (simple network management protocol)
  * D.Jorand (c) 1998
  *
- * $Id: packet-snmp.c,v 1.29 2000/05/09 17:45:02 guy Exp $
+ * $Id: packet-snmp.c,v 1.30 2000/05/11 08:15:49 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -600,10 +600,10 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			format_value(vb_display_string, &variable,
 			    variable_oid, variable_oid_length, vb_type,
 			    vb_length);
-			proto_tree_add_text(snmp_tree, offset, length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s", vb_display_string);
 #else
-			proto_tree_add_text(snmp_tree, offset, length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s: %d (%#x)", vb_type_name,
 			    vb_integer_value, vb_integer_value);
 #endif
@@ -629,10 +629,10 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			format_value(vb_display_string, &variable,
 			    variable_oid, variable_oid_length, vb_type,
 			    vb_length);
-			proto_tree_add_text(snmp_tree, offset, length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s", vb_display_string);
 #else
-			proto_tree_add_text(snmp_tree, offset, length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s: %u (%#x)", vb_type_name,
 			    vb_uinteger_value, vb_uinteger_value);
 #endif
@@ -656,7 +656,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			format_value(vb_display_string, &variable,
 			    variable_oid, variable_oid_length, vb_type,
 			    vb_length);
-			proto_tree_add_text(snmp_tree, offset, length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s", vb_display_string);
 #else
 			/*
@@ -682,11 +682,11 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 					    vb_octet_string[i]);
 					buf += len;
 				}
-				proto_tree_add_text(snmp_tree, offset, length,
+				proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 				    "Value: %s: %s", vb_type_name,
 				    vb_display_string);
 			} else {
-				proto_tree_add_text(snmp_tree, offset, length,
+				proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 				    "Value: %s: %.*s", vb_type_name,
 				    (int)vb_length, vb_octet_string);
 			}
@@ -701,7 +701,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			return ret;
 		length = asn1->pointer - start;
 		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, offset, length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s", vb_type_name);
 		}
 		break;
@@ -718,11 +718,11 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 			format_value(vb_display_string, &variable,
 			    variable_oid, variable_oid_length, vb_type,
 			    vb_length*sizeof (subid_t));
-			proto_tree_add_text(snmp_tree, offset, length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s", vb_display_string);
 #else
 			format_oid(vb_display_string, vb_oid, vb_oid_length);
-			proto_tree_add_text(snmp_tree, offset, length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s: %s", vb_type_name, vb_display_string);
 #endif
 		}
@@ -732,7 +732,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 	case SNMP_NOSUCHOBJECT:
 		length = asn1->pointer - start;
 		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, offset, length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s: no such object", vb_type_name);
 		}
 		break;
@@ -740,7 +740,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 	case SNMP_NOSUCHINSTANCE:
 		length = asn1->pointer - start;
 		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, offset, length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s: no such instance", vb_type_name);
 		}
 		break;
@@ -748,7 +748,7 @@ snmp_variable_decode(proto_tree *snmp_tree, subid_t *variable_oid,
 	case SNMP_ENDOFMIBVIEW:
 		length = asn1->pointer - start;
 		if (snmp_tree) {
-			proto_tree_add_text(snmp_tree, offset, length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Value: %s: end of mib view", vb_type_name);
 		}
 		break;
@@ -822,7 +822,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		col_add_str(fd, COL_PROTOCOL, proto_name);
 
 	if (tree) {
-		item = proto_tree_add_item(tree, proto, offset, END_OF_FRAME, NULL);
+		item = proto_tree_add_item(tree, proto, NullTVB, offset, END_OF_FRAME, NULL);
 		snmp_tree = proto_item_add_subtree(item, ett);
 	}
 
@@ -847,7 +847,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		return;
 	}
 	if (tree) {
-		proto_tree_add_text(snmp_tree, offset, length,
+		proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 		    "Version: %s",
 		    val_to_str(version, versions, "Unknown version %#x"));
 	}
@@ -861,7 +861,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		return;
 	}
 	if (tree) {
-		proto_tree_add_text(snmp_tree, offset, length,
+		proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 		    "Community: %.*s", community_length, community);
 	}
 	g_free(community);
@@ -900,7 +900,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		col_add_str(fd, COL_INFO, pdu_type_string);
 	length = asn1.pointer - start;
 	if (tree) {
-		proto_tree_add_text(snmp_tree, offset, length,
+		proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 		    "PDU type: %s", pdu_type_string);
 	}
 	offset += length;
@@ -923,7 +923,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(snmp_tree, offset, length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Request Id: %#x", request_id);
 		}
 		offset += length;
@@ -939,10 +939,10 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		}
 		if (tree) {
 			if (pdu_type == SNMP_MSG_GETBULK) {
-				proto_tree_add_text(snmp_tree, offset, length,
+				proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 				    "Non-repeaters: %u", error_status);
 			} else {
-				proto_tree_add_text(snmp_tree, offset, length,
+				proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 				    "Error Status: %s",
 				    val_to_str(error_status, error_statuses,
 				      "Unknown (%d)"));
@@ -961,10 +961,10 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		}
 		if (tree) {
 			if (pdu_type == SNMP_MSG_GETBULK) {
-				proto_tree_add_text(snmp_tree, offset, length,
+				proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 				    "Max repetitions: %u", error_index);
 			} else {
-				proto_tree_add_text(snmp_tree, offset, length,
+				proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 				    "Error Index: %u", error_index);
 			}
 		}
@@ -982,7 +982,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		}
 		if (tree) {
 			format_oid(oid_string, enterprise, enterprise_length);
-			proto_tree_add_text(snmp_tree, offset, length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Enterprise: %s", oid_string);
 		}
 		g_free(enterprise);
@@ -1019,7 +1019,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		}
 		length = asn1.pointer - start;
 		if (tree) {
-			proto_tree_add_text(snmp_tree, offset, agent_address_length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, agent_address_length,
 			    "Agent address: %s", ip_to_str(agent_address));
 		}
 		g_free(agent_address);
@@ -1033,7 +1033,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(snmp_tree, offset, length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Trap type: %s",
 			    val_to_str(trap_type, trap_types, "Unknown (%u)"));
 		}		
@@ -1047,7 +1047,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 			return;
 		}
 		if (tree) {
-			proto_tree_add_text(snmp_tree, offset, length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Specific trap type: %u (%#x)",
 			    specific_type, specific_type);
 		}		
@@ -1077,7 +1077,7 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 		}
 		length = asn1.pointer - start;
 		if (tree) {
-			proto_tree_add_text(snmp_tree, offset, length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, length,
 			    "Timestamp: %u", timestamp);
 		}		
 		offset += length;
@@ -1126,12 +1126,12 @@ dissect_snmp_pdu(const u_char *pd, int offset, frame_data *fd,
 #if defined(HAVE_UCD_SNMP_SNMP_H) || defined(HAVE_SNMP_SNMP_H)
 			sprint_objid(vb_oid_string, variable_oid,
 			    variable_oid_length);
-			proto_tree_add_text(snmp_tree, offset, sequence_length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, sequence_length,
 			    "Object identifier %d: %s (%s)", vb_index,
 			    oid_string, vb_oid_string);
 #else
 			
-			proto_tree_add_text(snmp_tree, offset, sequence_length,
+			proto_tree_add_text(snmp_tree, NullTVB, offset, sequence_length,
 			    "Object identifier %d: %s", vb_index,
 			    oid_string);
 #endif

@@ -1,7 +1,7 @@
 /* packet-tacacs.c
  * Routines for cisco tacacs/tacplus/AAA packet dissection
  *
- * $Id: packet-tacacs.c,v 1.3 2000/04/08 07:07:39 guy Exp $
+ * $Id: packet-tacacs.c,v 1.4 2000/05/11 08:15:52 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -68,23 +68,23 @@ dissect_tacacs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) 
 	{
-		ti = proto_tree_add_item(tree, proto_tacacs, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_tacacs, NullTVB, offset, END_OF_FRAME, NULL);
 		tacacs_tree = proto_item_add_subtree(ti, ett_tacacs);
 
-		proto_tree_add_item(tacacs_tree, hf_tacacs_version, 0, 0, "XTacacs");
+		proto_tree_add_item(tacacs_tree, hf_tacacs_version, NullTVB, 0, 0, "XTacacs");
 
 		if (pi.match_port == pi.destport)
 		{
-		        proto_tree_add_item_hidden(tacacs_tree, hf_tacacs_request,
+		        proto_tree_add_item_hidden(tacacs_tree, hf_tacacs_request, NullTVB,
 						   offset, END_OF_FRAME, TRUE);
-			proto_tree_add_text(tacacs_tree, offset, 
+			proto_tree_add_text(tacacs_tree, NullTVB, offset, 
 				END_OF_FRAME, "Request: <opaque data>" );
 		}
 		else
 		{
-		        proto_tree_add_item_hidden(tacacs_tree, hf_tacacs_response,
+		        proto_tree_add_item_hidden(tacacs_tree, hf_tacacs_response, NullTVB,
 						   offset, END_OF_FRAME, TRUE);
-			proto_tree_add_text(tacacs_tree, offset, 
+			proto_tree_add_text(tacacs_tree, NullTVB, offset, 
 				END_OF_FRAME, "Response: <opaque data>");
 		}
 	}
@@ -106,23 +106,23 @@ dissect_tacplus(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) 
 	{
-		ti = proto_tree_add_item(tree, proto_tacacs, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_tacacs, NullTVB, offset, END_OF_FRAME, NULL);
 		tacacs_tree = proto_item_add_subtree(ti, ett_tacacs);
 
-		proto_tree_add_item(tacacs_tree, hf_tacacs_version, 0, 0, "Tacacs+");
+		proto_tree_add_item(tacacs_tree, hf_tacacs_version, NullTVB, 0, 0, "Tacacs+");
 
 		if (pi.match_port == pi.destport)
 		{
-		        proto_tree_add_item_hidden(tacacs_tree, hf_tacacs_request,
+		        proto_tree_add_item_hidden(tacacs_tree, hf_tacacs_request, NullTVB,
 						   offset, END_OF_FRAME, TRUE);
-			proto_tree_add_text(tacacs_tree, offset, 
+			proto_tree_add_text(tacacs_tree, NullTVB, offset, 
 				END_OF_FRAME, "Request: <opaque data>" );
 		}
 		else
 		{
-		        proto_tree_add_item_hidden(tacacs_tree, hf_tacacs_response,
+		        proto_tree_add_item_hidden(tacacs_tree, hf_tacacs_response, NullTVB,
 						   offset, END_OF_FRAME, TRUE);
-			proto_tree_add_text(tacacs_tree, offset, 
+			proto_tree_add_text(tacacs_tree, NullTVB, offset, 
 				END_OF_FRAME, "Response: <opaque data>");
 		}
 	}

@@ -2,7 +2,7 @@
  * Routines for the disassembly of the "Cisco Discovery Protocol"
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-cdp.c,v 1.21 2000/03/12 04:47:36 gram Exp $
+ * $Id: packet-cdp.c,v 1.22 2000/05/11 08:15:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -107,17 +107,17 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         col_add_str(fd, COL_INFO, "Cisco Discovery Protocol"); 
 
     if(tree){
-        ti = proto_tree_add_item(tree, proto_cdp, offset, END_OF_FRAME, NULL);
+        ti = proto_tree_add_item(tree, proto_cdp, NullTVB, offset, END_OF_FRAME, NULL);
 	cdp_tree = proto_item_add_subtree(ti, ett_cdp);
 	
 	/* CDP header */
-	proto_tree_add_item(cdp_tree, hf_cdp_version, offset, 1, pd[offset]);
+	proto_tree_add_item(cdp_tree, hf_cdp_version, NullTVB, offset, 1, pd[offset]);
 	offset += 1;
-	proto_tree_add_uint_format(cdp_tree, hf_cdp_ttl, offset, 1,
+	proto_tree_add_uint_format(cdp_tree, hf_cdp_ttl, NullTVB, offset, 1,
 				   pntohs(&pd[offset]),
 				   "TTL: %u seconds", pd[offset]);
 	offset += 1;
-	proto_tree_add_uint_format(cdp_tree, hf_cdp_flags, offset, 2,
+	proto_tree_add_uint_format(cdp_tree, hf_cdp_flags, NullTVB, offset, 2,
 				   pd[offset], 
 				   "Checksum: 0x%04x", pntohs(&pd[offset]));
 	offset += 2;
@@ -131,34 +131,34 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		switch( type ){
 			case TYPE_DEVICE_ID:
 				/* Device ID */
-				tlvi = proto_tree_add_text(cdp_tree, offset,
+				tlvi = proto_tree_add_text(cdp_tree, NullTVB, offset,
 				    length, "Device ID: %s",
 				    &pd[offset+4]);
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ett_cdp_tlv);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, NullTVB,
 				    offset + TLV_TYPE, 2, type);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, NullTVB,
 				    offset + TLV_LENGTH, 2, length);
-				proto_tree_add_text(tlv_tree, offset + 4,
+				proto_tree_add_text(tlv_tree, NullTVB, offset + 4,
 				    length - 4, "Device ID: %s",
 				    &pd[offset+4]);
 				offset+=length;
 				break;
 			case TYPE_ADDRESS:
 				/* Addresses */
-				tlvi = proto_tree_add_text(cdp_tree, offset,
+				tlvi = proto_tree_add_text(cdp_tree, NullTVB, offset,
 				    length, "Addresses");
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ett_cdp_tlv);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, NullTVB,
 				    offset + TLV_TYPE, 2, type);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, NullTVB,
 				    offset + TLV_LENGTH, 2, length);
 				offset += 4;
 				length -= 4;
 				naddresses = pntohl(&pd[offset]);
-				proto_tree_add_text(tlv_tree, offset, 4,
+				proto_tree_add_text(tlv_tree, NullTVB, offset, 4,
 				    "Number of addresses: %u", naddresses);
 				offset += 4;
 				length -= 4;
@@ -189,29 +189,29 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				       capture work. */
 				    real_length = length + 3;
 				}
-				tlvi = proto_tree_add_text(cdp_tree, offset,
+				tlvi = proto_tree_add_text(cdp_tree, NullTVB, offset,
 				    real_length, "Port ID: %s",
 				    &pd[offset+4]);
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ett_cdp_tlv);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, NullTVB,
 				    offset + TLV_TYPE, 2, type);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, NullTVB,
 				    offset + TLV_LENGTH, 2, length);
-				proto_tree_add_text(tlv_tree, offset + 4,
+				proto_tree_add_text(tlv_tree, NullTVB, offset + 4,
 				    real_length - 4,
 				    "Sent through Interface: %s",
 				    &pd[offset+4]);
 				offset += real_length;
 				break;
 			case TYPE_CAPABILITIES:
-				tlvi = proto_tree_add_text(cdp_tree, offset,
+				tlvi = proto_tree_add_text(cdp_tree, NullTVB, offset,
 				    length, "Capabilities");
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ett_cdp_tlv);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, NullTVB,
 				    offset + TLV_TYPE, 2, type);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, NullTVB,
 				    offset + TLV_LENGTH, 2, length);
 				offset += 4;
 				length -= 4;
@@ -220,13 +220,13 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				offset += length;
 				break;
 			case TYPE_IOS_VERSION:
-				tlvi = proto_tree_add_text(cdp_tree, offset,
+				tlvi = proto_tree_add_text(cdp_tree, NullTVB, offset,
 				    length, "Software Version");
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ett_cdp_tlv);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, NullTVB,
 				    offset + TLV_TYPE, 2, type);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, NullTVB,
 				    offset + TLV_LENGTH, 2, length);
 				add_multi_line_string_to_tree(tlv_tree,
 				    offset + 4, length - 4, "Software Version: ",
@@ -238,32 +238,32 @@ dissect_cdp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				stringmem = malloc(length);
 				memset(stringmem, '\0', length);
 				memcpy(stringmem, &pd[offset+4], length - 4 );
-				tlvi = proto_tree_add_text(cdp_tree,
+				tlvi = proto_tree_add_text(cdp_tree, NullTVB,
 				    offset, length, "Platform: %s",
 				    stringmem);
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ett_cdp_tlv);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, NullTVB,
 				    offset + TLV_TYPE, 2, type);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, NullTVB,
 				    offset + TLV_LENGTH, 2, length);
-				proto_tree_add_text(tlv_tree, offset + 4,
+				proto_tree_add_text(tlv_tree, NullTVB, offset + 4,
 				    length - 4, "Platform: %s", stringmem);
 				free(stringmem);
 				offset+=length;
 				break;
 			default:
-				tlvi = proto_tree_add_text(cdp_tree, offset,
+				tlvi = proto_tree_add_text(cdp_tree, NullTVB, offset,
 				    length, "Type: %s, length: %u",
 				    type_str, length);
 				tlv_tree = proto_item_add_subtree(tlvi,
 				    ett_cdp_tlv);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype,
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, NullTVB,
 				    offset + TLV_TYPE, 2, type);
-				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength,
+				proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, NullTVB,
 				    offset + TLV_LENGTH, 2, length);
 				if (length > 4) {
-					proto_tree_add_text(tlv_tree,
+					proto_tree_add_text(tlv_tree, NullTVB,
 					    offset + 4, length - 4, "Data");
 				} else
 					return;
@@ -298,10 +298,10 @@ dissect_address_tlv(const u_char *pd, int offset, int length, proto_tree *tree)
 
     if (length < 1)
         return -1;
-    ti = proto_tree_add_notext(tree, offset, length);
+    ti = proto_tree_add_notext(tree, NullTVB, offset, length);
     address_tree = proto_item_add_subtree(ti, ett_cdp_address);
     protocol_type = pd[offset];
-    proto_tree_add_text(address_tree, offset, 1, "Protocol type: %s",
+    proto_tree_add_text(address_tree, NullTVB, offset, 1, "Protocol type: %s",
 	val_to_str(protocol_type, proto_type_vals, "Unknown (0x%02x)"));
     offset += 1;
     length -= 1;
@@ -311,7 +311,7 @@ dissect_address_tlv(const u_char *pd, int offset, int length, proto_tree *tree)
 	return -1;
     }
     protocol_length = pd[offset];
-    proto_tree_add_text(address_tree, offset, 1, "Protocol length: %u",
+    proto_tree_add_text(address_tree, NullTVB, offset, 1, "Protocol length: %u",
 			protocol_length);
     offset += 1;
     length -= 1;
@@ -319,7 +319,7 @@ dissect_address_tlv(const u_char *pd, int offset, int length, proto_tree *tree)
     if (length < protocol_length) {
         proto_item_set_text(ti, "Truncated address");
         if (length != 0) {
-            proto_tree_add_text(address_tree, offset, length,
+            proto_tree_add_text(address_tree, NullTVB, offset, length,
               "Protocol: %s (truncated)", bytes_to_str(&pd[offset], length));
         }
 	return -1;
@@ -332,7 +332,7 @@ dissect_address_tlv(const u_char *pd, int offset, int length, proto_tree *tree)
         nlpid = -1;
     if (protocol_str == NULL)
         protocol_str = bytes_to_str(&pd[offset], protocol_length);
-    proto_tree_add_text(address_tree, offset, protocol_length,
+    proto_tree_add_text(address_tree, NullTVB, offset, protocol_length,
 			"Protocol: %s", protocol_str);
     offset += protocol_length;
     length -= protocol_length;
@@ -342,7 +342,7 @@ dissect_address_tlv(const u_char *pd, int offset, int length, proto_tree *tree)
 	return -1;
     }
     address_length = pntohs(&pd[offset]);
-    proto_tree_add_text(address_tree, offset, 2, "Address length: %u",
+    proto_tree_add_text(address_tree, NullTVB, offset, 2, "Address length: %u",
 			address_length);
     offset += 2;
     length -= 2;
@@ -350,7 +350,7 @@ dissect_address_tlv(const u_char *pd, int offset, int length, proto_tree *tree)
     if (length < address_length) {
         proto_item_set_text(ti, "Truncated address");
         if (length != 0) {
-            proto_tree_add_text(address_tree, offset, length,
+            proto_tree_add_text(address_tree, NullTVB, offset, length,
               "Address: %s (truncated)", bytes_to_str(&pd[offset], length));
         }
 	return -1;
@@ -381,7 +381,7 @@ dissect_address_tlv(const u_char *pd, int offset, int length, proto_tree *tree)
         address_str = bytes_to_str(&pd[offset], address_length);
     }
     proto_item_set_text(ti, "%s: %s", address_type_str, address_str);
-    proto_tree_add_text(address_tree, offset, address_length, "%s: %s",
+    proto_tree_add_text(address_tree, NullTVB, offset, address_length, "%s: %s",
       address_type_str, address_str);
     return 2 + protocol_length + 2 + address_length;
 }
@@ -396,34 +396,34 @@ dissect_capabilities(const u_char *pd, int offset, int length, proto_tree *tree)
     if (length < 4)
         return;
     capabilities = pntohl(&pd[offset]);
-    ti = proto_tree_add_text(tree, offset, length, "Capabilities: 0x%08x",
+    ti = proto_tree_add_text(tree, NullTVB, offset, length, "Capabilities: 0x%08x",
         capabilities);
     capabilities_tree = proto_item_add_subtree(ti, ett_cdp_capabilities);
-    proto_tree_add_text(capabilities_tree, offset, 4,
+    proto_tree_add_text(capabilities_tree, NullTVB, offset, 4,
 	decode_boolean_bitfield(capabilities, 0x01, 4*8,
 	    "Performs level 3 routing",
 	    "Doesn't perform level 3 routing"));
-    proto_tree_add_text(capabilities_tree, offset, 4,
+    proto_tree_add_text(capabilities_tree, NullTVB, offset, 4,
 	decode_boolean_bitfield(capabilities, 0x02, 4*8,
 	    "Performs level 2 transparent bridging",
 	    "Doesn't perform level 2 transparent bridging"));
-    proto_tree_add_text(capabilities_tree, offset, 4,
+    proto_tree_add_text(capabilities_tree, NullTVB, offset, 4,
 	decode_boolean_bitfield(capabilities, 0x04, 4*8,
 	    "Performs level 2 source-route bridging",
 	    "Doesn't perform level 2 source-route bridging"));
-    proto_tree_add_text(capabilities_tree, offset, 4,
+    proto_tree_add_text(capabilities_tree, NullTVB, offset, 4,
 	decode_boolean_bitfield(capabilities, 0x08, 4*8,
 	    "Performs level 2 switching",
 	    "Doesn't perform level 2 switching"));
-    proto_tree_add_text(capabilities_tree, offset, 4,
+    proto_tree_add_text(capabilities_tree, NullTVB, offset, 4,
 	decode_boolean_bitfield(capabilities, 0x10, 4*8,
 	    "Sends and receives packets for network-layer protocols",
 	    "Doesn't send or receive packets for network-layer protocols"));
-    proto_tree_add_text(capabilities_tree, offset, 4,
+    proto_tree_add_text(capabilities_tree, NullTVB, offset, 4,
 	decode_boolean_bitfield(capabilities, 0x20, 4*8,
 	    "Doesn't forward IGMP Report packets on nonrouter ports",
 	    "Forwards IGMP Report packets on nonrouter ports"));
-    proto_tree_add_text(capabilities_tree, offset, 4,
+    proto_tree_add_text(capabilities_tree, NullTVB, offset, 4,
 	decode_boolean_bitfield(capabilities, 0x40, 4*8,
 	    "Provides level 1 functionality",
 	    "Doesn't provide level 1 functionality"));
@@ -456,7 +456,7 @@ add_multi_line_string_to_tree(proto_tree *tree, gint start, gint len,
 	    line_len = strlen(p);
 	    data_len = line_len;
 	}
-	proto_tree_add_text(tree, start, data_len, "%s%.*s", prefix,
+	proto_tree_add_text(tree, NullTVB, start, data_len, "%s%.*s", prefix,
 	   line_len, p);
 	if (q == NULL)
 	    break;

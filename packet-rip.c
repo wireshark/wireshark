@@ -2,7 +2,7 @@
  * Routines for RIPv1 and RIPv2 packet disassembly
  * (c) Copyright Hannes R. Boehm <hannes@boehm.org>
  *
- * $Id: packet-rip.c,v 1.14 2000/04/14 06:17:23 guy Exp $
+ * $Id: packet-rip.c,v 1.15 2000/05/11 08:15:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -97,13 +97,13 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
         col_add_str(fd, COL_INFO, packet_type[rip_header.command]); 
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_rip, offset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(tree, proto_rip, NullTVB, offset, END_OF_FRAME, NULL);
 	rip_tree = proto_item_add_subtree(ti, ett_rip);
 
-	proto_tree_add_text(rip_tree, offset, 1, "Command: %d (%s)", rip_header.command, packet_type[rip_header.command]); 
-	proto_tree_add_text(rip_tree, offset + 1, 1, "Version: %d", rip_header.version);
+	proto_tree_add_text(rip_tree, NullTVB, offset, 1, "Command: %d (%s)", rip_header.command, packet_type[rip_header.command]); 
+	proto_tree_add_text(rip_tree, NullTVB, offset + 1, 1, "Version: %d", rip_header.version);
 	if(rip_header.version == RIPv2)
-	    proto_tree_add_text(rip_tree, offset + 2 , 2, "Routing Domain: %d", ntohs(rip_header.domain)); 
+	    proto_tree_add_text(rip_tree, NullTVB, offset + 2 , 2, "Routing Domain: %d", ntohs(rip_header.domain)); 
 
 	/* skip header */
 	offset += RIP_HEADER_LENGTH;
@@ -115,7 +115,7 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    family = ntohs(rip_entry.vektor.family);
 	    switch (family) {
 	    case 2: /* IP */
-		ti = proto_tree_add_text(rip_tree, offset,
+		ti = proto_tree_add_text(rip_tree, NullTVB, offset,
 				RIP_ENTRY_LENGTH, "IP Address: %s, Metric: %ld",
 				ip_to_str((guint8 *) &(rip_entry.vektor.ip)),
 				(long)ntohl(rip_entry.vektor.metric));
@@ -123,13 +123,13 @@ dissect_rip(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 				offset, ti);
 		break;
 	    case 0xFFFF:
-	        proto_tree_add_text(rip_tree, offset,
+	        proto_tree_add_text(rip_tree, NullTVB, offset,
 				RIP_ENTRY_LENGTH, "Authentication");
 		dissect_rip_authentication(&rip_entry.authentication,
 				offset, ti);
 		break;
 	    default:
-	        proto_tree_add_text(rip_tree, offset,
+	        proto_tree_add_text(rip_tree, NullTVB, offset,
 				RIP_ENTRY_LENGTH, "Unknown address family %u",
 				family);
 		break;
@@ -148,19 +148,19 @@ dissect_ip_rip_vektor(guint8 version, const e_rip_vektor *rip_vektor,
 
     rip_vektor_tree = proto_item_add_subtree(tree, ett_rip_vec);
 	   
-    proto_tree_add_text(rip_vektor_tree, offset, 2, "Address Family ID: IP"); 
+    proto_tree_add_text(rip_vektor_tree, NullTVB, offset, 2, "Address Family ID: IP"); 
     if(version == RIPv2)
-	proto_tree_add_text(rip_vektor_tree, offset + 2 , 2, "Route Tag: %d",
+	proto_tree_add_text(rip_vektor_tree, NullTVB, offset + 2 , 2, "Route Tag: %d",
 				ntohs(rip_vektor->tag)); 
-    proto_tree_add_text(rip_vektor_tree, offset + 4, 4, "IP Address: %s",
+    proto_tree_add_text(rip_vektor_tree, NullTVB, offset + 4, 4, "IP Address: %s",
     				ip_to_str((guint8 *) &(rip_vektor->ip))); 
     if(version == RIPv2) {
-	proto_tree_add_text(rip_vektor_tree, offset + 8 , 4, "Netmask: %s", 
+	proto_tree_add_text(rip_vektor_tree, NullTVB, offset + 8 , 4, "Netmask: %s", 
 				ip_to_str((guint8 *) &(rip_vektor->mask))); 
-	proto_tree_add_text(rip_vektor_tree, offset + 12, 4, "Next Hop: %s", 
+	proto_tree_add_text(rip_vektor_tree, NullTVB, offset + 12, 4, "Next Hop: %s", 
 				ip_to_str((guint8 *) &(rip_vektor->next_hop))); 
     }
-    proto_tree_add_text(rip_vektor_tree, offset + 16, 4, "Metric: %ld",
+    proto_tree_add_text(rip_vektor_tree, NullTVB, offset + 16, 4, "Metric: %ld",
     				(long)ntohl(rip_vektor->metric)); 
 }
 
@@ -174,10 +174,10 @@ dissect_rip_authentication(const e_rip_authentication *rip_authentication,
     rip_authentication_tree = proto_item_add_subtree(tree, ett_rip_vec);
 
     authtype = ntohs(rip_authentication->authtype);
-    proto_tree_add_text(rip_authentication_tree, offset + 2, 2,
+    proto_tree_add_text(rip_authentication_tree, NullTVB, offset + 2, 2,
     				"Authentication type: %u", authtype); 
     if (authtype == 2)
-	proto_tree_add_text(rip_authentication_tree, offset + 4 , 16,
+	proto_tree_add_text(rip_authentication_tree, NullTVB, offset + 4 , 16,
 				"Password: %.16s",
 				rip_authentication->authentication);
 }

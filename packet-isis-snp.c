@@ -1,7 +1,7 @@
 /* packet-isis-snp.c
  * Routines for decoding isis complete & partial SNP and their payload
  *
- * $Id: packet-isis-snp.c,v 1.3 2000/04/15 22:11:10 guy Exp $
+ * $Id: packet-isis-snp.c,v 1.4 2000/05/11 08:15:17 gram Exp $
  * Stuart Stanley <stuarts@mxmail.net>
  *
  * Ethereal - Network traffic analyzer
@@ -197,14 +197,14 @@ dissect_snp_lsp_entries(const u_char *pd, int offset, guint length,
 			return;
 		}
 		
-		proto_tree_add_text(tree, offset, 2, "Remaining life      : %d",
+		proto_tree_add_text(tree, NullTVB, offset, 2, "Remaining life      : %d",
 			pntohs(&ps->isis_snp_remaining_lifetime));
 		isis_lsp_decode_lsp_id( "LSP ID              ", tree, offset + 2,
 			&ps->isis_snp_lsp_id );
-		proto_tree_add_text(tree, offset+10, 4, 
+		proto_tree_add_text(tree, NullTVB, offset+10, 4, 
 			"LSP Sequence Number : 0x%04x",
 			pntohl(&ps->isis_snp_sequence_number));
-		proto_tree_add_text(tree, offset+14, 2, 
+		proto_tree_add_text(tree, NullTVB, offset+14, 2, 
 			"LSP checksum        : 0x%02x",
 			pntohs(&ps->isis_snp_checksum));
 		length -= sizeof ( isis_snp_t );
@@ -253,12 +253,12 @@ isis_dissect_isis_csnp(int type, int header_length, const u_char *pd,
 	ilp = (isis_csnp_t *) &pd[offset];
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_isis_csnp,
+		ti = proto_tree_add_item(tree, proto_isis_csnp, NullTVB,
 			offset, END_OF_FRAME, NULL);
 		csnp_tree = proto_item_add_subtree(ti, ett_isis_csnp);
-		proto_tree_add_item(csnp_tree, hf_isis_csnp_pdu_length,
+		proto_tree_add_item(csnp_tree, hf_isis_csnp_pdu_length, NullTVB,
 			offset, 2, pntohs(&ilp->isis_csnp_pdu_length));
-		proto_tree_add_text(csnp_tree, offset + 2, 7, 
+		proto_tree_add_text(csnp_tree, NullTVB, offset + 2, 7, 
 			"Source id    : %s",
 				print_system_id( pd + offset + 2, 7 ) );
 		isis_lsp_decode_lsp_id( "Start LSP id ", csnp_tree, offset + 9,
@@ -321,12 +321,12 @@ isis_dissect_isis_psnp(int type, int header_length, const u_char *pd,
 	ilp = (isis_psnp_t *) &pd[offset];
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_isis_psnp,
+		ti = proto_tree_add_item(tree, proto_isis_psnp, NullTVB,
 			offset, END_OF_FRAME, NULL);
 		psnp_tree = proto_item_add_subtree(ti, ett_isis_psnp);
-		proto_tree_add_item(psnp_tree, hf_isis_psnp_pdu_length,
+		proto_tree_add_item(psnp_tree, hf_isis_psnp_pdu_length, NullTVB,
 			offset, 2, pntohs(&ilp->isis_psnp_pdu_length));
-		proto_tree_add_text(psnp_tree, offset + 2, 7, 
+		proto_tree_add_text(psnp_tree, NullTVB, offset + 2, 7, 
 			"Source id: %s",
 			print_system_id( pd + offset + 2, 7 ) );
 	}

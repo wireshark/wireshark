@@ -1,7 +1,7 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id: packet-bpdu.c,v 1.9 2000/04/17 00:32:37 guy Exp $
+ * $Id: packet-bpdu.c,v 1.10 2000/05/11 08:15:03 gram Exp $
  *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  * 
@@ -121,10 +121,10 @@ void dissect_bpdu(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	    protocol_identifier = pntohs(bpdu + BPDU_IDENTIFIER);
 	    protocol_version_identifier = (guint8) bpdu[BPDU_VERSION_IDENTIFIER];
 
-	    ti = proto_tree_add_protocol_format(tree, proto_bpdu, offset, 35,
+	    ti = proto_tree_add_protocol_format(tree, proto_bpdu, NullTVB, offset, 35,
 			    	"Spanning Tree Protocol");
 	    bpdu_tree = proto_item_add_subtree(ti, ett_bpdu);
-	    proto_tree_add_uint_format(bpdu_tree, hf_bpdu_proto_id,
+	    proto_tree_add_uint_format(bpdu_tree, hf_bpdu_proto_id, NullTVB,
 				       offset + BPDU_IDENTIFIER, 2, 
 				       protocol_identifier,
 				       "Protocol Identifier: 0x%04x (%s)", 
@@ -132,12 +132,12 @@ void dissect_bpdu(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 				       protocol_identifier == 0 ? 
 				       "Spanning Tree" : "Unknown Protocol");
 
-	    proto_tree_add_item(bpdu_tree, hf_bpdu_version_id, 
+	    proto_tree_add_item(bpdu_tree, hf_bpdu_version_id, NullTVB, 
 				offset + BPDU_VERSION_IDENTIFIER, 1, 
 				protocol_version_identifier);
 	    if (protocol_version_identifier != 0)
-		  proto_tree_add_text(bpdu_tree, offset + BPDU_VERSION_IDENTIFIER, 1, "   (Warning: this version of packet-bpdu only knows about version = 0)");
-	    proto_tree_add_uint_format(bpdu_tree, hf_bpdu_type,
+		  proto_tree_add_text(bpdu_tree, NullTVB, offset + BPDU_VERSION_IDENTIFIER, 1, "   (Warning: this version of packet-bpdu only knows about version = 0)");
+	    proto_tree_add_uint_format(bpdu_tree, hf_bpdu_type, NullTVB,
 				       offset + BPDU_TYPE, 1, 
 				       bpdu_type,
 				       "BPDU Type: 0x%02x (%s)", 
@@ -157,45 +157,45 @@ void dissect_bpdu(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	    hello_time = pntohs(bpdu + BPDU_HELLO_TIME) / 256.0;
 	    forward_delay = pntohs(bpdu + BPDU_FORWARD_DELAY) / 256.0;
 
-	    proto_tree_add_item(bpdu_tree, hf_bpdu_flags, 
+	    proto_tree_add_item(bpdu_tree, hf_bpdu_flags, NullTVB, 
 				offset + BPDU_FLAGS, 1, flags);
 	    if (flags & 0x80)
-		  proto_tree_add_text(bpdu_tree, offset + BPDU_FLAGS, 1, "   1... ....  Topology Change Acknowledgment");
+		  proto_tree_add_text(bpdu_tree, NullTVB, offset + BPDU_FLAGS, 1, "   1... ....  Topology Change Acknowledgment");
 	    if (flags & 0x01)
-		  proto_tree_add_text(bpdu_tree, offset + BPDU_FLAGS, 1, "   .... ...1  Topology Change");
+		  proto_tree_add_text(bpdu_tree, NullTVB, offset + BPDU_FLAGS, 1, "   .... ...1  Topology Change");
 
-	    proto_tree_add_item_hidden(bpdu_tree, hf_bpdu_root_mac,
+	    proto_tree_add_item_hidden(bpdu_tree, hf_bpdu_root_mac, NullTVB,
 				       offset + BPDU_ROOT_IDENTIFIER + 2, 6,
 				       bpdu + BPDU_ROOT_IDENTIFIER + 2);
-	    proto_tree_add_text(bpdu_tree, 
+	    proto_tree_add_text(bpdu_tree, NullTVB, 
 				offset + BPDU_ROOT_IDENTIFIER, 8, 
 				"Root Identifier: %d / %s", 
 				root_identifier_bridge_priority, 
 				root_identifier_mac);
-	    proto_tree_add_item(bpdu_tree, hf_bpdu_root_cost, 
+	    proto_tree_add_item(bpdu_tree, hf_bpdu_root_cost, NullTVB, 
 				offset + BPDU_ROOT_PATH_COST, 4, 
 				root_path_cost);
-	    proto_tree_add_text(bpdu_tree, 
+	    proto_tree_add_text(bpdu_tree, NullTVB, 
 				offset + BPDU_BRIDGE_IDENTIFIER, 8, 
 				"Bridge Identifier: %d / %s", 
 				bridge_identifier_bridge_priority, 
 				bridge_identifier_mac);
-	    proto_tree_add_item_hidden(bpdu_tree, hf_bpdu_bridge_mac,
+	    proto_tree_add_item_hidden(bpdu_tree, hf_bpdu_bridge_mac, NullTVB,
 				       offset + BPDU_BRIDGE_IDENTIFIER + 2, 6,
 				       bpdu + BPDU_BRIDGE_IDENTIFIER + 2);
-	    proto_tree_add_item(bpdu_tree, hf_bpdu_port_id,
+	    proto_tree_add_item(bpdu_tree, hf_bpdu_port_id, NullTVB,
 				offset + BPDU_PORT_IDENTIFIER, 2, 
 				port_identifier);
-	    proto_tree_add_item(bpdu_tree, hf_bpdu_msg_age,
+	    proto_tree_add_item(bpdu_tree, hf_bpdu_msg_age, NullTVB,
 				offset + BPDU_MESSAGE_AGE, 2, 
 				message_age);
-	    proto_tree_add_item(bpdu_tree, hf_bpdu_max_age,
+	    proto_tree_add_item(bpdu_tree, hf_bpdu_max_age, NullTVB,
 				offset + BPDU_MAX_AGE, 2, 
 				max_age);
-	    proto_tree_add_item(bpdu_tree, hf_bpdu_hello_time,
+	    proto_tree_add_item(bpdu_tree, hf_bpdu_hello_time, NullTVB,
 				offset + BPDU_HELLO_TIME, 2, 
 				hello_time);
-	    proto_tree_add_item(bpdu_tree, hf_bpdu_forward_delay,
+	    proto_tree_add_item(bpdu_tree, hf_bpdu_forward_delay, NullTVB,
 				offset + BPDU_FORWARD_DELAY, 2, 
 				forward_delay);
       }

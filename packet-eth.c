@@ -1,7 +1,7 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id: packet-eth.c,v 1.32 2000/05/05 09:32:02 guy Exp $
+ * $Id: packet-eth.c,v 1.33 2000/05/11 08:15:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -195,19 +195,19 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     }
     if (tree) {
 
-	ti = proto_tree_add_protocol_format(tree, proto_eth, offset, ETH_HEADER_SIZE,
+	ti = proto_tree_add_protocol_format(tree, proto_eth, NullTVB, offset, ETH_HEADER_SIZE,
 		"IEEE 802.3 %s", (ethhdr_type == ETHERNET_802_3 ? "Raw " : ""));
 
 	fh_tree = proto_item_add_subtree(ti, ett_ieee8023);
 
-	proto_tree_add_item(fh_tree, hf_eth_dst, offset+0, 6, &pd[offset+0]);
-	proto_tree_add_item(fh_tree, hf_eth_src, offset+6, 6, &pd[offset+6]);
+	proto_tree_add_item(fh_tree, hf_eth_dst, NullTVB, offset+0, 6, &pd[offset+0]);
+	proto_tree_add_item(fh_tree, hf_eth_src, NullTVB, offset+6, 6, &pd[offset+6]);
 
 /* add items for eth.addr filter */
-	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, offset + 0, 6, &pd[offset+0]);
-	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, offset + 6, 6, &pd[offset+6]);
+	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, NullTVB, offset + 0, 6, &pd[offset+0]);
+	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, NullTVB, offset + 6, 6, &pd[offset+6]);
 
-	proto_tree_add_item(fh_tree, hf_eth_len, offset+12, 2, length);
+	proto_tree_add_item(fh_tree, hf_eth_len, NullTVB, offset+12, 2, length);
     }
 
     /* Convert the LLC length from the 802.3 header to a total
@@ -226,16 +226,16 @@ dissect_eth(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
       col_add_str(fd, COL_INFO, "Ethernet II");
     if (tree) {
 
-	ti = proto_tree_add_protocol_format(tree, proto_eth, offset, ETH_HEADER_SIZE,
+	ti = proto_tree_add_protocol_format(tree, proto_eth, NullTVB, offset, ETH_HEADER_SIZE,
 		"Ethernet II");
 
 	fh_tree = proto_item_add_subtree(ti, ett_ether2);
 
-	proto_tree_add_item(fh_tree, hf_eth_dst, offset+0, 6, &pd[offset+0]);
-	proto_tree_add_item(fh_tree, hf_eth_src, offset+6, 6, &pd[offset+6]);
+	proto_tree_add_item(fh_tree, hf_eth_dst, NullTVB, offset+0, 6, &pd[offset+0]);
+	proto_tree_add_item(fh_tree, hf_eth_src, NullTVB, offset+6, 6, &pd[offset+6]);
 /* add items for eth.addr filter */
-	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, offset + 0, 6, &pd[offset+0]);
-	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, offset + 6, 6, &pd[offset+6]);
+	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, NullTVB, offset + 0, 6, &pd[offset+0]);
+	proto_tree_add_item_hidden(fh_tree, hf_eth_addr, NullTVB, offset + 6, 6, &pd[offset+6]);
     }
   }
   offset += ETH_HEADER_SIZE;

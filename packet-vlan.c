@@ -1,7 +1,7 @@
 /* packet-vlan.c
  * Routines for VLAN 802.1Q ethernet header disassembly
  *
- * $Id: packet-vlan.c,v 1.10 2000/04/16 22:59:37 guy Exp $
+ * $Id: packet-vlan.c,v 1.11 2000/05/11 08:15:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -89,12 +89,12 @@ dissect_vlan(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
   }
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_vlan, offset, 4);
+    ti = proto_tree_add_item(tree, proto_vlan, NullTVB, offset, 4);
     vlan_tree = proto_item_add_subtree(ti, ett_vlan);
 
-    proto_tree_add_item(vlan_tree, hf_vlan_priority, offset, 2, tci);
-    proto_tree_add_item(vlan_tree, hf_vlan_cfi, offset, 2, tci);
-    proto_tree_add_item(vlan_tree, hf_vlan_id, offset, 2, tci);
+    proto_tree_add_item(vlan_tree, hf_vlan_priority, NullTVB, offset, 2, tci);
+    proto_tree_add_item(vlan_tree, hf_vlan_cfi, NullTVB, offset, 2, tci);
+    proto_tree_add_item(vlan_tree, hf_vlan_id, NullTVB, offset, 2, tci);
   }
 
   if ( encap_proto <= IEEE_802_3_MAX_LEN) {

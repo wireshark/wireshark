@@ -2,7 +2,7 @@
  * Routines for LPR and LPRng packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-lpd.c,v 1.18 2000/04/20 15:24:41 gram Exp $
+ * $Id: packet-lpd.c,v 1.19 2000/05/11 08:15:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -104,23 +104,23 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_lpd, offset, 
+		ti = proto_tree_add_item(tree, proto_lpd, NullTVB, offset, 
 					 END_OF_FRAME, NULL);
 		lpd_tree = proto_item_add_subtree(ti, ett_lpd);
 
 		if (lpr_packet_type == response) {
-		  proto_tree_add_item_hidden(lpd_tree, hf_lpd_response, 0, 0, TRUE);
+		  proto_tree_add_item_hidden(lpd_tree, hf_lpd_response, NullTVB, 0, 0, TRUE);
 		} else {
-		  proto_tree_add_item_hidden(lpd_tree, hf_lpd_request, 0, 0, TRUE);
+		  proto_tree_add_item_hidden(lpd_tree, hf_lpd_request, NullTVB, 0, 0, TRUE);
 		}
 
 		if (lpr_packet_type == request) {
 			printer = find_printer_string(pd, offset+1, END_OF_FRAME);
 
 			if (pd[offset] <= 9 && printer) {
-				proto_tree_add_text(lpd_tree, offset,		1,
+				proto_tree_add_text(lpd_tree, NullTVB, offset,		1,
 					lpd_client_code[pd[offset]]);
-				proto_tree_add_text(lpd_tree, offset+1,
+				proto_tree_add_text(lpd_tree, NullTVB, offset+1,
 					strlen(printer), "Printer/options: %s", printer);
 			}
 			else {
@@ -134,7 +134,7 @@ dissect_lpd(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			int response = pd[offset];
 
 			if (response <= 3) {
-				proto_tree_add_text(lpd_tree, offset, 1, "Response: %s",
+				proto_tree_add_text(lpd_tree, NullTVB, offset, 1, "Response: %s",
 					lpd_server_code[response]);
 			}
 			else {

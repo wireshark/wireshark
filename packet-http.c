@@ -3,7 +3,7 @@
  *
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-http.c,v 1.17 2000/04/08 07:07:17 guy Exp $
+ * $Id: packet-http.c,v 1.18 2000/05/11 08:15:10 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -92,7 +92,7 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_http, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_http, NullTVB, offset, END_OF_FRAME, NULL);
 		http_tree = proto_item_add_subtree(ti, ett_http);
 
 		while (data < dataend) {
@@ -180,7 +180,7 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 			/*
 			 * Put this line.
 			 */
-			proto_tree_add_text(http_tree, offset, linelen, "%s",
+			proto_tree_add_text(http_tree, NullTVB, offset, linelen, "%s",
 			    format_text(data, linelen));
 			offset += linelen;
 			data = lineend;
@@ -190,12 +190,12 @@ void dissect_http(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 
 		case HTTP_RESPONSE:
 			proto_tree_add_item_hidden(http_tree, 
-					       hf_http_response, 0, 0, 1);
+					       hf_http_response, NullTVB, 0, 0, 1);
 			break;
 
 		case HTTP_REQUEST:
 			proto_tree_add_item_hidden(http_tree, 
-					       hf_http_request, 0, 0, 1);
+					       hf_http_request, NullTVB, 0, 0, 1);
 			break;
 
 		case HTTP_OTHERS:

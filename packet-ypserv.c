@@ -1,7 +1,7 @@
 /* packet-ypserv.c
  * Routines for ypserv dissection
  *
- * $Id: packet-ypserv.c,v 1.9 2000/04/04 06:46:29 guy Exp $
+ * $Id: packet-ypserv.c,v 1.10 2000/05/11 08:15:58 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,7 +66,7 @@ int dissect_domain_reply(const u_char *pd, int offset, frame_data *fd,
 
 	if ( tree )
 	{
-		proto_tree_add_item(tree, hf_ypserv_servesdomain,
+		proto_tree_add_item(tree, hf_ypserv_servesdomain, NullTVB,
 			offset, 4, pntohl(&pd[offset]));
 	}
 
@@ -120,7 +120,7 @@ int dissect_match_reply(const u_char *pd, int offset, frame_data *fd,
 
 	if ( tree )
 	{
-		proto_tree_add_item(tree, hf_ypserv_status,
+		proto_tree_add_item(tree, hf_ypserv_status, NullTVB,
 			offset, 4, pntohl(&pd[offset]));
 		offset += 4;
 
@@ -137,7 +137,7 @@ int dissect_firstnext_reply(const u_char *pd, int offset, frame_data *fd,
 
 	if ( tree )
 	{
-		proto_tree_add_item(tree, hf_ypserv_status,
+		proto_tree_add_item(tree, hf_ypserv_status, NullTVB,
 			offset, 4, pntohl(&pd[offset]));
 		offset += 4;
 

@@ -2,7 +2,7 @@
  * Routines for nfs dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  *
- * $Id: packet-nfs.c,v 1.26 2000/04/04 06:46:25 guy Exp $
+ * $Id: packet-nfs.c,v 1.27 2000/05/11 08:15:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -174,7 +174,7 @@ guint32* status)
 	if (tree) {
 		/* this gives the right NFSv2 number<->message relation */
 		/* and makes it searchable via "nfs.status" */
-		proto_tree_add_uint_format(tree, hf_nfs_nfsstat3,
+		proto_tree_add_uint_format(tree, hf_nfs_nfsstat3, NullTVB,
 			offset+0, 4, stat, "Status: %s (%u)", 
 			val_to_str(stat,names_nfs_stat,"%u"), stat);
 	}
@@ -221,7 +221,7 @@ char* name)
 	ftype_name = val_to_str(ftype, nfs2_ftype, "%u");
 	
 	if (tree) {
-		proto_tree_add_text(tree, offset, 4,
+		proto_tree_add_text(tree, NullTVB, offset, 4,
 			"%s: %s (%u)", name, ftype_name, ftype);
 	}
 
@@ -242,7 +242,7 @@ dissect_fhandle_data(const u_char *pd, int offset, proto_tree *tree, int fhlen)
 		sublen = 16;
 		if (sublen > bytes_left)
 			sublen = bytes_left;
-		proto_tree_add_text(tree, offset, sublen,
+		proto_tree_add_text(tree, NullTVB, offset, sublen,
 					"%s%s",
 					first_line ? "data: " :
 					             "      ",
@@ -261,7 +261,7 @@ dissect_fhandle(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 	proto_tree* ftree = NULL;
 
 	if (tree) {
-		fitem = proto_tree_add_text(tree, offset, FHSIZE,
+		fitem = proto_tree_add_text(tree, NullTVB, offset, FHSIZE,
 			"%s", name);
 		if (fitem)
 			ftree = proto_item_add_subtree(fitem, ett_nfs_fhandle);
@@ -299,16 +299,16 @@ dissect_timeval(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 	mseconds = EXTRACT_UINT(pd, offset+4);
 	
 	if (tree) {
-		time_item = proto_tree_add_text(tree, offset, 8,
+		time_item = proto_tree_add_text(tree, NullTVB, offset, 8,
 			"%s: %u.%06u", name, seconds, mseconds);
 		if (time_item)
 			time_tree = proto_item_add_subtree(time_item, ett_nfs_timeval);
 	}
 
 	if (time_tree) {
-		proto_tree_add_text(time_tree,offset+0,4,
+		proto_tree_add_text(time_tree, NullTVB,offset+0,4,
 					"seconds: %u", seconds);
-		proto_tree_add_text(time_tree,offset+4,4,
+		proto_tree_add_text(time_tree, NullTVB,offset+4,4,
 					"micro seconds: %u", mseconds);
 	}
 	offset += 8;
@@ -339,39 +339,39 @@ char* name)
 	mode = EXTRACT_UINT(pd, offset+0);
 	
 	if (tree) {
-		mode_item = proto_tree_add_text(tree, offset, 4,
+		mode_item = proto_tree_add_text(tree, NullTVB, offset, 4,
 			"%s: 0%o", name, mode);
 		if (mode_item)
 			mode_tree = proto_item_add_subtree(mode_item, ett_nfs_mode);
 	}
 
 	if (mode_tree) {
-		proto_tree_add_text(mode_tree, offset, 4, "%s",
+		proto_tree_add_text(mode_tree, NullTVB, offset, 4, "%s",
 			decode_enumerated_bitfield(mode,  0160000, 16,
 			nfs2_mode_names, "%s"));
-		proto_tree_add_text(mode_tree, offset, 4, "%s",
+		proto_tree_add_text(mode_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode,   04000, 16, "Set user id on exec", "not SUID"));
-		proto_tree_add_text(mode_tree, offset, 4, "%s",
+		proto_tree_add_text(mode_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode,   02000, 16, "Set group id on exec", "not SGID"));
-		proto_tree_add_text(mode_tree, offset, 4, "%s",
+		proto_tree_add_text(mode_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode,   01000, 16, "Save swapped text even after use", "not save swapped text"));
-		proto_tree_add_text(mode_tree, offset, 4, "%s",
+		proto_tree_add_text(mode_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode,    0400, 16, "Read permission for owner", "no Read permission for owner"));
-		proto_tree_add_text(mode_tree, offset, 4, "%s",
+		proto_tree_add_text(mode_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode,    0200, 16, "Write permission for owner", "no Write permission for owner"));
-		proto_tree_add_text(mode_tree, offset, 4, "%s",
+		proto_tree_add_text(mode_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode,    0100, 16, "Execute permission for owner", "no Execute permission for owner"));
-		proto_tree_add_text(mode_tree, offset, 4, "%s",
+		proto_tree_add_text(mode_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode,     040, 16, "Read permission for group", "no Read permission for group"));
-		proto_tree_add_text(mode_tree, offset, 4, "%s",
+		proto_tree_add_text(mode_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode,     020, 16, "Write permission for group", "no Write permission for group"));
-		proto_tree_add_text(mode_tree, offset, 4, "%s",
+		proto_tree_add_text(mode_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode,     010, 16, "Execute permission for group", "no Execute permission for group"));
-		proto_tree_add_text(mode_tree, offset, 4, "%s",
+		proto_tree_add_text(mode_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode,      04, 16, "Read permission for others", "no Read permission for others"));
-		proto_tree_add_text(mode_tree, offset, 4, "%s",
+		proto_tree_add_text(mode_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode,      02, 16, "Write permission for others", "no Write permission for others"));
-		proto_tree_add_text(mode_tree, offset, 4, "%s",
+		proto_tree_add_text(mode_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode,      01, 16, "Execute permission for others", "no Execute permission for others"));
 	}
 
@@ -389,7 +389,7 @@ dissect_fattr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, ch
 	int old_offset = offset;
 
 	if (tree) {
-		fattr_item = proto_tree_add_text(tree, offset,
+		fattr_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s", name);
 		if (fattr_item)
 			fattr_tree = proto_item_add_subtree(fattr_item, ett_nfs_fattr);
@@ -428,7 +428,7 @@ dissect_sattr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, ch
 	int old_offset = offset;
 
 	if (tree) {
-		sattr_item = proto_tree_add_text(tree, offset,
+		sattr_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s", name);
 		if (sattr_item)
 			sattr_tree = proto_item_add_subtree(sattr_item, ett_nfs_sattr);
@@ -438,7 +438,7 @@ dissect_sattr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, ch
 	if (EXTRACT_UINT(pd, offset+0) != 0xffffffff)
 		offset = dissect_mode         (pd,offset,fd,sattr_tree,"mode");
 	else {
-		proto_tree_add_text(sattr_tree, offset, 4, "mode: no value");
+		proto_tree_add_text(sattr_tree, NullTVB, offset, 4, "mode: no value");
 		offset += 4;
 	}
 
@@ -446,7 +446,7 @@ dissect_sattr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, ch
 	if (EXTRACT_UINT(pd, offset+0) != 0xffffffff)
 		offset = dissect_unsigned_int (pd,offset,fd,sattr_tree,"uid");
 	else {
-		proto_tree_add_text(sattr_tree, offset, 4, "uid: no value");
+		proto_tree_add_text(sattr_tree, NullTVB, offset, 4, "uid: no value");
 		offset += 4;
 	}
 
@@ -454,7 +454,7 @@ dissect_sattr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, ch
 	if (EXTRACT_UINT(pd, offset+0) != 0xffffffff)
 		offset = dissect_unsigned_int (pd,offset,fd,sattr_tree,"gid");
 	else {
-		proto_tree_add_text(sattr_tree, offset, 4, "gid: no value");
+		proto_tree_add_text(sattr_tree, NullTVB, offset, 4, "gid: no value");
 		offset += 4;
 	}
 
@@ -462,7 +462,7 @@ dissect_sattr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, ch
 	if (EXTRACT_UINT(pd, offset+0) != 0xffffffff)
 		offset = dissect_unsigned_int (pd,offset,fd,sattr_tree,"size");
 	else {
-		proto_tree_add_text(sattr_tree, offset, 4, "size: no value");
+		proto_tree_add_text(sattr_tree, NullTVB, offset, 4, "size: no value");
 		offset += 4;
 	}
 
@@ -470,7 +470,7 @@ dissect_sattr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, ch
 	if (EXTRACT_UINT(pd, offset+0) != 0xffffffff)
 		offset = dissect_timeval      (pd,offset,fd,sattr_tree,"atime");
 	else {
-		proto_tree_add_text(sattr_tree, offset, 8, "atime: no value");
+		proto_tree_add_text(sattr_tree, NullTVB, offset, 8, "atime: no value");
 		offset += 8;
 	}
 
@@ -478,7 +478,7 @@ dissect_sattr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, ch
 	if (EXTRACT_UINT(pd, offset+0) != 0xffffffff)
 		offset = dissect_timeval      (pd,offset,fd,sattr_tree,"mtime");
 	else {
-		proto_tree_add_text(sattr_tree, offset, 8, "mtime: no value");
+		proto_tree_add_text(sattr_tree, NullTVB, offset, 8, "mtime: no value");
 		offset += 8;
 	}
 
@@ -548,7 +548,7 @@ dissect_diropargs(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	int old_offset = offset;
 
 	if (tree) {
-		diropargs_item = proto_tree_add_text(tree, offset,
+		diropargs_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s", name);
 		if (diropargs_item)
 			diropargs_tree = proto_item_add_subtree(diropargs_item, ett_nfs_diropargs);
@@ -663,11 +663,11 @@ dissect_nfs2_read_call(const u_char *pd, int offset, frame_data *fd, proto_tree 
 	count        = EXTRACT_UINT(pd, offset+4);
 	totalcount   = EXTRACT_UINT(pd, offset+8);
 	if (tree) {
-		proto_tree_add_item(tree, hf_nfs_read_offset, 
+		proto_tree_add_item(tree, hf_nfs_read_offset, NullTVB, 
 		offset+0, 4, offset_value);
-		proto_tree_add_item(tree, hf_nfs_read_count, 
+		proto_tree_add_item(tree, hf_nfs_read_count, NullTVB, 
 		offset+4, 4, count);
-		proto_tree_add_item(tree, hf_nfs_read_totalcount, 
+		proto_tree_add_item(tree, hf_nfs_read_totalcount, NullTVB, 
 		offset+8, 4, totalcount);
 	}
 	offset += 12;
@@ -711,11 +711,11 @@ dissect_nfs2_write_call(const u_char *pd, int offset, frame_data *fd, proto_tree
 	offset_value = EXTRACT_UINT(pd, offset+4);
 	totalcount   = EXTRACT_UINT(pd, offset+8);
 	if (tree) {
-		proto_tree_add_item(tree, hf_nfs_write_beginoffset, 
+		proto_tree_add_item(tree, hf_nfs_write_beginoffset, NullTVB, 
 		offset+0, 4, beginoffset);
-		proto_tree_add_item(tree, hf_nfs_write_offset, 
+		proto_tree_add_item(tree, hf_nfs_write_offset, NullTVB, 
 		offset+4, 4, offset_value);
-		proto_tree_add_item(tree, hf_nfs_write_totalcount, 
+		proto_tree_add_item(tree, hf_nfs_write_totalcount, NullTVB, 
 		offset+8, 4, totalcount);
 	}
 	offset += 12;
@@ -783,9 +783,9 @@ dissect_nfs2_readdir_call(const u_char *pd, int offset, frame_data *fd, proto_tr
 	cookie  = EXTRACT_UINT(pd, offset+ 0);
 	count = EXTRACT_UINT(pd, offset+ 4);
 	if (tree) {
-		proto_tree_add_item(tree, hf_nfs_readdir_cookie,
+		proto_tree_add_item(tree, hf_nfs_readdir_cookie, NullTVB,
 			offset+ 0, 4, cookie);
-		proto_tree_add_item(tree, hf_nfs_readdir_count,
+		proto_tree_add_item(tree, hf_nfs_readdir_count, NullTVB,
 			offset+ 4, 4, count);
 	}
 	offset += 8;
@@ -806,7 +806,7 @@ dissect_readdir_entry(const u_char* pd, int offset, frame_data* fd, proto_tree* 
 	char *name;
 
 	if (tree) {
-		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry,
+		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, NullTVB,
 			offset+0, END_OF_FRAME, NULL);
 		if (entry_item)
 			entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
@@ -818,7 +818,7 @@ dissect_readdir_entry(const u_char* pd, int offset, frame_data* fd, proto_tree* 
 	}
 	fileid = EXTRACT_UINT(pd, offset + 0);
 	if (entry_tree)
-		proto_tree_add_item(entry_tree, hf_nfs_readdir_entry_fileid,
+		proto_tree_add_item(entry_tree, hf_nfs_readdir_entry_fileid, NullTVB,
 			offset+0, 4, fileid);
 	offset += 4;
 
@@ -832,7 +832,7 @@ dissect_readdir_entry(const u_char* pd, int offset, frame_data* fd, proto_tree* 
 	if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 	cookie = EXTRACT_UINT(pd, offset + 0);
 	if (entry_tree)
-		proto_tree_add_item(entry_tree, hf_nfs_readdir_entry_cookie,
+		proto_tree_add_item(entry_tree, hf_nfs_readdir_entry_cookie, NullTVB,
 			offset+0, 4, cookie);
 	offset += 4;
 
@@ -858,7 +858,7 @@ dissect_nfs2_readdir_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 			while (1) {
 				if (!BYTES_ARE_IN_FRAME(offset,4)) break;
 				value_follows = EXTRACT_UINT(pd, offset+0);
-				proto_tree_add_item(tree,hf_nfs_readdir_value_follows,
+				proto_tree_add_item(tree,hf_nfs_readdir_value_follows, NullTVB,
 					offset+0, 4, value_follows);
 				offset += 4;
 				if (value_follows == 1) {
@@ -871,7 +871,7 @@ dissect_nfs2_readdir_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			eof_value = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_readdir_eof,
+				proto_tree_add_item(tree, hf_nfs_readdir_eof, NullTVB,
 					offset+ 0, 4, eof_value);
 			offset += 4;
 		break;
@@ -905,15 +905,15 @@ dissect_nfs2_statfs_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 			bfree  = EXTRACT_UINT(pd, offset+12);
 			bavail = EXTRACT_UINT(pd, offset+16);
 			if (tree) {
-				proto_tree_add_item(tree, hf_nfs_statfs_tsize,
+				proto_tree_add_item(tree, hf_nfs_statfs_tsize, NullTVB,
 					offset+ 0, 4, tsize);
-				proto_tree_add_item(tree, hf_nfs_statfs_bsize,
+				proto_tree_add_item(tree, hf_nfs_statfs_bsize, NullTVB,
 					offset+ 4, 4, bsize);
-				proto_tree_add_item(tree, hf_nfs_statfs_blocks,
+				proto_tree_add_item(tree, hf_nfs_statfs_blocks, NullTVB,
 					offset+ 8, 4, blocks);
-				proto_tree_add_item(tree, hf_nfs_statfs_bfree,
+				proto_tree_add_item(tree, hf_nfs_statfs_bfree, NullTVB,
 					offset+12, 4, bfree);
-				proto_tree_add_item(tree, hf_nfs_statfs_bavail,
+				proto_tree_add_item(tree, hf_nfs_statfs_bavail, NullTVB,
 					offset+16, 4, bavail);
 			}
 			offset += 20;
@@ -1040,7 +1040,7 @@ int
 dissect_cookieverf3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
-	proto_tree_add_text(tree, offset, NFS3_COOKIEVERFSIZE,
+	proto_tree_add_text(tree, NullTVB, offset, NFS3_COOKIEVERFSIZE,
 		"Verifier: Opaque Data");
 	offset += NFS3_COOKIEVERFSIZE;
 	return offset;
@@ -1052,7 +1052,7 @@ int
 dissect_createverf3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
-	proto_tree_add_text(tree, offset, NFS3_CREATEVERFSIZE,
+	proto_tree_add_text(tree, NullTVB, offset, NFS3_CREATEVERFSIZE,
 		"Verifier: Opaque Data");
 	offset += NFS3_CREATEVERFSIZE;
 	return offset;
@@ -1064,7 +1064,7 @@ int
 dissect_writeverf3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 {
 	if (!BYTES_ARE_IN_FRAME(offset,8)) return offset;
-	proto_tree_add_text(tree, offset, NFS3_WRITEVERFSIZE,
+	proto_tree_add_text(tree, NullTVB, offset, NFS3_WRITEVERFSIZE,
 		"Verifier: Opaque Data");
 	offset += NFS3_WRITEVERFSIZE;
 	return offset;
@@ -1124,7 +1124,7 @@ char* name)
 	mode3 = EXTRACT_UINT(pd, offset+0);
 	
 	if (tree) {
-		mode3_item = proto_tree_add_text(tree, offset, 4,
+		mode3_item = proto_tree_add_text(tree, NullTVB, offset, 4,
 			"%s: 0%o", name, mode3);
 		if (mode3_item)
 			mode3_tree = proto_item_add_subtree(mode3_item, ett_nfs_mode3);
@@ -1132,29 +1132,29 @@ char* name)
 
 	/* RFC 1813, Page 23 */
 	if (mode3_tree) {
-		proto_tree_add_text(mode3_tree, offset, 4, "%s",
+		proto_tree_add_text(mode3_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode3,   0x800, 12, "Set user id on exec", "not SUID"));
-		proto_tree_add_text(mode3_tree, offset, 4, "%s",
+		proto_tree_add_text(mode3_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode3,   0x400, 12, "Set group id on exec", "not SGID"));
-		proto_tree_add_text(mode3_tree, offset, 4, "%s",
+		proto_tree_add_text(mode3_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode3,   0x200, 12, "Save swapped text even after use", "not save swapped text"));
-		proto_tree_add_text(mode3_tree, offset, 4, "%s",
+		proto_tree_add_text(mode3_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode3,   0x100, 12, "Read permission for owner", "no Read permission for owner"));
-		proto_tree_add_text(mode3_tree, offset, 4, "%s",
+		proto_tree_add_text(mode3_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode3,    0x80, 12, "Write permission for owner", "no Write permission for owner"));
-		proto_tree_add_text(mode3_tree, offset, 4, "%s",
+		proto_tree_add_text(mode3_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode3,    0x40, 12, "Execute permission for owner", "no Execute permission for owner"));
-		proto_tree_add_text(mode3_tree, offset, 4, "%s",
+		proto_tree_add_text(mode3_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode3,    0x20, 12, "Read permission for group", "no Read permission for group"));
-		proto_tree_add_text(mode3_tree, offset, 4, "%s",
+		proto_tree_add_text(mode3_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode3,    0x10, 12, "Write permission for group", "no Write permission for group"));
-		proto_tree_add_text(mode3_tree, offset, 4, "%s",
+		proto_tree_add_text(mode3_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode3,     0x8, 12, "Execute permission for group", "no Execute permission for group"));
-		proto_tree_add_text(mode3_tree, offset, 4, "%s",
+		proto_tree_add_text(mode3_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode3,     0x4, 12, "Read permission for others", "no Read permission for others"));
-		proto_tree_add_text(mode3_tree, offset, 4, "%s",
+		proto_tree_add_text(mode3_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode3,     0x2, 12, "Write permission for others", "no Write permission for others"));
-		proto_tree_add_text(mode3_tree, offset, 4, "%s",
+		proto_tree_add_text(mode3_tree, NullTVB, offset, 4, "%s",
 		decode_boolean_bitfield(mode3,     0x1, 12, "Execute permission for others", "no Execute permission for others"));
 	}
 
@@ -1219,7 +1219,7 @@ dissect_nfsstat3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	nfsstat3 = EXTRACT_UINT(pd, offset+0);
 	
 	if (tree) {
-		proto_tree_add_item(tree, hf_nfs_nfsstat3,
+		proto_tree_add_item(tree, hf_nfs_nfsstat3, NullTVB,
 			offset, 4, nfsstat3);
 	}
 
@@ -1253,7 +1253,7 @@ int hf, guint32* ftype3)
 	type = EXTRACT_UINT(pd, offset+0);
 	
 	if (tree) {
-		proto_tree_add_item(tree, hf, offset, 4, type);
+		proto_tree_add_item(tree, hf, NullTVB, offset, 4, type);
 	}
 
 	offset += 4;
@@ -1277,7 +1277,7 @@ dissect_specdata3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	specdata2 = EXTRACT_UINT(pd, offset+4);
 	
 	if (tree) {
-		specdata3_item = proto_tree_add_text(tree, offset, 8,
+		specdata3_item = proto_tree_add_text(tree, NullTVB, offset, 8,
 			"%s: %u,%u", name, specdata1, specdata2);
 		if (specdata3_item)
 			specdata3_tree = proto_item_add_subtree(specdata3_item,
@@ -1285,9 +1285,9 @@ dissect_specdata3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	}
 
 	if (specdata3_tree) {
-		proto_tree_add_text(specdata3_tree,offset+0,4,
+		proto_tree_add_text(specdata3_tree, NullTVB,offset+0,4,
 					"specdata1: %u", specdata1);
-		proto_tree_add_text(specdata3_tree,offset+4,4,
+		proto_tree_add_text(specdata3_tree, NullTVB,offset+4,4,
 					"specdata2: %u", specdata2);
 	}
 
@@ -1311,14 +1311,14 @@ dissect_nfs_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, 
 	fh3_fill = fh3_len_full - fh3_len;
 	
 	if (tree) {
-		fitem = proto_tree_add_text(tree, offset, 4+fh3_len_full,
+		fitem = proto_tree_add_text(tree, NullTVB, offset, 4+fh3_len_full,
 			"%s", name);
 		if (fitem)
 			ftree = proto_item_add_subtree(fitem, ett_nfs_fh3);
 	}
 
 	if (ftree) {
-		proto_tree_add_text(ftree,offset+0,4,
+		proto_tree_add_text(ftree, NullTVB,offset+0,4,
 					"length: %u", fh3_len);
 		dissect_fhandle_data(pd, offset+4, ftree, fh3_len);
 	}
@@ -1342,16 +1342,16 @@ dissect_nfstime3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	nseconds = EXTRACT_UINT(pd, offset+4);
 	
 	if (tree) {
-		time_item = proto_tree_add_text(tree, offset, 8,
+		time_item = proto_tree_add_text(tree, NullTVB, offset, 8,
 			"%s: %u.%09u", name, seconds, nseconds);
 		if (time_item)
 			time_tree = proto_item_add_subtree(time_item, ett_nfs_nfstime3);
 	}
 
 	if (time_tree) {
-		proto_tree_add_text(time_tree,offset+0,4,
+		proto_tree_add_text(time_tree, NullTVB,offset+0,4,
 					"seconds: %u", seconds);
-		proto_tree_add_text(time_tree,offset+4,4,
+		proto_tree_add_text(time_tree, NullTVB,offset+4,4,
 					"nano seconds: %u", nseconds);
 	}
 	offset += 8;
@@ -1369,7 +1369,7 @@ dissect_fattr3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, c
 	guint32 type;
 
 	if (tree) {
-		fattr3_item = proto_tree_add_text(tree, offset,
+		fattr3_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s", name);
 		if (fattr3_item)
 			fattr3_tree = proto_item_add_subtree(fattr3_item, ett_nfs_fattr3);
@@ -1416,7 +1416,7 @@ dissect_post_op_attr(const u_char *pd, int offset, frame_data *fd, proto_tree *t
 	guint32 attributes_follow;
 
 	if (tree) {
-		post_op_attr_item = proto_tree_add_text(tree, offset,
+		post_op_attr_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s", name);
 		if (post_op_attr_item)
 			post_op_attr_tree = proto_item_add_subtree(post_op_attr_item, ett_nfs_post_op_attr);
@@ -1424,7 +1424,7 @@ dissect_post_op_attr(const u_char *pd, int offset, frame_data *fd, proto_tree *t
 
 	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 	attributes_follow = EXTRACT_UINT(pd, offset+0);
-	proto_tree_add_text(post_op_attr_tree, offset, 4,
+	proto_tree_add_text(post_op_attr_tree, NullTVB, offset, 4,
 		"attributes_follow: %s (%u)", 
 		val_to_str(attributes_follow,value_follows,"Unknown"), attributes_follow);
 	offset += 4;
@@ -1456,7 +1456,7 @@ dissect_wcc_attr(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	int old_offset = offset;
 
 	if (tree) {
-		wcc_attr_item = proto_tree_add_text(tree, offset,
+		wcc_attr_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s", name);
 		if (wcc_attr_item)
 			wcc_attr_tree = proto_item_add_subtree(wcc_attr_item, ett_nfs_wcc_attr);
@@ -1485,7 +1485,7 @@ dissect_pre_op_attr(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 	guint32 attributes_follow;
 
 	if (tree) {
-		pre_op_attr_item = proto_tree_add_text(tree, offset,
+		pre_op_attr_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s", name);
 		if (pre_op_attr_item)
 			pre_op_attr_tree = proto_item_add_subtree(pre_op_attr_item, ett_nfs_pre_op_attr);
@@ -1493,7 +1493,7 @@ dissect_pre_op_attr(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
 	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 	attributes_follow = EXTRACT_UINT(pd, offset+0);
-	proto_tree_add_text(pre_op_attr_tree, offset, 4,
+	proto_tree_add_text(pre_op_attr_tree, NullTVB, offset, 4,
 		"attributes_follow: %s (%u)", 
 		val_to_str(attributes_follow,value_follows,"Unknown"), attributes_follow);
 	offset += 4;
@@ -1525,7 +1525,7 @@ dissect_wcc_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	int old_offset = offset;
 
 	if (tree) {
-		wcc_data_item = proto_tree_add_text(tree, offset,
+		wcc_data_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s", name);
 		if (wcc_data_item)
 			wcc_data_tree = proto_item_add_subtree(wcc_data_item, ett_nfs_wcc_data);
@@ -1553,7 +1553,7 @@ dissect_post_op_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 	guint32 handle_follows;
 
 	if (tree) {
-		post_op_fh3_item = proto_tree_add_text(tree, offset,
+		post_op_fh3_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s", name);
 		if (post_op_fh3_item)
 			post_op_fh3_tree = proto_item_add_subtree(post_op_fh3_item, ett_nfs_post_op_fh3);
@@ -1561,7 +1561,7 @@ dissect_post_op_fh3(const u_char *pd, int offset, frame_data *fd, proto_tree *tr
 
 	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 	handle_follows = EXTRACT_UINT(pd, offset+0);
-	proto_tree_add_text(post_op_fh3_tree, offset, 4,
+	proto_tree_add_text(post_op_fh3_tree, NullTVB, offset, 4,
 		"handle_follows: %s (%u)", 
 		val_to_str(handle_follows,value_follows,"Unknown"), handle_follows);
 	offset += 4;
@@ -1599,14 +1599,14 @@ dissect_set_mode3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	set_it_name = val_to_str(set_it,value_follows,"Unknown");
 
 	if (tree) {
-		set_mode3_item = proto_tree_add_text(tree, offset,
+		set_mode3_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s: %s", name, set_it_name);
 		if (set_mode3_item)
 			set_mode3_tree = proto_item_add_subtree(set_mode3_item, ett_nfs_set_mode3);
 	}
 
 	if (set_mode3_tree)
-		proto_tree_add_text(set_mode3_tree, offset, 4,
+		proto_tree_add_text(set_mode3_tree, NullTVB, offset, 4,
 			"set_it: %s (%u)", set_it_name, set_it);
 
 	offset += 4;
@@ -1645,14 +1645,14 @@ dissect_set_uid3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	set_it_name = val_to_str(set_it,value_follows,"Unknown");
 
 	if (tree) {
-		set_uid3_item = proto_tree_add_text(tree, offset,
+		set_uid3_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s: %s", name, set_it_name);
 		if (set_uid3_item)
 			set_uid3_tree = proto_item_add_subtree(set_uid3_item, ett_nfs_set_uid3);
 	}
 
 	if (set_uid3_tree)
-		proto_tree_add_text(set_uid3_tree, offset, 4,
+		proto_tree_add_text(set_uid3_tree, NullTVB, offset, 4,
 			"set_it: %s (%u)", set_it_name, set_it);
 
 	offset += 4;
@@ -1691,14 +1691,14 @@ dissect_set_gid3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree,
 	set_it_name = val_to_str(set_it,value_follows,"Unknown");
 
 	if (tree) {
-		set_gid3_item = proto_tree_add_text(tree, offset,
+		set_gid3_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s: %s", name, set_it_name);
 		if (set_gid3_item)
 			set_gid3_tree = proto_item_add_subtree(set_gid3_item, ett_nfs_set_gid3);
 	}
 
 	if (set_gid3_tree)
-		proto_tree_add_text(set_gid3_tree, offset, 4,
+		proto_tree_add_text(set_gid3_tree, NullTVB, offset, 4,
 			"set_it: %s (%u)", set_it_name, set_it);
 
 	offset += 4;
@@ -1737,14 +1737,14 @@ dissect_set_size3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	set_it_name = val_to_str(set_it,value_follows,"Unknown");
 
 	if (tree) {
-		set_size3_item = proto_tree_add_text(tree, offset,
+		set_size3_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s: %s", name, set_it_name);
 		if (set_size3_item)
 			set_size3_tree = proto_item_add_subtree(set_size3_item, ett_nfs_set_size3);
 	}
 
 	if (set_size3_tree)
-		proto_tree_add_text(set_size3_tree, offset, 4,
+		proto_tree_add_text(set_size3_tree, NullTVB, offset, 4,
 			"set_it: %s (%u)", set_it_name, set_it);
 
 	offset += 4;
@@ -1797,7 +1797,7 @@ dissect_set_atime(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	set_it_name = val_to_str(set_it,time_how,"Unknown");
 
 	if (tree) {
-		set_atime_item = proto_tree_add_text(tree, offset,
+		set_atime_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s: %s",
 			name, set_it_name);
 		if (set_atime_item)
@@ -1805,7 +1805,7 @@ dissect_set_atime(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	}
 
 	if (set_atime_tree)
-		proto_tree_add_text(set_atime_tree, offset, 4,
+		proto_tree_add_text(set_atime_tree, NullTVB, offset, 4,
 			"set_it: %s (%u)", set_it_name, set_it);
 
 	offset += 4;
@@ -1845,7 +1845,7 @@ dissect_set_mtime(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	set_it_name = val_to_str(set_it,time_how,"Unknown");
 
 	if (tree) {
-		set_mtime_item = proto_tree_add_text(tree, offset,
+		set_mtime_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s: %s",
 			name, set_it_name);
 		if (set_mtime_item)
@@ -1853,7 +1853,7 @@ dissect_set_mtime(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	}
 
 	if (set_mtime_tree)
-		proto_tree_add_text(set_mtime_tree, offset, 4,
+		proto_tree_add_text(set_mtime_tree, NullTVB, offset, 4,
 				"set_it: %s (%u)", set_it_name, set_it);
 
 	offset += 4;
@@ -1887,7 +1887,7 @@ dissect_sattr3(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, c
 	int old_offset = offset;
 
 	if (tree) {
-		sattr3_item = proto_tree_add_text(tree, offset,
+		sattr3_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s", name);
 		if (sattr3_item)
 			sattr3_tree = proto_item_add_subtree(sattr3_item, ett_nfs_sattr3);
@@ -1918,7 +1918,7 @@ dissect_diropargs3(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 	int old_offset = offset;
 
 	if (tree) {
-		diropargs3_item = proto_tree_add_text(tree, offset,
+		diropargs3_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s", name);
 		if (diropargs3_item)
 			diropargs3_tree = proto_item_add_subtree(diropargs3_item, ett_nfs_diropargs3);
@@ -1958,24 +1958,24 @@ dissect_access(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, c
 	access = EXTRACT_UINT(pd, offset+0);
 	
 	if (tree) {
-		access_item = proto_tree_add_text(tree, offset, 4,
+		access_item = proto_tree_add_text(tree, NullTVB, offset, 4,
 			"%s: 0x%02x", name, access);
 		if (access_item)
 			access_tree = proto_item_add_subtree(access_item, ett_nfs_access);
 	}
 
 	if (access_tree) {
-		proto_tree_add_text(access_tree, offset, 4, "%s READ",
+		proto_tree_add_text(access_tree, NullTVB, offset, 4, "%s READ",
 		decode_boolean_bitfield(access,  0x001, 6, "allow", "not allow"));
-		proto_tree_add_text(access_tree, offset, 4, "%s LOOKUP",
+		proto_tree_add_text(access_tree, NullTVB, offset, 4, "%s LOOKUP",
 		decode_boolean_bitfield(access,  0x002, 6, "allow", "not allow"));
-		proto_tree_add_text(access_tree, offset, 4, "%s MODIFY",
+		proto_tree_add_text(access_tree, NullTVB, offset, 4, "%s MODIFY",
 		decode_boolean_bitfield(access,  0x004, 6, "allowed", "not allow"));
-		proto_tree_add_text(access_tree, offset, 4, "%s EXTEND",
+		proto_tree_add_text(access_tree, NullTVB, offset, 4, "%s EXTEND",
 		decode_boolean_bitfield(access,  0x008, 6, "allow", "not allow"));
-		proto_tree_add_text(access_tree, offset, 4, "%s DELETE",
+		proto_tree_add_text(access_tree, NullTVB, offset, 4, "%s DELETE",
 		decode_boolean_bitfield(access,  0x010, 6, "allow", "not allow"));
-		proto_tree_add_text(access_tree, offset, 4, "%s EXECUTE",
+		proto_tree_add_text(access_tree, NullTVB, offset, 4, "%s EXECUTE",
 		decode_boolean_bitfield(access,  0x020, 6, "allow", "not allow"));
 	}
 
@@ -2050,14 +2050,14 @@ dissect_sattrguard3(const u_char* pd, int offset, frame_data* fd, proto_tree* tr
 	check_name = val_to_str(check,value_follows,"Unknown");
 
 	if (tree) {
-		sattrguard3_item = proto_tree_add_text(tree, offset,
+		sattrguard3_item = proto_tree_add_text(tree, NullTVB, offset,
 			END_OF_FRAME, "%s: %s", name, check_name);
 		if (sattrguard3_item)
 			sattrguard3_tree = proto_item_add_subtree(sattrguard3_item, ett_nfs_sattrguard3);
 	}
 
 	if (sattrguard3_tree)
-		proto_tree_add_text(sattrguard3_tree, offset, 4,
+		proto_tree_add_text(sattrguard3_tree, NullTVB, offset, 4,
 			"check: %s (%u)", check_name, check);
 
 	offset += 4;
@@ -2249,7 +2249,7 @@ dissect_stable_how(const u_char* pd, int offset, frame_data* fd, proto_tree* tre
 	if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 	stable_how = EXTRACT_UINT(pd,offset+0);
 	if (tree) {
-		proto_tree_add_item(tree, hfindex,
+		proto_tree_add_item(tree, hfindex, NullTVB,
 			offset, 4, stable_how); 
 	}
 	offset += 4;
@@ -2313,7 +2313,7 @@ dissect_createmode3(const u_char* pd, int offset, frame_data* fd, proto_tree* tr
 	if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 	mode_value = EXTRACT_UINT(pd, offset + 0);
 	if (tree) {
-		proto_tree_add_item(tree, hf_nfs_createmode3,
+		proto_tree_add_item(tree, hf_nfs_createmode3, NullTVB,
 		offset+0, 4, mode_value);
 	}
 	offset += 4;
@@ -2526,7 +2526,7 @@ dissect_entry3(const u_char* pd, int offset, frame_data* fd, proto_tree* tree)
 	char *name;
 
 	if (tree) {
-		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry,
+		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, NullTVB,
 			offset+0, END_OF_FRAME, NULL);
 		if (entry_item)
 			entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
@@ -2567,7 +2567,7 @@ dissect_nfs3_readdir_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 			while (1) {
 				if (!BYTES_ARE_IN_FRAME(offset,4)) break;
 				value_follows = EXTRACT_UINT(pd, offset+0);
-				proto_tree_add_item(tree,hf_nfs_readdir_value_follows,
+				proto_tree_add_item(tree,hf_nfs_readdir_value_follows, NullTVB,
 					offset+0, 4, value_follows);
 				offset += 4;
 				if (value_follows == 1) {
@@ -2580,7 +2580,7 @@ dissect_nfs3_readdir_reply(const u_char* pd, int offset, frame_data* fd, proto_t
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			eof_value = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_readdir_eof,
+				proto_tree_add_item(tree, hf_nfs_readdir_eof, NullTVB,
 					offset+ 0, 4, eof_value);
 			offset += 4;
 		break;
@@ -2617,7 +2617,7 @@ dissect_entryplus3(const u_char* pd, int offset, frame_data* fd, proto_tree* tre
 	char *name;
 
 	if (tree) {
-		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry,
+		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, NullTVB,
 			offset+0, END_OF_FRAME, NULL);
 		if (entry_item)
 			entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
@@ -2661,7 +2661,7 @@ dissect_nfs3_readdirplus_reply(const u_char* pd, int offset, frame_data* fd, pro
 			while (1) {
 				if (!BYTES_ARE_IN_FRAME(offset,4)) break;
 				value_follows = EXTRACT_UINT(pd, offset+0);
-				proto_tree_add_item(tree,hf_nfs_readdir_value_follows,
+				proto_tree_add_item(tree,hf_nfs_readdir_value_follows, NullTVB,
 					offset+0, 4, value_follows);
 				offset += 4;
 				if (value_follows == 1) {
@@ -2674,7 +2674,7 @@ dissect_nfs3_readdirplus_reply(const u_char* pd, int offset, frame_data* fd, pro
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			eof_value = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_readdir_eof,
+				proto_tree_add_item(tree, hf_nfs_readdir_eof, NullTVB,
 					offset+ 0, 4, eof_value);
 			offset += 4;
 		break;
@@ -2707,7 +2707,7 @@ dissect_nfs3_fsstat_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 			invarsec = EXTRACT_UINT(pd, offset + 0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_fsstat_invarsec,
+				proto_tree_add_item(tree, hf_nfs_fsstat_invarsec, NullTVB,
 				offset+0, 4, invarsec);
 			offset += 4;
 		break;
@@ -2749,43 +2749,43 @@ dissect_nfs3_fsinfo_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			rtmax = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_fsinfo_rtmax,
+				proto_tree_add_item(tree, hf_nfs_fsinfo_rtmax, NullTVB,
 				offset+0, 4, rtmax);
 			offset += 4;
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			rtpref = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_fsinfo_rtpref,
+				proto_tree_add_item(tree, hf_nfs_fsinfo_rtpref, NullTVB,
 				offset+0, 4, rtpref);
 			offset += 4;
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			rtmult = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_fsinfo_rtmult,
+				proto_tree_add_item(tree, hf_nfs_fsinfo_rtmult, NullTVB,
 				offset+0, 4, rtmult);
 			offset += 4;
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			wtmax = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_fsinfo_wtmax,
+				proto_tree_add_item(tree, hf_nfs_fsinfo_wtmax, NullTVB,
 				offset+0, 4, wtmax);
 			offset += 4;
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			wtpref = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_fsinfo_wtpref,
+				proto_tree_add_item(tree, hf_nfs_fsinfo_wtpref, NullTVB,
 				offset+0, 4, wtpref);
 			offset += 4;
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			wtmult = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_fsinfo_wtmult,
+				proto_tree_add_item(tree, hf_nfs_fsinfo_wtmult, NullTVB,
 				offset+0, 4, wtmult);
 			offset += 4;
 			if (!BYTES_ARE_IN_FRAME(offset,4)) return offset;
 			dtpref = EXTRACT_UINT(pd, offset+0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_fsinfo_dtpref,
+				proto_tree_add_item(tree, hf_nfs_fsinfo_dtpref, NullTVB,
 				offset+0, 4, dtpref);
 			offset += 4;
 
@@ -2796,32 +2796,32 @@ dissect_nfs3_fsinfo_reply(const u_char* pd, int offset, frame_data* fd, proto_tr
 			if (tree) {
 				properties_item = proto_tree_add_item(tree,
 				hf_nfs_fsinfo_properties,
-				offset+0, 4, properties);
+				NullTVB, offset+0, 4, properties);
 				if (properties_item) 
 					properties_tree = proto_item_add_subtree(properties_item, ett_nfs_fsinfo_properties);
 				if (properties_tree) {
-					proto_tree_add_text(properties_tree,
+					proto_tree_add_text(properties_tree, NullTVB,
 					offset, 4, "%s",
 					decode_boolean_bitfield(properties,
 					FSF3_CANSETTIME,5,
 					"SETATTR can set time on server",
 					"SETATTR can't set time on server"));
 
-					proto_tree_add_text(properties_tree,
+					proto_tree_add_text(properties_tree, NullTVB,
 					offset, 4, "%s",
 					decode_boolean_bitfield(properties,
 					FSF3_HOMOGENEOUS,5,
 					"PATHCONF is valid for all files",
 					"PATHCONF should be get for every single file"));
 
-					proto_tree_add_text(properties_tree,
+					proto_tree_add_text(properties_tree, NullTVB,
 					offset, 4, "%s",
 					decode_boolean_bitfield(properties,
 					FSF3_SYMLINK,5,
 					"File System supports symbolic links",
 					"File System does not symbolic hard links"));
 
-					proto_tree_add_text(properties_tree,
+					proto_tree_add_text(properties_tree, NullTVB,
 					offset, 4, "%s",
 					decode_boolean_bitfield(properties,
 					FSF3_LINK,5,
@@ -2855,13 +2855,13 @@ dissect_nfs3_pathconf_reply(const u_char* pd, int offset, frame_data* fd, proto_
 			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 			linkmax = EXTRACT_UINT(pd, offset + 0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_pathconf_linkmax,
+				proto_tree_add_item(tree, hf_nfs_pathconf_linkmax, NullTVB,
 				offset+0, 4, linkmax);
 			offset += 4;
 			if (!BYTES_ARE_IN_FRAME(offset, 4)) return offset;
 			name_max = EXTRACT_UINT(pd, offset + 0);
 			if (tree)
-				proto_tree_add_item(tree, hf_nfs_pathconf_name_max,
+				proto_tree_add_item(tree, hf_nfs_pathconf_name_max, NullTVB,
 				offset+0, 4, name_max);
 			offset += 4;
 			offset = dissect_rpc_bool(pd, offset, fd, tree, hf_nfs_pathconf_no_trunc);

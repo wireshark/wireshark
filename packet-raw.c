@@ -1,7 +1,7 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id: packet-raw.c,v 1.13 2000/02/15 21:02:57 gram Exp $
+ * $Id: packet-raw.c,v 1.14 2000/05/11 08:15:40 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -74,9 +74,9 @@ dissect_raw( const u_char *pd, frame_data *fd, proto_tree *tree ) {
   /* populate a tree in the second pane with the status of the link
      layer (ie none) */
   if(tree) {
-    ti = proto_tree_add_text(tree, 0, 0, "Raw packet data" );
+    ti = proto_tree_add_text(tree, NullTVB, 0, 0, "Raw packet data" );
     fh_tree = proto_item_add_subtree(ti, ett_raw);
-    proto_tree_add_text(fh_tree, 0, 0, "No link information available");
+    proto_tree_add_text(fh_tree, NullTVB, 0, 0, "No link information available");
   }
 
   /* So far, the only time we get raw connection types are with Linux and

@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for MSX tns packet dissection
  *
- * $Id: packet-tns.c,v 1.5 2000/04/08 07:07:40 guy Exp $
+ * $Id: packet-tns.c,v 1.6 2000/05/11 08:15:53 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -85,10 +85,10 @@ static void dissect_tns_sns(const u_char *pd, int offset, frame_data *fd,
 
 	if ( tree )
 	{
-		ti = proto_tree_add_text(tns_tree, offset, END_OF_FRAME, "Secure Network Services");
+		ti = proto_tree_add_text(tns_tree, NullTVB, offset, END_OF_FRAME, "Secure Network Services");
 		sns_tree = proto_item_add_subtree(ti, ett_tns_sns);
 
-		proto_tree_add_item_hidden(tns_tree, hf_tns_sns, 0, 0, TRUE);
+		proto_tree_add_item_hidden(tns_tree, hf_tns_sns, NullTVB, 0, 0, TRUE);
 	}
 		
 	if ( check_col(fd, COL_INFO) )
@@ -109,7 +109,7 @@ static void dissect_tns_data(const u_char *pd, int offset, frame_data *fd,
 	TRUNC(2);
 	if ( tree )
 	{
-		proto_tree_add_item(tns_tree, hf_tns_data_flag,
+		proto_tree_add_item(tns_tree, hf_tns_data_flag, NullTVB,
 			offset, 2, pntohs(&pd[offset]));
 	}
 	offset += 2;
@@ -135,10 +135,10 @@ static void dissect_tns_connect(const u_char *pd, int offset, frame_data *fd,
 
 	if ( tree )
 	{
-		ti = proto_tree_add_text(tns_tree, offset, END_OF_FRAME, "Connect");
+		ti = proto_tree_add_text(tns_tree, NullTVB, offset, END_OF_FRAME, "Connect");
 		connect_tree = proto_item_add_subtree(ti, ett_tns_connect);
 
-		proto_tree_add_item_hidden(tns_tree, hf_tns_connect, 0, 0, TRUE);
+		proto_tree_add_item_hidden(tns_tree, hf_tns_connect, NullTVB, 0, 0, TRUE);
 	}
 		
 	if ( check_col(fd, COL_INFO) )
@@ -149,7 +149,7 @@ static void dissect_tns_connect(const u_char *pd, int offset, frame_data *fd,
 	TRUNC(2);
 	if ( connect_tree )
 	{
-		proto_tree_add_item(connect_tree, hf_tns_version,
+		proto_tree_add_item(connect_tree, hf_tns_version, NullTVB,
 			offset, 2, pntohs(&pd[offset]));
 	}
 	offset += 2;
@@ -157,7 +157,7 @@ static void dissect_tns_connect(const u_char *pd, int offset, frame_data *fd,
 	TRUNC(2);
 	if ( connect_tree )
 	{
-		proto_tree_add_item(connect_tree, hf_tns_compat_version,
+		proto_tree_add_item(connect_tree, hf_tns_compat_version, NullTVB,
 			offset, 2, pntohs(&pd[offset]));
 	}
 	offset += 2;
@@ -166,7 +166,7 @@ static void dissect_tns_connect(const u_char *pd, int offset, frame_data *fd,
 	if ( connect_tree )
 	{
 		/* need to break down w/ bitfield */
-		proto_tree_add_item(connect_tree, hf_tns_service_options,
+		proto_tree_add_item(connect_tree, hf_tns_service_options, NullTVB,
 			offset, 2, pntohs(&pd[offset]));
 	}
 	offset += 2;
@@ -204,21 +204,21 @@ dissect_tns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) 
 	{
-		ti = proto_tree_add_item(tree, proto_tns, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_tns, NullTVB, offset, END_OF_FRAME, NULL);
 		tns_tree = proto_item_add_subtree(ti, ett_tns);
 
 		if (pi.match_port == pi.destport)
 		{
-			proto_tree_add_item_hidden(tns_tree, hf_tns_request,
+			proto_tree_add_item_hidden(tns_tree, hf_tns_request, NullTVB,
 			   offset, END_OF_FRAME, TRUE);
-			proto_tree_add_text(tns_tree, offset, 
+			proto_tree_add_text(tns_tree, NullTVB, offset, 
 				END_OF_FRAME, "Request: <opaque data>" );
 		}
 		else
 		{
-			proto_tree_add_item_hidden(tns_tree, hf_tns_response,
+			proto_tree_add_item_hidden(tns_tree, hf_tns_response, NullTVB,
 				offset, END_OF_FRAME, TRUE);
-			proto_tree_add_text(tns_tree, offset, 
+			proto_tree_add_text(tns_tree, NullTVB, offset, 
 				END_OF_FRAME, "Response: <opaque data>");
 		}
 	}
@@ -229,7 +229,7 @@ dissect_tns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	length = pntohs(&pd[offset]);
 	if (tree)
 	{
-		proto_tree_add_item(tns_tree, hf_tns_length,
+		proto_tree_add_item(tns_tree, hf_tns_length, NullTVB,
 			offset, 2, length);
 	}
 	TRUNC(length);
@@ -238,7 +238,7 @@ dissect_tns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	TRUNC(2);
 	if ( tree )
 	{
-		proto_tree_add_item(tns_tree, hf_tns_packet_checksum,
+		proto_tree_add_item(tns_tree, hf_tns_packet_checksum, NullTVB,
 			offset, 2, pntohs(&pd[offset]));
 	}
 	offset += 2;
@@ -247,7 +247,7 @@ dissect_tns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	type = pd[offset];
 	if ( tree )
 	{
-		proto_tree_add_item(tns_tree, hf_tns_packet_type,
+		proto_tree_add_item(tns_tree, hf_tns_packet_type, NullTVB,
 			offset, 1, type);
 	}
 	offset += 1;
@@ -261,7 +261,7 @@ dissect_tns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	TRUNC(1);
 	if ( tree )
 	{
-		proto_tree_add_item(tns_tree, hf_tns_reserved_byte,
+		proto_tree_add_item(tns_tree, hf_tns_reserved_byte, NullTVB,
 			offset, 1, &pd[offset]);
 	}
 	offset += 1;
@@ -269,7 +269,7 @@ dissect_tns(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	TRUNC(2);
 	if ( tree )
 	{
-		proto_tree_add_item(tns_tree, hf_tns_header_checksum,
+		proto_tree_add_item(tns_tree, hf_tns_header_checksum, NullTVB,
 			offset, 2, pntohs(&pd[offset]));
 	}
 	offset += 2;

@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.6 2000/01/22 06:22:17 guy Exp $
+ * $Id: packet-sdp.c,v 1.7 2000/05/11 08:15:43 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,7 +72,7 @@ void dissect_sdp(const u_char *pd, int offset, frame_data *fd,
 	if (!tree)
 		return;
 
-	ti = proto_tree_add_item(tree, proto_sdp, offset, END_OF_FRAME, NULL);
+	ti = proto_tree_add_item(tree, proto_sdp, NullTVB, offset, END_OF_FRAME, NULL);
 	sdp_tree = proto_item_add_subtree(ti, ett_sdp);
 
 	section = 0;
@@ -91,7 +91,7 @@ void dissect_sdp(const u_char *pd, int offset, frame_data *fd,
 
 		type = data[0];
 		if (data[1] != '=') {
-			proto_tree_add_text(sdp_tree, offset, linelen,
+			proto_tree_add_text(sdp_tree, NullTVB, offset, linelen,
 				"Invalid line: %s",
 				format_text(data, linelen));
 			continue;
@@ -166,13 +166,13 @@ void dissect_sdp(const u_char *pd, int offset, frame_data *fd,
 			break;
 		}
 
-		proto_tree_add_text(sdp_tree, offset, linelen,
+		proto_tree_add_text(sdp_tree, NullTVB, offset, linelen,
 			"%s (%c): %s", typename, type,
 			format_text(value, valuelen));
 	}
 
 	if (data < dataend) {
-		proto_tree_add_text(sdp_tree, offset, END_OF_FRAME,
+		proto_tree_add_text(sdp_tree, NullTVB, offset, END_OF_FRAME,
 		    "Data (%d bytes)", END_OF_FRAME);
 	}
 }

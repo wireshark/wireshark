@@ -1,7 +1,7 @@
 /* packet-atm.c
  * Routines for ATM packet disassembly
  *
- * $Id: packet-atm.c,v 1.13 2000/03/12 04:47:35 gram Exp $
+ * $Id: packet-atm.c,v 1.14 2000/05/11 08:14:56 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -153,10 +153,10 @@ dissect_le_client(const u_char *pd, int offset, frame_data *fd, proto_tree *tree
   proto_tree *lane_tree;
 
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_atm_lane, offset, 2, "ATM LANE");
+    ti = proto_tree_add_protocol_format(tree, proto_atm_lane, NullTVB, offset, 2, "ATM LANE");
     lane_tree = proto_item_add_subtree(ti, ett_atm_lane);
 
-    proto_tree_add_text(lane_tree, offset, 2, "LE Client: 0x%04X",
+    proto_tree_add_text(lane_tree, NullTVB, offset, 2, "LE Client: 0x%04X",
 			pntohs(&pd[offset]));
   }
 }
@@ -171,11 +171,11 @@ dissect_lan_destination(const u_char *pd, int offset, const char *type, proto_tr
   proto_tree *rd_tree;
   guint16 route_descriptor;
 
-  td = proto_tree_add_text(tree, offset, 8, "%s LAN destination",
+  td = proto_tree_add_text(tree, NullTVB, offset, 8, "%s LAN destination",
     			type);
   dest_tree = proto_item_add_subtree(td, ett_atm_lane_lc_lan_dest);
   tag = pntohs(&pd[offset]);
-  proto_tree_add_text(dest_tree, offset, 2, "Tag: %s",
+  proto_tree_add_text(dest_tree, NullTVB, offset, 2, "Tag: %s",
 	val_to_str(tag, le_control_landest_tag_vals,
 				"Unknown (0x%04X)"));
   offset += 2;
@@ -183,20 +183,20 @@ dissect_lan_destination(const u_char *pd, int offset, const char *type, proto_tr
   switch (tag) {
 
   case TAG_MAC_ADDRESS:
-    proto_tree_add_text(dest_tree, offset, 6, "MAC address: %s",
+    proto_tree_add_text(dest_tree, NullTVB, offset, 6, "MAC address: %s",
 			ether_to_str((u_char *)&pd[offset]));
     break;
 
   case TAG_ROUTE_DESCRIPTOR:
     offset += 4;
     route_descriptor = pntohs(&pd[offset]);
-    trd = proto_tree_add_text(dest_tree, offset, 2, "Route descriptor: 0x%02X",
+    trd = proto_tree_add_text(dest_tree, NullTVB, offset, 2, "Route descriptor: 0x%02X",
     			route_descriptor);
     rd_tree = proto_item_add_subtree(td, ett_atm_lane_lc_lan_dest_rd);
-    proto_tree_add_text(rd_tree, offset, 2,
+    proto_tree_add_text(rd_tree, NullTVB, offset, 2,
 	    decode_numeric_bitfield(route_descriptor, 0xFFF0, 2*8,
 			"LAN ID = %u"));
-    proto_tree_add_text(rd_tree, offset, 2,
+    proto_tree_add_text(rd_tree, NullTVB, offset, 2,
 	    decode_numeric_bitfield(route_descriptor, 0x000F, 2*8,
 			"Bridge number = %u"));
     break;
@@ -262,23 +262,23 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
     col_add_str(fd, COL_INFO, "LE Control");
 
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_atm_lane, offset, 108, "ATM LANE");
+    ti = proto_tree_add_protocol_format(tree, proto_atm_lane, NullTVB, offset, 108, "ATM LANE");
     lane_tree = proto_item_add_subtree(ti, ett_atm_lane);
 
-    proto_tree_add_text(lane_tree, offset, 2, "Marker: 0x%04X",
+    proto_tree_add_text(lane_tree, NullTVB, offset, 2, "Marker: 0x%04X",
 			pntohs(&pd[offset]));
     offset += 2;
 
-    proto_tree_add_text(lane_tree, offset, 1, "Protocol: 0x%02X",
+    proto_tree_add_text(lane_tree, NullTVB, offset, 1, "Protocol: 0x%02X",
 			pd[offset]);
     offset += 1;
 
-    proto_tree_add_text(lane_tree, offset, 1, "Version: 0x%02X",
+    proto_tree_add_text(lane_tree, NullTVB, offset, 1, "Version: 0x%02X",
 			pd[offset]);
     offset += 1;
 
     opcode = pntohs(&pd[offset]);
-    proto_tree_add_text(lane_tree, offset, 2, "Opcode: %s",
+    proto_tree_add_text(lane_tree, NullTVB, offset, 2, "Opcode: %s",
 	val_to_str(opcode, le_control_opcode_vals,
 				"Unknown (0x%04X)"));
     offset += 2;
@@ -290,31 +290,31 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 
     if (opcode & 0x0100) {
       /* Response; decode status. */
-      proto_tree_add_text(lane_tree, offset, 2, "Status: %s",
+      proto_tree_add_text(lane_tree, NullTVB, offset, 2, "Status: %s",
 	val_to_str(pntohs(&pd[offset]), le_control_status_vals,
 				"Unknown (0x%04X)"));
     }
     offset += 2;
 
-    proto_tree_add_text(lane_tree, offset, 4, "Transaction ID: 0x%08X",
+    proto_tree_add_text(lane_tree, NullTVB, offset, 4, "Transaction ID: 0x%08X",
     			pntohl(&pd[offset]));
     offset += 4;
 
-    proto_tree_add_text(lane_tree, offset, 2, "Requester LECID: 0x%04X",
+    proto_tree_add_text(lane_tree, NullTVB, offset, 2, "Requester LECID: 0x%04X",
     			pntohs(&pd[offset]));
     offset += 2;
 
     flags = pntohs(&pd[offset]);
-    tf = proto_tree_add_text(lane_tree, offset, 2, "Flags: 0x%04X",
+    tf = proto_tree_add_text(lane_tree, NullTVB, offset, 2, "Flags: 0x%04X",
     			pntohs(&pd[offset]));
     flags_tree = proto_item_add_subtree(tf, ett_atm_lane_lc_flags);
-    proto_tree_add_text(flags_tree, offset, 2, "%s",
+    proto_tree_add_text(flags_tree, NullTVB, offset, 2, "%s",
 	decode_boolean_bitfield(flags, 0x0001, 8*2,
 				"Remote address", "Local address"));
-    proto_tree_add_text(flags_tree, offset, 2, "%s",
+    proto_tree_add_text(flags_tree, NullTVB, offset, 2, "%s",
 	decode_boolean_bitfield(flags, 0x0080, 8*2,
 				"Proxy", "Not proxy"));
-    proto_tree_add_text(flags_tree, offset, 2, "%s",
+    proto_tree_add_text(flags_tree, NullTVB, offset, 2, "%s",
 	decode_boolean_bitfield(flags, 0x0100, 8*2,
 				"Topology change", "No topology change"));
     offset += 2;
@@ -325,45 +325,45 @@ dissect_le_control(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
     dissect_lan_destination(pd, offset, "Target", lane_tree);
     offset += 8;
 
-    proto_tree_add_text(lane_tree, offset, 20, "Source ATM Address: %s",
+    proto_tree_add_text(lane_tree, NullTVB, offset, 20, "Source ATM Address: %s",
     			bytes_to_str(&pd[offset], 20));
     offset += 20;
 
-    proto_tree_add_text(lane_tree, offset, 1, "LAN type: %s",
+    proto_tree_add_text(lane_tree, NullTVB, offset, 1, "LAN type: %s",
 	val_to_str(pd[offset], le_control_lan_type_vals,
 				"Unknown (0x%02X)"));
     offset += 1;
 
-    proto_tree_add_text(lane_tree, offset, 1, "Maximum frame size: %u",
+    proto_tree_add_text(lane_tree, NullTVB, offset, 1, "Maximum frame size: %u",
 			pd[offset]);
     offset += 1;
 
     num_tlvs = pd[offset];
-    proto_tree_add_text(lane_tree, offset, 1, "Number of TLVs: %u",
+    proto_tree_add_text(lane_tree, NullTVB, offset, 1, "Number of TLVs: %u",
 			num_tlvs);
     offset += 1;
 
-    proto_tree_add_text(lane_tree, offset, 1, "ELAN name size: %u",
+    proto_tree_add_text(lane_tree, NullTVB, offset, 1, "ELAN name size: %u",
 			pd[offset]);
     offset += 1;
 
-    proto_tree_add_text(lane_tree, offset, 20, "Target ATM Address: %s",
+    proto_tree_add_text(lane_tree, NullTVB, offset, 20, "Target ATM Address: %s",
     			bytes_to_str(&pd[offset], 20));
     offset += 20;
 
-    proto_tree_add_text(lane_tree, offset, 32, "ELAN name: %s",
+    proto_tree_add_text(lane_tree, NullTVB, offset, 32, "ELAN name: %s",
     			bytes_to_str(&pd[offset], 32));
     offset += 32;
 
     while (num_tlvs != 0) {
       tlv_type = pntohl(&pd[offset]);
       tlv_length = pd[offset+4];
-      ttlv = proto_tree_add_text(lane_tree, offset, 5+tlv_length, "TLV type: %s",
+      ttlv = proto_tree_add_text(lane_tree, NullTVB, offset, 5+tlv_length, "TLV type: %s",
 	val_to_str(tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
       tlv_tree = proto_item_add_subtree(ttlv, ett_atm_lane_lc_tlv);
-      proto_tree_add_text(tlv_tree, offset, 4, "TLV Type: %s",
+      proto_tree_add_text(tlv_tree, NullTVB, offset, 4, "TLV Type: %s",
 	val_to_str(tlv_type, le_tlv_type_vals, "Unknown (0x%08x)"));
-      proto_tree_add_text(tlv_tree, offset+4, 1, "TLV Length: %u", tlv_length);
+      proto_tree_add_text(tlv_tree, NullTVB, offset+4, 1, "TLV Length: %u", tlv_length);
       offset += 5+tlv_length;
       num_tlvs--;
     }
@@ -619,58 +619,58 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
   }
 
   if (tree) {
-    ti = proto_tree_add_protocol_format(tree, proto_atm, 0, 0, "ATM");
+    ti = proto_tree_add_protocol_format(tree, proto_atm, NullTVB, 0, 0, "ATM");
     atm_tree = proto_item_add_subtree(ti, ett_atm);
 
-    proto_tree_add_text(atm_tree, 0, 0, "AAL: %s",
+    proto_tree_add_text(atm_tree, NullTVB, 0, 0, "AAL: %s",
 	val_to_str(aal_type, aal_vals, "Unknown AAL (%x)"));
     if (aal_type == ATT_AAL5) {
-      proto_tree_add_text(atm_tree, 0, 0, "Traffic type: %s",
+      proto_tree_add_text(atm_tree, NullTVB, 0, 0, "Traffic type: %s",
 	val_to_str(hl_type, aal5_hltype_vals, "Unknown AAL5 traffic type (%x)"));
       switch (hl_type) {
 
       case ATT_HL_LLCMX:
-        proto_tree_add_text(atm_tree, 0, 0, "LLC multiplexed traffic");
+        proto_tree_add_text(atm_tree, NullTVB, 0, 0, "LLC multiplexed traffic");
         break;
 
       case ATT_HL_VCMX:
-        proto_tree_add_text(atm_tree, 0, 0, "VC multiplexed traffic type: %s",
+        proto_tree_add_text(atm_tree, NullTVB, 0, 0, "VC multiplexed traffic type: %s",
 		val_to_str(fd->pseudo_header.ngsniffer_atm.AppHLType,
 			vcmx_type_vals, "Unknown VCMX traffic type (%x)"));
         break;
 
       case ATT_HL_LANE:
-        proto_tree_add_text(atm_tree, 0, 0, "LANE traffic type: %s",
+        proto_tree_add_text(atm_tree, NullTVB, 0, 0, "LANE traffic type: %s",
 		val_to_str(fd->pseudo_header.ngsniffer_atm.AppHLType,
 			lane_type_vals, "Unknown LANE traffic type (%x)"));
         break;
 
       case ATT_HL_IPSILON:
-        proto_tree_add_text(atm_tree, 0, 0, "Ipsilon traffic type: %s",
+        proto_tree_add_text(atm_tree, NullTVB, 0, 0, "Ipsilon traffic type: %s",
 		val_to_str(fd->pseudo_header.ngsniffer_atm.AppHLType,
 			ipsilon_type_vals, "Unknown Ipsilon traffic type (%x)"));
         break;
       }
     }
-    proto_tree_add_item(atm_tree, hf_atm_vpi, 0, 0,
+    proto_tree_add_item(atm_tree, hf_atm_vpi, NullTVB, 0, 0,
 		fd->pseudo_header.ngsniffer_atm.Vpi);
-    proto_tree_add_item(atm_tree, hf_atm_vci, 0, 0,
+    proto_tree_add_item(atm_tree, hf_atm_vci, NullTVB, 0, 0,
 		fd->pseudo_header.ngsniffer_atm.Vci);
     switch (fd->pseudo_header.ngsniffer_atm.channel) {
 
     case 0:
       /* Traffic from DCE to DTE. */
-      proto_tree_add_text(atm_tree, 0, 0, "Channel: DCE->DTE");
+      proto_tree_add_text(atm_tree, NullTVB, 0, 0, "Channel: DCE->DTE");
       break;
 
     case 1:
       /* Traffic from DTE to DCE. */
-      proto_tree_add_text(atm_tree, 0, 0, "Channel: DTE->DCE");
+      proto_tree_add_text(atm_tree, NullTVB, 0, 0, "Channel: DTE->DCE");
       break;
 
     default:
       /* Sniffers shouldn't provide anything other than 0 or 1. */
-      proto_tree_add_text(atm_tree, 0, 0, "Channel: %u",
+      proto_tree_add_text(atm_tree, NullTVB, 0, 0, "Channel: %u",
  		fd->pseudo_header.ngsniffer_atm.channel);
       break;
     }
@@ -686,14 +686,14 @@ dissect_atm(const u_char *pd, frame_data *fd, proto_tree *tree)
        * some other way of indicating whether we have the AAL5 trailer
        * information.
        */
-      proto_tree_add_text(atm_tree, 0, 0, "Cells: %u",
+      proto_tree_add_text(atm_tree, NullTVB, 0, 0, "Cells: %u",
 		fd->pseudo_header.ngsniffer_atm.cells);
       if (aal_type == ATT_AAL5) {
-        proto_tree_add_text(atm_tree, 0, 0, "AAL5 U2U: %u",
+        proto_tree_add_text(atm_tree, NullTVB, 0, 0, "AAL5 U2U: %u",
 		fd->pseudo_header.ngsniffer_atm.aal5t_u2u);
-        proto_tree_add_text(atm_tree, 0, 0, "AAL5 len: %u",
+        proto_tree_add_text(atm_tree, NullTVB, 0, 0, "AAL5 len: %u",
 		fd->pseudo_header.ngsniffer_atm.aal5t_len);
-        proto_tree_add_text(atm_tree, 0, 0, "AAL5 checksum: 0x%08X",
+        proto_tree_add_text(atm_tree, NullTVB, 0, 0, "AAL5 checksum: 0x%08X",
 		fd->pseudo_header.ngsniffer_atm.aal5t_chksum);
       }
     }

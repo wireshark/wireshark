@@ -1,7 +1,7 @@
 /* packet-clip.c
  * Routines for clip packet disassembly
  *
- * $Id: packet-clip.c,v 1.5 2000/02/15 21:02:05 gram Exp $
+ * $Id: packet-clip.c,v 1.6 2000/05/11 08:15:04 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -72,9 +72,9 @@ dissect_clip( const u_char *pd, frame_data *fd, proto_tree *tree ) {
      it treats the packet as being raw IP with no link-level
      header. */
   if(tree) {
-    ti = proto_tree_add_text(tree, 0, 0, "Classical IP frame" );
+    ti = proto_tree_add_text(tree, NullTVB, 0, 0, "Classical IP frame" );
     fh_tree = proto_item_add_subtree(ti, ett_clip);
-    proto_tree_add_text(fh_tree, 0, 0, "No link information available");
+    proto_tree_add_text(fh_tree, NullTVB, 0, 0, "No link information available");
   }
   dissect_ip(pd, 0, fd, tree);
 }

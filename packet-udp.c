@@ -1,7 +1,7 @@
 /* packet-udp.c
  * Routines for UDP packet disassembly
  *
- * $Id: packet-udp.c,v 1.69 2000/04/20 07:05:57 guy Exp $
+ * $Id: packet-udp.c,v 1.70 2000/05/11 08:15:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -166,19 +166,19 @@ dissect_udp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	    get_udp_port(uh_sport), get_udp_port(uh_dport));
     
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_udp, offset, 8);
+    ti = proto_tree_add_item(tree, proto_udp, NullTVB, offset, 8);
     udp_tree = proto_item_add_subtree(ti, ett_udp);
 
-    proto_tree_add_uint_format(udp_tree, hf_udp_srcport, offset, 2, uh_sport,
+    proto_tree_add_uint_format(udp_tree, hf_udp_srcport, NullTVB, offset, 2, uh_sport,
 	"Source port: %s (%u)", get_udp_port(uh_sport), uh_sport);
-    proto_tree_add_uint_format(udp_tree, hf_udp_dstport, offset + 2, 2, uh_dport,
+    proto_tree_add_uint_format(udp_tree, hf_udp_dstport, NullTVB, offset + 2, 2, uh_dport,
 	"Destination port: %s (%u)", get_udp_port(uh_dport), uh_dport);
 
-    proto_tree_add_item_hidden(udp_tree, hf_udp_port, offset, 2, uh_sport);
-    proto_tree_add_item_hidden(udp_tree, hf_udp_port, offset+2, 2, uh_dport);
+    proto_tree_add_item_hidden(udp_tree, hf_udp_port, NullTVB, offset, 2, uh_sport);
+    proto_tree_add_item_hidden(udp_tree, hf_udp_port, NullTVB, offset+2, 2, uh_dport);
 
-    proto_tree_add_item(udp_tree, hf_udp_length, offset + 4, 2,  uh_ulen);
-    proto_tree_add_uint_format(udp_tree, hf_udp_checksum, offset + 6, 2, uh_sum,
+    proto_tree_add_item(udp_tree, hf_udp_length, NullTVB, offset + 4, 2,  uh_ulen);
+    proto_tree_add_uint_format(udp_tree, hf_udp_checksum, NullTVB, offset + 6, 2, uh_sum,
 	"Checksum: 0x%04x", uh_sum);
   }
 

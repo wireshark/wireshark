@@ -5,7 +5,7 @@
  * 
  * derived from the packet-nbns.c
  *
- * $Id: packet-netbios.c,v 1.18 2000/04/17 00:32:40 guy Exp $
+ * $Id: packet-netbios.c,v 1.19 2000/05/11 08:15:28 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -255,14 +255,14 @@ gboolean netbios_add_name(char* label, const u_char *pd, int offset,
 	}
 
 	name_type_str = netbios_name_type_descr(name_type);
-	tf = proto_tree_add_text( tree, offset, NETBIOS_NAME_LEN,
+	tf = proto_tree_add_text( tree, NullTVB, offset, NETBIOS_NAME_LEN,
 	    	"%s: %s<%02x> (%s)", label, name_str, name_type, name_type_str);
 
 	field_tree = proto_item_add_subtree( tf, ett_netb_name);
 	
-	proto_tree_add_text( field_tree, offset, 15, "%s",
+	proto_tree_add_text( field_tree, NullTVB, offset, 15, "%s",
 	    name_str);
-	proto_tree_add_text( field_tree, offset + 15, 1,
+	proto_tree_add_text( field_tree, NullTVB, offset + 15, 1,
 	    "0x%02x (%s)", name_type, name_type_str);
 	return TRUE;
 }
@@ -277,19 +277,19 @@ static void netbios_data_first_middle_flags(const u_char *pd, proto_tree *tree,
 	guint flags = pd[offset];
 		/* decode the flag field for Data First Middle packet*/
 
-	tf = proto_tree_add_text(tree, offset, 1,
+	tf = proto_tree_add_text(tree, NullTVB, offset, 1,
 			"Flags: 0x%02x", flags);
 	field_tree = proto_item_add_subtree(tf, ett_netb_flags);
 
-	proto_tree_add_text(field_tree, offset, 1, "%s",
+	proto_tree_add_text(field_tree, NullTVB, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x08, 8,
 		"Acknowledge_included", "No Acknowledge_included"));
 
-	proto_tree_add_text(field_tree, offset, 1, "%s",
+	proto_tree_add_text(field_tree, NullTVB, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x02, 8,
 		"No acknowledgement expected", "Acknowledgement expected"));
 
-	proto_tree_add_text(field_tree, offset, 1, "%s",
+	proto_tree_add_text(field_tree, NullTVB, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x01, 8,
 		"RECEIVE_CONTINUE requested", "RECEIVE_CONTINUE not requested"));
 }
@@ -303,19 +303,19 @@ static void netbios_data_only_flags(const u_char *pd, proto_tree *tree,
 	guint flags = pd[offset];
 		/* decode the flag field for Data Only Last packet*/
 
-	tf = proto_tree_add_text(tree, offset, 1,
+	tf = proto_tree_add_text(tree, NullTVB, offset, 1,
 			"Flags: 0x%02x", flags);
 	field_tree = proto_item_add_subtree(tf, ett_netb_flags);
 
-	proto_tree_add_text(field_tree, offset, 1, "%s",
+	proto_tree_add_text(field_tree, NullTVB, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x08, 8,
 		"ACKNOWLEDGE_INCLUDED", "No ACKNOWLEDGE_INCLUDED"));
 
-	proto_tree_add_text(field_tree, offset, 1, "%s",
+	proto_tree_add_text(field_tree, NullTVB, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x04, 8,
 		"ACKNOWLEDGE_WITH_DATA_ALLOWED", "No ACKNOWLEDGE_WITH_DATA_ALLOWED"));
 
-	proto_tree_add_text(field_tree, offset, 1, "%s",
+	proto_tree_add_text(field_tree, NullTVB, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x02, 8,
 		"No acknowledgement expected", "Acknowledgement expected"));
 }
@@ -329,15 +329,15 @@ static void netbios_add_ses_confirm_flags(const u_char *pd, proto_tree *tree,
 	guint flags = pd[offset];
 		/* decode the flag field for Session Confirm packet */
 
-	tf = proto_tree_add_text(tree, offset, 1,
+	tf = proto_tree_add_text(tree, NullTVB, offset, 1,
 			"Flags: 0x%02x", flags);
 	field_tree = proto_item_add_subtree( tf, ett_netb_flags);
 
-	proto_tree_add_text(field_tree, offset, 1, "%s",
+	proto_tree_add_text(field_tree, NullTVB, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x80, 8,
 		"Can handle SEND.NO.ACK", "Can't handle SEND.NO.ACK"));
 
-	proto_tree_add_text(field_tree, offset, 1, "%s",
+	proto_tree_add_text(field_tree, NullTVB, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x01, 8,
 		"NetBIOS 2.00 or higher", "NetBIOS 1.xx"));
 }
@@ -351,19 +351,19 @@ static void netbios_add_session_init_flags(const u_char *pd, proto_tree *tree,
 	guint flags = pd[offset];
 		/* decode the flag field for Session Init packet */
 
-	tf = proto_tree_add_text(tree, offset, 1,
+	tf = proto_tree_add_text(tree, NullTVB, offset, 1,
 			"Flags: 0x%02x", flags);
 	field_tree = proto_item_add_subtree(tf, ett_netb_flags);
 
-	proto_tree_add_text(field_tree, offset, 1, "%s",
+	proto_tree_add_text(field_tree, NullTVB, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x80, 8,
 		"Can handle SEND.NO.ACK", "Can't handle SEND.NO.ACK"));
 
-	proto_tree_add_text(field_tree, offset, 1, "%s",
+	proto_tree_add_text(field_tree, NullTVB, offset, 1, "%s",
 	    decode_numeric_bitfield(flags, 0x0E, 8,
 		"Largest frame value = %u"));
 
-	proto_tree_add_text(field_tree, offset, 1, "%s",
+	proto_tree_add_text(field_tree, NullTVB, offset, 1, "%s",
 	    decode_boolean_bitfield(flags, 0x01, 8,
 		"NetBIOS 2.00 or higher", "NetBIOS 1.xx"));
 }
@@ -378,12 +378,12 @@ static void netbios_no_receive_flags(const u_char *pd, proto_tree *tree,
 	guint flags = pd[offset];
 		/* decode the flag field for No Receive packet*/
 
-	tf = proto_tree_add_text(tree, offset, 1,
+	tf = proto_tree_add_text(tree, NullTVB, offset, 1,
 			"Flags: 0x%02x", flags);
 
 	if (flags & 0x02) {
 		field_tree = proto_item_add_subtree(tf, ett_netb_flags);
-		proto_tree_add_text(field_tree, offset, 1, "%s",
+		proto_tree_add_text(field_tree, NullTVB, offset, 1, "%s",
 		    decode_boolean_bitfield(flags, 0x02, 8,
 			"SEND.NO.ACK data not received", NULL));
 	}
@@ -401,7 +401,7 @@ static void nb_xmit_corrl(const u_char *pd, int offset, proto_tree *tree)
 
 {/* display the transmit correlator */
 
-	proto_tree_add_text( tree, offset + NB_XMIT_CORL, 2,
+	proto_tree_add_text( tree, NullTVB, offset + NB_XMIT_CORL, 2,
   	    "Transmit Correlator: 0x%04x", pletohs(&pd[offset + NB_XMIT_CORL]));
 }
 
@@ -410,7 +410,7 @@ static void nb_resp_corrl(const u_char *pd, int offset, proto_tree *tree)
 
 {/* display the response correlator */
 
-	proto_tree_add_text( tree, offset + NB_RESP_CORL, 2,
+	proto_tree_add_text( tree, NullTVB, offset + NB_RESP_CORL, 2,
   	    "Response Correlator: 0x%04x", pletohs(&pd[offset + NB_RESP_CORL]));
 }
 
@@ -425,17 +425,17 @@ static void nb_call_name_type(const u_char *pd, int offset,
 	switch (name_type_value) {
 
 	case 0x00:
-		proto_tree_add_text( tree, offset + NB_CALL_NAME_TYPE, 1,
+		proto_tree_add_text( tree, NullTVB, offset + NB_CALL_NAME_TYPE, 1,
 		    "Caller's Name Type: Unique name");
 		break;
 
 	case 0x01:
-		proto_tree_add_text( tree, offset + NB_CALL_NAME_TYPE, 1,
+		proto_tree_add_text( tree, NullTVB, offset + NB_CALL_NAME_TYPE, 1,
 		    "Caller's Name Type: Group name");
 		break;
 
 	default:
-		proto_tree_add_text( tree, offset + NB_CALL_NAME_TYPE, 1,
+		proto_tree_add_text( tree, NullTVB, offset + NB_CALL_NAME_TYPE, 1,
 		    "Caller's Name Type: 0x%02x (should be 0 or 1)",
 		    name_type_value);
 		break;
@@ -448,7 +448,7 @@ static void nb_local_session(const u_char *pd, int offset,
 
 {/* add the local session to tree */
 			
-	proto_tree_add_text(tree, offset + NB_LOCAL_SES, 1,
+	proto_tree_add_text(tree, NullTVB, offset + NB_LOCAL_SES, 1,
 	    "Local Session No.: 0x%02x", pd[offset + NB_LOCAL_SES]);
 }
 
@@ -458,7 +458,7 @@ static void nb_remote_session(const u_char *pd, int offset,
 
 {/* add the remote session to tree */
 			
-	proto_tree_add_text(tree, offset + NB_RMT_SES, 1,
+	proto_tree_add_text(tree, NullTVB, offset + NB_RMT_SES, 1,
 	    "Remote Session No.: 0x%02x", pd[offset + NB_RMT_SES]);
 }
 
@@ -471,7 +471,7 @@ static void nb_data2(char *label, int len, const u_char *pd, int offset,
 	int value = (len == 1 ? pd[offset + NB_DATA2]
 	   		: pletohs(&pd[offset + NB_DATA2]));
 	
-	proto_tree_add_text(tree, offset + NB_DATA2, len, label, value);
+	proto_tree_add_text(tree, NullTVB, offset + NB_DATA2, len, label, value);
 }
 
 static void nb_resync_indicator(const u_char *pd, int offset,
@@ -482,17 +482,17 @@ static void nb_resync_indicator(const u_char *pd, int offset,
 	switch (resync_indicator) {
 
 	case 0x0000:
-		proto_tree_add_text(tree, offset + NB_DATA2, 2,
+		proto_tree_add_text(tree, NullTVB, offset + NB_DATA2, 2,
 		    "Re-sync indicator: Not first Data First Middle following Receive Outstanding");
 		break;
 
 	case 0x0001:
-		proto_tree_add_text(tree, offset + NB_DATA2, 2,
+		proto_tree_add_text(tree, NullTVB, offset + NB_DATA2, 2,
 		    "Re-sync indicator: First Data First Middle following Receive Outstanding");
 		break;
 
 	default:
-		proto_tree_add_text(tree, offset + NB_DATA2, 2,
+		proto_tree_add_text(tree, NullTVB, offset + NB_DATA2, 2,
 		    "Re-sync indicator: 0x%04x", resync_indicator);
 		break;
 	}
@@ -558,17 +558,17 @@ static void  dissect_netb_status_query(const u_char *pd, int offset,
 	switch (status_request) {
 
 	case 0:
-		proto_tree_add_text(tree, offset + NB_DATA1, 1,
+		proto_tree_add_text(tree, NullTVB, offset + NB_DATA1, 1,
 		    "Status request: NetBIOS 1.x or 2.0");
 		break;
 
 	case 1:
-		proto_tree_add_text(tree, offset + NB_DATA1, 1,
+		proto_tree_add_text(tree, NullTVB, offset + NB_DATA1, 1,
 		    "Status request: NetBIOS 2.1, initial status request");
 		break;
 
 	default:
-		proto_tree_add_text(tree, offset + NB_DATA1, 1,
+		proto_tree_add_text(tree, NullTVB, offset + NB_DATA1, 1,
 		    "Status request: NetBIOS 2.1, %u names received so far",
 		    status_request);
 		break;
@@ -596,7 +596,7 @@ static void  dissect_netb_datagram(const u_char *pd, int offset,
 	/* Weird.  In some datagrams, this is 10 octets of 0, followed
 	   by a MAC address.... */
 	if (memcmp(&pd[offset + NB_SENDER_NAME], zeroes, 10) == 0) {
-		proto_tree_add_text( tree, offset + NB_SENDER_NAME + 10, 6,
+		proto_tree_add_text( tree, NullTVB, offset + NB_SENDER_NAME + 10, 6,
 		    "Sender's MAC Address: %s",
 		    ether_to_str(&pd[offset + NB_SENDER_NAME + 10]));
 	} else {
@@ -613,7 +613,7 @@ static void  dissect_netb_datagram_bcast(const u_char *pd, int offset,
 
 	/* We assume the same weirdness can happen here.... */
 	if (memcmp(&pd[offset + NB_SENDER_NAME], zeroes, 10) == 0) {
-		proto_tree_add_text( tree, offset + NB_SENDER_NAME + 10, 6,
+		proto_tree_add_text( tree, NullTVB, offset + NB_SENDER_NAME + 10, 6,
 		    "Sender's Node Address: %s",
 		    ether_to_str(&pd[offset + NB_SENDER_NAME + 10]));
 	} else {
@@ -630,10 +630,10 @@ static void  dissect_netb_name_query(const u_char *pd, int offset,
 	guint8 local_session_number = pd[offset + NB_DATA2];
 
 	if (local_session_number == 0) {
-		proto_tree_add_text( tree, offset + NB_DATA2, 1,
+		proto_tree_add_text( tree, NullTVB, offset + NB_DATA2, 1,
 		    "Local Session No.: 0 (FIND.NAME request)");
 	} else {
-		proto_tree_add_text( tree, offset + NB_DATA2, 1,
+		proto_tree_add_text( tree, NullTVB, offset + NB_DATA2, 1,
 		    "Local Session No.: 0x%02x", local_session_number);
 	}
 	nb_call_name_type(pd, offset, tree);
@@ -657,17 +657,17 @@ static void  dissect_netb_add_name_resp(const u_char *pd, int offset,
 	switch (status) {
 
 	case 0:
-		proto_tree_add_text( tree, offset + NB_DATA1, 1,
+		proto_tree_add_text( tree, NullTVB, offset + NB_DATA1, 1,
 		    "Status: Add name not in process");
 		break;
 
 	case 1:
-		proto_tree_add_text( tree, offset + NB_DATA1, 1,
+		proto_tree_add_text( tree, NullTVB, offset + NB_DATA1, 1,
 		    "Status: Add name in process");
 		break;
 
 	default:
-		proto_tree_add_text( tree, offset + NB_DATA1, 1,
+		proto_tree_add_text( tree, NullTVB, offset + NB_DATA1, 1,
 		    "Status: 0x%02x (should be 0 or 1)", status);
 		break;
 	}
@@ -675,17 +675,17 @@ static void  dissect_netb_add_name_resp(const u_char *pd, int offset,
 	switch (name_type) {
 
 	case 0:
-		proto_tree_add_text( tree, offset + NB_DATA2, 2,
+		proto_tree_add_text( tree, NullTVB, offset + NB_DATA2, 2,
 		    "Name type: Unique name");
 		break;
 
 	case 1:
-		proto_tree_add_text( tree, offset + NB_DATA2, 2,
+		proto_tree_add_text( tree, NullTVB, offset + NB_DATA2, 2,
 		    "Name type: Group name");
 		break;
 
 	default:
-		proto_tree_add_text( tree, offset + NB_DATA2, 2,
+		proto_tree_add_text( tree, NullTVB, offset + NB_DATA2, 2,
 		    "Name type: 0x%04x (should be 0 or 1)", name_type);
 		break;
 	}
@@ -708,17 +708,17 @@ static void  dissect_netb_name_resp(const u_char *pd, int offset,
 	switch (local_session_number) {
 
 	case 0x00:
-		proto_tree_add_text( tree, offset + NB_DATA2, 1,
+		proto_tree_add_text( tree, NullTVB, offset + NB_DATA2, 1,
 		    "State of name: No LISTEN pending, or FIND.NAME response");
 		break;
 
 	case 0xFF:
-		proto_tree_add_text( tree, offset + NB_DATA2, 1,
+		proto_tree_add_text( tree, NullTVB, offset + NB_DATA2, 1,
 		    "State of name: LISTEN pending, but insufficient resources to establish session");
 		break;
 
 	default:
-		proto_tree_add_text( tree, offset + NB_DATA2, 1,
+		proto_tree_add_text( tree, NullTVB, offset + NB_DATA2, 1,
 		    "Local Session No.: 0x%02x", local_session_number);
 		break;
 	}
@@ -747,28 +747,28 @@ static void  dissect_netb_status_resp(const u_char *pd, int offset,
 
 	nb_call_name_type(pd, offset, tree);
 	if (status_response == 0) {
-		proto_tree_add_text(tree, offset + NB_DATA1, 1,
+		proto_tree_add_text(tree, NullTVB, offset + NB_DATA1, 1,
 		    "Status response: NetBIOS 1.x or 2.0");
 	} else {
-		proto_tree_add_text(tree, offset + NB_DATA1, 1,
+		proto_tree_add_text(tree, NullTVB, offset + NB_DATA1, 1,
 		    "Status response: NetBIOS 2.1, %u names sent so far",
 		    status_response);
 	}
 	data2 = pletohs(&pd[offset + NB_DATA2]);
-	td2 = proto_tree_add_text(tree, offset + NB_DATA2, 2, "Status: 0x%04x",
+	td2 = proto_tree_add_text(tree, NullTVB, offset + NB_DATA2, 2, "Status: 0x%04x",
 	    data2);
 	data2_tree = proto_item_add_subtree(td2, ett_netb_status);
 	if (data2 & 0x8000) {
-		proto_tree_add_text(data2_tree, offset, 2, "%s",
+		proto_tree_add_text(data2_tree, NullTVB, offset, 2, "%s",
 		    decode_boolean_bitfield(data2, 0x8000, 8*2,
 			"Data length exceeds maximum frame size", NULL));
 	}
 	if (data2 & 0x4000) {
-		proto_tree_add_text(data2_tree, offset, 2, "%s",
+		proto_tree_add_text(data2_tree, NullTVB, offset, 2, "%s",
 		    decode_boolean_bitfield(data2, 0x4000, 8*2,
 			"Data length exceeds user's buffer", NULL));
 	}
-	proto_tree_add_text(data2_tree, offset, 2, "%s",
+	proto_tree_add_text(data2_tree, NullTVB, offset, 2, "%s",
 	    decode_numeric_bitfield(data2, 0x3FFF, 2*8,
 			"Status data length = %u"));
 	nb_xmit_corrl(pd, offset, tree); 
@@ -845,17 +845,17 @@ static void  dissect_netb_session_end(const u_char *pd, int offset,
 	switch (termination_indicator) {
 
 	case 0x0000:
-		proto_tree_add_text( tree, offset + NB_DATA2, 2,
+		proto_tree_add_text( tree, NullTVB, offset + NB_DATA2, 2,
 		    "Termination indicator: Normal session end");
 		break;
 
 	case 0x0001:
-		proto_tree_add_text( tree, offset + NB_DATA2, 2,
+		proto_tree_add_text( tree, NullTVB, offset + NB_DATA2, 2,
 		    "Termination indicator: Abormal session end");
 		break;
 
 	default:
-		proto_tree_add_text( tree, offset + NB_DATA2, 2,
+		proto_tree_add_text( tree, NullTVB, offset + NB_DATA2, 2,
 		    "Termination indicator: 0x%04x (should be 0x0000 or 0x0001)",
 		    termination_indicator);
 		break;
@@ -985,11 +985,11 @@ static void dissect_netbios(const u_char *pd, int offset, frame_data *fd,
 				col_add_str(fd, COL_INFO, "Bad packet");
 
 			if (tree) {
-				ti = proto_tree_add_item(tree, proto_netbios,
+				ti = proto_tree_add_item(tree, proto_netbios, NullTVB,
 					offset, END_OF_FRAME, NULL);
 				netb_tree = proto_item_add_subtree(ti, ett_netb);
 				
-				proto_tree_add_text( netb_tree, offset,
+				proto_tree_add_text( netb_tree, NullTVB, offset,
 				    END_OF_FRAME, "Data (%u bytes)", 
 				    END_OF_FRAME); 
 			}	
@@ -1030,17 +1030,17 @@ static void dissect_netbios(const u_char *pd, int offset, frame_data *fd,
 
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_netbios, offset, END_OF_FRAME, NULL);
+		ti = proto_tree_add_item(tree, proto_netbios, NullTVB, offset, END_OF_FRAME, NULL);
 
 		netb_tree = proto_item_add_subtree(ti, ett_netb);
 
-		proto_tree_add_text(netb_tree, offset, 2,
+		proto_tree_add_text(netb_tree, NullTVB, offset, 2,
 				"Header Length: %d", hdr_len);
 
-		proto_tree_add_text(netb_tree, offset + 2, 2,
+		proto_tree_add_text(netb_tree, NullTVB, offset + 2, 2,
 				"Delimiter: EFFF (NetBIOS)");
 
-		proto_tree_add_text(netb_tree, offset + NB_COMMAND, 1,
+		proto_tree_add_text(netb_tree, NullTVB, offset + NB_COMMAND, 1,
   		    "Command: 0x%02x (%s)", command, CommandName[ command]);
 
 						/* if command in table range */

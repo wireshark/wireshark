@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-browse.c,v 1.2 2000/04/08 01:28:13 sharpe Exp $
+ * $Id: packet-smb-browse.c,v 1.3 2000/05/11 08:15:44 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -167,10 +167,10 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
     
   if (tree) {  /* Add the browse tree */
 
-    ti = proto_tree_add_item(parent, proto_smb_browse, DataOffset, DataCount, NULL);
+    ti = proto_tree_add_item(parent, proto_smb_browse, NullTVB, DataOffset, DataCount, NULL);
     browse_tree = proto_item_add_subtree(ti, ett_browse);
 
-    proto_tree_add_text(browse_tree, loc_offset, 1, "OpCode: %s", (OpCode > (sizeof(browse_commands)/sizeof(char *))) ? "Error, No Such Command" : browse_commands[OpCode]);
+    proto_tree_add_text(browse_tree, NullTVB, loc_offset, 1, "OpCode: %s", (OpCode > (sizeof(browse_commands)/sizeof(char *))) ? "Error, No Such Command" : browse_commands[OpCode]);
 
   }
 
@@ -186,7 +186,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, 1, "Update Count: %u", UpdateCount);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, 1, "Update Count: %u", UpdateCount);
 
     }
 
@@ -196,7 +196,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, 4, "Update Periodicity: %u Sec", Periodicity/1000 );
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, 4, "Update Periodicity: %u Sec", Periodicity/1000 );
 
     }
 
@@ -212,7 +212,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, 16, (OpCode == DOMAINANNOUNCEMENT) ? "Domain/WorkGroup: %s": "Host Name: %s", ServerName);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, 16, (OpCode == DOMAINANNOUNCEMENT) ? "Domain/WorkGroup: %s": "Host Name: %s", ServerName);
 
     }
 
@@ -222,7 +222,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, 1, "Major Version: %u", VersionMajor);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, 1, "Major Version: %u", VersionMajor);
 
     }
 
@@ -232,7 +232,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, 1, "Minor Version: %u", VersionMinor);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, 1, "Minor Version: %u", VersionMinor);
 
     }
 
@@ -255,55 +255,55 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      ti = proto_tree_add_text(browse_tree, loc_offset, 4, "Server Type: 0x%04x", ServerType);
+      ti = proto_tree_add_text(browse_tree, NullTVB, loc_offset, 4, "Server Type: 0x%04x", ServerType);
       flags_tree = proto_item_add_subtree(ti, ett_browse_flags);
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x0001, 32, "Workstation", "Not Workstation"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x0002, 32, "Server", "Not Server"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x0004, 32, "SQL Server", "Not SQL Server"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x0008, 32, "Domain Controller", "Not Domain Controller"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x0010, 32, "Backup Controller", "Not Backup Controller"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x0020, 32, "Time Source", "Not Time Source"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x0040, 32, "Apple Server", "Not Apple Server"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x0080, 32, "Novell Server", "Not Novell Server"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x0100, 32, "Domain Member Server", "Not Domain Member Server"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x0200, 32, "Print Queue Server", "Not Print Queue Server"));      
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x0400, 32, "Dialin Server", "Not Dialin Server"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x0800, 32, "Xenix Server", "Not Xenix Server"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x1000, 32, "NT Workstation", "Not NT Workstation"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x2000, 32, "Windows for Workgroups", "Not Windows for Workgroups"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x8000, 32, "NT Server", "Not NT Server"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x10000, 32, "Potential Browser", "Not Potential Browser"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x20000, 32, "Backup Browser", "Not Backup Browser"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x40000, 32, "Master Browser", "Not Master Browser"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x80000, 32, "Domain Master Browser", "Not Domain Master Browser"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x100000, 32, "OSF", "Not OSF"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x200000, 32, "VMS", "Not VMS"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x400000, 32, "Windows 95 or above", "Not Windows 95 or above"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x40000000, 32, "Local List Only", "Not Local List Only"));
-      proto_tree_add_text(flags_tree, loc_offset, 4, "%s",
+      proto_tree_add_text(flags_tree, NullTVB, loc_offset, 4, "%s",
 			  decode_boolean_bitfield(ServerType, 0x80000000, 32, "Domain Enum", "Not Domain Enum"));
     }
     loc_offset += 4;
@@ -312,7 +312,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
     
     if (tree) {
       
-      proto_tree_add_text(browse_tree, loc_offset, 2, "Election Version: %u", ElectionVersion);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, 2, "Election Version: %u", ElectionVersion);
 
     }
 
@@ -322,7 +322,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, 2, "Signature: %u (0x%04X)", SigConstant, SigConstant);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, 2, "Signature: %u (0x%04X)", SigConstant, SigConstant);
 
     }
 
@@ -332,7 +332,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, strlen(ServerComment) + 1, "Host Comment: %s", ServerComment);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, strlen(ServerComment) + 1, "Host Comment: %s", ServerComment);
 
     }
 
@@ -344,7 +344,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, 1, "Unused Flags: %u", Flags);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, 1, "Unused Flags: %u", Flags);
 
     }
 
@@ -354,7 +354,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, strlen(ServerName) + 1, "Send List To: %s", ServerName);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, strlen(ServerName) + 1, "Send List To: %s", ServerName);
 
     }
 
@@ -366,7 +366,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, 1, "Election Version = %u", ElectionVersion);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, 1, "Election Version = %u", ElectionVersion);
 
     }
 
@@ -379,66 +379,66 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      ti = proto_tree_add_text(browse_tree, loc_offset, 4, "Election Criteria = %u (0x%08X)", ElectionCriteria, ElectionCriteria);
+      ti = proto_tree_add_text(browse_tree, NullTVB, loc_offset, 4, "Election Criteria = %u (0x%08X)", ElectionCriteria, ElectionCriteria);
 
       ec = proto_item_add_subtree(ti, ett_browse_election_criteria);
 
-      ti = proto_tree_add_text(ec, loc_offset + 3, 1, "Election OS Summary: %u (0x%02X)", ElectionOS, ElectionOS);
+      ti = proto_tree_add_text(ec, NullTVB, loc_offset + 3, 1, "Election OS Summary: %u (0x%02X)", ElectionOS, ElectionOS);
 
       OSflags = proto_item_add_subtree(ti, ett_browse_election_os);
 
-      proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+      proto_tree_add_text(OSflags, NullTVB, loc_offset + 3, 1, "%s",
 			    decode_boolean_bitfield(ElectionOS, 0x01, 8, "Windows for Workgroups", "Not Windows for Workgroups"));
       
-      proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+      proto_tree_add_text(OSflags, NullTVB, loc_offset + 3, 1, "%s",
 			  decode_boolean_bitfield(ElectionOS, 0x02, 8, "Unknown", "Not used"));
 
-      proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+      proto_tree_add_text(OSflags, NullTVB, loc_offset + 3, 1, "%s",
 			  decode_boolean_bitfield(ElectionOS, 0x04, 8, "Unknown", "Not used"));
 
-      proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+      proto_tree_add_text(OSflags, NullTVB, loc_offset + 3, 1, "%s",
 			  decode_boolean_bitfield(ElectionOS, 0x08, 8, "Unknown", "Not used"));
       
-      proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+      proto_tree_add_text(OSflags, NullTVB, loc_offset + 3, 1, "%s",
 			  decode_boolean_bitfield(ElectionOS, 0x10, 8, "Windows NT Workstation", "Not Windows NT Workstation"));
       
-      proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+      proto_tree_add_text(OSflags, NullTVB, loc_offset + 3, 1, "%s",
 			  decode_boolean_bitfield(ElectionOS, 0x20, 8, "Windows NT Server", "Not Windows NT Server"));
 
-      proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+      proto_tree_add_text(OSflags, NullTVB, loc_offset + 3, 1, "%s",
 			  decode_boolean_bitfield(ElectionOS, 0x40, 8, "Unknown", "Not used"));
 
-      proto_tree_add_text(OSflags, loc_offset + 3, 1, "%s",
+      proto_tree_add_text(OSflags, NullTVB, loc_offset + 3, 1, "%s",
 			  decode_boolean_bitfield(ElectionOS, 0x80, 8, "Unknown", "Not used"));
 
-      proto_tree_add_text(ec, loc_offset + 1, 2, "Election Revision: %u (0x%04X)", ElectionRevision, ElectionRevision);
+      proto_tree_add_text(ec, NullTVB, loc_offset + 1, 2, "Election Revision: %u (0x%04X)", ElectionRevision, ElectionRevision);
 
-      ti = proto_tree_add_text(ec, loc_offset, 1, "Election Desire Summary: %u (0x%02X)", ElectionDesire, ElectionDesire);
+      ti = proto_tree_add_text(ec, NullTVB, loc_offset, 1, "Election Desire Summary: %u (0x%02X)", ElectionDesire, ElectionDesire);
 
       DesireFlags = proto_item_add_subtree(ti, ett_browse_election_desire);
 
-      proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+      proto_tree_add_text(DesireFlags, NullTVB, loc_offset, 1, "%s",
 			  decode_boolean_bitfield(ElectionDesire, 0x01, 8, "Backup Browse Server", "Not Backup Browse Server"));
       
-      proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+      proto_tree_add_text(DesireFlags, NullTVB, loc_offset, 1, "%s",
 			  decode_boolean_bitfield(ElectionDesire, 0x02, 8, "Standby Browse Server", "Not Standby Browse Server"));
 
-      proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+      proto_tree_add_text(DesireFlags, NullTVB, loc_offset, 1, "%s",
 			  decode_boolean_bitfield(ElectionDesire, 0x04, 8, "Master Browser", "Not Master Browser"));
 
-      proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+      proto_tree_add_text(DesireFlags, NullTVB, loc_offset, 1, "%s",
 			  decode_boolean_bitfield(ElectionDesire, 0x08, 8, "Domain Master Browse Server", "Not Domain Master Browse Server"));
 
-      proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+      proto_tree_add_text(DesireFlags, NullTVB, loc_offset, 1, "%s",
 			  decode_boolean_bitfield(ElectionDesire, 0x10, 8, "Unknown", "Not used"));
 
-      proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+      proto_tree_add_text(DesireFlags, NullTVB, loc_offset, 1, "%s",
 			  decode_boolean_bitfield(ElectionDesire, 0x20, 8, "WINS Client", "Not WINS Client"));
 
-      proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+      proto_tree_add_text(DesireFlags, NullTVB, loc_offset, 1, "%s",
 			  decode_boolean_bitfield(ElectionDesire, 0x40, 8, "Unknown", "Not used"));
 
-      proto_tree_add_text(DesireFlags, loc_offset, 1, "%s",
+      proto_tree_add_text(DesireFlags, NullTVB, loc_offset, 1, "%s",
 			  decode_boolean_bitfield(ElectionDesire, 0x80, 8, "Windows NT Advanced Server", "Not Windows NT Advanced Server"));
 
     }
@@ -449,7 +449,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, 4, "Server Up Time: %u Sec (%ums)", ServerUpTime/1000, ServerUpTime);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, 4, "Server Up Time: %u Sec (%ums)", ServerUpTime/1000, ServerUpTime);
 
     }
 
@@ -463,7 +463,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, strlen(ServerName) + 1, "Election Server Name: %s", ServerName);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, strlen(ServerName) + 1, "Election Server Name: %s", ServerName);
 
     }
 
@@ -475,7 +475,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, 1, "Backup List Requested Count: %u", BackupServerCount);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, 1, "Backup List Requested Count: %u", BackupServerCount);
 
     }
 
@@ -485,7 +485,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, 4, "Backup Request Token: %u", Token);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, 4, "Backup Request Token: %u", Token);
 
     }
 
@@ -497,7 +497,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, 1, "Backup Server Count: %u", BackupServerCount);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, 1, "Backup Server Count: %u", BackupServerCount);
 
     }
 
@@ -507,7 +507,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, 4, "Backup Response Token: %u", Token);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, 4, "Backup Response Token: %u", Token);
 
     }
 
@@ -519,7 +519,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
       if (tree) {
 
-	proto_tree_add_text(browse_tree, loc_offset, strlen(ServerName) + 1, "Backup Server: %s", ServerName);
+	proto_tree_add_text(browse_tree, NullTVB, loc_offset, strlen(ServerName) + 1, "Backup Server: %s", ServerName);
 
       }
 
@@ -537,7 +537,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, strlen(ServerName) + 1, "Browser to Promote: %s", ServerName);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, strlen(ServerName) + 1, "Browser to Promote: %s", ServerName);
 
     }
 
@@ -549,7 +549,7 @@ dissect_mailslot_browse(const u_char *pd, int offset, frame_data *fd, proto_tree
 
     if (tree) {
 
-      proto_tree_add_text(browse_tree, loc_offset, strlen(ServerName) + 1, "Server Name: %s", ServerName);
+      proto_tree_add_text(browse_tree, NullTVB, loc_offset, strlen(ServerName) + 1, "Server Name: %s", ServerName);
 
     }
 

@@ -2,7 +2,7 @@
  * Routines for IEEE 802.2 LLC layer
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-llc.c,v 1.55 2000/04/17 00:32:39 guy Exp $
+ * $Id: packet-llc.c,v 1.56 2000/05/11 08:15:22 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -287,15 +287,15 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 	}
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_llc, offset, 0, NULL);
+		ti = proto_tree_add_item(tree, proto_llc, NullTVB, offset, 0, NULL);
 		llc_tree = proto_item_add_subtree(ti, ett_llc);
-		proto_tree_add_item(llc_tree, hf_llc_dsap, offset, 
+		proto_tree_add_item(llc_tree, hf_llc_dsap, NullTVB, offset, 
 			1, pd[offset] & SAP_MASK);
-		proto_tree_add_item(llc_tree, hf_llc_dsap_ig, offset, 
+		proto_tree_add_item(llc_tree, hf_llc_dsap_ig, NullTVB, offset, 
 			1, pd[offset] & DSAP_GI_BIT);
-		proto_tree_add_item(llc_tree, hf_llc_ssap, offset+1, 
+		proto_tree_add_item(llc_tree, hf_llc_ssap, NullTVB, offset+1, 
 			1, pd[offset+1] & SAP_MASK);
-		proto_tree_add_item(llc_tree, hf_llc_ssap_cr, offset+1, 
+		proto_tree_add_item(llc_tree, hf_llc_ssap_cr, NullTVB, offset+1, 
 			1, pd[offset+1] & SSAP_CR_BIT);
 	} else
 		llc_tree = NULL;
@@ -333,7 +333,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			    etype);
 		}
 		if (tree) {
-			proto_tree_add_item(llc_tree, hf_llc_oui, offset+3, 3,
+			proto_tree_add_item(llc_tree, hf_llc_oui, NullTVB, offset+3, 3,
 				oui);
 		}
 		switch (oui) {
@@ -362,7 +362,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 			   Ethernet? */
 			if (tree) {
 				proto_tree_add_item(llc_tree,
-				    hf_llc_pid, offset+6, 2, etype);
+				    hf_llc_pid, NullTVB, offset+6, 2, etype);
 			}
 			if (XDLC_IS_INFORMATION(control)) {
 				switch (etype) {
@@ -396,7 +396,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		case OUI_CABLE_BPDU:    /* DOCSIS cable modem spanning tree BPDU */
 			if (tree) {
 				proto_tree_add_item(llc_tree,
-				hf_llc_pid, offset+6, 2, etype);
+				hf_llc_pid, NullTVB, offset+6, 2, etype);
 			}
 			dissect_bpdu(pd, offset+8, fd, tree);
 			break;
@@ -404,7 +404,7 @@ dissect_llc(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 		default:
 			if (tree) {
 				proto_tree_add_item(llc_tree,
-				    hf_llc_pid, offset+6, 2, etype);
+				    hf_llc_pid, NullTVB, offset+6, 2, etype);
 			}
 			dissect_data(pd, offset+8, fd, tree);
 			break;

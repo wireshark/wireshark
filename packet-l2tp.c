@@ -7,7 +7,7 @@
  * Laurent Cazalet <laurent.cazalet@mailclub.net>
  * Thomas Parvais <thomas.parvais@advalvas.be>
  *
- * $Id: packet-l2tp.c,v 1.8 2000/04/08 07:07:24 guy Exp $
+ * $Id: packet-l2tp.c,v 1.9 2000/05/11 08:15:17 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -336,27 +336,27 @@ dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
         col_add_fstr(fd,COL_INFO,textbuffer);
   }
   if (tree) {
-        ti = proto_tree_add_item(tree,proto_l2tp, offset, length , NULL);
+        ti = proto_tree_add_item(tree,proto_l2tp, NullTVB, offset, length , NULL);
 	l2tp_tree = proto_item_add_subtree(ti, ett_l2tp);
-	proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, offset ,1,
+	proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, NullTVB, offset ,1,
  	rhcode, "Packet Type: %s Tunnel Id=%d Session Id=%d",( CONTROL_BIT(ver) ? control_msg : data_msg) ,tid,cid);
         if (LENGTH_BIT(ver)) {
-	        proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, (offset +=  2), 2,
+	        proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, NullTVB, (offset +=  2), 2,
                 rhcode, "Length: %d ", length);
         }
         if (SEQUENCE_BIT(ver)) {
   		memcpy(&Ns,(ptr+=2),sizeof(unsigned short));
   		memcpy(&Nr,(ptr+=2),sizeof(unsigned short));
   		index += 4;
-	        proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, (offset +=  6 ), 4,
+	        proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, NullTVB, (offset +=  6 ), 4,
                 rhcode, "Ns: %d Nr: %d ", htons(Ns), htons(Nr));
         }
         if ((LENGTH_BIT(ver))&&(length==12)) {
-            proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code,offset,1,rhcode,
+            proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, NullTVB,offset,1,rhcode,
                                        "Zero Length Bit message");
         }
         if (!CONTROL_BIT(ver)) {  /* Data Messages so we are done */
-	         proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, (offset +=  4) , (length - 12 )  , rhcode, "Data: ");
+	         proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, NullTVB, (offset +=  4) , (length - 12 )  , rhcode, "Data: ");
                  return;
          }
 
@@ -369,16 +369,16 @@ dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		memcpy(&vendor,(tmp_ptr+=2),sizeof(unsigned short));
 		memcpy(&avp_type,(tmp_ptr+=2),sizeof(unsigned short));
 		avp_type=htons(avp_type);
-		tf =  proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, offset , avp_len,
+		tf =  proto_tree_add_uint_format(l2tp_tree,hf_l2tp_code, NullTVB, offset , avp_len,
                                                  rhcode, "AVP Type  %s  ",  (NUM_AVP_TYPES > avp_type)
                                                  ? avptypestr[avp_type] : "Unknown");
                 l2tp_avp_tree = proto_item_add_subtree(tf,  ett_l2tp_avp);
 
-                proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset , 1,
+                proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset , 1,
                                            rhcode, " Mandatory:%s" , (MANDATORY_BIT(htons(ver_len_hidden))) ? "True" : "False" );
-                proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset , 1,
+                proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset , 1,
                                            rhcode, " Hidden:%s" , (HIDDEN_BIT(htons(ver_len_hidden))) ? "True" : "False" );
-                        proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, (offset + 1), 1,
+                        proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, (offset + 1), 1,
                                                    rhcode, " Length:%d" , avp_len );
 
 			if (HIDDEN_BIT(htons(ver_len_hidden))) { /* don't try do display hidden */
@@ -391,7 +391,7 @@ dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 			case CONTROL_MESSAGE:
                             memcpy(&msg_type,(tmp_ptr+=2),sizeof(unsigned short));
                             msg_type=htons(msg_type);
-                            proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 6, 2 ,
+                            proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 2 ,
                                                        rhcode, " Control Message Type: (%d)  %s", msg_type,
                                                        ((NUM_CONTROL_CALL_TYPES + 1 ) > msg_type) ?
                                                        calltypestr[msg_type] : "Unknown" );
@@ -401,7 +401,7 @@ dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				if ( avp_len >= 8 ) {
 					memcpy(&result_code,(tmp_ptr+=2),sizeof(unsigned short));
 					result_code=htons(result_code);
-					proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+					proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 					  2, rhcode,
 					  " Result code: %d",  result_code  );
 			
@@ -409,14 +409,14 @@ dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				if ( avp_len >= 10 ) {
 					memcpy(&error_code,(tmp_ptr+=2),sizeof(unsigned short));
 					error_code=htons(error_code);
-					proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 8,
+					proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 8,
 					  2, rhcode,
 					  " Error code: %d", error_code);
 				}
 				if ( avp_len > 10 ) {
 					memset(error_string,'\0' ,sizeof(error_string));
 					strncpy(error_string,(tmp_ptr),(avp_len - 10));
-					proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 10, (avp_len - 10),
+					proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 10, (avp_len - 10),
 					  rhcode, " Error Message: %s",  error_string  );
 				}
 				break;
@@ -428,235 +428,235 @@ dissect_l2tp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 				avp_ver=(htons(avp_ver));
 				avp_rev=(htons(avp_rev));
 				memcpy(&avp_rev,(tmp_ptr+=2),sizeof(unsigned short));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 6, 1,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 1,
 				  rhcode, " Version: %d",  ((avp_ver&0xff00)>>8)  );
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 7, 1,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 7, 1,
 				  rhcode, " Revision: %d",  (avp_ver&0x00ff));
 				break;
 
 			case FRAMING_CAPABIlITIES:
 				tmp_ptr+=2;
 				memcpy(&framing,(tmp_ptr+=2),sizeof(unsigned short));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 6, 4,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 4,
 				  rhcode, " ASYNC FRAMING: %s" , (FRAMING_ASYNC(htons(framing))) ? "True" : "False" );  
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 6, 4,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 4,
 				  rhcode, " SYNC FRAMING: %s" , (FRAMING_SYNC(htons(framing))) ? "True" : "False" );  
 				break;
 
 			case BEARER_CAPABIlITIES:
 				tmp_ptr+=2;
 				memcpy(&framing,(tmp_ptr+=2),sizeof(unsigned short));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 6, 4 ,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 4 ,
 				  rhcode, " Analog Access: %s" , (FRAMING_ASYNC(htons(framing))) ? "True" : "False" );  
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 6, 4,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 4,
 				  rhcode, " Digital Access: %s" , (FRAMING_SYNC(htons(framing))) ? "True" : "False" );  
 				break;
 
 			case TIE_BREAKER:
 				memcpy(&long_type,(tmp_ptr+=8),sizeof(unsigned long));
             			long_type = htonl(long_type);
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 6, 1,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 1,
 				  rhcode, " TIE_BREAKER %lu 0x%lx", long_type,long_type );
 				break;
 
 			case FIRMWARE_REVISION:
 				memcpy(&firmware_rev,(tmp_ptr+=2),sizeof(unsigned short));
 				firmware_rev=htons(firmware_rev);
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 6, 2,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 2,
 				  rhcode, " Firmware Revision: %d 0x%x", firmware_rev,firmware_rev );
 				break;
 
 			case HOST_NAME:
 				memset(error_string,'\0',sizeof(error_string));
 				strncpy(error_string,(tmp_ptr+=2),(avp_len - 6));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 6, 
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 
 				  (avp_len - 6), rhcode, " Host Name: %s",  error_string  );
 				break;
 
 			case VENDOR_NAME:
 				memset(message_string,'\0' ,sizeof(message_string));
 				strncpy(message_string,(tmp_ptr+=2),(avp_len - 6));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 6, 
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 
 				  (avp_len - 6), rhcode, " Vendor Name: %s",  message_string  );
 				break;
 
 			case ASSIGNED_TUNNEL_ID:
 				memcpy(&gen_type,(tmp_ptr+=2),sizeof(unsigned short));
 				gen_type=htons(gen_type);
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  2, rhcode, " Tunnel ID: %d",  gen_type  );
 				break;
 
 			case RECEIVE_WINDOW_SIZE:
 				memcpy(&gen_type,(tmp_ptr+=2),sizeof(unsigned short));
 				gen_type=htons(gen_type);
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  2, rhcode, " Receive Window Size: %d",  gen_type  );
 				break;
 
 			case CHALLENGE:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  (avp_len - 6 ), rhcode, "  CHAP Challenge: ");
 				break;
 
 			case CHALLENGE_RESPONSE:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  (avp_len - 6 ), rhcode, "  CHAP Challenge Response: ");
 				break;
 
 			case CAUSE_CODE:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  1, rhcode, " Cause Code: ");
 				break;
 
 			case ASSIGNED_SESSION:
 				memcpy(&gen_type,(tmp_ptr+=2),sizeof(unsigned short));
 				gen_type=htons(gen_type);
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  2, rhcode, " Assigned Session: %d",  gen_type  );
 				break;
 
 			case CALL_SERIAL_NUMBER:
 				memcpy(&gen_type,(tmp_ptr+=2),sizeof(unsigned short));
 				gen_type=htons(gen_type);
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  4, rhcode, " Call Serial Number: %d",  gen_type  );
 				break;
 
 			case MINIMUM_BPS:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  4, rhcode, " Minimum BPS: ");
 				break;
 
 			case MAXIMUM_BPS:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  4, rhcode, " Maximum BPS ");
 				break;
 
 			case BEARER_TYPE:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  4, rhcode, " Bearer Type: ");
 				break;
 
 			case FRAMING_TYPE:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  4, rhcode, " Framing Type: ");
 				break;
 
 			case UNKNOWN_MESSAGE:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  1, rhcode, " Unknown Message: ");
 				break;
 
 			case CALLED_NUMBER:
 				memset(message_string,'\0' ,sizeof(message_string));
 				strncpy(message_string,(tmp_ptr+=2),(avp_len - 6));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 6, 
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 
 				  (avp_len - 6), rhcode, " Called Number: %s",  message_string  );
 				break;
 
 			case CALLING_NUMBER:
 				memset(message_string,'\0' ,sizeof(message_string));
 				strncpy(message_string,(tmp_ptr+=2),(avp_len - 6));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 6, 
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 
 				  (avp_len - 6), rhcode, " Calling Number: %s",  message_string  );
 				break;
 
 			case SUB_ADDRESS:
 				memset(message_string,'\0' ,sizeof(message_string));
 				strncpy(message_string,(tmp_ptr+=2),(avp_len - 6));
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, offset + 6, 
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB, offset + 6, 
 				  (avp_len - 6), rhcode, " Sub-Address: %s",  message_string  );
 				break;
 
 			case TX_CONNECT_SPEED:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  4, rhcode, " Connect Speed: ");
 				break;
 
 			case PHYSICAL_CHANNEL:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  4, rhcode, " Physical Channel: ");
 				break;
 
 			case INITIAL_RECEIVED_LCP:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  (avp_len - 6 ), rhcode, " Initial LCP Conf REQ: ");
 				break;
 
 			case LAST_SEND_LCP_CONFREQ:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  (avp_len - 6 ), rhcode, " Last Sent LCP Conf REQ: ");
 				break;
 
 			case LAST_RECEIVED_LCP_CONFREQ:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  (avp_len - 6 ), rhcode, " Last Received LCP Conf REQ: ");
 				break;
 
 			case PROXY_AUTHEN_TYPE:
 				memcpy(&msg_type,(tmp_ptr+=2),sizeof(unsigned short));
 				msg_type=htons(msg_type);
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  1, rhcode, " Proxy Authen Type: %s ", authen_types[msg_type] );
 				break;
 
 			case PROXY_AUTHEN_NAME:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  (avp_len - 6 ), rhcode, " Proxy Authen Name: ");
 				break;
 
 			case PROXY_AUTHEN_CHALLENGE:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  (avp_len - 6 ), rhcode, " Proxy Authen Challenge: ");
 				break;
 
 			case PROXY_AUTHEN_ID:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  2, rhcode, " Paorx Authen ID: ");
 				break;
 
 			case PROXY_AUTHEN_RESPONSE:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  (avp_len - 6 ), rhcode, " Proxy Authen Response: ");
 				break;
 
 			case CALL_STATUS_AVPS:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  4, rhcode, "  CRC Errors: ");
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 10,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 10,
 				  4, rhcode, "  Framing Errors: ");
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 14,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 14,
 				  4, rhcode, "  Hardware Overruns: ");
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 18,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 18,
 				  4, rhcode, "  Buffer Overruns: ");
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 23,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 23,
 				  4, rhcode, "  Time-out Errors: ");
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 26,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 26,
 				  4, rhcode, "  Alignment Errors: ");
 				break;
 
 			case ACCM:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  2, rhcode, " Reserve Quantity: ");
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 8,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 8,
 				  4, rhcode, " Send ACCM: ");
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 12,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 12,
 				  4, rhcode, " Recv ACCM: ");
 				break;
 
 			case PRIVATE_GROUP_ID:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  1, rhcode, " Private Group ID: ");
 				break;
 
 			case RX_CONNECT_SPEED:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset + 6,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset + 6,
 				  4, rhcode, " RX Connect Speed: ");
 				break;
 
 			case SEQUENCING_REQUIRED:
-				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code,offset ,
+				proto_tree_add_uint_format(l2tp_avp_tree,hf_l2tp_code, NullTVB,offset ,
 				  1, rhcode, " Sequencing Required: ");
 				break;
 			}

@@ -2,7 +2,7 @@
  * Routines for Token-Ring Media Access Control
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-trmac.c,v 1.20 2000/03/12 04:47:50 gram Exp $
+ * $Id: packet-trmac.c,v 1.21 2000/05/11 08:15:54 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -116,154 +116,154 @@ sv_text(const u_char *pd, int pkt_offset, proto_tree *tree)
 	u_char		errors[6];	/* isolating or non-isolating */
 
 	/* this just adds to the clutter on the screen...
-	proto_tree_add_text(tree, pkt_offset, 1,
+	proto_tree_add_text(tree, NullTVB, pkt_offset, 1,
 		"Subvector Length: %d bytes", sv_length);*/
 
-	proto_tree_add_item_hidden(tree, hf_trmac_sv, pkt_offset+1, 1, pd[1]);
+	proto_tree_add_item_hidden(tree, hf_trmac_sv, NullTVB, pkt_offset+1, 1, pd[1]);
 
 	switch(pd[1]) {
 		case 0x01: /* Beacon Type */
 			beacon_type = pntohs(&pd[2]);
 			if (beacon_type < array_length(beacon)) {
-				proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+				proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 					"Beacon Type: %s", beacon[beacon_type] );
 			} else {
-				proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+				proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 					"Beacon Type: Illegal value: %d", beacon_type );
 			}
 			break;
 
 		case 0x02: /* NAUN */
-			proto_tree_add_item(tree, hf_trmac_naun, pkt_offset+1, sv_length-1, (guint8*)&pd[2]);
+			proto_tree_add_item(tree, hf_trmac_naun, NullTVB, pkt_offset+1, sv_length-1, (guint8*)&pd[2]);
 			break;
 
 		case 0x03: /* Local Ring Number */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Local Ring Number: 0x%04X (%d)",
 				pntohs( &pd[2] ), pntohs( &pd[2] ));
 			break;
 
 		case 0x04: /* Assign Physical Location */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Assign Physical Location: 0x%08X", pntohl( &pd[2] ) );
 			break;
 
 		case 0x05: /* Soft Error Report Value */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Soft Error Report Value: %d ms", 10 * pntohs( &pd[2] ) );
 			break;
 
 		case 0x06: /* Enabled Function Classes */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Enabled Function Classes: %04X",  pntohs( &pd[2] ) );
 			break;
 
 		case 0x07: /* Allowed Access Priority */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Allowed Access Priority: %04X",  pntohs( &pd[2] ) );
 			break;
 
 		case 0x09: /* Correlator */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Correlator: %04X",  pntohs( &pd[2] ) );
 			break;
 
 		case 0x0A: /* Address of last neighbor notification */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Address of Last Neighbor Notification: %s",
 				ether_to_str((guint8*)&pd[2]));
 			break;
 
 		case 0x0B: /* Physical Location */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Physical Location: 0x%08X", pntohl( &pd[2] ) );
 			break;
 
 		case 0x20: /* Response Code */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Response Code: 0x%04X 0x%04X", pntohl( &pd[2] ),
 				pntohl( &pd[4] ) );
 			break;
 
 		case 0x21: /* Reserved */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Reserved: 0x%04X", pntohs( &pd[2] ) );
 			break;
 
 		case 0x22: /* Product Instance ID */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Product Instance ID: ...");
 			break;
 
 		case 0x23: /* Ring Station Microcode Level */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Ring Station Microcode Level: ...");
 			break;
 
 		case 0x26: /* Wrap data */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Wrap Data: ... (%d bytes)", sv_length - 2);
 			break;
 
 		case 0x27: /* Frame Forward */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Frame Forward: ... (%d bytes)", sv_length - 2);
 			break;
 
 		case 0x29: /* Ring Station Status Subvector */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Ring Station Status Subvector: ...");
 			break;
 
 		case 0x2A: /* Transmit Status Code */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Transmit Status Code: %04X", pntohs( &pd[2] ) );
 			break;
 
 		case 0x2B: /* Group Address */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Group Address: %08X", pntohl( &pd[2] ) );
 			break;
 
 		case 0x2C: /* Functional Address */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Functional Address: %08X", pntohl( &pd[2] ) );
 			break;
 
 		case 0x2D: /* Isolating Error Counts */
 			memcpy(errors, &pd[2], 6);
-			ti = proto_tree_add_item(tree, hf_trmac_errors_iso, pkt_offset+1, sv_length-1,
+			ti = proto_tree_add_item(tree, hf_trmac_errors_iso, NullTVB, pkt_offset+1, sv_length-1,
 				errors[0] + errors[1] + errors[2] + errors[3] + errors[4]);
 			sv_tree = proto_item_add_subtree(ti, ett_tr_ierr_cnt);
 
-			proto_tree_add_item(sv_tree, hf_trmac_errors_line, pkt_offset+2, 1, errors[0]);
-			proto_tree_add_item(sv_tree, hf_trmac_errors_internal, pkt_offset+3, 1, errors[1]);
-			proto_tree_add_item(sv_tree, hf_trmac_errors_burst, pkt_offset+4, 1, errors[2]);
-			proto_tree_add_item(sv_tree, hf_trmac_errors_ac, pkt_offset+5, 1, errors[3]);
-			proto_tree_add_item(sv_tree, hf_trmac_errors_abort, pkt_offset+6, 1, errors[4]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_line, NullTVB, pkt_offset+2, 1, errors[0]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_internal, NullTVB, pkt_offset+3, 1, errors[1]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_burst, NullTVB, pkt_offset+4, 1, errors[2]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_ac, NullTVB, pkt_offset+5, 1, errors[3]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_abort, NullTVB, pkt_offset+6, 1, errors[4]);
 
 			break;
 
 		case 0x2E: /* Non-Isolating Error Counts */
 			memcpy(errors, &pd[2], 6);
-			ti = proto_tree_add_item(tree, hf_trmac_errors_noniso, pkt_offset+1, sv_length-1,
+			ti = proto_tree_add_item(tree, hf_trmac_errors_noniso, NullTVB, pkt_offset+1, sv_length-1,
 				errors[0] + errors[1] + errors[2] + errors[3] + errors[4]);
 			sv_tree = proto_item_add_subtree(ti, ett_tr_nerr_cnt);
 
-			proto_tree_add_item(sv_tree, hf_trmac_errors_lost, pkt_offset+2, 1, errors[0]);
-			proto_tree_add_item(sv_tree, hf_trmac_errors_congestion, pkt_offset+3, 1, errors[1]);
-			proto_tree_add_item(sv_tree, hf_trmac_errors_fc, pkt_offset+4, 1, errors[2]);
-			proto_tree_add_item(sv_tree, hf_trmac_errors_freq, pkt_offset+5, 1, errors[3]);
-			proto_tree_add_item(sv_tree, hf_trmac_errors_token, pkt_offset+6, 1, errors[4]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_lost, NullTVB, pkt_offset+2, 1, errors[0]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_congestion, NullTVB, pkt_offset+3, 1, errors[1]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_fc, NullTVB, pkt_offset+4, 1, errors[2]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_freq, NullTVB, pkt_offset+5, 1, errors[3]);
+			proto_tree_add_item(sv_tree, hf_trmac_errors_token, NullTVB, pkt_offset+6, 1, errors[4]);
 			break;
 
 		case 0x30: /* Error Code */
-			proto_tree_add_text(tree, pkt_offset+1, sv_length-1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, sv_length-1,
 				"Error Code: %04X", pntohs( &pd[2] ) );
 			break;
 
 		default: /* Unknown */
-			proto_tree_add_text(tree, pkt_offset+1, 1,
+			proto_tree_add_text(tree, NullTVB, pkt_offset+1, 1,
 				"Unknown Sub-Vector: 0x%02X", pd[1]);
 	}
 	return sv_length;
@@ -292,14 +292,14 @@ dissect_trmac(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
 
 	if (tree) {
 
-		ti = proto_tree_add_item(tree, proto_trmac, offset, mv_length, NULL);
+		ti = proto_tree_add_item(tree, proto_trmac, NullTVB, offset, mv_length, NULL);
 		mac_tree = proto_item_add_subtree(ti, ett_tr_mac);
 
-		proto_tree_add_item(mac_tree, hf_trmac_mv, offset+3, 1, mv_val);
-		proto_tree_add_uint_format(mac_tree, hf_trmac_length, offset, 2, mv_length,
+		proto_tree_add_item(mac_tree, hf_trmac_mv, NullTVB, offset+3, 1, mv_val);
+		proto_tree_add_uint_format(mac_tree, hf_trmac_length, NullTVB, offset, 2, mv_length,
 				"Total Length: %d bytes", mv_length);
-		proto_tree_add_item(mac_tree, hf_trmac_srcclass, offset+2, 1, pd[offset+2] & 0x0f);
-		proto_tree_add_item(mac_tree, hf_trmac_dstclass, offset+2, 1, pd[offset+2] >> 4 );
+		proto_tree_add_item(mac_tree, hf_trmac_srcclass, NullTVB, offset+2, 1, pd[offset+2] & 0x0f);
+		proto_tree_add_item(mac_tree, hf_trmac_dstclass, NullTVB, offset+2, 1, pd[offset+2] >> 4 );
 
 		/* interpret the subvectors */
 		sv_offset = 0;

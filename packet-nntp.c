@@ -2,7 +2,7 @@
  * Routines for nntp packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-nntp.c,v 1.8 2000/04/08 07:07:31 guy Exp $
+ * $Id: packet-nntp.c,v 1.9 2000/05/11 08:15:30 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -84,13 +84,13 @@ dissect_nntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 
 	if (tree) {
 
-	  ti = proto_tree_add_item(tree, proto_nntp, offset, END_OF_FRAME, NULL);
+	  ti = proto_tree_add_item(tree, proto_nntp, NullTVB, offset, END_OF_FRAME, NULL);
 	  nntp_tree = proto_item_add_subtree(ti, ett_nntp);
 
 	  if (pi.match_port == pi.destport) {
-	    proto_tree_add_item_hidden(nntp_tree, hf_nntp_request, 0, 0, TRUE);
+	    proto_tree_add_item_hidden(nntp_tree, hf_nntp_request, NullTVB, 0, 0, TRUE);
 	  } else {
-	    proto_tree_add_item_hidden(nntp_tree, hf_nntp_response, 0, 0, TRUE);
+	    proto_tree_add_item_hidden(nntp_tree, hf_nntp_response, NullTVB, 0, 0, TRUE);
 	  }
 
 	  /*
@@ -111,7 +111,7 @@ dissect_nntp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 		/*
 		 * Put this line.
 		 */
-		proto_tree_add_text(nntp_tree, offset, linelen, "%s",
+		proto_tree_add_text(nntp_tree, NullTVB, offset, linelen, "%s",
 		    format_text(data, linelen));
 		offset += linelen;
 		data = lineend;

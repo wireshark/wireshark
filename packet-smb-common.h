@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb-common.h,v 1.1 2000/02/14 04:02:06 guy Exp $
+ * $Id: packet-smb-common.h,v 1.2 2000/05/11 08:15:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -53,13 +53,13 @@
 
 
 
-#define ShortPacketError	proto_tree_add_text(tree, offset, 0, "****FRAME TOO SHORT***"); return;
+#define ShortPacketError	proto_tree_add_text(tree, NullTVB, offset, 0, "****FRAME TOO SHORT***"); return;
 #define IncAndCheckOffset	if ( ++offset > fd->cap_len) {ShortPacketError;}
 #define CheckPacketLength(X) 	if ((offset+X) > fd->cap_len) {ShortPacketError;}
 
 #define MoveAndCheckOffset(X)	{int tmp = X; if (( offset + tmp) > fd->cap_len){ ShortPacketError;} else offset += tmp;}
 
-#define UnknowData 	if (tree) proto_tree_add_text(tree, offset, END_OF_FRAME, "Data (%u bytes)",END_OF_FRAME); 
+#define UnknowData 	if (tree) proto_tree_add_text(tree, NullTVB, offset, END_OF_FRAME, "Data (%u bytes)",END_OF_FRAME); 
 
 
 struct flag_array_type {

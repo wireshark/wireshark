@@ -3,7 +3,7 @@
  *
  * Laurent Deniel <deniel@worldnet.fr>
  *
- * $Id: packet-fddi.c,v 1.29 2000/03/20 22:22:45 gram Exp $
+ * $Id: packet-fddi.c,v 1.30 2000/05/11 08:15:08 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -252,7 +252,8 @@ fddifc_to_str(int fc)
   }
 }
 
-void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
+void
+dissect_fddi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		gboolean bitswapped)
 {
   int        offset = 0, fc;
@@ -261,23 +262,26 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
   gchar      *fc_str;
   static u_char src[6], dst[6];
   u_char     src_swapped[6], dst_swapped[6];
+  const u_char *pd;
+  tvbuff_t   *next_tvb;
 
-  if (!BYTES_ARE_IN_FRAME(0, FDDI_HEADER_SIZE)) {
-    dissect_data(pd, offset, fd, tree);
-    return;
-  }
+  pinfo->current_proto = "fddi";
+  if (check_col(pinfo->fd, COL_PROTOCOL))
+    col_add_str(pinfo->fd, COL_PROTOCOL, "FDDI");
+  if (check_col(pinfo->fd, COL_INFO))
+    col_add_str(pinfo->fd, COL_INFO, fc_str);
 
   /* Extract the source and destination addresses, possibly bit-swapping
      them. */
   if (bitswapped) {
-    swap_mac_addr(dst, (u_char *)&pd[FDDI_P_DHOST]);
-    swap_mac_addr(src, (u_char *)&pd[FDDI_P_SHOST]);
+    swap_mac_addr(dst, (u_char *) tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
+    swap_mac_addr(src, (u_char *) tvb_get_ptr(tvb, FDDI_P_SHOST, 6));
   } else {
-    memcpy(dst, (u_char *)&pd[FDDI_P_DHOST], sizeof dst);
-    memcpy(src, (u_char *)&pd[FDDI_P_SHOST], sizeof src);
+    memcpy(dst, (u_char *) tvb_get_ptr(tvb, FDDI_P_DHOST, 6), sizeof dst);
+    memcpy(src, (u_char *) tvb_get_ptr(tvb, FDDI_P_SHOST, 6), sizeof src);
   }
 
-  fc = (int) pd[FDDI_P_FC];
+  fc = (int) tvb_get_guint8(tvb, FDDI_P_FC);
   fc_str = fddifc_to_str(fc);
 
   /* XXX - copy them to some buffer associated with "pi", rather than
@@ -287,34 +291,33 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
   SET_ADDRESS(&pi.dl_dst, AT_ETHER, 6, &dst[0]);
   SET_ADDRESS(&pi.dst, AT_ETHER, 6, &dst[0]);
 
-  if (check_col(fd, COL_PROTOCOL))
-    col_add_str(fd, COL_PROTOCOL, "FDDI");
-  if (check_col(fd, COL_INFO))
-    col_add_str(fd, COL_INFO, fc_str);
-
   offset = FDDI_HEADER_SIZE;
 
   if (tree) {
-	ti = proto_tree_add_protocol_format(tree, proto_fddi, 0, offset,
+	ti = proto_tree_add_protocol_format(tree, proto_fddi, tvb, 0, offset,
 		"Fiber Distributed Data Interface, %s", fc_str);
 
-      swap_mac_addr(dst_swapped, (u_char*)&pd[FDDI_P_DHOST]);
-      swap_mac_addr(src_swapped, (u_char*)&pd[FDDI_P_SHOST]);
+      swap_mac_addr(dst_swapped, (u_char*) tvb_get_ptr(tvb, FDDI_P_DHOST, 6));
+      swap_mac_addr(src_swapped, (u_char*) tvb_get_ptr(tvb, FDDI_P_SHOST, 6));
 
       fh_tree = proto_item_add_subtree(ti, ett_fddi);
-      proto_tree_add_item(fh_tree, hf_fddi_fc, FDDI_P_FC, 1, fc);
-      proto_tree_add_item(fh_tree, hf_fddi_dst, FDDI_P_DHOST, 6, dst);
-      proto_tree_add_item(fh_tree, hf_fddi_src, FDDI_P_SHOST, 6, src);
-      proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, FDDI_P_DHOST, 6, dst);
-      proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, FDDI_P_SHOST, 6, src);
+      proto_tree_add_item(fh_tree, hf_fddi_fc, tvb, FDDI_P_FC, 1, fc);
+      proto_tree_add_item(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST, 6, dst);
+      proto_tree_add_item(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST, 6, src);
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST, 6, dst);
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_SHOST, 6, src);
 
       /* hide some bit-swapped mac address fields in the proto_tree, just in case */
-      proto_tree_add_item_hidden(fh_tree, hf_fddi_dst, FDDI_P_DHOST, 6, dst_swapped);
-      proto_tree_add_item_hidden(fh_tree, hf_fddi_src, FDDI_P_SHOST, 6, src_swapped);
-      proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, FDDI_P_DHOST, 6, dst_swapped);
-      proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, FDDI_P_SHOST, 6, src_swapped);
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_dst, tvb, FDDI_P_DHOST, 6, dst_swapped);
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_src, tvb, FDDI_P_SHOST, 6, src_swapped);
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_DHOST, 6, dst_swapped);
+      proto_tree_add_item_hidden(fh_tree, hf_fddi_addr, tvb, FDDI_P_SHOST, 6, src_swapped);
 
   }
+
+  next_tvb = tvb_new_subset(tvb, FDDI_HEADER_SIZE, -1);
+  tvb_compat(next_tvb, &pd, &offset);
+
   switch (fc) {
 
     /* From now, only 802.2 SNAP (Async. LCC frame) is supported */
@@ -335,11 +338,11 @@ void dissect_fddi(const u_char *pd, frame_data *fd, proto_tree *tree,
     case FDDI_FC_LLC_ASYNC + 13 :
     case FDDI_FC_LLC_ASYNC + 14 :
     case FDDI_FC_LLC_ASYNC + 15 :
-      dissect_llc(pd, offset, fd, tree);
+      dissect_llc(pd, offset, pinfo->fd, tree);
       return;
       
     default :
-      dissect_data(pd, offset, fd, tree);
+      dissect_data(pd, offset, pinfo->fd, tree);
       return;
 
   } /* fc */

@@ -2,7 +2,7 @@
  * Routines for unix rlogin packet dissection
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet-rlogin.c,v 1.1 2000/04/08 03:32:09 guy Exp $
+ * $Id: packet-rlogin.c,v 1.2 2000/05/11 08:15:41 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -66,7 +66,7 @@
 #endif
 
 #define CHECK_PACKET_LENGTH(X) if ((offset+X) > fd->cap_len){  \
-        proto_tree_add_text(tree, offset, 0, "*** FRAME TOO SHORT ***"); \
+        proto_tree_add_text(tree, NullTVB, offset, 0, "*** FRAME TOO SHORT ***"); \
         return; }
 
 
@@ -210,7 +210,7 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, const u_char *pd,
 	const char *str;
 	proto_item      *user_info_item,  *window_info_item;
 
- 	ti = proto_tree_add_item( tree, proto_rlogin, offset,
+ 	ti = proto_tree_add_item( tree, proto_rlogin, NullTVB, offset,
     			END_OF_FRAME, NULL, "Rlogin:" );
 
 	rlogin_tree = proto_item_add_subtree(ti, ett_rlogin);
@@ -225,10 +225,10 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, const u_char *pd,
 		guint16 Temp = GBYTE( pd, i);
 		
 		if ( i < offset)		/* check for data in front */
-			proto_tree_add_text( rlogin_tree, offset, i - offset,
+			proto_tree_add_text( rlogin_tree, NullTVB, offset, i - offset,
 				"Data");
 		
-   		proto_tree_add_text( rlogin_tree, i, 1, "Control byte: %u (%s)",
+   		proto_tree_add_text( rlogin_tree, NullTVB, i, 1, "Control byte: %u (%s)",
    				Temp,
 				(Temp == 2) ? "Clear buffer" :
 				(Temp == 0x10) ? "Raw mode" :
@@ -240,18 +240,18 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, const u_char *pd,
 		
 	else if ( !GBYTE( pd, offset)){		        	  /* startup */
 		if ( pi.srcport== RLOGIN_PORT)   /* from server */
-	   		proto_tree_add_text(rlogin_tree, offset, 1,
+	   		proto_tree_add_text(rlogin_tree, NullTVB, offset, 1,
 					"Startup info received flag (0x00)");
 					
 		else 
-	   		proto_tree_add_text(rlogin_tree, offset, 1,
+	   		proto_tree_add_text(rlogin_tree, NullTVB, offset, 1,
 					"Client Startup Flag (0x00)");
 		++offset;
 	}
 		
 	if ( compare_packet_ptr( hash_info->info_row)){		/* user info ?*/
 
-		user_info_item = proto_tree_add_item( rlogin_tree, hf_user_info,
+		user_info_item = proto_tree_add_item( rlogin_tree, hf_user_info, NullTVB,
 			offset, END_OF_FRAME, NULL );
 
 		str = &pd[ offset];		/* do server user name */
@@ -261,20 +261,20 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, const u_char *pd,
 		user_info_tree = proto_item_add_subtree( user_info_item,
 			ett_rlogin_user_info);
 			
-		proto_tree_add_text(  user_info_tree, offset, strlen( str) + 1, 
+		proto_tree_add_text(  user_info_tree, NullTVB, offset, strlen( str) + 1, 
 				"Server User Name:  %s", str);
 				
 		offset += strlen( str) + 1;
 		str = &pd[ offset];		/* do client user name */
 		CHECK_PACKET_LENGTH( strlen( str));
-		proto_tree_add_text(  user_info_tree, offset, strlen( str) + 1, 
+		proto_tree_add_text(  user_info_tree, NullTVB, offset, strlen( str) + 1, 
 				"Client User Name:  %s", str);
 				
 		offset += strlen( str) + 1;
 		
 		str = &pd[ offset];		/* do terminal type/speed */
 		CHECK_PACKET_LENGTH( strlen( str));
-		proto_tree_add_text(  user_info_tree, offset, strlen( str) + 1, 
+		proto_tree_add_text(  user_info_tree, NullTVB, offset, strlen( str) + 1, 
 				"Terminal Type/Speed:  %s", str);
 
 		offset += strlen( str) + 1;
@@ -290,51 +290,51 @@ static void rlogin_display( rlogin_hash_entry_t *hash_info, const u_char *pd,
 		int ti_offset = Ptr - pd;		/* get offset 	*/
 
 		if ( ti_offset < offset){	/*if data before terminal info*/
-	                proto_tree_add_text( rlogin_tree, offset,
+	                proto_tree_add_text( rlogin_tree, NullTVB, offset,
 	                	(ti_offset - offset), "Data");
 	                offset = ti_offset;
 	        }
 		        	
 		CHECK_PACKET_LENGTH( 12);
 		window_info_item = proto_tree_add_item( rlogin_tree,
-				hf_window_info, offset, 12, NULL );
+				hf_window_info, NullTVB, offset, 12, NULL );
     			
 		window_tree = proto_item_add_subtree( window_info_item,
 			                 ett_rlogin_window);
 
 		CHECK_PACKET_LENGTH( 2);
-	        proto_tree_add_text( window_tree, offset, 2, 
+	        proto_tree_add_text( window_tree, NullTVB, offset, 2, 
 			"Magic Cookie:  (0xff, 0xff)");
 		offset += 2;
 					
 		CHECK_PACKET_LENGTH( 2);
-	      	proto_tree_add_text( window_tree, offset, 2, 
+	      	proto_tree_add_text( window_tree, NullTVB, offset, 2, 
 			"Window size marker:  'ss'");
 		offset += 2;
 
 		CHECK_PACKET_LENGTH( 2);
-	 	proto_tree_add_item( window_tree, hf_window_info_rows, offset,
+	 	proto_tree_add_item( window_tree, hf_window_info_rows, NullTVB, offset,
 		    	2, pntohs( &pd[offset]));
 		offset += 2;
 
 		CHECK_PACKET_LENGTH( 2);
- 		proto_tree_add_item( window_tree, hf_window_info_cols, offset,
+ 		proto_tree_add_item( window_tree, hf_window_info_cols, NullTVB, offset,
 		    	2, pntohs( &pd[offset]) );
 		offset += 2;
 
 		CHECK_PACKET_LENGTH( 2);
- 		proto_tree_add_item( window_tree, hf_window_info_x_pixels,
+ 		proto_tree_add_item( window_tree, hf_window_info_x_pixels, NullTVB,
  			offset, 2, pntohs( &pd[offset]));
 		offset += 2;
 
 		CHECK_PACKET_LENGTH( 2);
-		proto_tree_add_item( window_tree, hf_window_info_y_pixels,
+		proto_tree_add_item( window_tree, hf_window_info_y_pixels, NullTVB,
 			offset, 2, pntohs( &pd[offset]) );
 		offset += 2;
 	}
 			
 	if ( END_OF_FRAME != 0) 			/* if more data */
-		proto_tree_add_text(rlogin_tree, offset, END_OF_FRAME, "Data");
+		proto_tree_add_text(rlogin_tree, NullTVB, offset, END_OF_FRAME, "Data");
 
 }	
 

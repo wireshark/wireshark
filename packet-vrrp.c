@@ -4,7 +4,7 @@
  *
  * Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id: packet-vrrp.c,v 1.4 2000/04/16 22:46:25 guy Exp $
+ * $Id: packet-vrrp.c,v 1.5 2000/05/11 08:15:55 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -132,27 +132,27 @@ dissect_vrrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                         return;
                 }
 
-                ti = proto_tree_add_item(tree, proto_vrrp, offset, END_OF_FRAME, NULL);
+                ti = proto_tree_add_item(tree, proto_vrrp, NullTVB, offset, END_OF_FRAME, NULL);
                 vrrp_tree = proto_item_add_subtree(ti, ett_vrrp);
 
-                tv = proto_tree_add_uint_format(vrrp_tree, hf_vrrp_ver_type, offset, 1,
+                tv = proto_tree_add_uint_format(vrrp_tree, hf_vrrp_ver_type, NullTVB, offset, 1,
                                                 vrh.ver_type, "Version %u, Packet type %u (%s)",
                                                 hi_nibble(vrh.ver_type), lo_nibble(vrh.ver_type),
                                                 val_to_str(lo_nibble(vrh.ver_type), vrrp_type_vals, "Unknown"));
                 ver_type_tree = proto_item_add_subtree(tv, ett_vrrp_ver_type);
-                proto_tree_add_item(ver_type_tree, hf_vrrp_version, offset, 1, vrh.ver_type);
-                proto_tree_add_item(ver_type_tree, hf_vrrp_type, offset, 1, vrh.ver_type);
+                proto_tree_add_item(ver_type_tree, hf_vrrp_version, NullTVB, offset, 1, vrh.ver_type);
+                proto_tree_add_item(ver_type_tree, hf_vrrp_type, NullTVB, offset, 1, vrh.ver_type);
                 offset++;
                 
-                proto_tree_add_text(vrrp_tree, offset++, 1, "Virtual Router ID: %u", vrh.vrouter_id);
-                proto_tree_add_text(vrrp_tree, offset++, 1, "Priority: %u (%s)", vrh.priority,
+                proto_tree_add_text(vrrp_tree, NullTVB, offset++, 1, "Virtual Router ID: %u", vrh.vrouter_id);
+                proto_tree_add_text(vrrp_tree, NullTVB, offset++, 1, "Priority: %u (%s)", vrh.priority,
                                     val_to_str(vrh.priority, vrrp_prio_vals, "Non-default backup priority"));
-                proto_tree_add_text(vrrp_tree, offset++, 1, "Count IP Addrs: %u", vrh.count_ip_addrs);
-                proto_tree_add_text(vrrp_tree, offset++, 1, "Authentication Type: %u (%s)", vrh.auth_type,
+                proto_tree_add_text(vrrp_tree, NullTVB, offset++, 1, "Count IP Addrs: %u", vrh.count_ip_addrs);
+                proto_tree_add_text(vrrp_tree, NullTVB, offset++, 1, "Authentication Type: %u (%s)", vrh.auth_type,
                                     val_to_str(vrh.auth_type, vrrp_auth_vals, "Unknown"));
-                proto_tree_add_text(vrrp_tree, offset++, 1, "Advertisement Interval: %u second%s",
+                proto_tree_add_text(vrrp_tree, NullTVB, offset++, 1, "Advertisement Interval: %u second%s",
                                     vrh.adver_int, plurality(vrh.adver_int, "", "s"));
-                proto_tree_add_text(vrrp_tree, offset, 2, "Checksum: 0x%x", htons(vrh.checksum));
+                proto_tree_add_text(vrrp_tree, NullTVB, offset, 2, "Checksum: 0x%x", htons(vrh.checksum));
                 offset+=2;
 
                 if (short_packet) {
@@ -162,7 +162,7 @@ dissect_vrrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                 
                 ip_count = vrh.count_ip_addrs;
                 while (ip_count > 0) {
-                        proto_tree_add_text(vrrp_tree, offset, 4, "Virtual Router IP address: %s",
+                        proto_tree_add_text(vrrp_tree, NullTVB, offset, 4, "Virtual Router IP address: %s",
                                             ip_to_str(pd+offset));
                         offset+=4;
                         ip_count--;
@@ -175,7 +175,7 @@ dissect_vrrp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
                 auth_buf[VRRP_AUTH_DATA_LEN] = '\0';
                 auth_len = strlen(auth_buf);
                 if (auth_len > 0)
-                        proto_tree_add_text(vrrp_tree, offset, auth_len, "Authentication string: `%s'", auth_buf);
+                        proto_tree_add_text(vrrp_tree, NullTVB, offset, auth_len, "Authentication string: `%s'", auth_buf);
                 offset+=8;
 
         }
