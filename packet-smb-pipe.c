@@ -8,7 +8,7 @@ XXX  Fixme : shouldnt show [malformed frame] for long packets
  * significant rewrite to tvbuffify the dissector, Ronnie Sahlberg and
  * Guy Harris 2001
  *
- * $Id: packet-smb-pipe.c,v 1.56 2001/11/27 09:37:18 guy Exp $
+ * $Id: packet-smb-pipe.c,v 1.57 2001/11/28 09:44:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1986,6 +1986,12 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 
 	if (!proto_is_protocol_enabled(proto_smb_lanman))
 		return FALSE;
+	if (smb_info->request && p_tvb == NULL) {
+		/*
+		 * Requests must have parameters.
+		 */
+		return FALSE;
+	}
 	pinfo->current_proto = "LANMAN";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL)) {
@@ -2772,6 +2778,8 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			 * Only dissect this if we know the FID.
 			 */
 			if (fid != -1) {
+				if (d_tvb == NULL)
+					return FALSE;
 		                return dissect_pipe_msrpc(d_tvb, pinfo, tree,
 		                    fid);
 		        }
@@ -2800,6 +2808,8 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		 * Request contains no parameters or data.
 		 */
 		if (!smb_info->request) {
+			if (p_tvb == NULL)
+				return FALSE;
 			offset = 0;
 			proto_tree_add_item(pipe_tree, hf_pipe_peek_available,
 			    p_tvb, offset, 2, TRUE);
@@ -2818,6 +2828,8 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		 * Request contains no parameters or data.
 		 */
 		if (!smb_info->request) {
+			if (p_tvb == NULL)
+				return FALSE;
 			offset = dissect_ipc_state(p_tvb, pinfo, pipe_tree, 0,
 			    FALSE);
 		}
@@ -2828,6 +2840,8 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		 * Response contains no parameters or data.
 		 */
 		if (smb_info->request) {
+			if (p_tvb == NULL)
+				return FALSE;
 			offset = dissect_ipc_state(p_tvb, pinfo, pipe_tree, 0,
 			    TRUE);
 		}
@@ -2836,6 +2850,9 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 	case Q_NM_PIPE_INFO:
 		offset = 0;
 		if (smb_info->request) {
+			if (p_tvb == NULL)
+				return FALSE;
+
 			/*
 			 * Request contains an information level.
 			 */
@@ -2846,6 +2863,9 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			tri->info_level = info_level;
 		} else {
 			guint8 pipe_namelen;
+
+			if (d_tvb == NULL)
+				return FALSE;
 
 			switch (tri->info_level) {
 
@@ -2885,6 +2905,9 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 		 * Request contains no parameters or data.
 		 */
 		if (!smb_info->request) {
+			if (d_tvb == NULL)
+				return FALSE;
+
 			offset = dissect_file_data(d_tvb, pinfo, pipe_tree, 0,
 			    tvb_reported_length(d_tvb),
 			    tvb_reported_length(d_tvb));
@@ -2894,10 +2917,15 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 	case RAW_WRITE_NM_PIPE:
 		offset = 0;
 		if (smb_info->request) {
+			if (d_tvb == NULL)
+				return FALSE;
+
 			offset = dissect_file_data(d_tvb, pinfo, pipe_tree,
 			    offset, tvb_reported_length(d_tvb),
 			    tvb_reported_length(d_tvb));
 		} else {
+			if (p_tvb == NULL)
+				return FALSE;
 			proto_tree_add_item(pipe_tree,
 			    hf_pipe_write_raw_bytes_written,
 			    p_tvb, offset, 2, TRUE);

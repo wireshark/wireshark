@@ -2,7 +2,7 @@
  * Routines for smb packet dissection
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  *
- * $Id: packet-smb.c,v 1.171 2001/11/27 05:16:29 guy Exp $
+ * $Id: packet-smb.c,v 1.172 2001/11/28 09:44:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -604,9 +604,12 @@ static const gchar *get_unicode_or_ascii_string(tvbuff_t *tvb,
 #define CHECK_BYTE_COUNT(len)	\
 	if (bc < len) goto endofcommand;
 
-#define COUNT_BYTES(len)	\
-	offset += len;		\
-	bc -= len;
+#define COUNT_BYTES(len)   {\
+        int tmp;            \
+        tmp=len;            \
+	offset += tmp;	    \
+	bc -= tmp;          \
+        }
 
 #define END_OF_SMB	\
 	if (bc != 0) { \
@@ -676,14 +679,13 @@ smb_trans_reassembly_init(void)
 	fragment_table_init(&smb_trans_fragment_table);
 }
 
-/*qqq*/
-static tvbuff_t *
+
+static fragment_data *
 smb_trans_defragment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
-		     int od, int dc, int dd, int td)
+		     int offset, int count, int pos, int totlen)
 {
 	fragment_data *fd_head=NULL;
 	smb_info_t *si;
-	tvbuff_t *next_tvb;
 
 	si = (smb_info_t *)pinfo->private_data;
 	if (si->sip == NULL) {
@@ -694,25 +696,20 @@ smb_trans_defragment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 		 * Can we not separately keep track of the original
 		 * transaction and its continuations, as we did
 		 * at one time?
+		 *
+		 * It is probably not much point in even trying to do something here
+		 * if we have never seen the initial request. Without the initial 
+		 * request we probably miss all parameters and the begining of data
+		 * so we cant even call a subdissector since we can not determine
+		 * which type of transaction call this is.
 		 */
 		return NULL;
 	}
 
 	if(!pinfo->fd->flags.visited){
-		/* we start a new reassembly if this is the first fragment */
-		if( (dd==0) && (td>dc) ){
-			fd_head = fragment_add(tvb, od, pinfo,
-					si->sip->frame_req, smb_trans_fragment_table,
-					dd, dc, TRUE);
-			fragment_set_tot_len(pinfo, si->sip->frame_req,
-					smb_trans_fragment_table, td);
-		}
-		/* this is a continuation to reassebly */
-		if(dd!=0){
-			fd_head = fragment_add(tvb, od, pinfo,
-					si->sip->frame_req, smb_trans_fragment_table,
-					dd, dc, TRUE);
-		}
+		fd_head = fragment_add(tvb, offset, pinfo,
+				       si->sip->frame_req, smb_trans_fragment_table,
+				       pos, count, totlen>(pos+count));
 	} else {
 		fd_head = fragment_get(pinfo, si->sip->frame_req, smb_trans_fragment_table);
 	}
@@ -720,24 +717,8 @@ smb_trans_defragment(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 	/* we only show the reassembled data in the first SMB containing the
 	   first block of data.
 	*/
-	if(dd==0 && fd_head && fd_head->flags&FD_DEFRAGMENTED){
-		proto_tree *tr;
-		proto_item *it;
-		fragment_data *fd;
-
-		it = proto_tree_add_text(tree, tvb, 0, 0, "Fragments");
-		tr = proto_item_add_subtree(it, ett_smb_segments);
-		for(fd=fd_head->next;fd;fd=fd->next){
-			proto_tree_add_text(tr, tvb, 0, 0, "Frame:%d Data:%d-%d",
-				fd->frame, fd->offset, fd->offset+fd->len-1);
-		}
-
-		next_tvb = tvb_new_real_data(fd_head->data, fd_head->datalen,
-				fd_head->datalen, "Reassembled SMB");
-		tvb_set_child_real_data_tvbuff(tvb, next_tvb);
-		pinfo->fd->data_src = g_slist_append(pinfo->fd->data_src, next_tvb);
-		pinfo->fragmented = FALSE;
-		return next_tvb;
+	if(fd_head && fd_head->flags&FD_DEFRAGMENTED){
+		return fd_head;
 	} else {
 		return NULL;
 	}
@@ -8894,7 +8875,7 @@ dissect_trans_data(tvbuff_t *s_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	 * Show the setup words.
 	 */
 	if (s_tvb != NULL) {
-		length = tvb_length(s_tvb);
+		length = tvb_reported_length(s_tvb);
 		for (i = 0, offset = 0; length >= 2;
 		    i++, offset += 2, length -= 2) {
 			/*
@@ -8910,7 +8891,7 @@ dissect_trans_data(tvbuff_t *s_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	 * Show the parameters, if any.
 	 */
 	if (p_tvb != NULL) {
-		length = tvb_length(p_tvb);
+		length = tvb_reported_length(p_tvb);
 		if (length != 0) {
 			proto_tree_add_text(tree, p_tvb, 0, length,
 			    "Parameters: %s",
@@ -8922,7 +8903,7 @@ dissect_trans_data(tvbuff_t *s_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 	 * Show the data, if any.
 	 */
 	if (d_tvb != NULL) {
-		length = tvb_length(d_tvb);
+		length = tvb_reported_length(d_tvb);
 		if (length != 0) {
 			proto_tree_add_text(tree, d_tvb, 0, length,
 			    "Data: %s", tvb_bytes_to_str(d_tvb, 0, length));
@@ -10253,7 +10234,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
  
 static int
 dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *parent_tree, guint16 dc)
+    proto_tree *parent_tree)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -10262,6 +10243,9 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 	int count;
 	gboolean trunc;
 	int offset = 0;
+	guint16 dc;
+
+	dc = tvb_reported_length(tvb);
 
 	si = (smb_info_t *)pinfo->private_data;
 	if (si->sip != NULL)
@@ -10382,8 +10366,8 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
-static int
-dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, int pc, int od)
+static void
+dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
@@ -10391,7 +10375,10 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 	smb_transact2_info_t *t2i;
 	guint16 fid;
 	int lno;
-	int old_offset = offset;
+	int offset = 0;
+	int pc;
+
+	pc = tvb_reported_length(tvb);
 
 	si = (smb_info_t *)pinfo->private_data;
 	if (si->sip != NULL)
@@ -10414,7 +10401,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 
 	if (t2i == NULL) {
 		offset += pc;
-		return offset;
+		return;
 	}
 	switch(t2i->subcmd){
 	case 0x00:	/*TRANS2_OPEN2*/
@@ -10560,12 +10547,10 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 	}
 
 	/* ooops there were data we didnt know how to process */
-	if((offset-old_offset)<pc){
-		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, pc-(offset-old_offset), TRUE);
-		offset += pc-(offset-old_offset);
+	if(offset<pc){
+		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, pc-offset, TRUE);
+		offset += pc-offset;
 	}
-
-	return offset;
 }
 
 
@@ -10573,18 +10558,16 @@ static int
 dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8 sc, wc;
-	guint16 od=0, po=0, pc=0, pd, dc=0, dd=0, td=0;
-	int so=offset;
-	int sl=0;
-	int spo=offset;
-	int spc=0;
+	guint16 od=0, po=0, pc=0, pd=0, dc=0, dd=0, td=0, tp=0;
 	gboolean reassembled = FALSE;
 	smb_info_t *si;
 	smb_transact2_info_t *t2i = NULL;
 	guint16 bc;
 	int padcnt;
 	gboolean dissected_trans;
-	tvbuff_t *d_tvb=NULL;
+	fragment_data *r_fd = NULL;
+	tvbuff_t *pd_tvb=NULL, *d_tvb=NULL, *p_tvb=NULL;
+	tvbuff_t *s_tvb=NULL, *sp_tvb=NULL;
 
 	si = (smb_info_t *)pinfo->private_data;
 
@@ -10632,7 +10615,8 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	WORD_COUNT;
 
 	/* total param count, only a 16bit integer here */
-	proto_tree_add_uint(tree, hf_smb_total_param_count, tvb, offset, 2, tvb_get_letohs(tvb, offset));
+	tp = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_total_param_count, tvb, offset, 2, tp);
 	offset += 2;
 
 	/* total data count, only a 16 bit integer here */
@@ -10683,30 +10667,113 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
 	offset += 1;
 
-	/* save setup offset */	
-	so = offset;
 
-	/* if there were any setup bytes, decode them */
-	sl = sc*2;
-	if(sl){
-		/* XXXX dissect setup words */
-		offset += sl;
+	/* if there were any setup bytes, put them in a tvb for later */
+	if(sc){
+		if((2*sc)>tvb_length_remaining(tvb, offset)){
+			s_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), 2*sc);
+		} else {
+			s_tvb = tvb_new_subset(tvb, offset, 2*sc, 2*sc);
+		}
+		sp_tvb = tvb_new_subset(tvb, offset, -1, -1);
+	} else {
+		s_tvb = NULL;
+		sp_tvb=NULL;
 	}
+	offset += 2*sc;
 
-	/*
-	 * The pipe or mailslot arguments for Transaction start with
-	 * the first setup word (or where the first setup word would
-	 * be if there were any setup words), and run to the current
-	 * offset (which could mean that there aren't any).
-	 */
-	spo = so;
-	spc = offset - spo;
 
 	BYTE_COUNT;
-	
+
+
+	/* reassembly of SMB Transaction data payload.
+	   In this section we do reassembly of both the data and parameters
+	   blocks of the SMB transaction command.
+	*/
+	if(smb_trans_reassembly){
+		/* do we need reassembly? */
+		if( (td!=dc) || (tp!=pc) ){
+			/* oh yeah, either data or parameter section needs 
+			   reassembly
+			*/
+			if(pc && (tvb_length_remaining(tvb, po)>=pc) ){
+				r_fd = smb_trans_defragment(tree, pinfo, tvb, 
+							     po, pc, pd, td+tp);
+				
+			}
+			if(dc && (tvb_length_remaining(tvb, od)>=dc) ){
+				r_fd = smb_trans_defragment(tree, pinfo, tvb, 
+							     od, dc, dd+tp, td+tp);
+			}
+		}
+	}
+
+	/* if we got a reassembled fd structure from the reassembly routine we must
+	   create pd_tvb from it 
+	*/
+	if(r_fd){
+		proto_tree *tr;
+		proto_item *it;
+		fragment_data *fd;
+		
+		it = proto_tree_add_text(tree, tvb, 0, 0, "Fragments");
+		tr = proto_item_add_subtree(it, ett_smb_segments);
+		for(fd=r_fd->next;fd;fd=fd->next){
+			proto_tree_add_text(tr, tvb, 0, 0, "Frame:%d Data:%d-%d",
+					    fd->frame, fd->offset, fd->offset+fd->len-1);
+		}
+		
+		pd_tvb = tvb_new_real_data(r_fd->data, r_fd->datalen,
+					     r_fd->datalen, "Reassembled SMB");
+		tvb_set_child_real_data_tvbuff(tvb, pd_tvb);
+		pinfo->fd->data_src = g_slist_append(pinfo->fd->data_src, pd_tvb);
+		pinfo->fragmented = FALSE;
+	}
+
+
+	if(pd_tvb){
+		/* OK we have reassembled data, extract d_tvb and p_tvb from it */
+		if(tp){
+			p_tvb = tvb_new_subset(pd_tvb, 0, tp, tp);
+		}
+		if(td){
+			d_tvb = tvb_new_subset(pd_tvb, tp, td, td);
+		}
+	} else {
+		/* It was not reassembled. Do as best as we can.
+		 * in this case we always try to dissect the stuff if 
+		 * data and param displacement is 0. i.e. for the first
+		 * (and maybe only) packet.
+		 */
+		if( (pd==0) && (dd==0) ){
+			int min;
+			int reported_min;
+			min = MIN(pc,tvb_length_remaining(tvb,po));
+			reported_min = MIN(pc,tvb_reported_length_remaining(tvb,po));
+			if(min && reported_min) {
+				p_tvb = tvb_new_subset(tvb, po, min, reported_min);
+			}
+			min = MIN(dc,tvb_length_remaining(tvb,od));
+			reported_min = MIN(dc,tvb_reported_length_remaining(tvb,od));
+			if(min && reported_min) {
+				d_tvb = tvb_new_subset(tvb, od, min, reported_min);
+			}
+			/*
+			 * A tvbuff containing the parameters
+			 * and the data.
+			 * XXX - check pc and dc as well?
+			 */
+			if (tvb_length_remaining(tvb, po)){
+				pd_tvb = tvb_new_subset(tvb, po, -1, -1);
+			}
+		}
+	}
+
+
+
 	/* parameters */
 	if(po>offset){
-		/* We have some initial padding bytes.
+		/* We have some padding bytes.
 		*/
 		padcnt = po-offset;
 		if (padcnt > bc)
@@ -10714,22 +10781,11 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
 		COUNT_BYTES(padcnt);
 	}
-	if(pc){
-		CHECK_BYTE_COUNT(pc);
-		switch(si->cmd){
-
-		case SMB_COM_TRANSACTION2:
-			/* TRANSACTION2 parameters*/
-			offset = dissect_transaction2_response_parameters(tvb, pinfo, tree, offset, pc, od);
-			bc -= pc;
-			break;
-
-		case SMB_COM_TRANSACTION:
-			/* TRANSACTION parameters processed below */
-			COUNT_BYTES(pc);
-			break;
-		}
+	if(si->cmd==SMB_COM_TRANSACTION2 && p_tvb){
+		/* TRANSACTION2 parameters*/
+		dissect_transaction2_response_parameters(p_tvb, pinfo, tree);
 	}
+	COUNT_BYTES(pc);
 
 
 	/* data */
@@ -10742,162 +10798,78 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
 		COUNT_BYTES(padcnt);
 	}
-	if(dc){
-		/*
-		 * XXX - should we just take the minimum of "bc" and
-		 * "dc", and use that, at least if this is the final
-		 * transaction?  I've seen packets where the byte count
-		 * doesn't seem to include all the data that the data
-		 * count claims should be there, although the extra
-		 * byte might be padding.
-		 */
-		CHECK_BYTE_COUNT(dc);
+	/*
+	 * If the data count is bigger than the count of bytes
+	 * remaining, clamp it so that the count of bytes remaining
+	 * doesn't go negative.
+	 */
+	if (dc > bc)
+		dc = bc;
+	COUNT_BYTES(dc);
 
-/*qqq*/
-		/* reassembly of SMB Transaction data payload.
-		   In this section we only do reassembly of the data (and
-		   not parameters) block of the SMB transaction command.
-		   If someone ever finds an Transaction command which needs
-		   reassembly of parameters as well, then we will have to
-		   add that here.
 
-		   XXX - is this done even if we don't have all the data
-		   for this SMB (e.g., if we have a short frame)?
-		*/
-		if(smb_trans_reassembly){
-			if( (dd>0 || (dd+dc)<td) ){
-				d_tvb = smb_trans_defragment(tree, pinfo, tvb, od, dc, dd, td);
-				reassembled = TRUE;
-			}
-		}
 
-		if(d_tvb==NULL){
-			/* Reassembly didn't give us a data tvb, so we just
-			   try to create a tvb with what we have in this
-			   fragment.
-			*/
-			if(dc>tvb_length_remaining(tvb, od)){
-				d_tvb = tvb_new_subset(tvb, od, tvb_length_remaining(tvb, od), dc);
-			} else {
-				d_tvb = tvb_new_subset(tvb, od, dc, dc);
-			}
-		}
-		COUNT_BYTES(dc);
-		if (reassembled) {
-			/*
-			 * XXX - the transaction data is in a reassembled
-			 * tvbuff, so we can't show any data past the data
-			 * count as "Extra byte parameters" - it's not
-			 * even present in the reassembled tvbuff.
-			 *
-			 * For now, just set "bc" to 0, so that we don't
-			 * attempt to show any "Extra byte parameters".
-			 */
-			bc = 0;
+	/* from now on, everything is in separate tvbuffs so we dont count
+	   the bytes with COUNT_BYTES any more.
+	   neither do we reference offset any more (which by now points to the
+	   first byte AFTER this PDU */
 
-			/* update the data count */
-			dc = tvb_length(d_tvb);
-		}
-	} else {
-		/*
-		 * No data for this response.
-		 */
-		d_tvb = NULL;
+
+	if(si->cmd==SMB_COM_TRANSACTION2 && d_tvb){
+		/* TRANSACTION2 parameters*/
+		dissect_transaction2_response_data(d_tvb, pinfo, tree);
 	}
 
-	switch(si->cmd) {
 
-	case SMB_COM_TRANSACTION2:
-		/* handle TRANSACTION2 data */
-		if (dc != 0)
-			dissect_transaction2_response_data(d_tvb, pinfo, tree, dc);
-		break;
+	if(si->cmd==SMB_COM_TRANSACTION){
+		smb_transact_info_t *tri;
 
-	case SMB_COM_TRANSACTION:
-		/* TRANSACTION response parameters */
-		/* only call subdissector for the first packet */
-		if(dd==0){
-			tvbuff_t *p_tvb, *s_tvb;
-			tvbuff_t *sp_tvb, *pd_tvb;
-			smb_transact_info_t *tri;
+		dissected_trans = FALSE;
+		if (si->sip != NULL)
+			tri = si->sip->extra_info;
+		else
+			tri = NULL;
+		if (tri != NULL) {
+			switch(tri->subcmd){
 
-			if(pc>0){
-				if(pc>tvb_length_remaining(tvb, po)){
-					p_tvb = tvb_new_subset(tvb, po, tvb_length_remaining(tvb, po), pc);
-				} else {
-					p_tvb = tvb_new_subset(tvb, po, pc, pc);
-				}
-			} else {
-				p_tvb = NULL;
-			}
-			if(sl){
-				if(sl>tvb_length_remaining(tvb, so)){
-					s_tvb = tvb_new_subset(tvb, so, tvb_length_remaining(tvb, so), sl);
-				} else {
-					s_tvb = tvb_new_subset(tvb, so, sl, sl);
-				}
-			} else {
-				s_tvb = NULL;
-			}
-
-			dissected_trans = FALSE;
-			if (si->sip != NULL)
-				tri = si->sip->extra_info;
-			else
-				tri = NULL;
-			if (tri != NULL) {
-				switch(tri->subcmd){
-
-				case TRANSACTION_PIPE:
-					/*
-					 * A tvbuff containing the setup
-					 * words and the pipe path.
-					 */
-					sp_tvb = tvb_new_subset(tvb, spo, spc,
-					    spc);
-
-					/*
-					 * A tvbuff containing the parameters
-					 * and the data.
-					 */
-					pd_tvb = tvb_new_subset(tvb, po, -1, -1);
-
-					/* This function is safe to call for 
-					   s_tvb==sp_tvb==NULL, i.e. if we dont
-					   know them at this point 
-					*/
+			case TRANSACTION_PIPE:
+				/* This function is safe to call for 
+				   s_tvb==sp_tvb==NULL, i.e. if we don't
+				   know them at this point.
+				   It's also safe to call if "p_tvb"
+				   or "d_tvb" are null.
+				*/
+				if( pd_tvb) {
 					dissected_trans = dissect_pipe_smb(
-					    sp_tvb, s_tvb, pd_tvb, p_tvb,
-					    d_tvb, NULL, pinfo, top_tree);
-					break;
-
-				case TRANSACTION_MAILSLOT:
-					/*
-					 * A tvbuff containing the setup
-					 * words and the mailslot path.
-					 */
-					sp_tvb = tvb_new_subset(tvb, spo, spc,
-					    spc);
-
-					/* This one should be safe to call
-					   even if s_tvb and sp_tvb is NULL
-					*/
-					dissected_trans = dissect_mailslot_smb(
-					    sp_tvb, s_tvb, d_tvb, NULL, pinfo,
-					    top_tree);
-					break;
+						sp_tvb, s_tvb, pd_tvb, p_tvb,
+						d_tvb, NULL, pinfo, top_tree);
 				}
+				break;
+				
+			case TRANSACTION_MAILSLOT:
+				/* This one should be safe to call
+				   even if s_tvb and sp_tvb is NULL
+				*/
+				if(d_tvb){
+					dissected_trans = dissect_mailslot_smb(
+						sp_tvb, s_tvb, d_tvb, NULL, pinfo,
+						top_tree);
+				}
+				break;
 			}
-			if (!dissected_trans) {
-				/* This one is safe to call for s_tvb==NULL */
-				dissect_trans_data(s_tvb, p_tvb, d_tvb,
-				    pinfo, tree);
-			}
-		} else {
-			if(check_col(pinfo->fd, COL_INFO)){
-				col_append_str(pinfo->fd, COL_INFO,
-					"[transact continuation]");
-			}
+		}
+		if (!dissected_trans) {
+			/* This one is safe to call for s_tvb==p_tvb==d_tvb==NULL */
+			dissect_trans_data(s_tvb, p_tvb, d_tvb,
+					   pinfo, tree);
+		}
+	}
+
+
+	if( (p_tvb==0) && (d_tvb==0) ){
+		if(check_col(pinfo->fd, COL_INFO)){
+			col_append_str(pinfo->fd, COL_INFO,
+				       "[transact continuation]");
 		}
 	}
 
