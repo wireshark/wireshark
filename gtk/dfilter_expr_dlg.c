@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster<jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.18 2001/02/20 20:14:18 guy Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.19 2001/02/23 07:09:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -238,47 +238,35 @@ show_relations(GtkWidget *relation_label, GtkWidget *relation_list,
 	 * Clear out the currently displayed list of relations.
 	 */
 	gtk_list_clear_items(GTK_LIST(relation_list), 0, -1);
-	switch (ftype) {
 
-	case FT_BOOLEAN:
-		/*
-		 * No relational operators are supported; hide the relation
-		 * stuff.
-		 */
-		gtk_widget_hide(relation_label);
-		gtk_widget_hide(relation_list);
-		break;
+	/*
+	 * Add the supported relations.
+	 */
+	add_relation_list(relation_list, "is present");
+	if (ftype_can_eq(ftype) ||
+	    (ftype_can_slice(ftype) && ftype_can_eq(FT_BYTES)))
+		add_relation_list(relation_list, "==");
+	if (ftype_can_ne(ftype) ||
+	    (ftype_can_slice(ftype) && ftype_can_ne(FT_BYTES)))
+		add_relation_list(relation_list, "!=");
+	if (ftype_can_gt(ftype) ||
+	    (ftype_can_slice(ftype) && ftype_can_gt(FT_BYTES)))
+		add_relation_list(relation_list, ">");
+	if (ftype_can_lt(ftype) ||
+	    (ftype_can_slice(ftype) && ftype_can_lt(FT_BYTES)))
+		add_relation_list(relation_list, "<");
+	if (ftype_can_ge(ftype) ||
+	    (ftype_can_slice(ftype) && ftype_can_ge(FT_BYTES)))
+		add_relation_list(relation_list, ">=");
+	if (ftype_can_le(ftype) ||
+	    (ftype_can_slice(ftype) && ftype_can_le(FT_BYTES)))
+		add_relation_list(relation_list, "<=");
 
-	default:
-		/*
-		 * Add the supported relations.
-		 */
-		add_relation_list(relation_list, "is present");
-		if (ftype_can_eq(ftype) ||
-		    (ftype_can_slice(ftype) && ftype_can_eq(FT_BYTES)))
-			add_relation_list(relation_list, "==");
-		if (ftype_can_ne(ftype) ||
-		    (ftype_can_slice(ftype) && ftype_can_ne(FT_BYTES)))
-			add_relation_list(relation_list, "!=");
-		if (ftype_can_gt(ftype) ||
-		    (ftype_can_slice(ftype) && ftype_can_gt(FT_BYTES)))
-			add_relation_list(relation_list, ">");
-		if (ftype_can_lt(ftype) ||
-		    (ftype_can_slice(ftype) && ftype_can_lt(FT_BYTES)))
-			add_relation_list(relation_list, "<");
-		if (ftype_can_ge(ftype) ||
-		    (ftype_can_slice(ftype) && ftype_can_ge(FT_BYTES)))
-			add_relation_list(relation_list, ">=");
-		if (ftype_can_le(ftype) ||
-		    (ftype_can_slice(ftype) && ftype_can_le(FT_BYTES)))
-			add_relation_list(relation_list, "<=");
-
-		/*
-		 * And show the list.
-		 */
-		gtk_widget_show(relation_label);
-		gtk_widget_show(relation_list);
-	}
+	/*
+	 * And show the list.
+	 */
+	gtk_widget_show(relation_label);
+	gtk_widget_show(relation_list);
 }
 
 /*
@@ -492,16 +480,29 @@ display_value_fields(header_field_info *hfinfo, gboolean is_comparison,
 	switch (hfinfo->type) {
 
 	case FT_BOOLEAN:
-		/*
-		 * The list of values should be the strings for "true"
-		 * and "false"; show the value list.
-		 */
-		gtk_widget_show_all(value_list_scrolled_win);
+		if (is_comparison) {
+			/*
+			 * The relation is a comparison, so we're showing
+			 * an entry for the value with which to compare;
+			 * show the list of names for values as well.
+			 * (The list of values contains the strings for
+			 * "true" and "false".)
+			 */
+			gtk_widget_show_all(value_list_scrolled_win);
 
-		/*
-		 * We're showing the value list; show the label as well.
-		 */
-		show_value_label = TRUE;
+			/*
+			 * We're showing the value list; show the label as
+			 * well.
+			 */
+			show_value_label = TRUE;
+		} else {
+			/*
+			 * It's not a comparison, so we're not showing
+			 * the entry for the value; don't show the
+			 * list of names for values, either.
+			 */
+			gtk_widget_hide_all(value_list_scrolled_win);
+		}
 		break;
 
 	case FT_UINT8:
@@ -584,14 +585,30 @@ value_list_sel_cb(GtkList *value_list, GtkWidget *child,
 	const value_string *value;
 	char value_string[11+1];	/* long enough for 32-bit octal value */
 
+	value = gtk_object_get_data(GTK_OBJECT(child),
+	    E_DFILTER_EXPR_VALUE_KEY);
+
 	/*
-	 * This should either be a numeric type or a Boolean type;
-	 * if it's Boolean, there is no value to use in a test of the
-	 * field, so don't set the value entry.
+	 * This should either be a numeric type or a Boolean type.
 	 */
-	if (hfinfo->type != FT_BOOLEAN) {
-		value = gtk_object_get_data(GTK_OBJECT(child),
-		    E_DFILTER_EXPR_VALUE_KEY);
+	if (hfinfo->type == FT_BOOLEAN) {
+		/*
+		 * Boolean type; if the value key for the selected item
+		 * is non-null, it's the item for "true", otherwise it's
+		 * the item for "false".  Compare with 1 if we're
+		 * testing for "true", and compare with 0 if we're
+		 * testing for "false".
+		 */
+		if (value != NULL)
+			strcpy(value_string, "1");
+		else
+			strcpy(value_string, "0");
+	} else {
+		/*
+		 * Numeric type; get the value corresponding to the
+		 * selected item, and display it in the base for this
+		 * field.
+		 */
 		switch (hfinfo->display) {
 
 		case BASE_DEC:
@@ -629,8 +646,8 @@ value_list_sel_cb(GtkList *value_list, GtkWidget *child,
 		default:
 			g_assert_not_reached();
 		}
-		gtk_entry_set_text(GTK_ENTRY(value_entry), value_string);
 	}
+	gtk_entry_set_text(GTK_ENTRY(value_entry), value_string);
 }
 
 static void
@@ -644,8 +661,6 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
 	    E_DFILTER_EXPR_RANGE_ENTRY_KEY);
 	GtkWidget *value_entry = gtk_object_get_data(GTK_OBJECT(window),
 	    E_DFILTER_EXPR_VALUE_ENTRY_KEY);
-	GtkWidget *value_list = gtk_object_get_data(GTK_OBJECT(window),
-	    E_DFILTER_EXPR_VALUE_LIST_KEY);
 	header_field_info *hfinfo;
 	GList *sl;
 	GtkWidget *item, *item_label;
@@ -733,21 +748,6 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
 	if (strcmp(chars, "") != 0 && !isspace((unsigned char)chars[0]))
 		gtk_editable_insert_text(GTK_EDITABLE(filter_te), " ", 1, &pos);
 	g_free(chars);
-
-	/*
-	 * If this is a Boolean, check if item in the value list has
-	 * a null pointer as the data attached to it; if so, put a "!"
-	 * in front of the variable name, as we're testing whether it's
-	 * false.
-	 */
-	if (hfinfo->type == FT_BOOLEAN) {
-		sl = GTK_LIST(value_list)->selection;
-		item = GTK_WIDGET(sl->data);
-		if (gtk_object_get_data(GTK_OBJECT(item),
-		    E_DFILTER_EXPR_VALUE_KEY) == NULL)
-			gtk_editable_insert_text(GTK_EDITABLE(filter_te), "!",
-			    1, &pos);
-	}
 
 	gtk_editable_insert_text(GTK_EDITABLE(filter_te), hfinfo->abbrev,
 	    strlen(hfinfo->abbrev), &pos);
