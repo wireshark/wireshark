@@ -9,7 +9,7 @@
  * Frank Singleton <frank.singleton@ericsson.com>
  * Trevor Shepherd <eustrsd@am1.ericsson.se>
  *
- * $Id: packet-giop.c,v 1.43 2001/07/25 20:21:57 guy Exp $
+ * $Id: packet-giop.c,v 1.44 2001/07/26 16:59:28 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4329,7 +4329,9 @@ void decode_IOR(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offse
   for (i=0; i< seqlen_p; i++) { /* for every TaggedProfile */
     decode_TaggedProfile(tvb, pinfo, tree, offset, boundary, stream_is_big_endian, repobuf);
   }
-  
+
+  g_free(repobuf);
+
 }
 
 static void decode_TaggedProfile(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset,
@@ -4515,7 +4517,6 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
   }
   
-  g_free(repo_id_buf);
   g_free(objkey);  
   g_free(p_chars);  
   p_chars = NULL;               /* reuse later */
