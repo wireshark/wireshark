@@ -1,4 +1,4 @@
-$Id: README.developer,v 1.84 2003/10/28 05:50:52 guy Exp $
+$Id: README.developer,v 1.85 2003/11/06 09:47:06 guy Exp $
 
 This file is a HOWTO for Ethereal developers. It describes how to start coding
 a Ethereal protocol dissector and the use some of the important functions and
@@ -198,6 +198,18 @@ as to avoid collisions with other names - this might be more of an issue
 on Windows, as it appears to #define names such as DELETE and
 OPTIONAL.
 
+Don't use the "numbered argument" feature that many UNIX printf's
+implement, e.g.:
+
+	sprintf(add_string, " - (%1$d) (0x%1$04x)", value);
+
+as not all UNIX printf's implement it, and Windows printf doesn't appear
+to implement it.  Use something like
+
+	sprintf(add_string, " - (%d) (0x%04x)", value, value);
+
+instead.
+
 1.1.2 Name convention.
 
 Ethereal uses the underscore_convention rather than the InterCapConvention for
@@ -235,7 +247,7 @@ code inside
 
 is needed only if you are using the "snprintf()" function.
 
-The "$Id: README.developer,v 1.84 2003/10/28 05:50:52 guy Exp $"
+The "$Id: README.developer,v 1.85 2003/11/06 09:47:06 guy Exp $"
 in the comment will be updated by CVS when the file is
 checked in; it will allow the RCS "ident" command to report which
 version of the file is currently checked out.
@@ -245,7 +257,7 @@ version of the file is currently checked out.
  * Routines for PROTONAME dissection
  * Copyright 2000, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id: README.developer,v 1.84 2003/10/28 05:50:52 guy Exp $
+ * $Id: README.developer,v 1.85 2003/11/06 09:47:06 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
