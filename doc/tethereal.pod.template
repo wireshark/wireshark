@@ -454,7 +454,7 @@ L<ethereal(1)>, L<tcpdump(8)>, L<pcap(3)>
 =head1 NOTES
 
 B<Tethereal> is part of the B<Ethereal> distribution.  The latest version
-of B<Ethereal> can be found at B<http://ethereal.zing.org>.
+of B<Ethereal> can be found at B<http://www.ethereal.com>.
 
 =head1 AUTHORS
 
