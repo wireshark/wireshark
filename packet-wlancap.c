@@ -10,7 +10,7 @@
  * 
  * By Solomon Peachy
  *
- * $Id: packet-wlancap.c,v 1.1 2002/11/06 21:49:29 guy Exp $
+ * $Id: packet-wlancap.c,v 1.2 2003/08/05 19:09:27 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -160,7 +160,7 @@ proto_register_wlancap(void)
 			   NULL, 0x0, "", HFILL } },
     { &hf_wlan_ssi_type, { "SSI Type", "wlancap.ssi_type", FT_UINT32, BASE_DEC,
 			   VALS(ssi_type), 0x0, "", HFILL } },
-    { &hf_wlan_ssi_signal, { "SSI Signal", "wlancap.ssi_signal", FT_UINT32, 
+    { &hf_wlan_ssi_signal, { "SSI Signal", "wlancap.ssi_signal", FT_INT32, 
 			     BASE_DEC, NULL, 0x0, "", HFILL } },
     { &hf_wlan_ssi_noise, { "SSI Noise", "wlancap.ssi_noise", FT_INT32, 
 			    BASE_DEC, NULL, 0x0, "", HFILL } },
@@ -243,8 +243,8 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			  4, tvb_get_ntohl(tvb, offset));
       offset+=4;
       /* XXX cook ssi_signal (Based on type; ie format) */
-      proto_tree_add_uint(wlan_tree, hf_wlan_ssi_signal, tvb, offset,
-			  4, tvb_get_ntohl(tvb, offset));
+      proto_tree_add_int(wlan_tree, hf_wlan_ssi_signal, tvb, offset,
+			 4, tvb_get_ntohl(tvb, offset));
       offset+=4;
       /* XXX cook ssi_noise (Based on type; ie format) */
       proto_tree_add_int(wlan_tree, hf_wlan_ssi_noise, tvb, offset,
