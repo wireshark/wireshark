@@ -1,7 +1,7 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id: packet-null.c,v 1.30 2000/11/16 07:35:38 guy Exp $
+ * $Id: packet-null.c,v 1.31 2000/11/17 06:02:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -47,6 +47,9 @@
 #include "packet-osi.h"
 #include "packet-ppp.h"
 #include "etypes.h"
+#include "aftypes.h"
+
+static dissector_table_t null_dissector_table;
 
 extern const value_string etype_vals[];
 
@@ -58,14 +61,6 @@ static int hf_null_family = -1;
 static gint ett_null = -1;
 
 /* Null/loopback structs and definitions */
-
-/* BSD AF_ values. */
-#define BSD_AF_INET		2
-#define BSD_AF_ISO		7
-#define BSD_AF_APPLETALK	16
-#define BSD_AF_IPX		23
-#define BSD_AF_INET6_BSD	24	/* OpenBSD (and probably NetBSD), BSD/OS */
-#define BSD_AF_INET6_FREEBSD	28
 
 /* Family values. */
 static const value_string family_vals[] = {
@@ -218,8 +213,6 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree	*fh_tree;
   proto_item	*ti;
   tvbuff_t	*next_tvb;
-  const guint8	*next_pd;
-  int		next_offset;
 
   CHECK_DISPLAY_AS_DATA(proto_null, tvb, pinfo, tree);
 
@@ -282,34 +275,10 @@ dissect_null(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       }
 
       next_tvb = tvb_new_subset(tvb, 4, -1, -1);
-      tvb_compat(next_tvb, &next_pd, &next_offset);
-
-      switch (null_header) {
-
-      case BSD_AF_INET:
-        dissect_ip(next_pd, next_offset, pinfo->fd, tree);
-        break;
-
-      case BSD_AF_APPLETALK:
-        dissect_ddp(next_tvb, pinfo, tree);
-        break;
-
-      case BSD_AF_IPX:
-        dissect_ipx(next_tvb, pinfo, tree);
-        break;
-
-      case BSD_AF_ISO:
-        dissect_osi(next_pd, next_offset, pinfo->fd, tree);
-        break;
-
-      case BSD_AF_INET6_BSD:
-      case BSD_AF_INET6_FREEBSD:
-        dissect_ipv6(next_pd, next_offset, pinfo->fd, tree);
-        break;
-
-      default:
+      if (!dissector_try_port(null_dissector_table, null_header,
+	    next_tvb, pinfo, tree)) {
+        /* No sub-dissector found.  Label rest of packet as "Data" */
         dissect_data(next_tvb, 0, pinfo, tree);
-        break;
       }
     }
   }
@@ -336,4 +305,7 @@ proto_register_null(void)
 	proto_null = proto_register_protocol ("Null/Loopback", "null" );
 	proto_register_field_array(proto_null, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* subdissector code */
+	null_dissector_table = register_dissector_table("null.type");
 }

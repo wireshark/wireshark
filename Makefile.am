@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.248 2000/11/16 07:35:37 guy Exp $
+# $Id: Makefile.am,v 1.249 2000/11/17 06:02:20 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -269,6 +269,7 @@ noinst_HEADERS = \
 	packet-ypxfr.h 
 
 ETHEREAL_COMMON_SOURCES = \
+	aftypes.h      \
 	alignment.h    \
 	asn1.c         \
 	asn1.h         \
@@ -612,4 +613,3 @@ debian-package: debian/rules
 
 clean-local:
 	rm -rf $(top_stagedir)
-

@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.104 2000/10/21 04:34:47 guy Exp $
+ * $Id: packet-ip.c,v 1.105 2000/11/17 06:02:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -49,6 +49,7 @@
 #include "etypes.h"
 #include "ppptypes.h"
 #include "llcsaps.h"
+#include "aftypes.h"
 #include "packet-ip.h"
 #include "packet-ipsec.h"
 
@@ -1478,6 +1479,7 @@ proto_reg_handoff_ip(void)
 	old_dissector_add("llc.dsap", SAP_IP, dissect_ip);
 	old_dissector_add("ip.proto", IP_PROTO_IPV4, dissect_ip);
 	old_dissector_add("ip.proto", IP_PROTO_IPIP, dissect_ip);
+	old_dissector_add("null.type", BSD_AF_INET, dissect_ip);
 }
 
 void

@@ -1,7 +1,7 @@
 /* packet-atalk.h
  * Definitions for Appletalk packet disassembly (DDP, currently).
  *
- * $Id: packet-atalk.h,v 1.5 2000/11/13 04:49:45 guy Exp $
+ * $Id: packet-atalk.h,v 1.6 2000/11/17 06:02:20 guy Exp $
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -47,7 +47,5 @@ struct atalk_ddp_addr {
  * Routine to take a DDP address and generate a string.
  */
 extern gchar *atalk_addr_to_str(const struct atalk_ddp_addr *addrp);
-
-void dissect_ddp(tvbuff_t *, packet_info *, proto_tree *);
 
 #endif

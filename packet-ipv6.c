@@ -1,7 +1,7 @@
 /* packet-ipv6.c
  * Routines for IPv6 packet disassembly 
  *
- * $Id: packet-ipv6.c,v 1.44 2000/11/11 10:23:41 guy Exp $
+ * $Id: packet-ipv6.c,v 1.45 2000/11/17 06:02:20 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -44,6 +44,7 @@
 #include <glib.h>
 #include "etypes.h"
 #include "ppptypes.h"
+#include "aftypes.h"
 #include "packet.h"
 #include "packet-ip.h"
 #include "packet-ipsec.h"
@@ -495,5 +496,7 @@ proto_reg_handoff_ipv6(void)
 	old_dissector_add("ethertype", ETHERTYPE_IPv6, dissect_ipv6);
 	old_dissector_add("ppp.protocol", PPP_IPV6, dissect_ipv6);
 	old_dissector_add("ip.proto", IP_PROTO_IPV6, dissect_ipv6);
+	old_dissector_add("null.type", BSD_AF_INET6_BSD, dissect_ipv6);
+	old_dissector_add("null.type", BSD_AF_INET6_FREEBSD, dissect_ipv6);
 	old_dissector_add("ip.proto", IP_PROTO_NONE, dissect_ipv6_none);
 }
