@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.48 1999/11/29 19:43:24 nneul Exp $
+ * $Id: packet-tcp.c,v 1.49 1999/12/03 21:50:29 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -90,6 +90,7 @@ static gint ett_tcp_option_sack = -1;
 #define TCP_PORT_TELNET   23
 #define TCP_PORT_SMTP     25
 #define TCP_PORT_HTTP     80
+#define TCP_PORT_TACACS   49
 #define TCP_PORT_POP      110
 #define TCP_PORT_NNTP     119
 #define TCP_PORT_NTP      123
@@ -523,6 +524,9 @@ dissect_tcp(const u_char *pd, int offset, frame_data *fd, proto_tree *tree) {
     else if (PORT_IS(TCP_PORT_BGP)) {
       pi.match_port = TCP_PORT_BGP;
       dissect_bgp(pd, offset, fd, tree);
+    } else if (PORT_IS(TCP_PORT_TACACS)) {
+      pi.match_port = TCP_PORT_TACACS;
+      dissect_tacplus(pd, offset, fd, tree);
     } else if (PORT_IS(TCP_PORT_MAPI)) {
       pi.match_port = TCP_PORT_MAPI;
       dissect_mapi(pd, offset, fd, tree);

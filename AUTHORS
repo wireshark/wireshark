@@ -156,6 +156,7 @@ Nathan Neulinger <nneul@umr.edu> {
 	802.1q VLAN support
 	Misc. RPC program dissectors
 	TNS/Oracle dissector
+	Tacacs+/XTacacs dissector
 }
 
 Tomislav Vujec <tvujec@carnet.hr> {
