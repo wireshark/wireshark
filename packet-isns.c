@@ -7,7 +7,7 @@
  * Copyright 2003, Elipsan, Gareth Bushell <gbushell@elipsan.com>
  * (c) 2004 Ronnie Sahlberg   updates
  *
- * $Id: packet-isns.c,v 1.5 2004/05/13 13:28:38 sahlberg Exp $
+ * $Id: packet-isns.c,v 1.6 2004/05/13 13:39:47 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -824,14 +824,17 @@ dissect_isns_attr_integer(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, 
 	 * in a DevAttrReg , the PGT (tag 51) may be sent as 0 length
 	 * which then means that we wish to register the portal group tag
 	 * as NULL.
-	 *
+	 * (At least) some servers will respond with PGT as a 0 length 
+	 * value in these instances in the DevAttrRegRsp (eventhough I can
+	 * not find this mentioned in the standard) so allow it for the 
+	 * response as well.
 	 */
 	if(len){
 		if(parent_tree){
 			item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
 			tree = proto_item_add_subtree(item, ett_isns_attribute);
 		}
-	} else if((tag==ISNS_ATTR_TAG_PORTAL_GROUP_TAG)&&(function_id==ISNS_FUNC_DEVATTRREG)){
+	} else if((tag==ISNS_ATTR_TAG_PORTAL_GROUP_TAG)&&((function_id==ISNS_FUNC_DEVATTRREG)||(function_id==ISNS_FUNC_RSP_DEVATTRREG))){
 		/* 5.6.5.1 */
 		if(parent_tree){
 			item=proto_tree_add_uint_format(parent_tree, hf_isns_portal_group_tag, tvb, offset, 8, 0, "PG Tag: <NULL>");
