@@ -2,7 +2,7 @@
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-nt.c,v 1.52 2003/01/11 07:52:34 guy Exp $
+ * $Id: packet-dcerpc-nt.c,v 1.53 2003/01/11 08:22:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -87,7 +87,6 @@ char *fake_unicode(tvbuff_t *tvb, int offset, int len)
 
    these variables can be found in packet-dcerpc-samr.c
 */
-extern int hf_nt_str;
 extern int hf_nt_str_len;
 extern int hf_nt_str_off;
 extern int hf_nt_str_max_len;
@@ -96,34 +95,6 @@ extern int hf_nt_string_size;
 
 gint ett_nt_unicode_string = -1;
 static gint ett_nt_policy_hnd = -1;
-
-/*
- * This handles an array of Unicode characters.
- */
-static int
-dissect_ndr_ucodechars(tvbuff_t *tvb, gint offset, packet_info *pinfo,
-                   proto_tree *tree, char *drep _U_,
-                   int hfindex, int length, char **text)
-{
-    dcerpc_info *di;
-
-    di=pinfo->private_data;
-    if(di->conformant_run){
-      /* just a run to handle conformant arrays, no scalars to dissect */
-      return offset;
-    }
-
-    if (offset % 2)
-        offset++;
-
-    if (tree) {
-        *text = fake_unicode(tvb, offset, length);
-        proto_tree_add_string (tree, hfindex, tvb, offset, length * 2, *text);
-    } else
-        *text = NULL;
-
-    return offset + length * 2;
-}
 
 /* this function will dissect the
      [size_is(size/2), length_is(len/2), ptr] unsigned short *string;
@@ -145,7 +116,6 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 			char *drep)
 {
 	guint32 len, off, max_len;
-	int old_offset;
 	dcerpc_info *di;
 	char *text;
 
@@ -162,10 +132,16 @@ dissect_ndr_nt_UNICODE_STRING_str(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_nt_str_len, &len);
 
-	old_offset=offset;
+	if (offset % 2)
+		offset++;
 
-	offset = dissect_ndr_ucodechars(
-		tvb, offset, pinfo, tree, drep, hf_nt_str, len, &text);
+	if (tree) {
+		text = fake_unicode(tvb, offset, len);
+		proto_tree_add_string (tree, di->hf_index, tvb, offset, len * 2, text);
+	} else
+		text = NULL;
+
+	offset += len * 2;
 
 	/* need to test di->levels before doing the proto_item_append_text()
 	   since netlogon has these objects as top level objects in its representation
@@ -257,7 +233,6 @@ dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset,
 {
 	guint32 len, off, max_len;
 	const guint8 *text;
-	int old_offset;
 	header_field_info *hfi;
 	dcerpc_info *di;
 
@@ -274,28 +249,21 @@ dissect_ndr_nt_STRING_string (tvbuff_t *tvb, int offset,
         offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
                                      hf_nt_str_len, &len);
 
-	old_offset=offset;
 	hfi = proto_registrar_get_nth(di->hf_index);
 
 	switch(hfi->type){
 	case FT_STRING:
-		offset = dissect_ndr_uint8s(
-			tvb, offset, pinfo, tree, drep,
-			hf_nt_str, len, NULL);
-		text = tvb_get_ptr(tvb, offset - len * 2, len);
-		proto_tree_add_string_format(tree, di->hf_index,
-			tvb, old_offset, offset-old_offset,
-			text, "%s: %s", hfi->name, text);
+		text = tvb_get_ptr(tvb, offset, len);
 		break;
 	case FT_BYTES:
 		text = NULL;
-		proto_tree_add_item(tree, di->hf_index, tvb, offset, len, FALSE);
-		offset += len;
 		break;
 	default:
 		text = NULL;
 		g_assert_not_reached();
 	}
+	proto_tree_add_item(tree, di->hf_index, tvb, offset, len, FALSE);
+	offset += len;
 
 	if(tree && text && (di->levels>-1)){
 		proto_item_append_text(tree, ": %s", text);
