@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.36 2001/09/25 18:27:35 guy Exp $
+ * $Id: packet-wsp.c,v 1.37 2001/09/25 21:32:41 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -709,6 +709,8 @@ typedef enum {
 	VALUE_IN_LEN,
 } value_type_t;
 
+static heur_dissector_list_t heur_subdissector_list;
+
 static void add_uri (proto_tree *, tvbuff_t *, guint, guint);
 static void add_headers (proto_tree *, tvbuff_t *);
 static int add_well_known_header (proto_tree *, tvbuff_t *, int, guint8);
@@ -1125,15 +1127,15 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 
 		case POST:
-			if (tree) {
-				uriStart = offset;
-				count = 0;	/* Initialise count */
-				uriLength = tvb_get_guintvar (tvb, offset, &count);
-				headerStart = uriStart+count;
-				count = 0;	/* Initialise count */
-				headersLength = tvb_get_guintvar (tvb, headerStart, &count);
-				offset = headerStart + count;
+			uriStart = offset;
+			count = 0;	/* Initialise count */
+			uriLength = tvb_get_guintvar (tvb, offset, &count);
+			headerStart = uriStart+count;
+			count = 0;	/* Initialise count */
+			headersLength = tvb_get_guintvar (tvb, headerStart, &count);
+			offset = headerStart + count;
 
+			if (tree) {
 				add_uri (wsp_tree, tvb, uriStart, offset);
 				offset += uriLength;
 
@@ -1163,13 +1165,16 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				add_post_data (wsp_tree, tmp_tvb,
 				    contentType, contentTypeStr);
 			}
+			tmp_tvb = tvb_new_subset (tvb, headerStart + count + uriLength + headersLength, -1, -1);
+			dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree);
 			break;
 
 		case REPLY:
+			count = 0;	/* Initialise count */
+			headersLength = tvb_get_guintvar (tvb, offset+1, &count);
+			headerStart = offset + count + 1;
 			if (tree) {
 				ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,tvb,offset,1,bo_little_endian);
-				count = 0;	/* Initialise count */
-				headersLength = tvb_get_guintvar (tvb, offset+1, &count);
 				nextOffset = offset + 1 + count;
 				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,tvb,offset+1,count,headersLength);
 
@@ -1189,7 +1194,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					tmp_tvb = tvb_new_subset (tvb, nextOffset, headerLength, headerLength);
 					add_headers (wsp_tree, tmp_tvb);
 				}
-				offset += count+headerLength+1;
+				offset += count+headersLength+1;
 
 				/* TODO: Data - decode WMLC */
 				/* Runs from offset+1+count+headerLength+1 to end of frame */
@@ -1197,6 +1202,11 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				{
 					ti = proto_tree_add_item (wsp_tree, hf_wsp_reply_data,tvb,offset,tvb_length_remaining(tvb, offset),bo_little_endian);
 				}
+			}
+			if (tvb_reported_length_remaining(tvb, headerStart + headersLength) > 0)
+			{
+			    tmp_tvb = tvb_new_subset (tvb, headerStart + headersLength, -1, -1);
+			    dissector_try_heuristic(heur_subdissector_list, tmp_tvb, pinfo, tree);
 			}
 			break;
 	}
@@ -3856,6 +3866,7 @@ proto_register_wsp(void)
 
 	register_dissector("wsp-co", dissect_wsp_fromwap_co, proto_wsp);
 	register_dissector("wsp-cl", dissect_wsp_fromwap_cl, proto_wsp);
+	register_heur_dissector_list("wsp", &heur_subdissector_list);
 };
 
 void
