@@ -1,7 +1,7 @@
 /* progress_dlg.c
  * Routines for progress-bar (modal) dialog
  *
- * $Id: progress_dlg.c,v 1.4 2000/07/05 02:52:39 guy Exp $
+ * $Id: progress_dlg.c,v 1.5 2000/07/05 05:50:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -60,8 +60,7 @@ static void cancel_cb(GtkWidget *w, gpointer data);
 void *
 create_progress_dlg(gchar *title, gboolean *stop_flag)
 {
-	GtkWidget *dlg_w, *main_vb, *title_lb, *prog_bar, *cancel_al,
-		  *cancel_bt;
+	GtkWidget *dlg_w, *main_vb, *title_lb, *prog_bar, *bbox, *cancel_bt;
 
 	dlg_w = dlg_window_new();
 	gtk_window_set_title(GTK_WINDOW(dlg_w), title);
@@ -73,7 +72,6 @@ create_progress_dlg(gchar *title, gboolean *stop_flag)
 	main_vb = gtk_vbox_new(FALSE, 1);
 	gtk_container_border_width(GTK_CONTAINER(main_vb), 5);
 	gtk_container_add(GTK_CONTAINER(dlg_w), main_vb);
-	gtk_widget_show(main_vb);
 
 	/*
 	 * Put the title here as a label indicating what we're
@@ -84,7 +82,6 @@ create_progress_dlg(gchar *title, gboolean *stop_flag)
 	gtk_box_pack_start(GTK_BOX(main_vb), title_lb, FALSE, TRUE, 3);
 	gtk_misc_set_alignment(GTK_MISC(title_lb), 0.0, 0.0);
 	gtk_misc_set_padding(GTK_MISC(title_lb), 0.0, 0.0);
-	gtk_widget_show(title_lb);
 
 	/*
 	 * The progress bar.
@@ -92,7 +89,6 @@ create_progress_dlg(gchar *title, gboolean *stop_flag)
 	prog_bar = gtk_progress_bar_new();
 	gtk_progress_set_activity_mode(GTK_PROGRESS(prog_bar), FALSE);
 	gtk_box_pack_start(GTK_BOX(main_vb), prog_bar, FALSE, TRUE, 3);
-	gtk_widget_show(prog_bar);
 
 	/*
 	 * Attach a pointer to the progress bar widget to the top-level
@@ -101,28 +97,30 @@ create_progress_dlg(gchar *title, gboolean *stop_flag)
 	gtk_object_set_data(GTK_OBJECT(dlg_w), PROG_BAR_KEY, prog_bar);
 
 	/*
+	 * Button row: cancel button.
+	 * (We put it in an HButtonBox, even though there's only one
+	 * of them, so that it doesn't expand to the width of the window.)
+	 */
+	bbox = gtk_hbutton_box_new();
+	gtk_button_box_set_spacing(GTK_BUTTON_BOX(bbox), 5);
+	gtk_container_add(GTK_CONTAINER(main_vb), bbox);
+  
+	/*
 	 * Allow user to either click a "Cancel" button, or the close button
 	 * on the window, to stop an operation in progress.
-	 *
-	 * Put the button in an alignment so it doesn't get any wider than
-	 * it needs to to say "Cancel".
 	 */
-	cancel_al = gtk_alignment_new(0.5, 0.0, 0.0, 0.0);
 	cancel_bt = gtk_button_new_with_label("Cancel");
-	gtk_container_add(GTK_CONTAINER(cancel_al), cancel_bt);
+	gtk_box_pack_start(GTK_BOX (bbox), cancel_bt, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT(cancel_bt), "clicked",
 	    GTK_SIGNAL_FUNC(cancel_cb), (gpointer) stop_flag);
 	gtk_signal_connect(GTK_OBJECT(dlg_w), "delete_event",
 	    GTK_SIGNAL_FUNC(delete_cb), (gpointer) stop_flag);
-	gtk_box_pack_end(GTK_BOX(main_vb), cancel_al, FALSE, FALSE, 3);
 	GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
 	gtk_widget_grab_default(cancel_bt);
 	GTK_WIDGET_SET_FLAGS(cancel_bt, GTK_CAN_DEFAULT);
 	gtk_widget_grab_default(cancel_bt);
-	gtk_widget_show(cancel_bt);
-	gtk_widget_show(cancel_al);
 
-	gtk_widget_show(dlg_w);
+	gtk_widget_show_all(dlg_w);
 
 	return dlg_w;	/* return as opaque pointer */
 }
