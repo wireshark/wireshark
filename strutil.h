@@ -1,7 +1,7 @@
 /* util.h
  * Utility definitions
  *
- * $Id: strutil.h,v 1.2 2000/09/11 20:05:13 gram Exp $
+ * $Id: strutil.h,v 1.3 2000/09/11 23:31:05 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -27,6 +27,11 @@
 #define __STRUTIL_H__
 
 /* ... thus, config.h needs to be #included */
+
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>	/* for u_char */
+#endif
+
 #ifdef HAVE_WINSOCK_H
 # include <winsock.h>	/* for u_char */
 #endif
