@@ -2069,6 +2069,7 @@ Martin Mathieson        <martin [AT] arca-technologies.com> {
 	SIP sipfrag support
 	SIP statistics tap
 	Show setupframe in RTP and RTCP
+	H.225.0 updates
 }
 
 Christian Wagner        <Christian.Wagner [AT] stud.uni-karlsruhe.de> {
