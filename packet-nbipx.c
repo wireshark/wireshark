@@ -2,7 +2,7 @@
  * Routines for NetBIOS over IPX packet disassembly
  * Gilbert Ramirez <gram@xiexie.org>
  *
- * $Id: packet-nbipx.c,v 1.24 2000/11/10 21:09:49 guy Exp $
+ * $Id: packet-nbipx.c,v 1.25 2000/11/10 21:29:27 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -115,6 +115,8 @@ void
 dissect_nbipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	CHECK_DISPLAY_AS_DATA(proto_nbipx, tvb, pinfo, tree);
+
+	pinfo->current_proto = "NBIPX";
 
 	if (check_col(pinfo->fd, COL_PROTOCOL))
 		col_add_str(pinfo->fd, COL_PROTOCOL, "NBIPX");
