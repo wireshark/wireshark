@@ -1664,6 +1664,9 @@ dissect_krb5_PA_DATA_value(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t
 	case KRB5_PA_PK_AS_REQ:
 		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_pkinit_PA_PK_AS_REQ);
  		break;
+	case KRB5_PA_PK_AS_REP:
+		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_pkinit_PA_PK_AS_REP);
+ 		break;
 	case KRB5_PA_PAC_REQUEST:
 		offset=dissect_ber_octet_string_wcb(FALSE, pinfo, tree, tvb, offset,hf_krb_PA_DATA_value, dissect_krb5_PA_PAC_REQUEST);
  		break;
