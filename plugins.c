@@ -1,7 +1,7 @@
 /* plugins.c
  * plugin routines
  *
- * $Id: plugins.c,v 1.3 2000/01/04 20:37:07 oabad Exp $
+ * $Id: plugins.c,v 1.4 2000/01/04 21:29:43 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -32,6 +32,10 @@
 #include <time.h>
 #include <dirent.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include "globals.h"
 
@@ -224,14 +228,23 @@ plugin_replace_filter(const gchar *name, const gchar *version,
 int
 save_plugin_status()
 {
-    gchar  *plugin_status_file;
+    gchar  *pf_path;
     FILE   *statusfile;
     plugin *pt_plug;
 
-    plugin_status_file = (gchar *)g_malloc(strlen(getenv("HOME")) + 26);
-    sprintf(plugin_status_file, "%s/.ethereal/plugins.status", getenv("HOME"));
+    if (!plugin_status_file) {
+	plugin_status_file = (gchar *)g_malloc(strlen(getenv("HOME")) + 26);
+	sprintf(plugin_status_file, "%s/%s/plugins.status", getenv("HOME"), PF_DIR);
+    }
     statusfile=fopen(plugin_status_file, "w");
-    if (!statusfile) return -1;
+    if (!statusfile) {
+	pf_path = g_malloc(strlen(getenv("HOME")) + strlen(PF_DIR) + 2);
+	sprintf(pf_path, "%s/%s", getenv("HOME"), PF_DIR);
+	mkdir(pf_path, 0755);
+	g_free(pf_path);
+	statusfile=fopen(plugin_status_file, "w");
+	if (!statusfile) return -1;
+    }
 
     pt_plug = plugin_list;
     while (pt_plug)
@@ -285,6 +298,7 @@ check_plugin_status(gchar *name, gchar *version, lt_dlhandle handle,
 	    return;
 	}
     }
+    g_free(ref_string);
 }
 
 static void
@@ -309,7 +323,7 @@ plugins_scan_dir(const char *dirname)
     if (!plugin_status_file)
     {
 	plugin_status_file = (gchar *)g_malloc(strlen(getenv("HOME")) + 26);
-	sprintf(plugin_status_file, "%s/.ethereal/plugins.status", getenv("HOME"));
+	sprintf(plugin_status_file, "%s/%s/plugins.status", getenv("HOME"), PF_DIR);
     }
     statusfile = fopen(plugin_status_file, "r");
 
@@ -402,7 +416,7 @@ init_plugins()
 	if (!user_plug_dir)
 	{
 	    user_plug_dir = (gchar *)g_malloc(strlen(getenv("HOME")) + 19);
-	    sprintf(user_plug_dir, "%s/.ethereal/plugins", getenv("HOME"));
+	    sprintf(user_plug_dir, "%s/%s/plugins", getenv("HOME"), PF_DIR);
 	}
 	plugins_scan_dir(user_plug_dir);
     }
