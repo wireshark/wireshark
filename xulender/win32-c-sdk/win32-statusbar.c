@@ -21,7 +21,7 @@ statusbar_push_file_msg(gchar *msg) {
 
     win32_element_assert(statusbarpanel);
 
-    win32_statusbarpanel_push(statusbarpanel, msg);
+    win32_statusbarpanel_push(statusbarpanel, "file", msg);
 }
 
 /*
@@ -33,7 +33,7 @@ statusbar_pop_file_msg(void) {
 
     win32_element_assert(statusbarpanel);
 
-    win32_statusbarpanel_pop(statusbarpanel);
+    win32_statusbarpanel_pop(statusbarpanel, "file");
 }
 
 /*
@@ -41,7 +41,11 @@ statusbar_pop_file_msg(void) {
  */
 void
 statusbar_push_field_msg(gchar *msg) {
-    statusbar_push_file_msg(msg);
+    win32_element_t *statusbarpanel = win32_identifier_get_str("main-info-bar");
+
+    win32_element_assert(statusbarpanel);
+
+    win32_statusbarpanel_push(statusbarpanel, "help", msg);
 }
 
 /*
@@ -49,7 +53,22 @@ statusbar_push_field_msg(gchar *msg) {
  */
 void
 statusbar_pop_field_msg(void) {
-    statusbar_pop_file_msg();
+    win32_element_t *statusbarpanel = win32_identifier_get_str("main-info-bar");
+
+    win32_element_assert(statusbarpanel);
+
+    win32_statusbarpanel_pop(statusbarpanel, "help");
+}
+
+/* Routines defined in win32-statusbar.h */
+
+/* Initialize the info bar */
+void info_bar_init(gchar *msg) {
+    win32_element_t *statusbarpanel = win32_identifier_get_str("main-info-bar");
+
+    win32_element_assert(statusbarpanel);
+
+    win32_statusbarpanel_push(statusbarpanel, "main", msg);
 }
 
 /*
@@ -64,7 +83,7 @@ packets_bar_update(void) {
     /* remove old status */
     if(packets_str) {
 	g_free(packets_str);
-	win32_statusbarpanel_pop(statusbarpanel);
+	win32_statusbarpanel_pop(statusbarpanel, "packets");
     }
 
     /* do we have any packets? */
@@ -74,5 +93,5 @@ packets_bar_update(void) {
     } else {
 	packets_str = g_strdup(" No Packets");
     }
-    win32_statusbarpanel_push(statusbarpanel, packets_str);
+    win32_statusbarpanel_push(statusbarpanel, "packets", packets_str);
 }

@@ -48,6 +48,8 @@
 
 #include "ethereal-packetlist.h"
 #include "ui_util.h"
+#include "win32-file-dlg.h"
+#include "win32-statusbar.h"
 
 typedef struct _packet_list_item {
     gchar   **text;
@@ -334,9 +336,8 @@ set_frame_mark(gboolean set, frame_data *frame, gint row) {
 /* call this after last set_frame_mark is done */
 static void
 mark_frames_ready(void) {
-// XXX - We need to fetch the save dialog HWND somehow.
-//    file_set_save_marked_sensitive();
-//    packets_bar_update();
+    file_set_save_marked_sensitive();
+    packets_bar_update();
 }
 
 void
@@ -393,6 +394,7 @@ packet_list_freeze(void) {
 void
 packet_list_thaw(void) {
     ListView_SetItemCount(g_hw_packetlist, rows + 1);
+    packets_bar_update();
 }
 
 void packet_list_select_row(gint row) {

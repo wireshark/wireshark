@@ -76,6 +76,12 @@ static int            filetype;
 static packet_range_t range;
 static merge_action_e merge_action;
 static print_args_t   print_args;
+/* XXX - The reason g_sf_hwnd exists is so that we can call
+ *       file_set_save_marked_sensitive() from anywhere.  However, the
+ *       save file dialog hogs the foreground, so this may not be
+ *       necessary.
+ */
+static HWND           g_sf_hwnd = NULL;
 
 gboolean
 win32_open_file (HWND h_wnd) {
@@ -182,6 +188,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
     ofn.lpTemplateName = "ETHEREAL_SAVEFILENAME_TEMPLATE";
 
     if (GetSaveFileName(&ofn)) {
+	g_sf_hwnd = NULL;
 	/* Write out the packets (all, or only the ones from the current
 	   range) to the file with the specified name. */
 	/* XXX - If we're overwriting a file, GetSaveFileName does the
@@ -227,6 +234,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 		g_assert_not_reached();
 	}
     }
+    g_sf_hwnd = NULL;
 }
 
 
@@ -1001,6 +1009,8 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 
     switch(msg) {
 	case WM_INITDIALOG:
+	    g_sf_hwnd = sf_hwnd;
+
 	    /* Default to saving all packets, in the file's current format. */
 	    filetype = cfile.cd_t;
 
@@ -1010,7 +1020,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 	    /* Fill in the file format list */
 	    build_file_format_list(sf_hwnd);
 
-	    file_set_save_marked_sensitive(sf_hwnd);
+	    file_set_save_marked_sensitive();
 
 	    range_handle_wm_initdialog(sf_hwnd, &range);
 
@@ -1038,7 +1048,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 				    EnableWindow(cur_ctrl, FALSE);
 				}
 				filetype = new_filetype;
-				file_set_save_marked_sensitive(sf_hwnd);
+				file_set_save_marked_sensitive();
 			    }
 			}
 		    }
@@ -1063,7 +1073,7 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
  * the file type or the marked count changes.
  */
 void
-file_set_save_marked_sensitive(HWND sf_hwnd) {
+file_set_save_marked_sensitive() {
     HWND     cur_ctrl;
     gboolean enable = TRUE;
 
@@ -1074,20 +1084,20 @@ file_set_save_marked_sensitive(HWND sf_hwnd) {
 	   off the flag it controls, and update the list of types we can
 	   save the file as. */
 	range.process = range_process_all;
-	build_file_format_list(sf_hwnd);
+	build_file_format_list(g_sf_hwnd);
 	enable = FALSE;
     }
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_MARKED_BTN);
+    cur_ctrl = GetDlgItem(g_sf_hwnd, EWFD_MARKED_BTN);
     EnableWindow(cur_ctrl, enable);
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_FIRST_LAST_BTN);
+    cur_ctrl = GetDlgItem(g_sf_hwnd, EWFD_FIRST_LAST_BTN);
     EnableWindow(cur_ctrl, enable);
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_MARKED_CAP);
+    cur_ctrl = GetDlgItem(g_sf_hwnd, EWFD_MARKED_CAP);
     EnableWindow(cur_ctrl, enable);
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_FIRST_LAST_CAP);
+    cur_ctrl = GetDlgItem(g_sf_hwnd, EWFD_FIRST_LAST_CAP);
     EnableWindow(cur_ctrl, enable);
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_MARKED_DISP);
+    cur_ctrl = GetDlgItem(g_sf_hwnd, EWFD_MARKED_DISP);
     EnableWindow(cur_ctrl, enable);
-    cur_ctrl = GetDlgItem(sf_hwnd, EWFD_FIRST_LAST_DISP);
+    cur_ctrl = GetDlgItem(g_sf_hwnd, EWFD_FIRST_LAST_DISP);
     EnableWindow(cur_ctrl, enable);
 }
 

@@ -285,7 +285,6 @@ win32_element_resize (win32_element_t *el, int set_width, int set_height) {
     GList *contents;
     gfloat total_flex;
     gboolean force_top = FALSE, horizontal;
-    POINT pt;
     RECT wr, cr;
 
     win32_element_assert(el);

@@ -14,6 +14,11 @@
 #include "win32-globals.h"
 #include "win32-util.h"
 
+typedef struct _sbp_msg_data_t {
+    gchar *message;
+    gchar *context;
+} sbp_msg_data_t;
+
 #define WIN32_STATUSBAR_MSG_STACK "_win32_statusbar_msg_stack"
 
 /*
@@ -89,50 +94,60 @@ win32_statusbarpanel_apply_styles(win32_element_t *statusbarpanel) {
 
 /*
  * We implement _push() and _pop() routines, similar to their gtk_statusbar
- * counterparts.
+ * counterparts.  Unlike the GTK+ version, context IDs are simple strings.
  * XXX - Implement context IDs.
  */
 
 void
-win32_statusbarpanel_push(win32_element_t *statusbarpanel, gchar *msg) {
-    GSList *msg_stack;
-    gchar  *push_msg;
-    gint    len;
+win32_statusbarpanel_push(win32_element_t *statusbarpanel, gchar *ctx, gchar *msg) {
+    GSList         *msg_stack;
+    sbp_msg_data_t *msgdata;
 
     win32_element_assert(statusbarpanel);
 
     msg_stack = (GSList *) win32_element_get_data(statusbarpanel,
 	    WIN32_STATUSBAR_MSG_STACK);
 
-    len = GetWindowTextLength(statusbarpanel->h_wnd) + 1;
+    msgdata = g_malloc(sizeof(*msgdata));
+    msgdata->message = g_strdup(msg);
+    msgdata->context = g_strdup(ctx);
 
-    push_msg = g_malloc(len);
-    GetWindowText(statusbarpanel->h_wnd, push_msg, len);
-
-    msg_stack = g_slist_prepend(msg_stack, push_msg);
+    msg_stack = g_slist_prepend(msg_stack, msgdata);
     win32_element_set_data(statusbarpanel, WIN32_STATUSBAR_MSG_STACK, msg_stack);
 
     SetWindowText(statusbarpanel->h_wnd, msg);
 }
 
 void
-win32_statusbarpanel_pop(win32_element_t *statusbarpanel) {
-    GSList *msg_stack;
-    gchar  *pop_msg;
+win32_statusbarpanel_pop(win32_element_t *statusbarpanel, gchar *ctx) {
+    GSList         *msg_stack, *cur_item;
+    sbp_msg_data_t *msgdata;
 
     win32_element_assert(statusbarpanel);
 
     msg_stack = (GSList *) win32_element_get_data(statusbarpanel,
 	    WIN32_STATUSBAR_MSG_STACK);
 
-    if (msg_stack == NULL)
-	return;
+    for (cur_item = msg_stack; cur_item != NULL; cur_item = g_slist_next(cur_item)) {
+	msgdata = (sbp_msg_data_t *) cur_item->data;
+	if (msgdata && strcmp(msgdata->context, ctx) == NULL) {
+	    msg_stack = g_slist_remove(msg_stack, msgdata);
 
-    pop_msg = (gchar *) msg_stack->data;
+	    g_free(msgdata->message);
+	    g_free(msgdata->context);
+	    g_free(msgdata);
+	    break;
+	}
+    }
 
-    msg_stack = g_slist_remove(msg_stack, pop_msg);
     win32_element_set_data(statusbarpanel, WIN32_STATUSBAR_MSG_STACK, msg_stack);
 
-    SetWindowText(statusbarpanel->h_wnd, pop_msg);
-    g_free(pop_msg);
+    if (msg_stack == NULL || msg_stack->data == NULL) {
+	SetWindowText(statusbarpanel->h_wnd, "");
+	return;
+    }
+
+    msgdata = (sbp_msg_data_t *) msg_stack->data;
+
+    SetWindowText(statusbarpanel->h_wnd, msgdata->message);
 }

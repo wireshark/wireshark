@@ -1191,8 +1191,7 @@ WinMain( HINSTANCE h_instance, HINSTANCE h_prev_instance, LPSTR lpsz_cmd_line, i
 	/* Create and show the main window */
 	g_hw_mainwin = ethereal_main_window_create(h_instance);
 
-
-	statusbar_push_file_msg(DEF_READY_MESSAGE);
+	info_bar_init(DEF_READY_MESSAGE);
 	packets_bar_update();
 
 	/* Read the recent file, as we have the gui now ready for it. */
