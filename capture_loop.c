@@ -72,7 +72,6 @@
 #include "pcap-util.h"
 
 #include "simple_dialog.h"
-#include "globals.h"
 #include "conditions.h"
 #include "capture_stop_conditions.h"
 #include "ringbuffer.h"
@@ -559,14 +558,14 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
      if they succeed; to tell if that's happened, we have to clear
      the error buffer, and check if it's still a null string.  */
   open_err_str[0] = '\0';
-  ld->pcap_h = pcap_open_live(cfile.iface,
+  ld->pcap_h = pcap_open_live(cf_get_iface(capture_opts->cf),
 		       capture_opts->has_snaplen ? capture_opts->snaplen :
 						  WTAP_MAX_PACKET_SIZE,
 		       capture_opts->promisc_mode, CAP_READ_TIMEOUT,
 		       open_err_str);
 
   if (ld->pcap_h != NULL) {
-    /* we've opened "cfile.iface" as a network device */
+    /* we've opened "iface" as a network device */
 #ifdef _WIN32
     /* try to set the capture buffer size */
     if (pcap_setbuff(ld->pcap_h, capture_opts->buffer_size * 1024 * 1024) != 0) {
@@ -583,7 +582,7 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 
     /* setting the data link type only works on real interfaces */
     if (capture_opts->linktype != -1) {
-      set_linktype_err_str = set_pcap_linktype(ld->pcap_h, cfile.iface,
+      set_linktype_err_str = set_pcap_linktype(ld->pcap_h, cf_get_iface(capture_opts->cf),
 	capture_opts->linktype);
       if (set_linktype_err_str != NULL) {
 	g_snprintf(errmsg, errmsg_len, "Unable to set data link type (%s).",
@@ -592,7 +591,7 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
       }
     }
   } else {
-    /* We couldn't open "cfile.iface" as a network device. */
+    /* We couldn't open "iface" as a network device. */
 #ifdef _WIN32
     /* On Windows, we don't support capturing on pipes, so we give up.
        If this is a child process that does the capturing in sync
@@ -618,8 +617,8 @@ static int capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
 	open_err_str);
     return FALSE;
 #else
-    /* try to open cfile.iface as a pipe */
-    ld->cap_pipe_fd = cap_pipe_open_live(cfile.iface, &ld->cap_pipe_hdr, ld, errmsg, errmsg_len);
+    /* try to open iface as a pipe */
+    ld->cap_pipe_fd = cap_pipe_open_live(cf_get_iface(capture_opts->cf), &ld->cap_pipe_hdr, ld, errmsg, errmsg_len);
 
     if (ld->cap_pipe_fd == -1) {
 
@@ -709,15 +708,15 @@ static void capture_loop_close_input(loop_data *ld) {
 
 
 /* init the capture filter */
-static int capture_loop_init_filter(loop_data *ld, char *errmsg, int errmsg_len) {
+static int capture_loop_init_filter(loop_data *ld, const gchar * iface, gchar * cfilter, char *errmsg, int errmsg_len) {
   bpf_u_int32 netnum, netmask;
   gchar       lookup_net_err_str[PCAP_ERRBUF_SIZE];
   struct bpf_program fcode;
 
   /* capture filters only work on real interfaces */
-  if (cfile.cfilter && !ld->from_cap_pipe) {
+  if (cfilter && !ld->from_cap_pipe) {
     /* A capture filter was specified; set it up. */
-    if (pcap_lookupnet(cfile.iface, &netnum, &netmask, lookup_net_err_str) < 0) {
+    if (pcap_lookupnet(iface, &netnum, &netmask, lookup_net_err_str) < 0) {
       /*
        * Well, we can't get the netmask for this interface; it's used
        * only for filters that check for broadcast IP addresses, so
@@ -729,10 +728,10 @@ static int capture_loop_init_filter(loop_data *ld, char *errmsg, int errmsg_len)
        */
       netmask = 0;
     }
-    if (pcap_compile(ld->pcap_h, &fcode, cfile.cfilter, 1, netmask) < 0) {
+    if (pcap_compile(ld->pcap_h, &fcode, cfilter, 1, netmask) < 0) {
       dfilter_t   *rfcode = NULL;
       /* filter string invalid, did the user tried a display filter? */
-      if (dfilter_compile(cfile.cfilter, &rfcode) && rfcode != NULL) {
+      if (dfilter_compile(cfilter, &rfcode) && rfcode != NULL) {
         g_snprintf(errmsg, errmsg_len,
           "%sInvalid capture filter: \"%s\"!%s\n"
           "\n"
@@ -743,7 +742,7 @@ static int capture_loop_init_filter(loop_data *ld, char *errmsg, int errmsg_len)
           "so you can't use most display filter expressions as capture filters.\n"
           "\n"
           "See the help for a description of the capture filter syntax.",
-          simple_dialog_primary_start(), cfile.cfilter, simple_dialog_primary_end(),
+          simple_dialog_primary_start(), cfilter, simple_dialog_primary_end(),
           pcap_geterr(ld->pcap_h));
 	dfilter_free(rfcode);
       } else {
@@ -752,7 +751,7 @@ static int capture_loop_init_filter(loop_data *ld, char *errmsg, int errmsg_len)
           "\n"
           "That string isn't a valid capture filter (%s).\n"
           "See the help for a description of the capture filter syntax.",
-          simple_dialog_primary_start(), cfile.cfilter, simple_dialog_primary_end(),
+          simple_dialog_primary_start(), cfilter, simple_dialog_primary_end(),
           pcap_geterr(ld->pcap_h));
       }
       return FALSE;
@@ -783,7 +782,7 @@ static int capture_loop_open_wiretap_output(capture_options *capture_opts, loop_
   } else
 #endif
   {
-    pcap_encap = get_pcap_linktype(ld->pcap_h, cfile.iface);
+    pcap_encap = get_pcap_linktype(ld->pcap_h, cf_get_iface(capture_opts->cf));
     file_snaplen = pcap_snapshot(ld->pcap_h);
   }
 
@@ -1024,7 +1023,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   }
 
   /* init the input filter from the network interface (capture pipe will do nothing) */
-  if (!capture_loop_init_filter(&ld, errmsg, sizeof(errmsg))) {
+  if (!capture_loop_init_filter(&ld, cf_get_iface(capture_opts->cf), cf_get_cfilter(capture_opts->cf), errmsg, sizeof(errmsg))) {
     goto error;
   }
 
@@ -1076,7 +1075,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
   if(show_info) {
       capture_ui.callback_data  = &ld;
       capture_ui.counts         = &ld.counts;
-      capture_info_create(&capture_ui, cfile.iface);
+      capture_info_create(&capture_ui, cf_get_iface(capture_opts->cf));
   }
 
   /* init the time values */

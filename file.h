@@ -58,6 +58,7 @@ void cf_set_drops_known(capture_file *cf, gboolean drops_known);
 void cf_set_drops(capture_file *cf, guint32 drops);
 gchar *cf_get_iface(capture_file *cf);
 void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode);
+gchar *cf_get_cfilter(capture_file *cf);
 
 gboolean
 cf_merge_files(const char *out_filename, int out_fd, int in_file_count,

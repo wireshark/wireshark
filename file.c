@@ -746,6 +746,10 @@ void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode)
     cf->rfcode = rfcode;
 }
 
+gchar *cf_get_cfilter(capture_file *cf)
+{
+    return cf->cfilter;
+}
 
 typedef struct {
   color_filter_t *colorf;
