@@ -1,7 +1,7 @@
 /* compat_macros.h
  * GTK-related Global defines, etc.
  *
- * $Id: compat_macros.h,v 1.4 2003/12/16 18:43:33 oabad Exp $
+ * $Id: compat_macros.h,v 1.5 2004/01/10 14:10:43 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,6 +73,29 @@ gtk_signal_emit_stop_by_name(GTK_OBJECT(widget), name)
 #define ITEM_FACTORY_STOCK_ENTRY(path, accelerator, callback, action, data) \
 {path, accelerator, GTK_MENU_FUNC(callback), action, NULL}
 
+#define STOCK_OK        "OK"
+#define STOCK_CANCEL    "Cancel"
+#define STOCK_NEW       "New"
+#define STOCK_DELETE    "Delete"
+#define STOCK_GO_UP     "Up"
+#define STOCK_GO_DOWN   "Down"
+#define STOCK_APPLY     "Apply"
+#define STOCK_SAVE      "Save"
+#define STOCK_REVERT_TO_SAVED "Revert"
+
+#define BUTTON_NEW_FROM_STOCK(stock_id) \
+gtk_button_new_with_label(stock_id);
+
+#define CHECK_BUTTON_NEW_WITH_MNEMONIC(label_text, accel_group) \
+dlg_check_button_new_with_label_with_mnemonic(label_text, accel_group)
+
+#define RADIO_BUTTON_NEW_WITH_MNEMONIC(radio_group, label_text, accel_group) \
+dlg_radio_button_new_with_label_with_mnemonic( \
+    gtk_radio_button_group(GTK_RADIO_BUTTON(radio_group)), label_text, accel_group)
+
+#define TOGGLE_BUTTON_NEW_WITH_MNEMONIC(label_text, accel_group) \
+dlg_toggle_button_new_with_label_with_mnemonic(label_text, accel_group)
+
 #else /* GTK_MAJOR_VERSION >= 2 */
 
 #define SIGNAL_CONNECT(widget, name, callback, arg) \
@@ -113,6 +136,28 @@ g_signal_stop_emission_by_name(G_OBJECT(widget), name)
 
 #define ITEM_FACTORY_STOCK_ENTRY(path, accelerator, callback, action, data) \
 {path, accelerator, GTK_MENU_FUNC(callback), action, "<StockItem>", data}
+
+#define STOCK_OK        GTK_STOCK_OK
+#define STOCK_CANCEL    GTK_STOCK_CANCEL
+#define STOCK_NEW       GTK_STOCK_NEW
+#define STOCK_DELETE    GTK_STOCK_DELETE
+#define STOCK_GO_UP     GTK_STOCK_GO_UP
+#define STOCK_GO_DOWN   GTK_STOCK_GO_DOWN
+#define STOCK_APPLY     GTK_STOCK_APPLY
+#define STOCK_SAVE      GTK_STOCK_SAVE
+#define STOCK_REVERT_TO_SAVED   GTK_STOCK_REVERT_TO_SAVED
+
+#define BUTTON_NEW_FROM_STOCK(stock_id) \
+gtk_button_new_from_stock(stock_id);
+
+#define CHECK_BUTTON_NEW_WITH_MNEMONIC(label_text, accel_group) \
+gtk_check_button_new_with_mnemonic(label_text)
+
+#define RADIO_BUTTON_NEW_WITH_MNEMONIC(radio_group, label_text, accel_group) \
+gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(radio_group), label_text)
+
+#define TOGGLE_BUTTON_NEW_WITH_MNEMONIC(label_text, accel_group) \
+gtk_toggle_button_new_with_mnemonic(label_text)
 
 #endif /* GTK_MAJOR_VERSION */
 
