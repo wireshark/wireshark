@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.76 2000/07/13 14:16:49 gram Exp $
+ * $Id: packet-tcp.c,v 1.77 2000/07/14 12:54:32 girlich Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,7 +55,7 @@
 #include "packet-tcp.h"
 
 #include "packet-ip.h"
-#include "packet-rpc.h"
+#include "conversation.h"
 
 /* Place TCP summary in proto tree */
 gboolean g_tcp_summary_in_tree = TRUE;
@@ -375,12 +375,6 @@ decode_tcp_ports( const u_char *pd, int offset, frame_data *fd, proto_tree *tree
 	(sub_dissector)(pd, offset, fd, tree);
 	return;
   }
-
-  /* ONC RPC.  We can't base this on anything in the TCP header; we have
-     to look at the payload.  If "dissect_rpc()" returns TRUE, it was
-     an RPC packet, otherwise it's some other type of packet. */
-  if (dissect_rpc(pd, offset, fd, tree))
-    return;
 
   /* try to apply the plugins */
 #ifdef HAVE_PLUGINS
