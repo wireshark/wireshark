@@ -1,7 +1,7 @@
 /* util.c
  * Utility routines
  *
- * $Id: util.c,v 1.58 2003/03/08 07:00:46 guy Exp $
+ * $Id: util.c,v 1.59 2003/03/08 11:15:49 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -35,6 +35,10 @@
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
+#ifdef HAVE_WINDOWS_H
+#include <windows.h>
 #endif
 
 #ifdef HAVE_SYS_STAT_H
@@ -201,7 +205,7 @@ get_version_info(GString *str)
 		case 3:
 		case 4:
 			g_string_sprintfa(str, "Windows NT %u.%u",
-			    dwMajorVersion, info.dwMinorVersion);
+			    info.dwMajorVersion, info.dwMinorVersion);
 			break;
 
 		case 5:
@@ -239,9 +243,9 @@ get_version_info(GString *str)
 		    info.dwPlatformId, info.dwMajorVersion, info.dwMinorVersion);
 		break;
 	}
+	if (info.szCSDVersion[0] != '\0')
+		g_string_sprintfa(str, " %s", info.szCSDVersion);
 	g_string_sprintfa(str, ", build %u", info.dwBuildNumber);
-	if (szCSDVersion[0] != '\0')
-		g_string_sprintfa(str, ", %s", szCSDVersion);
 #elif defined(HAVE_SYS_UTSNAME_H)
 	/*
 	 * We have <sys/utsname.h>, so we assume we have "uname()".
