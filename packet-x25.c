@@ -36,6 +36,8 @@
 #include <string.h>
 #include "packet.h"
 
+#define FROM_DCE			0x80
+
 #define	X25_CALL_REQUEST		0x0B
 #define	X25_CALL_ACCEPTED		0x0F
 #define	X25_CLEAR_REQUEST		0x13
@@ -66,15 +68,19 @@
 #define X25_FAC_THROUGHPUT		0x02
 #define X25_FAC_CUG			0x03
 #define X25_FAC_CALLED_MODIF		0x08
+#define X25_FAC_CUG_OUTGOING_ACC	0x09
 #define X25_FAC_THROUGHPUT_MIN		0x0A
 #define X25_FAC_EXPRESS_DATA		0x0B
+#define X25_FAC_BILATERAL_CUG		0x41
 #define X25_FAC_PACKET_SIZE		0x42
 #define X25_FAC_WINDOW_SIZE		0x43
+#define X25_FAC_RPOA_SELECTION		0x44
 #define X25_FAC_TRANSIT_DELAY		0x49
 #define X25_FAC_CALL_TRANSFER		0xC3
 #define X25_FAC_CALLED_ADDR_EXT		0xC9
 #define X25_FAC_ETE_TRANSIT_DELAY	0xCA
 #define X25_FAC_ADDR_EXT		0xCB
+#define X25_FAC_CALL_DEFLECT		0xD1
 
 int proto_x25 = -1;
 int hf_x25_lcn = -1;
@@ -329,20 +335,174 @@ static char *clear_code(unsigned char code)
     return buffer;
 }
 
+static char *clear_diag(unsigned char code)
+{
+    static char buffer[25];
+
+    if (code == 0)
+	return "No additional information";
+    if (code == 1)
+	return "Invalid P(S)";
+    if (code == 2)
+	return "Invalid P(R)";
+    if (code == 16)
+	return "Packet type invalid";
+    if (code == 17)
+	return "Packet type invalid for state r1";
+    if (code == 18)
+	return "Packet type invalid for state r2";
+    if (code == 19)
+	return "Packet type invalid for state r3";
+    if (code == 20)
+	return "Packet type invalid for state p1";
+    if (code == 21)
+	return "Packet type invalid for state p2";
+    if (code == 22)
+	return "Packet type invalid for state p3";
+    if (code == 23)
+	return "Packet type invalid for state p4";
+    if (code == 24)
+	return "Packet type invalid for state p5";
+    if (code == 25)
+	return "Packet type invalid for state p6";
+    if (code == 26)
+	return "Packet type invalid for state p7";
+    if (code == 27)
+	return "Packet type invalid for state d1";
+    if (code == 28)
+	return "Packet type invalid for state d2";
+    if (code == 29)
+	return "Packet type invalid for state d3";
+    if (code == 32)
+	return "Packet not allowed";
+    if (code == 33)
+	return "Unidentifiable packet";
+    if (code == 34)
+	return "Call on one-way logical channel";
+    if (code == 35)
+	return "Invalid packet type on a PVC";
+    if (code == 36)
+	return "Packet on unassigned LC";
+    if (code == 37)
+	return "Reject not subscribed to";
+    if (code == 38)
+	return "Packet too short";
+    if (code == 39)
+	return "Packet too long";
+    if (code == 40)
+	return "Invalid general format identifier";
+    if (code == 41)
+	return "Restart/registration packet with nonzero bits";
+    if (code == 42)
+	return "Packet type not compatible with facility";
+    if (code == 43)
+	return "Unauthorised interrupt confirmation";
+    if (code == 44)
+	return "Unauthorised interrupt";
+    if (code == 45)
+	return "Unauthorised reject";
+    if (code == 48)
+	return "Time expired";
+    if (code == 49)
+	return "Time expired for incoming call";
+    if (code == 50)
+	return "Time expired for clear indication";
+    if (code == 51)
+	return "Time expired for reset indication";
+    if (code == 52)
+	return "Time expired for restart indication";
+    if (code == 53)
+	return "Time expired for call deflection";
+    if (code == 64)
+	return "Call set-up/clearing or registration pb.";
+    if (code == 65)
+	return "Facility/registration code not allowed";
+    if (code == 66)
+	return "Facility parameter not allowed";
+    if (code == 67)
+	return "Invalid called DTE address";
+    if (code == 68)
+	return "Invalid calling DTE address";
+    if (code == 69)
+	return "Invalid facility/registration length";
+    if (code == 70)
+	return "Incoming call barred";
+    if (code == 71)
+	return "No logical channel available";
+    if (code == 72)
+	return "Call collision";
+    if (code == 73)
+	return "Duplicate facility requested";
+    if (code == 74)
+	return "Non zero address length";
+    if (code == 75)
+	return "Non zero facility length";
+    if (code == 76)
+	return "Facility not provided when expected";
+    if (code == 77)
+	return "Invalid CCITT-specified DTE facility";
+    if (code == 78)
+	return "Max. nb of call redir/defl. exceeded";
+    if (code == 80)
+	return "Miscellaneous";
+    if (code == 81)
+	return "Improper cause code from DTE";
+    if (code == 82)
+	return "Not aligned octet";
+    if (code == 83)
+	return "Inconsistent Q bit setting";
+    if (code == 84)
+	return "NUI problem";
+    if (code == 112)
+	return "International problem";
+    if (code == 113)
+	return "Remote network problem";
+    if (code == 114)
+	return "International protocol problem";
+    if (code == 115)
+	return "International link out of order";
+    if (code == 116)
+	return "International link busy";
+    if (code == 117)
+	return "Transit network facility problem";
+    if (code == 118)
+	return "Remote network facility problem";
+    if (code == 119)
+	return "International routing problem";
+    if (code == 120)
+	return "Temporary routing problem";
+    if (code == 121)
+	return "Unknown called DNIC";
+    if (code == 122)
+	return "Maintenance action";
+
+    sprintf(buffer, "Unknown %d", code);
+
+    return buffer;
+}
+
 static char *reset_code(unsigned char code)
 {
     static char buffer[25];
 
     if (code == 0x00 || (code & 0x80) == 0x80)
 	return "DTE Originated";
+    if (code == 0x01)
+	return "Out of order";
     if (code == 0x03)
 	return "Remote Procedure Error";
-    if (code == 0x11)
-	return "Incompatible Destination";
     if (code == 0x05)
 	return "Local Procedure Error";
     if (code == 0x07)
 	return "Network Congestion";
+    if (code == 0x09)
+	return "Remote DTE operational";
+    if (code == 0x0F)
+	return "Network operational";
+    if (code == 0x11)
+	return "Incompatible Destination";
+    if (code == 0x1D)
+	return "Network out of order";
 
     sprintf(buffer, "Unknown %02X", code);
 
@@ -361,6 +521,26 @@ static char *restart_code(unsigned char code)
 	return "Network Congestion";
     if (code == 0x07)
 	return "Network Operational";
+    if (code == 0x7F)
+	return "Registration/cancellation confirmed";
+
+    sprintf(buffer, "Unknown %02X", code);
+
+    return buffer;
+}
+
+static char *registration_code(unsigned char code)
+{
+    static char buffer[25];
+
+    if (code == 0x03)
+	return "Invalid facility request";
+    if (code == 0x05)
+	return "Network congestion";
+    if (code == 0x13)
+	return "Local procedure error";
+    if (code == 0x7F)
+	return "Registration/cancellation confirmed";
 
     sprintf(buffer, "Unknown %02X", code);
 
@@ -427,21 +607,36 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 		}
 		break;
 	    case X25_FAC_THROUGHPUT:
-		if (tree)
+		if (tree) {
+		    int called_dte_throughput=0;
+		    int calling_dte_throughput=0;
+
+		    if ( (ptr[1] >> 4) >= 3 && (ptr[1] >> 4) <= 13 )
+			called_dte_throughput = 75*2^((ptr[1] >> 4)-3);
+		    if ( (ptr[1] & 0x0F) >= 3 && (ptr[1] & 0x0F) <= 13 )
+			calling_dte_throughput = 75*2^((ptr[1] & 0x0F)-3);
 		    proto_tree_add_text(tree, *offset, 2,
-					"Throughput: %02X", ptr[1]);
+			    "Throughput: called DTE: %d - calling DTE: %d",
+			    called_dte_throughput, calling_dte_throughput);
+		}
 		break;
 	    case X25_FAC_CUG:
 		if (tree)
 		    proto_tree_add_text(tree, *offset, 2,
-					"CUG: %02X",
-					ptr[1]);
+					"Closed user group: %d%d",
+					ptr[1] >> 4, ptr[1] & 0x0F);
 		break;
 	    case X25_FAC_CALLED_MODIF:
 		if (tree)
 		    proto_tree_add_text(tree, *offset, 2,
 					"Called address modified: %02X",
 					ptr[1]);
+		break;
+	    case X25_FAC_CUG_OUTGOING_ACC:
+		if (tree)
+		    proto_tree_add_text(tree, *offset, 2,
+					"CUG with outgoing access: %d%d",
+					ptr[1]>>4, ptr[1] & 0x0F);
 		break;
 	    case X25_FAC_THROUGHPUT_MIN:
 		if (tree)
@@ -466,16 +661,107 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 	    break;
 	case X25_FAC_CLASS_B:
 	    switch (*ptr) {
-	    case X25_FAC_PACKET_SIZE:
+	    case X25_FAC_BILATERAL_CUG:
 		if (tree)
 		    proto_tree_add_text(tree, *offset, 3,
-					"Packet Size: %02X %02X", ptr[1], ptr[2]);
+					"Bilateral CUG: %d%d%d%d",
+					ptr[1] >> 4,
+					ptr[1] & 0x0F,
+					ptr[2] >> 4,
+					ptr[2] & 0x0F);
+		break;
+	    case X25_FAC_PACKET_SIZE:
+		if (tree)
+		{
+		    int called_dte_size, calling_dte_size;
+
+		    switch (ptr[1])
+		    {
+		    case 0x04:
+			called_dte_size = 16;
+			break;
+		    case 0x05:
+			called_dte_size = 32;
+			break;
+		    case 0x06:
+			called_dte_size = 64;
+			break;
+		    case 0x07:
+			called_dte_size = 128;
+			break;
+		    case 0x08:
+			called_dte_size = 256;
+			break;
+		    case 0x0D:
+			called_dte_size = 512;
+			break;
+		    case 0x0C:
+			called_dte_size = 1024;
+			break;
+		    case 0x0E:
+			called_dte_size = 2048;
+			break;
+		    case 0x0F:
+			called_dte_size = 4096;
+			break;
+		    default:
+			called_dte_size = 0;
+			break;
+		    }
+
+		    switch (ptr[2])
+		    {
+		    case 0x04:
+			calling_dte_size = 16;
+			break;
+		    case 0x05:
+			calling_dte_size = 32;
+			break;
+		    case 0x06:
+			calling_dte_size = 64;
+			break;
+		    case 0x07:
+			calling_dte_size = 128;
+			break;
+		    case 0x08:
+			calling_dte_size = 256;
+			break;
+		    case 0x0D:
+			calling_dte_size = 512;
+			break;
+		    case 0x0C:
+			calling_dte_size = 1024;
+			break;
+		    case 0x0E:
+			calling_dte_size = 2048;
+			break;
+		    case 0x0F:
+			calling_dte_size = 4096;
+			break;
+		    default:
+			calling_dte_size = 0;
+			break;
+		    }
+		    proto_tree_add_text(tree, *offset, 3,
+			    "Packet Size: called DTE: %d - calling DTE: %d",
+			    called_dte_size,
+			    calling_dte_size);
+		}
 		break;
 	    case X25_FAC_WINDOW_SIZE:
 		if (tree)
 		    proto_tree_add_text(tree, *offset, 3,
-					"Window Size: %2d %2d", ptr[1],
-					ptr[2]);
+			    "Window Size: called DTE: %d - calling DTE: %d",
+			    ptr[1], ptr[2]);
+		break;
+	    case X25_FAC_RPOA_SELECTION:
+		if (tree)
+		    proto_tree_add_text(tree, *offset, 3,
+					"RPOA: %d%d%d%d",
+					ptr[1] >> 4,
+					ptr[1] & 0x0F,
+					ptr[2] >> 4,
+					ptr[2] & 0x0F);
 		break;
 	    case X25_FAC_TRANSIT_DELAY:
 		if (tree)
@@ -526,6 +812,12 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 		    proto_tree_add_text(tree, *offset, 2+ptr[1],
 					"End to end transit delay");
 		break;
+	    case X25_FAC_CALL_DEFLECT:
+		if (tree)
+		    proto_tree_add_text(tree, *offset, 2+ptr[1],
+					"Call deflection: reason = %02X",
+					ptr[2]);
+		break;
 	    default:
 		if (tree)
 		    proto_tree_add_text(tree, *offset, 2+ptr[1],
@@ -541,71 +833,80 @@ dump_facilities(proto_tree *tree, int *offset, const guint8 *p)
 }
 
 void
-x25_ntoa(proto_tree *tree, int *offset, const guint8 *p, frame_data *fd)
+x25_ntoa(proto_tree *tree, int *offset, const guint8 *p,
+	 frame_data *fd, gboolean toa)
 {
-    int called_len, calling_len;
+    int len1, len2;
     int i;
-    char called_addr[16], calling_addr[16];
-    char *called, *calling;
+    char addr1[16], addr2[16];
+    char *first, *second;
 
-    called_len  = (*p >> 0) & 0x0F;
-    calling_len = (*p >> 4) & 0x0F;
+    len1  = (*p >> 0) & 0x0F;
+    len2 = (*p >> 4) & 0x0F;
     if (tree) {
 	proto_tree_add_text(tree, *offset, 1,
-			    "Calling address length : %d", calling_len);
+		"%s address length : %d",
+		toa ? "Called" : "Calling",
+		len1);
 	proto_tree_add_text(tree, *offset, 1,
-			    "Called address length : %d", called_len);
+		"%s address length : %d",
+		toa ? "Calling" : "Called",
+		len2);
     }
     (*offset)++;
 
     p++;
 
-    called=called_addr;
-    calling=calling_addr;
-    for (i = 0; i < (called_len + calling_len); i++) {
-	if (i < called_len) {
+    first=addr1;
+    second=addr2;
+    for (i = 0; i < (len1 + len2); i++) {
+	if (i < len1) {
 	    if (i % 2 != 0) {
-		*called++ = ((*p >> 0) & 0x0F) + '0';
+		*first++ = ((*p >> 0) & 0x0F) + '0';
 		p++;
 	    } else {
-		*called++ = ((*p >> 4) & 0x0F) + '0';
+		*first++ = ((*p >> 4) & 0x0F) + '0';
 	    }
 	} else {
 	    if (i % 2 != 0) {
-		*calling++ = ((*p >> 0) & 0x0F) + '0';
+		*second++ = ((*p >> 0) & 0x0F) + '0';
 		p++;
 	    } else {
-		*calling++ = ((*p >> 4) & 0x0F) + '0';
+		*second++ = ((*p >> 4) & 0x0F) + '0';
 	    }
 	}
     }
 
-    *called  = '\0';
-    *calling = '\0';
+    *first  = '\0';
+    *second = '\0';
 
-    if (called_len) {
+    if (len1) {
 	if(check_col(fd, COL_RES_DL_DST))
-	    col_add_str(fd, COL_RES_DL_DST, called_addr);
+	    col_add_str(fd, COL_RES_DL_DST, addr1);
 	if (tree)
 	    proto_tree_add_text(tree, *offset,
-				(called_len + 1) / 2,
-				"Called address : %s", called_addr);
+				(len1 + 1) / 2,
+				"%s address : %s",
+				toa ? "Called" : "Calling",
+				addr1);
     }
-    if (calling_len) {
+    if (len2) {
 	if(check_col(fd, COL_RES_DL_SRC))
-	    col_add_str(fd, COL_RES_DL_SRC, calling_addr);
+	    col_add_str(fd, COL_RES_DL_SRC, addr2);
 	if (tree)
-	    proto_tree_add_text(tree, *offset + called_len/2,
-				(calling_len+1)/2+(called_len%2+(calling_len+1)%2)/2,
-				"Calling address : %s", calling_addr);
+	    proto_tree_add_text(tree, *offset + len1/2,
+				(len2+1)/2+(len1%2+(len2+1)%2)/2,
+				"%s address : %s",
+				toa ? "Calling" : "Called",
+				addr2);
     }
-    (*offset) += ((called_len + calling_len + 1) / 2);
+    (*offset) += ((len1 + len2 + 1) / 2);
 }
 
 int
 get_x25_pkt_len(const char *data)
 {
-    int length, called_len, calling_len;
+    int length, called_len, calling_len, dte_len, dce_len;
 
     switch ((guint8)data[2])
     {
@@ -651,10 +952,18 @@ get_x25_pkt_len(const char *data)
 	return 3;
 
     case X25_REGISTRATION_REQUEST:
-	return 3;
+	dce_len  = (data[3] >> 0) & 0x0F;
+	dte_len = (data[3] >> 4) & 0x0F;
+	length = 4 + (dte_len + dce_len + 1) / 2; /* addr */
+	length += (1 + data[length]); /* registration */
+	return length;
 		
     case X25_REGISTRATION_CONFIRMATION:
-	return 3;
+	dce_len  = (data[5] >> 0) & 0x0F;
+	dte_len = (data[5] >> 4) & 0x0F;
+	length = 6 + (dte_len + dce_len + 1) / 2; /* addr */
+	length += (1 + data[length]); /* registration */
+	return length;
     }
 	    
     if ((data[2] & 0x01) == X25_DATA) return 3;
@@ -683,6 +992,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     int modulo;
     guint16 vc;
     void (*dissect)(const u_char *, int, frame_data *, proto_tree *);
+    gboolean toa=FALSE;
 
     if (check_col(fd, COL_PROTOCOL))
 	col_add_str(fd, COL_PROTOCOL, "X.25");
@@ -707,13 +1017,21 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
     }
     switch (pd[localoffset+2]) {
     case X25_CALL_REQUEST:
+	if (pd[localoffset+2] & 0x80) /* TOA/NPI address format */
+	    toa = TRUE;
+
 	if(check_col(fd, COL_INFO))
-	    col_add_fstr(fd, COL_INFO, "Call Req. VC:%d", vc);
+	    col_add_fstr(fd, COL_INFO, "%s VC:%d",
+		    (fd->flags & FROM_DCE) ? "Inc. call"
+		                           : "Call req." ,
+                    vc);
 	if (x25_tree)
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
-				       "CALL REQ", "CALL REQUEST");
+		    "CALL",
+		    (fd->flags & FROM_DCE) ? "Incoming call"
+			                   : "Call request");
 	localoffset += 3;
-	x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd);
+	x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd, toa);
 
 	if (localoffset < x25_pkt_len+2) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, &pd[localoffset]);
@@ -750,13 +1068,21 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 	break;
     case X25_CALL_ACCEPTED:
+	if (pd[localoffset+2] & 0x80) /* TOA/NPI address format */
+	    toa = TRUE;
+
 	if(check_col(fd, COL_INFO))
-	    col_add_fstr(fd, COL_INFO, "Call Acc. VC:%d", vc);
+	    col_add_fstr(fd, COL_INFO, "%s VC:%d",
+		    (fd->flags & FROM_DCE) ? "Call conn."
+			                   : "Call acc." ,
+		    vc);
 	if (x25_tree)
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
-				       "CALL ACC", "CALL ACCEPTED");
+		    "CALL ACC",
+		    (fd->flags & FROM_DCE) ? "Call connected"
+		                           : "Call accepted");
 	localoffset += 3;
-	x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd);
+	x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd, toa);
 
 	if (localoffset < x25_pkt_len+2) /* facilities */
 	    dump_facilities(x25_tree, &localoffset, &pd[localoffset]);
@@ -770,28 +1096,42 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	break;
     case X25_CLEAR_REQUEST:
 	if(check_col(fd, COL_INFO)) {
-	    col_add_fstr(fd, COL_INFO, "Clear Req. VC:%d %s - Diag.:%d",
+	    col_add_fstr(fd, COL_INFO, "%s VC:%d %s - %s",
+		    (fd->flags & FROM_DCE) ? "Clear ind."
+			                   : "Clear req." ,
 		    vc, clear_code(pd[localoffset+3]),
-		    (int)pd[localoffset+4]);
+		    clear_diag(pd[localoffset+4]));
 	}
 	x25_hash_add_proto_end(vc, fd->abs_secs, fd->abs_usecs);
 	if (x25_tree) {
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
-				       "CLEAR REQ", "CLEAR REQUEST");
+		    "CLEAR",
+		    (fd->flags & FROM_DCE) ? "Clear indication"
+		                           : "Clear request");
 	    proto_tree_add_text(x25_tree, localoffset+3, 1,
 				"Cause : %s", clear_code(pd[localoffset+3]));
 	    proto_tree_add_text(x25_tree, localoffset+4, 1,
-				"Diagnostic : %d", (int)pd[localoffset+4]);
+				"Diagnostic : %s",
+				clear_diag(pd[localoffset+4]));
 	}
 	localoffset += x25_pkt_len;
 	break;
     case X25_CLEAR_CONFIRMATION:
+	if (pd[localoffset+2] & 0x80) /* TOA/NPI address format */
+	    toa = TRUE;
+
 	if(check_col(fd, COL_INFO))
 	    col_add_fstr(fd, COL_INFO, "Clear Conf. VC:%d", vc);
 	if (x25_tree)
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
-				       "CLEAR CONF", "CLEAR CONFIRMATION");
+				       "CLEAR CONF", "Clear confirmation");
 	localoffset += x25_pkt_len;
+
+	if (localoffset < fd->cap_len) /* extended clear conf format */
+	    x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd, toa);
+
+	if (localoffset < fd->cap_len) /* facilities */
+	    dump_facilities(x25_tree, &localoffset, &pd[localoffset]);
 	break;
     case X25_DIAGNOSTIC:
 	if(check_col(fd, COL_INFO)) {
@@ -800,7 +1140,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	}
 	if (x25_tree) {
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
-				       "DIAG", "DIAGNOSTIC");
+				       "DIAG", "Diagnostic");
 	    proto_tree_add_text(x25_tree, localoffset+3, 1,
 				"Diagnostic : %d", (int)pd[localoffset+3]);
 	}
@@ -811,7 +1151,7 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    col_add_fstr(fd, COL_INFO, "Interrupt VC:%d", vc);
 	if (x25_tree)
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
-				       "INTR", "INTERRUPT");
+				       "INTR", "Interrupt");
 	localoffset += x25_pkt_len;
 	break;
     case X25_INTERRUPT_CONFIRMATION:
@@ -819,19 +1159,23 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	    col_add_fstr(fd, COL_INFO, "Interrupt Conf. VC:%d", vc);
 	if (x25_tree)
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
-				       "INTR CONF", "INTERRUPT CONFIRMATION");
+				       "INTR CONF", "Interrupt confirmation");
 	localoffset += x25_pkt_len;
 	break;
     case X25_RESET_REQUEST:
 	if(check_col(fd, COL_INFO)) {
-	    col_add_fstr(fd, COL_INFO, "Reset Req. VC:%d %s - Diag.:%d",
+	    col_add_fstr(fd, COL_INFO, "%s VC:%d %s - Diag.:%d",
+		    (fd->flags & FROM_DCE) ? "Reset ind."
+		                           : "Reset req.",
 		    vc, reset_code(pd[localoffset+3]),
 		    (int)pd[localoffset+4]);
 	}
 	x25_hash_add_proto_end(vc, fd->abs_secs, fd->abs_usecs);
 	if (x25_tree) {
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
-				       "RESET REQ", "RESET REQUEST");
+		    "RESET",
+		    (fd->flags & FROM_DCE) ? "Reset indication"
+                                           : "Reset request");
 	    proto_tree_add_text(x25_tree, localoffset+3, 1,
 				"Cause : %s", reset_code(pd[localoffset+3]));
 	    proto_tree_add_text(x25_tree, localoffset+4, 1,
@@ -841,22 +1185,26 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	break;
     case X25_RESET_CONFIRMATION:
 	if(check_col(fd, COL_INFO))
-	    col_add_fstr(fd, COL_INFO, "Reset Conf. VC:%d", vc);
+	    col_add_fstr(fd, COL_INFO, "Reset conf. VC:%d", vc);
 	if (x25_tree)
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
-				       "RESET CONF", "RESET CONFIRMATION");
+				       "RESET CONF", "Reset confirmation");
 	localoffset += x25_pkt_len;
 	break;
     case X25_RESTART_REQUEST:
 	if(check_col(fd, COL_INFO)) {
-	    col_add_fstr(fd, COL_INFO, "Restart Req. VC:%d %s - Diag.:%d",
+	    col_add_fstr(fd, COL_INFO, "%s VC:%d %s - Diag.:%d",
+		    (fd->flags & FROM_DCE) ? "Restart ind."
+		                           : "Restart req.",
 		    vc, restart_code(pd[localoffset+3]),
 		    (int)pd[localoffset+4]);
 	}
 	x25_hash_add_proto_end(vc, fd->abs_secs, fd->abs_usecs);
 	if (x25_tree) {
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
-				       "RESTART REQ", "RESTART REQUEST");
+		    "RESTART",
+		    (fd->flags & FROM_DCE) ? "Restart indication"
+		                           : "Restart request");
 	    proto_tree_add_text(x25_tree, localoffset+3, 1,
 				"Cause : %s", restart_code(pd[localoffset+3]));
 	    proto_tree_add_text(x25_tree, localoffset+4, 1,
@@ -866,99 +1214,173 @@ dissect_x25(const u_char *pd, int offset, frame_data *fd, proto_tree *tree)
 	break;
     case X25_RESTART_CONFIRMATION:
 	if(check_col(fd, COL_INFO))
-	    col_add_fstr(fd, COL_INFO, "Restart Conf. VC:%d", vc);
+	    col_add_fstr(fd, COL_INFO, "Restart conf. VC:%d", vc);
 	if (x25_tree)
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
-				       "RESTART CONF", "RESTART CONFIRMATION");
+				       "RESTART CONF", "Restart confirmation");
 	localoffset += x25_pkt_len;
 	break;
     case X25_REGISTRATION_REQUEST:
 	if(check_col(fd, COL_INFO))
-	    col_add_fstr(fd, COL_INFO, "Registration Req. VC:%d", vc);
+	    col_add_fstr(fd, COL_INFO, "Registration req. VC:%d", vc);
 	if (x25_tree)
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
-				       "REG REQ", "REGISTRATION REQUEST");
-	localoffset += x25_pkt_len;
+				       "REG REQ", "Registration request");
+	localoffset += 3;
+	x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd, FALSE);
+
+	if (x25_tree) {
+	    proto_tree_add_text(x25_tree, localoffset, 1,
+		    "Registration length: %d", pd[localoffset] & 0x7F);
+	    proto_tree_add_text(x25_tree, localoffset+1,
+		    pd[localoffset] & 0x7F, "Registration");
+	}
 	break;
     case X25_REGISTRATION_CONFIRMATION:
 	if(check_col(fd, COL_INFO))
-	    col_add_fstr(fd, COL_INFO, "Registration Conf. VC:%d", vc);
-	if (x25_tree)
+	    col_add_fstr(fd, COL_INFO, "Registration conf. VC:%d", vc);
+	if (x25_tree) {
 	    proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset+2, 1,
-				       "REG CONF", "REGISTRATION CONFIRMATION");
-	localoffset += x25_pkt_len;
+				       "REG CONF", "Registration confirmation");
+	    proto_tree_add_text(x25_tree, localoffset+3, 1,
+		    "Cause: %s", registration_code(pd[localoffset+3]));
+	    proto_tree_add_text(x25_tree, localoffset+4, 1,
+		    "Diagnostic: %s", registration_code(pd[localoffset+4]));
+	}
+	localoffset += 5;
+	x25_ntoa(x25_tree, &localoffset, &pd[localoffset], fd, TRUE);
+
+	if (x25_tree) {
+	    proto_tree_add_text(x25_tree, localoffset, 1,
+		    "Registration length: %d", pd[localoffset] & 0x7F);
+	    proto_tree_add_text(x25_tree, localoffset+1,
+		    pd[localoffset] & 0x7F, "Registration");
+	}
 	break;
     default :
 	localoffset += 2;
 	if ((pd[localoffset] & 0x01) == X25_DATA)
 	{
 	    if(check_col(fd, COL_INFO)) {
-		col_add_fstr(fd, COL_INFO, "Data VC:%d P(S):%d P(R):%d %s", vc,
-			     (pd[localoffset] >> 1) & 0x07,
-			     (pd[localoffset] >> 5) & 0x07,
-			     ((pd[localoffset]>>4) & 0x01) ? " M" : "");
+		if (modulo == 8)
+		    col_add_fstr(fd, COL_INFO,
+			    "Data VC:%d P(S):%d P(R):%d %s", vc,
+			    (pd[localoffset] >> 1) & 0x07,
+			    (pd[localoffset] >> 5) & 0x07,
+			    ((pd[localoffset]>>4) & 0x01) ? " M" : "");
+		else
+		    col_add_fstr(fd, COL_INFO,
+			    "Data VC:%d P(S):%d P(R):%d %s", vc,
+			    pd[localoffset+1] >> 1,
+			    pd[localoffset] >> 1,
+			    (pd[localoffset+1] & 0x01) ? " M" : "");
 	    }
 	    if (x25_tree) {
 		proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset,
-					   1, "DATA",
-					   "Packet type identifier : 0x%02X",
-					   pd[localoffset]);
-		proto_tree_add_text(x25_tree, localoffset, 1,
-				    "              %d%d%d..... : P(R) = %d",
-				    (pd[localoffset] >> 7) & 0x01,
-				    (pd[localoffset] >> 6) & 0x01,
-				    (pd[localoffset] >> 5) & 0x01,
-				    (pd[localoffset] >> 5) & 0x07);
-		proto_tree_add_text(x25_tree, localoffset, 1,
-				    "              ...%d.... : More bit",
-				    (pd[localoffset] >> 4) & 0x01);
-		proto_tree_add_text(x25_tree, localoffset, 1,
-				    "              ....%d%d%d. : P(S) = %d",
-				    (pd[localoffset] >> 3) & 0x01,
-				    (pd[localoffset] >> 2) & 0x01,
-				    (pd[localoffset] >> 1) & 0x01,
-				    (pd[localoffset] >> 1) & 0x07);
-		proto_tree_add_text(x25_tree, localoffset, 1,
-				    "              .......0 : Packet type id = DATA");
+					   1, "DATA", "Data");
+		if (modulo == 8) {
+		    proto_tree_add_text(x25_tree, localoffset, 1,
+			    "              %d%d%d..... : P(R) = %d",
+			    (pd[localoffset] >> 7) & 0x01,
+			    (pd[localoffset] >> 6) & 0x01,
+			    (pd[localoffset] >> 5) & 0x01,
+			    (pd[localoffset] >> 5) & 0x07);
+		    proto_tree_add_text(x25_tree, localoffset, 1,
+			    "              ...%d.... : More bit",
+			    (pd[localoffset] >> 4) & 0x01);
+		    proto_tree_add_text(x25_tree, localoffset, 1,
+			    "              ....%d%d%d. : P(S) = %d",
+			    (pd[localoffset] >> 3) & 0x01,
+			    (pd[localoffset] >> 2) & 0x01,
+			    (pd[localoffset] >> 1) & 0x01,
+			    (pd[localoffset] >> 1) & 0x07);
+		    proto_tree_add_text(x25_tree, localoffset, 1,
+			    "              .......0 : Packet type id = DATA");
+		}
+		else {
+		    proto_tree_add_text(x25_tree, localoffset+1, 1,
+			    "              %d%d%d%d%d%d%d. : P(S) = %d",
+			    (pd[localoffset+1] >> 7) & 0x01,
+			    (pd[localoffset+1] >> 6) & 0x01,
+			    (pd[localoffset+1] >> 5) & 0x01,
+			    (pd[localoffset+1] >> 4) & 0x01,
+			    (pd[localoffset+1] >> 3) & 0x01,
+			    (pd[localoffset+1] >> 2) & 0x01,
+			    (pd[localoffset+1] >> 1) & 0x01,
+			    pd[localoffset+1] >> 1);
+		    proto_tree_add_text(x25_tree, localoffset, 1,
+			    "              .......%d : More bit",
+			    pd[localoffset+1] & 0x01);
+		}
 	    }
-	    localoffset++;
+	    localoffset += (modulo == 8) ? 1 : 2;
 	    break;
 	}
 	switch (pd[localoffset] & 0x1F)
 	{
 	case X25_RR:
 	    if(check_col(fd, COL_INFO)) {
-		col_add_fstr(fd, COL_INFO, "RR VC:%d P(R):%d",
-			     vc, (pd[localoffset] >> 5) & 0x07);
+		if (modulo == 8)
+		    col_add_fstr(fd, COL_INFO, "RR VC:%d P(R):%d",
+			    vc, (pd[localoffset] >> 5) & 0x07);
+		else
+		    col_add_fstr(fd, COL_INFO, "RR VC:%d P(R):%d",
+			    vc, pd[localoffset+1] >> 1);
 	    }
-	    if (x25_tree)
-		proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset,
-					   1, "RR", "RR P(R):%d",
-					   (pd[localoffset] >> 5) & 0x07);
+	    if (x25_tree) {
+		if (modulo == 8)
+		    proto_tree_add_item_format(x25_tree, hf_x25_type,
+			    localoffset, 1, "RR", "RR P(R):%d",
+			    (pd[localoffset] >> 5) & 0x07);
+		else
+		    proto_tree_add_item_format(x25_tree, hf_x25_type,
+			    localoffset, 2, "RR", "RR P(R):%d",
+			    pd[localoffset+1] >> 1);
+	    }
 	    break;
 
 	case X25_RNR:
 	    if(check_col(fd, COL_INFO)) {
-		col_add_fstr(fd, COL_INFO, "RNR VC:%d P(R):%d",
-			     vc, (pd[localoffset] >> 5) & 0x07);
+		if (modulo == 8)
+		    col_add_fstr(fd, COL_INFO, "RNR VC:%d P(R):%d",
+			    vc, (pd[localoffset] >> 5) & 0x07);
+		else
+		    col_add_fstr(fd, COL_INFO, "RNR VC:%d P(R):%d",
+			    vc, pd[localoffset+1] >> 1);
 	    }
-	    if (x25_tree)
-		proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset,
-					   1, "RNR", "RNR P(R):%d",
-					   (pd[localoffset] >> 5) & 0x07);
+	    if (x25_tree) {
+		if (modulo == 8)
+		    proto_tree_add_item_format(x25_tree, hf_x25_type,
+			    localoffset, 1, "RNR", "RNR P(R):%d",
+			    (pd[localoffset] >> 5) & 0x07);
+		else
+		    proto_tree_add_item_format(x25_tree, hf_x25_type,
+			    localoffset, 2, "RNR", "RNR P(R):%d",
+			    pd[localoffset+1] >> 1);
+	    }
 	    break;
 
 	case X25_REJ:
 	    if(check_col(fd, COL_INFO)) {
-		col_add_fstr(fd, COL_INFO, "REJ VC:%d P(R):%d",
-			     vc, (pd[localoffset] >> 5) & 0x07);
+		if (modulo == 8)
+		    col_add_fstr(fd, COL_INFO, "REJ VC:%d P(R):%d",
+			    vc, (pd[localoffset] >> 5) & 0x07);
+		else
+		    col_add_fstr(fd, COL_INFO, "REJ VC:%d P(R):%d",
+			    vc, pd[localoffset+1] >> 1);
 	    }
-	    if (x25_tree)
-		proto_tree_add_item_format(x25_tree, hf_x25_type, localoffset,
-					   1, "REJ", "REJ P(R):%d",
-					   (pd[localoffset] >> 5) & 0x07);
+	    if (x25_tree) {
+		if (modulo == 8)
+		    proto_tree_add_item_format(x25_tree, hf_x25_type,
+			    localoffset, 1, "REJ", "REJ P(R):%d",
+			    (pd[localoffset] >> 5) & 0x07);
+		else
+		    proto_tree_add_item_format(x25_tree, hf_x25_type,
+			    localoffset, 2, "REJ", "REJ P(R):%d",
+			    pd[localoffset+1] >> 1);
+	    }
 	}
-	localoffset++;
+	localoffset += (modulo == 8) ? 1 : 2;
     }
 
     if (localoffset >= fd->cap_len) return;
