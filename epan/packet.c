@@ -1,7 +1,7 @@
 /* packet.c
  * Routines for packet disassembly
  *
- * $Id: packet.c,v 1.44 2001/11/29 09:05:25 guy Exp $
+ * $Id: packet.c,v 1.45 2001/12/03 01:20:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -441,12 +441,10 @@ typedef struct dissector_foreach_info {
 } dissector_foreach_info_t;
 
 /*
- * Walk all dissector tables calling a user supplied function on each
- * entry.  These three routines handle traversing the hash of hashes
- * that is the dissector tables.
+ * Called for each entry in a dissector table.
  */
 static void
-dissector_all_tables_foreach_func2 (gpointer key, gpointer value, gpointer user_data)
+dissector_table_foreach_func (gpointer key, gpointer value, gpointer user_data)
 {
 	dissector_foreach_info_t *info;
 	dtbl_entry_t *dtbl_entry;
@@ -463,8 +461,11 @@ dissector_all_tables_foreach_func2 (gpointer key, gpointer value, gpointer user_
 	info->caller_func(info->table_name, key, value, info->caller_data);
 }
 
+/*
+ * Called for each entry in the table of all dissector tables.
+ */
 static void
-dissector_all_tables_foreach_func1 (gpointer key, gpointer value, gpointer user_data)
+dissector_all_tables_foreach_func (gpointer key, gpointer value, gpointer user_data)
 {
 	GHashTable   *hash_table;
 	dissector_foreach_info_t *info;
@@ -478,6 +479,10 @@ dissector_all_tables_foreach_func1 (gpointer key, gpointer value, gpointer user_
 	g_hash_table_foreach(hash_table, info->next_func, info);
 }
 
+/*
+ * Walk all dissector tables calling a user supplied function on each
+ * entry.
+ */
 void
 dissector_all_tables_foreach (DATFunc func,
 			      gpointer user_data)
@@ -486,8 +491,8 @@ dissector_all_tables_foreach (DATFunc func,
 
 	info.caller_data = user_data;
 	info.caller_func = func;
-	info.next_func = dissector_all_tables_foreach_func2;
-	g_hash_table_foreach(dissector_tables, dissector_all_tables_foreach_func1, &info);
+	info.next_func = dissector_table_foreach_func;
+	g_hash_table_foreach(dissector_tables, dissector_all_tables_foreach_func, &info);
 }
 
 /*
@@ -508,17 +513,14 @@ dissector_table_foreach (char *name,
 	info.table_name = name;
 	info.caller_func = func;
 	info.caller_data = user_data;
-	g_hash_table_foreach(hash_table, dissector_all_tables_foreach_func2, &info);
+	g_hash_table_foreach(hash_table, dissector_table_foreach_func, &info);
 }
 
 /*
- * Walk all dissector tables calling a user supplied function only on
- * any entry that has been changed from its original state.  These two
- * routines (plus one above) handle traversing the hash of hashes that
- * is the dissector tables.
+ * Called for each entry in a dissector table.
  */
 static void
-dissector_all_tables_foreach_changed_func2 (gpointer key, gpointer value, gpointer user_data)
+dissector_table_foreach_changed_func (gpointer key, gpointer value, gpointer user_data)
 {
 	dtbl_entry_t *dtbl_entry;
 	dissector_foreach_info_t *info;
@@ -528,13 +530,20 @@ dissector_all_tables_foreach_changed_func2 (gpointer key, gpointer value, gpoint
 
 	dtbl_entry = value;
 	if (dtbl_entry->initial.proto_index == dtbl_entry->current.proto_index) {
-	    return;
+		/*
+		 * Entry hasn't changed - don't call the function.
+		 */
+		return;
 	}
 
 	info = user_data;
 	info->caller_func(info->table_name, key, value, info->caller_data);
 }
 
+/*
+ * Walk all dissector tables calling a user supplied function only on
+ * any entry that has been changed from its original state.
+ */
 void
 dissector_all_tables_foreach_changed (DATFunc func,
 				      gpointer user_data)
@@ -543,8 +552,8 @@ dissector_all_tables_foreach_changed (DATFunc func,
 
 	info.caller_data = user_data;
 	info.caller_func = func;
-	info.next_func = dissector_all_tables_foreach_changed_func2;
-	g_hash_table_foreach(dissector_tables, dissector_all_tables_foreach_func1, &info);
+	info.next_func = dissector_table_foreach_changed_func;
+	g_hash_table_foreach(dissector_tables, dissector_all_tables_foreach_func, &info);
 }
 
 /*
@@ -565,7 +574,7 @@ dissector_table_foreach_changed (char *name,
 	info.table_name = name;
 	info.caller_func = func;
 	info.caller_data = user_data;
-	g_hash_table_foreach(hash_table, dissector_all_tables_foreach_changed_func2, &info);
+	g_hash_table_foreach(hash_table, dissector_table_foreach_changed_func, &info);
 }
 
 dissector_table_t
