@@ -4,7 +4,7 @@
  * Laurent Deniel <deniel@worldnet.fr>
  * Craig Rodrigues <rodrigc@mediaone.net>
  *
- * $Id: packet-giop.c,v 1.30 2001/01/22 08:03:45 guy Exp $
+ * $Id: packet-giop.c,v 1.31 2001/02/26 22:19:12 oabad Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -242,9 +242,9 @@ typedef enum LocateStatusType
   UNKNOWN_OBJECT,
   OBJECT_HERE,
   OBJECT_FORWARD,
-  OBJECT_FORWARD_PERM,      // new value for GIOP 1.2
-  LOC_SYSTEM_EXCEPTION,     // new value for GIOP 1.2
-  LOC_NEEDS_ADDRESSING_MODE // new value for GIOP 1.2
+  OBJECT_FORWARD_PERM,      /* new value for GIOP 1.2 */
+  LOC_SYSTEM_EXCEPTION,     /* new value for GIOP 1.2 */
+  LOC_NEEDS_ADDRESSING_MODE /* new value for GIOP 1.2 */
 }
 LocateStatusType;
 
@@ -419,7 +419,7 @@ dissect_target_address(tvbuff_t * tvb, int *offset, proto_tree * sub_tree,
   
    switch (discriminant)
    {
-	   case 0:  // KeyAddr
+	   case 0:  /* KeyAddr */
 		   len = get_CDR_ulong(tvb, offset, stream_is_big_endian);
 		   get_CDR_octet_seq(tvb, &object_key, offset, len);
                    printable_string( object_key, len );
@@ -1120,7 +1120,7 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
 	}
 
   }
-  else     // GIOP 1.2 and higher
+  else     /* GIOP 1.2 and higher */
   {
       dissect_target_address(tvb, &offset, locate_request_tree, header,
 			     stream_is_big_endian);
