@@ -1,6 +1,6 @@
 /* dftest.c.c
  *
- * $Id: dftest.c,v 1.5 2002/08/28 21:00:06 jmayer Exp $
+ * $Id: dftest.c,v 1.6 2003/08/18 18:35:21 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -65,7 +65,8 @@ main(int argc, char **argv)
 {
 	char		*text;
 	char		*gpf_path, *pf_path;
-	int		gpf_open_errno, pf_open_errno;
+	int		gpf_open_errno, gpf_read_errno;
+	int		pf_open_errno, pf_read_errno;
 	e_prefs		*prefs;
 	dfilter_t	*df;
 
@@ -83,14 +84,31 @@ main(int argc, char **argv)
 	/* set the c-language locale to the native environment. */
 	setlocale(LC_ALL, "");
 
-	prefs = read_prefs(&gpf_open_errno, &gpf_path, &pf_open_errno, &pf_path);
+	prefs = read_prefs(&gpf_open_errno, &gpf_read_errno, &gpf_path,
+	    &pf_open_errno, &pf_read_errno, &pf_path);
 	if (gpf_path != NULL) {
-		fprintf(stderr, "can't open global preferences file \"%s\": %s.\n",
-				pf_path, strerror(gpf_open_errno));
+		if (gpf_open_errno != 0) {
+			fprintf(stderr,
+			    "can't open global preferences file \"%s\": %s.\n",
+			    pf_path, strerror(gpf_open_errno));
+		}
+		if (gpf_read_errno != 0) {
+			fprintf(stderr,
+			    "I/O error reading global preferences file \"%s\": %s.\n",
+			    pf_path, strerror(gpf_read_errno));
+		}
 	}
 	if (pf_path != NULL) {
-		fprintf(stderr, "can't open your preferences file \"%s\": %s.\n",
-				pf_path, strerror(pf_open_errno));
+		if (pf_open_errno != 0) {
+			fprintf(stderr,
+			    "can't open your preferences file \"%s\": %s.\n",
+			    pf_path, strerror(pf_open_errno));
+		}
+		if (pf_read_errno != 0) {
+			fprintf(stderr,
+			    "I/O error reading your preferences file \"%s\": %s.\n",
+			    pf_path, strerror(pf_read_errno));
+		}
 	}
 
 	/* notify all registered modules that have had any of their preferences
