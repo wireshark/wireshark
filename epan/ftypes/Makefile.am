@@ -1,6 +1,6 @@
 # Makefile.am
 #
-# $Id: Makefile.am,v 1.2 2001/02/01 20:31:21 gram Exp $
+# $Id: Makefile.am,v 1.3 2001/02/02 04:03:41 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -46,6 +46,6 @@ libftypes_a_SOURCES =	\
 	ftype-time.c	\
 	ftype-tvbuff.c
 
-#EXTRA_DIST = \
-#	Makefile.nmake
+EXTRA_DIST = \
+	Makefile.nmake
 

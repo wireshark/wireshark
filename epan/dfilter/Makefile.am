@@ -1,6 +1,6 @@
 # Makefile.am
 #
-# $Id: Makefile.am,v 1.2 2001/02/01 20:31:18 gram Exp $
+# $Id: Makefile.am,v 1.3 2001/02/02 04:03:40 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -58,14 +58,14 @@ libdfilter_a_SOURCES = \
 	syntax-tree.c		\
 	syntax-tree.h
 
-#	Makefile.nmake		
 EXTRA_DIST = \
 	grammar.lemon		\
 	lemonflex-head.inc	\
 	lemonflex-tail.inc	\
 	lemon.c			\
 	lempar.c		\
-	scanner.l
+	scanner.l		\
+	Makefile.nmake		
 
 scanner.c : scanner.l
 	$(LEX) -Pdf_ -oscanner.c $(srcdir)/scanner.l

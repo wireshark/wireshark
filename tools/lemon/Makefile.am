@@ -1,6 +1,6 @@
 # Makefile.am
 #
-# $Id: Makefile.am,v 1.1 2001/02/01 20:21:24 gram Exp $
+# $Id: Makefile.am,v 1.2 2001/02/02 04:03:43 gram Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@zing.org>
@@ -34,11 +34,11 @@ CLEANFILES = \
 lemon_SOURCES = \
 	lemon.c
 
-#	Makefile.nmake		
 EXTRA_DIST = \
 	lemon.html		\
 	lemonflex-head.inc	\
 	lemonflex-tail.inc	\
 	lempar.c		\
+	Makefile.nmake		\
 	README
 

@@ -1,0 +1,13 @@
+
+all: lemon
+
+
+clean:
+	cd lemon
+	nmake -f Makefile.nmake clean
+
+
+lemon::
+	cd lemon
+	nmake -f Makefile.nmake
+	cd ..

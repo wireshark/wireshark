@@ -1,7 +1,7 @@
 ## Makefile for building ethereal.exe with Microsoft C and nmake
 ## Use: nmake -f makefile.nmake
 #
-# $Id: Makefile.nmake,v 1.77 2001/01/28 04:43:24 guy Exp $
+# $Id: Makefile.nmake,v 1.78 2001/02/02 04:03:37 gram Exp $
 
 include config.nmake
 
@@ -212,6 +212,7 @@ EXTRA_OBJECTS = \
 	mkstemp.obj
 
 ethereal_LIBS= wiretap\libwtap.lib gtk\libui.lib epan\ethereal.lib \
+	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	wsock32.lib user32.lib \
 	$(GTK_DIR)\gtk\gtk-$(GTK_VERSION).lib \
 	$(GTK_DIR)\gdk\gdk-$(GTK_VERSION).lib \
@@ -220,6 +221,7 @@ ethereal_LIBS= wiretap\libwtap.lib gtk\libui.lib epan\ethereal.lib \
 	$(PCAP_DIR)\lib\libpcap.lib
 
 tethereal_LIBS= wiretap\libwtap.lib epan\ethereal.lib \
+	epan\dfilter\dfilter.lib epan\ftypes\ftypes.lib \
 	wsock32.lib user32.lib \
 	$(GLIB_DIR)\glib-$(GLIB_VERSION).lib \
 	$(GLIB_DIR)\gmodule\gmodule-$(GLIB_VERSION).lib \
@@ -233,7 +235,7 @@ EXECUTABLES=ethereal.exe tethereal.exe editcap.exe
 
 RESOURCES=image\ethereal.res image\tethereal.res image\editcap.res
 
-all: wiretap gtk epan $(EXECUTABLES) $(RESOURCES)
+all: tools wiretap gtk epan $(EXECUTABLES) $(RESOURCES)
 
 ethereal.exe	: config.h $(ethereal_OBJECTS) $(EXTRA_OBJECTS) image\ethereal.res wiretap\libwtap.lib gtk\libui.lib plugins
 	@echo Linking $@
@@ -272,8 +274,7 @@ register.c: $(DISSECTOR_SOURCES)
 
 clean:
 	rm -f $(ethereal_OBJECTS) $(EXTRA_OBJECTS) $(EXECUTABLES) \
-		tethereal.obj editcap.obj register.c dfilter-scanner.c \
-		dfilter-grammar.c dfilter-grammar.h rdps.obj
+		tethereal.obj editcap.obj register.c rdps.obj
 	cd wiretap
 	nmake -f Makefile.nmake clean
 	cd ../gtk
@@ -282,6 +283,13 @@ clean:
 	nmake -f Makefile.nmake clean
 	cd ../plugins
 	nmake -f Makefile.nmake clean
+	cd ../tools
+	nmake -f Makefile.nmake clean
+	cd ..
+
+tools::
+	cd tools
+	nmake -f Makefile.nmake
 	cd ..
 
 wiretap::
@@ -303,4 +311,3 @@ plugins::
 	cd plugins
 	nmake -f Makefile.nmake
 	cd ..
-

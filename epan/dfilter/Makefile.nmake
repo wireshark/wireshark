@@ -1,0 +1,48 @@
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+LEMON=..\..\tools\lemon
+
+CFLAGS=/MT /DHAVE_CONFIG_H /I. /I.. /I..\.. /I$(LEMON) \
+	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)\gmodule \
+	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
+	/I$(PCAP_DIR)\include $(LOCAL_CFLAGS)
+
+
+{$S}.c{$O}.obj::
+   $(CC) $(CFLAGS) -Fd$O\ -c $<
+
+
+OBJECTS = \
+	dfilter.obj		\
+	dfvm.obj		\
+	gencode.obj		\
+	glib-util.obj		\
+	grammar.obj		\
+	scanner.obj		\
+	semcheck.obj		\
+	sttype-pointer.obj	\
+	sttype-range.obj	\
+	sttype-string.obj	\
+	sttype-test.obj		\
+	syntax-tree.obj
+
+
+dfilter.lib	: $(OBJECTS)
+	lib /out:dfilter.lib $(OBJECTS)
+
+
+clean:
+	rm -f $(OBJECTS) scanner.c grammar.c grammar.h grammar.out dfilter.lib
+
+
+
+scanner.c : scanner.l
+	$(LEX) -Pdf_ -oscanner.c scanner.l
+
+scanner.obj : scanner.c grammar.h
+
+grammar.c grammar.h : grammar.lemon
+	$(LEMON)\lemon.exe t=$(LEMON)\lempar.c grammar.lemon 
+

@@ -1,0 +1,33 @@
+include ..\..\config.nmake
+
+############### no need to modify below this line #########
+
+CFLAGS=/MT /DHAVE_CONFIG_H /I. /I.. /I../.. \
+	/I$(GLIB_DIR) /I$(GTK_DIR) /I$(GLIB_DIR)/gmodule \
+	/I$(GTK_DIR)\gdk /I$(GTK_DIR)\gdk\win32 \
+	/I$(PCAP_DIR)\include $(LOCAL_CFLAGS)
+
+
+{$S}.c{$O}.obj::
+   $(CC) $(CFLAGS) -Fd$O\ -c $<
+
+
+OBJECTS = \
+	ftypes.obj		\
+	ftype-bytes.obj		\
+	ftype-double.obj	\
+	ftype-integer.obj	\
+	ftype-ipv4.obj		\
+	ftype-none.obj		\
+	ftype-string.obj	\
+	ftype-time.obj		\
+	ftype-tvbuff.obj
+
+
+ftypes.lib	: $(OBJECTS)
+	lib /out:ftypes.lib $(OBJECTS)
+
+
+clean:
+	rm -f $(OBJECTS) ftypes.lib
+

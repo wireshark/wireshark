@@ -1,0 +1,9 @@
+
+all : lemon.exe
+
+OBJECTS = lemon.obj
+
+lemon.exe	: $(OBJECTS)
+
+clean:
+	rm $(OBJECTS) lemon.exe

@@ -18,9 +18,6 @@ libethereal_LIBS = \
 
 OBJECTS=bitswap.obj	\
 	conversation.obj \
-	dfilter-grammar.obj \
-	dfilter-scanner.obj \
-	dfilter.obj      \
 	epan.obj         \
 	except.obj       \
 	filesystem.obj   \
@@ -35,6 +32,9 @@ OBJECTS=bitswap.obj	\
 	strutil.obj      \
 	tvbuff.obj       \
 
+
+all: ftypes dfilter ethereal.lib
+
 # For use when making ethereal.dll
 #ethereal.dll ethereal.lib	: config.h $(OBJECTS)
 #	link /DLL /out:ethereal.dll $(OBJECTS) $(libethereal_LIBS)
@@ -42,16 +42,23 @@ OBJECTS=bitswap.obj	\
 ethereal.lib	: config.h $(OBJECTS)
 	lib /out:ethereal.lib $(OBJECTS)
 
-dfilter-scanner.obj : dfilter-scanner.c dfilter-grammar.h
-
-dfilter-scanner.c : dfilter-scanner.l
-	$(LEX) -Pdfilter_ -odfilter-scanner.c dfilter-scanner.l
-
-dfilter-grammar.c dfilter-grammar.h : dfilter-grammar.y
-	$(YACC) $(YACC_OPTS) -d -p dfilter_ dfilter-grammar.y -o dfilter-grammar.c
-
 config.h	: config.h.win32
 	copy config.h.win32 $@
 
 clean:
 	rm -f $(OBJECTS) ethereal.lib
+	cd ftypes
+	nmake -f Makefile.nmake clean
+	cd ../dfilter
+	nmake -f Makefile.nmake clean
+
+
+ftypes::
+	cd ftypes
+	nmake -f Makefile.nmake
+	cd ..
+
+dfilter::
+	cd dfilter
+	nmake -f Makefile.nmake
+	cd ..
