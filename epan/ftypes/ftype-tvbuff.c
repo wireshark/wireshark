@@ -1,5 +1,5 @@
 /*
- * $Id: ftype-tvbuff.c,v 1.10 2003/08/27 15:23:08 gram Exp $
+ * $Id: ftype-tvbuff.c,v 1.11 2003/08/27 21:11:39 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,6 +25,7 @@
 #endif
 
 #include <ftypes-int.h>
+#include <string.h>
 #include <epan/gdebug.h>
 
 #define tvb_is_private	fvalue_gboolean1
