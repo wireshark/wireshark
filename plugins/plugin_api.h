@@ -60,6 +60,7 @@
 #include <epan/crc16.h>
 #include "epan/except.h"
 #include "epan/filesystem.h"
+#include "epan/dissectors/packet-dcerpc.h"
 
 #endif /* PLUGINS_NEED_ADDRESS_TABLE */
 

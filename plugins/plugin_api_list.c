@@ -33,6 +33,7 @@
 #include <epan/except.h>
 #include <epan/prefs.h>
 #include "reassemble.h"
+#include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-giop.h>
 #include <epan/dissectors/packet-per.h>
 #include <epan/dissectors/packet-ber.h>
@@ -507,3 +508,20 @@ header_field_info* proto_registrar_get_byname(const char *field_name);
 double fvalue_get_floating(fvalue_t *fv);
 char *fvalue_to_string_repr(fvalue_t *fv, ftrepr_t rtype, char *buf);
 guint32 fvalue_get_integer(fvalue_t *fv);
+
+int dissect_dcerpc_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                          proto_tree *tree, guint8 *drep,
+                          int hfindex, guint8 *pdata);
+int dissect_dcerpc_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                           proto_tree *tree, guint8 *drep,
+                           int hfindex, guint16 *pdata);
+int dissect_dcerpc_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                           proto_tree *tree, guint8 *drep,
+                           int hfindex, guint32 *pdata);
+int dissect_dcerpc_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                           proto_tree *tree, char *drep,
+                           int hfindex, e_uuid_t *pdata);
+void dcerpc_init_uuid (int proto, int ett, e_uuid_t *uuid, guint16 ver, dcerpc_sub_dissector *procs, int opnum_hf);
+int dissect_ndr_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                        proto_tree *tree, guint8 *drep,
+                        int hfindex, guint32 *pdata);
