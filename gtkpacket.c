@@ -1,7 +1,7 @@
 /* gtkpacket.c
  * Routines for GTK+ packet display
  *
- * $Id: gtkpacket.c,v 1.4 1999/04/16 18:39:07 gram Exp $
+ * $Id: gtkpacket.c,v 1.5 1999/05/01 05:39:06 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -55,7 +55,7 @@ extern GtkWidget    *byte_view;
 extern GdkFont      *m_r_font, *m_b_font;
 
 void
-packet_hex_print(GtkText *bv, guchar *pd, gint len, gint bstart, gint blen) {
+packet_hex_print(GtkText *bv, guint8 *pd, gint len, gint bstart, gint blen) {
   gint     i = 0, j, k, cur;
   gchar    line[128], hexchars[] = "0123456789abcdef";
   GdkFont *cur_font, *new_font;
