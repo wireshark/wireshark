@@ -1,7 +1,7 @@
 /* packet-tns.c
  * Routines for Oracle TNS packet dissection
  *
- * $Id: packet-tns.c,v 1.20 2001/10/06 17:58:56 nneul Exp $
+ * $Id: packet-tns.c,v 1.21 2001/10/08 14:32:06 nneul Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -81,9 +81,23 @@ static int hf_tns_refuse_reason_system = -1;
 static int hf_tns_refuse_data_length = -1;
 static int hf_tns_refuse_data = -1;
 
+static int hf_tns_abort = -1;
+static int hf_tns_abort_reason_user = -1;
+static int hf_tns_abort_reason_system = -1;
+static int hf_tns_abort_data = -1;
+
+static int hf_tns_marker = -1;
+static int hf_tns_marker_type = -1;
+static int hf_tns_marker_data_byte = -1;
+static int hf_tns_marker_data = -1;
+
 static int hf_tns_redirect = -1;
 static int hf_tns_redirect_data_length = -1;
 static int hf_tns_redirect_data = -1;
+
+static int hf_tns_control = -1;
+static int hf_tns_control_cmd = -1;
+static int hf_tns_control_data = -1;
 
 static int hf_tns_data_flag = -1;
 static int hf_tns_data_flag_send = -1;
@@ -97,13 +111,15 @@ static int hf_tns_data_flag_rts = -1;
 static int hf_tns_data_flag_sntt = -1;
 static int hf_tns_data = -1;
 
-
-
 static gint ett_tns = -1;
 static gint ett_tns_connect = -1;
 static gint ett_tns_accept = -1;
 static gint ett_tns_refuse = -1;
+static gint ett_tns_abort = -1;
 static gint ett_tns_redirect = -1;
+static gint ett_tns_marker = -1;
+static gint ett_tns_attention = -1;
+static gint ett_tns_control = -1;
 static gint ett_tns_data = -1;
 static gint ett_tns_data_flag = -1;
 static gint ett_sql = -1;
@@ -123,6 +139,18 @@ static const value_string tns_type_vals[] = {
 	{TNS_TYPE_MARKER,    "Marker"},
 	{TNS_TYPE_ATTENTION, "Attention"},
 	{TNS_TYPE_CONTROL,   "Control"},
+	{0, NULL}
+};
+
+static const value_string tns_marker_types[] = {
+	{0, "Data Marker - 0 Data Bytes"},
+	{1, "Data Marker - 1 Data Bytes"},
+	{2, "Attention Marker"},
+	{0, NULL}
+};
+
+static const value_string tns_control_cmds[] = {
+	{1, "Oracle Trace Command"},
 	{0, NULL}
 };
 
@@ -306,16 +334,16 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( connect_tree )
 	{
 		proto_tree_add_uint(connect_tree, hf_tns_connect_flags0, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+			offset, 1, tvb_get_guint8(tvb, offset));
 	}
-	offset += 2;
+	offset += 1;
 
 	if ( connect_tree )
 	{
 		proto_tree_add_uint(connect_tree, hf_tns_connect_flags1, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+			offset, 1, tvb_get_guint8(tvb, offset));
 	}
-	offset += 2;
+	offset += 1;
 
 	if ( connect_tree )
 	{
@@ -425,16 +453,16 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( accept_tree )
 	{
 		proto_tree_add_uint(accept_tree, hf_tns_connect_flags0, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+			offset, 1, tvb_get_guint8(tvb, offset));
 	}
-	offset += 2;
+	offset += 1;
 
 	if ( accept_tree )
 	{
 		proto_tree_add_uint(accept_tree, hf_tns_connect_flags1, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+			offset, 1, tvb_get_guint8(tvb, offset));
 	}
-	offset += 2;
+	offset += 1;
 
 	if ( accept_tree && accept_len > 0)
 	{
@@ -455,7 +483,7 @@ static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( tree )
 	{
 		ti = proto_tree_add_text(tns_tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), "Accept");
+		    tvb_length_remaining(tvb, offset), "Refuse");
 		refuse_tree = proto_item_add_subtree(ti, ett_tns_refuse);
 
 		proto_tree_add_boolean_hidden(tns_tree, hf_tns_refuse, tvb,
@@ -470,16 +498,16 @@ static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( refuse_tree )
 	{
 		proto_tree_add_uint(refuse_tree, hf_tns_refuse_reason_user, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+			offset, 1, tvb_get_guint8(tvb, offset));
 	}
-	offset += 2;
+	offset += 1;
 
 	if ( refuse_tree )
 	{
 		proto_tree_add_uint(refuse_tree, hf_tns_refuse_reason_system, tvb,
-			offset, 2, tvb_get_ntohs(tvb, offset));
+			offset, 1, tvb_get_guint8(tvb, offset));
 	}
-	offset += 2;
+	offset += 1;
 
 	if ( refuse_tree )
 	{
@@ -497,6 +525,110 @@ static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return;
 }
 
+
+static void dissect_tns_abort(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree, proto_tree *tns_tree)
+{
+	proto_tree *abort_tree = NULL, *ti;
+
+	if ( tree )
+	{
+		ti = proto_tree_add_text(tns_tree, tvb, offset,
+		    tvb_length_remaining(tvb, offset), "Abort");
+		abort_tree = proto_item_add_subtree(ti, ett_tns_abort);
+
+		proto_tree_add_boolean_hidden(tns_tree, hf_tns_abort, tvb,
+		    0, 0, TRUE);
+	}
+		
+	if ( check_col(pinfo->fd, COL_INFO) )
+	{
+		col_append_str(pinfo->fd, COL_INFO, ", Abort");
+	}
+
+	if ( abort_tree )
+	{
+		proto_tree_add_uint(abort_tree, hf_tns_abort_reason_user, tvb,
+			offset, 1, tvb_get_guint8(tvb, offset));
+	}
+	offset += 1;
+
+	if ( abort_tree )
+	{
+		proto_tree_add_uint(abort_tree, hf_tns_abort_reason_system, tvb,
+			offset, 1, tvb_get_guint8(tvb, offset));
+	}
+	offset += 1;
+
+	if ( abort_tree )
+	{
+		proto_tree_add_string(abort_tree, hf_tns_abort_data, tvb,
+			offset, tvb_length_remaining(tvb,offset), 
+			tvb_get_ptr(tvb, offset, tvb_length_remaining(tvb,offset)));
+	}
+	return;
+}
+
+
+static void dissect_tns_marker(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree, proto_tree *tns_tree, int is_attention)
+{
+	proto_tree *marker_tree = NULL, *ti;
+
+	if ( tree )
+	{
+		if ( is_attention )
+		{
+			ti = proto_tree_add_text(tns_tree, tvb, offset,
+			    tvb_length_remaining(tvb, offset), "Marker");
+		}
+		else
+		{
+			ti = proto_tree_add_text(tns_tree, tvb, offset,
+			    tvb_length_remaining(tvb, offset), "Attention");
+		}
+
+		marker_tree = proto_item_add_subtree(ti, ett_tns_marker);
+		proto_tree_add_boolean_hidden(tns_tree, hf_tns_marker, tvb,
+		    0, 0, TRUE);
+	}
+		
+	if ( check_col(pinfo->fd, COL_INFO) )
+	{
+		if ( is_attention )
+		{
+			col_append_str(pinfo->fd, COL_INFO, ", Marker");
+		}
+		else
+		{
+			col_append_str(pinfo->fd, COL_INFO, ", Attention");
+		}
+	}
+
+	if ( marker_tree )
+	{
+		proto_tree_add_uint(marker_tree, hf_tns_marker_type, tvb,
+			offset, 1, tvb_get_guint8(tvb, offset));
+	}
+	offset += 1;
+
+	if ( marker_tree )
+	{
+		proto_tree_add_uint(marker_tree, hf_tns_marker_data_byte, tvb,
+			offset, 1, tvb_get_guint8(tvb, offset));
+	}
+	offset += 1;
+
+	if ( marker_tree )
+	{
+		proto_tree_add_uint(marker_tree, hf_tns_marker_data_byte, tvb,
+			offset, 1, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 1;
+
+	return;
+}
+
 static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, proto_tree *tns_tree)
 {
@@ -505,7 +637,7 @@ static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( tree )
 	{
 		ti = proto_tree_add_text(tns_tree, tvb, offset,
-		    tvb_length_remaining(tvb, offset), "Accept");
+		    tvb_length_remaining(tvb, offset), "Redirect");
 		redirect_tree = proto_item_add_subtree(ti, ett_tns_redirect);
 
 		proto_tree_add_boolean_hidden(tns_tree, hf_tns_redirect, tvb,
@@ -514,7 +646,7 @@ static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		
 	if ( check_col(pinfo->fd, COL_INFO) )
 	{
-		col_append_str(pinfo->fd, COL_INFO, ", redirect");
+		col_append_str(pinfo->fd, COL_INFO, ", Redirect");
 	}
 
 	if ( redirect_tree )
@@ -532,6 +664,43 @@ static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	return;
 }
+
+static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree, proto_tree *tns_tree)
+{
+	proto_tree *control_tree = NULL, *ti;
+
+	if ( tree )
+	{
+		ti = proto_tree_add_text(tns_tree, tvb, offset,
+		    tvb_length_remaining(tvb, offset), "Control");
+		control_tree = proto_item_add_subtree(ti, ett_tns_control);
+
+		proto_tree_add_boolean_hidden(tns_tree, hf_tns_control, tvb,
+		    0, 0, TRUE);
+	}
+		
+	if ( check_col(pinfo->fd, COL_INFO) )
+	{
+		col_append_str(pinfo->fd, COL_INFO, ", Control");
+	}
+
+	if ( control_tree )
+	{
+		proto_tree_add_uint(control_tree, hf_tns_control_cmd, tvb,
+			offset, 2, tvb_get_ntohs(tvb, offset));
+	}
+	offset += 2;
+
+	if ( control_tree )
+	{
+		proto_tree_add_string(control_tree, hf_tns_control_data, tvb,
+			offset, tvb_length(tvb)-offset, 
+			tvb_get_ptr(tvb, offset, tvb_length(tvb)-offset));
+	}
+	return;
+}
+
 
 
 static void
@@ -561,15 +730,11 @@ dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		{
 			proto_tree_add_boolean_hidden(tns_tree, hf_tns_request,
 			   tvb, offset, tvb_length(tvb), TRUE);
-			proto_tree_add_text(tns_tree, tvb, offset, 
-			    tvb_length(tvb), "Request: <opaque data>");
 		}
 		else
 		{
 			proto_tree_add_boolean_hidden(tns_tree, hf_tns_response,
 			    tvb, offset, tvb_length(tvb), TRUE);
-			proto_tree_add_text(tns_tree, tvb, offset,
-			    tvb_length(tvb), "Response: <opaque data>");
 		}
 	}
 
@@ -630,6 +795,18 @@ dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case TNS_TYPE_REDIRECT:
 			dissect_tns_redirect(tvb,offset,pinfo,tree,tns_tree);
 			break;
+		case TNS_TYPE_ABORT:
+			dissect_tns_abort(tvb,offset,pinfo,tree,tns_tree);
+			break;
+		case TNS_TYPE_MARKER:
+			dissect_tns_marker(tvb,offset,pinfo,tree,tns_tree, 0);
+			break;
+		case TNS_TYPE_ATTENTION:
+			dissect_tns_marker(tvb,offset,pinfo,tree,tns_tree, 1);
+			break;
+		case TNS_TYPE_CONTROL:
+			dissect_tns_control(tvb,offset,pinfo,tree,tns_tree);
+			break;
 		case TNS_TYPE_DATA:
 			dissect_tns_data(tvb,offset,pinfo,tree,tns_tree);
 			break;
@@ -641,22 +818,6 @@ dissect_tns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void proto_register_tns(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_tns_connect, { 
-			"Connect", "tns.connect", FT_BOOLEAN, BASE_NONE, 
-			NULL, 0x0, "Connect", HFILL }},
-		{ &hf_tns_accept, { 
-			"Accept", "tns.accept", FT_BOOLEAN, BASE_NONE, 
-			NULL, 0x0, "Accept", HFILL }},		
-		{ &hf_tns_refuse, { 
-			"Refuse", "tns.refuse", FT_BOOLEAN, BASE_NONE, 
-			NULL, 0x0, "Refuse", HFILL }},		
-		{ &hf_tns_redirect, { 
-			"Redirect", "tns.redirect", FT_BOOLEAN, BASE_NONE, 
-			NULL, 0x0, "Redirect", HFILL }},		
-		{ &hf_tns_data, { 
-			"Data", "tns.data", FT_BOOLEAN, BASE_NONE, 
-			NULL, 0x0, "Data", HFILL }},		
-
 		{ &hf_tns_response, { 
 			"Response", "tns.response", FT_BOOLEAN, BASE_NONE, 
 			NULL, 0x0, "TRUE if TNS response", HFILL }},
@@ -697,6 +858,10 @@ void proto_register_tns(void)
 		{ &hf_tns_value_of_one, { 	
 			"Value of 1 in Hardware", "tns.value_of_one", FT_BYTES, BASE_NONE, 
 			NULL, 0x0, "Value of 1 in Hardware", HFILL }},		
+
+		{ &hf_tns_connect, { 
+			"Connect", "tns.connect", FT_BOOLEAN, BASE_NONE, 
+			NULL, 0x0, "Connect", HFILL }},
 		{ &hf_tns_connect_data_length, { 	
 			"Length of Connect Data", "tns.connect_data_length", FT_UINT16, BASE_DEC, 
 			NULL, 0x0, "Length of Connect Data", HFILL }},
@@ -707,10 +872,10 @@ void proto_register_tns(void)
 			"Maximum Receivable Connect Data", "tns.connect_data_max", FT_UINT32, BASE_DEC, 
 			NULL, 0x0, "Maximum Receivable Connect Data", HFILL }},
 		{ &hf_tns_connect_flags0, { 	
-			"Connect Flags 0", "tns.connect_flags0", FT_UINT16, BASE_HEX, 
+			"Connect Flags 0", "tns.connect_flags0", FT_UINT8, BASE_HEX, 
 			NULL, 0x0, "Connect Flags 0", HFILL }},
 		{ &hf_tns_connect_flags1, { 	
-			"Connect Flags 1", "tns.connect_flags1", FT_UINT16, BASE_HEX, 
+			"Connect Flags 1", "tns.connect_flags1", FT_UINT8, BASE_HEX, 
 			NULL, 0x0, "Connect Flags 1", HFILL }},
 		{ &hf_tns_trace_cf1, { 	
 			"Trace Cross Facility Item 1", "tns.trace_cf1", FT_UINT16, BASE_HEX, 
@@ -725,6 +890,9 @@ void proto_register_tns(void)
 			"Connect Data", "tns.connect_data", FT_STRING, BASE_NONE, 
 			NULL, 0x0, "Connect Data", HFILL }},
 
+		{ &hf_tns_accept, { 
+			"Accept", "tns.accept", FT_BOOLEAN, BASE_NONE, 
+			NULL, 0x0, "Accept", HFILL }},		
 		{ &hf_tns_accept_data_length, { 	
 			"Accept Data Length", "tns.accept_data_length", FT_UINT16, BASE_HEX, 
 			NULL, 0x0, "Length of Accept Data", HFILL }},
@@ -736,11 +904,14 @@ void proto_register_tns(void)
 			NULL, 0x0, "Offset to Accept Data", HFILL }},
 
 
+		{ &hf_tns_refuse, { 
+			"Refuse", "tns.refuse", FT_BOOLEAN, BASE_NONE, 
+			NULL, 0x0, "Refuse", HFILL }},		
 		{ &hf_tns_refuse_reason_user, { 	
-			"Refuse Reason (User)", "tns.refuse_reason_user", FT_UINT16, BASE_HEX, 
+			"Refuse Reason (User)", "tns.refuse_reason_user", FT_UINT8, BASE_HEX, 
 			NULL, 0x0, "Refuse Reason from Application", HFILL }},
 		{ &hf_tns_refuse_reason_system, { 	
-			"Refuse Reason (User)", "tns.refuse_reason_system", FT_UINT16, BASE_HEX, 
+			"Refuse Reason (User)", "tns.refuse_reason_system", FT_UINT8, BASE_HEX, 
 			NULL, 0x0, "Refuse Reason from System", HFILL }},
 		{ &hf_tns_refuse_data_length, { 	
 			"Refuse Data Length", "tns.refuse_data_length", FT_UINT16, BASE_HEX, 
@@ -749,6 +920,45 @@ void proto_register_tns(void)
 			"Refuse Data", "tns.refuse_data", FT_STRING, BASE_NONE, 
 			NULL, 0x0, "Refuse Data", HFILL }},
 
+		{ &hf_tns_abort, { 
+			"Abort", "tns.abort", FT_BOOLEAN, BASE_NONE, 
+			NULL, 0x0, "Abort", HFILL }},		
+		{ &hf_tns_abort_reason_user, { 	
+			"Abort Reason (User)", "tns.abort_reason_user", FT_UINT8, BASE_HEX, 
+			NULL, 0x0, "Abort Reason from Application", HFILL }},
+		{ &hf_tns_abort_reason_system, { 	
+			"Abort Reason (User)", "tns.abort_reason_system", FT_UINT8, BASE_HEX, 
+			NULL, 0x0, "Abort Reason from System", HFILL }},
+		{ &hf_tns_abort_data, { 	
+			"Abort Data", "tns.abort_data", FT_STRING, BASE_NONE, 
+			NULL, 0x0, "Abort Data", HFILL }},
+
+		{ &hf_tns_marker, { 
+			"Marker", "tns.marker", FT_BOOLEAN, BASE_NONE, 
+			NULL, 0x0, "Marker", HFILL }},				
+		{ &hf_tns_marker_type, { 	
+			"Marker Type", "tns.marker.type", FT_UINT8, BASE_HEX, 
+			VALS(tns_marker_types), 0x0, "Marker Type", HFILL }},
+		{ &hf_tns_marker_data_byte, { 	
+			"Marker Data Byte", "tns.marker.databyte", FT_UINT8, BASE_HEX, 
+			NULL, 0x0, "Marker Data Byte", HFILL }},
+		{ &hf_tns_marker_data, { 	
+			"Marker Data", "tns.marker.data", FT_UINT16, BASE_HEX, 
+			NULL, 0x0, "Marker Data", HFILL }},
+
+		{ &hf_tns_control, { 
+			"Control", "tns.control", FT_BOOLEAN, BASE_NONE, 
+			NULL, 0x0, "Control", HFILL }},		
+		{ &hf_tns_control_cmd, { 	
+			"Control Command", "tns.control.cmd", FT_UINT16, BASE_HEX, 
+			VALS(tns_control_cmds), 0x0, "Control Command", HFILL }},
+		{ &hf_tns_control_data, { 	
+			"Control Data", "tns.control.data", FT_BYTES, BASE_HEX, 
+			NULL, 0x0, "Control Data", HFILL }},
+
+		{ &hf_tns_redirect, { 
+			"Redirect", "tns.redirect", FT_BOOLEAN, BASE_NONE, 
+			NULL, 0x0, "Redirect", HFILL }},		
 		{ &hf_tns_redirect_data_length, { 	
 			"Redirect Data Length", "tns.redirect_data_length", FT_UINT16, BASE_HEX, 
 			NULL, 0x0, "Length of Redirect Data", HFILL }},
@@ -756,6 +966,9 @@ void proto_register_tns(void)
 			"Redirect Data", "tns.redirect_data", FT_STRING, BASE_NONE, 
 			NULL, 0x0, "Redirect Data", HFILL }},
 
+		{ &hf_tns_data, { 
+			"Data", "tns.data", FT_BOOLEAN, BASE_NONE, 
+			NULL, 0x0, "Data", HFILL }},		
 		{ &hf_tns_data_flag, { 	
 			"Data Flag", "tns.data_flag", FT_UINT16, BASE_HEX, 
 			NULL, 0x0, "Data Flag", HFILL }},
@@ -802,7 +1015,11 @@ void proto_register_tns(void)
 		&ett_tns_connect,
 		&ett_tns_accept,
 		&ett_tns_refuse,
+		&ett_tns_abort,
 		&ett_tns_redirect,
+		&ett_tns_marker,
+		&ett_tns_attention,
+		&ett_tns_control,
 		&ett_tns_data,
 		&ett_tns_data_flag,
 		&ett_sql
