@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.47 2002/05/11 22:29:43 guy Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.48 2002/05/27 09:50:57 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -481,7 +481,7 @@ lsa_dissect_lsaclose_rqst(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_HANDLE_close, NDR_POINTER_REF,
-		"LSA_HANDLE pointer: hnd", -1, 0);
+		"LSA_HANDLE", -1, 0);
 	return offset;
 }
 
@@ -492,7 +492,7 @@ lsa_dissect_lsaclose_reply(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
-		"LSA_HANDLE pointer: hnd", -1, 0);
+		"LSA_HANDLE", -1, 0);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_lsa_rc, NULL);
 
@@ -521,7 +521,7 @@ lsa_dissect_lsaopenpolicy_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_OBJECT_ATTRIBUTES, NDR_POINTER_REF,
-		"", -1, 0);
+		"OBJECT_ATTRIBUTES", -1, 0);
 
 	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
 		pinfo, tree, drep);
@@ -535,7 +535,7 @@ lsa_dissect_lsaopenpolicy_reply(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_HANDLE_open, NDR_POINTER_REF,
-		"LSA_HANDLE pointer: hnd", -1, 0);
+		"LSA_HANDLE", -1, 0);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_lsa_rc, NULL);
 
@@ -552,7 +552,7 @@ lsa_dissect_lsaopenpolicy2_rqst(tvbuff_t *tvb, int offset,
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_OBJECT_ATTRIBUTES, NDR_POINTER_REF,
-		"", -1, 0);
+		"OBJECT_ATTRIBUTES", -1, 0);
 
 	offset = lsa_dissect_ACCESS_MASK(tvb, offset,
 		pinfo, tree, drep);
@@ -566,7 +566,7 @@ lsa_dissect_lsaopenpolicy2_reply(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_HANDLE_open, NDR_POINTER_REF,
-		"LSA_HANDLE pointer: hnd", -1, 0);
+		"LSA_HANDLE", -1, 0);
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_lsa_rc, NULL);
 
@@ -595,7 +595,7 @@ lsa_dissect_lsaqueryinformationpolicy_rqst(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
-		"LSA_HANDLE pointer: hnd", -1, 0);
+		"LSA_HANDLE", -1, 0);
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 		hf_lsa_policy_information_class, NULL);
@@ -1058,7 +1058,7 @@ lsa_dissect_lsadelete_rqst(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
-		"LSA_HANDLE pointer: hnd", -1, 0);
+		"LSA_HANDLE", -1, 0);
 
 	return offset;
 }
@@ -1257,7 +1257,7 @@ lsa_dissect_lsalookupsids_rqst(tvbuff_t *tvb, int offset,
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_PSID_ARRAY, NDR_POINTER_REF,
-			"", -1, 0);
+			"PSID_ARRAY", -1, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_TRANSLATED_NAMES, NDR_POINTER_REF,
@@ -2132,7 +2132,7 @@ lsa_dissect_lsaenumerateaccounts_reply(tvbuff_t *tvb, int offset,
 	/* [out, ref] PSID_ARRAY **accounts */
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_PSID_ARRAY, NDR_POINTER_REF,
-			"", -1, 0);
+			"PSID_ARRAY", -1, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_lsa_rc, NULL);
@@ -3110,7 +3110,7 @@ lsa_dissect_lsafunction_2e_rqst(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
-		"LSA_HANDLE pointer: hnd", -1, 0);
+		"LSA_HANDLE", -1, 0);
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 		hf_lsa_policy_information_class, NULL);
@@ -3138,7 +3138,7 @@ lsa_dissect_lsafunction_2f_rqst(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
-		"LSA_HANDLE pointer: hnd", -1, 0);
+		"LSA_HANDLE", -1, 0);
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 		hf_lsa_policy_information_class, NULL);
@@ -3166,7 +3166,7 @@ lsa_dissect_lsaquerydomaininformationpolicy_rqst(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
-		"LSA_HANDLE pointer: hnd", -1, 0);
+		"LSA_HANDLE", -1, 0);
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 		hf_lsa_policy_information_class, NULL);
@@ -3194,7 +3194,7 @@ lsa_dissect_lsasetdomaininformationpolicy_rqst(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
-		"LSA_HANDLE pointer: hnd", -1, 0);
+		"LSA_HANDLE", -1, 0);
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, drep,
 		hf_lsa_policy_information_class, NULL);
@@ -3431,7 +3431,7 @@ lsa_dissect_lsaclosetrusteddomainex_rqst(tvbuff_t *tvb, int offset,
 	/* [in, out] LSA_HANDLE *tdHnd */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
-		"LSA_HANDLE pointer: tdHnd", -1, 0);
+		"LSA_HANDLE", -1, 0);
 
 	return offset;
 }
@@ -3445,7 +3445,7 @@ lsa_dissect_lsaclosetrusteddomainex_reply(tvbuff_t *tvb, int offset,
 	/* [in, out] LSA_HANDLE *tdHnd */
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_HANDLE, NDR_POINTER_REF,
-		"LSA_HANDLE pointer: tdHnd", -1, 0);
+		"LSA_HANDLE", -1, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_lsa_rc, NULL);
@@ -3521,7 +3521,7 @@ lsa_dissect_lsalookupsids2_rqst(tvbuff_t *tvb, int offset,
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_PSID_ARRAY, NDR_POINTER_REF,
-			"", -1, 0);
+			"PSID_ARRAY", -1, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 		lsa_dissect_LSA_TRANSLATED_NAMES_EX, NDR_POINTER_REF,

@@ -2,7 +2,7 @@
  * Routines for DCERPC packet disassembly
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  *
- * $Id: packet-dcerpc.c,v 1.51 2002/05/25 08:37:44 sahlberg Exp $
+ * $Id: packet-dcerpc.c,v 1.52 2002/05/27 09:50:58 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -820,7 +820,15 @@ dissect_ndr_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	/*TOP LEVEL REFERENCE POINTER*/
 	if( pointers_are_top_level
 	&&(type==NDR_POINTER_REF) ){
-		add_pointer_to_list(pinfo, tree, fnct, 0xffffffff, hf_index, levels);
+		proto_item *item;
+		proto_tree *tr;
+
+		/* we must find out a nice way to do the length here */
+		item=proto_tree_add_text(tree, tvb, offset, 0, 
+			"%s", text);
+		tr=proto_item_add_subtree(item,ett_dcerpc_pointer_data);
+
+		add_pointer_to_list(pinfo, tr, fnct, 0xffffffff, hf_index, levels);
 		goto after_ref_id;
 	}
 

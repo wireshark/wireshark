@@ -4,7 +4,7 @@
  * Copyright 2002, Richard Sharpe <rsharpe@ns.aus.com>
  *   decode srvsvc calls where Samba knows them ...
  *
- * $Id: packet-dcerpc-srvsvc.c,v 1.10 2002/05/27 04:11:06 sharpe Exp $
+ * $Id: packet-dcerpc-srvsvc.c,v 1.11 2002/05/27 09:50:57 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -343,12 +343,6 @@ srvsvc_dissect_net_share_get_info_rqst(tvbuff_t *tvb, int offset,
 				       packet_info *pinfo, proto_tree *tree, 
 				       char *drep)
 {
-  proto_item *item = NULL;
-  proto_tree *stree = NULL;
-  dcerpc_info *di;
-
-  di=pinfo->private_data;
-
   /* [IN] UNICODE_STRING_2 *srv */
   offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			       srvsvc_dissect_pointer_UNICODE_STRING,
@@ -357,13 +351,12 @@ srvsvc_dissect_net_share_get_info_rqst(tvbuff_t *tvb, int offset,
 
   /*
    * Construct a label for the string ...
+   * [IN, REF] UNICODE_STRING_2 *share
    */
-  item = proto_tree_add_text(tree, tvb, offset, -1, "Share");
-  stree = proto_item_add_subtree(item, ett_srvsvc_share_info);
-  di->hf_index = hf_srvsvc_share;
-  di->levels = 0;
-
-  offset = dissect_ndr_nt_UNICODE_STRING_str(tvb, offset, pinfo, stree, drep);
+  offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
+			       srvsvc_dissect_pointer_UNICODE_STRING,
+			       NDR_POINTER_REF, "Share",
+			       hf_srvsvc_share, 0);
 
   offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, 
 			       hf_srvsvc_info_level, NULL);

@@ -2,7 +2,7 @@
  * Routines for MS Exchange MAPI
  * Copyright 2002, Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-mapi.c,v 1.7 2002/05/25 11:26:30 sahlberg Exp $
+ * $Id: packet-dcerpc-mapi.c,v 1.8 2002/05/27 09:50:57 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -235,7 +235,7 @@ mapi_logon_rqst(tvbuff_t *tvb, int offset,
 {
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_STRING_string, NDR_POINTER_REF,
-			"", hf_mapi_unknown_string, -1);
+			"unknown string", hf_mapi_unknown_string, -1);
 
         DISSECT_UNKNOWN(tvb_length_remaining(tvb, offset));
   
@@ -256,13 +256,13 @@ mapi_logon_reply(tvbuff_t *tvb, int offset,
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_STRING_string, NDR_POINTER_REF,
-			"", hf_mapi_unknown_string, -1);
+			"unknown string", hf_mapi_unknown_string, -1);
 
         DISSECT_UNKNOWN(6); /* possibly 1 or 2 bytes padding here */
 
         offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 			dissect_ndr_nt_STRING_string, NDR_POINTER_REF,
-			"", hf_mapi_unknown_string, -1);
+			"unknown string", hf_mapi_unknown_string, -1);
 
         DISSECT_UNKNOWN( tvb_length_remaining(tvb, offset)-4 );
 
@@ -284,7 +284,7 @@ mapi_unknown_02_request(tvbuff_t *tvb, int offset,
 		   encrypted data */  
        		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 				dissect_ndr_nt_STRING_string, NDR_POINTER_REF,
-				"", hf_mapi_unknown_data, -1);
+				"unknown data", hf_mapi_unknown_data, -1);
 	} else {
 		offset = mapi_decrypt_pdu(tvb, offset, pinfo, tree, drep);
 	}
@@ -310,7 +310,7 @@ mapi_unknown_02_reply(tvbuff_t *tvb, int offset,
 		   encrypted data */  
        		offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
 				dissect_ndr_nt_STRING_string, NDR_POINTER_REF,
-				"", hf_mapi_unknown_data, -1);
+				"unknown data", hf_mapi_unknown_data, -1);
 	} else {
 		offset = mapi_decrypt_pdu(tvb, offset, pinfo, tree, drep);
 	}
