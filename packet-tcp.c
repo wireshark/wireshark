@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.159 2002/09/11 09:52:36 sahlberg Exp $
+ * $Id: packet-tcp.c,v 1.160 2002/09/18 12:08:28 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -134,10 +134,10 @@ struct tcp_unacked {
 };
 
 /* Idea for gt: either x > y, or y is much bigger (assume wrap) */
-#define GT_SEQ(x, y) ((x > y) || ((y - x) > 0x80000000))
-#define LT_SEQ(x, y) ((x < y) || ((x - y) > 0x80000000))
-#define GE_SEQ(x, y) ((x >= y) || ((y - x) > 0x80000000))
-#define LE_SEQ(x, y) ((x <= y) || ((x - y) > 0x80000000))
+#define GT_SEQ(x, y) ((gint32)(y - x) < 0)
+#define LT_SEQ(x, y) ((gint32)(x - y) < 0)
+#define GE_SEQ(x, y) ((gint32)(y - x) <= 0)
+#define LE_SEQ(x, y) ((gint32)(x - y) <= 0)
 #define EQ_SEQ(x, y) (x == y)
 
 static GMemChunk *tcp_acked_chunk = NULL;
