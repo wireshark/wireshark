@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.4 2002/08/20 00:59:39 jmayer Exp $
+; $Id: ethereal.nsi,v 1.5 2002/08/30 15:32:27 gerald Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -71,7 +71,7 @@ File "${COMMON_FILES_GNU}\iconv-1.3.dll"
 File "${COMMON_FILES_GNU}\glib-1.3.dll"
 File "${COMMON_FILES_GNU}\gmodule-1.3.dll"
 File "${COMMON_FILES_GNU}\gnu-intl.dll"
-;File "${COMMON_FILES_GNU}\zlib.dll"
+File "${COMMON_FILES_GNU}\zlib.dll"
 File "..\..\FAQ"
 File "..\..\README"
 File "..\..\README.win32"
@@ -90,7 +90,7 @@ File "..\..\sunping.xml"
 SetOutPath $INSTDIR
 
 ; Write the uninstall keys for Windows
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "DisplayName" "Ethereal"
+WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "DisplayName" "Ethereal ${VERSION}"
 WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Ethereal" "UninstallString" '"$INSTDIR\uninstall.exe"'
 WriteUninstaller "uninstall.exe"
 SectionEnd
@@ -150,9 +150,14 @@ Section "Start Menu Shortcuts"
 ;-------------------------------------------
 CreateDirectory "$SMPROGRAMS\Ethereal"
 
+Delete "$SMPROGRAMS\Ethereal\Ethereal Home Page.lnk"
+WriteINIStr "$SMPROGRAMS\Ethereal\Ethereal Home Page.url" \
+          "InternetShortcut" "URL" "http://www.ethereal.com/"
 CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal.lnk" "$INSTDIR\ethereal.exe"
 CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Documentation.lnk" "$INSTDIR\ethereal.html"
 CreateShortCut "$SMPROGRAMS\Ethereal\Uninstall.lnk" "$INSTDIR\uninstall.exe"
+CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Program Directory.lnk" \
+          "$INSTDIR"
 SectionEnd
 
 Section "Desktop Icon"
