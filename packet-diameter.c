@@ -1,7 +1,7 @@
 /* packet-diameter.c
- * Routines for DIAMETER packet disassembly
+ * Routines for Diameter packet disassembly
  *
- * $Id: packet-diameter.c,v 1.27 2001/10/29 21:13:07 guy Exp $
+ * $Id: packet-diameter.c,v 1.28 2001/11/01 21:52:44 guy Exp $
  *
  * Copyright (c) 2001 by David Frascone <dave@frascone.com>
  *
@@ -42,11 +42,13 @@
 #include <ctype.h>
 #include <time.h>
 #include <glib.h>
+#include <filesystem.h>
+#include "xmlstub.h"
 #include "packet.h"
 #include "resolv.h"
 #include "prefs.h"
 
-/* This must be defined before we include packet-diameter-defs.h s*/
+/* This must be defined before we include packet-diameter-defs.h */
 
 /* Valid data types */
 typedef enum {
@@ -68,16 +70,84 @@ typedef enum {
   DIAMETER_IDENTITY,           /* OctetString */
   DIAMETER_ENUMERATED,         /* Integer 32 */
   DIAMETER_IP_FILTER_RULE,     /* OctetString */
-  DIAMETER_QOS_FILTER_RULE     /* OctetString */
+  DIAMETER_QOS_FILTER_RULE,    /* OctetString */
+  DIAMETER_MIP_REG_REQ,        /* OctetString */
+  DIAMETER_VENDOR_ID,           /* Integer32  */
+  DIAMETER_APPLICATION_ID
   
 } diameterDataType;
 
-typedef struct avp_info {
+
+static value_string TypeValues[]={
+  {  DIAMETER_OCTET_STRING,    "OctetString" },
+  {  DIAMETER_INTEGER32,       "Integer32" },
+  {  DIAMETER_INTEGER64,       "Integer64" },
+  {  DIAMETER_UNSIGNED32,      "Unsigned32" },
+  {  DIAMETER_UNSIGNED64,      "Unsigned64" },
+  {  DIAMETER_FLOAT32,         "Float32" },
+  {  DIAMETER_FLOAT64,         "Float64" },
+  {  DIAMETER_FLOAT128,        "Float128" },
+  {  DIAMETER_GROUPED,         "Grouped" },
+  {  DIAMETER_IP_ADDRESS,      "IpAddress" },
+  {  DIAMETER_TIME,            "Time" },
+  {  DIAMETER_UTF8STRING,      "UTF8String" },
+  {  DIAMETER_IDENTITY,        "DiameterIdentity" },
+  {  DIAMETER_ENUMERATED,      "Enumerated" },
+  {  DIAMETER_IP_FILTER_RULE,  "IPFilterRule" },
+  {  DIAMETER_QOS_FILTER_RULE, "QOSFilterRule" },
+  {  DIAMETER_MIP_REG_REQ,     "MIPRegistrationRequest"},
+  {  DIAMETER_VENDOR_ID,       "VendorId"},
+  {  DIAMETER_APPLICATION_ID,  "AppId"},
+  {0, (char *)NULL}
+};
+
+typedef struct value_name {
+  guint32            value;
+  gchar             *name;
+  struct value_name *next;
+} ValueName;
+
+typedef struct old_avp_info {
   guint32           code;
   gchar            *name;
   diameterDataType  type;
   value_string     *values;
+} oldAvpInfo;
+
+typedef struct avp_info {
+  guint32           code;
+  gchar            *name;
+  gchar            *vendorName;
+  diameterDataType  type;
+  ValueName        *values;
+  struct avp_info  *next;
 } avpInfo;
+
+typedef struct command_code {
+  guint32              code;
+  gchar               *name;
+  gchar               *vendorString;
+  struct command_code *next;
+} CommandCode;
+
+typedef struct vendor_id {
+  guint32              id;
+  gchar               *name;
+  gchar               *longName;
+  struct vendor_id    *next;
+} VendorId;
+
+typedef struct application_id {
+  guint32              id;
+  gchar               *name;
+  struct application_id    *next;
+} ApplicationId;
+
+static avpInfo         *avpListHead=NULL;
+static VendorId        *vendorListHead=NULL;
+static CommandCode     *commandListHead=NULL;
+static ApplicationId   *ApplicationIdHead=NULL;
+
 
 #include "packet-diameter-defs.h"
 
@@ -147,6 +217,9 @@ static gint ett_diameter_avpinfo = -1;
 static char gbl_diameterString[200];
 static int gbl_diameterTcpPort=TCP_PORT_DIAMETER;
 static int gbl_diameterSctpPort=SCTP_PORT_DIAMETER;
+#define DIAMETER_DIR "diameter"
+#define DICT_FN "dictionary.xml"
+static gchar *gbl_diameterDictionary = NULL;
 
 typedef struct _e_diameterhdr {
   guint32  versionLength;
@@ -161,8 +234,6 @@ typedef struct _e_avphdr {
   guint32 avp_flagsLength;
   guint32 avp_vendorId;           /* optional */
 } e_avphdr;
-
-#define AUTHENTICATOR_LENGTH 12
 
 /* Diameter Header Flags */
 /*                                      RPrrrrrrCCCCCCCCCCCCCCCCCCCCCCCC  */
@@ -195,39 +266,616 @@ typedef struct _e_avphdr {
 #define AVP_FLAGS_RESERVED 0x1f          /* 00011111  -- V M P X X X X X */
 
 #define MIN_AVP_SIZE (sizeof(e_avphdr) - sizeof(guint32))
-#define MIN_DIAMETER_SIZE (sizeof(e_diameterhdr) + MIN_AVP_SIZE)
+#define MIN_DIAMETER_SIZE (sizeof(e_diameterhdr))
 
 static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 
+/*
+ * This routine will do a push-parse of the passed in
+ * filename.  This was taken almost verbatum from
+ * the xmlsoft examples.
+ */
+static xmlDocPtr
+xmlParseFilePush( char *filename, int checkValid) {
+  FILE *f;
+  xmlDocPtr doc=NULL;
+  int valid=0;
+  int res, size = 1024;
+  char chars[1024];
+  xmlParserCtxtPtr ctxt;
+	
+  /* I wonder what kind of a performance hit this is? */
+  *XmlStub.xmlDoValidityCheckingDefaultValue = checkValid;
+  
+  f = fopen(filename, "r");
+  if (f == NULL) {
+	g_warning("Diameter: Unable to open %s", filename);
+	return NULL;
+  }
 
+  res = fread(chars, 1, 4, f);
+  if (res > 0) {
+	ctxt = XmlStub.xmlCreatePushParserCtxt(NULL, NULL,
+										   chars, res, filename);
+	while ((res = fread(chars, 1, size-1, f)) > 0) {
+	  XmlStub.xmlParseChunk(ctxt, chars, res, 0);
+	}
+	XmlStub.xmlParseChunk(ctxt, chars, 0, 1);
+	doc = ctxt->myDoc;
+	valid=ctxt->valid;
+	XmlStub.xmlFreeParserCtxt(ctxt);
+  }
+  fclose(f); 
 
-/* Diameter Manipulation Routines (mess with our strucutres) */
+  /* Check valid */
+  if (!valid) {
+	g_warning( "Error!  Invalid xml in %s!  Failed DTD check!",
+			   filename);
+	return NULL;
+  }
+  return doc;
+} /* xmlParseFilePush */
 
-diameterDataType
-diameter_avp_get_type(guint32 avpCode){
+/*
+ * This routine will add a static avp to the avp list.  It is
+ * only called when the XML dictionary fails to load properly.
+ */
+static int
+addStaticAVP(int code, gchar *name, diameterDataType type, value_string *values)
+{
+  avpInfo *entry;
+  ValueName *vEntry=NULL;
   int i;
-  for (i=0; diameter_avps[i].name; i++) {
-	if (avpCode == diameter_avps[i].code) {
-	  /* We found it! */
-	  return diameter_avps[i].type;
+
+  /* Parse our values array, if we have one */
+  if (values) {
+	for (i=0; values[i].strptr != NULL; i++) {
+	  char *valueName=NULL, *valueCode=NULL;
+	  ValueName *ve = NULL;
+			
+	  ve = g_malloc(sizeof(ValueName));
+	  ve->name = strdup(values[i].strptr);
+	  ve->value = values[i].value;
+	  ve->next = vEntry;
+	  vEntry = ve;
+	}
+  } /* if values */
+
+	/* And, create the entry */
+  entry = (avpInfo *)g_malloc(sizeof(avpInfo));
+  entry->name = g_strdup(name);
+  entry->code = code;
+  entry->vendorName = NULL;
+  entry->type = type;
+  entry->values = vEntry;
+  if (vEntry)
+	entry->type = DIAMETER_INTEGER32;
+
+  return (0);
+	
+} /* addStaticAVP */
+
+/*
+ * This routine will parse an XML avp entry, and add it to our
+ * avp list.  If any values are present in the avp, it will
+ * add them too.
+ */
+static int
+xmlParseAVP(xmlDocPtr doc, xmlNodePtr cur)
+{
+  char *name=NULL, *description=NULL, *code=NULL, *mayEncrypt=NULL,
+	*mandatory=NULL, *protected=NULL, *vendorBit=NULL, *vendorName = NULL,
+	*constrained=NULL;
+  char *type=NULL;
+  avpInfo *entry;
+  guint32 avpType=0;
+  ValueName *vEntry=NULL;
+  int i;
+
+  /* First, get our properties */
+  name = XmlStub.xmlGetProp(cur, "name");
+  description = XmlStub.xmlGetProp(cur, "description");
+  code = XmlStub.xmlGetProp(cur, "code");
+  mayEncrypt = XmlStub.xmlGetProp(cur, "may-encrypt");
+  mandatory = XmlStub.xmlGetProp(cur, "mandatory");
+  protected = XmlStub.xmlGetProp(cur, "protected");
+  vendorBit = XmlStub.xmlGetProp(cur, "vendor-bit");
+  vendorName = XmlStub.xmlGetProp(cur, "vendor-id");
+  constrained = XmlStub.xmlGetProp(cur, "constrained");
+
+  cur = cur->xmlChildrenNode;
+
+  while (cur != NULL ) {
+	if (!strcasecmp((char *)cur->name, "type")) {
+	  type = XmlStub.xmlGetProp(cur, "type-name");
+	}
+	if (!strcasecmp((char *)cur->name, "enum")) {
+	  char *valueName=NULL, *valueCode=NULL;
+	  ValueName *ve = NULL;
+	  valueName = XmlStub.xmlGetProp(cur, "name");
+	  valueCode = XmlStub.xmlGetProp(cur, "code");
+			
+	  if (!valueName || !valueCode) {
+		g_warning( "Error, bad value on avp %s", name);
+		return (-1);
+	  }
+			
+	  ve = g_malloc(sizeof(ValueName));
+	  ve->name = strdup(valueName);
+	  ve->value = atol(valueCode);
+
+	  ve->next = vEntry;
+	  vEntry = ve;
+	}
+	if (!strcasecmp((char *)cur->name, "grouped")) {
+	  /* WORK Recurse here for grouped AVPs */
+	  type = "grouped";
+	}
+	cur=cur->next;
+  } /* while */
+
+	/*
+	 * Check for the AVP Type.
+	 */
+  if (type) {
+	for (i = 0; TypeValues[i].strptr; i++) {
+	  if (!strcasecmp(type, TypeValues[i].strptr)) {
+		avpType = TypeValues[i].value;
+		break;
+	  }
+	}
+
+	if (TypeValues[i].strptr == NULL) {
+	  g_warning( "Invalid Type field in dictionary! avp %s (%s)",  name, type);
+	  return (-1);
+	}
+  } else if (!vEntry) {
+	g_warning("Missing type/enum field in dictionary avpName=%s",
+			  name);
+	return (-1);
+  }
+
+  /* WORK - Handle flags  -- for validation later */
+	
+
+  /* And, create the entry */
+  entry = (avpInfo *)g_malloc(sizeof(avpInfo));
+  entry->name = g_strdup(name);
+  entry->code = atol(code);
+  if (vendorName) 
+	entry->vendorName = g_strdup(vendorName);
+  else
+	entry->vendorName = NULL;
+  entry->type = avpType;
+  entry->values = vEntry;
+  if (vEntry)
+	entry->type = DIAMETER_INTEGER32;
+
+  /* And, add it to the list */
+  entry->next = avpListHead;
+  avpListHead = entry;
+
+  return (0);
+} /* xmlParseAVP */
+
+/*
+ * This routine will add a command to the list of commands.
+ */
+static int
+addCommand(int code, char *name, char *vendorId)
+{
+  CommandCode *entry;
+
+  /*
+   * Allocate the memory required for the dictionary.
+   */
+  entry = (CommandCode *) g_malloc(sizeof (CommandCode));
+
+  if (entry == NULL) {
+	g_warning("Unable to allocate memory");
+	return (-1);
+  }
+
+  /*
+   * Allocate memory for the AVPName and copy the name to the
+   * structure
+   */
+  entry->name = g_strdup(name);
+  entry->code = code;
+  if (vendorId)
+	entry->vendorString = g_strdup(vendorId);
+  else
+	entry->vendorString = NULL;
+
+  /* Add the entry to the list */
+  entry->next = commandListHead;
+  commandListHead = entry;
+
+  return 0;
+} /* addCommand */
+
+/*
+ * This routine will parse the XML command, and add it to our
+ * list of commands.
+ */
+static int
+xmlParseCommand(xmlDocPtr doc, xmlNodePtr cur)
+{
+  guint32 vendorId = 0;
+  char *name, *code, *vendorIdString;
+
+  /*
+   * Get the Attributes
+   */
+  name = XmlStub.xmlGetProp(cur, "name");
+  code = XmlStub.xmlGetProp(cur, "code");
+  if (!name || !code) {
+	g_warning("Invalid command.  Name or code missing!");
+	return -1;
+  }
+  vendorIdString = XmlStub.xmlGetProp(cur, "vendor-id");
+
+  if (!vendorIdString || !strcasecmp(vendorIdString, "None")) {
+	vendorIdString = NULL;
+  }
+
+  return (addCommand(atoi(code), name, vendorIdString));
+} /* xmlParseCommand */
+
+/* This routine adds an application to the name<-> id table */
+static int
+dictionaryAddApplication(char *name, int id)
+{
+  ApplicationId *entry;
+
+  if (!name || (id <= 0)) {
+	g_warning( "Diameter Error: Inavlid application (name=%p, id=%d)",
+			   name, id);
+	return (-1);
+  } /* Sanity Checks */
+
+  entry = g_malloc(sizeof(ApplicationId));
+  if (!entry) {
+	g_warning( "Unable to allocate memory");
+	return (-1);
+  }
+	
+  entry->name = g_strdup(name);
+  entry->id = id;
+	
+  /* Add it to the list */
+  entry->next = ApplicationIdHead;
+  ApplicationIdHead = entry;
+
+  return 0;
+} /* dictionaryAddApplication */
+
+/*
+ * This routine will add a vendor to the vendors list
+ */
+static int
+addVendor(int id, gchar *name, gchar *longName)
+{
+  VendorId *vendor;
+
+  /* add entry */
+  vendor=g_malloc(sizeof(VendorId));
+  if (!vendor) {
+	return (-1);
+  }
+
+  vendor->id = id;
+  vendor->name = g_strdup(name);
+  vendor->longName = g_strdup(longName);
+  vendor->next = vendorListHead;
+  vendorListHead = vendor;
+
+  return 0;
+} /* addVendor */
+
+/*
+ * This routine will pars in a XML vendor entry.
+ */
+static int
+xmlParseVendor(xmlDocPtr doc, xmlNodePtr cur)
+{
+  char *name=NULL, *code=NULL, *id=NULL;
+
+  /* First, get our properties */
+  id = XmlStub.xmlGetProp(cur, "vendor-id");
+  name = XmlStub.xmlGetProp(cur, "name");
+  code = XmlStub.xmlGetProp(cur, "code");
+
+  if (!id || !name || !code) {
+	g_warning( "Invalid vendor section.  vendor-id, name, and code must be specified");
+	return -1;
+  }
+
+  return (addVendor(atoi(code), id, name));
+} /* addVendor */
+
+/*
+ * This routine will either parse in the base protocol, or an application.
+ */
+static int
+xmlDictionaryParseSegment(xmlDocPtr doc, xmlNodePtr cur, int base)
+{
+  if (!base) {
+	char *name;
+	char *id;
+		
+	/* Add our application */
+	id = XmlStub.xmlGetProp(cur, "id");
+	name = XmlStub.xmlGetProp(cur, "name");
+		
+	if (!name || !id) {
+	  /* ERROR!!! */
+	  g_warning("Diameter: Invalid application!: name=\"%s\", id=\"%s\"",
+				name?name:"NULL", id?id:"NULL");
+	  return -1;
+	}
+		
+	/* Add the application */
+	if (dictionaryAddApplication(name, atol(id)) != 0) {
+	  /* ERROR! */
+	  return -1;
 	}
   }
+
+	
+  /*
+   * Get segment values
+   */
+  cur = cur->xmlChildrenNode;
+  while (cur != NULL) {
+	if (!strcasecmp((char *)cur->name, "avp")) {
+	  /* we have an avp!!! */
+	  xmlParseAVP(doc, cur);
+	} else if (!strcasecmp((char *)cur->name, "vendor")) {
+	  /* we have a vendor */
+	  xmlParseVendor(doc, cur);
+	  /* For now, ignore typedefn and text */
+	} else if (!strcasecmp((char *)cur->name, "command")) {
+	  /* Found a command */
+	  xmlParseCommand(doc,cur);
+	} else if (!strcasecmp((char *)cur->name, "text")) {
+	} else if (!strcasecmp((char *)cur->name, "comment")) {
+	} else if (!strcasecmp((char *)cur->name, "typedefn")) {
+	  /* WORK -- parse in valid types . . . */
+	} else {
+	  /* IF we got here, we're an error */
+	  g_warning("Error!  expecting an avp or a typedefn (got \"%s\")",
+				cur->name);
+	  return (-1);
+	}
+	cur = cur->next;
+  } /* while */
+  return 0;
+} /* xmlDictionaryParseSegment */
+
+/*
+ * The main xml parse routine.  This will walk through an XML 
+ * dictionary that has been parsed by libxml.
+ */
+static int
+xmlDictionaryParse(xmlDocPtr doc, xmlNodePtr cur)
+{
+  /* We should expect a base protocol, followed by multiple applicaitons */
+  while (cur != NULL) {
+	if (!strcasecmp((char *)cur->name, "base")) {
+	  /* Base protocol.  Descend and parse */
+	  xmlDictionaryParseSegment(doc, cur, 1);
+	} else if (!strcasecmp((char *)cur->name, "application")) {
+	  /* Application.  Descend and parse */
+	  xmlDictionaryParseSegment(doc, cur, 0);
+	} else if (!strcasecmp((char *)cur->name, "text")) {
+	  /* Ignore text */
+	} else {
+	  g_warning( "Diameter: XML Expecting a base or an application  (got \"%s\")",
+				 cur->name);
+	  return (-1);
+	}
+	cur = cur->next;
+  }
+
+  return 0;
+
+} /* xmlDictionaryParse */
+
+/*
+ * This routine will call libxml to parse in the dictionary.
+ */
+static int
+loadXMLDictionary()
+{
+  xmlDocPtr doc;
+  xmlNodePtr cur;
+
+  /*
+   * build an XML tree from a the file;
+   */
+  XmlStub.xmlKeepBlanksDefault(0);                    /* Strip leading and trailing blanks */
+  XmlStub.xmlSubstituteEntitiesDefault(1);            /* Substitute entities automagically */
+  doc = xmlParseFilePush(gbl_diameterDictionary, 1);  /* Parse the XML (do validity checks)*/
+
+  /* Check for invalid xml */
+  if (doc == NULL) {
+	g_warning("Diameter: Unable to parse xmldictionary %s",
+			  gbl_diameterDictionary);
+	return -1;
+  }
+	
+  /*
+   * Check the document is of the right kind
+   */
+  cur = XmlStub.xmlDocGetRootElement(doc);
+  if (cur == NULL) {
+	g_warning("Diameter: Error: \"%s\": empty document",
+			  gbl_diameterDictionary);
+	XmlStub.xmlFreeDoc(doc);
+	return -1;
+  }
+  if (XmlStub.xmlStrcmp(cur->name, (const xmlChar *) "dictionary")) {
+	g_warning("Diameter: Error: \"%s\": document of the wrong type, root node != dictionary",
+			  gbl_diameterDictionary);
+	XmlStub.xmlFreeDoc(doc);
+	return -1;
+  }
+	
+  /*
+   * Ok, the dictionary has been parsed by libxml, and is valid.
+   * All we have to do now is read in our information.
+   */
+  if (xmlDictionaryParse(doc, cur->xmlChildrenNode) != 0) {
+	/* Error has already been printed */
+	return -1;
+  }
+
+  /* Once we're done parsing, free up the xml memory */
+  XmlStub.xmlFreeDoc(doc);
+
+  return 0;
+
+} /* loadXMLDictionary */
+
+/*
+ * Fallback routine.  In the event of ANY error when loading the XML
+ * dictionary, this routine will populate the new avp list structures
+ * with the old static data from packet-diameter-defs.h
+ */
+static void
+initializeDictionaryDefaults()
+{
+  int i;
+
+  /* Add static vendors to list */
+  for(i=0; diameter_vendor_specific_vendors[i].strptr; i++) {
+	addVendor(diameter_vendor_specific_vendors[i].value,
+			  diameter_vendor_specific_vendors[i].strptr,
+			  diameter_vendor_specific_vendors[i].strptr);
+  }
+  /* Add static commands to list. */
+  for(i=0; diameter_command_code_vals[i].strptr; i++) {
+	addCommand(diameter_command_code_vals[i].value,
+			   diameter_command_code_vals[i].strptr, NULL);
+  }
+
+  /* Add static AVPs to list */
+  for (i=0; old_diameter_avps[i].name; i++) {
+	addStaticAVP(old_diameter_avps[i].code,
+				 old_diameter_avps[i].name,
+				 old_diameter_avps[i].type,
+				 old_diameter_avps[i].values);
+  }
+
+} /* initializeDictionaryDefaults */
+
+/* 
+ * This routine will attempt to load the XML dictionary, and on 
+ * failure, will call initializeDictionaryDefaults to load in
+ * our static dictionary.
+ */
+static void
+initializeDictionary()
+{
+  /*
+   * Using ugly ordering here.  If loadLibXML succeeds, then 
+   * loadXMLDictionary will be called.  This is one of the few times when
+   * I think this is prettier than the nested if alternative.
+   */
+  if (loadLibXML() ||
+	  (loadXMLDictionary() != 0)) {
+	/* Something failed.  Use the static dictionary */
+	g_warning("Diameter: Using static dictionary! (Unable to use XML)");
+	initializeDictionaryDefaults();
+  }
+} /* initializeDictionary */
+
+
+
+/*
+ * These routines manipulate the diameter structures.
+ */
+
+/* return command string, based on the code */
+static gchar *
+diameter_command_to_str(guint32 commandCode)
+{
+  CommandCode *probe;
+  static gchar buffer[64];
+
+  for (probe=commandListHead; probe; probe=probe->next) {
+	if (commandCode == probe->code) {
+	  return probe->name;
+	}
+  }
+
+  snprintf(buffer, sizeof(buffer),
+		   "Cmd-0x%08x", commandCode);
+  return buffer;
+}/*diameter_command_to_str */
+/* return vendor string, based on the id */
+static gchar *
+diameter_vendor_to_str(guint32 vendorId) {
+  VendorId *probe;
+  static gchar buffer[64];
+
+  for (probe=vendorListHead; probe; probe=probe->next) {
+	if (vendorId == probe->id) {
+	  return probe->longName;
+	}
+  }
+
+  snprintf(buffer, sizeof(buffer),
+		   "Vendor 0x%08x", vendorId);
+  return buffer;
+} /*diameter_vendor_to_str */
+/* return application string, based on the id */
+static gchar *
+diameter_app_to_str(guint32 vendorId) {
+  ApplicationId *probe;
+  static gchar buffer[64];
+
+  for (probe=ApplicationIdHead; probe; probe=probe->next) {
+	if (vendorId == probe->id) {
+	  return probe->name;
+	}
+  }
+
+  snprintf(buffer, sizeof(buffer),
+		   "AppId 0x%08x", vendorId);
+  return buffer;
+} /*diameter_app_to_str */
+
+/* return an avp type, based on the code */
+diameterDataType
+diameter_avp_get_type(guint32 avpCode){
+  avpInfo *probe;
+
+  for (probe=avpListHead; probe; probe=probe->next) {
+	if (avpCode == probe->code) {
+	  /* We found it! */
+	  return probe->type;
+	}
+  }
+	
   /* If we don't find it, assume it's data */
-  g_warning("DIAMETER: Unable to find type for avpCode %d!", avpCode);
+  g_warning("Diameter: Unable to find type for avpCode %d!", avpCode);
   return DIAMETER_OCTET_STRING;
 } /* diameter_avp_get_type */
 
+/* return an avp name from the code */
 static gchar *
 diameter_avp_get_name(guint32 avpCode)
 {
   static gchar buffer[64];
+  avpInfo *probe;
 
-  int i;
-  for (i=0; diameter_avps[i].name; i++) {
-	if (avpCode == diameter_avps[i].code) {
+  for (probe=avpListHead; probe; probe=probe->next) {
+	if (avpCode == probe->code) {
 	  /* We found it! */
-	  return diameter_avps[i].name;
+	  return probe->name;
 	}
   }
   /* If we don't find it, build a name string */
@@ -239,13 +887,18 @@ diameter_avp_get_value(guint32 avpCode, guint32 avpValue)
 {
   static gchar buffer[64];
 
-  int i;
-  for (i=0; diameter_avps[i].name; i++) {
-	if (avpCode == diameter_avps[i].code) {
-	  /* We found the code.  Now find the value! */
-	  if (!diameter_avps[i].values) 
-		break;
-	  return val_to_str(avpValue, diameter_avps[i].values , "Unknown Value: 0x%08x");
+  avpInfo *probe;
+
+  for (probe=avpListHead; probe; probe=probe->next) {
+	if (avpCode == probe->code) {
+	  ValueName *vprobe;
+	  for(vprobe=probe->values; vprobe; vprobe=vprobe->next) {
+		if (avpValue == vprobe->value) {
+		  return vprobe->name;
+		}
+	  }
+	  sprintf(buffer, "Unknown Value: 0x%08x", avpValue);
+	  return buffer;
 	}
   }
   /* If we don't find the avp, build a value string */
@@ -296,6 +949,17 @@ static void dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   gchar            commandString[64], vendorString[64];
   gint        i;
   guint      bpos;
+  static  int initialized=FALSE;
+
+  /*
+   * Only parse in dictionary if there are diameter packets to
+   * dissect.
+   */
+  if (!initialized) {
+	  /* Read in our dictionary, if it exists. */
+	  initializeDictionary();
+	  initialized=TRUE;
+  }
 	
   /* Make entries in Protocol column and Info column on summary display */
   if (check_col(pinfo->fd, COL_PROTOCOL)) 
@@ -315,7 +979,7 @@ static void dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
   if (dh.vendorId) {
 	strcpy(vendorString, 
-		   val_to_str(dh.vendorId, diameter_vendor_specific_vendors, "Unknown Vendor: %08x"));
+		   diameter_vendor_to_str(dh.vendorId));
   } else {
 	strcpy(vendorString, "None");
   }
@@ -345,7 +1009,7 @@ static void dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   }
   
   /* Set up our commandString */
-  strcpy(commandString, val_to_str(commandCode, diameter_command_code_vals, "Unknown Command: 0x%08x"));
+  strcpy(commandString, diameter_command_to_str(commandCode));
   if (flags & DIAM_FLAGS_R) 
 	strcat(commandString, "-Request");
   else
@@ -353,7 +1017,7 @@ static void dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
   /* Short packet.  Should have at LEAST one avp */
   if (pktLength < MIN_DIAMETER_SIZE) {
-	g_warning("DIAMETER: Packet too short: %d bytes less than min size (%d bytes))",
+	g_warning("Diameter: Packet too short: %d bytes less than min size (%d bytes))",
 			  pktLength, MIN_DIAMETER_SIZE);
 	BadPacket = TRUE;
   }
@@ -361,17 +1025,16 @@ static void dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   /* And, check our reserved flags/version */
   if ((flags & DIAM_FLAGS_RESERVED) ||
 	  (version != 1)) {
-	g_warning("DIAMETER: Bad packet: Bad Flags(0x%x) or Version(%u)",
+	g_warning("Diameter: Bad packet: Bad Flags(0x%x) or Version(%u)",
 			  flags, version);
 	BadPacket = TRUE;
   }
 
   if (check_col(pinfo->fd, COL_INFO)) {
 	col_add_fstr(pinfo->fd, COL_INFO,
-				 "%s%s%s%s: %s vendor=%s (hop-id=%d) (end-id=%d) RPE=%d%d%d",
+				 "%s%s%s: %s vendor=%s (hop-id=%d) (end-id=%d) RPE=%d%d%d",
 				 (BadPacket)?"***** Bad Packet!: ":"",
 				 (flags & DIAM_FLAGS_P)?"Proxyable ":"",
-				 (flags & DIAM_FLAGS_R)?"Request":"Answer",
 				 (flags & DIAM_FLAGS_E)?" Error":"",
 				 commandString, vendorString,
 				 dh.hopByHopId, dh.endToEndId,
@@ -421,12 +1084,12 @@ static void dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* Command Code */
 	proto_tree_add_uint_format(diameter_tree, hf_diameter_code,
-						tvb, offset, 3, commandCode, "Command Code: %s", commandString);
+							   tvb, offset, 3, commandCode, "Command Code: %s", commandString);
 	offset += 3;
 
 	/* Vendor Id */
 	proto_tree_add_uint_format(diameter_tree,hf_diameter_vendor_id,
-						tvb, offset, 4,	dh.vendorId, "Vendor-Id: %s", vendorString);
+							   tvb, offset, 4,	dh.vendorId, "Vendor-Id: %s", vendorString);
 	offset += 4;
 
 	/* Hop-by-hop Identifier */
@@ -464,6 +1127,64 @@ static void dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 } /* dissect_diameter */
 
 /*
+ * Call the mip_dissector, after saving our pinfo variables
+ * so it doesn't write to our column display.
+ */
+static void
+safe_dissect_mip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+				 size_t offset, size_t length)
+{
+  static dissector_handle_t mip_handle;
+  static int mipInitialized=FALSE;
+  tvbuff_t *mip_tvb;
+  address save_dl_src;
+  address save_dl_dst;
+  address save_net_src;
+  address save_net_dst;
+  address save_src;
+  address save_dst;
+  gboolean save_in_error_pkt;
+
+  if (!mipInitialized) {
+	mip_handle = find_dissector("mip");
+	mipInitialized=TRUE;
+  }
+
+  mip_tvb = tvb_new_subset(tvb, offset,
+						   MIN(length, tvb_length(tvb)-offset),
+						   length);
+	
+  /* The contained packet is a MIP registration request;
+	 dissect it with the MIP dissector. */
+  col_set_writable(pinfo->fd, FALSE);
+
+  /* Also, save the current values of the addresses, and restore
+	 them when we're finished dissecting the contained packet, so
+	 that the address columns in the summary don't reflect the
+	 contained packet, but reflect this packet instead. */
+  save_dl_src = pinfo->dl_src;
+  save_dl_dst = pinfo->dl_dst;
+  save_net_src = pinfo->net_src;
+  save_net_dst = pinfo->net_dst;
+  save_src = pinfo->src;
+  save_dst = pinfo->dst;
+  save_in_error_pkt = pinfo->in_error_pkt;
+
+  call_dissector(mip_handle, mip_tvb, pinfo, tree);
+
+  /* Restore the "we're inside an error packet" flag. */
+  pinfo->in_error_pkt = save_in_error_pkt;
+  pinfo->dl_src = save_dl_src;
+  pinfo->dl_dst = save_dl_dst;
+  pinfo->net_src = save_net_src;
+  pinfo->net_dst = save_net_dst;
+  pinfo->src = save_src;
+  pinfo->dst = save_dst;
+
+
+} /* safe_dissect_mip */
+
+/*
  * This function will dissect the AVPs in a diameter packet.  It handles
  * all normal types, and even recursively calls itself for grouped AVPs
  */
@@ -482,6 +1203,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
   size_t offset = 0 ;
   char dataBuffer[4096];
   tvbuff_t        *group_tvb;
+  tvbuff_t        *mip_tvb;
   proto_tree *group_tree;
   proto_item *grouptf;
   proto_item *avptf;
@@ -514,7 +1236,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 	/* Check for short packet */
 	if (packetLength < (long)MIN_AVP_SIZE) {
-	  g_warning("DIAMETER: AVP Payload too short: %d bytes less than min size (%d bytes))",
+	  g_warning("Diameter: AVP Payload too short: %d bytes less than min size (%d bytes))",
 				packetLength, MIN_AVP_SIZE);
 	  BadPacket = TRUE;
 	  /* Don't even bother trying to parse a short packet. */
@@ -562,7 +1284,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 	if (vendorId) {
 	  strcpy(vendorString, 
-			 val_to_str(vendorId, diameter_vendor_specific_vendors, "Unknown Vendor: %08x"));
+			 diameter_vendor_to_str(vendorId));
 	} else {
 	  vendorString[0]='\0';
 	}
@@ -570,7 +1292,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	/* Check for bad length */
 	if (avpLength < MIN_AVP_SIZE || 
 		((long)avpLength > packetLength)) {
-	  g_warning("DIAMETER: AVP payload size invalid: avp_length: %d bytes,  "
+	  g_warning("Diameter: AVP payload size invalid: avp_length: %d bytes,  "
 				"min: %d bytes,    packetLen: %d",
 				avpLength, MIN_AVP_SIZE, packetLength);
 	  BadPacket = TRUE;
@@ -578,7 +1300,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 
 	/* Check for bad flags */
 	if (flags & AVP_FLAGS_RESERVED) {
-	  g_warning("DIAMETER: Invalid AVP: Reserved bit set.  flags = 0x%x,"
+	  g_warning("Diameter: Invalid AVP: Reserved bit set.  flags = 0x%x,"
 				" resFl=0x%x",
 				flags, AVP_FLAGS_RESERVED);
 	  /* For now, don't set bad packet, since I'm accidentally setting a wrong bit */
@@ -597,14 +1319,14 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	
 	/* Check for out of bounds */
 	if (packetLength < 0) {
-	  g_warning("DIAMETER: Bad AVP: Bad new length (%d bytes) ",
+	  g_warning("Diameter: Bad AVP: Bad new length (%d bytes) ",
 				packetLength);
 	  BadPacket = TRUE;
 	}
 
 	/* Make avp Name & type */
-	strcpy(avpTypeString, val_to_str(diameter_avp_get_type(avph.avp_code), diameter_avp_type_vals, 
-								   "Unknown-Type: 0x%08x"));
+	strcpy(avpTypeString, val_to_str(diameter_avp_get_type(avph.avp_code), TypeValues, 
+									 "Unknown-Type: 0x%08x"));
 	strcpy(avpNameString, diameter_avp_get_name(avph.avp_code));
 
 	avptf = proto_tree_add_text(avp_tree, tvb,
@@ -618,7 +1340,7 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 	if (avpi_tree !=NULL) {
 	  /* Command Code */
 	  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_code,
-						  tvb, offset, 4, avph.avp_code, "AVP Code: %s", avpNameString);
+								 tvb, offset, 4, avph.avp_code, "AVP Code: %s", avpNameString);
 	  offset += 4;
 		
 	  tf = proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_flags, tvb,
@@ -775,6 +1497,36 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 									 "Value: 0x%08x (%u): %s", data, data, valstr);
 		}
 		break;
+	  case DIAMETER_VENDOR_ID:
+		{
+		  guint32 data;
+		  
+		  memcpy(&data, dataBuffer, 4);
+		  data = ntohl(data);
+		  valstr = diameter_vendor_to_str(data);
+		  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
+									 tvb, offset, avpDataLength, data,
+									 "%s (0x%08x)", valstr, data);
+		}
+		break;
+	  case DIAMETER_APPLICATION_ID:
+		{
+		  guint32 data;
+		  
+		  memcpy(&data, dataBuffer, 4);
+		  data = ntohl(data);
+		  valstr = diameter_app_to_str(data);
+		  proto_tree_add_uint_format(avpi_tree, hf_diameter_avp_data_uint32,
+									 tvb, offset, avpDataLength, data,
+									 "%s (0x%08x)", valstr, data);
+		}
+		break;
+	  case DIAMETER_MIP_REG_REQ:
+
+		/* Make a new tvb */
+		safe_dissect_mip(tvb, pinfo, avpi_tree, offset, avpDataLength);
+		break;
+
 	  default:
 	  case DIAMETER_OCTET_STRING:
 		proto_tree_add_bytes_format(avpi_tree, hf_diameter_avp_data_bytes,
@@ -794,36 +1546,35 @@ static void dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree
 void
 proto_reg_handoff_diameter(void)
 {
-	static int Initialized=FALSE;
-	static int TcpPort=0;
-	static int SctpPort=0;
+  static int Initialized=FALSE;
+  static int TcpPort=0;
+  static int SctpPort=0;
 
-	if (Initialized) {
-		dissector_delete("tcp.port", TcpPort, dissect_diameter);
-		dissector_delete("sctp.port", SctpPort, dissect_diameter);
-	} else {
-		Initialized=TRUE;
-	}
+  if (Initialized) {
+	dissector_delete("tcp.port", TcpPort, dissect_diameter);
+	dissector_delete("sctp.port", SctpPort, dissect_diameter);
+  } else {
+	Initialized=TRUE;
+  }
 
-	/* set port for future deletes */
-	TcpPort=gbl_diameterTcpPort;
-	SctpPort=gbl_diameterSctpPort;
+  /* set port for future deletes */
+  TcpPort=gbl_diameterTcpPort;
+  SctpPort=gbl_diameterSctpPort;
 
-	strcpy(gbl_diameterString, "Diameter Protocol");
+  strcpy(gbl_diameterString, "Diameter Protocol");
 
-        /* g_warning ("Diameter: Adding tcp dissector to port %d",
-		gbl_diameterTcpPort); */
-	dissector_add("tcp.port", gbl_diameterTcpPort, dissect_diameter,
-	    proto_diameter);
-	dissector_add("sctp.port", gbl_diameterSctpPort,
-	    dissect_diameter, proto_diameter);
+  /* g_warning ("Diameter: Adding tcp dissector to port %d",
+	 gbl_diameterTcpPort); */
+  dissector_add("tcp.port", gbl_diameterTcpPort, dissect_diameter,
+				proto_diameter);
+  dissector_add("sctp.port", gbl_diameterSctpPort,
+				dissect_diameter, proto_diameter);
 }
 
 /* registration with the filtering engine */
 void
 proto_register_diameter(void)
 {
-
 	static hf_register_info hf[] = {
 		{ &hf_diameter_version,
 		  { "Version", "diameter.version", FT_UINT8, BASE_HEX, NULL, 0x00,
@@ -831,34 +1582,34 @@ proto_register_diameter(void)
 		{ &hf_diameter_length,
 		  { "Length","diameter.length", FT_UINT24, BASE_DEC, NULL, 0x0,
 		    "", HFILL }},
-
+		
 		{ &hf_diameter_flags,
 		  { "Flags", "diameter.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
 		    "", HFILL }},
 		{ &hf_diameter_flags_request,
-		{ "Request", "diameter.flags.request", FT_BOOLEAN, 8, TFS(&flags_set_truth), DIAM_FLAGS_R,
+		  { "Request", "diameter.flags.request", FT_BOOLEAN, 8, TFS(&flags_set_truth), DIAM_FLAGS_R,
 			"", HFILL }},
 		{ &hf_diameter_flags_proxyable,
-		{ "Proxyable", "diameter.flags.proxyable", FT_BOOLEAN, 8, TFS(&flags_set_truth), DIAM_FLAGS_P,
+		  { "Proxyable", "diameter.flags.proxyable", FT_BOOLEAN, 8, TFS(&flags_set_truth), DIAM_FLAGS_P,
 			"", HFILL }},
 		{ &hf_diameter_flags_error,
-		{ "Error","diameter.flags.error", FT_BOOLEAN, 8, TFS(&flags_set_truth), DIAM_FLAGS_E,
+		  { "Error","diameter.flags.error", FT_BOOLEAN, 8, TFS(&flags_set_truth), DIAM_FLAGS_E,
 			"", HFILL }},
 		{ &hf_diameter_flags_reserved3,
-		{ "Reserved","diameter.flags.reserved3", FT_BOOLEAN, 8, TFS(&reserved_set),
-		  DIAM_FLAGS_RESERVED3, "", HFILL }},
+		  { "Reserved","diameter.flags.reserved3", FT_BOOLEAN, 8, TFS(&reserved_set),
+			DIAM_FLAGS_RESERVED3, "", HFILL }},
 		{ &hf_diameter_flags_reserved4,
-		{ "Reserved","diameter.flags.reserved4", FT_BOOLEAN, 8, TFS(&reserved_set),
-		  DIAM_FLAGS_RESERVED4, "", HFILL }},
+		  { "Reserved","diameter.flags.reserved4", FT_BOOLEAN, 8, TFS(&reserved_set),
+			DIAM_FLAGS_RESERVED4, "", HFILL }},
 		{ &hf_diameter_flags_reserved5,
-		{ "Reserved","diameter.flags.reserved5", FT_BOOLEAN, 8, TFS(&reserved_set),
-		  DIAM_FLAGS_RESERVED5, "", HFILL }},
+		  { "Reserved","diameter.flags.reserved5", FT_BOOLEAN, 8, TFS(&reserved_set),
+			DIAM_FLAGS_RESERVED5, "", HFILL }},
 		{ &hf_diameter_flags_reserved6,
-		{ "Reserved","diameter.flags.reserved6", FT_BOOLEAN, 8, TFS(&reserved_set),
-		  DIAM_FLAGS_RESERVED6, "", HFILL }},
+		  { "Reserved","diameter.flags.reserved6", FT_BOOLEAN, 8, TFS(&reserved_set),
+			DIAM_FLAGS_RESERVED6, "", HFILL }},
 		{ &hf_diameter_flags_reserved7,
-		{ "Reserved","diameter.flags.reserved7", FT_BOOLEAN, 8, TFS(&reserved_set),
-		  DIAM_FLAGS_RESERVED7, "", HFILL }},
+		  { "Reserved","diameter.flags.reserved7", FT_BOOLEAN, 8, TFS(&reserved_set),
+			DIAM_FLAGS_RESERVED7, "", HFILL }},
 
 		{ &hf_diameter_code,
 		  { "Command Code","diameter.code", FT_UINT24, BASE_DEC,
@@ -872,7 +1623,7 @@ proto_register_diameter(void)
 		{ &hf_diameter_endtoendid,
 		  { "End-to-End Identifier", "diameter.endtoendid", FT_UINT32, 
 		    BASE_HEX, NULL, 0x0, "", HFILL }},
-
+		
 		{ &hf_diameter_avp_code,
 		  { "AVP Code","diameter.avp.code", FT_UINT32, BASE_DEC,
 		    NULL, 0x0, "", HFILL }},
@@ -885,29 +1636,29 @@ proto_register_diameter(void)
 		  { "AVP Flags","diameter.avp.flags", FT_UINT8, BASE_HEX,
 		    NULL, 0x0, "", HFILL }},
 		{ &hf_diameter_avp_flags_vendor_specific,
-		{ "Vendor-Specific", "diameter.flags.vendorspecific", FT_BOOLEAN, 8, TFS(&flags_set_truth), AVP_FLAGS_V,
+		  { "Vendor-Specific", "diameter.flags.vendorspecific", FT_BOOLEAN, 8, TFS(&flags_set_truth), AVP_FLAGS_V,
 			"", HFILL }},
 		{ &hf_diameter_avp_flags_mandatory,
-		{ "Mandatory", "diameter.flags.mandatory", FT_BOOLEAN, 8, TFS(&flags_set_truth), AVP_FLAGS_M,
+		  { "Mandatory", "diameter.flags.mandatory", FT_BOOLEAN, 8, TFS(&flags_set_truth), AVP_FLAGS_M,
 			"", HFILL }},
 		{ &hf_diameter_avp_flags_protected,
-		{ "Protected","diameter.avp.flags.protected", FT_BOOLEAN, 8, TFS(&flags_set_truth), AVP_FLAGS_P,
+		  { "Protected","diameter.avp.flags.protected", FT_BOOLEAN, 8, TFS(&flags_set_truth), AVP_FLAGS_P,
 			"", HFILL }},
 		{ &hf_diameter_avp_flags_reserved3,
-		{ "Reserved","diameter.avp.flags.reserved3", FT_BOOLEAN, 8, TFS(&reserved_set),
-		  AVP_FLAGS_RESERVED3,	"", HFILL }},
+		  { "Reserved","diameter.avp.flags.reserved3", FT_BOOLEAN, 8, TFS(&reserved_set),
+			AVP_FLAGS_RESERVED3,	"", HFILL }},
 		{ &hf_diameter_avp_flags_reserved4,
-		{ "Reserved","diameter.avp.flags.reserved4", FT_BOOLEAN, 8, TFS(&reserved_set),
-		  AVP_FLAGS_RESERVED4,	"", HFILL }},
+		  { "Reserved","diameter.avp.flags.reserved4", FT_BOOLEAN, 8, TFS(&reserved_set),
+			AVP_FLAGS_RESERVED4,	"", HFILL }},
 		{ &hf_diameter_avp_flags_reserved5,
-		{ "Reserved","diameter.avp.flags.reserved5", FT_BOOLEAN, 8, TFS(&reserved_set),
-		  AVP_FLAGS_RESERVED5,	"", HFILL }},
+		  { "Reserved","diameter.avp.flags.reserved5", FT_BOOLEAN, 8, TFS(&reserved_set),
+			AVP_FLAGS_RESERVED5,	"", HFILL }},
 		{ &hf_diameter_avp_flags_reserved6,
-		{ "Reserved","diameter.avp.flags.reserved6", FT_BOOLEAN, 8, TFS(&reserved_set),
-		  AVP_FLAGS_RESERVED6,	"", HFILL }},
+		  { "Reserved","diameter.avp.flags.reserved6", FT_BOOLEAN, 8, TFS(&reserved_set),
+			AVP_FLAGS_RESERVED6,	"", HFILL }},
 		{ &hf_diameter_avp_flags_reserved7,
-		{ "Reserved","diameter.avp.flags.reserved7", FT_BOOLEAN, 8, TFS(&reserved_set),
-		  AVP_FLAGS_RESERVED7,	"", HFILL }},
+		  { "Reserved","diameter.avp.flags.reserved7", FT_BOOLEAN, 8, TFS(&reserved_set),
+			AVP_FLAGS_RESERVED7,	"", HFILL }},
 		{ &hf_diameter_avp_vendor_id,
 		  { "AVP Vendor Id","diameter.avp.vendorId", FT_UINT32, BASE_DEC,
 		    NULL, 0x0, "", HFILL }},
@@ -926,7 +1677,7 @@ proto_register_diameter(void)
 		{ &hf_diameter_avp_data_bytes,
 		  { "AVP Data","diameter.avp.data.bytes", FT_BYTES, BASE_NONE,
 		    NULL, 0x0, "", HFILL }},
-
+		
 		{ &hf_diameter_avp_data_string,
 		  { "AVP Data","diameter.avp.data.string", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "", HFILL }},
@@ -951,21 +1702,36 @@ proto_register_diameter(void)
 	module_t *diameter_module;
 
 	proto_diameter = proto_register_protocol (gbl_diameterString,
-	    "DIAMETER", "diameter");
+											  "Diameter", "diameter");
 	proto_register_field_array(proto_diameter, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	/* Register a configuration option for port */
 	diameter_module = prefs_register_protocol(proto_diameter,
-	    proto_reg_handoff_diameter);
+											  proto_reg_handoff_diameter);
 	prefs_register_uint_preference(diameter_module, "tcp.port",
-				       "DIAMETER TCP Port",
-				       "Set the TCP port for DIAMETER messages",
-				       10,
-				       &gbl_diameterTcpPort);
+								   "Diameter TCP Port",
+								   "Set the TCP port for Diameter messages",
+								   10,
+								   &gbl_diameterTcpPort);
 	prefs_register_uint_preference(diameter_module, "sctp.port",
-				       "DIAMETER SCTP Port",
-				       "Set the SCTP port for DIAMETER messages",
-				       10,
-				       &gbl_diameterSctpPort);
-}
+								   "Diameter SCTP Port",
+								   "Set the SCTP port for Diameter messages",
+								   10,
+								   &gbl_diameterSctpPort);
+	/*
+	 * Build our default dictionary filename
+	 */
+	if (! gbl_diameterDictionary) {
+		gbl_diameterDictionary = (gchar *) g_malloc(strlen(get_datafile_dir()) +
+													1 + strlen(DICT_FN) + 1); /* slash + fn + null */
+		sprintf(gbl_diameterDictionary, "%s" G_DIR_SEPARATOR_S "%s",
+				get_datafile_dir(), DICT_FN );
+	}
+	/* Now register its preferences so it can be changed. */
+	prefs_register_string_preference(diameter_module, "dictionary.name",
+									 "Diameter XML Dictionary",
+									 "Set the dictionary used for Diameter messages",
+									 &gbl_diameterDictionary);
+
+} /* proto_register_diameter */

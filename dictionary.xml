@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dictionary SYSTEM "dictionary.dtd" [
+	<!ENTITY nasreq SYSTEM "nasreq.xml">
+	<!ENTITY mobileipv4 SYSTEM "mobileipv4.xml">
+	<!ENTITY sunping SYSTEM "sunping.xml">
+]>
+<dictionary>
+	<base uri="ftp://ftp.ietf.org/internet-drafts/draft-ietf-aaa-diameter-07.txt">
+		<!--
+  $Log: dictionary.xml,v $
+  Revision 1.1  2001/11/01 21:52:44  guy
+  From David Frascone: duUpdate to Diameter dissector to load the
+  dictionary as an XML file rather than building it in, and various
+  Diameter updates.
+
+  Revision 1.7  2001/08/24 18:03:24  chaos
+  Mark's Changes
+
+  Revision 1.6  2001/07/31 19:13:55  chaos
+  Missed a couple of MIP AVPs
+
+  Revision 1.5  2001/07/31 19:09:22  chaos
+  Added Mobile-Ip and Sun Ping Extension
+
+  Revision 1.4  2001/07/31 17:43:25  chaos
+  Oops, forgot to turn on validity checking.  Fixed some errors found with validity checking turned on
+
+  Revision 1.3  2001/07/31 16:56:31  chaos
+  Added commands, and validated with xmllint
+
+  Revision 1.2  2001/07/31 16:29:34  chaos
+  Checking in some changes to verify log and ident strings
+
+-->
+		<!-- *********************** Commands ***************************** -->
+		<!-- Diameter Base Protocol Command Codes -->
+		<command name="Abort-Session" code="274" vendor-id="None">
+			<!-- Maybe some avp stuff here one day -->
+		</command>
+		<command name="Accounting" code="271" vendor-id="None"/>
+		<command name="Capabilities-Exchange" code="257" vendor-id="None"/>
+		<command name="Device-Watchdog" code="280" vendor-id="None"/>
+		<command name="Disconnect-Peer" code="282" vendor-id="None"/>
+		<command name="Re-Auth" code="258" vendor-id="None"/>
+		<command name="Session-Termination" code="275" vendor-id="None"/>
+		<!-- ********************** End Commands ************************** -->
+
+		<!-- ************************* Vendors **************************** -->
+		<vendor vendor-id="None" code="0" name="None"/>
+		<vendor vendor-id="Merit" code="61" name="Merit Networks"/>
+		<vendor vendor-id="Sun" code="42" name="Sun Microsystems, Inc."/>
+		<vendor vendor-id="USR" code="429" name="US Robotics Corp."/>
+		<!-- *********************** End Vendors ************************** -->
+
+		<!-- ************************ typedefn's ************************** -->
+		<typedefn type-name="OctetString"/>
+		<!--
+         The data contains arbitrary data of variable length. Unless
+         otherwise noted, the AVP Length field MUST be set to at least 9
+         (13 if the 'V' bit is enabled).  Data used to transmit (human
+         readable) character string data uses the UTF-8 [24] character
+         set and is NOT NULL-terminated. The minimum Length field MUST
+         be 9, but can be set to any value up to 65504 bytes. AVP Values
+         of this type that do not align on a 32-bit boundary MUST have
+         the necessary padding.
+	 -->
+		<typedefn type-name="UTF8String" type-parent="OctetString"/>
+		<!--
+         The UTF8String format is derived from the OctetString AVP Base
+         Format. This is a human readable string represented using the
+         ISO/IEC IS 10646-1 character set, encoded as an OctetString
+         using the UTF-8 [29] transformation format described in RFC
+         2279.
+
+         Since additional code points are added by amendments to the
+         10646 standard from time to time, implementations MUST be
+         prepared to encounter any code point from 0x00000001 to
+         0x7fffffff. Byte sequences that do not correspond to the valid
+         UTF-8 encoding of a code point or are outside this range are
+         prohibited. Note that since a code point of 0x00000000 is
+         prohibited, no octet will contain a value of 0x00.
+
+         The use of control codes SHOULD be avoided. When it is
+         necessary to represent a newline, the control code sequence CR
+         LF SHOULD be used.
+
+         The use of leading or trailing white space SHOULD be avoided.
+
+         For code points not directly supported by user interface
+         hardware or software, an alternative means of entry and
+         display, such as hexadecimal, MAY be provided.
+
+         For information encoded in 7-bit US-ASCII, the UTF-8 encoding
+         is identical to the US-ASCII encoding.
+
+         UTF-8 may require multiple bytes to represent a single
+         character / code point; thus the length of a UTF8String in
+         octets may be different from the number of characters encoded.
+
+         Note that the size of an UTF8String is measured in octets, not
+         characters.
+
+         The UTF8String MUST not contain any octets with a value of
+         zero.
+        -->
+		<typedefn type-name="IPAddress" type-parent="OctetString"/>
+		<!--
+         The IPAddress format is derived from the OctetString AVP Base
+         Format. It represents 32 bit (IPv4) [17] or 128 bit (IPv6) [16]
+         address, most significant octet first. The format of the
+         address (IPv4 or IPv6) is determined by the length. If the
+         attribute value is an IPv4 address, the AVP Length field MUST
+         be 12 (16 if 'V' bit is enabled), otherwise the AVP Length
+         field MUST be set to 24 (28 if the 'V' bit is enabled) for IPv6
+         addresses.
+	 -->
+		<typedefn type-name="DiameterIdentity" type-parent="OctetString"/>
+		<!--
+         The DiameterIdentity format is derived from the OctetString AVP
+         Base Format.  It uses the UTF-8 encoding and has the same
+         requirements as the UTF8String.  In addition, it must follow
+         the Uniform Resource Identifiers (URI) syntax [29] rules
+         specified below:
+
+            Diameter-Identity  = fqdn [ port ] [ transport ]
+                                 [ protocol ]
+
+            aaa-protocol       = ( "diameter" | "radius" | "tacacs+" )
+
+            protocol           = ";protocol=" aaa-protocol
+                                 ; If absent, the default AAA protocol
+                                 ; is diameter.
+
+            fqdn               = Fully Qualified Host Name
+
+            port               = ":" 1*DIGIT
+                                 ; One of the ports used to listen for
+                                 ; incoming connections. ; If absent,
+                                 ; the default Diameter port (TBD) is
+                                 ; assumed.
+
+            transport-protocol = ( "tcp" | "sctp" | "udp" )
+
+            transport          = ";transport=" transport-protocol
+
+                                 ; One of the transports used to listen
+                                 ; for incoming connections. If absent,
+                                 ; the default SCTP [26] protocol is
+                                 ; assumed. UDP MUST NOT be used when
+                                 ; the aaa-protocol field is set to
+                                 ; diameter.
+
+            The following are examples of valid Diameter host
+            identities:
+
+               host.abc.com;transport=tcp
+               host.abc.com:6666;transport=tcp
+               aaa://host.abc.com;protocol=diameter
+               aaa://host.abc.com:6666;protocol=diameter
+               aaa://host.abc.com:6666;transport=tcp;protocol=diameter
+               aaa://host.abc.com:1813;transport=udp;protocol=radius
+
+         Since multiple Diameter processes on a single host cannot
+         listen for incoming connections on the same port on a given
+         protocol, the DiameterIdentity is guaranteed to be unique per
+         host.
+
+         A Diameter node MAY advertise different identities on each
+         connection, via the CER and CEA's Origin-Host AVP, but the same
+         identity MUST be used throughout the duration of a connection.
+
+         When comparing AVPs of this format, it is necessary to add any
+         absent fields with the default values prior to the comparison.
+         For example, diameter-host.abc.com would be expanded to
+         aaa://diameter/diameter-host.abc.com:TBD;protocol=sctp.
+        -->
+		<typedefn type-name="IPFilterRule" type-parent="OctetString"/>
+		<!--
+         The IPFilterRule format is derived from the OctetString AVP
+         Base Format.  It uses the UTF-8 encoding and has the same
+         requirements as the UTF8String. Packets may be filtered based
+         on the following information that is associated with it:
+
+            Direction                          (in or out)
+            Source and destination IP address  (possibly masked)
+            Protocol
+            Source and destination port        (lists or ranges)
+            TCP flags
+            IP fragment flag
+            IP options
+            ICMP types
+
+         Rules for the appropriate direction are evaluated in order,
+         with the first matched rule terminating the evaluation.  Each
+         packet is evaluated once. If no rule matches, the packet is
+         dropped if the last rule evaluated was a permit, and passed if
+         the last rule was a deny.
+
+         IPFilterRule filters MUST follow the format:
+
+            action dir proto from src to dst [options]
+
+            action       permit - Allow packets that match the rule.
+                         deny   - Drop packets that match the rule.
+
+            dir          "in" is from the terminal, "out" is to the
+                         terminal.
+
+            proto        An IP protocol specified by number.  The "ip"
+                         keyword means any protocol will match.
+
+            src and dst  <address/mask> [ports]
+
+                         The <address/mask> may be specified as:
+                         ipno       An IPv4 or IPv6 number in dotted-
+                                    quad or canonical IPv6 form. Only
+                                    this exact IP number will match the
+                                    rule.
+                         ipno/bits  An IP number as above with a mask
+                                    width of the form 1.2.3.4/24.  In
+                                    this case all IP numbers from
+                                    1.2.3.0 to 1.2.3.255 will match.
+                                    The bit width MUST be valid for the
+                                    IP version and the IP number MUST
+                                    NOT have bits set beyond the mask.
+
+                         The sense of the match can be inverted by
+                         preceding an address with the not modifier,
+                         causing all other addresses to be matched
+                         instead.  This does not affect the selection of
+                         port numbers.
+
+                            The keyword "any" is 0.0.0.0/0 or the IPv6
+                            equivalent.  The keyword "assigned" is the
+                            address or set of addresses assigned to the
+                            terminal.  The first rule SHOULD be "deny in
+                            ip !assigned".
+
+                         With the TCP, UDP and SCTP protocols, optional
+                         ports may be specified as:
+
+                            {port|port-port}[,port[,...]]
+
+                         The `-' notation specifies a range of ports
+                         (including boundaries).
+
+                         Fragmented packets which have a non-zero offset
+                         (i.e. not the first fragment) will never match
+                         a rule which has one or more port
+                         specifications.  See the frag option for
+                         details on matching fragmented packets.
+
+            options:
+               frag    Match if the packet is a fragment and this is not
+                       the first fragment of the datagram.  frag may not
+                       be used in conjunction with either tcpflags or
+                       TCP/UDP port specifications.
+
+               ipoptions spec
+                       Match if the IP header contains the comma
+                       separated list of options specified in spec. The
+                       supported IP options are:
+
+                       ssrr (strict source route), lsrr (loose source
+                       route), rr (record packet route) and ts
+                       (timestamp). The absence of a particular option
+                       may be denoted with a `!'.
+
+               tcpoptions spec
+                       Match if the TCP header contains the comma
+                       separated list of options specified in spec. The
+                       supported TCP options are:
+
+                       mss (maximum segment size), window (tcp window
+                       advertisement), sack (selective ack), ts (rfc1323
+                       timestamp) and cc (rfc1644 t/tcp connection
+                       count).  The absence of a particular option may
+                       be denoted with a `!'.
+
+               established
+                       TCP packets only. Match packets that have the RST
+                       or ACK bits set.
+
+               setup   TCP packets only. Match packets that have the SYN
+                       bit set but no ACK bit.
+
+               tcpflags spec
+                       TCP packets only. Match if the TCP header
+                       contains the comma separated list of flags
+                       specified in spec. The supported TCP flags are:
+
+                       fin, syn, rst, psh, ack and urg. The absence of a
+                       particular flag may be denoted with a `!'. A rule
+                       which contains a tcpflags specification can never
+                       match a fragmented packet which has a non-zero
+                       offset.  See the frag option for details on
+                       matching fragmented packets.
+
+               icmptypes types
+                       ICMP packets only.  Match if the ICMP type is in
+                       the list types. The list may be specified as any
+                       combination of ranges or individual types
+                       separated by commas.  The supported ICMP types
+                       are:
+
+                       echo reply (0), destination unreachable (3),
+                       source quench (4), redirect (5), echo request
+                       (8), router advertisement (9), router
+                       solicitation (10), time-to-live exceeded (11), IP
+                       header bad (12), timestamp request (13),
+                       timestamp reply (14), information request (15),
+                       information reply (16), address mask request (17)
+                       and address mask reply (18).
+
+         There is one kind of packet that the access device MUST always
+         discard, that is an IP fragment with a fragment offset of one.
+         This is a valid packet, but it only has one use, to try to
+         circumvent firewalls.
+
+            An access device that is unable to interpret or apply a deny
+            rule MUST terminate the session.  An access device that is
+            unable to interpret or apply a permit rule MAY apply a more
+            restrictive rule.  An access device MAY apply deny rules of
+            its own before the supplied rules, for example to protect
+            the access device owner's infrastructure.
+
+         The rule syntax is a modified subset of ipfw(8) from FreeBSD,
+         and the ipfw.c code may provide a useful base for
+         implementations.
+        -->
+		<typedefn type-name="QOSFilterRule" type-parent="OctetString"/>
+		<!--
+         The QosFilterRule format is derived from the OctetString AVP
+         Base Format.  It uses the UTF-8 encoding and has the same
+         requirements as the UTF8String. Packets may be marked or
+         metered based on the following information that is associated
+         with it:
+
+            Direction                          (in or out)
+            Source and destination IP address  (possibly masked)
+            Protocol
+            Source and destination port        (lists or ranges)
+            DSCP values                        (no mask or range)
+
+         Rules for the appropriate direction are evaluated in order,
+         with the first matched rule terminating the evaluation.  Each
+         packet is evaluated once. If no rule matches, the packet is
+         treated as best effort.
+
+         QoSFilterRule filters MUST follow the format:
+
+            action dir proto from src to dst [options]
+
+                         tag    - Mark packet with a specific DSCP [49].
+                                  The DSCP option MUST be included.
+
+                         meter  - Meter traffic. The metering options
+                                  MUST be included.
+
+            dir          "in" is from the terminal, "out" is to the
+                         terminal.
+
+            proto        An IP protocol specified by number.  The "ip"
+                         keyword means any protocol will match.
+
+            src and dst  <address/mask> [ports]
+
+                         The <address/mask> may be specified as:
+                         ipno       An IPv4 or IPv6 number in dotted-
+                                    quad or canonical IPv6 form. Only
+                                    this exact IP number will match the
+                                    rule.
+                         ipno/bits  An IP number as above with a mask
+                                    width of the form 1.2.3.4/24.  In
+                                    this case all IP numbers from
+                                    1.2.3.0 to 1.2.3.255 will match.
+                                    The bit width MUST be valid for the
+                                    IP version and the IP number MUST
+                                    NOT have bits set beyond the mask.
+
+                         The sense of the match can be inverted by
+                         preceding an address with the not modifier,
+                         causing all other addresses to be matched
+                         instead.  This does not affect the selection of
+                         port numbers.
+
+                            The keyword "any" is 0.0.0.0/0 or the IPv6
+                            equivalent.  The keyword "assigned" is the
+                            address or set of addresses assigned to the
+                            terminal.  The first rule SHOULD be "deny in
+                            ip !assigned".
+
+                         With the TCP, UDP and SCTP protocols, optional
+                         ports may be specified as:
+
+                            {port|port-port}[,port[,...]]
+
+                         The `-' notation specifies a range of ports
+                         (including boundaries).
+
+            options:
+
+               DSCP <color>
+                       color values as defined in [49]. Exact matching
+                       of DSCP values is required (no masks or ranges).
+                       the "deny" can replace the color_under or
+                       color_over values in the meter action for rate-
+                       dependent packet drop.
+
+               metering <rate> <color_under> <color_over>
+                       The metering option provides Assured Forwarding,
+                       as defined in [50], and MUST be present if the
+                       action is set to meter. The rate option is the
+                       throughput, in bits per second, which is used by
+                       the access device to mark packets. Traffic above
+                       the rate is marked with the color_over codepoint,
+                       while traffic under the rate is marked with the
+                       color_under codepoint. The color_under and
+                       color_over options contain the drop preferences,
+                       and MUST conform to the recommended codepoint
+                       keywords described in [50] (e.g. AF13).
+
+                       The metering option also supports the strict
+                       limit on traffic required by Expedited
+                       Forwarding, as defined in [51]. The color_over
+                       option may contain the keyword "drop" to prevent
+                       forwarding of traffic that exceeds the rate
+                       parameter.
+
+         The rule syntax is a modified subset of ipfw(8) from FreeBSD,
+         and the ipfw.c code may provide a useful base for
+         implementations.
+
+        -->
+		<typedefn type-name="MIPRegistrationRequest" type-parent="OctetString"/>
+
+		<typedefn type-name="Integer32"/>
+		<!--
+         32 bit signed value, in network byte order. The AVP Length
+         field MUST be set to 12 (16 if the 'V' bit is enabled).
+	-->
+		<typedefn type-name="VendorId" type-parent="Integer32"/>
+		<typedefn type-name="AppId" type-parent="Integer32"/>
+		<typedefn type-name="Integer64"/>
+		<!--
+         64 bit signed value, in network byte order. The AVP Length
+         field MUST be set to 16 (20 if the 'V' bit is enabled).
+        -->
+		<typedefn type-name="Unsigned32"/>
+		<!--
+         32 bit unsigned value, in network byte order. The AVP Length
+         field MUST be set to 12 (16 if the 'V' bit is enabled).
+         Unsigned32 values used to transmit time data contains the four
+         most significant octets returned from NTP [18], in network byte
+         order.
+	-->
+		<typedefn type-name="Time"/>
+		<!--
+         The Time format is derived from the Unsigned32 AVP Base Format.
+         This is 32 bit unsigned value containing the four most
+         significant octets returned from NTP [18], in network byte
+         order.
+
+         This represent the number of seconds since 0h on 1 January 1900
+         with respect to the Coordinated Universal Time (UTC).
+
+         On 6h 28m 16s UTC, 7 February 2036 the time value will
+         overflow.  NTP [18] describes a procedure to extend the time to
+         2104.
+        -->
+		<typedefn type-name="Unsigned64"/>
+		<!--
+         64 bit unsigned value, in network byte order. The AVP Length
+         field MUST be set to 16 (20 if the 'V' bit is enabled).
+	-->
+		<!-- ************************* End Typedefns ************************ -->
+		<!-- ******************* DIAMETER BASE PROTOCOL AVPS ************************ -->
+		<avp name="Accounting-Interim-Interval" code="482" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Accounting-Multi-Session-Id" code="50" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Accounting-Record-Number" code="485" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Accounting-Record-Type" code="480" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="Event Record" code="1"/>
+			<enum name="Start Record" code="2"/>
+			<enum name="Interim Record" code="3"/>
+			<enum name="Stop Record" code="4"/>
+		</avp>
+		<avp name="Accounting-Session-Id" code="44" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Acct-Application-Id" code="259" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="AppId"/>
+		</avp>
+		<avp name="Alternate-Peer" code="275" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Auth-Application-Id" code="258" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="AppId"/>
+		</avp>
+		<avp name="Auth-Request-Type" code="274" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="Authenticate Only" code="1"/>
+			<enum name="Authorize Only" code="2"/>
+			<enum name="Authorize Authenticate" code="3"/>
+		</avp>
+		<avp name="Authorization-Lifetime" code="291" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="Integer32"/>
+		</avp>
+		<avp name="Auth-Grace-Period" code="276" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Auth-Session-State" code="277" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="State Maintained" code="0"/>
+			<enum name="No State Maintained" code="0"/>
+		</avp>
+		<avp name="Re-Auth-Request-Type" code="285" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="Authorize Only" code="0"/>
+			<enum name="Authorize Authenticate" code="1"/>
+		</avp>
+		<avp name="Destination-Host" code="293" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Destination-Realm" code="283" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Disconnect-Cause" code="273" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="Rebooting" code="0"/>
+			<enum name="Busy" code="2"/>
+			<enum name="Do not want to talk to you" code="2"/>
+		</avp>
+		<avp name="Error-Message" code="281" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Error-Reporting-Host" code="294" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Failed-AVP" code="279" mandatory="must" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Firmware-Revision" code="267" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Host-IP-Address" code="257" mandatory="must" protected="mustnot" may-encrypt="no" vendor-bit="mustnot">
+			<type type-name="IPAddress"/>
+		</avp>
+		<avp name="Multi-Round-Time-Out" code="272" mandatory="must" may-encrypt="yes" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Origin-Host" code="264" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Origin-Realm" code="296" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Origin-State-Id" code="278" mandatory="must" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Product-Name" code="269" mandatory="mustnot" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Proxy-Host" code="280" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Proxy-Info" code="284" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Redirect-Host" code="292" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Redirect-Host-Usage" code="261" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="Don't Care" code="0"/>
+			<enum name="All Session" code="1"/>
+			<enum name="All Realm" code="2"/>
+			<enum name="Realm and Application" code="3"/>
+			<enum name="All Application" code="4"/>
+			<enum name="All Host" code="5"/>
+		</avp>
+		<avp name="Redirect-Max-Cache-Time" code="262" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Result-Code" code="268" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Route-Record" code="282" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Session-Id" code="263" mandatory="must" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="UTF8String"/>
+		</avp>
+		<avp name="Session-Binding" code="270" mandatory="must" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Session-Server-Failover" code="271" mandatory="must" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="Refuse Service" code="0"/>
+			<enum name="Try Again" code="1"/>
+			<enum name="Allow Service" code="2"/>
+			<enum name="Try Again / Allow Service" code="3"/>
+		</avp>
+		<avp name="Source-Route" code="286" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="Supported-Vendor-Id" code="265" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="VendorId"/>
+		</avp>
+		<avp name="Termination-Cause" code="295" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="Unsigned32"/>
+			<enum name="Logout" code="1"/>
+			<enum name="Service Not Provided" code="2"/>
+			<enum name="Bad Answer" code="3"/>
+			<enum name="Administrative" code="4"/>
+			<enum name="Link Broken" code="5"/>
+		</avp>
+		<avp name="Vendor-Id" code="266" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<type type-name="VendorId"/>
+		</avp>
+		<avp name="Vendor-Specific-Application-Id" code="260" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="mustnot">
+			<grouped>
+				<gavp name="Vendor-Id"/>
+				<gavp name="Auth-Application-Id"/>
+				<gavp name="Acct-Application-Id"/>
+			</grouped>
+		</avp>
+		<avp name="Example-AVP" code="999999" mandatory="mustnot" vendor-bit="may">
+			<grouped>
+				<gavp name="Origin-Host"/>
+				<gavp name="Host-IP-Address"/>
+			</grouped>
+		</avp>
+		<!-- ************************ END DIAMETER BASE PROTOCOL AVPS ******************* -->
+	</base>
+
+	&nasreq;
+	&mobileipv4;
+	&sunping;
+	
+</dictionary>

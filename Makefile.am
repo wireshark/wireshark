@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal
 #
-# $Id: Makefile.am,v 1.372 2001/10/29 21:13:07 guy Exp $
+# $Id: Makefile.am,v 1.373 2001/11/01 21:52:44 guy Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Gerald Combs <gerald@ethereal.com>
@@ -68,7 +68,8 @@ man_MANS =
 EXTRA_PROGRAMS = ethereal ethereal_static tethereal tethereal_static editcap mergecap dftest text2pcap
 EXTRA_SCRIPTS = idl2eth
 
-sysconf_DATA = manuf
+sysconf_DATA = manuf dictionary.dtd dictionary.xml mobileipv4.xml \
+	nasreq.xml sunping.xml
 
 DISSECTOR_SRC = \
 	packet-aarp.c  \
@@ -448,7 +449,9 @@ ETHEREAL_COMMON_SRC = \
 	x11-declarations.h \
 	x11-register-info.h \
 	xdlc.c         \
-	xdlc.h
+	xdlc.h         \
+	xmlstub.c      \
+	xmlstub.h
 
 BUILT_SOURCES = \
 	x11-declarations.h \
@@ -808,6 +811,11 @@ EXTRA_DIST = \
 	randpkt.c		\
 	rdps.c			\
 	TODO			\
+	dictionary.dtd		\
+	dictionary.xml		\
+	mobileipv4.xml		\
+	nasreq.xml		\
+	sunping.xml		\
 	x11-fields
 
 if SETUID_INSTALL
