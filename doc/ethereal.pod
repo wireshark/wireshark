@@ -2243,6 +2243,7 @@ B<http://www.ethereal.com>.
   Love Hörnquist Åstrand   <lha [AT] it.su.se>
   Lukas Pokorny            <maskis [AT] seznam.cz>
   Thomas Anders            <thomas.anders [AT] blue-cable.de>
+  Rich Coe                 <Richard.Coe [AT] med.ge.com>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>

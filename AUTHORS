@@ -2114,6 +2114,10 @@ Thomas Anders <thomas.anders [AT] blue-cable.de> {
 	PacketCable DHCP options
 }
 
+Rich Coe <Richard.Coe [AT] med.ge.com> {
+	DICOM support
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>
