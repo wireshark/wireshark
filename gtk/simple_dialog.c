@@ -1,7 +1,7 @@
 /* simple_dialog.c
  * Simple message dialog box routines.
  *
- * $Id: simple_dialog.c,v 1.16 2004/01/21 21:19:34 ulfl Exp $
+ * $Id: simple_dialog.c,v 1.17 2004/01/29 23:07:17 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -45,7 +45,9 @@
 
 static void simple_dialog_cancel_cb(GtkWidget *, gpointer);
 
-static const gchar bm_key[] = "button mask";
+#define CALLBACK_FCT_KEY    "ESD_Callback_Fct"
+#define CALLBACK_BTN_KEY    "ESD_Callback_Btn"
+#define CALLBACK_DATA_KEY   "ESD_Callback_Data"
 
 /* Simple dialog function - Displays a dialog box with the supplied message
  * text.
@@ -61,10 +63,10 @@ static const gchar bm_key[] = "button mask";
  */
 
 #define ESD_MAX_MSG_LEN 2048
-void
-simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
+gpointer
+simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...) {
   GtkWidget   *win, *main_vb, *top_hb, *type_pm, *msg_label,
-              *bbox, *ok_bt, *cancel_bt;
+              *bbox, *bt;
   GdkPixmap   *pixmap;
   GdkBitmap   *mask;
   GtkStyle    *style;
@@ -83,6 +85,11 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
     icon = eexcl3d64_xpm;
     win = dlg_window_new("Ethereal: Error");
     break;
+  case ESD_TYPE_QUEST:
+    /* XXX: we need a question mark here */
+    icon = eexcl3d64_xpm;
+    win = dlg_window_new("Ethereal: Question");
+    break;
   case ESD_TYPE_INFO :
   default :
     icon = eicon3d64_xpm;
@@ -94,8 +101,6 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
     gtk_window_set_modal(GTK_WINDOW(win), TRUE);
 
   gtk_container_border_width(GTK_CONTAINER(win), 7);
-
-  OBJECT_SET_DATA(win, bm_key, btn_mask);
 
   /* Container for our rows */
   main_vb = gtk_vbox_new(FALSE, 5);
@@ -128,44 +133,77 @@ simple_dialog(gint type, gint *btn_mask, gchar *msg_format, ...) {
   gtk_widget_show(msg_label);
 
   /* Button row */
-  if (btn_mask && *btn_mask == ESD_BTN_CANCEL) {
-      bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
-  } else {
-      bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
+  switch(btn_mask) {
+  case(0):
+  case(ESD_BTN_OK):
+    bbox = dlg_button_row_new(GTK_STOCK_OK, NULL);
+    break;
+  case(ESD_BTN_OK | ESD_BTN_CANCEL):
+    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CANCEL, NULL);
+    break;
+  case(ESD_BTN_YES | ESD_BTN_NO | ESD_BTN_CANCEL):
+    bbox = dlg_button_row_new(GTK_STOCK_YES, GTK_STOCK_NO, GTK_STOCK_CANCEL, NULL);
+    break;
+  default:
+    g_assert_not_reached();
   }
   gtk_container_add(GTK_CONTAINER(main_vb), bbox);
   gtk_widget_show(bbox);
 
-  ok_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
-  SIGNAL_CONNECT_OBJECT(ok_bt, "clicked", gtk_widget_destroy, win);
-  gtk_widget_grab_default(ok_bt);  
-
-  if (btn_mask && *btn_mask == ESD_BTN_CANCEL) {
-    cancel_bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
-    SIGNAL_CONNECT(cancel_bt, "clicked", simple_dialog_cancel_cb, win);
-
-    /* Catch the "key_press_event" signal in the window, so that we can catch
-       the ESC key being pressed and act as if the "Cancel" button had
-       been selected. */
-    dlg_set_cancel(win, cancel_bt);
-  } else {
+  bt = OBJECT_GET_DATA(bbox, GTK_STOCK_OK);
+  if(bt) {
+      OBJECT_SET_DATA(bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_OK));
+      SIGNAL_CONNECT(bt, "clicked", simple_dialog_cancel_cb, win);
+      gtk_widget_grab_default(bt);
     /* Catch the "key_press_event" signal in the window, so that we can catch
        the ESC key being pressed and act as if the "OK" button had
        been selected. */
-    dlg_set_cancel(win, ok_bt);
+    dlg_set_cancel(win, bt);
   }
 
-  if (btn_mask)
-    *btn_mask = ESD_BTN_OK;
+  bt = OBJECT_GET_DATA(bbox, GTK_STOCK_YES);
+  if(bt) {
+      OBJECT_SET_DATA(bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_YES));
+      SIGNAL_CONNECT(bt, "clicked", simple_dialog_cancel_cb, win);
+  }
+
+  bt = OBJECT_GET_DATA(bbox, GTK_STOCK_NO);
+  if(bt) {
+      OBJECT_SET_DATA(bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_NO));
+      SIGNAL_CONNECT(bt, "clicked", simple_dialog_cancel_cb, win);
+  }
+
+  bt = OBJECT_GET_DATA(bbox, GTK_STOCK_CANCEL);
+  if(bt) {
+      OBJECT_SET_DATA(bt, CALLBACK_BTN_KEY, GINT_TO_POINTER(ESD_BTN_CANCEL));
+      SIGNAL_CONNECT(bt, "clicked", simple_dialog_cancel_cb, win);
+    /* Catch the "key_press_event" signal in the window, so that we can catch
+       the ESC key being pressed and act as if the "OK" button had
+       been selected. */
+      dlg_set_cancel(win, bt);
+      gtk_widget_grab_default(bt);
+  }
 
   gtk_widget_show(win);
+
+  return win;
 }
 
 static void
-simple_dialog_cancel_cb(GtkWidget *w _U_, gpointer win) {
-  gint *btn_mask = (gint *) OBJECT_GET_DATA(win, bm_key);
+simple_dialog_cancel_cb(GtkWidget *w, gpointer win) {
+  gint button       = GPOINTER_TO_INT(    OBJECT_GET_DATA(w,   CALLBACK_BTN_KEY));
+  simple_dialog_cb_t    callback_fct    = OBJECT_GET_DATA(win, CALLBACK_FCT_KEY);
+  gpointer              data            = OBJECT_GET_DATA(win, CALLBACK_DATA_KEY);
 
-  if (btn_mask)
-    *btn_mask = ESD_BTN_CANCEL;
   gtk_widget_destroy(GTK_WIDGET(win));
+
+  if (callback_fct)
+    (callback_fct) (win, button, data);
+}
+
+void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpointer data)
+{
+
+    OBJECT_SET_DATA(GTK_WIDGET(dialog), CALLBACK_FCT_KEY, callback_fct);
+    OBJECT_SET_DATA(GTK_WIDGET(dialog), CALLBACK_DATA_KEY, data);
 }

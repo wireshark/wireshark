@@ -2,7 +2,7 @@
  * Definitions for dialog box routines with toolkit-independent APIs but
  * toolkit-dependent implementations.
  *
- * $Id: simple_dialog.h,v 1.4 2002/08/28 21:00:41 jmayer Exp $
+ * $Id: simple_dialog.h,v 1.5 2004/01/29 23:07:17 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -35,21 +35,31 @@ extern "C" {
 #define ESD_TYPE_INFO	0x00
 #define ESD_TYPE_WARN	0x01
 #define ESD_TYPE_CRIT	0x02
+#define ESD_TYPE_QUEST  0x03
 
 /* Flag to be ORed with the dialog type, to specify that the dialog is
    to be modal. */
-#define ESD_TYPE_MODAL	0x04
+#define ESD_TYPE_MODAL	0x10
 
 /* Which buttons to display. */
-#define ESD_BTN_OK     0
-#define ESD_BTN_CANCEL 1
+#define ESD_BTN_OK     0x01
+#define ESD_BTN_CANCEL 0x02
+#define ESD_BTN_YES    0x04
+#define ESD_BTN_NO     0x08
 
+/* show a simple dialog */
 #if __GNUC__ >= 2
-void simple_dialog(gint, gint *, gchar *, ...)
+extern gpointer simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...)
     __attribute__((format (printf, 3, 4)));
 #else
-void simple_dialog(gint, gint *, gchar *, ...);
+extern gpointer simple_dialog(gint type, gint btn_mask, gchar *msg_format, ...);
 #endif
+
+/* callback function type */
+typedef void (* simple_dialog_cb_t) (gpointer dialog, gint btn, gpointer data);
+
+/* set the callback function, which has to be called when a button was pressed */
+extern void simple_dialog_set_cb(gpointer dialog, simple_dialog_cb_t callback_fct, gpointer data);
 
 #ifdef __cplusplus
 }
