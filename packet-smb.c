@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.224 2002/03/17 10:59:35 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.225 2002/03/17 11:24:16 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5813,13 +5813,17 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 #define NT_TRANS_NOTIFY		4
 #define NT_TRANS_RENAME		5
 #define NT_TRANS_QSD		6
+#define NT_TRANS_GET_USER_QUOTA	7
+#define NT_TRANS_SET_USER_QUOTA 8
 static const value_string nt_cmd_vals[] = {
-	{NT_TRANS_CREATE,	"NT CREATE"},
-	{NT_TRANS_IOCTL,	"NT IOCTL"},
-	{NT_TRANS_SSD,		"NT SET SECURITY DESC"},
-	{NT_TRANS_NOTIFY,	"NT NOTIFY"},
-	{NT_TRANS_RENAME,	"NT RENAME"},
-	{NT_TRANS_QSD,		"NT QUERY SECURITY DESC"},
+	{NT_TRANS_CREATE,		"NT CREATE"},
+	{NT_TRANS_IOCTL,		"NT IOCTL"},
+	{NT_TRANS_SSD,			"NT SET SECURITY DESC"},
+	{NT_TRANS_NOTIFY,		"NT NOTIFY"},
+	{NT_TRANS_RENAME,		"NT RENAME"},
+	{NT_TRANS_QSD,			"NT QUERY SECURITY DESC"},
+	{NT_TRANS_GET_USER_QUOTA,	"NT GET USER QUOTA"},
+	{NT_TRANS_SET_USER_QUOTA,	"NT SET USER QUOTA"},
 	{0, NULL}
 };
 
@@ -6991,6 +6995,12 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 		break;
 	case NT_TRANS_QSD:
 		break;
+	case NT_TRANS_GET_USER_QUOTA:
+		/* not decoded yet */
+		break;
+	case NT_TRANS_SET_USER_QUOTA:
+		/* not decoded yet */
+		break;
 	}
 
 	return offset;
@@ -7119,6 +7129,12 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		offset = dissect_security_information_mask(tvb, pinfo, tree, offset);
 		break;
 	}
+	case NT_TRANS_GET_USER_QUOTA:
+		/* not decoded yet */
+		break;
+	case NT_TRANS_SET_USER_QUOTA:
+		/* not decoded yet */
+		break;
 	}
 
 	return offset;
@@ -7192,6 +7208,12 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		/* XXX not documented */
 		break;
 	case NT_TRANS_QSD:
+		break;
+	case NT_TRANS_GET_USER_QUOTA:
+		/* not decoded yet */
+		break;
+	case NT_TRANS_SET_USER_QUOTA:
+		/* not decoded yet */
 		break;
 	}
  
@@ -7447,6 +7469,12 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		 */
 		offset = dissect_nt_sec_desc(tvb, pinfo, offset, tree, len);
 		break;
+	case NT_TRANS_GET_USER_QUOTA:
+		/* not decoded yet */
+		break;
+	case NT_TRANS_SET_USER_QUOTA:
+		/* not decoded yet */
+		break;
 	}
 
 	return offset;
@@ -7607,6 +7635,12 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 		proto_tree_add_item(tree, hf_smb_sec_desc_len, tvb, offset, 4, TRUE);
 		offset += 4;
 		break;
+	case NT_TRANS_GET_USER_QUOTA:
+		/* not decoded yet */
+		break;
+	case NT_TRANS_SET_USER_QUOTA:
+		/* not decoded yet */
+		break;
 	}
 
 	return offset;
@@ -7659,6 +7693,12 @@ dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo, int offset, p
 		/* XXX not documented */
 		break;
 	case NT_TRANS_QSD:
+		break;
+	case NT_TRANS_GET_USER_QUOTA:
+		/* not decoded yet */
+		break;
+	case NT_TRANS_SET_USER_QUOTA:
+		/* not decoded yet */
 		break;
 	}
 
@@ -8284,7 +8324,7 @@ static const value_string trans2_cmd_vals[] = {
 	{ 0x01,		"FIND_FIRST2" },
 	{ 0x02,		"FIND_NEXT2" },
 	{ 0x03,		"QUERY_FS_INFORMATION" },
-	{ 0x04,		"SET_QUOTA" },
+	{ 0x04,		"SET_FS_QUOTA" },
 	{ 0x05,		"QUERY_PATH_INFORMATION" },
 	{ 0x06,		"SET_PATH_INFORMATION" },
 	{ 0x07,		"QUERY_FILE_INFORMATION" },
