@@ -1,7 +1,7 @@
 /* packet-ip.c
  * Routines for IP and miscellaneous IP protocol packet disassembly
  *
- * $Id: packet-ip.c,v 1.201 2003/11/13 08:16:52 sahlberg Exp $
+ * $Id: packet-ip.c,v 1.202 2004/02/18 06:43:00 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,6 +84,7 @@ static int hf_ip_dst = -1;
 static int hf_ip_src = -1;
 static int hf_ip_addr = -1;
 static int hf_ip_flags = -1;
+static int hf_ip_flags_rf = -1;
 static int hf_ip_flags_df = -1;
 static int hf_ip_flags_mf = -1;
 static int hf_ip_frag_offset = -1;
@@ -220,7 +221,7 @@ static gint ett_icmp_mip_flags = -1;
 #define	IPH_MIN_LEN	20
 
 /* IP flags. */
-#define IP_CE		0x8000		/* Flag: "Congestion"		*/
+#define IP_RF		0x8000		/* Flag: "Reserved bit"		*/
 #define IP_DF		0x4000		/* Flag: "Don't Fragment"	*/
 #define IP_MF		0x2000		/* Flag: "More Fragments"	*/
 #define IP_OFFSET	0x1FFF		/* "Fragment Offset" part	*/
@@ -927,11 +928,12 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   iph->ip_off = tvb_get_ntohs(tvb, offset + 6);
   if (tree) {
-    flags = (iph->ip_off & (IP_DF|IP_MF)) >> 12;
+    flags = (iph->ip_off & (IP_RF | IP_DF | IP_MF)) >> 12;
     tf = proto_tree_add_uint(ip_tree, hf_ip_flags, tvb, offset + 6, 1, flags);
     field_tree = proto_item_add_subtree(tf, ett_ip_off);
-    proto_tree_add_boolean(field_tree, hf_ip_flags_df, tvb, offset + 6, 1, flags),
-    proto_tree_add_boolean(field_tree, hf_ip_flags_mf, tvb, offset + 6, 1, flags),
+    proto_tree_add_boolean(field_tree, hf_ip_flags_rf, tvb, offset + 6, 1, flags);
+    proto_tree_add_boolean(field_tree, hf_ip_flags_df, tvb, offset + 6, 1, flags);
+    proto_tree_add_boolean(field_tree, hf_ip_flags_mf, tvb, offset + 6, 1, flags);
 
     proto_tree_add_uint(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2,
       (iph->ip_off & IP_OFFSET)*8);
@@ -1633,12 +1635,16 @@ proto_register_ip(void)
 		{ "Flags",		"ip.flags", FT_UINT8, BASE_HEX, NULL, 0x0,
 			"", HFILL }},
 
+		{ &hf_ip_flags_rf,
+		{ "Reserved bit",	"ip.flags.rb", FT_BOOLEAN, 4, TFS(&flags_set_truth), IP_RF >> 12,
+			"", HFILL }},
+
 		{ &hf_ip_flags_df,
-		{ "Don't fragment",	"ip.flags.df", FT_BOOLEAN, 4, TFS(&flags_set_truth), IP_DF>>12,
+		{ "Don't fragment",	"ip.flags.df", FT_BOOLEAN, 4, TFS(&flags_set_truth), IP_DF >> 12,
 			"", HFILL }},
 
 		{ &hf_ip_flags_mf,
-		{ "More fragments",	"ip.flags.mf", FT_BOOLEAN, 4, TFS(&flags_set_truth), IP_MF>>12,
+		{ "More fragments",	"ip.flags.mf", FT_BOOLEAN, 4, TFS(&flags_set_truth), IP_MF >> 12,
 			"", HFILL }},
 
 		{ &hf_ip_frag_offset,

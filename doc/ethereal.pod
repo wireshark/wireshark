@@ -2087,6 +2087,7 @@ B<http://www.ethereal.com>.
   Martin Mathieson         <martin [AT] arca-technologies.com>
   Rolf Fiedler             <Rolf.Fiedler [AT] Innoventif.com>
   Christian Wagner         <Christian.Wagner [AT] stud.uni-karlsruhe.de>
+  Edwin Calo               <calo [AT] fusemail.com>
   Pavel Roskin             <proski [AT] gnu.org>
   Georgi Guninski          <guninski [AT] guninski.com>
   Jason Copenhaver         <jcopenha [AT] typedef.org>
@@ -2127,7 +2128,7 @@ B<http://www.ethereal.com>.
   Peter J. Creath          <peter-ethereal [AT] creath.net>
   Magnus Hansson           <mah [AT] hms.se>
   Pavel Kankovsky          <kan [AT] dcit.cz>
-  Edwin Calo               <calo [AT] fusemail.com>
+  Nick Black               <dank [AT] reflexsecurity.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
