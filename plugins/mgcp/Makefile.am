@@ -1,7 +1,7 @@
 # Makefile.am
 # Automake file for Ethereal/Gryphon
 #
-# $Id: Makefile.am,v 1.3 2001/07/09 13:21:02 girlich Exp $
+# $Id: Makefile.am,v 1.4 2001/07/10 13:18:43 hagbard Exp $
 #
 # Ethereal - Network traffic analyzer
 # By Steve Limkemann <stevelim@dgtech.com>
@@ -36,7 +36,7 @@ mgcp_la_LDFLAGS = -module -avoid-version
 # add them here.
 LIBS =
 
-noinst_PROGRAMS = packet-mgcp-static.o
+mgcp_la_DEPENDENCIES = packet-mgcp-static.o
 
 packet-mgcp-static.o:	packet-mgcp.c moduleinfo.h
 	$(LTCOMPILE) -c -o packet-mgcp-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-mgcp.c 

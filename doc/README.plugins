@@ -1,4 +1,4 @@
-$Id: README.plugins,v 1.1 2001/07/10 01:22:58 hagbard Exp $
+$Id: README.plugins,v 1.2 2001/07/10 13:18:41 hagbard Exp $
 
 Plugins
 
@@ -121,7 +121,7 @@ LIBS =
 # The following allows a non-plugin version of the module to be built to 
 # be linked with a static ethereal binary.
 #
-noinst_PROGRAMS = packet-xxx-static.o
+xxx_la_DEPENDENCIES = packet-xxx-static.o
 
 packet-xxx-static.o:   packet-xxx.c moduleinfo.h
         $(LTCOMPILE) -c -o packet-xxx-static.o -D__ETHEREAL_STATIC__ $(srcdir)/packet-xxx.c 
