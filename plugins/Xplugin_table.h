@@ -93,7 +93,7 @@ typedef const guint8 *(*addr_tvb_get_ptr) (tvbuff_t *, gint, gint);
 typedef gint (*addr_tvb_find_guint8) (tvbuff_t *, gint, gint, guint8);
 typedef gint (*addr_tvb_pbrk_guint8) (tvbuff_t *, gint, gint, guint8 *);
 typedef gint (*addr_tvb_strnlen) (tvbuff_t *, gint, guint);
-typedef guint8 *(*addr_tvb_format_text) (tvbuff_t *, gint, gint);
+typedef gchar *(*addr_tvb_format_text) (tvbuff_t *, gint, gint);
 typedef gint (*addr_tvb_get_nstringz) (tvbuff_t *, gint, guint, guint8 *);
 typedef gint (*addr_tvb_get_nstringz0) (tvbuff_t *, gint, guint, guint8 *);
 typedef gint (*addr_tvb_find_line_end) (tvbuff_t *, gint, int, gint *, gboolean);
