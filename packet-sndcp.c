@@ -2,7 +2,7 @@
  * Routines for Subnetwork Dependent Convergence Protocol (SNDCP) dissection
  * Copyright 2000, Christian Falckenberg <christian.falckenberg@nortelnetworks.com>
  *
- * $Id: packet-sndcp.c,v 1.3 2004/04/13 21:29:18 guy Exp $
+ * $Id: packet-sndcp.c,v 1.4 2004/05/04 09:12:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -234,7 +234,7 @@ dissect_sndcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     address_field_item = proto_tree_add_uint_format(sndcp_tree,hf_sndcp_nsapi,
 						    tvb, offset,1, nsapi, 
-						    "Address field  NSAPI: %d, ", nsapi );
+						    "Address field  NSAPI: %d", nsapi );
     address_field_tree = proto_item_add_subtree(address_field_item, ett_sndcp_address_field);
     proto_tree_add_boolean(address_field_tree, hf_sndcp_x, tvb,offset,1, addr_field );
     proto_tree_add_boolean(address_field_tree, hf_sndcp_f, tvb,offset,1, addr_field );
