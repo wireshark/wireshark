@@ -128,8 +128,8 @@ EXTRA_ethereal_SOURCES = \
 	strerror.c	\
 	strerror.h
 
-ethereal_DEPENDENCIES = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ wiretap/libwiretap.a
-ethereal_LDADD = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ wiretap/libwiretap.a @SNMP_A@
+ethereal_DEPENDENCIES = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ wiretap/libwiretap.a gtk/libui.a
+ethereal_LDADD = @SNMP_O@ @SNPRINTF_O@ @STRERROR_O@ wiretap/libwiretap.a gtk/libui.a @SNMP_A@
 
 ps.c: print.ps rdps
 	./rdps $(srcdir)/print.ps ps.c
@@ -157,7 +157,7 @@ EXTRA_DIST = \
 	README.win32		\
 	rdps.c
 
-SUBDIRS = wiretap @SUBDIRS@
+SUBDIRS = wiretap gtk @SUBDIRS@
 
 ethereal.1: ethereal doc/ethereal.pod.template
 	(cd doc ; \

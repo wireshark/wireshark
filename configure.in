@@ -1,4 +1,4 @@
-# $Id: configure.in,v 1.39 1999/08/24 17:18:34 gram Exp $
+# $Id: configure.in,v 1.40 1999/08/27 22:27:07 gram Exp $
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT(etypes.h)
 
@@ -151,6 +151,6 @@ dnl blank for now, but will be used in future
 AC_SUBST(SUBDIRS)
 
 AM_CONFIG_HEADER(config.h)
-AC_CONFIG_SUBDIRS(wiretap)
+AC_CONFIG_SUBDIRS(wiretap gtk)
 AC_OUTPUT(Makefile ethereal.spec doc/Makefile doc/dfilter2pod,
 	[chmod +x doc/dfilter2pod])
