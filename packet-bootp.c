@@ -2,7 +2,7 @@
  * Routines for BOOTP/DHCP packet disassembly
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id: packet-bootp.c,v 1.75 2003/09/02 22:47:57 guy Exp $
+ * $Id: packet-bootp.c,v 1.76 2003/11/18 19:56:37 guy Exp $
  *
  * The information used comes from:
  * RFC  951: Bootstrap Protocol
@@ -11,6 +11,7 @@
  * RFC 2131: Dynamic Host Configuration Protocol
  * RFC 2132: DHCP Options and BOOTP Vendor Extensions
  * RFC 2489: Procedure for Defining New DHCP Options
+ * RFC 2610: DHCP Options for Service Location Protocol
  * RFC 3046: DHCP Relay Agent Information Option
  * RFC 3118: Authentication for DHCP Messages
  * RFC 3203: DHCP reconfigure extension
@@ -46,6 +47,7 @@
 #include <epan/packet.h>
 #include "packet-arp.h"
 
+#include "prefs.h"
 #include "tap.h"
  
 static int bootp_dhcp_tap = -1;
@@ -73,6 +75,8 @@ static int hf_bootp_dhcp = -1;
 static guint ett_bootp = -1;
 static guint ett_bootp_flags = -1;
 static guint ett_bootp_option = -1;
+
+gboolean novell_string = FALSE;
 
 #define UDP_PORT_BOOTPS  67
 #define UDP_PORT_BOOTPC  68
@@ -179,6 +183,17 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 	    {0x8,   "H-node" },
 	    {0,     NULL     } };
 
+    static const value_string slpda_vals[] = {
+        {0x00,   "Dynamic Discovery" },
+        {0x01,   "Static Discovery" },
+        {0x80,   "Backwards compatibility" },
+        {0,     NULL     } };
+
+    static const value_string slp_scope_vals[] = {
+        {0x00,   "Preferred Scope" },
+        {0x01,   "Mandatory Scope" },
+        {0,     NULL     } };
+
 	static const value_string authen_protocol_vals[] = {
 	    {AUTHEN_PROTO_CONFIG_TOKEN,   "configuration token" },
 	    {AUTHEN_PROTO_DELAYED_AUTHEN, "delayed authentication" },
@@ -277,16 +292,16 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 		/*  75 */ { "StreetTalk Server",			ipv4 },
 		/*  76 */ { "StreetTalk Directory Assistance Server",	ipv4 },
 		/*  77 */ { "User Class Information",			opaque },
-		/*  78 */ { "Directory Agent Information",		opaque },
-		/*  79 */ { "Service Location Agent Scope",		opaque },
+		/*  78 */ { "Directory Agent Information",		special },
+		/*  79 */ { "Service Location Agent Scope",		special },
 		/*  80 */ { "Naming Authority",				opaque },
 		/*  81 */ { "Client Fully Qualified Domain Name",	opaque },
 		/*  82 */ { "Agent Information Option",                 special },
 		/*  83 */ { "Unassigned",				opaque },
 		/*  84 */ { "Unassigned",				opaque },
-		/*  85 */ { "Novell Directory Services Servers",	opaque },
-		/*  86 */ { "Novell Directory Services Tree Name",	opaque },
-		/*  87 */ { "Novell Directory Services Context",	opaque },
+		/*  85 */ { "Novell Directory Services Servers",	special },
+		/*  86 */ { "Novell Directory Services Tree Name",	string },
+		/*  87 */ { "Novell Directory Services Context",	string },
 		/*  88 */ { "IEEE 1003.1 POSIX Timezone",		opaque },
 		/*  89 */ { "Fully Qualified Domain Name",		opaque },
 		/*  90 */ { "Authentication",				special },
@@ -695,6 +710,30 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			optp = dissect_netware_ip_suboption(v_tree, tvb, optp);
 		break;
 
+    case 78:	/* SLP Directory Agent Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
+		byte = tvb_get_guint8(tvb, voff+2);
+		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
+				"Option %d: %s = %s", code, text,
+				val_to_str(byte, slpda_vals,
+				    "Unknown (0x%02x)"));
+		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+        for (i = voff + 4; i < voff + consumed; i += 4) {
+            proto_tree_add_text(v_tree, tvb, i, 4, "SLPDA Address: %s",
+                ip_to_str(tvb_get_ptr(tvb, i, 4)));
+        }
+		break;
+
+    case 79:	/* SLP Service Scope Option RFC2610 Added by Greg Morris (gmorris@novell.com)*/
+		byte = tvb_get_guint8(tvb, voff+2);
+		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
+				"Option %d: %s = %s", code, text,
+				val_to_str(byte, slp_scope_vals,
+				    "Unknown (0x%02x)"));
+		v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+        proto_tree_add_text(v_tree, tvb, voff+4, consumed-4, "SLP Scope: %s",
+                tvb_get_ptr(tvb, voff+4, consumed-4));
+		break;
+
 	case 82:        /* Relay Agent Information Option */
 		vti = proto_tree_add_text(bp_tree, tvb, voff, consumed,
 					  "Option %d: %s (%d bytes)",
@@ -705,6 +744,34 @@ bootp_option(tvbuff_t *tvb, proto_tree *bp_tree, int voff, int eoff,
 			optp = bootp_dhcp_decode_agent_info(v_tree, tvb, optp);
 		}
 		break;
+
+	case 85:        /* Novell Servers */
+        /* Option 85 can be sent as a string */
+        /* Added by Greg Morris (gmorris@novell.com) */
+        if (novell_string && code==85) {
+            proto_tree_add_text(bp_tree, tvb, voff, consumed,
+                    "Option %d: %s = \"%.*s\"", code, text, vlen,
+                    tvb_get_ptr(tvb, voff+2, consumed-2));
+        }
+        else
+        {
+			if (vlen == 4) {
+				/* one IP address */
+				proto_tree_add_text(bp_tree, tvb, voff, consumed,
+					"Option %d: %s = %s", code, text,
+					ip_to_str(tvb_get_ptr(tvb, voff+2, 4)));
+			} else {
+				/* > 1 IP addresses. Let's make a sub-tree */
+				vti = proto_tree_add_text(bp_tree, tvb, voff,
+					consumed, "Option %d: %s", code, text);
+				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				for (i = voff + 2; i < voff + consumed; i += 4) {
+					proto_tree_add_text(v_tree, tvb, i, 4, "IP Address: %s",
+						ip_to_str(tvb_get_ptr(tvb, i, 4)));
+				}
+			}
+        }
+        break;
 
 	case 90:	/* DHCP Authentication */
 	case 210:	/* Was this used for authentication at one time? */
@@ -1475,11 +1542,20 @@ proto_register_bootp(void)
     &ett_bootp_option,
   };
 
+  module_t *bootp_module;
+
   proto_bootp = proto_register_protocol("Bootstrap Protocol", "BOOTP/DHCP",
 					"bootp");
   proto_register_field_array(proto_bootp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
   bootp_dhcp_tap = register_tap("bootp");
+
+  bootp_module = prefs_register_protocol(proto_bootp, NULL);
+
+  prefs_register_bool_preference(bootp_module, "novellserverstring",
+    "Decode Option 85 as String",
+    "Novell Servers option 85 can be configured as a string instead of address",
+    &novell_string);
 }
 
 void
