@@ -1069,9 +1069,9 @@ AC_DEFUN([AC_ETHEREAL_KRB5_CHECK],
 		    LIBS="$KRB5_LIBS $extras"
 		    if test -z "$extras"
 		    then
-			AC_MSG_CHECKING([whether Heimdal includes krb_k5_resolve])
+			AC_MSG_CHECKING([whether Heimdal includes krb5_kt_resolve])
 		    else
-			AC_MSG_CHECKING([whether Heimdal includes krb_k5_resolve (linking with $extras)])
+			AC_MSG_CHECKING([whether Heimdal includes krb5_kt_resolve (linking with $extras)])
 		    fi
 		    AC_TRY_LINK(
 			[
