@@ -213,7 +213,6 @@ config.h	: config.h.win32 config.nmake
 	    -e "s/@HAVE_PCAP_DATALINK_VAL_TO_NAME@/$(PCAP_DATALINK_VAL_TO_NAME_CONFIG)/" \
 	    -e "s/@HAVE_LIBETHEREALDLL@/$(LIBETHEREAL_CONFIG)/" \
 	    -e "s/@WPCAP_CONSTIFIED@/$(WPCAP_CONSTIFIED_CONFIG)/" \
-	    -e "s/@HAVE_LIBETHEREALDLL@/$(LIBETHEREAL_CONFIG)/" \
 	    < config.h.win32 > $@
 
 ps.c	: rdps.exe print.ps

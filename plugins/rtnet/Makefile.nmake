@@ -9,10 +9,19 @@ include ..\..\config.nmake
 CFLAGS=/DHAVE_CONFIG_H /I../.. /I../../wiretap $(GLIB_CFLAGS) \
 	/I$(PCAP_DIR)\include -D_U_="" $(LOCAL_CFLAGS)
 
+LDFLAGS = /NOLOGO /INCREMENTAL:no /MACHINE:I386 $(LOCAL_LDFLAGS)
+
+!IFDEF LINK_PLUGINS_WITH_LIBETHEREAL
+LINK_PLUGIN_WITH=..\..\epan\libethereal.lib
+CFLAGS=/DHAVE_WIN32_LIBETHEREAL_LIB $(CFLAGS)
+!ELSE
+LINK_PLUGIN_WITH=..\plugin_api.obj
+!ENDIF
+
 OBJECTS=packet-rtnet.obj 
 
-rtnet.dll rtnet.exp rtnet.lib : $(OBJECTS) ..\plugin_api.obj
-	link -dll /out:rtnet.dll $(OBJECTS) ..\plugin_api.obj \
+rtnet.dll rtnet.exp rtnet.lib : $(OBJECTS) $(LINK_PLUGIN_WITH)
+	link -dll /out:rtnet.dll $(LDFLAGS) $(OBJECTS) $(LINK_PLUGIN_WITH) \
 	$(GLIB_LIBS)
 
 clean:

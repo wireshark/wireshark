@@ -222,6 +222,11 @@ MAKENSIS_MODERN_UI=USE
 # following line
 ENABLE_LIBETHEREAL=USE
 
+!IFDEF ENABLE_LIBETHEREAL
+# Uncomment next line to link plugins with the import library of libethereal.dll 
+#LINK_PLUGINS_WITH_LIBETHEREAL=USE
+!ENDIF
+
 #
 # You should not have to change anything below this comment.
 # If you do, it's a deficiency in the Makefile.nmake files;
