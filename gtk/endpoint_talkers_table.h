@@ -2,7 +2,7 @@
  * endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint talkers taps.
  *
- * $Id: endpoint_talkers_table.h,v 1.13 2004/06/03 21:46:27 guy Exp $
+ * $Id: endpoint_talkers_table.h,v 1.14 2004/06/05 13:28:13 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -75,7 +75,6 @@ extern void register_ett_table(gboolean hide_ports, char *table_name, char *tap_
  * @param tap_name the registered tap name
  * @param filter the optional filter name or NULL
  * @param packet_func the function to be called for each incoming packet
- * @todo get values from register_ett_table() instead of own parameters
  */
 extern void init_ett_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
 

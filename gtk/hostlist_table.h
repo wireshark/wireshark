@@ -2,7 +2,7 @@
  * modified from endpoint_talkers_table   2003 Ronnie Sahlberg
  * Helper routines common to all host talkers taps.
  *
- * $Id: hostlist_table.h,v 1.7 2004/06/03 21:46:27 guy Exp $
+ * $Id: hostlist_table.h,v 1.8 2004/06/05 13:28:13 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -73,7 +73,6 @@ extern void register_hostlist_table(gboolean hide_ports, char *table_name, char 
  * @param tap_name the registered tap name
  * @param filter the optional filter name or NULL
  * @param packet_func the function to be called for each incoming packet
- * @todo get values from register_hostlist_table() instead of own parameters
  */
 extern void init_hostlist_table(gboolean hide_ports, char *table_name, char *tap_name, char *filter, void *packet_func);
 

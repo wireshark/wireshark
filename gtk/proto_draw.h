@@ -1,7 +1,7 @@
 /* proto_draw.h
  * Definitions for GTK+ packet display structures and routines
  *
- * $Id: proto_draw.h,v 1.28 2004/06/04 17:16:58 ulfl Exp $
+ * $Id: proto_draw.h,v 1.29 2004/06/05 13:28:13 ulfl Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -58,9 +58,8 @@ extern void set_notebook_page(GtkWidget *nb_ptr, tvbuff_t *tvb);
 /** Redraw a given byte view window.
  *
  * @param nb_ptr the byte view notebook
- * @param fd ???
- * @param finfo ???
- * @todo think about parameters
+ * @param fd selected frame
+ * @param finfo selected field_info
  */
 extern void redraw_hex_dump(GtkWidget *nb_ptr, frame_data *fd, field_info *finfo);
 
