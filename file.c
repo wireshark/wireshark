@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.250 2001/12/06 02:21:24 guy Exp $
+ * $Id: file.c,v 1.251 2001/12/06 04:25:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -615,7 +615,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 {
   apply_color_filter_args args;
   gint          i, row;
-  proto_tree   *protocol_tree = NULL;
+  gboolean	create_proto_tree = FALSE;
   epan_dissect_t *edt;
   GdkColor      fg, bg;
 
@@ -646,10 +646,10 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
      a protocol tree against which a filter expression can be
      evaluated. */
   if ((cf->dfcode != NULL && refilter) || filter_list != NULL)
-    protocol_tree = proto_tree_create_root();
+	  create_proto_tree = TRUE;
 
   /* Dissect the frame. */
-  edt = epan_dissect_new(pseudo_header, buf, fdata, protocol_tree);
+  edt = epan_dissect_new(pseudo_header, buf, fdata, create_proto_tree);
 
   /* If we have a display filter, apply it if we're refiltering, otherwise
      leave the "passed_dfilter" flag alone.
@@ -673,11 +673,6 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
       g_slist_foreach(filter_list, apply_color_filter, &args);
     }
   }
-
-  /* There are no more filters to apply, so we don't need any protocol
-     tree; free it if we created it. */
-  if (protocol_tree != NULL)
-    proto_tree_free(protocol_tree);
 
 
   if (fdata->flags.passed_dfilter) {
@@ -766,7 +761,6 @@ read_packet(capture_file *cf, long offset)
   const u_char *buf = wtap_buf_ptr(cf->wth);
   frame_data   *fdata;
   int           passed;
-  proto_tree   *protocol_tree;
   frame_data   *plist_end;
   epan_dissect_t *edt;
 
@@ -790,10 +784,8 @@ read_packet(capture_file *cf, long offset)
 
   passed = TRUE;
   if (cf->rfcode) {
-    protocol_tree = proto_tree_create_root();
-    edt = epan_dissect_new(pseudo_header, buf, fdata, protocol_tree);
+    edt = epan_dissect_new(pseudo_header, buf, fdata, TRUE);
     passed = dfilter_apply_edt(cf->rfcode, edt);
-    proto_tree_free(protocol_tree);
     epan_dissect_free(edt);
   }   
   if (passed) {
@@ -1069,7 +1061,6 @@ print_packets(capture_file *cf, print_args_t *print_args)
   guint32     progbar_quantum;
   guint32     progbar_nextstep;
   guint32     count;
-  proto_tree *protocol_tree;
   gint       *col_widths = NULL;
   gint        data_width;
   gboolean    print_separator;
@@ -1197,7 +1188,7 @@ print_packets(capture_file *cf, print_args_t *print_args)
           fdata->cinfo->col_buf[i][0] = '\0';
           fdata->cinfo->col_data[i] = fdata->cinfo->col_buf[i];
         }
-        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, NULL);
+        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, FALSE);
         fill_in_columns(fdata, &edt->pi);
         cp = &line_buf[0];
         line_len = 0;
@@ -1233,14 +1224,11 @@ print_packets(capture_file *cf, print_args_t *print_args)
           print_line(cf->print_fh, print_args->format, "\n");
 
         /* Create the logical protocol tree. */
-        protocol_tree = proto_tree_create_root();
-        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, protocol_tree);
+        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, TRUE);
 
         /* Print the information in that tree. */
-        proto_tree_print(FALSE, print_args, (GNode *)protocol_tree,
+        proto_tree_print(FALSE, print_args, (GNode *)edt->tree,
 			fdata, cf->print_fh);
-
-        proto_tree_free(protocol_tree);
 
 	if (print_args->print_hex) {
 	  /* Print the full packet data as hex. */
@@ -1392,7 +1380,6 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
   guint32 progbar_quantum;
   guint32 progbar_nextstep;
   unsigned int count;
-  proto_tree *protocol_tree;
   gboolean frame_matched;
   int row;
   epan_dissect_t	*edt;
@@ -1457,12 +1444,10 @@ find_packet(capture_file *cf, dfilter_t *sfcode)
       /* Is this packet in the display? */
       if (fdata->flags.passed_dfilter) {
         /* Yes.  Does it match the search filter? */
-        protocol_tree = proto_tree_create_root();
         wtap_seek_read(cf->wth, fdata->file_off, &cf->pseudo_header,
         		cf->pd, fdata->cap_len);
-        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, protocol_tree);
+        edt = epan_dissect_new(&cf->pseudo_header, cf->pd, fdata, TRUE);
         frame_matched = dfilter_apply_edt(sfcode, edt);
-        proto_tree_free(protocol_tree);
 	epan_dissect_free(edt);
         if (frame_matched) {
           new_fd = fdata;
@@ -1565,25 +1550,21 @@ select_packet(capture_file *cf, int row)
   			cf->pd, fdata->cap_len);
 
   /* Create the logical protocol tree. */
-  if (cf->protocol_tree)
-      proto_tree_free(cf->protocol_tree);
-  cf->protocol_tree = proto_tree_create_root();
   proto_tree_is_visible = TRUE;
   if (cf->edt != NULL) {
     epan_dissect_free(cf->edt);
     cf->edt = NULL;
   }
-  cf->edt = epan_dissect_new(&cf->pseudo_header, cf->pd, cf->current_frame,
-		cf->protocol_tree);
+  cf->edt = epan_dissect_new(&cf->pseudo_header, cf->pd, cf->current_frame, TRUE);
   proto_tree_is_visible = FALSE;
 
   /* Display the GUI protocol tree and hex dump.
      XXX - why does the protocol tree not show up if we call
      "proto_tree_draw()" before calling "add_byte_views()"? */
   clear_tree_and_hex_views();
-  add_byte_views(cf->current_frame, cfile.protocol_tree, tree_view,
+  add_byte_views(cf->current_frame, cf->edt->tree, tree_view,
       byte_nb_ptr);
-  proto_tree_draw(cf->protocol_tree, tree_view);
+  proto_tree_draw(cf->edt->tree, tree_view);
 
   /* A packet is selected. */
   set_menus_for_selected_packet(TRUE);
@@ -1593,11 +1574,7 @@ select_packet(capture_file *cf, int row)
 void
 unselect_packet(capture_file *cf)
 {
-  /* Destroy the protocol tree and epan_dissect_t for that packet. */
-  if (cf->protocol_tree != NULL) {
-    proto_tree_free(cf->protocol_tree);
-    cf->protocol_tree = NULL;
-  }
+  /* Destroy the epan_dissect_t for the unselected packet. */
   if (cf->edt != NULL) {
     epan_dissect_free(cf->edt);
     cf->edt = NULL;

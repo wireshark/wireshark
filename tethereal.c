@@ -1,6 +1,6 @@
 /* tethereal.c
  *
- * $Id: tethereal.c,v 1.102 2001/12/04 23:38:53 guy Exp $
+ * $Id: tethereal.c,v 1.103 2001/12/06 04:25:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1239,7 +1239,6 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
   capture_file *cf = args->cf;
   wtap_dumper  *pdh = args->pdh;
   frame_data    fdata;
-  proto_tree   *protocol_tree;
   int           err;
   gboolean      passed;
   epan_dissect_t *edt;
@@ -1247,11 +1246,9 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
   cf->count++;
   if (cf->rfcode) {
     fill_in_fdata(&fdata, cf, phdr, pseudo_header, offset);
-    protocol_tree = proto_tree_create_root();
-    edt = epan_dissect_new(pseudo_header, buf, &fdata, protocol_tree);
+    edt = epan_dissect_new(pseudo_header, buf, &fdata, TRUE);
     passed = dfilter_apply_edt(cf->rfcode, edt);
   } else {
-    protocol_tree = NULL;
     passed = TRUE;
     edt = NULL;
   }
@@ -1273,8 +1270,6 @@ wtap_dispatch_cb_write(u_char *user, const struct wtap_pkthdr *phdr,
       exit(2);
     }
   }
-  if (protocol_tree != NULL)
-    proto_tree_free(protocol_tree);
   if (edt != NULL)
     epan_dissect_free(edt);
   if (cf->rfcode)
@@ -1335,10 +1330,10 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
   cb_args_t    *args = (cb_args_t *) user;
   capture_file *cf = args->cf;
   frame_data    fdata;
-  proto_tree   *protocol_tree;
   gboolean      passed;
   print_args_t  print_args;
   epan_dissect_t *edt;
+  gboolean      create_proto_tree;
   int           i;
 
   cf->count++;
@@ -1351,10 +1346,10 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
 
   passed = TRUE;
   if (cf->rfcode || verbose)
-    protocol_tree = proto_tree_create_root();
+    create_proto_tree = TRUE;
   else
-    protocol_tree = NULL;
-  edt = epan_dissect_new(pseudo_header, buf, &fdata, protocol_tree);
+    create_proto_tree = FALSE;
+  edt = epan_dissect_new(pseudo_header, buf, &fdata, create_proto_tree);
   if (cf->rfcode)
     passed = dfilter_apply_edt(cf->rfcode, edt);
   if (passed) {
@@ -1367,7 +1362,7 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
       print_args.print_hex = print_hex;
       print_args.expand_all = TRUE;
       print_args.suppress_unmarked = FALSE;
-      proto_tree_print(FALSE, &print_args, (GNode *)protocol_tree,
+      proto_tree_print(FALSE, &print_args, (GNode *)edt->tree,
 			&fdata, stdout);
       if (!print_hex) {
         /* "print_hex_data()" will put out a leading blank line, as well
@@ -1587,8 +1582,6 @@ wtap_dispatch_cb_print(u_char *user, const struct wtap_pkthdr *phdr,
      having to wait until a standard I/O buffer fills up. */
   if (line_buffered)
     fflush(stdout);
-  if (protocol_tree != NULL)
-    proto_tree_free(protocol_tree);
 
   epan_dissect_free(edt);
 

@@ -3,7 +3,7 @@
  *
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  *
- * $Id: packet_win.c,v 1.26 2001/11/21 01:02:03 guy Exp $
+ * $Id: packet_win.c,v 1.27 2001/12/06 04:25:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -69,7 +69,6 @@ struct PacketWinData {
 	frame_data *frame;	   /* The frame being displayed */
 	union wtap_pseudo_header pseudo_header; /* Pseudo-header for packet */
 	guint8     *pd;		   /* Data for packet */
-	proto_tree *protocol_tree; /* Protocol tree for packet */
 	GtkWidget  *main;
 	GtkWidget  *tv_scrollw;
 	GtkWidget  *tree_view;
@@ -167,10 +166,9 @@ create_new_window(char *Title, gint tv_size, gint bv_size)
   memcpy(&DataPtr->pseudo_header, &cfile.pseudo_header, sizeof DataPtr->pseudo_header);
   DataPtr->pd = g_malloc(DataPtr->frame->cap_len);
   memcpy(DataPtr->pd, cfile.pd, DataPtr->frame->cap_len);
-  DataPtr->protocol_tree = proto_tree_create_root();
   proto_tree_is_visible = TRUE;
   DataPtr->edt = epan_dissect_new(&DataPtr->pseudo_header, DataPtr->pd, DataPtr->frame,
-		DataPtr->protocol_tree);
+		TRUE);
   proto_tree_is_visible = FALSE;
   DataPtr->main = main_w;
   DataPtr->tv_scrollw = tv_scrollw;
@@ -190,9 +188,9 @@ create_new_window(char *Title, gint tv_size, gint bv_size)
 			GTK_SIGNAL_FUNC(destroy_new_window), DataPtr);
 
   /* draw the protocol tree & print hex data */
-  add_byte_views(DataPtr->frame, DataPtr->protocol_tree, tree_view,
+  add_byte_views(DataPtr->frame, DataPtr->edt->tree, tree_view,
 		 DataPtr->bv_nb_ptr);
-  proto_tree_draw(DataPtr->protocol_tree, tree_view);
+  proto_tree_draw(DataPtr->edt->tree, tree_view);
 
   DataPtr->finfo_selected = NULL;
   gtk_widget_show(main_w);
@@ -204,7 +202,6 @@ destroy_new_window(GtkObject *object, gpointer user_data)
   struct PacketWinData *DataPtr = user_data;
 
   detail_windows = g_list_remove(detail_windows, DataPtr);
-  proto_tree_free(DataPtr->protocol_tree);
   epan_dissect_free(DataPtr->edt);
   g_free(DataPtr->pd);
   g_free(DataPtr);

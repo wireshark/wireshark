@@ -1,7 +1,7 @@
 /* file.h
  * Definitions for file structures and routines
  *
- * $Id: file.h,v 1.87 2001/12/06 02:21:25 guy Exp $
+ * $Id: file.h,v 1.88 2001/12/06 04:25:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -84,7 +84,6 @@ typedef struct _capture_file {
   frame_data  *last_displayed;  /* Last frame displayed */
   column_info  cinfo;    /* Column formatting information */
   frame_data  *current_frame;  /* Frame data for current frame */
-  proto_tree  *protocol_tree; /* Protocol tree for currently selected packet */
   epan_dissect_t *edt; /* Protocol dissection fo rcurrently selected packet */
   FILE        *print_fh;  /* File we're printing to */
 #ifdef HAVE_LIBPCAP

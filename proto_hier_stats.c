@@ -1,7 +1,7 @@
 /* proto_hier_stats.c
  * Routines for calculating statistics based on protocol.
  *
- * $Id: proto_hier_stats.c,v 1.4 2001/06/19 23:08:55 guy Exp $
+ * $Id: proto_hier_stats.c,v 1.5 2001/12/06 04:25:07 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -123,24 +123,20 @@ process_frame(frame_data *frame, ph_stats_t* ps)
 {
 	epan_dissect_t			*edt;
 	union wtap_pseudo_header	phdr;
-	proto_tree			*protocol_tree;
 	guint8				pd[WTAP_MAX_PACKET_SIZE];
-
-	protocol_tree = proto_tree_create_root();
 
 	/* Load the frame from the capture file */
 	wtap_seek_read(cfile.wth, frame->file_off, &phdr,
 			pd, frame->cap_len);
 
 	/* Dissect the frame */
-	edt = epan_dissect_new(&phdr, pd, frame, protocol_tree);
+	edt = epan_dissect_new(&phdr, pd, frame, TRUE);
 
 	/* Get stats from this protocol tree */
-	process_tree(protocol_tree, ps, frame->pkt_len);
+	process_tree(edt->tree, ps, frame->pkt_len);
 
 	/* Free our memory. */
 	epan_dissect_free(edt);
-	proto_tree_free(protocol_tree);
 }
 
 

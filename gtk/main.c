@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.216 2001/12/06 02:21:26 guy Exp $
+ * $Id: main.c,v 1.217 2001/12/06 04:25:09 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -555,21 +555,21 @@ tree_view_unselect_row_cb(GtkCTree *ctree, GList *node, gint column, gpointer us
 }
 
 void collapse_all_cb(GtkWidget *widget, gpointer data) {
-  if (cfile.protocol_tree)
-    collapse_all_tree(cfile.protocol_tree, tree_view);
+  if (cfile.edt->tree)
+    collapse_all_tree(cfile.edt->tree, tree_view);
 }
 
 void expand_all_cb(GtkWidget *widget, gpointer data) {
-  if (cfile.protocol_tree)
-    expand_all_tree(cfile.protocol_tree, tree_view);
+  if (cfile.edt->tree)
+    expand_all_tree(cfile.edt->tree, tree_view);
 }
 
 void resolve_name_cb(GtkWidget *widget, gpointer data) {
-  if (cfile.protocol_tree) {
+  if (cfile.edt->tree) {
     gint tmp = prefs.name_resolve;
     prefs.name_resolve = PREFS_RESOLV_ALL;
     gtk_clist_clear ( GTK_CLIST(tree_view) );
-    proto_tree_draw(cfile.protocol_tree, tree_view);
+    proto_tree_draw(cfile.edt->tree, tree_view);
     prefs.name_resolve = tmp;
   }
 }

@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.c,v 1.11 2001/11/21 23:16:23 gram Exp $
+ * $Id: epan.c,v 1.12 2001/12/06 04:25:08 gram Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -74,7 +74,8 @@ epan_conversation_init(void)
 
 
 epan_dissect_t*
-epan_dissect_new(void* pseudo_header, const guint8* data, frame_data *fd, proto_tree *tree)
+epan_dissect_new(void* pseudo_header, const guint8* data, frame_data *fd,
+		gboolean create_proto_tree)
 {
 	epan_dissect_t	*edt;
 
@@ -85,8 +86,12 @@ epan_dissect_new(void* pseudo_header, const guint8* data, frame_data *fd, proto_
                 g_slist_free( fd->data_src);
         fd->data_src = 0;
 
-	/* XXX - init tree */
-	edt->tree = tree;
+	if (create_proto_tree) {
+		edt->tree = proto_tree_create_root();
+	}
+	else {
+		edt->tree = NULL;
+	}
 
 	dissect_packet(edt, pseudo_header, data, fd);
 
@@ -101,6 +106,10 @@ epan_dissect_free(epan_dissect_t* edt)
 	 * wanted to store the pointer (in which case, the dissector
 	 * would have incremented the usage count on that tvbuff_t*) */
 	tvb_free_chain(edt->tvb);
+
+	if (edt->tree) {
+		proto_tree_free(edt->tree);
+	}
 
 	g_free(edt);
 }

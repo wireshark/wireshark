@@ -1,6 +1,6 @@
 /* epan.h
  *
- * $Id: epan.h,v 1.8 2001/11/21 23:16:23 gram Exp $
+ * $Id: epan.h,v 1.9 2001/12/06 04:25:08 gram Exp $
  *
  * Ethereal Protocol Analyzer Library
  *
@@ -55,7 +55,8 @@ typedef struct _epan_dissect_t {
 } epan_dissect_t;
 
 epan_dissect_t*
-epan_dissect_new(void* pseudo_header, const guint8* data, frame_data *fd, proto_tree *tree);
+epan_dissect_new(void* pseudo_header, const guint8* data, frame_data *fd,
+		gboolean create_proto_tree);
 
 void
 epan_dissect_free(epan_dissect_t* edt);
