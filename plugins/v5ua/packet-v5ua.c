@@ -1041,7 +1041,7 @@ dissect_layer3_message(tvbuff_t *layer3_data_tvb, proto_tree *v5ua_tree,proto_it
 					  break;
 				  case PULSED_SIGNAL:
 					  info_element_length = tvb_get_guint8(layer3_data_tvb,info_element_offset+1);
-  					  proto_tree_add_item(layer3_tree,hf_l3_pulse_type,layer3_data_tvb,info_element_offset+2,1,FALSE);//info_element_length,FALSE);
+  					  proto_tree_add_item(layer3_tree,hf_l3_pulse_type,layer3_data_tvb,info_element_offset+2,1,FALSE);/*info_element_length,FALSE); */
 					  proto_tree_add_item(layer3_tree,hf_l3_suppression_indicator,layer3_data_tvb,info_element_offset+3,1,FALSE);
 					  proto_tree_add_item(layer3_tree,hf_l3_pulse_duration,layer3_data_tvb,info_element_offset+3,1,FALSE);
 					  proto_tree_add_item(layer3_tree,hf_l3_ack_request_indicator,layer3_data_tvb,info_element_offset+4,1,FALSE);
