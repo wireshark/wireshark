@@ -472,6 +472,7 @@ remove_tap_listener
 report_failure
 report_open_failure
 report_read_failure
+reset_stats_tree
 reset_tap_listeners
 reset_tcp_reassembly
 rpc_init_proc_table
