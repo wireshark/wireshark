@@ -1,6 +1,6 @@
 /* snoop.c
  *
- * $Id: snoop.c,v 1.9 1999/08/28 01:19:45 guy Exp $
+ * $Id: snoop.c,v 1.10 1999/09/02 00:14:06 guy Exp $
  *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@verdict.uthscsa.edu>
@@ -136,6 +136,9 @@ static int snoop_read(wtap *wth, int *err)
 	int	bytes_read;
 	struct snooprec_hdr hdr;
 	int	data_offset;
+	char	padbuf[4];
+	int	padbytes;
+	int	bytes_to_read;
 
 	/* Read record header. */
 	errno = WTAP_ERR_CANT_READ;
@@ -185,10 +188,30 @@ static int snoop_read(wtap *wth, int *err)
 	wth->phdr.len = ntohl(hdr.orig_len);
 	wth->phdr.pkt_encap = wth->file_encap;
 
-	/* Skip over the padding. */
-	fseek(wth->fh, ntohl(hdr.rec_len) - (sizeof hdr + packet_size),
-	    SEEK_CUR);
-	wth->data_offset += ntohl(hdr.rec_len) - (sizeof hdr + packet_size);
+	/*
+	 * Skip over the padding (don't "fseek()", as the standard
+	 * I/O library on some platforms discards buffered data if
+	 * you do that, which means it does a lot more reads).
+	 * There's probably not much padding (it's probably padded only
+	 * to a 4-byte boundary), so we probably need only do one read.
+	 */
+	padbytes = ntohl(hdr.rec_len) - (sizeof hdr + packet_size);
+	while (padbytes != 0) {
+		bytes_to_read = padbytes;
+		if (bytes_to_read > sizeof padbuf)
+			bytes_to_read = sizeof padbuf;
+		errno = WTAP_ERR_CANT_READ;
+		bytes_read = fread(padbuf, 1, bytes_to_read, wth->fh);
+		if (bytes_read != bytes_to_read) {
+			if (ferror(wth->fh))
+				*err = errno;
+			else
+				*err = WTAP_ERR_SHORT_READ;
+			return -1;
+		}
+		wth->data_offset += bytes_read;
+		padbytes -= bytes_read;
+	}
 
 	return data_offset;
 }
