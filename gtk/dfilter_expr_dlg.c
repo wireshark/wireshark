@@ -7,7 +7,7 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com> and
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id: dfilter_expr_dlg.c,v 1.57 2004/05/27 19:59:48 ulfl Exp $
+ * $Id: dfilter_expr_dlg.c,v 1.58 2004/06/10 09:46:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1306,9 +1306,14 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
     for (i = proto_get_first_protocol(&cookie); i != -1;
          i = proto_get_next_protocol(&cookie)) {
         hfinfo = proto_registrar_get_nth(i);
+
         /* Create a node for the protocol, and remember it for
            later use. */
         protocol = find_protocol_by_id(i);
+
+        if (!proto_is_protocol_enabled(protocol))
+            continue;
+
         name = proto_get_protocol_short_name(protocol); /* name, short_name or filter name ? */
         protocol_node = gtk_ctree_insert_node(GTK_CTREE(field_tree),
                                               NULL, NULL,
@@ -1347,6 +1352,11 @@ dfilter_expr_dlg_new(GtkWidget *filter_te)
          */
         if (hfinfo->same_name_prev != NULL)
             continue;
+
+        if (!proto_is_protocol_enabled(find_protocol_by_id(
+                                       proto_registrar_get_parent(i)))) {
+            continue;
+        }
 
         /* Create a node for the item, and put it
            under its parent protocol. */

@@ -1,6 +1,6 @@
 /* decode_as_dlg.c
  *
- * $Id: decode_as_dlg.c,v 1.40 2004/05/26 03:49:22 ulfl Exp $
+ * $Id: decode_as_dlg.c,v 1.41 2004/06/10 09:46:26 guy Exp $
  *
  * Routines to modify dissector tables on the fly.
  *
@@ -1078,6 +1078,7 @@ decode_add_to_list (gchar *table_name, gpointer value, gpointer user_data)
     GtkTreeIter   iter;
     struct handle_lookup_info hli;
 #endif
+    gint       i;
 
     g_assert(user_data);
     g_assert(value);
@@ -1086,6 +1087,10 @@ decode_add_to_list (gchar *table_name, gpointer value, gpointer user_data)
     handle = value;
     proto_name = dissector_handle_get_short_name(handle);
 
+    i = dissector_handle_get_protocol_index(handle);
+    if (i >= 0 && !proto_is_protocol_enabled(find_protocol_by_id(i)))
+        return;
+  
 #if GTK_MAJOR_VERSION < 2
     row = gtk_clist_find_row_from_data(list, handle);
     /* We already have an entry for this handle.
