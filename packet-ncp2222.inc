@@ -11,7 +11,7 @@
  * Portions Copyright (c) Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2000-2003
  *
- * $Id: packet-ncp2222.inc,v 1.63 2003/09/24 03:34:00 guy Exp $
+ * $Id: packet-ncp2222.inc,v 1.64 2003/09/25 11:27:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -4149,7 +4149,8 @@ nds_defrag(tvbuff_t *tvb, packet_info *pinfo, guint16 nw_connection, guint8 sequ
     }
     /* Validate that this is an NDS packet */
     /* If this isn't an NDS packet then just return */
-    if (request_value->ncp_rec->func!=104 || request_value->ncp_rec->subfunc!=2) {
+    if (!request_value->ncp_rec ||
+         request_value->ncp_rec->func!=104 || request_value->ncp_rec->subfunc!=2) {
         dissect_ncp_reply(tvb, pinfo, nw_connection, sequence, type, tree);
         return;
     }
@@ -8176,14 +8177,14 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
        		/* It's not part of any conversation - create a new one. */
        		conversation = conversation_new(&pinfo->src, &pinfo->dst,
        		    PT_NCP, nw_connection, nw_connection, 0);
-                        
+	}
+                
+	if (!pinfo->fd->flags.visited) {
         	request_value = ncp_hash_insert(conversation, sequence, ncp_rec);
         	request_value->req_frame_num = pinfo->fd->num;
 		request_value->req_frame_time.secs=pinfo->fd->abs_secs;
 		request_value->req_frame_time.nsecs=pinfo->fd->abs_usecs*1000;
-	}
-                
-	if (!pinfo->fd->flags.visited) {
+
         	/* If this is the first time we're examining the packet,
         	 * check to see if this NCP type uses a "request condition".
         	 * If so, we have to build a proto_tree because request conditions
