@@ -3,7 +3,7 @@
  * Copyright 2003, Tim Potter <tpot@samba.org>
  * Copyright 2003, Ronnie Sahlberg,  added function dissectors
  *
- * $Id: packet-dcerpc-svcctl.c,v 1.6 2003/04/27 17:46:15 sharpe Exp $
+ * $Id: packet-dcerpc-svcctl.c,v 1.7 2003/04/28 04:44:54 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -95,6 +95,11 @@ svcctl_scm_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 	proto_tree_add_boolean(tree, hf_svcctl_scm_rights_connect, tvb, offset, 4, access);
 }
 
+struct access_mask_info svcctl_scm_access_mask_info = {
+	"SVCCTL",
+	svcctl_scm_specific_rights
+};
+
 /*
  * IDL long OpenSCManager(
  * IDL      [in] [string] [unique] char *MachineName,
@@ -125,7 +130,7 @@ svcctl_dissect_OpenSCManager_rqst(tvbuff_t *tvb, int offset,
 	/* access mask */
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_access_mask,
-		svcctl_scm_specific_rights, "SVCCTL");
+		&svcctl_scm_access_mask_info);
 
 	return offset;
 }

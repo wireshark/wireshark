@@ -2,7 +2,7 @@
  * Routines for SMB \PIPE\spoolss packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc-spoolss.c,v 1.96 2003/04/27 00:49:14 sahlberg Exp $
+ * $Id: packet-dcerpc-spoolss.c,v 1.97 2003/04/28 04:44:54 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -332,6 +332,11 @@ spoolss_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 	proto_tree_add_boolean(
 		tree, hf_server_access_admin, tvb, offset, 4, access);
 }
+
+struct access_mask_info spoolss_access_mask_info = {
+	"SPOOLSS",
+	spoolss_specific_rights
+};
 
 /*
  * Routines to dissect a spoolss BUFFER
@@ -2244,7 +2249,7 @@ static int dissect_PRINTER_INFO_2(tvbuff_t *tvb, int offset,
 	dissect_nt_sec_desc(
 		tvb, secdesc_offset, pinfo, tree, drep, 
 		tvb_length_remaining(tvb, secdesc_offset),
-		spoolss_specific_rights, "SPOOLSS");
+		&spoolss_access_mask_info);
 
 	offset = dissect_printer_attributes(tvb, offset, pinfo, tree, drep);
 
@@ -2293,8 +2298,7 @@ static int dissect_PRINTER_INFO_3(tvbuff_t *tvb, int offset,
 	
 	offset = dissect_nt_sec_desc(
 		tvb, offset, pinfo, tree, drep, 
-		tvb_length_remaining(tvb, offset), 
-		spoolss_specific_rights, "SPOOLSS");
+		tvb_length_remaining(tvb, offset), &spoolss_access_mask_info);
 
 	return offset;
 }
@@ -2477,7 +2481,7 @@ static int SpoolssOpenPrinterEx_q(tvbuff_t *tvb, int offset,
 
   	offset = dissect_nt_access_mask(
  		tvb, offset, pinfo, tree, drep, hf_access_required,
- 		spoolss_specific_rights, "SPOOLSS");
+ 		&spoolss_access_mask_info);
 
 	offset = dissect_USER_LEVEL_CTR(tvb, offset, pinfo, tree, drep);
 
@@ -3319,7 +3323,7 @@ dissect_SEC_DESC_BUF(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	
 	dissect_nt_sec_desc(
 		tvb, offset, pinfo, subtree, drep, len, 
-		spoolss_specific_rights, "SPOOLSS");
+		&spoolss_access_mask_info);
 
 	offset += len;	
 
@@ -4465,7 +4469,7 @@ dissect_spoolss_JOB_INFO_2(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	dissect_nt_sec_desc(
 		tvb, secdesc_offset, pinfo, subtree, drep,
 		tvb_length_remaining(tvb, secdesc_offset),
-		spoolss_specific_rights, "SPOOLSS");
+		&spoolss_access_mask_info);
 
 	offset = dissect_job_status(tvb, offset, pinfo, subtree, drep);
 

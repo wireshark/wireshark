@@ -3,7 +3,7 @@
  * Copyright 2001,2003 Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.75 2003/04/27 04:33:10 tpot Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.76 2003/04/28 04:44:53 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -346,6 +346,11 @@ lsa_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 		tree, hf_view_local_info, tvb, offset, 4, access);
 }
 
+struct access_mask_info lsa_access_mask_info = {
+	"LSA",			/* Name of specific rights */
+	lsa_specific_rights	/* Dissection function */
+};
+
 int
 lsa_dissect_LSA_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
                              packet_info *pinfo, proto_tree *tree,
@@ -364,8 +369,7 @@ lsa_dissect_LSA_SECURITY_DESCRIPTOR_data(tvbuff_t *tvb, int offset,
 				     hf_lsa_sd_size, &len);
 
 	dissect_nt_sec_desc(
-		tvb, offset, pinfo, tree, drep, len, lsa_specific_rights, 
-		"LSA");
+		tvb, offset, pinfo, tree, drep, len, &lsa_access_mask_info);
 
 	offset += len;
 
@@ -445,7 +449,7 @@ lsa_dissect_ACCESS_MASK(tvbuff_t *tvb, int offset,
 {
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_lsa_access_mask,
-		lsa_specific_rights, "LSA");
+		&lsa_access_mask_info);
 
 	return offset;
 }
