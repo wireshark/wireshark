@@ -48,6 +48,14 @@ Don Lafontaine       <lafont02@cn.ca> {
     Banyan Vines support
 }
 
+Guy Harris           <guy@netapp.com> {
+    DNS and NetBIOS Name Service enhancements
+    Bitfield decoding
+    IP and TCP option decoding
+    HTTP support
+    Miscellaneous enhancements and fixes
+}
+
 Simon Wilkinson      <sxw@dcs.ed.ac.uk> {
 	AppleTalk support
 }

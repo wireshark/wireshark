@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.26 1999/03/23 20:25:50 deniel Exp $
+ * $Id: ethereal.c,v 1.27 1999/04/04 02:49:23 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -105,15 +105,18 @@ about_ethereal( GtkWidget *w, gpointer data ) {
 		"Version %s (C) 1998 Gerald Combs <gerald@zing.org>\n"
                 "Compiled with %s\n\n"
 		"Contributors:\n"
-		"Gilbert Ramirez Jr. <gram@verdict.uthscsa.edu>\n"
-		"Hannes R. Boehm     <hannes@boehm.org>\n"
-		"Mike Hall           <mlh@io.com>\n"
-		"Bobo Rajec          <bobo@bsp-consulting.sk>\n"
-		"Laurent Deniel      <deniel@worldnet.fr>\n"
-		"Don Lafontaine      <lafont02@cn.ca>\n"
-		"Guy Harris          <guy@netapp.com>\n"
-		"Simon Wilkinson     <sxw@dcs.ed.ac.uk>\n"
-		"Joerg Mayer         <jmayer@telemation.de>\n\n"
+		"Gilbert Ramirez Jr.      <gram@verdict.uthscsa.edu>\n"
+		"Hannes R. Boehm          <hannes@boehm.org>\n"
+		"Mike Hall                <mlh@io.com>\n"
+		"Bobo Rajec               <bobo@bsp-consulting.sk>\n"
+		"Laurent Deniel           <deniel@worldnet.fr>\n"
+		"Don Lafontaine           <lafont02@cn.ca>\n"
+		"Guy Harris               <guy@netapp.com>\n"
+		"Simon Wilkinson          <sxw@dcs.ed.ac.uk>\n"
+		"Joerg Mayer              <jmayer@telemation.de>\n"
+		"Martin Maciaszek         <fastjack@i-s-o.net>\n"
+		"Didier Jorand            <Didier.Jorand@alcatel.fr>\n"
+		"Jun-ichiro itojun Hagino <itojun@iijlab.net>\n\n"
 		"See http://ethereal.zing.org for more information",
                 VERSION, comp_info_str);
 }
