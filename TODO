@@ -1,4 +1,4 @@
-$Id: TODO,v 1.16 2004/04/25 21:54:45 obiot Exp $
+$Id: TODO,v 1.17 2004/04/25 22:25:52 jmayer Exp $
 
 Things to do:
 =============
@@ -108,6 +108,7 @@ we have krb5, but not krb4
   - Move dissectors and supporting files into the epan tree
   - Move plugins into the epan tree
   - move libs/objects to be linked into LDADD_xxx where appropriate
+  - make heimdal detection work for everyone
 
 *) Allow packet summary and packet dissection as valid "fields" in display
    filter tests:
