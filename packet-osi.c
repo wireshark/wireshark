@@ -1,7 +1,7 @@
 /* packet-osi.c
  * Routines for ISO/OSI network and transport protocol packet disassembly
  *
- * $Id: packet-osi.c,v 1.13 1999/12/15 04:34:19 guy Exp $
+ * $Id: packet-osi.c,v 1.14 2000/01/13 00:41:11 guy Exp $
  * Laurent Deniel <deniel@worldnet.fr>
  *
  * Ethereal - Network traffic analyzer
@@ -44,6 +44,7 @@
 #include <string.h>
 #include <glib.h>
 #include "packet.h"
+#include "nlpid.h"
 
 /* protocols and fields */
 
@@ -66,13 +67,6 @@ static gint ett_clnp = -1;
 static int proto_cotp = -1;
 
 static gint ett_cotp = -1;
-
-/* Network layer protocol identifiers */
-
-#define ISO8473_CLNP		0x81
-#define	ISO9542_ESIS		0x82
-#define ISO10589_ISIS		0x83
-#define ISO9542X25_ESIS		0x8a
 
 /*
  * ISO8473 OSI CLNP definition (see RFC994)
@@ -1588,33 +1582,44 @@ void dissect_clnp(const u_char *pd, int offset, frame_data *fd,
 
 /* main entry point */
 
+const value_string nlpid_vals[] = {
+	{ NLPID_NULL,            "NULL" },
+	{ NLPID_SNAP,            "SNAP" },
+	{ NLPID_ISO8473_CLNP,    "CLNP" },
+	{ NLPID_ISO9542_ESIS,    "ESIS" },
+	{ NLPID_ISO10589_ISIS,   "ISIS" },
+	{ NLPID_ISO9542X25_ESIS, "ESIS (X.25)" },
+	{ NLPID_IP,              "IP" },
+	{ 0,                     NULL },
+};
+
 void dissect_osi(const u_char *pd, int offset, frame_data *fd, 
 		 proto_tree *tree) 
 {
 
   switch (pd[offset]) {
 
-      /* only CLNP is currently decoded */
+    /* ESIS is not currently decoded */
 
-    case ISO8473_CLNP:
+    case NLPID_ISO8473_CLNP:
       if (check_col(fd, COL_PROTOCOL)) {
 	col_add_str(fd, COL_PROTOCOL, "CLNP");
       }      
       dissect_clnp(pd, offset, fd, tree);
       break;
-    case ISO9542_ESIS:
+    case NLPID_ISO9542_ESIS:
       if (check_col(fd, COL_PROTOCOL)) {
 	col_add_str(fd, COL_PROTOCOL, "ESIS");
       }
       dissect_data(pd, offset, fd, tree);
       break;
-    case ISO9542X25_ESIS:
+    case NLPID_ISO9542X25_ESIS:
       if (check_col(fd, COL_PROTOCOL)) {
-	col_add_str(fd, COL_PROTOCOL, "ESIS(X25)");
+	col_add_str(fd, COL_PROTOCOL, "ESIS (X.25)");
       }
       dissect_data(pd, offset, fd, tree);
       break;
-    case ISO10589_ISIS:
+    case NLPID_ISO10589_ISIS:
       if (check_col(fd, COL_PROTOCOL)) {
 	col_add_str(fd, COL_PROTOCOL, "ISIS");
       }
