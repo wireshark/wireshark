@@ -1,6 +1,6 @@
 /* ethereal.c
  *
- * $Id: ethereal.c,v 1.98 1999/08/20 19:43:10 gram Exp $
+ * $Id: ethereal.c,v 1.99 1999/08/20 20:37:47 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -439,8 +439,7 @@ file_open_ok_cb(GtkWidget *w, GtkFileSelection *fs) {
   if (rfilter[0] != '\0') {
 	rfcode = dfilter_new();
 	if (dfilter_compile(rfcode, rfilter) != 0) {
-		simple_dialog(ESD_TYPE_WARN, NULL,
-		    "Unable to parse filter string \"%s\".", rfilter);
+		simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
 		dfilter_destroy(rfcode);
 		return;
 	}
@@ -1450,8 +1449,7 @@ main(int argc, char *argv[])
     if (rfilter != NULL) {
       rfcode = dfilter_new();
       if (dfilter_compile(rfcode, rfilter) != 0) {
-        simple_dialog(ESD_TYPE_WARN, NULL,
-	    "Unable to parse filter string \"%s\".", rfilter);
+        simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
         dfilter_destroy(rfcode);
         rfilter_parse_failed = TRUE;
       }

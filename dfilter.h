@@ -1,7 +1,7 @@
 /* dfilter.h
  * Definitions for display filters
  *
- * $Id: dfilter.h,v 1.8 1999/08/20 06:01:07 gram Exp $
+ * $Id: dfilter.h,v 1.9 1999/08/20 20:37:46 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -28,6 +28,11 @@
 
 #define DFILTER_CONTAINS_FILTER(x)	((x)->dftree)
 
+/* dfilter_error_msg is NULL if there was no error during dfilter_compile,
+ * otherwise it points to a displayable error message. */
+extern gchar *dfilter_error_msg;
+extern gchar dfilter_error_msg_buf[1024];
+
 typedef struct {
 
 	GNode *dftree;
@@ -39,10 +44,6 @@ typedef struct {
 	/* list of byte arrays we allocate during parse. We can traverse this list
 	 * faster than the tree when we go back and free the byte arrays */
 	GSList *list_of_byte_arrays;
-
-	/* Error code and text that produced error */
-	gint error;
-	gchar *error_sample;
 } dfilter;
 
 /* Initialization of the symbol table. Called once during program startup */
@@ -62,10 +63,5 @@ gboolean dfilter_apply(dfilter *df, proto_tree *ptree, const guint8* pd);
 
 /* Clears the current filter int the dfilter */
 void dfilter_clear_filter(dfilter *df);
-
-enum {
-	DFILTER_ERR_NONE,
-	DFILTER_ERR_BAD_ETHER_VAL
-};
 
 #endif /* ! __DFILTER_H__ */

@@ -1,7 +1,7 @@
 /* file.c
  * File I/O routines
  *
- * $Id: file.c,v 1.76 1999/08/20 06:55:07 guy Exp $
+ * $Id: file.c,v 1.77 1999/08/20 20:37:47 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -597,8 +597,7 @@ filter_packets(capture_file *cf)
      * Compile the filter.
      */
     if (dfilter_compile(cf->dfcode, cf->dfilter) != 0) {
-      simple_dialog(ESD_TYPE_WARN, NULL,
-      "Unable to parse filter string \"%s\".", cf->dfilter);
+      simple_dialog(ESD_TYPE_WARN, NULL, dfilter_error_msg);
       return;
     }
   }

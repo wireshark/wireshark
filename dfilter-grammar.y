@@ -3,7 +3,7 @@
 /* dfilter-grammar.y
  * Parser for display filters
  *
- * $Id: dfilter-grammar.y,v 1.11 1999/08/20 06:01:06 gram Exp $
+ * $Id: dfilter-grammar.y,v 1.12 1999/08/20 20:37:45 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -514,10 +514,9 @@ dfilter_mknode_ether_value(gchar *byte_string)
 		/* Rather than free the mem_chunk allocation, let it
 		 * stay. It will be cleaned up in the next call to
 		 * dfilter_clear() */
-		if (global_df->error_sample)
-			g_free(global_df->error_sample);
-		global_df->error_sample = g_strdup(byte_string);
-		global_df->error = DFILTER_ERR_BAD_ETHER_VAL;
+		dfilter_error_msg = &dfilter_error_msg_buf[0];
+		snprintf(dfilter_error_msg, sizeof(dfilter_error_msg_buf),
+			"\"%s\" is not a valid hardware address.", byte_string);
 		return NULL;
 	}
 

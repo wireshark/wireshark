@@ -1,7 +1,7 @@
 /* dfilter.c
  * Routines for display filters
  *
- * $Id: dfilter.c,v 1.11 1999/08/20 06:01:07 gram Exp $
+ * $Id: dfilter.c,v 1.12 1999/08/20 20:37:46 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@zing.org>
@@ -50,6 +50,11 @@
 #ifndef __DFILTER_H__
 #include "dfilter.h"
 #endif
+
+#ifndef __UTIL_H__
+#include "util.h"
+#endif
+
 #include "dfilter-int.h"
 #include "dfilter-grammar.h"
 
@@ -68,6 +73,10 @@ int bytes_offset = 0;
 int bytes_length = 0;
 
 YYSTYPE yylval;
+
+/* Global error message space for dfilter_compile errors */
+gchar dfilter_error_msg_buf[1024];
+gchar *dfilter_error_msg;	/* NULL when no error resulted */
 
 static gboolean dfilter_apply_node(GNode *gnode, proto_tree *ptree, const guint8 *pd);
 static gboolean check_relation(gint operand, GNode *a, GNode *b, proto_tree *ptree, const guint8 *pd);
@@ -108,6 +117,12 @@ dfilter_init(void)
  * of operations to perform. Can be called multiple times, compiling a new
  * display filter each time, without having to clear any memory used, since
  * dfilter_compile will take care of that automatically.
+ * 
+ * Returns 0 on success, non-zero on failure.
+ * If a failure, dfilter_error_msg points to an appropriate error message.
+ * This error message is a global string, so another invocation of
+ * dfilter_compile will clear it. If the caller needs is stored, he
+ * needs to g_strdup it himself.
  */
 int
 dfilter_compile(dfilter *df, gchar *dfilter_text)
@@ -124,12 +139,24 @@ dfilter_compile(dfilter *df, gchar *dfilter_text)
 
 	/* Assign global variable so yyparse knows which dfilter we're talking about */
 	global_df = df;
+	dfilter_error_msg = NULL;
 
 	/* The magic happens right here. */
 	retval = dfilter_parse();
 
 	/* clean up lex */
 	dfilter_scanner_cleanup();
+
+	/* If a parse error occurred, fill in a generic error message
+	 * if one was not created during parsing. */
+	if (retval != 0) {
+		if (dfilter_error_msg == NULL) {
+			dfilter_error_msg = &dfilter_error_msg_buf[0];
+			snprintf(dfilter_error_msg, sizeof(dfilter_error_msg),
+				"Unable to parse filter string \"%s\".",
+				dfilter_text);
+		}
+	}
 
 	return retval;
 }
@@ -161,12 +188,6 @@ dfilter_clear_filter(dfilter *df)
 	df->dftext = NULL;
 	df->dftree = NULL;
 	df->list_of_byte_arrays = NULL;
-
-	if (df->error_sample) {
-		g_free(df->error_sample);
-	}
-	df->error_sample = NULL;
-	df->error = DFILTER_ERR_NONE;
 }
 
 /* Allocates new dfilter, initializes values, and returns pointer to dfilter */
