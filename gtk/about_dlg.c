@@ -1,6 +1,6 @@
 /* about_dlg.c
  *
- * $Id: about_dlg.c,v 1.20 2004/07/05 05:32:04 ulfl Exp $
+ * $Id: about_dlg.c,v 1.21 2004/07/06 19:16:04 gerald Exp $
  *
  * Ulf Lamping <ulf.lamping@web.de>
  *
@@ -85,8 +85,8 @@ about_ethereal(GtkWidget *parent, GtkWidget *main_vb, const char *title)
 }
 
 
-
-GtkWidget *splash_new(char *message)
+GtkWidget *
+splash_new(char *message)
 {
     GtkWidget *win;
     GtkWidget *main_lb;
@@ -122,9 +122,12 @@ GtkWidget *splash_new(char *message)
     return win;
 }
 
-void splash_update(GtkWidget *win, char *message)
+void
+splash_update(GtkWidget *win, char *message)
 {
     GtkWidget *main_lb;
+
+    if (win == NULL) return;
 
     main_lb = OBJECT_GET_DATA(win, "splash_label");
     gtk_label_set_text(GTK_LABEL(main_lb), message);
@@ -133,8 +136,11 @@ void splash_update(GtkWidget *win, char *message)
     while (gtk_events_pending()) gtk_main_iteration();
 }
 
-guint splash_destroy(GtkWidget *win)
+guint
+splash_destroy(GtkWidget *win)
 {
+    if (win == NULL) return FALSE;
+
     gtk_widget_destroy(win);
     return FALSE;
 }

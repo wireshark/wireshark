@@ -1,6 +1,6 @@
 /* main.c
  *
- * $Id: main.c,v 1.452 2004/07/04 12:15:41 ulfl Exp $
+ * $Id: main.c,v 1.453 2004/07/06 19:16:04 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1551,7 +1551,7 @@ main(int argc, char *argv[])
   char                 badopt;
   ethereal_tap_list   *tli = NULL;
   gchar               *tap_opt = NULL;
-  GtkWidget           *splash_win;
+  GtkWidget           *splash_win = NULL;
 
 #define OPTSTRING_INIT "a:b:B:c:f:Hhi:klLm:nN:o:pP:Qr:R:Ss:t:T:w:vy:z:"
 
@@ -1578,8 +1578,6 @@ main(int argc, char *argv[])
   /* Let GTK get its args */
   gtk_init (&argc, &argv);
 
-  splash_win = splash_new("Loading Ethereal ...");
-
 
   ethereal_path = argv[0];
 
@@ -1601,16 +1599,19 @@ main(int argc, char *argv[])
 		    console_log_handler, NULL);
 #endif
 
-#ifdef HAVE_LIBPCAP
   command_name = get_basename(ethereal_path);
   /* Set "capture_child" to indicate whether this is going to be a child
      process for a "-S" capture. */
   capture_child = (strcmp(command_name, CHILD_NAME) == 0);
-  if (capture_child)
+  if (capture_child) {
     strcat(optstring, OPTSTRING_CHILD);
-#endif
+  } else {
+    /* We want a splash screen only if we're not a child process */
+    splash_win = splash_new("Loading Ethereal ...");
+  }
 
-  splash_update(splash_win, "Register dissectors ...");
+
+  splash_update(splash_win, "Registering dissectors ...");
 
   /* Register all dissectors; we must do this before checking for the
      "-G" flag, as the "-G" flag dumps information registered by the
@@ -1619,13 +1620,13 @@ main(int argc, char *argv[])
   epan_init(PLUGIN_DIR,register_all_protocols,register_all_protocol_handoffs,
             failure_alert_box,open_failure_alert_box,read_failure_alert_box);
 
-  splash_update(splash_win, "Register tap listeners ...");
+  splash_update(splash_win, "Registering tap listeners ...");
 
   /* Register all tap listeners; we do this before we parse the arguments,
      as the "-z" argument can specify a registered tap. */
   register_all_tap_listeners();
 
-  splash_update(splash_win, "Register preferences ...");
+  splash_update(splash_win, "Loading module preferences ...");
 
   /* Now register the preferences for any non-dissector modules.
      We must do that before we read the preferences as well. */

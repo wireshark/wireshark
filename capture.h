@@ -1,7 +1,7 @@
 /* capture.h
  * Definitions for packet capture windows
  *
- * $Id: capture.h,v 1.47 2004/06/20 13:39:43 ulfl Exp $
+ * $Id: capture.h,v 1.48 2004/07/06 19:16:03 gerald Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -25,14 +25,14 @@
 #ifndef __CAPTURE_H__
 #define __CAPTURE_H__
 
-#ifdef HAVE_LIBPCAP
-
 /** @file
  *  Capture related things.
  */
 
 /** Name we give to the child process when doing a "-S" capture. */
 #define	CHILD_NAME	"ethereal-capture"
+
+#ifdef HAVE_LIBPCAP
 
 /** Capture options coming from user interface */
 typedef struct {
