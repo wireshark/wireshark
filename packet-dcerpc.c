@@ -3,7 +3,7 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2003, Tim Potter <tpot@samba.org>
  *
- * $Id: packet-dcerpc.c,v 1.175 2004/05/28 20:59:56 ulfl Exp $
+ * $Id: packet-dcerpc.c,v 1.176 2004/05/29 04:34:51 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -3640,7 +3640,7 @@ dissect_dcerpc_dg_cancel (tvbuff_t *tvb, int offset, packet_info *pinfo,
         /* XXX - are NDR booleans 32 bits? */
 
         /* XXX - the RPC reference in chapter: "the cancel PDU" doesn't mention
-        /* the accepting_cancels field (it's only in the cancel_ack PDU)! */
+           the accepting_cancels field (it's only in the cancel_ack PDU)! */
         /*offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree,
                                         hdr->drep, hf_dcerpc_dg_server_accepting_cancels,
                                         NULL);*/
