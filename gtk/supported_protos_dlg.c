@@ -231,7 +231,7 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_box_pack_end(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 #if GTK_MAJOR_VERSION < 2
-  close_bt = gtk_button_new_with_label("Ok");
+  close_bt = gtk_button_new_with_label("OK");
 #else
   close_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
 #endif
