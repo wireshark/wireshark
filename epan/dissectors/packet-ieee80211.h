@@ -32,3 +32,10 @@ void capture_ieee80211_fixed (const guchar *, int, int, packet_counts *);
 
 void ieee_80211_add_tagged_parameters (tvbuff_t * tvb, int offset,
        packet_info * pinfo, proto_tree * tree, int tagged_parameters_len);
+
+typedef struct _wlan_hdr {
+        address bssid;
+        address src;
+        address dst;
+        guint16 type;
+} wlan_hdr;

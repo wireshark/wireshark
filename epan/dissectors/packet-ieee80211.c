@@ -68,6 +68,7 @@
 #include "packet-ieee80211.h"
 #include "etypes.h"
 #include <epan/crc32.h>
+#include <epan/tap.h>
 
 #include <ctype.h>
 #include "isprint.h"
@@ -511,6 +512,8 @@ static dissector_handle_t llc_handle;
 static dissector_handle_t ipx_handle;
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t data_handle;
+
+static int wlan_tap = -1;
 
 /* ************************************************************************* */
 /*            Return the length of the current header (in bytes)             */
@@ -1684,6 +1687,10 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   char out_buff[SHORT_STR];
   gint is_iv_bad;
   guchar iv_buff[4];
+  wlan_hdr *whdr;
+  static wlan_hdr whdrs[4];
+
+  whdr= &whdrs[0];
 
   if (check_col (pinfo->cinfo, COL_PROTOCOL))
     col_set_str (pinfo->cinfo, COL_PROTOCOL, "IEEE 802.11");
@@ -1843,6 +1850,11 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dst);
       SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, dst);
 
+      /* for tap */
+      SET_ADDRESS(&whdr->bssid, AT_ETHER, 6, tvb_get_ptr(tvb, 16,6));
+      SET_ADDRESS(&whdr->src, AT_ETHER, 6, src);
+      SET_ADDRESS(&whdr->dst, AT_ETHER, 6, dst);
+
       seq_control = tvb_get_letohs(tvb, 22);
       frag_number = COOK_FRAGMENT_NUMBER(seq_control);
       seq_number = COOK_SEQUENCE_NUMBER(seq_control);
@@ -1991,6 +2003,12 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       SET_ADDRESS(&pinfo->src, AT_ETHER, 6, src);
       SET_ADDRESS(&pinfo->dl_dst, AT_ETHER, 6, dst);
       SET_ADDRESS(&pinfo->dst, AT_ETHER, 6, dst);
+
+      /* for tap */
+
+      SET_ADDRESS(&whdr->bssid, AT_ETHER, 6, tvb_get_ptr(tvb, 16,6));
+      SET_ADDRESS(&whdr->src, AT_ETHER, 6, src);
+      SET_ADDRESS(&whdr->dst, AT_ETHER, 6, dst);
 
       seq_control = tvb_get_letohs(tvb, 22);
       frag_number = COOK_FRAGMENT_NUMBER(seq_control);
@@ -2342,7 +2360,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       {
         /* Some wireless drivers (such as Centrino) WEP payload already decrypted */
         call_dissector(data_handle, next_tvb, pinfo, tree);
-        return;
+        goto end_of_wlan;
       }
     } else {
 
@@ -2450,7 +2468,7 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     next_tvb = tvb_new_subset (tvb, hdr_len, len, reported_len);
     call_dissector(data_handle, next_tvb, pinfo, tree);
     pinfo->fragmented = save_fragmented;
-    return;
+    goto end_of_wlan;
   }
 
   switch (COOK_FRAME_TYPE (fcf))
@@ -2523,6 +2541,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       break;
     }
   pinfo->fragmented = save_fragmented;
+
+  end_of_wlan:
+  tap_queue_packet(wlan_tap, pinfo, whdr);
 }
 
 /*
@@ -3197,6 +3218,8 @@ proto_register_ieee80211 (void)
   register_dissector("wlan_fixed", dissect_ieee80211_fixed, proto_wlan);
   register_dissector("wlan_bsfc", dissect_ieee80211_bsfc, proto_wlan);
   register_init_routine(wlan_defragment_init);
+
+  wlan_tap = register_tap("wlan");
 
   /* Register configuration options */
   wlan_module = prefs_register_protocol(proto_wlan, init_wepkeys);

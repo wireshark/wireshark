@@ -1912,6 +1912,7 @@ Giles Scott             <gscott [AT] arubanetworks.com> {
 	Alteon/Nortel Transparent Proxy Control Protocol support
 	Ethernet MAC Control Frame support
 	Port weak key detection from Airsnort
+	Wlan tap
 }
 
 Vincent Jardin          <vincent.jardin [AT] 6wind.com> {
