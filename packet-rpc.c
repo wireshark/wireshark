@@ -2,7 +2,7 @@
  * Routines for rpc dissection
  * Copyright 1999, Uwe Girlich <Uwe.Girlich@philosys.de>
  * 
- * $Id: packet-rpc.c,v 1.19 1999/11/19 23:23:40 guy Exp $
+ * $Id: packet-rpc.c,v 1.20 1999/12/02 10:20:42 girlich Exp $
  * 
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -386,18 +386,25 @@ char* name, char* type)
 
 
 int
-dissect_rpc_string(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hfindex)
+dissect_rpc_opaque_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hfindex, int string_data)
 {
 	proto_item *string_item = NULL;
 	proto_tree *string_tree = NULL;
 	int old_offset = offset;
 
-	int truncated_length = 0;
+	int length_truncated = 0;
+
+	int string_truncated = 0;
 	guint32 string_length = 0;
+	guint32 string_length_full;
 	guint32 string_length_packet;
 	guint32 string_length_copy = 0;
-	guint32 string_length_full;
-	guint32 string_fill = 0;
+
+	int fill_truncated = 0;
+	guint32 fill_length  = 0;
+	guint32 fill_length_packet  = 0;
+	guint32 fill_length_copy  = 0;
+
 	char *string_buffer = NULL;
 	char *string_buffer_print = NULL;
 
@@ -405,31 +412,58 @@ dissect_rpc_string(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 		string_length = EXTRACT_UINT(pd,offset+0);
 		string_length_full = rpc_roundup(string_length);
 		string_length_packet = pi.captured_len - (offset + 4);
-		if (string_length > string_length_packet) {
+		if (string_length_packet < string_length) {
+			/* truncated string */
+			string_truncated = 1;
 			string_length_copy = string_length_packet;
-			string_fill = 0;
+			fill_truncated = 2;
+			fill_length = 0;
+			fill_length_packet = 0;
+			fill_length_copy = 0;
 		}
 		else {
+			/* full string data */
+			string_truncated = 0;
 			string_length_copy = string_length;
-			string_fill = string_length_full - string_length;
+			fill_length = string_length_full - string_length;
+			fill_length_packet = pi.captured_len - (offset + 4 + string_length);
+			if (fill_length_packet < fill_length) {
+				/* truncated fill bytes */
+				fill_length_copy = fill_length_packet;
+				fill_truncated = 1;
+			}
+			else {
+				/* full fill bytes */
+				fill_length_copy = fill_length;
+				fill_truncated = 0;
+			}
 		}
-		string_buffer = (char*)g_malloc(string_length_copy + 1);
+		string_buffer = (char*)g_malloc(string_length_copy + 
+			(string_data ? 1 : 0));
 		memcpy(string_buffer,pd+offset+4,string_length_copy);
-		string_buffer[string_length_copy] = '\0';
-
-		/* I use here strdup functions. This works only, if the
-		   string does not contain 0 bytes. */
+		if (string_data)
+			string_buffer[string_length_copy] = '\0';
 
 		/* calculate a nice printable string */
 		if (string_length) {
 			if (string_length != string_length_copy) {
-				string_buffer_print = (char*)g_malloc(string_length_copy + 1 + 12);
-				memcpy(string_buffer_print,string_buffer,string_length_copy);
-				memcpy(string_buffer_print+string_length_copy,
-					"<TRUNCATED>", 12);
+				if (string_data) {
+					string_buffer_print = (char*)g_malloc(string_length_copy + 1 + 12);
+					memcpy(string_buffer_print,string_buffer,string_length_copy);
+					memcpy(string_buffer_print+string_length_copy,
+						"<TRUNCATED>", 12);
+				}
+				else {
+					string_buffer_print = g_strdup("<DATA><TRUNCATED>");
+				}
 			}
 			else {
-				string_buffer_print = g_strdup(string_buffer);
+				if (string_data) {
+					string_buffer_print = g_strdup(string_buffer);
+				}
+				else {
+					string_buffer_print = g_strdup("<DATA>");
+				}
 			}
 		}
 		else {
@@ -437,7 +471,9 @@ dissect_rpc_string(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 		}
 	}
 	else {
-		truncated_length = 1;
+		length_truncated = 1;
+		string_truncated = 2;
+		fill_truncated = 2;
 		string_buffer = g_strdup("");
 		string_buffer_print = g_strdup("<TRUNCATED>");
 	}
@@ -445,40 +481,71 @@ dissect_rpc_string(const u_char *pd, int offset, frame_data *fd, proto_tree *tre
 	if (tree) {
 		string_item = proto_tree_add_text(tree,offset+0, END_OF_FRAME,
 			"%s: %s", proto_registrar_get_name(hfindex), string_buffer_print);
-		proto_tree_add_item_hidden(tree, hfindex, offset+4,
-			string_length, string_buffer);
+		if (string_data) {
+			proto_tree_add_item_hidden(tree, hfindex, offset+4,
+				string_length_copy, string_buffer);
+		}
 		if (string_item) {
 			string_tree = proto_item_add_subtree(string_item, ett_rpc_string);
 		}
 	}
-	if (string_tree) {
-		if (truncated_length) {
+	if (length_truncated) {
+		if (string_tree)
 			proto_tree_add_text(string_tree,
 				offset,pi.captured_len-offset,
 				"length: <TRUNCATED>");
-			offset = pi.captured_len;
-		}
-		else {
+		offset = pi.captured_len;
+	} else {
+		if (string_tree)
 			proto_tree_add_text(string_tree,offset+0,4,
 				"length: %u", string_length);
-			offset += 4;
-		}
-		proto_tree_add_text(string_tree,offset,string_length_copy,
-			"text: %s", string_buffer_print);
+		offset += 4;
+
+		if (string_tree)
+			proto_tree_add_text(string_tree,offset,string_length_copy,
+				"contents: %s", string_buffer_print);
 		offset += string_length_copy;
-		if (string_fill) {
-			proto_tree_add_text(string_tree,offset,string_fill,
-				"fill bytes: opaque data");
-			offset += string_fill;
+		if (fill_length) {
+			if (string_tree) {
+				if (fill_truncated) {
+					proto_tree_add_text(string_tree,
+					offset,fill_length_copy,
+					"fill bytes: opaque data<TRUNCATED>");
+				}
+				else {
+					proto_tree_add_text(string_tree,
+					offset,fill_length_copy,
+					"fill bytes: opaque data");
+				}
+			}
+			offset += fill_length_copy;
 		}
 	}
-
+	
 	if (string_item) {
 		proto_item_set_len(string_item, offset - old_offset);
 	}
 
 	if (string_buffer       != NULL) g_free (string_buffer      );
 	if (string_buffer_print != NULL) g_free (string_buffer_print);
+	return offset;
+}
+
+
+int
+dissect_rpc_string(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hfindex)
+{
+	offset = dissect_rpc_opaque_data(pd, offset, fd, tree, hfindex, 1);
+
+	return offset;
+}
+
+
+int
+dissect_rpc_data(const u_char *pd, int offset, frame_data *fd, proto_tree *tree, int hfindex)
+{
+	offset = dissect_rpc_opaque_data(pd, offset, fd, tree, hfindex, 0);
+
 	return offset;
 }
 
