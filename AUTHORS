@@ -1819,6 +1819,7 @@ Jean-Michel Fayard <jean-michel.fayard [AT] moufrei.de> {
 
 Josef Korelus <jkor [AT] quick.cz> {
 	GPRS Network Service-over-Frame-Relay support
+	GPRS BSSGP support
 }
 
 And assorted fixes and enhancements by the people listed above and by:

@@ -3,7 +3,7 @@
  * dissection
  * Copyright 2003, Josef Korelus <jkor@quick.cz>
  *
- * $Id: packet-gprs-ns.c,v 1.1 2003/09/03 22:26:38 guy Exp $
+ * $Id: packet-gprs-ns.c,v 1.2 2003/09/06 06:55:57 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -98,7 +98,7 @@ static const value_string cause_val[]= {
         { 0,      NULL },	
 };
  
-static dissector_handle_t data_handle;
+static dissector_handle_t bssgp_handle;
 
 static void
 dissect_gprs_ns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -202,7 +202,7 @@ dissect_gprs_ns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint(gprs_ns_tree, hf_gprs_ns_bvci, tvb, offset, 2, bvc);
 		offset=offset+2;
 		next_tvb = tvb_new_subset(tvb, offset, -1, -1);
-		call_dissector(data_handle, next_tvb, pinfo, tree);
+		call_dissector(bssgp_handle, next_tvb, pinfo, tree);
 		break;
 
 	case NS_STATUS:
@@ -254,5 +254,5 @@ proto_register_gprs_ns(void)
 void
 proto_reg_handoff_gprs_ns(void)
 {
-        data_handle = find_dissector("data");
+        bssgp_handle = find_dissector("bssgp");
 }
