@@ -4,7 +4,7 @@
  * Jason Lango <jal@netapp.com>
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  *
- * $Id: packet-sdp.c,v 1.27 2002/02/02 02:52:41 guy Exp $
+ * $Id: packet-sdp.c,v 1.28 2002/02/02 21:54:04 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -167,6 +167,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	int		datalen;
 	int             tokenoffset;
 	int             hf = -1;
+	char            *string;
 
 	/*
 	 * As RFC 2327 says, "SDP is purely a format for session
@@ -297,11 +298,14 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tokenoffset = 2;
 		if( hf == hf_unknown || hf == hf_misplaced )
 		  tokenoffset = 0;
+		string = g_malloc(linelen - tokenoffset + 1);
+		CLEANUP_PUSH(g_free, string);
+		tvb_memcpy(tvb, (guint8 *)string, offset + tokenoffset,
+		    linelen - tokenoffset);
+		string[linelen - tokenoffset] = '\0';
 		sub_ti = proto_tree_add_string(sdp_tree,hf,tvb, offset, 
-					       linelen,
-					       tvb_get_ptr(tvb,
-						      offset+tokenoffset,
-						      linelen - tokenoffset));
+					       linelen, string);
+		CLEANUP_CALL_AND_POP;
 		call_sdp_subdissector(tvb_new_subset(tvb,offset+tokenoffset,
 						     linelen-tokenoffset,-1),
 				      pinfo,tree,hf,sub_ti);
