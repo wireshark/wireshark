@@ -3,7 +3,7 @@
  * Copyright 2001, Tim Potter <tpot@samba.org>
  *  2002  Added LSA command dissectors  Ronnie Sahlberg
  *
- * $Id: packet-dcerpc-lsa.c,v 1.16 2002/04/17 15:39:27 sahlberg Exp $
+ * $Id: packet-dcerpc-lsa.c,v 1.17 2002/04/18 02:35:45 tpot Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -287,8 +287,9 @@ static int
 lsa_dissect_LSA_HANDLE(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
-	offset = dissect_ndr_ctx_hnd (tvb, offset, pinfo, tree, drep,
+	offset = dissect_nt_policy_hnd(tvb, offset, pinfo, tree, drep,
 			hf_lsa_hnd, NULL);
+
 	return offset;
 }
 
@@ -362,13 +363,24 @@ lsa_dissect_lsaclose_reply(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+/* A bug in the NT IDL for lsa openpolicy only stores the first (wide)
+   character of the server name which is always '\'.  This is fixed in lsa
+   openpolicy2 but the function remains for backwards compatibility. */
+
+static int dissect_lsa_openpolicy_server(tvbuff_t *tvb, int offset, 
+					     packet_info *pinfo, 
+					     proto_tree *tree, char *drep)
+{
+	return dissect_ndr_uint16(tvb, offset, pinfo, tree, drep, 
+				  hf_lsa_server, NULL);
+}
 
 static int
 lsa_dissect_lsaopenpolicy_rqst(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, char *drep)
 {
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-		dissect_ndr_nt_UNICODE_STRING_str, NDR_POINTER_UNIQUE,
+		dissect_lsa_openpolicy_server, NDR_POINTER_UNIQUE,
 		"Server:", hf_lsa_server, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -2053,6 +2065,13 @@ static dcerpc_sub_dissector dcerpc_lsa_dissectors[] = {
 	{0, NULL, NULL, NULL},
 };
 
+static void lsa_init(void)
+{
+	/* Initialise DCERPC/SMB data structures */
+
+	dcerpc_smb_init();
+}
+
 void 
 proto_register_dcerpc_lsa(void)
 {
@@ -2312,6 +2331,8 @@ proto_register_dcerpc_lsa(void)
 
         proto_register_field_array (proto_dcerpc_lsa, hf, array_length (hf));
         proto_register_subtree_array(ett, array_length(ett));
+
+        register_init_routine(lsa_init);
 }
 
 /* Protocol handoff */
