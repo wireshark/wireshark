@@ -1,7 +1,7 @@
 /* packet-tcp.c
  * Routines for TCP packet disassembly
  *
- * $Id: packet-tcp.c,v 1.128 2002/01/21 07:36:44 guy Exp $
+ * $Id: packet-tcp.c,v 1.129 2002/02/03 21:44:52 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -371,7 +371,7 @@ desegment_tcp(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		st = proto_item_add_subtree(si, ett_tcp_segments);
 		for(ipfd=ipfd_head->next; ipfd; ipfd=ipfd->next){
 			proto_tree_add_text(st, tvb, 0, 0,
-				"Frame:%u  seq#:%u-%u [%u-%u]",
+				"Frame:%u seq#:%u-%u [%u-%u]",
 				ipfd->frame,
 				tsk->start_seq + ipfd->offset,
 				tsk->start_seq + ipfd->offset + ipfd->len - 1,
