@@ -2,7 +2,7 @@
  * Define *DLC frame types, and routine to dissect the control field of
  * a *DLC frame.
  *
- * $Id: xdlc.h,v 1.5 1999/09/27 03:12:55 gram Exp $
+ * $Id: xdlc.h,v 1.6 1999/09/27 08:33:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
@@ -64,7 +64,7 @@
  * Unnumbered Information frame) and FALSE if it doesn't.
  */
 #define XDLC_HAS_PAYLOAD(control) \
-	((control & 0x3) == XDLC_I || (control & 0x3) == (XDLC_UI|XDLC_U))
+	((control & 0x3) == XDLC_I || (control) == (XDLC_UI|XDLC_U))
 
 /*
  * This macro takes the control field of an xDLC frame, and a flag saying
