@@ -2,7 +2,7 @@
  * Routines for iSCSI dissection
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *
- * $Id: packet-iscsi.c,v 1.40 2002/09/26 08:20:22 sahlberg Exp $
+ * $Id: packet-iscsi.c,v 1.41 2002/11/14 19:08:17 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -403,7 +403,7 @@ static const value_string iscsi_login_status[] = {
     {0x0101, "Target moved temporarily"},
     {0x0102, "Target moved permanently"},
     {0x0200, "Initiator error (miscellaneous error)"},
-    {0x0201, "Athentication failed"},
+    {0x0201, "Authentication failed"},
     {0x0202, "Authorisation failure"},
     {0x0203, "Target not found"},
     {0x0204, "Target removed"},

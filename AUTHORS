@@ -1249,6 +1249,7 @@ Andrew Esh <Andrew.Esh[AT]tricord.com> {
 	    TRANS2_QUERY_FS_INFORMATION, and fix handling of level 1022
 	    to treat the file name as always being in Unicode
 	Fix a compiler warning
+	Typo fix in iSCSI dissector
 }
 
 Greg Morris <GMORRIS[AT]novell.com> {
