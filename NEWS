@@ -1,0 +1,118 @@
+Overview of changes in Ethereal 0.3.15:
+
+* OSPF fixes (Hannes)
+* Preliminary IPv6 support (Hannes)
+* Name resolution (Laurent)
+* Font and help option (Laurent)
+* Token ring fixes (Gilbert)
+* DLT_RAW #define fixes (Laurent, Hannes and a few others)
+
+Overview of changes in Ethereal 0.3.14:
+
+* Added Laurent's fixes to pntoh[sl].
+* RIP fixes (Laurent)
+* Added Gilbert's BOOTP code.
+
+Overview of changes in Ethereal 0.3.13:
+
+* Made the tree items "sticky"
+* Expanded the pntoh[sl] macros, fixed alignment problems with IPX code.
+* Changes to packet-ppp and packet-raw
+
+Overview of changes in Ethereal 0.3.12:
+
+* RIP support (Hannes)
+* LPR/LPD support (Gilbert)
+* Changes to #includes to improve compatibility.
+
+Overview of changes in Ethereal 0.3.11:
+
+* Fixed a file capture bug.
+
+Overview of changes in Ethereal 0.3.10:
+
+* Fixed a Makefile bug with the new snprintf package.
+
+Overview of changes in Ethereal 0.3.9:
+
+* Switched to a different version of snprintf.c.
+* Minor bug fixes.
+* Fixes to Makefile.am.
+
+Overview of changes in Ethereal 0.3.8:
+
+* PostScript(R) output (Gilbert)
+* More OSPF code (Hannes)
+* Enhanced DNS (Bobo)
+
+Overview of changes in Ethereal 0.3.7:
+
+* Enhanced OSPF (Hannes)
+* Fixed small bug in filter dialog.
+
+Overview of changes in Ethereal 0.3.6:
+
+* Added OSPF support, thanks to Hannes Boehm.
+* Added -B, -P, and -T flags.
+
+Overview of changes in Ethereal 0.3.5:
+
+* Command line argument fixes/upgrades.
+* Compatibility fixes.
+* Initial pod/man page documentation.
+* Miscellaneous changes to the way things are done in capture.c.
+* Initial support for DNS and IGMP.
+
+Overview of changes in Ethereal 0.3.4:
+
+* Printer preferences dialog added (Gilbert)
+* Misc fixes/upgrades.
+
+Overview of changes in Ethereal 0.3.3:
+
+* Added PPP support, thanks to Mike Hall.
+* Added dialogs for errors/warnings.
+* Support for the -r flag was added.
+* Other minor fixes/upgrades.
+
+Overview of changes in Ethereal 0.3.2:
+
+* Misc bug fixes & minor enhancements.
+* Added preliminary ICMP support
+* Added preliminary printing support (Gilbert)
+
+Overview of changes in Ethereal 0.3.1:
+
+* Fixed bug that prevented capturing with a filter.
+* Fixed misc. header problems.
+
+Overview of changes in Ethereal 0.3.0:
+
+* Initial support for filters.
+* Fixes/enhancements for IPX and token ring (Gilbert).
+
+Overview of changes in Ethereal 0.2.3:
+
+* Added support for IPX, thanks to Gilbert.
+
+Overview of changes in Ethereal 0.2.2:
+
+* Added support for token ring, thanks to Gilbert Ramirez, Jr.
+
+Overview of changes in Ethereal 0.2.1:
+
+* Internal structs for ARP/RARP, IP, TCP, and UDP were created.  Trying to 
+  sort out which #includes were needed for each system was just too much of
+  a hassle.
+* Added support for systems that don't have snprintf() and vsnprintf(), thanks
+  to Theo de Raadt.
+* Minor changes to the README file.
+
+Overview of changes in Ethereal 0.2.0:
+
+* Initial public release.
+* GNU autoconf-ified distribution
+* Runs under Linux 2.0.x and Solaris 2.6.
+* Requires GTK+ (1.0.1 tested) and libpcap (0.4a6 tested)
+* For optimal results under Linux, the Karpski libpcap should be used.
+* General documentation and a minimal web site have been prepared.

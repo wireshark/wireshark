@@ -1,0 +1,36 @@
+Original Author
+-------- ------
+Gerald Combs  <gerald@zing.org>
+
+
+Contributors
+------------
+Gilbert Ramirez Jr.  <gram@verdict.uthscsa.edu> {
+    /* add your info here */
+}
+
+Hannes R. Boehm      <hannes@boehm.org> {
+    http://hannes.boehm.org/
+
+    OSPFv2 
+    RIPv1, RIPv2
+    started IPv6 support
+}
+
+Mike Hall            <mlh@io.com>{
+    /* add your info here */
+}
+
+Bobo Rajec           <bobo@bsp-consulting.sk> {
+    /* add your info here */
+}
+
+Laurent Deniel       <deniel@worldnet.fr> {
+    /* add your info here */
+}
+
+Alain Magloire <alainm@rcsm.ece.mcgill.ca> was kind enough to
+give his permission to use his version of snprintf.c.
+
+Dan Lasley <dlasley@promus.com> gave permission for his dumpit() hex-dump
+routine to be used.

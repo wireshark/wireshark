@@ -1,0 +1,5 @@
+#undef PACKAGE
+
+#undef VERSION
+
+#undef HAVE_SOCKADDR_SA_LEN

@@ -1,0 +1,51 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(etypes.h)
+
+AM_INIT_AUTOMAKE(ethereal, 0.3.15)
+
+dnl Checks for programs.
+AC_PROG_CC
+
+# If LD_LIBRARY_PATH is defined, add it as a link directory.
+# This should help Solaris users.
+if test x$LD_LIBRARY_PATH != x ; then
+  LIBS="$LIBS -R$LD_LIBRARY_PATH"
+fi
+
+# GTK checks
+AM_PATH_GTK(1.0.0, CFLAGS="$CFLAGS $GTK_CFLAGS" LIBS="$LIBS $GTK_LIBS",
+                   AC_MSG_ERROR(GTK+ distribution not found.))
+
+# Pcap checks
+AC_CHECK_HEADER(pcap.h,, AC_MSG_ERROR(Header file pcap.h not found.))
+AC_CHECK_HEADER(net/bpf.h,, AC_MSG_ERROR(Header file net/bpf.h not found.))
+AC_CHECK_LIB(pcap, pcap_open_offline,, AC_MSG_ERROR(Library libpcap not found.))
+
+dnl Checks for header files.
+# AC_HEADER_STDC
+# AC_CHECK_HEADERS(fcntl.h strings.h sys/ioctl.h sys/time.h unistd.h)
+
+AC_CHECK_HEADERS(sys/sockio.h sys/types.h netinet/in.h)
+
+dnl Checks for typedefs, structures, and compiler characteristics.
+# AC_C_CONST
+
+# We need libpcap's AC_LBL_SOCKADDR_SA_LEN test for get_interface_list().
+
+AC_LBL_SOCKADDR_SA_LEN
+
+# We must know our byte order
+AC_C_BIGENDIAN
+
+dnl Checks for library functions.
+AC_PROG_GCC_TRADITIONAL
+AC_CHECK_FUNC(socket,, AC_MSG_ERROR(Function 'socket' not found.))
+# If there's a system out there that has snprintf and _doesn't_ have vsnprintf,
+# then this won't work.
+AC_CHECK_FUNC(snprintf, SNPRINTF_C="" SNPRINTF_O="",
+	SNPRINTF_C="snprintf.c" SNPRINTF_O="snprintf.o")
+AC_SUBST(SNPRINTF_C)
+AC_SUBST(SNPRINTF_O)
+
+AM_CONFIG_HEADER(config.h)
+AC_OUTPUT(Makefile)

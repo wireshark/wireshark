@@ -1,0 +1,427 @@
+.rn '' }`
+''' $RCSfile: ethereal.1,v $$Revision: 1.1 $$Date: 1998/09/16 02:39:18 $
+'''
+''' $Log: ethereal.1,v $
+''' Revision 1.1  1998/09/16 02:39:18  gerald
+''' Initial revision
+'''
+''' Revision 1.1.1.1  1998/08/30 17:53:24  gerald
+''' Imported sources
+'''
+'''
+.de Sh
+.br
+.if t .Sp
+.ne 5
+.PP
+\fB\\$1\fR
+.PP
+..
+.de Sp
+.if t .sp .5v
+.if n .sp
+..
+.de Ip
+.br
+.ie \\n(.$>=3 .ne \\$3
+.el .ne 3
+.IP "\\$1" \\$2
+..
+.de Vb
+.ft CW
+.nf
+.ne \\$1
+..
+.de Ve
+.ft R
+
+.fi
+..
+'''
+'''
+'''     Set up \*(-- to give an unbreakable dash;
+'''     string Tr holds user defined translation string.
+'''     Bell System Logo is used as a dummy character.
+'''
+.tr \(*W-|\(bv\*(Tr
+.ie n \{\
+.ds -- \(*W-
+.ds PI pi
+.if (\n(.H=4u)&(1m=24u) .ds -- \(*W\h'-12u'\(*W\h'-12u'-\" diablo 10 pitch
+.if (\n(.H=4u)&(1m=20u) .ds -- \(*W\h'-12u'\(*W\h'-8u'-\" diablo 12 pitch
+.ds L" ""
+.ds R" ""
+'''   \*(M", \*(S", \*(N" and \*(T" are the equivalent of
+'''   \*(L" and \*(R", except that they are used on ".xx" lines,
+'''   such as .IP and .SH, which do another additional levels of
+'''   double-quote interpretation
+.ds M" """
+.ds S" """
+.ds N" """""
+.ds T" """""
+.ds L' '
+.ds R' '
+.ds M' '
+.ds S' '
+.ds N' '
+.ds T' '
+'br\}
+.el\{\
+.ds -- \(em\|
+.tr \*(Tr
+.ds L" ``
+.ds R" ''
+.ds M" ``
+.ds S" ''
+.ds N" ``
+.ds T" ''
+.ds L' `
+.ds R' '
+.ds M' `
+.ds S' '
+.ds N' `
+.ds T' '
+.ds PI \(*p
+'br\}
+.\"	If the F register is turned on, we'll generate
+.\"	index entries out stderr for the following things:
+.\"		TH	Title 
+.\"		SH	Header
+.\"		Sh	Subsection 
+.\"		Ip	Item
+.\"		X<>	Xref  (embedded
+.\"	Of course, you have to process the output yourself
+.\"	in some meaninful fashion.
+.if \nF \{
+.de IX
+.tm Index:\\$1\t\\n%\t"\\$2"
+..
+.nr % 0
+.rr F
+.\}
+.TH ETHEREAL 1 "0.3.8" "24/Aug/98" "The Ethereal Network Analyzer"
+.UC
+.if n .hy 0
+.if n .na
+.ds C+ C\v'-.1v'\h'-1p'\s-2+\h'-1p'+\s0\v'.1v'\h'-1p'
+.de CQ          \" put $1 in typewriter font
+.ft CW
+'if n "\c
+'if t \\&\\$1\c
+'if n \\&\\$1\c
+'if n \&"
+\\&\\$2 \\$3 \\$4 \\$5 \\$6 \\$7
+'.ft R
+..
+.\" @(#)ms.acc 1.5 88/02/08 SMI; from UCB 4.2
+.	\" AM - accent mark definitions
+.bd B 3
+.	\" fudge factors for nroff and troff
+.if n \{\
+.	ds #H 0
+.	ds #V .8m
+.	ds #F .3m
+.	ds #[ \f1
+.	ds #] \fP
+.\}
+.if t \{\
+.	ds #H ((1u-(\\\\n(.fu%2u))*.13m)
+.	ds #V .6m
+.	ds #F 0
+.	ds #[ \&
+.	ds #] \&
+.\}
+.	\" simple accents for nroff and troff
+.if n \{\
+.	ds ' \&
+.	ds ` \&
+.	ds ^ \&
+.	ds , \&
+.	ds ~ ~
+.	ds ? ?
+.	ds ! !
+.	ds /
+.	ds q
+.\}
+.if t \{\
+.	ds ' \\k:\h'-(\\n(.wu*8/10-\*(#H)'\'\h"|\\n:u"
+.	ds ` \\k:\h'-(\\n(.wu*8/10-\*(#H)'\`\h'|\\n:u'
+.	ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'^\h'|\\n:u'
+.	ds , \\k:\h'-(\\n(.wu*8/10)',\h'|\\n:u'
+.	ds ~ \\k:\h'-(\\n(.wu-\*(#H-.1m)'~\h'|\\n:u'
+.	ds ? \s-2c\h'-\w'c'u*7/10'\u\h'\*(#H'\zi\d\s+2\h'\w'c'u*8/10'
+.	ds ! \s-2\(or\s+2\h'-\w'\(or'u'\v'-.8m'.\v'.8m'
+.	ds / \\k:\h'-(\\n(.wu*8/10-\*(#H)'\z\(sl\h'|\\n:u'
+.	ds q o\h'-\w'o'u*8/10'\s-4\v'.4m'\z\(*i\v'-.4m'\s+4\h'\w'o'u*8/10'
+.\}
+.	\" troff and (daisy-wheel) nroff accents
+.ds : \\k:\h'-(\\n(.wu*8/10-\*(#H+.1m+\*(#F)'\v'-\*(#V'\z.\h'.2m+\*(#F'.\h'|\\n:u'\v'\*(#V'
+.ds 8 \h'\*(#H'\(*b\h'-\*(#H'
+.ds v \\k:\h'-(\\n(.wu*9/10-\*(#H)'\v'-\*(#V'\*(#[\s-4v\s0\v'\*(#V'\h'|\\n:u'\*(#]
+.ds _ \\k:\h'-(\\n(.wu*9/10-\*(#H+(\*(#F*2/3))'\v'-.4m'\z\(hy\v'.4m'\h'|\\n:u'
+.ds . \\k:\h'-(\\n(.wu*8/10)'\v'\*(#V*4/10'\z.\v'-\*(#V*4/10'\h'|\\n:u'
+.ds 3 \*(#[\v'.2m'\s-2\&3\s0\v'-.2m'\*(#]
+.ds o \\k:\h'-(\\n(.wu+\w'\(de'u-\*(#H)/2u'\v'-.3n'\*(#[\z\(de\v'.3n'\h'|\\n:u'\*(#]
+.ds d- \h'\*(#H'\(pd\h'-\w'~'u'\v'-.25m'\f2\(hy\fP\v'.25m'\h'-\*(#H'
+.ds D- D\\k:\h'-\w'D'u'\v'-.11m'\z\(hy\v'.11m'\h'|\\n:u'
+.ds th \*(#[\v'.3m'\s+1I\s-1\v'-.3m'\h'-(\w'I'u*2/3)'\s-1o\s+1\*(#]
+.ds Th \*(#[\s+2I\s-2\h'-\w'I'u*3/5'\v'-.3m'o\v'.3m'\*(#]
+.ds ae a\h'-(\w'a'u*4/10)'e
+.ds Ae A\h'-(\w'A'u*4/10)'E
+.ds oe o\h'-(\w'o'u*4/10)'e
+.ds Oe O\h'-(\w'O'u*4/10)'E
+.	\" corrections for vroff
+.if v .ds ~ \\k:\h'-(\\n(.wu*9/10-\*(#H)'\s-2\u~\d\s+2\h'|\\n:u'
+.if v .ds ^ \\k:\h'-(\\n(.wu*10/11-\*(#H)'\v'-.4m'^\v'.4m'\h'|\\n:u'
+.	\" for low resolution devices (crt and lpr)
+.if \n(.H>23 .if \n(.V>19 \
+\{\
+.	ds : e
+.	ds 8 ss
+.	ds v \h'-1'\o'\(aa\(ga'
+.	ds _ \h'-1'^
+.	ds . \h'-1'.
+.	ds 3 3
+.	ds o a
+.	ds d- d\h'-1'\(ga
+.	ds D- D\h'-1'\(hy
+.	ds th \o'bp'
+.	ds Th \o'LP'
+.	ds ae ae
+.	ds Ae AE
+.	ds oe oe
+.	ds Oe OE
+.\}
+.rm #[ #] #H #V #F C
+.SH "NAME"
+Ethereal \- Interactively browse network traffic
+.SH "SYNOPSYS"
+\fBethereal\fR
+[\ \fB\-v\fR\ ]
+[\ \fB\-B\fR\ byte\ view\ height\ ]
+[\ \fB\-c\fR\ count\ ]
+[\ \fB\-i\fR\ interface\ ] 
+[\ \fB\-P\fR\ packet\ list\ height\ ]
+[\ \fB\-r\fR\ infile\ ]
+[\ \fB\-s\fR\ snaplen\ ]
+[\ \fB\-T\fR\ tree\ view\ height\ ]
+[\ \fB\-w\fR\ savefile]
+.SH "DESCRIPTION"
+\fBEthereal\fR is a network protocol analyzer based on the \fBGTK+\fR GUI toolkit.  It lets
+you interactively browse packet data from a live network or from a \fBpcap\fR
+/ \fBtcpdump()\fR formatted capture file.
+.SH "OPTIONS"
+.Ip "-B" 4
+Sets the initial height of the byte view (bottom) pane
+.Ip "-c" 4
+The default number of packets to read when capturing live data.
+.Ip "-i" 4
+The name of the interface to use for live packet capture.  It should match
+one of the names listed in \*(L"\fBnetstat \-i\fR\*(R" or \*(L"\fBifconfig \-a\fR\*(R".
+.Ip "-P" 4
+Sets the initial height of the packet list (top) pane
+.Ip "-r" 4
+Read packet data from \fIfile\fR.  Currently, \fBEthereal\fR only understands
+\fBpcap\fR / \fBtcpdump\fR formatted files.
+.Ip "-s" 4
+The default snapshot length to use when capturing live data.  No more than
+\fIsnaplen\fR bytes of each network packet will be read into memory, or saved
+to disk.
+.Ip "-T" 4
+Sets the initial height of the tree view (top) pane
+.Ip "-v" 4
+Prints the version and exits.
+.Ip "-w" 4
+Sets the default capture file name.
+.SH "INTERFACE"
+.Sh "\s-1MENU\s0 \s-1ITEMS\s0"
+.Ip "File:Open, File:Close" 4
+Open or close a capture file.
+.Ip "File:Print Packet" 4
+Print a description of each protocol header found in the packet, followed
+by the packet data itself.  Printing options can be set with the
+\fIEdit:Menu Options\fR menu item.
+.Ip "File:Quit" 4
+Exits the application.
+.Ip "Edit:Printer Options" 4
+Sets the packet printing options (see the section on \fIPrinter Options\fR below).
+.Ip "Tools:Capture" 4
+Initiates a live packet capture (see the section on \fICapture Preferences\fR below).
+.Ip "Tools:Filter" 4
+Sets the filter preferences (see the section on \fIFilters\fR below).
+.Sh "\s-1WINDOWS\s0"
+.Ip "Main Window" 4
+The main window is split into three sections.  You can resize each section
+using a \*(L"thumb\*(R" at the right end of each divider line.  An informational
+message is also displayed at the bottom of the main window.
+.Sp
+The top section contains the list of network packets that you can scroll
+through and select.  The packet number, source and destination addresses,
+protocol, and description are printed for each packet.  An effort is made
+to display information as high up the protocol stack as possible, e.g. \s-1IP\s0
+addresses are displayed for \s-1IP\s0 packets, but the \s-1MAC\s0 layer address is
+displayed for unknown packet types.
+.Sp
+The middle section contains a \fIprotocol tree\fR for the currently-selected
+packet.  The tree displays each field and its value in each protocol header
+in the stack.
+.Sp
+The bottom section contains a hex dump of the actual packet data. 
+Selecting a field in the \fIprotocol tree\fR highlights the appropriate bytes
+in this section.
+.Ip "Printer Options" 4
+The \fIPrinter Options\fR dialog lets you select the output format of packets
+printed using the \fIFile:Print Packet\fR menu item.
+.Sp
+The radio buttons at the top of the dialog allow you choose between 
+printing the packets as text or PostScript, and sending the output
+directly to a command or saving it to a file.  The \fICommand:\fR text entry
+box is the command to send files to (usually \fBlpr\fR), and the \fIFile:\fR
+entry box lets you enter the name of the file you wish to save to. 
+Additinally, you can select the \fIFile:\fR button to browse the file system
+for a particular save file.
+.Ip "Capture Preferences" 4
+The \fICapture Preferences\fR dialog lets you specify various parameters for
+capturing live packet data.
+.Sp
+The \fIInterface:\fR entry box lets you specify the interface from which to
+capture packet data.  The \fICount:\fR entry specifies the number of packets
+to capture.  Entering 0 will capture packets indefinitely.  The \fIFile:\fR
+entry specifies the file to save to, as in the \fIPrinter Options\fR dialog
+above.  You can choose to open the file after capture, and you can also
+specify the maximum number of bytes to capture per packet with the
+\fICapture length\fR entry.
+.Ip "Filters" 4
+The \fIFilters\fR dialog lets you create and modify filters, and set the
+default filter to use when capturing data or opening a capture file.
+.Sp
+The \fIFilter name\fR entry specifies a descriptive name for a filter, e.g.
+\fBWeb and \s-1DNS\s0 traffic\fR.  The \fIFilter string\fR entry is the text that
+actually describes the filtering action to take.  It must have the same
+format as \fBtcpdump\fR filter strings, since both programs use the same
+underlying library.  A filter for \s-1HTTP\s0, \s-1HTTPS\s0, and \s-1DNS\s0 traffic might look
+like this:
+.Sp
+.Vb 1
+\&  tcp port 80 or tcp port 443 or port 53
+.Ve
+The dialog buttons perform the following actions:
+.Ip "New" 12
+If there is text in the two entry boxes, it creates a new associated list
+item.
+.Ip "Change" 12
+Modifies the currently selected list item to match what's in the entry
+boxes.
+.Ip "Copy" 12
+Makes a copy of the currently selected list item.
+.Ip "Delete" 12
+Deletes the currently selected list item.
+.Ip "\s-1OK\s0" 12
+Sets the currently selected list item as the active filter.  If  nothing
+is selected, turns filtering off.
+.Ip "Save" 12
+Saves the current filter list in \fI$\s-1HOME\s0/.ethereal/filters\fR.
+.Ip "Cancel" 12
+Closes the dialog without making any changes.
+.SH "SEE ALSO"
+the \fItcpdump(1)\fR manpage, the \fIpcap(3)\fR manpage
+.SH "NOTES"
+The latest version of \fBethereal\fR can be found at
+\fBhttp://ethereal.zing.org\fR.
+.SH "AUTHORS"
+.Sp
+.Vb 3
+\&  Original Author
+\&  -------- ------
+\&  Gerald Combs  <gerald@zing.org>
+.Ve
+.Vb 6
+\&  Contributors
+\&  ------------
+\&  Gilbert Ramirez Jr.  <gram@verdict.uthscsa.edu>
+\&  Hannes R. Boehm      <hannes@boehm.org>
+\&  Mike Hall            <mlh@io.com>
+\&  cpg                  <cpg@rocketmail.com>
+.Ve
+Theo de Raadt <deraadt@cvs.openbsd.org> was kind enough to give his
+permission to use his version of snprintf.c.
+.Sp
+Dan Lasley <dlasley@promus.com> gave permission for his \fIdumpit()\fR hex-dump
+routine to be used.
+
+.rn }` ''
+.IX Title "ETHEREAL 1"
+.IX Name "Ethereal - Interactively browse network traffic"
+
+.IX Header "NAME"
+
+.IX Header "SYNOPSYS"
+
+.IX Header "DESCRIPTION"
+
+.IX Header "OPTIONS"
+
+.IX Item "-B"
+
+.IX Item "-c"
+
+.IX Item "-i"
+
+.IX Item "-P"
+
+.IX Item "-r"
+
+.IX Item "-s"
+
+.IX Item "-T"
+
+.IX Item "-v"
+
+.IX Item "-w"
+
+.IX Header "INTERFACE"
+
+.IX Subsection "\s-1MENU\s0 \s-1ITEMS\s0"
+
+.IX Item "File:Open, File:Close"
+
+.IX Item "File:Print Packet"
+
+.IX Item "File:Quit"
+
+.IX Item "Edit:Printer Options"
+
+.IX Item "Tools:Capture"
+
+.IX Item "Tools:Filter"
+
+.IX Subsection "\s-1WINDOWS\s0"
+
+.IX Item "Main Window"
+
+.IX Item "Printer Options"
+
+.IX Item "Capture Preferences"
+
+.IX Item "Filters"
+
+.IX Item "New"
+
+.IX Item "Change"
+
+.IX Item "Copy"
+
+.IX Item "Delete"
+
+.IX Item "\s-1OK\s0"
+
+.IX Item "Save"
+
+.IX Item "Cancel"
+
+.IX Header "SEE ALSO"
+
+.IX Header "NOTES"
+
+.IX Header "AUTHORS"
+

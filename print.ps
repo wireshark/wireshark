@@ -1,0 +1,100 @@
+%!
+%
+% Code between start/end remarks is put into ps.c
+% Anything else is thrown away, and is for testing only.
+%
+% ---- ethereal preamble start ---- %
+%!
+%!PS-Adobe-2.0
+%
+% Ethereal - Network traffic analyzer
+% By Gerald Combs <gerald@zing.org>
+% Copyright 1998 Gerald Combs
+%
+%%Creator: Ethereal
+%%Title: ethereal.ps
+%%DocumentFonts: Helvetica Courier
+%%EndComments
+%!
+
+% Get the Imagable Area of the page
+clippath pathbbox
+
+% Set vmax to the vertical size of the page,
+% hmax to the horizontal size of the page.
+/vmax exch def
+/hmax exch def
+pop pop		% junk
+
+% 1-inch margins
+/lmargin 72 def
+/tmargin vmax 72 sub def
+/bmargin 72 def
+
+% Counters
+/vpos vmax 70 sub def
+
+/putline {
+	exch 10 mul lmargin add		% X
+	vpos 						% Y
+	moveto
+	show
+
+	/vpos vpos 10 sub def
+
+	vpos bmargin le 			% is vpos <= bottom margin?
+	{showpage
+		/vpos tmargin def}
+	if							% then formfeed and start at top
+} def
+
+/hexdump {
+	lmargin						% X
+	vpos 						% Y
+	moveto
+	show
+
+	/vpos vpos 10 sub def
+
+	vpos bmargin le 			% is vpos <= bottom margin?
+	{showpage
+		/vpos tmargin def}
+	if							% then formfeed and start at top
+} def
+
+% Set the font to 10 point
+/Helvetica findfont 10 scalefont setfont
+
+% Display our output lines.
+% ---- ethereal preamble end ---- %
+0 (Ethernet II \(98 on wire, 68 captured\)) putline
+1 (Destination: 00:00:0c:36:00:2a) putline
+1 (Source: 00:c0:4f:c7:eb:c0) putline
+1 (Type: IP \(0x0800\)) putline
+0 (Ethernet II \(98 on wire, 68 captured\)) putline
+1 (Source: 00:c0:4f:c7:eb:c0) putline
+1 (Type: IP \(0x0800\)) putline
+0 (Source: 00:c0:4f:c7:eb:c0) putline
+
+% ---- ethereal hex start ---- %
+% Set the font to 10 point
+/Courier findfont 10 scalefont setfont
+() hexdump
+% ---- ethereal hex end ---- %
+
+(   0  cc00 0000 0000 0702 0000 0000 0000 0000   ................ ) hexdump
+(  10  0000 bd0e fe16 0100 3e00 0308 584c 2038   ........>...XL 8 ) hexdump
+(  20  3020 494d 3300 1601 0034 0016 0101 3500   0 IM3....4....5. ) hexdump
+(  30  1601 0236 0016 0103 6e00 1601 ff6f 0016   ...6....n....o.. ) hexdump
+(  40  01ff 7000 1601 ff71 0016 01ff 4800 0104   ..p....q....H... ) hexdump
+(  50  ff03 0700 2400 0101 0525 0001 0105 2600   ....$....%....&. ) hexdump
+(  60  0101 0527 0001 0105 6a00 0101 006b 0001   ...'....j....k.. ) hexdump
+(  70  0100 6c00 0101 006d 0001 0100 3d00 0102   ..l....m....=... ) hexdump
+(  80  0200 c000 0308 8000 0000 0000 0000 b400   ................ ) hexdump
+(  90  0104 c0a8 42ef 3900 1608 0505 0505 0000   ....B.9......... ) hexdump
+(  a0  0000 0003 2036 4120 5269 6e67 0000 0000   .... 6A Ring.... ) hexdump
+(  b0  0000 0000 0000                            ......           ) hexdump
+
+% ---- ethereal finale start ---- %
+showpage
+% ---- ethereal finale end ---- %

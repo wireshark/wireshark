@@ -1,0 +1,233 @@
+
+=head1 NAME
+
+Ethereal - Interactively browse network traffic
+
+=head1 SYNOPSYS
+
+B<ethereal>
+S<[ B<-v> ]>
+S<[ B<-B> byte view height ]>
+S<[ B<-c> count ]>
+S<[ B<-i> interface ]> 
+S<[ B<-P> packet list height ]>
+S<[ B<-r> infile ]>
+S<[ B<-s> snaplen ]>
+S<[ B<-T> tree view height ]>
+S<[ B<-w> savefile]>
+
+=head1 DESCRIPTION
+
+B<Ethereal> is a network protocol analyzer based on the B<GTK+> GUI toolkit.  It lets
+you interactively browse packet data from a live network or from a B<pcap>
+/ B<tcpdump()> formatted capture file.
+
+=head1 OPTIONS
+
+=over 4
+
+=item -B
+
+Sets the initial height of the byte view (bottom) pane
+
+=item -c
+
+The default number of packets to read when capturing live data.
+
+=item -i
+
+The name of the interface to use for live packet capture.  It should match
+one of the names listed in "B<netstat -i>" or "B<ifconfig -a>".
+
+=item -P
+
+Sets the initial height of the packet list (top) pane
+
+=item -r
+
+Read packet data from I<file>.  Currently, B<Ethereal> only understands
+B<pcap> / B<tcpdump> formatted files.
+
+=item -s
+
+The default snapshot length to use when capturing live data.  No more than
+I<snaplen> bytes of each network packet will be read into memory, or saved
+to disk.
+
+=item -T
+
+Sets the initial height of the tree view (top) pane
+
+=item -v
+
+Prints the version and exits.
+
+=item -w
+
+Sets the default capture file name.
+
+=back
+
+=head1 INTERFACE
+
+=head2 MENU ITEMS
+
+=over 4
+
+=item File:Open, File:Close
+
+Open or close a capture file.
+
+=item File:Print Packet
+
+Print a description of each protocol header found in the packet, followed
+by the packet data itself.  Printing options can be set with the
+I<Edit:Menu Options> menu item.
+
+=item File:Quit
+
+Exits the application.
+
+=item Edit:Printer Options
+
+Sets the packet printing options (see L<"Printer Options"> below).
+
+=item Tools:Capture
+
+Initiates a live packet capture (see L<"Capture Preferences"> below).
+
+=item Tools:Filter
+
+Sets the filter preferences (see L<"Filters"> below).
+
+=back
+
+=head2 WINDOWS
+
+=over 4
+
+=item Main Window
+
+The main window is split into three sections.  You can resize each section
+using a "thumb" at the right end of each divider line.  An informational
+message is also displayed at the bottom of the main window.
+
+The top section contains the list of network packets that you can scroll
+through and select.  The packet number, source and destination addresses,
+protocol, and description are printed for each packet.  An effort is made
+to display information as high up the protocol stack as possible, e.g. IP
+addresses are displayed for IP packets, but the MAC layer address is
+displayed for unknown packet types.
+
+The middle section contains a I<protocol tree> for the currently-selected
+packet.  The tree displays each field and its value in each protocol header
+in the stack.
+
+The bottom section contains a hex dump of the actual packet data. 
+Selecting a field in the I<protocol tree> highlights the appropriate bytes
+in this section.
+
+=item Printer Options
+
+The I<Printer Options> dialog lets you select the output format of packets
+printed using the I<File:Print Packet> menu item.
+
+The radio buttons at the top of the dialog allow you choose between 
+printing the packets as text or PostScript, and sending the output
+directly to a command or saving it to a file.  The I<Command:> text entry
+box is the command to send files to (usually B<lpr>), and the I<File:>
+entry box lets you enter the name of the file you wish to save to. 
+Additinally, you can select the I<File:> button to browse the file system
+for a particular save file.
+
+=item Capture Preferences
+
+The I<Capture Preferences> dialog lets you specify various parameters for
+capturing live packet data.
+
+The I<Interface:> entry box lets you specify the interface from which to
+capture packet data.  The I<Count:> entry specifies the number of packets
+to capture.  Entering 0 will capture packets indefinitely.  The I<File:>
+entry specifies the file to save to, as in the I<Printer Options> dialog
+above.  You can choose to open the file after capture, and you can also
+specify the maximum number of bytes to capture per packet with the
+I<Capture length> entry.
+
+=item Filters
+
+The I<Filters> dialog lets you create and modify filters, and set the
+default filter to use when capturing data or opening a capture file.
+
+The I<Filter name> entry specifies a descriptive name for a filter, e.g.
+B<Web and DNS traffic>.  The I<Filter string> entry is the text that
+actually describes the filtering action to take.  It must have the same
+format as B<tcpdump> filter strings, since both programs use the same
+underlying library.  A filter for HTTP, HTTPS, and DNS traffic might look
+like this:
+
+  tcp port 80 or tcp port 443 or port 53
+
+The dialog buttons perform the following actions:
+
+=over 8
+
+=item New
+
+If there is text in the two entry boxes, it creates a new associated list
+item.
+
+=item Change
+
+Modifies the currently selected list item to match what's in the entry
+boxes.
+
+=item Copy
+
+Makes a copy of the currently selected list item.
+
+=item Delete
+
+Deletes the currently selected list item.
+
+=item OK
+
+Sets the currently selected list item as the active filter.  If  nothing
+is selected, turns filtering off.
+
+=item Save
+
+Saves the current filter list in F<$HOME/.ethereal/filters>.
+
+=item Cancel
+
+Closes the dialog without making any changes.
+
+=head1 SEE ALSO
+
+L<tcpdump(1)>, L<pcap(3)>
+
+=head1 NOTES
+
+The latest version of B<ethereal> can be found at
+B<http://ethereal.zing.org>.
+
+=head1 AUTHORS
+
+  Original Author
+  -------- ------
+  Gerald Combs  <gerald@zing.org>
+
+
+  Contributors
+  ------------
+  Gilbert Ramirez Jr.  <gram@verdict.uthscsa.edu>
+  Hannes R. Boehm      <hannes@boehm.org>
+  Mike Hall            <mlh@io.com>
+  cpg                  <cpg@rocketmail.com>
+
+
+Theo de Raadt <deraadt@cvs.openbsd.org> was kind enough to give his
+permission to use his version of snprintf.c.
+
+Dan Lasley <dlasley@promus.com> gave permission for his dumpit() hex-dump
+routine to be used.
