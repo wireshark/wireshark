@@ -84,7 +84,7 @@ automatically, if you have the zlib library available when compiling
 Ethereal. Ethereal needs a modern version of zlib to work; version
 1.1.3 is known to work.  Earlier versions are missing some functions
 that Ethereal needs and won't work. "./configure" should detect if you
-have the proper zlib version available. You can alwasy use
+have the proper zlib version available. You can always use
 "./configure --disable-zlib" to explicitly disable zlib support.
 
 Although Ethereal can read AIX iptrace files, the documentation on
@@ -175,9 +175,8 @@ Be sure you tell us:
 	2) Version of GTK+ (the command 'gtk-config --version' will tell you)
 	3) Version of Ethereal (the command 'ethereal -v' will tell you,
 	   unless the bug is so severe as to prevent that from working,
-	   and should also tell you the version of GTK+ and, if built
-	   with "libpcap", the version of "libpcap" with which it was
-	   built)
+	   and should also tell you the versions of libraries with which
+	   it was built)
 	4) The command you used to invoke Ethereal, and the sequence of
 	   operations you performed that caused the bug to appear
 
