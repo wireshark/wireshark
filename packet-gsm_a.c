@@ -38,7 +38,7 @@
  *   Formats and coding
  *   (3GPP TS 24.080 version 4.3.0 Release 4)
  *
- * $Id: packet-gsm_a.c,v 1.1 2003/10/30 07:00:18 guy Exp $
+ * $Id: packet-gsm_a.c,v 1.2 2003/10/30 11:21:26 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -83,8 +83,6 @@
 #include "packet-bssap.h"
 
 /* PROTOTYPES/FORWARDS */
-
-static void (*dtap_msg_rr_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len);
 
 static const value_string gsm_bssmap_msg_strings[] = {
     { 0x01,	"Assignment Request" },
