@@ -34,7 +34,7 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-dcerpc-netlogon.h"
 #include "smb.h"	/* for "NT_errors[]" */
-#include "packet-smb-common.h"
+#include "packet-ntlmssp.h"
 #include "packet-dcerpc-lsa.h"
 
 static int proto_dcerpc_netlogon = -1;

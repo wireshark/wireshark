@@ -102,29 +102,4 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 extern const value_string share_type_vals[];
 
-/* Dissect a ntlmv2 response */
-
-int
-dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *ntlmssp_tree, int offset,
-			int len);
-
-void register_smb_common(int proto_smb);
-
-extern const value_string ntlm_name_types[];
-
-/*
- * XXX - the document at
- *
- *	http://davenport.sourceforge.net/ntlm.html
- *
- * says that a type of 5 has been seen, "apparently containing the
- * 'parent' DNS domain for servers in subdomains".
- */
-
-#define NTLM_NAME_END        0x0000
-#define NTLM_NAME_NB_HOST    0x0001
-#define NTLM_NAME_NB_DOMAIN  0x0002
-#define NTLM_NAME_DNS_HOST   0x0003
-#define NTLM_NAME_DNS_DOMAIN 0x0004
-
 #endif

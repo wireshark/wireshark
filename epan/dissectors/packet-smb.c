@@ -51,6 +51,7 @@
 #include "packet-smb-pipe.h"
 #include "packet-dcerpc.h"
 #include "packet-smb-sidsnooping.h"
+#include "packet-ntlmssp.h"
 
 /*
  * Various specifications and documents about SMB can be found in
@@ -19400,8 +19401,6 @@ proto_register_smb(void)
 	    "SMB", "smb");
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_smb, hf, array_length(hf));
-
-	register_smb_common(proto_smb);
 
 	register_init_routine(&smb_init_protocol);
 	smb_module = prefs_register_protocol(proto_smb, NULL);

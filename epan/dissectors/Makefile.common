@@ -632,6 +632,7 @@ DISSECTOR_INCLUDES =	\
 	packet-nfs.h	\
 	packet-nisplus.h	\
 	packet-nlm.h	\
+	packet-ntlmssp.h	\
 	packet-ntp.h	\
 	packet-null.h	\
 	packet-osi-options.h	\
