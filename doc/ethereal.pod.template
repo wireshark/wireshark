@@ -1157,6 +1157,7 @@ B<http://www.ethereal.com>.
   Palle Lyckegaard         <Palle[AT]lyckegaard.dk>
   Nicolas Balkota          <balkota[AT]mac.com>
   Tom Uijldert             <Tom.Uijldert[AT]cmg.nl>
+  Endoh Akira              <endoh[AT]netmarks.co.jp>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.

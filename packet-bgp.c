@@ -2,7 +2,7 @@
  * Routines for BGP packet dissection.
  * Copyright 1999, Jun-ichiro itojun Hagino <itojun@itojun.org>
  *
- * $Id: packet-bgp.c,v 1.46 2001/07/21 10:27:12 guy Exp $
+ * $Id: packet-bgp.c,v 1.47 2001/09/13 22:06:54 guy Exp $
  *
  * Supports:
  * RFC1771 A Border Gateway Protocol 4 (BGP-4)
@@ -482,11 +482,13 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
     int             plen;      /* parameter length      */
     int             ctype;     /* capability type       */
     int             clen;      /* capability length     */
+    int             cend;      /* capabilities end      */
     int             ostart;    /* options start         */
     int             oend;      /* options end           */
     int             p;         /* tvb offset counter    */
     proto_item      *ti;       /* tree item             */
     proto_tree      *subtree;  /* subtree for options   */
+    proto_tree      *subtree1; /* subtree for an option */
     proto_tree      *subtree2; /* subtree for an option */
     proto_tree      *subtree3; /* subtree for an option */
 
@@ -537,127 +539,124 @@ dissect_bgp_open(tvbuff_t *tvb, int offset, proto_tree *tree)
                 break;
             case BGP_OPTION_CAPABILITY:
                 /* grab the capability code */
+	        cend = p - 1 + plen;
                 ctype = tvb_get_guint8(tvb, p++);
                 clen = tvb_get_guint8(tvb, p++);
+		ti = proto_tree_add_text(subtree, tvb, p - 4,
+                     2 + plen, "Capabilities Advertisement (%u bytes)",
+		     2 + plen);
+		subtree1 = proto_item_add_subtree(ti, ett_bgp_option);
+		proto_tree_add_text(subtree1, tvb, p - 4,
+                     1, "Parameter type: Capabilities (2)");
+		proto_tree_add_text(subtree1, tvb, p - 3,
+                     1, "Parameter length: %u %s", plen,
+                     (plen == 1) ? "byte" : "bytes");
+		p -= 2;
 
-                /* check the capability type */
-                switch (ctype) {
-                case BGP_CAPABILITY_RESERVED:
-                    ti = proto_tree_add_text(subtree, tvb, p - 4,
-                         2 + plen, "Reserved capability (%u %s)", 2 + plen,
-                         (plen == 1) ? "byte" : "bytes");
-                    subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
-                    proto_tree_add_text(subtree2, tvb, p - 4,
-                         1, "Parameter type: Capabilities (2)");
-                    proto_tree_add_text(subtree2, tvb, p - 3,
-                         1, "Parameter length: %u %s", plen,
-                         (plen == 1) ? "byte" : "bytes");
-                    proto_tree_add_text(subtree2, tvb, p - 2,
-                         1, "Capability code: Reserved (0)");
-                    proto_tree_add_text(subtree2, tvb, p - 1,
-                         1, "Capability length: %u %s", clen,
-                         (clen == 1) ? "byte" : "bytes");
-                    if (clen != 0) {
-                        proto_tree_add_text(subtree2, tvb, p,
-                             clen, "Capability value: Unknown");
-                    }
-                    p += clen;
-                    break;
-                case BGP_CAPABILITY_MULTIPROTOCOL:
-                    ti = proto_tree_add_text(subtree, tvb, p - 4,
-                         2 + plen,
-                         "Multiprotocol extensions capability (%u %s)",
-                         2 + plen, (plen == 1) ? "byte" : "bytes");
-                    subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
-                    proto_tree_add_text(subtree2, tvb, p - 4,
-                         1, "Parameter type: Capabilities (2)");
-                    proto_tree_add_text(subtree2, tvb, p - 3,
-                         1, "Parameter length: %u %s", plen,
-                         (plen == 1) ? "byte" : "bytes");
-                    proto_tree_add_text(subtree2, tvb, p - 2,
-                         1, "Capability code: Multiprotocol extensions (%d)",
-                         ctype);
-                    if (clen != 4) {
-                        proto_tree_add_text(subtree2, tvb, p - 1,
-                             1, "Capability length: Invalid");
-                        proto_tree_add_text(subtree2, tvb, p,
-                             clen, "Capability value: Unknown");
-                    }
-                    else {
-                        proto_tree_add_text(subtree2, tvb, p - 1,
+		/* step through all of the capabilities */
+		while (p < cend) {
+		    ctype = tvb_get_guint8(tvb, p++);
+		    clen = tvb_get_guint8(tvb, p++);
+
+		    /* check the capability type */
+		    switch (ctype) {
+		    case BGP_CAPABILITY_RESERVED:
+			ti = proto_tree_add_text(subtree1, tvb, p - 2,
+                             2 + clen, "Reserved capability (%u %s)", 2 + clen,
+                             (clen == 1) ? "byte" : "bytes");
+			subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
+			proto_tree_add_text(subtree2, tvb, p - 2,
+                             1, "Capability code: Reserved (0)");
+			proto_tree_add_text(subtree2, tvb, p - 1,
                              1, "Capability length: %u %s", clen,
                              (clen == 1) ? "byte" : "bytes");
-                        ti = proto_tree_add_text(subtree2, tvb, p,
-                             clen, "Capability value");
-                             subtree3 = proto_item_add_subtree(ti,
-                                        ett_bgp_option);
-                        /* AFI */
-                        i = tvb_get_ntohs(tvb, p);
-                        proto_tree_add_text(subtree3, tvb, p,
-                             2, "Address family identifier: %s (%u)",
-                             val_to_str(i, afn_vals, "Unknown"), i);
-                        p += 2;
-                        /* Reserved */
-                        proto_tree_add_text(subtree3, tvb, p,
-                             1, "Reserved: 1 byte");
-                        p++;
-                        /* SAFI */
-                        i = tvb_get_guint8(tvb, p);
-                        proto_tree_add_text(subtree3, tvb, p,
-                             1, "Subsequent address family identifier: %s (%u)",
-                             val_to_str(i, bgpattr_nlri_safi,
-                                i >= 128 ? "Vendor specific" : "Unknown"), i);
-                        p++;
-                    }
-                    break;
-                case BGP_CAPABILITY_ROUTE_REFRESH_CISCO:
-                case BGP_CAPABILITY_ROUTE_REFRESH:
-                    ti = proto_tree_add_text(subtree, tvb, p - 4,
-                         2 + plen, "Route refresh capability (%u %s)", 2 + plen,
-                         (plen == 1) ? "byte" : "bytes");
-                    subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
-                    proto_tree_add_text(subtree2, tvb, p - 4,
-                         1, "Parameter type: Capabilities (2)");
-                    proto_tree_add_text(subtree2, tvb, p - 3,
-                         1, "Parameter length: %u %s", plen,
-                         (plen == 1) ? "byte" : "bytes");
-                    proto_tree_add_text(subtree2, tvb, p - 2,
-                         1, "Capability code: Route refresh (%d)", ctype);
-                    if (clen != 0) {
-                        proto_tree_add_text(subtree2, tvb, p,
-                             clen, "Capability value: Invalid");
-                    }
-                    else {
-                        proto_tree_add_text(subtree2, tvb, p - 1,
+			if (clen != 0) {
+			    proto_tree_add_text(subtree2, tvb, p,
+                                 clen, "Capability value: Unknown");
+			}
+			p += clen;
+			break;
+		    case BGP_CAPABILITY_MULTIPROTOCOL:
+			ti = proto_tree_add_text(subtree1, tvb, p - 2,
+                             2 + clen,
+                             "Multiprotocol extensions capability (%u %s)",
+                             2 + clen, (clen == 1) ? "byte" : "bytes");
+			subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
+			proto_tree_add_text(subtree2, tvb, p - 2,
+                             1, "Capability code: Multiprotocol extensions (%d)",
+                             ctype);
+			if (clen != 4) {
+			    proto_tree_add_text(subtree2, tvb, p - 1,
+                                 1, "Capability length: Invalid");
+			    proto_tree_add_text(subtree2, tvb, p,
+                                 clen, "Capability value: Unknown");
+			}
+			else {
+			    proto_tree_add_text(subtree2, tvb, p - 1,
+                                 1, "Capability length: %u %s", clen,
+                                 (clen == 1) ? "byte" : "bytes");
+			    ti = proto_tree_add_text(subtree2, tvb, p,
+                                 clen, "Capability value");
+			    subtree3 = proto_item_add_subtree(ti,
+                                       ett_bgp_option);
+			    /* AFI */
+			    i = tvb_get_ntohs(tvb, p);
+			    proto_tree_add_text(subtree3, tvb, p,
+                                 2, "Address family identifier: %s (%u)",
+                                 val_to_str(i, afn_vals, "Unknown"), i);
+			    p += 2;
+			    /* Reserved */
+			    proto_tree_add_text(subtree3, tvb, p,
+                                 1, "Reserved: 1 byte");
+			    p++;
+			    /* SAFI */
+			    i = tvb_get_guint8(tvb, p);
+			    proto_tree_add_text(subtree3, tvb, p,
+                                 1, "Subsequent address family identifier: %s (%u)",
+                                 val_to_str(i, bgpattr_nlri_safi,
+                                    i >= 128 ? "Vendor specific" : "Unknown"), i);
+			    p++;
+			}
+			break;
+		    case BGP_CAPABILITY_ROUTE_REFRESH_CISCO:
+		    case BGP_CAPABILITY_ROUTE_REFRESH:
+			ti = proto_tree_add_text(subtree1, tvb, p - 2,
+                             2 + clen, "Route refresh capability (%u %s)", 2 + clen,
+                             (clen == 1) ? "byte" : "bytes");
+			subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
+			proto_tree_add_text(subtree2, tvb, p - 2,
+                             1, "Capability code: Route refresh (%d)", ctype);
+			if (clen != 0) {
+			    proto_tree_add_text(subtree2, tvb, p,
+                                 clen, "Capability value: Invalid");
+			}
+			else {
+			    proto_tree_add_text(subtree2, tvb, p - 1,
+                                 1, "Capability length: %u %s", clen,
+                                 (clen == 1) ? "byte" : "bytes");
+			}
+			p += clen;
+			break;
+		    /* unknown capability */
+		    default:
+			ti = proto_tree_add_text(subtree, tvb, p - 2,
+                             2 + clen, "Unknown capability (%u %s)", 2 + clen,
+                             (clen == 1) ? "byte" : "bytes");
+			subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
+			proto_tree_add_text(subtree2, tvb, p - 2,
+                             1, "Capability code: %s (%d)",
+                             ctype >= 128 ? "Private use" : "Unknown", ctype);
+			proto_tree_add_text(subtree2, tvb, p - 1,
                              1, "Capability length: %u %s", clen,
                              (clen == 1) ? "byte" : "bytes");
-                    }
-                    p += clen;
-                    break;
-                /* unknown capability */
-                default:
-                    ti = proto_tree_add_text(subtree, tvb, p - 4,
-                         2 + plen, "Unknown capability (%u %s)", 2 + plen,
-                         (plen == 1) ? "byte" : "bytes");
-                    subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
-                    proto_tree_add_text(subtree2, tvb, p - 4,
-                         1, "Parameter type: Capabilities (2)");
-                    proto_tree_add_text(subtree2, tvb, p - 3,
-                         1, "Parameter length: %u %s", plen,
-                         (plen == 1) ? "byte" : "bytes");
-                    proto_tree_add_text(subtree2, tvb, p - 2,
-                         1, "Capability code: %s (%d)",
-                         ctype >= 128 ? "Private use" : "Unknown", ctype);
-                    proto_tree_add_text(subtree2, tvb, p - 1,
-                         1, "Capability length: %u %s", clen,
-                         (clen == 1) ? "byte" : "bytes");
-                    if (clen != 0) {
-                        proto_tree_add_text(subtree2, tvb, p,
-                             clen, "Capability value: Unknown");
-                    }
-                    p += clen;
-                    break;
-                }
+			if (clen != 0) {
+			    proto_tree_add_text(subtree2, tvb, p,
+                                 clen, "Capability value: Unknown");
+			}
+			p += clen;
+			break;
+		    }
+		}
                 break;
             default:
                 proto_tree_add_text(subtree, tvb, p - 2, 2 + plen,
