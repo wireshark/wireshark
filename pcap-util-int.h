@@ -35,4 +35,4 @@ extern GList *get_interface_list_findalldevs(int *err, char *err_str);
 
 #endif /* HAVE_LIBPCAP */
 
-#endif /* __PCAP_UTIL_H__ */
+#endif /* __PCAP_UTIL_INT_H__ */
