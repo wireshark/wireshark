@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copyright 2001, Juan Toledo <toledo@users.sourceforge.net> (Passive FTP)
  * 
- * $Id: packet-ftp.c,v 1.44 2002/07/13 20:08:33 guy Exp $
+ * $Id: packet-ftp.c,v 1.45 2002/07/14 00:40:07 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -214,6 +214,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item	*ti;
 	gint		offset = 0;
 	const u_char	*line;
+	guint8		code;
 	gboolean	is_pasv_response = FALSE;
 	gint		next_offset;
 	int		linelen;
@@ -266,47 +267,84 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	/*
-	 * Extract the first token, and, if there is a first
-	 * token, add it as the request or reply code.
-	 */
-	tokenlen = get_token_len(line, line + linelen, &next_token);
-	if (tokenlen != 0) {
-		if (is_request) {
+	if (is_request) {
+		/*
+		 * Extract the first token, and, if there is a first
+		 * token, add it as the request.
+		 */
+		tokenlen = get_token_len(line, line + linelen, &next_token);
+		if (tokenlen != 0) {
 			if (tree) {
 				proto_tree_add_item(ftp_tree,
 				    hf_ftp_request_command, tvb, offset,
 				    tokenlen, FALSE);
 			}
-		} else {
+		}
+	} else {
+		/*
+		 * This is a response; the response code is 3 digits,
+		 * followed by a space or hyphen, possibly followed by
+		 * text.
+		 *
+		 * If the line doesn't start with 3 digits, it's part of
+		 * a continuation.
+		 *
+		 * XXX - keep track of state in the first pass, and
+		 * treat non-continuation lines not beginning with digits
+		 * as errors?
+		 */
+		if (linelen >= 3 && isdigit(line[0]) && isdigit(line[1])
+		    && isdigit(line[2])) {
 			/*
-			 * This is a response; see if it's a passive-mode
-			 * response.
+			 * One-line reply, or first or last line
+			 * of a multi-line reply.
+			 */
+			code = (line[0] - '0')*100 + (line[1] - '0')*10
+			    + (line[2] - '0');
+			if (tree) {
+				proto_tree_add_uint(ftp_tree,
+				    hf_ftp_response_code, tvb, offset, 3, code);
+
+			}
+
+			/*
+			 * See if it's a passive-mode response.
 			 *
 			 * XXX - check for "229" responses to EPSV
 			 * commands, to handle IPv6, as per RFC 2428?
 			 *
-			 * XXX - does anybody do FOOBAR, as per RFC 1639,
-			 * or has that been supplanted by RFC 2428?
+			 * XXX - does anybody do FOOBAR, as per RFC
+			 * 1639, or has that been supplanted by RFC 2428?
 			 */
-			if (tokenlen == 3 &&
-			    strncmp("227", line, tokenlen) == 0)
+			if (code == 227)
 				is_pasv_response = TRUE;
-			if (tree) {
-				proto_tree_add_uint(ftp_tree,
-				    hf_ftp_response_code, tvb, offset,
-				    tokenlen, atoi(line));
-			}
-		}
-		offset += next_token - line;
-		linelen -= next_token - line;
-		line = next_token;
 
-		/*
-		 * If this is a PASV response, handle it if we haven't
-		 * already processed this frame.
-		 */
-		if (!pinfo->fd->flags.visited && is_pasv_response) {
+			/*
+			 * Skip the 3 digits and, if present, the
+			 * space or hyphen.
+			 */
+			if (linelen >= 4)
+				next_token = line + 4;
+			else
+				next_token = line + linelen;
+		} else {
+			/*
+			 * Line doesn't start with 3 digits; assume it's
+			 * a line in the middle of a multi-line reply.
+			 */
+			next_token = line;
+		}
+	}
+	offset += next_token - line;
+	linelen -= next_token - line;
+	line = next_token;
+
+	/*
+	 * If this is a PASV response, handle it if we haven't
+	 * already processed this frame.
+	 */
+	if (!pinfo->fd->flags.visited && is_pasv_response) {
+		if (linelen != 0) {
 			/*
 			 * We haven't processed this frame, and it contains
 			 * a PASV response; set up a conversation for the
@@ -337,6 +375,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Show the rest of the request or response as text,
 		 * a line at a time.
+		 * XXX - only if there's a continuation indicator?
 		 */
 		while (tvb_offset_exists(tvb, offset)) {
 			/*

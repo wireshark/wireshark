@@ -1,7 +1,7 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id: packet-smtp.c,v 1.26 2002/04/14 23:04:04 guy Exp $
+ * $Id: packet-smtp.c,v 1.27 2002/07/14 00:40:07 guy Exp $
  *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -56,6 +56,10 @@ static int proto_smtp = -1;
 
 static int hf_smtp_req = -1;
 static int hf_smtp_rsp = -1;
+static int hf_smtp_req_command = -1;
+static int hf_smtp_req_parameter = -1;
+static int hf_smtp_rsp_code = -1;
+static int hf_smtp_rsp_parameter = -1;
 
 static int ett_smtp = -1;
 
@@ -114,7 +118,8 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int                     request = 0;
     conversation_t          *conversation;
     struct smtp_request_val *request_val;
-    const char              *line;
+    const u_char            *line;
+    guint8                  code;
     int                     linelen;
     gboolean                eom_seen = FALSE;
     gint                    next_offset;
@@ -431,11 +436,11 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    cmdlen = 4;
 	  else
 	    cmdlen = linelen;
-	  proto_tree_add_text(smtp_tree, tvb, offset, cmdlen,
-	      "Command: %s", format_text(line, cmdlen));
+	  proto_tree_add_item(smtp_tree, hf_smtp_req_command, tvb,
+			      offset, cmdlen, FALSE);
 	  if (linelen > 5) {
-	    proto_tree_add_text(smtp_tree, tvb, offset + 5, linelen - 5,
-	        "Parameter: %s", format_text(line + 5, linelen - 5));
+	    proto_tree_add_item(smtp_tree, hf_smtp_req_parameter, tvb,
+				offset + 5, linelen - 5, FALSE);
 	  }
 
 	}
@@ -464,11 +469,27 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  /*
 	   * Put it into the protocol tree.
 	   */
-	  proto_tree_add_text(smtp_tree, tvb, offset, 3,
-	      "Response: %s", tvb_format_text(tvb, offset, 3));
-	  if (linelen >= 4) {
-	    proto_tree_add_text(smtp_tree, tvb, offset + 4, linelen - 4,
-	        "Parameter: %s", tvb_format_text(tvb, offset + 4, linelen - 4));
+	  line = tvb_get_ptr(tvb, offset, linelen);
+	  if (linelen >= 3 && isdigit(line[0]) && isdigit(line[1])
+	 		   && isdigit(line[2])) {
+	    /*
+	     * We have a 3-digit response code.
+	     */
+	    code = (line[0] - '0')*100 + (line[1] - '0')*10 + (line[2] - '0');
+	    proto_tree_add_uint(smtp_tree, hf_smtp_rsp_code, tvb, offset, 3,
+				code);
+
+	    if (linelen >= 4) {
+	      proto_tree_add_item(smtp_tree, hf_smtp_rsp_parameter, tvb,
+				  offset + 4, linelen - 4, FALSE);
+	    }
+	  } else {
+	    /*
+	     * No 3-digit response code.
+	     */
+	    proto_tree_add_text(smtp_tree, tvb, offset, linelen,
+				"Bogus reply line (no response code): %s",
+				tvb_format_text(tvb, offset, linelen));
 	  }
 
 	  /*
@@ -499,6 +520,22 @@ proto_register_smtp(void)
 
     { &hf_smtp_rsp,
       { "Response", "smtp.rsp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "", HFILL }},
+
+    { &hf_smtp_req_command,
+      { "Command", "smtp.req.command", FT_STRING,  BASE_NONE, NULL, 0x0,
+      	"", HFILL }},
+
+    { &hf_smtp_req_parameter,
+      { "Request parameter", "smtp.req.parameter", FT_STRING, BASE_NONE, NULL, 0x0,
+      	"", HFILL }},
+
+    { &hf_smtp_rsp_code,
+      { "Response code", "smtp.response.code", FT_UINT8, BASE_DEC, NULL, 0x0,
+      	"", HFILL }},
+
+    { &hf_smtp_rsp_parameter,
+      { "Response parameter", "smtp.rsp.parameter", FT_STRING, BASE_NONE, NULL, 0x0,
+      	"", HFILL }}
   };
   static gint *ett[] = {
     &ett_smtp
