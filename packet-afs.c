@@ -8,7 +8,7 @@
  * Portions based on information/specs retrieved from the OpenAFS sources at
  *   www.openafs.org, Copyright IBM. 
  *
- * $Id: packet-afs.c,v 1.46 2002/05/10 23:20:37 guy Exp $
+ * $Id: packet-afs.c,v 1.47 2002/06/13 06:43:44 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1115,7 +1115,7 @@ dissect_kauth_request(tvbuff_t *tvb, struct rxinfo *rxinfo _U_, proto_tree *tree
 		case 23: /* getticket */
 			OUT_UINT(hf_afs_kauth_kvno);
 			OUT_RXString(hf_afs_kauth_domain);
-			OUT_RXString(hf_afs_kauth_data);
+			OUT_BYTES_ALL(hf_afs_kauth_data);
 			OUT_RXString(hf_afs_kauth_princ);
 			OUT_RXString(hf_afs_kauth_realm);
 			break;

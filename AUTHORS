@@ -1244,6 +1244,10 @@ John Wells <wells[AT]ieee.org> {
 	MIP fix.
 }
 
+Loic Tortay <tortay[AT]cc.in2p3.fr> {
+	AFS fix
+}
+
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to
 give his permission to use his version of snprintf.c.
 
