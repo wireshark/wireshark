@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.364 2003/08/17 21:21:50 sahlberg Exp $
+ * $Id: packet-smb.c,v 1.365 2003/08/19 09:58:54 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -270,6 +270,8 @@ static int hf_smb_padding = -1;
 static int hf_smb_file_data = -1;
 static int hf_smb_total_data_len = -1;
 static int hf_smb_data_len = -1;
+static int hf_smb_data_len_low = -1;
+static int hf_smb_data_len_high = -1;
 static int hf_smb_seek_mode = -1;
 static int hf_smb_data_size = -1;
 static int hf_smb_alloc_size = -1;
@@ -5205,7 +5207,8 @@ static int
 dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8	wc, cmd=0xff;
-	guint16 andxoffset=0, bc, maxcnt = 0;
+	guint16 andxoffset=0, bc, datalen_low, datalen_high;
+	guint32 datalen=0;
 	guint32 ofs = 0;
 	smb_info_t *si;
 	unsigned int fid;
@@ -5245,23 +5248,28 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
 	offset += 4;
 
-	/* max count */
-	maxcnt = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_max_count, tvb, offset, 2, TRUE);
+	/* data len low */
+	datalen_low = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_len_low, tvb, offset, 2, datalen_low);
 	offset += 2;
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-				", %u byte%s at offset %u", maxcnt,
-				(maxcnt == 1) ? "" : "s", ofs);
 
 	/* min count */
 	proto_tree_add_item(tree, hf_smb_min_count, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* XXX - max count high */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
-	offset += 4;
+	/* XXX we should really only do this in case we have seen LARGE FILE being negotiated */
+	/* data length high */
+	datalen_high = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_len_high, tvb, offset, 2, datalen_high);
+	offset += 2;
+
+	datalen=datalen_high;
+	datalen=(datalen<<16)|datalen_low;
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+				", %u byte%s at offset %u", datalen,
+				(datalen == 1) ? "" : "s", ofs);
 
 	/* remaining */
 	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
@@ -5287,7 +5295,8 @@ static int
 dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8	wc, cmd=0xff;
-	guint16 andxoffset=0, bc, datalen=0, dataoffset=0;
+	guint16 andxoffset=0, bc, datalen_low, datalen_high, dataoffset=0;
+	guint32 datalen=0;
 	smb_info_t *si = (smb_info_t *)pinfo->private_data;
 	int fid=0;
 
@@ -5330,25 +5339,35 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* data len */
-	datalen = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_smb_data_len, tvb, offset, 2, datalen);
+	/* data len low */
+	datalen_low = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_len_low, tvb, offset, 2, datalen_low);
 	offset += 2;
-
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_append_fstr(pinfo->cinfo, COL_INFO,
-				", %u byte%s", datalen,
-				(datalen == 1) ? "" : "s");
 
 	/* data offset */
 	dataoffset=tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_data_offset, tvb, offset, 2, dataoffset);
 	offset += 2;
 
-	/* 10 reserved bytes */
-	/* XXX - first 2 bytes are data length high, not reserved */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 10, TRUE);
-	offset += 10;
+	/* XXX we should really only do this in case we have seen LARGE FILE being negotiated */
+	/* data length high */
+	datalen_high = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_len_high, tvb, offset, 2, datalen_high);
+	offset += 2;
+
+	datalen=datalen_high;
+	datalen=(datalen<<16)|datalen_low;
+
+
+	if (check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO,
+				", %u byte%s", datalen,
+				(datalen == 1) ? "" : "s");
+
+
+	/* 8 reserved bytes */
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 8, TRUE);
+	offset += 8;
 
 	BYTE_COUNT;
 
@@ -5372,11 +5391,11 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 {
 	guint32 ofs=0;
 	guint8	wc, cmd=0xff;
-	guint16 andxoffset=0, bc, datalen=0, dataoffset=0;
+	guint16 andxoffset=0, bc, dataoffset=0, datalen_low, datalen_high;
+	guint32 datalen=0;
 	smb_info_t *si = (smb_info_t *)pinfo->private_data;
 	unsigned int fid=0;
 	guint16 mode = 0;
-
 
 	WORD_COUNT;
 
@@ -5424,14 +5443,19 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
 	offset += 2;
 
-	/* XXX - data length high */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	/* XXX we should really only do this in case we have seen LARGE FILE being negotiated */
+	/* data length high */
+	datalen_high = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_len_high, tvb, offset, 2, datalen_high);
 	offset += 2;
 
-	/* data len */
-	datalen = tvb_get_letohs(tvb, offset);
-	proto_tree_add_uint(tree, hf_smb_data_len, tvb, offset, 2, datalen);
+	/* data len low */
+	datalen_low = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_len_low, tvb, offset, 2, datalen_low);
 	offset += 2;
+
+	datalen=datalen_high;
+	datalen=(datalen<<16)|datalen_low;
 
 	/* data offset */
 	dataoffset=tvb_get_letohs(tvb, offset);
@@ -5487,7 +5511,8 @@ static int
 dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree)
 {
 	guint8	wc, cmd=0xff;
-	guint16 andxoffset=0, bc, datalen=0;
+	guint16 andxoffset=0, bc, datalen_low, datalen_high;
+	guint32 datalen=0;
 	smb_info_t *si;
 
 	WORD_COUNT;
@@ -5517,23 +5542,32 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		add_fid(tvb, pinfo, tree, 0, 0, (int)si->sip->extra_info);
 	}
 
-	/* write count */
-	datalen = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, TRUE);
+	/* data len low */
+	datalen_low = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_len_low, tvb, offset, 2, datalen_low);
 	offset += 2;
+
+	/* remaining */
+	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
+	offset += 2;
+
+	/* XXX we should really only do this in case we have seen LARGE FILE being negotiated */
+	/* data length high */
+	datalen_high = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(tree, hf_smb_data_len_high, tvb, offset, 2, datalen_high);
+	offset += 2;
+
+	datalen=datalen_high;
+	datalen=(datalen<<16)|datalen_low;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 				", %u byte%s", datalen,
 				(datalen == 1) ? "" : "s");
 
-	/* remaining */
-	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
+	/* 2 reserved bytes */
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
 	offset += 2;
-
-	/* 4 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
-	offset += 4;
 
 	BYTE_COUNT;
 
@@ -17390,6 +17424,14 @@ proto_register_smb(void)
 	{ &hf_smb_data_len,
 		{ "Data Length", "smb.data_len", FT_UINT16, BASE_DEC,
 		NULL, 0, "Length of data", HFILL }},
+
+	{ &hf_smb_data_len_low,
+		{ "Data Length Low", "smb.data_len_high", FT_UINT16, BASE_DEC,
+		NULL, 0, "Length of data, Low 16 bits", HFILL }},
+
+	{ &hf_smb_data_len_high,
+		{ "Data Length High (multiply with 64K)", "smb.data_len_high", FT_UINT16, BASE_DEC,
+		NULL, 0, "Length of data, High 16 bits", HFILL }},
 
 	{ &hf_smb_seek_mode,
 		{ "Seek Mode", "smb.seek_mode", FT_UINT16, BASE_DEC,
