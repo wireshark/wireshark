@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.369 2003/08/28 22:51:07 guy Exp $
+ * $Id: packet-smb.c,v 1.370 2003/09/28 00:11:01 sahlberg Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -5326,10 +5326,18 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	 *
 	 * Perhaps the 32-bit timeout field was hijacked as a 16-bit
 	 * high count and a 16-bit reserved field.
+         * 
+         * XXX if maxcount high is 0xFFFFFFFF we assume it is just padding
+	 * bytes and we just ignore it.
 	 */
 	/* Amasingly enough, this really is 4 bytes, according to the SNIA spec */
 	maxcnt_high = tvb_get_letohl(tvb, offset);
-	proto_tree_add_uint(tree, hf_smb_max_count_high, tvb, offset, 4, maxcnt_high);
+	if(maxcnt_high==0xffffffff){
+		maxcnt_high=0;
+	} else {
+		proto_tree_add_uint(tree, hf_smb_max_count_high, tvb, offset, 4, maxcnt_high);
+	}
+
 	offset += 4;
 
 	maxcnt=maxcnt_high;
