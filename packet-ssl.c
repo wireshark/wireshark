@@ -2,7 +2,7 @@
  * Routines for ssl dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
  *
- * $Id: packet-ssl.c,v 1.8 2001/10/16 07:13:01 guy Exp $
+ * $Id: packet-ssl.c,v 1.9 2001/11/21 01:21:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1977,7 +1977,6 @@ static void
 ssl_set_conv_version(packet_info *pinfo, guint version)
 {
     conversation_t *conversation;
-    void *conv_data;
 
     if (pinfo->fd->flags.visited)
     {

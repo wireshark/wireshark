@@ -2,7 +2,7 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  * 
- * $Id: packet-wsp.c,v 1.43 2001/10/26 19:14:51 guy Exp $
+ * $Id: packet-wsp.c,v 1.44 2001/11/21 01:21:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -2661,7 +2661,6 @@ get_value_type_len (tvbuff_t *tvb, int offset, guint *valueLen,
 	guint8 peek;
 	guint32 len;
 	guint count;
-	int stringlen;
 
 	/* Get value part of header */
 	peek = tvb_get_guint8 (tvb, offset);

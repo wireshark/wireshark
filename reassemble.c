@@ -1,7 +1,7 @@
 /* reassemble.c
  * Routines for {fragment,segment} reassembly
  *
- * $Id: reassemble.c,v 1.3 2001/09/13 07:53:52 guy Exp $
+ * $Id: reassemble.c,v 1.4 2001/11/21 01:21:08 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -76,7 +76,9 @@ fragment_hash(gconstpointer k)
 {
 	fragment_key* key = (fragment_key*) k;
 	guint hash_val;
+/*
 	int i;
+*/
 
 	hash_val = 0;
 
