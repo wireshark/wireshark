@@ -216,6 +216,44 @@ decode_build_reset_list (gchar *table_name, ftenum_t selector_type,
 /*             Show Changed Dissectors            */
 /**************************************************/
 
+#define SORT_ALPHABETICAL 0
+
+gint
+sort_iter_compare_func (GtkTreeModel *model,
+GtkTreeIter *a,
+GtkTreeIter *b,
+gpointer userdata)
+{
+    gint sortcol = GPOINTER_TO_INT(userdata);
+    gint ret = 0;
+    switch (sortcol)
+    {
+        case SORT_ALPHABETICAL:
+        {
+        gchar *name1, *name2;
+        gtk_tree_model_get(model, a, 0, &name1, -1);
+        gtk_tree_model_get(model, b, 0, &name2, -1);
+        if (name1 == NULL || name2 == NULL)
+        {
+            if (name1 == NULL && name2 == NULL)
+                break; /* both equal => ret = 0 */
+            ret = (name1 == NULL) ? -1 : 1;
+        }
+            else
+        {
+            ret = g_utf8_collate(name1,name2);
+        }
+        g_free(name1);
+        g_free(name2);
+        }
+        break;
+        default:
+        g_return_val_if_reached(0);
+    }
+    return ret;
+}
+
+
 void
 decode_add_to_show_list (
 gpointer list_data, 
@@ -825,7 +863,7 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
     GtkWidget *notebook, *notebook_pg;
     void (* func)(GtkWidget *);
     gint page_num;
-    void *binding;
+    void *binding = NULL;
 
     /* Call the right routine for the page that was currently in front. */
     notebook =  OBJECT_GET_DATA(parent_w, E_NOTEBOOK);
@@ -837,9 +875,11 @@ decode_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
 
     /* Now destroy the "Decode As" dialog. */
     notebook_pg = OBJECT_GET_DATA(parent_w, E_PAGE_DCERPC);
-    binding = OBJECT_GET_DATA(notebook_pg, E_PAGE_BINDING);
+    if(notebook_pg) {
+        binding = OBJECT_GET_DATA(notebook_pg, E_PAGE_BINDING);
+    }
     if(binding) {
-        decode_dcerpc_binding_free(binding);
+        decode_dcerpc_binding_free(binding);    
     }
     window_destroy(GTK_WIDGET(parent_w));
     g_slist_free(decode_dimmable);
@@ -1220,6 +1260,7 @@ decode_proto_add_to_list (gchar *table_name, gpointer value, gpointer user_data)
     decode_add_to_list (table_name, proto_name, value, user_data);
 }
 
+
 /*
  * This routine starts the creation of a List on a notebook page.  It
  * creates both a scrolled window and a list, adds the list to the
@@ -1246,6 +1287,7 @@ decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
     GtkListStore      *store;
     GtkCellRenderer   *renderer;
     GtkTreeViewColumn *tc;
+    GtkTreeSortable   *sortable;
 #endif
 
 #if GTK_MAJOR_VERSION < 2
@@ -1263,6 +1305,9 @@ decode_list_menu_start(GtkWidget *page, GtkWidget **list_p,
     store = gtk_list_store_new(E_LIST_S_COLUMNS+1, G_TYPE_STRING,
                                G_TYPE_STRING, G_TYPE_POINTER);
     list = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
+    sortable = GTK_TREE_SORTABLE(store);
+    gtk_tree_sortable_set_sort_func(sortable, SORT_ALPHABETICAL, sort_iter_compare_func, GINT_TO_POINTER(SORT_ALPHABETICAL), NULL);
+    gtk_tree_sortable_set_sort_column_id(sortable, SORT_ALPHABETICAL, GTK_SORT_ASCENDING);
     gtk_tree_view_set_headers_clickable(list, FALSE);
 #ifndef DEBUG
     gtk_tree_view_set_headers_visible(list, FALSE);
