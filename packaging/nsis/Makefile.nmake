@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nmake,v 1.20 2003/08/05 05:05:58 guy Exp $
+# $Id: Makefile.nmake,v 1.21 2003/10/02 22:28:04 gerald Exp $
 #
 # NSIS is a free packager/installer/uninstaller program for Win32.
 # It was originally written for the Winamp package, but various
@@ -14,6 +14,7 @@ EXE=../../ethereal.exe ../../tethereal.exe ../../editcap.exe \
 DLL=../../wiretap/wiretap-$(WTAP_VERSION).dll
 DOC=../../doc/ethereal.html		\
 	../../doc/tethereal.html	\
+	../../doc/ethereal-filter.html	\
 	../../doc/editcap.html 		\
 	../../doc/text2pcap.html 	\
 	../../doc/mergecap.html 	\

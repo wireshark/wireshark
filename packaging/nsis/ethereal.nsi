@@ -1,7 +1,7 @@
 ;
 ; ethereal.nsi
 ;
-; $Id: ethereal.nsi,v 1.18 2003/08/05 05:05:59 guy Exp $
+; $Id: ethereal.nsi,v 1.19 2003/10/02 22:28:04 gerald Exp $
 
 ; ============================================================================
 ; Header configuration
@@ -113,6 +113,7 @@ Section "Ethereal"
 SetOutPath $INSTDIR
 File "..\..\ethereal.exe"
 File "..\..\doc\ethereal.html"
+File "..\..\doc\ethereal-filter.html"
 !ifndef GTK2
 !ifndef GLIB2
 File "${COMMON_FILES_GNU}\gtk-1.3.dll"
@@ -203,7 +204,8 @@ Delete "$SMPROGRAMS\Ethereal\Ethereal Web Site.lnk"
 WriteINIStr "$SMPROGRAMS\Ethereal\Ethereal Web Site.url" \
           "InternetShortcut" "URL" "http://www.ethereal.com/"
 CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal.lnk" "$INSTDIR\ethereal.exe"
-CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Documentation.lnk" "$INSTDIR\ethereal.html"
+CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Manual.lnk" "$INSTDIR\ethereal.html"
+CreateShortCut "$SMPROGRAMS\Ethereal\Display Filters Manual.lnk" "$INSTDIR\ethereal-filters.html"
 CreateShortCut "$SMPROGRAMS\Ethereal\Uninstall.lnk" "$INSTDIR\uninstall.exe"
 CreateShortCut "$SMPROGRAMS\Ethereal\Ethereal Program Directory.lnk" \
           "$INSTDIR"
