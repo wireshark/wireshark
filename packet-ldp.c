@@ -1,7 +1,7 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id: packet-ldp.c,v 1.50 2004/01/17 12:51:00 ulfl Exp $
+ * $Id: packet-ldp.c,v 1.51 2004/04/28 15:38:33 gerald Exp $
  *
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
@@ -91,6 +91,7 @@ static int hf_ldp_tlv_atm_label_vpi = -1;
 static int hf_ldp_tlv_atm_label_vci = -1;
 static int hf_ldp_tlv_fr_label_len = -1;
 static int hf_ldp_tlv_fr_label_dlci = -1;
+static int hf_ldp_tlv_ft_protect_sequence_num = -1;
 static int hf_ldp_tlv_status_ebit = -1;
 static int hf_ldp_tlv_status_fbit = -1;
 static int hf_ldp_tlv_status_data = -1;
@@ -127,6 +128,17 @@ static int hf_ldp_tlv_sess_fr_dir = -1;
 static int hf_ldp_tlv_sess_fr_len = -1;
 static int hf_ldp_tlv_sess_fr_mindlci = -1;
 static int hf_ldp_tlv_sess_fr_maxdlci = -1;
+static int hf_ldp_tlv_ft_sess_flags = -1;
+static int hf_ldp_tlv_ft_sess_flag_r = -1;
+static int hf_ldp_tlv_ft_sess_flag_res = -1;
+static int hf_ldp_tlv_ft_sess_flag_s = -1;
+static int hf_ldp_tlv_ft_sess_flag_a = -1;
+static int hf_ldp_tlv_ft_sess_flag_c = -1;
+static int hf_ldp_tlv_ft_sess_flag_l = -1;
+static int hf_ldp_tlv_ft_sess_res = -1;
+static int hf_ldp_tlv_ft_sess_reconn_to = -1;
+static int hf_ldp_tlv_ft_sess_recovery_time = -1;
+static int hf_ldp_tlv_ft_ack_sequence_num = -1;
 static int hf_ldp_tlv_lbl_req_msg_id = -1;
 static int hf_ldp_tlv_vendor_id = -1;
 static int hf_ldp_tlv_experiment_id = -1;
@@ -188,6 +200,7 @@ static int ett_ldp_ldpid = -1;
 static int ett_ldp_message = -1;
 static int ett_ldp_tlv = -1;
 static int ett_ldp_tlv_val = -1;
+static int ett_ldp_tlv_ft_flags = -1;
 static int ett_ldp_fec = -1;
 static int ett_ldp_fec_vc_interfaceparam = -1;
 static int ett_ldp_diffserv_map = -1;
@@ -215,6 +228,7 @@ static guint32 global_ldp_udp_port = UDP_PORT_LDP;
 #define TLV_GENERIC_LABEL          0x0200
 #define TLV_ATM_LABEL              0x0201
 #define TLV_FRAME_LABEL            0x0202
+#define TLV_FT_PROTECTION          0x0203
 #define TLV_STATUS                 0x0300
 #define TLV_EXTENDED_STATUS        0x0301
 #define TLV_RETURNED_PDU           0x0302
@@ -227,6 +241,9 @@ static guint32 global_ldp_udp_port = UDP_PORT_LDP;
 #define TLV_COMMON_SESSION_PARMS   0x0500
 #define TLV_ATM_SESSION_PARMS      0x0501
 #define TLV_FRAME_RELAY_SESSION_PARMS 0x0502
+#define TLV_FT_SESSION             0x0503
+#define TLV_FT_ACK                 0x0504
+#define TLV_FT_CORK                0x0505
 #define TLV_LABEL_REQUEST_MESSAGE_ID 0x0600
 #define TLV_ER                     0x0800
 #define TLV_ER_HOP_IPV4            0x0801
@@ -252,6 +269,7 @@ static const value_string tlv_type_names[] = {
   { TLV_GENERIC_LABEL,             "Generic Label TLV"},
   { TLV_ATM_LABEL,                 "ATM Label TLV"},
   { TLV_FRAME_LABEL,               "Frame Label TLV"},
+  { TLV_FT_PROTECTION,             "FT Protection TLV"},
   { TLV_STATUS,                    "Status TLV"},
   { TLV_EXTENDED_STATUS,           "Extended Status TLV"},
   { TLV_RETURNED_PDU,              "Returned PDU TLV"},
@@ -264,6 +282,9 @@ static const value_string tlv_type_names[] = {
   { TLV_COMMON_SESSION_PARMS,      "Common Session Parameters TLV"},
   { TLV_ATM_SESSION_PARMS,         "ATM Session Parameters TLV"},
   { TLV_FRAME_RELAY_SESSION_PARMS, "Frame Relay Session Parameters TLV"},
+  { TLV_FT_SESSION,                "FT Session TLV"},
+  { TLV_FT_ACK,                    "FT ACK TLV"},
+  { TLV_FT_CORK,                   "FT Cork TLV"},
   { TLV_LABEL_REQUEST_MESSAGE_ID,  "Label Request Message ID TLV"},
   { TLV_LSPID,                     "LSP ID TLV"},
   { TLV_ER,                        "Explicit route TLV"},
@@ -397,7 +418,7 @@ static const value_string fec_vc_interfaceparm[] = {
 };
 
 static const true_false_string fec_vc_cbit = {
-  "Contorl Word Present",
+  "Control Word Present",
   "Control Word NOT Present"
 };
 
@@ -433,6 +454,51 @@ static const value_string tlv_fr_len_vals[] = {
   {2, "23 bits"},
   {3, "Reserved"},
   {0, NULL}
+};
+
+static const value_string tlv_ft_flags[] = {
+  {0, "Invalid"},
+  {1, "Using LDP Graceful Restart"},
+  {2, "Check-Pointing of all labels"},
+  {3, "Invalid"},
+  {4, "Invalid"},
+  {5, "Invalid"},
+  {6, "Check-Pointing of all labels"},
+  {7, "Invalid"},
+  {8, "Full FT on selected labels"},
+  {9, "Invalid"},
+  {10, "Full FT on selected labels"},
+  {11, "Invalid"},
+  {12, "Full FT on all labels"},
+  {13, "Invalid"},
+  {14, "Full FT on all labels"},
+  {15, "Invalid"},
+  {0, NULL}
+};
+
+static const true_false_string tlv_ft_r = {
+  "LSR has preserved state and resources for all FT-Labels",
+  "LSR has not preserved state and resources for all FT-Labels"
+};
+
+static const true_false_string tlv_ft_s = {
+  "FT Protection TLV supported on other than KeepAlive",
+  "FT Protection TLV not supported on other than KeepAlive"
+};
+
+static const true_false_string tlv_ft_a = {
+  "Treat all labels as Sequence Numbered FT Labels",
+  "May treat some labels as FT and others as non-FT"
+};
+
+static const true_false_string tlv_ft_c = {
+  "Check-Pointing procedures in use",
+  "Check-Pointing procedures not in use"
+};
+
+static const true_false_string tlv_ft_l = {
+  "Re-learn the state from the network",
+  "Do not re-learn the state from the network"
 };
 
 static const value_string ldp_act_flg_vals[] = {
@@ -528,6 +594,16 @@ static const value_string tlv_status_data[] = {
   {23, "Unsoported Address Family"},
   {24, "Session Rejected / Bad KeepAlive Time"},
   {25, "Internal Error"},
+  {26, "No LDP Session"},
+  {27, "Zero FT seqnum"},
+  {28, "Unexpected TLV / Session Not FT"},
+  {29, "Unexpected TLV / Label Not FT"},
+  {30, "Missing FT Protection TLV"},
+  {31, "FT ACK sequence error"},
+  {32, "Temporary Shutdown"},
+  {33, "FT Seq Numbers Exhausted"},
+  {34, "FT Session parameters / changed"},
+  {35, "Unexpected FT Cork TLV"},
   {0x01000001,"Unexpected Diff-Serv TLV"},
   {0x01000002,"Unsupported PHB"},
   {0x01000003,"Invalid EXP<->PHB Mapping"},
@@ -775,7 +851,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
 			  while ( (vc_len > 1) && (rem > 1) ) {	/* enough to include id and length */
 			    intparam_len = tvb_get_guint8(tvb, offset+1);
-			    ti = proto_tree_add_text(fec_tree, tvb, offset, intparam_len, "Interface Paramameter");
+			    ti = proto_tree_add_text(fec_tree, tvb, offset, intparam_len, "Interface Parameter");
 			    vcintparam_tree = proto_item_add_subtree(ti, ett_ldp_fec_vc_interfaceparam);
 			    if(vcintparam_tree == NULL) return;
 			    proto_tree_add_item(vcintparam_tree,hf_ldp_tlv_fec_vc_intparam_id,tvb,offset,1,FALSE);
@@ -1351,6 +1427,57 @@ dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, guint offset,proto_tree *tr
 	}
 }
 
+/* Dissect the Fault Tolerant (FT) Session TLV */
+
+static void
+dissect_tlv_ft_session(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
+{
+        proto_tree *ti = NULL, *val_tree = NULL, *flags_tree = NULL;
+        guint16 flags = 0;
+
+        if (tree != NULL) {
+                if(rem != 12){
+                        /* error, length must be 12 bytes */
+                        proto_tree_add_text(tree, tvb, offset, rem,
+                            "Error processing FT Session TLV: length is %d, should be 12",
+                            rem);
+                        return;
+                }
+
+                ti = proto_tree_add_text(tree, tvb, offset, rem, "FT Session Parameters");
+                val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
+
+                if(val_tree != NULL) {
+                        /* Flags */
+                        ti = proto_tree_add_item(val_tree, hf_ldp_tlv_ft_sess_flags, tvb, offset, 2, FALSE);
+                        flags_tree = proto_item_add_subtree(ti,  ett_ldp_tlv_ft_flags);
+                        if (flags_tree == NULL)
+                                return;
+
+                        flags = tvb_get_ntohs(tvb, offset);
+                        proto_item_append_text(ti, " (%s%s)", (flags & 0x8000) ? "R, " : "",
+                            val_to_str(flags & 0xF, tlv_ft_flags, "Invalid"));
+                        proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_r, tvb, offset, 2, FALSE);
+                        proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_res, tvb, offset, 2, FALSE);
+                        proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_s, tvb, offset, 2, FALSE);
+                        proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_a, tvb, offset, 2, FALSE);
+                        proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_c, tvb, offset, 2, FALSE);
+                        proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_l, tvb, offset, 2, FALSE);
+
+                        /* Reserved */
+                        proto_tree_add_item(val_tree, hf_ldp_tlv_ft_sess_res, tvb, offset + 2, 2, FALSE);
+
+                        /* FT Reconnect TO */
+                        proto_tree_add_item(val_tree, hf_ldp_tlv_ft_sess_reconn_to, tvb, offset + 4,
+                            4, FALSE);
+
+                        /* Recovery Time */
+                        proto_tree_add_item(val_tree, hf_ldp_tlv_ft_sess_recovery_time, tvb, offset + 8,
+                            4, FALSE);
+                }
+        }
+
+}
 
 static void
 dissect_tlv_lspid(tvbuff_t *tvb, guint offset,proto_tree *tree, int rem)
@@ -1800,6 +1927,16 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 			dissect_tlv_frame_label(tvb, offset + 4, tlv_tree, length);
 			break;
 
+                case TLV_FT_PROTECTION:
+                        if( length != 4 ) /* Length must be 4 bytes */
+                                proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+                                    "Error processing FT Protection TLV: length is %d, should be 4",
+                                    length);
+                        else
+                                proto_tree_add_item(tlv_tree, hf_ldp_tlv_ft_protect_sequence_num, tvb,
+                                    offset + 4,length, FALSE);
+                        break;
+
 		case TLV_STATUS:
 			dissect_tlv_status(tvb, offset + 4, tlv_tree, length);
 			break;
@@ -1875,6 +2012,28 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 		case TLV_FRAME_RELAY_SESSION_PARMS:
 			dissect_tlv_frame_relay_session_parms(tvb, offset + 4, tlv_tree, length);
 			break;
+
+                case TLV_FT_SESSION:
+                        /* Used in RFC3478 LDP Graceful Restart */
+                        dissect_tlv_ft_session(tvb, offset + 4, tlv_tree, length);
+                        break;
+
+                case TLV_FT_ACK:
+                        if( length != 4 ) /* Length must be 4 bytes */
+                                proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+                                    "Error processing FT ACK TLV: length is %d, should be 4",
+                                    length);
+                        else
+                                proto_tree_add_item(tlv_tree, hf_ldp_tlv_ft_ack_sequence_num, tvb,
+                                    offset + 4,length, FALSE);
+                        break;
+
+                case TLV_FT_CORK:
+                        if( length != 0 ) /* Length must be 0 bytes */
+                                proto_tree_add_text(tlv_tree, tvb, offset + 4, length,
+                                    "Error processing FT Cork TLV: length is %d, should be 0",      
+                                    length);
+                        break;
 
 		case TLV_LABEL_REQUEST_MESSAGE_ID:
 			if( length != 4 ) /*error, need only one msgid*/
@@ -2406,7 +2565,7 @@ proto_register_ldp(void)
       { "Number of ATM Label Ranges", "ldp.msg.tlv.sess.atm.lr", FT_UINT8, BASE_DEC, NULL, 0x3C, "Number of Label Ranges", HFILL }},
 
     { &hf_ldp_tlv_sess_atm_dir,
-      { "Directionality", "ldp.msg.tlv.sess.atm.dir", FT_BOOLEAN, 8, TFS(&tlv_atm_dirbit), 0x02, "Lablel Directionality", HFILL }},
+      { "Directionality", "ldp.msg.tlv.sess.atm.dir", FT_BOOLEAN, 8, TFS(&tlv_atm_dirbit), 0x02, "Label Directionality", HFILL }},
 
     { &hf_ldp_tlv_sess_atm_minvpi,
       { "Minimum VPI", "ldp.msg.tlv.sess.atm.minvpi", FT_UINT16, BASE_DEC, NULL, 0x0FFF, "Minimum VPI", HFILL }},
@@ -2427,7 +2586,7 @@ proto_register_ldp(void)
       { "Number of Frame Relay Label Ranges", "ldp.msg.tlv.sess.fr.lr", FT_UINT8, BASE_DEC, NULL, 0x3C, "Number of Label Ranges", HFILL }},
 
     { &hf_ldp_tlv_sess_fr_dir,
-      { "Directionality", "ldp.msg.tlv.sess.fr.dir", FT_BOOLEAN, 8, TFS(&tlv_atm_dirbit), 0x02, "Lablel Directionality", HFILL }},
+      { "Directionality", "ldp.msg.tlv.sess.fr.dir", FT_BOOLEAN, 8, TFS(&tlv_atm_dirbit), 0x02, "Label Directionality", HFILL }},
 
     { &hf_ldp_tlv_sess_fr_len,
       { "Number of DLCI bits", "ldp.msg.tlv.sess.fr.len", FT_UINT16, BASE_DEC, VALS(tlv_fr_len_vals), 0x0180, "DLCI Number of bits", HFILL }},
@@ -2437,6 +2596,39 @@ proto_register_ldp(void)
 
     { &hf_ldp_tlv_sess_fr_maxdlci,
       { "Maximum DLCI", "ldp.msg.tlv.sess.fr.maxdlci", FT_UINT24, BASE_DEC, NULL, 0x7FFFFF, "Maximum DLCI", HFILL }},
+
+    { &hf_ldp_tlv_ft_sess_flags,
+      { "Flags", "ldp.msg.tlv.ft_sess.flags", FT_UINT16, BASE_HEX, NULL, 0x0, "FT Session Flags", HFILL }},
+
+    { &hf_ldp_tlv_ft_sess_flag_r,
+      { "R bit", "ldp.msg.tlv.ft_sess.flag_r", FT_BOOLEAN, 16, TFS(&tlv_ft_r), 0x8000, "FT Reconnect Flag", HFILL }},
+
+    { &hf_ldp_tlv_ft_sess_flag_res,
+      { "Reserved", "ldp.msg.tlv.ft_sess.flag_res", FT_UINT16, BASE_HEX, NULL, 0x7FF0, "Reserved bits", HFILL }},
+
+    { &hf_ldp_tlv_ft_sess_flag_s,
+      { "S bit", "ldp.msg.tlv.ft_sess.flag_s", FT_BOOLEAN, 16, TFS(&tlv_ft_s), 0x8, "Save State Flag", HFILL }},
+
+    { &hf_ldp_tlv_ft_sess_flag_a,
+      { "A bit", "ldp.msg.tlv.ft_sess.flag_a", FT_BOOLEAN, 16, TFS(&tlv_ft_a), 0x4, "All-Label protection Required", HFILL }},
+
+    { &hf_ldp_tlv_ft_sess_flag_c,
+      { "C bit", "ldp.msg.tlv.ft_sess.flag_c", FT_BOOLEAN, 16, TFS(&tlv_ft_c), 0x2, "Check-Pointint Flag", HFILL }},
+
+    { &hf_ldp_tlv_ft_sess_flag_l,
+      { "L bit", "ldp.msg.tlv.ft_sess.flag_l", FT_BOOLEAN, 16, TFS(&tlv_ft_l), 0x1, "Learn From network Flag", HFILL }},
+
+    { &hf_ldp_tlv_ft_sess_res,
+      { "Reserved", "ldp.msg.tlv.ft_sess.res", FT_UINT16, BASE_HEX, NULL, 0x0, "Reserved", HFILL }},
+
+    { &hf_ldp_tlv_ft_sess_reconn_to,
+      { "Reconnect Timeout", "ldp.msg.tlv.ft_sess.reconn_to", FT_UINT32, BASE_DEC, NULL, 0x0, "FT Reconnect Timeout", HFILL }},
+
+    { &hf_ldp_tlv_ft_sess_recovery_time,
+      { "Recovery Time", "ldp.msg.tlv.ft_sess.recovery_time", FT_UINT32, BASE_DEC, NULL, 0x0, "Recovery Time", HFILL }},
+
+    { &hf_ldp_tlv_ft_ack_sequence_num,
+      { "FT ACK Sequence Number", "ldp.msg.tlv.ft_ack.sequence_num", FT_UINT32, BASE_HEX, NULL, 0x0, "FT ACK Sequence Number", HFILL }},
 
     { &hf_ldp_tlv_lbl_req_msg_id,
       { "Label Request Message ID", "ldp.tlv.lbl_req_msg_id", FT_UINT32, BASE_HEX, NULL, 0x0, "Label Request Message to be aborted", HFILL }},
@@ -2464,6 +2656,9 @@ proto_register_ldp(void)
 
     { &hf_ldp_tlv_fr_label_dlci,
       { "DLCI", "ldp.msg.tlv.fr.label.dlci", FT_UINT24, BASE_DEC, NULL, 0x7FFFFF, "FRAME RELAY Label DLCI", HFILL }},
+
+    { &hf_ldp_tlv_ft_protect_sequence_num,
+      { "FT Sequence Number", "ldp.msg.tlv.ft_protect.sequence_num", FT_UINT32, BASE_HEX, NULL, 0x0, "FT Sequence Number", HFILL }},
 
     { &hf_ldp_tlv_status_ebit,
       { "E Bit", "ldp.msg.tlv.status.ebit", FT_BOOLEAN, 8, TFS(&tlv_status_ebit), 0x80, "Fatal Error Bit", HFILL }},
@@ -2684,6 +2879,7 @@ proto_register_ldp(void)
     &ett_ldp_message,
     &ett_ldp_tlv,
     &ett_ldp_tlv_val,
+    &ett_ldp_tlv_ft_flags,
     &ett_ldp_fec,
     &ett_ldp_fec_vc_interfaceparam,
     &ett_ldp_diffserv_map,

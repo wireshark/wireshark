@@ -2097,6 +2097,12 @@ Lukas Pokorny <maskis [AT] seznam.cz> {
 	RTPS (Real-Time Publish-Subscribe) support
 }
 
+Carlos M. Pignataro <cpignata [AT] cisco.com> {
+	Graceful Restart Mechanism for LDP [RFC3478]
+	Fault Tolerance for LDP [RFC3479]
+	Other LDP enhancements
+}
+
 And assorted fixes and enhancements by the people listed above and by:
 
 	Pavel Roskin <proski [AT] gnu.org>

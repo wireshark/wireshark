@@ -2252,6 +2252,7 @@ B<http://www.ethereal.com>.
   Jon Oberheide            <jon [AT] focalhost.com>
   Clinton Work             <clinton [AT] scripty.com>
   Joe Marcus Clarke        <marcus [AT] marcuscom.com>
+  Carlos M. Pignataro      <cpignata [AT] cisco.com>
 
 Alain Magloire <alainm[AT]rcsm.ece.mcgill.ca> was kind enough to give his
 permission to use his version of snprintf.c.
