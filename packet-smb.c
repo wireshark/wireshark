@@ -3,7 +3,7 @@
  * Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * 2001  Rewrite by Ronnie Sahlberg and Guy Harris
  *
- * $Id: packet-smb.c,v 1.306 2003/02/08 08:55:13 guy Exp $
+ * $Id: packet-smb.c,v 1.307 2003/02/10 02:38:24 guy Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -7238,13 +7238,20 @@ dissect_nt_access_mask(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 	if (drep != NULL) {
 		/*
-		 * XXX - is this *ever* aligned with DCE RPC NDR
-		 * alignment rules?
+		 * Called from a DCE RPC protocol dissector, for a
+		 * protocol where a 32-bit NDR integer contains
+		 * an NT access mask; extract the access mask
+		 * with an NDR call.
 		 */
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, NULL, drep,
 					    hfindex, &access);
 	} else {
-		/* Assume little-endian */
+		/*
+		 * Called from SMB, where the access mask is just a
+		 * 4-byte little-endian quantity with no special
+		 * NDR alignment requirement; extract it with
+		 * "tvb_get_letohl()".
+		 */
 		access = tvb_get_letohl(tvb, offset);
 		offset += 4;
 	}
