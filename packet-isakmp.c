@@ -4,7 +4,7 @@
  * for ISAKMP (RFC 2407)
  * Brad Robel-Forrest <brad.robel-forrest@watchguard.com>
  *
- * $Id: packet-isakmp.c,v 1.48 2001/11/05 21:36:06 guy Exp $
+ * $Id: packet-isakmp.c,v 1.49 2001/11/14 20:02:23 gram Exp $
  *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@ethereal.com>
@@ -1269,6 +1269,8 @@ cfgattrident2str(guint16 ident) {
   case 16525: return "XAUTH_CHALLANGE";
   case 16526: return "XAUTH_DOMAIN";
   case 16527: return "XAUTH_STATUS";
+  case 16528: return "XAUTH_NEXT_PIN";
+  case 16529: return "XAUTH_ANSWER";
   default: return "Private use";
   }
 }
